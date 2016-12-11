@@ -56,11 +56,11 @@
 	<features>
 		<msdp>
 			<!--
-			Allows to turn off MSDP support. Enabled (disabled == false) by default.
+			Позволяет включить поддержку MSDP. Включено по умолчанию.
 			<disabled>true</disabled>
 			-->
 			<!--
-			Enables MSDP debug. By default debug is disabled.
+			Включает отладку протокола MSDP. По умолчанию отладка выключена.
 			<debug>true</debug>
 			-->
 		</msdp>
@@ -79,4 +79,16 @@
 			-->
 		</changelog>
 	</boards>
+
+	<external_triggers>
+		<!--
+			Позволяет включить внешний триггер перезагрузки. По умолчанию такой триггер выключен.
+			Для включения необходимо указать имя файла триггера.
+			
+			При запуске MUD сервер проверит время последнего изменения этого файла. Затем, с некоторым
+			интервалом, сервер будет повторно проверять время последнего изменения данного файла.
+			Если данное время изменится - автоматически будет запущена перезагрузка сервера.
+			<reboot>touch.me.for.reboot</reboot>
+			-->
+	</external_triggers>
 </configuration>

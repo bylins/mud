@@ -495,6 +495,7 @@ void RuntimeConfiguration::load_features_configuration(const pugi::xml_node* roo
 	{
 		return;
 	}
+
 	const auto msdp = features.child("msdp");
 	if (msdp)
 	{
@@ -536,7 +537,6 @@ void RuntimeConfiguration::setup_logs(void)
 
 	setup_converters();
 }
-
 
 void RuntimeConfiguration::load_msdp_configuration(const pugi::xml_node* msdp)
 {
@@ -581,6 +581,21 @@ void RuntimeConfiguration::load_boards_configuration(const pugi::xml_node* root)
 	if (filename)
 	{
 		m_changelog_file_name = filename.child_value();
+	}
+}
+
+void RuntimeConfiguration::load_external_triggers(const pugi::xml_node* root)
+{
+	const auto external_triggers = root->child("external_triggers");
+	if (!external_triggers)
+	{
+		return;
+	}
+
+	const auto reboot_value = external_triggers.child_value("reboot");
+	if (reboot_value)
+	{
+		m_external_reboot_trigger_file_name = reboot_value;
 	}
 }
 
@@ -743,6 +758,7 @@ void RuntimeConfiguration::load_from_file(const char* filename)
 		load_logging_configuration(&root);
 		load_features_configuration(&root);
 		load_boards_configuration(&root);
+		load_external_triggers(&root);
 	}
 	catch (const std::exception& e)
 	{

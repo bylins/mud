@@ -31,6 +31,8 @@
 
 #include "comm.h"
 
+#include "external.trigger.hpp"
+#include "shutdown.parameters.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
 #include "handler.h"
@@ -405,7 +407,6 @@ extern const char *save_info_msg[];	// In olc.cpp
 extern CHAR_DATA *combat_list;
 extern int proc_color(char *inbuf, int color);
 extern void tact_auction(void);
-extern time_t boot_time;
 extern void log_code_date();
 extern void print_rune_log();
 
@@ -418,14 +419,6 @@ struct txt_block *bufpool = 0;	// pool of large output buffers
 int buf_largecount = 0;		// # of large buffers which exist
 int buf_overflows = 0;		// # of overflows of output
 int buf_switches = 0;		// # of switches from small to large buf
-int circle_shutdown = 0;	// clean shutdown
-/*
-circle_shutdown = 0 - do not reboot
-circle_shutdown = 1 - shutdown/reboot normally with RENT_CRASH
-circle_shutdown = 2 - reboot with normal rent
-*/
-int circle_reboot = 0;		// reboot the game after a shutdown
-int shutdown_time = 0;		// reboot at this time
 int no_specials = 0;		// Suppress ass. of special routines
 int max_players = 0;		// max descriptors available
 int tics = 0;			// for extern checkpointing
@@ -437,11 +430,6 @@ unsigned long dg_global_pulse = 0;	// number of pulses since game start
 unsigned long cmd_cnt = 0;
 unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
-
-int reboot_uptime = DEFAULT_REBOOT_UPTIME;	// uptime until reboot in minutes
-
-// Для нового года
-
 
 // внумы комнат, где ставятся елки
 // размер массива 57
@@ -993,12 +981,11 @@ void init_game(ush_int port)
 	Depot::save_all_online_objs();
 	Depot::save_timedata();
 
-	if (circle_shutdown == 2)
+	if (shutdown_parameters.need_normal_shutdown())
 	{
 		log("Entering Crash_save_all_rent");
 		Crash_save_all_rent();	//save all
 	}
-	//Crash_save_all();
 
 	SaveGlobalUID();
 	exchange_database_save();	//exchange database save
@@ -1042,7 +1029,8 @@ void init_game(ush_int port)
 #ifdef HAS_EPOLL
 	free(mother_d);
 #endif
-	if (circle_reboot != 2 && olc_save_list)  	// Don't save zones.
+	if (!shutdown_parameters.reboot_is_2()
+		&& olc_save_list)  	// Don't save zones.
 	{
 		struct olc_save_info *entry, *next_entry;
 		int rznum;
@@ -1091,7 +1079,7 @@ void init_game(ush_int port)
 			}
 		}
 	}
-	if (circle_reboot)
+	if (shutdown_parameters.reboot_after_shutdown())
 	{
 		log("Rebooting.");
 		exit(52);	// what's so great about HHGTTG, anyhow?
@@ -1290,17 +1278,27 @@ int shutting_down(void)
 	static int lastmessage = 0;
 	int wait;
 
-	if (!circle_shutdown)
-		return (FALSE);
-	if (!shutdown_time || time(NULL) >= shutdown_time)
-		return (TRUE);
-	if (lastmessage == shutdown_time || lastmessage == time(NULL))
-		return (FALSE);
-	wait = shutdown_time - time(NULL);
+	if (shutdown_parameters.no_shutdown())
+	{
+		return FALSE;
+	}
+
+	if (!shutdown_parameters.get_shutdown_timeout()
+		|| time(nullptr) >= shutdown_parameters.get_shutdown_timeout())
+	{
+		return TRUE;
+	}
+
+	if (lastmessage == shutdown_parameters.get_shutdown_timeout()
+		|| lastmessage == time(nullptr))
+	{
+		return FALSE;
+	}
+	wait = shutdown_parameters.get_shutdown_timeout() - time(nullptr);
 
 	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0)
 	{
-		if (circle_reboot)
+		if (shutdown_parameters.reboot_after_shutdown())
 		{
 			remove("../.crash");
 			sprintf(buf, "ПЕРЕЗАГРУЗКА через ");
@@ -1706,9 +1704,6 @@ void game_loop(socket_t mother_desc)
 			heartbeat(missed_pulses);
 		}
 
-		// dupe_player_index();
-		// _exit(0);
-
 #ifdef CIRCLE_UNIX
 		// Update tics for deadlock protection (UNIX only)
 		tics++;
@@ -1729,25 +1724,41 @@ extern InspReqListType inspect_list;
 
 extern SetAllInspReqListType setall_inspect_list;
 extern void setall_inspect();
-inline void heartbeat(const int missed_pulses)
+
+void check_external_reboot_trigget(const int pulse)
+{
+	if (0 != pulse % PASSES_PER_SEC)
+	{
+		return;
+	}
+
+	static ExternalTriggerChecker reboot(runtime_config.external_reboot_trigger_file_name());
+
+	if (reboot.check())
+	{
+		mudlog("Сработал внешний триггер перезагрузки.", DEF, LVL_IMPL, SYSLOG, true);
+		shutdown_parameters.reboot();
+	}
+}
+
+void heartbeat(const int missed_pulses)
 {
 	static int mins_since_crashsave = 0, pulse = 0;
-//	static int lr_firstrun = 1;
 	int uptime_minutes = 0;
 	long check_at = 0;
-//	static struct tm syslog_o;
-//	struct tm *syslog_n;
-//	static long syslog_pos = 0;
 
 	pulse++;
 	// Roll pulse over after 10 hours
 	if (pulse >= (600 * 60 * PASSES_PER_SEC))
+	{
 		pulse = 0;
+	}
 
 	dg_global_pulse++;
 
 	if (!(pulse % PASSES_PER_SEC))
 	{
+		const auto boot_time = shutdown_parameters.get_boot_time();
 		uptime_minutes = ((time(NULL) - boot_time) / 60);
 	}
 
@@ -1761,59 +1772,24 @@ inline void heartbeat(const int missed_pulses)
 	if ((pulse % (PASSES_PER_SEC * 120 * 60)) == 0)
 	{
 		GlobalDrop::reload_tables();
-		
 	}
-	
-	
-	// каждые 8 часов
-	/*
-	if ((pulse % (PASSES_PER_SEC * 60 * 60 * 8) ) == 0
-	{
-		ClanListType::const_iterator clan;
-		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
-		{
-			(*clan)->set_rep((*clan)->get_rep()++);			
-		}
-	}*/
-	
-	
-	//log("---------- Start heartbeat ----------");
-	//log("Process events...");
+
 	process_events();
-	//log("Stop it...");
 
 	if (!((pulse + 1) % PULSE_DG_SCRIPT))  	//log("Triggers check...");
 	{
 		script_trigger_check();
-		//log("Stop it...");
 	}
 
-	if (!((pulse + 2) % (60 * PASSES_PER_SEC)))  	//log("Sanity check...");
+	if (!((pulse + 2) % (60 * PASSES_PER_SEC)))
 	{
 		sanity_check();
-		//log("Stop it...");
 	}
-
-	/*** Remove after hour update
-	if (!(pulse % PULSE_ZONE))
-	   {//log("Zone update...");
-	    zone_update();
-	   }
-	 ****************************/
 
 	if (!(pulse % (40 * PASSES_PER_SEC)))
-	{	// 40 seconds log("Check idle password...");
+	{
 		check_idle_passwords();
-		//log("Stop it...");
 	}
-	/* Old proc
-	   if (!(pulse % PULSE_MOBILE))
-	   {// log("Mobile activity...");
-		mobile_activity();
-	   }
-	 */
-	//log("Mobile activity...");
-//  mobile_activity(pulse % PULSE_MOBILE);
 
 // экономим процессор. mobile_activity() дергать каждый пульс совсем не обязательно.
 // второй аргумент -- период вызова в пульсах
@@ -1823,12 +1799,16 @@ inline void heartbeat(const int missed_pulses)
 	{
 		mobile_activity(pulse, 10);
 	}
-	//log("Stop it...");
+
 	if ((missed_pulses == 0) && (inspect_list.size() > 0))
+	{
 		inspecting();
+	}
 		
 	if ((missed_pulses == 0) && (setall_inspect_list.size() > 0))
+	{
 		setall_inspect();
+	}
 
 	if (!(pulse % (2 * PASSES_PER_SEC)))
 	{
@@ -1844,54 +1824,43 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!(pulse % (30 * PASSES_PER_SEC)))
 	{
-		//make_who2html();
-		if (uptime_minutes >= (reboot_uptime - 30) && shutdown_time == 0)
+		if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
+			&& shutdown_parameters.get_shutdown_timeout() == 0)
 		{
 			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
 			send_to_all("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
-			shutdown_time = time(NULL) + 1800;
-			circle_shutdown = 2;
-			circle_reboot = 1;
+			shutdown_parameters.reboot(1800);
 		}
 	}
+
+	check_external_reboot_trigget(pulse);
 
 	if (!(pulse % (AUCTION_PULSES * PASSES_PER_SEC)))  	//log("Auction update...");
 	{
 		tact_auction();
-		//log("Stop it...");
 	}
 
-	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))  	//log ("Player affect update...");
+	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))
 	{
 		RoomSpells::room_affect_update();
-		//log("Stop it...");
 	}
 
-	if (!(pulse % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC)))  	//log ("Player affect update...");
+	if (!(pulse % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC)))
 	{
 		player_affect_update();
-		//log("Stop it...");
 	}
 
-
-
-	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))  	//log("Hour msg update...");
+	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		hour_update();
 		Bonus::timer_bonus();
-		//log("Stop it...");
-		//log("Weather and time...");
 		weather_and_time(1);
-		//log("Stop it...");
-		//log("Paste mobiles...");
 		paste_mobiles();
-		//log("Stop it...");
 	}
 
-	if (!((pulse + 5) % PULSE_ZONE))  	//log("Zone update...");
+	if (!((pulse + 5) % PULSE_ZONE))
 	{
 		zone_update();
-		//log("Stop it...");
 	}
 
 	if (!((pulse + 49) % (60 * 60 * PASSES_PER_SEC)))
@@ -1905,12 +1874,13 @@ inline void heartbeat(const int missed_pulses)
 	{
 		mob_stat::save();
 	}
+
 	if (!((pulse + 52) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
 		SetsDrop::save_drop_table();
 	}
 
-// раз в 10 минут >> ///////////////////////////////////////////////////////////
+	// раз в 10 минут >> ///////////////////////////////////////////////////////////
 
 	// если здесь прибавляется больше 25 пульсов - это фигня, потому что
 	// перекрываться с другими тайм-фреймами они так или иначе будут в любом случае
@@ -1923,26 +1893,31 @@ inline void heartbeat(const int missed_pulses)
 	{
 		ClanSystem::save_chest_log();
 	}
+
 	// сохранение клан-хранов для ингров
 	if (!((pulse + 48) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
 		ClanSystem::save_ingr_chests();
 	}
+
 	// убитые мобы для глобал-дропа
 	if (!((pulse + 47) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
 		GlobalDrop::save();
 	}
+
 	// снятие денег за шмот в клановых сундуках
 	if (!((pulse + 46) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
 		Clan::ChestUpdate();
 	}
+
 	// сохранение клан-хранов
 	if (!((pulse + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
 		Clan::SaveChestAll();
 	}
+
 	// и самих кланов
 	if (!((pulse + 40) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
@@ -1954,26 +1929,31 @@ inline void heartbeat(const int missed_pulses)
 	{
 		Celebrates::sanitize();
 	}
+
 // раз в 5 минут >> ////////////////////////////////////////////////////////////
 
 	if (!((pulse + 37) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		record_usage();
 	}
+
 	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
 	}
+
 	// вывод иммам о неодобренных именах и титулах
 	if (!((pulse + 35) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		god_work_invoice();
 	}
+
 	// сейв титулов, ждущих одобрения
 	if (!((pulse + 34) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		TitleSystem::save_title_list();
 	}
+
 	// сейв зареганных мыл
 	if (!((pulse + 33) % (5 * 60 * PASSES_PER_SEC)))
 	{
@@ -2018,6 +1998,7 @@ inline void heartbeat(const int missed_pulses)
 	{
 		ShopExt::update_timers();
 	}
+
 	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
@@ -2028,21 +2009,25 @@ inline void heartbeat(const int missed_pulses)
 	{
 		Parcel::update_timers();
 	}
+
 	// апдейт таймеров славы
 	if (!((pulse + 23) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		Glory::timers_update();
 	}
+
 	// сохранение файла славы
 	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		Glory::save_glory();
 	}
+
 	// сохранение онлайновых списков шмота
 	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		Depot::save_all_online_objs();
 	}
+
 	// сохранение таймер-инфы всех шмоток в общий файл
 	if (!((pulse + 17) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
@@ -2082,16 +2067,14 @@ inline void heartbeat(const int missed_pulses)
 
 // << раз в минуту /////////////////////////////////////////////////////////////
 
-	if (pulse == 720)  	//log("Dupe player index...");
+	if (pulse == 720)
 	{
 		dupe_player_index();
-		//log("Stop it...");
 	}
-	//log("Beat points update...");
+
 	if (!(pulse % PASSES_PER_SEC))
 	{
 		beat_points_update(pulse / PASSES_PER_SEC);
-		//  log("Stop it...");
 	}
 
 #if defined WITH_SCRIPTING
@@ -2101,16 +2084,13 @@ inline void heartbeat(const int missed_pulses)
 	}
 #endif
 
-	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game secunde
+	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game second
 	{
-		//log("Fractional Crash save all...");
 		Crash_frac_save_all((pulse / PASSES_PER_SEC) % PLAYER_SAVE_ACTIVITY);
-		//log("Stop it...");
-		//log("Fractional Rent timer save all...");
 		Crash_frac_rent_time((pulse / PASSES_PER_SEC) % OBJECT_SAVE_ACTIVITY);
-		//log("Stop it...");
 	}
-//F@N++
+
+
 	if (EXCHANGE_AUTOSAVETIME && auto_save && !((pulse + 9) % (EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC)))
 	{
 		exchange_database_save();
@@ -2120,7 +2100,6 @@ inline void heartbeat(const int missed_pulses)
 	{
 		exchange_database_save(true);
 	}
-//F@N--
 
 	if (auto_save && !((pulse + 9) % (60 * PASSES_PER_SEC)))
 	{
@@ -2132,19 +2111,14 @@ inline void heartbeat(const int missed_pulses)
 		if (++mins_since_crashsave >= autosave_time)
 		{
 			mins_since_crashsave = 0;
-			//log("Crash save all...");
 			Crash_save_all();
-			//log("Stop it...");
 			check_at = time(NULL);
 			if (last_rent_check > check_at)
 				last_rent_check = check_at;
-			if (((check_at - last_rent_check) / 60))  	//log("Crash rent time...");
+			if (((check_at - last_rent_check) / 60))
 			{
-				//long save_start = time(NULL);
 				Crash_rent_time((check_at - last_rent_check) / 60);
-				//log("Saving rent timer time = %ld(s)",time(NULL) - save_start);
 				last_rent_check = time(NULL) - (check_at - last_rent_check) % 60;
-				//log("Stop it...");
 			}
 		}
 	}
@@ -2155,11 +2129,13 @@ inline void heartbeat(const int missed_pulses)
 		update_clan_exp();
 		save_clan_exp();
 	}
+
 	// оповещение о скорой кончине денег в дружине
 	if (!((pulse + 15) % (60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC)))
 	{
 		Clan::ChestInvoice();
 	}
+
 	// обновление статов экспы в топе кланов для тех, кто вырубил показ на лету
 	if (!((pulse + 16) % (60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC)))
 	{
@@ -2181,9 +2157,7 @@ inline void heartbeat(const int missed_pulses)
 			SpellUsage::save();
 			SpellUsage::clear();
 		}
-
 	}
-	//log("---------- Stop heartbeat ----------");
 }
 
 

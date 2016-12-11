@@ -35,6 +35,7 @@ set(SOURCES
 	src/class.cpp
 	src/color.cpp
 	src/comm.cpp
+	src/commands.shutdown.cpp
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
@@ -60,6 +61,7 @@ set(SOURCES
 	src/dps.cpp
 	src/exchange.cpp
 	src/ext_money.cpp
+	src/external.trigger.cpp
 	src/features.cpp
 	src/fight.cpp
 	src/fight_hit.cpp
@@ -120,6 +122,7 @@ set(SOURCES
 	src/room.cpp
 	src/sets_drop.cpp
 	src/shop_ext.cpp
+	src/shutdown.parameters.cpp
 	src/skills.cpp
 	src/spam.cpp
 	src/spec_assign.cpp
@@ -161,6 +164,7 @@ set(HEADERS
 	src/char_player.hpp
 	src/class.hpp
 	src/comm.h
+	src/commands.shutdown.hpp
 	src/conf.h
 	src/config.hpp
 	src/constants.h
@@ -181,6 +185,7 @@ set(HEADERS
 	src/dps.hpp
 	src/exchange.h
 	src/ext_money.hpp
+	src/external.trigger.hpp
 	src/features.hpp
 	src/fight_constants.hpp
 	src/fight.h
@@ -235,6 +240,7 @@ set(HEADERS
 	src/screen.h
 	src/sets_drop.hpp
 	src/shop_ext.hpp
+	src/shutdown.parameters.hpp
 	src/skills.h
 	src/spam.hpp
 	src/spell_parser.hpp
@@ -568,4 +574,3 @@ if (BUILD_TESTS)
 endif ()
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
-
