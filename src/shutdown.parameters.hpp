@@ -49,6 +49,6 @@ private:
 
 extern ShutdownParameters shutdown_parameters;
 
-#endif __SHUTDOWN_PARAMETERS_HPP__
+#endif // __SHUTDOWN_PARAMETERS_HPP__
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
