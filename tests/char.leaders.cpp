@@ -53,8 +53,16 @@ TEST(CHAR_Leaders, TripleChain)
 	EXPECT_EQ(nullptr, character3->get_master());
 }
 
-TEST(CHAR_Leaders, LoopCheck)
+TEST(CHAR_Leaders, SimpleLoop)
 {
+	test_utils::CharacterBuilder builder;
+
+	builder.create_new();
+	auto character = builder.get();
+
+	character->set_master(character.get());
+	EXPECT_EQ(false, character->has_master());
+	EXPECT_EQ(nullptr, character->get_master());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
