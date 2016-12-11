@@ -8,6 +8,7 @@ release:
                 - cmake --build .
                 - cmake --build . --target checks
                 - mv circle ..
+                - iconv -c -f utf8 -t koi8-r changelog > ../changelog
         cache:
                 key: "$CI_BUILD_REF_NAME/Release"
                 untracked: true
@@ -17,10 +18,10 @@ release:
                 name: "circle-release"
                 paths:
                         - circle
+                        - changelog
                 expire_in: 1 week
         tags:
                 - builder
-
 
 debug:
         script:
@@ -30,6 +31,7 @@ debug:
                 - cmake --build .
                 - cmake --build . --target checks
                 - mv circle ..
+                - iconv -c -f utf8 -t koi8-r changelog > ../changelog
         cache:
                 key: "$CI_BUILD_REF_NAME/Debug"
                 untracked: true
@@ -39,6 +41,7 @@ debug:
                 name: "circle-debug"
                 paths:
                         - circle
+                        - changelog
                 expire_in: 1 week
         tags:
                 - builder
