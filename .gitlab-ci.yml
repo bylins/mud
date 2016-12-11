@@ -55,6 +55,8 @@ deploy-debug:
         script:
                 - rm -rf ${BYLINS_DEBUG_HOME}/circle || true
                 - cp -af circle ${BYLINS_DEBUG_HOME}
+                - rm -rf ${BYLINS_DEBUG_HOME}/changelog || true
+                - cp -af changelog ${BYLINS_DEBUG_HOME}
                 - touch ${BYLINS_DEBUG_HOME}/lib/external.triggers/touch.me.for.reboot
         when: manual
         tags:
@@ -71,6 +73,8 @@ deploy-release:
         script:
                 - rm -rf ${BYLINS_DEBUG_HOME}/circle || true
                 - cp -af circle ${BYLINS_RELEASE_HOME}
+                - rm -rf ${BYLINS_DEBUG_HOME}/changelog || true
+                - cp -af changelog ${BYLINS_RELEASE_HOME}
                 - touch ${BYLINS_RELEASE_HOME}/lib/external.triggers/touch.me.for.reboot
         when: manual
         tags:
