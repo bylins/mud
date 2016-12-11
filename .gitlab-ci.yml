@@ -71,9 +71,9 @@ deploy-release:
         dependencies:
                 - release
         script:
-                - rm -rf ${BYLINS_DEBUG_HOME}/circle || true
+                - rm -rf ${BYLINS_RELEASE_HOME}/circle || true
                 - cp -af circle ${BYLINS_RELEASE_HOME}
-                - rm -rf ${BYLINS_DEBUG_HOME}/changelog || true
+                - rm -rf ${BYLINS_RELEASE_HOME}/changelog || true
                 - cp -af changelog ${BYLINS_RELEASE_HOME}
                 - touch ${BYLINS_RELEASE_HOME}/lib/external.triggers/touch.me.for.reboot
         when: manual
