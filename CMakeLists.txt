@@ -35,6 +35,7 @@ set(SOURCES
 	src/class.cpp
 	src/color.cpp
 	src/comm.cpp
+	src/commands.shutdown.cpp
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
@@ -120,6 +121,7 @@ set(SOURCES
 	src/room.cpp
 	src/sets_drop.cpp
 	src/shop_ext.cpp
+	src/shutdown.parameters.cpp
 	src/skills.cpp
 	src/spam.cpp
 	src/spec_assign.cpp
@@ -161,6 +163,7 @@ set(HEADERS
 	src/char_player.hpp
 	src/class.hpp
 	src/comm.h
+	src/commands.shutdown.hpp
 	src/conf.h
 	src/config.hpp
 	src/constants.h
@@ -235,6 +238,7 @@ set(HEADERS
 	src/screen.h
 	src/sets_drop.hpp
 	src/shop_ext.hpp
+	src/shutdown.parameters.hpp
 	src/skills.h
 	src/spam.hpp
 	src/spell_parser.hpp

@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "shutdown.parameters.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -4658,10 +4659,9 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	page_string(ch->desc, out);
 }
 
-extern time_t boot_time;
-
 std::string print_server_uptime()
 {
+	const auto boot_time = shutdown_parameters.get_boot_time();
 	time_t diff = time(0) - boot_time;
 	int d = diff / 86400;
 	int h = (diff / 3600) % 24;

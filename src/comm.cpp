@@ -31,6 +31,7 @@
 
 #include "comm.h"
 
+#include "shutdown.parameters.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
 #include "handler.h"
@@ -405,7 +406,6 @@ extern const char *save_info_msg[];	// In olc.cpp
 extern CHAR_DATA *combat_list;
 extern int proc_color(char *inbuf, int color);
 extern void tact_auction(void);
-extern time_t boot_time;
 extern void log_code_date();
 extern void print_rune_log();
 
@@ -418,14 +418,6 @@ struct txt_block *bufpool = 0;	// pool of large output buffers
 int buf_largecount = 0;		// # of large buffers which exist
 int buf_overflows = 0;		// # of overflows of output
 int buf_switches = 0;		// # of switches from small to large buf
-int circle_shutdown = 0;	// clean shutdown
-/*
-circle_shutdown = 0 - do not reboot
-circle_shutdown = 1 - shutdown/reboot normally with RENT_CRASH
-circle_shutdown = 2 - reboot with normal rent
-*/
-int circle_reboot = 0;		// reboot the game after a shutdown
-int shutdown_time = 0;		// reboot at this time
 int no_specials = 0;		// Suppress ass. of special routines
 int max_players = 0;		// max descriptors available
 int tics = 0;			// for extern checkpointing
@@ -437,11 +429,6 @@ unsigned long dg_global_pulse = 0;	// number of pulses since game start
 unsigned long cmd_cnt = 0;
 unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
-
-int reboot_uptime = DEFAULT_REBOOT_UPTIME;	// uptime until reboot in minutes
-
-// Для нового года
-
 
 // внумы комнат, где ставятся елки
 // размер массива 57
@@ -993,12 +980,11 @@ void init_game(ush_int port)
 	Depot::save_all_online_objs();
 	Depot::save_timedata();
 
-	if (circle_shutdown == 2)
+	if (shutdown_parameters.need_normal_shutdown())
 	{
 		log("Entering Crash_save_all_rent");
 		Crash_save_all_rent();	//save all
 	}
-	//Crash_save_all();
 
 	SaveGlobalUID();
 	exchange_database_save();	//exchange database save
@@ -1042,7 +1028,8 @@ void init_game(ush_int port)
 #ifdef HAS_EPOLL
 	free(mother_d);
 #endif
-	if (circle_reboot != 2 && olc_save_list)  	// Don't save zones.
+	if (!shutdown_parameters.reboot_is_2()
+		&& olc_save_list)  	// Don't save zones.
 	{
 		struct olc_save_info *entry, *next_entry;
 		int rznum;
@@ -1091,7 +1078,7 @@ void init_game(ush_int port)
 			}
 		}
 	}
-	if (circle_reboot)
+	if (shutdown_parameters.reboot_after_shutdown())
 	{
 		log("Rebooting.");
 		exit(52);	// what's so great about HHGTTG, anyhow?
@@ -1290,17 +1277,27 @@ int shutting_down(void)
 	static int lastmessage = 0;
 	int wait;
 
-	if (!circle_shutdown)
-		return (FALSE);
-	if (!shutdown_time || time(NULL) >= shutdown_time)
-		return (TRUE);
-	if (lastmessage == shutdown_time || lastmessage == time(NULL))
-		return (FALSE);
-	wait = shutdown_time - time(NULL);
+	if (shutdown_parameters.no_shutdown())
+	{
+		return FALSE;
+	}
+
+	if (!shutdown_parameters.get_shutdown_timeout()
+		|| time(nullptr) >= shutdown_parameters.get_shutdown_timeout())
+	{
+		return TRUE;
+	}
+
+	if (lastmessage == shutdown_parameters.get_shutdown_timeout()
+		|| lastmessage == time(nullptr))
+	{
+		return FALSE;
+	}
+	wait = shutdown_parameters.get_shutdown_timeout() - time(nullptr);
 
 	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0)
 	{
-		if (circle_reboot)
+		if (shutdown_parameters.reboot_after_shutdown())
 		{
 			remove("../.crash");
 			sprintf(buf, "ПЕРЕЗАГРУЗКА через ");
@@ -1729,15 +1726,12 @@ extern InspReqListType inspect_list;
 
 extern SetAllInspReqListType setall_inspect_list;
 extern void setall_inspect();
+
 inline void heartbeat(const int missed_pulses)
 {
 	static int mins_since_crashsave = 0, pulse = 0;
-//	static int lr_firstrun = 1;
 	int uptime_minutes = 0;
 	long check_at = 0;
-//	static struct tm syslog_o;
-//	struct tm *syslog_n;
-//	static long syslog_pos = 0;
 
 	pulse++;
 	// Roll pulse over after 10 hours
@@ -1748,6 +1742,7 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!(pulse % PASSES_PER_SEC))
 	{
+		const auto boot_time = shutdown_parameters.get_boot_time();
 		uptime_minutes = ((time(NULL) - boot_time) / 60);
 	}
 
@@ -1844,21 +1839,18 @@ inline void heartbeat(const int missed_pulses)
 
 	if (!(pulse % (30 * PASSES_PER_SEC)))
 	{
-		//make_who2html();
-		if (uptime_minutes >= (reboot_uptime - 30) && shutdown_time == 0)
+		if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
+			&& shutdown_parameters.get_shutdown_timeout() == 0)
 		{
 			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
 			send_to_all("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
-			shutdown_time = time(NULL) + 1800;
-			circle_shutdown = 2;
-			circle_reboot = 1;
+			shutdown_parameters.reboot(1800);
 		}
 	}
 
 	if (!(pulse % (AUCTION_PULSES * PASSES_PER_SEC)))  	//log("Auction update...");
 	{
 		tact_auction();
-		//log("Stop it...");
 	}
 
 	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))  	//log ("Player affect update...");

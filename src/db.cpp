@@ -16,6 +16,7 @@
 
 #include "db.h"
 
+#include "shutdown.parameters.hpp"
 #include "boards.h"
 #include "ban.hpp"
 #include "birth_places.hpp"
@@ -112,7 +113,6 @@ int top_of_p_table = 0;		// ref to top of table
 int top_of_p_file = 0;		// ref of size of p file
 long top_idnum = 0;		// highest idnum in use
 
-time_t boot_time = 0;		// time of mud boot
 int circle_restrict = 0;	// level of game restriction
 room_rnum r_mortal_start_room;	// rnum of mortal start room
 room_rnum r_immort_start_room;	// rnum of immort start room
@@ -142,7 +142,6 @@ const FLAG_DATA clear_flags;
 
 struct portals_list_type *portals_list;	// Список проталов для townportal
 int now_entrycount = FALSE;
-extern int reboot_uptime;
 
 extern int number_of_social_messages;
 extern int number_of_social_commands;
@@ -834,40 +833,46 @@ void load_sheduled_reboot()
 	}
 	fclose(sch);
 
-	timeOffset = (int) difftime(currTime, boot_time);
+	timeOffset = (int) difftime(currTime, shutdown_parameters.get_boot_time());
 
 	//set reboot_uptime equal to current uptime and align to the start of the day
-	reboot_uptime = timeOffset / 60 - localtime(&currTime)->tm_min - 60 * (localtime(&currTime)->tm_hour);
-	for (int i = localtime(&boot_time)->tm_wday; i < 7; i++)
+	shutdown_parameters.set_reboot_uptime(timeOffset / 60 - localtime(&currTime)->tm_min - 60 * (localtime(&currTime)->tm_hour));
+	const auto boot_time = shutdown_parameters.get_boot_time();
+	const auto local_boot_time = localtime(&boot_time);
+	for (int i = local_boot_time->tm_wday; i < 7; i++)
 	{
 		//7 empty days was cycled - break with default uptime
-		if (reboot_uptime - 1440 * 7 >= 0)
+		if (shutdown_parameters.get_reboot_uptime() - 1440 * 7 >= 0)
 		{
-			reboot_uptime = DEFAULT_REBOOT_UPTIME;	//2 days reboot bu default if no schedule
+			shutdown_parameters.set_reboot_uptime(DEFAULT_REBOOT_UPTIME);	//2 days reboot bu default if no schedule
 			break;
 		}
+
 		//if we get non-1-full-day offset, but server will reboot to early (36 hour is minimum)
 		//we are going to find another scheduled day
-		if (offsets[i] < 24 * 60 && (reboot_uptime + offsets[i]) < UPTIME_THRESHOLD * 60)
+		if (offsets[i] < 24 * 60 && (shutdown_parameters.get_reboot_uptime() + offsets[i]) < UPTIME_THRESHOLD * 60)
 		{
-			reboot_uptime += 24 * 60;
+			shutdown_parameters.set_reboot_uptime(shutdown_parameters.get_reboot_uptime() + 24*60);
 		}
 		//we've found next point of reboot! :) break cycle
-		if (offsets[i] < 24 * 60 && (reboot_uptime + offsets[i]) > UPTIME_THRESHOLD * 60)
+		if (offsets[i] < 24*60
+			&& (shutdown_parameters.get_reboot_uptime() + offsets[i]) > UPTIME_THRESHOLD * 60)
 		{
-			reboot_uptime += offsets[i];
+			shutdown_parameters.set_reboot_uptime(shutdown_parameters.get_reboot_uptime() + offsets[i]);
 			break;
 		}
 		//empty day - add 24 hour and go next
 		if (offsets[i] == 24 * 60)
 		{
-			reboot_uptime += offsets[i];
+			shutdown_parameters.set_reboot_uptime(shutdown_parameters.get_reboot_uptime() + offsets[i]);
 		}
 		// jump to 1st day of the week
 		if (i == 6)
+		{
 			i = -1;
+		}
 	}
-	log("Setting up reboot_uptime: %i", reboot_uptime);
+	log("Setting up reboot_uptime: %i", shutdown_parameters.get_reboot_uptime());
 }
 
 // Базовая функция загрузки XML конфигов
@@ -971,8 +976,6 @@ void load_random_obj()
 	}
 }
 
-
-
 /*
  * Too bad it doesn't check the return values to let the user
  * know about -1 values.  This will result in an 'Okay.' to a
@@ -986,7 +989,9 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!str_cmp(arg, "all") || *arg == '*')
 	{
 		if (file_to_string_alloc(GREETINGS_FILE, &GREETINGS) == 0)
+		{
 			prune_crlf(GREETINGS);
+		}
 		file_to_string_alloc(IMMLIST_FILE, &immlist);
 		file_to_string_alloc(CREDITS_FILE, &credits);
 		file_to_string_alloc(MOTD_FILE, &motd);
@@ -1008,7 +1013,6 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		load_morphs();
 		GlobalDrop::init();
 		OfftopSystem::init();
-		//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 		Celebrates::load();
 		HelpSystem::reload_all();
 		Remort::init();
@@ -2609,7 +2613,7 @@ void boot_db(void)
 	boot_profiler.next_step("Loading bonus log");
 	Bonus::bonus_log_load();
 
-	boot_time = time(0);
+	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
 }
 

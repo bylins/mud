@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "commands.shutdown.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -86,13 +87,10 @@ extern struct zone_data *zone_table;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
 extern const char *weapon_affects[];
-extern time_t boot_time;
-extern int circle_shutdown, circle_reboot;
 extern int circle_restrict;
 extern int load_into_inventory;
 extern int buf_switches, buf_largecount, buf_overflows;
 extern mob_rnum top_of_mobt;
-extern int shutdown_time;
 extern CHAR_DATA *mob_proto;
 void medit_save_to_disk(int zone_num);
 extern const char *Dirs[];
@@ -106,7 +104,6 @@ extern struct spell_info_type spell_info[];
 extern void agree_name(CHAR_DATA * d, const char *immname, int immlev);
 extern void disagree_name(CHAR_DATA * d, const char *immname, int immlev);
 // privileges class
-extern int reboot_uptime;
 extern BanList *ban;
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect);	// to avoid inclusion of utils.h
@@ -2811,112 +2808,12 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_shutdown(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	static char const *help =
-		"Формат команды shutdown [reboot|die|pause] кол-во секунд\r\n"
-		"               shutdown schedule кол-во минут\r\n"
-		"               shutdown now|cancel|schedule";
-
-	two_arguments(argument, arg, buf);
-
-	if (!*arg)
+	commands::Shutdown command(ch, argument, shutdown_parameters);
+	if (command.parse_arguments())
 	{
-		send_to_char(help, ch);
-		return;
+		command.execute();
 	}
-
-	int times = 0;
-	if (*buf)
-	{
-		times = atoi(buf);
-	}
-
-	if (!str_cmp(arg, "reboot") && times > 0)
-	{
-		times = MAX(30, times);
-		sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-		send_to_all(buf);
-		log("(GC) Reboot by %s.", GET_NAME(ch));
-		imm_log("Reboot by %s.", GET_NAME(ch));
-		touch(FASTBOOT_FILE);
-		circle_shutdown = 2;
-		circle_reboot = 1;
-		shutdown_time = time(0) + times;
-		return;
-	}
-	else if (!str_cmp(arg, "die") && times > 0)
-	{
-		times = MAX(30, times);
-		sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-		send_to_all(buf);
-		log("(GC) Shutdown die by %s.", GET_NAME(ch));
-		imm_log("Shutdown die by %s.", GET_NAME(ch));
-		touch(KILLSCRIPT_FILE);
-		circle_shutdown = 2;
-		circle_reboot = 0;
-		shutdown_time = time(0) + times;
-		return;
-	}
-	else if (!str_cmp(arg, "pause") && times > 0)
-	{
-		times = MAX(30, times);
-		sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-		send_to_all(buf);
-		log("(GC) Shutdown pause by %s.", GET_NAME(ch));
-		imm_log("Shutdown pause by %s.", GET_NAME(ch));
-		touch(PAUSE_FILE);
-		circle_shutdown = 2;
-		circle_reboot = 0;
-		shutdown_time = time(0) + times;
-		return;
-	}
-	else if (!str_cmp(arg, "now"))
-	{
-		sprintf(buf, "(GC) Shutdown NOW by %s.", GET_NAME(ch));
-		log("%s",buf);
-		imm_log("Shutdown NOW by %s.", GET_NAME(ch));
-		send_to_all("ПЕРЕЗАГРУЗКА.. Вернетесь через пару минут.\r\n");
-		circle_shutdown = 1;
-		circle_reboot = 2;
-		shutdown_time = 0;
-		return;
-	}
-	else if (!str_cmp(arg, "schedule"))
-	{
-		if (times <= 0)
-		{
-			time_t tmp_time = boot_time + (time_t)(60 * reboot_uptime);
-			send_to_char(ch, "Сервер будет автоматически перезагружен в %s\r\n",
-				rustime(localtime(&tmp_time)));
-			return;
-		}
-
-		time_t uptime = time(0) - boot_time;
-		reboot_uptime = uptime / 60 + times;
-		circle_shutdown = 0;
-		circle_reboot = 0;
-		shutdown_time = 0;
-
-		time_t tmp_time = boot_time + (time_t)(60 * reboot_uptime);
-		send_to_char(ch, "Сервер будет автоматически перезагружен в %s\r\n",
-			rustime(localtime(&tmp_time)));
-		log("(GC) Shutdown scheduled by %s.", GET_NAME(ch));
-		imm_log("Shutdown scheduled by %s.", GET_NAME(ch));
-		return;
-	}
-	else if (!str_cmp(arg, "cancel"))
-	{
-		log("(GC) Shutdown canceled by %s.", GET_NAME(ch));
-		imm_log("Shutdown canceled by %s.", GET_NAME(ch));
-		send_to_all("ПЕРЕЗАГРУЗКА ОТМЕНЕНА.\r\n");
-
-		circle_reboot = 0;
-		circle_shutdown = 0;
-		shutdown_time = 0;
-		return;
-	}
-	send_to_char(help, ch);
 }
-
 
 void stop_snooping(CHAR_DATA * ch)
 {
@@ -4104,18 +4001,24 @@ void do_date(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 	int d, h, m, s;
 
 	if (subcmd == SCMD_DATE)
-		mytime = time(0);
+	{
+		mytime = time(nullptr);
+	}
 	else
-		mytime = boot_time;
+	{
+		mytime = shutdown_parameters.get_boot_time();
+	}
 
 	tmstr = (char *) asctime(localtime(&mytime));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
 
 	if (subcmd == SCMD_DATE)
+	{
 		sprintf(buf, "Текущее время сервера : %s\r\n", tmstr);
+	}
 	else
 	{
-		mytime = time(0) - boot_time;
+		mytime = time(0) - shutdown_parameters.get_boot_time();
 		d = mytime / 86400;
 		h = (mytime / 3600) % 24;
 		m = (mytime / 60) % 60;
@@ -4971,7 +4874,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
 		sprintf(buf + strlen(buf), "  Максимальный ID - %ld\r\n", max_id);
 		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n",
-			static_cast<unsigned long>((cmd_cnt * 60) / (time(0) - boot_time)));
+			static_cast<unsigned long>((cmd_cnt * 60) / (time(0) - shutdown_parameters.get_boot_time())));
 		send_to_char(buf, ch);
 		Depot::show_stats(ch);
 		Glory::show_stats(ch);
