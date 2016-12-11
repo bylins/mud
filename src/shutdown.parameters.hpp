@@ -6,8 +6,11 @@
 class ShutdownParameters
 {
 public:
+	constexpr static int DEFAULT_REBOOT_TIMEOUT = 30;
+
 	ShutdownParameters();
 
+	void reboot() { reboot(DEFAULT_REBOOT_TIMEOUT); }
 	void reboot(const int timeout);
 	void shutdown(const int timeout);
 	void shutdown_now();

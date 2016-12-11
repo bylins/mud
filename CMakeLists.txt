@@ -61,6 +61,7 @@ set(SOURCES
 	src/dps.cpp
 	src/exchange.cpp
 	src/ext_money.cpp
+	src/external.trigger.cpp
 	src/features.cpp
 	src/fight.cpp
 	src/fight_hit.cpp
@@ -184,6 +185,7 @@ set(HEADERS
 	src/dps.hpp
 	src/exchange.h
 	src/ext_money.hpp
+	src/external.trigger.hpp
 	src/features.hpp
 	src/fight_constants.hpp
 	src/fight.h
