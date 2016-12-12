@@ -35,6 +35,7 @@
 #include "skills.h"
 #include "spells.h"
 #include "mobmax.hpp"
+#include "meat.maker.hpp"
 #include "structs.h"
 #include "utils.h"
 #include "sysdep.h"
@@ -49,7 +50,7 @@ extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
 extern boost::array<int, 5> animals_levels;
 // from act.informative.cpp
-char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list);
+char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 
 // local functions
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -73,6 +74,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
 OBJ_DATA *create_skin(CHAR_DATA * mob);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
+bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj);
 
 // from class.cpp
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -91,6 +93,7 @@ void do_wear(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_wield(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/);
 
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
@@ -648,7 +651,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 int other_pc_in_group(CHAR_DATA *ch)
 {
 	int num = 0;
-	CHAR_DATA *k = (ch->master ? ch->master : ch);
+	CHAR_DATA *k = ch->has_master() ? ch->get_master() : ch;
 	for (follow_type *f = k->followers; f; f = f->next)
 	{
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
@@ -1652,6 +1655,60 @@ void weight_change_object(OBJ_DATA * obj, int weight)
 	}
 }
 
+void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
+{
+	OBJ_DATA *meet, *tobj;
+	one_argument(argument, arg);
+	if (!*arg)
+	{
+		send_to_char("Что вы собрались поджарить?\r\n", ch);
+		return;
+	}
+	if (ch->get_fighting())
+	{
+		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
+		return;
+	}
+	if (!(meet = get_obj_in_list_vis(ch, arg, ch->carrying)))
+	{
+		sprintf(buf, "У вас нет '%s'.\r\n", arg);
+		send_to_char(buf, ch);
+		return;
+	}
+	if (!world[ch->in_room]->fires)
+	{
+	        send_to_char(ch, "На чем вы собрались жарить, огня то нет!\r\n");
+		return;
+	}
+	if (world[ch->in_room]->fires > 2)
+	{
+	        send_to_char(ch, "Костер слишком силен, сгорит!\r\n");
+		return;
+	}
+
+	const auto meet_vnum = GET_OBJ_VNUM(meet);
+	if (!meat_mapping.has(meet_vnum)) // не нашлось в массиве
+	{
+		send_to_char(ch, "%s не подходит для жарки.\r\n", GET_OBJ_PNAME(meet,0).c_str());
+		return;
+	}
+
+	act("Вы нанизали на веточку и поджарили $o3.", FALSE, ch, meet, 0, TO_CHAR);
+	act("$n нанизал$g на веточку и поджарил$g $o3.", TRUE, ch, meet, 0, TO_ROOM | TO_ARENA_LISTEN);
+	tobj = read_object(meat_mapping.get(meet_vnum), VIRTUAL);
+	if (tobj)
+	{
+		can_carry_obj(ch, tobj);
+		extract_obj(meet);
+		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+
+	}
+	else	
+	{
+		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, LVL_GRGOD, ERRLOG, TRUE);
+	}
+}
+
 void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *food;
@@ -1659,10 +1716,11 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	one_argument(argument, arg);
 
+
 	if (subcmd == SCMD_DEVOUR)
 	{
 		if (MOB_FLAGGED(ch, MOB_RESURRECTED)
-			&& can_use_feat(ch->master, ZOMBIE_DROVER_FEAT))
+			&& can_use_feat(ch->get_master(), ZOMBIE_DROVER_FEAT))
 		{
 			feed_charmice(ch, arg);
 			return;
@@ -1747,8 +1805,23 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Вы наелись.\r\n", ch);
 	}
 
-	if (GET_OBJ_VAL(food, 3)
-		&& !IS_IMMORTAL(ch))  	// The shit was poisoned !
+	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+	{
+		if (food->get_affected(i).modifier)
+		{
+			AFFECT_DATA<EApplyLocation> af;
+			af.location = food->get_affected(i).location;
+			af.modifier = food->get_affected(i).modifier;
+			af.bitvector = 0;
+			af.type = 103;
+//			af.battleflag = 0;
+			af.duration = pc_duration(ch, 10 * 2, 0, 0, 0, 0);
+			affect_join_fspell(ch, af);
+		}
+
+	}
+
+	if ((GET_OBJ_VAL(food, 3) == 1) && !IS_IMMORTAL(ch))  	// The shit was poisoned !
 	{
 		send_to_char("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -1760,14 +1833,14 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.location = APPLY_STR;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.duration = pc_duration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
 	}
 	if (subcmd == SCMD_EAT
@@ -1798,11 +1871,24 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	const EWearFlag wear_bitvectors[] =
 	{
 		EWearFlag::ITEM_WEAR_TAKE,
-		EWearFlag::ITEM_WEAR_FINGER,		EWearFlag::ITEM_WEAR_FINGER,
-		EWearFlag::ITEM_WEAR_NECK,		EWearFlag::ITEM_WEAR_NECK,		EWearFlag::ITEM_WEAR_BODY,		EWearFlag::ITEM_WEAR_HEAD,		EWearFlag::ITEM_WEAR_LEGS,
-		EWearFlag::ITEM_WEAR_FEET,		EWearFlag::ITEM_WEAR_HANDS,		EWearFlag::ITEM_WEAR_ARMS,		EWearFlag::ITEM_WEAR_SHIELD,
-		EWearFlag::ITEM_WEAR_ABOUT,		EWearFlag::ITEM_WEAR_WAIST,		EWearFlag::ITEM_WEAR_WRIST,		EWearFlag::ITEM_WEAR_WRIST,
-		EWearFlag::ITEM_WEAR_WIELD,		EWearFlag::ITEM_WEAR_TAKE,		EWearFlag::ITEM_WEAR_BOTHS
+		EWearFlag::ITEM_WEAR_FINGER,
+		EWearFlag::ITEM_WEAR_FINGER,
+		EWearFlag::ITEM_WEAR_NECK,
+		EWearFlag::ITEM_WEAR_NECK,
+		EWearFlag::ITEM_WEAR_BODY,
+		EWearFlag::ITEM_WEAR_HEAD,
+		EWearFlag::ITEM_WEAR_LEGS,
+		EWearFlag::ITEM_WEAR_FEET,
+		EWearFlag::ITEM_WEAR_HANDS,
+		EWearFlag::ITEM_WEAR_ARMS,
+		EWearFlag::ITEM_WEAR_SHIELD,
+		EWearFlag::ITEM_WEAR_ABOUT,
+		EWearFlag::ITEM_WEAR_WAIST,
+		EWearFlag::ITEM_WEAR_WRIST,
+		EWearFlag::ITEM_WEAR_WRIST,
+		EWearFlag::ITEM_WEAR_WIELD,
+		EWearFlag::ITEM_WEAR_TAKE,
+		EWearFlag::ITEM_WEAR_BOTHS
 	};
 
 	const std::array<const char *, sizeof(wear_bitvectors)> already_wearing =
@@ -1834,6 +1920,12 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		act("Вы не можете надеть $o3 на эту часть тела.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
+	if (unique_stuff(ch, obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE))
+	{
+		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
+		return;
+	}
+    
 	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
 	if (   // не может держать если есть свет или двуручник
 		(where == WEAR_HOLD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_LIGHT)
@@ -2804,16 +2896,18 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
     CHAR_DATA *caster;
     int tp, lag = 0;
-    const char *targets[] = { "костер",
-                                                "пламя",
-                                                "огонь",
-                                                "fire",
-                                                "метку",
-                                                "надпись",
-                                                "руны",
-                                                "label",
-                                                "\n"
-                                                };
+	const char *targets[] =
+	{
+		"костер",
+		"пламя",
+		"огонь",
+		"fire",
+		"метку",
+		"надпись",
+		"руны",
+		"label",
+		"\n"
+	};
 
     if (IS_NPC(ch))
 	{
@@ -2834,24 +2928,35 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     case 0:
         if (world[ch->in_room]->fires)
         {
-            world[ch->in_room]->fires = 0;
+	    if (world[ch->in_room]->fires < 5)
+        	    --world[ch->in_room]->fires;
+	    else 
+		    world[ch->in_room]->fires = 4;
             send_to_char("Вы затоптали костер.\r\n", ch);
             act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-            lag = 2;
+	    if (world[ch->in_room]->fires == 0)
+	    {
+        	    send_to_char("Костер потух.\r\n", ch);
+        	    act("Костер потух.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+	    }
+            lag = 1;
         }
         else
         {
             send_to_char("А тут топтать и нечего :)\r\n", ch);
         }
         break;
+
     case 1:
-		auto aff = room_affected_by_spell(world[ch->in_room], SPELL_RUNE_LABEL);
-		if (aff
+		const auto& room = world[ch->in_room];
+		const auto aff_i = find_room_affect(room, SPELL_RUNE_LABEL);
+		if (aff_i != room->affected.end()
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
 				|| IS_IMMORTAL(ch)
 				|| PRF_FLAGGED(ch, PRF_CODERINFO)))
         {
-            send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
+			const auto& aff = *aff_i;
+			send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
             act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
             if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
             {
@@ -2865,7 +2970,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
                     send_to_char(buf, caster);
                 }
             }
-            affect_room_remove(world[ch->in_room], aff);
+            affect_room_remove(world[ch->in_room], aff_i);
             lag = 3;
         }
         else
@@ -2874,6 +2979,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         }
         break;
     }
+
     //Выдадим-ка лаг за эти дела.
     if (!WAITLESS(ch))
 	{
@@ -2881,16 +2987,15 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-#define MAX_REMOVE  12
+#define MAX_REMOVE  13
 const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS, SPELL_CURSE, SPELL_PLAQUE,
-									  SPELL_SILENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,
-									  SPELL_DEAFNESS };
+			SPELL_SILENCE, SPELL_BLINDNESS, SPELL_HAEMORRAGIA, SPELL_HOLD, SPELL_PEACEFUL, SPELL_CONE_OF_COLD,
+			SPELL_DEAFNESS, SPELL_BATTLE };
 
 void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int percent, prob, success = FALSE, need = FALSE, count, spellnum = 0;
+	int percent, prob, success = FALSE, need = FALSE, spellnum = 0;
 	struct timed_type timed;
-	CHAR_DATA *vict;
 
 	if (!ch->get_skill(SKILL_AID))
 	{
@@ -2905,13 +3010,20 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 
+	CHAR_DATA *vict;
 	if (!*arg)
-		vict = ch;
-	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		send_to_char("Кого вы хотите подлечить?\r\n", ch);
-		return;
-	};
+		vict = ch;
+	}
+	else
+	{
+		vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+		if (!vict)
+		{
+			send_to_char("Кого вы хотите подлечить?\r\n", ch);
+			return;
+		}
+	}
 
 	if (vict->get_fighting())
 	{
@@ -2923,28 +3035,75 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	prob = calculate_skill(ch, SKILL_AID, vict);
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE))
+	{
 		percent = prob;
+	}
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSCURSE))
+	{
 		prob = 0;
+	}
 	success = (prob >= percent);
 	need = FALSE;
 
-	if ((GET_REAL_MAX_HIT(vict) > 0 && (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
-			|| (GET_REAL_MAX_HIT(vict) <= 0 && GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
-			|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict) && can_use_feat(ch, HEALER_FEAT)))
+	if ((GET_REAL_MAX_HIT(vict) > 0
+			&& (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
+		|| (GET_REAL_MAX_HIT(vict) <= 0
+			&& GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
+		|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict)
+			&& can_use_feat(ch, HEALER_FEAT)))
 	{
 		need = TRUE;
 		if (success)
 		{
-			int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
-			int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
-			GET_HIT(vict) += add;
-			update_pos(vict);
+			if (!PRF_FLAGGED(ch, PRF_TESTER))
+			{
+				int dif = GET_REAL_MAX_HIT(vict) - GET_HIT(vict);
+				int add = MIN(dif, (dif * (prob - percent) / 100) + 1);
+				GET_HIT(vict) += add;
+			}
+			else
+			{
+				percent = calculate_skill(ch, SKILL_AID, vict);
+				prob = GET_LEVEL(ch) * percent * 0.5;
+				send_to_char(ch, "&RУровень цели %d Отхилено %d хитов, скилл %d\r\n", GET_LEVEL(vict), prob, percent);
+				GET_HIT(vict) += prob;
+				GET_HIT(vict) = MIN(GET_HIT(vict), GET_REAL_MAX_HIT(vict));
+				update_pos(vict);
+			}
 		}
 	}
-	count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
+
+	int count = 0;
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+	{
+		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
+		send_to_char(ch, "&RСнимаю %d аффектов\r\n", count);
+
+		send_to_char(ch, "Аффекты на цели:");
+		vict->print_affects_to_buffer(buf, MAX_STRING_LENGTH);
+		send_to_char(buf, ch);
+
+		send_to_char("\r\n", ch);
+		send_to_char("Удаляемые: ", ch);
+
+		const auto affects_count = vict->affected.size();
+		if (0 != affects_count)
+		{
+			vict->remove_random_affects(count);
+		}
+		else
+		{
+			send_to_char(ch, "Аффектов нет!\r\n");
+		}
+		send_to_char("&n\r\n", ch);
+	}
+	else
+	{
+		count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
+	}
 
 	for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
+	{
 		if (affected_by_spell(vict, RemoveSpell[percent]))
 		{
 			need = TRUE;
@@ -2954,12 +3113,16 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				prob = TRUE;
 			}
 		}
-
+	}
 
 	if (!need)
+	{
 		act("$N в лечении не нуждается.", FALSE, ch, 0, vict, TO_CHAR);
+	}
 	else if (!prob)
+	{
 		act("У вас не хватит умения вылечить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+	}
 	else  			//improove_skill(ch, SKILL_AID, TRUE, 0);
 	{
 		timed.skill = SKILL_AID;
@@ -3172,7 +3335,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-const int meet_vnum[] = { 320, 321, 322, 323 };
+
 
 
 bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
@@ -3296,7 +3459,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	percent =
 		train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent,
 					mob) + number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
-	if (prob > percent || !(tobj = read_object(meet_vnum[number(0, 3)], VIRTUAL)))
+	if (prob > percent || !(tobj = read_object(meat_mapping.random_key(), VIRTUAL))) // последняя в списке свежуемого мяса артефакт, обработка отдельная ниже
 	{
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -3305,10 +3468,14 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
-
+		
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;
+		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,200) == 1)) // артефакт
+		{
+			tobj = read_object(meat_mapping.get_artefact_key(), VIRTUAL);
+		}
 		entrails.push_back(tobj);
 		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
 		{
@@ -3353,23 +3520,23 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
 
-	if (!obj || !IS_CORPSE(obj) || !ch->master)
+	if (!obj || !IS_CORPSE(obj) || !ch->has_master())
 	{
 		return;
 	}
 
-	for (k = ch->master->followers; k; k = k->next)
+	for (k = ch->get_master()->followers; k; k = k->next)
 	{
 		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)
-				&& k->follower->master == ch->master)
+			&& k->follower->get_master() == ch->get_master())
 		{
-			reformed_hp_summ += get_reformed_charmice_hp(ch->master, k->follower, SPELL_ANIMATE_DEAD);
+			reformed_hp_summ += get_reformed_charmice_hp(ch->get_master(), k->follower, SPELL_ANIMATE_DEAD);
 		}
 	}
 
-	if (reformed_hp_summ >= get_player_charms(ch->master, SPELL_ANIMATE_DEAD))
+	if (reformed_hp_summ >= get_player_charms(ch->get_master(), SPELL_ANIMATE_DEAD))
 	{
-		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->master);
+		send_to_char("Вы не можете управлять столькими последователями.\r\n", ch->get_master());
 		extract_char(ch, FALSE);
 		return;
 	}
@@ -3383,7 +3550,7 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	const int max_heal_hp = 3 * mob_level;
 	chance_to_eat = (100 - 2 * mob_level) / 2;
 	//Added by Ann
-	if (affected_by_spell(ch->master, SPELL_FASCINATION))
+	if (affected_by_spell(ch->get_master(), SPELL_FASCINATION))
 	{
 		chance_to_eat -= 30;
 	}
@@ -3403,11 +3570,11 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	}
 	if (weather_info.moon_day < 14)
 	{
-		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
+		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->get_master()) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
 	}
 	else
 	{
-		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->master) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
+		max_charm_duration = pc_duration(ch, GET_REAL_WIS(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
 	}
 
 	AFFECT_DATA<EApplyLocation> af;
@@ -3418,11 +3585,11 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 	af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 	af.battleflag = 0;
 
-	affect_join_fspell(ch, &af);
+	affect_join_fspell(ch, af);
 
 	act("Громко чавкая, $N сожрал$G труп.", TRUE, ch, obj, ch, TO_ROOM | TO_ARENA_LISTEN);
-	act("Похоже, лакомство пришлось по вкусу.", TRUE, ch, NULL, ch->master, TO_VICT);
-	act("От омерзительного зрелища вас едва не вывернуло.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
+	act("Похоже, лакомство пришлось по вкусу.", TRUE, ch, NULL, ch->get_master(), TO_VICT);
+	act("От омерзительного зрелища вас едва не вывернуло.", TRUE, ch, NULL, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 
 	if (GET_HIT(ch) < GET_MAX_HIT(ch))
 	{
@@ -3431,8 +3598,8 @@ void feed_charmice(CHAR_DATA * ch, char *arg)
 
 	if (GET_HIT(ch) >= GET_MAX_HIT(ch))
 	{
-		act("$n сыто рыгнул$g и благодарно посмотрел$g на вас.", TRUE, ch, NULL, ch->master, TO_VICT);
-		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.", TRUE, ch, NULL, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("$n сыто рыгнул$g и благодарно посмотрел$g на вас.", TRUE, ch, NULL, ch->get_master(), TO_VICT);
+		act("$n сыто рыгнул$g и благодарно посмотрел$g на $N3.", TRUE, ch, NULL, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	extract_obj(obj);

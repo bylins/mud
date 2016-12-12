@@ -43,8 +43,6 @@ DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing = 1);
 long GetUniqueByName(const std::string & name, bool god = 0);
 std::string GetNameByUnique(long unique, bool god = 0);
 void CreateFileName(std::string &name);
-void ReadEndString(std::ifstream &file);
-void StringReplace(std::string & buffer, char s, std::string d);
 std::string ExpFormat(long long exp);
 void lower_convert(std::string& text);
 void lower_convert(char* text);
@@ -374,44 +372,6 @@ template<class T> T any_one_arg(T argument, char* first_arg)
 	*first_arg = '\0';
 
 	return argument;
-}
-
-/**
-* one_word is like one_argument, except that words in quotes ("") are
-* considered one word.
-*/
-template<class T> T one_word(T argument, char *first_arg)
-{
-	char *begin = first_arg;
-
-	do
-	{
-		skip_spaces(&argument);
-		first_arg = begin;
-
-		if (*argument == '\"')
-		{
-			argument++;
-			while (*argument && *argument != '\"')
-			{
-				*(first_arg++) = a_lcc(*argument);
-				argument++;
-			}
-			argument++;
-		}
-		else
-		{
-			while (*argument && !a_isspace(*argument))
-			{
-				*(first_arg++) = a_lcc(*argument);
-				argument++;
-			}
-		}
-		*first_arg = '\0';
-	}
-	while (fill_word(begin));
-
-	return (argument);
 }
 
 /**

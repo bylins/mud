@@ -16,6 +16,7 @@
 #define _DB_H_
 
 #include "obj.hpp"
+#include "boot.constants.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "conf.h"	// to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
@@ -25,161 +26,6 @@
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-
-// arbitrary constants used by index_boot() (must be unique)
-#define MAX_PROTO_NUMBER 999999	//Максимально возможный номер комнаты, предмета и т.д.
-
-#define MIN_ZONE_LEVEL	1
-#define MAX_ZONE_LEVEL	50
-
-#define DB_BOOT_WLD	0
-#define DB_BOOT_MOB	1
-#define DB_BOOT_OBJ	2
-#define DB_BOOT_ZON	3
-#define DB_BOOT_HLP	4
-#define DB_BOOT_TRG	5
-#define DB_BOOT_SOCIAL 6
-
-#define DL_LOAD_ANYWAY     0
-#define DL_LOAD_IFLAST     1
-#define DL_LOAD_ANYWAY_NC  2
-#define DL_LOAD_IFLAST_NC  3
-
-enum SetStuffMode
-{
-	SETSTUFF_SNUM,
-	SETSTUFF_NAME,
-	SETSTUFF_ALIS,
-	SETSTUFF_VNUM,
-	SETSTUFF_OQTY,
-	SETSTUFF_CLSS,
-	SETSTUFF_AMSG,
-	SETSTUFF_DMSG,
-	SETSTUFF_RAMG,
-	SETSTUFF_RDMG,
-	SETSTUFF_AFFS,
-	SETSTUFF_AFCN,
-};
-
-#define LIB_A       "A-E"
-#define LIB_F       "F-J"
-#define LIB_K       "K-O"
-#define LIB_P       "P-T"
-#define LIB_U       "U-Z"
-#define LIB_Z       "ZZZ"
-
-#if defined(CIRCLE_MACINTOSH)
-#define LIB_WORLD	":world:"
-#define LIB_TEXT	":text:"
-#define LIB_TEXT_HELP	":text:help:"
-#define LIB_MISC	":misc:"
-#define LIB_MISC_MOBRACES	":misc:mobraces:"
-#define LIB_MISC_CRAFT		":misc:craft:"
-#define LIB_ETC		":etc:"
-#define ETC_BOARD	":etc:board:"
-#define LIB_PLROBJS	":plrobjs:"
-#define LIB_PLRS    ":plrs:"
-#define LIB_PLRALIAS	":plralias:"
-#define LIB_PLRSTUFF ":plrstuff:"
-#define LIB_HOUSE	":plrstuff:house:"
-#define LIB_PLRVARS	":plrvars:"
-#define LIB             ":lib:"
-#define SLASH		":"
-#elif defined(CIRCLE_AMIGA) || defined(CIRCLE_UNIX) || defined(CIRCLE_WINDOWS) || defined(CIRCLE_ACORN) || defined(CIRCLE_VMS)
-#define LIB_WORLD     "world/"
-#define LIB_TEXT      "text/"
-#define LIB_TEXT_HELP "text/help/"
-#define LIB_MISC      "misc/"
-#define LIB_MISC_MOBRACES	"misc/mobraces/"
-#define LIB_MISC_CRAFT		"misc/craft/"
-#define LIB_STAT      "stat/"
-#define LIB_ETC       "etc/"
-#define ETC_BOARD     "etc/board/"
-#define LIB_PLRS      "plrs/"
-#define LIB_PLROBJS   "plrobjs/"
-#define LIB_PLRALIAS  "plralias/"
-#define LIB_PLRSTUFF  "plrstuff/"
-#define LIB_PLRVARS   "plrvars/"
-#define LIB_HOUSE     LIB_PLRSTUFF"house/"
-#define LIB_DEPOT     LIB_PLRSTUFF"depot/"
-#define LIB           "lib/"
-#define SLASH         "/"
-#else
-#error "Unknown path components."
-#endif
-
-#define TEXT_SUF_OBJS	"textobjs"
-#define TIME_SUF_OBJS	"timeobjs"
-#define SUF_ALIAS	"alias"
-#define SUF_MEM		"mem"
-#define SUF_PLAYER  "player"
-#define SUF_PERS_DEPOT "pers"
-#define SUF_SHARE_DEPOT "share"
-#define SUF_PURGE_DEPOT "purge"
-
-#if defined(CIRCLE_AMIGA)
-#define FASTBOOT_FILE   "/.fastboot"	// autorun: boot without sleep
-#define KILLSCRIPT_FILE "/.killscript"	// autorun: shut mud down
-#define PAUSE_FILE      "/pause"	// autorun: don't restart mud
-#elif defined(CIRCLE_MACINTOSH)
-#define FASTBOOT_FILE	"::.fastboot"	// autorun: boot without sleep
-#define KILLSCRIPT_FILE	"::.killscript"	// autorun: shut mud down
-#define PAUSE_FILE	"::pause"	// autorun: don't restart mud
-#else
-#define FASTBOOT_FILE   "../.fastboot"	// autorun: boot without sleep
-#define KILLSCRIPT_FILE "../.killscript"	// autorun: shut mud down
-#define PAUSE_FILE      "../pause"	// autorun: don't restart mud
-#endif
-
-// names of various files and directories
-#define INDEX_FILE	"index"	// index of world files
-#define MINDEX_FILE	"index.mini"	// ... and for mini-mud-mode
-#define WLD_PREFIX	LIB_WORLD "wld" SLASH	// room definitions
-#define MOB_PREFIX	LIB_WORLD "mob" SLASH	// monster prototypes
-#define OBJ_PREFIX	LIB_WORLD "obj" SLASH	// object prototypes
-#define ZON_PREFIX	LIB_WORLD "zon" SLASH	// zon defs & command tables
-#define TRG_PREFIX	LIB_WORLD "trg" SLASH	// shop definitions
-#define HLP_PREFIX	LIB_TEXT "help" SLASH	// for HELP <keyword>
-#define SOC_PREFIX	LIB_MISC
-#define PLAYER_F_PREFIX LIB_PLRS "" LIB_F
-#define PLAYER_K_PREFIX LIB_PLRS "" LIB_K
-#define PLAYER_P_PREFIX LIB_PLRS "" LIB_P
-#define PLAYER_U_PREFIX LIB_PLRS "" LIB_U
-#define PLAYER_Z_PREFIX LIB_PLRS "" LIB_Z
-
-#define CREDITS_FILE	LIB_TEXT "credits"	// for the 'credits' command
-#define MOTD_FILE       LIB_TEXT "motd"	// messages of the day / mortal
-#define RULES_FILE      LIB_TEXT "rules"	// rules for immort
-#define GREETINGS_FILE	LIB_TEXT "greetings"	// The opening screen.
-#define HELP_PAGE_FILE	LIB_TEXT_HELP "screen"	// for HELP <CR>
-#define INFO_FILE       LIB_TEXT "info"	// for INFO
-#define IMMLIST_FILE	LIB_TEXT "immlist"	// for IMMLIST
-#define BACKGROUND_FILE	LIB_TEXT "background"	// for the background story
-#define POLICIES_FILE	LIB_TEXT "policies"	// player policies/rules
-#define HANDBOOK_FILE	LIB_TEXT "handbook"	// handbook for new immorts
-#define NAME_RULES_FILE LIB_TEXT "namerules" // rules of character's names
-
-#define PROXY_FILE	    LIB_MISC "proxy"	// register proxy list
-#define IDEA_FILE	    LIB_MISC "ideas"	// for the 'idea'-command
-#define TYPO_FILE	    LIB_MISC "typos"	//         'typo'
-#define BUG_FILE	    LIB_MISC "bugs"	//         'bug'
-#define MESS_FILE       LIB_MISC "messages"	// damage messages
-#define SOCMESS_FILE    LIB_MISC "socials"	// messgs for social acts
-#define XNAME_FILE      LIB_MISC "xnames"	// invalid name substrings
-#define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена
-#define DNAME_FILE      LIB_MISC "dis_name" // запрещенные имена
-#define NNAME_FILE      LIB_MISC "new_name" // ждущие одобрения
-
-#define MAIL_FILE	    LIB_ETC "plrmail"	// for the mudmail system
-#define BAN_FILE	    LIB_ETC "badsites"	// for the siteban system
-#define PROXY_BAN_FILE	LIB_ETC "badproxy"	// for the siteban system
-
-#define WHOLIST_FILE    LIB_STAT "wholist.html"	// for the stat system
-
-//Dead load (dl_load) options
-#define DL_ORDINARY    0
-#define DL_PROGRESSION 1
-#define DL_SKIN        2
 
 // room manage functions
 void room_copy(ROOM_DATA * dst, ROOM_DATA * src);
@@ -192,7 +38,6 @@ int create_entry(const char *name);
 void zone_update(void);
 bool can_be_reset(zone_rnum zone);
 room_rnum real_room(room_vnum vnum);
-char *fread_string(FILE * fl, char *error);
 long get_id_by_name(char *name);
 long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
@@ -264,6 +109,40 @@ struct _case
 	std::vector<int> vnum_objs;
 };
 
+// для экстраффектов в random_obj
+struct ExtraAffects
+{
+	int number; // номер экстрааафетка
+	int min_val; // минимальное значение
+	int max_val; // максимальное значение
+	int chance; // вероятность того, что данный экстраффект будет на шмотке
+};
+
+class RandomObj
+{
+	public:
+		// внум объекта
+		int vnum;
+		// массив, в котором показывается, кому шмотка недоступна + шанс, что эта "недоступность" при выпадении предмета будет на нем
+		std::map<std::string, int> not_wear;
+		// минимальный и максимальный вес
+		int min_weight;
+		int max_weight;
+		// минимальная и максимальная цена за предмет
+		int min_price;
+		int max_price;
+		// прочность
+		int min_stability;
+		int max_stability;
+		// value0, value1, value2, value3
+		int value0_min, value1_min, value2_min, value3_min;
+		int value0_max, value1_max, value2_max, value3_max;
+		// список аффектов и их шанс упасть на шмотку
+		std::map<std::string, int> affects;
+		// список экстраффектов и их шанс упасть на шмотку
+		std::vector<ExtraAffects> extraffect;
+};
+
 // zone definition structure. for the 'zone-table'
 struct zone_data
 {
@@ -310,6 +189,8 @@ struct zone_data
 	int mob_level;
 	// является ли зона городом
 	bool is_town;
+	// показывает количество репопов зоны, при условии, что в зону ходят
+	int count_reset;
 };
 
 extern zone_data *zone_table;
@@ -414,7 +295,11 @@ extern CHAR_DATA *combat_list;
 #include <vector>
 #include <deque>
 
-using CRooms = std::deque<ROOM_DATA*>;
+class CRooms: public std::deque<ROOM_DATA *>
+{
+public:
+	static constexpr int UNDEFINED_ROOM_VNUM = -1;
+};
 
 extern CRooms world;
 extern CHAR_DATA *character_list;
@@ -434,7 +319,7 @@ private:
 		int stored;		// number of things in rent file            //
 		int(*func)(CHAR_DATA*, void*, int, char*);
 		char *farg;		// string argument for special function     //
-		struct trig_data *proto;	// for triggers... the trigger     //
+		TRIG_DATA *proto;	// for triggers... the trigger     //
 		int zone;			// mob/obj zone rnum //
 		size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 	};
@@ -472,7 +357,7 @@ public:
 
 	auto number(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].number : -1; }
 	auto number(const CObjectPrototype::shared_ptr& object) const { return number(object->get_rnum()); }
-	void dec_number(const size_t rnum) { --m_index[rnum].number; }
+	void dec_number(const size_t rnum);
 	void inc_number(const size_t rnum) { ++m_index[rnum].number; }
 
 	auto zone(const size_t rnum) const { return is_index_safe(rnum) ? m_index[rnum].zone : -1; }
@@ -495,6 +380,7 @@ public:
 	auto prototypes_size() const { return m_prototypes.size()*sizeof(prototypes_t::value_type); }
 
 	const auto& proto_script(const size_t rnum) const { return m_prototypes.at(rnum)->get_proto_script(); }
+	const auto& vnum2index() const { return m_vnum2index; }
 
 private:
 	using vnum2index_t = std::map<obj_vnum, size_t>;
@@ -508,13 +394,6 @@ private:
 
 inline bool CObjectPrototypes::is_index_safe(const size_t index) const
 {
-	/*
-	if (index >= m_index.size)
-	{
-		// Uncomment and set breakpoint here to find places where OBJ_DATA instance does not contain a valid RNUM value.
-		log("WARNING: passed RNUM is invalid.\n");
-	}
-	*/
 	return index < m_index.size();
 }
 
@@ -573,10 +452,8 @@ void check_room_flags(int rnum);
 
 namespace OfftopSystem
 {
-
-void init();
-void set_flag(CHAR_DATA *ch);
-
+	void init();
+	void set_flag(CHAR_DATA *ch);
 } // namespace OfftopSystem
 
 extern int now_entrycount;
@@ -591,6 +468,20 @@ void set_zone_mob_level();
 bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);
 
 extern insert_wanted_gem iwg;
+
+class GameLoader
+{
+public:
+	GameLoader();
+
+	void boot_world();
+	void index_boot(const EBootType mode);
+
+private:
+	static void prepare_global_structures(const EBootType mode, const int rec_count);
+};
+
+extern GameLoader world_loader;
 
 #endif
 

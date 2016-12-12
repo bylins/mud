@@ -28,6 +28,8 @@
 #include "sysdep.h"
 #include "conf.h"
 
+#include <sstream>
+
 /*
  * message for doing damage with a spell or skill
  *  C3.0: Also used for weapon damage on miss and death blows
@@ -40,147 +42,389 @@
 
 extern struct message_list fight_messages[MAX_MESSAGES];
 
-struct brief_shields
+class WeapForAct
 {
-	brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, const CObjectPrototype* weap_, std::string add_)
-		: ch(ch_), vict(vict_), weap(weap_ ? new OBJ_DATA(*weap_) : nullptr), add(add_), reflect(false )
+public:
+	enum WeapType
 	{
+		EWT_UNDEFINED,
+		EWT_PROTOTYPE_SHARED_PTR,
+		EWT_OBJECT_RAW_PTR,	// Anton Gorev (09/28/2016): We need to get rid of raw pointers in the future
+		EWT_STRING
 	};
 
-	void act_to_char(const char *msg)
+	class WeaponTypeException : public std::exception
 	{
-		if (!reflect || (reflect && !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
-		{
-			if (!add.empty() && PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
-			{
-				act_add(msg, TO_CHAR);
-			}
-			else
-			{
-				act_no_add(msg, TO_CHAR);
-			}
-		}
-	}
-	void act_to_vict(const char *msg)
+	public:
+		explicit WeaponTypeException(const char* what) : m_what(what) {}
+
+		virtual const char* what() const throw() { return m_what.c_str(); }
+
+	private:
+		std::string m_what;
+	};
+
+	WeapForAct() : m_type(EWT_UNDEFINED), m_prototype_raw_ptr(nullptr) {}
+	WeapForAct(const WeapForAct& from);
+	void set_damage_string(const int damage);
+	WeapForAct& operator=(const CObjectPrototype::shared_ptr& prototype_shared_ptr);
+	WeapForAct& operator=(OBJ_DATA* prototype_raw_ptr);
+
+	auto type() const { return m_type; }
+	const auto& get_prototype_shared_ptr() const;
+	auto get_prototype_raw_ptr() const;
+	const auto get_object_ptr() const;
+	const auto& get_string() const;
+
+private:
+	using kick_type_t = std::vector<const char*>;
+
+	WeapForAct& operator=(const WeapForAct&);
+
+	bool check_type(const WeapType type) const { return check_type(type, true); }
+	bool check_type(const WeapType type, const bool raise_exception) const;
+
+	WeapType m_type;
+	OBJ_DATA::shared_ptr m_prototype_shared_ptr;
+	OBJ_DATA* m_prototype_raw_ptr;
+	std::string m_string;
+
+	static const kick_type_t s_kick_type;	// Anton Gorev (09/28/2016): As I know, it is a duplicate. We need to reuse kick types from other place.
+};
+
+WeapForAct::WeapForAct(const WeapForAct& from) :
+	m_type(from.m_type),
+	m_prototype_shared_ptr(from.m_prototype_shared_ptr),
+	m_prototype_raw_ptr(from.m_prototype_raw_ptr),
+	m_string(from.m_string)
+{
+}
+
+void WeapForAct::set_damage_string(const int damage)
+{
+	m_type = EWT_STRING;
+	if (damage <= 5)
 	{
-		if (!reflect || (reflect && !PRF_FLAGGED(vict, PRF_BRIEF_SHIELDS)))
-		{
-			if (!add.empty() && PRF_FLAGGED(vict, PRF_BRIEF_SHIELDS))
-			{
-				act_add(msg, TO_VICT | TO_SLEEP);
-			}
-			else
-			{
-				act_no_add(msg, TO_VICT | TO_SLEEP);
-			}
-		}
+		m_string = s_kick_type[0];
 	}
-	void act_to_room(const char *msg)
+	else if (damage <= 11)
 	{
-		if (add.empty())
-		{
-			if (reflect)
-			{
-				act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
-			}
-			else
-			{
-				act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN);
-			}
-		}
-		else
-		{
-			act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
-			if (!reflect)
-			{
-				act_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_BRIEF_SHIELDS);
-			}
-		}
+		m_string = s_kick_type[1];
 	}
+	else if (damage <= 26)
+	{
+		m_string = s_kick_type[2];
+	}
+	else if (damage <= 35)
+	{
+		m_string = s_kick_type[3];
+	}
+	else if (damage <= 45)
+	{
+		m_string = s_kick_type[4];
+	}
+	else if (damage <= 56)
+	{
+		m_string = s_kick_type[5];
+	}
+	else if (damage <= 96)
+	{
+		m_string = s_kick_type[6];
+	}
+	else if (damage <= 136)
+	{
+		m_string = s_kick_type[7];
+	}
+	else if (damage <= 176)
+	{
+		m_string = s_kick_type[8];
+	}
+	else if (damage <= 216)
+	{
+		m_string = s_kick_type[9];
+	}
+	else if (damage <= 256)
+	{
+		m_string = s_kick_type[10];
+	}
+	else if (damage <= 296)
+	{
+		m_string = s_kick_type[11];
+	}
+	else
+	{
+		m_string = s_kick_type[12];
+	}
+}
+
+const auto& WeapForAct::get_prototype_shared_ptr() const
+{
+	check_type(EWT_PROTOTYPE_SHARED_PTR);
+	return m_prototype_shared_ptr;
+}
+
+auto WeapForAct::get_prototype_raw_ptr() const
+{
+	check_type(EWT_OBJECT_RAW_PTR);
+	return m_prototype_raw_ptr;
+}
+
+const auto WeapForAct::get_object_ptr() const
+{
+	if (check_type(EWT_OBJECT_RAW_PTR, false))
+	{
+		return m_prototype_raw_ptr;
+	}
+	else if (check_type(EWT_PROTOTYPE_SHARED_PTR, false))
+	{
+		return m_prototype_shared_ptr.get();
+	}
+
+	std::stringstream ss;
+	ss << "Requested object ptr but actual weapon type is [" << m_type << "]";
+	throw WeaponTypeException(ss.str().c_str());
+}
+
+const auto& WeapForAct::get_string() const
+{
+	check_type(EWT_STRING);
+	return m_string;
+}
+
+bool WeapForAct::check_type(const WeapType type, const bool raise_exception) const
+{
+	if (type != m_type)
+	{
+		if (raise_exception)
+		{
+			std::stringstream ss;
+			ss << "Type of weapon [" << m_type << "] does not match to expected [" << type << "]";
+			throw WeaponTypeException(ss.str().c_str());
+		}
+
+		return false;
+	}
+
+	return true;
+}
+
+WeapForAct& WeapForAct::operator=(OBJ_DATA* prototype_raw_ptr)
+{
+	m_type = EWT_OBJECT_RAW_PTR;
+	m_prototype_raw_ptr = prototype_raw_ptr;
+	return *this;
+}
+
+WeapForAct& WeapForAct::operator=(const CObjectPrototype::shared_ptr& prototype_shared_ptr)
+{
+	m_type = EWT_PROTOTYPE_SHARED_PTR;
+	m_prototype_shared_ptr.reset();
+	if (prototype_shared_ptr)
+	{
+		m_prototype_shared_ptr.reset(new OBJ_DATA(*prototype_shared_ptr));
+	}
+	return *this;
+}
+
+const WeapForAct::kick_type_t WeapForAct::s_kick_type =
+// силы пинка. полностью соответствуют наносимым поврждениям обычного удара
+{
+	"легонько ",		//  1..5
+	"слегка ",		// 6..11
+	"",			// 12..26
+	"сильно ",		// 27..35
+	"очень сильно ",	// 36..45
+	"чрезвычайно сильно ",	// 46..55
+	"БОЛЬНО ",		// 56..96
+	"ОЧЕНЬ БОЛЬНО ",	// 97..136
+	"ЧРЕЗВЫЧАЙНО БОЛЬНО ",	// 137..176
+	"НЕВЫНОСИМО БОЛЬНО ",	// 177..216
+	"ЖЕСТОКО ",	// 217..256
+	"УЖАСНО ",// 257..296
+	"УБИЙСТВЕННО ",	 // 297..400
+	"СМЕРТЕЛЬНО " // 400+
+};
+
+struct brief_shields
+{
+	brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, const WeapForAct& weap_, std::string add_);
+
+	void act_to_char(const char *msg);
+	void act_to_vict(const char *msg);
+	void act_to_room(const char *msg);
+
+	void act_with_exception_handling(const char *msg, int type) const;
 
 	CHAR_DATA* ch;
 	CHAR_DATA* vict;
-	std::shared_ptr<OBJ_DATA> weap;
+	WeapForAct weap;
 	std::string add;
 	// флаг отражаемого дамага, который надо глушить в режиме PRF_BRIEF_SHIELDS
 	bool reflect;
 
 private:
-	void act_no_add(const char *msg, int type)
-	{
-		act(msg, FALSE, ch, weap.get(), vict, type);
-	}
-	void act_add(const char *msg, int type)
-	{
-		char buf_[MAX_INPUT_LENGTH];
-		snprintf(buf_, sizeof(buf_), "%s%s", msg, add.c_str());
-		act(buf_, FALSE, ch, weap.get(), vict, type);
-	}
+	void act_no_add(const char *msg, int type);
+	void act_add(const char *msg, int type);
 };
 
-const CObjectPrototype* init_weap(CHAR_DATA *ch, int /*dam*/, int attacktype)
+brief_shields::brief_shields(CHAR_DATA* ch_, CHAR_DATA* vict_, const WeapForAct& weap_, std::string add_) : ch(ch_), vict(vict_), weap(weap_), add(add_), reflect(false)
+{
+}
+
+void brief_shields::act_to_char(const char *msg)
+{
+	if (!reflect
+		|| (reflect
+			&& !PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS)))
+	{
+		if (!add.empty()
+			&& PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS))
+		{
+			act_add(msg, TO_CHAR);
+		}
+		else
+		{
+			act_no_add(msg, TO_CHAR);
+		}
+	}
+}
+
+void brief_shields::act_to_vict(const char *msg)
+{
+	if (!reflect
+		|| (reflect
+			&& !PRF_FLAGGED(vict, PRF_BRIEF_SHIELDS)))
+	{
+		if (!add.empty()
+			&& PRF_FLAGGED(vict, PRF_BRIEF_SHIELDS))
+		{
+			act_add(msg, TO_VICT | TO_SLEEP);
+		}
+		else
+		{
+			act_no_add(msg, TO_VICT | TO_SLEEP);
+		}
+	}
+}
+
+void brief_shields::act_to_room(const char *msg)
+{
+	if (add.empty())
+	{
+		if (reflect)
+		{
+			act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
+		}
+		else
+		{
+			act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN);
+		}
+	}
+	else
+	{
+		act_no_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
+		if (!reflect)
+		{
+			act_add(msg, TO_NOTVICT | TO_ARENA_LISTEN | TO_BRIEF_SHIELDS);
+		}
+	}
+}
+
+void brief_shields::act_with_exception_handling(const char* msg, const int type) const
+{
+	try
+	{
+		const auto weapon_type = weap.type();
+		switch (weapon_type)
+		{
+		case WeapForAct::EWT_STRING:
+			act(msg, FALSE, ch, nullptr, vict, type, weap.get_string());
+			break;
+
+		case WeapForAct::EWT_OBJECT_RAW_PTR:
+		case WeapForAct::EWT_PROTOTYPE_SHARED_PTR:
+			act(msg, FALSE, ch, weap.get_object_ptr(), vict, type);
+			break;
+
+		default:
+			act(msg, FALSE, ch, nullptr, vict, type);
+		}
+	}
+	catch (const WeapForAct::WeaponTypeException& e)
+	{
+		mudlog(e.what(), BRF, LVL_BUILDER, ERRLOG, TRUE);
+	}
+}
+
+void brief_shields::act_no_add(const char *msg, int type)
+{
+	act_with_exception_handling(msg, type);
+}
+
+void brief_shields::act_add(const char *msg, int type)
+{
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_), "%s%s", msg, add.c_str());
+	act_with_exception_handling(buf_, type);
+}
+
+const WeapForAct init_weap(CHAR_DATA *ch, int dam, int attacktype)
 {
 	// Нижеследующий код повергает в ужас
-	const CObjectPrototype* weap = nullptr;
+	WeapForAct weap;
 	int weap_i = 0;
 
 	switch (attacktype)
 	{
 	case SKILL_BACKSTAB + TYPE_HIT:
 		weap = GET_EQ(ch, WEAR_WIELD);
-		if (!weap)
+		if (!weap.get_prototype_raw_ptr())
 		{
 			weap_i = real_object(DUMMY_KNIGHT);
 			if (0 <= weap_i)
 			{
-				weap = obj_proto[weap_i].get();
+				weap = obj_proto[weap_i];
 			}
 		}
 		break;
 
 	case SKILL_THROW + TYPE_HIT:
 		weap = GET_EQ(ch, WEAR_WIELD);
-		if (!weap)
+		if (!weap.get_prototype_raw_ptr())
 		{
 			weap_i = real_object(DUMMY_KNIGHT);
 			if (0 <= weap_i)
 			{
-				weap = obj_proto[weap_i].get();
+				weap = obj_proto[weap_i];
 			}
 		}
 		break;
 
 	case SKILL_BASH + TYPE_HIT:
 		weap = GET_EQ(ch, WEAR_SHIELD);
-		if (!weap)
+		if (!weap.get_prototype_raw_ptr())
 		{
 			weap_i = real_object(DUMMY_SHIELD);
 			if (0 <= weap_i)
 			{
-				weap = obj_proto[weap_i].get();
+				weap = obj_proto[weap_i];
 			}
 		}
 		break;
 
 	case SKILL_KICK + TYPE_HIT:
-		/*
-		Anton Gorev (2016-06-02): Я не представляю, когда такое может понадобиться. Кроме того, я так и не нашел,
-		где это используется. В общем, пока выкидываю. Если где-то что-то сломается - буду думать дальше,
-		как переписать этот ужас. Но конвертация строк в указатель на класс - всегда плохая идея.
-		 */
+		// weap - текст силы удара
+		weap.set_damage_string(dam);
 		break;
 
 	case TYPE_HIT:
 		break;
 
 	default:
-		if (!weap)
+		weap_i = real_object(DUMMY_WEAPON);
+		if (0 <= weap_i)
 		{
-			weap_i = real_object(DUMMY_WEAPON);
-			if (0 <= weap_i)
-			{
-				weap = obj_proto[weap_i].get();
-			}
+			weap = obj_proto[weap_i];
 		}
 	}
 
@@ -420,7 +664,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 				msg = msg->next;
 			}
 
-			const CObjectPrototype *weap = init_weap(ch, dam, attacktype);
+			const auto weap = init_weap(ch, dam, attacktype);
 			brief_shields brief(ch, vict, weap, add);
 			if (attacktype == SPELL_FIRE_SHIELD
 				|| attacktype == SPELL_MAGICGLASS)
@@ -517,7 +761,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	//Зачем здесь было SAVING_REFLEX? Оно же просто число
 	int skill_is, percent = 0, victim_sav = 0, victim_modi = 0; // текущее значение умения(прокачанность) / вычисляемый итоговый процент / савис жертвы,
                                                                     // который влияет на прохождение скила / другие модификаторы, влияющие на прохождение
-	int morale = 0, max_percent = 200, bonus = 0, size = 0;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
+	int morale = 0, max_percent = 200, bonus = 0, size = 0, fail_limit = 950 ;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 	bool try_morale = false;
@@ -534,31 +778,34 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		return 0;                                         // если скила нет возвращаем 0.
 	}
 
-	if (!IS_NPC(ch) && ch->affected)
+	if (!IS_NPC(ch) && !ch->affected.empty())
 	{
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с эксп умелкой
 			{
 				skill_is += aff->modifier;
-			};
-			
+			}
+
 			if (aff->location == APPLY_PLAQUE)
 			{
 				skill_is -= number(ch->get_skill(skill_no) * 0.4, ch->get_skill(skill_no) * 0.05); // при лихорадке умелки ухудшаются на 5-30% рандом
-			};
+			}
 		}
 	}
+
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;
 	if (!IS_NPC(ch))
+	{
 		size = size_app[GET_POS_SIZE(ch)].interpolate;
+	}
 	else
+	{
 		size = size_app[GET_POS_SIZE(ch)].interpolate / 2;
-	
+	}
+
 	switch (skill_no)
 	{
-
-
 	case SKILL_HIDETRACK:          // замести следы
 		bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 		break;
@@ -567,43 +814,55 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
         //victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
-		if (awake_others(ch) || equip_in_metall(ch))
+		if (awake_others(ch)
+			|| equip_in_metall(ch))
+		{
 			bonus -= 50;
+		}
 
 		if (vict)
 		{
 			if (!CAN_SEE(vict, ch))
+			{
 				bonus += 25;
+			}
+
 			if (GET_POS(vict) < POS_FIGHTING)
+			{
 				bonus += (20 * (POS_FIGHTING - GET_POS(vict)));
+			}
 			else if (AFF_FLAGGED(vict, EAffectFlag::AFF_AWARNESS))
+			{
 				victim_modi -= 30;
+			}
 			victim_modi += size_app[GET_POS_SIZE(vict)].ac;
 			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 		}
 		break;
+
 	case SKILL_BASH:	//сбить
-		//ictim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-		bonus = size + dex_bonus(GET_REAL_DEX(ch)) +
-			(GET_EQ(ch, WEAR_SHIELD) ?
-				weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].
-				bashing : 0);
+		bonus = size
+			+ dex_bonus(GET_REAL_DEX(ch))
+			+ (GET_EQ(ch, WEAR_SHIELD)
+				? weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing
+				: 0);
 		if (vict)
-		{         
-			//if (!IS_NPC(vict)) 
-				//victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
-			//else 
-				//victim_modi -= (size_app[GET_POS_SIZE(vict)].interpolate)/2;
+		{
 			if (GET_POS(vict) < POS_FIGHTING && GET_POS(vict) > POS_SLEEPING)
+			{
 				victim_modi -= 20;
+			}
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
+			{
 				victim_modi -= calculate_awake_mod(ch, vict);
-			//victim_modi -= GET_REAL_CON(vict);
+			}
 		}
 		break;
+
 	case SKILL_HIDE:	//спрятаться
-		bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
+		bonus = dex_bonus(GET_REAL_DEX(ch))
+			- size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
 		if (awake_others(ch) || equip_in_metall(ch))
@@ -642,6 +901,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
+
 	case SKILL_KICK:	//пнуть
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
@@ -651,13 +911,17 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi += size_app[GET_POS_SIZE(vict)].interpolate;
 			victim_modi -= GET_REAL_CON(vict);
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
+			{
 				victim_modi -= calculate_awake_mod(ch, vict);
+			}
 		}
 		break;
+
 	case SKILL_PICK_LOCK:	// взлом
 		bonus = dex_bonus(GET_REAL_DEX(ch))
-				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
-	        break;
+			+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+		break;
+
 	case SKILL_PUNCH:	//удар левой рукой
         //victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
@@ -1041,7 +1305,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		{
 			bonus += (skill_is + bonus)/2;
 		}
-		else 
+		else
 		{
 			if (!CAN_SEE(ch,vict))
 				bonus += (skill_is + bonus)/5;
@@ -1054,7 +1318,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_STUN: //ошеломить
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
-		
+
 		if (!IS_NPC(vict))
 			victim_sav *= 2;
 		else
@@ -1113,7 +1377,7 @@ if (morale < 0) {
 	morale_bonus = morale * 10;
 }
 const int bonus_limit = MIN(150, morale * 10);
-int fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
+fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
 // Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
 // игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
 // все решают спас-броски.
@@ -1163,6 +1427,8 @@ else if (prob < bonus_limit)
 		else
 			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2);
 	}
+	if (skill_no == SKILL_PROTECT)
+	log("SKILL_PROTECT: Игрок %s , Percent == %d, fail_limit == %d, Morale == %d, Bonus == %d\r\n",GET_NAME (ch), percent, fail_limit, morale, bonus); 
 
 	return (percent);
 }
@@ -1202,8 +1468,8 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 			&& trained_skill < MAX_EXP_RMRT_PERCENT(ch)))
 	{
 		// Success - multy by 2
-		prob = success ? 20000 : 15000;		
-					
+		prob = success ? 20000 : 15000;
+
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
 	int INT_PLAYER = (ch->get_trained_skill(skill_no) < 51 && (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);
@@ -1315,6 +1581,84 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 		result = victim->get_skill(SKILL_AWAKE) / 2;
 	}
 	return result;
+}
+
+int find_weapon_focus_by_skill(ESkill skill)
+{
+    switch (skill)
+    {
+	case SKILL_PUNCH:
+        return PUNCH_FOCUS_FEAT;
+	break;
+	case SKILL_CLUBS:
+        return CLUB_FOCUS_FEAT;
+	break;
+	case SKILL_AXES:
+        return AXES_FOCUS_FEAT;
+	break;
+	case SKILL_LONGS:
+        return LONGS_FOCUS_FEAT;
+	break;
+	case SKILL_SHORTS:
+        return SHORTS_FOCUS_FEAT;
+	break;
+	case SKILL_NONSTANDART:
+        return NONSTANDART_FOCUS_FEAT;
+	break;
+	case SKILL_BOTHHANDS:
+        return BOTHHANDS_FOCUS_FEAT;
+	break;
+	case SKILL_PICK:
+        return PICK_FOCUS_FEAT;
+	break;
+	case SKILL_SPADES:
+        return SPADES_FOCUS_FEAT;
+	break;
+	case SKILL_BOWS:
+        return BOWS_FOCUS_FEAT;
+	break;
+	default:
+        return THAC0_FEAT;
+    }
+}
+
+int find_weapon_master_by_skill(ESkill skill)
+{
+    switch (skill)
+    {
+	case SKILL_PUNCH:
+        return PUNCH_MASTER_FEAT;
+	break;
+	case SKILL_CLUBS:
+        return CLUBS_MASTER_FEAT;
+	break;
+	case SKILL_AXES:
+        return AXES_MASTER_FEAT;
+	break;
+	case SKILL_LONGS:
+        return LONGS_MASTER_FEAT;
+	break;
+	case SKILL_SHORTS:
+        return SHORTS_MASTER_FEAT;
+	break;
+	case SKILL_NONSTANDART:
+        return NONSTANDART_MASTER_FEAT;
+	break;
+	case SKILL_BOTHHANDS:
+        return BOTHHANDS_MASTER_FEAT;
+	break;
+	case SKILL_PICK:
+        return PICK_MASTER_FEAT;
+	break;
+	case SKILL_SPADES:
+        return SPADES_MASTER_FEAT;
+	break;
+	case SKILL_BOWS:
+        return BOWS_MASTER_FEAT;
+	break;
+	default:
+        return THAC0_FEAT;
+    }
 }
 
 /*

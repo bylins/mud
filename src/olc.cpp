@@ -150,7 +150,8 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	else if (!a_isdigit(*buf1))
 	{
 		if (strn_cmp("save", buf1, 4) == 0
-				|| (lock = !strn_cmp("lock", buf1, 4)) == TRUE || (unlock = !strn_cmp("unlock", buf1, 6)) == TRUE)
+			|| (lock = !strn_cmp("lock", buf1, 4)) == TRUE
+			|| (unlock = !strn_cmp("unlock", buf1, 6)) == TRUE)
 		{
 			if (!*buf2)
 			{
@@ -191,18 +192,24 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 	// * If a numeric argument was given, get it.
 	if (number == -1)
+	{
 		number = atoi(buf1);
+	}
 
 	// * Check that whatever it is isn't already being edited.
 	for (d = descriptor_list; d; d = d->next)
+	{
 		if (d->connected == olc_scmd_info[subcmd].con_type)
+		{
 			if (d->olc && OLC_NUM(d) == number)
 			{
 				sprintf(buf, "%s в настоящий момент редактируется %s.\r\n",
-						olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
+					olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
 				send_to_char(buf, ch);
 				return;
 			}
+		}
+	}
 	d = ch->desc;
 
 	// лок/анлок редактирования зон только 34м и по привилегии
@@ -222,6 +229,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		delete d->olc;
 		return;
 	}
+
 	if (lock)
 	{
 		zone_table[OLC_ZNUM(d)].locked = TRUE;
@@ -255,13 +263,18 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 
 	// * Everyone but IMPLs can only edit zones they have been assigned.
 	if (GET_LEVEL(ch) < LVL_IMPL)
+	{
 		if (!Privilege::can_do_priv(ch, std::string(cmd_info[cmd].command), cmd, 0, false))
-	    if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch)))
-	    {
-		send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
-		delete d->olc;
-		return;
-	    }
+		{
+			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch)))
+			{
+				send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
+				delete d->olc;
+				return;
+			}
+		}
+	}
+
 	if (save)
 	{
 		const char *type = NULL;
@@ -346,10 +359,15 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		STATE(d) = CON_MEDIT;
 		break;
 	case SCMD_OLC_OEDIT:
-		if ((real_num = real_object(number)) >= 0)
+		real_num = real_object(number);
+		if (real_num >= 0)
+		{
 			oedit_setup(d, real_num);
+		}
 		else
+		{
 			oedit_setup(d, -1);
+		}
 		STATE(d) = CON_OEDIT;
 		break;
 	}
@@ -367,35 +385,20 @@ void olc_saveinfo(CHAR_DATA * ch)
 	struct olc_save_info *entry;
 
 	if (olc_save_list)
+	{
 		send_to_char("The following OLC components need saving:-\r\n", ch);
+	}
 	else
+	{
 		send_to_char("The database is up to date.\r\n", ch);
+	}
 
 	for (entry = olc_save_list; entry; entry = entry->next)
 	{
 		sprintf(buf, " - %s for zone %d.\r\n", save_info_msg[(int) entry->type], entry->zone);
 		send_to_char(buf, ch);
-
 	}
-
 }
-
-/*
- int real_zone(int number)
- {
-   int counter;
-printf("number=%d, top=%d\n", number, top_of_zone_table);
-   for (counter = 0; counter <= top_of_zone_table; counter++) {
-printf("checking index %d, range=%d..%d\n",
-counter,(zone_table[counter].number * 100), zone_table[counter].top);
-     if ((number >= (zone_table[counter].number * 100)) &&
- 	(number <= (zone_table[counter].top)))
-       return counter;
-   }
-
-   return -1;
- }
-*/
 
 // ------------------------------------------------------------
 // Exported utilities
@@ -482,12 +485,9 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		// Освободить редактируемый триггер
 		if (OLC_TRIG(d))
 		{
-			if (OLC_TRIG(d)->name)
-				free(OLC_TRIG(d)->name);
-			if (OLC_TRIG(d)->arglist)
-				free(OLC_TRIG(d)->arglist);
 			free(OLC_TRIG(d));
 		}
+
 		// Освободить массив данных (похоже, только для триггеров)
 		if (OLC_STORAGE(d))
 		{
@@ -511,6 +511,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			case CLEANUP_STRUCTS:
 				delete OLC_ROOM(d);	// удаляет только оболочку
 				break;
+
 			default:	// The caller has screwed up.
 				break;
 			}

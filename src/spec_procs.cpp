@@ -388,12 +388,15 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 	sprintf(buf, "Вы владеете следующими умениями :\r\n");
 
 	strcpy(buf2, buf);
-	if (!IS_NPC(ch) && ch->affected)
+	if (!IS_NPC(ch)
+		&& !ch->affected.empty())
 	{
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с скилл бонусом
-			bonus = aff->modifier; // сколько крут стал 
+			{
+				bonus = aff->modifier; // сколько крут стал 
+			}
 		}
 	}
 
@@ -2089,27 +2092,27 @@ int npc_loot(CHAR_DATA * ch)
 						}
 
 						// Есть ключ?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							&& has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
 						{
 							loot_obj->toggle_val_bit(1, CONT_LOCKED);
 						}
 
 						// ...или взломаем?
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							&& ch->get_skill(SKILL_PICK_LOCK)
-							&& ok_pick(ch, 0, obj, 0, SCMD_PICK))
+							&& ok_pick(ch, 0, loot_obj, 0, SCMD_PICK))
 						{
 							loot_obj->toggle_val_bit(1, CONT_LOCKED);
 						}
 
 						// Эх, не открыть. Ну ладно.
-						if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
+						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED))
 						{
 							continue;
 						}
 
-						obj->toggle_val_bit(1, CONT_CLOSED);
+						loot_obj->toggle_val_bit(1, CONT_CLOSED);
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj)
 						{
 							cnext_obj = cobj->get_next_content();
@@ -2142,38 +2145,55 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 {
 	int need_close = FALSE, need_lock = FALSE;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
-	EXIT_DATA *rdata = NULL;
 	int retval = FALSE;
 
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
+	{
 		return (FALSE);
+	}
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
+	{
 		return (FALSE);
-	else if (ch->master && ch->in_room == IN_ROOM(ch->master))
+	}
+	else if (ch->has_master()
+		&& ch->in_room == IN_ROOM(ch->get_master()))
+	{
 		return (FALSE);
+	}
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED))
 	{
 		if (!EXIT_FLAGGED(EXIT(ch, dir), EX_ISDOOR))
+		{
 			return (FALSE);
-		rdata = EXIT(ch, dir);
+		}
+
+		const auto& rdata = EXIT(ch, dir);
+
 		if (EXIT_FLAGGED(rdata, EX_LOCKED))
 		{
-			if (has_key(ch, rdata->key) || (!EXIT_FLAGGED(rdata, EX_PICKPROOF) && !EXIT_FLAGGED(rdata, EX_BROKEN) &&
-											calculate_skill(ch, SKILL_PICK, 0) >= number(0, 100)))
+			if (has_key(ch, rdata->key)
+				|| (!EXIT_FLAGGED(rdata, EX_PICKPROOF)
+					&& !EXIT_FLAGGED(rdata, EX_BROKEN)
+					&& calculate_skill(ch, SKILL_PICK, 0) >= number(0, 100)))
 			{
 				do_doorcmd(ch, 0, dir, SCMD_UNLOCK);
 				need_lock = TRUE;
 			}
 			else
+			{
 				return (FALSE);
-
+			}
 		}
 		if (EXIT_FLAGGED(rdata, EX_CLOSED))
-			if (GET_REAL_INT(ch) >= 15 || GET_DEST(ch) != NOWHERE || MOB_FLAGGED(ch, MOB_OPENDOOR))
+		{
+			if (GET_REAL_INT(ch) >= 15
+				|| GET_DEST(ch) != NOWHERE
+				|| MOB_FLAGGED(ch, MOB_OPENDOOR))
 			{
 				do_doorcmd(ch, 0, dir, SCMD_OPEN);
 				need_close = TRUE;
 			}
+		}
 	}
 
 	retval = perform_move(ch, dir, 1, FALSE, 0);
@@ -2700,14 +2720,23 @@ void npc_group(CHAR_DATA * ch)
 	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
 		return;
 
-	if (ch->master && ch->in_room == IN_ROOM(ch->master))
-		leader = ch->master;
+	if (ch->has_master()
+		&& ch->in_room == IN_ROOM(ch->get_master()))
+	{
+		leader = ch->get_master();
+	}
 
-	if (!ch->master)
+	if (!ch->has_master())
+	{
 		leader = ch;
+	}
 
-	if (leader && (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM) || GET_POS(leader) < POS_SLEEPING))
+	if (leader
+		&& (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM)
+			|| GET_POS(leader) < POS_SLEEPING))
+	{
 		leader = NULL;
+	}
 
 	// Find leader
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
@@ -2716,9 +2745,13 @@ void npc_group(CHAR_DATA * ch)
 				GET_DEST(vict) != GET_DEST(ch) ||
 				zone != ZONE(vict) ||
 				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+		{
 			continue;
+		}
 		members++;
-		if (!leader || GET_REAL_INT(vict) > GET_REAL_INT(leader))
+
+		if (!leader
+			|| GET_REAL_INT(vict) > GET_REAL_INT(leader))
 		{
 			leader = vict;
 		}
@@ -2726,15 +2759,18 @@ void npc_group(CHAR_DATA * ch)
 
 	if (members <= 1)
 	{
-		if (ch->master)
+		if (ch->has_master())
+		{
 			stop_follower(ch, SF_EMPTY);
+		}
 		return;
 	}
 
-	if (leader->master)
+	if (leader->has_master())
 	{
 		stop_follower(leader, SF_EMPTY);
 	}
+
 	// Assign leader
 	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
@@ -2742,22 +2778,27 @@ void npc_group(CHAR_DATA * ch)
 				GET_DEST(vict) != GET_DEST(ch) ||
 				zone != ZONE(vict) ||
 				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+		{
 			continue;
+		}
+
 		if (vict == leader)
 		{
 			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 			continue;
 		}
-		if (!vict->master)
-			add_follower(vict, leader);
-		else if (vict->master != leader)
+
+		if (!vict->has_master())
+		{
+			leader->add_follower(vict);
+		}
+		else if (vict->get_master() != leader)
 		{
 			stop_follower(vict, SF_EMPTY);
-			add_follower(vict, leader);
+			leader->add_follower(vict);
 		}
 		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 	}
-
 }
 
 void npc_groupbattle(CHAR_DATA * ch)
@@ -2765,17 +2806,25 @@ void npc_groupbattle(CHAR_DATA * ch)
 	struct follow_type *k;
 	CHAR_DATA *tch, *helper;
 
-	if (!IS_NPC(ch) ||
-			!ch->get_fighting() || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || !ch->master || ch->in_room == NOWHERE || !ch->followers)
+	if (!IS_NPC(ch)
+		|| !ch->get_fighting()
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		|| !ch->has_master()
+		|| ch->in_room == NOWHERE
+		|| !ch->followers)
+	{
 		return;
+	}
 
-	k = ch->master ? ch->master->followers : ch->followers;
-	tch = ch->master ? ch->master : ch;
+	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
+	tch = ch->has_master() ? ch->get_master() : ch;
 	for (; k; (k = tch ? k : k->next), tch = NULL)
 	{
 		helper = tch ? tch : k->follower;
-		if (ch->in_room == IN_ROOM(helper) &&
-				!helper->get_fighting() && !IS_NPC(helper) && GET_POS(helper) > POS_STUNNED)
+		if (ch->in_room == IN_ROOM(helper)
+			&& !helper->get_fighting()
+			&& !IS_NPC(helper)
+			&& GET_POS(helper) > POS_STUNNED)
 		{
 			GET_POS(helper) = POS_STANDING;
 			set_fighting(helper, ch->get_fighting());
@@ -3225,7 +3274,7 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			pet->player_data.description = str_dup(buf);
 		}
 		char_to_room(pet, ch->in_room);
-		add_follower(pet, ch);
+		ch->add_follower(pet);
 		load_mtrigger(pet);
 
 		// Be certain that pets can't get/carry/use/wield/wear items

@@ -102,10 +102,14 @@ void do_wasound(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (door = 0; door < NUM_OF_DIRS; door++)
 	{
-		EXIT_DATA *exit;
+		const auto& exit = room->dir_option[door];
 
-		if ((exit = room->dir_option[door]) && (exit->to_room != NOWHERE) && room != world[exit->to_room])
+		if (exit
+			&& (exit->to_room != NOWHERE)
+			&& room != world[exit->to_room])
+		{
 			act_to_room(argument, world[exit->to_room]);
+		}
 	}
 }
 
@@ -193,7 +197,6 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
 	ROOM_DATA *rm;
-	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] = { "purge",
@@ -233,28 +236,25 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	exit = rm->dir_option[dir];
+	auto exit = rm->dir_option[dir];
 
 	// purge exit
 	if (fd == 0)
 	{
 		if (exit)
 		{
-			if (exit->general_description)
-				free(exit->general_description);
 			if (exit->keyword)
 				free(exit->keyword);
 			if (exit->vkeyword)
 				free(exit->vkeyword);
-			free(exit);
-			rm->dir_option[dir] = NULL;
+			rm->dir_option[dir].reset();
 		}
 	}
 	else
 	{
 		if (!exit)
 		{
-			CREATE(exit, 1);
+			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
 
@@ -264,20 +264,17 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		switch (fd)
 		{
 		case 1:	// description //
-			if (exit->general_description)
-			{
-				free(exit->general_description);
-			}
-			CREATE(exit->general_description, strlen(value) + 3);
-			strcpy(exit->general_description, value);
-			strcat(exit->general_description, "\r\n");
+			exit->general_description = std::string(value) + "\r\n";
 			break;
+
 		case 2:	// flags       //
 			asciiflag_conv(value, &exit->exit_info);
 			break;
+
 		case 3:	// key         //
 			exit->key = atoi(value);
 			break;
+
 		case 4:	// name        //
 			if (exit->keyword)
 				free(exit->keyword);
@@ -345,7 +342,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			next_ch = ch->next_in_room;
 			if (IS_NPC(ch)
 					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-						 || MOB_FLAGGED(ch, MOB_ANGEL)))
+						 || MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
 				continue;
 			if (on_horse(ch) || has_horse(ch, TRUE))
 				horse = get_horse(ch);
@@ -369,15 +366,22 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		if ((ch = get_char_by_room(room, arg1)))
 		{
 			if (on_horse(ch) || has_horse(ch, TRUE))
+			{
 				horse = get_horse(ch);
+			}
 			else
+			{
 				horse = NULL;
+			}
+
 			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
-				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
-										|| MOB_FLAGGED(charmee, MOB_ANGEL))
-						&& charmee->master == ch)
+				if (IS_NPC(charmee)
+					&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
+						|| MOB_FLAGGED(charmee, MOB_ANGEL)
+						|| MOB_FLAGGED(ch, MOB_GHOST))
+					&& charmee->get_master() == ch)
 				{
 					char_from_room(charmee);
 					char_to_room(charmee, target);
@@ -394,7 +398,9 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			look_at_room(ch, TRUE);
 		}
 		else
+		{
 			wld_log(room, "wteleport: no target found");
+		}
 	}
 }
 
@@ -520,7 +526,8 @@ void do_wpurge(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->followers || ch->master)
+	if (ch->followers
+		|| ch->get_master())
     {
         die_follower(ch);
     }

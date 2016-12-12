@@ -90,46 +90,47 @@ template <class t>
 class Wrapper
 {
 public:
-typedef t wrapped_t;
-typedef caching::Cache<wrapped_t*> cache_t;
-Wrapper(t* obj, cache_t& cache_):
-cache(cache_), id(cache_.get_id(obj))
+	typedef t wrapped_t;
+	typedef caching::Cache<wrapped_t*> cache_t;
+	Wrapper(t* obj, cache_t& cache_):
+		cache(cache_), id(cache_.get_id(obj))
 	{
 	}
 
-Wrapper(const Wrapper& other):
-	cache(other.cache), id(other.id) { }
+	Wrapper(const Wrapper& other):
+		cache(other.cache), id(other.id) { }
 
-Wrapper& operator=(const Wrapper& other)
-{
-	id = other.id;
-	return *this;
-}
+	Wrapper& operator=(const Wrapper& other)
+	{
+		id = other.id;
+		return *this;
+	}
 
-operator t*() const
-{
-	t* r = cache.get_obj(id);
-	if (!r)
-		raise_error();
-	return r;
-}
+	operator t*() const
+	{
+		t* r = cache.get_obj(id);
+		if (!r)
+			raise_error();
+		return r;
+	}
 
-operator bool() { return id!=0; }
+	operator bool() { return id!=0; }
 
-void raise_error() const
-{
-	PyErr_SetString(ObjectDoesNotExist.get(), "Object you are referencing doesn't exist anymore");
-	throw_error_already_set();
-}
+	void raise_error() const
+	{
+		PyErr_SetString(ObjectDoesNotExist.get(), "Object you are referencing doesn't exist anymore");
+		throw_error_already_set();
+	}
 
-struct Ensurer
-{
-Ensurer(const Wrapper& w): ptr(w) { }
+	struct Ensurer
+	{
+		Ensurer(const Wrapper& w): ptr(w) { }
 
-t* operator->() { return ptr; }
-operator t*() { return ptr; }
-t* ptr;
-};
+		t* operator->() { return ptr; }
+		operator t*() { return ptr; }
+		t* ptr;
+	};
+
 private:
 	cache_t& cache;
 	caching::id_t id;
@@ -635,10 +636,10 @@ bool is_affected_by_spell(int spell_num) const
 	return affected_by_spell(ch, spell_num);
 }
 
-void add_affect(AFFECT_DATA<EApplyLocation>& af)
+void add_affect(const AFFECT_DATA<EApplyLocation>& af)
 {
 	Ensurer ch(*this);
-	affect_to_char(ch, &af);
+	affect_to_char(ch, af);
 }
 
 CharacterWrapper get_vis(const char* name, int where) const
@@ -757,12 +758,12 @@ CharacterWrapper get_mob_proto(const mob_rnum rnum)
 
 CHAR_DATA* character_get_master(CHAR_DATA* ch)
 {
-	return ch->master;
+	return ch->get_master();
 }
 
 void character_set_master(CHAR_DATA* ch, CHAR_DATA* master)
 {
-	ch->master = master;
+	ch->set_master(master);
 }
 
 std::string get_spell_type_str(const AFFECT_DATA<EApplyLocation>& af)
@@ -843,19 +844,16 @@ struct _arrayN
     }
 };
 
-class ObjWrapper: public Wrapper<OBJ_DATA>
+class ObjWrapper: private std::shared_ptr<OBJ_DATA>, public Wrapper<OBJ_DATA>
 {
-private:
-	std::shared_ptr<OBJ_DATA> m_temp_object;	// built based on provided prototype
-
 public:
 	ObjWrapper(OBJ_DATA* obj) : Wrapper<OBJ_DATA>(obj, caching::obj_cache)
 	{
 	}
 
-	ObjWrapper(const CObjectPrototype::shared_ptr& obj) :
-		m_temp_object(new OBJ_DATA(*obj)),
-		Wrapper<OBJ_DATA>(m_temp_object.get(), caching::obj_cache)
+	ObjWrapper(const CObjectPrototype::shared_ptr& obj):
+		std::shared_ptr<OBJ_DATA>(new OBJ_DATA(*obj)),
+		Wrapper<OBJ_DATA>(get(), caching::obj_cache)
 	{
 	}
 
@@ -1397,7 +1395,7 @@ BOOST_PYTHON_MODULE(mud)
 	"channel  канал, в который будет записано сообщение (comm.h). в настоящее время может принимать значения constants.SYSLOG, constants.ERRLOG и constants.IMLOG.\n"
 	"to_file  Записывать ли сообщение так же в файл, помимо вывода его иммам");
 	def("send_all", send_to_all, (py::arg("msg")),
-"Шлет сообщение msg всем игрокам.");	
+"Шлет сообщение msg всем игрокам.");
 	def("find_skill_num", find_skill_num, "Возвращает номер скила по его названию.");
 	def("find_spell_num", find_spell_num, "Возвращает номер спелла по его названию.");
 	def("get_mob_proto", get_mob_proto, "Возвращает моба из базы прототипов с заданым rnum.");
@@ -1507,7 +1505,7 @@ BOOST_PYTHON_MODULE(mud)
 		.def("quested_get", &CharacterWrapper::quested_get_text, "Возвращает строку квестовой информации, сохраненной под заданым номером vnum.")
 		.add_property("quested_text", &CharacterWrapper::quested_print, "Вся информация по квестам в текстовом виде.")
 		.add_property("wait", &CharacterWrapper::get_wait, &CharacterWrapper::set_wait, "Сколько циклов ждать")
-		
+
 	;
 
 	class_<affected_t>("ObjAffectedArray", "Массив из шести модификаторов объекта.", no_init)
@@ -1686,6 +1684,7 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(AFF_ROOM_RUNE_LABEL);
     DEFINE_CONSTANT(AFF_ROOM_FORBIDDEN);
     DEFINE_CONSTANT(AFF_ROOM_HYPNOTIC_PATTERN);
+    DEFINE_CONSTANT(AFF_ROOM_EVARDS_BLACK_TENTACLES);
     DEFINE_CONSTANT(EX_ISDOOR);
     DEFINE_CONSTANT(EX_CLOSED);
     DEFINE_CONSTANT(EX_LOCKED);
@@ -1873,6 +1872,7 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(MOB_IGNORE_FORBIDDEN);
     DEFINE_CONSTANT(MOB_NO_BATTLE_EXP);
     DEFINE_CONSTANT(MOB_NOHAMER);
+    DEFINE_CONSTANT(MOB_GHOST);
     DEFINE_CONSTANT(MOB_FIREBREATH);
     DEFINE_CONSTANT(MOB_GASBREATH);
     DEFINE_CONSTANT(MOB_FROSTBREATH);
@@ -2385,6 +2385,7 @@ BOOST_PYTHON_MODULE(constants)
     DEFINE_CONSTANT(APPLY_BELENA_POISON);
     DEFINE_CONSTANT(APPLY_DATURA_POISON);
     DEFINE_CONSTANT(APPLY_HIT_GLORY);
+    DEFINE_CONSTANT(APPLY_PR);
     DEFINE_CONSTANT(NUM_APPLIES	);
     DEFINE_CONSTANT(APPLY_ROOM_NONE);
     DEFINE_CONSTANT(APPLY_ROOM_POISON);
@@ -2466,10 +2467,10 @@ BOOST_PYTHON_MODULE(constants)
 }
 
 void scripting::init()
-{	
-	
-	PyImport_AppendInittab ("mud", PyInit_mud ); 
-	PyImport_AppendInittab ("constants", PyInit_constants ); 
+{
+
+	PyImport_AppendInittab ("mud", PyInit_mud );
+	PyImport_AppendInittab ("constants", PyInit_constants );
 	Py_InitializeEx(0); //pass 0 to skip initialization registration of signal handlers
 	PyEval_InitThreads();
 	log("Using python version %s", Py_GetVersion());
@@ -2613,7 +2614,7 @@ typedef std::vector<PythonUserCommand> python_command_list_t;
 	{
 		// ����������, ������� ��, �������������� i->command � koi8-r, �� � �� ����, ����� ����� ���
 		if (!boost::starts_with(i->command_koi8r, command)) continue;
-		
+
 		//Copied from interpreter.cpp
 		if (IS_NPC(ch) && i->minimum_level >= LVL_IMMORT)
 		{

@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "shutdown.parameters.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -25,6 +26,7 @@
 #include "pk.h"
 #include "dg_scripts.h"
 #include "mail.h"
+#include "parcel.hpp"
 #include "features.hpp"
 #include "im.h"
 #include "house.h"
@@ -48,6 +50,7 @@
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
 #include "char_obj_utils.inl"
+#include "class.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -67,7 +70,7 @@ using std::string;
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
 extern OBJ_DATA *object_list;
-extern int top_of_socialk;
+extern int number_of_social_commands;
 extern char *credits;
 extern char *info;
 extern char *motd;
@@ -136,10 +139,11 @@ void do_auto_exits(CHAR_DATA * ch);
 void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is);
 void look_in_obj(CHAR_DATA * ch, char *arg);
-char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list);
+char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd);
 void gods_day_now(CHAR_DATA * ch);
 void do_blind_exits(CHAR_DATA *ch);
+const char *diag_liquid_timer(const OBJ_DATA * obj);
 #define EXIT_SHOW_WALL    (1 << 0)
 #define EXIT_SHOW_LOOKING (1 << 1)
 
@@ -618,7 +622,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 					sprintf(buf2, " %s", diag_obj_to_char(ch, object, 1));
 				}
 			}
-			if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_CONTAINER)
+			if ((GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_CONTAINER) && !OBJVAL_FLAGGED(object, CONT_CLOSED)) // если закрыто, содержимое не показываем
 			{
 				if (object->get_contains())
 				{
@@ -626,7 +630,8 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 				}
 				else
 				{
-					sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
+					if (GET_OBJ_VAL(object, 3) < 1) // есть ключ для открытия, пустоту не показываем2
+						sprintf(buf2 + strlen(buf2), " (пуст%s)", GET_OBJ_SUF_6(object));
 				}
 			}
 		}
@@ -658,7 +663,9 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		strcat(buf, buf2);
 	}
 	if (how > 1)
+	{
 		sprintf(buf + strlen(buf), " [%d]", how);
+	}
 	if (mode != 3 && how <= 1)
 	{
 		if (object->get_extra_flag(EExtraFlag::ITEM_INVISIBLE))
@@ -723,6 +730,15 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	return 0;
 }
 
+bool quest_item(OBJ_DATA *obj)
+{
+	if ((OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY)) && (!(CAN_WEAR(obj, EWearFlag::ITEM_WEAR_TAKE))))
+	{
+		return true;
+	}
+	return false;
+}
+
 void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 {
 	OBJ_DATA *i, *push = NULL;
@@ -746,7 +762,8 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 				push = i;
 				push_count = 1;
 			}
-			else if (!equal_obj(i, push))
+			else if ((!equal_obj(i, push)) 
+				|| (quest_item(i)))
 			{
 				if (clan_chest)
 				{
@@ -1009,7 +1026,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 		act("\r\nНичего необычного в $n5 вы не заметили.", FALSE, i, 0, ch, TO_VICT);
 
 	if (AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
-		&& i->master == ch)
+		&& i->get_master() == ch)
 	{
 		if (low_charm(i))
 		{
@@ -1017,7 +1034,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 		}
 		else
 		{
-			for (auto aff = i->affected; aff; aff = aff->next)
+			for (const auto& aff : i->affected)
 			{
 				if (aff->type == SPELL_CHARM)
 				{
@@ -1029,7 +1046,8 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 		}
 	}
 
-	if (IS_HORSE(i) && i->master == ch)
+	if (IS_HORSE(i)
+		&& i->get_master() == ch)
 	{
 		strcpy(buf, "\r\nЭто ваш скакун. Он ");
 		if (GET_HORSESTATE(i) <= 0)
@@ -1064,14 +1082,21 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 			send_to_char("\r\n", ch);
 			act("$n одет$a :", FALSE, i, 0, ch, TO_VICT);
 			for (j = 0; j < NUM_WEARS; j++)
+			{
 				if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
 				{
 					send_to_char(where[j], ch);
-					if (i->master && IS_NPC(i))
-						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->master, 1);
+					if (i->has_master()
+						&& IS_NPC(i))
+					{
+						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
+					}
 					else
+					{
 						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
+					}
 				}
+			}
 		}
 	}
 
@@ -1140,15 +1165,20 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		"стоят здесь. "
 	};
 
-	if (IS_HORSE(i) && on_horse(i->master))
+	if (IS_HORSE(i) && on_horse(i->get_master()))
 	{
-		if (ch == i->master)
+		if (ch == i->get_master())
 		{
 			if (!IS_POLY(i))
+			{
 				act("$N несет вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
+			}
 			else
+			{
 				act("$N несут вас на своей спине.", FALSE, ch, 0, i, TO_CHAR);
+			}
 		}
+
 		return;
 	}
 
@@ -1781,35 +1811,52 @@ const char *Fires[MAX_FIRES] = { "тлеет небольшая кучка угольков",
 
 int paste_description(char *string, const char *tag, int need)
 {
-	char *pos;
 	if (!*string || !*tag)
-		return (FALSE);
-	if ((pos = str_str(string, tag)))
 	{
-		if (need)
+		return (FALSE);
+	}
+
+	const char *pos = str_str(string, tag);
+	if (!pos)
+	{
+		return FALSE;
+	}
+
+	if (!need)
 		{
+		const size_t offset = pos - string;
+		string[offset] = '\0';
+		pos = str_str(pos + 1, tag);
+		if (pos)
+		{
+			strcat(string, pos + strlen(tag));
+		}
+		return FALSE;
+	}
+
 			for (; *pos && *pos != '>'; pos++);
+
 			if (*pos)
+	{
 				pos++;
+	}
+
 			if (*pos == 'R')
 			{
 				pos++;
 				buf[0] = '\0';
 			}
+
 			strcat(buf, pos);
-			if ((pos = str_str(buf, tag)))
-				* pos = '\0';
-			return (TRUE);
-		}
-		else
+	pos = str_str(buf, tag);
+	if (pos)
 		{
-			*pos = '\0';
-			if ((pos = str_str(pos + 1, tag)))
-				strcat(string, pos + strlen(tag));
+		const size_t offset = pos - buf;
+		buf[offset] = '\0';
 		}
+
+	return (TRUE);
 	}
-	return (FALSE);
-}
 
 
 void show_extend_room(const char * const description, CHAR_DATA * ch)
@@ -2122,8 +2169,9 @@ int get_pick_chance(int skill_pick, int lock_complexity)
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
 	int count = 0, probe, percent;
-	EXIT_DATA *rdata = NULL;
+	ROOM_DATA::exit_data_ptr rdata;
 	CHAR_DATA *tch;
+
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
 			&& EXIT(ch, dir)->to_room != NOWHERE))
@@ -2195,10 +2243,14 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		}
 		else
 		{
-			if (rdata->general_description)
-				count += sprintf(buf + count, "%s\r\n", rdata->general_description);
+			if (!rdata->general_description.empty())
+			{
+				count += sprintf(buf + count, "%s\r\n", rdata->general_description.c_str());
+			}
 			else
+			{
 				count += sprintf(buf + count, "%s\r\n", world[rdata->to_room]->name);
+			}
 			send_to_char(buf, ch);
 			send_to_char("&R&q", ch);
 			list_char_to_char(world[rdata->to_room]->people, ch);
@@ -2212,7 +2264,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
 	int count = 0, percent = 0, probe = 0;
-	EXIT_DATA *rdata;
+	ROOM_DATA::exit_data_ptr rdata;
 	CHAR_DATA *tch;
 	int fight_count = 0;
 	string tmpstr = "";
@@ -2423,7 +2475,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 				else
 				{
 					const char* msg = AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_POISON)
-						&& obj->get_val(3) > 0 ? "(отравленной)" : "";
+						&& obj->get_val(3) == 1 ? "(отравленной)" : "";
 					amt = (GET_OBJ_VAL(obj, 1) * 5) / GET_OBJ_VAL(obj, 0);
 					sprinttype(GET_OBJ_VAL(obj, 2), color_liquid, buf2);
 					sprintf(buf, "Наполнен%s %s%s%s жидкостью.\r\n", GET_OBJ_SUF_6(obj), fullness[amt], buf2, msg);
@@ -2434,7 +2486,7 @@ void look_in_obj(CHAR_DATA * ch, char *arg)
 	}
 }
 
-char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list)
+char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list)
 {
 	for (auto i = list; i; i = i->next)
 	{
@@ -2446,6 +2498,24 @@ char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list)
 
 	return nullptr;
 }
+const char *diag_liquid_timer(const OBJ_DATA* obj)
+{	int tm;
+	if (GET_OBJ_VAL(obj, 3) == 1)
+		return "испортилось!";
+	if (GET_OBJ_VAL(obj, 3) == 0)
+		return "идеальное.";
+	tm = (GET_OBJ_VAL(obj, 3));
+	if (tm < 1440) // сутки
+		return "скоро испортится!";
+	else if (tm < 10080) //неделя
+		return "сомнительное.";
+	else if (tm < 20160) // 2 недели
+		return "выглядит свежим.";
+	else if (tm < 30240) // 3 недели
+		return "свежее.";
+	return "идеальное.";
+}
+
 //ф-ция вывода доп инфы об объекте
 //buf это буфер в который дописывать инфу, в нем уже может быть что-то иначе надо перед вызовом присвоить *buf='\0'
 void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
@@ -2525,7 +2595,20 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->label_text);
 		}
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
+		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
+		{
+			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
+		}
+
+		if (((GET_OBJ_TYPE(obj) == CObjectPrototype::ITEM_DRINKCON)
+			&& (GET_OBJ_VAL(obj, 1) > 0))
+			|| (GET_OBJ_TYPE(obj) == CObjectPrototype::ITEM_FOOD))
+		{
+			sprintf(buf1, "Качество: %s\r\n", diag_liquid_timer(obj));
+			strcat(buf, buf1);
+		}
 }
+
 /*
  * Given the argument "look at <target>", figure out what object or char
  * matches the target.  First, see if there is another char in the room
@@ -3446,36 +3529,7 @@ void print_do_score_all(CHAR_DATA *ch)
 		sprintf(buf + strlen(buf),
 			" || Вы самоотверженно отдаете весь получаемый опыт своей дружине.                   ||\r\n");
 	}
-/*
-	////////////////////////////////////////////////////////////////////////////
-	std::stringstream tmp_out;
 
-	// обнуление дневного лимита, если уже сменились сутки
-	ch->add_today_torc(0);
-	tmp_out << "Наградные гривны: "
-		<< CCIYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_GOLD) << "з "
-		<< CCWHT(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_SILVER) << "с "
-		<< CCYEL(ch, C_NRM) << ch->get_ext_money(ExtMoney::TORC_BRONZE) << "б"
-		<< CCCYN(ch, C_NRM) << " " << ExtMoney::draw_daily_limit(ch);
-
-	if (COLOR_LEV(ch) < C_NRM)
-	{
-		sprintf(buf + strlen(buf),
-			" %s|| %-24s %54s %s||\r\n",
-			CCCYN(ch, C_NRM),
-			(PRF_FLAGGED(ch, PRF_SUMMONABLE) ? "Вы можете быть призваны." : "Вы защищены от призыва."),
-			tmp_out.str().c_str(), CCCYN(ch, C_NRM));
-	}
-	else
-	{
-		sprintf(buf + strlen(buf),
-			" %s|| %-24s %82s %s||\r\n",
-			CCCYN(ch, C_NRM),
-			(PRF_FLAGGED(ch, PRF_SUMMONABLE) ? "Вы можете быть призваны." : "Вы защищены от призыва."),
-			tmp_out.str().c_str(), CCCYN(ch, C_NRM));
-	}
-	////////////////////////////////////////////////////////////////////////////
-*/
 	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
 		sprintf(buf + strlen(buf),
 				" || Вы можете быть призваны.                                                        ||\r\n");
@@ -3536,6 +3590,11 @@ void print_do_score_all(CHAR_DATA *ch)
 	if (mail::has_mail(ch->get_uid()))
 		sprintf(buf + strlen(buf),
 				" || %sВас ожидает новое письмо, зайдите на почту.                                     %s||\r\n",
+				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+
+	if (Parcel::has_parcel(ch))
+		sprintf(buf + strlen(buf),
+				" || %sВас ожидает посылка, зайдите на почту.                                          %s||\r\n",
 				CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	if (ch->get_protecting())
@@ -3873,6 +3932,12 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (mail::has_mail(ch->get_uid()))
 	{
 		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+
+	if (Parcel::has_parcel(ch))
+	{
+		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
 
@@ -4504,6 +4569,8 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
+			if ((GET_LEVEL(ch) == LVL_GOD) && (GET_GOD_FLAG(tch, GF_TESTER)))
+				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));
 		}		// endif shortlist
@@ -4592,10 +4659,9 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	page_string(ch->desc, out);
 }
 
-extern time_t boot_time;
-
 std::string print_server_uptime()
 {
+	const auto boot_time = shutdown_parameters.get_boot_time();
 	time_t diff = time(0) - boot_time;
 	int d = diff / 86400;
 	int h = (diff / 3600) % 24;
@@ -5675,7 +5741,7 @@ void do_commands(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			socials ? "социалы" : "команды", vict == ch ? "вам" : GET_PAD(vict, 2));
 
 	if (socials)
-		num_of = top_of_socialk + 1;
+		num_of = number_of_social_commands;
 	else
 		num_of = num_of_cmds - 1;
 
@@ -5733,17 +5799,20 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 	// Routine to show what spells a char is affected by
-	if (ch->affected)
+	if (!ch->affected.empty())
 	{
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i)
 		{
-			int mod;
+			const auto aff = *affect_i;
+
 			if (aff->type == SPELL_SOLOBONUS)
 			{
 				continue;
 			}
+
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
+			int mod = 0;
 			if (aff->battleflag == AF_PULSEDEC)
 			{
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
@@ -5761,9 +5830,15 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			*buf2 = '\0';
 			if (!IS_IMMORTAL(ch))
 			{
-				if (aff->next && aff->type == aff->next->type)
+				auto next_affect_i = affect_i;
+				++next_affect_i;
+				if (next_affect_i != ch->affected.end())
 				{
-					continue;
+					const auto& next_affect = *next_affect_i;
+					if (aff->type == next_affect->type)
+					{
+						continue;
+					}
 				}
 			}
 			else
@@ -5792,7 +5867,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			send_to_char(strcat(buf, "\r\n"), ch);
 		}
 // отображение наград
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 		    if (aff->type == SPELL_SOLOBONUS)
 		    {
@@ -5819,6 +5894,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		    }
 		}
 	}
+
 	if (ch->is_morphed())
 	{
 		*buf2 = '\0';
@@ -5853,7 +5929,6 @@ void make_who2html(void)
 
 	if ((opf = fopen(WHOLIST_FILE, "w")) == 0)
 		return;		// or log it ? *shrug*
-
 	fprintf(opf, "<HTML><HEAD><TITLE>Кто сейчас в Былинах?</TITLE></HEAD>\n");
 	fprintf(opf, "<BODY><H1>Кто сейчас живет в Былинах?</H1><HR>\n");
 
@@ -5892,9 +5967,7 @@ void make_who2html(void)
 			buffer = str_add(buffer, imms);
 		if (morts_num > 0)
 			buffer = str_add(buffer, morts);
-
 		buffer = str_add(buffer, " <BR> \r\n Всего :");
-
 		if (imms_num)
 		{
 			// sprintf(buf+strlen(buf)," бессмертных %d",imms_num);

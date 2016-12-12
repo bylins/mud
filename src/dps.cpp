@@ -111,7 +111,7 @@ void Dps::add_dmg(int type, CHAR_DATA *ch, int dmg, int over_dmg)
 		add_group_dmg(ch, dmg, over_dmg);
 		break;
 	case GROUP_CHARM_DPS:
-		if (ch && ch->master)
+		if (ch && ch->has_master())
 		{
 			add_group_charm_dmg(ch, dmg, over_dmg);
 		}
@@ -237,7 +237,7 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		tmp_total_dmg = 0;
-		CHAR_DATA *leader = ch->master ? ch->master : ch;
+		CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
 		leader->dps_print_group_stats(ch, coder);
 	}
 }
@@ -257,7 +257,7 @@ void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 	send_to_char("\r\nСтатистика вашей группы:\r\n"
 			"---------------------------|--------------------|----------------|-------------|\r\n", coder);
 
-	CHAR_DATA *leader = ch->master ? ch->master : ch;
+	CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
 	for (follow_type *f = leader->followers; f; f = f->next)
 	{
 		if (f->follower
@@ -314,7 +314,7 @@ void Dps::end_group_round(CHAR_DATA *ch)
 
 void Dps::add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 {
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch->master));
+	GroupListType::iterator it = group_dps_.find(GET_ID(ch->get_master()));
 	if (it != group_dps_.end())
 	{
 		it->second.add_charm_dmg(ch, dmg, over_dmg);
@@ -322,15 +322,15 @@ void Dps::add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 	else
 	{
 		PlayerDpsNode tmp_node;
-		tmp_node.set_name(GET_NAME(ch->master));
+		tmp_node.set_name(GET_NAME(ch->get_master()));
 		tmp_node.add_charm_dmg(ch, dmg, over_dmg);
-		group_dps_.insert(std::make_pair(GET_ID(ch->master), tmp_node));
+		group_dps_.insert(std::make_pair(GET_ID(ch->get_master()), tmp_node));
 	}
 }
 
 void Dps::end_group_charm_round(CHAR_DATA *ch)
 {
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch->master));
+	GroupListType::iterator it = group_dps_.find(GET_ID(ch->get_master()));
 	if (it != group_dps_.end())
 	{
 		it->second.end_charm_round(ch);
@@ -338,9 +338,9 @@ void Dps::end_group_charm_round(CHAR_DATA *ch)
 	else
 	{
 		PlayerDpsNode tmp_node;
-		tmp_node.set_name(GET_NAME(ch->master));
+		tmp_node.set_name(GET_NAME(ch->get_master()));
 		tmp_node.end_charm_round(ch);
-		group_dps_.insert(std::make_pair(GET_ID(ch->master), tmp_node));
+		group_dps_.insert(std::make_pair(GET_ID(ch->get_master()), tmp_node));
 	}
 }
 
@@ -471,16 +471,16 @@ void check_round(CHAR_DATA *ch)
 		ch->dps_end_round(DpsSystem::PERS_DPS);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		{
-			CHAR_DATA *leader = ch->master ? ch->master : ch;
+			CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
 		}
 	}
-	else if (IS_CHARMICE(ch) && ch->master)
+	else if (IS_CHARMICE(ch) && ch->has_master())
 	{
-		ch->master->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
-		if (AFF_FLAGGED(ch->master, EAffectFlag::AFF_GROUP))
+		ch->get_master()->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
+		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP))
 		{
-			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
+			CHAR_DATA *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
 			leader->dps_end_round(DpsSystem::GROUP_CHARM_DPS, ch);
 		}
 	}
@@ -532,7 +532,7 @@ void do_dmeter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				send_to_char("Вы не состоите в группе.\r\n", ch);
 				return;
 			}
-			if (ch->master)
+			if (ch->has_master())
 			{
 				send_to_char("Вы не являетесь лидером группы.\r\n", ch);
 				return;

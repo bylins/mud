@@ -157,12 +157,11 @@ int cast_to_int(const char *text)
 
 	try
 	{
-		result = boost::lexical_cast<int>(text);
+		result = std::stoi(text, nullptr, 10);
 	}
 	catch(...)
 	{
-		snprintf(buf, MAX_STRING_LENGTH,
-			"...lexical_cast<int> fail (value='%s')", text);
+		snprintf(buf, MAX_STRING_LENGTH, "...lexical_cast<int> fail (value='%s')", text);
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 	}
 
@@ -265,43 +264,5 @@ bool valid_obj_vnum(int vnum)
 }
 
 } // namespace Parse
-
-const char *mon_name[] =
-{
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "\n"
-};
-
-time_t parse_asctime(const std::string &str)
-{
-	char tmp[10], month[10];
-	std::tm tm_time;
-	tm_time.tm_mon = -1;
-
-	int parsed = sscanf(str.c_str(), "%3s %3s %d %d:%d:%d %d",
-		tmp, month,
-		&tm_time.tm_mday,
-		&tm_time.tm_hour, &tm_time.tm_min, &tm_time.tm_sec,
-		&tm_time.tm_year);
-
-	int i = 0;
-	for (/**/; *mon_name[i] != '\n'; ++i)
-	{
-		if (!strcmp(month, mon_name[i]))
-		{
-			tm_time.tm_mon = i;
-			break;
-		}
-	}
-
-	time_t time = 0;
-	if (tm_time.tm_mon != -1 && parsed == 7)
-	{
-		tm_time.tm_year -= 1900;
-		tm_time.tm_isdst = -1;
-		time = std::mktime(&tm_time);
-	}
-	return time;
-}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

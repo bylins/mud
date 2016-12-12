@@ -1,5 +1,6 @@
 #include "structs.h"
 
+#include "spells.h"
 #include "utils.h"
 #include "msdp.hpp"
 
@@ -370,7 +371,7 @@ const religion_names_t religion_name =
 	religion_genders_t{ "", "", "", "" }		// for undefined religion
 };
 
-std::map<int, std::string> SECTOR_TYPE_BY_VALUE = {
+std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE = {
 	{ SECT_INSIDE, "inside" },
 	{ SECT_CITY, "city" },
 	{ SECT_FIELD, "field" },
@@ -624,6 +625,7 @@ void init_EExtraFlag_ITEM_NAMES()
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_2INLAID] = "ITEM_2INLAID";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_3INLAID] = "ITEM_3INLAID";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOPOUR] = "ITEM_NOPOUR";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE] = "ITEM_UNIQUE";
 
 	for (const auto& i : EExtraFlag_name_by_value)
 	{
@@ -741,6 +743,7 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_RECALL_SPELLS] = "AFF_RECALL_SPELLS";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_NOOB_REGEN] = "AFF_NOOB_REGEN";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE] = "AFF_VAMPIRE";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
 
 	for (const auto& i : EAffectFlag_name_by_value)
 	{
@@ -931,7 +934,7 @@ void init_EApplyLocation_ITEM_NAMES()
 {
 	EApplyLocation_name_by_value.clear();
 	EApplyLocation_value_by_name.clear();
-	
+
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_NONE] = "APPLY_NONE";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_STR] = "APPLY_STR";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_DEX] = "APPLY_DEX";
@@ -992,6 +995,9 @@ void init_EApplyLocation_ITEM_NAMES()
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_HIT_GLORY] = "APPLY_HIT_GLORY";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_EXP] = "APPLY_BONUS_EXP";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_BONUS_SKILLS] = "APPLY_BONUS_SKILLS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_MADNESS] = "APPLY_MADNESS";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_PR";
 	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
 
 	for (const auto& i : EApplyLocation_name_by_value)
@@ -1020,33 +1026,42 @@ const std::string& NAME_BY_ITEM(const EApplyLocation item)
 	return EApplyLocation_name_by_value.at(item);
 }
 
-void CSimpleStringWriter::set_string(const char* string)
+void DelegatedStringWriter::set_string(const char* string)
 {
 	const size_t l = strlen(string);
-	if (nullptr == m_managed)
+	if (nullptr == m_delegated_string)
 	{
-		CREATE(m_managed, l + 1);
+		CREATE(m_delegated_string, l + 1);
 	}
 	else
 	{
-		RECREATE(m_managed, l + 1);
+		RECREATE(m_delegated_string, l + 1);
 	}
-	strcpy(m_managed, string);
+	strcpy(m_delegated_string, string);
 }
 
-void CSimpleStringWriter::append_string(const char* string)
+void DelegatedStringWriter::append_string(const char* string)
 {
 	const size_t l = length() + strlen(string);
-	if (nullptr == m_managed)
+	if (nullptr == m_delegated_string)
 	{
-		CREATE(m_managed, l + 1);
-		*m_managed = '\0';
+		CREATE(m_delegated_string, l + 1);
+		*m_delegated_string = '\0';
 	}
 	else
 	{
-		RECREATE(m_managed, l + 1);
+		RECREATE(m_delegated_string, l + 1);
 	}
-	strcat(m_managed, string);
+	strcat(m_delegated_string, string);
+}
+
+void DelegatedStringWriter::clear()
+{
+	if (m_delegated_string)
+	{
+		free(m_delegated_string);
+	}
+	m_delegated_string = nullptr;
 }
 
 void DESCRIPTOR_DATA::msdp_support(bool on)
@@ -1063,7 +1078,7 @@ void DESCRIPTOR_DATA::msdp_report(const std::string& name)
 	}
 }
 
-void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
+void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output) const
 {
 	switch (keytable)
 	{
@@ -1121,6 +1136,26 @@ EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()
 	}
 
 	// we don't take care of items in list. So, we don't do anything with the next field.
+}
+
+template <>
+bool AFFECT_DATA<EApplyLocation>::removable() const
+{
+	return !spell_info[type].name
+		|| *spell_info[type].name == '!'
+		|| type == SPELL_SLEEP
+		|| type == SPELL_POISON
+		|| type == SPELL_WEAKNESS
+		|| type == SPELL_CURSE
+		|| type == SPELL_PLAQUE
+		|| type == SPELL_SILENCE
+		|| type == SPELL_BLINDNESS
+		|| type == SPELL_HAEMORRAGIA
+		|| type == SPELL_HOLD
+		|| type == SPELL_PEACEFUL
+		|| type == SPELL_CLONE
+		|| type == SPELL_CONE_OF_COLD
+		|| type == SPELL_DEAFNESS;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

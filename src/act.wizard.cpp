@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "commands.shutdown.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -86,13 +87,10 @@ extern struct zone_data *zone_table;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
 extern const char *weapon_affects[];
-extern time_t boot_time;
-extern int circle_shutdown, circle_reboot;
 extern int circle_restrict;
 extern int load_into_inventory;
 extern int buf_switches, buf_largecount, buf_overflows;
 extern mob_rnum top_of_mobt;
-extern int shutdown_time;
 extern CHAR_DATA *mob_proto;
 void medit_save_to_disk(int zone_num);
 extern const char *Dirs[];
@@ -106,12 +104,11 @@ extern struct spell_info_type spell_info[];
 extern void agree_name(CHAR_DATA * d, const char *immname, int immlev);
 extern void disagree_name(CHAR_DATA * d, const char *immname, int immlev);
 // privileges class
-extern int reboot_uptime;
 extern BanList *ban;
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect);	// to avoid inclusion of utils.h
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
+void save_zone_count_reset();
 // extern functions
 int level_exp(CHAR_DATA * ch, int level);
 void appear(CHAR_DATA * ch);
@@ -187,6 +184,15 @@ void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+
+void save_zone_count_reset()
+{
+	for (int i = 0; i <= top_of_zone_table; ++i)
+	{
+		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
+		log("%s", buf);
+	}
+}
 
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
@@ -765,13 +771,14 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	bool found = false;
 	CHAR_DATA *c, *caster;
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.
-	for (std::list<ROOM_DATA*>::iterator it = RoomSpells::aff_room_list.begin();it != RoomSpells::aff_room_list.end();++it)
+	for (auto it = RoomSpells::aff_room_list.begin(); it != RoomSpells::aff_room_list.end(); ++it)
 	{
-		if (((*it)->zone == zone_nr) && room_affected_by_spell(*it, SPELL_RUNE_LABEL))
+		const auto aff = find_room_affect(*it, SPELL_RUNE_LABEL);
+		if (((*it)->zone == zone_nr)
+			&& aff != (*it)->affected.end())
 		{
 			// если в зоне метка
-			auto aff = room_affected_by_spell(*it, SPELL_RUNE_LABEL);
-			caster = find_char(aff->caster_id);
+			caster = find_char((*aff)->caster_id);
 			if (caster)
 			{
 				sprintf(buf2, "В зоне vnum:%d клетка vnum: %d находится рунная метка игрока: %s.\r\n", zone_table[zone_nr].number, (*it)->number, GET_NAME(caster));
@@ -779,6 +786,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 			}
 		}
 	}
+
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -1157,7 +1165,9 @@ void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	skip_spaces(&argument);
 
 	if (!*argument)
+	{
 		send_to_char("И что вы хотите выразить столь красочно?\r\n", ch);
+	}
 	else
 	{
 		if (subcmd == SCMD_EMOTE)
@@ -1165,29 +1175,40 @@ void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			// added by Pereplut
 			if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 			{
-				if PLR_FLAGGED(ch->master, PLR_DUMB)
+				if PLR_FLAGGED(ch->get_master(), PLR_DUMB)
 				{
 // shapirus: правильно пишется не "так-же", а "так же".
 // и запятая пропущена была :-P.
-					send_to_char("Ваши последователи так же немы, как и вы!\r\n", ch->master);
+					send_to_char("Ваши последователи так же немы, как и вы!\r\n", ch->get_master());
 					return;
 				}
 			}
 			sprintf(buf, "&K$n %s.&n", argument);
 		}
 		else
+		{
 			strcpy(buf, argument);
+		}
+
 		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
 		{
 			if (to == ch || ignores(to, ch, IGNORE_EMOTE))
+			{
 				continue;
+			}
+
 			act(buf, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
 			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}
+
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+		{
 			send_to_char(OK, ch);
+		}
 		else
+		{
 			act(buf, FALSE, ch, 0, 0, TO_CHAR);
+		}
 	}
 }
 
@@ -1422,6 +1443,11 @@ room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 		if (ROOM_FLAGGED(location, ROOM_NOTELEPORTIN) && trig != 1)
 		{
 			send_to_char("В комнату не телепортировать!\r\n", ch);
+			return (NOWHERE);
+		}
+		if (!Clan::MayEnter(ch, location, HCE_PORTAL))
+		{
+			send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
 			return (NOWHERE);
 		}
 	}
@@ -1709,17 +1735,22 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 					rm->dir_option[i]->keyword ? rm->dir_option[i]->keyword : "Нет(дверь)",
 					rm->dir_option[i]->vkeyword ? rm->dir_option[i]->vkeyword : "Нет(дверь)", buf2);
 			send_to_char(buf, ch);
-			if (rm->dir_option[i]->general_description)
-				strcpy(buf, rm->dir_option[i]->general_description);
+			if (!rm->dir_option[i]->general_description.empty())
+			{
+				strcpy(buf, rm->dir_option[i]->general_description.c_str());
+			}
 			else
+			{
 				strcpy(buf, "  Нет описания выхода.\r\n");
+			}
 			send_to_char(buf, ch);
 		}
 	}
-	if (rm->affected)
+
+	if (!rm->affected.empty())
 	{
 		sprintf(buf1," Аффекты на комнате:\r\n");
-		for (auto aff = rm->affected; aff; aff = aff->next)
+		for (const auto& aff : rm->affected)
 		{
 			sprintf(buf1 + strlen(buf1), "       Заклинание \"%s\" (%d) - %s.\r\n",
 				spell_name(aff->type),
@@ -1923,8 +1954,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		{
 			std::string spells = drinkcon::print_spells(ch, j);
 			boost::trim(spells);
-			sprintf(buf, "Обьем: %d, Содержит: %d, Отравлен: %s, Жидкость: %s\r\n%s",
-				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), YESNO(GET_OBJ_VAL(j, 3)), buf2, spells.c_str());
+			sprintf(buf, "Обьем: %d, Содержит: %d, Таймер (если 1 отравлено): %d, Жидкость: %s\r\n%s",
+				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3), buf2, spells.c_str());
 		}
 		break;
 
@@ -1937,7 +1968,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		break;
 
 	case OBJ_DATA::ITEM_FOOD:
-		sprintf(buf, "Насыщает(час): %d, Отравлен: %s", GET_OBJ_VAL(j, 0), YESNO(GET_OBJ_VAL(j, 3)));
+		sprintf(buf, "Насыщает(час): %d, Таймер (если 1 отравлено): %d", GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 3));
 		break;
 
 	case OBJ_DATA::ITEM_MONEY:
@@ -2387,7 +2418,17 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",");
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		send_to_char(ch, "Количество атак: %s%d%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Вероятность использования умений: %s%d%%%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Умения:&c");
+		for (const auto counter : AVAILABLE_SKILLS)
+		{
+			if (k->get_skill(counter))
+			{
+				send_to_char(ch, " %s:[%3d]", skill_info[counter].name, k->get_skill(counter));
+			}
+		}
+		send_to_char(ch, "&n\r\n");
 	}
 	else
 	{
@@ -2439,7 +2480,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 	if (god_level >= LVL_GRGOD)
 	{
-		sprintf(buf, "Ведущий: %s, Ведомые:", ((k->master) ? GET_NAME(k->master) : "<нет>"));
+		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
 		for (fol = k->followers; fol; fol = fol->next)
 		{
@@ -2464,9 +2505,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	send_to_char(buf, ch);
 
 	// Routine to show what spells a char is affected by
-	if (k->affected)
+	if (!k->affected.empty())
 	{
-		for (auto aff = k->affected; aff; aff = aff->next)
+		for (const auto aff : k->affected)
 		{
 			*buf2 = '\0';
 			sprintf(buf, "Заклинания: (%3dsec) %s%-21s%s ", aff->duration + 1,
@@ -2767,112 +2808,12 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_shutdown(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	static char const *help =
-		"Формат команды shutdown [reboot|die|pause] кол-во секунд\r\n"
-		"               shutdown schedule кол-во минут\r\n"
-		"               shutdown now|cancel|schedule";
-
-	two_arguments(argument, arg, buf);
-
-	if (!*arg)
+	commands::Shutdown command(ch, argument, shutdown_parameters);
+	if (command.parse_arguments())
 	{
-		send_to_char(help, ch);
-		return;
+		command.execute();
 	}
-
-	int times = 0;
-	if (*buf)
-	{
-		times = atoi(buf);
-	}
-
-	if (!str_cmp(arg, "reboot") && times > 0)
-	{
-		times = MAX(30, times);
-		sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-		send_to_all(buf);
-		log("(GC) Reboot by %s.", GET_NAME(ch));
-		imm_log("Reboot by %s.", GET_NAME(ch));
-		touch(FASTBOOT_FILE);
-		circle_shutdown = 2;
-		circle_reboot = 1;
-		shutdown_time = time(0) + times;
-		return;
-	}
-	else if (!str_cmp(arg, "die") && times > 0)
-	{
-		times = MAX(30, times);
-		sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-		send_to_all(buf);
-		log("(GC) Shutdown die by %s.", GET_NAME(ch));
-		imm_log("Shutdown die by %s.", GET_NAME(ch));
-		touch(KILLSCRIPT_FILE);
-		circle_shutdown = 2;
-		circle_reboot = 0;
-		shutdown_time = time(0) + times;
-		return;
-	}
-	else if (!str_cmp(arg, "pause") && times > 0)
-	{
-		times = MAX(30, times);
-		sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", times, desc_count(times, WHAT_SEC));
-		send_to_all(buf);
-		log("(GC) Shutdown pause by %s.", GET_NAME(ch));
-		imm_log("Shutdown pause by %s.", GET_NAME(ch));
-		touch(PAUSE_FILE);
-		circle_shutdown = 2;
-		circle_reboot = 0;
-		shutdown_time = time(0) + times;
-		return;
-	}
-	else if (!str_cmp(arg, "now"))
-	{
-		sprintf(buf, "(GC) Shutdown NOW by %s.", GET_NAME(ch));
-		log("%s",buf);
-		imm_log("Shutdown NOW by %s.", GET_NAME(ch));
-		send_to_all("ПЕРЕЗАГРУЗКА.. Вернетесь через пару минут.\r\n");
-		circle_shutdown = 1;
-		circle_reboot = 2;
-		shutdown_time = 0;
-		return;
-	}
-	else if (!str_cmp(arg, "schedule"))
-	{
-		if (times <= 0)
-		{
-			time_t tmp_time = boot_time + (time_t)(60 * reboot_uptime);
-			send_to_char(ch, "Сервер будет автоматически перезагружен в %s\r\n",
-				rustime(localtime(&tmp_time)));
-			return;
-		}
-
-		time_t uptime = time(0) - boot_time;
-		reboot_uptime = uptime / 60 + times;
-		circle_shutdown = 0;
-		circle_reboot = 0;
-		shutdown_time = 0;
-
-		time_t tmp_time = boot_time + (time_t)(60 * reboot_uptime);
-		send_to_char(ch, "Сервер будет автоматически перезагружен в %s\r\n",
-			rustime(localtime(&tmp_time)));
-		log("(GC) Shutdown scheduled by %s.", GET_NAME(ch));
-		imm_log("Shutdown scheduled by %s.", GET_NAME(ch));
-		return;
-	}
-	else if (!str_cmp(arg, "cancel"))
-	{
-		log("(GC) Shutdown canceled by %s.", GET_NAME(ch));
-		imm_log("Shutdown canceled by %s.", GET_NAME(ch));
-		send_to_all("ПЕРЕЗАГРУЗКА ОТМЕНЕНА.\r\n");
-
-		circle_reboot = 0;
-		circle_shutdown = 0;
-		shutdown_time = 0;
-		return;
-	}
-	send_to_char(help, ch);
 }
-
 
 void stop_snooping(CHAR_DATA * ch)
 {
@@ -3206,10 +3147,12 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			// TODO: честно говоря дублирование куска из экстракта не ясно
 			// смену лидера пока сюду не сую, над вникнуть будет...
-			if (vict->followers || vict->master)
+			if (vict->followers
+				|| vict->has_master())
 			{
 				die_follower(vict);
 			}
+
 			if (!vict->purged())
 			{
 				extract_char(vict, FALSE);
@@ -3237,10 +3180,12 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			next_v = vict->next_in_room;
 			if (IS_NPC(vict))
 			{
-				if (vict->followers || vict->master)
+				if (vict->followers
+					|| vict->has_master())
 				{
 					die_follower(vict);
 				}
+
 				if (!vict->purged())
 				{
 					extract_char(vict, FALSE);
@@ -3672,7 +3617,7 @@ void do_syslog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		GET_LOGS(ch)[subcmd] = tp;
 	}
-	sprintf(buf, "Тип вашего лога (%s) сейчас %s.\r\n", runtime_config::logs(static_cast<EOutputStream>(subcmd)).title().c_str(), logtypes[tp]);
+	sprintf(buf, "Тип вашего лога (%s) сейчас %s.\r\n", runtime_config.logs(static_cast<EOutputStream>(subcmd)).title().c_str(), logtypes[tp]);
 	send_to_char(buf, ch);
 	return;
 }
@@ -4056,18 +4001,24 @@ void do_date(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 	int d, h, m, s;
 
 	if (subcmd == SCMD_DATE)
-		mytime = time(0);
+	{
+		mytime = time(nullptr);
+	}
 	else
-		mytime = boot_time;
+	{
+		mytime = shutdown_parameters.get_boot_time();
+	}
 
 	tmstr = (char *) asctime(localtime(&mytime));
 	*(tmstr + strlen(tmstr) - 1) = '\0';
 
 	if (subcmd == SCMD_DATE)
+	{
 		sprintf(buf, "Текущее время сервера : %s\r\n", tmstr);
+	}
 	else
 	{
-		mytime = time(0) - boot_time;
+		mytime = time(0) - shutdown_parameters.get_boot_time();
 		d = mytime / 86400;
 		h = (mytime / 3600) % 24;
 		m = (mytime / 60) % 60;
@@ -4344,12 +4295,9 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	for (d = descriptor_list; d; d = d->next)
 	{
 		if ((STATE(d) == CON_PLAYING) &&	// персонаж должен быть в игре
-				((GET_LEVEL(d->character) >= level)
-// ||	// уровень равным или выше level
-//				 (GET_LEVEL(d->character) < LVL_IMMORT &&	// игроки с флагом 'gd_demigod' могут видеть теллы в имм канал,
-//				  GET_GOD_FLAG(d->character, GF_DEMIGOD) &&	// за исключением случая когда level > LVL_IMMORT
-//				  level <= LVL_IMMORT)
-				) && (!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	// игрок с режимом NOWIZ не видит имм канала
+				((GET_LEVEL(d->character) >= level) ||	// уровень равным или выше level
+				(GET_GOD_FLAG(d->character, GF_DEMIGOD) && level == 31)) &&	// демигоды видят 31 канал
+				(!PRF_FLAGGED(d->character, PRF_NOWIZ)) &&	// игрок с режимом NOWIZ не видит имм канала
 				(!PLR_FLAGGED(d->character, PLR_WRITING)) &&	// пишущий не видит имм канала
 				(!PLR_FLAGGED(d->character, PLR_MAILING)))	// отправляющий письмо не видит имм канала
 		{
@@ -4491,10 +4439,12 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			break;
 
 		case SCMD_UNAFFECT:
-			if (vict->affected)
+			if (!vict->affected.empty())
 			{
-				while (vict->affected)
-					affect_remove(vict, vict->affected);
+				while (!vict->affected.empty())
+				{
+					vict->affect_remove(vict->affected.begin());
+				}
 				send_to_char("Яркая вспышка осветила вас!\r\n"
 							 "Вы почувствовали себя немного иначе.\r\n", vict);
 				send_to_char("Все афекты сняты.\r\n", ch);
@@ -4924,7 +4874,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
 		sprintf(buf + strlen(buf), "  Максимальный ID - %ld\r\n", max_id);
 		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n",
-			static_cast<unsigned long>((cmd_cnt * 60) / (time(0) - boot_time)));
+			static_cast<unsigned long>((cmd_cnt * 60) / (time(0) - shutdown_parameters.get_boot_time())));
 		send_to_char(buf, ch);
 		Depot::show_stats(ch);
 		Glory::show_stats(ch);
@@ -5289,7 +5239,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	int i, j, c, value = 0, return_code = 1, ptnum, times = 0;
 	bool on = false;
 	bool off = false;
-	char npad[OBJ_DATA::NUM_PADS][256];
+	char npad[CObjectPrototype::NUM_PADS][256];
 	char *reason;
 	room_rnum rnum;
 	room_vnum rvnum;
@@ -5690,7 +5640,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 		if (*npad[0] == '*')  	// Only change pads
 		{
-			for (i = 1; i < OBJ_DATA::NUM_PADS; i++)
+			for (i = 1; i < CObjectPrototype::NUM_PADS; i++)
 				if (!_parse_name(npad[i], npad[i]))
 				{
 					if (GET_PAD(vict, i))
@@ -5703,7 +5653,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else
 		{
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			if (strlen(npad[i]) < MIN_NAME_LENGTH || strlen(npad[i]) > MAX_NAME_LENGTH)
 			{
@@ -5763,7 +5713,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				TopPlayer::Remove(vict);
 			}
 
-			for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+			for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 			{
 				if (!_parse_name(npad[i], npad[i]))
 				{
@@ -6224,10 +6174,10 @@ std::string print_script(CHAR_DATA *mob, const std::string &key)
 		print_name = true;
 	}
 
-	if (!mob_proto[GET_MOB_RNUM(mob)].proto_script.empty())
+	if (!mob_proto[GET_MOB_RNUM(mob)].proto_script->empty())
 	{
 		bool first = true;
-		for (const auto trigger_vnum : mob_proto[GET_MOB_RNUM(mob)].proto_script)
+		for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script)
 		{
 			const int trg_rnum = real_trigger(trigger_vnum);
 			if (trg_rnum >= 0)
@@ -6244,9 +6194,8 @@ std::string print_script(CHAR_DATA *mob, const std::string &key)
 				if (print_name)
 				{
 					out += "(";
-					out += GET_TRIG_NAME(trig_index[trg_rnum]->proto)
-						? GET_TRIG_NAME(trig_index[trg_rnum]->proto)
-						: "null";
+					const auto& trigger_name = trig_index[trg_rnum]->proto->get_name();
+					out += !trigger_name.empty() ? trigger_name.c_str() : "null";
 					out += ")";
 				}
 			}
@@ -6348,10 +6297,10 @@ void print(CHAR_DATA *ch, int first, int last, const std::string &options)
 				% mob_index[i].vnum
 				% mob_proto[i].get_level()
 				% print_flag(ch, mob_proto + i, options);
-			if (!mob_proto[i].proto_script.empty())
+			if (!mob_proto[i].proto_script->empty())
 			{
 				out << " - есть скрипты -";
-				for (const auto trigger_vnum : mob_proto[i].proto_script)
+				for (const auto trigger_vnum : *mob_proto[i].proto_script)
 				{
 					sprintf(buf1, " [%d]", trigger_vnum);
 					out << buf1;
@@ -6374,6 +6323,58 @@ void print(CHAR_DATA *ch, int first, int last, const std::string &options)
 }
 
 } // namespace Mlist
+
+int print_olist(const CHAR_DATA* ch, const int first, const int last, std::string& out)
+{
+	int result = 0;
+
+	char buf_[256] = {0};
+	std::stringstream ss;
+	snprintf(buf_, sizeof(buf_), "Список объектов Vnum %d до %d\r\n", first, last);
+	ss << buf_;
+
+	auto from = obj_proto.vnum2index().lower_bound(first);
+	auto to = obj_proto.vnum2index().upper_bound(last);
+	for (auto i = from; i != to; ++i)
+	{
+		const auto vnum = i->first;
+		const auto rnum = i->second;
+		const auto prototype = obj_proto[rnum];
+		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++result,
+			colored_name(prototype->get_short_description().c_str(), 45),
+			vnum, prototype->get_ilevel());
+		ss << buf_;
+
+		if (GET_LEVEL(ch) >= LVL_GRGOD
+			|| PRF_FLAGGED(ch, PRF_CODERINFO))
+		{
+			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
+				obj_proto.number(rnum),
+				obj_proto.stored(rnum));
+			ss << buf_;
+
+			const auto& script = prototype->get_proto_script();
+			if (!script.empty())
+			{
+				ss << " - есть скрипты -";
+				for (const auto trigger_vnum : script)
+				{
+					sprintf(buf1, " [%d]", trigger_vnum);
+					ss << buf1;
+				}
+			}
+			else
+			{
+				ss << " - нет скриптов";
+			}
+		}
+
+		ss << "\r\n";
+	}
+
+	out = ss.str();
+	return result;
+}
 
 void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
@@ -6453,10 +6454,10 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				snprintf(buf_, sizeof(buf_), "%5d. [%5d] (%3d) %s",
 					++found, world[nr]->number, world[nr]->zone, world[nr]->name);
 				out += buf_;
-				if (!world[nr]->proto_script.empty())
+				if (!world[nr]->proto_script->empty())
 				{
 					out += " - есть скрипты -";
-					for (const auto trigger_vnum : world[nr]->proto_script)
+					for (const auto trigger_vnum : *world[nr]->proto_script)
 					{
 						sprintf(buf1, " [%d]", trigger_vnum);
 						out += buf1;
@@ -6464,51 +6465,16 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 					out += "\r\n";
 				}				
 				else
+				{
 					out += " - нет скриптов\r\n";
+				}
 			}
 		}
 		break;
 	case SCMD_OLIST:
-		snprintf(buf_, sizeof(buf_),
-			"Список объектов Vnum %d до %d\r\n", first, last);
-		out += buf_;
-		for (const auto i : obj_proto)
-		{
-			if (i->get_vnum() >= first && i->get_vnum() <= last)
-			{
-				snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++found,
-					colored_name(i->get_short_description().c_str(), 45),
-					i->get_vnum(), i->get_ilevel());
-				out += buf_;
-				if (GET_LEVEL(ch) >= LVL_GRGOD || PRF_FLAGGED(ch, PRF_CODERINFO))
-				{
-					snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
-						obj_proto.number(i->get_rnum()),
-						obj_proto.stored(i->get_rnum()));
-					out += buf_;
-					const auto obj = obj_proto[i->get_rnum()];
-					if (!obj->get_proto_script().empty())
-					{
-						out += " - есть скрипты -";
-						for (const auto trigger_vnum : obj->get_proto_script())
-						{
-							sprintf(buf1, " [%d]", trigger_vnum);
-							out += buf1;
-						}
-						out += "\r\n";
-					}
-					else
-					{
-						out += " - нет скриптов\r\n";
-					}
-				}
-				else
-				{
-					out += "\r\n";
-				}
-			}
-		}
+		found = print_olist(ch, first, last, out);
 		break;
+
 	case SCMD_MLIST:
 	{
 		std::string option;

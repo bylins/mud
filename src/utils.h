@@ -90,8 +90,8 @@ int get_filename(const char *orig_name, char *filename, int mode);
 TIME_INFO_DATA *age(CHAR_DATA * ch);
 int num_pc_in_room(ROOM_DATA * room);
 void core_dump_real(const char *, int);
-int replace_str(const string_writer_t& writer, char *pattern, char *replacement, int rep_all, int max_size);
-void format_text(const string_writer_t& writer, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
+int replace_str(const AbstractStringWriter::shared_ptr& writer, const char *pattern, const char *replacement, int rep_all, int max_size);
+void format_text(const AbstractStringWriter::shared_ptr& writer, int mode, DESCRIPTOR_DATA * d, size_t maxlen);
 int check_moves(CHAR_DATA * ch, int how_moves);
 void to_koi(char *str, int from);
 void from_koi(char *str, int to);
@@ -107,8 +107,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 int roundup(float fl);
 int valid_email(const char *address);
 void skip_dots(char **string);
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence = 0);
-char * str_str(char *cs, const char *ct);
+const char * str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
@@ -1567,6 +1566,8 @@ struct ParseFilter
 	std::vector<int> affect_apply; // аффекты apply_types
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
+	
+	std::string show_obj_aff(OBJ_DATA *obj);
 
 private:
 	bool check_name(OBJ_DATA *obj, CHAR_DATA *ch = 0) const;
@@ -1586,11 +1587,6 @@ int get_virtual_race(CHAR_DATA *mob);
 
 #define _QUOTE(x) # x
 #define QUOTE(x) _QUOTE(x)
-
-typedef void(*converter_t)(char*, int);
-extern converter_t syslog_converter;
-
-void setup_converters();
 
 #ifdef WIN32
 class CCheckTable
@@ -1630,13 +1626,20 @@ inline void graceful_exit(int retcode)
 void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title = nullptr);
 inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, const char* title = nullptr)
 {
-	hexdump(runtime_config::logs(stream).handle(), ptr, buflen, title);
+	hexdump(runtime_config.logs(stream).handle(), ptr, buflen, title);
 }
 
 bool isname(const char *str, const char *namelist);
 inline bool isname(const std::string &str, const char *namelist) { return isname(str.c_str(), namelist); }
 inline bool isname(const char* str, const std::string& namelist) { return isname(str, namelist.c_str()); }
 inline bool isname(const std::string &str, const std::string& namelist) { return isname(str.c_str(), namelist.c_str()); }
+
+const char* one_word(const char* argument, char *first_arg);
+
+void ReadEndString(std::ifstream &file);
+// замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
+void StringReplace(std::string& buffer, char s, const std::string& d);
+std::string& format_news_message(std::string &text);
 
 #endif // _UTILS_H_
 

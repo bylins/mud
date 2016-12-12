@@ -111,8 +111,8 @@ int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 
 void handle_recall_spells(CHAR_DATA* ch)
 {
-	AFFECT_DATA<EApplyLocation>* aff = nullptr;
-	for (auto af = ch->affected; af; af = af->next)
+	AFFECT_DATA<EApplyLocation>::shared_ptr aff;
+	for (const auto& af : ch->affected)
 	{
 		if (af->type == SPELL_RECALL_SPELLS)
 		{
@@ -721,7 +721,7 @@ void beat_points_update(int pulse)
 
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_BANDAGE))
 		{
-			for (auto aff = i->affected; aff; aff = aff->next)
+			for (const auto& aff : i->affected)
 			{
 				if (aff->type == SPELL_BANDAGE)
 				{
@@ -1301,7 +1301,7 @@ void exchange_point_update()
 		next_exch_item = exch_item->next;
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() > 0)
 		{
-			GET_EXCHANGE_ITEM(exch_item)->dec_timer(1, true);
+			GET_EXCHANGE_ITEM(exch_item)->dec_timer(1, true, true);
 		}
 
 		if (GET_EXCHANGE_ITEM(exch_item)->get_timer() <= 0)
@@ -1348,16 +1348,15 @@ void clan_chest_invoice(OBJ_DATA *j)
 		}
 	}
 
-	for (ClanListType::iterator i = Clan::ClanList.begin(),
-		iend = Clan::ClanList.end(); i != iend; ++i)
+	for (const auto& i : Clan::ClanList)
 	{
-		if ((*i)->GetRent() == room)
+		if (i->GetRent() == room)
 		{
 			std::string log_text = boost::str(boost::format("%s%s рассыпал%s в прах\r\n")
 				% j->get_short_description()
-				% clan_get_custom_label(j, *i)
+				% clan_get_custom_label(j, i)
 				% GET_OBJ_SUF_2(j));
-			(*i)->chest_log.add(log_text);
+			i->chest_log.add(log_text);
 			return;
 		}
 	}
@@ -1373,6 +1372,7 @@ void clan_chest_point_update(OBJ_DATA *j)
 		if (!SetSystem::find_set_item(j->get_in_obj()) && j->get_timer() > 0)
 			j->dec_timer();
 	}
+
 	if (j->get_timer() > 0)
 	{
 		j->dec_timer();
@@ -1401,8 +1401,10 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 	char buf[MAX_STRING_LENGTH];
 	char buf1[128]; // ну не лепить же сюда malloc
 
-	if (!charmee->master)
+	if (!charmee->has_master())
+	{
 		return;
+	}
 
 	if (where == 0)
 	{
@@ -1435,7 +1437,7 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 		cap.c_str(),
 		GET_OBJ_SUF_2(obj),
 		buf1);
-	send_to_char(charmee->master, "%s%s%s\r\n", CCICYN(charmee->master, C_NRM), CAP(buf), CCNRM(charmee->master, C_NRM));
+	send_to_char(charmee->get_master(), "%s%s%s\r\n", CCICYN(charmee->get_master(), C_NRM), CAP(buf), CCNRM(charmee->get_master(), C_NRM));
 }
 
 void obj_point_update()
@@ -1466,8 +1468,8 @@ void obj_point_update()
 		{
 			int zone = world[j->get_in_obj()->get_in_room()]->zone;
 			bool find = 0;
-			ClanListType::const_iterator clan = Clan::IsClanRoom(j->get_in_obj()->get_in_room());
-			if (clan == Clan::ClanList.end())   // внутри замков даже и смотреть не будем
+			const auto clan = Clan::GetClanByRoom(j->get_in_obj()->get_in_room());
+			if (!clan)   // внутри замков даже и смотреть не будем
 			{
 				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no)
 				{
@@ -1858,8 +1860,12 @@ void point_update(void)
 					default:
 						mana = 10;
 					}
-					if (on_horse(i->master))
+
+					if (on_horse(i->get_master()))
+					{
 						mana /= 2;
+					}
+
 					GET_HORSESTATE(i) = MIN(800, GET_HORSESTATE(i) + mana);
 				}
 				// Forget PC's

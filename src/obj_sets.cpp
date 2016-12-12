@@ -82,9 +82,18 @@ std::string line_split_str(const std::string &str, const std::string &sep,
 	return out;
 }
 
+// приводит внум из дублированных миников к оригинальному внуму
+int normalize_vnum(int vnum)
+{
+	if (vnum >= DUPLICATE_MINI_SET_VNUM)
+		return vnum - DUPLICATE_MINI_SET_VNUM;
+	return vnum;
+}
+
 /// \return индекс сета через внум любого его предмета
 size_t setidx_by_objvnum(int vnum)
 {
+	vnum = normalize_vnum(vnum);
 	for (size_t i = 0; i < sets_list.size(); ++i)
 	{
 		if (sets_list.at(i)->obj_list.find(vnum) !=
@@ -662,6 +671,12 @@ std::set<int> vnum_list_add(int vnum)
 	list_vnum.clear();
 	size_t idx = setidx_by_objvnum(vnum); 
 
+	if (static_cast<size_t>(-1) == idx)
+	{
+		mudlog("setidx_by_objvnum returned -1", BRF, LVL_BUILDER, ERRLOG, TRUE);
+		return list_vnum;
+	}
+
 	for (auto k = sets_list.at(idx)->obj_list.begin(); k != sets_list.at(idx)->obj_list.end(); ++k)
 	{
 		if (k->first != vnum)
@@ -737,7 +752,7 @@ void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj)
 	const auto set_idx = GET_OBJ_RNUM(obj) >= 0
 		? obj_proto.set_idx(GET_OBJ_RNUM(obj))
 		: ~0ull;
-	if (set_idx == ~0ull)
+	if (set_idx != ~0ull)
 	{
 		obj_sets::print_msg(ch, obj, set_idx, false);
 	}
@@ -1414,7 +1429,7 @@ void check_enchants(CHAR_DATA *ch)
 		obj = GET_EQ(ch, i);
 		if (obj)
 		{
-			auto i = ch->obj_bonus().enchants.find(GET_OBJ_VNUM(obj));
+			auto i = ch->obj_bonus().enchants.find(normalize_vnum(GET_OBJ_VNUM(obj)));
 			if (i != ch->obj_bonus().enchants.end())
 			{
 				obj->update_enchants_set_bonus(i->second);

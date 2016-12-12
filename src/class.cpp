@@ -18,6 +18,7 @@
  * you should go through this entire file from beginning to end and add
  * the appropriate new special cases for your new class.
  */
+#include "class.hpp"
 
 #include "obj.hpp"
 #include "comm.h"
@@ -53,10 +54,6 @@ extern double exp_coefficients[];
 
 struct skillvariables_dig dig_vars;
 struct skillvariables_insgem insgem_vars;
-
-// 14 проф, 0-14 мортов
-// grouping[class][remorts]
-int grouping[NUM_PLAYER_CLASSES][MAX_REMORT+1];
 
 // local functions
 int parse_class(char arg);
@@ -2234,6 +2231,19 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj)
 	return (TRUE);
 }
 
+
+bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj)
+{
+	for (unsigned int i = 0; i < NUM_WEARS; i++)
+		if (GET_EQ(ch, i) && (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj)))
+		{
+			return true;
+		}
+	return false;
+}
+
+
+
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 {
 	if (!IS_CORPSE(obj))
@@ -2283,6 +2293,10 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 	return (FALSE);
 }
 
+
+
+
+
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
 	if (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CHARMICE)
@@ -2308,7 +2322,19 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MALE) && IS_MALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_FEMALE) && IS_FEMALE(ch))
 		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_CLERIC) && IS_CLERIC(ch))
-		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_SMITH(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_DRUID(ch))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))		|| (!IS_SMITH(ch)			&& (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch)))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_WARRIOR) && IS_WARRIOR(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_GUARD) && IS_GUARD(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_THIEF) && IS_THIEF(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_ASSASINE) && IS_ASSASINE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_PALADINE) && IS_PALADINE(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_RANGER) && IS_RANGER(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_SMITH) && IS_SMITH(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_MERCHANT) && IS_MERCHANT(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_DRUID) && IS_DRUID(ch))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_KILLER) && PLR_FLAGGED(ch, PLR_KILLER))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_BD) && check_agrobd(ch))
+		|| (!IS_SMITH(ch) && (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED)))
+		|| (IS_OBJ_NO(obj, ENoFlag::ITEM_NO_COLORED) && IS_COLORED(ch)))
 	{
 		return TRUE;
 	}
@@ -2863,7 +2889,6 @@ void init_spell_levels(void)
 	return;
 }
 
-
 void init_basic_values(void)
 {
 	FILE *magic;
@@ -2871,7 +2896,7 @@ void init_basic_values(void)
 	int i[10], c, j, mode = 0, *pointer;
 	if (!(magic = fopen(LIB_MISC "basic.lst", "r")))
 	{
-		log("Cann't open basic values list file...");
+		log("Can't open basic values list file...");
 		return;
 	}
 	while (get_line(magic, name))
@@ -2955,19 +2980,22 @@ void init_basic_values(void)
 	класса. На момент написания этого в конфиге присутствует 26 строк, макс.
 	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
 */
-int init_grouping(void)
+int GroupPenalties::init(void)
 {
-	FILE *f;
 	char buf[MAX_INPUT_LENGTH];
-	int clss = 0, remorts = 0, rows_assigned = 0,
-		levels = 0, pos = 0, max_rows = MAX_REMORT+1;
+	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = MAX_REMORT+1;
 
 	// пре-инициализация
 	for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
+	{
 		for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++) //Столбцов в массиве должно быть ровно столько же, сколько есть классов
-			grouping[clss][remorts] = -1;
+		{
+			m_grouping[clss][remorts] = -1;
+		}
+	}
 
-	if (!(f = fopen(LIB_MISC "grouping", "r")))
+	FILE* f = fopen(LIB_MISC "grouping", "r");
+	if (!f)
 	{
 		log("Невозможно открыть файл %s", LIB_MISC "grouping");
 		return 1;
@@ -2976,22 +3004,21 @@ int init_grouping(void)
 	while (get_line(f, buf))
 	{
 		if (!buf[0] || buf[0] == ';' || buf[0] == '\n') //Строка пустая или строка-коммент
+		{
 			continue;
+		}
 		clss = 0;
 		pos = 0;
 		while (sscanf(&buf[pos], "%d", &levels) == 1)
 		{
-			/*if (clss >= 15)
-			{
-				clss = 16;
-				break;
-			}*/
 			while (buf[pos] == ' ' || buf[pos] == '\t')
+			{
 				pos++;
+			}
 			if (clss == 0) //Первый проход цикла по строке
 			{
 				remorts = levels; //Номера строк
-				if (grouping[0][remorts] != -1)
+				if (m_grouping[0][remorts] != -1)
 				{
 					log("Ошибка при чтении файла %s: дублирование параметров для %d ремортов",
 						LIB_MISC "grouping", remorts);
@@ -3007,12 +3034,13 @@ int init_grouping(void)
 			}
 			else
 			{
-				//log("Класс: %d, Мортов: %d, Группа: %d", clss-1, remorts, levels);
-				grouping[clss - 1][remorts] = levels; // -1 потому что в массиве нет столбца с кол-вом мортов
+				m_grouping[clss - 1][remorts] = levels; // -1 потому что в массиве нет столбца с кол-вом мортов
 			}
 			clss++; //+Номер столбца массива
 			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0)
+			{
 				pos++; //Ищем следующее число в строке конфига
+			}
 		}
 		if (clss != NUM_PLAYER_CLASSES+1)
 		{
@@ -3022,14 +3050,16 @@ int init_grouping(void)
 		}
 		rows_assigned++;
 	}
+
 	if (rows_assigned < max_rows)
 	{
 		for (levels = remorts; levels < max_rows; levels++) //Берем свободную переменную
+		{
 			for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++)
 			{
-				//log("Класс: %d, Мортов: %d, Группа: %d", clss, levels, grouping[clss][remorts]);
-				grouping[clss][levels] = grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк
+				m_grouping[clss][levels] = m_grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк
 			}
+		}
 	}
 	fclose(f);
 	return 0;
@@ -3441,5 +3471,7 @@ int level_exp(CHAR_DATA * ch, int level)
 	log("SYSERR: XP tables not set up correctly in class.c!");
 	return 123456;
 }
+
+GroupPenalties grouping;	///< TODO: get rid of this global variable.
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

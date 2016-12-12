@@ -327,7 +327,10 @@ int get_obj_to_drop(DropListType::iterator &i)
 	std::vector<int> tmp_list;
 	for (OlistType::iterator k = i->olist.begin(), kend = i->olist.end(); k != kend; ++k)
 	{
-		tmp_list.push_back(k->second);
+		if ((GET_OBJ_MIW(obj_proto[k->second]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
+			|| (k->second >= 0
+				&& obj_proto.actual_count(k->second) < GET_OBJ_MIW(obj_proto[k->second])))
+			tmp_list.push_back(k->second);
 	}
 	if (!tmp_list.empty())
 	{
@@ -364,16 +367,25 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
 		if (GET_LEVEL(mob) >= i->mob_lvl 				   
-		    && (!i->max_mob_lvl || GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
-		    && ((i->race_mob < 0) || (GET_RACE(mob) == i->race_mob) || (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
-		    && ((i->day_start <= day) && (i->day_end >= day))			// временной промежуток
-		    && (!mob->master || IS_NPC(mob->master))) // не чармис	
+		    && (!i->max_mob_lvl
+				|| GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
+		    && ((i->race_mob < 0)
+				|| (GET_RACE(mob) == i->race_mob)
+				|| (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
+		    && (i->day_start <= day && i->day_end >= day)			// временной промежуток
+		    && (!mob->has_master()
+				|| IS_NPC(mob->get_master()))) // не чармис	
 
 		{
 			++(i->mobs);
 			if (i->mobs >= i->count_mob)
 			{
 				int obj_rnum = i->vnum > 0 ? i->rnum : get_obj_to_drop(i);
+				if (obj_rnum == -1)
+				{
+					i->mobs = 0;
+					continue;					
+				}
 				if (number(1, 1000) <= i->chance
 					&& ((GET_OBJ_MIW(obj_proto[obj_rnum]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM)
 						|| (obj_rnum >= 0
@@ -436,7 +448,7 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent_off(100000);
 	corpse->set_timer(max_pc_corpse_time * 2);
-	std::shared_ptr<EXTRA_DESCR_DATA> exdesc(new EXTRA_DESCR_DATA());
+	EXTRA_DESCR_DATA::shared_ptr exdesc(new EXTRA_DESCR_DATA());
 	exdesc->keyword = str_dup(corpse->get_PName(0).c_str());	// косметика
 	if (killer)
 	{
@@ -576,10 +588,15 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	//	dl_load_obj (corpse, ch);
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
-	if(IS_CHARMICE(ch) && !MOB_FLAGGED(ch, MOB_CORPSE) && ch->master && ((killer && PRF_FLAGGED(killer, PRF_EXECUTOR))
-		|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !RENTABLE(ch->master))))
+	if(IS_CHARMICE(ch)
+		&& !MOB_FLAGGED(ch, MOB_CORPSE)
+		&& ch->has_master()
+		&& ((killer
+				&& PRF_FLAGGED(killer, PRF_EXECUTOR))
+			|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+				&& !RENTABLE(ch->get_master()))))
 	{
-		obj_to_char(corpse, ch->master);
+		obj_to_char(corpse, ch->get_master());
 		return NULL;
 	}
 	else

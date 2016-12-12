@@ -34,6 +34,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "obj_sets.hpp"
 
 #include <boost/algorithm/string.hpp>
 
@@ -332,7 +333,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Wear"))
 			{
 				*error = 27;
-				OBJ_DATA::wear_flags_t wear_flags;
+				OBJ_DATA::wear_flags_t wear_flags = 0;
 				asciiflag_conv(buffer, &wear_flags);
 				object->set_wear_flags(wear_flags);
 			}
@@ -435,7 +436,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 			else if (!strcmp(read_line, "Edes"))
 			{
 				*error = 46;
-				std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
+				EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
 				new_descr->keyword = str_dup(buffer);
 				if (!strcmp(new_descr->keyword, "None"))
 				{
@@ -719,7 +720,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		object->set_aliases(buffer);
 		// Падежи
 		*error = 5;
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			if (!get_buf_lines(data, buffer))
 			{
@@ -880,7 +881,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		{
 		case 'E':
 			{
-				std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
+				EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
 				if (!get_buf_lines(data, buffer))
 				{
 					*error = 16;
@@ -956,7 +957,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 }
 
 // shapirus: функция проверки наличия доп. описания в прототипе
-inline bool proto_has_descr(const std::shared_ptr<EXTRA_DESCR_DATA>& odesc, const std::shared_ptr<EXTRA_DESCR_DATA>& pdesc)
+inline bool proto_has_descr(const EXTRA_DESCR_DATA::shared_ptr& odesc, const EXTRA_DESCR_DATA::shared_ptr& pdesc)
 {
 	for (auto desc = pdesc; desc; desc = desc->next)
 	{
@@ -1001,7 +1002,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 			out << "Alia: " << GET_OBJ_ALIAS(object) << "~\n";
 		}
 		// Падежи
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			if (str_cmp(GET_OBJ_PNAME(object, i), GET_OBJ_PNAME(proto, i)))
 			{
@@ -1256,7 +1257,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 
 		// Падежи
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			if (!GET_OBJ_PNAME(object, i).empty())
 			{
@@ -2545,7 +2546,8 @@ void Crash_extract_norent_charmee(CHAR_DATA *ch)
 	{
 		for (struct follow_type *k = ch->followers; k; k = k->next)
 		{
-			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+			if (!IS_CHARMICE(k->follower)
+				|| !k->follower->has_master())
 			{
 				continue;
 			}
@@ -2555,6 +2557,7 @@ void Crash_extract_norent_charmee(CHAR_DATA *ch)
 				{
 					continue;
 				}
+
 				if (Crash_is_unrentable(k->follower, GET_EQ(k->follower, j)))
 				{
 					obj_to_char(unequip_char(k->follower, j), k->follower);
@@ -2598,10 +2601,12 @@ int Crash_calculate_charmee_rent(CHAR_DATA *ch)
 	{
 		for (struct follow_type *k = ch->followers; k; k = k->next)
 		{
-			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+			if (!IS_CHARMICE(k->follower)
+				|| !k->follower->has_master())
 			{
 				continue;
 			}
+
 			cost = Crash_calculate_rent(k->follower->carrying);
 			for (int j = 0; j < NUM_WEARS; ++j)
 			{
@@ -2629,7 +2634,8 @@ int Crash_calc_charmee_items(CHAR_DATA *ch)
 	{
 		for (struct follow_type *k = ch->followers; k; k = k->next)
 		{
-			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+			if (!IS_CHARMICE(k->follower)
+				|| !k->follower->has_master())
 				continue;
 			for (int j = 0; j < NUM_WEARS; j++)
 				num += Crash_calcitems(GET_EQ(k->follower, j));
@@ -2736,12 +2742,18 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	// чаевые
 	if (min_rent_cost(ch) > 0)
+	{
 		cost += MAX(0, min_rent_cost(ch));
+	}
 	else
+	{
 		cost /= 2;
+	}
 
 	if (savetype == RENT_TIMEDOUT)
+	{
 		cost *= 2;
+	}
 
 	//CRYO-rent надо дорабатывать либо выкидывать нафиг
 	if (savetype == RENT_CRYO)
@@ -2749,6 +2761,7 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 		rent.net_cost_per_diem = 0;
 		ch->remove_gold(cost);
 	}
+
 	if (savetype == RENT_RENTED)
 	{
 		rent.net_cost_per_diem = rentcost;
@@ -2780,15 +2793,26 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 
 	crash_save_and_restore_weight(write_buffer, iplayer, ch->carrying, 0, savetype);
 
-	if (ch->followers && (savetype == RENT_CRASH || savetype == RENT_FORCED))
+	if (ch->followers
+		&& (savetype == RENT_CRASH
+			|| savetype == RENT_FORCED))
 	{
 		for (struct follow_type *k = ch->followers; k; k = k->next)
 		{
-			if (!IS_CHARMICE(k->follower) || !k->follower->master)
+			if (!IS_CHARMICE(k->follower)
+				|| !k->follower->has_master())
+			{
 				continue;
+			}
+
 			for (j = 0; j < NUM_WEARS; j++)
+			{
 				if (GET_EQ(k->follower, j))
+				{
 					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k->follower, j), 0, savetype);
+				}
+			}
+
 			crash_save_and_restore_weight(write_buffer, iplayer, k->follower->carrying, 0, savetype);
 		}
 	}
@@ -2797,8 +2821,12 @@ int save_char_objects(CHAR_DATA * ch, int savetype, int rentcost)
 	if (savetype != RENT_CRASH)
 	{
 		for (j = 0; j < NUM_WEARS; j++)
+		{
 			if (GET_EQ(ch, j))
+			{
 				Crash_extract_objs(GET_EQ(ch, j));
+			}
+		}
 		Crash_extract_objs(ch->carrying);
 	}
 

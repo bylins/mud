@@ -81,7 +81,7 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);  
 		return;
 	}
 
@@ -145,22 +145,32 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы не являетесь членом группы!\r\n", ch);
 		return;
 	}
+
 	if (!*argument)
+	{
 		send_to_char("О чем вы хотите сообщить своей группе?\r\n", ch);
+	}
 	else
 	{
-		if (ch->master)
-			k = ch->master;
+		if (ch->has_master())
+		{
+			k = ch->get_master();
+		}
 		else
+		{
 			k = ch;
+		}
 
 		sprintf(buf, "$n сообщил$g группе : '%s'", argument);
 
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && (k != ch) && !ignores(k, ch, IGNORE_GROUP))
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
+			&& k != ch
+			&& !ignores(k, ch, IGNORE_GROUP))
 		{
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
 			// added by WorM  групптелы 2010.10.13
-			if(!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS) && GET_POS(k) > POS_DEAD)
+			if(!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
+				&& GET_POS(k) > POS_DEAD)
 			{
 				sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, k), argument);
 				k->remember_add(buf1, Remember::ALL);
@@ -589,7 +599,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// assign the descriptor's->str the value of the pointer to the text
 		// pointer so that we can reallocate as needed (hopefully that made
 		// sense :>)
-		const string_writer_t writer(new CActionDescriptionWriter(*paper));
+		const AbstractStringWriter::shared_ptr writer(new CActionDescriptionWriter(*paper));
 		string_write(ch->desc, writer, MAX_NOTE_LENGTH, 0, NULL);
 	}
 }
@@ -960,7 +970,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	skip_spaces(&argument);
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+	if (!IS_NPC(ch) && (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE)))
 	{
 		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучали...\r\n", ch);
 		return;

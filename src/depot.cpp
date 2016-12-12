@@ -447,9 +447,9 @@ void init_depot()
 			OfflineNode tmp_obj;
 			try
 			{
-				tmp_obj.vnum = boost::lexical_cast<int>(buffer);
+				tmp_obj.vnum = std::stoi(buffer, nullptr, 10);
 			}
-			catch (boost::bad_lexical_cast &)
+			catch (const std::invalid_argument &)
 			{
 				log("Хранилище: ошибка чтения vnum (%s)", buffer.c_str());
 				break;

@@ -356,48 +356,49 @@ void Player::save_char()
 			char_eq[i] = NULL;
 	}
 
-	auto aff = this->affected;
 	AFFECT_DATA<EApplyLocation> tmp_aff[MAX_AFFECT];
-	for (i = 0; i < MAX_AFFECT; i++)
 	{
-		if (aff)
+		auto aff_i = affected.begin();
+		for (i = 0; i < MAX_AFFECT; i++)
 		{
-			if (aff->type == SPELL_ARMAGEDDON
-				|| aff->type < 1
-				|| aff->type > SPELLS_COUNT)
+			if (aff_i != affected.end())
 			{
-				i--;
+				const auto& aff = *aff_i;
+				if (aff->type == SPELL_ARMAGEDDON
+					|| aff->type < 1
+					|| aff->type > SPELLS_COUNT)
+				{
+					i--;
+				}
+				else
+				{
+					tmp_aff[i] = *aff;
+				}
+				++aff_i;
 			}
 			else
 			{
-				tmp_aff[i] = *aff;
-				tmp_aff[i].next = 0;
+				tmp_aff[i].type = 0;	// Zero signifies not used
+				tmp_aff[i].duration = 0;
+				tmp_aff[i].modifier = 0;
+				tmp_aff[i].location = EApplyLocation::APPLY_NONE;
+				tmp_aff[i].bitvector = 0;
 			}
-			aff = aff->next;
 		}
-		else
+
+		if ((i >= MAX_AFFECT) && aff_i != affected.end())
 		{
-			tmp_aff[i].type = 0;	// Zero signifies not used
-			tmp_aff[i].duration = 0;
-			tmp_aff[i].modifier = 0;
-			tmp_aff[i].location = EApplyLocation::APPLY_NONE;
-			tmp_aff[i].bitvector = 0;
-			tmp_aff[i].next = 0;
+			log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
 		}
-	}
 
-	/*
-	 * remove the affections so that the raw values are stored; otherwise the
-	 * effects are doubled when the char logs back in.
-	 */
-	while (this->affected)
-	{
-		affect_remove(this, this->affected);
-	}
-
-	if ((i >= MAX_AFFECT) && aff && aff->next)
-	{
-		log("SYSERR: WARNING: OUT OF STORE ROOM FOR AFFECTED TYPES!!!");
+		/*
+		 * remove the affections so that the raw values are stored; otherwise the
+		 * effects are doubled when the char logs back in.
+		 */
+		while (!affected.empty())
+		{
+			affect_remove(affected.begin());
+		}
 	}
 
 	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
@@ -431,8 +432,11 @@ void Player::save_char()
 			}
 		}
 		else
+		{
 			strcpy(buf, "Unknown");
+		}
 	}
+
 	fprintf(saved, "Host: %s\n", buf);
 	free(player_table[this->get_pfilepos()].last_ip);
 	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
@@ -717,11 +721,13 @@ void Player::save_char()
 		fprintf(saved, "Affs:\n");
 		for (i = 0; i < MAX_AFFECT; i++)
 		{
-			aff = &tmp_aff[i];
+			const auto& aff = &tmp_aff[i];
 			if (aff->type)
+			{
 				fprintf(saved, "%d %d %d %d %d %d %s\n", aff->type, aff->duration,
-						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
-						static_cast<int>(aff->battleflag), spell_name(aff->type));
+					aff->modifier, aff->location, static_cast<int>(aff->bitvector),
+					static_cast<int>(aff->battleflag), spell_name(aff->type));
+			}
 		}
 		fprintf(saved, "0 0 0 0 0 0\n");
 	}
@@ -731,6 +737,7 @@ void Player::save_char()
 	{
 		fprintf(saved, "Prtl: %d\n", prt->vnum);
 	}
+
 	for (i = 0; i < 1 + LAST_LOG; ++i)
 	{
 		if (!GET_LOGS(this))
@@ -784,9 +791,12 @@ void Player::save_char()
 				break;
 			}
 		}
-		if(k && k->follower && k->follower->affected)
+
+		if (k
+			&& k->follower
+			&& !k->follower->affected.empty())
 		{
-			for (auto aff = k->follower->affected; aff; aff = aff->next)
+			for (const auto& aff : k->follower->affected)
 			{
 				if (aff->type == SPELL_CHARM)
 				{
@@ -794,9 +804,12 @@ void Player::save_char()
 					{
 						break;
 					}
+
 					int i = ((aff->duration-1)/2)*k->follower->mob_specials.hire_price;
 					if(i != 0)
+					{
 						fprintf(saved, "GldH: %d\n", i);
+					}
 					break;
 				}
 			}
@@ -819,10 +832,12 @@ void Player::save_char()
 	{
 		fprintf(saved, "CntS: %d\n", get_reset_stats_cnt(ResetStats::Type::MAIN_STATS));
 	}
+
 	if (get_reset_stats_cnt(ResetStats::Type::RACE) > 0)
 	{
 		fprintf(saved, "CntR: %d\n", get_reset_stats_cnt(ResetStats::Type::RACE));
 	}
+
 	if (get_reset_stats_cnt(ResetStats::Type::FEATS) > 0)
 	{
 		fprintf(saved, "CntF: %d\n", get_reset_stats_cnt(ResetStats::Type::FEATS));
@@ -836,7 +851,9 @@ void Player::save_char()
 	for (i = 0; i < MAX_AFFECT; i++)
 	{
 		if (tmp_aff[i].type)
-			affect_to_char(this, &tmp_aff[i]);
+		{
+			affect_to_char(this, tmp_aff[i]);
+		}
 	}
 
 	for (i = 0; i < NUM_WEARS; i++)
@@ -855,7 +872,8 @@ void Player::save_char()
 	}
 	affect_total(this);
 
-	if ((i = get_ptable_by_name(GET_NAME(this))) >= 0)
+	i = get_ptable_by_name(GET_NAME(this));
+	if (i >= 0)
 	{
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GET_LEVEL(this);
@@ -1194,9 +1212,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		lnum = atol(line1);
 		try
 		{
-			llnum = boost::lexical_cast<unsigned long long>(line1);
+			llnum = std::stoull(line1, nullptr, 10);
 		}
-		catch(boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
         {
 			llnum = 0;
 		}
@@ -1205,7 +1223,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		{
 		case 'A':
 			if (!strcmp(tag, "Ac  "))
+			{
 				GET_AC(this) = num;
+			}
 			else if (!strcmp(tag, "Aff "))
 			{
 				AFF_FLAGS(this).from_string(line);
@@ -1228,21 +1248,24 @@ int Player::load_char_ascii(const char *name, bool reboot)
 						af.battleflag = num6;
 						if (af.type == SPELL_LACKY)
 						{
-							af.handler = boost::shared_ptr<LackyAffectHandler>(new LackyAffectHandler());
+							af.handler.reset(new LackyAffectHandler());
 						}
-						affect_to_char(this, &af);
+						affect_to_char(this, af);
 						i++;
 					}
-				}
-				while (num != 0);
+				} while (num != 0);
 			}
 			else if (!strcmp(tag, "Alin"))
+			{
 				GET_ALIGNMENT(this) = num;
+			}
 			break;
 
 		case 'B':
 			if (!strcmp(tag, "Badp"))
+			{
 				GET_BAD_PWS(this) = num;
+			}
 			else if (!strcmp(tag, "Bank"))
 			{
 				set_bank(lnum, false);

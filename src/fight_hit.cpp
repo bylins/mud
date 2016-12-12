@@ -131,7 +131,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 
 	for (int i = 0; i < 3; i++)
 	{
-		affect_join(ch, &af[i], TRUE, FALSE, TRUE, FALSE);
+		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
 	}
 }
 
@@ -720,7 +720,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				&& (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
 					|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
 					|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT)))
-			{ 
+			{
 				af[i].duration /= 5;
 				// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
 				sh_int extra_duration = 0;
@@ -733,9 +733,10 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				}
 				af[i].duration += pc_duration(victim, GET_REMORT(ch)/2 + extra_duration, 0, 0, 0, 0);
 			}
-			affect_join(victim, af + i, TRUE, FALSE, TRUE, FALSE);
+			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
 		}
 	}
+
 	if (to_char)
 	{
 		sprintf(buf, "&G&qВаше точное попадание %s.&Q&n", to_char);
@@ -743,6 +744,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		sprintf(buf, "Точное попадание $n1 %s.", to_char);
 		act(buf, TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
+
 	if (to_vict)
 	{
 		sprintf(buf, "&R&qМеткое попадание $n1 %s.&Q&n", to_vict);
@@ -873,7 +875,10 @@ bool check_mighthit_weapon(CHAR_DATA *ch)
 // * При надуве выше х 1.5 в пк есть 1% того, что весь надув слетит одним ударом.
 void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	if (((!IS_NPC(ch) && ch != victim) || (ch->master && !IS_NPC(ch->master) && ch->master != victim))
+	if (((!IS_NPC(ch) && ch != victim)
+			|| (ch->has_master()
+				&& !IS_NPC(ch->get_master())
+				&& ch->get_master() != victim))
 		&& !IS_NPC(victim)
 		&& GET_POS(victim) != POS_DEAD
 		&& GET_HIT(victim) > GET_REAL_MAX_HIT(victim) * 1.5
@@ -1948,7 +1953,7 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 		dam_msgnum = 13;
 	else if (dam <= 400)
 		dam_msgnum = 14;
-	else 
+	else
 		dam_msgnum = 15;
 	// damage message to onlookers
 	char *buf_ptr = replace_string(dam_weapons[dam_msgnum].to_room,
@@ -2018,15 +2023,18 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			remember(victim, ch);
 		}
-		else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->master && !IS_NPC(ch->master))
+		else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			&& ch->has_master()
+			&& !IS_NPC(ch->get_master()))
 		{
 			if (MOB_FLAGGED(ch, MOB_CLONE))
 			{
-				remember(victim, ch->master);
+				remember(victim, ch->get_master());
 			}
-			else if (IN_ROOM(ch->master) == IN_ROOM(victim) && CAN_SEE(victim, ch->master))
+			else if (IN_ROOM(ch->get_master()) == IN_ROOM(victim)
+				&& CAN_SEE(victim, ch->get_master()))
 			{
-				remember(victim, ch->master);
+				remember(victim, ch->get_master());
 			}
 		}
 	}
@@ -2038,15 +2046,18 @@ void update_mob_memory(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			remember(ch, victim);
 		}
-		else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM) && victim->master && !IS_NPC(victim->master))
+		else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+			&& victim->has_master()
+			&& !IS_NPC(victim->get_master()))
 		{
 			if (MOB_FLAGGED(victim, MOB_CLONE))
 			{
-				remember(ch, victim->master);
+				remember(ch, victim->get_master());
 			}
-			else if (IN_ROOM(victim->master) == ch->in_room && CAN_SEE(ch, victim->master))
+			else if (IN_ROOM(victim->get_master()) == ch->in_room
+				&& CAN_SEE(ch, victim->get_master()))
 			{
-				remember(ch, victim->master);
+				remember(ch, victim->get_master());
 			}
 		}
 	}
@@ -2291,22 +2302,24 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d", GET_NAME(ch), GET_CLASS(ch), GET_REMORT(ch), GET_LEVEL(ch), real_dam, over_dam);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		{
-			CHAR_DATA *leader = ch->master ? ch->master : ch;
+			CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
 		}
 	}
-	else if (IS_CHARMICE(ch) && ch->master)
+	else if (IS_CHARMICE(ch)
+		&& ch->has_master())
 	{
-		ch->master->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
-		if (!IS_NPC(ch->master))
+		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
+		if (!IS_NPC(ch->get_master()))
 		{
 			log("DmetrLog. Name(charmice): %s, name(master): %s, class: %d, remort: %d, level: %d, dmg: %d, over_dmg:%d",
-				GET_NAME(ch), GET_NAME(ch->master), GET_CLASS(ch->master), GET_REMORT(ch->master), GET_LEVEL(ch->master), real_dam, over_dam);
+				GET_NAME(ch), GET_NAME(ch->get_master()), GET_CLASS(ch->get_master()), GET_REMORT(ch->get_master()),
+				GET_LEVEL(ch->get_master()), real_dam, over_dam);
 		}
 
-		if (AFF_FLAGGED(ch->master, EAffectFlag::AFF_GROUP))
+		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP))
 		{
-			CHAR_DATA *leader = ch->master->master ? ch->master->master : ch->master;
+			CHAR_DATA *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
 			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
 		}
 	}
@@ -2323,15 +2336,23 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			if (IS_NPC(keeper)
 				&& MOB_FLAGGED(keeper, MOB_ANGEL)
-				&& keeper->master
-				&& AFF_FLAGGED(keeper->master, EAffectFlag::AFF_GROUP))
+				&& keeper->has_master()
+				&& AFF_FLAGGED(keeper->get_master(), EAffectFlag::AFF_GROUP))
 			{
-				CHAR_DATA *keeper_leader = keeper->master->master ? keeper->master->master : keeper->master;
-				CHAR_DATA *victim_leader = victim->master ? victim->master : victim;
+				CHAR_DATA *keeper_leader = keeper->get_master()->has_master()
+					? keeper->get_master()->get_master()
+					: keeper->get_master();
+				CHAR_DATA *victim_leader = victim->has_master()
+					? victim->get_master()
+					: victim;
 
-				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->master, ch)))
+				if ((keeper_leader == victim_leader)
+					&& (may_kill_here(keeper->get_master(), ch)))
 				{
-					pk_agro_action(keeper->master, ch);
+					if (!pk_agro_action(keeper->get_master(), ch))
+					{
+						return;
+					}
 					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
 						GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
 					snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
@@ -2353,15 +2374,19 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 		IN_ROOM(victim) != NOWHERE ? world[IN_ROOM(victim)]->name : "NOWHERE", GET_ROOM_VNUM(IN_ROOM(victim)));
 	log("%s",buf2);
 
-	if ((!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
-		&& (RENTABLE(victim) && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA)))
+	if ((!IS_NPC(ch)
+			|| (ch->has_master()
+				&& !IS_NPC(ch->get_master())))
+		&& RENTABLE(victim)
+		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
 	{
 		mudlog(buf2, BRF, LVL_IMPL, SYSLOG, 0);
 		if (IS_NPC(ch)
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || IS_HORSE(ch))
-			&& ch->master && !IS_NPC(ch->master))
+			&& ch->has_master()
+			&& !IS_NPC(ch->get_master()))
 		{
-			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->master, 2));
+			sprintf(buf2, "%s is following %s.", GET_NAME(ch), GET_PAD(ch->get_master(), 2));
 			mudlog(buf2, BRF, LVL_IMPL, SYSLOG, TRUE);
 		}
 	}
@@ -2382,7 +2407,9 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 					poisoner = poisoner->next_in_room)
 				{
 					if (poisoner != victim && GET_ID(poisoner) == victim->Poisoner)
+					{
 						killer = poisoner;
+					}
 				}
 			}
 			else if (msg_num == TYPE_SUFFERING)
@@ -2392,10 +2419,13 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 					attacker = attacker->next_in_room)
 				{
 					if (attacker->get_fighting() == victim)
+					{
 						killer = attacker;
+					}
 				}
 			}
 		}
+
 		if (ch != victim)
 		{
 			killer = ch;
@@ -2409,25 +2439,26 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// т.к. помечен флагом AFF_GROUP - точно PC
 			group_gain(killer, victim);
 		}
-		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_HORSE) || AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(killer, MOB_ANGEL)) && killer->master)
+		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
+				|| MOB_FLAGGED(killer, MOB_ANGEL)
+				|| MOB_FLAGGED(killer, MOB_GHOST))
+			&& killer->has_master())
 			// killer - зачармленный NPC с хозяином
 		{
 			// по логике надо бы сделать, что если хозяина нет в клетке, но
 			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
 			// которые рядом с убившим моба чармисом.
-			if (AFF_FLAGGED(killer->master, EAffectFlag::AFF_GROUP)
-				&& IN_ROOM(killer) == IN_ROOM(killer->master))
+			if (AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP)
+				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()))
 			{
 				// Хозяин - PC в группе => опыт группе
-				group_gain(killer->master, victim);
+				group_gain(killer->get_master(), victim);
 			}
-			else if (IN_ROOM(killer) == IN_ROOM(killer->master))
+			else if (IN_ROOM(killer) == IN_ROOM(killer->get_master()))
 				// Чармис и хозяин в одной комнате
 				// Опыт хозяину
 			{
-				perform_group_gain(killer->master, victim, 1, 100);
-				//solo_gain(killer->master, victim);
-				//solo_gain(killer,victim);
+				perform_group_gain(killer->get_master(), victim, 1, 100);
 			}
 			// else
 			// А хозяина то рядом не оказалось, все чармису - убрано
@@ -2443,7 +2474,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 	// в сислог иммам идут только смерти в пк (без арен)
 	// в файл пишутся все смерти чаров
 	// если чар убит палачем то тоже не спамим
-	
+
 	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))
 	{
 		update_pk_logs(ch, victim);
@@ -2454,7 +2485,10 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
-	if (killer) ch = killer;
+	if (killer)
+	{
+		ch = killer;
+	}
 
 	die(victim, ch);
 }
@@ -2524,7 +2558,8 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		if (GET_POS(ch) > POS_STUNNED && (ch->get_fighting() == NULL))
 		{
-			pk_agro_action(ch, victim);
+			if (!pk_agro_action(ch, victim))
+				return (0);
 			set_fighting(ch, victim);
 			npc_groupbattle(ch);
 		}
@@ -2638,10 +2673,20 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
-	if(GET_PR(victim) && IS_NPC(victim)
-		&& dmg_type == FightSystem::PHYS_DMG)
+	//if(GET_PR(victim) && IS_NPC(victim)
+	if(GET_PR(victim) && dmg_type == FightSystem::PHYS_DMG)
 	{
-		dam = dam - (dam * GET_PR(victim) / 100);
+		if (PRF_FLAGGED(victim, PRF_TESTER))
+		{
+        		int ResultDam = dam - (dam * GET_PR(victim) / 100);
+        		sprintf(buf, "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
+        		send_to_char(buf, victim);
+        		dam = ResultDam;
+    		} 
+	else
+        {
+            dam = dam - (dam * GET_PR(victim) / 100);
+        }
 	}
 
 	// зб, щиты, броня, поглощение
@@ -2726,16 +2771,18 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		GET_HIT(ch) = MAX(GET_HIT(ch), MIN(GET_HIT(ch) + MAX(1, dam * 0.1), GET_REAL_MAX_HIT(ch)
 			+ GET_REAL_MAX_HIT(ch) * GET_LEVEL(ch) / 10));
 		// если есть родство душ, то чару отходит по 5% от дамаги к хп
-		if (ch->master)
+		if (ch->has_master())
 		{
-			if (can_use_feat(ch->master, SOULLINK_FEAT))
+			if (can_use_feat(ch->get_master(), SOULLINK_FEAT))
 			{
-				GET_HIT(ch->master) = MAX(GET_HIT(ch->master), MIN(GET_HIT(ch->master) + MAX(1, dam * 0.05), GET_REAL_MAX_HIT(ch->master)
-					+ GET_REAL_MAX_HIT(ch->master) * GET_LEVEL(ch->master) / 10));
+				GET_HIT(ch->get_master()) = MAX(GET_HIT(ch->get_master()),
+					MIN(GET_HIT(ch->get_master()) + MAX(1, dam * 0.05),
+						GET_REAL_MAX_HIT(ch->get_master())
+						+ GET_REAL_MAX_HIT(ch->get_master()) * GET_LEVEL(ch->get_master()) / 10));
 			}
 		}
 	}
-	
+
 	// запись в дметр фактического и овер дамага
 	update_dps_stats(ch, real_dam, over_dam);
 	// запись дамага в список атакеров
@@ -2785,7 +2832,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	//  dam_message just sends a generic "You hit $n extremely hard.".
 	//  skill_message is preferable to dam_message because it is more
 	//  descriptive.
-	// 
+	//
 	//  If we are _not_ attacking with a weapon (i.e. a spell), always use
 	//  skill_message. If we are attacking with a weapon: If this is a miss or a
 	//  death blow, send a skill_message if one exists; if not, default to a
@@ -2828,7 +2875,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			dam_message(ch, victim);
 		}
 	}
-	
+
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE]);
 
@@ -2867,6 +2914,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dmg.process(victim, ch);
 	}
 
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
+	{
+        sprintf(buf, "&MПрименен урон = %d&n\r\n", dam);
+        send_to_char(buf,ch);
+    }
+
 	return dam;
 }
 
@@ -2885,7 +2938,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		prob = 0;
 	}
-        
+
 /*  Логирование шанса молота.
 send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Stab == %d\r\n", prob, percent, might, stab);
  sprintf(buf, "%s молотит : Percent == %d,Prob == %d, Might == %d, Stability == %d\r\n",GET_NAME(ch), percent, prob, might, stab);
@@ -2922,7 +2975,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 			af.modifier = 0;
 			af.duration = pc_duration(victim, 1, 0, 0, 0, 0);
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(victim, af, TRUE, FALSE, TRUE, FALSE);
 			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -2945,7 +2998,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 			af.modifier = 0;
 			af.duration = pc_duration(victim, 2, 0, 0, 0, 0);
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(victim, af, TRUE, FALSE, TRUE, FALSE);
 			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -2968,7 +3021,7 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Sta
 			af.modifier = 0;
 			af.duration = pc_duration(victim, 3, 0, 0, 0, 0);
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			affect_join(victim, &af, TRUE, FALSE, TRUE, FALSE);
+			affect_join(victim, af, TRUE, FALSE, TRUE, FALSE);
 			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N зашатал$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -3654,7 +3707,7 @@ void HitData::add_weapon_damage(CHAR_DATA *ch)
 
 	if (IS_NPC(ch)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& !MOB_FLAGGED(ch, MOB_ANGEL))
+		&& !(MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
 	{
 		damroll *= MOB_DAMAGE_MULT;
 	}
@@ -3754,6 +3807,38 @@ void HitData::calc_crit_chance(CHAR_DATA *ch)
 		reset_flag(FightSystem::CRIT_HIT);
 	}
 }
+
+/* Бонусная дамага от "пореза" и других приемов, буде таковые реализуют */
+double expedient_bonus_damage(CHAR_DATA *ch, CHAR_DATA *victim)
+{
+	double factor = 1.00;
+
+	switch (ch->get_extra_attack_mode())
+	{
+	case EXTRA_ATTACK_CUT_SHORTS:
+        if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_AWARE))
+        {
+		factor = 1 + ch->get_skill(SKILL_SHORTS)/35.0;
+        } else
+        {
+		factor = 1 + ch->get_skill(SKILL_SHORTS)/30.0;
+        }
+        break;
+	case EXTRA_ATTACK_CUT_PICK:
+		factor = 1 + ch->get_skill(SKILL_PICK)/70.0;
+        break;
+	default:
+		factor = 1.00;
+        break;
+	}
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
+	{
+        sprintf(buf, "&CМножитель урона от приема = %f&n\r\n", factor);
+        send_to_char(buf,ch);
+    }
+
+    return factor;
+};
 
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
@@ -3973,7 +4058,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
 		if (can_use_feat(ch, THIEVES_STRIKE_FEAT) || can_use_feat(ch, SHADOW_STRIKE_FEAT))
 		{
-			// тати игнорят броню полностью 
+			// тати игнорят броню полностью
 			// и наемы тоже!
 			hit_params.set_flag(FightSystem::IGNORE_ARMOR);
 		}
@@ -3989,7 +4074,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
 		{
-			if (victim->get_fighting())		
+			if (victim->get_fighting())
 			{
 				hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 			}
@@ -4008,6 +4093,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
 				&& !(MOB_FLAGGED(victim, MOB_PROTECT)))
 			&& (number(1,100) <= 6)
+			&& IS_NPC(victim)
 			&& !victim->get_role(MOB_ROLE_BOSS))
 		{
 			    GET_HIT(victim) = 1;
@@ -4064,7 +4150,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			send_to_char(buf,ch);
 			sprintf(buf, "&RДамага метнуть равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,victim);
-		}               
+		}
 		return;
 	}
 
@@ -4101,7 +4187,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	if (IS_IMPL(ch))
+	if (ch->get_extra_attack_mode() != EXTRA_ATTACK_UNUSED)
+        hit_params.dam *= expedient_bonus_damage(ch, victim);
+
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		sprintf(buf, "&CРегуляр дамаг = %d&n\r\n", hit_params.dam);
 		send_to_char(buf,ch);
@@ -4138,6 +4227,21 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		// victim is not dead after hit
 		hitprcnt_mtrigger(victim);
 	}
+}
+
+OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, int SelectedWeapon)
+{
+	OBJ_DATA *UsedWeapon = nullptr;
+
+	if (SelectedWeapon == RIGHT_WEAPON)
+	{
+		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
+			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
+	}
+	else if (SelectedWeapon == LEFT_WEAPON)
+		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
+
+    return UsedWeapon;
 }
 
 //**** This function realize second shot for bows ******
@@ -4198,13 +4302,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 		}
 	}
 
-	if (weapon == RIGHT_WEAPON)
-	{
-		if (!(wielded = GET_EQ(ch, WEAR_WIELD)))
-			wielded = GET_EQ(ch, WEAR_BOTHS);
-	}
-	else if (weapon == LEFT_WEAPON)
-		wielded = GET_EQ(ch, WEAR_HOLD);
+	wielded = GetUsedWeapon(ch, weapon);
 
 	if (wielded
 			&& !GET_EQ(ch, WEAR_SHIELD)

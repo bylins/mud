@@ -25,11 +25,14 @@
 #include "house.h"
 #include "help.hpp"
 #include "utils.h"
+#include "msdp.constants.hpp"
+#include "backtrace.hpp"
 
 #include <boost/format.hpp>
 
 #include <sstream>
 #include <list>
+#include <algorithm>
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
@@ -88,7 +91,15 @@ namespace CharacterSystem
 
 ////////////////////////////////////////////////////////////////////////////////
 //extern MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
-CHAR_DATA::CHAR_DATA() : role_(MOB_ROLE_TOTAL_NUM), next_(NULL), m_wait(~0u)
+CHAR_DATA::CHAR_DATA() :
+	chclass_(CLASS_UNDEFINED),
+	role_(MOB_ROLE_TOTAL_NUM),
+	next_(NULL),
+	in_room(CRooms::UNDEFINED_ROOM_VNUM),
+	m_wait(~0u),
+	m_master(nullptr),
+	proto_script(new OBJ_DATA::triggers_list_t()),
+	followers(nullptr)
 {
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
@@ -134,7 +145,7 @@ void CHAR_DATA::reset()
 	memset((void *)&add_abils, 0, sizeof(add_abils));
 
 	followers = NULL;
-	master = NULL;
+	m_master = nullptr;
 	in_room = NOWHERE;
 	carrying = NULL;
 	next_ = NULL;
@@ -165,7 +176,69 @@ void CHAR_DATA::reset()
 	PlayerI::reset();
 }
 
-bool CHAR_DATA::has_any_affect(const affects_list_t affects)
+void CHAR_DATA::set_abstinent()
+{
+	int duration = pc_duration(this, 2, MAX(0, GET_DRUNK_STATE(this) - CHAR_DRUNKED), 4, 2, 5);
+
+	if (can_use_feat(this, DRUNKARD_FEAT))
+	{
+		duration /= 2;
+	}
+
+	AFFECT_DATA<EApplyLocation> af;
+	af.type = SPELL_ABSTINENT;
+	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
+	af.duration = duration;
+
+	af.location = APPLY_AC;
+	af.modifier = 20;
+	affect_join(this, af, 0, 0, 0, 0);
+
+	af.location = APPLY_HITROLL;
+	af.modifier = -2;
+	affect_join(this, af, 0, 0, 0, 0);
+
+	af.location = APPLY_DAMROLL;
+	af.modifier = -2;
+	affect_join(this, af, 0, 0, 0, 0);
+}
+
+void CHAR_DATA::affect_remove(const char_affects_list_t::iterator& affect_i)
+{
+	int was_lgt = AFF_FLAGGED(this, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
+	long was_hlgt = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
+	long was_hdrk = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
+
+	if (affected.empty())
+	{
+		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
+		return;
+	}
+
+	const auto af = *affect_i;
+	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
+	if (af->type == SPELL_ABSTINENT)
+	{
+		if (player_specials)
+		{
+			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = MIN(GET_COND(this, DRUNK), CHAR_DRUNKED - 1);
+		} else
+		{
+			log("SYSERR: player_specials is not set.");
+		}
+	}
+	if (af->type == SPELL_DRUNKED && af->duration == 0)
+	{
+		set_abstinent();
+	}
+
+	affected.erase(affect_i);
+
+	affect_total(this);
+	check_light(this, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
+}
+
+bool CHAR_DATA::has_any_affect(const affects_list_t& affects)
 {
 	for (const auto& affect : affects)
 	{
@@ -176,6 +249,66 @@ bool CHAR_DATA::has_any_affect(const affects_list_t affects)
 	}
 
 	return false;
+}
+
+size_t CHAR_DATA::remove_random_affects(const size_t count)
+{
+	std::deque<char_affects_list_t::iterator> removable_affects;
+	for (auto affect_i = affected.begin(); affect_i != affected.end(); ++affect_i)
+	{
+		const auto& affect = *affect_i;
+		if (affect->removable())
+		{
+			removable_affects.push_back(affect_i);
+		}
+	}
+
+	const auto to_remove = std::min(count, removable_affects.size());
+	std::random_shuffle(removable_affects.begin(), removable_affects.end());
+	for (auto counter = 0u; counter < to_remove; ++counter)
+	{
+		const auto affect_i = removable_affects[counter];
+		affect_remove(affect_i);
+	}
+
+	return to_remove;
+}
+
+const char* CHAR_DATA::print_affects_to_buffer(char* buffer, const size_t size) const
+{
+	char* pos = buf;
+	size_t remaining = size;
+
+	if (1 > size)
+	{
+		log("SYSERR: Requested print into buffer of zero size.");
+		*buffer = '\0';
+		return buffer;
+	}
+
+	for (const auto affect : affected)
+	{
+		const auto written = snprintf(pos, remaining, " %s", apply_types[affect->location]);
+
+		if (written < 0)
+		{
+			log("SYSERR: Something went wrong while printing list of affects.");
+			*buffer = '\0';				// Return empty string
+			break;
+		}
+
+		if (remaining >= static_cast<size_t>(written))
+		{
+			log("SYSERR: Provided buffer is not big enough to print list of affects. Truncated.");
+			buffer[size - 1] = '\0';	// Terminate string at the end of buffer
+			break;
+		}
+
+		remaining -= written;
+		pos += written;
+	}
+
+	return buffer;
 }
 
 /**
@@ -223,19 +356,18 @@ void CHAR_DATA::zero_init()
 	punctual_wait = 0;
 	last_comm = 0;
 	player_specials = 0;
-	affected = 0;
 	timed = 0;
 	timed_feat = 0;
 	carrying = 0;
 	desc = 0;
 	id = 0;
-	proto_script.clear();
+	proto_script.reset(new OBJ_DATA::triggers_list_t());
 	script = 0;
 	memory = 0;
 	next_in_room = 0;
 	next_fighting = 0;
 	followers = 0;
-	master = 0;
+	m_master = nullptr;
 	CasterLevel = 0;
 	DamageLevel = 0;
 	pk_list = 0;
@@ -317,7 +449,7 @@ void CHAR_DATA::purge(bool destructor)
 
 	if (!IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1))
 	{	// if this is a player, or a non-prototyped non-player, free all
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 			if (GET_PAD(this, j))
 				free(GET_PAD(this, j));
 
@@ -342,7 +474,7 @@ void CHAR_DATA::purge(bool destructor)
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
 	{	// otherwise, free strings only if the string is not pointing at proto
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 			if (GET_PAD(this, j)
 					&& (this->player_data.PNames[j] != mob_proto[i].player_data.PNames[j]))
 				free(this->player_data.PNames[j]);
@@ -360,14 +492,20 @@ void CHAR_DATA::purge(bool destructor)
 			free(this->mob_specials.Questor);
 	}
 
-	while (this->affected)
-		affect_remove(this, this->affected);
+	while (!this->affected.empty())
+	{
+		affect_remove(affected.begin());
+	}
 
 	while (this->timed)
+	{
 		timed_from_char(this, this->timed);
+	}
 
 	if (this->desc)
-		this->desc->character = NULL;
+	{
+		this->desc->character = nullptr;
+	}
 
 	Celebrates::remove_from_mob_lists(this->id);
 
@@ -491,8 +629,8 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
     // Пока что отменим это дело, народ морально не готов отказаться от автосников.
-	//int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
-	int is_native = true;
+	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
+	//int is_native = true;
 	for (int i = 0; i < NUM_WEARS; ++i)
 	{
 		if (equipment[i])
@@ -501,13 +639,14 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 			{
 				skill += equipment[i]->get_skill(skill_num);
 			}
-			else
+			/*else
 			{
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
-			}
+			}*/
 		}
 	}
-	skill += obj_bonus_.get_skill(skill_num);
+	if (is_native)
+		skill += obj_bonus_.get_skill(skill_num);
 
 	return skill;
 }
@@ -554,6 +693,19 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
 	}
 	else if (percent)
 		skills[skill_num] = percent;
+}
+
+void CHAR_DATA::set_skill(short remort)
+{
+int skill;
+	for (auto it=skills.begin();it!=skills.end();it++)
+	{
+		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
+		if (skill > 80 + remort*5)
+			it->second = 80 + remort*5;
+		
+	}
+
 }
 
 void CHAR_DATA::set_morphed_skill(const ESkill skill_num, int percent)
@@ -621,16 +773,16 @@ CHAR_DATA * CHAR_DATA::get_fighting() const
 	return fighting_;
 }
 
-void CHAR_DATA::set_extra_attack(int skill, CHAR_DATA *vict)
+void CHAR_DATA::set_extra_attack(ExtraAttackEnumType Attack, CHAR_DATA *vict)
 {
-	extra_attack_.used_skill = skill;
+	extra_attack_.used_attack = Attack;
 	extra_attack_.victim = vict;
 	check_fighting_list();
 }
 
-int CHAR_DATA::get_extra_skill() const
+ExtraAttackEnumType CHAR_DATA::get_extra_attack_mode() const
 {
-	return extra_attack_.used_skill;
+	return extra_attack_.used_attack;
 }
 
 CHAR_DATA * CHAR_DATA::get_extra_victim() const
@@ -711,7 +863,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		}
 		if (k->get_extra_victim() == ch)
 		{
-			k->set_extra_attack(0, 0);
+			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 		}
 		if (k->get_cast_char() == ch)
 		{
@@ -751,7 +903,7 @@ void change_fighting(CHAR_DATA * ch, int need_stop)
 		}
 		if (k->get_extra_victim() == ch)
 		{
-			k->set_extra_attack(0, 0);
+			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 		}
 		if (k->get_cast_char() == ch)
 		{
@@ -973,6 +1125,7 @@ void CHAR_DATA::set_exp(long exp)
 		log("WARNING: exp=%ld name=[%s] (%s:%d %s)", exp, get_name().c_str(), __FILE__, __LINE__, __func__);
 	}
 	exp_ = MAX(0, exp);
+	msdp_report(msdp::constants::EXPERIENCE);
 }
 
 short CHAR_DATA::get_remort() const
@@ -1094,7 +1247,10 @@ int CHAR_DATA::get_max_hit() const
 void CHAR_DATA::set_max_hit(const int v)
 {
 	if (v >= 0)
+	{
 		points.max_hit = v;
+	}
+	msdp_report(msdp::constants::MAX_HIT);
 }
 
 sh_int CHAR_DATA::get_move() const
@@ -1116,7 +1272,10 @@ sh_int CHAR_DATA::get_max_move() const
 void CHAR_DATA::set_max_move(const sh_int v)
 {
 	if (v >= 0)
+	{
 		points.max_move = v;
+	}
+	msdp_report(msdp::constants::MAX_MOVE);
 }
 
 long CHAR_DATA::get_ruble()
@@ -1205,6 +1364,7 @@ void CHAR_DATA::set_gold(long num, bool need_log)
 	}
 
 	gold_ = num;
+	msdp_report(msdp::constants::GOLD);
 }
 
 // * см. set_gold()
@@ -1231,6 +1391,7 @@ void CHAR_DATA::set_bank(long num, bool need_log)
 	}
 
 	bank_gold_ = num;
+	msdp_report(msdp::constants::GOLD);
 }
 
 /**
@@ -1577,7 +1738,7 @@ std::string CHAR_DATA::get_title()
 	}
 	tmp = tmp.substr(0, pos);
 	pos = tmp.find(';');
-	
+
 	return pos == std::string::npos
 		? tmp
 		: tmp.substr(0, pos);
@@ -1760,6 +1921,66 @@ void CHAR_DATA::set_role(unsigned num, bool flag)
 	}
 }
 
+void CHAR_DATA::msdp_report(const std::string& name)
+{
+	if (nullptr != desc)
+	{
+		desc->msdp_report(name);
+	}
+}
+
+void CHAR_DATA::add_follower(CHAR_DATA* ch)
+{
+	add_follower_silently(ch);
+
+	if (!IS_HORSE(ch))
+	{
+		act("Вы начали следовать за $N4.", FALSE, ch, 0, this, TO_CHAR);
+		act("$n начал$g следовать за вами.", TRUE, ch, 0, this, TO_VICT);
+		act("$n начал$g следовать за $N4.", TRUE, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
+	}
+}
+
+CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const
+{
+	CHAR_DATA::followers_list_t result;
+
+	auto pos = followers;
+	while (pos)
+	{
+		const auto follower = pos->follower;
+		result.push_back(follower);
+		pos = pos->next;
+	}
+
+	return result;
+}
+
+void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)
+{
+	struct follow_type *k;
+
+	if (ch->has_master())
+	{
+		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
+			GET_NAME(ch), get_name().c_str(), GET_NAME(ch->get_master()));
+		return;
+	}
+
+	if (ch == this)
+	{
+		return;
+	}
+
+	ch->set_master(this);
+
+	CREATE(k, 1);
+
+	k->follower = ch;
+	k->next = followers;
+	followers = k;
+}
+
 const boost::dynamic_bitset<>& CHAR_DATA::get_role_bits() const
 {
 	return role_;
@@ -1775,9 +1996,9 @@ void CHAR_DATA::add_attacker(CHAR_DATA *ch, unsigned type, int num)
 	}
 
 	int uid = ch->get_uid();
-	if (IS_CHARMICE(ch) && ch->master)
+	if (IS_CHARMICE(ch) && ch->has_master())
 	{
-		uid = ch->master->get_uid();
+		uid = ch->get_master()->get_uid();
 	}
 
 	auto i = attackers_.find(uid);
@@ -1881,6 +2102,84 @@ void CHAR_DATA::restore_mob()
 	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);
 }
 
+void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
+{
+	std::stringstream ss;
+	ss << "Обнаружена ошибка логики: попытка сделать цикл в цепочке последователей.\nТекущая цепочка лидеров: ";
+	master->print_leaders_chain(ss);
+	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]";
+	mudlog(ss.str().c_str(), DEF, -1, ERRLOG, true);
+
+	std::stringstream additional_info;
+	additional_info << "Потенциальный лидер: name=[" << master->get_name() << "]"
+		<< "; адрес структуры: " << master << "; текущий лидер: ";
+	if (master->has_master())
+	{
+		additional_info << "name=[" << master->get_master()->get_name() << "]"
+			<< "; адрес структуры: " << master->get_master() << "";
+	}
+	else
+	{
+		additional_info << "<отсутствует>";
+	}
+	additional_info << "\nПоследователь: name=[" << get_name() << "]"
+		<< "; адрес структуры: " << this << "; текущий лидер: ";
+	if (has_master())
+	{
+		additional_info << "name=[" << get_master()->get_name() << "]"
+			<< "; адрес структуры: " << get_master() << "";
+	}
+	else
+	{
+		additional_info << "<отсутствует>";
+	}
+	mudlog(additional_info.str().c_str(), DEF, -1, ERRLOG, true);
+
+	ss << "\nТекущий стек будет распечатан в ERRLOG.";
+	debug::backtrace(runtime_config.logs(ERRLOG).handle());
+	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, false);
+}
+
+void CHAR_DATA::print_leaders_chain(std::ostream& ss) const
+{
+	if (!has_master())
+	{
+		ss << "<пуста>";
+		return;
+	}
+
+	bool first = true;
+	for (auto master = get_master(); master; master = master->get_master())
+	{
+		ss << (first ? "" : " -> ") << "[" << master->get_name() << "]";
+		first = false;
+	}
+}
+
+void CHAR_DATA::set_master(CHAR_DATA::ptr_t master)
+{
+	if (makes_loop(master))
+	{
+		report_loop_error(master);
+		return;
+	}
+	m_master = master;
+}
+
+bool CHAR_DATA::makes_loop(CHAR_DATA::ptr_t master) const
+{
+	while (master)
+	{
+		if (master == this)
+		{
+			return true;
+		}
+		master = master->get_master();
+	}
+
+	return false;
+}
+
 // инкремент и проверка таймера на рестор босса,
 // который находится вне боя и до этого был кем-то бит
 // (т.к. имеет не нулевой список атакеров)
@@ -1900,25 +2199,5 @@ obj_sets::activ_sum& CHAR_DATA::obj_bonus()
 {
 	return obj_bonus_;
 }
-
-/*
-int Character::get_event_score()
-{
-	return score_event;
-}
-
-void Character::inc_event_score(int score)
-{
-	score_event++;
-}
-
-void Character::set_event_score(int score)
-{
-	score_event = score;
-}
-*/
-
-
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

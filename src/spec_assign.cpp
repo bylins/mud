@@ -20,13 +20,13 @@
 #include "interpreter.h"
 #include "utils.h"
 #include "house.h"
+#include "boards.constants.hpp"
 #include "boards.h"
 #include "char.hpp"
 #include "room.hpp"
 #include "noob.hpp"
 
 extern int dts_are_dumps;
-extern int mini_mud;
 
 extern INDEX_DATA *mob_index;
 
@@ -65,28 +65,38 @@ void ASSIGNMOB(mob_vnum mob, int fname(CHAR_DATA*, void*, int, char*))
 			clear_mob_charm(&mob_proto[rnum]);
 		}
 	}
-	else if (!mini_mud)
+	else 
+	{
 		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
+	}
 }
 
 void ASSIGNOBJ(obj_vnum obj, special_f fname)
 {
-	obj_rnum rnum;
+	const obj_rnum rnum = real_object(obj);
 
-	if ((rnum = real_object(obj)) >= 0)
+	if (rnum >= 0)
+	{
 		obj_proto.func(rnum, fname);
-	else if (!mini_mud)
+	}
+	else
+	{
 		log("SYSERR: Attempt to assign spec to non-existant obj #%d", obj);
+	}
 }
 
 void ASSIGNROOM(room_vnum room, special_f fname)
 {
-	room_rnum rnum;
+	const room_rnum rnum = real_room(room);
 
-	if ((rnum = real_room(room)) != NOWHERE)
+	if (rnum != NOWHERE)
+	{
 		world[rnum]->func = fname;
-	else if (!mini_mud)
+	}
+	else
+	{
 		log("SYSERR: Attempt to assign spec to non-existant room #%d", room);
+	}
 }
 
 void ASSIGNMASTER(mob_vnum mob, special_f fname, int learn_info)
@@ -98,10 +108,11 @@ void ASSIGNMASTER(mob_vnum mob, special_f fname, int learn_info)
 		mob_index[rnum].func = fname;
 		mob_index[rnum].stored = learn_info;
 	}
-	else if (!mini_mud)
+	else
+	{
 		log("SYSERR: Attempt to assign spec to non-existant mob #%d", mob);
+	}
 }
-
 
 // ********************************************************************
 // *  Assignments                                                     *
@@ -128,19 +139,16 @@ void assign_mobiles(void)
 	ASSIGNMOB(4023, horse_keeper);
 }
 
-
-
 // assign special procedures to objects //
 void assign_objects(void)
 {
-	ASSIGNOBJ(Boards::GODGENERAL_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(Boards::GENERAL_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(Boards::GODCODE_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(Boards::GODPUNISH_BOARD_OBJ, Board::Special);
-	ASSIGNOBJ(Boards::GODBUILD_BOARD_OBJ, Board::Special);
+	special_f* const function = Boards::Static::Special;
+	ASSIGNOBJ(Boards::GODGENERAL_BOARD_OBJ, function);
+	ASSIGNOBJ(Boards::GENERAL_BOARD_OBJ, function);
+	ASSIGNOBJ(Boards::GODCODE_BOARD_OBJ, function);
+	ASSIGNOBJ(Boards::GODPUNISH_BOARD_OBJ, function);
+	ASSIGNOBJ(Boards::GODBUILD_BOARD_OBJ, function);
 }
-
-
 
 // assign special procedures to rooms //
 void assign_rooms(void)

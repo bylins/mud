@@ -22,6 +22,7 @@
 
 #include <cmath>
 #include <sstream>
+#include <memory>
 
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 extern int Crash_write_timer(int index);	// to avoid inclusion of "objsave.h"
@@ -127,8 +128,22 @@ void OBJ_DATA::zero_init()
 	m_purged = false;
 	m_activator.first = false;
 	m_activator.second = 0;
-
 	m_custom_label = nullptr;
+}
+
+void OBJ_DATA::detach_ex_description()
+{
+	const auto old_description = get_ex_description();
+	const auto new_description = std::make_shared<EXTRA_DESCR_DATA>();
+	if (nullptr != old_description->keyword)
+	{
+		new_description->keyword = str_dup(old_description->keyword);
+	}
+	if (nullptr != old_description->keyword)
+	{
+		new_description->description = str_dup(old_description->description);
+	}
+	set_ex_description(new_description);
 }
 
 // * См. Character::purge()
@@ -304,6 +319,11 @@ void CObjectPrototype::clear_all_affected()
 	}
 }
 
+void CObjectPrototype::clear_proto_script()
+{
+	m_proto_script.reset(new OBJ_DATA::triggers_list_t());
+}
+
 void CObjectPrototype::zero_init()
 {
 	m_type = ITEM_UNDEFINED;
@@ -312,7 +332,7 @@ void CObjectPrototype::zero_init()
 	m_short_description.clear();
 	m_action_description.clear();
 	m_ex_description.reset();
-	m_proto_script.clear();
+	m_proto_script->clear();
 	m_max_in_world = 0;
 	m_skills.clear();
 	m_timer = 0;
@@ -325,6 +345,54 @@ void CObjectPrototype::zero_init()
 		m_pnames[i].clear();
 	}
 	m_ilevel = 0;
+}
+
+void CObjectPrototype::tag_ex_description(const char* tag)
+{
+	m_ex_description->description = str_add(m_ex_description->description, tag);
+}
+
+CObjectPrototype& CObjectPrototype::operator=(const CObjectPrototype& from)
+{
+	if (this != &from)
+	{
+		m_type = from.m_type;
+		m_weight = from.m_weight;
+		m_affected = from.m_affected;
+		m_aliases = from.m_aliases;
+		m_description = from.m_description;
+		m_short_description = from.m_short_description;
+		m_action_description = from.m_action_description;
+		m_ex_description = from.m_ex_description;
+		*m_proto_script = *from.m_proto_script;
+		m_pnames = from.m_pnames;
+		m_max_in_world = from.m_max_in_world;
+		m_vals = from.m_vals;
+		m_values = from.m_values;
+		m_destroyer = from.m_destroyer;
+		m_spell = from.m_spell;
+		m_level = from.m_level;
+		m_skill = from.m_skill;
+		m_maximum_durability = from.m_maximum_durability;
+		m_current_durability = from.m_current_durability;
+		m_material = from.m_material;
+		m_sex = from.m_sex;
+		m_extra_flags = from.m_extra_flags;
+		m_waffect_flags = from.m_waffect_flags;
+		m_anti_flags = from.m_anti_flags;
+		m_no_flags = from.m_no_flags;
+		m_wear_flags = from.m_wear_flags;
+		m_timer = from.m_timer;
+		m_skills = from.m_skills;
+		m_minimum_remorts = from.m_minimum_remorts;
+		m_cost = from.m_cost;
+		m_rent_on = from.m_rent_on;
+		m_rent_off = from.m_rent_off;
+		m_ilevel = from.m_ilevel;
+		m_rnum = from.m_rnum;
+	}
+
+	return *this;
 }
 
 int CObjectPrototype::get_skill(int skill_num) const
@@ -457,25 +525,29 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 		set_affected_modifier(0, 2);
 		set_affected_modifier(1, 2);
     };
-    
-    for (i = 0; i < random_drop; i++)
+
+    i=0;
+    while (i < random_drop)
 	{
 		if (obj->get_affected(i).location != APPLY_NONE)
 		{
 			set_obj_eff(this, obj->get_affected(i).location, obj->get_affected(i).modifier);
-		};
+		}
+		i++;
 	}
+
     add_affect_flags(GET_OBJ_AFFECTS(obj));
     add_extra_flags(GET_OBJ_EXTRA(obj));
     add_no_flags(GET_OBJ_NO(obj));
 
+    set_extra_flag(EExtraFlag::ITEM_MAGIC);
+    set_extra_flag(EExtraFlag::ITEM_MAGIC);
     set_extra_flag(EExtraFlag::ITEM_MAGIC);
 }
 
 void OBJ_DATA::unset_enchant()
 {
     int i = 0;
-	// Возврат афектов
 	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
 		if (obj_proto.at(get_rnum())->get_affected(i).location != APPLY_NONE)
@@ -487,7 +559,7 @@ void OBJ_DATA::unset_enchant()
 			set_affected_location(i, APPLY_NONE);
 		}
 	}
-	// Возврат эфектов
+		// Возврат эфектов
 	set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
 	// поскольку все обнулилось можно втыкать слоты для ковки
 	if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH3SLOTS))
@@ -502,8 +574,119 @@ void OBJ_DATA::unset_enchant()
 	{
 		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 	}
-	
     unset_extraflag(EExtraFlag::ITEM_MAGIC);
+}
+
+bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
+{
+	const auto rnum = real_object(vnum);
+	if (rnum < 0)
+	{
+		return false;
+	}
+
+	const auto obj_original = read_object(rnum, REAL);
+
+	const auto old_rnum = get_rnum();
+	copy_from(obj_original);
+	set_rnum(old_rnum);
+
+	extract_obj(obj_original);
+
+	return true;
+}
+
+void OBJ_DATA::copy_from(const CObjectPrototype* src)
+{
+	// Копирую все поверх
+	*this = *src;
+
+	// Теперь нужно выделить собственные области памяти
+
+	// Имена и названия
+	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
+	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
+	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+
+	// Дополнительные описания, если есть
+	{
+		EXTRA_DESCR_DATA::shared_ptr nd;
+		auto* pddd = &nd;
+		auto sdd = src->get_ex_description();
+		while (sdd)
+		{
+			pddd->reset(new EXTRA_DESCR_DATA());
+			(*pddd)->keyword = str_dup(sdd->keyword);
+			(*pddd)->description = str_dup(sdd->description);
+			pddd = &(*pddd)->next;
+			sdd = sdd->next;
+		}
+
+		if (nd)
+		{
+			set_ex_description(nd);
+		}
+	}
+}
+
+void OBJ_DATA::swap(OBJ_DATA& object)
+{
+	if (this == &object)
+	{
+		return;
+	}
+
+	OBJ_DATA tmpobj(object);
+	object = *this;
+	*this = tmpobj;
+
+	obj_vnum vnum = get_vnum();
+	set_vnum(object.get_vnum());
+	object.set_vnum(vnum);
+
+	set_in_room(object.get_in_room());
+	object.set_in_room(tmpobj.get_in_room());
+
+	set_carried_by(object.get_carried_by());
+	object.set_carried_by(tmpobj.get_carried_by());
+	set_worn_by(object.get_worn_by());
+	object.set_worn_by(tmpobj.get_worn_by());
+	set_worn_on(object.get_worn_on());
+	object.set_worn_on(tmpobj.get_worn_on());
+	set_in_obj(object.get_in_obj());
+	object.set_in_obj(tmpobj.get_in_obj());
+	set_timer(object.get_timer());
+	object.set_timer(tmpobj.get_timer());
+	set_contains(object.get_contains());
+	object.set_contains(tmpobj.get_contains());
+	set_id(object.get_id());
+	object.set_id(tmpobj.get_id());
+	set_script(object.get_script());
+	object.set_script(tmpobj.get_script());
+	set_next_content(object.get_next_content());
+	object.set_next_content(tmpobj.get_next_content());
+	set_next(object.get_next());
+	object.set_next(tmpobj.get_next());
+	// для name_list
+	set_serial_num(object.get_serial_num());
+	object.set_serial_num(tmpobj.get_serial_num());
+	//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
+	set_zone(GET_OBJ_ZONE(&object));
+	object.set_zone(GET_OBJ_ZONE(&tmpobj));
+}
+
+void OBJ_DATA::set_tag(const char* tag)
+{
+	if (!get_ex_description())
+	{
+		set_ex_description(get_aliases().c_str(), tag);
+	}
+	else
+	{
+		// По уму тут надо бы стереть старое описапние если оно не с прототипа
+		detach_ex_description();
+		tag_ex_description(tag);
+	}
 }
 
 float count_remort_requred(const CObjectPrototype* obj);
@@ -514,7 +697,7 @@ float count_unlimited_timer(const CObjectPrototype* obj);
 * Помимо таймера самой шмотки снимается таймер ее временного обкаста.
 * \param time по дефолту 1.
 */
-void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
+void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 {
 	if (!m_timed_spell.empty())
 	{
@@ -529,6 +712,16 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer)
 	if (time > 0)
 	{
 		set_timer(get_timer() - time);
+	}
+
+	if (!exchange)
+	{
+		if (((GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_DRINKCON)
+				|| (GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_FOOD))
+			&& GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
+		{
+			dec_val(3);
+		}
 	}
 }
 
@@ -618,7 +811,7 @@ void OBJ_DATA::del_timed_spell(const int spell, const bool message)
 
 void CObjectPrototype::set_ex_description(const char* keyword, const char* description)
 {
-	std::shared_ptr<EXTRA_DESCR_DATA> d(new EXTRA_DESCR_DATA());
+	EXTRA_DESCR_DATA::shared_ptr d(new EXTRA_DESCR_DATA());
 	d->keyword = strdup(keyword);
 	d->description = strdup(description);
 	m_ex_description = d;
@@ -1332,8 +1525,8 @@ OBJ_DATA::EObjectMaterial ITEM_BY_NAME(const std::string& name)
 	return EObjectMaterial_value_by_name.at(name);
 }
 
-namespace SetSystem {
-
+namespace SetSystem
+{
 	struct SetNode
 	{
 		// список шмоток по конкретному сету для сверки
@@ -1346,7 +1539,10 @@ namespace SetSystem {
 	};
 
 	std::vector<SetNode> set_list;
-	const unsigned BIG_SET_ITEMS = 9;
+
+	constexpr unsigned BIG_SET_ITEMS = 9;
+	constexpr unsigned MINI_SET_ITEMS = 3;
+
 	// для проверок при попытке ренты
 	std::set<int> vnum_list;
 
@@ -1464,13 +1660,11 @@ namespace SetSystem {
 		}
 	}
 
-#define MINI_SET_ITEMS 3
-
 	/**
 	* Почта, базар.
 	* Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
 	*/
-	bool is_big_set(const CObjectPrototype* obj, bool is_mini)
+	bool is_big_set(const CObjectPrototype *obj, bool is_mini)
 	{
 		unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
 		if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
@@ -1488,16 +1682,18 @@ namespace SetSystem {
 		}
 		return false;
 	}
+
+
+
 	bool find_set_item(OBJ_DATA *obj)
 	{
 		for (; obj; obj = obj->get_next_content())
 		{
-			std::set<int>::const_iterator i = vnum_list.find(GET_OBJ_VNUM(obj));
+			std::set<int>::const_iterator i = vnum_list.find(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
 			if (i != vnum_list.end())
 			{
 				return true;
 			}
-
 			if (find_set_item(obj->get_contains()))
 			{
 				return true;
@@ -1533,8 +1729,30 @@ namespace SetSystem {
 		}
 	}
 
+
+	/* проверяем сетину в массиве внумоB*/
+	bool is_norent_set(int vnum, std::vector<int> objs)
+	{
+		if (objs.empty())
+			return true;
+		// нормализуем внумы
+		vnum = obj_sets::normalize_vnum(vnum);
+		for (unsigned int i = 0; i < objs.size(); i++)
+		{
+			objs[i] = obj_sets::normalize_vnum(objs[i]);
+		}
+		init_vnum_list(obj_sets::normalize_vnum(vnum));
+		for (const auto& it : objs)
+		{
+			for (const auto& it1 : vnum_list)
+				if (it == it1)
+					return false;
+		}
+		return true;
+	}
+
 	/**
-	* Экипировка, инвентарь, чармисы, перс. хран.
+	* Экипировка, инвентарь, чармисы, перс. хран.см
 	* Требуется наличие двух и более предметов, если сетина из большого сета.
 	* Перс. хран, рента.
 	*/
@@ -1545,7 +1763,7 @@ namespace SetSystem {
 			return false;
 		}
 
-		init_vnum_list(GET_OBJ_VNUM(obj));
+		init_vnum_list(obj_sets::normalize_vnum(GET_OBJ_VNUM(obj)));
 
 		if (vnum_list.empty())
 		{
@@ -1565,15 +1783,18 @@ namespace SetSystem {
 		{
 			return false;
 		}
+
 		// чармисы
 		if (ch->followers)
 		{
 			for (struct follow_type *k = ch->followers; k; k = k->next)
 			{
-				if (!IS_CHARMICE(k->follower) || !k->follower->master)
+				if (!IS_CHARMICE(k->follower)
+					|| !k->follower->has_master())
 				{
 					continue;
 				}
+
 				for (int j = 0; j < NUM_WEARS; j++)
 				{
 					if (find_set_item(GET_EQ(k->follower, j)))
@@ -1581,12 +1802,14 @@ namespace SetSystem {
 						return false;
 					}
 				}
+
 				if (find_set_item(k->follower->carrying))
 				{
 					return false;
 				}
 			}
 		}
+
 		// перс. хранилище
 		if (Depot::find_set_item(ch, vnum_list))
 		{

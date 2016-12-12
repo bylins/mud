@@ -657,9 +657,9 @@ void update_shop_timers(ShopListType::const_iterator &shop)
 	int waste_time = (*shop)->waste_time_min * 60;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
-		if (it->obj->get_timer() <= 0
-			|| (waste_time > 0
-				&& cur_time - it->last_activity > waste_time))
+		if (GET_OBJ_TYPE(it->obj) == CObjectPrototype::ITEM_BOOK)
+			it->obj->dec_timer();
+		if (it->obj->get_timer() <= 0 || ((waste_time > 0) && (cur_time - it->last_activity > waste_time)))
 		{
 			remove_item_id(shop, it->obj->get_uid());
 
@@ -1766,6 +1766,7 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		{
 			auto t = get_object_prototype((*shop)->item_list[item_num]->rnum, REAL);
 			tmp_obj = new OBJ_DATA(*t);
+			obj_proto.inc_number(t->get_rnum());
 			ident_obj = tmp_obj;
 		}
 	}
@@ -1957,8 +1958,9 @@ void town_shop_keepers()
 
 	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 	{
-		if (IS_RENTKEEPER(ch) && ch->in_room > 0
-			&& Clan::IsClanRoom(ch->in_room) == Clan::ClanList.end()
+		if (IS_RENTKEEPER(ch)
+			&& ch->in_room > 0
+			&& !Clan::GetClanByRoom(ch->in_room)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
 			&& GET_ROOM_VNUM(ch->in_room) % 100 != 99
 			&& zone_list.find(world[ch->in_room]->zone) == zone_list.end())

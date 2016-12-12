@@ -1,5 +1,5 @@
-if (HG)
-    execute_process(COMMAND ${HG} id OUTPUT_VARIABLE REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
+if (GIT)
+    execute_process(COMMAND ${GIT} show -s --format=%h OUTPUT_VARIABLE REVISION OUTPUT_STRIP_TRAILING_WHITESPACE)
 else ()
     set(REVISION "<undefined>")
 endif ()

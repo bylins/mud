@@ -712,7 +712,7 @@ const char * name_by_vnum(int vnum, int type)
 		rnum = real_trigger(vnum);
 		if (rnum >= 0)
 		{
-			return trig_index[rnum]->proto->name;
+			return trig_index[rnum]->proto->get_name().c_str();
 		}
 		break;
 
@@ -2128,9 +2128,13 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case ZEDIT_ZONE_LOCATION:
 		if (OLC_ZONE(d)->location)
 		{
-			free(OLC_ZONE(d)->location);
+		    free(OLC_ZONE(d)->location);
+		    OLC_ZONE(d)->location = NULL;
 		}
-		OLC_ZONE(d)->location = str_dup(arg);
+		if (arg && *arg)
+		{
+		    OLC_ZONE(d)->location = str_dup(arg);
+		}
 		OLC_ZONE(d)->number = 1;
 		zedit_disp_menu(d);
 		break;

@@ -22,38 +22,47 @@ extern int interpolate(int min_value, int pulse);
 
 namespace
 {
-
 // * Наложение ядов с пушек, аффект стакается до трех раз.
-bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation> *af)
+bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation>& af)
 {
 	bool found = false;
 
-	for (auto hjp = ch->affected; !found && hjp && af->location; hjp = hjp->next)
+	for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end() && af.location; ++affect_i)
 	{
-		if ((hjp->type == SPELL_ACONITUM_POISON
-				|| hjp->type == SPELL_SCOPOLIA_POISON
-				|| hjp->type == SPELL_BELENA_POISON
-				|| hjp->type == SPELL_DATURA_POISON)
-			&& af->type != hjp->type)
+		const auto affect = *affect_i;
+		if ((affect->type == SPELL_ACONITUM_POISON
+				|| affect->type == SPELL_SCOPOLIA_POISON
+				|| affect->type == SPELL_BELENA_POISON
+				|| affect->type == SPELL_DATURA_POISON)
+			&& af.type != affect->type)
 		{
 			// если уже есть другой яд - борода
 			return false;
 		}
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+
+		if ((affect->type == af.type) && (affect->location == af.location))
 		{
-			if (abs(hjp->modifier/3) < abs(af->modifier))
-				af->modifier += hjp->modifier;
+			if (abs(affect->modifier/3) < abs(af.modifier))
+			{
+				af.modifier += affect->modifier;
+			}
 			else
-				af->modifier = hjp->modifier;
-			affect_remove(ch, hjp);
-			affect_to_char(ch, af);
-			found = TRUE;
+			{
+				af.modifier = affect->modifier;
+			}
+
+			ch->affect_remove(affect_i);
+			affect_to_char(ch, *affect);
+			found = true;
+			break;
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_char(ch, af);
 	}
+
 	return true;
 }
 
@@ -73,7 +82,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 		af.modifier = GET_LEVEL(ch)/2 + 5;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		if (poison_affect_join(vict, &af))
+		if (poison_affect_join(vict, af))
 		{
 			vict->Poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, EAF_POISONED);
@@ -90,7 +99,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 		af.modifier = 5;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON) | to_underlying(EAffectFlag::AFF_SCOPOLIA_POISON);
 		af.battleflag = AF_SAME_TIME;
-		if (poison_affect_join(vict, &af))
+		if (poison_affect_join(vict, af))
 		{
 			vict->Poisoner = GET_ID(ch);
 			SET_AF_BATTLE(ch, EAF_POISONED);
@@ -106,7 +115,9 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
 		int percent = 0;
 		if (ch->get_skill(SKILL_POISONED) >= 80)
+		{
 			percent = (ch->get_skill(SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
+		}
 		// -дамаг физ.атак и скиллы
 		af[0].location = APPLY_BELENA_POISON;
 		af[0].modifier = percent;
@@ -133,9 +144,12 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 				| to_underlying(EAffectFlag::AFF_NOT_SWITCH);
 			af[i].battleflag = AF_SAME_TIME;
 
-			if (!poison_affect_join(vict, af + i))
+			if (!poison_affect_join(vict, af[i]))
+			{
 				was_poisoned = false;
+			}
 		}
+
 		if (was_poisoned)
 		{
 			vict->Poisoner = GET_ID(ch);
@@ -180,9 +194,12 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 				| to_underlying(EAffectFlag::AFF_NOT_SWITCH);
 			af[i].battleflag = AF_SAME_TIME;
 
-			if (!poison_affect_join(vict, af + i))
+			if (!poison_affect_join(vict, af[i]))
+			{
 				was_poisoned = false;
+			}
 		}
+
 		if (was_poisoned)
 		{
 			vict->Poisoner = GET_ID(ch);
@@ -242,7 +259,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 			for (int i = APPLY_STR; i <= APPLY_CHA; i++)
 			{
 				af.location = static_cast<EApplyLocation>(i);
-				affect_join(vict, &af, false, false, false, false);
+				affect_join(vict, af, false, false, false, false);
 			}
 
 			send_to_char(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
@@ -261,7 +278,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 			af.modifier = GET_LEVEL(ch)/6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
 			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 			af.battleflag = AF_SAME_TIME;
-			affect_join(vict, &af, false, false, false, false);
+			affect_join(vict, af, false, false, false, false);
 			send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вам стало труднее реагировать на движения противников!\r\n");
@@ -278,7 +295,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 			af.modifier = -GET_LEVEL(ch)/6;
 			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 			af.battleflag = AF_SAME_TIME;
-			affect_join(vict, &af, false, false, false, false);
+			affect_join(vict, af, false, false, false, false);
 			send_to_char(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы стали заметно медленнее двигаться!\r\n");
@@ -295,7 +312,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 			af.modifier = -GET_LEVEL(ch)/6;
 			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 			af.battleflag = AF_SAME_TIME;
-			affect_join(vict, &af, false, false, false, false);
+			affect_join(vict, af, false, false, false, false);
 			send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
 			send_to_char(vict, "Вы стали хуже переносить повреждения!\r\n");
@@ -345,7 +362,7 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 
 	for (int i = 0; i < 4; i++)
 	{
-		affect_join(vict, af + i, false, false, false, false);
+		affect_join(vict, af[i], false, false, false, false);
 	}
 	vict->Poisoner = GET_ID(ch);
 
@@ -473,7 +490,7 @@ bool check_poison(int spell)
 * APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
 * Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
 */
-int same_time_update(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation> *af)
+int same_time_update(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>::shared_ptr& af)
 {
 	int result = 0;
 	if (af->location == APPLY_POISON)

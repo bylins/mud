@@ -27,6 +27,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 #include <map>
 
@@ -75,6 +76,26 @@ bool check_agrobd(CHAR_DATA *ch) {
 	return false;
 }
 
+
+bool check_agr_in_house(CHAR_DATA *agressor)
+{
+	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor))
+	{
+		act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
+		char_from_room(agressor);
+		if (IS_FEMALE(agressor))
+			send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
+		else
+			send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
+		send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
+		char_to_room(agressor, real_room(CLAN(agressor)->out_rent));
+		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
+		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, agressor, 0, 0, TO_ROOM);
+		set_wait(agressor, 1, TRUE);
+		return true;
+	}
+	return false;
+}
 
 //Количество убитых игроков (уникальное мыло) int 
 int pk_player_count(CHAR_DATA * ch) {
@@ -136,25 +157,28 @@ void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 {
 	if (pkiller != NULL && pkiller[0] != NULL)
 	{
-		if (IS_NPC(pkiller[0]) && pkiller[0]->master
+		if (IS_NPC(pkiller[0])
+			&& pkiller[0]->has_master()
 			&& AFF_FLAGGED(pkiller[0], EAffectFlag::AFF_CHARM)
-			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->master))
+			&& IN_ROOM(pkiller[0]) == IN_ROOM(pkiller[0]->get_master()))
 		{
-			pkiller[0] = pkiller[0]->master;
+			pkiller[0] = pkiller[0]->get_master();
 		}
 	}
 
 	if (pvictim != NULL && pvictim[0] != NULL)
 	{
-		if (IS_NPC(pvictim[0]) && pvictim[0]->master
+		if (IS_NPC(pvictim[0])
+			&& pvictim[0]->has_master()
 			&& (AFF_FLAGGED(pvictim[0], EAffectFlag::AFF_CHARM)
 				|| IS_HORSE(pvictim[0])))
 		{
-			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->master))
+			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->get_master()))
 			{
-				pvictim[0] = pvictim[0]->master;
+				pvictim[0] = pvictim[0]->get_master();
 			}
 		}
+
 		if (!HERE(pvictim[0]))
 		{
 			pvictim[0] = NULL;
@@ -174,6 +198,7 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 		if (pk->unique == GET_UNIQUE(victim))
 			break;
 	}
+
 	if (!pk && (!IS_GOD(victim)))
 	{
 		CREATE(pk, 1);
@@ -181,6 +206,7 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 		pk->next = agressor->pk_list;
 		agressor->pk_list = pk;
 	}
+
 	if (victim->desc && (!IS_GOD(victim)))
 	{
 		if (pk->clan_exp > time(NULL))
@@ -194,7 +220,10 @@ void pk_update_clanflag(CHAR_DATA * agressor, CHAR_DATA * victim)
 			act("$N получил$G право на ваш отстрел!", FALSE, agressor, 0, victim, TO_CHAR);
 		}
 	}
-	pk->clan_exp = time(NULL) + CLAN_REVENGE * 60;
+	if (pk)
+	{
+		pk->clan_exp = time(NULL) + CLAN_REVENGE * 60;
+	}
 	agressor->save_char();
 	agressor->agrobd = true;
 	return;
@@ -406,26 +435,46 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 		// нападение на члена группы
 		CHAR_DATA *leader;
 		struct follow_type *f;
-		bool has_clanmember = has_clan_members_in_group(victim);
 
-		leader = victim->master ? victim->master : victim;
+		bool has_clanmember = false;
+		if (!IS_GOD(victim))
+		{
+			has_clanmember = has_clan_members_in_group(victim);
+		}
 
-		if (AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP) &&
-				IN_ROOM(leader) == IN_ROOM(victim) && pk_action_type(agressor, leader) > PK_ACTION_FIGHT)
+		leader = victim->has_master() ? victim->get_master() : victim;
+
+		if (AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
+			&& IN_ROOM(leader) == IN_ROOM(victim)
+			&& pk_action_type(agressor, leader) > PK_ACTION_FIGHT)
+		{
 			pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
+		}
 
 		for (f = leader->followers; f; f = f->next)
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) &&
-					IN_ROOM(f->follower) == IN_ROOM(victim) &&
-					pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT)
+		{
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+				&& IN_ROOM(f->follower) == IN_ROOM(victim)
+				&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT)
+			{
 				pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
+			}
+		}
 	}
 }
 
-void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
+bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
 
 	pk_translate_pair(&agressor, &victim);
+	if (victim == NULL)
+	{
+		mudlog("Противник исчез при ПК куда-то! функция pk_agro_action", CMP, LVL_GOD, SYSLOG, TRUE);
+		return false;
+	}
+	if (!IS_NPC(victim) || IS_CHARMICE(victim))
+		if (check_agr_in_house(agressor))
+			return false;
 	switch (pk_action_type(agressor, victim))
 	{
 	case PK_ACTION_NO:	// без конфликтов просто выход
@@ -451,7 +500,7 @@ void pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 		break;
 	}
 
-	return;
+	return true;
 }
 
 // * Пришлось дублировать функцию для суммона, чтобы спасти душиков, т.е я удалил проверку на душиков
@@ -460,6 +509,12 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
+	if (victim == NULL)
+	{
+		mudlog("Противник исчез при ПК куда-то! функция pk_action_type_summon", CMP, LVL_GOD, SYSLOG, TRUE);
+		return false;
+	}
+
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
 			IS_NPC(agressor) || IS_NPC(victim))
 		return PK_ACTION_NO;
@@ -504,6 +559,12 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&thief, &victim);
+	if (victim == NULL)
+	{
+		mudlog("Противник исчез при ПК куда-то! функция 3", CMP, LVL_GOD, SYSLOG, TRUE);
+		return;
+	}
+
 	switch (pk_action_type(thief, victim))
 	{
 	case PK_ACTION_NO:
@@ -542,6 +603,11 @@ void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
 	if (killer)
 	{
 		pk_translate_pair(&killer, NULL);
+	if (victim == NULL)
+	{
+		mudlog("Противник исчез при ПК куда-то! функция 4", CMP, LVL_GOD, SYSLOG, TRUE);
+		return;
+	}
 
 		if (!IS_NPC(killer) && !IS_NPC(victim))
 		{
@@ -566,6 +632,13 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
+	if (victim == NULL)
+	{
+		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s внум: %d, номер клетки %d, мирная? %s", GET_NAME(agressor), GET_MOB_VNUM(agressor), GET_ROOM_VNUM(agressor->in_room), 
+			    ROOM_FLAGGED(agressor->in_room, ROOM_PEACEFUL)?"ДА":"НЕТ");
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+	}
+
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
 			IS_NPC(agressor) || IS_NPC(victim) || (agressor != victim && (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE)
 	 			|| ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))))
@@ -998,13 +1071,20 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent)
 {
 	// Потенциальная жертва приведет к ПК?
-	if (IS_NPC(opponent) && (!opponent->master || IS_NPC(opponent->master)
-							 || opponent->master == ch))
+	if (IS_NPC(opponent)
+		&& (!opponent->has_master()
+			|| IS_NPC(opponent->get_master())
+			|| opponent->get_master() == ch))
+	{
 		return false;
+	}
 
 	// Уже воюю?
-	if (ch->get_fighting() == opponent || opponent->get_fighting() == ch)
+	if (ch->get_fighting() == opponent
+		|| opponent->get_fighting() == ch)
+	{
 		return false;
+	}
 
 	return true;
 }
@@ -1018,7 +1098,9 @@ int name_cmp(CHAR_DATA * ch, const char *arg)
 	{
 		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
 		if (!str_cmp(arg, opp_name_part))
+		{
 			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -1087,7 +1169,7 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 {
 	CHAR_DATA *leader;
 	struct follow_type *f;
-	leader = ch->master ? ch->master : ch;
+	leader = ch->has_master() ? ch->get_master() : ch;
 
 	// проверяем, был ли в группе клановый чар
 	if (CLAN(leader))
@@ -1114,7 +1196,6 @@ void pkPortal(CHAR_DATA* ch)
 	AGRO(ch) = MAX(AGRO(ch), time(NULL) + PENTAGRAM_TIME * 60);
 	RENTABLE(ch) = MAX(RENTABLE(ch), time(NULL) + PENTAGRAM_TIME * 60);
 }
-
 
 //Структура для хранения информации о кровавом стафе
 //Чтобы не добавлять новых полей в OBJ_DATA, объект просто помечается экстрафлагом ITEM_BLOODY и добавляется запись в bloody_map

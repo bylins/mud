@@ -106,19 +106,19 @@ void ClanExp::update_total_exp()
 // * Добавление ноды (раз в час).
 void update_clan_exp()
 {
-	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	for (const auto& clan : Clan::ClanList)
 	{
-		(*clan)->last_exp.add_chunk();
+		clan->last_exp.add_chunk();
 	}
 }
 
 // * Сохранение списков (раз в час и на ребуте).
 void save_clan_exp()
 {
-	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	for (const auto& clan : Clan::ClanList)
 	{
-		(*clan)->last_exp.save((*clan)->get_file_abbrev());
-		(*clan)->exp_history.save((*clan)->get_file_abbrev());
+		clan->last_exp.save(clan->get_file_abbrev());
+		clan->exp_history.save(clan->get_file_abbrev());
 	}
 }
 
@@ -214,9 +214,10 @@ void ClanPkLog::check(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 	CHAR_DATA *killer = ch;
 	if (IS_NPC(killer)
-		&& killer->master && !IS_NPC(killer->master))
+		&& killer->has_master()
+		&& !IS_NPC(killer->get_master()))
 	{
-		killer = killer->master;
+		killer = killer->get_master();
 	}
 	if (!IS_NPC(killer) && CLAN(killer) != CLAN(victim))
 	{
@@ -358,7 +359,13 @@ bool ClanExpHistory::need_destroy() const
 	}
 	return calc_exp_history() < MIN_EXP_HISTORY ? true : false;
 }
-
+void ClanExpHistory::fulldelete()
+{
+	for (HistoryExpListType::iterator i = list_.begin(), iend = list_.end(); i != iend; ++i)
+	{
+		i->second = 0;
+	}
+}
 void ClanExpHistory::show(CHAR_DATA *ch) const
 {
 	send_to_char(ch, "\r\nОпыт, набранный за три последних календарных месяца без учета минусов:\r\n");

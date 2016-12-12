@@ -283,7 +283,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 	PLR_FLAGS(ch).set(PLR_MAILING);	// string_write() sets writing.
 
 	// Start writing!
-	std::shared_ptr<CSimpleStringWriter> writer;
+	AbstractStringWriter::shared_ptr writer(new StdStringWriter());
 	string_write(ch->desc, writer, MAX_MAIL_SIZE, recipient, NULL);
 }
 
@@ -615,7 +615,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		obj->set_PName(3, "письмо");
 		obj->set_PName(4, "письмом");
 		obj->set_PName(5, "письме");
-
+		obj->set_sex(ESex::SEX_NEUTRAL);
 		obj->set_type(OBJ_DATA::ITEM_NOTE);
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
 		obj->set_weight(1);

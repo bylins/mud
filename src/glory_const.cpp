@@ -949,13 +949,25 @@ void load()
 	}
 	for (pugi::xml_node node = char_list.child("char"); node; node = node.next_sibling("char"))
 	{
-		long uid = boost::lexical_cast<long>(node.attribute("uid").value());
+		const auto uid_str = node.attribute("uid").value();
+		long uid = 0;
+		try
+		{
+			uid = std::stol(uid_str, nullptr, 10);
+		}
+		catch (const std::invalid_argument&)
+		{
+			log("SYSERR: UID [%s] не является верным десятичным числом.", uid_str);
+			continue;
+		}
+
 		std::string name = GetNameByUnique(uid);
 		if (name.empty())
 		{
 			log("GloryConst: UID %ld - персонажа не существует.", uid);
 			continue;
 		}
+
 		if (glory_list.find(uid) != glory_list.end())
 		{
 			log("SYSERROR : дубликат записи uid=%ld, name=%s (%s:%d)",

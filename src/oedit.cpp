@@ -92,54 +92,6 @@ void oedit_disp_skills_mod_menu(DESCRIPTOR_DATA* d);
 // ------------------------------------------------------------------------
 //  Utility and exported functions
 // ------------------------------------------------------------------------
-
-void oedit_object_copy(OBJ_DATA * dst, CObjectPrototype* src)
-/*++
-   Функция делает создает копию объекта.
-   После вызова этой функции создается полностью независимая копия объекта src.
-   Все поля имеют те же значения, но занимают свои области памяти.
-      dst - "чистый" указатель на структуру OBJ_DATA.
-      src - исходный объект
-   Примечание: Неочищенный указатель dst приведет к утечке памяти.
-               Используйте oedit_object_free() для очистки содержимого объекта
---*/
-{
-	int i;
-
-	// Копирую все поверх
-	*dst = *src;
-
-	// Теперь нужно выделить собственные области памяти
-
-	// Имена и названия
-	dst->set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
-	dst->set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
-	dst->set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
-	dst->set_action_description(src->get_action_description());
-	for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
-	{
-		dst->set_PName(i, !GET_OBJ_PNAME(src, i).empty() ? GET_OBJ_PNAME(src, i).c_str() : "неопределен");
-	}
-
-	// Дополнительные описания, если есть
-	{
-		std::shared_ptr<EXTRA_DESCR_DATA> nd(new EXTRA_DESCR_DATA());
-		auto* pddd = &nd;
-		auto sdd = src->get_ex_description();
-		dst->set_ex_description(nd);
-		while (sdd)
-		{
-			(*pddd)->keyword = str_dup(sdd->keyword);
-			(*pddd)->description = str_dup(sdd->description);
-			pddd = &(*pddd)->next;
-			sdd = sdd->next;
-		}
-	}
-
-	// Копирую скрипт и прототипы
-	dst->set_proto_script(src->get_proto_script());
-}
-
 //***********************************************************************
 
 void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
@@ -150,8 +102,8 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 --*/
 {
 	OBJ_DATA *obj;
-
-	NEWCREATE(obj, -1);
+	const auto vnum = OLC_NUM(d);
+	NEWCREATE(obj, vnum);
 
 	if (real_num == -1)
 	{
@@ -168,7 +120,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	}
 	else
 	{
-		oedit_object_copy(obj, obj_proto[real_num].get());
+		obj->copy_from(obj_proto[real_num].get());
 	}
 
 	OLC_OBJ(d) = obj;
@@ -191,7 +143,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// скрипт не удалится, т.к. его не удаляю
 	if (obj->get_is_rename()) // шмотка была переименованна кодом
 	{
-		oedit_object_copy(&tmp, obj); // сохраним падежи для рестора
+		tmp.copy_from(obj); // сохраним падежи для рестора
 	}
 
 	// Нужно скопировать все новое, сохранив определенную информацию
@@ -215,7 +167,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	obj->set_current_durability(GET_OBJ_CUR(&tmp));
 	if (tmp.get_is_rename())
 	{
-		oedit_object_copy(obj, &tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
+		obj->copy_from(&tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
 	}
 //	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
 	if (obj->get_timer() > tmp.get_timer())
@@ -397,7 +349,8 @@ void oedit_save_to_disk(int zone_num)
 				for (auto ex_desc = obj->get_ex_description(); ex_desc; ex_desc = ex_desc->next)
 				{
 					// * Sanity check to prevent nasty protection faults.
-					if (!*ex_desc->keyword || !*ex_desc->description)
+					if (!ex_desc->keyword
+						|| !ex_desc->description)
 					{
 						mudlog("SYSERR: OLC: oedit_save_to_disk: Corrupt ex_desc!",
 							BRF, LVL_BUILDER, SYSLOG, TRUE);
@@ -940,7 +893,7 @@ void oedit_disp_val4_menu(DESCRIPTOR_DATA * d)
 	case OBJ_DATA::ITEM_DRINKCON:
 	case OBJ_DATA::ITEM_FOUNTAIN:
 	case OBJ_DATA::ITEM_FOOD:
-		send_to_char("Отравлено (0 = не отравлено) : ", d->character);
+		send_to_char("Отравлено (0 - не отравлено, 1 - отравлено, >1 - таймер) : ", d->character);
 		break;
 
 	case OBJ_DATA::ITEM_BOOK:
@@ -1657,7 +1610,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'm':
 		case 'M':
-			send_to_char("Таймер (в тиках) : ", d->character);
+			send_to_char("Таймер (в минутах РЛ) : ", d->character);
 			OLC_MODE(d) = OEDIT_TIMER;
 			break;
 
@@ -2300,7 +2253,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_DESC(d)->description, d);
 				d->backstr = str_dup(OLC_DESC(d)->description);
 			}
-			d->writer.reset(new CSimpleStringWriter(OLC_DESC(d)->description));
+			d->writer.reset(new DelegatedStringWriter(OLC_DESC(d)->description));
 			d->max_str = 4096;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
@@ -2316,7 +2269,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				}
 				else  	// Make new extra description and attach at end.
 				{
-					std::shared_ptr<EXTRA_DESCR_DATA> new_extra(new EXTRA_DESCR_DATA());
+					EXTRA_DESCR_DATA::shared_ptr new_extra(new EXTRA_DESCR_DATA());
 					OLC_DESC(d)->next = new_extra;
 					OLC_DESC(d) = OLC_DESC(d)->next;
 				}
@@ -2418,19 +2371,15 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		parse_val_spell_lvl(d, ObjVal::EValueKey::POTION_SPELL3_LVL, number);
 		return;
 	case OEDIT_CLONE:
-		obj_rnum rnum, old_rnum;
-		OBJ_DATA *obj_original;
-		int vnum;
-		vnum = atoi(arg);
-		if ((rnum = real_object(vnum)) < 0)
 		{
-			send_to_char("Нет объекта с таким внумом.\r\n", d->character);
-			return;
+			const auto vnum = atoi(arg);
+			const auto olc_object = OLC_OBJ(d);
+			if (!olc_object->clone_olc_object_from_prototype(vnum))
+			{
+				send_to_char("Нет объекта с таким внумом.\r\n", d->character);
+				return;
+			}
 		}
-		old_rnum = GET_OBJ_RNUM(OLC_OBJ(d));
-		obj_original = read_object(rnum, REAL);
-		oedit_object_copy(OLC_OBJ(d), obj_original);
-		OLC_OBJ(d)->set_rnum(old_rnum);
 		break;
 
 	default:

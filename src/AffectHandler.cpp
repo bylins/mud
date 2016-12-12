@@ -15,19 +15,23 @@ void LackyAffectHandler::Handle( DamageActorParameters& params )
 
 void LackyAffectHandler::Handle( DamageVictimParameters& params )
 {
-	if (params.damage>0) damToMe_ = true;
+	if (params.damage>0)
+	{
+		damToMe_ = true;
+	}
 }
 
-AFFECT_DATA<EApplyLocation>* find_affect(CHAR_DATA* ch, int afftype)
+AFFECT_DATA<EApplyLocation>::shared_ptr find_affect(CHAR_DATA* ch, int afftype)
 {
-	for (auto aff = ch->affected; aff; aff = aff->next)
+	for (const auto& aff : ch->affected)
 	{
 		if (aff->type == afftype)
 		{
 			return aff;
 		}
 	}
-	return nullptr;
+
+	return AFFECT_DATA<EApplyLocation>::shared_ptr();
 }
 
 void LackyAffectHandler::Handle(BattleRoundParameters& params)
@@ -51,7 +55,7 @@ void LackyAffectHandler::Handle(BattleRoundParameters& params)
 	damToMe_=false;
 	damFromMe_=false;
 }
-
+// тест
 void LackyAffectHandler::Handle(StopFightParameters& params)
 {
 	auto af = find_affect(params.ch, SPELL_LACKY);

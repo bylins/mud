@@ -701,7 +701,7 @@ void reload(Flags flag)
 	{
 	case STATIC:
 		static_help.clear();
-		index_boot(DB_BOOT_HLP);
+		world_loader.index_boot(DB_BOOT_HLP);
 		init_group_zones();
 		init_zone_all();
 		PrintActivators::process();

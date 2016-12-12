@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#define __ACT_OTHER_C__
+#include "act.other.hpp"
 
 #include "obj.hpp"
 #include "comm.h"
@@ -76,8 +76,6 @@ void write_aliases(CHAR_DATA * ch);
 void perform_immort_vis(CHAR_DATA * ch);
 int have_mind(CHAR_DATA * ch);
 void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int Crash_delete_file(char *name, int mask);
-int HaveMind(CHAR_DATA * ch);
 extern char *color_value(CHAR_DATA * ch, int real, int max);
 int posi_value(int real, int max);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -95,7 +93,6 @@ void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int perform_group(CHAR_DATA * ch, CHAR_DATA * vict);
 void print_group(CHAR_DATA * ch);
 void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -234,16 +231,17 @@ void do_save(CHAR_DATA *ch, char* /*argument*/, int cmd, int/* subcmd*/)
 				 * that guest immortals aren't trustworthy. If you've disabled guest
 				 * immortal advances from mortality, you may want < instead of <=.
 				 */
-		if (auto_save && GET_LEVEL(ch) <= LVL_IMMORT)
+		/*if (auto_save && GET_LEVEL(ch) <= LVL_IMMORT)
 		{
 			send_to_char("Записываю синонимы.\r\n", ch);
 			write_aliases(ch);
 			return;
 		}
 		sprintf(buf, "Записываю %s и алиасы.\r\n", GET_NAME(ch));
-		send_to_char(buf, ch);
-	}
-
+		send_to_char(buf, ch);*/
+		send_to_char("Ладушки.\r\n", ch);
+		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
+	}	
 	write_aliases(ch);
 	ch->save_char();
 	Crash_crashsave(ch);
@@ -406,7 +404,8 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_SNEAK);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 }
 
 void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
@@ -440,7 +439,9 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	if (IS_IMMORTAL(ch))
+	{
 		affect_from_char(ch, SPELL_CAMOUFLAGE);
+	}
 
 	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 	{
@@ -459,6 +460,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	af.modifier = world[ch->in_room]->zone;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
+
 	if (percent > prob)
 	{
 		af.bitvector = 0;
@@ -467,7 +469,8 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_CAMOUFLAGE);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_CAMOUFLAGE;
@@ -499,6 +502,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы уже пытаетесь спрятаться.\r\n", ch);
 		return;
 	}
+
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		send_to_char("Вы слепы и не видите куда прятаться.\r\n", ch);
@@ -522,6 +526,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.battleflag = 0;
+
 	if (percent > prob)
 	{
 		af.bitvector = 0;
@@ -530,7 +535,8 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_HIDE);
 	}
-	affect_to_char(ch, &af);
+
+	affect_to_char(ch, af);
 }
 
 void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
@@ -960,7 +966,9 @@ void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af[3].battleflag = 0;
 
 	for (i = 0; i < 4; i++)
-		affect_join(ch, &af[i], TRUE, FALSE, TRUE, FALSE);
+	{
+		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
+	}
 
 	send_to_char("Вы пришли в ярость.\r\n", ch);
 	if ((obj = GET_EQ(ch, WEAR_WIELD)) || (obj = GET_EQ(ch, WEAR_BOTHS)))
@@ -977,10 +985,37 @@ int max_group_size(CHAR_DATA *ch)
 
 bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
 {
-	if (IS_NPC(vict) || !AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) || vict->master != ch)
+	if (IS_NPC(vict)
+		|| !AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
+		|| vict->get_master() != ch)
+	{
 		return false;
+	}
 	else
+	{
 		return true;
+	}
+}
+
+int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
+{
+	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
+		|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+		|| MOB_FLAGGED(vict, MOB_ANGEL)
+		|| MOB_FLAGGED(vict, MOB_GHOST)
+		|| IS_HORSE(vict))
+	{
+		return (FALSE);
+	}
+
+	AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
+	if (ch != vict)
+	{
+		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
+		act("Вы приняты в группу $n1.", FALSE, ch, 0, vict, TO_VICT);
+		act("$N принят$A в группу $n1.", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+	}
+	return (TRUE);
 }
 
 /**
@@ -992,8 +1027,12 @@ bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
 */
 void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 {
-	if (IS_NPC(ch) || ch->master || !ch->followers)
+	if (IS_NPC(ch)
+		|| ch->has_master()
+		|| !ch->followers)
+	{
 		return;
+	}
 
 	CHAR_DATA *leader = vict;
 	if (!leader)
@@ -1009,7 +1048,11 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 				leader = l->follower;
 		}
 	}
-	if (!leader) return;
+
+	if (!leader)
+	{
+		return;
+	}
 
 	// для реследования используем стандартные функции
 	std::vector<CHAR_DATA *> temp_list;
@@ -1017,29 +1060,41 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	{
 		n = l->next;
 		if (!is_group_member(ch, l->follower))
+		{
 			continue;
+		}
 		else
 		{
 			CHAR_DATA *temp_vict = l->follower;
-			if (temp_vict->master && stop_follower(temp_vict, SF_SILENCE))
+			if (temp_vict->has_master()
+				&& stop_follower(temp_vict, SF_SILENCE))
+			{
 				continue;
+			}
+
 			if (temp_vict != leader)
+			{
 				temp_list.push_back(temp_vict);
+			}
 		}
 	}
 
 	// вся эта фигня только для того, чтобы при реследовании пройтись по списку в обратном
 	// направлении и сохранить относительный порядок следования в группе
 	if (!temp_list.empty())
+	{
 		for (std::vector<CHAR_DATA *>::reverse_iterator it = temp_list.rbegin(); it != temp_list.rend(); ++it)
-			add_follower(*it, leader, true);
+		{
+			leader->add_follower_silently(*it);
+		}
+	}
 
 	// бывшего лидера последним закидываем обратно в группу, если он живой
 	if (vict)
 	{
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-		add_follower(ch, leader, true);
+		leader->add_follower_silently(ch);
 	}
 
 	if (!leader->followers)
@@ -1065,25 +1120,9 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	}
 }
 
-int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
-{
-	if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) ||
-			AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || IS_HORSE(vict))
-		return (FALSE);
-
-	AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
-	if (ch != vict)
-	{
-		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
-		act("Вы приняты в группу $n1.", FALSE, ch, 0, vict, TO_VICT);
-		act("$N принят$A в группу $n1.", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-	}
-	return (TRUE);
-}
-
 int low_charm(CHAR_DATA * ch)
 {
-	for (auto aff = ch->affected; aff; aff = aff->next)
+	for (const auto& aff : ch->affected)
 	{
 		if (aff->type == SPELL_CHARM && aff->duration <= 1)
 		{
@@ -1252,7 +1291,7 @@ void print_list_group(CHAR_DATA *ch)
 	CHAR_DATA *k;
 	struct follow_type *f;
 	int count = 1;
-	k = (ch->master ? ch->master : ch);
+	k = (ch->has_master() ? ch->get_master() : ch);
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		send_to_char("Ваша группа состоит из:\r\n", ch);
@@ -1261,10 +1300,13 @@ void print_list_group(CHAR_DATA *ch)
 			sprintf(buf1, "Лидер: %s\r\n", GET_NAME(k));
 			send_to_char(buf1, ch);
 		}
+
 		for (f = k->followers; f; f = f->next)
 		{
 			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-				continue;	
+			{
+				continue;
+			}
 			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f->follower));
 			send_to_char(buf1, ch);
 			count++;
@@ -1282,7 +1324,7 @@ void print_group(CHAR_DATA * ch)
 	CHAR_DATA *k;
 	struct follow_type *f, *g;
 
-	k = (ch->master ? ch->master : ch);
+	k = ch->has_master() ? ch->get_master() : ch;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		send_to_char("Ваша группа состоит из:\r\n", ch);
@@ -1290,6 +1332,7 @@ void print_group(CHAR_DATA * ch)
 		{
 			print_one_line(ch, k, TRUE, gfound++);
 		}
+
 		for (f = k->followers; f; f = f->next)
 		{
 			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
@@ -1299,10 +1342,11 @@ void print_group(CHAR_DATA * ch)
 			print_one_line(ch, f->follower, FALSE, gfound++);
 		}
 	}
+
 	for (f = ch->followers; f; f = f->next)
 	{
 		if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(f->follower, MOB_ANGEL)))
+			|| MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST)))
 		{
 			continue;
 		}
@@ -1316,22 +1360,25 @@ void print_group(CHAR_DATA * ch)
 		return;
 	}
 	if (PRF_FLAGGED(ch, PRF_SHOWGROUP))
+	{
 		for (g = k->followers, cfound = 0; g; g = g->next)
 		{
 			for (f = g->follower->followers; f; f = f->next)
 			{
 				if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(f->follower, MOB_ANGEL))
+					|| MOB_FLAGGED(f->follower, MOB_ANGEL) || MOB_FLAGGED(f->follower, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 				{
 					continue;
 				}
-				if (f->follower->master == ch
-					|| !AFF_FLAGGED(f->follower->master, EAffectFlag::AFF_GROUP))
+
+				if (f->follower->get_master() == ch
+					|| !AFF_FLAGGED(f->follower->get_master(), EAffectFlag::AFF_GROUP))
 				{
 					continue;
 				}
-// shapirus: при включенном режиме не показываем клонов и хранителей
+
+				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, PRF_NOCLONES)
 					&& IS_NPC(f->follower)
 					&& (MOB_FLAGGED(f->follower, MOB_CLONE)
@@ -1339,19 +1386,24 @@ void print_group(CHAR_DATA * ch)
 				{
 					continue;
 				}
+
 				if (!cfound)
+				{
 					send_to_char("Последователи членов вашей группы:\r\n", ch);
+				}
 				print_one_line(ch, f->follower, FALSE, cfound++);
 			}
-			if (ch->master)
+
+			if (ch->has_master())
 			{
 				if (!(AFF_FLAGGED(g->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(g->follower, MOB_ANGEL))
+					|| MOB_FLAGGED(g->follower, MOB_ANGEL) || MOB_FLAGGED(g->follower, MOB_GHOST))
 					|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 				{
 					continue;
 				}
-// shapirus: при включенном режиме не показываем клонов и хранителей
+
+				// shapirus: при включенном режиме не показываем клонов и хранителей
 				if (PRF_FLAGGED(ch, PRF_NOCLONES)
 					&& IS_NPC(g->follower)
 					&& (MOB_FLAGGED(g->follower, MOB_CLONE)
@@ -1359,11 +1411,15 @@ void print_group(CHAR_DATA * ch)
 				{
 					continue;
 				}
+
 				if (!cfound)
+				{
 					send_to_char("Последователи членов вашей группы:\r\n", ch);
+				}
 				print_one_line(ch, g->follower, FALSE, cfound++);
 			}
 		}
+	}
 }
 
 void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1392,7 +1448,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->master)
+	if (ch->has_master())
 	{
 		act("Вы не можете управлять группой. Вы еще не ведущий.", FALSE, ch, 0, 0, TO_CHAR);
 		return;
@@ -1415,7 +1471,8 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 
-	if (!str_cmp(buf, "all") || !str_cmp(buf, "все"))
+	if (!str_cmp(buf, "all")
+		|| !str_cmp(buf, "все"))
 	{
 		perform_group(ch, ch);
 		for (found = 0, f = ch->followers; f; f = f->next)
@@ -1427,8 +1484,12 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			found += perform_group(ch, f->follower);
 		}
+
 		if (!found)
+		{
 			send_to_char("Все, кто за вами следуют, уже включены в вашу группу.\r\n", ch);
+		}
+
 		return;
 	}
 	else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер"))
@@ -1436,17 +1497,23 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		vict = get_player_vis(ch, argument, FIND_CHAR_WORLD);
 		// added by WorM (Видолюб) Если найден клон и его хозяин персонаж
 		// а то чото как-то глючно Двойник %1 не является членом вашей группы.
-		if (vict && IS_NPC(vict) && MOB_FLAGGED(vict, MOB_CLONE) && AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) && vict->master && !IS_NPC(vict->master))
+		if (vict
+			&& IS_NPC(vict)
+			&& MOB_FLAGGED(vict, MOB_CLONE)
+			&& AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			&& vict->has_master()
+			&& !IS_NPC(vict->get_master()))
 		{
-			if (CAN_SEE(ch, vict->master))
+			if (CAN_SEE(ch, vict->get_master()))
 			{
-				vict = vict->master;
+				vict = vict->get_master();
 			}
 			else
 			{
 				vict = NULL;
 			}
 		}
+
 		// end by WorM
 		if (!vict)
 		{
@@ -1458,7 +1525,8 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Вы и так лидер группы...\r\n", ch);
 			return;
 		}
-		else if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) || vict->master != ch)
+		else if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
+			|| vict->get_master() != ch)
 		{
 			send_to_char(ch, "%s не является членом вашей группы.\r\n", GET_NAME(vict));
 			return;
@@ -1468,14 +1536,18 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
+	{
 		send_to_char(NOPERSON, ch);
-	else if ((vict->master != ch) && (vict != ch))
+	}
+	else if ((vict->get_master() != ch) && (vict != ch))
+	{
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
+	}
 	else
 	{
 		if (!AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP))
 		{
-			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || IS_HORSE(vict))
+			if (AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || IS_HORSE(vict))
 			{
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", ch);
 				send_to_char("Только равноправные персонажи могут быть включены в группу.\r\n", vict);
@@ -1505,7 +1577,8 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, buf);
 
-	if (ch->master || !(AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)))
+	if (ch->has_master()
+		|| !(AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)))
 	{
 		send_to_char("Вы же не лидер группы!\r\n", ch);
 		return;
@@ -1574,7 +1647,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
 		int loyalty = 0;
-		for (auto aff = ch->affected; aff; aff = aff->next)
+		for (const auto& aff : ch->affected)
 		{
 			if (aff->type == SPELL_CHARM)
 			{
@@ -1596,7 +1669,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 				GET_MOVE(ch), GET_REAL_MAX_MOVE(ch));
 	}
 	CAP(buf);
-	k = (ch->master ? ch->master : ch);
+	k = ch->has_master() ? ch->get_master() : ch;
 	for (f = k->followers; f; f = f->next)
 	{
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
@@ -1606,6 +1679,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			send_to_char(buf, f->follower);
 		}
 	}
+
 	if (k != ch && !AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS))
 	{
 		send_to_char(buf, k);
@@ -1638,12 +1712,17 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		k = (ch->master ? ch->master : ch);
+		k = ch->has_master() ? ch->get_master() : ch;
 
-		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && (k->in_room == ch->in_room))
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
+			&& (k->in_room == ch->in_room))
+		{
 			num = 1;
+		}
 		else
+		{
 			num = 0;
+		}
 
 		for (f = k->followers; f; f = f->next)
 		{
@@ -2812,7 +2891,7 @@ void do_pray(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = i.location;
 			af.bitvector = i.bitvector;
 			af.battleflag = i.battleflag;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		}
 	}
 
@@ -2932,16 +3011,12 @@ void do_beep(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		perform_beep(ch, vict);
 }
 
-
-//Polos.insert_wanted_gem
-
 void insert_wanted_gem::show(CHAR_DATA *ch, int gem_vnum)
 {
-	std::map<int, alias_type>::iterator it;
 	alias_type::iterator alias_it;
 	char buf[MAX_INPUT_LENGTH];
 
-	it = content.find(gem_vnum);
+	const auto it = content.find(gem_vnum);
 	if (it == content.end()) return;
 
 	send_to_char("Будучи искусным ювелиром, вы можете выбрать, какого эффекта вы желаете добиться: \r\n", ch);
@@ -3067,18 +3142,18 @@ int insert_wanted_gem::get_qty(int gem_vnum, const std::string& str)
 	return content[gem_vnum][str].qty;
 }
 
-int insert_wanted_gem::exist(int gem_vnum, const std::string& str)
+int insert_wanted_gem::exist(const int gem_vnum, const std::string& str) const
 {
-	std::map<int, alias_type>::iterator it;
-	alias_type::iterator alias_it;
+	alias_type::const_iterator alias_it;
 
-	it = content.find(gem_vnum);
+	const auto it = content.find(gem_vnum);
 	if (it == content.end())
 	{
 		return 0;
 	}
-	alias_it = content[gem_vnum].find(str);
-	if (alias_it == content[gem_vnum].end())
+
+	alias_it = content.at(gem_vnum).find(str);
+	if (alias_it == content.at(gem_vnum).end())
 	{
 		return 0;
 	}
@@ -3991,14 +4066,14 @@ void do_bandage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.duration = pc_duration(ch, 10, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffectFlag::AFF_BANDAGE);
 	af.battleflag = AF_PULSEDEC;
-	affect_join(ch, &af, 0, 0, 0, 0);
+	affect_join(ch, af, 0, 0, 0, 0);
 
 	af.type = SPELL_NO_BANDAGE;
 	af.location = APPLY_NONE;
 	af.duration = pc_duration(ch, 60, 0, 0, 0, 0);
 	af.bitvector = to_underlying(EAffectFlag::AFF_NO_BANDAGE);
 	af.battleflag = AF_PULSEDEC;
-	affect_join(ch, &af, 0, 0, 0, 0);
+	affect_join(ch, af, 0, 0, 0, 0);
 
 	bandage->set_weight(bandage->get_weight() - 1);
 	IS_CARRYING_W(ch) -= 1;
@@ -4042,9 +4117,9 @@ bool is_dark(room_rnum room)
 		// если на чаре аффект свет
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SINGLELIGHT))
 			coef += 3.0;
-		// освещение ?
+		// освещение перекрывает 1 тьму!
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_HOLYLIGHT))
-			coef += 1.0;
+			coef += 9.0;
 		// Санка. Логично, что если чар светится ярким сиянием, то это сияние распространяется на комнату
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SANCTUARY))
 			coef += 1.0;
@@ -4059,96 +4134,4 @@ bool is_dark(room_rnum room)
 		
 }
 
-
-/*
-
-
-
-// активен ли ивент, 0 - не активен, 0 < время в тиках до конца ивента
-int time_event = 0;
-// тип евента
-int type_event = 0;
-// список левелов для первого типа ивента (убить n-количество мобов)
-const int rand_level_mob_for_event[10] = {2, 25, 21};
-int event_level_mob = 0;
-// для хранения лидерборда <имя, количество очков>
-std::map <string,int> event_leaderboard = {};
-
-
-const char *EventStartMsg[] =
-{
-	"&WНачинается событие! Убей, как можно больше мобов определенного уровня&n",
-	"блаблабла",
-	"блаблабла",
-	"блабла",
-};
-const char *EventMessageCommon = "&WПоздравляем, Вы стали чуть-чуть ближе к победе&n\r\n";
-// количество типов евента
-#define COUNT_EVENT 1
-#define EVENT_KILL_MOBS 0
-// активен ли event
-#define ACTIVE_EVENT ((time_event > 0) ? true : false)
-
-// для старта ивентов
-void start_event()
-{
-	// если ивент уже идет, то не начинаем его
-	if (time_event > 0)
-		return;
-	// начинаем евент
-	type_event = number(0, COUNT_EVENT-1);
-	time_event = 10;	
-	if (time_event == EVENT_KILL_MOBS)
-	{
-		event_level_mob = 2;
-		// здесь отправляем всем сообщение
-		sprintf(buf, EventStartMsg[EVENT_KILL_MOBS]);
-		send_to_all(buf);
-	}
-	
-	
-}
-void do_event(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
-{
-	start_event();
-}
-
-
-
-// Вывод лидерборда
-void do_leaderboard_event(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
-{
-	send_to_char("Список лидеров текущего события:\r\n", ch);
-	if (event_leaderboard.size() <= 0)
-	{
-		send_to_char("Текущий список пуст :(", ch);
-		return;
-	}
-	// итератор
-	std::map<std::string, int>::iterator it;
-	for (it = event_leaderboard.begin(); it != event_leaderboard.end(); it++)
-	{
-		//sprintf(buf, "%d. %s : %s\r\n", i, (*it).first, (*it).second);
-		send_to_char(buf, ch);
-	}
-	
-}
-
-
-// Для проверки ивента
-void check_event()
-{
-	if (time_event < 0)
-		return;
-	time_event--;
-	if (time_event <= 0)
-	{
-		send_to_all("Событие закончилось :(");
-		return;
-	}
-	sprintf(buf, "До конца события осталось: %d часов", time_event);
-	send_to_all(buf);
-	
-	
-}*/
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

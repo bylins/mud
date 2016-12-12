@@ -55,6 +55,7 @@ const int LIQ_POISON_BELENA = 27;
 const int LIQ_POISON_DATURA = 28;
 // терминатор
 const int NUM_LIQ_TYPES = 29;
+const char *diag_liquid_timer(const OBJ_DATA * obj);
 
 // LIQ_x
 const char *drinks[] = { "воды",
@@ -382,6 +383,26 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			temp->set_skill(SKILL_INVALID);
 			reset_potion_values(temp);
 		}
+		if ((GET_OBJ_VAL(temp, 3) == 1) && !IS_GOD(ch))  	// The shit was poisoned ! //
+		{
+			send_to_char("Что-то вкус какой-то странный!\r\n", ch);
+			act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
+			AFFECT_DATA<EApplyLocation> af;
+			af.type = SPELL_POISON;
+			af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
+			af.modifier = -2;
+			af.location = APPLY_STR;
+			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+			af.battleflag = AF_SAME_TIME;
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			af.type = SPELL_POISON;
+			af.modifier = GET_LEVEL(ch) * 3;
+			af.location = APPLY_POISON;
+			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+			af.battleflag = AF_SAME_TIME;
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+			ch->Poisoner = 0;
+		}
 		return;
 	}
 	else if (ch->get_fighting())
@@ -500,7 +521,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_AC;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 			// **** Decrease HR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -508,7 +529,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_HITROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 			// **** Increase DR ***** //
 			af.type = SPELL_DRUNKED;
 			af.duration = pc_duration(ch, duration, 0, 0, 0, 0);
@@ -516,11 +537,11 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = APPLY_DAMROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		}
 	}
 
-	if (GET_OBJ_VAL(temp, 3) && !IS_GOD(ch))  	// The shit was poisoned ! //
+	if ((GET_OBJ_VAL(temp, 3) == 1) && !IS_GOD(ch))  	// The shit was poisoned ! //
 	{
 		send_to_char("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
@@ -532,13 +553,13 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.location = APPLY_STR;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		af.type = SPELL_POISON;
 		af.modifier = amount * 3;
 		af.location = APPLY_POISON;
 		af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af.battleflag = AF_SAME_TIME;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		ch->Poisoner = 0;
 	}
 
@@ -719,7 +740,7 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		for (prob = 0; prob < 3; prob++)
 		{
-			affect_join(ch, &af[prob], TRUE, FALSE, TRUE, FALSE);
+			affect_join(ch, af[prob], TRUE, FALSE, TRUE, FALSE);
 		}
 		gain_condition(ch, DRUNK, amount);
 	}
@@ -1058,6 +1079,12 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			send_to_char(ch, "Вы занялись переливанием зелья в %s.\r\n",
 				OBJN(to_obj, ch, 3));
+				int n1 = GET_OBJ_VAL(from_obj, 1);
+				int n2 = GET_OBJ_VAL(to_obj, 1);
+				int t1 = GET_OBJ_VAL(from_obj, 3);
+				int t2 = GET_OBJ_VAL(to_obj, 3);
+				to_obj->set_val(3, (n1*t1 + n2*t2) / (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
+//				send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
 			if (GET_OBJ_VAL(to_obj, 1) == 0)
 			{
 				copy_potion_values(from_obj, to_obj);
@@ -1123,10 +1150,16 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// копируем тип жидкости //
 	to_obj->set_val(2, GET_OBJ_VAL(from_obj, 2));
 
+	int n1 = GET_OBJ_VAL(from_obj, 1);
+	int n2 = GET_OBJ_VAL(to_obj, 1);
+	int t1 = GET_OBJ_VAL(from_obj, 3);
+	int t2 = GET_OBJ_VAL(to_obj, 3);
+	to_obj->set_val(3, (n1*t1 + n2*t2) / (n1 + n2)); //усредним таймер в зависимости от наполненности обоих емкостей
+//	send_to_char(ch, "n1 == %d, n2 == %d, t1 == %d, t2== %d, результат %d\r\n", n1, n2, t1, t2, GET_OBJ_VAL(to_obj, 3));
+
 	// New alias //
 	if (GET_OBJ_VAL(to_obj, 1) == 0)
 		name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
-
 	// Then how much to pour //
 	amount = (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1));
 	if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_FOUNTAIN
@@ -1134,11 +1167,10 @@ void do_pour(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		from_obj->sub_val(1, amount);
 	}
-
 	to_obj->set_val(1, GET_OBJ_VAL(to_obj, 0));
 
 	// Then the poison boogie //
-	to_obj->set_val(3, GET_OBJ_VAL(to_obj, 3) || GET_OBJ_VAL(from_obj, 3));
+
 
 	if (GET_OBJ_VAL(from_obj, 1) <= 0)  	// There was too little //
 	{
@@ -1193,7 +1225,7 @@ void name_from_drinkcon(OBJ_DATA * obj)
 	sprintf(new_name, "%s", tmp.c_str());
 	obj->set_short_description(new_name);
 
-	for (int c = 0; c < OBJ_DATA::NUM_PADS; c++)
+	for (int c = 0; c < CObjectPrototype::NUM_PADS; c++)
 	{
 		pos = find_liquid_name(obj->get_PName(c).c_str());
 		if (pos == std::string::npos) return;
@@ -1214,39 +1246,11 @@ void name_to_drinkcon(OBJ_DATA * obj, int type)
 	sprintf(new_name, "%s с %s", obj->get_short_description().c_str(), drinknames[type]);
 	obj->set_short_description(new_name);
 
-	for (c = 0; c < OBJ_DATA::NUM_PADS; c++)
+	for (c = 0; c < CObjectPrototype::NUM_PADS; c++)
 	{
 		sprintf(new_name, "%s с %s", obj->get_PName(c).c_str(), drinknames[type]);
 		obj->set_PName(c, new_name);
 	}
-}
-
-void set_abstinent(CHAR_DATA *ch)
-{
-	int duration = pc_duration(ch, 2, MAX(0, GET_DRUNK_STATE(ch) - CHAR_DRUNKED), 4, 2, 5);
-
-	if (can_use_feat(ch, DRUNKARD_FEAT))
-	{
-		duration /= 2;
-	}
-
-	AFFECT_DATA<EApplyLocation> af;
-	af.type = SPELL_ABSTINENT;
-	af.bitvector = to_underlying(EAffectFlag::AFF_ABSTINENT);
-	af.duration = duration;
-
-	af.location = APPLY_AC;
-	af.modifier = 20;
-	affect_join(ch, &af, 0,0,0,0);
-
-	af.location = APPLY_HITROLL;
-	af.modifier = -2;
-	affect_join(ch, &af, 0,0,0,0);
-
-	af.location = APPLY_DAMROLL;
-	af.modifier = -2;
-	affect_join(ch, &af, 0,0,0,0);
-
 }
 
 std::string print_spell(CHAR_DATA *ch, const OBJ_DATA *obj, int num)
@@ -1345,6 +1349,11 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 				out += print_spells(ch, obj);
 			}
 		}
+	}
+	if (GET_OBJ_VAL(obj, 1) >0) //если что-то плескается
+	{
+		sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj)); // состояние жижки
+		out += buf1;
 	}
 	send_to_char(out, ch);
 }

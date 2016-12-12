@@ -78,7 +78,7 @@ namespace craft
 
 	class CCases
 	{
-		const static int CASES_COUNT = OBJ_DATA::NUM_PADS;
+		const static int CASES_COUNT = CObjectPrototype::NUM_PADS;
 
 		using cases_t = std::array<std::string, CASES_COUNT>;
 

@@ -171,6 +171,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -297,6 +298,7 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_fry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -397,8 +399,6 @@ void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_townportal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoBoard(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void DoBoardList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoClanList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -466,25 +466,25 @@ cpp_extern const struct command_info cmd_info[] =
 	{"авторы", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
 	{"атаковать", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},
 	{"аукцион", POS_RESTING, do_gen_comm, 0, SCMD_AUCTION, 100},
-	{"анонсы", POS_DEAD, DoBoard, 1, Boards::NOTICE_BOARD, -1},
+	{"анонсы", POS_DEAD, Boards::DoBoard, 1, Boards::NOTICE_BOARD, -1},
 
 	{"базар", POS_RESTING, do_exchange, 1, 0, -1},
 	{"баланс", POS_STANDING, do_not_here, 1, 0, 0},
-	{"баги", POS_DEAD, DoBoard, 1, Boards::ERROR_BOARD, 0},
+	{"баги", POS_DEAD, Boards::DoBoard, 1, Boards::ERROR_BOARD, 0},
 	{"бежать", POS_FIGHTING, do_flee, 1, 0, -1},
 	{"бинтовать", POS_RESTING, do_bandage, 0, 0, 0},
-	{"билдер", POS_DEAD, DoBoard, 1,Boards:: GODBUILD_BOARD, -1},
+	{"билдер", POS_DEAD, Boards::DoBoard, 1,Boards:: GODBUILD_BOARD, -1},
 	{"блок", POS_FIGHTING, do_block, 0, 0, -1},
-	{"блокнот", POS_DEAD, DoBoard, 1, Boards::PERS_BOARD, -1},
+	{"блокнот", POS_DEAD, Boards::DoBoard, 1, Boards::PERS_BOARD, -1},
 	{"боги", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
-	{"божества", POS_DEAD, DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
+	{"божества", POS_DEAD, Boards::DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
 	{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
 	{"бонус", POS_DEAD, Bonus::do_bonus, LVL_IMPL, 0, 0},
 	{"бонусинфо", POS_DEAD, Bonus::do_bonus_info, LVL_IMPL, 0, 0 },
 	{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
 	{"варить", POS_RESTING, do_cook, 0, 0, 200},
 	{"версия", POS_DEAD, do_gen_ps, 0, SCMD_VERSION, 0},
-	{"вече", POS_DEAD, DoBoard, 1, Boards::GENERAL_BOARD, -1},
+	{"вече", POS_DEAD, Boards::DoBoard, 1, Boards::GENERAL_BOARD, -1},
 	{"взять", POS_RESTING, do_get, 0, 0, 200},
 	{"взглянуть", POS_RESTING, do_diagnose, 0, 0, 100},
 	{"взломать", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
@@ -526,10 +526,10 @@ cpp_extern const struct command_info cmd_info[] =
 	{"держать", POS_RESTING, do_grab, 0, 0, 300},
 	{"дметр", POS_DEAD, do_dmeter, 0, 0, 0},
 	{"доложить", POS_RESTING, do_report, 0, 0, 500},
-	{"доски", POS_DEAD, DoBoardList, 0, 0, 0},
+	{"доски", POS_DEAD, Boards::DoBoardList, 0, 0, 0},
 	{"дружины", POS_DEAD, DoClanList, 0, 0, 0},
-	{"дрновости", POS_DEAD, DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
-	{"дрвече", POS_DEAD, DoBoard, 1, Boards::CLAN_BOARD, -1},
+	{"дрновости", POS_DEAD, Boards::DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
+	{"дрвече", POS_DEAD, Boards::DoBoard, 1, Boards::CLAN_BOARD, -1},
 	{"дрлист", POS_DEAD, DoClanPkList, 0, 1, 0},
 
 	{"есть", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
@@ -563,7 +563,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 	{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
-	{"идеи", POS_DEAD, DoBoard, 1, Boards::IDEA_BOARD, 0},
+	{"идеи", POS_DEAD, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
 	{"изгнать нежить", POS_RESTING, do_turn_undead, 0, 0, -1},
 	{"изучить", POS_SITTING, do_learn, 0, 0, 0},
 	{"информация", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
@@ -575,7 +575,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"карта", POS_RESTING, do_map, 0, 0, 0},
 	{"клан", POS_RESTING, DoHouse, 0, 0, 0},
 	{"клич", POS_FIGHTING, do_warcry, 1, 0, -1},
-	{"кодер", POS_DEAD, DoBoard, 1, Boards::CODER_BOARD, -1},
+	{"кодер", POS_DEAD, Boards::DoBoard, 1, Boards::CODER_BOARD, -1},
 	{"команды", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
 	{"коне", POS_SLEEPING, do_quit, 0, 0, 0},
 	{"конец", POS_SLEEPING, do_quit, 0, SCMD_QUIT, 0},
@@ -602,15 +602,15 @@ cpp_extern const struct command_info cmd_info[] =
 	{"молиться", POS_STANDING, do_pray, 1, SCMD_PRAY, -1},
 	{"моястатистика", POS_DEAD, do_mystat, 0, 0, 0},
 	{"мысл", POS_DEAD, do_quit, 0, 0, 0},
-	{"мысль", POS_DEAD, report_on_board, 0, Boards::SUGGEST_BOARD, 0},
+	{"мысль", POS_DEAD, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
 
-	{"наказания", POS_DEAD, DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
+	{"наказания", POS_DEAD, Boards::DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
 	{"налить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 	{"наполнить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 	{"найти", POS_STANDING, do_sense, 0, 0, 500},
 	{"нанять", POS_STANDING, do_findhelpee, 0, SCMD_BUYHELPEE, -1},
 	{"новичок", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
-	{"новости", POS_DEAD, DoBoard, 1, Boards::NEWS_BOARD, -1},
+	{"новости", POS_DEAD, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
 	{"надеть", POS_RESTING, do_wear, 0, 0, 500},
 	{"нацарапать", POS_RESTING, do_custom_label, 0, 0, 0},
 
@@ -625,7 +625,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"опознать", POS_RESTING, do_ident, 0, 0, 500},
 	{"опохмелиться", POS_RESTING, do_drunkoff, 0, 0, -1},
 	{"опечатк", POS_DEAD, do_quit, 0, 0, 0},
-	{"опечатка", POS_DEAD, report_on_board, 0, Boards::MISPRINT_BOARD, 0},
+	{"опечатка", POS_DEAD, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
 	{"опустить", POS_RESTING, do_put, 0, 0, 500},
 	{"орать", POS_RESTING, do_gen_comm, 1, SCMD_HOLLER, -1},
 	{"осмотреть", POS_RESTING, do_examine, 0, 0, 0},
@@ -648,10 +648,10 @@ cpp_extern const struct command_info cmd_info[] =
 	{"ошеломить", POS_STANDING, do_stun, 1, 0, -1},
 	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
 	{"очки", POS_DEAD, do_score, 0, 0, 0},
-	{"очепятки", POS_DEAD, DoBoard, 1, Boards::MISPRINT_BOARD, 0},
+	{"очепятки", POS_DEAD, Boards::DoBoard, 1, Boards::MISPRINT_BOARD, 0},
 	{"очистить", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},
 	{"ошибк", POS_DEAD, do_quit, 0, 0, 0},
-	{"ошибка", POS_DEAD, report_on_board, 0, Boards::ERROR_BOARD, 0},
+	{"ошибка", POS_DEAD, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
 
 	{"парировать", POS_FIGHTING, do_parry, 0, 0, -1},
 	{"перехватить", POS_FIGHTING, do_touch, 0, 0, -1},
@@ -671,6 +671,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"подкрасться", POS_STANDING, do_sneak, 1, 0, 500},
 	{"подножка", POS_FIGHTING, do_chopoff, 0, 0, 500},
 	{"подняться", POS_RESTING, do_stand, 0, 0, -1},
+	{"поджарить", POS_RESTING, do_fry, 0, 0, -1},
 	{"перевязать", POS_RESTING, do_bandage, 0, 0, 0},
 	{"переделать", POS_RESTING, do_fit, 0, SCMD_DO_ADAPT, 500},
 	{"подсмотреть", POS_RESTING, do_look, 0, SCMD_LOOK_HIDE, 0},
@@ -680,6 +681,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"помочь", POS_FIGHTING, do_assist, 1, 0, -1},
 	{"помощь", POS_DEAD, do_help, 0, 0, 0},
 	{"пометить", POS_DEAD, do_mark, LVL_IMPL, 0, 0},
+	{"порез", POS_FIGHTING, do_expedient_cut, 0, 0, -1},
 	{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
 	{"постой", POS_STANDING, do_not_here, 1, 0, -1},
 	{"почта", POS_STANDING, do_not_here, 1, 0, -1},
@@ -696,7 +698,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"присесть", POS_RESTING, do_sit, 0, 0, -1},
 	{"прислушаться", POS_RESTING, do_hearing, 0, 0, 300},
 	{"присмотреться", POS_RESTING, do_looking, 0, 0, 250},
-	{"придумки", POS_DEAD, DoBoard, 0, Boards::SUGGEST_BOARD, 0},
+	{"придумки", POS_DEAD, Boards::DoBoard, 0, Boards::SUGGEST_BOARD, 0},
 	{"проверить", POS_DEAD, do_check, 0, 0, 0},
 	{"проснуться", POS_SLEEPING, do_wake, 0, SCMD_WAKE, -1},
 	{"простить", POS_RESTING, do_forgive, 0, 0, 0},
@@ -766,7 +768,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"убрать", POS_RESTING, do_remove, 0, 0, 400},
 	{"ударить", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
 	{"удавить", POS_FIGHTING, do_strangle, 0, 0, -1},
-	{ "удалить", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0 },
+	{"удалить", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0 },
 	{"уклониться", POS_FIGHTING, do_deviate, 1, 0, -1},
 	{"украсть", POS_STANDING, do_steal, 1, 0, 0},
 	{"укрепить", POS_RESTING, do_armored, 0, 0, -1},
@@ -817,7 +819,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"bash", POS_FIGHTING, do_bash, 1, 0, -1},
 	{"beep", POS_DEAD, do_beep, LVL_IMMORT, 0, 0},
 	{"block", POS_FIGHTING, do_block, 0, 0, -1},
-	{"bug", POS_DEAD, report_on_board, 0, Boards::ERROR_BOARD, 0},
+	{"bug", POS_DEAD, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
 	{"buy", POS_STANDING, do_not_here, 0, 0, -1},
 	{"best", POS_DEAD, DoBest, 0, 0, 0},
 	{"cast", POS_SITTING, do_cast, 1, 0, -1},
@@ -864,7 +866,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"gecho", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
 	{"get", POS_RESTING, do_get, 0, 0, 500},
 	{"give", POS_RESTING, do_give, 0, 0, 500},
-	{"godnews", POS_DEAD, DoBoard, 1, Boards::GODNEWS_BOARD, -1},
+	{"godnews", POS_DEAD, Boards::DoBoard, 1, Boards::GODNEWS_BOARD, -1},
 	{"gold", POS_RESTING, do_gold, 0, 0, 0},
 	{"glide", POS_STANDING, do_lightwalk, 0, 0, 0},
 	{"glory", POS_RESTING, GloryConst::do_glory, LVL_IMPL, 0, 0},
@@ -886,7 +888,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"horse", POS_STANDING, do_not_here, 0, 0, -1},
 	{"house", POS_RESTING, DoHouse, 0, 0, 0},
 	{"huk", POS_FIGHTING, do_mighthit, 0, 0, -1},
-	{"idea", POS_DEAD, DoBoard, 1, Boards::IDEA_BOARD, 0},
+	{"idea", POS_DEAD, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
 	{"ignore", POS_DEAD, do_ignore, 0, 0, 0},
 	{"immlist", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
 	{"index", POS_RESTING, do_help, 1, 0, 500},
@@ -915,7 +917,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"medit", POS_DEAD, do_olc, 0, SCMD_OLC_MEDIT, 0},
 	{"name", POS_DEAD, do_wizutil, LVL_GOD, SCMD_NAME, 0},
 	{"nedit", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_EDIT, 0}, //Именной стаф редактирование
-	{"news", POS_DEAD, DoBoard, 1, Boards::NEWS_BOARD, -1},
+	{"news", POS_DEAD, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
 	{"nlist", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_LIST, 0}, //Именной стаф список
 	{"notitle", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_NOTITLE, 0},
 	{"oedit", POS_DEAD, do_olc, 0, SCMD_OLC_OEDIT, 0},
@@ -991,7 +993,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"stupor", POS_FIGHTING, do_stupor, 0, 0, -1},
 	{"switch", POS_DEAD, do_switch, LVL_GRGOD, 0, 0},
 	{"syslog", POS_DEAD, do_syslog, LVL_IMMORT, SYSLOG, 0},
-	{"suggest", POS_DEAD, report_on_board, 0, Boards::SUGGEST_BOARD, 0},
+	{"suggest", POS_DEAD, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
 	{"slist", POS_DEAD, do_slist, LVL_IMPL, 0, 0},
 	{"sedit", POS_DEAD, do_sedit, LVL_IMPL, 0, 0},
 	{"errlog", POS_DEAD, do_syslog, LVL_BUILDER, ERRLOG, 0},
@@ -1007,7 +1009,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"transfer", POS_STANDING, do_not_here, 1, 0, -1},
 	{"trigedit", POS_DEAD, do_olc, 0, SCMD_OLC_TRIGEDIT, 0},
 	{"turn undead", POS_RESTING, do_turn_undead, 0, 0, -1},
-	{"typo", POS_DEAD, report_on_board, 0, Boards::MISPRINT_BOARD, 0},
+	{"typo", POS_DEAD, Boards::report_on_board, 0, Boards::MISPRINT_BOARD, 0},
 	{"unaffect", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_UNAFFECT, 0},
 	{"unban", POS_DEAD, do_unban, LVL_GRGOD, 0, 0},
 	{"unfreeze", POS_DEAD, do_unfreeze, LVL_IMPL, 0, 0},
@@ -1093,7 +1095,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
 
 	// Craft
-	{"craft", craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
+	//{"craft", craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
 
 	{"\n", 0, 0, 0, 0, 0}
 };				// this must be last
@@ -1747,8 +1749,8 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 {
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
 	{
-		ClanListType::const_iterator it = Clan::IsClanRoom(ch->in_room);
-		if (Clan::ClanList.end() == it)
+		const auto clan = Clan::GetClanByRoom(ch->in_room);
+		if (!clan)
 		{
 			return 0;
 		}
@@ -3511,7 +3513,7 @@ Sventovit
 			SEND_TO_Q
 			("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
-			d->writer.reset(new CSimpleStringWriter(d->character->player_data.description));
+			d->writer.reset(new DelegatedStringWriter(d->character->player_data.description));
 			d->max_str = EXDSCR_LENGTH;
 			STATE(d) = CON_EXDESC;
 			break;
@@ -4073,24 +4075,6 @@ void CreateFileName(std::string &name)
 		name[i] = LOWER(AtoL(name[i]));
 }
 
-void ReadEndString(std::ifstream &file)
-{
-	char c;
-	while (file.get(c))
-		if (c == '\n')
-			return;
-}
-
-// замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
-void StringReplace(std::string & buffer, char s, std::string d)
-{
-	for (size_t index = 0; index = buffer.find(s, index), index != std::string::npos;)
-	{
-		buffer.replace(index, 1, d);
-		index += d.length();
-	}
-}
-
 // вывод экспы аля диабла
 std::string ExpFormat(long long exp)
 {
@@ -4156,18 +4140,19 @@ void god_work_invoice()
 // * Вывод оповещений о новых сообщениях на досках, письмах, (неодобренных имен и титулов для иммов) при логине и релогине
 void login_change_invoice(CHAR_DATA* ch)
 {
-	Board::LoginInfo(ch);
+	Boards::Static::LoginInfo(ch);
+
 	if (IS_IMMORTAL(ch))
 	{
 		single_god_invoice(ch);
 	}
 	if (mail::has_mail(ch->get_uid()))
 	{
-		send_to_char("&R\r\nВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+		send_to_char("&RВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
 	if (Parcel::has_parcel(ch))
 	{
-		send_to_char("&R\r\nВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
+		send_to_char("&RВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
 	Depot::show_purged_message(ch);
 	if (CLAN(ch))

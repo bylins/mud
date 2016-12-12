@@ -54,7 +54,6 @@ void do_pour(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 void name_from_drinkcon(OBJ_DATA * obj);
 void name_to_drinkcon(OBJ_DATA * obj, int type);
-void set_abstinent(CHAR_DATA *ch);
 bool is_potion(const OBJ_DATA *obj);
 
 class CObjectPrototype;	// to avoit inclusion of "obj.hpp"

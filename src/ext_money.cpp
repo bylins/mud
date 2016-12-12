@@ -475,10 +475,13 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze)
 bool has_connected_bosses(CHAR_DATA *ch)
 {
 	// если в комнате есть другие живые боссы
-	for (CHAR_DATA *i = world[ch->in_room]->people;
-		i; i = i->next_in_room)
+	const auto& people = world[ch->in_room]->people;
+	for (const CHAR_DATA* i = people; i; i = i->next_in_room)
 	{
-		if (i != ch && IS_NPC(i) && !IS_CHARMICE(i) && i->get_role(MOB_ROLE_BOSS))
+		if (i != ch
+			&& IS_NPC(i)
+			&& !IS_CHARMICE(i)
+			&& i->get_role(MOB_ROLE_BOSS))
 		{
 			return true;
 		}
@@ -489,14 +492,14 @@ bool has_connected_bosses(CHAR_DATA *ch)
 		if (i->follower != ch
 			&& IS_NPC(i->follower)
 			&& !IS_CHARMICE(i->follower)
-			&& i->follower->master == ch
+			&& i->follower->get_master() == ch
 			&& i->follower->get_role(MOB_ROLE_BOSS))
 		{
 			return true;
 		}
 	}
 	// если он сам следует за каким-то боссом
-	if (ch->master && ch->master->get_role(MOB_ROLE_BOSS))
+	if (ch->has_master() && ch->get_master()->get_role(MOB_ROLE_BOSS))
 	{
 		return true;
 	}
@@ -685,8 +688,8 @@ void drop_torc(CHAR_DATA *mob)
 		return;
 	}
 
-	CHAR_DATA *leader = (d->character->master && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
-		? d->character->master
+	CHAR_DATA *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
+		? d->character->get_master()
 		: d->character;
 
 	int members = 1;

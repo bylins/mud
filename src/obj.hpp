@@ -179,11 +179,13 @@ public:
 	using wear_flags_t = std::underlying_type<EWearFlag>::type;
 	using pnames_t = boost::array<std::string, NUM_PADS>;
 	using triggers_list_t = std::list<obj_vnum>;
+	using triggers_list_ptr = std::shared_ptr<triggers_list_t>;
 	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;
 
 	CObjectPrototype(const obj_vnum vnum) : m_vnum(vnum),
 		m_type(DEFAULT_TYPE),
 		m_weight(DEFAULT_WEIGHT),
+		m_proto_script(new triggers_list_t()),
 		m_max_in_world(DEFAULT_MAX_IN_WORLD),
 		m_vals({ 0, 0, 0, 0 }),
 		m_destroyer(DEFAULT_DESTROYER),
@@ -243,7 +245,8 @@ public:
 	const auto& get_ex_description() const { return m_ex_description; }
 	const auto& get_extra_flags() const { return m_extra_flags; }
 	const auto& get_no_flags() const { return m_no_flags; }
-	const auto& get_proto_script() const { return m_proto_script; }
+	const auto& get_proto_script() const { return *m_proto_script; }
+	const auto& get_proto_script_ptr() const { return m_proto_script; }
 	const auto& get_values() const { return m_values; }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
 	const std::string& get_short_description() const { return m_short_description; }
@@ -253,14 +256,13 @@ public:
 	void add_extra_flags(const FLAG_DATA& flags) { m_extra_flags += flags; }
 	void add_maximum(const int amount) { m_maximum_durability += amount; }
 	void add_no_flags(const FLAG_DATA& flags) { m_no_flags += flags; }
-	void add_proto_script(const obj_vnum vnum) { m_proto_script.push_back(vnum); }
+	void add_proto_script(const obj_vnum vnum) { m_proto_script->push_back(vnum); }
 	void add_val(const size_t index, const int amount) { m_vals[index] += amount; }
 	void add_weight(const int _) { m_weight += _; }
-	void append_ex_description_tag(const char* tag) { m_ex_description->description = str_add(m_ex_description->description, tag); }
 	void clear_action_description() { m_action_description.clear(); }
 	void clear_affected(const size_t index) { m_affected[index].location = APPLY_NONE; }
 	void clear_all_affected();
-	void clear_proto_script() { m_proto_script.clear(); }
+	void clear_proto_script();
 	void dec_affected_value(const size_t index) { --m_affected[index].modifier; }
 	void dec_destroyer() { --m_destroyer; }
 	void dec_weight() { --m_weight; }
@@ -287,7 +289,7 @@ public:
 	void set_current_durability(const int _) { m_current_durability = _; }
 	void set_description(const std::string& _) { m_description = _; }
 	void set_destroyer(const int _) { m_destroyer = _; }
-	void set_ex_description(const std::shared_ptr<EXTRA_DESCR_DATA>& _) { m_ex_description = _; }
+	void set_ex_description(const EXTRA_DESCR_DATA::shared_ptr& _) { m_ex_description = _; }
 	void set_ex_description(EXTRA_DESCR_DATA* _) { m_ex_description.reset(_); }
 	void set_extra_flag(const EExtraFlag packed_flag) { m_extra_flags.set(packed_flag); }
 	void set_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.set_flag(plane, flag); }
@@ -302,7 +304,7 @@ public:
 	void set_PName(const size_t index, const char* _) { m_pnames[index] = _; }
 	void set_PName(const size_t index, const std::string& _) { m_pnames[index] = _; }
 	void set_PNames(const pnames_t& _) { m_pnames = _; }
-	void set_proto_script(const triggers_list_t& _) { m_proto_script = _; }
+	void set_proto_script(const triggers_list_t& _) { *m_proto_script = _; }
 	void set_short_description(const char* _) { m_short_description = _; }
 	void set_short_description(const std::string& _) { m_short_description = _; }
 	void set_skill(const int _) { m_skill = _; }
@@ -317,8 +319,8 @@ public:
 	void set_val(size_t index, int value) { m_vals[index] = value; }
 	void sub_current(const int _) { m_current_durability -= _; }
 	void sub_val(const size_t index, const int amount) { m_vals[index] -= amount; }
-	void sub_weight(const int _) { m_weight += _; }
-	void swap_proto_script(triggers_list_t& _) { m_proto_script.swap(_); }
+	void sub_weight(const int _) { m_weight -= _; }
+	void swap_proto_script(triggers_list_t& _) { m_proto_script->swap(_); }
 	void toggle_affect_flag(const size_t plane, const uint32_t flag) { m_waffect_flags.toggle_flag(plane, flag); }
 	void toggle_anti_flag(const size_t plane, const uint32_t flag) { m_anti_flags.toggle_flag(plane, flag); }
 	void toggle_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.toggle_flag(plane, flag); }
@@ -354,6 +356,9 @@ public:
 
 protected:
 	void zero_init();
+	CObjectPrototype& operator=(const CObjectPrototype& from);	///< makes shallow copy of all fields except VNUM
+	void set_vnum(const obj_vnum vnum) { m_vnum = vnum; }		///< allow inherited classes change VNUM (to make possible objects transformations)
+	void tag_ex_description(const char* tag);
 
 private:
 	obj_vnum m_vnum;
@@ -368,9 +373,9 @@ private:
 
 	std::string m_short_description;	// when worn/carry/in cont.         //
 	std::string m_action_description;	// What to write when used          //
-	std::shared_ptr<EXTRA_DESCR_DATA> m_ex_description;	// extra descriptions     //
+	EXTRA_DESCR_DATA::shared_ptr m_ex_description;	// extra descriptions     //
 
-	triggers_list_t m_proto_script;	// list of default triggers  //
+	triggers_list_ptr m_proto_script;	// list of default triggers  //
 
 	pnames_t m_pnames;
 	int m_max_in_world;	///< Maximum in the world
@@ -404,7 +409,7 @@ private:
 	int m_cost;	///< цена шмотки при продаже
 	int m_rent_on;	///< стоимость ренты, если надета
 	int m_rent_off;	///< стоимость ренты, если в инве
-	
+
 	unsigned m_ilevel;	///< расчетный уровень шмотки, не сохраняется
 	obj_vnum m_rnum;	///< Where in data-base
 };
@@ -695,7 +700,7 @@ public:
 	int get_serial_num();
 	void set_serial_num(int num);
 
-	void dec_timer(int time = 1, bool ingore_utimer = false);
+	void dec_timer(int time = 1, bool ingore_utimer = false, bool exchange = false);
 
 	static id_to_set_info_map set_table;
 	static void init_set_table();
@@ -765,8 +770,16 @@ public:
 	void set_enchant(int skill, OBJ_DATA *obj);
 	void unset_enchant();
 
+	bool clone_olc_object_from_prototype(const obj_vnum vnum);
+	void copy_from(const CObjectPrototype* src);
+
+	void swap(OBJ_DATA& object);
+	void set_tag(const char* tag);
+
 private:
 	void zero_init();
+
+	void detach_ex_description();
 
 	unsigned int m_uid;
 	room_rnum m_in_room;	// In what room -1 when conta/carr //
@@ -804,6 +817,7 @@ private:
 	bool m_purged;
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> m_activator;
+
 };
 
 template <> const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectType>(const OBJ_DATA::EObjectType item);
@@ -829,7 +843,7 @@ inline bool OBJ_AFFECT(const CObjectPrototype* obj, const EWeaponAffectFlag weap
 	return OBJ_AFFECT(obj, static_cast<uint32_t>(weapon_affect));
 }
 
-class CActionDescriptionWriter : public CCommonStringWriter
+class CActionDescriptionWriter : public AbstractStringWriter
 {
 public:
 	CActionDescriptionWriter(OBJ_DATA& object) : m_object(object) {}
@@ -860,7 +874,6 @@ std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch);
 
 namespace system_obj
 {
-
 /// кошелек для кун с игрока
 extern int PURSE_RNUM;
 /// персональное хранилище
@@ -870,7 +883,6 @@ void init();
 OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
 bool is_purse(OBJ_DATA *obj);
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);
-
 } // namespace system_obj
 
 namespace SetSystem
@@ -881,6 +893,7 @@ namespace SetSystem
 	bool find_set_item(OBJ_DATA *obj);
 	bool is_big_set(const CObjectPrototype *obj, bool is_mini = false);
 	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
+	bool is_norent_set(int vnum, std::vector<int> objs);
 } // namespace SetSystem
 
 #endif // OBJ_HPP_INCLUDED

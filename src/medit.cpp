@@ -171,7 +171,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	// Теперь дублирую память
 	GET_LDESC(dst) = str_dup(not_null(GET_LDESC(src), "неопределен"));
 	GET_DDESC(dst) = str_dup(not_null(GET_DDESC(src), "неопределен"));
-	for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+	for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 		GET_PAD(dst, j) = str_dup(not_null(GET_PAD(src, j), "неопределен"));
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 		&& *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
@@ -190,8 +190,8 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = NULL;
-	dst->proto_script.clear();
-	dst->proto_script = src->proto_script;
+	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
+	*dst->proto_script = *src->proto_script;
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
 	dst->in_fighting_list_ = tmp.in_fighting_list_;
@@ -236,7 +236,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 			free(GET_DDESC(mob));
 			GET_DDESC(mob) = 0;
 		}
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 			if (GET_PAD(mob, j))
 			{
 				free(GET_PAD(mob, j));
@@ -261,7 +261,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 			free(GET_DDESC(mob));
 			GET_DDESC(mob) = 0;
 		}
-		for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 			if (GET_PAD(mob, j) && GET_PAD(mob, j) != GET_PAD(&mob_proto[i], j))
 			{
 				free(GET_PAD(mob, j));
@@ -421,7 +421,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 				// Возможна небольшая утечка памяти, но иначе очень большая запара
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
-				for (j = 0; j < OBJ_DATA::NUM_PADS; j++)
+				for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 				{
 					GET_PAD(live_mob, j) = GET_PAD(mob_proto + rmob_num, j);
 				}
@@ -1450,7 +1450,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm,
 		grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
 		grn, nrm, cyn,
-		grn, nrm, cyn, !mob->proto_script.empty() ? "Set." : "Not Set.", grn, nrm);
+		grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.", grn, nrm);
 	send_to_char(buf, d->character);
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
@@ -1657,7 +1657,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_MOB(d)->player_data.description, d);
 				d->backstr = str_dup(OLC_MOB(d)->player_data.description);
 			}
-			d->writer.reset(new CSimpleStringWriter(OLC_MOB(d)->player_data.description));
+			d->writer.reset(new DelegatedStringWriter(OLC_MOB(d)->player_data.description));
 			d->max_str = MAX_MOB_DESC;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;

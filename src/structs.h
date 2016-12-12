@@ -15,6 +15,7 @@
 #ifndef _STRUCTS_H_
 #define _STRUCTS_H_
 
+#include "boards.types.hpp"
 #include "sysdep.h"
 
 #include <boost/shared_ptr.hpp>
@@ -26,10 +27,10 @@
 #include <bitset>
 #include <string>
 #include <fstream>
-#include <map>
 #include <iterator>
 #include <cstdint>
-#include <set>
+#include <unordered_set>
+#include <unordered_map>
 #include <array>
 
 namespace ExtMoney
@@ -50,17 +51,6 @@ const unsigned TOTAL_TYPES = 3;
 //-Polos.insert_wanted_gem
 
 /*
- * Intended use of this macro is to allow external packages to work with
- * a variety of CircleMUD versions without modifications.  For instance,
- * an IS_CORPSE() macro was introduced in pl13.  Any future code add-ons
- * could take into account the CircleMUD version and supply their own
- * definition for the macro if used on an older version of CircleMUD.
- * You are supposed to compare this with the macro CIRCLEMUD_VERSION()
- * in utils.h.  See there for usage.
- */
-#define _CIRCLEMUD   0x030010	// Major/Minor/Patchlevel - MMmmPP
-
-/*
  * If you want equipment to be automatically equipped to the same place
  * it was when players rented, set the define below to 1.  Please note
  * that this will require erasing or converting all of your rent files.
@@ -74,12 +64,11 @@ const unsigned TOTAL_TYPES = 3;
 
 // done
 typedef struct index_data INDEX_DATA;
-typedef struct exit_data EXIT_DATA;
 typedef struct time_info_data TIME_INFO_DATA;
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
-typedef struct trig_data TRIG_DATA;
+class TRIG_DATA;
 
 // preamble ************************************************************
 
@@ -113,7 +102,7 @@ typedef struct trig_data TRIG_DATA;
 // The cardinal directions: used as index to room_data.dir_option[]
 #define NORTH          0
 #define EAST           1
-#define SOUTH          2	
+#define SOUTH          2
 #define WEST           3
 #define UP             4
 #define DOWN           5
@@ -182,6 +171,9 @@ typedef uint32_t bitvector_t;
 #define AFF_ROOM_RUNE_LABEL			(1 << 2) // Комната помечена SPELL_MAGIC_LABEL //
 #define AFF_ROOM_FORBIDDEN			(1 << 3) // Комната помечена SPELL_FORBIDDEN //
 #define AFF_ROOM_HYPNOTIC_PATTERN	(1 << 4) // Комната под SPELL_HYPNOTIC_PATTERN //
+#define AFF_ROOM_EVARDS_BLACK_TENTACLES	(1 << 5) // Комната под SPELL_EVARDS_BLACK_TENTACLES //
+#define AFF_ROOM_METEORSTORM	(1 << 6) // Комната под SPELL_METEORSTORM //
+#define AFF_ROOM_THUNDERSTORM   (1 << 7) // SPELL_THUNDERSTORM
 
 // Exit info: used in room_data.dir_option.exit_info //
 #define EX_ISDOOR    (1 << 0)	// Exit is a door     //
@@ -225,7 +217,7 @@ typedef uint32_t bitvector_t;
 #define SECT_NORMAL_ICE      28
 #define SECT_THICK_ICE       29
 
-extern std::map<int, std::string> SECTOR_TYPE_BY_VALUE;
+extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
 
 #define WEATHER_QUICKCOOL     (1 << 0)
 #define WEATHER_QUICKHOT      (1 << 1)
@@ -241,6 +233,9 @@ extern std::map<int, std::string> SECTOR_TYPE_BY_VALUE;
 #define WEATHER_BIGWIND       (1 << 11)
 
 #define MAX_REMORT            50
+
+
+
 
 template <typename T> struct Unimplemented { };
 
@@ -480,6 +475,7 @@ extern const religion_names_t religion_name;
 #define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22)) // игнорирует печать
 #define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // не дает экспу за удары
 #define MOB_NOHAMER          (INT_ONE | (1 << 24)) // нельзя оглушить богатырским молотом
+#define MOB_GHOST            (INT_ONE | (1 << 25)) // Используется для ментальной тени
 
 #define MOB_FIREBREATH    (INT_TWO | (1 << 0))
 #define MOB_GASBREATH     (INT_TWO | (1 << 1))
@@ -695,7 +691,8 @@ enum class EAffectFlag: uint32_t
 	AFF_STRANGLED = INT_TWO | (1u << 17),
 	AFF_RECALL_SPELLS = INT_TWO | (1u << 18),
 	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
-	AFF_VAMPIRE = INT_TWO | (1u << 20)
+	AFF_VAMPIRE = INT_TWO | (1u << 20),
+	AFF_EXPEDIENT = INT_TWO | (1u << 21)
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
@@ -890,7 +887,10 @@ enum class EExtraFlag: uint32_t
 	ITEM_1INLAID = INT_ONE | (1 << 10),		///< TODO: не используется, см convert_obj_values()
 	ITEM_2INLAID = INT_ONE | (1 << 11),
 	ITEM_3INLAID = INT_ONE | (1 << 12),
-	ITEM_NOPOUR = INT_ONE | (1 << 13)		///< нельзя перелить
+	ITEM_NOPOUR = INT_ONE | (1 << 13),		///< нельзя перелить
+	ITEM_UNIQUE = INT_ONE | (1 << 14)		// объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
+											// на разные слоты, то чар может одеть на себя только одну шмотку
+
 };
 
 template <> const std::string& NAME_BY_ITEM<EExtraFlag>(const EExtraFlag item);
@@ -1059,7 +1059,8 @@ enum EApplyLocation
 	APPLY_BONUS_SKILLS = 59,
 	APPLY_PLAQUE = 60,
 	APPLY_MADNESS = 61,
-	NUM_APPLIES = 62
+	APPLY_PR = 62,
+	NUM_APPLIES = 63
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
@@ -1361,12 +1362,13 @@ inline int flag_data_by_num(const int& num)
 // Extra description: used in objects, mobiles, and rooms //
 struct EXTRA_DESCR_DATA
 {
+	using shared_ptr = std::shared_ptr<EXTRA_DESCR_DATA>;
 	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
 	~EXTRA_DESCR_DATA();
 
 	char *keyword;		// Keyword in look/examine          //
 	char *description;	// What to see                      //
-	std::shared_ptr<EXTRA_DESCR_DATA> next;	// Next in list                     //
+	shared_ptr next;	// Next in list                     //
 };
 
 // header block for rent files.  BEWARE: Changing it will ruin rent files  //
@@ -1464,27 +1466,30 @@ public:
 class IAffectHandler;
 
 template<typename TLocation>
-struct AFFECT_DATA
+class AFFECT_DATA
 {
+public:
+	using shared_ptr = std::shared_ptr<AFFECT_DATA<TLocation>>;
+
 	AFFECT_DATA() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
 		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
-		apply_time(0), next(nullptr) {};
+		apply_time(0) {};
+	bool removable() const;
 
 	sh_int type;		// The type of spell that caused this      //
 	int duration;	// For how long its effects will last      //
 	int modifier;		// This is added to appropriate ability     //
 	TLocation location;		// Tells which ability to change(APPLY_XXX) //
 	long battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
+	FLAG_DATA aff;
 	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
-	long
-	caster_id; //Unique caster ID //
-	bool
-	must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
-	sh_int
-	apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
-	AFFECT_DATA<TLocation> *next;
-	boost::shared_ptr<IAffectHandler> handler; //обработчик аффектов
+	long caster_id; //Unique caster ID //
+	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
+	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
+	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 };
+
+template <> bool AFFECT_DATA<EApplyLocation>::removable() const;
 
 struct timed_type
 {
@@ -1599,15 +1604,16 @@ namespace obj_sets_olc
 	class sedit;
 }
 
-class Board;
 #ifndef HAVE_ZLIB
 struct z_stream;
 #endif
 
-class CCommonStringWriter
+class AbstractStringWriter
 {
 public:
-	virtual ~CCommonStringWriter() {}
+	using shared_ptr = std::shared_ptr<AbstractStringWriter>;
+
+	virtual ~AbstractStringWriter() {}
 	virtual const char* get_string() const = 0;
 	virtual void set_string(const char* data) = 0;
 	virtual void append_string(const char* data) = 0;
@@ -1615,30 +1621,32 @@ public:
 	virtual void clear() = 0;
 };
 
-using string_writer_t = std::shared_ptr<CCommonStringWriter>;
-
-class CSimpleStringWriter: public CCommonStringWriter
+class DelegatedStringWriter: public AbstractStringWriter
 {
 public:
-	CSimpleStringWriter(char*& managed) : m_managed(managed) {}
-	virtual const char* get_string() const override { return m_managed; }
+	DelegatedStringWriter(char*& managed) : m_delegated_string(managed) {}
+	virtual const char* get_string() const override { return m_delegated_string; }
 	virtual void set_string(const char* string) override;
 	virtual void append_string(const char* string) override;
-	virtual size_t length() const override { return m_managed ? strlen(m_managed) : 0; }
+	virtual size_t length() const override { return m_delegated_string ? strlen(m_delegated_string) : 0; }
 	virtual void clear() override;
 
 private:
-	char*& m_managed;
+	char*& m_delegated_string;
 };
 
-inline void CSimpleStringWriter::clear()
+class StdStringWriter : public AbstractStringWriter
 {
-	if (m_managed)
-	{
-		free(m_managed);
-	}
-	m_managed = nullptr;
-}
+public:
+	virtual const char* get_string() const override { return m_string.c_str(); }
+	virtual void set_string(const char* string) override { m_string = string; }
+	virtual void append_string(const char* string) override { m_string += string; }
+	virtual size_t length() const override { return m_string.length(); }
+	virtual void clear() override { m_string.clear(); }
+
+private:
+	std::string m_string;
+};
 
 struct DESCRIPTOR_DATA
 {
@@ -1691,7 +1699,8 @@ struct DESCRIPTOR_DATA
 	void msdp_remove_report_variable(const std::string& name) { m_msdp_requested_report.erase(name); }
 	bool msdp_need_report(const std::string& name) { return m_msdp_requested_report.find(name) != m_msdp_requested_report.end(); }
 	void msdp_report(const std::string& name);
-	void string_to_client_encoding(const char* input, char* output);
+
+	void string_to_client_encoding(const char* input, char* output) const;
 	socket_t descriptor;	// file descriptor for socket    //
 	char host[HOST_LENGTH + 1];	// hostname          //
 	byte bad_pws;		// number of bad pw attemps this login //
@@ -1704,7 +1713,7 @@ struct DESCRIPTOR_DATA
 	char **showstr_vector;	// for paging through texts      //
 	int showstr_count;		// number of pages to page through  //
 	int showstr_page;		// which page are we currently showing?   //
-	string_writer_t writer;		// for the modify-str system     //
+	AbstractStringWriter::shared_ptr writer;		// for the modify-str system     //
 	size_t max_str;		//      -        //
 	char *backstr;		// added for handling abort buffers //
 	int mail_to;		// uid for mail system
@@ -1730,8 +1739,8 @@ struct DESCRIPTOR_DATA
 	z_stream *deflate;	// compression engine        //
 	int mccp_version;
 	unsigned long ip; // ип адрес в виде числа для внутреннего пользования
-	boost::weak_ptr<Board> board; // редактируемая доска
-	boost::shared_ptr<struct Message> message; // редактируемое сообщение
+	std::weak_ptr<Boards::Board> board; // редактируемая доска
+	Message::shared_ptr message; // редактируемое сообщение
 	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
 	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
@@ -1752,7 +1761,7 @@ struct DESCRIPTOR_DATA
 
 private:
 	bool m_msdp_support;
-	std::set<std::string> m_msdp_requested_report;
+	std::unordered_set<std::string> m_msdp_requested_report;
 };
 
 
@@ -2001,7 +2010,7 @@ struct index_data
 	int stored;		// number of things in rent file            //
 	int(*func)(CHAR_DATA*, void*, int, char*);
 	char *farg;		// string argument for special function     //
-	struct trig_data *proto;	// for triggers... the trigger     //
+	TRIG_DATA *proto;	// for triggers... the trigger     //
 	int zone;			// mob/obj zone rnum //
 	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
 };
@@ -2093,8 +2102,6 @@ struct set_struct
 	const char type;
 };
 
-extern int grouping[NUM_PLAYER_CLASSES][MAX_REMORT+1];
-
 //Polos.insert_wanted_gem
 struct int3
 {
@@ -2103,11 +2110,11 @@ struct int3
 	int qty;
 };
 
-typedef std::map<std::string, int3> alias_type;
+typedef std::unordered_map<std::string, int3> alias_type;
 
 class insert_wanted_gem
 {
-	std::map<int, alias_type> content;
+	std::unordered_map<int, alias_type> content;
 
 public:
 	void init();
@@ -2115,7 +2122,7 @@ public:
 	int get_type(int gem_vnum, const std::string& str);
 	int get_bit(int gem_vnum, const std::string& str);
 	int get_qty(int gem_vnum, const std::string& str);
-	int exist(int gem_vnum, const std::string& str);
+	int exist(const int gem_vnum, const std::string& str) const;
 };
 
 //-Polos.insert_wanted_gem
@@ -2129,7 +2136,7 @@ struct mob_guardian
 	std::vector<zone_vnum> agro_argressors_in_zones;
 };
 
-typedef std::map<int, mob_guardian> guardian_type;
+typedef std::unordered_map<int, mob_guardian> guardian_type;
 
 //-Polud
 

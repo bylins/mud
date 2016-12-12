@@ -294,13 +294,13 @@ bool god_list_check(const std::string &name, long unique)
 // * Создание и лоад/релоад блокнотов иммам.
 void load_god_boards()
 {
-	Board::clear_god_boards();
+	Boards::Static::clear_god_boards();
 	for (GodListType::const_iterator god = god_list.begin(); god != god_list.end(); ++god)
 	{
 		int level = get_level_by_unique(god->first);
 		if (level < LVL_IMMORT) continue;
 		// если это имм - делаем блокнот
-		Board::init_god_board(god->first, god->second.name);
+		Boards::Static::init_god_board(god->first, god->second.name);
 	}
 }
 
@@ -391,7 +391,8 @@ bool check_spells(const CHAR_DATA *ch, int spellnum)
 */
 bool check_skills(const CHAR_DATA *ch)
 {
-	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
+	if ((GET_LEVEL(ch) > LVL_GOD) || !IS_IMMORTAL(ch) || check_flag(ch, USE_SKILLS))
+//	if (!IS_IMMORTAL(ch) || IS_IMPL(ch) || check_flag(ch, USE_SKILLS))
 		return true;
 	return false;
 }

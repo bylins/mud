@@ -192,13 +192,14 @@ void load_glory()
 
 				try
 				{
-					glory = boost::lexical_cast<int>(buffer);
+					glory = std::stoi(buffer, nullptr, 10);
 				}
-				catch (boost::bad_lexical_cast &)
+				catch (const std::invalid_argument &)
 				{
 					log("Glory: ошибка чтения glory (%s)", buffer.c_str());
 					break;
 				}
+
 				all_sum += glory;
 
 				if (!(file >> stat >> timer))
@@ -219,7 +220,9 @@ void load_glory()
 					temp_node->spend_glory += glory;
 				}
 				else
+				{
 					log("Glory: некорректное кол-во вложенных статов, %d %d %d пропущено (uid: %ld).", glory, stat, timer, uid);
+				}
 
 				all_sum += stat + timer;
 			}

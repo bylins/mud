@@ -39,8 +39,26 @@ void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event
 #else
 void close_socket(DESCRIPTOR_DATA * d, int direct);
 #endif
-void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const int arena = 0);
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type);
+
+void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const int arena, const std::string& kick_type);
+inline void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const std::string& kick_type)
+{
+	perform_act(orig, ch, obj, vict_obj, to, 0, kick_type);
+}
+inline void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to, const int arena)
+{
+	perform_act(orig, ch, obj, vict_obj, to, arena, "");
+}
+inline void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, CHAR_DATA * to)
+{
+	perform_act(orig, ch, obj, vict_obj, to, 0, "");
+}
+
+void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type, const std::string& kick_type);
+inline void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type)
+{
+	act(str, hide_invisible, ch, obj, vict_obj, type, "");
+}
 unsigned long get_ip(const char *addr);
 
 #define SUN_CONTROL     (1 << 0)
@@ -64,7 +82,7 @@ bool write_to_descriptor_with_options(DESCRIPTOR_DATA * t, const char* buffer, s
 void write_to_q(const char *txt, struct txt_q *queue, int aliased);
 void write_to_output(const char *txt, DESCRIPTOR_DATA * d);
 void string_add(DESCRIPTOR_DATA * d, char *str);
-void string_write(DESCRIPTOR_DATA * d, const string_writer_t& writer, size_t len, int mailto, void *data);
+void string_write(DESCRIPTOR_DATA * d, const AbstractStringWriter::shared_ptr& writer, size_t len, int mailto, void *data);
 
 int toggle_compression(DESCRIPTOR_DATA * d);
 

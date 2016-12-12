@@ -316,45 +316,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			unequip_char(obj->get_worn_by(), pos);
 		}
 
-		OBJ_DATA tmpobj(*o);
-		*o = *obj;
-		*obj = tmpobj;
-
-// Имею:
-//  obj -> старый указатель, новое наполнение из объекта o
-//  o -> новый указатель, старое наполнение из объекта obj
-//  tmpobj -> врем. переменная, наполнение из оригинального объекта o
-
-// Копирование игровой информации (для o сохраняются оригинальные значения)
-		obj->set_in_room(o->get_in_room());
-		o->set_in_room(tmpobj.get_in_room());
-
-		obj->set_carried_by(o->get_carried_by());
-		o->set_carried_by(tmpobj.get_carried_by());
-		obj->set_worn_by(o->get_worn_by());
-		o->set_worn_by(tmpobj.get_worn_by());
-		obj->set_worn_on(o->get_worn_on());
-		o->set_worn_on(tmpobj.get_worn_on());
-		obj->set_in_obj(o->get_in_obj());
-		o->set_in_obj(tmpobj.get_in_obj());
-		obj->set_timer(o->get_timer());
-		o->set_timer(tmpobj.get_timer());
-		obj->set_contains(o->get_contains());
-		o->set_contains(tmpobj.get_contains());
-		obj->set_id(o->get_id());
-		o->set_id(tmpobj.get_id());
-		obj->set_script(o->get_script());
-		o->set_script(tmpobj.get_script());
-		obj->set_next_content(o->get_next_content());
-		o->set_next_content(tmpobj.get_next_content());
-		obj->set_next(o->get_next());
-		o->set_next(tmpobj.get_next());
-		// для name_list
-		obj->set_serial_num(o->get_serial_num());
-		o->set_serial_num(tmpobj.get_serial_num());
-		//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
-		obj->set_zone(GET_OBJ_ZONE(o));
-		o->set_zone(GET_OBJ_ZONE(&tmpobj));
+		obj->swap(*o);
 
 		if (OBJ_FLAGGED(o, EExtraFlag::ITEM_TICKTIMER))
 		{
@@ -366,7 +328,6 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			equip_char(wearer, obj, pos);
 		}
 		extract_obj(o);
-
 	}
 }
 
@@ -426,8 +387,11 @@ void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->followers || ch->master)
+	if (ch->followers
+		|| ch->has_master())
+	{
 		die_follower(ch);
+	}
 	extract_char(ch, FALSE);
 }
 
@@ -466,7 +430,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			next_ch = ch->next_in_room;
 			if (IS_NPC(ch)
 					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-						 || MOB_FLAGGED(ch, MOB_ANGEL)))
+						 || MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
 				continue;
 
 			if (on_horse(ch) || has_horse(ch, TRUE))
@@ -495,16 +459,24 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if ((ch = get_char_by_obj(obj, arg1)))
 		{
-			if (on_horse(ch) || has_horse(ch, TRUE))
+			if (on_horse(ch)
+				|| has_horse(ch, TRUE))
+			{
 				horse = get_horse(ch);
+			}
 			else
+			{
 				horse = NULL;
+			}
+
 			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
 			{
 				ncharmee = charmee->next_in_room;
-				if (IS_NPC(charmee) && (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
-										|| MOB_FLAGGED(charmee, MOB_ANGEL))
-						&& charmee->master == ch)
+				if (IS_NPC(charmee)
+					&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
+						|| MOB_FLAGGED(charmee, MOB_ANGEL)
+						|| MOB_FLAGGED(ch, MOB_GHOST))
+					&& charmee->get_master() == ch)
 				{
 					char_from_room(charmee);
 					char_to_room(charmee, target);
@@ -625,7 +597,6 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	char target[MAX_INPUT_LENGTH], direction[MAX_INPUT_LENGTH];
 	char field[MAX_INPUT_LENGTH], *value;
 	ROOM_DATA *rm;
-	EXIT_DATA *exit;
 	int dir, fd, to_room, lock;
 
 	const char *door_field[] = { "purge",
@@ -667,28 +638,25 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	exit = rm->dir_option[dir];
+	auto exit = rm->dir_option[dir];
 
 	// purge exit
 	if (fd == 0)
 	{
 		if (exit)
 		{
-			if (exit->general_description)
-				free(exit->general_description);
 			if (exit->keyword)
 				free(exit->keyword);
 			if (exit->vkeyword)
 				free(exit->vkeyword);
-			free(exit);
-			rm->dir_option[dir] = NULL;
+			rm->dir_option[dir].reset();
 		}
 	}
 	else
 	{
 		if (!exit)
 		{
-			CREATE(exit, 1);
+			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
 
@@ -698,20 +666,17 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		switch (fd)
 		{
 		case 1:	// description 
-			if (exit->general_description)
-			{
-				free(exit->general_description);
-			}
-			CREATE(exit->general_description, strlen(value) + 3);
-			strcpy(exit->general_description, value);
-			strcat(exit->general_description, "\r\n");
+			exit->general_description = std::string(value) + "\r\n";
 			break;
+
 		case 2:	// flags       
 			asciiflag_conv(value, &exit->exit_info);
 			break;
+
 		case 3:	// key         
 			exit->key = atoi(value);
 			break;
+
 		case 4:	// name        
 			if (exit->keyword)
 				free(exit->keyword);

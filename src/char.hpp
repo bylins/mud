@@ -55,6 +55,7 @@ enum { FIRE_RESISTANCE = 0, AIR_RESISTANCE, WATER_RESISTANCE, EARTH_RESISTANCE, 
 // Char's additional abilities. Used only while work
 struct char_played_ability_data
 {
+public:
 	int weight_add;
 	int height_add;
 	int size_add;
@@ -80,6 +81,7 @@ struct char_played_ability_data
 	ubyte mresist;
 	ubyte aresist;
 	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
+	
 };
 
 // Char's abilities.
@@ -97,10 +99,11 @@ struct char_ability_data
 // Char's points.
 struct char_point_data
 {
-	int hit;
-	int max_hit;		// Max hit for PC/NPC
+	int hit;	
 	sh_int move;
+	
 	sh_int max_move;	// Max move for PC/NPC
+	int max_hit;		// Max hit for PC/NPC
 };
 
 /*
@@ -171,7 +174,7 @@ struct spell_mem_queue
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
 struct extra_attack_type
 {
-	int used_skill;
+	ExtraAttackEnumType used_attack;
 	CHAR_DATA *victim;
 };
 
@@ -282,7 +285,7 @@ struct player_special_data
 	im_rskill *rskill;	// Известные рецепты
 	struct char_portal_type *portals;	// порталы теперь живут тут
 	int *logs;		// уровни подробности каналов log
-	
+
 	char *Exchange_filter;
 	struct ignore_data *ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
@@ -300,8 +303,8 @@ struct player_special_data
 
 	char *clanStatus; // строка для отображения приписки по кто
 	// TODO: однозначно переписать
-	boost::shared_ptr<class Clan> clan; // собсна клан, если он есть
-	boost::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
+	std::shared_ptr<class Clan> clan; // собсна клан, если он есть
+	std::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
 };
 
 enum
@@ -341,16 +344,21 @@ class CHAR_DATA : public PlayerI
 {
 // новое
 public:
-	typedef std::list<std::string> morphs_list_t;
+	using ptr_t = CHAR_DATA*;
+	using shared_ptr = std::shared_ptr<CHAR_DATA>;
+	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
+	using morphs_list_t = std::list<std::string>;
+	using role_t = boost::dynamic_bitset<>;
+	using followers_list_t = std::list<CHAR_DATA*>;
 
 	CHAR_DATA();
 	virtual ~CHAR_DATA();
 
 	friend void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src);
-	friend void interpret_espec(const char *keyword, const char *value, int i, int nr);
 
 	void set_skill(const ESkill skill_num, int percent);
+	void set_skill(short remort);
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
@@ -367,9 +375,9 @@ public:
 	CHAR_DATA * get_protecting() const;
 	void set_protecting(CHAR_DATA *vict);
 
-	int get_extra_skill() const;
+	ExtraAttackEnumType get_extra_attack_mode() const;
 	CHAR_DATA * get_extra_victim() const;
-	void set_extra_attack(int skill, CHAR_DATA *vict);
+	void set_extra_attack(ExtraAttackEnumType Attack, CHAR_DATA *vict);
 
 	CHAR_DATA * get_fighting() const;
 	void set_fighting(CHAR_DATA *vict);
@@ -564,7 +572,7 @@ public:
 
 	void set_ruble(int ruble);
 	long get_ruble();
-	
+
 	void set_souls(int souls);
 	void inc_souls();
 	void dec_souls();
@@ -578,10 +586,26 @@ public:
 	void set_wait(const unsigned _) { m_wait = _; }
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
 	void wait_dec(const unsigned value) { m_wait -= value <= m_wait ? value : m_wait; }
-	
+
 	virtual void reset();
 
-	bool has_any_affect(const affects_list_t affects);
+	void set_abstinent();
+	void affect_remove(const char_affects_list_t::iterator& affect_i);
+	bool has_any_affect(const affects_list_t& affects);
+	size_t remove_random_affects(const size_t count);
+	const char* print_affects_to_buffer(char* buffer, const size_t size) const;
+
+	const auto& get_role() const { return role_; }
+	void set_role(const role_t& new_role) { role_ = new_role; }
+	void msdp_report(const std::string& name);
+
+	void add_follower(CHAR_DATA* ch);
+	/** Do NOT call this before having checked if a circle of followers
+	* will arise. CH will follow leader
+	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
+	*/
+	void add_follower_silently(CHAR_DATA* ch);
+	followers_list_t get_followers_list() const;
 
 private:
 	std::string clan_for_title();
@@ -661,7 +685,7 @@ private:
 	//текущая форма
 	MorphPtr current_morph_;
 	// аналог класса у моба
-	boost::dynamic_bitset<> role_;
+	role_t role_;
 	// для боссов: список атакующих (и им сочувствующих), uid->atacker
 	std::unordered_map<int, attacker_node> attackers_;
 	// для боссов: таймер (в секундах), включающийся по окончанию боя
@@ -682,7 +706,11 @@ public:
 	room_rnum in_room;	// Location (real room number)
 
 private:
+	void report_loop_error(const CHAR_DATA::ptr_t master) const;
+	void print_leaders_chain(std::ostream& ss) const;
+
 	unsigned m_wait;			// wait for how many loops
+	CHAR_DATA* m_master;	// Who is char following?
 
 public:
 	int punctual_wait;		// wait for how many loops (punctual style)
@@ -697,7 +725,7 @@ public:
 
 	struct player_special_data *player_specials;	// PC specials
 
-	AFFECT_DATA<EApplyLocation>* affected;	// affected by what spells
+	char_affects_list_t affected;	// affected by what spells
 	struct timed_type *timed;	// use which timed skill/spells
 	struct timed_type *timed_feat;	// use which timed feats
 	OBJ_DATA *equipment[NUM_WEARS];	// Equipment array
@@ -705,7 +733,7 @@ public:
 	OBJ_DATA *carrying;	// Head of list
 	DESCRIPTOR_DATA* desc;	// NULL for mobiles
 	long id;			// used by DG triggers
-	OBJ_DATA::triggers_list_t proto_script;	// list of default triggers
+	OBJ_DATA::triggers_list_ptr proto_script;	// list of default triggers
 	struct SCRIPT_DATA *script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
@@ -713,7 +741,11 @@ public:
 	CHAR_DATA *next_fighting;	// For fighting list
 
 	struct follow_type *followers;	// List of chars followers
-	CHAR_DATA *master;	// Who is char following?
+
+	CHAR_DATA::ptr_t get_master() const { return m_master; }
+	void set_master(CHAR_DATA::ptr_t master);
+	bool has_master() const { return nullptr != m_master; }
+	bool makes_loop(const CHAR_DATA::ptr_t master) const;
 
 	struct spell_mem_queue MemQueue;		// очередь изучаемых заклинаний
 
@@ -859,14 +891,14 @@ inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* 
 inline bool IS_HORSE(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
-		&& ch->master
+		&& ch->has_master()
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
 }
 
 inline bool IS_MORTIFIER(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
-		&& ch->master
+		&& ch->has_master()
 		&& MOB_FLAGGED(ch, MOB_CORPSE);
 }
 

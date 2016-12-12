@@ -48,8 +48,10 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <sstream>
 #include <math.h>
+
+#include <unordered_set>
+#include <sstream>
 
 int max_stats2[][6] =
 	// Str Dex Int Wis Con Cha //
@@ -116,7 +118,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum);
 extern struct zone_data *zone_table;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
-extern char *find_exdesc(char *word, const std::shared_ptr<EXTRA_DESCR_DATA>& list);
+extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 
 char *fname(const char *namelist)
 {
@@ -398,6 +400,8 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		break;
 	case APPLY_HIT_GLORY: //вкачка +хп за славу
 		GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
+	case APPLY_PR:
+		GET_PR(ch) += mod; //скиллрезист
 		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
@@ -447,7 +451,7 @@ void affect_room_total(ROOM_DATA * room)
 	memset(&room->add_property, 0 , sizeof(room_property_data));
 
 	// перенакладываем аффекты
-	for (auto af = room->affected; af; af = af->next)
+	for (const auto& af : room->affected)
 	{
 		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
 	}
@@ -587,7 +591,7 @@ void affect_total(CHAR_DATA * ch)
 	}
 
 	// move affect modifiers
-	for (auto af = ch->affected; af; af = af->next)
+	for (const auto& af : ch->affected)
 	{
 		affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
 	}
@@ -754,43 +758,33 @@ void affect_total(CHAR_DATA * ch)
 
 /* Намазываем аффект на комнату.
   Автоматически ставим нузные флаги */
-void affect_to_room(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af)
+void affect_to_room(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af)
 {
-	AFFECT_DATA<ERoomApplyLocation> *affected_alloc;
-	CREATE(affected_alloc, 1);
+	AFFECT_DATA<ERoomApplyLocation>::shared_ptr new_affect(new AFFECT_DATA<ERoomApplyLocation>(af));
 
-	*affected_alloc = *af;
-	affected_alloc->next = room->affected;
-	room->affected = affected_alloc;
+	room->affected.push_front(new_affect);
 
-	affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
+	affect_room_modify(room, af.location, af.modifier, af.bitvector, TRUE);
 	affect_room_total(room);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
-//	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-
-
 /* Insert an affect_type in a char_data structure
-   Automatically sets apropriate bits and apply's */
-void affect_to_char(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
+   Automatically sets appropriate bits and apply's */
+void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 {
 	long was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
 
-	AFFECT_DATA<EApplyLocation> *affected_alloc;
-	CREATE(affected_alloc, 1);
+	AFFECT_DATA<EApplyLocation>::shared_ptr affected_alloc(new AFFECT_DATA<EApplyLocation>(af));
 
-	*affected_alloc = *af;
-	affected_alloc->next = ch->affected;
-	ch->affected = affected_alloc;
+	ch->affected.push_front(affected_alloc);
 
-	affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
+	AFF_FLAGS(ch) += af.aff;
+	if (af.bitvector)
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), TRUE);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
@@ -800,83 +794,41 @@ void affect_to_char(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
  * affect_location_apply
  */
 
-void affect_remove(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
-{
-	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
-	long was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
-
-	if (ch->affected == NULL)
-	{
-		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(ch));
-		// core_dump();
-		return;
-	}
-
-	affect_modify(ch, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
-	if (af->type == SPELL_ABSTINENT)
-	{
-		GET_DRUNK_STATE(ch) = GET_COND(ch, DRUNK) = MIN(GET_COND(ch, DRUNK), CHAR_DRUNKED - 1);
-	}
-	if (af->type == SPELL_DRUNKED && af->duration == 0)
-	{
-		set_abstinent(ch);
-	}
-
-	REMOVE_FROM_LIST(af, ch->affected);
-	if (af->handler!=0) af->handler.reset();
-	free(af);
-
-	//log("[AFFECT_REMOVE->AFFECT_TOTAL] Start");
-	affect_total(ch);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
-	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
-}
-
-
-
-void affect_room_remove(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>* af)
+void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect_i)
 {
 	int change = 0;
 
-	// if (IS_IMMORTAL(ch))
-	//   {sprintf(buf,"<%d>\r\n",was_hdrk);
-	//    send_to_char(buf,ch);
-	//   }
-
-	if (room->affected == NULL)
+	if (room->affected.empty())
 	{
 		log("SYSERR: affect_room_remove when no affects...");
-		// core_dump();
 		return;
 	}
 
-	affect_room_modify(room, af->location, af->modifier, af->bitvector, FALSE);
+	const auto affect = *affect_i;
+	affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, FALSE);
 	if (change)
-		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
+	{
+		affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, TRUE);
+	}
 	else
 	{
-		REMOVE_FROM_LIST(af, room->affected);
-		free(af);
+		room->affected.erase(affect_i);
 	}
-	//log("[AFFECT_REMOVE->AFFECT_TOTAL] Start");
-	affect_room_total(room);
-	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Stop");
-//	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
-}
 
+	affect_room_total(room);
+}
 
 // Call affect_remove with every spell of spelltype "skill"
 void affect_from_char(CHAR_DATA * ch, int type)
 {
-	AFFECT_DATA<EApplyLocation> *hjp, *next;
-
-	for (hjp = ch->affected; hjp; hjp = next)
+	auto next_affect_i = ch->affected.begin();
+	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i)
 	{
-		next = hjp->next;
-		if (hjp->type == type)
+		++next_affect_i;
+		const auto affect = *affect_i;
+		if (affect->type == type)
 		{
-			affect_remove(ch, hjp);
+			ch->affect_remove(affect_i);
 		}
 	}
 
@@ -891,19 +843,24 @@ void affect_from_char(CHAR_DATA * ch, int type)
  * Return TRUE if a char is affected by a spell (SPELL_XXX),
  * FALSE indicates not affected.
  */
-bool affected_by_spell(CHAR_DATA * ch, int type)
+bool affected_by_spell(CHAR_DATA* ch, int type)
 {
 	if (type == SPELL_POWER_HOLD)
-		type = SPELL_HOLD;
-	else if (type == SPELL_POWER_SILENCE)
-		type = SPELL_SILENCE;
-	else if (type == SPELL_POWER_BLINDNESS)
-		type = SPELL_BLINDNESS;
-
-
-	for (auto hjp = ch->affected; hjp; hjp = hjp->next)
 	{
-		if (hjp->type == type)
+		type = SPELL_HOLD;
+	}
+	else if (type == SPELL_POWER_SILENCE)
+	{
+		type = SPELL_SILENCE;
+	}
+	else if (type == SPELL_POWER_BLINDNESS)
+	{
+		type = SPELL_BLINDNESS;
+	}
+
+	for (const auto& affect : ch->affected)
+	{
+		if (affect->type == type)
 		{
 			return (TRUE);
 		}
@@ -913,112 +870,169 @@ bool affected_by_spell(CHAR_DATA * ch, int type)
 }
 // Проверяем а не висит ли на комнате закла ужо
 //bool room_affected_by_spell(ROOM_DATA * room, int type)
-AFFECT_DATA<ERoomApplyLocation> *room_affected_by_spell(ROOM_DATA * room, int type)
+ROOM_DATA::room_affects_list_t::iterator find_room_affect(ROOM_DATA* room, int type)
 {
-	for (auto hjp = room->affected; hjp; hjp = hjp->next)
+	for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i)
 	{
-		if (hjp->type == type)
+		const auto affect = *affect_i;
+		if (affect->type == type)
 		{
-			return hjp;
+			return affect_i;
 		}
 	}
 
-	return NULL;
+	return room->affected.end();
 }
 
-void affect_join_fspell(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af)
+void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 {
-	bool found = FALSE;
+	bool found = false;
 
-	for (auto hjp = ch->affected; !found && hjp; hjp = hjp->next)
+	for (const auto& affect : ch->affected)
 	{
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+		if ((affect->type == af.type) && (affect->location == af.location))
 		{
+			if (affect->modifier < af.modifier)
+			{
+				affect->modifier = af.modifier;
+			}
 
-			if (hjp->modifier < af->modifier)
-				hjp->modifier = af->modifier;
-			if (hjp->duration < af->duration)
-				hjp->duration = af->duration;
+			if (affect->duration < af.duration)
+			{
+				affect->duration = af.duration;
+			}
+
 			affect_total(ch);
-			found = TRUE;
+			found = true;
+			break;
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_char(ch, af);
 	}
 }
-void affect_room_join_fspell(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af)
+
+void affect_room_join_fspell(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af)
 {
 	bool found = FALSE;
 
-	for (auto hjp = room->affected; !found && hjp; hjp = hjp->next)
+	for (const auto& hjp : room->affected)
 	{
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+		if (hjp->type == af.type
+			&& hjp->location == af.location)
 		{
+			if (hjp->modifier < af.modifier)
+			{
+				hjp->modifier = af.modifier;
+			}
 
-			if (hjp->modifier < af->modifier)
-				hjp->modifier = af->modifier;
-			if (hjp->duration < af->duration)
-				hjp->duration = af->duration;
+			if (hjp->duration < af.duration)
+			{
+				hjp->duration = af.duration;
+			}
+
 			affect_room_total(room);
-			found = TRUE;
+			found = true;
+			break;
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_room(room, af);
 	}
 }
 
-void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation> * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
+void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
 {
-	bool found = FALSE;
+	bool found = false;
 
-	for (auto hjp = room->affected; !found && hjp && af->location; hjp = hjp->next)
+	if (af.location)
 	{
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+		for (auto affect_i = room->affected.begin(); affect_i != room->affected.end(); ++affect_i)
 		{
-			if (add_dur)
-				af->duration += hjp->duration;
-			if (avg_dur)
-				af->duration /= 2;
-			if (add_mod)
-				af->modifier += hjp->modifier;
-			if (avg_mod)
-				af->modifier /= 2;
-			affect_room_remove(room, hjp);
-			affect_to_room(room, af);
-			found = TRUE;
+			const auto& affect = *affect_i;
+			if (affect->type == af.type
+				&& affect->location == af.location)
+			{
+				if (add_dur)
+				{
+					af.duration += affect->duration;
+				}
+
+				if (avg_dur)
+				{
+					af.duration /= 2;
+				}
+
+				if (add_mod)
+				{
+					af.modifier += affect->modifier;
+				}
+
+				if (avg_mod)
+				{
+					af.modifier /= 2;
+				}
+
+				affect_room_remove(room, affect_i);
+				affect_to_room(room, af);
+
+				found = true;
+				break;
+			}
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_room(room, af);
 	}
 }
 
-void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation> * af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
+void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
 {
-	bool found = FALSE;
+	bool found = false;
 
-	for (auto hjp = ch->affected; !found && hjp && af->location; hjp = hjp->next)
+	if (af.location)
 	{
-		if ((hjp->type == af->type) && (hjp->location == af->location))
+		for (auto affect_i = ch->affected.begin(); affect_i != ch->affected.end(); ++affect_i)
 		{
-			if (add_dur)
-				af->duration += hjp->duration;
-			if (avg_dur)
-				af->duration /= 2;
-			if (add_mod)
-				af->modifier += hjp->modifier;
-			if (avg_mod)
-				af->modifier /= 2;
-			affect_remove(ch, hjp);
-			affect_to_char(ch, af);
-			found = TRUE;
+			const auto& affect = *affect_i;
+			if (affect->type == af.type
+				&& affect->location == af.location)
+			{
+				if (add_dur)
+				{
+					af.duration += affect->duration;
+				}
+
+				if (avg_dur)
+				{
+					af.duration /= 2;
+				}
+
+				if (add_mod)
+				{
+					af.modifier += affect->modifier;
+				}
+
+				if (avg_mod)
+				{
+					af.modifier /= 2;
+				}
+
+				ch->affect_remove(affect_i);
+				affect_to_char(ch, af);
+
+				found = true;
+				break;
+			}
 		}
 	}
+
 	if (!found)
 	{
 		affect_to_char(ch, af);
@@ -1143,35 +1157,30 @@ void char_from_room(CHAR_DATA * ch)
 void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 {
 	if (IS_IMMORTAL(ch))
-		return;
-
-	const auto affect_on_room = room_affected_by_spell(world[room], SPELL_HYPNOTIC_PATTERN);
-	if (affect_on_room)
 	{
-		CHAR_DATA *caster = find_char(affect_on_room->caster_id);
-		if (!same_group(ch, caster) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) && (number(1,100) <= 30)) // 30% шанс что враг уснет
+		return;
+	}
+
+	const auto affect_on_room = find_room_affect(world[room], SPELL_HYPNOTIC_PATTERN);
+	if (affect_on_room != world[room]->affected.end())
+	{
+		CHAR_DATA *caster = find_char((*affect_on_room)->caster_id);
+		if (!same_group(ch, caster)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
+			&& (number(1,100) <= 30)) // 30% шанс что враг уснет
 		{
-			if ((ch->master) && !IS_NPC(ch->master) && IS_NPC(ch))
+			if (ch->has_master()
+				&& !IS_NPC(ch->get_master())
+				&& IS_NPC(ch))
+			{
 				return;
+			}
+
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
 		}
 	}
-/* код ниже - на случай добавления новых спеллов такого типа
-	AFFECT_DATA *affect_on_room = world[room]->affected;
-	while (affect_on_room)
-	{
-		switch (affect_on_room->type)
-		{
-		case SPELL_HYPNOTIC_PATTERN:
-			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
-			act(to_room, TRUE, victim, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
-		break;
-		}
-		affect_on_room = affect_on_room->next;
-	}
-	*/
 }
 
 // place a character in a room
@@ -1183,54 +1192,46 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		return;
 	}
 
-	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_ATRIUM))
+	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
 	{
-		send_to_char("Частная собственность - посторонним в ней делать нечего!\r\n", ch);
-		return;
-	}
-
-	else if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
-	{
-		char_to_room(ch, ch->get_from_room());
-		return;
+		room = ch->get_from_room();
 	}
 
 	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
-		char_to_room(ch, ch->get_from_room());
-		return;
+		room = ch->get_from_room();
 	}
 
-		ch->next_in_room = world[room]->people;
-		world[room]->people = ch;
-		ch->in_room = room;
-		check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
-		EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
-		EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
-		EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
-		if (PRF_FLAGGED(ch, PRF_CODERINFO))
-		{
-			sprintf(buf,
-					"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
-					"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
-					CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
-					CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
-					CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
-					CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
-					CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
-					CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
-					CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
-		}
-		// Stop fighting now, if we left.
-		if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting()))
-		{
-			stop_fighting(ch->get_fighting(), FALSE);
-			stop_fighting(ch, TRUE);
-		}
+	ch->next_in_room = world[room]->people;
+	world[room]->people = ch;
+	ch->in_room = room;
+	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
+	if (PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		sprintf(buf,
+				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
+				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
+				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
+				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
+				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
+				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+	// Stop fighting now, if we left.
+	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting()))
+	{
+		stop_fighting(ch->get_fighting(), FALSE);
+		stop_fighting(ch, TRUE);
+	}
 
 	if (!IS_NPC(ch))
 	{
@@ -1431,7 +1432,9 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			return;
 		}
 
-		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+		if (!IS_NPC(ch)
+			|| (ch->has_master()
+				&& !IS_NPC(ch->get_master())))
 		{
 			// Контроль уникальности предметов
 			if (object && // Объект существует
@@ -1469,7 +1472,9 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			}
 		}
 
-		if (!IS_NPC(ch) || (ch->master && !IS_NPC(ch->master)))
+		if (!IS_NPC(ch)
+			|| (ch->has_master()
+				&& !IS_NPC(ch->get_master())))
 		{
 			object->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);	// start timer unconditionally when character picks item up.
 			insert_obj_and_group(object, &ch->carrying);
@@ -1481,7 +1486,6 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			ch->carrying = object;
 		}
 
-	
 		object->set_carried_by(ch);
 		object->set_in_room(NOWHERE);
 		IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
@@ -1942,7 +1946,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
-		CHAR_DATA *master = IS_CHARMICE(ch) && ch->master ? ch->master : ch;
+		CHAR_DATA *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_manual_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
@@ -2254,14 +2258,19 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 
 	int j, skip_total = IS_SET(pos, 0x80), show_msg = IS_SET(pos, 0x40);
 
-	OBJ_DATA *obj;
-
 	REMOVE_BIT(pos, (0x80 | 0x40));
 
-	if ((pos < 0 || pos >= NUM_WEARS) || (obj = GET_EQ(ch, pos)) == NULL)
+	if (pos < 0 || pos >= NUM_WEARS)
 	{
-		log("SYSERR: unequip_char(%s,%d) - unused pos or no equip...", GET_NAME(ch), pos);
-		return (NULL);
+		log("SYSERR: unequip_char(%s,%d) - unused pos...", GET_NAME(ch), pos);
+		return nullptr;
+	}
+
+	OBJ_DATA* obj = GET_EQ(ch, pos);
+	if (nullptr == obj)
+	{
+		log("SYSERR: unequip_char(%s,%d) - no equip...", GET_NAME(ch), pos);
+		return nullptr;
 	}
 
 //	if (GET_EQ(ch, WEAR_LIGHT) &&
@@ -2755,9 +2764,10 @@ void extract_obj(OBJ_DATA * obj)
 	check_exchange(obj);
 	obj->remove_me_from_objects_list(object_list);
 
-	if (GET_OBJ_RNUM(obj) >= 0)
+	const auto rnum = GET_OBJ_RNUM(obj);
+	if (rnum >= 0)
 	{
-		obj_proto.dec_number(GET_OBJ_RNUM(obj));
+		obj_proto.dec_number(rnum);
 	}
 
 	free_obj(obj);
@@ -2894,7 +2904,7 @@ void change_npc_leader(CHAR_DATA *ch)
 	{
 		if (IS_NPC(i->follower)
 			&& !IS_CHARMICE(i->follower)
-			&& i->follower->master == ch)
+			&& i->follower->get_master() == ch)
 		{
 			tmp_list.push_back(i->follower);
 		}
@@ -2918,7 +2928,7 @@ void change_npc_leader(CHAR_DATA *ch)
 		}
 		else
 		{
-			add_follower(*i, leader, true);
+			leader->add_follower_silently(*i);
 		}
 	}
 }
@@ -3009,19 +3019,26 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		ExtMoney::drop_torc(ch);
 	}
 
-	if (!IS_NPC(ch) && !ch->master && ch->followers && AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+	if (!IS_NPC(ch)
+		&& !ch->has_master()
+		&& ch->followers
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		log("[Extract char] Change group leader");
 		change_leader(ch, 0);
 	}
-	else if (IS_NPC(ch) && !IS_CHARMICE(ch) && !ch->master && ch->followers)
+	else if (IS_NPC(ch)
+		&& !IS_CHARMICE(ch)
+		&& !ch->has_master()
+		&& ch->followers)
 	{
 		log("[Extract char] Changing NPC leader");
 		change_npc_leader(ch);
 	}
 
 	log("[Extract char] Die followers");
-	if ((ch->followers || ch->master) && die_follower(ch))
+	if ((ch->followers || ch->has_master())
+		&& die_follower(ch))
 	{
 		// TODO: странно все это с пуржем в stop_follower
 		// extract_mob тоже самое
@@ -3030,11 +3047,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 	log("[Extract char] Stop fighting self");
 	if (ch->get_fighting())
+	{
 		stop_fighting(ch, TRUE);
+	}
 
 	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, TRUE);
-
 
 	log("[Extract char] Remove char from room");
 	char_from_room(ch);
@@ -3047,7 +3065,9 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	ch->remove_from_list(character_list);
 
 	if (ch->desc && ch->desc->original)
+	{
 		do_return(ch, NULL, 0, 0);
+	}
 
     // на плееров сейчас тоже триги вешают
 	free_script(SCRIPT(ch));	// без комментариев
@@ -3067,8 +3087,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		ch->save_char();
 		//удаляются рент-файлы, если только персонаж не ушел в ренту
 		Crash_delete_crashfile(ch);
-//      if (clear_objs)
-//         Crash_delete_files(GET_NAME(ch), CRASH_DELETE_OLD | CRASH_DELETE_NEW);
 	}
 	else
 	{
@@ -3079,7 +3097,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 		MOB_FLAGS(ch).set(MOB_FREE);
 		ch->purge();
-		// delete ch;
 		freed = 1;
 	}
 
@@ -3101,12 +3118,10 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		{
 			MOB_FLAGS(ch).set(MOB_FREE);
 			ch->purge();
-			// delete ch;
 		}
 	}
 	log("[Extract char] Stop function for char %s", name.c_str());
 }
-
 
 // Extract a MOB completely from the world, and destroy his stuff
 void extract_mob(CHAR_DATA * ch)
@@ -3129,7 +3144,8 @@ void extract_mob(CHAR_DATA * ch)
 		exit(1);
 	}
 
-	if ((ch->followers || ch->master) && die_follower(ch))
+	if ((ch->followers || ch->has_master())
+		&& die_follower(ch))
 	{
 		// TODO: странно все это с пуржем в stop_follower
 		// extract_char тоже самое
@@ -3154,7 +3170,9 @@ void extract_mob(CHAR_DATA * ch)
 
 	// extract objects, if any
 	while (ch->carrying)
+	{
 		extract_obj(ch->carrying);
+	}
 
 	// transfer equipment to room, if any
 	for (i = 0; i < NUM_WEARS; i++)
@@ -3888,7 +3906,7 @@ OBJ_DATA *create_money(int amount)
 		return (NULL);
 	}
 	obj = create_obj();
-	std::shared_ptr<EXTRA_DESCR_DATA> new_descr(new EXTRA_DESCR_DATA());
+	EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
 
 	if (amount == 1)
 	{
@@ -3898,7 +3916,7 @@ OBJ_DATA *create_money(int amount)
 		obj->set_description("Одна куна лежит здесь.");
 		new_descr->keyword = str_dup("coin gold монет кун денег");
 		new_descr->description = str_dup("Всего лишь одна куна.");
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			obj->set_PName(i, money_desc(amount, i));
 		}
@@ -3908,7 +3926,7 @@ OBJ_DATA *create_money(int amount)
 		sprintf(buf, "coins gold кун денег %s", money_desc(amount, 0));
 		obj->set_aliases(buf);
 		obj->set_short_description(money_desc(amount, 0));
-		for (i = 0; i < OBJ_DATA::NUM_PADS; i++)
+		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			obj->set_PName(i, money_desc(amount, i));
 		}
@@ -4414,7 +4432,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	//send_to_char(buf,ch);
 	dpr = get_damage_per_round(victim);
 
-	log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);	
+	log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);
 
 	if (difference <= 0)
 		price = dpr * (1.0 - 0.01 * stat_overlimit);
@@ -4706,8 +4724,8 @@ void remove_rune_label(CHAR_DATA *ch)
 	ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room)
 	{
-		const auto aff = room_affected_by_spell(label_room, SPELL_RUNE_LABEL);
-		if (aff)
+		const auto aff = find_room_affect(label_room, SPELL_RUNE_LABEL);
+		if (aff != label_room->affected.end())
 		{
 			affect_room_remove(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);

@@ -51,7 +51,7 @@ void extract_trigger(TRIG_DATA * trig)
 		GET_TRIG_WAIT(trig) = NULL;
 	}
 
-	trig_index[trig->nr]->number--;
+	trig_index[trig->get_rnum()]->number--;
 
 	// walk the trigger list and remove this one 
 	REMOVE_FROM_LIST(trig, trigger_list, [](auto list) -> auto& { return list->next_in_world; });

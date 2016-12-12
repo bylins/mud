@@ -98,29 +98,61 @@ template <> const std::string& NAME_BY_ITEM<CLogInfo::EBuffered>(const CLogInfo:
 template <> CLogInfo::EMode ITEM_BY_NAME<CLogInfo::EMode>(const std::string& name);
 template <> const std::string& NAME_BY_ITEM<CLogInfo::EMode>(const CLogInfo::EMode mode);
 
-class runtime_config
+class RuntimeConfiguration
 {
+public:
+	using logs_t = std::array<CLogInfo, 1 + LAST_LOG>;
+
+	RuntimeConfiguration();
+
+	void load(const char* filename = CONFIGURATION_FILE_NAME) { load_from_file(filename); }
+	bool open_log(const EOutputStream stream);
+	const CLogInfo& logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
+	void handle(const EOutputStream stream, FILE * handle);
+	const std::string& log_stderr() { return m_log_stderr; }
+	void setup_logs(void);
+	const auto syslog_converter() const { return m_syslog_converter; }
+
+	void enable_logging() { m_logging_enabled = true; }
+	void disable_logging() { m_logging_enabled = false; }
+	bool logging_enabled() const { return m_logging_enabled; }
+
+	auto msdp_disabled() const { return m_msdp_disabled; }
+	auto msdp_debug() const { return m_msdp_debug; }
+
+	const auto& changelog_file_name() const { return m_changelog_file_name; }
+	const auto& changelog_format() const { return m_changelog_format; }
+
+	const auto& external_reboot_trigger_file_name() const { return m_external_reboot_trigger_file_name; }
+
 private:
 	static const char* CONFIGURATION_FILE_NAME;
 
-	using logs_t = std::array<CLogInfo, 1 + LAST_LOG>;
+	using converter_t = std::function<void(char*, int)>;
 
-	runtime_config();
-	runtime_config(const runtime_config&);
-	runtime_config& operator=(const runtime_config&);
+	RuntimeConfiguration(const RuntimeConfiguration&);
+	RuntimeConfiguration& operator=(const RuntimeConfiguration&);
 
-	static void load_from_file(const char* filename);
-	static void load_stream_config(CLogInfo& log, const pugi::xml_node* node);
+	void load_from_file(const char* filename);
+	void load_stream_config(CLogInfo& log, const pugi::xml_node* node);
+	void setup_converters();
+	void load_logging_configuration(const pugi::xml_node* root);
+	void load_features_configuration(const pugi::xml_node* root);
+	void load_msdp_configuration(const pugi::xml_node* msdp);
+	void load_boards_configuration(const pugi::xml_node* root);
+	void load_external_triggers(const pugi::xml_node* root);
 
-	static logs_t m_logs;
-	static std::string m_log_stderr;
-
-public:
-	static void load(const char* filename = CONFIGURATION_FILE_NAME) { load_from_file(filename); }
-	static bool open_log(const EOutputStream stream);
-	static const CLogInfo& logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
-	static void handle(const EOutputStream stream, FILE * handle);
-	static const std::string& log_stderr() { return m_log_stderr; }
+	logs_t m_logs;
+	std::string m_log_stderr;
+	converter_t m_syslog_converter;
+	bool m_logging_enabled;
+	bool m_msdp_disabled;
+	bool m_msdp_debug;
+	std::string m_changelog_file_name;
+	std::string m_changelog_format;
+	std::string m_external_reboot_trigger_file_name;
 };
+
+extern RuntimeConfiguration runtime_config;
 
 #endif // __CONFIG_HPP__

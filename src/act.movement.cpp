@@ -283,9 +283,15 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 			percent = number(1, (can_use_feat(ch, STEALTHY_FEAT) ? 102 : 112) + (GET_REAL_INT(vict) * (vict->get_role(MOB_ROLE_BOSS) ? 3 : 1)) + (GET_LEVEL(vict) > 30 ? GET_LEVEL(vict) : 0));
 			prob = calculate_skill(ch, SKILL_SNEAK, vict);
 
+			int catch_level = (GET_LEVEL(vict) - GET_LEVEL(ch));
+			if (catch_level > 5)
+			{
 			//5% шанс фэйла при prob==200 всегда, при prob = 100 - 10%, если босс, шанс множим на 5
 			absolute_fail = ((200 - prob) / 20 + 5)*(vict->get_role(MOB_ROLE_BOSS) ? 5 : 1 );
 			try_fail = number(1, 100) < absolute_fail;
+			}
+			else 
+				try_fail = false;
 
 
 			if ((percent > prob) || try_fail)
@@ -382,12 +388,14 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	}
 
 	// charmed
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->master && ch->in_room == ch->master->in_room)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& ch->has_master()
+		&& ch->in_room == ch->get_master()->in_room)
 	{
 		if (show_msg)
 		{
 			send_to_char("Вы не можете покинуть свой идеал.\r\n", ch);
-			act("$N попытал$U покинуть вас.", FALSE, ch->master, 0, ch, TO_CHAR);
+			act("$N попытал$U покинуть вас.", FALSE, ch->get_master(), 0, ch, TO_CHAR);
 		}
 		return (FALSE);
 	}
@@ -396,16 +404,20 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	if (IS_NPC(ch))
 	{
 		if (GET_DEST(ch) != NOWHERE)
+		{
 			return (TRUE);
+		}
 		//  if this room or the one we're going to needs a boat, check for one */
-		if (!MOB_FLAGGED(ch, MOB_SWIMMING) &&
-				!MOB_FLAGGED(ch, MOB_FLYING) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) &&
-				(real_sector(ch->in_room) == SECT_WATER_NOSWIM ||
-				 real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM))
+		if (!MOB_FLAGGED(ch, MOB_SWIMMING)
+			&& !MOB_FLAGGED(ch, MOB_FLYING)
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)
+			&& (real_sector(ch->in_room) == SECT_WATER_NOSWIM
+				|| real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM))
 		{
 			if (!has_boat(ch))
+			{
 				return (FALSE);
+			}
 		}
 
 		// Добавляем проверку на то что моб может вскрыть дверь
@@ -425,7 +437,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOMOB) &&
 				!IS_HORSE(ch) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
+				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !(MOB_FLAGGED(ch, MOB_ANGEL)||MOB_FLAGGED(ch, MOB_GHOST)) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
 			return (FALSE);
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH) && !IS_HORSE(ch))
@@ -444,6 +456,17 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	}
 	else
 	{
+		//Вход в замок
+		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM))
+		{
+			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM))
+			{
+				if (show_msg)
+					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
+				return (FALSE);
+			}
+		}
+
 		if (real_sector(ch->in_room) == SECT_WATER_NOSWIM ||
 				real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM)
 		{
@@ -505,17 +528,32 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 
 		if (GET_MOVE(ch) < need_movement)
 		{
-			if (need_specials_check && ch->master)
+			if (need_specials_check
+				&& ch->has_master())
 			{
 				if (show_msg)
+				{
 					send_to_char("Вы слишком устали, чтобы следовать туда.\r\n", ch);
+				}
 			}
 			else
 			{
 				if (show_msg)
+				{
 					send_to_char("Вы слишком устали.\r\n", ch);
+				}
 			}
 			return (FALSE);
+		}
+		//Вход в замок
+		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM))
+		{
+			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM))
+			{
+				if (show_msg)
+					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
+				return (FALSE);
+			}
 		}
 
 		//чтобы конь не лез в комнату с флагом !лошадь
@@ -709,10 +747,10 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		&& (IN_ROOM(get_horse(ch)) == was_in
 			|| IN_ROOM(get_horse(ch)) == go_to);
 	is_horse = IS_HORSE(ch)
-		&& (ch->master)
-		&& !AFF_FLAGGED(ch->master, EAffectFlag::AFF_INVISIBLE)
-		&& (IN_ROOM(ch->master) == was_in
-			|| IN_ROOM(ch->master) == go_to);
+		&& ch->has_master()
+		&& !AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_INVISIBLE)
+		&& (IN_ROOM(ch->get_master()) == was_in
+			|| IN_ROOM(ch->get_master()) == go_to);
 
 	if (!invis && !is_horse)
 	{
@@ -794,23 +832,22 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		char_from_room(horse);
 		char_to_room(horse, go_to);
 	}
+
 	if (PRF_FLAGGED(ch, PRF_BLIND))
-	{   EXIT_DATA *rdata = NULL;
-	    for (int i = 0; i < NUM_OF_DIRS; i++)
-	    {	
-		if (CAN_GO(ch, i) || (EXIT(ch, i) && EXIT(ch, i)->to_room != NOWHERE))
+	{
+		for (int i = 0; i < NUM_OF_DIRS; i++)
 		{
-			rdata = EXIT(ch, i);
-			if (ROOM_FLAGGED(rdata->to_room, ROOM_DEATH))
-				send_to_char("\007", ch);
-/*			if ((real_sector(rdata->to_room) == SECT_WATER_NOSWIM) 
-			    || (real_sector(rdata->to_room) == SECT_UNDERWATER)
-			    || (real_sector(rdata->to_room) == SECT_FLYING))
-				send_to_char("\007\007", ch);
-*/
-		}
+			if (CAN_GO(ch, i) || (EXIT(ch, i) && EXIT(ch, i)->to_room != NOWHERE))
+			{
+				const auto& rdata = EXIT(ch, i);
+				if (ROOM_FLAGGED(rdata->to_room, ROOM_DEATH))
+				{
+					send_to_char("\007", ch);
+				}
+			}
 	    }
 	}
+
 	if (!invis && !is_horse)
 	{
 		if (IsFlee || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN)))
@@ -1037,7 +1074,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 			if (!(dir = do_simple_move(ch, dir, need_specials_check, master)))
 				return (FALSE);
 			dir--;
-			for (k = ch->followers; k && k->follower->master; k = next)
+			for (k = ch->followers; k && k->follower->get_master(); k = next)
 			{
 				next = k->next;
 				if (k->follower->in_room == was_in
@@ -1053,17 +1090,18 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 				{
 					if (GET_POS(k->follower) < POS_STANDING)
 					{
-						if (IS_NPC(k->follower) &&
-								IS_NPC(k->follower->master) &&
-								GET_POS(k->follower) > POS_SLEEPING
-								&& !GET_WAIT(k->follower)
-							)
+						if (IS_NPC(k->follower)
+							&& IS_NPC(k->follower->get_master())
+							&& GET_POS(k->follower) > POS_SLEEPING
+							&& !GET_WAIT(k->follower))
 						{
 							act("$n поднял$u.", FALSE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 							GET_POS(k->follower) = POS_STANDING;
 						}
 						else
+						{
 							continue;
+						}
 					}
 //                   act("Вы поплелись следом за $N4.",FALSE,k->follower,0,ch,TO_CHAR);
 					perform_move(k->follower, dir, 1, FALSE, ch);
@@ -1127,7 +1165,7 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		const int chance = number(1, skill_info[SKILL_SNEAK].max_percent);
 		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffectFlag::AFF_SNEAK) : 0;
 		af.battleflag = 0;
-		affect_join(ch, &af, FALSE, FALSE, FALSE, FALSE);
+		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 	}
 	perform_move(ch, dir, 0, TRUE, 0);
 	if (!sneaking || affected_by_spell(ch, SPELL_GLITTERDUST))
@@ -1317,8 +1355,7 @@ extern std::vector<_case> cases;;
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 {
 	int other_room = 0;
-	int r_num, chance, vnum;
-	EXIT_DATA *back = 0;
+	int r_num, vnum;
 	CHAR_DATA * to;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	char local_buf[MAX_STRING_LENGTH]; // глобальный buf в тригах переписывается
@@ -1326,12 +1363,23 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 //  if (IS_NPC(ch))
 //     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(ch->in_room));
+
+	ROOM_DATA::exit_data_ptr back;
 	if (!obj && ((other_room = EXIT(ch, door)->to_room) != NOWHERE))
-		if ((back = world[other_room]->dir_option[rev_dir[door]]) != NULL)
+	{
+		back = world[other_room]->dir_option[rev_dir[door]];
+		if (back)
+		{
 			if ((back->to_room != ch->in_room) ||
-					((EXITDATA(ch->in_room, door)->exit_info ^
-					  EXITDATA(other_room, rev_dir[door])->exit_info) & (EX_ISDOOR | EX_CLOSED | EX_LOCKED)))
-				back = 0;
+				((EXITDATA(ch->in_room, door)->exit_info
+					^ EXITDATA(other_room, rev_dir[door])->exit_info)
+					& (EX_ISDOOR | EX_CLOSED | EX_LOCKED)))
+			{
+				back.reset();
+			}
+		}
+	}
+
 	switch (scmd)
 	{
 	case SCMD_OPEN:
@@ -1386,46 +1434,44 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		{
 			send_to_char("*Щелк*\r\n", ch);
 			if (obj)
-			{				
-				for(unsigned long i = 0; i < cases.size(); i++)
+			{
+				for (unsigned long i = 0; i < cases.size(); i++)
 				{
 					if (GET_OBJ_VNUM(obj) == cases[i].vnum)
 					{
 						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
-						chance = cases[i].chance;						
-						for (unsigned long  int  k = 0; k < cases[i].vnum_objs.size(); k++)
+						// chance = cases[i].chance;		
+						// chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
+						const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
+						const int random_number = number(0, maximal_chance);
+						vnum = cases[i].vnum_objs[random_number];
+						if ((r_num = real_object(vnum)) < 0)
 						{
-							if ((number(0, 100) < chance) || (k == cases[i].vnum_objs.size() - 1))
+							send_to_char("Ошибка с номером 1, пожалуйста, напишите об этом в воззвать.\r\n", ch);
+							return;
+						}
+						// сначала удалим ключ из инвентаря
+						int vnum_key = GET_OBJ_VAL(obj, 2);
+						// первый предмет в инвентаре
+						OBJ_DATA *obj_inv = ch->carrying;
+						OBJ_DATA *i;
+						for (i = obj_inv; i; i = i->get_next_content())
+						{
+							if (GET_OBJ_VNUM(i) == vnum_key)
 							{
-								vnum = cases[i].vnum_objs[k];
-								if ((r_num = real_object(vnum)) < 0)
-								{
-									send_to_char("Ошибка с номером 1, пожалуйста, напишите об этом в воззвать.\r\n", ch);
-								}
-								// сначала удалим ключ из инвентаря
-								int vnum_key = GET_OBJ_VAL(obj, 2);
-								// первый предмет в инвентаре
-								OBJ_DATA *obj_inv = ch->carrying;
-								OBJ_DATA *i;
-								for (i = obj_inv; i; i = i->get_next_content())
-								{
-									if (GET_OBJ_VNUM(i) == vnum_key)
-									{
-										extract_obj(i);
-										break;
-									}
-								}								
-								extract_obj(obj);
-								obj = read_object(r_num, REAL);
-								obj->set_crafter_uid(GET_UNIQUE(ch));
-								obj_to_char(obj, ch);
-								act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);
-								load_otrigger(obj);
-								obj_decay(obj);
-								olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
-								return;
+								extract_obj(i);
+								break;
 							}
 						}
+						extract_obj(obj);
+						obj = read_object(r_num, REAL);
+						obj->set_crafter_uid(GET_UNIQUE(ch));
+						obj_to_char(obj, ch);
+						act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);
+						load_otrigger(obj);
+						obj_decay(obj);
+						olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
+						return;
 					}
 				}
 			}
@@ -1717,7 +1763,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					}
 					if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
 						&& !GET_MOB_HOLD(k->follower)
-						&& MOB_FLAGGED(k->follower, MOB_ANGEL)
+						&& (MOB_FLAGGED(k->follower, MOB_ANGEL)||MOB_FLAGGED(k->follower, MOB_GHOST))
 						&& !k->follower->get_fighting()
 						&& IN_ROOM(k->follower) == from_room
 						&& AWAKE(k->follower))
@@ -1958,7 +2004,7 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
-	else if (horse->master != ch)
+	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (GET_POS(horse) < POS_FIGHTING)
 		act("$N не сможет вас нести в таком состоянии.", FALSE, ch, 0, horse, TO_CHAR);
@@ -2034,7 +2080,7 @@ void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
-	else if (horse->master != ch)
+	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (!AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 		act("А $N и не привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
@@ -2075,7 +2121,7 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
 		send_to_char("Это не скакун.\r\n", ch);
-	else if (horse->master != ch)
+	else if (horse->get_master() != ch)
 		send_to_char("Это не ваш скакун.\r\n", ch);
 	else if (AFF_FLAGGED(horse, EAffectFlag::AFF_TETHERED))
 		act("А $N уже и так привязан$A.", FALSE, ch, 0, horse, TO_CHAR);
@@ -2121,7 +2167,10 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	// Исправил ошибку не дававшую воровать коняжек. -- Четырь (13.10.10)
-	else if (!IS_GOD(ch) && !MOB_FLAGGED(horse, MOB_MOUNTING) && !((horse->master) && AFF_FLAGGED(horse, EAffectFlag::AFF_HORSE)))
+	else if (!IS_GOD(ch)
+		&& !MOB_FLAGGED(horse, MOB_MOUNTING)
+		&& !(horse->has_master()
+			&& AFF_FLAGGED(horse, EAffectFlag::AFF_HORSE)))
 	{
 		act("Вы не сможете оседлать $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		return;
@@ -2316,10 +2365,14 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!str_cmp(buf, "я") || !str_cmp(buf, "self") || !str_cmp(buf, "me"))
 		{
-			if (!ch->master)
+			if (!ch->has_master())
+			{
 				send_to_char("Но вы ведь ни за кем не следуете...\r\n", ch);
+			}
 			else
+			{
 				stop_follower(ch, SF_EMPTY);
+			}
 			return;
 		}
 		if (!(leader = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
@@ -2334,45 +2387,48 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (ch->master == leader)
+	if (ch->get_master() == leader)
 	{
 		act("Вы уже следуете за $N4.", FALSE, ch, 0, leader, TO_CHAR);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->master))
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+		&& ch->has_master())
 	{
-		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->master, TO_CHAR);
+		act("Но вы можете следовать только за $N4!", FALSE, ch, 0, ch->get_master(), TO_CHAR);
 	}
 	else  		// Not Charmed follow person
 	{
 		if (leader == ch)
 		{
-			if (!ch->master)
+			if (!ch->has_master())
 			{
 				send_to_char("Вы уже следуете за собой.\r\n", ch);
 				return;
 			}
 			stop_follower(ch, SF_EMPTY);
 		}
-		else  	//log("[Follow] Check circle...");
+		else
 		{
 			if (circle_follow(ch, leader))
 			{
 				send_to_char("Так у вас целый хоровод получится.\r\n", ch);
 				return;
 			}
-			//log("[Follow] Stop last follow...");
-			if (ch->master)
+
+			if (ch->has_master())
+			{
 				stop_follower(ch, SF_EMPTY);
+			}
 			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			//also removing AFF_GROUP flag from all followers
 			for (f = ch->followers; f; f = f->next)
 			{
 				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
 			}
-			//log("[Follow] Start new follow...");
-			add_follower(ch, leader);
-			//log("[Follow] Stop function...");
+
+			leader->add_follower(ch);
 		}
 	}
 }

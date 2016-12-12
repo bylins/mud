@@ -110,17 +110,20 @@ extern const char *attach_name[];
 #define MAX_SCRIPT_DEPTH        512
 struct wait_event_data
 {
-	trig_data *trigger;
+	TRIG_DATA *trigger;
 	void *go;
 	int type;
 };
 
 // one line of the trigger //
-struct cmdlist_element
+class cmdlist_element
 {
-	char *cmd;		// one line of a trigger //
-	struct cmdlist_element *original;
-	struct cmdlist_element *next;
+public:
+	using shared_ptr = std::shared_ptr<cmdlist_element>;
+
+	std::string cmd;		// one line of a trigger //
+	shared_ptr original;
+	shared_ptr next;
 };
 
 struct trig_var_data
@@ -133,18 +136,42 @@ struct trig_var_data
 };
 
 // structure for triggers //
-struct trig_data
+class TRIG_DATA
 {
-	
-	sh_int nr;		// trigger's rnum                  //
+	void reset();
+
+public:
+	static const char* DEFAULT_TRIGGER_NAME;
+
+	TRIG_DATA();
+	TRIG_DATA(const TRIG_DATA& from);
+	TRIG_DATA& operator=(const TRIG_DATA& right);
+	TRIG_DATA(const sh_int rnum, const char* name, const long trigger_type);
+	TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type, const long trigger_type);
+
+	auto get_rnum() const { return nr; }
+	void set_rnum(const sh_int _) { nr = _; }
+	void set_attach_type(const byte _) { attach_type = _; }
+	auto get_attach_type() const { return attach_type; }
+	auto get_data_type() const { return data_type; }
+	const auto& get_name() const { return name; }
+	void set_name(const std::string& _) { name = _; }
+	auto get_trigger_type() const { return trigger_type; }
+	void set_trigger_type(const long _) { trigger_type = _; }
+
+private:
+	sh_int nr;			// trigger's rnum                  //
 	byte attach_type;	// mob/obj/wld intentions          //
 	byte data_type;		// type of game_data for trig      //
-	char *name;		// name of trigger                 //
+	std::string name;	// name of trigger
 	long trigger_type;	// type of trigger (for bitvector) //
-	struct cmdlist_element *cmdlist;	// top of command list             //
-	struct cmdlist_element *curr_state;	// ptr to current line of trigger  //
+
+public:
+	using cmdlist_ptr = std::shared_ptr<cmdlist_element::shared_ptr>;
+	cmdlist_ptr cmdlist;	// top of command list             //
+	cmdlist_element::shared_ptr curr_state;	// ptr to current line of trigger  //
 	int narg;		// numerical argument              //
-	char *arglist;		// argument list                   //
+	std::string arglist;		// argument list                   //
 	int depth;		// depth into nest ifs/whiles/etc  //
 	int loops;		// loop iteration counter          //
 	struct event_info *wait_event;	// event to pause the trigger      //
@@ -158,7 +185,7 @@ struct trig_data
 struct SCRIPT_DATA
 {
 	// привет костыли
-	SCRIPT_DATA(): types(0), trig_list(new TRIG_DATA()), global_vars(nullptr), purged(0), context(0), next(nullptr) {}
+	SCRIPT_DATA();
 	~SCRIPT_DATA();
 
 	long types;		// bitvector of trigger types //
@@ -230,10 +257,8 @@ void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);
 
 void script_log(const char *msg, const int type = 0);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);// --//--
-void dg_read_trigger(FILE * fp, void *i, int type);
 void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);
-void parse_trigger(FILE * trig_f, int nr);
 int real_trigger(int vnum);
 void extract_script(struct SCRIPT_DATA *sc);
 void extract_script_mem(struct script_memory *sc);
@@ -258,11 +283,11 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 #define UID_OBJ    '\x1c'
 #define UID_ROOM   '\x1d'
 
-#define GET_TRIG_NAME(t)          ((t)->name)
-#define GET_TRIG_RNUM(t)          ((t)->nr)
-#define GET_TRIG_VNUM(t)	  (trig_index[(t)->nr]->vnum)
-#define GET_TRIG_TYPE(t)          ((t)->trigger_type)
-#define GET_TRIG_DATA_TYPE(t)	  ((t)->data_type)
+#define GET_TRIG_NAME(t)          ((t)->get_name().c_str())
+#define GET_TRIG_RNUM(t)          ((t)->get_rnum())
+#define GET_TRIG_VNUM(t)	  (trig_index[(t)->get_rnum()]->vnum)
+#define GET_TRIG_TYPE(t)          ((t)->get_trigger_type())
+#define GET_TRIG_DATA_TYPE(t)	  ((t)->get_data_type())
 #define GET_TRIG_NARG(t)          ((t)->narg)
 #define GET_TRIG_ARG(t)           ((t)->arglist)
 #define GET_TRIG_VARS(t)	  ((t)->var_list)

@@ -25,7 +25,6 @@
 #include "im.h"
 #include "dg_scripts.h"
 #include "features.hpp"
-#include "boards.h"
 #include "privilege.hpp"
 #include "char.hpp"
 #include "room.hpp"
@@ -41,12 +40,14 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "obj_sets.hpp"
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
 #endif
 
 #include <boost/bind.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 #include <vector>
 #include <string>
@@ -98,44 +99,42 @@ char AltToLat[] =
 
 const char *ACTNULL = "<NULL>";
 
-
 // return char with UID n
 CHAR_DATA *find_char(long n)
 {
-	CHAR_DATA *ch;
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (CHAR_DATA* ch = character_list; ch; ch = ch->get_next())
 	{
 		if (GET_ID(ch) == n)
 		{
-			return (ch);
+			return ch;
 		}
 	}
-	return NULL;
+
+	return nullptr;
 }
+
 bool check_spell_on_player(CHAR_DATA *ch, int spell_num)
 {
-	for (auto af = ch->affected; af; af = af->next)
+	for (const auto af : ch->affected)
 	{
 		if (af->type == spell_num)
 		{
 			return true;
 		}
 	}
+
 	return false;
 }
-
 
 int MIN(int a, int b)
 {
 	return (a < b ? a : b);
 }
 
-
 int MAX(int a, int b)
 {
 	return (a > b ? a : b);
 }
-
 
 char * CAP(char *txt)
 {
@@ -143,7 +142,7 @@ char * CAP(char *txt)
 	return (txt);
 }
 
-// Create and append to dinamyc length string - Alez
+// Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src)
 {
 	if (dst == NULL)
@@ -413,6 +412,11 @@ void write_test_time(FILE *file)
  */
 void vlog(const char *format, va_list args)
 {
+	if (!runtime_config.logging_enabled())
+	{
+		return;
+	}
+
 	if (logfile == NULL)
 	{
 		puts("SYSERR: Using log() before stream was initialized!");
@@ -430,7 +434,7 @@ void vlog(const char *format, va_list args)
 	time_s[strlen(time_s) - 1] = '\0';
 	fprintf(logfile, "%-15.15s :: ", time_s + 4);
 
-	if (!runtime_config::log_stderr().empty())
+	if (!runtime_config.log_stderr().empty())
 	{
 		fprintf(stderr, "%-15.15s :: ", time_s + 4);
 		const size_t BUFFER_SIZE = 4096;
@@ -448,6 +452,7 @@ void vlog(const char *format, va_list args)
 			p[BUFFER_SIZE - 1] = '\0';
 		}
 
+		const auto syslog_converter = runtime_config.syslog_converter();
 		if (syslog_converter)
 		{
 			syslog_converter(buffer, static_cast<int>(length));
@@ -459,7 +464,7 @@ void vlog(const char *format, va_list args)
 	vfprintf(logfile, format, args);
 	fprintf(logfile, "\n");
 
-	if (!runtime_config::log_stderr().empty())
+	if (!runtime_config.log_stderr().empty())
 	{
 		fprintf(stderr, "\n");
 	}
@@ -479,7 +484,7 @@ void vlog(const EOutputStream steam, const char* format, va_list rargs)
 	va_copy(args, rargs);
 
 	const auto prev = logfile;
-	logfile = runtime_config::logs(steam).handle();
+	logfile = runtime_config.logs(steam).handle();
 	vlog(format, args);
 	logfile = prev;
 
@@ -700,21 +705,27 @@ void mudlog(const char *str, int type, int level, EOutputStream channel, int fil
 	DESCRIPTOR_DATA *i;
 
 	if (str == NULL)
+	{
 		return;		// eh, oh well.
+	}
+
 	if (channel < 0 || channel > LAST_LOG)
 	{
 		return;
 	}
+
 	if (file)
 	{
-		logfile = runtime_config::logs(channel).handle();
+		logfile = runtime_config.logs(channel).handle();
 		log("%s", str);
-		logfile = runtime_config::logs(SYSLOG).handle();
+		logfile = runtime_config.logs(SYSLOG).handle();
 	}
+
 	if (level < 0)
 	{
 		return;
 	}
+
 	char time_buf[20];
 	time_t ct = time(0);
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
@@ -816,31 +827,31 @@ TIME_INFO_DATA *age(CHAR_DATA * ch)
 	return (&player_age);
 }
 
-
 // Check if making CH follow VICTIM will create an illegal //
 // Follow "Loop/circle"                                    //
 bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	CHAR_DATA *k;
-
-	for (k = victim; k; k = k->master)
+	for (auto k = victim; k; k = k->get_master())
 	{
-		if (k->master == k)
+		if (k->get_master() == k)
 		{
-			k->master = NULL;
-			return (FALSE);
+			k->set_master(nullptr);
+			return false;
 		}
+
 		if (k == ch)
-			return (TRUE);
+		{
+			return true;
+		}
 	}
 
-	return (FALSE);
+	return false;
 }
 
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
 {
 	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
-	add_follower(horse, ch);
+	ch->add_follower(horse);
 	MOB_FLAGS(horse).unset(MOB_WIMPY);
 	MOB_FLAGS(horse).unset(MOB_SENTINEL);
 	MOB_FLAGS(horse).unset(MOB_HELPER);
@@ -894,14 +905,15 @@ CHAR_DATA *get_horse(CHAR_DATA * ch)
 
 void horse_drop(CHAR_DATA * ch)
 {
-	if (ch->master)
+	if (ch->has_master())
 	{
-		act("$N сбросил$G вас со своей спины.", FALSE, ch->master, 0, ch, TO_CHAR);
-		AFF_FLAGS(ch->master).unset(EAffectFlag::AFF_HORSE);
-		WAIT_STATE(ch->master, 3 * PULSE_VIOLENCE);
-		if (GET_POS(ch->master) > POS_SITTING)
+		act("$N сбросил$G вас со своей спины.", FALSE, ch->get_master(), 0, ch, TO_CHAR);
+		AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_HORSE);
+		WAIT_STATE(ch->get_master(), 3 * PULSE_VIOLENCE);
+
+		if (GET_POS(ch->get_master()) > POS_SITTING)
 		{
-			GET_POS(ch->master) = POS_SITTING;
+			GET_POS(ch->get_master()) = POS_SITTING;
 		}
 	}
 }
@@ -914,7 +926,6 @@ void check_horse(CHAR_DATA * ch)
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 	}
 }
-
 
 // Called when stop following persons, or stopping charm //
 // This will NOT do if a character quits/dies!!          //
@@ -930,53 +941,52 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	//log("[Stop follower] Start function(%s->%s)",ch ? GET_NAME(ch) : "none",
 	//      ch->master ? GET_NAME(ch->master) : "none");
 
-	if (!ch->master)
+	if (!ch->has_master())
 	{
 		log("SYSERR: stop_follower(%s) without master", GET_NAME(ch));
-		// core_dump();
 		return (FALSE);
 	}
 
 	// для смены лидера без лишнего спама
 	if (!IS_SET(mode, SF_SILENCE))
 	{
-		act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->master, TO_CHAR);
-		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->master, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->get_master(), TO_CHAR);
+		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	//log("[Stop follower] Stop horse");
-	if (get_horse(ch->master) == ch
-		&& on_horse(ch->master))
+	if (get_horse(ch->get_master()) == ch
+		&& on_horse(ch->get_master()))
 	{
 		horse_drop(ch);
 	}
 	else
 	{
-		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->master, TO_VICT);
+		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->get_master(), TO_VICT);
 	}
 
 	//log("[Stop follower] Remove from followers list");
-	if (!ch->master->followers)
+	if (!ch->get_master()->followers)
 	{
-		log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->master));
+		log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->get_master()));
 	}
-	else if (ch->master->followers->follower == ch)  	// Head of follower-list?
+	else if (ch->get_master()->followers->follower == ch)  	// Head of follower-list?
 	{
-		k = ch->master->followers;
-		ch->master->followers = k->next;
-		if (!ch->master->followers
-			&& !ch->master->master)
+		k = ch->get_master()->followers;
+		ch->get_master()->followers = k->next;
+		if (!ch->get_master()->followers
+			&& !ch->get_master()->has_master())
 		{
-			AFF_FLAGS(ch->master).unset(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
 		}
 		free(k);
 	}
 	else  		// locate follower who is not head of list
 	{
-		for (k = ch->master->followers; k->next && k->next->follower != ch; k = k->next);
+		for (k = ch->get_master()->followers; k->next && k->next->follower != ch; k = k->next);
 		if (!k->next)
 		{
-			log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->master));
+			log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->get_master()));
 		}
 		else
 		{
@@ -985,12 +995,11 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			free(j);
 		}
 	}
-	master = ch->master;
-	ch->master = NULL;
+	master = ch->get_master();
+	ch->set_master(nullptr);
 
 	AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 
-	//log("[Stop follower] Free charmee");
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
 		|| IS_SET(mode, SF_CHARMLOST))
@@ -1069,7 +1078,7 @@ bool die_follower(CHAR_DATA * ch)
 {
 	struct follow_type *j, *k = ch->followers;
 
-	if (ch->master && stop_follower(ch, SF_FOLLOWERDIE))
+	if (ch->has_master() && stop_follower(ch, SF_FOLLOWERDIE))
 	{
 		//  чармиса спуржили в stop_follower
 		return true;
@@ -1086,44 +1095,6 @@ bool die_follower(CHAR_DATA * ch)
 		stop_follower(k->follower, SF_MASTERDIE);
 	}
 	return false;
-}
-
-
-
-/** Do NOT call this before having checked if a circle of followers
-* will arise. CH will follow leader
-* \param silence - для смены лидера группы без лишнего спама (по дефолту 0)
-*/
-void add_follower(CHAR_DATA * ch, CHAR_DATA * leader, bool silence)
-{
-	struct follow_type *k;
-
-	if (ch->master)
-	{
-		log("SYSERR: add_follower(%s->%s) when master existing(%s)...",
-			GET_NAME(ch), leader ? GET_NAME(leader) : "", GET_NAME(ch->master));
-		// core_dump();
-		return;
-	}
-
-	if (ch == leader)
-		return;
-
-	ch->master = leader;
-
-	CREATE(k, 1);
-
-	k->follower = ch;
-	k->next = leader->followers;
-	leader->followers = k;
-
-	if (!IS_HORSE(ch) && !silence)
-	{
-		act("Вы начали следовать за $N4.", FALSE, ch, 0, leader, TO_CHAR);
-		//if (CAN_SEE(leader, ch))
-		act("$n начал$g следовать за вами.", TRUE, ch, 0, leader, TO_VICT);
-		act("$n начал$g следовать за $N4.", TRUE, ch, 0, leader, TO_NOTVICT | TO_ARENA_LISTEN);
-	}
 }
 
 /*
@@ -1296,7 +1267,7 @@ void core_dump_real(const char *who, int line)
 	fflush(stderr);
 	for (int i = 0; i < 1 + LAST_LOG; ++i)
 	{
-		fflush(runtime_config::logs(static_cast<EOutputStream>(i)).handle());
+		fflush(runtime_config.logs(static_cast<EOutputStream>(i)).handle());
 	}
 
 	/*
@@ -1358,7 +1329,7 @@ void koi_to_alt(char *str, int size)
 // completely rewritten by Anton Gorev 05/08/2016 (kvirund@gmail.com) //
 // substitute appearances of 'pattern' with 'replacement' in string //
 // and return the # of replacements //
-int replace_str(const string_writer_t& writer, char *pattern, char *replacement, int rep_all, int max_size)
+int replace_str(const AbstractStringWriter::shared_ptr& writer, const char *pattern, const char *replacement, int rep_all, int max_size)
 {
 	char *replace_buffer = nullptr;
 	CREATE(replace_buffer, max_size);
@@ -1385,13 +1356,14 @@ int replace_str(const string_writer_t& writer, char *pattern, char *replacement,
 				return -1;	// destination does not have enough space.
 			}
 
-			strncpy(replace_buffer, from, from - pos);
-			replace_buffer += from - pos;
+			strncpy(replace_buffer, from, pos - from);
+			replace_buffer += pos - from;
 
 			strncpy(replace_buffer, replacement, replacement_length);
 			replace_buffer += replacement_length;
+			remains -= replacement_length;
 
-			const size_t processed = from - pos + pattern_length;
+			const size_t processed = pos - from + pattern_length;
 			source_remained -= processed;
 			from += processed;
 
@@ -1410,17 +1382,18 @@ int replace_str(const string_writer_t& writer, char *pattern, char *replacement,
 		return 0;
 	}
 
-	if (count > 0)
+	if (0 < source_remained)
 	{
-		writer->set_string(guard.get());
+		strncpy(replace_buffer, from, std::min(remains, source_remained));
 	}
+	writer->set_string(guard.get());
 
 	return count;
 }
 
 // re-formats message type formatted char * //
 // (for strings edited with d->str) (mostly olc and mail)     //
-void format_text(const string_writer_t& writer, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
+void format_text(const AbstractStringWriter::shared_ptr& writer, int mode, DESCRIPTOR_DATA* /*d*/, size_t maxlen)
 {
 	size_t total_chars = 0;
 	int cap_next = TRUE, cap_next_next = FALSE;
@@ -1644,22 +1617,48 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 		return false;
 
 	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-	if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master)
-		&& (IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL)))
-		ch = ch->master;
-	if (IS_NPC(tch) && tch->master && !IS_NPC(tch->master)
-		&& (IS_HORSE(tch) || AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(tch, MOB_ANGEL)))
-		tch = tch->master;
+	if (IS_NPC(ch)
+		&& ch->has_master()
+		&& !IS_NPC(ch->get_master())
+		&& (IS_HORSE(ch)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(ch, MOB_ANGEL)
+			|| MOB_FLAGGED(ch, MOB_GHOST)))
+	{
+		ch = ch->get_master();
+	}
+
+	if (IS_NPC(tch)
+		&& tch->has_master()
+		&& !IS_NPC(tch->get_master())
+		&& (IS_HORSE(tch)
+			|| AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(tch, MOB_ANGEL)
+			|| MOB_FLAGGED(tch, MOB_GHOST)))
+	{
+		tch = tch->get_master();
+	}
 
 	// NPC's always in same group
-	if ((IS_NPC(ch) && IS_NPC(tch)) || ch == tch)
+	if ((IS_NPC(ch) && IS_NPC(tch))
+		|| ch == tch)
+	{
 		return true;
+	}
 
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) || !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
+		|| !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
+	{
 		return false;
+	}
 
-	if (ch->master == tch || tch->master == ch || (ch->master && ch->master == tch->master))
+	if (ch->get_master() == tch
+		|| tch->get_master() == ch
+		|| (ch->has_master()
+			&& ch->get_master() == tch->get_master()))
+	{
 		return true;
+	}
 
 	return false;
 }
@@ -1670,8 +1669,8 @@ bool is_rent(room_rnum room)
 	// комната с флагом замок, но клан мертвый
 	if (ROOM_FLAGGED(room, ROOM_HOUSE))
 	{
-		ClanListType::const_iterator it = Clan::IsClanRoom(room);
-		if (Clan::ClanList.end() == it)
+		const auto clan = Clan::GetClanByRoom(room);
+		if (!clan)
 		{
 			return false;
 		}
@@ -2014,17 +2013,25 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 
 // имморталов не игнорит никто
 	if (IS_IMMORTAL(whom))
+	{
 		return FALSE;
+	}
 
 // чармисы игнорируемого хозяина тоже должны быть проигнорированы
-	if (IS_NPC(whom) && AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM))
-		return ignores(who, whom->master, flag);
+	if (IS_NPC(whom)
+		&& AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM))
+	{
+		return ignores(who, whom->get_master(), flag);
+	}
 
 	ign_id = GET_IDNUM(whom);
 	for (; ignore; ignore = ignore->next)
 	{
-		if ((ignore->id == ign_id || ignore->id == -1) && IS_SET(ignore->mode, flag))
+		if ((ignore->id == ign_id || ignore->id == -1)
+			&& IS_SET(ignore->mode, flag))
+		{
 			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -2135,23 +2142,23 @@ void skip_dots(char **string)
 
 // Return pointer to first occurrence in string ct in
 // cs, or NULL if not present.  Case insensitive
-char *str_str(char *cs, const char *ct)
+const char *str_str(const char *cs, const char *ct)
 {
-	char *s;
-	const char *t;
-
 	if (!cs || !ct)
+	{
 		return NULL;
+	}
 
 	while (*cs)
 	{
-		t = ct;
+		const char* t = ct;
 
 		while (*cs && (LOWER(*cs) != LOWER(*t)))
+		{
 			cs++;
+		}
 
-		s = cs;
-
+		const char* s = cs;
 		while (*t && *cs && (LOWER(*cs) == LOWER(*t)))
 		{
 			t++;
@@ -2159,9 +2166,11 @@ char *str_str(char *cs, const char *ct)
 		}
 
 		if (!*t)
+		{
 			return s;
-
+		}
 	}
+
 	return NULL;
 }
 
@@ -2225,6 +2234,36 @@ void cut_one_word(std::string &str, std::string &word)
 
 	str.clear();
 	word.clear();
+}
+
+void ReadEndString(std::ifstream &file)
+{
+	char c;
+	while (file.get(c))
+	{
+		if (c == '\n')
+		{
+			return;
+		}
+	}
+}
+
+void StringReplace(std::string & buffer, char s, const std::string& d)
+{
+	for (size_t index = 0; index = buffer.find(s, index), index != std::string::npos;)
+	{
+		buffer.replace(index, 1, d);
+		index += d.length();
+	}
+}
+
+std::string& format_news_message(std::string &text)
+{
+	StringReplace(text, '\n', "\n   ");
+	boost::trim(text);
+	text.insert(0, "   ");
+	text += '\n';
+	return text;
 }
 
 /**
@@ -3509,6 +3548,41 @@ bool ParseFilter::check_affect_weap(OBJ_DATA *obj) const
 	return true;
 }
 
+std::string ParseFilter::show_obj_aff(OBJ_DATA *obj)
+{
+	if (!affect_apply.empty())
+	{
+		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it)
+		{
+			for (int i = 0; i < MAX_OBJ_AFFECT; ++i)
+			{
+				if (obj->get_affected(i).location == *it)
+				{
+					int mod = obj->get_affected(i).modifier;
+					char buf_[MAX_INPUT_LENGTH];
+					sprinttype(obj->get_affected(i).location, apply_types, buf_);
+					for (int j = 0; *apply_negative[j] != '\n'; j++)
+					{
+						if (!str_cmp(buf_, apply_negative[j]))
+						{
+							mod = -mod;
+						}
+					}
+					std::string return_str(buf_);
+					if (mod > 0)
+						return_str = return_str + " +" + std::to_string(mod);
+					else
+						return_str = return_str + " " + std::to_string(mod);
+					return "(" + return_str + ")";
+				}
+
+			}
+		}
+	}
+	return " ";
+}
+
+
 bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 {
 	bool result = true;
@@ -3532,12 +3606,8 @@ bool ParseFilter::check_affect_apply(OBJ_DATA *obj) const
 							break;
 						}
 					}
-
-					if (mod > 0)
-					{
-						result = true;
-						break;
-					}
+					result = true;
+					break;
 				}
 			}
 		}
@@ -3639,23 +3709,6 @@ const char *print_obj_state(int tm_pct)
 	else if (tm_pct <1000) // проблема крафта, на хаймортах таймер больще прототипа
 		return "идеально";
 	else return "нерушимо";
-}
-
-void setup_converters()
-{
-	if (!runtime_config::log_stderr().empty())
-	{
-		// set up converter
-		const auto& encoding = runtime_config::log_stderr();
-		if ("cp1251" == encoding)
-		{
-			syslog_converter = koi_to_win;
-		}
-		else if ("alt" == encoding)
-		{
-			syslog_converter = koi_to_alt;
-		}
-	}
 }
 
 void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = nullptr*/)
@@ -3784,6 +3837,36 @@ bool isname(const char *str, const char *namelist)
 	}
 }
 
+const char* one_word(const char* argument, char *first_arg)
+{
+	char *begin = first_arg;
+
+	skip_spaces(&argument);
+	first_arg = begin;
+
+	if (*argument == '\"')
+	{
+		argument++;
+		while (*argument && *argument != '\"')
+		{
+			*(first_arg++) = a_lcc(*argument);
+			argument++;
+		}
+		argument++;
+	}
+	else
+	{
+		while (*argument && !a_isspace(*argument))
+		{
+			*(first_arg++) = a_lcc(*argument);
+			argument++;
+		}
+	}
+	*first_arg = '\0';
+
+	return argument;
+}
+
 std::string ParseFilter::print() const
 {
 	std::string buffer = "Выборка: ";
@@ -3859,8 +3942,6 @@ std::string ParseFilter::print() const
 
 	return buffer;
 }
-
-converter_t syslog_converter = NULL;
 
 const char a_lcc_table[] = {
 	'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',
