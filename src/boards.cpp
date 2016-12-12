@@ -250,7 +250,7 @@ namespace Boards
 			std::ostringstream body;
 			time_t last_date = date;
 			const auto formatter = FormattersBuilder::single_message(body, ch, date, board.get_type(), last_date);
-			board.format_board(formatter);
+			board.format_board_in_reverse(formatter);
 			set_last_read(ch, board.get_type(), last_date);
 			page_string(ch->desc, body.str());
 			if (last_date == date)

@@ -106,10 +106,12 @@ namespace Boards
 
 		void Load();
 
-		void format_board(Formatter::shared_ptr formatter) const;
+		void format_board(Formatter::shared_ptr formatter) const { format_board_implementation(formatter, messages.begin(), messages.end()); }
+		void format_board_in_reverse(Formatter::shared_ptr formatter) const { format_board_implementation(formatter, messages.rbegin(), messages.rend()); }
 
 	private:
-		void add_message_implementation(Message::shared_ptr msg, const bool to_front);
+		template <typename ForwardIterator>
+		void format_board_implementation(Formatter::shared_ptr formatter, ForwardIterator begin, const ForwardIterator& end) const;
 
 		BoardTypes type_;  // тип доски
 		std::string name_;         // имя доски
@@ -122,6 +124,19 @@ namespace Boards
 		std::string alias_;        // однострочные алиасы для спец.досок
 		bool blind_;               // игроки не видят счетчики сообщений
 	};
+
+	template <typename ForwardIterator>
+	void Boards::Board::format_board_implementation(Formatter::shared_ptr formatter, ForwardIterator pos, const ForwardIterator& end) const
+	{
+		while (pos != end)
+		{
+			if (!formatter->format(*pos))
+			{
+				break;
+			}
+			++pos;
+		}
+	}
 }
 
 #endif // __BOARDS_TYPES_HPP__
