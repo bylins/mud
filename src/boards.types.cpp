@@ -108,17 +108,6 @@ namespace Boards
 		file.close();
 	}
 
-	void Board::format_board(Formatter::shared_ptr formatter) const
-	{
-		for (const auto& message : messages)
-		{
-			if (!formatter->format(message))
-			{
-				break;
-			}
-		}
-	}
-
 	bool Board::is_special() const
 	{
 		if (get_type() == ERROR_BOARD
