@@ -706,7 +706,6 @@ public:
 	room_rnum in_room;	// Location (real room number)
 
 private:
-	bool makes_loop(const CHAR_DATA::ptr_t master) const;
 	void report_loop_error(const CHAR_DATA::ptr_t master) const;
 	void print_leaders_chain(std::ostream& ss) const;
 
@@ -746,6 +745,7 @@ public:
 	CHAR_DATA::ptr_t get_master() const { return m_master; }
 	void set_master(CHAR_DATA::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
+	bool makes_loop(const CHAR_DATA::ptr_t master) const;
 
 	struct spell_mem_queue MemQueue;		// очередь изучаемых заклинаний
 

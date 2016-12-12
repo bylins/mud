@@ -4453,13 +4453,16 @@ void reset_zone(zone_rnum zone)
 					{
 						if (IS_NPC(ch)
 							&& GET_MOB_RNUM(ch) == ZCMD.arg3
-							&& leader != ch && ch->get_master() != leader)
+							&& leader != ch
+							&& !ch->makes_loop(leader))
 						{
 							if (ch->has_master())
 							{
 								stop_follower(ch, SF_EMPTY);
 							}
+
 							leader->add_follower(ch);
+
 							curr_state = 1;
 						}
 					}
