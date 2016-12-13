@@ -2102,26 +2102,12 @@ void CHAR_DATA::restore_mob()
 	GET_CASTER(this) = GET_CASTER(&mob_proto[GET_MOB_RNUM(this)]);
 }
 
-bool CHAR_DATA::makes_loop(CHAR_DATA::ptr_t master) const
-{
-	while (master)
-	{
-		if (master == this)
-		{
-			return true;
-		}
-		master = master->get_master();
-	}
-
-	return false;
-}
-
 void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
 {
 	std::stringstream ss;
 	ss << "Обнаружена ошибка логики: попытка сделать цикл в цепочке последователей.\nТекущая цепочка лидеров: ";
-	print_leaders_chain(ss);
-	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]\n";
+	master->print_leaders_chain(ss);
+	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]";
 	mudlog(ss.str().c_str(), DEF, -1, ERRLOG, true);
 
 	std::stringstream additional_info;
@@ -2136,7 +2122,7 @@ void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
 	{
 		additional_info << "<отсутствует>";
 	}
-	additional_info << "Последователь: name=[" << get_name() << "]"
+	additional_info << "\nПоследователь: name=[" << get_name() << "]"
 		<< "; адрес структуры: " << this << "; текущий лидер: ";
 	if (has_master())
 	{
@@ -2149,7 +2135,7 @@ void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
 	}
 	mudlog(additional_info.str().c_str(), DEF, -1, ERRLOG, true);
 
-	ss << "Текущий стек будет распечатан в ERRLOG.";
+	ss << "\nТекущий стек будет распечатан в ERRLOG.";
 	debug::backtrace(runtime_config.logs(ERRLOG).handle());
 	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, false);
 }
@@ -2178,6 +2164,20 @@ void CHAR_DATA::set_master(CHAR_DATA::ptr_t master)
 		return;
 	}
 	m_master = master;
+}
+
+bool CHAR_DATA::makes_loop(CHAR_DATA::ptr_t master) const
+{
+	while (master)
+	{
+		if (master == this)
+		{
+			return true;
+		}
+		master = master->get_master();
+	}
+
+	return false;
 }
 
 // инкремент и проверка таймера на рестор босса,
