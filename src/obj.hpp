@@ -8,7 +8,6 @@
 #include "obj_enchant.hpp"
 #include "spells.h"
 #include "skills.h"
-#include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -230,8 +229,8 @@ public:
 	bool get_extra_flag(const EExtraFlag packed_flag) const { return m_extra_flags.get(packed_flag); }
 	bool get_extra_flag(const size_t plane, const uint32_t flag) const { return m_extra_flags.get_flag(plane, flag); }
 	bool get_no_flag(const ENoFlag flag) const { return m_no_flags.get(flag); }
-	bool has_wear_flag(const EWearFlag part) const { return IS_SET(m_wear_flags, to_underlying(part)); }
-	bool get_wear_mask(const wear_flags_t part) const { return IS_SET(m_wear_flags, part); }
+	bool has_wear_flag(const EWearFlag part) const;
+	bool get_wear_mask(const wear_flags_t part) const;
 	bool init_values_from_file(const char* str) { return m_values.init_from_file(str); }
 	const auto& get_action_description() const { return m_action_description; }
 	const auto& get_affect_flags() const { return m_waffect_flags; }
@@ -313,7 +312,7 @@ public:
 	void set_sex(const ESex _) { m_sex = _; }
 	void set_value(const ObjVal::EValueKey key, const int value) { return m_values.set(key, value); }
 	void set_values(const ObjVal&  _) { m_values = _; }
-	void set_wear_flag(const EWearFlag flag) { SET_BIT(m_wear_flags, flag); }
+	void set_wear_flag(const EWearFlag flag);
 	void set_wear_flags(const wear_flags_t _) { m_wear_flags = _; }
 	void set_weight(const int _) { m_weight = _; }
 	void set_val(size_t index, int value) { m_vals[index] = value; }
@@ -325,9 +324,9 @@ public:
 	void toggle_anti_flag(const size_t plane, const uint32_t flag) { m_anti_flags.toggle_flag(plane, flag); }
 	void toggle_extra_flag(const size_t plane, const uint32_t flag) { m_extra_flags.toggle_flag(plane, flag); }
 	void toggle_no_flag(const size_t plane, const uint32_t flag) { m_no_flags.toggle_flag(plane, flag); }
-	void toggle_skill(const uint32_t skill) { TOGGLE_BIT(m_skill, skill); }
-	void toggle_val_bit(const size_t index, const uint32_t bit) { TOGGLE_BIT(m_vals[index], bit); }
-	void toggle_wear_flag(const uint32_t flag) { TOGGLE_BIT(m_wear_flags, flag); }
+	void toggle_skill(const uint32_t skill);
+	void toggle_val_bit(const size_t index, const uint32_t bit);
+	void toggle_wear_flag(const uint32_t flag);
 	void unset_extraflag(const EExtraFlag packed_flag) { m_extra_flags.unset(packed_flag); }
 	void set_skill(int skill_num, int percent);
 	int get_skill(int skill_num) const;
@@ -741,8 +740,8 @@ public:
 	const auto& get_script() const { return m_script; }
 	void add_enchant(const obj::enchant& _) { m_enchants.add(_); }
 	void remove_custom_label() { m_custom_label.reset(); }
-	void remove_me_from_contains_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next_content; }); }
-	void remove_me_from_objects_list(OBJ_DATA*& head) { REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next; }); }
+	void remove_me_from_contains_list(OBJ_DATA*& head);
+	void remove_me_from_objects_list(OBJ_DATA*& head);
 	void remove_set_bonus() { m_enchants.remove_set_bonus(this); }
 	void set_carried_by(CHAR_DATA* _) { m_carried_by = _; }
 	void set_contains(OBJ_DATA* _) { m_contains = _; }

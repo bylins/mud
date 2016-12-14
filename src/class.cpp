@@ -41,6 +41,7 @@
 #include "player_races.hpp"
 #include "noob.hpp"
 #include "exchange.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

@@ -15,13 +15,9 @@
 
 // комментарий на русском в надежде починить кодировки bitbucket
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "utils.h"
-#include "interpreter.h"
-#include "db.h"
+#include "logger.hpp"
 #include "char.hpp"
+#include "utils.h"
 
 void write_aliases(CHAR_DATA * ch);
 void read_aliases(CHAR_DATA * ch);

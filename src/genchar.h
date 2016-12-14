@@ -17,6 +17,8 @@
 #ifndef _GENCHAR_H_
 #define _GENCHAR_H_
 
+#include "structs.h"
+
 #define SUM_ALL_STATS 95
 #define SUM_STATS(ch) (ch->get_str() + ch->get_dex() + ch->get_int() +  ch->get_wis() + ch->get_con() +  ch->get_cha())
 
@@ -45,6 +47,8 @@
 #define MAX_CHA(ch) max_stats[(int) GET_CLASS(ch)][G_CHA]
 
 extern const char *genchar_help;
+
+class CHAR_DATA;	// to avoid inclusion of "char.hpp"
 
 void genchar_disp_menu(CHAR_DATA * ch);
 int genchar_parse(CHAR_DATA * ch, char *arg);

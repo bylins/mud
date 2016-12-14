@@ -1764,7 +1764,6 @@ private:
 	std::unordered_set<std::string> m_msdp_requested_report;
 };
 
-
 // other miscellaneous structures **************************************
 
 

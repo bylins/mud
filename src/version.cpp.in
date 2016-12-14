@@ -6,7 +6,7 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
-#include "utils.h"
+#include "logger.hpp"
 
 const char* revision = "${REVISION}";
 

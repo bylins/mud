@@ -13,7 +13,7 @@
 #include "shop_ext.hpp"
 #include "noob.hpp"
 #include "char_obj_utils.inl"
-#include "utils.h"
+#include "logger.hpp"
 #include "conf.h"
 
 #include <boost/shared_ptr.hpp>

@@ -12,6 +12,7 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "help.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

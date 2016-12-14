@@ -2,12 +2,15 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <list>
-#include <sstream>
 #include "spam.hpp"
+
+#include "logger.hpp"
 #include "utils.h"
 #include "char.hpp"
 #include "comm.h"
+
+#include <list>
+#include <sstream>
 
 using namespace SpamSystem;
 

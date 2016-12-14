@@ -30,7 +30,6 @@
 #include "features.hpp"
 #include "db.h"
 #include "structs.h"
-#include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
 

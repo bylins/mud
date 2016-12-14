@@ -5,13 +5,12 @@
 #define PARSE_HPP_INCLUDED
 
 #include "conf.h"
-#include <string>
 #include "pugixml.hpp"
-
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
-#include "utils.h"
+
+#include <string>
 
 namespace TextId
 {
@@ -42,18 +41,8 @@ int child_value_int(const pugi::xml_node &node, const char *text);
 std::string attr_str(const pugi::xml_node &node, const char *text);
 std::string child_value_str(const pugi::xml_node &node, const char *text);
 
-template <class T>
-pugi::xml_node get_child(const T &node, const char *name)
-{
-    pugi::xml_node tmp_node = node.child(name);
-    if (!tmp_node)
-    {
-    	char tmp[100];
-		snprintf(tmp, sizeof(tmp), "...<%s> read fail", name);
-		mudlog(tmp, CMP, LVL_IMMORT, SYSLOG, TRUE);
-    }
-    return tmp_node;
-}
+pugi::xml_node get_child(const pugi::xml_document &node, const char *name);
+pugi::xml_node get_child(const pugi::xml_node &node, const char *name);
 
 } // namespace Parse
 

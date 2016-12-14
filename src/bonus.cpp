@@ -10,6 +10,7 @@
 #include "modify.h"
 #include "char.hpp"
 #include "char_player.hpp"
+#include "utils.h"
 
 #include <boost/lexical_cast.hpp>
 

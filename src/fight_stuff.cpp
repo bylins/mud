@@ -21,7 +21,7 @@
 #include "screen.h"
 #include "magic.h"
 #include "mob_stat.hpp"
-#include "utils.h"
+#include "logger.hpp"
 #include "bonus.h"
 
 #include <algorithm>

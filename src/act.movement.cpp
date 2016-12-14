@@ -12,6 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "logger.hpp"
+#include "utils.h"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -33,7 +35,6 @@
 #include "named_stuff.hpp"
 #include "fight.h"
 #include "structs.h"
-#include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
 

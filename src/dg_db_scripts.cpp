@@ -29,6 +29,7 @@
 #include "room.hpp"
 #include "magic.h"
 #include "boards.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

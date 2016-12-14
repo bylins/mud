@@ -9,12 +9,11 @@
  ************************************************************************/
 
 #include "conf.h"
-#include <array>
-
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
 #include "spells.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "db.h"
 #include "olc.h"
@@ -34,6 +33,7 @@
 #include "sets_drop.hpp"
 #include "obj.hpp"
 
+#include <array>
 #include <vector>
 #include <stack>
 

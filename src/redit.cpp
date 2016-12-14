@@ -21,6 +21,7 @@
 #include "char_player.hpp"
 #include "room.hpp"
 #include "house.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

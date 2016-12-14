@@ -28,7 +28,7 @@
 #include "shop_ext.hpp"
 #include "fight.h"
 #include "fight_hit.hpp"
-#include "utils.h"
+#include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

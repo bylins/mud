@@ -14,12 +14,13 @@
 #define BIRTH_PLACE_MAIN_TAG "birthplaces"
 #define BIRTH_PLACE_ERROR_STR "...birth places reading fail"
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "utils.h"
+
+#include <boost/shared_ptr.hpp>
+
+#include <vector>
 
 class BirthPlace;
 

@@ -68,20 +68,8 @@ int strn_cmp(const char *arg1, const char *arg2, size_t n);
 int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
-void write_time(FILE *file);
-void vlog(const char* format, va_list args) __attribute__((format(printf, 1, 0)));
-void vlog(const EOutputStream steam, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
-void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
-void olc_log(const char *format, ...);
-void shop_log(const char *format, ...);
-void imm_log(const char *format, ...);
-void err_log(const char *format, ...);
-void pers_log(CHAR_DATA *ch, const char *format, ...);
-void temp_log(const char *format, ...);
-void ip_log(const char *ip);
 int touch(const char *path);
-void mudlog(const char *str, int type, int level, EOutputStream channel, int file);
-void mudlog_python(const std::string& str, int type, int level, const EOutputStream channel, int file);
+void pers_log(CHAR_DATA *ch, const char *format, ...);
 int number(int from, int to);
 int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
@@ -192,14 +180,6 @@ void obj_point_update();
 void update_pos(CHAR_DATA * victim);
 
 // various constants ****************************************************
-
-// defines for mudlog() //
-#define OFF 0
-#define CMP 1
-#define BRF 2
-#define NRM 3
-#define LGH 4
-#define DEF 5
 
 // проверяет, висит ли заданный спелл на чаре
 bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
@@ -1621,12 +1601,6 @@ extern char arg[MAX_STRING_LENGTH];
 inline void graceful_exit(int retcode)
 {
 	_exit(retcode);
-}
-
-void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title = nullptr);
-inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, const char* title = nullptr)
-{
-	hexdump(runtime_config.logs(stream).handle(), ptr, buflen, title);
 }
 
 bool isname(const char *str, const char *namelist);

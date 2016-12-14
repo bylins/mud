@@ -38,7 +38,7 @@
 #include "room.hpp"
 #include "birth_places.hpp"
 #include "obj_sets.hpp"
-#include "utils.h"
+#include "logger.hpp"
 #include "magic.h"
 #include "structs.h"
 #include "sysdep.h"

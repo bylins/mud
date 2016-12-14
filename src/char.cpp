@@ -4,6 +4,7 @@
 
 #include "char.hpp"
 
+#include "logger.hpp"
 #include "obj.hpp"
 #include "db.h"
 #include "pk.h"
@@ -132,6 +133,15 @@ void CHAR_DATA::dec_souls()
 int CHAR_DATA::get_souls()
 {
 	return this->souls;
+}
+
+bool CHAR_DATA::in_used_zone() const
+{
+	if (IS_MOB(this))
+	{
+		return 0 != zone_table[world[in_room]->zone].used;
+	}
+	return false;
 }
 
 void CHAR_DATA::reset()
@@ -842,6 +852,123 @@ void CHAR_DATA::clear_fighing_list()
 			fighting_list.erase(it);
 		}
 	}
+}
+
+int GET_INVIS_LEV(const CHAR_DATA* ch)
+{
+	return CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level);
+}
+
+void SET_INVIS_LEV(const CHAR_DATA* ch, const int level)
+{
+	CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level) = level;
+}
+
+bool IS_CHARMICE(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
+}
+
+bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return HERE(obj)
+		&& INVIS_OK(sub, obj)
+		&& (IS_LIGHT((obj)->in_room)
+			|| AFF_FLAGGED((sub), EAffectFlag::AFF_INFRAVISION));
+}
+
+bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return !(GET_INVIS_LEV(ch) > 30)
+		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
+		&& (!IS_DARK(sub->in_room)
+			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
+		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
+			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
+}
+
+bool IS_HORSE(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& ch->has_master()
+		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
+}
+
+bool IS_MORTIFIER(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		&& ch->has_master()
+		&& MOB_FLAGGED(ch, MOB_CORPSE);
+}
+
+bool MAY_ATTACK(const CHAR_DATA* sub)
+{
+	return (!AFF_FLAGGED((sub), EAffectFlag::AFF_CHARM)
+		&& !IS_HORSE((sub))
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_MAGICSTOPFIGHT)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_HOLD)
+		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_SLEEP)
+		&& !MOB_FLAGGED((sub), MOB_NOFIGHT)
+		&& GET_WAIT(sub) <= 0
+		&& !sub->get_fighting()
+		&& GET_POS(sub) >= POS_RESTING);
+}
+
+bool AWAKE(const CHAR_DATA* ch)
+{
+	return GET_POS(ch) > POS_SLEEPING
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP);
+}
+
+bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
+{
+	return !NAME_BAD(ch)
+		&& (NAME_FINE(ch)
+			|| !(GET_LEVEL(ch) == NAME_LEVEL))
+		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+		&& IS_NPC(victim)
+		&& (GET_EXP(victim) > 0)
+		&& (!IS_NPC(victim)
+			|| !IS_NPC(ch)
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		&& !IS_HORSE(victim);
+}
+
+bool IS_MALE(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_MALE;
+}
+
+bool IS_FEMALE(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_FEMALE;
+}
+
+bool IS_NOSEXY(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_NEUTRAL;
+}
+
+bool IS_POLY(const CHAR_DATA* ch)
+{
+	return GET_SEX(ch) == ESex::SEX_POLY;
+}
+
+bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return MORT_CAN_SEE(sub, obj)
+		|| (!IS_NPC(sub)
+			&& PRF_FLAGGED(sub, PRF_HOLYLIGHT));
+}
+
+bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
+{
+	return SELF(sub, obj)
+		|| ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj)))
+			&& IMM_CAN_SEE(sub, obj));
 }
 
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.

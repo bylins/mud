@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "logger.hpp"
 #include "obj.hpp"
 #include "char.hpp"
 #include "comm.h"
@@ -37,7 +38,6 @@
 #include "mobmax.hpp"
 #include "meat.maker.hpp"
 #include "structs.h"
-#include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
 #include "char_obj_utils.inl"

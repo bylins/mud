@@ -2,7 +2,7 @@
 
 #include "config.hpp"
 #include "telnet.h"
-#include "utils.h"
+#include "logger.hpp"
 
 #include <boost/algorithm/string/classification.hpp>
 

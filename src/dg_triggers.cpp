@@ -13,6 +13,7 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include "logger.hpp"
 #include "obj.hpp"
 #include "dg_scripts.h"
 #include "comm.h"
@@ -535,7 +536,7 @@ int compare_cmd(int mode, const char *source, const char *dest)
 
 extern void free_script(SCRIPT_DATA * sc);
 
-int command_mtrigger(CHAR_DATA * actor, char *cmd, char *argument)
+int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 {
 	CHAR_DATA *ch, *ch_next;
 	TRIG_DATA *t;
@@ -1028,9 +1029,8 @@ int get_otrigger(OBJ_DATA * obj, CHAR_DATA * actor)
 	return 1;
 }
 
-
 // checks for command trigger on specific object. assumes obj has cmd trig
-int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int type)
+int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, const char *argument, int type)
 {
 	TRIG_DATA *t;
 	TRIG_DATA *dummy;
@@ -1094,8 +1094,7 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, char *argument, int 
 	return 0;
 }
 
-
-int command_otrigger(CHAR_DATA * actor, char *cmd, char *argument)
+int command_otrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 {
 	for (int i = 0; i < NUM_WEARS; i++)
 	{
@@ -1444,8 +1443,7 @@ int enter_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir)
 	return 1;
 }
 
-
-int command_wtrigger(CHAR_DATA * actor, char *cmd, char *argument)
+int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 {
 	ROOM_DATA *room;
 	TRIG_DATA *dummy;

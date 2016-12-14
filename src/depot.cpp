@@ -21,7 +21,7 @@
 #include "house.h"
 #include "obj.hpp"
 #include "char_obj_utils.inl"
-#include "utils.h"
+#include "logger.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>

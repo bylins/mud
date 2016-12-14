@@ -1,17 +1,9 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <string>
-#include <vector>
-#include <map>
-#include <array>
-#include <algorithm>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "obj_sets.hpp"
+
+#include "conf.h"
 #include "obj_sets_stuff.hpp"
 #include "structs.h"
 #include "obj.hpp"
@@ -23,6 +15,17 @@
 #include "screen.h"
 #include "modify.h"
 #include "spells.h"
+#include "utils.h"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <string>
+#include <vector>
+#include <map>
+#include <array>
+#include <algorithm>
 
 void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags);
 void show_apply_olc(DESCRIPTOR_DATA *d);

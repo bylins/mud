@@ -20,6 +20,7 @@
 #include "screen.h"
 #include "skills.h"
 #include "sets_drop.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

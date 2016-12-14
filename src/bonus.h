@@ -1,10 +1,12 @@
 // Copyright (c) 2016 bodrich
 // Part of Bylins http://www.bylins.su
 
+#include "interpreter.h"
 
 #include <string>
 #include <vector>
-#include "interpreter.h"
+
+class CHAR_DATA;	// to avoid inclusion of "char.hpp"
 
 namespace Bonus
 {

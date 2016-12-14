@@ -13,6 +13,7 @@
 #include "screen.h"
 #include "spells.h"
 #include "obj_sets.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 

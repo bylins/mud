@@ -2,17 +2,21 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <fstream>
-#include <string>
-#include <sstream>
-#include <boost/algorithm/string.hpp>
 #include "house_exp.hpp"
+
 #include "structs.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "house.h"
 #include "comm.h"
 #include "room.hpp"
 #include "modify.h"
+
+#include <boost/algorithm/string.hpp>
+
+#include <fstream>
+#include <string>
+#include <sstream>
 
 namespace
 {

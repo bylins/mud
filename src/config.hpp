@@ -110,7 +110,7 @@ public:
 	const CLogInfo& logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
 	void handle(const EOutputStream stream, FILE * handle);
 	const std::string& log_stderr() { return m_log_stderr; }
-	void setup_logs(void);
+	void setup_logs();
 	const auto syslog_converter() const { return m_syslog_converter; }
 
 	void enable_logging() { m_logging_enabled = true; }

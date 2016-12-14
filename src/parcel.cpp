@@ -4,6 +4,7 @@
 
 #include "parcel.hpp"
 
+#include "logger.hpp"
 #include "obj.hpp"
 #include "char_obj_utils.inl"
 #include "db.h"

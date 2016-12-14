@@ -17,7 +17,6 @@
 
 #include "obj.hpp"
 #include "boot.constants.hpp"
-#include "utils.h"
 #include "structs.h"
 #include "conf.h"	// to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 
@@ -441,11 +440,7 @@ inline void clear_saveinfo(const size_t number)
 	player_table[number].timer = NULL;
 }
 
-inline void recreate_saveinfo(const size_t number)
-{
-	delete player_table[number].timer;
-	NEWCREATE(player_table[number].timer);
-}
+void recreate_saveinfo(const size_t number);
 
 void set_god_skills(CHAR_DATA *ch);
 void check_room_flags(int rnum);

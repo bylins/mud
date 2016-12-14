@@ -16,6 +16,8 @@
 
 #include "db.h"
 
+#include "logger.hpp"
+#include "utils.h"
 #include "shutdown.parameters.hpp"
 #include "boards.h"
 #include "ban.hpp"
@@ -5238,6 +5240,12 @@ void load_ignores(CHAR_DATA * ch, char *line)
 		}
 	}
 	free(buf);
+}
+
+void recreate_saveinfo(const size_t number)
+{
+	delete player_table[number].timer;
+	NEWCREATE(player_table[number].timer);
 }
 
 /**

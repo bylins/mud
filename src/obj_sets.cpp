@@ -3,6 +3,8 @@
 
 #include "conf.h"
 
+#include "logger.hpp"
+#include "utils.h"
 #include "obj_sets.hpp"
 #include "obj_sets_stuff.hpp"
 #include "structs.h"

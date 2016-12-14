@@ -21,6 +21,7 @@
 #include "named_stuff.hpp"
 #include "parse.hpp"
 #include "screen.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

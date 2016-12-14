@@ -13,6 +13,7 @@
 #include "birth_places.hpp"
 #include "handler.h"
 #include "skills.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "conf.h"

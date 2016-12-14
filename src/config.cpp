@@ -503,9 +503,7 @@ void RuntimeConfiguration::load_features_configuration(const pugi::xml_node* roo
 	}
 }
 
-extern FILE *logfile;	// TODO: Get rid of that
-
-void RuntimeConfiguration::setup_logs(void)
+void RuntimeConfiguration::setup_logs()
 {
 	mkdir("log", 0700);
 	mkdir("log/perslog", 0700);
@@ -532,8 +530,6 @@ void RuntimeConfiguration::setup_logs(void)
 			exit(1);
 		}
 	}
-
-	logfile = logs(SYSLOG).handle();
 
 	setup_converters();
 }

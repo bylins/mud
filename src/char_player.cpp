@@ -2,15 +2,11 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <ctime>
-#include <sstream>
-#include <bitset>
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-
 #include "char_player.hpp"
+
+#include "logger.hpp"
 #include "utils.h"
+#include "conf.h"
 #include "db.h"
 #include "dg_scripts.h"
 #include "handler.h"
@@ -32,6 +28,13 @@
 #include "features.hpp"
 #include "screen.h"
 #include "ext_money.hpp"
+
+#include <boost/lexical_cast.hpp>
+#include <boost/bind.hpp>
+
+#include <ctime>
+#include <sstream>
+#include <bitset>
 
 int level_exp(CHAR_DATA * ch, int level);
 

@@ -11,7 +11,7 @@
 #include "char.hpp"
 #include "db.h"
 #include "room.hpp"
-#include "utils.h"
+#include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

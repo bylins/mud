@@ -12,13 +12,14 @@
 #define RACE_MAIN_TAG "races"
 #define PLAYER_RACE_ERROR_STR "...players races reading fail"
 
-#include <string>
-#include <vector>
-#include <boost/shared_ptr.hpp>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "utils.h"
+
+#include <boost/shared_ptr.hpp>
+
+#include <string>
+#include <vector>
 
 class PlayerKin;
 class PlayerRace;

@@ -2,19 +2,22 @@
 // Copyright (c) 2007 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <boost/tokenizer.hpp>
-#include <boost/algorithm/string.hpp>
+#include "privilege.hpp"
+
+#include "logger.hpp"
+#include "utils.h"
+#include "char.hpp"
+#include "room.hpp"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "utils.h"
 #include "db.h"
 #include "interpreter.h"
 #include "boards.h"
 #include "spells.h"
-#include "privilege.hpp"
-#include "char.hpp"
-#include "room.hpp"
+
+#include <boost/tokenizer.hpp>
+#include <boost/algorithm/string.hpp>
 
 /**
 * Система привилегий иммов и демигодов, совмещенная с бывшим god.lst.

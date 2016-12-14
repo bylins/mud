@@ -13,10 +13,9 @@
 ************************************************************************ */
 
 #include "conf.h"
-#include <vector>
-
 #include "sysdep.h"
 #include "structs.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -29,6 +28,8 @@
 #include "random.hpp"
 #include "char.hpp"
 #include "room.hpp"
+
+#include <vector>
 
 // Externals
 void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
