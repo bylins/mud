@@ -269,7 +269,7 @@ namespace craft
 		* craft list materials						- list of materials loaded by craft system.
 		* craft export prototype <vnum> <filename>	- exports prototype with <vnum> into file <filename>
 		*/
-		extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+		void do_craft(CHAR_DATA *ch, char *argument, int /*cmd*/, int /*subcmd*/)
 		{
 			static subcommands_t subcommands =
 			{

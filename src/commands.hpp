@@ -47,8 +47,8 @@ namespace commands
 			CommandWithHelp(const std::string& help_line) : m_help(help_line) {}
 			CommandWithHelp(const std::string& help_line, const std::string& help) : m_help(help_line, help) {}
 
-			virtual const std::string& get_help_line() const {}
-			virtual const std::string& get_help() const {}
+			virtual const std::string& get_help_line() const { return m_help.get_help_line(); }
+			virtual const std::string& get_help() const { return m_help.get_help(); }
 
 		private:
 			Help m_help;

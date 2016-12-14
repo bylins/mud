@@ -2,7 +2,7 @@
 #define __XML_LOADING_HELPER_HPP__
 
 #include "structs.h"
-
+#include "utils.h"
 #include "pugixml.hpp"
 
 namespace xml

@@ -7,6 +7,7 @@
 #include "conf.h"
 #include "db.h"
 #include "logger.hpp"
+#include "utils.h"
 #include "interpreter.h"
 #include "comm.h"
 

@@ -4,7 +4,7 @@ namespace commands
 {
 	namespace utils
 	{
-		void CommandEmbranchment::execute(const arguments_t& arguments)
+		void CommandEmbranchment::execute(const arguments_t& /*arguments*/)
 		{
 		}
 	}
