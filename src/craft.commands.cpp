@@ -1,4 +1,4 @@
-#include "craft_commands.hpp"
+#include "craft.commands.hpp"
 
 #include "xml_loading_helper.hpp"
 #include "craft.hpp"

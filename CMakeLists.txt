@@ -39,7 +39,7 @@ set(SOURCES
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
-	src/craft_commands.cpp
+	src/craft.commands.cpp
 	src/craft.cpp
 	src/db.cpp
 	src/deathtrap.cpp
@@ -169,7 +169,7 @@ set(HEADERS
 	src/config.hpp
 	src/constants.h
 	src/corpse.hpp
-	src/craft_commands.hpp
+	src/craft.commands.hpp
 	src/craft.hpp
 	src/db.h
 	src/deathtrap.hpp
