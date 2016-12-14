@@ -7,6 +7,7 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 #include "item.creation.hpp"
+
 #include "obj.hpp"
 #include "screen.h"
 #include "spells.h"
@@ -24,9 +25,11 @@
 #include "room.hpp"
 #include "fight.h"
 #include "structs.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
+
 #define SpINFO   spell_info[spellnum]
 extern int material_value[];
 int slot_for_char(CHAR_DATA * ch, int i);

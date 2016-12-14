@@ -1,12 +1,16 @@
 // Part of Bylins http://www.mud.ru
 
-#include <list>
-#include <vector>
-#include <boost/bind.hpp>
 #include "objsave.h"
+
+#include "logger.hpp"
 #include "house.h"
 #include "depot.hpp"
 #include "parcel.hpp"
+
+#include <boost/bind.hpp>
+
+#include <list>
+#include <vector>
 
 namespace ObjSaveSync
 {

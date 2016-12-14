@@ -39,6 +39,7 @@
 #include "fight.h"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

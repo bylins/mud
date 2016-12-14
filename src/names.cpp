@@ -10,15 +10,9 @@
 ************************************************************************ */
 
 #include "conf.h"
-#include <string>
-#include <map>
-#include <fstream>
-#include <sstream>
-#include <boost/shared_ptr.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "sysdep.h"
 #include "structs.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -29,6 +23,13 @@
 #include "char.hpp"
 #include "char_player.hpp"
 
+#include <boost/shared_ptr.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <string>
+#include <map>
+#include <fstream>
+#include <sstream>
 
 extern const char *genders[];
 extern void send_to_gods(char *text, bool demigod);

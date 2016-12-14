@@ -26,6 +26,7 @@
 #include "magic.h"
 #include "fight.h"
 #include "features.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

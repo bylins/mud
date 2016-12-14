@@ -7,10 +7,8 @@
 #ifndef __CRAFT_HPP__
 #define __CRAFT_HPP__
 
-#include "utils.h"
 #include "obj.hpp"
 #include "structs.h"
-#include "sysdep.h"
 
 #include <stdarg.h>
 
@@ -31,48 +29,6 @@ namespace craft
 	** \brief Loads Craft model.
 	**/
 	bool start();
-
-	class CLogger
-	{
-	public:
-		class CPrefix
-		{
-		public:
-			CPrefix(CLogger& logger, const char* prefix) : m_logger(logger) { logger.push_prefix(prefix); }
-			~CPrefix() { m_logger.pop_prefix(); }
-			void change_prefix(const char* new_prefix) { m_logger.change_prefix(new_prefix); }
-
-		private:
-			CLogger& m_logger;
-		};
-
-		void operator()(const char* format, ...) __attribute__((format(printf, 2, 3)));
-
-	private:
-		void push_prefix(const char* prefix) { m_prefix.push_back(prefix); }
-		void change_prefix(const char* new_prefix);
-		void pop_prefix();
-
-		std::list<std::string> m_prefix;
-	};
-
-	inline void CLogger::change_prefix(const char* new_prefix)
-	{
-		if (!m_prefix.empty())
-		{
-			m_prefix.back() = new_prefix;
-		}
-	}
-
-	inline void CLogger::pop_prefix()
-	{
-		if (!m_prefix.empty())
-		{
-			m_prefix.pop_back();
-		}
-	}
-
-	extern CLogger log;
 
 	using id_t = std::string;	///< Common type for IDs.
 

@@ -16,7 +16,7 @@
 #include "handler.h"
 #include "db.h"
 #include "interpreter.h"
-#include "utils.h"
+#include "logger.hpp"
 #include "spells.h"
 #include "screen.h"
 #include "house.h"

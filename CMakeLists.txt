@@ -35,7 +35,8 @@ set(SOURCES
 	src/class.cpp
 	src/color.cpp
 	src/comm.cpp
-	src/commands.shutdown.cpp
+	src/command.shutdown.cpp
+	src/commands.cpp
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
@@ -82,6 +83,7 @@ set(SOURCES
 	src/item.creation.cpp
 	src/limits.cpp
 	src/liquid.cpp
+	src/logger.cpp
 	src/magic.cpp
 	src/mail.cpp
 	src/map.cpp
@@ -164,7 +166,8 @@ set(HEADERS
 	src/char_player.hpp
 	src/class.hpp
 	src/comm.h
-	src/commands.shutdown.hpp
+	src/command.shutdown.hpp
+	src/commands.hpp
 	src/conf.h
 	src/config.hpp
 	src/constants.h
@@ -204,6 +207,7 @@ set(HEADERS
 	src/interpreter.h
 	src/item.creation.hpp
 	src/liquid.hpp
+	src/logger.hpp
 	src/magic.h
 	src/mail.h
 	src/map.hpp
@@ -422,7 +426,6 @@ if (UNIX)
 else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 endif ()
-set_target_properties(circle.library PROPERTIES FOLDER "Utility targets")
 add_dependencies(circle.library versioning changelog)
 
 # Boost

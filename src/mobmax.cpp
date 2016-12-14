@@ -2,14 +2,17 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <map>
-#include <boost/array.hpp>
-#include <boost/bind.hpp>
 #include "mobmax.hpp"
+
 #include "char.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "db.h"
 
+#include <boost/array.hpp>
+#include <boost/bind.hpp>
+
+#include <map>
 
 boost::array<int, 5> animals_levels = { { 0 } };
 namespace

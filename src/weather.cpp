@@ -17,6 +17,7 @@
 #include "structs.h"
 #include "spells.h"
 #include "skills.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "comm.h"
 #include "handler.h"

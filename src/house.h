@@ -13,7 +13,6 @@
 #include "db.h"
 #include "conf.h"
 #include "structs.h"
-#include "utils.h"
 #include "sysdep.h"
 
 #include <boost/shared_ptr.hpp>
@@ -391,32 +390,11 @@ void SetChestMode(CHAR_DATA *ch, std::string &buffer);
 std::string GetChestMode(CHAR_DATA *ch);
 std::string clan_get_custom_label(OBJ_DATA *obj, Clan::shared_ptr clan);
 
-inline bool CHECK_CUSTOM_LABEL_CORE(const OBJ_DATA* obj, const CHAR_DATA* ch)
-{
-	return (obj->get_custom_label()->author == (ch)->get_idnum()
-		&& !(obj->get_custom_label()->clan))
-		|| IS_IMPL(ch)
-		|| ((ch)->player_specials->clan
-			&& obj->get_custom_label()->clan != NULL
-			&& !strcmp(obj->get_custom_label()->clan, ch->player_specials->clan->GetAbbrev()))
-		|| (obj->get_custom_label()->author_mail
-			&& !strcmp(GET_EMAIL(ch), obj->get_custom_label()->author_mail));
-}
-
+bool CHECK_CUSTOM_LABEL_CORE(const OBJ_DATA* obj, const CHAR_DATA* ch);
 
 // проверяет arg на совпадение с персональными или клановыми метками
 // чармис автора меток их тоже может использовать
-inline bool CHECK_CUSTOM_LABEL(const char* arg, const OBJ_DATA* obj, const CHAR_DATA* ch)
-{
-	return  obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
-		&& (IS_NPC(ch)
-			? ((IS_CHARMICE(ch) && ch->has_master())
-				? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
-				: 0)
-			: CHECK_CUSTOM_LABEL_CORE(obj, ch))
-		&& isname(arg, obj->get_custom_label()->label_text);
-}
+bool CHECK_CUSTOM_LABEL(const char* arg, const OBJ_DATA* obj, const CHAR_DATA* ch);
 
 inline bool CHECK_CUSTOM_LABEL(const std::string& arg, const OBJ_DATA* obj, const CHAR_DATA* ch)
 {
@@ -424,16 +402,7 @@ inline bool CHECK_CUSTOM_LABEL(const std::string& arg, const OBJ_DATA* obj, cons
 }
 
 // видит ли ch метки obj
-inline bool AUTH_CUSTOM_LABEL(const OBJ_DATA* obj, const CHAR_DATA* ch)
-{
-	return obj->get_custom_label()
-		&& obj->get_custom_label()->label_text
-		&& (IS_NPC(ch)
-			? ((IS_CHARMICE(ch) && ch->has_master())
-				? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
-				: 0)
-			: CHECK_CUSTOM_LABEL_CORE(obj, ch));
-}
+bool AUTH_CUSTOM_LABEL(const OBJ_DATA* obj, const CHAR_DATA* ch);
 
 #endif
 

@@ -5,6 +5,7 @@
 
 #include <list>
 #include <unordered_map>
+#include <memory>
 
 class IndexFile : private std::list<std::string>
 {

@@ -4,6 +4,8 @@
 
 #include "poison.hpp"
 
+#include "logger.hpp"
+#include "utils.h"
 #include "obj.hpp"
 #include "char.hpp"
 #include "spells.h"

@@ -1,6 +1,6 @@
 #include "boot.data.files.hpp"
 
-#include "utils.h"
+#include "logger.hpp"
 #include "dg_scripts.h"
 #include "dg_olc.h"
 #include "boards.h"
@@ -11,6 +11,7 @@
 #include "char.hpp"
 #include "help.hpp"
 #include "dg_db_scripts.hpp"
+#include "utils.h"
 
 #include <boost/algorithm/string/trim.hpp>
 

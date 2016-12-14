@@ -2,16 +2,20 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <boost/bind.hpp>
-#include <boost/format.hpp>
-#include <sstream>
 #include "dps.hpp"
+
+#include "logger.hpp"
 #include "utils.h"
 #include "comm.h"
 #include "char.hpp"
 #include "interpreter.h"
 #include "db.h"
 #include "handler.h"
+
+#include <boost/bind.hpp>
+#include <boost/format.hpp>
+
+#include <sstream>
 
 namespace DpsSystem
 {

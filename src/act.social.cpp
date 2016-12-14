@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "logger.hpp"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"

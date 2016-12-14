@@ -19,6 +19,7 @@
 #include "house.h"
 #include "modify.h"
 #include "liquid.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "parse.hpp"
 #include "pugixml.hpp"

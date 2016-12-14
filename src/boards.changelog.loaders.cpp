@@ -1,5 +1,6 @@
 #include "boards.changelog.loaders.hpp"
 
+#include "logger.hpp"
 #include "boards.h"
 #include "boards.message.hpp"
 #include "boards.constants.hpp"

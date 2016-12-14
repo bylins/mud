@@ -34,7 +34,7 @@
 #include "fight.h"
 #include "fight_hit.hpp"
 #include "char_obj_utils.inl"
-#include "utils.h"
+#include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

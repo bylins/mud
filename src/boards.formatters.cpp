@@ -2,6 +2,7 @@
 
 #include "char.hpp"
 #include "screen.h"
+#include "utils.h"
 #include "conf.h"
 
 #include <sstream>

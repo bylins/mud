@@ -2,11 +2,10 @@
 // Copyright (c) 2006 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <boost/algorithm/string.hpp>
-
-#include <sstream>
 #include "title.hpp"
+
+#include "conf.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "comm.h"
 #include "db.h"
@@ -16,6 +15,10 @@
 #include "handler.h"
 #include "char.hpp"
 #include "char_player.hpp"
+
+#include <boost/algorithm/string.hpp>
+
+#include <sstream>
 
 extern void send_to_gods(char *text, bool demigod);
 

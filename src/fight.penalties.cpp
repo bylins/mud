@@ -1,5 +1,7 @@
 #include "fight.penalties.hpp"
 
+#include "logger.hpp"
+#include "utils.h"
 #include "char.hpp"
 
 int GroupPenaltyCalculator::get() const

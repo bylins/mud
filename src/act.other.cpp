@@ -14,6 +14,7 @@
 
 #include "act.other.hpp"
 
+#include "logger.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -41,7 +42,6 @@
 #include "shop_ext.hpp"
 #include "noob.hpp"
 #include "structs.h"
-#include "utils.h"
 #include "conf.h"
 #include "sysdep.h"
 #include "char_obj_utils.inl"

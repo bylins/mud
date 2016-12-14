@@ -11,6 +11,12 @@
 #ifndef _EXCHANGE_HPP_
 #define _EXCHANGE_HPP_
 
+#include <vector>
+#include <ctime>
+
+class CHAR_DATA;	// to avoid inclusion of "char.hpp"
+class OBJ_DATA;		// to avoid inclusion of "obj.hpp"
+
 int exchange(CHAR_DATA *ch, void *me, int cmd, char* argument);
 
 typedef struct exchange_item_data EXCHANGE_ITEM_DATA;

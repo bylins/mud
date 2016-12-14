@@ -12,12 +12,14 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "genchar.h"
+
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 #include "comm.h"
+#include "logger.hpp"
 #include "utils.h"
-#include "genchar.h"
 #include "spells.h"
 #include "char.hpp"
 #include "char_player.hpp"

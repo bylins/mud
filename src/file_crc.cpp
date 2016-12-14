@@ -2,19 +2,23 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <fstream>
-#include <string>
-#include <sstream>
+#include "file_crc.hpp"
+
+#include "conf.h"
+#include "db.h"
+#include "logger.hpp"
+#include "utils.h"
+#include "interpreter.h"
+#include "comm.h"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/crc.hpp>
 #include <boost/cstdint.hpp>
-#include "conf.h"
-#include "file_crc.hpp"
-#include "db.h"
-#include "utils.h"
-#include "interpreter.h"
-#include "comm.h"
+
+#include <fstream>
+#include <string>
+#include <sstream>
 
 bool need_warn = true;
 namespace FileCRC

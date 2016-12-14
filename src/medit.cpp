@@ -24,6 +24,7 @@
 #include "corpse.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

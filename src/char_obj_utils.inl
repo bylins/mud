@@ -2,9 +2,9 @@
 #define __CHAR_OBJ_UTILS_HPP__
 
 #include "structs.h"
-#include "utils.h"
 #include "char.hpp"
 #include "obj.hpp"
+#include "utils.h"
 
 inline bool INVIS_OK_OBJ(const CHAR_DATA* sub, const CObjectPrototype* obj)
 {

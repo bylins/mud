@@ -14,6 +14,7 @@
 #include "ban.hpp"
 #include "char.hpp"
 #include "modify.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

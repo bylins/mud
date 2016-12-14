@@ -1,5 +1,6 @@
 #include "craft_commands.hpp"
 
+#include "logger.hpp"
 #include "xml_loading_helper.hpp"
 #include "craft.hpp"
 #include "char.hpp"
@@ -9,6 +10,7 @@ namespace craft
 	using xml::loading::CHelper;
 
 	extern CCraftModel model;	///< to avoid moving #model into headers
+	extern Logger logger;	// TODO: get rid of that
 
 	/// Contains handlers of craft subcommands
 	namespace cmd
@@ -140,7 +142,7 @@ namespace craft
 		{
 			if (!arguments)
 			{
-				log("SYSERROR: argument passed into %s:%d is NULL.", __FILE__, __LINE__);
+				logger("SYSERROR: argument passed into %s:%d is NULL.", __FILE__, __LINE__);
 				send_to_char(ch, "Something went wrong... Send bug report, please. :(\n");
 
 				return EPR_WRONG_ARGUMENT;
@@ -267,7 +269,7 @@ namespace craft
 		* craft list materials						- list of materials loaded by craft system.
 		* craft export prototype <vnum> <filename>	- exports prototype with <vnum> into file <filename>
 		*/
-		void do_craft(CHAR_DATA* ch, char* arguments, int /*cmd*/, int/* subcmd*/)
+		void do_craft(CHAR_DATA *ch, char *argument, int /*cmd*/, int /*subcmd*/)
 		{
 			static subcommands_t subcommands =
 			{
@@ -275,7 +277,7 @@ namespace craft
 				{ "export", do_craft_export }
 			};
 
-			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
+			const auto result = CSubcommands::process(subcommands, ch, argument, nullptr);
 
 			switch (result)
 			{

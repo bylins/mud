@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "logger.hpp"
 #include "shutdown.parameters.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -51,7 +52,6 @@
 #include "mob_stat.hpp"
 #include "char_obj_utils.inl"
 #include "class.hpp"
-#include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "bonus.h"
