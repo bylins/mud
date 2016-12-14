@@ -2,6 +2,7 @@
 
 #include "spells.h"
 #include "utils.h"
+#include "logger.hpp"
 #include "msdp.hpp"
 
 void asciiflag_conv(const char *flag, void *to)

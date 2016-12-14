@@ -23,13 +23,15 @@
 #include "room.hpp"
 #include "house.h"
 #include "constants.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 #include <map>
+
+void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 

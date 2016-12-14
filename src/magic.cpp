@@ -35,6 +35,7 @@
 #include "room.hpp"
 #include "AffectHandler.hpp"
 #include "corpse.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

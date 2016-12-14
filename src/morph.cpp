@@ -11,6 +11,7 @@
 #include "comm.h"
 #include "skills.h"
 #include "db.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "pugixml.hpp"
 

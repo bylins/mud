@@ -9,6 +9,7 @@
 
 #include "features.hpp"
 
+#include "logger.hpp"
 #include "obj.hpp"
 #include "handler.h"
 #include "comm.h"
@@ -1414,54 +1415,41 @@ void set_natural_feats(CHAR_DATA *ch)
 	set_race_feats(ch);
 }
 
-/*
-bool check_feat(CHAR_DATA *ch, int feat)
+int CFeatArray::pos(int pos /*= -1*/)
 {
-	pugi::xml_node cur_feat, tmp_feat;
-	int class_player = GET_CLASS(ch);
-	int remort = GET_REMORT(ch);
-	// временная переменная для цикла, сюда записываем значение фита из текущего листа дерева
-	int ftmp;
-	// тоже самое, только для количество ремортов
-	int rtmp;
-	for (cur_feat = .child(class_name[(int)GET_CLASS(ch) + 14*GET_KIN(ch)]); mob_ ; mob_  = mob_ .next_sibling(class_name[(int)GET_CLASS(ch) + 14*GET_KIN(ch)]))
+	if (pos == -1)
 	{
-		// ищем в данном дереве нашу способсность
-		tmp_feat = cur_feat.find_child_by_attribute("feat", std::to_string(feat).c_str())
-		ftmp = cur_feat.attribute("feat").as_int();
-		rtmp = cur_feat.attribute("remort").as_int();
-		// если ничего не было найдено, то функция возвратить ту ноду, в которой мы собсна и искали нашего ребенка
-		if (tmp_feat == cur_feat)
-		{
-			if (ftmp = feat)
-				// если у данной способности реморт больше, чем у чара
-				if (rtmp > remort)
-					return false;
-				else
-					return true;
-		}
-		else
-		{
-			// смотрим, подходит ли нам эта способность по мортам
-			if (rtmp <= remort)
-			{
-				// проверяем, подходит ли родитель этого умения по ремортам
-				if (tmp_feat.parent()..attribute("remort").as_int())
-				{
-					// проверяем, выучен ли родитель у чара
-					// TODO: не помню функцию, изменить на нормальную функцию, которая проверяет, выучен ли фит родителя у чара
-					if (features(ch, tmp_feat.parent()..attribute("feat").as_int()))
-					{
-						return true;
-					}
-				}
-			}
-		}
-
-
+		return _pos;
 	}
-	return false;
+	else if (pos >= 0 && pos < MAX_FEAT_AFFECT)
+	{
+		_pos = pos;
+		return _pos;
+	}
+	sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos (argument value: %d)!", pos);
+	mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
+	return _pos;
+}
 
-}*/
+void CFeatArray::insert(const int location, sbyte modifier)
+{
+	affected[_pos].location = location;
+	affected[_pos].modifier = modifier;
+	_pos++;
+	if (_pos >= MAX_FEAT_AFFECT)
+	{
+		_pos = 0;
+	}
+}
+
+void CFeatArray::clear()
+{
+	_pos = 0;
+	for (i = 0; i < MAX_FEAT_AFFECT; i++)
+	{
+		affected[i].location = APPLY_NONE;
+		affected[i].modifier = 0;
+	}
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

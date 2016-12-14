@@ -2,19 +2,11 @@
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <list>
-#include <map>
-#include <string>
-#include <iomanip>
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/array.hpp>
-#include "pugixml.hpp"
-#include <boost/algorithm/string.hpp>
-
 #include "glory_const.hpp"
+
+#include "logger.hpp"
+#include "utils.h"
+#include "pugixml.hpp"
 #include "structs.h"
 #include "screen.h"
 #include "char.hpp"
@@ -24,6 +16,18 @@
 #include "handler.h"
 #include "char_player.hpp"
 #include "glory_misc.hpp"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/format.hpp>
+#include <boost/array.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <list>
+#include <map>
+#include <string>
+#include <iomanip>
+#include <vector>
 
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 extern void check_max_hp(CHAR_DATA *ch);

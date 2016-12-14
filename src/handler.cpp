@@ -43,7 +43,7 @@
 #include "obj_sets.hpp"
 #include "char_obj_utils.inl"
 #include "constants.h"
-#include "utils.h"
+#include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

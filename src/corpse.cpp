@@ -2,8 +2,10 @@
 // Part of Bylins http://www.mud.ru
 
 #include "corpse.hpp"
+
 #include "constants.h"
 #include "db.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "char.hpp"
 #include "comm.h"
@@ -17,12 +19,13 @@
 #include "parse.hpp"
 #include "obj.hpp"
 #include "random.hpp"
-#include <boost/algorithm/string.hpp>
 
 #include <fstream>
 #include <map>
 #include <vector>
 #include <string>
+
+#include <boost/algorithm/string.hpp>
 
 // see http://stackoverflow.com/questions/20145488/cygwin-g-stdstoi-error-stoi-is-not-a-member-of-std
 #if defined __CYGWIN__

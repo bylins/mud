@@ -16,10 +16,11 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "utils.h"
+#include "logger.hpp"
 #include "dg_event.h"
 #include "db.h"
 #include "dg_scripts.h"
+#include "utils.h"
 #include "comm.h"
 
 // * define statics

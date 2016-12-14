@@ -5,7 +5,6 @@
 
 #include "fight_constants.hpp"
 #include "char.hpp"
-#include "utils.h"
 #include "structs.h"
 #include "conf.h"
 #include "sysdep.h"

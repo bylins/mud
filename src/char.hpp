@@ -792,24 +792,8 @@ inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
 	}
 }
 
-inline bool CHAR_DATA::in_used_zone() const
-{
-	if (IS_MOB(this))
-	{
-		return 0 != zone_table[world[in_room]->zone].used;
-	}
-	return false;
-}
-
-inline int GET_INVIS_LEV(const CHAR_DATA* ch)
-{
-	return CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level);
-}
-
-inline void SET_INVIS_LEV(const CHAR_DATA* ch, const int level)
-{
-	CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level) = level;
-}
+int GET_INVIS_LEV(const CHAR_DATA* ch);
+void SET_INVIS_LEV(const CHAR_DATA* ch, const int level);
 
 inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 {
@@ -828,12 +812,7 @@ inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlag flag)
 		|| ch->isAffected(flag);
 }
 
-inline bool IS_CHARMICE(const CHAR_DATA* ch)
-{
-	return IS_NPC(ch)
-		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
-}
+bool IS_CHARMICE(const CHAR_DATA* ch);
 
 inline bool IS_FLY(const CHAR_DATA* ch)
 {
@@ -850,20 +829,8 @@ inline bool INVIS_OK(const CHAR_DATA* sub, const CHAR_DATA* obj)
 				|| AFF_FLAGGED(sub, EAffectFlag::AFF_SENSE_LIFE)));
 }
 
-inline bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
-{
-	return HERE(obj)
-		&& INVIS_OK(sub, obj)
-		&& (IS_LIGHT((obj)->in_room)
-			|| AFF_FLAGGED((sub), EAffectFlag::AFF_INFRAVISION));
-}
-
-inline bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
-{
-	return MORT_CAN_SEE(sub, obj)
-		|| (!IS_NPC(sub)
-			&& PRF_FLAGGED(sub, PRF_HOLYLIGHT));
-}
+bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
+bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
 
 inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA* obj)
 {
@@ -871,61 +838,20 @@ inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA* obj)
 }
 
 /// Can subject see character "obj"?
-inline bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
-{
-	return SELF(sub, obj)
-		|| ((GET_REAL_LEVEL(sub) >= (IS_NPC(obj) ? 0 : GET_INVIS_LEV(obj)))
-			&& IMM_CAN_SEE(sub, obj));
-}
+bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
+bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj);
 
-inline bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj)
-{
-	return !(GET_INVIS_LEV(ch) > 30)
-		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& (!IS_DARK(sub->in_room)
-			|| AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
-		&& (!AFF_FLAGGED(obj, EAffectFlag::AFF_INVISIBLE)
-			|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS));
-}
+bool IS_HORSE(const CHAR_DATA* ch);
+bool IS_MORTIFIER(const CHAR_DATA* ch);
 
-inline bool IS_HORSE(const CHAR_DATA* ch)
-{
-	return IS_NPC(ch)
-		&& ch->has_master()
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
-}
-
-inline bool IS_MORTIFIER(const CHAR_DATA* ch)
-{
-	return IS_NPC(ch)
-		&& ch->has_master()
-		&& MOB_FLAGGED(ch, MOB_CORPSE);
-}
-
-inline bool MAY_ATTACK(const CHAR_DATA* sub)
-{
-	return (!AFF_FLAGGED((sub), EAffectFlag::AFF_CHARM)
-		&& !IS_HORSE((sub))
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_MAGICSTOPFIGHT)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_HOLD)
-		&& !AFF_FLAGGED((sub), EAffectFlag::AFF_SLEEP)
-		&& !MOB_FLAGGED((sub), MOB_NOFIGHT)
-		&& GET_WAIT(sub) <= 0
-		&& !sub->get_fighting()
-		&& GET_POS(sub) >= POS_RESTING);
-}
+bool MAY_ATTACK(const CHAR_DATA* sub);
 
 inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
 {
 	return AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD);
 }
 
-inline bool AWAKE(const CHAR_DATA* ch)
-{
-	return GET_POS(ch) > POS_SLEEPING
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP);
-}
+bool AWAKE(const CHAR_DATA* ch);
 
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
@@ -935,39 +861,12 @@ inline bool CAN_START_MTRIG(const CHAR_DATA *ch)
 }
 //-Polud
 
-inline bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
-{
-	return !NAME_BAD(ch)
-		&& (NAME_FINE(ch)
-			|| !(GET_LEVEL(ch) == NAME_LEVEL))
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		&& IS_NPC(victim)
-		&& (GET_EXP(victim) > 0)
-		&& (!IS_NPC(victim)
-			|| !IS_NPC(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		&& !IS_HORSE(victim);
-}
+bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim);
 
-inline bool IS_MALE(const CHAR_DATA* ch)
-{
-	return GET_SEX(ch) == ESex::SEX_MALE;
-}
-
-inline bool IS_FEMALE(const CHAR_DATA* ch)
-{
-	return GET_SEX(ch) == ESex::SEX_FEMALE;
-}
-
-inline bool IS_NOSEXY(const CHAR_DATA* ch)
-{
-	return GET_SEX(ch) == ESex::SEX_NEUTRAL;
-}
-
-inline bool IS_POLY(const CHAR_DATA* ch)
-{
-	return GET_SEX(ch) == ESex::SEX_POLY;
-}
+bool IS_MALE(const CHAR_DATA* ch);
+bool IS_FEMALE(const CHAR_DATA* ch);
+bool IS_NOSEXY(const CHAR_DATA* ch);
+bool IS_POLY(const CHAR_DATA* ch);
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
 size_t fighting_list_size();

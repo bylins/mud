@@ -3,6 +3,7 @@
 
 #include "boards.h"
 
+#include "logger.hpp"
 #include "boards.types.hpp"
 #include "boards.changelog.loaders.hpp"
 #include "boards.constants.hpp"
@@ -17,6 +18,7 @@
 #include "room.hpp"
 #include "handler.h"
 #include "parse.hpp"
+#include "utils.h"
 #include "conf.h"
 
 #include <boost/format.hpp>

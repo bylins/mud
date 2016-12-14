@@ -28,7 +28,6 @@
 #include "room.hpp"
 #include "spam.hpp"
 #include "char_obj_utils.inl"
-#include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

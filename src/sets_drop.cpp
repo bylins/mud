@@ -19,6 +19,7 @@
 #include "parse.hpp"
 #include "mob_stat.hpp"
 #include "obj_sets.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "conf.h"
 

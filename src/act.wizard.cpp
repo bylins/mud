@@ -12,7 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "commands.shutdown.hpp"
+#include "logger.hpp"
+#include "command.shutdown.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"

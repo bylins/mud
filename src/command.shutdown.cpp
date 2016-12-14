@@ -1,8 +1,10 @@
 #include "command.shutdown.hpp"
 
+#include "logger.hpp"
 #include "char.hpp"
 #include "comm.h"
 #include "interpreter.h"
+#include "utils.h"
 #include "structs.h"
 
 namespace commands

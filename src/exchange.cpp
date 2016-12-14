@@ -8,13 +8,14 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "exchange.h"
+
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
 #include "screen.h"
-#include "exchange.h"
 #include "im.h"
 #include "constants.h"
 #include "skills.h"
@@ -26,6 +27,7 @@
 #include "mail.h"
 #include "objsave.h"
 #include "pk.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

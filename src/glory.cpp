@@ -2,13 +2,10 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <sstream>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
+#include "glory.hpp"
 
 #include "conf.h"
-#include "glory.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "db.h"
 #include "comm.h"
@@ -20,6 +17,12 @@
 #include "char_player.hpp"
 #include "modify.h"
 #include "glory_misc.hpp"
+
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+
+#include <sstream>
 
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 extern void check_max_hp(CHAR_DATA *ch);

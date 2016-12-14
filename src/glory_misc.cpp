@@ -2,11 +2,10 @@
 // Copyright (c) 2010 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <map>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
-
 #include "glory_misc.hpp"
+
+#include "logger.hpp"
+#include "utils.h"
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "genchar.h"
@@ -16,6 +15,11 @@
 #include "comm.h"
 #include "char_player.hpp"
 #include "modify.h"
+
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include <map>
 
 namespace GloryMisc
 {

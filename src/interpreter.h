@@ -15,9 +15,12 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 
-#include <string>
 #include "conf.h"
-#include "utils.h"
+#include "structs.h"
+
+#include <string>
+
+class CHAR_DATA;	// to avoid inclusion of "char.hpp"
 
 void do_move(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
@@ -58,13 +61,11 @@ extern const int class_religion[];
 // for compatibility with 2.20:
 #define argument_interpreter(a, b, c) two_arguments(a, b, c)
 
-
 struct command_info
 {
 	const char *command;
 	byte minimum_position;
-	void (*command_pointer)
-	(CHAR_DATA * ch, char *argument, int cmd, int subcmd);
+	void (*command_pointer)(CHAR_DATA * ch, char *argument, int cmd, int subcmd);
 	sh_int minimum_level;
 	int subcmd;				///< Subcommand. See SCMD_* constants.
 	int unhide_percent;
@@ -319,71 +320,28 @@ struct alias_data
 * copy the first non-fill-word, space-delimited argument of 'argument'
 * to 'first_arg'; return a pointer to the remainder of the string.
 */
-template<class T>T one_argument(T argument, char *first_arg)
-{
-	char *begin = first_arg;
-
-	if (!argument)
-	{
-		log("SYSERR: one_argument received a NULL pointer!");
-		*first_arg = '\0';
-		return (NULL);
-	}
-
-	do
-	{
-		skip_spaces(&argument);
-
-		first_arg = begin;
-		while (*argument && !a_isspace(*argument))
-		{
-			*(first_arg++) = a_lcc(*argument);
-			argument++;
-		}
-
-		*first_arg = '\0';
-	}
-	while (fill_word(begin));
-
-	return (argument);
-}
+char* one_argument(char* argument, char *first_arg);
+const char* one_argument(const char* argument, char *first_arg);
 
 ///
 /// same as one_argument except that it doesn't ignore fill words
 /// как бы декларируем, что first_arg должен быть не менее MAX_INPUT_LENGTH
 ///
-template<class T> T any_one_arg(T argument, char* first_arg)
-{
-	if (!argument)
-	{
-		log("SYSERR: any_one_arg() passed a NULL pointer.");
-		return 0;
-	}
-	skip_spaces(&argument);
-
-	unsigned num = 0;
-	while (*argument && !a_isspace(*argument) && num < MAX_INPUT_LENGTH - 1)
-	{
-		*first_arg = a_lcc(*argument);
-		++first_arg;
-		++argument;
-		++num;
-	}
-	*first_arg = '\0';
-
-	return argument;
-}
+char* any_one_arg(char* argument, char* first_arg);
+const char* any_one_arg(const char* argument, char* first_arg);
 
 /**
 * Same as one_argument except that it takes two args and returns the rest;
 * ignores fill words
 */
-template<class T> T two_arguments(T argument, char *first_arg, char *second_arg)
+template <typename T>
+T two_arguments(T argument, char *first_arg, char *second_arg)
 {
 	return (one_argument(one_argument(argument, first_arg), second_arg));
 }
 
-template<class T> T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg)
+template <typename T>
+T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg)
 {
 	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));
 }

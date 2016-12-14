@@ -32,6 +32,7 @@
 #include "skills.h"
 #include "noob.hpp"
 #include "genchar.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

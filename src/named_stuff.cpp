@@ -13,6 +13,7 @@
 #include "house.h"
 #include "dg_scripts.h"
 #include "pugixml.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 

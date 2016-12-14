@@ -1,5 +1,6 @@
 #include "celebrates.hpp"
 
+#include "logger.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"

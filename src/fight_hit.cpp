@@ -1,6 +1,6 @@
-// Part of Bylins http://www.mud.ru
 #include "fight_hit.hpp"
 
+#include "logger.hpp"
 #include "handler.h"
 #include "screen.h"
 #include "dg_scripts.h"

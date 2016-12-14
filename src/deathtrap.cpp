@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "deathtrap.hpp"
+
 #include "constants.h"
 #include "db.h"
 #include "spells.h"
@@ -13,6 +14,7 @@
 #include "corpse.hpp"
 #include "room.hpp"
 #include "fight.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "conf.h"
 

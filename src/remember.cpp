@@ -2,9 +2,9 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <algorithm>
-#include <boost/format.hpp>
 #include "remember.hpp"
+
+#include "logger.hpp"
 #include "utils.h"
 #include "comm.h"
 #include "db.h"
@@ -13,6 +13,10 @@
 #include "screen.h"
 #include "house.h"
 #include "room.hpp"
+
+#include <boost/format.hpp>
+
+#include <algorithm>
 
 namespace Remember
 {

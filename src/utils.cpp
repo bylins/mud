@@ -14,6 +14,7 @@
 
 #include "utils.h"
 
+#include "logger.hpp"
 #include "obj.hpp"
 #include "db.h"
 #include "comm.h"
@@ -69,8 +70,6 @@ int valid_email(const char *address);
 // external functions
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
-// Файл для вывода
-FILE *logfile = NULL;
 
 char AltToKoi[] =
 {
@@ -227,6 +226,7 @@ int str_cmp(const char *arg1, const char *arg2)
 
 	return (0);
 }
+
 int str_cmp(const std::string &arg1, const char *arg2)
 {
 	int chk;
@@ -384,185 +384,6 @@ int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n)
 // дескрипторы открытых файлов логов для сброса буфера при креше
 std::list<FILE *> opened_files;
 
-// * Чтобы не дублировать создание даты в каждом виде лога.
-void write_time(FILE *file)
-{
-	char time_buf[20];
-	time_t ct = time(0);
-	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
-	fprintf(file, "%s :: ", time_buf);
-}
-
-// * Так, потестить...
-void write_test_time(FILE *file)
-{
-	char time_buf[20];
-	struct timeval tv;
-
-	gettimeofday(&tv, 0);
-	time_t ct = tv.tv_sec;
-
-	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
-	fprintf(file, "%s.%ld :: ", time_buf, tv.tv_usec);
-}
-
-/*
- * New variable argument log() function.  Works the same as the old for
- * previously written code but is very nice for new code.
- */
-void vlog(const char *format, va_list args)
-{
-	if (!runtime_config.logging_enabled())
-	{
-		return;
-	}
-
-	if (logfile == NULL)
-	{
-		puts("SYSERR: Using log() before stream was initialized!");
-		return;
-	}
-
-	if (format == NULL)
-	{
-		format = "SYSERR: log() received a NULL format.";
-	}
-
-	time_t ct = time(0);
-	char *time_s = asctime(localtime(&ct));
-
-	time_s[strlen(time_s) - 1] = '\0';
-	fprintf(logfile, "%-15.15s :: ", time_s + 4);
-
-	if (!runtime_config.log_stderr().empty())
-	{
-		fprintf(stderr, "%-15.15s :: ", time_s + 4);
-		const size_t BUFFER_SIZE = 4096;
-		char buffer[BUFFER_SIZE];
-		char* p = buffer;
-
-		va_list args_copy;
-		va_copy(args_copy, args);
-		const size_t length = vsnprintf(p, BUFFER_SIZE, format, args_copy);
-		va_end(args_copy);
-
-		if (BUFFER_SIZE <= length)
-		{
-			fputs("TRUNCATED: ", stderr);
-			p[BUFFER_SIZE - 1] = '\0';
-		}
-
-		const auto syslog_converter = runtime_config.syslog_converter();
-		if (syslog_converter)
-		{
-			syslog_converter(buffer, static_cast<int>(length));
-		}
-
-		fputs(p, stderr);
-	}
-
-	vfprintf(logfile, format, args);
-	fprintf(logfile, "\n");
-
-	if (!runtime_config.log_stderr().empty())
-	{
-		fprintf(stderr, "\n");
-	}
-}
-
-void log(const char *format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	vlog(format, args);
-	va_end(args);
-}
-
-void vlog(const EOutputStream steam, const char* format, va_list rargs)
-{
-	va_list args;
-	va_copy(args, rargs);
-
-	const auto prev = logfile;
-	logfile = runtime_config.logs(steam).handle();
-	vlog(format, args);
-	logfile = prev;
-
-	va_end(args);
-}
-
-void shop_log(const char *format, ...)
-{
-	const char *filename = "../log/shop.log";
-
-	FILE *file = fopen(filename, "a");
-	if (!file)
-	{
-		log("SYSERR: can't open %s!", filename);
-		return;
-	}
-
-	if (!format)
-		format = "SYSERR: olc_log received a NULL format.";
-
-	write_time(file);
-	va_list args;
-	va_start(args, format);
-	vfprintf(file, format, args);
-	va_end(args);
-	fprintf(file, "\n");
-
-	fclose(file);
-}
-
-void olc_log(const char *format, ...)
-{
-	const char *filename = "../log/olc.log";
-
-	FILE *file = fopen(filename, "a");
-	if (!file)
-	{
-		log("SYSERR: can't open %s!", filename);
-		return;
-	}
-
-	if (!format)
-		format = "SYSERR: olc_log received a NULL format.";
-
-	write_time(file);
-	va_list args;
-	va_start(args, format);
-	vfprintf(file, format, args);
-	va_end(args);
-	fprintf(file, "\n");
-
-	fclose(file);
-}
-
-void imm_log(const char *format, ...)
-{
-	const char *filename = "../log/imm.log";
-
-	FILE *file = fopen(filename, "a");
-	if (!file)
-	{
-		log("SYSERR: can't open %s!", filename);
-		return;
-	}
-
-	if (!format)
-		format = "SYSERR: imm_log received a NULL format.";
-
-	write_time(file);
-	va_list args;
-	va_start(args, format);
-	vfprintf(file, format, args);
-	va_end(args);
-	fprintf(file, "\n");
-
-	fclose(file);
-}
-
 bool no_bad_affects(OBJ_DATA *obj)
 {
 	static std::list<EWeaponAffectFlag> bad_waffects =
@@ -588,42 +409,6 @@ bool no_bad_affects(OBJ_DATA *obj)
 	return true;
 }
 
-void temp_log(const char *format, ...)
-{
-	const char *filename = "../log/trig.log";
-	static FILE *file = 0;
-	if (!file)
-	{
-		file = fopen(filename, "a");
-		if (!file)
-		{
-			log("SYSERR: can't open %s!", filename);
-			return;
-		}
-		opened_files.push_back(file);
-	}
-
-	write_time(file);
-	va_list args;
-	va_start(args, format);
-	vfprintf(file, format, args);
-	va_end(args);
-	fprintf(file, "\n");
-}
-
-void err_log(const char *format, ...)
-{
-	static char buf_[MAX_RAW_INPUT_LENGTH];
-	int cnt = snprintf(buf_, sizeof(buf_), "SYSERROR: ");
-
-	va_list args;
-	va_start(args, format);
-	vsnprintf(buf_ + cnt, sizeof(buf_) - cnt, format, args);
-	va_end(args);
-
-	mudlog(buf_, DEF, LVL_IMMORT, SYSLOG, TRUE);
-}
-
 /**
 * Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
 * Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).
@@ -635,15 +420,20 @@ void pers_log(CHAR_DATA *ch, const char *format, ...)
 		log("NULL character resieved! (%s %s %d)", __FILE__, __func__, __LINE__);
 		return;
 	}
+
 	if (!format)
+	{
 		format = "SYSERR: pers_log received a NULL format.";
+	}
 
 	if (!ch->desc->pers_log)
 	{
 		char filename[128], name[64], *ptr;
 		strcpy(name, GET_NAME(ch));
 		for (ptr = name; *ptr; ptr++)
+		{
 			*ptr = LOWER(AtoL(*ptr));
+		}
 		sprintf(filename, "../log/perslog/%s.log", name);
 		ch->desc->pers_log = fopen(filename, "a");
 		if (!ch->desc->pers_log)
@@ -662,21 +452,6 @@ void pers_log(CHAR_DATA *ch, const char *format, ...)
 	fprintf(ch->desc->pers_log, "\n");
 }
 
-
-void ip_log(const char *ip)
-{
-	FILE *iplog;
-
-	if (!(iplog = fopen("../log/ip.log", "a")))
-	{
-		log("SYSERR: ../log/ip.log");
-		return;
-	}
-
-	fprintf(iplog, "%s\n", ip);
-	fclose(iplog);
-}
-
 // the "touch" command, essentially.
 int touch(const char *path)
 {
@@ -692,66 +467,6 @@ int touch(const char *path)
 		fclose(fl);
 		return (0);
 	}
-}
-
-/*
- * mudlog -- log mud messages to a file & to online imm's syslogs
- * based on syslog by Fen Jul 3, 1992
- * file - номер файла для вывода (0..NLOG), -1 не выводить в файл
- */
-void mudlog(const char *str, int type, int level, EOutputStream channel, int file)
-{
-	char tmpbuf[MAX_STRING_LENGTH];
-	DESCRIPTOR_DATA *i;
-
-	if (str == NULL)
-	{
-		return;		// eh, oh well.
-	}
-
-	if (channel < 0 || channel > LAST_LOG)
-	{
-		return;
-	}
-
-	if (file)
-	{
-		logfile = runtime_config.logs(channel).handle();
-		log("%s", str);
-		logfile = runtime_config.logs(SYSLOG).handle();
-	}
-
-	if (level < 0)
-	{
-		return;
-	}
-
-	char time_buf[20];
-	time_t ct = time(0);
-	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
-	sprintf(tmpbuf, "[%s][ %s ]\r\n", time_buf, str);
-	for (i = descriptor_list; i; i = i->next)
-	{
-		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))	// switch
-			continue;
-		if (GET_LOGS(i->character)[channel] < type && type != DEF)
-			continue;
-		if (type == DEF && GET_LEVEL(i->character) < LVL_IMMORT && !PRF_FLAGGED(i->character, PRF_CODERINFO))
-			continue;
-		if (GET_LEVEL(i->character) < level && !PRF_FLAGGED(i->character, PRF_CODERINFO))
-			continue;
-		if (PLR_FLAGGED(i->character, PLR_WRITING) || PLR_FLAGGED(i->character, PLR_FROZEN))
-			continue;
-
-		send_to_char(CCGRN(i->character, C_NRM), i->character);
-		send_to_char(tmpbuf, i->character);
-		send_to_char(CCNRM(i->character, C_NRM), i->character);
-	}
-}
-
-void mudlog_python(const std::string& str, int type, int level, const EOutputStream channel, int file)
-{
-	mudlog(str.c_str(), type, level, channel, file);
 }
 
 void sprinttype(int type, const char *names[], char *result)
@@ -3709,46 +3424,6 @@ const char *print_obj_state(int tm_pct)
 	else if (tm_pct <1000) // проблема крафта, на хаймортах таймер больще прототипа
 		return "идеально";
 	else return "нерушимо";
-}
-
-void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = nullptr*/)
-{
-	unsigned char *buf = (unsigned char*)ptr;
-	size_t i, j;
-
-	if (nullptr != title)
-	{
-		fprintf(file, "%s\n", title);
-	}
-
-	fprintf(file, "        | 00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f\n");
-	fprintf(file, "--------+------------------------------------------------\n");
-
-	for (i = 0; i < buflen; i += 16)
-	{
-		fprintf(file, "%06zx: | ", i);
-		for (j = 0; j < 16; j++)
-		{
-			if (i + j < buflen)
-			{
-				fprintf(file, "%02x ", buf[i + j]);
-			}
-			else
-			{
-				fprintf(file, "   ");
-			}
-		}
-
-		fprintf(file, " ");
-		for (j = 0; j < 16; j++)
-		{
-			if (i + j < buflen)
-			{
-				fprintf(file, "%c", isprint(buf[i + j]) ? buf[i + j] : '.');
-			}
-		}
-		fprintf(file, "\n");
-	}
 }
 
 bool isname(const char *str, const char *namelist)

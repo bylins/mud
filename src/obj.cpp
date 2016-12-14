@@ -15,6 +15,7 @@
 #include "depot.hpp"
 #include "constants.h"
 #include "db.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "conf.h"
 
@@ -269,9 +270,34 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 	}
 }
 
+void OBJ_DATA::remove_me_from_contains_list(OBJ_DATA*& head)
+{
+	REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next_content; });
+}
+
+void OBJ_DATA::remove_me_from_objects_list(OBJ_DATA*& head)
+{
+	REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next; });
+}
+
 void OBJ_DATA::set_script(SCRIPT_DATA* _)
 {
 	m_script.reset(_);
+}
+
+void CObjectPrototype::toggle_skill(const uint32_t skill)
+{
+	TOGGLE_BIT(m_skill, skill);
+}
+
+void CObjectPrototype::toggle_val_bit(const size_t index, const uint32_t bit)
+{
+	TOGGLE_BIT(m_vals[index], bit);
+}
+
+void CObjectPrototype::toggle_wear_flag(const uint32_t flag)
+{
+	TOGGLE_BIT(m_wear_flags, flag);
 }
 
 void CObjectPrototype::set_skill(int skill_num, int percent)
@@ -306,6 +332,11 @@ void CObjectPrototype::set_skill(int skill_num, int percent)
 			m_skills.insert(std::make_pair(static_cast<ESkill>(skill_num), percent));
 		}
 	}
+}
+
+void CObjectPrototype::set_wear_flag(const EWearFlag flag)
+{
+	SET_BIT(m_wear_flags, flag);
 }
 
 void CObjectPrototype::clear_all_affected()
@@ -404,6 +435,16 @@ int CObjectPrototype::get_skill(int skill_num) const
 	}
 
 	return 0;
+}
+
+bool CObjectPrototype::has_wear_flag(const EWearFlag part) const
+{
+	return IS_SET(m_wear_flags, to_underlying(part));
+}
+
+bool CObjectPrototype::get_wear_mask(const wear_flags_t part) const
+{
+	return IS_SET(m_wear_flags, part);
 }
 
 // * @warning Предполагается, что __out_skills.empty() == true.

@@ -9,7 +9,6 @@
 #include "db.h"
 #include "interpreter.h"
 #include "structs.h"
-#include "utils.h"
 #include "conf.h"
 #include "sysdep.h"
 

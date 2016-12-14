@@ -1,20 +1,23 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <sstream>
-#include <iomanip>
-#include <string>
-#include <boost/format.hpp>
-#include <boost/bind.hpp>
-#include "pugixml.hpp"
-
 #include "mob_stat.hpp"
+
+#include "logger.hpp"
 #include "utils.h"
+#include "pugixml.hpp"
 #include "db.h"
 #include "parse.hpp"
 #include "char.hpp"
+#include "conf.h"
 #include "screen.h"
+
+#include <boost/format.hpp>
+#include <boost/bind.hpp>
+
+#include <sstream>
+#include <iomanip>
+#include <string>
 
 namespace char_stat
 {

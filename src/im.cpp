@@ -23,6 +23,7 @@
 #include "char.hpp"
 #include "modify.h"
 #include "room.hpp"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

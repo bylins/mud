@@ -1,14 +1,18 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "conf.h"
-#include <unordered_map>
-#include <array>
-#include <boost/lexical_cast.hpp>
-
 #include "parse.hpp"
+
+#include "conf.h"
+#include "logger.hpp"
 #include "db.h"
 #include "obj.hpp"
+#include "utils.h"
+
+#include <boost/lexical_cast.hpp>
+
+#include <unordered_map>
+#include <array>
 
 namespace TextId
 {
@@ -245,6 +249,29 @@ std::string child_value_str(const pugi::xml_node &node, const char *text)
 		return child_node.child_value();
 	}
 	return "";
+}
+
+template <class T>
+pugi::xml_node get_child_template(const T &node, const char *name)
+{
+	pugi::xml_node tmp_node = node.child(name);
+	if (!tmp_node)
+	{
+		char tmp[100];
+		snprintf(tmp, sizeof(tmp), "...<%s> read fail", name);
+		mudlog(tmp, CMP, LVL_IMMORT, SYSLOG, TRUE);
+	}
+	return tmp_node;
+}
+
+pugi::xml_node get_child(const pugi::xml_document &node, const char *name)
+{
+	return get_child_template(node, name);
+}
+
+pugi::xml_node get_child(const pugi::xml_node &node, const char *name)
+{
+	return get_child_template(node, name);
 }
 
 ///

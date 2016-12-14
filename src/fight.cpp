@@ -36,6 +36,7 @@
 #include "genchar.h"
 #include "sets_drop.hpp"
 #include "olc.h"
+#include "logger.hpp"
 #include "utils.h"
 
 // Structures

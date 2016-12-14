@@ -9,7 +9,6 @@
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
 
-#include "utils.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -225,42 +224,9 @@ class CFeatArray
 public:
 	explicit CFeatArray() : _pos(0), i(MAX_FEAT_AFFECT) {}
 
-	int pos(int pos = -1)
-	{
-		if (pos == -1)
-		{
-			return _pos;
-		}
-		else if (pos >= 0 && pos < MAX_FEAT_AFFECT)
-		{
-			_pos = pos;
-			return _pos;
-		}
-		sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos (argument value: %d)!", pos);
-		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
-		return _pos;
-	}
-
-	void insert(const int location, sbyte modifier)
-	{
-		affected[_pos].location = location;
-		affected[_pos].modifier = modifier;
-		_pos++;
-		if (_pos >= MAX_FEAT_AFFECT)
-		{
-			_pos = 0;
-		}
-	}
-
-	void clear()
-	{
-		_pos = 0;
-		for (i = 0; i < MAX_FEAT_AFFECT; i++)
-		{
-			affected[i].location = APPLY_NONE;
-			affected[i].modifier = 0;
-		}
-	}
+	int pos(int pos = -1);
+	void insert(const int location, sbyte modifier);
+	void clear();
 
 	struct CFeatAffect
 	{

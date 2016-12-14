@@ -18,6 +18,7 @@
 #include "db.h"
 #include "constants.h"
 #include "interpreter.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "house.h"
 #include "boards.constants.hpp"

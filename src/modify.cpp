@@ -12,6 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "modify.h"
+
 #include "interpreter.h"
 #include "handler.h"
 #include "db.h"
@@ -27,8 +29,8 @@
 #include "privilege.hpp"
 #include "char.hpp"
 #include "skills.h"
-#include "modify.h"
 #include "genchar.h"
+#include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"

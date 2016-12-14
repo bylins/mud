@@ -71,12 +71,12 @@
 #include "mail.h"
 #include "mob_stat.hpp"
 #include "char_obj_utils.inl"
-#include "utils.h"
+#include "logger.hpp"
+#include "msdp.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
-#include "msdp.hpp"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -875,6 +875,7 @@ int main_function(int argc, char **argv)
 
 	// All arguments have been parsed, try to open log file.
 	runtime_config.setup_logs();
+	logfile = runtime_config.logs(SYSLOG).handle();
 
 	/*
 	 * Moved here to distinguish command line options and to show up
