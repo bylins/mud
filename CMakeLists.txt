@@ -310,9 +310,9 @@ endif ()
 add_definitions(${TIMED_SCRIPT_DEFINITION})
 
 # Turns on/off scripting. Use the option like:
-#     $ cmake -DSCRIPTING=NO ..
-# to turn scripting off.
-option(SCRIPTING "Turns on/off scripting engine" YES)
+#     $ cmake -DSCRIPTING=ON..
+# to turn scripting ON.
+option(SCRIPTING "Turns on/off scripting engine" OFF)
 if (SCRIPTING)
 	message(STATUS "Turning scripting ON")
 	list(APPEND HEADERS ${SCRIPTING_HEADERS})
