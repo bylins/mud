@@ -193,6 +193,7 @@ set(HEADERS
 	src/fight_constants.hpp
 	src/fight.h
 	src/fight_hit.hpp
+	src/fight_stuff.hpp
 	src/fight.penalties.hpp
 	src/file_crc.hpp
 	src/genchar.h

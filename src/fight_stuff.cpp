@@ -1387,41 +1387,6 @@ void Damage::zero_init()
 	msg_num = -1;
 	ch_start_pos = -1;
 	victim_start_pos = -1;
-};
-
-/*
-void solo_gain(CHAR_DATA * ch, CHAR_DATA * victim)
-{
-  int exp;
-
-  if (IS_NPC(ch) || !OK_GAIN_EXP(ch, victim))
-     {send_to_char("Ваше деяние никто не оценил.\r\n",ch);
-      return;
-     }
-
-  if (IS_NPC(ch))
-     {exp  = MIN(max_exp_gain_npc, GET_EXP(victim));
-      exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
-     }
-  else
-     {exp = get_extend_exp(GET_EXP(victim), ch, victim);
-      exp = MIN(max_exp_gain_pc(ch), exp);
-     };
-
-  if (!IS_NPC(ch))
-     exp = MIN(max_exp_gain_pc(ch),exp);
-  exp = MAX(1,exp);
-
-  if (exp > 1)
-     {sprintf(buf2, "Ваш опыт повысился на %d %s.\r\n", exp, desc_count(exp, WHAT_POINT));
-      send_to_char(buf2, ch);
-     }
-  else
-    send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
-
-  gain_exp(ch, exp);
-  change_alignment(ch, victim);
 }
-*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

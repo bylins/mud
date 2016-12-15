@@ -1065,7 +1065,10 @@ void mobile_affect_update(void)
 			}
 
 			if (DeathTrap::check_death_trap(i))
+			{
 				continue;
+			}
+
 			if (was_charmed)
 			{
 				stop_follower(i, SF_CHARMLOST);
