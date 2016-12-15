@@ -257,6 +257,58 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
+bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
+{
+	const bool player_died = !IS_NPC(ch);
+	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone].under_construction;
+
+	if (!player_died
+		|| !zone_is_under_construction)
+	{
+		return false;
+	}
+
+
+	if (killer
+		&& (!IS_NPC(killer)
+			|| IS_CHARMICE(killer))) // рип в тестовой зоне от моба но не чармиса
+	{
+		return false;
+	}
+
+	// Сюда попадают только тестеры на волоске от смерти. Для инх функция должна вернуть true.
+	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
+	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
+	const int rent_room = real_room(GET_LOADROOM(ch));
+	if (rent_room == NOWHERE)
+	{
+		send_to_char("Вам некуда возвращаться!\r\n", ch);
+		return true;
+	}
+	send_to_char("Божественная сила спасла вашу жизнь.!\r\n", ch);
+	char_from_room(ch);
+	char_to_room(ch, rent_room);
+	check_horse(ch);
+	GET_HIT(ch) = 1;
+	update_pos(ch);
+	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+	if (!ch->affected.empty())
+	{
+		while (!ch->affected.empty())
+		{
+			ch->affect_remove(ch->affected.begin());
+		}
+	}
+	GET_POS(ch) = POS_STANDING;
+	look_at_room(ch, 0);
+	entry_memory_mtrigger(ch);
+	greet_mtrigger(ch, -1);
+	greet_otrigger(ch, -1);
+	greet_memory_mtrigger(ch);
+
+	return true;
+}
+
 void die(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	int dec_exp = 0, e = GET_EXP(ch);
@@ -266,44 +318,12 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		log("SYSERR: %s is dying in room NOWHERE.", GET_NAME(ch));
 		return;
 	}
-	const bool died_player = !IS_NPC(ch);
-	const bool zone_is_under_construction = zone_table[world[ch->in_room]->zone].under_construction;
-	const bool killer_is_npc = IS_NPC(killer);
-	const bool killers_master_is_player = killer->has_master() && !IS_NPC(killer->get_master());
-	if (died_player
-	    && zone_is_under_construction
-	    && killer_is_npc
-	    && !killers_master_is_player) // рип в тестовой зоне от моба но не чармиса
+
+	if (check_tester_death(ch, killer))
 	{
-		act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
-		const int rent_room = real_room(GET_LOADROOM(ch));
-		if (rent_room == NOWHERE)
-		{
-			send_to_char("Вам некуда возвращаться!\r\n", ch);
-			return;
-		}
-		send_to_char("Божественная сила спасла вашу жизнь.!\r\n", ch);
-		char_from_room(ch);
-		char_to_room(ch, rent_room);
-		check_horse(ch);
-		GET_HIT(ch) = 1;
-		update_pos(ch);
-		act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
-		if (!ch->affected.empty())
-		{
-			while (!ch->affected.empty())
-			{
-			    ch->affect_remove(ch->affected.begin());
-			}
-		}
-		GET_POS(ch) = POS_STANDING;
-		look_at_room(ch, 0);
-		entry_memory_mtrigger(ch);
-		greet_mtrigger(ch, -1);
-		greet_otrigger(ch, -1);
-		greet_memory_mtrigger(ch);
 		return;
 	}
+
 	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].number == 759) && (GET_LEVEL(ch) <15)) //нуб помер в мадшколе
 	{
 		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
