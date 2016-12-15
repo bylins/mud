@@ -912,13 +912,17 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (DeathTrap::check_death_trap(ch))
 	{
 		if (horse)
+		{
 			extract_char(horse, FALSE);
+		}
 		return (FALSE);
 	}
+
 	if (check_death_ice(go_to, ch))
 	{
 		return (FALSE);
 	}
+
 	if (DeathTrap::tunnel_damage(ch))
 	{
 		return (FALSE);
