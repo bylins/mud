@@ -7,6 +7,7 @@
 #include "craft.hpp"
 
 #include "logger.hpp"
+#include "craft.logger.hpp"
 #include "time_utils.hpp"
 #include "xml_loading_helper.hpp"
 #include "parse.hpp"
@@ -41,7 +42,6 @@ namespace craft
 	}
 
 	CCraftModel model;
-	Logger logger;
 
 	bool start()
 	{

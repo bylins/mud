@@ -1,16 +1,17 @@
 #include "craft.commands.hpp"
 
 #include "logger.hpp"
+#include "craft.logger.hpp"
 #include "xml_loading_helper.hpp"
 #include "craft.hpp"
 #include "char.hpp"
+#include "commands.hpp"
 
 namespace craft
 {
 	using xml::loading::CHelper;
 
 	extern CCraftModel model;	///< to avoid moving #model into headers
-	extern Logger logger;	// TODO: get rid of that
 
 	/// Contains handlers of craft subcommands
 	namespace cmd

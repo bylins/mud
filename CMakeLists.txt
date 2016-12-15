@@ -42,6 +42,7 @@ set(SOURCES
 	src/corpse.cpp
 	src/craft.commands.cpp
 	src/craft.cpp
+	src/craft.logger.cpp
 	src/db.cpp
 	src/deathtrap.cpp
 	src/depot.cpp
@@ -82,6 +83,7 @@ set(SOURCES
 	src/interpreter.cpp
 	src/item.creation.cpp
 	src/limits.cpp
+	src/levenshtein.cpp
 	src/liquid.cpp
 	src/logger.cpp
 	src/magic.cpp
@@ -174,6 +176,7 @@ set(HEADERS
 	src/corpse.hpp
 	src/craft.commands.hpp
 	src/craft.hpp
+	src/craft.logger.hpp
 	src/db.h
 	src/deathtrap.hpp
 	src/depot.hpp
@@ -206,6 +209,7 @@ set(HEADERS
 	src/im.h
 	src/interpreter.h
 	src/item.creation.hpp
+	src/levenshtein.hpp
 	src/liquid.hpp
 	src/logger.hpp
 	src/magic.h
