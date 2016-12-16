@@ -1615,6 +1615,19 @@ void ReadEndString(std::ifstream &file);
 void StringReplace(std::string& buffer, char s, const std::string& d);
 std::string& format_news_message(std::string &text);
 
+template <typename T>
+void joinList(const T& list, std::string& result, const std::string& delimiter = ", ")
+{
+	std::stringstream ss;
+	bool first = true;
+	for (const auto& i : list)
+	{
+		ss << (first ? "" : delimiter) << i;
+		first = false;
+	}
+	result = ss.str();
+}
+
 #endif // _UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

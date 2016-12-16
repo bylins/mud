@@ -43,6 +43,7 @@ set(SOURCES
 	src/craft.commands.cpp
 	src/craft.cpp
 	src/craft.logger.cpp
+	src/craft.static.cpp
 	src/db.cpp
 	src/deathtrap.cpp
 	src/depot.cpp
@@ -177,6 +178,7 @@ set(HEADERS
 	src/craft.commands.hpp
 	src/craft.hpp
 	src/craft.logger.hpp
+	src/craft.static.hpp
 	src/db.h
 	src/deathtrap.hpp
 	src/depot.hpp

@@ -3,6 +3,8 @@
 
 #include "structs.h"
 
+#include <memory>
+
 namespace craft
 {
 	// Subcommands for the "craft" command
@@ -21,6 +23,17 @@ namespace craft
 		const int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never
 
 		extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+
+		class CommandsHandler
+		{
+		public:
+			using shared_ptr = std::shared_ptr<CommandsHandler>;
+
+			virtual void initialize() = 0;
+			virtual void process(CHAR_DATA* character, char* arguments) = 0;
+
+			static shared_ptr create();
+		};
 	};
 };
 

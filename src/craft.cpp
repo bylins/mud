@@ -8,6 +8,8 @@
 
 #include "logger.hpp"
 #include "craft.logger.hpp"
+#include "craft.commands.hpp"
+#include "craft.static.hpp"
 #include "time_utils.hpp"
 #include "xml_loading_helper.hpp"
 #include "parse.hpp"
@@ -41,11 +43,11 @@ namespace craft
 					: "th"));
 	}
 
-	CCraftModel model;
-
 	bool start()
 	{
 		utils::CExecutionTimer timer;
+		commands_handler->initialize();
+
 		const bool load_result = model.load();
 		const auto loading_duration = timer.delta();
 

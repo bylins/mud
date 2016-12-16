@@ -2,10 +2,14 @@
 
 #include "logger.hpp"
 #include "craft.logger.hpp"
+#include "craft.static.hpp"
 #include "xml_loading_helper.hpp"
 #include "craft.hpp"
 #include "char.hpp"
 #include "commands.hpp"
+
+#include <sstream>
+#include <iomanip>
 
 namespace craft
 {
@@ -258,6 +262,190 @@ namespace craft
 			}
 		}
 
+		using namespace commands::utils;
+
+		class CraftContext : public ReplyableContext
+		{
+		public:
+			using shared_ptr = std::shared_ptr<CraftContext>;
+
+			CraftContext(CHAR_DATA* character) : m_character(character) {}
+
+			virtual void reply(const std::string& message) const override;
+
+			static shared_ptr create(CHAR_DATA* character) { return std::make_shared<CraftContext>(character); }
+
+		private:
+			CHAR_DATA* m_character;
+		};
+
+		void CraftContext::reply(const std::string& message) const
+		{
+			send_to_char(message, m_character);
+		}
+
+		class CommonCraftCommand : public CommandWithHelp
+		{
+		protected:
+			void send(const CommandContext::shared_ptr& context, const std::string& message) const;
+			void usage(const CommandContext::shared_ptr& context) const { send(context, get_help()); }
+		};
+
+		void CommonCraftCommand::send(const CommandContext::shared_ptr& context, const std::string& message) const
+		{
+			const auto rcontext = std::dynamic_pointer_cast<ReplyableContext>(context);
+			if (rcontext)
+			{
+				rcontext->reply(message);
+			}
+		}
+
+		// "craft export prototype" command leaf
+		class ExportPrototype : public CommonCraftCommand
+		{
+		public:
+			using shared_ptr = std::shared_ptr<ExportPrototype>;
+
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& arguments) override;
+
+			static auto create() { return std::make_shared<ExportPrototype>(); }
+		};
+
+		void ExportPrototype::execute(const CommandContext::shared_ptr& context, const arguments_t& arguments)
+		{
+			if (2 != arguments.size())
+			{
+				usage(context);
+				return;
+			}
+
+			auto argument_i = arguments.begin();
+			const auto vnum_str = argument_i->c_str();
+			obj_vnum vnum = 0;
+			try
+			{
+				CHelper::load_integer(vnum_str, vnum,
+					[&]() { throw std::runtime_error("wrong VNUM value"); });
+			}
+			catch (...)
+			{
+				std::stringstream ss;
+				ss << "Could not convert prototype VNUM value '" << vnum_str << "' to integer number.\n";
+				send(context, ss.str());
+				return;
+			}
+
+			++argument_i;
+			const auto filename = argument_i->c_str();
+			if (!*filename)
+			{
+				send(context, "File name to export is not specified.");
+				return;
+			}
+
+			if (!model.export_object(vnum, filename))
+			{
+				send(context, "Failed to export prototype.");
+			}
+			else
+			{
+				std::stringstream ss;
+				ss << "Prototype with VNUM " << vnum << " successfully exported into file '" << filename << "'.";
+				send(context, ss.str());
+			}
+		}
+
+		// "craft list properties" command leaf
+		class ListProperties : public CommonCraftCommand
+		{
+		public:
+			using shared_ptr = std::shared_ptr<ListProperties>;
+
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& arguments) override;
+
+			static auto create() { return std::make_shared<ListProperties>(); }
+		};
+
+		void ListProperties::execute(const CommandContext::shared_ptr& context, const arguments_t& arguments)
+		{
+			std::stringstream ss;
+			std::string arguments_string;
+			joinList(arguments, arguments_string);
+			ss << "Craft properties...\nArguments: '" << arguments_string << "'\n"
+				<< "Base count:              &W" << std::setw(4) << model.base_count() << "&n crafts\n"
+				<< "Remorts for count bonus: &W" << std::setw(4) << model.remort_for_count_bonus() << "&n remorts\n"
+				<< "Base top:                &W" << std::setw(4) << model.base_top() << "&n percents\n"
+				<< "Remorts bonus:           &W" << std::setw(4) << model.remorts_bonus() << "&n percent\n";
+			send(context, ss.str());
+		}
+
+		// "craft" with no arguments
+		class Root: public CommonCraftCommand
+		{
+		public:
+			using shared_ptr = std::shared_ptr<Root>;
+
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& arguments) override;
+
+			static auto create() { return std::make_shared<Root>(); }
+		};
+
+		void Root::execute(const CommandContext::shared_ptr& context, const arguments_t& arguments)
+		{
+			send(context, "Crafting something... :)\n");
+		}
+
+		class CommandsHandlerImplementation : public CommandsHandler
+		{
+		public:
+			virtual void initialize() override;
+			virtual void process(CHAR_DATA* character, char* arguments) override;
+
+		private:
+			CommandEmbranchment::shared_ptr m_command;
+		};
+
+		void CommandsHandlerImplementation::initialize()
+		{
+			m_command = CommandEmbranchment::create();
+			m_command->set_name("craft");
+			m_command->set_noargs_handler(Root::create());
+
+			const auto list_command = CommandEmbranchment::create();
+			//list_command->add_command("properties", ListProperties::create());
+			list_command->set_name("craft list");
+			m_command->add_command("list1", list_command);
+			m_command->add_command("list2", list_command);
+			m_command->add_command("list3", list_command);
+			m_command->add_command("list31", list_command);
+			m_command->add_command("list32", list_command);
+
+			const auto export_command = CommandEmbranchment::create();
+			list_command->set_name("craft prototype");
+			//export_command->add_command("prototype", ExportPrototype::create());
+			m_command->add_command("export", export_command);
+		}
+
+		void CommandsHandlerImplementation::process(CHAR_DATA* character, char* arguments)
+		{
+			AbstractCommand::arguments_t arguments_list;
+			while (*arguments)
+			{
+				auto next_argument = first_argument(arguments);
+				if (*next_argument)
+				{
+					arguments_list.push_back(next_argument);
+				}
+			}
+			const auto context = CraftContext::create(character);
+			m_command->execute(context, arguments_list);
+		}
+
+		CommandsHandler::shared_ptr CommandsHandler::create()
+		{
+			return std::make_shared<CommandsHandlerImplementation>();
+		}
+
 		/**
 		* "craft" command handler.
 		*
@@ -270,28 +458,9 @@ namespace craft
 		* craft list materials						- list of materials loaded by craft system.
 		* craft export prototype <vnum> <filename>	- exports prototype with <vnum> into file <filename>
 		*/
-		void do_craft(CHAR_DATA *ch, char *argument, int /*cmd*/, int /*subcmd*/)
+		void do_craft(CHAR_DATA *ch, char *arguments, int /*cmd*/, int /*subcmd*/)
 		{
-			static subcommands_t subcommands =
-			{
-				{ "list", do_craft_list },
-				{ "export", do_craft_export }
-			};
-
-			const auto result = CSubcommands::process(subcommands, ch, argument, nullptr);
-
-			switch (result)
-			{
-			case CSubcommands::EPR_NO_SUBCOMMAND:
-				send_to_char(ch, "Crafting something... :)\n");
-				break;
-
-			case CSubcommands::EPR_PROCESSED:
-				break;
-
-			default:
-				send_to_char(ch, "Wrong syntax of the '&gcraft&n' command.\n");
-			}
+			commands_handler->process(ch, arguments);
 		}
 	}
 }

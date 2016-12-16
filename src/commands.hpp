@@ -6,12 +6,24 @@
 #include <memory>
 #include <map>
 
-class CHAR_DATA;	// to avoid inclusion of "char.hpp"
-
 namespace commands
 {
 	namespace utils
 	{
+		class CommandContext
+		{
+		public:
+			using shared_ptr = std::shared_ptr<CommandContext>;
+
+			virtual ~CommandContext() {}
+		};
+
+		class ReplyableContext: public CommandContext
+		{
+		public:
+			virtual void reply(const std::string& message) const = 0;
+		};
+
 		class AbstractCommand
 		{
 		public:
@@ -22,8 +34,8 @@ namespace commands
 
 			virtual ~AbstractCommand() {}
 
-			virtual void execute(CHAR_DATA* character, const arguments_t& arguments) = 0;
-			virtual void execute(CHAR_DATA* character) { return execute(character, arguments_t()); }
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& arguments) = 0;
+			virtual void execute(const CommandContext::shared_ptr& context) { return execute(context, arguments_t()); }
 		};
 
 		class Help
@@ -32,9 +44,10 @@ namespace commands
 			Help() {}
 			Help(const std::string& help_line) : m_help_line(help_line) {}
 			Help(const std::string& help_line, const std::string& help) : m_help_line(help_line), m_help(help) {}
+			~Help() {}
 
-			const std::string& get_help_line() const { return m_help_line; }
-			const std::string& get_help() const { return m_help; }
+			virtual const std::string& get_help_line() const { return m_help_line; }
+			virtual const std::string& get_help() const { return m_help; }
 
 		private:
 			std::string m_help_line;
@@ -51,36 +64,24 @@ namespace commands
 			CommandWithHelp(const std::string& help_line, const std::string& help) : Help(help_line, help) {}
 		};
 
-		class CommandEmbranchment : public AbstractCommand
+		class CommandEmbranchment : public CommandWithHelp
 		{
 		public:
-			using branches_t = std::map<std::string, CommandWithHelp::shared_ptr>;
+			static constexpr int SUGGESTIONS_COUNT = 2;
+
+			using branch_t = CommandWithHelp::shared_ptr;
+			using branches_t = std::map<std::string, branch_t>;
+			using shared_ptr = std::shared_ptr<CommandEmbranchment>;
 
 			CommandEmbranchment() {}
 
-			void add_command(const std::string& branch, CommandWithHelp::shared_ptr command) { m_branches.emplace(branch, command); }
+			virtual void add_command(const std::string& branch, const branch_t& command) = 0;
 
-			void set_noargs_handler(AbstractCommand::shared_ptr command) { m_noargs_handler = command; }
-			void set_unexpected_command_handler(AbstractCommand::shared_ptr command) { m_unexpected_command_handler = command; }
-			void set_name(const std::string& name) { m_name = name; }
+			virtual void set_noargs_handler(AbstractCommand::shared_ptr command) = 0;
+			virtual void set_unexpected_command_handler(AbstractCommand::shared_ptr command) = 0;
+			virtual void set_name(const std::string& name) = 0;
 
-			virtual void execute(CHAR_DATA* character, const arguments_t& arguments) override;
-
-			void show_commands_list(CHAR_DATA* character) const;
-
-		private:
-			void build_commands_list() const;
-			void execution_without_arguments(CHAR_DATA* character) const;
-			void unexpected_branch(CHAR_DATA* character, const arguments_t& arguments) const;
-			void make_suggestion(CHAR_DATA* character, const std::string& wrong_subcommand) const;
-
-			branches_t m_branches;
-
-			AbstractCommand::shared_ptr m_noargs_handler;
-			AbstractCommand::shared_ptr m_unexpected_command_handler;
-
-			std::string m_name;
-			mutable std::string m_commands_list;
+			static shared_ptr create();
 		};
 	}
 }
