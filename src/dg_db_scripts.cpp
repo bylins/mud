@@ -306,7 +306,7 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(mob))
 					{
-						mob->script = new SCRIPT_DATA();
+						CREATE(mob->script, 1);
 					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 

@@ -3809,7 +3809,7 @@ void eval_op(const char *op, char *lhs, const char *const_rhs, char *result, voi
 	}
 
 	char* rhs = nullptr;
-	std::shared_ptr<char> rhs_guard(rhs = str_dup(const_rhs));
+	std::shared_ptr<char> rhs_guard(rhs = str_dup(const_rhs), free);
 
 	while (*rhs && a_isspace(*rhs))
 	{
@@ -4080,17 +4080,34 @@ foreach i <список>
 	if (v)
 	{
 		auto ptr = strstr(list, v->value);
-		// извращение еще то но я чото хезе чо еще можно сделать со списками типо %self.pc%,
-		// которые генеряцо на каждой итерации цикла и тригами на телепорт, которые уменьшают эти списки
-		// здесь мы проверяем строку в списке в нужной позиции на соотвествие со значением переменной
-		if (pos && pos->value && ((unsigned)atoi(pos->value) < strlen(list)) && !(strncmp(list + v_strpos, v->value, strlen(v->value))))
+		const auto list_length = strlen(list);
+
 		{
-			v_strpos = atoi(pos->value);
-			ptr = list + v_strpos;
-		}
-		else
-		{
-			v_strpos = ptr - list;
+			// извращение еще то но я чото хезе чо еще можно сделать со списками типо %self.pc%,
+			// которые генеряцо на каждой итерации цикла и тригами на телепорт, которые уменьшают эти списки
+			// здесь мы проверяем строку в списке в нужной позиции на соотвествие со значением переменной
+			bool complex_condition = false;
+			if (pos && pos->value
+					&& ((unsigned)atoi(pos->value) < strlen(list)))
+			{
+				if (list_length < static_cast<unsigned>(v_strpos))
+				{
+					mudlog("Похоже, что мы на грани кордампа. Пора бы это починить.", DEF, LVL_IMPL, ERRLOG, TRUE);
+					return 0;
+				}
+
+				complex_condition = !strncmp(list + v_strpos, v->value, strlen(v->value));
+			}
+
+			if (complex_condition)
+			{
+				v_strpos = atoi(pos->value);
+				ptr = list + v_strpos;
+			}
+			else
+			{
+				v_strpos = ptr - list;
+			}
 		}
 
 		// Проверяем на наличие пробела перед найденой строкой и после нее
