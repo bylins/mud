@@ -374,7 +374,7 @@ find_program(GIT git DOC "Git executable file")
 add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp.in
 	SOURCES ${VERSIONING_FILES})
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
-	COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DGIT=${GIT} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
+	COMMAND ${CMAKE_COMMAND} -DBUILD_TYPE=${CMAKE_BUILD_TYPE} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DGIT=${GIT} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 set_target_properties(versioning PROPERTIES FOLDER "Utility targets")
