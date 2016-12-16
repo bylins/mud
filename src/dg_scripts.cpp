@@ -3809,7 +3809,7 @@ void eval_op(const char *op, char *lhs, const char *const_rhs, char *result, voi
 	}
 
 	char* rhs = nullptr;
-	std::shared_ptr<char> rhs_guard(rhs = str_dup(const_rhs));
+	std::shared_ptr<char> rhs_guard(rhs = str_dup(const_rhs), free);
 
 	while (*rhs && a_isspace(*rhs))
 	{
