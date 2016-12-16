@@ -2690,7 +2690,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 			delete cbuf;
 		}
 
-		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s ", player_table[i].name);
+		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s [%s]", player_table[i].name, clan->name.c_str());
 		log("%s", buf);
 	}
 }
