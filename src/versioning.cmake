@@ -3,6 +3,9 @@ if (GIT)
 else ()
     set(REVISION "<undefined>")
 endif ()
+if (DEFINED BUILD_TYPE AND NOT BUILD_TYPE STREQUAL "")
+    set(REVISION "${REVISION} (${BUILD_TYPE})")
+endif ()
 configure_file(${VERSION_INPUT} ${VERSION_OUTPUT})
 execute_process(COMMAND ${CMAKE_COMMAND} -E touch ${VERSION_OUTPUT})	# invalidate output to force rebuild this source file even if it was not changed.
 
