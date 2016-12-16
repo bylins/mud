@@ -212,7 +212,7 @@ void trig_data_free(TRIG_DATA * this_data)
 		remove_event(this_data->wait_event);
 	}
 
-	free(this_data);
+	delete this_data;
 }
 
 // vnum_owner - триг, который приаттачил данный триг
