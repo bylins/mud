@@ -2659,7 +2659,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 		for (int i = 0; i <= top_of_p_table; i++)
 		{
 			if (player_table[i].unique == unique)
-			{
+			{   bool found = false;
 				for (tch = character_list; tch; tch = tch->get_next())
 				{
 					if (IS_NPC(tch))
@@ -2667,9 +2667,12 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 					if (isname(player_table[i].name, tch->get_pc_name()))
 					{
 						GET_LOADROOM(tch) = mortal_start_room;
+						char_from_room(tch);
+						char_to_room(tch, real_room(mortal_start_room));
+						found = true;
 					}
 				}
-				if (tch == tch->get_next()) // если нет онлайн
+				if (!found) // если нет онлайн
 				{
 					cbuf = new Player;
 					if (load_char(player_table[i].name, cbuf) > -1)
@@ -2679,7 +2682,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 					}
 					delete cbuf;
 				}
-				sprintf(buf, "CLAN: Роспуск, удаляю игрока %s", player_table[i].name);
+				sprintf(buf, "CLAN: Роспуск, удаляю игрока %s ", player_table[i].name);
 				log("%s", buf);
 				break;
 			}
