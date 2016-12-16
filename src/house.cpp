@@ -2649,45 +2649,55 @@ void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 	send_to_char("Дружина распущена.\r\n", ch);
 }
 
-void Clan::DestroyClan(Clan::shared_ptr clan)
+void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 {
 	CHAR_DATA *cbuf, *tch;
 
-	for (const auto& it : clan->m_members) // сменим лоадрумы на 1 родовую
+	for (int i = 0; i <= top_of_p_table; i++)
 	{
-		long int unique  = it.first;
-		for (int i = 0; i <= top_of_p_table; i++)
+		const auto unique = player_table[i].unique;
+		auto member_i = clan->m_members.find(unique);
+		if (member_i == clan->m_members.end())
 		{
-			if (player_table[i].unique == unique)
-			{   bool found = false;
-				for (tch = character_list; tch; tch = tch->get_next())
-				{
-					if (IS_NPC(tch))
-						continue;
-					if (isname(player_table[i].name, tch->get_pc_name()))
-					{
-						GET_LOADROOM(tch) = mortal_start_room;
-						char_from_room(tch);
-						char_to_room(tch, real_room(mortal_start_room));
-						found = true;
-					}
-				}
-				if (!found) // если нет онлайн
-				{
-					cbuf = new Player;
-					if (load_char(player_table[i].name, cbuf) > -1)
-					{
-						GET_LOADROOM(cbuf) = mortal_start_room;
-						cbuf->save_char();
-					}
-					delete cbuf;
-				}
-				sprintf(buf, "CLAN: Роспуск, удаляю игрока %s ", player_table[i].name);
-				log("%s", buf);
+			continue;
+		}
+
+		for (tch = character_list; tch; tch = tch->get_next())
+		{
+			if (IS_NPC(tch))
+			{
+				continue;
+			}
+
+			if (isname(player_table[i].name, tch->get_pc_name()))
+			{
+				GET_LOADROOM(tch) = mortal_start_room;
+				char_from_room(tch);
+				char_to_room(tch, real_room(mortal_start_room));
+
 				break;
 			}
 		}
+
+		if (!tch) // если нет онлайн
+		{
+			cbuf = new Player;
+			if (load_char(player_table[i].name, cbuf) > -1)
+			{
+				GET_LOADROOM(cbuf) = mortal_start_room;
+				cbuf->save_char();
+			}
+			delete cbuf;
+		}
+
+		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s ", player_table[i].name);
+		log("%s", buf);
 	}
+}
+
+void Clan::DestroyClan(Clan::shared_ptr clan)
+{
+	fix_clan_members_load_room(clan);
 
 	const auto members = clan->m_members;	// copy members
 	clan->m_members.clear();					// remove all members from clan
