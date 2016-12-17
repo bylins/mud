@@ -43,6 +43,7 @@
 
 using namespace ClanSystem;
 
+extern int mortal_start_room;
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int file_to_string_alloc(const char *name, char **buf);
@@ -2648,8 +2649,56 @@ void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 	send_to_char("Дружина распущена.\r\n", ch);
 }
 
+void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
+{
+	CHAR_DATA *cbuf, *tch;
+
+	for (int i = 0; i <= top_of_p_table; i++)
+	{
+		const auto unique = player_table[i].unique;
+		auto member_i = clan->m_members.find(unique);
+		if (member_i == clan->m_members.end())
+		{
+			continue;
+		}
+
+		for (tch = character_list; tch; tch = tch->get_next())
+		{
+			if (IS_NPC(tch))
+			{
+				continue;
+			}
+
+			if (isname(player_table[i].name, tch->get_pc_name()))
+			{
+				GET_LOADROOM(tch) = mortal_start_room;
+				char_from_room(tch);
+				char_to_room(tch, real_room(mortal_start_room));
+
+				break;
+			}
+		}
+
+		if (!tch) // если нет онлайн
+		{
+			cbuf = new Player;
+			if (load_char(player_table[i].name, cbuf) > -1)
+			{
+				GET_LOADROOM(cbuf) = mortal_start_room;
+				cbuf->save_char();
+			}
+			delete cbuf;
+		}
+
+		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s [%s]", player_table[i].name, clan->name.c_str());
+		log("%s", buf);
+	}
+}
+
 void Clan::DestroyClan(Clan::shared_ptr clan)
 {
+	fix_clan_members_load_room(clan);
+
 	const auto members = clan->m_members;	// copy members
 	clan->m_members.clear();					// remove all members from clan
 	clan->set_rep(0);
