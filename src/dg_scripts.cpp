@@ -4092,7 +4092,7 @@ foreach i <список>
 			{
 				if (list_length < static_cast<unsigned>(v_strpos))
 				{
-					mudlog("Похоже, что мы на грани кордампа. Пора бы это починить.", DEF, LVL_IMPL, ERRLOG, TRUE);
+//					mudlog("Похоже, что мы на грани кордампа. Пора бы это починить.", DEF, LVL_IMPL, ERRLOG, TRUE);
 					return 0;
 				}
 

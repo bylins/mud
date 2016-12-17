@@ -2702,7 +2702,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 	const auto members = clan->m_members;	// copy members
 	clan->m_members.clear();					// remove all members from clan
 	clan->set_rep(0);
-	clan->builtOn = 0; // при приписке нового лидера присваиваю time(0) а дата все равно не текущая
+	clan->builtOn = 0; 
 	clan->exp = 0;
 	clan->clan_exp = 0;
 	clan->clan_level = 0;
@@ -2711,8 +2711,8 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 	clan->gold_tax_pct_ = 0;
 	clan->ingr_chest_room_rnum_ = 0;
 	clan->storehouse = 0;
-	clan->pkList.clear(); // не чистится
-	clan->frList.clear(); // не чистится
+	clan->pkList.clear(); 
+	clan->frList.clear(); 
 	OBJ_DATA *temp, *chest, *obj_next;
 	for (chest = world[real_room(clan->chest_room)]->contents; chest; chest = chest->get_next_content())
 	{
@@ -2729,11 +2729,9 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 	}
 	// пуржим ингры, если есть
 	clan->purge_ingr_chest();
-	clan->exp_history.fulldelete(); // не полностью чистится
+	clan->exp_history.fulldelete(); 
 	Clan::ClanSave();
 
-	// TODO: по идее можно сундук и его содержимое пуржить, но не факт, что это хорошо
-	// уведомляем и чистим инфу игрокам
 	for (const auto& it : members)
 	{
 		DESCRIPTOR_DATA *d = DescByUID(it.first);
