@@ -97,6 +97,7 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		sprintf(buf, "$n сказал$g : '%s'", argument);
+
 //      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);
 // shapirus; для возможности игнорирования теллов в клетку
 // пришлось изменить act в клетку на проход по клетке
