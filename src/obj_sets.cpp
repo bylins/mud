@@ -20,7 +20,7 @@
 #include "modify.h"
 #include "spells.h"
 #include "help.hpp"
-
+#include "sets_drop.hpp"
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
@@ -170,6 +170,8 @@ void init_obj_index()
 			if (m != tmp.end())
 			{
 				obj_proto.set_idx(m->second, i);
+				SetsDrop::create_clone_miniset(k->first);
+
 			}
 		}
 	}

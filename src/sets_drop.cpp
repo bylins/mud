@@ -348,7 +348,7 @@ void init_obj_list()
 						}
 					}
 				}
-				create_clone_miniset(obj_vnum);				
+				//create_clone_miniset(obj_vnum);				
 			}
 		}
 		else
