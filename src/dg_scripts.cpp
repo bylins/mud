@@ -4082,7 +4082,7 @@ foreach i <список>
 		auto ptr = strstr(list, v->value);
 
 		{
-			bool complex_condition = false;
+			bool value_corresponds_to_position = false;
 			if (pos
 				&& pos->value)
 			{
@@ -4090,11 +4090,11 @@ foreach i <список>
 				const auto list_length = strlen(list);
 				if (position < list_length)
 				{
-					complex_condition = 0 == strncmp(list + position, v->value, strlen(v->value));
+					value_corresponds_to_position = 0 == strncmp(list + position, v->value, strlen(v->value));
 				}
 			}
 
-			if (complex_condition)
+			if (value_corresponds_to_position)
 			{
 				v_strpos = atoi(pos->value);
 				ptr = list + v_strpos;
