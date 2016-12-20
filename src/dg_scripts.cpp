@@ -4080,26 +4080,21 @@ foreach i <список>
 	if (v)
 	{
 		auto ptr = strstr(list, v->value);
-		const auto list_length = strlen(list);
 
 		{
-			// извращение еще то но я чото хезе чо еще можно сделать со списками типо %self.pc%,
-			// которые генеряцо на каждой итерации цикла и тригами на телепорт, которые уменьшают эти списки
-			// здесь мы проверяем строку в списке в нужной позиции на соотвествие со значением переменной
-			bool complex_condition = false;
-			if (pos && pos->value
-					&& ((unsigned)atoi(pos->value) < strlen(list)))
+			bool value_corresponds_to_position = false;
+			if (pos
+				&& pos->value)
 			{
-				if (list_length < static_cast<unsigned>(v_strpos))
+				const auto position = static_cast<unsigned>(atoi(pos->value));
+				const auto list_length = strlen(list);
+				if (position < list_length)
 				{
-//					mudlog("Похоже, что мы на грани кордампа. Пора бы это починить.", DEF, LVL_IMPL, ERRLOG, TRUE);
-					return 0;
+					value_corresponds_to_position = 0 == strncmp(list + position, v->value, strlen(v->value));
 				}
-
-				complex_condition = !strncmp(list + v_strpos, v->value, strlen(v->value));
 			}
 
-			if (complex_condition)
+			if (value_corresponds_to_position)
 			{
 				v_strpos = atoi(pos->value);
 				ptr = list + v_strpos;
@@ -4113,9 +4108,11 @@ foreach i <список>
 		// Проверяем на наличие пробела перед найденой строкой и после нее
 		while (ptr)
 		{
-			if ((ptr != list) && !a_isspace(*(ptr - 1)))
+			if ((ptr != list)
+				&& !a_isspace(*(ptr - 1)))
 			{
-				while (*ptr && !a_isspace(*ptr))
+				while (*ptr
+					&& !a_isspace(*ptr))
 				{
 					++ptr;
 				}
@@ -4140,14 +4137,20 @@ foreach i <список>
 			}
 		}
 	}
-	//list = one_argument(list, value);
-	// one_argument() использовать нельзя, т.к. он преобразует строку в lowcase
+
 	p = value;
 	while (*list && a_isspace(*list))
+	{
 		++list;		// пропуск пробелов
+	}
+
 	v_strpos = list - result;
+
 	while (*list && !a_isspace(*list))
+	{
 		*p++ = *list++;	// копирование слова
+	}
+
 	*p = 0;
 
 	if (!*value)
@@ -4160,12 +4163,14 @@ foreach i <список>
 		}
 		return 0;
 	}
+
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
 	//сохраняем позицию в строке со списком во избежание бесконечного цикла
 	//правда фиг его знает чо будет если внутри одного foreach другой foreach решит использовать туже переменную
 	strcat(name, "_strpos");
 	sprintf(value, "%d", v_strpos);
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
+
 	return 1;
 }
 
