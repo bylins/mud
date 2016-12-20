@@ -4,8 +4,6 @@
 #include "comm.h"
 #include "interpreter.h"
 #include "structs.h"
-#include "utils.h"
-#include "logger.hpp"
 
 namespace commands
 {
