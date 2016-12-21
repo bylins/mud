@@ -31,7 +31,7 @@ void init_xhelp_full();
 void print_timer_str(CHAR_DATA *ch);
 // сейв текущей таблицы дропа и шансов
 void save_drop_table();
-
+void create_clone_miniset(int vnum);
 std::map<int, int> get_unique_mob();
 
 } // namespace SetsDrop
