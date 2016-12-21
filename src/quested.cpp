@@ -8,6 +8,7 @@
 #include "quested.hpp"
 #include "utils.h"
 #include "char.hpp"
+#include <boost/algorithm/string/predicate.hpp>
 
 void smash_tilde(char *str);
 
@@ -33,7 +34,7 @@ bool Quested::remove(int vnum)
 	if (it != quested_.end())
 	{
 		quested_.erase(it);
-		return true;
+			return true;
 	}
 	return false;
 }
@@ -73,7 +74,13 @@ void Quested::save(FILE *saved) const
 
 void Quested::clear()
 {
-	quested_.clear();
+	for (QuestedType::const_iterator it = quested_.begin(); it != quested_.end(); ++it)
+	{
+		if (!boost::starts_with((*it).second, "@"))
+		{
+			quested_.erase(it);
+		}
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

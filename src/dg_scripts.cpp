@@ -2842,7 +2842,6 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if ((num = atoi(buf)) > 0)
 				{
 					c->quested_add(c, num, subfield);
-					strcpy(str, "1");
 				}
 			}
 		}
