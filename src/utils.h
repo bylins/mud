@@ -25,6 +25,7 @@
 #include <list>
 #include <new>
 #include <vector>
+#include <sstream>
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
