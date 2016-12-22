@@ -12,6 +12,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "pugixml.hpp"
+#include "backtrace.hpp"
 
 #include <algorithm>
 
@@ -35,10 +36,21 @@ CelebrateMobs loaded_mobs;
 CelebrateObjs attached_objs;
 CelebrateObjs loaded_objs;
 
+using CelebrateMobs_list = std::list<CelebrateMobs::mapped_type>;
+void make_CelebratedMobs_list_from_CelebrateMobs(const CelebrateMobs& input, CelebrateMobs_list& result)
+{
+	result.clear();
+	for (const auto& mob : input)
+	{
+		result.push_back(mob.second);
+	}
+}
+
 void add_mob_to_attach_list(long uid, CHAR_DATA * mob)
 {
 		attached_mobs[uid] = mob;
 }
+
 void add_mob_to_load_list(long uid, CHAR_DATA * mob)
 {
 		loaded_mobs[uid] = mob;
@@ -411,14 +423,68 @@ CelebrateDataPtr get_real_celebrate()
 	return result;
 };
 
+class sc_Checker
+{
+public:
+	sc_Checker(const TrigList& trigs);
+	void set_inside_loop() { m_inside_loop = true; }
+	void set_current_trigger(const TrigList::value_type current_trigger) { m_current_trigger = current_trigger; }
+	void report_null_sc() const;
+
+private:
+	auto get_inside_loop() const { return m_inside_loop; }
+	const auto& triggers_list() const { return m_triggers_list; }
+	auto get_current_trigger() const { return m_current_trigger; }
+
+	bool m_inside_loop;
+	TrigList m_triggers_list;
+	TrigList::value_type m_current_trigger;
+};
+
+sc_Checker::sc_Checker(const TrigList& trigs) : m_inside_loop(false), m_triggers_list(trigs), m_current_trigger(0)
+{
+}
+
+void sc_Checker::report_null_sc() const
+{
+	std::string joined_triggers_list;
+	joinList(triggers_list(), joined_triggers_list);
+
+	std::stringstream ss;
+	ss << "Перехвачен кордамп. Список триггеров, переданных в функцию remove_triggers(...): ["
+		<< joined_triggers_list << "].";
+	if (get_inside_loop())
+	{
+		ss << " Обратите внимание, что кордамп перехвачен ВНУТРИ цикла на триггере " << get_current_trigger();
+	}
+	mudlog(ss.str().c_str(), DEF, -1, ERRLOG, true);
+	ss << "\nТекущий стек будет распечатан в ERRLOG, выполнение функции будет прервано.";
+	debug::backtrace(runtime_config.logs(ERRLOG).handle());
+	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, false);
+}
+
 void remove_triggers(TrigList trigs, SCRIPT_DATA* sc)
 {
-	TrigList::const_iterator it;
-	TRIG_DATA* tr;
-	TRIG_DATA* tmp;
-	
-	for (it = trigs.begin(); it!= trigs.end();++it)
+	sc_Checker checker(trigs);
+	if (nullptr == sc)
 	{
+		checker.report_null_sc();
+		return;
+	}
+	
+	for (TrigList::const_iterator it = trigs.begin(); it!= trigs.end(); ++it)
+	{
+		TRIG_DATA* tr;
+		TRIG_DATA* tmp;
+
+		if (nullptr == sc)
+		{
+			checker.set_inside_loop();
+			checker.set_current_trigger(*it);
+			checker.report_null_sc();
+			return;
+		}
+
 		for (tmp = nullptr, tr = TRIGGERS(sc); tr; tmp = tr, tr = tr->next)
 		{
 			const auto trigger_rnum = tr->get_rnum();
@@ -515,9 +581,12 @@ bool make_clean(CelebrateDataPtr celebrate)
 		}
 	}
 
-	for (mob_it = loaded_mobs.begin(); mob_it != loaded_mobs.end(); ++mob_it)
+	CelebrateMobs_list loaded_mobs_copy;
+	make_CelebratedMobs_list_from_CelebrateMobs(loaded_mobs, loaded_mobs_copy);
+
+	for (const auto& mob : loaded_mobs_copy)
 	{
-		int vnum = mob_index[mob_it->second->nr].vnum;	
+		int vnum = mob_index[mob->nr].vnum;	
 		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
 		{
 			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
@@ -526,14 +595,13 @@ bool make_clean(CelebrateDataPtr celebrate)
 				{
 					if ((*it)->vnum == vnum)
 					{
-						extract_char(mob_it->second, 0);
+						// This function is very bad because modifies global variable loaded_mobs
+						// Initially loop was over this global variable. Therefore this loop constantly crashed.
+						// I've changed loop variable to the copy of loaded_mobs, but it's still a bad approach.
+						extract_char(mob, 0);
 					}
 				}
 			}
-		}
-		if (loaded_mobs.empty())
-		{
-			break;
 		}
 	}
 
