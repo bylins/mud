@@ -314,6 +314,8 @@ struct player_special_data
 	// TODO: однозначно переписать
 	std::shared_ptr<class Clan> clan; // собсна клан, если он есть
 	std::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
+
+	static player_special_data::shared_ptr s_for_mobiles;
 };
 
 enum

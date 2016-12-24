@@ -1172,7 +1172,7 @@ void MobileFile::parse_mobile(const int nr)
 
 	sprintf(buf2, "mob vnum %d", nr);
 
-	mob_proto[i].player_specials.reset();
+	mob_proto[i].player_specials = player_special_data::s_for_mobiles;
 
 	// **** String data
 	char *tmp_str = fread_string();

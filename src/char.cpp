@@ -519,7 +519,8 @@ void CHAR_DATA::purge(bool destructor)
 
 	Celebrates::remove_from_mob_lists(this->id);
 
-	if (this->player_specials)
+	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;
+	if (this->player_specials && !keep_player_specials)
 	{
 		while ((a = GET_ALIASES(this)) != NULL)
 		{
@@ -2337,7 +2338,6 @@ player_special_data::player_special_data() :
 {
 }
 
-
 player_special_data_saved::player_special_data_saved() :
 	wimp_level(0),
 	invis_level(0),
@@ -2377,4 +2377,7 @@ player_special_data_saved::player_special_data_saved() :
 	memset(LastIP, 0, sizeof(LastIP));
 }
 
+// dummy spec area for mobs
+player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
+																						
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

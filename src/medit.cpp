@@ -105,8 +105,6 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 //   Инициализация моба по-умолчанию
 void medit_mobile_init(CHAR_DATA * mob)
 {
-	int i;
-
 	GET_HIT(mob) = GET_MEM_TOTAL(mob) = 1;
 	GET_MANA_STORED(mob) = GET_MAX_MOVE(mob) = 100;
 	GET_NDD(mob) = GET_SDD(mob) = 1;
@@ -126,12 +124,13 @@ void medit_mobile_init(CHAR_DATA * mob)
 	mob->set_con(11);
 
 	MOB_FLAGS(mob).set(MOB_ISNPC);
-	mob->player_specials.reset();
+	mob->player_specials = player_special_data::s_for_mobiles;
 
-	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
+	for (auto i = 0; i < MAX_NUMBER_RESISTANCE; i++)
+	{
 		GET_RESIST(mob, i) = 0;
+	}
 }
-
 
 void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 /*++
