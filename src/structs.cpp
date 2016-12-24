@@ -1159,8 +1159,4 @@ bool AFFECT_DATA<EApplyLocation>::removable() const
 		|| type == SPELL_DEAFNESS;
 }
 
-punish_data::punish_data() : duration(0), reason(nullptr), level(0), godid(0)
-{
-}
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

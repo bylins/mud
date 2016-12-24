@@ -275,6 +275,7 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 //-Polud
 
 extern room_rnum top_of_world;
+extern struct player_special_data dummy_mob;
 
 #ifndef __CONFIG_C__
 extern char const *OK;
@@ -305,7 +306,6 @@ extern OBJ_DATA *object_list;
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
 extern int top_of_p_table;
-
 
 class CObjectPrototypes
 {
@@ -429,8 +429,6 @@ long get_ptable_by_name(const char *name);
 void free_alias(struct alias_data *a);
 extern player_index_element* player_table;
 
-bool player_exists(const long id);
-
 inline save_info* SAVEINFO(const size_t number)
 {
 	return player_table[number].timer;
@@ -454,7 +452,7 @@ namespace OfftopSystem
 } // namespace OfftopSystem
 
 extern int now_entrycount;
-
+void load_ignores(CHAR_DATA * ch, char *line);
 void delete_char(const char *name);
 
 void set_test_data(CHAR_DATA *mob);

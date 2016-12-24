@@ -17,8 +17,7 @@ set(TESTS
 	obj.copy.cpp
 	act.makefood.cpp
 	utils.editor.cpp
-	fight.penalties.cpp
-	ignores.loader.cpp)
+	fight.penalties.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)
@@ -30,6 +29,7 @@ source_group("Tests" FILES ${TESTS})
 source_group("Tests helpers" FILES ${UTILITIES})
 add_executable(tests main.cpp ${TESTS} ${UTILITIES} ${ADDITIONAL_FILES})
 
+set_target_properties(tests PROPERTIES FOLDER "Utility targets")
 set_target_properties(tests PROPERTIES CXX_STANDARD 14)
 target_link_libraries(tests circle.library ${GTEST_LIB})
 if (NOT WIN32)

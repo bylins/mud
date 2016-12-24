@@ -47,6 +47,7 @@ extern INDEX_DATA *mob_index;
 extern CHAR_DATA *mob_proto;
 extern mob_rnum top_of_mobt;
 extern struct zone_data *zone_table;
+extern struct player_special_data dummy_mob;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern void extract_mob(CHAR_DATA *ch);
 #if defined(OASIS_MPROG)
@@ -126,7 +127,7 @@ void medit_mobile_init(CHAR_DATA * mob)
 	mob->set_con(11);
 
 	MOB_FLAGS(mob).set(MOB_ISNPC);
-	mob->player_specials.reset();
+	mob->player_specials = &dummy_mob;
 
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
 		GET_RESIST(mob, i) = 0;
