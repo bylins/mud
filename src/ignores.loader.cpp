@@ -7,7 +7,7 @@
 class IgnoreParser
 {
 public:
-	IgnoreParser(const char* line) : m_pos(line) {}
+	IgnoreParser(const char* line, const CHAR_DATA* character) : m_pos(line), m_character(character) {}
 
 	ignore_data::shared_ptr parse();
 
@@ -17,7 +17,7 @@ private:
 	bool skip_until_spaces();
 
 	const char* m_pos;
-	CHAR_DATA* m_character;
+	const CHAR_DATA* m_character;
 };
 
 ignore_data::shared_ptr IgnoreParser::parse()
@@ -79,7 +79,7 @@ bool IgnoreParser::skip_until_spaces()
 
 void IgnoresLoader::load_from_string(const char *line)
 {
-	IgnoreParser parser(line);
+	IgnoreParser parser(line, m_character);
 	while (const auto ignore = parser.parse())
 	{
 		if (!player_exists(ignore->id))
