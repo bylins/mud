@@ -2651,7 +2651,8 @@ void Clan::HcontrolDestroy(CHAR_DATA * ch, std::string & buffer)
 
 void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 {
-	CHAR_DATA *cbuf, *tch;
+	CHAR_DATA *cbuf;
+	DESCRIPTOR_DATA *tch;
 
 	for (int i = 0; i <= top_of_p_table; i++)
 	{
@@ -2662,18 +2663,13 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 			continue;
 		}
 
-		for (tch = character_list; tch; tch = tch->get_next())
+		for (tch = descriptor_list; tch; tch = tch->next) // чары онлайн
 		{
-			if (IS_NPC(tch))
+			if (isname(player_table[i].name, tch->character->get_pc_name()))
 			{
-				continue;
-			}
-
-			if (isname(player_table[i].name, tch->get_pc_name()))
-			{
-				GET_LOADROOM(tch) = mortal_start_room;
-				char_from_room(tch);
-				char_to_room(tch, real_room(mortal_start_room));
+				GET_LOADROOM(tch->character) = mortal_start_room;
+				char_from_room(tch->character);
+				char_to_room(tch->character, real_room(mortal_start_room));
 
 				break;
 			}
