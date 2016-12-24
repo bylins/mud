@@ -1435,15 +1435,6 @@ struct time_info_data
 	sh_int year;
 };
 
-// shapirus
-struct ignore_data
-{
-	long
-	id;
-	unsigned long
-	mode;
-	struct ignore_data *next;
-};
 // Alez
 struct logon_data
 {
@@ -1456,6 +1447,8 @@ struct logon_data
 class punish_data
 {
 public:
+	punish_data();
+
 	long duration;
 	char * reason;
 	int  level;
