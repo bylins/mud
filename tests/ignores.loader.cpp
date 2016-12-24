@@ -34,7 +34,7 @@ TEST(Ignores_Loader, OneIgnore_TrailingSpaces)
 	EXPECT_EQ(0, character->get_ignores().front()->id);
 }
 
-TEST(Ignores_Loader, ManyIgnores_Sequencial)
+TEST(Ignores_Loader, ManyIgnores_Sequential)
 {
 	test_utils::CharacterBuilder builder;
 	builder.create_new();
