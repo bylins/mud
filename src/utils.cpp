@@ -1724,7 +1724,6 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 	if (IS_NPC(who)) return false;
 
 	long ign_id;
-	struct ignore_data *ignore = IGNORE_LIST(who);
 
 // имморталов не игнорит никто
 	if (IS_IMMORTAL(whom))
@@ -1740,7 +1739,7 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 	}
 
 	ign_id = GET_IDNUM(whom);
-	for (; ignore; ignore = ignore->next)
+	for (const auto& ignore : IGNORE_LIST(who))
 	{
 		if ((ignore->id == ign_id || ignore->id == -1)
 			&& IS_SET(ignore->mode, flag))

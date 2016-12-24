@@ -9,6 +9,7 @@
 #include "obj_sets.hpp"
 #include "db.h"
 #include "room.hpp"
+#include "ignores.hpp"
 #include "im.h"
 #include "skills.h"
 #include "structs.h"
@@ -18,9 +19,10 @@
 #include <boost/array.hpp>
 #include <boost/dynamic_bitset.hpp>
 
-#include <bitset>
-#include <map>
 #include <unordered_map>
+#include <bitset>
+#include <list>
+#include <map>
 
 // These data contain information about a players time data
 struct time_data
@@ -225,6 +227,8 @@ typedef std::map <int, SetAllInspReqPtr> SetAllInspReqListType;
 
 struct player_special_data_saved
 {
+	player_special_data_saved();
+
 	int wimp_level;		// Below this # of hit points, flee!
 	int invis_level;		// level of invisibility
 	room_vnum load_room;	// Which room to place char in
@@ -274,7 +278,12 @@ struct player_special_data_saved
 
 struct player_special_data
 {
-	struct player_special_data_saved saved;
+	using shared_ptr = std::shared_ptr<player_special_data>;
+	using ignores_t = std::list<ignore_data::shared_ptr>;
+
+	player_special_data();
+
+	player_special_data_saved saved;
 
 	char *poofin;		// Description on arrival of a god.
 	char *poofout;		// Description upon a god's exit.
@@ -287,7 +296,7 @@ struct player_special_data
 	int *logs;		// уровни подробности каналов log
 
 	char *Exchange_filter;
-	struct ignore_data *ignores;
+	ignores_t ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
 	struct logon_data * logons; //Записи о входах чара
@@ -606,8 +615,13 @@ public:
 	*/
 	void add_follower_silently(CHAR_DATA* ch);
 	followers_list_t get_followers_list() const;
+	const player_special_data::ignores_t& get_ignores() const;
+	void add_ignore(const ignore_data::shared_ptr ignore);
 
 private:
+	const auto& get_player_specials() const { return player_specials; }
+	auto& get_player_specials() { return player_specials; }
+
 	std::string clan_for_title();
 	std::string only_title_noclan();
 	void check_fighting_list();
@@ -723,7 +737,7 @@ public:
 	struct char_special_data char_specials;		// PC/NPC specials
 	struct mob_special_data mob_specials;		// NPC specials
 
-	struct player_special_data *player_specials;	// PC specials
+	player_special_data::shared_ptr player_specials;	// PC specials
 
 	char_affects_list_t affected;	// affected by what spells
 	struct timed_type *timed;	// use which timed skill/spells
@@ -790,6 +804,18 @@ inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
 			temp->set_next(next_);
 		}
 	}
+}
+
+inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const
+{
+	const auto& ps = get_player_specials();
+	return ps->ignores;
+}
+
+inline void CHAR_DATA::add_ignore(const ignore_data::shared_ptr ignore)
+{
+	const auto& ps = get_player_specials();
+	ps->ignores.push_back(ignore);
 }
 
 int GET_INVIS_LEV(const CHAR_DATA* ch);

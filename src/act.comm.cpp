@@ -1200,7 +1200,6 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg3[MAX_INPUT_LENGTH];
 	unsigned int mode = 0, list_empty = 1, all = 0, flag = 0;
 	long vict_id;
-	struct ignore_data *ignore, *cur;
 	char buf[256], buf1[256], name[50];
 
 	argument = one_argument(argument, arg1);
@@ -1218,7 +1217,7 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		sprintf(buf, "%sВы игнорируете следующих персонажей:%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		for (ignore = IGNORE_LIST(ch); ignore; ignore = ignore->next)
+		for (const auto ignore : IGNORE_LIST(ch))
 		{
 			if (!ignore->id)
 				continue;
@@ -1238,8 +1237,11 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("\r\n", ch);
 			list_empty = 0;
 		}
+
 		if (list_empty)
+		{
 			send_to_char("  список пуст.\r\n", ch);
+		}
 		return;
 	}
 
@@ -1296,28 +1298,26 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 // ищем жертву в списке
-	for (ignore = IGNORE_LIST(ch); ignore; ignore = ignore->next)
+	ignore_data::shared_ptr ignore = nullptr;
+	for (const auto ignore_i : IGNORE_LIST(ch))
 	{
-		if (ignore->id == vict_id)
+		if (ignore_i->id == vict_id)
+		{
+			ignore = ignore_i;
 			break;
-		if (!ignore->next)
-			break;
+		}
 	}
 
 	if (is_abbrev(arg3, "добавить"))
 	{
 // создаем новый элемент списка в хвосте, если не нашли
-		if (!ignore || ignore->id != vict_id)
+		if (!ignore)
 		{
-			CREATE(cur, 1);
-			cur->next = NULL;
-			if (!ignore)	// создаем вообще новый список, если еще нет
-				IGNORE_LIST(ch) = cur;
-			else
-				ignore->next = cur;
+			const auto cur = std::make_shared<ignore_data>();
+			cur->id = vict_id;
+			cur->mode = 0;
+			IGNORE_LIST(ch).push_back(cur);
 			ignore = cur;
-			ignore->id = vict_id;
-			ignore->mode = 0;
 		}
 		mode = ignore->mode;
 		if (all)

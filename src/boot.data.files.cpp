@@ -1170,13 +1170,9 @@ void MobileFile::parse_mobile(const int nr)
 	mob_index[i].func = NULL;
 	mob_index[i].set_idx = -1;
 
-	/*
-	* Mobiles should NEVER use anything in the 'player_specials' structure.
-	* The only reason we have every mob in the game share this copy of the
-	* structure is to save newbie coders from themselves. -gg 2/25/98
-	*/
-	mob_proto[i].player_specials = &dummy_mob;
 	sprintf(buf2, "mob vnum %d", nr);
+
+	mob_proto[i].player_specials.reset();
 
 	// **** String data
 	char *tmp_str = fread_string();
