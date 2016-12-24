@@ -37,7 +37,15 @@ inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, 
 
 void write_time(FILE *file);
 
-class Logger
+class AbstractLogger
+{
+public:
+	~AbstractLogger() {}
+
+	virtual void operator()(const char* format, ...) __attribute__((format(printf, 2, 3))) = 0;
+};
+
+class Logger: public AbstractLogger
 {
 public:
 	class CPrefix
@@ -51,7 +59,7 @@ public:
 		Logger& m_logger;
 	};
 
-	void operator()(const char* format, ...) __attribute__((format(printf, 2, 3)));
+	void operator()(const char* format, ...) override __attribute__((format(printf, 2, 3)));
 
 private:
 	void push_prefix(const char* prefix) { m_prefix.push_back(prefix); }
