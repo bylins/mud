@@ -10,7 +10,7 @@ namespace test_utils
 void CharacterBuilder::create_new()
 {
 	const auto result = std::make_shared<character_t>();
-	result->player_specials = std::make_shared<player_special_data>();
+	CREATE(result->player_specials, 1);
 	result->set_class(CLASS_DRUID);
 	result->set_level(1);
 	m_result = result;

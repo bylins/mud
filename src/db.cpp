@@ -110,30 +110,6 @@ zone_rnum top_of_zone_table = 0;	// top element of zone tab
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 
 struct player_index_element *player_table = NULL;	// index to plr file
-
-bool player_exists(const long id)
-{
-	if (id == -1)
-	{
-		return true;
-	}
-
-	if (0 == top_of_p_table)
-	{
-		return false;
-	}
-
-	for (auto i = 0; i <= top_of_p_table; i++)
-	{
-		if (id == player_table[i].id)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 FILE *player_fl = NULL;		// file desc of player file
 int top_of_p_table = 0;		// ref to top of table
 int top_of_p_file = 0;		// ref of size of p file
@@ -161,6 +137,7 @@ char *name_rules = NULL;		// rules of character's names
 
 TIME_INFO_DATA time_info;	// the infomation about the time
 struct weather_data weather_info;	// the infomation about the weather
+struct player_special_data dummy_mob;	// dummy spec area for mobs
 struct reset_q_type reset_q;	// queue of zones to be reset
 
 const FLAG_DATA clear_flags;
@@ -5178,6 +5155,94 @@ int create_unique(void)
 	}
 	while (correct_unique(unique));
 	return (unique);
+}
+
+// shapirus
+struct ignore_data *parse_ignore(char *buf)
+{
+	struct ignore_data *result;
+
+	CREATE(result, 1);
+
+	if (sscanf(buf, "[%ld]%ld", &result->mode, &result->id) < 2)
+	{
+		free(result);
+		return NULL;
+	}
+	else
+	{
+		result->next = NULL;
+		return result;
+	}
+}
+
+// возвращает истину, если чар с заданным id
+// существует, ложь в противном случае
+bool ign_plr_exists(long id)
+{
+	int i;
+
+	if (id == -1)
+		return TRUE;
+
+	for (i = 0; i <= top_of_p_table; i++)
+		if (id == player_table[i].id)
+			return TRUE;
+	return FALSE;
+}
+
+// можно вызывать много раз по разу, а можно один раз
+// вызывать и скормить в одной строке всех
+void load_ignores(CHAR_DATA * ch, char *line)
+{
+	struct ignore_data *cur_ign, *ignore_list;
+	char *buf;
+	unsigned int i, k, done = 0;
+
+// найдем последний элемент списка на случай, если функцию
+// хотят вызывать многократно
+	for (ignore_list = IGNORE_LIST(ch); ignore_list && ignore_list->next; ignore_list = ignore_list->next);
+	buf = str_dup(line);
+	for (i = k = 0;;)
+	{
+		if (buf[i] == ' ' || buf[i] == '\t' || buf[i] == 0)
+		{
+			if (buf[i] == 0)
+				done = 1;
+			buf[i] = 0;
+			cur_ign = parse_ignore(&(buf[k]));
+			if (cur_ign)
+			{
+				if (!ignore_list)
+				{
+					IGNORE_LIST(ch) = cur_ign;
+				}
+				else
+				{
+					ignore_list->next = cur_ign;
+				}
+				ignore_list = cur_ign;
+				// удаленных игроков из листа нафиг
+				if (!ign_plr_exists(ignore_list->id))
+					ignore_list->id = 0;
+			}
+			else
+			{
+				log("WARNING: could not parse ignore list " "of %s: invalid format", GET_NAME(ch));
+				return;
+			}
+			// skip whitespace
+			for (k = i + 1; buf[k] == ' ' || buf[k] == '\t'; k++);
+			i = k;
+			if (done || buf[k] == 0)
+				break;
+		}
+		else
+		{
+			i++;
+		}
+	}
+	free(buf);
 }
 
 void recreate_saveinfo(const size_t number)

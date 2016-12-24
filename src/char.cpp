@@ -519,7 +519,11 @@ void CHAR_DATA::purge(bool destructor)
 
 	Celebrates::remove_from_mob_lists(this->id);
 
-	if (this->player_specials)
+	// у мобов пока сохраняем это поле после пуржа, оно уберется
+	// когда в Character вообще не останется этого player_specials
+	bool keep_player_specials = (player_specials == &dummy_mob) ? true : false;
+
+	if (this->player_specials != NULL && this->player_specials != &dummy_mob)
 	{
 		while ((a = GET_ALIASES(this)) != NULL)
 		{
@@ -566,17 +570,20 @@ void CHAR_DATA::purge(bool destructor)
 // shapirus: подчистим за криворукуми кодерами memory leak,
 // вызванный неосвобождением фильтра базара...
 		if (EXCHANGE_FILTER(this))
-		{
 			free(EXCHANGE_FILTER(this));
-		}
 		EXCHANGE_FILTER(this) = NULL;	// на всякий случай
-
-		clear_ignores();
+// ...а заодно и игнор лист *смущ :)
+		while (IGNORE_LIST(this))
+		{
+			struct ignore_data *ign_next;
+			ign_next = IGNORE_LIST(this)->next;
+			free(IGNORE_LIST(this));
+			IGNORE_LIST(this) = ign_next;
+		}
+		IGNORE_LIST(this) = NULL;
 
 		if (GET_CLAN_STATUS(this))
-		{
 			free(GET_CLAN_STATUS(this));
-		}
 
 		// Чистим лист логонов
 		while (LOGON_LIST(this))
@@ -589,12 +596,10 @@ void CHAR_DATA::purge(bool destructor)
 		}
 		LOGON_LIST(this) = NULL;
 
-		this->player_specials.reset();
-
+		free(this->player_specials);
+		this->player_specials = NULL;	// чтобы словить ACCESS VIOLATION !!!
 		if (IS_NPC(this))
-		{
 			log("SYSERR: Mob %s (#%d) had player_specials allocated!", GET_NAME(this), GET_MOB_VNUM(this));
-		}
 	}
 	name_.clear();
 	short_descr_.clear();
@@ -606,6 +611,10 @@ void CHAR_DATA::purge(bool destructor)
 		// проставляем неподходящие из конструктора поля
 		purged_ = true;
 		char_specials.position = POS_DEAD;
+		if (keep_player_specials)
+		{
+			player_specials = &dummy_mob;
+		}
 		// закидываем в список ожидающих делета указателей
 		purged_char_list.push_back(this);
 	}
@@ -2318,63 +2327,6 @@ void CHAR_DATA::inc_restore_timer(int num)
 obj_sets::activ_sum& CHAR_DATA::obj_bonus()
 {
 	return obj_bonus_;
-}
-
-player_special_data::player_special_data() :
-	poofin(nullptr),
-	poofout(nullptr),
-	aliases(nullptr),
-	may_rent(0),
-	agressor(0),
-	agro_time(0),
-	rskill(0),
-	portals(0),
-	logs(nullptr),
-	Exchange_filter(nullptr),
-	Karma(nullptr),
-	logons(nullptr),
-	clanStatus(nullptr)
-{
-}
-
-
-player_special_data_saved::player_special_data_saved() :
-	wimp_level(0),
-	invis_level(0),
-	load_room(0),
-	bad_pws(0),
-	DrunkState(0),
-	olc_zone(0),
-	NameGod(0),
-	NameIDGod(0),
-	GodsLike(0),
-	stringLength(0),
-	stringWidth(0),
-	Rip_arena(0),
-	Rip_mob(0),
-	Rip_pk(0),
-	Rip_dt(0),
-	Rip_other(0),
-	Win_arena(0),
-	Rip_mob_this(0),
-	Rip_pk_this(0),
-	Rip_dt_this(0),
-	Rip_other_this(0),
-	Exp_arena(0),
-	Exp_mob(0),
-	Exp_pk(0),
-	Exp_dt(0),
-	Exp_other(0),
-	Exp_mob_this(0),
-	Exp_pk_this(0),
-	Exp_dt_this(0),
-	Exp_other_this(0),
-	ntfyExchangePrice(0),
-	HiredCost(0),
-	who_mana(0)
-{
-	memset(EMail, 0, sizeof(EMail));
-	memset(LastIP, 0, sizeof(LastIP));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

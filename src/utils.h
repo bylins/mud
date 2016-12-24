@@ -412,8 +412,20 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 	var = var ^ (bit & 0x3FFFFFFF);
 }
 
-// TODO: Get rid of me.
+/*
+ * Accessing player specific data structures on a mobile is a very bad thing
+ * to do.  Consider that changing these variables for a single mob will change
+ * it for every other single mob in the game.  If we didn't specifically check
+ * for it, 'wimpy' would be an extremely bad thing for a mob to do, as an
+ * example.  If you really couldn't care less, change this to a '#if 0'.
+ */
+#if 0
+// Subtle bug in the '#var', but works well for now.
+#define CHECK_PLAYER_SPECIAL(ch, var) \
+   (*(((ch)->player_specials == &dummy_mob) ? (log("SYSERR: Mob using '"#var"' at %s:%d.", __FILE__, __LINE__), &(var)) : &(var)))
+#else
 #define CHECK_PLAYER_SPECIAL(ch, var)  (var)
+#endif
 
 #define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
@@ -715,6 +727,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define AGRO(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->agro_time))
 
 #define EXCHANGE_FILTER(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Exchange_filter))
+#define IGNORE_LIST(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ignores))
 
 #define GET_ALIASES(ch)        CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->aliases))
 #define GET_RSKILL(ch)          CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->rskill))

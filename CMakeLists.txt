@@ -78,8 +78,6 @@ set(SOURCES
 	src/help.cpp
 	src/house.cpp
 	src/house_exp.cpp
-	src/ignores.cpp
-	src/ignores.loader.cpp
 	src/im.cpp
 	src/interpreter.cpp
 	src/item.creation.cpp
@@ -206,8 +204,6 @@ set(HEADERS
 	src/help.hpp
 	src/house_exp.hpp
 	src/house.h
-	src/ignores.hpp
-	src/ignores.loader.hpp
 	src/im.h
 	src/interpreter.h
 	src/item.creation.hpp

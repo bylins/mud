@@ -194,5 +194,3 @@ TEST(Object_Copy, Swap)
 
 // Currently I don't know a way to test "clone" because it uses a lot of global structures.
 // TEST(Object_Copy, Clone) {}
-
-/* vim: set ts=4 sw=4 tw=0 noet syntax=cpp :*/
