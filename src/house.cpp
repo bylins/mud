@@ -5862,12 +5862,11 @@ void tax_manage(CHAR_DATA *ch, std::string &buffer)
 	{
 		try
 		{
-			unsigned tax = boost::lexical_cast<unsigned>(buffer);
+			unsigned tax = std::stoi(buffer);
 			if (tax <= MAX_GOLD_TAX_PCT)
 			{
 				CLAN(ch)->set_gold_tax_pct(tax);
-				send_to_char(ch,
-					"Налог для ратников дружины установлен в %d%%\r\n", tax);
+				send_to_char(ch, "Налог для ратников дружины установлен в %d%%\r\n", tax);
 			}
 			else
 			{

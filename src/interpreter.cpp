@@ -2704,8 +2704,7 @@ void CreateChar(DESCRIPTOR_DATA * d)
 	if (d->character != NULL) return;
 
 	d->character = new Player;
-	CREATE(d->character->player_specials, 1);
-	memset(d->character->player_specials, 0, sizeof(struct player_special_data));
+	d->character->player_specials = std::make_shared<player_special_data>();
 	d->character->desc = d;
 }
 

@@ -658,7 +658,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		int amount = 0;
 		try
 		{
-			amount = boost::lexical_cast<int>(buffer);
+			amount = std::stoi(buffer);
 		}
 		catch(...)
 		{
@@ -666,6 +666,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char(GLORY_CONST_FORMAT, ch);
 			return;
 		}
+
 		if (amount < MIN_TRANSFER_AMOUNT || amount > it->second->free_glory)
 		{
 			send_to_char(ch,
@@ -685,8 +686,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			"Transfer %d const glory from %s", total_amount, GET_NAME(ch));
 		add_karma(vict, buf, "讼土文鲜");
 
-		snprintf(buf, MAX_STRING_LENGTH,
-			"Transfer %d const glory to %s", amount, GET_NAME(vict));
+		snprintf(buf, MAX_STRING_LENGTH, "Transfer %d const glory to %s", amount, GET_NAME(vict));
 		add_karma(ch, buf, "讼土文鲜");
 
 		total_charge += tax;
