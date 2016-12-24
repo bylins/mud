@@ -715,7 +715,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define AGRO(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->agro_time))
 
 #define EXCHANGE_FILTER(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Exchange_filter))
-#define IGNORE_LIST(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ignores))
 
 #define GET_ALIASES(ch)        CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->aliases))
 #define GET_RSKILL(ch)          CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->rskill))

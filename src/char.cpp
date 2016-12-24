@@ -571,7 +571,7 @@ void CHAR_DATA::purge(bool destructor)
 		}
 		EXCHANGE_FILTER(this) = NULL;	// на всякий случай
 
-		IGNORE_LIST(this).clear();
+		clear_ignores();
 
 		if (GET_CLAN_STATUS(this))
 		{

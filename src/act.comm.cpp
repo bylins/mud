@@ -1217,7 +1217,7 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		sprintf(buf, "%sВы игнорируете следующих персонажей:%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		for (const auto ignore : IGNORE_LIST(ch))
+		for (const auto ignore : ch->get_ignores())
 		{
 			if (!ignore->id)
 				continue;
@@ -1299,7 +1299,7 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // ищем жертву в списке
 	ignore_data::shared_ptr ignore = nullptr;
-	for (const auto ignore_i : IGNORE_LIST(ch))
+	for (const auto ignore_i : ch->get_ignores())
 	{
 		if (ignore_i->id == vict_id)
 		{
@@ -1316,7 +1316,7 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			const auto cur = std::make_shared<ignore_data>();
 			cur->id = vict_id;
 			cur->mode = 0;
-			IGNORE_LIST(ch).push_back(cur);
+			ch->add_ignore(cur);
 			ignore = cur;
 		}
 		mode = ignore->mode;

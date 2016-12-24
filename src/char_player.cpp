@@ -705,7 +705,7 @@ void Player::save_char()
 	if (EXCHANGE_FILTER(this))
 		fprintf(saved, "ExFl: %s\n", EXCHANGE_FILTER(this));
 
-	for (const auto& cur : IGNORE_LIST(this))
+	for (const auto& cur : get_ignores())
 	{
 		if (0 != cur->id)
 		{
@@ -1191,7 +1191,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	AFF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
-	IGNORE_LIST(this).clear();
+	clear_ignores();
 	CREATE(GET_LOGS(this), 1 + LAST_LOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
 	this->player_specials->saved.HiredCost = 0;

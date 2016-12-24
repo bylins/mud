@@ -1739,7 +1739,7 @@ bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
 	}
 
 	ign_id = GET_IDNUM(whom);
-	for (const auto& ignore : IGNORE_LIST(who))
+	for (const auto& ignore : who->get_ignores())
 	{
 		if ((ignore->id == ign_id || ignore->id == -1)
 			&& IS_SET(ignore->mode, flag))

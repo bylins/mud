@@ -617,6 +617,7 @@ public:
 	followers_list_t get_followers_list() const;
 	const player_special_data::ignores_t& get_ignores() const;
 	void add_ignore(const ignore_data::shared_ptr ignore);
+	void clear_ignores();
 
 private:
 	const auto& get_player_specials() const { return player_specials; }
@@ -816,6 +817,11 @@ inline void CHAR_DATA::add_ignore(const ignore_data::shared_ptr ignore)
 {
 	const auto& ps = get_player_specials();
 	ps->ignores.push_back(ignore);
+}
+
+inline void CHAR_DATA::clear_ignores()
+{
+	get_player_specials()->ignores.clear();
 }
 
 int GET_INVIS_LEV(const CHAR_DATA* ch);
