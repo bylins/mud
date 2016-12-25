@@ -5280,8 +5280,12 @@ int file_to_string_alloc(const char *name, char **buf)
 	DESCRIPTOR_DATA *in_use;
 
 	for (in_use = descriptor_list; in_use; in_use = in_use->next)
+	{
 		if (in_use->showstr_vector && *in_use->showstr_vector == *buf)
+		{
 			return (-1);
+		}
+	}
 
 	// Lets not free() what used to be there unless we succeeded.
 	if (file_to_string(name, temp) < 0)
