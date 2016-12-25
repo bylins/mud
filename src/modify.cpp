@@ -1503,6 +1503,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 	{
 		send_to_char(d->showstr_vector[d->showstr_page], d->character);
 		free(d->showstr_vector);
+		d->showstr_vector = nullptr;
 		d->showstr_count = 0;
 		if (d->showstr_head)
 		{
