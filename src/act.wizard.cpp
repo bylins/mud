@@ -931,8 +931,6 @@ void setall_inspect()
 							continue;
 						}
 						set_punish(imm_d->character, d_vict->character, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
-						sprintf(buf, "Freeze ON (%ldh) by %s", static_cast<long>(it->second->freeze_time), GET_NAME(imm_d->character));
-						add_karma(d_vict->character, buf, it->second->reason);
 					}
 					else
 					{
@@ -952,8 +950,6 @@ void setall_inspect()
 								continue;
 							}
 							set_punish(imm_d->character, vict, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
-							sprintf(buf, "Freeze ON (%ldh) by %s", static_cast<long>(it->second->freeze_time), GET_NAME(imm_d->character));
-							add_karma(vict, buf, it->second->reason);
 							vict->save_char();
 						}
 					}

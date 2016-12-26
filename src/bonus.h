@@ -20,4 +20,5 @@ namespace Bonus
 	int get_mult_bonus();
 	void bonus_log_load();
 	void show_log(CHAR_DATA *ch);
+	void dg_do_bonus(char *cmd);
 }
