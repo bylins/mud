@@ -3,6 +3,7 @@
 
 #include "bonus.h"
 
+#include "bonus.command.parser.hpp"
 #include "structs.h"
 #include "comm.h"
 #include "db.h"
@@ -42,77 +43,63 @@ namespace Bonus
 		show_log(ch);
 	}
 
+	void setup_bonus(const int duration, const int multilpier, EBonusType type)
+	{
+		time_bonus = duration;
+		mult_bonus = multilpier;
+		type_bonus = type;
+	}
+
+	void bonus_log_add(const std::string& name)
+	{
+		time_t nt = time(nullptr);
+		std::stringstream ss;
+		ss << rustime(localtime(&nt)) << " " << name;
+
+		bonus_log.push_back(ss.str());
+
+		std::ofstream fout("../log/bonus.log", std::ios_base::app);
+		fout << ss.str() << std::endl;
+		fout.close();
+	}
+
 	void do_bonus(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
-		argument = two_arguments(argument, buf, buf2);
-		std::string out = "*** Объявляется ";
+		ArgumentsParser bonus(argument, type_bonus, time_bonus);
 
-		if (!isname(buf, "двойной тройной отменить"))
+		bonus.parse();
+
+		const auto result = bonus.result();
+		switch (result)
 		{
-			send_to_char("Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]\r\n", ch);
-			return;
-		}
-		if (is_abbrev(buf, "отменить"))
-		{
-			sprintf(buf, "Бонус был отменен.\r\n");
-			send_to_all(buf);
+		case ArgumentsParser::ER_ERROR:
+			send_to_char(bonus.error_message().c_str(), ch);
+			break;
+
+		case ArgumentsParser::ER_START:
+			switch (bonus.type())
+			{
+			case BONUS_DAMAGE:
+				send_to_char("Режим бонуса \"урон\" в настоящее время отключен.", ch);
+				break;
+
+			default:
+				{
+					const std::string& message = bonus.broadcast_message();
+					send_to_all(message.c_str());
+					std::stringstream ss;
+					ss << "&W" << message << "&n\r\n";
+					bonus_log_add(ss.str());
+					setup_bonus(bonus.time(), bonus.multiplier(), bonus.type());
+				}
+			}
+			break;
+
+		case ArgumentsParser::ER_STOP:
+			send_to_all(bonus.broadcast_message().c_str());
 			time_bonus = -1;
-			return;
+			break;
 		}
-		if (!*buf || !*buf2 || !a_isascii(*buf2))
-		{
-			send_to_char("Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]\r\n", ch);
-			return;
-		}
-		if (!isname(buf2, "оружейный опыт"))
-// урон"))
-		{
-			send_to_char("Тип бонуса может быть &Wоружейный&n, &Wопыт&n или &Wурон&n.\r\n", ch);
-			return;
-		}
-		if (*argument) time_bonus = atol(argument);
-
-		if ((time_bonus < 1) || (time_bonus > 60))
-		{
-			send_to_char("Возможный временной интервал: от 1 до 60 игровых часов.\r\n", ch);
-			return;
-		}
-		if (is_abbrev(buf, "двойной"))
-		{
-			out += "двойной бонус";
-			mult_bonus = 2;
-		}
-		else if (is_abbrev(buf, "тройной"))
-		{
-			out += "тройной бонус";
-			mult_bonus = 3;
-		}
-		else
-		{
-			return;
-		}
-		if (is_abbrev(buf2, "оружейный"))
-		{
-			out += " оружейного опыта";
-			type_bonus =  BONUS_WEAPON_EXP;
-		}
-		else if (is_abbrev(buf2, "опыт"))
-		{
-			out += " опыта";
-			type_bonus = BONUS_EXP;
-		}
-		else if (is_abbrev(buf2, "урон"))
-		{
-			out += " увеличенного урона";
-			type_bonus = BONUS_DAMAGE;
-		}
-		else
-		{
-			return;
-		}
-		out += " на " + boost::lexical_cast<std::string>(time_bonus) + " часов. ***";
-		bonus_log_add(out);
-		send_to_all(("&W" + out + "&n\r\n").c_str());
 	}
 
 	// записывает в буффер сколько осталось до конца бонуса
@@ -121,7 +108,7 @@ namespace Bonus
 		std::stringstream ss;
 		if (time_bonus > 4)
 		{
-			ss << "До конца бонуса осталось " << time_bonus <<" часов.";
+			ss << "До конца бонуса осталось " << time_bonus << " часов.";
 		}
 		else if (time_bonus == 4)
 		{
@@ -165,7 +152,6 @@ namespace Bonus
 		}
 	}
 
-
 	// таймер бонуса
 	void timer_bonus()
 	{
@@ -191,19 +177,18 @@ namespace Bonus
 		{
 			return time_bonus <= -1 ? false : true;
 		}
-		if (time_bonus <= -1) return false;
-		if (type == type_bonus) return true;
-		return false;
-	}
 
-	// добавляет строку в лог
-	void bonus_log_add(std::string name)
-	{
-		time_t nt = time(NULL);
-		bonus_log.push_back(std::string(rustime(localtime(&nt))) + " " + name);
-		std::ofstream fout("../log/bonus.log", std::ios_base::app);
-		fout << std::string(rustime(localtime(&nt))) + " " + name << std::endl;
-		fout.close();
+		if (time_bonus <= -1)
+		{
+			return false;
+		}
+
+		if (type == type_bonus)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	// загружает лог бонуса из файла
@@ -252,9 +237,6 @@ namespace Bonus
 	{
 		return mult_bonus;
 	}
-	
-
-
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

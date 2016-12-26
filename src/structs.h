@@ -1199,13 +1199,6 @@ const int HISTORY_SIZE = 5;
 // планка на кол-во денег у чара на руках и в банке (раздельно)
 const long MAX_MONEY_KEPT = 1000000000;
 
-enum EBonusType
-{
-	BONUS_EXP = 0,
-	BONUS_WEAPON_EXP = 1,
-	BONUS_DAMAGE = 2
-};
-
 #define INT_STUPID_MOD 10
 #define INT_MIDDLE_AI 30
 #define INT_HIGH_AI 40
