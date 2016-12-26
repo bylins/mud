@@ -61,7 +61,8 @@ Player::Player()
 	was_in_room_(NOWHERE),
 	from_room_(0),
 	answer_id_(NOBODY),
-	motion_(true)
+	motion_(true),
+	ice_currency(0)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
@@ -414,6 +415,7 @@ void Player::save_char()
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
+	fprintf(saved, "ICur: %d\n", this->get_ice_currency());
 	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
 		strcpy(buf, this->desc->host);
@@ -999,6 +1001,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Id  "))
 			{
 				set_idnum(lnum);
+			}
+			else if (!strcmp(tag, "ICur"))
+			{
+				this->set_ice_currency(lnum);
 			}
 			break;
 		case 'L':
@@ -2065,6 +2071,27 @@ int Player::get_reset_stats_cnt(ResetStats::Type type) const
 {
 	return reset_stats_cnt_.at(type);
 }
+
+int Player::get_ice_currency()
+{
+	return this->ice_currency;
+}
+
+void Player::set_ice_currency(int value)
+{
+	this->ice_currency = value;
+}
+
+void Player::add_ice_currency(int value)
+{
+	this->ice_currency += value;
+}
+
+void Player::sub_ice_currency(int value)
+{
+	this->ice_currency = MAX(0, ice_currency - value);
+}
+
 
 void Player::inc_reset_stats_cnt(ResetStats::Type type)
 {
