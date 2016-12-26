@@ -77,14 +77,14 @@ namespace Bonus
 	class CharacterReporter: public AbstractErrorReporter
 	{
 	public:
-		CharacterReporter(const CHAR_DATA* character) : m_character(character) {}
+		CharacterReporter(CHAR_DATA* character) : m_character(character) {}
 
 		virtual void report(const std::string& message) override;
 
-		static shared_ptr create(const CHAR_DATA* character) { return std::make_shared<CharacterReporter>(character); }
+		static shared_ptr create(CHAR_DATA* character) { return std::make_shared<CharacterReporter>(character); }
 
 	private:
-		const CHAR_DATA* m_character;
+		CHAR_DATA* m_character;
 	};
 
 	void CharacterReporter::report(const std::string& message)
