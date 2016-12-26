@@ -25,6 +25,7 @@ set(SOURCES
 	src/boards.formatters.cpp
 	src/boards.types.cpp
 	src/bonus.cpp
+	src/bonus.command.parser.cpp
 	src/boot.constants.cpp
 	src/boot.data.files.cpp
 	src/boot.index.cpp
@@ -158,6 +159,8 @@ set(HEADERS
 	src/boards.message.hpp
 	src/boards.types.hpp
 	src/bonus.h
+	src/bonus.command.parser.hpp
+	src/bonus.types.hpp
 	src/boot.constants.hpp
 	src/boot.data.files.hpp
 	src/boot.index.hpp
