@@ -102,6 +102,14 @@ namespace Bonus
 		}
 	}
 
+	// вызывает функцию do_bonus
+	void dg_do_bonus(char *cmd)
+	{
+		CHAR_DATA *ch = new CHAR_DATA();
+		do_bonus(ch, cmd, 0, 0);
+		extract_char(ch, 0);
+	}
+
 	// записывает в буффер сколько осталось до конца бонуса
 	std::string bonus_end()
 	{

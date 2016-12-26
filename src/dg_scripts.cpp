@@ -38,6 +38,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "dg_db_scripts.hpp"
+#include "bonus.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -3078,7 +3079,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (!CAN_SEE(c, rndm))
 					continue;
 				if ((*field == 'a') ||
-						(!IS_NPC(rndm) && *field != 'n') ||
+						(!IS_NPC(rndm) && *field != 'n' && rndm->desc) ||
 						(IS_NPC(rndm) && IS_CHARMED(rndm)
 						 && *field == 'c') || (IS_NPC(rndm)
 											   && !IS_CHARMED(rndm)
@@ -5793,6 +5794,10 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			else if (!strn_cmp(cmd, "global ", 7))
 			{
 				process_global(sc, trig, cmd, sc->context);
+			}
+			else if (!strn_cmp(cmd, "bonus ", 6))
+			{
+				Bonus::dg_do_bonus(cmd + 6);
 			}
 			else if (!strn_cmp(cmd, "worlds ", 7))
 			{
