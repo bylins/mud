@@ -12,6 +12,8 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "utils.h"
+#include "logger.hpp"
+#include "structs.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -63,7 +65,47 @@ namespace Bonus
 		fout.close();
 	}
 
-	void do_bonus(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+	class AbstractErrorReporter
+	{
+	public:
+		using shared_ptr = std::shared_ptr<AbstractErrorReporter>;
+
+		virtual ~AbstractErrorReporter() {}
+		virtual void report(const std::string& message) = 0;
+	};
+
+	class CharacterReporter: public AbstractErrorReporter
+	{
+	public:
+		CharacterReporter(const CHAR_DATA* character) : m_character(character) {}
+
+		virtual void report(const std::string& message) override;
+
+		static shared_ptr create(const CHAR_DATA* character) { return std::make_shared<CharacterReporter>(character); }
+
+	private:
+		const CHAR_DATA* m_character;
+	};
+
+	void CharacterReporter::report(const std::string& message)
+	{
+		send_to_char(message.c_str(), m_character);
+	}
+
+	class MudlogReporter : public AbstractErrorReporter
+	{
+	public:
+		virtual void report(const std::string& message) override;
+
+		static shared_ptr create() { return std::make_shared<MudlogReporter>(); }
+	};
+
+	void MudlogReporter::report(const std::string& message)
+	{
+		mudlog(message.c_str(), DEF, LVL_BUILDER, ERRLOG, TRUE);
+	}
+
+	void do_bonus(const AbstractErrorReporter::shared_ptr& reporter, const char *argument)
 	{
 		ArgumentsParser bonus(argument, type_bonus, time_bonus);
 
@@ -73,14 +115,14 @@ namespace Bonus
 		switch (result)
 		{
 		case ArgumentsParser::ER_ERROR:
-			send_to_char(bonus.error_message().c_str(), ch);
+			reporter->report(bonus.error_message().c_str());
 			break;
 
 		case ArgumentsParser::ER_START:
 			switch (bonus.type())
 			{
 			case BONUS_DAMAGE:
-				send_to_char("Режим бонуса \"урон\" в настоящее время отключен.", ch);
+				reporter->report("Режим бонуса \"урон\" в настоящее время отключен.");
 				break;
 
 			default:
@@ -102,12 +144,17 @@ namespace Bonus
 		}
 	}
 
+	void do_bonus_by_character(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+	{
+		const auto reporter = CharacterReporter::create(ch);
+		do_bonus(reporter, argument);
+	}
+
 	// вызывает функцию do_bonus
 	void dg_do_bonus(char *cmd)
 	{
-		CHAR_DATA *ch = new CHAR_DATA();
-		do_bonus(ch, cmd, 0, 0);
-		extract_char(ch, 0);
+		const auto reporter = MudlogReporter::create();
+		do_bonus(reporter, cmd);
 	}
 
 	// записывает в буффер сколько осталось до конца бонуса

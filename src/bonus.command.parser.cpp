@@ -9,6 +9,27 @@ namespace Bonus
 {
 	const char *USAGE_MESSAGE = "Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]";
 
+	class StringStreamFinalizer
+	{
+	public:
+		StringStreamFinalizer(std::string& destination) : m_destination(destination) {}
+		~StringStreamFinalizer() { m_destination = m_stream.str(); }
+
+		template <typename Operand>
+		StringStreamFinalizer& operator<<(const Operand& operand);
+
+	private:
+		std::stringstream m_stream;
+		std::string& m_destination;
+	};
+
+	template <typename Operand>
+	StringStreamFinalizer& StringStreamFinalizer::operator<<(const Operand& operand)
+	{
+		m_stream << operand;
+		return *this;
+	}
+
 	ArgumentsParser::ArgumentsParser(const char* arguments, EBonusType type, int duration):
 		m_result(ER_ERROR),
 		m_bonus_time(duration),
@@ -20,33 +41,20 @@ namespace Bonus
 
 	void ArgumentsParser::parse()
 	{
-		class StringStreamFinalizer
-		{
-		public:
-			StringStreamFinalizer(std::stringstream& stream, std::string& destination) : m_stream(stream), m_destination(destination) {}
-			~StringStreamFinalizer() { m_destination = m_stream.str(); }
-
-		private:
-			std::stringstream& m_stream;
-			std::string& m_destination;
-		};
-
 		std::stringstream out;
 		out << "*** Объявляется ";
 
-		std::stringstream error_message;
-		StringStreamFinalizer error_message_finalizer(error_message, m_error_message);
+		StringStreamFinalizer error_message(m_error_message);
 		if (!isname(m_first_argument, "двойной тройной отменить"))
 		{
 			error_message << USAGE_MESSAGE << "\r\n";
 			return;
 		}
 
-		std::stringstream broadcast_message_stream;
-		StringStreamFinalizer broadcast_message_finalizer(broadcast_message_stream, m_broadcast_message);
+		StringStreamFinalizer broadcast_message(m_broadcast_message);
 		if (is_abbrev(m_first_argument.c_str(), "отменить"))
 		{
-			broadcast_message_stream << "Бонус был отменен.\r\n";
+			broadcast_message << "Бонус был отменен.\r\n";
 			m_result = ER_STOP;
 			return;
 		}
@@ -113,7 +121,7 @@ namespace Bonus
 
 		out << " на " << m_bonus_time << " часов. ***";
 		m_result = ER_START;
-		broadcast_message_stream << "&W" << out.str() << "&n\r\n";
+		broadcast_message << "&W" << out.str() << "&n\r\n";
 	}
 
 	void ArgumentsParser::parse_arguments(const char* argument)

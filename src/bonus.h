@@ -10,7 +10,7 @@ namespace Bonus
 {
 	void setup_bonus(const int duration_in_seconds, const int multilpier, EBonusType type);
 
-	void do_bonus(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	void do_bonus_by_character(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	void do_bonus_info(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	bool is_bonus(int type);
 	void timer_bonus();
