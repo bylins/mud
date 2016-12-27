@@ -4031,6 +4031,24 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
+	if (ch->get_ice_currency() > 0)
+	{
+		if (ch->get_ice_currency() == 1)
+		{
+			sprintf(buf, "У вас в наличии есть одна жалкая волшебная льдинка.\r\n");
+			send_to_char(buf, ch);
+		}
+		else if (ch->get_ice_currency() < 5)
+		{
+			sprintf(buf, "У вас в наличии есть жалкие %d волшебные льдинки\r\n", ch->get_ice_currency());
+			send_to_char(buf, ch);
+		}
+		else
+		{
+			sprintf(buf, "У вас в наличии есть %d волшебного льда.\r\n", ch->get_ice_currency());
+			send_to_char(buf, ch);
+		}
+	}
 }
 
 //29.11.09 Отображение количества рипов (с) Василиса

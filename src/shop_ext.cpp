@@ -24,6 +24,7 @@
 #include "parse.hpp"
 #include "pugixml.hpp"
 #include "pk.h"
+#include "ext_money.hpp"
 
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
@@ -608,6 +609,8 @@ bool check_money(CHAR_DATA *ch, long price, std::string currency)
 	}
 	if (currency == "куны")
 		return ch->get_gold() >= price;
+	if (currency == "лед")
+		return ch->get_ice_currency() >= price;
 	return false;
 }
 
@@ -753,9 +756,9 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			}
 		}
 
-		std::string numToShow = count == -1
+		std::string numToShow = (count == -1 || count > 100
 			? "Навалом"
-			: boost::lexical_cast<std::string>(count);
+			: boost::lexical_cast<std::string>(count));
 
 		// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
 		if (arg.empty()
@@ -763,7 +766,8 @@ void print_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::str
 			|| (!name_value.empty()
 				&& isname(arg, name_value)))
 		{
-			out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
+			std::string format_str = "%4d)  %10s  %-" + std::to_string(std::count(print_value.begin(), print_value.end(), '&') * 2 + 45) + "s %8d\r\n";
+			out += boost::str(boost::format(format_str)
 				% num++ % numToShow % print_value % (*k)->price);
 		}
 		else
@@ -1044,7 +1048,7 @@ void filter_shop_list(CHAR_DATA *ch, ShopListType::const_iterator &shop, std::st
 		// 
 		if ( show_name )
 		{
-			out += boost::str(boost::format("%3d)  %10s  %-47s %8d\r\n")
+			out += boost::str(boost::format("%4d)  %10s  %-47s %8d\r\n")
 				% num++ % numToShow % print_value % (*k)->price);
 		}
 		else
@@ -1218,7 +1222,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 	if (!check_money(ch, price, (*shop)->currency))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
-			"У вас нет столько %s!", (*shop)->currency == "куны" ? "денег" : "славы");
+			"У вас нет столько %s!", ExtMoney::name_currency_plural((*shop)->currency).c_str());
 		tell_to_char(keeper, ch, buf);
 		char local_buf[MAX_INPUT_LENGTH];
 		switch (number(0, 3))
@@ -1313,6 +1317,16 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 						GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price - removed);
 				}
 			}
+			else if ((*shop)->currency == "лед")
+			{
+				// книги за лед, как и за славу, не фейлим
+				if (OBJ_DATA::ITEM_BOOK == GET_OBJ_TYPE(obj))
+				{
+					obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
+				}
+				ch->sub_ice_currency(price);
+
+			}
 			else
 			{
 				ch->remove_gold(price);
@@ -1363,7 +1377,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 
 	snprintf(buf, MAX_STRING_LENGTH,
 		"Это будет стоить %d %s.", total_money,
-		desc_count(total_money, (*shop)->currency == "куны"? WHAT_MONEYu : WHAT_GLORYu));
+		desc_count(total_money, (*shop)->currency == "куны"? WHAT_MONEYu : ((*shop)->currency == "лед" ? WHAT_ICEu : WHAT_GLORYu)));
 	tell_to_char(keeper, ch, buf);
 	if (obj)
 	{
