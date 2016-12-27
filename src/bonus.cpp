@@ -3,6 +3,7 @@
 
 #include "bonus.h"
 
+#include "bonus.command.parser.hpp"
 #include "structs.h"
 #include "comm.h"
 #include "db.h"
@@ -11,6 +12,8 @@
 #include "char.hpp"
 #include "char_player.hpp"
 #include "utils.h"
+#include "logger.hpp"
+#include "structs.h"
 
 #include <boost/lexical_cast.hpp>
 
@@ -42,85 +45,116 @@ namespace Bonus
 		show_log(ch);
 	}
 
-	void do_bonus(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+	void setup_bonus(const int duration, const int multilpier, EBonusType type)
 	{
-		argument = two_arguments(argument, buf, buf2);
-		std::string out = "*** Объявляется ";
+		time_bonus = duration;
+		mult_bonus = multilpier;
+		type_bonus = type;
+	}
 
-		if (!isname(buf, "двойной тройной отменить"))
+	void bonus_log_add(const std::string& name)
+	{
+		time_t nt = time(nullptr);
+		std::stringstream ss;
+		ss << rustime(localtime(&nt)) << " " << name;
+
+		bonus_log.push_back(ss.str());
+
+		std::ofstream fout("../log/bonus.log", std::ios_base::app);
+		fout << ss.str() << std::endl;
+		fout.close();
+	}
+
+	class AbstractErrorReporter
+	{
+	public:
+		using shared_ptr = std::shared_ptr<AbstractErrorReporter>;
+
+		virtual ~AbstractErrorReporter() {}
+		virtual void report(const std::string& message) = 0;
+	};
+
+	class CharacterReporter: public AbstractErrorReporter
+	{
+	public:
+		CharacterReporter(CHAR_DATA* character) : m_character(character) {}
+
+		virtual void report(const std::string& message) override;
+
+		static shared_ptr create(CHAR_DATA* character) { return std::make_shared<CharacterReporter>(character); }
+
+	private:
+		CHAR_DATA* m_character;
+	};
+
+	void CharacterReporter::report(const std::string& message)
+	{
+		send_to_char(message.c_str(), m_character);
+	}
+
+	class MudlogReporter : public AbstractErrorReporter
+	{
+	public:
+		virtual void report(const std::string& message) override;
+
+		static shared_ptr create() { return std::make_shared<MudlogReporter>(); }
+	};
+
+	void MudlogReporter::report(const std::string& message)
+	{
+		mudlog(message.c_str(), DEF, LVL_BUILDER, ERRLOG, TRUE);
+	}
+
+	void do_bonus(const AbstractErrorReporter::shared_ptr& reporter, const char *argument)
+	{
+		ArgumentsParser bonus(argument, type_bonus, time_bonus);
+
+		bonus.parse();
+
+		const auto result = bonus.result();
+		switch (result)
 		{
-			send_to_char("Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]\r\n", ch);
-			return;
-		}
-		if (is_abbrev(buf, "отменить"))
-		{
-			sprintf(buf, "Бонус был отменен.\r\n");
-			send_to_all(buf);
+		case ArgumentsParser::ER_ERROR:
+			reporter->report(bonus.error_message().c_str());
+			break;
+
+		case ArgumentsParser::ER_START:
+			switch (bonus.type())
+			{
+			case BONUS_DAMAGE:
+				reporter->report("Режим бонуса \"урон\" в настоящее время отключен.");
+				break;
+
+			default:
+				{
+					const std::string& message = bonus.broadcast_message();
+					send_to_all(message.c_str());
+					std::stringstream ss;
+					ss << "&W" << message << "&n\r\n";
+					bonus_log_add(ss.str());
+					setup_bonus(bonus.time(), bonus.multiplier(), bonus.type());
+				}
+			}
+			break;
+
+		case ArgumentsParser::ER_STOP:
+			send_to_all(bonus.broadcast_message().c_str());
 			time_bonus = -1;
-			return;
+			break;
 		}
-		if (!*buf || !*buf2 || !a_isascii(*buf2))
-		{
-			send_to_char("Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]\r\n", ch);
-			return;
-		}
-		if (!isname(buf2, "оружейный опыт"))
-// урон"))
-		{
-			send_to_char("Тип бонуса может быть &Wоружейный&n, &Wопыт&n или &Wурон&n.\r\n", ch);
-			return;
-		}
-		if (*argument) time_bonus = atol(argument);
+	}
 
-		if ((time_bonus < 1) || (time_bonus > 60))
-		{
-			send_to_char("Возможный временной интервал: от 1 до 60 игровых часов.\r\n", ch);
-			return;
-		}
-		if (is_abbrev(buf, "двойной"))
-		{
-			out += "двойной бонус";
-			mult_bonus = 2;
-		}
-		else if (is_abbrev(buf, "тройной"))
-		{
-			out += "тройной бонус";
-			mult_bonus = 3;
-		}
-		else
-		{
-			return;
-		}
-		if (is_abbrev(buf2, "оружейный"))
-		{
-			out += " оружейного опыта";
-			type_bonus =  BONUS_WEAPON_EXP;
-		}
-		else if (is_abbrev(buf2, "опыт"))
-		{
-			out += " опыта";
-			type_bonus = BONUS_EXP;
-		}
-		else if (is_abbrev(buf2, "урон"))
-		{
-			out += " увеличенного урона";
-			type_bonus = BONUS_DAMAGE;
-		}
-		else
-		{
-			return;
-		}
-		out += " на " + boost::lexical_cast<std::string>(time_bonus) + " часов. ***";
-		bonus_log_add(out);
-		send_to_all(("&W" + out + "&n\r\n").c_str());
+	void do_bonus_by_character(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+	{
+		const auto reporter = CharacterReporter::create(ch);
+		do_bonus(reporter, argument);
 	}
 
 	// вызывает функцию do_bonus
 	void dg_do_bonus(char *cmd)
 	{
-		CHAR_DATA *ch = new CHAR_DATA();
-		do_bonus(ch, cmd, 0, 0);
-		extract_char(ch, 0);
+		const auto reporter = MudlogReporter::create();
+		do_bonus(reporter, cmd);
 	}
 
 	// записывает в буффер сколько осталось до конца бонуса
@@ -129,7 +163,7 @@ namespace Bonus
 		std::stringstream ss;
 		if (time_bonus > 4)
 		{
-			ss << "До конца бонуса осталось " << time_bonus <<" часов.";
+			ss << "До конца бонуса осталось " << time_bonus << " часов.";
 		}
 		else if (time_bonus == 4)
 		{
@@ -173,7 +207,6 @@ namespace Bonus
 		}
 	}
 
-
 	// таймер бонуса
 	void timer_bonus()
 	{
@@ -199,19 +232,18 @@ namespace Bonus
 		{
 			return time_bonus <= -1 ? false : true;
 		}
-		if (time_bonus <= -1) return false;
-		if (type == type_bonus) return true;
-		return false;
-	}
 
-	// добавляет строку в лог
-	void bonus_log_add(std::string name)
-	{
-		time_t nt = time(NULL);
-		bonus_log.push_back(std::string(rustime(localtime(&nt))) + " " + name);
-		std::ofstream fout("../log/bonus.log", std::ios_base::app);
-		fout << std::string(rustime(localtime(&nt))) + " " + name << std::endl;
-		fout.close();
+		if (time_bonus <= -1)
+		{
+			return false;
+		}
+
+		if (type == type_bonus)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	// загружает лог бонуса из файла
@@ -260,9 +292,6 @@ namespace Bonus
 	{
 		return mult_bonus;
 	}
-	
-
-
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

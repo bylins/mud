@@ -2606,7 +2606,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			}
 		}
 
-		if (IS_NPC(victim) && Bonus::is_bonus(BONUS_DAMAGE))
+		if (IS_NPC(victim) && Bonus::is_bonus(Bonus::BONUS_DAMAGE))
 		{
 			dam *= Bonus::get_mult_bonus();
 		}
@@ -4366,83 +4366,5 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 
 	hit(ch, ch->get_fighting(), type, weapon);
 }
-
-/*
-int limit_added_dr(CHAR_DATA *ch, int damroll, int total_dr)
-{
-	int calc_dr = damroll;
-	int rmrt = MIN(14, GET_REMORT(ch));
-
-	if (ch->get_level() < 30 - grouping[GET_CLASS(ch)][rmrt])
-	{
-		int cap_dr = MIN(2 * ch->get_level(), total_dr);
-		if (cap_dr < total_dr)
-		{
-			double coeff = total_dr / static_cast<double>(cap_dr);
-			calc_dr = static_cast<int>(damroll/coeff);
-		}
-	}
-
-	return MIN(calc_dr, damroll);
-}
-
-int add_pc_damroll(CHAR_DATA *ch, int dam, bool info = false)
-{
-	int dr_by_str = GET_REAL_STR(ch) - 14;
-	int native_str_dr = ch->get_start_stat(G_STR) + ch->get_remort() - 14;
-	int obj_str_dr = MAX(0, dr_by_str - native_str_dr);
-
-	int added_dr_total = GET_REAL_DR(ch) + obj_str_dr;
-
-	dam += limit_added_dr(ch, GET_REAL_DR(ch), added_dr_total);
-	if (!info)
-	{
-		dam = dam > 0 ? number(1, (dam * 2)) : dam;
-	}
-	dam += limit_added_dr(ch, obj_str_dr, added_dr_total);
-	dam += MAX(0, native_str_dr);
-
-	return dam;
-}
-
-int limit_weap_dam(CHAR_DATA *ch, OBJ_DATA *weap, int dam)
-{
-	int rmrt = MIN(14, GET_REMORT(ch));
-	if (GET_OBJ_TYPE(weap) != ITEM_WEAPON || ch->get_level() >= 30 - grouping[GET_CLASS(ch)][rmrt])
-	{
-		return dam;
-	}
-
-	double median_dam = 1.0, capped_dam = 1.0;
-	switch (GET_OBJ_SKILL(weap))
-	{
-	case SKILL_BOWS:
-		// 1..5 лвл = 4 ср
-		// 6..25 лвл = 4,5..14 ср
-		median_dam = MMAX(1.0, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
-		capped_dam = MMAX(5.0, 1.5 + ch->get_level() * 0.5);
-		break;
-	case SKILL_SHORTS:
-	case SKILL_LONGS:
-	case SKILL_AXES:
-	case SKILL_CLUBS:
-	case SKILL_NONSTANDART:
-	case SKILL_BOTHHANDS:
-	case SKILL_PICK:
-	case SKILL_SPADES:
-		// 1..5 лвл = 6 ср
-		// 6..25 лвл = 6,7..20 ср
-		median_dam = MMAX(1.0, (GET_OBJ_VAL(weap, 2) + 1) * GET_OBJ_VAL(weap, 1) / 2.0);
-		capped_dam = MMAX(5.0, 2.5 + ch->get_level() * 0.7);
-		break;
-	}
-
-	double over_coeff = median_dam / capped_dam;
-	int limited_dam = static_cast<int>(dam / over_coeff);
-
-	return MIN(limited_dam, dam);
-}
-
-*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

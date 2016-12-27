@@ -5590,18 +5590,22 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 	PRF_FLAGS(ch).unset(PRF_AWAKE);
 	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
+	if (ch->get_protecting())
+	{
+		ch->set_protecting(0);
+		ch->BattleAffects.unset(EAF_PROTECT);
+	}
 	// Убираем все заученные порталы
 	check_portals(ch);
-
-    //Обновляем статистику рипов для текущего перевоплощения
-    GET_RIP_DTTHIS(ch) = 0;
-    GET_EXP_DTTHIS(ch) = 0;
-    GET_RIP_MOBTHIS(ch) = 0;
-    GET_EXP_MOBTHIS(ch) = 0;
-    GET_RIP_PKTHIS(ch) = 0;
-    GET_EXP_PKTHIS(ch) = 0;
-    GET_RIP_OTHERTHIS(ch) = 0;
-    GET_EXP_OTHERTHIS(ch) = 0;
+	//Обновляем статистику рипов для текущего перевоплощения
+	GET_RIP_DTTHIS(ch) = 0;
+	GET_EXP_DTTHIS(ch) = 0;
+	GET_RIP_MOBTHIS(ch) = 0;
+	GET_EXP_MOBTHIS(ch) = 0;
+	GET_RIP_PKTHIS(ch) = 0;
+	GET_EXP_PKTHIS(ch) = 0;
+	GET_RIP_OTHERTHIS(ch) = 0;
+	GET_EXP_OTHERTHIS(ch) = 0;
 
 	do_start(ch, FALSE);
 	ch->save_char();

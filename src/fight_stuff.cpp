@@ -870,7 +870,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	exp = MAX(1, exp);
 	if (exp > 1)
 	{
-		if (Bonus::is_bonus(BONUS_EXP))
+		if (Bonus::is_bonus(Bonus::BONUS_EXP))
 		{
 			exp *= Bonus::get_mult_bonus();
 		}
@@ -1051,7 +1051,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus(BONUS_WEAPON_EXP))
+		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP))
 			battle_exp *= Bonus::get_mult_bonus();
 //		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
 //						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
