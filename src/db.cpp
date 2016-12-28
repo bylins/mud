@@ -4846,7 +4846,7 @@ void reset_zone(zone_rnum zone)
 	}
 	zone_table[zone].age = 0;
 	zone_table[zone].used = FALSE;
-
+	process_celebrates(zone_table[zone].number);
 	if (get_zone_rooms(zone, &rnum_start, &rnum_stop))
 	{
 		ROOM_DATA* room;
@@ -4873,7 +4873,7 @@ void reset_zone(zone_rnum zone)
 		}
 	}
 
-	process_celebrates(zone_table[zone].number);
+	//process_celebrates(zone_table[zone].number);
 
 	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
 	{
