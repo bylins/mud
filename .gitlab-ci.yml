@@ -51,7 +51,6 @@ deploy-debug:
         dependencies:
                 - debug
         script:
-                - echo "Deploying debug build..."
                 - rm -rf ${BYLINS_DEBUG_HOME}/circle || true
                 - cp -af circle ${BYLINS_DEBUG_HOME}
                 - rm -rf ${BYLINS_DEBUG_HOME}/changelog || true
@@ -68,7 +67,6 @@ deploy-release:
         dependencies:
                 - release
         script:
-                - echo "Deploying release build..."
                 - rm -rf ${BYLINS_RELEASE_HOME}/circle || true
                 - cp -af circle ${BYLINS_RELEASE_HOME}
                 - rm -rf ${BYLINS_RELEASE_HOME}/changelog || true
