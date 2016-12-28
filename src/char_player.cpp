@@ -2092,6 +2092,22 @@ void Player::sub_ice_currency(int value)
 	this->ice_currency = MAX(0, ice_currency - value);
 }
 
+int Player::death_player_count()
+{
+	const int zone_vnum = zone_table[world[this->in_room]->zone].number;
+	auto it = this->count_death_zone.find(zone_vnum);
+	if (it != this->count_death_zone.end())
+	{
+		count_death_zone.at(zone_vnum) += 1;
+	}
+	else
+	{
+		count_death_zone.insert(std::pair<int, int>(zone_vnum, 1));
+		return 1;
+	}
+	return (*it).second;
+}
+
 
 void Player::inc_reset_stats_cnt(ResetStats::Type type)
 {

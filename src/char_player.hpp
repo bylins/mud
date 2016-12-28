@@ -130,6 +130,8 @@ public:
 	void add_ice_currency(int value);
 	void sub_ice_currency(int value);
 
+	int death_player_count();
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -174,6 +176,8 @@ private:
 	std::array<time_t, Boards::TYPES_NUM> board_date_;
 	// лед (доп. валюта)
 	int ice_currency;
+	// список зон, где чар умер и в каком количестве
+	std::map<int, int> count_death_zone;
 
 };
 
