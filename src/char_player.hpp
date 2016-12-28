@@ -125,6 +125,11 @@ public:
 	time_t get_board_date(Boards::BoardTypes type) const;
 	void set_board_date(Boards::BoardTypes type, time_t date);
 
+	int get_ice_currency();
+	void set_ice_currency(int value);
+	void add_ice_currency(int value);
+	void sub_ice_currency(int value);
+
 private:
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
@@ -167,6 +172,9 @@ private:
 	std::array<int, ResetStats::Type::TOTAL_NUM> reset_stats_cnt_;
 	// временнЫе отметки о прочитанных сообщениях на досках
 	std::array<time_t, Boards::TYPES_NUM> board_date_;
+	// лед (доп. валюта)
+	int ice_currency;
+
 };
 
 namespace PlayerSystem

@@ -38,6 +38,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "dg_db_scripts.hpp"
+#include "bonus.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -3078,7 +3079,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (!CAN_SEE(c, rndm))
 					continue;
 				if ((*field == 'a') ||
-						(!IS_NPC(rndm) && *field != 'n') ||
+						(!IS_NPC(rndm) && *field != 'n' && rndm->desc) ||
 						(IS_NPC(rndm) && IS_CHARMED(rndm)
 						 && *field == 'c') || (IS_NPC(rndm)
 											   && !IS_CHARMED(rndm)
@@ -5579,6 +5580,38 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	return return_code;
 }
 
+void do_dg_add_ice_currency(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* script_type*/, char *cmd)
+{
+	CHAR_DATA *ch = NULL;
+	int value;
+	char junk[MAX_INPUT_LENGTH];
+	char charname[MAX_INPUT_LENGTH], value_c[MAX_INPUT_LENGTH];
+
+	half_chop(cmd, junk, cmd);
+	half_chop(cmd, charname, cmd);
+	half_chop(cmd, value_c, cmd);
+
+
+	if (!*charname || !*value_c)
+	{
+		sprintf(buf2, "dg_addicecurrency usage: <target> <value>");
+		trig_log(trig, buf2);
+		return;
+	}
+
+	value = atoi(value_c);
+	// locate the target
+	ch = get_char(charname);
+	if (!ch)
+	{
+		sprintf(buf2, "dg_addicecurrency: cannot locate target!");
+		trig_log(trig, buf2);
+		return;
+	}
+	ch->add_ice_currency(value);
+}
+
+
 int timed_script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 #else
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
@@ -5793,6 +5826,14 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			else if (!strn_cmp(cmd, "global ", 7))
 			{
 				process_global(sc, trig, cmd, sc->context);
+			}
+			else if (!strn_cmp(cmd, "addicecurrency ", 15))
+			{
+				do_dg_add_ice_currency(go, sc, trig, type, cmd);
+			}
+			else if (!strn_cmp(cmd, "bonus ", 6))
+			{
+				Bonus::dg_do_bonus(cmd + 6);
 			}
 			else if (!strn_cmp(cmd, "worlds ", 7))
 			{

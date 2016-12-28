@@ -2927,7 +2927,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
-
+	send_to_char("Временно отключено.\r\n", ch);
+	return;
 	if (timed_by_skill(ch, SKILL_TURN_UNDEAD))
 	{
 		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);

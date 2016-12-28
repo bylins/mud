@@ -177,7 +177,8 @@ void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 		{
 			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->get_master()))
 			{
-				pvictim[0] = pvictim[0]->get_master();
+				if (HERE(pvictim[0]->get_master()))
+					pvictim[0] = pvictim[0]->get_master();
 			}
 		}
 
