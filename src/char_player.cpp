@@ -126,6 +126,7 @@ void Player::remort()
 {
 	quested_.clear();
 	mobmax_.clear();
+	count_death_zone.clear();
 }
 
 void Player::reset()
