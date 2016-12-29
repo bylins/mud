@@ -2236,7 +2236,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch ((number = atoi(arg)))
 		{
 		case 0:
-			OLC_OBJ(d)->set_ex_description(nullptr);
+			//OLC_OBJ(d)->set_ex_description();
 			break;
 
 		case 1:
