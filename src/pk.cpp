@@ -635,12 +635,12 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
-	if (victim == NULL)
+	/*if (victim == NULL)
 	{
 		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s внум: %d, номер клетки %d, мирная? %s", GET_NAME(agressor), GET_MOB_VNUM(agressor), GET_ROOM_VNUM(agressor->in_room), 
 			    ROOM_FLAGGED(agressor->in_room, ROOM_PEACEFUL)?"ДА":"НЕТ");
 		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
-	}
+	}*/
 
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
 			IS_NPC(agressor) || IS_NPC(victim) || (agressor != victim && (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE)

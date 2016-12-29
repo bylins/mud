@@ -353,8 +353,10 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//если убил не палач
 		{
-			
-			dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
+			if (!RENTABLE(ch))
+				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5)) / ch->death_player_count();
+			else
+				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
 			dec_exp = e - GET_EXP(ch);
 			sprintf(buf, "Вы потеряли %d %s опыта.\r\n",
@@ -376,7 +378,8 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		}
 	}
 
-	update_die_counts(ch, killer, dec_exp);
+	
+		update_die_counts(ch, killer, dec_exp );
 	raw_kill(ch, killer);
 }
 

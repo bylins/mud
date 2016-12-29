@@ -117,6 +117,10 @@ public:
 	virtual void add_ice_currency(int /* value */) {};
 	virtual  void sub_ice_currency(int /* value */) {};
 
+	virtual int death_player_count() {
+		return 1;
+	};
+	
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};
