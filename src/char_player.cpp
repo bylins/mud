@@ -2094,7 +2094,6 @@ void Player::sub_ice_currency(int value)
 
 int Player::death_player_count()
 {
-	return 1;
 	const int zone_vnum = zone_table[world[this->in_room]->zone].number;
 	auto it = this->count_death_zone.find(zone_vnum);
 	if (it != this->count_death_zone.end())
