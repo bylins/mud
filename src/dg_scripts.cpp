@@ -39,6 +39,7 @@
 #include "conf.h"
 #include "dg_db_scripts.hpp"
 #include "bonus.h"
+#include "backtrace.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -4997,6 +4998,9 @@ void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type
 	{
 		sprintf(buf2, "calcuid target not found vnum: %s, count: %d", vnum, count_num);
 		trig_log(trig, buf2);
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		sprintf(buf2, "Создана кора для исследований в errlog.txt");
+		trig_log(trig, buf2);		
 		*uid = '\0';
 		return;
 	}
