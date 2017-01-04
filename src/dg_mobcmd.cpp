@@ -1565,15 +1565,6 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
@@ -1654,10 +1645,6 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
 
 	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
 	{
@@ -1733,10 +1720,6 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
 
 	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
 	{
@@ -1806,10 +1789,6 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
