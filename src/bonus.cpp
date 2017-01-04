@@ -16,7 +16,7 @@
 #include "structs.h"
 
 #include <boost/lexical_cast.hpp>
-
+#include <boost/algorithm/string/replace.hpp>
 #include <iostream>
 #include <fstream>
 
@@ -57,11 +57,12 @@ namespace Bonus
 		time_t nt = time(nullptr);
 		std::stringstream ss;
 		ss << rustime(localtime(&nt)) << " " << name;
-
-		bonus_log.push_back(ss.str());
+		std::string buf = ss.str();
+		boost::replace_all(buf, "\r\n", "");
+		bonus_log.push_back(buf );
 
 		std::ofstream fout("../log/bonus.log", std::ios_base::app);
-		fout << ss.str() << std::endl;
+		fout << buf << std::endl;
 		fout.close();
 	}
 

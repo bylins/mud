@@ -101,7 +101,7 @@ namespace Boards
 		auto messages_count() const { return messages.size(); }
 		void erase_message(const size_t index);
 		int count_unread(time_t last_read) const;
-		const auto get_last_message() const { return *messages.rbegin(); }
+		const auto get_last_message() const { return *messages.begin(); }
 		const auto get_message(const size_t index) const { return messages[index]; }
 
 		void Load();

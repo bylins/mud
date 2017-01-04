@@ -2806,7 +2806,15 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 		}
 		else if (!str_cmp(field, "skill"))
+		{
+			char *pos;
+			while ((pos = strchr(subfield, '.')))
+				* pos = ' ';
+			while ((pos = strchr(subfield, '_')))
+				* pos = ' ';
 			strcpy(str, skill_percent(c, subfield));
+
+		}
 		else if (!str_cmp(field, "feat"))
 		{
 			if (feat_owner(c, subfield))
