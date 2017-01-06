@@ -1130,11 +1130,12 @@ OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special)
 		int* ingr_to_load_list = NULL;
 		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);
 		size_t j = 0;
+		const int level_mob = GET_LEVEL(mob) > 0 ? GET_LEVEL(mob) : 1;
 		for (; j < num_inrgs; j++)
 		{
 			ingr_to_load_list[2*j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
-			ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob.at(GET_LEVEL(mob)-1);
-			ingr_to_load_list[2*j+1] |= (GET_LEVEL(mob) << 16);
+			ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob.at(level_mob - 1);
+			ingr_to_load_list[2*j+1] |= (level_mob << 16);
 		}
 		ingr_to_load_list[2*j] = -1;
 		return try_make_ingr(ingr_to_load_list, vnum, prob_default);

@@ -1164,7 +1164,6 @@ void MobileFile::parse_mobile(const int nr)
 	int j, t[10];
 	char line[256], letter;
 	char f1[128], f2[128];
-
 	mob_index[i].vnum = nr;
 	mob_index[i].number = 0;
 	mob_index[i].func = NULL;
@@ -1200,6 +1199,7 @@ void MobileFile::parse_mobile(const int nr)
 	mob_proto[i].player_data.description = fread_string();
 	mob_proto[i].mob_specials.Questor = NULL;
 	mob_proto[i].player_data.title = NULL;
+	mob_proto[i].set_level(1);
 
 	// *** Numeric data ***
 	if (!get_line(file(), line))
