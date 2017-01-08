@@ -37,6 +37,7 @@ debug:
                 untracked: true
                 paths:
                         - build/
+        when: manual
         artifacts:
                 name: "circle-debug"
                 paths:
