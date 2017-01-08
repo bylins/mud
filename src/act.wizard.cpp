@@ -1008,6 +1008,7 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
+						Password::set_password_to_email(d_vict->character, std::string(it->second->pwd));
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
@@ -1028,6 +1029,9 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
+						std::string str = player_table[it->second->pos].name;
+						str[0] = UPPER(str[0]);
+						Password::set_all_password_to_email(it->second->mail, std::string(it->second->pwd), str);
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
@@ -1138,8 +1142,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Какой-то баг. Вы эту надпись видеть не должны.\r\n", ch);
 		return;
 	}
-	if (type_request == SETALL_PSWD)
-		Password::set_all_password_to_email(buf, buf2);
+
 	
 	req->type_req = type_request;
 	req->mail = str_dup(buf);
