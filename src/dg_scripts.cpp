@@ -5585,7 +5585,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 	{
 		sprintf(buf, "[TrigVNum: %d] : ", vnum);
-		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us. String: %s", result.tv_sec, result.tv_usec, string_trig.c_str());
+		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us. String: %s", result.tv_sec, result.tv_usec, string_trig);
 		
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
