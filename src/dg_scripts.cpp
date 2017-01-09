@@ -5575,7 +5575,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	struct timeval start, stop, result;
 
 	gettimeofday(&start, NULL);
-	auto string_trig = trig->curr_state->cmd;
+//	auto string_trig = trig->curr_state->cmd;
 	const auto vnum = GET_TRIG_VNUM(trig);
 	const auto return_code = timed_script_driver(go, trig, type, mode);
 
@@ -5585,8 +5585,8 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 	{
 		sprintf(buf, "[TrigVNum: %d] : ", vnum);
-		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us. String: %s", result.tv_sec, result.tv_usec, string_trig);
-		
+//		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us. String: %s", result.tv_sec, result.tv_usec, string_trig.c_str());  разобраться почему не грузится
+		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us. ", result.tv_sec, result.tv_usec);
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
 	// Stop time
