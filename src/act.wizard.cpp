@@ -3201,6 +3201,15 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+
+void send_list_char(std::string list_char, std::string email)
+{
+	std::string cmd_line = "python3 send_list_char.py " + email + " " + list_char + " &";
+	auto result = system(cmd_line.c_str());
+	UNUSED_ARG(result);
+}
+
+
 const int IIP   = 1;
 const int IMAIL = 2;
 const int ICHAR = 3;
@@ -3399,6 +3408,11 @@ void inspecting()
 	sprintf(buf1, "Всего найдено: %d за %ldсек.\r\n", it->second->found, result.tv_sec);
 	it->second->out += buf1;
 	page_string(ch->desc, it->second->out);
+	if (it->second->sendmail)
+		if (it->second->found > 1)
+		{
+			send_to_char("Данный список отправлен игроку на емайл\r\n", ch);
+		}
 	free(it->second->req);
 	inspect_list.erase(it->first);
 }
@@ -3424,7 +3438,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	argument = two_arguments(argument, buf, buf2);
 	if (!*buf || !*buf2 || !a_isascii(*buf2))
 	{
-		send_to_char("Usage: inspect { mail | ip | char } <argument> [all|все]\r\n", ch);
+		send_to_char("Usage: inspect { mail | ip | char } <argument> [all|все|sendmail]\r\n", ch);
 		return;
 	}
 	if(!isname(buf, "mail ip char"))
@@ -3452,15 +3466,19 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	req->mail = NULL;
 	req->fullsearch = 0;
 	req->req = str_dup(buf2);
+	req->sendmail = false;
 	buf2[0] = '\0';
 
-	if(argument && isname(argument, "все all"))
+	if(argument)
 	{
-		if(IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-		{
-			need_warn = false;
-			req->fullsearch = 1;
-		}
+		if (isname(argument, "все all"))
+			if(IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+			{
+				need_warn = false;
+				req->fullsearch = 1;
+			}
+		if (isname(argument, "sendmail"))
+			req->sendmail = true;
 	}
 	if (is_abbrev(buf, "mail"))
 	{

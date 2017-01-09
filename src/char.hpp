@@ -216,6 +216,7 @@ struct inspect_request
 	struct logon_data * ip_log;	//айпи адреса по которым идет поиск
 	struct timeval start;		//время когда запустили запрос для отладки
 	std::string out;		//буфер в который накапливается вывод
+	bool sendmail; // отправлять ли на мыло список чаров
 };
 
 
