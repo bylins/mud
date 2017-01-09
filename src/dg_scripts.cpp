@@ -5575,7 +5575,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	struct timeval start, stop, result;
 
 	gettimeofday(&start, NULL);
-	const auto string_trig = trig->curr_state->cmd;
+	auto string_trig = trig->curr_state->cmd;
 	const auto vnum = GET_TRIG_VNUM(trig);
 	const auto return_code = timed_script_driver(go, trig, type, mode);
 
