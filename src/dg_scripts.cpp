@@ -5580,9 +5580,10 @@ int timed_script_driver(void *go, TRIG_DATA* trig, int type, int mode);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
 	struct timeval start, stop, result;	
-	std::string string_trig = "First Line";
+	std::string start_string_trig = "First Line";
+	std::string finish_string_trig = "Finish line";
 	if (trig->curr_state)
-		 string_trig = trig->curr_state->cmd;
+		start_string_trig = trig->curr_state->cmd;
 	StopTrig = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
 	gettimeofday(&start, NULL);
@@ -5593,8 +5594,10 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 	{
+		if (trig->curr_state)
+			finish_string_trig = trig->curr_state->cmd;
 		sprintf(buf, "[TrigVNum: %d] : ", vnum);
-		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us. String: %s", result.tv_sec, result.tv_usec, string_trig.c_str());
+		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s\r\n", result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
 		
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
