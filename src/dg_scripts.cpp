@@ -5713,7 +5713,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
-				return ret_val;
+				break;
 			}
 		}
 		else if (!strn_cmp("elseif ", p, 7) || !strn_cmp("else", p, 4))
@@ -5724,7 +5724,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
-				return ret_val;
+				break;
 			}
 		}
 		else if (!strn_cmp("while ", p, 6))
@@ -5746,7 +5746,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
-				return ret_val;
+				break;
 			}
 		}
 		else if (!strn_cmp("foreach ", p, 8))
@@ -5768,7 +5768,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
-				return ret_val;
+				break;
 			}
 		}
 		else if (!strn_cmp("switch ", p, 7))
@@ -5778,7 +5778,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
-				return ret_val;
+				break;
 			}
 		}
 		else if (!strn_cmp("end", p, 3))
@@ -5820,13 +5820,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 						trig_log(trig, "looping 1000 times.", DEF);
 					}
 				}
-			}
-			if (StopTrig)
-			{
-				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
-				mudlog(buf, BRF, -1, ERRLOG, TRUE);
-				return ret_val;
-			}
+			}			
 		}
 		else if (!strn_cmp("break", p, 5))
 		{
@@ -5842,7 +5836,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
-				return ret_val;
+				break;
 			}
 			if (!strn_cmp(cmd, "eval ", 5))
 			{
