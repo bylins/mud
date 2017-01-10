@@ -2209,7 +2209,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 	if (c)
 	{
-		if (!IS_NPC(c) && (!c->desk))
+		if (!IS_NPC(c) && (!c->desc))
 			StopTrig = true;
 		if (text_processed(field, subfield, vd, str))
 			return;
