@@ -99,6 +99,11 @@ void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int trgvar_in_room(int vnum);
 
+/*
+Костыль, но всеж. 
+*/
+bool StopTrig = false;
+
 void script_log(const char *msg, const int type)
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
@@ -2204,6 +2209,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 	if (c)
 	{
+		if (!IS_NPC(c) && (!c->desk))
+			StopTrig = true;
 		if (text_processed(field, subfield, vd, str))
 			return;
 		else if (!str_cmp(field, "global"))  	// get global of something else
@@ -5572,14 +5579,13 @@ int timed_script_driver(void *go, TRIG_DATA* trig, int type, int mode);
 
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
-	struct timeval start, stop, result;
-
-	gettimeofday(&start, NULL);
+	struct timeval start, stop, result;	
 	std::string string_trig = "First Line";
 	if (trig->curr_state)
 		 string_trig = trig->curr_state->cmd;
-		
+	StopTrig = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
+	gettimeofday(&start, NULL);
 	const auto return_code = timed_script_driver(go, trig, type, mode);
 
 	gettimeofday(&stop, NULL);
@@ -5700,11 +5706,23 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				cl = find_else_end(trig, cl, go, sc, type);
 			}
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				return ret_val;
+			}
 		}
 		else if (!strn_cmp("elseif ", p, 7) || !strn_cmp("else", p, 4))
 		{
 			cl = find_end(trig, cl);
 			GET_TRIG_DEPTH(trig)--;
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				return ret_val;
+			}
 		}
 		else if (!strn_cmp("while ", p, 6))
 		{
@@ -5720,6 +5738,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				cl = temp;
 				loops = 0;
+			}
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				return ret_val;
 			}
 		}
 		else if (!strn_cmp("foreach ", p, 8))
@@ -5737,10 +5761,22 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				cl = temp;
 				loops = 0;
 			}
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				return ret_val;
+			}
 		}
 		else if (!strn_cmp("switch ", p, 7))
 		{
 			cl = find_case(trig, cl, go, sc, type, p + 7);
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				return ret_val;
+			}
 		}
 		else if (!strn_cmp("end", p, 3))
 		{
@@ -5782,6 +5818,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					}
 				}
 			}
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				return ret_val;
+			}
 		}
 		else if (!strn_cmp("break", p, 5))
 		{
@@ -5793,6 +5835,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		else
 		{
 			var_subst(go, sc, trig, type, p, cmd);
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				return ret_val;
+			}
 			if (!strn_cmp(cmd, "eval ", 5))
 			{
 				process_eval(go, sc, trig, type, cmd);
