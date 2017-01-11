@@ -94,9 +94,9 @@ void set_password_to_email(CHAR_DATA *ch, const std::string &pwd)
 
 // дубликат set_password, который отправляет пароль на мыло
 // и говорит, что всем его персонажам изменены пароли
- void set_all_password_to_email(const char* email, const std::string &pwd)
+ void set_all_password_to_email(const char* email, const std::string &pwd, const std::string &name)
  {
-	send_password(std::string(email), pwd.c_str());
+	send_password(std::string(email), pwd.c_str(), name.c_str());
  }
 
 
