@@ -3406,13 +3406,14 @@ void inspecting()
 	gettimeofday(&stop, NULL);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d за %ldсек.\r\n", it->second->found, result.tv_sec);
-	it->second->out += buf1;
-	page_string(ch->desc, it->second->out);
+	it->second->out += buf1;	
 	if (it->second->sendmail)
 		if (it->second->found > 1)
 		{
-			send_to_char("Данный список отправлен игроку на емайл\r\n", ch);
+			it->second->out += "Данный список отправлен игроку на емайл\r\n";
+			send_list_char(it->second->out, it->second->mail);
 		}
+	page_string(ch->desc, it->second->out);
 	free(it->second->req);
 	inspect_list.erase(it->first);
 }
