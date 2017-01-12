@@ -5692,6 +5692,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	for (auto cl = (mode == TRIG_NEW) ? *trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl)  	//log("Drive go <%s>",cl->cmd);
 	{
+		if (StopTrig)
+		{
+			sprintf(buf, "[TrigVnum: %d] Character in LinkDrop in 'Drive go'.", last_trig_vnum);
+			mudlog(buf, BRF, -1, ERRLOG, TRUE);
+			break;
+		}
 		const char* p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && a_isspace(*p); p++);
 
