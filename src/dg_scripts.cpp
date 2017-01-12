@@ -5577,9 +5577,13 @@ int dg_owner_purged;
 #ifdef TIMED_SCRIPT
 int timed_script_driver(void *go, TRIG_DATA* trig, int type, int mode);
 
+
+
+
+
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
-	struct timeval start, stop, result;	
+	struct timeval start, stop, result;
 	std::string start_string_trig = "First Line";
 	std::string finish_string_trig = "Finish line";
 	if (trig->curr_state)
@@ -5598,7 +5602,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			finish_string_trig = trig->curr_state->cmd;
 		sprintf(buf, "[TrigVNum: %d] : ", vnum);
 		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s\r\n", result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
-		
+
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
 	// Stop time
