@@ -3120,7 +3120,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 			ch->purge();
 		}
 	}
-	ch = NULL;
+//	ch = NULL;
 	log("[Extract char] Stop function for char %s", name.c_str());
 }
 
