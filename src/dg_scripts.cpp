@@ -4095,7 +4095,7 @@ foreach i <список>
 	pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 	if (v)
 	{
-		auto ptr = strstr(list, v->value);
+		const char* ptr = strstr(list, v->value);
 
 		{
 			bool value_corresponds_to_position = false;
