@@ -176,6 +176,7 @@ set(HEADERS
 	src/conf.h
 	src/config.hpp
 	src/constants.h
+	src/coredump.hpp
 	src/corpse.hpp
 	src/craft_commands.hpp
 	src/craft.hpp
