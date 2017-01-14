@@ -1008,7 +1008,6 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
-						Password::set_password_to_email(d_vict->character, std::string(it->second->pwd));
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
@@ -1031,7 +1030,6 @@ void setall_inspect()
 						Password::set_password(vict, std::string(it->second->pwd));
 						std::string str = player_table[it->second->pos].name;
 						str[0] = UPPER(str[0]);
-						Password::set_all_password_to_email(it->second->mail, std::string(it->second->pwd), str);
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
@@ -1041,6 +1039,8 @@ void setall_inspect()
 			}
 		delete vict;	
 	}
+	if (it->second->mail && it->second->pwd)
+		Password::send_password(it->second->mail, it->second->pwd);
 	// освобождение памяти
     if (it->second->pwd)
 		free(it->second->pwd);		
@@ -3400,8 +3400,6 @@ void inspecting()
 		delete it->second->ip_log;
 		it->second->ip_log = log_next;
 	}
-	if (it->second->mail)
-		free(it->second->mail);
 	need_warn = true;
 	gettimeofday(&stop, NULL);
 	timediff(&result, &stop, &it->second->start);
@@ -5572,7 +5570,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
 			return 0;
 		}
-		Password::set_password_to_email(vict, std::string(val_arg));
+		Password::send_password(GET_EMAIL(vict), val_arg, GET_NAME(vict))
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		
 		break;
