@@ -3413,6 +3413,9 @@ void inspecting()
 			it->second->out += "Данный список отправлен игроку на емайл\r\n";
 			send_list_char(it->second->out, it->second->mail);
 		}
+	if (it->second->mail)
+	    free(it->second->mail);
+
 	page_string(ch->desc, it->second->out);
 	free(it->second->req);
 	inspect_list.erase(it->first);
