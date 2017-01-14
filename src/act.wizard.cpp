@@ -3406,10 +3406,10 @@ void inspecting()
 	sprintf(buf1, "Всего найдено: %d за %ldсек.\r\n", it->second->found, result.tv_sec);
 	it->second->out += buf1;	
 	if (it->second->sendmail)
-		if (it->second->found > 1)
+		if (it->second->found > 1 && it->second->sfor == IMAIL)
 		{
 			it->second->out += "Данный список отправлен игроку на емайл\r\n";
-			send_list_char(it->second->out, it->second->mail);
+			send_list_char(it->second->out, it->second->req);
 		}
 	if (it->second->mail)
 	    free(it->second->mail);
@@ -5570,7 +5570,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
 			return 0;
 		}
-		Password::send_password(GET_EMAIL(vict), val_arg, GET_NAME(vict));
+		Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
+		Password::set_password(vict, val_arg);
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		
 		break;
