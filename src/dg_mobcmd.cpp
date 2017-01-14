@@ -430,6 +430,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, "mload: bad mob vnum");
 			return;
 		}
+		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
 		char_to_room(mob, ch->in_room);
 		load_mtrigger(mob);
 	}
