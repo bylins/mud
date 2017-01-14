@@ -612,6 +612,12 @@ void CHAR_DATA::purge(bool destructor)
 	}
 }
 
+void CHAR_DATA::purge(CHAR_DATA* character)
+{
+	character->purge(false);
+	character = nullptr;
+}
+
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
 int CHAR_DATA::get_skill(const ESkill skill_num) const
 {

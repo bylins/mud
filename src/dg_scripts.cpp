@@ -39,7 +39,9 @@
 #include "conf.h"
 #include "dg_db_scripts.hpp"
 #include "bonus.h"
+
 #include "backtrace.hpp"
+#include "coredump.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -4095,7 +4097,7 @@ foreach i <список>
 	pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 	if (v)
 	{
-		auto ptr = strstr(list, v->value);
+		const char* ptr = strstr(list, v->value);
 
 		{
 			bool value_corresponds_to_position = false;
@@ -5011,6 +5013,7 @@ void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type
 
 	if (result <= -1)
 	{
+		debug::coredump();
 		sprintf(buf2, "calcuid target not found vnum: %s, count: %d", vnum, count_num);
 		trig_log(trig, buf2);
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
