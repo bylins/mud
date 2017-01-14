@@ -2927,8 +2927,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
-	send_to_char("Временно отключено.\r\n", ch);
-	return;
+//	send_to_char("Временно отключено.\r\n", ch);
+//	return;
 	if (timed_by_skill(ch, SKILL_TURN_UNDEAD))
 	{
 		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
@@ -3016,7 +3016,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), dam, FightSystem::MAGE_DMG);
 		dmg.flags.set(FightSystem::IGNORE_FSHIELD);
 		dmg.process(ch, ch_vict);
-
+		if (!ch || !ch_vict)
+			return;
 		if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR)
 			&& !general_savingthrow(ch, ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))
 		{
