@@ -2,9 +2,10 @@
 #define __COREDUMP_HPP__
 
 #ifndef WIN32
-#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
-#include <cstdlib>
+#include <unistd.h>
 #endif
 
 namespace debug
