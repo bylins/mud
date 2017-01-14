@@ -5570,7 +5570,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
 			return 0;
 		}
-		Password::send_password(GET_EMAIL(vict), val_arg, GET_NAME(vict))
+		Password::send_password(GET_EMAIL(vict), val_arg, GET_NAME(vict));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		
 		break;
