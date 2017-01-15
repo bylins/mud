@@ -128,9 +128,10 @@ enum ESkill: int
 	SKILL_MIND_MAGIC = 188,
 	SKILL_LIFE_MAGIC = 189,
 	SKILL_STUN = 190,
+	SKILL_MAKE_AMULET = 191,
 
 	// не забываем указывать максимальный номер скилла
-	MAX_SKILL_NUM = SKILL_STUN
+	MAX_SKILL_NUM = SKILL_MAKE_AMULET
 };
 
 template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);

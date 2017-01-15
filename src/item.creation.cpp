@@ -80,6 +80,7 @@ const struct make_skill_type make_skills[] =
 	{"выковать доспех", "доспех", SKILL_MAKE_ARMOR},
 	{"сшить одежду", "одежда", SKILL_MAKE_WEAR},
 	{"смастерить диковину", "артеф.", SKILL_MAKE_JEWEL},
+	{"смастерить оберег", "оберег", SKILL_MAKE_AMULET},
 //  { "сварить отвар","варево", SKILL_MAKE_POTION },
 	{"\n", 0, SKILL_INVALID}		// Терминатор
 };
@@ -664,6 +665,7 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		make_recepts.can_make(ch, canlist, SKILL_MAKE_STAFF);
 		make_recepts.can_make(ch, canlist, SKILL_MAKE_BOW);
 		make_recepts.can_make(ch, canlist, SKILL_MAKE_JEWEL);
+		make_recepts.can_make(ch, canlist, SKILL_MAKE_AMULET);
 		break;
 	}
 	if (canlist->size() == 0)
@@ -1772,6 +1774,19 @@ int MakeRecept::make(CHAR_DATA * ch)
 		itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
 		// Бонус тело , не спрашивайте почему :))
 		//stat_bonus = number(0, GET_REAL_CON(ch));
+		dam = 30;
+		break;
+	case SKILL_MAKE_AMULET:
+		charwork = "Вы взяли в руки необходимые материалы и начали мастерить $o3.";
+		roomwork = "$n взял$g в руки что-то и начал$g увлеченно пыхтеть над чем-то.";
+		charfail = "У вас ничего не получилось";
+		roomfail = "$n пытал$u что-то сделать, но ничего не вышло.";
+		charsucc = "Вы смастерили $o3.";
+		roomsucc = "$n смастерил$g $o3.";
+		chardam = "Яркая вспышка дала вам знать, что с магией необходимо быть поосторожней.";
+		roomdam = "Яркая вспышка осветила все вокруг. $n2 стоит быть аккуратнее с магией! \r\n";
+		tagging = "На обратной стороне $o1 вы нацарапали свое имя.";
+		itemtag = "На обратной стороне $o1 вы заметили слово '$n', видимо, это имя создателя этой чудной вещицы.";
 		dam = 30;
 		break;
 	case SKILL_MAKE_JEWEL:

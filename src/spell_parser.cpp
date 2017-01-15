@@ -5454,6 +5454,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_MIND_MAGIC, "магия разума", 200);
 	skillo(SKILL_LIFE_MAGIC, "магия жизни", 200);
 	skillo(SKILL_STUN, "ошеломить", 200);
+	skillo(SKILL_MAKE_AMULET, "смастерить оберег", 200);
 }
 
 int get_max_slot(CHAR_DATA* ch)
