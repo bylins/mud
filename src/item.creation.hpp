@@ -48,6 +48,7 @@
 #define MAKE_WEAR	2
 #define MAKE_METALL	3
 #define MAKE_CRAFT	4
+#define MAKE_AMULET 5
 
 // определяем минимальное количество мувов для возможности что-то сделать.
 #define MIN_MAKE_MOVE   10
