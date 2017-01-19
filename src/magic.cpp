@@ -932,7 +932,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
     if (IS_NPC(victim) && !IS_NPC(killer))
 		log("SAVING: Caster==%s  Mob==%s vnum==%d Level==%d type==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d cast_apply==%d result==%d new_random==%d", GET_NAME(killer), GET_NAME(victim), GET_MOB_VNUM(victim), GET_LEVEL(victim), type, extend_saving_throws(class_sav, type, GET_LEVEL(victim)), temp_save_stat, temp_awake_mod, GET_SAVE(victim, type), ext_apply, save, number(1, 200));
 	// Throwing a 0 is always a failure.
-	if (MAX(5, save) <= number(1, 100))
+	if (MAX(5, save) <= number(1, 200))
 		return (TRUE);
 
 	// Oops, failed. Sorry.

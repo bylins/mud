@@ -5565,7 +5565,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		timed_feat_from_char(ch, ch->timed_feat);
 	}
-	if ((ch->get_remort() % 4) == 0)
+	if ((ch->get_remort() % 3) == 0)
 	{
 		ch->clear_skills();
 		for (i = 1; i <= MAX_SPELLS; i++)
