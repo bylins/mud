@@ -2093,6 +2093,11 @@ void Player::sub_ice_currency(int value)
 	this->ice_currency = MAX(0, ice_currency - value);
 }
 
+bool Player::is_arena_player()
+{
+	return this->arena_player;
+}
+
 int Player::death_player_count()
 {
 	const int zone_vnum = zone_table[world[this->in_room]->zone].number;
