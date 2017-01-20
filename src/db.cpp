@@ -5557,23 +5557,28 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		timed_from_char(ch, ch->timed);
 	}
+	
 
-	ch->clear_skills();
-
-	for (i = 1; i <= MAX_SPELLS; i++)
-	{
-		GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
-		GET_SPELL_MEM(ch, i) = 0;
-	}
+	
 
 	while (ch->timed_feat)
 	{
 		timed_feat_from_char(ch, ch->timed_feat);
 	}
-
-	for (i = 1; i < MAX_FEATS; i++)
+	if ((ch->get_remort() % 3) == 0)
 	{
-		UNSET_FEAT(ch, i);
+		ch->clear_skills();
+		for (i = 1; i <= MAX_SPELLS; i++)
+		{
+			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
+			GET_SPELL_MEM(ch, i) = 0;
+		}
+		for (i = 1; i < MAX_FEATS; i++)
+		{
+			UNSET_FEAT(ch, i);
+		}
+		// Убираем все заученные порталы
+		check_portals(ch);
 	}
 
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
@@ -5595,8 +5600,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ch->set_protecting(0);
 		ch->BattleAffects.unset(EAF_PROTECT);
 	}
-	// Убираем все заученные порталы
-	check_portals(ch);
+	
 	//Обновляем статистику рипов для текущего перевоплощения
 	GET_RIP_DTTHIS(ch) = 0;
 	GET_EXP_DTTHIS(ch) = 0;
