@@ -727,6 +727,19 @@ void CHAR_DATA::clear_skills()
 {
 	skills.clear();
 }
+// оберзает все скиллы до максимум на реморт
+int CHAR_DATA::crop_skills()
+{
+	int skill;
+	for (auto it = skills.begin();it != skills.end();it++)
+	{
+		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
+		if (skill > 80 + this->get_remort() * 5)
+			it->second = 80 + this->get_remort() * 5;
+
+	}
+}
+
 
 int CHAR_DATA::get_skills_count() const
 {

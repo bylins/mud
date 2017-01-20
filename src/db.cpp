@@ -5565,7 +5565,9 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		timed_feat_from_char(ch, ch->timed_feat);
 	}
-	if ((ch->get_remort() % 3) == 0)
+
+
+	if ((ch->get_remort() % 4) == 0)
 	{
 		ch->clear_skills();
 		for (i = 1; i <= MAX_SPELLS; i++)
@@ -5579,6 +5581,10 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		// Убираем все заученные порталы
 		check_portals(ch);
+	}
+	else
+	{
+		ch->crop_skills();
 	}
 
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
