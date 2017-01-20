@@ -108,7 +108,7 @@ CObjectPrototypes obj_proto;
 struct zone_data *zone_table;	// zone table
 zone_rnum top_of_zone_table = 0;	// top element of zone tab
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
-
+extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 struct player_index_element *player_table = NULL;	// index to plr file
 
 bool player_exists(const long id)
@@ -5585,6 +5585,14 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	else
 	{
 		ch->crop_skills();
+		for (i = 1; i <= MAX_SPELLS; i++)
+		{
+			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
+			if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
+				GET_SPELL_MEM(ch, i) = 0;
+			}
+			
+		}
 	}
 
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
