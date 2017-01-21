@@ -836,11 +836,11 @@ int calc_anti_savings(CHAR_DATA * ch)
 	int modi = 0;
 
 	if (WAITLESS(ch))
-		modi = 150;
+		modi = 350;
 	else if (GET_GOD_FLAG(ch, GF_GODSLIKE))
-		modi = 50;
+		modi = 250;
 	else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
-		modi = -50;
+		modi = -250;
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int)((GET_REAL_WIS(ch) - 23) * 3 / 2)));

@@ -472,7 +472,7 @@ void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 
-	if (!IS_IMPL(ch))
+	if (!IS_GRGOD(ch))
 	{
 		do_hit(ch, argument, cmd, subcmd);
 		return;
