@@ -738,6 +738,7 @@ int CHAR_DATA::crop_skills()
 			it->second = 80 + this->get_remort() * 5;
 
 	}
+	return 0;
 }
 
 
