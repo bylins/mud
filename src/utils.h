@@ -108,7 +108,7 @@ bool is_head(std::string name);
 extern std::list<FILE *> opened_files;
 extern bool is_dark(room_rnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
-
+int VPOSI_MOB(CHAR_DATA *ch, int stat);
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
@@ -596,6 +596,13 @@ inline T VPOSI(const T val, const T min, const T max)
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
 
+// у чаров режет до 50, у мобов до ста
+int VPOSI_MOB(CHAR_DATA *ch, int stat)
+{
+	return IS_NPC(ch) ? VPOSI(stat, 1, 100) : POSI(stat);
+}
+
+
 #define GET_CLASS(ch)   ((ch)->get_class())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
 #define GET_HEIGHT(ch)  ((ch)->player_data.height)
@@ -612,17 +619,17 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_DRUNK_STATE(ch) ((ch)->player_specials->saved.DrunkState)
 
 #define GET_STR_ADD(ch) ((ch)->get_str_add())
-#define GET_REAL_STR(ch) (POSI(((ch)->get_str() + GET_STR_ADD(ch))))
+#define GET_REAL_STR(ch) (VPOSI_MOB(ch, ((ch)->get_str() + GET_STR_ADD(ch))))
 #define GET_DEX_ADD(ch) ((ch)->get_dex_add())
-#define GET_REAL_DEX(ch) (POSI((ch)->get_dex() + GET_DEX_ADD(ch))))
+#define GET_REAL_DEX(ch) (VPOSI_MOB(ch, (ch)->get_dex() + GET_DEX_ADD(ch))))
 #define GET_CON_ADD(ch) ((ch)->get_con_add())
-#define GET_REAL_CON(ch) (VPOSI(((ch)->get_con() + GET_CON_ADD(ch)), 1, 56))
+#define GET_REAL_CON(ch) (VPOSI_MOB(ch, (ch)->get_con() + GET_CON_ADD(ch)))
 #define GET_WIS_ADD(ch) ((ch)->get_wis_add())
-#define GET_REAL_WIS(ch) (POSI(((ch)->get_wis() + GET_WIS_ADD(ch))))
+#define GET_REAL_WIS(ch) (VPOSI(((ch)->get_wis() + GET_WIS_ADD(ch)), 1 56))
 #define GET_INT_ADD(ch) ((ch)->get_int_add())
-#define GET_REAL_INT(ch) (POSI(ch->get_int() + GET_INT_ADD(ch)))
+#define GET_REAL_INT(ch) (VPOSI_MOB(ch, (ch->get_int() + GET_INT_ADD(ch)))
 #define GET_CHA_ADD(ch) ((ch)->get_cha_add())
-#define GET_REAL_CHA(ch) (POSI(ch->get_cha() + GET_CHA_ADD(ch)))
+#define GET_REAL_CHA(ch) (VPOSI_MOB(ch, (ch->get_cha() + GET_CHA_ADD(ch)))
 #define GET_SIZE(ch)    ((ch)->real_abils.size)
 #define GET_SIZE_ADD(ch)  ((ch)->add_abils.size_add)
 #define GET_REAL_SIZE(ch) (VPOSI(GET_SIZE(ch) + GET_SIZE_ADD(ch), 1, 100))
