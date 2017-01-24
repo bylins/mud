@@ -73,6 +73,7 @@
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
 #define RANDOMOBJ_FILE "randomobj.xml"
+#define SPEEDWALKS_FILE "speedwalks.xml"
 /**************************************************************************
 *  declarations of global containers and objects                          *
 **************************************************************************/
@@ -100,6 +101,7 @@ long max_id = MOBOBJ_ID_BASE;	// for unique mob/obj id's
 INDEX_DATA *mob_index;		// index table for mobile file
 mob_rnum top_of_mobt = 0;	// top of mobile index table
 void Load_Criterion(pugi::xml_node XMLCriterion, int type);
+void load_speedwalk();
 int global_uid = 0;
 
 OBJ_DATA *object_list = NULL;	// global linked list of objs
@@ -760,6 +762,11 @@ void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
 		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}	
 }
+
+std::vector<SpeedWalk>  speedwalks;
+
+
+
 
 // Separate a 4-character id tag from the data it precedes
 void tag_argument(char *argument, char *tag)
@@ -2637,7 +2644,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading bonus log");
 	Bonus::bonus_log_load();
-
+	load_speedwalk();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
 }
@@ -6398,5 +6405,43 @@ void CObjectPrototypes::set(const size_t index, CObjectPrototype* new_value)
 	new_value->set_rnum(static_cast<int>(index));
 	m_prototypes[index].reset(new_value);
 }
+
+void load_speedwalk()
+{
+
+	pugi::xml_document doc_sw;
+	pugi::xml_node child_, object_, file_sw;
+	file_sw = XMLLoad(LIB_MISC CASES_FILE, "speedwalks", "Error loading cases file: speedwalks.xml", doc_sw);
+
+	for (child_ = file_sw.child("speedwalk"); child_; child_ = child_.next_sibling("speedwalk"))
+	{
+		SpeedWalk sw;
+		sw.wait = 0;
+		sw.cur_state = 0;
+		sw.default_wait = child_.attribute("default_wait").as_int();
+		for (object_ = child_.child("object"); child_; object_ = child_.next_sibling("object"))
+			sw.vnum_mobs.push_back(object_.attribute("vnum").as_int());
+		for (object_ = child_.child("route"); child_; object_ = child_.next_sibling("route"))
+		{
+			Route r;
+			r.direction = object_.attribute("direction").as_string();
+			r.wait = object_.attribute("wait").as_int();
+			sw.route.push_back(r);
+		}
+		speedwalks.push_back(sw);
+
+	}
+	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+	{
+		for (auto &sw : speedwalks)
+		{
+			for (auto mob : sw.vnum_mobs)
+				if (GET_MOB_VNUM(ch) == mob)
+					sw.mobs.push_back(ch);
+		}
+	}
+
+}
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

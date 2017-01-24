@@ -172,6 +172,8 @@
 
 #define MXPMODE(arg) ESC "[" #arg "z"
 extern void save_zone_count_reset();
+extern std::vector<SpeedWalk>  speedwalks;
+extern int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA * leader);
 // flags for show_list_to_char 
 
 enum {
@@ -1764,11 +1766,49 @@ void heartbeat(const int missed_pulses)
 	}
 
 	// каждые 30 минут подарки под случайную елку
-	if ((pulse % (PASSES_PER_SEC * 30 * 60)) == 0)
+	/*if ((pulse % (PASSES_PER_SEC * 30 * 60)) == 0)
 	{
-//		gifts();
-	}
+		gifts();
+	}*/
 	
+
+	if ((pulse % (PASSES_PER_SEC)) == 0)
+	{
+		for (auto sw : speedwalks)
+		{
+			if (sw.wait > sw.route[sw.cur_state].wait)
+			{
+				for (CHAR_DATA *ch : sw.mobs) {
+					if (ch && !ch->purged())
+					{
+						std::string direction = sw.route[sw.cur_state].direction;
+						int dir = 1;
+						if (direction == "север")
+							dir = SCMD_NORTH;
+						if (direction == "восток")
+							dir = SCMD_EAST;
+						if (direction == "юг")
+							dir = SCMD_SOUTH;
+						if (direction == "запад")
+							dir = SCMD_WEST;
+						if (direction == "вверх")
+							dir = SCMD_UP;
+						if (direction == "вниз")
+							dir = SCMD_DOWN;
+						perform_move(ch, dir - 1, 0, TRUE, 0);
+					}
+				}
+				sw.route[sw.cur_state].wait = 0;
+				sw.cur_state = (sw.cur_state >= sw.route.size() - 1) ? 0 : sw.cur_state + 1;
+			}
+			else
+			{
+				sw.route[sw.cur_state].wait;
+			}
+		}
+	}
+
+
 	// таблица меняется каждые два часа
 	if ((pulse % (PASSES_PER_SEC * 120 * 60)) == 0)
 	{

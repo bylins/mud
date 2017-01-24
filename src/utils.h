@@ -597,7 +597,7 @@ inline T VPOSI(const T val, const T min, const T max)
 }
 
 // у чаров режет до 50, у мобов до ста
-#define VPOSI_MOB(ch, stat)	IS_NPC(ch) ? VPOSI(stat, 1, 100) : POSI(stat)
+#define VPOSI_MOB(ch, stat)	IS_NPC(ch) ? stat : VPOSI(stat, 1, 75)
 
 
 
@@ -623,7 +623,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_CON_ADD(ch) ((ch)->get_con_add())
 #define GET_REAL_CON(ch) (VPOSI_MOB(ch, (ch)->get_con() + GET_CON_ADD(ch)))
 #define GET_WIS_ADD(ch) ((ch)->get_wis_add())
-#define GET_REAL_WIS(ch) (VPOSI(((ch)->get_wis() + GET_WIS_ADD(ch)), 1, 56))
+#define GET_REAL_WIS(ch) (VPOSI_MOB(ch, ((ch)->get_wis() + GET_WIS_ADD(ch))))
 #define GET_INT_ADD(ch) ((ch)->get_int_add())
 #define GET_REAL_INT(ch) (VPOSI_MOB(ch, (ch->get_int() + GET_INT_ADD(ch))))
 #define GET_CHA_ADD(ch) ((ch)->get_cha_add())
