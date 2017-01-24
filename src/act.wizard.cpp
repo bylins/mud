@@ -6369,9 +6369,9 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 		if (GET_LEVEL(ch) >= LVL_GRGOD
 			|| PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
-			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
+			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
 				obj_proto.number(rnum),
-				obj_proto.stored(rnum));
+				obj_proto.stored(rnum), GET_OBJ_MIW(obj_proto[rnum]));
 			ss << buf_;
 
 			const auto& script = prototype->get_proto_script();
