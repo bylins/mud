@@ -737,7 +737,6 @@ void CHAR_DATA::crop_skills()
 		if (skill > 80 + this->get_remort() * 5)
 			it->second = 80 + this->get_remort() * 5;
 	}
-	return 0;
 }
 
 
