@@ -374,7 +374,7 @@ public:
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
-	int crop_skills();
+	void crop_skills();
 	int get_equipped_skill(const ESkill skill_num) const;
 	int get_trained_skill(const ESkill skill_num) const;
 

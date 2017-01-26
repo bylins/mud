@@ -227,6 +227,22 @@ struct player_index_element
 	save_info *timer;
 };
 
+struct Route
+{
+	std::string direction;
+	int wait;
+};
+
+struct SpeedWalk
+{
+	int default_wait;
+	std::vector<int> vnum_mobs;
+	std::vector<Route> route;
+	int cur_state;
+	int wait;
+	std::vector<CHAR_DATA *> mobs;
+};
+
 #define SEASON_WINTER		0
 #define SEASON_SPRING		1
 #define SEASON_SUMMER		2

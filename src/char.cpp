@@ -728,7 +728,7 @@ void CHAR_DATA::clear_skills()
 	skills.clear();
 }
 // оберзает все скиллы до максимум на реморт
-int CHAR_DATA::crop_skills()
+void CHAR_DATA::crop_skills()
 {
 	int skill;
 	for (auto it = skills.begin();it != skills.end();it++)
