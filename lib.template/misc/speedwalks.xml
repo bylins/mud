@@ -1,0 +1,53 @@
+<speedwalks>
+	<speedwalk default_wait="1">
+		<mob vnum="100"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+		<route direction="север" wait="1"/>
+		<route direction="юг" wait="2"/>
+	</speedwalk>
+</speedwalks>
