@@ -129,7 +129,8 @@
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 #include <sys/stat.h>
 
 #include <string>
@@ -1774,7 +1775,7 @@ void heartbeat(const int missed_pulses)
 
 	if ((pulse % (PASSES_PER_SEC)) == 0)
 	{
-		for (auto sw : speedwalks)
+		for (auto &sw : speedwalks)
 		{
 			if (sw.wait > sw.route[sw.cur_state].wait)
 			{
@@ -1783,27 +1784,27 @@ void heartbeat(const int missed_pulses)
 					{
 						std::string direction = sw.route[sw.cur_state].direction;
 						int dir = 1;
-						if (direction == "север")
+						if (boost::starts_with(direction, "север"))
 							dir = SCMD_NORTH;
-						if (direction == "восток")
+						if (boost::starts_with(direction, "восток"))
 							dir = SCMD_EAST;
-						if (direction == "юг")
+						if (boost::starts_with(direction, "юг"))
 							dir = SCMD_SOUTH;
-						if (direction == "запад")
+						if (boost::starts_with(direction, "запад"))
 							dir = SCMD_WEST;
-						if (direction == "вверх")
+						if (boost::starts_with(direction, "вверх"))
 							dir = SCMD_UP;
-						if (direction == "вниз")
+						if (boost::starts_with(direction, "вниз"))
 							dir = SCMD_DOWN;
 						perform_move(ch, dir - 1, 0, TRUE, 0);
 					}
 				}
-				sw.route[sw.cur_state].wait = 0;
+				sw.wait = 0;
 				sw.cur_state = (sw.cur_state >= sw.route.size() - 1) ? 0 : sw.cur_state + 1;
 			}
 			else
 			{
-				sw.route[sw.cur_state].wait;
+				sw.wait += 1;
 			}
 		}
 	}

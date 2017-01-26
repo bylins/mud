@@ -6411,7 +6411,7 @@ void load_speedwalk()
 
 	pugi::xml_document doc_sw;
 	pugi::xml_node child_, object_, file_sw;
-	file_sw = XMLLoad(LIB_MISC CASES_FILE, "speedwalks", "Error loading cases file: speedwalks.xml", doc_sw);
+	file_sw = XMLLoad(LIB_MISC SPEEDWALKS_FILE, "speedwalks", "Error loading cases file: speedwalks.xml", doc_sw);
 
 	for (child_ = file_sw.child("speedwalk"); child_; child_ = child_.next_sibling("speedwalk"))
 	{
@@ -6419,9 +6419,9 @@ void load_speedwalk()
 		sw.wait = 0;
 		sw.cur_state = 0;
 		sw.default_wait = child_.attribute("default_wait").as_int();
-		for (object_ = child_.child("object"); child_; object_ = child_.next_sibling("object"))
+		for (object_ = child_.child("mob"); object_; object_ = object_.next_sibling("mob"))
 			sw.vnum_mobs.push_back(object_.attribute("vnum").as_int());
-		for (object_ = child_.child("route"); child_; object_ = child_.next_sibling("route"))
+		for (object_ = child_.child("route"); object_; object_ = object_.next_sibling("route"))
 		{
 			Route r;
 			r.direction = object_.attribute("direction").as_string();
@@ -6436,8 +6436,10 @@ void load_speedwalk()
 		for (auto &sw : speedwalks)
 		{
 			for (auto mob : sw.vnum_mobs)
+			{
 				if (GET_MOB_VNUM(ch) == mob)
 					sw.mobs.push_back(ch);
+			}
 		}
 	}
 
