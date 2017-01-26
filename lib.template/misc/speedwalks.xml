@@ -1,6 +1,9 @@
 <speedwalks>
+	<!-- default_wait пока что не используется -->
 	<speedwalk default_wait="1">
+		<!-- внумы мобов, мобов может быть несколько -->
 		<mob vnum="100"/>
+		<!-- направление и задержка между шагами, длительность в секундах, минимальное значение 1 -->
 		<route direction="север" wait="1"/>
 		<route direction="юг" wait="2"/>
 		<route direction="север" wait="1"/>
