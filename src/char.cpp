@@ -736,7 +736,6 @@ void CHAR_DATA::crop_skills()
 		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
 		if (skill > 80 + this->get_remort() * 5)
 			it->second = 80 + this->get_remort() * 5;
-
 	}
 	return 0;
 }
