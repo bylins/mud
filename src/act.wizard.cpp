@@ -437,6 +437,31 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
+			if (IN_ROOM(vict) != NOWHERE)
+			{
+				act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
+
+				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					result = calc_loadroom(vict);
+
+				result = real_room(result);
+
+				if (result == NOWHERE)
+				{
+					if (GET_LEVEL(vict) >= LVL_IMMORT)
+						result = r_immort_start_room;
+					else
+						result = r_mortal_start_room;
+				}
+				char_from_room(vict);
+				char_to_room(vict, result);
+				look_at_room(vict, result);
+			};
+
+			sprintf(buf, "%s%s выпустил$G вас из темницы.%s",
+					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
+
+			sprintf(buf2, "$n выпущен$a из темницы!");
 
 			sprintf(buf, "%sЛедяные оковы растаяли под добрым взглядом $N1.%s",
 					CCIYEL(vict, C_NRM), CCNRM(vict, C_NRM));
@@ -526,9 +551,6 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			if (IN_ROOM(vict) != NOWHERE)
 			{
-
-				act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
-
 				if ((result = GET_LOADROOM(vict)) == NOWHERE)
 					result = calc_loadroom(vict);
 
@@ -545,6 +567,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_from_room(vict);
 				char_to_room(vict, result);
 				look_at_room(vict, result);
+				act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
 			};
 			sprintf(buf, "%s%s выпустил$G вас из комнаты имени.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -652,9 +675,15 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
 					CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
-
 			sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
+			if (IN_ROOM(vict) != NOWHERE)
+			{
+				act("$n водворен$a в темницу!", FALSE, vict, 0, 0, TO_ROOM);
 
+				char_from_room(vict);
+				char_to_room(vict, r_helled_start_room);
+				look_at_room(vict, r_helled_start_room);
+			};
 			break;
 
 
