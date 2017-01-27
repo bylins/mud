@@ -343,8 +343,8 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (!(victim = get_char_room_vis(ch, arg)))
 	{
-		sprintf(buf, "msend: victim (%s) does not exist", arg);
-		mob_log(ch, buf, LGH);
+//		sprintf(buf, "msend: victim (%s) does not exist", arg);
+//		mob_log(ch, buf, LGH);
 		return;
 	}
 
