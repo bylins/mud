@@ -157,7 +157,7 @@ void pk_check_spamm(CHAR_DATA * ch)
 // функция переводит переменные *pkiller и *pvictim на хозяев, если это чармы
 void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 {
-	if (pkiller != NULL && pkiller[0] != NULL)
+	if (pkiller != NULL && pkiller[0] != NULL && !pvictim[0]->purged())
 	{
 		if (IS_NPC(pkiller[0])
 			&& pkiller[0]->has_master()
@@ -167,8 +167,7 @@ void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 			pkiller[0] = pkiller[0]->get_master();
 		}
 	}
-
-	if (pvictim != NULL && pvictim[0] != NULL)
+	if (pvictim != NULL && pvictim[0] != NULL && !pvictim[0]->purged())
 	{
 		if (IS_NPC(pvictim[0])
 			&& pvictim[0]->has_master()
