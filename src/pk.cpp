@@ -1277,7 +1277,8 @@ bool bloody::handle_transfer(CHAR_DATA* ch, CHAR_DATA* victim, OBJ_DATA* obj, OB
 	CHAR_DATA* initial_ch = ch;
 	CHAR_DATA* initial_victim = victim;
 	if (!obj || (ch && IS_GOD(ch))) return true;
-	pk_translate_pair(&ch, &victim);
+	if (victim && !victim->purged)
+		pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
 	if (!obj->get_extra_flag(EExtraFlag::ITEM_BLOODY)
