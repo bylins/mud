@@ -1190,7 +1190,8 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 {
 	if (ch->in_room == NOWHERE)
 		return;
-
+	if (!victim || victim->purged())
+		return;
 	switch (GET_POS(victim))
 	{
 	case POS_MORTALLYW:
