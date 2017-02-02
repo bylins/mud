@@ -1976,11 +1976,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 	ch->set_level(1);
 	ch->set_exp(1);
 	ch->points.max_hit = 10;
-
-	if ((ch->get_remort() % 4) == 0)
-	{
-		ch->set_skill(SKILL_DRUNKOFF, 10);
-	}
+	ch->set_skill(SKILL_DRUNKOFF, 10);
 
 	if (newbie && GET_CLASS(ch) == CLASS_DRUID)
 	{
@@ -2005,35 +2001,33 @@ void do_start(CHAR_DATA * ch, int newbie)
             Noob::equip_start_outfit(ch, obj);
 		}
 	}
-	if ((ch->get_remort() % 4) == 0)
+
+	switch (GET_CLASS(ch))
 	{
-		switch (GET_CLASS(ch))
-		{
-		case CLASS_BATTLEMAGE:
-		case CLASS_DEFENDERMAGE:
-		case CLASS_CHARMMAGE:
-		case CLASS_NECROMANCER:
-		case CLASS_DRUID:
-			ch->set_skill(SKILL_SATTACK, 10);
-			break;
-		case CLASS_CLERIC:
-			ch->set_skill(SKILL_SATTACK, 50);
-			break;
-		case CLASS_THIEF:
-		case CLASS_ASSASINE:
-		case CLASS_MERCHANT:
-			ch->set_skill(SKILL_SATTACK, 75);
-			break;
-		case CLASS_GUARD:
-		case CLASS_PALADINE:
-		case CLASS_WARRIOR:
-		case CLASS_RANGER:
-			ch->set_skill(SKILL_HORSE, 10);
-		case CLASS_SMITH:
-			ch->set_skill(SKILL_SATTACK, 95);
-			break;
-		}
-	}
+	case CLASS_BATTLEMAGE:
+	case CLASS_DEFENDERMAGE:
+	case CLASS_CHARMMAGE:
+	case CLASS_NECROMANCER:
+	case CLASS_DRUID:
+		ch->set_skill(SKILL_SATTACK, 10);
+		break;
+	case CLASS_CLERIC:
+		ch->set_skill(SKILL_SATTACK, 50);
+		break;
+	case CLASS_THIEF:
+	case CLASS_ASSASINE:
+	case CLASS_MERCHANT:
+		ch->set_skill(SKILL_SATTACK, 75);
+		break;
+	case CLASS_GUARD:
+	case CLASS_PALADINE:
+	case CLASS_WARRIOR:
+	case CLASS_RANGER:
+		ch->set_skill(SKILL_HORSE, 10);
+	case CLASS_SMITH:
+		ch->set_skill(SKILL_SATTACK, 95);
+		break;
+ 	}
 
 	advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_LEVEL(ch));
