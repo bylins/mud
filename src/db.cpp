@@ -5572,9 +5572,8 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		timed_feat_from_char(ch, ch->timed_feat);
 	}
-
-
-	if ((ch->get_remort() % 4) == 0)
+	
+	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0)
 	{
 		ch->clear_skills();
 		for (i = 1; i <= MAX_SPELLS; i++)
@@ -5594,11 +5593,15 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ch->crop_skills();
 		for (i = 1; i <= MAX_SPELLS; i++)
 		{
-			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
-			if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8) {
-				GET_SPELL_MEM(ch, i) = 0;
+			if (GET_CLASS(ch) == CLASS_DRUID)
+			{
+				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
 			}
-			
+			else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8)
+			{
+				GET_SPELL_TYPE(ch, i) = 0;
+				GET_SPELL_MEM(ch, i) = 0;
+			}			
 		}
 	}
 
