@@ -276,7 +276,6 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 {
 	room_rnum to_room = NOWHERE, fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
-	int modi = 0;
 
 	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT)
 	{
@@ -292,26 +291,22 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 
 	if (victim != ch)
 	{
-		if (WAITLESS(ch)
-			&& !WAITLESS(victim))
+		if (same_group(ch, victim))
 		{
-			modi += 100;	// always success
+			if (number(1, 100) <= 5 )
+			{
+				send_to_char(SUMMON_FAIL, ch);
+				return;
+			}
 		}
-		else if (same_group(ch, victim))
+		else if (!IS_NPC(ch) || (ch->has_master() && !IS_NPC(ch->get_master()))) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
-			modi += 75;	// 75% chance to success
-		}
-		else if (!IS_NPC(ch)
-			|| (ch->has_master()
-				&& !IS_NPC(ch->get_master())))
-		{
-			modi = -100;	// always fail
+				send_to_char(SUMMON_FAIL, ch);
+				return;
 		}
 
-		if (modi == -100
-			|| general_savingthrow(ch, victim, SAVING_WILL, modi))
+		if ((IS_NPC(ch) && general_savingthrow(ch, victim, SAVING_WILL, GET_REAL_INT(ch))) || IS_GOD(victim))
 		{
-			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 	}

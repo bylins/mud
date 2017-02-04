@@ -589,6 +589,21 @@ void beat_punish(CHAR_DATA * i)
 		FREEZE_DURATION(i) = 0;
 		send_to_char("Вы оттаяли.\r\n", i);
 		Glory::remove_freeze(GET_UNIQUE(i));
+		if ((restore = GET_LOADROOM(i)) == NOWHERE)
+			restore = calc_loadroom(i);
+		restore = real_room(restore);
+		if (restore == NOWHERE)
+		{
+			if (GET_LEVEL(i) >= LVL_IMMORT)
+				restore = r_immort_start_room;
+			else
+				restore = r_mortal_start_room;
+		}
+		char_from_room(i);
+		char_to_room(i, restore);
+		look_at_room(i, restore);
+		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.",
+			FALSE, i, 0, 0, TO_ROOM);
 	}
 	// Проверяем а там ли мы где должны быть по флагам.
 	if (IN_ROOM(i) == STRANGE_ROOM)
