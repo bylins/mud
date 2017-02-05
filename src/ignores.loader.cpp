@@ -28,7 +28,7 @@ ignore_data::shared_ptr IgnoreParser::parse()
 	const auto result = parse_ignore(m_pos);
 	if (!result)
 	{
-		log("WARNING: could not parse ignore list [%s] of %s: invalid format.", m_pos, m_character->get_name().c_str());
+		log("WARNING: could not parse ignore list [%s] of %s: invalid format.", m_pos.c_str(), m_character->get_name().c_str());
 	}
 
 	return result;
