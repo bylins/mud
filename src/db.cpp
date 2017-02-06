@@ -5572,6 +5572,10 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		timed_feat_from_char(ch, ch->timed_feat);
 	}
+	for (i = 1; i < MAX_FEATS; i++)
+	{
+		UNSET_FEAT(ch, i);
+	}
 	
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0)
 	{
@@ -5580,10 +5584,6 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 			GET_SPELL_MEM(ch, i) = 0;
-		}
-		for (i = 1; i < MAX_FEATS; i++)
-		{
-			UNSET_FEAT(ch, i);
 		}
 		// Убираем все заученные порталы
 		check_portals(ch);
