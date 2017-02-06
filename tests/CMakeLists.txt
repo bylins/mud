@@ -18,7 +18,6 @@ set(TESTS
 	act.makefood.cpp
 	utils.editor.cpp
 	fight.penalties.cpp
-	ignores.loader.cpp
 	bonus.command.parser.cpp)
 set(UTILITIES
 	char.utilities.hpp
