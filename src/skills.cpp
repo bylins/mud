@@ -1291,6 +1291,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			bonus -= 50;
 		else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
 			bonus -= number(10, 25);
+		break;
 	case SKILL_HORSE: // верховая езда
 		bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
