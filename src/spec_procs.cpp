@@ -268,7 +268,9 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			send_to_char(buf2, vict);
 
 		for (int k = 0; k < max_slot; k++)
-			delete names[k];
+			delete[] names[k];
+
+		delete[] names;
 
 		return;
 	}
@@ -385,7 +387,9 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		send_to_char(buf2, vict);
 
 	for (int k = 0; k < max_slot; k++)
-		delete names[k];
+		delete[] names[k];
+	
+	delete[] names;
 }
 
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/)
