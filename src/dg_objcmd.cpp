@@ -537,6 +537,13 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			obj_log(obj, "oload: bad object vnum");
 			return;
 		}
+		if ((GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0) && ((obj_proto.number(object->get_rnum()) + obj_proto.stored(object->get_rnum())) > GET_OBJ_MIW(obj_proto[object->get_rnum()])))
+		{
+			sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d", number);
+			obj_log(obj, buf);
+//			extract_obj(object);
+//			return;
+		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
 		object->set_zone(world[room]->zone);
 		obj_to_room(object, room);
