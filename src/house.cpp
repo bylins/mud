@@ -685,7 +685,7 @@ void Clan::ClanLoad()
 		tempClan->last_exp.load(tempClan->get_file_abbrev());
 		tempClan->init_ingr_chest();
 		tempClan->chest_log.load(tempClan->get_file_abbrev());
-		if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0))
+		if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0) && !tempClan->test_clan)
 		{
 			Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
 			DestroyClan(tempClan);
