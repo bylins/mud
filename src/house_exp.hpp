@@ -29,6 +29,7 @@ public:
 	void load(const std::string &abbrev);
 	void save(const std::string &abbrev) const;
 	void update_total_exp();
+	void fulldelete();
 private:
 	int buffer_exp_;
 	long long total_exp_;

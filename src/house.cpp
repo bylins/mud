@@ -2725,7 +2725,8 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 	}
 	// пуржим ингры, если есть
 	clan->purge_ingr_chest();
-	clan->exp_history.fulldelete(); 
+	clan->exp_history.fulldelete();
+	clan->last_exp.fulldelete();
 	Clan::ClanSave();
 
 	for (const auto& it : members)

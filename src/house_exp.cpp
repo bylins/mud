@@ -107,6 +107,13 @@ void ClanExp::update_total_exp()
 	}
 }
 
+void ClanExp::fulldelete()
+{
+	list_.clear();
+	buffer_exp_ = 0;
+	total_exp_ = 0;
+}
+
 // * Добавление ноды (раз в час).
 void update_clan_exp()
 {
