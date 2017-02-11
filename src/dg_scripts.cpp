@@ -1955,7 +1955,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			{
 				num = count_obj_vnum(num);
 				if (num >= 0)
+				{
+				    if (check_unlimited_timer(obj_proto[num].get()))
+		    			sprintf(str, "0");
+				    else
 					sprintf(str, "%d", num);
+				}
 			}
 			else if (!str_cmp(field, "gameobjs") && num > 0)
 			{
