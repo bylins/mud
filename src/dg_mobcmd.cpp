@@ -444,9 +444,9 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if ((GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0) && ((obj_proto.number(object->get_rnum()) + obj_proto.stored(object->get_rnum())) > GET_OBJ_MIW(obj_proto[object->get_rnum()])))
 		{
 			sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d", number);
-//			mob_log(ch, buf);
+			mob_log(ch, buf);
 //			extract_obj(object);
-			return;
+//			return;
 		}
 
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
