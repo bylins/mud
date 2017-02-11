@@ -441,6 +441,16 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, "mload: bad object vnum");
 			return;
 		}
+		if ((GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0) && ((obj_proto.number(object->get_rnum()) + obj_proto.stored(object->get_rnum())) > GET_OBJ_MIW(obj_proto[object->get_rnum()])))
+		{
+			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
+			{
+				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d", number);
+				mob_log(ch, buf);
+//				extract_obj(object);
+//				return;
+			}
+		}
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		object->set_zone(world[ch->in_room]->zone);
 		if (CAN_WEAR(object, EWearFlag::ITEM_WEAR_TAKE))
