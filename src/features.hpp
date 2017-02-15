@@ -44,7 +44,7 @@ using std::bitset;
 #define RELATED_TO_MAGIC_FEAT	24  //магическое родство
 #define SPLENDID_HEALTH_FEAT	25  //богатырское здоровье
 #define TRACKER_FEAT			26  //следопыт
-#define WEAPON_FINESSE_FEAT		27  //фехтование
+#define WEAPON_FINESSE_FEAT		27  //ловкий удар
 #define COMBAT_CASTING_FEAT		28  //боевое чародейство
 #define PUNCH_MASTER_FEAT		29  //кулачный боец
 #define CLUBS_MASTER_FEAT		30  //мастер палицы
@@ -166,6 +166,7 @@ using std::bitset;
 
 #define EVASION_FEAT            138 //скользский тип
 #define EXPEDIENT_CUT_FEAT      139 //порез
+#define SHOT_FINESSE_FEAT		140  //ловкий выстрел
 
 /*
 #define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
