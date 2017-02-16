@@ -1143,7 +1143,9 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 		TRIGGERS(sc) = t;
 	}
 	else if (!i)
+	{
 		TRIGGERS(sc) = t;
+	}
 	else
 	{
 		t->next = i->next;
@@ -1957,13 +1959,19 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				const auto count = count_obj_vnum(num);
 				if (count >= 0 && 0 <= rnum)
 				{
-				    if (check_unlimited_timer(obj_proto[rnum].get()))
-		    			sprintf(str, "0");
-				    else
-					sprintf(str, "%d", count);
+					if (check_unlimited_timer(obj_proto[rnum].get()))
+					{
+						sprintf(str, "0");
+					}
+					else
+					{
+						sprintf(str, "%d", count);
+					}
 				}
 				else
+				{
 					sprintf(str, "0");
+				}
 			}
 			else if (!str_cmp(field, "gameobjs") && num > 0)
 			{
