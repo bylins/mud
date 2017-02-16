@@ -1953,14 +1953,17 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			num = atoi(subfield);
 			if (!str_cmp(field, "curobjs") && num > 0)
 			{
-				num = count_obj_vnum(num);
-				if (num >= 0)
+				const auto rnum = real_object(num);
+				const auto count = count_obj_vnum(num);
+				if (count >= 0 && 0 <= rnum)
 				{
-				    if (check_unlimited_timer(obj_proto[num].get()))
+				    if (check_unlimited_timer(obj_proto[rnum].get()))
 		    			sprintf(str, "0");
 				    else
-					sprintf(str, "%d", num);
+					sprintf(str, "%d", count);
 				}
+				else
+					sprintf(str, "0");
 			}
 			else if (!str_cmp(field, "gameobjs") && num > 0)
 			{

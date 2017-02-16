@@ -904,7 +904,7 @@ void addshot_damage(CHAR_DATA * ch, int type, int weapon)
 	int prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, ch->get_fighting());
 
 	// ловка роляет только выше 21 (стартовый максимум охота) и до 50
-	float dex_mod = static_cast<float>(MAX(GET_REAL_DEX(ch) - 21, 0)) / 29 * 2;
+	float dex_mod = static_cast<float>(MAX(MIN(GET_REAL_DEX(ch), 50) - 21, 0)) / 29 * 2;  //поставим кап в 50 ловки для допвыстрела
 	// штраф на 4й и 5й выстрелы для чаров ниже 5 мортов, по 20% за морт
 	float remort_mod = static_cast<float>(GET_REMORT(ch)) / 5;
 	if (remort_mod > 1) remort_mod = 1;
@@ -3962,8 +3962,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// обработка по факту попадания
 	hit_params.dam += get_real_dr(ch);
-
-	hit_params.dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	if (can_use_feat(ch, SHOT_FINESSE_FEAT))
+		hit_params.dam += str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+	else
+		hit_params.dam += str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 	// рандом разброс базового дамага
 	if (hit_params.dam > 0)

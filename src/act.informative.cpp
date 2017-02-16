@@ -3151,7 +3151,10 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 			CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-	max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) //ловкий выстрел дамы от ловки
+		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+	else
+		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 	if (can_use_feat(ch, BULLY_FEAT))
 	{
