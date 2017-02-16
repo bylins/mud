@@ -74,6 +74,7 @@
 #define CASES_FILE "cases.xml"
 #define RANDOMOBJ_FILE "randomobj.xml"
 #define SPEEDWALKS_FILE "speedwalks.xml"
+#define CLASS_LIMIT_FILE "class_limit.xml"
 /**************************************************************************
 *  declarations of global containers and objects                          *
 **************************************************************************/
@@ -102,6 +103,7 @@ INDEX_DATA *mob_index;		// index table for mobile file
 mob_rnum top_of_mobt = 0;	// top of mobile index table
 void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 void load_speedwalk();
+void load_class_limit();
 int global_uid = 0;
 
 OBJ_DATA *object_list = NULL;	// global linked list of objs
@@ -261,6 +263,7 @@ extern struct month_temperature_type year_temp[];
 extern const char *pc_class_types[];
 extern char *house_rank[];
 extern struct pclean_criteria_data pclean_criteria[];
+extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
 extern void LoadProxyList();
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
@@ -2645,6 +2648,11 @@ void boot_db(void)
 	boot_profiler.next_step("Loading bonus log");
 	Bonus::bonus_log_load();
 	load_speedwalk();
+
+	boot_profiler.next_step("Loading class_limit.xml");
+	log("Load class_limit.xml");
+	load_class_limit();
+
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
 }
@@ -6448,5 +6456,60 @@ void load_speedwalk()
 
 }
 
+void load_class_limit()
+{
+	pugi::xml_document doc_sw;
+	pugi::xml_node child_, object_, file_sw;
+	
+	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i)
+	{
+		for (int j = 0; j < 6; ++j)
+		{
+			//Intiializing stats limit with default value
+			class_stats_limit[i][j] = 50;
+		}
+	}
+
+	file_sw = XMLLoad(LIB_MISC CLASS_LIMIT_FILE, "class_limit", "Error loading file: classlimit.xml", doc_sw);
+
+	for (child_ = file_sw.child("stats_limit").child("class"); child_; child_ = child_.next_sibling("class"))
+	{
+		std::string id_str = Parse::attr_str(child_, "id");
+		if (id_str.empty())
+			continue;
+
+		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
+		if (id == CLASS_UNDEFINED)
+		{
+			snprintf(buf, MAX_STRING_LENGTH, "...<class id='%s'> convert fail", id_str.c_str());
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+
+		int val = Parse::child_value_int(child_, "str");
+		if (val > 0)
+			class_stats_limit[id][0] = val;
+
+		val = Parse::child_value_int(child_, "dex");
+		if (val > 0)
+			class_stats_limit[id][1] = val;
+
+		val = Parse::child_value_int(child_, "con");
+		if (val > 0)
+			class_stats_limit[id][2] = val;
+
+		val = Parse::child_value_int(child_, "wis");
+		if (val > 0)
+			class_stats_limit[id][3] = val;
+
+		val = Parse::child_value_int(child_, "int");
+		if (val> 0)
+			class_stats_limit[id][4] = val;
+
+		val = Parse::child_value_int(child_, "cha");
+		if (val > 0)
+			class_stats_limit[id][5] = val;
+	}
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
