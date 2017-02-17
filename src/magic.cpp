@@ -40,6 +40,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "char_obj_utils.inl"
 
 #include <boost/format.hpp>
 
@@ -5071,9 +5072,13 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			to_char = "Вам не под силу зачаровать магическую вещь.";
 			break;
 		};
+		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
+		{
+			send_to_char(ch, "Сетовый предмет не может быть заколдован.\r\n");
+			break;
+		}
 
 		reagobj = GET_EQ(ch, WEAR_HOLD);
-
 		if (reagobj
 			&& (get_obj_in_list_vnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
 				|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
