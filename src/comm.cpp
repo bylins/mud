@@ -1800,7 +1800,7 @@ void heartbeat(const int missed_pulses)
 					}
 				}
 				sw.wait = 0;
-				sw.cur_state = (sw.cur_state >= sw.route.size() - 1) ? 0 : sw.cur_state + 1;
+				sw.cur_state = (sw.cur_state >= static_cast<decltype(sw.cur_state)>(sw.route.size()) - 1) ? 0 : sw.cur_state + 1;
 			}
 			else
 			{

@@ -263,7 +263,7 @@ public:
 	void add(TRIG_DATA* trigger);
 	void remove(TRIG_DATA* trigger);
 	void shift_rnums_from(const rnum_t rnum);
-	const bool has_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.find(rnum) != m_rnum2trigers_set.end(); }
+	bool has_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.find(rnum) != m_rnum2trigers_set.end(); }
 	const auto& get_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.at(rnum); }
 
 private:
