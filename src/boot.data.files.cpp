@@ -15,6 +15,8 @@
 
 #include <boost/algorithm/string/trim.hpp>
 
+#include <iostream>
+
 extern int scheck;						// TODO: get rid of this line
 extern const char *unused_spellname;	// TODO: get rid of this line
 CHAR_DATA *mob_proto;					// TODO: get rid of this global variable
@@ -271,7 +273,10 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 			{
 				CREATE(room->script, 1);
 			}
-			add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+
+			const auto trigger_instance = read_trigger(rnum);
+			add_trigger(SCRIPT(room), trigger_instance, -1);
+
 			// для начала определяем, есть ли такой внум у нас в контейнере
 			if (owner_trig.find(vnum) == owner_trig.end())
 			{

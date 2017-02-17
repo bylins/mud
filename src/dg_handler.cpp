@@ -13,9 +13,6 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
 #include "dg_scripts.h"
 #include "utils.h"
 #include "comm.h"
@@ -27,14 +24,16 @@
 #include "im.h"
 #include "features.hpp"
 #include "char.hpp"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 extern INDEX_DATA **trig_index;
-extern TRIG_DATA *trigger_list;
 
 void trig_data_free(TRIG_DATA * this_data);
 
 // return memory used by a trigger 
-void free_trigger(TRIG_DATA * trig)
+void free_trigger(TRIG_DATA* trig)
 {
 	// threw this in for minor consistance in names with the rest of circle 
 	trig_data_free(trig);
@@ -54,7 +53,7 @@ void extract_trigger(TRIG_DATA * trig)
 	trig_index[trig->get_rnum()]->number--;
 
 	// walk the trigger list and remove this one 
-	REMOVE_FROM_LIST(trig, trigger_list, [](auto list) -> auto& { return list->next_in_world; });
+	trigger_list.remove(trig);
 
 	free_trigger(trig);
 }
