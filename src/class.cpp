@@ -229,6 +229,11 @@ const int class_religion[] = { RELIGION_ANY,		//Лекарь
 							   RELIGION_POLY		//Волхв
 							 };
 
+
+
+//str dex con wis int cha
+int class_stats_limit[NUM_PLAYER_CLASSES][6];
+
 /*
  * The code to interpret a class letter -- used in interpreter.cpp when a
  * new character is selecting a class and by 'set class' in act.wizard.c.
