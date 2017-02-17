@@ -141,7 +141,40 @@ struct trig_var_data *worlds_vars;
 int reloc_target = -1;
 TRIG_DATA *cur_trig = NULL;
 
-TRIG_DATA *trigger_list = NULL;	// all attached triggers
+void GlobalTriggersStorage::add(TRIG_DATA* trigger)
+{
+	m_triggers.insert(trigger);
+	m_rnum2trigers_set[trigger->get_rnum()].insert(trigger);
+}
+
+void GlobalTriggersStorage::remove(TRIG_DATA* trigger)
+{
+	m_triggers.erase(trigger);
+	m_rnum2trigers_set[trigger->get_rnum()].erase(trigger);
+}
+
+void GlobalTriggersStorage::shift_rnums_from(const rnum_t rnum)
+{
+	// TODO: Get rid of this function when index will not has to be sorted by rnums
+	//       Actually we need to get rid of rnums at all.
+	std::list<TRIG_DATA*> to_rebind;
+	for (const auto trigger : m_triggers)
+	{
+		if (trigger->get_rnum() > rnum)
+		{
+			to_rebind.push_back(trigger);
+		}
+	}
+
+	for (const auto trigger : to_rebind)
+	{
+		remove(trigger);
+		trigger->set_rnum(1 + trigger->get_rnum());
+		add(trigger);
+	}
+}
+
+GlobalTriggersStorage trigger_list;	// all attached triggers
 
 int trgvar_in_room(int vnum)
 {
@@ -1143,7 +1176,9 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 		TRIGGERS(sc) = t;
 	}
 	else if (!i)
+	{
 		TRIGGERS(sc) = t;
+	}
 	else
 	{
 		t->next = i->next;
@@ -1152,8 +1187,7 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 
 	SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
 
-	t->next_in_world = trigger_list;
-	trigger_list = t;
+	trigger_list.add(t);
 }
 
 void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1957,13 +1991,19 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				const auto count = count_obj_vnum(num);
 				if (count >= 0 && 0 <= rnum)
 				{
-				    if (check_unlimited_timer(obj_proto[rnum].get()))
-		    			sprintf(str, "0");
-				    else
-					sprintf(str, "%d", count);
+					if (check_unlimited_timer(obj_proto[rnum].get()))
+					{
+						sprintf(str, "0");
+					}
+					else
+					{
+						sprintf(str, "%d", count);
+					}
 				}
 				else
+				{
 					sprintf(str, "0");
+				}
 			}
 			else if (!str_cmp(field, "gameobjs") && num > 0)
 			{
@@ -6327,8 +6367,7 @@ TRIG_DATA::TRIG_DATA():
 	wait_event(nullptr),
 	purged(0),
 	var_list(nullptr),
-	next(nullptr),
-	next_in_world(nullptr)
+	next(nullptr)
 {
 }
 
@@ -6345,8 +6384,7 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 	wait_event(nullptr),
 	purged(0),
 	var_list(nullptr),
-	next(nullptr),
-	next_in_world(nullptr)
+	next(nullptr)
 {
 }
 
@@ -6368,8 +6406,7 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	wait_event(nullptr),
 	purged(0),
 	var_list(nullptr),
-	next(nullptr),
-	next_in_world(nullptr)
+	next(nullptr)
 {
 }
 
@@ -6390,7 +6427,6 @@ void TRIG_DATA::reset()
 	purged = 0;
 	var_list = nullptr;
 	next = nullptr;
-	next_in_world = nullptr;
 }
 
 TRIG_DATA& TRIG_DATA::operator=(const TRIG_DATA& right)
