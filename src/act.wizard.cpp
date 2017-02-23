@@ -3400,7 +3400,8 @@ void inspecting()
 		delete it->second->ip_log;
 		it->second->ip_log = log_next;
 	}
-	
+	if (it->second->mail)
+		free(it->second->mail);
 	need_warn = true;
 	gettimeofday(&stop, NULL);
 	timediff(&result, &stop, &it->second->start);
@@ -3410,11 +3411,8 @@ void inspecting()
 		if (it->second->found > 1)
 		{
 			it->second->out += "Данный список отправлен игроку на емайл\r\n";
-			if (it->second->mail)
-				send_list_char(it->second->out, it->second->mail);
+			send_list_char(it->second->out, it->second->mail);
 		}
-	if (it->second->mail)
-		free(it->second->mail);
 	page_string(ch->desc, it->second->out);
 	free(it->second->req);
 	inspect_list.erase(it->first);
