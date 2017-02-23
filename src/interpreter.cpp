@@ -429,6 +429,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
 void do_stun(CHAR_DATA*, char*, int, int);
+void do_touch_stigma(CHAR_DATA*, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -694,6 +695,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"приказ", POS_RESTING, do_order, 1, 0, -1},
 	{"привязать", POS_RESTING, do_horseput, 0, 0, 500},
 	{"приглядеться", POS_RESTING, do_looking, 0, 0, 250},
+	{"прикоснуться", POS_FIGHTING, do_touch_stigma, 0, 0, -1 },
 	{"прикрыть", POS_FIGHTING, do_protect, 0, 0, -1},
 	{"применить", POS_SITTING, do_use, 1, SCMD_USE, 400},
 	{"присесть", POS_RESTING, do_sit, 0, 0, -1},

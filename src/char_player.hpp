@@ -29,6 +29,28 @@
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
 
+// наименование слотов
+std::vector<std::string> name_slot_stigmas = { 
+	"лицо", 
+	"шея",
+	"грудь",
+	"спина",
+	"живот",
+	"поясница",
+	"правый бицепс",
+	"левый бицепс",
+	"правое запястье",
+	"левое запястье",
+	"правая ладонь",
+	"левая ладонь",
+	"правое бедро",
+	"левое бедро",
+	"правая лодыжка",
+	"левая лодыжка",
+	"правая ступня",
+	"левая ступня"
+};
+
 // для одноразовых флагов
 enum
 {
@@ -36,6 +58,105 @@ enum
 	DIS_EXCHANGE_MESSAGE,
 	DIS_TOTAL_NUM
 };
+
+class ProtoStigma
+{
+public:
+	ProtoStigma(std::string name_stigma);
+	// вызывается при активации татуировки
+	virtual bool activate(CHAR_DATA *ch);
+	// вызывается для накопления энергии
+	virtual bool energy_fill();
+	std::vector<std::string> get_aliases();
+	// возвращает место, куда была нанесена стигма
+	int get_current_slot() const;
+	// возвращает имя
+	std::string get_name() const;
+protected:
+	// задержка - через сколько времени можно будет снова воспользоваться стигмой
+	int wait;
+	// задержка - на сколько времени 
+	// накопленная энергия татуировки
+	// заряд накапливается только в том случае, если лага на стигме нет
+	int energy;
+	// алиасы
+	std::vector<std::string> aliases;
+	// имя стигмы
+	std::string name;
+	// описание стигмы
+	std::string desk;
+	// время, сколько татуировка будет висеть на чаре, в игровых часах
+	// -1 бесконечно
+	int time;
+	// на какие слоты можно нанести
+	int slot;
+	// на какой слот нанесена данная стигма
+	int current_slot;
+	// сообщение в руму при применении
+	std::string active_msg;
+	// сообщение в руму при применении (полный заряд)
+	std::string active_msg_full_energy;
+	// сообщение чару при применении
+	std::string active_msg_to_char;
+	// сообщение чару при примении (полный заряд)
+	std::string active_msg_to_char_full_energy;
+	// сообщение в руму, если недоступно
+	std::string dont_work_msg;
+	// сообщение чару, если недоступно
+	std::string dont_work_msg_to_char;
+	
+};
+
+// Исцеляет чара при полном заряде
+class HealStigma : ProtoStigma
+{
+public:
+	HealStigma() : ProtoStigma("зеленая роза") {
+		this->aliases.push_back("зеленая");
+		this->aliases.push_back("роза");
+		this->active_msg = "$n прикоснулся к своей стигме, изображающей зеленую розу.";
+		this->active_msg_full_energy = "$n прикоснулся к своей стигме, изображающей зеленую розу.";
+		this->active_msg_to_char = "Вы прикоснулись к стигме, изображающую зеленую розу.";
+		this->active_msg_to_char_full_energy = "Вы прикоснулись к стигме, изображающую зеленую розу.";
+	};
+};
+
+// Пасивный хил, исцеляет по 50 хп раз в минуту
+class PassiveHealStigma : ProtoStigma
+{
+public:
+	PassiveHealStigma() : ProtoStigma("змея обвивающая посох") {
+	};
+};
+
+// Аналог мигалки для заклов, дает 20% шанс уклониться от заклинания
+class FailSpellStigma : ProtoStigma
+{
+public:
+	FailSpellStigma() : ProtoStigma("кот") {
+	};
+};
+
+// позволяет вызвать чармиса
+// сила чармиса зависит от силы татуировки
+class BearStigma : ProtoStigma
+{
+public:
+	BearStigma() : ProtoStigma("медведь") {
+	};
+};
+
+// аналог мх
+class StickStigma : ProtoStigma
+{
+public:
+	StickStigma() : ProtoStigma("красная роза") {
+	};
+};
+
+
+
+
 
 class Player : public CHAR_DATA
 {
@@ -134,6 +255,10 @@ public:
 
 	bool is_arena_player();
 
+	void touch_stigma(char *arg);
+	// возвращает список татуировок чара в виде читабельного списка
+	std::string show_stigmas();
+
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -182,6 +307,8 @@ private:
 	int ice_currency;
 	// список зон, где чар умер и в каком количестве
 	std::map<int, int> count_death_zone;
+	// здесь храним наши стигмы
+	std::vector<ProtoStigma> stigmas;
 
 };
 

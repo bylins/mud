@@ -61,8 +61,23 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_coddle_out(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_strangle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_touch_stigma(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
+
+
+void do_touch_stigma(CHAR_DATA *ch, char *argument, int /*cmd */, int /*subcmd */)
+{
+	one_argument(argument, arg);
+	if (!*arg)
+	{
+		send_to_char("К чему вы хотите прикоснуться ?\r\n", ch);
+		return;
+	}
+
+
+
+}
 
 int have_mind(CHAR_DATA * ch)
 {
