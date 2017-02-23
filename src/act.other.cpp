@@ -1815,17 +1815,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 
 	if (OBJ_FLAGGED(target, EExtraFlag::ITEM_SETSTUFF))
 	{
-		std::string name = target->get_PName(0);
-		if (name.empty())
-		{
-			name = "<empty>";
-		}
-		name[0] = UPPER(name[0]);
-		send_to_char(ch, "%s не %s быть зачарован%s, т.к. %s частью набора предметов.\r\n",
-			name.c_str(),
-			GET_OBJ_SEX(target) == ESex::SEX_POLY ? "могут" : "может",
-			GET_OBJ_VIS_SUF_6(target, ch),
-			GET_OBJ_SEX(target) == ESex::SEX_POLY ? "являются" : "является");
+		send_to_char(ch, "Сетовый предмет не может быть зачарован.\r\n");
 		return;
 	}
 	if (GET_OBJ_TYPE(target) == OBJ_DATA::ITEM_ENCHANT)

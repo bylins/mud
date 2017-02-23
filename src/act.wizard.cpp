@@ -437,6 +437,31 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
+			if (IN_ROOM(vict) != NOWHERE)
+			{
+				act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
+
+				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					result = calc_loadroom(vict);
+
+				result = real_room(result);
+
+				if (result == NOWHERE)
+				{
+					if (GET_LEVEL(vict) >= LVL_IMMORT)
+						result = r_immort_start_room;
+					else
+						result = r_mortal_start_room;
+				}
+				char_from_room(vict);
+				char_to_room(vict, result);
+				look_at_room(vict, result);
+			};
+
+			sprintf(buf, "%s%s выпустил$G вас из темницы.%s",
+					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
+
+			sprintf(buf2, "$n выпущен$a из темницы!");
 
 			sprintf(buf, "%sЛедяные оковы растаяли под добрым взглядом $N1.%s",
 					CCIYEL(vict, C_NRM), CCNRM(vict, C_NRM));
@@ -526,9 +551,6 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			if (IN_ROOM(vict) != NOWHERE)
 			{
-
-				act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
-
 				if ((result = GET_LOADROOM(vict)) == NOWHERE)
 					result = calc_loadroom(vict);
 
@@ -545,6 +567,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_from_room(vict);
 				char_to_room(vict, result);
 				look_at_room(vict, result);
+				act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
 			};
 			sprintf(buf, "%s%s выпустил$G вас из комнаты имени.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -652,9 +675,15 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
 					CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
-
 			sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
+			if (IN_ROOM(vict) != NOWHERE)
+			{
+				act("$n водворен$a в темницу!", FALSE, vict, 0, 0, TO_ROOM);
 
+				char_from_room(vict);
+				char_to_room(vict, r_helled_start_room);
+				look_at_room(vict, r_helled_start_room);
+			};
 			break;
 
 
@@ -1008,7 +1037,6 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
-						Password::set_password_to_email(d_vict->character, std::string(it->second->pwd));
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
@@ -1031,7 +1059,6 @@ void setall_inspect()
 						Password::set_password(vict, std::string(it->second->pwd));
 						std::string str = player_table[it->second->pos].name;
 						str[0] = UPPER(str[0]);
-						Password::set_all_password_to_email(it->second->mail, std::string(it->second->pwd), str);
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
@@ -1041,6 +1068,8 @@ void setall_inspect()
 			}
 		delete vict;	
 	}
+	if (it->second->mail && it->second->pwd)
+		Password::send_password(it->second->mail, it->second->pwd);
 	// освобождение памяти
     if (it->second->pwd)
 		free(it->second->pwd);		
@@ -3400,19 +3429,20 @@ void inspecting()
 		delete it->second->ip_log;
 		it->second->ip_log = log_next;
 	}
-	if (it->second->mail)
-		free(it->second->mail);
 	need_warn = true;
 	gettimeofday(&stop, NULL);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d за %ldсек.\r\n", it->second->found, result.tv_sec);
 	it->second->out += buf1;	
 	if (it->second->sendmail)
-		if (it->second->found > 1)
+		if (it->second->found > 1 && it->second->sfor == IMAIL)
 		{
 			it->second->out += "Данный список отправлен игроку на емайл\r\n";
-			send_list_char(it->second->out, it->second->mail);
+			send_list_char(it->second->out, it->second->req);
 		}
+	if (it->second->mail)
+	    free(it->second->mail);
+
 	page_string(ch->desc, it->second->out);
 	free(it->second->req);
 	inspect_list.erase(it->first);
@@ -5569,7 +5599,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
 			return 0;
 		}
-		Password::set_password_to_email(vict, std::string(val_arg));
+		Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
+		Password::set_password(vict, val_arg);
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		
 		break;
@@ -6367,9 +6398,9 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 		if (GET_LEVEL(ch) >= LVL_GRGOD
 			|| PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
-			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
+			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
 				obj_proto.number(rnum),
-				obj_proto.stored(rnum));
+				obj_proto.stored(rnum), GET_OBJ_MIW(obj_proto[rnum]));
 			ss << buf_;
 
 			const auto& script = prototype->get_proto_script();

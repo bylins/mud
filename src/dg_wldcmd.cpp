@@ -568,6 +568,16 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			wld_log(room, "wload: bad object vnum");
 			return;
 		}
+		if ((GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0) && ((obj_proto.number(object->get_rnum()) + obj_proto.stored(object->get_rnum())) > GET_OBJ_MIW(obj_proto[object->get_rnum()])))
+		{
+			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
+			{
+				sprintf(buf, "wload: количество больше чем в MIW для #%d", number);
+				wld_log(room, buf);
+//				extract_obj(object);
+//				return;
+			}
+		}
 		log("Load obj #%d by %s (wload)", number, room->name);
 		object->set_zone(world[real_room(room->number)]->zone);
 		obj_to_room(object, real_room(room->number));

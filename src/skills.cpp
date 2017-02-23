@@ -528,6 +528,7 @@ void init_ESkill_ITEM_NAMES()
 	ESkill_name_by_value[ESkill::SKILL_DARK_MAGIC] = "SKILL_DARK_MAGIC";
 	ESkill_name_by_value[ESkill::SKILL_MIND_MAGIC] = "SKILL_MIND_MAGIC";
 	ESkill_name_by_value[ESkill::SKILL_LIFE_MAGIC] = "SKILL_LIFE_MAGIC";
+	ESkill_name_by_value[ESkill::SKILL_MAKE_AMULET] = "SKILL_MAKE_AMULET";
 
 	for (const auto& i : ESkill_name_by_value)
 	{
@@ -642,7 +643,8 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 	SKILL_DARK_MAGIC,
 	SKILL_MIND_MAGIC,
 	SKILL_LIFE_MAGIC,
-	SKILL_STUN
+	SKILL_STUN,
+	SKILL_MAKE_AMULET
 };
 
 ///
@@ -1289,6 +1291,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			bonus -= 50;
 		else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
 			bonus -= number(10, 25);
+		break;
 	case SKILL_HORSE: // верховая езда
 		bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 		break;

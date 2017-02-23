@@ -601,6 +601,8 @@ void assign_feats(void)
 		feato(LIFE_MAGIC_FOCUS_FEAT, "любимая_магия: жизнь", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	*/
+//140
+    feato(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
 }
 
 // Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям.
@@ -618,6 +620,7 @@ bool can_use_feat(const CHAR_DATA *ch, int feat)
 	switch (feat)
 	{
 	case WEAPON_FINESSE_FEAT:
+	case SHOT_FINESSE_FEAT:
 		if (GET_REAL_DEX(ch) < GET_REAL_STR(ch) || GET_REAL_DEX(ch) < 18)
 			return FALSE;
 		break;

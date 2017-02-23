@@ -2042,19 +2042,19 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_MANAREG:
-			GET_MANAREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			GET_MANAREG(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 			break;
 
 		case MEDIT_CASTSUCCESS:
-			GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 			break;
 
 		case MEDIT_SUCCESS:
-			GET_MORALE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			GET_MORALE(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 			break;
 
 		case MEDIT_INITIATIVE:
-			GET_INITIATIVE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			GET_INITIATIVE(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 			break;
 
 		case MEDIT_ABSORBE:
@@ -2096,7 +2096,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			GET_SAVE(OLC_MOB(d), number - 1) = MIN(200, MAX(-200, bit));
+			GET_SAVE(OLC_MOB(d), number - 1) = MIN(400, MAX(-400, bit));
 		}
 		medit_disp_saves(d);
 		return;

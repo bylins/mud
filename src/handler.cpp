@@ -3096,7 +3096,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		clearMemory(ch);	// Only NPC's can have memory
 
 		MOB_FLAGS(ch).set(MOB_FREE);
-		ch->purge();
+		CHAR_DATA::purge(ch);
 		freed = 1;
 	}
 
@@ -3117,9 +3117,10 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		if (!freed)
 		{
 			MOB_FLAGS(ch).set(MOB_FREE);
-			ch->purge();
+			CHAR_DATA::purge(ch);
 		}
 	}
+//	ch = NULL;
 	log("[Extract char] Stop function for char %s", name.c_str());
 }
 
@@ -3212,8 +3213,7 @@ void extract_mob(CHAR_DATA * ch)
 	}
 
 	MOB_FLAGS(ch).set(MOB_FREE);
-	ch->purge();
-//	delete ch;
+	CHAR_DATA::purge(ch);
 }
 
 

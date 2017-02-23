@@ -40,6 +40,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "char_obj_utils.inl"
 
 #include <boost/format.hpp>
 
@@ -836,11 +837,11 @@ int calc_anti_savings(CHAR_DATA * ch)
 	int modi = 0;
 
 	if (WAITLESS(ch))
-		modi = 150;
+		modi = 350;
 	else if (GET_GOD_FLAG(ch, GF_GODSLIKE))
-		modi = 50;
+		modi = 250;
 	else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
-		modi = -50;
+		modi = -250;
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int)((GET_REAL_WIS(ch) - 23) * 3 / 2)));
@@ -932,7 +933,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
     if (IS_NPC(victim) && !IS_NPC(killer))
 		log("SAVING: Caster==%s  Mob==%s vnum==%d Level==%d type==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d cast_apply==%d result==%d new_random==%d", GET_NAME(killer), GET_NAME(victim), GET_MOB_VNUM(victim), GET_LEVEL(victim), type, extend_saving_throws(class_sav, type, GET_LEVEL(victim)), temp_save_stat, temp_awake_mod, GET_SAVE(victim, type), ext_apply, save, number(1, 200));
 	// Throwing a 0 is always a failure.
-	if (MAX(5, save) <= number(1, 100))
+	if (MAX(10, save) <= number(1, 200))
 		return (TRUE);
 
 	// Oops, failed. Sorry.
@@ -5071,9 +5072,13 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			to_char = "Вам не под силу зачаровать магическую вещь.";
 			break;
 		};
+		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
+		{
+			send_to_char(ch, "Сетовый предмет не может быть заколдован.\r\n");
+			break;
+		}
 
 		reagobj = GET_EQ(ch, WEAR_HOLD);
-
 		if (reagobj
 			&& (get_obj_in_list_vnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
 				|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
@@ -5454,7 +5459,7 @@ const spl_message masses_messages[] =
 	 0},
 	{SPELL_SONICWAVE,
 	 "Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!",
-	 "$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны.!",
+	 "$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!",
 	 NULL,
 	 0},
 	{ -1, 0, 0, 0, 0}

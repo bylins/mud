@@ -73,6 +73,8 @@
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
 #define RANDOMOBJ_FILE "randomobj.xml"
+#define SPEEDWALKS_FILE "speedwalks.xml"
+#define CLASS_LIMIT_FILE "class_limit.xml"
 /**************************************************************************
 *  declarations of global containers and objects                          *
 **************************************************************************/
@@ -100,6 +102,8 @@ long max_id = MOBOBJ_ID_BASE;	// for unique mob/obj id's
 INDEX_DATA *mob_index;		// index table for mobile file
 mob_rnum top_of_mobt = 0;	// top of mobile index table
 void Load_Criterion(pugi::xml_node XMLCriterion, int type);
+void load_speedwalk();
+void load_class_limit();
 int global_uid = 0;
 
 OBJ_DATA *object_list = NULL;	// global linked list of objs
@@ -108,7 +112,7 @@ CObjectPrototypes obj_proto;
 struct zone_data *zone_table;	// zone table
 zone_rnum top_of_zone_table = 0;	// top element of zone tab
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
-
+extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 struct player_index_element *player_table = NULL;	// index to plr file
 
 bool player_exists(const long id)
@@ -259,6 +263,7 @@ extern struct month_temperature_type year_temp[];
 extern const char *pc_class_types[];
 extern char *house_rank[];
 extern struct pclean_criteria_data pclean_criteria[];
+extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
 extern void LoadProxyList();
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
@@ -760,6 +765,11 @@ void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
 		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}	
 }
+
+std::vector<SpeedWalk>  speedwalks;
+
+
+
 
 // Separate a 4-character id tag from the data it precedes
 void tag_argument(char *argument, char *tag)
@@ -2637,6 +2647,11 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading bonus log");
 	Bonus::bonus_log_load();
+	load_speedwalk();
+
+	boot_profiler.next_step("Loading class_limit.xml");
+	log("Load class_limit.xml");
+	load_class_limit();
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
@@ -5557,23 +5572,45 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		timed_from_char(ch, ch->timed);
 	}
+	
 
-	ch->clear_skills();
-
-	for (i = 1; i <= MAX_SPELLS; i++)
-	{
-		GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
-		GET_SPELL_MEM(ch, i) = 0;
-	}
+	
 
 	while (ch->timed_feat)
 	{
 		timed_feat_from_char(ch, ch->timed_feat);
 	}
-
 	for (i = 1; i < MAX_FEATS; i++)
 	{
 		UNSET_FEAT(ch, i);
+	}
+	
+	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0)
+	{
+		ch->clear_skills();
+		for (i = 1; i <= MAX_SPELLS; i++)
+		{
+			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
+			GET_SPELL_MEM(ch, i) = 0;
+		}
+		// Убираем все заученные порталы
+		check_portals(ch);
+	}
+	else
+	{
+		ch->crop_skills();
+		for (i = 1; i <= MAX_SPELLS; i++)
+		{
+			if (GET_CLASS(ch) == CLASS_DRUID)
+			{
+				GET_SPELL_TYPE(ch, i) = SPELL_RUNES;
+			}
+			else if (spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] >= 8)
+			{
+				GET_SPELL_TYPE(ch, i) = 0;
+				GET_SPELL_MEM(ch, i) = 0;
+			}			
+		}
 	}
 
 	GET_HIT(ch) = GET_MAX_HIT(ch) = 10;
@@ -5595,8 +5632,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ch->set_protecting(0);
 		ch->BattleAffects.unset(EAF_PROTECT);
 	}
-	// Убираем все заученные порталы
-	check_portals(ch);
+	
 	//Обновляем статистику рипов для текущего перевоплощения
 	GET_RIP_DTTHIS(ch) = 0;
 	GET_EXP_DTTHIS(ch) = 0;
@@ -6379,6 +6415,101 @@ void CObjectPrototypes::set(const size_t index, CObjectPrototype* new_value)
 {
 	new_value->set_rnum(static_cast<int>(index));
 	m_prototypes[index].reset(new_value);
+}
+
+void load_speedwalk()
+{
+
+	pugi::xml_document doc_sw;
+	pugi::xml_node child_, object_, file_sw;
+	file_sw = XMLLoad(LIB_MISC SPEEDWALKS_FILE, "speedwalks", "Error loading cases file: speedwalks.xml", doc_sw);
+
+	for (child_ = file_sw.child("speedwalk"); child_; child_ = child_.next_sibling("speedwalk"))
+	{
+		SpeedWalk sw;
+		sw.wait = 0;
+		sw.cur_state = 0;
+		sw.default_wait = child_.attribute("default_wait").as_int();
+		for (object_ = child_.child("mob"); object_; object_ = object_.next_sibling("mob"))
+			sw.vnum_mobs.push_back(object_.attribute("vnum").as_int());
+		for (object_ = child_.child("route"); object_; object_ = object_.next_sibling("route"))
+		{
+			Route r;
+			r.direction = object_.attribute("direction").as_string();
+			r.wait = object_.attribute("wait").as_int();
+			sw.route.push_back(r);
+		}
+		speedwalks.push_back(sw);
+
+	}
+	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+	{
+		for (auto &sw : speedwalks)
+		{
+			for (auto mob : sw.vnum_mobs)
+			{
+				if (GET_MOB_VNUM(ch) == mob)
+					sw.mobs.push_back(ch);
+			}
+		}
+	}
+
+}
+
+void load_class_limit()
+{
+	pugi::xml_document doc_sw;
+	pugi::xml_node child_, object_, file_sw;
+	
+	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i)
+	{
+		for (int j = 0; j < 6; ++j)
+		{
+			//Intiializing stats limit with default value
+			class_stats_limit[i][j] = 50;
+		}
+	}
+
+	file_sw = XMLLoad(LIB_MISC CLASS_LIMIT_FILE, "class_limit", "Error loading file: classlimit.xml", doc_sw);
+
+	for (child_ = file_sw.child("stats_limit").child("class"); child_; child_ = child_.next_sibling("class"))
+	{
+		std::string id_str = Parse::attr_str(child_, "id");
+		if (id_str.empty())
+			continue;
+
+		const int id = TextId::to_num(TextId::CHAR_CLASS, id_str);
+		if (id == CLASS_UNDEFINED)
+		{
+			snprintf(buf, MAX_STRING_LENGTH, "...<class id='%s'> convert fail", id_str.c_str());
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+
+		int val = Parse::child_value_int(child_, "str");
+		if (val > 0)
+			class_stats_limit[id][0] = val;
+
+		val = Parse::child_value_int(child_, "dex");
+		if (val > 0)
+			class_stats_limit[id][1] = val;
+
+		val = Parse::child_value_int(child_, "con");
+		if (val > 0)
+			class_stats_limit[id][2] = val;
+
+		val = Parse::child_value_int(child_, "wis");
+		if (val > 0)
+			class_stats_limit[id][3] = val;
+
+		val = Parse::child_value_int(child_, "int");
+		if (val> 0)
+			class_stats_limit[id][4] = val;
+
+		val = Parse::child_value_int(child_, "cha");
+		if (val > 0)
+			class_stats_limit[id][5] = val;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

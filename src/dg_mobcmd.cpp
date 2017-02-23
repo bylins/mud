@@ -343,8 +343,8 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (!(victim = get_char_room_vis(ch, arg)))
 	{
-		sprintf(buf, "msend: victim (%s) does not exist", arg);
-		mob_log(ch, buf, LGH);
+//		sprintf(buf, "msend: victim (%s) does not exist", arg);
+//		mob_log(ch, buf, LGH);
 		return;
 	}
 
@@ -430,6 +430,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, "mload: bad mob vnum");
 			return;
 		}
+		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
 		char_to_room(mob, ch->in_room);
 		load_mtrigger(mob);
 	}
@@ -439,6 +440,16 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			mob_log(ch, "mload: bad object vnum");
 			return;
+		}
+		if ((GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0) && ((obj_proto.number(object->get_rnum()) + obj_proto.stored(object->get_rnum())) > GET_OBJ_MIW(obj_proto[object->get_rnum()])))
+		{
+			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
+			{
+				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d", number);
+				mob_log(ch, buf);
+//				extract_obj(object);
+//				return;
+			}
 		}
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		object->set_zone(world[ch->in_room]->zone);

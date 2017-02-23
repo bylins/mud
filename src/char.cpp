@@ -612,6 +612,12 @@ void CHAR_DATA::purge(bool destructor)
 	}
 }
 
+void CHAR_DATA::purge(CHAR_DATA* character)
+{
+	character->purge(false);
+	character = nullptr;
+}
+
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
 int CHAR_DATA::get_skill(const ESkill skill_num) const
 {
@@ -631,8 +637,8 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 // мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
 // всем остальным -- не более 5% с шмотки
     // Пока что отменим это дело, народ морально не готов отказаться от автосников.
-	//int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
-	int is_native = true;
+	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
+	//int is_native = true;
 	for (int i = 0; i < NUM_WEARS; ++i)
 	{
 		if (equipment[i])
@@ -642,10 +648,10 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 				skill += equipment[i]->get_skill(skill_num);
 			}
 			// На новый год включаем
-			else
+			/*else
 			{
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
-			}
+			}*/
 		}
 	}
 	skill += obj_bonus_.get_skill(skill_num);
@@ -721,6 +727,18 @@ void CHAR_DATA::clear_skills()
 {
 	skills.clear();
 }
+// оберзает все скиллы до максимум на реморт
+void CHAR_DATA::crop_skills()
+{
+	int skill;
+	for (auto it = skills.begin();it != skills.end();it++)
+	{
+		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
+		if (skill > 80 + this->get_remort() * 5)
+			it->second = 80 + this->get_remort() * 5;
+	}
+}
+
 
 int CHAR_DATA::get_skills_count() const
 {

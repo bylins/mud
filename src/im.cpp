@@ -1982,6 +1982,8 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff)
 // -newbook.patch (Alisher)
 		sprintf(buf, "Вы изучили рецепт '%s'.\r\n", imrecipes[rid].name);
 		send_to_char(buf, ch);
+		sprintf(buf, "RECIPE: игроку %s добавлен рецепт %s", GET_NAME(ch), imrecipes[rid].name);
+		log("%s", buf);
 	}
 }
 

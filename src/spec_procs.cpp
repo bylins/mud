@@ -266,6 +266,12 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 //		page_string(ch->desc, buf, 1);
 		if (j)
 			send_to_char(buf2, vict);
+
+		for (int k = 0; k < max_slot; k++)
+			delete[] names[k];
+
+		delete[] names;
+
 		return;
 	}
 
@@ -379,6 +385,11 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 
 	if (j)
 		send_to_char(buf2, vict);
+
+	for (int k = 0; k < max_slot; k++)
+		delete[] names[k];
+	
+	delete[] names;
 }
 
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/)
@@ -517,7 +528,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 		if (!spell_info[i].name || *spell_info[i].name == '!')
 			continue;
 
-		if ((GET_SPELL_TYPE(ch, i) & 0xFF) == SPELL_RUNES && !check_recipe_items(ch, i, SPELL_RUNES, FALSE))
+		if ((GET_SPELL_TYPE(ch, i) & 0xFF) == SPELL_RUNES && !check_recipe_items(ch, i, SPELL_RUNES, FALSE) )
 		{
 			if (all_spells)
 			{
@@ -565,7 +576,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 									   slots[slot_num] % 80 <
 									   10 ? "\r\n" : "  ",
 									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_KNOW) ? 'K' : '.',
+											  SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
 									   IS_SET(GET_SPELL_TYPE(ch, i),
 											  SPELL_TEMP) ? 'T' : '.',
 									   IS_SET(GET_SPELL_TYPE(ch, i),

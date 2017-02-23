@@ -374,6 +374,7 @@ public:
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
+	void crop_skills();
 	int get_equipped_skill(const ESkill skill_num) const;
 	int get_trained_skill(const ESkill skill_num) const;
 
@@ -407,7 +408,6 @@ public:
 	int get_serial_num();
 	void set_serial_num(int num);
 
-	void purge(bool destructor = false);
 	bool purged() const;
 
 	const std::string& get_name() const;
@@ -622,6 +622,8 @@ public:
 	void add_ignore(const ignore_data::shared_ptr ignore);
 	void clear_ignores();
 
+	static void purge(CHAR_DATA* character);
+
 private:
 	const auto& get_player_specials() const { return player_specials; }
 	auto& get_player_specials() { return player_specials; }
@@ -631,6 +633,8 @@ private:
 	void check_fighting_list();
 	void zero_init();
 	void restore_mob();
+
+	void purge(bool destructor);
 
 	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
