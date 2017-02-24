@@ -916,6 +916,51 @@ void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+void do_wspellturntemp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	CHAR_DATA *ch;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	int spellnum = 0, spelltime = 0;
+
+	argument = one_argument(argument, name);
+	two_arguments(argument, spellname, amount);
+
+	if (!*name || !*spellname || !*amount)
+	{
+		wld_log(room, "wspellturntemp: too few arguments");
+		return;
+	}
+
+	if ((pos = strchr(spellname, '.')))
+	{
+		*pos = ' ';
+	}
+
+	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	{
+		wld_log(room, "wspellturntemp: spell not found");
+		return;
+	}
+
+	spelltime = atoi(amount);
+
+	if (spelltime < 0)
+	{
+		wld_log(room, "wspellturntemp: time is negative");
+		return;
+	}
+
+	if ((ch = get_char_by_room(room, name)))
+	{
+		trg_spellturntemp(ch, spellnum, spelltime, last_trig_vnum);
+	}
+	else
+	{
+		wld_log(room, "wspellturntemp: target not found");
+		return;
+	}
+}
+
 void do_wspelladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
@@ -1090,6 +1135,7 @@ const struct wld_command_info wld_cmd_info[] =
 	{"wspelladd", do_wspelladd, 0},
 	{"wskilladd", do_wskilladd, 0},
 	{"wspellitem", do_wspellitem, 0},
+	{"wspellturntemp", do_wspellturntemp, 0},
 	{"wportal", do_wportal, 0},
 	{"\n", 0, 0}		// this must be last
 };

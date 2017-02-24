@@ -6,8 +6,6 @@
 
 #include <vector>
 
-TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
-
 extern int mag_manacost(CHAR_DATA * ch, int spellnum);
 
 namespace Temporary_Spells
@@ -40,56 +38,62 @@ namespace Temporary_Spells
 
 	void update_times()
 	{
-		struct spell_mem_queue_item **q = NULL, **i, *ptr;
 		time_t now = time(0);
 
 		for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
 		{                                 
-			if (IS_IMMORTAL(ch))
+			if (IS_NPC(ch) || IS_IMMORTAL(ch))
 				continue;
 
-			for (std::vector<temporary_spell_data>::iterator it = ch->temp_spells.begin(); it != ch->temp_spells.end();)
+			update_char_times(ch, now);
+		}
+	}
+
+	void update_char_times(CHAR_DATA *ch, time_t now)
+	{
+		struct spell_mem_queue_item **i, *ptr;
+
+		for (std::vector<temporary_spell_data>::iterator it = ch->temp_spells.begin(); it != ch->temp_spells.end();)
+		{
+			if ((it->set_time + it->duration) < now)
 			{
-				if ((it->set_time + it->duration) < now)
+				REMOVE_BIT(GET_SPELL_TYPE(ch, it->spell), SPELL_TEMP);
+
+				//Если заклинание за это время не стало постоянным, то удалим из мема
+				if (!IS_SET(GET_SPELL_TYPE(ch, it->spell), SPELL_KNOW))
 				{
-					REMOVE_BIT(GET_SPELL_TYPE(ch, it->spell), SPELL_TEMP);
-
-					//Если заклинание за это время не стало постоянным, то удалим из мема
-					if (!IS_SET(GET_SPELL_TYPE(ch, it->spell), SPELL_KNOW))
-					{                           
-						//Удаляем из мема
-						for (i = &ch->MemQueue.queue; *i;)
+					//Удаляем из мема
+					for (i = &ch->MemQueue.queue; *i;)
+					{
+						if (i[0]->spellnum == it->spell)
 						{
-							if (i[0]->spellnum == it->spell)
-							{
-								if (i == &ch->MemQueue.queue)
-									GET_MEM_COMPLETED(ch) = 0;
-								GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, it->spell));
-								ptr = i[0];
-								i[0] = i[0]->link;
-								free(ptr);
-							}
-							else
-							{
-								i = &(i[0]->link);
-							}
+							if (i == &ch->MemQueue.queue)
+								GET_MEM_COMPLETED(ch) = 0;
+							GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, it->spell));
+							ptr = i[0];
+							i[0] = i[0]->link;
+							free(ptr);
 						}
-						
-						//Удаляем из заученных
-						GET_SPELL_MEM(ch, it->spell) = 0;
-
-						sprintf(buf,
-							"Вы забыли заклинание \"%s%s%s\".\r\n",
-							CCIMAG(ch, C_NRM), spell_info[it->spell].name, CCNRM(ch, C_NRM));
-						send_to_char(buf, ch);
+						else
+						{
+							i = &(i[0]->link);
+						}
 					}
 
-					it = ch->temp_spells.erase(it);
+					//Удаляем из заученных
+					GET_SPELL_MEM(ch, it->spell) = 0;
+
+					sprintf(buf,
+						"Вы забыли заклинание \"%s%s%s\".\r\n",
+						CCIMAG(ch, C_NRM), spell_info[it->spell].name, CCNRM(ch, C_NRM));
+					send_to_char(buf, ch);
 				}
-				else
-				{
-					++it;
-				}
+
+				it = ch->temp_spells.erase(it);
+			}
+			else
+			{
+				++it;
 			}
 		}
 	}

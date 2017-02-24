@@ -67,6 +67,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
+#include "temp_spells.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -384,6 +385,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mskillturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mskilladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mspellturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mspellturntemp(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mspelladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mspellitem(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -1091,6 +1093,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mskillturn", POS_DEAD, do_mskillturn, -1, 0, -1},
 	{"mskilladd", POS_DEAD, do_mskilladd, -1, 0, -1},
 	{"mspellturn", POS_DEAD, do_mspellturn, -1, 0, -1},
+	{"mspellturntemp", POS_DEAD, do_mspellturntemp, -1, 0, -1},
 	{"mspelladd", POS_DEAD, do_mspelladd, -1, 0, -1},
 	{"mspellitem", POS_DEAD, do_mspellitem, -1, 0, -1},
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
@@ -2502,6 +2505,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		GET_SPELL_TYPE(d->character, SPELL_RELOCATE) = 0;
 		SET_FEAT(d->character, RELOCATE_FEAT);
 	}
+
+	//Проверим временные заклы пока нас не было
+	Temporary_Spells::update_char_times(d->character, time(0));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	AFF_FLAGS(d->character).unset(EAffectFlag::AFF_GROUP);

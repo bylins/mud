@@ -499,6 +499,17 @@ void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 	}
 }
 
+void trg_spellturntemp(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
+{
+	int spell = GET_SPELL_TYPE(ch, spellnum);
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+	{
+		Temporary_Spells::add_spell(ch, spellnum, time(0), spelldiff);
+		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
+		log("Remove %s from %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+	}
+}
+
 void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 {
 	int spell = GET_SPELL_MEM(ch, spellnum);

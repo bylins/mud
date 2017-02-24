@@ -2093,6 +2093,11 @@ void heartbeat(const int missed_pulses)
 		room_point_update();
 	}
 
+	if (!((pulse + 5) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		Temporary_Spells::update_times();
+	}
+
 	if (!((pulse + 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		exchange_point_update();
@@ -2118,11 +2123,6 @@ void heartbeat(const int missed_pulses)
 	if (!(pulse % PASSES_PER_SEC))
 	{
 		beat_points_update(pulse / PASSES_PER_SEC);
-	}
-        
-	if (!((pulse + 4) % (PASSES_PER_SEC * TEMP_SPELLS_REFRESH_PERIOD)))
-	{
-		Temporary_Spells::update_times();
 	}
 
 #if defined WITH_SCRIPTING
