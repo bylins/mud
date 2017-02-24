@@ -136,8 +136,9 @@ set(SOURCES
 	src/spells.cpp
 	src/structs.cpp
 	src/structs.cpp
-	src/stuff.cpp
-	src/time_utils.cpp
+	src/stuff.cpp     
+	src/temp_spells.cpp
+	src/time_utils.cpp	
 	src/title.cpp
 	src/top.cpp
 	src/utils.cpp
@@ -261,7 +262,8 @@ set(HEADERS
 	src/structs.h
 	src/stuff.hpp
 	src/sysdep.h
-	src/telnet.h
+	src/telnet.h      
+	src/temp_spells.hpp
 	src/time_utils.hpp
 	src/title.hpp
 	src/top.h
