@@ -1144,7 +1144,7 @@ const struct obj_command_info obj_cmd_info[] =
 	{"otransform", do_otransform, 0},
 	{"odoor", do_odoor, 0},
 	{"ospellturn", do_ospellturn, 0},
-	{"do_ospellturntemp", do_ospellturntemp, 0},
+	{"ospellturntemp", do_ospellturntemp, 0},
 	{"ospelladd", do_ospelladd, 0},
 	{"ofeatturn", do_ofeatturn, 0},
 	{"oskillturn", do_oskillturn, 0},
