@@ -1671,7 +1671,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		*pos = ' ';
 	}
 
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
+	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspellturn: spell not found");
 		return;
@@ -1832,7 +1832,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		*pos = ' ';
 	}
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
+	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspelladd: skill not found");
 		return;
