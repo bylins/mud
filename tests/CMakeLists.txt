@@ -17,7 +17,6 @@ set(TESTS
 	obj.copy.cpp
 	act.makefood.cpp
 	utils.editor.cpp
-	utils.string.cpp
 	fight.penalties.cpp
 	bonus.command.parser.cpp)
 set(UTILITIES
