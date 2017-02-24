@@ -1,5 +1,7 @@
 #include "utils.string.hpp"
 
+#include <string.h>
+
 namespace utils
 {
 	template <typename T>
@@ -40,9 +42,13 @@ namespace utils
 
 	shared_string_ptr get_string_without_colors(const char* string)
 	{
-		shared_string_ptr result(strdup(string), free);
+		shared_string_ptr result;
+		if (string)
+		{
+			result.reset(strdup(string), free);
 
-		remove_colors(result.get());
+			remove_colors(result.get());
+		}
 
 		return result;
 	}
