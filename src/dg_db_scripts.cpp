@@ -34,6 +34,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "temp_spells.hpp"
 
 #include <algorithm>
 #include <stack>
@@ -498,6 +499,17 @@ void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 	}
 }
 
+void trg_spellturntemp(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
+{
+	int spell = GET_SPELL_TYPE(ch, spellnum);
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+	{
+		Temporary_Spells::add_spell(ch, spellnum, time(0), spelldiff);
+		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
+		log("Remove %s from %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+	}
+}
+
 void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 {
 	int spell = GET_SPELL_MEM(ch, spellnum);
@@ -513,15 +525,15 @@ void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 		else
 		{
 			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", spell_name(spellnum));
-			REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+			//REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 			log("Remove all spells %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 		}
 		send_to_char(buf, ch);
 	}
 	else if (spell < GET_SPELL_MEM(ch, spellnum))
 	{
-		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
-			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+		/*if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);*/
 		send_to_char(ch, "Вы выучили несколько заклинаний '%s'.\r\n", spell_name(spellnum));
 		log("Add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 	}

@@ -355,6 +355,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff);
 void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
+void trg_spellturntemp(CHAR_DATA * ch, int spellnum, int spelltime, int vnum);
 void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
 void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell);
 

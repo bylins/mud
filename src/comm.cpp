@@ -77,6 +77,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
+#include "temp_spells.hpp"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -2090,6 +2091,11 @@ void heartbeat(const int missed_pulses)
 	if (!((pulse + 6) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		room_point_update();
+	}
+
+	if (!((pulse + 5) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		Temporary_Spells::update_times();
 	}
 
 	if (!((pulse + 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
