@@ -144,9 +144,11 @@ set(SOURCES
 	src/utils.cpp
 	src/version.cpp
 	src/weather.cpp
-	src/zedit.cpp)
+	src/zedit.cpp
+	src/utils.string.cpp)
 
 set(HEADERS
+	src/utils.string.hpp
 	src/act.other.hpp
 	src/AffectHandler.hpp
 	src/auction.h
