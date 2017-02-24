@@ -77,6 +77,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
+#include "temp_spells.hpp"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -2117,6 +2118,11 @@ void heartbeat(const int missed_pulses)
 	if (!(pulse % PASSES_PER_SEC))
 	{
 		beat_points_update(pulse / PASSES_PER_SEC);
+	}
+        
+	if (!((pulse + 4) % (PASSES_PER_SEC * TEMP_SPELLS_REFRESH_PERIOD)))
+	{
+		Temporary_Spells::update_times();
 	}
 
 #if defined WITH_SCRIPTING

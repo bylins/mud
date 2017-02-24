@@ -1809,7 +1809,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 			continue;
 		}
 
-		if (IS_SET(GET_SPELL_TYPE(i, spellnum), SPELL_KNOW))
+		if (IS_SET(GET_SPELL_TYPE(i, spellnum), SPELL_KNOW | SPELL_TEMP))
 		{
 			perform_act(buf1, ch, tobj, tch, i);
 		}
@@ -1828,12 +1828,12 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		if (SpINFO.violent)
 		{
 			sprintf(buf1, damagee_vict,
-				IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW) ? spell_name(spellnum) : buf);
+				IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW | SPELL_TEMP) ? spell_name(spellnum) : buf);
 		}
 		else
 		{
 			sprintf(buf1, helpee_vict,
-				IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW) ? spell_name(spellnum) : buf);
+				IS_SET(GET_SPELL_TYPE(tch, spellnum), SPELL_KNOW | SPELL_TEMP) ? spell_name(spellnum) : buf);
 		}
 		act(buf1, FALSE, ch, NULL, tch, TO_VICT);
 	}
@@ -3010,8 +3010,6 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		MemQ_remember(ch, spell_subst);
 	if (!IS_NPC(ch))
 	{
-		if (!GET_SPELL_MEM(ch, spell_subst))
-			REMOVE_BIT(GET_SPELL_TYPE(ch, spell_subst), SPELL_TEMP);
 		/*log("[CAST_SPELL->AFFECT_TOTAL] Start <%s(%d)> <%s(%d)> <%s> <%d>",
 		   GET_NAME(ch),
 		   ch->in_room,
@@ -3260,8 +3258,6 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		{
 			GET_SPELL_MEM(ch, spell_subst)--;
 		}
-		if (!GET_SPELL_MEM(ch, spell_subst))
-			REMOVE_BIT(GET_SPELL_TYPE(ch, spell_subst), SPELL_TEMP);
 		if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
 			MemQ_remember(ch, spell_subst);
 		//log("[DO_CAST->AFFECT_TOTAL] Start");
@@ -3325,7 +3321,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				&& IS_SET(SpINFO.routines, MAG_WARCRY)
 				&& ch->get_skill(SKILL_WARCRY) >= SpINFO.mana_change)
 			{
-				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+				if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
 					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
 					CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
@@ -3354,7 +3350,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	spellnum = find_spell_num(wc_name);
 
 	// Unknown warcry
-	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) || !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) || !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
@@ -4155,7 +4151,7 @@ void do_remember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
-	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
 	{
 		send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 		return;
@@ -4259,8 +4255,6 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else
 		{
 			GET_SPELL_MEM(ch, spellnum)--;
-			if (!GET_SPELL_MEM(ch, spellnum))
-				REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 			GET_CASTER(ch) -= spell_info[spellnum].danger;
 			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
 					CCICYN(ch, C_NRM),
