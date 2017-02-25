@@ -40,6 +40,30 @@
 #include <typeinfo>
 int level_exp(CHAR_DATA * ch, int level);
 extern pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document& Doc);
+
+
+// наименование слотов
+const std::vector<std::string> name_slot_stigmas = {
+	"лицо",
+	"шея",
+	"грудь",
+	"спина",
+	"живот",
+	"поясница",
+	"правый бицепс",
+	"левый бицепс",
+	"правое запястье",
+	"левое запястье",
+	"правая ладонь",
+	"левая ладонь",
+	"правое бедро",
+	"левое бедро",
+	"правая лодыжка",
+	"левая лодыжка",
+	"правая ступня",
+	"левая ступня"
+};
+
 namespace
 {
 
@@ -84,9 +108,34 @@ int ProtoStigma::get_current_slot() const
 	return this->current_slot;
 }
 
+bool ProtoStigma::is_lag(CHAR_DATA *ch) const
+{
+	if (this->wait > 0)
+	{
+		send_to_char((boost::format("%s\r\n") % this->dont_work_msg_to_char).str(), ch);
+		return true;
+	}
+	return false;
+}
+
+
+// true полный заряд, false не полный
+bool ProtoStigma::successful_msg(CHAR_DATA *ch) const
+{
+	return true;
+}
+
 std::string ProtoStigma::get_name() const
 {
 	return this->name;
+}
+
+bool HealStigma::activate(CHAR_DATA *ch)
+{
+	if (this->is_lag(ch))
+		return false;
+
+	ch->set_hit(ch->set_max_hit);
 }
 
 Player::Player()
@@ -103,6 +152,7 @@ Player::Player()
 		start_stats_.at(i) = 0;
 	}
 	HealStigma pr = HealStigma();
+	
 	// на 64 битном центосе с оптимизацией - падает или прямо здесь,
 	// или в деструкторе чар-даты на делете самого класса в недрах шареда
 	// при сборке без оптимизаций - не падает
