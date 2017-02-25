@@ -228,7 +228,7 @@ void assign_feats(void)
 //23
 	feato(STEALTHY_FEAT, "незаметность", SKILL_MOD_FTYPE, TRUE, feat_app);
 //24
-	feat_app.insert(APPLY_CAST_SUCCESS, 25);
+	feat_app.insert(APPLY_CAST_SUCCESS, 80);
 	feato(RELATED_TO_MAGIC_FEAT, "магическое родство", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //25 -*

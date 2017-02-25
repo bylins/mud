@@ -1892,6 +1892,10 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (ch != victim)
 	{
 		modi = calc_anti_savings(ch);
+		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !IS_NPC(victim))
+		{
+			modi -= 80; //бонуса на непись нету
+		}
 	}
 
 	if (!IS_NPC(ch) && (GET_LEVEL(ch) > 10))
