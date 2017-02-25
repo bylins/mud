@@ -4595,7 +4595,7 @@ int *MemQ_slots(CHAR_DATA * ch)
 
 	for (i = MAX_SPELLS; i >= 1; --i)
 	{
-		if (!IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW))
+		if (!IS_SET(GET_SPELL_TYPE(ch, i), SPELL_KNOW | SPELL_TEMP))
 			continue;
 		if ((n = GET_SPELL_MEM(ch, i)) == 0)
 			continue;

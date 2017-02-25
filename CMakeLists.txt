@@ -136,16 +136,19 @@ set(SOURCES
 	src/spells.cpp
 	src/structs.cpp
 	src/structs.cpp
-	src/stuff.cpp
-	src/time_utils.cpp
+	src/stuff.cpp     
+	src/temp_spells.cpp
+	src/time_utils.cpp	
 	src/title.cpp
 	src/top.cpp
 	src/utils.cpp
 	src/version.cpp
 	src/weather.cpp
-	src/zedit.cpp)
+	src/zedit.cpp
+	src/utils.string.cpp)
 
 set(HEADERS
+	src/utils.string.hpp
 	src/act.other.hpp
 	src/AffectHandler.hpp
 	src/auction.h
@@ -261,7 +264,8 @@ set(HEADERS
 	src/structs.h
 	src/stuff.hpp
 	src/sysdep.h
-	src/telnet.h
+	src/telnet.h      
+	src/temp_spells.hpp
 	src/time_utils.hpp
 	src/title.hpp
 	src/top.h

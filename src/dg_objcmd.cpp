@@ -969,6 +969,50 @@ void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	CHAR_DATA *ch;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	int spellnum = 0, spelltime = 0;
+
+	one_argument(two_arguments(argument, name, spellname), amount);
+
+	if (!*name || !*spellname || !*amount)
+	{
+		obj_log(obj, "ospellturntemp: too few arguments");
+		return;
+	}
+
+	if ((pos = strchr(spellname, '.')))
+	{
+		*pos = ' ';
+	}
+
+	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	{
+		obj_log(obj, "ospellturntemp: spell not found");
+		return;
+	}
+
+	spelltime = atoi(amount);
+
+	if (spelltime < 0)
+	{
+		obj_log(obj, "ospellturntemp: time is negative");
+		return;
+	}
+
+	if ((ch = get_char_by_obj(obj, name)))
+	{
+		trg_spellturn(ch, spellnum, spelltime, last_trig_vnum);
+	}
+	else
+	{
+		obj_log(obj, "ospellturntemp: target not found");
+		return;
+	}
+}
+
 void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
@@ -1100,12 +1144,12 @@ const struct obj_command_info obj_cmd_info[] =
 	{"otransform", do_otransform, 0},
 	{"odoor", do_odoor, 0},
 	{"ospellturn", do_ospellturn, 0},
+	{"ospellturntemp", do_ospellturntemp, 0},
 	{"ospelladd", do_ospelladd, 0},
 	{"ofeatturn", do_ofeatturn, 0},
 	{"oskillturn", do_oskillturn, 0},
 	{"oskilladd", do_oskilladd, 0},
 	{"ospellitem", do_ospellitem, 0},
-
 	{"\n", 0, 0}		// this must be last
 };
 

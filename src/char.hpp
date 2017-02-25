@@ -49,6 +49,12 @@ struct char_player_data
 	ubyte Race;		// PC / NPC's race
 };
 
+struct temporary_spell_data
+{
+	int spell;
+	time_t set_time;
+	time_t duration;
+};
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
 // типы резистов
@@ -792,6 +798,8 @@ public:
 	int *ing_list;		//загружаемые в труп ингредиенты
 	load_list *dl_list;	// загружаемые в труп предметы
 	bool agrobd;		// показывает, агробд или нет
+
+	std::vector<temporary_spell_data> temp_spells;
 };
 
 inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const

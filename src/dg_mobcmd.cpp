@@ -1671,7 +1671,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		*pos = ' ';
 	}
 
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
+	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspellturn: spell not found");
 		return;
@@ -1722,6 +1722,85 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	trg_spellturn(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
+void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	CHAR_DATA *victim;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	int spellnum = 0, spelltime = 0;
+
+	if (!MOB_OR_IMPL(ch))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
+		return;
+	}
+
+	argument = one_argument(argument, name);
+	two_arguments(argument, spellname, amount);
+
+	if (!*name || !*spellname || !*amount)
+	{
+		mob_log(ch, "mspellturntemp: too few arguments");
+		return;
+	}
+	while ((pos = strchr(spellname, '.')))
+	{
+		*pos = ' ';
+	}
+	while ((pos = strchr(spellname, '_')))
+	{
+		*pos = ' ';
+	}
+
+	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	{
+		mob_log(ch, "mspellturntemp: spell not found");
+		return;
+	}
+
+	spelltime = atoi(amount);
+
+	if(spelltime < 0)
+	{
+		mob_log(ch, "mspellturntemp: time is negative");
+		return;
+	}
+
+	if (!MOB_OR_IMPL(ch))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		return;
+
+	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
+		return;
+
+	if (*name == UID_CHAR)
+	{
+		if (!(victim = get_char(name)))
+		{
+			sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
+			mob_log(ch, buf);
+			return;
+		}
+	}
+	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
+	{
+		sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
+		mob_log(ch, buf);
+		return;
+	};
+
+	trg_spellturntemp(victim, spellnum, spelltime, last_trig_vnum);
+}
+
 void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
@@ -1753,7 +1832,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		*pos = ' ';
 	}
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
+	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspelladd: skill not found");
 		return;

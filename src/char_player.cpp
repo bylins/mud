@@ -29,6 +29,7 @@
 #include "features.hpp"
 #include "screen.h"
 #include "ext_money.hpp"
+#include "temp_spells.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
@@ -578,6 +579,16 @@ void Player::save_char()
 			if (GET_SPELL_TYPE(this, i))
 				fprintf(saved, "%d %d %s\n", i, GET_SPELL_TYPE(this, i), spell_info[i].name);
 		fprintf(saved, "0 0\n");
+	}
+
+	if (GET_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID)
+	{
+		fprintf(saved, "TSpl:\n");
+		for (std::vector<temporary_spell_data>::iterator it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it)
+		{
+			fprintf(saved, "%d %ld %ld %s\n", it->spell, static_cast<long int>(it->set_time), static_cast<long int>(it->duration), spell_info[it->spell].name);
+		}
+		fprintf(saved, "0 0 0\n");
 	}
 
 	// Замемленые спелы
@@ -1861,6 +1872,18 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				today_torc_.first = num;
 				today_torc_.second = num2;
 			}
+			else if (!strcmp(tag, "TSpl"))
+			{
+				do
+				{
+					fbgetline(fl, line);
+					sscanf(line, "%d %ld %ld", &num, &lnum, &lnum3);
+					if (num != 0 && spell_info[num].name)
+					{
+						Temporary_Spells::add_spell(this, num, lnum, lnum3);
+					}
+				} while (num != 0);
+			}
 			break;
 
 		case 'W':
@@ -1908,7 +1931,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		for (i = 0; i <= MAX_SPELLS; i++)
 		{
 			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == MAX_SLOT)
-				REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW);
+				REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
 // если мортов мало
 			if (GET_REMORT(this) < MIN_CAST_REM(spell_info[i], this))

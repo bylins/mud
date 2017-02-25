@@ -1197,8 +1197,6 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", FALSE, ch, 0, follower, TO_ROOM);
 
 	GET_SPELL_MEM(ch, spellnum)--;
-	//if (!GET_SPELL_MEM(ch, spellnum))
-	//	REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
 		MemQ_remember(ch, spellnum);
 
