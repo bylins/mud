@@ -88,7 +88,6 @@ public:
 	auto size() const { return m_objects_list.size(); }
 
 private:
-	using list_t = std::list<OBJ_DATA::shared_ptr>;
 	using objects_set_t = std::unordered_set<OBJ_DATA::shared_ptr>;
 	using object_raw_ptr_to_object_ptr_t = std::unordered_map<void*, list_t::iterator>;
 	using vnum_to_object_ptr_t = std::unordered_map<obj_vnum, objects_set_t>;
