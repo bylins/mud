@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "world.objects.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "obj.hpp"
@@ -1469,7 +1470,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 							}
 						}
 						extract_obj(obj);
-						obj = read_object(r_num, REAL);
+						obj = world_objects.create_from_prototype_by_rnum(r_num).get();
 						obj->set_crafter_uid(GET_UNIQUE(ch));
 						obj_to_char(obj, ch);
 						act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);

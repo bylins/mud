@@ -1,5 +1,6 @@
 #include "boot.data.files.hpp"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "dg_scripts.h"
 #include "dg_olc.h"

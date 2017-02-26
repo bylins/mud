@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
 #include "spells.h"

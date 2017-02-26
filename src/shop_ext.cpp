@@ -4,6 +4,8 @@
 
 #include "shop_ext.hpp"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "char.hpp"
 #include "db.h"
@@ -1278,7 +1280,7 @@ void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListType:
 		}
 		else
 		{
-			obj = read_object((*shop)->item_list[item_num]->rnum, REAL);
+			obj = world_objects.create_from_prototype_by_rnum((*shop)->item_list[item_num]->rnum).get();
 			if (obj
 				&& !(*shop)->item_list[item_num]->descs.empty()
 				&& (*shop)->item_list[item_num]->descs.find(GET_MOB_VNUM(keeper)) != (*shop)->item_list[item_num]->descs.end())
@@ -1767,13 +1769,13 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 	--item_num;
 
 	const OBJ_DATA *ident_obj = nullptr;
-	OBJ_DATA *tmp_obj = nullptr;
+	OBJ_DATA* tmp_obj = nullptr;
 	if ((*shop)->item_list[item_num]->temporary_ids.empty())
 	{
 		if (!(*shop)->item_list[item_num]->descs.empty() &&
 			(*shop)->item_list[item_num]->descs.find(GET_MOB_VNUM(keeper)) != (*shop)->item_list[item_num]->descs.end())
 		{
-			tmp_obj = read_object((*shop)->item_list[item_num]->rnum, REAL);
+			tmp_obj = world_objects.create_from_prototype_by_rnum((*shop)->item_list[item_num]->rnum).get();
 			replace_descs(tmp_obj, (*shop)->item_list[item_num], GET_MOB_VNUM(keeper));
 			ident_obj = tmp_obj;
 		}

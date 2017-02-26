@@ -9,6 +9,7 @@
 
 #include "skills.h"
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "handler.h"

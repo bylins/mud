@@ -6,6 +6,8 @@
 
 #include "house.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "obj.hpp"
@@ -45,7 +47,6 @@ using namespace ClanSystem;
 
 extern int mortal_start_room;
 extern void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
-extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int file_to_string_alloc(const char *name, char **buf);
 // TODO: думать надо с этим, или глобально следить за спамом, или игноров напихать на все случаи жизни, или так и оставить
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
@@ -2427,10 +2428,10 @@ void Clan::hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text)
 
 	if (!chest_moved)
 	{
-		OBJ_DATA *chest = read_object(INGR_CHEST_VNUM, VIRTUAL);
+		const auto chest = world_objects.create_from_prototype_by_vnum(INGR_CHEST_VNUM);
 		if (chest)
 		{
-			obj_to_room(chest, (*i)->get_ingr_chest_room_rnum());
+			obj_to_room(chest.get(), (*i)->get_ingr_chest_room_rnum());
 		}
 		send_to_char("Хранилище установлено.\r\n", ch);
 	}
@@ -2597,17 +2598,25 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	std::vector<std::string> temp_ranks_female(ranks_female, ranks_female + 10);
 	tempClan->ranks = temp_ranks;
 	tempClan->ranks_female = temp_ranks_female;
+
 	// привилегии
-	for (std::vector<std::string>::const_iterator it =
-				tempClan->ranks.begin(); it != tempClan->ranks.end(); ++it)
-		tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> ());
+	for (std::vector<std::string>::const_iterator it = tempClan->ranks.begin(); it != tempClan->ranks.end(); ++it)
+	{
+		tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM>());
+	}
+
 	// воеводе проставим все привилегии
 	for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+	{
 		tempClan->privileges[0].set(i);
+	}
+
 	// залоадим сразу хранилище
-	OBJ_DATA * chest = read_object(CLAN_CHEST_VNUM, VIRTUAL);
+	const auto chest = world_objects.create_from_prototype_by_vnum(CLAN_CHEST_VNUM);
 	if (chest)
-		obj_to_room(chest, real_room(tempClan->chest_room));
+	{
+		obj_to_room(chest.get(), real_room(tempClan->chest_room));
+	}
 
 	Clan::ClanList.push_back(tempClan);
 	Clan::ClanSave();
@@ -3299,7 +3308,7 @@ void Clan::SaveChestAll()
 // пользует read_one_object_new для чтения шмоток плееров в ренте
 void Clan::ChestLoad()
 {
-	OBJ_DATA *obj, *chest, *temp, *obj_next;
+	OBJ_DATA *temp, *obj_next;
 
 	// TODO: при сильном желании тут можно пробегать все зоны замков или вообще все зоны/предметы и пуржить все chest
 	// предметы и их содержимое, на случай релоада кланов и изменения комнаты с хранилищем (чтобы в маде не пуржить руками)
@@ -3307,7 +3316,7 @@ void Clan::ChestLoad()
 	// на случай релоада - чистим перед этим все что было в сундуках
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 	{
-		for (chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->get_next_content())
+		for (auto chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->get_next_content())
 		{
 			if (Clan::is_clan_chest(chest))
 			{
@@ -3331,21 +3340,29 @@ void Clan::ChestLoad()
 	{
 		buffer = (*clan)->abbrev;
 		for (unsigned i = 0; i != buffer.length(); ++i)
+		{
 			buffer[i] = LOWER(AtoL(buffer[i]));
+		}
 		std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
 
 		//лоадим сундук. в зонах его лоадить не нужно.
-		chest = read_object(CLAN_CHEST_VNUM, VIRTUAL);
+		const auto chest = world_objects.create_from_prototype_by_vnum(CLAN_CHEST_VNUM);
 		if (chest)
-			obj_to_room(chest, real_room((*clan)->chest_room));
+		{
+			obj_to_room(chest.get(), real_room((*clan)->chest_room));
+		}
 
 		if (!chest)
 		{
 			log("<Clan> Chest load error '%s'! (%s %s %d)", (*clan)->abbrev.c_str(), __FILE__, __func__, __LINE__);
 			return;
 		}
+
 		if (!(fl = fopen(filename.c_str(), "r+b")))
+		{
 			continue;
+		}
+
 		fseek(fl, 0L, SEEK_END);
 		fsize = ftell(fl);
 		if (!fsize)
@@ -3370,16 +3387,25 @@ void Clan::ChestLoad()
 
 		for (fsize = 0; *data && *data != '$'; fsize++)
 		{
-			if (!(obj = read_one_object_new(&data, &error)))
+			const auto obj = read_one_object_new(&data, &error);
+			if (!obj)
 			{
 				if (error)
+				{
 					log("<Clan> Items reading fail for %s error %d.", filename.c_str(), error);
+				}
+
 				continue;
 			}
-			if (!NamedStuff::check_named(NULL, obj))//Если объект есть в списке именных то ему нечего делать в хранилище
-				obj_to_obj(obj, chest);
+
+			if (!NamedStuff::check_named(NULL, obj.get()))//Если объект есть в списке именных то ему нечего делать в хранилище
+			{
+				obj_to_obj(obj.get(), chest.get());
+			}
 			else
-				extract_obj(obj);
+			{
+				extract_obj(obj.get());
+			}
 		}
 		delete [] databuf;
 	}
@@ -5071,7 +5097,6 @@ std::string GetChestMode(CHAR_DATA *ch)
 
 void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	OBJ_DATA *obj;
 	int vnum, rnum;
 	int cnt = 0, gold_total = 0;
 
@@ -5095,7 +5120,7 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	for (;it != CLAN(ch)->clanstuff.end();it++)
 	{
 		vnum = CLAN_STUFF_ZONE * 100 + it->num;
-		obj = read_object(vnum, VIRTUAL);
+		const auto obj = world_objects.create_from_prototype_by_vnum(vnum);
 		if (!obj)
 		{
 			continue;
@@ -5151,7 +5176,7 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			break;
 		}
 
-		obj_to_char(obj, ch);
+		obj_to_char(obj.get(), ch);
 		cnt++;
 
 		sprintf(buf, "$n взял$g %s из сундука", obj->get_PName(0).c_str());
@@ -5171,6 +5196,7 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("\r\n$n порыл$u в сундуке со стандартной экипировкой, но ничего не наш$y", FALSE, ch, 0, 0, TO_ROOM);
 		act("\r\nВы порылись в сундуке со стандартной экипировкой, но не нашли ничего подходящего", FALSE, ch, 0, 0, TO_CHAR);
 	}
+
 	set_wait(ch, 1, FALSE);
 }
 
@@ -5283,9 +5309,6 @@ void Clan::clan_invoice(CHAR_DATA *ch, bool enter)
 		}
 	}
 }
-
-
-
 
 int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 {
@@ -5475,14 +5498,14 @@ void Clan::init_ingr_chest()
 	std::string file_abbrev = get_file_abbrev();
 	std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
 
-	OBJ_DATA *chest = read_object(INGR_CHEST_VNUM, VIRTUAL);
+	const auto chest = world_objects.create_from_prototype_by_vnum(INGR_CHEST_VNUM);
 	if (!chest)
 	{
 		log("<Clan> IngrChest load error '%d'! (%s %s %d)", GetRent(), __FILE__, __func__, __LINE__);
 		return;
 	}
 	//лоадим в комнату сам хран
-	obj_to_room(chest, get_ingr_chest_room_rnum());
+	obj_to_room(chest.get(), get_ingr_chest_room_rnum());
 
 	FILE *fl = fopen(filename.c_str(), "r+b");
 	if (!fl)
@@ -5502,7 +5525,9 @@ void Clan::init_ingr_chest()
 	char *databuf = new char [fsize + 1];
 
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(databuf, fsize, 1, fl) || ferror(fl) || !databuf)
+	if (!fread(databuf, fsize, 1, fl)
+		|| ferror(fl)
+		|| !databuf)
 	{
 		fclose(fl);
 		log("<Clan> Error reading file '%s'. (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
@@ -5513,19 +5538,20 @@ void Clan::init_ingr_chest()
 	char *data = databuf;
 	*(data + fsize) = '\0';
 
-	OBJ_DATA *obj;
 	int error = 0;
 	for (fsize = 0; *data && *data != '$'; fsize++)
 	{
-		if (!(obj = read_one_object_new(&data, &error)))
+		const auto obj = read_one_object_new(&data, &error);
+		if (!obj)
 		{
 			if (error)
 			{
 				log("<Clan> Items reading fail for %s error %d.", filename.c_str(), error);
 			}
+
 			continue;
 		}
-		obj_to_obj(obj, chest);
+		obj_to_obj(obj.get(), chest.get());
 	}
 	delete [] databuf;
 }
@@ -5766,10 +5792,10 @@ void Clan::set_ingr_chest(CHAR_DATA *ch)
 
 	if (!chest_moved)
 	{
-		OBJ_DATA *chest = read_object(INGR_CHEST_VNUM, VIRTUAL);
+		const auto chest = world_objects.create_from_prototype_by_vnum(INGR_CHEST_VNUM);
 		if (chest)
 		{
-			obj_to_room(chest, get_ingr_chest_room_rnum());
+			obj_to_room(chest.get(), get_ingr_chest_room_rnum());
 		}
 		send_to_char("Хранилище установлено.\r\n", ch);
 	}

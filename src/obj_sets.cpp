@@ -1,8 +1,8 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "object.prototypes.hpp"
 #include "conf.h"
-
 #include "logger.hpp"
 #include "utils.h"
 #include "obj_sets.hpp"

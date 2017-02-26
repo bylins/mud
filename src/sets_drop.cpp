@@ -3,6 +3,7 @@
 
 #include "sets_drop.hpp"
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "db.h"
 #include "char.hpp"

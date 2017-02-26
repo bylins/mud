@@ -3,6 +3,8 @@
 
 #include "corpse.hpp"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "constants.h"
 #include "db.h"
 #include "logger.hpp"
@@ -415,9 +417,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 
 void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 {
-	OBJ_DATA *corpse;
-
-	corpse = create_obj();
+	auto corpse = world_objects.create_blank();
 	corpse->set_sex(ESex::SEX_POLY);
 
 	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
@@ -464,20 +464,19 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	exdesc->description = str_dup(buf);	// косметика
 	exdesc->next = corpse->get_ex_description();
 	corpse->set_ex_description(exdesc);
-	obj_to_room(corpse, ch->in_room);
+	obj_to_room(corpse.get(), ch->in_room);
 }
 
 OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 {
-	OBJ_DATA *corpse, *o;
-	OBJ_DATA *money;
+	OBJ_DATA *o;
 	int i;
 
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
 		return NULL;
 
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	corpse = create_obj(buf2);
+	auto corpse = world_objects.create_blank(buf2);
 
 	corpse->set_sex(ESex::SEX_MALE);
 
@@ -537,9 +536,9 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse->set_contains(ch->carrying);
 	for (o = corpse->get_contains(); o != NULL; o = o->get_next_content())
 	{
-		o->set_in_obj(corpse);
+		o->set_in_obj(corpse.get());
 	}
-	object_list_new_owner(corpse, NULL);
+	object_list_new_owner(corpse.get(), NULL);
 
 	// transfer gold
 	// following 'if' clause added to fix gold duplication loophole
@@ -547,26 +546,27 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (IS_NPC(ch))
 		{
-			money = create_money(ch->get_gold());
-			obj_to_obj(money, corpse);
+			const auto money = create_money(ch->get_gold());
+			obj_to_obj(money.get(), corpse.get());
 		}
 		else
 		{
 			const int amount = ch->get_gold();
-			money = create_money(amount);
+			const auto money = create_money(amount);
 			OBJ_DATA *purse = 0;
 			if (amount >= 100)
 			{
 				purse = system_obj::create_purse(ch, amount);
 				if (purse)
 				{
-					obj_to_obj(money, purse);
-					obj_to_obj(purse, corpse);
+					obj_to_obj(money.get(), purse);
+					obj_to_obj(purse, corpse.get());
 				}
 			}
+
 			if (!purse)
 			{
-				obj_to_obj(money, corpse);
+				obj_to_obj(money.get(), corpse.get());
 			}
 		}
 		ch->set_gold(0);
@@ -582,7 +582,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 		OBJ_DATA* ingr = try_make_ingr(ch, 1000, 100);
 		if (ingr)
 		{
-			obj_to_obj(ingr, corpse);
+			obj_to_obj(ingr, corpse.get());
 		}
 	}
 
@@ -599,16 +599,19 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 			|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 				&& !RENTABLE(ch->get_master()))))
 	{
-		obj_to_char(corpse, ch->get_master());
+		obj_to_char(corpse.get(), ch->get_master());
 		return NULL;
 	}
 	else
 	{
 		room_rnum corpse_room = ch->in_room;
-		if (corpse_room == STRANGE_ROOM && ch->get_was_in_room() != NOWHERE)
+		if (corpse_room == STRANGE_ROOM
+			&& ch->get_was_in_room() != NOWHERE)
+		{
 			corpse_room = ch->get_was_in_room();
-		obj_to_room(corpse, corpse_room);
-		return corpse;
+		}
+		obj_to_room(corpse.get(), corpse_room);
+		return corpse.get();
 	}
 }
 

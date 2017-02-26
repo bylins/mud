@@ -10,6 +10,8 @@
 
 #include "dg_scripts.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -60,7 +62,6 @@ int last_trig_vnum=0;
 
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 extern CHAR_DATA *combat_list;
-extern OBJ_DATA *object_list;
 extern const char *item_types[];
 extern const char *genders[];
 extern const char *pc_class_types[];
@@ -343,17 +344,10 @@ inline auto count_obj_vnum(long n)
  ************************************************************/
 
 // return object with UID n
-OBJ_DATA *find_obj(long n)
+OBJ_DATA *find_obj_by_id(const id_t id)
 {
-	OBJ_DATA *i;
-	for (i = object_list; i; i = i->get_next())
-	{
-		if (n == i->get_id())
-		{
-			return i;
-		}
-	}
-	return NULL;
+	const auto result = world_objects.find_first_by_id(id);
+	return result.get();
 }
 
 // return room with UID n
@@ -398,23 +392,15 @@ int find_char_vnum(long n, int num = 0)
 }
 
 // * Аналогично find_char_vnum, только для объектов.
-int find_obj_vnum(long n, int num = 0)
+int find_obj_id_by_vnum(const obj_vnum vnum, int num = 0)
 {
-	OBJ_DATA *i;
-	int count = 0;
-	for (i = object_list; i; i = i->get_next())
-	{
-		if (n == GET_OBJ_VNUM(i))
-		{
-			++count;
-			if (num > 0 && num != count)
-			{
-				continue;
-			}
+	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum(vnum, num);
 
-			return i->get_id();
-		}
+	if (object)
+	{
+		return object->get_id();
 	}
+
 	return -1;
 }
 
@@ -480,21 +466,15 @@ OBJ_DATA *get_obj(char *name, int/* vnum*/)
 	if (*name == UID_OBJ)
 	{
 		id = atoi(name + 1);
-		return find_obj(id);
+		return find_obj_by_id(id);
 	}
 	else
 	{
-		for (OBJ_DATA *obj = object_list; obj; obj = obj->get_next())
-		{
-			if (isname(name, obj->get_aliases()))
-			{
-				return obj;
-			}
-		}
+		const auto result = world_objects.find_by_name(name);
+		return result.get();
 	}
 	return NULL;
 }
-
 
 // finds room by with name.  returns NULL if not found
 ROOM_DATA *get_room(char *name)
@@ -668,23 +648,11 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 	{
 		id = atoi(name + 1);
 
-		for (i = object_list; i; i = i->get_next())
-		{
-			if (id == i->get_id())
-			{
-				break;
-			}
-		}
+		i = world_objects.find_first_by_id(id).get();
 	}
 	else
 	{
-		for (i = object_list; i; i = i->get_next())
-		{
-			if (isname(name, i->get_aliases()))
-			{
-				break;
-			}
-		}
+		i = world_objects.find_by_name(name).get();
 	}
 
 	return i;
@@ -711,13 +679,7 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 			}
 		}
 
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			if (id == obj->get_id())
-			{
-				return obj;
-			}
-		}
+		return world_objects.find_first_by_id(id).get();
 	}
 	else
 	{
@@ -729,13 +691,7 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 			}
 		}
 
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			if (isname(name, obj->get_aliases()))
-			{
-				return obj;
-			}
-		}
+		return world_objects.find_by_name(name).get();
 	}
 
 	return NULL;
@@ -764,13 +720,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 			}
 		}
 
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			if (id == obj->get_id())
-			{
-				return obj;
-			}
-		}
+		return world_objects.find_first_by_id(id).get();
 	}
 	else
 	{
@@ -785,13 +735,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 			}
 		}
 
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			if (isname(name, obj->get_aliases()))
-			{
-				return obj;
-			}
-		}
+		return world_objects.find_by_name(name).get();
 	}
 
 	return NULL;
@@ -802,7 +746,6 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 void script_trigger_check(void)
 {
 	CHAR_DATA *ch;
-	OBJ_DATA *obj;
 	ROOM_DATA *room = NULL;
 	int nr;
 	SCRIPT_DATA *sc;
@@ -819,13 +762,13 @@ void script_trigger_check(void)
 		}
 	}
 
-	for (obj = object_list; obj; obj = obj->get_next())
+	world_objects.foreach([&](const OBJ_DATA::shared_ptr& obj)
 	{
-		if(OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))
+		if(OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED))
 		{
 			if(obj->get_worn_by() && number(1, 100) <= 5)
 			{
-				NamedStuff::wear_msg(obj->get_worn_by(), obj);
+				NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
 			}
 		}
 		else if (obj->get_script())
@@ -833,10 +776,10 @@ void script_trigger_check(void)
 			sc = obj->get_script().get();
 			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM))
 			{
-				random_otrigger(obj);
+				random_otrigger(obj.get());
 			}
 		}
-	}
+	});
 
 	for (nr = FIRST_ROOM; nr <= top_of_world; nr++)
 	{
@@ -857,7 +800,6 @@ void script_trigger_check(void)
 void script_timechange_trigger_check(const int time)
 {
 	CHAR_DATA *ch;
-	OBJ_DATA *obj;
 	ROOM_DATA *room = NULL;
 	int nr;
 	SCRIPT_DATA *sc;
@@ -877,17 +819,17 @@ void script_timechange_trigger_check(const int time)
 		}
 	}
 
-	for (obj = object_list; obj; obj = obj->get_next())
+	world_objects.foreach([&](const OBJ_DATA::shared_ptr& obj)
 	{
 		if (obj->get_script())
 		{
 			sc = obj->get_script().get();
 			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_TIMECHANGE))
 			{
-				timechange_otrigger(obj, time);
+				timechange_otrigger(obj.get(), time);
 			}
 		}
-	}
+	});
 
 	for (nr = FIRST_ROOM; nr <= top_of_world; nr++)
 	{
@@ -2046,7 +1988,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "obj") && num > 0)
 			{
-				num = find_obj_vnum(num);
+				num = find_obj_id_by_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_OBJ, num);
 			}
@@ -3424,7 +3366,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			if (*subfield == UID_OBJ)
 			{
-				obj_to = find_obj(atoi(subfield+1));
+				obj_to = find_obj_by_id(atoi(subfield+1));
 				if (!(obj_to
 					&& GET_OBJ_TYPE(obj_to) == OBJ_DATA::ITEM_CONTAINER))
 				{
@@ -5050,7 +4992,7 @@ void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type
 	else if (!str_cmp(what, "obj"))
 	{
 		uid_type = UID_OBJ;
-		result = find_obj_vnum(result, count_num);
+		result = find_obj_id_by_vnum(result, count_num);
 	}
 	else
 	{
@@ -5152,14 +5094,17 @@ bool find_all_char_vnum(long n, char *str)
 bool find_all_obj_vnum(long n, char *str)
 {
 	int count = 0;
-	for (OBJ_DATA *i = object_list; i; i = i->get_next())
+
+	const int LIMIT = 25;
+	world_objects.foreach_with_vnum(n, [&](const OBJ_DATA::shared_ptr& i)
 	{
-		if (n == GET_OBJ_VNUM(i) && count < 25)
+		if (count < LIMIT)
 		{
 			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, i->get_id());
 			++count;
 		}
-	}
+	});
+
 	return count ? true : false;
 }
 

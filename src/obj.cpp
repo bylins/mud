@@ -4,6 +4,8 @@
 
 #include "obj.hpp"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "parse.hpp"
 #include "handler.h"
 #include "dg_scripts.h"
@@ -280,6 +282,18 @@ void OBJ_DATA::remove_me_from_objects_list(OBJ_DATA*& head)
 	REMOVE_FROM_LIST(this, head, [](auto list) -> auto& { return list->m_next; });
 }
 
+void OBJ_DATA::set_id(const long _)
+{
+	const auto old_id = m_id;
+
+	m_id = _;
+
+	for (const auto& observer : m_id_change_observers)
+	{
+		observer->notify(*this, old_id);
+	}
+}
+
 void OBJ_DATA::set_script(SCRIPT_DATA* _)
 {
 	m_script.reset(_);
@@ -376,6 +390,18 @@ void CObjectPrototype::zero_init()
 		m_pnames[i].clear();
 	}
 	m_ilevel = 0;
+}
+
+void CObjectPrototype::set_vnum(const obj_vnum vnum)
+{
+	const auto old_vnum = m_vnum;
+
+	m_vnum = vnum;
+
+	for (const auto& observer : m_vnum_change_observers)
+	{
+		observer->notify(*this, old_vnum);
+	}
 }
 
 void CObjectPrototype::tag_ex_description(const char* tag)
@@ -626,13 +652,13 @@ bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
 		return false;
 	}
 
-	const auto obj_original = read_object(rnum, REAL);
+	const auto obj_original = world_objects.create_from_prototype_by_rnum(rnum);
 
 	const auto old_rnum = get_rnum();
-	copy_from(obj_original);
+	copy_from(obj_original.get());
 	set_rnum(old_rnum);
 
-	extract_obj(obj_original);
+	extract_obj(obj_original.get());
 
 	return true;
 }
@@ -784,6 +810,18 @@ unsigned CObjectPrototype::get_ilevel() const
 void CObjectPrototype::set_ilevel(unsigned ilvl)
 {
 	m_ilevel = ilvl;
+}
+
+void CObjectPrototype::set_rnum(const obj_rnum _)
+{
+	const auto old_rnum = m_rnum;
+
+	m_rnum = _;
+
+	for (const auto& observer : m_rnum_change_observers)
+	{
+		observer->notify(*this, old_rnum);
+	}
 }
 
 int CObjectPrototype::get_manual_mort_req() const
@@ -1148,10 +1186,10 @@ void init()
 
 OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 {
-	OBJ_DATA *obj = read_object(PURSE_RNUM, REAL);
+	const auto obj = world_objects.create_from_prototype_by_rnum(PURSE_RNUM);
 	if (!obj)
 	{
-		return obj;
+		return obj.get();
 	}
 
 	obj->set_aliases("тугой кошелек");
@@ -1175,6 +1213,7 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 
 	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
 	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+
 	obj->set_val(0, 0);
 	// CLOSEABLE + CLOSED
 	obj->set_val(1,  5);
@@ -1188,7 +1227,7 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
 	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 
-	return obj;
+	return obj.get();
 }
 
 bool is_purse(OBJ_DATA *obj)

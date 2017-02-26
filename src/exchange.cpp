@@ -10,6 +10,7 @@
 
 #include "exchange.h"
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -37,7 +38,6 @@
 #include <sstream>
 
 //Используемые внешние ф-ии.
-extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
 
@@ -1170,10 +1170,12 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 			return (item);
 
 	*error = 0;
-	//d = *data;
-	GET_EXCHANGE_ITEM(item) = read_one_object_new(data, error);
+
+	GET_EXCHANGE_ITEM(item) = read_one_object_new(data, error).get();
 	if (*error)
+	{
 		*error = 9;
+	}
 
 	return (item);
 }

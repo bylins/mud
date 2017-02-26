@@ -10,6 +10,7 @@
 
 #include "mail.h"
 
+#include "world.objects.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
@@ -606,7 +607,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 	auto rng = mail_list.equal_range(ch->get_uid());
 	for(auto i = rng.first; i != rng.second; ++i)
 	{
-		OBJ_DATA *obj = create_obj();
+		const auto obj = world_objects.create_blank();
 		obj->set_aliases("mail paper letter письмо почта бумага");
 		obj->set_short_description("письмо");
 		obj->set_description("Кто-то забыл здесь свое письмо.");
@@ -627,8 +628,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		obj->set_timer(24 * 60);
 
 		char buf_date[MAX_INPUT_LENGTH];
-		strftime(buf_date, sizeof(buf_date),
-			"%H:%M %d-%m-%Y", localtime(&i->second.date));
+		strftime(buf_date, sizeof(buf_date), "%H:%M %d-%m-%Y", localtime(&i->second.date));
 
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_),
@@ -642,7 +642,7 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		boost::trim_if(text, ::isspace);
 		obj->set_action_description(buf_ + text + "\r\n\r\n");
 
-		obj_to_char(obj, ch);
+		obj_to_char(obj.get(), ch);
 		act("$n дал$g вам письмо.", FALSE, mailman, 0, ch, TO_VICT);
 		act("$N дал$G $n2 письмо.", FALSE, ch, 0, mailman, TO_ROOM);
 

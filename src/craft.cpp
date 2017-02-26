@@ -6,6 +6,7 @@
 
 #include "craft.hpp"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "time_utils.hpp"
 #include "xml_loading_helper.hpp"

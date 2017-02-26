@@ -317,9 +317,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 // player id's: 0 to ROOM_ID_BASE - 1            //
 // room id's: ROOM_ID_BASE to MOBOBJ_ID_BASE - 1 //
-// mob/object id's: MOBOBJ_ID_BASE and higher    //
 #define ROOM_ID_BASE    150000
-#define MOBOBJ_ID_BASE	2000000
 
 #define SCRIPT_MEM(c)             ((c)->memory)
 

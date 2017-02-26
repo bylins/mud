@@ -9,6 +9,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "screen.h"
 #include "dg_scripts.h"
@@ -302,7 +304,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		OBJ_DATA* o = read_object(atoi(arg), VIRTUAL);
+		const auto o = world_objects.create_from_prototype_by_vnum(atoi(arg));
 		if (o == NULL)
 		{
 			obj_log(obj, "otransform: bad object vnum");
@@ -319,7 +321,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		obj->swap(*o);
 
-		if (OBJ_FLAGGED(o, EExtraFlag::ITEM_TICKTIMER))
+		if (o->get_extra_flag(EExtraFlag::ITEM_TICKTIMER))
 		{
 			obj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 		}
@@ -328,7 +330,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			equip_char(wearer, obj, pos);
 		}
-		extract_obj(o);
+		extract_obj(o.get());
 	}
 }
 
@@ -336,37 +338,14 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
-	CHAR_DATA *ch /*, *next_ch*/;
-	OBJ_DATA *o /*, *next_obj */;
-	// int rm;
+	CHAR_DATA *ch;
+	OBJ_DATA *o;
 
 	one_argument(argument, arg);
 
 	if (!*arg)
 	{
 		return;
-/*
-		if ((rm = obj_room(obj)) != NOWHERE)
-		{
-			for (ch = world[rm]->people; ch; ch = next_ch)
-			{
-				next_ch = ch->next_in_room;
-				if (IS_NPC(ch))
-				{
-					if (ch->followers || ch->master)
-						die_follower(ch);
-					extract_char(ch, FALSE);
-				}
-			}
-			for (o = world[rm]->contents; o; o = next_obj)
-			{
-				next_obj = o->next_content;
-				if (o != obj)
-					extract_obj(o);
-			}
-		}
-		return;
-*/
 	}
 
 	if (!(ch = get_char_by_obj(obj, arg)))
@@ -504,7 +483,6 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0, room;
 	CHAR_DATA *mob;
-	OBJ_DATA *object;
 
 	two_arguments(argument, arg1, arg2);
 
@@ -532,25 +510,26 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (is_abbrev(arg1, "obj"))
 	{
-		if ((object = read_object(number, VIRTUAL)) == NULL)
+		const auto object = world_objects.create_from_prototype_by_vnum(number);
+		if (!object)
 		{
 			obj_log(obj, "oload: bad object vnum");
 			return;
 		}
-		if ((GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0) && ((obj_proto.number(object->get_rnum()) + obj_proto.stored(object->get_rnum())) > GET_OBJ_MIW(obj_proto[object->get_rnum()])))
+
+		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
+			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
 				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d", number);
 				obj_log(obj, buf);
-//				extract_obj(object);
-//				return;
 			}
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
 		object->set_zone(world[room]->zone);
-		obj_to_room(object, room);
-		load_otrigger(object);
+		obj_to_room(object.get(), room);
+		load_otrigger(object.get());
 	}
 	else
 	{

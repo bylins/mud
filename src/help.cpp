@@ -4,6 +4,7 @@
 
 #include "help.hpp"
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "db.h"
 #include "modify.h"

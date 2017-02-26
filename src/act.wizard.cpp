@@ -12,6 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "object.prototypes.hpp"
+#include "world.objects.hpp"
 #include "logger.hpp"
 #include "command.shutdown.hpp"
 #include "obj.hpp"
@@ -81,7 +83,6 @@ using std::fstream;
 extern bool need_warn;
 extern FILE *player_fl;
 
-extern OBJ_DATA *object_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
 extern struct zone_data *zone_table;
@@ -97,7 +98,6 @@ void medit_save_to_disk(int zone_num);
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
-extern long max_id;
 // for chars
 extern const char *pc_class_types[];
 extern struct spell_info_type spell_info[];
@@ -247,14 +247,13 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Указан неверный VNUM объекта !\r\n", ch);
 		return;
 	}
-	for (OBJ_DATA *k = object_list; k; k = k->get_next())
+
+	world_objects.foreach_with_vnum(vnum, [&](const OBJ_DATA::shared_ptr& k)
 	{
-		if (GET_OBJ_VNUM(k) == vnum)
-		{
-			k->set_timer(0);
-			num++;
-		}
-	}
+		k->set_timer(0);
+		++num;
+	});
+
 	num += Depot::delete_obj(vnum);
 	num += Clan::delete_obj(vnum);
 	num += Parcel::delete_obj(vnum);
@@ -2984,7 +2983,6 @@ void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *mob;
-	OBJ_DATA *obj;
 	mob_vnum number;
 	mob_rnum r_num;
 	char *iname;
@@ -3034,22 +3032,23 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
-		obj = read_object(r_num, REAL);
+		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 		obj->set_crafter_uid(GET_UNIQUE(ch));
 
 		if (load_into_inventory)
 		{
-			obj_to_char(obj, ch);
+			obj_to_char(obj.get(), ch);
 		}
 		else
 		{
-			obj_to_room(obj, ch->in_room);
+			obj_to_room(obj.get(), ch->in_room);
 		}
+
 		act("$n покопал$u в МУДе.", TRUE, ch, 0, 0, TO_ROOM);
-		act("$n создал$g $o3!", FALSE, ch, obj, 0, TO_ROOM);
-		act("Вы создали $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		load_otrigger(obj);
-		obj_decay(obj);
+		act("$n создал$g $o3!", FALSE, ch, obj.get(), 0, TO_ROOM);
+		act("Вы создали $o3.", FALSE, ch, obj.get(), 0, TO_CHAR);
+		load_otrigger(obj.get());
+		obj_decay(obj.get());
 		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
 	}
 	else if (is_abbrev(buf, "ing"))
@@ -3063,7 +3062,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Неверное имя типа\r\n", ch);
 			return;
 		}
-		obj = load_ingredient(i, power, power);
+		const auto obj = load_ingredient(i, power, power);
 		if (!obj)
 		{
 			send_to_char("Ошибка загрузки ингредиента\r\n", ch);
@@ -3101,7 +3100,6 @@ void send_to_all(char * buffer)
 void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *mob;
-	OBJ_DATA *obj;
 	mob_vnum number;	// or obj_vnum ...
 	mob_rnum r_num;		// or obj_rnum ...
 
@@ -3136,9 +3134,10 @@ void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Этот предмет явно перенесли в РМУД.\r\n", ch);
 			return;
 		}
-		obj = read_object(r_num, REAL);
-		do_stat_object(ch, obj, 1);
-		extract_obj(obj);
+
+		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
+		do_stat_object(ch, obj.get(), 1);
+		extract_obj(obj.get());
 	}
 	else
 		send_to_char("Тут должно быть что-то типа 'obj' или 'mob'.\r\n", ch);
@@ -4695,13 +4694,12 @@ struct show_struct show_fields[] =
 
 void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int i, j, k, l, con;	// i, j, k to specifics?
+	int i, j, l, con;	// i, j, k to specifics?
 
 	zone_rnum zrn;
 	zone_vnum zvn;
 	char self = 0;
 	CHAR_DATA *vict;
-	OBJ_DATA *obj;
 	DESCRIPTOR_DATA *d;
 	char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH], value1[MAX_INPUT_LENGTH];
 	// char bf[MAX_EXTEND_LENGTH];
@@ -4886,7 +4884,6 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		i = 0;
 		j = 0;
-		k = 0;
 		con = 0;
 		int motion = 0;
 		for (vict = character_list; vict; vict = vict->get_next())
@@ -4907,21 +4904,19 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 			}
 		}
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			k++;
-		}
+
 		strcpy(buf, "Текущее состояние:\r\n");
 		sprintf(buf + strlen(buf), "  Игроков в игре - %5d, соединений - %5d\r\n", i, con);
 		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5d\r\n", top_of_p_table + 1);
 		sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
-		sprintf(buf + strlen(buf), "  Предметов - %5d, прообразов предметов - %5zd\r\n", k, obj_proto.size());
+		sprintf(buf + strlen(buf), "  Предметов - %5zd, прообразов предметов - %5zd\r\n",
+			world_objects.size(), obj_proto.size());
 		sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5d\r\n", top_of_world + 1, top_of_zone_table + 1);
 		sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
 		sprintf(buf + strlen(buf), "  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, buf_overflows);
 		sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
 		sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
-		sprintf(buf + strlen(buf), "  Максимальный ID - %ld\r\n", max_id);
+		sprintf(buf + strlen(buf), "  Максимальный ID - %ld\r\n", max_id.current());
 		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n",
 			static_cast<unsigned long>((cmd_cnt * 60) / (time(0) - shutdown_parameters.get_boot_time())));
 		send_to_char(buf, ch);
@@ -4938,15 +4933,25 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		break;
 	}
 	case 5:
-		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
-		for (i = FIRST_ROOM, k = 0; i <= top_of_world; i++)
-			for (j = 0; j < NUM_OF_DIRS; j++)
-				if (world[i]->dir_option[j]
+		{
+			int k = 0;
+			strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
+			for (i = FIRST_ROOM; i <= top_of_world; i++)
+			{
+				for (j = 0; j < NUM_OF_DIRS; j++)
+				{
+					if (world[i]->dir_option[j]
 						&& world[i]->dir_option[j]->to_room == 0)
-					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,
+					{
+						sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,
 							GET_ROOM_VNUM(i), world[i]->name);
-		page_string(ch->desc, buf, TRUE);
+					}
+				}
+			}
+			page_string(ch->desc, buf, TRUE);
+		}
 		break;
+
 	case 6:
 		strcpy(buf, "Смертельных выходов\r\n" "-------------------\r\n");
 		for (i = FIRST_ROOM, j = 0; i <= top_of_world; i++)
