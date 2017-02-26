@@ -54,7 +54,7 @@ void WorldObjects::WO_RNumChangeObserver::notify(CObjectPrototype& object, const
 	m_parent.m_rnum_to_object_ptr[rnum] = object_ptr;
 }
 
-void WorldObjects::WO_IDChangeObserver::notify(OBJ_DATA& object, const id_t old_id)
+void WorldObjects::WO_IDChangeObserver::notify(OBJ_DATA& object, const object_id_t old_id)
 {
 	// find shared_ptr
 	object_raw_ptr_to_object_ptr_t::iterator i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
@@ -207,7 +207,7 @@ void WorldObjects::foreach_with_vnum(const obj_vnum vnum, const foreach_f functi
 	std::for_each(set_i->second.begin(), set_i->second.end(), function);
 }
 
-void WorldObjects::foreach_with_id(const id_t id, const foreach_f function) const
+void WorldObjects::foreach_with_id(const object_id_t id, const foreach_f function) const
 {
 	const auto set_i = m_id_to_object_ptr.find(id);
 	std::for_each(set_i->second.begin(), set_i->second.end(), function);
@@ -256,7 +256,7 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_name(const char* name) const
 	});
 }
 
-OBJ_DATA::shared_ptr WorldObjects::find_by_id(const id_t id, unsigned number) const
+OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned number) const
 {
 	if (0 == number)
 	{

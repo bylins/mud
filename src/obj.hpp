@@ -101,7 +101,7 @@ public:
 
 	virtual ~IDChangeObserver() {}
 
-	virtual void notify(OBJ_DATA& object, const id_t old_id) = 0;
+	virtual void notify(OBJ_DATA& object, const object_id_t old_id) = 0;
 };
 
 class RNumChangeObserver
@@ -852,7 +852,7 @@ private:
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
 
-	id_t m_id;			// used by DG triggers              //
+	object_id_t m_id;			// used by DG triggers              //
 	std::shared_ptr<SCRIPT_DATA> m_script;	// script info for the object       //
 	
 	// порядковый номер в списке чаров (для name_list)

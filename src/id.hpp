@@ -1,7 +1,7 @@
 #ifndef __ID_HPP__
 #define __ID_HPP__
 
-using id_t = long;
+using object_id_t = long;
 
 class MaxID
 {
@@ -15,7 +15,7 @@ private:
 	// mob/object id's: MOBOBJ_ID_BASE and higher    //
 	static constexpr int MOBOBJ_ID_BASE = 2000000;
 
-	id_t m_value;	// for unique mob/obj id's
+	object_id_t m_value;	// for unique mob/obj id's
 };
 
 extern MaxID max_id;

@@ -37,7 +37,7 @@ private:
 	public:
 		WO_IDChangeObserver(WorldObjects& parent) : m_parent(parent) {}
 
-		virtual void notify(OBJ_DATA& object, const id_t old_vnum) override;
+		virtual void notify(OBJ_DATA& object, const object_id_t old_vnum) override;
 
 	private:
 		WorldObjects& m_parent;
@@ -74,13 +74,13 @@ public:
 	void foreach(const foreach_f function) const;
 	void foreach_on_copy_while(const foreach_while_f function) const;
 	void foreach_with_vnum(const obj_vnum vnum, const foreach_f function) const;
-	void foreach_with_id(const id_t id, const foreach_f function) const;
+	void foreach_with_id(const object_id_t id, const foreach_f function) const;
 	OBJ_DATA::shared_ptr find_if(const predicate_f predicate) const;
 	OBJ_DATA::shared_ptr find_if(const predicate_f predicate, unsigned number) const;
 	OBJ_DATA::shared_ptr find_if_and_dec_number(const predicate_f predicate, unsigned& number) const;
 	OBJ_DATA::shared_ptr find_by_name(const char* name) const;
-	OBJ_DATA::shared_ptr find_by_id(const id_t id, unsigned number) const;
-	OBJ_DATA::shared_ptr find_first_by_id(const id_t id) const { return find_by_id(id, 1); }
+	OBJ_DATA::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
+	OBJ_DATA::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 1); }
 	OBJ_DATA::shared_ptr find_by_vnum(const obj_vnum vnum, unsigned number) const;
 	OBJ_DATA::shared_ptr find_first_by_vnum(const obj_vnum vnum) const { return find_by_vnum(vnum, 1); }
 	OBJ_DATA::shared_ptr find_by_rnum(const obj_rnum rnum) const;
@@ -93,7 +93,7 @@ private:
 	using object_raw_ptr_to_object_ptr_t = std::unordered_map<void*, list_t::iterator>;
 	using vnum_to_object_ptr_t = std::unordered_map<obj_vnum, objects_set_t>;
 	using rnum_to_object_ptr_t = std::unordered_map<obj_rnum, OBJ_DATA::shared_ptr>;
-	using id_to_object_ptr_t = std::unordered_map<id_t, objects_set_t>;
+	using id_to_object_ptr_t = std::unordered_map<object_id_t, objects_set_t>;
 
 	void add_to_index(const list_t::iterator& object_i);
 

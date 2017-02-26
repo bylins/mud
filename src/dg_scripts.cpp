@@ -344,7 +344,7 @@ inline auto count_obj_vnum(long n)
  ************************************************************/
 
 // return object with UID n
-OBJ_DATA *find_obj_by_id(const id_t id)
+OBJ_DATA *find_obj_by_id(const object_id_t id)
 {
 	const auto result = world_objects.find_first_by_id(id);
 	return result.get();
