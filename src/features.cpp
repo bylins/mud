@@ -392,7 +392,7 @@ void assign_feats(void)
 	feato(HITROLL_BONUS_FEAT, "твердая рука", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //67
-	feat_app.insert(APPLY_CAST_SUCCESS, 5);
+	feat_app.insert(APPLY_CAST_SUCCESS, 30);
 	feato(MAGICAL_INSTINCT_FEAT, "магическое чутье", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //68
