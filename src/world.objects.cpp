@@ -225,18 +225,13 @@ OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f predicate, unsigned
 
 OBJ_DATA::shared_ptr WorldObjects::find_if_and_dec_number(const predicate_f predicate, unsigned& number) const
 {
-	if (0 == number)
-	{
-		log("LOGIC ERROR: try to get 0-th object by ID.");
-		return nullptr;
-	}
-
 	list_t::const_iterator result_i = std::find_if(m_objects_list.begin(), m_objects_list.end(), predicate);
 
 	while (result_i != m_objects_list.end()
-		&& 0 < --number)
+		&& 0 < number)
 	{
 		result_i = std::find_if(++result_i, m_objects_list.end(), predicate);
+		--number;
 	}
 
 	OBJ_DATA::shared_ptr result;
@@ -258,20 +253,15 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_name(const char* name) const
 
 OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned number) const
 {
-	if (0 == number)
-	{
-		log("LOGIC ERROR: try to get 0-th object by ID.");
-		return nullptr;
-	}
-
 	const auto set_i = m_id_to_object_ptr.find(id);
 	for (const auto& object : set_i->second)
 	{
-		--number;
 		if (0 == number)
 		{
 			return object;
 		}
+
+		--number;
 	}
 
 	return nullptr;
@@ -279,20 +269,15 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned num
 
 OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned number) const
 {
-	if (0 == number)
-	{
-		log("LOGIC ERROR: try to get 0-th object by VNUM.");
-		return nullptr;
-	}
-
 	const auto set_i = m_vnum2object.find(vnum);
 	for (const auto& object : set_i->second)
 	{
-		--number;
 		if (0 == number)
 		{
 			return object;
 		}
+
+		--number;
 	}
 
 	return nullptr;

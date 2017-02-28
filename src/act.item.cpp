@@ -3365,11 +3365,9 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-
-
-
 bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
-{ int num;
+{
+	int num;
 	switch (GET_LEVEL(mob)/11)
 	{
 	case 0:
@@ -3384,12 +3382,12 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			if (number(1, 100) <= num)
 				return true;
 		}
-			else	
-			{
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				send_to_char(buf, ch);
-				return false;
-			}
+		else
+		{
+			sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
+			send_to_char(buf, ch);
+			return false;
+		}
 		
 	break;
 	case 2:
@@ -3399,13 +3397,14 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			if (number(1, 100) <= num)
 				return true;
 		}
-			else	
-			{
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));	
-				send_to_char(buf, ch);
-				return false;
-			}
-	break;
+		else
+		{
+			sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
+			send_to_char(buf, ch);
+			return false;
+		}
+		break;
+
 	case 3:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 120)
 		{
@@ -3413,13 +3412,14 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			if (number(1, 100) <= num)
 				return true;
 		}
-			else	
-			{
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));				
-				send_to_char(buf, ch);
-				return false;
-			}
-	break;
+		else
+		{
+			sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
+			send_to_char(buf, ch);
+			return false;
+		}
+		break;
+
 	case 4:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 160)
 		{
@@ -3427,13 +3427,14 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			if (number(1, 100) <= num)
 				return true;
 		}
-			else	
-			{
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
-				send_to_char(buf, ch);
-				return false;
-			}
-	break;
+		else
+		{
+			sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
+			send_to_char(buf, ch);
+			return false;
+		}
+		break;
+
 	default:
 		return false;
 	}

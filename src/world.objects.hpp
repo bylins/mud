@@ -80,9 +80,9 @@ public:
 	OBJ_DATA::shared_ptr find_if_and_dec_number(const predicate_f predicate, unsigned& number) const;
 	OBJ_DATA::shared_ptr find_by_name(const char* name) const;
 	OBJ_DATA::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
-	OBJ_DATA::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 1); }
+	OBJ_DATA::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 0); }
 	OBJ_DATA::shared_ptr find_by_vnum(const obj_vnum vnum, unsigned number) const;
-	OBJ_DATA::shared_ptr find_first_by_vnum(const obj_vnum vnum) const { return find_by_vnum(vnum, 1); }
+	OBJ_DATA::shared_ptr find_first_by_vnum(const obj_vnum vnum) const { return find_by_vnum(vnum, 0); }
 	OBJ_DATA::shared_ptr find_by_rnum(const obj_rnum rnum) const;
 	OBJ_DATA::shared_ptr get_by_raw_ptr(OBJ_DATA* object) const;
 	auto size() const { return m_objects_list.size(); }
