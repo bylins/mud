@@ -32,6 +32,7 @@
 #include "comm.h"
 
 #include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "external.trigger.hpp"
 #include "shutdown.parameters.hpp"
 #include "obj.hpp"

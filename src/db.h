@@ -62,7 +62,6 @@ bool check_unlimited_timer(const CObjectPrototype* obj);
 #define OBJ_NO_CALC   (1 << 1)
 
 void free_obj(OBJ_DATA * obj);
-obj_rnum real_object(obj_vnum vnum);
 CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUAL);
 
 int vnum_object(char *searchname, CHAR_DATA * ch);

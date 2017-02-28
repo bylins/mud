@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "obj.hpp"
