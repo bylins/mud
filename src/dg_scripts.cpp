@@ -5577,7 +5577,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
 	struct timeval start, stop, result;	
 	std::string start_string_trig = "First Line";
-	std::string finish_string_trig = "Finish line";
+	std::string finish_string_trig = "<Last line is undefined because it is dangerous to obtain it>";
 	if (trig->curr_state)
 		start_string_trig = trig->curr_state->cmd;
 	StopTrig = false;
@@ -5590,10 +5590,21 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 	{
+		/*
+		 * We cannot get access to trig fields here because the last command
+		 * might be "detach". In this case trigger will be deleted. Therefore
+		 * we will get the core dump here in the best case.
+		 *
 		if (trig->curr_state)
+		{
 			finish_string_trig = trig->curr_state->cmd;
-		sprintf(buf, "[TrigVNum: %d] : ", vnum);
-		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s\r\n", result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
+		}
+		*/
+		snprintf(buf, MAX_STRING_LENGTH, "[TrigVNum: %d] : ", vnum);
+		const auto current_buffer_length = strlen(buf);
+		snprintf(buf + current_buffer_length, MAX_STRING_LENGTH - current_buffer_length,
+				"work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s\r\n",
+				result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
 		
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
