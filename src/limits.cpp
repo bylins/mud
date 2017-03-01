@@ -1749,6 +1749,7 @@ void obj_point_update()
 	bool repeat = false;
 	do
 	{
+		repeat = false;
 		world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j) -> bool
 		{
 			const auto contains = j->get_contains();
