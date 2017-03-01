@@ -1977,16 +1977,10 @@ void repop_decay(zone_rnum zone)
 	bool repeat = false;
 	do
 	{
+		repeat = false;
 		world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j)
 		{
-			if (j->get_contains())
-			{
-				repeat = true;
-			}
-			else
-			{
-				repeat = false;
-			}
+			const auto contains = j->get_contains();
 
 			obj_zone_num = j->get_vnum() / 100;
 			if (obj_zone_num == zone_num
@@ -2017,8 +2011,9 @@ void repop_decay(zone_rnum zone)
 				}
 
 				extract_obj(j.get());
-				if (repeat)
+				if (contains)
 				{
+					repeat = true;
 					return false;
 				}
 			}
