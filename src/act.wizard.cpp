@@ -6777,9 +6777,8 @@ void do_godtest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buffer.str(), ch);
 }
 
-void do_loadstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+void do_loadstat(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	std::string buffer;
 	std::ifstream istream(LOAD_LOG_FOLDER LOAD_LOG_FILE, std::ifstream::in);
 	int length;
 
