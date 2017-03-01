@@ -1751,19 +1751,13 @@ void obj_point_update()
 	{
 		world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j) -> bool
 		{
-			if (j->get_contains())
-			{
-				repeat = true;
-			}
-			else
-			{
-				repeat = false;
-			}
+			const auto contains = j->get_contains();
 
 			if (obj_decay(j.get()))
 			{
-				if (repeat)
+				if (contains)
 				{
+					repeat = true;
 					return false;	// exit from the inner loop and repeat outer loop
 				}
 			}
