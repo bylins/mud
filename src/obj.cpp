@@ -284,13 +284,16 @@ void OBJ_DATA::remove_me_from_objects_list(OBJ_DATA*& head)
 
 void OBJ_DATA::set_id(const long _)
 {
-	const auto old_id = m_id;
-
-	m_id = _;
-
-	for (const auto& observer : m_id_change_observers)
+	if (_ != m_id)
 	{
-		observer->notify(*this, old_id);
+		const auto old_id = m_id;
+
+		m_id = _;
+
+		for (const auto& observer : m_id_change_observers)
+		{
+			observer->notify(*this, old_id);
+		}
 	}
 }
 
@@ -394,13 +397,16 @@ void CObjectPrototype::zero_init()
 
 void CObjectPrototype::set_vnum(const obj_vnum vnum)
 {
-	const auto old_vnum = m_vnum;
-
-	m_vnum = vnum;
-
-	for (const auto& observer : m_vnum_change_observers)
+	if (vnum != m_vnum)
 	{
-		observer->notify(*this, old_vnum);
+		const auto old_vnum = m_vnum;
+
+		m_vnum = vnum;
+
+		for (const auto& observer : m_vnum_change_observers)
+		{
+			observer->notify(*this, old_vnum);
+		}
 	}
 }
 
@@ -814,13 +820,16 @@ void CObjectPrototype::set_ilevel(unsigned ilvl)
 
 void CObjectPrototype::set_rnum(const obj_rnum _)
 {
-	const auto old_rnum = m_rnum;
-
-	m_rnum = _;
-
-	for (const auto& observer : m_rnum_change_observers)
+	if (_ != m_rnum)
 	{
-		observer->notify(*this, old_rnum);
+		const auto old_rnum = m_rnum;
+
+		m_rnum = _;
+
+		for (const auto& observer : m_rnum_change_observers)
+		{
+			observer->notify(*this, old_rnum);
+		}
 	}
 }
 

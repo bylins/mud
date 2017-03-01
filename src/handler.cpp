@@ -2426,7 +2426,7 @@ OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA * list)
 // search the entire world for an object number, and return a pointer  //
 OBJ_DATA *get_obj_num(obj_rnum nr)
 {
-	const auto result = world_objects.find_by_rnum(nr);
+	const auto result = world_objects.find_first_by_rnum(nr);
 	return result.get();
 }
 

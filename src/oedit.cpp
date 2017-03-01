@@ -206,8 +206,10 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 // * Обновление полей объектов при изменении их прототипа через олц.
 void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 {
-	const auto object = world_objects.find_by_rnum(robj_num);
-	olc_update_object(robj_num, object.get(), olc_proto);
+	world_objects.foreach_with_rnum(robj_num, [&](const OBJ_DATA::shared_ptr& object)
+	{
+		olc_update_object(robj_num, object.get(), olc_proto);
+	});
 	Depot::olc_update_from_proto(robj_num, olc_proto);
 	Parcel::olc_update_from_proto(robj_num, olc_proto);
 }
