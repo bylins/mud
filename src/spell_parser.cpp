@@ -1880,7 +1880,6 @@ ESkill find_skill_num(char *name)
 	char const *temp, *temp2;
 	char first[256], first2[256], *pos;
 
-	//Replace '.' on ' '
 	while ((pos = strchr(name, '.')))
 	{
 		*pos = ' ';
@@ -1925,7 +1924,6 @@ ESkill find_skill_num(std::string& name)
 	boost::tokenizer<pred_separator> tok(name, sep);
 	boost::tokenizer<pred_separator>::iterator tok_iter;
 
-	//name.replace(name.begin(), name.end(), '.', ' ');
 	std::replace(name.begin(), name.end(), '.', ' ');
 
 	for (const auto index : AVAILABLE_SKILLS)
