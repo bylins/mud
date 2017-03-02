@@ -1465,15 +1465,6 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = 1;
@@ -1575,14 +1566,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mob_log(ch, "mskilladd: too few arguments");
 		return;
 	}
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
+
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
@@ -1662,14 +1646,6 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mob_log(ch, "mspellturn: too few arguments");
 		return;
 	}
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
 
 	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
@@ -1747,14 +1723,6 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 		mob_log(ch, "mspellturntemp: too few arguments");
 		return;
 	}
-	while ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(spellname, '_')))
-	{
-		*pos = ' ';
-	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
@@ -1824,14 +1792,6 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
 	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspelladd: skill not found");
@@ -1900,14 +1860,6 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(spellname, '_')))
-	{
-		*pos = ' ';
-	}
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspellitem: spell not found");

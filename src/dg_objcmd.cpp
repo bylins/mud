@@ -812,15 +812,6 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
@@ -886,15 +877,6 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
@@ -935,11 +917,6 @@ void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		obj_log(obj, "ospellturn: too few arguments");
 		return;
-	}
-
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
 	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
@@ -983,11 +960,6 @@ void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospellturntemp: spell not found");
@@ -1027,11 +999,6 @@ void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospelladd: spell not found");
@@ -1063,11 +1030,6 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		obj_log(obj, "ospellitem: too few arguments");
 		return;
-	}
-
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
 	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)

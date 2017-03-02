@@ -1874,11 +1874,18 @@ const char *spell_name(int num)
 		return "UNDEFINED";
 }
 
-ESkill find_skill_num(const char *name)
+ESkill find_skill_num(char *name)
 {
 	int ok;
 	char const *temp, *temp2;
-	char first[256], first2[256];
+	char first[256], first2[256], *pos;
+
+	//Replace '.' on ' '
+	while ((pos = strchr(name, '.')))
+	{
+		*pos = ' ';
+	}
+
 	for (const auto index : AVAILABLE_SKILLS)
 	{
 		if (is_abbrev(name, skill_info[index].name))
@@ -1909,16 +1916,54 @@ ESkill find_skill_num(const char *name)
 	return SKILL_INVALID;
 }
 
+ESkill find_skill_num(std::string& name)
+{
+	int ok;
+	char first[256];
+	char const *temp;
+	typedef boost::tokenizer<pred_separator> tokenizer;
+	pred_separator sep;
+	boost::tokenizer<pred_separator> tok(name, sep);
+	boost::tokenizer<pred_separator>::iterator tok_iter;
+
+	//name.replace(name.begin(), name.end(), '.', ' ');
+	std::replace(name.begin(), name.end(), '.', ' ');
+
+	for (const auto index : AVAILABLE_SKILLS)
+	{
+		ok = TRUE;
+		// It won't be changed, but other uses of this function elsewhere may.
+		temp = any_one_arg(skill_info[index].name, first);
+		tok_iter = tok.begin();
+		while (*first && tok_iter != tok.end() && ok)
+		{
+			if (!CompareParam(*tok_iter, first))
+				ok = FALSE;
+			temp = any_one_arg(temp, first);
+			tok_iter++;
+		}
+		if (ok && tok_iter == tok.end())
+			return (index);
+	}
+
+	return SKILL_INVALID;
+}
+
 int find_spell_num(char *name)
 {
 	int index, ok;
 	int use_syn = 0;
 	char const *temp, *temp2, *realname;
-	char first[256], first2[256];
+	char first[256], first2[256], *pos;
 
 	use_syn = (((ubyte) * name <= (ubyte) 'z')
 			   && ((ubyte) * name >= (ubyte) 'a'))
 			  || (((ubyte) * name <= (ubyte) 'Z') && ((ubyte) * name >= (ubyte) 'A'));
+
+	while ((pos = strchr(name, '.')))
+	{
+		*pos = ' ';
+	}
 
 	for (index = 1; index <= TOP_SPELL_DEFINE; index++)
 	{
@@ -1946,7 +1991,7 @@ int find_spell_num(char *name)
 	return (-1);
 }
 
-int find_spell_num(const std::string& name)
+int find_spell_num(std::string& name)
 {
 	int index, ok;
 	int use_syn = (((ubyte) name[0] <= (ubyte) 'z')
@@ -1958,6 +2003,8 @@ int find_spell_num(const std::string& name)
 	pred_separator sep;
 	tokenizer tok(name, sep);
 	tokenizer::iterator tok_iter;
+
+	std::replace(name.begin(), name.end(), '.', ' ');
 
 	for (index = 1; index <= TOP_SPELL_DEFINE; index++)
 	{

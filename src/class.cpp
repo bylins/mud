@@ -2499,7 +2499,7 @@ void load_skills()
 			{
 				int sk_num;
 				std::string name = std::string(xNodeSkill.attribute("name").value());
-				if ((sk_num = find_skill_num(name.c_str())) < 0)
+				if ((sk_num = find_skill_num(name)) < 0)
 				{
 					log("Skill '%s' not found...", name.c_str());
 					graceful_exit(1);
