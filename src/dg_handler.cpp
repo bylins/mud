@@ -135,7 +135,7 @@ const char * spell_count(CHAR_DATA * ch, char *spell)
 	if (GET_SPELL_MEM(ch, spellnum))
 		sprintf(retval, "%d", GET_SPELL_MEM(ch, spellnum));
 	else
-		strcpy(retval, "");
+		strcpy(retval, "0");
 	return retval;
 }
 
