@@ -130,7 +130,7 @@ const char * spell_count(CHAR_DATA * ch, char *spell)
 
 	spellnum = find_spell_num(spell);
 	if (spellnum <= 0)
-		return ("");
+		return ("0");
 
 	if (GET_SPELL_MEM(ch, spellnum))
 		sprintf(retval, "%d", GET_SPELL_MEM(ch, spellnum));
@@ -147,13 +147,13 @@ const char * spell_knowledge(CHAR_DATA * ch, char *spell)
 	spellnum = find_spell_num(spell);
 	if (spellnum <= 0)
 	{
-		return ("");
+		return ("0");
 	}
 
 	if (GET_SPELL_TYPE(ch, spellnum))
 		sprintf(retval, "%d", GET_SPELL_TYPE(ch, spellnum));
 	else
-		strcpy(retval, "");
+		strcpy(retval, "0");
 	return retval;
 }
 
