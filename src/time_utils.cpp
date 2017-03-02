@@ -57,8 +57,7 @@ namespace utils
 
 		log("INFO: %s\n", ss.str().c_str());
 
-		char filename[] = LOAD_LOG_FOLDER LOAD_LOG_FILE;
-		flog = fopen(filename, "w");
+		flog = fopen(LOAD_LOG_FOLDER LOAD_LOG_FILE, "w");
 		if (!flog)
 		{
 			log("ERROR: Can't open file %s", LOAD_LOG_FOLDER LOAD_LOG_FILE);
