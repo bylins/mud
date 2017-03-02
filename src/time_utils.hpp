@@ -6,6 +6,9 @@
 #include <memory>
 #include <list>
 
+#define LOAD_LOG_FOLDER "../log/"
+#define LOAD_LOG_FILE "boot_load.log"
+
 namespace utils
 {
 	class CExecutionTimer
