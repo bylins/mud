@@ -1446,7 +1446,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	bool isSkill = false;
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
@@ -1548,7 +1548,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	bool isSkill = false;
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
@@ -1629,7 +1629,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int skillnum = 0, skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
@@ -1706,7 +1706,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelltime = 0;
 
 	if (!MOB_OR_IMPL(ch))
@@ -1777,7 +1777,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int skillnum = 0, skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))

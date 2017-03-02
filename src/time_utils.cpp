@@ -64,7 +64,7 @@ namespace utils
 			return;
 		}
 
-		fprintf(flog, ss.str().c_str());
+		fprintf(flog, "%s", ss.str().c_str());
 		fclose(flog);
 	}
 
