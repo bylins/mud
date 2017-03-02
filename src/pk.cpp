@@ -471,7 +471,7 @@ bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция pk_agro_action", CMP, LVL_GOD, SYSLOG, TRUE);
+//		mudlog("Противник исчез при ПК куда-то! функция pk_agro_action", CMP, LVL_GOD, SYSLOG, TRUE);
 		return false;
 	}
 	if (!IS_NPC(victim) || IS_CHARMICE(victim))
@@ -513,7 +513,7 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция pk_action_type_summon", CMP, LVL_GOD, SYSLOG, TRUE);
+//		mudlog("Противник исчез при ПК куда-то! функция pk_action_type_summon", CMP, LVL_GOD, SYSLOG, TRUE);
 		return false;
 	}
 
@@ -563,7 +563,7 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 	pk_translate_pair(&thief, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция 3", CMP, LVL_GOD, SYSLOG, TRUE);
+//		mudlog("Противник исчез при ПК куда-то! функция 3", CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
 
@@ -607,7 +607,7 @@ void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
 		pk_translate_pair(&killer, NULL);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция 4", CMP, LVL_GOD, SYSLOG, TRUE);
+//		mudlog("Противник исчез при ПК куда-то! функция 4", CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
 
