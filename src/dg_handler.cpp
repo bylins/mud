@@ -92,7 +92,7 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 	im_rskill *rs;
     int rid;
 
-	const ESkill skillnum = find_skill_num(skill);
+	const ESkill skillnum = fix_name_and_find_skill_num(skill);
 	if (skillnum > 0)
 	{
 		//edited by WorM 2011.05.23 триги должны возвращать реальный скилл без бонусов от стафа
@@ -136,7 +136,7 @@ const char * spell_count(TRIG_DATA* trig, CHAR_DATA * ch, char *spell)
 	static char retval[256];
 	int spellnum;
 
-	spellnum = find_spell_num(spell);
+	spellnum = fix_name_and_find_spell_num(spell);
 	if (spellnum <= 0)
 	{
 		sprintf(buf2, "Wrong spell name: %s", spell);
@@ -156,7 +156,7 @@ const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell)
 	static char retval[256];
 	int spellnum;
 
-	spellnum = find_spell_num(spell);
+	spellnum = fix_name_and_find_spell_num(spell);
 	if (spellnum <= 0)
 	{
 		sprintf(buf2, "Wrong spell name: %s", spell);

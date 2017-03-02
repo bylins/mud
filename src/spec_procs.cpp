@@ -788,11 +788,11 @@ void init_guilds(void)
 			}
 			if ((spellnum = atoi(line)) == 0 || spellnum > MAX_SPELLS)
 			{
-				spellnum = find_spell_num(line);
+				spellnum = fix_name_and_find_spell_num(line);
 			}
 			if ((skillnum = atoi(line1)) == 0 || skillnum > MAX_SKILL_NUM)
 			{
-				skillnum = find_skill_num(line1);
+				skillnum = fix_name_and_find_skill_num(line1);
 			}
 
 			if ((featnum = atoi(line1)) == 0 || featnum >= MAX_FEATS)
@@ -860,11 +860,11 @@ void init_guilds(void)
 					SET_BIT((poly_guild + pgcount)->alignment, (1 << i));
 			if ((spellnum = atoi(line4)) == 0 || spellnum > MAX_SPELLS)
 			{
-				spellnum = find_spell_num(line4);
+				spellnum = fix_name_and_find_spell_num(line4);
 			}
 			if ((skillnum = atoi(line5)) == 0 || skillnum > MAX_SKILL_NUM)
 			{
-				skillnum = find_skill_num(line5);
+				skillnum = fix_name_and_find_skill_num(line5);
 			}
 
 			if ((featnum = atoi(line5)) == 0 || featnum >= MAX_FEATS)
@@ -1112,7 +1112,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			return (1);
 		}
 
-		const ESkill skill_no = find_skill_num(argument);
+		const ESkill skill_no = fix_name_and_find_skill_num(argument);
 		if ((SKILL_INVALID != skill_no
 			&& skill_no <= MAX_SKILL_NUM))
 		{
@@ -1152,7 +1152,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			return (1);
 		}
 
-		const int spell_no = find_spell_num(argument);
+		const int spell_no = fix_name_and_find_spell_num(argument);
 		if (spell_no > 0
 			&& spell_no <= MAX_SPELLS)
 		{
@@ -1438,7 +1438,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			return (1);
 		}
 
-		const ESkill skill_no = find_skill_num(argument);
+		const ESkill skill_no = fix_name_and_find_skill_num(argument);
 		if (SKILL_INVALID != skill_no
 			&& skill_no <= MAX_SKILL_NUM)
 		{
@@ -1541,7 +1541,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			}
 		}
 
-		const int spell_no = find_spell_num(argument);
+		const int spell_no = fix_name_and_find_spell_num(argument);
 		if (spell_no > 0 && spell_no <= MAX_SPELLS)
 		{
 			for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++)

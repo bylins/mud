@@ -566,7 +566,7 @@ void spell_mental_shadow(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *
 
 // basic magic calling functions
 
-int find_spell_num(char *name);
+int fix_name_and_find_spell_num(char *name);
 
 int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
 

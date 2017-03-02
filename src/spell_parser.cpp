@@ -1874,16 +1874,25 @@ const char *spell_name(int num)
 		return "UNDEFINED";
 }
 
-ESkill find_skill_num(char *name)
+template <typename T>
+void fix_name(T& name)
+{
+	size_t pos = 0;
+	while ('\0' != name[pos] && pos < MAX_STRING_LENGTH)
+	{
+		if ('.' == name[pos])
+		{
+			name[pos] = ' ';
+		}
+		++pos;
+	}
+}
+
+ESkill find_skill_num(const char *name)
 {
 	int ok;
 	char const *temp, *temp2;
-	char first[256], first2[256], *pos;
-
-	while ((pos = strchr(name, '.')))
-	{
-		*pos = ' ';
-	}
+	char first[256], first2[256];
 
 	for (const auto index : AVAILABLE_SKILLS)
 	{
@@ -1915,52 +1924,16 @@ ESkill find_skill_num(char *name)
 	return SKILL_INVALID;
 }
 
-ESkill find_skill_num(std::string& name)
-{
-	int ok;
-	char first[256];
-	char const *temp;
-	pred_separator sep;
-	boost::tokenizer<pred_separator> tok(name, sep);
-	boost::tokenizer<pred_separator>::iterator tok_iter;
-
-	std::replace(name.begin(), name.end(), '.', ' ');
-
-	for (const auto index : AVAILABLE_SKILLS)
-	{
-		ok = TRUE;
-		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(skill_info[index].name, first);
-		tok_iter = tok.begin();
-		while (*first && tok_iter != tok.end() && ok)
-		{
-			if (!CompareParam(*tok_iter, first))
-				ok = FALSE;
-			temp = any_one_arg(temp, first);
-			tok_iter++;
-		}
-		if (ok && tok_iter == tok.end())
-			return (index);
-	}
-
-	return SKILL_INVALID;
-}
-
-int find_spell_num(char *name)
+int find_spell_num(const char *name)
 {
 	int index, ok;
 	int use_syn = 0;
 	char const *temp, *temp2, *realname;
-	char first[256], first2[256], *pos;
+	char first[256], first2[256];
 
 	use_syn = (((ubyte) * name <= (ubyte) 'z')
 			   && ((ubyte) * name >= (ubyte) 'a'))
 			  || (((ubyte) * name <= (ubyte) 'Z') && ((ubyte) * name >= (ubyte) 'A'));
-
-	while ((pos = strchr(name, '.')))
-	{
-		*pos = ' ';
-	}
 
 	for (index = 1; index <= TOP_SPELL_DEFINE; index++)
 	{
@@ -1988,45 +1961,28 @@ int find_spell_num(char *name)
 	return (-1);
 }
 
-int find_spell_num(std::string& name)
+ESkill fix_name_and_find_skill_num(char *name)
 {
-	int index, ok;
-	int use_syn = (((ubyte) name[0] <= (ubyte) 'z')
-				   && ((ubyte) name[0] >= (ubyte) 'a'))
-				  || (((ubyte) name[0] <= (ubyte) 'Z') && ((ubyte) name[0] >= (ubyte) 'A'));
-	char first[256];
-	char const *temp, *realname;
-	typedef boost::tokenizer<pred_separator> tokenizer;
-	pred_separator sep;
-	tokenizer tok(name, sep);
-	tokenizer::iterator tok_iter;
+	fix_name(name);
+	return find_skill_num(name);
+}
 
-	std::replace(name.begin(), name.end(), '.', ' ');
+ESkill fix_name_and_find_skill_num(std::string& name)
+{
+	fix_name(name);
+	return find_skill_num(name.c_str());
+}
 
-	for (index = 1; index <= TOP_SPELL_DEFINE; index++)
-	{
-		realname = (use_syn) ? spell_info[index].syn : spell_info[index].name;
+int fix_name_and_find_spell_num(char *name)
+{
+	fix_name(name);
+	return find_spell_num(name);
+}
 
-		if (!realname || !*realname)
-			continue;
-		if (CompareParam(name, realname))
-			return (index);
-		ok = TRUE;
-		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(realname, first);
-		tok_iter = tok.begin();
-		while (*first && tok_iter != tok.end() && ok)
-		{
-			if (!CompareParam(*tok_iter, first))
-				ok = FALSE;
-			temp = any_one_arg(temp, first);
-			tok_iter++;
-		}
-		if (ok && tok_iter == tok.end())
-			return (index);
-	}
-
-	return (-1);
+int fix_name_and_find_spell_num(std::string& name)
+{
+	fix_name(name);
+	return find_spell_num(name.c_str());
 }
 
 int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA* /*victim*/, int spellnum)
@@ -3202,7 +3158,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	}
 	t = strtok(NULL, "\0");
 
-	spellnum = find_spell_num(s);
+	spellnum = fix_name_and_find_spell_num(s);
 	spell_subst = spellnum;
 
 /*	if (!Privilege::check_spells(ch, spellnum))
@@ -3391,7 +3347,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 		wc_name = "клич " + wc_name;
 
-	spellnum = find_spell_num(wc_name);
+	spellnum = fix_name_and_find_spell_num(wc_name);
 
 	// Unknown warcry
 	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) || !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
@@ -3500,7 +3456,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	t = strtok(NULL, "\0");
 
-	spellnum = find_spell_num(s);
+	spellnum = fix_name_and_find_spell_num(s);
 
 	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
@@ -3682,7 +3638,7 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	}
 
-	spellnum = find_spell_num(s);
+	spellnum = fix_name_and_find_spell_num(s);
 
 	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
@@ -4180,7 +4136,7 @@ void do_remember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	spellnum = find_spell_num(s);
+	spellnum = fix_name_and_find_spell_num(s);
 
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
@@ -4271,7 +4227,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	spellnum = find_spell_num(s);
+	spellnum = fix_name_and_find_spell_num(s);
 	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{

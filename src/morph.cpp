@@ -393,7 +393,7 @@ void load_morphs()
 		for (pugi::xml_node skill = skillsList.child("skill"); skill; skill = skill.next_sibling("skill"))
 		{
 			std::string strt(skill.child_value());
-			const ESkill skillNum = find_skill_num(strt);
+			const ESkill skillNum = fix_name_and_find_skill_num(strt);
 			if (skillNum != -SKILL_INVALID)
 			{
 				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении

@@ -2703,7 +2703,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "can_get_skill"))
 		{
-			if ((num = find_skill_num(subfield)) > 0)
+			if ((num = fix_name_and_find_skill_num(subfield)) > 0)
 			{
 				if (can_get_skill(c, num))
 				{
@@ -2723,7 +2723,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "can_get_spell"))
 		{
-			if ((num = find_spell_num(subfield)) > 0)
+			if ((num = fix_name_and_find_spell_num(subfield)) > 0)
 			{
 				if (can_get_spell(c, num))
 				{
@@ -3038,7 +3038,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		//к тому же они в том списке не все кличи например никак там не отображаются
 		else if (!str_cmp(field, "affected_by"))
 		{
-			if ((num = find_spell_num(subfield)) > 0)
+			if ((num = fix_name_and_find_spell_num(subfield)) > 0)
 			{
 				sprintf(str, "%d", (int)affected_by_spell(c, num));
 			}

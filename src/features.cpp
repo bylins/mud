@@ -1136,7 +1136,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	spellnum = find_spell_num(s);
+	spellnum = fix_name_and_find_spell_num(s);
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);

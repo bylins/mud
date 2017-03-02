@@ -812,7 +812,7 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
 	}
@@ -877,7 +877,7 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
 	}
@@ -919,7 +919,7 @@ void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospellturn: spell not found");
 		return;
@@ -960,7 +960,7 @@ void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospellturntemp: spell not found");
 		return;
@@ -999,7 +999,7 @@ void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospelladd: spell not found");
 		return;
@@ -1032,7 +1032,7 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospellitem: spell not found");
 		return;
