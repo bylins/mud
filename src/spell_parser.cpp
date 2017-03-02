@@ -1921,7 +1921,6 @@ ESkill find_skill_num(std::string& name)
 	int ok;
 	char first[256];
 	char const *temp;
-	typedef boost::tokenizer<pred_separator> tokenizer;
 	pred_separator sep;
 	boost::tokenizer<pred_separator> tok(name, sep);
 	boost::tokenizer<pred_separator>::iterator tok_iter;
