@@ -7,6 +7,7 @@
 
 namespace utils
 {
+
 	CSteppedProfiler::~CSteppedProfiler()
 	{
 		if (0 < m_steps.size())
@@ -27,6 +28,7 @@ namespace utils
 
 	void CSteppedProfiler::report() const
 	{
+		FILE* flog;
 		std::stringstream ss;
 		ss << "Stepped profiler report for scope '" << m_scope_name << "'";
 		if (0 == m_steps.size())
@@ -54,6 +56,16 @@ namespace utils
 		ss << std::fixed << std::setprecision(6) << m_timer.delta().count() << " second(s)";
 
 		log("INFO: %s\n", ss.str().c_str());
+
+		flog = fopen(LOAD_LOG_FOLDER LOAD_LOG_FILE, "w");
+		if (!flog)
+		{
+			log("ERROR: Can't open file %s", LOAD_LOG_FOLDER LOAD_LOG_FILE);
+			return;
+		}
+
+		fprintf(flog, ss.str().c_str());
+		fclose(flog);
 	}
 
 	void CSteppedProfiler::CExecutionStepProfiler::stop()

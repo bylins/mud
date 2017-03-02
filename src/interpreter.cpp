@@ -252,6 +252,7 @@ void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_load(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_loadstat(CHAR_DATA *ch, char *argument, int cmd, int subbcmd);
 void do_look(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -909,6 +910,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"levels", POS_DEAD, do_levels, 0, 0, 0},
 	{"list", POS_STANDING, do_not_here, 0, 0, -1},
 	{"load", POS_DEAD, do_load, LVL_BUILDER, 0, 0},
+	{"loadstat", POS_DEAD, do_loadstat, LVL_IMPL, 0, 0 },
 	{"look", POS_RESTING, do_look, 0, SCMD_LOOK, 200},
 	{"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
 	{"map", POS_RESTING, do_map, 0, 0, 0},

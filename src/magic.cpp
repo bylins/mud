@@ -1910,13 +1910,17 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		{
 			modi -= 80; //бонуса на непись нету
 		}
+		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim))
+		{
+			modi -= 30; //бонуса на непись нету
+		}
 	}
 
 	if (!IS_NPC(ch) && (GET_LEVEL(ch) > 10))
 		modi += (GET_LEVEL(ch) - 10);
 //  if (!IS_NPC(ch) && !IS_NPC(victim))
 //     modi = 0;
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
 		modi = modi - 50;
 
 	switch (spellnum)
@@ -2722,9 +2726,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		{
 			modi -= 80; //бонуса на непись нету
 		}
+		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim))
+		{
+			modi -= 30; //бонуса на непись нету
+		}
+
 	}
 
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
 	{
 		modi = modi - 50;
 	}

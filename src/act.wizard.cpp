@@ -66,6 +66,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "config.hpp"
+#include "time_utils.hpp"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -6779,6 +6780,26 @@ void do_godtest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	send_to_char(buffer.str(), ch);
+}
+
+void do_loadstat(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
+{
+	std::ifstream istream(LOAD_LOG_FOLDER LOAD_LOG_FILE, std::ifstream::in);
+	int length;
+
+	if (!istream.is_open())
+	{
+		send_to_char("Can't open file", ch);
+		log("ERROR: Can't open file %s", LOAD_LOG_FOLDER LOAD_LOG_FILE);
+		return;
+	}
+
+	istream.seekg(0, istream.end);
+	length = istream.tellg();
+	istream.seekg(0, istream.beg);
+	istream.read(buf, MIN(length, MAX_STRING_LENGTH - 1));
+	buf[istream.gcount()] = '\0';
+	send_to_char(buf, ch);
 }
 
 namespace

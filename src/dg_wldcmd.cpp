@@ -755,15 +755,6 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-    {
-        *pos = ' ';
-    }
-	while ((pos = strchr(skillname, '_')))
-    {
-        *pos = ' ';
-    }
-
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
     {
         isSkill = true;
@@ -829,15 +820,6 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
 	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
@@ -880,11 +862,6 @@ void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		wld_log(room, "wspellturn: too few arguments");
 		return;
-	}
-
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
 	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
@@ -933,11 +910,6 @@ void do_wspellturntemp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcm
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		wld_log(room, "wspellturntemp: spell not found");
@@ -977,11 +949,6 @@ void do_wspelladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		wld_log(room, "wspelladd: spell not found");
@@ -1013,11 +980,6 @@ void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		wld_log(room, "wspellitem: too few arguments");
 		return;
-	}
-
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
 	}
 
 	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)

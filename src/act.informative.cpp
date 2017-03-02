@@ -4591,7 +4591,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf + strlen(buf), " &WΪΑΠÒΕΤ %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
-			if ((GET_LEVEL(ch) == LVL_GOD) && (GET_GOD_FLAG(tch, GF_TESTER)))
+			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER)))
 				sprintf(buf + strlen(buf), " &G(τεστες!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));

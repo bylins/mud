@@ -788,14 +788,10 @@ void init_guilds(void)
 			}
 			if ((spellnum = atoi(line)) == 0 || spellnum > MAX_SPELLS)
 			{
-				if ((pos = strchr(line, '.')))
-					* pos = ' ';
 				spellnum = find_spell_num(line);
 			}
 			if ((skillnum = atoi(line1)) == 0 || skillnum > MAX_SKILL_NUM)
 			{
-				if ((pos = strchr(line1, '.')))
-					* pos = ' ';
 				skillnum = find_skill_num(line1);
 			}
 
@@ -864,14 +860,10 @@ void init_guilds(void)
 					SET_BIT((poly_guild + pgcount)->alignment, (1 << i));
 			if ((spellnum = atoi(line4)) == 0 || spellnum > MAX_SPELLS)
 			{
-				if ((pos = strchr(line4, '.')))
-					* pos = ' ';
 				spellnum = find_spell_num(line4);
 			}
 			if ((skillnum = atoi(line5)) == 0 || skillnum > MAX_SKILL_NUM)
 			{
-				if ((pos = strchr(line5, '.')))
-					* pos = ' ';
 				skillnum = find_skill_num(line5);
 			}
 
