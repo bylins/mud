@@ -92,7 +92,7 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 	im_rskill *rs;
     int rid;
 
-	const ESkill skillnum = find_skill_num(skill);
+	const ESkill skillnum = fix_name_and_find_skill_num(skill);
 	if (skillnum > 0)
 	{
 		//edited by WorM 2011.05.23 триги должны возвращать реальный скилл без бонусов от стафа
@@ -109,28 +109,40 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-	return ("-1");
+                                                                                      
+	return ("0");
 }
 
-bool feat_owner(CHAR_DATA * ch, char *feat)
+bool feat_owner(TRIG_DATA* trig, CHAR_DATA * ch, char *feat)
 {
 	int featnum;
 
 	featnum = find_feat_num(feat);
 	if (featnum > 0)
+	{
 		if (HAVE_FEAT(ch, featnum))
 			return 1;
+	}
+	else
+	{
+		sprintf(buf2, "Wrong feat name: %s", feat);
+		trig_log(trig, buf2);
+	}
 	return 0;
 }
 
-const char * spell_count(CHAR_DATA * ch, char *spell)
+const char * spell_count(TRIG_DATA* trig, CHAR_DATA * ch, char *spell)
 {
 	static char retval[256];
 	int spellnum;
 
-	spellnum = find_spell_num(spell);
+	spellnum = fix_name_and_find_spell_num(spell);
 	if (spellnum <= 0)
+	{
+		sprintf(buf2, "Wrong spell name: %s", spell);
+		trig_log(trig, buf2);
 		return ("0");
+	}
 
 	if (GET_SPELL_MEM(ch, spellnum))
 		sprintf(retval, "%d", GET_SPELL_MEM(ch, spellnum));
@@ -139,14 +151,16 @@ const char * spell_count(CHAR_DATA * ch, char *spell)
 	return retval;
 }
 
-const char * spell_knowledge(CHAR_DATA * ch, char *spell)
+const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell)
 {
 	static char retval[256];
 	int spellnum;
 
-	spellnum = find_spell_num(spell);
+	spellnum = fix_name_and_find_spell_num(spell);
 	if (spellnum <= 0)
 	{
+		sprintf(buf2, "Wrong spell name: %s", spell);
+		trig_log(trig, buf2);
 		return ("0");
 	}
 

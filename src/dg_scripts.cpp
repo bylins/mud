@@ -84,9 +84,9 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
 int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type);
 const char * skill_percent(CHAR_DATA * ch, char *skill);
-bool feat_owner(CHAR_DATA * ch, char *feat);
-const char * spell_count(CHAR_DATA * ch, char *spell);
-const char * spell_knowledge(CHAR_DATA * ch, char *spell);
+bool feat_owner(TRIG_DATA* trig, CHAR_DATA * ch, char *feat);
+const char * spell_count(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
+const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 void reset_zone(int znum);
 
@@ -2703,7 +2703,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "can_get_skill"))
 		{
-			if ((num = find_skill_num(subfield)) > 0)
+			if ((num = fix_name_and_find_skill_num(subfield)) > 0)
 			{
 				if (can_get_skill(c, num))
 				{
@@ -2723,7 +2723,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "can_get_spell"))
 		{
-			if ((num = find_spell_num(subfield)) > 0)
+			if ((num = fix_name_and_find_spell_num(subfield)) > 0)
 			{
 				if (can_get_spell(c, num))
 				{
@@ -2874,15 +2874,15 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "feat"))
 		{
-			if (feat_owner(c, subfield))
+			if (feat_owner(trig, c, subfield))
 				strcpy(str, "1");
 			else
 				strcpy(str, "0");
 		}
 		else if (!str_cmp(field, "spellcount"))
-			strcpy(str, spell_count(c, subfield));
+			strcpy(str, spell_count(trig, c, subfield));
 		else if (!str_cmp(field, "spelltype"))
-			strcpy(str, spell_knowledge(c, subfield));
+			strcpy(str, spell_knowledge(trig, c, subfield));
 		else if (!str_cmp(field, "quested"))
 		{
 			if (*subfield && (num = atoi(subfield)) > 0)
@@ -3038,7 +3038,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		//к тому же они в том списке не все кличи например никак там не отображаются
 		else if (!str_cmp(field, "affected_by"))
 		{
-			if ((num = find_spell_num(subfield)) > 0)
+			if ((num = fix_name_and_find_spell_num(subfield)) > 0)
 			{
 				sprintf(str, "%d", (int)affected_by_spell(c, num));
 			}
