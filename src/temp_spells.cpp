@@ -17,7 +17,7 @@ namespace Temporary_Spells
 		sp.set_time = set_time;
 		sp.duration = duration;
 
-		for (std::vector<temporary_spell_data>::iterator it = ch->temp_spells.begin(); it != ch->temp_spells.end(); ++it)
+		for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end(); ++it)
 		{
 			//Если заклинание уже в списке, то обновим время при необходимости 
 			if (it->spell == spell && ((it->set_time + it->duration) < (set_time + duration)))
@@ -34,6 +34,19 @@ namespace Temporary_Spells
 			SET_BIT(GET_SPELL_TYPE(ch, spell), SPELL_TEMP);
 			ch->temp_spells.push_back(sp);
 		}
+	}
+
+	time_t spell_left_time(CHAR_DATA* ch, int spell)
+	{
+		for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end(); ++it)
+		{
+			if (it->spell == spell)
+			{
+				return (it->set_time + it->duration) - time(0);
+			}
+		}
+
+		return -1;
 	}
 
 	void update_times()
@@ -53,7 +66,7 @@ namespace Temporary_Spells
 	{
 		struct spell_mem_queue_item **i, *ptr;
 
-		for (std::vector<temporary_spell_data>::iterator it = ch->temp_spells.begin(); it != ch->temp_spells.end();)
+		for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end();)
 		{
 			if ((it->set_time + it->duration) < now)
 			{
