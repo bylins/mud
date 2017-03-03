@@ -558,16 +558,16 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			if (can_cast)
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %-37s|",
-										   slots[slot_num] % 104 <
+										   "%s|<...%4d.> %-38s|",
+										   slots[slot_num] % 106 <
 										   10 ? "\r\n" : "  ",
 										   GET_MANA_COST(ch, i), spell_info[i].name);
 			}
 			else
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %-37s|",
-										   slots[slot_num] % 104 <
+										   "%s|+--------+ %-38s|",
+										   slots[slot_num] % 106 <
 										   10 ? "\r\n" : "  ", spell_info[i].name);
 			}
 		}
@@ -581,8 +581,8 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 				time_str.append("]");
 			}
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-				"%s|<%c%c%c%c%c%c%c%c> %-30s %-6s|",
-				slots[slot_num] % 104 <
+				"%s|<%c%c%c%c%c%c%c%c> %-30s %-7s|",
+				slots[slot_num] % 106 <
 				10 ? "\r\n" : "  ",
 				IS_SET(GET_SPELL_TYPE(ch, i),
 					SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
