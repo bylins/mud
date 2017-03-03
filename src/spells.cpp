@@ -1078,7 +1078,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 	}, count);
 
 	int j = count;
-	if (0 > j)
+	if (j > 0)
 	{
 		j = Clan::print_spell_locate_object(ch, j, std::string(name));
 	}
