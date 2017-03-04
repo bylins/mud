@@ -8,6 +8,8 @@
 ************************************************************************ */
 #include "item.creation.hpp"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "screen.h"
 #include "spells.h"
@@ -713,7 +715,6 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 }
 void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill)
 {
-	OBJ_DATA *tobj;
 	char txtbuff[100];
 	const char *to_char = NULL, *to_room = NULL;
 	int prob, percent, ndice, sdice, weight;
@@ -743,176 +744,184 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 	{
 		send_to_char("У вас ничего не получилось.\r\n", ch);
 	}
-	else if (!(tobj = read_object(created_item[obj_type].obj_vnum, VIRTUAL)))
-	{
-		send_to_char("Образец был невозвратимо утерян.\r\n", ch);
-	}
 	else
 	{
-		tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
-		tobj->set_cost(2 * GET_OBJ_COST(obj) / 3);
-		tobj->set_owner(GET_UNIQUE(ch));
-// ковка объектов со слотами.
-// для 5+ мортов имеем шанс сковать стаф с 3 слотами: базовый 2% и по 0.5% за морт
-// для 2 слотов базовый шанс 5%, 1% за каждый морт
-// для 1 слота базово 20% и 4% за каждый морт
-// Карачун. Поправлено. Расчет не через морты а через скил.
-		if (skill == SKILL_TRANSFORMWEAPON)
+		const auto tobj = world_objects.create_from_prototype_by_vnum(created_item[obj_type].obj_vnum);
+		if (!tobj)
 		{
-			if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10)
-			{
-				tobj->set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
-			}
-			else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5)
-			{
-				tobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
-			}
-			else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4)
-			{
-				tobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
-			}
-		}
-		switch (obj_type)
-		{
-		case 0:	// smith weapon
-		case 1:
-		case 2:
-		case 3:
-		case 4:
-		case 11:
-		{
-			// Карачун. Таймер должен зависить от таймера прототипа.
-			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
-			// В минимуме один день реала, в максимуме таймер из прототипа
-			const int timer_value = tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
-			const int timer = MAX(OBJ_DATA::ONE_DAY, timer_value);
-			tobj->set_timer(timer);
-			sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
-			act(buf, FALSE, ch, tobj, 0, TO_CHAR);
-			tobj->set_material(GET_OBJ_MATER(obj));
-			// Карачун. Так логичнее.
-			// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
-			// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
-			// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
-			tobj->set_maximum_durability(MAX(20000, 35000 / 100 * ch->get_skill(skill) - number(0, 35000 / 100 * 25)) / 100);
-			tobj->set_current_durability(GET_OBJ_MAX(tobj));
-			percent = number(1, skill_info[skill].max_percent);
-			prob = calculate_skill(ch, skill, 0);
-			ndice = MAX(2, MIN(4, prob / percent));
-			ndice += GET_OBJ_WEIGHT(tobj) / 10;
-			percent = number(1, skill_info[skill].max_percent);
-			prob = calculate_skill(ch, skill, 0);
-			sdice = MAX(2, MIN(5, prob / percent));
-			sdice += GET_OBJ_WEIGHT(tobj) / 10;
-			tobj->set_val(1, ndice);
-			tobj->set_val(2, sdice);
-//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
-			if (skill != SKILL_CREATEBOW)
-			{
-				if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob)
-				{
-					tobj->set_wear_flag(EWearFlag::ITEM_WEAR_HOLD);
-				}
-				to_room = "$n выковал$g $o3.";
-				average = (((float) sdice + 1) * (float) ndice / 2.0);
-				if (average < 3.0)
-				{
-					sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int)(2.5 * 2)]);
-				}
-				else if (average <= 27.5)
-				{
-					sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int)(average * 2)]);
-				}
-				else
-				{
-					sprintf(txtbuff, "Вы выковали $o3 %s!", create_weapon_quality[56]);
-				}
-				to_char = (char *) txtbuff;
-			}
-			else
-			{
-				to_room = "$n смастерил$g $o3.";
-				to_char = "Вы смастерили $o3.";
-			}
-			break;
-		}
-		case 5:	// mages weapon
-		case 6:
-			tobj->set_timer(OBJ_DATA::ONE_DAY);
-			tobj->set_maximum_durability(50);
-			tobj->set_current_durability(50);
-			ndice = MAX(2, MIN(4, GET_LEVEL(ch) / number(6, 8)));
-			ndice += (GET_OBJ_WEIGHT(tobj) / 10);
-			sdice = MAX(2, MIN(5, GET_LEVEL(ch) / number(4, 5)));
-			sdice += (GET_OBJ_WEIGHT(tobj) / 10);
-			tobj->set_val(1, ndice);
-			tobj->set_val(2, sdice);
-			tobj->set_extra_flag(EExtraFlag::ITEM_NORENT);
-			tobj->set_extra_flag(EExtraFlag::ITEM_DECAY);
-			tobj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-			tobj->set_wear_flags(created_item[obj_type].wear);
-			to_room = "$n создал$g $o3.";
-			to_char = "Вы создали $o3.";
-			break;
-		case 7:	// smith armor
-		case 8:
-		case 9:
-		case 10:
-			{
-				// Карачун. Таймер должен зависить от таймера прототипа.
-				// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
-				// В минимуме один день реала, в максимуме таймер из прототипа
-				const int timer_value = tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
-				const int timer = MAX(OBJ_DATA::ONE_DAY, timer_value);
-				tobj->set_timer(timer);
-				sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
-				act(buf, FALSE, ch, tobj, 0, TO_CHAR);
-				tobj->set_material(GET_OBJ_MATER(obj));
-				// Карачун. Так логичнее.
-				// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
-				// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
-				// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
-				tobj->set_maximum_durability(MAX(20000, 10000 / 100 * ch->get_skill(skill) - number(0, 15000 / 100 * 25)) / 100);
-				tobj->set_current_durability(GET_OBJ_MAX(tobj));
-				percent = number(1, skill_info[skill].max_percent);
-				prob = calculate_skill(ch, skill, 0);
-				ndice = MAX(2, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 10, prob / percent));
-				percent = number(1, skill_info[skill].max_percent);
-				prob = calculate_skill(ch, skill, 0);
-				sdice = MAX(1, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 15, prob / percent));
-				tobj->set_val(0, ndice);
-				tobj->set_val(1, sdice);
-				tobj->set_wear_flags(created_item[obj_type].wear);
-				to_room = "$n выковал$g $o3.";
-				to_char = "Вы выковали $o3.";
-				break;
-			}
-		} // switch
-		if (to_char)
-		{
-			act(to_char, FALSE, ch, tobj, 0, TO_CHAR);
-		}
-		if (to_room)
-		{
-			act(to_room, FALSE, ch, tobj, 0, TO_ROOM);
-		}
-		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-		{
-			send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-			obj_to_room(tobj, ch->in_room);
-			obj_decay(tobj);
-		}
-		else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch))
-		{
-			send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-			obj_to_room(tobj, ch->in_room);
-			obj_decay(tobj);
+			send_to_char("Образец был невозвратимо утерян.\r\n", ch);
 		}
 		else
 		{
-			obj_to_char(tobj, ch);
+			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
+			tobj->set_cost(2 * GET_OBJ_COST(obj) / 3);
+			tobj->set_owner(GET_UNIQUE(ch));
+			// ковка объектов со слотами.
+			// для 5+ мортов имеем шанс сковать стаф с 3 слотами: базовый 2% и по 0.5% за морт
+			// для 2 слотов базовый шанс 5%, 1% за каждый морт
+			// для 1 слота базово 20% и 4% за каждый морт
+			// Карачун. Поправлено. Расчет не через морты а через скил.
+			if (skill == SKILL_TRANSFORMWEAPON)
+			{
+				if (ch->get_skill(skill) >= 105 && number(1, 100) <= 2 + (ch->get_skill(skill) - 105) / 10)
+				{
+					tobj->set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
+				}
+				else if (number(1, 100) <= 5 + MAX((ch->get_skill(skill) - 80), 0) / 5)
+				{
+					tobj->set_extra_flag(EExtraFlag::ITEM_WITH2SLOTS);
+				}
+				else if (number(1, 100) <= 20 + MAX((ch->get_skill(skill) - 80), 0) / 5 * 4)
+				{
+					tobj->set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
+				}
+			}
+			switch (obj_type)
+			{
+			case 0:	// smith weapon
+			case 1:
+			case 2:
+			case 3:
+			case 4:
+			case 11:
+				{
+					// Карачун. Таймер должен зависить от таймера прототипа.
+					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// В минимуме один день реала, в максимуме таймер из прототипа
+					const int timer_value = tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
+					const int timer = MAX(OBJ_DATA::ONE_DAY, timer_value);
+					tobj->set_timer(timer);
+					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
+					act(buf, FALSE, ch, tobj.get(), 0, TO_CHAR);
+					tobj->set_material(GET_OBJ_MATER(obj));
+					// Карачун. Так логичнее.
+					// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
+					tobj->set_maximum_durability(MAX(20000, 35000 / 100 * ch->get_skill(skill) - number(0, 35000 / 100 * 25)) / 100);
+					tobj->set_current_durability(GET_OBJ_MAX(tobj));
+					percent = number(1, skill_info[skill].max_percent);
+					prob = calculate_skill(ch, skill, 0);
+					ndice = MAX(2, MIN(4, prob / percent));
+					ndice += GET_OBJ_WEIGHT(tobj) / 10;
+					percent = number(1, skill_info[skill].max_percent);
+					prob = calculate_skill(ch, skill, 0);
+					sdice = MAX(2, MIN(5, prob / percent));
+					sdice += GET_OBJ_WEIGHT(tobj) / 10;
+					tobj->set_val(1, ndice);
+					tobj->set_val(2, sdice);
+					//			tobj->set_wear_flags(created_item[obj_type].wear); пусть wear флаги будут из прототипа
+					if (skill != SKILL_CREATEBOW)
+					{
+						if (GET_OBJ_WEIGHT(tobj) < 14 && percent * 4 > prob)
+						{
+							tobj->set_wear_flag(EWearFlag::ITEM_WEAR_HOLD);
+						}
+						to_room = "$n выковал$g $o3.";
+						average = (((float)sdice + 1) * (float)ndice / 2.0);
+						if (average < 3.0)
+						{
+							sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int)(2.5 * 2)]);
+						}
+						else if (average <= 27.5)
+						{
+							sprintf(txtbuff, "Вы выковали $o3 %s.", create_weapon_quality[(int)(average * 2)]);
+						}
+						else
+						{
+							sprintf(txtbuff, "Вы выковали $o3 %s!", create_weapon_quality[56]);
+						}
+						to_char = (char *)txtbuff;
+					}
+					else
+					{
+						to_room = "$n смастерил$g $o3.";
+						to_char = "Вы смастерили $o3.";
+					}
+					break;
+				}
+			case 5:	// mages weapon
+			case 6:
+				tobj->set_timer(OBJ_DATA::ONE_DAY);
+				tobj->set_maximum_durability(50);
+				tobj->set_current_durability(50);
+				ndice = MAX(2, MIN(4, GET_LEVEL(ch) / number(6, 8)));
+				ndice += (GET_OBJ_WEIGHT(tobj) / 10);
+				sdice = MAX(2, MIN(5, GET_LEVEL(ch) / number(4, 5)));
+				sdice += (GET_OBJ_WEIGHT(tobj) / 10);
+				tobj->set_val(1, ndice);
+				tobj->set_val(2, sdice);
+				tobj->set_extra_flag(EExtraFlag::ITEM_NORENT);
+				tobj->set_extra_flag(EExtraFlag::ITEM_DECAY);
+				tobj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+				tobj->set_wear_flags(created_item[obj_type].wear);
+				to_room = "$n создал$g $o3.";
+				to_char = "Вы создали $o3.";
+				break;
+			case 7:	// smith armor
+			case 8:
+			case 9:
+			case 10:
+				{
+					// Карачун. Таймер должен зависить от таймера прототипа.
+					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// В минимуме один день реала, в максимуме таймер из прототипа
+					const int timer_value = tobj->get_timer() / 100 * ch->get_skill(skill) - number(0, tobj->get_timer() / 100 * 25);
+					const int timer = MAX(OBJ_DATA::ONE_DAY, timer_value);
+					tobj->set_timer(timer);
+					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
+					act(buf, FALSE, ch, tobj.get(), 0, TO_CHAR);
+					tobj->set_material(GET_OBJ_MATER(obj));
+					// Карачун. Так логичнее.
+					// было GET_OBJ_MAX(tobj) = MAX(50, MIN(300, 300 * prob / percent));
+					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
+					tobj->set_maximum_durability(MAX(20000, 10000 / 100 * ch->get_skill(skill) - number(0, 15000 / 100 * 25)) / 100);
+					tobj->set_current_durability(GET_OBJ_MAX(tobj));
+					percent = number(1, skill_info[skill].max_percent);
+					prob = calculate_skill(ch, skill, 0);
+					ndice = MAX(2, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 10, prob / percent));
+					percent = number(1, skill_info[skill].max_percent);
+					prob = calculate_skill(ch, skill, 0);
+					sdice = MAX(1, MIN((105 - material_value[GET_OBJ_MATER(tobj)]) / 15, prob / percent));
+					tobj->set_val(0, ndice);
+					tobj->set_val(1, sdice);
+					tobj->set_wear_flags(created_item[obj_type].wear);
+					to_room = "$n выковал$g $o3.";
+					to_char = "Вы выковали $o3.";
+					break;
+				}
+			} // switch
+
+			if (to_char)
+			{
+				act(to_char, FALSE, ch, tobj.get(), 0, TO_CHAR);
+			}
+
+			if (to_room)
+			{
+				act(to_room, FALSE, ch, tobj.get(), 0, TO_ROOM);
+			}
+
+			if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+			{
+				send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
+				obj_to_room(tobj.get(), ch->in_room);
+				obj_decay(tobj.get());
+			}
+			else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch))
+			{
+				send_to_char("Вы не сможете унести такой вес.\r\n", ch);
+				obj_to_room(tobj.get(), ch->in_room);
+				obj_decay(tobj.get());
+			}
+			else
+			{
+				obj_to_char(tobj.get(), ch);
+			}
 		}
 	}
+
 	if (obj)
 	{
 		obj_from_char(obj);
@@ -925,12 +934,14 @@ void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 	char arg2[MAX_INPUT_LENGTH];
 	OBJ_DATA *obj = NULL, *coal, *proto[MAX_PROTO];
 	int obj_type, i, found, rnum;
+
 	if (IS_NPC(ch)
 		|| !ch->get_skill(static_cast<ESkill>(subcmd)))
 	{
 		send_to_char("Вас этому никто не научил.\r\n", ch);
 		return;
 	}
+
 	argument = one_argument(argument, arg1);
 	if (!*arg1)
 	{
@@ -2030,9 +2041,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 		return (FALSE);
 	}
 	// Лоадим предмет игроку
-	OBJ_DATA *obj = read_object(obj_proto, VIRTUAL);
-	act(charsucc.c_str(), FALSE, ch, obj, 0, TO_CHAR);
-	act(roomsucc.c_str(), FALSE, ch, obj, 0, TO_ROOM);
+	const auto obj = world_objects.create_from_prototype_by_vnum(obj_proto);
+	act(charsucc.c_str(), FALSE, ch, obj.get(), 0, TO_CHAR);
+	act(roomsucc.c_str(), FALSE, ch, obj.get(), 0, TO_ROOM);
 	// 6. Считаем базовые статсы предмета и таймер
 	//  формула для каждого умения отдельная
 	// Для числовых х-к:  х-ка+(skill - random(100))/20;
@@ -2048,8 +2059,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		sign = 1;
 	}
 	obj->set_weight(stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign));
-//  sprintf(tmpbuf,"Вес: %d %d\r\n", i, GET_OBJ_WEIGHT(obj));
-//  send_to_char(tmpbuf,ch);
+
 	i = obj->get_timer();
 	obj->set_timer(stat_modify(ch, obj->get_timer(), 1));
 	// Модифицируем уникальные для предметов х-ки.
@@ -2119,8 +2129,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// переносим доп аффекты ...+мудра +ловка и т.п.
 	if (skill == SKILL_MAKE_WEAR)
 	{ 
-		make_object(ch, obj, ingrs, ingr_cnt );
-		make_value_wear(ch, obj, ingrs);
+		make_object(ch, obj.get(), ingrs, ingr_cnt );
+		make_value_wear(ch, obj.get(), ingrs);
 	}
 	else // если не шитье то никаких махинаций с падежами и копированием рандом аффекта
 	{
@@ -2173,9 +2183,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING)
 		&& (number(1, 100) - calculate_skill(ch, skill, 0) < 0))
 	{
-		act(tagging.c_str(), FALSE, ch, obj, 0, TO_CHAR);
+		act(tagging.c_str(), FALSE, ch, obj.get(), 0, TO_CHAR);
 		// Прибавляем в экстра описание строчку.
-		char *tagchar = format_act(itemtag.c_str(), ch, obj, 0);
+		char *tagchar = format_act(itemtag.c_str(), ch, obj.get(), 0);
 		obj->set_tag(tagchar);
 		free(tagchar);
 	};
@@ -2185,16 +2195,16 @@ int MakeRecept::make(CHAR_DATA * ch)
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(obj, ch->in_room);
+		obj_to_room(obj.get(), ch->in_room);
 	}
 	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch))
 	{
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(obj, ch->in_room);
+		obj_to_room(obj.get(), ch->in_room);
 	}
 	else
 	{
-		obj_to_char(obj, ch);
+		obj_to_char(obj.get(), ch);
 	}
 	return (TRUE);
 }
@@ -2217,6 +2227,7 @@ int MakeRecept::load_from_str(string & rstr)
 	rstr = rstr.substr(rstr.find(" ") + 1);
 	obj_proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
 	rstr = rstr.substr(rstr.find(" ") + 1);
+
 	if (real_object(obj_proto) < 0)
 	{
 		// Обнаружен несуществующий прототип объекта.
@@ -2225,6 +2236,7 @@ int MakeRecept::load_from_str(string & rstr)
 		// блокируем рецепты без ингров.
 		locked = true;
 	}
+
 	for (int i = 0; i < MAX_PARTS; i++)
 	{
 		// считали номер прототипа компонента

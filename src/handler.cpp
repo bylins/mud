@@ -14,6 +14,8 @@
 
 #include "handler.h"
 
+#include "object.prototypes.hpp"
+#include "world.objects.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
@@ -1395,7 +1397,6 @@ void set_uid(OBJ_DATA *object)
 // give an object to a char
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 {
-	OBJ_DATA *i;
 	unsigned int tuid;
 	int inworld;
 
@@ -1444,16 +1445,16 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 				tuid = GET_OBJ_UID(object);
 				inworld = 1;
 				// Объект готов для проверки. Ищем в мире такой же.
-				for (i = object_list; i; i = i->get_next())
+				world_objects.foreach_with_vnum(GET_OBJ_VNUM(object), [&](const OBJ_DATA::shared_ptr& i)
 				{
-					if (GET_OBJ_UID(i) == tuid && // UID совпадает
-							i->get_timer() > 0 && // Целенький
-							object != i && // Не оно же
-							GET_OBJ_VNUM(i) == GET_OBJ_VNUM(object))   // Для верности
+					if (GET_OBJ_UID(i) == tuid // UID совпадает
+						&& i->get_timer() > 0  // Целенький
+						&& object != i.get()) // Не оно же
 					{
 						inworld++;
 					}
-				}
+				});
+
 				if (inworld > 1) // У объекта есть как минимум одна копия
 				{
 					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%u, VNUM=%d), holder %s. In world %d.",
@@ -2422,24 +2423,12 @@ OBJ_DATA *get_obj_in_list_vnum(int num, OBJ_DATA * list)
 	return (NULL);
 }
 
-
 // search the entire world for an object number, and return a pointer  //
 OBJ_DATA *get_obj_num(obj_rnum nr)
 {
-	OBJ_DATA *i;
-
-	for (i = object_list; i; i = i->get_next())
-	{
-		if (GET_OBJ_RNUM(i) == nr)
-		{
-			return (i);
-		}
-	}
-
-	return (NULL);
+	const auto result = world_objects.find_first_by_rnum(nr);
+	return result.get();
 }
-
-
 
 // search a room for a char, and return a pointer if found..  //
 CHAR_DATA *get_char_room(char *name, room_rnum room)
@@ -2573,7 +2562,6 @@ int obj_decay(OBJ_DATA * object)
 		extract_obj(object);
 		return (1);
 	}
-
 
 	if (OBJ_FLAGGED(object, EExtraFlag::ITEM_DECAY) ||
 			(OBJ_FLAGGED(object, EExtraFlag::ITEM_ZONEDECAY) &&
@@ -2762,7 +2750,6 @@ void extract_obj(OBJ_DATA * obj)
 
 	check_auction(NULL, obj);
 	check_exchange(obj);
-	obj->remove_me_from_objects_list(object_list);
 
 	const auto rnum = GET_OBJ_RNUM(obj);
 	if (rnum >= 0)
@@ -2770,8 +2757,7 @@ void extract_obj(OBJ_DATA * obj)
 		obj_proto.dec_number(rnum);
 	}
 
-	free_obj(obj);
-// TODO: в дебаг log("Stop extract obj %s", name);
+	world_objects.remove(obj);
 }
 
 void update_object(OBJ_DATA * obj, int use)
@@ -3442,8 +3428,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)
 	return (NULL);
 }
 
-
-OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list, bool locate_item)
+OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list, bool locate_item)
 {
 	OBJ_DATA *i;
 	int j = 0, number;
@@ -3485,13 +3470,14 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list,
 
 	return (NULL);
 }
-OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA * list)
+OBJ_DATA* get_obj_in_list_vis(CHAR_DATA* ch, const std::string &name, OBJ_DATA* list)
 {
 	OBJ_DATA *i;
-	int j = 0, number;
+	int j = 0;
 	std::string tmp(name);
 
-	if (!(number = get_number(tmp)))
+	const auto number = get_number(tmp);
+	if (!number)
 	{
 		return NULL;
 	}
@@ -3503,10 +3489,9 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA 
 		{
 			if (CAN_SEE_OBJ(ch, i))
 			{
-				if (++j == number)  	// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
+				if (++j == number)
 				{
-					// send_to_char(buf,ch);
-					return (i);
+					return i;
 				}
 			}
 		}
@@ -3515,11 +3500,13 @@ OBJ_DATA *get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA 
 	return nullptr;
 }
 
+class ExitLoopException : std::exception {};
+
 // search the entire world for an object, and return a pointer
 OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 {
 	OBJ_DATA *i;
-	int j = 0, number;
+	int number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
@@ -3548,43 +3535,40 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 	}
 
 	// ok.. no luck yet. scan the entire obj list   //
-	for (i = object_list; i && (j <= number); i = i->get_next())
+	const WorldObjects::predicate_f locate_predicate = [&](const OBJ_DATA::shared_ptr& i) -> bool
 	{
-		if (isname(tmp, i->get_aliases())
-			|| CHECK_CUSTOM_LABEL(tmp, i, ch))
-		{
-			if (CAN_SEE_OBJ(ch, i))
-			{
-				if (!locate_item)
-				{
-					if (++j == number)
-					{
-						return i;
-					}
-				}
-				else
-				{
-					if (try_locate_obj(ch, i))
-					{
-						return i;
-					}
-					else
-					{
-						continue;
-					}
-				}
-			}
-		}
+		const auto result = CAN_SEE_OBJ(ch, i.get())
+			&& (isname(tmp, i->get_aliases())
+				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
+			&& try_locate_obj(ch, i.get());
+		return result;
+	};
+	const WorldObjects::predicate_f not_locate_predicate = [&](const OBJ_DATA::shared_ptr& i) -> bool
+	{
+		const auto result = CAN_SEE_OBJ(ch, i.get())
+			&& (isname(tmp, i->get_aliases())
+				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch));
+		return result;
+	};
+
+	const auto predicate = locate_item ? locate_predicate : not_locate_predicate;
+	OBJ_DATA::shared_ptr result;
+	if (!locate_item)
+	{
+		result = world_objects.find_if(predicate, number);
+	}
+	else
+	{
+		result = world_objects.find_if(predicate);
 	}
 
-	return nullptr;
+	return result.get();
 }
 
 // search the entire world for an object, and return a pointer  //
 OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 {
 	OBJ_DATA *i;
-	int j = 0, number;
 
 	// scan items carried //
 	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != NULL)
@@ -3599,28 +3583,44 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
 	}
 
 	std::string tmp(name);
-	if (!(number = get_number(tmp)))
+	const auto number = get_number(tmp);
+	if (!number)
 	{
 		return nullptr;
 	}
 
 	// ok.. no luck yet. scan the entire obj list   //
-	for (i = object_list; i && (j <= number); i = i->get_next())
+	OBJ_DATA::shared_ptr result;
+	try
 	{
-		if (isname(tmp, i->get_aliases())
-			|| CHECK_CUSTOM_LABEL(tmp, i, ch))
+		int j = 0;
+		world_objects.find_if([&](const OBJ_DATA::shared_ptr& i)
 		{
-			if (CAN_SEE_OBJ(ch, i))
+			if (j > number)
 			{
-				if (++j == number)
+				throw ExitLoopException();
+			}
+
+			if (isname(tmp, i->get_aliases())
+				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
+			{
+				if (CAN_SEE_OBJ(ch, i.get()))
 				{
-					return i;
+					if (++j == number)
+					{
+						return true;
+					}
 				}
 			}
-		}
+
+			return false;
+		});
+	}
+	catch (const ExitLoopException&)
+	{
 	}
 
-	return nullptr;
+	return result.get();
 }
 
 
@@ -3797,45 +3797,6 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DA
 	return (NULL);
 }
 
-/*
-OBJ_DATA *get_obj_in_eq_vis(CHAR_DATA * ch, const char *arg)
-{
-	int l, number, j;
-	char tmpname[MAX_INPUT_LENGTH];
-	char *tmp = tmpname;
-
-	strcpy(tmp, arg);
-	if (!(number = get_number(&tmp)))
-		return (NULL);
-
-	for (j = 0, l = 0; j < NUM_WEARS; j++)
-		if (GET_EQ(ch, j))
-			if (CAN_SEE_OBJ(ch, GET_EQ(ch, j)))
-				if (isname(tmp, GET_EQ(ch, j)->aliases))
-					if (++l == number)
-						return (GET_EQ(ch, j));
-
-	return (NULL);
-}
-OBJ_DATA *get_obj_in_eq_vis(CHAR_DATA * ch, const std::string &arg)
-{
-	int l, number, j;
-	std::string tmp(arg);
-
-	if (!(number = get_number(tmp)))
-		return (NULL);
-
-	for (j = 0, l = 0; j < NUM_WEARS; j++)
-		if (GET_EQ(ch, j))
-			if (CAN_SEE_OBJ(ch, GET_EQ(ch, j)))
-				if (isname(tmp, GET_EQ(ch, j)->aliases))
-					if (++l == number)
-						return (GET_EQ(ch, j));
-
-	return (NULL);
-}
-*/
-
 char *money_desc(int amount, int padis)
 {
 	static char buf[128];
@@ -3893,11 +3854,9 @@ char *money_desc(int amount, int padis)
 	return (buf);
 }
 
-
-OBJ_DATA *create_money(int amount)
+OBJ_DATA::shared_ptr create_money(int amount)
 {
 	int i;
-	OBJ_DATA *obj;
 	char buf[200];
 
 	if (amount <= 0)
@@ -3905,7 +3864,7 @@ OBJ_DATA *create_money(int amount)
 		log("SYSERR: Try to create negative or 0 money. (%d)", amount);
 		return (NULL);
 	}
-	obj = create_obj();
+	auto obj = world_objects.create_blank();
 	EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
 
 	if (amount == 1)

@@ -34,6 +34,8 @@
  *  such installation can be found in INSTALL.  Enjoy........    N'Atas-Ha *
  ***************************************************************************/
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "dg_scripts.h"
 #include "obj.hpp"
 #include "db.h"
@@ -401,7 +403,6 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0;
 	CHAR_DATA *mob;
-	OBJ_DATA *object;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -436,32 +437,36 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (is_abbrev(arg1, "obj"))
 	{
-		if ((object = read_object(number, VIRTUAL)) == NULL)
+		const auto object = world_objects.create_from_prototype_by_vnum(number);
+		if (!object)
 		{
 			mob_log(ch, "mload: bad object vnum");
 			return;
 		}
-		if ((GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0) && ((obj_proto.number(object->get_rnum()) + obj_proto.stored(object->get_rnum())) > GET_OBJ_MIW(obj_proto[object->get_rnum()])))
+
+		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
+			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
 				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d", number);
 				mob_log(ch, buf);
-//				extract_obj(object);
-//				return;
 			}
 		}
+
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		object->set_zone(world[ch->in_room]->zone);
-		if (CAN_WEAR(object, EWearFlag::ITEM_WEAR_TAKE))
+
+		if (CAN_WEAR(object.get(), EWearFlag::ITEM_WEAR_TAKE))
 		{
-			obj_to_char(object, ch);
+			obj_to_char(object.get(), ch);
 		}
 		else
 		{
-			obj_to_room(object, ch->in_room);
+			obj_to_room(object.get(), ch->in_room);
 		}
-		load_otrigger(object);
+
+		load_otrigger(object.get());
 	}
 	else
 		mob_log(ch, "mload: bad type");

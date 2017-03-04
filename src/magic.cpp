@@ -14,6 +14,8 @@
 
 #include "magic.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "spells.h"
@@ -1489,7 +1491,6 @@ void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ)
 {
-	OBJ_DATA *obj;
 	OBJ_DATA *obj0 = NULL, *obj1 = NULL, *obj2 = NULL, *obj3 = NULL, *objo = NULL;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
@@ -1552,7 +1553,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
 	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
 
-	for (obj = ch->carrying; obj; obj = obj->get_next_content())
+	for (auto obj = ch->carrying; obj; obj = obj->get_next_content())
 	{
 		if (item0 >= 0 && item0_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
@@ -1592,25 +1593,32 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 		}
 	}
 
-//  log("%d %d %d %d",items->items[0],items->items[1],items->items[2],items->rnumber);
-//  log("%d %d %d %d",item0,item1,item2,item3);
 	if (!objo ||
 			(items->items[0] >= 0 && item0 >= 0) ||
 			(items->items[1] >= 0 && item1 >= 0) ||
 			(items->items[2] >= 0 && item2 >= 0) || (items->rnumber >= 0 && item3 >= 0))
+	{
 		return (FALSE);
-//  log("OK!");
+	}
+
 	if (extract)
 	{
 		if (spelltype == SPELL_RUNES)
+		{
 			strcpy(buf, "Вы сложили ");
+		}
 		else
+		{
 			strcpy(buf, "Вы взяли ");
+		}
+
+		OBJ_DATA::shared_ptr obj;
 		if (create)
 		{
-			if (!(obj = read_object(obj_num, VIRTUAL)))
+			obj = world_objects.create_from_prototype_by_vnum(obj_num);
+			if (!obj)
 			{
-				return (FALSE);
+				return FALSE;
 			}
 			else
 			{
@@ -1622,6 +1630,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 				}
 			}
 		}
+
 		if (item0 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
@@ -1629,6 +1638,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
 		}
+
 		if (item1 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
@@ -1636,6 +1646,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spelltype);
 		}
+
 		if (item2 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
@@ -1643,6 +1654,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spelltype);
 		}
+
 		if (item3 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
@@ -1650,21 +1662,23 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spelltype);
 		}
+
 		strcat(buf, CCNRM(ch, C_NRM));
+
 		if (create)
 		{
 			if (percent >= 0)
 			{
 				strcat(buf, " и создали $o3.");
-				act(buf, FALSE, ch, obj, 0, TO_CHAR);
-				act("$n создал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-				obj_to_char(obj, ch);
+				act(buf, FALSE, ch, obj.get(), 0, TO_CHAR);
+				act("$n создал$g $o3.", FALSE, ch, obj.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
+				obj_to_char(obj.get(), ch);
 			}
 			else
 			{
 				strcat(buf, " и попытались создать $o3.\r\n" "Ничего не вышло.");
-				act(buf, FALSE, ch, obj, 0, TO_CHAR);
-				extract_obj(obj);
+				act(buf, FALSE, ch, obj.get(), 0, TO_CHAR);
+				extract_obj(obj.get());
 			}
 		}
 		else
@@ -5222,7 +5236,6 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 
 int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 {
-	OBJ_DATA *tobj;
 	obj_vnum z;
 
 	if (ch == NULL)
@@ -5246,30 +5259,34 @@ int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 		return 0;
 	}
 
-	if (!(tobj = read_object(z, VIRTUAL)))
+	const auto tobj = world_objects.create_from_prototype_by_vnum(z);
+	if (!tobj)
 	{
 		send_to_char("Что-то не видно образа для создания.\r\n", ch);
 		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", spellnum, z);
 		return 0;
 	}
-	act("$n создал$g $o3.", FALSE, ch, tobj, 0, TO_ROOM | TO_ARENA_LISTEN);
-	act("Вы создали $o3.", FALSE, ch, tobj, 0, TO_CHAR);
-	load_otrigger(tobj);
+
+	act("$n создал$g $o3.", FALSE, ch, tobj.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
+	act("Вы создали $o3.", FALSE, ch, tobj.get(), 0, TO_CHAR);
+	load_otrigger(tobj.get());
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(tobj, ch->in_room);
-		obj_decay(tobj);
+		obj_to_room(tobj.get(), ch->in_room);
+		obj_decay(tobj.get());
 	}
 	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch))
 	{
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(tobj, ch->in_room);
-		obj_decay(tobj);
+		obj_to_room(tobj.get(), ch->in_room);
+		obj_decay(tobj.get());
 	}
 	else
-		obj_to_char(tobj, ch);
+	{
+		obj_to_char(tobj.get(), ch);
+	}
 
 	return 1;
 }

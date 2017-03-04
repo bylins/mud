@@ -9,6 +9,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "screen.h"
 #include "dg_scripts.h"
@@ -541,7 +543,6 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0;
 	CHAR_DATA *mob;
-	OBJ_DATA *object;
 
 	two_arguments(argument, arg1, arg2);
 
@@ -563,25 +564,26 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (is_abbrev(arg1, "obj"))
 	{
-		if ((object = read_object(number, VIRTUAL)) == NULL)
+		const auto object = world_objects.create_from_prototype_by_vnum(number);
+		if (!object)
 		{
 			wld_log(room, "wload: bad object vnum");
 			return;
 		}
-		if ((GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0) && ((obj_proto.number(object->get_rnum()) + obj_proto.stored(object->get_rnum())) > GET_OBJ_MIW(obj_proto[object->get_rnum()])))
+
+		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
+			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
 				sprintf(buf, "wload: количество больше чем в MIW для #%d", number);
 				wld_log(room, buf);
-//				extract_obj(object);
-//				return;
 			}
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);
 		object->set_zone(world[real_room(room->number)]->zone);
-		obj_to_room(object, real_room(room->number));
-		load_otrigger(object);
+		obj_to_room(object.get(), real_room(room->number));
+		load_otrigger(object.get());
 	}
 	else
     {

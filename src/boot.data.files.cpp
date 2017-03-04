@@ -1,5 +1,6 @@
 #include "boot.data.files.hpp"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "dg_scripts.h"
 #include "dg_olc.h"
@@ -326,8 +327,18 @@ void TriggersFile::parse_trigger(int nr)
 	sprintf(buf2, "trig vnum %d", nr);
 	const auto trigger_name = fread_string();
 	get_line(file(), line);
+
 	int attach_type = 0;
 	k = sscanf(line, "%d %s %d", &attach_type, flags, t);
+
+	if (0 > attach_type
+			|| 2 < attach_type)
+	{
+		log("ERROR: Script with VNUM %d has attach_type %d. Read from line '%s'.",
+				nr, attach_type, line);
+		attach_type = 0;
+	}
+
 	int trigger_type = 0;
 	asciiflag_conv(flags, &trigger_type);
 

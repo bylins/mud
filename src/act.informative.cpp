@@ -12,6 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "shutdown.parameters.hpp"
 #include "obj.hpp"
@@ -69,7 +71,6 @@ using std::string;
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
-extern OBJ_DATA *object_list;
 extern int number_of_social_commands;
 extern char *credits;
 extern char *info;
@@ -5320,15 +5321,15 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 {
 	bool found = false;
-	//int num = 1;
-	for (const OBJ_DATA *k = object_list; k; k = k->get_next())
+
+	world_objects.foreach([&](const OBJ_DATA::shared_ptr object)	/* maybe it is possible to create some index instead of linear search */
 	{
-		if (isname(arg, k->get_aliases()))
+		if (isname(arg, object->get_aliases()))
 		{
 			found = true;
-			print_object_location(num++, k, ch, TRUE);
+			print_object_location(num++, object.get(), ch, TRUE);
 		}
-	}
+	});
 
 	int tmp_num = num;
 	if (IS_GOD(ch)

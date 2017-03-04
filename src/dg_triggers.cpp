@@ -276,7 +276,7 @@ void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
 	{
 		if (TRIGGER_CHECK(t, MTRIG_BRIBE) && (amount >= GET_TRIG_NARG(t)))
 		{
-			sprintf(buf, "%d", amount);
+			snprintf(buf, MAX_INPUT_LENGTH, "%d", amount);
 			add_var_cntx(&GET_TRIG_VARS(t), "amount", buf, 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
@@ -553,10 +553,10 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 			{
 				if (t->get_attach_type() != MOB_TRIGGER)//детачим триги не для мобов
 				{
-					sprintf(buf, "SYSERR: M-Trigger #%d has wrong attach_type %s expected %s char:%s[%d]!",
+					snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: M-Trigger #%d has wrong attach_type %s expected %s char:%s[%d]!",
 						GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[MOB_TRIGGER], GET_PAD(ch, 0), GET_MOB_VNUM(ch));
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
-					sprintf(buf, "%d", GET_TRIG_VNUM(t));
+					snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
 					remove_trigger(SCRIPT(ch), buf, &dummy);
 					if (!TRIGGERS(SCRIPT(ch)))
 					{
@@ -571,7 +571,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 
 				if (t->arglist.empty())
 				{
-					sprintf(buf, "SYSERR: Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
+					snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 					continue;
 				}
@@ -624,7 +624,7 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 
 				if (t->arglist.empty())
 				{
-					sprintf(buf, "SYSERR: Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
+					snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 					continue;
 				}
@@ -655,7 +655,7 @@ void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * vict
 
 			if (t->arglist.empty())
 			{
-				sprintf(buf, "SYSERR: Act Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
+				snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: Act Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 				continue;
 			}
@@ -955,7 +955,7 @@ void timechange_mtrigger(CHAR_DATA * ch, const int time)
 	{
 		if (TRIGGER_CHECK(t, MTRIG_TIMECHANGE) && (time == GET_TRIG_NARG(t)))
 		{
-			sprintf(buf, "%d", time);
+			snprintf(buf, MAX_INPUT_LENGTH, "%d", time);
 			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			continue;
@@ -1042,12 +1042,12 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, const char *argument
 		{
 			if (t->get_attach_type() != OBJ_TRIGGER)//детачим триги не для объектов
 			{
-				sprintf(buf, "SYSERR: O-Trigger #%d has wrong attach_type %s expected %s Object:%s[%d]!",
+				snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: O-Trigger #%d has wrong attach_type %s expected %s Object:%s[%d]!",
 					GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[OBJ_TRIGGER],
 					obj->get_PName(0).empty() ? obj->get_PName(0).c_str() : "undefined",
 					GET_OBJ_VNUM(obj));
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
-				sprintf(buf, "%d", GET_TRIG_VNUM(t));
+				snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
 				remove_trigger(obj->get_script().get(), buf, &dummy);
 				if (!TRIGGERS(obj->get_script()))
 				{
@@ -1063,7 +1063,7 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, const char *argument
 
 			if (IS_SET(GET_TRIG_NARG(t), type) && t->arglist.empty())
 			{
-				sprintf(buf, "SYSERR: O-Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
+				snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: O-Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 				continue;
 			}
@@ -1138,7 +1138,7 @@ int wear_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int where)
 		if (TRIGGER_CHECK(t, OTRIG_WEAR))
 		{
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			sprintf(buf, "%d", where);
+			snprintf(buf, MAX_INPUT_LENGTH, "%d", where);
 			add_var_cntx(&GET_TRIG_VARS(t), "where", buf, 0);
 			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 		}
@@ -1368,7 +1368,7 @@ int timechange_otrigger(OBJ_DATA * obj, const int time)
 		if (TRIGGER_CHECK(t, OTRIG_TIMECHANGE)
 			&& (time == GET_TRIG_NARG(t)))
 		{
-			sprintf(buf, "%d", time);
+			snprintf(buf, MAX_INPUT_LENGTH, "%d", time);
 			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
 			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 		}
@@ -1458,10 +1458,10 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 	{
 		if (t->get_attach_type() != WLD_TRIGGER)//детачим триги не для комнат
 		{
-			sprintf(buf, "SYSERR: W-Trigger #%d has wrong attach_type %s expected %s room:%s[%d]!",
+			snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: W-Trigger #%d has wrong attach_type %s expected %s room:%s[%d]!",
 				GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[WLD_TRIGGER], room->name, room->number);
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
-			sprintf(buf, "%d", GET_TRIG_VNUM(t));
+			snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
 			remove_trigger(SCRIPT(room), buf, &dummy);
 			if (!TRIGGERS(SCRIPT(room)))
 			{
@@ -1476,7 +1476,7 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 
 		if (t->arglist.empty())
 		{
-			sprintf(buf, "SYSERR: W-Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
+			snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: W-Command Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			continue;
 		}
@@ -1524,7 +1524,7 @@ void speech_wtrigger(CHAR_DATA * actor, char *str)
 
 		if (t->arglist.empty())
 		{
-			sprintf(buf, "SYSERR: W-Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
+			snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: W-Speech Trigger #%d has no text argument!", GET_TRIG_VNUM(t));
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			continue;
 		}
@@ -1641,7 +1641,7 @@ int timechange_wtrigger(ROOM_DATA * room, const int time)
 	{
 		if (TRIGGER_CHECK(t, WTRIG_TIMECHANGE) && (time == GET_TRIG_NARG(t)))
 		{
-			sprintf(buf, "%d", time);
+			snprintf(buf, MAX_INPUT_LENGTH, "%d", time);
 			add_var_cntx(&GET_TRIG_VARS(t), "time", buf, 0);
 			script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
 			continue;

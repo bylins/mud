@@ -10,6 +10,7 @@
 
 #include "olc.h"
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
 #include "comm.h"

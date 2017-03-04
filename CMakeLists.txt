@@ -145,9 +145,15 @@ set(SOURCES
 	src/version.cpp
 	src/weather.cpp
 	src/zedit.cpp
-	src/utils.string.cpp)
+	src/utils.string.cpp
+	src/world.objects.cpp
+	src/object.prototypes.cpp
+	src/id.cpp)
 
 set(HEADERS
+	src/id.hpp
+	src/object.prototypes.hpp
+	src/world.objects.hpp
 	src/utils.string.hpp
 	src/act.other.hpp
 	src/AffectHandler.hpp

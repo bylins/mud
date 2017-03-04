@@ -15,6 +15,7 @@
 
 #include "interpreter.h"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "craft_commands.hpp"
 #include "obj.hpp"

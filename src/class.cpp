@@ -20,6 +20,7 @@
  */
 #include "class.hpp"
 
+#include "world.objects.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
@@ -1999,7 +2000,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 		std::vector<int> outfit_list(Noob::get_start_outfit(ch));
 		for (auto i = outfit_list.begin(); i != outfit_list.end(); ++i)
 		{
-			OBJ_DATA *obj = read_object(*i, VIRTUAL);
+			const OBJ_DATA::shared_ptr obj = world_objects.create_from_prototype_by_vnum(*i);
 			if (obj)
 			{
 				obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
@@ -2007,8 +2008,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 				obj->set_cost(0);
 				obj->set_rent_off(0);
 				obj->set_rent_on(0);
-				obj_to_char(obj, ch);
-				Noob::equip_start_outfit(ch, obj);
+				obj_to_char(obj.get(), ch);
+				Noob::equip_start_outfit(ch, obj.get());
 			}
 		}
 	}

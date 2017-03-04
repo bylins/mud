@@ -31,6 +31,8 @@
 
 #include "comm.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "external.trigger.hpp"
 #include "shutdown.parameters.hpp"
 #include "obj.hpp"
@@ -573,30 +575,22 @@ void gifts()
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
-	OBJ_DATA *obj_gift;
-	OBJ_DATA *obj_cont;
 	if ((rnum = real_object(rand_vnum)) < 0)
 	{
 		log("Ошибка в таблице НГ подарков!");
 		return;
 	}
-	obj_gift = read_object(rnum, REAL);
-	obj_cont = read_object(real_object(2594), REAL);
+
+	const auto obj_gift = world_objects.create_from_prototype_by_rnum(rnum);
+	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 	
 	// создаем упаковку для подарка
-	obj_to_room(obj_cont, real_room(rand_vnum_r));
-	obj_to_obj(obj_gift, obj_cont);
-	obj_decay(obj_gift);
-	obj_decay(obj_cont);
+	obj_to_room(obj_cont.get(), real_room(rand_vnum_r));
+	obj_to_obj(obj_gift.get(), obj_cont.get());
+	obj_decay(obj_gift.get());
+	obj_decay(obj_cont.get());
 	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
-	
 }
-
-
-
-// -----------------------------
-
-
 
 // functions in this file
 RETSIGTYPE unrestrict_game(int sig);
@@ -643,7 +637,6 @@ sigfunc *my_signal(int signo, sigfunc * func);
 void *zlib_alloc(void *opaque, unsigned int items, unsigned int size);
 void zlib_free(void *opaque, void *address);
 #endif
-
 
 // extern fcnts
 void SaveGlobalUID(void);

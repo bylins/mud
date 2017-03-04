@@ -16,6 +16,8 @@
 
 #include "db.h"
 
+#include "object.prototypes.hpp"
+#include "world.objects.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "shutdown.parameters.hpp"
@@ -69,7 +71,6 @@
 #include <string>
 #include <cmath>
 
-#define  TEST_OBJECT_TIMER   30
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
 #define RANDOMOBJ_FILE "randomobj.xml"
@@ -97,7 +98,6 @@ CHAR_DATA *character_list = NULL;	// global linked list of chars
 
 INDEX_DATA **trig_index;	// index table for triggers
 int top_of_trigt = 0;		// top of trigger index table
-long max_id = MOBOBJ_ID_BASE;	// for unique mob/obj id's
 
 INDEX_DATA *mob_index;		// index table for mobile file
 mob_rnum top_of_mobt = 0;	// top of mobile index table
@@ -105,9 +105,6 @@ void Load_Criterion(pugi::xml_node XMLCriterion, int type);
 void load_speedwalk();
 void load_class_limit();
 int global_uid = 0;
-
-OBJ_DATA *object_list = NULL;	// global linked list of objs
-CObjectPrototypes obj_proto;
 
 struct zone_data *zone_table;	// zone table
 zone_rnum top_of_zone_table = 0;	// top element of zone tab
@@ -1271,11 +1268,11 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto)
 		// из обж-скилл их не перекрывает, а просто удаляется
 		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0)
 		{
-			OBJ_DATA *potion = read_object(GET_OBJ_SKILL(obj), VIRTUAL);
+			const auto potion = world_objects.create_from_prototype_by_vnum(GET_OBJ_SKILL(obj));
 			if (potion
 				&& GET_OBJ_TYPE(potion) == OBJ_DATA::ITEM_POTION)
 			{
-				drinkcon::copy_potion_values(potion, obj);
+				drinkcon::copy_potion_values(potion.get(), obj);
 				if (proto)
 				{
 					// copy_potion_values сетит до кучи и внум из пошена,
@@ -3063,7 +3060,6 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 	bool load = false;
 	bool miw;
 	load_list::iterator p;
-	OBJ_DATA *tobj;
 
 	if (mob_proto[GET_MOB_RNUM(ch)].dl_list == NULL)
 		return FALSE;
@@ -3091,12 +3087,11 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			load = true;
 		if (load)
 		{
-			tobj = read_object((*p)->obj_vnum, VIRTUAL);
-			if (tobj == NULL)
+			const auto tobj = world_objects.create_from_prototype_by_vnum((*p)->obj_vnum);
+			if (!tobj)
 			{
-				sprintf(buf,
-						"Попытка загрузки в труп (VNUM:%d) несуществующего объекта (VNUM:%d).",
-						GET_MOB_VNUM(ch), (*p)->obj_vnum);
+				sprintf(buf, "Попытка загрузки в труп (VNUM:%d) несуществующего объекта (VNUM:%d).",
+					GET_MOB_VNUM(ch), (*p)->obj_vnum);
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			}
 			else
@@ -3104,7 +3099,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
 				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj->get_rnum())
 					|| GET_OBJ_MIW(tobj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-					|| check_unlimited_timer(tobj))
+					|| check_unlimited_timer(tobj.get()))
 				{
 					miw = true;
 				}
@@ -3112,6 +3107,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 				{
 					miw = false;
 				}
+
 				switch (DL_LOAD_TYPE)
 				{
 				case DL_ORDINARY:	//Обычная загрузка - без выкрутасов
@@ -3120,12 +3116,14 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					else
 						load = false;
 					break;
+
 				case DL_PROGRESSION:	//Загрузка с убывающей до 0.01 вероятностью
 					if ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1))
 						load = true;
 					else
 						load = false;
 					break;
+
 				case DL_SKIN:	//Загрузка по применению "освежевать"
 					if ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1))
 						load = true;
@@ -3141,29 +3139,29 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					tobj->set_parent(GET_MOB_VNUM(ch));
 					if (DL_LOAD_TYPE == DL_SKIN)
 					{
-						trans_obj_name(tobj, ch);
+						trans_obj_name(tobj.get(), ch);
 					}
 					// Добавлена проверка на отсутствие трупа
 					if (MOB_FLAGGED(ch, MOB_CORPSE))
 					{
-						act("На земле остал$U лежать $o.", FALSE, ch, tobj, 0, TO_ROOM);
-						obj_to_room(tobj, ch->in_room);
+						act("На земле остал$U лежать $o.", FALSE, ch, tobj.get(), 0, TO_ROOM);
+						obj_to_room(tobj.get(), ch->in_room);
 					}
 					else
 					{
 						if ((DL_LOAD_TYPE == DL_SKIN) && (corpse->get_carried_by() == chr))
 						{
-							can_carry_obj(chr, tobj);
+							can_carry_obj(chr, tobj.get());
 						}
 						else
 						{
-							obj_to_obj(tobj, corpse);
+							obj_to_obj(tobj.get(), corpse);
 						}
 					}
 				}
 				else
 				{
-					extract_obj(tobj);
+					extract_obj(tobj.get());
 					load = false;
 				}
 
@@ -3171,7 +3169,8 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 		}
 		p++;
 	}
-	return (TRUE);
+
+	return TRUE;
 }
 
 // Dead load list object parse
@@ -3637,7 +3636,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	mob->player_data.time.played = 0;
 	mob->player_data.time.logon = time(0);
 
-	mob->id = max_id++;
+	mob->id = max_id.allocate();
 
 	if (!is_corpse)
 	{
@@ -3660,25 +3659,6 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	}
 
 	return (mob);
-}
-
-// create an object, and add it to the object list
-/**
-* \param alias - строка алиасов объекта (нужна уже здесь, т.к.
-* сразу идет добавление в ObjectAlias). На данный момент актуально
-* для трупов, остальное вроде не особо и надо видеть.
-*/
-OBJ_DATA *create_obj(const std::string& alias)
-{
-	OBJ_DATA *obj;
-	NEWCREATE(obj, -1);
-
-	obj->set_next(object_list);
-	object_list = obj;
-	obj->set_id(max_id++);
-	obj->set_aliases(alias);
-
-	return (obj);
 }
 
 /**
@@ -3708,55 +3688,6 @@ CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type)
 		return 0;
 	}
 	return obj_proto[i];
-}
-
-// create a new object from a prototype
-OBJ_DATA *read_object(obj_vnum nr, int type)
-{				// and obj_rnum
-	OBJ_DATA *obj;
-	obj_rnum i;
-
-	if (nr < 0)
-	{
-		log("SYSERR: Trying to create obj with negative (%d) num!", nr);
-		return (NULL);
-	}
-	if (type == VIRTUAL)
-	{
-		if ((i = real_object(nr)) < 0)
-		{
-			log("Object (V) %d does not exist in database.", nr);
-			return (NULL);
-		}
-	}
-	else
-		i = nr;
-
-	NEWCREATE(obj, *obj_proto[i]);
-	obj_proto.inc_number(i);
-	i = obj_proto.zone(i);
-	if (i != -1 && zone_table[i].under_construction)
-	{
-		// модификация объектов тестовой зоны
-		obj->set_timer(TEST_OBJECT_TIMER);
-		obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-	}
-	obj->clear_proto_script();
-	obj->set_next(object_list);
-	object_list = obj;
-//	ObjectAlias::add(obj);
-	obj->set_id(max_id++);
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
-	{
-		if (GET_OBJ_VAL(obj, 1)
-			&& GET_OBJ_VAL(obj, 2))
-		{
-			name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
-		}
-	}
-	assign_triggers(obj, OBJ_TRIGGER);
-
-	return (obj);
 }
 
 // пробегаем по всем клеткам зоны и находим там чаров/чармисов, если они есть, ставит used на true
@@ -4151,12 +4082,10 @@ void paste_mobiles()
 		paste_mob(ch, ch->in_room);
 	}
 
-	OBJ_DATA *obj_next;
-	for (OBJ_DATA *obj = object_list; obj; obj = obj_next)
+	world_objects.foreach([](const OBJ_DATA::shared_ptr& object)
 	{
-		obj_next = obj->get_next();
-		paste_obj(obj, obj->get_in_room());
-	}
+		paste_obj(object.get(), object->get_in_room());
+	});
 }
 
 void paste_on_reset(ROOM_DATA *to_room)
@@ -4207,24 +4136,30 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin();
 						it != (*room)->triggers.end(); ++it)
-					add_trigger(world[rn]->script,read_trigger(real_trigger(*it)), -1);
+				{
+					add_trigger(world[rn]->script, read_trigger(real_trigger(*it)), -1);
+				}
 			}
 
 			for (load = (*room)->mobs.begin(); load != (*room)->mobs.end(); ++load)
 			{
 				CHAR_DATA* mob;
-				OBJ_DATA* obj;
 				int i = real_mobile((*load)->vnum);
-				if (i > 0 && mob_index[i].number < (*load)->max)
+				if (i > 0
+					&& mob_index[i].number < (*load)->max)
 				{
 					mob = read_mobile(i, REAL);
 					if (mob)
 					{
 						if (!SCRIPT(mob))
+						{
 							CREATE(SCRIPT(mob), 1);
+						}
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
+						{
 							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
+						}
 						load_mtrigger(mob);
 						char_to_room(mob, real_room((*room)->vnum));
 						Celebrates::add_mob_to_load_list(mob->id, mob);
@@ -4234,10 +4169,10 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
 							{
-								obj = read_object(real_object((*load_in)->vnum), REAL);
+								const auto obj = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj)
 			 					{
-									obj_to_char(obj, mob);
+									obj_to_char(obj.get(), mob);
 									obj->set_zone(world[IN_ROOM(mob)]->zone);
 
 									if (!obj->get_script())
@@ -4250,8 +4185,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 										add_trigger(obj->get_script().get(), read_trigger(real_trigger(*it)), -1);
 									}
 
-									load_otrigger(obj);
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj);
+									load_otrigger(obj.get());
+									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
 								}
 								else
 								{
@@ -4268,7 +4203,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			}
 			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load)
 			{
-				OBJ_DATA *obj, *obj_in, *obj_room;
+				OBJ_DATA *obj_room;
 				obj_rnum rnum = real_object((*load)->vnum);
 				if (rnum == -1)
 				{
@@ -4288,7 +4223,7 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 				if ((obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
 					&& (obj_in_room < (*load)->max))
 				{
-					obj = read_object(real_object((*load)->vnum), REAL);
+					const auto obj = world_objects.create_from_prototype_by_vnum((*load)->vnum);
 					if (obj)
 					{
 						if (!obj->get_script())
@@ -4300,10 +4235,10 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						{
 							add_trigger(obj->get_script().get(), read_trigger(real_trigger(*it)), -1);
 						}
-						load_otrigger(obj);
-						Celebrates::add_obj_to_load_list(obj->get_uid(), obj);
+						load_otrigger(obj.get());
+						Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
 
-						obj_to_room(obj, real_room((*room)->vnum));
+						obj_to_room(obj.get(), real_room((*room)->vnum));
 
 						for (load_in = (*load)->objects.begin(); load_in != (*load)->objects.end(); ++load_in)
 						{
@@ -4311,11 +4246,11 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 
 							if (obj_proto.actual_count(rnum) < obj_proto[rnum]->get_max_in_world())
 							{
-								obj_in = read_object(real_object((*load_in)->vnum), REAL);
+								const auto obj_in = world_objects.create_from_prototype_by_vnum((*load_in)->vnum);
 								if (obj_in
 									&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER)
 			 					{
-									obj_to_obj(obj_in, obj);
+									obj_to_obj(obj_in.get(), obj.get());
 									obj_in->set_zone(GET_OBJ_ZONE(obj));
 
 									if (!obj_in->get_script())
@@ -4328,8 +4263,8 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 										add_trigger(obj_in->get_script().get(), read_trigger(real_trigger(*it)), -1);
 									}
 
-									load_otrigger(obj_in);
-									Celebrates::add_obj_to_load_list(obj->get_uid(), obj);
+									load_otrigger(obj_in.get());
+									Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
 								}
 								else
 								{
@@ -4374,7 +4309,8 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 	if (celebrate->objsToAttach.find(zone_vnum) != celebrate->objsToAttach.end())
 	{
 		Celebrates::AttachList list = celebrate->objsToAttach[zone_vnum];
-		for (OBJ_DATA *o = object_list; o; o = o->get_next())
+
+		world_objects.foreach([&](const OBJ_DATA::shared_ptr& o)
 		{
 			if (o->get_rnum() > 0 && list.find(o->get_rnum()) != list.end())
 			{
@@ -4388,9 +4324,9 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 					add_trigger(o->get_script().get(), read_trigger(real_trigger(*it)), -1);
 				}
 
-				Celebrates::add_obj_to_attach_list(o->get_uid(), o);
+				Celebrates::add_obj_to_attach_list(o->get_uid(), o.get());
 			}
-		}
+		});
 	}
 }
 
@@ -4432,7 +4368,7 @@ void reset_zone(zone_rnum zone)
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
 	CHAR_DATA *mob = NULL, *leader = NULL, *ch;
-	OBJ_DATA *obj, *obj_to, *obj_room;
+	OBJ_DATA *obj_to, *obj_room;
 	int rnum_start, rnum_stop;
 	CHAR_DATA *tmob = NULL;	// for trigger assignment
 	OBJ_DATA *tobj = NULL;	// for trigger assignment
@@ -4557,27 +4493,28 @@ void reset_zone(zone_rnum zone)
 						|| number(1, 100) <= ZCMD.arg4)
 					&& (obj_in_room < obj_in_room_max))
 				{
-					obj = read_object(ZCMD.arg1, REAL);
+					const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 					if (ZCMD.arg3 >= 0)
 					{
 						obj->set_zone(world[ZCMD.arg3]->zone);
-						if (!obj_to_room(obj, ZCMD.arg3))
+						if (!obj_to_room(obj.get(), ZCMD.arg3))
 						{
-							extract_obj(obj);
+							extract_obj(obj.get());
 							break;
 						}
-						load_otrigger(obj);
+						load_otrigger(obj.get());
 					}
 					else
 					{
 						obj->set_in_room(NOWHERE);
 					}
-					tobj = obj;
+					tobj = obj.get();
 					curr_state = 1;
-					if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_NODECAY))
+
+					if (!obj->get_extra_flag(EExtraFlag::ITEM_NODECAY))
 					{
 						sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
-							GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
+							GET_OBJ_PNAME(obj, 0).c_str(), obj->get_vnum());
 						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 					}
 				}
@@ -4596,7 +4533,6 @@ void reset_zone(zone_rnum zone)
 					if (!(obj_to = get_obj_num(ZCMD.arg3)))
 					{
 						ZONE_ERROR("target obj not found, command omited");
-//                 ZCMD.command = '*';
 						break;
 					}
 					if (GET_OBJ_TYPE(obj_to) != OBJ_DATA::ITEM_CONTAINER)
@@ -4605,7 +4541,7 @@ void reset_zone(zone_rnum zone)
 						ZCMD.command = '*';
 						break;
 					}
-					obj = read_object(ZCMD.arg1, REAL);
+					const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 					if (obj_to->get_in_room() != NOWHERE)
 					{
 						obj->set_zone(world[obj_to->get_in_room()]->zone);
@@ -4618,9 +4554,9 @@ void reset_zone(zone_rnum zone)
 					{
 						obj->set_zone(world[IN_ROOM(obj_to->get_carried_by())]->zone);
 					}
-					obj_to_obj(obj, obj_to);
-					load_otrigger(obj);
-					tobj = obj;
+					obj_to_obj(obj.get(), obj_to);
+					load_otrigger(obj.get());
+					tobj = obj.get();
 					curr_state = 1;
 				}
 				tmob = NULL;
@@ -4642,11 +4578,11 @@ void reset_zone(zone_rnum zone)
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4))
 				{
-					obj = read_object(ZCMD.arg1, REAL);
-					obj_to_char(obj, mob);
+					const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
+					obj_to_char(obj.get(), mob);
 					obj->set_zone(world[IN_ROOM(mob)]->zone);
-					tobj = obj;
-					load_otrigger(obj);
+					tobj = obj.get();
+					load_otrigger(obj.get());
 					curr_state = 1;
 				}
 				tmob = NULL;
@@ -4675,28 +4611,28 @@ void reset_zone(zone_rnum zone)
 					}
 					else
 					{
-						obj = read_object(ZCMD.arg1, REAL);
+						const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
 						obj->set_zone(world[IN_ROOM(mob)]->zone);
 						obj->set_in_room(IN_ROOM(mob));
-						load_otrigger(obj);
-						if (wear_otrigger(obj, mob, ZCMD.arg3))
+						load_otrigger(obj.get());
+						if (wear_otrigger(obj.get(), mob, ZCMD.arg3))
 						{
 							obj->set_in_room(NOWHERE);
-							equip_char(mob, obj, ZCMD.arg3);
+							equip_char(mob, obj.get(), ZCMD.arg3);
 						}
 						else
 						{
-							obj_to_char(obj, mob);
+							obj_to_char(obj.get(), mob);
 						}
 						if (!(obj->get_carried_by() == mob)
 							&& !(obj->get_worn_by() == mob))
 						{
-							extract_obj(obj);
+							extract_obj(obj.get());
 							tobj = NULL;
 						}
 						else
 						{
-							tobj = obj;
+							tobj = obj.get();
 							curr_state = 1;
 						}
 					}
@@ -4707,7 +4643,7 @@ void reset_zone(zone_rnum zone)
 			case 'R':
 				// rem obj from room
 				// 'R' <flag> <room_vnum> <obj_vnum>
-				if ((obj = get_obj_in_list_num(ZCMD.arg2, world[ZCMD.arg1]->contents)) != NULL)
+				if (const auto obj = get_obj_in_list_num(ZCMD.arg2, world[ZCMD.arg1]->contents))
 				{
 					obj_from_room(obj);
 					extract_obj(obj);
@@ -5269,9 +5205,8 @@ int create_entry(const char *name)
 ************************************************************************/
 
 // release memory allocated for an obj struct
-void free_obj(OBJ_DATA * obj)
+void free_obj(OBJ_DATA* obj)
 {
-	// delete obj;
 	obj->purge();
 }
 
@@ -6379,43 +6314,6 @@ void init()
 
 } // namespace OfftopSystem
 ////////////////////////////////////////////////////////////////////////////////
-
-size_t CObjectPrototypes::add(CObjectPrototype* prototype, const obj_vnum vnum)
-{
-	return add(CObjectPrototype::shared_ptr(prototype), vnum);
-}
-
-size_t CObjectPrototypes::add(const CObjectPrototype::shared_ptr& prototype, const obj_vnum vnum)
-{
-	const auto index = m_index.size();
-	prototype->set_rnum(static_cast<int>(index));
-	m_vnum2index[vnum] = index;
-	m_prototypes.push_back(prototype);
-	m_index.push_back(SPrototypeIndex());
-	return index;
-}
-
-void CObjectPrototypes::dec_number(const size_t rnum)
-{
-	if (0 == m_index[rnum].number)
-	{
-		log("SYSERR: Attempt to decrement number of objects that does not exist at all (0 == number).");
-		return;
-	}
-	--m_index[rnum].number;
-}
-
-int CObjectPrototypes::rnum(const obj_vnum vnum) const
-{
-	vnum2index_t::const_iterator i = m_vnum2index.find(vnum);
-	return i == m_vnum2index.end() ? -1 : static_cast<int>(i->second);
-}
-
-void CObjectPrototypes::set(const size_t index, CObjectPrototype* new_value)
-{
-	new_value->set_rnum(static_cast<int>(index));
-	m_prototypes[index].reset(new_value);
-}
 
 void load_speedwalk()
 {

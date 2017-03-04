@@ -3,11 +3,12 @@
 
 #include "parse.hpp"
 
-#include "conf.h"
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "db.h"
 #include "obj.hpp"
 #include "utils.h"
+#include "conf.h"
 
 #include <boost/lexical_cast.hpp>
 

@@ -14,6 +14,7 @@
 
 #include "utils.h"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "db.h"

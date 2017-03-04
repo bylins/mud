@@ -4,6 +4,8 @@
 
 #include "named_stuff.hpp"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "screen.h"
 #include "char.hpp"
@@ -518,7 +520,6 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 		return;
 	}
 
-	OBJ_DATA *obj;
 	mob_rnum r_num;
 	int found = 0;
 	int in_world = 0;
@@ -541,14 +542,14 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 					obj_proto[r_num]->get_short_description().c_str(),
 					GET_OBJ_MIW(obj_proto[r_num]),
 					obj_proto.actual_count(r_num));
-				obj = read_object(r_num, REAL);
+				const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 				obj->set_extra_flag(EExtraFlag::ITEM_NAMED);
-				obj_to_char(obj, ch);
+				obj_to_char(obj.get(), ch);
 				obj->set_script(nullptr);	//детачим все триги чтоб не обламывать соклановцев и т.п.
-				obj_decay(obj);
+				obj_decay(obj.get());
 
-				act("$n дал$g вам $o3.", FALSE, mailman, obj, ch, TO_VICT);
-				act("$N дал$G $n2 $o3.", FALSE, ch, obj, mailman, TO_ROOM);
+				act("$n дал$g вам $o3.", FALSE, mailman, obj.get(), ch, TO_VICT);
+				act("$N дал$G $n2 $o3.", FALSE, ch, obj.get(), mailman, TO_ROOM);
 			}
 			else
 			{

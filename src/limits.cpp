@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "world.objects.hpp"
 #include "obj.hpp"
 #include "spells.h"
 #include "skills.h"
@@ -54,7 +55,6 @@ extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern room_rnum r_unreg_start_room;
 
 extern CHAR_DATA *mob_proto;
-extern OBJ_DATA *object_list;
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
@@ -1458,18 +1458,15 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 
 void obj_point_update()
 {
-	OBJ_DATA *j, *next_thing, *jj, *next_thing2;
-	int count, cont = 0;
+	int count;
 
-	for (j = object_list; j; j = next_thing)
+	world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j) -> bool
 	{
-		next_thing = j->get_next();	// Next in object list
-
 		// смотрим клан-сундуки
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj()))
 		{
-			clan_chest_point_update(j);
-			continue;
+			clan_chest_point_update(j.get());
+			return true;
 		}
 
 		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
@@ -1515,6 +1512,7 @@ void obj_point_update()
 
 			if (j->get_timer() <= 0)
 			{
+				OBJ_DATA *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2)
 				{
 					next_thing2 = jj->get_next_content();	// Next in inventory
@@ -1539,35 +1537,34 @@ void obj_point_update()
 						extract_obj(jj);
 					}
 				}
-				// Добавлено Ладником
-//              next_thing = j->next; // пурж по obj_to_room я убрал, но пускай на всякий случай
+
 				// Конец Ладник
 				if (j->get_carried_by())
 				{
-					act("$p рассыпал$U в ваших руках.", FALSE, j->get_carried_by(), j, 0, TO_CHAR);
-					obj_from_char(j);
+					act("$p рассыпал$U в ваших руках.", FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
+					obj_from_char(j.get());
 				}
 				else if (j->get_in_room() != NOWHERE)
 				{
 					if (world[j->get_in_room()]->people)
 					{
-						act("Черви полностью сожрали $o3.", TRUE, world[j->get_in_room()]->people, j, 0, TO_ROOM);
-						act("Черви не оставили от $o1 и следа.", TRUE, world[j->get_in_room()]->people, j, 0, TO_CHAR);
+						act("Черви полностью сожрали $o3.", TRUE, world[j->get_in_room()]->people, j.get(), 0, TO_ROOM);
+						act("Черви не оставили от $o1 и следа.", TRUE, world[j->get_in_room()]->people, j.get(), 0, TO_CHAR);
 					}
-					obj_from_room(j);
+					obj_from_room(j.get());
 				}
 				else if (j->get_in_obj())
 				{
-					obj_from_obj(j);
+					obj_from_obj(j.get());
 				}
-				extract_obj(j);
+				extract_obj(j.get());
 			}
 		}
 		// If the timer is set, count it down and at 0, try the trigger
 		// note to .rej hand-patchers: make this last in your point-update()
 		else
 		{
-			if (SCRIPT_CHECK(j, OTRIG_TIMER))
+			if (SCRIPT_CHECK(j.get(), OTRIG_TIMER))
 			{
 				if (j->get_timer() > 0 && j->get_extra_flag(EExtraFlag::ITEM_TICKTIMER))
 				{
@@ -1576,16 +1573,20 @@ void obj_point_update()
 
 				if (!j->get_timer())
 				{
-					timer_otrigger(j);
-					j = NULL;
+					timer_otrigger(j.get());
+					return false;
 				}
 			}
-			else if (GET_OBJ_DESTROY(j) > 0 && !NO_DESTROY(j))
+			else if (GET_OBJ_DESTROY(j) > 0 
+				&& !NO_DESTROY(j.get()))
 			{
 				j->dec_destroyer();
 			}
 
-			if (j && (j->get_in_room() != NOWHERE) && j->get_timer() > 0 && !NO_DESTROY(j))
+			if (j
+				&& (j->get_in_room() != NOWHERE)
+				&& j->get_timer() > 0
+				&& !NO_DESTROY(j.get()))
 			{
 				j->dec_timer();
 			}
@@ -1593,14 +1594,15 @@ void obj_point_update()
 			if (j
 				&& ((j->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
 					&& GET_OBJ_ZONE(j) != NOWHERE
-					&& up_obj_where(j) != NOWHERE
-					&& GET_OBJ_ZONE(j) != world[up_obj_where(j)]->zone)
+					&& up_obj_where(j.get()) != NOWHERE
+					&& GET_OBJ_ZONE(j) != world[up_obj_where(j.get())]->zone)
 					|| (j->get_timer() <= 0
-						&& !NO_TIMER(j))
+						&& !NO_TIMER(j.get()))
 					|| (GET_OBJ_DESTROY(j) == 0
-						&& !NO_DESTROY(j))))
+						&& !NO_DESTROY(j.get()))))
 			{
 				// *** рассыпание объекта
+				OBJ_DATA *jj, *next_thing2;
 				for (jj = j->get_contains(); jj; jj = next_thing2)
 				{
 					next_thing2 = jj->get_next_content();
@@ -1630,8 +1632,7 @@ void obj_point_update()
 						extract_obj(jj);
 					}
 				}
-				// Добавлено Ладником
-//              next_thing = j->next; // пурж по obj_to_room я убрал, но пускай на всякий случай
+
 				// Конец Ладник
 				if (j->get_worn_by())
 				{
@@ -1644,22 +1645,22 @@ void obj_point_update()
 					case WEAR_BOTHS:
 						if (IS_CHARMICE(j->get_worn_by()))
 						{
-							charmee_obj_decay_tell(j->get_worn_by(), j, 0);
+							charmee_obj_decay_tell(j->get_worn_by(), j.get(), 0);
 						}
 						else
 						{
-							act("$o рассыпал$U в ваших руках...", FALSE, j->get_worn_by(), j, 0, TO_CHAR);
+							act("$o рассыпал$U в ваших руках...", FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
 						}
 						break;
 
 					default:
 						if (IS_CHARMICE(j->get_worn_by()))
 						{
-							charmee_obj_decay_tell(j->get_worn_by(), j, 1);
+							charmee_obj_decay_tell(j->get_worn_by(), j.get(), 1);
 						}
 						else
 						{
-							act("$o рассыпал$U прямо на вас...", FALSE, j->get_worn_by(), j, 0, TO_CHAR);
+							act("$o рассыпал$U прямо на вас...", FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
 						}
 						break;
 					}
@@ -1669,24 +1670,24 @@ void obj_point_update()
 				{
 					if (IS_CHARMICE(j->get_carried_by()))
 					{
-						charmee_obj_decay_tell(j->get_carried_by(), j, 0);
+						charmee_obj_decay_tell(j->get_carried_by(), j.get(), 0);
 					}
 					else
 					{
-						act("$o рассыпал$U в ваших руках...", FALSE, j->get_carried_by(), j, 0, TO_CHAR);
+						act("$o рассыпал$U в ваших руках...", FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
 					}
-					obj_from_char(j);
+					obj_from_char(j.get());
 				}
 				else if (j->get_in_room() != NOWHERE)
 				{
 					if (world[j->get_in_room()]->people)
 					{
 						act("$o рассыпал$U в прах, который был развеян ветром...",
-							FALSE, world[j->get_in_room()]->people, j, 0, TO_CHAR);
+							FALSE, world[j->get_in_room()]->people, j.get(), 0, TO_CHAR);
 						act("$o рассыпал$U в прах, который был развеян ветром...",
-							FALSE, world[j->get_in_room()]->people, j, 0, TO_ROOM);
+							FALSE, world[j->get_in_room()]->people, j.get(), 0, TO_ROOM);
 					}
-					obj_from_room(j);
+					obj_from_room(j.get());
 				}
 				else if (j->get_in_obj())
 				{
@@ -1705,27 +1706,27 @@ void obj_point_update()
 					{
 						if (IS_CHARMICE(cont_owner))
 						{
-							charmee_obj_decay_tell(cont_owner, j, 2);
+							charmee_obj_decay_tell(cont_owner, j.get(), 2);
 						}
 						else
 						{
 							char buf[MAX_STRING_LENGTH];
 							snprintf(buf, MAX_STRING_LENGTH, "$o рассыпал$U в %s...", j->get_in_obj()->get_PName(5).c_str());
-							act(buf, FALSE, cont_owner, j, 0, TO_CHAR);
+							act(buf, FALSE, cont_owner, j.get(), 0, TO_CHAR);
 						}
 					}
-					obj_from_obj(j);
+					obj_from_obj(j.get());
 				}
-				extract_obj(j);
+				extract_obj(j.get());
 			}
 			else
 			{
 				if (!j)
 				{
-					continue;
+					return true;
 				}
 
-				// decay poision && other affects
+				// decay poison && other affects
 				for (count = 0; count < MAX_OBJ_AFFECT; count++)
 				{
 					if (j->get_affected(count).location == APPLY_POISON)
@@ -1739,29 +1740,32 @@ void obj_point_update()
 				}
 			}
 		}
-	}
 
+		return true;
+	});
+
+	// TODO: This code is GREAT BOTTLE NECK!!!
 	// Тонущие, падающие, и сыпящиеся обьекты.
-	for (j = object_list; j; j = next_thing)
+	bool repeat = false;
+	do
 	{
-		next_thing = j->get_next();	// Next in object list
-		if (j->get_contains())
+		repeat = false;
+		world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j) -> bool
 		{
-			cont = TRUE;
-		}
-		else
-		{
-			cont = FALSE;
-		}
+			const auto contains = j->get_contains();
 
-		if (obj_decay(j))
-		{
-			if (cont)
+			if (obj_decay(j.get()))
 			{
-				next_thing = object_list;
+				if (contains)
+				{
+					repeat = true;
+					return false;	// exit from the inner loop and repeat outer loop
+				}
 			}
-		}
-	}
+
+			return true;
+		});
+	} while (repeat);
 }
 
 void point_update(void)
@@ -1960,58 +1964,58 @@ void point_update(void)
 }
 
 void repop_decay(zone_rnum zone)
-{				// рассыпание обьектов ITEM_REPOP_DECAY
-	OBJ_DATA *j, *next_thing;
-	int cont = FALSE;
+{
 	zone_vnum obj_zone_num, zone_num;
 
 	zone_num = zone_table[zone].number;
-	for (j = object_list; j; j = next_thing)
+
+	bool repeat = false;
+	do
 	{
-		next_thing = j->get_next();	// Next in object list
-		if (j->get_contains())
+		repeat = false;
+		world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j)
 		{
-			cont = TRUE;
-		}
-		else
-		{
-			cont = FALSE;
-		}
-		obj_zone_num = GET_OBJ_VNUM(j) / 100;
-		if (obj_zone_num == zone_num
-			&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
-		{
-			/* F@N
-			 * Если мне кто-нибудь объяснит глубинный смысл последующей строчки,
-			 * буду очень признателен
-			*/
-			if (j->get_worn_by())
+			const auto contains = j->get_contains();
+
+			obj_zone_num = j->get_vnum() / 100;
+			if (obj_zone_num == zone_num
+				&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
 			{
-				act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->get_worn_by(), j, 0, TO_CHAR);
-			}
-			else if (j->get_carried_by())
-			{
-				act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
-					FALSE, j->get_carried_by(), j, 0, TO_CHAR);
-			}
-			else if (j->get_in_room() != NOWHERE)
-			{
-				if (world[j->get_in_room()]->people)
+				/* F@N
+				 * Если мне кто-нибудь объяснит глубинный смысл последующей строчки,
+				 * буду очень признателен
+				*/
+				if (j->get_worn_by())
 				{
-					act("$o рассыпал$U, вспыхнув ярким светом...",
-						FALSE, world[j->get_in_room()]->people, j, 0, TO_CHAR);
-					act("$o рассыпал$U, вспыхнув ярким светом...",
-						FALSE, world[j->get_in_room()]->people, j, 0, TO_ROOM);
+					act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
+				}
+				else if (j->get_carried_by())
+				{
+					act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
+						FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
+				}
+				else if (j->get_in_room() != NOWHERE)
+				{
+					if (world[j->get_in_room()]->people)
+					{
+						act("$o рассыпал$U, вспыхнув ярким светом...",
+							FALSE, world[j->get_in_room()]->people, j.get(), 0, TO_CHAR);
+						act("$o рассыпал$U, вспыхнув ярким светом...",
+							FALSE, world[j->get_in_room()]->people, j.get(), 0, TO_ROOM);
+					}
+				}
+
+				extract_obj(j.get());
+				if (contains)
+				{
+					repeat = true;
+					return false;
 				}
 			}
 
-			extract_obj(j);
-			if (cont)
-			{
-				next_thing = object_list;
-			}
-		}
-	}
+			return true;
+		});
+	} while (repeat);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
