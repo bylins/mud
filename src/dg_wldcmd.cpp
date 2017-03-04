@@ -594,7 +594,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 // increases spells & skills //
 const char *skill_name(int num);
 const char *spell_name(int num);
-int find_spell_num(char *name);
+int fix_name_and_find_spell_num(char *name);
 
 void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -755,7 +755,7 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
     {
         isSkill = true;
     }
@@ -820,7 +820,7 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
 	}
@@ -864,7 +864,7 @@ void do_wspellturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		wld_log(room, "wspellturn: spell not found");
 		return;
@@ -910,7 +910,7 @@ void do_wspellturntemp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcm
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		wld_log(room, "wspellturntemp: spell not found");
 		return;
@@ -938,7 +938,7 @@ void do_wspellturntemp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcm
 void do_wspelladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
@@ -949,7 +949,7 @@ void do_wspelladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		wld_log(room, "wspelladd: spell not found");
 		return;
@@ -971,7 +971,7 @@ void do_wspelladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
@@ -982,7 +982,7 @@ void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		wld_log(room, "wspellitem: spell not found");
 		return;

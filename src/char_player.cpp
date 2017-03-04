@@ -584,9 +584,9 @@ void Player::save_char()
 	if (GET_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID)
 	{
 		fprintf(saved, "TSpl:\n");
-		for (std::vector<temporary_spell_data>::iterator it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it)
+		for (auto it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it)
 		{
-			fprintf(saved, "%d %ld %ld %s\n", it->spell, static_cast<long int>(it->set_time), static_cast<long int>(it->duration), spell_info[it->spell].name);
+			fprintf(saved, "%d %ld %ld %s\n", it->first, static_cast<long int>(it->second.set_time), static_cast<long int>(it->second.duration), spell_info[it->first].name);
 		}
 		fprintf(saved, "0 0 0\n");
 	}

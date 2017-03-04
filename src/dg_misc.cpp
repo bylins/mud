@@ -210,7 +210,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	t = strtok(NULL, "\0");
 
 	// spellnum = search_block(s, spells, 0); 
-	spellnum = find_spell_num(s);
+	spellnum = fix_name_and_find_spell_num(s);
 	if ((spellnum < 1) || (spellnum > MAX_SPELLS))
 	{
 		sprintf(buf2, "dg_cast: invalid spell name (%s)", cmd);
@@ -381,7 +381,7 @@ void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* scri
 	}
 
 	// locate spell
-	index_s = find_spell_num(spell);
+	index_s = fix_name_and_find_spell_num(spell);
 
 	// spell not found
 	if (index_s <= 0)

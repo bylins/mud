@@ -38,6 +38,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "temp_spells.hpp"
 
 #include <boost/algorithm/string.hpp>
 
@@ -505,6 +506,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 {
 	char names[MAX_SLOT][MAX_STRING_LENGTH];
+	std::string time_str;
 	int slots[MAX_SLOT], i, max_slot = 0, slot_num, is_full, gcount = 0, can_cast = 1;
 
 	is_full = 0;
@@ -556,39 +558,49 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			if (can_cast)
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %-25s|",
-										   slots[slot_num] % 80 <
+										   "%s|<...%4d.> %-38s|",
+										   slots[slot_num] % 106 <
 										   10 ? "\r\n" : "  ",
 										   GET_MANA_COST(ch, i), spell_info[i].name);
 			}
 			else
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %-25s|",
-										   slots[slot_num] % 80 <
+										   "%s|+--------+ %-38s|",
+										   slots[slot_num] % 106 <
 										   10 ? "\r\n" : "  ", spell_info[i].name);
 			}
 		}
 		else
 		{
+			time_str.clear();
+			if (IS_SET(GET_SPELL_TYPE(ch, i), SPELL_TEMP))
+			{
+				time_str.append("[");
+				time_str.append(std::to_string(MAX(1, static_cast<int>(std::ceil(static_cast<double>(Temporary_Spells::spell_left_time(ch, i)) / SECS_PER_MUD_HOUR)))));
+				time_str.append("]");
+			}
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-									   "%s|<%c%c%c%c%c%c%c%c> %-25s|",
-									   slots[slot_num] % 80 <
-									   10 ? "\r\n" : "  ",
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_TEMP) ? 'T' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_POTION) ? 'P' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_WAND) ? 'W' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_SCROLL) ? 'S' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_ITEMS) ? 'I' : '.',
-									   IS_SET(GET_SPELL_TYPE(ch, i),
-											  SPELL_RUNES) ? 'R' : '.', '.', spell_info[i].name);
+				"%s|<%c%c%c%c%c%c%c%c> %-30s %-7s|",
+				slots[slot_num] % 106 <
+				10 ? "\r\n" : "  ",
+				IS_SET(GET_SPELL_TYPE(ch, i),
+					SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+					SPELL_TEMP) ? 'T' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+					SPELL_POTION) ? 'P' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+					SPELL_WAND) ? 'W' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+					SPELL_SCROLL) ? 'S' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+					SPELL_ITEMS) ? 'I' : '.',
+				IS_SET(GET_SPELL_TYPE(ch, i),
+					SPELL_RUNES) ? 'R' : '.',
+				'.',
+				spell_info[i].name,
+				time_str.c_str());
 		}
 		is_full++;
 	};
@@ -788,11 +800,11 @@ void init_guilds(void)
 			}
 			if ((spellnum = atoi(line)) == 0 || spellnum > MAX_SPELLS)
 			{
-				spellnum = find_spell_num(line);
+				spellnum = fix_name_and_find_spell_num(line);
 			}
 			if ((skillnum = atoi(line1)) == 0 || skillnum > MAX_SKILL_NUM)
 			{
-				skillnum = find_skill_num(line1);
+				skillnum = fix_name_and_find_skill_num(line1);
 			}
 
 			if ((featnum = atoi(line1)) == 0 || featnum >= MAX_FEATS)
@@ -860,11 +872,11 @@ void init_guilds(void)
 					SET_BIT((poly_guild + pgcount)->alignment, (1 << i));
 			if ((spellnum = atoi(line4)) == 0 || spellnum > MAX_SPELLS)
 			{
-				spellnum = find_spell_num(line4);
+				spellnum = fix_name_and_find_spell_num(line4);
 			}
 			if ((skillnum = atoi(line5)) == 0 || skillnum > MAX_SKILL_NUM)
 			{
-				skillnum = find_skill_num(line5);
+				skillnum = fix_name_and_find_skill_num(line5);
 			}
 
 			if ((featnum = atoi(line5)) == 0 || featnum >= MAX_FEATS)
@@ -1112,7 +1124,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			return (1);
 		}
 
-		const ESkill skill_no = find_skill_num(argument);
+		const ESkill skill_no = fix_name_and_find_skill_num(argument);
 		if ((SKILL_INVALID != skill_no
 			&& skill_no <= MAX_SKILL_NUM))
 		{
@@ -1152,7 +1164,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			return (1);
 		}
 
-		const int spell_no = find_spell_num(argument);
+		const int spell_no = fix_name_and_find_spell_num(argument);
 		if (spell_no > 0
 			&& spell_no <= MAX_SPELLS)
 		{
@@ -1438,7 +1450,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			return (1);
 		}
 
-		const ESkill skill_no = find_skill_num(argument);
+		const ESkill skill_no = fix_name_and_find_skill_num(argument);
 		if (SKILL_INVALID != skill_no
 			&& skill_no <= MAX_SKILL_NUM)
 		{
@@ -1541,7 +1553,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			}
 		}
 
-		const int spell_no = find_spell_num(argument);
+		const int spell_no = fix_name_and_find_spell_num(argument);
 		if (spell_no > 0 && spell_no <= MAX_SPELLS)
 		{
 			for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++)

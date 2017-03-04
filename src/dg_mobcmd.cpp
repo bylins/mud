@@ -1366,7 +1366,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // increases spells & skills 
 const char *skill_name(int num);
 const char *spell_name(int num);
-int find_spell_num(char *name);
+int fix_name_and_find_spell_num(char *name);
 
 void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -1470,7 +1470,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = 1;
 	}
@@ -1572,7 +1572,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
 	}
@@ -1652,7 +1652,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
+	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspellturn: spell not found");
 		return;
@@ -1729,7 +1729,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspellturntemp: spell not found");
 		return;
@@ -1797,7 +1797,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
+	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspelladd: skill not found");
 		return;
@@ -1843,7 +1843,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
 	if (!MOB_OR_IMPL(ch))
@@ -1865,7 +1865,7 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspellitem: spell not found");
 		return;
