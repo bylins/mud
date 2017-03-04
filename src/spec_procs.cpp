@@ -38,7 +38,6 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "temp_spells.hpp"
 
 #include <boost/algorithm/string.hpp>
 
@@ -506,7 +505,6 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 {
 	char names[MAX_SLOT][MAX_STRING_LENGTH];
-	std::string time_str;
 	int slots[MAX_SLOT], i, max_slot = 0, slot_num, is_full, gcount = 0, can_cast = 1;
 
 	is_full = 0;
@@ -558,49 +556,39 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			if (can_cast)
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %-38s|",
-										   slots[slot_num] % 106 <
+										   "%s|<...%4d.> %-25s|",
+										   slots[slot_num] % 80 <
 										   10 ? "\r\n" : "  ",
 										   GET_MANA_COST(ch, i), spell_info[i].name);
 			}
 			else
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %-38s|",
-										   slots[slot_num] % 106 <
+										   "%s|+--------+ %-25s|",
+										   slots[slot_num] % 80 <
 										   10 ? "\r\n" : "  ", spell_info[i].name);
 			}
 		}
 		else
 		{
-			time_str.clear();
-			if (IS_SET(GET_SPELL_TYPE(ch, i), SPELL_TEMP))
-			{
-				time_str.append("[");
-				time_str.append(std::to_string(MAX(1, static_cast<int>(std::ceil(static_cast<double>(Temporary_Spells::spell_left_time(ch, i)) / SECS_PER_MUD_HOUR)))));
-				time_str.append("]");
-			}
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-				"%s|<%c%c%c%c%c%c%c%c> %-30s %-7s|",
-				slots[slot_num] % 106 <
-				10 ? "\r\n" : "  ",
-				IS_SET(GET_SPELL_TYPE(ch, i),
-					SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
-				IS_SET(GET_SPELL_TYPE(ch, i),
-					SPELL_TEMP) ? 'T' : '.',
-				IS_SET(GET_SPELL_TYPE(ch, i),
-					SPELL_POTION) ? 'P' : '.',
-				IS_SET(GET_SPELL_TYPE(ch, i),
-					SPELL_WAND) ? 'W' : '.',
-				IS_SET(GET_SPELL_TYPE(ch, i),
-					SPELL_SCROLL) ? 'S' : '.',
-				IS_SET(GET_SPELL_TYPE(ch, i),
-					SPELL_ITEMS) ? 'I' : '.',
-				IS_SET(GET_SPELL_TYPE(ch, i),
-					SPELL_RUNES) ? 'R' : '.',
-				'.',
-				spell_info[i].name,
-				time_str.c_str());
+									   "%s|<%c%c%c%c%c%c%c%c> %-25s|",
+									   slots[slot_num] % 80 <
+									   10 ? "\r\n" : "  ",
+									   IS_SET(GET_SPELL_TYPE(ch, i),
+											  SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
+									   IS_SET(GET_SPELL_TYPE(ch, i),
+											  SPELL_TEMP) ? 'T' : '.',
+									   IS_SET(GET_SPELL_TYPE(ch, i),
+											  SPELL_POTION) ? 'P' : '.',
+									   IS_SET(GET_SPELL_TYPE(ch, i),
+											  SPELL_WAND) ? 'W' : '.',
+									   IS_SET(GET_SPELL_TYPE(ch, i),
+											  SPELL_SCROLL) ? 'S' : '.',
+									   IS_SET(GET_SPELL_TYPE(ch, i),
+											  SPELL_ITEMS) ? 'I' : '.',
+									   IS_SET(GET_SPELL_TYPE(ch, i),
+											  SPELL_RUNES) ? 'R' : '.', '.', spell_info[i].name);
 		}
 		is_full++;
 	};
