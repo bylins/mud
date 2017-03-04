@@ -799,7 +799,7 @@ public:
 	load_list *dl_list;	// загружаемые в труп предметы
 	bool agrobd;		// показывает, агробд или нет
 
-	std::map<int, temporary_spell_data> temp_spells;
+	std::vector<temporary_spell_data> temp_spells;
 };
 
 inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
