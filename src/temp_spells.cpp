@@ -4,36 +4,42 @@
 #include "utils.h"
 #include "handler.h"
 
-#include <vector>
-
 extern int mag_manacost(CHAR_DATA * ch, int spellnum);
 
 namespace Temporary_Spells
 {
-	void add_spell(CHAR_DATA* ch, int spell, time_t set_time, time_t duration)
+	void add_spell(CHAR_DATA* ch, int spellnum, time_t set_time, time_t duration)
 	{
 		temporary_spell_data sp;
-		sp.spell = spell;
+		sp.spell = spellnum;
 		sp.set_time = set_time;
 		sp.duration = duration;
 
-		for (std::vector<temporary_spell_data>::iterator it = ch->temp_spells.begin(); it != ch->temp_spells.end(); ++it)
+		auto it = ch->temp_spells.find(spellnum);
+		if (it != ch->temp_spells.end())
 		{
-			//Если заклинание уже в списке, то обновим время при необходимости 
-			if (it->spell == spell && ((it->set_time + it->duration) < (set_time + duration)))
+			if ((it->second.set_time + it->second.duration) < (set_time + duration))
 			{
-				it->set_time = set_time;
-				it->duration = duration;
-				return;
+				it->second.set_time = set_time;
+				it->second.duration = duration;
 			}
 		}
-
-		//Если заклинание уже известно, то не добавляем
-		if (!IS_SET(GET_SPELL_TYPE(ch, spell), SPELL_KNOW))
+		else if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 		{
-			SET_BIT(GET_SPELL_TYPE(ch, spell), SPELL_TEMP);
-			ch->temp_spells.push_back(sp);
+			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+			ch->temp_spells[spellnum] = sp;
 		}
+	}
+
+	time_t spell_left_time(CHAR_DATA* ch, int spellnum)
+	{
+		auto it = ch->temp_spells.find(spellnum);
+		if (it != ch->temp_spells.end())
+		{
+			return (it->second.set_time + it->second.duration) - time(0);
+		}
+
+		return -1;
 	}
 
 	void update_times()
@@ -53,23 +59,23 @@ namespace Temporary_Spells
 	{
 		struct spell_mem_queue_item **i, *ptr;
 
-		for (std::vector<temporary_spell_data>::iterator it = ch->temp_spells.begin(); it != ch->temp_spells.end();)
+		for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end();)
 		{
-			if ((it->set_time + it->duration) < now)
+			if ((it->second.set_time + it->second.duration) < now)
 			{
-				REMOVE_BIT(GET_SPELL_TYPE(ch, it->spell), SPELL_TEMP);
+				REMOVE_BIT(GET_SPELL_TYPE(ch, it->first), SPELL_TEMP);
 
 				//Если заклинание за это время не стало постоянным, то удалим из мема
-				if (!IS_SET(GET_SPELL_TYPE(ch, it->spell), SPELL_KNOW))
+				if (!IS_SET(GET_SPELL_TYPE(ch, it->first), SPELL_KNOW))
 				{
 					//Удаляем из мема
 					for (i = &ch->MemQueue.queue; *i;)
 					{
-						if (i[0]->spellnum == it->spell)
+						if (i[0]->spellnum == it->first)
 						{
 							if (i == &ch->MemQueue.queue)
 								GET_MEM_COMPLETED(ch) = 0;
-							GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, it->spell));
+							GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, it->first));
 							ptr = i[0];
 							i[0] = i[0]->link;
 							free(ptr);
@@ -81,11 +87,11 @@ namespace Temporary_Spells
 					}
 
 					//Удаляем из заученных
-					GET_SPELL_MEM(ch, it->spell) = 0;
+					GET_SPELL_MEM(ch, it->first) = 0;
 
 					sprintf(buf,
 						"Вы забыли заклинание \"%s%s%s\".\r\n",
-						CCIMAG(ch, C_NRM), spell_info[it->spell].name, CCNRM(ch, C_NRM));
+						CCIMAG(ch, C_NRM), spell_info[it->first].name, CCNRM(ch, C_NRM));
 					send_to_char(buf, ch);
 				}
 
