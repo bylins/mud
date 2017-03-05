@@ -19,7 +19,8 @@ set(TESTS
 	utils.editor.cpp
 	utils.string.cpp
 	fight.penalties.cpp
-	bonus.command.parser.cpp)
+	bonus.command.parser.cpp
+	radix.trie.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)
