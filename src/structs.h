@@ -1199,13 +1199,6 @@ const int HISTORY_SIZE = 5;
 // планка на кол-во денег у чара на руках и в банке (раздельно)
 const long MAX_MONEY_KEPT = 1000000000;
 
-enum EBonusType
-{
-	BONUS_EXP = 0,
-	BONUS_WEAPON_EXP = 1,
-	BONUS_DAMAGE = 2
-};
-
 #define INT_STUPID_MOD 10
 #define INT_MIDDLE_AI 30
 #define INT_HIGH_AI 40
@@ -1225,10 +1218,11 @@ typedef int obj_vnum;	// An object's vnum type //
 typedef int mob_vnum;	// A mob's vnum type //
 typedef int zone_vnum;	// A virtual zone number.  //
 
-typedef int room_rnum;	// A room's real (internal) number type //
-typedef int obj_rnum;	// An object's real (internal) num type //
-typedef int mob_rnum;	// A mobile's real (internal) num type //
-typedef int zone_rnum;	// A zone's real (array index) number. //
+using rnum_t = int;
+typedef rnum_t room_rnum;	// A room's real (internal) number type //
+typedef rnum_t obj_rnum;	// An object's real (internal) num type //
+typedef rnum_t mob_rnum;	// A mobile's real (internal) num type //
+typedef rnum_t zone_rnum;	// A zone's real (array index) number. //
 
 /**
 ** \brief Unpacks flags from string #flag into flags array #to
@@ -1435,15 +1429,6 @@ struct time_info_data
 	sh_int year;
 };
 
-// shapirus
-struct ignore_data
-{
-	long
-	id;
-	unsigned long
-	mode;
-	struct ignore_data *next;
-};
 // Alez
 struct logon_data
 {
@@ -1456,6 +1441,8 @@ struct logon_data
 class punish_data
 {
 public:
+	punish_data();
+
 	long duration;
 	char * reason;
 	int  level;

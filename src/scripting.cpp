@@ -11,6 +11,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 */
 #include "scripting.hpp"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "comm.h"

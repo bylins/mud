@@ -288,9 +288,10 @@ namespace Boards
 				return;
 			}
 			std::ostringstream out;
-			special_message_format(out, board.get_message(num - 1));
+			const auto messages_index = num - 1;
+			special_message_format(out, board.get_message(messages_index));
 			page_string(ch->desc, out.str());
-			set_last_read(ch, board.get_type(), board.messages[num]->date);
+			set_last_read(ch, board.get_type(), board.messages[messages_index]->date);
 		}
 		else if (CompareParam(buffer, "писать")
 			|| CompareParam(buffer, "write"))
@@ -372,17 +373,18 @@ namespace Boards
 				send_to_char("Укажите корректный номер сообщения.\r\n", ch);
 				return;
 			}
-			size_t num = atoi(buffer2.c_str()) - 1;
-			if (num >= board.messages.size())
+			const size_t message_number = atoi(buffer2.c_str());
+			const auto messages_index = message_number - 1;
+			if (messages_index >= board.messages.size())
 			{
 				send_to_char("Это сообщение может вам только присниться.\r\n", ch);
 				return;
 			}
-			set_last_read(ch, board.get_type(), board.messages[num]->date);
+			set_last_read(ch, board.get_type(), board.messages[messages_index]->date);
 			// или он может делетить любые мессаги (по левелу/рангу), или только свои
 			if (!Static::full_access(ch, board_ptr))
 			{
-				if (board.messages[num]->unique != GET_UNIQUE(ch))
+				if (board.messages[messages_index]->unique != GET_UNIQUE(ch))
 				{
 					send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
 					return;
@@ -392,7 +394,7 @@ namespace Boards
 				&& board.get_type() != CLANNEWS_BOARD
 				&& board.get_type() != PERS_BOARD
 				&& !PRF_FLAGGED(ch, PRF_CODERINFO)
-				&& GET_LEVEL(ch) < board.messages[num]->level)
+				&& GET_LEVEL(ch) < board.messages[messages_index]->level)
 			{
 				// для простых досок сверяем левела (для контроля иммов)
 				// клановые ниже, у персональных смысла нет
@@ -403,14 +405,14 @@ namespace Boards
 				|| board.get_type() == CLANNEWS_BOARD)
 			{
 				// у кого привилегия на новости, те могут удалять везде чужие, если ранк автора такой же или ниже
-				if (CLAN_MEMBER(ch)->rank_num > board.messages[num]->rank)
+				if (CLAN_MEMBER(ch)->rank_num > board.messages[messages_index]->rank)
 				{
 					send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
 					return;
 				}
 			}
 			// собственно делетим и проставляем сдвиг номеров
-			board_ptr->erase_message(num);
+			board_ptr->erase_message(messages_index);
 			if (board.get_lastwrite() == GET_UNIQUE(ch))
 			{
 				board_ptr->set_lastwrite_uid(0);

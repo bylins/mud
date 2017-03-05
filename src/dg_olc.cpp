@@ -33,7 +33,6 @@
 extern INDEX_DATA **trig_index;
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DESCRIPTOR_DATA *descriptor_list;
-extern TRIG_DATA *trigger_list;
 extern int top_of_trigt;
 extern struct zone_data *zone_table;
 
@@ -368,7 +367,6 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	char *s;
 	TRIG_DATA *proto;
 	TRIG_DATA *trig = OLC_TRIG(d);
-	TRIG_DATA *live_trig;
 	INDEX_DATA **new_index;
 	DESCRIPTOR_DATA *dsc;
 	FILE *trig_file;
@@ -408,29 +406,27 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 		*proto = *trig;
 
 		// go through the mud and replace existing triggers
-		live_trig = trigger_list;
-		while (live_trig)
+		if (trigger_list.has_triggers_with_rnum(trig_rnum))
 		{
-			if (GET_TRIG_RNUM(live_trig) == trig_rnum)
+			const auto triggers = trigger_list.get_triggers_with_rnum(trig_rnum);
+			for (const auto trigger : triggers)
 			{
-				live_trig->arglist.clear();
-				live_trig->set_name("");
+				// because rnum of the trigger may change (not likely but technically is possible)
+				// we have to rebind trigger after changing
+				trigger_list.remove(trigger);
 
-				// Предотвратить возможный вызов триггера по wait
-				if (GET_TRIG_WAIT(live_trig))
+				trigger->arglist.clear();
+				trigger->set_name("");
+				if (GET_TRIG_WAIT(trigger))
 				{
-					free(GET_TRIG_WAIT(live_trig)->info);	// Причина уже обсуждалась
-					remove_event(GET_TRIG_WAIT(live_trig));
+					free(GET_TRIG_WAIT(trigger)->info);	// Причина уже обсуждалась
+					remove_event(GET_TRIG_WAIT(trigger));
 				}
-				free_varlist(live_trig->var_list);
+				free_varlist(trigger->var_list);
+				*trigger = *proto;
 
-				// сохранить ссылку на следующий
-				auto t = live_trig->next;
-				*live_trig = *proto;
-				live_trig->next = t;
+				trigger_list.add(trigger);
 			}
-
-			live_trig = live_trig->next_in_world;
 		}
 	}
 	else
@@ -485,13 +481,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 		top_of_trigt++;
 
 		// HERE IT HAS TO GO THROUGH AND FIX ALL SCRIPTS/TRIGS OF HIGHER RNUM
-		for (live_trig = trigger_list; live_trig; live_trig = live_trig->next_in_world)
-		{
-			if (GET_TRIG_RNUM(live_trig) > trig_rnum)
-			{
-				live_trig->set_rnum(1 + live_trig->get_rnum());
-			}
-		}
+		trigger_list.shift_rnums_from(trig_rnum);
 
 		// * Update other trigs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)

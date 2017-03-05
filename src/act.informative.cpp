@@ -12,6 +12,8 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "shutdown.parameters.hpp"
 #include "obj.hpp"
@@ -69,7 +71,6 @@ using std::string;
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
-extern OBJ_DATA *object_list;
 extern int number_of_social_commands;
 extern char *credits;
 extern char *info;
@@ -3151,7 +3152,10 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCIGRN(ch, C_NRM), GET_ABSORBE(ch), CCCYN(ch, C_NRM),
 			CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-	max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) //ловкий выстрел дамы от ловки
+		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+	else
+		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 	if (can_use_feat(ch, BULLY_FEAT))
 	{
@@ -4031,6 +4035,24 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
+	if (ch->get_ice_currency() > 0)
+	{
+		if (ch->get_ice_currency() == 1)
+		{
+			sprintf(buf, "У вас в наличии есть одна жалкая волшебная льдинка.\r\n");
+			send_to_char(buf, ch);
+		}
+		else if (ch->get_ice_currency() < 5)
+		{
+			sprintf(buf, "У вас в наличии есть жалкие %d волшебные льдинки\r\n", ch->get_ice_currency());
+			send_to_char(buf, ch);
+		}
+		else
+		{
+			sprintf(buf, "У вас в наличии есть %d волшебного льда.\r\n", ch->get_ice_currency());
+			send_to_char(buf, ch);
+		}
+	}
 }
 
 //29.11.09 Отображение количества рипов (с) Василиса
@@ -4569,7 +4591,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
-			if ((GET_LEVEL(ch) == LVL_GOD) && (GET_GOD_FLAG(tch, GF_TESTER)))
+			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));
@@ -5299,15 +5321,15 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 {
 	bool found = false;
-	//int num = 1;
-	for (const OBJ_DATA *k = object_list; k; k = k->get_next())
+
+	world_objects.foreach([&](const OBJ_DATA::shared_ptr object)	/* maybe it is possible to create some index instead of linear search */
 	{
-		if (isname(arg, k->get_aliases()))
+		if (isname(arg, object->get_aliases()))
 		{
 			found = true;
-			print_object_location(num++, k, ch, TRUE);
+			print_object_location(num++, object.get(), ch, TRUE);
 		}
-	}
+	});
 
 	int tmp_num = num;
 	if (IS_GOD(ch)

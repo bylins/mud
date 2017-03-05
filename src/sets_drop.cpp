@@ -3,6 +3,7 @@
 
 #include "sets_drop.hpp"
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "db.h"
 #include "char.hpp"
@@ -348,7 +349,7 @@ void init_obj_list()
 						}
 					}
 				}
-				create_clone_miniset(obj_vnum);				
+				//create_clone_miniset(obj_vnum);				
 			}
 		}
 		else

@@ -11,6 +11,8 @@
 
 #include "objsave.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "handler.h"
@@ -159,36 +161,50 @@ extern void free_script(SCRIPT_DATA * sc);
 
 // Данная процедура выбирает предмет из буфера.
 // с поддержкой нового формата вещей игроков [от 10.12.04].
-OBJ_DATA *read_one_object_new(char **data, int *error)
+OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error)
 {
 	char buffer[MAX_STRING_LENGTH];
 	char read_line[MAX_STRING_LENGTH];
 	int t[2];
 	int vnum;
-	OBJ_DATA *object = NULL;
+	OBJ_DATA::shared_ptr object;
 
 	*error = 1;
 	// Станем на начало предмета
 	for (; **data != DIV_CHAR; (*data)++)
+	{
 		if (!**data || **data == END_CHAR)
-			return (object);
+		{
+			return object;
+		}
+	}
+
 	*error = 2;
 	// Пропустим #
 	(*data)++;
+
 	// Считаем vnum предмета
 	if (!get_buf_line(data, buffer))
-		return (object);
+	{
+		return object;
+	}
+
 	*error = 3;
-	if (!(vnum = atoi(buffer)))
-		return (object);
+	vnum = atoi(buffer);
+	if (!vnum)
+	{
+		return object;
+	}
 
 	// Если без прототипа, создаем новый. Иначе читаем прототип и возвращаем NULL,
 	// если прототип не существует.
 	if (vnum < 0)
-		object = create_obj();
+	{
+		object = world_objects.create_blank();
+	}
 	else
 	{
-		object = read_object(vnum, VIRTUAL);
+		object = world_objects.create_from_prototype_by_vnum(vnum);
 		if (!object)
 		{
 			*error = 4;
@@ -657,16 +673,16 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 	// проставляем имя жидкости
 	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_DRINKCON)
 	{
-		name_from_drinkcon(object);
+		name_from_drinkcon(object.get());
 		if (GET_OBJ_VAL(object, 1) && GET_OBJ_VAL(object, 2))
 		{
-			name_to_drinkcon(object, GET_OBJ_VAL(object, 2));
+			name_to_drinkcon(object.get(), GET_OBJ_VAL(object, 2));
 		}
 	}
 	// Проверка на ингры
 	if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_MING)
 	{
-		int err = im_assign_power(object);
+		int err = im_assign_power(object.get());
 		if (err)
 		{
 			*error = 100 + err;
@@ -676,7 +692,7 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 	{
 		object->set_script(nullptr);	//детачим все триги, пока что так
 	}
-	convert_drinkcon_skill(object, false);
+	convert_drinkcon_skill(object.get(), false);
 	object->remove_incorrect_values_keys(GET_OBJ_TYPE(object));
 
 	return (object);
@@ -685,11 +701,10 @@ OBJ_DATA *read_one_object_new(char **data, int *error)
 // Данная процедура выбирает предмет из буфера
 // ВНИМАНИЕ!!! эта функция используется только для чтения вещей персонажа,
 // сохраненных в старом формате, для чтения нового формата применяется ф-ия read_one_object_new
-OBJ_DATA *read_one_object(char **data, int *error)
+OBJ_DATA::shared_ptr read_one_object(char **data, int *error)
 {
 	char buffer[MAX_STRING_LENGTH], f0[MAX_STRING_LENGTH], f1[MAX_STRING_LENGTH], f2[MAX_STRING_LENGTH];
 	int vnum, i, j, t[5];
-	OBJ_DATA *object = NULL;
 
 	*error = 1;
 	// Станем на начало предмета
@@ -697,7 +712,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	{
 		if (!**data || **data == END_CHAR)
 		{
-			return (object);
+			return nullptr;
 		}
 	}
 	*error = 2;
@@ -705,17 +720,24 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	(*data)++;
 	// Считаем vnum предмета
 	if (!get_buf_line(data, buffer))
-		return (object);
+	{
+		return nullptr;
+	}
 	*error = 3;
 	if (!(vnum = atoi(buffer)))
-		return (object);
+	{
+		return nullptr;
+	}
 
+	OBJ_DATA::shared_ptr object;
 	if (vnum < 0)  		// Предмет не имеет прототипа
 	{
-		object = create_obj();
+		object = world_objects.create_blank();
 		*error = 4;
 		if (!get_buf_lines(data, buffer))
-			return (object);
+		{
+			return object;
+		}
 		// Алиасы
 		object->set_aliases(buffer);
 		// Падежи
@@ -724,8 +746,9 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		{
 			if (!get_buf_lines(data, buffer))
 			{
-				return (object);
+				return object;
 			}
+
 			object->set_PName(i, buffer);
 			if (i==0)
 			{
@@ -736,28 +759,32 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		*error = 6;
 		if (!get_buf_lines(data, buffer))
 		{
-			return (object);
+			return object;
 		}
 		object->set_description(buffer);
 		// Описание при действии
 		*error = 7;
 		if (!get_buf_lines(data, buffer))
 		{
-			return (object);
+			return object;
 		}
 		object->set_action_description(buffer);
 	}
-	else if (!(object = read_object(vnum, VIRTUAL)))
+	else
 	{
-		*error = 8;
-		return (object);
+		object = world_objects.create_from_prototype_by_vnum(vnum);
+		if (!object)
+		{
+			*error = 8;
+			return nullptr;
+		}
 	}
 
 	*error = 9;
 	if (!get_buf_line(data, buffer)
 		|| sscanf(buffer, " %s %d %d %d", f0, t + 1, t + 2, t + 3) != 4)
 	{
-		return (object);
+		return object;
 	}
 
 	int skill = 0;
@@ -772,7 +799,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer)
 		|| sscanf(buffer, " %d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
 	{
-		return (object);
+		return object;
 	}
 	object->set_sex(static_cast<ESex>(t[0]));
 	object->set_timer(t[1]);
@@ -783,7 +810,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer)
 		|| sscanf(buffer, " %s %s %s", f0, f1, f2) != 3)
 	{
-		return (object);
+		return object;
 	}
 	object->set_affect_flags(clear_flags);
 	object->set_anti_flags(clear_flags);
@@ -796,7 +823,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer)
 		|| sscanf(buffer, " %d %s %s", t, f1, f2) != 3)
 	{
-		return (object);
+		return object;
 	}
 	object->set_type(static_cast<OBJ_DATA::EObjectType>(t[0]));
 	object->set_extra_flags(clear_flags);
@@ -811,13 +838,13 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer)
 		|| sscanf(buffer, "%s %d %d %d", f0, t + 1, t + 2, t + 3) != 4)
 	{
-		return (object);
+		return object;
 	}
 	object->set_val(0, 0);
 	auto val0 = object->get_val(0);
 	asciiflag_conv(f0, &val0);
-	object->set_val(0, val0);
 
+	object->set_val(0, val0);
 	object->set_val(1, t[1]);
 	object->set_val(2, t[2]);
 	object->set_val(3, t[3]);
@@ -826,7 +853,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer)
 		|| sscanf(buffer, "%d %d %d %d", t, t + 1, t + 2, t + 3) != 4)
 	{
-		return (object);
+		return object;
 	}
 	object->set_weight(t[0]);
 	object->set_cost(t[1]);
@@ -837,7 +864,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 	if (!get_buf_line(data, buffer)
 		|| sscanf(buffer, "%d %d", t, t + 1) != 2)
 	{
-		return (object);
+		return object;
 	}
 	object->set_worn_on(t[0]);
 	object->set_owner(t[1]);
@@ -867,14 +894,14 @@ OBJ_DATA *read_one_object(char **data, int *error)
 
 			if (GET_OBJ_TYPE(object) == OBJ_DATA::ITEM_MING)
 			{
-				int err = im_assign_power(object);
+				int err = im_assign_power(object.get());
 				if (err)
 				{
 					*error = 100 + err;
 				}
 			}
 
-			return (object);
+			return object;
 		}
 
 		switch (*buffer)
@@ -885,13 +912,13 @@ OBJ_DATA *read_one_object(char **data, int *error)
 				if (!get_buf_lines(data, buffer))
 				{
 					*error = 16;
-					return (object);
+					return object;
 				}
 				new_descr->keyword = str_dup(buffer);
 				if (!get_buf_lines(data, buffer))
 				{
 					*error = 17;
-					return (object);
+					return object;
 				}
 				new_descr->description = str_dup(buffer);
 				new_descr->next = object->get_ex_description();
@@ -903,12 +930,12 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			if (j >= MAX_OBJ_AFFECT)
 			{
 				*error = 18;
-				return (object);
+				return object;
 			}
 			if (!get_buf_line(data, buffer))
 			{
 				*error = 19;
-				return (object);
+				return object;
 			}
 			if (sscanf(buffer, " %d %d ", t, t + 1) == 2)
 			{
@@ -922,7 +949,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			if (!get_buf_line(data, buffer))
 			{
 				*error = 20;
-				return (object);
+				return object;
 			}
 			if (sscanf(buffer, " %d ", t) == 1)
 			{
@@ -934,7 +961,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 			if (!get_buf_line(data, buffer))
 			{
 				*error = 21;
-				return (object);
+				return object;
 			}
 			if (sscanf(buffer, " %d ", t) == 1)
 			{
@@ -943,7 +970,7 @@ OBJ_DATA *read_one_object(char **data, int *error)
 				rnum = real_mobile(GET_OBJ_PARENT(object));
 				if (rnum > -1)
 				{
-					trans_obj_name(object, &mob_proto[rnum]);
+					trans_obj_name(object.get(), &mob_proto[rnum]);
 				}
 			}
 			break;
@@ -953,7 +980,8 @@ OBJ_DATA *read_one_object(char **data, int *error)
 		}
 	}
 	*error = 22;
-	return (object);
+
+	return std::move(object);
 }
 
 // shapirus: функция проверки наличия доп. описания в прототипе
@@ -2096,7 +2124,7 @@ int Crash_load(CHAR_DATA * ch)
 	char fname[MAX_STRING_LENGTH], *data, *readdata;
 	int cost, i = 0, reccount, fsize, error, index;
 	float num_of_days;
-	OBJ_DATA *obj, *obj2, *obj_list = NULL;
+	OBJ_DATA *obj2, *obj_list = NULL;
 	int location, rnum;
 	struct container_list_type *tank_list = NULL, *tank, *tank_to;
 	bool need_convert_character_objects = 0;	// add by Pereplut
@@ -2267,24 +2295,26 @@ int Crash_load(CHAR_DATA * ch)
 			reccount > 0 && *data && *data != END_CHAR; reccount--, fsize++)
 	{
 		i++;
+		OBJ_DATA::shared_ptr obj;
 		if (need_convert_character_objects)
 		{
 			// Формат новый => используем новую функцию
-			if ((obj = read_one_object_new(&data, &error)) == NULL)
+			obj = read_one_object_new(&data, &error);
+			if (!obj)
 			{
 				//send_to_char ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 				send_to_char("Ошибка при чтении файла объектов.\r\n", ch);
-				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.",
-						GET_NAME(ch), error);
+				sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-				//break;
+
 				continue;	//Ann
 			}
 		}
 		else
 		{
 			// Формат старый => используем старую функцию
-			if ((obj = read_one_object(&data, &error)) == NULL)
+			obj = read_one_object(&data, &error);
+			if (!obj)
 			{
 				//send_to_char ("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 				send_to_char("Ошибка при чтении файла объектов.\r\n", ch);
@@ -2295,28 +2325,30 @@ int Crash_load(CHAR_DATA * ch)
 				continue;	//Ann
 			}
 		}
+
 		if (error)
 		{
-			sprintf(buf, "WARNING: Error #%d reading item vnum #%d num #%d from %s.", error, GET_OBJ_VNUM(obj), i, fname);
+			sprintf(buf, "WARNING: Error #%d reading item vnum #%d num #%d from %s.", error, obj->get_vnum(), i, fname);
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		}
-		if (GET_OBJ_VNUM(obj) != SAVEINFO(index)->time[fsize].vnum)
+
+		if (obj->get_vnum() != SAVEINFO(index)->time[fsize].vnum)
 		{
 			send_to_char("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
 			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-			extract_obj(obj);
+			extract_obj(obj.get());
 			break;
 		}
 
 		//Check timers
 		if (SAVEINFO(index)->time[fsize].timer > 0
-				&& (rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0)
+			&& (rnum = real_object(SAVEINFO(index)->time[fsize].vnum)) >= 0)
 		{
 			obj_proto.dec_stored(rnum);
 		}
 		// в два действия, чтобы заодно снять и таймер обкаста
-		if (!check_unlimited_timer(obj))
+		if (!check_unlimited_timer(obj.get()))
 		{
 			const save_info* si = SAVEINFO(index);
 		    obj->set_timer(si->time[fsize].timer);
@@ -2332,7 +2364,8 @@ int Crash_load(CHAR_DATA * ch)
 			sprintf(buf, "%s%s рассыпал%s от длительного использования.\r\n",
 				CCWHT(ch, C_NRM), cap.c_str(), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj);
+			extract_obj(obj.get());
+
 			continue;
 		}
 
@@ -2341,19 +2374,19 @@ int Crash_load(CHAR_DATA * ch)
 		{
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj);
+			extract_obj(obj.get());
 			continue;
 		}
 
 		// Check valid class
-		if (invalid_anti_class(ch, obj)
-			|| invalid_unique(ch, obj)
-			|| NamedStuff::check_named(ch, obj, 0))
+		if (invalid_anti_class(ch, obj.get())
+			|| invalid_unique(ch, obj.get())
+			|| NamedStuff::check_named(ch, obj.get(), 0))
 		{
 			sprintf(buf, "%s рассыпал%s, как запрещенн%s для вас.\r\n",
 				cap.c_str(), GET_OBJ_SUF_2(obj), GET_OBJ_SUF_3(obj));
 			send_to_char(buf, ch);
-			extract_obj(obj);
+			extract_obj(obj.get());
 			continue;
 		}
 
@@ -2364,12 +2397,12 @@ int Crash_load(CHAR_DATA * ch)
 		}
 
 		obj->set_next_content(obj_list);
-		obj_list = obj;
+		obj_list = obj.get();
 	}
 
 	free(readdata);
 
-	for (obj = obj_list; obj; obj = obj2)
+	for (auto obj = obj_list; obj; obj = obj2)
 	{
 		obj2 = obj->get_next_content();
 		obj->set_next_content(nullptr);

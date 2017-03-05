@@ -14,6 +14,7 @@
 ************************************************************************ */
 #include "dg_db_scripts.hpp"
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "dg_scripts.h"
 #include "db.h"
@@ -34,6 +35,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "temp_spells.hpp"
 
 #include <algorithm>
 #include <stack>
@@ -212,7 +214,7 @@ void trig_data_free(TRIG_DATA * this_data)
 		remove_event(this_data->wait_event);
 	}
 
-	free(this_data);
+	delete this_data;
 }
 
 // vnum_owner - триг, который приаттачил данный триг
@@ -306,7 +308,7 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(mob))
 					{
-						mob->script = new SCRIPT_DATA();
+						CREATE(mob->script, 1);
 					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 
@@ -422,10 +424,12 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 	{
 		if (featdiff)
 		{
-			sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
-			send_to_char(buf, ch);
-			if (feat_info[featnum].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			if (feat_info[featnum].classknow[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])
+			{
+				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
+				send_to_char(buf, ch);
 				SET_FEAT(ch, featnum);
+			}
 		};
 	}
 }
@@ -480,6 +484,13 @@ void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum
 void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 {
 	int spell = GET_SPELL_TYPE(ch, spellnum);
+
+	if (!can_get_spell(ch, spellnum))
+	{
+		log("Error trying to add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+		return;
+	}
+
 	if (spell & SPELL_KNOW)
 	{
 		if (spelldiff) return;
@@ -498,6 +509,22 @@ void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 	}
 }
 
+void trg_spellturntemp(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
+{
+	if (!can_get_spell(ch, spellnum))
+	{
+		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
+		return;
+	}
+
+	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+	{
+		Temporary_Spells::add_spell(ch, spellnum, time(0), spelldiff);
+		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
+		log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d", spell_name(spellnum), spelldiff, GET_NAME(ch), vnum);
+	}
+}
+
 void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 {
 	int spell = GET_SPELL_MEM(ch, spellnum);
@@ -513,15 +540,15 @@ void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 		else
 		{
 			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", spell_name(spellnum));
-			REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+			//REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 			log("Remove all spells %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 		}
 		send_to_char(buf, ch);
 	}
 	else if (spell < GET_SPELL_MEM(ch, spellnum))
 	{
-		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
-			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
+		/*if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
+			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);*/
 		send_to_char(ch, "Вы выучили несколько заклинаний '%s'.\r\n", spell_name(spellnum));
 		log("Add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 	}

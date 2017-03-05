@@ -1220,9 +1220,9 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	strcpy(help, (argument + 1));
 	help[qend - 1] = '\0';
 
-	if (SKILL_INVALID == (skill = find_skill_num(help)))
+	if (SKILL_INVALID == (skill = fix_name_and_find_skill_num(help)))
 	{
-		spell = find_spell_num(help);
+		spell = fix_name_and_find_spell_num(help);
 	}
 
 	if (SKILL_INVALID == skill
@@ -1503,6 +1503,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 	{
 		send_to_char(d->showstr_vector[d->showstr_page], d->character);
 		free(d->showstr_vector);
+		d->showstr_vector = nullptr;
 		d->showstr_count = 0;
 		if (d->showstr_head)
 		{

@@ -14,6 +14,7 @@
 #include "corpse.hpp"
 #include "room.hpp"
 #include "fight.h"
+#include "fight_stuff.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "conf.h"
@@ -173,8 +174,9 @@ void DeathTrap::log_death_trap(CHAR_DATA * ch)
 int DeathTrap::check_death_trap(CHAR_DATA * ch)
 {
 	if (ch->in_room != NOWHERE && !PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
 		if ((ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
-				&& !IS_IMMORTAL(ch))
+			&& !IS_IMMORTAL(ch))
 			|| (real_sector(ch->in_room) == SECT_FLYING && !IS_NPC(ch)
 				&& !IS_GOD(ch)
 				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
@@ -184,6 +186,14 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 		{
 			OBJ_DATA *corpse;
 			DeathTrap::log_death_trap(ch);
+
+			if (check_tester_death(ch, nullptr))
+			{
+				sprintf(buf1, "Player %s died in DT (room %d) but zone is under construction.", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
+				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
+				return FALSE;
+			}
+
 			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 			if (RENTABLE(ch))
@@ -192,11 +202,12 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 				GET_HIT(ch) = GET_MOVE(ch) = 0;
 				return TRUE;
 			}
+
 			death_cry(ch, NULL);
-//29.11.09 Для счета количество рипов (с) Василиса
-			GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
-            GET_RIP_DTTHIS(ch)= GET_RIP_DTTHIS(ch)+1;
-//конец правки (с) Василиса
+			//29.11.09 Для счета количество рипов (с) Василиса
+			GET_RIP_DT(ch) = GET_RIP_DT(ch) + 1;
+			GET_RIP_DTTHIS(ch) = GET_RIP_DTTHIS(ch) + 1;
+			//конец правки (с) Василиса
 			corpse = make_corpse(ch);
 			if (corpse != NULL)
 			{
@@ -205,9 +216,10 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 			}
 			GET_HIT(ch) = GET_MOVE(ch) = 0;
 			extract_char(ch, TRUE);
-			return (TRUE);
+			return TRUE;
 		}
-	return (FALSE);
+	}
+	return FALSE;
 }
 
 bool DeathTrap::is_slow_dt(int rnum)

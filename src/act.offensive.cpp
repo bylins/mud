@@ -472,7 +472,7 @@ void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	CHAR_DATA *vict;
 
-	if (!IS_IMPL(ch))
+	if (!IS_GRGOD(ch))
 	{
 		do_hit(ch, argument, cmd, subcmd);
 		return;
@@ -1517,9 +1517,9 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					break;
 				case 2:
 				case 3:
-					to_char = "Сильно пнув в челюсть, вы заставили $N1 замолчать.";
+					to_char = "Сильно пнув в челюсть, вы заставили $N4 замолчать.";
 					to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив вас замолчать.";
-					to_room = "Сильно пнув ногой в челюсть $N1, $n застави$q $S замолчать.";
+					to_room = "Сильно пнув ногой в челюсть $N4, $n застави$q $S замолчать.";
 					af.type = SPELL_BATTLE;
 					af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
@@ -1533,9 +1533,9 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					{
 						GET_POS(vict) = POS_SITTING;
 					}
-					to_char = "Ваш мощный пинок выбил пару зубов $N1, усадив $S на землю!";
+					to_char = "Ваш мощный пинок выбил пару зубов $N2, усадив $S на землю!";
 					to_vict = "Мощный удар ногой $n1 попал точно в голову, свалив вас с ног.";
-					to_room = "Мощный пинок $n1 выбил пару зубов $N1, усадив $S на землю!";
+					to_room = "Мощный пинок $n1 выбил пару зубов $N2, усадив $S на землю!";
 					dam *= 2;
 					break;
 				default:
@@ -2927,7 +2927,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
-
+//	send_to_char("Временно отключено.\r\n", ch);
+//	return;
 	if (timed_by_skill(ch, SKILL_TURN_UNDEAD))
 	{
 		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
@@ -3015,7 +3016,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), dam, FightSystem::MAGE_DMG);
 		dmg.flags.set(FightSystem::IGNORE_FSHIELD);
 		dmg.process(ch, ch_vict);
-
+		if (!ch || !ch_vict || ch->purged() || ch_vict->purged())
+			return;
 		if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR)
 			&& !general_savingthrow(ch, ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))
 		{

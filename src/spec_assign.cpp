@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "object.prototypes.hpp"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"

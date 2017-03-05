@@ -157,7 +157,7 @@ void pk_check_spamm(CHAR_DATA * ch)
 // функция переводит переменные *pkiller и *pvictim на хозяев, если это чармы
 void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 {
-	if (pkiller != NULL && pkiller[0] != NULL)
+	if (pkiller != NULL && pkiller[0] != NULL && !pkiller[0]->purged())
 	{
 		if (IS_NPC(pkiller[0])
 			&& pkiller[0]->has_master()
@@ -167,8 +167,7 @@ void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 			pkiller[0] = pkiller[0]->get_master();
 		}
 	}
-
-	if (pvictim != NULL && pvictim[0] != NULL)
+	if (pvictim != NULL && pvictim[0] != NULL && !pvictim[0]->purged())
 	{
 		if (IS_NPC(pvictim[0])
 			&& pvictim[0]->has_master()
@@ -177,7 +176,8 @@ void pk_translate_pair(CHAR_DATA * *pkiller, CHAR_DATA * *pvictim)
 		{
 			if (IN_ROOM(pvictim[0]) == IN_ROOM(pvictim[0]->get_master()))
 			{
-				pvictim[0] = pvictim[0]->get_master();
+				if (HERE(pvictim[0]->get_master()))
+					pvictim[0] = pvictim[0]->get_master();
 			}
 		}
 
@@ -471,7 +471,7 @@ bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция pk_agro_action", CMP, LVL_GOD, SYSLOG, TRUE);
+//		mudlog("Противник исчез при ПК куда-то! функция pk_agro_action", CMP, LVL_GOD, SYSLOG, TRUE);
 		return false;
 	}
 	if (!IS_NPC(victim) || IS_CHARMICE(victim))
@@ -513,7 +513,7 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim)
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция pk_action_type_summon", CMP, LVL_GOD, SYSLOG, TRUE);
+//		mudlog("Противник исчез при ПК куда-то! функция pk_action_type_summon", CMP, LVL_GOD, SYSLOG, TRUE);
 		return false;
 	}
 
@@ -563,7 +563,7 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 	pk_translate_pair(&thief, &victim);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция 3", CMP, LVL_GOD, SYSLOG, TRUE);
+//		mudlog("Противник исчез при ПК куда-то! функция 3", CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
 
@@ -607,7 +607,7 @@ void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
 		pk_translate_pair(&killer, NULL);
 	if (victim == NULL)
 	{
-		mudlog("Противник исчез при ПК куда-то! функция 4", CMP, LVL_GOD, SYSLOG, TRUE);
+//		mudlog("Противник исчез при ПК куда-то! функция 4", CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
 
@@ -634,12 +634,12 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim)
 	struct PK_Memory_type *pk;
 
 	pk_translate_pair(&agressor, &victim);
-	if (victim == NULL)
+	/*if (victim == NULL)
 	{
 		sprintf(buf,"Противник исчез при ПК куда-то! функция 5 имя агрессора %s внум: %d, номер клетки %d, мирная? %s", GET_NAME(agressor), GET_MOB_VNUM(agressor), GET_ROOM_VNUM(agressor->in_room), 
 			    ROOM_FLAGGED(agressor->in_room, ROOM_PEACEFUL)?"ДА":"НЕТ");
 		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
-	}
+	}*/
 
 	if (!agressor || !victim || agressor == victim || ROOM_FLAGGED(IN_ROOM(agressor), ROOM_ARENA) || ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA) ||	// предотвращаем баги с чармисами и ареной
 			IS_NPC(agressor) || IS_NPC(victim) || (agressor != victim && (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE)

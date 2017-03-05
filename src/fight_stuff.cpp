@@ -257,6 +257,58 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
+bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
+{
+	const bool player_died = !IS_NPC(ch);
+	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone].under_construction;
+
+	if (!player_died
+		|| !zone_is_under_construction)
+	{
+		return false;
+	}
+
+
+	if (killer
+		&& (!IS_NPC(killer)
+			|| IS_CHARMICE(killer))) // рип в тестовой зоне от моба но не чармиса
+	{
+		return false;
+	}
+
+	// Сюда попадают только тестеры на волоске от смерти. Для инх функция должна вернуть true.
+	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
+	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
+	const int rent_room = real_room(GET_LOADROOM(ch));
+	if (rent_room == NOWHERE)
+	{
+		send_to_char("Вам некуда возвращаться!\r\n", ch);
+		return true;
+	}
+	send_to_char("Божественная сила спасла вашу жизнь.!\r\n", ch);
+	char_from_room(ch);
+	char_to_room(ch, rent_room);
+	check_horse(ch);
+	GET_HIT(ch) = 1;
+	update_pos(ch);
+	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+	if (!ch->affected.empty())
+	{
+		while (!ch->affected.empty())
+		{
+			ch->affect_remove(ch->affected.begin());
+		}
+	}
+	GET_POS(ch) = POS_STANDING;
+	look_at_room(ch, 0);
+	entry_memory_mtrigger(ch);
+	greet_mtrigger(ch, -1);
+	greet_otrigger(ch, -1);
+	greet_memory_mtrigger(ch);
+
+	return true;
+}
+
 void die(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	int dec_exp = 0, e = GET_EXP(ch);
@@ -266,6 +318,12 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		log("SYSERR: %s is dying in room NOWHERE.", GET_NAME(ch));
 		return;
 	}
+
+	if (check_tester_death(ch, killer))
+	{
+		return;
+	}
+
 	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].number == 759) && (GET_LEVEL(ch) <15)) //нуб помер в мадшколе
 	{
 		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
@@ -295,8 +353,10 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//если убил не палач
 		{
-			
-			dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
+			if (!RENTABLE(ch))
+				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5)) / ch->death_player_count();
+			else
+				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
 			dec_exp = e - GET_EXP(ch);
 			sprintf(buf, "Вы потеряли %d %s опыта.\r\n",
@@ -318,7 +378,8 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		}
 	}
 
-	update_die_counts(ch, killer, dec_exp);
+	
+		update_die_counts(ch, killer, dec_exp );
 	raw_kill(ch, killer);
 }
 
@@ -812,7 +873,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	exp = MAX(1, exp);
 	if (exp > 1)
 	{
-		if (Bonus::is_bonus(BONUS_EXP))
+		if (Bonus::is_bonus(Bonus::BONUS_EXP))
 		{
 			exp *= Bonus::get_mult_bonus();
 		}
@@ -993,7 +1054,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus(BONUS_WEAPON_EXP))
+		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP))
 			battle_exp *= Bonus::get_mult_bonus();
 //		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
 //						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
@@ -1129,7 +1190,8 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 {
 	if (ch->in_room == NOWHERE)
 		return;
-
+	if (!victim || victim->purged())
+		return;
 	switch (GET_POS(victim))
 	{
 	case POS_MORTALLYW:
@@ -1329,41 +1391,6 @@ void Damage::zero_init()
 	msg_num = -1;
 	ch_start_pos = -1;
 	victim_start_pos = -1;
-};
-
-/*
-void solo_gain(CHAR_DATA * ch, CHAR_DATA * victim)
-{
-  int exp;
-
-  if (IS_NPC(ch) || !OK_GAIN_EXP(ch, victim))
-     {send_to_char("Ваше деяние никто не оценил.\r\n",ch);
-      return;
-     }
-
-  if (IS_NPC(ch))
-     {exp  = MIN(max_exp_gain_npc, GET_EXP(victim));
-      exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
-     }
-  else
-     {exp = get_extend_exp(GET_EXP(victim), ch, victim);
-      exp = MIN(max_exp_gain_pc(ch), exp);
-     };
-
-  if (!IS_NPC(ch))
-     exp = MIN(max_exp_gain_pc(ch),exp);
-  exp = MAX(1,exp);
-
-  if (exp > 1)
-     {sprintf(buf2, "Ваш опыт повысился на %d %s.\r\n", exp, desc_count(exp, WHAT_POINT));
-      send_to_char(buf2, ch);
-     }
-  else
-    send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
-
-  gain_exp(ch, exp);
-  change_alignment(ch, victim);
 }
-*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -10,6 +10,7 @@
 
 #include "olc.h"
 
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
 #include "comm.h"
@@ -486,7 +487,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		// Освободить редактируемый триггер
 		if (OLC_TRIG(d))
 		{
-			free(OLC_TRIG(d));
+			delete OLC_TRIG(d);
 		}
 
 		// Освободить массив данных (похоже, только для триггеров)

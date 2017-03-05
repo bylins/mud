@@ -49,6 +49,21 @@ namespace ExtMoney
 
 // на все эти переменные смотреть init()
 int TORC_EXCH_RATE = 999;
+std::map<std::string, std::string> plural_name_currency_map = {
+	{ "куны" , "денег" },
+	{ "слава" , "славы" },
+	{ "лед" , "льда" },
+};
+
+std::string name_currency_plural(std::string name)
+{	
+	auto it = plural_name_currency_map.find(name);
+	if (it != plural_name_currency_map.end())
+	{
+		return (*it).second;
+	}
+	return "неизвестной валюты";
+}
 
 struct type_node
 {

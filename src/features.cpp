@@ -228,7 +228,7 @@ void assign_feats(void)
 //23
 	feato(STEALTHY_FEAT, "незаметность", SKILL_MOD_FTYPE, TRUE, feat_app);
 //24
-	feat_app.insert(APPLY_CAST_SUCCESS, 25);
+	feat_app.insert(APPLY_CAST_SUCCESS, 80);
 	feato(RELATED_TO_MAGIC_FEAT, "магическое родство", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //25 -*
@@ -392,7 +392,7 @@ void assign_feats(void)
 	feato(HITROLL_BONUS_FEAT, "твердая рука", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //67
-	feat_app.insert(APPLY_CAST_SUCCESS, 5);
+	feat_app.insert(APPLY_CAST_SUCCESS, 30);
 	feato(MAGICAL_INSTINCT_FEAT, "магическое чутье", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //68
@@ -601,6 +601,8 @@ void assign_feats(void)
 		feato(LIFE_MAGIC_FOCUS_FEAT, "любимая_магия: жизнь", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	*/
+//140
+    feato(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
 }
 
 // Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям.
@@ -618,6 +620,7 @@ bool can_use_feat(const CHAR_DATA *ch, int feat)
 	switch (feat)
 	{
 	case WEAPON_FINESSE_FEAT:
+	case SHOT_FINESSE_FEAT:
 		if (GET_REAL_DEX(ch) < GET_REAL_STR(ch) || GET_REAL_DEX(ch) < 18)
 			return FALSE;
 		break;
@@ -1133,7 +1136,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	spellnum = find_spell_num(s);
+	spellnum = fix_name_and_find_spell_num(s);
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
@@ -1194,8 +1197,6 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", FALSE, ch, 0, follower, TO_ROOM);
 
 	GET_SPELL_MEM(ch, spellnum)--;
-	//if (!GET_SPELL_MEM(ch, spellnum))
-	//	REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
 		MemQ_remember(ch, spellnum);
 

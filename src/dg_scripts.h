@@ -178,7 +178,6 @@ public:
 	ubyte purged;		// trigger is set to be purged     //
 	struct trig_var_data *var_list;	// list of local vars for trigger  //
 	TRIG_DATA* next;
-	TRIG_DATA* next_in_world;	// next in the global trigger list //
 };
 
 // a complete script (composed of several triggers) //
@@ -256,7 +255,28 @@ void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j);
 void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);
 
 void script_log(const char *msg, const int type = 0);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
-void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);// --//--
+void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);
+
+class GlobalTriggersStorage
+{
+public:
+	void add(TRIG_DATA* trigger);
+	void remove(TRIG_DATA* trigger);
+	void shift_rnums_from(const rnum_t rnum);
+	bool has_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.find(rnum) != m_rnum2trigers_set.end(); }
+	const auto& get_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.at(rnum); }
+
+private:
+	using triggers_set_t = std::unordered_set<TRIG_DATA*>;
+	using storage_t = triggers_set_t;
+	using rnum2trigers_set_t = std::unordered_map<rnum_t, triggers_set_t>;
+
+	storage_t m_triggers;
+	rnum2trigers_set_t m_rnum2trigers_set;
+};
+
+extern GlobalTriggersStorage trigger_list;
+
 void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);
 int real_trigger(int vnum);
@@ -297,9 +317,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 // player id's: 0 to ROOM_ID_BASE - 1            //
 // room id's: ROOM_ID_BASE to MOBOBJ_ID_BASE - 1 //
-// mob/object id's: MOBOBJ_ID_BASE and higher    //
 #define ROOM_ID_BASE    150000
-#define MOBOBJ_ID_BASE	2000000
 
 #define SCRIPT_MEM(c)             ((c)->memory)
 
@@ -335,6 +353,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff);
 void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
+void trg_spellturntemp(CHAR_DATA * ch, int spellnum, int spelltime, int vnum);
 void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
 void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell);
 

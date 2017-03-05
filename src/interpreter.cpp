@@ -15,6 +15,7 @@
 
 #include "interpreter.h"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "craft.commands.hpp"
 #include "obj.hpp"
@@ -67,6 +68,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
+#include "temp_spells.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -250,6 +252,7 @@ void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_load(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_loadstat(CHAR_DATA *ch, char *argument, int cmd, int subbcmd);
 void do_look(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -384,6 +387,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mskillturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mskilladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mspellturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_mspellturntemp(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mspelladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mspellitem(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -422,7 +426,7 @@ void do_morphset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_console(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_shops_list(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_unfreeze(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void Bonus::do_bonus(CHAR_DATA*, char*, int, int);
+void Bonus::do_bonus_by_character(CHAR_DATA*, char*, int, int);
 void do_summon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -480,7 +484,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"боги", POS_DEAD, do_gen_ps, 0, SCMD_IMMLIST, 0},
 	{"божества", POS_DEAD, Boards::DoBoard, 1, Boards::GODGENERAL_BOARD, -1},
 	{"болтать", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, -1},
-	{"бонус", POS_DEAD, Bonus::do_bonus, LVL_IMPL, 0, 0},
+	{"бонус", POS_DEAD, Bonus::do_bonus_by_character, LVL_IMPL, 0, 0},
 	{"бонусинфо", POS_DEAD, Bonus::do_bonus_info, LVL_IMPL, 0, 0 },
 	{"бросить", POS_RESTING, do_drop, 0, SCMD_DROP, -1},
 	{"варить", POS_RESTING, do_cook, 0, 0, 200},
@@ -906,6 +910,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"levels", POS_DEAD, do_levels, 0, 0, 0},
 	{"list", POS_STANDING, do_not_here, 0, 0, -1},
 	{"load", POS_DEAD, do_load, LVL_BUILDER, 0, 0},
+	{"loadstat", POS_DEAD, do_loadstat, LVL_IMPL, 0, 0 },
 	{"look", POS_RESTING, do_look, 0, SCMD_LOOK, 200},
 	{"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
 	{"map", POS_RESTING, do_map, 0, 0, 0},
@@ -1091,6 +1096,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mskillturn", POS_DEAD, do_mskillturn, -1, 0, -1},
 	{"mskilladd", POS_DEAD, do_mskilladd, -1, 0, -1},
 	{"mspellturn", POS_DEAD, do_mspellturn, -1, 0, -1},
+	{"mspellturntemp", POS_DEAD, do_mspellturntemp, -1, 0, -1},
 	{"mspelladd", POS_DEAD, do_mspelladd, -1, 0, -1},
 	{"mspellitem", POS_DEAD, do_mspellitem, -1, 0, -1},
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
@@ -2503,6 +2509,9 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		SET_FEAT(d->character, RELOCATE_FEAT);
 	}
 
+	//Проверим временные заклы пока нас не было
+	Temporary_Spells::update_char_times(d->character, time(0));
+
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
 	AFF_FLAGS(d->character).unset(EAffectFlag::AFF_GROUP);
 	AFF_FLAGS(d->character).unset(EAffectFlag::AFF_HORSE);
@@ -2704,8 +2713,7 @@ void CreateChar(DESCRIPTOR_DATA * d)
 	if (d->character != NULL) return;
 
 	d->character = new Player;
-	CREATE(d->character->player_specials, 1);
-	memset(d->character->player_specials, 0, sizeof(struct player_special_data));
+	d->character->player_specials = std::make_shared<player_special_data>();
 	d->character->desc = d;
 }
 

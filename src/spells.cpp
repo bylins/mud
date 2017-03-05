@@ -14,6 +14,8 @@
 
 #include "spells.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "char_obj_utils.inl"
 #include "obj.hpp"
 #include "comm.h"
@@ -48,7 +50,6 @@
 
 extern room_rnum r_mortal_start_room;
 
-extern OBJ_DATA *object_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct zone_data *zone_table;
 extern const char *material_name[];
@@ -276,7 +277,6 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 {
 	room_rnum to_room = NOWHERE, fnd_room = NOWHERE;
 	room_rnum rnum_start, rnum_stop;
-	int modi = 0;
 
 	if (!victim || IS_NPC(victim) || ch->in_room != IN_ROOM(victim) || GET_LEVEL(victim) >= LVL_IMMORT)
 	{
@@ -292,26 +292,22 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 
 	if (victim != ch)
 	{
-		if (WAITLESS(ch)
-			&& !WAITLESS(victim))
+		if (same_group(ch, victim))
 		{
-			modi += 100;	// always success
+			if (number(1, 100) <= 5 )
+			{
+				send_to_char(SUMMON_FAIL, ch);
+				return;
+			}
 		}
-		else if (same_group(ch, victim))
+		else if (!IS_NPC(ch) || (ch->has_master() && !IS_NPC(ch->get_master()))) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
-			modi += 75;	// 75% chance to success
-		}
-		else if (!IS_NPC(ch)
-			|| (ch->has_master()
-				&& !IS_NPC(ch->get_master())))
-		{
-			modi = -100;	// always fail
+				send_to_char(SUMMON_FAIL, ch);
+				return;
 		}
 
-		if (modi == -100
-			|| general_savingthrow(ch, victim, SAVING_WILL, modi))
+		if ((IS_NPC(ch) && general_savingthrow(ch, victim, SAVING_WILL, GET_REAL_INT(ch))) || IS_GOD(victim))
 		{
-			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 	}
@@ -895,11 +891,6 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 
 void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* obj)
 {
-	OBJ_DATA *i;
-	char name[MAX_INPUT_LENGTH];
-	int j, tmp_lvl;
-	bool bloody_corpse = false;
-
 	/*
 	 * FIXME: This is broken.  The spell parser routines took the argument
 	 * the player gave to the spell and located an object with that keyword.
@@ -911,36 +902,41 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		return;
 	}
 
+	char name[MAX_INPUT_LENGTH];
+	bool bloody_corpse = false;
 	strcpy(name, cast_argument);
-	tmp_lvl = (IS_GOD(ch)) ? 300 : level;
-	j = tmp_lvl;
 
-	for (i = object_list; i && (j > 0); i = i->get_next())
+	int tmp_lvl = (IS_GOD(ch)) ? 300 : level;
+	unsigned count = tmp_lvl;
+	const auto result = world_objects.find_if_and_dec_number([&](const OBJ_DATA::shared_ptr& i)
 	{
 		bloody_corpse = false;
 		if (!IS_GOD(ch))
 		{
 			if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
 			{
-				continue;
+				return false;
 			}
 
 			if (IS_CORPSE(i))
 			{
-				bloody_corpse = catch_bloody_corpse(i);
+				bloody_corpse = catch_bloody_corpse(i.get());
 				if (!bloody_corpse)
-					continue;
+				{
+					return false;
+				}
 			}
 		}
 
-		if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) && i->get_carried_by() != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+		if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
+			&& i->get_carried_by() != ch) //!локейт стаф может локейтить только имм или тот кто его держит
 		{
-			continue;
+			return false;
 		}
 
 		if (SECT(i->get_in_room()) == SECT_SECRET)
 		{
-			continue;
+			return false;
 		}
 
 		if (i->get_carried_by())
@@ -948,13 +944,13 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			if (SECT(IN_ROOM(i->get_carried_by())) == SECT_SECRET
 				|| IS_IMMORTAL(i->get_carried_by()))
 			{
-				continue;
+				return false;
 			}
 		}
 
 		if (!isname(name, i->get_aliases()))
 		{
-			continue;
+			return false;
 		}
 
 		if (i->get_carried_by())
@@ -969,14 +965,17 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 			else
 			{
-				continue;
+				return false;
 			}
 		}
 		else if (i->get_in_room() != NOWHERE
 			&& i->get_in_room())
 		{
 			const auto room = i->get_in_room();
-			if ((world[room]->zone == world[ch->in_room]->zone && !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE) )|| IS_GOD(ch) || bloody_corpse)
+			if ((world[room]->zone == world[ch->in_room]->zone
+					&& !i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE))
+				|| IS_GOD(ch)
+				|| bloody_corpse)
 			{
 				if (bloody_corpse)
 				{
@@ -996,14 +995,14 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 			else
 			{
-				continue;
+				return false;
 			}
 		}
 		else if (i->get_in_obj())
 		{
 			if (Clan::is_clan_chest(i->get_in_obj()))
 			{
-				continue; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
+				return false; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 			}
 			else
 			{
@@ -1012,19 +1011,20 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					if (i->get_in_obj()->get_carried_by())
 					{
 						if (IS_NPC(i->get_in_obj()->get_carried_by())
-							&& (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
+							&& (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
 								|| world[IN_ROOM(i->get_in_obj()->get_carried_by())]->zone != world[ch->in_room]->zone))
 						{
-							continue;
+							return false;
 						}
 					}
 					if (i->get_in_obj()->get_in_room() != NOWHERE
 						&& i->get_in_obj()->get_in_room())
 					{
 						if ((world[i->get_in_obj()->get_in_room()]->zone != world[IN_ROOM(ch)]->zone
-							|| OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)) && !bloody_corpse)
+								|| i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE))
+							&& !bloody_corpse)
 						{
-							continue;
+							return false;
 						}
 					}
 					if (i->get_in_obj()->get_worn_by())
@@ -1035,7 +1035,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 								|| world[worn_by->in_room]->zone != world[IN_ROOM(ch)]->zone))
 							&& !bloody_corpse)
 						{
-							continue;
+							return false;
 						}
 					}
 				}
@@ -1049,7 +1049,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		else if (i->get_worn_by())
 		{
 			if ((IS_NPC(i->get_worn_by())
-					&& !OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)
+					&& !i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
 					&& world[IN_ROOM(i->get_worn_by())]->zone == world[ch->in_room]->zone)
 				|| (!IS_NPC(i->get_worn_by())
 					&& GET_LEVEL(i->get_worn_by()) < LVL_IMMORT)
@@ -1063,28 +1063,40 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 			else
 			{
-				continue;
+				return false;
 			}
 		}
 		else
 		{
-			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i, ch, 1));
+			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
 		}
 
 		CAP(buf);
 		send_to_char(buf, ch);
-		j--;
+
+		return true;
+	}, count);
+
+	int j = count;
+	if (j > 0)
+	{
+		j = Clan::print_spell_locate_object(ch, j, std::string(name));
 	}
 
 	if (j > 0)
-		j = Clan::print_spell_locate_object(ch, j, std::string(name));
-	if (j > 0)
+	{
 		j = Depot::print_spell_locate_object(ch, j, std::string(name));
+	}
+
 	if (j > 0)
+	{
 		j = Parcel::print_spell_locate_object(ch, j, std::string(name));
+	}
 
 	if (j == tmp_lvl)
+	{
 		send_to_char("Вы ничего не чувствуете.\r\n", ch);
+	}
 }
 
 bool catch_bloody_corpse(OBJ_DATA * l)

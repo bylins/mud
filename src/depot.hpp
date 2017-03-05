@@ -5,11 +5,13 @@
 #ifndef DEPOT_HPP_INCLUDED
 #define DEPOT_HPP_INCLUDED
 
+#include "obj.hpp"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
+
 #include <string>
 #include <set>
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
 
 namespace Depot
 {
@@ -23,7 +25,7 @@ void save_char_by_uid(int uid);
 
 bool is_depot(OBJ_DATA *obj);
 void show_depot(CHAR_DATA *ch);
-bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj);
+bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj);
 void take_depot(CHAR_DATA *ch, char *arg, int howmany);
 int delete_obj(int vnum);
 

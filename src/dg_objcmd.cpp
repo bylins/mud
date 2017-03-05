@@ -9,6 +9,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "screen.h"
 #include "dg_scripts.h"
@@ -302,7 +304,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		OBJ_DATA* o = read_object(atoi(arg), VIRTUAL);
+		const auto o = world_objects.create_from_prototype_by_vnum(atoi(arg));
 		if (o == NULL)
 		{
 			obj_log(obj, "otransform: bad object vnum");
@@ -319,7 +321,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		obj->swap(*o);
 
-		if (OBJ_FLAGGED(o, EExtraFlag::ITEM_TICKTIMER))
+		if (o->get_extra_flag(EExtraFlag::ITEM_TICKTIMER))
 		{
 			obj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 		}
@@ -328,7 +330,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			equip_char(wearer, obj, pos);
 		}
-		extract_obj(o);
+		extract_obj(o.get());
 	}
 }
 
@@ -336,37 +338,14 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
-	CHAR_DATA *ch /*, *next_ch*/;
-	OBJ_DATA *o /*, *next_obj */;
-	// int rm;
+	CHAR_DATA *ch;
+	OBJ_DATA *o;
 
 	one_argument(argument, arg);
 
 	if (!*arg)
 	{
 		return;
-/*
-		if ((rm = obj_room(obj)) != NOWHERE)
-		{
-			for (ch = world[rm]->people; ch; ch = next_ch)
-			{
-				next_ch = ch->next_in_room;
-				if (IS_NPC(ch))
-				{
-					if (ch->followers || ch->master)
-						die_follower(ch);
-					extract_char(ch, FALSE);
-				}
-			}
-			for (o = world[rm]->contents; o; o = next_obj)
-			{
-				next_obj = o->next_content;
-				if (o != obj)
-					extract_obj(o);
-			}
-		}
-		return;
-*/
 	}
 
 	if (!(ch = get_char_by_obj(obj, arg)))
@@ -504,7 +483,6 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0, room;
 	CHAR_DATA *mob;
-	OBJ_DATA *object;
 
 	two_arguments(argument, arg1, arg2);
 
@@ -532,15 +510,26 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (is_abbrev(arg1, "obj"))
 	{
-		if ((object = read_object(number, VIRTUAL)) == NULL)
+		const auto object = world_objects.create_from_prototype_by_vnum(number);
+		if (!object)
 		{
 			obj_log(obj, "oload: bad object vnum");
 			return;
 		}
+
+		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
+			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
+		{
+			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
+			{
+				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d", number);
+				obj_log(obj, buf);
+			}
+		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
 		object->set_zone(world[room]->zone);
-		obj_to_room(object, room);
-		load_otrigger(object);
+		obj_to_room(object.get(), room);
+		load_otrigger(object.get());
 	}
 	else
 	{
@@ -789,7 +778,7 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	bool isSkill = false;
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
@@ -802,16 +791,7 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
 	}
@@ -863,7 +843,7 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	bool isSkill = false;
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
@@ -876,16 +856,7 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
 	}
@@ -916,7 +887,7 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
@@ -927,12 +898,7 @@ void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospellturn: spell not found");
 		return;
@@ -959,10 +925,49 @@ void do_ospellturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	CHAR_DATA *ch;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	int spellnum = 0, spelltime = 0;
+
+	one_argument(two_arguments(argument, name, spellname), amount);
+
+	if (!*name || !*spellname || !*amount)
+	{
+		obj_log(obj, "ospellturntemp: too few arguments");
+		return;
+	}
+
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	{
+		obj_log(obj, "ospellturntemp: spell not found");
+		return;
+	}
+
+	spelltime = atoi(amount);
+
+	if (spelltime < 0)
+	{
+		obj_log(obj, "ospellturntemp: time is negative");
+		return;
+	}
+
+	if ((ch = get_char_by_obj(obj, name)))
+	{
+		trg_spellturn(ch, spellnum, spelltime, last_trig_vnum);
+	}
+	else
+	{
+		obj_log(obj, "ospellturntemp: target not found");
+		return;
+	}
+}
+
 void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0;
 
 	one_argument(two_arguments(argument, name, spellname), amount);
@@ -973,12 +978,7 @@ void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospelladd: spell not found");
 		return;
@@ -1000,7 +1000,7 @@ void do_ospelladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
 	two_arguments(two_arguments(argument, name, spellname), type, turn);
@@ -1011,12 +1011,7 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		obj_log(obj, "ospellitem: spell not found");
 		return;
@@ -1090,12 +1085,12 @@ const struct obj_command_info obj_cmd_info[] =
 	{"otransform", do_otransform, 0},
 	{"odoor", do_odoor, 0},
 	{"ospellturn", do_ospellturn, 0},
+	{"ospellturntemp", do_ospellturntemp, 0},
 	{"ospelladd", do_ospelladd, 0},
 	{"ofeatturn", do_ofeatturn, 0},
 	{"oskillturn", do_oskillturn, 0},
 	{"oskilladd", do_oskilladd, 0},
 	{"ospellitem", do_ospellitem, 0},
-
 	{"\n", 0, 0}		// this must be last
 };
 

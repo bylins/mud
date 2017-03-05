@@ -125,7 +125,18 @@ public:
 	time_t get_board_date(Boards::BoardTypes type) const;
 	void set_board_date(Boards::BoardTypes type, time_t date);
 
+	int get_ice_currency();
+	void set_ice_currency(int value);
+	void add_ice_currency(int value);
+	void sub_ice_currency(int value);
+
+	int death_player_count();
+
+	bool is_arena_player();
+
 private:
+	// показывает, является ли чар турнирным или нет
+	bool arena_player = false;
 	// порядковый номер в файле плеер-листа (не особо нужен, но бывает удобно видеть по кто)
 	// TODO: вообще его можно пользовать вместо постоянного поиска по имени при сейвах чара и т.п. вещах, пользующих
 	// get_ptable_by_name или find_name (дублирование кода кстати) и всякие поиски по ид/уид, если уже имеем чар-дату
@@ -167,6 +178,11 @@ private:
 	std::array<int, ResetStats::Type::TOTAL_NUM> reset_stats_cnt_;
 	// временнЫе отметки о прочитанных сообщениях на досках
 	std::array<time_t, Boards::TYPES_NUM> board_date_;
+	// лед (доп. валюта)
+	int ice_currency;
+	// список зон, где чар умер и в каком количестве
+	std::map<int, int> count_death_zone;
+
 };
 
 namespace PlayerSystem

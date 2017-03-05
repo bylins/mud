@@ -4,6 +4,8 @@
 
 #include "depot.hpp"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "db.h"
 #include "handler.h"
 #include "comm.h"
@@ -34,7 +36,6 @@
 
 extern int bank(CHAR_DATA*, void*, int, char*);
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
-extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 namespace Depot
 {
@@ -54,7 +55,7 @@ public:
 	int uid; // глобальный уид
 };
 
-typedef std::list<OBJ_DATA *> ObjListType; // имя, шмотка
+typedef std::list<OBJ_DATA::shared_ptr> ObjListType; // имя, шмотка
 typedef std::list<OfflineNode> TimerListType; // список шмота, находящегося в оффлайне
 
 class CharNode
@@ -230,10 +231,13 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 		log("Хранилище: пустой файл предметов (%s).", filename);
 		return out.str();
 	}
-	char *databuf = new char [fsize + 1];
+
+	const std::shared_ptr<char> databuf(new char[fsize + 1], [](char* p) { delete[] p; });
 
 	fseek(fl, 0L, SEEK_SET);
-	if (!fread(databuf, fsize, 1, fl) || ferror(fl) || !databuf)
+	if (!databuf
+		|| !fread(databuf.get(), fsize, 1, fl)
+		|| ferror(fl))
 	{
 		fclose(fl);
 		log("Хранилище: ошибка чтения файла предметов (%s).", filename);
@@ -241,32 +245,36 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 	}
 	fclose(fl);
 
-	char *data = databuf;
-	*(data + fsize) = '\0';
+	char* data = databuf.get();
+	data[fsize] = '\0';
 	int error = 0;
-	OBJ_DATA *obj;
 
 	for (fsize = 0; *data && *data != '$'; fsize++)
 	{
-		if (!(obj = read_one_object_new(&data, &error)))
+		const auto obj = read_one_object_new(&data, &error);
+		if (!obj)
 		{
 			if (error)
+			{
 				log("Хранилище: ошибка чтения предмета (%s, error: %d).", filename, error);
+			}
 			continue;
 		}
-		if (GET_OBJ_UID(obj) == obj_uid && GET_OBJ_VNUM(obj) == obj_vnum)
+
+		if (GET_OBJ_UID(obj) == obj_uid
+			&& obj->get_vnum() == obj_vnum)
 		{
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << CCIRED(ch, C_NRM) << "'"
-			<< obj->get_short_description() << char_get_custom_label(obj, ch)
-			<< " рассыпал" << GET_OBJ_SUF_2(obj)
+			<< obj->get_short_description() << char_get_custom_label(obj.get(), ch)
+			<< " рассыпал" << GET_OBJ_SUF_2(obj.get())
 			<<  " в прах'" << CCNRM(ch, C_NRM) << "\r\n";
-			extract_obj(obj);
+			extract_obj(obj.get());
 			return text.str();
 		}
-		extract_obj(obj);
+		extract_obj(obj.get());
 	}
-	delete [] databuf;
+
 	return out.str();
 }
 
@@ -522,9 +530,13 @@ void load_chests()
 	{
 		if (ch->nr > 0 && ch->nr <= top_of_mobt && mob_index[ch->nr].func == bank)
 		{
-			OBJ_DATA *pers_chest = read_object(system_obj::PERS_CHEST_RNUM, REAL);
-			if (!pers_chest) return;
-			obj_to_room(pers_chest, ch->in_room);
+			const auto pers_chest = world_objects.create_from_prototype_by_rnum(system_obj::PERS_CHEST_RNUM);
+			if (!pers_chest)
+			{
+				return;
+			}
+
+			obj_to_room(pers_chest.get(), ch->in_room);
 		}
 	}
 }
@@ -555,8 +567,8 @@ void write_objlist_timedata(const ObjListType &cont, std::stringstream &out)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
-		out << GET_OBJ_VNUM(*obj_it) << " " << (*obj_it)->get_timer() << " "
-			<< get_object_low_rent(*obj_it) << " " << GET_OBJ_UID(*obj_it) << "\n";
+		out << GET_OBJ_VNUM(obj_it->get()) << " " << (*obj_it)->get_timer() << " "
+			<< get_object_low_rent(obj_it->get()) << " " << GET_OBJ_UID(obj_it->get()) << "\n";
 	}
 }
 
@@ -626,8 +638,8 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	out << "* Items file\n";
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
-		depot_log("save: %s %d %d", (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
-		write_one_object(out, *obj_it, 0);
+		depot_log("save: %s %d %d", (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(obj_it->get()), GET_OBJ_VNUM(obj_it->get()));
+		write_one_object(out, obj_it->get(), 0);
 	}
 	out << "\n$\n$\n";
 
@@ -688,19 +700,19 @@ void CharNode::update_online_item()
 				{
 					send_to_char(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 						CCIRED(ch, C_NRM), (*obj_it)->get_short_description().c_str(),
-						char_get_custom_label(*obj_it, ch).c_str(),
+						char_get_custom_label(obj_it->get(), ch).c_str(),
 						GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
 				}
 				else
 				{
-					add_purged_message(GET_UNIQUE(ch), GET_OBJ_VNUM(*obj_it), GET_OBJ_UID(*obj_it));
+					add_purged_message(GET_UNIQUE(ch), GET_OBJ_VNUM(obj_it->get()), GET_OBJ_UID(obj_it->get()));
 				}
 			}
 
 			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
 			depot_log("zero timer, online extract: %s %d %d",
-				(*obj_it)->get_short_description().c_str(), GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
-			extract_obj(*obj_it);
+				(*obj_it)->get_short_description().c_str(), GET_OBJ_UID(obj_it->get()), GET_OBJ_VNUM(obj_it->get()));
+			extract_obj(obj_it->get());
 			pers_online.erase(obj_it++);
 			need_save = true;
 		}
@@ -720,7 +732,7 @@ int delete_obj(int vnum)
 	{
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
 		{
-			if (GET_OBJ_VNUM(*obj_it) == vnum)
+			if (GET_OBJ_VNUM(obj_it->get()) == vnum)
 			{
 				(*obj_it)->set_timer(0);
 				num++;
@@ -793,7 +805,6 @@ void update_timers()
 // * Апдейт таймеров в оффлайн списках с расчетом общей ренты.
 void CharNode::update_offline_item(long uid)
 {
-	OBJ_DATA *obj;
 	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end();)
 	{
 		--(obj_it->timer);
@@ -805,13 +816,13 @@ void CharNode::update_offline_item(long uid)
 				depot_log("Что-то не так с объектом : %d", obj_it->vnum);
 				continue;
 			}
-			obj = read_object(rnum, REAL);
-			if (check_unlimited_timer(obj))
+			const auto obj = world_objects.create_from_prototype_by_rnum(rnum);
+			if (check_unlimited_timer(obj.get()))
 			{
 				obj_it->timer = obj->get_timer();
 				continue;
 			}
-			extract_obj(obj);
+			extract_obj(obj.get());
 			depot_log("update_offline_item %s: zero timer %d %d", name.c_str(), obj_it->vnum, obj_it->uid);
 			add_purged_message(uid, obj_it->vnum, obj_it->uid);
 			// шмотка уходит в лоад			
@@ -839,8 +850,8 @@ void CharNode::reset()
 {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end(); ++obj_it)
 	{
-		depot_log("reset %s: online extract %s %d %d", name.c_str(), (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
-		extract_obj(*obj_it);
+		depot_log("reset %s: online extract %s %d %d", name.c_str(), (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(obj_it->get()), GET_OBJ_VNUM(obj_it->get()));
+		extract_obj(obj_it->get());
 	}
 	pers_online.clear();
 
@@ -940,9 +951,9 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 			prev_obj_it = obj_it;
 			count = 1;
 		}
-		else if (!equal_obj(*obj_it, *prev_obj_it))
+		else if (!equal_obj(obj_it->get(), prev_obj_it->get()))
 		{
-			print_obj(i_out, s_out, *prev_obj_it, count, ch);
+			print_obj(i_out, s_out, prev_obj_it->get(), count, ch);
 			prev_obj_it = obj_it;
 			count = 1;
 		}
@@ -950,12 +961,12 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 		{
 			count++;
 		}
-		rent_per_day += get_object_low_rent(*obj_it);
+		rent_per_day += get_object_low_rent(obj_it->get());
 		found = true;
 	}
 	if (prev_obj_it != cont.cend() && count)
 	{
-		print_obj(i_out, s_out, *prev_obj_it, count, ch);
+		print_obj(i_out, s_out, prev_obj_it->get(), count, ch);
 	}
 
 	const long money = ch->get_gold() + ch->get_bank();
@@ -1052,7 +1063,7 @@ void show_depot(CHAR_DATA *ch)
 * В случае переполнения денег на счете - кладем сколько можем, остальное возвращаем чару на руки.
 * На руках при возврате переполняться уже некуда, т.к. вложение идет с этих самых рук.
 */
-void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
+void put_gold_chest(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 {
 	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
 	{
@@ -1060,8 +1071,8 @@ void put_gold_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 	}
 	long gold = GET_OBJ_VAL(obj, 0);
 	ch->add_bank(gold);
-	obj_from_char(obj);
-	extract_obj(obj);
+	obj_from_char(obj.get());
+	extract_obj(obj.get());
 	send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 }
 
@@ -1115,7 +1126,7 @@ unsigned count_inrg(const ObjListType &cont)
 }
 
 // * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
-bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
+bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 {
 	if (IS_NPC(ch)) return 0;
 
@@ -1142,7 +1153,10 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 	}
 	// в данном случае если мы не можем сунуть какую-то
 	// конкретную шмотку - это не стопит процесс
-	if (!can_put_chest(ch, obj)) return 1;
+	if (!can_put_chest(ch, obj.get()))
+	{
+		return 1;
+	}
 
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	if (it == depot_list.end())
@@ -1178,17 +1192,16 @@ bool put_depot(CHAR_DATA *ch, OBJ_DATA *obj)
 
 	depot_log("put_depot %s %ld: %s %d %d",
 		GET_NAME(ch), GET_UNIQUE(ch), obj->get_short_description().c_str(),
-		GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
+		GET_OBJ_UID(obj), GET_OBJ_VNUM(obj.get()));
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
 
-	act("Вы положили $o3 в персональное хранилище.", FALSE, ch, obj, 0, TO_CHAR);
-	act("$n положил$g $o3 в персональное хранилище.", TRUE, ch, obj, 0, TO_ROOM);
+	act("Вы положили $o3 в персональное хранилище.", FALSE, ch, obj.get(), 0, TO_CHAR);
+	act("$n положил$g $o3 в персональное хранилище.", TRUE, ch, obj.get(), 0, TO_ROOM);
 
-	obj_from_char(obj);
-	check_auction(NULL, obj);
-	obj->remove_me_from_objects_list(object_list);
-//	ObjectAlias::remove(obj);
+	obj_from_char(obj.get());
+	check_auction(NULL, obj.get());
+	world_objects.remove(obj);
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 
 	return 1;
@@ -1227,12 +1240,11 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 // * Берем шмотку из хранилища.
 void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHAR_DATA *vict)
 {
-	depot_log("remove_item %s: %s %d %d", name.c_str(), (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
-	(*obj_it)->set_next(object_list);
-	object_list = *obj_it;
-	obj_to_char(*obj_it, vict);
-	act("Вы взяли $o3 из персонального хранилища.", FALSE, vict, *obj_it, 0, TO_CHAR);
-	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, *obj_it, 0, TO_ROOM);
+	depot_log("remove_item %s: %s %d %d", name.c_str(), (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(obj_it->get()), GET_OBJ_VNUM(obj_it->get()));
+	world_objects.add(*obj_it);
+	obj_to_char(obj_it->get(), vict);
+	act("Вы взяли $o3 из персонального хранилища.", FALSE, vict, obj_it->get(), 0, TO_CHAR);
+	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, obj_it->get(), 0, TO_ROOM);
 	cont.erase(obj_it++);
 	need_save = true;
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
@@ -1255,7 +1267,7 @@ bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict)
 
 	for (ObjListType::iterator obj_it = cont.begin(); obj_it != cont.end() && (j <= number); ++obj_it)
 	{
-		if ((isname(tmp, (*obj_it)->get_aliases()) || CHECK_CUSTOM_LABEL(tmp, *obj_it, vict)) && ++j == number)
+		if ((isname(tmp, (*obj_it)->get_aliases()) || CHECK_CUSTOM_LABEL(tmp, obj_it->get(), vict)) && ++j == number)
 		{
 			remove_item(obj_it, cont, vict);
 			return true;
@@ -1295,10 +1307,10 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 		{
 			if (obj_dotmode == FIND_ALL
 				|| isname(arg, (*obj_list_it)->get_aliases())
-				|| CHECK_CUSTOM_LABEL(arg, *obj_list_it, vict))
+				|| CHECK_CUSTOM_LABEL(arg, obj_list_it->get(), vict))
 			{
 				// чтобы нельзя было разом собрать со шкафчика неск.тыс шмоток
-				if (!can_take_obj(vict, *obj_list_it))
+				if (!can_take_obj(vict, obj_list_it->get()))
 				{
 					return;
 				}
@@ -1333,7 +1345,7 @@ int get_total_cost_per_day(CHAR_DATA *ch)
 			for (ObjListType::const_iterator obj_it = it->second.pers_online.begin();
 					obj_it != it->second.pers_online.end(); ++obj_it)
 			{
-				cost += get_object_low_rent(*obj_it);
+				cost += get_object_low_rent(obj_it->get());
 			}
 		cost += it->second.get_cost_per_day();
 		return cost;
@@ -1412,11 +1424,12 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	char *data = databuf;
 	*(data + fsize) = '\0';
 	int error = 0;
-	OBJ_DATA *obj;
 
+	OBJ_DATA::shared_ptr obj;
 	for (fsize = 0; *data && *data != '$'; fsize++)
 	{
-		if (!(obj = read_one_object_new(&data, &error)))
+		obj = read_one_object_new(&data, &error);
+		if (!obj)
 		{
 			depot_log("reading object error %d", error);
 			if (error)
@@ -1429,16 +1442,16 @@ void CharNode::load_online_objs(int file_type, bool reload)
 			TimerListType::iterator obj_it = std::find_if(offline_list.begin(), offline_list.end(),
 											 boost::bind(std::equal_to<long>(),
 														 boost::bind(&OfflineNode::uid, _1), GET_OBJ_UID(obj)));
-			if (obj_it != offline_list.end() && obj_it->vnum == GET_OBJ_VNUM(obj))
+			if (obj_it != offline_list.end() && obj_it->vnum == obj->get_vnum())
 			{
-				depot_log("load object %s %d %d", obj->get_short_description().c_str(), GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
+				depot_log("load object %s %d %d", obj->get_short_description().c_str(), GET_OBJ_UID(obj), obj->get_vnum());
 				obj->set_timer(obj_it->timer);
-                int temp_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
+                int temp_timer = obj_proto[obj->get_rnum()]->get_timer();
                 if (obj->get_timer() > temp_timer)
                     obj->set_timer(temp_timer);
 				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
 				// увеличивается в read_one_object_new через read_object
-				int rnum = real_object(GET_OBJ_VNUM(obj));
+				int rnum = real_object(obj->get_vnum());
 				if (rnum >= 0)
 				{
 					obj_proto.dec_stored(rnum);
@@ -1446,8 +1459,8 @@ void CharNode::load_online_objs(int file_type, bool reload)
 			}
 			else
 			{
-				depot_log("extract object %s %d %d", obj->get_short_description().c_str(), GET_OBJ_UID(obj), GET_OBJ_VNUM(obj));
-				extract_obj(obj);
+				depot_log("extract object %s %d %d", obj->get_short_description().c_str(), GET_OBJ_UID(obj), obj->get_vnum());
+				extract_obj(obj.get());
 				continue;
 			}
 		}
@@ -1456,8 +1469,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 
 		pers_online.push_front(obj);
 		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
-		obj->remove_me_from_objects_list(object_list);
-//		ObjectAlias::remove(obj);
+		world_objects.remove(obj);
 	}
 	delete [] databuf;
 	offline_list.clear();
@@ -1506,14 +1518,15 @@ void CharNode::online_to_offline(ObjListType &cont)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
 	{
-		depot_log("online_to_offline %s: %s %d %d", name.c_str(), (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(*obj_it), GET_OBJ_VNUM(*obj_it));
+		depot_log("online_to_offline %s: %s %d %d",
+			name.c_str(), (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(*obj_it), (*obj_it)->get_vnum());
 		OfflineNode tmp_obj;
-		tmp_obj.vnum = GET_OBJ_VNUM(*obj_it);
+		tmp_obj.vnum = (*obj_it)->get_vnum();
 		tmp_obj.timer = (*obj_it)->get_timer();
-		tmp_obj.rent_cost = get_object_low_rent(*obj_it);
+		tmp_obj.rent_cost = get_object_low_rent(obj_it->get());
 		tmp_obj.uid = GET_OBJ_UID(*obj_it);
 		offline_list.push_back(tmp_obj);
-		extract_obj(*obj_it);
+		extract_obj(obj_it->get());
 		// плюсуем персональное хранилище к общей ренте
 		add_cost_per_day(tmp_obj.rent_cost);
 		// из макс.в мире в игре она уходит в ренту
@@ -1609,7 +1622,8 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 				{
 					continue;
 				}
-				if (OBJ_FLAGGED(*obj_it, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
+				if ((*obj_it)->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
+					&& !IS_GOD(ch))
 				{
 					continue;
 				}
@@ -1661,7 +1675,9 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(); obj_it != it->second.pers_online.end(); ++obj_it)
 		{
 			if (GET_OBJ_RNUM(*obj_it) == robj_num)
-				olc_update_object(robj_num, *obj_it, olc_proto);
+			{
+				olc_update_object(robj_num, obj_it->get(), olc_proto);
+			}
 		}
 	}
 }
@@ -1685,7 +1701,7 @@ OBJ_DATA * locate_object(const char *str)
 		{
 			if (isname(str, (*k)->get_aliases()))
 			{
-				return *k;
+				return k->get();
 			}
 		}
 	}
@@ -1711,7 +1727,7 @@ bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 			obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it)
 		{
-			if (vnum_list.find(GET_OBJ_VNUM(*obj_it)) != vnum_list.end())
+			if (vnum_list.find((*obj_it)->get_vnum()) != vnum_list.end())
 			{
 				return true;
 			}
@@ -1729,11 +1745,11 @@ int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep)
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 			obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it)
 		{
-			if (SetSystem::is_norent_set(ch, *obj_it))
+			if (SetSystem::is_norent_set(ch, obj_it->get()))
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
 					"$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-					OBJN(*obj_it, ch, 3));
+					OBJN(obj_it->get(), ch, 3));
 				act(buf, FALSE, recep, 0, ch, TO_VICT);
 				return 1;
 			}

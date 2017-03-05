@@ -14,6 +14,8 @@
 
 #include "magic.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "spells.h"
@@ -40,6 +42,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "char_obj_utils.inl"
 
 #include <boost/format.hpp>
 
@@ -836,11 +839,11 @@ int calc_anti_savings(CHAR_DATA * ch)
 	int modi = 0;
 
 	if (WAITLESS(ch))
-		modi = 150;
+		modi = 350;
 	else if (GET_GOD_FLAG(ch, GF_GODSLIKE))
-		modi = 50;
+		modi = 250;
 	else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
-		modi = -50;
+		modi = -250;
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int)((GET_REAL_WIS(ch) - 23) * 3 / 2)));
@@ -932,7 +935,7 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
     if (IS_NPC(victim) && !IS_NPC(killer))
 		log("SAVING: Caster==%s  Mob==%s vnum==%d Level==%d type==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d cast_apply==%d result==%d new_random==%d", GET_NAME(killer), GET_NAME(victim), GET_MOB_VNUM(victim), GET_LEVEL(victim), type, extend_saving_throws(class_sav, type, GET_LEVEL(victim)), temp_save_stat, temp_awake_mod, GET_SAVE(victim, type), ext_apply, save, number(1, 200));
 	// Throwing a 0 is always a failure.
-	if (MAX(5, save) <= number(1, 100))
+	if (MAX(10, save) <= number(1, 200))
 		return (TRUE);
 
 	// Oops, failed. Sorry.
@@ -1065,7 +1068,10 @@ void mobile_affect_update(void)
 			}
 
 			if (DeathTrap::check_death_trap(i))
+			{
 				continue;
+			}
+
 			if (was_charmed)
 			{
 				stop_follower(i, SF_CHARMLOST);
@@ -1485,7 +1491,6 @@ void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ)
 {
-	OBJ_DATA *obj;
 	OBJ_DATA *obj0 = NULL, *obj1 = NULL, *obj2 = NULL, *obj3 = NULL, *objo = NULL;
 	int item0 = -1, item1 = -1, item2 = -1, item3 = -1;
 	int create = 0, obj_num = -1, percent = 0, num = 0;
@@ -1548,7 +1553,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
 	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
 
-	for (obj = ch->carrying; obj; obj = obj->get_next_content())
+	for (auto obj = ch->carrying; obj; obj = obj->get_next_content())
 	{
 		if (item0 >= 0 && item0_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
@@ -1588,25 +1593,32 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 		}
 	}
 
-//  log("%d %d %d %d",items->items[0],items->items[1],items->items[2],items->rnumber);
-//  log("%d %d %d %d",item0,item1,item2,item3);
 	if (!objo ||
 			(items->items[0] >= 0 && item0 >= 0) ||
 			(items->items[1] >= 0 && item1 >= 0) ||
 			(items->items[2] >= 0 && item2 >= 0) || (items->rnumber >= 0 && item3 >= 0))
+	{
 		return (FALSE);
-//  log("OK!");
+	}
+
 	if (extract)
 	{
 		if (spelltype == SPELL_RUNES)
+		{
 			strcpy(buf, "Вы сложили ");
+		}
 		else
+		{
 			strcpy(buf, "Вы взяли ");
+		}
+
+		OBJ_DATA::shared_ptr obj;
 		if (create)
 		{
-			if (!(obj = read_object(obj_num, VIRTUAL)))
+			obj = world_objects.create_from_prototype_by_vnum(obj_num);
+			if (!obj)
 			{
-				return (FALSE);
+				return FALSE;
 			}
 			else
 			{
@@ -1618,6 +1630,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 				}
 			}
 		}
+
 		if (item0 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
@@ -1625,6 +1638,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spelltype);
 		}
+
 		if (item1 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
@@ -1632,6 +1646,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spelltype);
 		}
+
 		if (item2 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
@@ -1639,6 +1654,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spelltype);
 		}
+
 		if (item3 == -2)
 		{
 			strcat(buf, CCWHT(ch, C_NRM));
@@ -1646,21 +1662,23 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 			strcat(buf, ", ");
 			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spelltype);
 		}
+
 		strcat(buf, CCNRM(ch, C_NRM));
+
 		if (create)
 		{
 			if (percent >= 0)
 			{
 				strcat(buf, " и создали $o3.");
-				act(buf, FALSE, ch, obj, 0, TO_CHAR);
-				act("$n создал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-				obj_to_char(obj, ch);
+				act(buf, FALSE, ch, obj.get(), 0, TO_CHAR);
+				act("$n создал$g $o3.", FALSE, ch, obj.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
+				obj_to_char(obj.get(), ch);
 			}
 			else
 			{
 				strcat(buf, " и попытались создать $o3.\r\n" "Ничего не вышло.");
-				act(buf, FALSE, ch, obj, 0, TO_CHAR);
-				extract_obj(obj);
+				act(buf, FALSE, ch, obj.get(), 0, TO_CHAR);
+				extract_obj(obj.get());
 			}
 		}
 		else
@@ -1888,13 +1906,21 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (ch != victim)
 	{
 		modi = calc_anti_savings(ch);
+		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !IS_NPC(victim))
+		{
+			modi -= 80; //бонуса на непись нету
+		}
+		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim))
+		{
+			modi -= 30; //бонуса на непись нету
+		}
 	}
 
 	if (!IS_NPC(ch) && (GET_LEVEL(ch) > 10))
 		modi += (GET_LEVEL(ch) - 10);
 //  if (!IS_NPC(ch) && !IS_NPC(victim))
 //     modi = 0;
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
 		modi = modi - 50;
 
 	switch (spellnum)
@@ -2696,9 +2722,18 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	if (ch != victim)
 	{
 		modi = calc_anti_savings(ch);
+		if (can_use_feat(ch, RELATED_TO_MAGIC_FEAT) && !IS_NPC(victim))
+		{
+			modi -= 80; //бонуса на непись нету
+		}
+		if (can_use_feat(ch, MAGICAL_INSTINCT_FEAT) && !IS_NPC(victim))
+		{
+			modi -= 30; //бонуса на непись нету
+		}
+
 	}
 
-	if (PRF_FLAGGED(ch, PRF_AWAKE))
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && !IS_NPC(victim))
 	{
 		modi = modi - 50;
 	}
@@ -5068,9 +5103,13 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			to_char = "Вам не под силу зачаровать магическую вещь.";
 			break;
 		};
+		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
+		{
+			send_to_char(ch, "Сетовый предмет не может быть заколдован.\r\n");
+			break;
+		}
 
 		reagobj = GET_EQ(ch, WEAR_HOLD);
-
 		if (reagobj
 			&& (get_obj_in_list_vnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
 				|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
@@ -5197,7 +5236,6 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 
 int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 {
-	OBJ_DATA *tobj;
 	obj_vnum z;
 
 	if (ch == NULL)
@@ -5221,30 +5259,34 @@ int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 		return 0;
 	}
 
-	if (!(tobj = read_object(z, VIRTUAL)))
+	const auto tobj = world_objects.create_from_prototype_by_vnum(z);
+	if (!tobj)
 	{
 		send_to_char("Что-то не видно образа для создания.\r\n", ch);
 		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", spellnum, z);
 		return 0;
 	}
-	act("$n создал$g $o3.", FALSE, ch, tobj, 0, TO_ROOM | TO_ARENA_LISTEN);
-	act("Вы создали $o3.", FALSE, ch, tobj, 0, TO_CHAR);
-	load_otrigger(tobj);
+
+	act("$n создал$g $o3.", FALSE, ch, tobj.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
+	act("Вы создали $o3.", FALSE, ch, tobj.get(), 0, TO_CHAR);
+	load_otrigger(tobj.get());
 
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
 		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(tobj, ch->in_room);
-		obj_decay(tobj);
+		obj_to_room(tobj.get(), ch->in_room);
+		obj_decay(tobj.get());
 	}
 	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(tobj) > CAN_CARRY_W(ch))
 	{
 		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(tobj, ch->in_room);
-		obj_decay(tobj);
+		obj_to_room(tobj.get(), ch->in_room);
+		obj_decay(tobj.get());
 	}
 	else
-		obj_to_char(tobj, ch);
+	{
+		obj_to_char(tobj.get(), ch);
+	}
 
 	return 1;
 }
@@ -5451,7 +5493,7 @@ const spl_message masses_messages[] =
 	 0},
 	{SPELL_SONICWAVE,
 	 "Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!",
-	 "$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны.!",
+	 "$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!",
 	 NULL,
 	 0},
 	{ -1, 0, 0, 0, 0}

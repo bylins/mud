@@ -25,6 +25,7 @@
 #include <list>
 #include <new>
 #include <vector>
+#include <sstream>
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -54,6 +55,8 @@ extern char WinToKoi[];
 extern char KoiToWin[];
 extern char KoiToWin2[];
 extern char AltToLat[];
+
+extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
 
 // public functions in utils.cpp
 CHAR_DATA *find_char(long n);
@@ -107,7 +110,7 @@ bool is_head(std::string name);
 extern std::list<FILE *> opened_files;
 extern bool is_dark(room_rnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
-
+int VPOSI_MOB(CHAR_DATA *ch, int stat);
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
@@ -411,20 +414,8 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 	var = var ^ (bit & 0x3FFFFFFF);
 }
 
-/*
- * Accessing player specific data structures on a mobile is a very bad thing
- * to do.  Consider that changing these variables for a single mob will change
- * it for every other single mob in the game.  If we didn't specifically check
- * for it, 'wimpy' would be an extremely bad thing for a mob to do, as an
- * example.  If you really couldn't care less, change this to a '#if 0'.
- */
-#if 0
-// Subtle bug in the '#var', but works well for now.
-#define CHECK_PLAYER_SPECIAL(ch, var) \
-   (*(((ch)->player_specials == &dummy_mob) ? (log("SYSERR: Mob using '"#var"' at %s:%d.", __FILE__, __LINE__), &(var)) : &(var)))
-#else
+// TODO: Get rid of me.
 #define CHECK_PLAYER_SPECIAL(ch, var)  (var)
-#endif
 
 #define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
@@ -607,6 +598,11 @@ inline T VPOSI(const T val, const T min, const T max)
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
 
+// Û ˜‡Ó‚ ÂÊÂÚ ‰Ó 50, Û ÏÓ·Ó‚ ‰Ó ÒÚ‡
+#define VPOSI_MOB(ch, stat_id, val)	IS_NPC(ch) ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
+
+
+
 #define GET_CLASS(ch)   ((ch)->get_class())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
 #define GET_HEIGHT(ch)  ((ch)->player_data.height)
@@ -623,17 +619,17 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_DRUNK_STATE(ch) ((ch)->player_specials->saved.DrunkState)
 
 #define GET_STR_ADD(ch) ((ch)->get_str_add())
-#define GET_REAL_STR(ch) (MAX(1, ((ch)->get_str() + GET_STR_ADD(ch))))
+#define GET_REAL_STR(ch) (VPOSI_MOB(ch, 0, ((ch)->get_str() + GET_STR_ADD(ch))))
 #define GET_DEX_ADD(ch) ((ch)->get_dex_add())
-#define GET_REAL_DEX(ch) (MAX(1, ((ch)->get_dex() + GET_DEX_ADD(ch))))
+#define GET_REAL_DEX(ch) (VPOSI_MOB(ch, 1, (ch)->get_dex() + GET_DEX_ADD(ch)))
 #define GET_CON_ADD(ch) ((ch)->get_con_add())
-#define GET_REAL_CON(ch) (MAX(1, ((ch)->get_con() + GET_CON_ADD(ch))))
+#define GET_REAL_CON(ch) (VPOSI_MOB(ch, 2, (ch)->get_con() + GET_CON_ADD(ch)))
 #define GET_WIS_ADD(ch) ((ch)->get_wis_add())
-#define GET_REAL_WIS(ch) (MAX(1, ((ch)->get_wis() + GET_WIS_ADD(ch))))
+#define GET_REAL_WIS(ch) (VPOSI_MOB(ch, 3, ((ch)->get_wis() + GET_WIS_ADD(ch))))
 #define GET_INT_ADD(ch) ((ch)->get_int_add())
-#define GET_REAL_INT(ch) (POSI(ch->get_int() + GET_INT_ADD(ch)))
+#define GET_REAL_INT(ch) (VPOSI_MOB(ch, 4, ((ch)->get_int() + GET_INT_ADD(ch))))
 #define GET_CHA_ADD(ch) ((ch)->get_cha_add())
-#define GET_REAL_CHA(ch) (POSI(ch->get_cha() + GET_CHA_ADD(ch)))
+#define GET_REAL_CHA(ch) (VPOSI_MOB(ch, 5, ((ch)->get_cha() + GET_CHA_ADD(ch))))
 #define GET_SIZE(ch)    ((ch)->real_abils.size)
 #define GET_SIZE_ADD(ch)  ((ch)->add_abils.size_add)
 #define GET_REAL_SIZE(ch) (VPOSI(GET_SIZE(ch) + GET_SIZE_ADD(ch), 1, 100))
@@ -726,7 +722,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define AGRO(ch)    CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->agro_time))
 
 #define EXCHANGE_FILTER(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->Exchange_filter))
-#define IGNORE_LIST(ch)     CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->ignores))
 
 #define GET_ALIASES(ch)        CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->aliases))
 #define GET_RSKILL(ch)          CHECK_PLAYER_SPECIAL((ch), ((ch)->player_specials->rskill))
@@ -1207,6 +1202,7 @@ const char * desc_count(long how_many, int of_what);
 #define WHAT_TGOLDu		34
 #define WHAT_TSILVERu	35
 #define WHAT_TBRONZEu	36
+#define WHAT_ICEu		37
 
 #undef AW_HIDE // ÀœŒ∆Ã…À‘’≈‘ ” winuser.h
 // some awaking cases

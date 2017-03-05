@@ -4,6 +4,7 @@
 
 #include "parcel.hpp"
 
+#include "world.objects.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "char_obj_utils.inl"
@@ -33,7 +34,6 @@ extern room_rnum r_unreg_start_room;
 
 extern CHAR_DATA *get_player_of_name(const char *name);
 extern int get_buf_line(char **source, char *target);
-extern OBJ_DATA *read_one_object_new(char **data, int *error);
 extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
@@ -62,11 +62,11 @@ static int send_reserved_buffer = 0;
 class Node
 {
 public:
-	Node (int money, OBJ_DATA *obj) : money_(money), timer_(0), obj_(obj) {};
-	Node () : money_(0), timer_(0), obj_(0) {};
+	Node (int money, const OBJ_DATA::shared_ptr& obj) : money_(money), timer_(0), obj_(obj) {};
+	Node () : money_(0), timer_(0), obj_(nullptr) {};
 	int money_; // резервированные средства
 	int timer_; // сколько минут шмотка уже ждет получателя (при значении выще KEEP_TIMER возвращается отправителю)
-	OBJ_DATA *obj_; // шмотка (здесь же берется таймер, при уходе в ноль - пурж и возврат оставшегося резерва)
+	OBJ_DATA::shared_ptr obj_; // шмотка (здесь же берется таймер, при уходе в ноль - пурж и возврат оставшегося резерва)
 };
 
 class LoadNode
@@ -243,16 +243,15 @@ std::vector<int> get_objs(long char_uid)
 		{
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
-				buf_vector.push_back(GET_OBJ_VNUM((*it3).obj_));
+				buf_vector.push_back((*it3).obj_->get_vnum());
 			}
 		}
 	}
 	return buf_vector;
 }
 
-
 // * Отправка предмета (снятие/резервирование денег, вывод из списка предметов).
-void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj)
+void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA* obj)
 {
 	if (!ch || !mailman || !vict_uid || !obj)
 	{
@@ -299,7 +298,8 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	snprintf(buf, sizeof(buf), "%s%s%s\r\n", CCWHT(ch, C_NRM), GET_OBJ_PNAME(obj, 0).c_str(), CCNRM(ch, C_NRM));
 	send_buffer += buf;
 
-	Node tmp_node(reserved_cost, obj);
+	const auto object_ptr = world_objects.get_by_raw_ptr(obj);
+	Node tmp_node(reserved_cost, object_ptr);
 	add_parcel(vict_uid, GET_UNIQUE(ch), tmp_node);
 
 	send_reserved_buffer += reserved_cost;
@@ -310,7 +310,7 @@ void send_object(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, OBJ_DATA *obj
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 
 	check_auction(NULL, obj);
-	obj->remove_me_from_objects_list(object_list);
+	world_objects.remove(obj);
 }
 
 // * Отправка предмета, дергается из спешиала почты ('отправить имя предмет)'.
@@ -478,7 +478,9 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 					{
 						continue;
 					}
-					if (OBJ_FLAGGED(it3->obj_, EExtraFlag::ITEM_NOLOCATE) && !IS_GOD(ch))
+
+					if (it3->obj_->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
+						&& !IS_GOD(ch))
 					{
 						continue;
 					}
@@ -568,13 +570,13 @@ void fill_ex_desc(CHAR_DATA *ch, OBJ_DATA *obj, std::string sender)
 // * Расчет стоимости ренты за предмет, пока он лежал на почте.
 int calculate_timer_cost(std::list<Node>::iterator const &it)
 {
-	return static_cast<int>((get_object_low_rent(it->obj_) / (24.0 * 60.0)) * it->timer_);
+	return static_cast<int>((get_object_low_rent(it->obj_.get()) / (24.0 * 60.0)) * it->timer_);
 }
 
 // * Генерим сам контейнер посылку.
 OBJ_DATA * create_parcel()
 {
-	OBJ_DATA *obj = create_obj();
+	const auto obj = world_objects.create_blank();
 
 	obj->set_aliases("посылка бандероль пакет ящик parcel box case chest");
 	obj->set_short_description("посылка");
@@ -596,7 +598,7 @@ OBJ_DATA * create_parcel()
 	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 	obj->set_extra_flag(EExtraFlag::ITEM_DECAY);
 
-	return obj;
+	return obj.get();
 }
 
 // * Получение посылки на почте, дергается из спешиала почты. ('получить').
@@ -627,10 +629,8 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 			{
 				money += it3->money_ - calculate_timer_cost(it3);
 				// добавляем в глоб.список и кладем в посылку
-				it3->obj_->set_next(object_list);
-				object_list = it3->obj_;
-//				ObjectAlias::add(it3->obj_);
-				obj_to_obj(it3->obj_, obj);
+				world_objects.add(it3->obj_);
+				obj_to_obj(it3->obj_.get(), obj);
 			}
 			return_money(name, money, RETURN_WITH_MONEY);
 
@@ -713,7 +713,7 @@ void extract_parcel(int sender_uid, int target_uid, const std::list<Node>::itera
 		return_money(name, money_return, RETURN_WITH_MONEY);
 	}
 
-	extract_obj(it->obj_);
+	extract_obj(it->obj_.get());
 }
 
 // * Генерация письма о возврате посылки.
@@ -828,7 +828,7 @@ void load()
 		}
 		add_parcel(node.target, node.sender, node.obj_node);
 		// из глобального списка изымаем
-		node.obj_node.obj_->remove_me_from_objects_list(object_list);
+		world_objects.remove(node.obj_node.obj_);
 	}
 
 	free(readdata);
@@ -848,7 +848,7 @@ void save()
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
 				out << "#" << it->first << "\n" << it2->first << "\n" << it3->money_ << "\n" << it3->timer_ << "\n\n";
-				write_one_object(out, it3->obj_, 0);
+				write_one_object(out, it3->obj_.get(), 0);
 				out << "\n";
 			}
 		}
@@ -904,7 +904,7 @@ void update_timers()
 						++it3->timer_;
 						if (it3->timer_ >= KEEP_TIMER)
 						{
-							return_invoice(it->first, it3->obj_);
+							return_invoice(it->first, it3->obj_.get());
 							prepare_return(it2->first, it3);
 							// тут надо штатно уменьшить счетчики у плеера
 							std::string name = GetNameByUnique(it2->first);
@@ -959,7 +959,7 @@ int delete_obj(int vnum)
 		{
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
-				if (GET_OBJ_VNUM(it3->obj_) == vnum)
+				if (it3->obj_->get_vnum() == vnum)
 				{
 					it3->obj_->set_timer(0);
 					num++;
@@ -1007,7 +1007,9 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
 				if (GET_OBJ_RNUM(it3->obj_) == robj_num)
-					olc_update_object(robj_num, it3->obj_, olc_proto);
+				{
+					olc_update_object(robj_num, it3->obj_.get(), olc_proto);
+				}
 			}
 		}
 	}
@@ -1024,7 +1026,7 @@ OBJ_DATA * locate_object(const char *str)
 			{
 				if (isname(str, o->obj_->get_aliases()))
 				{
-					return o->obj_;
+					return o->obj_.get();
 				}
 			}
 		}
@@ -1051,10 +1053,8 @@ void bring_back(CHAR_DATA *ch, CHAR_DATA *mailman)
 		for (std::list<Node>::iterator l = k->second.begin(); l != k->second.end(); ++l)
 		{
 			money += l->money_ - calculate_timer_cost(l);
-			l->obj_->set_next(object_list);
-			object_list = l->obj_;
-//			ObjectAlias::add(l->obj_);
-			obj_to_obj(l->obj_, obj);
+			world_objects.add(l->obj_);
+			obj_to_obj(l->obj_.get(), obj);
 		}
 		obj_to_char(obj, ch);
 		snprintf(buf, MAX_STRING_LENGTH, "$n дал$g вам посылку.");

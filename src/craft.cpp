@@ -6,6 +6,7 @@
 
 #include "craft.hpp"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "craft.logger.hpp"
 #include "craft.commands.hpp"

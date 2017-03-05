@@ -14,6 +14,8 @@
 
 #include "act.other.hpp"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -1815,17 +1817,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 
 	if (OBJ_FLAGGED(target, EExtraFlag::ITEM_SETSTUFF))
 	{
-		std::string name = target->get_PName(0);
-		if (name.empty())
-		{
-			name = "<empty>";
-		}
-		name[0] = UPPER(name[0]);
-		send_to_char(ch, "%s не %s быть зачарован%s, т.к. %s частью набора предметов.\r\n",
-			name.c_str(),
-			GET_OBJ_SEX(target) == ESex::SEX_POLY ? "могут" : "может",
-			GET_OBJ_VIS_SUF_6(target, ch),
-			GET_OBJ_SEX(target) == ESex::SEX_POLY ? "являются" : "является");
+		send_to_char(ch, "Сетовый предмет не может быть зачарован.\r\n");
 		return;
 	}
 	if (GET_OBJ_TYPE(target) == OBJ_DATA::ITEM_ENCHANT)
@@ -3256,7 +3248,6 @@ void dig_obj(CHAR_DATA *ch, OBJ_DATA *obj)
 void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *mob;
-	OBJ_DATA *obj;
 	char textbuf[300];
 	int percent, prob;
 	int stone_num, random_stone;
@@ -3348,24 +3339,39 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		else
 			send_to_char("Не найден прототип обжекта!", ch);
 	}
+
+	OBJ_DATA::shared_ptr obj;
 	if (number(1, dig_vars.pandora_chance) == 1)	// копнули шкатулку пандоры
 	{
 		vnum = dig_vars.pandora_vnum;
-		obj = read_object(real_object(vnum), REAL);
+
+		obj = world_objects.create_from_prototype_by_vnum(vnum);
 		if (obj)
-			dig_obj(ch, obj);
+		{
+			dig_obj(ch, obj.get());
+		}
 		else
+		{
 			send_to_char("Не найден прототип обжекта!", ch);
+		}
+
 		return;
 	}
+
 	if (number(1, dig_vars.trash_chance) == 1)	// копнули мусор
 	{
 		vnum = number(dig_vars.trash_vnum_start, dig_vars.trash_vnum_end);
-		obj = read_object(real_object(vnum), REAL);
+		obj = world_objects.create_from_prototype_by_vnum(vnum);
+
 		if (obj)
-			dig_obj(ch, obj);
+		{
+			dig_obj(ch, obj.get());
+		}
 		else
+		{
 			send_to_char("Не найден прототип обжекта!", ch);
+		}
+
 		return;
 	}
 
@@ -3379,10 +3385,7 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	ch->set_int(old_int);
 	ch->set_wis(old_wis);
 
-
 	WAIT_STATE(ch, dig_vars.lag * PULSE_VIOLENCE);
-
-
 
 	if (percent > prob / dig_vars.prob_divide)
 	{
@@ -3390,7 +3393,6 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		act("$n отрыл$g смешную ямку.", FALSE, ch, 0, 0, TO_ROOM);
 		return;
 	}
-
 
 	// возможность копать мощные камни зависит от навыка
 
@@ -3424,7 +3426,7 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 	vnum = dig_vars.stone1_vnum - 1 + stone_num;
-	obj = read_object(real_object(vnum), REAL);
+	obj = world_objects.create_from_prototype_by_vnum(vnum);
 	if (obj)
 	{
 		if (number(1, dig_vars.glass_chance) != 1)
@@ -3436,7 +3438,7 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			obj->set_material(OBJ_DATA::MAT_DIAMOND);
 		}
 
-		dig_obj(ch, obj);
+		dig_obj(ch, obj.get());
 	}
 	else
 	{

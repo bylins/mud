@@ -34,6 +34,8 @@
  *  such installation can be found in INSTALL.  Enjoy........    N'Atas-Ha *
  ***************************************************************************/
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "dg_scripts.h"
 #include "obj.hpp"
 #include "db.h"
@@ -343,8 +345,8 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (!(victim = get_char_room_vis(ch, arg)))
 	{
-		sprintf(buf, "msend: victim (%s) does not exist", arg);
-		mob_log(ch, buf, LGH);
+//		sprintf(buf, "msend: victim (%s) does not exist", arg);
+//		mob_log(ch, buf, LGH);
 		return;
 	}
 
@@ -401,7 +403,6 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int number = 0;
 	CHAR_DATA *mob;
-	OBJ_DATA *object;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -430,27 +431,42 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, "mload: bad mob vnum");
 			return;
 		}
+		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
 		char_to_room(mob, ch->in_room);
 		load_mtrigger(mob);
 	}
 	else if (is_abbrev(arg1, "obj"))
 	{
-		if ((object = read_object(number, VIRTUAL)) == NULL)
+		const auto object = world_objects.create_from_prototype_by_vnum(number);
+		if (!object)
 		{
 			mob_log(ch, "mload: bad object vnum");
 			return;
 		}
+
+		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
+			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
+		{
+			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
+			{
+				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d", number);
+				mob_log(ch, buf);
+			}
+		}
+
 		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
 		object->set_zone(world[ch->in_room]->zone);
-		if (CAN_WEAR(object, EWearFlag::ITEM_WEAR_TAKE))
+
+		if (CAN_WEAR(object.get(), EWearFlag::ITEM_WEAR_TAKE))
 		{
-			obj_to_char(object, ch);
+			obj_to_char(object.get(), ch);
 		}
 		else
 		{
-			obj_to_room(object, ch->in_room);
+			obj_to_room(object.get(), ch->in_room);
 		}
-		load_otrigger(object);
+
+		load_otrigger(object.get());
 	}
 	else
 		mob_log(ch, "mload: bad type");
@@ -1350,7 +1366,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // increases spells & skills 
 const char *skill_name(int num);
 const char *spell_name(int num);
-int find_spell_num(char *name);
+int fix_name_and_find_spell_num(char *name);
 
 void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -1430,7 +1446,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	bool isSkill = false;
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
@@ -1454,16 +1470,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = 1;
 	}
@@ -1541,7 +1548,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	bool isSkill = false;
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
@@ -1565,16 +1572,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	while ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-	while ((pos = strchr(skillname, '_')))
-	{
-		*pos = ' ';
-	}
-
-	if ((skillnum = find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_skill_num(skillname)) > 0 && skillnum <= MAX_SKILL_NUM)
 	{
 		isSkill = true;
 	}
@@ -1631,7 +1629,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int skillnum = 0, skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
@@ -1654,12 +1652,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspellturn: spell not found");
 		return;
@@ -1710,10 +1703,81 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	trg_spellturn(victim, skillnum, skilldiff, last_trig_vnum);
 }
 
+void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	CHAR_DATA *victim;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
+	int spellnum = 0, spelltime = 0;
+
+	if (!MOB_OR_IMPL(ch))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
+		return;
+	}
+
+	argument = one_argument(argument, name);
+	two_arguments(argument, spellname, amount);
+
+	if (!*name || !*spellname || !*amount)
+	{
+		mob_log(ch, "mspellturntemp: too few arguments");
+		return;
+	}
+
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	{
+		mob_log(ch, "mspellturntemp: spell not found");
+		return;
+	}
+
+	spelltime = atoi(amount);
+
+	if(spelltime < 0)
+	{
+		mob_log(ch, "mspellturntemp: time is negative");
+		return;
+	}
+
+	if (!MOB_OR_IMPL(ch))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		return;
+
+	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
+		return;
+
+	if (*name == UID_CHAR)
+	{
+		if (!(victim = get_char(name)))
+		{
+			sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
+			mob_log(ch, buf);
+			return;
+		}
+	}
+	else if (!(victim = get_char_vis(ch, name, FIND_CHAR_WORLD)))
+	{
+		sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
+		mob_log(ch, buf);
+		return;
+	};
+
+	trg_spellturntemp(victim, spellnum, spelltime, last_trig_vnum);
+}
+
 void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int skillnum = 0, skilldiff = 0;
 
 	if (!MOB_OR_IMPL(ch))
@@ -1733,12 +1797,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(skillname, '.')))
-	{
-		*pos = ' ';
-	}
-
-	if ((skillnum = find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SKILL_NUM)
+	if ((skillnum = fix_name_and_find_spell_num(skillname)) < 0 || skillnum == 0 || skillnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspelladd: skill not found");
 		return;
@@ -1784,7 +1843,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *victim;
-	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH], *pos;
+	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0, spell = 0;
 
 	if (!MOB_OR_IMPL(ch))
@@ -1806,12 +1865,7 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((pos = strchr(spellname, '.')))
-	{
-		*pos = ' ';
-	}
-
-	if ((spellnum = find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
+	if ((spellnum = fix_name_and_find_spell_num(spellname)) < 0 || spellnum == 0 || spellnum > MAX_SPELLS)
 	{
 		mob_log(ch, "mspellitem: spell not found");
 		return;

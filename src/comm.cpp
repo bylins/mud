@@ -31,6 +31,8 @@
 
 #include "comm.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "external.trigger.hpp"
 #include "shutdown.parameters.hpp"
 #include "obj.hpp"
@@ -77,6 +79,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
+#include "temp_spells.hpp"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -129,7 +132,8 @@
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/lexical_cast.hpp>
 #include <sys/stat.h>
 
 #include <string>
@@ -172,6 +176,8 @@
 
 #define MXPMODE(arg) ESC "[" #arg "z"
 extern void save_zone_count_reset();
+extern std::vector<SpeedWalk>  speedwalks;
+extern int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA * leader);
 // flags for show_list_to_char 
 
 enum {
@@ -569,30 +575,22 @@ void gifts()
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
-	OBJ_DATA *obj_gift;
-	OBJ_DATA *obj_cont;
 	if ((rnum = real_object(rand_vnum)) < 0)
 	{
 		log("Ошибка в таблице НГ подарков!");
 		return;
 	}
-	obj_gift = read_object(rnum, REAL);
-	obj_cont = read_object(real_object(2594), REAL);
+
+	const auto obj_gift = world_objects.create_from_prototype_by_rnum(rnum);
+	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 	
 	// создаем упаковку для подарка
-	obj_to_room(obj_cont, real_room(rand_vnum_r));
-	obj_to_obj(obj_gift, obj_cont);
-	obj_decay(obj_gift);
-	obj_decay(obj_cont);
+	obj_to_room(obj_cont.get(), real_room(rand_vnum_r));
+	obj_to_obj(obj_gift.get(), obj_cont.get());
+	obj_decay(obj_gift.get());
+	obj_decay(obj_cont.get());
 	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
-	
 }
-
-
-
-// -----------------------------
-
-
 
 // functions in this file
 RETSIGTYPE unrestrict_game(int sig);
@@ -639,7 +637,6 @@ sigfunc *my_signal(int signo, sigfunc * func);
 void *zlib_alloc(void *opaque, unsigned int items, unsigned int size);
 void zlib_free(void *opaque, void *address);
 #endif
-
 
 // extern fcnts
 void SaveGlobalUID(void);
@@ -1764,11 +1761,49 @@ void heartbeat(const int missed_pulses)
 	}
 
 	// каждые 30 минут подарки под случайную елку
-	if ((pulse % (PASSES_PER_SEC * 30 * 60)) == 0)
+	/*if ((pulse % (PASSES_PER_SEC * 30 * 60)) == 0)
 	{
-//		gifts();
-	}
+		gifts();
+	}*/
 	
+
+	if ((pulse % (PASSES_PER_SEC)) == 0)
+	{
+		for (auto &sw : speedwalks)
+		{
+			if (sw.wait > sw.route[sw.cur_state].wait)
+			{
+				for (CHAR_DATA *ch : sw.mobs) {
+					if (ch && !ch->purged())
+					{
+						std::string direction = sw.route[sw.cur_state].direction;
+						int dir = 1;
+						if (boost::starts_with(direction, "север"))
+							dir = SCMD_NORTH;
+						if (boost::starts_with(direction, "восток"))
+							dir = SCMD_EAST;
+						if (boost::starts_with(direction, "юг"))
+							dir = SCMD_SOUTH;
+						if (boost::starts_with(direction, "запад"))
+							dir = SCMD_WEST;
+						if (boost::starts_with(direction, "вверх"))
+							dir = SCMD_UP;
+						if (boost::starts_with(direction, "вниз"))
+							dir = SCMD_DOWN;
+						perform_move(ch, dir - 1, 0, TRUE, 0);
+					}
+				}
+				sw.wait = 0;
+				sw.cur_state = (sw.cur_state >= static_cast<decltype(sw.cur_state)>(sw.route.size()) - 1) ? 0 : sw.cur_state + 1;
+			}
+			else
+			{
+				sw.wait += 1;
+			}
+		}
+	}
+
+
 	// таблица меняется каждые два часа
 	if ((pulse % (PASSES_PER_SEC * 120 * 60)) == 0)
 	{
@@ -2049,6 +2084,11 @@ void heartbeat(const int missed_pulses)
 	if (!((pulse + 6) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		room_point_update();
+	}
+
+	if (!((pulse + 5) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	{
+		Temporary_Spells::update_times();
 	}
 
 	if (!((pulse + 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))

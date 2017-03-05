@@ -51,7 +51,7 @@
 
 #define ssize_t int
 #define socklen_t int
-#if (_MSC_VER != 1900)
+#if (_MSC_VER < 1900)
 	#define snprintf _snprintf
 #endif
 

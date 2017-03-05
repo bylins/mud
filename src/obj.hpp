@@ -5,6 +5,7 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
+#include "id.hpp"
 #include "obj_enchant.hpp"
 #include "spells.h"
 #include "skills.h"
@@ -79,6 +80,38 @@ public:
 
 private:
 	values_t m_values;
+};
+
+class CObjectPrototype;
+
+class VNumChangeObserver
+{
+public:
+	using shared_ptr = std::shared_ptr<VNumChangeObserver>;
+
+	virtual ~VNumChangeObserver() {}
+
+	virtual void notify(CObjectPrototype& object, const obj_vnum old_vnum) = 0;
+};
+
+class IDChangeObserver
+{
+public:
+	using shared_ptr = std::shared_ptr<IDChangeObserver>;
+
+	virtual ~IDChangeObserver() {}
+
+	virtual void notify(OBJ_DATA& object, const object_id_t old_id) = 0;
+};
+
+class RNumChangeObserver
+{
+public:
+	using shared_ptr = std::shared_ptr<RNumChangeObserver>;
+
+	virtual ~RNumChangeObserver() {}
+
+	virtual void notify(CObjectPrototype& object, const obj_rnum old_rnum) = 0;
 };
 
 class CObjectPrototype
@@ -350,13 +383,19 @@ public:
 	unsigned get_ilevel() const;	///< разные системы расчета привлекательности предмета
 	void set_ilevel(unsigned ilvl);
 	auto get_rnum() const { return m_rnum; }
-	void set_rnum(const obj_rnum _) { m_rnum = _; }
+	void set_rnum(const obj_rnum _);
 	auto get_vnum() const { return m_vnum; }
+
+	void subscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr& observer) { m_vnum_change_observers.insert(observer); }
+	void unsubscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr& observer) { m_vnum_change_observers.erase(observer); }
+
+	void subscribe_for_rnum_changes(const RNumChangeObserver::shared_ptr& observer) { m_rnum_change_observers.insert(observer); }
+	void unsubscribe_for_rnum_changes(const RNumChangeObserver::shared_ptr& observer) { m_rnum_change_observers.erase(observer); }
 
 protected:
 	void zero_init();
 	CObjectPrototype& operator=(const CObjectPrototype& from);	///< makes shallow copy of all fields except VNUM
-	void set_vnum(const obj_vnum vnum) { m_vnum = vnum; }		///< allow inherited classes change VNUM (to make possible objects transformations)
+	void set_vnum(const obj_vnum vnum);		///< allow inherited classes change VNUM (to make possible objects transformations)
 	void tag_ex_description(const char* tag);
 
 private:
@@ -411,6 +450,9 @@ private:
 
 	unsigned m_ilevel;	///< расчетный уровень шмотки, не сохраняется
 	obj_vnum m_rnum;	///< Where in data-base
+
+	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;
+	std::unordered_set<RNumChangeObserver::shared_ptr> m_rnum_change_observers;
 };
 
 class activation
@@ -749,7 +791,7 @@ public:
 	void set_crafter_uid(const int _) { m_maker = _; }
 	void set_custom_label(const std::shared_ptr<custom_label>& _) { m_custom_label = _; }
 	void set_custom_label(custom_label* _) { m_custom_label.reset(_); }
-	void set_id(const long _) { m_id = _; }
+	void set_id(const long _);
 	void set_in_obj(OBJ_DATA* _) { m_in_obj = _; }
 	void set_in_room(const room_rnum _) { m_in_room = _; }
 	void set_is_rename(const bool _) { m_is_rename = _; }
@@ -774,6 +816,9 @@ public:
 
 	void swap(OBJ_DATA& object);
 	void set_tag(const char* tag);
+
+	void subscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.insert(observer); }
+	void unsubscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.erase(observer); }
 
 private:
 	void zero_init();
@@ -807,7 +852,7 @@ private:
 
 	TimedSpell m_timed_spell;    ///< временный обкаст
 
-	long m_id;			// used by DG triggers              //
+	object_id_t m_id;			// used by DG triggers              //
 	std::shared_ptr<SCRIPT_DATA> m_script;	// script info for the object       //
 	
 	// порядковый номер в списке чаров (для name_list)
@@ -817,6 +862,7 @@ private:
 	// для сообщений сетов <активировано или нет, размер активатора>
 	std::pair<bool, int> m_activator;
 
+	std::unordered_set<IDChangeObserver::shared_ptr> m_id_change_observers;
 };
 
 template <> const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectType>(const OBJ_DATA::EObjectType item);

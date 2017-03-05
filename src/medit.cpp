@@ -47,7 +47,6 @@ extern INDEX_DATA *mob_index;
 extern CHAR_DATA *mob_proto;
 extern mob_rnum top_of_mobt;
 extern struct zone_data *zone_table;
-extern struct player_special_data dummy_mob;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern void extract_mob(CHAR_DATA *ch);
 #if defined(OASIS_MPROG)
@@ -106,8 +105,6 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 //   Инициализация моба по-умолчанию
 void medit_mobile_init(CHAR_DATA * mob)
 {
-	int i;
-
 	GET_HIT(mob) = GET_MEM_TOTAL(mob) = 1;
 	GET_MANA_STORED(mob) = GET_MAX_MOVE(mob) = 100;
 	GET_NDD(mob) = GET_SDD(mob) = 1;
@@ -127,12 +124,13 @@ void medit_mobile_init(CHAR_DATA * mob)
 	mob->set_con(11);
 
 	MOB_FLAGS(mob).set(MOB_ISNPC);
-	mob->player_specials = &dummy_mob;
+	mob->player_specials = player_special_data::s_for_mobiles;
 
-	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
+	for (auto i = 0; i < MAX_NUMBER_RESISTANCE; i++)
+	{
 		GET_RESIST(mob, i) = 0;
+	}
 }
-
 
 void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 /*++
@@ -2044,19 +2042,19 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case MEDIT_MANAREG:
-			GET_MANAREG(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			GET_MANAREG(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 			break;
 
 		case MEDIT_CASTSUCCESS:
-			GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			GET_CAST_SUCCESS(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 			break;
 
 		case MEDIT_SUCCESS:
-			GET_MORALE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			GET_MORALE(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 			break;
 
 		case MEDIT_INITIATIVE:
-			GET_INITIATIVE(OLC_MOB(d)) = MIN(200, MAX(-200, bit));
+			GET_INITIATIVE(OLC_MOB(d)) = MIN(400, MAX(-400, bit));
 			break;
 
 		case MEDIT_ABSORBE:
@@ -2098,7 +2096,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			GET_SAVE(OLC_MOB(d), number - 1) = MIN(200, MAX(-200, bit));
+			GET_SAVE(OLC_MOB(d), number - 1) = MIN(400, MAX(-400, bit));
 		}
 		medit_disp_saves(d);
 		return;

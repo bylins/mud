@@ -8,6 +8,8 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -38,7 +40,6 @@
 #include <stack>
 
 // * External variable declarations.
-extern OBJ_DATA *object_list;
 extern struct zone_data *zone_table;
 extern const char *item_types[];
 extern const char *wear_bits[];
@@ -205,13 +206,10 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 // * Обновление полей объектов при изменении их прототипа через олц.
 void olc_update_objects(int robj_num, OBJ_DATA *olc_proto)
 {
-	for (OBJ_DATA *obj = object_list; obj; obj = obj->get_next())
+	world_objects.foreach_with_rnum(robj_num, [&](const OBJ_DATA::shared_ptr& object)
 	{
-		if (obj->get_rnum() == robj_num)
-		{
-			olc_update_object(robj_num, obj, olc_proto);
-		}
-	}
+		olc_update_object(robj_num, object.get(), olc_proto);
+	});
 	Depot::olc_update_from_proto(robj_num, olc_proto);
 	Parcel::olc_update_from_proto(robj_num, olc_proto);
 }
@@ -2236,7 +2234,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch ((number = atoi(arg)))
 		{
 		case 0:
-			OLC_OBJ(d)->set_ex_description(nullptr);
+			//OLC_OBJ(d)->set_ex_description();
 			break;
 
 		case 1:

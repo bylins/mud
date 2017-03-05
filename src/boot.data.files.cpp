@@ -1,5 +1,6 @@
 #include "boot.data.files.hpp"
 
+#include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "dg_scripts.h"
 #include "dg_olc.h"
@@ -14,6 +15,8 @@
 #include "utils.h"
 
 #include <boost/algorithm/string/trim.hpp>
+
+#include <iostream>
 
 extern int scheck;						// TODO: get rid of this line
 extern const char *unused_spellname;	// TODO: get rid of this line
@@ -271,7 +274,10 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 			{
 				CREATE(room->script, 1);
 			}
-			add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+
+			const auto trigger_instance = read_trigger(rnum);
+			add_trigger(SCRIPT(room), trigger_instance, -1);
+
 			// для начала определяем, есть ли такой внум у нас в контейнере
 			if (owner_trig.find(vnum) == owner_trig.end())
 			{
@@ -321,8 +327,18 @@ void TriggersFile::parse_trigger(int nr)
 	sprintf(buf2, "trig vnum %d", nr);
 	const auto trigger_name = fread_string();
 	get_line(file(), line);
+
 	int attach_type = 0;
 	k = sscanf(line, "%d %s %d", &attach_type, flags, t);
+
+	if (0 > attach_type
+			|| 2 < attach_type)
+	{
+		log("ERROR: Script with VNUM %d has attach_type %d. Read from line '%s'.",
+				nr, attach_type, line);
+		attach_type = 0;
+	}
+
 	int trigger_type = 0;
 	asciiflag_conv(flags, &trigger_type);
 
@@ -1164,19 +1180,14 @@ void MobileFile::parse_mobile(const int nr)
 	int j, t[10];
 	char line[256], letter;
 	char f1[128], f2[128];
-
 	mob_index[i].vnum = nr;
 	mob_index[i].number = 0;
 	mob_index[i].func = NULL;
 	mob_index[i].set_idx = -1;
 
-	/*
-	* Mobiles should NEVER use anything in the 'player_specials' structure.
-	* The only reason we have every mob in the game share this copy of the
-	* structure is to save newbie coders from themselves. -gg 2/25/98
-	*/
-	mob_proto[i].player_specials = &dummy_mob;
 	sprintf(buf2, "mob vnum %d", nr);
+
+	mob_proto[i].player_specials = player_special_data::s_for_mobiles;
 
 	// **** String data
 	char *tmp_str = fread_string();
@@ -1204,6 +1215,7 @@ void MobileFile::parse_mobile(const int nr)
 	mob_proto[i].player_data.description = fread_string();
 	mob_proto[i].mob_specials.Questor = NULL;
 	mob_proto[i].player_data.title = NULL;
+	mob_proto[i].set_level(1);
 
 	// *** Numeric data ***
 	if (!get_line(file(), line))

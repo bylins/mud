@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "world.objects.hpp"
 #include "obj.hpp"
 #include "db.h"
 #include "comm.h"
@@ -897,11 +898,12 @@ bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch)
 	return true;
 }
 
-namespace {
-
+namespace
+{
 OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 {
-	OBJ_DATA *obj = create_obj();
+	const auto obj = world_objects.create_blank();
+
 	obj->set_aliases("узелок вещами");
 	const std::string descr = std::string("узелок с вещами ") + ch->get_pad(1);
 	obj->set_short_description(descr);
@@ -928,7 +930,7 @@ OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 	obj->set_extra_flag(EExtraFlag::ITEM_SWIMMING);
 	obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
 
-	return obj;
+	return obj.get();
 }
 
 void extract_charmice(CHAR_DATA* ch)

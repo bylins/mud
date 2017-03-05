@@ -345,6 +345,7 @@ private:
 	static void HcontrolBuild(CHAR_DATA * ch, std::string & buffer);
 	static void HcontrolDestroy(CHAR_DATA * ch, std::string & buffer);
 	static void DestroyClan(Clan::shared_ptr clan);
+	static void fix_clan_members_load_room(Clan::shared_ptr clan);
 	static void hcontrol_title(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_rank(CHAR_DATA *ch, std::string &text);
 	static void hcontrol_exphistory(CHAR_DATA *ch, std::string &text);

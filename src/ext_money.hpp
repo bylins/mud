@@ -9,6 +9,7 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "char.hpp"
+#include <string>
 
 namespace ExtMoney
 {
@@ -20,6 +21,7 @@ void drop_torc(CHAR_DATA *mob);
 std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat = false);
 
 void player_drop_log(CHAR_DATA *ch, unsigned type, int num);
+std::string name_currency_plural(std::string name);
 
 } // namespace ExtMoney
 

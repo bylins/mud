@@ -13,9 +13,6 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 
-#include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
 #include "dg_scripts.h"
 #include "utils.h"
 #include "comm.h"
@@ -27,14 +24,16 @@
 #include "im.h"
 #include "features.hpp"
 #include "char.hpp"
+#include "structs.h"
+#include "sysdep.h"
+#include "conf.h"
 
 extern INDEX_DATA **trig_index;
-extern TRIG_DATA *trigger_list;
 
 void trig_data_free(TRIG_DATA * this_data);
 
 // return memory used by a trigger 
-void free_trigger(TRIG_DATA * trig)
+void free_trigger(TRIG_DATA* trig)
 {
 	// threw this in for minor consistance in names with the rest of circle 
 	trig_data_free(trig);
@@ -54,7 +53,7 @@ void extract_trigger(TRIG_DATA * trig)
 	trig_index[trig->get_rnum()]->number--;
 
 	// walk the trigger list and remove this one 
-	REMOVE_FROM_LIST(trig, trigger_list, [](auto list) -> auto& { return list->next_in_world; });
+	trigger_list.remove(trig);
 
 	free_trigger(trig);
 }
@@ -93,7 +92,7 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 	im_rskill *rs;
     int rid;
 
-	const ESkill skillnum = find_skill_num(skill);
+	const ESkill skillnum = fix_name_and_find_skill_num(skill);
 	if (skillnum > 0)
 	{
 		//edited by WorM 2011.05.23 триги должны возвращать реальный скилл без бонусов от стафа
@@ -110,49 +109,65 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-	return ("-1");
+                                                                                      
+	return ("0");
 }
 
-bool feat_owner(CHAR_DATA * ch, char *feat)
+bool feat_owner(TRIG_DATA* trig, CHAR_DATA * ch, char *feat)
 {
 	int featnum;
 
 	featnum = find_feat_num(feat);
 	if (featnum > 0)
+	{
 		if (HAVE_FEAT(ch, featnum))
 			return 1;
+	}
+	else
+	{
+		sprintf(buf2, "Wrong feat name: %s", feat);
+		trig_log(trig, buf2);
+	}
 	return 0;
 }
 
-const char * spell_count(CHAR_DATA * ch, char *spell)
+const char * spell_count(TRIG_DATA* trig, CHAR_DATA * ch, char *spell)
 {
 	static char retval[256];
 	int spellnum;
 
-	spellnum = find_spell_num(spell);
+	spellnum = fix_name_and_find_spell_num(spell);
 	if (spellnum <= 0)
-		return ("-1");
+	{
+		sprintf(buf2, "Wrong spell name: %s", spell);
+		trig_log(trig, buf2);
+		return ("0");
+	}
 
 	if (GET_SPELL_MEM(ch, spellnum))
 		sprintf(retval, "%d", GET_SPELL_MEM(ch, spellnum));
 	else
-		strcpy(retval, "");
+		strcpy(retval, "0");
 	return retval;
 }
 
-const char * spell_knowledge(CHAR_DATA * ch, char *spell)
+const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell)
 {
 	static char retval[256];
 	int spellnum;
 
-	spellnum = find_spell_num(spell);
+	spellnum = fix_name_and_find_spell_num(spell);
 	if (spellnum <= 0)
-		return ("-1");
+	{
+		sprintf(buf2, "Wrong spell name: %s", spell);
+		trig_log(trig, buf2);
+		return ("0");
+	}
 
 	if (GET_SPELL_TYPE(ch, spellnum))
 		sprintf(retval, "%d", GET_SPELL_TYPE(ch, spellnum));
 	else
-		strcpy(retval, "");
+		strcpy(retval, "0");
 	return retval;
 }
 

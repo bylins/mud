@@ -9,6 +9,8 @@
 
 #include "stuff.hpp"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
@@ -351,34 +353,35 @@ void generate_magic_enchant(OBJ_DATA *obj)
  */
 void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 {
-	OBJ_DATA *o = read_object(rnum, REAL);
+	const auto o = world_objects.create_from_prototype_by_rnum(rnum);
 	if (!o)
 	{
-		log("SYSERROR: null from read_object rnum=%d (%s:%d)",
-				rnum, __FILE__, __LINE__);
+		log("SYSERROR: null from read_object rnum=%d (%s:%d)", rnum, __FILE__, __LINE__);
 		return;
 	}
 
 	log("Load obj #%d by %s in room #%d (%s)",
-			GET_OBJ_VNUM(o), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room),
+			o->get_vnum(), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room),
 			setload ? "setload" : "globaldrop");
 
 	if (!setload)
 	{
-		switch (GET_OBJ_VNUM(o))
+		switch (o->get_vnum())
 		{
 		case GlobalDrop::BOOK_UPGRD_VNUM:
-			generate_book_upgrd(o);
+			generate_book_upgrd(o.get());
 			break;
+
 		case GlobalDrop::WARR1_ENCHANT_VNUM:
 		case GlobalDrop::WARR2_ENCHANT_VNUM:
 		case GlobalDrop::WARR3_ENCHANT_VNUM:
-			generate_warrior_enchant(o);
+			generate_warrior_enchant(o.get());
 			break;
+
 		case GlobalDrop::MAGIC1_ENCHANT_VNUM:
 		case GlobalDrop::MAGIC2_ENCHANT_VNUM:
 		case GlobalDrop::MAGIC3_ENCHANT_VNUM:
-			generate_magic_enchant(o);
+			generate_magic_enchant(o.get());
 			break;
 		}
 	}
@@ -386,39 +389,35 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	{
 		for (CHAR_DATA *tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
 		{
-			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n",
-				CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
+			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n", CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}
 	}
 
 	if (MOB_FLAGGED(ch, MOB_CORPSE))
 	{
-		obj_to_room(o, ch->in_room);
+		obj_to_room(o.get(), ch->in_room);
 	}
 	else
 	{
-		obj_to_obj(o, corpse);
+		obj_to_obj(o.get(), corpse);
 	}
 
-	if (!obj_decay(o))
+	if (!obj_decay(o.get()))
 	{
 		if (o->get_in_room() != NOWHERE)
 		{
-			act("На земле остал$U лежать $o.", FALSE, ch, o, 0, TO_ROOM);
+			act("На земле остал$U лежать $o.", FALSE, ch, o.get(), 0, TO_ROOM);
 		}
-		load_otrigger(o);
+		load_otrigger(o.get());
 	}
 }
 
 void obj_load_on_death(OBJ_DATA *corpse, CHAR_DATA *ch)
 {
-	/*
-		for (oload_class::iterator iter = oload_table.begin(); iter != oload_table.end(); iter++)
-			for (std::map<obj_vnum, obj_load_info>::iterator iter1 = iter->second.begin(); iter1 != iter->second.end(); iter1++)
-				log("%d %d %d %d", iter->first, iter1->first, iter1->second.obj_qty, iter1->second.load_prob);
-	*/
-
-	if (ch == NULL || !IS_NPC(ch) || (!MOB_FLAGGED(ch, MOB_CORPSE) && corpse == NULL))
+	if (ch == NULL
+		|| !IS_NPC(ch)
+		|| (!MOB_FLAGGED(ch, MOB_CORPSE)
+			&& corpse == NULL))
 	{
 		return;
 	}

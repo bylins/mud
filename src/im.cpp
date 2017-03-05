@@ -12,6 +12,8 @@
 
 #include "im.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "handler.h"
 #include "db.h"
@@ -371,7 +373,6 @@ OBJ_DATA *load_ingredient(int index, int power, int rnum)
    rnum  - VNUM моба, в который грузится ингредиент
 */
 {
-	OBJ_DATA *ing;
 	int err;
 
 	while (1)
@@ -381,7 +382,8 @@ OBJ_DATA *load_ingredient(int index, int power, int rnum)
 			sprintf(buf, "IM METATYPE ingredient loading %d", imtypes[index].id);
 			break;
 		}
-		ing = read_object(imtypes[index].proto_vnum, VIRTUAL);
+		
+		const auto ing = world_objects.create_from_prototype_by_vnum(imtypes[index].proto_vnum);
 		if (!ing)
 		{
 			sprintf(buf, "IM ingredient prototype %d not found", imtypes[index].proto_vnum);
@@ -392,19 +394,19 @@ OBJ_DATA *load_ingredient(int index, int power, int rnum)
 		ing->set_val(IM_POWER_SLOT, power);
 		ing->set_val(IM_TYPE_SLOT, imtypes[index].id);
 
-		err = im_assign_power(ing);
+		err = im_assign_power(ing.get());
 		if (err != 0)
 		{
-			extract_obj(ing);
+			extract_obj(ing.get());
 			sprintf(buf, "IM power assignment error %d", err);
 			break;
 		}
 
-		return ing;
+		return ing.get();
 	}
 
 	imlog(CMP, buf);
-	return NULL;
+	return nullptr;
 }
 
 void im_translate_rskill_to_id(void)
@@ -1130,11 +1132,12 @@ OBJ_DATA* try_make_ingr(CHAR_DATA* mob, int prob_default, int prob_special)
 		int* ingr_to_load_list = NULL;
 		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);
 		size_t j = 0;
+		const int level_mob = GET_LEVEL(mob) > 0 ? GET_LEVEL(mob) : 1;
 		for (; j < num_inrgs; j++)
 		{
 			ingr_to_load_list[2*j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
-			ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob.at(GET_LEVEL(mob)-1);
-			ingr_to_load_list[2*j+1] |= (GET_LEVEL(mob) << 16);
+			ingr_to_load_list[2*j+1] = it->second->ingrlist[j].prob.at(level_mob - 1);
+			ingr_to_load_list[2*j+1] |= (level_mob << 16);
 		}
 		ingr_to_load_list[2*j] = -1;
 		return try_make_ingr(ingr_to_load_list, vnum, prob_default);
@@ -1729,9 +1732,8 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (mres == IM_MSG_OK)
 	{
-		OBJ_DATA *result;
 		imlog(CMP, "Создание результата");
-		result = read_object(tgt, REAL);
+		const auto result = world_objects.create_from_prototype_by_rnum(tgt);
 		if (result)
 		{
 			switch (GET_OBJ_TYPE(result))
@@ -1768,7 +1770,7 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			default:
 				break;
 			}
-			obj_to_char(result, ch);
+			obj_to_char(result.get(), ch);
 		}
 	}
 
@@ -1788,18 +1790,24 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 		send_to_char("Пропущено название рецепта.\r\n", ch);
 		return;
 	}
+
 	if (!IS_RECIPE_DELIM(*argument))
 	{
 		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
 		return;
 	}
+
 	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
+	{
 		argument[qend] = LOWER(argument[qend]);
+	}
+
 	if (!IS_RECIPE_DELIM(argument[qend]))
 	{
 		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
 		return;
 	}
+
 	strcpy(name, (argument + 1));
 	argument += qend + 1;
 	name[qend - 1] = '\0';
@@ -1981,6 +1989,8 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff)
 // -newbook.patch (Alisher)
 		sprintf(buf, "Вы изучили рецепт '%s'.\r\n", imrecipes[rid].name);
 		send_to_char(buf, ch);
+		sprintf(buf, "RECIPE: игроку %s добавлен рецепт %s", GET_NAME(ch), imrecipes[rid].name);
+		log("%s", buf);
 	}
 }
 

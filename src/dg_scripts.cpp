@@ -10,6 +10,8 @@
 
 #include "dg_scripts.h"
 
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -38,6 +40,10 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "dg_db_scripts.hpp"
+#include "bonus.h"
+
+#include "backtrace.hpp"
+#include "coredump.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -56,7 +62,6 @@ int last_trig_vnum=0;
 
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
 extern CHAR_DATA *combat_list;
-extern OBJ_DATA *object_list;
 extern const char *item_types[];
 extern const char *genders[];
 extern const char *pc_class_types[];
@@ -80,9 +85,9 @@ OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
 int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type);
 const char * skill_percent(CHAR_DATA * ch, char *skill);
-bool feat_owner(CHAR_DATA * ch, char *feat);
-const char * spell_count(CHAR_DATA * ch, char *spell);
-const char * spell_knowledge(CHAR_DATA * ch, char *spell);
+bool feat_owner(TRIG_DATA* trig, CHAR_DATA * ch, char *feat);
+const char * spell_count(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
+const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 void reset_zone(int znum);
 
@@ -96,6 +101,11 @@ void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void extract_value(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int trgvar_in_room(int vnum);
+
+/*
+йНЯРШКЭ, МН БЯЕФ. 
+*/
+bool StopTrig = false;
 
 void script_log(const char *msg, const int type)
 {
@@ -132,7 +142,40 @@ struct trig_var_data *worlds_vars;
 int reloc_target = -1;
 TRIG_DATA *cur_trig = NULL;
 
-TRIG_DATA *trigger_list = NULL;	// all attached triggers
+void GlobalTriggersStorage::add(TRIG_DATA* trigger)
+{
+	m_triggers.insert(trigger);
+	m_rnum2trigers_set[trigger->get_rnum()].insert(trigger);
+}
+
+void GlobalTriggersStorage::remove(TRIG_DATA* trigger)
+{
+	m_triggers.erase(trigger);
+	m_rnum2trigers_set[trigger->get_rnum()].erase(trigger);
+}
+
+void GlobalTriggersStorage::shift_rnums_from(const rnum_t rnum)
+{
+	// TODO: Get rid of this function when index will not has to be sorted by rnums
+	//       Actually we need to get rid of rnums at all.
+	std::list<TRIG_DATA*> to_rebind;
+	for (const auto trigger : m_triggers)
+	{
+		if (trigger->get_rnum() > rnum)
+		{
+			to_rebind.push_back(trigger);
+		}
+	}
+
+	for (const auto trigger : to_rebind)
+	{
+		remove(trigger);
+		trigger->set_rnum(1 + trigger->get_rnum());
+		add(trigger);
+	}
+}
+
+GlobalTriggersStorage trigger_list;	// all attached triggers
 
 int trgvar_in_room(int vnum)
 {
@@ -301,17 +344,10 @@ inline auto count_obj_vnum(long n)
  ************************************************************/
 
 // return object with UID n
-OBJ_DATA *find_obj(long n)
+OBJ_DATA *find_obj_by_id(const object_id_t id)
 {
-	OBJ_DATA *i;
-	for (i = object_list; i; i = i->get_next())
-	{
-		if (n == i->get_id())
-		{
-			return i;
-		}
-	}
-	return NULL;
+	const auto result = world_objects.find_first_by_id(id);
+	return result.get();
 }
 
 // return room with UID n
@@ -356,23 +392,15 @@ int find_char_vnum(long n, int num = 0)
 }
 
 // * Аналогично find_char_vnum, только для объектов.
-int find_obj_vnum(long n, int num = 0)
+int find_obj_id_by_vnum(const obj_vnum vnum, int num = 0)
 {
-	OBJ_DATA *i;
-	int count = 0;
-	for (i = object_list; i; i = i->get_next())
-	{
-		if (n == GET_OBJ_VNUM(i))
-		{
-			++count;
-			if (num > 0 && num != count)
-			{
-				continue;
-			}
+	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum(vnum, num);
 
-			return i->get_id();
-		}
+	if (object)
+	{
+		return object->get_id();
 	}
+
 	return -1;
 }
 
@@ -438,21 +466,15 @@ OBJ_DATA *get_obj(char *name, int/* vnum*/)
 	if (*name == UID_OBJ)
 	{
 		id = atoi(name + 1);
-		return find_obj(id);
+		return find_obj_by_id(id);
 	}
 	else
 	{
-		for (OBJ_DATA *obj = object_list; obj; obj = obj->get_next())
-		{
-			if (isname(name, obj->get_aliases()))
-			{
-				return obj;
-			}
-		}
+		const auto result = world_objects.find_by_name(name);
+		return result.get();
 	}
 	return NULL;
 }
-
 
 // finds room by with name.  returns NULL if not found
 ROOM_DATA *get_room(char *name)
@@ -626,23 +648,11 @@ OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name)
 	{
 		id = atoi(name + 1);
 
-		for (i = object_list; i; i = i->get_next())
-		{
-			if (id == i->get_id())
-			{
-				break;
-			}
-		}
+		i = world_objects.find_first_by_id(id).get();
 	}
 	else
 	{
-		for (i = object_list; i; i = i->get_next())
-		{
-			if (isname(name, i->get_aliases()))
-			{
-				break;
-			}
-		}
+		i = world_objects.find_by_name(name).get();
 	}
 
 	return i;
@@ -669,13 +679,7 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 			}
 		}
 
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			if (id == obj->get_id())
-			{
-				return obj;
-			}
-		}
+		return world_objects.find_first_by_id(id).get();
 	}
 	else
 	{
@@ -687,13 +691,7 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 			}
 		}
 
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			if (isname(name, obj->get_aliases()))
-			{
-				return obj;
-			}
-		}
+		return world_objects.find_by_name(name).get();
 	}
 
 	return NULL;
@@ -722,13 +720,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 			}
 		}
 
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			if (id == obj->get_id())
-			{
-				return obj;
-			}
-		}
+		return world_objects.find_first_by_id(id).get();
 	}
 	else
 	{
@@ -743,13 +735,7 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 			}
 		}
 
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			if (isname(name, obj->get_aliases()))
-			{
-				return obj;
-			}
-		}
+		return world_objects.find_by_name(name).get();
 	}
 
 	return NULL;
@@ -760,7 +746,6 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 void script_trigger_check(void)
 {
 	CHAR_DATA *ch;
-	OBJ_DATA *obj;
 	ROOM_DATA *room = NULL;
 	int nr;
 	SCRIPT_DATA *sc;
@@ -777,13 +762,13 @@ void script_trigger_check(void)
 		}
 	}
 
-	for (obj = object_list; obj; obj = obj->get_next())
+	world_objects.foreach([&](const OBJ_DATA::shared_ptr& obj)
 	{
-		if(OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))
+		if(OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED))
 		{
 			if(obj->get_worn_by() && number(1, 100) <= 5)
 			{
-				NamedStuff::wear_msg(obj->get_worn_by(), obj);
+				NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
 			}
 		}
 		else if (obj->get_script())
@@ -791,10 +776,10 @@ void script_trigger_check(void)
 			sc = obj->get_script().get();
 			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM))
 			{
-				random_otrigger(obj);
+				random_otrigger(obj.get());
 			}
 		}
-	}
+	});
 
 	for (nr = FIRST_ROOM; nr <= top_of_world; nr++)
 	{
@@ -815,7 +800,6 @@ void script_trigger_check(void)
 void script_timechange_trigger_check(const int time)
 {
 	CHAR_DATA *ch;
-	OBJ_DATA *obj;
 	ROOM_DATA *room = NULL;
 	int nr;
 	SCRIPT_DATA *sc;
@@ -835,17 +819,17 @@ void script_timechange_trigger_check(const int time)
 		}
 	}
 
-	for (obj = object_list; obj; obj = obj->get_next())
+	world_objects.foreach([&](const OBJ_DATA::shared_ptr& obj)
 	{
 		if (obj->get_script())
 		{
 			sc = obj->get_script().get();
 			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_TIMECHANGE))
 			{
-				timechange_otrigger(obj, time);
+				timechange_otrigger(obj.get(), time);
 			}
 		}
-	}
+	});
 
 	for (nr = FIRST_ROOM; nr <= top_of_world; nr++)
 	{
@@ -1134,7 +1118,9 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 		TRIGGERS(sc) = t;
 	}
 	else if (!i)
+	{
 		TRIGGERS(sc) = t;
+	}
 	else
 	{
 		t->next = i->next;
@@ -1143,8 +1129,7 @@ void add_trigger(SCRIPT_DATA * sc, TRIG_DATA * t, int loc)
 
 	SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
 
-	t->next_in_world = trigger_list;
-	trigger_list = t;
+	trigger_list.add(t);
 }
 
 void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1944,9 +1929,23 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			num = atoi(subfield);
 			if (!str_cmp(field, "curobjs") && num > 0)
 			{
-				num = count_obj_vnum(num);
-				if (num >= 0)
-					sprintf(str, "%d", num);
+				const auto rnum = real_object(num);
+				const auto count = count_obj_vnum(num);
+				if (count >= 0 && 0 <= rnum)
+				{
+					if (check_unlimited_timer(obj_proto[rnum].get()))
+					{
+						sprintf(str, "0");
+					}
+					else
+					{
+						sprintf(str, "%d", count);
+					}
+				}
+				else
+				{
+					sprintf(str, "0");
+				}
 			}
 			else if (!str_cmp(field, "gameobjs") && num > 0)
 			{
@@ -1989,7 +1988,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "obj") && num > 0)
 			{
-				num = find_obj_vnum(num);
+				num = find_obj_id_by_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_OBJ, num);
 			}
@@ -2202,6 +2201,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 	if (c)
 	{
+		if (!IS_NPC(c) && (!c->desc))
+			StopTrig = true;
 		if (text_processed(field, subfield, vd, str))
 			return;
 		else if (!str_cmp(field, "global"))  	// get global of something else
@@ -2644,7 +2645,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "can_get_skill"))
 		{
-			if ((num = find_skill_num(subfield)) > 0)
+			if ((num = fix_name_and_find_skill_num(subfield)) > 0)
 			{
 				if (can_get_skill(c, num))
 				{
@@ -2664,7 +2665,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		}
 		else if (!str_cmp(field, "can_get_spell"))
 		{
-			if ((num = find_spell_num(subfield)) > 0)
+			if ((num = fix_name_and_find_spell_num(subfield)) > 0)
 			{
 				if (can_get_spell(c, num))
 				{
@@ -2804,18 +2805,26 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 		}
 		else if (!str_cmp(field, "skill"))
+		{
+			char *pos;
+			while ((pos = strchr(subfield, '.')))
+				* pos = ' ';
+			while ((pos = strchr(subfield, '_')))
+				* pos = ' ';
 			strcpy(str, skill_percent(c, subfield));
+
+		}
 		else if (!str_cmp(field, "feat"))
 		{
-			if (feat_owner(c, subfield))
+			if (feat_owner(trig, c, subfield))
 				strcpy(str, "1");
 			else
 				strcpy(str, "0");
 		}
 		else if (!str_cmp(field, "spellcount"))
-			strcpy(str, spell_count(c, subfield));
+			strcpy(str, spell_count(trig, c, subfield));
 		else if (!str_cmp(field, "spelltype"))
-			strcpy(str, spell_knowledge(c, subfield));
+			strcpy(str, spell_knowledge(trig, c, subfield));
 		else if (!str_cmp(field, "quested"))
 		{
 			if (*subfield && (num = atoi(subfield)) > 0)
@@ -2842,7 +2851,6 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if ((num = atoi(buf)) > 0)
 				{
 					c->quested_add(c, num, subfield);
-					strcpy(str, "1");
 				}
 			}
 		}
@@ -2972,7 +2980,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		//к тому же они в том списке не все кличи например никак там не отображаются
 		else if (!str_cmp(field, "affected_by"))
 		{
-			if ((num = find_spell_num(subfield)) > 0)
+			if ((num = fix_name_and_find_spell_num(subfield)) > 0)
 			{
 				sprintf(str, "%d", (int)affected_by_spell(c, num));
 			}
@@ -3079,7 +3087,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				if (!CAN_SEE(c, rndm))
 					continue;
 				if ((*field == 'a') ||
-						(!IS_NPC(rndm) && *field != 'n') ||
+						(!IS_NPC(rndm) && *field != 'n' && rndm->desc) ||
 						(IS_NPC(rndm) && IS_CHARMED(rndm)
 						 && *field == 'c') || (IS_NPC(rndm)
 											   && !IS_CHARMED(rndm)
@@ -3358,7 +3366,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			if (*subfield == UID_OBJ)
 			{
-				obj_to = find_obj(atoi(subfield+1));
+				obj_to = find_obj_by_id(atoi(subfield+1));
 				if (!(obj_to
 					&& GET_OBJ_TYPE(obj_to) == OBJ_DATA::ITEM_CONTAINER))
 				{
@@ -3809,7 +3817,7 @@ void eval_op(const char *op, char *lhs, const char *const_rhs, char *result, voi
 	}
 
 	char* rhs = nullptr;
-	std::shared_ptr<char> rhs_guard(rhs = str_dup(const_rhs));
+	std::shared_ptr<char> rhs_guard(rhs = str_dup(const_rhs), free);
 
 	while (*rhs && a_isspace(*rhs))
 	{
@@ -4079,26 +4087,40 @@ foreach i <список>
 	pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 	if (v)
 	{
-		auto ptr = strstr(list, v->value);
-		// извращение еще то но я чото хезе чо еще можно сделать со списками типо %self.pc%,
-		// которые генеряцо на каждой итерации цикла и тригами на телепорт, которые уменьшают эти списки
-		// здесь мы проверяем строку в списке в нужной позиции на соотвествие со значением переменной
-		if (pos && pos->value && ((unsigned)atoi(pos->value) < strlen(list)) && !(strncmp(list + v_strpos, v->value, strlen(v->value))))
+		const char* ptr = strstr(list, v->value);
+
 		{
-			v_strpos = atoi(pos->value);
-			ptr = list + v_strpos;
-		}
-		else
-		{
-			v_strpos = ptr - list;
+			bool value_corresponds_to_position = false;
+			if (pos
+				&& pos->value)
+			{
+				const auto position = static_cast<unsigned>(atoi(pos->value));
+				const auto list_length = strlen(list);
+				if (position < list_length)
+				{
+					value_corresponds_to_position = 0 == strncmp(list + position, v->value, strlen(v->value));
+				}
+			}
+
+			if (value_corresponds_to_position)
+			{
+				v_strpos = atoi(pos->value);
+				ptr = list + v_strpos;
+			}
+			else
+			{
+				v_strpos = ptr - list;
+			}
 		}
 
 		// Проверяем на наличие пробела перед найденой строкой и после нее
 		while (ptr)
 		{
-			if ((ptr != list) && !a_isspace(*(ptr - 1)))
+			if ((ptr != list)
+				&& !a_isspace(*(ptr - 1)))
 			{
-				while (*ptr && !a_isspace(*ptr))
+				while (*ptr
+					&& !a_isspace(*ptr))
 				{
 					++ptr;
 				}
@@ -4123,14 +4145,20 @@ foreach i <список>
 			}
 		}
 	}
-	//list = one_argument(list, value);
-	// one_argument() использовать нельзя, т.к. он преобразует строку в lowcase
+
 	p = value;
 	while (*list && a_isspace(*list))
+	{
 		++list;		// пропуск пробелов
+	}
+
 	v_strpos = list - result;
+
 	while (*list && !a_isspace(*list))
+	{
 		*p++ = *list++;	// копирование слова
+	}
+
 	*p = 0;
 
 	if (!*value)
@@ -4143,12 +4171,14 @@ foreach i <список>
 		}
 		return 0;
 	}
+
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
 	//сохраняем позицию в строке со списком во избежание бесконечного цикла
 	//правда фиг его знает чо будет если внутри одного foreach другой foreach решит использовать туже переменную
 	strcat(name, "_strpos");
 	sprintf(value, "%d", v_strpos);
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
+
 	return 1;
 }
 
@@ -4962,7 +4992,7 @@ void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type
 	else if (!str_cmp(what, "obj"))
 	{
 		uid_type = UID_OBJ;
-		result = find_obj_vnum(result, count_num);
+		result = find_obj_id_by_vnum(result, count_num);
 	}
 	else
 	{
@@ -4973,8 +5003,12 @@ void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type
 
 	if (result <= -1)
 	{
+		debug::coredump();
 		sprintf(buf2, "calcuid target not found vnum: %s, count: %d", vnum, count_num);
 		trig_log(trig, buf2);
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		sprintf(buf2, "Создана кора для исследований в errlog.txt");
+		trig_log(trig, buf2);		
 		*uid = '\0';
 		return;
 	}
@@ -5060,14 +5094,17 @@ bool find_all_char_vnum(long n, char *str)
 bool find_all_obj_vnum(long n, char *str)
 {
 	int count = 0;
-	for (OBJ_DATA *i = object_list; i; i = i->get_next())
+
+	const int LIMIT = 25;
+	world_objects.foreach_with_vnum(n, [&](const OBJ_DATA::shared_ptr& i)
 	{
-		if (n == GET_OBJ_VNUM(i) && count < 25)
+		if (count < LIMIT)
 		{
 			snprintf(str + strlen(str), MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, i->get_id());
 			++count;
 		}
-	}
+	});
+
 	return count ? true : false;
 }
 
@@ -5538,11 +5575,14 @@ int timed_script_driver(void *go, TRIG_DATA* trig, int type, int mode);
 
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
-	struct timeval start, stop, result;
-
-	gettimeofday(&start, NULL);
-
+	struct timeval start, stop, result;	
+	std::string start_string_trig = "First Line";
+	std::string finish_string_trig = "<Last line is undefined because it is dangerous to obtain it>";
+	if (trig->curr_state)
+		start_string_trig = trig->curr_state->cmd;
+	StopTrig = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
+	gettimeofday(&start, NULL);
 	const auto return_code = timed_script_driver(go, trig, type, mode);
 
 	gettimeofday(&stop, NULL);
@@ -5550,13 +5590,59 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	if (result.tv_sec > 0 || result.tv_usec >= MAX_TRIG_USEC)
 	{
-		sprintf(buf, "[TrigVNum: %d] : ", vnum);
-		sprintf(buf + strlen(buf), "work time overflow %ld sec. %ld us.", result.tv_sec, result.tv_usec);
+		/*
+		 * We cannot get access to trig fields here because the last command
+		 * might be "detach". In this case trigger will be deleted. Therefore
+		 * we will get the core dump here in the best case.
+		 *
+		if (trig->curr_state)
+		{
+			finish_string_trig = trig->curr_state->cmd;
+		}
+		*/
+		snprintf(buf, MAX_STRING_LENGTH, "[TrigVNum: %d] : ", vnum);
+		const auto current_buffer_length = strlen(buf);
+		snprintf(buf + current_buffer_length, MAX_STRING_LENGTH - current_buffer_length,
+				"work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s\r\n",
+				result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
+		
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
 	// Stop time
 	return return_code;
 }
+
+void do_dg_add_ice_currency(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* script_type*/, char *cmd)
+{
+	CHAR_DATA *ch = NULL;
+	int value;
+	char junk[MAX_INPUT_LENGTH];
+	char charname[MAX_INPUT_LENGTH], value_c[MAX_INPUT_LENGTH];
+
+	half_chop(cmd, junk, cmd);
+	half_chop(cmd, charname, cmd);
+	half_chop(cmd, value_c, cmd);
+
+
+	if (!*charname || !*value_c)
+	{
+		sprintf(buf2, "dg_addicecurrency usage: <target> <value>");
+		trig_log(trig, buf2);
+		return;
+	}
+
+	value = atoi(value_c);
+	// locate the target
+	ch = get_char(charname);
+	if (!ch)
+	{
+		sprintf(buf2, "dg_addicecurrency: cannot locate target!");
+		trig_log(trig, buf2);
+		return;
+	}
+	ch->add_ice_currency(value);
+}
+
 
 int timed_script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 #else
@@ -5613,6 +5699,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	for (auto cl = (mode == TRIG_NEW) ? *trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl)  	//log("Drive go <%s>",cl->cmd);
 	{
+		if (StopTrig)
+		{
+			sprintf(buf, "[TrigVnum: %d] Character in LinkDrop in 'Drive go'.", last_trig_vnum);
+			mudlog(buf, BRF, -1, ERRLOG, TRUE);
+			break;
+		}
 		const char* p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && a_isspace(*p); p++);
 
@@ -5630,11 +5722,23 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				cl = find_else_end(trig, cl, go, sc, type);
 			}
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				break;
+			}
 		}
 		else if (!strn_cmp("elseif ", p, 7) || !strn_cmp("else", p, 4))
 		{
 			cl = find_end(trig, cl);
 			GET_TRIG_DEPTH(trig)--;
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				break;
+			}
 		}
 		else if (!strn_cmp("while ", p, 6))
 		{
@@ -5650,6 +5754,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				cl = temp;
 				loops = 0;
+			}
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				break;
 			}
 		}
 		else if (!strn_cmp("foreach ", p, 8))
@@ -5667,10 +5777,22 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				cl = temp;
 				loops = 0;
 			}
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				break;
+			}
 		}
 		else if (!strn_cmp("switch ", p, 7))
 		{
 			cl = find_case(trig, cl, go, sc, type, p + 7);
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				break;
+			}
 		}
 		else if (!strn_cmp("end", p, 3))
 		{
@@ -5711,7 +5833,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 						trig_log(trig, "looping 1000 times.", DEF);
 					}
 				}
-			}
+			}			
 		}
 		else if (!strn_cmp("break", p, 5))
 		{
@@ -5723,6 +5845,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		else
 		{
 			var_subst(go, sc, trig, type, p, cmd);
+			if (StopTrig)
+			{
+				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
+				mudlog(buf, BRF, -1, ERRLOG, TRUE);
+				break;
+			}
 			if (!strn_cmp(cmd, "eval ", 5))
 			{
 				process_eval(go, sc, trig, type, cmd);
@@ -5772,6 +5900,14 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			else if (!strn_cmp(cmd, "global ", 7))
 			{
 				process_global(sc, trig, cmd, sc->context);
+			}
+			else if (!strn_cmp(cmd, "addicecurrency ", 15))
+			{
+				do_dg_add_ice_currency(go, sc, trig, type, cmd);
+			}
+			else if (!strn_cmp(cmd, "bonus ", 6))
+			{
+				Bonus::dg_do_bonus(cmd + 6);
 			}
 			else if (!strn_cmp(cmd, "worlds ", 7))
 			{
@@ -6187,8 +6323,7 @@ TRIG_DATA::TRIG_DATA():
 	wait_event(nullptr),
 	purged(0),
 	var_list(nullptr),
-	next(nullptr),
-	next_in_world(nullptr)
+	next(nullptr)
 {
 }
 
@@ -6205,8 +6340,7 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 	wait_event(nullptr),
 	purged(0),
 	var_list(nullptr),
-	next(nullptr),
-	next_in_world(nullptr)
+	next(nullptr)
 {
 }
 
@@ -6228,8 +6362,7 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	wait_event(nullptr),
 	purged(0),
 	var_list(nullptr),
-	next(nullptr),
-	next_in_world(nullptr)
+	next(nullptr)
 {
 }
 
@@ -6250,7 +6383,6 @@ void TRIG_DATA::reset()
 	purged = 0;
 	var_list = nullptr;
 	next = nullptr;
-	next_in_world = nullptr;
 }
 
 TRIG_DATA& TRIG_DATA::operator=(const TRIG_DATA& right)

@@ -9,6 +9,7 @@
 #include "obj_sets.hpp"
 #include "db.h"
 #include "room.hpp"
+#include "ignores.hpp"
 #include "im.h"
 #include "skills.h"
 #include "structs.h"
@@ -18,9 +19,10 @@
 #include <boost/array.hpp>
 #include <boost/dynamic_bitset.hpp>
 
-#include <bitset>
-#include <map>
 #include <unordered_map>
+#include <bitset>
+#include <list>
+#include <map>
 
 // These data contain information about a players time data
 struct time_data
@@ -47,6 +49,12 @@ struct char_player_data
 	ubyte Race;		// PC / NPC's race
 };
 
+struct temporary_spell_data
+{
+	int spell;
+	time_t set_time;
+	time_t duration;
+};
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
 // типы резистов
@@ -214,6 +222,7 @@ struct inspect_request
 	struct logon_data * ip_log;	//айпи адреса по которым идет поиск
 	struct timeval start;		//время когда запустили запрос для отладки
 	std::string out;		//буфер в который накапливается вывод
+	bool sendmail; // отправлять ли на мыло список чаров
 };
 
 
@@ -225,6 +234,8 @@ typedef std::map <int, SetAllInspReqPtr> SetAllInspReqListType;
 
 struct player_special_data_saved
 {
+	player_special_data_saved();
+
 	int wimp_level;		// Below this # of hit points, flee!
 	int invis_level;		// level of invisibility
 	room_vnum load_room;	// Which room to place char in
@@ -274,7 +285,12 @@ struct player_special_data_saved
 
 struct player_special_data
 {
-	struct player_special_data_saved saved;
+	using shared_ptr = std::shared_ptr<player_special_data>;
+	using ignores_t = std::list<ignore_data::shared_ptr>;
+
+	player_special_data();
+
+	player_special_data_saved saved;
 
 	char *poofin;		// Description on arrival of a god.
 	char *poofout;		// Description upon a god's exit.
@@ -287,7 +303,7 @@ struct player_special_data
 	int *logs;		// уровни подробности каналов log
 
 	char *Exchange_filter;
-	struct ignore_data *ignores;
+	ignores_t ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
 	struct logon_data * logons; //Записи о входах чара
@@ -305,6 +321,8 @@ struct player_special_data
 	// TODO: однозначно переписать
 	std::shared_ptr<class Clan> clan; // собсна клан, если он есть
 	std::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
+
+	static player_special_data::shared_ptr s_for_mobiles;
 };
 
 enum
@@ -362,6 +380,7 @@ public:
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
+	void crop_skills();
 	int get_equipped_skill(const ESkill skill_num) const;
 	int get_trained_skill(const ESkill skill_num) const;
 
@@ -395,7 +414,6 @@ public:
 	int get_serial_num();
 	void set_serial_num(int num);
 
-	void purge(bool destructor = false);
 	bool purged() const;
 
 	const std::string& get_name() const;
@@ -606,13 +624,23 @@ public:
 	*/
 	void add_follower_silently(CHAR_DATA* ch);
 	followers_list_t get_followers_list() const;
+	const player_special_data::ignores_t& get_ignores() const;
+	void add_ignore(const ignore_data::shared_ptr ignore);
+	void clear_ignores();
+
+	static void purge(CHAR_DATA* character);
 
 private:
+	const auto& get_player_specials() const { return player_specials; }
+	auto& get_player_specials() { return player_specials; }
+
 	std::string clan_for_title();
 	std::string only_title_noclan();
 	void check_fighting_list();
 	void zero_init();
 	void restore_mob();
+
+	void purge(bool destructor);
 
 	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
@@ -723,7 +751,7 @@ public:
 	struct char_special_data char_specials;		// PC/NPC specials
 	struct mob_special_data mob_specials;		// NPC specials
 
-	struct player_special_data *player_specials;	// PC specials
+	player_special_data::shared_ptr player_specials;	// PC specials
 
 	char_affects_list_t affected;	// affected by what spells
 	struct timed_type *timed;	// use which timed skill/spells
@@ -770,6 +798,8 @@ public:
 	int *ing_list;		//загружаемые в труп ингредиенты
 	load_list *dl_list;	// загружаемые в труп предметы
 	bool agrobd;		// показывает, агробд или нет
+
+	std::map<int, temporary_spell_data> temp_spells;
 };
 
 inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
@@ -790,6 +820,23 @@ inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
 			temp->set_next(next_);
 		}
 	}
+}
+
+inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const
+{
+	const auto& ps = get_player_specials();
+	return ps->ignores;
+}
+
+inline void CHAR_DATA::add_ignore(const ignore_data::shared_ptr ignore)
+{
+	const auto& ps = get_player_specials();
+	ps->ignores.push_back(ignore);
+}
+
+inline void CHAR_DATA::clear_ignores()
+{
+	get_player_specials()->ignores.clear();
 }
 
 int GET_INVIS_LEV(const CHAR_DATA* ch);

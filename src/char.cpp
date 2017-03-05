@@ -519,11 +519,8 @@ void CHAR_DATA::purge(bool destructor)
 
 	Celebrates::remove_from_mob_lists(this->id);
 
-	// у мобов пока сохраняем это поле после пуржа, оно уберется
-	// когда в Character вообще не останется этого player_specials
-	bool keep_player_specials = (player_specials == &dummy_mob) ? true : false;
-
-	if (this->player_specials != NULL && this->player_specials != &dummy_mob)
+	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;
+	if (this->player_specials && !keep_player_specials)
 	{
 		while ((a = GET_ALIASES(this)) != NULL)
 		{
@@ -570,20 +567,17 @@ void CHAR_DATA::purge(bool destructor)
 // shapirus: подчистим за криворукуми кодерами memory leak,
 // вызванный неосвобождением фильтра базара...
 		if (EXCHANGE_FILTER(this))
-			free(EXCHANGE_FILTER(this));
-		EXCHANGE_FILTER(this) = NULL;	// на всякий случай
-// ...а заодно и игнор лист *смущ :)
-		while (IGNORE_LIST(this))
 		{
-			struct ignore_data *ign_next;
-			ign_next = IGNORE_LIST(this)->next;
-			free(IGNORE_LIST(this));
-			IGNORE_LIST(this) = ign_next;
+			free(EXCHANGE_FILTER(this));
 		}
-		IGNORE_LIST(this) = NULL;
+		EXCHANGE_FILTER(this) = NULL;	// на всякий случай
+
+		clear_ignores();
 
 		if (GET_CLAN_STATUS(this))
+		{
 			free(GET_CLAN_STATUS(this));
+		}
 
 		// Чистим лист логонов
 		while (LOGON_LIST(this))
@@ -596,10 +590,12 @@ void CHAR_DATA::purge(bool destructor)
 		}
 		LOGON_LIST(this) = NULL;
 
-		free(this->player_specials);
-		this->player_specials = NULL;	// чтобы словить ACCESS VIOLATION !!!
+		this->player_specials.reset();
+
 		if (IS_NPC(this))
+		{
 			log("SYSERR: Mob %s (#%d) had player_specials allocated!", GET_NAME(this), GET_MOB_VNUM(this));
+		}
 	}
 	name_.clear();
 	short_descr_.clear();
@@ -611,13 +607,15 @@ void CHAR_DATA::purge(bool destructor)
 		// проставляем неподходящие из конструктора поля
 		purged_ = true;
 		char_specials.position = POS_DEAD;
-		if (keep_player_specials)
-		{
-			player_specials = &dummy_mob;
-		}
 		// закидываем в список ожидающих делета указателей
 		purged_char_list.push_back(this);
 	}
+}
+
+void CHAR_DATA::purge(CHAR_DATA* character)
+{
+	character->purge(false);
+	character = nullptr;
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
@@ -649,14 +647,16 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 			{
 				skill += equipment[i]->get_skill(skill_num);
 			}
+			// На новый год включаем
 			/*else
 			{
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
 			}*/
 		}
 	}
-	if (is_native)
-		skill += obj_bonus_.get_skill(skill_num);
+	skill += obj_bonus_.get_skill(skill_num);
+	/*if (is_native)
+		skill += obj_bonus_.get_skill(skill_num);*/
 
 	return skill;
 }
@@ -727,6 +727,18 @@ void CHAR_DATA::clear_skills()
 {
 	skills.clear();
 }
+// оберзает все скиллы до максимум на реморт
+void CHAR_DATA::crop_skills()
+{
+	int skill;
+	for (auto it = skills.begin();it != skills.end();it++)
+	{
+		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
+		if (skill > 80 + this->get_remort() * 5)
+			it->second = 80 + this->get_remort() * 5;
+	}
+}
+
 
 int CHAR_DATA::get_skills_count() const
 {
@@ -2327,4 +2339,63 @@ obj_sets::activ_sum& CHAR_DATA::obj_bonus()
 	return obj_bonus_;
 }
 
+player_special_data::player_special_data() :
+	poofin(nullptr),
+	poofout(nullptr),
+	aliases(nullptr),
+	may_rent(0),
+	agressor(0),
+	agro_time(0),
+	rskill(0),
+	portals(0),
+	logs(nullptr),
+	Exchange_filter(nullptr),
+	Karma(nullptr),
+	logons(nullptr),
+	clanStatus(nullptr)
+{
+}
+
+player_special_data_saved::player_special_data_saved() :
+	wimp_level(0),
+	invis_level(0),
+	load_room(0),
+	bad_pws(0),
+	DrunkState(0),
+	olc_zone(0),
+	NameGod(0),
+	NameIDGod(0),
+	GodsLike(0),
+	stringLength(0),
+	stringWidth(0),
+	Rip_arena(0),
+	Rip_mob(0),
+	Rip_pk(0),
+	Rip_dt(0),
+	Rip_other(0),
+	Win_arena(0),
+	Rip_mob_this(0),
+	Rip_pk_this(0),
+	Rip_dt_this(0),
+	Rip_other_this(0),
+	Exp_arena(0),
+	Exp_mob(0),
+	Exp_pk(0),
+	Exp_dt(0),
+	Exp_other(0),
+	Exp_mob_this(0),
+	Exp_pk_this(0),
+	Exp_dt_this(0),
+	Exp_other_this(0),
+	ntfyExchangePrice(0),
+	HiredCost(0),
+	who_mana(0)
+{
+	memset(EMail, 0, sizeof(EMail));
+	memset(LastIP, 0, sizeof(LastIP));
+}
+
+// dummy spec area for mobs
+player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
+																						
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -25,6 +25,7 @@ set(SOURCES
 	src/boards.formatters.cpp
 	src/boards.types.cpp
 	src/bonus.cpp
+	src/bonus.command.parser.cpp
 	src/boot.constants.cpp
 	src/boot.data.files.cpp
 	src/boot.index.cpp
@@ -80,6 +81,8 @@ set(SOURCES
 	src/help.cpp
 	src/house.cpp
 	src/house_exp.cpp
+	src/ignores.cpp
+	src/ignores.loader.cpp
 	src/im.cpp
 	src/interpreter.cpp
 	src/item.creation.cpp
@@ -136,16 +139,25 @@ set(SOURCES
 	src/spells.cpp
 	src/structs.cpp
 	src/structs.cpp
-	src/stuff.cpp
-	src/time_utils.cpp
+	src/stuff.cpp     
+	src/temp_spells.cpp
+	src/time_utils.cpp	
 	src/title.cpp
 	src/top.cpp
 	src/utils.cpp
 	src/version.cpp
 	src/weather.cpp
-	src/zedit.cpp)
+	src/zedit.cpp
+	src/utils.string.cpp
+	src/world.objects.cpp
+	src/object.prototypes.cpp
+	src/id.cpp)
 
 set(HEADERS
+	src/id.hpp
+	src/object.prototypes.hpp
+	src/world.objects.hpp
+	src/utils.string.hpp
 	src/act.other.hpp
 	src/AffectHandler.hpp
 	src/auction.h
@@ -159,6 +171,8 @@ set(HEADERS
 	src/boards.message.hpp
 	src/boards.types.hpp
 	src/bonus.h
+	src/bonus.command.parser.hpp
+	src/bonus.types.hpp
 	src/boot.constants.hpp
 	src/boot.data.files.hpp
 	src/boot.index.hpp
@@ -174,6 +188,7 @@ set(HEADERS
 	src/conf.h
 	src/config.hpp
 	src/constants.h
+	src/coredump.hpp
 	src/corpse.hpp
 	src/craft.commands.hpp
 	src/craft.hpp
@@ -198,6 +213,7 @@ set(HEADERS
 	src/fight_constants.hpp
 	src/fight.h
 	src/fight_hit.hpp
+	src/fight_stuff.hpp
 	src/fight.penalties.hpp
 	src/file_crc.hpp
 	src/genchar.h
@@ -208,6 +224,8 @@ set(HEADERS
 	src/help.hpp
 	src/house_exp.hpp
 	src/house.h
+	src/ignores.hpp
+	src/ignores.loader.hpp
 	src/im.h
 	src/interpreter.h
 	src/item.creation.hpp
@@ -258,7 +276,8 @@ set(HEADERS
 	src/structs.h
 	src/stuff.hpp
 	src/sysdep.h
-	src/telnet.h
+	src/telnet.h      
+	src/temp_spells.hpp
 	src/time_utils.hpp
 	src/title.hpp
 	src/top.h
@@ -316,9 +335,9 @@ endif ()
 add_definitions(${TIMED_SCRIPT_DEFINITION})
 
 # Turns on/off scripting. Use the option like:
-#     $ cmake -DSCRIPTING=NO ..
-# to turn scripting off.
-option(SCRIPTING "Turns on/off scripting engine" YES)
+#     $ cmake -DSCRIPTING=ON..
+# to turn scripting ON.
+option(SCRIPTING "Turns on/off scripting engine" OFF)
 if (SCRIPTING)
 	message(STATUS "Turning scripting ON")
 	list(APPEND HEADERS ${SCRIPTING_HEADERS})
@@ -379,7 +398,7 @@ find_program(GIT git DOC "Git executable file")
 add_custom_target(versioning ALL COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_SOURCE_DIR}/src/version.cpp.in
 	SOURCES ${VERSIONING_FILES})
 add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/version.cpp
-	COMMAND ${CMAKE_COMMAND} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DGIT=${GIT} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
+	COMMAND ${CMAKE_COMMAND} -DBUILD_TYPE=${CMAKE_BUILD_TYPE} -DVERSION_INPUT=${CMAKE_SOURCE_DIR}/src/version.cpp.in -DVERSION_OUTPUT=${CMAKE_SOURCE_DIR}/src/version.cpp -DGIT=${GIT} -P ${CMAKE_SOURCE_DIR}/src/versioning.cmake
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	DEPENDS ${CMAKE_SOURCE_DIR}/src/version.cpp.in)
 set_target_properties(versioning PROPERTIES FOLDER "Utility targets")

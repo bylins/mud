@@ -12,6 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "object.prototypes.hpp"
+#include "world.objects.hpp"
 #include "logger.hpp"
 #include "command.shutdown.hpp"
 #include "obj.hpp"
@@ -64,6 +66,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "config.hpp"
+#include "time_utils.hpp"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -81,7 +84,6 @@ using std::fstream;
 extern bool need_warn;
 extern FILE *player_fl;
 
-extern OBJ_DATA *object_list;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
 extern struct zone_data *zone_table;
@@ -97,7 +99,6 @@ void medit_save_to_disk(int zone_num);
 extern const char *Dirs[];
 extern unsigned long int number_of_bytes_read;
 extern unsigned long int number_of_bytes_written;
-extern long max_id;
 // for chars
 extern const char *pc_class_types[];
 extern struct spell_info_type spell_info[];
@@ -247,14 +248,13 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Указан неверный VNUM объекта !\r\n", ch);
 		return;
 	}
-	for (OBJ_DATA *k = object_list; k; k = k->get_next())
+
+	world_objects.foreach_with_vnum(vnum, [&](const OBJ_DATA::shared_ptr& k)
 	{
-		if (GET_OBJ_VNUM(k) == vnum)
-		{
-			k->set_timer(0);
-			num++;
-		}
-	}
+		k->set_timer(0);
+		++num;
+	});
+
 	num += Depot::delete_obj(vnum);
 	num += Clan::delete_obj(vnum);
 	num += Parcel::delete_obj(vnum);
@@ -437,6 +437,31 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
+			if (IN_ROOM(vict) != NOWHERE)
+			{
+				act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
+
+				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					result = calc_loadroom(vict);
+
+				result = real_room(result);
+
+				if (result == NOWHERE)
+				{
+					if (GET_LEVEL(vict) >= LVL_IMMORT)
+						result = r_immort_start_room;
+					else
+						result = r_mortal_start_room;
+				}
+				char_from_room(vict);
+				char_to_room(vict, result);
+				look_at_room(vict, result);
+			};
+
+			sprintf(buf, "%s%s выпустил$G вас из темницы.%s",
+					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
+
+			sprintf(buf2, "$n выпущен$a из темницы!");
 
 			sprintf(buf, "%sЛедяные оковы растаяли под добрым взглядом $N1.%s",
 					CCIYEL(vict, C_NRM), CCNRM(vict, C_NRM));
@@ -526,9 +551,6 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			if (IN_ROOM(vict) != NOWHERE)
 			{
-
-				act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
-
 				if ((result = GET_LOADROOM(vict)) == NOWHERE)
 					result = calc_loadroom(vict);
 
@@ -545,6 +567,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 				char_from_room(vict);
 				char_to_room(vict, result);
 				look_at_room(vict, result);
+				act("$n выпущен$a из комнаты имени!", FALSE, vict, 0, 0, TO_ROOM);
 			};
 			sprintf(buf, "%s%s выпустил$G вас из комнаты имени.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
@@ -652,9 +675,15 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 
 			sprintf(buf, "%sАдский холод сковал ваше тело ледяным панцирем.\r\n%s",
 					CCIBLU(vict, C_NRM), CCNRM(vict, C_NRM));
-
 			sprintf(buf2, "Ледяной панцирь покрыл тело $n1! Стало очень тихо и холодно.");
+			if (IN_ROOM(vict) != NOWHERE)
+			{
+				act("$n водворен$a в темницу!", FALSE, vict, 0, 0, TO_ROOM);
 
+				char_from_room(vict);
+				char_to_room(vict, r_helled_start_room);
+				look_at_room(vict, r_helled_start_room);
+			};
 			break;
 
 
@@ -931,8 +960,6 @@ void setall_inspect()
 							continue;
 						}
 						set_punish(imm_d->character, d_vict->character, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
-						sprintf(buf, "Freeze ON (%ldh) by %s", static_cast<long>(it->second->freeze_time), GET_NAME(imm_d->character));
-						add_karma(d_vict->character, buf, it->second->reason);
 					}
 					else
 					{
@@ -952,8 +979,6 @@ void setall_inspect()
 								continue;
 							}
 							set_punish(imm_d->character, vict, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
-							sprintf(buf, "Freeze ON (%ldh) by %s", static_cast<long>(it->second->freeze_time), GET_NAME(imm_d->character));
-							add_karma(vict, buf, it->second->reason);
 							vict->save_char();
 						}
 					}
@@ -1032,6 +1057,8 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
+						std::string str = player_table[it->second->pos].name;
+						str[0] = UPPER(str[0]);
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
@@ -1041,6 +1068,8 @@ void setall_inspect()
 			}
 		delete vict;	
 	}
+	if (it->second->mail && it->second->pwd)
+		Password::send_password(it->second->mail, it->second->pwd);
 	// освобождение памяти
     if (it->second->pwd)
 		free(it->second->pwd);		
@@ -1142,8 +1171,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Какой-то баг. Вы эту надпись видеть не должны.\r\n", ch);
 		return;
 	}
-	if (type_request == SETALL_PSWD)
-		Password::set_all_password_to_email(buf, buf2);
+
 	
 	req->type_req = type_request;
 	req->mail = str_dup(buf);
@@ -2956,7 +2984,6 @@ void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *mob;
-	OBJ_DATA *obj;
 	mob_vnum number;
 	mob_rnum r_num;
 	char *iname;
@@ -3006,22 +3033,23 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 			return;
 		}
-		obj = read_object(r_num, REAL);
+		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 		obj->set_crafter_uid(GET_UNIQUE(ch));
 
 		if (load_into_inventory)
 		{
-			obj_to_char(obj, ch);
+			obj_to_char(obj.get(), ch);
 		}
 		else
 		{
-			obj_to_room(obj, ch->in_room);
+			obj_to_room(obj.get(), ch->in_room);
 		}
+
 		act("$n покопал$u в МУДе.", TRUE, ch, 0, 0, TO_ROOM);
-		act("$n создал$g $o3!", FALSE, ch, obj, 0, TO_ROOM);
-		act("Вы создали $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		load_otrigger(obj);
-		obj_decay(obj);
+		act("$n создал$g $o3!", FALSE, ch, obj.get(), 0, TO_ROOM);
+		act("Вы создали $o3.", FALSE, ch, obj.get(), 0, TO_CHAR);
+		load_otrigger(obj.get());
+		obj_decay(obj.get());
 		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
 	}
 	else if (is_abbrev(buf, "ing"))
@@ -3035,7 +3063,7 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Неверное имя типа\r\n", ch);
 			return;
 		}
-		obj = load_ingredient(i, power, power);
+		const auto obj = load_ingredient(i, power, power);
 		if (!obj)
 		{
 			send_to_char("Ошибка загрузки ингредиента\r\n", ch);
@@ -3073,7 +3101,6 @@ void send_to_all(char * buffer)
 void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *mob;
-	OBJ_DATA *obj;
 	mob_vnum number;	// or obj_vnum ...
 	mob_rnum r_num;		// or obj_rnum ...
 
@@ -3108,9 +3135,10 @@ void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Этот предмет явно перенесли в РМУД.\r\n", ch);
 			return;
 		}
-		obj = read_object(r_num, REAL);
-		do_stat_object(ch, obj, 1);
-		extract_obj(obj);
+
+		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
+		do_stat_object(ch, obj.get(), 1);
+		extract_obj(obj.get());
 	}
 	else
 		send_to_char("Тут должно быть что-то типа 'obj' или 'mob'.\r\n", ch);
@@ -3201,6 +3229,15 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 }
+
+
+void send_list_char(std::string list_char, std::string email)
+{
+	std::string cmd_line = "python3 send_list_char.py " + email + " " + list_char + " &";
+	auto result = system(cmd_line.c_str());
+	UNUSED_ARG(result);
+}
+
 
 const int IIP   = 1;
 const int IMAIL = 2;
@@ -3392,13 +3429,20 @@ void inspecting()
 		delete it->second->ip_log;
 		it->second->ip_log = log_next;
 	}
-	if (it->second->mail)
-		free(it->second->mail);
 	need_warn = true;
 	gettimeofday(&stop, NULL);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d за %ldсек.\r\n", it->second->found, result.tv_sec);
-	it->second->out += buf1;
+	it->second->out += buf1;	
+	if (it->second->sendmail)
+		if (it->second->found > 1 && it->second->sfor == IMAIL)
+		{
+			it->second->out += "Данный список отправлен игроку на емайл\r\n";
+			send_list_char(it->second->out, it->second->req);
+		}
+	if (it->second->mail)
+	    free(it->second->mail);
+
 	page_string(ch->desc, it->second->out);
 	free(it->second->req);
 	inspect_list.erase(it->first);
@@ -3425,7 +3469,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	argument = two_arguments(argument, buf, buf2);
 	if (!*buf || !*buf2 || !a_isascii(*buf2))
 	{
-		send_to_char("Usage: inspect { mail | ip | char } <argument> [all|все]\r\n", ch);
+		send_to_char("Usage: inspect { mail | ip | char } <argument> [all|все|sendmail]\r\n", ch);
 		return;
 	}
 	if(!isname(buf, "mail ip char"))
@@ -3453,15 +3497,19 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	req->mail = NULL;
 	req->fullsearch = 0;
 	req->req = str_dup(buf2);
+	req->sendmail = false;
 	buf2[0] = '\0';
 
-	if(argument && isname(argument, "все all"))
+	if(argument)
 	{
-		if(IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
-		{
-			need_warn = false;
-			req->fullsearch = 1;
-		}
+		if (isname(argument, "все all"))
+			if(IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+			{
+				need_warn = false;
+				req->fullsearch = 1;
+			}
+		if (isname(argument, "sendmail"))
+			req->sendmail = true;
 	}
 	if (is_abbrev(buf, "mail"))
 	{
@@ -4647,13 +4695,12 @@ struct show_struct show_fields[] =
 
 void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int i, j, k, l, con;	// i, j, k to specifics?
+	int i, j, l, con;	// i, j, k to specifics?
 
 	zone_rnum zrn;
 	zone_vnum zvn;
 	char self = 0;
 	CHAR_DATA *vict;
-	OBJ_DATA *obj;
 	DESCRIPTOR_DATA *d;
 	char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH], value1[MAX_INPUT_LENGTH];
 	// char bf[MAX_EXTEND_LENGTH];
@@ -4838,7 +4885,6 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		i = 0;
 		j = 0;
-		k = 0;
 		con = 0;
 		int motion = 0;
 		for (vict = character_list; vict; vict = vict->get_next())
@@ -4859,21 +4905,19 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 			}
 		}
-		for (obj = object_list; obj; obj = obj->get_next())
-		{
-			k++;
-		}
+
 		strcpy(buf, "Текущее состояние:\r\n");
 		sprintf(buf + strlen(buf), "  Игроков в игре - %5d, соединений - %5d\r\n", i, con);
 		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5d\r\n", top_of_p_table + 1);
 		sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
-		sprintf(buf + strlen(buf), "  Предметов - %5d, прообразов предметов - %5zd\r\n", k, obj_proto.size());
+		sprintf(buf + strlen(buf), "  Предметов - %5zd, прообразов предметов - %5zd\r\n",
+			world_objects.size(), obj_proto.size());
 		sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5d\r\n", top_of_world + 1, top_of_zone_table + 1);
 		sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
 		sprintf(buf + strlen(buf), "  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, buf_overflows);
 		sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
 		sprintf(buf + strlen(buf), "  Получено байт - %lu\r\n", number_of_bytes_read);
-		sprintf(buf + strlen(buf), "  Максимальный ID - %ld\r\n", max_id);
+		sprintf(buf + strlen(buf), "  Максимальный ID - %ld\r\n", max_id.current());
 		sprintf(buf + strlen(buf), "  Активность игроков (cmds/min) - %lu\r\n",
 			static_cast<unsigned long>((cmd_cnt * 60) / (time(0) - shutdown_parameters.get_boot_time())));
 		send_to_char(buf, ch);
@@ -4890,15 +4934,25 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		break;
 	}
 	case 5:
-		strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
-		for (i = FIRST_ROOM, k = 0; i <= top_of_world; i++)
-			for (j = 0; j < NUM_OF_DIRS; j++)
-				if (world[i]->dir_option[j]
+		{
+			int k = 0;
+			strcpy(buf, "Пустых выходов\r\n" "--------------\r\n");
+			for (i = FIRST_ROOM; i <= top_of_world; i++)
+			{
+				for (j = 0; j < NUM_OF_DIRS; j++)
+				{
+					if (world[i]->dir_option[j]
 						&& world[i]->dir_option[j]->to_room == 0)
-					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,
+					{
+						sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,
 							GET_ROOM_VNUM(i), world[i]->name);
-		page_string(ch->desc, buf, TRUE);
+					}
+				}
+			}
+			page_string(ch->desc, buf, TRUE);
+		}
 		break;
+
 	case 6:
 		strcpy(buf, "Смертельных выходов\r\n" "-------------------\r\n");
 		for (i = FIRST_ROOM, j = 0; i <= top_of_world; i++)
@@ -5551,7 +5605,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
 			return 0;
 		}
-		Password::set_password_to_email(vict, std::string(val_arg));
+		Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
+		Password::set_password(vict, val_arg);
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		
 		break;
@@ -6349,9 +6404,9 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 		if (GET_LEVEL(ch) >= LVL_GRGOD
 			|| PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
-			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d",
+			snprintf(buf_, sizeof(buf_), " Игра:%d Пост:%d Макс:%d",
 				obj_proto.number(rnum),
-				obj_proto.stored(rnum));
+				obj_proto.stored(rnum), GET_OBJ_MIW(obj_proto[rnum]));
 			ss << buf_;
 
 			const auto& script = prototype->get_proto_script();
@@ -6725,6 +6780,26 @@ void do_godtest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	send_to_char(buffer.str(), ch);
+}
+
+void do_loadstat(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
+{
+	std::ifstream istream(LOAD_LOG_FOLDER LOAD_LOG_FILE, std::ifstream::in);
+	int length;
+
+	if (!istream.is_open())
+	{
+		send_to_char("Can't open file", ch);
+		log("ERROR: Can't open file %s", LOAD_LOG_FOLDER LOAD_LOG_FILE);
+		return;
+	}
+
+	istream.seekg(0, istream.end);
+	length = istream.tellg();
+	istream.seekg(0, istream.beg);
+	istream.read(buf, MIN(length, MAX_STRING_LENGTH - 1));
+	buf[istream.gcount()] = '\0';
+	send_to_char(buf, ch);
 }
 
 namespace

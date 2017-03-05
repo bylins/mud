@@ -15,6 +15,7 @@
 #include "spells.h"
 #include "constants.h"
 #include "skills.h"
+#include "ignores.loader.hpp"
 #include "im.h"
 #include "olc.h"
 #include "comm.h"
@@ -28,6 +29,7 @@
 #include "features.hpp"
 #include "screen.h"
 #include "ext_money.hpp"
+#include "temp_spells.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
@@ -60,7 +62,8 @@ Player::Player()
 	was_in_room_(NOWHERE),
 	from_room_(0),
 	answer_id_(NOBODY),
-	motion_(true)
+	motion_(true),
+	ice_currency(0)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
@@ -124,6 +127,7 @@ void Player::remort()
 {
 	quested_.clear();
 	mobmax_.clear();
+	count_death_zone.clear();
 }
 
 void Player::reset()
@@ -413,6 +417,7 @@ void Player::save_char()
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
+	fprintf(saved, "ICur: %d\n", this->get_ice_currency());
 	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
 		strcpy(buf, this->desc->host);
@@ -576,6 +581,16 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
+	if (GET_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID)
+	{
+		fprintf(saved, "TSpl:\n");
+		for (auto it = this->temp_spells.begin(); it != this->temp_spells.end(); ++it)
+		{
+			fprintf(saved, "%d %ld %ld %s\n", it->first, static_cast<long int>(it->second.set_time), static_cast<long int>(it->second.duration), spell_info[it->first].name);
+		}
+		fprintf(saved, "0 0 0\n");
+	}
+
 	// Замемленые спелы
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
@@ -704,17 +719,11 @@ void Player::save_char()
 	if (EXCHANGE_FILTER(this))
 		fprintf(saved, "ExFl: %s\n", EXCHANGE_FILTER(this));
 
-	// shapirus: игнор лист
+	for (const auto& cur : get_ignores())
 	{
-		struct ignore_data *cur = IGNORE_LIST(this);
-		if (cur)
+		if (0 != cur->id)
 		{
-			for (; cur; cur = cur->next)
-			{
-				if (!cur->id)
-					continue;
-				fprintf(saved, "Ignr: [%lu]%ld\n", cur->mode, cur->id);
-			}
+			fprintf(saved, "Ignr: [%lu]%ld\n", cur->mode, cur->id);
 		}
 	}
 
@@ -919,16 +928,16 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	}
 	if (!(id >= 0 && get_filename(name, filename, PLAYERS_FILE) && (fl = fbopen(filename, FB_READ))))
 	{
-		log("Cann't load ascii %d %s", id, filename);
+		log("Can't load ascii %d %s", id, filename);
 		return (-1);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
 
 	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
-	if (this->player_specials == NULL)
+	if (!this->player_specials)
 	{
-		CREATE(this->player_specials, 1);
+		this->player_specials = std::make_shared<player_special_data>();
 	}
 
 	set_level(1);
@@ -1004,6 +1013,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			if (!strcmp(tag, "Id  "))
 			{
 				set_idnum(lnum);
+			}
+			else if (!strcmp(tag, "ICur"))
+			{
+				this->set_ice_currency(lnum);
 			}
 			break;
 		case 'L':
@@ -1196,7 +1209,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	AFF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
-	IGNORE_LIST(this) = NULL;
+	clear_ignores();
 	CREATE(GET_LOGS(this), 1 + LAST_LOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
 	this->player_specials->saved.HiredCost = 0;
@@ -1450,7 +1463,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				SET_INVIS_LEV(this, num);
 			}
 			else if (!strcmp(tag, "Ignr"))
-				load_ignores(this, line);
+			{
+				IgnoresLoader ignores_loader(this);
+				ignores_loader.load_from_string(line);
+			}
 			break;
 
 		case 'K':
@@ -1856,6 +1872,18 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				today_torc_.first = num;
 				today_torc_.second = num2;
 			}
+			else if (!strcmp(tag, "TSpl"))
+			{
+				do
+				{
+					fbgetline(fl, line);
+					sscanf(line, "%d %ld %ld", &num, &lnum, &lnum3);
+					if (num != 0 && spell_info[num].name)
+					{
+						Temporary_Spells::add_spell(this, num, lnum, lnum3);
+					}
+				} while (num != 0);
+			}
 			break;
 
 		case 'W':
@@ -1903,7 +1931,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		for (i = 0; i <= MAX_SPELLS; i++)
 		{
 			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == MAX_SLOT)
-				REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW);
+				REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP);
 // shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
 // если мортов мало
 			if (GET_REMORT(this) < MIN_CAST_REM(spell_info[i], this))
@@ -2067,6 +2095,48 @@ int Player::get_reset_stats_cnt(ResetStats::Type type) const
 {
 	return reset_stats_cnt_.at(type);
 }
+
+int Player::get_ice_currency()
+{
+	return this->ice_currency;
+}
+
+void Player::set_ice_currency(int value)
+{
+	this->ice_currency = value;
+}
+
+void Player::add_ice_currency(int value)
+{
+	this->ice_currency += value;
+}
+
+void Player::sub_ice_currency(int value)
+{
+	this->ice_currency = MAX(0, ice_currency - value);
+}
+
+bool Player::is_arena_player()
+{
+	return this->arena_player;
+}
+
+int Player::death_player_count()
+{
+	const int zone_vnum = zone_table[world[this->in_room]->zone].number;
+	auto it = this->count_death_zone.find(zone_vnum);
+	if (it != this->count_death_zone.end())
+	{
+		count_death_zone.at(zone_vnum) += 1;
+	}
+	else
+	{
+		count_death_zone.insert(std::pair<int, int>(zone_vnum, 1));
+		return 1;
+	}
+	return (*it).second;
+}
+
 
 void Player::inc_reset_stats_cnt(ResetStats::Type type)
 {
