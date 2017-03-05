@@ -72,6 +72,7 @@ public:
 	void remove(const OBJ_DATA::shared_ptr& object) { remove(object.get()); }
 	const list_t& get_list() const { return m_objects_list; }
 	void foreach(const foreach_f function) const;
+	void foreach_on_copy(const foreach_f function) const;
 	void foreach_on_copy_while(const foreach_while_f function) const;
 	void foreach_with_vnum(const obj_vnum vnum, const foreach_f function) const;
 	void foreach_with_rnum(const obj_rnum rnum, const foreach_f function) const;

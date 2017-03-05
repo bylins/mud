@@ -202,6 +202,12 @@ void WorldObjects::foreach(const foreach_f function) const
 	std::for_each(list.begin(), list.end(), function);
 }
 
+void WorldObjects::foreach_on_copy(const foreach_f function) const
+{
+	const list_t list = get_list();
+	std::for_each(list.begin(), list.end(), function);
+}
+
 void WorldObjects::foreach_on_copy_while(const foreach_while_f function) const
 {
 	const list_t list = get_list();
