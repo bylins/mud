@@ -1882,6 +1882,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			send_to_char(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
 			//чтобы не крешило дальше в обработке фейла (Купала)
+			IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 			ingrs[i]->set_weight(0);
 			make_fail = true;
 		}
@@ -1925,6 +1926,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		{
 			if (skill == SKILL_MAKE_WEAR && i == 0) //для шитья всегда раскраиваем шкуру 
 			{
+				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[0]);
 				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
 				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
 				send_to_char(tmpstr.c_str(), ch);
@@ -1964,6 +1966,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 				//Если вес ингра ровно столько, сколько требуется, вычитаем вес, ломаем ингр и останавливаем итерацию.
 				else if (GET_OBJ_WEIGHT(ingrs[i]) == state)
 				{
+					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 					ingrs[i]->set_weight(0);
 					send_to_char(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
 					//extract_obj(ingrs[i]);
@@ -1975,6 +1978,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 					state = state - GET_OBJ_WEIGHT(ingrs[i]);
 					send_to_char(ch, "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n", ingrs[i]->get_PName(3).c_str());
 					std::string tmpname = std::string(ingrs[i]->get_PName(1).c_str());
+					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 					ingrs[i]->set_weight(0);
 					extract_obj(ingrs[i]);
 					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
