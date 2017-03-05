@@ -148,9 +148,11 @@ set(SOURCES
 	src/utils.string.cpp
 	src/world.objects.cpp
 	src/object.prototypes.cpp
-	src/id.cpp)
+	src/id.cpp
+	src/radix.trie.cpp)
 
 set(HEADERS
+	src/radix.trie.hpp
 	src/id.hpp
 	src/object.prototypes.hpp
 	src/world.objects.hpp
