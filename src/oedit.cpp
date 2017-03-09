@@ -155,6 +155,9 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	obj->set_id(tmp.get_id()); // аук работает не по рнум а по id объекта, поэтому вернем и его
 	obj->set_in_room(tmp.get_in_room());
 	obj->set_rnum(robj_num);
+	obj->set_owner(tmp.get_owner());
+	obj->set_crafter_uid(tmp.get_crafter_uid());
+	obj->set_parent(tmp.get_parent());
 	obj->set_carried_by(tmp.get_carried_by());
 	obj->set_worn_by(tmp.get_worn_by());
 	obj->set_worn_on(tmp.get_worn_on());
