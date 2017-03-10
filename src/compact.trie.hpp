@@ -2,34 +2,100 @@
 #define __COMPACT_TRIE_HPP__
 
 #include <vector>
+#include <list>
+#include <memory>
 
 class CompactTrie
 {
 public:
+	class Range
+	{
+	public:
+		class DFS_Iterator
+		{
+		public:
+			bool operator==(const DFS_Iterator& right) const;
+			bool operator!=(const DFS_Iterator& right) const { return !(*this == right); }
+			const Range& operator*() const;
+			DFS_Iterator& operator++() { return next(); }
+
+		private:
+			friend class Range;
+
+			using path_t = std::list<size_t>;
+
+			DFS_Iterator(const Range* range);
+			DFS_Iterator(const Range* range, const size_t current);
+
+			DFS_Iterator& next();
+			void go_to_first_leaf();
+			bool go_to_child();
+			bool go_to_sibling();
+			bool go_to_parent();
+			void build_current() const;
+
+			const Range* m_range;
+			size_t m_current;
+			path_t m_path;
+			mutable std::shared_ptr<Range> m_current_element;
+		};
+
+		using iterator = DFS_Iterator;
+
+		bool operator==(const Range& right) const { return m_trie == right.m_trie && m_root == right.m_root; }
+
+		iterator begin() const { return iterator(this); }
+		iterator end() const { return iterator(this, NO_INDEX); }
+
+		const std::string& prefix() const { return m_prefix; }
+
+	private:
+		friend class CompactTrie;
+
+		Range(CompactTrie* trie, const size_t root = NO_INDEX) : m_trie(trie), m_root(root) {}
+		Range(CompactTrie* trie, const size_t root, const std::string& prefix) : m_trie(trie), m_root(root), m_prefix(prefix) {}
+
+		CompactTrie* m_trie;
+		size_t m_root;
+		std::string m_prefix;
+	};
+
+	using iterator = Range::iterator;
+
 	static constexpr size_t CHARS_NUMBER = 1 << (sizeof(char) * 8);
 	static constexpr size_t NO_INDEX = ~0u;
 
-	CompactTrie() {}
+	CompactTrie(): m_range(this), m_size(0) {}
 
 	/// Each next string must be added into trie in lexical order
 	bool add_string(const std::string& string);
 	bool has_string(const std::string& string) const;
 
+	iterator begin() const { return m_range.begin(); }
+	iterator end() const { return m_range.end(); }
+
+	size_t size() const { return m_size; }
+
 private:
 	struct Node
 	{
-		Node(const char character) : character(character), has_child(false), is_terminal(false), sibling(NO_INDEX) {}
+		Node(const char character);
 
 		char character;
 		bool has_child;
 		bool is_terminal;
-		size_t sibling;
+		size_t next_sibling_index;
+		size_t subtree_size;
 	};
 
-	size_t get_or_create_sibling(const char c, size_t offset);
+	using path_t = std::list<size_t>;
+
+	size_t get_or_create_sibling(const char c, size_t offset, path_t& path);
 	size_t find_sibling(const char c, size_t offset) const;
 
 	std::vector<Node> m_contents;
+	Range m_range;
+	size_t m_size;
 };
 
 constexpr size_t CompactTrie::CHARS_NUMBER;

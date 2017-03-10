@@ -19,7 +19,7 @@ public:
 		RadixTrie::shared_ptr m_trie;
 	};
 
-	void add_string(const std::string& string);
+	bool add_string(const std::string& string);
 	bool has_string(const std::string& string) const;
 
 private:

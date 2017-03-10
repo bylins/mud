@@ -21,7 +21,8 @@ set(TESTS
 	fight.penalties.cpp
 	bonus.command.parser.cpp
 	radix.trie.cpp
-	compact.trie.cpp)
+	compact.trie.cpp
+	compact.trie.iterators.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)

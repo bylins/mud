@@ -11,7 +11,7 @@ void compare(const std::string& string1, size_t& pos1, const std::string& string
 	}
 }
 
-void RadixTrie::add_string(const std::string& string)
+bool RadixTrie::add_string(const std::string& string)
 {
 	if (!m_root)
 	{
@@ -22,6 +22,8 @@ void RadixTrie::add_string(const std::string& string)
 		size_t from = 0;
 		m_root->add_suffix(string, from);
 	}
+
+	return true;
 }
 
 bool RadixTrie::has_string(const std::string& string) const

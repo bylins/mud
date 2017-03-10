@@ -2,18 +2,22 @@
 
 #include <gtest/gtest.h>
 
-TEST(CompactTrie, EmptyTrie)
+class CompactTrieBasics: public ::testing::Test
 {
+protected:
 	CompactTrie trie;
+};
 
+TEST_F(CompactTrieBasics, EmptyTrie)
+{
 	EXPECT_FALSE(trie.has_string(""));
 	EXPECT_FALSE(trie.has_string("empty"));
+
+	EXPECT_EQ(0, trie.size());
 }
 
-TEST(CompactTrie, SingleString)
+TEST_F(CompactTrieBasics, SingleString)
 {
-	CompactTrie trie;
-
 	const auto single_string = "single string";
 	const auto single = "single";
 	const auto string = "string";
@@ -23,12 +27,12 @@ TEST(CompactTrie, SingleString)
 	EXPECT_TRUE(trie.has_string(single_string));
 	EXPECT_FALSE(trie.has_string(single));
 	EXPECT_FALSE(trie.has_string(string));
+
+	EXPECT_EQ(1, trie.size());
 }
 
-TEST(CompactTrie, EmptyString)
+TEST_F(CompactTrieBasics, EmptyString)
 {
-	CompactTrie trie;
-
 	const auto empty_string = "";
 	const auto other_string = "any other string";
 
@@ -36,12 +40,12 @@ TEST(CompactTrie, EmptyString)
 
 	EXPECT_FALSE(trie.has_string(empty_string));
 	EXPECT_FALSE(trie.has_string(other_string));
+
+	EXPECT_EQ(0, trie.size());
 }
 
-TEST(CompactTrie, CoupleStringsWithSamePrefix_NoPrefixInTrie)
+TEST_F(CompactTrieBasics, CoupleStringsWithSamePrefix_NoPrefixInTrie)
 {
-	CompactTrie trie;
-
 	const std::string prefix = "value for the ";
 	const auto string1 = prefix + "first string";
 	const auto string2 = prefix + "second string";
@@ -52,12 +56,12 @@ TEST(CompactTrie, CoupleStringsWithSamePrefix_NoPrefixInTrie)
 	EXPECT_TRUE(trie.has_string(string1));
 	EXPECT_TRUE(trie.has_string(string2));
 	EXPECT_FALSE(trie.has_string(prefix));
+
+	EXPECT_EQ(2, trie.size());
 }
 
-TEST(CompactTrie, CoupleStringsWithPrefix_PrefixInTrie)
+TEST_F(CompactTrieBasics, CoupleStringsWithPrefix_PrefixInTrie)
 {
-	CompactTrie trie;
-
 	const std::string prefix = "value for the ";
 	const auto string1 = prefix + "first string";
 	const auto string2 = prefix + "second string";
@@ -71,12 +75,12 @@ TEST(CompactTrie, CoupleStringsWithPrefix_PrefixInTrie)
 	EXPECT_TRUE(trie.has_string(prefix));
 	EXPECT_FALSE(trie.has_string(prefix.substr(0, prefix.size() >> 1)));
 	EXPECT_FALSE(trie.has_string(string1.substr(0, prefix.size() + ((string1.size() - prefix.size()) >> 1))));
+
+	EXPECT_EQ(3, trie.size());
 }
 
-TEST(CompactTrie, Order)
+TEST_F(CompactTrieBasics, Order)
 {
-	CompactTrie trie;
-
 	const std::string str111 = "111";
 	const std::string str12 = "12";
 	const std::string str112 = "112";
@@ -86,23 +90,32 @@ TEST(CompactTrie, Order)
 	EXPECT_TRUE(trie.add_string(str12));
 	EXPECT_TRUE(trie.add_string(str112));
 	EXPECT_FALSE(trie.add_string(str123));
+
+	EXPECT_TRUE(trie.has_string(str111));
+	EXPECT_TRUE(trie.has_string(str12));
+	EXPECT_TRUE(trie.has_string(str112));
+	EXPECT_FALSE(trie.has_string(str123));
+
+	EXPECT_EQ(3, trie.size());
 }
 
-TEST(CompactTrie, AllChars)
+TEST_F(CompactTrieBasics, AllChars)
 {
-	CompactTrie trie;
+	constexpr size_t CHARS_NUMBER = 1 << (sizeof(char) * 8);
 
-	for (auto i = 0; i < 1 << (sizeof(char)*8); ++i)
+	for (auto i = 0; i < CHARS_NUMBER; ++i)
 	{
 		ASSERT_TRUE(trie.add_string(std::string(2, char(i))));
 	}
 
-	for (auto i = 0; i < 1 << (sizeof(char)*8); ++i)
+	for (auto i = 0; i < CHARS_NUMBER; ++i)
 	{
 		ASSERT_FALSE(trie.has_string(std::string(1, char(i))));
 		ASSERT_TRUE(trie.has_string(std::string(2, char(i))));
 		ASSERT_FALSE(trie.has_string(std::string(3, char(i))));
 	}
+
+	EXPECT_EQ(CHARS_NUMBER, trie.size());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
