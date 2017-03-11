@@ -249,7 +249,7 @@ void WorldObjects::foreach_with_id(const object_id_t id, const foreach_f functio
 
 OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f predicate) const
 {
-	return find_if(predicate, 1);
+	return find_if(predicate, 0);
 }
 
 OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f predicate, unsigned number) const
