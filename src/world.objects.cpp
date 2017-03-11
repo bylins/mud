@@ -288,14 +288,17 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_name(const char* name) const
 OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned number) const
 {
 	const auto set_i = m_id_to_object_ptr.find(id);
-	for (const auto& object : set_i->second)
+	if (set_i != m_id_to_object_ptr.end())
 	{
-		if (0 == number)
+		for (const auto& object : set_i->second)
 		{
-			return object;
-		}
+			if (0 == number)
+			{
+				return object;
+			}
 
-		--number;
+			--number;
+		}
 	}
 
 	return nullptr;
@@ -304,14 +307,17 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned num
 OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned number) const
 {
 	const auto set_i = m_vnum_to_object.find(vnum);
-	for (const auto& object : set_i->second)
+	if (set_i != m_vnum_to_object.end())
 	{
-		if (0 == number)
+		for (const auto& object : set_i->second)
 		{
-			return object;
-		}
+			if (0 == number)
+			{
+				return object;
+			}
 
-		--number;
+			--number;
+		}
 	}
 
 	return nullptr;
@@ -320,14 +326,17 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned nu
 OBJ_DATA::shared_ptr WorldObjects::find_by_rnum(const obj_rnum rnum, unsigned number) const
 {
 	const auto set_i = m_rnum_to_object_ptr.find(rnum);
-	for (const auto& object : set_i->second)
+	if (set_i != m_rnum_to_object_ptr.end())
 	{
-		if (0 == number)
+		for (const auto& object : set_i->second)
 		{
-			return object;
-		}
+			if (0 == number)
+			{
+				return object;
+			}
 
-		--number;
+			--number;
+		}
 	}
 
 	return nullptr;
