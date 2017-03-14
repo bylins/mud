@@ -1662,7 +1662,7 @@ void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
 	{
 		if (ch != i)
 		{
-			if (HERE(i)
+			if (HERE(i) && (GET_RACE(i) != NPC_RACE_THING)
 				&& (CAN_SEE(ch, i)
 					|| awaking(i, AW_HIDE | AW_INVIS | AW_CAMOUFLAGE)))
 			{
@@ -1674,6 +1674,21 @@ void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
 				&& AFF_FLAGGED(i, EAffectFlag::AFF_INFRAVISION))
 			{
 				send_to_char("Пара светящихся глаз смотрит на вас.\r\n", ch);
+			}
+		}
+	}
+}
+void list_char_to_char_thing(CHAR_DATA * list, CHAR_DATA * ch)   //мобы рассы предмет будем выводить вместе с предметами желтеньким
+{
+	CHAR_DATA *i;
+
+	for (i = list; i; i = i->next_in_room)
+	{
+		if (ch != i)
+		{
+			if (GET_RACE(i) == NPC_RACE_THING)
+			{
+				list_one_char(i, ch, 0);
 			}
 		}
 	}
@@ -2150,6 +2165,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		}
 	}
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, FALSE);
+	list_char_to_char_thing(world[ch->in_room]->people, ch);  //добавим отдельный вызов если моб типа предмет выводим желтым
 	send_to_char("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
 	send_to_char("&Q&n", ch);
