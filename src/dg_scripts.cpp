@@ -762,7 +762,7 @@ void script_trigger_check(void)
 		}
 	}
 
-	world_objects.foreach([&](const OBJ_DATA::shared_ptr& obj)
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& obj)
 	{
 		if(OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED))
 		{
@@ -819,7 +819,7 @@ void script_timechange_trigger_check(const int time)
 		}
 	}
 
-	world_objects.foreach([&](const OBJ_DATA::shared_ptr& obj)
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& obj)
 	{
 		if (obj->get_script())
 		{
