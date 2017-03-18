@@ -148,9 +148,11 @@ set(SOURCES
 	src/utils.string.cpp
 	src/world.objects.cpp
 	src/object.prototypes.cpp
-	src/id.cpp)
+	src/id.cpp
+	src/find.obj.id.by.vnum.cpp)
 
 set(HEADERS
+	src/find.obj.id.by.vnum.hpp
 	src/id.hpp
 	src/object.prototypes.hpp
 	src/world.objects.hpp
