@@ -398,13 +398,13 @@ public:
 
 	FindObjIDByVNUM(const obj_vnum vnum, const unsigned number) : m_vnum(vnum), m_number(number), m_result(NOT_FOUND) {}
 
-	bool look_world_objects();
-	bool look_inventory(const CHAR_DATA* character);
-	bool look_worn(const CHAR_DATA* character);
-	bool look_room(const room_rnum character);
-	bool look_list(const OBJ_DATA* list);
+	bool lookup_world_objects();
+	bool lookup_inventory(const CHAR_DATA* character);
+	bool lookup_worn(const CHAR_DATA* character);
+	bool lookup_room(const room_rnum character);
+	bool lookup_list(const OBJ_DATA* list);
 
-	int look_for_caluid(const int type, const void* go);
+	int lookup_for_caluid(const int type, const void* go);
 
 	int result() const { return m_result; }
 
@@ -472,12 +472,12 @@ int FindObjIDByVNUM::WldTriggerLookup::lookup()
 	if (m_room)
 	{
 		const auto room_rnum = real_room(m_room->number);
-		result = finder().look_room(room_rnum);
+		result = finder().lookup_room(room_rnum);
 	}
 	
 	if (!result)
 	{
-		finder().look_world_objects();
+		finder().lookup_world_objects();
 	}
 
 	return finder().result();
@@ -498,10 +498,10 @@ int FindObjIDByVNUM::ObjTriggerLookup::lookup()
 	}
 
 	const auto object_room = m_object->get_in_room();
-	const auto result = finder().look_room(object_room);
+	const auto result = finder().lookup_room(object_room);
 	if (!result)
 	{
-		finder().look_world_objects();
+		finder().lookup_world_objects();
 	}
 
 	return finder().result();
@@ -512,20 +512,20 @@ int FindObjIDByVNUM::MobTriggerLookup::lookup()
 	auto result = false;
 	if (m_mob)
 	{
-		result = finder().look_inventory(m_mob)
-			|| finder().look_room(m_mob->in_room);
+		result = finder().lookup_inventory(m_mob)
+			|| finder().lookup_room(m_mob->in_room);
 	}
 
 	if (!result)
 	{
-		finder().look_world_objects();
+		finder().lookup_world_objects();
 	}
 
 	return finder().result();
 }
 
 // * Аналогично find_char_vnum, только для объектов.
-bool FindObjIDByVNUM::look_world_objects()
+bool FindObjIDByVNUM::lookup_world_objects()
 {
 	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number);
 
@@ -538,17 +538,17 @@ bool FindObjIDByVNUM::look_world_objects()
 	return false;
 }
 
-bool FindObjIDByVNUM::look_inventory(const CHAR_DATA* character)
+bool FindObjIDByVNUM::lookup_inventory(const CHAR_DATA* character)
 {
 	if (!character)
 	{
 		return false;
 	}
 
-	return look_list(character->carrying);
+	return lookup_list(character->carrying);
 }
 
-bool FindObjIDByVNUM::look_worn(const CHAR_DATA* character)
+bool FindObjIDByVNUM::lookup_worn(const CHAR_DATA* character)
 {
 	if (!character)
 	{
@@ -566,15 +566,13 @@ bool FindObjIDByVNUM::look_worn(const CHAR_DATA* character)
 				m_result = equipment->get_id();
 				return true;
 			}
-
-			--m_number;
 		}
 	}
 
 	return false;
 }
 
-bool FindObjIDByVNUM::look_room(const room_rnum room)
+bool FindObjIDByVNUM::lookup_room(const room_rnum room)
 {
 	const auto room_contents = world[room]->contents;
 	if (!room_contents)
@@ -582,10 +580,10 @@ bool FindObjIDByVNUM::look_room(const room_rnum room)
 		return false;
 	}
 
-	return look_list(room_contents);
+	return lookup_list(room_contents);
 }
 
-bool FindObjIDByVNUM::look_list(const OBJ_DATA* list)
+bool FindObjIDByVNUM::lookup_list(const OBJ_DATA* list)
 {
 	while (list)
 	{
@@ -606,16 +604,11 @@ bool FindObjIDByVNUM::look_list(const OBJ_DATA* list)
 	return false;
 }
 
-int FindObjIDByVNUM::look_for_caluid(const int type, const void* go)
+int FindObjIDByVNUM::lookup_for_caluid(const int type, const void* go)
 {
 	const auto lookuper = create_lookuper(type, go);
 
-	if (lookuper)
-	{
-		return lookuper->lookup();
-	}
-
-	return NOT_FOUND;
+	return lookuper->lookup();
 }
 
 FindObjIDByVNUM::TriggerLookup::shared_ptr FindObjIDByVNUM::create_lookuper(const int type, const void* go)
@@ -636,6 +629,26 @@ FindObjIDByVNUM::TriggerLookup::shared_ptr FindObjIDByVNUM::create_lookuper(cons
 		type, MOB_TRIGGER, OBJ_TRIGGER, WLD_TRIGGER);
 
 	return nullptr;
+}
+
+int find_obj_by_id_vnum__find_replacement(const obj_vnum vnum)
+{
+	FindObjIDByVNUM finder(vnum, 0);
+
+	finder.lookup_world_objects();
+	const auto result = finder.result();
+
+	return result;
+}
+
+int find_obj_by_id_vnum__calcuid(const obj_vnum vnum, const unsigned number, const int type, const void* go)
+{
+	FindObjIDByVNUM finder(vnum, number);
+
+	finder.lookup_for_caluid(type, go);
+	const auto result = finder.result();
+
+	return result;
 }
 
 // return room with VNUM n
@@ -2222,9 +2235,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "obj") && num > 0)
 			{
-				FindObjIDByVNUM finder(num, 0);
-				finder.look_world_objects();
-				num = finder.result();
+				num = find_obj_by_id_vnum__find_replacement(num);
 
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_OBJ, num);
@@ -5229,8 +5240,7 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 	else if (!str_cmp(what, "obj"))
 	{
 		uid_type = UID_OBJ;
-		FindObjIDByVNUM finder(result, count_num);
-		result = finder.look_for_caluid(type, go);
+		result = find_obj_by_id_vnum__calcuid(result, count_num, type, go);
 	}
 	else
 	{
