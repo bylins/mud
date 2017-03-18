@@ -306,6 +306,11 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned num
 
 OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned number) const
 {
+	return find_by_vnum_and_dec_number(vnum, number);
+}
+
+OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number) const
+{
 	const auto set_i = m_vnum_to_object.find(vnum);
 	if (set_i != m_vnum_to_object.end())
 	{
