@@ -3410,11 +3410,11 @@ void inspecting()
 		if (*buf1 || mail_found)
 		{
 			mytime = player_table[it->second->pos].last_logon;
-			sprintf(buf, "้อั: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s\r\n",
+			sprintf(buf, "้อั: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d.\r\n",
 				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name, CCNRM(ch, C_SPR),
 				(mail_found && it->second->sfor!=IMAIL? CCBLU(ch, C_SPR) : ""),
 				player_table[it->second->pos].mail, (mail_found? CCNRM(ch, C_SPR) : ""),
-				rustime(localtime(&mytime)));
+				rustime(localtime(&mytime)), player_table[it->second->pos].level);
 			it->second->out += buf;
 			it->second->out += buf2;
 			it->second->out += buf1;

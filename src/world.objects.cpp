@@ -202,6 +202,12 @@ void WorldObjects::foreach(const foreach_f function) const
 	std::for_each(list.begin(), list.end(), function);
 }
 
+void WorldObjects::foreach_on_copy(const foreach_f function) const
+{
+	const list_t list = get_list();
+	std::for_each(list.begin(), list.end(), function);
+}
+
 void WorldObjects::foreach_on_copy_while(const foreach_while_f function) const
 {
 	const list_t list = get_list();
@@ -243,7 +249,7 @@ void WorldObjects::foreach_with_id(const object_id_t id, const foreach_f functio
 
 OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f predicate) const
 {
-	return find_if(predicate, 1);
+	return find_if(predicate, 0);
 }
 
 OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f predicate, unsigned number) const
@@ -282,14 +288,17 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_name(const char* name) const
 OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned number) const
 {
 	const auto set_i = m_id_to_object_ptr.find(id);
-	for (const auto& object : set_i->second)
+	if (set_i != m_id_to_object_ptr.end())
 	{
-		if (0 == number)
+		for (const auto& object : set_i->second)
 		{
-			return object;
-		}
+			if (0 == number)
+			{
+				return object;
+			}
 
-		--number;
+			--number;
+		}
 	}
 
 	return nullptr;
@@ -297,15 +306,23 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_id(const object_id_t id, unsigned num
 
 OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned number) const
 {
-	const auto set_i = m_vnum_to_object.find(vnum);
-	for (const auto& object : set_i->second)
-	{
-		if (0 == number)
-		{
-			return object;
-		}
+	return find_by_vnum_and_dec_number(vnum, number);
+}
 
-		--number;
+OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number) const
+{
+	const auto set_i = m_vnum_to_object.find(vnum);
+	if (set_i != m_vnum_to_object.end())
+	{
+		for (const auto& object : set_i->second)
+		{
+			if (0 == number)
+			{
+				return object;
+			}
+
+			--number;
+		}
 	}
 
 	return nullptr;
@@ -314,14 +331,17 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned nu
 OBJ_DATA::shared_ptr WorldObjects::find_by_rnum(const obj_rnum rnum, unsigned number) const
 {
 	const auto set_i = m_rnum_to_object_ptr.find(rnum);
-	for (const auto& object : set_i->second)
+	if (set_i != m_rnum_to_object_ptr.end())
 	{
-		if (0 == number)
+		for (const auto& object : set_i->second)
 		{
-			return object;
-		}
+			if (0 == number)
+			{
+				return object;
+			}
 
-		--number;
+			--number;
+		}
 	}
 
 	return nullptr;

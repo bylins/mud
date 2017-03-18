@@ -10,6 +10,7 @@
 
 #include "dg_scripts.h"
 
+#include "find.obj.id.by.vnum.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
@@ -391,19 +392,6 @@ int find_char_vnum(long n, int num = 0)
 	return -1;
 }
 
-// * Аналогично find_char_vnum, только для объектов.
-int find_obj_id_by_vnum(const obj_vnum vnum, int num = 0)
-{
-	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum(vnum, num);
-
-	if (object)
-	{
-		return object->get_id();
-	}
-
-	return -1;
-}
-
 // return room with VNUM n
 // Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к.
 // RNUM может быть независимо изменен с помощью OLC
@@ -762,7 +750,7 @@ void script_trigger_check(void)
 		}
 	}
 
-	world_objects.foreach([&](const OBJ_DATA::shared_ptr& obj)
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& obj)
 	{
 		if(OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED))
 		{
@@ -819,7 +807,7 @@ void script_timechange_trigger_check(const int time)
 		}
 	}
 
-	world_objects.foreach([&](const OBJ_DATA::shared_ptr& obj)
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& obj)
 	{
 		if (obj->get_script())
 		{
@@ -1988,7 +1976,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "obj") && num > 0)
 			{
-				num = find_obj_id_by_vnum(num);
+				num = find_obj_by_id_vnum__find_replacement(num);
+
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_OBJ, num);
 			}
@@ -4941,7 +4930,7 @@ void makeuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 * calcuid <переменная куда пишется id> <внум> <room|mob|obj> <порядковый номер от 1 до х>
 * если порядковый не указан - возвращается первое вхождение.
 */
-void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type*/, char *cmd)
+void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
@@ -4992,7 +4981,7 @@ void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type
 	else if (!str_cmp(what, "obj"))
 	{
 		uid_type = UID_OBJ;
-		result = find_obj_id_by_vnum(result, count_num);
+		result = find_obj_by_id_vnum__calcuid(result, count_num, type, go);
 	}
 	else
 	{

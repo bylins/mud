@@ -4082,7 +4082,7 @@ void paste_mobiles()
 		paste_mob(ch, ch->in_room);
 	}
 
-	world_objects.foreach([](const OBJ_DATA::shared_ptr& object)
+	world_objects.foreach_on_copy([](const OBJ_DATA::shared_ptr& object)
 	{
 		paste_obj(object.get(), object->get_in_room());
 	});

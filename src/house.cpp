@@ -3108,9 +3108,10 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 // если предмет - деньги, то автоматом идут в клан-казну, контейнеры только пустые
 bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 {
-	if (IS_NPC(ch) || !CLAN(ch)
-			|| real_room(CLAN(ch)->chest_room) != ch->in_room
-			|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_PUT])
+	const bool prohibited = IS_NPC(ch) || !CLAN(ch)
+		|| real_room(CLAN(ch)->chest_room) != ch->in_room
+		|| !CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHEST_PUT];
+	if (prohibited)
 	{
 		send_to_char("Не имеете таких правов!\r\n", ch);
 		return 0;

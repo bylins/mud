@@ -619,7 +619,8 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				&& GET_POS(tch) > POS_SLEEPING
 				&& CAN_SEE(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
-				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_HOLD))
+				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_HOLD)
+				&& !IS_GRGOD(ch))
 			{
 				if (show_msg)
 					act("$N преградил$G вам путь.", FALSE, ch, 0, tch, TO_CHAR);
