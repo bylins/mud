@@ -84,6 +84,7 @@ public:
 	OBJ_DATA::shared_ptr find_by_id(const object_id_t id, unsigned number) const;
 	OBJ_DATA::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 0); }
 	OBJ_DATA::shared_ptr find_by_vnum(const obj_vnum vnum, unsigned number) const;
+	OBJ_DATA::shared_ptr find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number) const;
 	OBJ_DATA::shared_ptr find_first_by_vnum(const obj_vnum vnum) const { return find_by_vnum(vnum, 0); }
 	OBJ_DATA::shared_ptr find_by_rnum(const obj_rnum rnum, unsigned number) const;
 	OBJ_DATA::shared_ptr find_first_by_rnum(const obj_rnum rnum) const { return find_by_rnum(rnum, 0); }

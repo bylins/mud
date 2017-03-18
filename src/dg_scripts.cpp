@@ -391,17 +391,244 @@ int find_char_vnum(long n, int num = 0)
 	return -1;
 }
 
-// * Аналогично find_char_vnum, только для объектов.
-int find_obj_id_by_vnum(const obj_vnum vnum, int num = 0)
+class FindObjIDByVNUM
 {
-	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum(vnum, num);
+public:
+	static constexpr object_id_t NOT_FOUND = -1;
+
+	FindObjIDByVNUM(const obj_vnum vnum, const unsigned number) : m_vnum(vnum), m_number(number), m_result(NOT_FOUND) {}
+
+	bool look_world_objects();
+	bool look_inventory(const CHAR_DATA* character);
+	bool look_worn(const CHAR_DATA* character);
+	bool look_room(const room_rnum character);
+	bool look_list(const OBJ_DATA* list);
+
+	int look_for_caluid(const int type, const void* go);
+
+	int result() const { return m_result; }
+
+private:
+	class TriggerLookup
+	{
+	public:
+		using shared_ptr = std::shared_ptr<TriggerLookup>;
+
+		TriggerLookup(FindObjIDByVNUM& finder): m_finder(finder) {}
+		~TriggerLookup() {}
+
+		virtual int lookup() = 0;
+
+	protected:
+		FindObjIDByVNUM& finder() { return m_finder; }
+
+	private:
+		FindObjIDByVNUM& m_finder;
+	};
+
+	class MobTriggerLookup: public TriggerLookup
+	{
+	public:
+		MobTriggerLookup(FindObjIDByVNUM& finder, const CHAR_DATA* mob) : TriggerLookup(finder), m_mob(mob) {}
+
+		virtual int lookup() override;
+
+	private:
+		const CHAR_DATA* m_mob;
+	};
+
+	class ObjTriggerLookup : public TriggerLookup
+	{
+	public:
+		ObjTriggerLookup(FindObjIDByVNUM& finder, const OBJ_DATA* object) : TriggerLookup(finder), m_object(object) {}
+
+		virtual int lookup() override;
+
+	private:
+		const OBJ_DATA* m_object;
+	};
+
+	class WldTriggerLookup : public TriggerLookup
+	{
+	public:
+		WldTriggerLookup(FindObjIDByVNUM& finder, const ROOM_DATA* room) : TriggerLookup(finder), m_room(room) {}
+
+		virtual int lookup() override;
+
+	private:
+		const ROOM_DATA* m_room;
+	};
+
+	TriggerLookup::shared_ptr create_lookuper(const int type, const void* go);
+
+	obj_vnum m_vnum;
+	unsigned m_number;
+	object_id_t m_result;
+};
+
+int FindObjIDByVNUM::WldTriggerLookup::lookup()
+{
+	auto result = false;
+	if (m_room)
+	{
+		const auto room_rnum = real_room(m_room->number);
+		result = finder().look_room(room_rnum);
+	}
+	
+	if (!result)
+	{
+		finder().look_world_objects();
+	}
+
+	return finder().result();
+}
+
+int FindObjIDByVNUM::ObjTriggerLookup::lookup()
+{
+	if (!m_object)
+	{
+		return NOT_FOUND;
+	}
+
+	const auto owner = m_object->get_worn_by() ? m_object->get_worn_by() : m_object->get_carried_by();
+	if (owner)
+	{
+		const auto mob_lookuper = std::make_shared<MobTriggerLookup>(finder(), owner);
+		return mob_lookuper->lookup();
+	}
+
+	const auto object_room = m_object->get_in_room();
+	const auto result = finder().look_room(object_room);
+	if (!result)
+	{
+		finder().look_world_objects();
+	}
+
+	return finder().result();
+}
+
+int FindObjIDByVNUM::MobTriggerLookup::lookup()
+{
+	auto result = false;
+	if (m_mob)
+	{
+		result = finder().look_inventory(m_mob)
+			|| finder().look_room(m_mob->in_room);
+	}
+
+	if (!result)
+	{
+		finder().look_world_objects();
+	}
+
+	return finder().result();
+}
+
+// * Аналогично find_char_vnum, только для объектов.
+bool FindObjIDByVNUM::look_world_objects()
+{
+	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number);
 
 	if (object)
 	{
-		return object->get_id();
+		m_result = object->get_id();
+		return true;
 	}
 
-	return -1;
+	return false;
+}
+
+bool FindObjIDByVNUM::look_inventory(const CHAR_DATA* character)
+{
+	if (!character)
+	{
+		return false;
+	}
+
+	return look_list(character->carrying);
+}
+
+bool FindObjIDByVNUM::look_worn(const CHAR_DATA* character)
+{
+	if (!character)
+	{
+		return false;
+	}
+
+	for (int i = 0; i < NUM_WEARS; ++i)
+	{
+		const auto equipment = character->equipment[i];
+		if (equipment
+			&& equipment->get_vnum() == m_vnum)
+		{
+			if (0 == m_number)
+			{
+				m_result = equipment->get_id();
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool FindObjIDByVNUM::look_room(const room_rnum room)
+{
+	const auto room_contents = world[room]->contents;
+	if (!room_contents)
+	{
+		return false;
+	}
+
+	return look_list(room_contents);
+}
+
+bool FindObjIDByVNUM::look_list(const OBJ_DATA* list)
+{
+	while (list)
+	{
+		if (list->get_vnum() == m_vnum)
+		{
+			if (0 == m_number)
+			{
+				m_result = list->get_id();
+				return true;
+			}
+
+			--m_number;
+		}
+
+		list = list->get_next_content();
+	}
+
+	return false;
+}
+
+int FindObjIDByVNUM::look_for_caluid(const int type, const void* go)
+{
+	const auto lookuper = create_lookuper(type, go);
+
+	return lookuper->lookup();
+}
+
+FindObjIDByVNUM::TriggerLookup::shared_ptr FindObjIDByVNUM::create_lookuper(const int type, const void* go)
+{
+	switch (type)
+	{
+	case WLD_TRIGGER:
+		return std::make_shared<WldTriggerLookup>(*this, static_cast<const ROOM_DATA*>(go));
+
+	case OBJ_TRIGGER:
+		return std::make_shared<ObjTriggerLookup>(*this, static_cast<const OBJ_DATA*>(go));
+
+	case MOB_TRIGGER:
+		return std::make_shared<MobTriggerLookup>(*this, static_cast<const CHAR_DATA*>(go));
+	}
+
+	log("SYSERR: Logic error trigger type %d is not valid. Valid values are %d, %d, %d",
+		type, MOB_TRIGGER, OBJ_TRIGGER, WLD_TRIGGER);
+
+	return nullptr;
 }
 
 // return room with VNUM n
@@ -1988,7 +2215,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "obj") && num > 0)
 			{
-				num = find_obj_id_by_vnum(num);
+				FindObjIDByVNUM finder(num, 0);
+				finder.look_world_objects();
+				num = finder.result();
+
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_OBJ, num);
 			}
@@ -4941,7 +5171,7 @@ void makeuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 * calcuid <переменная куда пишется id> <внум> <room|mob|obj> <порядковый номер от 1 до х>
 * если порядковый не указан - возвращается первое вхождение.
 */
-void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type*/, char *cmd)
+void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char *t, vnum[MAX_INPUT_LENGTH], what[MAX_INPUT_LENGTH];
@@ -4992,7 +5222,8 @@ void calcuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type
 	else if (!str_cmp(what, "obj"))
 	{
 		uid_type = UID_OBJ;
-		result = find_obj_id_by_vnum(result, count_num);
+		FindObjIDByVNUM finder(result, count_num);
+		result = finder.look_for_caluid(type, go);
 	}
 	else
 	{
