@@ -566,6 +566,8 @@ bool FindObjIDByVNUM::look_worn(const CHAR_DATA* character)
 				m_result = equipment->get_id();
 				return true;
 			}
+
+			--m_number;
 		}
 	}
 
@@ -608,7 +610,12 @@ int FindObjIDByVNUM::look_for_caluid(const int type, const void* go)
 {
 	const auto lookuper = create_lookuper(type, go);
 
-	return lookuper->lookup();
+	if (lookuper)
+	{
+		return lookuper->lookup();
+	}
+
+	return NOT_FOUND;
 }
 
 FindObjIDByVNUM::TriggerLookup::shared_ptr FindObjIDByVNUM::create_lookuper(const int type, const void* go)
