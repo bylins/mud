@@ -119,3 +119,32 @@ TEST_F(CompactTriePrefixes, TrieWithLeafFork)
 	}
 	ASSERT_EQ(i, strings.size());
 }
+
+TEST_F(CompactTriePrefixes, SequencialSearch)
+{
+	const std::string PREFIX_VALUE = "prefix";
+	const std::string STRING_VALUE_1 = PREFIX_VALUE + "1";
+	const std::string SUBPREFIX_VALUE = "2";
+	const std::string PREFIX_VALUE_1 = PREFIX_VALUE + SUBPREFIX_VALUE;
+	const std::string STRING_VALUE_22 = PREFIX_VALUE_1 + "2";
+	const std::string STRING_VALUE_23 = PREFIX_VALUE_1 + "3";
+
+	const strings_t strings = { STRING_VALUE_1, STRING_VALUE_22, STRING_VALUE_23 };
+	fill_trie(strings);
+
+	const auto range1 = trie.find_prefix(PREFIX_VALUE);
+
+	ASSERT_EQ(PREFIX_VALUE, range1.prefix());
+
+	const auto range2 = range1.find(SUBPREFIX_VALUE);
+
+	ASSERT_EQ(PREFIX_VALUE_1, range2.prefix());
+
+	size_t i = 1;
+	for (const auto string : range2)
+	{
+		ASSERT_LT(i, strings.size());
+		ASSERT_EQ(string.prefix(), strings[i++]);
+	}
+	ASSERT_EQ(i, strings.size());
+}
