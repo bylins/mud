@@ -36,9 +36,9 @@ TEST_F(CompactTrieBasics, EmptyString)
 	const auto empty_string = "";
 	const auto other_string = "any other string";
 
-	EXPECT_FALSE(trie.add_string(empty_string));
+	EXPECT_TRUE(trie.add_string(empty_string));
 
-	EXPECT_FALSE(trie.has_string(empty_string));
+	EXPECT_TRUE(trie.has_string(empty_string));
 	EXPECT_FALSE(trie.has_string(other_string));
 
 	EXPECT_EQ(0, trie.size());

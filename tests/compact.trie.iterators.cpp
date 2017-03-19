@@ -3,19 +3,22 @@
 #include <gtest/gtest.h>
 
 #include <map>
+#include <algorithm>
 
 class CompactTrieIterators: public ::testing::Test
 {
 protected:
 	using strings_t = std::vector<std::string>;
 
-	void check(const strings_t& strings);
+	void check(strings_t strings);
 
 	CompactTrie trie;
 };
 
-void CompactTrieIterators::check(const strings_t& strings)
+void CompactTrieIterators::check(strings_t strings)
 {
+	std::sort(strings.begin(), strings.end());
+
 	for (const auto s : strings)
 	{
 		ASSERT_TRUE(trie.add_string(s));
@@ -26,7 +29,7 @@ void CompactTrieIterators::check(const strings_t& strings)
 	{
 		const std::string& word = subtree.prefix();
 		ASSERT_TRUE(word == strings[i])
-			<< "String " << word << " in the trie does not match the original string " << strings[i];
+			<< "String [" << word << "] in the trie does not match the original string [" << strings[i] << "]";
 		++i;
 	}
 }

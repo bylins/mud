@@ -17,6 +17,7 @@ public:
 			bool operator==(const DFS_Iterator& right) const;
 			bool operator!=(const DFS_Iterator& right) const { return !(*this == right); }
 			const Range& operator*() const;
+			const Range* operator->() const { return &operator*(); }
 			DFS_Iterator& operator++() { return next(); }
 
 		private:
@@ -25,7 +26,7 @@ public:
 			using path_t = std::list<size_t>;
 
 			DFS_Iterator(const Range* range);
-			DFS_Iterator(const Range* range, const size_t current);
+			DFS_Iterator(const Range* range, const size_t current, const bool end = false);
 
 			DFS_Iterator& next();
 			void go_to_first_leaf();
@@ -45,15 +46,21 @@ public:
 		bool operator==(const Range& right) const { return m_trie == right.m_trie && m_root == right.m_root; }
 
 		iterator begin() const { return iterator(this); }
-		iterator end() const { return iterator(this, NO_INDEX); }
+		iterator end() const { return iterator(this, NO_INDEX, true); }
+		Range find(const std::string& prefix) const;
+
+		bool empty() const { return begin() == end(); }
 
 		const std::string& prefix() const { return m_prefix; }
 
 	private:
 		friend class CompactTrie;
 
-		Range(CompactTrie* trie, const size_t root = NO_INDEX) : m_trie(trie), m_root(root) {}
+		Range(CompactTrie* trie, const size_t root = 0) : m_trie(trie), m_root(root) {}
 		Range(CompactTrie* trie, const size_t root, const std::string& prefix) : m_trie(trie), m_root(root), m_prefix(prefix) {}
+
+		bool go_to_child(size_t& node) const;
+		bool go_to_sibling(size_t& node) const;
 
 		CompactTrie* m_trie;
 		size_t m_root;
@@ -65,16 +72,18 @@ public:
 	static constexpr size_t CHARS_NUMBER = 1 << (sizeof(char) * 8);
 	static constexpr size_t NO_INDEX = ~0u;
 
-	CompactTrie(): m_range(this), m_size(0) {}
+	CompactTrie(): m_range(this), m_contents(1, Node('\0')) {}
 
 	/// Each next string must be added into trie in lexical order
 	bool add_string(const std::string& string);
 	bool has_string(const std::string& string) const;
 
+	Range find_prefix(const std::string& prefix) const { return m_range.find(prefix); }
+
 	iterator begin() const { return m_range.begin(); }
 	iterator end() const { return m_range.end(); }
 
-	size_t size() const { return m_size; }
+	size_t size() const { return m_contents[0].subtree_size; }
 
 private:
 	struct Node
@@ -95,7 +104,6 @@ private:
 
 	std::vector<Node> m_contents;
 	Range m_range;
-	size_t m_size;
 };
 
 constexpr size_t CompactTrie::CHARS_NUMBER;

@@ -22,7 +22,8 @@ set(TESTS
 	bonus.command.parser.cpp
 	radix.trie.cpp
 	compact.trie.cpp
-	compact.trie.iterators.cpp)
+	compact.trie.iterators.cpp
+	compact.trie.prefixes.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)
