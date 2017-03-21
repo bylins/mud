@@ -1981,6 +1981,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
 					ingrs[i]->set_weight(0);
 					extract_obj(ingrs[i]);
+					ingrs[i] = nullptr;
 					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
 					if (!get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying))
 					{
