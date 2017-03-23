@@ -2740,7 +2740,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			sprintf(str, "%d", c->get_dex());
 		}
 		else if (!str_cmp(field, "dexadd"))
-			sprintf(str, "%d", GET_DEX_ADD(c));
+			sprintf(str, "%d", c->get_dex_add());
 		else if (!str_cmp(field, "con"))
 		{
 			//GET_CON(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_CON(c)));

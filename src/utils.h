@@ -110,7 +110,6 @@ bool is_head(std::string name);
 extern std::list<FILE *> opened_files;
 extern bool is_dark(room_rnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
-int VPOSI_MOB(CHAR_DATA *ch, int stat);
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
@@ -599,9 +598,7 @@ inline T VPOSI(const T val, const T min, const T max)
 }
 
 // у чаров режет до 50, у мобов до ста
-#define VPOSI_MOB(ch, stat_id, val)	IS_NPC(ch) ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
-
-
+//#define VPOSI_MOB(ch, stat_id, val)	IS_NPC(ch) ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
 
 #define GET_CLASS(ch)   ((ch)->get_class())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
@@ -620,8 +617,6 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define GET_STR_ADD(ch) ((ch)->get_str_add())
 #define GET_REAL_STR(ch) (VPOSI_MOB(ch, 0, ((ch)->get_str() + GET_STR_ADD(ch))))
-#define GET_DEX_ADD(ch) ((ch)->get_dex_add())
-#define GET_REAL_DEX(ch) (VPOSI_MOB(ch, 1, (ch)->get_dex() + GET_DEX_ADD(ch)))
 #define GET_CON_ADD(ch) ((ch)->get_con_add())
 #define GET_REAL_CON(ch) (VPOSI_MOB(ch, 2, (ch)->get_con() + GET_CON_ADD(ch)))
 #define GET_WIS_ADD(ch) ((ch)->get_wis_add())
