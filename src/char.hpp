@@ -915,6 +915,13 @@ bool IS_FEMALE(const CHAR_DATA* ch);
 bool IS_NOSEXY(const CHAR_DATA* ch);
 bool IS_POLY(const CHAR_DATA* ch);
 
+int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val);
+
+inline auto GET_REAL_DEX(const CHAR_DATA* ch)
+{
+	return VPOSI_MOB(ch, 1, ch->get_dex() + ch->get_dex_add());
+}
+
 void change_fighting(CHAR_DATA * ch, int need_stop);
 size_t fighting_list_size();
 

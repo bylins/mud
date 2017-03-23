@@ -1251,11 +1251,22 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 	case SKILL_AWAKE:  // осторожный стиль
-		bonus = int_app[GET_REAL_DEX(ch)].observation;
-
-		if (vict)
 		{
-			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+			const int real_dex = GET_REAL_DEX(ch);
+			if (real_dex < INT_APP_SIZE)
+			{
+				bonus = int_app[real_dex].observation;
+
+				if (vict)
+				{
+					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+				}
+			}
+			else
+			{
+				log("SYSERR: Global buffer overflow for SKILL_AWAKE. Requested real_dex is %d, but maximal allowed is %d.",
+					real_dex, INT_APP_SIZE);
+			}
 		}
 		break;
 

@@ -66,6 +66,7 @@ extern struct dex_skill_type dex_app_skill[];
 extern struct dex_app_type dex_app[];
 extern struct con_app_type con_app[];
 extern struct int_app_type int_app[];
+extern const size_t INT_APP_SIZE;
 extern struct wis_app_type wis_app[];
 extern struct cha_app_type cha_app[];
 extern struct size_app_type size_app[];

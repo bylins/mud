@@ -1245,8 +1245,6 @@ struct dex_app_type dex_app[] =
 	{10, 10, -10}			// dex = 50
 };
 
-
-
 // [con] apply (all)
 struct con_app_type con_app[] =
 // Hitp Ress   AfSav    PsS CrS
@@ -1306,7 +1304,6 @@ struct con_app_type con_app[] =
 	{6, 30, -15, -15, -10}		// con = 50
 };
 
-
 struct int_app_type int_app[] =
 {
 //Ackn  SkUse  SpLv     SpCnt Impr Obser
@@ -1362,6 +1359,8 @@ struct int_app_type int_app[] =
 	{99, 12, 190, 0, 14, 14},
 	{100, 12, 200, 0, 15, 15}	// int = 50
 };
+
+const size_t INT_APP_SIZE = sizeof(int_app) / sizeof(*int_app);
 
 #define s0 (0)
 #define s1 (1 << 0)
