@@ -451,7 +451,7 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		return false;
 	}
 	// если шмотка магическая или энчантнута таймер обычный
-    if (obj->get_extra_flag(EExtraFlag::ITEM_MAGIC))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_MAGIC))
 	{
 		return false;
 	}
@@ -462,6 +462,11 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	}
 	// рассыпется вне зоны
 	if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY))
+	{
+		return false;
+	}
+	// рассыпется на репоп зоны
+	if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
 	{
 		return false;
 	}
