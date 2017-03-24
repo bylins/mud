@@ -196,13 +196,6 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 
 			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 			mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-			if (RENTABLE(ch))
-			{
-				die(ch, NULL);
-				GET_HIT(ch) = GET_MOVE(ch) = 0;
-				return TRUE;
-			}
-
 			death_cry(ch, NULL);
 			//29.11.09 Для счета количество рипов (с) Василиса
 			GET_RIP_DT(ch) = GET_RIP_DT(ch) + 1;
@@ -215,7 +208,12 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 				extract_obj(corpse);
 			}
 			GET_HIT(ch) = GET_MOVE(ch) = 0;
-			extract_char(ch, TRUE);
+			if (RENTABLE(ch))
+			{
+				die(ch, NULL);
+			}
+			else
+				extract_char(ch, TRUE);
 			return TRUE;
 		}
 	}
