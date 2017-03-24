@@ -1839,40 +1839,42 @@ int paste_description(char *string, const char *tag, int need)
 	}
 
 	if (!need)
-		{
+	{
 		const size_t offset = pos - string;
 		string[offset] = '\0';
 		pos = str_str(pos + 1, tag);
 		if (pos)
 		{
-			strcat(string, pos + strlen(tag));
+			auto to_pos = string + offset;
+			auto from_pos = pos + strlen(tag);
+			while ((*(to_pos++) = *(from_pos++)));
 		}
 		return FALSE;
 	}
 
-			for (; *pos && *pos != '>'; pos++);
+	for (; *pos && *pos != '>'; pos++);
 
-			if (*pos)
+	if (*pos)
 	{
-				pos++;
+		pos++;
 	}
 
-			if (*pos == 'R')
-			{
-				pos++;
-				buf[0] = '\0';
-			}
+	if (*pos == 'R')
+	{
+		pos++;
+		buf[0] = '\0';
+	}
 
-			strcat(buf, pos);
+	strcat(buf, pos);
 	pos = str_str(buf, tag);
 	if (pos)
-		{
+	{
 		const size_t offset = pos - buf;
 		buf[offset] = '\0';
-		}
+	}
 
 	return (TRUE);
-	}
+}
 
 
 void show_extend_room(const char * const description, CHAR_DATA * ch)
