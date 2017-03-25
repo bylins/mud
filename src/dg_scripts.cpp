@@ -4992,12 +4992,8 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 
 	if (result <= -1)
 	{
-		debug::coredump();
 		sprintf(buf2, "calcuid target not found vnum: %s, count: %d", vnum, count_num);
 		trig_log(trig, buf2);
-		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		sprintf(buf2, "Создана кора для исследований в errlog.txt");
-		trig_log(trig, buf2);		
 		*uid = '\0';
 		return;
 	}
