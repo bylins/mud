@@ -202,6 +202,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 	CHAR_DATA *vict;
 	int percent = 0;
 	int prob = 0;
+	bool protect = false;
 
 	//Polud прикрываем только от нападения
 	if (ch->get_fighting()==victim)
@@ -231,6 +232,12 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
 				return victim;
 			}
+			if (protect) 
+			{ 
+				send_to_char(vict, "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n", GET_PAD(vict->get_protecting(), 3)); 
+				continue; 
+			}
+			protect = true;
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
 			prob = calculate_skill(vict, SKILL_PROTECT, victim);
 			prob = prob * 8 / 10;
