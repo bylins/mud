@@ -3444,7 +3444,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
 			{
-				if (i->get_affected(plane).location == counter)
+				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter))
 				{
 					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
 						++found, i->get_vnum(),

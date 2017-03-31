@@ -2377,6 +2377,14 @@ int Crash_load(CHAR_DATA * ch)
 			extract_obj(obj.get());
 			continue;
 		}
+		//очищаем RepopDecay объедки
+		if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
+		{
+			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
+			send_to_char(buf, ch);
+			extract_obj(obj.get());
+			continue;
+		}
 
 		// Check valid class
 		if (invalid_anti_class(ch, obj.get())
@@ -2528,6 +2536,8 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
+		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
+		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
 		|| (GET_OBJ_RNUM(obj) <= NOTHING
 			&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY

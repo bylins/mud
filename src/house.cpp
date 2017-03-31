@@ -5625,6 +5625,7 @@ bool Clan::put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest)
 	}
 	else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
+		|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
 		|| GET_OBJ_RNUM(obj) <= NOTHING)
