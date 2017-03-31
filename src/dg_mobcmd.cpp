@@ -1958,8 +1958,6 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	auto victim = get_char(name);
 	if (victim)
 	{
-		sprintf(buf, "Параметры убиваемого персонажа ch %s victim %s", GET_NAME(ch), GET_NAME(victim));
-		mob_log(ch, buf);
 		if (world[IN_ROOM(victim)]->zone != world[ch->in_room]->zone)
 		{
 			return;
@@ -1994,8 +1992,6 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		sprintf(buf, "Параметры убиваемого персонажа ch %s виктима нет", GET_NAME(ch));
-		mob_log(ch, buf);
 		mob_log(ch, "mdamage: target not found");
 	}
 }
