@@ -1934,7 +1934,6 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int dam = 0;
-	CHAR_DATA *victim;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1956,8 +1955,8 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	dam = atoi(amount);
-
-	if ((victim = get_char(name)))
+	auto victim = get_char(name);
+	if (victim)
 	{
 		if (world[IN_ROOM(victim)]->zone != world[ch->in_room]->zone)
 		{
