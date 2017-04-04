@@ -1906,7 +1906,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 			else if (!str_cmp(field, "obj") && (num = atoi(subfield)) > 0)
 			{
-				num = count_obj_vnum(num);
+				num = gcount_obj_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%c", num > 0 ? '1' : '0');
 			}
