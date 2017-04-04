@@ -222,8 +222,9 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	{
 		if (clr(vict, C_NRM)) // реж цвет >= обычный
 			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
-						" Зеленым цветом выделены уже изученные способности.\r\n"
-						" Красным цветом выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
+						" Зеленым цветом и пометкой [И] выделены уже изученные способности.\r\n"
+						" Пометкой [Д] выделены доступные для изучения способности.\r\n"
+						" Красным цветом и пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
 		else
 			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
 						" Пометкой [И] выделены уже изученные способности.\r\n"
@@ -234,9 +235,11 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 				continue;
 			if (clr(vict, C_NRM))
-				sprintf(buf, "        %s%-30s%s\r\n",
+				sprintf(buf, "        %s%s %-30s%s\r\n",
 					HAVE_FEAT(ch, sortpos) ? KGRN :
 					can_get_feat(ch, sortpos) ? KNRM : KRED,
+					HAVE_FEAT(ch, sortpos) ? "[И]" :
+					can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
 					feat_info[sortpos].name, KNRM);
 			else
 				sprintf(buf, "    %s %-30s\r\n",
