@@ -236,7 +236,7 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 		 * if object is pointing to this prototype, then we need to replace it
 		 * with the new one.
 		 */
-		log("[OEdit] Save object to mem %d", robj_num);
+		log("[OEdit] Save object to mem %d", GET_OBJ_VNUM(OLC_OBJ(d)));
 		olc_update_objects(robj_num, OLC_OBJ(d));
 
 		// Все существующие в мире объекты обновлены согласно новому прототипу
