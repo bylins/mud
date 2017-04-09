@@ -1524,9 +1524,9 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					break;
 				case 2:
 				case 3:
-					to_char = "Сильно пнув в челюсть, вы заставили $N4 замолчать.";
+					to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
 					to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив вас замолчать.";
-					to_room = "Сильно пнув ногой в челюсть $N4, $n застави$q $S замолчать.";
+					to_room = "Сильно пнув ногой в челюсть $N3, $n застави$q $S замолчать.";
 					af.type = SPELL_BATTLE;
 					af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
