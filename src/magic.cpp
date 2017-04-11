@@ -4579,6 +4579,10 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		extract_char(mob, FALSE);
 		return 0;
 	}
+        if (MOB_FLAGGED(mob, MOB_MOUNTING))
+	{
+		MOB_FLAGS(mob).unset(MOB_MOUNTING);
+	}
 	if (IS_HORSE(mob))
 	{
 		send_to_char("Это был боевой скакун, а не хухры-мухры.\r\n", ch);
