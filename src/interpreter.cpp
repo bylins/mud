@@ -429,6 +429,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
 void do_stun(CHAR_DATA*, char*, int, int);
+void do_showzonestats(CHAR_DATA*, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -974,6 +975,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"settle", POS_STANDING, do_not_here, 1, 0, -1},
 	{"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"show", POS_DEAD, do_show, LVL_IMMORT, 0, 0},
+	{"showzonestats", POS_DEAD, do_showzonestats, LVL_IMMORT, 0, 0 },
 	{"shutdown", POS_DEAD, do_shutdown, LVL_IMPL, SCMD_SHUTDOWN, 0},
 	{"sip", POS_RESTING, do_drink, 0, SCMD_SIP, 500},
 	{"sit", POS_RESTING, do_sit, 0, 0, -1},
