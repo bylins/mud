@@ -562,7 +562,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
 	{"золото", POS_RESTING, do_gold, 0, 0, 0},
 	{"зона", POS_RESTING, do_zone, 0, 0, 0},
-
+	{ "зоныстат", POS_DEAD, do_showzonestats, LVL_IMMORT, 0, 0 },
 	{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
 	{"идеи", POS_DEAD, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
@@ -975,7 +975,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"settle", POS_STANDING, do_not_here, 1, 0, -1},
 	{"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"show", POS_DEAD, do_show, LVL_IMMORT, 0, 0},
-	{"showzonestats", POS_DEAD, do_showzonestats, LVL_IMMORT, 0, 0 },
+	
 	{"shutdown", POS_DEAD, do_shutdown, LVL_IMPL, SCMD_SHUTDOWN, 0},
 	{"sip", POS_RESTING, do_drink, 0, SCMD_SIP, 500},
 	{"sit", POS_RESTING, do_sit, 0, 0, -1},
