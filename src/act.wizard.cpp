@@ -186,7 +186,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
+void do_showzonestats(CHAR_DATA*, char*, int, int);
 void save_zone_count_reset()
 {
 	for (int i = 0; i <= top_of_zone_table; ++i)
@@ -262,6 +262,17 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	sprintf(buf2, "Удалено всего предметов: %d", num);
 	send_to_char(buf2, ch);
 	
+}
+
+void do_showzonestats(CHAR_DATA* ch, char*, int, int)
+{
+	std::string buffer = "";
+	for (int i = 0; i <= top_of_zone_table; ++i)
+	{
+		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
+		buffer += std::string(buf) + "\r\n";
+	}
+	page_string(ch->desc, buffer);
 }
 
 void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
