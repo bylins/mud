@@ -3477,7 +3477,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	{
 		for (const auto i : obj_proto)
 		{
-			if (i->get_extra_flag(plane, 1 << (plane_offset)))
+			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
 					++found, i->get_vnum(),
