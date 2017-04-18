@@ -283,9 +283,7 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 
 
-	if (killer
-		&& (!IS_NPC(killer)
-			|| IS_CHARMICE(killer))) // рип в тестовой зоне от моба но не чармиса
+	if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && (ch != killer)) // рип в тестовой зоне от моба но не чармиса
 	{
 		return false;
 	}
