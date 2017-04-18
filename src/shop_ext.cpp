@@ -118,14 +118,22 @@ struct waste_node
 
 struct item_node
 {
-	item_node() : rnum(0), vnum(0), price(0) {descs.clear(); temporary_ids.clear();};
+	using temporary_ids_t = std::vector<unsigned>;
+
+	item_node();;
 
 	int rnum;
 	int vnum;
 	long price;
-	std::vector<unsigned> temporary_ids;
+	temporary_ids_t temporary_ids;
 	ItemDescNodeList descs;
 };
+
+item_node::item_node() : rnum(0), vnum(0), price(0)
+{
+	descs.clear();
+	temporary_ids.clear();
+}
 
 typedef boost::shared_ptr<item_node> ItemNodePtr;
 typedef std::vector<ItemNodePtr> ItemListType;
@@ -170,7 +178,7 @@ typedef std::vector<ItemSetPtr> ItemSetListType;
 ShopListType shop_list;
 
 
-OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<unsigned> uids);
+OBJ_DATA* get_obj_from_waste(ShopListType::const_iterator &shop, const item_node::temporary_ids_t& uids);
 
 void log_shop_load()
 {
@@ -643,13 +651,17 @@ void remove_item_id(ShopListType::const_iterator &shop, unsigned uid)
 {
 	for (ItemListType::iterator k = (*shop)->item_list.begin();k!= (*shop)->item_list.end(); ++k)
 	{
-		for(std::vector<unsigned>::iterator it = (*k)->temporary_ids.begin(); it != (*k)->temporary_ids.end(); ++it)
+		for (auto it = (*k)->temporary_ids.begin(); it != (*k)->temporary_ids.end(); ++it)
 		{
 			if ((*it) == uid)
 			{
 				(*k)->temporary_ids.erase(it);
+
 				if ((*k)->temporary_ids.empty())
+				{
 					(*shop)->item_list.erase(k);
+				}
+
 				return;
 			}
 		}
@@ -691,14 +703,15 @@ void update_timers()
 	}
 }
 
-OBJ_DATA * get_obj_from_waste(ShopListType::const_iterator &shop, std::vector<unsigned> uids)
+OBJ_DATA* get_obj_from_waste(ShopListType::const_iterator &shop, const item_node::temporary_ids_t& uids)
 {
 	std::list<waste_node>::iterator it;
 	for (it = (*shop)->waste.begin(); it != (*shop)->waste.end();)
 	{
 		if (it->obj->get_rnum() == it->rnum)
 		{
-			if (it->obj->get_uid() == uids[0])
+			if (0 != uids.size()
+				&& it->obj->get_uid() == uids[0])
 			{
 				return (it->obj);
 			}
@@ -1431,6 +1444,7 @@ void put_item_in_shop(ShopListType::const_iterator &shop, OBJ_DATA * obj)
 					tmp_node.obj = obj;
 					tmp_node.rnum = obj->get_rnum();
 					(*shop)->waste.push_back(tmp_node);
+
 					return;
 				}
 			}
@@ -1781,10 +1795,8 @@ void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, ShopListTyp
 		}
 		else
 		{
-			auto t = get_object_prototype((*shop)->item_list[item_num]->rnum, REAL);
-			tmp_obj = new OBJ_DATA(*t);
-			obj_proto.inc_number(t->get_rnum());
-			ident_obj = tmp_obj;
+			const auto object = world_objects.create_raw_from_prototype_by_rnum((*shop)->item_list[item_num]->rnum);
+			ident_obj = tmp_obj = object.get();
 		}
 	}
 	else

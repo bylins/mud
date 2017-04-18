@@ -67,6 +67,8 @@ public:
 	// create a new object from a prototype
 	OBJ_DATA::shared_ptr create_from_prototype_by_rnum(obj_rnum rnum);
 
+	OBJ_DATA::shared_ptr create_raw_from_prototype_by_rnum(obj_rnum rnum);
+
 	void add(const OBJ_DATA::shared_ptr& object);
 	void remove(OBJ_DATA* object);
 	void remove(const OBJ_DATA::shared_ptr& object) { remove(object.get()); }
