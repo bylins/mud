@@ -2800,6 +2800,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// обновление позиции после удара и ангела
 	update_pos(victim);
+	// если вдруг виктим сдох после этого, то произойдет креш, поэтому вставил тут проверочку
+	if (!(ch && victim) || (ch->purged() || victim->purged()))
+	{
+		log("Error in fight_hit, function process()\r\n");
+		return 0;
+	}
 	// если у чара есть жатва жизни
 	if (can_use_feat(victim, HARVESTLIFE_FEAT))
 	{
@@ -3857,7 +3863,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 	if (!ch || ch->purged() || victim->purged())
 	{
-		log("SYSERROR: ch = %s, victim = %s (%s:%d)",
+		log("SYSERROR: ch                                                                                                                                                                                   = %s, victim = %s (%s:%d)",
 			ch ? (ch->purged() ? "purged" : "true") : "false",
 			victim->purged() ? "purged" : "true", __FILE__, __LINE__);
 		return;
