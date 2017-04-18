@@ -3863,7 +3863,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 	if (!ch || ch->purged() || victim->purged())
 	{
-		log("SYSERROR: ch                                                                                                                                                                                   = %s, victim = %s (%s:%d)",
+		log("SYSERROR: ch = %s, victim = %s (%s:%d)",                                                                                                                                                                                   = %s, victim = %s (%s:%d)",
 			ch ? (ch->purged() ? "purged" : "true") : "false",
 			victim->purged() ? "purged" : "true", __FILE__, __LINE__);
 		return;
