@@ -392,6 +392,8 @@ public:
 	void subscribe_for_rnum_changes(const RNumChangeObserver::shared_ptr& observer) { m_rnum_change_observers.insert(observer); }
 	void unsubscribe_for_rnum_changes(const RNumChangeObserver::shared_ptr& observer) { m_rnum_change_observers.erase(observer); }
 
+	std::string item_count_message(int num, int pad);
+
 protected:
 	void zero_init();
 	CObjectPrototype& operator=(const CObjectPrototype& from);	///< makes shallow copy of all fields except VNUM
@@ -819,6 +821,8 @@ public:
 
 	void subscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.insert(observer); }
 	void unsubscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.erase(observer); }
+
+	void attach_triggers(const triggers_list_t& trigs);
 
 private:
 	void zero_init();
