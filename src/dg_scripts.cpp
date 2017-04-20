@@ -1989,12 +1989,12 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			}
 //Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
 //которое прописано в самом предмете с указанным vnum
-			else if (!str_cmp(field, "maxobj") && num > 0)
+			else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0)
 			{
 				num = real_object(num);
 				if (num >= 0)
 				{
-					// если о прототипа беск.таймер,
+					// если у прототипа беск.таймер,
 					// то их оч много в мире
 					if (check_unlimited_timer(obj_proto[num].get()))
 					    sprintf(str, "9999999");
