@@ -302,6 +302,21 @@ void OBJ_DATA::set_script(SCRIPT_DATA* _)
 	m_script.reset(_);
 }
 
+void OBJ_DATA::set_uid(const unsigned _)
+{
+	if (_ != m_uid)
+	{
+		const auto old_uid = m_uid;
+
+		m_uid = _;
+
+		for (const auto& observer : m_uid_change_observers)
+		{
+			observer->notify(*this, old_uid);
+		}
+	}
+}
+
 void CObjectPrototype::toggle_skill(const uint32_t skill)
 {
 	TOGGLE_BIT(m_skill, skill);

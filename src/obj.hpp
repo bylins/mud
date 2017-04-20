@@ -114,6 +114,16 @@ public:
 	virtual void notify(CObjectPrototype& object, const obj_rnum old_rnum) = 0;
 };
 
+class UIDChangeObserver
+{
+public:
+	using shared_ptr = std::shared_ptr<UIDChangeObserver>;
+
+	virtual ~UIDChangeObserver() {}
+
+	virtual void notify(OBJ_DATA& object, const int old_uid) = 0;
+};
+
 class CObjectPrototype
 {
 public:
@@ -804,7 +814,7 @@ public:
 	void set_room_was_in(const int _) { m_room_was_in = _; }
 	void set_script(const std::shared_ptr<SCRIPT_DATA>& _) { m_script = _; }
 	void set_script(SCRIPT_DATA* _);
-	void set_uid(const unsigned _) { m_uid = _; }
+	void set_uid(const unsigned _);
 	void set_worn_by(CHAR_DATA* _) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
 	void set_zone(const int _) { m_zone = _; }
@@ -821,6 +831,9 @@ public:
 
 	void subscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.insert(observer); }
 	void unsubscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.erase(observer); }
+
+	void subscribe_for_uid_change(const UIDChangeObserver::shared_ptr& observer) { m_uid_change_observers.insert(observer); }
+	void unsubscribe_for_uid_change(const UIDChangeObserver::shared_ptr& observer) { m_uid_change_observers.erase(observer); }
 
 	void attach_triggers(const triggers_list_t& trigs);
 
@@ -867,6 +880,7 @@ private:
 	std::pair<bool, int> m_activator;
 
 	std::unordered_set<IDChangeObserver::shared_ptr> m_id_change_observers;
+	std::unordered_set<UIDChangeObserver::shared_ptr> m_uid_change_observers;
 };
 
 template <> const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectType>(const OBJ_DATA::EObjectType item);
