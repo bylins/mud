@@ -108,64 +108,6 @@ struct item_desc_node
 typedef std::map<int/*vnum предмета*/, item_desc_node> ObjDescType;
 std::map<std::string/*id шаблона*/, ObjDescType> item_descriptions;
 
-struct item_node
-{
-	using shared_ptr = std::shared_ptr<item_node>;
-	using temporary_ids_t = std::vector<unsigned>;
-	using item_descriptions_t = std::map<int/*vnum продавца*/, item_desc_node>;
-
-	item_node(): rnum(0), vnum(0), price(0) {}
-
-	const std::string& get_item_name(int keeper_vnum, int pad = 0) const;
-	void replace_descs(OBJ_DATA *obj, int vnum);
-
-	int rnum;					// RNUM of the item's prototype (get rid of me)
-	int vnum;					// VNUM of the item's prototype
-	long price;					// Price of the item
-	temporary_ids_t item_uids;	// List of uids of this item in the shop
-	item_descriptions_t descs;
-};
-
-const std::string& item_node::get_item_name(int keeper_vnum, int pad /*= 0*/) const
-{
-	const auto desc_i = descs.find(keeper_vnum);
-	if (desc_i != descs.end())
-	{
-		return desc_i->second.PNames[pad];
-	}
-	else
-	{
-		return GET_OBJ_PNAME(obj_proto[rnum], pad);
-	}
-}
-
-void item_node::replace_descs(OBJ_DATA *obj, int vnum)
-{
-	obj->set_description(descs[vnum].description.c_str());
-	obj->set_aliases(descs[vnum].name.c_str());
-	obj->set_short_description(descs[vnum].short_description.c_str());
-	obj->set_PName(0, descs[vnum].PNames[0].c_str());
-	obj->set_PName(1, descs[vnum].PNames[1].c_str());
-	obj->set_PName(2, descs[vnum].PNames[2].c_str());
-	obj->set_PName(3, descs[vnum].PNames[3].c_str());
-	obj->set_PName(4, descs[vnum].PNames[4].c_str());
-	obj->set_PName(5, descs[vnum].PNames[5].c_str());
-	obj->set_sex(descs[vnum].sex);
-
-	if (!descs[vnum].trigs.empty())
-	{
-		obj->attach_triggers(descs[vnum].trigs);
-	}
-
-	obj->set_ex_description(nullptr); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
-
-	if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
-		&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
-	{
-		name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...Следует указать содержимое емкости
-	}
-}
-
 bool check_money(CHAR_DATA *ch, long price, const std::string& currency)
 {
 	if (currency == "слава")
@@ -497,12 +439,148 @@ void GoodsStorage::clear()
 	m_objects_by_uid.clear();
 }
 
+class ItemNode
+{
+public:
+	using shared_ptr = std::shared_ptr<ItemNode>;
+	using uid_t = unsigned;
+	using temporary_ids_t = std::unordered_set<uid_t>;
+	using item_descriptions_t = std::unordered_map<int/*vnum продавца*/, item_desc_node>;
+
+	const static uid_t NO_UID = ~0u;
+
+	ItemNode(const obj_vnum vnum, const long price) : m_vnum(vnum), m_price(price) {}
+	ItemNode(const obj_vnum vnum, const long price, const uid_t uid) : m_vnum(vnum), m_price(price) { add_uid(uid); }
+
+	const std::string& get_item_name(int keeper_vnum, int pad = 0) const;
+
+	void add_desc(const mob_vnum vnum, const item_desc_node& desc) { m_descs[vnum] = desc; }
+	void replace_descs(OBJ_DATA *obj, const int vnum) const;
+	bool has_desc(const obj_vnum vnum) const { return m_descs.find(vnum) != m_descs.end(); }
+
+	bool empty() const { return m_item_uids.empty(); }
+	const auto size() const { return m_item_uids.size(); }
+
+	auto uid() const { return 0 < m_item_uids.size() ? *m_item_uids.begin() : NO_UID; }
+	void add_uid(const uid_t uid) { m_item_uids.emplace(uid); }
+	void remove_uid(const uid_t uid) { m_item_uids.erase(uid); }
+
+	const auto vnum() const { return m_vnum; }
+
+	const auto get_price() const { return m_price; }
+	void set_price(const long _) { m_price = _; }
+
+private:
+	int m_vnum;						// VNUM of the item's prototype
+	long m_price;					// Price of the item
+
+	temporary_ids_t m_item_uids;	// List of uids of this item in the shop
+	item_descriptions_t m_descs;
+};
+
+const std::string& ItemNode::get_item_name(int keeper_vnum, int pad /*= 0*/) const
+{
+	const auto desc_i = m_descs.find(keeper_vnum);
+	if (desc_i != m_descs.end())
+	{
+		return desc_i->second.PNames[pad];
+	}
+	else
+	{
+		const auto rnum = obj_proto.rnum(m_vnum);
+		const static std::string wrong_vnum = "<unknown VNUM>";
+		if (-1 == rnum)
+		{
+			return wrong_vnum;
+		}
+		return GET_OBJ_PNAME(obj_proto[rnum], pad);
+	}
+}
+
+void ItemNode::replace_descs(OBJ_DATA *obj, const int vnum) const
+{
+	const auto desc_i = m_descs.find(vnum);
+	if (!obj
+		|| desc_i == m_descs.end())
+	{
+		return;
+	}
+
+	const auto& desc = desc_i->second;
+
+	obj->set_description(desc.description.c_str());
+	obj->set_aliases(desc.name.c_str());
+	obj->set_short_description(desc.short_description.c_str());
+	obj->set_PName(0, desc.PNames[0].c_str());
+	obj->set_PName(1, desc.PNames[1].c_str());
+	obj->set_PName(2, desc.PNames[2].c_str());
+	obj->set_PName(3, desc.PNames[3].c_str());
+	obj->set_PName(4, desc.PNames[4].c_str());
+	obj->set_PName(5, desc.PNames[5].c_str());
+	obj->set_sex(desc.sex);
+
+	if (!desc.trigs.empty())
+	{
+		obj->attach_triggers(desc.trigs);
+	}
+
+	obj->set_ex_description(nullptr); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
+
+	if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
+		&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
+	{
+		name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...Следует указать содержимое емкости
+	}
+}
+
+class ItemsList
+{
+public:
+	using items_list_t = std::vector<ItemNode::shared_ptr>;
+
+	ItemsList() {}
+
+	void add(const obj_vnum vnum, const long price);
+	void add(const obj_vnum vnum, const long price, const ItemNode::uid_t uid);
+	void remove(const size_t index) { m_items_list.erase(m_items_list.begin() + index); }
+
+	const auto& node(const size_t index) const;
+	const auto size() const { return m_items_list.size(); }
+	bool empty() const { return m_items_list.empty(); }
+
+private:
+	items_list_t m_items_list;
+};
+
+void ItemsList::add(const obj_vnum vnum, const long price, const ItemNode::uid_t uid)
+{
+	const auto item = std::make_shared<ItemNode>(vnum, price, uid);
+	m_items_list.push_back(std::move(item));
+}
+
+void ItemsList::add(const obj_vnum vnum, const long price)
+{
+	const auto item = std::make_shared<ItemNode>(vnum, price);
+	m_items_list.push_back(std::move(item));
+}
+
+const auto& ItemsList::node(const size_t index) const
+{
+	if (index < m_items_list.size())
+	{
+		return m_items_list[index];
+	}
+
+	// if we are here then this is an error
+	log("LOGIC ERROR: Requested shop item with too high index %zd but shop has only %zd items", index, size());
+	static decltype(m_items_list)::value_type null_ptr;
+	return null_ptr;
+}
+
 class shop_node : public DictionaryItem
 {
 public:
 	using shared_ptr = std::shared_ptr<shop_node>;
-
-	using items_list_t = std::vector<item_node::shared_ptr>;
 	using mob_vnums_t = std::list<mob_vnum>;
 
 	shop_node(): waste_time_min(0), can_buy(true) {};
@@ -513,10 +591,10 @@ public:
 	int waste_time_min;
 	bool can_buy;
 
-	void add_item(const item_node::shared_ptr& node) { m_items_list.push_back(node); }
+	void add_item(const obj_vnum vnum, const long price) { m_items_list.add(vnum, price); }
+	void add_item(const obj_vnum vnum, const long price, const ItemNode::uid_t uid) { m_items_list.add(vnum, price, uid); }
 
 	const auto& items_list() const { return m_items_list; }
-	auto& items_list() { return m_items_list; }	// get rid of me
 
 	void add_mob_vnum(const mob_vnum vnum) { m_mob_vnums.push_back(vnum); }
 
@@ -528,19 +606,19 @@ public:
 	void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, const std::string& cmd);
 	void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, const std::string& cmd);	// it should be const
 	void clear_store();
+	bool empty() const { return m_items_list.empty(); }
 
 private:
 	void put_to_storage(OBJ_DATA* object) { m_storage.add(object); }
 
 	void remove_from_storage(OBJ_DATA *obj);
-	void remove_item(unsigned uid);
-	OBJ_DATA* get_from_shelve(const item_node::temporary_ids_t& uids);
+	OBJ_DATA* get_from_shelve(const size_t index);
 	unsigned get_item_num(std::string &item_name, int keeper_vnum);	// it should be const
-	int can_sell_count(int item_num) const;
+	int can_sell_count(const int item_index) const;
 	void put_item_to_shop(OBJ_DATA* obj);
 	void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, std::string cmd);
 
-	items_list_t m_items_list;
+	ItemsList m_items_list;
 	mob_vnums_t m_mob_vnums;
 
 	GoodsStorage m_storage;
@@ -614,7 +692,9 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument)
 		return;
 	}
 
-	if (!item_count || !item_num || (unsigned)item_num > items_list().size())
+	if (!item_count
+		|| !item_num
+		|| static_cast<size_t>(item_num) > m_items_list.size())
 	{
 		tell_to_char(keeper, ch, "Протри глаза, у меня нет такой вещи.");
 		return;
@@ -626,12 +706,14 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument)
 		return;
 	}
 
-	--item_num;
+	const auto item_index = item_num - 1;
+
 	CObjectPrototype* tmp_obj = nullptr;
 	bool obj_from_proto = true;
-	if (!items_list()[item_num]->item_uids.empty())
+	const auto item = m_items_list.node(item_index);
+	if (!item->empty())
 	{
-		tmp_obj = get_from_shelve(items_list()[item_num]->item_uids);
+		tmp_obj = get_from_shelve(item_index);
 
 		if (!tmp_obj)
 		{
@@ -643,7 +725,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument)
 		obj_from_proto = false;
 	}
 
-	auto proto = (tmp_obj ? tmp_obj : get_object_prototype(items_list()[item_num]->rnum, REAL).get());
+	auto proto = (tmp_obj ? tmp_obj : get_object_prototype(item->vnum()).get());
 	if (!proto)
 	{
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
@@ -651,8 +733,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument)
 		return;
 	}
 
-	const long price = items_list()[item_num]->price;
-
+	const long price = item->get_price();
 	if (!check_money(ch, price, currency))
 	{
 		snprintf(buf, MAX_STRING_LENGTH,
@@ -681,7 +762,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument)
 		|| ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto)) > CAN_CARRY_W(ch)))
 	{
 		const auto& name = obj_from_proto
-			? items_list()[item_num]->get_item_name(GET_MOB_VNUM(keeper), 3).c_str()
+			? item->get_item_name(GET_MOB_VNUM(keeper), 3).c_str()
 			: tmp_obj->get_short_description().c_str();
 		snprintf(buf, MAX_STRING_LENGTH,
 			"%s, я понимаю, своя ноша карман не тянет,\r\n"
@@ -693,7 +774,7 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument)
 
 	int bought = 0;
 	int total_money = 0;
-	int sell_count = can_sell_count(item_num);
+	int sell_count = can_sell_count(item_index);
 
 	OBJ_DATA *obj = 0;
 	while (bought < item_count
@@ -703,25 +784,20 @@ void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument)
 		&& (bought < sell_count || sell_count == -1))
 	{
 
-		if (!items_list()[item_num]->item_uids.empty())
+		if (!item->empty())
 		{
-			obj = get_from_shelve(items_list()[item_num]->item_uids);
-			items_list()[item_num]->item_uids.erase(items_list()[item_num]->item_uids.begin());
-			if (items_list()[item_num]->item_uids.empty())
+			obj = get_from_shelve(item_index);
+			item->remove_uid(obj->get_uid());
+			if (item->empty())
 			{
-				items_list().erase(items_list().begin() + item_num);
+				m_items_list.remove(item_index);
 			}
 			remove_from_storage(obj);
 		}
 		else
 		{
-			obj = world_objects.create_from_prototype_by_rnum(items_list()[item_num]->rnum).get();
-			if (obj
-				&& !items_list()[item_num]->descs.empty()
-				&& items_list()[item_num]->descs.find(GET_MOB_VNUM(keeper)) != items_list()[item_num]->descs.end())
-			{
-				items_list()[item_num]->replace_descs(obj, GET_MOB_VNUM(keeper));
-			}
+			obj = world_objects.create_from_prototype_by_vnum(item->vnum()).get();
+			item->replace_descs(obj, GET_MOB_VNUM(keeper));
 		}
 
 		if (obj)
@@ -835,35 +911,38 @@ void shop_node::print_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum)
 	std::string print_value;
 	std::string name_value;
 
-	for (auto k = items_list().begin(); k != items_list().end(); /* empty */)
+	for (size_t k = 0; k < m_items_list.size();)
 	{
 		int count = can_sell_count(num - 1);
 
 		print_value.clear();
 		name_value.clear();
 
+		const auto& item = m_items_list.node(k);
+
 		//Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
 		// чтобы не было в списках всяких "гриб @n1"
-		if ((*k)->item_uids.empty())
+		if (item->empty())
 		{
-			print_value = (*k)->get_item_name(keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == OBJ_DATA::ITEM_DRINKCON)
+			print_value = item->get_item_name(keeper_vnum);
+			const auto rnum = obj_proto.rnum(item->vnum());
+			if (GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_DRINKCON)
 			{
-				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
+				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 		}
 		else
 		{
-			OBJ_DATA* tmp_obj = get_from_shelve((*k)->item_uids);
+			OBJ_DATA* tmp_obj = get_from_shelve(k);
 			if (tmp_obj)
 			{
 				print_value = tmp_obj->get_short_description();
 				name_value = tmp_obj->get_aliases();
-				(*k)->price = GET_OBJ_COST(tmp_obj);
+				item->set_price(GET_OBJ_COST(tmp_obj));
 			}
 			else
 			{
-				k = items_list().erase(k);	// cached element wasn't found in the cache. Remove element from list?
+				m_items_list.remove(k);	// remove from shop object that we cannot instantiate
 				continue;
 			}
 		}
@@ -876,9 +955,9 @@ void shop_node::print_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum)
 			|| (!name_value.empty()
 				&& isname(arg, name_value)))
 		{
-			std::string format_str = "%4d)  %10s  %-" + std::to_string(std::count(print_value.begin(), print_value.end(), '&') * 2 + 45) + "s %8d\r\n";
-			out << boost::str(boost::format(format_str)
-				% num++ % numToShow % print_value % (*k)->price);
+			std::string format_str = "%4d)  %10s  %-"
+				+ std::to_string(std::count(print_value.begin(), print_value.end(), '&') * 2 + 45) + "s %8d\r\n";
+			out << boost::str(boost::format(format_str) % num++ % numToShow % print_value % item->get_price());
 		}
 		else
 		{
@@ -939,7 +1018,7 @@ void shop_node::filter_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum
 		currency.c_str());
 
 	std::stringstream out;
-	for (auto k = items_list().begin(); k != items_list().end(); /* empty */)
+	for (auto k = 0; k < m_items_list.size();)
 	{
 		int count = can_sell_count(num - 1);
 		bool show_name = true;
@@ -947,27 +1026,28 @@ void shop_node::filter_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum
 		print_value = "";
 		name_value = "";
 
+		const auto& item = m_items_list.node(k);
+
 		//Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
 		// чтобы не было в списках всяких "гриб @n1"
-		if ((*k)->item_uids.empty())
+		if (item->empty())
 		{
-			print_value = (*k)->get_item_name(keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[(*k)->rnum]) == OBJ_DATA::ITEM_DRINKCON)
+			print_value = item->get_item_name(keeper_vnum);
+			const auto rnum = obj_proto.rnum(item->vnum());
+			if (GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_DRINKCON)
 			{
-				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[(*k)->rnum], 2)]);
+				print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 
-			if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED
-				&& obj_proto[(*k)->rnum]->has_wear_flag(wear))
-				|| (type > 0
-					&& type == GET_OBJ_TYPE(obj_proto[(*k)->rnum]))))
+			if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED && obj_proto[rnum]->has_wear_flag(wear))
+				|| (type > 0 && type == GET_OBJ_TYPE(obj_proto[rnum]))))
 			{
 				show_name = false;
 			}
 		}
 		else
 		{
-			OBJ_DATA* tmp_obj = get_from_shelve((*k)->item_uids);
+			OBJ_DATA* tmp_obj = get_from_shelve(k);
 			if (tmp_obj)
 			{
 				if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED && CAN_WEAR(tmp_obj, wear))
@@ -978,11 +1058,12 @@ void shop_node::filter_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum
 
 				print_value = tmp_obj->get_short_description();
 				name_value = tmp_obj->get_aliases();
-				(*k)->price = GET_OBJ_COST(tmp_obj);
+				item->set_price(GET_OBJ_COST(tmp_obj));
 			}
 			else
 			{
-				k = items_list().erase(k);
+				m_items_list.remove(k);	// remove from shop object that we cannot instantiate
+
 				continue;
 			}
 		}
@@ -993,7 +1074,7 @@ void shop_node::filter_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum
 
 		if (show_name)
 		{
-			out << (boost::str(boost::format("%4d)  %10s  %-47s %8d\r\n") % num++ % numToShow % print_value % (*k)->price));
+			out << (boost::str(boost::format("%4d)  %10s  %-47s %8d\r\n") % num++ % numToShow % print_value % item->get_price()));
 		}
 		else
 		{
@@ -1157,34 +1238,37 @@ void shop_node::process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, 
 		item_num = get_item_num(buffer, GET_MOB_VNUM(keeper));
 	}
 
-	if (!item_num || item_num > items_list().size())
+	if (!item_num
+		|| item_num > items_list().size())
 	{
 		tell_to_char(keeper, ch, "Протри глаза, у меня нет такой вещи.");
 		return;
 	}
 
-	--item_num;
+	const auto item_index = item_num - 1;
 
 	const OBJ_DATA *ident_obj = nullptr;
 	OBJ_DATA* tmp_obj = nullptr;
-	if (items_list()[item_num]->item_uids.empty())
+	const auto& item = m_items_list.node(item_index);
+	if (item->empty())
 	{
-		if (!items_list()[item_num]->descs.empty() &&
-			items_list()[item_num]->descs.find(GET_MOB_VNUM(keeper)) != items_list()[item_num]->descs.end())
+		const auto vnum = GET_MOB_VNUM(keeper);
+		if (item->has_desc(vnum))
 		{
-			tmp_obj = world_objects.create_from_prototype_by_rnum(items_list()[item_num]->rnum).get();
-			items_list()[item_num]->replace_descs(tmp_obj, GET_MOB_VNUM(keeper));
+			tmp_obj = world_objects.create_from_prototype_by_vnum(item->vnum()).get();
+			item->replace_descs(tmp_obj, vnum);
 			ident_obj = tmp_obj;
 		}
 		else
 		{
-			const auto object = world_objects.create_raw_from_prototype_by_rnum(items_list()[item_num]->rnum);
+			const auto rnum = obj_proto.rnum(item->vnum());
+			const auto object = world_objects.create_raw_from_prototype_by_rnum(rnum);
 			ident_obj = tmp_obj = object.get();
 		}
 	}
 	else
 	{
-		ident_obj = get_from_shelve(items_list()[item_num]->item_uids);
+		ident_obj = get_from_shelve(item_index);
 	}
 
 	if (!ident_obj)
@@ -1276,35 +1360,15 @@ void shop_node::remove_from_storage(OBJ_DATA *object)
 	m_storage.remove(object);
 }
 
-void shop_node::remove_item(unsigned uid)
+OBJ_DATA* shop_node::get_from_shelve(const size_t index)
 {
-	for (auto k = items_list().begin(); k != items_list().end(); ++k)
-	{
-		for (auto it = (*k)->item_uids.begin(); it != (*k)->item_uids.end(); ++it)
-		{
-			if ((*it) == uid)
-			{
-				(*k)->item_uids.erase(it);
-
-				if ((*k)->item_uids.empty())
-				{
-					items_list().erase(k);
-				}
-
-				return;
-			}
-		}
-	}
-}
-
-OBJ_DATA* shop_node::get_from_shelve(const item_node::temporary_ids_t& uids)
-{
-	if (0 == uids.size())
+	const auto node = m_items_list.node(index);
+	const auto uid = node->uid();
+	if (ItemNode::NO_UID == uid)
 	{
 		return nullptr;
 	}
 
-	const auto uid = *uids.begin();
 	return m_storage.get_by_uid(uid);
 }
 
@@ -1338,17 +1402,19 @@ unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum)
 	for (unsigned i = 0; i < items_list().size(); ++i)
 	{
 		print_value = "";
-		if (items_list()[i]->item_uids.empty())
+		const auto& item = m_items_list.node(i);
+		if (item->empty())
 		{
-			name_value = items_list()[i]->get_item_name(keeper_vnum);
-			if (GET_OBJ_TYPE(obj_proto[items_list()[i]->rnum]) == OBJ_DATA::ITEM_DRINKCON)
+			name_value = item->get_item_name(keeper_vnum);
+			const auto rnum = obj_proto.rnum(item->vnum());
+			if (GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_DRINKCON)
 			{
-				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[items_list()[i]->rnum], 2)]);
+				name_value += " " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 			}
 		}
 		else
 		{
-			OBJ_DATA * tmp_obj = get_from_shelve((items_list()[i])->item_uids);
+			OBJ_DATA * tmp_obj = get_from_shelve(i);
 			if (!tmp_obj)
 			{
 				continue;
@@ -1370,15 +1436,17 @@ unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum)
 	return 0;
 }
 
-int shop_node::can_sell_count(int item_num) const
+int shop_node::can_sell_count(const int item_index) const
 {
-	if (items_list()[item_num]->item_uids.size() != 0)
+	const auto& item = m_items_list.node(item_index);
+	if (!item->empty())
 	{
-		return static_cast<int>(items_list()[item_num]->item_uids.size());
+		return static_cast<int>(item->size());
 	}
 	else
 	{
-		int numToSell = obj_proto[items_list()[item_num]->rnum]->get_max_in_world();
+		const auto rnum = obj_proto.rnum(item->vnum());
+		int numToSell = obj_proto[rnum]->get_max_in_world();
 		if (numToSell == 0)
 		{
 			return numToSell;
@@ -1386,7 +1454,7 @@ int shop_node::can_sell_count(int item_num) const
 
 		if (numToSell != -1)
 		{
-			numToSell -= MIN(numToSell, obj_proto.actual_count(items_list()[item_num]->rnum));	//считаем не только онлайн, но и то что в ренте
+			numToSell -= MIN(numToSell, obj_proto.actual_count(rnum));	//считаем не только онлайн, но и то что в ренте
 		}
 
 		return numToSell;
@@ -1395,18 +1463,19 @@ int shop_node::can_sell_count(int item_num) const
 
 void shop_node::put_item_to_shop(OBJ_DATA* obj)
 {
-	for (const auto& it : items_list())
+	for (auto index = 0; index < m_items_list.size(); ++index)
 	{
-		if (it->rnum == obj->get_rnum())
+		const auto& item = m_items_list.node(index);
+		if (item->vnum() == obj->get_vnum())
 		{
-			if (it->item_uids.empty())
+			if (item->empty())
 			{
 				extract_obj(obj);
 				return;
 			}
 			else
 			{
-				OBJ_DATA* tmp_obj = get_from_shelve(it->item_uids);
+				OBJ_DATA* tmp_obj = get_from_shelve(index);
 				if (!tmp_obj)
 				{
 					continue;
@@ -1415,7 +1484,7 @@ void shop_node::put_item_to_shop(OBJ_DATA* obj)
 				if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING //а у них всех один рнум
 					|| obj->get_short_description() == tmp_obj->get_short_description())
 				{
-					it->item_uids.push_back(obj->get_uid());
+					item->add_uid(obj->get_uid());
 					put_to_storage(obj);
 
 					return;
@@ -1424,11 +1493,7 @@ void shop_node::put_item_to_shop(OBJ_DATA* obj)
 		}
 	}
 
-	const auto tmp_item = std::make_shared<item_node>();
-	tmp_item->rnum = GET_OBJ_RNUM(obj);
-	tmp_item->price = GET_OBJ_COST(obj);
-	tmp_item->item_uids.push_back(obj->get_uid());
-	add_item(tmp_item);
+	add_item(GET_OBJ_RNUM(obj), GET_OBJ_COST(obj), obj->get_uid());
 
 	put_to_storage(obj);
 }
@@ -1647,9 +1712,11 @@ void log_shop_load()
 
 		log("ShopExt: currency=%s", shop->currency.c_str());
 
-		for (const auto& item : shop->items_list())
+		const auto& items = shop->items_list();
+		for (auto index = 0; index < items.size(); ++index)
 		{
-			log("ItemList: vnum=%d, price=%ld", obj_proto[item->rnum]->get_vnum(), item->price);
+			const auto& item = items.node(index);
+			log("ItemList: vnum=%d, price=%ld", item->vnum(), item->get_price());
 		}
 	}
 }
@@ -1897,12 +1964,8 @@ void load(bool reload)
 			}
 
 			// иним ее в магазе
-			const auto tmp_item = std::make_shared<item_node>();
-			tmp_item->rnum = item_rnum;
-			tmp_item->vnum = item_vnum;
-			tmp_item->price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price; //если не указана цена - берем цену из прототипа
-
-			tmp_shop->add_item(tmp_item);
+			const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price; //если не указана цена - берем цену из прототипа
+			tmp_shop->add_item(item_vnum, item_price);
 		}
 
 		//и еще добавим наборы
@@ -1923,38 +1986,38 @@ void load(bool reload)
 							mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 							return;
 						}
-						int price = (*it)->item_list[i].item_price;
 						// иним ее в магазе
-						const auto tmp_item = std::make_shared<item_node>();
-						tmp_item->rnum = item_rnum;
-						tmp_item->vnum = (*it)->item_list[i].item_vnum;
-						tmp_item->price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price;
-						tmp_shop->add_item(tmp_item);
+						const auto item_vnum = (*it)->item_list[i].item_vnum;
+						const int price = (*it)->item_list[i].item_price;
+						const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price;
+						tmp_shop->add_item(item_vnum, item_price);
 					}
 				}
 			}
 		}
 
-		if (tmp_shop->items_list().empty())
+		if (tmp_shop->empty())
 		{
 			snprintf(buf, MAX_STRING_LENGTH, "...item list empty (shop_id=%s)", shop_id.c_str());
 			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			return;
 		}
 
-		for (auto& it : tmp_shop->items_list())
+		const auto& items = tmp_shop->items_list();
+		for (auto index = 0; index < items.size(); ++index)
 		{
+			const auto& item = items.node(index);
 			for (auto id = item_descriptions.begin(); id != item_descriptions.end(); ++id)
 			{
-				if (id->second.find(it->vnum) != id->second.end())
+				if (id->second.find(item->vnum()) != id->second.end())
 				{
-					item_desc_node tmp_desc(id->second[it->vnum]);
+					item_desc_node tmp_desc(id->second[item->vnum()]);
 					for (const auto& mob_vnum : tmp_shop->mob_vnums())
 					{
 						if (mob_to_template.find(mob_vnum) != mob_to_template.end()
 							&& mob_to_template[mob_vnum] == id->first)
 						{
-							it->descs[mob_vnum] = tmp_desc;
+							item->add_desc(mob_vnum, tmp_desc);
 						}
 					}
 				}
