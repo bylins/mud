@@ -522,7 +522,6 @@ public:
 
 	const auto& mob_vnums() const { return m_mob_vnums; }
 
-	void update_shop_timers();
 	void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument);
 	void print_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum);	// it should be const
 	void filter_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum);
@@ -533,7 +532,6 @@ public:
 private:
 	void put_to_storage(OBJ_DATA* object) { m_storage.add(object); }
 
-	void destroy_object(OBJ_DATA*);
 	void remove_from_storage(OBJ_DATA *obj);
 	void remove_item(unsigned uid);
 	OBJ_DATA* get_from_shelve(const item_node::temporary_ids_t& uids);
@@ -547,34 +545,6 @@ private:
 
 	GoodsStorage m_storage;
 };
-
-void shop_node::update_shop_timers()
-{
-	int cur_time = time(NULL);
-	int waste_time = waste_time_min * 60;
-	std::list<OBJ_DATA*> to_remove;
-	for (const auto& store_pair : m_storage)
-	{
-		const auto& object = store_pair.first;
-		if (CObjectPrototype::ITEM_BOOK == object->get_type())
-		{
-			object->dec_timer();
-		}
-
-		const auto& last_activity = store_pair.second;
-		if (object->get_timer() <= 0
-			|| ((waste_time > 0)
-				&& (cur_time - last_activity > waste_time)))
-		{
-			to_remove.push_back(object);
-		}
-	}
-
-	for (const auto& object_ptr : to_remove)
-	{
-		destroy_object(object_ptr);
-	}
-}
 
 void shop_node::process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument)
 {
@@ -1301,13 +1271,6 @@ void shop_node::clear_store()
 	m_storage.clear();
 }
 
-void shop_node::destroy_object(OBJ_DATA* object)
-{
-	remove_item(object->get_uid());
-	extract_obj(object);
-	remove_from_storage(object);
-}
-
 void shop_node::remove_from_storage(OBJ_DATA *object)
 {
 	m_storage.remove(object);
@@ -2002,14 +1965,6 @@ void load(bool reload)
     }
 
     log_shop_load();
-}
-
-void update_timers()
-{
-	for (auto& shop : shop_list)
-	{
-		shop->update_shop_timers();
-	}
 }
 
 long get_sell_price(OBJ_DATA * obj)

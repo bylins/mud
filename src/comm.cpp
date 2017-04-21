@@ -2029,12 +2029,6 @@ void heartbeat(const int missed_pulses)
 		ObjSystem::release_purged_list();
 	}
 
-	// апдейт таймеров в магазинах
-	if (!((pulse + 27) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		ShopExt::update_timers();
-	}
-
 	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
