@@ -1493,7 +1493,7 @@ void shop_node::put_item_to_shop(OBJ_DATA* obj)
 		}
 	}
 
-	add_item(GET_OBJ_RNUM(obj), GET_OBJ_COST(obj), obj->get_uid());
+	add_item(obj->get_vnum(), obj->get_cost(), obj->get_uid());
 
 	put_to_storage(obj);
 }
