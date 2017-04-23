@@ -302,6 +302,21 @@ void OBJ_DATA::set_script(SCRIPT_DATA* _)
 	m_script.reset(_);
 }
 
+void OBJ_DATA::set_uid(const unsigned _)
+{
+	if (_ != m_uid)
+	{
+		const auto old_uid = m_uid;
+
+		m_uid = _;
+
+		for (const auto& observer : m_uid_change_observers)
+		{
+			observer->notify(*this, old_uid);
+		}
+	}
+}
+
 void CObjectPrototype::toggle_skill(const uint32_t skill)
 {
 	TOGGLE_BIT(m_skill, skill);
@@ -762,6 +777,23 @@ void OBJ_DATA::set_tag(const char* tag)
 	}
 }
 
+void OBJ_DATA::attach_triggers(const triggers_list_t& trigs)
+{
+	if (!get_script())
+	{
+		set_script(new SCRIPT_DATA());
+	}
+
+	for (auto it = trigs.begin(); it != trigs.end(); ++it)
+	{
+		int rnum = real_trigger(*it);
+		if (rnum != -1)
+		{
+			add_trigger(get_script().get(), read_trigger(rnum), -1);
+		}
+	}
+}
+
 float count_remort_requred(const CObjectPrototype* obj);
 float count_unlimited_timer(const CObjectPrototype* obj);
 
@@ -831,6 +863,27 @@ void CObjectPrototype::set_rnum(const obj_rnum _)
 			observer->notify(*this, old_rnum);
 		}
 	}
+}
+
+std::string CObjectPrototype::item_count_message(int num, int pad)
+{
+	if (num <= 0
+		|| pad < 0
+		|| pad > 5
+		|| get_PName(pad).empty())
+	{
+		log("SYSERROR : num=%d, pad=%d, pname=%s (%s:%d)", num, pad, get_PName(pad).c_str(), __FILE__, __LINE__);
+
+		return "<ERROR>";
+	}
+
+	std::stringstream out;
+	out << get_PName(pad);
+	if (num > 1)
+	{
+		out << " (x " << num << " " << desc_count(num, WHAT_THINGa) << ")";
+	}
+	return out.str();
 }
 
 int CObjectPrototype::get_manual_mort_req() const

@@ -23,6 +23,7 @@ public:
 	const std::string& GetDictionaryName() { return DictionaryName; }
 	const std::string& GetDictionaryTID() { return DictionaryTID; }
 	DictionaryItemPtr GetDictionaryItem();
+
 private:
 	std::string DictionaryName;
 	std::string DictionaryTID;//символьный идентификатор

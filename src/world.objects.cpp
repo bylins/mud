@@ -126,6 +126,39 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(obj_vnum vnum)
 
 OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 {
+	const auto new_object = create_raw_from_prototype_by_rnum(rnum);
+	if (new_object)
+	{
+		rnum = obj_proto.zone(rnum);
+		if (rnum != -1 && zone_table[rnum].under_construction)
+		{
+			// модификация объектов тестовой зоны
+			constexpr int TEST_OBJECT_TIMER = 30;
+			new_object->set_timer(TEST_OBJECT_TIMER);
+			new_object->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
+		}
+
+		new_object->clear_proto_script();
+
+		const auto id = max_id.allocate();
+		new_object->set_id(id);
+		if (new_object->get_type() == OBJ_DATA::ITEM_DRINKCON)
+		{
+			if (new_object->get_val(1)
+				&& new_object->get_val(2))
+			{
+				name_to_drinkcon(new_object.get(), new_object->get_val(2));
+			}
+		}
+
+		assign_triggers(new_object.get(), OBJ_TRIGGER);
+	}
+
+	return std::move(new_object);
+}
+
+OBJ_DATA::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(obj_rnum rnum)
+{
 	// and obj_rnum
 	if (rnum < 0)
 	{
@@ -133,34 +166,9 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 		return nullptr;
 	}
 
-	OBJ_DATA::shared_ptr new_object(new OBJ_DATA(*obj_proto[rnum]));
+	const auto new_object = std::make_shared<OBJ_DATA>(*obj_proto[rnum]);
 	obj_proto.inc_number(rnum);
-
-	rnum = obj_proto.zone(rnum);
-	if (rnum != -1 && zone_table[rnum].under_construction)
-	{
-		// модификация объектов тестовой зоны
-		constexpr int TEST_OBJECT_TIMER = 30;
-		new_object->set_timer(TEST_OBJECT_TIMER);
-		new_object->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-	}
-
-	new_object->clear_proto_script();
-
 	world_objects.add(new_object);
-
-	const auto id = max_id.allocate();
-	new_object->set_id(id);
-	if (new_object->get_type() == OBJ_DATA::ITEM_DRINKCON)
-	{
-		if (new_object->get_val(1)
-			&& new_object->get_val(2))
-		{
-			name_to_drinkcon(new_object.get(), new_object->get_val(2));
-		}
-	}
-
-	assign_triggers(new_object.get(), OBJ_TRIGGER);
 
 	return std::move(new_object);
 }
