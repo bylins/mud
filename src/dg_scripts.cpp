@@ -1732,6 +1732,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	char *name;
 	int num = 0, count = 0, i;
 	char uid_type = '\0';
+	char tmp[MAX_INPUT_LENGTH] = {};
 
 	const char *send_cmd[] = { "msend", "osend", "wsend" };
 	const char *echo_cmd[] = { "mecho", "oecho", "wecho" };
@@ -3028,13 +3029,21 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "attackers"))
 		{
 			CHAR_DATA *t;
+			int str_length = strlen(str);
 			for (t = combat_list; t; t = t->next_fighting)
 			{
 				if (t->get_fighting() != c)
 				{
 					continue;
 				}
-				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(t));
+				int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(t));
+				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+				{
+					strcpy(str + str_length, tmp);
+					str_length += n;
+				} else {
+					break; // too many attackers
+				}
 			}
 		}
 		else if (!str_cmp(field, "people"))
@@ -3050,9 +3059,17 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 //Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
 		else if (!str_cmp(field, "objs"))
 		{
+			int str_length = strlen(str);
 			for (obj = c->carrying; obj; obj = obj->get_next_content())
 			{
-				sprintf(str + strlen(str), "%c%ld ", UID_OBJ, obj->get_id());
+				int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
+				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+				{
+					strcpy(str + str_length, tmp);
+					str_length += n;
+				} else {
+					break; // too many carying objects
+				}
 			}
 		}
 //-Polud
@@ -3071,6 +3088,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				return;
 			}
 
+			int str_length = strlen(str);
 			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
 			{
 				if (!CAN_SEE(c, rndm))
@@ -3081,8 +3099,17 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						 && *field == 'c') || (IS_NPC(rndm)
 											   && !IS_CHARMED(rndm)
 											   && *field == 'n'))
-					sprintf(str + strlen(str), "%c%ld ", UID_CHAR,
+				   {
+					int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR,
 							GET_ID(rndm));
+					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+					{
+						strcpy(str + str_length, tmp);
+						str_length += n;
+					} else {
+						break; // too many characters
+					}
+				}
 			}
 
 			return;
@@ -3433,13 +3460,23 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				return;
 			}
 
+			int str_length = strlen(str);
 			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
 			{
 				if ((*field == 'a') ||
 						(!IS_NPC(rndm) && *field != 'n') ||
 						(IS_NPC(rndm) && IS_CHARMED(rndm) && *field == 'c') ||
 						(IS_NPC(rndm) && !IS_CHARMED(rndm) && *field == 'n'))
-					sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(rndm));
+				{
+					int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+					{
+						strcpy(str + str_length, tmp);
+						str_length += n;
+					} else {
+						break; // too many characters
+					}
+				}
 			}
 
 			return;
@@ -3618,6 +3655,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				return;
 			}
 
+			int str_length = strlen(str);
 			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
 			{
 				if ((*field == 'a')
@@ -3625,7 +3663,14 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 						|| (IS_NPC(rndm) && IS_CHARMED(rndm) && *field == 'c')
 						|| (IS_NPC(rndm) && !IS_CHARMED(rndm) && *field == 'n'))
 				{
-					sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(rndm));
+					int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+					{
+						strcpy(str + str_length, tmp);
+						str_length += n;
+					} else {
+						break; // too many characters
+					}
 				}
 			}
 
@@ -3642,9 +3687,17 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				trig_log(trig, "room-построитель списка в NOWHERE");
 				return;
 			}
+			int str_length = strlen(str);
 			for (obj = world[inroom]->contents; obj; obj = obj->get_next_content())
 			{
-				sprintf(str + strlen(str), "%c%ld ", UID_OBJ, obj->get_id());
+				int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
+				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
+				{
+					strcpy(str + str_length, tmp);
+					str_length += n;
+				} else {
+					break; // too many objects
+				}
 			}
 			return;
 			//mixaz - end
