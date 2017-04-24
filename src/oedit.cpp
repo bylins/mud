@@ -339,7 +339,7 @@ void oedit_save_to_disk(int zone_num)
 				fprintf(fp, "M %d\n", GET_OBJ_MIW(obj));
 			}
 
-			if (obj->get_manual_mort_req() >= 0)
+			if (obj->get_manual_mort_req() > 0)
 			{
 				fprintf(fp, "R %d\n", obj->get_manual_mort_req());
 			}
