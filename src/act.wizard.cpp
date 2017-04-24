@@ -1825,7 +1825,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	send_to_char(buf, ch);
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
 
-	if (GET_OBJ_RNUM(j) >= 0)
+	if (rnum >= 0)
 	{
 		strcpy(buf2, (obj_proto.func(j->get_rnum()) ? "Есть" : "Нет"));
 	}
@@ -2146,8 +2146,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	if (is_grgod)
 	{
-		sprintf(buf, "Сейчас в мире : %d. На постое : %d\r\n",
-				rnum >= 0 ? obj_proto.number(rnum) - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_proto.stored(rnum) : -1);
+		sprintf(buf, "Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
+				rnum >= 0 ? obj_proto.number(rnum) - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_proto.stored(rnum) : -1, GET_OBJ_MIW(j)) ;
 		send_to_char(buf, ch);
 		// check the object for a script
 		do_sstat_object(ch, j);
