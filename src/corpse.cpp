@@ -380,6 +380,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 				|| (GET_RACE(mob) == i->race_mob)
 				|| (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
 		    && (i->day_start <= day && i->day_end >= day)			// временной промежуток
+		    && (!NPC_FLAGGED(mob, NPC_NOSETSDROP))  //нет флага не падать сетам
 		    && (!mob->has_master()
 				|| IS_NPC(mob->get_master()))) // не чармис	
 
