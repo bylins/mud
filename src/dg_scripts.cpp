@@ -106,7 +106,7 @@ int trgvar_in_room(int vnum);
 /*
 йНЯРШКЭ, МН БЯЕФ. 
 */
-bool StopTrig = false;
+bool CharacterLinkDrop = false;
 
 void script_log(const char *msg, const int type)
 {
@@ -1722,8 +1722,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 //extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 //#define SpINFO spell_info[num]
 // sets str to be the value of var.field
-void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
-					  int type, char *var, char *field, char *subfield, char *str)
+void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char* var, char* field, char* subfield, char* str)
 {
 	struct trig_var_data *vd = NULL;
 	CHAR_DATA *ch, *c = NULL, *rndm;
@@ -1769,7 +1768,9 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 	if (!field || !*field)
 	{
 		if (vd)
+		{
 			strcpy(str, vd->value);
+		}
 		else
 		{
 			if (!str_cmp(var, "self"))
@@ -2191,10 +2192,16 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 
 	if (c)
 	{
-		if (!IS_NPC(c) && (!c->desc))
-			StopTrig = true;
+		if (!IS_NPC(c)
+			&& !c->desc)
+		{
+			CharacterLinkDrop = true;
+		}
+
 		if (text_processed(field, subfield, vd, str))
+		{
 			return;
+		}
 		else if (!str_cmp(field, "global"))  	// get global of something else
 		{
 			if (IS_NPC(c) && c->script)
@@ -2587,12 +2594,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		{
 			sprintf(str, "%d", (int)GET_CLASS(c));
 		}
-#ifdef GET_RACE
 		else if (!str_cmp(field, "race"))
 		{
 			sprintf(str, "%d", (int)GET_RACE(c));
 		}
-#endif
 		else if (!str_cmp(field, "fighting"))
 		{
 			if (c->get_fighting())
@@ -2696,24 +2701,10 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 			else
 				strcpy(str, "0");
 		}
-#ifdef RIDING
-		else if (!str_cmp(field, "riding"))
-		{
-			if (RIDING(c))
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(RIDING(c)));
-		}
-#endif
-
-#ifdef RIDDEN_BY
-		else if (!str_cmp(field, "ridden_by"))
-		{
-			if (RIDDEN_BY(c))
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(RIDDEN_BY(c)));
-		}
-#endif
-
 		else if (!str_cmp(field, "vnum"))
+		{
 			sprintf(str, "%d", GET_MOB_VNUM(c));
+		}
 		else if (!str_cmp(field, "str"))
 		{
 			//GET_STR(c)=(sbyte) MAX(1,gm_char_field(c,field,subfield,(long) GET_STR(c)));
@@ -2982,19 +2973,6 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
 			}
 		}
-		/*else if (!str_cmp(field, "function"))
-		{
-			if (IS_NPC(c))
-				gm_flag(subfield, function_bits,
-						c->mob_specials.npc_flags, str);
-		}
-		>> fatal error C1061: ограничение компилятора: недопустимая степень вложения блоков
-		Ввиду ограничения в студии в 128 elseif-ов,
-		выкидываю нигде не использовавшийся function чтоб вставить
-		нужный в данный момент dispel, если кто скажет как сделать
-		по-человески - могу муторную переделку всех этих 128 пунктов
-		(то есть копипасту) взять на себя (Купала)
-		*/
 		else if (!str_cmp(field, "leader"))
 		{
 			if (c->has_master())
@@ -3029,7 +3007,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		else if (!str_cmp(field, "attackers"))
 		{
 			CHAR_DATA *t;
-			int str_length = strlen(str);
+			size_t str_length = strlen(str);
 			for (t = combat_list; t; t = t->next_fighting)
 			{
 				if (t->get_fighting() != c)
@@ -3059,7 +3037,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 //Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
 		else if (!str_cmp(field, "objs"))
 		{
-			int str_length = strlen(str);
+			size_t str_length = strlen(str);
 			for (obj = c->carrying; obj; obj = obj->get_next_content())
 			{
 				int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
@@ -3088,7 +3066,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				return;
 			}
 
-			int str_length = strlen(str);
+			size_t str_length = strlen(str);
 			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
 			{
 				if (!CAN_SEE(c, rndm))
@@ -3460,7 +3438,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				return;
 			}
 
-			int str_length = strlen(str);
+			size_t str_length = strlen(str);
 			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
 			{
 				if ((*field == 'a') ||
@@ -3655,7 +3633,7 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				return;
 			}
 
-			int str_length = strlen(str);
+			size_t str_length = strlen(str);
 			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
 			{
 				if ((*field == 'a')
@@ -3687,7 +3665,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 				trig_log(trig, "room-построитель списка в NOWHERE");
 				return;
 			}
-			int str_length = strlen(str);
+
+			size_t str_length = strlen(str);
 			for (obj = world[inroom]->contents; obj; obj = obj->get_next_content())
 			{
 				int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
@@ -3740,9 +3719,8 @@ void find_replacement(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig,
 		return;
 }
 
-
 // substitutes any variables into line and returns it as buf
-void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const char *line, char *buf)
+void var_subst(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, const char* line, char* buf)
 {
 	char tmp[MAX_INPUT_LENGTH], repl_str[MAX_INPUT_LENGTH], *var, *field, *p;
 	char *subfield_p, subfield[MAX_INPUT_LENGTH];
@@ -3769,7 +3747,6 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 
 		*buf = '\0';
 
-		// double %
 		if (*p && (*(++p) == '%') && (left > 0))
 		{
 			*(buf++) = *(p++);
@@ -3780,6 +3757,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 		else if (*p && (left > 0))
 		{
 			for (var = p; *p && (*p != '%') && (*p != '.'); p++);
+
 			field = p;
 			subfield_p = subfield;	//new
 			if (*p == '.')
@@ -3806,9 +3784,7 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 						if (!paren_count)
 						{
 							*local_p = '\0';
-//							log("Recoursive VAR_SUBST <%s>", local);
 							var_subst(go, sc, trig, type, local, subfield_p);
-//							log("Get value  VAR_SUBST <%s>", subfield_p);
 							local_p = NULL;
 							subfield_p = subfield + strlen(subfield);
 						}
@@ -3816,7 +3792,6 @@ void var_subst(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, const cha
 					else if (paren_count)
 					{
 						*local_p++ = *p;
-						//*subfield_p++ = *p;
 					}
 				}
 			}
@@ -3995,7 +3970,10 @@ void eval_expr(const char *line, char *result, void *go, SCRIPT_DATA * sc, TRIG_
 		line++;
 	}
 
-	if (eval_lhs_op_rhs(line, result, go, sc, trig, type));
+	if (eval_lhs_op_rhs(line, result, go, sc, trig, type))
+	{
+		;
+	}
 	else if (*line == '(')
 	{
 		strcpy(expr, line);
@@ -5619,8 +5597,10 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	std::string start_string_trig = "First Line";
 	std::string finish_string_trig = "<Last line is undefined because it is dangerous to obtain it>";
 	if (trig->curr_state)
+	{
 		start_string_trig = trig->curr_state->cmd;
-	StopTrig = false;
+	}
+	CharacterLinkDrop = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
 	gettimeofday(&start, NULL);
 	const auto return_code = timed_script_driver(go, trig, type, mode);
@@ -5683,7 +5663,6 @@ void do_dg_add_ice_currency(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, 
 	ch->add_ice_currency(value);
 }
 
-
 int timed_script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 #else
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
@@ -5739,7 +5718,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	for (auto cl = (mode == TRIG_NEW) ? *trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl)  	//log("Drive go <%s>",cl->cmd);
 	{
-		if (StopTrig)
+		if (CharacterLinkDrop)
 		{
 			sprintf(buf, "[TrigVnum: %d] Character in LinkDrop in 'Drive go'.", last_trig_vnum);
 			mudlog(buf, BRF, -1, ERRLOG, TRUE);
@@ -5762,7 +5741,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			{
 				cl = find_else_end(trig, cl, go, sc, type);
 			}
-			if (StopTrig)
+			if (CharacterLinkDrop)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
@@ -5773,7 +5752,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		{
 			cl = find_end(trig, cl);
 			GET_TRIG_DEPTH(trig)--;
-			if (StopTrig)
+			if (CharacterLinkDrop)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
@@ -5795,7 +5774,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				cl = temp;
 				loops = 0;
 			}
-			if (StopTrig)
+			if (CharacterLinkDrop)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
@@ -5817,7 +5796,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				cl = temp;
 				loops = 0;
 			}
-			if (StopTrig)
+			if (CharacterLinkDrop)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
@@ -5827,7 +5806,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		else if (!strn_cmp("switch ", p, 7))
 		{
 			cl = find_case(trig, cl, go, sc, type, p + 7);
-			if (StopTrig)
+			if (CharacterLinkDrop)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);
@@ -5885,7 +5864,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		else
 		{
 			var_subst(go, sc, trig, type, p, cmd);
-			if (StopTrig)
+			if (CharacterLinkDrop)
 			{
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, TRUE);

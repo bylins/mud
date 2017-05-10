@@ -2258,8 +2258,6 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj)
 	return false;
 }
 
-
-
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 {
 	if (!IS_CORPSE(obj))
@@ -2308,10 +2306,6 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 	}
 	return (FALSE);
 }
-
-
-
-
 
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {

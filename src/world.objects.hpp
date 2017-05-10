@@ -113,7 +113,7 @@ private:
 	WO_VNumChangeObserver::shared_ptr m_vnum_change_observer;
 };
 
-extern WorldObjects world_objects;
+extern WorldObjects& world_objects;
 
 #endif // __WORLD_OBJECTS_HPP__
 

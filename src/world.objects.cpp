@@ -7,6 +7,7 @@
 #include "liquid.hpp"
 #include "dg_scripts.h"
 #include "utils.h"
+#include "global.objects.hpp"
 
 #include <algorithm>
 
@@ -378,6 +379,6 @@ void WorldObjects::add_to_index(const list_t::iterator& object_i)
 	m_object_raw_ptr_to_object_ptr.emplace(object.get(), object_i);
 }
 
-WorldObjects world_objects;	// contains all objects in the world
+WorldObjects& world_objects = GlobalObjects::world_objects();	// contains all objects in the world
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
