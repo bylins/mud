@@ -882,18 +882,18 @@ void check_berserk(CHAR_DATA * ch)
 		affect_from_char(ch, SPELL_BERSERK);
 		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
 	}
-//!IS_NPC(ch) &&
-	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
-			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) &&
-			(GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
+
+	const bool berserk_feat_passed = true
+		&& ch->get_fighting()
+		&& !timed_by_feat(ch, BERSERK_FEAT)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK);
+	if (berserk_feat_passed)
 	{
 
-//		if (!IS_NPC(ch)) {
 //Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
 		timed.skill = BERSERK_FEAT;
 		timed.time = 4;
 		timed_feat_to_char(ch, &timed);
-//		}
 
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_BERSERK;

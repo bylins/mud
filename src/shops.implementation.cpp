@@ -802,7 +802,7 @@ namespace ShopExt
 			currency.c_str());
 
 		std::stringstream out;
-		for (auto k = 0; k < m_items_list.size();)
+		for (auto k = 0u; k < m_items_list.size();)
 		{
 			int count = can_sell_count(num - 1);
 			bool show_name = true;
@@ -1247,7 +1247,7 @@ namespace ShopExt
 
 	void shop_node::put_item_to_shop(OBJ_DATA* obj)
 	{
-		for (auto index = 0; index < m_items_list.size(); ++index)
+		for (auto index = 0u; index < m_items_list.size(); ++index)
 		{
 			const auto& item = m_items_list.node(index);
 			if (item->vnum() == obj->get_vnum())

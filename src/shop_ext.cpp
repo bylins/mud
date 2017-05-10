@@ -96,7 +96,7 @@ void log_shop_load()
 		log("ShopExt: currency=%s", shop->currency.c_str());
 
 		const auto& items = shop->items_list();
-		for (auto index = 0; index < items.size(); ++index)
+		for (auto index = 0u; index < items.size(); ++index)
 		{
 			const auto& item = items.node(index);
 			log("ItemList: vnum=%d, price=%ld", item->vnum(), item->get_price());
@@ -170,9 +170,9 @@ void load_item_desc()
 				boost::trim(tmp_value);
 				try
 				{
-					trig_vnum = boost::lexical_cast<unsigned>(tmp_value);
+					trig_vnum = std::stoi(tmp_value, nullptr, 10);
 				}
-				catch (boost::bad_lexical_cast &)
+				catch (const std::invalid_argument&)
 				{
 					snprintf(buf, MAX_STRING_LENGTH, "...error while casting to num (item_vnum=%d, casting value=%s)", item_vnum, tmp_value.c_str());
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
@@ -387,7 +387,7 @@ void load(bool reload)
 		}
 
 		const auto& items = tmp_shop->items_list();
-		for (auto index = 0; index < items.size(); ++index)
+		for (auto index = 0u; index < items.size(); ++index)
 		{
 			const auto& item = items.node(index);
 			for (auto id = item_descriptions.begin(); id != item_descriptions.end(); ++id)
