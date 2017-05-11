@@ -883,8 +883,7 @@ void check_berserk(CHAR_DATA * ch)
 		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 
-	const bool berserk_feat_passed = true
-		&& ch->get_fighting()
+	const bool berserk_feat_passed = ch->get_fighting()
 		&& !timed_by_feat(ch, BERSERK_FEAT)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK);
 	if (berserk_feat_passed)
