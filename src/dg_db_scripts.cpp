@@ -477,7 +477,7 @@ void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum
 	else
 	{
 		send_to_char(ch, "Ваше умение осталось неизменным '%s '.\r\n", skill_name(skillnum));
-		log("Unchanged %s on %s (trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), vnum);
+		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 }
 

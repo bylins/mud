@@ -6,8 +6,8 @@
 // This struct defines order of creating and destroying global objects
 struct GlobalObjectsStorage
 {
-	ShopExt::ShopListType m_shop_list;
 	WorldObjects m_world_objects;
+	ShopExt::ShopListType m_shop_list;
 };
 
 // This function ensures that global objects will be created at the moment of getting access to them
