@@ -1248,30 +1248,40 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 		break;
 	default:		// >= POSITION SLEEPING
 		if (dam > (GET_REAL_MAX_HIT(victim) / 4))
-			send_to_char("Это действительно БОЛЬНО!\r\n", victim);
-
-		if (dam > 0 && GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4))
 		{
-			sprintf(buf2,
-					"%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
-					CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
+			send_to_char("Это действительно БОЛЬНО!\r\n", victim);
+		}
+
+		if (dam > 0
+			&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4))
+		{
+			sprintf(buf2, "%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
+				CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
 			send_to_char(buf2, victim);
 		}
-		if (ch != victim &&
-				IS_NPC(victim) &&
-				GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4) &&
-				MOB_FLAGGED(victim, MOB_WIMPY) && !noflee && GET_POS(victim) > POS_SITTING)
-			do_flee(victim, NULL, 0, 0);
 
-		if (ch != victim &&
-				!IS_NPC(victim) &&
-				HERE(victim) &&
-				GET_WIMP_LEV(victim) &&
-				GET_HIT(victim) < GET_WIMP_LEV(victim) && !noflee && GET_POS(victim) > POS_SITTING)
+		if (ch != victim
+			&& IS_NPC(victim)
+			&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)
+			&& MOB_FLAGGED(victim, MOB_WIMPY)
+			&& !noflee
+			&& GET_POS(victim) > POS_SITTING)
+		{
+			do_flee(victim, NULL, 0, 0);
+		}
+
+		if (ch != victim
+			&& GET_POS(victim) > POS_SITTING
+			&& !IS_NPC(victim)
+			&& HERE(victim)
+			&& GET_WIMP_LEV(victim)
+			&& GET_HIT(victim) < GET_WIMP_LEV(victim)
+			&& !noflee)
 		{
 			send_to_char("Вы запаниковали и попытались убежать!\r\n", victim);
 			do_flee(victim, NULL, 0, 0);
 		}
+
 		break;
 	}
 }
