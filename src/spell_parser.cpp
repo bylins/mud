@@ -3922,6 +3922,8 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			stype2[GET_OBJ_VAL(obj, 0)],
 			spellname);
 		send_to_char(buf, ch);
+		sprintf(buf, "LEARN: Игрок %s выучил %s %s \"%s\"", GET_NAME(ch), (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0], stype2[GET_OBJ_VAL(obj, 0)], spellname);
+		log("%s", buf);
 		switch (GET_OBJ_VAL(obj, 0))
 		{
 		case BOOK_SPELL:
@@ -3958,6 +3960,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			SET_FEAT(ch, spellnum);
 			break;
 		}
+		
 	}
 	extract_obj(obj);
 }
