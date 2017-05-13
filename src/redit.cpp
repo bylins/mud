@@ -725,6 +725,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			redit_disp_menu(d);
 			break;
 		}
+		olc_log("%s command %c", GET_NAME(d->character), *arg);
 		return;
 
 	case OLC_SCRIPT_EDIT:

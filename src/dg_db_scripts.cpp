@@ -407,7 +407,7 @@ void assign_triggers(void *i, int type)
 	}
 }
 
-void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
+void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff, int vnum)
 {
 	if (HAVE_FEAT(ch, featnum))
 	{
@@ -417,6 +417,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 		{
 			sprintf(buf, "Вы утратили способность '%s'.\r\n", feat_info[featnum].name);
 			send_to_char(buf, ch);
+			log("Remove %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);
 			UNSET_FEAT(ch, featnum);
 		}
 	}
@@ -428,6 +429,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 			{
 				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
 				send_to_char(buf, ch);
+				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);
 				SET_FEAT(ch, featnum);
 			}
 		};

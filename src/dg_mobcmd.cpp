@@ -1438,7 +1438,7 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	};
 
 	if (isFeat)
-		trg_featturn(victim, featnum, featdiff);
+		trg_featturn(victim, featnum, featdiff, last_trig_vnum);
 
 }
 

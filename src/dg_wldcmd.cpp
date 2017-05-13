@@ -734,7 +734,7 @@ void do_wfeatturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (isFeat)
     {
-        trg_featturn(ch, featnum, featdiff);
+        trg_featturn(ch, featnum, featdiff, last_trig_vnum);
     }
 }
 

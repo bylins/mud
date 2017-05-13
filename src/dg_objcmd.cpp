@@ -771,7 +771,7 @@ void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isFeat)
-		trg_featturn(ch, featnum, featdiff);
+		trg_featturn(ch, featnum, featdiff, last_trig_vnum);
 }
 
 void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)

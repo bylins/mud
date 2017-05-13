@@ -1578,6 +1578,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		//-------------------------------------------------------------------
 	case MEDIT_MAIN_MENU:
 		i = 0;
+		olc_log("%s command %c", GET_NAME(d->character), *arg);
 		switch (*arg)
 		{
 		case 'q':
@@ -1944,6 +1945,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		default:
 			medit_disp_menu(d);
 			return;
+
 		}
 
 		if (i != 0)

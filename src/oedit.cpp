@@ -1708,6 +1708,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			oedit_disp_menu(d);
 			break;
 		}
+		olc_log("%s command %c", GET_NAME(d->character), *arg);
 		return;
 		// * end of OEDIT_MAIN_MENU
 

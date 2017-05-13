@@ -349,7 +349,7 @@ int open_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int unlock);
 int close_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir, int lock);
 int timechange_wtrigger(ROOM_DATA * room, const int time);
 
-void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff);
+void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff, int vnum);
 void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum);
 void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum);
