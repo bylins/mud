@@ -1762,6 +1762,8 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		else
 		{
 			OLC_OBJ(d)->set_type(static_cast<OBJ_DATA::EObjectType>(number));
+			sprintf(buf, "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
+			mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
 			if (number != OBJ_DATA::ITEM_WEAPON
 				&& number != OBJ_DATA::ITEM_INGREDIENT)
 			{
