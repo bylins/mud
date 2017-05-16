@@ -730,9 +730,8 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 						send_to_char("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
 					}
 					ch->add_gold(gold);
-                                        sprintf(buf, "%s%s нагло спер %d кун у %s%s.\r\n", GET_PAD(ch, 1), CCNRM(ch, C_NRM), gold,
-                                                        GET_PAD(vict, 2), CCNRM(ch, C_NRM));
-                                        mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
+                    sprintf(buf, "%s%s нагло спер %d кун у %s\r\n", GET_PAD(ch, 1), CCNRM(ch, C_NRM), gold, GET_PAD(vict, 1));
+                    mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
 					split_or_clan_tax(ch, gold);
 					vict->remove_gold(gold);
 				}

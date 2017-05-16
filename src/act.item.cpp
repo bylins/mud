@@ -710,6 +710,7 @@ void split_or_clan_tax(CHAR_DATA *ch, long amount)
 
 void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 {
+
 	if (system_obj::is_purse(obj) && GET_OBJ_VAL(obj, 3) == ch->get_uid())
 	{
 		system_obj::process_open_purse(ch, obj);
@@ -723,7 +724,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	{
 		return;
 	}
-
+	
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
 
@@ -735,6 +736,8 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
 		ch->add_gold(value);
+		sprintf(buf, "%s%s заработал %d  %s.\r\n", GET_PAD(ch, 1), CCNRM(ch, C_NRM), value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
 		do_split(ch, local_buf, 0, 0);
@@ -743,10 +746,14 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	{
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
+		sprintf(buf, "%s%s заработал %d  %s.\r\n", GET_PAD(ch, 1), CCNRM(ch, C_NRM), value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
 		ch->add_gold(value, true, true);
 	}
 	else
 	{
+		sprintf(buf, "%s%s как-то получил %d  %s.\r\n", GET_PAD(ch, 1), CCNRM(ch, C_NRM), value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
 		ch->add_gold(value);
 	}
 
@@ -1546,7 +1553,7 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-        sprintf(buf, "%s%s передал %d кун при личной встрече  %s%s.\r\n", GET_PAD(ch, 1), CCNRM(ch, C_NRM), amount,
+        sprintf(buf, "%s%s передал %d кун при личной встрече %s%s.\r\n", GET_PAD(ch, 1), CCNRM(ch, C_NRM), amount,
                         GET_PAD(vict, 2), CCNRM(ch, C_NRM));
         mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
 	if (IS_NPC(ch) || !IS_IMPL(ch))
