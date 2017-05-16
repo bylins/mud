@@ -883,12 +883,9 @@ void check_berserk(CHAR_DATA * ch)
 		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
 	}
 
-	const bool berserk_feat_passed = ch->get_fighting()
-		&& !timed_by_feat(ch, BERSERK_FEAT)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK);
-	if (berserk_feat_passed)
+	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
+		!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) && (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
 	{
-
 //Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
 		timed.skill = BERSERK_FEAT;
 		timed.time = 4;
