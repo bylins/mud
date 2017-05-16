@@ -1250,6 +1250,8 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				{
 					send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
 						amount, desc_count(amount, WHAT_MONEYu));
+					sprintf(buf, "%s выбросил %d %s на землю.", GET_PAD(ch, 0), amount, desc_count(amount, WHAT_MONEYu));
+					mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 					sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 					act(buf, TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				}

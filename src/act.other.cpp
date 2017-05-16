@@ -3317,8 +3317,8 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		send_to_char(textbuf, ch);
 		ch->add_gold(gold);
-                sprintf(buf, "%s%s нарыл %d кун.", GET_PAD(ch, 0), CCNRM(ch, C_NRM), gold);
-                mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+        sprintf(buf, "%s нарыл %d кун.", GET_PAD(ch, 0), gold);
+        mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		split_or_clan_tax(ch, gold);
 		return;
 	}

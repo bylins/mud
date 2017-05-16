@@ -1,3 +1,4 @@
 # git ignore file
 src/version.cpp
+src/backtrace.cpp
 build
