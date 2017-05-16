@@ -17,7 +17,8 @@ enum EOutputStream
 	ERRLOG = 1,
 	IMLOG = 2,
 	MSDP_LOG = 3,
-	LAST_LOG = MSDP_LOG
+	MANY_LOG = 4,
+	LAST_LOG = MANY_LOG
 };
 
 template <> EOutputStream ITEM_BY_NAME<EOutputStream>(const std::string& name);
