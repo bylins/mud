@@ -98,49 +98,49 @@ char *how_good(CHAR_DATA * ch, int percent)
 	static char out_str[128];
 
 	if (percent < 0)
-		strcpy(out_str, " !Ошибка! ");
+		strcpy(out_str, " !п·я┬п╦п╠п╨п╟! ");
 	else if (percent == 0)
-		sprintf(out_str, " %s(не изучено)%s", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╫п╣ п╦п╥я┐я┤п╣п╫п╬)%s", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 10)
-		sprintf(out_str, " %s(ужасно)%s", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(я┐п╤п╟я│п╫п╬)%s", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 20)
-		sprintf(out_str, " %s(очень плохо)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╬я┤п╣п╫я▄ п©п╩п╬я┘п╬)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 30)
-		sprintf(out_str, " %s(плохо)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п©п╩п╬я┘п╬)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 40)
-		sprintf(out_str, " %s(слабо)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(я│п╩п╟п╠п╬)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 50)
-		sprintf(out_str, " %s(ниже среднего)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╫п╦п╤п╣ я│я─п╣п╢п╫п╣пЁп╬)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 60)
-		sprintf(out_str, " %s(средне)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(я│я─п╣п╢п╫п╣)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 70)
-		sprintf(out_str, " %s(выше среднего)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╡я▀я┬п╣ я│я─п╣п╢п╫п╣пЁп╬)%s", CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 80)
-		sprintf(out_str, " %s(хорошо)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(я┘п╬я─п╬я┬п╬)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 90)
-		sprintf(out_str, " %s(очень хорошо)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╬я┤п╣п╫я▄ я┘п╬я─п╬я┬п╬)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 100)
-		sprintf(out_str, " %s(отлично)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╬я┌п╩п╦я┤п╫п╬)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 110)
-		sprintf(out_str, " %s(превосходно)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п©я─п╣п╡п╬я│я┘п╬п╢п╫п╬)%s", CCIYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 120)
-		sprintf(out_str, " %s(великолепно)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╡п╣п╩п╦п╨п╬п╩п╣п©п╫п╬)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 130)
-		sprintf(out_str, " %s(мастерски)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╪п╟я│я┌п╣я─я│п╨п╦)%s", CCIBLU(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 140)
-		sprintf(out_str, " %s(идеально)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╦п╢п╣п╟п╩я▄п╫п╬)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 150)
-		sprintf(out_str, " %s(совершенно)%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(я│п╬п╡п╣я─я┬п╣п╫п╫п╬)%s", CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 160)
-		sprintf(out_str, " %s(бесподобно)%s", CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╠п╣я│п©п╬п╢п╬п╠п╫п╬)%s", CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 170)
-		sprintf(out_str, " %s(возвышенно)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╡п╬п╥п╡я▀я┬п╣п╫п╫п╬)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 180)
-		sprintf(out_str, " %s(заоблачно)%s", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╥п╟п╬п╠п╩п╟я┤п╫п╬)%s", CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	else if (percent <= 190)
-		sprintf(out_str, " %s(божественно)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╠п╬п╤п╣я│я┌п╡п╣п╫п╫п╬)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 	else
-		sprintf(out_str, " %s(недостижимо)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(out_str, " %s(п╫п╣п╢п╬я│я┌п╦п╤п╦п╪п╬)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 	sprintf(out_str + strlen(out_str), " %d%%", percent);
 	return out_str;
 }
@@ -169,24 +169,24 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot)
 		if (result*(5+remort/slot_for_remort)/28 == slot)
 			break;
 	/*
-	ВНИМАНИЕ: формула содрана с NUM_LEV_FEAT (utils.h)!
+	п▓п²п≤п°п░п²п≤п∙: я└п╬я─п╪я┐п╩п╟ я│п╬п╢я─п╟п╫п╟ я│ NUM_LEV_FEAT (utils.h)!
 	((int) 1+GET_LEVEL(ch)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
-	сделано это потому, что "обратная" формула, использованная ранее в list_feats,
-	выдавала неверные результаты ввиду нюансов округления
+	я│п╢п╣п╩п╟п╫п╬ я█я┌п╬ п©п╬я┌п╬п╪я┐, я┤я┌п╬ "п╬п╠я─п╟я┌п╫п╟я▐" я└п╬я─п╪я┐п╩п╟, п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╫п╟я▐ я─п╟п╫п╣п╣ п╡ list_feats,
+	п╡я▀п╢п╟п╡п╟п╩п╟ п╫п╣п╡п╣я─п╫я▀п╣ я─п╣п╥я┐п╩я▄я┌п╟я┌я▀ п╡п╡п╦п╢я┐ п╫я▌п╟п╫я│п╬п╡ п╬п╨я─я┐пЁп╩п╣п╫п╦я▐
 	*/
 	return result;
 }
 
 /*
-1. Определяем есть ли способность, если нет - новый цикл
-2. Если есть
-2.2 Врожденная : таймер(отступ)+имя -> буфер врожденных
-2.3 Неврожденная: таймер(отступ)+имя -> 3
-3. Если слот <= макс слота и свободен -> номер слота+таймер+имя в массив имен под номер слота
-3.2. Если слот занят, увеличиваеим номер слота на 1 и переход на 3 пункт
-3.3 Иначе удаляем способность.
-Примечание: удаление реализовано с целью сделать возможнным изменение слота в процессе игры.
-Лишние способности у персонажей удалятся автоматически при использовании команды "способности".
+1. п·п©я─п╣п╢п╣п╩я▐п╣п╪ п╣я│я┌я▄ п╩п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄, п╣я│п╩п╦ п╫п╣я┌ - п╫п╬п╡я▀п╧ я├п╦п╨п╩
+2. п∙я│п╩п╦ п╣я│я┌я▄
+2.2 п▓я─п╬п╤п╢п╣п╫п╫п╟я▐ : я┌п╟п╧п╪п╣я─(п╬я┌я│я┌я┐п©)+п╦п╪я▐ -> п╠я┐я└п╣я─ п╡я─п╬п╤п╢п╣п╫п╫я▀я┘
+2.3 п²п╣п╡я─п╬п╤п╢п╣п╫п╫п╟я▐: я┌п╟п╧п╪п╣я─(п╬я┌я│я┌я┐п©)+п╦п╪я▐ -> 3
+3. п∙я│п╩п╦ я│п╩п╬я┌ <= п╪п╟п╨я│ я│п╩п╬я┌п╟ п╦ я│п╡п╬п╠п╬п╢п╣п╫ -> п╫п╬п╪п╣я─ я│п╩п╬я┌п╟+я┌п╟п╧п╪п╣я─+п╦п╪я▐ п╡ п╪п╟я│я│п╦п╡ п╦п╪п╣п╫ п©п╬п╢ п╫п╬п╪п╣я─ я│п╩п╬я┌п╟
+3.2. п∙я│п╩п╦ я│п╩п╬я┌ п╥п╟п╫я▐я┌, я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣п╦п╪ п╫п╬п╪п╣я─ я│п╩п╬я┌п╟ п╫п╟ 1 п╦ п©п╣я─п╣я┘п╬п╢ п╫п╟ 3 п©я┐п╫п╨я┌
+3.3 п≤п╫п╟я┤п╣ я┐п╢п╟п╩я▐п╣п╪ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄.
+п÷я─п╦п╪п╣я┤п╟п╫п╦п╣: я┐п╢п╟п╩п╣п╫п╦п╣ я─п╣п╟п╩п╦п╥п╬п╡п╟п╫п╬ я│ я├п╣п╩я▄я▌ я│п╢п╣п╩п╟я┌я▄ п╡п╬п╥п╪п╬п╤п╫п╫я▀п╪ п╦п╥п╪п╣п╫п╣п╫п╦п╣ я│п╩п╬я┌п╟ п╡ п©я─п╬я├п╣я│я│п╣ п╦пЁя─я▀.
+п⌡п╦я┬п╫п╦п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ я┐ п©п╣я─я│п╬п╫п╟п╤п╣п╧ я┐п╢п╟п╩я▐я┌я│я▐ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦ п©я─п╦ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╦ п╨п╬п╪п╟п╫п╢я▀ "я│п©п╬я│п╬п╠п╫п╬я│я┌п╦".
 */
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 {
@@ -194,7 +194,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	char msg[MAX_STRING_LENGTH];
 	bool sfound;
 
-	//Найдем максимальный слот, который вобще может потребоваться данному персонажу на текущем морте
+	//п²п╟п╧п╢п╣п╪ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫я▀п╧ я│п╩п╬я┌, п╨п╬я┌п╬я─я▀п╧ п╡п╬п╠я┴п╣ п╪п╬п╤п╣я┌ п©п╬я┌я─п╣п╠п╬п╡п╟я┌я▄я│я▐ п╢п╟п╫п╫п╬п╪я┐ п©п╣я─я│п╬п╫п╟п╤я┐ п╫п╟ я┌п╣п╨я┐я┴п╣п╪ п╪п╬я─я┌п╣
 	max_slot =  MAX_ACC_FEAT(ch);
 	char  **names = new char*[max_slot];
 	for (int k = 0; k< max_slot; k++)
@@ -202,34 +202,34 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 
 	if (all_feats)
 	{
-		sprintf(names[0], "\r\nКруг 1  (1  уровень):\r\n");
+		sprintf(names[0], "\r\nп я─я┐пЁ 1  (1  я┐я─п╬п╡п╣п╫я▄):\r\n");
 	}
 	else
 		*names[0] = '\0';
 	for (i = 1; i < max_slot; i++)
 		if (all_feats)
 		{
-			//j = i*28/(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); // старая формула, работавшая криво!
-			j = feat_slot_lvl(GET_REMORT(ch), feat_slot_for_remort[(int) GET_CLASS(ch)], i); // на каком уровне будет слот i?
-			sprintf(names[i], "\r\nКруг %-2d (%-2d уровень):\r\n", i + 1, j);
+			//j = i*28/(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)]); // я│я┌п╟я─п╟я▐ я└п╬я─п╪я┐п╩п╟, я─п╟п╠п╬я┌п╟п╡я┬п╟я▐ п╨я─п╦п╡п╬!
+			j = feat_slot_lvl(GET_REMORT(ch), feat_slot_for_remort[(int) GET_CLASS(ch)], i); // п╫п╟ п╨п╟п╨п╬п╪ я┐я─п╬п╡п╫п╣ п╠я┐п╢п╣я┌ я│п╩п╬я┌ i?
+			sprintf(names[i], "\r\nп я─я┐пЁ %-2d (%-2d я┐я─п╬п╡п╣п╫я▄):\r\n", i + 1, j);
 		}
 		else
 			*names[i] = '\0';
 
-	sprintf(buf2, "\r\nВрожденные способности :\r\n");
+	sprintf(buf2, "\r\nп▓я─п╬п╤п╢п╣п╫п╫я▀п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ :\r\n");
 	j = 0;
 	if (all_feats)
 	{
-		if (clr(vict, C_NRM)) // реж цвет >= обычный
-			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
-						" &gЗеленым цветом и пометкой [И] выделены уже изученные способности.\r\n&n"
-						" Пометкой [Д] выделены доступные для изучения способности.\r\n"
-						" &rКрасным цветом и пометкой [Н] выделены способности, недоступные вам в настоящий момент.&n\r\n\r\n", vict);
+		if (clr(vict, C_NRM)) // я─п╣п╤ я├п╡п╣я┌ >= п╬п╠я▀я┤п╫я▀п╧
+			send_to_char(" п║п©п╦я│п╬п╨ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧, п╢п╬я│я┌я┐п©п╫я▀я┘ я│ я┌п╣п╨я┐я┴п╦п╪ я┤п╦я│п╩п╬п╪ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╧.\r\n"
+						" &gп≈п╣п╩п╣п╫я▀п╪ я├п╡п╣я┌п╬п╪ п╦ п©п╬п╪п╣я┌п╨п╬п╧ [п≤] п╡я▀п╢п╣п╩п╣п╫я▀ я┐п╤п╣ п╦п╥я┐я┤п╣п╫п╫я▀п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦.\r\n&n"
+						" п÷п╬п╪п╣я┌п╨п╬п╧ [п■] п╡я▀п╢п╣п╩п╣п╫я▀ п╢п╬я│я┌я┐п©п╫я▀п╣ п╢п╩я▐ п╦п╥я┐я┤п╣п╫п╦я▐ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦.\r\n"
+						" &rп я─п╟я│п╫я▀п╪ я├п╡п╣я┌п╬п╪ п╦ п©п╬п╪п╣я┌п╨п╬п╧ [п²] п╡я▀п╢п╣п╩п╣п╫я▀ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦, п╫п╣п╢п╬я│я┌я┐п©п╫я▀п╣ п╡п╟п╪ п╡ п╫п╟я│я┌п╬я▐я┴п╦п╧ п╪п╬п╪п╣п╫я┌.&n\r\n\r\n", vict);
 		else
-			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
-						" Пометкой [И] выделены уже изученные способности.\r\n"
-						" Пометкой [Д] выделены доступные для изучения способности.\r\n"
-						" Пометкой [Н] выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
+			send_to_char(" п║п©п╦я│п╬п╨ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧, п╢п╬я│я┌я┐п©п╫я▀я┘ я│ я┌п╣п╨я┐я┴п╦п╪ я┤п╦я│п╩п╬п╪ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╧.\r\n"
+						" п÷п╬п╪п╣я┌п╨п╬п╧ [п≤] п╡я▀п╢п╣п╩п╣п╫я▀ я┐п╤п╣ п╦п╥я┐я┤п╣п╫п╫я▀п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦.\r\n"
+						" п÷п╬п╪п╣я┌п╨п╬п╧ [п■] п╡я▀п╢п╣п╩п╣п╫я▀ п╢п╬я│я┌я┐п©п╫я▀п╣ п╢п╩я▐ п╦п╥я┐я┤п╣п╫п╦я▐ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦.\r\n"
+						" п÷п╬п╪п╣я┌п╨п╬п╧ [п²] п╡я▀п╢п╣п╩п╣п╫я▀ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦, п╫п╣п╢п╬я│я┌я┐п©п╫я▀п╣ п╡п╟п╪ п╡ п╫п╟я│я┌п╬я▐я┴п╦п╧ п╪п╬п╪п╣п╫я┌.\r\n\r\n", vict);
 		for (sortpos = 1; sortpos < MAX_FEATS; sortpos++)
 		{
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
@@ -238,13 +238,13 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				sprintf(buf, "        %s%s %-30s%s\r\n",
 					HAVE_FEAT(ch, sortpos) ? KGRN :
 					can_get_feat(ch, sortpos) ? KNRM : KRED,
-					HAVE_FEAT(ch, sortpos) ? "[И]" :
-					can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
+					HAVE_FEAT(ch, sortpos) ? "[п≤]" :
+					can_get_feat(ch, sortpos) ? "[п■]" : "[п²]",
 					feat_info[sortpos].name, KNRM);
 			else
 				sprintf(buf, "    %s %-30s\r\n",
-					HAVE_FEAT(ch, sortpos) ? "[И]" :
-					can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
+					HAVE_FEAT(ch, sortpos) ? "[п≤]" :
+					can_get_feat(ch, sortpos) ? "[п■]" : "[п²]",
 					feat_info[sortpos].name);
 
 			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
@@ -281,7 +281,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 
 // ======================================================
 
-	sprintf(buf1, "Вы обладаете следующими способностями :\r\n");
+	sprintf(buf1, "п▓я▀ п╬п╠п╩п╟п╢п╟п╣я┌п╣ я│п╩п╣п╢я┐я▌я┴п╦п╪п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▐п╪п╦ :\r\n");
 
 	for (sortpos = 1; sortpos < MAX_FEATS; sortpos++)
 	{
@@ -339,7 +339,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			else if (clr(vict, C_NRM))
 				sprintf(buf + strlen(buf), "%s\r\n", feat_info[sortpos].name);
 			else
-				sprintf(buf, "[-Н-] %s\r\n", feat_info[sortpos].name);
+				sprintf(buf, "[-п²-] %s\r\n", feat_info[sortpos].name);
 			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
 				sprintf(buf2 + strlen(buf2), "    ");
@@ -365,8 +365,8 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				}
 				if (!sfound)
 				{
-					// Если способность не врожденная и под нее нет слота - удаляем нафик
-					//	чтобы можно было менять слоты на лету и чтобы не читерили :)
+					// п∙я│п╩п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ п╫п╣ п╡я─п╬п╤п╢п╣п╫п╫п╟я▐ п╦ п©п╬п╢ п╫п╣п╣ п╫п╣я┌ я│п╩п╬я┌п╟ - я┐п╢п╟п╩я▐п╣п╪ п╫п╟я└п╦п╨
+					//	я┤я┌п╬п╠я▀ п╪п╬п╤п╫п╬ п╠я▀п╩п╬ п╪п╣п╫я▐я┌я▄ я│п╩п╬я┌я▀ п╫п╟ п╩п╣я┌я┐ п╦ я┤я┌п╬п╠я▀ п╫п╣ я┤п╦я┌п╣я─п╦п╩п╦ :)
 					sprintf(msg, "WARNING: Unset out of slots feature '%s' for character '%s'!",
 							feat_info[sortpos].name, GET_NAME(ch));
 					mudlog(msg, BRF, LVL_IMPL, SYSLOG, TRUE);
@@ -379,7 +379,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	for (i = 0; i < max_slot; i++)
 	{
 		if (*names[i] == '\0')
-			sprintf(names[i], " %s%-2d%s)       %s[пусто]%s\r\n",
+			sprintf(names[i], " %s%-2d%s)       %s[п©я┐я│я┌п╬]%s\r\n",
 					CCGRN(vict, C_NRM), i + 1, CCNRM(vict, C_NRM), CCIWHT(vict, C_NRM), CCNRM(vict, C_NRM));
 		if (i >= NUM_LEV_FEAT(ch))
 			break;
@@ -400,7 +400,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 {
 	int i = 0, bonus = 0;
 
-	sprintf(buf, "Вы владеете следующими умениями :\r\n");
+	sprintf(buf, "п▓я▀ п╡п╩п╟п╢п╣п╣я┌п╣ я│п╩п╣п╢я┐я▌я┴п╦п╪п╦ я┐п╪п╣п╫п╦я▐п╪п╦ :\r\n");
 
 	strcpy(buf2, buf);
 	if (!IS_NPC(ch)
@@ -408,9 +408,9 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 	{
 		for (const auto& aff : ch->affected)
 		{
-			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с скилл бонусом
+			if (aff->location == APPLY_BONUS_SKILLS) // я│п╨я┐я┬п╟п╩ я│п╡п╦я┌п╬п╨ я│ я│п╨п╦п╩п╩ п╠п╬п╫я┐я│п╬п╪
 			{
-				bonus = aff->modifier; // сколько крут стал 
+				bonus = aff->modifier; // я│п╨п╬п╩я▄п╨п╬ п╨я─я┐я┌ я│я┌п╟п╩ 
 			}
 		}
 	}
@@ -474,11 +474,11 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 	{
 		if (NULL == filter)
 		{
-			sprintf(buf2 + strlen(buf2), "Нет умений.\r\n");
+			sprintf(buf2 + strlen(buf2), "п²п╣я┌ я┐п╪п╣п╫п╦п╧.\r\n");
 		}
 		else
 		{
-			sprintf(buf2 + strlen(buf2), "Нет умений, удовлетворяющих фильтру.\r\n");
+			sprintf(buf2 + strlen(buf2), "п²п╣я┌ я┐п╪п╣п╫п╦п╧, я┐п╢п╬п╡п╩п╣я┌п╡п╬я─я▐я▌я┴п╦я┘ я└п╦п╩я▄я┌я─я┐.\r\n");
 		}
 	}
 	else
@@ -501,10 +501,10 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 	send_to_char(buf2, vict);
 }
 
-/* Параметр all_spells введен для того чтобы предметные кастеры
-   смогли посмотреть заклинания которые они могут колдовать
-   на своем уровне, но на которые у них нет необходимых предметов
-   при параметре TRUE */
+/* п÷п╟я─п╟п╪п╣я┌я─ all_spells п╡п╡п╣п╢п╣п╫ п╢п╩я▐ я┌п╬пЁп╬ я┤я┌п╬п╠я▀ п©я─п╣п╢п╪п╣я┌п╫я▀п╣ п╨п╟я│я┌п╣я─я▀
+   я│п╪п╬пЁп╩п╦ п©п╬я│п╪п╬я┌я─п╣я┌я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╨п╬я┌п╬я─я▀п╣ п╬п╫п╦ п╪п╬пЁя┐я┌ п╨п╬п╩п╢п╬п╡п╟я┌я▄
+   п╫п╟ я│п╡п╬п╣п╪ я┐я─п╬п╡п╫п╣, п╫п╬ п╫п╟ п╨п╬я┌п╬я─я▀п╣ я┐ п╫п╦я┘ п╫п╣я┌ п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀я┘ п©я─п╣п╢п╪п╣я┌п╬п╡
+   п©я─п╦ п©п╟я─п╟п╪п╣я┌я─п╣ TRUE */
 
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 {
@@ -607,7 +607,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 		}
 		is_full++;
 	};
-	gcount = sprintf(buf2 + gcount, "  %sВам доступна следующая магия :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+	gcount = sprintf(buf2 + gcount, "  %sп▓п╟п╪ п╢п╬я│я┌я┐п©п╫п╟ я│п╩п╣п╢я┐я▌я┴п╟я▐ п╪п╟пЁп╦я▐ :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 	if (is_full)
 	{
 		for (i = 0; i < max_slot; i++)
@@ -615,16 +615,16 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			if (slots[i] != 0)
 			{
 				if (!IS_MANA_CASTER(ch))
-					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
+					gcount += sprintf(buf2 + gcount, "\r\nп я─я┐пЁ %d", i + 1);
 			}
 			if (slots[i])
 				gcount += sprintf(buf2 + gcount, "%s", names[i]);
 			//else
-			//gcount += sprintf(buf2+gcount,"\n\rПусто.");
+			//gcount += sprintf(buf2+gcount,"\n\rп÷я┐я│я┌п╬.");
 		}
 	}
 	else
-		gcount += sprintf(buf2 + gcount, "\r\nВ настоящее время магия вам недоступна!");
+		gcount += sprintf(buf2 + gcount, "\r\nп▓ п╫п╟я│я┌п╬я▐я┴п╣п╣ п╡я─п╣п╪я▐ п╪п╟пЁп╦я▐ п╡п╟п╪ п╫п╣п╢п╬я│я┌я┐п©п╫п╟!");
 	gcount += sprintf(buf2 + gcount, "\r\n");
 	//page_string(ch->desc, buf2, 1);
 	send_to_char(buf2, vict);
@@ -690,7 +690,7 @@ void init_guilds(void)
 		// log("%d",lines);
 
 		if (!strn_cmp(line, "monoguild", strlen(line))
-				|| !strn_cmp(line, "одноклассовая", strlen(line)))
+				|| !strn_cmp(line, "п╬п╢п╫п╬п╨п╩п╟я│я│п╬п╡п╟я▐", strlen(line)))
 		{
 			type = 1;
 			if (lines < 5)
@@ -718,14 +718,14 @@ void init_guilds(void)
 					SET_BIT(mono_guild.alignment, (1 << i));
 		}
 		else if (!strn_cmp(line, "polyguild", strlen(line))
-				 || !strn_cmp(line, "многоклассовая", strlen(line)))
+				 || !strn_cmp(line, "п╪п╫п╬пЁп╬п╨п╩п╟я│я│п╬п╡п╟я▐", strlen(line)))
 		{
 			type = 2;
 			poly_guild = NULL;
 			pgcount = 0;
 		}
 		else if (!strn_cmp(line, "master", strlen(line))
-				 || !strn_cmp(line, "учитель", strlen(line)))
+				 || !strn_cmp(line, "я┐я┤п╦я┌п╣п╩я▄", strlen(line)))
 		{
 			if ((num = atoi(line1)) == 0 || real_mobile(num) < 0)
 			{
@@ -923,14 +923,14 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	if (IS_NPC(ch))
 		return (0);
 
-	if (CMD_IS("учить") || CMD_IS("practice"))
+	if (CMD_IS("я┐я┤п╦я┌я▄") || CMD_IS("practice"))
 		command = SCMD_LEARN;
 	else
 		return (0);
 
 	if ((info_num = mob_index[victim->nr].stored) <= 0 || info_num > GUILDS_MONO_USED)
 	{
-		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N я│п╨п╟п╥п╟п╩$G : 'п≤п╥п╡п╦п╫п╦, $n, я▐ я┐п╤п╣ п╡ п╬я┌я│я┌п╟п╡п╨п╣.'", FALSE, ch, 0, victim, TO_CHAR);
 		return (1);
 	};
 	info_num--;
@@ -938,7 +938,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			!IS_BITS(guild_mono_info[info_num].races, GET_RACE(ch)) ||
 			!IS_BITS(guild_mono_info[info_num].religion, GET_RELIGION(ch)))
 	{
-		act("$N сказал$g : '$n, я не учу таких, как ты.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N я│п╨п╟п╥п╟п╩$g : '$n, я▐ п╫п╣ я┐я┤я┐ я┌п╟п╨п╦я┘, п╨п╟п╨ я┌я▀.'", FALSE, ch, 0, victim, TO_CHAR);
 		return (1);
 	}
 
@@ -949,7 +949,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	case SCMD_LEARN:
 		if (!*argument)
 		{
-			gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
+			gcount += sprintf(buf, "п╞ п╪п╬пЁя┐ п╫п╟я┐я┤п╦я┌я▄ я┌п╣п╠я▐ я│п╩п╣п╢я┐я▌я┴п╣п╪я┐:\r\n");
 			for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++)
 			{
 				if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch))
@@ -963,7 +963,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 						|| IS_GRGOD(ch))
 					&& can_get_skill(ch, skill_no))
 				{
-					gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
+					gcount += sprintf(buf + gcount, "- я┐п╪п╣п╫п╦п╣ %s\"%s\"%s\r\n",
 						CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -979,7 +979,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					&& (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)
 						|| IS_GRGOD(ch)))
 				{
-					gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
+					gcount += sprintf(buf + gcount, "- п╪п╟пЁп╦я▐ %s\"%s\"%s\r\n",
 						CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -989,7 +989,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					&& !HAVE_FEAT(ch, feat_no)
 					&& can_get_feat(ch, feat_no))
 				{
-					gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
+					gcount += sprintf(buf + gcount, "- я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ %s\"%s\"%s\r\n",
 						CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -997,7 +997,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 			if (!found)
 			{
-				act("$N сказал$G : 'Похоже, твои знания полнее моих.'", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N я│п╨п╟п╥п╟п╩$G : 'п÷п╬я┘п╬п╤п╣, я┌п╡п╬п╦ п╥п╫п╟п╫п╦я▐ п©п╬п╩п╫п╣п╣ п╪п╬п╦я┘.'", FALSE, ch, 0, victim, TO_CHAR);
 				return (1);
 			}
 			else
@@ -1007,7 +1007,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			}
 		}
 
-		if (!strn_cmp(argument, "все", strlen(argument)) || !strn_cmp(argument, "all", strlen(argument)))
+		if (!strn_cmp(argument, "п╡я│п╣", strlen(argument)) || !strn_cmp(argument, "all", strlen(argument)))
 		{
 			for (i = 0, found = FALSE, sfound = TRUE;
 			(guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++)
@@ -1018,7 +1018,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const ESkill skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
+					&& !ch->get_skill(skill_no))  	// sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ я┐п╪п╣п╫п╦я▌ %s\"%s\"\%s",
 				{
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
@@ -1035,7 +1035,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				if (spell_no
 					&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits))
 				{
-					gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
+					gcount += sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ п╪п╟пЁп╦п╦ %s\"%s\"%s",
 						CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
 					act(buf, FALSE, ch, 0, victim, TO_CHAR);
 					if (IS_SET(bits, SPELL_KNOW))
@@ -1075,14 +1075,14 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 			if (sfound)
 			{
-				act("$N сказал$G : \r\n"
-					"'$n, к сожалению, это может сильно затруднить твое постижение умений.'\r\n"
-					"'Выбери лишь самые необходимые тебе умения.'", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N я│п╨п╟п╥п╟п╩$G : \r\n"
+					"'$n, п╨ я│п╬п╤п╟п╩п╣п╫п╦я▌, я█я┌п╬ п╪п╬п╤п╣я┌ я│п╦п╩я▄п╫п╬ п╥п╟я┌я─я┐п╢п╫п╦я┌я▄ я┌п╡п╬п╣ п©п╬я│я┌п╦п╤п╣п╫п╦п╣ я┐п╪п╣п╫п╦п╧.'\r\n"
+					"'п▓я▀п╠п╣я─п╦ п╩п╦я┬я▄ я│п╟п╪я▀п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╣ я┌п╣п╠п╣ я┐п╪п╣п╫п╦я▐.'", FALSE, ch, 0, victim, TO_CHAR);
 			}
 
 			if (!found)
 			{
-				act("$N ничему новому вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N п╫п╦я┤п╣п╪я┐ п╫п╬п╡п╬п╪я┐ п╡п╟я│ п╫п╣ п╫п╟я┐я┤п╦п╩$G.", FALSE, ch, 0, victim, TO_CHAR);
 			}
 
 			return (1);
@@ -1102,15 +1102,15 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				{
 					if (HAVE_FEAT(ch, feat_no))
 					{
-						act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п²п╦я┤п╣п╪ п©п╬п╪п╬я┤я▄ п╫п╣ п╪п╬пЁя┐, я┌я▀ я┐п╤п╣ п╡п╩п╟п╢п╣п╣я┬я▄ я█я┌п╬п╧ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄я▌.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else if (!can_get_feat(ch, feat_no))
 					{
-						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N я│п╨п╟п╥п╟п╩$G : 'п╞ п╫п╣ п╪п╬пЁя┐ я┌п╣п╠я▐ я█я┌п╬п╪я┐ п╫п╟я┐я┤п╦я┌я▄.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
+						sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ %s\"%s\"%s",
 							CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						SET_FEAT(ch, feat_no);
@@ -1121,7 +1121,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 			if (!found)
 			{
-				act("$N сказал$G : 'Мне не ведомо такое мастерство.'", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N я│п╨п╟п╥п╟п╩$G : 'п°п╫п╣ п╫п╣ п╡п╣п╢п╬п╪п╬ я┌п╟п╨п╬п╣ п╪п╟я│я┌п╣я─я│я┌п╡п╬.'", FALSE, ch, 0, victim, TO_CHAR);
 			}
 
 			return (1);
@@ -1142,15 +1142,15 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				{
 					if (ch->get_skill(skill_no))
 					{
-						act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п²п╦я┤п╣п╪ п©п╬п╪п╬я┤я▄ п╫п╣ п╪п╬пЁя┐, я┌я▀ я┐п╤п╣ п╡п╩п╟п╢п╣п╣я┬я▄ я█я┌п╦п╪ я┐п╪п╣п╫п╦п╣п╪.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else if (!can_get_skill(ch, skill_no))
 					{
-						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N я│п╨п╟п╥п╟п╩$G : 'п╞ п╫п╣ п╪п╬пЁя┐ я┌п╣п╠я▐ я█я┌п╬п╪я┐ п╫п╟я┐я┤п╦я┌я▄.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
+						sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ я┐п╪п╣п╫п╦я▌ %s\"%s\"%s",
 							CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						ch->set_skill(skill_no, 10);
@@ -1161,7 +1161,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 			if (!found)
 			{
-				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N я│п╨п╟п╥п╟п╩$G : 'п°п╫п╣ п╫п╣ п╡п╣п╢п╬п╪п╬ я┌п╟п╨п╬п╣ я┐п╪п╣п╫п╦п╣.'", FALSE, ch, 0, victim, TO_CHAR);
 			}
 
 			return (1);
@@ -1190,37 +1190,37 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					{
 						if (IS_SET(bits, SPELL_KNOW))
 						{
-							sprintf(buf, "$N сказал$G : \r\n"
-								"'$n, чтобы применить это заклинание, тебе необходимо набрать\r\n"
-								"%s колд(овать) '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
+							sprintf(buf, "$N я│п╨п╟п╥п╟п╩$G : \r\n"
+								"'$n, я┤я┌п╬п╠я▀ п©я─п╦п╪п╣п╫п╦я┌я▄ я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣, я┌п╣п╠п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╫п╟п╠я─п╟я┌я▄\r\n"
+								"%s п╨п╬п╩п╢(п╬п╡п╟я┌я▄) '%s' <я├п╣п╩я▄>%s п╦ я┴п╣п╩п╨п╫я┐я┌я▄ п╨п╩п╟п╡п╦я┬п╣п╧ <ENTER>'.",
 								CCCYN(ch, C_NRM), spell_name(spell_no),
 								CCNRM(ch, C_NRM));
 						}
 						else if (IS_SET(bits, SPELL_ITEMS))
 						{
-							sprintf(buf, "$N сказал$G : \r\n"
-								"'$n, чтобы применить эту магию, тебе необходимо набрать\r\n"
-								"%s смешать '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
+							sprintf(buf, "$N я│п╨п╟п╥п╟п╩$G : \r\n"
+								"'$n, я┤я┌п╬п╠я▀ п©я─п╦п╪п╣п╫п╦я┌я▄ я█я┌я┐ п╪п╟пЁп╦я▌, я┌п╣п╠п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╫п╟п╠я─п╟я┌я▄\r\n"
+								"%s я│п╪п╣я┬п╟я┌я▄ '%s' <я├п╣п╩я▄>%s п╦ я┴п╣п╩п╨п╫я┐я┌я▄ п╨п╩п╟п╡п╦я┬п╣п╧ <ENTER>'.",
 								CCCYN(ch, C_NRM), spell_name(spell_no),
 								CCNRM(ch, C_NRM));
 						}
 						else if (IS_SET(bits, SPELL_RUNES))
 						{
-							sprintf(buf, "$N сказал$G : \r\n"
-								"'$n, чтобы применить эту магию, тебе необходимо набрать\r\n"
-								"%s руны '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
+							sprintf(buf, "$N я│п╨п╟п╥п╟п╩$G : \r\n"
+								"'$n, я┤я┌п╬п╠я▀ п©я─п╦п╪п╣п╫п╦я┌я▄ я█я┌я┐ п╪п╟пЁп╦я▌, я┌п╣п╠п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╫п╟п╠я─п╟я┌я▄\r\n"
+								"%s я─я┐п╫я▀ '%s' <я├п╣п╩я▄>%s п╦ я┴п╣п╩п╨п╫я┐я┌я▄ п╨п╩п╟п╡п╦я┬п╣п╧ <ENTER>'.",
 								CCCYN(ch, C_NRM), spell_name(spell_no),
 								CCNRM(ch, C_NRM));
 						}
 						else
 						{
-							strcpy(buf, "Вы уже умеете это.");
+							strcpy(buf, "п▓я▀ я┐п╤п╣ я┐п╪п╣п╣я┌п╣ я█я┌п╬.");
 						}
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
+						sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ п╪п╟пЁп╦п╦ %s\"%s\"%s",
 							CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						if (IS_SET(bits, SPELL_KNOW))
@@ -1257,13 +1257,13 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 			if (!found)
 			{
-				act("$N сказал$G : 'Я и сам$G не знаю такой магии.'", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N я│п╨п╟п╥п╟п╩$G : 'п╞ п╦ я│п╟п╪$G п╫п╣ п╥п╫п╟я▌ я┌п╟п╨п╬п╧ п╪п╟пЁп╦п╦.'", FALSE, ch, 0, victim, TO_CHAR);
 			}
 
 			return (1);
 		}
 
-		act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N я│п╨п╟п╥п╟п╩$G п╡п╟п╪ : 'п╞ п╫п╦п╨п╬пЁп╢п╟ п╦ п╫п╦п╨п╬пЁп╬ я█я┌п╬п╪я┐ п╫п╣ я┐я┤п╦п╩$G.'", FALSE, ch, 0, victim, TO_CHAR);
 		return (1);
 	}
 
@@ -1279,14 +1279,14 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	if (IS_NPC(ch))
 		return (0);
 
-	if (CMD_IS("учить") || CMD_IS("practice"))
+	if (CMD_IS("я┐я┤п╦я┌я▄") || CMD_IS("practice"))
 		command = SCMD_LEARN;
 	else
 		return (0);
 
 	if ((info_num = mob_index[victim->nr].stored) <= 0 || info_num > GUILDS_POLY_USED)
 	{
-		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N я│п╨п╟п╥п╟п╩$G : 'п≤п╥п╡п╦п╫п╦, $n, я▐ я┐п╤п╣ п╡ п╬я┌я│я┌п╟п╡п╨п╣.'", FALSE, ch, 0, victim, TO_CHAR);
 		return (1);
 	};
 	info_num--;
@@ -1298,7 +1298,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	case SCMD_LEARN:
 		if (!*argument)
 		{
-			gcount += sprintf(buf, "Я могу научить тебя следующему:\r\n");
+			gcount += sprintf(buf, "п╞ п╪п╬пЁя┐ п╫п╟я┐я┤п╦я┌я▄ я┌п╣п╠я▐ я│п╩п╣п╢я┐я▌я┴п╣п╪я┐:\r\n");
 			for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++)
 			{
 				if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch))
@@ -1316,7 +1316,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 						|| IS_GRGOD(ch))
 					&& can_get_skill(ch, skill_no))
 				{
-					gcount += sprintf(buf + gcount, "- умение %s\"%s\"%s\r\n",
+					gcount += sprintf(buf + gcount, "- я┐п╪п╣п╫п╦п╣ %s\"%s\"%s\r\n",
 						CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -1332,7 +1332,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					&& (!((GET_SPELL_TYPE(ch, spell_no) & bits) == bits)
 						|| IS_GRGOD(ch)))
 				{
-					gcount += sprintf(buf + gcount, "- магия %s\"%s\"%s\r\n",
+					gcount += sprintf(buf + gcount, "- п╪п╟пЁп╦я▐ %s\"%s\"%s\r\n",
 						CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
 					found = TRUE;
 				}
@@ -1343,7 +1343,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				{
 					if (!HAVE_FEAT(ch, feat_no) && can_get_feat(ch, feat_no))
 					{
-						gcount += sprintf(buf + gcount, "- способность %s\"%s\"%s\r\n",
+						gcount += sprintf(buf + gcount, "- я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ %s\"%s\"%s\r\n",
 							CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
 						found = TRUE;
 					}
@@ -1352,7 +1352,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 			if (!found)
 			{
-				act("$N сказал$G : 'Похоже, я не смогу тебе помочь.'", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N я│п╨п╟п╥п╟п╩$G : 'п÷п╬я┘п╬п╤п╣, я▐ п╫п╣ я│п╪п╬пЁя┐ я┌п╣п╠п╣ п©п╬п╪п╬я┤я▄.'", FALSE, ch, 0, victim, TO_CHAR);
 				return (1);
 			}
 			else
@@ -1362,7 +1362,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			}
 		}
 
-		if (!strn_cmp(argument, "все", strlen(argument))
+		if (!strn_cmp(argument, "п╡я│п╣", strlen(argument))
 			|| !strn_cmp(argument, "all", strlen(argument)))
 		{
 			for (i = 0, found = FALSE, sfound = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++)
@@ -1381,7 +1381,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
+					&& !ch->get_skill(skill_no))  	// sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ я┐п╪п╣п╫п╦я▌ %s\"%s\"\%s",
 				{
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
@@ -1409,7 +1409,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				if (spell_no
 					&& !((GET_SPELL_TYPE(ch, spell_no) & bits) == bits))
 				{
-					gcount += sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
+					gcount += sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ п╪п╟пЁп╦п╦ %s\"%s\"%s",
 						CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
 					act(buf, FALSE, ch, 0, victim, TO_CHAR);
 
@@ -1440,14 +1440,14 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 			if (sfound)
 			{
-				act("$N сказал$G : \r\n"
-					"'$n, к сожалению, это может сильно затруднить твое постижение умений.'\r\n"
-					"'Выбери лишь самые необходимые тебе умения.'", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N я│п╨п╟п╥п╟п╩$G : \r\n"
+					"'$n, п╨ я│п╬п╤п╟п╩п╣п╫п╦я▌, я█я┌п╬ п╪п╬п╤п╣я┌ я│п╦п╩я▄п╫п╬ п╥п╟я┌я─я┐п╢п╫п╦я┌я▄ я┌п╡п╬п╣ п©п╬я│я┌п╦п╤п╣п╫п╦п╣ я┐п╪п╣п╫п╦п╧.'\r\n"
+					"'п▓я▀п╠п╣я─п╦ п╩п╦я┬я▄ я│п╟п╪я▀п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╣ я┌п╣п╠п╣ я┐п╪п╣п╫п╦я▐.'", FALSE, ch, 0, victim, TO_CHAR);
 			}
 
 			if (!found)
 			{
-				act("$N ничему новому вас не научил$G.", FALSE, ch, 0, victim, TO_CHAR);
+				act("$N п╫п╦я┤п╣п╪я┐ п╫п╬п╡п╬п╪я┐ п╡п╟я│ п╫п╣ п╫п╟я┐я┤п╦п╩$G.", FALSE, ch, 0, victim, TO_CHAR);
 			}
 
 			return (1);
@@ -1474,15 +1474,15 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				{
 					if (ch->get_skill(skill_no))
 					{
-						act("$N сказал$G вам : 'Ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N я│п╨п╟п╥п╟п╩$G п╡п╟п╪ : 'п╒я▀ я┐п╤п╣ п╡п╩п╟п╢п╣п╣я┬я▄ я█я┌п╦п╪ я┐п╪п╣п╫п╦п╣п╪.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else if (!can_get_skill(ch, skill_no))
 					{
-						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N я│п╨п╟п╥п╟п╩$G : 'п╞ п╫п╣ п╪п╬пЁя┐ я┌п╣п╠я▐ я█я┌п╬п╪я┐ п╫п╟я┐я┤п╦я┌я▄.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G вас умению %s\"%s\"%s",
+						sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ я┐п╪п╣п╫п╦я▌ %s\"%s\"%s",
 							CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						ch->set_skill(skill_no, 10);
@@ -1494,7 +1494,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			if (!found)
 			{
 				//				found_skill = FALSE;
-				//				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+				//				act("$N я│п╨п╟п╥п╟п╩$G : 'п°п╫п╣ п╫п╣ п╡п╣п╢п╬п╪п╬ я┌п╟п╨п╬п╣ я┐п╪п╣п╫п╦п╣.'", FALSE, ch, 0, victim, TO_CHAR);
 			}
 			else
 			{
@@ -1528,15 +1528,15 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				{
 					if (HAVE_FEAT(ch, feat_no))
 					{
-						act("$N сказал$G вам : 'Ничем помочь не могу, ты уже владеешь этой способностью.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N я│п╨п╟п╥п╟п╩$G п╡п╟п╪ : 'п²п╦я┤п╣п╪ п©п╬п╪п╬я┤я▄ п╫п╣ п╪п╬пЁя┐, я┌я▀ я┐п╤п╣ п╡п╩п╟п╢п╣п╣я┬я▄ я█я┌п╬п╧ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄я▌.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else if (!can_get_feat(ch, feat_no))
 					{
-						act("$N сказал$G : 'Я не могу тебя этому научить.'", FALSE, ch, 0, victim, TO_CHAR);
+						act("$N я│п╨п╟п╥п╟п╩$G : 'п╞ п╫п╣ п╪п╬пЁя┐ я┌п╣п╠я▐ я█я┌п╬п╪я┐ п╫п╟я┐я┤п╦я┌я▄.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G вас способности %s\"%s\"%s",
+						sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ %s\"%s\"%s",
 							CCCYN(ch, C_NRM), feat_name(feat_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						SET_FEAT(ch, feat_no);
@@ -1548,7 +1548,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			if (!found)
 			{
 				//				found_feat = FALSE;
-				//				act("$N сказал$G : 'Мне не ведомо такое умение.'", FALSE, ch, 0, victim, TO_CHAR);
+				//				act("$N я│п╨п╟п╥п╟п╩$G : 'п°п╫п╣ п╫п╣ п╡п╣п╢п╬п╪п╬ я┌п╟п╨п╬п╣ я┐п╪п╣п╫п╦п╣.'", FALSE, ch, 0, victim, TO_CHAR);
 			}
 			else
 			{
@@ -1583,37 +1583,37 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					{
 						if (IS_SET(bits, SPELL_KNOW))
 						{
-							sprintf(buf, "$N сказал$G : \r\n"
-								"'$n, чтобы применить это заклинание, тебе необходимо набрать\r\n"
-								"%s колд(овать) '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
+							sprintf(buf, "$N я│п╨п╟п╥п╟п╩$G : \r\n"
+								"'$n, я┤я┌п╬п╠я▀ п©я─п╦п╪п╣п╫п╦я┌я▄ я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣, я┌п╣п╠п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╫п╟п╠я─п╟я┌я▄\r\n"
+								"%s п╨п╬п╩п╢(п╬п╡п╟я┌я▄) '%s' <я├п╣п╩я▄>%s п╦ я┴п╣п╩п╨п╫я┐я┌я▄ п╨п╩п╟п╡п╦я┬п╣п╧ <ENTER>'.",
 								CCCYN(ch, C_NRM), spell_name(skill_no),
 								CCNRM(ch, C_NRM));
 						}
 						else if (IS_SET(bits, SPELL_ITEMS))
 						{
-							sprintf(buf, "$N сказал$G : \r\n"
-								"'$n, чтобы применить эту магию, тебе необходимо набрать\r\n"
-								"%s смешать '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
+							sprintf(buf, "$N я│п╨п╟п╥п╟п╩$G : \r\n"
+								"'$n, я┤я┌п╬п╠я▀ п©я─п╦п╪п╣п╫п╦я┌я▄ я█я┌я┐ п╪п╟пЁп╦я▌, я┌п╣п╠п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╫п╟п╠я─п╟я┌я▄\r\n"
+								"%s я│п╪п╣я┬п╟я┌я▄ '%s' <я├п╣п╩я▄>%s п╦ я┴п╣п╩п╨п╫я┐я┌я▄ п╨п╩п╟п╡п╦я┬п╣п╧ <ENTER>'.",
 								CCCYN(ch, C_NRM), spell_name(skill_no),
 								CCNRM(ch, C_NRM));
 						}
 						else if (IS_SET(bits, SPELL_RUNES))
 						{
-							sprintf(buf, "$N сказал$G : \r\n"
-								"'$n, чтобы применить эту магию, тебе необходимо набрать\r\n"
-								"%s руны '%s' <цель>%s и щелкнуть клавишей <ENTER>'.",
+							sprintf(buf, "$N я│п╨п╟п╥п╟п╩$G : \r\n"
+								"'$n, я┤я┌п╬п╠я▀ п©я─п╦п╪п╣п╫п╦я┌я▄ я█я┌я┐ п╪п╟пЁп╦я▌, я┌п╣п╠п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╫п╟п╠я─п╟я┌я▄\r\n"
+								"%s я─я┐п╫я▀ '%s' <я├п╣п╩я▄>%s п╦ я┴п╣п╩п╨п╫я┐я┌я▄ п╨п╩п╟п╡п╦я┬п╣п╧ <ENTER>'.",
 								CCCYN(ch, C_NRM), spell_name(skill_no),
 								CCNRM(ch, C_NRM));
 						}
 						else
 						{
-							strcpy(buf, "Вы уже умеете это.");
+							strcpy(buf, "п▓я▀ я┐п╤п╣ я┐п╪п╣п╣я┌п╣ я█я┌п╬.");
 						}
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 					}
 					else
 					{
-						sprintf(buf, "$N научил$G вас магии %s\"%s\"%s",
+						sprintf(buf, "$N п╫п╟я┐я┤п╦п╩$G п╡п╟я│ п╪п╟пЁп╦п╦ %s\"%s\"%s",
 							CCCYN(ch, C_NRM), spell_name(spell_no), CCNRM(ch, C_NRM));
 						act(buf, FALSE, ch, 0, victim, TO_CHAR);
 						if (IS_SET(bits, SPELL_KNOW))
@@ -1651,7 +1651,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			if (!found)
 			{
 				//				found_spell = FALSE;
-				//				act("$N сказал$G : 'Я и сам$G не знаю такого заклинания.'", FALSE, ch, 0, victim, TO_CHAR);
+				//				act("$N я│п╨п╟п╥п╟п╩$G : 'п╞ п╦ я│п╟п╪$G п╫п╣ п╥п╫п╟я▌ я┌п╟п╨п╬пЁп╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐.'", FALSE, ch, 0, victim, TO_CHAR);
 			}
 			else
 			{
@@ -1659,7 +1659,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			}
 		}
 
-		act("$N сказал$G вам : 'Я никогда и никого этому не учил$G.'", FALSE, ch, 0, victim, TO_CHAR);
+		act("$N я│п╨п╟п╥п╟п╩$G п╡п╟п╪ : 'п╞ п╫п╦п╨п╬пЁп╢п╟ п╦ п╫п╦п╨п╬пЁп╬ я█я┌п╬п╪я┐ п╫п╣ я┐я┤п╦п╩$G.'", FALSE, ch, 0, victim, TO_CHAR);
 		return (1);
 	}
 
@@ -1673,12 +1673,12 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	if (IS_NPC(ch))
 		return (0);
 
-	if (!CMD_IS("лошадь") && !CMD_IS("horse"))
+	if (!CMD_IS("п╩п╬я┬п╟п╢я▄") && !CMD_IS("horse"))
 		return (0);
 
 	if (ch->is_morphed())
 	{
-		send_to_char("Лошадка испугается вас в таком виде... \r\n", ch);
+		send_to_char("п⌡п╬я┬п╟п╢п╨п╟ п╦я│п©я┐пЁп╟п╣я┌я│я▐ п╡п╟я│ п╡ я┌п╟п╨п╬п╪ п╡п╦п╢п╣... \r\n", ch);
 		return (TRUE);
 	}
 
@@ -1688,40 +1688,40 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	{
 		if (has_horse(ch, FALSE))
 		{
-			act("$N поинтересовал$U : \"$n, зачем тебе второй скакун? У тебя ведь одно седалище.\"",
+			act("$N п©п╬п╦п╫я┌п╣я─п╣я│п╬п╡п╟п╩$U : \"$n, п╥п╟я┤п╣п╪ я┌п╣п╠п╣ п╡я┌п╬я─п╬п╧ я│п╨п╟п╨я┐п╫? пё я┌п╣п╠я▐ п╡п╣п╢я▄ п╬п╢п╫п╬ я│п╣п╢п╟п╩п╦я┴п╣.\"",
 				FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
-		sprintf(buf, "$N сказал$G : \"Я продам тебе скакуна за %d %s.\"",
+		sprintf(buf, "$N я│п╨п╟п╥п╟п╩$G : \"п╞ п©я─п╬п╢п╟п╪ я┌п╣п╠п╣ я│п╨п╟п╨я┐п╫п╟ п╥п╟ %d %s.\"",
 				HORSE_COST, desc_count(HORSE_COST, WHAT_MONEYa));
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
 		return (TRUE);
 	}
 
-	if (!strn_cmp(argument, "купить", strlen(argument)) || !strn_cmp(argument, "buy", strlen(argument)))
+	if (!strn_cmp(argument, "п╨я┐п©п╦я┌я▄", strlen(argument)) || !strn_cmp(argument, "buy", strlen(argument)))
 	{
 		if (has_horse(ch, FALSE))
 		{
-			act("$N засмеял$U : \"$n, ты шутишь, у тебя же есть скакун.\"", FALSE, ch, 0, victim, TO_CHAR);
+			act("$N п╥п╟я│п╪п╣я▐п╩$U : \"$n, я┌я▀ я┬я┐я┌п╦я┬я▄, я┐ я┌п╣п╠я▐ п╤п╣ п╣я│я┌я▄ я│п╨п╟п╨я┐п╫.\"", FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
 		if (ch->get_gold() < HORSE_COST)
 		{
-			act("\"Ступай отсюда, злыдень, у тебя нет таких денег!\"-заорал$G $N",
+			act("\"п║я┌я┐п©п╟п╧ п╬я┌я│я▌п╢п╟, п╥п╩я▀п╢п╣п╫я▄, я┐ я┌п╣п╠я▐ п╫п╣я┌ я┌п╟п╨п╦я┘ п╢п╣п╫п╣пЁ!\"-п╥п╟п╬я─п╟п╩$G $N",
 				FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
 		if (!(horse = read_mobile(HORSE_VNUM, VIRTUAL)))
 		{
-			act("\"Извини, у меня нет для тебя скакуна.\"-смущенно произнес$Q $N",
+			act("\"п≤п╥п╡п╦п╫п╦, я┐ п╪п╣п╫я▐ п╫п╣я┌ п╢п╩я▐ я┌п╣п╠я▐ я│п╨п╟п╨я┐п╫п╟.\"-я│п╪я┐я┴п╣п╫п╫п╬ п©я─п╬п╦п╥п╫п╣я│$Q $N",
 				FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
 		make_horse(horse, ch);
 		char_to_room(horse, ch->in_room);
-		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N п╬я│п╣п╢п╩п╟п╩$G %s п╦ п╬я┌п╢п╟п╩$G %s п╡п╟п╪.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
-		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N п╬я│п╣п╢п╩п╟п╩$G %s п╦ п╬я┌п╢п╟п╩$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_ROOM);
 		ch->remove_gold(HORSE_COST);
 		PLR_FLAGS(ch).set(PLR_CRASH);
@@ -1729,35 +1729,35 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	}
 
 
-	if (!strn_cmp(argument, "продать", strlen(argument)) || !strn_cmp(argument, "sell", strlen(argument)))
+	if (!strn_cmp(argument, "п©я─п╬п╢п╟я┌я▄", strlen(argument)) || !strn_cmp(argument, "sell", strlen(argument)))
 	{
 		if (!has_horse(ch, TRUE))
 		{
-			act("$N засмеял$U : \"$n, ты не влезешь в мое стойло.\"", FALSE, ch, 0, victim, TO_CHAR);
+			act("$N п╥п╟я│п╪п╣я▐п╩$U : \"$n, я┌я▀ п╫п╣ п╡п╩п╣п╥п╣я┬я▄ п╡ п╪п╬п╣ я│я┌п╬п╧п╩п╬.\"", FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
 		if (on_horse(ch))
 		{
-			act("\"Я не собираюсь платить еще и за всадника.\"-усмехнул$U $N",
+			act("\"п╞ п╫п╣ я│п╬п╠п╦я─п╟я▌я│я▄ п©п╩п╟я┌п╦я┌я▄ п╣я┴п╣ п╦ п╥п╟ п╡я│п╟п╢п╫п╦п╨п╟.\"-я┐я│п╪п╣я┘п╫я┐п╩$U $N",
 				FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
 
 		if (!(horse = get_horse(ch)) || GET_MOB_VNUM(horse) != HORSE_VNUM)
 		{
-			act("\"Извини, твой скакун мне не подходит.\"- заявил$G $N", FALSE, ch, 0, victim, TO_CHAR);
+			act("\"п≤п╥п╡п╦п╫п╦, я┌п╡п╬п╧ я│п╨п╟п╨я┐п╫ п╪п╫п╣ п╫п╣ п©п╬п╢я┘п╬п╢п╦я┌.\"- п╥п╟я▐п╡п╦п╩$G $N", FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
 
 		if (IN_ROOM(horse) != IN_ROOM(victim))
 		{
-			act("\"Извини, твой скакун где-то бродит.\"- заявил$G $N", FALSE, ch, 0, victim, TO_CHAR);
+			act("\"п≤п╥п╡п╦п╫п╦, я┌п╡п╬п╧ я│п╨п╟п╨я┐п╫ пЁп╢п╣-я┌п╬ п╠я─п╬п╢п╦я┌.\"- п╥п╟я▐п╡п╦п╩$G $N", FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
 
-		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N я─п╟я│я│п╣п╢п╩п╟п╩$G %s п╦ п╬я┌п╡п╣п╩$G %s п╡ я│я┌п╬п╧п╩п╬.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_CHAR);
-		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N я─п╟я│я│п╣п╢п╩п╟п╩$G %s п╦ п╬я┌п╡п╣п╩$G %s п╡ я│я┌п╬п╧п╩п╬.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, FALSE, ch, 0, victim, TO_ROOM);
 		extract_char(horse, FALSE);
 		ch->add_gold((HORSE_COST >> 1));
@@ -1798,7 +1798,7 @@ int npc_track(CHAR_DATA * ch)
 						if (!msg)
 						{
 							msg = TRUE;
-							act("$n начал$g внимательно искать чьи-то следы.",
+							act("$n п╫п╟я┤п╟п╩$g п╡п╫п╦п╪п╟я┌п╣п╩я▄п╫п╬ п╦я│п╨п╟я┌я▄ я┤я▄п╦-я┌п╬ я│п╩п╣п╢я▀.",
 								FALSE, ch, 0, 0, TO_ROOM);
 						}
 					}
@@ -1818,7 +1818,7 @@ int npc_track(CHAR_DATA * ch)
 						if (!msg)
 						{
 							msg = TRUE;
-							act("$n начал$g внимательно искать чьи-то следы.",
+							act("$n п╫п╟я┤п╟п╩$g п╡п╫п╦п╪п╟я┌п╣п╩я▄п╫п╬ п╦я│п╨п╟я┌я▄ я┤я▄п╦-я┌п╬ я│п╩п╣п╢я▀.",
 								FALSE, ch, 0, 0, TO_ROOM);
 						}
 						door = go_track(ch, vict, SKILL_TRACK);
@@ -1893,7 +1893,7 @@ void npc_dropunuse(CHAR_DATA * ch)
 		nobj = obj->get_next_content();
 		if (item_nouse(obj))
 		{
-			act("$n выбросил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n п╡я▀п╠я─п╬я│п╦п╩$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_from_char(obj);
 			obj_to_room(obj, ch->in_room);
 		}
@@ -1939,21 +1939,21 @@ int npc_scavenge(CHAR_DATA * ch)
 					continue;
 				}
 
-				// Заперто, открываем, если есть ключ
+				// п≈п╟п©п╣я─я┌п╬, п╬я┌п╨я─я▀п╡п╟п╣п╪, п╣я│п╩п╦ п╣я│я┌я▄ п╨п╩я▌я┤
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
 					&& has_key(ch, GET_OBJ_VAL(obj, 2)))
 				{
 					do_doorcmd(ch, obj, 0, SCMD_UNLOCK);
 				}
 
-				// Заперто, взламываем, если умеем
+				// п≈п╟п©п╣я─я┌п╬, п╡п╥п╩п╟п╪я▀п╡п╟п╣п╪, п╣я│п╩п╦ я┐п╪п╣п╣п╪
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED)
 					&& ch->get_skill(SKILL_PICK_LOCK)
 					&& ok_pick(ch, 0, obj, 0, SCMD_PICK))
 				{
 					do_doorcmd(ch, obj, 0, SCMD_PICK);
 				}
-				// Все равно заперто, ну тогда фиг с ним
+				// п▓я│п╣ я─п╟п╡п╫п╬ п╥п╟п©п╣я─я┌п╬, п╫я┐ я┌п╬пЁп╢п╟ я└п╦пЁ я│ п╫п╦п╪
 				if (OBJVAL_FLAGGED(obj, CONT_LOCKED))
 				{
 					continue;
@@ -1990,7 +1990,7 @@ int npc_scavenge(CHAR_DATA * ch)
 		{
 			if (best_obj != best_cont)
 			{
-				act("$n поднял$g $o3.", FALSE, ch, best_obj, 0, TO_ROOM);
+				act("$n п©п╬п╢п╫я▐п╩$g $o3.", FALSE, ch, best_obj, 0, TO_ROOM);
 				if (GET_OBJ_TYPE(best_obj) == OBJ_DATA::ITEM_MONEY)
 				{
 					ch->add_gold(GET_OBJ_VAL(best_obj, 0));
@@ -2004,7 +2004,7 @@ int npc_scavenge(CHAR_DATA * ch)
 			}
 			else
 			{
-				sprintf(buf, "$n достал$g $o3 из %s.", cont->get_PName(1).c_str());
+				sprintf(buf, "$n п╢п╬я│я┌п╟п╩$g $o3 п╦п╥ %s.", cont->get_PName(1).c_str());
 				act(buf, FALSE, ch, best_obj, 0, TO_ROOM);
 				if (GET_OBJ_TYPE(best_obj) == OBJ_DATA::ITEM_MONEY)
 				{
@@ -2038,7 +2038,7 @@ int npc_loot(CHAR_DATA * ch)
 		{
 			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj))
 			{
-				// Сначала лутим то, что не в контейнерах
+				// п║п╫п╟я┤п╟п╩п╟ п╩я┐я┌п╦п╪ я┌п╬, я┤я┌п╬ п╫п╣ п╡ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟я┘
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot)
 				{
 					next_loot = loot_obj->get_next_content();
@@ -2047,7 +2047,7 @@ int npc_loot(CHAR_DATA * ch)
 						&& CAN_GET_OBJ(ch, loot_obj)
 						&& !item_nouse(loot_obj))
 					{
-						sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+						sprintf(buf, "$n п╡я▀я┌п╟я┴п╦п╩$g $o3 п╦п╥ %s.", obj->get_PName(1).c_str());
 						act(buf, FALSE, ch, loot_obj, 0, TO_ROOM);
 						if (GET_OBJ_TYPE(loot_obj) == OBJ_DATA::ITEM_MONEY)
 						{
@@ -2062,7 +2062,7 @@ int npc_loot(CHAR_DATA * ch)
 						}
 					}
 				}
-				// Теперь не запертые контейнеры
+				// п╒п╣п©п╣я─я▄ п╫п╣ п╥п╟п©п╣я─я┌я▀п╣ п╨п╬п╫я┌п╣п╧п╫п╣я─я▀
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot)
 				{
 					next_loot = loot_obj->get_next_content();
@@ -2079,7 +2079,7 @@ int npc_loot(CHAR_DATA * ch)
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj))
 							{
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+								sprintf(buf, "$n п╡я▀я┌п╟я┴п╦п╩$g $o3 п╦п╥ %s.", obj->get_PName(1).c_str());
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
 								if (GET_OBJ_TYPE(cobj) == OBJ_DATA::ITEM_MONEY)
 								{
@@ -2096,7 +2096,7 @@ int npc_loot(CHAR_DATA * ch)
 						}
 					}
 				}
-				// И наконец, лутим запертые контейнеры если есть ключ или можем взломать
+				// п≤ п╫п╟п╨п╬п╫п╣я├, п╩я┐я┌п╦п╪ п╥п╟п©п╣я─я┌я▀п╣ п╨п╬п╫я┌п╣п╧п╫п╣я─я▀ п╣я│п╩п╦ п╣я│я┌я▄ п╨п╩я▌я┤ п╦п╩п╦ п╪п╬п╤п╣п╪ п╡п╥п╩п╬п╪п╟я┌я▄
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot)
 				{
 					next_loot = loot_obj->get_next_content();
@@ -2109,14 +2109,14 @@ int npc_loot(CHAR_DATA * ch)
 							continue;
 						}
 
-						// Есть ключ?
+						// п∙я│я┌я▄ п╨п╩я▌я┤?
 						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							&& has_key(ch, GET_OBJ_VAL(loot_obj, 2)))
 						{
 							loot_obj->toggle_val_bit(1, CONT_LOCKED);
 						}
 
-						// ...или взломаем?
+						// ...п╦п╩п╦ п╡п╥п╩п╬п╪п╟п╣п╪?
 						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED)
 							&& ch->get_skill(SKILL_PICK_LOCK)
 							&& ok_pick(ch, 0, loot_obj, 0, SCMD_PICK))
@@ -2124,7 +2124,7 @@ int npc_loot(CHAR_DATA * ch)
 							loot_obj->toggle_val_bit(1, CONT_LOCKED);
 						}
 
-						// Эх, не открыть. Ну ладно.
+						// п╜я┘, п╫п╣ п╬я┌п╨я─я▀я┌я▄. п²я┐ п╩п╟п╢п╫п╬.
 						if (OBJVAL_FLAGGED(loot_obj, CONT_LOCKED))
 						{
 							continue;
@@ -2136,7 +2136,7 @@ int npc_loot(CHAR_DATA * ch)
 							cnext_obj = cobj->get_next_content();
 							if (CAN_GET_OBJ(ch, cobj) && !item_nouse(cobj))
 							{
-								sprintf(buf, "$n вытащил$g $o3 из %s.", obj->get_PName(1).c_str());
+								sprintf(buf, "$n п╡я▀я┌п╟я┴п╦п╩$g $o3 п╦п╥ %s.", obj->get_PName(1).c_str());
 								act(buf, FALSE, ch, cobj, 0, TO_ROOM);
 								if (GET_OBJ_TYPE(cobj) == OBJ_DATA::ITEM_MONEY)
 								{
@@ -2239,7 +2239,7 @@ int has_curse(OBJ_DATA * obj)
 {
 	for (const auto& i : weapon_affect)
 	{
-		// Замена выражения на макрос
+		// п≈п╟п╪п╣п╫п╟ п╡я▀я─п╟п╤п╣п╫п╦я▐ п╫п╟ п╪п╟п╨я─п╬я│
 		if (i.aff_spell <= 0 || !IS_OBJ_AFF(obj, i.aff_pos))
 		{
 			continue;
@@ -2369,22 +2369,22 @@ void npc_wield(CHAR_DATA * ch)
 		}
 		if (GET_EQ(ch, WEAR_BOTHS))
 		{
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
 		}
 		if (GET_EQ(ch, WEAR_WIELD))
 		{
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_WIELD | 0x40), ch);
 		}
 		if (GET_EQ(ch, WEAR_SHIELD))
 		{
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_SHIELD | 0x40), ch);
 		}
 		if (GET_EQ(ch, WEAR_HOLD))
 		{
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_HOLD | 0x40), ch);
 		}
 		//obj_from_char(both);
@@ -2396,17 +2396,17 @@ void npc_wield(CHAR_DATA * ch)
 		{
 			if (GET_EQ(ch, WEAR_BOTHS))
 			{
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
+				act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
 			}
 			if (GET_EQ(ch, WEAR_SHIELD))
 			{
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
+				act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_SHIELD), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_SHIELD | 0x40), ch);
 			}
 			if (GET_EQ(ch, WEAR_HOLD))
 			{
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
+				act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_HOLD), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_HOLD | 0x40), ch);
 			}
 			//obj_from_char(left);
@@ -2416,12 +2416,12 @@ void npc_wield(CHAR_DATA * ch)
 		{
 			if (GET_EQ(ch, WEAR_BOTHS))
 			{
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
+				act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_BOTHS), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_BOTHS | 0x40), ch);
 			}
 			if (GET_EQ(ch, WEAR_WIELD))
 			{
-				act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
+				act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, WEAR_WIELD), 0, TO_ROOM);
 				obj_to_char(unequip_char(ch, WEAR_WIELD | 0x40), ch);
 			}
 			//obj_from_char(right);
@@ -2541,7 +2541,7 @@ void npc_armor(CHAR_DATA * ch)
 			{
 				continue;
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, GET_EQ(ch, where), 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, GET_EQ(ch, where), 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, where | 0x40), ch);
 		}
 		//obj_from_char(obj);
@@ -2562,7 +2562,7 @@ void npc_light(CHAR_DATA * ch)
 
 	if ((obj = GET_EQ(ch, WEAR_LIGHT)) && (GET_OBJ_VAL(obj, 2) == 0 || !IS_DARK(ch->in_room)))
 	{
-		act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, obj, 0, TO_ROOM);
 		obj_to_char(unequip_char(ch, WEAR_LIGHT | 0x40), ch);
 	}
 
@@ -2577,7 +2577,7 @@ void npc_light(CHAR_DATA * ch)
 			}
 			if (GET_OBJ_VAL(obj, 2) == 0)
 			{
-				act("$n выбросил$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+				act("$n п╡я▀п╠я─п╬я│п╦п╩$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 				obj_from_char(obj);
 				obj_to_room(obj, ch->in_room);
 				continue;
@@ -2612,7 +2612,7 @@ int npc_battle_scavenge(CHAR_DATA * ch)
 			{
 				obj_from_room(obj);
 				obj_to_char(obj, ch);
-				act("$n поднял$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
+				act("$n п©п╬п╢п╫я▐п╩$g $o3.", FALSE, ch, obj, 0, TO_ROOM);
 				max = TRUE;
 			}
 		}
@@ -2630,7 +2630,7 @@ int npc_walk(CHAR_DATA * ch)
 	if (GET_DEST(ch) == NOWHERE || (rnum = real_room(GET_DEST(ch))) == NOWHERE)
 		return (BFS_ERROR);
 
-	// Не разрешаем ходы моба если он ушел в другую зону от маршрута.
+	// п²п╣ я─п╟п╥я─п╣я┬п╟п╣п╪ я┘п╬п╢я▀ п╪п╬п╠п╟ п╣я│п╩п╦ п╬п╫ я┐я┬п╣п╩ п╡ п╢я─я┐пЁя┐я▌ п╥п╬п╫я┐ п╬я┌ п╪п╟я─я┬я─я┐я┌п╟.
 	if (world[ch->in_room]->zone != world[rnum]->zone)
 		return (BFS_NO_PATH);
 
@@ -2678,8 +2678,8 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (AWAKE(victim) && (number(0, MAX(0, GET_LEVEL(ch) - int_app[GET_REAL_INT(victim)].observation)) == 0))
 	{
-		act("Вы обнаружили руку $n1 в своем кармане.", FALSE, ch, 0, victim, TO_VICT);
-		act("$n пытал$u обокрасть $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
+		act("п▓я▀ п╬п╠п╫п╟я─я┐п╤п╦п╩п╦ я─я┐п╨я┐ $n1 п╡ я│п╡п╬п╣п╪ п╨п╟я─п╪п╟п╫п╣.", FALSE, ch, 0, victim, TO_VICT);
+		act("$n п©я▀я┌п╟п╩$u п╬п╠п╬п╨я─п╟я│я┌я▄ $N3.", TRUE, ch, 0, victim, TO_NOTVICT);
 	}
 	else  		// Steal some gold coins
 	{
@@ -2846,7 +2846,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 		{
 			GET_POS(helper) = POS_STANDING;
 			set_fighting(helper, ch->get_fighting());
-			act("$n вступил$u за $N3.", FALSE, helper, 0, ch, TO_ROOM);
+			act("$n п╡я│я┌я┐п©п╦п╩$u п╥п╟ $N3.", FALSE, helper, 0, ch, TO_ROOM);
 		}
 	}
 }
@@ -2858,26 +2858,26 @@ int dump(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents)
 	{
-		act("$p рассыпал$U в прах!", FALSE, 0, k, 0, TO_ROOM);
+		act("$p я─п╟я│я│я▀п©п╟п╩$U п╡ п©я─п╟я┘!", FALSE, 0, k, 0, TO_ROOM);
 		extract_obj(k);
 	}
 
-	if (!CMD_IS("drop") || !CMD_IS("бросить"))
+	if (!CMD_IS("drop") || !CMD_IS("п╠я─п╬я│п╦я┌я▄"))
 		return (0);
 
 	do_drop(ch, argument, cmd, 0);
 
 	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents)
 	{
-		act("$p рассыпал$U в прах!", FALSE, 0, k, 0, TO_ROOM);
+		act("$p я─п╟я│я│я▀п©п╟п╩$U п╡ п©я─п╟я┘!", FALSE, 0, k, 0, TO_ROOM);
 		value += MAX(1, MIN(1, GET_OBJ_COST(k) / 10));
 		extract_obj(k);
 	}
 
 	if (value)
 	{
-		send_to_char("Боги оценили вашу жертву.\r\n", ch);
-		act("$n оценен$y Богами.", TRUE, ch, 0, 0, TO_ROOM);
+		send_to_char("п▒п╬пЁп╦ п╬я├п╣п╫п╦п╩п╦ п╡п╟я┬я┐ п╤п╣я─я┌п╡я┐.\r\n", ch);
+		act("$n п╬я├п╣п╫п╣п╫$y п▒п╬пЁп╟п╪п╦.", TRUE, ch, 0, 0, TO_ROOM);
 		if (GET_LEVEL(ch) < 3)
 			gain_exp(ch, value);
 		else
@@ -3101,8 +3101,8 @@ int guild_guard(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 {
 	int i;
 	CHAR_DATA *guard = (CHAR_DATA *) me;
-	const char *buf = "Охранник остановил вас, преградив дорогу.\r\n";
-	const char *buf2 = "Охранник остановил $n, преградив $m дорогу.";
+	const char *buf = "п·я┘я─п╟п╫п╫п╦п╨ п╬я│я┌п╟п╫п╬п╡п╦п╩ п╡п╟я│, п©я─п╣пЁя─п╟п╢п╦п╡ п╢п╬я─п╬пЁя┐.\r\n";
+	const char *buf2 = "п·я┘я─п╟п╫п╫п╦п╨ п╬я│я┌п╟п╫п╬п╡п╦п╩ $n, п©я─п╣пЁя─п╟п╢п╦п╡ $m п╢п╬я─п╬пЁя┐.";
 
 	if (!IS_MOVE(cmd) || AFF_FLAGGED(guard, EAffectFlag::AFF_BLIND)
 			|| AFF_FLAGGED(guard, EAffectFlag::AFF_HOLD))
@@ -3125,7 +3125,7 @@ int guild_guard(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 	return (FALSE);
 }
 
-// TODO: повырезать все это
+// TODO: п©п╬п╡я▀я─п╣п╥п╟я┌я▄ п╡я│п╣ я█я┌п╬
 int puff(CHAR_DATA* /*ch*/, void* /*me*/, int/* cmd*/, char* /*argument*/)
 {
 	return 0;
@@ -3336,116 +3336,119 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 	int amount;
 	CHAR_DATA *vict;
 
-	if (CMD_IS("balance") || CMD_IS("баланс") || CMD_IS("сальдо"))
+	if (CMD_IS("balance") || CMD_IS("п╠п╟п╩п╟п╫я│") || CMD_IS("я│п╟п╩я▄п╢п╬"))
 	{
 		if (ch->get_bank() > 0)
-			sprintf(buf, "У вас на счету %ld %s.\r\n",
+			sprintf(buf, "пё п╡п╟я│ п╫п╟ я│я┤п╣я┌я┐ %ld %s.\r\n",
 					ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
 		else
-			sprintf(buf, "У вас нет денег.\r\n");
+			sprintf(buf, "пё п╡п╟я│ п╫п╣я┌ п╢п╣п╫п╣пЁ.\r\n");
 		send_to_char(buf, ch);
 		return (1);
 	}
-	else if (CMD_IS("deposit") || CMD_IS("вложить") || CMD_IS("вклад"))
+	else if (CMD_IS("deposit") || CMD_IS("п╡п╩п╬п╤п╦я┌я▄") || CMD_IS("п╡п╨п╩п╟п╢"))
 	{
 		if ((amount = atoi(argument)) <= 0)
 		{
-			send_to_char("Сколько вы хотите вложить?\r\n", ch);
+			send_to_char("п║п╨п╬п╩я▄п╨п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ п╡п╩п╬п╤п╦я┌я▄?\r\n", ch);
 			return (1);
 		}
 		if (ch->get_gold() < amount)
 		{
-			send_to_char("О такой сумме вы можете только мечтать!\r\n", ch);
+			send_to_char("п· я┌п╟п╨п╬п╧ я│я┐п╪п╪п╣ п╡я▀ п╪п╬п╤п╣я┌п╣ я┌п╬п╩я▄п╨п╬ п╪п╣я┤я┌п╟я┌я▄!\r\n", ch);
 			return (1);
 		}
 		ch->remove_gold(amount, false);
 		ch->add_bank(amount, false);
-		sprintf(buf, "Вы вложили %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
+		sprintf(buf, "п▓я▀ п╡п╩п╬п╤п╦п╩п╦ %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		send_to_char(buf, ch);
-		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+		act("$n п©я─п╬п╦п╥п╡п╣п╩$g я└п╦п╫п╟п╫я│п╬п╡я┐я▌ п╬п©п╣я─п╟я├п╦я▌.", TRUE, ch, 0, FALSE, TO_ROOM);
 		return (1);
 	}
-	else if (CMD_IS("withdraw") || CMD_IS("получить"))
+	else if (CMD_IS("withdraw") || CMD_IS("п©п╬п╩я┐я┤п╦я┌я▄"))
 	{
 		if ((amount = atoi(argument)) <= 0)
 		{
-			send_to_char("Уточните количество денег, которые вы хотите получить?\r\n", ch);
+			send_to_char("пёя┌п╬я┤п╫п╦я┌п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╢п╣п╫п╣пЁ, п╨п╬я┌п╬я─я▀п╣ п╡я▀ я┘п╬я┌п╦я┌п╣ п©п╬п╩я┐я┤п╦я┌я▄?\r\n", ch);
 			return (1);
 		}
 		if (ch->get_bank() < amount)
 		{
-			send_to_char("Да вы отродясь столько денег не видели!\r\n", ch);
+			send_to_char("п■п╟ п╡я▀ п╬я┌я─п╬п╢я▐я│я▄ я│я┌п╬п╩я▄п╨п╬ п╢п╣п╫п╣пЁ п╫п╣ п╡п╦п╢п╣п╩п╦!\r\n", ch);
 			return (1);
 		}
 		ch->add_gold(amount, false);
 		ch->remove_bank(amount, false);
-		sprintf(buf, "Вы сняли %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
+		sprintf(buf, "п▓я▀ я│п╫я▐п╩п╦ %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
 		send_to_char(buf, ch);
-		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+		act("$n п©я─п╬п╦п╥п╡п╣п╩$g я└п╦п╫п╟п╫я│п╬п╡я┐я▌ п╬п©п╣я─п╟я├п╦я▌.", TRUE, ch, 0, FALSE, TO_ROOM);
 		return (1);
 	}
-	else if (CMD_IS("transfer") || CMD_IS("перевести"))
+	else if (CMD_IS("transfer") || CMD_IS("п©п╣я─п╣п╡п╣я│я┌п╦"))
 	{
 		argument = one_argument(argument, arg);
 		amount = atoi(argument);
 		if (IS_GOD(ch) && !IS_IMPL(ch))
 		{
-			send_to_char("Почитить захотелось?\r\n", ch);
+			send_to_char("п÷п╬я┤п╦я┌п╦я┌я▄ п╥п╟я┘п╬я┌п╣п╩п╬я│я▄?\r\n", ch);
 			return (1);
 
 		}
 		if (!*arg)
 		{
-			send_to_char("Уточните кому вы хотите перевести?\r\n", ch);
+			send_to_char("пёя┌п╬я┤п╫п╦я┌п╣ п╨п╬п╪я┐ п╡я▀ я┘п╬я┌п╦я┌п╣ п©п╣я─п╣п╡п╣я│я┌п╦?\r\n", ch);
 			return (1);
 		}
 		if (amount <= 0)
 		{
-			send_to_char("Уточните количество денег, которые вы хотите получить?\r\n", ch);
+			send_to_char("пёя┌п╬я┤п╫п╦я┌п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╢п╣п╫п╣пЁ, п╨п╬я┌п╬я─я▀п╣ п╡я▀ я┘п╬я┌п╦я┌п╣ п©п╬п╩я┐я┤п╦я┌я▄?\r\n", ch);
 			return (1);
 		}
 		if (amount <= 100)
 		{
-			send_to_char("Сумма перевода должна быть больше 100 кун.\r\n", ch);
+			send_to_char("п║я┐п╪п╪п╟ п©п╣я─п╣п╡п╬п╢п╟ п╢п╬п╩п╤п╫п╟ п╠я▀я┌я▄ п╠п╬п╩я▄я┬п╣ 100 п╨я┐п╫.\r\n", ch);
 			return (1);
 		}
 
 		if (ch->get_bank() < amount)
 		{
-			send_to_char("Да вы отродясь столько денег не видели!\r\n", ch);
+			send_to_char("п■п╟ п╡я▀ п╬я┌я─п╬п╢я▐я│я▄ я│я┌п╬п╩я▄п╨п╬ п╢п╣п╫п╣пЁ п╫п╣ п╡п╦п╢п╣п╩п╦!\r\n", ch);
 			return (1);
 		}
 		if (ch->get_bank() < amount + ((amount * 5) / 100))
 		{
-			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
+			send_to_char("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╦я┌ п╢п╣п╫п╣пЁ п╫п╟ п╫п╟п╩п╬пЁп╦!\r\n", ch);
 			return (1);
 		}
 
 		if ((vict = get_player_of_name(arg)))
 		{
 			ch->remove_bank(amount + (amount * 5) / 100);
-			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
+			sprintf(buf, "%sп▓я▀ п©п╣я─п╣п╡п╣п╩п╦ %d п╨я┐п╫ %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			vict->add_bank(amount);
-			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
+			sprintf(buf, "%sп▓я▀ п©п╬п╩я┐я┤п╦п╩п╦ %d п╨я┐п╫ п╠п╟п╫п╨п╬п╡я│п╨п╦п╪ п©п╣я─п╣п╡п╬п╢п╬п╪ п╬я┌ %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
 			send_to_char(buf, vict);
+ 			sprintf(buf, "%s%s п©п╣я─п╣п╡п╣п╩ %d п╨я┐п╫ п╠п╟п╫п╨п╬п╡я│п╨п╦п╪ п©п╣я─п╣п╡п╬п╢п╬п╪  %s%s.\r\n", GET_PAD(ch, 1), CCNRM(ch, C_NRM), amount,
+					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
+                        mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
 			return (1);
 
 		}
 		else
 		{
-			vict = new Player; // TODO: переделать на стек
+			vict = new Player; // TODO: п©п╣я─п╣п╢п╣п╩п╟я┌я▄ п╫п╟ я│я┌п╣п╨
 			if (load_char(arg, vict) < 0)
 			{
-				send_to_char("Такого персонажа не существует.\r\n", ch);
+				send_to_char("п╒п╟п╨п╬пЁп╬ п©п╣я─я│п╬п╫п╟п╤п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n", ch);
 				delete vict;
 				return (1);
 			}
 
 			ch->remove_bank(amount + (amount * 5) / 100);
-			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
+			sprintf(buf, "%sп▓я▀ п©п╣я─п╣п╡п╣п╩п╦ %d п╨я┐п╫ %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			vict->add_bank(amount);
@@ -3456,7 +3459,7 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			return (1);
 		}
 	}
-	else if (CMD_IS("казна"))
+	else if (CMD_IS("п╨п╟п╥п╫п╟"))
 		return (Clan::BankManage(ch, argument));
 	return 0;
 }
