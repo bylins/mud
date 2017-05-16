@@ -3431,8 +3431,8 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
 			send_to_char(buf, vict);
- 			sprintf(buf, "%s перевел %d кун банковским переводом %s.\r\n", GET_PAD(ch, 1), amount, GET_PAD(vict, 2));
-            mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
+ 			sprintf(buf, "%s перевел %d кун банковским переводом %s.", GET_PAD(ch, 0), amount, GET_PAD(vict, 2));
+            mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			return (1);
 
 		}

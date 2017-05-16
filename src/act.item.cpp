@@ -736,8 +736,8 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
 		ch->add_gold(value);
-		sprintf(buf, "%s заработал %d  %s.\r\n", GET_PAD(ch, 1), value,desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
+		sprintf(buf, "%s заработал %d %s в группе.", GET_PAD(ch, 0), value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
 		do_split(ch, local_buf, 0, 0);
@@ -746,14 +746,14 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	{
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
-		sprintf(buf, "%s заработал %d  %s.\r\n", GET_PAD(ch, 1),  value,desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
+		sprintf(buf, "%s заработал %d  %s.", GET_PAD(ch, 0),  value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		ch->add_gold(value, true, true);
 	}
 	else
 	{
-		sprintf(buf, "%s как-то получил %d  %s.\r\n", GET_PAD(ch, 1), value,desc_count(value, WHAT_MONEYu));
-		mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
+		sprintf(buf, "%s как-то получил %d  %s.", GET_PAD(ch, 0), value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		ch->add_gold(value);
 	}
 
@@ -1553,8 +1553,8 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-        sprintf(buf, "%s передал %d кун при личной встрече c %s.\r\n", GET_PAD(ch, 1),  amount, GET_PAD(vict, 2)));
-        mudlog(buf, NRM, LVL_GRGOD, MANY_LOG, TRUE);
+    sprintf(buf, "%s передал %d кун при личной встрече c %s.", GET_PAD(ch, 0),  amount, GET_PAD(vict, 4));
+    mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 	if (IS_NPC(ch) || !IS_IMPL(ch))
 	{
 		ch->remove_gold(amount);
