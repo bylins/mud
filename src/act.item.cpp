@@ -1555,8 +1555,11 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-    sprintf(buf, "%s передал %d кун при личной встрече c %s.", GET_PAD(ch, 0),  amount, GET_PAD(vict, 4));
-    mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+	if (!(IS_NPC(ch) || IS_NPC(vict)))
+	{
+		sprintf(buf, "%s передал %d кун при личной встрече c %s.", GET_PAD(ch, 0),  amount, GET_PAD(vict, 4));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+	}
 	if (IS_NPC(ch) || !IS_IMPL(ch))
 	{
 		ch->remove_gold(amount);
