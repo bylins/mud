@@ -1881,7 +1881,7 @@ void fix_name(T& name)
 	size_t pos = 0;
 	while ('\0' != name[pos] && pos < MAX_STRING_LENGTH)
 	{
-		if (('.' == name[pos]) || ('_' == name[pos]))
+		if ('.' == name[pos])
 		{
 			name[pos] = ' ';
 		}
