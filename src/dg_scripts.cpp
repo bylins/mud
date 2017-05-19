@@ -1917,7 +1917,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if (!str_cmp(var, "world"))
 		{
 			num = atoi(subfield);
-			if (!str_cmp(field, "curobjs") && num > 0)
+			if ((!str_cmp(field, "curobjs") || !str_cmp(field, "curobj")) && num > 0)
 			{
 				const auto rnum = real_object(num);
 				const auto count = count_obj_vnum(num);
