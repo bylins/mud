@@ -58,17 +58,11 @@ void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 /// \param alias = false
 /// true для поиска при вводе имени способности игроком у учителей
 ///
-
-
-
-extern void fix_name_feat(char *name);
-int find_feat_num(const char *name_, bool alias)
+int find_feat_num(const char *name, bool alias)
 {
 	int ok;
 	char const *temp, *temp2;
-	char *name = const_cast<char *>(name_);
 	char first[256], first2[256];
-	fix_name_feat(name);
 	for (int index = 1; index < MAX_FEATS; index++)
 	{
 		const char* feat_name = alias ?
@@ -403,43 +397,43 @@ void assign_feats(void)
 	feat_app.clear();
 //68
 	feat_app.insert(SKILL_PUNCH, APPLY_NONE);
-	feato(PUNCH_FOCUS_FEAT, "любимое оружие: голые руки", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(PUNCH_FOCUS_FEAT, "любимое_оружие: голые руки", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //69
 	feat_app.insert(SKILL_CLUBS, APPLY_NONE);
-	feato(CLUB_FOCUS_FEAT, "любимое оружие: палица", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(CLUB_FOCUS_FEAT, "любимое_оружие: палица", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //70
 	feat_app.insert(SKILL_AXES, APPLY_NONE);
-	feato(AXES_FOCUS_FEAT, "любимое оружие: секира", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(AXES_FOCUS_FEAT, "любимое_оружие: секира", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //71
 	feat_app.insert(SKILL_LONGS, APPLY_NONE);
-	feato(LONGS_FOCUS_FEAT, "любимое оружие: меч", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(LONGS_FOCUS_FEAT, "любимое_оружие: меч", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //72
 	feat_app.insert(SKILL_SHORTS, APPLY_NONE);
-	feato(SHORTS_FOCUS_FEAT, "любимое оружие: нож", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(SHORTS_FOCUS_FEAT, "любимое_оружие: нож", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //73
 	feat_app.insert(SKILL_NONSTANDART, APPLY_NONE);
-	feato(NONSTANDART_FOCUS_FEAT, "любимое оружие: необычное", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(NONSTANDART_FOCUS_FEAT, "любимое_оружие: необычное", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //74
 	feat_app.insert(SKILL_BOTHHANDS, APPLY_NONE);
-	feato(BOTHHANDS_FOCUS_FEAT, "любимое оружие: двуручник", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(BOTHHANDS_FOCUS_FEAT, "любимое_оружие: двуручник", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //75
 	feat_app.insert(SKILL_PICK, APPLY_NONE);
-	feato(PICK_FOCUS_FEAT, "любимое оружие: кинжал", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(PICK_FOCUS_FEAT, "любимое_оружие: кинжал", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //76
 	feat_app.insert(SKILL_SPADES, APPLY_NONE);
-	feato(SPADES_FOCUS_FEAT, "любимое оружие: копье", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(SPADES_FOCUS_FEAT, "любимое_оружие: копье", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //77
 	feat_app.insert(SKILL_BOWS, APPLY_NONE);
-	feato(BOWS_FOCUS_FEAT, "любимое оружие: лук", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(BOWS_FOCUS_FEAT, "любимое_оружие: лук", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //78
 	feato(AIMING_ATTACK_FEAT, "прицельная атака", NORMAL_FTYPE, TRUE, feat_app);
@@ -580,7 +574,7 @@ void assign_feats(void)
 //138
     feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
 //139
-    feato(EXPEDIENT_CUT_FEAT, "боевой прием: порез", NORMAL_FTYPE, TRUE, feat_app);
+    feato(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
