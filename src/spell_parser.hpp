@@ -10,7 +10,4 @@ int find_spell_num(const char *name);
 int fix_name_and_find_spell_num(char* name);
 int fix_name_and_find_spell_num(std::string& name);
 
-
-
-
 #endif // __SPELL_PARSER_HPP__
