@@ -2365,12 +2365,10 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *leader;
 	struct follow_type *f;
-
 	one_argument(argument, buf);
 
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_fighting())
 		return;
-
 	if (*buf)
 	{
 		if (!str_cmp(buf, "Ñ") || !str_cmp(buf, "self") || !str_cmp(buf, "me"))
