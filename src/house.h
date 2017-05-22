@@ -176,7 +176,7 @@ public:
 	~Clan();
 
 	static ClanListType ClanList; // список кланов
-
+	
 	static void ClanLoad();
 	static void reload_one(std::string name);
 	static void ClanSave();
@@ -213,6 +213,7 @@ public:
 	void AddTopExp(CHAR_DATA * ch, int add_exp);
 
 	const char* GetAbbrev() { return this->abbrev.c_str(); };
+	int get_chest_room();
 	int GetRent();
 	int GetOutRent();
 	void SetClanExp(CHAR_DATA *ch, int add);

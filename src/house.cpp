@@ -145,6 +145,12 @@ room_rnum Clan::CloseRent(room_rnum to_room)
 	return to_room;
 }
 
+int Clan::get_chest_room()
+{
+	return this->chest_room;
+}
+
+
 // проверяет находится ли чар в зоне чужого клана
 bool Clan::InEnemyZone(CHAR_DATA * ch)
 {
@@ -3268,7 +3274,6 @@ void Clan::save_chest()
 	for (unsigned i = 0; i != buffer.length(); ++i)
 		buffer[i] = LOWER(AtoL(buffer[i]));
 	std::string filename = LIB_HOUSE + buffer + "/" + buffer + ".obj";
-
 	for (OBJ_DATA *chest = world[real_room(this->chest_room)]->contents; chest; chest = chest->get_next_content())
 	{
 		if (Clan::is_clan_chest(chest))

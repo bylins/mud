@@ -1973,6 +1973,47 @@ void heartbeat(const int missed_pulses)
 		record_usage();
 	}
 
+
+// каждые три минуты
+	if (!((pulse + 38) % (3 * 60 * PASSES_PER_SEC)))
+	{
+		std::map<int, std::map<int, int>> bigset_timer;
+		for (Clan::ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+		{
+			for (OBJ_DATA *chest = world[real_room((*clan)->get_chest_room())]->contents; chest; chest = chest->get_next_content())
+			{
+				if (Clan::is_clan_chest(chest))
+				{
+					for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content())
+					{
+						if (!temp->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
+							continue;
+
+						for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
+							iend = OBJ_DATA::set_table.end(); i != iend; ++i)
+						{
+							if (i->second.find(GET_OBJ_VNUM(temp)) != i->second.end()
+								&& i->second.size() > 9)
+								if (bigset_timer.find(0) == bigset_timer.end())
+								{
+									//bigset_time.add(id);
+									// айди добавили, теперь добавим шмотку сюда и значение таймера в 3
+								}
+								else
+								{
+									//иначе ищем шмотку или бигсит, если шмотка есть, то +3, если нет, то добавляем шмотку
+								}
+							
+
+								
+						}
+					}
+					
+				}
+			}
+		}
+	}
+
 	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
 	{
 		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
