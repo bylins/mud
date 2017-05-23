@@ -434,6 +434,7 @@ void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
 void do_stun(CHAR_DATA*, char*, int, int);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
+void do_overstuff(CHAR_DATA *ch, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -932,6 +933,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"olc", POS_DEAD, do_olc, LVL_GOD, SCMD_OLC_SAVEINFO, 0},
 	{"open", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
 	{"order", POS_RESTING, do_order, 1, 0, -1},
+	{"overstuff", POS_DEAD, do_overstuff, LVL_GRGOD, 0, 0 },
 	{"page", POS_DEAD, do_page, LVL_GOD, 0, 0},
 	{"parry", POS_FIGHTING, do_parry, 0, 0, -1},
 	{"pick", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},

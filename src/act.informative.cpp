@@ -150,7 +150,8 @@ const char *diag_liquid_timer(const OBJ_DATA * obj);
 
 void do_quest(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-    send_to_char("У Вас нет никаких поручений.\r\n", ch);
+	
+	send_to_char("У Вас нет никаких ежедневных поручений.\r\nЧтобы взять новые, наберите &Wпоручения получить&n.\r\n", ch);
 }
 
 /*
