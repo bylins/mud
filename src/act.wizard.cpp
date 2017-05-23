@@ -210,7 +210,7 @@ void do_overstuff(CHAR_DATA *ch, char*, int, int)
 			{
 				for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content())
 				{
-					if (temp->show_mort_req() > 8)
+					if (temp->get_manual_mort_req() > 8)
 					{
 						if (objects.count((*clan)->get_abbrev()))
 							objects[(*clan)->get_abbrev()] += 1;							
