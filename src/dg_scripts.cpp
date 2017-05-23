@@ -2836,7 +2836,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 		}
 		// все эти блоки надо переписать на что-нибудь другое, их слишком много
-		else if (!str_cmp(field, "unsetquest") || !str_cmp(field, "alliance"))
+		else if (!str_cmp(field, "unsetquest") || !str_cmp(field, "alliance") || !str_cmp(field, "dailyquest"))
 		{
 			if (!str_cmp(field, "alliance"))
 			{
@@ -2848,6 +2848,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					else
 						strcpy(str, "0");
 				}
+			}
+			else if (!str_cmp(field, "dailyquest"))
+			{
+
 			}
 			else
 			{

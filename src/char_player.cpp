@@ -2121,6 +2121,29 @@ bool Player::is_arena_player()
 	return this->arena_player;
 }
 
+
+int Player::get_percent_daily_quest(int id)
+{
+	if (this->daily_quest.count(id))
+		return this->daily_quest[id];
+	return -1;
+	
+}
+
+
+bool Player::add_percent_daily_quest(int id, int percent)
+{
+	if (this->daily_quest.count(id))
+	{
+		this->daily_quest[id] += percent;
+		if (this->daily_quest[id] >= 100)
+			return true;
+	}
+
+	return false;
+
+}
+
 int Player::death_player_count()
 {
 	const int zone_vnum = zone_table[world[this->in_room]->zone].number;

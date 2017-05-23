@@ -134,6 +134,9 @@ public:
 
 	bool is_arena_player();
 
+	int get_percent_daily_quest(int id);
+	bool add_percent_daily_quest(int id, int percent);
+
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -182,8 +185,16 @@ private:
 	int ice_currency;
 	// список зон, где чар умер и в каком количестве
 	std::map<int, int> count_death_zone;
+	// время, когда были выполнены все дейлики
+	time_t time_daily;
+	// id задания и процент их выполения от 0 до 100
+	std::map<int, int> daily_quest;
+	// сколько дней подряд выполнялись дейлики 
+	int count_daily_quest;
+
 
 };
+
 
 namespace PlayerSystem
 {

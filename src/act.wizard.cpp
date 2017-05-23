@@ -213,9 +213,9 @@ void do_overstuff(CHAR_DATA *ch, char*, int, int)
 					if (temp->show_mort_req() > 8)
 					{
 						if (objects.count((*clan)->get_abbrev()))
-							objects.insert(std::pair<std::string, int>((*clan)->get_abbrev(), 1));
+							objects[(*clan)->get_abbrev()] += 1;							
 						else
-							objects[(*clan)->get_abbrev()] += 1;
+							objects.insert(std::pair<std::string, int>((*clan)->get_abbrev(), 1));
 					}
 				}
 			}
