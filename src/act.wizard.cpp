@@ -187,6 +187,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
+void do_overstuff(CHAR_DATA *ch, char*, int, int);
 void save_zone_count_reset()
 {
 	for (int i = 0; i <= top_of_zone_table; ++i)
@@ -195,6 +196,38 @@ void save_zone_count_reset()
 		log("%s", buf);
 	}
 }
+
+
+// показывает количество вещей (чтобы носить которые, нужно больше 8 ремортов) в хранах кланов
+void do_overstuff(CHAR_DATA *ch, char*, int, int)
+{
+	std::map<std::string, int> objects;
+	for (Clan::ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	{
+		for (OBJ_DATA *chest = world[real_room((*clan)->get_chest_room())]->contents; chest; chest = chest->get_next_content())
+		{
+			if (Clan::is_clan_chest(chest))
+			{
+				for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content())
+				{
+					if (temp->show_mort_req() > 8)
+					{
+						if (objects.count((*clan)->get_abbrev()))
+							objects.insert(std::pair<std::string, int>((*clan)->get_abbrev(), 1));
+						else
+							objects[(*clan)->get_abbrev()] += 1;
+					}
+				}
+			}
+		}
+	}
+	for (auto it = objects.begin(); it != objects.end(); ++it)///вывод на экран
+	{
+		sprintf(buf, "Дружина: %s, количество объектов: %d\r\n", it->first.c_str(), it->second);
+		send_to_char(buf, ch);
+	}
+}
+
 
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
@@ -206,13 +239,13 @@ void send_to_gods(char *text, bool demigod)
     	    // Чар должен быть в игре
     	    if (STATE(d) == CON_PLAYING)
     	    {
-    		// Чар должен быть имморталом
-    		// Либо же демигодом (при demigod = true)
-    		if ((GET_LEVEL(d->character) >= LVL_GOD) ||
-    		(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod))
-    		{
-    		    send_to_char(text, d->character);
-    		}
+    			// Чар должен быть имморталом
+    			// Либо же демигодом (при demigod = true)
+				if ((GET_LEVEL(d->character) >= LVL_GOD) ||
+					(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod))
+				{
+					send_to_char(text, d->character);
+				}	
     	    }
         }
 }
