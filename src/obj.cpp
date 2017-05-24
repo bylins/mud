@@ -888,7 +888,7 @@ std::string CObjectPrototype::item_count_message(int num, int pad)
 
 int CObjectPrototype::get_manual_mort_req() const
 {
-	if (get_minimum_remorts() >= 0)
+	if (get_minimum_remorts() > 0)
 	{
 		return get_minimum_remorts();
 	}
@@ -1159,7 +1159,7 @@ void init_ilvl(CObjectPrototype *obj)
 {
 	if (is_mob_item(obj)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)
-		|| obj->get_manual_mort_req() >= 0)
+		|| obj->get_manual_mort_req() > 0)
 	{
 		obj->set_ilevel(0);
 		return;
