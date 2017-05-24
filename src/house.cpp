@@ -96,7 +96,7 @@ enum { CLAN_MAIN_MENU = 0, CLAN_PRIVILEGE_MENU, CLAN_SAVE_MENU,
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
-
+bool check_write_board(CHAR_DATA *ch);
 
 void prepare_write_mod(CHAR_DATA *ch, std::string &param)
 {
@@ -1022,7 +1022,8 @@ const char *HOUSE_FORMAT[] =
 	"  казна (снимать)\r\n",
 	"  клан покинуть (выход из дружины)\r\n",
 	"  клан сообщение (написание сообщения дружины)\r\n",
-	"  клан налог <процент отдаваемых кун>\r\n"
+	"  клан налог <процент отдаваемых кун>\r\n",
+	"  дрвече писать\r\n"
 };
 
 // обработка клановых привилегий (команда house)
@@ -1235,6 +1236,9 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 					break;
 				case MAY_CLAN_TAX:
 					buffer << " налог";
+					break;
+				case MAY_CLAN_BOARD:
+					buffer << " дрвече";
 					break;
 				}
 			}
@@ -2002,6 +2006,17 @@ void Clan::SetPolitics(int victim, int state)
 }
 
 const char *politicsnames[] = { "Нейтралитет", "Война", "Альянс" };
+
+// показывает, может ли чар писать в дрв
+bool Clan::check_write_board(CHAR_DATA *ch)
+{
+	if (this->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_BOARD])
+	{
+		return true;
+	}
+	return false;
+}
+
 
 //Polud будем показывать всем происходящие войны
 void DoShowWars(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -4117,6 +4132,15 @@ void Clan::PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num)
 					<< CCNRM(d->character, C_NRM) << ") "
 					<< (d->clan_olc->privileges[num][MAY_CLAN_TAX] ? "[x]" : "[ ]")
 					<< " установка налога для ратников\r\n";
+			}
+			break;
+		case MAY_CLAN_BOARD:
+			if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][MAY_CLAN_BOARD])
+			{
+				buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++count
+					<< CCNRM(d->character, C_NRM) << ") "
+					<< (d->clan_olc->privileges[num][MAY_CLAN_BOARD] ? "[x]" : "[ ]")
+					<< " сообщения в дрвече\r\n";
 			}
 			break;
 		} // case
