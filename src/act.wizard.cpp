@@ -385,7 +385,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		return 0;
 	}
 
-	if ((GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || PRF_FLAGGED(vict, PRF_CODERINFO) || IS_IMPL(vict))
+	if ((GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || IS_IMPL(vict))
 	{
 		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return 0;
