@@ -181,10 +181,536 @@ Clan::Clan():
 Clan::~Clan()
 {
 }
-
-void Clan::reload_one(std::string/* name*/)
+// релоад одного отдельного клана, абр. указывать на латинице!
+void Clan::ClanReload(std::string index)
 {
+	std::ifstream file(LIB_HOUSE "index");
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", LIB_HOUSE "index", __FILE__, __func__, __LINE__);
+		return;
+	}
+	std::string buffer;
+	std::list<std::string> clanIndex;
+	while (file >> buffer)
+		clanIndex.push_back(buffer);
+	file.close();
+	// ищем наш клан
+	for (const auto& it : clanIndex)
+	{
+		if (it == index)
+		{
+			// надо удалить наш клан из общего списка
+			for (Clan::ClanListType::const_iterator clan = Clan::ClanList.begin();clan != Clan::ClanList.end(); ++clan)
+			{
+				std::string name_buffer = (*clan)->abbrev;
+				CreateFileName(name_buffer);
+				if (name_buffer == index)
+				{					
+					Clan::ClanList.erase(clan);
+					break;
+				}
+			}
+			Clan::ClanLoadSingle(index);
+		}
+	}
+	
 }
+
+// лоад отдельного клана из файла
+void Clan::ClanLoadSingle(std::string index)
+{
+	std::string buffer;
+	const auto tempClan = std::make_shared<Clan>();
+
+	std::string filename = LIB_HOUSE + index + "/" + index;
+	std::ifstream file(filename.c_str());
+	if (!file.is_open())
+	{
+		log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		return;
+	}
+
+	while (file >> buffer)
+	{
+		if (buffer == "Abbrev:")
+		{
+			if (!(file >> tempClan->abbrev))
+			{
+				log("Error open 'Abbrev:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+		}
+		else if (buffer == "Name:")
+		{
+			std::getline(file, buffer);
+			boost::trim(buffer);
+			tempClan->name = buffer;
+		}
+		else if (buffer == "Title:")
+		{
+			std::getline(file, buffer);
+			boost::trim(buffer);
+			tempClan->title = buffer;
+		}
+		else if (buffer == "TitleFemale:")
+		{
+			std::getline(file, buffer);
+			boost::trim(buffer);
+			tempClan->title_female = buffer;
+		}
+		else if (buffer == "Rent:")
+		{
+			int rent = 0;
+			if (!(file >> rent))
+			{
+				log("Error open 'Rent:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			// зоны может и не быть
+			if (!real_room(rent))
+			{
+				log("Room %d is no longer exist (%s).", rent, filename.c_str());
+				break;
+			}
+			tempClan->rent = rent;
+		}
+		else if (buffer == "OutRent:")
+		{
+			int out_rent = 0;
+			if (!(file >> out_rent))
+			{
+				log("Error open 'OutRent:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			// зоны может и не быть
+			if (!real_room(out_rent))
+			{
+				log("Room %d is no longer exist (%s).", out_rent, filename.c_str());
+				break;
+			}
+			tempClan->out_rent = out_rent;
+		}
+		else if (buffer == "ChestRoom:")
+		{
+			int chest_room = 0;
+			if (!(file >> chest_room))
+			{
+				log("Error open 'ChestRoom:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			// зоны может и не быть
+			if (!real_room(chest_room))
+			{
+				log("Room %d is no longer exist (%s).", chest_room, filename.c_str());
+				break;
+			}
+			tempClan->chest_room = chest_room;
+		}
+		else if (buffer == "IngrChestRoom:")
+		{
+			int tmp_vnum = 0;
+			if (!(file >> tmp_vnum))
+			{
+				log("Error read 'IngrChestRoom:' in %s! (%s %s %d)",
+					filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			if (tmp_vnum != 0)
+			{
+				// зоны может и не быть
+				int ingr_chest_room_rnum = real_room(tmp_vnum);
+				if (ingr_chest_room_rnum > 0)
+				{
+					tempClan->ingr_chest_room_rnum_ = ingr_chest_room_rnum;
+				}
+				else
+				{
+					log("Room %d is no longer exist (%s).",
+						tmp_vnum, filename.c_str());
+				}
+			}
+		}
+		else if (buffer == "Rep:")
+		{
+			int rep = 0;
+			if (!(file >> rep))
+			{
+				log("Error open 'Rep:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			tempClan->set_rep(rep);
+		}
+		else if (buffer == "Guard:")
+		{
+			int guard = 0;
+			if (!(file >> guard))
+			{
+				log("Error open 'Guard:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			// как и охранника
+			if (real_mobile(guard) < 0)
+			{
+				log("Guard %d is no longer exist (%s).", guard, filename.c_str());
+				break;
+			}
+			tempClan->guard = guard;
+		}
+		else if (buffer == "BuiltOn:")
+		{
+			if (!(file >> tempClan->builtOn))
+			{
+				log("Error open 'BuiltOn:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+		}
+		else if (buffer == "Ranks:")
+		{
+			std::getline(file, buffer, '~');
+			std::istringstream stream(buffer);
+			unsigned long priv = 0;
+
+			std::string buffer2;
+			// для верности воеводе проставим все привилегии, заодно сверим с файлом
+			if (!(stream >> buffer >> buffer2 >> priv))
+			{
+				log("Error open 'Ranks' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			check_rank(buffer);
+			check_rank(buffer2);
+			tempClan->ranks.push_back(buffer);
+			tempClan->ranks_female.push_back(buffer2);
+
+			tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM>());
+			for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
+			{
+				tempClan->privileges[0].set(i);
+			}
+
+			while (stream >> buffer)
+			{
+				if (!(stream >> buffer2 >> priv))
+				{
+					log("Error open 'Ranks' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+					break;
+				}
+				check_rank(buffer);
+				check_rank(buffer2);
+				tempClan->ranks.push_back(buffer);
+				tempClan->ranks_female.push_back(buffer2);
+				// на случай уменьшения привилегий
+				if (priv > tempClan->privileges[0].to_ulong())
+					priv = tempClan->privileges[0].to_ulong();
+				tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM>(priv));
+			}
+		}
+		else if (buffer == "Politics:")
+		{
+			std::getline(file, buffer, '~');
+			std::istringstream stream(buffer);
+			int room = 0;
+			int state = 0;
+
+			while (stream >> room >> state)
+				tempClan->politics[room] = state;
+		}
+		else if (buffer == "EntranceMode:")
+		{
+			if (!(file >> tempClan->entranceMode))
+			{
+				log("Error open 'EntranceMode:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+		}
+		else if (buffer == "Storehouse:")
+		{
+			if (!(file >> tempClan->storehouse))
+			{
+				log("Error open 'Storehouse:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+		}
+		else if (buffer == "ExpInfo:")
+		{
+			if (!(file >> tempClan->exp_info))
+			{
+				log("Error open 'ExpInfo:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+		}
+		else if (buffer == "TestClan:")
+		{
+			if (!(file >> tempClan->test_clan))
+			{
+				log("Error open 'TestClan:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+		}
+		else if (buffer == "Exp:")
+		{
+			if (!(file >> tempClan->exp))
+			{
+				log("Error open 'Exp:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+		}
+		else if (buffer == "ExpBuf:")
+		{
+			if (!(file >> tempClan->exp_buf))
+			{
+				log("Error open 'ExpBuf:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+		}
+		else if (buffer == "Bank:")
+		{
+			file >> tempClan->bank;
+			log("Clans in bank, file (%s) банк %ld.", filename.c_str(), tempClan->bank);
+			if (tempClan->bank <= 0)
+			{
+				log("Clan has 0 in bank, file (%s) возможно будет удален.", filename.c_str());
+			}
+		}
+		else if (buffer == "GoldTax:")
+		{
+			file >> tempClan->gold_tax_pct_;
+			if (tempClan->gold_tax_pct_ > MAX_GOLD_TAX_PCT)
+			{
+				log("Clan has invalid tax (%u), remove from list (%s).",
+					tempClan->gold_tax_pct_, filename.c_str());
+				break;
+			}
+		}
+		else if (buffer == "Site:")
+		{
+			file >> tempClan->web_url_;
+		}
+		else if (buffer == "StoredExp:")
+		{
+			if (!(file >> tempClan->clan_exp))
+				log("Error open 'StoredExp:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		}
+		else if (buffer == "ClanLevel:")
+		{
+			if (!(file >> tempClan->clan_level))
+				log("Error open 'ClanLevel:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		}
+		else if (buffer == "Owner:")
+		{
+			long unique = 0;
+			long long money = 0;
+			long long exp = 0;
+			int exp_persent = 0; // заглушка
+			long long clan_exp = 0;
+
+			if (!(file >> unique >> money >> exp >> exp_persent >> clan_exp))
+			{
+				log("Error open 'Owner:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			// воеводы тоже уже может не быть
+			const auto tempMember = std::make_shared<ClanMember>();
+			tempMember->name = GetNameByUnique(unique);
+			if (tempMember->name.empty())
+			{
+				log("Owner %ld is no longer exist (%s).", unique, filename.c_str());
+				break;
+			}
+			tempMember->name[0] = UPPER(tempMember->name[0]);
+			tempMember->rank_num = 0;
+			tempMember->money = money;
+			tempMember->exp = exp;
+			tempMember->clan_exp = clan_exp;
+			tempClan->m_members.set(unique, tempMember);
+			tempClan->owner = tempMember->name;
+
+		}
+		else if (buffer == "Members:")
+		{
+			// параметры, критичные для мемберов, нужно загрузить до того как (ранги например)
+			long unique = 0;
+			unsigned rank = 0;
+			long long money = 0;
+			long long exp = 0;
+			int exp_persent = 0; // заглушка
+			long long clan_exp = 0;
+
+			std::getline(file, buffer, '~');
+			std::istringstream stream(buffer);
+			while (stream >> unique)
+			{
+				if (!(stream >> rank >> money >> exp >> exp_persent >> clan_exp))
+				{
+					log("Error read %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+					break;
+				}
+				// на случай, если рангов стало меньше
+				if (!tempClan->ranks.empty() && rank > tempClan->ranks.size() - 1)
+				{
+					rank = static_cast<decltype(rank)>(tempClan->ranks.size()) - 1;
+				}
+
+				// удаленные персонажи просто игнорируются
+				const auto tempMember = std::make_shared<ClanMember>();
+				tempMember->name = GetNameByUnique(unique);
+				if (tempMember->name.empty())
+				{
+					log("Member %ld is no longer exist (%s).", unique, filename.c_str());
+					continue;
+				}
+				tempMember->name[0] = UPPER(tempMember->name[0]);
+				tempMember->rank_num = rank;
+				tempMember->money = money;
+				tempMember->exp = exp;
+				tempMember->clan_exp = clan_exp;
+				tempClan->m_members.set(unique, tempMember);
+			}
+		}
+
+	}
+	file.close();
+
+	// тут нужно проверить наличие критичных для клана полей
+	// т.к. загрузка без привязки к положению в файле - что-то может не проинициализироваться
+	if (tempClan->abbrev.empty() || tempClan->name.empty()
+		|| tempClan->title.empty()
+		|| tempClan->rent == 0 || tempClan->guard == 0 || tempClan->out_rent == 0
+		|| tempClan->ranks.empty() || tempClan->privileges.empty())
+	{
+		log("Clan read fail: %s", filename.c_str());
+		return;
+	}
+	// удаление неактивных кланов
+	tempClan->exp_history.load(tempClan->get_file_abbrev());
+	// иним на случай полной неактивности по итогам месяца, чтобы не было пропусков в списке
+	tempClan->exp_history.add_exp(0);
+	if (tempClan->exp_history.need_destroy() && !tempClan->test_clan)
+	{
+		// клан-банк на воеводу
+		if (tempClan->bank > 0)
+		{
+			Player t_victim;
+			Player *victim = &t_victim;
+			if (load_char(tempClan->owner.c_str(), victim) < 0)
+			{
+				log("SYSERROR: error read owner file %s for clan delete (%s:%d)",
+					tempClan->owner.c_str(), __FILE__, __LINE__);
+				return;
+			}
+			victim->add_bank(tempClan->bank);
+			victim->save_char();
+		}
+		Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent / 100);
+		DestroyClan(tempClan);
+		log("Clan deleted: %s", filename.c_str());
+	}
+
+	// по дефолту жен род для титула берем из основного
+	if (tempClan->title_female.empty())
+	{
+		tempClan->title_female = tempClan->title;
+	}
+	// сундук по дефолту на ренте
+	if (!tempClan->chest_room)
+		tempClan->chest_room = tempClan->rent;
+
+	// чтобы не получилось потерь/прибавок экспы
+	if (tempClan->exp_buf)
+	{
+		tempClan->exp += tempClan->exp_buf;
+		if (tempClan->exp < 0)
+			tempClan->exp = 0;
+		tempClan->exp_buf = 0;
+	}
+
+	// подгружаем пкл/дрл
+	std::ifstream pkFile((filename + ".pkl").c_str());
+	if (pkFile.is_open())
+	{
+		int author = 0;
+		while (pkFile >> author)
+		{
+			int victim = 0;
+			time_t tempTime = time(0);
+			bool flag = 0;
+
+			if (!(pkFile >> victim >> tempTime >> flag))
+			{
+				log("Error read %s! (%s %s %d)", (filename + ".pkl").c_str(), __FILE__, __func__, __LINE__);
+				break;
+			}
+			std::getline(pkFile, buffer, '~');
+			boost::trim(buffer);
+			std::string authorName = GetNameByUnique(author);
+			std::string victimName = GetNameByUnique(victim, 1);
+			name_convert(authorName);
+			name_convert(victimName);
+			// если автора уже нет - сбросим УИД для верности
+			if (authorName.empty())
+				author = 0;
+			// если жертвы уже нет, или жертва выбилась в БОГИ - не грузим
+			if (!victimName.empty())
+			{
+				ClanPkPtr tempRecord(new ClanPk);
+				tempRecord->author = author;
+				tempRecord->authorName = authorName.empty() ? "Того уж с нами нет" : authorName;
+				tempRecord->victimName = victimName;
+				tempRecord->time = tempTime;
+				tempRecord->text = buffer;
+				if (!flag)
+					tempClan->pkList[victim] = tempRecord;
+				else
+					tempClan->frList[victim] = tempRecord;
+			}
+		}
+		pkFile.close();
+	}
+	//подгружаем кланстафф
+	std::ifstream stuffFile((filename + ".stuff").c_str());
+	if (stuffFile.is_open())
+	{
+		std::string line;
+		int i;
+		while (stuffFile >> i)
+		{
+			ClanStuffName temp;
+			temp.num = i;
+
+			std::getline(stuffFile, temp.name, '~');
+			boost::trim(temp.name);
+
+			for (int j = 0;j < 6; j++)
+			{
+				std::getline(stuffFile, buffer, '~');
+				boost::trim(buffer);
+				temp.PNames.push_back(buffer);
+			}
+
+			std::getline(stuffFile, temp.desc, '~');
+			boost::trim(temp.desc);
+			std::getline(stuffFile, temp.longdesc, '~');
+			boost::trim(temp.longdesc);
+
+			tempClan->clanstuff.push_back(temp);
+		}
+	}
+	// лоад доп. параметров клана
+	tempClan->load_mod();
+	tempClan->pk_log.load(tempClan->get_file_abbrev());
+	tempClan->last_exp.load(tempClan->get_file_abbrev());
+	tempClan->init_ingr_chest();
+	tempClan->chest_log.load(tempClan->get_file_abbrev());
+	if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0) && !tempClan->test_clan)
+	{
+		Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent / 100);
+		DestroyClan(tempClan);
+		log("Clan deleted bank 0: %s", filename.c_str());
+	}
+	Clan::ClanList.push_back(tempClan);
+}
+
 
 
 // лоад/релоад индекса и файлов кланов
@@ -211,494 +737,7 @@ void Clan::ClanLoad()
 	// собственно грузим кланы
 	for (const auto& it : clanIndex)
 	{
-		const auto tempClan = std::make_shared<Clan>();
-
-		std::string filename = LIB_HOUSE + it + "/" + it;
-		std::ifstream file(filename.c_str());
-		if (!file.is_open())
-		{
-			log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-			return;
-		}
-
-		while (file >> buffer)
-		{
-			if (buffer == "Abbrev:")
-			{
-				if (!(file >> tempClan->abbrev))
-				{
-					log("Error open 'Abbrev:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-			}
-			else if (buffer == "Name:")
-			{
-				std::getline(file, buffer);
-				boost::trim(buffer);
-				tempClan->name = buffer;
-			}
-			else if (buffer == "Title:")
-			{
-				std::getline(file, buffer);
-				boost::trim(buffer);
-				tempClan->title = buffer;
-			}
-			else if (buffer == "TitleFemale:")
-			{
-				std::getline(file, buffer);
-				boost::trim(buffer);
-				tempClan->title_female = buffer;
-			}
-			else if (buffer == "Rent:")
-			{
-				int rent = 0;
-				if (!(file >> rent))
-				{
-					log("Error open 'Rent:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				// зоны может и не быть
-				if (!real_room(rent))
-				{
-					log("Room %d is no longer exist (%s).", rent, filename.c_str());
-					break;
-				}
-				tempClan->rent = rent;
-			}
-			else if (buffer == "OutRent:")
-			{
-				int out_rent = 0;
-				if (!(file >> out_rent))
-				{
-					log("Error open 'OutRent:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				// зоны может и не быть
-				if (!real_room(out_rent))
-				{
-					log("Room %d is no longer exist (%s).", out_rent, filename.c_str());
-					break;
-				}
-				tempClan->out_rent = out_rent;
-			}
-			else if (buffer == "ChestRoom:")
-			{
-				int chest_room = 0;
-				if (!(file >> chest_room))
-				{
-					log("Error open 'ChestRoom:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				// зоны может и не быть
-				if (!real_room(chest_room))
-				{
-					log("Room %d is no longer exist (%s).", chest_room, filename.c_str());
-					break;
-				}
-				tempClan->chest_room = chest_room;
-			}
-			else if (buffer == "IngrChestRoom:")
-			{
-				int tmp_vnum = 0;
-				if (!(file >> tmp_vnum))
-				{
-					log("Error read 'IngrChestRoom:' in %s! (%s %s %d)",
-							filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				if (tmp_vnum != 0)
-				{
-					// зоны может и не быть
-					int ingr_chest_room_rnum = real_room(tmp_vnum);
-					if (ingr_chest_room_rnum > 0)
-					{
-						tempClan->ingr_chest_room_rnum_ = ingr_chest_room_rnum;
-					}
-					else
-					{
-						log("Room %d is no longer exist (%s).",
-								tmp_vnum, filename.c_str());
-					}
-				}
-			}
-			else if (buffer == "Rep:")
-			{
-				int rep = 0;
-				if (!(file >> rep))
-				{
-					log("Error open 'Rep:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				tempClan->set_rep(rep);
-			}
-			else if (buffer == "Guard:")
-			{
-				int guard = 0;
-				if (!(file >> guard))
-				{
-					log("Error open 'Guard:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				// как и охранника
-				if (real_mobile(guard) < 0)
-				{
-					log("Guard %d is no longer exist (%s).", guard, filename.c_str());
-					break;
-				}
-				tempClan->guard = guard;
-			}
-			else if (buffer == "BuiltOn:")
-			{
-				if (!(file >> tempClan->builtOn))
-				{
-					log("Error open 'BuiltOn:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-			}
-			else if (buffer == "Ranks:")
-			{
-				std::getline(file, buffer, '~');
-				std::istringstream stream(buffer);
-				unsigned long priv = 0;
-
-				std::string buffer2;
-				// для верности воеводе проставим все привилегии, заодно сверим с файлом
-				if (!(stream >> buffer >> buffer2 >> priv))
-				{
-					log("Error open 'Ranks' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				check_rank(buffer);
-				check_rank(buffer2);
-				tempClan->ranks.push_back(buffer);
-				tempClan->ranks_female.push_back(buffer2);
-
-				tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> ());
-				for (unsigned i = 0; i < CLAN_PRIVILEGES_NUM; ++i)
-				{
-					tempClan->privileges[0].set(i);
-				}
-
-				while (stream >> buffer)
-				{
-					if (!(stream >> buffer2 >> priv))
-					{
-						log("Error open 'Ranks' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-						break;
-					}
-					check_rank(buffer);
-					check_rank(buffer2);
-					tempClan->ranks.push_back(buffer);
-					tempClan->ranks_female.push_back(buffer2);
-					// на случай уменьшения привилегий
-					if (priv > tempClan->privileges[0].to_ulong())
-						priv = tempClan->privileges[0].to_ulong();
-					tempClan->privileges.push_back(std::bitset<CLAN_PRIVILEGES_NUM> (priv));
-				}
-			}
-			else if (buffer == "Politics:")
-			{
-				std::getline(file, buffer, '~');
-				std::istringstream stream(buffer);
-				int room = 0;
-				int state = 0;
-
-				while (stream >> room >> state)
-					tempClan->politics[room] = state;
-			}
-			else if (buffer == "EntranceMode:")
-			{
-				if (!(file >> tempClan->entranceMode))
-				{
-					log("Error open 'EntranceMode:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-			}
-			else if (buffer == "Storehouse:")
-			{
-				if (!(file >> tempClan->storehouse))
-				{
-					log("Error open 'Storehouse:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-			}
-			else if (buffer == "ExpInfo:")
-			{
-				if (!(file >> tempClan->exp_info))
-				{
-					log("Error open 'ExpInfo:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-			}
-			else if (buffer == "TestClan:")
-			{
-				if (!(file >> tempClan->test_clan))
-				{
-					log("Error open 'TestClan:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-			}
-			else if (buffer == "Exp:")
-			{
-				if (!(file >> tempClan->exp))
-				{
-					log("Error open 'Exp:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-			}
-			else if (buffer == "ExpBuf:")
-			{
-				if (!(file >> tempClan->exp_buf))
-				{
-					log("Error open 'ExpBuf:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-			}
-			else if (buffer == "Bank:")
-			{
-				file >> tempClan->bank;
-				log("Clans in bank, file (%s) банк %ld.", filename.c_str(), tempClan->bank);
-				if (tempClan->bank <= 0)
-					{
-					log("Clan has 0 in bank, file (%s) возможно будет удален.", filename.c_str());
-				        }
-			}
-			else if (buffer == "GoldTax:")
-			{
-				file >> tempClan->gold_tax_pct_;
-				if (tempClan->gold_tax_pct_ > MAX_GOLD_TAX_PCT)
-				{
-					log("Clan has invalid tax (%u), remove from list (%s).",
-						tempClan->gold_tax_pct_, filename.c_str());
-					break;
-				}
-			}
-			else if (buffer == "Site:")
-			{
-				file >> tempClan->web_url_;
-			}
-			else if (buffer == "StoredExp:")
-			{
-				if (!(file >> tempClan->clan_exp))
-					log("Error open 'StoredExp:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-			}
-			else if (buffer == "ClanLevel:")
-			{
-				if (!(file >> tempClan->clan_level))
-					log("Error open 'ClanLevel:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-			}
-			else if (buffer == "Owner:")
-			{
-				long unique = 0;
-				long long money = 0;
-				long long exp = 0;
-				int exp_persent = 0; // заглушка
-				long long clan_exp = 0;
-
-				if (!(file >> unique >> money >> exp >> exp_persent >> clan_exp))
-				{
-					log("Error open 'Owner:' in %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				// воеводы тоже уже может не быть
-				const auto tempMember = std::make_shared<ClanMember>();
-				tempMember->name = GetNameByUnique(unique);
-				if (tempMember->name.empty())
-				{
-					log("Owner %ld is no longer exist (%s).", unique, filename.c_str());
-					break;
-				}
-				tempMember->name[0] = UPPER(tempMember->name[0]);
-				tempMember->rank_num = 0;
-				tempMember->money = money;
-				tempMember->exp = exp;
-				tempMember->clan_exp = clan_exp;
-				tempClan->m_members.set(unique, tempMember);
-				tempClan->owner = tempMember->name;
-
-			}
-			else if (buffer == "Members:")
-			{
-				// параметры, критичные для мемберов, нужно загрузить до того как (ранги например)
-				long unique = 0;
-				unsigned rank = 0;
-				long long money = 0;
-				long long exp = 0;
-				int exp_persent = 0; // заглушка
-				long long clan_exp = 0;
-
-				std::getline(file, buffer, '~');
-				std::istringstream stream(buffer);
-				while (stream >> unique)
-				{
-					if (!(stream >> rank >> money >> exp >> exp_persent >> clan_exp))
-					{
-						log("Error read %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-						break;
-					}
-					// на случай, если рангов стало меньше
-					if (!tempClan->ranks.empty() && rank > tempClan->ranks.size() - 1)
-					{
-						rank = static_cast<decltype(rank)>(tempClan->ranks.size()) - 1;
-					}
-
-					// удаленные персонажи просто игнорируются
-					const auto tempMember = std::make_shared<ClanMember>();
-					tempMember->name = GetNameByUnique(unique);
-					if (tempMember->name.empty())
-					{
-						log("Member %ld is no longer exist (%s).", unique, filename.c_str());
-						continue;
-					}
-					tempMember->name[0] = UPPER(tempMember->name[0]);
-					tempMember->rank_num = rank;
-					tempMember->money = money;
-					tempMember->exp = exp;
-					tempMember->clan_exp = clan_exp;
-					tempClan->m_members.set(unique, tempMember);
-				}
-			}
-
-		}
-		file.close();
-
-		// тут нужно проверить наличие критичных для клана полей
-		// т.к. загрузка без привязки к положению в файле - что-то может не проинициализироваться
-		if (tempClan->abbrev.empty() || tempClan->name.empty()
-				|| tempClan->title.empty() 
-				|| tempClan->rent == 0 || tempClan->guard == 0 || tempClan->out_rent == 0
-				|| tempClan->ranks.empty() || tempClan->privileges.empty())
-		{
-			log("Clan read fail: %s", filename.c_str());
-			continue;
-		}
-		// удаление неактивных кланов
-		tempClan->exp_history.load(tempClan->get_file_abbrev());
-		// иним на случай полной неактивности по итогам месяца, чтобы не было пропусков в списке
-		tempClan->exp_history.add_exp(0);
-		if (tempClan->exp_history.need_destroy() && !tempClan->test_clan)
-		{
-			// клан-банк на воеводу
-			if (tempClan->bank > 0)
-			{
-				Player t_victim;
-				Player *victim = &t_victim;
-				if (load_char(tempClan->owner.c_str(), victim) < 0)
-				{
-					log("SYSERROR: error read owner file %s for clan delete (%s:%d)",
-							tempClan->owner.c_str(), __FILE__, __LINE__);
-					return;
-				}
-				victim->add_bank(tempClan->bank);
-				victim->save_char();
-			}
-			Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
-			DestroyClan(tempClan);
-			log("Clan deleted: %s", filename.c_str());
-		}
-
-		// по дефолту жен род для титула берем из основного
-		if (tempClan->title_female.empty())
-		{
-			tempClan->title_female = tempClan->title;
-		}
-		// сундук по дефолту на ренте
-		if (!tempClan->chest_room)
-			tempClan->chest_room = tempClan->rent;
-
-		// чтобы не получилось потерь/прибавок экспы
-		if (tempClan->exp_buf)
-		{
-			tempClan->exp += tempClan->exp_buf;
-			if (tempClan->exp < 0)
-				tempClan->exp = 0;
-			tempClan->exp_buf = 0;
-		}
-
-		// подгружаем пкл/дрл
-		std::ifstream pkFile((filename + ".pkl").c_str());
-		if (pkFile.is_open())
-		{
-			int author = 0;
-			while (pkFile >> author)
-			{
-				int victim = 0;
-				time_t tempTime = time(0);
-				bool flag = 0;
-
-				if (!(pkFile >> victim >> tempTime >> flag))
-				{
-					log("Error read %s! (%s %s %d)", (filename + ".pkl").c_str(), __FILE__, __func__, __LINE__);
-					break;
-				}
-				std::getline(pkFile, buffer, '~');
-				boost::trim(buffer);
-				std::string authorName = GetNameByUnique(author);
-				std::string victimName = GetNameByUnique(victim, 1);
-				name_convert(authorName);
-				name_convert(victimName);
-				// если автора уже нет - сбросим УИД для верности
-				if (authorName.empty())
-					author = 0;
-				// если жертвы уже нет, или жертва выбилась в БОГИ - не грузим
-				if (!victimName.empty())
-				{
-					ClanPkPtr tempRecord(new ClanPk);
-					tempRecord->author = author;
-					tempRecord->authorName = authorName.empty() ? "Того уж с нами нет" : authorName;
-					tempRecord->victimName = victimName;
-					tempRecord->time = tempTime;
-					tempRecord->text = buffer;
-					if (!flag)
-						tempClan->pkList[victim] = tempRecord;
-					else
-						tempClan->frList[victim] = tempRecord;
-				}
-			}
-			pkFile.close();
-		}
-		//подгружаем кланстафф
-		std::ifstream stuffFile((filename + ".stuff").c_str());
-		if (stuffFile.is_open())
-		{
-			std::string line;
-			int i;
-			while (stuffFile >> i)
-			{
-				ClanStuffName temp;
-				temp.num = i;
-
-				std::getline(stuffFile, temp.name, '~');
-				boost::trim(temp.name);
-
-				for (int j = 0;j < 6; j++)
-				{
-					std::getline(stuffFile, buffer, '~');
-					boost::trim(buffer);
-					temp.PNames.push_back(buffer);
-				}
-
-				std::getline(stuffFile, temp.desc, '~');
-				boost::trim(temp.desc);
-				std::getline(stuffFile, temp.longdesc, '~');
-				boost::trim(temp.longdesc);
-
-				tempClan->clanstuff.push_back(temp);
-			}
-		}
-		// лоад доп. параметров клана
-		tempClan->load_mod();
-		tempClan->pk_log.load(tempClan->get_file_abbrev());
-		tempClan->last_exp.load(tempClan->get_file_abbrev());
-		tempClan->init_ingr_chest();
-		tempClan->chest_log.load(tempClan->get_file_abbrev());
-		if ((tempClan->bank <= 0) && (tempClan->m_members.size() > 0) && !tempClan->test_clan)
-		{
-			Boards::Static::clan_delete_message(tempClan->abbrev, tempClan->rent/100);
-			DestroyClan(tempClan);
-			log("Clan deleted bank 0: %s", filename.c_str());
-		}
-		Clan::ClanList.push_back(tempClan);
+		Clan::ClanLoadSingle(it);
 	}
 
 	Clan::ChestLoad();

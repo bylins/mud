@@ -179,7 +179,8 @@ public:
 	static ClanListType ClanList; // список кланов
 	
 	static void ClanLoad();
-	static void reload_one(std::string name);
+	static void ClanLoadSingle(std::string index);
+	static void ClanReload(std::string index);
 	static void ClanSave();
 	static void SaveChestAll();
 	static void HconShow(CHAR_DATA * ch);
