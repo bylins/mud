@@ -1112,7 +1112,7 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			Clan::ClanLoad();
 			return;
 		}
-		Clan::ClanListType::const_iterator clan;
+		Clan::ClanListType::iterator clan;
 		std::string buffer(argument);
 		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
 		{
