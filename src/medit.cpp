@@ -287,7 +287,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 	}
 	if (mob->dl_list)
 	{
-		free(mob->dl_list);
+		delete(mob->dl_list);
 		mob->dl_list = NULL;
 	}
 
