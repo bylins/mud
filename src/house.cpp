@@ -3378,15 +3378,16 @@ void Clan::ChestLoad()
 	{
 		for (auto chest = world[real_room((*clan)->chest_room)]->contents; chest; chest = chest->get_next_content())
 		{
-			if (Clan::is_clan_chest(chest))
-			{
-				for (temp = chest->get_contains(); temp; temp = obj_next)
+				if (Clan::is_clan_chest(chest))
 				{
-					obj_next = temp->get_next_content();
-					obj_from_obj(temp);
-					extract_obj(temp);
-				}
-				extract_obj(chest);
+					for (temp = chest->get_contains(); temp; temp = obj_next)
+					{
+						obj_next = temp->get_next_content();
+						obj_from_obj(temp);
+						extract_obj(temp);
+					}
+					extract_obj(chest);
+					break;
 			}
 		}
 	}
