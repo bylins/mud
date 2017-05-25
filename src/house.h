@@ -42,6 +42,7 @@ enum Privileges: unsigned
 	MAY_CLAN_EXIT,
 	MAY_CLAN_MOD,
 	MAY_CLAN_TAX,
+	MAY_CLAN_BOARD,
 	/// всего привилегий
 	CLAN_PRIVILEGES_NUM
 };
@@ -178,7 +179,8 @@ public:
 	static ClanListType ClanList; // список кланов
 	
 	static void ClanLoad();
-	static void reload_one(std::string name);
+	static void ClanLoadSingle(std::string index);
+	static void ClanReload(std::string index);
 	static void ClanSave();
 	static void SaveChestAll();
 	static void HconShow(CHAR_DATA * ch);
@@ -265,7 +267,7 @@ public:
 	friend void DoStoreHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
+	bool check_write_board(CHAR_DATA *ch);
 	int out_rent;   // номер румы для отписанных, чтобы не тусовались в замке дальше
 
 	// клан пк

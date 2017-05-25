@@ -1105,7 +1105,26 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!str_cmp(arg, "schedule"))
 		load_sheduled_reboot();
 	else if (!str_cmp(arg, "clan"))
-		Clan::ClanLoad();
+	{
+		skip_spaces(&argument);
+		if (!*argument)
+		{
+			Clan::ClanLoad();
+			return;
+		}
+		Clan::ClanListType::iterator clan;
+		std::string buffer(argument);
+		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+		{
+			if (CompareParam(buffer, (*clan)->get_abbrev()))
+			{
+				CreateFileName(buffer);
+				Clan::ClanReload(buffer);
+				send_to_char("Перезагрузка клана.\r\n", ch);
+				break;
+			}
+		}
+	}
 	else if (!str_cmp(arg, "proxy"))
 		LoadProxyList();
 	else if (!str_cmp(arg, "boards"))
