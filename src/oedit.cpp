@@ -2240,7 +2240,11 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		switch ((number = atoi(arg)))
 		{
 		case 0:
-			//OLC_OBJ(d)->set_ex_description();
+			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
+			{
+				OLC_DESC(d).reset();
+				OLC_OBJ(d)->set_ex_description(nullptr);
+			}
 			break;
 
 		case 1:
