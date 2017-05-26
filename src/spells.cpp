@@ -1688,10 +1688,10 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
-	if (obj->get_manual_mort_req() > 0)
+	if (obj->get_auto_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-			CCCYN(ch, C_NRM), obj->get_manual_mort_req(), CCNRM(ch, C_NRM));
+			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
 	}
 
 	if (fullness < 60)
@@ -2098,10 +2098,10 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
-	if (obj->get_manual_mort_req() > 0)
+	if (obj->get_auto_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-			CCCYN(ch, C_NRM), obj->get_manual_mort_req(), CCNRM(ch, C_NRM));
+			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
 	}
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",

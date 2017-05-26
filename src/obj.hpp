@@ -387,7 +387,7 @@ public:
 	void set_rent_on(int x);
 	void set_ex_description(const char* keyword, const char* description);
 	void set_minimum_remorts(const int _) { m_minimum_remorts = _; }
-	int get_manual_mort_req() const;
+	int get_auto_mort_req() const;
 	float show_mort_req();
 	float show_koef_obj();
 	unsigned get_ilevel() const;	///< разные системы расчета привлекательности предмета
@@ -454,7 +454,7 @@ private:
 
 	skills_t m_skills;	///< если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 
-	int m_minimum_remorts;	///< если >= 0 - требование по минимальным мортам, проставленное в олц
+	int m_minimum_remorts;	///< если > 0 - требование по минимальным мортам, проставленное в олц
 
 	int m_cost;	///< цена шмотки при продаже
 	int m_rent_on;	///< стоимость ренты, если надета
