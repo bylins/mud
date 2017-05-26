@@ -1264,10 +1264,10 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 
 		// требования по мортам
-		if (object->get_manual_mort_req() >= 0
-			&& object->get_manual_mort_req() != proto->get_manual_mort_req())
+		if (object->get_auto_mort_req() > 0)
+//			&& object->get_manual_mort_req() != proto->get_manual_mort_req())
 		{
-			out << "Mort: " << object->get_manual_mort_req() << "~\n";
+			out << "Mort: " << object->get_auto_mort_req() << "~\n";
 		}
 
 		// ObjectValue предмета, если есть что сохранять
@@ -1449,9 +1449,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 
 		// требования по мортам
-		if (object->get_manual_mort_req() >= 0)
+		if (object->get_auto_mort_req() > 0)
 		{
-			out << "Mort: " << object->get_manual_mort_req() << "~\n";
+			out << "Mort: " << object->get_auto_mort_req() << "~\n";
 		}
 
 		// ObjectValue предмета, если есть что сохранять

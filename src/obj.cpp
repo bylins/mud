@@ -399,7 +399,7 @@ void CObjectPrototype::zero_init()
 	m_max_in_world = 0;
 	m_skills.clear();
 	m_timer = 0;
-	m_minimum_remorts = -1;
+	m_minimum_remorts = 0;
 	m_cost = 0;
 	m_rent_on = 0;
 	m_rent_off = 0;
@@ -886,7 +886,7 @@ std::string CObjectPrototype::item_count_message(int num, int pad)
 	return out.str();
 }
 
-int CObjectPrototype::get_manual_mort_req() const
+int CObjectPrototype::get_auto_mort_req() const
 {
 	if (get_minimum_remorts() > 0)
 	{
@@ -896,6 +896,11 @@ int CObjectPrototype::get_manual_mort_req() const
 	{
 		return 9;
 	}
+	else if (m_ilevel > 15)
+	{
+		return 3;
+	}
+	
 
 	return 0;
 }
@@ -1159,7 +1164,7 @@ void init_ilvl(CObjectPrototype *obj)
 {
 	if (is_mob_item(obj)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)
-		|| obj->get_manual_mort_req() > 0)
+		|| obj->get_minimum_remorts() > 0)
 	{
 		obj->set_ilevel(0);
 		return;

@@ -210,7 +210,7 @@ void do_overstuff(CHAR_DATA *ch, char*, int, int)
 			{
 				for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content())
 				{
-					if (temp->get_manual_mort_req() > 8)
+					if (temp->get_auto_mort_req() > 8)
 					{
 						if (objects.count((*clan)->get_abbrev()))
 							objects[(*clan)->get_abbrev()] += 1;							
@@ -2168,13 +2168,13 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		send_to_char(ch, "Уровень (ilvl): %d\r\n", j->get_ilevel());
 	}
 
-	if (j->get_manual_mort_req() >= 0)
+	if (j->get_minimum_remorts() > 0)
 	{
-		send_to_char(ch, "Проставлено поле минимальных перевоплощений: %d\r\n", j->get_manual_mort_req());
+		send_to_char(ch, "Проставлено поле перевоплощений: %d\r\n", j->get_minimum_remorts());
 	}
-	else if (j->get_manual_mort_req() > 0)
+	else if (j->get_auto_mort_req() > 0)
 	{
-		send_to_char(ch, "Требует перевоплощений: %d\r\n", j->get_manual_mort_req());
+		send_to_char(ch, "Вычислено поле минимальных перевоплощений: %d\r\n", j->get_auto_mort_req());
 	}
 
 	if (is_grgod)

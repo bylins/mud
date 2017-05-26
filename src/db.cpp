@@ -473,7 +473,9 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	}
 
 	// если предмет требует реморты, то он явно овер
-	if (obj->get_manual_mort_req() > 0)
+	if (obj->get_auto_mort_req() > 0)
+		return false;
+	if (obj->get_minimum_remorts() > 0)
 		return false;
 	// проверяем дырки в предмете
 	 if (obj->get_extra_flag(EExtraFlag::ITEM_WITH1SLOT)

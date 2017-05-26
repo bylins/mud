@@ -1948,12 +1948,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
 		CHAR_DATA *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
-		if ((obj->get_manual_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
+		if ((obj->get_auto_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 				GET_OBJ_PNAME(obj, 1).c_str(),
-				obj->get_manual_mort_req(),
-				desc_count(obj->get_manual_mort_req(), WHAT_REMORT));
+				obj->get_auto_mort_req(),
+				desc_count(obj->get_auto_mort_req(), WHAT_REMORT));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				FALSE, ch, obj, 0, TO_ROOM);
 			if (!obj->get_carried_by())
