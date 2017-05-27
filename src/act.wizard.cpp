@@ -2168,7 +2168,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		send_to_char(ch, "Уровень (ilvl): %d\r\n", j->get_ilevel());
 	}
 
-	if (j->get_minimum_remorts() > 0)
+	if (j->get_minimum_remorts() != 0)
 	{
 		send_to_char(ch, "Проставлено поле перевоплощений: %d\r\n", j->get_minimum_remorts());
 	}
