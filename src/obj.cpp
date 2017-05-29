@@ -795,6 +795,7 @@ void OBJ_DATA::attach_triggers(const triggers_list_t& trigs)
 }
 
 float count_remort_requred(const CObjectPrototype* obj);
+float count_mort_requred(const CObjectPrototype* obj);
 float count_unlimited_timer(const CObjectPrototype* obj);
 
 /**
@@ -830,9 +831,14 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 	}
 }
 
-float CObjectPrototype::show_mort_req() 
+float CObjectPrototype::show_remort_req() 
 {
 	return count_remort_requred(this);
+}
+
+float CObjectPrototype::show_mort_req() 
+{
+	return count_mort_requred(this);
 }
 
 float CObjectPrototype::show_koef_obj()
