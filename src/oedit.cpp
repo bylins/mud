@@ -1302,7 +1302,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sU%s) Пол         : %s%s\r\n"
 		"%sV%s) Макс.в мире : %s%d\r\n"
 		"%sW%s) Меню умений\r\n"
-		"%sX%s) Требует перевоплощений (-1 или >0 автопростановка выключена): %s%d\r\n"
+		"%sX%s) Требует перевоплощений: %s%d\r\n"
 		"%sZ%s) Клонирование\r\n"
 		"%sQ%s) Quit\r\n"
 		"Ваш выбор : ",
@@ -1694,7 +1694,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'x':
 		case 'X':
-			send_to_char("Требует перевоплощений: ", d->character);
+			send_to_char("Требует перевоплощений (-1 или >0 автопростановка выключена): ", d->character);
 			OLC_MODE(d) = OEDIT_MORT_REQ;
 			break;
 
