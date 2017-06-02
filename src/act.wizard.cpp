@@ -1075,7 +1075,7 @@ void setall_inspect()
 						}
 						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
 						*(GET_EMAIL(d_vict->character) + 127) = '\0';
-						sprintf(buf2, "Смена e-mail адреса персонажа %s на %s.\r\n", player_table[it->second->pos].name, it->second->newmail);
+						sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name, player_table[it->second->pos].mail, it->second->newmail);
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
 						
@@ -1097,8 +1097,8 @@ void setall_inspect()
 								continue;
 							}
 							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
-							*(GET_EMAIL(vict) + 127) = '\0';							
-							sprintf(buf2, "Смена e-mail адреса персонажа %s на %s.\r\n", player_table[it->second->pos].name, it->second->newmail);
+							*(GET_EMAIL(vict) + 127) = '\0';
+							sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name, player_table[it->second->pos].mail, it->second->newmail);
 							it->second->out += buf2;
 							add_karma(vict, buf2, GET_NAME(imm_d->character));
 							vict->save_char();
