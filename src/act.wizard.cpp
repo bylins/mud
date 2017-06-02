@@ -411,6 +411,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pfreeze));
 		break;
 
+	case SCMD_REGISTER:
 	case SCMD_UNREGISTER:
 		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->punreg));
 		break;
@@ -619,7 +620,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf2, "$n выпущен$a из комнаты имени!");
 			break;
 
-		case SCMD_UNREGISTER:
+		case SCMD_REGISTER:
 			// Регистриуем чара
 			if (PLR_FLAGGED(vict, PLR_REGISTERED))
 			{
@@ -659,13 +660,48 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			};
 			sprintf(buf, "%s%s зарегистрировал$G вас.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
-
 			sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!");
-
 			break;
+		case SCMD_UNREGISTER:
+			if (!PLR_FLAGGED(vict, PLR_REGISTERED))
+			{
+				send_to_char("Ваша цель и так не зарегистрирована.\r\n", ch);
+				return (0);
+			};
 
+			sprintf(buf, "%s unregistered by %s.", GET_NAME(vict), GET_NAME(ch));
+			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+			imm_log(buf);
+
+			sprintf(buf, "Unregistered by %s", GET_NAME(ch));
+			RegisterSystem::remove(vict);
+			add_karma(vict, buf, reason);
+
+			if (IN_ROOM(vict) != NOWHERE)
+			{
+				act("C $n1 снята метка регистрации!", FALSE, vict, 0, 0, TO_ROOM);
+/*				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					result = r_unreg_start_room;
+
+				result = real_room(result);
+
+				if (result == NOWHERE)
+				{
+					if (GET_LEVEL(vict) >= LVL_IMMORT)
+						result = r_immort_start_room;
+					else
+						result = r_mortal_start_room;
+				}
+
+				char_from_room(vict);
+				char_to_room(vict, result);
+				look_at_room(vict, result);
+*/
+			}
+			sprintf(buf, "&W%s снял$G с вас метку регистрации.&n", GET_NAME(ch));
+			sprintf(buf2, "$n лишен$g регистрации!");
+			break;
 		}
-
 	}
 	else
 	{
@@ -4523,12 +4559,11 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			break;
 
 		case SCMD_REGISTER:
-			set_punish(ch, vict, SCMD_UNREGISTER, reason, 0);
+			set_punish(ch, vict, SCMD_REGISTER, reason, 0);
 			break;
 
 		case SCMD_UNREGISTER:
-			if (*num) times = atol(num);
-			set_punish(ch, vict, SCMD_UNREGISTER, reason, times);
+			set_punish(ch, vict, SCMD_UNREGISTER, reason, 0);
 			break;
 
 		case SCMD_UNAFFECT:
@@ -5999,7 +6034,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 56:      // Разрегистрация персонажа
 		reason = one_argument(val_arg, num);
 		if (*num) times = atol(num);
-		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);
+		if (!set_punish(ch, vict, SCMD_REGISTER, reason, times)) return (0);
 		break;
 
 	case 57:      // Установка флага палач
