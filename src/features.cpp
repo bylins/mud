@@ -61,39 +61,18 @@ extern void fix_name_feat(char *name);
 ///
 int find_feat_num(const char *name, bool alias)
 {
-	int ok;
-	char const *temp, *temp2 *temp3;
-	char first[256], first2[256], first3[256];
-	for (const auto index : MAX_FEATS)
+	for (int index = 1; index < MAX_FEATS; index++)
 	{
-//		const char* feat_name = alias ?
-//			feat_info[index].alias.c_str() : feat_info[index].name;
-
-		if (is_abbrev(name, feat_name))
-		{
-			return (index);
-		}
-
-		ok = TRUE;
-		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(feat_name, first);
-		temp2 = any_one_arg(name, first2);
-		temp3 = any_one_arg(name, first3);
-		while (*first && *first2 && *first3 && ok)
-		{
-			if (!is_abbrev(first2, first))
-				ok = FALSE;
-			if (!is_abbrev(first3, first))
-				ok = FALSE;
-			if (!is_abbrev(first2, first3))
-				ok = FALSE;
-			temp = any_one_arg(temp, first);
-			temp2 = any_one_arg(temp2, first2);
-			temp3 = any_one_arg(temp3, first3);
-		}
-
-		if (ok && !*first3)
-			return (index);
+		bool flag = true;
+		std::string name_feat(alias ? feat_info[index].alias.c_str() : feat_info[index].name);
+		std::vector<std::string> strs_feat, strs_args;
+		boost::split(strs_feat, name_feat, boost::is_any_of(" "));
+		boost::split(strs_args, name, boost::is_any_of(" "));
+		for (int i = 0; i < (strs_feat.size() >= strs_args.size() ? strs_args.size() : strs_feat.size()); i++)
+			if (!boost::starts_with(strs_feat[i], strs_args[i]))
+				flag = false;
+		if (flag)
+			return index;
 	}
 	return (-1);
 }
