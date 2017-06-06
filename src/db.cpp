@@ -5663,8 +5663,6 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
-		// Убираем все заученные порталы
-		check_portals(ch);
 	}
 	else
 	{
@@ -5697,6 +5695,8 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 	PRF_FLAGS(ch).unset(PRF_AWAKE);
 	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
+	// Убираем все заученные порталы
+	check_portals(ch);
 	if (ch->get_protecting())
 	{
 		ch->set_protecting(0);
