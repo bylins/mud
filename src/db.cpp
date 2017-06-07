@@ -792,6 +792,8 @@ float count_mort_requred(const CObjectPrototype *obj)
                         (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
 		{
                     float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+        	    log("SYSERROR: negative weight=%f, obj_vnum=%d",
+					weight, GET_OBJ_VNUM(obj));
                     total_weight += pow(weight, SQRT_MOD);
 		}
                 // савесы которые с минусом должны тогда понижать вес если в +

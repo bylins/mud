@@ -900,11 +900,23 @@ int CObjectPrototype::get_auto_mort_req() const
 	{
 		return get_minimum_remorts();
 	}
+	else if (m_ilevel > 35)
+	{
+		return 12;
+	}
+	else if (m_ilevel > 33)
+	{
+		return 11;
+	}
 	else if (m_ilevel > 30)
 	{
 		return 9;
 	}
-	else if (m_ilevel > 15)
+	else if (m_ilevel > 25)
+	{
+		return 6;
+	}
+	else if (m_ilevel > 20)
 	{
 		return 3;
 	}
@@ -994,7 +1006,7 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 	switch(num)
 	{
 	case APPLY_STR:
-		weight = mod * 5.0;
+		weight = mod * 10.0;
 		break;
 	case APPLY_DEX:
 		weight = mod * 10.0;
@@ -1024,25 +1036,28 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 		weight = mod * 3.3;
 		break;
 	case APPLY_SAVING_WILL:
-		weight = mod * -1.0;
+		weight = mod * -1.5;
 		break;
 	case APPLY_SAVING_CRITICAL:
-		weight = mod * -1.0;
+		weight = mod * -1.5;
 		break;
 	case APPLY_SAVING_STABILITY:
-		weight = mod * -1.0;
+		weight = mod * -1.5;
 		break;
 	case APPLY_SAVING_REFLEX:
-		weight = mod * -1.0;
+		weight = mod * -1.5;
 		break;
 	case APPLY_CAST_SUCCESS:
-		weight = mod * 1.0;
+		weight = mod * 1.5;
+		break;
+	case APPLY_MANAREG:
+		weight = mod * 0.2;
 		break;
 	case APPLY_MORALE:
-		weight = mod * 2.0;
+		weight = mod * 1.0;
 		break;
 	case APPLY_INITIATIVE:
-		weight = mod * 1.0;
+		weight = mod * 2.0;
 		break;
 	case APPLY_ABSORBE:
 		weight = mod * 1.0;
