@@ -3851,7 +3851,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				if (d->clan_olc->all_ranks[i])
 				{
 					unsigned j = CLAN_MEMBER(d->character)->rank_num + 1;
-					for (; j <= d->clan_olc->clan->ranks.size(); ++j)
+					for (; j <= d->clan_olc->clan->ranks.size() -1; ++j)
 					{
 						d->clan_olc->privileges[j][i] = 1;
 						d->clan_olc->all_ranks[i] = 0;
@@ -4344,6 +4344,15 @@ void Clan::AllMenu(DESCRIPTOR_DATA * d, unsigned flag)
 					<< CCNRM(d->character, C_NRM) << ") "
 					<< (d->clan_olc->all_ranks[MAY_CLAN_TAX] ? "[x]" : "[ ]")
 					<< " установка налога для ратников\r\n";
+			}
+			break;
+		case MAY_CLAN_BOARD:
+			if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][MAY_CLAN_BOARD])
+			{
+				buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++count
+					<< CCNRM(d->character, C_NRM) << ") "
+					<< (d->clan_olc->all_ranks[MAY_CLAN_BOARD] ? "[x]" : "[ ]")
+					<< " сообщения в дрвече\r\n";
 			}
 			break;
 		} // case
