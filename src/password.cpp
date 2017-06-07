@@ -22,6 +22,7 @@
 #else
 #define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
+extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
 namespace Password
 {
@@ -65,6 +66,9 @@ std::string generate_md5_hash(const std::string &pwd)
 void set_password(CHAR_DATA *ch, const std::string &pwd)
 {
 	ch->set_passwd(generate_md5_hash(pwd));
+	sprintf(buf, "%s заменен пароль.", GET_PAD(ch, 2));
+	add_karma(ch, buf, "");
+
 }
 
 // отправляет пароль на мыло через внешний скрипт
