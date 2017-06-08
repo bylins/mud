@@ -757,6 +757,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
+	const int AFF_MAGICGLASS_MOD = 10;
 	const int AFF_BLINK_MOD = 10;
 
 	result = 0.0;
@@ -845,6 +846,10 @@ float count_mort_requred(const CObjectPrototype *obj)
 			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
 			{
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS)
+			{
+				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
 			}
 			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
 			{
