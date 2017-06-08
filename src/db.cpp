@@ -818,7 +818,7 @@ float count_mort_requred(const CObjectPrototype *obj)
                     float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
                     total_weight += pow(weight, SQRT_MOD);
                 }
-               //Добавленый кусок учет савесов с - значениями
+               //Добавленый кусок учет отрицательного значения но не савесов
                 else if ((obj->get_affected(k).modifier < 0)
                         &&((obj->get_affected(k).location != APPLY_AC)&&
                         (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
@@ -857,8 +857,9 @@ float count_mort_requred(const CObjectPrototype *obj)
 			}
 		}
 	}
-
-	result = ceil(pow(total_weight, 1/SQRT_MOD));
+        if (total_weight < 1) return result;
+	
+        result = ceil(pow(total_weight, 1/SQRT_MOD));
 
 	return result;
     
