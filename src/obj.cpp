@@ -1193,8 +1193,8 @@ void init_ilvl(CObjectPrototype *obj)
 		return;
 	}
 
-	float total_weight = 0.0;
-
+	float total_weight = count_mort_requred(obj);
+        /*
 	// аффекты APPLY_x
 	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
 	{
@@ -1243,7 +1243,8 @@ void init_ilvl(CObjectPrototype *obj)
 			}
 		}
 	}
-
+         */
+        
 	obj->set_ilevel(ceil(pow(total_weight, 1/SQRT_MOD)));
 }
 
