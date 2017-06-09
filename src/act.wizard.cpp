@@ -2201,7 +2201,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	if (j->get_ilevel() > 0)
 	{
-		send_to_char(ch, "Уровень (ilvl): %d\r\n", j->get_ilevel());
+		send_to_char(ch, "Уровень (ilvl): %f\r\n", j->get_ilevel());
 	}
 
 	if (j->get_minimum_remorts() != 0)
@@ -6475,9 +6475,9 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 		const auto vnum = i->first;
 		const auto rnum = i->second;
 		const auto prototype = obj_proto[rnum];
-		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++result,
+		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%f : mort =%d]", ++result,
 			colored_name(prototype->get_short_description().c_str(), 45),
-			vnum, prototype->get_ilevel());
+			vnum, prototype->get_ilevel(),prototype->get_auto_mort_req());
 		ss << buf_;
 
 		if (GET_LEVEL(ch) >= LVL_GRGOD

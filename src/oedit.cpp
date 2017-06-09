@@ -1694,7 +1694,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'x':
 		case 'X':
-			send_to_char("Требует перевоплощений (-1 или >0 автопростановка выключена): ", d->character);
+			send_to_char("Требует перевоплощений (-1 выключено, 0 автопростановка, в - до какого морта, в + после какого): ", d->character);
 			OLC_MODE(d) = OEDIT_MORT_REQ;
 			break;
 

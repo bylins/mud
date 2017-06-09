@@ -846,12 +846,12 @@ float CObjectPrototype::show_koef_obj()
 	return count_unlimited_timer(this);
 }
 
-unsigned CObjectPrototype::get_ilevel() const
+float CObjectPrototype::get_ilevel() const
 {
 	return m_ilevel;
 }
 
-void CObjectPrototype::set_ilevel(unsigned ilvl)
+void CObjectPrototype::set_ilevel(float ilvl)
 {
 	m_ilevel = ilvl;
 }
@@ -896,15 +896,27 @@ int CObjectPrototype::get_auto_mort_req() const
 {
 	if (get_minimum_remorts() == -1)
 		return 0;
-	if (get_minimum_remorts() > 0)
+	if (get_minimum_remorts() != 0)
 	{
-		return get_minimum_remorts();
+            return get_minimum_remorts();
+	}
+	else if (m_ilevel > 35)
+	{
+		return 12;
+	}
+	else if (m_ilevel > 33)
+	{
+		return 11;
 	}
 	else if (m_ilevel > 30)
 	{
 		return 9;
 	}
-	else if (m_ilevel > 15)
+	else if (m_ilevel > 25)
+	{
+		return 6;
+	}
+	else if (m_ilevel > 20)
 	{
 		return 3;
 	}
@@ -994,7 +1006,7 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 	switch(num)
 	{
 	case APPLY_STR:
-		weight = mod * 5.0;
+		weight = mod * 10.0;
 		break;
 	case APPLY_DEX:
 		weight = mod * 10.0;
@@ -1024,25 +1036,28 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 		weight = mod * 3.3;
 		break;
 	case APPLY_SAVING_WILL:
-		weight = mod * -1.0;
+		weight = mod * -1.5;
 		break;
 	case APPLY_SAVING_CRITICAL:
-		weight = mod * -1.0;
+		weight = mod * -1.5;
 		break;
 	case APPLY_SAVING_STABILITY:
-		weight = mod * -1.0;
+		weight = mod * -1.5;
 		break;
 	case APPLY_SAVING_REFLEX:
-		weight = mod * -1.0;
+		weight = mod * -1.5;
 		break;
 	case APPLY_CAST_SUCCESS:
-		weight = mod * 1.0;
+		weight = mod * 1.5;
+		break;
+	case APPLY_MANAREG:
+		weight = mod * 0.2;
 		break;
 	case APPLY_MORALE:
-		weight = mod * 2.0;
+		weight = mod * 1.0;
 		break;
 	case APPLY_INITIATIVE:
-		weight = mod * 1.0;
+		weight = mod * 2.0;
 		break;
 	case APPLY_ABSORBE:
 		weight = mod * 1.0;
@@ -1178,58 +1193,9 @@ void init_ilvl(CObjectPrototype *obj)
 		return;
 	}
 
-	float total_weight = 0.0;
+	float total_weight = count_mort_requred(obj);
 
-	// аффекты APPLY_x
-	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
-	{
-		if (obj->get_affected(k).location == 0) continue;
-
-		// случай, если один аффект прописан в нескольких полях
-		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
-		{
-			if (obj->get_affected(k).location == obj->get_affected(kk).location
-				&& k != kk)
-			{
-				log("SYSERROR: double affect=%d, obj_vnum=%d",
-					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
-				obj->set_ilevel(1000000);
-				return;
-			}
-		}
-		//если аффект отрицательный. убирем ошибку от степени
-		if (obj->get_affected(k).modifier < 0)
-		{
-			continue;
-		}
-		float weight = count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-		total_weight += pow(weight, SQRT_MOD);
-	}
-	// аффекты AFF_x через weapon_affect
-	for (const auto& m : weapon_affect)
-	{
-		if (IS_OBJ_AFF(obj, m.aff_pos))
-		{
-			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
-			{
-				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
-			}
-		}
-	}
-
-	obj->set_ilevel(ceil(pow(total_weight, 1/SQRT_MOD)));
+	obj->set_ilevel(total_weight);
 }
 
 void init_item_levels()

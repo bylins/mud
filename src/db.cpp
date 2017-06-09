@@ -757,6 +757,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
+	const int AFF_MAGICGLASS_MOD = 10;
 	const int AFF_BLINK_MOD = 10;
 
 	result = 0.0;
@@ -792,6 +793,8 @@ float count_mort_requred(const CObjectPrototype *obj)
                         (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
 		{
                     float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+        	    log("SYSERROR: negative weight=%f, obj_vnum=%d",
+					weight, GET_OBJ_VNUM(obj));
                     total_weight += pow(weight, SQRT_MOD);
 		}
                 // савесы которые с минусом должны тогда понижать вес если в +
@@ -815,7 +818,7 @@ float count_mort_requred(const CObjectPrototype *obj)
                     float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
                     total_weight += pow(weight, SQRT_MOD);
                 }
-               //Добавленый кусок учет савесов с - значениями
+               //Добавленый кусок учет отрицательного значения но не савесов
                 else if ((obj->get_affected(k).modifier < 0)
                         &&((obj->get_affected(k).location != APPLY_AC)&&
                         (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
@@ -844,14 +847,19 @@ float count_mort_requred(const CObjectPrototype *obj)
 			{
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS)
+			{
+				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
+			}
 			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
 			{
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
 			}
 		}
 	}
-
-	result = ceil(pow(total_weight, 1/SQRT_MOD));
+        if (total_weight < 1) return result;
+	
+        result = ceil(pow(total_weight, 1/SQRT_MOD));
 
 	return result;
     

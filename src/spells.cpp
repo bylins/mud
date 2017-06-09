@@ -1693,6 +1693,11 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
 			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
 	}
+	else if (obj->get_auto_mort_req() < -1)
+	{
+		send_to_char(ch, "Максимальное количество перевоплощение : %s%d%s\r\n",
+			CCCYN(ch, C_NRM), abs(obj->get_minimum_remorts()), CCNRM(ch, C_NRM));
+	}
 
 	if (fullness < 60)
 		return;
@@ -2101,6 +2106,11 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	if (obj->get_auto_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
+			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
+	}
+	else if (obj->get_auto_mort_req() < -1)
+	{
+		send_to_char(ch, "Максимальное перевоплощений : %s%d%s\r\n",
 			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
 	}
 
