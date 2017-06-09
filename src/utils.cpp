@@ -2823,6 +2823,20 @@ bool ParseFilter::init_cost(const char *str)
 	return true;
 }
 
+bool ParseFilter::init_rent(const char *str)
+{
+	if (sscanf(str, "%d%[-+]", &rent, &rent_sign) != 2)
+	{
+		return false;
+	}
+	if (rent_sign == '-')
+	{
+		rent = -rent;
+	}
+
+	return true;
+}
+
 bool ParseFilter::init_weap_class(const char *str)
 {
 	if (is_abbrev(str, "луки"))
@@ -3218,6 +3232,25 @@ bool ParseFilter::check_cost(int obj_price) const
 	return result;
 }
 
+bool ParseFilter::check_rent(int obj_price) const
+{
+	bool result = false;
+
+	if (rent_sign == '\0')
+	{
+		result = true;
+	}
+	else if (rent >= 0 && obj_price >= rent)
+	{
+		result = true;
+	}
+	else if (rent < 0 && obj_price <= -rent)
+	{
+		result = true;
+	}
+	return result;
+}
+
 // заколебали эти флаги... сравниваем num и все поля в flags
 bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect)
 {
@@ -3379,6 +3412,7 @@ bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch)
 		&& check_wear(obj)
 		&& check_weap_class(obj)
 		&& check_cost(GET_OBJ_COST(obj))
+		&& check_rent(GET_OBJ_RENTEQ(obj))
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj))
