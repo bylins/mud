@@ -2734,6 +2734,11 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 
 		for (tch = descriptor_list; tch; tch = tch->next) // чары онлайн
 		{
+			if (nullptr == tch->character)	// it is possible to have character == nullptr because character is being created later than descriptor
+			{
+				continue;
+			}
+
 			if (isname(player_table[i].name, tch->character->get_pc_name()))
 			{
 				GET_LOADROOM(tch->character) = mortal_start_room;
