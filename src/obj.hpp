@@ -240,7 +240,7 @@ public:
 		m_sex(DEFAULT_SEX),
 		m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
 		m_timer(DEFAULT_TIMER),
-		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),
+		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
 		m_cost(DEFAULT_COST),
 		m_rent_on(DEFAULT_RENT_ON),
 		m_rent_off(DEFAULT_RENT_OFF),

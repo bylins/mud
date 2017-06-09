@@ -6440,9 +6440,9 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 		const auto vnum = i->first;
 		const auto rnum = i->second;
 		const auto prototype = obj_proto[rnum];
-		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%f]", ++result,
+		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%f : mort =%d]", ++result,
 			colored_name(prototype->get_short_description().c_str(), 45),
-			vnum, prototype->get_ilevel());
+			vnum, prototype->get_ilevel(),prototype->get_auto_mort_req());
 		ss << buf_;
 
 		if (GET_LEVEL(ch) >= LVL_GRGOD

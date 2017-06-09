@@ -896,9 +896,9 @@ int CObjectPrototype::get_auto_mort_req() const
 {
 	if (get_minimum_remorts() == -1)
 		return 0;
-	if (get_minimum_remorts() > 0)
+	if (get_minimum_remorts() != 0)
 	{
-		return get_minimum_remorts();
+            return get_minimum_remorts();
 	}
 	else if (m_ilevel > 35)
 	{
