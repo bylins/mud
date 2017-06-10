@@ -6389,9 +6389,8 @@ void init()
 std::map<int, std::string> daily_array;
 
 
-int dg_daily_quest(CHAR_DATA *ch, int id, int percent)
+int dg_daily_quest(CHAR_DATA *, int, int)
 {
-
 	return 0;
 }
 

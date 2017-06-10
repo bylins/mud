@@ -96,8 +96,6 @@ enum { CLAN_MAIN_MENU = 0, CLAN_PRIVILEGE_MENU, CLAN_SAVE_MENU,
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
-bool check_write_board(CHAR_DATA *ch);
-
 void prepare_write_mod(CHAR_DATA *ch, std::string &param)
 {
 	boost::trim(param);
@@ -2393,9 +2391,9 @@ void Clan::hcontrol_exphistory(CHAR_DATA *ch, std::string &text)
 		boost::trim(text);
 		try
 		{
-			month = boost::lexical_cast<int>(text);
+			month = std::stoi(text, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument&)
 		{
 			send_to_char(ch, "Неверный формат (\"hcontrol exp <кол-во последних месяцев>\").");
 			return;
@@ -2431,10 +2429,10 @@ void Clan::hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text)
 	{
 		try
 		{
-			clan_vnum = boost::lexical_cast<int>(buffer2);
-			room_vnum = boost::lexical_cast<int>(text);
+			clan_vnum = std::stol(buffer2, nullptr, 10);
+			room_vnum = std::stol(text, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
 		{
 			send_to_char(ch, "Неверный формат (\"hcontrol ingr <клан-рента> <комната хранилища>\").");
 			return;

@@ -47,7 +47,7 @@ private:
 	DictionaryType dictionary_;
 };
 
-typedef std::auto_ptr<Dictionary> DictionaryPtr;
+typedef std::shared_ptr<Dictionary> DictionaryPtr;
 
 #endif
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

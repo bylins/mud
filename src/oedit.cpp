@@ -325,7 +325,7 @@ void oedit_save_to_disk(int zone_num)
 				!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
 				buf1,
 				GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
-				GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
+				GET_OBJ_MATER(obj), static_cast<int>(GET_OBJ_SEX(obj)),
 				obj->get_timer(), GET_OBJ_SPELL(obj),
 				GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
 				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),

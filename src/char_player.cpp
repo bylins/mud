@@ -492,7 +492,7 @@ void Player::save_char()
 		fprintf(saved, "PfIn: %s\n", POOFIN(this));
 	if (POOFOUT(this))
 		fprintf(saved, "PfOt: %s\n", POOFOUT(this));
-	fprintf(saved, "Sex : %d %s\n", GET_SEX(this), genders[(int) GET_SEX(this)]);
+	fprintf(saved, "Sex : %d %s\n", static_cast<int>(GET_SEX(this)), genders[(int) GET_SEX(this)]);
 	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), PlayerRace::GetKinNameByNum(GET_KIN(this),GET_SEX(this)).c_str());
 	li = this->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
