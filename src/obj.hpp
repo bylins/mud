@@ -388,7 +388,6 @@ public:
 	void set_ex_description(const char* keyword, const char* description);
 	void set_minimum_remorts(const int _) { m_minimum_remorts = _; }
 	int get_auto_mort_req() const;
-	float show_remort_req();
 	float show_mort_req();
 	float show_koef_obj();
 	float get_ilevel() const;	///< разные системы расчета привлекательности предмета

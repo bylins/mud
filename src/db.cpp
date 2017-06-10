@@ -680,79 +680,8 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 	return result;
 }
 
-float count_remort_requred(const CObjectPrototype *obj)
-{
-	float result = 0.0;
-	const float SQRT_MOD = 1.7095f;
-	const int AFF_SHIELD_MOD = 30;
-	const int AFF_BLINK_MOD = 10;
-
-	result = 0.0;
-	
-	if (ObjSystem::is_mob_item(obj)
-		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
-	{
-		return result;
-	}
-
-	float total_weight = 0.0;
-
-	// аффекты APPLY_x
-	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
-	{
-		if (obj->get_affected(k).location == 0) continue;
-
-		// случай, если один аффект прописан в нескольких полях
-		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
-		{
-			if (obj->get_affected(k).location == obj->get_affected(kk).location
-				&& k != kk)
-			{
-				log("SYSERROR: double affect=%d, obj_vnum=%d",
-					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
-				return 1000000;
-			}
-		}
-		if (obj->get_affected(k).modifier < 0)
-		{
-			continue;
-		}
-		float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-		total_weight += pow(weight, SQRT_MOD);
-	}
-	// аффекты AFF_x через weapon_affect
-	for (const auto& m : weapon_affect)
-	{
-		if (IS_OBJ_AFF(obj, m.aff_pos))
-		{
-			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
-			{
-				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
-			}
-		}
-	}
-
-	result = ceil(pow(total_weight, 1/SQRT_MOD));
-
-	return result;
-}
-
 float count_mort_requred(const CObjectPrototype *obj)
 {
-    //аналог float count_remort_requred(const CObjectPrototype *obj)
-    //но с учетом савесов
     
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;

@@ -794,7 +794,6 @@ void OBJ_DATA::attach_triggers(const triggers_list_t& trigs)
 	}
 }
 
-float count_remort_requred(const CObjectPrototype* obj);
 float count_mort_requred(const CObjectPrototype* obj);
 float count_unlimited_timer(const CObjectPrototype* obj);
 
@@ -829,11 +828,6 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 			dec_val(3);
 		}
 	}
-}
-
-float CObjectPrototype::show_remort_req() 
-{
-	return count_remort_requred(this);
 }
 
 float CObjectPrototype::show_mort_req() 
@@ -1006,7 +1000,7 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 	switch(num)
 	{
 	case APPLY_STR:
-		weight = mod * 10.0;
+		weight = mod * 7.5;
 		break;
 	case APPLY_DEX:
 		weight = mod * 10.0;
@@ -1024,28 +1018,28 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 		weight = mod * 10.0;
 		break;
 	case APPLY_HIT:
-		weight = mod * 0.2;
+		weight = mod * 0.3;
 		break;
 	case APPLY_AC:
-		weight = mod * -1.0;
+		weight = mod * -0.5;
 		break;
 	case APPLY_HITROLL:
-		weight = mod * 3.3;
+		weight = mod * 2.3;
 		break;
 	case APPLY_DAMROLL:
 		weight = mod * 3.3;
 		break;
 	case APPLY_SAVING_WILL:
-		weight = mod * -1.5;
+		weight = mod * -0.5;
 		break;
 	case APPLY_SAVING_CRITICAL:
-		weight = mod * -1.5;
+		weight = mod * -0.5;
 		break;
 	case APPLY_SAVING_STABILITY:
-		weight = mod * -1.5;
+		weight = mod * -0.5;
 		break;
 	case APPLY_SAVING_REFLEX:
-		weight = mod * -1.5;
+		weight = mod * -0.5;
 		break;
 	case APPLY_CAST_SUCCESS:
 		weight = mod * 1.5;
@@ -1061,6 +1055,12 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 		break;
 	case APPLY_ABSORBE:
 		weight = mod * 1.0;
+		break;
+	case APPLY_AR:
+		weight = mod * 1.5;
+		break;
+	case APPLY_MR:
+		weight = mod * 1.5;
 		break;
 	}
 
