@@ -3412,7 +3412,7 @@ bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch)
 		&& check_wear(obj)
 		&& check_weap_class(obj)
 		&& check_cost(GET_OBJ_COST(obj))
-		&& check_rent(GET_OBJ_RENTEQ(obj))
+		&& (GET_OBJ_RENTEQ(obj) * CLAN_STOREHOUSE_COEFF / 100)
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj))
@@ -3621,6 +3621,11 @@ std::string ParseFilter::print() const
 	if (cost >= 0)
 	{
 		sprintf(buf, "%d%c ", cost, cost_sign);
+		buffer += buf;
+	}
+	if (rent >= 0)
+	{
+		sprintf(buf, "%d%c ", rent, rent_sign);
 		buffer += buf;
 	}
 	if (!affect_weap.empty())
