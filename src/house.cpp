@@ -2146,7 +2146,7 @@ void DoShowPolitics(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (const auto& clanVictim : Clan::ClanList)
 	{
-		if (clanVictim == CLAN(ch))
+		if ((clanVictim == CLAN(ch)) || ((*clanVictim).m_members.size() == 0))
 		{
 			continue;
 		}
