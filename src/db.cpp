@@ -3513,10 +3513,10 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 			{
 				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter))
 				{
-					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
+					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 						++found, i->get_vnum(),
 						i->get_short_description().c_str(),
-						apply_types[counter]);
+						apply_types[counter], i->get_affected(plane).modifier);
 					out += buf;
 					continue;
 				}
