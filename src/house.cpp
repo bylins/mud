@@ -2076,7 +2076,7 @@ void DoShowWars(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 
-		if (clan1 == Clan::ClanList.end())
+		if (clan1 == Clan::ClanList.end() || (*clan1)->m_members.size() == 0)
 		{
 			send_to_char("Такая дружина не зарегистрирована\r\n", ch);
 			return;
@@ -2173,7 +2173,7 @@ void Clan::ManagePolitics(CHAR_DATA * ch, std::string & buffer)
 	for (vict = Clan::ClanList.begin(); vict != Clan::ClanList.end(); ++vict)
 		if (CompareParam(buffer2, (*vict)->abbrev))
 			break;
-	if (vict == Clan::ClanList.end())
+	if ((vict == Clan::ClanList.end()) || ((*vict)->m_members.size() == 0))
 	{
 		send_to_char("Нет такой дружины.\r\n", ch);
 		return;
