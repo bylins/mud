@@ -1116,10 +1116,10 @@ void setall_inspect()
 							it->second->out += buf1;
 							continue;
 						}
-						Password::set_password(d_vict->character, std::string(it->second->pwd));
+						Password::set_password(d_vict->character, std::string(it->second->pwd), GET_NAME(imm_d->character));
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
-						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
+//						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 					}
 					else
 					{
@@ -1136,12 +1136,12 @@ void setall_inspect()
 							it->second->out += buf1;
 							continue;
 						}
-						Password::set_password(vict, std::string(it->second->pwd));
+						Password::set_password(vict, std::string(it->second->pwd), GET_NAME(imm_d->character));
 						std::string str = player_table[it->second->pos].name;
 						str[0] = UPPER(str[0]);
 						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
 						it->second->out += buf2;
-						add_karma(vict, buf2, GET_NAME(imm_d->character));
+//						add_karma(vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();
 					}
 				}							
@@ -5685,7 +5685,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return 0;
 		}
 		Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
-		Password::set_password(vict, val_arg);
+		Password::set_password(vict, val_arg, GET_NAME(ch));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
 		
 		break;

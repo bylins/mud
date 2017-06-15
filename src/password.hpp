@@ -18,7 +18,7 @@
 namespace Password
 {
 
-void set_password(CHAR_DATA *ch, const std::string &pwd);
+void set_password(CHAR_DATA *ch, const std::string &pwd, const char* immname);
 void set_password_to_email(CHAR_DATA *ch, const std::string &pwd);
 void send_password(std::string email, std::string password);
 void send_password(std::string email, std::string password, std::string name);
