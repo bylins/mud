@@ -3118,7 +3118,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len)
 bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
 {
 	bool result = false;
-        char *name_obj;
+        char name_obj[MAX_STRING_LENGTH];
         strcpy(name_obj, GET_OBJ_PNAME(obj, 0).c_str());
         utils::remove_colors(name_obj);
 	if (name.empty()
