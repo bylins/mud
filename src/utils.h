@@ -1503,7 +1503,7 @@ struct ParseFilter
 	enum { CLAN, EXCHANGE };
 
 	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
-		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),
+		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),rent(-1), rent_sign('\0'),
 		new_timesign('\0'), new_timedown(time(0)), new_timeup(time(0)),
 		filter_type(type) {};
 
@@ -1511,6 +1511,7 @@ struct ParseFilter
 	bool init_state(const char *str);
 	bool init_wear(const char *str);
 	bool init_cost(const char *str);
+	bool init_rent(const char *str);
 	bool init_weap_class(const char *str);
 	bool init_affect(char *str, size_t str_len);
 	bool init_realtime(const char *str);
@@ -1529,6 +1530,8 @@ struct ParseFilter
 	int weap_message;      // для названия оружия
 	int cost;              // для цены
 	char cost_sign;        // знак цены +/-
+	int  rent;             // для стоимости ренты
+	char rent_sign;        // знак ренты +/-
 	char new_timesign;	   // знак времени < > =
 	time_t new_timedown;   // нижняя граница времени
 	time_t new_timeup;	   // верхняя граница времени
@@ -1547,6 +1550,7 @@ private:
 	bool check_wear(OBJ_DATA *obj) const;
 	bool check_weap_class(OBJ_DATA *obj) const;
 	bool check_cost(int obj_price) const;
+	bool check_rent(int obj_price) const;
 	bool check_affect_weap(OBJ_DATA *obj) const;
 	bool check_affect_apply(OBJ_DATA *obj) const;
 	bool check_affect_extra(OBJ_DATA *obj) const;
