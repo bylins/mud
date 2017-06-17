@@ -59,7 +59,7 @@ void Quested_F::populate_container(const char** texts, const size_t texts_size)
 		const size_t length = 1 + strlen(texts[index]);
 		char* text = new char[length];
 		strncpy(text, texts[index], length);
-		strings.push_back(std::shared_ptr<char>(text, free));
+		strings.push_back(std::shared_ptr<char>(text, std::default_delete<char[]>()));
 
 		EXPECT_NO_THROW(quested.add(character.get(), vnum, text));
 	}

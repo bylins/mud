@@ -23,7 +23,7 @@ namespace debug
 {
 	constexpr unsigned short MAX_STACK_SIZE = USHRT_MAX;
 
-	void backtrace(FILE* file)
+	void backtrace(FILE* /*file*/)
 	{
 		return;
 	}
