@@ -12,6 +12,8 @@
 #include "room.hpp"
 #include "modify.h"
 
+#include "utils.string.hpp"
+
 #include <boost/algorithm/string.hpp>
 
 #include <fstream>
@@ -415,7 +417,7 @@ void ClanChestLog::add(const std::string &text)
 void ClanChestLog::print(CHAR_DATA *ch, std::string &text) const
 {
 	boost::trim(text);
-	std::string out;
+	std::string out, bufer_out;
 	if (text.empty())
 	{
 		out += "История хранилища дружины:\r\n";
@@ -433,7 +435,9 @@ void ClanChestLog::print(CHAR_DATA *ch, std::string &text) const
 		for (std::list<std::string>::const_iterator i = chest_log_.begin(),
 			iend = chest_log_.end(); i != iend; ++i)
 		{
-			if ((*i).find(text) != std::string::npos)
+			bufer_out = *i;
+                        utils::remove_colors(bufer_out);
+                        if ((bufer_out).find(text) != std::string::npos)
 			{
 				out += *i;
 			}

@@ -4713,7 +4713,15 @@ void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			break;
 		} // case 'А'
-		default:
+		case 'Р':// стоимость ренты
+			argument = one_argument(++argument, buf_tmp);
+			if (!filter.init_rent(buf_tmp))
+			{
+				send_to_char("Неверный формат в фильтре: Р<стоимость><+->.\r\n", ch);
+				return;
+			}
+			break;
+                default:
 			++argument;
 		}
 	}
