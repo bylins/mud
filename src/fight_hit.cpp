@@ -2147,7 +2147,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 
         // если критический удар (не точка и стаб) и есть щит - 95% шанс в молоко
 	if (dam
-		&& flags[FightSystem::CRIT_HIT]
+		&& flags[FightSystem::CRIT_HIT] && flags[FightSystem::VICTIM_ICE_SHIELD]
 		&& !dam_critic
 		&& spell_num != SPELL_POISON 
                 && number(0, 100)<94)
