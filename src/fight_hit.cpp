@@ -2152,7 +2152,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& spell_num != SPELL_POISON 
                 && number(0, 100)<94)
 	{
-            act("Меткое попадание $N1 утонуло в ледяной пелене вашего щита.",
+            act("Ваше меткое попадания утонуло в ледяной пелене вокруг $N1.",
 			FALSE, ch, 0, victim, TO_CHAR | TO_NO_BRIEF_SHIELDS);
             act("Меткое попадание утонуло в ледяной пелене щита.",
 			FALSE, ch, 0, victim, TO_VICT | TO_NO_BRIEF_SHIELDS);
