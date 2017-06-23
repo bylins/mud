@@ -36,6 +36,9 @@
 extern int material_value[];
 int slot_for_char(CHAR_DATA * ch, int i);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
+
+float count_mort_requred(const CObjectPrototype* obj);
+
 constexpr auto WEAR_TAKE = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 constexpr auto WEAR_TAKE_BOTHS_WIELD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
 constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BODY);
@@ -1668,6 +1671,10 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 		// переносим 1 рандом аффект
 		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
+        // простановка мортов при шитье
+	float total_weight = count_mort_requred(obj) * 7 / 10;
+
+	obj->set_ilevel(total_weight);
 }
 // создать предмет по рецепту
 int MakeRecept::make(CHAR_DATA * ch)
