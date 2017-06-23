@@ -1,40 +1,26 @@
 #include "backtrace.hpp"
-
 #include <iostream>
 #include <cstdlib>
 #include <climits>
-#ifdef __CYGWIN64__
-#define _WIN32
-#endif
-
-
 #ifdef _WIN32
-
 #include <windows.h>
 #pragma warning(push)
 #pragma warning(disable:4091)
 #include <DbgHelp.h>
 #pragma warning(pop)
-
 #endif
-
 #ifdef __CYGWIN__
-//   ЕЯКХ ЖХЦБХМ МХВН МЕ ДЕКЮЕЛ
+// если цигвин ничего не делаем
 #else
-
 #include <execinfo.h>
-
 #endif
-
 namespace debug
 {
 	constexpr unsigned short MAX_STACK_SIZE = USHRT_MAX;
-
 #ifdef _WIN32
 	void win32_backtrace(FILE* file)
 	{
 		constexpr size_t MAX_NAME_LENGTH = 1024u;
-
 		const auto process = GetCurrentProcess();
 		SymInitialize(process, nullptr, TRUE);
 		void* stack[MAX_STACK_SIZE];
@@ -52,7 +38,7 @@ namespace debug
 	}
 #endif
 #ifdef __CYGWIN__
-//   ЕЯКХ ЖХЦБХМ МХВН МЕ ДЕКЮЕЛ
+// если цигвин ничего не делаем
 #else
 	void linux_backtrace(FILE* file)
 	{
@@ -61,23 +47,19 @@ namespace debug
 		backtrace_symbols_fd(stack, frames, fileno(file));
 	}
 #endif
-
 	void backtrace(FILE* file)
 	{
 		if (nullptr == file)
 		{
 			return;
 		}
-
 #ifdef _WIN32
 		win32_backtrace(file);
 #endif
 #ifdef __CYGWIN__
-//   ЕЯКХ ЖХЦБХМ МХВН МЕ ДЕКЮЕЛ
+// если цигвин ничего не делаем
 #else
 		linux_backtrace(file);
 #endif
 	}
 }
-
-// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
