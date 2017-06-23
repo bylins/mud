@@ -6066,7 +6066,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл"))
 		{
 			CLR_GOD_FLAG(vict, GF_TESTER);
-			PRF_FLAGS(ch).unset(PRF_TESTER); // обнулим реж тестер
+			PRF_FLAGS(vict).unset(PRF_TESTER); // обнулим реж тестер
 			sprintf(buf,"%s убрал флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		}
