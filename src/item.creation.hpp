@@ -153,7 +153,11 @@ class MakeRecept
 	int get_ingr_pow(OBJ_DATA *ingrobj);
 
 	void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
-
+        
+        //к сожалению у нас не прототип. прийдется расчитывать отдельно
+        float count_mort_requred(OBJ_DATA * obj);
+        
+        float count_affect_weight(int num, int mod);      
 public:
 	bool locked;
 
