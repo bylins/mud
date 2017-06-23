@@ -1671,9 +1671,32 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 	}
         // простановка мортов при шитье
 	float total_weight = count_mort_requred(obj) * 7 / 10;
+          
+        if (total_weight > 35)
+	{
+		obj->set_minimum_remorts(12);
+	}
+	else if (total_weight > 33)
+	{
+		obj->set_minimum_remorts(11);
+	}
+	else if (total_weight > 30)
+	{
+		obj->set_minimum_remorts(9);
+	}
+	else if (total_weight > 25)
+	{
+		obj->set_minimum_remorts(6);
+	}
+	else if (total_weight > 20)
+	{
+		obj->set_minimum_remorts(3);
+	}
+	else if (total_weight > 20)
+	{
+		obj->set_minimum_remorts(0);
+	}
 
-        if (total_weight > 20) obj->set_minimum_remorts(0); // для сапог чтоб не лезть в объект
-	obj->set_ilevel(total_weight);
 }
 // создать предмет по рецепту
 int MakeRecept::make(CHAR_DATA * ch)
