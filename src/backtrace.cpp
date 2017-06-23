@@ -3,17 +3,24 @@
 #include <iostream>
 #include <cstdlib>
 #include <climits>
+#ifdef __CYGWIN64__
+#define _WIN32
+#endif
+
 
 #ifdef _WIN32
 
 #include <windows.h>
-
 #pragma warning(push)
 #pragma warning(disable:4091)
 #include <DbgHelp.h>
 #pragma warning(pop)
 
-#else	// _WIN32
+#endif
+
+#ifdef __CYGWIN__
+//   если цигвин ничо не делаем
+#else
 
 #include <execinfo.h>
 
@@ -43,6 +50,9 @@ namespace debug
 		}
 		free(symbol);
 	}
+#endif
+#ifdef __CYGWIN__
+//   если цигвин ничо не делаем
 #else
 	void linux_backtrace(FILE* file)
 	{
@@ -61,6 +71,9 @@ namespace debug
 
 #ifdef _WIN32
 		win32_backtrace(file);
+#endif
+#ifdef __CYGWIN__
+//   если цигвин ничо не делаем
 #else
 		linux_backtrace(file);
 #endif
