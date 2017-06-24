@@ -1967,7 +1967,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	for (d = descriptor_list; d; d = d->next)
 	{
 		if (d->character
-			&& STATE(d) == CON_PLAYING
+			&& d->character->in_room != NOWHERE
 			&& CLAN(d->character)
 			&& CAN_SEE_CHAR(ch, d->character)
 			&& !IS_IMMORTAL(d->character)
