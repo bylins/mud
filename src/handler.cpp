@@ -1948,7 +1948,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
 		CHAR_DATA *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
-		if ((obj->get_auto_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
+		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 				GET_OBJ_PNAME(obj, 1).c_str(),
@@ -1962,6 +1962,20 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			}
 			return;
 		}
+		else if ((obj->get_auto_mort_req() < -1)  && (abs(obj->get_auto_mort_req()) < GET_REMORT(master)) && !IS_IMMORTAL(master))
+		{
+			send_to_char(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
+				GET_OBJ_PNAME(obj, 1).c_str(),
+				abs(obj->get_auto_mort_req()));
+			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
+				FALSE, ch, obj, 0, TO_ROOM);
+			if (!obj->get_carried_by())
+			{
+				obj_to_char(obj, ch);
+			}
+			return;
+		}
+                
 	}
 
 	//if (!IS_NPC(ch) && !check_armor_type(ch, obj))

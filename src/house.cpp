@@ -96,8 +96,6 @@ enum { CLAN_MAIN_MENU = 0, CLAN_PRIVILEGE_MENU, CLAN_SAVE_MENU,
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
-bool check_write_board(CHAR_DATA *ch);
-
 void prepare_write_mod(CHAR_DATA *ch, std::string &param)
 {
 	boost::trim(param);
@@ -1969,7 +1967,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	for (d = descriptor_list; d; d = d->next)
 	{
 		if (d->character
-			&& STATE(d) == CON_PLAYING
+			&& d->character->in_room != NOWHERE
 			&& CLAN(d->character)
 			&& CAN_SEE_CHAR(ch, d->character)
 			&& !IS_IMMORTAL(d->character)
@@ -2078,7 +2076,7 @@ void DoShowWars(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 
-		if (clan1 == Clan::ClanList.end())
+		if (clan1 == Clan::ClanList.end() || (*clan1)->m_members.size() == 0)
 		{
 			send_to_char("Такая дружина не зарегистрирована\r\n", ch);
 			return;
@@ -2148,7 +2146,7 @@ void DoShowPolitics(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (const auto& clanVictim : Clan::ClanList)
 	{
-		if (clanVictim == CLAN(ch))
+		if ((clanVictim == CLAN(ch)) || ((*clanVictim).m_members.size() == 0))
 		{
 			continue;
 		}
@@ -2175,7 +2173,7 @@ void Clan::ManagePolitics(CHAR_DATA * ch, std::string & buffer)
 	for (vict = Clan::ClanList.begin(); vict != Clan::ClanList.end(); ++vict)
 		if (CompareParam(buffer2, (*vict)->abbrev))
 			break;
-	if (vict == Clan::ClanList.end())
+	if ((vict == Clan::ClanList.end()) || ((*vict)->m_members.size() == 0))
 	{
 		send_to_char("Нет такой дружины.\r\n", ch);
 		return;
@@ -2393,9 +2391,9 @@ void Clan::hcontrol_exphistory(CHAR_DATA *ch, std::string &text)
 		boost::trim(text);
 		try
 		{
-			month = boost::lexical_cast<int>(text);
+			month = std::stoi(text, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument&)
 		{
 			send_to_char(ch, "Неверный формат (\"hcontrol exp <кол-во последних месяцев>\").");
 			return;
@@ -2431,10 +2429,10 @@ void Clan::hcontrol_set_ingr_chest(CHAR_DATA *ch, std::string &text)
 	{
 		try
 		{
-			clan_vnum = boost::lexical_cast<int>(buffer2);
-			room_vnum = boost::lexical_cast<int>(text);
+			clan_vnum = std::stol(buffer2, nullptr, 10);
+			room_vnum = std::stol(text, nullptr, 10);
 		}
-		catch (boost::bad_lexical_cast &)
+		catch (const std::invalid_argument &)
 		{
 			send_to_char(ch, "Неверный формат (\"hcontrol ingr <клан-рента> <комната хранилища>\").");
 			return;
@@ -2734,6 +2732,11 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 
 		for (tch = descriptor_list; tch; tch = tch->next) // чары онлайн
 		{
+			if (nullptr == tch->character)	// it is possible to have character == nullptr because character is being created later than descriptor
+			{
+				continue;
+			}
+
 			if (isname(player_table[i].name, tch->character->get_pc_name()))
 			{
 				GET_LOADROOM(tch->character) = mortal_start_room;
@@ -3851,7 +3854,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				if (d->clan_olc->all_ranks[i])
 				{
 					unsigned j = CLAN_MEMBER(d->character)->rank_num + 1;
-					for (; j <= d->clan_olc->clan->ranks.size(); ++j)
+					for (; j <= d->clan_olc->clan->ranks.size() -1; ++j)
 					{
 						d->clan_olc->privileges[j][i] = 1;
 						d->clan_olc->all_ranks[i] = 0;
@@ -4346,6 +4349,15 @@ void Clan::AllMenu(DESCRIPTOR_DATA * d, unsigned flag)
 					<< " установка налога для ратников\r\n";
 			}
 			break;
+		case MAY_CLAN_BOARD:
+			if (d->clan_olc->privileges[CLAN_MEMBER(d->character)->rank_num][MAY_CLAN_BOARD])
+			{
+				buffer << CCGRN(d->character, C_NRM) << std::setw(2) << ++count
+					<< CCNRM(d->character, C_NRM) << ") "
+					<< (d->clan_olc->all_ranks[MAY_CLAN_BOARD] ? "[x]" : "[ ]")
+					<< " сообщения в дрвече\r\n";
+			}
+			break;
 		} // case
 	}
 	buffer << CCGRN(d->character, C_NRM) << " В(Q)" << CCNRM(d->character, C_NRM)
@@ -4701,7 +4713,15 @@ void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			break;
 		} // case 'А'
-		default:
+		case 'Р':// стоимость ренты
+			argument = one_argument(++argument, buf_tmp);
+			if (!filter.init_rent(buf_tmp))
+			{
+				send_to_char("Неверный формат в фильтре: Р<стоимость><+->.\r\n", ch);
+				return;
+			}
+			break;
+                default:
 			++argument;
 		}
 	}

@@ -680,11 +680,13 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 	return result;
 }
 
-float count_remort_requred(const CObjectPrototype *obj)
+float count_mort_requred(const CObjectPrototype *obj)
 {
+    
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
+	const int AFF_MAGICGLASS_MOD = 10;
 	const int AFF_BLINK_MOD = 10;
 
 	result = 0.0;
@@ -713,12 +715,49 @@ float count_remort_requred(const CObjectPrototype *obj)
 				return 1000000;
 			}
 		}
-		if (obj->get_affected(k).modifier < 0)
+		if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location != APPLY_AC)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
 		{
-			continue;
+                    float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+        	    log("SYSERROR: negative weight=%f, obj_vnum=%d",
+					weight, GET_OBJ_VNUM(obj));
+                    total_weight += pow(weight, SQRT_MOD);
 		}
-		float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-		total_weight += pow(weight, SQRT_MOD);
+                // савесы которые с минусом должны тогда понижать вес если в +
+ 		else if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location == APPLY_AC)||
+                        (obj->get_affected(k).location == APPLY_SAVING_WILL)||
+                        (obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
+                        (obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+                        (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		{
+                    float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+                    total_weight -= pow(weight, -SQRT_MOD);
+		}
+               //Добавленый кусок учет савесов с - значениями
+                else if ((obj->get_affected(k).modifier < 0)
+                        &&((obj->get_affected(k).location == APPLY_AC)||
+                        (obj->get_affected(k).location == APPLY_SAVING_WILL)||
+                        (obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
+                        (obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+                        (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+                {
+                    float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+                    total_weight += pow(weight, SQRT_MOD);
+                }
+               //Добавленый кусок учет отрицательного значения но не савесов
+                else if ((obj->get_affected(k).modifier < 0)
+                        &&((obj->get_affected(k).location != APPLY_AC)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+                {
+                    float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+                    total_weight -= pow(weight, -SQRT_MOD);
+                }
 	}
 	// аффекты AFF_x через weapon_affect
 	for (const auto& m : weapon_affect)
@@ -737,16 +776,22 @@ float count_remort_requred(const CObjectPrototype *obj)
 			{
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS)
+			{
+				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
+			}
 			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
 			{
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
 			}
 		}
 	}
-
-	result = ceil(pow(total_weight, 1/SQRT_MOD));
+        if (total_weight < 1) return result;
+	
+        result = ceil(pow(total_weight, 1/SQRT_MOD));
 
 	return result;
+    
 }
 
 void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
@@ -3468,10 +3513,10 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 			{
 				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter))
 				{
-					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
+					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 						++found, i->get_vnum(),
 						i->get_short_description().c_str(),
-						apply_types[counter]);
+						apply_types[counter], i->get_affected(plane).modifier);
 					out += buf;
 					continue;
 				}
@@ -5555,8 +5600,6 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
-		// Убираем все заученные порталы
-		check_portals(ch);
 	}
 	else
 	{
@@ -5589,6 +5632,8 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 	PRF_FLAGS(ch).unset(PRF_AWAKE);
 	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
+	// Убираем все заученные порталы
+	check_portals(ch);
 	if (ch->get_protecting())
 	{
 		ch->set_protecting(0);
@@ -6344,9 +6389,8 @@ void init()
 std::map<int, std::string> daily_array;
 
 
-int dg_daily_quest(CHAR_DATA *ch, int id, int percent)
+int dg_daily_quest(CHAR_DATA *, int, int)
 {
-
 	return 0;
 }
 

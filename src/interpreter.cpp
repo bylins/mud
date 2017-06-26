@@ -3144,7 +3144,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("Пароль : ", d);
 			return;
 		}
-		Password::set_password(d->character, arg);
+		Password::set_password(d->character, arg, "");
 
 		SEND_TO_Q("\r\nПовторите пароль, пожалуйста : ", d);
 		if (STATE(d) == CON_NEWPASSWD)

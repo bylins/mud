@@ -349,15 +349,15 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg)
 
 	try
 	{
-		num1 = boost::lexical_cast<int>(param1);
+		num1 = std::stoi(param1, nullptr, 10);
 		if (!param2.empty())
 		{
-			num2 = boost::lexical_cast<int>(param2);
+			num2 = std::stoi(param2, nullptr, 10);
 		}
 	}
-	catch (boost::bad_lexical_cast &)
+	catch (const std::invalid_argument&)
 	{
-		log("SYSERROR: bad_lexical_cast arg=%s (%s %s %d)",
+		log("SYSERROR: invalid_argument arg=%s (%s %s %d)",
 			arg, __FILE__, __func__, __LINE__);
 
 		send_to_char("Неверный выбор!\r\n", ch);

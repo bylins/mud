@@ -943,7 +943,7 @@ void load()
 	}
 	pugi::xml_node char_list = doc.child("glory_list");
 	if(char_list.attribute("version")) {
-		ver = boost::lexical_cast<int>(char_list.attribute("version").value());
+		ver = std::stoi(char_list.attribute("version").value(), nullptr, 10);
 		if (ver > cur_ver)
 		{
 			snprintf(buf, MAX_STRING_LENGTH, "SYSERR: error reading glory_const.xml: unsupported version: %d, current version: %d", ver, cur_ver);
@@ -981,13 +981,13 @@ void load()
 
 		GloryNodePtr tmp_node(new glory_node);
 
-		long free_glory = boost::lexical_cast<int>(node.attribute("glory").value());
+		long free_glory = std::stoi(node.attribute("glory").value(), nullptr, 10);
 		tmp_node->free_glory = free_glory;
 
 		for (pugi::xml_node stat = node.child("stat"); stat; stat = stat.next_sibling("stat"))
 		{
 			int divider = 1;
-			int stat_num = boost::lexical_cast<int>(stat.attribute("num").value());
+			int stat_num = std::stoi(stat.attribute("num").value(), nullptr, 10);
 			if (ver == 0)
 			{
 				if(stat_num == GLORY_HIT)
@@ -999,7 +999,7 @@ void load()
 				if(stat_num == GLORY_MIND)
 					divider = 7;
 			}
-			int stat_amount = boost::lexical_cast<int>(stat.attribute("amount").value())/divider;
+			int stat_amount = std::stoi(stat.attribute("amount").value(), nullptr, 10)/divider;
 			if (stat_num >= GLORY_TOTAL && stat_num < 0)
 			{
 				log("SYSERROR : невалидный номер влитого стата num=%d, name=%s (%s:%d)",
@@ -1019,12 +1019,12 @@ void load()
     pugi::xml_node charge_node = char_list.child("total_charge");
     if (charge_node)
     {
-		total_charge = boost::lexical_cast<int>(charge_node.attribute("amount").value());
+		total_charge = std::stoi(charge_node.attribute("amount").value(), nullptr, 10);
     }
     pugi::xml_node spent_node = char_list.child("total_spent");
     if (spent_node)
     {
-		total_spent = boost::lexical_cast<int>(spent_node.attribute("amount").value());
+		total_spent = std::stoi(spent_node.attribute("amount").value(), nullptr, 10);
     }
     if (ver < cur_ver)//автоматом обновляем xml
     	save();

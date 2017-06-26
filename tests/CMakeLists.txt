@@ -2,11 +2,12 @@ cmake_minimum_required(VERSION 2.8)
 
 enable_testing()
 
-find_path(GTEST_ROOT include/gtest/gtest.h PATHS $ENV{GTEST_ROOT} NO_DEFAULT_PATH)
+find_path(GTEST_ROOT include/gtest/gtest.h PATHS $ENV{GTEST_ROOT} /usr/ NO_DEFAULT_PATH)
 set(GTEST_INCLUDE ${GTEST_ROOT}/include)
-find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib)
+find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib NO_DEFAULT_PATH)
 
 include_directories(system ${GTEST_INCLUDE})
+add_definitions("-Wno-conversion-null -Wno-sign-compare")
 
 set(TESTS
 	boards.changelog.cpp
@@ -19,7 +20,8 @@ set(TESTS
 	utils.editor.cpp
 	utils.string.cpp
 	fight.penalties.cpp
-	bonus.command.parser.cpp)
+	bonus.command.parser.cpp
+	quested.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)

@@ -2200,13 +2200,14 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		sdice = MAX(1, GET_REAL_WIS(ch) - 10);
 		//	    adice = MAX(1, 2 + 30 - GET_LEVEL(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
 		//	    Ну явно кривота была. Отбалансил на свой вкус. В 50 мудры на 25м леве лаг на 3 на 30 лаг на 4 а не наоборот
-		adice = MAX(1, GET_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;
+		//чтобы не обижать колдунов
+                adice = 4 + MAX(1, GET_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;
 		if (ch == victim ||
 				(!general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
 				 (number(1, 999)  > GET_AR(victim) * 10) &&
 				 number(0, 1000) <= 500))
 		{
-			GET_POS(victim) = POS_INCAP;
+			GET_POS(victim) = POS_STUNNED;
 			WAIT_STATE(victim, adice * PULSE_VIOLENCE);
 		}
 		break;

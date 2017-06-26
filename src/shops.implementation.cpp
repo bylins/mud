@@ -902,9 +902,9 @@ namespace ShopExt
 			int n = 0;
 			try
 			{
-				n = boost::lexical_cast<int>(buffer1);
+				n = std::stoi(buffer1, nullptr, 10);
 			}
-			catch (const boost::bad_lexical_cast&)
+			catch (const std::invalid_argument &)
 			{
 			}
 
@@ -1170,9 +1170,9 @@ namespace ShopExt
 				{
 					try
 					{
-						num = boost::lexical_cast<int>(first_param);
+						num = std::stol(first_param, nullptr, 10);
 					}
-					catch (const boost::bad_lexical_cast&)
+					catch (const std::invalid_argument &)
 					{
 						return 0;
 					}

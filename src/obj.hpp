@@ -240,7 +240,7 @@ public:
 		m_sex(DEFAULT_SEX),
 		m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
 		m_timer(DEFAULT_TIMER),
-		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),
+		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
 		m_cost(DEFAULT_COST),
 		m_rent_on(DEFAULT_RENT_ON),
 		m_rent_off(DEFAULT_RENT_OFF),
@@ -390,8 +390,8 @@ public:
 	int get_auto_mort_req() const;
 	float show_mort_req();
 	float show_koef_obj();
-	unsigned get_ilevel() const;	///< разные системы расчета привлекательности предмета
-	void set_ilevel(unsigned ilvl);
+	float get_ilevel() const;	///< разные системы расчета привлекательности предмета
+	void set_ilevel(float ilvl);
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const obj_rnum _);
 	auto get_vnum() const { return m_vnum; }
@@ -460,7 +460,7 @@ private:
 	int m_rent_on;	///< стоимость ренты, если надета
 	int m_rent_off;	///< стоимость ренты, если в инве
 
-	unsigned m_ilevel;	///< расчетный уровень шмотки, не сохраняется
+	float m_ilevel;	///< расчетный уровень шмотки, не сохраняется
 	obj_vnum m_rnum;	///< Where in data-base
 
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;

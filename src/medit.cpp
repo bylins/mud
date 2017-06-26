@@ -653,7 +653,7 @@ void medit_save_to_disk(int zone_num)
 				GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob), GET_HIT(mob),
 				GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 				GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob),
-				GET_POS(mob), GET_DEFAULT_POS(mob), GET_SEX(mob));
+				GET_POS(mob), GET_DEFAULT_POS(mob), static_cast<int>(GET_SEX(mob)));
 
 			// * Deal with Extra stats in case they are there.
 			sum = 0;

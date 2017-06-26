@@ -2145,7 +2145,23 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		dam -= (dam * number(30, 50) / 100);
 	}
 
-	if (dam > 0
+        // если критический удар (не точка и стаб) и есть щит - 95% шанс в молоко
+	if (dam
+		&& flags[FightSystem::CRIT_HIT] && flags[FightSystem::VICTIM_ICE_SHIELD]
+		&& !dam_critic
+		&& spell_num != SPELL_POISON 
+                && number(0, 100)<94)
+	{
+            act("Ваше меткое попадания утонуло в ледяной пелене вокруг $N1.",
+			FALSE, ch, 0, victim, TO_CHAR | TO_NO_BRIEF_SHIELDS);
+            act("Меткое попадание утонуло в ледяной пелене щита.",
+			FALSE, ch, 0, victim, TO_VICT | TO_NO_BRIEF_SHIELDS);
+            act("Ледяной щит вокруг $N1 поглотил меткое попадание $n1.",
+			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
+           return true;
+        }
+        
+        if (dam > 0
 		&& flags[FightSystem::VICTIM_ICE_SHIELD]
 		&& !flags[FightSystem::CRIT_HIT])
 	{

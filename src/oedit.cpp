@@ -325,7 +325,7 @@ void oedit_save_to_disk(int zone_num)
 				!obj->get_description().empty() ? obj->get_description().c_str() : "undefined",
 				buf1,
 				GET_OBJ_SKILL(obj), GET_OBJ_MAX(obj), GET_OBJ_CUR(obj),
-				GET_OBJ_MATER(obj), GET_OBJ_SEX(obj),
+				GET_OBJ_MATER(obj), static_cast<int>(GET_OBJ_SEX(obj)),
 				obj->get_timer(), GET_OBJ_SPELL(obj),
 				GET_OBJ_LEVEL(obj), buf2, GET_OBJ_VAL(obj, 0),
 				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
@@ -1302,7 +1302,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sU%s) Пол         : %s%s\r\n"
 		"%sV%s) Макс.в мире : %s%d\r\n"
 		"%sW%s) Меню умений\r\n"
-		"%sX%s) Требует перевоплощений (-1 или >0 автопростановка выключена): %s%d\r\n"
+		"%sX%s) Требует перевоплощений: %s%d\r\n"
 		"%sZ%s) Клонирование\r\n"
 		"%sQ%s) Quit\r\n"
 		"Ваш выбор : ",
@@ -1694,7 +1694,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'x':
 		case 'X':
-			send_to_char("Требует перевоплощений: ", d->character);
+			send_to_char("Требует перевоплощений (-1 выключено, 0 автопростановка, в - до какого морта, в + после какого): ", d->character);
 			OLC_MODE(d) = OEDIT_MORT_REQ;
 			break;
 
