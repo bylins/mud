@@ -87,6 +87,7 @@ extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
 extern int nameserver_is_slow; //config.cpp
 extern void login_change_invoice(CHAR_DATA *ch);
+extern std::vector<City> cities;
 // extern functions
 long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA * ch, int level);
@@ -131,7 +132,7 @@ void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_quest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_check(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
+void do_cities(CHAR_DATA *ch, char*, int, int);
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch);
 void look_at_char(CHAR_DATA * i, CHAR_DATA * ch);
 void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode);
@@ -452,6 +453,8 @@ const char *diag_obj_timer(const OBJ_DATA* obj)
 	return "";
 }
 
+
+
 char *diag_timer_to_char(const OBJ_DATA* obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
@@ -731,6 +734,17 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	page_string(ch->desc, buf, TRUE);
 	return 0;
 }
+
+void do_cities(CHAR_DATA *ch, char*, int, int)
+{
+	send_to_char("Города на Руси:\r\n", ch);
+	for (int i = 0; i < cities.size(); i++)
+	{
+		sprintf(buf, "%d. %s: %s\r\n", i, cities[i].name.c_str(), (ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
+		send_to_char(buf, ch);
+	}
+}
+
 
 bool quest_item(OBJ_DATA *obj)
 {

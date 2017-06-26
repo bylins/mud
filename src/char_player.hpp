@@ -12,6 +12,7 @@
 #include <boost/array.hpp>
 #include <boost/cstdint.hpp>
 #include <vector>
+#include <bitset>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -52,7 +53,7 @@ public:
 
 	room_rnum get_from_room() const;
 	void set_from_room(room_rnum was_in_room);
-
+	
 	void remort();
 	void reset();
 
@@ -137,6 +138,11 @@ public:
 	int get_percent_daily_quest(int id);
 	bool add_percent_daily_quest(int id, int percent);
 
+	void add_value_cities(bool v);
+	void str_to_cities(std::string str);
+	std::string cities_to_str();
+	bool check_city(int index);
+	void mark_city(int index);
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -191,7 +197,9 @@ private:
 	std::map<int, int> daily_quest;
 	// сколько дней подряд выполнялись дейлики 
 	int count_daily_quest;
-
+	// Отметка о том, в каких городах был наш чар
+	boost::dynamic_bitset<> cities;
+	
 
 };
 

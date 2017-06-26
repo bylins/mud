@@ -435,6 +435,7 @@ void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
 void do_stun(CHAR_DATA*, char*, int, int);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
 void do_overstuff(CHAR_DATA *ch, char*, int, int);
+void do_cities(CHAR_DATA *ch, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -522,6 +523,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"где", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
 	{"гдея", POS_RESTING, do_zone, 0, 0, 0},
 	{"глоток", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
+	{"города", POS_DEAD, do_cities, 0, 0, 0 },
 	{"группа", POS_SLEEPING, do_group, 1, 0, -1},
 	{"гсоюзникам", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},
 	{"гэхо", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
@@ -2707,6 +2709,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	{
 		return;
 	}
+
 
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
