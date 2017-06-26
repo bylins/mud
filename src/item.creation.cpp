@@ -36,6 +36,7 @@
 extern int material_value[];
 int slot_for_char(CHAR_DATA * ch, int i);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
+
 constexpr auto WEAR_TAKE = to_underlying(EWearFlag::ITEM_WEAR_TAKE);
 constexpr auto WEAR_TAKE_BOTHS_WIELD = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BOTHS) | to_underlying(EWearFlag::ITEM_WEAR_WIELD);
 constexpr auto WEAR_TAKE_BODY = WEAR_TAKE | to_underlying(EWearFlag::ITEM_WEAR_BODY);
@@ -1568,6 +1569,187 @@ void MakeRecept::make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[M
 	}
 	obj->set_val(1, (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
 }
+float MakeRecept::count_mort_requred(OBJ_DATA * obj)
+{
+    
+	float result = 0.0;
+	const float SQRT_MOD = 1.7095f;
+	const int AFF_SHIELD_MOD = 30;
+	const int AFF_MAGICGLASS_MOD = 10;
+	const int AFF_BLINK_MOD = 10;
+
+	result = 0.0;
+	
+	float total_weight = 0.0;
+
+	// аффекты APPLY_x
+	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
+	{
+		if (obj->get_affected(k).location == 0) continue;
+
+		// случай, если один аффект прописан в нескольких полях
+		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
+		{
+			if (obj->get_affected(k).location == obj->get_affected(kk).location
+				&& k != kk)
+			{
+				log("SYSERROR: double affect=%d, obj_vnum=%d",
+					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
+				return 1000000;
+			}
+		}
+		if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location != APPLY_AC)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+		{
+                    float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
+        	    log("SYSERROR: negative weight=%f, obj_vnum=%d",
+					weight, GET_OBJ_VNUM(obj));
+                    total_weight += pow(weight, SQRT_MOD);
+		}
+                // савесы которые с минусом должны тогда понижать вес если в +
+ 		else if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location == APPLY_AC)||
+                        (obj->get_affected(k).location == APPLY_SAVING_WILL)||
+                        (obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
+                        (obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+                        (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		{
+                    float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+                    total_weight -= pow(weight, -SQRT_MOD);
+		}
+               //Добавленый кусок учет савесов с - значениями
+                else if ((obj->get_affected(k).modifier < 0)
+                        &&((obj->get_affected(k).location == APPLY_AC)||
+                        (obj->get_affected(k).location == APPLY_SAVING_WILL)||
+                        (obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
+                        (obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+                        (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+                {
+                    float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
+                    total_weight += pow(weight, SQRT_MOD);
+                }
+               //Добавленый кусок учет отрицательного значения но не савесов
+                else if ((obj->get_affected(k).modifier < 0)
+                        &&((obj->get_affected(k).location != APPLY_AC)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+                        (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+                {
+                    float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+                    total_weight -= pow(weight, -SQRT_MOD);
+                }
+	}
+	// аффекты AFF_x через weapon_affect
+	for (const auto& m : weapon_affect)
+	{
+		if (IS_OBJ_AFF(obj, m.aff_pos))
+		{
+			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS)
+			{
+				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
+			{
+				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			}
+		}
+	}
+        if (total_weight < 1) return result;
+	
+        result = ceil(pow(total_weight, 1/SQRT_MOD));
+
+	return result;
+    
+}
+
+float MakeRecept::count_affect_weight(int num, int mod)
+{
+	float weight = 0;
+
+	switch(num)
+	{
+	case APPLY_STR:
+		weight = mod * 7.5;
+		break;
+	case APPLY_DEX:
+		weight = mod * 10.0;
+		break;
+	case APPLY_INT:
+		weight = mod * 10.0;
+		break;
+	case APPLY_WIS:
+		weight = mod * 10.0;
+		break;
+	case APPLY_CON:
+		weight = mod * 10.0;
+		break;
+	case APPLY_CHA:
+		weight = mod * 10.0;
+		break;
+	case APPLY_HIT:
+		weight = mod * 0.3;
+		break;
+	case APPLY_AC:
+		weight = mod * -0.5;
+		break;
+	case APPLY_HITROLL:
+		weight = mod * 2.3;
+		break;
+	case APPLY_DAMROLL:
+		weight = mod * 3.3;
+		break;
+	case APPLY_SAVING_WILL:
+		weight = mod * -0.5;
+		break;
+	case APPLY_SAVING_CRITICAL:
+		weight = mod * -0.5;
+		break;
+	case APPLY_SAVING_STABILITY:
+		weight = mod * -0.5;
+		break;
+	case APPLY_SAVING_REFLEX:
+		weight = mod * -0.5;
+		break;
+	case APPLY_CAST_SUCCESS:
+		weight = mod * 1.5;
+		break;
+	case APPLY_MANAREG:
+		weight = mod * 0.2;
+		break;
+	case APPLY_MORALE:
+		weight = mod * 1.0;
+		break;
+	case APPLY_INITIATIVE:
+		weight = mod * 2.0;
+		break;
+	case APPLY_ABSORBE:
+		weight = mod * 1.0;
+		break;
+	case APPLY_AR:
+		weight = mod * 1.5;
+		break;
+	case APPLY_MR:
+		weight = mod * 1.5;
+		break;
+	}
+
+	return weight;
+}
 void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt)
 {
 	int i, j;
@@ -2194,6 +2376,34 @@ int MakeRecept::make(CHAR_DATA * ch)
 		obj->set_tag(tagchar);
 		free(tagchar);
 	};
+        // простановка мортов при шитье
+	float total_weight = count_mort_requred(obj.get()) * 7 / 10;
+          
+        if (total_weight > 35)
+	{
+		obj->set_minimum_remorts(12);
+	}
+	else if (total_weight > 33)
+	{
+		obj->set_minimum_remorts(11);
+	}
+	else if (total_weight > 30)
+	{
+		obj->set_minimum_remorts(9);
+	}
+	else if (total_weight > 25)
+	{
+		obj->set_minimum_remorts(6);
+	}
+	else if (total_weight > 20)
+	{
+		obj->set_minimum_remorts(3);
+	}
+	else if (total_weight > 20)
+	{
+		obj->set_minimum_remorts(0);
+	}
+
 	// Пишем производителя в поле.
 	obj->set_crafter_uid(GET_UNIQUE(ch));
 	// 9. Проверяем минимум 2
