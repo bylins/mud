@@ -733,8 +733,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
                 {
                     //для мобов возможно только 2 ошибки 
                    if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
-				ROOM_FLAGGED(vic_room, ROOM_TUNNEL)	||	// жертва стоит в ван-руме
-				AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
+			AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
                     {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
