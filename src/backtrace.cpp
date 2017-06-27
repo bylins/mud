@@ -8,8 +8,7 @@
 #pragma warning(disable:4091)
 #include <DbgHelp.h>
 #pragma warning(pop)
-#endif
-#ifdef __CYGWIN__
+#elif __CYGWIN__
 // если цигвин ничего не делаем
 #else
 #include <execinfo.h>
@@ -36,8 +35,7 @@ namespace debug
 		}
 		free(symbol);
 	}
-#endif
-#ifdef __CYGWIN__
+#elif __CYGWIN__
 // если цигвин ничего не делаем
 #else
 	void linux_backtrace(FILE* file)
@@ -55,8 +53,7 @@ namespace debug
 		}
 #ifdef _WIN32
 		win32_backtrace(file);
-#endif
-#ifdef __CYGWIN__
+#elif __CYGWIN__
 // если цигвин ничего не делаем
 #else
 		linux_backtrace(file);

@@ -114,6 +114,16 @@ struct ExtraAffects
 	int chance; // вероятность того, что данный экстраффект будет на шмотке
 };
 
+
+
+struct City
+{
+		std::string name; // имя города
+		std::vector<int> vnums; // номера зон, которые принадлежат городу
+		int rent_vnum; // внум ренты города
+};
+
+
 class RandomObj
 {
 	public:

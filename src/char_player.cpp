@@ -39,7 +39,8 @@
 #include <bitset>
 
 int level_exp(CHAR_DATA * ch, int level);
-
+extern std::vector<City> cities;
+extern std::string default_str_cities;
 namespace
 {
 
@@ -210,6 +211,38 @@ void Player::set_last_tell(const char *text)
 	{
 		last_tell_ = text;
 	}
+}
+
+
+
+void Player::str_to_cities(std::string str)
+{
+	boost::dynamic_bitset<> tmp_bitset(str);
+	this->cities = tmp_bitset;
+}
+
+void Player::mark_city(int index)
+{
+	if (this->cities.size() != 0 && (index >= 0 && index < this->cities.size()))
+	{
+		this->cities[index] = true;
+	}
+}
+
+bool Player::check_city(int index)
+{
+	if (this->cities.size() != 0 && (index >= 0 && index < this->cities.size()))
+	{
+		return this->cities[index];
+	}
+	return false;
+}
+
+std::string Player::cities_to_str()
+{
+	std::string return_value;
+	boost::to_string(this->cities, return_value);
+	return return_value;
 }
 
 std::string const & Player::get_last_tell()
@@ -558,6 +591,9 @@ void Player::save_char()
 		}
 		fprintf(saved, "0 0\n");
 	}
+
+	// города
+	fprintf(saved, "Cits:%s\n", this->cities_to_str().c_str());
 
 	// Задержки на скилы
 	if (GET_LEVEL(this) < LVL_IMMORT)
@@ -1086,7 +1122,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		fbclose(fl);
 		return id;
 	}
-
+	this->str_to_cities(default_str_cities);
 	// если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1334,6 +1370,27 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				this->reset_stats_cnt_[ResetStats::Type::RACE] = num;
 			else if (!strcmp(tag, "CntF"))
 				this->reset_stats_cnt_[ResetStats::Type::FEATS] = num;
+			else if (!strcmp(tag, "Cits"))
+			{
+				std::string buffer_cities = std::string(line);
+				// это на тот случай, если вдруг количество городов поменялось
+				if (buffer_cities.size() != ::cities.size())
+				{
+					// если меньше
+					if (buffer_cities.size() < ::cities.size())
+					{
+						// то добиваем нулями
+						for (int i = 0; i < ::cities.size() - buffer_cities.size(); i++)
+							buffer_cities += "0";
+					}
+					else
+					{
+						// режем строку
+						buffer_cities.resize(buffer_cities.size() - (buffer_cities.size() - ::cities.size()));
+					}
+				}
+				this->str_to_cities(std::string(buffer_cities));
+			}
 			break;
 
 		case 'D':
@@ -2130,6 +2187,11 @@ int Player::get_percent_daily_quest(int id)
 	
 }
 
+
+void Player::add_value_cities(bool v)
+{
+	this->cities.push_back(v);
+}
 
 bool Player::add_percent_daily_quest(int id, int percent)
 {

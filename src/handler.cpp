@@ -116,7 +116,7 @@ extern void check_auction(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void check_exchange(OBJ_DATA * obj);
 void free_script(SCRIPT_DATA * sc);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
-
+extern std::vector<City> cities;
 extern struct zone_data *zone_table;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
@@ -1251,6 +1251,15 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 	if (ch->desc)
 	{
 		ch->desc->msdp_report("ROOM");
+	}
+
+	for (int i = 0; i < cities.size(); i++)
+	{
+		if (GET_ROOM_VNUM(room) == cities[0].rent_vnum)
+		{
+			ch->mark_city(i);
+			break;
+		}
 	}
 }
 

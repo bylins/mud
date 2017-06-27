@@ -117,6 +117,13 @@ public:
 	virtual void add_ice_currency(int /* value */) {};
 	virtual  void sub_ice_currency(int /* value */) {};
 
+	virtual void add_value_cities(bool /* value */) {};
+
+	virtual void str_to_cities(std::string /*value*/) {};
+	std::string cities_to_str() { return ""; };
+	virtual bool check_city(int /* index */) { return false; };
+	virtual void mark_city(int /* index */) {};
+
 	virtual int death_player_count() {
 		return 1;
 	};

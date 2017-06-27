@@ -77,6 +77,7 @@
 #define SPEEDWALKS_FILE "speedwalks.xml"
 #define CLASS_LIMIT_FILE "class_limit.xml"
 #define DAILY_FILE "daily.xml"
+#define CITIES_FILE "cities.xml"
 /**************************************************************************
 *  declarations of global containers and objects                          *
 **************************************************************************/
@@ -680,6 +681,11 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 	return result;
 }
 
+
+
+
+
+
 float count_mort_requred(const CObjectPrototype *obj)
 {
     
@@ -1007,6 +1013,31 @@ void load_cases()
 		cases.push_back(__case);
 	}
 }
+
+std::vector<City> cities;
+std::string default_str_cities;
+/* Загрузка городов из xml файлов */
+void load_cities()
+{
+	default_str_cities = "";
+	pugi::xml_document doc_cities;
+	pugi::xml_node child_, object_, file_;
+	file_ = XMLLoad(LIB_MISC CITIES_FILE, "cities", "Error loading cases file: cities.xml", doc_cities);
+	for (child_ = file_.child("city"); child_; child_ = child_.next_sibling("city"))
+	{
+		City city;
+		city.name = child_.child("name").attribute("value").as_string();
+		city.rent_vnum = child_.child("rent_vnum").attribute("value").as_int();
+		for (object_ = child_.child("zone_vnum"); object_; object_ = object_.next_sibling("zone_vnum"))
+		{
+			city.vnums.push_back(object_.attribute("value").as_int());
+		}
+		cities.push_back(city);
+		default_str_cities += "";
+	}
+}
+
+
 
 std::vector<RandomObj> random_objs;
 
@@ -2721,9 +2752,10 @@ void boot_db(void)
 	boot_profiler.next_step("Loading class_limit.xml");
 	log("Load class_limit.xml");
 	load_class_limit();
-
+	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
+	
 }
 
 // reset the time in the game from file
