@@ -714,16 +714,31 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 			return;
 		}
 		// Жертву нельзя призвать если она в:
-		if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
+                //разные варианты моб и игрок
+                if (!IS_NPC(ch))
+		{
+                    // для чаров
+                    if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
 				ROOM_FLAGGED(vic_room, ROOM_TUNNEL)	||	// жертва стоит в ван-руме
 				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
 				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
-				(!Clan::MayEnter(ch, vic_room, HCE_PORTAL) && !IS_NPC(ch))||// жертва во внутренних покоях клан-замка
+				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
 				AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
-		{
+                    {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
-		}
+                    }
+                }
+                else
+                {
+                    //для мобов возможно только 2 ошибки 
+                   if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
+			AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
+                    {
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+                    }
+                }
 
 		// Фейл заклинания суммон
 		if (number(1, 100) < 30)
