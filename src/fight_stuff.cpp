@@ -23,8 +23,8 @@
 #include "mob_stat.hpp"
 #include "logger.hpp"
 #include "bonus.h"
+//#include "coredump.hpp"
 #include "backtrace.hpp"
-#include "coredump.hpp"
 #include <algorithm>
 
 // extern
@@ -737,7 +737,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 
 	if (!ch || ch->purged())
 	{
-		debug::coredump();
+//		debug::coredump();
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		mudlog("SYSERR: Опять где-то кто-то спуржился не в то в время, не в том месте. Сброшен текущий стек и кора.", NRM, LVL_GOD, ERRLOG, TRUE);
 		return;
