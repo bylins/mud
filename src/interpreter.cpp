@@ -3147,7 +3147,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("Пароль : ", d);
 			return;
 		}
-		Password::set_password(d->character, arg, "");
+		Password::set_password(d->character, arg);
 
 		SEND_TO_Q("\r\nПовторите пароль, пожалуйста : ", d);
 		if (STATE(d) == CON_NEWPASSWD)
@@ -3189,7 +3189,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			sprintf(buf, "%s заменил себе пароль.", GET_PAD(d->character, 2));
+			sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
 			add_karma(d->character, buf, "");
 			d->character->save_char();
 			SEND_TO_Q("\r\nГотово.\r\n", d);

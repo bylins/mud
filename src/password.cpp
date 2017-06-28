@@ -62,7 +62,7 @@ std::string generate_md5_hash(const std::string &pwd)
 * Генерируем новый хэш и пишем его чару
 * TODO: в принципе можно и совместить с методом плеера.
 */
-void set_password(CHAR_DATA *ch, const std::string &pwd, const char* immname)
+void set_password(CHAR_DATA *ch, const std::string &pwd)
 {
 	ch->set_passwd(generate_md5_hash(pwd));
 }
@@ -125,7 +125,7 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 		char* s = (char*) CRYPT(pwd.c_str(), ch->get_passwd().c_str());
 		if (s && !strncmp(s, ch->get_passwd().c_str(), 10))
 		{
-			set_password(ch, pwd, "Old on new MD5");
+			set_password(ch, pwd);
 			result = 1;
 		}
 		else if (s == NULL)
