@@ -104,7 +104,7 @@ extern int no_specials;
 extern int max_bad_pws;
 extern INDEX_DATA *mob_index;
 extern const char *default_race[];
-
+extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 extern struct pclean_criteria_data pclean_criteria[];
 
 extern char *GREETINGS;
@@ -3147,7 +3147,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("Пароль : ", d);
 			return;
 		}
-		Password::set_password(d->character, arg, "");
+		Password::set_password(d->character, arg);
 
 		SEND_TO_Q("\r\nПовторите пароль, пожалуйста : ", d);
 		if (STATE(d) == CON_NEWPASSWD)
@@ -3169,7 +3169,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				STATE(d) = CON_CHPWD_GETNEW;
 			return;
 		}
-
 		// commented by WorM: убрал выбор расы раз уж делать их никто не собирается то и смущать людей выбором незачем
 		/*if (STATE(d) == CON_CNFPASSWD)
 		{
@@ -3190,6 +3189,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
+			sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
+			add_karma(d->character, buf, "");
 			d->character->save_char();
 			SEND_TO_Q("\r\nГотово.\r\n", d);
 			SEND_TO_Q(MENU, d);

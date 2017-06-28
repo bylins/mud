@@ -1116,10 +1116,12 @@ void setall_inspect()
 							it->second->out += buf1;
 							continue;
 						}
-						Password::set_password(d_vict->character, std::string(it->second->pwd), GET_NAME(imm_d->character));
-						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
+						Password::set_password(d_vict->character, std::string(it->second->pwd));
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name);
 						it->second->out += buf2;
-//						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
+						sprintf(buf1, "\r\n");
+						it->second->out += buf1;
+						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 					}
 					else
 					{
@@ -1136,12 +1138,14 @@ void setall_inspect()
 							it->second->out += buf1;
 							continue;
 						}
-						Password::set_password(vict, std::string(it->second->pwd), GET_NAME(imm_d->character));
+						Password::set_password(vict, std::string(it->second->pwd));
 						std::string str = player_table[it->second->pos].name;
 						str[0] = UPPER(str[0]);
-						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name);
 						it->second->out += buf2;
-//						add_karma(vict, buf2, GET_NAME(imm_d->character));
+						sprintf(buf1, "\r\n");
+						it->second->out += buf1;
+						add_karma(vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();
 					}
 				}							
@@ -5684,10 +5688,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
 			return 0;
 		}
+		Password::set_password(vict, val_arg);
 		Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
-		Password::set_password(vict, val_arg, GET_NAME(ch));
+		sprintf(buf, "%s заменен пароль богом.", GET_PAD(vict, 2));
+		add_karma(vict, buf, GET_NAME(ch));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
-		
 		break;
 	case 37:
 		SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_NODELETE);
