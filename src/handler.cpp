@@ -1255,7 +1255,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 
 	for (int i = 0; i < cities.size(); i++)
 	{
-		if (GET_ROOM_VNUM(room) == cities[0].rent_vnum)
+		if (GET_ROOM_VNUM(room) == cities[i].rent_vnum)
 		{
 			ch->mark_city(i);
 			break;
