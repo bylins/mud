@@ -23,7 +23,7 @@
 #include "mob_stat.hpp"
 #include "logger.hpp"
 #include "bonus.h"
-
+#include "backtrace.hpp"
 #include <algorithm>
 
 // extern
@@ -732,6 +732,13 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		{
 			WAIT_STATE(hitter, 0);
 		}
+	}
+
+	if (!ch || ch->purged())
+	{
+		log("Опять где-то кто-то спуржился не в то в время, не в том месте. Создана кора.");
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		return;
 	}
 
 	reset_affects(ch);
