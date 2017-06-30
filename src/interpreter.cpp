@@ -2711,16 +2711,16 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	}
 
 	// нам нужен массив сетей с маской /24
-	std::set<DWORD> subnets;
+	std::set<uint32_t> subnets;
 
 	struct logon_data * log_info = LOGON_LIST(d->character);
 
 	// маска сети /24, можно покрутить в большую сторону, если есть желание
-	DWORD MASK = 16777215;
+	uint32_t MASK = 16777215;
 	while (log_info)
 	{
 		
-		DWORD current_subnet = inet_addr(log_info->ip) & MASK;
+		uint32_t current_subnet = inet_addr(log_info->ip) & MASK;
 		subnets.insert(current_subnet);
 		log_info = log_info->next;
 	}
