@@ -81,6 +81,11 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
 extern room_rnum r_frozen_start_room;
@@ -2729,7 +2734,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		if (subnets.count(inet_addr(d->host) & MASK) == 0)
 		{
 			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
-			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+			mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 		}
 	}
 
