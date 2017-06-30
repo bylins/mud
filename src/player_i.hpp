@@ -121,8 +121,8 @@ public:
 
 	virtual void str_to_cities(std::string /*value*/) {};
 	std::string cities_to_str() { return ""; };
-	virtual bool check_city(int /* index */) { return false; };
-	virtual void mark_city(int /* index */) {};
+	virtual bool check_city(unsigned int /* index */) { return false; };
+	virtual void mark_city(unsigned int /* index */) {};
 
 	virtual int death_player_count() {
 		return 1;
