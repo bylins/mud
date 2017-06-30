@@ -2710,6 +2710,28 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		return;
 	}
 
+	// нам нужен массив сетей с маской /24
+	std::set<DWORD> subnets;
+
+	struct logon_data * log_info = LOGON_LIST(d->character);
+
+	// маска сети /24, можно покрутить в большую сторону, если есть желание
+	DWORD MASK = 16777215;
+	while (log_info)
+	{
+		
+		DWORD current_subnet = inet_addr(log_info->ip) & MASK;
+		subnets.insert(current_subnet);
+		log_info = log_info->next;
+	}
+	if (subnets.size() != 0)
+	{
+		if (subnets.count(inet_addr(d->host) & MASK) == 0)
+		{
+			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
+			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+		}
+	}
 
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;

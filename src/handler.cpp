@@ -1055,7 +1055,7 @@ void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 			return;
 		}
 	}
-
+	
 	CREATE(timed_alloc, 1);
 
 	*timed_alloc = *timed;

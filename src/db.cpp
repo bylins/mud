@@ -1033,7 +1033,7 @@ void load_cities()
 			city.vnums.push_back(object_.attribute("value").as_int());
 		}
 		cities.push_back(city);
-		default_str_cities += "";
+		default_str_cities += "0";
 	}
 }
 
