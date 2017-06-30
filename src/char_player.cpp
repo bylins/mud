@@ -34,6 +34,14 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
+#ifdef _WIN32
+
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
+
 #include <ctime>
 #include <sstream>
 #include <bitset>
@@ -1382,8 +1390,9 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					// если меньше
 					if (buffer_cities.size() < ::cities.size())
 					{
+						const size_t b_size = buffer_cities.size();
 						// то добиваем нулями
-						for (unsigned int i = 0; i < ::cities.size() - buffer_cities.size(); i++)
+						for (unsigned int i = 0; i < ::cities.size() - b_size; i++)
 							buffer_cities += "0";
 					}
 					else
