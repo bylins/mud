@@ -221,17 +221,17 @@ void Player::str_to_cities(std::string str)
 	this->cities = tmp_bitset;
 }
 
-void Player::mark_city(int index)
+void Player::mark_city(unsigned int index)
 {
-	if (this->cities.size() != 0 && (index >= 0 && index < this->cities.size()))
+	if (this->cities.size() != 0 && index < this->cities.size())
 	{
 		this->cities[index] = true;
 	}
 }
 
-bool Player::check_city(int index)
+bool Player::check_city(unsigned int index)
 {
-	if (this->cities.size() != 0 && (index >= 0 && index < this->cities.size()))
+	if (this->cities.size() != 0 && index < this->cities.size())
 	{
 		return this->cities[index];
 	}
@@ -1383,7 +1383,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 					if (buffer_cities.size() < ::cities.size())
 					{
 						// то добиваем нулями
-						for (int i = 0; i < ::cities.size() - buffer_cities.size(); i++)
+						for (unsigned int i = 0; i < ::cities.size() - buffer_cities.size(); i++)
 							buffer_cities += "0";
 					}
 					else

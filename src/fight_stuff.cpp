@@ -23,9 +23,10 @@
 #include "mob_stat.hpp"
 #include "logger.hpp"
 #include "bonus.h"
-//#include "coredump.hpp"
-#include "backtrace.hpp"
 #include <algorithm>
+
+#include "backtrace.hpp"
+//#include "coredump.hpp"
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);

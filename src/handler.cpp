@@ -1253,7 +1253,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		ch->desc->msdp_report("ROOM");
 	}
 
-	for (int i = 0; i < cities.size(); i++)
+	for (unsigned int i = 0; i < cities.size(); i++)
 	{
 		if (GET_ROOM_VNUM(room) == cities[i].rent_vnum)
 		{

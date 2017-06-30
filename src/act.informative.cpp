@@ -738,7 +738,7 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 void do_cities(CHAR_DATA *ch, char*, int, int)
 {
 	send_to_char("Города на Руси:\r\n", ch);
-	for (int i = 0; i < cities.size(); i++)
+	for (unsigned int i = 0; i < cities.size(); i++)
 	{
 		sprintf(buf, "%d. %s: %s\r\n", i, cities[i].name.c_str(), (ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
 		send_to_char(buf, ch);

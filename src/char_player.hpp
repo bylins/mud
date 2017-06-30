@@ -141,8 +141,8 @@ public:
 	void add_value_cities(bool v);
 	void str_to_cities(std::string str);
 	std::string cities_to_str();
-	bool check_city(int index);
-	void mark_city(int index);
+	bool check_city(unsigned int index);
+	void mark_city(unsigned int index);
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
