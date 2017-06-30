@@ -34,6 +34,14 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
+#ifdef _WIN32
+
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
+
 #include <ctime>
 #include <sstream>
 #include <bitset>
