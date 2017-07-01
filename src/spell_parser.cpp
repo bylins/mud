@@ -1881,12 +1881,17 @@ void fix_name(T& name)
 	size_t pos = 0;
 	while ('\0' != name[pos] && pos < MAX_STRING_LENGTH)
 	{
-		if ('.' == name[pos])
+		if (('.' == name[pos]) || ('_' == name[pos]))
 		{
 			name[pos] = ' ';
 		}
 		++pos;
 	}
+}
+
+void fix_name_feat(char *name)
+{
+	fix_name(name);
 }
 
 ESkill find_skill_num(const char *name)
