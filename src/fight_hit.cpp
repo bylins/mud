@@ -2161,8 +2161,10 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
 			
            reset_flag(FightSystem::CRIT_HIT);
+		   if (dam > 0) dam -= (dam * number(30, 50) / 100);
         }
-        if (dam > 0
+    //шоб небуло спама модернизировал условие
+	else if (dam > 0
 		&& flags[FightSystem::VICTIM_ICE_SHIELD]
 		&& !flags[FightSystem::CRIT_HIT])
 	{
@@ -2175,6 +2177,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
 		dam -= (dam * number(30, 50) / 100);
 	}
+	
 	if (dam > 0
 		&& flags[FightSystem::VICTIM_AIR_SHIELD]
 		&& !flags[FightSystem::CRIT_HIT])
