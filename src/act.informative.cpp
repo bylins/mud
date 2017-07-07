@@ -1611,7 +1611,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	{
 	*aura_txt = '\0';
 	if (AFF_FLAGGED(i, EAffectFlag::AFF_COMMANDER))
-		strcat(aura_txt, " ... со стягом в руках ");
+		strcat(aura_txt, " ... реет стяг над головой ");
 	if (*aura_txt)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 	}

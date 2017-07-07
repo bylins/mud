@@ -1966,10 +1966,11 @@ enum class EWeaponAffectFlag : uint32_t
 	WAFF_AIR_AURA = INT_ONE | (1 << 10),
 	WAFF_FIRE_AURA = INT_ONE | (1 << 11),
 	WAFF_ICE_AURA = INT_ONE | (1 << 12),
-	WAFF_DEAFNESS = INT_ONE | (1 << 13)
+	WAFF_DEAFNESS = INT_ONE | (1 << 13),
+	WAFF_COMMANDER = INT_ONE | (1 << 14)
 };
 
-constexpr size_t WAFF_COUNT = 44;
+constexpr size_t WAFF_COUNT = 45;
 
 template <> EWeaponAffectFlag ITEM_BY_NAME<EWeaponAffectFlag>(const std::string& name);
 template <> const std::string& NAME_BY_ITEM(const EWeaponAffectFlag item);
