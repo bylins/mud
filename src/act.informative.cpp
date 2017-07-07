@@ -1607,6 +1607,14 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		strcat(aura_txt, " щитами ");
 	if (n > 0)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
+	{
+	*aura_txt = '\0';
+	if (AFF_FLAGGED(i, EAffectFlag::AFF_COMMANDER))
+		strcat(aura_txt, " ... со стягом в руках ");
+	if (*aura_txt)
+		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
+	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC))
 	{
