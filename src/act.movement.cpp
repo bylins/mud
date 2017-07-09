@@ -1412,8 +1412,8 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		// вываливание и пурж кошелька
 		if (obj && system_obj::is_purse(obj))
 		{
-            sprintf(buf, "%s открыл трупный кошелек %s.", GET_PAD(ch, 0), get_name_by_unique(GET_OBJ_VAL(obj, 3)));
-            mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			sprintf(buf, "<%s> {%d} открыл трупный кошелек %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), get_name_by_unique(GET_OBJ_VAL(obj, 3)));
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			system_obj::process_open_purse(ch, obj);
 			return;
 		}

@@ -2483,7 +2483,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if (!str_cmp(field, "gold"))
 		{
 			const long before = c->get_gold();
+			int value;
 			c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
+			value = c->get_gold() - before;
+			sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]", GET_PAD(c, 0), GET_ROOM_VNUM(c->in_room), value, desc_count(value, WHAT_MONEYu), GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			sprintf(str, "%ld", c->get_gold());
 			// клан-налог
 			const long diff = c->get_gold() - before;

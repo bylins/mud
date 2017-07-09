@@ -494,6 +494,7 @@ void init_EWeaponAffectFlag_ITEM_NAMES()
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_FIRE_AURA] = "WAFF_FIRE_AURA";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_ICE_AURA] = "WAFF_ICE_AURA";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DEAFNESS] = "WAFF_DEAFNESS";
+	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_COMMANDER] = "WAFF_COMMANDER";
 
 	for (const auto& i : EWeaponAffectFlag_name_by_value)
 	{
@@ -743,8 +744,9 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_STRANGLED] = "AFF_STRANGLED";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_RECALL_SPELLS] = "AFF_RECALL_SPELLS";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_NOOB_REGEN] = "AFF_NOOB_REGEN";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE] = "AFF_VAMPIRE";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE]   = "AFF_VAMPIRE";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_COMMANDER] = "AFF_COMMANDER";
 
 	for (const auto& i : EAffectFlag_name_by_value)
 	{
