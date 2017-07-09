@@ -730,8 +730,8 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 						send_to_char("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
 					}
 					ch->add_gold(gold);
-                    sprintf(buf, "%s нагло спер %d кун у %s.", GET_PAD(ch, 0), gold, GET_PAD(vict, 0));
-                    mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+					sprintf(buf, "<%s> {%d} нагло спер %d кун у %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room),  gold, GET_PAD(vict, 0));
+					mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 					split_or_clan_tax(ch, gold);
 					vict->remove_gold(gold);
 				}
@@ -3320,8 +3320,8 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		send_to_char(textbuf, ch);
 		ch->add_gold(gold);
-        sprintf(buf, "%s нарыл %d кун.", GET_PAD(ch, 0), gold);
-        mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+		sprintf(buf, "<%s> {%d} нарыл %d кун.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), gold);
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		split_or_clan_tax(ch, gold);
 		return;
 	}

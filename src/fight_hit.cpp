@@ -2146,6 +2146,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
         // если критический удар (не точка и стаб) и есть щит - 95% шанс в молоко
+        // критическим считается любой удар который вложиля в определенные границы
 	if (dam
 		&& flags[FightSystem::CRIT_HIT] && flags[FightSystem::VICTIM_ICE_SHIELD]
 		&& !dam_critic
@@ -2158,10 +2159,12 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			FALSE, ch, 0, victim, TO_VICT | TO_NO_BRIEF_SHIELDS);
             act("Ледяной щит вокруг $N1 поглотил меткое попадание $n1.",
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
-           return true;
+			
+                   flags[FightSystem::CRIT_HIT] = false; //вот это место очень тщательно проверить
+		   if (dam > 0) dam -= (dam * number(30, 50) / 100);
         }
-        
-        if (dam > 0
+    //шоб небуло спама модернизировал условие
+	else if (dam > 0
 		&& flags[FightSystem::VICTIM_ICE_SHIELD]
 		&& !flags[FightSystem::CRIT_HIT])
 	{
@@ -2174,6 +2177,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
 		dam -= (dam * number(30, 50) / 100);
 	}
+	
 	if (dam > 0
 		&& flags[FightSystem::VICTIM_AIR_SHIELD]
 		&& !flags[FightSystem::CRIT_HIT])
