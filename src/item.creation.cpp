@@ -2351,6 +2351,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
 			{
 				extract_obj(ingrs[i]);
+				continue;
 			}
 		}
 // разобраться почему не мочатся ингры тима материал, если вес при производстве стал 0 
