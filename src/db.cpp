@@ -92,11 +92,9 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
-CRooms world;
+Rooms world;
 
 room_rnum top_of_world = 0;	// ref to top element of world
-
-CHAR_DATA *character_list = NULL;	// global linked list of chars
 
 INDEX_DATA **trig_index;	// index table for triggers
 int top_of_trigt = 0;		// top of trigger index table
@@ -3702,9 +3700,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script.reset(new OBJ_DATA::triggers_list_t());
-	mob->set_next(character_list);
-	character_list = mob;
-//	CharacterAlias::add(mob);
+	character_list.push_front(mob);
 
 	if (!mob->points.max_hit)
 	{
@@ -4179,12 +4175,10 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 
 void paste_mobiles()
 {
-	CHAR_DATA *ch_next;
-	for (CHAR_DATA *ch = character_list; ch; ch = ch_next)
+	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr& character)
 	{
-		ch_next = ch->get_next();
-		paste_mob(ch, ch->in_room);
-	}
+		paste_mob(character.get(), character->in_room);
+	});
 
 	world_objects.foreach_on_copy([](const OBJ_DATA::shared_ptr& object)
 	{
@@ -4396,16 +4390,22 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 		//поскольку единственным доступным способом получить всех мобов одного внума является
 		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
-		for (CHAR_DATA *ch = character_list; ch; ch=ch->get_next())
+		for (const auto ch : character_list)
 		{
 			if (ch->nr > 0 && list.find(mob_index[ch->nr].vnum) != list.end())
 			{
 				if (!SCRIPT(ch))
+				{
 					CREATE(SCRIPT(ch), 1);
+				}
+
 				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
 						it != list[mob_index[ch->nr].vnum].end(); ++it)
+				{
 					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
-				Celebrates::add_mob_to_attach_list(ch->id, ch);
+				}
+
+				Celebrates::add_mob_to_attach_list(ch->id, ch.get());
 			}
 		}
 	}
@@ -4504,7 +4504,7 @@ void reset_zone(zone_rnum zone)
 				// 'M' <flag> <mob_vnum> <max_in_world> <room_vnum> <max_in_room|-1>
 				mob = NULL;	//Добавлено Ладником
 				if (mob_index[ZCMD.arg1].number < ZCMD.arg2 &&
-						(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
+					(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
 				{
 					mob = read_mobile(ZCMD.arg1, REAL);
 					char_to_room(mob, ZCMD.arg3);
@@ -4550,21 +4550,18 @@ void reset_zone(zone_rnum zone)
 				break;
 
 			case 'Q':
-				// delete all mobiles
-				// 'Q' <flag> <mob_vnum>
-				for (ch = character_list; ch; ch = leader)
 				{
-					leader = ch->get_next();
-					// Карачун. Поднятые мобы не должны уничтожаться.
-					if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
+					const bool erased = character_list.erase_if([&](const CHAR_DATA::shared_ptr& ch)
 					{
-						// Карачун. Мобы должны оставлять стафф.
-						// Тока чужой стаф, а не свой же при резете зоны. -- Krodo
-						extract_char(ch, FALSE, 1);
-						//extract_mob(ch);
+						return IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED);
+					});
+
+					if (erased)
+					{
 						curr_state = 1;
 					}
 				}
+
 				tobj = NULL;
 				tmob = NULL;
 				break;
@@ -6466,14 +6463,16 @@ void load_speedwalk()
 		speedwalks.push_back(sw);
 
 	}
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		for (auto &sw : speedwalks)
 		{
 			for (auto mob : sw.vnum_mobs)
 			{
 				if (GET_MOB_VNUM(ch) == mob)
-					sw.mobs.push_back(ch);
+				{
+					sw.mobs.push_back(ch.get());
+				}
 			}
 		}
 	}

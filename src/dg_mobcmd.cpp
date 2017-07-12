@@ -1192,8 +1192,6 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		m->memory = tmpmob.memory;
 		ch->next_in_room = m->next_in_room;
 		m->next_in_room = tmpmob.next_in_room;
-		ch->set_next(m->get_next());
-		m->set_next(tmpmob.get_next());
 		ch->next_fighting = m->next_fighting;
 		m->next_fighting = tmpmob.next_fighting;
 		ch->followers = m->followers;

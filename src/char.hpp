@@ -595,11 +595,7 @@ public:
 	void inc_souls();
 	void dec_souls();
 	int get_souls();
-
-	CHAR_DATA* get_next() const { return next_; }
-	void set_next(CHAR_DATA* _) { next_ = _; }
-	void remove_from_list(CHAR_DATA*& list) const;
-
+	
 	unsigned get_wait() const { return m_wait; }
 	void set_wait(const unsigned _) { m_wait = _; }
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
@@ -727,8 +723,6 @@ private:
 	// души, онли чернок
 	int souls;
 
-	CHAR_DATA *next_;	// For either monster or ppl-list
-
 public:
 	mob_rnum nr;		// Mob's rnum
 	room_rnum in_room;	// Location (real room number)
@@ -802,26 +796,6 @@ public:
 	std::map<int, temporary_spell_data> temp_spells;
 };
 
-inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
-{
-	if (this == list)
-	{
-		list = next_;
-	}
-	else
-	{
-		CHAR_DATA* temp = list;
-		while (temp && temp->get_next() != this)
-		{
-			temp = temp->get_next();
-		}
-		if (temp)
-		{
-			temp->set_next(next_);
-		}
-	}
-}
-
 inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const
 {
 	const auto& ps = get_player_specials();
@@ -839,8 +813,11 @@ inline void CHAR_DATA::clear_ignores()
 	get_player_specials()->ignores.clear();
 }
 
-int GET_INVIS_LEV(const CHAR_DATA* ch);
-void SET_INVIS_LEV(const CHAR_DATA* ch, const int level);
+inline int GET_INVIS_LEV(const CHAR_DATA* ch) { return ch->player_specials->saved.invis_level; }
+inline int GET_INVIS_LEV(const CHAR_DATA::shared_ptr& ch) { return GET_INVIS_LEV(ch.get()); }
+
+inline void SET_INVIS_LEV(const CHAR_DATA* ch, const int level) { ch->player_specials->saved.invis_level = level; }
+inline void SET_INVIS_LEV(const CHAR_DATA::shared_ptr& ch, const int level) { SET_INVIS_LEV(ch, level); }
 
 inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 {
@@ -851,9 +828,16 @@ inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 }
 
 inline FLAG_DATA& AFF_FLAGS(CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA::shared_ptr& ch) { return ch->char_specials.saved.affected_by; }
 inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
 
 inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlag flag)
+{
+	return AFF_FLAGS(ch).get(flag)
+		|| ch->isAffected(flag);
+}
+
+inline bool AFF_FLAGGED(const CHAR_DATA::shared_ptr& ch, const EAffectFlag flag)
 {
 	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
@@ -876,22 +860,24 @@ inline bool INVIS_OK(const CHAR_DATA* sub, const CHAR_DATA* obj)
 				|| AFF_FLAGGED(sub, EAffectFlag::AFF_SENSE_LIFE)));
 }
 
+inline bool INVIS_OK(const CHAR_DATA* sub, const CHAR_DATA::shared_ptr& obj) { return INVIS_OK(sub, obj.get()); }
+
 bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
 bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
 
-inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA* obj)
-{
-	return sub == obj;
-}
+inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA* obj) { return sub == obj; }
+inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA::shared_ptr& obj) { return sub == obj.get(); }
 
 /// Can subject see character "obj"?
 bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
+inline bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA::shared_ptr& obj) { return CAN_SEE(sub, obj.get()); }
 bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj);
 
 bool IS_HORSE(const CHAR_DATA* ch);
 bool IS_MORTIFIER(const CHAR_DATA* ch);
 
 bool MAY_ATTACK(const CHAR_DATA* sub);
+inline bool MAY_ATTACK(const CHAR_DATA::shared_ptr& sub) { return MAY_ATTACK(sub.get()); }
 
 inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
 {
@@ -911,8 +897,11 @@ inline bool CAN_START_MTRIG(const CHAR_DATA *ch)
 bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim);
 
 bool IS_MALE(const CHAR_DATA* ch);
+inline bool IS_MALE(const CHAR_DATA::shared_ptr& ch) { return IS_MALE(ch.get()); }
 bool IS_FEMALE(const CHAR_DATA* ch);
+inline bool IS_FEMALE(const CHAR_DATA::shared_ptr& ch) { return IS_FEMALE(ch.get()); }
 bool IS_NOSEXY(const CHAR_DATA* ch);
+inline bool IS_NOSEXY(const CHAR_DATA::shared_ptr& ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CHAR_DATA* ch);
 
 int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val);

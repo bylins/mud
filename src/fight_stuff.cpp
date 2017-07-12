@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj.hpp"
+#include "world.characters.hpp"
 #include "fight.h"
 #include "fight.penalties.hpp"
 #include "fight_hit.hpp"
@@ -23,10 +24,9 @@
 #include "mob_stat.hpp"
 #include "logger.hpp"
 #include "bonus.h"
-#include <algorithm>
-
 #include "backtrace.hpp"
-//#include "coredump.hpp"
+
+#include <algorithm>
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -631,11 +631,11 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 
 void clear_mobs_memory(CHAR_DATA *ch)
 {
-	for (CHAR_DATA *hitter = character_list; hitter; hitter = hitter->get_next())
+	for (const auto hitter : character_list)
 	{
 		if (IS_NPC(hitter) && MEMORY(hitter))
 		{
-			forget(hitter, ch);
+			forget(hitter.get(), ch);
 		}
 	}
 }

@@ -4863,7 +4863,6 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 			arena_room_rnum++;
 		}
 	}
-
 }
 
 /*

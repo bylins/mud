@@ -82,7 +82,6 @@ const char *DirIs[] =
 int check_death_ice(int room, CHAR_DATA* /*ch*/)
 {
 	int sector, mass = 0, result = FALSE;
-	CHAR_DATA *vict; // *next_vict
 
 	if (room == NOWHERE)
 		return (FALSE);
@@ -91,22 +90,37 @@ int check_death_ice(int room, CHAR_DATA* /*ch*/)
 		return (FALSE);
 	if ((sector = real_sector(room)) != SECT_THIN_ICE && sector != SECT_NORMAL_ICE)
 		return (FALSE);
-	for (vict = world[room]->people; vict; vict = vict->next_in_room)
-		if (!IS_NPC(vict) && !AFF_FLAGGED(vict, EAffectFlag::AFF_FLY))
+
+	for (const auto vict : world[room]->people)
+	{
+		if (!IS_NPC(vict)
+			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_FLY))
+		{
 			mass += GET_WEIGHT(vict) + IS_CARRYING_W(vict);
+		}
+	}
+
 	if (!mass)
+	{
 		return (FALSE);
+	}
+
 	if ((sector == SECT_THIN_ICE && mass > 500) || (sector == SECT_NORMAL_ICE && mass > 1500))
 	{
-		act("Лед проломился под вашей тяжестью.", FALSE, world[room]->people, 0, 0, TO_ROOM);
-		act("Лед проломился под вашей тяжестью.", FALSE, world[room]->people, 0, 0, TO_CHAR);
+		CHAR_DATA* const first_in_room = world[room]->people.empty()
+			? nullptr
+			: *world[room]->people.begin();
+		act("Лед проломился под вашей тяжестью.", FALSE, first_in_room, 0, 0, TO_ROOM);
+		act("Лед проломился под вашей тяжестью.", FALSE, first_in_room, 0, 0, TO_CHAR);
 		world[room]->weather.icelevel = 0;
 		world[room]->ices = 2;
 		GET_ROOM(room)->set_flag(ROOM_ICEDEATH);
 		DeathTrap::add(world[room]);
 	}
 	else
+	{
 		return (FALSE);
+	}
 
 	return (result);
 }
@@ -371,7 +385,6 @@ int real_mountains_paths_sect(int sect)
 int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 {
 	int need_movement = 0, ch_inroom, ch_toroom;
-	CHAR_DATA *tch;
 
 	buf2[0] = '\0';
 	if (need_specials_check && special(ch, dir + 1, buf2, 1))
@@ -610,7 +623,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		if (!enter_wtrigger(world[EXIT(ch, dir)->to_room], ch, dir))
 			return (FALSE);
 
-		for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+		for (const auto tch : world[ch->in_room]->people)
 		{
 			if (!IS_NPC(tch))
 				continue;
@@ -623,8 +636,11 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				&& !IS_GRGOD(ch))
 			{
 				if (show_msg)
+				{
 					act("$N преградил$G вам путь.", FALSE, ch, 0, tch, TO_CHAR);
-				return (FALSE);
+				}
+
+				return FALSE;
 			}
 		}
 	}
@@ -659,7 +675,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	room_rnum was_in, go_to;
 	int need_movement, i, ndir = -1, nm, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
 	int IsFlee = dir & 0x80, mob_rnum = -1;
-	CHAR_DATA *vict, *horse = NULL;
+	CHAR_DATA *horse = NULL;
 
 	dir = dir & 0x7f;
 
@@ -1005,37 +1021,55 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	// hide improovment
 	if (IS_NPC(ch))
-		for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+	{
+		for (const auto vict : world[ch->in_room]->people)
 		{
 			if (!IS_NPC(vict))
+			{
 				skip_hiding(vict, ch);
+			}
 		}
+	}
 
 	income_mtrigger(ch, direction - 1);
 
 	// char income, go mobs action
-	for (vict = world[ch->in_room]->people; !IS_NPC(ch) && vict; vict = vict->next_in_room)
+	if (!IS_NPC(ch))
 	{
-		if (!IS_NPC(vict))
-			continue;
-
-		if (!CAN_SEE(vict, ch) ||
-				AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) ||
-				AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE) || vict->get_fighting() || GET_POS(vict) < POS_RESTING)
-			continue;
-
-		// AWARE mobs
-		if (MOB_FLAGGED(vict, MOB_AWARE) &&
-				GET_POS(vict) < POS_FIGHTING && !AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD) && GET_POS(vict) > POS_SLEEPING)
+		for (const auto vict : world[ch->in_room]->people)
 		{
-			act("$n поднял$u.", FALSE, vict, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			GET_POS(vict) = POS_STANDING;
+			if (!IS_NPC(vict))
+			{
+				continue;
+			}
+
+			if (!CAN_SEE(vict, ch)
+				|| AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK)
+				|| AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE)
+				|| vict->get_fighting()
+				|| GET_POS(vict) < POS_RESTING)
+			{
+				continue;
+			}
+
+			// AWARE mobs
+			if (MOB_FLAGGED(vict, MOB_AWARE)
+				&& GET_POS(vict) < POS_FIGHTING
+				&& !AFF_FLAGGED(vict, EAffectFlag::AFF_HOLD)
+				&& GET_POS(vict) > POS_SLEEPING)
+			{
+				act("$n поднял$u.", FALSE, vict, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				GET_POS(vict) = POS_STANDING;
+			}
 		}
 	}
 
 	// If flee - go agressive mobs
-	if (!IS_NPC(ch) && IsFlee)
+	if (!IS_NPC(ch)
+		&& IsFlee)
+	{
 		do_aggressive_room(ch, FALSE);
+	}
 
 	return (direction);
 }
@@ -1364,7 +1398,6 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 {
 	int other_room = 0;
 	int r_num, vnum;
-	CHAR_DATA * to;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	char local_buf[MAX_STRING_LENGTH]; // глобальный buf в тригах переписывается
 	// объект, который выпадает из сундука
@@ -1513,12 +1546,21 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	// Notify the other room
 	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back)
 	{
-		if ((to = world[EXIT(ch, door)->to_room]->people))
+		const auto& people = world[EXIT(ch, door)->to_room]->people;
+		if (!people.empty())
 		{
 			sprintf(local_buf + strlen(local_buf) - 1, " с той стороны.");
-			for (int stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++)
+			int allowed_items_remained = 1000;
+			for (const auto to : people)
 			{
+				if (0 == allowed_items_remained)
+				{
+					break;
+				}
+
 				perform_act(local_buf, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, to);
+
+				--allowed_items_remained;
 			}
 		}
 	}

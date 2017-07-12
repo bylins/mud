@@ -95,8 +95,7 @@ namespace CharacterSystem
 CHAR_DATA::CHAR_DATA() :
 	chclass_(CLASS_UNDEFINED),
 	role_(MOB_ROLE_TOTAL_NUM),
-	next_(NULL),
-	in_room(CRooms::UNDEFINED_ROOM_VNUM),
+	in_room(Rooms::UNDEFINED_ROOM_VNUM),
 	m_wait(~0u),
 	m_master(nullptr),
 	proto_script(new OBJ_DATA::triggers_list_t()),
@@ -158,7 +157,6 @@ void CHAR_DATA::reset()
 	m_master = nullptr;
 	in_room = NOWHERE;
 	carrying = NULL;
-	next_ = NULL;
 	next_fighting = NULL;
 	next_in_room = NULL;
 	set_protecting(0);
@@ -866,16 +864,6 @@ void CHAR_DATA::clear_fighing_list()
 	}
 }
 
-int GET_INVIS_LEV(const CHAR_DATA* ch)
-{
-	return CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level);
-}
-
-void SET_INVIS_LEV(const CHAR_DATA* ch, const int level)
-{
-	CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level) = level;
-}
-
 bool IS_CHARMICE(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
@@ -994,47 +982,8 @@ bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
 void change_fighting(CHAR_DATA * ch, int need_stop)
 {
-	/*
-	for (std::list<CHAR_DATA *>::const_iterator it = fighting_list.begin(); it != fighting_list.end(); ++it)
-	{
-		CHAR_DATA *k = *it;
-		if (k->get_touching() == ch)
-		{
-			k->set_touching(0);
-			CLR_AF_BATTLE(k, EAF_PROTECT); // сомнительно
-		}
-		if (k->get_protecting() == ch)
-		{
-			k->set_protecting(0);
-			CLR_AF_BATTLE(k, EAF_PROTECT);
-		}
-		if (k->get_extra_victim() == ch)
-		{
-			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
-		}
-		if (k->get_cast_char() == ch)
-		{
-			k->set_cast(0, 0, 0, 0, 0);
-		}
-		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE)
-		{
-			log("[Change fighting] Change victim");
-			CHAR_DATA *j;
-			for (j = world[ch->in_room]->people; j; j = j->next_in_room)
-				if (j->get_fighting() == k)
-				{
-					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
-					act("$n переключил$u на вас!", FALSE, k, 0, j, TO_VICT);
-					k->set_fighting(j);
-					break;
-				}
-			if (!j && need_stop)
-				stop_fighting(k, FALSE);
-		}
-	}
-	*/
-
 	CHAR_DATA *k, *j, *temp;
+
 	for (k = character_list; k; k = temp)
 	{
 		temp = k->get_next();

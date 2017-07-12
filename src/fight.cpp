@@ -14,6 +14,7 @@
 
 #include "fight.h"
 
+#include "world.characters.hpp"
 #include "fight_hit.hpp"
 #include "AffectHandler.hpp"
 #include "obj.hpp"
@@ -384,7 +385,7 @@ int GET_MAXCASTER(CHAR_DATA * ch)
 int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 {
 	int ch_friend_npc, ch_friend_pc, vict_friend_npc, vict_friend_pc;
-	CHAR_DATA *ch, *vict, *npc_master, *pc_master, *ch_master, *vict_master;
+	CHAR_DATA *vict, *npc_master, *pc_master, *ch_master, *vict_master;
 
 	if (npc == pc)
 		return (!opponent);
@@ -400,12 +401,13 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 	npc_master = npc->has_master() ? npc->get_master() : npc;
 	pc_master = pc->has_master() ? pc->get_master() : pc;
 
-	for (ch = world[IN_ROOM(npc)]->people; ch; ch = ch->get_next())
+	for (const auto ch : world[IN_ROOM(npc)]->people)	// <- Anton Gorev (2017-07-11): changed loop to loop over the people in room (instead of all world)
 	{
 		if (!ch->get_fighting())
 		{
 			continue;
 		}
+
 		ch_master = ch->has_master() ? ch->get_master() : ch;
 		ch_friend_npc = (ch_master == npc_master) ||
 						(IS_NPC(ch) && IS_NPC(npc) &&
@@ -444,7 +446,7 @@ int in_same_battle(CHAR_DATA * npc, CHAR_DATA * pc, int opponent)
 
 CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 {
-	CHAR_DATA *vict, *victim = NULL;
+	CHAR_DATA *victim = NULL;
 	int vict_val = 0, AFF_USED = 0;
 	switch (spellnum)
 	{
@@ -482,7 +484,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 		return nullptr;
 	}
 
-	for (vict = world[IN_ROOM(caster)]->people; AFF_USED && vict; vict = vict->next_in_room)
+	for (const auto vict : world[IN_ROOM(caster)]->people)
 	{
 		if (!IS_NPC(vict)
 			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
@@ -514,7 +516,7 @@ CHAR_DATA *find_friend_cure(CHAR_DATA * caster, int spellnum)
 
 CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 {
-	CHAR_DATA *vict, *victim = NULL;
+	CHAR_DATA *victim = NULL;
 	int vict_val = 0, spellreal = -1;
 	affects_list_t AFF_USED;
 	switch (spellnum)
@@ -567,39 +569,44 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 		return NULL;
 	}
 
-	for (vict = world[IN_ROOM(caster)]->people; !AFF_USED.empty() && vict; vict = vict->next_in_room)
+	if (!AFF_USED.empty())
 	{
-		if (!IS_NPC(vict)
-			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
-				&& vict->get_master()
-				&& !IS_NPC(vict->get_master()))
-			|| !CAN_SEE(caster, vict))
+		for (const auto vict : world[IN_ROOM(caster)]->people)
 		{
-			continue;
-		}
-
-		if (!vict->has_any_affect(AFF_USED))
-		{
-			continue;
-		}
-
-		if (!vict->get_fighting()
-			&& !MOB_FLAGGED(vict, MOB_HELPER))
-		{
-			continue;
-		}
-
-		if (!victim || vict_val < GET_MAXDAMAGE(vict))
-		{
-			victim = vict;
-			vict_val = GET_MAXDAMAGE(vict);
-			if (GET_REAL_INT(caster) < number(10, 20))
+			if (!IS_NPC(vict)
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+					&& vict->get_master()
+					&& !IS_NPC(vict->get_master()))
+				|| !CAN_SEE(caster, vict))
 			{
-				break;
+				continue;
+			}
+
+			if (!vict->has_any_affect(AFF_USED))
+			{
+				continue;
+			}
+
+			if (!vict->get_fighting()
+				&& !MOB_FLAGGED(vict, MOB_HELPER))
+			{
+				continue;
+			}
+
+			if (!victim
+				|| vict_val < GET_MAXDAMAGE(vict))
+			{
+				victim = vict;
+				vict_val = GET_MAXDAMAGE(vict);
+				if (GET_REAL_INT(caster) < number(10, 20))
+				{
+					break;
+				}
 			}
 		}
 	}
+
 	return victim;
 }
 
@@ -654,36 +661,39 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 		return NULL;
 	}
 
-	for (vict = world[IN_ROOM(caster)]->people; !AFF_USED.empty() && vict; vict = vict->next_in_room)
+	if (!AFF_USED.empty())
 	{
-		if (!IS_NPC(vict)
-			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-			|| ((MOB_FLAGGED(vict, MOB_ANGEL)|| MOB_FLAGGED(vict, MOB_GHOST))
-				&& (vict->get_master() && !IS_NPC(vict->get_master())))
-			|| !CAN_SEE(caster, vict))
+		for (const auto vict : world[IN_ROOM(caster)]->people)
 		{
-			continue;
-		}
-
-		if (!vict->has_any_affect(AFF_USED))
-		{
-			continue;
-		}
-
-		if (!vict->get_fighting()
-			&& !MOB_FLAGGED(vict, MOB_HELPER))
-		{
-			continue;
-		}
-
-		if (!victim
-			|| vict_val < GET_MAXCASTER(vict))
-		{
-			victim = vict;
-			vict_val = GET_MAXCASTER(vict);
-			if (GET_REAL_INT(caster) < number(10, 20))
+			if (!IS_NPC(vict)
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+				|| ((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
+					&& (vict->get_master() && !IS_NPC(vict->get_master())))
+				|| !CAN_SEE(caster, vict))
 			{
-				break;
+				continue;
+			}
+
+			if (!vict->has_any_affect(AFF_USED))
+			{
+				continue;
+			}
+
+			if (!vict->get_fighting()
+				&& !MOB_FLAGGED(vict, MOB_HELPER))
+			{
+				continue;
+			}
+
+			if (!victim
+				|| vict_val < GET_MAXCASTER(vict))
+			{
+				victim = vict;
+				vict_val = GET_MAXCASTER(vict);
+				if (GET_REAL_INT(caster) < number(10, 20))
+				{
+					break;
+				}
 			}
 		}
 	}
@@ -693,7 +703,7 @@ CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 
 CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 {
-	CHAR_DATA *vict, *victim = NULL;
+	CHAR_DATA *victim = NULL;
 	int vict_val = 0, spellreal = spellnum;
 
 	if (spellreal == SPELL_GROUP_ARMOR)
@@ -728,7 +738,7 @@ CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 
 	if (GET_REAL_INT(caster) > number(5, 15))
 	{
-		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
+		for (const auto vict : world[IN_ROOM(caster)]->people)
 		{
 			if (!IS_NPC(vict)
 				|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
@@ -766,7 +776,7 @@ CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 
 CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 {
-	CHAR_DATA *vict, *victim = NULL;
+	CHAR_DATA *victim = NULL;
 	int vict_val = 0, spellreal = spellnum;
 
 	if (spellreal == SPELL_POWER_HOLD || spellreal == SPELL_MASS_HOLD)
@@ -782,7 +792,7 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 
 	if (GET_REAL_INT(caster) > number(10, 20))
 	{
-		for (vict = world[caster->in_room]->people; vict; vict = vict->next_in_room)
+		for (const auto vict : world[caster->in_room]->people)
 		{
 			if ((IS_NPC(vict)
 				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
@@ -821,10 +831,10 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 
 CHAR_DATA *find_opp_caster(CHAR_DATA * caster)
 {
-	CHAR_DATA *vict = NULL, *victim = NULL;
+	CHAR_DATA *victim = NULL;
 	int vict_val = 0;
 
-	for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
+	for (const auto vict : world[IN_ROOM(caster)]->people)
 	{
 		if (IS_NPC(vict)
 			&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST))
@@ -850,17 +860,19 @@ CHAR_DATA *find_opp_caster(CHAR_DATA * caster)
 
 CHAR_DATA *find_damagee(CHAR_DATA * caster)
 {
-	CHAR_DATA *vict, *victim = NULL;
+	CHAR_DATA *victim = NULL;
 	int vict_val = 0;
 
 	if (GET_REAL_INT(caster) > number(10, 20))
 	{
-		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
+		for (const auto vict : world[IN_ROOM(caster)]->people)
 		{
 			if ((IS_NPC(vict)
-				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
-					&& vict->has_master()
-					&& !IS_NPC(vict->get_master())))
+					&& !((MOB_FLAGGED(vict, MOB_ANGEL)
+							|| MOB_FLAGGED(vict, MOB_GHOST)
+							|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
+						&& vict->has_master()
+						&& !IS_NPC(vict->get_master())))
 				|| !CAN_SEE(caster, vict))
 			{
 				continue;
@@ -901,7 +913,7 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 extern bool find_master_charmice(CHAR_DATA *charmise);
 CHAR_DATA *find_target(CHAR_DATA *ch)
 {
-	CHAR_DATA *vict, *victim, *caster = NULL, *best = NULL;
+	CHAR_DATA *victim, *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	victim = ch->get_fighting();
 
@@ -915,23 +927,25 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 
 	// если нет цели
 	if (!victim)
+	{
 		return NULL;
-
-
+	}
 
 	// проходим по всем чарам в комнате
-	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+	for (const auto vict : world[ch->in_room]->people)
 	{
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
 				|| (IS_CHARMICE(vict) && !vict->get_fighting() && !find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 				|| !MAY_SEE(ch, ch, vict))
+		{
 			continue;
-
+		}
 
 		if (!CAN_SEE(ch, vict))
+		{
 			continue;
-
+		}
 
 		// волхв
 		if (GET_CLASS(vict) == CLASS_DRUID)
@@ -948,6 +962,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			caster = vict;
 			continue;
 		}
+
 		// кудес
 		if (GET_CLASS(vict) == CLASS_CHARMMAGE)
 		{
@@ -1022,17 +1037,14 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 	return best;
 }
 
-
-
-
 CHAR_DATA *find_minhp(CHAR_DATA * caster)
 {
-	CHAR_DATA *vict, *victim = NULL;
+	CHAR_DATA *victim = NULL;
 	int vict_val = 0;
 
 	if (GET_REAL_INT(caster) > number(10, 20))
 	{
-		for (vict = world[IN_ROOM(caster)]->people; vict; vict = vict->next_in_room)
+		for (const auto vict : world[IN_ROOM(caster)]->people)
 		{
 			if ((IS_NPC(vict)
 				&& !((MOB_FLAGGED(vict, MOB_ANGEL) || MOB_FLAGGED(vict, MOB_GHOST) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
@@ -1268,7 +1280,7 @@ void summon_mob_helpers(CHAR_DATA *ch)
 	for (struct helper_data_type *helpee = GET_HELPER(ch);
 		helpee; helpee = helpee->next_helper)
 	{
-		for (CHAR_DATA *vict = character_list; vict; vict = vict->get_next())
+		for (const auto vict : character_list)
 		{
 			if (!IS_NPC(vict)
 				|| GET_MOB_VNUM(vict) != helpee->mob_vnum
@@ -1293,12 +1305,12 @@ void summon_mob_helpers(CHAR_DATA *ch)
 				char_from_room(vict);
 				char_to_room(vict, ch->in_room);
 				act("$n прибыл$g на зов и вступил$g в битву на стороне $N1.",
-					FALSE, vict, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
+					FALSE, vict.get(), 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			else
 			{
 				act("$n вступил$g в битву на стороне $N1.",
-					FALSE, vict, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
+					FALSE, vict.get(), 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			if (MAY_ATTACK(vict))
 			{
@@ -1354,20 +1366,19 @@ void try_angel_rescue(CHAR_DATA *ch)
 			&& MAY_ACT(k->follower)
 			&& GET_POS(k->follower) >= POS_FIGHTING)
 		{
-			CHAR_DATA *vict;
-			for (vict = world[ch->in_room]->people;
-				vict; vict = vict->next_in_room)
+			for (const auto vict : world[ch->in_room]->people)
 			{
 				if (vict->get_fighting() == ch
 					&& vict != ch
 					&& vict != k->follower)
 				{
+					if (k->follower->get_skill(SKILL_RESCUE))
+					{
+						go_rescue(k->follower, ch, vict);
+					}
+
 					break;
 				}
-			}
-			if (vict && k->follower->get_skill(SKILL_RESCUE))
-			{
-				go_rescue(k->follower, ch, vict);
 			}
 		}
 	}
@@ -1583,20 +1594,19 @@ void using_mob_skills(CHAR_DATA *ch)
 			sk_use = 0;
 			int i = 0;
 			// Цель выбираем по рандому
-			for (CHAR_DATA *vict = world[ch->in_room]->people;
-				vict; vict = vict->next_in_room)
+			for (const auto vict : world[ch->in_room]->people)
 			{
 				if (!IS_NPC(vict))
 				{
 					i++;
 				}
 			}
+
 			CHAR_DATA *caster = 0;
 			if (i > 0)
 			{
 				i = number(1, i);
-				for (CHAR_DATA *vict = world[ch->in_room]->people;
-					i; vict = vict->next_in_room)
+				for (const auto vict : world[ch->in_room]->people)
 				{
 					if (!IS_NPC(vict))
 					{
@@ -1605,6 +1615,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 			}
+
 			// Метаем
 			if (caster)
 			{
@@ -1622,8 +1633,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			CHAR_DATA *caster = 0, *damager = 0;
 			int dumb_mob = (int)(GET_REAL_INT(ch) < number(5, 20));
 
-			for (CHAR_DATA *attacker = world[ch->in_room]->people;
-					attacker; attacker = attacker->next_in_room)
+			for (const auto attacker : world[ch->in_room]->people)
 			{
 				CHAR_DATA *vict = attacker->get_fighting();	// выяснение жертвы
 				if (!vict	// жертвы нет
@@ -1688,8 +1698,7 @@ void using_mob_skills(CHAR_DATA *ch)
 			{
 				caster = find_target(ch);
 				damager = find_target(ch);
-				for (CHAR_DATA *vict = world[ch->in_room]->people; vict;
-						vict = vict->next_in_room)
+				for (const auto vict : world[ch->in_room]->people)
 				{
 					if ((IS_NPC(vict) && !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM))
 						|| !vict->get_fighting())
@@ -1814,8 +1823,7 @@ void using_mob_skills(CHAR_DATA *ch)
 
 void add_attackers_round(CHAR_DATA *ch)
 {
-	for (CHAR_DATA *i = world[ch->in_room]->people;
-		i; i = i->next_in_room)
+	for (const auto i : world[ch->in_room]->people)
 	{
 		if (!IS_NPC(i) && i->desc)
 		{
@@ -1950,25 +1958,23 @@ void process_npc_attack(CHAR_DATA *ch)
 		&& MAY_ACT(ch)
 		&& GET_POS(ch) >= POS_FIGHTING)
 	{
-		CHAR_DATA *vict = 0;
-		for (vict = world[ch->in_room]->people;
-			vict; vict = vict->next_in_room)
+		for (const auto vict : world[ch->in_room]->people)
 		{
 			if (vict->get_fighting() == ch->get_master()
 				&& vict != ch
 				&& vict != ch->get_master())
 			{
+				if (ch->get_skill(SKILL_RESCUE))
+				{
+					go_rescue(ch, ch->get_master(), vict);
+				}
+				else if (ch->get_skill(SKILL_PROTECT))
+				{
+					go_protect(ch, ch->get_master());
+				}
+
 				break;
 			}
-		}
-
-		if (vict && (ch->get_skill(SKILL_RESCUE)))
-		{
-			go_rescue(ch, ch->get_master(), vict);
-		}
-		else if (vict && ch->get_skill(SKILL_PROTECT))
-		{
-			go_protect(ch, ch->get_master());
 		}
 	}
 	else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))

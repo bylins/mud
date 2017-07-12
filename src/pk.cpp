@@ -64,14 +64,17 @@ void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 #define MAX_REVENGE      3
 
 
-int pk_count(CHAR_DATA * ch)
+int pk_count(CHAR_DATA* ch)
 {
 	struct PK_Memory_type *pk;
 	int i;
 	for (i = 0, pk = ch->pk_list; pk; pk = pk->next)
+	{
 		i += pk->kill_num;
+	}
 	return i;
 }
+
 bool check_agrobd(CHAR_DATA *ch) {
 	if (ch->agrobd)
 	    return true;

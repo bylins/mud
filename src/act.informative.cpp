@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "world.objects.hpp"
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "shutdown.parameters.hpp"
@@ -4530,7 +4531,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	int all = 0;
 
-	for (CHAR_DATA* tch = character_list; tch; tch = tch->get_next())
+	for (const auto tch: character_list)
 	{
 		if (IS_NPC(tch))
 			continue;
@@ -4554,7 +4555,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			continue;
 		if (showname && !(!NAME_GOD(tch) && GET_LEVEL(tch) <= NAME_LEVEL))
 			continue;
-		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO) && ch != tch)
+		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO) && ch != tch.get())
 			continue;
 
 		*buf = '\0';
@@ -4563,8 +4564,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (short_list)
 		{
 			char tmp[MAX_INPUT_LENGTH];
-			snprintf(tmp, sizeof(tmp), "%s%s%s",
-				CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
+			snprintf(tmp, sizeof(tmp), "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
 			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 			{
 				sprintf(buf, "%s[%2d %s %s] %-30s%s",
@@ -4581,19 +4581,24 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+			if (IS_IMPL(ch)
+				|| PRF_FLAGGED(ch, PRF_CODERINFO))
+			{
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
-						GET_LEVEL(tch),
-						GET_REMORT(tch),
-						CLASS_ABBR(tch),
-						tch->get_pfilepos(),
-						CCPK(ch, C_NRM, tch),
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
+					GET_LEVEL(tch),
+					GET_REMORT(tch),
+					CLASS_ABBR(tch),
+					tch->get_pfilepos(),
+					CCPK(ch, C_NRM, tch),
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+			}
 			else
+			{
 				sprintf(buf, "%s %s%s%s",
-						CCPK(ch, C_NRM, tch),
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+					CCPK(ch, C_NRM, tch),
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+			}
 
 			if (GET_INVIS_LEV(tch))
 				sprintf(buf + strlen(buf), " (i%d)", GET_INVIS_LEV(tch));
@@ -4742,7 +4747,6 @@ std::string print_server_uptime()
 
 void do_statistic(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *tch;
 	int proff[NUM_PLAYER_CLASSES][2];
 	int ptot[NUM_PLAYER_CLASSES];
 	int i, clan = 0, noclan = 0, hilvl = 0, lowlvl = 0, all = 0, rem = 0, norem = 0, pk = 0, nopk = 0;
@@ -4754,7 +4758,7 @@ void do_statistic(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		ptot[i] = 0;
 	}
 
-	for (tch = character_list; tch; tch = tch->get_next())
+	for (const auto tch : character_list)
 	{
 		if (IS_NPC(tch) || GET_LEVEL(tch) >= LVL_IMMORT || !HERE(tch))
 			continue;
@@ -4772,10 +4776,14 @@ void do_statistic(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		else
 			norem++;
 		all++;
-		if (pk_count(tch) >= 1)
+		if (pk_count(tch.get()) >= 1)
+		{
 			pk++;
+		}
 		else
+		{
 			nopk++;
+		}
 
 		if (GET_LEVEL(tch) >= 25)
 			proff[(int)GET_CLASS(tch)][0]++;
@@ -5286,7 +5294,7 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 	}
 	else  		// print only FIRST char, not all.
 	{
-		for (i = character_list; i; i = i->get_next())
+		for (const auto tch : character_list)
 		{
 			if (i->in_room == NOWHERE || i == ch)
 				continue;
@@ -5409,11 +5417,14 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 	if (!*arg)
 	{
 		if (GET_LEVEL(ch) < LVL_IMPL && !PRF_FLAGGED(ch, PRF_CODERINFO))
+		{
 			send_to_char("Где КТО конкретно?", ch);
+		}
 		else
 		{
 			send_to_char("ИГРОКИ\r\n------\r\n", ch);
 			for (d = descriptor_list; d; d = d->next)
+			{
 				if (STATE(d) == CON_PLAYING)
 				{
 					i = (d->original ? d->original : d->character);
@@ -5421,21 +5432,22 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 					{
 						if (d->original)
 							sprintf(buf, "%-20s - [%5d] %s (in %s)\r\n",
-									GET_NAME(i),
-									GET_ROOM_VNUM(IN_ROOM(d->character)),
-									world[d->character->in_room]->name,
-									GET_NAME(d->character));
+								GET_NAME(i),
+								GET_ROOM_VNUM(IN_ROOM(d->character)),
+								world[d->character->in_room]->name,
+								GET_NAME(d->character));
 						else
 							sprintf(buf, "%-20s - [%5d] %s\r\n", GET_NAME(i),
-									GET_ROOM_VNUM(IN_ROOM(i)), world[i->in_room]->name);
+								GET_ROOM_VNUM(IN_ROOM(i)), world[i->in_room]->name);
 						send_to_char(buf, ch);
 					}
 				}
+			}
 		}
 	}
 	else
 	{
-		for (i = character_list; i; i = i->get_next())
+		for (const auto i : character_list)
 		{
 			if (CAN_SEE(ch, i)
 				&& i->in_room != NOWHERE
@@ -5448,8 +5460,12 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 				send_to_char(buf, ch);
 			}
 		}
-		if (!print_imm_where_obj(ch, arg, num) && !found)
+
+		if (!print_imm_where_obj(ch, arg, num)
+			&& !found)
+		{
 			send_to_char("Нет ничего похожего.\r\n", ch);
+		}
 	}
 }
 

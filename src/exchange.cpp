@@ -11,6 +11,7 @@
 #include "exchange.h"
 
 #include "object.prototypes.hpp"
+#include "world.characters.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -611,11 +612,11 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 
 CHAR_DATA *get_char_by_id(int id)
 {
-	for (CHAR_DATA *i = character_list; i; i = i->get_next())
+	for (const auto i : character_list)
 	{
 		if (!IS_NPC(i) && GET_IDNUM(i) == id)
 		{
-			return (i);
+			return i.get();
 		}
 	}
 	return 0;

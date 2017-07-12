@@ -28,6 +28,7 @@
 #include "room.hpp"
 #include "spam.hpp"
 #include "char_obj_utils.inl"
+#include "world.characters.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -101,14 +102,20 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 //      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);
 // shapirus; для возможности игнорирования теллов в клетку
 // пришлось изменить act в клетку на проход по клетке
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		for (const auto to : world[ch->in_room]->people)
 		{
 			if (ch == to || ignores(to, ch, IGNORE_SAY))
+			{
 				continue;
+			}
+
 			act(buf, FALSE, ch, 0, to, TO_VICT | DG_NO_TRIG | CHECK_DEAF);
 		}
+
 		if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
+		{
 			send_to_char(OK, ch);
+		}
 		else
 		{
 			delete_doubledollar(argument);
@@ -367,8 +374,6 @@ void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *tch = character_list;
-
 	if (IS_NPC(ch))
 		return;
 
@@ -399,25 +404,40 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!*argument)
 		send_to_char("Что вы собираетесь ответить?\r\n", ch);
 	else
-	{			/*
-				 * Make sure the person you're replying to is still playing by searching
-				 * for them.  Note, now last tell is stored as player IDnum instead of
-				 * a pointer, which is much better because it's safer, plus will still
-				 * work if someone logs out and back in again.
-				 */
+	{
+		/*
+		 * Make sure the person you're replying to is still playing by searching
+		 * for them.  Note, now last tell is stored as player IDnum instead of
+		 * a pointer, which is much better because it's safer, plus will still
+		 * work if someone logs out and back in again.
+		 */
 
 		/*
 		 * XXX: A descriptor list based search would be faster although
 		 *      we could not find link dead people.  Not that they can
 		 *      hear tells anyway. :) -gg 2/24/98
 		 */
-		while (tch != NULL && (IS_NPC(tch) || GET_IDNUM(tch) != ch->get_answer_id()))
-			tch = tch->get_next();
+		bool found = false;
+		for (const auto i : character_list)
+		{
+			if (IS_NPC(i)
+				|| GET_IDNUM(i) != ch->get_answer_id())
+			{
+				if (is_tell_ok(ch, i.get()))
+				{
+					perform_tell(ch, i.get(), argument);
+				}
 
-		if (tch == NULL)
+				found = true;
+
+				break;
+			}
+		}
+
+		if (!found)
+		{
 			send_to_char("Этого игрока уже нет в игре.\r\n", ch);
-		else if (is_tell_ok(ch, tch))
-			perform_tell(ch, tch, argument);
+		}
 	}
 }
 

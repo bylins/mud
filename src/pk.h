@@ -95,6 +95,7 @@ int pk_player_count(CHAR_DATA * ch);
 
 void aura(CHAR_DATA * ch, int lvl, CHAR_DATA * victim, char *s);
 const char *CCPK(CHAR_DATA * ch, int lvl, CHAR_DATA * victim);
+inline const char *CCPK(CHAR_DATA* ch, int lvl, const CHAR_DATA::shared_ptr& victim) { return CCPK(ch, lvl, victim.get()); }
 void pk_list_sprintf(CHAR_DATA * ch, char *buff);
 
 //*************************************************************************

@@ -316,14 +316,14 @@ extern CHAR_DATA *combat_list;
 #include <vector>
 #include <deque>
 
-class CRooms: public std::deque<ROOM_DATA *>
+class Rooms: public std::deque<ROOM_DATA *>
 {
 public:
 	static constexpr int UNDEFINED_ROOM_VNUM = -1;
 };
 
-extern CRooms world;
-extern CHAR_DATA *character_list;
+extern Rooms world;
+
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
 extern int top_of_p_table;

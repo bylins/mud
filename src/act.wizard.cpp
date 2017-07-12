@@ -14,6 +14,7 @@
 
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "command.shutdown.hpp"
 #include "obj.hpp"
@@ -395,25 +396,25 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 	switch (punish)
 	{
 	case SCMD_MUTE:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pmute));
+		pundata = &(vict)->player_specials->pmute;
 		break;
 	case SCMD_DUMB:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pdumb));
+		pundata = &(vict)->player_specials->pdumb;
 		break;
 	case SCMD_HELL:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->phell));
+		pundata = &(vict)->player_specials->phell;
 		break;
 	case SCMD_NAME:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pname));
+		pundata = &(vict)->player_specials->pname;
 		break;
 
 	case SCMD_FREEZE:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pfreeze));
+		pundata = &(vict)->player_specials->pfreeze;
 		break;
 
 	case SCMD_REGISTER:
 	case SCMD_UNREGISTER:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->punreg));
+		pundata = &(vict)->player_specials->punreg;
 		break;
 	}
 	assert(pundata);
@@ -4970,10 +4971,12 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		j = 0;
 		con = 0;
 		int motion = 0;
-		for (vict = character_list; vict; vict = vict->get_next())
+		for (const auto vict : character_list)
 		{
 			if (IS_NPC(vict))
+			{
 				j++;
+			}
 			else
 			{
 				if (vict->is_active())
@@ -4984,7 +4987,9 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				{
 					i++;
 					if (vict->desc)
+					{
 						con++;
+					}
 				}
 			}
 		}
@@ -5073,10 +5078,13 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("  Список игроков в состоянии 'link drop'\r\n", ch);
 		sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
 		send_to_char(buf, ch);
-		for (i = 0, vict = character_list; vict; vict = vict->get_next())
+		i = 0;
+		for (const auto vict : character_list)
 		{
 			if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE)
+			{
 				continue;
+			}
 			++i;
 			sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
 					vict->noclan_title().c_str(), GET_ROOM_VNUM(IN_ROOM(vict)),

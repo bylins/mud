@@ -20,7 +20,6 @@
 
 extern void extract_trigger(TRIG_DATA * trig);
 extern void free_script(SCRIPT_DATA * sc);
-extern CHAR_DATA* character_list;
 
 namespace Celebrates
 {

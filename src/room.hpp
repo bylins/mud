@@ -79,7 +79,7 @@ struct ROOM_DATA
 	struct track_data *track;
 
 	OBJ_DATA *contents;	// List of items in room              //
-	CHAR_DATA *people;	// List of NPC / PC in room           //
+	std::list<CHAR_DATA*> people;	// List of NPC / PC in room           //
 
 	room_affects_list_t affected;	// affected by what spells       //
 	FLAG_DATA affected_by;	// флаги которые в отличии от room_flags появляются от аффектов
