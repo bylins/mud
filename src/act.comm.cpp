@@ -70,7 +70,6 @@ void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
-	CHAR_DATA *to;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))

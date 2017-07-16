@@ -12,6 +12,7 @@
 
 #include "im.h"
 
+#include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
@@ -411,23 +412,26 @@ OBJ_DATA *load_ingredient(int index, int power, int rnum)
 
 void im_translate_rskill_to_id(void)
 {
-	CHAR_DATA *ch;
 	im_rskill *rs;
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (IS_NPC(ch))
+		{
 			continue;
+		}
+
 		for (rs = GET_RSKILL(ch); rs; rs = rs->link)
+		{
 			rs->rid = imrecipes[rs->rid].id;
+		}
 	}
 }
 
 void im_translate_rskill_to_rid(void)
 {
-	CHAR_DATA *ch;
 	im_rskill *rs, **prs;
 	int rid;
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (IS_NPC(ch))
 			continue;

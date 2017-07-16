@@ -71,21 +71,22 @@ void wld_log(ROOM_DATA * room, const char *msg, const int type = 0)
 	script_log(buf, type);
 }
 
-
 // sends str to room
 void act_to_room(char *str, ROOM_DATA * room)
 {
 	// no one is in the room
-	if (!room->people)
+	if (!room->first_character())
+	{
 		return;
+	}
 
 	/*
 	 * since you can't use act(..., TO_ROOM) for an room, send it
 	 * TO_ROOM and TO_CHAR for some char in the room.
 	 * (just dont use $n or you might get strange results)
 	 */
-	act(str, FALSE, room->people, 0, 0, TO_ROOM);
-	act(str, FALSE, room->people, 0, 0, TO_CHAR);
+	act(str, FALSE, room->first_character(), 0, 0, TO_ROOM);
+	act(str, FALSE, room->first_character(), 0, 0, TO_CHAR);
 }
 
 // World commands
@@ -315,7 +316,7 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *ch, *next_ch, *horse, *charmee, *ncharmee;
+	CHAR_DATA *ch, *horse;
 	int target, nr;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
@@ -340,26 +341,48 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			wld_log(room, "wteleport all target is itself");
 			return;
 		}
-		for (ch = room->people; ch; ch = next_ch)
+
+		const auto people_copy = room->people;
+		decltype(people_copy)::const_iterator next_ch = people_copy.begin();
+		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch)
 		{
-			next_ch = ch->next_in_room;
+			const auto ch = *ch_i;
+			++next_ch;
+
 			if (IS_NPC(ch)
-					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-						 || MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
+				&& !(IS_HORSE(ch)
+					|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+					|| MOB_FLAGGED(ch, MOB_ANGEL)
+					|| MOB_FLAGGED(ch, MOB_GHOST)))
+			{
 				continue;
-			if (on_horse(ch) || has_horse(ch, TRUE))
+			}
+
+			if (on_horse(ch)
+				|| has_horse(ch, TRUE))
+			{
 				horse = get_horse(ch);
+			}
 			else
+			{
 				horse = NULL;
+			}
+
 			char_from_room(ch);
 			char_to_room(ch, target);
+
 			if (!str_cmp(argument, "horse") && horse)
 			{
-				if (horse == next_ch)
-					next_ch = horse->next_in_room;
+				if (next_ch != people_copy.end()
+					&& horse == *next_ch)	// skip horse
+				{
+					++next_ch;
+				}
+
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}
+
 			check_horse(ch);
 			look_at_room(ch, TRUE);
 		}
@@ -377,9 +400,9 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				horse = NULL;
 			}
 
-			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
+			const auto people_copy = world[ch->in_room]->people;
+			for (const auto charmee : people_copy)
 			{
-				ncharmee = charmee->next_in_room;
 				if (IS_NPC(charmee)
 					&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 						|| MOB_FLAGGED(charmee, MOB_ANGEL)
@@ -392,11 +415,14 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			char_from_room(ch);
 			char_to_room(ch, target);
-			if (!str_cmp(argument, "horse") && horse)
+
+			if (!str_cmp(argument, "horse")
+				&& horse)
 			{
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}
+
 			check_horse(ch);
 			look_at_room(ch, TRUE);
 		}
@@ -409,7 +435,6 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *ch, *next_ch;
 	char arg1[MAX_INPUT_LENGTH], *line;
 
 	line = one_argument(argument, arg1);
@@ -422,10 +447,11 @@ void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
 	{
-		for (ch = room->people; ch; ch = next_ch)
+		const auto people_copy = room->people;
+		for (const auto ch : people_copy)
 		{
-			next_ch = ch->next_in_room;
-			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
+			if (IS_NPC(ch)
+				|| GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
 			}
@@ -433,19 +459,26 @@ void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		
-		if ((ch = get_char_by_room(room, arg1)))
+		const auto ch = get_char_by_room(room, arg1);
+		if (ch)
 		{
 			if (!IS_NPC(ch))
+			{
 				if ((!ch->desc))
+				{
 					return;
+				}
+			}
+
 			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
 			}
 		}
 		else
+		{
 			wld_log(room, "wforce: no target found");
+		}
 	}
 }
 
@@ -1073,8 +1106,8 @@ void do_wportal(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->people, 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->people, 0, 0, TO_ROOM);
+	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 
 const struct wld_command_info wld_cmd_info[] =

@@ -16,6 +16,7 @@
 
 #include "db.h"
 
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
 #include "logger.hpp"
@@ -2232,7 +2233,7 @@ void set_zone_town()
 		// зона считается городом, если в ней есть рентер, банкир и почтовик
 		for (int k = rnum_start; k <= rnum_end; ++k)
 		{
-			for (CHAR_DATA *ch = world[k]->people; ch; ch = ch->next_in_room)
+			for (const auto ch : world[k]->people)
 			{
 				if (IS_RENTKEEPER(ch))
 				{
@@ -2248,6 +2249,7 @@ void set_zone_town()
 				}
 			}
 		}
+
 		if (rent_flag && bank_flag && post_flag)
 		{
 			zone_table[i].is_town = true;
@@ -4188,10 +4190,9 @@ void paste_mobiles()
 
 void paste_on_reset(ROOM_DATA *to_room)
 {
-	CHAR_DATA *ch_next;
-	for (CHAR_DATA *ch = to_room->people; ch != NULL; ch = ch_next)
+	const auto people_copy = to_room->people;
+	for (const auto ch : people_copy)
 	{
-		ch_next = ch->next_in_room;
 		paste_mob(ch, ch->in_room);
 	}
 
@@ -4471,7 +4472,7 @@ void reset_zone(zone_rnum zone)
 {
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
-	CHAR_DATA *mob = NULL, *leader = NULL, *ch;
+	CHAR_DATA *mob = NULL, *leader = NULL;
 	OBJ_DATA *obj_to, *obj_room;
 	int rnum_start, rnum_stop;
 	CHAR_DATA *tmob = NULL;	// for trigger assignment
@@ -4521,7 +4522,7 @@ void reset_zone(zone_rnum zone)
 				leader = NULL;
 				if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world)
 				{
-					for (ch = world[ZCMD.arg1]->people; ch && !leader; ch = ch->next_in_room)
+					for (const auto ch : world[ZCMD.arg1]->people)
 					{
 						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg2)
 						{
@@ -4529,21 +4530,24 @@ void reset_zone(zone_rnum zone)
 						}
 					}
 
-					for (ch = world[ZCMD.arg1]->people; ch && leader; ch = ch->next_in_room)
+					if (leader)
 					{
-						if (IS_NPC(ch)
-							&& GET_MOB_RNUM(ch) == ZCMD.arg3
-							&& leader != ch
-							&& !ch->makes_loop(leader))
+						for (const auto ch : world[ZCMD.arg1]->people)
 						{
-							if (ch->has_master())
+							if (IS_NPC(ch)
+								&& GET_MOB_RNUM(ch) == ZCMD.arg3
+								&& leader != ch
+								&& !ch->makes_loop(leader))
 							{
-								stop_follower(ch, SF_EMPTY);
+								if (ch->has_master())
+								{
+									stop_follower(ch, SF_EMPTY);
+								}
+
+								leader->add_follower(ch);
+
+								curr_state = 1;
 							}
-
-							leader->add_follower(ch);
-
-							curr_state = 1;
 						}
 					}
 				}
@@ -4981,8 +4985,7 @@ int is_empty(zone_rnum zone_nr)
 {
 	DESCRIPTOR_DATA *i;
 	int rnum_start, rnum_stop;
-	CHAR_DATA *c;
-	//char *buf_tmp;
+
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -4998,28 +5001,34 @@ int is_empty(zone_rnum zone_nr)
 
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop))
+	{
 		return 1;	// в зоне нет комнат :)
+	}
 
 	for (; rnum_start <= rnum_stop; rnum_start++)
 	{
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
-		for (c = world[rnum_start]->people; c; c = c->next_in_room)
+		for (const auto c : world[rnum_start]->people)
+		{
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
 			{
 				return 0;
 			}
+		}
 	}
 
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
-	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
+	for (const auto c : world[STRANGE_ROOM]->people)
 	{
-		int was = c->get_was_in_room();
-		if (was == NOWHERE)
+		const int was = c->get_was_in_room();
+
+		if (was == NOWHERE
+			|| GET_LEVEL(c) >= LVL_IMMORT
+			|| world[was]->zone != zone_nr)
+		{
 			continue;
-		if (GET_LEVEL(c) >= LVL_IMMORT)
-			continue;
-		if (world[was]->zone != zone_nr)
-			continue;
+		}
+
 		return 0;
 	}
 
@@ -5039,12 +5048,16 @@ int is_empty(zone_rnum zone_nr)
 
 int mobs_in_room(int m_num, int r_num)
 {
-	CHAR_DATA *ch;
 	int count = 0;
 
-	for (ch = world[r_num]->people; ch; ch = ch->next_in_room)
-		if (m_num == GET_MOB_RNUM(ch) && !MOB_FLAGGED(ch, MOB_RESURRECTED))
+	for (const auto ch : world[r_num]->people)
+	{
+		if (m_num == GET_MOB_RNUM(ch)
+			&& !MOB_FLAGGED(ch, MOB_RESURRECTED))
+		{
 			count++;
+		}
+	}
 
 	return count;
 }
@@ -6083,11 +6096,12 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 --*/
 {
 	int i;
+
 	{
 		// Сохраняю track, contents, people, аффекты
 		struct track_data *track = dst->track;
 		OBJ_DATA *contents = dst->contents;
-		CHAR_DATA *people = dst->people;
+		const auto people_backup = dst->people;
 		auto affected = dst->affected;
 
 		// Копирую все поверх
@@ -6096,7 +6110,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		// Восстанавливаю track, contents, people, аффекты
 		dst->track = track;
 		dst->contents = contents;
-		dst->people = people;
+		dst->people = std::move(people_backup);
 		dst->affected = affected;
 	}
 

@@ -1701,7 +1701,6 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	char lbuf[256];
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 	*helpee_vict, *damagee_vict, *format;
-	CHAR_DATA *i;
 	int j = 0, religion;
 
 	*buf = '\0';
@@ -1802,10 +1801,13 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	sprintf(buf1, format, spell_name(spellnum));
 	sprintf(buf2, format, buf);
 
-	for (i = world[ch->in_room]->people; i; i = i->next_in_room)
+	for (const auto i : world[ch->in_room]->people)
 	{
-		if (i == ch || i == tch || !i->desc || !AWAKE(i)
-				|| AFF_FLAGGED(i, EAffectFlag::AFF_DEAFNESS))
+		if (i == ch
+			|| i == tch
+			|| !i->desc
+			|| !AWAKE(i)
+			|| AFF_FLAGGED(i, EAffectFlag::AFF_DEAFNESS))
 		{
 			continue;
 		}
@@ -1819,6 +1821,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 			perform_act(buf2, ch, tobj, tch, i);
 		}
 	}
+
 	act(buf1, 1, ch, tobj, tch, TO_ARENA_LISTEN);
 
 	if (tch != NULL
@@ -2007,31 +2010,41 @@ int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA* /*victim*/, int spellnum)
 int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 {
 	int ignore;
-	CHAR_DATA *ch_vict;
 
 	//  More than 33 level - may cast always
 	if (IS_GRGOD(caster))
+	{
 		return TRUE;
+	}
 
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOBATTLE) && SpINFO.violent)
+	{
 		return FALSE;
+	}
 
 	// не в мирке можно кастовать все что угодно
 	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL))
+	{
 		return TRUE;
+	}
 
 	// Проверяю, что закл имеет одну из допустимых комбинаций параметров
-	ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
-			 IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS);
+	ignore = IS_SET(SpINFO.targets, TAR_IGNORE)
+		|| IS_SET(SpINFO.routines, MAG_MASSES)
+		|| IS_SET(SpINFO.routines, MAG_GROUPS);
 
 	// цели нет
 	if (!ignore && !victim)
+	{
 		return TRUE;
+	}
 
 	if (ignore && !IS_SET(SpINFO.routines, MAG_MASSES) && !IS_SET(SpINFO.routines, MAG_GROUPS))
 	{
 		if (SpINFO.violent)
+		{
 			return FALSE;	// нельзя злые кастовать
+		}
 		// если игнорируется цель, то должен быть GROUP или MASS
 		// в противном случае на цель кастовать нельзя
 		return victim == 0 ? TRUE : FALSE;
@@ -2039,14 +2052,15 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 	// остальные комбинации не проверяю
 
 	// индивидуальная цель
-	ignore = victim &&
-			 (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) ||
-			  IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) && !IS_SET(SpINFO.routines, MAG_AREAS);
+	ignore = victim
+		&& (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)
+			|| IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
+		&& !IS_SET(SpINFO.routines, MAG_AREAS);
 
 	// начинаю проверять условия каста
 	// Для добрых заклинаний - проверка на противника цели
 	// Для злых заклинаний - проверка на цель
-	for (ch_vict = world[caster->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
+	for (const auto ch_vict : world[caster->in_room]->people)
 	{
 		if (IS_IMMORTAL(ch_vict))
 			continue;	// имморталы на этот процесс не влияют
@@ -2060,12 +2074,16 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		if (SpINFO.violent)
 		{
 			if (!may_kill_here(caster, ch_vict))
+			{
 				return 0;
+			}
 		}
 		else
 		{
 			if (!may_kill_here(caster, ch_vict->get_fighting()))
+			{
 				return 0;
+			}
 		}
 	}
 
@@ -2632,9 +2650,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			}
 			else
 			{
-				for (tch = world[ch->in_room]->people; tch; tch = next_tch)
+				const auto people_copy = world[ch->in_room]->people;
+				for (const auto tch : people_copy)
 				{
-					next_tch = tch->next_in_room;
 					if (ch != tch)
 					{
 						call_magic(ch, tch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
@@ -2642,6 +2660,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				}
 			}
 		}
+
 		break;
 
 	case OBJ_DATA::ITEM_WAND:
@@ -2967,7 +2986,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		// начинаю проверять условия каста
 		// Для добрых заклинаний - проверка на противника цели
 		// Для злых заклинаний - проверка на цель
-		for (ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
+		for (const auto ch_vict : world[ch->in_room]->people)
 		{
 			if (SpINFO.violent)
 			{
@@ -2979,7 +2998,8 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 			}
 			else
 			{
-				if (ch_vict == tch && !same_group(ch, ch_vict))
+				if (ch_vict == tch
+					&& !same_group(ch, ch_vict))
 				{
 					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 					return FALSE;

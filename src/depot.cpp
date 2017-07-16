@@ -4,6 +4,7 @@
 
 #include "depot.hpp"
 
+#include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "db.h"
@@ -526,7 +527,7 @@ void init_depot()
 // * Загрузка самих хранилищ в банки делается после инита хранилищ и резета зон, потому как мобов надо.
 void load_chests()
 {
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (ch->nr > 0 && ch->nr <= top_of_mobt && mob_index[ch->nr].func == bank)
 		{

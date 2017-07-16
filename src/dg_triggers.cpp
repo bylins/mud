@@ -296,10 +296,16 @@ void greet_memory_mtrigger(CHAR_DATA * actor)
 	if (IN_ROOM(actor) == NOWHERE)
 		return;
 
-	for (ch = world[IN_ROOM(actor)]->people; ch; ch = ch->next_in_room)
+	for (const auto ch : world[IN_ROOM(actor)]->people)
 	{
-		if (!SCRIPT_MEM(ch) || !AWAKE(ch) || ch->get_fighting() || (ch == actor) || !CAN_START_MTRIG(ch))
+		if (!SCRIPT_MEM(ch)
+			|| !AWAKE(ch)
+			|| ch->get_fighting()
+			|| (ch == actor)
+			|| !CAN_START_MTRIG(ch))
+		{
 			continue;
+		}
 
 		// find memory line with command only
 		for (mem = SCRIPT_MEM(ch); mem && SCRIPT_MEM(ch); mem = mem->next)
@@ -360,14 +366,23 @@ int greet_mtrigger(CHAR_DATA * actor, int dir)
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	int intermediate, final = TRUE;
 
-	for (ch = world[IN_ROOM(actor)]->people; ch && !ch->purged(); ch = ch_next)
+	const auto people_copy = world[IN_ROOM(actor)]->people;
+	for (const auto ch : people_copy)
 	{
-		ch_next = ch->next_in_room;
-		if (!SCRIPT_CHECK
-				(ch,
-				 MTRIG_GREET | MTRIG_GREET_ALL | MTRIG_GREET_PC | MTRIG_GREET_PC_ALL) || !AWAKE(ch) || ch->get_fighting()
-				|| (ch == actor) || !CAN_START_MTRIG(ch))
+		if (ch->purged())
+		{
 			continue;
+		}
+
+		const auto mask = MTRIG_GREET | MTRIG_GREET_ALL | MTRIG_GREET_PC | MTRIG_GREET_PC_ALL;
+		if (!SCRIPT_CHECK(ch, mask)
+			|| !AWAKE(ch)
+			|| ch->get_fighting()
+			|| ch == actor
+			|| !CAN_START_MTRIG(ch))
+		{
+			continue;
+		}
 
 		for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 		{
@@ -398,59 +413,70 @@ int greet_mtrigger(CHAR_DATA * actor, int dir)
 }
 
 
-void entry_memory_mtrigger(CHAR_DATA * ch)
+void entry_memory_mtrigger(CHAR_DATA* const ch)
 {
 	TRIG_DATA *t;
 	CHAR_DATA *actor;
 	struct script_memory *mem;
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_MEM(ch) || !CAN_START_MTRIG(ch))
-		return;
-
-
-	for (actor = world[ch->in_room]->people; actor && SCRIPT_MEM(ch); actor = actor->next_in_room)
+	if (!SCRIPT_MEM(ch)
+		|| !CAN_START_MTRIG(ch))
 	{
-		if (actor != ch && SCRIPT_MEM(ch))
+		return;
+	}
+
+	for (const auto actor : world[ch->in_room]->people)
+	{
+		if (actor == ch)
 		{
-			for (mem = SCRIPT_MEM(ch); mem && SCRIPT_MEM(ch); mem = mem->next)
+			continue;
+		}
+
+		for (mem = SCRIPT_MEM(ch); mem; mem = mem->next)
+		{
+			if (GET_ID(actor) == mem->id)
 			{
-				if (GET_ID(actor) == mem->id)
+				struct script_memory *prev;
+
+				if (mem->cmd)
 				{
-					struct script_memory *prev;
-					if (mem->cmd)
-						command_interpreter(ch, mem->cmd);
-					else
+					command_interpreter(ch, mem->cmd);
+				}
+				else
+				{
+					for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 					{
-						for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
+						if (TRIGGER_CHECK(t, MTRIG_MEMORY)
+							&& (number(1, 100) <= GET_TRIG_NARG(t)))
 						{
-							if (TRIGGER_CHECK(t, MTRIG_MEMORY) &&
-									(number(1, 100) <= GET_TRIG_NARG(t)))
-							{
-								ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-								script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
-								break;
-							}
+							ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+							script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+							break;
 						}
 					}
-					// delete the memory
-					if (SCRIPT_MEM(ch) == mem)
-					{
-						SCRIPT_MEM(ch) = mem->next;
-					}
-					else
-					{
-						prev = SCRIPT_MEM(ch);
-						while (prev->next != mem)
-							prev = prev->next;
-						prev->next = mem->next;
-					}
-					if (mem->cmd)
-						free(mem->cmd);
-					free(mem);
 				}
-			}	// for (mem =.....
-		}
+
+				// delete the memory
+				if (SCRIPT_MEM(ch) == mem)
+				{
+					SCRIPT_MEM(ch) = mem->next;
+				}
+				else
+				{
+					prev = SCRIPT_MEM(ch);
+					while (prev->next != mem)
+						prev = prev->next;
+					prev->next = mem->next;
+				}
+
+				if (mem->cmd)
+				{
+					free(mem->cmd);
+				}
+				free(mem);
+			}
+		}	// for (mem =.....
 	}
 }
 
@@ -462,20 +488,26 @@ void income_mtrigger(CHAR_DATA * ch, int dir)
 	CHAR_DATA *i, *actor = NULL;
 
 	if ((!SCRIPT_CHECK(ch, MTRIG_INCOME)
-			&& !SCRIPT_CHECK(ch, MTRIG_INCOME_PC)) || !CAN_START_MTRIG(ch))
+			&& !SCRIPT_CHECK(ch, MTRIG_INCOME_PC))
+		|| !CAN_START_MTRIG(ch))
+	{
 		return;
+	}
 
-	for (i = world[ch->in_room]->people; i; i = i->next_in_room)
-		if (!IS_NPC(i) && CAN_SEE(ch, i))
+	for (const auto i : world[ch->in_room]->people)
+	{
+		if (!IS_NPC(i)
+			&& CAN_SEE(ch, i))
 		{
 			ispcinroom = 1;
 			actor = i;
 		}
+	}
 
 	for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 	{
 		if ((TRIGGER_CHECK(t, MTRIG_INCOME) || (TRIGGER_CHECK(t, MTRIG_INCOME_PC) && ispcinroom))
-				&& (number(1, 100) <= GET_TRIG_NARG(t)))
+			&& number(1, 100) <= GET_TRIG_NARG(t))
 		{
 			if (dir >= 0)
 				add_var_cntx(&GET_TRIG_VARS(t), "direction", dirs[rev_dir[dir]], 0);
@@ -543,10 +575,9 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 	TRIG_DATA *dummy;
 	char buf[MAX_INPUT_LENGTH];
 
-	for (ch = world[IN_ROOM(actor)]->people; ch; ch = ch_next)
+	const auto people_copy = world[IN_ROOM(actor)]->people;
+	for (const auto ch : people_copy)
 	{
-		ch_next = ch->next_in_room;
-
 		if (SCRIPT_CHECK(ch, MTRIG_COMMAND) && CAN_START_MTRIG(ch) && (actor != ch))
 		{
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
@@ -563,11 +594,14 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 						free_script(SCRIPT(ch));
 						SCRIPT(ch) = NULL;
 					}
+
 					break;
 				}
 
 				if (!TRIGGER_CHECK(t, MTRIG_COMMAND))
+				{
 					continue;
+				}
 
 				if (t->arglist.empty())
 				{
@@ -609,18 +643,21 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	for (ch = world[IN_ROOM(actor)]->people; ch; ch = ch_next)
+	const auto people_copy = world[IN_ROOM(actor)]->people;
+	for (const auto ch : people_copy)
 	{
-		ch_next = ch->next_in_room;
-
-		if (SCRIPT_CHECK(ch, MTRIG_SPEECH) && AWAKE(ch)
+		if (SCRIPT_CHECK(ch, MTRIG_SPEECH)
+			&& AWAKE(ch)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)
-			&& CAN_START_MTRIG(ch) && (actor != ch))
+			&& CAN_START_MTRIG(ch)
+			&& (actor != ch))
 		{
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 			{
 				if (!TRIGGER_CHECK(t, MTRIG_SPEECH))
+				{
 					continue;
+				}
 
 				if (t->arglist.empty())
 				{

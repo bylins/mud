@@ -1186,8 +1186,9 @@ void room_point_update()
 			world[count]->fires -= MIN(mana, world[count]->fires);
 			if (world[count]->fires <= 0)
 			{
-				act("Костер затух.", FALSE, world[count]->people, 0, 0, TO_ROOM);
-				act("Костер затух.", FALSE, world[count]->people, 0, 0, TO_CHAR);
+				act("Костер затух.", FALSE, world[count]->first_character(), 0, 0, TO_ROOM);
+				act("Костер затух.", FALSE, world[count]->first_character(), 0, 0, TO_CHAR);
+
 				world[count]->fires = 0;
 			}
 		}
@@ -1199,8 +1200,8 @@ void room_point_update()
 			{
 				OneWayPortal::remove(world[count]);
 				world[count]->pkPenterUnique = 0;
-				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_ROOM);
-				act("Пентаграмма медленно растаяла.", FALSE, world[count]->people, 0, 0, TO_CHAR);
+				act("Пентаграмма медленно растаяла.", FALSE, world[count]->first_character(), 0, 0, TO_ROOM);
+				act("Пентаграмма медленно растаяла.", FALSE, world[count]->first_character(), 0, 0, TO_CHAR);
 			}
 		}
 		if (world[count]->holes)
@@ -1208,8 +1209,8 @@ void room_point_update()
 			world[count]->holes--;
 			if (!world[count]->holes || roundup(world[count]->holes) == world[count]->holes)
 			{
-				act("Ямку присыпало землей...", FALSE, world[count]->people, 0, 0, TO_ROOM);
-				act("Ямку присыпало землей...", FALSE, world[count]->people, 0, 0, TO_CHAR);
+				act("Ямку присыпало землей...", FALSE, world[count]->first_character(), 0, 0, TO_ROOM);
+				act("Ямку присыпало землей...", FALSE, world[count]->first_character(), 0, 0, TO_CHAR);
 			}
 		}
 		if (world[count]->ices)
@@ -1546,11 +1547,12 @@ void obj_point_update()
 				}
 				else if (j->get_in_room() != NOWHERE)
 				{
-					if (world[j->get_in_room()]->people)
+					if (!world[j->get_in_room()]->people.empty())
 					{
-						act("Черви полностью сожрали $o3.", TRUE, world[j->get_in_room()]->people, j.get(), 0, TO_ROOM);
-						act("Черви не оставили от $o1 и следа.", TRUE, world[j->get_in_room()]->people, j.get(), 0, TO_CHAR);
+						act("Черви полностью сожрали $o3.", TRUE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
+						act("Черви не оставили от $o1 и следа.", TRUE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
 					}
+
 					obj_from_room(j.get());
 				}
 				else if (j->get_in_obj())
@@ -1680,13 +1682,14 @@ void obj_point_update()
 				}
 				else if (j->get_in_room() != NOWHERE)
 				{
-					if (world[j->get_in_room()]->people)
+					if (!world[j->get_in_room()]->people.empty())
 					{
 						act("$o рассыпал$U в прах, который был развеян ветром...",
-							FALSE, world[j->get_in_room()]->people, j.get(), 0, TO_CHAR);
+							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
 						act("$o рассыпал$U в прах, который был развеян ветром...",
-							FALSE, world[j->get_in_room()]->people, j.get(), 0, TO_ROOM);
+							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
 					}
+
 					obj_from_room(j.get());
 				}
 				else if (j->get_in_obj())
@@ -1996,12 +1999,12 @@ void repop_decay(zone_rnum zone)
 				}
 				else if (j->get_in_room() != NOWHERE)
 				{
-					if (world[j->get_in_room()]->people)
+					if (!world[j->get_in_room()]->people.empty())
 					{
 						act("$o рассыпал$U, вспыхнув ярким светом...",
-							FALSE, world[j->get_in_room()]->people, j.get(), 0, TO_CHAR);
+							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
 						act("$o рассыпал$U, вспыхнув ярким светом...",
-							FALSE, world[j->get_in_room()]->people, j.get(), 0, TO_ROOM);
+							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
 					}
 				}
 

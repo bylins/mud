@@ -652,7 +652,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int target;
 	room_rnum from_room;
-	CHAR_DATA *vict, *next_ch, *horse, *charmee, *ncharmee;
+	CHAR_DATA *vict, *horse;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -684,34 +684,28 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		for (vict = world[ch->in_room]->people; vict; vict = next_ch)
+		const auto people_copy = world[ch->in_room]->people;
+		for (const auto vict : people_copy)
 		{
-			next_ch = vict->next_in_room;
 			if (IS_NPC(vict)
-					&& !(IS_HORSE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-						 || MOB_FLAGGED(vict, MOB_ANGEL)|| MOB_FLAGGED(vict, MOB_GHOST)))
+				&& !(IS_HORSE(vict)
+					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+					|| MOB_FLAGGED(vict, MOB_ANGEL)
+					|| MOB_FLAGGED(vict, MOB_GHOST)))
+			{
 				continue;
-			/*			if (on_horse(vict) || has_horse(vict, TRUE))
-							horse = get_horse(vict);
-						else
-							horse = NULL;
-			*/
+			}
+
 			if (IN_ROOM(vict) == NOWHERE)
 			{
 				mob_log(ch, "mteleport transports from NOWHERE");
+
 				return;
 			}
 
 			char_from_room(vict);
 			char_to_room(vict, target);
-			/*			if (!str_cmp(argument, "horse") && horse) {
-							if (horse == next_ch)
-								next_ch = horse->next_in_room;
-							char_from_room(horse);
-							char_to_room(horse, target);
-						}
-						check_horse(vict);
-			*/
+
 			look_at_room(vict, TRUE);
 		}
 	}
@@ -732,9 +726,10 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, buf);
 			return;
 		}
-		for (charmee = world[IN_ROOM(vict)]->people; charmee; charmee = ncharmee)
+
+		const auto people_copy = world[IN_ROOM(vict)]->people;
+		for (const auto charmee : people_copy)
 		{
-			ncharmee = charmee->next_in_room;
 			if (IS_NPC(charmee)
 				&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 					|| MOB_FLAGGED(charmee, MOB_ANGEL)
@@ -765,6 +760,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			char_from_room(horse);
 			char_to_room(horse, target);
 		}
+
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers)
 		{
@@ -1190,8 +1186,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		m->script = tmpmob.script;
 		ch->memory = m->memory;
 		m->memory = tmpmob.memory;
-		ch->next_in_room = m->next_in_room;
-		m->next_in_room = tmpmob.next_in_room;
+
 		ch->next_fighting = m->next_fighting;
 		m->next_fighting = tmpmob.next_fighting;
 		ch->followers = m->followers;

@@ -4,6 +4,7 @@
 
 #include "char.hpp"
 
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "db.h"
@@ -158,7 +159,6 @@ void CHAR_DATA::reset()
 	in_room = NOWHERE;
 	carrying = NULL;
 	next_fighting = NULL;
-	next_in_room = NULL;
 	set_protecting(0);
 	set_touching(0);
 	BattleAffects = clear_flags;
@@ -372,7 +372,6 @@ void CHAR_DATA::zero_init()
 	proto_script.reset(new OBJ_DATA::triggers_list_t());
 	script = 0;
 	memory = 0;
-	next_in_room = 0;
 	next_fighting = 0;
 	followers = 0;
 	m_master = nullptr;
@@ -613,7 +612,6 @@ void CHAR_DATA::purge(bool destructor)
 void CHAR_DATA::purge(CHAR_DATA* character)
 {
 	character->purge(false);
-	character = nullptr;
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
@@ -980,50 +978,57 @@ bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 }
 
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
-void change_fighting(CHAR_DATA * ch, int need_stop)
+void change_fighting(CHAR_DATA* ch, int need_stop)
 {
-	CHAR_DATA *k, *j, *temp;
-
-	for (k = character_list; k; k = temp)
+	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& k)
 	{
-		temp = k->get_next();
 		if (k->get_protecting() == ch)
 		{
 			k->set_protecting(0);
 			CLR_AF_BATTLE(k, EAF_PROTECT);
 		}
+
 		if (k->get_touching() == ch)
 		{
 			k->set_touching(0);
 			CLR_AF_BATTLE(k, EAF_PROTECT);
 		}
+
 		if (k->get_extra_victim() == ch)
 		{
 			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 		}
+
 		if (k->get_cast_char() == ch)
 		{
 			k->set_cast(0, 0, 0, 0, 0);
 		}
+
 		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE)
 		{
 			log("[Change fighting] Change victim");
-			for (j = world[ch->in_room]->people; j; j = j->next_in_room)
+
+			bool found = false;
+			for (const auto j : world[ch->in_room]->people)
 			{
-				if (j->get_fighting() == k)
+				if (j->get_fighting() == k.get())
 				{
-					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
-					act("$n переключил$u на вас!", FALSE, k, 0, j, TO_VICT);
+					act("Вы переключили внимание на $N3.", FALSE, k.get(), 0, j, TO_CHAR);
+					act("$n переключил$u на вас!", FALSE, k.get(), 0, j, TO_VICT);
 					k->set_fighting(j);
+					found = true;
+
 					break;
 				}
 			}
-			if (!j && need_stop)
+
+			if (!found
+				&& need_stop)
 			{
-				stop_fighting(k, FALSE);
+				stop_fighting(k.get(), FALSE);
 			}
 		}
-	}
+	});
 }
 
 size_t fighting_list_size()
@@ -2160,8 +2165,7 @@ std::pair<int /* uid */, int /* rounds */> CHAR_DATA::get_max_damager_in_room() 
 	}
 
 	int max_dmg = 0;
-	for (CHAR_DATA *i = world[this->in_room]->people;
-		i; i = i->next_in_room)
+	for (const auto i : world[this->in_room]->people)
 	{
 		if (!IS_NPC(i) && i->desc)
 		{

@@ -6,7 +6,6 @@
 
 #include "logger.hpp"
 #include "utils.h"
-#include "conf.h"
 #include "db.h"
 #include "dg_scripts.h"
 #include "handler.h"
@@ -30,12 +29,12 @@
 #include "screen.h"
 #include "ext_money.hpp"
 #include "temp_spells.hpp"
+#include "conf.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
 #ifdef _WIN32
-
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -221,28 +220,27 @@ void Player::set_last_tell(const char *text)
 	}
 }
 
-
-
 void Player::str_to_cities(std::string str)
 {
-	boost::dynamic_bitset<> tmp_bitset(str);
+	decltype(cities) tmp_bitset(str);
 	this->cities = tmp_bitset;
 }
 
-void Player::mark_city(unsigned int index)
+void Player::mark_city(const size_t index)
 {
-	if (this->cities.size() != 0 && index < this->cities.size())
+	if (index < cities.size())
 	{
-		this->cities[index] = true;
+		cities[index] = true;
 	}
 }
 
-bool Player::check_city(unsigned int index)
+bool Player::check_city(const size_t index)
 {
-	if (this->cities.size() != 0 && index < this->cities.size())
+	if (index < cities.size())
 	{
-		return this->cities[index];
+		return cities[index];
 	}
+
 	return false;
 }
 

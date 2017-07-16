@@ -880,7 +880,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	DESCRIPTOR_DATA *i;
 	int rnum_start, rnum_stop;
 	bool found = false;
-	CHAR_DATA *c, *caster;
+	CHAR_DATA *caster;
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.
 	for (auto it = RoomSpells::aff_room_list.begin(); it != RoomSpells::aff_room_list.end(); ++it)
 	{
@@ -925,29 +925,35 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	for (; rnum_start <= rnum_stop; rnum_start++)
 	{
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
-		for (c = world[rnum_start]->people; c; c = c->next_in_room)
-			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
+		{
+			for (const auto c : world[rnum_start]->people)
 			{
-				sprintf(buf2, "Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n", zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)), GET_NAME(c));
-				send_to_char(buf2, ch);
-				found = true;
-
+				if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
+				{
+					sprintf(buf2, "Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n", zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)), GET_NAME(c));
+					send_to_char(buf2, ch);
+					found = true;
+				}
 			}
+		}
 	}
+
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
-	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
+	for (const auto c : world[STRANGE_ROOM]->people)
 	{
 		int was = c->get_was_in_room();
-		if (was == NOWHERE)
+		if (was == NOWHERE
+			|| GET_LEVEL(c) >= LVL_IMMORT
+			|| world[was]->zone != zone_nr)
+		{
 			continue;
-		if (GET_LEVEL(c) >= LVL_IMMORT)
-			continue;
-		if (world[was]->zone != zone_nr)
-			continue;
+		}
+
 		sprintf(buf2, "В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n", GET_NAME(c), zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)));
 		send_to_char(buf2, ch);
 		found = true;
 	}
+
 	if (!found)
 	{
 		sprintf(buf2, "В зоне %d даже мышь не пробегала.\r\n", zone_table[zone_nr].number);
@@ -966,11 +972,13 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 		send_to_char("Usage: занятость внумзоны\r\n", ch);
 		return;
 	}
+
 	if ((number = atoi(buf)) < 0)
 	{
 		send_to_char("Такого внума не может быть!\r\n", ch);
 		return;
 	}
+
 	// что-то по другому не нашел, как проверить существует такая зона или нет
 	for (zrn = 0; zrn <= top_of_zone_table; zrn++)
 	{
@@ -981,6 +989,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 			break;
 	    }
 	}
+
 	if (!is_found)
 	{
 		send_to_char("Такой зоны нет.\r\n", ch);
@@ -1268,8 +1277,6 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
-	CHAR_DATA *to;
-
 	if (PLR_FLAGGED(ch, PLR_DUMB))
 	{
 		send_to_char("Вы не в состоянии что-либо продемонстрировать окружающим.\r\n", ch);
@@ -1304,9 +1311,10 @@ void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			strcpy(buf, argument);
 		}
 
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		for (const auto to : world[ch->in_room]->people)
 		{
-			if (to == ch || ignores(to, ch, IGNORE_EMOTE))
+			if (to == ch
+				|| ignores(to, ch, IGNORE_EMOTE))
 			{
 				continue;
 			}
@@ -1782,25 +1790,38 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 		send_to_char(strcat(buf, "\r\n"), ch);
 	}
 	sprintf(buf, "Живые существа:%s", CCYEL(ch, C_NRM));
-	for (found = 0, k = rm->people; k; k = k->next_in_room)
+	found = 0;
+	size_t counter = 0;
+	for (auto k_i = rm->people.begin(); k_i != rm->people.end(); ++k_i)
 	{
+		const auto k = *k_i;
+		++counter;
+
 		if (!CAN_SEE(ch, k))
+		{
 			continue;
+		}
 		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
 				(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
 		strcat(buf, buf2);
 		if (strlen(buf) >= 62)
 		{
-			if (k->next_in_room)
+			if (counter != rm->people.size())
+			{
 				send_to_char(strcat(buf, ",\r\n"), ch);
+			}
 			else
+			{
 				send_to_char(strcat(buf, "\r\n"), ch);
+			}
 			*buf = found = 0;
 		}
 	}
 
 	if (*buf)
+	{
 		send_to_char(strcat(buf, "\r\n"), ch);
+	}
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	if (rm->contents)
@@ -3232,7 +3253,7 @@ void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // clean a room of all mobiles and objects
 void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *vict, *next_v;
+	CHAR_DATA *vict;
 	OBJ_DATA *obj, *next_o;
 
 	one_argument(argument, buf);
@@ -3289,9 +3310,9 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("$n произнес$q СЛОВО... вас окружило пламя!", FALSE, ch, 0, 0, TO_ROOM);
 		send_to_room("Мир стал немного чище.\r\n", ch->in_room, FALSE);
 
-		for (vict = world[ch->in_room]->people; vict; vict = next_v)
+		const auto people_copy = world[ch->in_room]->people;
+		for (const auto vict : people_copy)
 		{
-			next_v = vict->next_in_room;
 			if (IS_NPC(vict))
 			{
 				if (vict->followers
@@ -3919,19 +3940,27 @@ void perform_immort_vis(CHAR_DATA * ch)
 
 void perform_immort_invis(CHAR_DATA * ch, int level)
 {
-	CHAR_DATA *tch;
-
 	if (IS_NPC(ch))
+	{
 		return;
+	}
 
-	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[ch->in_room]->people)
 	{
 		if (tch == ch)
+		{
 			continue;
+		}
+
 		if (GET_LEVEL(tch) >= GET_INVIS_LEV(ch) && GET_LEVEL(tch) < level)
+		{
 			act("Вы вздрогнули, когда $n растворил$u на ваших глазах.", FALSE, ch, 0, tch, TO_VICT);
+		}
+
 		if (GET_LEVEL(tch) < GET_INVIS_LEV(ch) && GET_LEVEL(tch) >= level)
+		{
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, tch, TO_VICT);
+		}
 	}
 
 	SET_INVIS_LEV(ch, level);
@@ -4199,7 +4228,7 @@ void do_last(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *i, *next_desc;
-	CHAR_DATA *vict, *next_force;
+	CHAR_DATA *vict;
 	char to_force[MAX_INPUT_LENGTH + 2];
 
 	half_chop(argument, arg, to_force);
@@ -4235,11 +4264,16 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		imm_log("%s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
 
-		for (vict = world[ch->in_room]->people; vict; vict = next_force)
+		const auto people_copy = world[ch->in_room]->people;
+		for (const auto vict : people_copy)
 		{
-			next_force = vict->next_in_room;
-			if (!IS_NPC(vict) && GET_LEVEL(vict) >= GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
+			if (!IS_NPC(vict)
+				&& GET_LEVEL(vict) >= GET_LEVEL(ch)
+				&& !PRF_FLAGGED(ch, PRF_CODERINFO))
+			{
 				continue;
+			}
+
 			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
 			command_interpreter(vict, to_force);
 		}

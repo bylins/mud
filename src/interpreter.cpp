@@ -15,6 +15,7 @@
 
 #include "interpreter.h"
 
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "craft_commands.hpp"
@@ -64,11 +65,11 @@
 #include "reset_stats.hpp"
 #include "obj_sets.hpp"
 #include "utils.h"
+#include "temp_spells.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
-#include "temp_spells.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -81,10 +82,12 @@
 #include <algorithm>
 #include <stdexcept>
 
+#ifdef _WIN32
+#else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
+#endif
 
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
@@ -1834,16 +1837,17 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 	}
 
 	OBJ_DATA *i;
-	CHAR_DATA *k;
 	int j;
 
 	// special in room? //
 	if (GET_ROOM_SPEC(ch->in_room) != NULL)
+	{
 		if (GET_ROOM_SPEC(ch->in_room)(ch, world[ch->in_room], cmd, arg))
 		{
 			check_hiding_cmd(ch, -1);
 			return (1);
 		}
+	}
 
 	// special in equipment list? //
 	for (j = 0; j < NUM_WEARS; j++)
@@ -1872,7 +1876,7 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 	// special in mobile present? //
 //Polud чтобы продавцы не мешали друг другу в одной комнате, предусмотрим возможность различать их по номеру
 	int specialNum = 1; //если номер не указан - по умолчанию берется первый
-	for (k = world[ch->in_room]->people; k; k = k->next_in_room)
+	for (const auto k : world[ch->in_room]->people)
 	{
 		if (GET_MOB_SPEC(k) != NULL
 			&& (fnum == 1
@@ -1971,7 +1975,7 @@ int parse_exist_name(char *arg, char *name)
 int perform_dupe_check(DESCRIPTOR_DATA * d)
 {
 	DESCRIPTOR_DATA *k, *next_k;
-	CHAR_DATA *target = NULL, *ch, *next_ch;
+	CHAR_DATA *target = NULL;
 	int mode = 0;
 
 	int id = GET_IDNUM(d->character);
@@ -2043,37 +2047,37 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 	 * duplicates, though theoretically none should be able to exist).
 	 */
 
-	for (ch = character_list; ch; ch = next_ch)
+	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& ch)
 	{
-		next_ch = ch->get_next();
-
 		if (IS_NPC(ch))
-			continue;
+			return;
 		if (GET_IDNUM(ch) != id)
-			continue;
+			return;
 
 		// ignore chars with descriptors (already handled by above step) //
 		if (ch->desc)
-			continue;
+			return;
 
 		// don't extract the target char we've found one already //
-		if (ch == target)
-			continue;
+		if (ch.get() == target)
+			return;
 
 		// we don't already have a target and found a candidate for switching //
 		if (!target)
 		{
-			target = ch;
+			target = ch.get();
 			mode = RECON;
-			continue;
+			return;
 		}
 
 		// we've found a duplicate - blow him away, dumping his eq in limbo. //
 		if (ch->in_room != NOWHERE)
+		{
 			char_from_room(ch);
+		}
 		char_to_room(ch, STRANGE_ROOM);
-		extract_char(ch, FALSE);
-	}
+		extract_char(ch.get(), FALSE);
+	});
 
 	// no target for swicthing into was found - allow login to continue //
 	if (!target)
@@ -2198,17 +2202,20 @@ int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0)
 
 int check_dupes_email(DESCRIPTOR_DATA * d)
 {
-	CHAR_DATA *ch;
-
-	if (!d->character || IS_IMMORTAL(d->character))
-		return (1);
-
-	for (ch = character_list; ch; ch = ch->get_next())
+	if (!d->character
+		|| IS_IMMORTAL(d->character))
 	{
-		if (ch == d->character)
+		return (1);
+	}
+
+	for (const auto ch : character_list)
+	{
+		if (ch.get() == d->character
+			|| IS_NPC(ch))
+		{
 			continue;
-		if (IS_NPC(ch))
-			continue;
+		}
+
 		if (!IS_IMMORTAL(ch) && (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character))))
 		{
 			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
@@ -2216,8 +2223,10 @@ int check_dupes_email(DESCRIPTOR_DATA * d)
 			return (0);
 		}
 	}
+
 	return (1);
 }
+
 void add_logon_record(DESCRIPTOR_DATA * d)
 {
 	log("Enter logon list");
@@ -2288,7 +2297,6 @@ void check_religion(CHAR_DATA *ch)
 void do_entergame(DESCRIPTOR_DATA * d)
 {
 	int load_room, cmd, flag = 0;
-	CHAR_DATA *ch;
 
 	d->character->reset();
 	read_aliases(d->character);
@@ -2317,14 +2325,19 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
 		{
 			if (!strcmp(cmd_info[cmd].command, "syslog"))
+			{
 				if (Privilege::can_do_priv(d->character, std::string(cmd_info[cmd].command), cmd, 0))
 				{
 					flag = 1;
 					break;
 				}
+			}
 		}
+
 		if (!flag)
+		{
 			GET_LOGS(d->character)[0] = 0;
+		}
 	}
 
 	if (GET_LEVEL(d->character) < LVL_IMPL)
@@ -2360,6 +2373,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 				PRF_FLAGS(d->character).unset(PRF_ROOMFLAGS);
 			}
 		}
+
 		if (GET_INVIS_LEV(d->character) > 0
 			&& GET_LEVEL(d->character) < LVL_IMMORT)
 		{
@@ -2388,14 +2402,20 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	else
 	{
 		if ((load_room = GET_LOADROOM(d->character)) == NOWHERE)
+		{
 			load_room = calc_loadroom(d->character);
+		}
 		load_room = real_room(load_room);
 
 		if (!Clan::MayEnter(d->character, load_room, HCE_PORTAL))
+		{
 			load_room = Clan::CloseRent(load_room);
+		}
 
 		if (!is_rent(load_room))
+		{
 			load_room = NOWHERE;
+		}
 	}
 
 	// If char was saved with NOWHERE, or real_room above failed...
@@ -2409,24 +2429,24 @@ void do_entergame(DESCRIPTOR_DATA * d)
 
 	send_to_char(WELC_MESSG, d->character);
 
-	for (ch = character_list; ch; ch = ch->get_next())
+	CHAR_DATA* character = nullptr;
+	for (const auto character_i : character_list)
 	{
-		if (ch == d->character)
+		if (character_i.get() == d->character)
 		{
+			character = character_i.get();
 			break;
 		}
 	}
 
-	if (!ch)
+	if (!character)
 	{
-		d->character->set_next(character_list);
-		character_list = d->character;
-//		CharacterAlias::add(d->character);
+		character_list.push_front(d->character);
 	}
 	else
 	{
-		MOB_FLAGS(ch).unset(MOB_DELETE);
-		MOB_FLAGS(ch).unset(MOB_FREE);
+		MOB_FLAGS(character).unset(MOB_DELETE);
+		MOB_FLAGS(character).unset(MOB_FREE);
 	}
 
 	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));

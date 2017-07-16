@@ -262,8 +262,9 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 			GET_PAD(caster, 4) = str_dup("Богами");
 			GET_PAD(caster, 5) = str_dup("Богах");
 		}
-		caster->next_in_room = caster_room->people;
-		caster_room->people = caster;
+
+		caster_room->people.push_front(caster);
+
 		IN_ROOM(caster) = real_room(caster_room->number);
 	}
 

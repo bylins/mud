@@ -4096,7 +4096,7 @@ void do_bandage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 bool is_dark(room_rnum room)
 {
 	double coef = 0.0;
-	CHAR_DATA *tmp_ch;
+
 	// если на комнате висит флаг всегда светло, то добавляем
 	// +2 к коэф
 	if (ROOM_AFFECTED(room, AFF_ROOM_LIGHT))
@@ -4118,7 +4118,7 @@ bool is_dark(room_rnum room)
 	
 	// проходим по всем чарам и смотрим на них аффекты тьма/свет/освещение
 
-	for (tmp_ch = world[room]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
+	for (const auto tmp_ch : world[room]->people)
 	{
 		// если на чаре есть освещение, например, шарик или лампа
 		if (is_wear_light(tmp_ch))
@@ -4138,7 +4138,9 @@ bool is_dark(room_rnum room)
 	}
 	
 	if (coef < 0)
+	{
 		return true;
+	}
 	return false;
 		
 }

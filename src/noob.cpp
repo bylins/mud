@@ -169,14 +169,15 @@ std::vector<int> get_start_outfit(CHAR_DATA *ch)
 ///
 CHAR_DATA * find_renter(int room_rnum)
 {
-	for (CHAR_DATA *tch = world[room_rnum]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[room_rnum]->people)
 	{
 		if (GET_MOB_SPEC(tch) == receptionist)
 		{
 			return tch;
 		}
 	}
-	return 0;
+
+	return nullptr;
 }
 
 ///

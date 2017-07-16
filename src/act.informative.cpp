@@ -137,7 +137,7 @@ void do_cities(CHAR_DATA *ch, char*, int, int);
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch);
 void look_at_char(CHAR_DATA * i, CHAR_DATA * ch);
 void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode);
-void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch);
+void list_char_to_char(const ROOM_DATA::people_t& list, CHAR_DATA* ch);
 void do_auto_exits(CHAR_DATA * ch);
 void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is);
@@ -1685,11 +1685,9 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 }
 
-void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
+void list_char_to_char(const ROOM_DATA::people_t& list, CHAR_DATA* ch)
 {
-	CHAR_DATA *i;
-
-	for (i = list; i; i = i->next_in_room)
+	for (const auto i : list)
 	{
 		if (ch != i)
 		{
@@ -1709,11 +1707,9 @@ void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
 		}
 	}
 }
-void list_char_to_char_thing(CHAR_DATA * list, CHAR_DATA * ch)   //мобы рассы предмет будем выводить вместе с предметами желтеньким
+void list_char_to_char_thing(const ROOM_DATA::people_t& list, CHAR_DATA* ch)   //мобы рассы предмет будем выводить вместе с предметами желтеньким
 {
-	CHAR_DATA *i;
-
-	for (i = list; i; i = i->next_in_room)
+	for (const auto i : list)
 	{
 		if (ch != i)
 		{
@@ -2220,7 +2216,6 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
 	int count = 0, probe, percent;
 	ROOM_DATA::exit_data_ptr rdata;
-	CHAR_DATA *tch;
 
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
@@ -2238,6 +2233,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			{
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
 			}
+
 			int skill_pick = ch->get_skill(SKILL_PICK_LOCK) ;
 			if (EXIT_FLAGGED(rdata, EX_LOCKED) && skill_pick)
 			{
@@ -2256,17 +2252,24 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 
 					std::string color = Locks[index][1];
 					if (abs(skill_pick - rdata->lock_complexity)>10)
+					{
 						color = KIDRK;
+					}
 					if (COLOR_LEV(ch)>C_NRM)
-						count += sprintf(buf+count-2, Locks[index][0], color.c_str(), KNRM);
+					{
+						count += sprintf(buf + count - 2, Locks[index][0], color.c_str(), KNRM);
+					}
 					else
-						count += sprintf(buf+count-2, Locks[index][0], KNUL, KNUL);
+					{
+						count += sprintf(buf + count - 2, Locks[index][0], KNUL, KNUL);
+					}
 				}
 			}
 
 			send_to_char(buf, ch);
 			return;
-		};
+		}
+
 		if (IS_TIMEDARK(rdata->to_room))
 		{
 			count += sprintf(buf + count, " слишком темно.\r\n");
@@ -2274,7 +2277,8 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			if (info_is & EXIT_SHOW_LOOKING)
 			{
 				send_to_char("&R&q", ch);
-				for (count = 0, tch = world[rdata->to_room]->people; tch; tch = tch->next_in_room)
+				count = 0;
+				for (const auto tch : world[rdata->to_room]->people)
 				{
 					percent = number(1, skill_info[SKILL_LOOKING].max_percent);
 					probe =
@@ -2286,8 +2290,11 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 						count++;
 					}
 				}
+
 				if (!count)
+				{
 					send_to_char("Вы ничего не смогли разглядеть!\r\n", ch);
+				}
 				send_to_char("&Q&n", ch);
 			}
 		}
@@ -2315,7 +2322,6 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
 	int count = 0, percent = 0, probe = 0;
 	ROOM_DATA::exit_data_ptr rdata;
-	CHAR_DATA *tch;
 	int fight_count = 0;
 	string tmpstr = "";
 
@@ -2324,6 +2330,7 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		send_to_char("Вы забыли, что вы глухи?\r\n", ch);
 		return;
 	}
+
 	if (CAN_GO(ch, dir))
 	{
 		rdata = EXIT(ch, dir);
@@ -2333,11 +2340,15 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		{
 			count += sprintf(buf + count, " закрыто (%s).\r\n", fname(rdata->keyword));
 			send_to_char(buf, ch);
+
 			return;
-		};
-		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
+		}
+
+		sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
 		send_to_char(buf, ch);
-		for (count = 0, tch = world[rdata->to_room]->people; tch; tch = tch->next_in_room)
+
+		count = 0;
+		for (const auto tch : world[rdata->to_room]->people)
 		{
 			percent = number(1, skill_info[SKILL_HEARING].max_percent);
 			probe = train_skill(ch, SKILL_HEARING, skill_info[SKILL_HEARING].max_percent, tch);
@@ -2345,12 +2356,17 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			if (tch->get_fighting())
 			{
 				if (IS_NPC(tch))
+				{
 					tmpstr += " Вы слышите шум чьей-то борьбы.\r\n";
+				}
 				else
+				{
 					tmpstr += " Вы слышите звуки чьих-то ударов.\r\n";
+				}
 				fight_count++;
 				continue;
 			}
+
 			if ((probe >= percent || ((!AFF_FLAGGED(tch, EAffectFlag::AFF_SNEAK) || !AFF_FLAGGED(tch, EAffectFlag::AFF_HIDE)) && (probe > percent * 2)))
 					&& (percent < 100 || IS_IMMORTAL(ch))
 					&& !fight_count)
@@ -2381,20 +2397,30 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 					}
 				}
 				else
+				{
 					tmpstr += " Вы слышите чье-то присутствие.\r\n";
+				}
 				count++;
 			}
 		}
+
 		if ((!count) && (!fight_count))
+		{
 			send_to_char(" Тишина и покой.\r\n", ch);
+		}
 		else
+		{
 			send_to_char(tmpstr.c_str(), ch);
+		}
+
 		send_to_char(CCNRM(ch, C_NRM), ch);
 	}
 	else
 	{
 		if (info_is & EXIT_SHOW_WALL)
+		{
 			send_to_char("И что вы там хотите услышать?\r\n", ch);
+		}
 	}
 }
 
@@ -2861,9 +2887,13 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 
 	if (GET_POS(ch) < POS_SLEEPING)
+	{
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
+	}
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
+	{
 		send_to_char("Вы ослеплены!\r\n", ch);
+	}
 	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
 		skip_hide_on_look(ch);

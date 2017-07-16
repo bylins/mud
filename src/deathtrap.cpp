@@ -75,28 +75,20 @@ void DeathTrap::remove(ROOM_DATA* room)
 /// с пуржем чара натыкается далее на обнуленные структуры чармисов.
 void DeathTrap::activity()
 {
-	std::vector<CHAR_DATA *> tmp_list;
-
 	for (auto it = room_list.cbegin(); it != room_list.cend(); ++it)
 	{
-		for (CHAR_DATA *ch = (*it)->people; ch; ch = ch->next_in_room)
+		for (const auto i : (*it)->people)
 		{
-			tmp_list.push_back(ch);
-		}
-		for (auto i = tmp_list.cbegin(); i != tmp_list.cend(); ++i)
-		{
-			CHAR_DATA *ch = *i;
-			if (ch->purged() || IS_NPC(ch))
+			if (i->purged() || IS_NPC(i))
 			{
 				continue;
 			}
-			std::string name = ch->get_name_str();
+			std::string name = i->get_name_str();
 
-			Damage dmg(SimpleDmg(TYPE_ROOMDEATH),
-				MAX(1, GET_REAL_MAX_HIT(ch) >> 2), FightSystem::UNDEF_DMG);
+			Damage dmg(SimpleDmg(TYPE_ROOMDEATH), MAX(1, GET_REAL_MAX_HIT(i) >> 2), FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE);
 
-			if (dmg.process(ch, ch) < 0)
+			if (dmg.process(i, i) < 0)
 			{
 				char buf_[MAX_INPUT_LENGTH];
 				snprintf(buf_, sizeof(buf_),
@@ -105,7 +97,6 @@ void DeathTrap::activity()
 				mudlog(buf_, LGH, LVL_IMMORT, SYSLOG, TRUE);
 			}
 		}
-		tmp_list.clear();
 	}
 }
 

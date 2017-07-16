@@ -100,7 +100,6 @@ void redit_setup(DESCRIPTOR_DATA * d, int real_num)
 void redit_save_internally(DESCRIPTOR_DATA * d)
 {
 	int j, room_num, zone, cmd_no;
-	CHAR_DATA *temp_ch;
 	OBJ_DATA *temp_obj;
 	DESCRIPTOR_DATA *dsc;
 
@@ -118,7 +117,6 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		// Теперь просто удалить OLC_ROOM(d) и все будет хорошо
 		room_free(OLC_ROOM(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
-
 	}
 	else
 	{
@@ -126,9 +124,14 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		auto it = world.cbegin();
 		advance(it, FIRST_ROOM);
 		int i = FIRST_ROOM;
+
 		for (; it != world.cend(); ++it, ++i)
+		{
 			if ((*it)->number > OLC_NUM(d))
+			{
 				break;
+			}
+		}
 
 		ROOM_DATA *new_room = new ROOM_DATA;
 		room_copy(new_room, OLC_ROOM(d));
@@ -143,7 +146,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 			// если комната потеснила рнумы, то их надо переписать у людей/шмота в этих комнатах
 			for (i = room_num; i <= top_of_world; i++)
 			{
-				for (temp_ch = world[i]->people; temp_ch; temp_ch = temp_ch->next_in_room)
+				for (const auto temp_ch : world[i]->people)
 				{
 					if (temp_ch->in_room != NOWHERE)
 					{
@@ -164,6 +167,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		{
 			world.push_back(new_room);
 		}
+
 		fix_ingr_chest_rnum(room_num);//Фиксим позиции сундуков с инграми
 
 		// Copy world table over to new one.
@@ -173,7 +177,9 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 
 		// Update zone table.
 		for (zone = 0; zone <= top_of_zone_table; zone++)
+		{
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
+			{
 				switch (ZCMD.command)
 				{
 				case 'M':
@@ -199,6 +205,8 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 						ZCMD.arg2++;
 					break;
 				}
+			}
+		}
 
 		// * Update load rooms, to fix creeping load room problem.
 		if (room_num <= r_mortal_start_room)

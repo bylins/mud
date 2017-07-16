@@ -1005,20 +1005,17 @@ bool Clan::MayEnter(CHAR_DATA * ch, room_rnum room, bool mode)
 	{
 		// вход через дверь - контролирует охранник
 	case HCE_ATRIUM:
-		CHAR_DATA * mobs;
-		for (mobs = world[ch->in_room]->people; mobs; mobs = mobs->next_in_room)
+		for (const auto mobs : world[ch->in_room]->people)
 		{
-			if (clan->guard == GET_MOB_VNUM(mobs) && (!isMember))
+			if (clan->guard == GET_MOB_VNUM(mobs)
+				&& !isMember)
 			{
 				return 0;
 			}
 		}
+
 		// охранника нет - свободный доступ
-		if (!mobs)
-		{
-			return 1;
-		}
-		// break не надо
+		return 1;
 
 		// телепортация
 	case HCE_PORTAL:

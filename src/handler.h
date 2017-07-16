@@ -106,22 +106,27 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room);
 
 // find if character can see //
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name);
-CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name);
+inline CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name) { return get_char_room_vis(ch, name.c_str()); }
+
 CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom);
-CHAR_DATA *get_player_vis(CHAR_DATA * ch, const std::string &name, int inroom);
+inline CHAR_DATA *get_player_vis(CHAR_DATA * ch, const std::string &name, int inroom) { return get_player_vis(ch, name.c_str(), inroom); }
+
 CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom);
-CHAR_DATA *get_player_pun(CHAR_DATA * ch, const std::string &name, int inroom);
+inline CHAR_DATA *get_player_pun(CHAR_DATA * ch, const std::string &name, int inroom) { return get_player_pun(ch, name.c_str(), inroom); }
 
 CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where);
-CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where);
-OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list, bool locate_item = false);
-OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA * list);
-OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item = false);
-OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name);
-bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i);
-OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * equipment[], int *j);
-OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DATA * equipment[], int *j);
+inline CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where) { return get_char_vis(ch, name.c_str(), where); }
 
+OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list, bool locate_item = false);
+inline OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA * list) { return get_obj_in_list_vis(ch, name.c_str(), list); }
+
+OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item = false);
+inline OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name) { return get_obj_vis(ch, name.c_str()); }
+
+bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i);
+
+OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * equipment[], int *j);
+inline OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DATA * equipment[], int *j) { return get_object_in_equip_vis(ch, arg.c_str(), equipment, j); }
 
 // find all dots //
 
@@ -149,10 +154,8 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 #define CRASH_DELETE_NEW   (1 << 1)
 
 // prototypes from crash save system //
-int Crash_get_filename(char *orig_name, char *filename);
 int Crash_delete_files(int index);
 int Crash_delete_crashfile(CHAR_DATA * ch);
-int Crash_clean_file(char *name);
 void Crash_listrent(CHAR_DATA * ch, char *name);
 int Crash_load(CHAR_DATA * ch);
 void Crash_crashsave(CHAR_DATA * ch);

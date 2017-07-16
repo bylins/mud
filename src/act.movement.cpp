@@ -107,11 +107,11 @@ int check_death_ice(int room, CHAR_DATA* /*ch*/)
 
 	if ((sector == SECT_THIN_ICE && mass > 500) || (sector == SECT_NORMAL_ICE && mass > 1500))
 	{
-		CHAR_DATA* const first_in_room = world[room]->people.empty()
-			? nullptr
-			: *world[room]->people.begin();
+		const auto first_in_room = world[room]->first_character();
+
 		act("Лед проломился под вашей тяжестью.", FALSE, first_in_room, 0, 0, TO_ROOM);
 		act("Лед проломился под вашей тяжестью.", FALSE, first_in_room, 0, 0, TO_CHAR);
+
 		world[room]->weather.icelevel = 0;
 		world[room]->ices = 2;
 		GET_ROOM(room)->set_flag(ROOM_ICEDEATH);

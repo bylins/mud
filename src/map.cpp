@@ -324,7 +324,7 @@ void draw_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 	else
 	{
 		int cnt = 0;
-		for (CHAR_DATA *tch = world[room_rnum]->people; tch; tch = tch->next_in_room)
+		for (const auto tch : world[room_rnum]->people)
 		{
 			if (tch == ch)
 			{
@@ -345,6 +345,7 @@ void draw_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 				++cnt;
 			}
 		}
+
 		if (cnt > 0 && cnt <= 9)
 		{
 			put_on_screen(next_y, next_x - 1, SCREEN_MOB_UNDEF + cnt, 1);
@@ -411,7 +412,7 @@ void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, 
 {
 	bool all = ch->map_check_option(MAP_MODE_MOB_SPEC_ALL) ? true : false;
 
-	for (CHAR_DATA *tch = world[room_rnum]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[room_rnum]->people)
 	{
 		auto func = GET_MOB_SPEC(tch);
 		if (func)

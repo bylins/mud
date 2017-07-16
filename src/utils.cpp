@@ -952,13 +952,15 @@ int get_filename(const char *orig_name, char *filename, int mode)
 int num_pc_in_room(ROOM_DATA * room)
 {
 	int i = 0;
-	CHAR_DATA *ch;
-
-	for (ch = room->people; ch != NULL; ch = ch->next_in_room)
+	for (const auto ch : room->people)
+	{
 		if (!IS_NPC(ch))
+		{
 			i++;
+		}
+	}
 
-	return (i);
+	return i;
 }
 
 /*
@@ -1393,9 +1395,10 @@ bool is_rent(room_rnum room)
 		}
 	}
 	// комната без рентера в ней
-	for (CHAR_DATA *ch = world[room]->people; ch; ch = ch->next_in_room)
+	for (const auto ch : world[room]->people)
 	{
-		if (IS_NPC(ch) && IS_RENTKEEPER(ch))
+		if (IS_NPC(ch)
+			&& IS_RENTKEEPER(ch))
 		{
 			return true;
 		}
@@ -1406,10 +1409,14 @@ bool is_rent(room_rnum room)
 // Проверка является комната почтой.
 int is_post(room_rnum room)
 {
-	CHAR_DATA *ch;
-	for (ch = world[room]->people; ch; ch = ch->next_in_room)
-		if (IS_NPC(ch) && IS_POSTKEEPER(ch))
+	for (const auto ch : world[room]->people)
+	{
+		if (IS_NPC(ch)
+			&& IS_POSTKEEPER(ch))
+		{
 			return (TRUE);
+		}
+	}
 	return (FALSE);
 
 }

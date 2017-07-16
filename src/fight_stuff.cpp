@@ -504,13 +504,14 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (CAN_GO(ch, door))
 		{
-			CHAR_DATA *people = world[world[ch->in_room]->dir_option[door]->to_room]->people;
-			if (people)
+			const auto room_number = world[ch->in_room]->dir_option[door]->to_room;
+			const auto room = world[room_number];
+			if (!room->people.empty())
 			{
 				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
-					FALSE, people, 0, 0, TO_CHAR | CHECK_DEAF);
+					FALSE, room->first_character(), 0, 0, TO_CHAR | CHECK_DEAF);
 				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
-					FALSE, people, 0, 0, TO_ROOM | CHECK_DEAF);
+					FALSE, room->first_character(), 0, 0, TO_ROOM | CHECK_DEAF);
 			}
 		}
 	}

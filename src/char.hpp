@@ -624,6 +624,11 @@ public:
 	void add_ignore(const ignore_data::shared_ptr ignore);
 	void clear_ignores();
 
+	template <typename T>
+	void set_affect(T affect) { char_specials.saved.affected_by.set(affect); }
+	template <typename T>
+	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
+
 	static void purge(CHAR_DATA* character);
 
 private:
@@ -759,7 +764,6 @@ public:
 	struct SCRIPT_DATA *script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
-	CHAR_DATA *next_in_room;	// For room->people - list
 	CHAR_DATA *next_fighting;	// For fighting list
 
 	struct follow_type *followers;	// List of chars followers
@@ -828,8 +832,8 @@ inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 }
 
 inline FLAG_DATA& AFF_FLAGS(CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
-inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA::shared_ptr& ch) { return ch->char_specials.saved.affected_by; }
 inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA::shared_ptr& ch) { return ch->char_specials.saved.affected_by; }
 
 inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlag flag)
 {
@@ -871,9 +875,13 @@ inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA::shared_ptr& obj) { retur
 /// Can subject see character "obj"?
 bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
 inline bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA::shared_ptr& obj) { return CAN_SEE(sub, obj.get()); }
+inline bool CAN_SEE(const CHAR_DATA::shared_ptr& sub, const CHAR_DATA* obj) { return CAN_SEE(sub.get(), obj); }
+inline bool CAN_SEE(const CHAR_DATA::shared_ptr& sub, const CHAR_DATA::shared_ptr& obj) { return CAN_SEE(sub.get(), obj.get()); }
+
 bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj);
 
 bool IS_HORSE(const CHAR_DATA* ch);
+inline bool IS_HORSE(const CHAR_DATA::shared_ptr& ch) { return IS_HORSE(ch.get()); }
 bool IS_MORTIFIER(const CHAR_DATA* ch);
 
 bool MAY_ATTACK(const CHAR_DATA* sub);
@@ -885,6 +893,7 @@ inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
 }
 
 bool AWAKE(const CHAR_DATA* ch);
+inline bool AWAKE(const CHAR_DATA::shared_ptr& ch) { return AWAKE(ch.get()); }
 
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
@@ -905,6 +914,7 @@ inline bool IS_NOSEXY(const CHAR_DATA::shared_ptr& ch) { return IS_NOSEXY(ch.get
 bool IS_POLY(const CHAR_DATA* ch);
 
 int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val);
+inline int VPOSI_MOB(const CHAR_DATA::shared_ptr& ch, const int stat_id, const int val) { return VPOSI_MOB(ch.get(), stat_id, val); }
 
 inline auto GET_REAL_DEX(const CHAR_DATA* ch)
 {

@@ -14,6 +14,7 @@
 
 #include "handler.h"
 
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
 #include "obj.hpp"
@@ -1150,9 +1151,11 @@ void char_from_room(CHAR_DATA * ch)
 		ch->set_from_room(ch->in_room);
 
 	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
-	REMOVE_FROM_LIST(ch, world[ch->in_room]->people, [](auto list) -> auto& { return list->next_in_room; });
+
+	auto& people = world[ch->in_room]->people;
+	people.erase(std::find(people.begin(), people.end(), ch));
+
 	ch->in_room = NOWHERE;
-	ch->next_in_room = NULL;
 	ch->track_dirs = 0;
 }
 
@@ -1205,8 +1208,8 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		room = ch->get_from_room();
 	}
 
-	ch->next_in_room = world[room]->people;
-	world[room]->people = ch;
+	world[room]->people.push_front(ch);
+
 	ch->in_room = room;
 	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
 	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
@@ -2393,6 +2396,7 @@ int get_number(char **name)
 		strl_cpy(*name, tmpname, MAX_INPUT_LENGTH);
 		return res;
 	}
+
 	return 1;
 }
 
@@ -2456,45 +2460,44 @@ OBJ_DATA *get_obj_num(obj_rnum nr)
 // search a room for a char, and return a pointer if found..  //
 CHAR_DATA *get_char_room(char *name, room_rnum room)
 {
-	CHAR_DATA *i;
-	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
 	strcpy(tmp, name);
-	if (!(number = get_number(&tmp)))
-		return (NULL);
+	const int number = get_number(&tmp);
+	if (0 == number)
+	{
+		return nullptr;
+	}
 
-	for (i = world[room]->people; i && (j <= number); i = i->next_in_room)
+	int j = 0;
+	for (const auto i : world[room]->people)
 	{
 		if (isname(tmp, i->get_pc_name()))
 		{
 			if (++j == number)
 			{
-				return (i);
+				return i;
 			}
 		}
 	}
 
-	return (NULL);
+	return NULL;
 }
 
 // search all over the world for a char num, and return a pointer if found //
 CHAR_DATA *get_char_num(mob_rnum nr)
 {
-	CHAR_DATA *i;
-
-	for (i = character_list; i; i = i->get_next())
+	for (const auto i : character_list)
 	{
 		if (GET_MOB_RNUM(i) == nr)
 		{
-			return (i);
+			return i.get();
 		}
 	}
 
-	return (NULL);
+	return nullptr;
 }
-
 
 const int money_destroy_timer = 60;
 const int death_destroy_timer = 5;
@@ -2571,8 +2574,8 @@ int obj_decay(OBJ_DATA * object)
 			!IS_CORPSE(object)))
 	{
 
-		act("$o0 медленно утонул$G.", FALSE, world[room]->people, object, 0, TO_ROOM);
-		act("$o0 медленно утонул$G.", FALSE, world[room]->people, object, 0, TO_CHAR);
+		act("$o0 медленно утонул$G.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
+		act("$o0 медленно утонул$G.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
 		extract_obj(object);
 		return (1);
 	}
@@ -2580,8 +2583,8 @@ int obj_decay(OBJ_DATA * object)
 	if (((sect == SECT_FLYING) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING)))
 	{
 
-		act("$o0 упал$G вниз.", FALSE, world[room]->people, object, 0, TO_ROOM);
-		act("$o0 упал$G вниз.", FALSE, world[room]->people, object, 0, TO_CHAR);
+		act("$o0 упал$G вниз.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
+		act("$o0 упал$G вниз.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
 		extract_obj(object);
 		return (1);
 	}
@@ -2592,9 +2595,9 @@ int obj_decay(OBJ_DATA * object)
 	{
 
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
-			world[room]->people, object, 0, TO_ROOM);
+			world[room]->first_character(), object, 0, TO_ROOM);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
-			world[room]->people, object, 0, TO_CHAR);
+			world[room]->first_character(), object, 0, TO_CHAR);
 		extract_obj(object);
 		return (1);
 	}
@@ -3071,7 +3074,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
-	ch->remove_from_list(character_list);
 
 	if (ch->desc && ch->desc->original)
 	{
@@ -3109,17 +3111,16 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		freed = 1;
 	}
 
+	bool left_in_game = false;
 	if (!freed && ch->desc != NULL)
 	{
 		STATE(ch->desc) = CON_MENU;
 		SEND_TO_Q(MENU, ch->desc);
 		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
 		{
-			ch_w = ch->get_next();
 			do_entergame(ch->desc);
-			ch->set_next(ch_w);
+			left_in_game = true;
 		}
-
 	}
 	else  		// if a player gets purged from within the game
 	{
@@ -3129,7 +3130,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 			CHAR_DATA::purge(ch);
 		}
 	}
-//	ch = NULL;
+
+	if (!left_in_game)
+	{
+		character_list.remove(ch);
+	}
+
 	log("[Extract char] Stop function for char %s", name.c_str());
 }
 
@@ -3261,34 +3267,6 @@ CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom)
 
 	return (NULL);
 }
-CHAR_DATA *get_player_vis(CHAR_DATA * ch, const std::string &name, int inroom)
-{
-	CHAR_DATA *i;
-
-	for (i = character_list; i; i = i->get_next())
-	{
-		//if (IS_NPC(i) || (!(i->desc) && !RENTABLE(i) && !(inroom & FIND_CHAR_DISCONNECTED)))
-		//   continue;
-		if (IS_NPC(i))
-			continue;
-		if (!HERE(i))
-			continue;
-		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
-			continue;
-		//if (str_cmp(i->get_pc_name(), name))
-		//   continue;
-		if (!CAN_SEE_CHAR(ch, i))
-			continue;
-		if (!isname(name, i->get_pc_name()))
-		{
-			continue;
-		}
-		return (i);
-	}
-
-	return (NULL);
-}
-
 
 CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 {
@@ -3309,81 +3287,45 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 
 	return (NULL);
 }
-CHAR_DATA *get_player_pun(CHAR_DATA * ch, const std::string &name, int inroom)
-{
-	CHAR_DATA *i;
-
-	for (i = character_list; i; i = i->get_next())
-	{
-		if (IS_NPC(i))
-			continue;
-		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
-			continue;
-		if (!isname(name, i->get_pc_name()))
-		{
-			continue;
-		}
-		return (i);
-	}
-
-	return (NULL);
-}
-
 
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
 {
-	CHAR_DATA *i;
-	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 	// JE 7/18/94 :-) :-)
-	if (!str_cmp(name, "self") || !str_cmp(name, "me") ||
-			!str_cmp(name, "я") || !str_cmp(name, "меня") || !str_cmp(name, "себя"))
-	return (ch);
+	if (!str_cmp(name, "self")
+		|| !str_cmp(name, "me")
+		|| !str_cmp(name, "я")
+		|| !str_cmp(name, "меня")
+		|| !str_cmp(name, "себя"))
+	{
+		return (ch);
+	}
+
 	// 0.<name> means PC with name
 	strl_cpy(tmp, name, MAX_INPUT_LENGTH);
-	if (!(number = get_number(&tmp)))
-		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
-	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
+
+	const int number = get_number(&tmp);
+	if (0 == number)
+	{
+		return get_player_vis(ch, tmp, FIND_CHAR_ROOM);
+	}
+
+	int j = 0;
+	for (const auto i : world[ch->in_room]->people)
 	{
 		if (HERE(i) && CAN_SEE(ch, i)
 			&& isname(tmp, i->get_pc_name()))
 		{
 			if (++j == number)
 			{
-				return (i);
+				return i;
 			}
 		}
 	}
-	return (NULL);
-}
-CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const std::string &name)
-{
-	CHAR_DATA *i;
-	int j = 0, number;
-	// JE 7/18/94 :-) :-)
-	if (!str_cmp(name, "self") || !str_cmp(name, "me") ||
-			!str_cmp(name, "я") || !str_cmp(name, "меня") || !str_cmp(name, "себя"))
-		return (ch);
-	// 0.<name> means PC with name
-	std::string tmp(name);
-	if (!(number = get_number(tmp)))
-		return (get_player_vis(ch, tmp, FIND_CHAR_ROOM));
-	for (i = world[ch->in_room]->people; i && j <= number; i = i->next_in_room)
-	{
-		if (HERE(i)
-			&& CAN_SEE(ch, i)
-			&& isname(tmp, i->get_pc_name()))
-		{
-			if (++j == number)
-			{
-				return (i);
-			}
-		}
-	}
-	return (NULL);
-}
 
+	return NULL;
+}
 
 CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 {
@@ -3405,39 +3347,6 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 		for (i = character_list; i && (j <= number); i = i->get_next())
 		{
 			if (HERE(i) && CAN_SEE(ch, i)
-				&& isname(tmp, i->get_pc_name()))
-			{
-				if (++j == number)
-				{
-					return (i);
-				}
-			}
-		}
-	}
-
-	return (NULL);
-}
-CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int where)
-{
-	CHAR_DATA *i;
-	int j = 0, number;
-
-	// check the room first
-	if (where == FIND_CHAR_ROOM)
-		return get_char_room_vis(ch, name);
-	else if (where == FIND_CHAR_WORLD)
-	{
-		if ((i = get_char_room_vis(ch, name)) != NULL)
-			return (i);
-
-		std::string tmp(name);
-		if (!(number = get_number(tmp)))
-			return get_player_vis(ch, tmp, 0);
-
-		for (i = character_list; i && (j <= number); i = i->get_next())
-		{
-			if (HERE(i)
-				&& CAN_SEE(ch, i)
 				&& isname(tmp, i->get_pc_name()))
 			{
 				if (++j == number)
@@ -3492,35 +3401,6 @@ OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list,
 	}
 
 	return (NULL);
-}
-OBJ_DATA* get_obj_in_list_vis(CHAR_DATA* ch, const std::string &name, OBJ_DATA* list)
-{
-	OBJ_DATA *i;
-	int j = 0;
-	std::string tmp(name);
-
-	const auto number = get_number(tmp);
-	if (!number)
-	{
-		return NULL;
-	}
-
-	for (i = list; i && (j <= number); i = i->get_next_content())
-	{
-		if (isname(tmp, i->get_aliases())
-			|| CHECK_CUSTOM_LABEL(tmp, i, ch))
-		{
-			if (CAN_SEE_OBJ(ch, i))
-			{
-				if (++j == number)
-				{
-					return i;
-				}
-			}
-		}
-	}
-
-	return nullptr;
 }
 
 class ExitLoopException : std::exception {};
@@ -3586,65 +3466,6 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 
 	return result.get();
 }
-
-// search the entire world for an object, and return a pointer  //
-OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name)
-{
-	OBJ_DATA *i;
-
-	// scan items carried //
-	if ((i = get_obj_in_list_vis(ch, name, ch->carrying)) != NULL)
-	{
-		return i;
-	}
-
-	// scan room //
-	if ((i = get_obj_in_list_vis(ch, name, world[ch->in_room]->contents)) != NULL)
-	{
-		return i;
-	}
-
-	std::string tmp(name);
-	const auto number = get_number(tmp);
-	if (!number)
-	{
-		return nullptr;
-	}
-
-	// ok.. no luck yet. scan the entire obj list   //
-	OBJ_DATA::shared_ptr result;
-	try
-	{
-		int j = 0;
-		world_objects.find_if([&](const OBJ_DATA::shared_ptr& i)
-		{
-			if (j > number)
-			{
-				throw ExitLoopException();
-			}
-
-			if (isname(tmp, i->get_aliases())
-				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
-			{
-				if (CAN_SEE_OBJ(ch, i.get()))
-				{
-					if (++j == number)
-					{
-						return true;
-					}
-				}
-			}
-
-			return false;
-		});
-	}
-	catch (const ExitLoopException&)
-	{
-	}
-
-	return result.get();
-}
-
 
 bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 {
@@ -3780,36 +3601,6 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * eq
 					if (++l == number)
 					{
 						return equipment[(*j)];
-					}
-				}
-			}
-		}
-	}
-
-	return (NULL);
-}
-OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DATA * equipment[], int *j)
-{
-	int l, number;
-	std::string tmp(arg);
-
-	if (!(number = get_number(tmp)))
-	{
-		return nullptr;
-	}
-
-	for ((*j) = 0, l = 0; (*j) < NUM_WEARS; (*j)++)
-	{
-		if (equipment[(*j)])
-		{
-			if (CAN_SEE_OBJ(ch, equipment[(*j)]))
-			{
-				if (isname(tmp, equipment[(*j)]->get_aliases())
-					|| CHECK_CUSTOM_LABEL(tmp, equipment[(*j)], ch))
-				{
-					if (++l == number)
-					{
-						return (equipment[(*j)]);
 					}
 				}
 			}

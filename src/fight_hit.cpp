@@ -2352,7 +2352,7 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& !IS_NPC(victim)
 		&& AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP))
 	{
-		for (CHAR_DATA *keeper = world[IN_ROOM(victim)]->people; keeper; keeper = keeper->next_in_room)
+		for (const auto keeper : world[IN_ROOM(victim)]->people)
 		{
 			if (IS_NPC(keeper)
 				&& MOB_FLAGGED(keeper, MOB_ANGEL)
@@ -2422,11 +2422,10 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			if (spell_num == SPELL_POISON)
 			{
-				CHAR_DATA *poisoner;
-				for (poisoner = world[IN_ROOM(victim)]->people; poisoner;
-					poisoner = poisoner->next_in_room)
+				for (const auto poisoner : world[IN_ROOM(victim)]->people)
 				{
-					if (poisoner != victim && GET_ID(poisoner) == victim->Poisoner)
+					if (poisoner != victim
+						&& GET_ID(poisoner) == victim->Poisoner)
 					{
 						killer = poisoner;
 					}
@@ -2434,9 +2433,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			}
 			else if (msg_num == TYPE_SUFFERING)
 			{
-				CHAR_DATA *attacker;
-				for (attacker = world[IN_ROOM(victim)]->people; attacker;
-					attacker = attacker->next_in_room)
+				for (const auto attacker : world[IN_ROOM(victim)]->people)
 				{
 					if (attacker->get_fighting() == victim)
 					{
@@ -3661,9 +3658,14 @@ void HitData::check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (!hit_no_parry)
 	{
 		// обработаем ситуацию ЗАХВАТ
-		for (CHAR_DATA *vict = world[ch->in_room]->people; vict && dam >= 0;
-			vict = vict->next_in_room)
+		const auto& people = world[ch->in_room]->people;
+		for (const auto vict : people)
 		{
+			if (dam < 0)
+			{
+				break;
+			}
+
 			hit_touching(ch, vict, &dam);
 		}
 	}
@@ -4289,7 +4291,6 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 
 	OBJ_DATA *wielded = NULL;
 	int percent = 0, prob = 0, div = 0, moves = 0;
-	CHAR_DATA *tch;
 
 	if (IS_NPC(ch))
 	{
@@ -4306,30 +4307,41 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 					percent++;
 			percent = weapon % percent;
 			for (prob = 0; prob <= 4; prob++)
+			{
 				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
 				{
-					if (percent)
-						percent--;
-					else
+					if (0 == percent)
+					{
 						break;
+					}
+
+					--percent;
 				}
+			}
+
 			if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
 			{
-				for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+				for (const auto tch : world[ch->in_room]->people)
 				{
-					if (IS_IMMORTAL(tch))	// immortal
+					if (IS_IMMORTAL(tch)
+						|| ch->in_room == NOWHERE
+						|| IN_ROOM(tch) == NOWHERE)
+					{
 						continue;
-					if (ch->in_room == NOWHERE ||	// Something killed in process ...
-							IN_ROOM(tch) == NOWHERE)
-						continue;
-					if (tch != ch && !same_group(ch, tch))
-						mag_damage(GET_LEVEL(ch), ch, tch,
-								   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+					}
+
+					if (tch != ch
+						&& !same_group(ch, tch))
+					{
+						mag_damage(GET_LEVEL(ch), ch, tch, SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+					}
 				}
 			}
 			else
-				mag_damage(GET_LEVEL(ch), ch, ch->get_fighting(),
-						   SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+			{
+				mag_damage(GET_LEVEL(ch), ch, ch->get_fighting(), SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+			}
+
 			return;
 		}
 	}

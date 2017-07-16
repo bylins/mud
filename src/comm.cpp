@@ -31,6 +31,7 @@
 
 #include "comm.h"
 
+#include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "external.trigger.hpp"
@@ -3879,11 +3880,16 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 */
 bool any_other_ch(CHAR_DATA *ch)
 {
-	for (CHAR_DATA *vict = character_list; vict; vict = vict->get_next())
+	for (const auto vict : character_list)
 	{
-		if (!IS_NPC(vict) && vict != ch && GET_UNIQUE(vict) == GET_UNIQUE(ch))
+		if (!IS_NPC(vict)
+			&& vict.get() != ch
+			&& GET_UNIQUE(vict) == GET_UNIQUE(ch))
+		{
 			return true;
+		}
 	}
+
 	return false;
 }
 
@@ -4380,22 +4386,25 @@ void send_to_gods(const char *messg)
 	}
 }
 
-
 void send_to_room(const char *messg, room_rnum room, int to_awake)
 {
-	CHAR_DATA *i;
-
 	if (messg == NULL)
+	{
 		return;
+	}
 
-	for (i = world[room]->people; i; i = i->next_in_room)
-		if (i->desc && !IS_NPC(i) && (!to_awake || AWAKE(i)))
+	for (const auto i : world[room]->people)
+	{
+		if (i->desc &&
+			!IS_NPC(i)
+			&& (!to_awake
+				|| AWAKE(i)))
 		{
 			SEND_TO_Q(messg, i->desc);
 			SEND_TO_Q("\r\n", i->desc);
 		}
+	}
 }
-
 
 #define CHK_NULL(pointer, expression) \
   ((pointer) == NULL) ? ACTNULL : (expression)
@@ -4714,17 +4723,20 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 			(IS_NPC(ch) || !PLR_FLAGGED((ch), PLR_WRITING)))
 #endif
 
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type, const std::string& kick_type)
+void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj, const void *vict_obj, int type, const std::string& kick_type)
 {
-	CHAR_DATA *to;
-	int to_sleeping, check_deaf, check_nodeaf, stopcount, to_arena=0, arena_room_rnum;
+	int to_sleeping, check_deaf, check_nodeaf, to_arena=0, arena_room_rnum;
 	int to_brief_shields = 0, to_no_brief_shields = 0;
 
 	if (!str || !*str)
+	{
 		return;
+	}
 
 	if (!(dg_act_check = !(type & DG_NO_TRIG)))
+	{
 		type &= ~DG_NO_TRIG;
+	}
 
 	/*
 	 * Warning: the following TO_SLEEP code is a hack.
@@ -4768,7 +4780,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 
 	if (type == TO_VICT)
 	{
-		if ((to = (CHAR_DATA *) vict_obj) != NULL
+		CHAR_DATA *to = (CHAR_DATA *)vict_obj;
+		if (to != NULL
 			&& SENDOK(to)
 			&& IN_ROOM(to) != NOWHERE
 			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
@@ -4778,18 +4791,20 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 		{
 			perform_act(str, ch, obj, vict_obj, to, kick_type);
 		}
+
 		return;
 	}
 	// ASSUMPTION: at this point we know type must be TO_NOTVICT or TO_ROOM
 	// or TO_ROOM_HIDE
 
+	size_t room_number = ~0;
 	if (ch && ch->in_room != NOWHERE)
 	{
-		to = world[ch->in_room]->people;
+		room_number = ch->in_room;
 	}
 	else if (obj && obj->get_in_room() != NOWHERE)
 	{
-		to = world[obj->get_in_room()]->people;
+		room_number = obj->get_in_room();
 	}
 	else
 	{
@@ -4800,8 +4815,15 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 	// нужно чтоб не выводились сообщения только для арены лишний раз
 	if (type == TO_NOTVICT || type == TO_ROOM || type == TO_ROOM_HIDE)
 	{
-		for (stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++)
+		int stop_counter = 0;
+		for (const auto to : world[room_number]->people)
 		{
+			if (stop_counter >= 1000)
+			{
+				break;
+			}
+			++stop_counter;
+
 			if (!SENDOK(to) || (to == ch))
 				continue;
 			if (hide_invisible && ch && !CAN_SEE(to, ch))
@@ -4851,9 +4873,15 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 			// находим клетку в которой слышно арену и всем игрокам в ней передаем сообщение с арены
 			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ROOM_ARENARECV))
 			{
-				to = world[arena_room_rnum]->people;
-				for (stopcount = 0; to && stopcount < 200; to = to->next_in_room, stopcount++)
+				int stop_count = 0;
+				for (const auto to : world[arena_room_rnum]->people)
 				{
+					if (stop_count >= 200)
+					{
+						break;
+					}
+					++stop_count;
+
 					if (!IS_NPC(to))
 					{
 						perform_act(str, ch, obj, vict_obj, to, to_arena, kick_type);

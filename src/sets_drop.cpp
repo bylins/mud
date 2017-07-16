@@ -484,7 +484,8 @@ void init_mob_name_list()
 			banker = false;
 			curr_zone = zone_table[i->zone].number;
 		}
-		for (CHAR_DATA *ch = i->people; ch; ch = ch->next_in_room)
+
+		for (const auto ch : i->people)
 		{
 			if (IS_RENTKEEPER(ch))
 			{

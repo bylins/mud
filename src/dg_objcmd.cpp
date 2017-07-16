@@ -144,20 +144,20 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 
 void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int room;
-
 	skip_spaces(&argument);
 
+	int room;
 	if (!*argument)
+	{
 		obj_log(obj, "oecho called with no args");
+	}
 	else if ((room = obj_room(obj)) != NOWHERE)
 	{
-		if (world[room]->people)
-			sub_write(argument, world[room]->people, TRUE, TO_ROOM | TO_CHAR);
+		if (!world[room]->people.empty())
+		{
+			sub_write(argument, world[room]->first_character(), TRUE, TO_ROOM | TO_CHAR);
+		}
 	}
-	// WorM: особой необходимости спамить это нету
-	//else
-	//	obj_log(obj, "oecho called by object in NOWHERE");
 }
 
 void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -171,19 +171,24 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!*arg1 || !*line)
 	{
 		obj_log(obj, "oforce called with too few args");
+
 		return;
 	}
 
-	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
+	if (!str_cmp(arg1, "all")
+		|| !str_cmp(arg1, "все"))
 	{
 		if ((room = obj_room(obj)) == NOWHERE)
+		{
 			obj_log(obj, "oforce called by object in NOWHERE");
+		}
 		else
 		{
-			for (ch = world[room]->people; ch; ch = next_ch)
+			const auto people_copy = world[room]->people;
+			for (const auto ch : people_copy)
 			{
-				next_ch = ch->next_in_room;
-				if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
+				if (IS_NPC(ch)
+					|| GET_LEVEL(ch) < LVL_IMMORT)
 				{
 					command_interpreter(ch, line);
 				}
@@ -196,15 +201,23 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			// если чар в ЛД
 			if (!IS_NPC(ch))
-			    if (!ch->desc)
-				return;
-			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
+			{
+				if (!ch->desc)
+				{
+					return;
+				}
+			}
+
+			if (IS_NPC(ch)
+				|| GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
 			}
 		}
 		else
+		{
 			obj_log(obj, "oforce: no target found");
+		}
 	}
 }
 
@@ -404,33 +417,59 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 
 		if (target == rm)
-			obj_log(obj, "oteleport target is itself");
-		for (ch = world[rm]->people; ch; ch = next_ch)
 		{
-			next_ch = ch->next_in_room;
-			if (IS_NPC(ch)
-					&& !(IS_HORSE(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-						 || MOB_FLAGGED(ch, MOB_ANGEL)|| MOB_FLAGGED(ch, MOB_GHOST)))
-				continue;
+			obj_log(obj, "oteleport target is itself");
+		}
 
-			if (on_horse(ch) || has_horse(ch, TRUE))
+		const auto people_copy = world[rm]->people;
+		decltype(world[rm]->people)::const_iterator next_ch = people_copy.begin();
+		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch)
+		{
+			const auto ch = *ch_i;
+			++next_ch;
+
+			if (IS_NPC(ch)
+				&& !(IS_HORSE(ch)
+					|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+					|| MOB_FLAGGED(ch, MOB_ANGEL)
+					|| MOB_FLAGGED(ch, MOB_GHOST)))
+			{
+				continue;
+			}
+
+			if (on_horse(ch)
+				|| has_horse(ch, TRUE))
+			{
 				horse = get_horse(ch);
+			}
 			else
+			{
 				horse = NULL;
+			}
+
 			if (ch->in_room == NOWHERE)
 			{
 				obj_log(obj, "oteleport transports from NOWHERE");
 				return;
 			}
+
 			char_from_room(ch);
 			char_to_room(ch, target);
-			if (!str_cmp(argument, "horse") && horse)
+
+			if (!str_cmp(argument, "horse")
+				&& horse)
 			{
-				if (horse == next_ch)
-					next_ch = horse->next_in_room;
+				// skip horse
+				if (next_ch != people_copy.end()
+					&& horse == *next_ch)
+				{
+					++next_ch;
+				}
+
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}
+
 			check_horse(ch);
 			look_at_room(ch, TRUE);
 		}
@@ -449,9 +488,9 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				horse = NULL;
 			}
 
-			for (charmee = world[ch->in_room]->people; charmee; charmee = ncharmee)
+			const auto people_copy = world[ch->in_room]->people;
+			for (const auto charmee : people_copy)
 			{
-				ncharmee = charmee->next_in_room;
 				if (IS_NPC(charmee)
 					&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 						|| MOB_FLAGGED(charmee, MOB_ANGEL)
@@ -465,16 +504,21 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 			char_from_room(ch);
 			char_to_room(ch, target);
-			if (!str_cmp(argument, "horse") && horse)
+
+			if (!str_cmp(argument, "horse")
+				&& horse)
 			{
 				char_from_room(horse);
 				char_to_room(horse, target);
 			}
+
 			check_horse(ch);
 			look_at_room(ch, TRUE);
 		}
 		else
+		{
 			obj_log(obj, "oteleport: no target found");
+		}
 	}
 }
 
