@@ -2797,6 +2797,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		spellnum = SPELL_WEAKNESS;
 		break;
 	case SPELL_STONESKIN:
+	case SPELL_STONE_WALL:
 		af[0].location = APPLY_ABSORBE;
 		af[0].modifier = (level * 2 + 1) / 3;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
@@ -2806,6 +2807,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_FAST_REGENERATION:
+	case SPELL_GENERAL_RECOVERY:
 		af[0].location = APPLY_HITREG;
 		af[0].modifier = 50;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
@@ -3327,6 +3329,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_DETECT_ALIGN:
+	case SPELL_GENERAL_SINCERITY:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
 		accum_duration = TRUE;
@@ -3335,6 +3338,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_DETECT_INVIS:
+	case SPELL_ALL_SEEING_EYE:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
 		accum_duration = TRUE;
@@ -3343,6 +3347,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_DETECT_MAGIC:
+	case SPELL_MAGICAL_GAZE:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_MAGIC);
 		accum_duration = TRUE;
@@ -3351,6 +3356,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_INFRAVISION:
+	case SPELL_SIGHT_OF_DARKNESS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
 		accum_duration = TRUE;
@@ -3359,6 +3365,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_DETECT_POISON:
+	case SPELL_SNAKE_EYES:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_POISON);
 		accum_duration = TRUE;
@@ -3548,7 +3555,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_SENSE_LIFE:
+	case SPELL_EYE_OF_GODS:
 		to_vict = "Вы способны разглядеть даже микроба.";
+		to_room = "$n1 начал$u замечать любые движения.";
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_SENSE_LIFE);
 		accum_duration = TRUE;
@@ -4806,6 +4815,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 		send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 		break;
 	case SPELL_FULL:
+	case SPELL_COMMON_MEAL:
 		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
 		{
 			GET_COND(victim, THIRST) = 24;
@@ -5894,6 +5904,58 @@ const spl_message groups_messages[] =
 	 NULL,
 	 NULL,
 	 0},
+// новые спелы. описание по ходу появления идей         
+	{SPELL_SIGHT_OF_DARKNESS,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_GENERAL_SINCERITY,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_MAGICAL_GAZE,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_ALL_SEEING_EYE,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_EYE_OF_GODS,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_BREATHING_AT_DEPTH,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_GENERAL_RECOVERY,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_COMMON_MEAL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_STONE_WALL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_SNAKE_EYES,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+// конец групповых спелов         
 	{ -1, 0, 0, 0, 0 }
 };
 
