@@ -451,7 +451,9 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d", number);
 				mob_log(ch, buf);
-                                return;
+                                // в последствии раскоментить
+                                // и добавить екстракт объекта
+                                //return;
 			}
 		}
 

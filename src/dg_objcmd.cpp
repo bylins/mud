@@ -523,7 +523,9 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d", number);
 				obj_log(obj, buf);
-                                return;
+                                // в последствии раскоментить
+                                // и добавить екстракт объекта
+                                //return;
 			}
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
