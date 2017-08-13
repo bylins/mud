@@ -514,7 +514,6 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!object)
 		{
 			obj_log(obj, "oload: bad object vnum");
-			return;
 		}
 
 		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
@@ -524,6 +523,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d", number);
 				obj_log(obj, buf);
+                                return;
 			}
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
