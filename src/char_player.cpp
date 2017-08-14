@@ -2259,7 +2259,7 @@ namespace PlayerSystem
 int con_natural_hp(CHAR_DATA *ch)
 {
 	double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
-		+ (ch->get_con() - class_app[GET_CLASS(ch)].base_con)
+		+ (VPOSI_MOB(ch, 2, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
 		* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
 	return 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
 }
@@ -2269,7 +2269,8 @@ int con_natural_hp(CHAR_DATA *ch)
 ///
 int con_add_hp(CHAR_DATA *ch)
 {
-	return class_app[(int) GET_CLASS(ch)].koef_con * GET_CON_ADD(ch) * GET_LEVEL(ch) / 100;
+	int con_add = MAX(0, GET_REAL_CON(ch) - ch->get_con());
+	return class_app[(int)GET_CLASS(ch)].koef_con * con_add * GET_LEVEL(ch) / 100;
 }
 
 ///
