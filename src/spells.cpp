@@ -3348,7 +3348,17 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL_MELFS_ACID_ARROW!",
 	"!SPELL_THUNDERSTONE!",
 	"!SPELL_CLOD!",
-	"Эффект боевого приема завершился."
+	"Эффект боевого приема завершился.",
+	"!SPELL SIGHT OF DARKNESS!",
+	"!SPELL GENERAL SINCERITY!",
+	"!SPELL MAGICAL GAZE!",
+	"!SPELL ALL SEEING EYE!",
+	"!SPELL EYE OF GODS!",
+	"!SPELL BREATHING AT DEPTH!",
+	"!SPELL GENERAL RECOVERY!",
+	"!SPELL COMMON MEAL!",
+	"!SPELL STONE WALL!",
+	"!SPELL SNAKE EYES!"
 };
 
 /**

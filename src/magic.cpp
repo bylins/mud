@@ -2804,6 +2804,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_room = "Кожа $n1 покрылась каменными пластинами.";
 		to_vict = "Вы стали менее чувствительны к ударам.";
+		spellnum = SPELL_STONESKIN;
 		break;
 
 	case SPELL_GENERAL_RECOVERY:
@@ -2817,6 +2818,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_room = "$n расцвел$g на ваших глазах.";
 		to_vict = "Вас наполнила живительная сила.";
+		spellnum = SPELL_FAST_REGENERATION;
 		break;
 
 	case SPELL_AIR_SHIELD:
@@ -3335,6 +3337,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели зеленый оттенок.";
 		to_room = "Глаза $n1 приобрели зеленый оттенок.";
+		spellnum = SPELL_DETECT_ALIGN;
 		break;
 
 	case SPELL_ALL_SEEING_EYE:
@@ -3344,6 +3347,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели золотистый оттенок.";
 		to_room = "Глаза $n1 приобрели золотистый оттенок.";
+		spellnum = SPELL_DETECT_INVIS;
 		break;
 
 	case SPELL_MAGICAL_GAZE:
@@ -3353,6 +3357,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели желтый оттенок.";
 		to_room = "Глаза $n1 приобрели желтый оттенок.";
+		spellnum = SPELL_DETECT_MAGIC;
 		break;
 
 	case SPELL_SIGHT_OF_DARKNESS:
@@ -3362,6 +3367,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели красный оттенок.";
 		to_room = "Глаза $n1 приобрели красный оттенок.";
+		spellnum = SPELL_INFRAVISION;
 		break;
 
 	case SPELL_SNAKE_EYES:
@@ -3371,6 +3377,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели карий оттенок.";
 		to_room = "Глаза $n1 приобрели карий оттенок.";
+		spellnum = SPELL_DETECT_POISON;
 		break;
 
 	case SPELL_GROUP_INVISIBLE:
@@ -3561,6 +3568,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_SENSE_LIFE);
 		accum_duration = TRUE;
+		spellnum = SPELL_SENSE_LIFE;
 		break;
 
 	case SPELL_WATERWALK:
@@ -3577,6 +3585,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_vict = "У вас выросли жабры.";
 		to_room = "У $n1 выросли жабры.";
+		spellnum = SPELL_WATERBREATH;
 		break;
 
 	case SPELL_HOLYSTRIKE:
