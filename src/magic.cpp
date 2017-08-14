@@ -2796,8 +2796,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы почувствовали себя слабее!";
 		spellnum = SPELL_WEAKNESS;
 		break;
-	case SPELL_STONESKIN:
 	case SPELL_STONE_WALL:
+	case SPELL_STONESKIN:
 		af[0].location = APPLY_ABSORBE;
 		af[0].modifier = (level * 2 + 1) / 3;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
@@ -2806,8 +2806,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы стали менее чувствительны к ударам.";
 		break;
 
-	case SPELL_FAST_REGENERATION:
 	case SPELL_GENERAL_RECOVERY:
+	case SPELL_FAST_REGENERATION:
 		af[0].location = APPLY_HITREG;
 		af[0].modifier = 50;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
@@ -3098,8 +3098,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы стали мельче.";
 		break;
 
-	case SPELL_GROUP_MAGICGLASS:
 	case SPELL_MAGICGLASS:
+	case SPELL_GROUP_MAGICGLASS:
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICGLASS);
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		accum_duration = TRUE;
@@ -3328,8 +3328,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		spellnum = SPELL_SLOW;
 		break;
 
-	case SPELL_DETECT_ALIGN:
 	case SPELL_GENERAL_SINCERITY:
+	case SPELL_DETECT_ALIGN:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
 		accum_duration = TRUE;
@@ -3337,8 +3337,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Глаза $n1 приобрели зеленый оттенок.";
 		break;
 
-	case SPELL_DETECT_INVIS:
 	case SPELL_ALL_SEEING_EYE:
+	case SPELL_DETECT_INVIS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
 		accum_duration = TRUE;
@@ -3346,8 +3346,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Глаза $n1 приобрели золотистый оттенок.";
 		break;
 
-	case SPELL_DETECT_MAGIC:
 	case SPELL_MAGICAL_GAZE:
+	case SPELL_DETECT_MAGIC:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_MAGIC);
 		accum_duration = TRUE;
@@ -3355,8 +3355,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Глаза $n1 приобрели желтый оттенок.";
 		break;
 
-	case SPELL_INFRAVISION:
 	case SPELL_SIGHT_OF_DARKNESS:
+	case SPELL_INFRAVISION:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
 		accum_duration = TRUE;
@@ -3364,8 +3364,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Глаза $n1 приобрели красный оттенок.";
 		break;
 
-	case SPELL_DETECT_POISON:
 	case SPELL_SNAKE_EYES:
+	case SPELL_DETECT_POISON:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_POISON);
 		accum_duration = TRUE;
@@ -3554,8 +3554,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		break;
 
-	case SPELL_SENSE_LIFE:
 	case SPELL_EYE_OF_GODS:
+	case SPELL_SENSE_LIFE:
 		to_vict = "Вы способны разглядеть даже микроба.";
 		to_room = "$n1 начал$u замечать любые движения.";
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
@@ -3570,8 +3570,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "На рыбалку вы можете отправляться без лодки.";
 		break;
 
-	case SPELL_WATERBREATH:
 	case SPELL_BREATHING_AT_DEPTH:
+	case SPELL_WATERBREATH:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_WATERBREATH);
 		accum_duration = TRUE;
