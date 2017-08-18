@@ -1800,7 +1800,7 @@ bool ZoneFile::load_zones()
 	Z.name = str_dup(buf);
 
 	log("Читаем zon файл: %s", full_file_name().c_str());
-	while (*buf !='S')
+	while (*buf !='S' && !feof(file()))
 	{	
 		line_num += get_line(file(), buf);
 		if (*buf == '#')
