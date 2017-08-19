@@ -5343,7 +5343,37 @@ void mag_assign_spells(void)
 //215
 	spello(SPELL_EXPEDIENT, "!боевой прием!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
-
+//216
+	spello(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+//217        
+	spello(SPELL_GENERAL_SINCERITY, "общая искреность", "general sincerity", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//218        
+	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//219        
+	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "all-seeing eye", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//220        
+	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+//221        
+	spello(SPELL_BREATHING_AT_DEPTH, "дыхание на глубине", "breathing at depth", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
+//222        
+	spello(SPELL_GENERAL_RECOVERY, "общее востановление", "general recovery", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+//223        
+	spello(SPELL_COMMON_MEAL, "общая трапеза", "common meal", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+//224        
+	spello(SPELL_STONE_WALL, "каменная стена", "stone wall", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_EARTH);
+//225        
+	spello(SPELL_SNAKE_EYES, "глаза змея", "snake eyes", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+       
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.

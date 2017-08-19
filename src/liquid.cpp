@@ -768,16 +768,23 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 		break;
 		// насыщение (синее) //
 	case SPELL_FULL:
+	case SPELL_COMMON_MEAL:
 		to_obj->set_val(2, LIQ_POTION_BLUE);
 		name_to_drinkcon(to_obj, LIQ_POTION_BLUE);
 		break;
 		// детекты (белое) //
 	case SPELL_DETECT_INVIS:
+	case SPELL_ALL_SEEING_EYE:
 	case SPELL_DETECT_MAGIC:
+	case SPELL_MAGICAL_GAZE:
 	case SPELL_DETECT_POISON:
+	case SPELL_SNAKE_EYES:
 	case SPELL_DETECT_ALIGN:
+	case SPELL_GENERAL_SINCERITY:
 	case SPELL_SENSE_LIFE:
+	case SPELL_EYE_OF_GODS:
 	case SPELL_INFRAVISION:
+	case SPELL_SIGHT_OF_DARKNESS:
 		to_obj->set_val(2, LIQ_POTION_WHITE);
 		name_to_drinkcon(to_obj, LIQ_POTION_WHITE);
 		break;
@@ -820,6 +827,7 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 	case SPELL_HASTE:
 	case SPELL_GROUP_HASTE:
 	case SPELL_STONESKIN:
+	case SPELL_STONE_WALL:
 	case SPELL_BLINK:
 	case SPELL_EXTRA_HITS:
 	case SPELL_WATERBREATH:
