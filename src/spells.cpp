@@ -3599,13 +3599,13 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "\n", "\n" }, // SPELL_SIGHT_OF_DARKNESS
 	cast_phrase_t{ "\n", "\n" }, // SPELL_GENERAL_SINCERITY
 	cast_phrase_t{ "\n", "\n" }, // SPELL_MAGICAL_GAZE
-	cast_phrase_t{ "\n", "\n" }, // SPELL_ALL_SEEING_EYE
-	cast_phrase_t{ "\n", "\n" }, // SPELL_EYE_OF_GODS
-	cast_phrase_t{ "\n", "\n" }, // SPELL_BREATHING_AT_DEPTH
-	cast_phrase_t{ "\n", "\n" }, // SPELL_GENERAL_RECOVERY
-	cast_phrase_t{ "\n", "\n" }, // SPELL_COMMON_MEAL
-	cast_phrase_t{ "\n", "\n" }, // SPELL_STONE_WALL
-	cast_phrase_t{ "\n", "\n" }, // SPELL_SNAKE_EYES
+	cast_phrase_t{ "Все тайное станет явным.", "Не спрячется, не скроется, ни заяц, ни блоха" }, // SPELL_ALL_SEEING_EYE
+	cast_phrase_t{ "Осязаемое откройся взору!", "Да не скроется от взора вашего, ни одна живая душа." }, // SPELL_EYE_OF_GODS
+	cast_phrase_t{ "Аки стайка рыбок, плывите вместе.", "Что в воде, что на земле, воздух свежим будет." }, // SPELL_BREATHING_AT_DEPTH
+	cast_phrase_t{ "...дабы пройти вместе не одну сотню верст", "Сохрани Отче от усталости детей своих!" }, // SPELL_GENERAL_RECOVERY
+	cast_phrase_t{ "Благодарите богов за хлеб и соль!", "...дабы не осталось голодающих на свете белом" }, // SPELL_COMMON_MEAL
+	cast_phrase_t{ "Станем други крепки як николы!", "Укрепим тела наши перед битвой!" }, // SPELL_STONE_WALL
+	cast_phrase_t{ "Что яд, а что мед. Не обманемся!", "...и самый сильный яд станет вам виден." }, // SPELL_SNAKE_EYES
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
