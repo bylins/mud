@@ -1770,12 +1770,13 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 					break;
 				}
 			}
-		}
-		// i.e., we didn't find a match in syls[]
-		if (!*syls[j].org)
-		{
-			log("No entry in syllable table for substring of '%s'", lbuf);
-			ofs++;
+                    //походу это условие должно быть здесь. в противном случае цикл вечный
+                    // i.e., we didn't find a match in syls[]
+                    if (!*syls[j].org)
+                    {
+                            log("No entry in syllable table for substring of '%s'", lbuf);
+                            ofs++;
+                    }
 		}
 	}
 
