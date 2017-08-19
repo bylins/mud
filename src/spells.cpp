@@ -3588,7 +3588,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Обрасти плотью сызнова.", "... прости Господи грехи, верни плоть созданию." }, // SPELL_RECOVERY
 	cast_phrase_t{ "Обрастите плотью сызнова.", "... прости Господи грехи, верни плоть созданиям." }, // SPELL_MASS_RECOVERY
 	cast_phrase_t{ "Возьми личину зла для жатвы славной.", "Надели силой злою во благо." }, // SPELL_AURA_EVIL
-	cast_phrase_t{ "\n", "\n" }, // SPELL_MENTAL_SHADOW
+	cast_phrase_t{ "Силою мысли защиту будую себе.", "Даруй Отче защиту, силой разума воздвигнутую." }, // SPELL_MENTAL_SHADOW
 	cast_phrase_t{ "Ато егоже руци попасти.", "И он не знает, что мертвецы там и что в глубине..." }, // SPELL_EVARDS_BLACK_TENTACLES
 	cast_phrase_t{ "Вждати бурю обло створити.", "И поднялась великая буря..." }, // SPELL_WHIRLWIND
 	cast_phrase_t{ "Идеже индрика зубы супостаты изъмати.", "Есть род, у которого зубы - мечи и челюсти - ножи..." }, // SPELL_WHIRLWIND
@@ -3596,10 +3596,10 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи." }, // SPELL_THUNDERSTONE
 	cast_phrase_t{ "Онома утес низринется!", "...доколе камень не оторвался от горы без содействия рук." }, // SPELL_CLODd
 	cast_phrase_t{ "!Применил боевой прием!", "!use battle expedient!" }, // SPELL_EXPEDIENT (set by program)
-	cast_phrase_t{ "\n", "\n" }, // SPELL_SIGHT_OF_DARKNESS
-	cast_phrase_t{ "\n", "\n" }, // SPELL_GENERAL_SINCERITY
-	cast_phrase_t{ "\n", "\n" }, // SPELL_MAGICAL_GAZE
-	cast_phrase_t{ "Все тайное станет явным.", "Не спрячется, не скроется, ни заяц, ни блоха" }, // SPELL_ALL_SEEING_EYE
+	cast_phrase_t{ "Что свет, что тьма - глазу однаково.", "Станьте зрячи в тьме кромешной!" }, // SPELL_SIGHT_OF_DARKNESS
+	cast_phrase_t{ "...да не скроются намерения.", "И узрим братья намерения окружающих." }, // SPELL_GENERAL_SINCERITY
+	cast_phrase_t{ "Узрим же все, что с магией навкруги нас.", "Покажи, Спаситель, магические силы братии." }, // SPELL_MAGICAL_GAZE
+	cast_phrase_t{ "Все тайное станет явным.", "Не спрячется, не скроется, ни заяц, ни блоха." }, // SPELL_ALL_SEEING_EYE
 	cast_phrase_t{ "Осязаемое откройся взору!", "Да не скроется от взора вашего, ни одна живая душа." }, // SPELL_EYE_OF_GODS
 	cast_phrase_t{ "Аки стайка рыбок, плывите вместе.", "Что в воде, что на земле, воздух свежим будет." }, // SPELL_BREATHING_AT_DEPTH
 	cast_phrase_t{ "...дабы пройти вместе не одну сотню верст", "Сохрани Отче от усталости детей своих!" }, // SPELL_GENERAL_RECOVERY

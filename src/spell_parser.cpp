@@ -5347,7 +5347,7 @@ void mag_assign_spells(void)
 	spello(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //217        
-	spello(SPELL_GENERAL_SINCERITY, "общая искреность", "general sincerity", 110, 100, 1,
+	spello(SPELL_GENERAL_SINCERITY, "общая искренность", "general sincerity", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //218        
 	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
@@ -5359,7 +5359,7 @@ void mag_assign_spells(void)
 	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
 //221        
-	spello(SPELL_BREATHING_AT_DEPTH, "дыхание на глубине", "breathing at depth", 110, 100, 1,
+	spello(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
 //222        
 	spello(SPELL_GENERAL_RECOVERY, "общее востановление", "general recovery", 110, 100, 1,

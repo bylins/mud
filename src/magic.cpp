@@ -2333,9 +2333,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_WHIRLWIND:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort()+level;
-		sdice = 20;
-		adice = level + ch->get_remort() - 25;
+		ndice = 10+((ch->get_remort()/3) - 4);
+		sdice = 18 + (3 - (30 - level) / 3 );
+		adice = (level + ch->get_remort() - 25)*(number(1, 4);
 		break;
 
 	case SPELL_INDRIKS_TEETH:
@@ -2346,7 +2346,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_MELFS_ACID_ARROW:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort();
+		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
 		adice = level + ch->get_remort() - 25;
 		break;
@@ -2360,9 +2360,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_CLOD:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort();
+		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
-		adice = level + ch->get_remort() - 25;
+		adice = (level + ch->get_remort() - 25)*(number(1, 4);
 		break;
 
 	case SPELL_HOLYSTRIKE:
