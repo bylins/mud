@@ -5353,7 +5353,7 @@ void mag_assign_spells(void)
 	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //219        
-	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "all-seeing eye", 110, 100, 1,
+	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "allseeing eye", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //220        
 	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
