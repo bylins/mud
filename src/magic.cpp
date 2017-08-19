@@ -2155,9 +2155,10 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		// ВОЗДУХ, ареа
 	case SPELL_ARMAGEDDON:
 		savetype = SAVING_WILL;
-		ndice = 10;
-		sdice = 3;
-		adice = level * 6;
+                //в современных реалиях колдуны имеют 12+ мортов
+		ndice = 10+((ch->get_remort()/3) - 4);
+		sdice = level / 9;
+		adice = level * (number(4, 6);
 		break;
 
 		// ******* ХАЙЛЕВЕЛ СУПЕРДАМАДЖ МАГИЯ ******
