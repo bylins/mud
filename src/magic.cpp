@@ -2158,7 +2158,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
                 //× ÓÏ×ÒÅÍÅÎÎÙÈ ÒÅÁÌÉÑÈ ËÏÌÄÕÎÙ ÉÍÅÀÔ 12+ ÍÏÒÔÏ×
 		ndice = 10+((ch->get_remort()/3) - 4);
 		sdice = level / 9;
-		adice = level * (number(4, 6);
+		adice = level * (number(4, 6));
 		break;
 
 		// ******* èáêìå÷åì óõðåòäáíáäö íáçéñ ******
@@ -2336,7 +2336,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		savetype = SAVING_REFLEX;
 		ndice = 10+((ch->get_remort()/3) - 4);
 		sdice = 18 + (3 - (30 - level) / 3 );
-		adice = (level + ch->get_remort() - 25)*(number(1, 4);
+		adice = (level + ch->get_remort() - 25)*(number(1, 4));
 		break;
 
 	case SPELL_INDRIKS_TEETH:
@@ -2363,7 +2363,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		savetype = SAVING_REFLEX;
 		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
-		adice = (level + ch->get_remort() - 25)*(number(1, 4);
+		adice = (level + ch->get_remort() - 25)*(number(1, 4));
 		break;
 
 	case SPELL_HOLYSTRIKE:
