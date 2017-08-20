@@ -1758,9 +1758,12 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 
 	if (!*buf)
 	{
-		size_t ofs = 0;
+            // не понимаю
+            /*
+            size_t ofs = 0;
 		while (lbuf[ofs])
 		{
+                        log("  1  No entry in syllable table for substring of '%s'", lbuf);
 			for (j = 0; *(syls[j].org); j++)
 			{
 				if (!strncmp(syls[j].org, lbuf + ofs, strlen(syls[j].org)))
@@ -1778,6 +1781,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
                             ofs++;
                     }
 		}
+            */
 	}
 
 	if (tch != NULL && IN_ROOM(tch) == ch->in_room)
