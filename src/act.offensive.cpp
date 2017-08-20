@@ -2857,6 +2857,8 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
 
+                
+                
 		Damage dmg(SkillDmg(SKILL_MANADRAIN), 10, FightSystem::MAGE_DMG);
 		dmg.process(ch, vict);
 	}
@@ -2864,7 +2866,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_MANADRAIN;
-		timed.time = 6;
+		timed.time = 6 - MIN(4, (ch->get_skill(SKILL_MANADRAIN) + 30) / 50);
 		timed_to_char(ch, &timed);
 	}
 
