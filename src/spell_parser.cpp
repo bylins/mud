@@ -1758,9 +1758,12 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 
 	if (!*buf)
 	{
-		size_t ofs = 0;
+            // не понимаю
+            /*
+            size_t ofs = 0;
 		while (lbuf[ofs])
 		{
+                        log("  1  No entry in syllable table for substring of '%s'", lbuf);
 			for (j = 0; *(syls[j].org); j++)
 			{
 				if (!strncmp(syls[j].org, lbuf + ofs, strlen(syls[j].org)))
@@ -1770,13 +1773,15 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 					break;
 				}
 			}
+                    //походу это условие должно быть здесь. в противном случае цикл вечный
+                    // i.e., we didn't find a match in syls[]
+                    if (!*syls[j].org)
+                    {
+                            log("No entry in syllable table for substring of '%s'", lbuf);
+                            ofs++;
+                    }
 		}
-		// i.e., we didn't find a match in syls[]
-		if (!*syls[j].org)
-		{
-			log("No entry in syllable table for substring of '%s'", lbuf);
-			ofs++;
-		}
+            */
 	}
 
 	if (tch != NULL && IN_ROOM(tch) == ch->in_room)
@@ -5347,19 +5352,19 @@ void mag_assign_spells(void)
 	spello(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //217        
-	spello(SPELL_GENERAL_SINCERITY, "общая искреность", "general sincerity", 110, 100, 1,
+	spello(SPELL_GENERAL_SINCERITY, "общая искренность", "general sincerity", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //218        
 	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //219        
-	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "all-seeing eye", 110, 100, 1,
+	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "allseeing eye", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //220        
 	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
 //221        
-	spello(SPELL_BREATHING_AT_DEPTH, "дыхание на глубине", "breathing at depth", 110, 100, 1,
+	spello(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
 //222        
 	spello(SPELL_GENERAL_RECOVERY, "общее востановление", "general recovery", 110, 100, 1,

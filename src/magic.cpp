@@ -2155,9 +2155,19 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		// ÷ïúäõè, ÁÒÅÁ
 	case SPELL_ARMAGEDDON:
 		savetype = SAVING_WILL;
-		ndice = 10;
-		sdice = 3;
-		adice = level * 6;
+                //× ÓÏ×ÒÅÍÅÎÎÙÈ ÒÅÁÌÉÑÈ ËÏÌÄÕÎÙ ÉÍÅÀÔ 12+ ÍÏÒÔÏ×
+                if (!(IS_NPC(ch)))
+                {        
+                    ndice = 10+((ch->get_remort()/3) - 4);
+                    sdice = level / 9;
+                    adice = level * (number(4, 6));
+                }
+                else
+                {
+                    ndice = 12;
+                    sdice = level;
+                    adice = level *  6;
+                }    
 		break;
 
 		// ******* èáêìå÷åì óõðåòäáíáäö íáçéñ ******
@@ -2333,9 +2343,18 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_WHIRLWIND:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort()+level;
-		sdice = 20;
-		adice = level + ch->get_remort() - 25;
+                if (!(IS_NPC(ch)))
+                {        
+                    ndice = 10+((ch->get_remort()/3) - 4);
+                    sdice = 18 + (3 - (30 - level) / 3 );
+                    adice = (level + ch->get_remort() - 25)*(number(1, 4));
+                }
+                else
+                {
+                    ndice = 10;
+                    sdice = 21;
+                    adice = (level - 5)*(number(2, 4));
+                }    
 		break;
 
 	case SPELL_INDRIKS_TEETH:
@@ -2346,7 +2365,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_MELFS_ACID_ARROW:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort();
+		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
 		adice = level + ch->get_remort() - 25;
 		break;
@@ -2360,9 +2379,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_CLOD:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort();
+		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
-		adice = level + ch->get_remort() - 25;
+		adice = (level + ch->get_remort() - 25)*(number(1, 4));
 		break;
 
 	case SPELL_HOLYSTRIKE:
