@@ -738,15 +738,15 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 void do_cities(CHAR_DATA *ch, char*, int, int)
 {
 	send_to_char("Города на Руси:\r\n", ch);
-	for (unsigned int i = 1; i < cities.size(); i++)
+	for (unsigned int i = 0; i < cities.size(); i++)
 	{
-		sprintf(buf, "%3d.", i);
+		sprintf(buf, "%3d.", i + 1);
 		if (IS_IMMORTAL(ch))
 		{
-			sprintf(buf1, " [VNUM: %d]", cities[i-1].rent_vnum);
+			sprintf(buf1, " [VNUM: %d]", cities[i].rent_vnum);
 			strcat(buf, buf1);
 		}
-		sprintf(buf1, " %s: %s\r\n", cities[i-1].name.c_str(), (ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
+		sprintf(buf1, " %s: %s\r\n", cities[i].name.c_str(), (ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
 		strcat(buf, buf1);
 		send_to_char(buf, ch);
 	}

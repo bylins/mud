@@ -775,6 +775,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
 #define CON_SEDIT        54 // sedit - редактирование сетов
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
+#define CON_RANDOM_NUMBER	 56 // where player enter in the game from new location
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
