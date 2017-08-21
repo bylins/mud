@@ -746,7 +746,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	{
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
-		int mob_num = GET_OBJ_VAL(cont, 2);
+/*		int mob_num = GET_OBJ_VAL(cont, 2);
 		CHAR_DATA *mob;
 		if (mob_num  <= 0)
 		{
@@ -760,6 +760,9 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			extract_char(mob, FALSE);
 		}
+*/
+		sprintf(buf, "%s заработал %d  %s.", GET_PAD(ch, 0),  value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		ch->add_gold(value, true, true);
 	}
 	else

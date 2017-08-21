@@ -4315,38 +4315,32 @@ float get_damage_per_round(CHAR_DATA * victim)
 
 float get_effective_cha(CHAR_DATA * ch, int spellnum)
 {
-	int key_value, key_value_add, i;
+	int key_value, key_value_add;
 
 //Для поднять/оживить труп учитываем мудрость, в любом другом случае - обаяние
 	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
 	{
 		key_value = ch->get_wis() - 6;
 		key_value_add = MIN(56 - ch->get_wis(), GET_WIS_ADD(ch));
-		i = 3;
 	}
 	else
 	{
 		key_value = ch->get_cha();
 		key_value_add = MIN(50 - ch->get_cha(), GET_CHA_ADD(ch));
-		i = 5;
 	}
 	float eff_cha = 0.0;
 	if (GET_LEVEL(ch) <= 14)
-		eff_cha = MIN(max_stats2[(int) GET_CLASS(ch)][i], key_value)
+		eff_cha = key_value
 				  - 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
 				  * (0.2 + 0.3 * (float)(GET_LEVEL(ch) - 1) / 13.0);
 	else if (GET_LEVEL(ch) <= 26)
 	{
-		if (key_value <= 16)
-			eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
-		else
-			eff_cha =
-				16 + (float)((key_value - 16) * (GET_LEVEL(ch) - 14)) / 12.0 +
-				key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
+		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
 	}
 	else
 		eff_cha = key_value + key_value_add;
-	return eff_cha;
+
+	return VPOSI<float>(eff_cha, 1.0f, 50.0f);
 }
 
 float get_effective_int(CHAR_DATA * ch)

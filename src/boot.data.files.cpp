@@ -1747,6 +1747,7 @@ bool ZoneFile::load_zones()
 	Z.comment = 0;
 	Z.location = 0;
 	Z.description = 0;
+	Z.autor = 0;
 	Z.group = false;
 	Z.count_reset = 0;
 
@@ -1797,43 +1798,56 @@ bool ZoneFile::load_zones()
 	if ((ptr = strchr(buf, '~')) != NULL)	// take off the '~' if it's there
 		*ptr = '\0';
 	Z.name = str_dup(buf);
-	line_num += get_line(file(), buf);
-	if (*buf == '^')
-	{
-		std::string comment(buf);
-		boost::trim_if(comment, boost::is_any_of(std::string("^~")));
-		Z.comment = str_dup(comment.c_str());
-		line_num += get_line(file(), buf);
-	}
-	if (*buf == '&')
-	{
-		std::string location(buf);
-		boost::trim_if(location, boost::is_any_of(std::string("&~")));
-		Z.location = str_dup(location.c_str());
-		line_num += get_line(file(), buf);
-	}
-	if (*buf == '$')
-	{
-		std::string description(buf);
-		boost::trim_if(description, boost::is_any_of(std::string("$~")));
-		Z.description = str_dup(description.c_str());
-		line_num += get_line(file(), buf);
-	}
 
-	if (*buf == '#')
-	{
-		int group = 0;
-		if (sscanf(buf, "#%d %d %d", &Z.level, &Z.type, &group) < 3)
-		{
-			if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
-			{
-				log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
-				exit(1);
-			}
-		}
-		Z.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+	log("Читаем zon файл: %s", full_file_name().c_str());
+	while (*buf !='S' && !feof(file()))
+	{	
 		line_num += get_line(file(), buf);
+		if (*buf == '#')
+			break;
+		if (*buf == '^')
+		{
+			std::string comment(buf);
+			boost::trim_if(comment, boost::is_any_of(std::string("^~")));
+			Z.comment = str_dup(comment.c_str());
+		}
+		if (*buf == '&')
+		{
+			std::string location(buf);
+			boost::trim_if(location, boost::is_any_of(std::string("&~")));
+			Z.location = str_dup(location.c_str());
+		}
+		if (*buf == '!')
+		{
+			std::string description(buf);
+			boost::trim_if(description, boost::is_any_of(std::string("!~")));
+			Z.autor = str_dup(description.c_str());
+		}
+		if (*buf == '$')
+		{
+			std::string description(buf);
+			boost::trim_if(description, boost::is_any_of(std::string("$~")));
+			Z.description = str_dup(description.c_str());
+		}
 	}
+	if (*buf != '#')
+	{
+		log("SYSERR: ERROR!!! not # in file %s", full_file_name().c_str());
+		exit(1);
+	}
+	
+	int group = 0;
+	if (sscanf(buf, "#%d %d %d", &Z.level, &Z.type, &group) < 3)
+	{
+		if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
+		{
+			log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
+			exit(1);
+		}
+	}
+	Z.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+	line_num += get_line(file(), buf);
+
 	*t1 = 0;
 	*t2 = 0;
 	int tmp_reset_idle = 0;

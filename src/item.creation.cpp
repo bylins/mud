@@ -2344,16 +2344,6 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Мочим истраченные ингры.
 	for (i = 0; i < ingr_cnt; i++)
 	{
-		if (GET_OBJ_TYPE(ingrs[i]) != OBJ_DATA::ITEM_INGREDIENT
-			&& GET_OBJ_TYPE(ingrs[i]) != OBJ_DATA::ITEM_MING)
-		{
-			// Если запрошенный вес 0 то  удаляем предмет выше не трогаем.
-			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
-			{
-				extract_obj(ingrs[i]);
-			}
-		}
-// разобраться почему не мочатся ингры тима материал, если вес при производстве стал 0 
 		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
 		{
 			extract_obj(ingrs[i]);

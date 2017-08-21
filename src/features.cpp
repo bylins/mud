@@ -70,9 +70,16 @@ int find_feat_num(const char *name, bool alias)
 		std::vector<std::string> strs_feat, strs_args;
 		boost::split(strs_feat, name_feat, boost::is_any_of(" "));
 		boost::split(strs_args, name, boost::is_any_of(" "));
-		for (int i = 0; i < (strs_feat.size() >= strs_args.size() ? strs_args.size() : strs_feat.size()); i++)
+		const int bound = static_cast<int>(strs_feat.size() >= strs_args.size()
+				? strs_args.size()
+				: strs_feat.size());
+		for (int i = 0; i < bound; i++)
+		{
 			if (!boost::starts_with(strs_feat[i], strs_args[i]))
+			{
 				flag = false;
+			}
+		}
 		if (flag)
 			return index;
 	}
