@@ -908,7 +908,10 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	if (type != SAVING_REFLEX)
 	{
 		if ((save > 0) &&
-				(AFF_FLAGGED(victim, EAffectFlag::AFF_AIRAURA) || AFF_FLAGGED(victim, EAffectFlag::AFF_FIREAURA) || AFF_FLAGGED(victim, EAffectFlag::AFF_ICEAURA)))
+				(AFF_FLAGGED(victim, EAffectFlag::AFF_AIRAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_FIREAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_EARTHAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_ICEAURA)))
 			save >>= 1;
 	}
 	// Учет осторожного стиля
@@ -2155,9 +2158,19 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		// ВОЗДУХ, ареа
 	case SPELL_ARMAGEDDON:
 		savetype = SAVING_WILL;
-		ndice = 10;
-		sdice = 3;
-		adice = level * 6;
+                //в современных реалиях колдуны имеют 12+ мортов
+                if (!(IS_NPC(ch)))
+                {        
+                    ndice = 10+((ch->get_remort()/3) - 4);
+                    sdice = level / 9;
+                    adice = level * (number(4, 6));
+                }
+                else
+                {
+                    ndice = 12;
+                    sdice = level;
+                    adice = level *  6;
+                }    
 		break;
 
 		// ******* ХАЙЛЕВЕЛ СУПЕРДАМАДЖ МАГИЯ ******
@@ -2333,9 +2346,18 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_WHIRLWIND:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort()+level;
-		sdice = 20;
-		adice = level + ch->get_remort() - 25;
+                if (!(IS_NPC(ch)))
+                {        
+                    ndice = 10+((ch->get_remort()/3) - 4);
+                    sdice = 18 + (3 - (30 - level) / 3 );
+                    adice = (level + ch->get_remort() - 25)*(number(1, 4));
+                }
+                else
+                {
+                    ndice = 10;
+                    sdice = 21;
+                    adice = (level - 5)*(number(2, 4));
+                }    
 		break;
 
 	case SPELL_INDRIKS_TEETH:
@@ -2346,7 +2368,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_MELFS_ACID_ARROW:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort();
+		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
 		adice = level + ch->get_remort() - 25;
 		break;
@@ -2360,9 +2382,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_CLOD:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort();
+		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
-		adice = level + ch->get_remort() - 25;
+		adice = (level + ch->get_remort() - 25)*(number(1, 4));
 		break;
 
 	case SPELL_HOLYSTRIKE:
@@ -2874,6 +2896,16 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_room = "$n3 окружила воздушная аура.";
 		to_vict = "Вас окружила воздушная аура.";
+		break;
+
+	case SPELL_EARTH_AURA:
+		af[0].location = APPLY_RESIST_EARTH;
+		af[0].modifier = level;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_EARTHAURA);
+		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		accum_duration = TRUE;
+		to_room = "$n3 низко улонил$u земле.";
+		to_vict = "Вы низко улонились земле.";
 		break;
 
 	case SPELL_FIRE_AURA:

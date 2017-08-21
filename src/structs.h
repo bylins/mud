@@ -694,7 +694,8 @@ enum class EAffectFlag: uint32_t
 	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
 	AFF_VAMPIRE = INT_TWO | (1u << 20),
 	AFF_EXPEDIENT = INT_TWO | (1u << 21),
-	AFF_COMMANDER = INT_TWO | (1u << 22)
+	AFF_COMMANDER = INT_TWO | (1u << 22),
+	AFF_EARTHAURA = INT_TWO | (1u << 23)
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
@@ -1967,10 +1968,11 @@ enum class EWeaponAffectFlag : uint32_t
 	WAFF_FIRE_AURA = INT_ONE | (1 << 11),
 	WAFF_ICE_AURA = INT_ONE | (1 << 12),
 	WAFF_DEAFNESS = INT_ONE | (1 << 13),
-	WAFF_COMMANDER = INT_ONE | (1 << 14)
+	WAFF_COMMANDER = INT_ONE | (1 << 14),
+	WAFF_EARTHAURA = INT_ONE | (1 << 15)
 };
 
-constexpr size_t WAFF_COUNT = 45;
+constexpr size_t WAFF_COUNT = 46;
 
 template <> EWeaponAffectFlag ITEM_BY_NAME<EWeaponAffectFlag>(const std::string& name);
 template <> const std::string& NAME_BY_ITEM(const EWeaponAffectFlag item);

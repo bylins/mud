@@ -1383,6 +1383,14 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 				else
 					strcat(aura_txt, "ледяная");
 				n++;
+                        }
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
+			{
+				if (n > 0)
+					strcat(aura_txt, ", землянная");
+				else
+					strcat(aura_txt, "землянная");
+				n++;
 			}
 			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
 			{
@@ -1640,6 +1648,14 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 				strcat(aura_txt, ", ледяная");
 			else
 				strcat(aura_txt, "ледяная");
+			n++;
+                }
+		if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
+		{
+			if (n > 0)
+				strcat(aura_txt, ", землянная");
+			else
+				strcat(aura_txt, "землянная");
 			n++;
 		}
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
