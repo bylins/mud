@@ -5378,6 +5378,9 @@ void mag_assign_spells(void)
 //225        
 	spello(SPELL_SNAKE_EYES, "глаза змея", "snake eyes", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//226
+	spello(SPELL_EARTH_AURA, "земной поклон", "earth aura", 140, 120, 2,
+                   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
        
 	/*
 	 * These spells are currently not used, not implemented, and not castable.

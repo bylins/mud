@@ -837,6 +837,7 @@ void generate_drinkcon_name(OBJ_DATA *to_obj, int spell)
 	case SPELL_PRISMATICAURA:
 	case SPELL_GROUP_PRISMATICAURA:
 	case SPELL_AIR_AURA:
+	case SPELL_EARTH_AURA:
 	case SPELL_FIRE_AURA:
 	case SPELL_ICE_AURA:
 		to_obj->set_val(2, LIQ_POTION_PINK);

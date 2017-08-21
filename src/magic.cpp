@@ -908,7 +908,10 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	if (type != SAVING_REFLEX)
 	{
 		if ((save > 0) &&
-				(AFF_FLAGGED(victim, EAffectFlag::AFF_AIRAURA) || AFF_FLAGGED(victim, EAffectFlag::AFF_FIREAURA) || AFF_FLAGGED(victim, EAffectFlag::AFF_ICEAURA)))
+				(AFF_FLAGGED(victim, EAffectFlag::AFF_AIRAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_FIREAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_EARTHAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_ICEAURA)))
 			save >>= 1;
 	}
 	// Учет осторожного стиля
@@ -2893,6 +2896,16 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_room = "$n3 окружила воздушная аура.";
 		to_vict = "Вас окружила воздушная аура.";
+		break;
+
+	case SPELL_EARTH_AURA:
+		af[0].location = APPLY_RESIST_EARTH;
+		af[0].modifier = level;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_EARTHAURA);
+		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		accum_duration = TRUE;
+		to_room = "$n3 низко улонил$u земле.";
+		to_vict = "Вы низко улонились земле.";
 		break;
 
 	case SPELL_FIRE_AURA:
