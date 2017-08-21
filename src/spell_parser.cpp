@@ -1706,7 +1706,6 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
-
 	// Say phrase ?
     if (IS_NPC(ch))
     {
@@ -1744,7 +1743,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
             // damagee_vict     = "$n злобно рыкнул$g на вас : '%s'.";
             // helpee_vict      = "$n тихо пробормотал$g вам : '%s'.";
 	}
-    } else {
+    }
+    else {
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
