@@ -3576,18 +3576,23 @@ Sventovit
 		// STATE(d) = CON_MENU;
 		break;
 	case CON_RANDOM_NUMBER:
-		int code = atoi(arg);
+	    {
+		int code_rand = atoi(arg);
+		//printf("%d\n", code_rand);
 		if (new_loc_codes.count(GET_EMAIL(d->character)) == 0)
 			break;
-		if (new_loc_codes[GET_EMAIL(d->character)] != code)
+		//printf("%d\n", new_loc_codes[GET_EMAIL(d->character)])
+		if (new_loc_codes[GET_EMAIL(d->character)] != code_rand)
 		{
 			SEND_TO_Q("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
 			STATE(d) = CON_CLOSE;
 			break;
 		}
 		new_loc_codes.erase(GET_EMAIL(d->character));
+		add_logon_record(d);
 		DoAfterPassword(d);
-
+		break;
+	    }
 	case CON_MENU:		// get selection from main menu
 		switch (*arg)
 		{
