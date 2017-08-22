@@ -1750,6 +1750,7 @@ bool ZoneFile::load_zones()
 	Z.autor = 0;
 	Z.group = false;
 	Z.count_reset = 0;
+	Z.traffic = 0;
 
 	while (get_line(file(), buf))
 	{
