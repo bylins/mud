@@ -5997,6 +5997,11 @@ const spl_message groups_messages[] =
 	 NULL,
 	 NULL,
 	 0},
+	{SPELL_EARTH_AURA,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
 // конец групповых спелов         
 	{ -1, 0, 0, 0, 0 }
 };
