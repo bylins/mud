@@ -2168,7 +2168,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
                 else
                 {
                     ndice = 12;
-                    sdice = level;
+                    sdice = 3;
                     adice = level *  6;
                 }    
 		break;
@@ -5993,6 +5993,11 @@ const spl_message groups_messages[] =
 	 NULL,
 	 0},
 	{SPELL_SNAKE_EYES,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_EARTH_AURA,
 	 NULL,
 	 NULL,
 	 NULL,
