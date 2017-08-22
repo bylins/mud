@@ -2168,7 +2168,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
                 else
                 {
                     ndice = 12;
-                    sdice = level;
+                    sdice = 3;
                     adice = level *  6;
                 }    
 		break;
