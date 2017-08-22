@@ -2712,14 +2712,14 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		{
 			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
 			mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
-			/*if (new_loc_codes.count(GET_EMAIL(d->character)) == 0)
-			{
-				int random_number = number(1000000, 9999999);
-				new_loc_codes[GET_EMAIL(d->character)] = random_number;
-			}
+			int random_number = number(1000000, 9999999);
+			new_loc_codes[GET_EMAIL(d->character)] = random_number;
+			std::string cmd_line =  str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
+			auto result = system(cmd_line.c_str());
+			UNUSED_ARG(result);
 			SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
 			STATE(d) = CON_RANDOM_NUMBER;
-			return;*/
+			return;
 		}
 	}
 	// check and make sure no other copies of this player are logged in
