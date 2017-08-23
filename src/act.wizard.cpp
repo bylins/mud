@@ -302,7 +302,7 @@ void do_showzonestats(CHAR_DATA* ch, char*, int, int)
 	std::string buffer = "";
 	for (int i = 0; i <= top_of_zone_table; ++i)
 	{
-		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
+		sprintf(buf, "Zone: %d, count_reset: %d, посещено с ребута: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
 		buffer += std::string(buf) + "\r\n";
 	}
 	page_string(ch->desc, buffer);
