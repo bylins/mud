@@ -2219,10 +2219,12 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&Q&n", ch);
 
 	// вход в новую зону
-	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number
-		&& PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number)
 	{
-		print_zone_info(ch);
+		if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+			print_zone_info(ch);
+		++zone_table[world[ch->in_room]->zone].traffic;
+		
 	}
 }
 
