@@ -1387,9 +1387,9 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
 			{
 				if (n > 0)
-					strcat(aura_txt, ", землянная");
+					strcat(aura_txt, ", коричневая");
 				else
-					strcat(aura_txt, "землянная");
+					strcat(aura_txt, "коричневая");
 				n++;
 			}
 			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
@@ -1653,9 +1653,9 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
 		{
 			if (n > 0)
-				strcat(aura_txt, ", землянная");
+				strcat(aura_txt, ", коричневая");
 			else
-				strcat(aura_txt, "землянная");
+				strcat(aura_txt, "коричневая");
 			n++;
 		}
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
