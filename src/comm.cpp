@@ -4288,7 +4288,7 @@ void signal_setup(void)
 /* ****************************************************************
 *       Public routines for system-to-player-communication        *
 **************************************************************** */
-void send_stat_char(CHAR_DATA * ch)
+void send_stat_char(const CHAR_DATA * ch)
 {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
@@ -4296,14 +4296,17 @@ void send_stat_char(CHAR_DATA * ch)
 	SEND_TO_Q(fline, ch->desc);
 }
 
-void send_to_char(const char *messg, CHAR_DATA * ch)
+void send_to_char(const char *messg, const CHAR_DATA* ch)
 {
-	if (ch->desc && messg)
+	if (ch->desc
+		&& messg)
+	{
 		SEND_TO_Q(messg, ch->desc);
+	}
 }
 
 // New edition :)
-void send_to_char(CHAR_DATA * ch, const char *messg, ...)
+void send_to_char(const CHAR_DATA* ch, const char *messg, ...)
 {
 	va_list args;
 	char tmpbuf[MAX_STRING_LENGTH];
@@ -4313,29 +4316,35 @@ void send_to_char(CHAR_DATA * ch, const char *messg, ...)
 	va_end(args);
 
 	if (ch->desc && messg)
+	{
 		SEND_TO_Q(tmpbuf, ch->desc);
+	}
 }
 
 // а вот те еще одна едишн Ж)
-void send_to_char(const std::string & buffer, CHAR_DATA * ch)
+void send_to_char(const std::string & buffer, const CHAR_DATA* ch)
 {
 	if (ch->desc && !buffer.empty())
+	{
 		SEND_TO_Q(buffer.c_str(), ch->desc);
+	}
 }
-
 
 void send_to_all(const char *messg)
 {
-	DESCRIPTOR_DATA *i;
-
 	if (messg == NULL)
+	{
 		return;
+	}
 
-	for (i = descriptor_list; i; i = i->next)
+	for (auto i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) == CON_PLAYING)
+		{
 			SEND_TO_Q(messg, i);
+		}
+	}
 }
-
 
 void send_to_outdoor(const char *messg, int control)
 {

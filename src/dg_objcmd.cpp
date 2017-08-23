@@ -162,7 +162,7 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *ch, *next_ch;
+	CHAR_DATA *ch;
 	int room;
 	char arg1[MAX_INPUT_LENGTH], *line;
 
@@ -390,7 +390,7 @@ void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *ch, *next_ch, *horse, *charmee, *ncharmee;
+	CHAR_DATA *ch, *horse;
 	int target, rm;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 

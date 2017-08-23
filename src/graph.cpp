@@ -90,7 +90,6 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, int through_doors)
  */
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 {
-
 	int curr_dir, edge, through_doors;
 	room_rnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
 
@@ -133,6 +132,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 	// first, enqueue the first steps, saving which direction we're going.
 	for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
+	{
 		if (VALID_EDGE(src, curr_dir, edge, through_doors))
 		{
 			MARK(TOROOM(src, curr_dir));
@@ -140,6 +140,8 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 			temp_queue.dir = curr_dir;
 			bfs_queue.push_back(temp_queue);
 		}
+	}
+
 	// now, do the classic BFS.
 	for (unsigned int i = 0; i < bfs_queue.size(); ++i)
 	{
@@ -169,7 +171,6 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 	return (BFS_NO_PATH);
 }
 
-
 // * Functions and Commands which use the above functions. *
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
@@ -197,8 +198,6 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 		if ((GET_REMORT(victim) > num) && (num < 28))
 			return BFS_NO_PATH; //Чувства молчат
 	}
-	
-
 
 	if (percent > calculate_skill(ch, skill_no, victim))
 	{

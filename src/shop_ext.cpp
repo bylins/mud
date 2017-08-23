@@ -7,6 +7,7 @@
 #include "global.objects.hpp"
 #include "boot.constants.hpp"
 #include "object.prototypes.hpp"
+#include "world.characters.hpp"
 #include "char.hpp"
 #include "db.h"
 #include "handler.h"
@@ -545,7 +546,7 @@ void town_shop_keepers()
 	// список уже оработанных зон, чтобы не грузить двух и более торгашей в одну
 	std::set<int> zone_list;
 
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+	for (const auto& ch : character_list)
 	{
 		if (IS_RENTKEEPER(ch)
 			&& ch->in_room > 0

@@ -12,6 +12,9 @@ class Characters
 public:
 	using foreach_f = std::function<void(const CHAR_DATA::shared_ptr&)>;
 	using predicate_f = std::function<bool(const CHAR_DATA::shared_ptr&)>;
+	using list_t = std::list<CHAR_DATA::shared_ptr>;
+
+	using const_iterator = list_t::const_iterator;
 
 	void push_front(const CHAR_DATA::shared_ptr& character);
 	void push_front(CHAR_DATA* character) { push_front(CHAR_DATA::shared_ptr(character)); }
@@ -27,7 +30,6 @@ public:
 	void remove(const CHAR_DATA* character);
 
 private:
-	using list_t = std::list<CHAR_DATA::shared_ptr>;
 	using object_raw_ptr_to_object_ptr_t = std::unordered_map<const void*, list_t::iterator>;
 
 	list_t m_list;

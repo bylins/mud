@@ -46,6 +46,7 @@
 #include "obj_sets.hpp"
 #include "char_obj_utils.inl"
 #include "constants.h"
+#include "spell_parser.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -101,7 +102,6 @@ bool is_wear_light(CHAR_DATA *ch);
 
 // external functions //
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
-int mag_manacost(CHAR_DATA * ch, int spellnum);
 int slot_for_char(CHAR_DATA * ch, int i);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
@@ -2961,10 +2961,12 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 
 	DESCRIPTOR_DATA *t_desc;
 	int i, freed = 0;
-	CHAR_DATA *ch_w;
 
-	if (MOB_FLAGGED(ch, MOB_FREE) || MOB_FLAGGED(ch, MOB_DELETE))
+	if (MOB_FLAGGED(ch, MOB_FREE)
+		|| MOB_FLAGGED(ch, MOB_DELETE))
+	{
 		return;
+	}
 
 	std::string name = GET_NAME(ch) ? GET_NAME(ch) : "<null>";
 	log("[Extract char] Start function for char %s", name.c_str());
@@ -3209,7 +3211,6 @@ void extract_mob(CHAR_DATA * ch)
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
 	ch->remove_from_list(character_list);
-//	CharacterAlias::remove(ch);
 
 	if (ch->desc && ch->desc->original)
 		do_return(ch, NULL, 0, 0);
@@ -3230,9 +3231,6 @@ void extract_mob(CHAR_DATA * ch)
 	MOB_FLAGS(ch).set(MOB_FREE);
 	CHAR_DATA::purge(ch);
 }
-
-
-
 
 /* ***********************************************************************
 * Here follows high-level versions of some earlier routines, ie functions*

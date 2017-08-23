@@ -34,6 +34,7 @@
 #include "fight.h"
 #include "fight_hit.hpp"
 #include "char_obj_utils.inl"
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -62,7 +63,6 @@ int has_key(CHAR_DATA * ch, obj_vnum key);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
 void ASSIGNMASTER(mob_vnum mob, special_f, int learn_info);
-int mag_manacost(CHAR_DATA * ch, int spellnum);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 
@@ -1768,66 +1768,66 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	return (0);
 }
 
-int npc_track(CHAR_DATA * ch)
+int check_room_tracks(const room_rnum room, const long victim_id)
 {
-	CHAR_DATA *vict;
-	memory_rec *names;
-	int door = BFS_ERROR, msg = FALSE, i;
-	struct track_data *track;
-
-	if (GET_REAL_INT(ch) < number(15, 20))
+	for (auto track = world[room]->track; track; track = track->next)
 	{
-		for (vict = character_list; vict && door == BFS_ERROR; vict = vict->get_next())
+		if (track->who == victim_id)
 		{
-			if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
-				for (names = MEMORY(ch); names && door == BFS_ERROR; names = names->next)
-					if (GET_IDNUM(vict) == names->id && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-														 || world[ch->in_room]->zone ==
-														 world[IN_ROOM(vict)]->zone))
-					{
-						for (track = world[ch->in_room]->track;
-								track && door == BFS_ERROR; track = track->next)
-							if (track->who == GET_IDNUM(vict))
-								for (i = 0; i < NUM_OF_DIRS; i++)
-									if (IS_SET(track->time_outgone[i], 7))
-									{
-										door = i;
-										// log("MOB %s track %s at dir %d", GET_NAME(ch), GET_NAME(vict), door);
-										break;
-									}
-						if (!msg)
-						{
-							msg = TRUE;
-							act("$n начал$g внимательно искать чьи-то следы.",
-								FALSE, ch, 0, 0, TO_ROOM);
-						}
-					}
-		}
-	}
-	else
-	{
-		for (vict = character_list; vict && door == BFS_ERROR; vict = vict->get_next())
-		{
-			if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
+			for (int i = 0; i < NUM_OF_DIRS; i++)
 			{
-				for (names = MEMORY(ch); names && door == BFS_ERROR; names = names->next)
-					if (GET_IDNUM(vict) == names->id
-						&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-							|| world[ch->in_room]->zone == world[IN_ROOM(vict)]->zone))
-					{
-						if (!msg)
-						{
-							msg = TRUE;
-							act("$n начал$g внимательно искать чьи-то следы.",
-								FALSE, ch, 0, 0, TO_ROOM);
-						}
-						door = go_track(ch, vict, SKILL_TRACK);
-						// log("MOB %s sense %s at dir %d", GET_NAME(ch), GET_NAME(vict), door);
-					}
+				if (IS_SET(track->time_outgone[i], 7))
+				{
+					return i;
+				}
 			}
 		}
 	}
-	return (door);
+
+	return BFS_ERROR;
+}
+
+int find_door(CHAR_DATA* ch, const bool track_method)
+{
+	bool msg = false;
+
+	for (const auto& vict : character_list)
+	{
+		if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
+		{
+			for (auto names = MEMORY(ch); names; names = names->next)
+			{
+				if (GET_IDNUM(vict) == names->id
+					&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
+						|| world[ch->in_room]->zone == world[IN_ROOM(vict)]->zone))
+				{
+					if (!msg)
+					{
+						msg = true;
+						act("$n начал$g внимательно искать чьи-то следы.", FALSE, ch, 0, 0, TO_ROOM);
+					}
+
+					const auto door = track_method
+						? check_room_tracks(ch->in_room, GET_IDNUM(vict))
+						: go_track(ch, vict.get(), SKILL_TRACK);
+
+					if (BFS_ERROR != door)
+					{
+						return door;
+					}
+				}
+			}
+		}
+	}
+
+	return BFS_ERROR;
+}
+
+int npc_track(CHAR_DATA * ch)
+{
+	const auto result = find_door(ch, GET_REAL_INT(ch) < number(15, 20));
+
+	return result;
 }
 
 bool item_nouse(OBJ_DATA * obj)
@@ -2710,8 +2710,6 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 
 int npc_steal(CHAR_DATA * ch)
 {
-	CHAR_DATA *cons;
-
 	if (!NPC_FLAGGED(ch, NPC_STEALING))
 		return (FALSE);
 
@@ -2736,7 +2734,7 @@ int npc_steal(CHAR_DATA * ch)
 
 void npc_group(CHAR_DATA * ch)
 {
-	CHAR_DATA *vict, *leader = NULL;
+	CHAR_DATA *leader = NULL;
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
 	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
@@ -3013,8 +3011,6 @@ int snake(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 
 int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
-	CHAR_DATA *cons;
-
 	if (cmd)
 		return (FALSE);
 
@@ -3362,20 +3358,22 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 CHAR_DATA *get_player_of_name(const char *name)
 {
-	CHAR_DATA *i;
-
-	for (i = character_list; i; i = i->get_next())
+	for (const auto& i : character_list)
 	{
 		if (IS_NPC(i))
+		{
 			continue;
+		}
+
 		if (!isname(name, i->get_pc_name()))
 		{
 			continue;
 		}
-		return (i);
+
+		return i.get();
 	}
 
-	return (NULL);
+	return nullptr;
 }
 
 // ********************************************************************

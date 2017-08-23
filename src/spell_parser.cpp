@@ -12,6 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "spell_parser.hpp"
+
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
@@ -35,6 +37,7 @@
 #include "magic.h"
 #include "fight.h"
 #include "fight_hit.hpp"
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -60,7 +63,6 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj);
 void spello(int spl, const char *name, const char *syn, int max_mana, int min_mana, int mana_change,
 			int minpos, int targets, int violent, int routines, int danger, int remort, int spell_class);
-int mag_manacost(CHAR_DATA * ch, int spellnum);
 void do_cast(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_warcry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_ident(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -132,53 +134,7 @@ struct syllable syls[] =
 
 const char *unused_spellname = "!UNUSED!";	// So we can get &unused_spellname
 
-
-////////////////////////////////////////////////////////////////////////////////
-namespace
-{
-
-class MaxClassSlot
-{
-public:
-	MaxClassSlot()
-	{
-		for (int i = 0; i < NUM_PLAYER_CLASSES; ++i)
-		{
-			for (int k = 0; k < NUM_KIN; ++k)
-			{
-				max_class_slot_[i][k] = 0;
-			}
-		}
-	};
-
-	void init(int chclass, int kin, int slot)
-	{
-		if (max_class_slot_[chclass][kin] < slot)
-		{
-			max_class_slot_[chclass][kin] = slot;
-		}
-	};
-
-	int get(int chclass, int kin)
-	{
-		if (kin < 0
-			|| kin >= NUM_KIN
-			|| chclass < 0
-			|| chclass >=  NUM_PLAYER_CLASSES)
-		{
-			return 0;
-		}
-		return max_class_slot_[chclass][kin];
-	};
-
-private:
-	int max_class_slot_[NUM_PLAYER_CLASSES][NUM_KIN];
-};
-
 MaxClassSlot max_slots;
-
-} // namespace
-////////////////////////////////////////////////////////////////////////////////
 
 int MAGIC_SLOT_VALUES[LVL_IMPL + 1][MAX_SLOT] = { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},	// 0
 	{2, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -1571,9 +1527,8 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REMORT(ch)) : 0);
 }
 
-inline int spell_create_level(CHAR_DATA * ch, int spellnum)
+inline int spell_create_level(const CHAR_DATA* ch, int spellnum)
 {
-
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 	// дабы у простых игроков не отображлись иммовские заклы
 	if (required_level >= LVL_GOD)
@@ -1598,56 +1553,62 @@ int koef_skill_magic(int percent_skill)
 //	return 0;
 }
 
-
-int mag_manacost(CHAR_DATA * ch, int spellnum)
+int mag_manacost(const CHAR_DATA* ch, int spellnum)
 {
-
 	int mana_cost;
 
 	if (IS_IMMORTAL(ch))
+	{
 		return 1;
+	}
+
 //	Мем рунных профессий(на сегодня только волхвы)
 	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum))
 	{
+		const auto result = static_cast<int>(DRUID_MANA_COST_MODIFIER
+			* (float) mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)]
+			/ (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].mana_per_tic
+			* 60
+			* MAX(SpINFO.mana_max
+				- (SpINFO.mana_change
+					* (GET_LEVEL(ch)
+						- spell_create[spellnum].runes.min_caster_level)),
+				SpINFO.mana_min));
+
 		//Зависимости в таблице несколько корявые, поэтому изменение пустим в обратную сторону
-		return (int)(DRUID_MANA_COST_MODIFIER * (float)
-					 mana_gain_cs[VPOSI(55 - GET_REAL_INT(ch), 10, 50)] /
-					 (float) int_app[VPOSI(55 - GET_REAL_INT(ch), 10, 50)].
-					 mana_per_tic * 60 * MAX(SpINFO.mana_max -
-											 (SpINFO.mana_change *
-											  (GET_LEVEL(ch) -
-											   spell_create[spellnum].runes.
-											   min_caster_level)), SpINFO.mana_min));
+		return result;
 	};
+
 //	Мем всех остальных
 	if (!IS_MANA_CASTER(ch)
-			&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
-			&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch))
+		&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
+		&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch))
 	{
-		mana_cost = MAX(SpINFO.mana_max - (SpINFO.mana_change *
-										   (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))),
-						SpINFO.mana_min);
+		mana_cost = MAX(SpINFO.mana_max
+			- (SpINFO.mana_change
+				* (GET_LEVEL(ch) - MIN_CAST_LEV(SpINFO, ch))),
+			SpINFO.mana_min);
+
 		if (SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] < 0)
-			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))) / 100;
+		{
+			mana_cost = mana_cost * (100 - MIN(99, abs(SpINFO.class_change[(int)GET_CLASS(ch)][(int)GET_KIN(ch)]))) / 100;
+		}
 		else
-			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])));
-//		send_to_char(buf, ch);
+		{
+			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])));
+		}
+
 //		Меняем мем на коэффициент скилла магии
-		if ((GET_CLASS(ch) == CLASS_DRUID) &&
-			(GET_CLASS(ch) == CLASS_PALADINE) &&
-			(GET_CLASS(ch) == CLASS_MERCHANT))
+		if ((GET_CLASS(ch) == CLASS_DRUID)
+			&& (GET_CLASS(ch) == CLASS_PALADINE)
+			&& (GET_CLASS(ch) == CLASS_MERCHANT))
+		{
 			return mana_cost;
+		}
 		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
 	};
-	return 9999;
-	//#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
-	/*
-	   if (GET_LEVEL(ch) <= SpINFO.min_level[(int) GET_CLASS(ch)])
-	   return SpINFO.mana_max;
 
-	   return MAX(SpINFO.mana_max - (SpINFO.mana_change *
-	   (GET_LEVEL(ch) - SpINFO.min_level[(int) GET_CLASS(ch)])),
-	   SpINFO.mana_min); */
+	return 9999;
 }
 
 void spell_prefix(int spellnum, const char** /*say_to_self*/, const char **say_to_other,
@@ -1678,7 +1639,6 @@ void spell_prefix(int spellnum, const char** /*say_to_self*/, const char **say_t
 		break;
 	case SPELL_WC_OF_DEFENSE:
 		*say_to_something = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
-//		*damagee_vict = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
 		break;
 	case SPELL_WC_OF_BATTLE:
 		*say_to_something = "$n смело выкрикнул$g : '%s'.";
@@ -2095,11 +2055,9 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 
 int check_mobile_list(CHAR_DATA * ch)
 {
-	CHAR_DATA *vict;
-
-	for (vict = character_list; vict; vict = vict->get_next())
+	for (const auto& vict : character_list)
 	{
-		if (vict == ch)
+		if (vict.get() == ch)
 		{
 			return (TRUE);
 		}
@@ -2577,7 +2535,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 {
 	int i, spellnum;
 	int level;
-	CHAR_DATA *tch = NULL, *next_tch;
+	CHAR_DATA *tch = NULL;
 	OBJ_DATA *tobj = NULL;
 	ROOM_DATA *troom = NULL;
 
@@ -2873,7 +2831,6 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 {
 	int ignore;
 	ESkill skillnum = SKILL_INVALID;
-	CHAR_DATA *ch_vict;
 
 	if (spellnum < 0 || spellnum > TOP_SPELL_DEFINE)
 	{
@@ -5480,7 +5437,38 @@ void mag_assign_spells(void)
 	skillo(SKILL_MAKE_AMULET, "смастерить оберег", 200);
 }
 
-int get_max_slot(CHAR_DATA* ch)
+MaxClassSlot::MaxClassSlot()
+{
+	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i)
+	{
+		for (int k = 0; k < NUM_KIN; ++k)
+		{
+			max_class_slot_[i][k] = 0;
+		}
+	}
+}
+
+void MaxClassSlot::init(int chclass, int kin, int slot)
+{
+	if (max_class_slot_[chclass][kin] < slot)
+	{
+		max_class_slot_[chclass][kin] = slot;
+	}
+}
+
+int MaxClassSlot::get(int chclass, int kin) const
+{
+	if (kin < 0
+		|| kin >= NUM_KIN
+		|| chclass < 0
+		|| chclass >= NUM_PLAYER_CLASSES)
+	{
+		return 0;
+	}
+	return max_class_slot_[chclass][kin];
+}
+
+int MaxClassSlot::get(const CHAR_DATA* ch) const
 {
 	return max_slots.get(GET_CLASS(ch), GET_KIN(ch));
 }

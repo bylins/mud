@@ -7,6 +7,7 @@
 #include "house.h"
 
 #include "world.objects.hpp"
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "utils.h"
@@ -2848,9 +2849,11 @@ const char *CLAN_PKLIST_FORMAT[] =
 */
 bool check_online_state(long uid)
 {
-	for (CHAR_DATA *tch = character_list; tch; tch = tch->get_next())
+	for (const auto tch : character_list)
 	{
-		if (IS_NPC(tch) || GET_UNIQUE(tch) != uid || (!tch->desc && !RENTABLE(tch)))
+		if (IS_NPC(tch)
+			|| GET_UNIQUE(tch) != uid
+			|| (!tch->desc && !RENTABLE(tch)))
 		{
 			continue;
 		}
@@ -2894,7 +2897,7 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char(ch, "%sОтображаются только находящиеся в игре персонажи:%s\r\n\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		ClanPkList::const_iterator it;
 		// вобщем чтобы словить чаров, находящихся в лд - придется гонять по чарактер-листу
-		for (CHAR_DATA *tch = character_list; tch; tch = tch->get_next())
+		for (const auto tch : character_list)
 		{
 			if (IS_NPC(tch))
 				continue;

@@ -848,6 +848,7 @@ inline bool AFF_FLAGGED(const CHAR_DATA::shared_ptr& ch, const EAffectFlag flag)
 }
 
 bool IS_CHARMICE(const CHAR_DATA* ch);
+inline bool IS_CHARMICE(const CHAR_DATA::shared_ptr& ch) { return IS_CHARMICE(ch.get()); }
 
 inline bool IS_FLY(const CHAR_DATA* ch)
 {

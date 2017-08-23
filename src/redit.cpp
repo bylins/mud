@@ -21,6 +21,7 @@
 #include "char_player.hpp"
 #include "room.hpp"
 #include "house.h"
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -224,11 +225,13 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 
 
 		// поля in_room для объектов и персонажей уже изменены
-		for (temp_ch = character_list; temp_ch; temp_ch = temp_ch->get_next())
+		for (const auto& temp_ch : character_list)
 		{
 			room_rnum temp_room = temp_ch->get_was_in_room();
 			if (temp_room >= room_num)
+			{
 				temp_ch->set_was_in_room(++temp_room);
+			}
 		}
 
 		// Порталы, выходы

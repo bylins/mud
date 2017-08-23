@@ -14,6 +14,7 @@
 
 #include "utils.h"
 
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
@@ -103,11 +104,11 @@ const char *ACTNULL = "<NULL>";
 // return char with UID n
 CHAR_DATA *find_char(long n)
 {
-	for (CHAR_DATA* ch = character_list; ch; ch = ch->get_next())
+	for (const auto& ch : character_list)
 	{
 		if (GET_ID(ch) == n)
 		{
-			return ch;
+			return ch.get();
 		}
 	}
 

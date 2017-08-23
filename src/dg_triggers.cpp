@@ -288,7 +288,6 @@ void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
 void greet_memory_mtrigger(CHAR_DATA * actor)
 {
 	TRIG_DATA *t;
-	CHAR_DATA *ch;
 	struct script_memory *mem;
 	char buf[MAX_INPUT_LENGTH];
 	int command_performed = 0;
@@ -361,7 +360,6 @@ void greet_memory_mtrigger(CHAR_DATA * actor)
 int greet_mtrigger(CHAR_DATA * actor, int dir)
 {
 	TRIG_DATA *t;
-	CHAR_DATA *ch, *ch_next;
 	char buf[MAX_INPUT_LENGTH];
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	int intermediate, final = TRUE;
@@ -416,7 +414,6 @@ int greet_mtrigger(CHAR_DATA * actor, int dir)
 void entry_memory_mtrigger(CHAR_DATA* const ch)
 {
 	TRIG_DATA *t;
-	CHAR_DATA *actor;
 	struct script_memory *mem;
 	char buf[MAX_INPUT_LENGTH];
 
@@ -485,7 +482,7 @@ void income_mtrigger(CHAR_DATA * ch, int dir)
 	TRIG_DATA *t;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	int ispcinroom = 0;
-	CHAR_DATA *i, *actor = NULL;
+	CHAR_DATA *actor = NULL;
 
 	if ((!SCRIPT_CHECK(ch, MTRIG_INCOME)
 			&& !SCRIPT_CHECK(ch, MTRIG_INCOME_PC))
@@ -570,7 +567,6 @@ extern void free_script(SCRIPT_DATA * sc);
 
 int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 {
-	CHAR_DATA *ch, *ch_next;
 	TRIG_DATA *t;
 	TRIG_DATA *dummy;
 	char buf[MAX_INPUT_LENGTH];
@@ -636,10 +632,8 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 	return 0;
 }
 
-
 void speech_mtrigger(CHAR_DATA * actor, char *str)
 {
-	CHAR_DATA *ch, *ch_next;
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 

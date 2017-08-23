@@ -386,7 +386,6 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 	int rmob_num, found = 0, new_mob_num = 0, zone, cmd_no, j;
 	CHAR_DATA *new_proto;
 	INDEX_DATA *new_index;
-	CHAR_DATA *live_mob;
 	DESCRIPTOR_DATA *dsc;
 
 	//  rmob_num = real_mobile(OLC_NUM(d));

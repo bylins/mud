@@ -12,6 +12,7 @@
 #include "objsave.h"
 
 #include "world.objects.hpp"
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -3414,20 +3415,19 @@ void Crash_save_all_rent(void)
 	// а по списку чаров, чтобы сохранить заодно и тех,
 	// кто перед ребутом ушел в ЛД с целью сохранить
 	// свои грязные денежки.
-	CHAR_DATA *tch;
-	for (CHAR_DATA *ch = character_list; ch; ch = tch)
+	
+	character_list.foreach_on_copy([&](const auto& ch)
 	{
-		tch = ch->get_next();
 		if (!IS_NPC(ch))
 		{
-			save_char_objects(ch, RENT_FORCED, 0);
+			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(PLR_CRASH);
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
-			extract_char(ch, FALSE);
+			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
+			extract_char(ch.get(), FALSE);
 		}
-	}
+	});
 }
 
 void Crash_frac_rent_time(int frac_part)

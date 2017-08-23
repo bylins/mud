@@ -1,10 +1,10 @@
 #include "temp_spells.hpp"
 
+#include "spell_parser.hpp"
+#include "world.characters.hpp"
 #include "screen.h"
 #include "utils.h"
 #include "handler.h"
-
-extern int mag_manacost(CHAR_DATA * ch, int spellnum);
 
 namespace Temporary_Spells
 {
@@ -46,12 +46,15 @@ namespace Temporary_Spells
 	{
 		time_t now = time(0);
 
-		for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+		for (const auto& ch : character_list)
 		{                                 
-			if (IS_NPC(ch) || IS_IMMORTAL(ch))
+			if (IS_NPC(ch)
+				|| IS_IMMORTAL(ch))
+			{
 				continue;
+			}
 
-			update_char_times(ch, now);
+			update_char_times(ch.get(), now);
 		}
 	}
 

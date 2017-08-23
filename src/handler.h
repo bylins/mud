@@ -196,6 +196,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim);
 void MemQ_init(CHAR_DATA * ch);
 void MemQ_flush(CHAR_DATA * ch);
 int MemQ_learn(CHAR_DATA * ch);
+inline int MemQ_learn(const CHAR_DATA::shared_ptr& ch) { return MemQ_learn(ch.get()); }
 void MemQ_remember(CHAR_DATA * ch, int num);
 void MemQ_forget(CHAR_DATA * ch, int num);
 int *MemQ_slots(CHAR_DATA * ch);

@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "world.objects.hpp"
+#include "world.characters.hpp"
 #include "obj.hpp"
 #include "spells.h"
 #include "skills.h"
@@ -40,6 +41,7 @@
 #include "fight.h"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
+#include "spell_parser.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -71,15 +73,12 @@ extern struct spell_create_type spell_create[];
 extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern int check_death_ice(int room, CHAR_DATA * ch);
-extern int get_max_slot(CHAR_DATA* ch);
 
 void decrease_level(CHAR_DATA * ch);
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 int average_day_temp(void);
 int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
-
-int mag_manacost(CHAR_DATA * ch, int spellnum);
 
 // local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
@@ -128,10 +127,10 @@ void handle_recall_spells(CHAR_DATA* ch)
 	}
 
 	//максимальный доступный чару круг
-	unsigned max_slot = get_max_slot(ch);
+	unsigned max_slot = max_slots.get(ch);
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
 	int secs_left = (SECS_PER_PLAYER_AFFECT*aff->duration)/SECS_PER_MUD_HOUR -SECS_PER_PLAYER_AFFECT;
-	if (secs_left / RECALL_SPELLS_INTERVAL < max_slot -aff->modifier || secs_left <= 2)
+	if (secs_left / RECALL_SPELLS_INTERVAL < max_slot - aff->modifier || secs_left <= 2)
 	{
 		int slot_to_restore = aff->modifier++;
 
@@ -150,7 +149,7 @@ void handle_recall_spells(CHAR_DATA* ch)
 				if (prev) prev->link = next;
 				if (i == ch->MemQueue.queue)
 				{
-					 ch->MemQueue.queue = next;
+					ch->MemQueue.queue = next;
 					GET_MEM_COMPLETED(ch) = 0;
 				}
 				GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, i->spellnum));
@@ -164,6 +163,7 @@ void handle_recall_spells(CHAR_DATA* ch)
 		}
 	}
 }
+void handle_recall_spells(CHAR_DATA::shared_ptr& ch) { handle_recall_spells(ch.get()); }
 
 /*
  * The hit_limit, mana_limit, and move_limit functions are gone.  They
@@ -273,10 +273,10 @@ int mana_gain(CHAR_DATA * ch)
 	gain = gain * percent / 100;
 	return (stopmem ? 0 : gain);
 }
-
+int mana_gain(const CHAR_DATA::shared_ptr& ch) { return mana_gain(ch.get()); }
 
 // Hitpoint gain pr. game hour
-int hit_gain(CHAR_DATA * ch)
+int hit_gain(CHAR_DATA* ch)
 {
 	int gain = 0, restore = MAX(10, GET_REAL_CON(ch) * 3 / 2), percent = 100;
 
@@ -351,11 +351,10 @@ int hit_gain(CHAR_DATA * ch)
 	}
 	return (gain);
 }
-
-
+int hit_gain(const CHAR_DATA::shared_ptr& ch) { return hit_gain(ch.get()); }
 
 // move gain pr. game hour //
-int move_gain(CHAR_DATA * ch)
+int move_gain(CHAR_DATA* ch)
 {
 	int gain = 0, restore = GET_REAL_CON(ch) / 2, percent = 100;
 
@@ -419,6 +418,7 @@ int move_gain(CHAR_DATA * ch)
 	gain = gain * percent / 100;
 	return (gain);
 }
+int move_gain(const CHAR_DATA::shared_ptr& ch) { return move_gain(ch.get()); }
 
 #define MINUTE            60
 #define UPDATE_PC_ON_BEAT TRUE
@@ -452,7 +452,7 @@ int interpolate(int min_value, int pulse)
 	}
 	return (sign * (int_p + carry));
 }
-void beat_punish(CHAR_DATA * i)
+void beat_punish(const CHAR_DATA::shared_ptr& i)
 {
 	int restore;
 	// Проверяем на выпуск чара из кутузки
@@ -465,9 +465,9 @@ void beat_punish(CHAR_DATA * i)
 		GET_HELL_LEV(i) = 0;
 		HELL_GODID(i) = 0;
 		HELL_DURATION(i) = 0;
-		send_to_char("Вас выпустили из темницы.\r\n", i);
+		send_to_char("Вас выпустили из темницы.\r\n", i.get());
 		if ((restore = GET_LOADROOM(i)) == NOWHERE)
-			restore = calc_loadroom(i);
+			restore = calc_loadroom(i.get());
 		restore = real_room(restore);
 		if (restore == NOWHERE)
 		{
@@ -478,38 +478,53 @@ void beat_punish(CHAR_DATA * i)
 		}
 		char_from_room(i);
 		char_to_room(i, restore);
-		look_at_room(i, restore);
-		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.",
-			FALSE, i, 0, 0, TO_ROOM);
+		look_at_room(i.get(), restore);
+		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.", FALSE, i.get(), 0, 0, TO_ROOM);
 	}
-	if (PLR_FLAGGED(i, PLR_NAMED) && NAME_DURATION(i) && NAME_DURATION(i) <= time(NULL))
+
+	if (PLR_FLAGGED(i, PLR_NAMED)
+		&& NAME_DURATION(i)
+		&& NAME_DURATION(i) <= time(NULL))
 	{
 		restore = PLR_TOG_CHK(i, PLR_NAMED);
 		if (NAME_REASON(i))
+		{
 			free(NAME_REASON(i));
+		}
 		NAME_REASON(i) = 0;
 		GET_NAME_LEV(i) = 0;
 		NAME_GODID(i) = 0;
 		NAME_DURATION(i) = 0;
-		send_to_char("Вас выпустили из КОМНАТЫ ИМЕНИ.\r\n", i);
+		send_to_char("Вас выпустили из КОМНАТЫ ИМЕНИ.\r\n", i.get());
 
 		if ((restore = GET_LOADROOM(i)) == NOWHERE)
-			restore = calc_loadroom(i);
+		{
+			restore = calc_loadroom(i.get());
+		}
+
 		restore = real_room(restore);
+
 		if (restore == NOWHERE)
 		{
 			if (GET_LEVEL(i) >= LVL_IMMORT)
+			{
 				restore = r_immort_start_room;
+			}
 			else
+			{
 				restore = r_mortal_start_room;
+			}
 		}
+
 		char_from_room(i);
 		char_to_room(i, restore);
-		look_at_room(i, restore);
-		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.",
-			FALSE, i, 0, 0, TO_ROOM);
+		look_at_room(i.get(), restore);
+		act("С ревом \"Имья, сестра, имья...\", $n появил$u в центре комнаты.", FALSE, i.get(), 0, 0, TO_ROOM);
 	}
-	if (PLR_FLAGGED(i, PLR_MUTE) && MUTE_DURATION(i) != 0 && MUTE_DURATION(i) <= time(NULL))
+
+	if (PLR_FLAGGED(i, PLR_MUTE)
+		&& MUTE_DURATION(i) != 0
+		&& MUTE_DURATION(i) <= time(NULL))
 	{
 		restore = PLR_TOG_CHK(i, PLR_MUTE);
 		if (MUTE_REASON(i))
@@ -518,9 +533,12 @@ void beat_punish(CHAR_DATA * i)
 		GET_MUTE_LEV(i) = 0;
 		MUTE_GODID(i) = 0;
 		MUTE_DURATION(i) = 0;
-		send_to_char("Вы можете орать.\r\n", i);
+		send_to_char("Вы можете орать.\r\n", i.get());
 	}
-	if (PLR_FLAGGED(i, PLR_DUMB) && DUMB_DURATION(i) != 0 && DUMB_DURATION(i) <= time(NULL))
+
+	if (PLR_FLAGGED(i, PLR_DUMB)
+		&& DUMB_DURATION(i) != 0
+		&& DUMB_DURATION(i) <= time(NULL))
 	{
 		restore = PLR_TOG_CHK(i, PLR_DUMB);
 		if (DUMB_REASON(i))
@@ -529,10 +547,13 @@ void beat_punish(CHAR_DATA * i)
 		GET_DUMB_LEV(i) = 0;
 		DUMB_GODID(i) = 0;
 		DUMB_DURATION(i) = 0;
-		send_to_char("Вы можете говорить.\r\n", i);
+		send_to_char("Вы можете говорить.\r\n", i.get());
 	}
 
-	if (!PLR_FLAGGED(i, PLR_REGISTERED) && UNREG_DURATION(i) != 0 && UNREG_DURATION(i) <= time(NULL))
+
+	if (!PLR_FLAGGED(i, PLR_REGISTERED)
+		&& UNREG_DURATION(i) != 0
+		&& UNREG_DURATION(i) <= time(NULL))
 	{
 		restore = PLR_TOG_CHK(i, PLR_REGISTERED);
 		if (UNREG_REASON(i))
@@ -541,56 +562,74 @@ void beat_punish(CHAR_DATA * i)
 		GET_UNREG_LEV(i) = 0;
 		UNREG_GODID(i) = 0;
 		UNREG_DURATION(i) = 0;
-		send_to_char("Ваша регистрация восстановлена.\r\n", i);
+		send_to_char("Ваша регистрация восстановлена.\r\n", i.get());
 
 		if (IN_ROOM(i) == r_unreg_start_room)
 		{
 			if ((restore = GET_LOADROOM(i)) == NOWHERE)
-				restore = calc_loadroom(i);
+			{
+				restore = calc_loadroom(i.get());
+			}
 
 			restore = real_room(restore);
 
 			if (restore == NOWHERE)
 			{
 				if (GET_LEVEL(i) >= LVL_IMMORT)
+				{
 					restore = r_immort_start_room;
+				}
 				else
+				{
 					restore = r_mortal_start_room;
+				}
 			}
 
 			char_from_room(i);
 			char_to_room(i, restore);
-			look_at_room(i, restore);
+			look_at_room(i.get(), restore);
 
 			act("$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!",
-				FALSE, i, 0, 0, TO_ROOM);
+				FALSE, i.get(), 0, 0, TO_ROOM);
 		};
 
 	}
 
-	if (GET_GOD_FLAG(i, GF_GODSLIKE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL))
+	if (GET_GOD_FLAG(i, GF_GODSLIKE)
+		&& GCURSE_DURATION(i) != 0
+		&& GCURSE_DURATION(i) <= time(NULL))
 	{
 		CLR_GOD_FLAG(i, GF_GODSLIKE);
-		send_to_char("Вы более не под защитой Богов.\r\n", i);
+		send_to_char("Вы более не под защитой Богов.\r\n", i.get());
 	}
-	if (GET_GOD_FLAG(i, GF_GODSCURSE) && GCURSE_DURATION(i) != 0 && GCURSE_DURATION(i) <= time(NULL))
+
+	if (GET_GOD_FLAG(i, GF_GODSCURSE)
+		&& GCURSE_DURATION(i) != 0
+		&& GCURSE_DURATION(i) <= time(NULL))
 	{
 		CLR_GOD_FLAG(i, GF_GODSCURSE);
-		send_to_char("Боги более не в обиде на вас.\r\n", i);
+		send_to_char("Боги более не в обиде на вас.\r\n", i.get());
 	}
-	if (PLR_FLAGGED(i, PLR_FROZEN) && FREEZE_DURATION(i) != 0 && FREEZE_DURATION(i) <= time(NULL))
+
+	if (PLR_FLAGGED(i, PLR_FROZEN)
+		&& FREEZE_DURATION(i) != 0
+		&& FREEZE_DURATION(i) <= time(NULL))
 	{
 		restore = PLR_TOG_CHK(i, PLR_FROZEN);
 		if (FREEZE_REASON(i))
+		{
 			free(FREEZE_REASON(i));
+		}
 		FREEZE_REASON(i) = 0;
 		GET_FREEZE_LEV(i) = 0;
 		FREEZE_GODID(i) = 0;
 		FREEZE_DURATION(i) = 0;
-		send_to_char("Вы оттаяли.\r\n", i);
+		send_to_char("Вы оттаяли.\r\n", i.get());
 		Glory::remove_freeze(GET_UNIQUE(i));
 		if ((restore = GET_LOADROOM(i)) == NOWHERE)
-			restore = calc_loadroom(i);
+		{
+			restore = calc_loadroom(i.get());
+		}
 		restore = real_room(restore);
 		if (restore == NOWHERE)
 		{
@@ -601,33 +640,40 @@ void beat_punish(CHAR_DATA * i)
 		}
 		char_from_room(i);
 		char_to_room(i, restore);
-		look_at_room(i, restore);
+		look_at_room(i.get(), restore);
 		act("Насвистывая \"От звонка до звонка...\", $n появил$u в центре комнаты.",
-			FALSE, i, 0, 0, TO_ROOM);
+			FALSE, i.get(), 0, 0, TO_ROOM);
 	}
+
 	// Проверяем а там ли мы где должны быть по флагам.
 	if (IN_ROOM(i) == STRANGE_ROOM)
+	{
 		restore = i->get_was_in_room();
+	}
 	else
+	{
 		restore = IN_ROOM(i);
+	}
 
 	if (PLR_FLAGGED(i, PLR_HELLED))
 	{
 		if (restore != r_helled_start_room)
 		{
 			if (IN_ROOM(i) == STRANGE_ROOM)
+			{
 				i->set_was_in_room(r_helled_start_room);
+			}
 			else
 			{
-				send_to_char("Чья-то злая воля вернула вас в темницу.\r\n", i);
-				act("$n возвращен$a в темницу.",
-					FALSE, i, 0, 0, TO_ROOM);
+				send_to_char("Чья-то злая воля вернула вас в темницу.\r\n", i.get());
+				act("$n возвращен$a в темницу.", FALSE, i.get(), 0, 0, TO_ROOM);
 
 				char_from_room(i);
 				char_to_room(i, r_helled_start_room);
-				look_at_room(i, r_helled_start_room);
+				look_at_room(i.get(), r_helled_start_room);
+
 				i->set_was_in_room(NOWHERE);
-			};
+			}
 		}
 	}
 	else if (PLR_FLAGGED(i, PLR_NAMED))
@@ -635,54 +681,65 @@ void beat_punish(CHAR_DATA * i)
 		if (restore != r_named_start_room)
 		{
 			if (IN_ROOM(i) == STRANGE_ROOM)
+			{
 				i->set_was_in_room(r_named_start_room);
+			}
 			else
 			{
-				send_to_char("Чья-то злая воля вернула вас в комнату имени.\r\n", i);
-				act("$n возвращен$a в комнату имени.",
-					FALSE, i, 0, 0, TO_ROOM);
+				send_to_char("Чья-то злая воля вернула вас в комнату имени.\r\n", i.get());
+				act("$n возвращен$a в комнату имени.", FALSE, i.get(), 0, 0, TO_ROOM);
 				char_from_room(i);
 				char_to_room(i, r_named_start_room);
-				look_at_room(i, r_named_start_room);
+				look_at_room(i.get(), r_named_start_room);
+
 				i->set_was_in_room(NOWHERE);
 			};
 		};
 	}
-	else if (!RegisterSystem::is_registered(i) && i->desc && STATE(i->desc) == CON_PLAYING)
+	else if (!RegisterSystem::is_registered(i.get()) && i->desc && STATE(i->desc) == CON_PLAYING)
 	{
 		if (restore != r_unreg_start_room
-				&& !RENTABLE(i)
-				&& !DeathTrap::is_slow_dt(IN_ROOM(i))
-				&& !check_dupes_host(i->desc, 1))
+			&& !RENTABLE(i)
+			&& !DeathTrap::is_slow_dt(IN_ROOM(i))
+			&& !check_dupes_host(i->desc, 1))
 		{
 			if (IN_ROOM(i) == STRANGE_ROOM)
+			{
 				i->set_was_in_room(r_unreg_start_room);
+			}
 			else
 			{
 				act("$n водворен$a в комнату для незарегистрированных игроков, играющих через прокси.\r\n",
-					FALSE, i, 0, 0, TO_ROOM);
+					FALSE, i.get(), 0, 0, TO_ROOM);
+
 				char_from_room(i);
 				char_to_room(i, r_unreg_start_room);
-				look_at_room(i, r_unreg_start_room);
+				look_at_room(i.get(), r_unreg_start_room);
+
 				i->set_was_in_room(NOWHERE);
 			};
 		}
 		else if (restore == r_unreg_start_room && check_dupes_host(i->desc, 1) && !IS_IMMORTAL(i))
 		{
-			send_to_char("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i);
+			send_to_char("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
 			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
-				FALSE, i, 0, 0, TO_ROOM);
+				FALSE, i.get(), 0, 0, TO_ROOM);
 			restore = i->get_was_in_room();
-			if (restore == NOWHERE || restore == r_unreg_start_room)
+			if (restore == NOWHERE
+				|| restore == r_unreg_start_room)
 			{
 				restore = GET_LOADROOM(i);
 				if (restore == NOWHERE)
-					restore = calc_loadroom(i);
+				{
+					restore = calc_loadroom(i.get());
+				}
 				restore = real_room(restore);
 			}
+
 			char_from_room(i);
 			char_to_room(i, restore);
-			look_at_room(i, restore);
+			look_at_room(i.get(), restore);
+
 			i->set_was_in_room(NOWHERE);
 		}
 	}
@@ -690,23 +747,21 @@ void beat_punish(CHAR_DATA * i)
 
 void beat_points_update(int pulse)
 {
-	CHAR_DATA *i, *next_char;
 	int restore;
 
 	if (!UPDATE_PC_ON_BEAT)
 		return;
 
 	// only for PC's
-	for (i = character_list; i; i = next_char)
+	character_list.foreach_on_copy([&](const auto& i)
 	{
-		next_char = i->get_next();
 		if (IS_NPC(i))
-			continue;
+			return;
 
 		if (IN_ROOM(i) == NOWHERE)
 		{
 			log("SYSERR: Pulse character in NOWHERE.");
-			continue;
+			return;
 		}
 
 		if (RENTABLE(i) <= time(NULL))
@@ -716,8 +771,11 @@ void beat_points_update(int pulse)
 			AGRO(i) = 0;
 			i->agrobd = false;
 		}
+
 		if (AGRO(i) < time(NULL))
+		{
 			AGRO(i) = 0;
+		}
 		beat_punish(i);
 
 // This line is used only to control all situations when someone is
@@ -729,7 +787,9 @@ void beat_points_update(int pulse)
 //                     die(i, NULL);
 
 		if (GET_POS(i) < POS_STUNNED)
-			continue;
+		{
+			return;
+		}
 
 		// Restore hitpoints
 		restore = hit_gain(i);
@@ -748,7 +808,9 @@ void beat_points_update(int pulse)
 		}
 
 		if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
+		{
 			GET_HIT(i) = MIN(GET_HIT(i) + restore, GET_REAL_MAX_HIT(i));
+		}
 
 		// Проверка аффекта !исступление!. Поместил именно здесь,
 		// но если кто найдет более подходящее место переносите =)
@@ -762,10 +824,12 @@ void beat_points_update(int pulse)
 			restore = interpolate(restore, pulse);
 			GET_MEM_COMPLETED(i) += restore;
 
-	if (AFF_FLAGGED(i, EAffectFlag::AFF_RECALL_SPELLS))
-		handle_recall_spells(i);
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_RECALL_SPELLS))
+			{
+				handle_recall_spells(i.get());
+			}
 
-			while (GET_MEM_COMPLETED(i) > GET_MEM_CURRENT(i)
+			while (GET_MEM_COMPLETED(i) > GET_MEM_CURRENT(i.get())
 					&& !MEMQUEUE_EMPTY(i))
 			{
 				int spellnum;
@@ -778,17 +842,13 @@ void beat_points_update(int pulse)
 			{
 				if (GET_RELIGION(i) == RELIGION_MONO)
 				{
-					send_to_char
-					("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n",
-					 i);
-					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.",
-						FALSE, i, 0, 0, TO_ROOM);
+					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой захлопнули свой часослов.\r\n", i.get());
+					act("Окончив занятия, $n с улыбкой захлопнул$g часослов.", FALSE, i.get(), 0, 0, TO_ROOM);
 				}
 				else
 				{
-					send_to_char
-					("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i);
-					act("Окончив занятия, $n с улыбкой убрал$g резы.", FALSE, i, 0, 0, TO_ROOM);
+					send_to_char("Наконец ваши занятия окончены. Вы с улыбкой убрали свои резы.\r\n", i.get());
+					act("Окончив занятия, $n с улыбкой убрал$g резы.", FALSE, i.get(), 0, 0, TO_ROOM);
 				}
 			}
 		}
@@ -800,28 +860,34 @@ void beat_points_update(int pulse)
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(i) && GET_MANA_STORED(i) < GET_MAX_MANA(i))
+		if (IS_MANA_CASTER(i)
+			&& GET_MANA_STORED(i) < GET_MAX_MANA(i))
 		{
 			GET_MANA_STORED(i) += mana_gain(i);
 			if (GET_MANA_STORED(i) >= GET_MAX_MANA(i))
 			{
 				GET_MANA_STORED(i) = GET_MAX_MANA(i);
-				send_to_char("Ваша магическая энергия полностью восстановилась\r\n", i);
+				send_to_char("Ваша магическая энергия полностью восстановилась\r\n", i.get());
 			}
 		}
-		if (IS_MANA_CASTER(i) && GET_MANA_STORED(i) > GET_MAX_MANA(i))
+
+		if (IS_MANA_CASTER(i)
+			&& GET_MANA_STORED(i) > GET_MAX_MANA(i))
 		{
 			GET_MANA_STORED(i) = GET_MAX_MANA(i);
 		}
+
 		// Restore moves
 		restore = move_gain(i);
 		restore = interpolate(restore, pulse);
-//		GET_MOVE(i) = MIN(GET_MOVE(i) + restore, GET_REAL_MAX_MOVE(i));
+
 //MZ.overflow_fix
 		if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i))
+		{
 			GET_MOVE(i) = MIN(GET_MOVE(i) + restore, GET_REAL_MAX_MOVE(i));
+		}
 //-MZ.overflow_fix
-	}
+	});
 }
 
 void update_clan_exp(CHAR_DATA *ch, int gain)
@@ -1774,7 +1840,6 @@ void obj_point_update()
 void point_update(void)
 {
 	memory_rec *mem, *nmem, *pmem;
-	CHAR_DATA *i, *next_char;
 	int count, mob_num, spellnum, mana;
 	boost::array<int, MAX_SPELLS + 1> buffer_mem;
 	boost::array<int, MAX_SPELLS + 1> real_spell;
@@ -1790,51 +1855,70 @@ void point_update(void)
 		real_spell[MAX_SPELLS - spellnum] = buffer_mem[count];
 		for (; count < MAX_SPELLS; buffer_mem[count] = buffer_mem[count + 1], count++);
 	}
+
 	// characters
-	for (i = character_list; i; i = next_char)
+	character_list.foreach_on_copy([&](const auto& i)
 	{
 		if (IS_NPC(i))
 		{
 			i->inc_restore_timer(SECS_PER_MUD_HOUR);
 		}
-		next_char = i->get_next();
+
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		   то он снова должен валиться в сон */
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP) && GET_POS(i) > POS_SLEEPING)
 		{
 			GET_POS(i) = POS_SLEEPING;
-			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
-			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", TRUE, i, 0, 0, TO_ROOM);
+			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i.get());
+			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", TRUE, i.get(), 0, 0, TO_ROOM);
 		}
+
 		if (!IS_NPC(i))
 		{
 			if (average_day_temp() < -20)
-				gain_condition(i, FULL, -2);
+			{
+				gain_condition(i.get(), FULL, -2);
+			}
 			else if (average_day_temp() < -5)
-				gain_condition(i, FULL, number(-2, -1));
+			{
+				gain_condition(i.get(), FULL, number(-2, -1));
+			}
 			else
-				gain_condition(i, FULL, -1);
+			{
+				gain_condition(i.get(), FULL, -1);
+			}
 
-			gain_condition(i, DRUNK, -1);
+			gain_condition(i.get(), DRUNK, -1);
 
 			if (average_day_temp() > 25)
-				gain_condition(i, THIRST, -2);
+			{
+				gain_condition(i.get(), THIRST, -2);
+			}
 			else if (average_day_temp() > 20)
-				gain_condition(i, THIRST, number(-2, -1));
+			{
+				gain_condition(i.get(), THIRST, number(-2, -1));
+			}
 			else
-				gain_condition(i, THIRST, -1);
-
+			{
+				gain_condition(i.get(), THIRST, -1);
+			}
 		}
-		if (GET_POS(i) >= POS_STUNNED)  	// Restore hitpoints
+
+		if (GET_POS(i) >= POS_STUNNED)  	// Restore hit points
 		{
-			if (IS_NPC(i) || !UPDATE_PC_ON_BEAT)
+			if (IS_NPC(i)
+				|| !UPDATE_PC_ON_BEAT)
 			{
 				count = hit_gain(i);
 				if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
+				{
 					GET_HIT(i) = MIN(GET_HIT(i) + count, GET_REAL_MAX_HIT(i));
+				}
 			}
+
 			// Restore mobs
-			if (IS_NPC(i) && !i->get_fighting())  	// Restore horse
+			if (IS_NPC(i)
+				&& !i->get_fighting())  	// Restore horse
 			{
 				if (IS_HORSE(i))
 				{
@@ -1891,79 +1975,101 @@ void point_update(void)
 
 					GET_HORSESTATE(i) = MIN(800, GET_HORSESTATE(i) + mana);
 				}
+
 				// Forget PC's
 				for (mem = MEMORY(i), pmem = NULL; mem; mem = nmem)
 				{
 					nmem = mem->next;
-					if (mem->time <= 0 && i->get_fighting())
+					if (mem->time <= 0
+						&& i->get_fighting())
 					{
 						pmem = mem;
 						continue;
 					}
-					if (mem->time < time(NULL) || mem->time <= 0)
+
+					if (mem->time < time(NULL)
+						|| mem->time <= 0)
 					{
 						if (pmem)
+						{
 							pmem->next = nmem;
+						}
 						else
+						{
 							MEMORY(i) = nmem;
+						}
 						free(mem);
 					}
 					else
+					{
 						pmem = mem;
+					}
 				}
+
 				// Remember some spells
 				if ((mob_num = GET_MOB_RNUM(i)) >= 0)
-					for (count = 0, mana = 0;
-							count < MAX_SPELLS && mana < GET_REAL_INT(i) * 10; count++)
+				{
+					for (count = 0, mana = 0; count < MAX_SPELLS && mana < GET_REAL_INT(i) * 10; count++)
 					{
 						spellnum = real_spell[count];
 						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) >
-								GET_SPELL_MEM(i, spellnum))
+							GET_SPELL_MEM(i, spellnum))
 						{
 							GET_SPELL_MEM(i, spellnum)++;
-							mana +=
-								((spell_info[spellnum].mana_max +
-								  spell_info[spellnum].mana_min) / 2);
-							GET_CASTER(i) +=
-								(IS_SET
-								 (spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
-							// sprintf(buf,"Remember spell %s for mob %s.\r\n",spell_info[spellnum].name,GET_NAME(i));
-							// send_to_gods(buf);
+							mana += ((spell_info[spellnum].mana_max + spell_info[spellnum].mana_min) / 2);
+							GET_CASTER(i) += (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 						}
 					}
+				}
 			}
+
 			// Restore moves
 			if (IS_NPC(i) || !UPDATE_PC_ON_BEAT)
-//				GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
-//MZ.overflow_fix
+			{
+				//MZ.overflow_fix
 				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i))
+				{
 					GET_MOVE(i) = MIN(GET_MOVE(i) + move_gain(i), GET_REAL_MAX_MOVE(i));
-//-MZ.overflow_fix
+				}
+				//-MZ.overflow_fix
+			}
 
 			// Update PC/NPC position
 			if (GET_POS(i) <= POS_STUNNED)
-				update_pos(i);
+			{
+				update_pos(i.get());
+			}
 		}
 		else if (GET_POS(i) == POS_INCAP)
 		{
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 1, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE);
 
-			if (dmg.process(i, i) == -1)
-				continue;
+			if (dmg.process(i.get(), i.get()) == -1)
+			{
+				return;
+			}
 		}
 		else if (GET_POS(i) == POS_MORTALLYW)
 		{
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 2, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE);
 
-			if (dmg.process(i, i) == -1)
-				continue;
+			if (dmg.process(i.get(), i.get()) == -1)
+			{
+				return;
+			}
 		}
-		update_char_objects(i);
-		if (!IS_NPC(i) && GET_LEVEL(i) < idle_max_level && !PRF_FLAGGED(i, PRF_CODERINFO))
-			check_idling(i);
-	}
+
+		update_char_objects(i.get());
+
+		if (!IS_NPC(i)
+			&& GET_LEVEL(i) < idle_max_level
+			&& !PRF_FLAGGED(i, PRF_CODERINFO))
+		{
+			check_idling(i.get());
+		}
+	});
 }
 
 void repop_decay(zone_rnum zone)

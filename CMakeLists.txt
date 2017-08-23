@@ -511,14 +511,23 @@ else ()
 endif ()
 
 # Iconv
-find_path(ICONV_INCLUDE_DIR iconv.h) 
-find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
-if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
-	message(STATUS "Iconv found. Turning it ON")
-	set(ICONV_FOUND TRUE)
-else ()
-	message(STATUS "Iconv not found. Turning it OFF")
-endif () 
+option(HAVE_ICONV "Allows to explicitly disable iconv. Otherwise it turns off only if it wasn't found" ON)
+if (HAVE_ICONV)
+	find_path(ICONV_INCLUDE_DIR iconv.h) 
+	find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
+	if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
+		message(STATUS "Iconv found. Turning it ON")
+		set(ICONV_FOUND TRUE)
+	else ()
+		message(STATUS "Iconv not found. Turning it OFF")
+	endif () 
+
+	if (ICONV_FOUND)
+		add_definitions("-DHAVE_ICONV")
+		include_directories(system ${ICONV_INCLUDE_DIR})
+		target_link_libraries(circle.library ${ICONV_LIBRARIES})
+	endif ()
+endif ()
 
 include_directories(src
 	system ${Boost_INCLUDE_DIRS}
@@ -526,12 +535,6 @@ include_directories(src
 target_link_libraries(circle.library
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES})
-
-if (ICONV_FOUND)
-	add_definitions("-DHAVE_ICONV")
-	include_directories(system ${ICONV_INCLUDE_DIR})
-	target_link_libraries(circle.library ${ICONV_LIBRARIES})
-endif ()
 
 # Prepare options for test build
 set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
