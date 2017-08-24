@@ -1,0 +1,20 @@
+#!/bin/bash
+
+pushd /home/mud/mud/log
+
+d=`date +%Y-%m-%d_%H-%M-%S.c`
+
+if [ -f syslog ]; then mv ../syslog ./syslog.$d; fi
+if [ -f imlog.txt ]; then cat imlog.txt >>imlogall; fi
+if [ -f errlog.txt ]; then mv errlog.txt errlog.txt.$d; fi
+
+(nice -n 15 bzip2 errlog.txt.$d
+rm errlog.1.bz2
+mv errlog.2.bz2 errlog.1.bz2
+mv errlog.3.bz2 errlog.2.bz2
+mv errlog.txt.$d.bz2 errlog.3.bz2) & 
+(nice -n 15 bzip2 -2 syslog.$d
+chmod 640 syslog.$d.bz2
+mv syslog.$d.bz2 archive) &
+
+popd

@@ -1,0 +1,1 @@
+tar -cvjf /home/mud/mud/backup/lib-$(date +%d%m%y-%H%M%S).tar.bz2 /home/mud/mud/lib

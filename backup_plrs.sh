@@ -1,0 +1,1 @@
+tar -cvjf /home/mud/mud/backup/plrs-$(date +%d%m%y-%H%M%S).tgz /home/mud/mud/lib/plrs /home/mud/mud/lib/plrobjs /home/mud/mud/lib/plrstuff /home/mud/mud/lib/plrvars /home/mud/mud/lib/etc /home/mud/mud/lib/plralias
