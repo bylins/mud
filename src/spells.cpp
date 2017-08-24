@@ -3358,7 +3358,8 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL GENERAL RECOVERY!",
 	"!SPELL COMMON MEAL!",
 	"!SPELL STONE WALL!",
-	"!SPELL SNAKE EYES!"
+	"!SPELL SNAKE EYES!",
+	"Матушка земля забыла про Вас."
 };
 
 /**
@@ -3588,7 +3589,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Обрасти плотью сызнова.", "... прости Господи грехи, верни плоть созданию." }, // SPELL_RECOVERY
 	cast_phrase_t{ "Обрастите плотью сызнова.", "... прости Господи грехи, верни плоть созданиям." }, // SPELL_MASS_RECOVERY
 	cast_phrase_t{ "Возьми личину зла для жатвы славной.", "Надели силой злою во благо." }, // SPELL_AURA_EVIL
-	cast_phrase_t{ "\n", "\n" }, // SPELL_MENTAL_SHADOW
+	cast_phrase_t{ "Силою мысли защиту будую себе.", "Даруй Отче защиту, силой разума воздвигнутую." }, // SPELL_MENTAL_SHADOW
 	cast_phrase_t{ "Ато егоже руци попасти.", "И он не знает, что мертвецы там и что в глубине..." }, // SPELL_EVARDS_BLACK_TENTACLES
 	cast_phrase_t{ "Вждати бурю обло створити.", "И поднялась великая буря..." }, // SPELL_WHIRLWIND
 	cast_phrase_t{ "Идеже индрика зубы супостаты изъмати.", "Есть род, у которого зубы - мечи и челюсти - ножи..." }, // SPELL_WHIRLWIND
@@ -3596,16 +3597,17 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи." }, // SPELL_THUNDERSTONE
 	cast_phrase_t{ "Онома утес низринется!", "...доколе камень не оторвался от горы без содействия рук." }, // SPELL_CLODd
 	cast_phrase_t{ "!Применил боевой прием!", "!use battle expedient!" }, // SPELL_EXPEDIENT (set by program)
-	cast_phrase_t{ "\n", "\n" }, // SPELL_SIGHT_OF_DARKNESS
-	cast_phrase_t{ "\n", "\n" }, // SPELL_GENERAL_SINCERITY
-	cast_phrase_t{ "\n", "\n" }, // SPELL_MAGICAL_GAZE
-	cast_phrase_t{ "\n", "\n" }, // SPELL_ALL_SEEING_EYE
-	cast_phrase_t{ "\n", "\n" }, // SPELL_EYE_OF_GODS
-	cast_phrase_t{ "\n", "\n" }, // SPELL_BREATHING_AT_DEPTH
-	cast_phrase_t{ "\n", "\n" }, // SPELL_GENERAL_RECOVERY
-	cast_phrase_t{ "\n", "\n" }, // SPELL_COMMON_MEAL
-	cast_phrase_t{ "\n", "\n" }, // SPELL_STONE_WALL
-	cast_phrase_t{ "\n", "\n" }, // SPELL_SNAKE_EYES
+	cast_phrase_t{ "Что свет, что тьма - глазу однаково.", "Станьте зрячи в тьме кромешной!" }, // SPELL_SIGHT_OF_DARKNESS
+	cast_phrase_t{ "...да не скроются намерения.", "И узрим братья намерения окружающих." }, // SPELL_GENERAL_SINCERITY
+	cast_phrase_t{ "Узрим же все, что с магией навкруги нас.", "Покажи, Спаситель, магические силы братии." }, // SPELL_MAGICAL_GAZE
+	cast_phrase_t{ "Все тайное станет явным.", "Не спрячется, не скроется, ни заяц, ни блоха." }, // SPELL_ALL_SEEING_EYE
+	cast_phrase_t{ "Осязаемое откройся взору!", "Да не скроется от взора вашего, ни одна живая душа." }, // SPELL_EYE_OF_GODS
+	cast_phrase_t{ "Аки стайка рыбок, плывите вместе.", "Что в воде, что на земле, воздух свежим будет." }, // SPELL_BREATHING_AT_DEPTH
+	cast_phrase_t{ "...дабы пройти вместе не одну сотню верст", "Сохрани Отче от усталости детей своих!" }, // SPELL_GENERAL_RECOVERY
+	cast_phrase_t{ "Благодарите богов за хлеб и соль!", "...дабы не осталось голодающих на свете белом" }, // SPELL_COMMON_MEAL
+	cast_phrase_t{ "Станем други крепки як николы!", "Укрепим тела наши перед битвой!" }, // SPELL_STONE_WALL
+	cast_phrase_t{ "Что яд, а что мед. Не обманемся!", "...и самый сильный яд станет вам виден." }, // SPELL_SNAKE_EYES
+	cast_phrase_t{ "Велес, даруй защиту.", "... земля благословенна твоя." }, // SPELL_EARTH_AURA
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3843,6 +3845,7 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_COMMON_MEAL] = "SPELL_COMMON_MEAL";
 	ESpell_name_by_value[ESpell::SPELL_STONE_WALL] = "SPELL_STONE_WALL";
 	ESpell_name_by_value[ESpell::SPELL_SNAKE_EYES] = "SPELL_SNAKE_EYES";
+	ESpell_name_by_value[ESpell::SPELL_EARTH_AURA] = "SPELL_EARTH_AURA";
 	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
 
 	for (const auto& i : ESpell_name_by_value)
