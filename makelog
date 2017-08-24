@@ -1,20 +1,34 @@
 #!/bin/bash
 
-pushd /home/mud/mud/log
+DIRECTORY=$(dirname "${BASH_SOURCE[0]}")
 
-d=`date +%Y-%m-%d_%H-%M-%S.c`
+pushd ${DIRECTORY}/log
 
-if [ -f syslog ]; then mv ../syslog ./syslog.$d; fi
+d=`date +%Y-%m-%d_%H-%M-%S`
+
+if [ -f ../syslog ]; then
+	mv ../syslog syslog.$d &&
+		bzip2 syslog.$d
+		(chmod 640 syslog.$d.bz2
+		mv syslog.$d.bz2 archive)
+fi
+
 if [ -f imlog.txt ]; then cat imlog.txt >>imlogall; fi
-if [ -f errlog.txt ]; then mv errlog.txt errlog.txt.$d; fi
+if [ -f errlog.txt ]; then
+	mv errlog.txt errlog.txt.$d &&
+		(rm errlog.3.bz2
+		mv errlog.2.bz2 errlog.3.bz2
+		mv errlog.1.bz2 errlog.2.bz2
+		mv errlog.txt.$d.bz2 errlog.1.bz2)
+fi
 
-(nice -n 15 bzip2 errlog.txt.$d
-rm errlog.1.bz2
-mv errlog.2.bz2 errlog.1.bz2
-mv errlog.3.bz2 errlog.2.bz2
-mv errlog.txt.$d.bz2 errlog.3.bz2) & 
-(nice -n 15 bzip2 -2 syslog.$d
-chmod 640 syslog.$d.bz2
-mv syslog.$d.bz2 archive) &
+if [ -f money.txt ]; then
+	mv money.txt money.txt.${d} &&
+		bzip2 money.txt.${d}
+		(chmod 640 money.txt.$d.bz2
+		mv money.txt.$d.bz2 archive)
+fi
 
 popd
+
+# vim: set ts=4 sw=4 tw=0 noet :
