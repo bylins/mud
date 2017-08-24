@@ -4858,7 +4858,7 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 		break;
 	case SPELL_FULL:
 	case SPELL_COMMON_MEAL:
-		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
+//		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
 		{
 			GET_COND(victim, THIRST) = 24;
 			GET_COND(victim, FULL) = 24;
