@@ -4429,8 +4429,15 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 	if (spellnum != SPELL_CHARM)
 		eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
 
-	r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms +
-		   (eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].charms;
+	if (eff_cha < 50)
+	{
+		r_hp = (1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].charms +
+			(eff_cha - (int)eff_cha) * cha_app[(int)eff_cha + 1].charms;
+	}
+	else
+	{
+		r_hp = (1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].charms;
+	}
 
 	return (int) r_hp;
 }
@@ -4445,9 +4452,17 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 		eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
 
 	// Интерполяция между значениями для целых значений обаяния
-	r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
-		   ((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
-			(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
+	if (eff_cha < 50)
+	{
+		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
+			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate +
+				(eff_cha - (int)eff_cha) * cha_app[(int)eff_cha + 1].dam_to_hit_rate);
+	}
+	else
+	{
+		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
+			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate);
+	}
 
 	return (int) r_hp;
 }
