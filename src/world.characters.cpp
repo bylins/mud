@@ -1,7 +1,11 @@
 #include "world.characters.hpp"
 
+#include "dg_db_scripts.hpp"
+#include "mobact.hpp"
 #include "config.hpp"
 #include "logger.hpp"
+#include "utils.h"
+#include "dg_scripts.h"
 
 Characters character_list;	// global container of chars
 
@@ -17,7 +21,7 @@ void Characters::foreach_on_copy(const foreach_f function) const
 	std::for_each(list.begin(), list.end(), function);
 }
 
-bool Characters::erase_if(const predicate_f predicate)
+bool Characters::remove_if(const predicate_f predicate)
 {
 	bool result = false;
 
@@ -26,7 +30,11 @@ bool Characters::erase_if(const predicate_f predicate)
 	{
 		if (predicate(*i))
 		{
+			m_purge_list.push_back(*i);
+			m_object_raw_ptr_to_object_ptr.erase(i->get());
 			i = m_list.erase(i);
+			(*i)->set_purged();
+
 			result = true;
 		}
 		else
@@ -38,22 +46,52 @@ bool Characters::erase_if(const predicate_f predicate)
 	return result;
 }
 
-void Characters::remove(const CHAR_DATA* character)
+void Characters::remove(CHAR_DATA* character)
 {
 	const auto index_i = m_object_raw_ptr_to_object_ptr.find(character);
 	if (index_i == m_object_raw_ptr_to_object_ptr.end())
 	{
 		const size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
-		snprintf(buffer, BUFFER_SIZE,
-			"Character at address %p requested to remove not found in the world.", character);
+		snprintf(buffer, BUFFER_SIZE, "Character at address %p requested to remove not found in the world.", character);
 		mudlog(buffer, BRF, LVL_IMPL, SYSLOG, TRUE);
 
 		return;
 	}
 
+	m_purge_list.push_back(*index_i->second);
 	m_list.erase(index_i->second);
 	m_object_raw_ptr_to_object_ptr.erase(index_i);
+	character->set_purged();
+}
+
+void Characters::purge()
+{
+	for (const auto& character : m_purge_list)
+	{
+		if (GET_MOB_RNUM(character) > -1)
+		{
+			mob_index[GET_MOB_RNUM(character)].number--;
+		}
+
+		if (IS_NPC(character))
+		{
+			clearMemory(character.get());
+		}
+
+		free_script(SCRIPT(character));	// см. выше
+		SCRIPT(character) = NULL;
+
+		if (SCRIPT_MEM(character))
+		{
+			extract_script_mem(SCRIPT_MEM(character));
+			SCRIPT_MEM(character) = NULL;
+		}
+
+		MOB_FLAGS(character).set(MOB_FREE);
+	}
+
+	m_purge_list.clear();
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

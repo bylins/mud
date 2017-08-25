@@ -26,14 +26,17 @@ public:
 
 	void foreach_on_copy(const foreach_f function) const;
 
-	bool erase_if(const predicate_f predicate);
-	void remove(const CHAR_DATA* character);
+	bool remove_if(const predicate_f predicate);
+	void remove(CHAR_DATA* character);
+
+	void purge();
 
 private:
 	using object_raw_ptr_to_object_ptr_t = std::unordered_map<const void*, list_t::iterator>;
 
 	list_t m_list;
 	object_raw_ptr_to_object_ptr_t m_object_raw_ptr_to_object_ptr;
+	list_t m_purge_list;
 };
 
 extern Characters character_list;

@@ -238,6 +238,7 @@ set(HEADERS
 	src/mail.h
 	src/map.hpp
 	src/meat.maker.hpp
+	src/mobact.hpp
 	src/mobmax.hpp
 	src/mob_stat.hpp
 	src/modify.h

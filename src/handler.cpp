@@ -25,6 +25,7 @@
 #include "spells.h"
 #include "skills.h"
 #include "screen.h"
+#include "dg_db_scripts.hpp"
 #include "dg_scripts.h"
 #include "auction.h"
 #include "features.hpp"
@@ -108,14 +109,12 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_clan(CHAR_DATA * ch, OBJ_DATA * obj);
 void remove_follower(CHAR_DATA * ch);
-void clearMemory(CHAR_DATA * ch);
 int extra_damroll(int class_num, int level);
 int Crash_delete_file(char *name, int mask);
 void do_entergame(DESCRIPTOR_DATA * d);
 void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern void check_auction(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void check_exchange(OBJ_DATA * obj);
-void free_script(SCRIPT_DATA * sc);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
 extern std::vector<City> cities;
 extern struct zone_data *zone_table;
@@ -2892,10 +2891,8 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 		}
 
 		drop_otrigger(obj, ch);
-		if (obj->purged()) return;
 
 		drop_wtrigger(obj, ch);
-		if (obj->purged()) return;
 
 		obj_to_room(obj, ch->in_room);
 		if (!obj_decay(obj) && !msgShown)
@@ -2960,7 +2957,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	}
 
 	DESCRIPTOR_DATA *t_desc;
-	int i, freed = 0;
+	int i, removed = 0;
 
 	if (MOB_FLAGGED(ch, MOB_FREE)
 		|| MOB_FLAGGED(ch, MOB_DELETE))
@@ -3012,7 +3009,6 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 			if (!obj_eq) continue;
 
 			remove_otrigger(obj_eq, ch);
-			if (obj_eq->purged()) continue;
 
 			drop_obj_on_zreset(ch, obj_eq, 0, zone_reset);
 		}
@@ -3104,17 +3100,19 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	else
 	{
 		log("[Extract char] All clear for NPC");
-		if ((GET_MOB_RNUM(ch) > -1) && (!MOB_FLAGGED(ch, MOB_RESURRECTED)))	// if mobile и не умертвие
+		if ((GET_MOB_RNUM(ch) > -1)
+			&& (!MOB_FLAGGED(ch, MOB_RESURRECTED)))	// if mobile и не умертвие
+		{
 			mob_index[GET_MOB_RNUM(ch)].number--;
-		clearMemory(ch);	// Only NPC's can have memory
+		}
 
-		MOB_FLAGS(ch).set(MOB_FREE);
-		CHAR_DATA::purge(ch);
-		freed = 1;
+		character_list.remove(ch);
+		removed = 1;
 	}
 
 	bool left_in_game = false;
-	if (!freed && ch->desc != NULL)
+	if (!removed
+		&& ch->desc != NULL)
 	{
 		STATE(ch->desc) = CON_MENU;
 		SEND_TO_Q(MENU, ch->desc);
@@ -3126,11 +3124,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	}
 	else  		// if a player gets purged from within the game
 	{
-		if (!freed)
-		{
-			MOB_FLAGS(ch).set(MOB_FREE);
-			CHAR_DATA::purge(ch);
-		}
+		character_list.remove(ch);
 	}
 
 	if (!left_in_game)
@@ -3210,26 +3204,12 @@ void extract_mob(CHAR_DATA * ch)
 
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
-	ch->remove_from_list(character_list);
+	character_list.remove(ch);
 
 	if (ch->desc && ch->desc->original)
-		do_return(ch, NULL, 0, 0);
-
-	if (GET_MOB_RNUM(ch) > -1)
-		mob_index[GET_MOB_RNUM(ch)].number--;
-	clearMemory(ch);
-
-	free_script(SCRIPT(ch));	// см. выше
-	SCRIPT(ch) = NULL;
-
-	if (SCRIPT_MEM(ch))
 	{
-		extract_script_mem(SCRIPT_MEM(ch));
-		SCRIPT_MEM(ch) = NULL;
+		do_return(ch, NULL, 0, 0);
 	}
-
-	MOB_FLAGS(ch).set(MOB_FREE);
-	CHAR_DATA::purge(ch);
 }
 
 /* ***********************************************************************
@@ -3237,40 +3217,32 @@ void extract_mob(CHAR_DATA * ch)
 * which incorporate the actual player-data                               *.
 *********************************************************************** */
 
-
 CHAR_DATA *get_player_vis(CHAR_DATA * ch, const char *name, int inroom)
 {
-	CHAR_DATA *i;
-
-	for (i = character_list; i; i = i->get_next())
+	for (const auto& i : character_list)
 	{
-		//if (IS_NPC(i) || (!(i->desc) && !RENTABLE(i) && !(inroom & FIND_CHAR_DISCONNECTED)))
-		//   continue;
 		if (IS_NPC(i))
 			continue;
 		if (!HERE(i))
 			continue;
 		if ((inroom & FIND_CHAR_ROOM) && i->in_room != ch->in_room)
 			continue;
-		//if (str_cmp(i->get_pc_name(), name))
-		//   continue;
 		if (!CAN_SEE_CHAR(ch, i))
 			continue;
 		if (!isname(name, i->get_pc_name()))
 		{
 			continue;
 		}
-		return (i);
+
+		return i.get();
 	}
 
-	return (NULL);
+	return nullptr;
 }
 
-CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
+CHAR_DATA* get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 {
-	CHAR_DATA *i;
-
-	for (i = character_list; i; i = i->get_next())
+	for (const auto& i : character_list)
 	{
 		if (IS_NPC(i))
 			continue;
@@ -3280,10 +3252,10 @@ CHAR_DATA *get_player_pun(CHAR_DATA * ch, const char *name, int inroom)
 		{
 			continue;
 		}
-		return (i);
+		return i.get();
 	}
 
-	return (NULL);
+	return nullptr;
 }
 
 CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
@@ -3328,34 +3300,43 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
 CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 {
 	CHAR_DATA *i;
-	int j = 0, number;
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
+
 	// check the room first
 	if (where == FIND_CHAR_ROOM)
 	{
 		return get_char_room_vis(ch, name);
 	}
-	else if (where == FIND_CHAR_WORLD)	{
+	else if (where == FIND_CHAR_WORLD)
+	{
  		if ((i = get_char_room_vis(ch, name)) != NULL)
+		{
 			return (i);
+		}
+
 		strcpy(tmp, name);
-		if (!(number = get_number(&tmp)))
+		const int number = get_number(&tmp);
+		if (0 != number)
+		{
 			return get_player_vis(ch, tmp, 0);
-		for (i = character_list; i && (j <= number); i = i->get_next())
+		}
+
+		int j = 0;
+		for (const auto& i : character_list)
 		{
 			if (HERE(i) && CAN_SEE(ch, i)
 				&& isname(tmp, i->get_pc_name()))
 			{
 				if (++j == number)
 				{
-					return (i);
+					return i.get();
 				}
 			}
 		}
 	}
 
-	return (NULL);
+	return nullptr;
 }
 
 OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list, bool locate_item)

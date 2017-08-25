@@ -123,7 +123,6 @@ int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
 int compute_armor_class(CHAR_DATA * ch);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 extern bool can_be_reset(zone_rnum zone);
 extern int is_empty(zone_rnum zone_nr);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
@@ -362,7 +361,6 @@ void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			if (GET_EQ(vict, i))
 			{
 				remove_otrigger(GET_EQ(vict, i), vict);
-				if (GET_EQ(vict, i)->purged()) continue;
 				extract_obj(unequip_char(vict, i));
 			}
 		}
@@ -3336,14 +3334,12 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-
 void send_list_char(std::string list_char, std::string email)
 {
 	std::string cmd_line = "python3 send_list_char.py " + email + " " + list_char + " &";
 	auto result = system(cmd_line.c_str());
 	UNUSED_ARG(result);
 }
-
 
 const int IIP   = 1;
 const int IMAIL = 2;

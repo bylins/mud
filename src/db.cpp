@@ -33,6 +33,7 @@
 #include "corpse.hpp"
 #include "deathtrap.hpp"
 #include "depot.hpp"
+#include "dg_db_scripts.hpp"
 #include "dg_scripts.h"
 #include "ext_money.hpp"
 #include "fight.h"
@@ -236,7 +237,6 @@ int exchange_database_load(void);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
@@ -4555,7 +4555,7 @@ void reset_zone(zone_rnum zone)
 
 			case 'Q':
 				{
-					const bool erased = character_list.erase_if([&](const CHAR_DATA::shared_ptr& ch)
+					const bool erased = character_list.remove_if([&](const CHAR_DATA::shared_ptr& ch)
 					{
 						return IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED);
 					});
@@ -5317,12 +5317,6 @@ int create_entry(const char *name)
 /************************************************************************
 *  funcs of a (more or less) general utility nature                     *
 ************************************************************************/
-
-// release memory allocated for an obj struct
-void free_obj(OBJ_DATA* obj)
-{
-	obj->purge();
-}
 
 /*
  * Steps:
@@ -6157,8 +6151,6 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 }
-
-void free_script(SCRIPT_DATA * sc);
 
 void room_free(ROOM_DATA * room)
 /*++

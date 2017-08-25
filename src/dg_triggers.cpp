@@ -15,6 +15,7 @@
 
 #include "logger.hpp"
 #include "obj.hpp"
+#include "dg_db_scripts.hpp"
 #include "dg_scripts.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -562,8 +563,6 @@ int compare_cmd(int mode, const char *source, const char *dest)
 	}
 	return (result);
 }
-
-extern void free_script(SCRIPT_DATA * sc);
 
 int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 {

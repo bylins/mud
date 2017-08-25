@@ -93,8 +93,6 @@ const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 void reset_zone(int znum);
 
-void free_script(SCRIPT_DATA * sc);
-
 void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mpurge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mjunk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

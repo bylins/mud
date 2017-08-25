@@ -4,6 +4,7 @@
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
+#include "dg_db_scripts.hpp"
 #include "dg_scripts.h"
 #include "char.hpp"
 #include "room.hpp"
@@ -19,7 +20,6 @@
 #include <boost/lexical_cast.hpp>
 
 extern void extract_trigger(TRIG_DATA * trig);
-extern void free_script(SCRIPT_DATA * sc);
 
 namespace Celebrates
 {

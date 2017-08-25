@@ -42,10 +42,6 @@ MapSystem::Options PlayerI::empty_map_options;
 namespace
 {
 
-// список чаров/мобов после пуржа для последующего удаления оболочки
-typedef std::vector<CHAR_DATA *> PurgedCharList;
-PurgedCharList purged_char_list;
-
 // * На перспективу - втыкать во все методы character.
 void check_purged(const CHAR_DATA *ch, const char *fnc)
 {
@@ -74,25 +70,6 @@ std::list<CHAR_DATA *> fighting_list;
 
 } // namespace
 
-////////////////////////////////////////////////////////////////////////////////
-
-namespace CharacterSystem
-{
-// * Реальное удаление указателей.
-	void release_purged_list()
-	{
-		for (PurgedCharList::iterator i = purged_char_list.begin();
-		i != purged_char_list.end(); ++i)
-		{
-			delete *i;
-		}
-		purged_char_list.clear();
-	}
-
-} // namespace CharacterSystem
-
-////////////////////////////////////////////////////////////////////////////////
-//extern MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
 CHAR_DATA::CHAR_DATA() :
 	chclass_(CLASS_UNDEFINED),
 	role_(MOB_ROLE_TOTAL_NUM),
@@ -109,10 +86,7 @@ CHAR_DATA::CHAR_DATA() :
 
 CHAR_DATA::~CHAR_DATA()
 {
-	if (!purged_)
-	{
-		this->purge(true);
-	}
+	this->purge();
 }
 
 void CHAR_DATA::set_souls(int souls)
@@ -426,7 +400,7 @@ void CHAR_DATA::zero_init()
  * по ходу функции были спуржены чар/моб/шмотка. Гарантии ес-сно только в пределах
  * вызовов до выхода в обработку heartbeat(), где раз в минуту удаляются оболочки.
  */
-void CHAR_DATA::purge(bool destructor)
+void CHAR_DATA::purge()
 {
 	caching::character_cache.remove(this);
 	if (purged_)
@@ -596,22 +570,6 @@ void CHAR_DATA::purge(bool destructor)
 	}
 	name_.clear();
 	short_descr_.clear();
-
-	if (!destructor)
-	{
-		// обнуляем все
-		this->zero_init();
-		// проставляем неподходящие из конструктора поля
-		purged_ = true;
-		char_specials.position = POS_DEAD;
-		// закидываем в список ожидающих делета указателей
-		purged_char_list.push_back(this);
-	}
-}
-
-void CHAR_DATA::purge(CHAR_DATA* character)
-{
-	character->purge(false);
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.

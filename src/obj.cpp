@@ -104,10 +104,7 @@ OBJ_DATA::OBJ_DATA(const OBJ_DATA& other): CObjectPrototype(other.get_vnum())
 
 OBJ_DATA::~OBJ_DATA()
 {
-	if (!m_purged)
-	{
-		this->purge(true);
-	}
+	this->purge();
 }
 
 // * См. Character::zero_init()
@@ -150,34 +147,13 @@ void OBJ_DATA::detach_ex_description()
 }
 
 // * См. Character::purge()
-void OBJ_DATA::purge(bool destructor)
+void OBJ_DATA::purge()
 {
-	if (m_purged)
-	{
-		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
-		return;
-	}
-
 	caching::obj_cache.remove(this);
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
 	Celebrates::remove_from_obj_lists(this->get_uid());
-
-	if (!destructor)
-	{
-		// обнуляем все
-		this->zero_init();
-		// проставляем неподходящие из конструктора поля
-		m_purged = true;
-		// закидываем в список ожидающих делета указателей
-		purged_obj_list.push_back(this);
-	}
-}
-
-bool OBJ_DATA::purged() const
-{
-	return m_purged;
 }
 
 int OBJ_DATA::get_serial_num()

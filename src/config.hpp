@@ -1,6 +1,7 @@
 #ifndef __CONFIG_HPP__
 #define __CONFIG_HPP__
 
+#include "birth_places.hpp"
 #include "structs.h"
 
 #include <cstdio>
@@ -155,5 +156,7 @@ private:
 };
 
 extern RuntimeConfiguration runtime_config;
+
+int calc_loadroom(const CHAR_DATA* ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 
 #endif // __CONFIG_HPP__

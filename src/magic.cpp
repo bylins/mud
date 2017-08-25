@@ -57,7 +57,6 @@ extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
 byte extend_saving_throws(int class_num, int type, int level);
-void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void alterate_object(OBJ_DATA * obj, int dam, int chance);

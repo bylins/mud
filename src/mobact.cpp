@@ -11,6 +11,7 @@
 *  $Date$                                           *
 *  $Revision$                                                      *
 ************************************************************************ */
+#include "mobact.hpp"
 
 #include "world.characters.hpp"
 #include "world.objects.hpp"
@@ -77,7 +78,6 @@ int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 
 // local functions
 void mobile_activity(int activity_level, int missed_pulses);
-void clearMemory(CHAR_DATA * ch);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
 
@@ -958,10 +958,7 @@ void extract_charmice(CHAR_DATA* ch)
 			if (obj)
 			{
 				remove_otrigger(obj, ch);
-				if (!obj->purged())
-				{
-					objects.push_back(obj);
-				}
+				objects.push_back(obj);
 			}
 		}
 	}
@@ -1502,7 +1499,6 @@ void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	free(curr);
 }
-
 
 // erase ch's memory
 // Можно заметить, что функция вызывается только при extract char/mob

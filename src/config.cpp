@@ -323,7 +323,7 @@ int max_exp_loss_pc(CHAR_DATA * ch)
 	return (IS_NPC(ch) ? 1 : (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0)) / 3);
 }
 
-int calc_loadroom(const CHAR_DATA* ch, int bplace_mode = BIRTH_PLACE_UNDEFINED)
+int calc_loadroom(const CHAR_DATA* ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/)
 {
     if (IS_IMMORTAL(ch))
 	{

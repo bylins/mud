@@ -36,8 +36,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_of_trigt;
 extern struct zone_data *zone_table;
 
-void free_script(SCRIPT_DATA * sc);
-
 // prototype externally defined functions
 void free_varlist(struct trig_var_data *vd);
 

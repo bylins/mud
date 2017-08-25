@@ -629,7 +629,7 @@ public:
 	template <typename T>
 	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
 
-	static void purge(CHAR_DATA* character);
+	void set_purged() { purged_ = true; }
 
 private:
 	const auto& get_player_specials() const { return player_specials; }
@@ -641,7 +641,7 @@ private:
 	void zero_init();
 	void restore_mob();
 
-	void purge(bool destructor);
+	void purge();
 
 	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
@@ -924,11 +924,6 @@ inline auto GET_REAL_DEX(const CHAR_DATA* ch)
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
 size_t fighting_list_size();
-
-namespace CharacterSystem
-{
-	extern void release_purged_list();
-} // namespace CharacterSystem
 
 #endif // CHAR_HPP_INCLUDED
 
