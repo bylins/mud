@@ -3358,7 +3358,8 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL GENERAL RECOVERY!",
 	"!SPELL COMMON MEAL!",
 	"!SPELL STONE WALL!",
-	"!SPELL SNAKE EYES!"
+	"!SPELL SNAKE EYES!",
+	"Матушка земля забыла про Вас."
 };
 
 /**
