@@ -722,48 +722,46 @@ float count_mort_requred(const CObjectPrototype *obj)
 			}
 		}
 		if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location != APPLY_AC)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+			(obj->get_affected(k).location != APPLY_SAVING_WILL)&&
+			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
+			(obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+			(obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
 		{
-                    float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-        	    log("SYSERROR: negative weight=%f, obj_vnum=%d",
-					weight, GET_OBJ_VNUM(obj));
-                    total_weight += pow(weight, SQRT_MOD);
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+			total_weight += pow(weight, SQRT_MOD);
 		}
-                // савесы которые с минусом должны тогда понижать вес если в +
- 		else if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location == APPLY_AC)||
-                        (obj->get_affected(k).location == APPLY_SAVING_WILL)||
-                        (obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
-                        (obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
-                        (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		// савесы которые с минусом должны тогда понижать вес если в +
+		else if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location == APPLY_AC)||
+			(obj->get_affected(k).location == APPLY_SAVING_WILL)||
+			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
+			(obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+			(obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
 		{
-                    float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
-                    total_weight -= pow(weight, -SQRT_MOD);
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
 		}
-               //Добавленый кусок учет савесов с - значениями
-                else if ((obj->get_affected(k).modifier < 0)
-                        &&((obj->get_affected(k).location == APPLY_AC)||
-                        (obj->get_affected(k).location == APPLY_SAVING_WILL)||
-                        (obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
-                        (obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
-                        (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
-                {
-                    float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-                    total_weight += pow(weight, SQRT_MOD);
-                }
-               //Добавленый кусок учет отрицательного значения но не савесов
-                else if ((obj->get_affected(k).modifier < 0)
-                        &&((obj->get_affected(k).location != APPLY_AC)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
-                {
-                    float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
-                    total_weight -= pow(weight, -SQRT_MOD);
-                }
+		//Добавленый кусок учет савесов с - значениями
+		else if ((obj->get_affected(k).modifier < 0)
+			&&((obj->get_affected(k).location == APPLY_AC)||
+			(obj->get_affected(k).location == APPLY_SAVING_WILL)||
+			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
+			(obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+			(obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		{
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+			total_weight += pow(weight, SQRT_MOD);
+		}
+		//Добавленый кусок учет отрицательного значения но не савесов
+		else if ((obj->get_affected(k).modifier < 0)
+			&&((obj->get_affected(k).location != APPLY_AC)&&
+			(obj->get_affected(k).location != APPLY_SAVING_WILL)&&
+			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
+			(obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+			(obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+		{
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
+		}
 	}
 	// аффекты AFF_x через weapon_affect
 	for (const auto& m : weapon_affect)

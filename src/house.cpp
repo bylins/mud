@@ -5923,7 +5923,7 @@ void Clan::disable_ingr_chest(CHAR_DATA *ch)
 
 int Clan::ingr_chest_max_objects()
 {
-	return 600 + this->last_exp.get_exp() / 10000000;
+	return 600 * MAX(1,this->clan_level) + this->last_exp.get_exp() / 10000000;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

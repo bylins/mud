@@ -155,6 +155,7 @@ struct zone_data
 	char *name;		// назвение зоны
 	char *comment;
 	char *autor;
+	int traffic;
 	int level;	// level of this zone (is used in ingredient loading)
 	int type;	// the surface type of this zone (is used in ingredient loading)
 
