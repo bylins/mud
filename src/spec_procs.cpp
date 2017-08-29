@@ -3406,8 +3406,11 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 		}
 		if (amount <= 100)
 		{
-			send_to_char("Сумма перевода должна быть больше 100 кун.\r\n", ch);
+                    if (ch->get_bank() < (amount + 5))
+                    {
+                        send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 			return (1);
+                    }
 		}
 
 		if (ch->get_bank() < amount)
@@ -3423,7 +3426,9 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 		if ((vict = get_player_of_name(arg)))
 		{
-			ch->remove_bank(amount + (amount * 5) / 100);
+			ch->remove_bank(amount);
+                        if (amount <= 100) ch->remove_bank(5);
+                        else ch->remove_bank(((amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
@@ -3446,7 +3451,9 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 				return (1);
 			}
 
-			ch->remove_bank(amount + (amount * 5) / 100);
+			ch->remove_bank(amount);
+                        if (amount <= 100) ch->remove_bank(5);
+                        else ch->remove_bank(((amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
