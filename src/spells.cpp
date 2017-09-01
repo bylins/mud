@@ -1220,8 +1220,6 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	}
 
 	if (spellnum != SPELL_CLONE &&
-//    !WAITLESS(ch) &&
-//    hp_summ + GET_REAL_MAX_HIT(victim) >= cha_app[GET_REAL_CHA(ch)].charms )
 			reformed_hp_summ + get_reformed_charmice_hp(ch, victim, spellnum) >= get_player_charms(ch, spellnum))
 	{
 		send_to_char("Вам не под силу управлять такой боевой мощью.\r\n", ch);
