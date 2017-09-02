@@ -1820,9 +1820,9 @@ bool ZoneFile::load_zones()
 		}
 		if (*buf == '!')
 		{
-			std::string description(buf);
-			boost::trim_if(description, boost::is_any_of(std::string("!~")));
-			Z.autor = str_dup(description.c_str());
+			std::string autor(buf);
+			boost::trim_if(autor, boost::is_any_of(std::string("!~")));
+			Z.autor = str_dup(autor.c_str());
 		}
 		if (*buf == '$')
 		{
