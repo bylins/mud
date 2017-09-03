@@ -2415,7 +2415,6 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	CHAR_DATA *killer = NULL;
-        CHAR_DATA *ch_vict;
 
 	if (IS_NPC(victim) || victim->desc)
 	{
@@ -2497,9 +2496,9 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 	{
 		update_pk_logs(ch, victim);
 
-	for (ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
+	for (const auto& ch_vict : world[ch->in_room]->people)
 	{
-            //Мобы все кто присутствовал при смерти игрока забывают
+		//Мобы все кто присутствовал при смерти игрока забывают
 		if (IS_IMMORTAL(ch_vict))
 			continue;
 		if (!HERE(ch_vict))
@@ -2510,7 +2509,6 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			forget(ch_vict, victim);
 		}
-                
 	}
                 
 	}
