@@ -1384,6 +1384,14 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 				else
 					strcat(aura_txt, "ледяная");
 				n++;
+                        }
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
+			{
+				if (n > 0)
+					strcat(aura_txt, ", коричневая");
+				else
+					strcat(aura_txt, "коричневая");
+				n++;
 			}
 			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
 			{
@@ -1641,6 +1649,14 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 				strcat(aura_txt, ", ледяная");
 			else
 				strcat(aura_txt, "ледяная");
+			n++;
+                }
+		if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
+		{
+			if (n > 0)
+				strcat(aura_txt, ", коричневая");
+			else
+				strcat(aura_txt, "коричневая");
 			n++;
 		}
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
@@ -2200,10 +2216,12 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&Q&n", ch);
 
 	// вход в новую зону
-	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number
-		&& PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number)
 	{
-		print_zone_info(ch);
+		if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+			print_zone_info(ch);
+		++zone_table[world[ch->in_room]->zone].traffic;
+		
 	}
 }
 

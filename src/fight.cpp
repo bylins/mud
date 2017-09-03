@@ -718,6 +718,26 @@ CHAR_DATA *find_affectee(CHAR_DATA * caster, int spellnum)
 		spellreal = SPELL_SANCTUARY;
 	else if (spellreal == SPELL_GROUP_PRISMATICAURA)
 		spellreal = SPELL_PRISMATICAURA;
+	else if (spellreal == SPELL_SIGHT_OF_DARKNESS)
+		spellreal = SPELL_INFRAVISION;
+	else if (spellreal == SPELL_GENERAL_SINCERITY)
+		spellreal = SPELL_DETECT_ALIGN;
+	else if (spellreal == SPELL_MAGICAL_GAZE)
+		spellreal = SPELL_DETECT_MAGIC;
+	else if (spellreal == SPELL_ALL_SEEING_EYE)
+		spellreal = SPELL_DETECT_INVIS;
+	else if (spellreal == SPELL_EYE_OF_GODS)
+		spellreal = SPELL_SENSE_LIFE;
+	else if (spellreal == SPELL_BREATHING_AT_DEPTH)
+		spellreal = SPELL_WATERBREATH;
+	else if (spellreal == SPELL_GENERAL_RECOVERY)
+		spellreal = SPELL_FAST_REGENERATION;
+	else if (spellreal == SPELL_COMMON_MEAL)
+		spellreal = SPELL_FULL;
+	else if (spellreal == SPELL_STONE_WALL)
+		spellreal = SPELL_STONESKIN;
+	else if (spellreal == SPELL_SNAKE_EYES)
+		spellreal = SPELL_DETECT_POISON;
 
 	if ((AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)|| MOB_FLAGGED(caster, MOB_GHOST)) && AFF_FLAGGED(caster, EAffectFlag::AFF_HELPER))
 	{

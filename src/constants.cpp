@@ -544,6 +544,7 @@ const char *affected_bits[] = { "слепота",	// 0
 								"вампиризм",
 								"потеря равновесия",
 								"полководец",
+								"земной поклон",
 								"\n",
 								"\n",
 							  };
@@ -1869,6 +1870,7 @@ const char *weapon_affects[] = { "слепота",
 								 "ледяная.аура",
 								 "глухота",
 								 "полководец",
+								 "земной.поклон",
 								 "\n",
 								 "\n",
 								 "\n"
@@ -1919,7 +1921,8 @@ weapon_affect_t weapon_affect = {
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_FIRE_AURA, to_underlying(EAffectFlag::AFF_FIREAURA), 0 },
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_ICE_AURA, to_underlying(EAffectFlag::AFF_ICEAURA), 0 },
 	weapon_affect_types{ EWeaponAffectFlag::WAFF_DEAFNESS, to_underlying(EAffectFlag::AFF_DEAFNESS), 0},
-	weapon_affect_types{ EWeaponAffectFlag::WAFF_COMMANDER, to_underlying(EAffectFlag::AFF_COMMANDER), 0}
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_COMMANDER, to_underlying(EAffectFlag::AFF_COMMANDER), 0},
+	weapon_affect_types{ EWeaponAffectFlag::WAFF_EARTHAURA, to_underlying(EAffectFlag::AFF_EARTHAURA), 0}
 };
 
 const char *pray_metter[] = { "- Яриле",

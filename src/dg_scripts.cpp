@@ -2905,7 +2905,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					sprintf(str, "%c%ld", UID_OBJ, GET_EQ(c, pos)->get_id());
 			}
 		}
-		else if (!str_cmp(field, "haveobj"))
+		else if (!str_cmp(field, "haveobj") || !str_cmp(field, "haveobjs"))
 		{
 			int pos;
 			if (a_isdigit(*subfield))
@@ -2933,7 +2933,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				strcpy(str, "0");
 			}
 		}
-		else if (!str_cmp(field, "varexists"))
+		else if (!str_cmp(field, "varexist") || !str_cmp(field, "varexists"))
 		{
 			strcpy(str, "0");
 			if (SCRIPT(c))

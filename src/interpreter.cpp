@@ -82,8 +82,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-#ifdef _WIN32
-#else
+#ifndef WIN32
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>

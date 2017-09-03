@@ -1665,7 +1665,6 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
-
 	// Say phrase ?
     if (IS_NPC(ch))
     {
@@ -1703,7 +1702,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
             // damagee_vict     = "$n злобно рыкнул$g на вас : '%s'.";
             // helpee_vict      = "$n тихо пробормотал$g вам : '%s'.";
 	}
-    } else {
+    }
+    else {
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
@@ -1717,9 +1717,12 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 
 	if (!*buf)
 	{
-		size_t ofs = 0;
+            // не понимаю
+            /*
+            size_t ofs = 0;
 		while (lbuf[ofs])
 		{
+                        log("  1  No entry in syllable table for substring of '%s'", lbuf);
 			for (j = 0; *(syls[j].org); j++)
 			{
 				if (!strncmp(syls[j].org, lbuf + ofs, strlen(syls[j].org)))
@@ -1729,13 +1732,15 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 					break;
 				}
 			}
+                    //походу это условие должно быть здесь. в противном случае цикл вечный
+                    // i.e., we didn't find a match in syls[]
+                    if (!*syls[j].org)
+                    {
+                            log("No entry in syllable table for substring of '%s'", lbuf);
+                            ofs++;
+                    }
 		}
-		// i.e., we didn't find a match in syls[]
-		if (!*syls[j].org)
-		{
-			log("No entry in syllable table for substring of '%s'", lbuf);
-			ofs++;
-		}
+            */
 	}
 
 	if (tch != NULL && IN_ROOM(tch) == ch->in_room)
@@ -5320,7 +5325,40 @@ void mag_assign_spells(void)
 //215
 	spello(SPELL_EXPEDIENT, "!боевой прием!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
-
+//216
+	spello(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+//217        
+	spello(SPELL_GENERAL_SINCERITY, "общая искренность", "general sincerity", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//218        
+	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//219        
+	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "allseeing eye", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//220        
+	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+//221        
+	spello(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
+//222        
+	spello(SPELL_GENERAL_RECOVERY, "общее востановление", "general recovery", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+//223        
+	spello(SPELL_COMMON_MEAL, "общая трапеза", "common meal", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
+//224        
+	spello(SPELL_STONE_WALL, "каменная стена", "stone wall", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_EARTH);
+//225        
+	spello(SPELL_SNAKE_EYES, "глаза змея", "snake eyes", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//226
+	spello(SPELL_EARTH_AURA, "земной поклон", "earth aura", 140, 120, 2,
+                   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+       
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
