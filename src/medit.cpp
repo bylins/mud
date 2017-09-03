@@ -31,7 +31,7 @@
 #include "conf.h"
 
 #include <boost/format.hpp>
-
+#include <stack>
 #include <sstream>
 
  // * Set this to 1 for debugging logs in medit_save_internally.
@@ -746,9 +746,16 @@ void medit_save_to_disk(int zone_num)
 					fprintf(mob_file, "Spell: %d\n", c);
 				}
 			}
+			std::stack<decltype(helper)> stack;
 			for (helper = GET_HELPER(mob); helper; helper = helper->next_helper)
 			{
-				fprintf(mob_file, "Helper: %d\n", helper->mob_vnum);
+				stack.push(helper);
+			}
+			while (!stack.empty())
+			{
+				const auto h = stack.top();
+				fprintf(mob_file, "Helper: %d\n", h->mob_vnum);
+				stack.pop();
 			}
 			if (mob->get_role_bits().any())
 			{
