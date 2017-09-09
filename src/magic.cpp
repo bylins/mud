@@ -5628,7 +5628,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 	{
 		if (IS_IMMORTAL(ch_vict)
 			|| !HERE(ch_vict)
-			|| SpINFO.violent && same_group(ch, ch_vict)
+			|| (SpINFO.violent && same_group(ch, ch_vict))
 			|| IS_HORSE(ch_vict)
 			|| MOB_FLAGGED(ch_vict, MOB_PROTECT))
 		{

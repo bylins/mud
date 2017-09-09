@@ -612,7 +612,7 @@ CHAR_DATA *find_friend(CHAR_DATA * caster, int spellnum)
 
 CHAR_DATA *find_caster(CHAR_DATA * caster, int spellnum)
 {
-	CHAR_DATA *vict = NULL, *victim = NULL;
+	CHAR_DATA *victim = NULL;
 	int vict_val = 0, spellreal = -1;
 	affects_list_t AFF_USED;
 	switch (spellnum)

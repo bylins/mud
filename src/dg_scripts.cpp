@@ -179,8 +179,7 @@ GlobalTriggersStorage trigger_list;	// all attached triggers
 
 int trgvar_in_room(int vnum)
 {
-	int rnum = real_room(vnum);
-	int i = 0;
+	const int rnum = real_room(vnum);
 
 	if (NOWHERE == rnum)
 	{
@@ -188,12 +187,7 @@ int trgvar_in_room(int vnum)
 		return (-1);
 	}
 
-	for (const auto ch : world[rnum]->people)
-	{
-		i++;
-	}
-
-	return i;
+	return world[rnum]->people.size();
 };
 
 OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA * list)
