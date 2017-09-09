@@ -187,7 +187,7 @@ int trgvar_in_room(int vnum)
 		return (-1);
 	}
 
-	return world[rnum]->people.size();
+	return static_cast<int>(world[rnum]->people.size());
 };
 
 OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA * list)

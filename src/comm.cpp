@@ -4002,16 +4002,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		}
 		else
 		{
-//			Убрал непонятно зачем нужный спам в сислог
-//			sprintf(buf, "Losing player: %s %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>", STATE(d) > CON_CLOSE && STATE(d) < CON_DISCONNECT ? d->host : "");
-//			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			if (!any_other_ch(d->character))
 				Depot::exit_char(d->character);
 			delete d->character;
 		}
 	}
-//	 else
-//		mudlog("Losing descriptor without char.", LGH, LVL_IMMORT, SYSLOG, TRUE);
 
 	// JE 2/22/95 -- part of my unending quest to make switch stable
 	if (d->original && d->original->desc)

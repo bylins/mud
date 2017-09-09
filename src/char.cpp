@@ -35,6 +35,7 @@
 #include <sstream>
 #include <list>
 #include <algorithm>
+#include <iostream>
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
@@ -2013,6 +2014,15 @@ CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const
 	}
 
 	return result;
+}
+
+void CHAR_DATA::operator delete(void *ptr)
+{
+	if (character_list.has(static_cast<CHAR_DATA*>(ptr)))
+	{
+		std::cerr << "Detected deleting of the controlled pointer. Dumping core." << std::endl;
+		abort();
+	}
 }
 
 void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)

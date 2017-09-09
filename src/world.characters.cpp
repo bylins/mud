@@ -31,6 +31,7 @@ bool Characters::remove_if(const predicate_f predicate)
 		if (predicate(*i))
 		{
 			m_purge_list.push_back(*i);
+			m_purge_set.insert(i->get());
 			m_object_raw_ptr_to_object_ptr.erase(i->get());
 			i = m_list.erase(i);
 			(*i)->set_purged();
@@ -60,6 +61,7 @@ void Characters::remove(CHAR_DATA* character)
 	}
 
 	m_purge_list.push_back(*index_i->second);
+	m_purge_set.insert(index_i->second->get());
 	m_list.erase(index_i->second);
 	m_object_raw_ptr_to_object_ptr.erase(index_i);
 	character->set_purged();
@@ -67,6 +69,7 @@ void Characters::remove(CHAR_DATA* character)
 
 void Characters::purge()
 {
+	m_purge_set.clear();
 	for (const auto& character : m_purge_list)
 	{
 		if (GET_MOB_RNUM(character) > -1)
