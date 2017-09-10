@@ -2916,53 +2916,28 @@ void init_basic_values(void)
 		i[0] = i[1] = i[2] = i[3] = i[4] = i[5] = 100000;
 		if (sscanf(name, "%s %d %d %d %d %d %d", line, i, i + 1, i + 2, i + 3, i + 4, i + 5) < 1)
 			continue;
-		if (!str_cmp(line, "str"))
+		if (!str_cmp(line, "int"))
 			mode = 1;
-		else if (!str_cmp(line, "dex_app"))
-			mode = 2;
-		else if (!str_cmp(line, "dex_skill"))
-			mode = 3;
-		else if (!str_cmp(line, "con"))
-			mode = 4;
-		else if (!str_cmp(line, "wis"))
-			mode = 5;
-		else if (!str_cmp(line, "int"))
-			mode = 6;
 		else if (!str_cmp(line, "cha"))
-			mode = 7;
+			mode = 2;
 		else if (!str_cmp(line, "size"))
-			mode = 8;
+			mode = 3;
 		else if (!str_cmp(line, "weapon"))
-			mode = 9;
+			mode = 4;
 		else if ((c = atoi(line)) > 0 && c <= 50 && mode > 0 && mode < 10)
 		{
 			switch (mode)
-			{
+			{			
 			case 1:
-				pointer = (int *) & (str_app[c].tohit);
-				break;
-			case 2:
-				pointer = (int *) & (dex_app[c].reaction);
-				break;
-			case 3:
-				pointer = (int *) & (dex_app_skill[c].p_pocket);
-				break;
-			case 4:
-				pointer = (int *) & (con_app[c].hitp);
-				break;
-			case 5:
-				pointer = (int *) & (wis_app[c].spell_additional);
-				break;
-			case 6:
 				pointer = (int *) & (int_app[c].spell_aknowlege);
 				break;
-			case 7:
+			case 2:
 				pointer = (int *) & (cha_app[c].leadership);
 				break;
-			case 8:
+			case 3:
 				pointer = (int *) & (size_app[c].ac);
 				break;
-			case 9:
+			case 4:
 				pointer = (int *) & (weapon_app[c].shocking);
 				break;
 			default:
