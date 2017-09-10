@@ -1791,42 +1791,6 @@ struct zone_type
 };
 //-MZ.load
 
-struct dex_skill_type
-{
-	int p_pocket;
-	int p_locks;
-	int traps;
-	int sneak;
-	int hide;
-};
-
-struct dex_app_type
-{
-	int reaction;
-	int miss_att;
-	int defensive;
-};
-
-
-struct str_app_type
-{
-	int tohit;			// To Hit (THAC0) Bonus/Penalty        //
-	int todam;			// Damage Bonus/Penalty                //
-	int carry_w;		// Maximum weight that can be carrried //
-	int wield_w;		// Maximum weight that can be wielded  //
-	int hold_w;		// MAXIMUM WEIGHT THAT CAN BE HELDED   //
-};
-
-
-struct wis_app_type
-{
-	int spell_additional;	// bitvector //
-	int max_learn_l20;		// MAX SKILL on LEVEL 20        //
-	int spell_success;		// spell using success          //
-	int char_savings;		// saving spells (damage)       //
-	int max_skills;
-};
-
 struct int_app_type
 {
 	int spell_aknowlege;	// chance to know spell               //
@@ -1835,15 +1799,6 @@ struct int_app_type
 	int spell_success;		//  max count of spell on 1s level    //
 	int improove;		// chance to improove skill           //
 	int observation;		// chance to use SKILL_AWAKE/CRITICAL //
-};
-
-struct con_app_type
-{
-	int hitp;
-	int ressurection;
-	int affect_saving;		// saving spells (affects)  //
-	int poison_saving;
-	int critic_saving;
 };
 
 struct cha_app_type
