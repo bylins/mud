@@ -5005,6 +5005,10 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 	if (*count)
 	{
 		count_num = atoi(count);
+		if (count_num > 0)
+		{
+			--count_num;		//В dg исчисление начинается с 1
+		}
 	}
 
 	if (!str_cmp(what, "room"))
