@@ -5341,10 +5341,16 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 	}
 	else if (obj->get_carried_by())
 	{
-		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]\r\n",
+		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]",
 			PERS(obj->get_carried_by(), ch, 4),
 			GET_MOB_VNUM(obj->get_carried_by()),
 			world[obj->get_carried_by()->in_room]->number);
+			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_worn_by())
