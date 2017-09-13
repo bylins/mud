@@ -5375,7 +5375,7 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 	}
 	else if (obj->get_in_obj())
 	{
-		if (Clan::is_clan_chest(obj->get_in_obj()))
+		if (Clan::is_clan_chest(obj->get_in_obj()))// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
 		{
 			return; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 		}

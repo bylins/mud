@@ -5321,6 +5321,15 @@ void Clan::init_chest_rnum()
 	INGR_CHEST_RNUM = real_object(INGR_CHEST_VNUM);
 }
 
+bool Clan::is_ingr_chest(OBJ_DATA *obj)
+{
+	if (INGR_CHEST_RNUM < 0
+		|| obj->get_rnum() != INGR_CHEST_RNUM)
+	{
+		return false;
+	}
+	return true;
+}
 bool Clan::is_clan_chest(OBJ_DATA *obj)
 {
 	if (CLAN_CHEST_RNUM < 0
