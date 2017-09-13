@@ -5336,7 +5336,13 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 
 	if (obj->get_in_room() > NOWHERE)
 	{
-		sprintf(buf + strlen(buf), "[%5d] %s\r\n", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
+		sprintf(buf + strlen(buf), "[%5d] %s", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
+		if (IS_GRGOD(ch))
+		{
+			sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+			strcat(buf, buf2);
+		}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_carried_by())
@@ -5355,10 +5361,16 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 	}
 	else if (obj->get_worn_by())
 	{
-		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]\r\n",
+		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]",
 			PERS(obj->get_worn_by(), ch, 3),
 			GET_MOB_VNUM(obj->get_worn_by()),
 			world[obj->get_worn_by()->in_room]->number);
+			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_in_obj())
@@ -5372,6 +5384,12 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 			sprintf(buf + strlen(buf), "лежит в %s%s\r\n",
 				obj->get_in_obj()->get_PName(5).c_str(),
 				(recur ? ", который находится " : " "));
+/*			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+			strcat(buf, "\r\n");*/
 			send_to_char(buf, ch);
 			if (recur)
 			{
@@ -5381,7 +5399,13 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 	}
 	else
 	{
-		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.\r\n");
+		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.");
+		if (IS_GRGOD(ch))
+		{
+			sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+			strcat(buf, buf2);
+		}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 }
