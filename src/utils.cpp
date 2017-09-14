@@ -137,6 +137,38 @@ int MAX(int a, int b)
 	return (a > b ? a : b);
 }
 
+char* first_letter(char* txt)
+{
+	if (txt)
+	{
+		while (*txt && !a_isalpha(*txt))
+		{
+			if ('&' == *txt)
+			{
+				++txt;
+				if (!*txt)
+				{
+					return txt;
+				}
+			}
+		++txt;
+		}
+	}
+	return txt;
+}
+
+// апперкейс первой буквы в цветном тексте
+//использовать только при определении цвета &
+char *colorCAP(char *txt) 
+{
+	char* letter = first_letter(txt);
+	if (letter && *letter)
+	{
+		*letter = UPPER(*letter);
+	}
+	return txt;
+}
+
 char * CAP(char *txt)
 {
 	*txt = UPPER(*txt);
