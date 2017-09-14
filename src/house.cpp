@@ -5321,6 +5321,15 @@ void Clan::init_chest_rnum()
 	INGR_CHEST_RNUM = real_object(INGR_CHEST_VNUM);
 }
 
+bool Clan::is_ingr_chest(OBJ_DATA *obj)
+{
+	if (INGR_CHEST_RNUM < 0
+		|| obj->get_rnum() != INGR_CHEST_RNUM)
+	{
+		return false;
+	}
+	return true;
+}
 bool Clan::is_clan_chest(OBJ_DATA *obj)
 {
 	if (CLAN_CHEST_RNUM < 0
@@ -5428,13 +5437,18 @@ int Clan::print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 						continue;
 					}
 
-					snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся в хранилище дружины '%s'.\r\n",
+					sprintf(buf, "%s наход%sся в хранилище дружины '%s'.",
 						temp->get_short_description().c_str(),
 						GET_OBJ_POLY_1(ch, temp),
 						(*clan)->GetAbbrev());
-					CAP(buf);
+//					CAP(buf);
+					if (IS_GRGOD(ch))
+					{
+						sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(temp));
+						strcat(buf, buf2);
+					}
+					strcat(buf, "\r\n");
 					send_to_char(buf, ch);
-
 					if (--count <= 0)
 					{
 						return count;

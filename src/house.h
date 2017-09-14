@@ -202,6 +202,7 @@ public:
 	static int GetClanWars(CHAR_DATA * ch);
 	static void init_chest_rnum();
 	static bool is_clan_chest(OBJ_DATA *obj);
+	static bool is_ingr_chest(OBJ_DATA *obj);
 	static void clan_invoice(CHAR_DATA *ch, bool enter);
 	static int delete_obj(int vnum);
 	static void save_pk_log();
