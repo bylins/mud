@@ -139,34 +139,40 @@ int MAX(int a, int b)
 
 char* first_letter(char* txt)
 {
-    if (txt)
-    {
-	while (*txt && !a_isalpha(*txt))
+	if (txt)
 	{
-	    if ('&' == *txt)
-	    {
-		++txt;
-		if (!*txt)
+		while (*txt && !a_isalpha(*txt))
 		{
-		    return txt;
+			if ('&' == *txt)
+			{
+				++txt;
+				if (!*txt)
+				{
+					return txt;
+				}
+			}
+		++txt;
 		}
-	    }
-	    ++txt;
 	}
-    }
+	return txt;
+}
 
-    return txt;
- }
-
-char *CAP(char *txt)
+// апперкейс первой буквы в цветном тексте
+//использовать только при определении цвета &
+char *colorCAP(char *txt) 
 {
-    char* letter = first_letter(txt);
-    if (letter && *letter)
-    {
-	*letter = UPPER(*letter);
-    }
+	char* letter = first_letter(txt);
+	if (letter && *letter)
+	{
+		*letter = UPPER(*letter);
+	}
+	return txt;
+}
 
-    return txt;
+char * CAP(char *txt)
+{
+	*txt = UPPER(*txt);
+	return (txt);
 }
 
 // Create and append to dynamic length string - Alez

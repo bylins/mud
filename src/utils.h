@@ -146,7 +146,7 @@ int MIN(int a, int b);
 // all argument min/max macros definition
 #define MMIN(a,b) ((a<b)?a:b)
 #define MMAX(a,b) ((a<b)?b:a)
-
+char * colorCAP(char *txt);
 char * CAP(char *txt);
 
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
