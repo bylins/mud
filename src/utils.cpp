@@ -137,10 +137,36 @@ int MAX(int a, int b)
 	return (a > b ? a : b);
 }
 
-char * CAP(char *txt)
+char* first_letter(char* txt)
 {
-	*txt = UPPER(*txt);
-	return (txt);
+    if (txt)
+    {
+	while (*txt && !a_isalpha(*txt))
+	{
+	    if ('&' == *txt)
+	    {
+		++txt;
+		if (!*txt)
+		{
+		    return txt;
+		}
+	    }
+	    ++txt;
+	}
+    }
+
+    return txt;
+ }
+
+char *CAP(char *txt)
+{
+    char* letter = first_letter(txt);
+    if (letter && *letter)
+    {
+	*letter = UPPER(*letter);
+    }
+
+    return txt;
 }
 
 // Create and append to dynamic length string - Alez
