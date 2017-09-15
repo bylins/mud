@@ -733,22 +733,22 @@ void ObjectFile::parse_object(const int nr)
 
 	tobj->set_aliases(aliases);
 	tmpptr = fread_string();
-	*tmpptr = LOWER(*tmpptr);
-	tobj->set_short_description(tmpptr);
+//	*tmpptr = LOWER(*tmpptr);
+	tobj->set_short_description(colorLOW(tmpptr));
 
-	tobj->set_PName(0, tobj->get_short_description());
+	strcpy(buf, tobj->get_short_description().c_str());
+	tobj->set_PName(0, colorLOW(buf)); //именительный падеж равен короткому описанию
 
 	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
-		char* str = fread_string();
-		*str = LOWER(*str);
-		tobj->set_PName(j, str);
+		char *str = fread_string();
+		tobj->set_PName(j, colorLOW(str));
 	}
 
 	tmpptr = fread_string();
 	if (tmpptr && *tmpptr)
 	{
-		CAP(tmpptr);
+		colorCAP(tmpptr);
 	}
 	tobj->set_description(tmpptr ? tmpptr : "");
 
@@ -1180,6 +1180,7 @@ void MobileFile::parse_mobile(const int nr)
 	int j, t[10];
 	char line[256], letter;
 	char f1[128], f2[128];
+	char *str;
 	mob_index[i].vnum = nr;
 	mob_index[i].number = 0;
 	mob_index[i].func = NULL;
@@ -1205,13 +1206,15 @@ void MobileFile::parse_mobile(const int nr)
 
 	// real name
 	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
-	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
+	sprintf(buf, "%s", mob_proto[i].get_npc_name().c_str());
+	strcpy(GET_PAD(mob_proto + i, 0), colorLOW(buf));
 	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
-		GET_PAD(mob_proto + i, j) = fread_string();
+		str = fread_string();
+		GET_PAD(mob_proto + i, j) = colorLOW(str);
 	}
-
-	mob_proto[i].player_data.long_descr = fread_string();
+	str = fread_string();
+	mob_proto[i].player_data.long_descr = colorCAP(str);
 	mob_proto[i].player_data.description = fread_string();
 	mob_proto[i].mob_specials.Questor = NULL;
 	mob_proto[i].player_data.title = NULL;

@@ -143,7 +143,21 @@ char* first_letter(char* txt)
 	{
 		while (*txt && !a_isalpha(*txt))
 		{
-			if ('&' == *txt)
+			//Предполагается, что для отправки клиенту используется только управляющий код с цветом
+			//На данный момент в коде присутствует только еще один управляющий код для очистки экрана,
+			//но он не используется (см. CLEAR_SCREEN)
+			if ('\x1B' == *txt)
+			{
+				while (*txt && 'm' != *txt)
+				{
+					++txt;
+				}
+				if (!*txt)
+				{
+					return txt;
+				}
+			}
+			else if ('&' == *txt)
 			{
 				++txt;
 				if (!*txt)
@@ -151,20 +165,28 @@ char* first_letter(char* txt)
 					return txt;
 				}
 			}
-		++txt;
+			++txt;
 		}
 	}
 	return txt;
 }
 
-// апперкейс первой буквы в цветном тексте
-//использовать только при определении цвета &
 char *colorCAP(char *txt) 
 {
 	char* letter = first_letter(txt);
 	if (letter && *letter)
 	{
 		*letter = UPPER(*letter);
+	}
+	return txt;
+}
+
+char *colorLOW(char *txt)
+{
+	char* letter = first_letter(txt);
+	if (letter && *letter)
+	{
+		*letter = LOWER(*letter);
 	}
 	return txt;
 }
