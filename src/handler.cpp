@@ -4343,6 +4343,37 @@ float get_effective_cha(CHAR_DATA * ch, int spellnum)
 	return VPOSI<float>(eff_cha, 1.0f, 50.0f);
 }
 
+float get_effective_wis(CHAR_DATA * ch, int spellnum)
+{
+	int key_value, key_value_add;
+
+//Для поднять/оживить труп учитываем мудрость, в любом другом случае - обаяние
+	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
+	{
+		key_value = ch->get_wis();
+		key_value_add = GET_WIS_ADD(ch);
+	}
+	else
+	{
+                //если гдето вылезет косяком
+		key_value = 0;
+		key_value_add = 0;
+	}
+	float eff_cha = 0.0;
+	if (GET_LEVEL(ch) <= 14)
+		eff_cha = key_value
+				  - 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
+				  * (0.4 + 0.6 * (float)(GET_LEVEL(ch) - 1) / 13.0);
+	else if (GET_LEVEL(ch) <= 26)
+	{
+		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
+	}
+	else
+		eff_cha = key_value + key_value_add;
+
+	return VPOSI<float>(eff_cha, 1.0f, 100.0f);
+}
+
 float get_effective_int(CHAR_DATA * ch)
 {
 	float eff_int = 0.0;
@@ -4425,11 +4456,22 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 {
 	float r_hp = 0;
 	float eff_cha = 0.0;
-	eff_cha = get_effective_cha(ch, spellnum);
-	if (spellnum != SPELL_CHARM)
-		eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	float max_cha = 50.0;
+	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
+	{
+            eff_cha = get_effective_wis(ch, spellnum);
+            max_cha = 100.0;
+            eff_cha = MMIN(98, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+	}
+	else
+	{
+            eff_cha = get_effective_cha(ch, spellnum);
+            if (spellnum != SPELL_CHARM)
+                eff_cha = MMIN(48, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+	}
+        
 
-	if (eff_cha < 50)
+	if (eff_cha < max_cha)
 	{
 		r_hp = (1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].charms +
 			(eff_cha - (int)eff_cha) * cha_app[(int)eff_cha + 1].charms;
@@ -4447,12 +4489,22 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 {
 	float r_hp = 0;
 	float eff_cha = 0.0;
-	eff_cha = get_effective_cha(ch, spellnum);
-	if (spellnum != SPELL_CHARM)
-		eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	float max_cha = 50.0;
+	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
+	{
+            eff_cha = get_effective_wis(ch, spellnum);
+            max_cha = 100.0;
+            eff_cha = MMIN(98, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	}
+	else
+	{
+            eff_cha = get_effective_cha(ch, spellnum);
+            if (spellnum != SPELL_CHARM)
+                    eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	}
 
 	// Интерполяция между значениями для целых значений обаяния
-	if (eff_cha < 50)
+	if (eff_cha < max_cha)
 	{
 		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
 			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate +
