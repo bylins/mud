@@ -2924,7 +2924,7 @@ void init_basic_values(void)
 			mode = 3;
 		else if (!str_cmp(line, "weapon"))
 			mode = 4;
-		else if ((c = atoi(line)) > 0 && c <= 50 && mode > 0 && mode < 10)
+		else if ((c = atoi(line)) > 0 && c <= 100 && mode > 0 && mode < 10)
 		{
 			switch (mode)
 			{			
