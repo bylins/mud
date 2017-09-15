@@ -181,6 +181,16 @@ char *colorCAP(char *txt)
 	return txt;
 }
 
+char *colorLOW(char *txt)
+{
+	char* letter = first_letter(txt);
+	if (letter && *letter)
+	{
+		*letter = LOWER(*letter);
+	}
+	return txt;
+}
+
 char * CAP(char *txt)
 {
 	*txt = UPPER(*txt);
