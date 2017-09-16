@@ -351,16 +351,20 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			*name = '\0';
 			if (IS_SET(track->track_info, TRACK_NPC))
+			{
 				strcpy(name, GET_NAME(mob_proto + track->who));
+			}
 			else
-				for (c = 0; c <= top_of_p_table; c++)
+			{
+				for (c = 0; c < player_table.size(); c++)
 				{
-					if (player_table[c].id == track->who)
+					if (player_table[c].id() == track->who)
 					{
-						strcpy(name, player_table[c].name);
+						strcpy(name, player_table[c].name());
 						break;
 					}
 				}
+			}
 
 			if (*name && calc_track > number(1, 40))
 			{
@@ -392,14 +396,21 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		*name = '\0';
 		if (IS_SET(track->track_info, TRACK_NPC))
+		{
 			strcpy(name, GET_NAME(mob_proto + track->who));
+		}
 		else
-			for (c = 0; c <= top_of_p_table; c++)
-				if (player_table[c].id == track->who)
+		{
+			for (c = 0; c < player_table.size(); c++)
+			{
+				if (player_table[c].id() == track->who)
 				{
-					strcpy(name, player_table[c].name);
+					strcpy(name, player_table[c].name());
 					break;
 				}
+			}
+		}
+
 		if (*name && isname(arg, name))
 			break;
 		else

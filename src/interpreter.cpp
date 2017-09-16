@@ -1908,15 +1908,8 @@ int special(CHAR_DATA * ch, int cmd, char *arg, int fnum)
 // locate entry in p_table with entry->name == name. -1 mrks failed search
 int find_name(const char *name)
 {
-	for (int i = 0; i <= top_of_p_table; i++)
-	{
-		if (!str_cmp((player_table + i)->name, name))
-		{
-			return (i);
-		}
-	}
-
-	return (-1);
+	const auto index = player_table.get_by_name(name);
+	return PlayersIndex::NOT_FOUND == index ? -1 : static_cast<int>(index);
 }
 
 int _parse_name(char *arg, char *name)
@@ -2769,6 +2762,131 @@ void CreateChar(DESCRIPTOR_DATA * d)
 	d->character->desc = d;
 }
 
+int create_unique(void)
+{
+	int unique;
+
+	do
+	{
+		unique = (number(0, 64) << 24) + (number(0, 255) << 16) + (number(0, 255) << 8) + (number(0, 255));
+	} while (correct_unique(unique));
+	return (unique);
+}
+
+// initialize a new character only if class is set
+void init_char(CHAR_DATA* ch, player_index_element& element)
+{
+	int i;
+
+#ifdef TEST_BUILD
+	if (1 == player_table.size())
+	{
+		// При собирании через make test первый чар в маде становится иммом 34
+		ch->set_level(LVL_IMPL);
+	}
+#endif
+
+	GET_PORTALS(ch) = NULL;
+	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
+	ch->set_npc_name(0);
+	ch->player_data.long_descr = NULL;
+	ch->player_data.description = NULL;
+	ch->player_data.time.birth = time(0);
+	ch->player_data.time.played = 0;
+	ch->player_data.time.logon = time(0);
+
+	// make favors for sex
+	if (ch->player_data.sex == ESex::SEX_MALE)
+	{
+		ch->player_data.weight = number(120, 180);
+		ch->player_data.height = number(160, 200);
+	}
+	else
+	{
+		ch->player_data.weight = number(100, 160);
+		ch->player_data.height = number(150, 180);
+	}
+
+	ch->points.hit = GET_MAX_HIT(ch);
+	ch->points.max_move = 82;
+	ch->points.move = GET_MAX_MOVE(ch);
+	ch->real_abils.armor = 100;
+
+	ch->set_idnum(++top_idnum);
+	element.set_id(ch->get_idnum());
+	ch->set_uid(create_unique());
+	element.unique = ch->get_uid();
+	element.level = 0;
+	element.last_logon = -1;
+	element.mail = NULL;//added by WorM mail
+	element.last_ip = NULL;//added by WorM последний айпи
+
+	if (GET_LEVEL(ch) > LVL_GOD)
+	{
+		set_god_skills(ch);
+		set_god_morphs(ch);
+	}
+
+	for (i = 1; i <= MAX_SPELLS; i++)
+	{
+		if (GET_LEVEL(ch) < LVL_GRGOD)
+			GET_SPELL_TYPE(ch, i) = 0;
+		else
+			GET_SPELL_TYPE(ch, i) = SPELL_KNOW;
+	}
+
+	ch->char_specials.saved.affected_by = clear_flags;
+	for (i = 0; i < SAVING_COUNT; i++)
+		GET_SAVE(ch, i) = 0;
+	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
+		GET_RESIST(ch, i) = 0;
+
+	if (GET_LEVEL(ch) == LVL_IMPL)
+	{
+		ch->set_str(25);
+		ch->set_int(25);
+		ch->set_wis(25);
+		ch->set_dex(25);
+		ch->set_con(25);
+		ch->set_cha(25);
+	}
+	ch->real_abils.size = 50;
+
+	for (i = 0; i < 3; i++)
+	{
+		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : i == DRUNK ? 0 : 24);
+	}
+	GET_LASTIP(ch)[0] = 0;
+	//	GET_LOADROOM(ch) = start_room;
+	PRF_FLAGS(ch).set(PRF_DISPHP);
+	PRF_FLAGS(ch).set(PRF_DISPMANA);
+	PRF_FLAGS(ch).set(PRF_DISPEXITS);
+	PRF_FLAGS(ch).set(PRF_DISPMOVE);
+	PRF_FLAGS(ch).set(PRF_DISPEXP);
+	PRF_FLAGS(ch).set(PRF_DISPFIGHT);
+	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
+	STRING_LENGTH(ch) = 80;
+	STRING_WIDTH(ch) = 30;
+	NOTIFY_EXCH_PRICE(ch) = 0;
+
+	ch->save_char();
+}
+
+/*
+* Create a new entry in the in-memory index table for the player file.
+* If the name already exists, by overwriting a deleted character, then
+* we re-use the old position.
+*/
+int create_entry(player_index_element& element)
+{
+	// create new save activity
+	element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
+	element.timer = NULL;
+	element.unique = -1;
+
+	return static_cast<int>(player_table.append(element));
+}
+
 // deal with newcomers and other non-playing sockets
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -3532,13 +3650,18 @@ Sventovit
 			return;
 		}
 
-		if (d->character->get_pfilepos() < 0)
-			d->character->set_pfilepos(create_entry(GET_PC_NAME(d->character)));
+		{
+			player_index_element element(-1, GET_PC_NAME(d->character));
 
+			// Now GET_NAME() will work properly.
+			init_char(d->character, element);
 
+			if (d->character->get_pfilepos() < 0)
+			{
+				d->character->set_pfilepos(create_entry(element));
+			}
+		}
 
-		// Now GET_NAME() will work properly.
-		init_char(d->character);
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
 		lower_convert(GET_EMAIL(d->character));
@@ -4150,9 +4273,9 @@ DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing)
 */
 long GetUniqueByName(const std::string & name, bool god)
 {
-	for (int i = 0; i <= top_of_p_table; ++i)
+	for (int i = 0; i < player_table.size(); ++i)
 	{
-		if (!str_cmp(player_table[i].name, name) && player_table[i].unique != -1)
+		if (!str_cmp(player_table[i].name(), name) && player_table[i].unique != -1)
 		{
 			if (!god)
 				return player_table[i].unique;
@@ -4172,21 +4295,31 @@ long GetUniqueByName(const std::string & name, bool god)
 // ищет имя игрока по его УИДу, второй необязательный параметр - учитывать или нет БОГОВ
 std::string GetNameByUnique(long unique, bool god)
 {
-	std::string temp;
-	for (int i = 0; i <= top_of_p_table; ++i)
+	std::string empty;
+
+	for (int i = 0; i < player_table.size(); ++i)
+	{
 		if (player_table[i].unique == unique)
 		{
 			if (!god)
-				return (temp = player_table[i].name);
+			{
+				return player_table[i].name();
+			}
 			else
 			{
 				if (player_table[i].level < LVL_IMMORT)
-					return (temp = player_table[i].name);
+				{
+					return player_table[i].name();
+				}
 				else
-					return temp;
+				{
+					return empty;
+				}
 			}
 		}
-	return temp;
+	}
+
+	return empty;
 }
 
 // замена в name русских символов на англ в нижнем регистре (для файлов)

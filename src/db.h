@@ -33,7 +33,6 @@ void room_free(ROOM_DATA * room);
 // public procedures in db.cpp
 void tag_argument(char *argument, char *tag);
 void boot_db(void);
-int create_entry(const char *name);
 void zone_update(void);
 bool can_be_reset(zone_rnum zone);
 room_rnum real_room(room_vnum vnum);
@@ -42,14 +41,13 @@ long get_id_by_uid(long uid);
 int get_uid_by_id(int id);
 long cmp_ptable_by_name(char *name, int len);
 const char *get_name_by_id(long id);
-char* get_name_by_unique(int unique);
+const char* get_name_by_unique(int unique);
 int get_level_by_unique(long unique);
 long get_lastlogon_by_unique(long unique);
 long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 
 int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0);
-void init_char(CHAR_DATA *ch);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
 mob_rnum real_mobile(mob_vnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA * ch);
@@ -122,7 +120,6 @@ struct City
 		std::vector<int> vnums; // номера зон, которые принадлежат городу
 		int rent_vnum; // внум ренты города
 };
-
 
 class RandomObj
 {
@@ -218,19 +215,30 @@ struct reset_q_type
 #define PLAYER_SAVE_ACTIVITY 300
 #define MAX_SAVED_ITEMS      1000
 
-struct player_index_element
+class player_index_element
 {
-	char *name;
+public:
+	player_index_element(const int id, const char* name) : m_id(id), m_name(nullptr) { set_name(name); }
+
 	//added by WorM индексируюца еще мыло и последний айпи
 	char *mail;
 	char *last_ip;
 	//end by WorM
-	int id;
 	int unique;
 	int level;
 	int last_logon;
 	int activity;		// When player be saved and checked
 	save_info *timer;
+
+	const char* name() const { return m_name; }
+	int id() const { return m_id; }
+
+	void set_name(const char* name);
+	void set_id(const int id) { m_id = id; }
+
+private:
+	const char *m_name;
+	int m_id;
 };
 
 struct Route
@@ -325,7 +333,6 @@ extern Rooms world;
 
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
-extern int top_of_p_table;
 
 inline obj_vnum GET_OBJ_VNUM(const CObjectPrototype* obj) { return obj->get_vnum(); }
 
@@ -352,7 +359,35 @@ extern room_rnum r_unreg_start_room;
 
 long get_ptable_by_name(const char *name);
 void free_alias(struct alias_data *a);
-extern player_index_element* player_table;
+
+class PlayersIndex : public std::vector<player_index_element>
+{
+public:
+	using parent_t = std::vector<player_index_element>;
+	using parent_t::operator[];
+	using parent_t::size;
+
+	static const std::size_t NOT_FOUND;
+
+	std::size_t append(const player_index_element& element);
+	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
+	bool player_exists(const char* name) const { return m_name_to_index.find(name) != m_name_to_index.end(); }
+	std::size_t get_by_name(const char* name) const;
+	void set_name(const std::size_t index, const char* name);
+
+private:
+	using id_to_index_t = std::unordered_map<int, std::size_t>;
+	using name_to_index_t = std::unordered_map<std::string, std::size_t>;
+
+	void add_name_to_index(const char* name, const std::size_t index);
+
+	id_to_index_t m_id_to_index;
+	name_to_index_t m_name_to_index;
+};
+
+extern PlayersIndex player_table;
+
+extern long top_idnum;
 
 bool player_exists(const long id);
 

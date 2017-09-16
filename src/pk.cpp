@@ -746,14 +746,13 @@ void aura(CHAR_DATA * ch, int lvl, CHAR_DATA * victim, char *s)
 void pk_list_sprintf(CHAR_DATA * ch, char *buff)
 {
 	struct PK_Memory_type *pk;
-	char *temp;
 
 	*buff = '\0';
 	strcat(buff, "ПК список:\r\n");
 	strcat(buff, "              Имя    Kill Rvng Clan Batl Thif\r\n");
 	for (pk = ch->pk_list; pk; pk = pk->next)
 	{
-		temp = get_name_by_unique(pk->unique);
+		const char* temp = get_name_by_unique(pk->unique);
 		sprintf(buff + strlen(buff), "%20s %4ld %4ld", temp ? temp : "<УДАЛЕН>", pk->kill_num, pk->revenge_num);
 
 		if (pk->clan_exp > time(NULL))
@@ -791,7 +790,6 @@ void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	struct PK_Memory_type *pk;
 	int found = FALSE;
-	char *temp;
 	char arg2[MAX_INPUT_LENGTH];
 	bool bOnlineOnly;
 
@@ -815,9 +813,14 @@ void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			// если местей нет, проверяем на БД
 			if ((pk->kill_num == 0) && !(pk->battle_exp > time(NULL))) continue;
-			temp = get_name_by_unique(pk->unique);
-			if (!temp) continue;
-			temp[0] = UPPER(temp[0]);
+
+			const char* temp = get_name_by_unique(pk->unique);
+			if (!temp)
+			{
+				continue;
+			}
+
+			const_cast<char*>(temp)[0] = UPPER(temp[0]);
 			// если нада исключаем тех, кто находится оффлайн
 			if (bOnlineOnly)
 			{

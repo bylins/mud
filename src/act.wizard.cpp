@@ -1019,7 +1019,7 @@ void setall_inspect()
 	need_warn = false;
 	gettimeofday(&start, NULL);
 	Player *vict;
-	for(;it->second->pos <= top_of_p_table; it->second->pos++)
+	for(; it->second->pos < player_table.size(); it->second->pos++)
 	{
 		vict = new Player;
 		gettimeofday(&stop, NULL);
@@ -1043,7 +1043,7 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
 						}
@@ -1051,9 +1051,9 @@ void setall_inspect()
 					}
 					else
 					{
-						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						if (load_char(player_table[it->second->pos].name(), vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
 							continue;
@@ -1062,7 +1062,7 @@ void setall_inspect()
 						{
 							if (GET_LEVEL(vict) >= LVL_GOD)
 							{
-								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 								it->second->out += buf1;
 								continue;
 							}
@@ -1077,22 +1077,22 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
 						}
 						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
 						*(GET_EMAIL(d_vict->character) + 127) = '\0';
-						sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name, player_table[it->second->pos].mail, it->second->newmail);
+						sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name(), player_table[it->second->pos].mail, it->second->newmail);
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
 						
 					}
 					else
 					{
-						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						if (load_char(player_table[it->second->pos].name(), vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
 							continue;
@@ -1106,7 +1106,7 @@ void setall_inspect()
 							}
 							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
 							*(GET_EMAIL(vict) + 127) = '\0';
-							sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name, player_table[it->second->pos].mail, it->second->newmail);
+							sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name(), player_table[it->second->pos].mail, it->second->newmail);
 							it->second->out += buf2;
 							add_karma(vict, buf2, GET_NAME(imm_d->character));
 							vict->save_char();
@@ -1120,12 +1120,12 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
 						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
-						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name);
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name());
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
@@ -1133,23 +1133,23 @@ void setall_inspect()
 					}
 					else
 					{
-						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						if (load_char(player_table[it->second->pos].name(), vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
 							continue;
 						}
 						if (GET_LEVEL(vict) >= LVL_GOD)
 						{
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
-						std::string str = player_table[it->second->pos].name;
+						std::string str = player_table[it->second->pos].name();
 						str[0] = UPPER(str[0]);
-						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name);
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name());
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
@@ -3421,7 +3421,7 @@ void inspecting()
 	need_warn = false;
 
 	gettimeofday(&start, NULL);
-	for(;it->second->pos <= top_of_p_table; it->second->pos++)
+	for(; it->second->pos < player_table.size(); it->second->pos++)
 	{
 		gettimeofday(&stop, NULL);
 		timediff(&result, &stop, &start);
@@ -3430,7 +3430,7 @@ void inspecting()
 			return;
 		}
 		#ifdef TEST_BUILD
-		log("inspecting %d/%d", it->second->pos, top_of_p_table);
+		log("inspecting %d/%d", 1 + it->second->pos, player_table.size());
 		#endif
 		if(!*it->second->req)
 		{
@@ -3455,9 +3455,10 @@ void inspecting()
 			else
 			{
 				vict = new Player;
-				if (load_char(player_table[it->second->pos].name, vict) < 0)
+				if (load_char(player_table[it->second->pos].name(), vict) < 0)
 				{
-					send_to_char(ch, "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n", player_table[it->second->pos].name, (it->second->sfor==IMAIL?"mail":(it->second->sfor==IIP?"ip":"char")), it->second->req);
+					send_to_char(ch, "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n",
+						player_table[it->second->pos].name(), (it->second->sfor==IMAIL?"mail":(it->second->sfor==IIP?"ip":"char")), it->second->req);
 					delete vict;
 					continue;
 				}
@@ -3513,7 +3514,7 @@ void inspecting()
 		{
 			mytime = player_table[it->second->pos].last_logon;
 			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d.\r\n",
-				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name, CCNRM(ch, C_SPR),
+				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name(), CCNRM(ch, C_SPR),
 				(mail_found && it->second->sfor!=IMAIL? CCBLU(ch, C_SPR) : ""),
 				player_table[it->second->pos].mail, (mail_found? CCNRM(ch, C_SPR) : ""),
 				rustime(localtime(&mytime)), player_table[it->second->pos].level);
@@ -3647,7 +3648,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		req->mail = str_dup(player_table[i].mail);
 		time_t tmp_time = player_table[i].last_logon;
 		sprintf(buf,  "Персонаж: %s%s%s e-mail: %s&S%s&s%s Last: %s%s%s from IP: %s%s%s\r\n", (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
-				player_table[i].name, CCNRM(ch, C_SPR),	CCWHT(ch, C_SPR), req->mail, CCNRM(ch, C_SPR),
+				player_table[i].name(), CCNRM(ch, C_SPR),	CCWHT(ch, C_SPR), req->mail, CCNRM(ch, C_SPR),
 				CCWHT(ch, C_SPR), rustime(localtime(&tmp_time)), CCNRM(ch, C_SPR),
 				CCWHT(ch, C_SPR), player_table[i].last_ip, CCNRM(ch, C_SPR));
 		if (req->fullsearch)
@@ -5028,7 +5029,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		strcpy(buf, "Текущее состояние:\r\n");
 		sprintf(buf + strlen(buf), "  Игроков в игре - %5d, соединений - %5d\r\n", i, con);
-		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5d\r\n", top_of_p_table + 1);
+		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5zd\r\n", player_table.size());
 		sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
 		sprintf(buf + strlen(buf), "  Предметов - %5zd, прообразов предметов - %5zd\r\n",
 			world_objects.size(), obj_proto.size());
@@ -5914,10 +5915,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				TopPlayer::Refresh(vict);
 			}
 
-			free(player_table[ptnum].name);
-			CREATE<char>(player_table[ptnum].name, strlen(npad[0]) + 1);
-			for (i = 0, player_table[ptnum].name[i] = '\0'; npad[0][i]; i++)
-				player_table[ptnum].name[i] = LOWER(npad[0][i]);
+			player_table.set_name(ptnum, npad[0]);
+
 			return_code = 2;
 			PLR_FLAGS(vict).set(PLR_CRASH);
 		}

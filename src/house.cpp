@@ -2719,7 +2719,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 	CHAR_DATA *cbuf;
 	DESCRIPTOR_DATA *tch;
 
-	for (int i = 0; i <= top_of_p_table; i++)
+	for (int i = 0; i < player_table.size(); i++)
 	{
 		const auto unique = player_table[i].unique;
 		auto member_i = clan->m_members.find(unique);
@@ -2735,7 +2735,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 				continue;
 			}
 
-			if (isname(player_table[i].name, tch->character->get_pc_name()))
+			if (isname(player_table[i].name(), tch->character->get_pc_name()))
 			{
 				GET_LOADROOM(tch->character) = mortal_start_room;
 				char_from_room(tch->character);
@@ -2748,7 +2748,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 		if (!tch) // если нет онлайн
 		{
 			cbuf = new Player;
-			if (load_char(player_table[i].name, cbuf) > -1)
+			if (load_char(player_table[i].name(), cbuf) > -1)
 			{
 				GET_LOADROOM(cbuf) = mortal_start_room;
 				cbuf->save_char();
@@ -2756,7 +2756,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 			delete cbuf;
 		}
 
-		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s [%s]", player_table[i].name, clan->name.c_str());
+		sprintf(buf, "CLAN: Роспуск, удаляю игрока %s [%s]", player_table[i].name(), clan->name.c_str());
 		log("%s", buf);
 	}
 }

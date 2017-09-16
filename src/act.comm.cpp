@@ -1156,15 +1156,16 @@ void ignore_usage(CHAR_DATA * ch)
 
 int ign_find_id(char *name, long *id)
 {
-	int i;
-
-	for (i = 0; i <= top_of_p_table; i++)
+	for (int i = 0; i < player_table.size(); i++)
 	{
-		if (!str_cmp(name, player_table[i].name))
+		if (!str_cmp(name, player_table[i].name()))
 		{
 			if (player_table[i].level >= LVL_IMMORT)
+			{
 				return 0;
-			*id = player_table[i].id;
+			}
+
+			*id = player_table[i].id();
 			return 1;
 		}
 	}
@@ -1175,9 +1176,13 @@ const char * ign_find_name(long id)
 {
 	int i;
 
-	for (i = 0; i <= top_of_p_table; i++)
-		if (id == player_table[i].id)
-			return player_table[i].name;
+	for (i = 0; i < player_table.size(); i++)
+	{
+		if (id == player_table[i].id())
+		{
+			return player_table[i].name();
+		}
+	}
 	return "кто-то";
 }
 

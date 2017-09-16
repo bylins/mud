@@ -59,7 +59,7 @@ extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
 
-#define RENTCODE(number) ((player_table+number)->timer->rent.rentcode)
+#define RENTCODE(number) (player_table[(number)].timer->rent.rentcode)
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
 
 // Extern functions
@@ -612,9 +612,9 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error)
 				object->get_custom_label()->author = atoi(buffer);
 				if (object->get_custom_label()->author > 0)
 				{
-					for (int i = 0; i <= top_of_p_table; i++)
+					for (int i = 0; i < player_table.size(); i++)
 					{
-						if (player_table[i].id == object->get_custom_label()->author)
+						if (player_table[i].id() == object->get_custom_label()->author)
 						{
 							object->get_custom_label()->author_mail = str_dup(player_table[i].mail);
 							break;
@@ -1657,7 +1657,7 @@ int Crash_delete_files(int index)
 	if (index < 0)
 		return retcode;
 
-	strcpy(name, player_table[index].name);
+	strcpy(name, player_table[index].name());
 
 	//удаляем файл описания объектов
 	if (!get_filename(name, filename, TEXT_CRASH_FILE))
@@ -1754,7 +1754,7 @@ void Crash_reload_timer(int index)
 
 	if (!Crash_read_timer(index, FALSE))
 	{
-		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name);
+		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name());
 		mudlog(buf, BRF, MAX(LVL_IMMORT, LVL_GOD), SYSLOG, TRUE);
 	}
 
@@ -1771,7 +1771,7 @@ int Crash_write_timer(int index)
 	char fname[MAX_STRING_LENGTH];
 	char name[MAX_NAME_LENGTH + 1];
 
-	strcpy(name, player_table[index].name);
+	strcpy(name, player_table[index].name());
 	if (!SAVEINFO(index))
 	{
 		log("SYSERR: Error writing %s timer file - no data.", name);
@@ -1806,7 +1806,7 @@ int Crash_read_timer(int index, int temp)
 	struct save_rent_info rent;
 	struct save_time_info info;
 
-	strcpy(name, player_table[index].name);
+	strcpy(name, player_table[index].name());
 	if (!get_filename(name, fname, TIME_CRASH_FILE))
 	{
 		log("[ReadTimer] Error reading %s timer file - unable to resolve file name.", name);
@@ -1916,7 +1916,7 @@ void Crash_timer_obj(int index, long time)
 	return;
 #endif
 
-	strcpy(name, player_table[index].name);
+	strcpy(name, player_table[index].name());
 
 	if (!player_table[index].timer)
 	{
@@ -2706,7 +2706,7 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA * obj, in
 
 			if (savetype != RENT_CRASH)
 			{
-				log("%s save_char_obj %d %d %u", player_table[iplayer].name,
+				log("%s save_char_obj %d %d %u", player_table[iplayer].name(),
 					GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
 			}
 		}
@@ -3430,7 +3430,7 @@ void Crash_save_all_rent(void)
 
 void Crash_frac_rent_time(int frac_part)
 {
-	for (int c = 0; c <= top_of_p_table; c++)
+	for (int c = 0; c < player_table.size(); c++)
 	{
 		if (player_table[c].activity == frac_part
 			&& player_table[c].unique != -1
@@ -3443,7 +3443,7 @@ void Crash_frac_rent_time(int frac_part)
 
 void Crash_rent_time(int/* dectime*/)
 {
-	for (int c = 0; c <= top_of_p_table; c++)
+	for (int c = 0; c < player_table.size(); c++)
 	{
 		if (player_table[c].unique != -1)
 		{

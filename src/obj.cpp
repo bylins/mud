@@ -1698,8 +1698,7 @@ namespace SetSystem
 			{
 				if (i->vnum == vnum)
 				{
-					log("[TO] Player %s : set-item %d deleted",
-						player_table[pt_num].name, i->vnum);
+					log("[TO] Player %s : set-item %d deleted", player_table[pt_num].name(), i->vnum);
 					i->timer = -1;
 					int rnum = real_object(i->vnum);
 					if (rnum >= 0)
@@ -1714,8 +1713,7 @@ namespace SetSystem
 		{
 			if (!Crash_write_timer(pt_num))
 			{
-				log("SYSERROR: [TO] Error writing timer file for %s",
-					player_table[pt_num].name);
+				log("SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name());
 			}
 			return;
 		}
@@ -1728,7 +1726,7 @@ namespace SetSystem
 	{
 		init_set_list();
 
-		for (int i = 0; i <= top_of_p_table; i++)
+		for (int i = 0; i < player_table.size(); i++)
 		{
 			reset_set_list();
 			// рента
