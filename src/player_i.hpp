@@ -84,7 +84,7 @@ public:
 	virtual void dps_add_exp(int/* exp*/, bool/* battle*/ = false) {};
 
 	virtual void save_char() {};
-	virtual int load_char_ascii(const char* /*name*/, bool/* reboot*/ = 0) { return -1; };
+	virtual int load_char_ascii(const char* /*name*/, bool/* reboot*/ = 0, const bool /*find_id*/ = true) { return -1; };
 
 	virtual bool get_disposable_flag(int/* num*/) { return false; };
 	virtual void set_disposable_flag(int/* num*/) {};

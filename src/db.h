@@ -47,7 +47,7 @@ long get_lastlogon_by_unique(long unique);
 long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
 
-int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0);
+int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0, const bool find_id = true);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
 mob_rnum real_mobile(mob_vnum vnum);
 int vnum_mobile(char *searchname, CHAR_DATA * ch);
@@ -371,13 +371,25 @@ public:
 
 	std::size_t append(const player_index_element& element);
 	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
-	bool player_exists(const char* name) const { return m_name_to_index.find(name) != m_name_to_index.end(); }
+	bool player_exists(const char* name) const { return NOT_FOUND != get_by_name(name); }
 	std::size_t get_by_name(const char* name) const;
 	void set_name(const std::size_t index, const char* name);
 
 private:
+	class hasher
+	{
+	public:
+		std::size_t operator()(const std::string& value) const;
+	};
+
+	class equal_to
+	{
+	public:
+		bool operator()(const std::string& left, const std::string& right) const;
+	};
+
 	using id_to_index_t = std::unordered_map<int, std::size_t>;
-	using name_to_index_t = std::unordered_map<std::string, std::size_t>;
+	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
 
 	void add_name_to_index(const char* name, const std::size_t index);
 
@@ -412,8 +424,6 @@ namespace OfftopSystem
 	void init();
 	void set_flag(CHAR_DATA *ch);
 } // namespace OfftopSystem
-
-extern int now_entrycount;
 
 void delete_char(const char *name);
 

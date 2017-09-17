@@ -373,9 +373,9 @@ void Player::save_char()
 	struct timed_type *skj;
 	struct char_portal_type *prt;
 	int tmp = time(0) - this->player_data.time.logon;
-	if (!now_entrycount)
-		if (IS_NPC(this) || this->get_pfilepos() < 0)
-			return;
+
+	if (IS_NPC(this) || this->get_pfilepos() < 0)
+		return;
 
 	log("Save char %s", GET_NAME(this));
 	save_char_vars(this);
@@ -947,7 +947,7 @@ void Player::save_char()
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
 // на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
-int Player::load_char_ascii(const char *name, bool reboot)
+int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
 	long int lnum = 0, lnum3 = 0;
@@ -960,7 +960,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	*filename = '\0';
 	log("Load ascii char %s", name);
-	if (now_entrycount)
+	if (!find_id)
 	{
 		id = 1;
 	}
@@ -968,7 +968,10 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	{
 		id = find_name(name);
 	}
-	if (!(id >= 0 && get_filename(name, filename, PLAYERS_FILE) && (fl = fbopen(filename, FB_READ))))
+
+	if (!(id >= 0
+		&& get_filename(name, filename, PLAYERS_FILE)
+		&& (fl = fbopen(filename, FB_READ))))
 	{
 		log("Can't load ascii %d %s", id, filename);
 		return (-1);

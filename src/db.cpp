@@ -146,7 +146,6 @@ struct reset_q_type reset_q;	// queue of zones to be reset
 const FLAG_DATA clear_flags;
 
 struct portals_list_type *portals_list;	// Список проталов для townportal
-int now_entrycount = FALSE;
 
 extern int number_of_social_messages;
 extern int number_of_social_commands;
@@ -5229,11 +5228,9 @@ void set_god_skills(CHAR_DATA *ch)
 #define NUM_OF_SAVE_THROWS	5
 
 // по умолчанию reboot = 0 (пользуется только при ребуте)
-int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
+int load_char(const char *name, CHAR_DATA * char_element, bool reboot, const bool find_id)
 {
-	int player_i;
-
-	player_i = char_element->load_char_ascii(name, reboot);
+	const auto player_i = char_element->load_char_ascii(name, reboot, find_id);
 	if (player_i > -1)
 	{
 		char_element->set_pfilepos(player_i);
@@ -5638,7 +5635,7 @@ int must_be_deleted(CHAR_DATA * short_ch)
 
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void entrycount(char *name)
+void entrycount(char *name, const bool find_id /*= true*/)
 {
 	int deleted;
 	char filename[MAX_STRING_LENGTH];
@@ -5649,7 +5646,7 @@ void entrycount(char *name)
 		Player *short_ch = &t_short_ch;
 		deleted = 1;
 		// персонаж загружается неполностью
-		if (load_char(name, short_ch, 1) > -1)
+		if (load_char(name, short_ch, 1, find_id) > -1)
 		{
 			// если чар удален или им долго не входили, то не создаем для него запись
 			if (!must_be_deleted(short_ch))
@@ -5691,6 +5688,11 @@ void entrycount(char *name)
 				player_table.append(element);
 			}
 		}
+		else
+		{
+			log("SYSERR: Failed to load player %s.", name);
+		}
+
 		// если чар уже удален, то стираем с диска его файл
 		if (deleted)
 		{
@@ -5727,7 +5729,6 @@ void new_build_player_index(void)
 		return;
 	}
 
-	now_entrycount = TRUE;
 	while (get_line(players, name))
 	{
 		if (!*name || *name == ';')
@@ -5735,13 +5736,13 @@ void new_build_player_index(void)
 		if (sscanf(name, "%s ", playername) == 0)
 			continue;
 
-		player_table.player_exists(name);
-
-		entrycount(playername);
+		if (!player_table.player_exists(playername))
+		{
+			entrycount(playername, false);
+		}
 	}
-	fclose(players);
 
-	now_entrycount = FALSE;
+	fclose(players);
 }
 
 void flush_player_index(void)
@@ -6348,7 +6349,6 @@ std::size_t PlayersIndex::append(const player_index_element& element)
 
 	push_back(element);
 	m_id_to_index.emplace(element.id(), index);
-
 	add_name_to_index(element.name(), index);
 
 	return index;
@@ -6378,7 +6378,7 @@ void PlayersIndex::add_name_to_index(const char* name, const std::size_t index)
 	const auto result = m_name_to_index.try_emplace(name, index);
 	if (!result.second)
 	{
-		std::cerr << "try to create player with not unique name." << std::endl;
+		log("SYSERR: Detected attempt to create player with duplicate name.");
 		abort();
 	}
 }
@@ -6391,6 +6391,43 @@ void player_index_element::set_name(const char* name)
 	for (int i = 0; new_name[i] = LOWER(name[i]); i++);
 
 	m_name = new_name;
+}
+
+std::size_t PlayersIndex::hasher::operator()(const std::string& value) const
+{
+	// FNV-1a implementation
+	static_assert(sizeof(size_t) == 8, "This code is for 64-bit size_t.");
+
+	const std::size_t FNV_offset_basis = 14695981039346656037ULL;
+	const std::size_t FNV_prime = 1099511628211ULL;
+
+	const auto count = value.size();
+	std::size_t result = FNV_offset_basis;
+	for (std::size_t i = 0; i < count; ++i)
+	{
+		result ^= (std::size_t) value[i];
+		result *= FNV_prime;
+	}
+
+	return result;
+}
+
+bool PlayersIndex::equal_to::operator()(const std::string& left, const std::string& right) const
+{
+	if (left.size() != right.size())
+	{
+		return false;
+	}
+
+	for (std::size_t i = 0; i < left.size(); ++i)
+	{
+		if (LOWER(left[i]) != LOWER(right[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
