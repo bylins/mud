@@ -2213,6 +2213,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "незрячий", "blind",
 							   "маппер", "mapper",
 							   "тестер", "tester",
+							   "контроль IP", "IP control",
 							   "\n"
 							 };
 
@@ -2281,7 +2282,8 @@ struct gen_tog_param_type
 		LVL_IMPL, SCMD_SDEMIGOD, false}, {
 		0, SCMD_BLIND, false}, {
 		0, SCMD_MAPPER, false}, {
-		0, SCMD_TESTER, true}
+		0, SCMD_TESTER, true}, {
+			0, SCMD_IPCONTROL, false}
 };
 
 void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2539,7 +2541,9 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{"Режим для мапперов выключен.\r\n",
 		 "Режим для мапперов включен.\r\n"},
 		{"Режим вывода тестовой информации выключен.\r\n",
-		 "Режим вывода тестовой информации включен.\r\n"}
+		 "Режим вывода тестовой информации включен.\r\n"},
+		{"Режим контроля смены IP-адреса персонажа выключен.\r\n",
+		 "Режим контроля смены IP-адреса персонажа включен.\r\n"}
 	};
 
 	if (IS_NPC(ch))
@@ -2622,6 +2626,9 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		result = PRF_TOG_CHK(ch, PRF_TESTER);
 			//return;
 		//}
+		break;
+	case SCMD_IPCONTROL:
+		result = PRF_TOG_CHK(ch, PRF_IPCONTROL);
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:
