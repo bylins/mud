@@ -217,6 +217,15 @@ pzcmd zedit_seek_cmd(pzcmd head, int pos)
 	return n == pos ? item : NULL;
 }
 
+// увеличиваем сложность зоны
+void up_zone(int number_zone)
+{
+	if (!(number_zone >= 0 && number_zone <= top_of_zone_table))
+		return;
+	CHAR_DATA *mob;
+	
+}
+
 // Удаляю команду номер pos
 int delete_command(DESCRIPTOR_DATA * d, int pos)
 {

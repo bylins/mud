@@ -606,6 +606,7 @@ extern const religion_names_t religion_name;
 #define PRF_BLIND         (INT_TWO | 1 << 9)  // примочки для слепых
 #define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
 #define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
+#define PRF_IPCONTROL (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -775,6 +776,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
 #define CON_SEDIT        54 // sedit - редактирование сетов
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
+#define CON_RANDOM_NUMBER	 56 // where player enter in the game from new location
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
