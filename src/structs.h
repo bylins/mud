@@ -801,7 +801,8 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define WEAR_WIELD     16
 #define WEAR_HOLD      17
 #define WEAR_BOTHS     18
-#define NUM_WEARS      19	// This must be the # of eq positions!! //
+#define WEAR_QUIVER    19
+#define NUM_WEARS      20	// This must be the # of eq positions!! //
 
 
 // object-related defines ******************************************* //
