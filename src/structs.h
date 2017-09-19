@@ -798,10 +798,10 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define WEAR_WAIST     13
 #define WEAR_WRIST_R   14
 #define WEAR_WRIST_L   15
-#define WEAR_WIELD     16
-#define WEAR_HOLD      17
-#define WEAR_BOTHS     18
-#define WEAR_QUIVER    19
+#define WEAR_WIELD     16      // правая рука 
+#define WEAR_HOLD      17      // левая рука
+#define WEAR_BOTHS     18      // обе руки
+#define WEAR_QUIVER    19      // под лук (колчан)
 #define NUM_WEARS      20	// This must be the # of eq positions!! //
 
 
