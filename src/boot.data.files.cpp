@@ -1206,12 +1206,10 @@ void MobileFile::parse_mobile(const int nr)
 
 	// real name
 	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
-	sprintf(buf, "%s", mob_proto[i].get_npc_name().c_str());
-	strcpy(GET_PAD(mob_proto + i, 0), colorLOW(buf));
+	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
 	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
-		str = fread_string();
-		GET_PAD(mob_proto + i, j) = colorLOW(str);
+		GET_PAD(mob_proto + i, j) = fread_string();
 	}
 	str = fread_string();
 	mob_proto[i].player_data.long_descr = colorCAP(str);
