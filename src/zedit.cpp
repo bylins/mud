@@ -222,7 +222,6 @@ void up_zone(int number_zone)
 {
 	if (!(number_zone >= 0 && number_zone <= top_of_zone_table))
 		return;
-	CHAR_DATA *mob;
 	
 }
 
