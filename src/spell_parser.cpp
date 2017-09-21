@@ -1702,7 +1702,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 	*helpee_vict, *damagee_vict, *format;
 	CHAR_DATA *i;
-	int j = 0, religion;
+	int  religion;
 
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
