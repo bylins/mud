@@ -378,9 +378,9 @@ int find_char_vnum(long n, int num = 0)
 	{
 		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE)
 		{
-			++count;
-			if (num > 0 && num != count)
+			if (num != count)
 			{
+				++count;
 				continue;
 			}
 			else
@@ -5004,10 +5004,13 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 	int count_num = 0;
 	if (*count)
 	{
-		count_num = atoi(count);
-		if (count_num > 0)
-		{
-			--count_num;		//б dg ХЯВХЯКЕМХЕ МЮВХМЮЕРЯЪ Я 1
+		count_num = atoi(count) - 1;	//В dg индексация с 1
+		if (count_num < 0)
+		{	
+			//Произойдет, если в dg пришел индекс 0 (ошибка)
+			sprintf(buf2, "[Trigger: %s, Vnum: %d] calcuid invalid index: %s", GET_TRIG_NAME(trig), vnum, count);
+			mudlog(buf2, NRM, LVL_GRGOD, ERRLOG, TRUE);
+			count_num = 0;	//Выдадим первого моба
 		}
 	}
 
