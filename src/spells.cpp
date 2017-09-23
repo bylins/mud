@@ -850,6 +850,14 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
 			return;
 		}
+		//удаляем переходы
+		if (world[ch->in_room]->portal_time)
+		{
+			if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time)
+				decay_portal(world[ch->in_room]->portal_room);
+				decay_portal(ch->in_room);
+		}
+
 
 		// Открываем пентаграмму в комнату rnum //
 		improove_skill(ch, SKILL_TOWNPORTAL, 1, NULL);
