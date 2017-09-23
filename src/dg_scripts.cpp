@@ -5008,9 +5008,9 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 		if (count_num < 0)
 		{	
 			//Произойдет, если в dg пришел индекс 0 (ошибка)
-			sprintf(buf2, "[Trigger: %s, Vnum: %d] calcuid invalid index: %s", GET_TRIG_NAME(trig), vnum, count);
-			mudlog(buf2, NRM, LVL_GRGOD, ERRLOG, TRUE);
-			count_num = 0;	//Выдадим первого моба
+			sprintf(buf2, "calcuid invalid count: '%s'",  count);
+			trig_log(trig, buf2);
+			return;
 		}
 	}
 
