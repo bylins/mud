@@ -841,7 +841,8 @@ enum class EWearFlag: uint32_t
 	ITEM_WEAR_WRIST = 1 << 12,	// Can be worn on wrist   //
 	ITEM_WEAR_WIELD = 1 << 13,	// Can be wielded      //
 	ITEM_WEAR_HOLD = 1 << 14,	// Can be held      //
-	ITEM_WEAR_BOTHS = 1 << 15
+	ITEM_WEAR_BOTHS = 1 << 15,
+	ITEM_WEAR_QUIVER = 1 << 16      // колчан
 };
 
 template <> const std::string& NAME_BY_ITEM<EWearFlag>(const EWearFlag item);

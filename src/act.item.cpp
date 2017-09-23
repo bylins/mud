@@ -1947,7 +1947,8 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		EWearFlag::ITEM_WEAR_WRIST,
 		EWearFlag::ITEM_WEAR_WIELD,
 		EWearFlag::ITEM_WEAR_TAKE,
-		EWearFlag::ITEM_WEAR_BOTHS
+		EWearFlag::ITEM_WEAR_BOTHS,
+		EWearFlag::ITEM_WEAR_QUIVER
 	};
 
 	const std::array<const char *, sizeof(wear_bitvectors)> already_wearing =
@@ -1971,6 +1972,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		"Вы уже что-то держите в правой руке.\r\n",
 		"Вы уже что-то держите в левой руке.\r\n",
 		"Вы уже держите оружие в обеих руках.\r\n"
+		"Вы уже используете колчан.\r\n"
 	};
 
 	// first, make sure that the wear position is valid.
@@ -2193,6 +2195,18 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 			else
 			{
 				tmp_where = WEAR_WAIST;
+			}
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+		{
+			if (!GET_EQ(ch, WEAR_QUIVER))
+			{
+				where = WEAR_QUIVER;
+			}
+			else
+			{
+				tmp_where = WEAR_QUIVER;
 			}
 		}
 

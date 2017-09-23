@@ -364,6 +364,11 @@ char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear)
 				sprintf(out_str + strlen(out_str), "Можно надеть на пояс.\r\n");
 			}
 
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+			{
+				sprintf(out_str + strlen(out_str), "Можно использовать как колчан.\r\n");
+			}
+
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
 			{
 				sprintf(out_str + strlen(out_str), "Можно надеть на запястья.\r\n");
