@@ -4273,7 +4273,7 @@ DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing)
 */
 long GetUniqueByName(const std::string & name, bool god)
 {
-	for (int i = 0; i < player_table.size(); ++i)
+	for (std::size_t i = 0; i < player_table.size(); ++i)
 	{
 		if (!str_cmp(player_table[i].name(), name) && player_table[i].unique != -1)
 		{
@@ -4297,7 +4297,7 @@ std::string GetNameByUnique(long unique, bool god)
 {
 	std::string empty;
 
-	for (int i = 0; i < player_table.size(); ++i)
+	for (std::size_t i = 0; i < player_table.size(); ++i)
 	{
 		if (player_table[i].unique == unique)
 		{

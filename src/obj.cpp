@@ -1726,7 +1726,7 @@ namespace SetSystem
 	{
 		init_set_list();
 
-		for (int i = 0; i < player_table.size(); i++)
+		for (std::size_t i = 0; i < player_table.size(); i++)
 		{
 			reset_set_list();
 			// рента

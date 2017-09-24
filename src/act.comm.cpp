@@ -1156,7 +1156,7 @@ void ignore_usage(CHAR_DATA * ch)
 
 int ign_find_id(char *name, long *id)
 {
-	for (int i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (!str_cmp(name, player_table[i].name()))
 		{
@@ -1174,15 +1174,14 @@ int ign_find_id(char *name, long *id)
 
 const char * ign_find_name(long id)
 {
-	int i;
-
-	for (i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (id == player_table[i].id())
 		{
 			return player_table[i].name();
 		}
 	}
+
 	return "кто-то";
 }
 

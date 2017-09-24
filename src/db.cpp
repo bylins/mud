@@ -2518,8 +2518,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading rented objects info");
 	log("Booting rented objects info");
-	zone_rnum i;
-	for (i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		player_table[i].timer = NULL;
 		Crash_read_timer(i, FALSE);
@@ -2619,7 +2618,7 @@ void boot_db(void)
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
-	for (i = 0; i <= top_of_zone_table; i++)
+	for (int i = 0; i <= top_of_zone_table; i++)
 	{
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
 			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
@@ -5047,12 +5046,10 @@ int mobs_in_room(int m_num, int r_num)
 
 long cmp_ptable_by_name(char *name, int len)
 {
-	int i;
-
 	len = MIN(len, static_cast<int>(strlen(name)));
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here. TODO: make map helper (MAPHELPER). */
-	for (i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		const char* pname = player_table[i].name();
 		if (!strn_cmp(pname, arg, MIN(len, static_cast<int>(strlen(pname)))))
@@ -5067,11 +5064,9 @@ long cmp_ptable_by_name(char *name, int len)
 
 long get_ptable_by_name(const char *name)
 {
-	int i;
-
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		const char* pname = player_table[i].name();
 		if (!str_cmp(pname, arg))
@@ -5087,7 +5082,7 @@ long get_ptable_by_name(const char *name)
 long get_ptable_by_unique(long unique)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].unique == unique)
 		{
@@ -5100,11 +5095,9 @@ long get_ptable_by_unique(long unique)
 
 long get_id_by_name(char *name)
 {
-	int i;
-
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (i = 0; i< player_table.size(); i++)
+	for (std::size_t i = 0; i< player_table.size(); i++)
 	{
 		if (!str_cmp(player_table[i].name(), arg))
 		{
@@ -5118,7 +5111,7 @@ long get_id_by_name(char *name)
 long get_id_by_uid(long uid)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].unique == uid)
 		{
@@ -5131,7 +5124,7 @@ long get_id_by_uid(long uid)
 int get_uid_by_id(int id)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].id() == id)
 		{
@@ -5144,7 +5137,7 @@ int get_uid_by_id(int id)
 const char *get_name_by_id(long id)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].id() == id)
 		{
@@ -5157,7 +5150,7 @@ const char *get_name_by_id(long id)
 const char* get_name_by_unique(int unique)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].unique == unique)
 		{
@@ -5172,7 +5165,7 @@ int get_level_by_unique(long unique)
 	int level = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i < player_table.size(); ++i)
+	for (std::size_t i = 0; i < player_table.size(); ++i)
 	{
 		if (player_table[i].unique == unique)
 		{
@@ -5187,7 +5180,7 @@ long get_lastlogon_by_unique(long unique)
 	long time = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i < player_table.size(); ++i)
+	for (std::size_t i = 0; i < player_table.size(); ++i)
 	{
 		if (player_table[i].unique == unique)
 		{
@@ -5200,7 +5193,7 @@ long get_lastlogon_by_unique(long unique)
 int correct_unique(int unique)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].unique == unique)
 		{
@@ -5753,14 +5746,15 @@ void flush_player_index(void)
 {
 	FILE *players;
 	char name[MAX_STRING_LENGTH];
-	int i;
 
 	if (!(players = fopen(LIB_PLRS "players.lst", "w+")))
 	{
 		log("Can't save players list...");
 		return;
 	}
-	for (i = 0; i < player_table.size(); i++)
+
+	std::size_t saved = 0;
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (!player_table[i].name()
 			|| !*player_table[i].name())
@@ -5768,29 +5762,31 @@ void flush_player_index(void)
 			continue;
 		}
 
+		++saved;
 		sprintf(name, "%s %d %d %d %d\n",
 				player_table[i].name(),
 				player_table[i].id(), player_table[i].unique, player_table[i].level, player_table[i].last_logon);
 		fputs(name, players);
 	}
 	fclose(players);
-	log("Сохранено индексов %d (считано при загрузке %d)", i, player_table.size());
+	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
 }
 
 void dupe_player_index(void)
 {
 	FILE *players;
 	char name[MAX_STRING_LENGTH];
-	int i, c;
 
 	sprintf(name, LIB_PLRS "players.dup");
 
 	if (!(players = fopen(name, "w+")))
 	{
-		log("Cann't save players list...");
+		log("Can't save players list...");
 		return;
 	}
-	for (i = 0; i < player_table.size(); i++)
+
+	std::size_t dupes = 0;
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (!player_table[i].name()
 			|| !*player_table[i].name())
@@ -5799,19 +5795,21 @@ void dupe_player_index(void)
 		}
 
 		// check double
-		for (c = 0; c < i; c++)
+		std::size_t c = 0;
+		for (; c < i; c++)
 			if (!str_cmp(player_table[c].name(), player_table[i].name()))
 				break;
 		if (c < i)
 			continue;
 
+		++dupes;
 		sprintf(name, "%s %d %d %d %d\n",
 				player_table[i].name(),
 				player_table[i].id(), player_table[i].unique, player_table[i].level, player_table[i].last_logon);
 		fputs(name, players);
 	}
 	fclose(players);
-	log("Продублировано индексов %d (считано при загрузке %d)", i, player_table.size());
+	log("Продублировано индексов %zd (считано при загрузке %zd)", dupes, player_table.size());
 }
 
 void rename_char(CHAR_DATA * ch, char *oname)
@@ -6379,12 +6377,13 @@ void PlayersIndex::set_name(const std::size_t index, const char* name)
 
 void PlayersIndex::add_name_to_index(const char* name, const std::size_t index)
 {
-	const auto result = m_name_to_index.try_emplace(name, index);
-	if (!result.second)
+	if (m_name_to_index.find(name) != m_name_to_index.end())
 	{
 		log("SYSERR: Detected attempt to create player with duplicate name.");
 		abort();
 	}
+
+	m_name_to_index.emplace(name, index);
 }
 
 void player_index_element::set_name(const char* name)
@@ -6392,7 +6391,7 @@ void player_index_element::set_name(const char* name)
 	delete[] m_name;
 
 	char* new_name = new char[strlen(name) + 1];
-	for (int i = 0; new_name[i] = LOWER(name[i]); i++);
+	for (int i = 0; (new_name[i] = LOWER(name[i])); i++);
 
 	m_name = new_name;
 }

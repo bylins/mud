@@ -2024,7 +2024,7 @@ void CHAR_DATA::operator delete(void *ptr)
 		abort();
 	}
 
-	delete ptr;
+	::delete (CHAR_DATA*) ptr;
 }
 
 void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)

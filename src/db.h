@@ -237,8 +237,8 @@ public:
 	void set_id(const int id) { m_id = id; }
 
 private:
-	const char *m_name;
 	int m_id;
+	const char *m_name;
 };
 
 struct Route

@@ -321,7 +321,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict = NULL;
 	struct track_data *track;
-	int found = FALSE, c, calc_track = 0, track_t, i;
+	int found = FALSE, calc_track = 0, track_t, i;
 	char name[MAX_INPUT_LENGTH];
 
 	// The character must have the track skill. 
@@ -356,7 +356,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 			{
-				for (c = 0; c < player_table.size(); c++)
+				for (std::size_t c = 0; c < player_table.size(); c++)
 				{
 					if (player_table[c].id() == track->who)
 					{
@@ -401,7 +401,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			for (c = 0; c < player_table.size(); c++)
+			for (std::size_t c = 0; c < player_table.size(); c++)
 			{
 				if (player_table[c].id() == track->who)
 				{
@@ -427,7 +427,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CAP(name);
 	sprintf(buf, "%s:\r\n", name);
 
-	for (c = 0; c < NUM_OF_DIRS; c++)
+	for (int c = 0; c < NUM_OF_DIRS; c++)
 	{
 		if ((track && track->time_income[c]
 				&& calc_track >= number(0, skill_info[SKILL_TRACK].max_percent))

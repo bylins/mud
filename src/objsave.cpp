@@ -612,7 +612,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error)
 				object->get_custom_label()->author = atoi(buffer);
 				if (object->get_custom_label()->author > 0)
 				{
-					for (int i = 0; i < player_table.size(); i++)
+					for (std::size_t i = 0; i < player_table.size(); i++)
 					{
 						if (player_table[i].id() == object->get_custom_label()->author)
 						{
@@ -3430,7 +3430,7 @@ void Crash_save_all_rent(void)
 
 void Crash_frac_rent_time(int frac_part)
 {
-	for (int c = 0; c < player_table.size(); c++)
+	for (std::size_t c = 0; c < player_table.size(); c++)
 	{
 		if (player_table[c].activity == frac_part
 			&& player_table[c].unique != -1
@@ -3443,7 +3443,7 @@ void Crash_frac_rent_time(int frac_part)
 
 void Crash_rent_time(int/* dectime*/)
 {
-	for (int c = 0; c < player_table.size(); c++)
+	for (std::size_t c = 0; c < player_table.size(); c++)
 	{
 		if (player_table[c].unique != -1)
 		{

@@ -2719,7 +2719,7 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 	CHAR_DATA *cbuf;
 	DESCRIPTOR_DATA *tch;
 
-	for (int i = 0; i < player_table.size(); i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		const auto unique = player_table[i].unique;
 		auto member_i = clan->m_members.find(unique);

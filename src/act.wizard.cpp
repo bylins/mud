@@ -1019,7 +1019,7 @@ void setall_inspect()
 	need_warn = false;
 	gettimeofday(&start, NULL);
 	Player *vict;
-	for(; it->second->pos < player_table.size(); it->second->pos++)
+	for(; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++)
 	{
 		vict = new Player;
 		gettimeofday(&stop, NULL);
@@ -3421,7 +3421,7 @@ void inspecting()
 	need_warn = false;
 
 	gettimeofday(&start, NULL);
-	for(; it->second->pos < player_table.size(); it->second->pos++)
+	for(; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++)
 	{
 		gettimeofday(&stop, NULL);
 		timediff(&result, &stop, &start);
