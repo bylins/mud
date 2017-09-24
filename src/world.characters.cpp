@@ -21,32 +21,6 @@ void Characters::foreach_on_copy(const foreach_f function) const
 	std::for_each(list.begin(), list.end(), function);
 }
 
-bool Characters::remove_if(const predicate_f predicate)
-{
-	bool result = false;
-
-	auto i = m_list.begin();
-	while (i != m_list.end())
-	{
-		if (predicate(*i))
-		{
-			m_purge_list.push_back(*i);
-			m_purge_set.insert(i->get());
-			m_object_raw_ptr_to_object_ptr.erase(i->get());
-			i = m_list.erase(i);
-			(*i)->set_purged();
-
-			result = true;
-		}
-		else
-		{
-			++i;
-		}
-	}
-
-	return result;
-}
-
 void Characters::remove(CHAR_DATA* character)
 {
 	const auto index_i = m_object_raw_ptr_to_object_ptr.find(character);

@@ -27,7 +27,6 @@ public:
 
 	void foreach_on_copy(const foreach_f function) const;
 
-	bool remove_if(const predicate_f predicate);
 	void remove(CHAR_DATA* character);
 
 	void purge();

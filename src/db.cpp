@@ -4529,9 +4529,13 @@ void reset_zone(zone_rnum zone)
 
 			case 'Q':
 				{
-					const bool erased = character_list.remove_if([&](const CHAR_DATA::shared_ptr& ch)
+					const bool erased = false;
+					character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& ch)
 					{
-						return IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED);
+						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
+						{
+							extract_char(ch.get(), FALSE);
+						}
 					});
 
 					if (erased)

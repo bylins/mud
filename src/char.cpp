@@ -2023,6 +2023,8 @@ void CHAR_DATA::operator delete(void *ptr)
 		std::cerr << "Detected deleting of the controlled pointer. Dumping core." << std::endl;
 		abort();
 	}
+
+	delete ptr;
 }
 
 void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)
