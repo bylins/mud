@@ -44,7 +44,7 @@
 
 #define NUM_ITEM_TYPES		36
 #define NUM_ITEM_FLAGS		30
-#define NUM_ITEM_WEARS 		16
+#define NUM_ITEM_WEARS 		17
 #define NUM_POSITIONS		16
 #define NUM_SPELLS	        108
 #define NUM_MATERIALS       19
