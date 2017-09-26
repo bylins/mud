@@ -4208,7 +4208,14 @@ void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			    if (GET_EQ(ch, 18))
 				if ((i==16) || (i==17))
 				    continue;
-			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
+                            if ((i==19)&&(GET_EQ(ch, 18)))
+                            {
+                                if (!(((GET_OBJ_TYPE(GET_EQ(ch, 18))) == OBJ_DATA::ITEM_WEAPON) && (GET_OBJ_SKILL(GET_EQ(ch, 18)) == SKILL_BOWS )))
+                                    continue;
+                            }
+                            else if (i==19)
+				continue;
+ 			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
 				if (i==18)
 				    continue;
 			    if (GET_EQ(ch, 11))
