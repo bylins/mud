@@ -2856,6 +2856,11 @@ bool ParseFilter::init_wear(const char *str)
 		wear = EWearFlag::ITEM_WEAR_BOTHS;
 		wear_message = 15;
 	}
+	else if (is_abbrev(str, "колчан"))
+	{
+		wear = EWearFlag::ITEM_WEAR_QUIVER;
+		wear_message = 16;
+	}
 	else
 	{
 		return false;

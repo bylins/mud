@@ -730,6 +730,10 @@ namespace ShopExt
 		{
 			wear = EWearFlag::ITEM_WEAR_WAIST;
 		}
+		else if (is_abbrev(str, "колчан"))
+		{
+			wear = EWearFlag::ITEM_WEAR_QUIVER;
+		}
 		else if (is_abbrev(str, "запястья"))
 		{
 			wear = EWearFlag::ITEM_WEAR_WRIST;
