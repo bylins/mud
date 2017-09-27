@@ -727,6 +727,9 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 	case OBJ_DATA::ITEM_ENCHANT:
 		send_to_char("Изменяет вес: ", d->character);
 		break;
+	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+		send_to_char("Объем колчана: ", d->character);
+		break;
 
 	default:
 		oedit_disp_menu(d);
@@ -806,6 +809,10 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 
 	case OBJ_DATA::ITEM_MATERIAL:
 		send_to_char("Введите VNUM прототипа: ", d->character);
+		break;
+	
+        case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+		send_to_char("Количество стрел: ", d->character);
 		break;
 
 	default:

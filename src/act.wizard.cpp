@@ -2125,6 +2125,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			send_to_char(buf, ch);
 		}
 		break;
+	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+		break;
 
 	default:
 		sprintf(buf, "Values 0-3: [%d] [%d] [%d] [%d]",

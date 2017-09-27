@@ -489,6 +489,22 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 	return (out_str);
 }
 
+char *diag_shot_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
+{
+	static char out_str[MAX_STRING_LENGTH];
+
+	*out_str = 0;
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER
+		&& IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
+		&& (GET_CLASS(ch) == CLASS_RANGER||GET_CLASS(ch) == CLASS_CHARMMAGE||GET_CLASS(ch) == CLASS_DRUID))
+	{
+		int i = -1;
+		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
+			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+	}
+	return (out_str);
+}
+
 /**
 * При чтении писем и осмотре чара в его описании подставляем в начало каждой строки пробел
 * (для дурных тригов), пользуясь случаем передаю привет проне!
@@ -2667,6 +2683,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->label_text);
 		}
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
+		sprintf(buf+strlen(buf), "%s", diag_shot_to_char(obj, ch));
 		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
 		{
 			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");

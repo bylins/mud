@@ -96,6 +96,7 @@ void do_wield(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/);
+void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
@@ -629,6 +630,47 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+//переложить стрелы из пучка стрел 
+//в колчан
+void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	char arg1[MAX_INPUT_LENGTH];
+	char arg2[MAX_INPUT_LENGTH];
+	char arg3[MAX_INPUT_LENGTH];
+	char arg4[MAX_INPUT_LENGTH];
+	OBJ_DATA *next_obj, *cont;
+	CHAR_DATA *tmp_char;
+	int obj_dotmode, cont_dotmode, found = 0, howmany = 1, money_mode = FALSE;
+	char *theobj, *thecont, *theplace;
+	int where_bits = FIND_OBJ_INV | FIND_OBJ_EQUIP | FIND_OBJ_ROOM;
+
+
+	argument = two_arguments(argument, arg1, arg2);
+	argument = two_arguments(argument, arg3, arg4);
+
+	if (is_number(arg1))
+	{
+		howmany = atoi(arg1);
+		theobj = arg2;
+		thecont = arg3;
+		theplace = arg4;
+	}
+	else
+	{
+		theobj = arg1;
+		thecont = arg2;
+		theplace = arg3;
+	}
+
+	if (isname(theplace, "земля комната room ground"))
+		where_bits = FIND_OBJ_ROOM;
+	else if (isname(theplace, "инвентарь inventory"))
+		where_bits = FIND_OBJ_INV;
+	else if (isname(theplace, "экипировка equipment"))
+		where_bits = FIND_OBJ_EQUIP;
+		
+	
+}
 
 
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
