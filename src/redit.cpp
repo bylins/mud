@@ -333,16 +333,23 @@ void redit_save_to_disk(int zone_num)
 					else
 						*buf2 = '\0';
 
+					//Флаги направления перед записью по какой-то причине ресетятся
+					//Сохраним их, чтобы не поломать загруженную зону
+					byte old_exit_info = room->dir_option[counter2]->exit_info;
+
 					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_CLOSED);
 					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_LOCKED);
 					REMOVE_BIT(room->dir_option[counter2]->exit_info, EX_BROKEN);
 					// * Ok, now wrote output to file.
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d %d\n",
-							counter2, buf1, buf2,
-							room->dir_option[counter2]->exit_info, room->dir_option[counter2]->key,
-							room->dir_option[counter2]->to_room != NOWHERE ?
-							world[room->dir_option[counter2]->to_room]->number : NOWHERE,
-							room->dir_option[counter2]->lock_complexity);
+						counter2, buf1, buf2,
+						room->dir_option[counter2]->exit_info, room->dir_option[counter2]->key,
+						room->dir_option[counter2]->to_room != NOWHERE ?
+						world[room->dir_option[counter2]->to_room]->number : NOWHERE,
+						room->dir_option[counter2]->lock_complexity);
+
+					//Восстановим флаги направления в памяти
+					room->dir_option[counter2]->exit_info = old_exit_info;
 				}
 			}
 			// * Home straight, just deal with extra descriptions.

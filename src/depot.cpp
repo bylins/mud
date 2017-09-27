@@ -1636,7 +1636,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 
 			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",
 				(*obj_it)->get_short_description().c_str(), GET_OBJ_POLY_1(ch, (*obj_it)));
-			CAP(buf);
+//			CAP(buf); issue #59
 			send_to_char(buf, ch);
 
 			if (--count <= 0)

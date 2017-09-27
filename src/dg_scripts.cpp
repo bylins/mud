@@ -1998,7 +1998,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[num].get()))
+					if (check_unlimited_timer(obj_proto[num].get()) || (GET_OBJ_MIW(obj_proto[num]) < 0) )
 					    sprintf(str, "9999999");
 					else
 					    sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
@@ -2118,7 +2118,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			{
 				strftime(str, MAX_INPUT_LENGTH, "%d", localtime(&now_time));
 			}
-			else if (!str_cmp(field, "month"))
+			else if (!str_cmp(field, "[5~month"))
 			{
 				strftime(str, MAX_INPUT_LENGTH, "%m", localtime(&now_time));
 			}
