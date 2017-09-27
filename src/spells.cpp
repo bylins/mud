@@ -1094,7 +1094,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
 		}
 
-		CAP(buf);
+//		CAP(buf); issue #59
 		send_to_char(buf, ch);
 
 		return true;
