@@ -2118,7 +2118,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			{
 				strftime(str, MAX_INPUT_LENGTH, "%d", localtime(&now_time));
 			}
-			else if (!str_cmp(field, "[5~month"))
+			else if (!str_cmp(field, "month"))
 			{
 				strftime(str, MAX_INPUT_LENGTH, "%m", localtime(&now_time));
 			}
