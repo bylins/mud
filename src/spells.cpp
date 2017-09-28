@@ -1954,11 +1954,16 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-
-	case OBJ_DATA::ITEM_DRINKCON:
+	
+ 	case OBJ_DATA::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
+
+           case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+		sprintf(buf, "Количество стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		send_to_char(buf, ch);
+		break;
 
 	default:
 		break;

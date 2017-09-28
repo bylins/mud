@@ -676,6 +676,10 @@ namespace ShopExt
 		{
 			type = OBJ_DATA::ITEM_ARMOR_HEAVY;
 		}
+		else if (is_abbrev(str, "колчан"))
+		{
+			type = OBJ_DATA::ITEM_MAGIC_CONTAINER;
+		}
 		else
 		{
 			return false;
