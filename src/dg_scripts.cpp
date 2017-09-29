@@ -4865,11 +4865,11 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	{
 		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
 	}
-	else
+/*	else    // не нужный нафиг варнинг, только спам, видимо в процессе отладки добавлен был
 	{
 		trig_log(runtrig, "Attempt to run waiting trigger", LGH);
 	}
-
+*/
 	if (go && type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged())
 	{
 		*sc = NULL;
