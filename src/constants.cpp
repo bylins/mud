@@ -744,6 +744,12 @@ const char *ingradient_bits[] = { "руна",
 								  "\n"
 								};
 
+const char *magic_container_bits[] = { "колчан",
+								  "книга",
+								  "фляга",
+								  "\n"
+								};
+
 // ITEM_WEAR_ (wear bitvector)
 const char *wear_bits[] = { "ВЗЯТЬ",
 							"ПАЛЬЦЫ",

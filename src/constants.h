@@ -55,6 +55,7 @@ extern const char *month_name[];
 extern const char *weekdays_poly[];
 extern const char *month_name_poly[];
 extern const char *ingradient_bits[];
+extern const char *magic_container_bits[];
 extern const char *function_bits[];
 extern const char *pray_metter[];
 extern const char *pray_whom[];

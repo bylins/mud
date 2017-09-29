@@ -495,10 +495,8 @@ char *diag_shot_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER
-		&& IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
 		&& (GET_CLASS(ch) == CLASS_RANGER||GET_CLASS(ch) == CLASS_CHARMMAGE||GET_CLASS(ch) == CLASS_DRUID))
 	{
-		int i = -1;
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}

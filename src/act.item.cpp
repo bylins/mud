@@ -668,7 +668,8 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		where_bits = FIND_OBJ_INV;
 	else if (isname(theplace, "экипировка equipment"))
 		where_bits = FIND_OBJ_EQUIP;
-		
+	send_to_char("А где мобила ?\r\n", ch);
+	return ;
 	
 }
 

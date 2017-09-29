@@ -52,6 +52,7 @@ extern const char *no_bits[];
 extern const char *weapon_affects[];
 extern const char *material_name[];
 extern const char *ingradient_bits[];
+extern const char *magic_container_bits[];
 extern struct spell_info_type spell_info[];
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_imrecipes;
@@ -1142,6 +1143,23 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA * d)
 	}
 	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), ingradient_bits, buf1);
 	sprintf(buf, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
+	send_to_char(buf, d->character);
+}
+
+void oedit_disp_magic_container_menu(DESCRIPTOR_DATA * d)
+{
+	int counter, columns = 0;
+
+	get_char_cols(d->character);
+
+	for (counter = 0; counter < 32 && *magic_container_bits[counter] != '\n'; counter++)
+	{
+		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter + 1, nrm,
+				magic_container_bits[counter], !(++columns % 2) ? "\r\n" : "");
+		send_to_char(buf, d->character);
+	}
+	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), magic_container_bits, buf1);
+	sprintf(buf, "\r\nТип контейнера : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
 
