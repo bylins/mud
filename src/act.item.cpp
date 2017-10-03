@@ -636,13 +636,83 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
-	char arg3[MAX_INPUT_LENGTH];
-	char arg4[MAX_INPUT_LENGTH];
+	OBJ_DATA *from_obj = NULL, *to_obj = NULL;
 
 	argument = two_arguments(argument, arg1, arg2);
-	argument = two_arguments(argument, arg3, arg4);
 
-	send_to_char("А где мобила ?\r\n", ch);
+	if (!*arg1)  	// No arguments //
+	{
+		send_to_char("Откуда брать стрелы?\r\n", ch);
+		return;
+	}
+	if (!(from_obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+	{
+		send_to_char("У вас нет этого!\r\n", ch);
+		return;
+	}
+	if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_MAGIC_ARROW)
+	{
+		send_to_char("И как вы себе это представляете?\r\n", ch);
+		return;
+	}
+ 	if (GET_OBJ_VAL(from_obj, 1) == 0)
+	{
+		act("Пусто.", FALSE, ch, from_obj, 0, TO_CHAR);
+		return;
+	}
+	if (!*arg2)
+	{
+		send_to_char("Куда вы хотите их засунуть?\r\n", ch);
+		return;
+	}
+	if (!(to_obj = get_obj_in_list_vis(ch, arg2, ch->carrying)))
+	{
+		send_to_char("Вы не можете этого найти!\r\n", ch);
+		return;
+	}
+	if (!((GET_OBJ_TYPE(to_obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER) || GET_OBJ_TYPE(to_obj) == OBJ_DATA::ITEM_MAGIC_ARROW))
+	{
+		send_to_char("Вы не сможете в это сложить стрелы.\r\n", ch);
+		return;
+	}
+       
+	if (to_obj == from_obj)
+	{
+		send_to_char("Нечем заняться? На печи ездить еще не научились?\r\n", ch);
+		return;
+	}
+        
+	if (GET_OBJ_VAL(to_obj, 2) >= GET_OBJ_VAL(to_obj, 1))
+	{
+		send_to_char("Там нет места.\r\n", ch);
+		return;
+	}
+        else //вроде прошли все проверки. начинаем перекладывать
+        {
+            if (GET_OBJ_VAL(from_obj, 0) != GET_OBJ_VAL(to_obj, 0))
+            {
+                    send_to_char("Хамово ремесло еще не известно на руси.\r\n", ch);
+                    return;
+            }
+            int t1 = GET_OBJ_VAL(from_obj, 3);  // количество зарядов
+            int t2 = GET_OBJ_VAL(to_obj, 3);
+            int delta = (GET_OBJ_VAL(to_obj, 2) - GET_OBJ_VAL(to_obj, 3));
+            if (delta >= t1) //объем колчана больше пучка
+            {
+                to_obj->add_val(2, delta);
+		extract_obj(from_obj);
+		return;
+            }
+            else
+            {
+                to_obj->add_val(2, (t2-GET_OBJ_VAL(to_obj, 2)));
+		from_obj->add_val(2, (GET_OBJ_VAL(to_obj, 2)-t2));
+		return;
+            }
+        }
+        
+        
+	send_to_char("С таким успехом надо пополнять соседние камни, для разговоров по ним.\r\n", ch);
 	return ;
 	
 }

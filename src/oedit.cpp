@@ -729,7 +729,8 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		send_to_char("Изменяет вес: ", d->character);
 		break;
 	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
-		send_to_char("Объем колчана: ", d->character);
+	case OBJ_DATA::ITEM_MAGIC_ARROW:
+		oedit_disp_spells_menu(d);
 		break;
 
 	default:
@@ -813,7 +814,10 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 		break;
 	
         case OBJ_DATA::ITEM_MAGIC_CONTAINER:
-		send_to_char("Количество стрел: ", d->character);
+		send_to_char("Объем колчана: ", d->character);
+		break;
+        case OBJ_DATA::ITEM_MAGIC_ARROW:
+		send_to_char("Размер пучка: ", d->character);
 		break;
 
 	default:
@@ -876,7 +880,10 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 	case OBJ_DATA::ITEM_MATERIAL:
 		send_to_char("Введите силу ингридиента: ", d->character);
 		break;
-
+	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+        case OBJ_DATA::ITEM_MAGIC_ARROW:
+		send_to_char("Количество стрел: ", d->character);
+                break;
 	default:
 		oedit_disp_menu(d);
 	}
