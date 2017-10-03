@@ -680,6 +680,10 @@ namespace ShopExt
 		{
 			type = OBJ_DATA::ITEM_MAGIC_CONTAINER;
 		}
+		else if (is_abbrev(str, "стрела"))
+		{
+			type = OBJ_DATA::ITEM_MAGIC_ARROW;
+		}
 		else
 		{
 			return false;
