@@ -2021,12 +2021,18 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
+	if (   // не может одеть колчан если одет не лук
+		(where == WEAR_QUIVER && 
+                !(GET_EQ(ch, WEAR_BOTHS) &&
+                (((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) 
+                    && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))))
+        {
+		send_to_char("А стрелять чем будете?\r\n", ch);
+		return;
+        }
 	// нельзя надеть щит, если недостаточно силы
 	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj))
 	{
-		act("Вам слишком тяжело нести $o3 на левой руке.", FALSE, ch, obj, 0, TO_CHAR);
-		message_str_need(ch, obj, STR_SHIELD_W);
-		return;
 	}
 
 	if ((where == WEAR_FINGER_R) || (where == WEAR_NECK_1) || (where == WEAR_WRIST_R))
@@ -2568,6 +2574,7 @@ void perform_remove(CHAR_DATA * ch, int pos)
 void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int i, dotmode, found;
+	OBJ_DATA *obj;
 
 	one_argument(argument, arg);
 
@@ -2592,6 +2599,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!found)
 		{
 			send_to_char("На вас не надето предметов этого типа.\r\n", ch);
+        		return;
 		}
 	}
 	else if (dotmode == FIND_ALLDOT)
@@ -2599,6 +2607,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!*arg)
 		{
 			send_to_char("Снять все вещи какого типа?\r\n", ch);
+        		return;
 		}
 		else
 		{
@@ -2618,6 +2627,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "Вы не используете ни одного '%s'.\r\n", arg);
 				send_to_char(buf, ch);
+                                return;
 			}
 		}
 	}
@@ -2648,11 +2658,20 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "Вы не используете '%s'.\r\n", arg);
 				send_to_char(buf, ch);
+                                return;
 			}
 		}
 		else
 			perform_remove(ch, i);
 	}
+        //мы что-то да снимали. значит проверю я доп слот
+        if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
+                {
+                    send_to_char("Нету лука, нет и стрел.\r\n", ch);
+                    act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+                    obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+                    return;
+                }
 }
 
 void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
