@@ -700,12 +700,14 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
             if (delta >= t1) //объем колчана больше пучка
             {
                 to_obj->add_val(2, delta);
+		send_to_char("Вы аккуратно сложили стрелы в колчан.\r\n", ch);
 		extract_obj(from_obj);
 		return;
             }
             else
             {
                 to_obj->add_val(2, (t2-GET_OBJ_VAL(to_obj, 2)));
+		send_to_char("Вы аккуратно переложили несколько стрел в колчан.\r\n", ch);
 		from_obj->add_val(2, (GET_OBJ_VAL(to_obj, 2)-t2));
 		return;
             }
