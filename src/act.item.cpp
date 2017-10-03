@@ -699,7 +699,7 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
             int delta = (GET_OBJ_VAL(to_obj, 2) - GET_OBJ_VAL(to_obj, 3));
             if (delta >= t1) //объем колчана больше пучка
             {
-                to_obj->add_val(2, delta);
+                to_obj->add_val(2, t1);
 		send_to_char("Вы аккуратно сложили стрелы в колчан.\r\n", ch);
 		extract_obj(from_obj);
 		return;
