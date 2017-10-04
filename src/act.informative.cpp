@@ -495,10 +495,8 @@ char *diag_shot_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	*out_str = 0;
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER
-		&& IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
 		&& (GET_CLASS(ch) == CLASS_RANGER||GET_CLASS(ch) == CLASS_CHARMMAGE||GET_CLASS(ch) == CLASS_DRUID))
 	{
-		int i = -1;
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
@@ -4225,9 +4223,9 @@ void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			    if (GET_EQ(ch, 18))
 				if ((i==16) || (i==17))
 				    continue;
-                            if ((i==19)&&(GET_EQ(ch, 18)))
+                            if ((i==19)&&(GET_EQ(ch, WEAR_BOTHS)))
                             {
-                                if (!(((GET_OBJ_TYPE(GET_EQ(ch, 18))) == OBJ_DATA::ITEM_WEAPON) && (GET_OBJ_SKILL(GET_EQ(ch, 18)) == SKILL_BOWS )))
+                                if (!(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))
                                     continue;
                             }
                             else if (i==19)

@@ -701,7 +701,14 @@ void affect_total(CHAR_DATA * ch)
 			obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
 			return;
 		}
-	}
+                if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
+                {
+                    send_to_char("Нету лука, нет и стрел.\r\n", ch);
+                    act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+                    obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+                    return;
+                }
+        }
 
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch)) * 2;

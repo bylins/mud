@@ -1960,8 +1960,11 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
 
+           case OBJ_DATA::ITEM_MAGIC_ARROW:
            case OBJ_DATA::ITEM_MAGIC_CONTAINER:
-		sprintf(buf, "Количество стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
+			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 		send_to_char(buf, ch);
 		break;
 
