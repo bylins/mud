@@ -137,17 +137,16 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Итак, нашел объект
 	// Внимание! Таймер объекта, его состояние и т.д. обновятся!
 
-	// Сохраняю текущую игровую информацию
-	OBJ_DATA tmp(*obj);
-
 	// Удаляю его строки и т.д.
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
-	if (obj->get_is_rename()) // шмотка была переименованна кодом
-	{
-		tmp.copy_from(obj); // сохраним падежи для рестора
-	}
-
+	
+	//Если объект менялся кодом, или переименовывался тупо ничего не делаем вываливаемся
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED)|| obj->get_is_rename()) 
+		return;
+	
+	// Сохраняю текущую игровую информацию	
+	OBJ_DATA tmp(*obj);
 	// Нужно скопировать все новое, сохранив определенную информацию
 	*obj = *olc_proto;
 	obj->clear_proto_script();
@@ -170,10 +169,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
 	obj->set_current_durability(GET_OBJ_CUR(&tmp));
-	if (tmp.get_is_rename())
-	{
-		obj->copy_from(&tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
-	}
 //	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
 	if (obj->get_timer() > tmp.get_timer())
 	{
