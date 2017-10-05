@@ -140,8 +140,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Удаляю его строки и т.д.
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
-	
-<<<<<<< HEAD
+
 	bool fullUpdate = true; //флажок если дальше делать выборочные шаги
 	/*if (obj->get_crafter_uid()) //Если шмотка крафченная
 		fullUpdate = false;*/
@@ -161,37 +160,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	OBJ_DATA tmp(*obj);
 	
 	// Копируем информацию из прототипа
-=======
-<<<<<<< HEAD
-	//Если объект менялся кодом, или переименовывался тупо ничего не делаем вываливаемся
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED)|| obj->get_is_rename()) 
-		return;
-	
-	// Сохраняю текущую игровую информацию	
-	OBJ_DATA tmp(*obj);
-	// Нужно скопировать все новое, сохранив определенную информацию
-=======
-	bool fullUpdate = true; //флажок если дальше делать выборочные шаги
-	/*if (obj->get_crafter_uid()) //Если шмотка крафченная
-		fullUpdate = false;*/
-	if ( //Если цацка заточенная или укреплена
-		OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)||
-		OBJ_FLAGGED(obj,EExtraFlag::ITEM_ARMORED)) 
-		fullUpdate = false;
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO)) //если объект не зависит от прототипа
-		fullUpdate = false;
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED)) 
-		fullUpdate = false;
-	
-	if (!fullUpdate) return;
-
-	
-	// Сохраняю текущую игровую информацию	
-	OBJ_DATA tmp(*obj);
-	
-	// Копируем информацию из прототипа
->>>>>>> develop
->>>>>>> origin
 	*obj = *olc_proto;
 	
 	//Восстанавливаем падежи
