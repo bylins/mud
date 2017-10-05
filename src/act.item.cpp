@@ -2844,6 +2844,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		obj->set_extra_flag(EExtraFlag::ITEM_SHARPEN);
+		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
 	}
 
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
