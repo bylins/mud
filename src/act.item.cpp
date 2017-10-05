@@ -379,7 +379,6 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	const int vnum_skin_prototype = 1660;
 
 	vnum = vnum_skin_prototype + MIN((int)(GET_LEVEL(mob) / 5), 9);
-
 	const auto skin = world_objects.create_from_prototype_by_vnum(vnum);
 	if (!skin)
 	{
@@ -436,7 +435,9 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 
 	act("$n умело срезал$g $o3.", FALSE, ch, skin.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("Вы умело срезали $o3.", FALSE, ch, skin.get(), 0, TO_CHAR);
-
+	
+	//ставим флажок "не зависит от прототипа"
+	skin->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
 	return skin.get();
 }
 

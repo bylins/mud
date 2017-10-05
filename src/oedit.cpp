@@ -141,6 +141,28 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
 	
+<<<<<<< HEAD
+	bool fullUpdate = true; //флажок если дальше делать выборочные шаги
+	/*if (obj->get_crafter_uid()) //Если шмотка крафченная
+		fullUpdate = false;*/
+	if ( //Если цацка заточенная или укреплена
+		OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)||
+		OBJ_FLAGGED(obj,EExtraFlag::ITEM_ARMORED)) 
+		fullUpdate = false;
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO)) //если объект не зависит от прототипа
+		fullUpdate = false;
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED))  // трансформирован
+		fullUpdate = false;
+	
+	if (!fullUpdate) return;
+
+	
+	// Сохраняю текущую игровую информацию	
+	OBJ_DATA tmp(*obj);
+	
+	// Копируем информацию из прототипа
+=======
+<<<<<<< HEAD
 	//Если объект менялся кодом, или переименовывался тупо ничего не делаем вываливаемся
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED)|| obj->get_is_rename()) 
 		return;
@@ -148,7 +170,39 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Сохраняю текущую игровую информацию	
 	OBJ_DATA tmp(*obj);
 	// Нужно скопировать все новое, сохранив определенную информацию
+=======
+	bool fullUpdate = true; //флажок если дальше делать выборочные шаги
+	/*if (obj->get_crafter_uid()) //Если шмотка крафченная
+		fullUpdate = false;*/
+	if ( //Если цацка заточенная или укреплена
+		OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)||
+		OBJ_FLAGGED(obj,EExtraFlag::ITEM_ARMORED)) 
+		fullUpdate = false;
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO)) //если объект не зависит от прототипа
+		fullUpdate = false;
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED)) 
+		fullUpdate = false;
+	
+	if (!fullUpdate) return;
+
+	
+	// Сохраняю текущую игровую информацию	
+	OBJ_DATA tmp(*obj);
+	
+	// Копируем информацию из прототипа
+>>>>>>> develop
+>>>>>>> origin
 	*obj = *olc_proto;
+	
+	//Восстанавливаем падежи
+	if (obj->get_is_rename()) {
+		// вот тут (имхо) этого делать нельзя, т.к. мы копируем весь объект и дальнейший код бессмысленен?
+		obj->copy_from(&tmp);
+		printf("renamed stuff %d\n",fullUpdate);
+	} else {
+		printf("normal stuff %d\n",fullUpdate);
+	}
+
 	obj->clear_proto_script();
 	// Восстанавливаю игровую информацию
 	obj->set_uid(tmp.get_uid());
@@ -198,8 +252,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	{
 		obj->set_extra_flag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
 	}
-//	ObjectAlias::remove(obj);
-//	ObjectAlias::add(obj);
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.

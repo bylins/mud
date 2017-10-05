@@ -4012,10 +4012,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 //-Polos.insert_wanted_gem
 // Теперь все вплавленное занимает слоты
 	}
-	//если на итеме нет флага трансформирован кодом - накладываем его
-	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_TRANSFORMED))
-		itemobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
-		// флаги, определяющие, сколько остается свободных слотов
+
 	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
 	{
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
@@ -4030,6 +4027,9 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	{
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH1SLOT);
 	}
+
+	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_TRANSFORMED))
+		itemobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 	extract_obj(gemobj);
 }
 
