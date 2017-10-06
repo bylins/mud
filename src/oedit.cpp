@@ -166,7 +166,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	*obj = *olc_proto;
 	
 	//Восстанавливаем падежи если объект поренеймлен
-	if (tmp->get_is_rename())
+	if (tmp.get_is_rename())
 		obj->copy_name_from(&tmp);
 
 	obj->clear_proto_script();
