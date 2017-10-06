@@ -660,8 +660,8 @@ void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
 	//Копируем имя по падежам
 	std::string tmp_name;
-	for (i=0;src->get_PName(i);i++) {
-		printf ("pads %d\n",i);
+	for (i=0;i<NUM_PADS;i++) {
+		printf ("pads %d %s\n",i,obj->get_PName(i));
 	}
 }
 
