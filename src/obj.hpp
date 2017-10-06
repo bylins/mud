@@ -294,7 +294,7 @@ public:
 	const auto& get_proto_script_ptr() const { return m_proto_script; }
 	const auto& get_values() const { return m_values; }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
-	const std::string& get_PNames() const { return m_pnames; }
+	const pnames_t get_PNames() const { return m_pnames; }
 	const std::string& get_short_description() const { return m_short_description; }
 	void add_affect_flags(const FLAG_DATA& flags) { m_waffect_flags += flags; }
 	void add_affected(const size_t index, const int amount) { m_affected[index].modifier += amount; }
