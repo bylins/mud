@@ -1794,7 +1794,6 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 		}
 	}
 	obj->set_is_rename(true); // ставим флаг что объект переименован
-	obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 	
 	
 	auto temp_flags = obj->get_affect_flags();

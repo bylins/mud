@@ -167,8 +167,9 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	
 	//Восстанавливаем падежи
 	if (obj->get_is_rename()) {
-		// вот тут (имхо) этого делать нельзя, т.к. мы копируем весь объект и дальнейший код бессмысленен?
-		obj->copy_from(&tmp);
+		//obj->set_PName(i, obj_pad);
+		//obj->set_short_description(obj_pad);
+		//obj->set_aliases(obj_pad); // ставим алиасы
 	}
 
 	obj->clear_proto_script();
