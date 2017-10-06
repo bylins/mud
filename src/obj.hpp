@@ -826,9 +826,11 @@ public:
 	void set_enchant(int skill, OBJ_DATA *obj);
 	void unset_enchant();
 
+	void copy_name_from(const CObjectPrototype* src);
+	
 	bool clone_olc_object_from_prototype(const obj_vnum vnum);
 	void copy_from(const CObjectPrototype* src);
-
+	
 	void swap(OBJ_DATA& object);
 	void set_tag(const char* tag);
 

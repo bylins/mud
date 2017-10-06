@@ -165,11 +165,9 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Копируем информацию из прототипа
 	*obj = *olc_proto;
 	
-	//Восстанавливаем падежи
-	if (obj->get_is_rename()) {
-		// вот тут (имхо) этого делать нельзя, т.к. мы копируем весь объект и дальнейший код бессмысленен?
-		obj->copy_from(&tmp);
-	}
+	//Восстанавливаем падежи если объект поренеймлен
+	if (obj->get_is_rename())
+		obj->copy_name_from(&tmp);
 
 	obj->clear_proto_script();
 	// Восстанавливаю игровую информацию
