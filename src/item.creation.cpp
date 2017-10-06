@@ -1573,7 +1573,6 @@ void MakeRecept::make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[M
 		wearkoeff = 31;
 	}
 	obj->set_val(1, (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
-	obj->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
 }
 float MakeRecept::count_mort_requred(OBJ_DATA * obj)
 {

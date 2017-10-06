@@ -2992,8 +2992,9 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 		return;
 	}
-
 	obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
+	obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+	
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
 

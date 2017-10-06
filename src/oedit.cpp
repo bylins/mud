@@ -144,16 +144,19 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	bool fullUpdate = true; //флажок если дальше делать выборочные шаги
 	/*if (obj->get_crafter_uid()) //Если шмотка крафченная
 		fullUpdate = false;*/
-	if ( //Если цацка заточенная или укреплена
-		OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)||
-		OBJ_FLAGGED(obj,EExtraFlag::ITEM_ARMORED)) 
+
+	//если объект не зависит от прототипа
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO)) 
 		fullUpdate = false;
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO)) //если объект не зависит от прототипа
-		fullUpdate = false;
-	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED))  // трансформирован
+	//если объект изменен кодом
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED))
 		fullUpdate = false;
 	
-	if (!fullUpdate) return;
+	if (!fullUpdate) {
+		//тут можно вставить изменение объекта ограниченное
+		//в obj лежит объект, в olc_proto лежит прототип
+		return;
+	}
 
 	
 	// Сохраняю текущую игровую информацию	
