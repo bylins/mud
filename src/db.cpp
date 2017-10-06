@@ -3231,10 +3231,10 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					break;
 
 				case DL_PROGRESSION:	//Загрузка с убывающей до 0.01 вероятностью
-					if ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1))
+					//if ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1))
 						load = true;
-					else
-						load = false;
+					//else
+					//	load = false;
 					break;
 
 				case DL_SKIN:	//Загрузка по применению "освежевать"
