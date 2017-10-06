@@ -169,9 +169,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	if (obj->get_is_rename()) {
 		// вот тут (имхо) этого делать нельзя, т.к. мы копируем весь объект и дальнейший код бессмысленен?
 		obj->copy_from(&tmp);
-		printf("renamed stuff %d\n",fullUpdate);
-	} else {
-		printf("normal stuff %d\n",fullUpdate);
 	}
 
 	obj->clear_proto_script();
