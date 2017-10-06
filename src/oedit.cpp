@@ -165,7 +165,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Копируем информацию из прототипа
 	*obj = *olc_proto;
 	
-	obj->copy_name_from(&tmp);
 	//Восстанавливаем падежи
 	if (obj->get_is_rename()) {
 		obj->copy_name_from(&tmp);

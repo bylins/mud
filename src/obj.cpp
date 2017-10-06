@@ -654,11 +654,12 @@ bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
 //копирование имени
 void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
 	int i;
-	printf ("copy name from object %d\n",src->get_vnum());
+
 	//Копируем псевдонимы и дескрипшены
 	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
 	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+	
 	//Копируем имя по падежам
 	for (i=0;i<NUM_PADS;i++)
 		set_PName(i,src->get_PName(i));
