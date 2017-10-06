@@ -1422,9 +1422,9 @@ void add_rune_stats(CHAR_DATA *ch, int vnum, int spelltype)
 
 void print_rune_stats(CHAR_DATA *ch)
 {
-	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (!IS_GRGOD(ch))
 	{
-		send_to_char(ch, "Пока в разработке.\r\n");
+		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;
 	}
 
