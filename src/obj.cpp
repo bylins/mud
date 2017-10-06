@@ -658,7 +658,8 @@ void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
 	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
 	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
-	set_PNames(src->get_PNames());
+	//Копируем имя по падежам
+	
 }
 
 
