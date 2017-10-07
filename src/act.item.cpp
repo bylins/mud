@@ -379,7 +379,6 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	const int vnum_skin_prototype = 1660;
 
 	vnum = vnum_skin_prototype + MIN((int)(GET_LEVEL(mob) / 5), 9);
-
 	const auto skin = world_objects.create_from_prototype_by_vnum(vnum);
 	if (!skin)
 	{
@@ -436,7 +435,9 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 
 	act("$n умело срезал$g $o3.", FALSE, ch, skin.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("Вы умело срезали $o3.", FALSE, ch, skin.get(), 0, TO_CHAR);
-
+	
+	//ставим флажок "не зависит от прототипа"
+	skin->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
 	return skin.get();
 }
 
@@ -2844,6 +2845,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		obj->set_extra_flag(EExtraFlag::ITEM_SHARPEN);
+		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
 	}
 
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
@@ -2990,8 +2992,9 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 		return;
 	}
-
 	obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
+	obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+	
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
 

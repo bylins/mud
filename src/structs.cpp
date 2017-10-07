@@ -215,6 +215,7 @@ const char* nothing_string = "ничего";
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
+	
 	long nr = 0;
 	int fail = 0;
 	int plane = 0;

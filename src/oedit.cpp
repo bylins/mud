@@ -137,19 +137,40 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Итак, нашел объект
 	// Внимание! Таймер объекта, его состояние и т.д. обновятся!
 
-	// Сохраняю текущую игровую информацию
-	OBJ_DATA tmp(*obj);
-
 	// Удаляю его строки и т.д.
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
-	if (obj->get_is_rename()) // шмотка была переименованна кодом
-	{
-		tmp.copy_from(obj); // сохраним падежи для рестора
+
+	bool fullUpdate = true; //флажок если дальше делать выборочные шаги
+	/*if (obj->get_crafter_uid()) //Если шмотка крафченная
+		fullUpdate = false;*/
+
+	//если объект не зависит от прототипа
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO)) 
+		fullUpdate = false;
+	//если объект изменен кодом
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED))
+		fullUpdate = false;
+	
+	if (!fullUpdate) {
+		//тут можно вставить изменение объекта ограниченное
+		//в obj лежит объект, в olc_proto лежит прототип
+		return;
 	}
 
-	// Нужно скопировать все новое, сохранив определенную информацию
+	
+	// Сохраняю текущую игровую информацию	
+	OBJ_DATA tmp(*obj);
+	
+	// Копируем информацию из прототипа
 	*obj = *olc_proto;
+	
+	//Восстанавливаем падежи если объект поренеймлен
+	if (tmp.get_is_rename()) {
+		obj->copy_name_from(&tmp);
+		obj->set_is_rename(true);
+	}
+
 	obj->clear_proto_script();
 	// Восстанавливаю игровую информацию
 	obj->set_uid(tmp.get_uid());
@@ -170,10 +191,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
 	obj->set_current_durability(GET_OBJ_CUR(&tmp));
-	if (tmp.get_is_rename())
-	{
-		obj->copy_from(&tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
-	}
 //	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
 	if (obj->get_timer() > tmp.get_timer())
 	{
@@ -203,8 +220,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	{
 		obj->set_extra_flag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
 	}
-//	ObjectAlias::remove(obj);
-//	ObjectAlias::add(obj);
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.
