@@ -676,6 +676,14 @@ namespace ShopExt
 		{
 			type = OBJ_DATA::ITEM_ARMOR_HEAVY;
 		}
+		else if (is_abbrev(str, "колчан"))
+		{
+			type = OBJ_DATA::ITEM_MAGIC_CONTAINER;
+		}
+		else if (is_abbrev(str, "стрела"))
+		{
+			type = OBJ_DATA::ITEM_MAGIC_ARROW;
+		}
 		else
 		{
 			return false;
@@ -729,6 +737,10 @@ namespace ShopExt
 		else if (is_abbrev(str, "пояс"))
 		{
 			wear = EWearFlag::ITEM_WEAR_WAIST;
+		}
+		else if (is_abbrev(str, "колчан"))
+		{
+			wear = EWearFlag::ITEM_WEAR_QUIVER;
 		}
 		else if (is_abbrev(str, "запястья"))
 		{

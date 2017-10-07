@@ -138,6 +138,60 @@ int MAX(int a, int b)
 	return (a > b ? a : b);
 }
 
+char* first_letter(char* txt)
+{
+	if (txt)
+	{
+		while (*txt && !a_isalpha(*txt))
+		{
+			//Предполагается, что для отправки клиенту используется только управляющий код с цветом
+			//На данный момент в коде присутствует только еще один управляющий код для очистки экрана,
+			//но он не используется (см. CLEAR_SCREEN)
+			if ('\x1B' == *txt)
+			{
+				while (*txt && 'm' != *txt)
+				{
+					++txt;
+				}
+				if (!*txt)
+				{
+					return txt;
+				}
+			}
+			else if ('&' == *txt)
+			{
+				++txt;
+				if (!*txt)
+				{
+					return txt;
+				}
+			}
+			++txt;
+		}
+	}
+	return txt;
+}
+
+char *colorCAP(char *txt) 
+{
+	char* letter = first_letter(txt);
+	if (letter && *letter)
+	{
+		*letter = UPPER(*letter);
+	}
+	return txt;
+}
+
+char *colorLOW(char *txt)
+{
+	char* letter = first_letter(txt);
+	if (letter && *letter)
+	{
+		*letter = LOWER(*letter);
+	}
+	return txt;
+}
+
 char * CAP(char *txt)
 {
 	*txt = UPPER(*txt);
@@ -2088,9 +2142,9 @@ void add(int zone_vnum, long money)
 
 void print(CHAR_DATA *ch)
 {
-	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (!IS_GRGOD(ch))
 	{
-		send_to_char(ch, "Пока в разработке.\r\n");
+		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;
 	}
 
@@ -2809,6 +2863,11 @@ bool ParseFilter::init_wear(const char *str)
 	{
 		wear = EWearFlag::ITEM_WEAR_BOTHS;
 		wear_message = 15;
+	}
+	else if (is_abbrev(str, "колчан"))
+	{
+		wear = EWearFlag::ITEM_WEAR_QUIVER;
+		wear_message = 16;
 	}
 	else
 	{

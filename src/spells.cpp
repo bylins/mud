@@ -848,6 +848,14 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
 			return;
 		}
+		//удаляем переходы
+		if (world[ch->in_room]->portal_time)
+		{
+			if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time)
+				decay_portal(world[ch->in_room]->portal_room);
+				decay_portal(ch->in_room);
+		}
+
 
 		// Открываем пентаграмму в комнату rnum //
 		improove_skill(ch, SKILL_TOWNPORTAL, 1, NULL);
@@ -1084,7 +1092,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
 		}
 
-		CAP(buf);
+//		CAP(buf); issue #59
 		send_to_char(buf, ch);
 
 		return true;
@@ -1218,8 +1226,6 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	}
 
 	if (spellnum != SPELL_CLONE &&
-//    !WAITLESS(ch) &&
-//    hp_summ + GET_REAL_MAX_HIT(victim) >= cha_app[GET_REAL_CHA(ch)].charms )
 			reformed_hp_summ + get_reformed_charmice_hp(ch, victim, spellnum) >= get_player_charms(ch, spellnum))
 	{
 		send_to_char("Вам не под силу управлять такой боевой мощью.\r\n", ch);
@@ -1946,11 +1952,19 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-
-	case OBJ_DATA::ITEM_DRINKCON:
+	
+ 	case OBJ_DATA::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
+
+           case OBJ_DATA::ITEM_MAGIC_ARROW:
+           case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+		sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
+			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+		send_to_char(buf, ch);
+		break;
 
 	default:
 		break;
@@ -3524,7 +3538,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "разум аки мутный омут", "... и безумие его с ним." },
 	cast_phrase_t{ "окружен радугой", "... явится радуга в облаке." },
 	cast_phrase_t{ "зло творяще", "... и ты воздашь им злом." },
-	cast_phrase_t{ "Стрибог, даруй защиту.", ".... четыре ветра земли." },	// 140
+	cast_phrase_t{ "Мать-земля, даруй защиту.", "... поклон тебе матушка земля." },	// 140
 	cast_phrase_t{ "Сварог, даруй защиту.", "... и огонь низводит с неба." },
 	cast_phrase_t{ "Морена, даруй защиту.", "... текущие холодные воды." },
 	cast_phrase_t{ "будет слеп и глух, аки мертвец", "... кто делает или глухим, или слепым." },

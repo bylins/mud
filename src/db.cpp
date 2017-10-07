@@ -393,6 +393,11 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WAIST);
 	}
 
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_QUIVER))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_QUIVER);
+	}
+
 	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WRIST))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
@@ -626,6 +631,11 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
 	{
 		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WAIST));
+	}
+
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_QUIVER));
 	}
 
 	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
@@ -2418,6 +2428,7 @@ void boot_db(void)
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1), EWearFlag::ITEM_WEAR_SHIELD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1), EWearFlag::ITEM_WEAR_ABOUT);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), EWearFlag::ITEM_WEAR_WAIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1), EWearFlag::ITEM_WEAR_QUIVER);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), EWearFlag::ITEM_WEAR_WRIST);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), EWearFlag::ITEM_WEAR_WIELD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), EWearFlag::ITEM_WEAR_HOLD);

@@ -42,9 +42,9 @@
 #define NUM_AFF_FLAGS		22
 #define NUM_ATTACK_TYPES	20
 
-#define NUM_ITEM_TYPES		33
+#define NUM_ITEM_TYPES		36
 #define NUM_ITEM_FLAGS		30
-#define NUM_ITEM_WEARS 		16
+#define NUM_ITEM_WEARS 		17
 #define NUM_POSITIONS		16
 #define NUM_SPELLS	        108
 #define NUM_MATERIALS       19

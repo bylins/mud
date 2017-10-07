@@ -284,6 +284,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rent(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rescue(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stopfight(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -458,6 +459,11 @@ void do_cities(CHAR_DATA *ch, char*, int, int);
 #define MAGIC_NUM 419
 #define MAGIC_LEN 8
 
+// здесь храним коды, которые отправили игрокам на почту
+// строка - это мыло, если один чар вошел с необычного места, то блочим сразу всех чаров на этом мыле,
+// пока не введет код (или до ребута)
+std::map<std::string, int> new_loc_codes;
+
 cpp_extern const struct command_info cmd_info[] =
 {
 	{"RESERVED", 0, 0, 0, 0, 0},	// this must be first -- for specprocs
@@ -575,7 +581,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
 	{"золото", POS_RESTING, do_gold, 0, 0, 0},
 	{"зона", POS_RESTING, do_zone, 0, 0, 0},
-	{ "зоныстат", POS_DEAD, do_showzonestats, LVL_IMMORT, 0, 0 },
+	{"зоныстат", POS_DEAD, do_showzonestats, LVL_IMMORT, 0, 0 },
 	{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
 	{"идеи", POS_DEAD, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
@@ -700,6 +706,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
 	{"постой", POS_STANDING, do_not_here, 1, 0, -1},
 	{"почта", POS_STANDING, do_not_here, 1, 0, -1},
+	{"пополнить", POS_STANDING, do_refill, 0, 0, 300},
 	{"поручения", POS_RESTING, do_quest, 1, 0, -1},
 	{"появиться", POS_RESTING, do_visible, 1, 0, -1},
 	{"правила", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
@@ -2693,7 +2700,43 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
+	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0)
+	{
+		SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+		STATE(d) = CON_RANDOM_NUMBER;
+		return;
+	}
+	// нам нужен массив сетей с маской /24
+	std::set<uint32_t> subnets;
 
+	struct logon_data * log_info = LOGON_LIST(d->character);
+
+	// маска сети /24, можно покрутить в большую сторону, если есть желание
+	uint32_t MASK = 16777215;
+	while (log_info)
+	{
+		uint32_t current_subnet = inet_addr(log_info->ip) & MASK;
+		subnets.insert(current_subnet);
+		log_info = log_info->next;
+	}
+	if (subnets.size() != 0)
+	{
+		if (subnets.count(inet_addr(d->host) & MASK) == 0)
+		{
+			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
+			mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+			if (PRF_FLAGGED(d->character, PRF_IPCONTROL)) {
+				int random_number = number(1000000, 9999999);
+				new_loc_codes[GET_EMAIL(d->character)] = random_number;
+				std::string cmd_line =  str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
+				auto result = system(cmd_line.c_str());
+				UNUSED_ARG(result);
+				SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+				STATE(d) = CON_RANDOM_NUMBER;
+				return;
+			}
+		}
+	}
 	// check and make sure no other copies of this player are logged in
 	if (perform_dupe_check(d))
 	{
@@ -2724,30 +2767,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	if (!ValidateStats(d))
 	{
 		return;
-	}
-
-	// нам нужен массив сетей с маской /24
-	std::set<uint32_t> subnets;
-
-	struct logon_data * log_info = LOGON_LIST(d->character);
-
-	// маска сети /24, можно покрутить в большую сторону, если есть желание
-	uint32_t MASK = 16777215;
-	while (log_info)
-	{
-		
-		uint32_t current_subnet = inet_addr(log_info->ip) & MASK;
-		subnets.insert(current_subnet);
-		log_info = log_info->next;
-	}
-	if (subnets.size() != 0)
-	{
-		if (subnets.count(inet_addr(d->host) & MASK) == 0)
-		{
-			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
-			mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
-		}
-	}
+	}	
 
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
@@ -3700,7 +3720,24 @@ Sventovit
 		// SEND_TO_Q(MENU, d);
 		// STATE(d) = CON_MENU;
 		break;
-
+	case CON_RANDOM_NUMBER:
+	    {
+		int code_rand = atoi(arg);
+		//printf("%d\n", code_rand);
+		if (new_loc_codes.count(GET_EMAIL(d->character)) == 0)
+			break;
+		//printf("%d\n", new_loc_codes[GET_EMAIL(d->character)])
+		if (new_loc_codes[GET_EMAIL(d->character)] != code_rand)
+		{
+			SEND_TO_Q("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
+			STATE(d) = CON_CLOSE;
+			break;
+		}
+		new_loc_codes.erase(GET_EMAIL(d->character));
+		add_logon_record(d);
+		DoAfterPassword(d);
+		break;
+	    }
 	case CON_MENU:		// get selection from main menu
 		switch (*arg)
 		{

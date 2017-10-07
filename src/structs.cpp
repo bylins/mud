@@ -215,6 +215,7 @@ const char* nothing_string = "ничего";
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
+	
 	long nr = 0;
 	int fail = 0;
 	int plane = 0;
@@ -549,6 +550,7 @@ void init_EWearFlag_ITEM_NAMES()
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WIELD] = "ITEM_WEAR_WIELD";
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HOLD] = "ITEM_WEAR_HOLD";
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BOTHS] = "ITEM_WEAR_BOTHS";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_QUIVER] = "ITEM_WEAR_QUIVER";
 
 	for (const auto& i : EWearFlag_name_by_value)
 	{

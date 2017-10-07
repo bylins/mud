@@ -1661,7 +1661,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	char lbuf[256];
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 	*helpee_vict, *damagee_vict, *format;
-	int religion;
+	CHAR_DATA *i;
+	int  religion;
 
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);

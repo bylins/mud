@@ -449,11 +449,10 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d", number);
+				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
 				mob_log(ch, buf);
-                                // в последствии раскоментить
-                                // и добавить екстракт объекта
-                                //return;
+				extract_obj(object.get());
+				return;
 			}
 		}
 

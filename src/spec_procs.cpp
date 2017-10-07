@@ -2506,6 +2506,11 @@ void npc_armor(CHAR_DATA * ch)
 			where = WEAR_WAIST;
 		}
 
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+		{
+			where = WEAR_QUIVER;
+		}
+
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
 		{
 			where = WEAR_WRIST_R;

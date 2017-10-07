@@ -96,6 +96,7 @@ void do_wield(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/);
+void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
@@ -377,7 +378,6 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	const int vnum_skin_prototype = 1660;
 
 	vnum = vnum_skin_prototype + MIN((int)(GET_LEVEL(mob) / 5), 9);
-
 	const auto skin = world_objects.create_from_prototype_by_vnum(vnum);
 	if (!skin)
 	{
@@ -434,7 +434,9 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 
 	act("$n умело срезал$g $o3.", FALSE, ch, skin.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("Вы умело срезали $o3.", FALSE, ch, skin.get(), 0, TO_CHAR);
-
+	
+	//ставим флажок "не зависит от прототипа"
+	skin->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
 	return skin.get();
 }
 
@@ -628,6 +630,94 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+//переложить стрелы из пучка стрел 
+//в колчан
+void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	char arg1[MAX_INPUT_LENGTH];
+	char arg2[MAX_INPUT_LENGTH];
+	OBJ_DATA *from_obj = NULL, *to_obj = NULL;
+
+	argument = two_arguments(argument, arg1, arg2);
+
+	if (!*arg1)  	// No arguments //
+	{
+		send_to_char("Откуда брать стрелы?\r\n", ch);
+		return;
+	}
+	if (!(from_obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+	{
+		send_to_char("У вас нет этого!\r\n", ch);
+		return;
+	}
+	if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_MAGIC_ARROW)
+	{
+		send_to_char("И как вы себе это представляете?\r\n", ch);
+		return;
+	}
+ 	if (GET_OBJ_VAL(from_obj, 1) == 0)
+	{
+		act("Пусто.", FALSE, ch, from_obj, 0, TO_CHAR);
+		return;
+	}
+	if (!*arg2)
+	{
+		send_to_char("Куда вы хотите их засунуть?\r\n", ch);
+		return;
+	}
+	if (!(to_obj = get_obj_in_list_vis(ch, arg2, ch->carrying)))
+	{
+		send_to_char("Вы не можете этого найти!\r\n", ch);
+		return;
+	}
+	if (!((GET_OBJ_TYPE(to_obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER) || GET_OBJ_TYPE(to_obj) == OBJ_DATA::ITEM_MAGIC_ARROW))
+	{
+		send_to_char("Вы не сможете в это сложить стрелы.\r\n", ch);
+		return;
+	}
+       
+	if (to_obj == from_obj)
+	{
+		send_to_char("Нечем заняться? На печи ездить еще не научились?\r\n", ch);
+		return;
+	}
+        
+	if (GET_OBJ_VAL(to_obj, 2) >= GET_OBJ_VAL(to_obj, 1))
+	{
+		send_to_char("Там нет места.\r\n", ch);
+		return;
+	}
+        else //вроде прошли все проверки. начинаем перекладывать
+        {
+            if (GET_OBJ_VAL(from_obj, 0) != GET_OBJ_VAL(to_obj, 0))
+            {
+                    send_to_char("Хамово ремесло еще не известно на руси.\r\n", ch);
+                    return;
+            }
+            int t1 = GET_OBJ_VAL(from_obj, 3);  // количество зарядов
+            int t2 = GET_OBJ_VAL(to_obj, 3);
+            int delta = (GET_OBJ_VAL(to_obj, 2) - GET_OBJ_VAL(to_obj, 3));
+            if (delta >= t1) //объем колчана больше пучка
+            {
+                to_obj->add_val(2, t1);
+		send_to_char("Вы аккуратно сложили стрелы в колчан.\r\n", ch);
+		extract_obj(from_obj);
+		return;
+            }
+            else
+            {
+                to_obj->add_val(2, (t2-GET_OBJ_VAL(to_obj, 2)));
+		send_to_char("Вы аккуратно переложили несколько стрел в колчан.\r\n", ch);
+		from_obj->add_val(2, (GET_OBJ_VAL(to_obj, 2)-t2));
+		return;
+            }
+        }
+        
+        
+	send_to_char("С таким успехом надо пополнять соседние камни, для разговоров по ним.\r\n", ch);
+	return ;
+	
+}
 
 
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
@@ -1945,7 +2035,8 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		EWearFlag::ITEM_WEAR_WRIST,
 		EWearFlag::ITEM_WEAR_WIELD,
 		EWearFlag::ITEM_WEAR_TAKE,
-		EWearFlag::ITEM_WEAR_BOTHS
+		EWearFlag::ITEM_WEAR_BOTHS,
+		EWearFlag::ITEM_WEAR_QUIVER
 	};
 
 	const std::array<const char *, sizeof(wear_bitvectors)> already_wearing =
@@ -1969,6 +2060,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		"Вы уже что-то держите в правой руке.\r\n",
 		"Вы уже что-то держите в левой руке.\r\n",
 		"Вы уже держите оружие в обеих руках.\r\n"
+		"Вы уже используете колчан.\r\n"
 	};
 
 	// first, make sure that the wear position is valid.
@@ -2000,12 +2092,18 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
+	if (   // не может одеть колчан если одет не лук
+		(where == WEAR_QUIVER && 
+                !(GET_EQ(ch, WEAR_BOTHS) &&
+                (((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) 
+                    && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))))
+        {
+		send_to_char("А стрелять чем будете?\r\n", ch);
+		return;
+        }
 	// нельзя надеть щит, если недостаточно силы
 	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj))
 	{
-		act("Вам слишком тяжело нести $o3 на левой руке.", FALSE, ch, obj, 0, TO_CHAR);
-		message_str_need(ch, obj, STR_SHIELD_W);
-		return;
 	}
 
 	if ((where == WEAR_FINGER_R) || (where == WEAR_NECK_1) || (where == WEAR_WRIST_R))
@@ -2191,6 +2289,18 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 			else
 			{
 				tmp_where = WEAR_WAIST;
+			}
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+		{
+			if (!GET_EQ(ch, WEAR_QUIVER))
+			{
+				where = WEAR_QUIVER;
+			}
+			else
+			{
+				tmp_where = WEAR_QUIVER;
 			}
 		}
 
@@ -2535,6 +2645,7 @@ void perform_remove(CHAR_DATA * ch, int pos)
 void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int i, dotmode, found;
+	OBJ_DATA *obj;
 
 	one_argument(argument, arg);
 
@@ -2559,6 +2670,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!found)
 		{
 			send_to_char("На вас не надето предметов этого типа.\r\n", ch);
+        		return;
 		}
 	}
 	else if (dotmode == FIND_ALLDOT)
@@ -2566,6 +2678,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!*arg)
 		{
 			send_to_char("Снять все вещи какого типа?\r\n", ch);
+        		return;
 		}
 		else
 		{
@@ -2585,6 +2698,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "Вы не используете ни одного '%s'.\r\n", arg);
 				send_to_char(buf, ch);
+                                return;
 			}
 		}
 	}
@@ -2615,11 +2729,20 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "Вы не используете '%s'.\r\n", arg);
 				send_to_char(buf, ch);
+                                return;
 			}
 		}
 		else
 			perform_remove(ch, i);
 	}
+        //мы что-то да снимали. значит проверю я доп слот
+        if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
+                {
+                    send_to_char("Нету лука, нет и стрел.\r\n", ch);
+                    act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+                    obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+                    return;
+                }
 }
 
 void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2720,6 +2843,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		obj->set_extra_flag(EExtraFlag::ITEM_SHARPEN);
+		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
 	}
 
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
@@ -2866,8 +2990,9 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 		return;
 	}
-
 	obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
+	obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+	
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
 

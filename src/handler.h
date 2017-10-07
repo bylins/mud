@@ -185,6 +185,7 @@ int used_charm_points(CHAR_DATA * ch);
 CHAR_DATA *charm_mob(CHAR_DATA * victim);
 float get_damage_per_round(CHAR_DATA * victim);
 float get_effective_cha(CHAR_DATA * ch, int spellnum);
+float get_effective_wis(CHAR_DATA * ch, int spellnum);
 float get_effective_int(CHAR_DATA * ch);
 int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
 int get_player_charms(CHAR_DATA * ch, int spellnum);

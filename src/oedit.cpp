@@ -52,6 +52,7 @@ extern const char *no_bits[];
 extern const char *weapon_affects[];
 extern const char *material_name[];
 extern const char *ingradient_bits[];
+extern const char *magic_container_bits[];
 extern struct spell_info_type spell_info[];
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_imrecipes;
@@ -136,19 +137,40 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// Итак, нашел объект
 	// Внимание! Таймер объекта, его состояние и т.д. обновятся!
 
-	// Сохраняю текущую игровую информацию
-	OBJ_DATA tmp(*obj);
-
 	// Удаляю его строки и т.д.
 	// прототип скрипта не удалится, т.к. его у экземпляра нету
 	// скрипт не удалится, т.к. его не удаляю
-	if (obj->get_is_rename()) // шмотка была переименованна кодом
-	{
-		tmp.copy_from(obj); // сохраним падежи для рестора
+
+	bool fullUpdate = true; //флажок если дальше делать выборочные шаги
+	/*if (obj->get_crafter_uid()) //Если шмотка крафченная
+		fullUpdate = false;*/
+
+	//если объект не зависит от прототипа
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NOT_DEPEND_RPOTO)) 
+		fullUpdate = false;
+	//если объект изменен кодом
+	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_TRANSFORMED))
+		fullUpdate = false;
+	
+	if (!fullUpdate) {
+		//тут можно вставить изменение объекта ограниченное
+		//в obj лежит объект, в olc_proto лежит прототип
+		return;
 	}
 
-	// Нужно скопировать все новое, сохранив определенную информацию
+	
+	// Сохраняю текущую игровую информацию	
+	OBJ_DATA tmp(*obj);
+	
+	// Копируем информацию из прототипа
 	*obj = *olc_proto;
+	
+	//Восстанавливаем падежи если объект поренеймлен
+	if (tmp.get_is_rename()) {
+		obj->copy_name_from(&tmp);
+		obj->set_is_rename(true);
+	}
+
 	obj->clear_proto_script();
 	// Восстанавливаю игровую информацию
 	obj->set_uid(tmp.get_uid());
@@ -169,10 +191,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	// для name_list
 	obj->set_serial_num(tmp.get_serial_num());
 	obj->set_current_durability(GET_OBJ_CUR(&tmp));
-	if (tmp.get_is_rename())
-	{
-		obj->copy_from(&tmp); // восстановим падежи из сохраненки если имена были изменены при трансформации
-	}
 //	если таймер шмота в мире меньше  чем установленный, восстанавливаем его.
 	if (obj->get_timer() > tmp.get_timer())
 	{
@@ -202,8 +220,6 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	{
 		obj->set_extra_flag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
 	}
-//	ObjectAlias::remove(obj);
-//	ObjectAlias::add(obj);
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.
@@ -727,6 +743,10 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 	case OBJ_DATA::ITEM_ENCHANT:
 		send_to_char("Изменяет вес: ", d->character);
 		break;
+	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+	case OBJ_DATA::ITEM_MAGIC_ARROW:
+		oedit_disp_spells_menu(d);
+		break;
 
 	default:
 		oedit_disp_menu(d);
@@ -807,6 +827,13 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 	case OBJ_DATA::ITEM_MATERIAL:
 		send_to_char("Введите VNUM прототипа: ", d->character);
 		break;
+	
+        case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+		send_to_char("Объем колчана: ", d->character);
+		break;
+        case OBJ_DATA::ITEM_MAGIC_ARROW:
+		send_to_char("Размер пучка: ", d->character);
+		break;
 
 	default:
 		oedit_disp_menu(d);
@@ -868,7 +895,10 @@ void oedit_disp_val3_menu(DESCRIPTOR_DATA * d)
 	case OBJ_DATA::ITEM_MATERIAL:
 		send_to_char("Введите силу ингридиента: ", d->character);
 		break;
-
+	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+        case OBJ_DATA::ITEM_MAGIC_ARROW:
+		send_to_char("Количество стрел: ", d->character);
+                break;
 	default:
 		oedit_disp_menu(d);
 	}
@@ -1135,6 +1165,23 @@ void oedit_disp_ingradient_menu(DESCRIPTOR_DATA * d)
 	}
 	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), ingradient_bits, buf1);
 	sprintf(buf, "\r\nТип ингредиента : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
+	send_to_char(buf, d->character);
+}
+
+void oedit_disp_magic_container_menu(DESCRIPTOR_DATA * d)
+{
+	int counter, columns = 0;
+
+	get_char_cols(d->character);
+
+	for (counter = 0; counter < 32 && *magic_container_bits[counter] != '\n'; counter++)
+	{
+		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter + 1, nrm,
+				magic_container_bits[counter], !(++columns % 2) ? "\r\n" : "");
+		send_to_char(buf, d->character);
+	}
+	sprintbit(GET_OBJ_SKILL(OLC_OBJ(d)), magic_container_bits, buf1);
+	sprintf(buf, "\r\nТип контейнера : %s%s%s\r\n" "Дополните тип (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
 

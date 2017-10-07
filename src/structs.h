@@ -606,6 +606,7 @@ extern const religion_names_t religion_name;
 #define PRF_BLIND         (INT_TWO | 1 << 9)  // примочки для слепых
 #define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
 #define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
+#define PRF_IPCONTROL (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -775,6 +776,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
 #define CON_SEDIT        54 // sedit - редактирование сетов
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
+#define CON_RANDOM_NUMBER	 56 // where player enter in the game from new location
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
@@ -796,10 +798,11 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define WEAR_WAIST     13
 #define WEAR_WRIST_R   14
 #define WEAR_WRIST_L   15
-#define WEAR_WIELD     16
-#define WEAR_HOLD      17
-#define WEAR_BOTHS     18
-#define NUM_WEARS      19	// This must be the # of eq positions!! //
+#define WEAR_WIELD     16      // правая рука 
+#define WEAR_HOLD      17      // левая рука
+#define WEAR_BOTHS     18      // обе руки
+#define WEAR_QUIVER    19      // под лук (колчан)
+#define NUM_WEARS      20	// This must be the # of eq positions!! //
 
 
 // object-related defines ******************************************* //
@@ -838,7 +841,8 @@ enum class EWearFlag: uint32_t
 	ITEM_WEAR_WRIST = 1 << 12,	// Can be worn on wrist   //
 	ITEM_WEAR_WIELD = 1 << 13,	// Can be wielded      //
 	ITEM_WEAR_HOLD = 1 << 14,	// Can be held      //
-	ITEM_WEAR_BOTHS = 1 << 15
+	ITEM_WEAR_BOTHS = 1 << 15,
+	ITEM_WEAR_QUIVER = 1 << 16      // колчан
 };
 
 template <> const std::string& NAME_BY_ITEM<EWearFlag>(const EWearFlag item);
@@ -891,8 +895,10 @@ enum class EExtraFlag: uint32_t
 	ITEM_2INLAID = INT_ONE | (1 << 11),
 	ITEM_3INLAID = INT_ONE | (1 << 12),
 	ITEM_NOPOUR = INT_ONE | (1 << 13),		///< нельзя перелить
-	ITEM_UNIQUE = INT_ONE | (1 << 14)		// объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
+	ITEM_UNIQUE = INT_ONE | (1 << 14),		// объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
 											// на разные слоты, то чар может одеть на себя только одну шмотку
+	ITEM_TRANSFORMED = INT_ONE | (1 << 15),		// Наложено заклинание заколдовать оружие
+	ITEM_NOT_DEPEND_RPOTO = INT_ONE | (1 << 16)	// Не зависит от прототипа
 
 };
 
@@ -1791,42 +1797,6 @@ struct zone_type
 };
 //-MZ.load
 
-struct dex_skill_type
-{
-	int p_pocket;
-	int p_locks;
-	int traps;
-	int sneak;
-	int hide;
-};
-
-struct dex_app_type
-{
-	int reaction;
-	int miss_att;
-	int defensive;
-};
-
-
-struct str_app_type
-{
-	int tohit;			// To Hit (THAC0) Bonus/Penalty        //
-	int todam;			// Damage Bonus/Penalty                //
-	int carry_w;		// Maximum weight that can be carrried //
-	int wield_w;		// Maximum weight that can be wielded  //
-	int hold_w;		// MAXIMUM WEIGHT THAT CAN BE HELDED   //
-};
-
-
-struct wis_app_type
-{
-	int spell_additional;	// bitvector //
-	int max_learn_l20;		// MAX SKILL on LEVEL 20        //
-	int spell_success;		// spell using success          //
-	int char_savings;		// saving spells (damage)       //
-	int max_skills;
-};
-
 struct int_app_type
 {
 	int spell_aknowlege;	// chance to know spell               //
@@ -1835,15 +1805,6 @@ struct int_app_type
 	int spell_success;		//  max count of spell on 1s level    //
 	int improove;		// chance to improove skill           //
 	int observation;		// chance to use SKILL_AWAKE/CRITICAL //
-};
-
-struct con_app_type
-{
-	int hitp;
-	int ressurection;
-	int affect_saving;		// saving spells (affects)  //
-	int poison_saving;
-	int critic_saving;
 };
 
 struct cha_app_type

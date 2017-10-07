@@ -637,7 +637,11 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// суб команда make
 	// Выковать можно клинок и доспех (щит) умения разные. название одно
 	// Сварить отвар
-	// Сшить одежду
+	// Сшить одежду 
+	if ((subcmd == MAKE_WEAR) && (!ch->get_skill(SKILL_MAKE_WEAR))) {
+		send_to_char("Вас этому никто не научил.\r\n", ch);
+		return;
+	}
 	string tmpstr;
 	MakeReceptList *canlist;
 	MakeRecept *trec;
@@ -757,6 +761,7 @@ void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill
 			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
 			tobj->set_cost(2 * GET_OBJ_COST(obj) / 3);
 			tobj->set_owner(GET_UNIQUE(ch));
+			tobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 			// ковка объектов со слотами.
 			// для 5+ мортов имеем шанс сковать стаф с 3 слотами: базовый 2% и по 0.5% за морт
 			// для 2 слотов базовый шанс 5%, 1% за каждый морт
@@ -1790,6 +1795,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 	}
 	obj->set_is_rename(true); // ставим флаг что объект переименован
 	
+	
 	auto temp_flags = obj->get_affect_flags();
 	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
 	obj->set_affect_flags(temp_flags);
@@ -2239,6 +2245,16 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// Модифицируем вес предмета и его таймер.
 	// Для маг предметов надо в сторону облегчения.
 //	i = GET_OBJ_WEIGHT(obj);
+	switch(skill) {
+		case SKILL_MAKE_BOW:
+			obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+		break;
+		case SKILL_MAKE_WEAR:
+			obj->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
+		break;
+		default:
+		break;
+	}
 	int sign = -1;
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)

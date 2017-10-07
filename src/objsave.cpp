@@ -1571,6 +1571,13 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 			}
 			break;
 
+		case WEAR_QUIVER:
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+			{
+				location = LOC_INVENTORY;
+			}
+			break;
+
 		case WEAR_WRIST_R:
 		case WEAR_WRIST_L:
 			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))

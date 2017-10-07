@@ -147,6 +147,8 @@ int MIN(int a, int b);
 #define MMIN(a,b) ((a<b)?a:b)
 #define MMAX(a,b) ((a<b)?b:a)
 
+char *colorLOW(char *txt);
+char * colorCAP(char *txt);
 char * CAP(char *txt);
 
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])

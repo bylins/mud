@@ -365,6 +365,11 @@ char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear)
 				sprintf(out_str + strlen(out_str), "Можно надеть на пояс.\r\n");
 			}
 
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+			{
+				sprintf(out_str + strlen(out_str), "Можно использовать как колчан.\r\n");
+			}
+
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
 			{
 				sprintf(out_str + strlen(out_str), "Можно надеть на запястья.\r\n");
@@ -481,6 +486,20 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 			GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+	}
+	return (out_str);
+}
+
+char *diag_shot_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
+{
+	static char out_str[MAX_STRING_LENGTH];
+
+	*out_str = 0;
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER
+		&& (GET_CLASS(ch) == CLASS_RANGER||GET_CLASS(ch) == CLASS_CHARMMAGE||GET_CLASS(ch) == CLASS_DRUID))
+	{
+		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
+			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
 	return (out_str);
 }
@@ -739,15 +758,15 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 void do_cities(CHAR_DATA *ch, char*, int, int)
 {
 	send_to_char("Города на Руси:\r\n", ch);
-	for (unsigned int i = 1; i < cities.size(); i++)
+	for (unsigned int i = 0; i < cities.size(); i++)
 	{
-		sprintf(buf, "%3d.", i);
+		sprintf(buf, "%3d.", i + 1);
 		if (IS_IMMORTAL(ch))
 		{
-			sprintf(buf1, " [VNUM: %d]", cities[i-1].rent_vnum);
+			sprintf(buf1, " [VNUM: %d]", cities[i].rent_vnum);
 			strcat(buf, buf1);
 		}
-		sprintf(buf1, " %s: %s\r\n", cities[i-1].name.c_str(), (ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
+		sprintf(buf1, " %s: %s\r\n", cities[i].name.c_str(), (ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
 		strcat(buf, buf1);
 		send_to_char(buf, ch);
 	}
@@ -2689,6 +2708,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->label_text);
 		}
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
+		sprintf(buf+strlen(buf), "%s", diag_shot_to_char(obj, ch));
 		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
 		{
 			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
@@ -4234,7 +4254,14 @@ void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			    if (GET_EQ(ch, 18))
 				if ((i==16) || (i==17))
 				    continue;
-			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
+                            if ((i==19)&&(GET_EQ(ch, WEAR_BOTHS)))
+                            {
+                                if (!(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))
+                                    continue;
+                            }
+                            else if (i==19)
+				continue;
+ 			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
 				if (i==18)
 				    continue;
 			    if (GET_EQ(ch, 11))
@@ -5374,28 +5401,46 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 
 	if (obj->get_in_room() > NOWHERE)
 	{
-		sprintf(buf + strlen(buf), "[%5d] %s\r\n", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
+		sprintf(buf + strlen(buf), "[%5d] %s", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
+		if (IS_GRGOD(ch))
+		{
+			sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+			strcat(buf, buf2);
+		}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_carried_by())
 	{
-		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]\r\n",
+		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]",
 			PERS(obj->get_carried_by(), ch, 4),
 			GET_MOB_VNUM(obj->get_carried_by()),
 			world[obj->get_carried_by()->in_room]->number);
+			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_worn_by())
 	{
-		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]\r\n",
+		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]",
 			PERS(obj->get_worn_by(), ch, 3),
 			GET_MOB_VNUM(obj->get_worn_by()),
 			world[obj->get_worn_by()->in_room]->number);
+			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_in_obj())
 	{
-		if (Clan::is_clan_chest(obj->get_in_obj()))
+		if (Clan::is_clan_chest(obj->get_in_obj()))// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
 		{
 			return; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 		}
@@ -5404,6 +5449,12 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 			sprintf(buf + strlen(buf), "лежит в %s%s\r\n",
 				obj->get_in_obj()->get_PName(5).c_str(),
 				(recur ? ", который находится " : " "));
+/*			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+			strcat(buf, "\r\n");*/
 			send_to_char(buf, ch);
 			if (recur)
 			{
@@ -5413,7 +5464,13 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 	}
 	else
 	{
-		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.\r\n");
+		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.");
+		if (IS_GRGOD(ch))
+		{
+			sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+			strcat(buf, buf2);
+		}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 }
@@ -5777,12 +5834,14 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		" Вход в зону   : %-3s     "
 		" Магщиты (вид) : %s\r\n"
 		" Автопризыв    : %-3s     "
-		" Маппер        : %-3s     ",
+		" Маппер        : %-3s     "
+		" Контроль IP   : %-3s",
 		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
 		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
 		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"),
 		ONOFF(PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON)),
-		ONOFF(PRF_FLAGGED(ch, PRF_MAPPER)));
+		ONOFF(PRF_FLAGGED(ch, PRF_MAPPER)),
+		ONOFF(PRF_FLAGGED(ch, PRF_IPCONTROL)));
 	send_to_char(buf, ch);
 	if (GET_GOD_FLAG(ch, GF_TESTER))
 		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(PRF_FLAGGED(ch, PRF_TESTER)));
