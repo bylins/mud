@@ -1694,7 +1694,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_no_flags().sprintbits(no_bits, buf, ",");
+	obj->get_no_flags().sprintbits(no_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1704,7 +1704,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_anti_flags().sprintbits(anti_bits, buf, ",");
+	obj->get_anti_flags().sprintbits(anti_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1725,7 +1725,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1979,7 +1979,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2106,28 +2106,28 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_anti_flags().sprintbits(anti_bits, buf, ",");
+	obj->get_anti_flags().sprintbits(anti_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_no_flags().sprintbits(no_bits, buf, ",");
+	obj->get_no_flags().sprintbits(no_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2517,7 +2517,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCICYN(ch, C_NRM), ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
 	sprintf(buf, "%s\r\n", buf2);
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2602,7 +2602,7 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCIBLU(ch, C_NRM), ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
 	sprintf(buf, "%s\r\n", buf2);
 
 	if (victim->followers)

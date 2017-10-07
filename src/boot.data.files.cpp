@@ -1025,14 +1025,14 @@ bool ObjectFile::check_object(OBJ_DATA* obj)
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",",4);
 	if (strstr(buf, "UNDEFINED"))
 	{
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown extra flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
-	obj->get_affect_flags().sprintbits(affected_bits, buf, ",");
+	obj->get_affect_flags().sprintbits(affected_bits, buf, ",",4);
 
 	if (strstr(buf, "UNDEFINED"))
 	{

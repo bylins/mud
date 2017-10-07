@@ -1962,22 +1962,22 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	send_to_char(buf, ch);
 
 	send_to_char("Неудобства : ", ch);
-	j->get_no_flags().sprintbits(no_bits, buf, ",");
+	j->get_no_flags().sprintbits(no_bits, buf, ",",4);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Запреты : ", ch);
-	j->get_anti_flags().sprintbits(anti_bits, buf, ",");
+	j->get_anti_flags().sprintbits(anti_bits, buf, ",",4);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Устанавливает аффекты : ", ch);
-	j->get_affect_flags().sprintbits(weapon_affects, buf, ",");
+	j->get_affect_flags().sprintbits(weapon_affects, buf, ",",4);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Дополнительные флаги  : ", ch);
-	GET_OBJ_EXTRA(j).sprintbits(extra_bits, buf, ",");
+	GET_OBJ_EXTRA(j).sprintbits(extra_bits, buf, ",",4);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
@@ -2530,10 +2530,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 	if (IS_NPC(k))
 	{
-		k->char_specials.saved.act.sprintbits(action_bits, buf2, ",");
+		k->char_specials.saved.act.sprintbits(action_bits, buf2, ",",4);
 		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",");
+		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",",4);
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
@@ -2550,11 +2550,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	}
 	else
 	{
-		k->char_specials.saved.act.sprintbits(player_bits, buf2, ",");
+		k->char_specials.saved.act.sprintbits(player_bits, buf2, ",",4);
 		sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 
-		k->player_specials->saved.pref.sprintbits(preference_bits, buf2, ",");
+		k->player_specials->saved.pref.sprintbits(preference_bits, buf2, ",",4);
 		sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 
@@ -2618,7 +2618,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			send_to_char(strcat(buf, "\r\n"), ch);
 	}
 	// Showing the bitvector
-	k->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
+	k->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",",4);
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
