@@ -1005,7 +1005,7 @@ void oedit_disp_extra_menu(DESCRIPTOR_DATA * d)
 				extra_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", true);
+	GET_OBJ_EXTRA(OLC_OBJ(d)).sprintbits(extra_bits, buf1, ",", 5);
 	sprintf(buf, "\r\nЭкстрафлаги: %s%s%s\r\n" "Выберите экстрафлаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1036,7 +1036,7 @@ void oedit_disp_anti_menu(DESCRIPTOR_DATA * d)
 				anti_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, ",", true);
+	OLC_OBJ(d)->get_anti_flags().sprintbits(anti_bits, buf1, ",", 5);
 	sprintf(buf, "\r\nПредмет запрещен для : %s%s%s\r\n" "Выберите флаг запрета (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1067,7 +1067,7 @@ void oedit_disp_no_menu(DESCRIPTOR_DATA * d)
 				no_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, ",", true);
+	OLC_OBJ(d)->get_no_flags().sprintbits(no_bits, buf1, ",", 5);
 	sprintf(buf, "\r\nПредмет неудобен для : %s%s%s\r\n" "Выберите флаг неудобств (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1098,7 +1098,7 @@ void show_weapon_affects_olc(DESCRIPTOR_DATA *d, const FLAG_DATA &flags)
 				weapon_affects[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	flags.sprintbits(weapon_affects, buf1, ",", true);
+	flags.sprintbits(weapon_affects, buf1, ",", 5);
 	sprintf(buf,
 		"\r\nНакладываемые аффекты : %s%s%s\r\n"
 		"Выберите аффект (0 - выход) : ", cyn, buf1, nrm);
@@ -1292,7 +1292,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	get_char_cols(d->character);
 
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf1);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",",4);
 
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
@@ -1331,8 +1331,8 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sD%s) Неудобен    : %s%s\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character);
 
-	obj->get_anti_flags().sprintbits(anti_bits, buf1, ",");
-	obj->get_affect_flags().sprintbits(weapon_affects, buf2, ",");
+	obj->get_anti_flags().sprintbits(anti_bits, buf1, ",",4);
+	obj->get_affect_flags().sprintbits(weapon_affects, buf2, ",",4);
 	const size_t gender = static_cast<size_t>(to_underlying(GET_OBJ_SEX(obj)));
 	sprintf(buf,
 		"%sE%s) Запрещен    : %s%s\r\n"
