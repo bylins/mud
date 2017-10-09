@@ -1228,7 +1228,11 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	{
 		if (HERE(i) && INVIS_OK(ch, i) && GET_REAL_LEVEL(ch) >= (IS_NPC(i) ? 0 : GET_INVIS_LEV(i)))
 		{
-			sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
+			if (GET_RACE(i)==NPC_RACE_THING && IS_IMMORTAL(ch)) {
+				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
+			} else {
+				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
+			}
 			send_to_char(buf, ch);
 		}
 		return;
@@ -2318,8 +2322,11 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
 							&& (percent < 100 || IS_IMMORTAL(ch)))
 					{
-						list_one_char(tch, ch, SKILL_LOOKING);
-						count++;
+						// Если моб не вещь и смотрящий не им
+						if ( GET_RACE(tch) != NPC_RACE_THING || IS_IMMORTAL(ch) ) {
+							list_one_char(tch, ch, SKILL_LOOKING);
+							count++;
+						}
 					}
 				}
 				if (!count)
@@ -2360,17 +2367,12 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		send_to_char("Вы забыли, что вы глухи?\r\n", ch);
 		return;
 	}
-	if (CAN_GO(ch, dir))
+	if (CAN_GO(ch, dir)
+		|| (EXIT(ch, dir)
+		&& EXIT(ch, dir)->to_room != NOWHERE))
 	{
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
-
-		if (EXIT_FLAGGED(rdata, EX_CLOSED) && rdata->keyword)
-		{
-			count += sprintf(buf + count, " закрыто (%s).\r\n", fname(rdata->keyword));
-			send_to_char(buf, ch);
-			return;
-		};
 		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
 		send_to_char(buf, ch);
 		for (count = 0, tch = world[rdata->to_room]->people; tch; tch = tch->next_in_room)
@@ -2393,7 +2395,17 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			{
 				if (IS_NPC(tch))
 				{
-					if (real_sector(ch->in_room) != SECT_UNDERWATER)
+					if (GET_RACE(tch)==NPC_RACE_THING) {
+						if (GET_LEVEL(tch) < 5)
+							tmpstr += " Вы слышите чье-то тихое поскрипывание.\r\n";
+						else if (GET_LEVEL(tch) < 15)
+							tmpstr += " Вы слышите чей-то скрип.\r\n";
+						else if (GET_LEVEL(tch) < 25)
+							tmpstr += " Вы слышите чей-то громкий скрип.\r\n";
+						else
+							tmpstr += " Вы слышите чей-то грозный скрип.\r\n";
+					} 
+					else if (real_sector(ch->in_room) != SECT_UNDERWATER)
 					{
 						if (GET_LEVEL(tch) < 5)
 							tmpstr += " Вы слышите чью-то тихую возню.\r\n";
