@@ -343,7 +343,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 void nedit_menu(CHAR_DATA * ch)
 {
 	std::ostringstream out;
-
+	
 	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: " << (real_object(ch->desc->cur_vnum) ? obj_proto[real_object(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rнеизвестно&n") << "\r\n";
 	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
 	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (0 == ch->desc->named_obj->can_clan ? 0 : 1) << "\r\n";
@@ -365,6 +365,7 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	mob_rnum r_num;
 	std::string out;
+	bool have_missed_items = false;
 	int first = 0, last = 0, found = 0, uid = -1;
 
 	two_arguments(argument, buf, buf2);
@@ -408,9 +409,26 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 				{
 					if ((r_num = real_object(it->first)) < 0)
 					{
-						sprintf(buf2, "%6ld) Неизвестный объект\r\n",
-							it->first);
-						out += buf2;
+						if ((*buf && strstr(it->second->mail.c_str(), buf))
+							|| (uid != -1
+								&& uid == it->second->uid)
+							|| (uid == -1
+								&& it->first >= first
+								&& it->first <= last))  
+						{
+							if (found == 0)
+							{
+								out += buf1;
+							}
+							found++;
+							sprintf(buf2, "%6ld) &R*&n%-31s Владелец:%-16s e-mail:&S%s&s\r\n",
+								it->first+1,
+								"Несуществующий предмет",
+								GetNameByUnique(it->second->uid, false).c_str(),
+								str_dup(it->second->mail.c_str())
+							);
+							out+=buf2;
+						}
 					}
 					else
 					{
@@ -423,10 +441,10 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 						{
 							sprintf(buf2, "%6d) %s",
 								obj_proto[r_num]->get_vnum(),
-								colored_name(obj_proto[r_num]->get_short_description().c_str(), 50));
+								colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 							{
-								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%16s e-mail:&S%s&s\r\n", buf2,
+								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf2,
 									obj_proto.number(r_num), obj_proto.stored(r_num),
 									GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
 							}
@@ -462,10 +480,26 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 				}
 
 				StuffNodePtr tmp_node(new stuff_node);
-				for (StuffListType::iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it)
+				for (
+					StuffListType::iterator it = stuff_list.begin(), iend = stuff_list.end();
+					it != iend;
+					++it)
 				{
 					if((uid == -1 && it->first == first) || it->second->uid == uid || !str_cmp(it->second->mail.c_str(), buf))
 					{
+						if (real_object(it->first)<0) {
+							if (!have_missed_items) {
+								out+="&RВнимание!!!&n\r\nНесуществующие объекты в списке именых вещей:\r\n";
+								have_missed_items = true;
+							}
+							sprintf(buf2, "vnum:%9ld uid:%9d mail:%s\r\n",
+								it->first,
+								it->second->uid,
+								str_dup(it->second->mail.c_str())
+							);
+							out+=buf2;
+							continue;
+						}
 						ch->desc->old_vnum = it->first;
 						ch->desc->cur_vnum = it->first;
 						tmp_node->uid = it->second->uid;
@@ -494,10 +528,15 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 					tmp_node->cant_msg_a = str_dup("");
 					found++;
 				}
+				if (have_missed_items) {
+					out+="\r\n\r\n";
+					send_to_char(out.c_str(),ch);
+				}
 				if (found)
 				{
 					ch->desc->named_obj = tmp_node;
 					STATE(ch->desc) = CON_NAMED_STUFF;
+					
 					nedit_menu(ch);
 					return;
 				}
