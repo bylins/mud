@@ -9,7 +9,7 @@ public:
 	MaxID();
 
 	auto current() const { return m_value; }
-	auto allocate() { return m_value++; }
+	auto allocate() { return ++m_value; }
 
 private:
 	// mob/object id's: MOBOBJ_ID_BASE and higher    //

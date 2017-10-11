@@ -1907,8 +1907,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		strcpy(buf2, "None");
 	}
 
-	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d]\r\n",
-		CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j));
+	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], ID: [%d]\r\n",
+		CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j),j->get_id());
 
 	send_to_char(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(),j->show_mort_req());
 	send_to_char(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
