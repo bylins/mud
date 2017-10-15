@@ -190,10 +190,10 @@ bool FindObjIDByVNUM::lookup_list(const OBJ_DATA* list)
 				return true;
 			}
 
+			add_seen(list->get_id());
 			--m_number;
 		}
 
-		add_seen(list->get_id());
 		list = list->get_next_content();
 	}
 

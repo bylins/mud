@@ -331,13 +331,13 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vn
 	{
 		for (const auto& object : set_i->second)
 		{
-			if (0 == number)
-			{
-				return object;
-			}
-
 			if (except.find(object->get_id()) == except.end())
 			{
+				if (0 == number)
+				{
+					return object;
+				}
+
 				--number;
 			}
 		}
