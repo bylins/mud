@@ -2128,7 +2128,7 @@ void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)
 	followers = k;
 }
 
-const boost::dynamic_bitset<>& CHAR_DATA::get_role_bits() const
+const CHAR_DATA::role_t& CHAR_DATA::get_role_bits() const
 {
 	return role_;
 }

@@ -62,7 +62,7 @@ private:
 int WldTriggerLookup::lookup()
 {
 	auto result = false;
-	/*if (m_room)
+	if (m_room)
 	{
 		const auto room_rnum = real_room(m_room->number);
 		result = finder().lookup_room(room_rnum);
@@ -72,8 +72,6 @@ int WldTriggerLookup::lookup()
 	{
 		finder().lookup_world_objects();
 	}
-	*/
-	finder().lookup_world_objects();
 	return finder().result();
 }
 
@@ -91,13 +89,13 @@ int ObjTriggerLookup::lookup()
 		return mob_lookuper->lookup();
 	}
 
-	//const auto object_room = m_object->get_in_room();
-	//const auto result = finder().lookup_room(object_room);
-	//if (!result)
-	//{
-	//	finder().lookup_world_objects();
-	//}
-	// 
+	const auto object_room = m_object->get_in_room();
+	const auto result = finder().lookup_room(object_room);
+	if (!result)
+	{
+		finder().lookup_world_objects();
+	}
+
 	finder().lookup_world_objects();
 	return finder().result();
 }
@@ -122,7 +120,7 @@ int MobTriggerLookup::lookup()
 // * Аналогично find_char_vnum, только для объектов.
 bool FindObjIDByVNUM::lookup_world_objects()
 {
-	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number);
+	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number, m_seen);
 
 	if (object)
 	{
@@ -162,6 +160,7 @@ bool FindObjIDByVNUM::lookup_worn(const CHAR_DATA* character)
 				return true;
 			}
 
+			add_seen(equipment->get_id());
 			--m_number;
 		}
 	}
@@ -195,6 +194,7 @@ bool FindObjIDByVNUM::lookup_list(const OBJ_DATA* list)
 			--m_number;
 		}
 
+		add_seen(list->get_id());
 		list = list->get_next_content();
 	}
 

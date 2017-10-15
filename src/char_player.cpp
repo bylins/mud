@@ -225,7 +225,7 @@ void Player::set_last_tell(const char *text)
 
 void Player::str_to_cities(std::string str)
 {
-	boost::dynamic_bitset<> tmp_bitset(str);
+	Player::cities_t tmp_bitset(str);
 	this->cities = tmp_bitset;
 }
 
@@ -2199,7 +2199,6 @@ int Player::get_percent_daily_quest(int id)
 	
 }
 
-
 void Player::add_value_cities(bool v)
 {
 	this->cities.push_back(v);
@@ -2211,11 +2210,12 @@ bool Player::add_percent_daily_quest(int id, int percent)
 	{
 		this->daily_quest[id] += percent;
 		if (this->daily_quest[id] >= 100)
+		{
 			return true;
+		}
 	}
 
 	return false;
-
 }
 
 int Player::death_player_count()
