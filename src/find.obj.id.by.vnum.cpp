@@ -96,7 +96,6 @@ int ObjTriggerLookup::lookup()
 		finder().lookup_world_objects();
 	}
 
-	finder().lookup_world_objects();
 	return finder().result();
 }
 
