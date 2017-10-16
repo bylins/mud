@@ -1,7 +1,10 @@
 #ifndef __ID_HPP__
 #define __ID_HPP__
 
+#include <unordered_set>
+
 using object_id_t = long;
+using object_id_set_t = std::unordered_set<object_id_t>;
 
 class MaxID
 {

@@ -2924,33 +2924,45 @@ void init_basic_values(void)
 			mode = 3;
 		else if (!str_cmp(line, "weapon"))
 			mode = 4;
-		else if ((c = atoi(line)) > 0 && c <= 100 && mode > 0 && mode < 10)
+		else if ((c = atoi(line)) > 0 && c <= 50 && mode > 0 && mode < 10)
 		{
+			int fields = 0;
 			switch (mode)
 			{			
 			case 1:
 				pointer = (int *) & (int_app[c].spell_aknowlege);
+				fields = sizeof(int_app[c])/sizeof(int);
 				break;
+
 			case 2:
 				pointer = (int *) & (cha_app[c].leadership);
+				fields = sizeof(cha_app[c])/sizeof(int);
 				break;
+
 			case 3:
 				pointer = (int *) & (size_app[c].ac);
+				fields = sizeof(size_app[c])/sizeof(int);
 				break;
+
 			case 4:
 				pointer = (int *) & (weapon_app[c].shocking);
+				fields = sizeof(weapon_app[c])/sizeof(int);
 				break;
+
 			default:
 				pointer = NULL;
 			}
+
 			if (pointer)  	//log("Mode %d - %d = %d %d %d %d %d %d",mode,c,
 			{
 				//    *i, *(i+1), *(i+2), *(i+3), *(i+4), *(i+5));
-				for (j = 0; j < 6; j++)
+				for (j = 0; j < fields; j++)
+				{
 					if (i[j] != 100000)  	//log("[%d] %d <-> %d",j,*(pointer+j),*(i+j));
 					{
 						*(pointer + j) = *(i + j);
 					}
+				}
 				//getchar();
 			}
 		}
