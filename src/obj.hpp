@@ -164,7 +164,10 @@ public:
 		ITEM_ARMOR_MEDIAN = 30,	// средний тип брони
 		ITEM_ARMOR_HEAVY = 31,	// тяжелый тип брони
 		ITEM_ENCHANT = 32,		// зачарование предмета
-		ITEM_CRAFT_MATERIAL = 33,	// Item is a material related to craft system
+		ITEM_MAGIC_MATERIAL = 33,	// Item is a material related to craft system
+		ITEM_MAGIC_ARROW = 34,	// Item is a material related to craft system
+		ITEM_MAGIC_CONTAINER = 35,	// Item is a material related to craft system
+		ITEM_CRAFT_MATERIAL = 36,	// Item is a material related to craft system
 	};
 
 	enum EObjectMaterial
@@ -823,9 +826,11 @@ public:
 	void set_enchant(int skill, OBJ_DATA *obj);
 	void unset_enchant();
 
+	void copy_name_from(const CObjectPrototype* src);
+	
 	bool clone_olc_object_from_prototype(const obj_vnum vnum);
 	void copy_from(const CObjectPrototype* src);
-
+	
 	void swap(OBJ_DATA& object);
 	void set_tag(const char* tag);
 

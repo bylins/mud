@@ -215,6 +215,7 @@ const char* nothing_string = "ничего";
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
+	
 	long nr = 0;
 	int fail = 0;
 	int plane = 0;
@@ -234,43 +235,44 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 		nr++;
 	}
 
-	bool first = true;
+	bool can_show = true;
 	for (; bitvector; bitvector >>= 1)
 	{
 		if (IS_SET(bitvector, 1))
 		{
-			if (!first)
-			{
-				strcat(result, div);
-			}
-			first = false;
+			can_show = ((*names[nr]!='*') || (print_flag&4));
+
+			if (*result != '\0' && can_show)
+				strcat(result,div);
 
 			if (*names[nr] != '\n')
 			{
-				if (print_flag == 1)
+				if (print_flag & 1)
 				{
 					sprintf(result + strlen(result), "%c%d:", c, plane);
 				}
-				if ((print_flag == 2) && (!strcmp(names[nr], "UNUSED")))
+				if ((print_flag & 2) && (!strcmp(names[nr], "UNUSED")))
 				{
 					sprintf(result + strlen(result), "%ld:", nr + 1);
 				}
-				strcat(result, names[nr]);
+				if (can_show)
+					strcat(result, (*names[nr]!='*'?names[nr]:names[nr]+1));
 			}
 			else
 			{
-				if (print_flag == 2)
+				if (print_flag & 2)
 				{
 					sprintf(result + strlen(result), "%ld:", nr + 1);
 				}
-				else if (print_flag == 1)
+				else if (print_flag & 1)
 				{
 					sprintf(result + strlen(result), "%c%d:", c, plane);
 				}
 				strcat(result, "UNDEF");
 			}
 		}
-		if (print_flag == 1)
+
+		if (print_flag & 1)
 		{
 			c++;
 			if (c > 'z')
@@ -549,6 +551,7 @@ void init_EWearFlag_ITEM_NAMES()
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WIELD] = "ITEM_WEAR_WIELD";
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HOLD] = "ITEM_WEAR_HOLD";
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BOTHS] = "ITEM_WEAR_BOTHS";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_QUIVER] = "ITEM_WEAR_QUIVER";
 
 	for (const auto& i : EWearFlag_name_by_value)
 	{

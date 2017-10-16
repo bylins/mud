@@ -564,55 +564,25 @@ void OBJ_DATA::set_enchant(int skill)
 		set_affected_modifier(0, 2);
 		set_affected_modifier(1, 2);
     };
-    set_extra_flag(EExtraFlag::ITEM_MAGIC);    
+	set_extra_flag(EExtraFlag::ITEM_MAGIC);
+	set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 }
 
 void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 {
     int i = 0;
     int random_drop = 0;
-
-    for (i = 0; i < MAX_OBJ_AFFECT; i++)
-    if (get_affected(i).location != APPLY_NONE)
-	{
-		set_affected_location(i, APPLY_NONE);
-	}
-
-	set_affected_location(0, APPLY_HITROLL);
-	set_affected_location(1, APPLY_DAMROLL);
-
-    if (skill <= 100)
-    // 4 мортов (скил магия света 100)
-    {
-       set_affected_modifier(0, 1 + number(0, 1));
-       set_affected_modifier(1, 1 + number(0, 1));
-    }
-    else if (skill <= 125)
+	//накидываем хитрол и дамрол
+    set_enchant(skill);
+	
+	// 4 мортов (скил магия света 100)
+	if (skill <= 100) {} 
     // 8 мортов (скил магия света 125)
-    {
-       random_drop = 1;
-	   set_affected_modifier(0, 1 + number(-3, 2));
-	   set_affected_modifier(1, 1 + number(-3, 2));
-    }
-    else if (skill <= 160)
+    else if (skill <= 125) { random_drop = 1; }
     // 12 мортов (скил магия света 160)
-    {
-       random_drop = 2;
-	   set_affected_modifier(0, 1 + number(-4, 3));
-	   set_affected_modifier(1, 1 + number(-4, 3));
-    }
-    else if (skill >160)
+	else if (skill <= 160) { random_drop = 2; }
     // 16 мортов (скил магия света 160+)
-    {
-       random_drop = 3;
-	   set_affected_modifier(0, 1 + number(-5, 4));
-	   set_affected_modifier(1, 1 + number(-5, 4));
-    }
-    else
-    {  // волхвы
-		set_affected_modifier(0, 2);
-		set_affected_modifier(1, 2);
-    };
+    else if (skill >160) { random_drop = 3; }
 
     i=0;
     while (i < random_drop)
@@ -626,11 +596,7 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 
     add_affect_flags(GET_OBJ_AFFECTS(obj));
     add_extra_flags(GET_OBJ_EXTRA(obj));
-    add_no_flags(GET_OBJ_NO(obj));
-
-    set_extra_flag(EExtraFlag::ITEM_MAGIC);
-    set_extra_flag(EExtraFlag::ITEM_MAGIC);
-    set_extra_flag(EExtraFlag::ITEM_MAGIC);
+	add_no_flags(GET_OBJ_NO(obj));
 }
 
 void OBJ_DATA::unset_enchant()
@@ -662,7 +628,8 @@ void OBJ_DATA::unset_enchant()
 	{
 		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 	}
-    unset_extraflag(EExtraFlag::ITEM_MAGIC);
+	unset_extraflag(EExtraFlag::ITEM_MAGIC);
+	unset_extraflag(EExtraFlag::ITEM_TRANSFORMED);
 }
 
 bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
@@ -683,6 +650,21 @@ bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
 
 	return true;
 }
+
+//копирование имени
+void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
+	int i;
+
+	//Копируем псевдонимы и дескрипшены
+	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
+	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
+	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+	
+	//Копируем имя по падежам
+	for (i=0;i<NUM_PADS;i++)
+		set_PName(i,src->get_PName(i));
+}
+
 
 void OBJ_DATA::copy_from(const CObjectPrototype* src)
 {
@@ -1563,7 +1545,10 @@ void init_EObjectType_ITEM_NAMES()
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_MEDIAN] = "ITEM_ARMOR_MEDIAN";
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_HEAVY] = "ITEM_ARMOR_HEAVY";
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ENCHANT] = "ITEM_ENCHANT";
-	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_CRAFT_MATERIAL] = "ITEM_CRAFT_MATERIAL";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MAGIC_MATERIAL] = "ITEM_MAGIC_MATERIAL";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MAGIC_ARROW]    = "ITEM_MAGIC_ARROW";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MAGIC_CONTAINER] = "ITEM_MAGIC_CONTAINER";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_CRAFT_MATERIAL]  = "ITEM_CRAFT_MATERIAL";
 
 	for (const auto& i : EObjectType_name_by_value)
 	{

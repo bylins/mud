@@ -76,7 +76,7 @@ void redit_setup(DESCRIPTOR_DATA * d, int real_num)
 	ROOM_DATA *room = new ROOM_DATA;
 	if (real_num == NOWHERE)
 	{
-		room->name = str_dup("Недоделанная комната");
+		room->name = str_dup("Недоделанная комната.\r\n");
 		room->temp_description = str_dup("Вы оказались в комнате, наполненной обломками творческих мыслей билдера.\r\n");
 	}
 	else

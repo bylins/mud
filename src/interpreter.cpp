@@ -285,6 +285,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rent(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rescue(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stopfight(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -706,6 +707,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
 	{"постой", POS_STANDING, do_not_here, 1, 0, -1},
 	{"почта", POS_STANDING, do_not_here, 1, 0, -1},
+	{"пополнить", POS_STANDING, do_refill, 0, 0, 300},
 	{"поручения", POS_RESTING, do_quest, 1, 0, -1},
 	{"появиться", POS_RESTING, do_visible, 1, 0, -1},
 	{"правила", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},

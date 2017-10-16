@@ -493,7 +493,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 
 				snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у почтового голубя в инвентаре.\r\n",
 					it3->obj_->get_short_description().c_str(), GET_OBJ_POLY_1(ch, it3->obj_));
-				CAP(buf);
+//				CAP(buf); issue #59
 				send_to_char(buf, ch);
 
 				if (--count <= 0)

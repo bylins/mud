@@ -2134,9 +2134,9 @@ void add(int zone_vnum, long money)
 
 void print(CHAR_DATA *ch)
 {
-	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (!IS_GRGOD(ch))
 	{
-		send_to_char(ch, "Пока в разработке.\r\n");
+		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;
 	}
 
@@ -2855,6 +2855,11 @@ bool ParseFilter::init_wear(const char *str)
 	{
 		wear = EWearFlag::ITEM_WEAR_BOTHS;
 		wear_message = 15;
+	}
+	else if (is_abbrev(str, "колчан"))
+	{
+		wear = EWearFlag::ITEM_WEAR_QUIVER;
+		wear_message = 16;
 	}
 	else
 	{

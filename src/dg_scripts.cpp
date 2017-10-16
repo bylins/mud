@@ -1998,7 +1998,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[num].get()))
+					if (check_unlimited_timer(obj_proto[num].get()) || (GET_OBJ_MIW(obj_proto[num]) < 0) )
 					    sprintf(str, "9999999");
 					else
 					    sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
@@ -4865,11 +4865,11 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	{
 		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
 	}
-	else
+/*	else    // не нужный нафиг варнинг, только спам, видимо в процессе отладки добавлен был
 	{
 		trig_log(runtrig, "Attempt to run waiting trigger", LGH);
 	}
-
+*/
 	if (go && type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged())
 	{
 		*sc = NULL;
@@ -5008,9 +5008,9 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 		if (count_num < 0)
 		{	
 			//Произойдет, если в dg пришел индекс 0 (ошибка)
-			sprintf(buf2, "[Trigger: %s, Vnum: %d] calcuid invalid index: %s", GET_TRIG_NAME(trig), vnum, count);
-			mudlog(buf2, NRM, LVL_GRGOD, ERRLOG, TRUE);
-			count_num = 0;	//Выдадим первого моба
+			sprintf(buf2, "calcuid invalid count: '%s'",  count);
+			trig_log(trig, buf2);
+			return;
 		}
 	}
 

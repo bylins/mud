@@ -26,9 +26,12 @@ public:
 	int result() const { return m_result; }
 
 private:
+	void add_seen(const object_id_t id) { m_seen.insert(id); }
+
 	obj_vnum m_vnum;
 	unsigned m_number;
 	object_id_t m_result;
+	object_id_set_t m_seen;
 };
 
 

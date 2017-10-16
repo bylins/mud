@@ -364,6 +364,11 @@ char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear)
 				sprintf(out_str + strlen(out_str), "Можно надеть на пояс.\r\n");
 			}
 
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+			{
+				sprintf(out_str + strlen(out_str), "Можно использовать как колчан.\r\n");
+			}
+
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
 			{
 				sprintf(out_str + strlen(out_str), "Можно надеть на запястья.\r\n");
@@ -480,6 +485,20 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 			GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+	}
+	return (out_str);
+}
+
+char *diag_shot_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
+{
+	static char out_str[MAX_STRING_LENGTH];
+
+	*out_str = 0;
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER
+		&& (GET_CLASS(ch) == CLASS_RANGER||GET_CLASS(ch) == CLASS_CHARMMAGE||GET_CLASS(ch) == CLASS_DRUID))
+	{
+		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
+			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
 	return (out_str);
 }
@@ -1209,7 +1228,11 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	{
 		if (HERE(i) && INVIS_OK(ch, i) && GET_REAL_LEVEL(ch) >= (IS_NPC(i) ? 0 : GET_INVIS_LEV(i)))
 		{
-			sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
+			if (GET_RACE(i)==NPC_RACE_THING && IS_IMMORTAL(ch)) {
+				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
+			} else {
+				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
+			}
 			send_to_char(buf, ch);
 		}
 		return;
@@ -2299,8 +2322,11 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
 							&& (percent < 100 || IS_IMMORTAL(ch)))
 					{
-						list_one_char(tch, ch, SKILL_LOOKING);
-						count++;
+						// Если моб не вещь и смотрящий не им
+						if ( GET_RACE(tch) != NPC_RACE_THING || IS_IMMORTAL(ch) ) {
+							list_one_char(tch, ch, SKILL_LOOKING);
+							count++;
+						}
 					}
 				}
 				if (!count)
@@ -2341,17 +2367,12 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		send_to_char("Вы забыли, что вы глухи?\r\n", ch);
 		return;
 	}
-	if (CAN_GO(ch, dir))
+	if (CAN_GO(ch, dir)
+		|| (EXIT(ch, dir)
+		&& EXIT(ch, dir)->to_room != NOWHERE))
 	{
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
-
-		if (EXIT_FLAGGED(rdata, EX_CLOSED) && rdata->keyword)
-		{
-			count += sprintf(buf + count, " закрыто (%s).\r\n", fname(rdata->keyword));
-			send_to_char(buf, ch);
-			return;
-		};
 		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
 		send_to_char(buf, ch);
 		for (count = 0, tch = world[rdata->to_room]->people; tch; tch = tch->next_in_room)
@@ -2374,7 +2395,17 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			{
 				if (IS_NPC(tch))
 				{
-					if (real_sector(ch->in_room) != SECT_UNDERWATER)
+					if (GET_RACE(tch)==NPC_RACE_THING) {
+						if (GET_LEVEL(tch) < 5)
+							tmpstr += " Вы слышите чье-то тихое поскрипывание.\r\n";
+						else if (GET_LEVEL(tch) < 15)
+							tmpstr += " Вы слышите чей-то скрип.\r\n";
+						else if (GET_LEVEL(tch) < 25)
+							tmpstr += " Вы слышите чей-то громкий скрип.\r\n";
+						else
+							tmpstr += " Вы слышите чей-то грозный скрип.\r\n";
+					} 
+					else if (real_sector(ch->in_room) != SECT_UNDERWATER)
 					{
 						if (GET_LEVEL(tch) < 5)
 							tmpstr += " Вы слышите чью-то тихую возню.\r\n";
@@ -2662,6 +2693,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->label_text);
 		}
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
+		sprintf(buf+strlen(buf), "%s", diag_shot_to_char(obj, ch));
 		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
 		{
 			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
@@ -4203,7 +4235,14 @@ void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			    if (GET_EQ(ch, 18))
 				if ((i==16) || (i==17))
 				    continue;
-			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
+                            if ((i==19)&&(GET_EQ(ch, WEAR_BOTHS)))
+                            {
+                                if (!(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))
+                                    continue;
+                            }
+                            else if (i==19)
+				continue;
+ 			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
 				if (i==18)
 				    continue;
 			    if (GET_EQ(ch, 11))
