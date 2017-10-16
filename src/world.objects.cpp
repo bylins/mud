@@ -320,17 +320,26 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned nu
 
 OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number) const
 {
+	object_id_set_t except;
+	return find_by_vnum_and_dec_number(vnum, number, except);
+}
+
+OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number, const object_id_set_t& except) const
+{
 	const auto set_i = m_vnum_to_object.find(vnum);
 	if (set_i != m_vnum_to_object.end())
 	{
 		for (const auto& object : set_i->second)
 		{
-			if (0 == number)
+			if (except.find(object->get_id()) == except.end())
 			{
-				return object;
-			}
+				if (0 == number)
+				{
+					return object;
+				}
 
-			--number;
+				--number;
+			}
 		}
 	}
 

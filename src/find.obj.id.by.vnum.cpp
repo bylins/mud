@@ -72,7 +72,6 @@ int WldTriggerLookup::lookup()
 	{
 		finder().lookup_world_objects();
 	}
-
 	return finder().result();
 }
 
@@ -120,7 +119,7 @@ int MobTriggerLookup::lookup()
 // * áÎÁÌÏÇÉŞÎÏ find_char_vnum, ÔÏÌØËÏ ÄÌÑ ÏÂßÅËÔÏ×.
 bool FindObjIDByVNUM::lookup_world_objects()
 {
-	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number);
+	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number, m_seen);
 
 	if (object)
 	{
@@ -160,6 +159,7 @@ bool FindObjIDByVNUM::lookup_worn(const CHAR_DATA* character)
 				return true;
 			}
 
+			add_seen(equipment->get_id());
 			--m_number;
 		}
 	}
@@ -190,6 +190,7 @@ bool FindObjIDByVNUM::lookup_list(const OBJ_DATA* list)
 				return true;
 			}
 
+			add_seen(list->get_id());
 			--m_number;
 		}
 

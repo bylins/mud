@@ -41,7 +41,10 @@ enum
 class Player : public CHAR_DATA
 {
 public:
+	using cities_t = boost::dynamic_bitset<std::size_t>;
+
 	Player();
+
 	int get_pfilepos() const;
 	void set_pfilepos(int pfilepos);
 
@@ -143,6 +146,7 @@ public:
 	std::string cities_to_str();
 	bool check_city(unsigned int index);
 	void mark_city(unsigned int index);
+
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -198,9 +202,7 @@ private:
 	// сколько дней подряд выполнялись дейлики 
 	int count_daily_quest;
 	// Отметка о том, в каких городах был наш чар
-	boost::dynamic_bitset<> cities;
-	
-
+	cities_t cities;
 };
 
 
