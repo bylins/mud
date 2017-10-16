@@ -293,4 +293,46 @@ TEST(sprintbitwd, StarBitName_PrintFlag_0x04)
 	EXPECT_EQ(EXPECTED, result);
 }
 
+TEST(sprintbitwd, UNUSED_bit_NoPrintFlags)
+{
+	const char* BIT_NAMES[] = { "bit1", "UNUSED", "bit3", "*UNUSED", "bit5", "UNUSED", "\n" };
+	bitvector_t bitvector = 0x3f;
+	const std::string EXPECTED = "bit1, UNUSED, bit3, bit5, UNUSED";
+
+	constexpr std::size_t BUFFER_SIZE = 1024;
+	char result[BUFFER_SIZE];
+
+	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
+
+	EXPECT_EQ(EXPECTED, result);
+}
+
+TEST(sprintbitwd, UNUSED_bit_PrintFlag_0x02)
+{
+	const char* BIT_NAMES[] = { "bit1", "UNUSED", "bit3", "*UNUSED", "bit5", "UNUSED", "\n" };
+	bitvector_t bitvector = 0x3f;
+	const std::string EXPECTED = "bit1, 2:UNUSED, bit3, bit5, 6:UNUSED";
+
+	constexpr std::size_t BUFFER_SIZE = 1024;
+	char result[BUFFER_SIZE];
+
+	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x02);
+
+	EXPECT_EQ(EXPECTED, result);
+}
+
+TEST(sprintbitwd, UNUSED_bit_PrintFlag_0x03)
+{
+	const char* BIT_NAMES[] = { "bit1", "UNUSED", "bit3", "*UNUSED", "bit5", "UNUSED", "\n" };
+	bitvector_t bitvector = 0x3f;
+	const std::string EXPECTED = "a0:bit1, b0:2:UNUSED, c0:bit3d0:, e0:bit5, f0:6:UNUSED";
+
+	constexpr std::size_t BUFFER_SIZE = 1024;
+	char result[BUFFER_SIZE];
+
+	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x03);
+
+	EXPECT_EQ(EXPECTED, result);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
