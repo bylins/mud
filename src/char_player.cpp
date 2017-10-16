@@ -969,12 +969,15 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		id = find_name(name);
 	}
 
-	if (!(id >= 0
-		&& get_filename(name, filename, PLAYERS_FILE)
-		&& (fl = fbopen(filename, FB_READ))))
+	bool result = id >= 0;
+	result = result && get_filename(name, filename, PLAYERS_FILE);
+	result = result && (fl = fbopen(filename, FB_READ));
+	if (!result)
 	{
-		log("Can't load ascii %d %s", id, filename);
-		return (-1);
+		const std::size_t BUFFER_SIZE = 1024;
+		char buffer[BUFFER_SIZE];
+		log("Can't load ascii. ID: %d; File name: \"%s\"; Current directory: \"%s\")", id, filename, getcwd(buffer, BUFFER_SIZE));
+		return -1;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

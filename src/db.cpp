@@ -6354,7 +6354,7 @@ void load_class_limit()
 	}
 }
 
-const std::size_t PlayersIndex::NOT_FOUND = ~0u;
+const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);
 
 std::size_t PlayersIndex::append(const player_index_element& element)
 {
@@ -6419,7 +6419,7 @@ std::size_t PlayersIndex::hasher::operator()(const std::string& value) const
 	std::size_t result = FNV_offset_basis;
 	for (std::size_t i = 0; i < count; ++i)
 	{
-		result ^= (std::size_t) value[i];
+		result ^= (std::size_t) LOWER(value[i]);
 		result *= FNV_prime;
 	}
 
