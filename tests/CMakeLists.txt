@@ -7,7 +7,6 @@ set(GTEST_INCLUDE ${GTEST_ROOT}/include)
 find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib NO_DEFAULT_PATH)
 
 include_directories(system ${GTEST_INCLUDE})
-add_definitions("-Wno-conversion-null -Wno-sign-compare")
 
 set(TESTS
 	boards.changelog.cpp
@@ -21,7 +20,8 @@ set(TESTS
 	utils.string.cpp
 	fight.penalties.cpp
 	bonus.command.parser.cpp
-	quested.cpp)
+	quested.cpp
+	sprintbitwd.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)
