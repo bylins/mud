@@ -366,7 +366,7 @@ public:
 	using shared_ptr = std::shared_ptr<CHAR_DATA>;
 	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
-	using role_t = boost::dynamic_bitset<>;
+	using role_t = boost::dynamic_bitset<std::size_t>;
 	using followers_list_t = std::list<CHAR_DATA*>;
 
 	CHAR_DATA();
@@ -579,7 +579,7 @@ public:
 	/// роли (mob only)
 	bool get_role(unsigned num) const;
 	void set_role(unsigned num, bool flag);
-	const boost::dynamic_bitset<>& get_role_bits() const;
+	const CHAR_DATA::role_t& get_role_bits() const;
 
 	void add_attacker(CHAR_DATA *ch, unsigned type, int num);
 	int get_attacker(CHAR_DATA *ch, unsigned type) const;

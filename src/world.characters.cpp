@@ -29,7 +29,7 @@ void Characters::remove(CHAR_DATA* character)
 		const size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
 		snprintf(buffer, BUFFER_SIZE, "Character at address %p requested to remove not found in the world.", character);
-		mudlog(buffer, BRF, LVL_IMPL, SYSLOG, TRUE);
+		mudlog(buffer, LGH, LVL_IMPL, SYSLOG, TRUE);
 
 		return;
 	}
