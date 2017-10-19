@@ -417,6 +417,7 @@ void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoClanList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoShowPolitics(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_show_alliance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoHcontrol(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoWhoClan(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoClanPkList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -767,6 +768,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"соскочить", POS_FIGHTING, do_horseoff, 0, 0, -1},
 	{"состав", POS_RESTING, do_create, 0, SCMD_RECIPE, 0},
 	{"сохранить", POS_SLEEPING, do_save, 0, 0, 0},
+	{"союз", POS_RESTING, do_show_alliance, 0, 0, 0},
 	{"социалы", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
 	{"спать", POS_SLEEPING, do_sleep, 0, 0, -1},
 	{"спасти", POS_FIGHTING, do_rescue, 1, 0, -1},

@@ -2120,6 +2120,69 @@ void DoShowWars(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 //-Polud
 
+void do_show_alliance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	if (IS_NPC(ch))	return;
+	std::string buffer = argument;
+	boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
+
+	std::ostringstream buffer3;
+	buffer3 << "Дружины, находящиеся в состоянии союза:\r\n";
+
+	if (!buffer.empty())
+	{
+		Clan::ClanListType::const_iterator clan1;
+		for (clan1 = Clan::ClanList.begin(); clan1 != Clan::ClanList.end(); ++clan1)
+		{
+			if (CompareParam(buffer, (*clan1)->abbrev))
+			{
+				break;
+			}
+		}
+
+		if (clan1 == Clan::ClanList.end() || (*clan1)->m_members.size() == 0)
+		{
+			send_to_char("Такая дружина не зарегистрирована\r\n", ch);
+			return;
+		}
+
+		Clan::ClanListType::const_iterator clan2;
+		for (clan2 = Clan::ClanList.begin(); clan2 != Clan::ClanList.end(); ++clan2)
+		{
+			if (clan2==clan1)
+			{
+				continue;
+			}
+
+			if ((*clan1)->CheckPolitics((*clan2)->rent) == POLITICS_ALLIANCE)
+			{
+				buffer3 << " " << (*clan1)->abbrev << " помогает " << (*clan2)->abbrev << "\r\n";
+			}
+		}
+	}
+	else
+	{
+		for (const auto& clan1 : Clan::ClanList)
+		{
+			for (const auto& clan2 : Clan::ClanList)
+			{
+				if (clan2 == clan1)
+				{
+					continue;
+				}
+
+				if (clan1->CheckPolitics(clan2->rent) == POLITICS_ALLIANCE)
+				{
+					buffer3 << " " << clan1->abbrev << " помогает " << clan2->abbrev << "\r\n";
+				}
+			}
+		}
+	}
+	buffer3<< "\r\n";
+	send_to_char(buffer3.str(), ch);
+
+}
+
 // выводим информацию об отношениях дружин между собой
 void DoShowPolitics(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {

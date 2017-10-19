@@ -268,6 +268,7 @@ public:
 	friend void DoStoreHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	friend void do_show_alliance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	bool check_write_board(CHAR_DATA *ch);
 	int out_rent;   // номер румы для отписанных, чтобы не тусовались в замке дальше
 
