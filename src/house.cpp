@@ -2829,9 +2829,14 @@ void Clan::fix_clan_members_load_room(Clan::shared_ptr clan)
 void Clan::DestroyClan(Clan::shared_ptr clan)
 {
 	fix_clan_members_load_room(clan);
-
 	const auto members = clan->m_members;	// copy members
 	clan->m_members.clear();					// remove all members from clan
+
+	for (const auto& clanVictim : Clan::ClanList) { //для всех кланов выставляем нейтралитет (тупо удаляем)
+		if (clan->rent!=clanVictim->rent)
+			clanVictim->SetPolitics(clan->rent,POLITICS_NEUTRAL);
+	}
+
 	clan->set_rep(0);
 	clan->builtOn = 0; 
 	clan->exp = 0;
