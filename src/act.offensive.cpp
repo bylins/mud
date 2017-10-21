@@ -1270,7 +1270,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	//float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 		//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 
-	percent = number(1, skill_info[SKILL_STUN].max_percent);
+	percent = number(1, skill_info[SKILL_STUN].max_percent * 3 / 2);
 	prob = calculate_skill(ch, SKILL_STUN, vict);
 
 	if (percent > prob)
@@ -1292,7 +1292,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		act("$n мощным ударом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		GET_POS(vict) = POS_INCAP;
 		//аффект "кома" действует (раундов) на цель 5+морты чара/3
-		WAIT_STATE(vict, (2 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
+		WAIT_STATE(vict, (2 + GET_REMORT(ch) / 5) * PULSE_VIOLENCE);
 		set_hit(ch, vict);
 	}
 }
