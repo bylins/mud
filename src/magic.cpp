@@ -5624,6 +5624,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		}
 	}
 
+	tmp_char_list.clear();
 	for (const auto ch_vict : room->people)
 	{
 		if (IS_IMMORTAL(ch_vict)
@@ -5638,7 +5639,6 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		add_to_tmp_char_list(ch_vict);
 	}
 
-	tmp_char_list.clear();
 	// наколенная (в прямом смысле этого слова, даже стола нет)
 	// версия снижения каста при масс-кастах на чаров, по 9% за каждого игрока
 	const int atacker_cast = GET_CAST_SUCCESS(ch);

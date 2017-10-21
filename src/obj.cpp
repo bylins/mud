@@ -4,6 +4,7 @@
 
 #include "obj.hpp"
 
+#include "objsave.h"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "parse.hpp"
@@ -28,7 +29,6 @@
 #include <memory>
 
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
-extern int Crash_write_timer(int index);	// to avoid inclusion of "objsave.h"
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
 extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 
@@ -1672,7 +1672,7 @@ namespace SetSystem
 	}
 
 	// * Обнуление таймера шмотки в ренте или перс.хране.
-	void delete_item(int pt_num, int vnum)
+	void delete_item(const std::size_t pt_num, int vnum)
 	{
 		bool need_save = false;
 		// рента

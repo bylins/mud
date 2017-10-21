@@ -404,11 +404,6 @@ void CHAR_DATA::zero_init()
 void CHAR_DATA::purge()
 {
 	caching::character_cache.remove(this);
-	if (purged_)
-	{
-		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
-		return;
-	}
 
 	if (!get_name().empty())
 	{

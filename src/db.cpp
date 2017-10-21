@@ -204,8 +204,8 @@ void Read_Invalid_List(void);
 int find_name(const char *name);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
-int Crash_read_timer(int index, int temp);
-void Crash_clear_objects(int index);
+int Crash_read_timer(const std::size_t index, int temp);
+void Crash_clear_objects(const std::size_t index);
 void extract_mob(CHAR_DATA * ch);
 //F@N|
 int exchange_database_load(void);
@@ -5065,7 +5065,7 @@ long cmp_ptable_by_name(char *name, int len)
 		const char* pname = player_table[i].name();
 		if (!strn_cmp(pname, arg, MIN(len, static_cast<int>(strlen(pname)))))
 		{
-			return i;
+			return static_cast<long>(i);
 		}
 	}
 	return -1;
@@ -5082,7 +5082,7 @@ long get_ptable_by_name(const char *name)
 		const char* pname = player_table[i].name();
 		if (!str_cmp(pname, arg))
 		{
-			return (i);
+			return static_cast<long>(i);
 		}
 	}
 	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
@@ -5097,12 +5097,11 @@ long get_ptable_by_unique(long unique)
 	{
 		if (player_table[i].unique == unique)
 		{
-			return i;
+			return static_cast<long>(i);
 		}
 	}
 	return 0;
 }
-
 
 long get_id_by_name(char *name)
 {

@@ -4003,8 +4003,10 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		else
 		{
 			if (!any_other_ch(d->character))
+			{
 				Depot::exit_char(d->character);
-			delete d->character;
+			}
+			character_list.remove(d->character);
 		}
 	}
 

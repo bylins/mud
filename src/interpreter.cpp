@@ -142,7 +142,6 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg);
 void zedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void medit_parse(DESCRIPTOR_DATA * d, char *arg);
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
-void Crash_timer_obj(int index, long timer_dec);
 int find_social(char *name);
 void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 extern int process_auto_agreement(DESCRIPTOR_DATA * d);
@@ -3025,7 +3024,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 						mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 					}
 					delete d->character;
-					d->character = NULL;
+					d->character = nullptr;
 					return;
 				}
 				PLR_FLAGS(d->character).unset(PLR_MAILING);
@@ -3037,10 +3036,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				return;
 			}
 			else
+			{
 				if (parse_exist_name(arg, tmp_name) ||
-						strlen(tmp_name) < (MIN_NAME_LENGTH - 1) || // дабы можно было войти чарам с 4 буквами
-						strlen(tmp_name) > MAX_NAME_LENGTH ||
-						!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name))
+					strlen(tmp_name) < (MIN_NAME_LENGTH - 1) || // дабы можно было войти чарам с 4 буквами
+					strlen(tmp_name) > MAX_NAME_LENGTH ||
+					!Is_Valid_Name(tmp_name) || fill_word(tmp_name) || reserved_word(tmp_name))
 				{
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					return;
@@ -3060,16 +3060,18 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					SEND_TO_Q("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
 					SEND_TO_Q("Имя и пароль через пробел : ", d);
 					delete d->character;
-					d->character = NULL;
+					d->character = nullptr;
 					return;
 				}
+			}
+
 			if ((player_i = load_char(tmp_name, d->character)) > -1)
 			{
 				d->character->set_pfilepos(player_i);
 				if (PLR_FLAGGED(d->character, PLR_DELETED))  	// We get a false positive from the original deleted character.
 				{
 					delete d->character;
-					d->character = 0;
+					d->character = nullptr;
 					// Check for multiple creations...
 					if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name))
 					{
@@ -3119,12 +3121,14 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					return;
 				}
+
 				// Check for multiple creations of a character.
 				if (!Valid_Name(tmp_name) || _parse_name(tmp_name, tmp_name))
 				{
 					SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 					return;
 				}
+
 				if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH) >= 0)
 				{
 					SEND_TO_Q
@@ -3143,6 +3147,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			}
 		}
 		break;
+
 	case CON_NAME_CNFRM:	// wait for conf. of new name
 		if (UPPER(*arg) == 'Y' || UPPER(*arg) == 'Д')
 		{
@@ -3214,28 +3219,31 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 			return;
 		}
+
 		player_i = load_char(tmp_name, d->character);
 		if (player_i > -1)
 		{
 			if (PLR_FLAGGED(d->character, PLR_DELETED))
 			{
 				delete d->character;
-				d->character = 0;
+				d->character = nullptr;
 				CreateChar(d);
 			}
 			else
 			{
 				SEND_TO_Q("Такой персонаж уже существует. Выберите другое имя : ", d);
 				delete d->character;
-				d->character = 0;
+				d->character = nullptr;
 				return;
 			}
 		}
+
 		if (!Valid_Name(tmp_name))
 		{
 			SEND_TO_Q("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 			return;
 		}
+
 		if (cmp_ptable_by_name(tmp_name, MIN_NAME_LENGTH + 1) >= 0)
 		{
 			SEND_TO_Q("Первые символы вашего имени совпадают с уже существующим персонажем.\r\n"
@@ -3243,6 +3251,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 					  "Имя  : ", d);
 			return;
 		}
+
 		d->character->set_pc_name(CAP(tmp_name));
 		CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
 		strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
@@ -3255,6 +3264,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE(d) = CON_CLOSE;
 			return;
 		}
+
 		if (circle_restrict)
 		{
 			SEND_TO_Q("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
@@ -3265,6 +3275,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE(d) = CON_CLOSE;
 			return;
 		}
+
 		switch (process_auto_agreement(d))
 		{
 		case 0:	// Auto - agree
@@ -3274,9 +3285,10 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q(buf, d);
 			STATE(d) = CON_NEWPASSWD;
 			return;
+
 		case 1:	// Auto -disagree
 			delete d->character;
-			d->character = NULL;
+			d->character = nullptr;
 			SEND_TO_Q("Выберите другое имя : ", d);
 			return;
 		default:
@@ -3285,6 +3297,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		SEND_TO_Q("Ваш пол [ М(M)/Ж(F) ]? ", d);
 		STATE(d) = CON_QSEX;
 		return;
+
 	case CON_PASSWORD:	// get pwd for known player
 		/*
 		 * To really prevent duping correctly, the player's record should
@@ -3299,7 +3312,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		SEND_TO_Q("\r\n", d);
 
 		if (!*arg)
+		{
 			STATE(d) = CON_CLOSE;
+		}
 		else
 		{
 			if (!Password::compare_password(d->character, arg))
@@ -3354,16 +3369,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				STATE(d) = CON_CHPWD_GETNEW;
 			return;
 		}
-		// commented by WorM: убрал выбор расы раз уж делать их никто не собирается то и смущать людей выбором незачем
-		/*if (STATE(d) == CON_CNFPASSWD)
-		{
-            SEND_TO_Q("\r\nКакой народ вам ближе по духу:\r\n", d);
-			SEND_TO_Q(string(PlayerRace::ShowKinsMenu()).c_str(), d);
-			SEND_TO_Q
-			("\r\nВаше Племя (Для более полной информации вы можете набрать"
-			 " \r\nсправка <интересующие племя>): ", d);
-			STATE(d) = CON_QKIN;
-		}*/
+
 		if (STATE(d) == CON_CNFPASSWD)
 		{
 			GET_KIN(d->character) = 0; // added by WorM: Выставляем расу в Русич(коммент выше)
@@ -3391,6 +3397,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE(d) = CON_QSEX;
 			return;
 		}
+
 		switch (UPPER(*arg))
 		{
 		case 'М':
@@ -3599,8 +3606,7 @@ Sventovit
 			return;
 		}
 		GET_LOADROOM(d->character) = calc_loadroom(d->character, load_result);
-//		sprintf(buf, "\r\nВаша загрузочная комната: %5d\r\n", GET_LOADROOM(d->character));
-//		SEND_TO_Q(buf, d);
+
 		roll_real_abils(d->character);
 		SEND_TO_Q(genchar_help, d);
 		SEND_TO_Q("\r\n\r\nНажмите любую клавишу.\r\n", d);
@@ -3931,6 +3937,7 @@ Sventovit
 			STATE(d) = CON_MENU;
 		}
 		break;
+
 	case CON_NAME2:
 		skip_spaces(&arg);
 		if (strlen(arg) == 0)

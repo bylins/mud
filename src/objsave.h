@@ -7,6 +7,7 @@
 #ifndef OBJSAVE_HPP_INCLUDED
 #define OBJSAVE_HPP_INCLUDED
 
+#include "objsave.h"
 #include "obj.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -21,7 +22,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location);
 int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int factor, int *totalcost);
 void Crash_rentsave(CHAR_DATA * ch, int cost);
 void Crash_crashsave(CHAR_DATA * ch);
-int Crash_write_timer(int index);
+int Crash_write_timer(const std::size_t index);
 
 namespace ObjSaveSync
 {

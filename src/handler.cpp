@@ -2967,7 +2967,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	}
 
 	DESCRIPTOR_DATA *t_desc;
-	int i, removed = 0;
+	int i;
 
 	if (MOB_FLAGGED(ch, MOB_FREE)
 		|| MOB_FLAGGED(ch, MOB_DELETE))
@@ -2981,15 +2981,17 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	{
 		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
+		{
 			if (t_desc->original == ch)
+			{
 				do_return(t_desc->character, NULL, 0, 0);
+			}
+		}
 	}
 
 	if (ch->in_room == NOWHERE)
 	{
-//log("SYSERR: NOWHERE extracting char %s. (%s, extract_char)",GET_NAME(ch), __FILE__);
 		return;
-		// exit(1);
 	}
 
 	// Forget snooping, if applicable
@@ -3099,7 +3101,8 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		SCRIPT_MEM(ch) = NULL;	// Аналогично предыдущему комментарию
 	}
 
-	if (!IS_NPC(ch))
+	const bool is_npc = IS_NPC(ch);
+	if (!is_npc)
 	{
 		log("[Extract char] All save for PC");
 		check_auction(ch, NULL);
@@ -3117,29 +3120,27 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		}
 
 		character_list.remove(ch);
-		removed = 1;
 	}
 
 	bool left_in_game = false;
-	if (!removed
-		&& ch->desc != NULL)
+	if (!is_npc)
 	{
-		STATE(ch->desc) = CON_MENU;
-		SEND_TO_Q(MENU, ch->desc);
-		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
+		if (ch->desc != NULL)
 		{
-			do_entergame(ch->desc);
-			left_in_game = true;
-		}
-	}
-	else  		// if a player gets purged from within the game
-	{
-		character_list.remove(ch);
-	}
+			STATE(ch->desc) = CON_MENU;
+			SEND_TO_Q(MENU, ch->desc);
+			if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
+			{
+				do_entergame(ch->desc);
+				left_in_game = true;
+			}
 
-	if (!left_in_game)
-	{
-		character_list.remove(ch);
+			ch->in_room = NOWHERE;
+		}
+		else
+		{
+			character_list.remove(ch);
+		}
 	}
 
 	log("[Extract char] Stop function for char %s", name.c_str());
@@ -3327,7 +3328,7 @@ CHAR_DATA *get_char_vis(CHAR_DATA * ch, const char *name, int where)
 
 		strcpy(tmp, name);
 		const int number = get_number(&tmp);
-		if (0 != number)
+		if (0 == number)
 		{
 			return get_player_vis(ch, tmp, 0);
 		}

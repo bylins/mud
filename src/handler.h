@@ -154,7 +154,6 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 #define CRASH_DELETE_NEW   (1 << 1)
 
 // prototypes from crash save system //
-int Crash_delete_files(int index);
 int Crash_delete_crashfile(CHAR_DATA * ch);
 void Crash_listrent(CHAR_DATA * ch, char *name);
 int Crash_load(CHAR_DATA * ch);
