@@ -1908,7 +1908,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if (!str_cmp(var, "world"))
 		{
 			num = atoi(subfield);
-			if ((!str_cmp(field, "curobjs") || !str_cmp(field, "curobj")) && num > 0)
+			if ((!str_cmp(field, "curobj") || !str_cmp(field, "curobjs")) && num > 0)
 			{
 				const auto rnum = real_object(num);
 				const auto count = count_obj_vnum(num);
@@ -1928,7 +1928,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					sprintf(str, "0");
 				}
 			}
-			else if (!str_cmp(field, "gameobjs") && num > 0)
+			else if ((!str_cmp(field, "gameobj") || !str_cmp(field, "gameobjs"))&& num > 0)
 			{
 				num = gcount_obj_vnum(num);
 				if (num >= 0)
@@ -1938,13 +1938,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			{
 				sprintf(str, "%d", trgvar_in_room(num));
 			}
-			else if (!str_cmp(field, "curmobs") && num > 0)
+			else if ((!str_cmp(field, "curmob") || !str_cmp(field, "curmobs")) && num > 0)
 			{
 				num = count_char_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%d", num);
 			}
-			else if (!str_cmp(field, "gamemobs") && num > 0)
+			else if ((!str_cmp(field, "gamemob") || !str_cmp(field, "gamemobs")) && num > 0)
 			{
 				num = gcount_char_vnum(num);
 				if (num >= 0)
