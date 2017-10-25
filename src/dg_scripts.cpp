@@ -2197,11 +2197,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					p = subfield;
 					n++;
 				} else {
-					*p='\0';
-					n=atoi(subfield);
-					*p=',';
-					p++;									
+					*(p++)='\0';
+					n=atoi(p);
 				}
+				p=subfield;
 				while (n) {
 					char *retval = p;
 					char tmp;
