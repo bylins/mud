@@ -2207,6 +2207,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					for (;n;p++) {
 						if (*p==' '||*p=='\0') {
 							n--;
+							if (n&&*p=='\0') {
+								sprintf(str,"");
+								return;
+							}
 							if (!n) {
 								tmp=*p;
 								*p='\0';
@@ -2218,7 +2222,6 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 							}
 						}
 					}
-					
 				}
 			}
 			/*Вот тут можно наделать вот так еще: 
