@@ -3812,7 +3812,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	}
 
 		//	skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && can_get_skill(ch, GET_OBJ_VAL(obj, 1)))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && can_get_skill_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)))
 	{
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
@@ -3822,14 +3822,14 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
 	}
-	else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && can_get_spell(ch, GET_OBJ_VAL(obj, 1)))
+	else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && can_get_spell_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)))
 	{
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = SpINFO.name;
 	}
 	else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
 			&& imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE
-			&& imrecipes[rcpt].level <= GET_LEVEL(ch) && imrecipes[rcpt].remort <= GET_REMORT(ch))
+			&& MAX(GET_OBJ_VAL(obj, 2), imrecipes[rcpt].level) <= GET_LEVEL(ch) && imrecipes[rcpt].remort <= GET_REMORT(ch))
 	{
 		spellnum = rcpt;
 		rs = im_get_char_rskill(ch, spellnum);

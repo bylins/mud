@@ -1677,15 +1677,42 @@ int find_weapon_master_by_skill(ESkill skill)
     }
 }
 
+//Определим мин уровень для изучения скилла из книги
+//req_lvl - требуемый уровень из книги
+int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl)
+{
+	int min_lvl = MAX(req_lvl, skill_info[skill].min_level[ch->get_class()][ch->get_kin()])
+		- MAX(0, ch->get_remort() / skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]);
+
+	return MAX(1, min_lvl);
+};
+
 /*
  * функция определяет, может ли персонаж илучить скилл
  * впоследствии ее нужно будет перенести в класс "инфа о классе персонажа"
  */
 int min_skill_level(CHAR_DATA *ch, int skill)
 {
-	return (skill_info[skill].min_level[ch->get_class()][ch->get_kin()]
-		- (MAX(0,ch->get_remort()/skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()])));
+	int min_lvl = skill_info[skill].min_level[ch->get_class()][ch->get_kin()]
+		- MAX(0, ch->get_remort() / skill_info[skill].level_decrement[ch->get_class()][ch->get_kin()]);
+
+	return MAX(1, min_lvl);
 };
+
+bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl)
+{
+	if (ch->get_remort() < skill_info[skill].min_remort[ch->get_class()][ch->get_kin()]
+		|| (skill_info[skill].classknow[ch->get_class()][ch->get_kin()] != KNOW_SKILL))
+	{
+		return FALSE;
+	}
+	if (ch->get_level() < min_skill_level_with_req(ch, skill, req_lvl))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
 
 bool can_get_skill(CHAR_DATA *ch, int skill)
 {

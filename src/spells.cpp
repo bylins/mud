@@ -65,6 +65,7 @@ extern int top_imtypes;
 
 ESkill get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
+bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int compute_armor_class(CHAR_DATA * ch);
@@ -126,6 +127,27 @@ ESkill get_magic_skill_number_by_spell(int spellnum)
 		return SKILL_INVALID;
 	}
 }
+
+//Определим мин уровень для изучения спелла из книги
+//req_lvl - требуемый уровень из книги
+int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl)
+{
+	int min_lvl = MAX(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch)) - (MAX(GET_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
+
+	return MAX(1, min_lvl);
+}
+
+bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl)
+{
+	if (min_spell_lvl_with_req(ch, spellnum, req_lvl) > GET_LEVEL(ch)
+		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch))
+		return FALSE;
+
+	if (slot_for_char(ch, spell_info[spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)]) <= 0)
+		return FALSE;
+
+	return TRUE;
+};
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool can_get_spell(CHAR_DATA *ch, int spellnum)
@@ -1787,7 +1809,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
 					drsdice = 34;
 				else
-					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL(obj, 1)], ch);
+					drsdice = min_spell_lvl_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
 				send_to_char(buf, ch);
 				sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
@@ -1801,7 +1823,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
 				{
-					drsdice = min_skill_level(ch, drndice);
+					drsdice = min_skill_level_with_req(ch, drndice, GET_OBJ_VAL(obj, 2));
 				}
 				else
 				{
@@ -1822,7 +1844,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (drndice >= 0)
 			{
-				drsdice = imrecipes[drndice].level;
+				drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 				int count = imrecipes[drndice].remort;
 				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
 					drsdice = LVL_IMPL;
@@ -2198,7 +2220,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
 					drsdice = 34;
 				else
-					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL(obj, 1)], ch);
+					drsdice = min_spell_lvl_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
 				send_to_char(buf, ch);
 				sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
@@ -2212,7 +2234,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
 				{
-					drsdice = GET_OBJ_VAL(obj, 2);
+					drsdice = min_skill_level_with_req(ch, drndice, GET_OBJ_VAL(obj, 2));
 				}
 				else
 				{
@@ -2233,7 +2255,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (drndice >= 0)
 			{
-				drsdice = imrecipes[drndice].level;
+				drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 				i = imrecipes[drndice].remort;
 				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
 					drsdice = LVL_IMPL;

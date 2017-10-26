@@ -637,6 +637,8 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
+int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
+bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 ESkill get_magic_skill_number_by_spell(int spellnum);
 
 //Polud статистика использования заклинаний
