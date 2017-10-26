@@ -1517,7 +1517,7 @@ struct weapon_app_type weapon_app[] =
 	{50, 50, 50},
 	{50, 50, 50},
 	{50, 50, 50},
-	{50, 50, 50},		// ww = 100
+	{50, 50, 50}		// ww = 100
 };
 
 const class_app_type::extra_affects_list_t ClericAffects = {};
