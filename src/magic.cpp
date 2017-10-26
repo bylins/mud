@@ -5429,7 +5429,7 @@ int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA
 	//туповато конечно, но подобные проверки тут как счупалцьа перепутаны
 	//и чтоб сделать по человечески надо треть пары модулей перелопатить
 	if (cvict && (caster != cvict))
-		if  (IS_GOD(cvict) || (((GET_LEVEL(cvict) / 2) > (GET_LEVEL(caster) + (GET_REMORT(caster) / 2))) && !IS_NPC(caster))) // при разнице уровня в 2 раза закл фэйл (из-за опечатки не работало)
+		if  (IS_GOD(cvict) || (((GET_LEVEL(cvict) / 2) > (GET_LEVEL(caster) + (GET_REMORT(caster) / 2))) && !IS_NPC(caster))) // при разнице уровня более чем в 2 раза закл фэйл
 		{
 			send_to_char(NOEFFECT, caster);
 			return (-1);

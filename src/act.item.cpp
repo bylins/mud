@@ -50,7 +50,7 @@
 // extern variables
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
-extern boost::array<int, 5> animals_levels;
+extern boost::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels;
 // from act.informative.cpp
 char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 
@@ -3588,7 +3588,13 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			return false;
 		}
 		break;
-
+	//TODO: Добавить для мобов выше 54 уровня
+	case 5:
+	case 6:
+	case 7:
+	case 8:
+	case 9:
+	case 10:
 	default:
 		return false;
 	}

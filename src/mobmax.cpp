@@ -14,7 +14,7 @@
 
 #include <map>
 
-boost::array<int, 5> animals_levels = { { 0 } };
+boost::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels = { { 0 } };
 namespace
 {
 
