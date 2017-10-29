@@ -82,4 +82,10 @@ void Characters::purge()
 	m_purge_list.clear();
 }
 
+bool Characters::has(const CHAR_DATA* character) const
+{
+	return m_object_raw_ptr_to_object_ptr.find(character) != m_object_raw_ptr_to_object_ptr.end()
+		|| m_purge_set.find(character) != m_purge_set.end();
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

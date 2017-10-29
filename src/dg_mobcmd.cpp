@@ -813,25 +813,25 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
 	{
 		DESCRIPTOR_DATA *i;
-		CHAR_DATA *vch;
 
 		// не знаю почему здесь идут только по плеерам, но раз так,
 		// то LVL_IMMORT+ для мобов здесь исключать пока нет смысла
 		for (i = descriptor_list; i; i = i->next)
 		{
-			if ((i->character != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
+			if ((i->character.get() != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
 			{
-				vch = i->character;
+				const auto vch = i->character;
 				if (GET_LEVEL(vch) < GET_LEVEL(ch) && CAN_SEE(ch, vch) && GET_LEVEL(vch) < LVL_IMMORT)
 				{
-					command_interpreter(vch, argument);
+					command_interpreter(vch.get(), argument);
 				}
 			}
 		}
 	}
 	else
 	{
-		CHAR_DATA *victim;
+		CHAR_DATA *victim = nullptr;
+
 		if (*arg == UID_CHAR)
 		{
 			if (!(victim = get_char(arg)))
@@ -846,16 +846,25 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, "mforce: no such victim");
 			return;
 		}
+
 		if (!IS_NPC(victim))
+		{
 			if ((!victim->desc))
-			    return;
+			{
+				return;
+			}
+		}
+
 		if (victim == ch)
 		{
 			mob_log(ch, "mforce: forcing self");
 			return;
 		}
+
 		if (IS_NPC(victim) || GET_LEVEL(victim) < LVL_IMMORT)
+		{
 			command_interpreter(victim, argument);
+		}
 	}
 }
 
@@ -866,7 +875,6 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 
 	mob_log(ch, "WARNING: mexp command is depracated! Use: %actor.exp(amount-to-add)%");
-
 
 	if (!MOB_OR_IMPL(ch))
 	{

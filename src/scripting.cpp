@@ -1364,7 +1364,7 @@ boost::python::list get_players()
 	{
 		if (STATE(d) == CON_PLAYING)
 		{
-			tmp_list.append(CharacterWrapper(d->character));
+			tmp_list.append(CharacterWrapper(d->character.get()));
 		}
 	}
 	return tmp_list;

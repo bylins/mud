@@ -1125,7 +1125,7 @@ void underwater_check(void)
 			Damage dmg(SimpleDmg(TYPE_WATERDEATH), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE);
 
-			if (dmg.process(d->character, d->character) < 0)
+			if (dmg.process(d->character.get(), d->character.get()) < 0)
 			{
 				log("%s",buf);
 			}
@@ -1421,7 +1421,7 @@ void clan_chest_invoice(OBJ_DATA *j)
 			&& CLAN(d->character)
 			&& CLAN(d->character)->GetRent() == room)
 		{
-			send_to_char(d->character, "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
+			send_to_char(d->character.get(), "[Хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
 				CCIRED(d->character, C_NRM),
 				j->get_short_description().c_str(),
 				clan_get_custom_label(j, CLAN(d->character)).c_str(),

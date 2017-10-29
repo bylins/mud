@@ -6222,11 +6222,12 @@ void init()
 		lower_convert(buffer);
 		block_list.push_back(buffer);
 	}
+
 	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
 	{
 		if (d->character)
 		{
-			set_flag(d->character);
+			set_flag(d->character.get());
 		}
 	}
 }

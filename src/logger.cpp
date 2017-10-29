@@ -244,9 +244,9 @@ void mudlog(const char *str, int type, int level, EOutputStream channel, int fil
 		if (PLR_FLAGGED(i->character, PLR_WRITING) || PLR_FLAGGED(i->character, PLR_FROZEN))
 			continue;
 
-		send_to_char(CCGRN(i->character, C_NRM), i->character);
-		send_to_char(tmpbuf, i->character);
-		send_to_char(CCNRM(i->character, C_NRM), i->character);
+		send_to_char(CCGRN(i->character, C_NRM), i->character.get());
+		send_to_char(tmpbuf, i->character.get());
+		send_to_char(CCNRM(i->character, C_NRM), i->character.get());
 	}
 }
 

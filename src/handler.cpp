@@ -2982,9 +2982,9 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
 		{
-			if (t_desc->original == ch)
+			if (t_desc->original.get() == ch)
 			{
-				do_return(t_desc->character, NULL, 0, 0);
+				do_return(t_desc->character.get(), NULL, 0, 0);
 			}
 		}
 	}
@@ -3003,6 +3003,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 			ch->desc->snooping->snoop_by = NULL;
 			ch->desc->snooping = NULL;
 		}
+
 		if (ch->desc->snoop_by)
 		{
 			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
@@ -3118,29 +3119,24 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 		{
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		}
-
-		character_list.remove(ch);
 	}
 
 	bool left_in_game = false;
-	if (!is_npc)
+	if (!is_npc
+		&& ch->desc != NULL)
 	{
-		if (ch->desc != NULL)
+		STATE(ch->desc) = CON_MENU;
+		SEND_TO_Q(MENU, ch->desc);
+		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
 		{
-			STATE(ch->desc) = CON_MENU;
-			SEND_TO_Q(MENU, ch->desc);
-			if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
-			{
-				do_entergame(ch->desc);
-				left_in_game = true;
-			}
+			do_entergame(ch->desc);
+			left_in_game = true;
+		}
+	}
 
-			ch->in_room = NOWHERE;
-		}
-		else
-		{
-			character_list.remove(ch);
-		}
+	if (!left_in_game)
+	{
+		character_list.remove(ch);
 	}
 
 	log("[Extract char] Stop function for char %s", name.c_str());

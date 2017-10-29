@@ -1458,7 +1458,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(NOWHERE);
-				act("$n ×ÅÒÎÕÌ$u.", TRUE, d->character, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n ×ÅÒÎÕÌ$u.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				d->character->set_wait(1u);
 			}
 		}
@@ -1481,7 +1481,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				d->has_prompt = 1;	// To get newline before next cmd output.
 			else if (perform_alias(d, comm))	// Run it through aliasing system
 				get_from_q(&d->input, comm, &aliased);
-			command_interpreter(d->character, comm);	// Send it to interpreter
+			command_interpreter(d->character.get(), comm);	// Send it to interpreter
 			cmd_cnt++;
 		}
 	}
@@ -2405,7 +2405,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			count +=
 				sprintf(prompt + count, "%s",
-						color_value(d->character, GET_HIT(d->character), GET_REAL_MAX_HIT(d->character)));
+						color_value(d->character.get(), GET_HIT(d->character), GET_REAL_MAX_HIT(d->character)));
 			count += sprintf(prompt + count, "%dH%s ", GET_HIT(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Moves state
@@ -2413,7 +2413,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			count +=
 				sprintf(prompt + count, "%s",
-						color_value(d->character, GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character)));
+						color_value(d->character.get(), GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character)));
 			count += sprintf(prompt + count, "%dM%s ", GET_MOVE(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Mana state
@@ -2435,7 +2435,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "??? ");
 			else
 				count += sprintf(prompt + count, "%ldÏ ",
-								 level_exp(d->character,
+								 level_exp(d->character.get(),
 										   GET_LEVEL(d->character) + 1) - GET_EXP(d->character));
 		}
 		// Mem Info
@@ -2444,7 +2444,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			if (!MEMQUEUE_EMPTY(d->character))
 			{
-				door = mana_gain(d->character);
+				door = mana_gain(d->character.get());
 				if (door)
 				{
 					sec_hp =
@@ -2465,27 +2465,27 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			if (d->character->get_skill(SKILL_WARCRY))
 			{
-				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character, SKILL_WARCRY)) / HOURS_PER_WARCRY;
+				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_WARCRY)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "ëÌ:%d ", wc_count);
 			}
 			if (d->character->get_skill(SKILL_COURAGE))
-				count += sprintf(prompt + count, "ñÒ:%d ", timed_by_skill(d->character, SKILL_COURAGE));
+				count += sprintf(prompt + count, "ñÒ:%d ", timed_by_skill(d->character.get(), SKILL_COURAGE));
 			if (d->character->get_skill(SKILL_STRANGLE))
-				count += sprintf(prompt + count, "õÄ:%d ", timed_by_skill(d->character, SKILL_STRANGLE));
+				count += sprintf(prompt + count, "õÄ:%d ", timed_by_skill(d->character.get(), SKILL_STRANGLE));
 			if (d->character->get_skill(SKILL_TOWNPORTAL))
-				count += sprintf(prompt + count, "÷Ò:%d ", timed_by_skill(d->character, SKILL_TOWNPORTAL));
+				count += sprintf(prompt + count, "÷Ò:%d ", timed_by_skill(d->character.get(), SKILL_TOWNPORTAL));
 			if (d->character->get_skill(SKILL_MANADRAIN))
-				count += sprintf(prompt + count, "óÇ:%d ", timed_by_skill(d->character, SKILL_MANADRAIN));
+				count += sprintf(prompt + count, "óÇ:%d ", timed_by_skill(d->character.get(), SKILL_MANADRAIN));
 			if (d->character->get_skill(SKILL_CAMOUFLAGE))
-				count += sprintf(prompt + count, "íÓ:%d ", timed_by_skill(d->character, SKILL_CAMOUFLAGE));
+				count += sprintf(prompt + count, "íÓ:%d ", timed_by_skill(d->character.get(), SKILL_CAMOUFLAGE));
 			if (d->character->get_skill(SKILL_TURN_UNDEAD))
-				count += sprintf(prompt + count, "éÚ:%d ", timed_by_skill(d->character, SKILL_TURN_UNDEAD));
+				count += sprintf(prompt + count, "éÚ:%d ", timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD));
 			if (d->character->get_skill(SKILL_STUN))
-				count += sprintf(prompt + count, "ïÛ:%d ", timed_by_skill(d->character, SKILL_STUN));
+				count += sprintf(prompt + count, "ïÛ:%d ", timed_by_skill(d->character.get(), SKILL_STUN));
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
-				count += sprintf(prompt + count, "ğÒ:%d ", timed_by_feat(d->character, RELOCATE_FEAT));
+				count += sprintf(prompt + count, "ğÒ:%d ", timed_by_feat(d->character.get(), RELOCATE_FEAT));
 			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))
-				count += sprintf(prompt + count, "úŞ:%d ", timed_by_feat(d->character, SPELL_CAPABLE_FEAT));
+				count += sprintf(prompt + count, "úŞ:%d ", timed_by_feat(d->character.get(), SPELL_CAPABLE_FEAT));
 		}
 
 		if (!d->character->get_fighting()
@@ -2520,24 +2520,34 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		else
 		{
 			if (PRF_FLAGGED(d->character, PRF_DISPFIGHT))
-				count += sprintf(prompt + count, "%s", show_state(d->character, d->character));
+			{
+				count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character.get()));
+			}
+
 			if (d->character->get_fighting()->get_fighting()
-					&& d->character->get_fighting()->get_fighting() != d->character)
+					&& d->character->get_fighting()->get_fighting() != d->character.get())
+			{
 				count +=
 					sprintf(prompt + count, "%s",
-							show_state(d->character, d->character->get_fighting()->get_fighting()));
-			count += sprintf(prompt + count, "%s", show_state(d->character, d->character->get_fighting()));
+						show_state(d->character.get(), d->character->get_fighting()->get_fighting()));
+			}
+
+			count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character->get_fighting()));
 		};
 		strcat(prompt, "> ");
 	}
-	else if (STATE(d) == CON_PLAYING && IS_NPC(d->character))
+	else if (STATE(d) == CON_PLAYING
+		&& IS_NPC(d->character))
+	{
 		sprintf(prompt, "{%s}-> ", GET_NAME(d->character));
+	}
 	else
+	{
 		*prompt = '\0';
+	}
 
-	return (prompt);
+	return prompt;
 }
-
 
 void write_to_q(const char *txt, struct txt_q *queue, int aliased)
 {
@@ -3983,17 +3993,17 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{
-			act("$n ĞÏÔÅÒÑÌ$g Ó×ÑÚØ.", TRUE, d->character, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n ĞÏÔÅÒÑÌ$g Ó×ÑÚØ.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
 			{
 				snprintf(buf2, sizeof(buf2), "ÚÁŞÉÔÁÔØ Ó×ÉÔÏË.×ÏÚ×ÒÁÔÁ");
-				command_interpreter(d->character, buf2);
+				command_interpreter(d->character.get(), buf2);
 			}
 			if (!IS_NPC(d->character))
 			{
 				d->character->save_char();
-				check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
-				Crash_ldsave(d->character);
+				check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
+				Crash_ldsave(d->character.get());
 				
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
@@ -4002,9 +4012,9 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		}
 		else
 		{
-			if (!any_other_ch(d->character))
+			if (!any_other_ch(d->character.get()))
 			{
-				Depot::exit_char(d->character);
+				Depot::exit_char(d->character.get());
 			}
 			character_list.remove(d->character);
 		}

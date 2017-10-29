@@ -368,13 +368,6 @@ private:
 	{
 		return (this->clan_level + 1)*5000 + 500;
 	};
-
-	// для сортировки вывода членов клана по рангам, когда оно через поля чара дергается
-	class SortRank
-	{
-	public:
-		bool operator()(const CHAR_DATA * ch1, const CHAR_DATA * ch2);
-	};
 };
 
 struct ClanOLC

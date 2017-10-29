@@ -57,3 +57,14 @@ TEST(MSDP_Parser, SimpleVariable_WithTail_TailRequired)
 	EXPECT_EQ(true, ::msdp::parse_request(request, sizeof(request), conversation_length, result, true));
 	EXPECT_EQ(sizeof(request), conversation_length);
 }
+
+TEST(MSDP_Parser, REPORT_ROOM)
+{
+	const char request[] = "\x01" "REPORT\x02" "ROOM\xff\xf0";
+
+	size_t conversation_length = 0;
+	::msdp::parsed_request_t result;
+
+	EXPECT_EQ(true, ::msdp::parse_request(request, sizeof(request) - 1, conversation_length, result, true));
+	EXPECT_EQ(sizeof(request) - 1, conversation_length);
+}

@@ -7,7 +7,10 @@ set(GTEST_INCLUDE ${GTEST_ROOT}/include)
 find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib NO_DEFAULT_PATH)
 
 include_directories(system ${GTEST_INCLUDE})
-add_definitions("-Wno-conversion-null -Wno-sign-compare")
+
+if (UNIX)
+	add_definitions("-Wno-conversion-null -Wno-sign-compare")
+endif ()
 
 set(TESTS
 	boards.changelog.cpp

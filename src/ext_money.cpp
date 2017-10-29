@@ -708,7 +708,7 @@ void drop_torc(CHAR_DATA *mob)
 
 	CHAR_DATA *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
 		? d->character->get_master()
-		: d->character;
+		: d->character.get();
 
 	int members = 1;
 	for (follow_type *f = leader->followers; f; f = f->next)

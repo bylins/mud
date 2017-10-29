@@ -642,11 +642,17 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (IS_GRGOD(ch))
 			{
 				for (d = descriptor_list; d; d = d->next)
+				{
 					if (STATE(d) == CON_PLAYING && d->character)
-						act(buf, FALSE, ch, 0, d->character, TO_VICT);
+					{
+						act(buf, FALSE, ch, 0, d->character.get(), TO_VICT);
+					}
+				}
 			}
 			else
+			{
 				send_to_char("Это доступно только БОГАМ!\r\n", ch);
+			}
 			return;
 		}
 		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != NULL)
@@ -930,25 +936,32 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				!PLR_FLAGGED(i->character, PLR_WRITING) &&
 				!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > POS_SLEEPING)
 		{
-			if (ignores(i->character, ch, ign_flag))
-				continue;
-			if (subcmd == SCMD_SHOUT &&
-					((world[ch->in_room]->zone != world[i->character->in_room]->zone) || !AWAKE(i->character)))
-				continue;
-
-			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(color_on, i->character);
-			act(out_str, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
-			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(KNRM, i->character);
-
-			std::string text = Remember::format_gossip(ch, i->character, subcmd, argument);
-			//пока закрыл это дело, ибо в лоб не получается сделать запоминание
-/*			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
+			if (ignores(i->character.get(), ch, ign_flag))
 			{
-				i->character->remember_add(buf1, Remember::GOSSIP);
+				continue;
 			}
-*/			i->character->remember_add(text, Remember::ALL);
+
+			if (subcmd == SCMD_SHOUT
+				&& ((world[ch->in_room]->zone != world[i->character->in_room]->zone)
+					|| !AWAKE(i->character)))
+			{
+				continue;
+			}
+
+			if (COLOR_LEV(i->character) >= C_NRM)
+			{
+				send_to_char(color_on, i->character.get());
+			}
+
+			act(out_str, FALSE, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
+			if (COLOR_LEV(i->character) >= C_NRM)
+			{
+				send_to_char(KNRM, i->character.get());
+			}
+
+			std::string text = Remember::format_gossip(ch, i->character.get(), subcmd, argument);
+
+			i->character->remember_add(text, Remember::ALL);
 		}
 	}
 }
@@ -969,14 +982,22 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next)
 	{
-		if (STATE(i) == CON_PLAYING && i->character &&
-				!PLR_FLAGGED(i->character, PLR_WRITING) && GET_POS(i->character) > POS_SLEEPING)
+		if (STATE(i) == CON_PLAYING
+			&& i->character
+			&& !PLR_FLAGGED(i->character, PLR_WRITING)
+			&& GET_POS(i->character) > POS_SLEEPING)
 		{
 			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(KIYEL, i->character);
-			act(buf, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
+			{
+				send_to_char(KIYEL, i->character.get());
+			}
+
+			act(buf, FALSE, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
+			
 			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(KNRM, i->character);
+			{
+				send_to_char(KNRM, i->character.get());
+			}
 		}
 	}
 }
@@ -1064,11 +1085,16 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) == CON_PLAYING) 
-		     if ((IS_IMMORTAL(i->character) || (GET_GOD_FLAG(i->character, GF_DEMIGOD) && (GET_LEVEL(ch) < 6))) && (i->character != ch))
+		{
+			if ((IS_IMMORTAL(i->character.get())
+					|| (GET_GOD_FLAG(i->character.get(), GF_DEMIGOD)
+						&& (GET_LEVEL(ch) < 6)))
+				&& (i->character.get() != ch))
 			{
-				send_to_char(buf, i->character);
+				send_to_char(buf, i->character.get());
 				i->character->remember_add(buf, Remember::ALL);
 			}
+		}
 	}
 }
 
@@ -1136,9 +1162,9 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			&& (GET_LEVEL(i->character) < LVL_IMMORT || IS_IMPL(i->character))
 			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE)
 			&& !PRF_FLAGGED(i->character, PRF_IGVA_PRONA)
-			&& !ignores(i->character, ch, IGNORE_OFFTOP))
+			&& !ignores(i->character.get(), ch, IGNORE_OFFTOP))
 		{
-			send_to_char(i->character, "%s%s%s", CCCYN(i->character, C_NRM), buf, CCNRM(i->character, C_NRM));
+			send_to_char(i->character.get(), "%s%s%s", CCCYN(i->character, C_NRM), buf, CCNRM(i->character, C_NRM));
 			i->character->remember_add(buf1, Remember::ALL);
 		}
 	}

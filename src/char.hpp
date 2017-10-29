@@ -823,7 +823,7 @@ inline int GET_INVIS_LEV(const CHAR_DATA* ch) { return ch->player_specials->save
 inline int GET_INVIS_LEV(const CHAR_DATA::shared_ptr& ch) { return GET_INVIS_LEV(ch.get()); }
 
 inline void SET_INVIS_LEV(const CHAR_DATA* ch, const int level) { ch->player_specials->saved.invis_level = level; }
-inline void SET_INVIS_LEV(const CHAR_DATA::shared_ptr& ch, const int level) { SET_INVIS_LEV(ch, level); }
+inline void SET_INVIS_LEV(const CHAR_DATA::shared_ptr& ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
 inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 {

@@ -143,10 +143,10 @@ void reset_stats(CHAR_DATA *ch, Type type)
 ///
 void print_menu(DESCRIPTOR_DATA *d)
 {
-	const int stats_price = calc_price(d->character, Type::MAIN_STATS);
-	const int race_price = calc_price(d->character, Type::RACE);
-	const int feats_price = calc_price(d->character, Type::FEATS);
-	const int religion_price = calc_price(d->character, Type::RELIGION);
+	const int stats_price = calc_price(d->character.get(), Type::MAIN_STATS);
+	const int race_price = calc_price(d->character.get(), Type::RACE);
+	const int feats_price = calc_price(d->character.get(), Type::FEATS);
+	const int religion_price = calc_price(d->character.get(), Type::RELIGION);
 
 	std::string str = boost::str(boost::format(
 		"%sВ случае потери связи процедуру можно будет продолжить при следующем входе в игру.%s\r\n\r\n"
@@ -169,8 +169,8 @@ void print_menu(DESCRIPTOR_DATA *d)
 ///
 void process(DESCRIPTOR_DATA *d, Type type)
 {
-	CHAR_DATA *ch = d->character;
-	const int price = calc_price(ch, type);
+	const auto& ch = d->character;
+	const int price = calc_price(ch.get(), type);
 
 	if (ch->get_total_gold() < price)
 	{
@@ -181,7 +181,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 	else
 	{
 		char buf_[MAX_INPUT_LENGTH];
-		reset_stats(ch, type);
+		reset_stats(ch.get(), type);
 
 		if ((type == Type::MAIN_STATS || type == Type::RACE || type == Type::RELIGION)
 			&& ValidateStats(d))
@@ -200,7 +200,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 			// в любом другом случае изменения можно считать состояшимися
 			snprintf(buf_, sizeof(buf_), "changed %s, price=%d",
 				reset_prices.at(type).log_text.c_str(), price);
-			add_karma(ch, buf_, "auto");
+			add_karma(ch.get(), buf_, "auto");
 
 			ch->remove_both_gold(price);
 			ch->save_char();

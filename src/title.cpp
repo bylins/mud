@@ -332,7 +332,9 @@ DESCRIPTOR_DATA* TitleSystem::send_result_message(long unique, bool action)
 {
 	DESCRIPTOR_DATA* d = DescByUID(unique);
 	if (d)
-		send_to_char(d->character, "Ваш титул был %s Богами.\r\n", action ? "одобрен" : "запрещен");
+	{
+		send_to_char(d->character.get(), "Ваш титул был %s Богами.\r\n", action ? "одобрен" : "запрещен");
+	}
 	return d;
 }
 
@@ -353,57 +355,47 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 			// Что внизу за хрень ?
 			if (d)
 			{
-				set_player_title(d->character, it->second->pre_title, it->second->title, GET_NAME(ch));
+				set_player_title(d->character.get(), it->second->pre_title, it->second->title, GET_NAME(ch));
 				sprintf(buf, "&c%s одобрил титул игрока %s!&n\r\n", GET_NAME(ch), GET_NAME(d->character));
 				send_to_gods(buf, true);
-				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 			}
 			else
 			{
-				Player *victim = new Player; // TODO: переделать на стек
-				if (load_char(it->first.c_str(), victim) < 0)
+				Player victim;
+				if (load_char(it->first.c_str(), &victim) < 0)
 				{
 					send_to_char("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
-					delete victim;
 					title_list.erase(it);
 					return TITLE_FIND_CHAR;
 				}
-				set_player_title(victim, it->second->pre_title, it->second->title, GET_NAME(ch));
-				sprintf(buf, "&c%s одобрил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(victim));
+				set_player_title(&victim, it->second->pre_title, it->second->title, GET_NAME(ch));
+				sprintf(buf, "&c%s одобрил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(&victim));
 				send_to_gods(buf, true);
-				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
-				victim->save_char();
-				delete victim;
+				victim.save_char();
 			}
-			//send_to_char("Титул одобрен.\r\n", ch);
-
 		}
 		else
 		{
 			send_result_message(it->second->unique, action);
-			//send_to_char("Титул запрещен.\r\n", ch);
+
 			DESCRIPTOR_DATA* d = send_result_message(it->second->unique, action);
 			if (d)
 			{			
 				sprintf(buf, "&c%s запретил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(d->character));
 				send_to_gods(buf, true);
-				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 			}
 			else
 			{
-				Player *victim = new Player; // TODO: переделать на стек
-				if (load_char(it->first.c_str(), victim) < 0)
+				Player victim;
+				if (load_char(it->first.c_str(), &victim) < 0)
 				{
 				    send_to_char("Персонаж был удален или ошибочка какая-то вышла.\r\n", ch);
-				    delete victim;
 				    title_list.erase(it);
 				    return TITLE_FIND_CHAR;
 				}
-				sprintf(buf, "&c%s запретил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(victim));
+				sprintf(buf, "&c%s запретил титул игрока %s[ОФФЛАЙН].&n\r\n", GET_NAME(ch), GET_NAME(&victim));
 				send_to_gods(buf, true);
-				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
-				victim->save_char();
-				delete victim;
+				victim.save_char();
 			}
 		}
 		title_list.erase(it);

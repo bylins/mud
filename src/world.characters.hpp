@@ -21,6 +21,7 @@ public:
 	void push_front(CHAR_DATA* character) { push_front(CHAR_DATA::shared_ptr(character)); }
 
 	const auto& get_list() const { return m_list; }
+	const auto get_character_by_address(const CHAR_DATA* character) const;
 
 	const auto begin() const { return m_list.begin(); }
 	const auto end() const { return m_list.end(); }
@@ -28,14 +29,11 @@ public:
 	void foreach_on_copy(const foreach_f function) const;
 
 	void remove(CHAR_DATA* character);
+	void remove(const CHAR_DATA::shared_ptr& character) { remove(character.get()); }
 
 	void purge();
 
-	bool has(const CHAR_DATA* character) const
-	{
-		return m_object_raw_ptr_to_object_ptr.find(character) != m_object_raw_ptr_to_object_ptr.end()
-			|| m_purge_set.find(character) != m_purge_set.end();
-	}
+	bool has(const CHAR_DATA* character) const;
 
 private:
 	using object_raw_ptr_to_object_ptr_t = std::unordered_map<const void*, list_t::iterator>;
@@ -46,6 +44,12 @@ private:
 	list_t m_purge_list;
 	set_t m_purge_set;
 };
+
+inline const auto Characters::get_character_by_address(const CHAR_DATA* character) const
+{
+	const auto i = m_object_raw_ptr_to_object_ptr.find(character);
+	return i != m_object_raw_ptr_to_object_ptr.end() ? *i->second : list_t::value_type();
+}
 
 extern Characters character_list;
 

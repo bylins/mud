@@ -949,7 +949,7 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 	for (i = 0; i < OLC_ZONE(d)->typeB_count; i++)
 		sprintf(type2_zones, "%s %d", type2_zones, OLC_ZONE(d)->typeB_list[i]);
 
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 	sprintf(buf1, "%sТЕСТИРУЕТСЯ%s", ired, yel);
 
 	// Menu header
@@ -1025,7 +1025,7 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 	}
 
 	strcat(buf, buf1);
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	free(buf);
 
 	OLC_MODE(d) = ZEDIT_MAIN_MENU;
@@ -1036,7 +1036,7 @@ void zedit_disp_type_menu(DESCRIPTOR_DATA * d)
 {
 	int counter, columns = 0;
 
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
@@ -1044,9 +1044,9 @@ void zedit_disp_type_menu(DESCRIPTOR_DATA * d)
 	{
 		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
 				zone_types[counter].name, !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character);
+		send_to_char(buf, d->character.get());
 	}
-	send_to_char("\r\nВыберите тип зоны : ", d->character);
+	send_to_char("\r\nВыберите тип зоны : ", d->character.get());
 }
 //-MZ.load
 
@@ -1056,8 +1056,8 @@ void zedit_disp_type_menu(DESCRIPTOR_DATA * d)
 void zedit_disp_comtype(DESCRIPTOR_DATA * d)
 {
 	pzcmd item = SEEK_CMD(d);
-	get_char_cols(d->character);
-	send_to_char("\r\n", d->character);
+	get_char_cols(d->character.get());
+	send_to_char("\r\n", d->character.get());
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
 			"[H[J"
@@ -1072,7 +1072,7 @@ void zedit_disp_comtype(DESCRIPTOR_DATA * d)
 			"Укажите тип команды   : ",
 			grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm,
 			grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, grn, nrm, item->cmd.command);
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = ZEDIT_COMMAND_TYPE;
 }
 
@@ -1085,7 +1085,7 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 {
 	pzcmd item = SEEK_CMD(d);
 
-	send_to_char("\r\n", d->character);
+	send_to_char("\r\n", d->character.get());
 
 	switch (item->cmd.command)
 	{
@@ -1127,10 +1127,10 @@ void zedit_disp_arg1(DESCRIPTOR_DATA * d)
 		// * We should never get here.
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: zedit_disp_arg1(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		send_to_char("Oops...\r\n", d->character);
+		send_to_char("Oops...\r\n", d->character.get());
 		return;
 	}
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = ZEDIT_ARG1;
 }
 
@@ -1145,7 +1145,7 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 
 	int i = 0;
 
-	send_to_char("\r\n", d->character);
+	send_to_char("\r\n", d->character.get());
 
 	switch (item->cmd.command)
 	{
@@ -1198,11 +1198,11 @@ void zedit_disp_arg2(DESCRIPTOR_DATA * d)
 		// * We should never get here, but just in case...
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		send_to_char("Опаньки...\r\n", d->character);
+		send_to_char("Опаньки...\r\n", d->character.get());
 		return;
 	}
 
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = ZEDIT_ARG2;
 }
 
@@ -1218,7 +1218,7 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 
 	int i = 0;
 
-	send_to_char("\r\n", d->character);
+	send_to_char("\r\n", d->character.get());
 
 	switch (item->cmd.command)
 	{
@@ -1267,7 +1267,6 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 				"Текущая комната: %d [%s]\r\n" "Введите номер  : ", item->cmd.arg3, name_by_vnum(item->cmd.arg3, ROOM_NAME));
 		break;
 
-
 	case 'Q':
 	case 'R':
 	case 'G':
@@ -1275,11 +1274,11 @@ void zedit_disp_arg3(DESCRIPTOR_DATA * d)
 		// * We should never get here, just in case.
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: zedit_disp_arg3(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		send_to_char("Опаньки...\r\n", d->character);
+		send_to_char("Опаньки...\r\n", d->character.get());
 		return;
 	}
 
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = ZEDIT_ARG3;
 }
 
@@ -1287,7 +1286,7 @@ void zedit_disp_arg4(DESCRIPTOR_DATA * d)
 {
 	pzcmd item = SEEK_CMD(d);
 
-	send_to_char("\r\n", d->character);
+	send_to_char("\r\n", d->character.get());
 
 	switch (item->cmd.command)
 	{
@@ -1316,11 +1315,11 @@ void zedit_disp_arg4(DESCRIPTOR_DATA * d)
 		// * We should never get here, but just in case...
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: zedit_disp_arg2(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		send_to_char("Опаньки...\r\n", d->character);
+		send_to_char("Опаньки...\r\n", d->character.get());
 		return;
 	}
 
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = ZEDIT_ARG4;
 }
 
@@ -1329,7 +1328,7 @@ void zedit_disp_sarg1(DESCRIPTOR_DATA * d)
 {
 	pzcmd item = SEEK_CMD(d);
 
-	send_to_char("\r\n", d->character);
+	send_to_char("\r\n", d->character.get());
 
 	switch (item->cmd.command)
 	{
@@ -1353,11 +1352,11 @@ void zedit_disp_sarg1(DESCRIPTOR_DATA * d)
 		// * We should never get here, but just in case...
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: zedit_disp_sarg1(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		send_to_char("Опаньки...\r\n", d->character);
+		send_to_char("Опаньки...\r\n", d->character.get());
 		return;
 	}
 
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = ZEDIT_SARG1;
 }
 
@@ -1365,7 +1364,7 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA * d)
 {
 	pzcmd item = SEEK_CMD(d);
 
-	send_to_char("\r\n", d->character);
+	send_to_char("\r\n", d->character.get());
 
 	switch (item->cmd.command)
 	{
@@ -1389,11 +1388,11 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA * d)
 		// * We should never get here, but just in case...
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: zedit_disp_sarg2(): Help!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		send_to_char("Опаньки...\r\n", d->character);
+		send_to_char("Опаньки...\r\n", d->character.get());
 		return;
 	}
 
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = ZEDIT_SARG2;
 }
 
@@ -1401,12 +1400,11 @@ void zedit_disp_sarg2(DESCRIPTOR_DATA * d)
 // * The GARGANTAUN event handler                                          *
 // *************************************************************************
 
-#define CHECK_MOB(d,n)  if(real_mobile(n)<0)   {send_to_char("Неверный номер моба, повторите : ",d->character);return;}
-#define CHECK_OBJ(d,n)  if(real_object(n)<0)   {send_to_char("Неверный номер объекта, повторите : ",d->character);return;}
-#define CHECK_ROOM(d,n) if(real_room(n)<=NOWHERE)     {send_to_char("Неверный номер комнаты, повторите : ",d->character);return;}
-#define CHECK_TRIG(d,n) if(real_trigger(n)<0)  {send_to_char("Неверный номер триггера, повторите : ",d->character);return;}
-#define CHECK_NUM(d,n)  if(!is_signednumber(n)){send_to_char("Ожидается число, повторите : ",d->character);return;}
-
+#define CHECK_MOB(d,n)  if(real_mobile(n)<0)   {send_to_char("Неверный номер моба, повторите : ",d->character.get());return;}
+#define CHECK_OBJ(d,n)  if(real_object(n)<0)   {send_to_char("Неверный номер объекта, повторите : ",d->character.get());return;}
+#define CHECK_ROOM(d,n) if(real_room(n)<=NOWHERE)     {send_to_char("Неверный номер комнаты, повторите : ",d->character.get());return;}
+#define CHECK_TRIG(d,n) if(real_trigger(n)<0)  {send_to_char("Неверный номер триггера, повторите : ",d->character.get());return;}
+#define CHECK_NUM(d,n)  if(!is_signednumber(n)){send_to_char("Ожидается число, повторите : ",d->character.get());return;}
 
 void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -1416,7 +1414,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	switch (OLC_MODE(d))
 	{
-		//------------------------------------------------------------------------
 	case ZEDIT_CONFIRM_SAVESTRING:
 		switch (*arg)
 		{
@@ -1425,7 +1422,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'д':
 		case 'Д':
 			// * Save the zone in memory, hiding invisible people.
-			send_to_char("Сохраняю зону в памяти.\r\n", d->character);
+			send_to_char("Сохраняю зону в памяти.\r\n", d->character.get());
 			zedit_save_internally(d);
 			sprintf(buf, "OLC: %s edits zone info for room %d.", GET_NAME(d->character), OLC_NUM(d));
 			olc_log("%s edit zone %d", GET_NAME(d->character), OLC_NUM(d));
@@ -1438,14 +1435,13 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			cleanup_olc(d, CLEANUP_ALL);
 			break;
 		default:
-			send_to_char("Неверный выбор!\r\n", d->character);
-			send_to_char("Вы желаете сохранить зону в памяти? : ", d->character);
+			send_to_char("Неверный выбор!\r\n", d->character.get());
+			send_to_char("Вы желаете сохранить зону в памяти? : ", d->character.get());
 			break;
 		}
 		break;
 		// End of ZEDIT_CONFIRM_SAVESTRING
 
-		//------------------------------------------------------------------------
 	case ZEDIT_MAIN_MENU:
 		switch (*arg)
 		{
@@ -1453,12 +1449,12 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'X':
 			if (OLC_ZONE(d)->age || OLC_ZONE(d)->number)
 			{
-				send_to_char("Вы желаете сохранить изменения зоны в памяти? (y/n) : ", d->character);
+				send_to_char("Вы желаете сохранить изменения зоны в памяти? (y/n) : ", d->character.get());
 				OLC_MODE(d) = ZEDIT_CONFIRM_SAVESTRING;
 			}
 			else
 			{
-				send_to_char("Не было изменений.\r\n", d->character);
+				send_to_char("Не было изменений.\r\n", d->character.get());
 				cleanup_olc(d, CLEANUP_ALL);
 			}
 			break;
@@ -1482,59 +1478,59 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'n':
 		case 'N':	// New entry
-			send_to_char("Выберите номер новой команды? : ", d->character);
+			send_to_char("Выберите номер новой команды? : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_NEW_ENTRY;
 			break;
 
 		case 'e':
 		case 'E':	// Change an entry
-			send_to_char("Какую команду Вы хотите изменить? : ", d->character);
+			send_to_char("Какую команду Вы хотите изменить? : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_CHANGE_ENTRY;
 			break;
 
 		case 'm':
 		case 'M':	// Move an entry
-			send_to_char("Какую команду и куда Вы хотите переместить? : ", d->character);
+			send_to_char("Какую команду и куда Вы хотите переместить? : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_MOVE_ENTRY;
 			break;
 
 		case 'd':
 		case 'D':	// Delete an entry
-			send_to_char("Какую команду Вы хотите удалить? : ", d->character);
+			send_to_char("Какую команду Вы хотите удалить? : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_DELETE_ENTRY;
 			break;
 
 		case 'z':
 		case 'Z':
 			// * Edit zone name.
-			send_to_char("Введите новое имя зоны : ", d->character);
+			send_to_char("Введите новое имя зоны : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_ZONE_NAME;
 			break;
 		case 'c':
 		case 'C':
-			send_to_char("Введите новый комментарий к зоне : ", d->character);
+			send_to_char("Введите новый комментарий к зоне : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_ZONE_COMMENT;
 			break;
 		case 'w':
 		case 'W':
-			send_to_char("Введите местоположение зоны : ", d->character);
+			send_to_char("Введите местоположение зоны : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_ZONE_LOCATION;
 			break;
 		case 'u':
 		case 'U':
-			send_to_char("Введите автора зоны : ", d->character);
+			send_to_char("Введите автора зоны : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_ZONE_AUTOR;
 			break;
 		case 'o':
 		case 'O':
-			send_to_char("Введите описание к зоне : ", d->character);
+			send_to_char("Введите описание к зоне : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_ZONE_DESCRIPTION;
 			break;
 //MZ.load
 		case 's':
 		case 'S':
 			// * Edit zone level.
-			send_to_char("Введите уровень зоны : ", d->character);
+			send_to_char("Введите уровень зоны : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_ZONE_LEVEL;
 			break;
 		case 'y':
@@ -1553,7 +1549,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'g':
 		case 'G':
-			send_to_char(d->character, "Оптимальное число игроков (1 - 12): ");
+			send_to_char(d->character.get(), "Оптимальное число игроков (1 - 12): ");
 			OLC_MODE(d) = ZEDIT_ZONE_GROUP;
 			break;
 		case 'p':
@@ -1564,20 +1560,20 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			else
 			{
 				send_to_char("Введите новую старшую комнату зоны.\r\n"
-							 "Помните, она всегда должны быть равна НомерЗоны*100+99 : ", d->character);
+							 "Помните, она всегда должны быть равна НомерЗоны*100+99 : ", d->character.get());
 				OLC_MODE(d) = ZEDIT_ZONE_TOP;
 			}
 			break;
 		case 'l':
 		case 'L':
 			// * Edit zone lifespan.
-			send_to_char("Введите новое время жизни зоны : ", d->character);
+			send_to_char("Введите новое время жизни зоны : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_ZONE_LIFE;
 			break;
 		case 'i':
 		case 'I':
 			// * Edit zone reset_idle flag.
-			send_to_char("Выберите, очищается ли неиспользованная зона (y/n) : ", d->character);
+			send_to_char("Выберите, очищается ли неиспользованная зона (y/n) : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_RESET_IDLE;
 			break;
 		case 'r':
@@ -1587,19 +1583,19 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 						 "0) Никогда не очищать\r\n"
 						 "1) Очищать, если в зоне нет игроков\r\n"
 						 "2) Обычная очистка(даже если есть игроки)\r\n"
-						 "3) Общая очистка(комплекс зон)\r\n" "Выберите тип очистки зоны : ", d->character);
+						 "3) Общая очистка(комплекс зон)\r\n" "Выберите тип очистки зоны : ", d->character.get());
 			OLC_MODE(d) = ZEDIT_ZONE_RESET;
 			break;
 		case 'a':
 		case 'A':
 			// * Edit type A list.
-			send_to_char("Введите новую зону для списка одновременно перезагружаемых зон: ", d->character);
+			send_to_char("Введите новую зону для списка одновременно перезагружаемых зон: ", d->character.get());
 			OLC_MODE(d) = ZEDIT_TYPE_A_LIST;
 			break;
 		case 'b':
 		case 'B':
 			// * Edit type B list.
-			send_to_char("Введите новую зону для списка зон, проверяемых при перезагрузке: ", d->character);
+			send_to_char("Введите новую зону для списка зон, проверяемых при перезагрузке: ", d->character.get());
 			OLC_MODE(d) = ZEDIT_TYPE_B_LIST;
 			break;
 		default:
@@ -1609,7 +1605,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 		// End of ZEDIT_MAIN_MENU
 
-		//------------------------------------------------------------------------
 	case ZEDIT_MOVE_ENTRY:
 	{
 		// Получить два параметра: исходная строка и целевая строка
@@ -1621,7 +1616,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	zedit_disp_menu(d);
 	break;
 
-	//------------------------------------------------------------------------
 	case ZEDIT_DELETE_ENTRY:
 		// Get the line number and delete the line
 		if (is_number(arg))
@@ -1630,7 +1624,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_menu(d);
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_NEW_ENTRY:
 		// Get the line number and insert the new line. //
 		if (!is_number(arg) || !new_command(d, atoi(arg)))
@@ -1640,7 +1633,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		// тут break не нужен, иду редактировать
 
-		//------------------------------------------------------------------------
 	case ZEDIT_CHANGE_ENTRY:
 		// Parse the input for which line to edit, and goto next quiz. //
 		if (is_number(arg) && start_change_command(d, atoi(arg)))
@@ -1652,13 +1644,12 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			zedit_disp_menu(d);
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_COMMAND_TYPE:
 		// Parse the input for which type of command this is, and goto next quiz. //
 		item = SEEK_CMD(d);
 		item->cmd.command = toupper(*arg);
 		if (!item->cmd.command || (strchr("MFQOPEDGRTV", item->cmd.command) == NULL))
-			send_to_char("Неверный выбор, повторите : ", d->character);
+			send_to_char("Неверный выбор, повторите : ", d->character.get());
 		else
 		{
 			sprintf(buf,
@@ -1668,12 +1659,11 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					"  2 - выполняется всегда, не изменяет признак успешного выполнения\r\n"
 					"  3 - выполняется только в случае успешного выполнения предыдущей, не изменяет признак успешного выполнения\r\n"
 					"Текущий режим  : %d\r\n" "Выберите режим : ", item->cmd.if_flag);
-			send_to_char(buf, d->character);
+			send_to_char(buf, d->character.get());
 			OLC_MODE(d) = ZEDIT_IF_FLAG;
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_IF_FLAG:
 		// Parse the input for the if flag, and goto next quiz. //
 		item = SEEK_CMD(d);
@@ -1686,13 +1676,12 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			item->cmd.if_flag = arg[0] - '0';
 			break;
 		default:
-			send_to_char("Повторите ввод : ", d->character);
+			send_to_char("Повторите ввод : ", d->character.get());
 			return;
 		}
 		zedit_disp_arg1(d);
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ARG1:
 		// Parse the input for arg1, and goto next quiz. //
 		CHECK_NUM(d, arg) item = SEEK_CMD(d);
@@ -1731,7 +1720,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'V':
 			if (pos != 0 && pos != 1 && pos != 2)
 			{
-				send_to_char("Неверный тип триггера, повторите : ", d->character);
+				send_to_char("Неверный тип триггера, повторите : ", d->character.get());
 				return;
 			}
 			if (item->cmd.command == 'V' && pos != WLD_TRIGGER)
@@ -1744,12 +1733,11 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// * We should never get here.
 			cleanup_olc(d, CLEANUP_ALL);
 			mudlog("SYSERR: OLC: zedit_parse(): case ARG1: Ack!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-			send_to_char("Опаньки...\r\n", d->character);
+			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ARG2:
 		// Parse the input for arg2, and goto next quiz.
 		CHECK_NUM(d, arg) item = SEEK_CMD(d);
@@ -1764,7 +1752,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'G':
 			if (pos < 0)
 			{
-				send_to_char("Параметр должен быть неотрицательным, повторите : ", d->character);
+				send_to_char("Параметр должен быть неотрицательным, повторите : ", d->character.get());
 				return;
 			}
 			if (item->cmd.command == 'G')
@@ -1790,7 +1778,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			for (i = 0; *dirs[i] != '\n' && i != pos; ++i);
 			if (*dirs[i] == '\n')
 			{
-				send_to_char("Неверное направление, повторите : ", d->character);
+				send_to_char("Неверное направление, повторите : ", d->character.get());
 				return;
 			}
 			zedit_disp_arg3(d);
@@ -1808,12 +1796,11 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
 			mudlog("SYSERR: OLC: zedit_parse(): case ARG2: Ack!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-			send_to_char("Опаньки...\r\n", d->character);
+			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ARG3:
 		// Parse the input for arg3, and go back to main menu.
 		CHECK_NUM(d, arg) item = SEEK_CMD(d);
@@ -1842,7 +1829,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			for (i = 0; *equipment_types[i] != '\n' && i != pos; ++i);
 			if (*equipment_types[i] == '\n')
 			{
-				send_to_char("Неверная позиция, повторите : ", d->character);
+				send_to_char("Неверная позиция, повторите : ", d->character.get());
 				return;
 			}
 			zedit_disp_arg4(d);
@@ -1855,7 +1842,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'D':
 			if (pos != 0 && pos != 1 && pos != 2 && pos != 3 && pos != 4)
 			{
-				send_to_char("Неверное состояние выхода, повторите : ", d->character);
+				send_to_char("Неверное состояние выхода, повторите : ", d->character.get());
 				return;
 			}
 			zedit_disp_menu(d);
@@ -1868,12 +1855,10 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
 			mudlog("SYSERR: OLC: zedit_parse(): case ARG3: Ack!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-			send_to_char("Опаньки...\r\n", d->character);
+			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 		}
 		break;
-
-		//------------------------------------------------------------------------
 
 	case ZEDIT_ARG4:
 		CHECK_NUM(d, arg) item = SEEK_CMD(d);
@@ -1908,12 +1893,11 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			// * We should never get here, but just in case...
 			cleanup_olc(d, CLEANUP_ALL);
 			mudlog("SYSERR: OLC: zedit_parse(): case ARG4: Ack!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-			send_to_char("Опаньки...\r\n", d->character);
+			send_to_char("Опаньки...\r\n", d->character.get());
 			break;
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_SARG1:
 		item = SEEK_CMD(d);
 		if (item->cmd.sarg1)
@@ -1924,7 +1908,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_sarg2(d);
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_SARG2:
 		item = SEEK_CMD(d);
 		if (item->cmd.sarg2)
@@ -1935,7 +1918,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_menu(d);
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ZONE_NAME:
 		// * Add new name and return to main menu.
 		if (OLC_ZONE(d)->name)
@@ -1947,12 +1929,12 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_menu(d);
 		break;
 //MZ.load
-		//------------------------------------------------------------------------
+
 	case ZEDIT_ZONE_LEVEL:
 		// * Parse and add new level and return to main menu.
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < MIN_ZONE_LEVEL) || (pos > MAX_ZONE_LEVEL))
-			send_to_char(d->character, "Повторите ввод (%d-%d) : ", MIN_ZONE_LEVEL, MAX_ZONE_LEVEL);
+			send_to_char(d->character.get(), "Повторите ввод (%d-%d) : ", MIN_ZONE_LEVEL, MAX_ZONE_LEVEL);
 		else
 		{
 			OLC_ZONE(d)->level = pos;
@@ -1961,7 +1943,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ZONE_TYPE:
 		// * Parse and add new zone type and return to main menu.
 		pos = atoi(arg);
@@ -1984,12 +1965,13 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 //-MZ.load
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ZONE_RESET:
 		// * Parse and add new reset_mode and return to main menu.
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < 0) || (pos > 3))
-			send_to_char("Повторите ввод (0-3) : ", d->character);
+		{
+			send_to_char("Повторите ввод (0-3) : ", d->character.get());
+		}
 		else
 		{
 			OLC_ZONE(d)->reset_mode = pos;
@@ -1998,12 +1980,13 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ZONE_LIFE:
 		// * Parse and add new lifespan and return to main menu.
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < 0) || (pos > 240))
-			send_to_char("Повторите ввод (0-240) : ", d->character);
+		{
+			send_to_char("Повторите ввод (0-240) : ", d->character.get());
+		}
 		else
 		{
 			OLC_ZONE(d)->lifespan = pos;
@@ -2012,12 +1995,11 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_RESET_IDLE:
 		// * Parse and add new reset_idle and return to main menu.
 		if (!arg[0] || !strchr("YyNnДдНн", arg[0]))
 		{
-			send_to_char("Повторите ввод (y или n) : ", d->character);
+			send_to_char("Повторите ввод (y или n) : ", d->character.get());
 		}
 		else
 		{
@@ -2030,12 +2012,13 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_TYPE_A_LIST:
 		// * Add or delete new zone in the type A zones list.
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < 1) || (pos > 999))
-			send_to_char("Повторите ввод (1-999) : ", d->character);
+		{
+			send_to_char("Повторите ввод (1-999) : ", d->character.get());
+		}
 		else
 		{
 			for (i = 0; i < OLC_ZONE(d)->typeA_count; i++)
@@ -2052,33 +2035,41 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					break;
 				}
 			}
+
 			if (i == OLC_ZONE(d)->typeA_count)	// не нашли совпадающих -- добавляем новый
 			{
 				CREATE(temp, (OLC_ZONE(d)->typeA_count + 1));
 				for (j = 0; j < OLC_ZONE(d)->typeA_count; j++)
+				{
 					temp[j] = OLC_ZONE(d)->typeA_list[j];
+				}
 				temp[j] = pos;
 				OLC_ZONE(d)->typeA_count++;
 			}
 			else
+			{
 				--OLC_ZONE(d)->typeA_count;
+			}
 
 			free(OLC_ZONE(d)->typeA_list);
 			CREATE(OLC_ZONE(d)->typeA_list, OLC_ZONE(d)->typeA_count);
 			for (i = 0; i < OLC_ZONE(d)->typeA_count; i++)
+			{
 				OLC_ZONE(d)->typeA_list[i] = temp[i];
+			}
 			free(temp);
 			OLC_ZONE(d)->number = 1;
 			zedit_disp_menu(d);
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_TYPE_B_LIST:
 		// * Add or delete new zone in the type A zones list.
 		pos = atoi(arg);
 		if (!is_number(arg) || (pos < 1) || (pos > 999))
-			send_to_char("Повторите ввод (1-999) : ", d->character);
+		{
+			send_to_char("Повторите ввод (1-999) : ", d->character.get());
+		}
 		else
 		{
 			for (i = 0; i < OLC_ZONE(d)->typeB_count; i++)
@@ -2124,7 +2115,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ZONE_TOP:
 		// * Parse and add new top room in zone and return to main menu.
 		if (OLC_ZNUM(d) == top_of_zone_table)
@@ -2136,7 +2126,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		zedit_disp_menu(d);
 		break;
 
-		//------------------------------------------------------------------------
 	case ZEDIT_ZONE_COMMENT:
 		if (OLC_ZONE(d)->comment)
 		{
@@ -2146,7 +2135,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		OLC_ZONE(d)->number = 1;
 		zedit_disp_menu(d);
 		break;
-		//------------------------------------------------------------------------
 
 	case ZEDIT_ZONE_LOCATION:
 		if (OLC_ZONE(d)->location)
@@ -2161,7 +2149,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		OLC_ZONE(d)->number = 1;
 		zedit_disp_menu(d);
 		break;
-		//------------------------------------------------------------------------
 
 	case ZEDIT_ZONE_AUTOR:
 		if (OLC_ZONE(d)->autor)
@@ -2176,7 +2163,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		OLC_ZONE(d)->number = 1;
 		zedit_disp_menu(d);
 		break;
-		//------------------------------------------------------------------------
 
 	case ZEDIT_ZONE_DESCRIPTION:
 		if (OLC_ZONE(d)->description)
@@ -2187,29 +2173,28 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		OLC_ZONE(d)->number = 1;
 		zedit_disp_menu(d);
 		break;
-		//------------------------------------------------------------------------
 
 	case ZEDIT_ZONE_GROUP:
-	{
-		int num = atoi(arg);
-		if (num < 1 || num > 12)
 		{
-			send_to_char("Повторите ввод (от 1 до 12) :", d->character);
+			int num = atoi(arg);
+			if (num < 1 || num > 12)
+			{
+				send_to_char("Повторите ввод (от 1 до 12) :", d->character.get());
+			}
+			else
+			{
+				OLC_ZONE(d)->group = num;
+				OLC_ZONE(d)->number = 1;
+				zedit_disp_menu(d);
+			}
+			break;
 		}
-		else
-		{
-			OLC_ZONE(d)->group = num;
-			OLC_ZONE(d)->number = 1;
-			zedit_disp_menu(d);
-		}
-		break;
-	}
-		//------------------------------------------------------------------------
+
 	default:
 		// * We should never get here, but just in case...
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: zedit_parse(): Reached default case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		send_to_char("Опаньки...\r\n", d->character);
+		send_to_char("Опаньки...\r\n", d->character.get());
 		break;
 	}
 }

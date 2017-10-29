@@ -128,7 +128,14 @@ void check_rank(std::string &rank)
 
 } // namespace
 
-inline bool Clan::SortRank::operator()(const CHAR_DATA * ch1, const CHAR_DATA * ch2)
+// для сортировки вывода членов клана по рангам, когда оно через поля чара дергается
+class SortRank
+{
+public:
+	bool operator()(const CHAR_DATA::shared_ptr ch1, const CHAR_DATA::shared_ptr ch2);
+};
+
+inline bool SortRank::operator()(const CHAR_DATA::shared_ptr ch1, const CHAR_DATA::shared_ptr ch2)
 {
 	return CLAN_MEMBER(ch1)->rank_num < CLAN_MEMBER(ch2)->rank_num;
 }
@@ -148,7 +155,6 @@ int Clan::get_chest_room()
 {
 	return this->chest_room;
 }
-
 
 // проверяет находится ли чар в зоне чужого клана
 bool Clan::InEnemyZone(CHAR_DATA * ch)
@@ -753,10 +759,13 @@ void Clan::ClanLoad()
 
 	// на случай релоада кланов для выставления изменений игрокам онлайн
 	// лдшникам воткнется в другом месте, можно и тут чар-лист прогнать, варианты одинаково корявые
-	DESCRIPTOR_DATA *d;
-	for (d = descriptor_list; d; d = d->next)
+	for (auto d = descriptor_list; d; d = d->next)
+	{
 		if (d->character)
-			Clan::SetClanData(d->character);
+		{
+			Clan::SetClanData(d->character.get());
+		}
+	}
 }
 
 // вывод имму информации о кланах
@@ -1381,36 +1390,46 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 
 		int temp_rank = rank;
 		for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it, ++temp_rank)
+		{
 			if (CompareParam(buffer2, *it))
 			{
-				CHAR_DATA *editedChar = NULL;
+				CHAR_DATA::shared_ptr editedChar;
 				DESCRIPTOR_DATA *d = DescByUID(unique);
-				this->m_members.set_rank(unique, temp_rank);
+				m_members.set_rank(unique, temp_rank);
 				if (d)
 				{
 					editedChar = d->character;
-					Clan::SetClanData(d->character);
-					send_to_char(d->character, "%sВаше звание изменили, теперь вы %s.%s\r\n",
-								 CCWHT(d->character, C_NRM),
-								 (*it).c_str(),
-								 CCNRM(d->character, C_NRM));
+					Clan::SetClanData(d->character.get());
+					send_to_char(d->character.get(), "%sВаше звание изменили, теперь вы %s.%s\r\n",
+						CCWHT(d->character, C_NRM),
+						(*it).c_str(),
+						CCNRM(d->character, C_NRM));
 				}
 
 				// оповещение соклановцев о изменении звания
 				for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 				{
-					if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == this->GetRent() && editedChar != d->character)
-						send_to_char(d->character, "%s%s теперь %s.%s\r\n",
-									 CCWHT(d->character, C_NRM),
-									 it_member->second->name.c_str(), (*it).c_str(),
-									 CCNRM(d->character, C_NRM));
+					if (d->character
+						&& CLAN(d->character)
+						&& CLAN(d->character)->GetRent() == this->GetRent()
+						&& editedChar != d->character)
+					{
+						send_to_char(d->character.get(), "%s%s теперь %s.%s\r\n",
+							CCWHT(d->character, C_NRM),
+							it_member->second->name.c_str(), (*it).c_str(),
+							CCNRM(d->character, C_NRM));
+					}
 				}
+
 				return;
 			}
+		}
 
 		buffer = "Неверное звание, доступные положения:\r\n";
 		for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it)
+		{
 			buffer += "'" + *it + "' ";
+		}
 		buffer += "\r\n";
 		send_to_char(buffer, ch);
 
@@ -1423,16 +1442,19 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 		send_to_char("Этого персонажа нет в игре!\r\n", ch);
 		return;
 	}
+
 	if (PRF_FLAGGED(d->character, PRF_CODERINFO) || (GET_LEVEL(d->character) >= LVL_GOD))
 	{
 		send_to_char("Вы не можете приписать этого игрока.\r\n", ch);
 		return;
 	}
+
 	if (CLAN(d->character) && CLAN(ch) != CLAN(d->character))
 	{
 		send_to_char("Вы не можете приписать члена другой дружины.\r\n", ch);
 		return;
 	}
+
 	if (d->clan_invite)
 	{
 		if (d->clan_invite->clan == CLAN(ch))
@@ -1446,17 +1468,21 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 			return;
 		}
 	}
+
 	if (GET_KIN(d->character) != GET_KIN(ch))
 	{
 		send_to_char("Вы не можете сражаться в одном строю с иноплеменником.\r\n", ch);
 		return;
 	}
+
 	GetOneParam(buffer, buffer2);
 
 	// чтобы учесть воеводу с 0 рангом во время приписки и не дать ему приписать еще 10 воевод
 	int rank = CLAN_MEMBER(ch)->rank_num;
 	if (!rank)
+	{
 		++rank;
+	}
 
 	if (buffer2.empty())
 	{
@@ -1467,8 +1493,10 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 		send_to_char(buffer, ch);
 		return;
 	}
+
 	int temp_rank = rank; // дальше rank тоже мб использован в случае неверного выбора
 	for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it, ++temp_rank)
+	{
 		if (CompareParam(buffer2, *it))
 		{
 			// не приписан - втыкаем ему приглашение и курим, пока не согласится
@@ -1480,21 +1508,26 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 			buffer += "$N приглашен$G в вашу дружину, статус - " + *it + ".";
 			buffer += CCNRM(d->character, C_NRM);
 			// оповещаем счастливца
-			act(buffer.c_str(), FALSE, ch, 0, d->character, TO_CHAR);
+			act(buffer.c_str(), FALSE, ch, 0, d->character.get(), TO_CHAR);
 			buffer = CCWHT(d->character, C_NRM);
 			buffer += "Вы получили приглашение в дружину '" + this->name + "', статус - " + *it + ".\r\n"
-					  + "Чтобы принять приглашение наберите 'клан согласен', для отказа 'клан отказать'.\r\n"
-					  + "Никто не сможет послать вам новое приглашение до тех пор, пока вы не разберетесь с этим.\r\n"
-					  + "Настоятельно рекомендуем ознакомиться с уставом дружины и разделом справки ПРАВИЛАДРУЖИНЫ.\r\n";
+				+ "Чтобы принять приглашение наберите 'клан согласен', для отказа 'клан отказать'.\r\n"
+				+ "Никто не сможет послать вам новое приглашение до тех пор, пока вы не разберетесь с этим.\r\n"
+				+ "Настоятельно рекомендуем ознакомиться с уставом дружины и разделом справки ПРАВИЛАДРУЖИНЫ.\r\n";
 
 			buffer += CCNRM(d->character, C_NRM);
-			send_to_char(buffer, d->character);
+			send_to_char(buffer, d->character.get());
 			return;
 		}
+	}
+
 	buffer = "Неверное звание, доступные положения:\r\n";
 	for (std::vector<std::string>::const_iterator it = this->ranks.begin() + rank; it != this->ranks.end(); ++it)
+	{
 		buffer += "'" + *it + "' ";
+	}
 	buffer += "\r\n";
+
 	send_to_char(buffer, ch);
 }
 
@@ -1512,24 +1545,29 @@ void Clan::remove_member(const ClanMembersList::key_type& key)
 	DESCRIPTOR_DATA *k = DescByUID(unique);
 	if (k && k->character)
 	{
-		Clan::SetClanData(k->character);
-		send_to_char(k->character, "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
+		Clan::SetClanData(k->character.get());
+		send_to_char(k->character.get(), "Вас исключили из дружины '%s'!\r\n", this->name.c_str());
 
 		const auto clan = Clan::GetClanByRoom(IN_ROOM(k->character));
 		if (clan)
 		{
 			char_from_room(k->character);
-			act("$n был$g выдворен$a за пределы замка!", TRUE, k->character, 0, 0, TO_ROOM);
-			send_to_char("Вы были выдворены за пределы замка!\r\n", k->character);
-			char_to_room(k->character, real_room(clan->out_rent));
-			look_at_room(k->character, real_room(clan->out_rent));
-			act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, k->character, 0, 0, TO_ROOM);
+			act("$n был$g выдворен$a за пределы замка!", TRUE, k->character.get(), 0, 0, TO_ROOM);
+			send_to_char("Вы были выдворены за пределы замка!\r\n", k->character.get());
+			char_to_room(k->character.get(), real_room(clan->out_rent));
+			look_at_room(k->character.get(), real_room(clan->out_rent));
+			act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, k->character.get(), 0, 0, TO_ROOM);
 		}
 	}
+
 	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 	{
-		if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == this->GetRent())
-			send_to_char(d->character, "%s более не является членом вашей дружины.\r\n", name.c_str());
+		if (d->character
+			&& CLAN(d->character)
+			&& CLAN(d->character)->GetRent() == this->GetRent())
+		{
+			send_to_char(d->character.get(), "%s более не является членом вашей дружины.\r\n", name.c_str());
+		}
 	}
 }
 
@@ -1654,24 +1692,27 @@ void Clan::GodToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 	}
 	switch (subcmd)
 	{
-		// большой БОГ говорит какой-то дружине
+	// большой БОГ говорит какой-то дружине
 	case SCMD_CHANNEL:
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 		{
 			if (d->character
 				&& CLAN(d->character)
-				&& ch != d->character
+				&& ch != d->character.get()
 				&& STATE(d) == CON_PLAYING
 				&& CLAN(d->character).get() == this
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS))
 			{
-				send_to_char(d->character, "%s ВАШЕЙ ДРУЖИНЕ: %s'%s'%s\r\n",
-							 GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+				send_to_char(d->character.get(), "%s ВАШЕЙ ДРУЖИНЕ: %s'%s'%s\r\n",
+					GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
 			}
 		}
+
 		send_to_char(ch, "Вы дружине %s: %s'%s'.%s\r\n", this->abbrev.c_str(), CCIRED(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
+
 		break;
-		// он же в канал союзников этой дружины, если они вообще есть
+
+	// он же в канал союзников этой дружины, если они вообще есть
 	case SCMD_ACHANNEL:
 		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 		{
@@ -1679,27 +1720,33 @@ void Clan::GodToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 				&& CLAN(d->character)
 				&& STATE(d) == CON_PLAYING
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-				&& d->character != ch)
+				&& d->character.get() != ch)
 			{
-				if (this->CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
-						|| CLAN(d->character).get() == this)
+				if (CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
+					|| CLAN(d->character).get() == this)
 				{
 					// проверка на альянс с обеих сторон, иначе это не альянс
 					if (CLAN(d->character).get() != this)
 					{
 						if (CLAN(d->character)->CheckPolitics(this->rent) == POLITICS_ALLIANCE)
-							send_to_char(d->character, "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
-										 GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+						{
+							send_to_char(d->character.get(), "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
+								GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+						}
 					}
 					// первоначальному клану выдается всегда
 					else
-						send_to_char(d->character, "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
-									 GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+					{
+						send_to_char(d->character.get(), "%s ВАШИМ СОЮЗНИКАМ: %s'%s'%s\r\n",
+							GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+					}
 				}
 			}
 		}
+
 		send_to_char(ch, "Вы союзникам %s: %s'%s'.%s\r\n",
-					 this->abbrev.c_str(), CCIGRN(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
+			abbrev.c_str(), CCIGRN(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
+
 		break;
 	}
 }
@@ -1713,6 +1760,7 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 		send_to_char("Что вы хотите сообщить?\r\n", ch);
 		return;
 	}
+
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
@@ -1725,59 +1773,40 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
 	}
-//	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)) Ибо в подводе коряво работает
-//	{
-//		send_to_char(SOUNDPROOF, ch);
-//		return;
-//	}
+
 
 	switch (subcmd)
 	{
 	// своей дружине
 	case SCMD_CHANNEL:
-	{
-		/* Непонятно нафига такой запрет был сделан...
-		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-		{
-			send_to_char("Пришли наблюдать, так наблюдайте!\r\n", ch);
-			return;
-		}
-		...так что убрал пока что */
 		// вспомнить
 		snprintf(buf, MAX_STRING_LENGTH, "%s дружине: &R'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 		CLAN(ch)->add_remember(buf, Remember::CLAN);
 
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+		for (auto d = descriptor_list; d; d = d->next)
 		{
 			if (d->character
-				&& d->character != ch
+				&& d->character.get() != ch
 				&& STATE(d) == CON_PLAYING
 				&& CLAN(d->character) == CLAN(ch)
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-//	    			&& !ROOM_FLAGGED(d->character->in_room, ROOM_SOUNDPROOF)
-				&& !ignores(d->character, ch, IGNORE_CLAN))
+				&& !ignores(d->character.get(), ch, IGNORE_CLAN))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%s дружине: %s'%s'.%s\r\n",
 						GET_NAME(ch), CCIRED(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
 				d->character->remember_add(buf, Remember::ALL);
-				send_to_char(buf, d->character);
+				send_to_char(buf, d->character.get());
 			}
 		}
+
 		snprintf(buf, MAX_STRING_LENGTH, "Вы дружине: %s'%s'.%s\r\n", CCIRED(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
 		ch->remember_add(buf, Remember::ALL);
 		send_to_char(buf, ch);
+
 		break;
-	}
+
 	// союзникам
 	case SCMD_ACHANNEL:
-	{
-		/* Непонятно нафига такой запрет был сделан...
-		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-		{
-			send_to_char("Пришли наблюдать, так наблюдайте!\r\n", ch);
-			return;
-		}
-		...так что убрал пока что */
 		// вспомнить
 		snprintf(buf, MAX_STRING_LENGTH, "%s союзникам: &G'%s'.&n\r\n", GET_NAME(ch), text.c_str());
 		for (ClanListType::iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
@@ -1790,15 +1819,14 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 			}
 		}
 
-		for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
+		for (auto d = descriptor_list; d; d = d->next)
 		{
 			if (d->character
 				&& CLAN(d->character)
 				&& STATE(d) == CON_PLAYING
-				&& d->character != ch
+				&& d->character.get() != ch
 				&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
-//	    			&& !ROOM_FLAGGED(d->character->in_room, ROOM_SOUNDPROOF)
-				&& !ignores(d->character, ch, IGNORE_ALLIANCE))
+				&& !ignores(d->character.get(), ch, IGNORE_ALLIANCE))
 			{
 				if (CLAN(ch)->CheckPolitics(CLAN(d->character)->GetRent()) == POLITICS_ALLIANCE
 						|| CLAN(ch) == CLAN(d->character))
@@ -1808,18 +1836,19 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 						|| CLAN(ch) == CLAN(d->character))
 					{
 							snprintf(buf, MAX_STRING_LENGTH, "%s союзникам: %s'%s'.%s\r\n",
-										 GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
+								GET_NAME(ch), CCIGRN(d->character, C_NRM), text.c_str(), CCNRM(d->character, C_NRM));
 							d->character->remember_add(buf, Remember::ALL);
-							send_to_char(buf, d->character);
+							send_to_char(buf, d->character.get());
 					}
 				}
 			}
 		}
+
 		snprintf(buf, MAX_STRING_LENGTH, "Вы союзникам: %s'%s'.%s\r\n", CCIGRN(ch, C_NRM), text.c_str(), CCNRM(ch, C_NRM));
 		ch->remember_add(buf, Remember::ALL);
 		send_to_char(buf, ch);
+
 		break;
-	}
 	} // switch
 }
 
@@ -1927,7 +1956,6 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	bool all = 0;
-	std::vector<CHAR_DATA *> temp_list;
 
 	Clan::ClanListType::const_iterator clan;
 	for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
@@ -1961,8 +1989,8 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	// строится список членов дружины или всех дружин (по флагу all)
-	DESCRIPTOR_DATA *d;
-	for (d = descriptor_list; d; d = d->next)
+	std::vector<CHAR_DATA::shared_ptr> temp_list;
+	for (auto d = descriptor_list; d; d = d->next)
 	{
 		if (d->character
 			&& d->character->in_room != NOWHERE
@@ -1977,7 +2005,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	// до кучи сортировка по рангам
-	std::sort(temp_list.begin(), temp_list.end(), Clan::SortRank());
+	std::sort(temp_list.begin(), temp_list.end(), SortRank());
 
 	std::ostringstream buffer2;
 	buffer2 << "В игре зарегистрированы следующие дружины:\r\n" << "     #                  Глава Название\r\n\r\n";
@@ -1987,12 +2015,14 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!all)
 	{
 		buffer2 << clanFormat % 1 % (*clan)->abbrev % (*clan)->owner % (*clan)->name;
-		for (std::vector < CHAR_DATA * >::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
-			buffer2 << memberFormat % (IS_MALE(*it) ? (*clan)->ranks[CLAN_MEMBER(*it)->rank_num] : (*clan)->ranks_female[CLAN_MEMBER(*it)->rank_num])
-			% CCPK(ch, C_NRM, *it) % (*it)->noclan_title()
-			% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
-			% (PLR_FLAGGED(*it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
-			% CCNRM(ch, C_NRM);
+		for (const auto& it : temp_list)
+		{
+			buffer2 << memberFormat % (IS_MALE(it) ? (*clan)->ranks[CLAN_MEMBER(it)->rank_num] : (*clan)->ranks_female[CLAN_MEMBER(it)->rank_num])
+				% CCPK(ch, C_NRM, it) % (it)->noclan_title()
+				% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
+				% (PLR_FLAGGED(it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
+				% CCNRM(ch, C_NRM);
+		}
 	}
 	// просто выводим все дружины и всех членов (без параметра 'все' в списке будут только дружины)
 	else
@@ -2001,18 +2031,26 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		for (auto clan_i = Clan::ClanList.begin(); clan_i != Clan::ClanList.end(); ++clan_i)
 		{
 			if ((*clan_i)->m_members.size() == 0)
+			{
 				continue;
+			}
+
 			buffer2 << clanFormat % count % (*clan_i)->abbrev % (*clan_i)->owner % (*clan_i)->name;
-			for (std::vector < CHAR_DATA * >::const_iterator it = temp_list.begin(); it != temp_list.end(); ++it)
-				if (CLAN(*it) == *clan_i)
-					buffer2 << memberFormat % (*clan_i)->ranks[CLAN_MEMBER(*it)->rank_num]
-					% CCPK(ch, C_NRM, *it) % (*it)->noclan_title()
-					% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
-					% (PLR_FLAGGED(*it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
-					% CCNRM(ch, C_NRM);
+			for (const auto& it : temp_list)
+			{
+				if (CLAN(it) == *clan_i)
+				{
+					buffer2 << memberFormat % (*clan_i)->ranks[CLAN_MEMBER(it)->rank_num]
+						% CCPK(ch, C_NRM, it) % it->noclan_title()
+						% CCNRM(ch, C_NRM) % CCIRED(ch, C_NRM)
+						% (PLR_FLAGGED(it, PLR_KILLER) ? "(ДУШЕГУБ)" : "")
+						% CCNRM(ch, C_NRM);
+				}
+			}
 			++count;
 		}
 	}
+
 	buffer2 << "\r\nВсего игроков - " << temp_list.size() << "\r\n";
 	send_to_char(buffer2.str(), ch);
 }
@@ -2023,7 +2061,9 @@ int Clan::CheckPolitics(int victim)
 {
 	ClanPolitics::const_iterator it = politics.find(victim);
 	if (it != politics.end())
+	{
 		return it->second;
+	}
 	return POLITICS_NEUTRAL;
 }
 
@@ -2051,7 +2091,6 @@ bool Clan::check_write_board(CHAR_DATA *ch)
 	}
 	return false;
 }
-
 
 //Polud будем показывать всем происходящие войны
 void DoShowWars(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2259,17 +2298,28 @@ void Clan::ManagePolitics(CHAR_DATA * ch, std::string & buffer)
 		// уведомляем обе дружины
 		for (d = descriptor_list; d; d = d->next)
 		{
-			if (d->character && STATE(d) == CON_PLAYING && PRF_FLAGGED(d->character, PRF_POLIT_MODE))
+			if (d->character
+				&& STATE(d) == CON_PLAYING
+				&& PRF_FLAGGED(d->character, PRF_POLIT_MODE))
 			{
 				if (CLAN(d->character) == *vict)
-					send_to_char(d->character, "%sДружина %s заключила с вашей дружиной нейтралитет!%s\r\n", CCWHT(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				{
+					send_to_char(d->character.get(), "%sДружина %s заключила с вашей дружиной нейтралитет!%s\r\n",
+						CCWHT(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				}
 				else if (CLAN(d->character) == CLAN(ch))
-					send_to_char(d->character, "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n", CCWHT(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				{
+					send_to_char(d->character.get(), "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n",
+						CCWHT(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				}
 			}
 		}
-		if (!PRF_FLAGGED(ch, PRF_POLIT_MODE)) // а то сам может не увидеть нафик
-			send_to_char(ch, "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n", CCWHT(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
 
+		if (!PRF_FLAGGED(ch, PRF_POLIT_MODE)) // а то сам может не увидеть нафик
+		{
+			send_to_char(ch, "%sВаша дружина заключила с дружиной %s нейтралитет!%s\r\n",
+				CCWHT(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
+		}
 	}
 	else if (CompareParam(buffer2, "война"))
 	{
@@ -2278,22 +2328,32 @@ void Clan::ManagePolitics(CHAR_DATA * ch, std::string & buffer)
 			send_to_char(ch, "Ваша дружина уже воюет с дружиной %s.\r\n", (*vict)->abbrev.c_str());
 			return;
 		}
+
 		SetPolitics((*vict)->rent, POLITICS_WAR);
 		set_wait(ch, 1, FALSE);
 		// тож самое
+
 		for (d = descriptor_list; d; d = d->next)
 		{
-			if (d->character && STATE(d) == CON_PLAYING && PRF_FLAGGED(d->character, PRF_POLIT_MODE))
+			if (d->character
+				&& STATE(d) == CON_PLAYING
+				&& PRF_FLAGGED(d->character, PRF_POLIT_MODE))
 			{
 				if (CLAN(d->character) == *vict)
-					send_to_char(d->character, "%sДружина %s объявила вашей дружине войну!%s\r\n", CCIRED(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				{
+					send_to_char(d->character.get(), "%sДружина %s объявила вашей дружине войну!%s\r\n", CCIRED(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				}
 				else if (CLAN(d->character) == CLAN(ch))
-					send_to_char(d->character, "%sВаша дружина объявила дружине %s войну!%s\r\n", CCIRED(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				{
+					send_to_char(d->character.get(), "%sВаша дружина объявила дружине %s войну!%s\r\n", CCIRED(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				}
 			}
 		}
-		if (!PRF_FLAGGED(ch, PRF_POLIT_MODE))
-			send_to_char(ch, "%sВаша дружина объявила дружине %s войну!%s\r\n", CCIRED(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
 
+		if (!PRF_FLAGGED(ch, PRF_POLIT_MODE))
+		{
+			send_to_char(ch, "%sВаша дружина объявила дружине %s войну!%s\r\n", CCIRED(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
+		}
 	}
 	else if (CompareParam(buffer2, "альянс"))
 	{
@@ -2302,21 +2362,31 @@ void Clan::ManagePolitics(CHAR_DATA * ch, std::string & buffer)
 			send_to_char(ch, "Ваша дружина уже в альянсе с дружиной %s.\r\n", (*vict)->abbrev.c_str());
 			return;
 		}
+
 		set_wait(ch, 1, FALSE);
 		SetPolitics((*vict)->rent, POLITICS_ALLIANCE);
+
 		// тож самое
 		for (d = descriptor_list; d; d = d->next)
 		{
 			if (d->character && STATE(d) == CON_PLAYING && PRF_FLAGGED(d->character, PRF_POLIT_MODE))
 			{
 				if (CLAN(d->character) == *vict)
-					send_to_char(d->character, "%sДружина %s заключила с вашей дружиной альянс!%s\r\n", CCGRN(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				{
+					send_to_char(d->character.get(), "%sДружина %s заключила с вашей дружиной альянс!%s\r\n", CCGRN(d->character, C_NRM), this->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				}
 				else if (CLAN(d->character) == CLAN(ch))
-					send_to_char(d->character, "%sВаша дружина заключила альянс с дружиной %s!%s\r\n", CCGRN(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				{
+					send_to_char(d->character.get(), "%sВаша дружина заключила альянс с дружиной %s!%s\r\n", CCGRN(d->character, C_NRM), (*vict)->abbrev.c_str(), CCNRM(d->character, C_NRM));
+				}
 			}
 		}
+
 		if (!PRF_FLAGGED(ch, PRF_POLIT_MODE))
-			send_to_char(ch, "%sВаша дружина заключила альянс с дружиной %s!%s\r\n", CCGRN(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
+		{
+			send_to_char(ch, "%sВаша дружина заключила альянс с дружиной %s!%s\r\n",
+				CCGRN(ch, C_NRM), (*vict)->abbrev.c_str(), CCNRM(ch, C_NRM));
+		}
 	}
 }
 
@@ -2331,7 +2401,6 @@ const char *HCONTROL_FORMAT =
 	"        hcontrol owner <vnum ренты> <имя нового воеводы>\r\n"
 	"        hcontrol ingr <vnum ренты> <vnum комнаты для сундука с ингредиентами>\r\n"
 	"        hcontrol exphitory <число месяцев>\r\n";
-
 
 // * hcontrol title - изменение аббревиатуры клана в титуле персонажа.
 void Clan::hcontrol_title(CHAR_DATA *ch, std::string &text)
@@ -2364,11 +2433,14 @@ void Clan::hcontrol_title(CHAR_DATA *ch, std::string &text)
 	Clan::ClanSave();
 	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 	{
-		if (d->character && CLAN(d->character) && CLAN(d->character) == *clan)
+		if (d->character
+			&& CLAN(d->character)
+			&& CLAN(d->character) == *clan)
 		{
-			Clan::SetClanData(d->character);
+			Clan::SetClanData(d->character.get());
 		}
 	}
+
 	send_to_char("Сделано.\r\n", ch);
 }
 
@@ -2426,9 +2498,11 @@ void Clan::hcontrol_rank(CHAR_DATA *ch, std::string &text)
 	Clan::ClanSave();
 	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 	{
-		if (d->character && CLAN(d->character) && CLAN(d->character) == *clan)
+		if (d->character
+			&& CLAN(d->character)
+			&& CLAN(d->character) == *clan)
 		{
-			Clan::SetClanData(d->character);
+			Clan::SetClanData(d->character.get());
 		}
 	}
 	send_to_char("Сделано.\r\n", ch);
@@ -2742,12 +2816,13 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	Boards::Static::ClanInit();
 
 	// уведомляем счастливых воеводу и имма
-	DESCRIPTOR_DATA *d;
-	if ((d = DescByUID(unique)))
+	DESCRIPTOR_DATA *d = DescByUID(unique);
+	if (d)
 	{
-		Clan::SetClanData(d->character);
-		send_to_char(d->character, "Вы стали хозяином нового замка. Добро пожаловать!\r\n");
+		Clan::SetClanData(d->character.get());
+		send_to_char(d->character.get(), "Вы стали хозяином нового замка. Добро пожаловать!\r\n");
 	}
+
 	send_to_char(ch, "Дружина '%s' создана!\r\n", abbrev.c_str());
 }
 
@@ -2872,8 +2947,8 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 		DESCRIPTOR_DATA *d = DescByUID(it.first);
 		if (d)
 		{
-			Clan::SetClanData(d->character);
-			send_to_char(d->character, "Ваша дружина распущена. Желаем удачи!\r\n");
+			Clan::SetClanData(d->character.get());
+			send_to_char(d->character.get(), "Ваша дружина распущена. Желаем удачи!\r\n");
 		}
 	}
 }
@@ -3085,19 +3160,25 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			CLAN(ch)->pkList[unique] = tempRecord;
 		else
 			CLAN(ch)->frList[unique] = tempRecord;
-		DESCRIPTOR_DATA *d;
-		if ((d = DescByUID(unique)) && PRF_FLAGGED(d->character, PRF_PKL_MODE))
+
+		DESCRIPTOR_DATA *d = DescByUID(unique);
+		if (d && PRF_FLAGGED(d->character, PRF_PKL_MODE))
 		{
 			if (!subcmd)
-				send_to_char(d->character, "%sДружина '%s' добавила вас в список своих врагов!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+			{
+				send_to_char(d->character.get(), "%sДружина '%s' добавила вас в список своих врагов!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+			}
 			else
-				send_to_char(d->character, "%sДружина '%s' добавила вас в список своих друзей!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+			{
+				send_to_char(d->character.get(), "%sДружина '%s' добавила вас в список своих друзей!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+			}
 			set_wait(ch, 1, FALSE);
 		}
-		send_to_char("Ладушки, добавили.\r\n", ch);
 
+		send_to_char("Ладушки, добавили.\r\n", ch);
 	}
-	else if ((CompareParam(buffer2, "удалить") || CompareParam(buffer2, "delete")) && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST])
+	else if ((CompareParam(buffer2, "удалить") || CompareParam(buffer2, "delete"))
+		&& CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PKLIST])
 	{
 		// удаление записи
 		GetOneParam(buffer, buffer2);
@@ -3166,12 +3247,17 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			send_to_char("Запись удалена.\r\n", ch);
 			DESCRIPTOR_DATA *d;
-			if ((d = DescByUID(unique)) && PRF_FLAGGED(d->character, PRF_PKL_MODE))
+			if ((d = DescByUID(unique))
+				&& PRF_FLAGGED(d->character, PRF_PKL_MODE))
 			{
 				if (!subcmd)
-					send_to_char(d->character, "%sДружина '%s' удалила вас из списка своих врагов!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+				{
+					send_to_char(d->character.get(), "%sДружина '%s' удалила вас из списка своих врагов!%s\r\n", CCGRN(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+				}
 				else
-					send_to_char(d->character, "%sДружина '%s' удалила вас из списка своих друзей!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+				{
+					send_to_char(d->character.get(), "%sДружина '%s' удалила вас из списка своих друзей!%s\r\n", CCIRED(d->character, C_NRM), CLAN(ch)->name.c_str(), CCNRM(d->character, C_NRM));
+				}
 				set_wait(ch, 1, FALSE);
 			}
 		}
@@ -3179,7 +3265,6 @@ void DoClanPkList(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			send_to_char("Запись не найдена.\r\n", ch);
 		}
-
 	}
 	else
 	{
@@ -3324,19 +3409,22 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 				&& CLAN(d->character) == CLAN(ch)
 				&& PRF_FLAGGED(d->character, PRF_TAKE_MODE))
 			{
-				send_to_char(d->character, "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
+				send_to_char(d->character.get(), "[Хранилище]: %s'%s сдал%s %s%s.'%s\r\n",
 					CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
 					obj->get_PName(3).c_str(),
 					clan_get_custom_label(obj, CLAN(ch)).c_str(),
 					CCNRM(d->character, C_NRM));
 			}
 		}
+
 		if (!PRF_FLAGGED(ch, PRF_DECAY_MODE))
 		{
 			act("Вы положили $o3 в $O3.", FALSE, ch, obj, chest, TO_CHAR);
 		}
+
 		CLAN(ch)->chest_objcount++;
 	}
+
 	return 1;
 }
 
@@ -3373,7 +3461,7 @@ bool Clan::TakeChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 				&& CLAN(d->character) == CLAN(ch)
 				&& PRF_FLAGGED(d->character, PRF_TAKE_MODE))
 			{
-				send_to_char(d->character, "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
+				send_to_char(d->character.get(), "[Хранилище]: %s'%s забрал%s %s%s.'%s\r\n",
 					CCIRED(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_1(ch),
 					obj->get_PName(3).c_str(),
 					clan_get_custom_label(obj, CLAN(d->character)).c_str(),
@@ -3753,21 +3841,24 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 			{
 				send_to_char("Во время редактирования привилегий в вашей дружине было изменено количество званий.\r\n"
 							 "Во избежание несоответствий зайдите в меню еще раз.\r\n"
-							 "Редактирование отменено.\r\n", d->character);
+							 "Редактирование отменено.\r\n", d->character.get());
 				d->clan_olc.reset();
 				STATE(d) = CON_PLAYING;
 				return;
 			}
-			send_to_char("Вы желаете сохранить изменения? Y(Д)/N(Н) : ", d->character);
+
+			send_to_char("Вы желаете сохранить изменения? Y(Д)/N(Н) : ", d->character.get());
 			d->clan_olc->mode = CLAN_SAVE_MENU;
 			return;
+
 		default:
 			if (!*arg || !num)
 			{
-				send_to_char("Неверный выбор!\r\n", d->character);
+				send_to_char("Неверный выбор!\r\n", d->character.get());
 				d->clan_olc->clan->MainMenu(d);
 				return;
 			}
+
 			// тут парсим циферки уже (меню начинается с 1 + ранг ниже себя)
 			unsigned choise = num + CLAN_MEMBER(d->character)->rank_num;
 			if (choise >= d->clan_olc->clan->ranks.size())
@@ -3801,7 +3892,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				}
 				else if (i == 4 && !CLAN_MEMBER(d->character)->rank_num)
 				{
-					d->clan_olc->clan->set_ingr_chest(d->character);
+					d->clan_olc->clan->set_ingr_chest(d->character.get());
 					d->clan_olc->clan->MainMenu(d);
 					return;
 				}
@@ -3809,18 +3900,18 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				{
 					if (!ingr_chest_active())
 					{
-						send_to_char("Неверный выбор!\r\n", d->character);
+						send_to_char("Неверный выбор!\r\n", d->character.get());
 					}
 					else
 					{
-						d->clan_olc->clan->disable_ingr_chest(d->character);
+						d->clan_olc->clan->disable_ingr_chest(d->character.get());
 					}
 					d->clan_olc->clan->MainMenu(d);
 					return;
 				}
 				else
 				{
-					send_to_char("Неверный выбор!\r\n", d->character);
+					send_to_char("Неверный выбор!\r\n", d->character.get());
 					d->clan_olc->clan->MainMenu(d);
 					return;
 				}
@@ -3829,7 +3920,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 
 			if (choise >= d->clan_olc->clan->ranks.size())
 			{
-				send_to_char("Неверный выбор!\r\n", d->character);
+				send_to_char("Неверный выбор!\r\n", d->character.get());
 				d->clan_olc->clan->MainMenu(d);
 				return;
 			}
@@ -3838,6 +3929,7 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 			return;
 		}
 		break;
+
 	case CLAN_PRIVILEGE_MENU:
 		switch (*arg)
 		{
@@ -3853,16 +3945,18 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 		default:
 			if (!*arg)
 			{
-				send_to_char("Неверный выбор!\r\n", d->character);
+				send_to_char("Неверный выбор!\r\n", d->character.get());
 				d->clan_olc->clan->PrivilegeMenu(d, d->clan_olc->rank);
 				return;
 			}
+
 			if (num > CLAN_PRIVILEGES_NUM || num <= 0)
 			{
-				send_to_char("Неверный выбор!\r\n", d->character);
+				send_to_char("Неверный выбор!\r\n", d->character.get());
 				d->clan_olc->clan->PrivilegeMenu(d, d->clan_olc->rank);
 				return;
 			}
+
 			// мы выдаем только доступные привилегии в меню и нормально парсим их тут
 			unsigned parse_num;
 			for (parse_num = 0; parse_num <= CLAN_PRIVILEGES_NUM; ++parse_num)
@@ -3873,14 +3967,22 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 						break;
 				}
 			}
+
 			if (d->clan_olc->privileges[d->clan_olc->rank][parse_num])
+			{
 				d->clan_olc->privileges[d->clan_olc->rank][parse_num] = 0;
+			}
 			else
+			{
 				d->clan_olc->privileges[d->clan_olc->rank][parse_num] = 1;
+			}
+
 			d->clan_olc->clan->PrivilegeMenu(d, d->clan_olc->rank);
 			return;
 		}
+
 		break;
+
 	case CLAN_SAVE_MENU:
 		switch (*arg)
 		{
@@ -3893,22 +3995,26 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 			d->clan_olc.reset();
 			// Clan::ClanSave();
 			STATE(d) = CON_PLAYING;
-			send_to_char("Изменения сохранены.\r\n", d->character);
+			send_to_char("Изменения сохранены.\r\n", d->character.get());
 			return;
+
 		case 'n':
 		case 'N':
 		case 'н':
 		case 'Н':
 			d->clan_olc.reset();
 			STATE(d) = CON_PLAYING;
-			send_to_char("Редактирование отменено.\r\n", d->character);
+			send_to_char("Редактирование отменено.\r\n", d->character.get());
 			return;
+
 		default:
-			send_to_char("Неверный выбор!\r\nВы желаете сохранить изменения? Y(Д)/N(Н) : ", d->character);
+			send_to_char("Неверный выбор!\r\nВы желаете сохранить изменения? Y(Д)/N(Н) : ", d->character.get());
 			d->clan_olc->mode = CLAN_SAVE_MENU;
 			return;
 		}
+
 		break;
+
 	case CLAN_ADDALL_MENU:
 		switch (*arg)
 		{
@@ -3930,22 +4036,26 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				}
 
 			}
+
 			d->clan_olc->mode = CLAN_MAIN_MENU;
 			d->clan_olc->clan->MainMenu(d);
 			return;
+
 		default:
 			if (!*arg)
 			{
-				send_to_char("Неверный выбор!\r\n", d->character);
+				send_to_char("Неверный выбор!\r\n", d->character.get());
 				d->clan_olc->clan->AllMenu(d, 0);
 				return;
 			}
+
 			if (num > CLAN_PRIVILEGES_NUM)
 			{
-				send_to_char("Неверный выбор!\r\n", d->character);
+				send_to_char("Неверный выбор!\r\n", d->character.get());
 				d->clan_olc->clan->AllMenu(d, 0);
 				return;
 			}
+
 			unsigned parse_num;
 			for (parse_num = 0; parse_num < CLAN_PRIVILEGES_NUM; ++parse_num)
 			{
@@ -3955,14 +4065,21 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 						break;
 				}
 			}
+
 			if (d->clan_olc->all_ranks[parse_num])
+			{
 				d->clan_olc->all_ranks[parse_num] = 0;
+			}
 			else
+			{
 				d->clan_olc->all_ranks[parse_num] = 1;
+			}
+
 			d->clan_olc->clan->AllMenu(d, 0);
 			return;
 		}
 		break;
+
 	case CLAN_DELALL_MENU:
 		switch (*arg)
 		{
@@ -3984,22 +4101,27 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 				}
 
 			}
+
 			d->clan_olc->mode = CLAN_MAIN_MENU;
 			d->clan_olc->clan->MainMenu(d);
+
 			return;
+
 		default:
 			if (!*arg)
 			{
-				send_to_char("Неверный выбор!\r\n", d->character);
+				send_to_char("Неверный выбор!\r\n", d->character.get());
 				d->clan_olc->clan->AllMenu(d, 1);
 				return;
 			}
+
 			if (num > CLAN_PRIVILEGES_NUM)
 			{
-				send_to_char("Неверный выбор!\r\n", d->character);
+				send_to_char("Неверный выбор!\r\n", d->character.get());
 				d->clan_olc->clan->AllMenu(d, 1);
 				return;
 			}
+
 			unsigned parse_num;
 			for (parse_num = 0; parse_num < CLAN_PRIVILEGES_NUM; ++parse_num)
 			{
@@ -4009,14 +4131,21 @@ void Clan::Manage(DESCRIPTOR_DATA * d, const char *arg)
 						break;
 				}
 			}
+
 			if (d->clan_olc->all_ranks[parse_num])
+			{
 				d->clan_olc->all_ranks[parse_num] = 0;
+			}
 			else
+			{
 				d->clan_olc->all_ranks[parse_num] = 1;
+			}
+
 			d->clan_olc->clan->AllMenu(d, 1);
 			return;
 		}
 		break;
+
 	default:
 		log("No case, wtf!? mode: %d (%s %s %d)", d->clan_olc->mode, __FILE__, __func__, __LINE__);
 	}
@@ -4081,7 +4210,7 @@ void Clan::MainMenu(DESCRIPTOR_DATA * d)
 	buffer << CCGRN(d->character, C_NRM) << " В(Q)" << CCNRM(d->character, C_NRM)
 	<< ") Выход\r\n" << "Ваш выбор:";
 
-	send_to_char(buffer.str(), d->character);
+	send_to_char(buffer.str(), d->character.get());
 	d->clan_olc->mode = CLAN_MAIN_MENU;
 }
 
@@ -4094,7 +4223,7 @@ void Clan::PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num)
 		{
 			d->clan_olc.reset();
 			STATE(d) = CON_PLAYING;
-			send_to_char(d->character, "Случилось что-то страшное, сообщите Богам!");
+			send_to_char(d->character.get(), "Случилось что-то страшное, сообщите Богам!");
 		}
 		return;
 	}
@@ -4258,7 +4387,7 @@ void Clan::PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num)
 	}
 	buffer << CCGRN(d->character, C_NRM) << " В(Q)" << CCNRM(d->character, C_NRM)
 	<< ") Выход\r\n" << "Ваш выбор:";
-	send_to_char(buffer.str(), d->character);
+	send_to_char(buffer.str(), d->character.get());
 	d->clan_olc->mode = CLAN_PRIVILEGE_MENU;
 }
 
@@ -4430,7 +4559,7 @@ void Clan::AllMenu(DESCRIPTOR_DATA * d, unsigned flag)
 	}
 	buffer << CCGRN(d->character, C_NRM) << " В(Q)" << CCNRM(d->character, C_NRM)
 	<< ") Применить\r\n" << "Ваш выбор:";
-	send_to_char(buffer.str(), d->character);
+	send_to_char(buffer.str(), d->character.get());
 	if (flag == 0)
 		d->clan_olc->mode = CLAN_ADDALL_MENU;
 	else
@@ -4467,15 +4596,16 @@ void Clan::ClanAddMember(CHAR_DATA * ch, int rank)
 			&& STATE(d) == CON_PLAYING
 			&& !AFF_FLAGGED(d->character, EAffectFlag::AFF_DEAFNESS)
 			&& this->GetRent() == CLAN(d->character)->GetRent()
-			&& ch != d->character)
+			&& ch != d->character.get())
 		{
-			send_to_char(d->character, "%s%s приписан%s к вашей дружине, статус - '%s'.%s\r\n",
+			send_to_char(d->character.get(), "%s%s приписан%s к вашей дружине, статус - '%s'.%s\r\n",
 				CCWHT(d->character, C_NRM), GET_NAME(ch), GET_CH_SUF_6(ch), (this->ranks[rank]).c_str(), CCNRM(d->character, C_NRM));
 		}
 	}
+
 	send_to_char(ch, "%sВас приписали к дружине '%s', статус - '%s'.%s\r\n",
 		CCWHT(ch, C_NRM), this->name.c_str(), (this->ranks[rank]).c_str(), CCNRM(ch, C_NRM));
-	// Clan::ClanSave();
+
 	return;
 }
 
@@ -4507,11 +4637,11 @@ void Clan::HouseOwner(CHAR_DATA * ch, std::string & buffer)
 		if (CLAN(d->character))
 		{
 			this->m_members.set_rank(GET_UNIQUE(d->character), 0);
-			Clan::SetClanData(d->character);
+			Clan::SetClanData(d->character.get());
 		}
 		else
 		{
-			this->ClanAddMember(d->character, 0);
+			this->ClanAddMember(d->character.get(), 0);
 		}
 		this->owner = buffer2;
 		send_to_char(ch, "Поздравляем, вы передали свои полномочия %s!\r\n", GET_PAD(d->character, 2));
@@ -4602,8 +4732,8 @@ void Clan::hcon_owner(CHAR_DATA *ch, std::string &text)
 	DESCRIPTOR_DATA *d = DescByUID(member_uid);
 	if (d && d->character)
 	{
-		Clan::SetClanData(d->character);
-		send_to_char(d->character, "%sВы стали новым воеводой дружины %s. Желаем удачи!%s\r\n",
+		Clan::SetClanData(d->character.get());
+		send_to_char(d->character.get(), "%sВы стали новым воеводой дружины %s. Желаем удачи!%s\r\n",
 				CCIGRN(d->character, C_NRM), (*clan)->get_abbrev().c_str(), CCNRM(d->character, C_NRM));
 	}
 	if ((*clan)->m_members.size() > 0)
@@ -4613,13 +4743,15 @@ void Clan::hcon_owner(CHAR_DATA *ch, std::string &text)
 		{
 			if (d->character && CLAN(d->character) && CLAN(d->character)->GetRent() == (*clan)->GetRent())
 			{
-				send_to_char(d->character, "%sОсуществлена принудительная смена воеводы вашей дружины: %s -> %s.%s\r\n",
+				send_to_char(d->character.get(), "%sОсуществлена принудительная смена воеводы вашей дружины: %s -> %s.%s\r\n",
 					CCIGRN(d->character, C_NRM), (*clan)->owner.c_str(), name.c_str(), CCNRM(d->character, C_NRM));
 			}
 		}
 	}
 	else
+	{
 		(*clan)->builtOn = time(0);  //не ставит текущую дату
+	}
 	(*clan)->owner = name;
 	Clan::ClanSave();
 	send_to_char("Сделано.\r\n", ch);
@@ -5041,7 +5173,7 @@ void Clan::ChestInvoice()
 				&& CLAN(d->character)
 				&& CLAN(d->character) == *clan)
 			{
-				send_to_char(d->character, "[Хранилище]: %s'Напоминаю, что средств в казне дружины хватит менее, чем на сутки!'%s\r\n",
+				send_to_char(d->character.get(), "[Хранилище]: %s'Напоминаю, что средств в казне дружины хватит менее, чем на сутки!'%s\r\n",
 					CCIRED(d->character, C_NRM), CCNRM(d->character, C_NRM));
 			}
 		}
@@ -5130,7 +5262,7 @@ void Clan::SetClanExp(CHAR_DATA *ch, int add)
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent)
 			{
-				send_to_char(d->character, "&GВаш замок достиг нового, %d уровня! Поздравляем!&n\r\n", this->clan_level);
+				send_to_char(d->character.get(), "&GВаш замок достиг нового, %d уровня! Поздравляем!&n\r\n", this->clan_level);
 			}
 		}
 	}
@@ -5145,7 +5277,7 @@ void Clan::SetClanExp(CHAR_DATA *ch, int add)
 				&& CLAN(d->character)
 				&& CLAN(d->character)->GetRent() == this->rent)
 			{
-				send_to_char(d->character,
+				send_to_char(d->character.get(),
 					"%sВаш замок потерял уровень! Теперь он %d уровня! Поздравляем!%s\r\n",
 					CCIRED(d->character, C_NRM), this->clan_level,
 					CCNRM(d->character, C_NRM));
@@ -5456,20 +5588,20 @@ void Clan::clan_invoice(CHAR_DATA *ch, bool enter)
 	for (DESCRIPTOR_DATA *d = descriptor_list; d; d = d->next)
 	{
 		if (d->character
-			&& d->character != ch
+			&& d->character.get() != ch
 			&& STATE(d) == CON_PLAYING
 			&& CLAN(d->character) == CLAN(ch)
 			&& PRF_FLAGGED(d->character, PRF_WORKMATE_MODE))
 		{
 			if (enter)
 			{
-				send_to_char(d->character, "%sДружинни%s %s вош%s в мир.%s\r\n",
+				send_to_char(d->character.get(), "%sДружинни%s %s вош%s в мир.%s\r\n",
 					CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
 					GET_CH_SUF_5(ch), CCNRM(d->character, C_NRM));
 			}
 			else
 			{
-				send_to_char(d->character, "%sДружинни%s %s покинул%s мир.%s\r\n",
+				send_to_char(d->character.get(), "%sДружинни%s %s покинул%s мир.%s\r\n",
 					CCINRM(d->character, C_NRM), IS_MALE(ch) ? "к" : "ца", GET_NAME(ch),
 					GET_CH_SUF_1(ch), CCNRM(d->character, C_NRM));
 			}
@@ -6244,20 +6376,20 @@ unsigned Clan::get_bank() const
 // если да, то выпинываем его оттуда
 void ClanSystem::check_player_in_house()
 {
-	DESCRIPTOR_DATA *d;
-	for (d = descriptor_list; d; d = d->next)
+	for (auto d = descriptor_list; d; d = d->next)
 	{
-		if ((d->character) && (!Clan::MayEnter(d->character, IN_ROOM(d->character), HCE_ATRIUM)))
+		if (d->character
+			&& (!Clan::MayEnter(d->character.get(), IN_ROOM(d->character), HCE_ATRIUM)))
 		{
 			const auto clan = Clan::GetClanByRoom(IN_ROOM(d->character));
 			if (clan)
 			{
 				char_from_room(d->character);
-				act("$n был$g выдворен$a за пределы замка!", TRUE, d->character, 0, 0, TO_ROOM);
-				send_to_char("Вы были выдворены за пределы замка!\r\n", d->character);
+				act("$n был$g выдворен$a за пределы замка!", TRUE, d->character.get(), 0, 0, TO_ROOM);
+				send_to_char("Вы были выдворены за пределы замка!\r\n", d->character.get());
 				char_to_room(d->character, real_room(clan->GetOutRent()));
-				look_at_room(d->character, real_room(clan->GetOutRent()));
-				act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, d->character, 0, 0, TO_ROOM);
+				look_at_room(d->character.get(), real_room(clan->GetOutRent()));
+				act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, d->character.get(), 0, 0, TO_ROOM);
 			}
 		}
 	}
@@ -6288,6 +6420,7 @@ bool ClanSystem::is_alliance(CHAR_DATA *ch, char *clan_abbr)
 			}
 		}
 	}
+
 	return false;
 }
 

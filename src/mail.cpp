@@ -479,7 +479,7 @@ void print_notices()
 		DESCRIPTOR_DATA* d = DescByUID(*i);
 		if (d)
 		{
-			send_to_char(d->character,
+			send_to_char(d->character.get(),
 				"%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
 				CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
 		}

@@ -1783,7 +1783,7 @@ bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj)
 }
 
 // shapirus: проверка, игнорирет ли чар who чара whom
-bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
+bool ignores(CHAR_DATA* who, CHAR_DATA * whom, unsigned int flag)
 {
 	if (IS_NPC(who)) return false;
 

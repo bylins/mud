@@ -1072,6 +1072,51 @@ void DelegatedStringWriter::clear()
 	m_delegated_string = nullptr;
 }
 
+DESCRIPTOR_DATA::DESCRIPTOR_DATA() :
+	bad_pws(0),
+	idle_tics(0),
+	connected(0),
+	desc_num(0),
+	input_time(0),
+	login_time(0),
+	showstr_head(0),
+	showstr_vector(0),
+	showstr_count(0),
+	showstr_page(0),
+	max_str(0),
+	backstr(0),
+	mail_to(0),
+	has_prompt(0),
+	output(0),
+	history(0),
+	history_pos(0),
+	bufptr(0),
+	bufspace(0),
+	large_outbuf(0),
+	character(0),
+	original(0),
+	snooping(0),
+	snoop_by(0),
+	next(0),
+	olc(0),
+	keytable(0),
+	options(0),
+	deflate(nullptr),
+	mccp_version(0),
+	ip(0),
+	registered_email(0),
+	pers_log(0),
+	cur_vnum(0),
+	old_vnum(0),
+	snoop_with_map(0),
+	m_msdp_support(false)
+{
+	host[0] = 0;
+	inbuf[0] = 0;
+	last_input[0] = 0;
+	small_outbuf[0] = 0;
+}
+
 void DESCRIPTOR_DATA::msdp_support(bool on)
 {
 	log("INFO: MSDP support enabled for client %s.\n", host);

@@ -3389,7 +3389,7 @@ void Crash_frac_save_all(int frac_part)
 	{
 		if ((STATE(d) == CON_PLAYING) && !IS_NPC(d->character) && GET_ACTIVITY(d->character) == frac_part)
 		{
-			Crash_crashsave(d->character);
+			Crash_crashsave(d->character.get());
 			d->character->save_char();
 			PLR_FLAGS(d->character).unset(PLR_CRASH);
 		}
@@ -3403,7 +3403,7 @@ void Crash_save_all(void)
 	{
 		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, PLR_CRASH))
 		{
-			Crash_crashsave(d->character);
+			Crash_crashsave(d->character.get());
 			d->character->save_char();
 			PLR_FLAGS(d->character).unset(PLR_CRASH);
 		}

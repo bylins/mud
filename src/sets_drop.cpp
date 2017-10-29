@@ -1227,7 +1227,7 @@ void message_for_players()
 	{
 		if (STATE(i) == CON_PLAYING && i->character)
 		{
-			send_to_char(i->character, "%s%s%s\r\n",
+			send_to_char(i->character.get(), "%s%s%s\r\n",
 				CCICYN(i->character, C_NRM), RESET_MESSAGE,
 				CCNRM(i->character, C_NRM));
 		}
