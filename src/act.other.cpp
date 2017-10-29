@@ -193,9 +193,10 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 
 		if (free_rent || IS_GOD(ch))
+		{
 			Crash_rentsave(ch, 0);
+		}
 		extract_char(ch, FALSE);
-
 	}
 }
 

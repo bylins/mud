@@ -15,14 +15,17 @@ void Characters::push_front(const CHAR_DATA::shared_ptr& character)
 {
 	m_list.push_front(character);
 	m_object_raw_ptr_to_object_ptr[character.get()] = m_list.begin();
-
-	if (m_purge_set.end() != m_purge_set.find(character.get()))
+	if (character->purged())
 	{
-		const size_t BUFFER_SIZE = 1024;
-		char buffer[BUFFER_SIZE];
-		snprintf(buffer, BUFFER_SIZE, "Restoring purged character %s at address %p. Most likely something will get broken soon.",
-			character->get_name().c_str(), character.get());
-		mudlog(buffer, LGH, LVL_IMPL, SYSLOG, TRUE);
+		/*
+		* Anton Gorev (2017/10/29): It is possible is character quit the game without
+		* disconnecting and then reenter the game. In this case #character of his descriptor will be reused but
+		* flag #purged still be set. Technically now flag #purged means only "character_list is going to reset
+		* shared pointer to this object." but it doesn't mean that object was removed (even partially).
+		*
+		* Thus we can safely put character with flag #purged and just clear this flag.
+		*/
+		character->set_purged(false);
 	}
 }
 

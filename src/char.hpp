@@ -629,7 +629,7 @@ public:
 	template <typename T>
 	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
 
-	void set_purged() { purged_ = true; }
+	void set_purged(const bool _ = true) { purged_ = _; }
 
 	void operator delete(void *ptr);
 
