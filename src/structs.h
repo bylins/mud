@@ -1213,7 +1213,7 @@ const long MAX_MONEY_KEPT = 1000000000;
 #define INT_HIGH_AI 40
 #define MIN_HP_MOBACT 100
 #define STRONG_MOB_LEVEL 30
-const short MAX_MOB_LEVEL = 50;
+const short MAX_MOB_LEVEL = 100;
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 

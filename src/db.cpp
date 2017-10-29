@@ -3369,54 +3369,58 @@ void set_test_data(CHAR_DATA *mob)
 		return;
 	}
 
-	if (GET_EXP(mob) > test_levels[49])
+	if (GET_LEVEL(mob) <= 50)
 	{
-		// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
-		mob->set_level(50);
-	}
-	else
-	{
-		if (mob->get_level() == 0)
+		if (GET_EXP(mob) > test_levels[49])
 		{
-			for (int i = 0; i < 50; ++i)
+			// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
+			mob->set_level(50);
+		}
+		else
+		{
+			if (mob->get_level() == 0)
 			{
-				if (test_levels[i] >= GET_EXP(mob))
+				for (int i = 0; i < 50; ++i)
 				{
-					// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
-					mob->set_level(i + 1);
-					break;
+					if (test_levels[i] >= GET_EXP(mob))
+					{
+						// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
+						mob->set_level(i + 1);
+
+						// -10..-86
+						int min_save = -(10 + 4 * (mob->get_level() - 31));
+						min_save = calc_boss_value(mob, min_save);
+
+						for (int i = 0; i < 4; ++i)
+						{
+							if (GET_SAVE(mob, i) > min_save)
+							{
+								//log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
+								GET_SAVE(mob, i) = min_save;
+							}
+						}
+						// 20..77
+						int min_cast = 20 + 3 * (mob->get_level() - 31);
+						min_cast = calc_boss_value(mob, min_cast);
+
+						if (GET_CAST_SUCCESS(mob) < min_cast)
+						{
+							//log("test4: %s - %d -> %d", mob->get_name(), GET_CAST_SUCCESS(mob), min_cast);
+							GET_CAST_SUCCESS(mob) = min_cast;
+						}
+
+						int min_absorbe = calc_boss_value(mob, mob->get_level());
+						if (GET_ABSORBE(mob) < min_absorbe)
+						{
+							GET_ABSORBE(mob) = min_absorbe;
+						}
+
+						break;
+					}
 				}
 			}
 		}
 	}
-
-	if (mob->get_level() > 30)
-	{
-		// -10..-86
-		int min_save = -(10 + 4 * (mob->get_level() - 31));
-		min_save = calc_boss_value(mob, min_save);
-
-		for (int i = 0; i < 4; ++i)
-		{
-			if (GET_SAVE(mob, i) > min_save)
-			{
-				//log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
-				GET_SAVE(mob, i) = min_save;
-			}
-		}
-		// 20..77
-		int min_cast = 20 + 3 * (mob->get_level() - 31);
-		min_cast = calc_boss_value(mob, min_cast);
-
-		if (GET_CAST_SUCCESS(mob) < min_cast)
-		{
-			//log("test4: %s - %d -> %d", mob->get_name(), GET_CAST_SUCCESS(mob), min_cast);
-			GET_CAST_SUCCESS(mob) = min_cast;
-		}
-	}
-
-	// поглощение пока принудительно всем
-	GET_ABSORBE(mob) = calc_boss_value(mob, mob->get_level());
 }
 
 int csort(const void *a, const void *b)

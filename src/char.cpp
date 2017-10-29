@@ -913,7 +913,7 @@ int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val)
 {
 	const int character_class = ch->get_class();
 	return IS_NPC(ch)
-		? VPOSI(val, 1, 50)	//Планируется поднять до 100
+		? VPOSI(val, 1, 100)
 		: VPOSI(val, 1, class_stats_limit[character_class][stat_id]);
 }
 

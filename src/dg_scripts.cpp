@@ -2204,6 +2204,49 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 
 			return;
 		}
+		else if (!str_cmp(var, "array"))
+		{
+			if (!str_cmp(field, "item")) {
+				char *p = strchr(subfield,',');
+				int n = 0;
+				if (!p) {
+					p = subfield;
+					n++;
+				} else {
+					*(p++)='\0';
+					n=atoi(p);
+				}
+				p=subfield;
+				while (n) {
+					char *retval = p;
+					char tmp;
+					for (;n;p++) {
+						if (*p==' '||*p=='\0') {
+							n--;
+							if (n&&*p=='\0') {
+								sprintf(str,"");
+								return;
+							}
+							if (!n) {
+								tmp=*p;
+								*p='\0';
+								sprintf(str,"%s",retval);
+								*p=tmp;
+								return;
+							} else {
+								retval=p+1;
+							}
+						}
+					}
+				}
+			}
+			/*Вот тут можно наделать вот так еще: 
+			else if (!str_cmp(field, "pop")) {}
+			else if (!str_cmp(field, "shift")) {}
+			else if (!str_cmp(field, "push")) {}
+			else if (!str_cmp(field, "unshift")) {}
+			*/
+		}
 	}
 
 	if (c)

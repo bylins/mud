@@ -146,7 +146,9 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 
 int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA * vict);
 int min_skill_level(CHAR_DATA *ch, int skill);
+int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 bool can_get_skill(CHAR_DATA *ch, int skill);
+bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 int find_weapon_focus_by_skill(ESkill skill);
 int find_weapon_master_by_skill(ESkill skill);
 

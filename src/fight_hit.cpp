@@ -113,6 +113,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 	af[0].type = SPELL_HAEMORRAGIA;
 	af[0].location = APPLY_HITREG;
 	af[0].modifier = -percent;
+	//TODO: Отрицательное время, если тело больше 31?
 	af[0].duration = pc_duration(ch, number(1, 31 - GET_REAL_CON(ch)), 0, 0, 0, 0);
 	af[0].bitvector = 0;
 	af[0].battleflag = 0;
