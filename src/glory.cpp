@@ -346,8 +346,8 @@ void add_glory(long uid, int amount)
 	save_glory();
 	DESCRIPTOR_DATA *d = DescByUID(uid);
 	if (d)
-		send_to_char(d->character, "Вы заслужили %d %s славы.\r\n",
-					 amount, desc_count(amount, WHAT_POINT));
+		send_to_char(d->character.get(), "Вы заслужили %d %s славы.\r\n",
+                  amount, desc_count(amount, WHAT_POINT));
 }
 
 /**
@@ -994,7 +994,11 @@ void timers_update()
 		if (removed)
 		{
 			DESCRIPTOR_DATA *d = DescByUID(it->first);
-			if (d) send_to_char("Вы долго не совершали достойных деяний и слава вас покинула...\r\n", d->character);
+			if (d)
+			{
+				send_to_char("Вы долго не совершали достойных деяний и слава вас покинула...\r\n",
+					d->character.get());
+			}
 		}
 
 	}
@@ -1016,7 +1020,7 @@ void timers_update()
 				{
 					d->glory.reset();
 					STATE(d) = CON_PLAYING;
-					send_to_char("Редактирование отменено из-за внешних изменений.\r\n", d->character);
+					send_to_char("Редактирование отменено из-за внешних изменений.\r\n", d->character.get());
 					return;
 				}
 			}
@@ -1118,19 +1122,21 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	}
 
 	DESCRIPTOR_DATA *d_vict = DescByUID(vict_uid);
-	CHAR_DATA *vict = 0, *t_vict = 0;
+	CHAR_DATA::shared_ptr vict;
 	if (d_vict)
+	{
 		vict = d_vict->character;
+	}
 	else
 	{
 		// принимающий оффлайн
-		t_vict = new Player; // TODO: переделать на стек
-		if (load_char(name.c_str(), t_vict) < 0)
+		CHAR_DATA::shared_ptr t_vict(new Player); // TODO: переделать на стек
+		if (load_char(name.c_str(), t_vict.get()) < 0)
 		{
 			send_to_char(god, "Некорректное имя персонажа (%s), принимающего славу.\r\n", name.c_str());
-			delete t_vict;
 			return;
 		}
+
 		vict = t_vict;
 	}
 
@@ -1138,14 +1144,12 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	if (IS_IMMORTAL(vict))
 	{
 		send_to_char(god, "Трансфер славы на бессмертного - это глупо.\r\n");
-		if (t_vict) delete t_vict;
 		return;
 	}
 
 	if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict)))
 	{
 		send_to_char(god, "Персонажи имеют разные email адреса.\r\n");
-		if (t_vict) delete t_vict;
 		return;
 	}
 
@@ -1169,13 +1173,13 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	imm_log(buf);
 	mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
 	add_karma(ch, buf, reason);
-	GloryMisc::add_log(GloryMisc::TRANSFER_GLORY, 0, buf, std::string(reason), vict);
+	GloryMisc::add_log(GloryMisc::TRANSFER_GLORY, 0, buf, std::string(reason), vict.get());
 
 	// если принимающий чар онлайн - сетим сразу ему статы
 	if (d_vict)
 	{
 		// стартовые статы полюбому должны быть валидными, раз он уже в игре
-		GloryMisc::recalculate_stats(vict);
+		GloryMisc::recalculate_stats(vict.get());
 		for (GloryTimeType::iterator tm_it = vict_it->second->timers.begin();
 				tm_it != vict_it->second->timers.end(); ++tm_it)
 		{
@@ -1208,7 +1212,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 			}
 		}
 	}
-	add_karma(vict, buf, reason);
+	add_karma(vict.get(), buf, reason);
 	vict->save_char();
 
 	// удаляем запись чара, с которого перекидывали
@@ -1218,13 +1222,10 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 	DESCRIPTOR_DATA *k = DescByUID(GET_UNIQUE(ch));
 	if (k)
 	{
-		GloryMisc::recalculate_stats(k->character);
+		GloryMisc::recalculate_stats(k->character.get());
 	}
+
 	save_glory();
-	if (t_vict)
-	{
-		delete t_vict;
-	}
 }
 
 // * Показ свободной и вложенной славы у чара (glory имя).
