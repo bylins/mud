@@ -2993,13 +2993,14 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		}
 	}
 	// Конец изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
-
-	if (!ch->get_fighting() && !IS_NPC(ch))
+	if (!IS_NPC(ch))
 	{
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(OK, ch);
+		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) //если включен режим без повторов (подавление ехо) не показываем
+			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
+				send_to_char(OK, ch);
 		else
 		{
+			//если режима нет, ехо включено, выводим сообщение
 			sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
 					CCICYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
