@@ -3267,6 +3267,7 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	// Find weapon for attack number weapon //
+
 	if (weapon == 1)
 	{
 		if (!(wielded = GET_EQ(ch, WEAR_WIELD)))
@@ -3336,6 +3337,20 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
  */
 void HitData::calc_base_hr(CHAR_DATA *ch)
 {
+	if (!IS_NPC(ch)) {
+		//сюрприз для голодающих файтеров, много, но ведь можно просто кушать вовремя
+		if (GET_COND_M(ch,THIRST)) {
+			int percent = GET_COND_K(ch, THIRST);
+			calc_thaco += MAX(percent/2, 1);
+			dam -= MAX(percent/4, 1);
+		}
+		if (GET_COND_M(ch,FULL)) {
+			int percent = GET_COND_K(ch, FULL);
+			calc_thaco += MAX(percent/4, 1);
+			dam -= MAX(percent/2, 1);
+		}
+	}
+
 	if (skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB)
 	{
 		if (wielded
@@ -3658,7 +3673,7 @@ void HitData::calc_ac(CHAR_DATA *victim)
 	// Calculate the raw armor including magic armor.  Lower AC is better.
 	victim_ac += compute_armor_class(victim);
 	victim_ac /= 10;
-
+	
 	if (GET_POS(victim) < POS_FIGHTING)
 		victim_ac += 4;
 	if (GET_POS(victim) < POS_RESTING)
@@ -3667,6 +3682,11 @@ void HitData::calc_ac(CHAR_DATA *victim)
 		victim_ac += 4;
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CRYING))
 		victim_ac += 4;
+	if (!IS_NPC(victim)) {//Сюрприз для голодных
+		victim_ac += (20*GET_COND_K(victim,FULL))/100;//Чем более голоден тем хуже уворачиваешься
+		victim_ac += (30*GET_COND_K(victim,THIRST))/100;//Чем больше жажда тем ваще хуже вертишся
+		//в сумме +50 макс для танков с -25 до 25
+	}
 }
 
 // * Обработка защитных скиллов: захват, уклон, веер, блок.
