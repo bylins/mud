@@ -3496,7 +3496,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCGRN(ch, C_NRM), GET_REAL_SAVING_CRITICAL(ch), CCCYN(ch, C_NRM),
 			CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
-	if (GET_COND(ch, FULL) == 0)
+	if (GET_COND(ch, FULL) > NORM_COND_VALUE)
 		sprintf(buf + strlen(buf), " || %sГолоден: %sугу :(%s    |", CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
 	else
 		sprintf(buf + strlen(buf), " || %sГолоден: %sнет%s       |", CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3515,7 +3515,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM)
 		   );
 
-	if (GET_COND(ch, THIRST) == 0)
+	if (GET_COND_M(ch, THIRST))
 		sprintf(buf + strlen(buf),
 				" || %sЖажда: %sналивай!%s    |",
 				CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3990,9 +3990,9 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else
 			strcat(buf, "Вы пьяны.\r\n");
 	}
-	if (GET_COND(ch, FULL) == 0)
+	if (GET_COND_M(ch, FULL))
 		strcat(buf, "Вы голодны.\r\n");
-	if (GET_COND(ch, THIRST) == 0)
+	if (GET_COND_M(ch, THIRST))
 		strcat(buf, "Вас мучает жажда.\r\n");
 	/*
 	   strcat(buf, CCICYN(ch, C_NRM));

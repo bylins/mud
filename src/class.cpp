@@ -2069,8 +2069,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
 	GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
 
-	GET_COND(ch, THIRST) = 24;
-	GET_COND(ch, FULL) = 24;
+	GET_COND(ch, THIRST) = 0;
+	GET_COND(ch, FULL) = 0;
 	GET_COND(ch, DRUNK) = 0;
 	// проставим кличи
 	init_warcry(ch);

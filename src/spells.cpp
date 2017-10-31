@@ -237,7 +237,7 @@ void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DAT
 	}
 	if (victim && !IS_NPC(victim) && !IS_IMMORTAL(victim))
 	{
-		gain_condition(victim, THIRST, 25);
+		GET_COND(victim, THIRST) = 0;
 		send_to_char("Вы полностью утолили жажду.\r\n", victim);
 		if (victim != ch)
 		{

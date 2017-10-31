@@ -837,7 +837,7 @@ int timer_affected_roomt(long id, int spellnum)
 int calc_anti_savings(CHAR_DATA * ch)
 {
 	int modi = 0;
-
+	
 	if (WAITLESS(ch))
 		modi = 350;
 	else if (GET_GOD_FLAG(ch, GF_GODSLIKE))
@@ -1848,13 +1848,15 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	{
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * koeff) / 100;
 	}
-
+	
 	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.
 	if (!IS_NPC(ch))
 	{
 		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 	}
-
+	//Сюрприз для голодных кастеров
+	dam *= (100-GET_COND_K(ch,THIRST))/100;
+	dam *= (100-GET_COND_K(ch,FULL)/2)/100;
 	return (dam);
 }
 
@@ -2501,6 +2503,15 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
 		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
 	}
+	
+	//Тут еще можно добавить, если жертва голодная умножаем дамаг
+	if (!IS_NPC(ch)) {
+		if (GET_COND_M(ch,FULL)) 
+			dam  *= GET_COND_K(ch,FULL)/100;
+		if (GET_COND_M(ch,THIRST)) 
+			dam  *= GET_COND_K(ch,THIRST)/100;
+	}
+
 	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
 
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && number(1, 999) <= GET_MR(victim) * 10)
@@ -4860,8 +4871,8 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 	case SPELL_COMMON_MEAL:
 //		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
 		{
-			GET_COND(victim, THIRST) = 24;
-			GET_COND(victim, FULL) = 24;
+			GET_COND(victim, THIRST) = 0;
+			GET_COND(victim, FULL) = 0;
 			send_to_char("Вы полностью насытились.\r\n", victim);
 		}
 		break;
