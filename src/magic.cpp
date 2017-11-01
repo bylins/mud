@@ -847,6 +847,7 @@ int calc_anti_savings(CHAR_DATA * ch)
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int)((GET_REAL_WIS(ch) - 23) * 3 / 2)));
+	if (!IS_NPC(ch)) modi *= ch->get_cond_penalty(P_CAST);
 //  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
 	return modi;
 }
@@ -1854,9 +1855,7 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	{
 		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 	}
-	//Сюрприз для голодных кастеров
-	dam *= (100-GET_COND_K(ch,THIRST))/100;
-	dam *= (100-GET_COND_K(ch,FULL)/2)/100;
+	
 	return (dam);
 }
 
@@ -2504,13 +2503,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
 	}
 	
-	//Тут еще можно добавить, если жертва голодная умножаем дамаг
-	if (!IS_NPC(ch)) {
-		if (GET_COND_M(ch,FULL)) 
-			dam  *= GET_COND_K(ch,FULL)/100;
-		if (GET_COND_M(ch,THIRST)) 
-			dam  *= GET_COND_K(ch,THIRST)/100;
-	}
+	//Голодный кастер меньше дамажит!
+	if (!IS_NPC(ch))
+		dam*=ch->get_cond_penalty(P_DAMROLL);
 
 	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
 

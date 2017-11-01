@@ -545,6 +545,11 @@ public:
 	** Returns true if character is mob and located in used zone.
 	**/
 	bool in_used_zone() const;
+	
+	/**
+	 * Возвращает коэффициент штрафа за состояние
+	**/
+	float get_cond_penalty(int type) const;
 
 	bool know_morph(const std::string& morph_id) const;
 	void add_morph(const std::string& morph_id);

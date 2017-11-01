@@ -1118,6 +1118,9 @@ struct obj_affected_type
 // other miscellaneous defines ****************************************** //
 
 enum { DRUNK, FULL, THIRST};
+// pernalty types
+//     Хитрол,    Дамрол,    Каст,   Мем,        Восст. эн., Восст. жиз. 
+enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
 // Sun state for weather_data //
 #define SUN_DARK  0

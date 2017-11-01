@@ -3337,20 +3337,6 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
  */
 void HitData::calc_base_hr(CHAR_DATA *ch)
 {
-	if (!IS_NPC(ch)) {
-		//сюрприз для голодающих файтеров, много, но ведь можно просто кушать вовремя
-		if (GET_COND_M(ch,THIRST)) {
-			int percent = GET_COND_K(ch, THIRST);
-			calc_thaco += MAX(percent/2, 1);
-			dam -= MAX(percent/4, 1);
-		}
-		if (GET_COND_M(ch,FULL)) {
-			int percent = GET_COND_K(ch, FULL);
-			calc_thaco += MAX(percent/4, 1);
-			dam -= MAX(percent/2, 1);
-		}
-	}
-
 	if (skill_num != SKILL_THROW && skill_num != SKILL_BACKSTAB)
 	{
 		if (wielded
@@ -3489,19 +3475,23 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 		// штраф мобам по рекомендации Триглава
 		calc_thaco += (25 - GET_LEVEL(ch) / 3);
 	}
-	calc_thaco -= GET_REAL_HR(ch);
 
+	//Вычисляем штраф за голод
+	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
+
+	calc_thaco -= GET_REAL_HR(ch) * p_hitroll;
+	
 	// Использование ловкости вместо силы для попадания
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
 		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
-			calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+			calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
 		else
-			calc_thaco -= str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
+			calc_thaco -= str_bonus(GET_REAL_DEX(ch), STR_TO_HIT) * p_hitroll;
 	}
 	else
 	{
-		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
+		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
 	}
 
 	if ((skill_num == SKILL_THROW
@@ -3528,6 +3518,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 			calc_thaco -= (12 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 		}
 	}
+	
 }
 
 /**
@@ -3537,8 +3528,11 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
  */
 void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 {
+	//считаем штраф за голод
+	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
+	
 	if (weapon == LEFT_WEAPON
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
@@ -3557,7 +3551,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		if (prob > range)
 		{
 			dam += ((ch->get_skill(SKILL_COURAGE) + 19) / 20);
-			calc_thaco -= ((ch->get_skill(SKILL_COURAGE) + 9) / 20);
+			calc_thaco -= ((ch->get_skill(SKILL_COURAGE) + 9) / 20) * p_hitroll;
 		}
 	}
 
@@ -3594,7 +3588,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 		if (prob >= 30 && !GET_AF_BATTLE(victim, EAF_AWAKE)
 				&& (IS_NPC(ch) || !GET_AF_BATTLE(ch, EAF_PUNCTUAL)))
 		{
-			calc_thaco -= (ch->get_skill(weap_skill) - victim->get_skill(weap_skill) > 60 ? 2 : 1);
+			calc_thaco -= (ch->get_skill(weap_skill) - victim->get_skill(weap_skill) > 60 ? 2 : 1) * p_hitroll;
 			if (!IS_NPC(victim))
 				dam += (prob >= 70 ? 3 : (prob >= 50 ? 2 : 1));
 		}
@@ -3616,16 +3610,18 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// скилл владения пушкой или голыми руками
 	if (weap_skill_is <= 80)
-		calc_thaco -= weap_skill_is / 20;
+		calc_thaco -= (weap_skill_is / 20) * p_hitroll;
 	else if (weap_skill_is <= 160)
-		calc_thaco -= 4 + (weap_skill_is - 80) / 10;
+		calc_thaco -= (4 + (weap_skill_is - 80) / 10) * p_hitroll;
 	else
-		calc_thaco -= 4 + 8 + (weap_skill_is - 160) / 5;
+		calc_thaco -= (4 + 8 + (weap_skill_is - 160) / 5) * p_hitroll;
 }
 
 // * Версия calc_rand_hr для показа по 'счет', без рандомов и статов жертвы.
 void HitData::calc_stat_hr(CHAR_DATA *ch)
 {
+	//считаем штраф за голод
+	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
 	if (weapon == LEFT_WEAPON
@@ -3641,7 +3637,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch)
 	if (affected_by_spell(ch, SPELL_COURAGE))
 	{
 		dam += ((ch->get_skill(SKILL_COURAGE) + 19) / 20);
-		calc_thaco -= ((ch->get_skill(SKILL_COURAGE) + 9) / 20);
+		calc_thaco -= ((ch->get_skill(SKILL_COURAGE) + 9) / 20) * p_hitroll;
 	}
 
 	// Horse modifier for attacker
@@ -3660,19 +3656,32 @@ void HitData::calc_stat_hr(CHAR_DATA *ch)
 
 	// скилл владения пушкой или голыми руками
 	if (ch->get_skill(weap_skill) <= 80)
-		calc_thaco -= ch->get_skill(weap_skill) / 20;
+		calc_thaco -= (ch->get_skill(weap_skill) / 20)*p_hitroll;
 	else if (ch->get_skill(weap_skill) <= 160)
-		calc_thaco -= 4 + (ch->get_skill(weap_skill) - 80) / 10;
+		calc_thaco -= (4 + (ch->get_skill(weap_skill) - 80) / 10)*p_hitroll;
 	else
-		calc_thaco -= 4 + 8 + (ch->get_skill(weap_skill) - 160) / 5;
+		calc_thaco -= (4 + 8 + (ch->get_skill(weap_skill) - 160) / 5)*p_hitroll;
 }
 
 // * Подсчет армор класса жертвы.
 void HitData::calc_ac(CHAR_DATA *victim)
 {
+	
+	
 	// Calculate the raw armor including magic armor.  Lower AC is better.
 	victim_ac += compute_armor_class(victim);
 	victim_ac /= 10;
+	//считаем штраф за голод
+	if (!IS_NPC(victim) && victim_ac<5) { //для голодных
+		int p_ac = (1 - victim->get_cond_penalty(P_AC))*40;
+		if (p_ac)  {
+			if (victim_ac+p_ac>5) {
+				victim_ac = 5;
+			} else {
+				victim_ac+=p_ac;
+			}
+		}
+	}
 	
 	if (GET_POS(victim) < POS_FIGHTING)
 		victim_ac += 4;
@@ -3682,11 +3691,6 @@ void HitData::calc_ac(CHAR_DATA *victim)
 		victim_ac += 4;
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CRYING))
 		victim_ac += 4;
-	if (!IS_NPC(victim)) {//Сюрприз для голодных
-		victim_ac += (20*GET_COND_K(victim,FULL))/100;//Чем более голоден тем хуже уворачиваешься
-		victim_ac += (30*GET_COND_K(victim,THIRST))/100;//Чем больше жажда тем ваще хуже вертишся
-		//в сумме +50 макс для танков с -25 до 25
-	}
 }
 
 // * Обработка защитных скиллов: захват, уклон, веер, блок.
@@ -3998,7 +4002,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			return;
 		}
 	}
-
 	// всегда есть 5% вероятность попасть (diceroll == 20)
 	if ((hit_params.diceroll < 20 && AWAKE(victim))
 		&& hit_params.calc_thaco - hit_params.diceroll > hit_params.victim_ac)
@@ -4153,12 +4156,12 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		{
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 		}
-
+		
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT)
 			&& IS_NPC(victim)
 			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
 				&& !(MOB_FLAGGED(victim, MOB_PROTECT)))
-			&& (number(1,100) <= 6)
+			&& (number(1,100) <= 6 * ch->get_cond_penalty(P_HITROLL)) //голодный наем снижаем скрытый удар
 			&& IS_NPC(victim)
 			&& !victim->get_role(MOB_ROLE_BOSS))
 		{
@@ -4168,8 +4171,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			    hit_params.extdamage(ch, victim);
 			    return;
 		}
-
-		if (number(1, 100) < calculate_crit_backstab_percent(ch)
+		
+		if (number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL)
 			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
 		{
 			hit_params.dam = static_cast<int>(hit_params.dam * hit_params.crit_backstab_multiplier(ch, victim));
@@ -4272,7 +4275,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// обработка защитных скилов (захват, уклон, парир, веер, блок)
 	hit_params.check_defense_skills(ch, victim);
-
+	
+	//режем дамаг от голода
+	if (hit_params.dam)
+		hit_params.dam *= ch->get_cond_penalty(P_DAMROLL);
 	// итоговый дамаг
 	int made_dam = hit_params.extdamage(ch, victim);
 

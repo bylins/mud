@@ -261,15 +261,7 @@ int mana_gain(CHAR_DATA * ch)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 	if (!IS_NPC(ch))
-	{
-		if (GET_COND_M(ch, FULL))
-			percent -= GET_COND_K(ch,FULL);
-		if (GET_COND_M(ch, THIRST))
-			percent -= GET_COND_K(ch, THIRST)/2;
-		if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
-			percent -= 10 ;
-	}
-	
+		percent*=ch->get_cond_penalty(P_MEM_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	return (stopmem ? 0 : gain);
@@ -336,13 +328,7 @@ int hit_gain(CHAR_DATA * ch)
 		percent /= 4;
 	
 	if (!IS_NPC(ch))
-	{
-		//Регенерация хитов в сумме -150 макс
-		if (GET_COND_M(ch, FULL))
-			percent -= (GET_COND_K(ch, FULL));
-		if (GET_COND_M(ch, THIRST))
-			percent -= (GET_COND_K(ch, THIRST)/2);
-	}
+		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	if (!IS_NPC(ch))
@@ -407,18 +393,8 @@ int move_gain(CHAR_DATA * ch)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 	
-		if (!IS_NPC(ch))
-	{
-		//голодный - минус 0-50, жажда 0-100
-		if (GET_COND_M(ch, FULL))
-			percent -= GET_COND_K(ch, FULL)/2;
-		if (GET_COND_M(ch, THIRST))
-			percent -= GET_COND_K(ch, THIRST);
-		if (!IS_IMMORTAL(ch) && affected_by_spell(ch, SPELL_HIDE))
-			percent -= 20;
-		if (!IS_IMMORTAL(ch) && affected_by_spell(ch, SPELL_CAMOUFLAGE))
-			percent -= 30;
-	}
+	if (!IS_NPC(ch))
+		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	return (gain);
