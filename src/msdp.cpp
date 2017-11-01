@@ -79,11 +79,11 @@ namespace msdp
 
 		/* convert string date into client's encoding */
 		// output might be more than input up to 4 times (in case of utf-8) plus NULL terminator.
-		std::shared_ptr<char> room_name(new char[1 + 4 * strlen(world[rnum]->name)]);
+		std::shared_ptr<char> room_name(new char[1 + 4 * strlen(world[rnum]->name)], std::default_delete<char[]>());
 		descriptor()->string_to_client_encoding(world[rnum]->name, room_name.get());
 
 		// output might be more than input up to 4 times (in case of utf-8) plus NULL terminator.
-		std::shared_ptr<char> zone_name(new char[4 * strlen(zone_table[world[rnum]->zone].name)]);
+		std::shared_ptr<char> zone_name(new char[4 * strlen(zone_table[world[rnum]->zone].name)], std::default_delete<char[]>());
 		descriptor()->string_to_client_encoding(zone_table[world[rnum]->zone].name, zone_name.get());
 
 		room_descriptor->add(std::make_shared<Variable>("VNUM",
@@ -212,7 +212,7 @@ namespace msdp
 
 	void ExperienceReporter::get(Variable::shared_ptr& response)
 	{
-		const auto experience = std::to_string(GET_LEVEL(descriptor()->character));
+		const auto experience = std::to_string(GET_EXP(descriptor()->character));
 		response = std::make_shared<Variable>(constants::EXPERIENCE,
 			std::make_shared<StringValue>(experience));
 	}
@@ -458,7 +458,7 @@ namespace msdp
 		}
 
 		const size_t buffer_size = WRAPPER_LENGTH + response->required_size();
-		std::shared_ptr<char> buffer(new char[buffer_size]);
+		std::shared_ptr<char> buffer(new char[buffer_size], std::default_delete<char[]>());
 		buffer.get()[0] = char(IAC);
 		buffer.get()[1] = char(SB);
 		buffer.get()[2] = TELOPT_MSDP;
@@ -520,7 +520,7 @@ namespace msdp
 		response->dump();
 
 		const size_t buffer_size = WRAPPER_LENGTH + response->required_size();
-		std::shared_ptr<char> buffer(new char[buffer_size]);
+		std::shared_ptr<char> buffer(new char[buffer_size], std::default_delete<char[]>());
 		buffer.get()[0] = char(IAC);
 		buffer.get()[1] = char(SB);
 		buffer.get()[2] = TELOPT_MSDP;

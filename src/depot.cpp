@@ -233,7 +233,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 		return out.str();
 	}
 
-	const std::shared_ptr<char> databuf(new char[fsize + 1], [](char* p) { delete[] p; });
+	const std::shared_ptr<char> databuf(new char[fsize + 1], std::default_delete<char[]>());
 
 	fseek(fl, 0L, SEEK_SET);
 	if (!databuf
