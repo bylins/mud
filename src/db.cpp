@@ -5505,7 +5505,7 @@ void init_char(CHAR_DATA * ch)
 
 	for (i = 0; i < 3; i++)
 	{
-		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : i == DRUNK ? 0 : 24);
+		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : 0);
 	}
 	GET_LASTIP(ch)[0] = 0;
 //	GET_LOADROOM(ch) = start_room;

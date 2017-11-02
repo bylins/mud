@@ -837,7 +837,7 @@ int timer_affected_roomt(long id, int spellnum)
 int calc_anti_savings(CHAR_DATA * ch)
 {
 	int modi = 0;
-
+	
 	if (WAITLESS(ch))
 		modi = 350;
 	else if (GET_GOD_FLAG(ch, GF_GODSLIKE))
@@ -847,6 +847,7 @@ int calc_anti_savings(CHAR_DATA * ch)
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int)((GET_REAL_WIS(ch) - 23) * 3 / 2)));
+	if (!IS_NPC(ch)) modi *= ch->get_cond_penalty(P_CAST);
 //  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
 	return modi;
 }
@@ -1848,13 +1849,13 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	{
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * koeff) / 100;
 	}
-
+	
 	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.
 	if (!IS_NPC(ch))
 	{
 		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 	}
-
+	
 	return (dam);
 }
 
@@ -2501,6 +2502,11 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
 		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
 	}
+	
+	//Голодный кастер меньше дамажит!
+	if (!IS_NPC(ch))
+		dam*=ch->get_cond_penalty(P_DAMROLL);
+
 	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
 
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && number(1, 999) <= GET_MR(victim) * 10)
@@ -4860,8 +4866,8 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 	case SPELL_COMMON_MEAL:
 //		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
 		{
-			GET_COND(victim, THIRST) = 24;
-			GET_COND(victim, FULL) = 24;
+			GET_COND(victim, THIRST) = 0;
+			GET_COND(victim, FULL) = 0;
 			send_to_char("Вы полностью насытились.\r\n", victim);
 		}
 		break;

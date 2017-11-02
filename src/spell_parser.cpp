@@ -3101,7 +3101,7 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 		skill = ch->get_skill(skill_number) / 20;
 		prob += skill;
 	}
-
+	//prob*=ch->get_cond_penalty(P_CAST);
 	// ÕÍÅÎÉÑ ÍÁÇÉÉ ÄÁÀÔ + Ë ÕÓĞÅÈÕ ËÏÌÄÏ×ÓÔ×Á
 	return (prob > number(0, 100));
 }
