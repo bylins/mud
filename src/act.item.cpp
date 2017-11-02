@@ -1924,7 +1924,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			return;
 		}
 	}
-	if ((!GET_COND_M(ch, FULL))
+	if (GET_COND(ch, FULL) == 0
 		&& GET_OBJ_TYPE(food) != OBJ_DATA::ITEM_NOTE)  	// Stomach full
 	{
 		send_to_char("Вы слишком сыты для этого!\r\n", ch);
@@ -1949,7 +1949,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	gain_condition(ch, FULL, -2*amount);
 
-	if (!GET_COND_M(ch, FULL))
+	if (GET_COND(ch, FULL)==0)
 	{
 		send_to_char("Вы наелись.\r\n", ch);
 	}
