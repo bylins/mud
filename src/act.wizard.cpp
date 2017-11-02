@@ -1987,8 +1987,13 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
-	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, Таймер: %d\r\n",
-		GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j), j->get_timer());
+	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, ",
+		GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j));
+	send_to_char(buf, ch);
+	if (check_unlimited_timer(j))
+		sprintf(buf, "Таймер: нерушимо\r\n");
+	else
+		sprintf(buf, "Таймер: %d\r\n", j->get_timer());
 	send_to_char(buf, ch);
 
 	strcpy(buf, "Находится : ");

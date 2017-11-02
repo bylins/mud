@@ -137,6 +137,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 			constexpr int TEST_OBJECT_TIMER = 30;
 			new_object->set_timer(TEST_OBJECT_TIMER);
 			new_object->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
+			new_object->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
 		}
 
 		new_object->clear_proto_script();

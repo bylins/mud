@@ -632,6 +632,9 @@ void init_EExtraFlag_ITEM_NAMES()
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_3INLAID] = "ITEM_3INLAID";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOPOUR] = "ITEM_NOPOUR";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE] = "ITEM_UNIQUE";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_TRANSFORMED] = "ITEM_TRANSFORMED";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_DEPEND_RPOTO] = "ITEM_NOT_DEPEND_RPOTO";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_UNLIMIT_TIMER] = "ITEM_NOT_UNLIMIT_TIMER";
 
 	for (const auto& i : EExtraFlag_name_by_value)
 	{
