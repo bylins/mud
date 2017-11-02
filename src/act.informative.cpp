@@ -3224,6 +3224,10 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCIYEL(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	ac = compute_armor_class(ch) / 10;
+	if (ac<5) {
+		int mod = (1 - ch->get_cond_penalty(P_AC))*40;
+		ac = ac+mod>5?5:ac+mod;
+	}
 	resist = MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sРод: %-13s %s|"
@@ -3361,6 +3365,8 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	max_dam += ch->obj_bonus().calc_phys_dmg(max_dam);
 	max_dam = MAX(0, max_dam);
+	max_dam*=ch->get_cond_penalty(P_DAMROLL);
+	hr*=ch->get_cond_penalty(P_HITROLL);
 
 	resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
@@ -3391,6 +3397,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCICYN(ch, C_NRM), ch->get_con(), GET_REAL_CON(ch), CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75);
+	int rcast = GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST);
 	sprintf(buf + strlen(buf),
 			" || %sОпыт: %s%-10ld   %s|"
 			" %sМудрость:      %2d(%2d) %s|"
@@ -3398,8 +3405,8 @@ void print_do_score_all(CHAR_DATA *ch)
 			" %sЖивучесть: %3d %s||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_EXP(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_wis(), GET_REAL_WIS(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), GET_CAST_SUCCESS(ch), CCCYN(ch, C_NRM),
-			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
+			CCIGRN(ch, C_NRM), rcast, CCCYN(ch, C_NRM),
+			CCIYEL(ch, C_NRM), (int) resist, CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, MIND_RESISTANCE), 75);
 
@@ -3410,13 +3417,14 @@ void print_do_score_all(CHAR_DATA *ch)
 		sprintf(buf + strlen(buf),
 				" || %sДСУ: %s%-10ld    %s|",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch), CCCYN(ch, C_NRM));
-
+	int itmp =  GET_MANAREG(ch);
+	itmp*=ch->get_cond_penalty(P_CAST);
 	sprintf(buf + strlen(buf),
 			" %sУм:            %2d(%2d) %s|"
 			" %sЗапоминание: %4d %s|"
 			" %sРазум:     %3d %s||\r\n",
 			CCICYN(ch, C_NRM), ch->get_int(), GET_REAL_INT(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), GET_MANAREG(ch), CCCYN(ch, C_NRM),
+			CCIGRN(ch, C_NRM), itmp , CCCYN(ch, C_NRM),
 			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75);
@@ -3496,7 +3504,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCGRN(ch, C_NRM), GET_REAL_SAVING_CRITICAL(ch), CCCYN(ch, C_NRM),
 			CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
-	if (GET_COND(ch, FULL) == 0)
+	if (GET_COND(ch, FULL) > NORM_COND_VALUE)
 		sprintf(buf + strlen(buf), " || %sГолоден: %sугу :(%s    |", CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
 	else
 		sprintf(buf + strlen(buf), " || %sГолоден: %sнет%s       |", CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3515,7 +3523,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM)
 		   );
 
-	if (GET_COND(ch, THIRST) == 0)
+	if (GET_COND_M(ch, THIRST))
 		sprintf(buf + strlen(buf),
 				" || %sЖажда: %sналивай!%s    |",
 				CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3990,9 +3998,9 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else
 			strcat(buf, "Вы пьяны.\r\n");
 	}
-	if (GET_COND(ch, FULL) == 0)
+	if (GET_COND_M(ch, FULL))
 		strcat(buf, "Вы голодны.\r\n");
-	if (GET_COND(ch, THIRST) == 0)
+	if (GET_COND_M(ch, THIRST))
 		strcat(buf, "Вас мучает жажда.\r\n");
 	/*
 	   strcat(buf, CCICYN(ch, C_NRM));

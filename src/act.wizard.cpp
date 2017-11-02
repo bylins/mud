@@ -5582,7 +5582,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		else if (is_number(val_arg))
 		{
 			value = atoi(val_arg);
-			RANGE(0, 24);
+			RANGE(0, MAX_COND_VALUE);
 			GET_COND(vict, num) = value;
 			sprintf(output, "Для %s %s установлен в %d.", GET_PAD(vict, 1), set_fields[mode].cmd, value);
 		}
