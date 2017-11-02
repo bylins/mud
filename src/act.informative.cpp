@@ -3366,7 +3366,8 @@ void print_do_score_all(CHAR_DATA *ch)
 	max_dam += ch->obj_bonus().calc_phys_dmg(max_dam);
 	max_dam = MAX(0, max_dam);
 	max_dam*=ch->get_cond_penalty(P_DAMROLL);
-	hr*=ch->get_cond_penalty(P_HITROLL);
+	if (hr)
+		hr*=ch->get_cond_penalty(P_HITROLL);
 
 	resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
