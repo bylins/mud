@@ -3479,7 +3479,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	//Вычисляем штраф за голод
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 
-	calc_thaco -= GET_REAL_HR(ch) * p_hitroll;
+	calc_thaco -= GET_REAL_HR(ch)?GET_REAL_HR(ch) * p_hitroll:GET_REAL_HR(ch);
 	
 	// Использование ловкости вместо силы для попадания
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
@@ -3491,7 +3491,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	}
 	else
 	{
-		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
+		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT)?str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll:str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
 	}
 
 	if ((skill_num == SKILL_THROW

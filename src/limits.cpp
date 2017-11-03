@@ -986,6 +986,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 
 void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 {
+
 	if (condition >= ch->player_specials->saved.conditions.size())
 	{
 		log("SYSERROR : condition=%d (%s:%d)", condition, __FILE__, __LINE__);
@@ -995,7 +996,12 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 	{
 		return;
 	}
-
+	
+	if (IS_GOD(ch) && condition != DRUNK) {
+		GET_COND(ch, condition)=-1;
+		return;
+	}
+	
 	bool intoxicated = (GET_COND(ch, DRUNK) >= CHAR_DRUNKED);
 
 	GET_COND(ch, condition) += value;
@@ -1005,26 +1011,30 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 	if (PLR_FLAGGED(ch, PLR_WRITING))
 		return;
 	
-	int con_value = GET_COND_M(ch, condition);
+	int cond_value = GET_COND(ch, condition);
 	switch (condition)
 	{
 	case FULL:
-		if (!con_value) return;
-		if (con_value < 40)
+		if (!GET_COND_M(ch,condition)) return;
+		if (cond_value < 30)
 			send_to_char("Вы голодны.\r\n", ch);
-		else 
+		else if ( cond_value < 40 )
 			send_to_char("Вы очень голодны.\r\n", ch);
-		if (con_value > 90)
+		else {
 			send_to_char("Вы готовы сожрать медведя.\r\n", ch);
+			//сюда оповещение можно вставить что бы люди видели что чар страдает
+		}
 		return;
 	case THIRST:
-		if (!GET_COND_M(ch, condition)) return;
-		if (con_value < 40)
+		if (!GET_COND_M(ch,condition)) return;
+		if (cond_value < 30)
 			send_to_char("Вас мучает жажда.\r\n", ch);
-		else 
+		else if ( cond_value < 40 )
 			send_to_char("Вас сильно мучает жажда.\r\n", ch);
-		if (con_value > 90)
+		else {
 			send_to_char("Вам хочется выпить реку.\r\n", ch);
+			//сюда оповещение можно вставить что бы люди видели что чар страдает
+		}
 		return;
 	case DRUNK:
 		if (!GET_COND(ch, condition)) return;
