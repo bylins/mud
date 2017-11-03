@@ -124,7 +124,8 @@ const char *drinknames[] = { "водой",
 						   };
 
 // effect of drinks on DRUNK, FULL, THIRST -- see values.doc
-const int drink_aff[][3] = { {0, 1, 10},	// вода
+const int drink_aff[][3] = { 
+	{0, 1, -10},	        // вода
 	{2, -2, -3},			// пиво
 	{5, -2, -2},			// вино
 	{3, -2, -3},			// медовуха
