@@ -1647,8 +1647,10 @@ int Crash_delete_files(const std::size_t index)
 	FILE *fl;
 	int retcode = FALSE;
 
-	if (index < 0)
+	if (static_cast<int>(index) < 0)
+	{
 		return retcode;
+	}
 
 	strcpy(name, player_table[index].name());
 

@@ -631,8 +631,6 @@ public:
 
 	void set_purged(const bool _ = true) { purged_ = _; }
 
-	void operator delete(void *ptr);
-
 private:
 	const auto& get_player_specials() const { return player_specials; }
 	auto& get_player_specials() { return player_specials; }

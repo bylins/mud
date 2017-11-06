@@ -479,11 +479,6 @@ void CHAR_DATA::purge()
 		timed_from_char(this, this->timed);
 	}
 
-	if (this->desc)
-	{
-		this->desc->character = nullptr;
-	}
-
 	Celebrates::remove_from_mob_lists(this->id);
 
 	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;
@@ -2009,17 +2004,6 @@ CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const
 	}
 
 	return result;
-}
-
-void CHAR_DATA::operator delete(void *ptr)
-{
-	if (character_list.has(static_cast<CHAR_DATA*>(ptr)))
-	{
-		std::cerr << "Detected deleting of the controlled pointer. Dumping core." << std::endl;
-		abort();
-	}
-
-	::delete (CHAR_DATA*) ptr;
 }
 
 void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)
