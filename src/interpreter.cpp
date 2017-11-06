@@ -2960,7 +2960,7 @@ int create_entry(player_index_element& element)
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
 	char buf[MAX_STRING_LENGTH];
-	int player_i, load_result;
+	int player_i = 0, load_result;
 	char tmp_name[MAX_INPUT_LENGTH], pwd_name[MAX_INPUT_LENGTH], pwd_pwd[MAX_INPUT_LENGTH];
 	if (STATE(d) != CON_CONSOLE)
 		skip_spaces(&arg);
