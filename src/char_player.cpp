@@ -1250,7 +1250,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
 	GET_SEX(this) = ESex::SEX_NEUTRAL;
-	GET_COND(this, THIRST) = 0;
+	GET_COND(this, THIRST) = NORM_COND_VALUE;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
 	PRF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.

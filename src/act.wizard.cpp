@@ -1914,14 +1914,20 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = GET_OBJ_RNUM(j);
-	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: &S%s&s\r\n",
+	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: '&c%s&n',",
 		CCYEL(ch, C_NRM),
 		(!j->get_short_description().empty() ? j->get_short_description().c_str() : "<None>"),
 		CCNRM(ch, C_NRM),
 		j->get_aliases().c_str());
 	send_to_char(buf, ch);
+	if (j->get_custom_label() && j->get_custom_label()->label_text)
+	{
+		sprintf(buf, " нацарапано: '&c%s&n',", j->get_custom_label()->label_text);
+		send_to_char(buf, ch);
+	}
+	sprintf(buf,"\r\n");
+	send_to_char(buf, ch);
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
-
 	if (rnum >= 0)
 	{
 		strcpy(buf2, (obj_proto.func(j->get_rnum()) ? "Есть" : "Нет"));
@@ -2005,8 +2011,13 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
-	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, Таймер: %d\r\n",
-		GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j), j->get_timer());
+	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, ",
+		GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j));
+	send_to_char(buf, ch);
+	if (check_unlimited_timer(j))
+		sprintf(buf, "Таймер: нерушимо\r\n");
+	else
+		sprintf(buf, "Таймер: %d\r\n", j->get_timer());
 	send_to_char(buf, ch);
 
 	strcpy(buf, "Находится : ");
@@ -5708,7 +5719,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		else if (is_number(val_arg))
 		{
 			value = atoi(val_arg);
-			RANGE(0, 24);
+			RANGE(0, MAX_COND_VALUE);
 			GET_COND(vict, num) = value;
 			sprintf(output, "Для %s %s установлен в %d.", GET_PAD(vict, 1), set_fields[mode].cmd, value);
 		}

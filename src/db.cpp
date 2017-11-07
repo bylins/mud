@@ -442,6 +442,11 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	{
 		return false;
 	}
+	// !нерушима
+	if (obj->get_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER))
+	{
+		return false;
+	}
 	// рассыпется вне зоны
 	if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY))
 	{

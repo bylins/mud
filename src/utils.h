@@ -139,7 +139,12 @@ extern const char *ACTNULL;
 #define AUCTION_PULSES             30
 #define CHAR_DRUNKED               10
 #define CHAR_MORTALLY_DRUNKED      16
-#define MAX_COND_VALUE			   24
+
+#define MAX_COND_VALUE			   48
+#define NORM_COND_VALUE			   22
+#define GET_COND_M(ch,cond) ((GET_COND(ch,cond)<=NORM_COND_VALUE)?0:GET_COND(ch,cond)-NORM_COND_VALUE)
+#define GET_COND_K(ch,cond) (((GET_COND_M(ch,cond)*100)/(MAX_COND_VALUE-NORM_COND_VALUE)))
+
 
 int MAX(int a, int b);
 int MIN(int a, int b);

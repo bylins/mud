@@ -124,31 +124,32 @@ const char *drinknames[] = { "водой",
 						   };
 
 // effect of drinks on DRUNK, FULL, THIRST -- see values.doc
-const int drink_aff[][3] = { {0, 1, 10},	// вода
-	{2, 2, 3},			// пиво
-	{5, 2, 2},			// вино
-	{3, 2, 3},			// медовуха
-	{1, 2, 5},			// квас
-	{8, 1, 1},			// самогон
-	{0, 1, 8},			// морс
-	{10, 0, 1},			// водка
-	{3, 3, 3},			// брага
-	{0, 4, -8},			// мед
-	{0, 3, 6},			// молоко
-	{0, 1, 6},			// чай
-	{0, 1, 6},			// кофе
-	{0, 2, -1},			// кровь
-	{0, 1, -2},			// соленая вода
-	{0, 0, 13},			// родниковая вода
-	{0, 1, -1},			// магическое зелье
-	{0, 1, -1},			// красное магическое зелье
-	{0, 1, -1},			// синее магическое зелье
-	{0, 1, -1},			// белое магическое зелье
-	{0, 1, -1},			// золотистое магическое зелье
-	{0, 1, -1},			// черное магическое зелье
-	{0, 1, -1},			// серое магическое зелье
-	{0, 1, -1},			// фиолетовое магическое зелье
-	{0, 1, -1},			// розовое магическое зелье
+const int drink_aff[][3] = { 
+	{0, 1, -10},	        // вода
+	{2, -2, -3},			// пиво
+	{5, -2, -2},			// вино
+	{3, -2, -3},			// медовуха
+	{1, -2, -5},			// квас
+	{8,  0, 4},				// самогон (как и водка сушит, никак не влияет на голод можно пить хоть залейся, только запивать успевай)
+	{0, -1, -8},			// морс
+	{10, 0, 3},			    // водка (водка не питье! после нее обезвоживание, пить можно сколько угодно, но сушняк будет)
+	{3, -3, -3},			// брага
+	{0, -2, -8},			// мед (мед тоже ж калорийный)
+	{0, -3, -6},			// молоко
+	{0, -1, -6},			// чай
+	{0, -1, -6},			// кофе
+	{0, -2, 1},			// кровь
+	{0, -1, 2},			// соленая вода
+	{0, 0, -13},			// родниковая вода
+	{0, -1, 1},			// магическое зелье
+	{0, -1, 1},			// красное магическое зелье
+	{0, -1, 1},			// синее магическое зелье
+	{0, -1, 1},			// белое магическое зелье
+	{0, -1, 1},			// золотистое магическое зелье
+	{0, -1, 1},			// черное магическое зелье
+	{0, -1, 1},			// серое магическое зелье
+	{0, -1, 1},			// фиолетовое магическое зелье
+	{0, -1, 1},			// розовое магическое зелье
 	{0, 0, 0},			// настойка аконита
 	{0, 0, 0},			// настойка скополии
 	{0, 0, 0},			// настойка белены
@@ -405,6 +406,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		return;
 	}
+
 	else if (ch->get_fighting())
 	{
 		send_to_char("Не стоит отвлекаться в бою.\r\n", ch);
@@ -435,15 +437,43 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		amount = 1;
 	}
 
+	
 	amount = MIN(amount, GET_OBJ_VAL(temp, 1));
-	amount = MIN(amount, 24 - GET_COND(ch, THIRST));
-
-	if (amount <= 0)
+	
+	int drink_amount[3];
+	drink_amount[FULL]=drink_aff[GET_OBJ_VAL(temp, 2)][FULL];
+	drink_amount[THIRST]=drink_aff[GET_OBJ_VAL(temp, 2)][THIRST];
+	drink_amount[DRUNK]=drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK];
+	
+	float V=0; //Объем
+	if (drink_amount[THIRST]<0)//Если питье утоляет жаду
 	{
+		V = (float) - GET_COND(ch,THIRST)/drink_amount[THIRST];
+	}
+	else if (drink_amount[THIRST]>0)//Если питье "сушит"
+	{
+		V = (float) (MAX_COND_VALUE-GET_COND(ch,THIRST))/drink_amount[THIRST];
+	}
+	else//если питье никак не влияет на жажду
+	{
+		V = 999;
+	}
+	
+	amount = MIN(amount, round(V+0.49999));
+
+	//Сушняк, если у чара жажда - а напиток сушит (ВОДКА!!!), заодно спасаем пьяниц от штрафов
+	if ( GET_COND_M(ch,THIRST) > 5 && drink_amount[THIRST] > 0 ) {
+		send_to_char("У вас пересохло в горле, нужно что-то попить.\r\n",ch);
+		return;
+	}
+
+	//Не хочет пить, ну вот вообще не лезет больше
+	if ( V <= 0 && !IS_GOD(ch) ) {
 		send_to_char("В вас больше не лезет.\r\n", ch);
 		return;
 	}
-	else if (subcmd == SCMD_DRINK)
+	
+	if (subcmd == SCMD_DRINK)
 	{
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
@@ -470,24 +500,27 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		weight_change_object(temp, -weight);	// Subtract amount
 	}
 
-
+	if (drink_amount[DRUNK]>0)
 	if ((GET_DRUNK_STATE(ch) < MAX_COND_VALUE && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
 		|| (GET_COND(ch, DRUNK) < CHAR_DRUNKED && !AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)))
-	{
+	{	//пьянку оставляем как была
 		gain_condition(ch, DRUNK, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount) / 4);
 		GET_DRUNK_STATE(ch) = MAX(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
 	}
 
-	gain_condition(ch, FULL, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount) / 4);
+	if (drink_amount[FULL]!=0) {
+		gain_condition(ch, FULL, amount * drink_amount[FULL]);
+		if (drink_amount[FULL]<0 && GET_COND(ch, FULL) <= NORM_COND_VALUE)
+			send_to_char("Вы чувствуете приятную тяжесть в желудке.\r\n", ch);
+	}
 
-	gain_condition(ch, THIRST, (int)((int) drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount) / 4);
-
-	if (GET_COND(ch, THIRST) > 20)
-		send_to_char("Вы не чувствуете жажды.\r\n", ch);
-
-	if (GET_COND(ch, FULL) > 20)
-		send_to_char("Вы чувствуете приятную тяжесть в желудке.\r\n", ch);
-
+	if (drink_amount[THIRST]!=0) {
+		gain_condition(ch, THIRST, amount * drink_amount[THIRST]);
+		if (drink_amount[THIRST]<0 && GET_COND(ch, THIRST) <= NORM_COND_VALUE)
+			send_to_char("Вы не чувствуете жажды.\r\n", ch);
+	}
+	
+	if (drink_amount[DRUNK]>0)
 	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
 	{
 		if (GET_DRUNK_STATE(ch) == MAX_COND_VALUE || GET_COND(ch, DRUNK) < GET_DRUNK_STATE(ch))

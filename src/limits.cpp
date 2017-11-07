@@ -254,20 +254,13 @@ int mana_gain(CHAR_DATA * ch)
 		stopmem = TRUE;
 		percent = 0;
 	}
-	if (!IS_NPC(ch))
-	{
-		if (GET_COND(ch, FULL) == 0)
-			percent -= 50;
-		if (GET_COND(ch, THIRST) == 0)
-			percent -= 25;
-		if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
-			percent -= 10;
-	}
 
 	if (!IS_MANA_CASTER(ch))
 		percent += GET_MANAREG(ch);
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
+	if (!IS_NPC(ch))
+		percent*=ch->get_cond_penalty(P_MEM_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	return (stopmem ? 0 : gain);
@@ -327,20 +320,14 @@ int hit_gain(CHAR_DATA* ch)
 		break;
 	}
 
-	if (!IS_NPC(ch))
-	{
-		if (GET_COND(ch, FULL) == 0)
-			percent -= 50;
-		if (GET_COND(ch, THIRST) == 0)
-			percent -= 25;
-	}
-
 	percent += GET_HITREG(ch);
 
 	// TODO: перевоткнуть на apply_аффект
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 
+	if (!IS_NPC(ch))
+		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	if (!IS_NPC(ch))
@@ -398,21 +385,14 @@ int move_gain(CHAR_DATA* ch)
 		break;
 	}
 
-	if (!IS_NPC(ch))
-	{
-		if (GET_COND(ch, FULL) == 0)
-			percent -= 50;
-		if (GET_COND(ch, THIRST) == 0)
-			percent -= 25;
-		if (!IS_IMMORTAL(ch) && affected_by_spell(ch, SPELL_HIDE))
-			percent -= 20;
-		if (!IS_IMMORTAL(ch) && affected_by_spell(ch, SPELL_CAMOUFLAGE))
-			percent -= 30;
-	}
+
 
 	percent += GET_MOVEREG(ch);
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
+	
+	if (!IS_NPC(ch))
+		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	return (gain);
@@ -1071,6 +1051,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 
 void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 {
+
 	if (condition >= ch->player_specials->saved.conditions.size())
 	{
 		log("SYSERROR : condition=%d (%s:%d)", condition, __FILE__, __LINE__);
@@ -1081,32 +1062,55 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		return;
 	}
 
+	if (IS_GOD(ch) && condition != DRUNK) {
+		GET_COND(ch, condition)=-1;
+		return;
+	}
+	
 	bool intoxicated = (GET_COND(ch, DRUNK) >= CHAR_DRUNKED);
 
 	GET_COND(ch, condition) += value;
 	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
 	GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
 
-	if (GET_COND(ch, condition) || PLR_FLAGGED(ch, PLR_WRITING))
+	if (PLR_FLAGGED(ch, PLR_WRITING))
 		return;
 
+	int cond_value = GET_COND(ch, condition);
 	switch (condition)
 	{
 	case FULL:
+		if (!GET_COND_M(ch,condition)) return;
+		if (cond_value < 30)
 		send_to_char("Вы голодны.\r\n", ch);
+		else if ( cond_value < 40 )
+			send_to_char("Вы очень голодны.\r\n", ch);
+		else {
+			send_to_char("Вы готовы сожрать медведя.\r\n", ch);
+			//сюда оповещение можно вставить что бы люди видели что чар страдает
+		}
 		return;
 	case THIRST:
+		if (!GET_COND_M(ch,condition)) return;
+		if (cond_value < 30)
 		send_to_char("Вас мучает жажда.\r\n", ch);
+		else if ( cond_value < 40 )
+			send_to_char("Вас сильно мучает жажда.\r\n", ch);
+		else {
+			send_to_char("Вам хочется выпить реку.\r\n", ch);
+			//сюда оповещение можно вставить что бы люди видели что чар страдает
+		}
 		return;
 	case DRUNK:
-		if (intoxicated && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
+		if (!GET_COND(ch, condition)) return;
+		if (intoxicated && GET_COND(ch, DRUNK) < CHAR_DRUNKED) {
 			send_to_char("Наконец-то вы протрезвели.\r\n", ch);
 		GET_DRUNK_STATE(ch) = 0;
+		}
 		return;
 	default:
 		break;
 	}
-
 }
 
 void underwater_check(void)
@@ -1876,30 +1880,30 @@ void point_update(void)
 		{
 			if (average_day_temp() < -20)
 			{
-				gain_condition(i.get(), FULL, -2);
+				gain_condition(i.get(), FULL, +2);
 			}
 			else if (average_day_temp() < -5)
 			{
-				gain_condition(i.get(), FULL, number(-2, -1));
+				gain_condition(i.get(), FULL, number(+2, +1));
 			}
 			else
 			{
-				gain_condition(i.get(), FULL, -1);
+				gain_condition(i.get(), FULL, +1);
 			}
 
 			gain_condition(i.get(), DRUNK, -1);
 
 			if (average_day_temp() > 25)
 			{
-				gain_condition(i.get(), THIRST, -2);
+				gain_condition(i.get(), THIRST, +2);
 			}
 			else if (average_day_temp() > 20)
 			{
-				gain_condition(i.get(), THIRST, number(-2, -1));
+				gain_condition(i.get(), THIRST, number(+2, +1));
 			}
 			else
 			{
-				gain_condition(i.get(), THIRST, -1);
+				gain_condition(i.get(), THIRST, +1);
 			}
 		}
 
