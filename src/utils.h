@@ -138,7 +138,7 @@ extern const char *ACTNULL;
 #define MAX_AUCTION_TACT_PRESENT   (MAX_AUCTION_TACT_BUY + 3)
 #define AUCTION_PULSES             30
 #define CHAR_DRUNKED               10
-#define CHAR_MORTALLY_DRUNKED      16
+#define CHAR_MORTALLY_DRUNKED      18
 
 #define MAX_COND_VALUE			   48
 #define NORM_COND_VALUE			   22
