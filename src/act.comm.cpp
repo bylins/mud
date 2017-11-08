@@ -419,8 +419,8 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		bool found = false;
 		for (const auto i : character_list)
 		{
-			if (IS_NPC(i)
-				|| GET_IDNUM(i) != ch->get_answer_id())
+			if (!IS_NPC(i)
+				&& GET_IDNUM(i) == ch->get_answer_id())
 			{
 				if (is_tell_ok(ch, i.get()))
 				{
