@@ -1891,11 +1891,11 @@ void point_update(void)
 
 		if (!IS_NPC(i))
 		{
-			gain_condition(i, DRUNK, -1);
+			gain_condition(i.get(), DRUNK, -1);
 
 			if (average_day_temp() < -20)
 			{
-				gain_condition(i, FULL, -5);
+				gain_condition(i.get(), FULL, -5);
 			}
 			else if (average_day_temp() < -5)
 			{
