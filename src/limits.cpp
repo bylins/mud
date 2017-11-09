@@ -1051,12 +1051,14 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 
 void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 {
+	int cond_state = GET_COND(ch,condition);
 
 	if (condition >= ch->player_specials->saved.conditions.size())
 	{
 		log("SYSERROR : condition=%d (%s:%d)", condition, __FILE__, __LINE__);
 		return;
 	}
+
 	if (IS_NPC(ch) || GET_COND(ch, condition) == -1)
 	{
 		return;
@@ -1067,11 +1069,23 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		return;
 	}
 	
-	bool intoxicated = (GET_COND(ch, DRUNK) >= CHAR_DRUNKED);
-
 	GET_COND(ch, condition) += value;
 	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
+	
+	// обработка после увеличения
+	switch (condition) {
+		case DRUNK:
+			GET_COND(ch, condition) = MIN(CHAR_MORTALLY_DRUNKED+1, GET_COND(ch, condition));
+		break;
+		default:
 	GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
+		break;
+	}
+
+	if ( cond_state >= CHAR_DRUNKED && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
+	{
+		GET_DRUNK_STATE(ch) = 0;
+	}
 
 	if (PLR_FLAGGED(ch, PLR_WRITING))
 		return;
@@ -1086,7 +1100,7 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		else if ( cond_value < 40 )
 			send_to_char("Вы очень голодны.\r\n", ch);
 		else {
-			send_to_char("Вы готовы сожрать медведя.\r\n", ch);
+			send_to_char("Вы готовы сожрать быка.\r\n", ch);
 			//сюда оповещение можно вставить что бы люди видели что чар страдает
 		}
 		return;
@@ -1097,15 +1111,14 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		else if ( cond_value < 40 )
 			send_to_char("Вас сильно мучает жажда.\r\n", ch);
 		else {
-			send_to_char("Вам хочется выпить реку.\r\n", ch);
+			send_to_char("Вам хочется выпить озеро.\r\n", ch);
 			//сюда оповещение можно вставить что бы люди видели что чар страдает
 		}
 		return;
 	case DRUNK:
 		if (!GET_COND(ch, condition)) return;
-		if (intoxicated && GET_COND(ch, DRUNK) < CHAR_DRUNKED) {
+		if (cond_state >= CHAR_DRUNKED && GET_COND(ch, DRUNK) < CHAR_DRUNKED && GET_DRUNK_STATE(ch)==0) {
 			send_to_char("Наконец-то вы протрезвели.\r\n", ch);
-		GET_DRUNK_STATE(ch) = 0;
 		}
 		return;
 	default:
@@ -1878,9 +1891,11 @@ void point_update(void)
 
 		if (!IS_NPC(i))
 		{
+			gain_condition(i, DRUNK, -1);
+
 			if (average_day_temp() < -20)
 			{
-				gain_condition(i.get(), FULL, +2);
+				gain_condition(i, FULL, -5);
 			}
 			else if (average_day_temp() < -5)
 			{
@@ -1890,8 +1905,6 @@ void point_update(void)
 			{
 				gain_condition(i.get(), FULL, +1);
 			}
-
-			gain_condition(i.get(), DRUNK, -1);
 
 			if (average_day_temp() > 25)
 			{
