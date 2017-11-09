@@ -382,14 +382,6 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	/* И тут не ясно нафиг надо
-	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-	{
-		send_to_char(SOUNDPROOF, ch);
-		return;
-	}
-	*/
-
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);

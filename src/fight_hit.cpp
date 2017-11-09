@@ -4115,10 +4115,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (hit_params.weapon_pos)
 	{
 		alt_equip(ch, hit_params.weapon_pos, hit_params.dam, 10);
-		if (hit_params.wielded)
-		{
-			hit_params.wielded = 0;
-		}
 	}
 
 	if (hit_params.skill_num == SKILL_BACKSTAB)
