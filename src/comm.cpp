@@ -3092,6 +3092,9 @@ int process_output(DESCRIPTOR_DATA * t)
 		}
 	}// end by WorM
 
+	if (STATE(t) == CON_PLAYING && t->character)
+		t->msdp_report_changed_vars();
+
 	// add a prompt
 	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);
 
