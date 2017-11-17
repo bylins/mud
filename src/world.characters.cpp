@@ -60,11 +60,6 @@ void Characters::purge()
 	m_purge_set.clear();
 	for (const auto& character : m_purge_list)
 	{
-		if (GET_MOB_RNUM(character) > -1)
-		{
-			mob_index[GET_MOB_RNUM(character)].number--;
-		}
-
 		if (IS_NPC(character))
 		{
 			clearMemory(character.get());
