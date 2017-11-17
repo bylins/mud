@@ -1657,6 +1657,7 @@ struct DESCRIPTOR_DATA
 	void msdp_remove_report_variable(const std::string& name) { m_msdp_requested_report.erase(name); }
 	bool msdp_need_report(const std::string& name) { return m_msdp_requested_report.find(name) != m_msdp_requested_report.end(); }
 	void msdp_report(const std::string& name);
+	void msdp_report_changed_vars();
 
 	void string_to_client_encoding(const char* input, char* output) const;
 	auto get_character() const { return original ? original : character; }
@@ -1724,6 +1725,7 @@ struct DESCRIPTOR_DATA
 private:
 	bool m_msdp_support;
 	std::unordered_set<std::string> m_msdp_requested_report;
+	int m_msdp_last_max_hit, m_msdp_last_max_move;
 };
 
 // other miscellaneous structures **************************************

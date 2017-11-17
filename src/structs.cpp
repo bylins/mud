@@ -1,9 +1,10 @@
 #include "structs.h"
-
+#include "char.hpp"
 #include "spells.h"
 #include "utils.h"
 #include "logger.hpp"
 #include "msdp.hpp"
+#include "msdp.constants.hpp"
 
 void asciiflag_conv(const char *flag, void *to)
 {
@@ -1075,8 +1076,7 @@ void DelegatedStringWriter::clear()
 	m_delegated_string = nullptr;
 }
 
-DESCRIPTOR_DATA::DESCRIPTOR_DATA() :
-	bad_pws(0),
+DESCRIPTOR_DATA::DESCRIPTOR_DATA() : bad_pws(0),
 	idle_tics(0),
 	connected(0),
 	desc_num(0),
@@ -1112,7 +1112,9 @@ DESCRIPTOR_DATA::DESCRIPTOR_DATA() :
 	cur_vnum(0),
 	old_vnum(0),
 	snoop_with_map(0),
-	m_msdp_support(false)
+	m_msdp_support(false),
+	m_msdp_last_max_hit(0),
+	m_msdp_last_max_move(0)
 {
 	host[0] = 0;
 	inbuf[0] = 0;
@@ -1131,6 +1133,24 @@ void DESCRIPTOR_DATA::msdp_report(const std::string& name)
 	if (msdp_need_report(name))
 	{
 		msdp::report(this, name);
+	}
+}
+
+// Should be called periodically to update changing msdp variables.
+// this is mostly to overcome complication of hunting every possible place affect are added/removed to/from char.
+void DESCRIPTOR_DATA::msdp_report_changed_vars()
+{
+	if (!m_msdp_support || !character)
+		return;
+	if (m_msdp_last_max_hit != GET_REAL_MAX_HIT(character))
+	{
+		msdp_report(msdp::constants::MAX_HIT);
+		m_msdp_last_max_hit = GET_REAL_MAX_HIT(character);
+	}
+	if (m_msdp_last_max_move != GET_REAL_MAX_MOVE(character))
+	{
+		msdp_report(msdp::constants::MAX_MOVE);
+		m_msdp_last_max_move = GET_REAL_MAX_MOVE(character);
 	}
 }
 
