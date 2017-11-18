@@ -502,27 +502,6 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!*arg)
 	{
 		return;
-/*
-		CHAR_DATA *vnext;
-		OBJ_DATA *obj_next;
-
-		for (victim = world[ch->in_room]->people; victim; victim = vnext)
-		{
-			vnext = victim->next_in_room;
-			if (IS_NPC(victim) && victim != ch)
-			{
-				if (victim->followers || victim->master)
-					die_follower(victim);
-				extract_char(victim, FALSE);
-			}
-		}
-		for (obj = world[ch->in_room]->contents; obj; obj = obj_next)
-		{
-			obj_next = obj->next_content;
-			extract_obj(obj);
-		}
-		return;
-*/
 	}
 	if (*arg == UID_CHAR)
 		victim = get_char(arg);

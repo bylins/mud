@@ -521,26 +521,6 @@ void do_wpurge(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!*arg)
 	{
 		return;
-/*
-		for (ch = room->people; ch; ch = next_ch)
-		{
-			next_ch = ch->next_in_room;
-			if (IS_NPC(ch))
-			{
-				if (ch->followers || ch->master)
-					die_follower(ch);
-				extract_char(ch, FALSE);
-			}
-		}
-
-		for (obj = room->contents; obj; obj = next_obj)
-		{
-			next_obj = obj->next_content;
-			extract_obj(obj);
-		}
-
-		return;
-*/
 	}
 
 	if (!(ch = get_char_by_room(room, arg)))

@@ -4355,7 +4355,8 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 
 			if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
 			{
-				for (const auto tch : world[ch->in_room]->people)
+				const auto people = world[ch->in_room]->people;	// make copy because inside loop this list might be changed.
+				for (const auto& tch : people)
 				{
 					if (IS_IMMORTAL(tch)
 						|| ch->in_room == NOWHERE

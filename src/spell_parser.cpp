@@ -2606,9 +2606,6 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			 */
 			if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS))
 			{
-				/*for (i = 0, tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
-					i++;
-				while (i-- > 0) */
                 call_magic(ch, NULL, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
 			}
 			else
