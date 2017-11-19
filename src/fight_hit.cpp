@@ -2353,7 +2353,8 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& !IS_NPC(victim)
 		&& AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP))
 	{
-		for (const auto keeper : world[IN_ROOM(victim)]->people)
+		const auto people = world[IN_ROOM(victim)]->people;	// make copy of people because keeper might be removed from this list inside the loop
+		for (const auto keeper : people)
 		{
 			if (IS_NPC(keeper)
 				&& MOB_FLAGGED(keeper, MOB_ANGEL)
