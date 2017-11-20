@@ -1127,7 +1127,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		{
 			if (ch.get() == vict)
 			{
-				return;
+				continue;
 			}
 
 			if (vict->get_fighting() == ch.get())
