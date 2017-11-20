@@ -187,10 +187,13 @@ void save(bool force_save)
 	file.close();
 }
 
-void create_message(std::string &name, int mode)
+void create_message(std::string &name, int mode, const boost::uint32_t& expected, const boost::uint32_t& calculated)
 {
 	if(!need_warn)
+	{
 		return;
+	}
+
 	char time_buf[20];
 	time_t ct = time(0);
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
@@ -200,17 +203,22 @@ void create_message(std::string &name, int mode)
 	case PLAYER:
 		file_type = "player";
 		break;
+
 	case TEXTOBJS:
 		file_type = "textobjs";
 		break;
+
 	case TIMEOBJS:
 		file_type = "timeobjs";
 		break;
+
 	default:
 		file_type = "error mode";
 		break;
 	}
-	add_message("%s несовпадение контрольной суммы %s файла: %s", time_buf, file_type.c_str(), name.c_str());
+
+	add_message("%s несовпадение контрольной суммы %s файла: %s (expected: %u; calculated: %u)",
+		time_buf, file_type.c_str(), name.c_str(), static_cast<unsigned>(expected), static_cast<unsigned>(calculated));
 }
 
 /**
@@ -226,40 +234,51 @@ void check_crc(const char *filename, int mode, long uid)
 		{
 		case PLAYER:
 		{
-			const boost::uint32_t crc = calculate_file_crc(filename);
+			const auto crc = calculate_file_crc(filename);
 			if (it->second->player != crc)
-				create_message(it->second->name, mode);
+			{
+				create_message(it->second->name, mode, it->second->player, crc);
+			}
 			break;
 		}
+
 		case TEXTOBJS:
 		{
-			const boost::uint32_t crc = calculate_file_crc(filename);
+			const auto crc = calculate_file_crc(filename);
 			if (it->second->textobjs != crc)
-				create_message(it->second->name, mode);
+			{
+				create_message(it->second->name, mode, it->second->textobjs, crc);
+			}
 			break;
 		}
+
 		case TIMEOBJS:
 		{
-			const boost::uint32_t crc = calculate_file_crc(filename);
+			const auto crc = calculate_file_crc(filename);
 			if (it->second->timeobjs != crc)
-				create_message(it->second->name, mode);
+			{
+				create_message(it->second->name, mode, it->second->timeobjs, crc);
+			}
 			break;
 		}
+
 		case UPDATE_PLAYER:
 			it->second->player = calculate_file_crc(filename);
 			it->second->name = GetNameByUnique(uid);
 			break;
+
 		case UPDATE_TEXTOBJS:
 			it->second->textobjs = calculate_file_crc(filename);
 			it->second->name = GetNameByUnique(uid);
 			break;
+
 		case UPDATE_TIMEOBJS:
 			it->second->timeobjs = calculate_file_crc(filename);
 			it->second->name = GetNameByUnique(uid);
 			break;
+
 		default:
-			add_message("SYSERROR: мы не должны были сюда попасть, uid: %ld, mode: %d, func: %s",
-						uid, mode, __func__);
+			add_message("SYSERROR: мы не должны были сюда попасть, uid: %ld, mode: %d, func: %s", uid, mode, __func__);
 			return;
 		}
 	}
@@ -273,17 +292,19 @@ void check_crc(const char *filename, int mode, long uid)
 		case UPDATE_PLAYER:
 			tmp_crc->player = calculate_file_crc(filename);
 			break;
+
 		case TEXTOBJS:
 		case UPDATE_TEXTOBJS:
 			tmp_crc->textobjs = calculate_file_crc(filename);
 			break;
+
 		case TIMEOBJS:
 		case UPDATE_TIMEOBJS:
 			tmp_crc->timeobjs = calculate_file_crc(filename);
 			break;
+
 		default:
-			add_message("SYSERROR: мы не должны были сюда попасть2, mode: %d, func: %s",
-					mode, __func__);
+			add_message("SYSERROR: мы не должны были сюда попасть2, mode: %d, func: %s", mode, __func__);
 			break;
 		}
 		crc_list[uid] = tmp_crc;
