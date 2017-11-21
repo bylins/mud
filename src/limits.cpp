@@ -1895,7 +1895,7 @@ void point_update(void)
 
 			if (average_day_temp() < -20)
 			{
-				gain_condition(i.get(), FULL, -5);
+				gain_condition(i.get(), FULL, +2);
 			}
 			else if (average_day_temp() < -5)
 			{

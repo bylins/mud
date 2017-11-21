@@ -3253,7 +3253,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	ac = compute_armor_class(ch) / 10;
 	if (ac<5) {
 		int mod = (1 - ch->get_cond_penalty(P_AC))*40;
-		ac = ac+mod>5?5:ac+mod;
+		ac = ac + mod>5 ? 5 : ac + mod;
 	}
 	resist = MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
@@ -3390,11 +3390,13 @@ void print_do_score_all(CHAR_DATA *ch)
 		hr += 4;
 		max_dam -= 10;
 	}
+
 	max_dam += ch->obj_bonus().calc_phys_dmg(max_dam);
 	max_dam = MAX(0, max_dam);
-	max_dam*=ch->get_cond_penalty(P_DAMROLL);
+	max_dam *= ch->get_cond_penalty(P_DAMROLL);
+
 	if (hr)
-		hr*=ch->get_cond_penalty(P_HITROLL);
+		hr *= ch->get_cond_penalty(P_HITROLL);
 
 	resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
@@ -3446,7 +3448,7 @@ void print_do_score_all(CHAR_DATA *ch)
 				" || %sДСУ: %s%-10ld    %s|",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch), CCCYN(ch, C_NRM));
 	int itmp =  GET_MANAREG(ch);
-	itmp*=ch->get_cond_penalty(P_CAST);
+	itmp *= ch->get_cond_penalty(P_CAST);
 	sprintf(buf + strlen(buf),
 			" %sУм:            %2d(%2d) %s|"
 			" %sЗапоминание: %4d %s|"
@@ -3927,6 +3929,13 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		ac = compute_armor_class(ch) / 10;
+
+		if (ac<5) 
+		{
+			int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+			ac = ac + mod>5 ? 5 : ac + mod;
+		}
+
 		ac_t = MAX(MIN(ac + 30, 40), 0);
 		sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
 				"  Защита  (AC)     : %4d - %s&G\r\n"
