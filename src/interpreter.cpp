@@ -2951,7 +2951,6 @@ int create_entry(player_index_element& element)
 	// create new save activity
 	element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 	element.timer = NULL;
-	element.unique = -1;
 
 	return static_cast<int>(player_table.append(element));
 }
