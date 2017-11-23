@@ -151,9 +151,11 @@ set(SOURCES
 	src/id.cpp
 	src/find.obj.id.by.vnum.cpp
 	src/global.objects.cpp
-	src/shops.implementation.cpp)
+	src/shops.implementation.cpp
+	src/world.characters.cpp)
 
 set(HEADERS
+	src/world.characters.hpp
 	src/shops.implementation.hpp
 	src/global.objects.hpp
 	src/find.obj.id.by.vnum.hpp
@@ -236,6 +238,7 @@ set(HEADERS
 	src/mail.h
 	src/map.hpp
 	src/meat.maker.hpp
+	src/mobact.hpp
 	src/mobmax.hpp
 	src/mob_stat.hpp
 	src/modify.h
@@ -509,14 +512,23 @@ else ()
 endif ()
 
 # Iconv
-find_path(ICONV_INCLUDE_DIR iconv.h) 
-find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
-if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
-	message(STATUS "Iconv found. Turning it ON")
-	set(ICONV_FOUND TRUE)
-else ()
-	message(STATUS "Iconv not found. Turning it OFF")
-endif () 
+option(HAVE_ICONV "Allows to explicitly disable iconv. Otherwise it turns off only if it wasn't found" ON)
+if (HAVE_ICONV)
+	find_path(ICONV_INCLUDE_DIR iconv.h) 
+	find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
+	if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
+		message(STATUS "Iconv found. Turning it ON")
+		set(ICONV_FOUND TRUE)
+	else ()
+		message(STATUS "Iconv not found. Turning it OFF")
+	endif () 
+
+	if (ICONV_FOUND)
+		add_definitions("-DHAVE_ICONV")
+		include_directories(system ${ICONV_INCLUDE_DIR})
+		target_link_libraries(circle.library ${ICONV_LIBRARIES})
+	endif ()
+endif ()
 
 include_directories(src
 	system ${Boost_INCLUDE_DIRS}
@@ -525,19 +537,13 @@ target_link_libraries(circle.library
 	${Boost_LIBRARIES}
 	${PYTHON_LIBRARIES})
 
-if (ICONV_FOUND)
-	add_definitions("-DHAVE_ICONV")
-	include_directories(system ${ICONV_INCLUDE_DIR})
-	target_link_libraries(circle.library ${ICONV_LIBRARIES})
-endif ()
-
 # Prepare options for test build
 set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
-		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -Og    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC -fsanitize=address")
+		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC -fsanitize=address")
 		set(CMAKE_CXX_FLAGS_TEST     "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 

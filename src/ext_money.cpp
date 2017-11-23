@@ -494,8 +494,7 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze)
 bool has_connected_bosses(CHAR_DATA *ch)
 {
 	// если в комнате есть другие живые боссы
-	const auto& people = world[ch->in_room]->people;
-	for (const CHAR_DATA* i = people; i; i = i->next_in_room)
+	for (const auto i : world[ch->in_room]->people)
 	{
 		if (i != ch
 			&& IS_NPC(i)
@@ -709,7 +708,7 @@ void drop_torc(CHAR_DATA *mob)
 
 	CHAR_DATA *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
 		? d->character->get_master()
-		: d->character;
+		: d->character.get();
 
 	int members = 1;
 	for (follow_type *f = leader->followers; f; f = f->next)

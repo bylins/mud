@@ -484,7 +484,8 @@ void init_mob_name_list()
 			banker = false;
 			curr_zone = zone_table[i->zone].number;
 		}
-		for (CHAR_DATA *ch = i->people; ch; ch = ch->next_in_room)
+
+		for (const auto ch : i->people)
 		{
 			if (IS_RENTKEEPER(ch))
 			{
@@ -1226,7 +1227,7 @@ void message_for_players()
 	{
 		if (STATE(i) == CON_PLAYING && i->character)
 		{
-			send_to_char(i->character, "%s%s%s\r\n",
+			send_to_char(i->character.get(), "%s%s%s\r\n",
 				CCICYN(i->character, C_NRM), RESET_MESSAGE,
 				CCNRM(i->character, C_NRM));
 		}

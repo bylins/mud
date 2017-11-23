@@ -502,7 +502,6 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 
 	world[room_nr]->func = NULL;
 	world[room_nr]->contents = NULL;
-	world[room_nr]->people = NULL;
 	world[room_nr]->track = NULL;
 	world[room_nr]->light = 0;	// Zero light sources
 	world[room_nr]->fires = 0;

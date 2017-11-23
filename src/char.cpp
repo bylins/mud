@@ -4,6 +4,7 @@
 
 #include "char.hpp"
 
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "db.h"
@@ -34,16 +35,13 @@
 #include <sstream>
 #include <list>
 #include <algorithm>
+#include <iostream>
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
 
 namespace
 {
-
-// список чаров/мобов после пуржа для последующего удаления оболочки
-typedef std::vector<CHAR_DATA *> PurgedCharList;
-PurgedCharList purged_char_list;
 
 // * На перспективу - втыкать во все методы character.
 void check_purged(const CHAR_DATA *ch, const char *fnc)
@@ -73,30 +71,10 @@ std::list<CHAR_DATA *> fighting_list;
 
 } // namespace
 
-////////////////////////////////////////////////////////////////////////////////
-
-namespace CharacterSystem
-{
-// * Реальное удаление указателей.
-	void release_purged_list()
-	{
-		for (PurgedCharList::iterator i = purged_char_list.begin();
-		i != purged_char_list.end(); ++i)
-		{
-			delete *i;
-		}
-		purged_char_list.clear();
-	}
-
-} // namespace CharacterSystem
-
-////////////////////////////////////////////////////////////////////////////////
-//extern MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
 CHAR_DATA::CHAR_DATA() :
 	chclass_(CLASS_UNDEFINED),
 	role_(MOB_ROLE_TOTAL_NUM),
-	next_(NULL),
-	in_room(CRooms::UNDEFINED_ROOM_VNUM),
+	in_room(Rooms::UNDEFINED_ROOM_VNUM),
 	m_wait(~0u),
 	m_master(nullptr),
 	proto_script(new OBJ_DATA::triggers_list_t()),
@@ -109,10 +87,7 @@ CHAR_DATA::CHAR_DATA() :
 
 CHAR_DATA::~CHAR_DATA()
 {
-	if (!purged_)
-	{
-		this->purge(true);
-	}
+	this->purge();
 }
 
 void CHAR_DATA::set_souls(int souls)
@@ -226,9 +201,7 @@ void CHAR_DATA::reset()
 	m_master = nullptr;
 	in_room = NOWHERE;
 	carrying = NULL;
-	next_ = NULL;
 	next_fighting = NULL;
-	next_in_room = NULL;
 	set_protecting(0);
 	set_touching(0);
 	BattleAffects = clear_flags;
@@ -442,7 +415,6 @@ void CHAR_DATA::zero_init()
 	proto_script.reset(new OBJ_DATA::triggers_list_t());
 	script = 0;
 	memory = 0;
-	next_in_room = 0;
 	next_fighting = 0;
 	followers = 0;
 	m_master = nullptr;
@@ -497,14 +469,9 @@ void CHAR_DATA::zero_init()
  * по ходу функции были спуржены чар/моб/шмотка. Гарантии ес-сно только в пределах
  * вызовов до выхода в обработку heartbeat(), где раз в минуту удаляются оболочки.
  */
-void CHAR_DATA::purge(bool destructor)
+void CHAR_DATA::purge()
 {
 	caching::character_cache.remove(this);
-	if (purged_)
-	{
-		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
-		return;
-	}
 
 	if (!get_name().empty())
 	{
@@ -578,11 +545,6 @@ void CHAR_DATA::purge(bool destructor)
 	while (this->timed)
 	{
 		timed_from_char(this, this->timed);
-	}
-
-	if (this->desc)
-	{
-		this->desc->character = nullptr;
 	}
 
 	Celebrates::remove_from_mob_lists(this->id);
@@ -667,23 +629,6 @@ void CHAR_DATA::purge(bool destructor)
 	}
 	name_.clear();
 	short_descr_.clear();
-
-	if (!destructor)
-	{
-		// обнуляем все
-		this->zero_init();
-		// проставляем неподходящие из конструктора поля
-		purged_ = true;
-		char_specials.position = POS_DEAD;
-		// закидываем в список ожидающих делета указателей
-		purged_char_list.push_back(this);
-	}
-}
-
-void CHAR_DATA::purge(CHAR_DATA* character)
-{
-	character->purge(false);
-	character = nullptr;
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
@@ -934,16 +879,6 @@ void CHAR_DATA::clear_fighing_list()
 	}
 }
 
-int GET_INVIS_LEV(const CHAR_DATA* ch)
-{
-	return CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level);
-}
-
-void SET_INVIS_LEV(const CHAR_DATA* ch, const int level)
-{
-	CHECK_PLAYER_SPECIAL(ch, ch->player_specials->saved.invis_level) = level;
-}
-
 bool IS_CHARMICE(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
@@ -1060,89 +995,57 @@ bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 }
 
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
-void change_fighting(CHAR_DATA * ch, int need_stop)
+void change_fighting(CHAR_DATA* ch, int need_stop)
 {
-	/*
-	for (std::list<CHAR_DATA *>::const_iterator it = fighting_list.begin(); it != fighting_list.end(); ++it)
+	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& k)
 	{
-		CHAR_DATA *k = *it;
-		if (k->get_touching() == ch)
-		{
-			k->set_touching(0);
-			CLR_AF_BATTLE(k, EAF_PROTECT); // сомнительно
-		}
 		if (k->get_protecting() == ch)
 		{
 			k->set_protecting(0);
 			CLR_AF_BATTLE(k, EAF_PROTECT);
 		}
-		if (k->get_extra_victim() == ch)
-		{
-			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
-		}
-		if (k->get_cast_char() == ch)
-		{
-			k->set_cast(0, 0, 0, 0, 0);
-		}
-		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE)
-		{
-			log("[Change fighting] Change victim");
-			CHAR_DATA *j;
-			for (j = world[ch->in_room]->people; j; j = j->next_in_room)
-				if (j->get_fighting() == k)
-				{
-					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
-					act("$n переключил$u на вас!", FALSE, k, 0, j, TO_VICT);
-					k->set_fighting(j);
-					break;
-				}
-			if (!j && need_stop)
-				stop_fighting(k, FALSE);
-		}
-	}
-	*/
 
-	CHAR_DATA *k, *j, *temp;
-	for (k = character_list; k; k = temp)
-	{
-		temp = k->get_next();
-		if (k->get_protecting() == ch)
-		{
-			k->set_protecting(0);
-			CLR_AF_BATTLE(k, EAF_PROTECT);
-		}
 		if (k->get_touching() == ch)
 		{
 			k->set_touching(0);
 			CLR_AF_BATTLE(k, EAF_PROTECT);
 		}
+
 		if (k->get_extra_victim() == ch)
 		{
 			k->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 		}
+
 		if (k->get_cast_char() == ch)
 		{
 			k->set_cast(0, 0, 0, 0, 0);
 		}
+
 		if (k->get_fighting() == ch && IN_ROOM(k) != NOWHERE)
 		{
 			log("[Change fighting] Change victim");
-			for (j = world[ch->in_room]->people; j; j = j->next_in_room)
+
+			bool found = false;
+			for (const auto j : world[ch->in_room]->people)
 			{
-				if (j->get_fighting() == k)
+				if (j->get_fighting() == k.get())
 				{
-					act("Вы переключили внимание на $N3.", FALSE, k, 0, j, TO_CHAR);
-					act("$n переключил$u на вас!", FALSE, k, 0, j, TO_VICT);
+					act("Вы переключили внимание на $N3.", FALSE, k.get(), 0, j, TO_CHAR);
+					act("$n переключил$u на вас!", FALSE, k.get(), 0, j, TO_VICT);
 					k->set_fighting(j);
+					found = true;
+
 					break;
 				}
 			}
-			if (!j && need_stop)
+
+			if (!found
+				&& need_stop)
 			{
-				stop_fighting(k, FALSE);
+				stop_fighting(k.get(), FALSE);
 			}
 		}
-	}
+	});
 }
 
 size_t fighting_list_size()
@@ -2279,8 +2182,7 @@ std::pair<int /* uid */, int /* rounds */> CHAR_DATA::get_max_damager_in_room() 
 	}
 
 	int max_dmg = 0;
-	for (CHAR_DATA *i = world[this->in_room]->people;
-		i; i = i->next_in_room)
+	for (const auto i : world[this->in_room]->people)
 	{
 		if (!IS_NPC(i) && i->desc)
 		{

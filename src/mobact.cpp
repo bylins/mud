@@ -11,7 +11,9 @@
 *  $Date$                                           *
 *  $Revision$                                                      *
 ************************************************************************ */
+#include "mobact.hpp"
 
+#include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "obj.hpp"
 #include "db.h"
@@ -76,7 +78,6 @@ int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 
 // local functions
 void mobile_activity(int activity_level, int missed_pulses);
-void clearMemory(CHAR_DATA * ch);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
 
@@ -236,25 +237,13 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 
 CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 {
-	CHAR_DATA *vict, *victim, *use_light = NULL, *min_hp = NULL, *min_lvl = NULL, *caster = NULL, *best = NULL;
+	CHAR_DATA *victim, *use_light = NULL, *min_hp = NULL, *min_lvl = NULL, *caster = NULL, *best = NULL;
 	int kill_this, extra_aggr = 0;
 
 	victim = ch->get_fighting();
 
-	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
-	{	/*
-											   sprintf(buf,"Vic-%s,B-%s,V-%s,L-%s,Lev-%s,H-%s,C-%s,IS-NPC-%s,IS-CLONE-%s",
-											   GET_NAME(vict),
-											   best ? GET_NAME(best) : "None",
-											   victim  ? GET_NAME(victim) : "None",
-											   use_light ? GET_NAME(use_light) : "None",
-											   min_lvl   ? GET_NAME(min_lvl) : "None",
-											   min_hp    ? GET_NAME(min_hp) : "None",
-											   caster    ? GET_NAME(caster) : "None",
-											   IS_NPC(vict)   ? "1" : "0",
-											   MOB_FLAGGED(vict, MOB_CLONE)   ? "1" : "0");
-											   act(buf,FALSE,ch,0,0,TO_ROOM); */
-
+	for (const auto vict : world[ch->in_room]->people)
+	{
 		if ((IS_NPC(vict)
 				&& !IS_SET(extmode, CHECK_OPPONENT)
 				&& !IS_CHARMICE(vict))
@@ -446,13 +435,13 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	{
 		return find_best_stupidmob_victim(ch, extmode);
 	}
-	CHAR_DATA *vict, *victim,  *caster = NULL, *best = NULL;
+	CHAR_DATA *victim,  *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	int extra_aggr = 0;
 	bool kill_this;
 	victim = ch->get_fighting();
 	// проходим по всем чарам в комнате
-	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+	for (const auto vict : world[ch->in_room]->people)
 	{
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
 				|| (IS_CHARMICE(vict) && !vict->get_fighting() && find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
@@ -460,7 +449,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 				|| !MAY_SEE(ch, ch, vict) // если не видим цель,
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
 				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+		{
 			continue;
+		}
+
 		kill_this = FALSE;
 		// Mobile too damage //обработка флага ТРУС
 		if (IS_SET(extmode, CHECK_HITS)
@@ -570,13 +562,19 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	}
 
 	if (!best)
+	{
 		best = victim;
+	}
 
 	// если цель кастер, то зачем переключаться ?
 	// проверка, а вдруг это существо моб
 	if (victim && !IS_NPC(victim))
+	{
 		if (IS_CASTER(victim))
+		{
 			return victim;
+		}
+	}
 
 	if (i < INT_MIDDLE_AI)
 	{
@@ -599,6 +597,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		}
 		return best;
 	}
+
 	if (i < INT_HIGH_AI)
 	{
 		int rand = number(0, 1);
@@ -613,6 +612,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 
 		return best;
 	}
+
 	//  и если >= 40 инты
 	if (caster)
 		best = caster;
@@ -692,14 +692,20 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 
 int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 {
-	CHAR_DATA *vict;
 	if (perform_best_mob_attack(ch, extmode))
-		return (TRUE);
-
-	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
 	{
-		if (!IS_NPC(vict) || !MAY_SEE(ch, ch, vict) || MOB_FLAGGED(vict, MOB_PROTECT))
+		return (TRUE);
+	}
+
+	for (const auto vict : world[ch->in_room]->people)
+	{
+		if (!IS_NPC(vict)
+			|| !MAY_SEE(ch, ch, vict)
+			|| MOB_FLAGGED(vict, MOB_PROTECT))
+		{
 			continue;
+		}
+
 		if (!SAME_ALIGN(ch, vict))
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
@@ -707,8 +713,12 @@ int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
+
 			if (!attack_best(ch, vict) && !ch->get_fighting())
+			{
 				hit(ch, vict, TYPE_UNDEFINED, 1);
+			}
+
 			return (TRUE);
 		}
 	}
@@ -753,7 +763,6 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		return;
 	}
 
-	CHAR_DATA *next_vict, *victim;
 	int mode = check_sneak ? SKIP_SNEAKING : 0;
 
 	// ****************  Horde
@@ -779,12 +788,15 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 	// *****************  Mob Memory
 	if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch))
 	{
-		victim = NULL;
+		CHAR_DATA* victim = nullptr;
 		// Find memory in room
-		for (CHAR_DATA *vict = world[ch->in_room]->people; vict && !victim; vict = next_vict)
+		const auto people_copy = world[ch->in_room]->people;
+		for (auto vict_i = people_copy.begin(); vict_i != people_copy.end() && !victim; ++vict_i)
 		{
-			next_vict = vict->next_in_room;
-			if (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
+			const auto vict = *vict_i;
+
+			if (IS_NPC(vict)
+				|| PRF_FLAGGED(vict, PRF_NOHASSLE))
 			{
 				continue;
 			}
@@ -823,6 +835,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 				}
 			}
 		}
+
 		// Is memory found ?
 		if (victim)
 		{
@@ -867,7 +880,7 @@ void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
 	{
 		return;
 	}
-	for (CHAR_DATA *vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+	for (const auto vict : world[ch->in_room]->people)
 	{
 		// здесь не надо преварително запоминать next_in_room, потому что как раз
 		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
@@ -887,9 +900,10 @@ bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch)
 		return true;
 	}
 
-	for (CHAR_DATA *vict = room->people; vict; vict = vict->next_in_room)
+	for (const auto vict : room->people)
 	{
-		if (IS_NPC(vict) && GET_MOB_SPEC(vict) == GET_MOB_SPEC(ch))
+		if (IS_NPC(vict)
+			&& GET_MOB_SPEC(vict) == GET_MOB_SPEC(ch))
 		{
 			return false;
 		}
@@ -944,10 +958,7 @@ void extract_charmice(CHAR_DATA* ch)
 			if (obj)
 			{
 				remove_otrigger(obj, ch);
-				if (!obj->purged())
-				{
-					objects.push_back(obj);
-				}
+				objects.push_back(obj);
 			}
 		}
 	}
@@ -975,28 +986,23 @@ void extract_charmice(CHAR_DATA* ch)
 
 void mobile_activity(int activity_level, int missed_pulses)
 {
-	CHAR_DATA *ch, *next_ch, *vict, *first, *victim;
-	int door, found, max, was_in = -1, kw, activity_lev, std_lev, i, ch_activity;
+	int door, max, was_in = -1, kw, activity_lev, std_lev, i, ch_activity;
 	memory_rec *names;
 
 	std_lev = activity_level % PULSE_MOBILE;
 
-	for (ch = character_list; ch; ch = next_ch)
+	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& ch)
 	{
-		// Next line required in case of current character fill be removed during iteration.
-		// To safely get rid this line we must guarantee unchanging of the list.
-		next_ch = ch->get_next();
-
 		if (!IS_MOB(ch)
 			|| !ch->in_used_zone())
 		{
-			continue;
+			return;
 		}
 
 		i = missed_pulses;
 		while (i--)
 		{
-			pulse_affect_update(ch);
+			pulse_affect_update(ch.get());
 		}
 
 		ch->wait_dec(missed_pulses);
@@ -1012,24 +1018,27 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (ch->mob_specials.speed <= 0)
 		{
 			activity_lev = std_lev;
-//			tmp_speed = PULSE_MOBILE;
 		}
 		else
 		{
 			activity_lev = activity_level % (ch->mob_specials.speed RL_SEC);
-//			tmp_speed = ch->mob_specials.speed RL_SEC;
 		}
 
 		ch_activity = GET_ACTIVITY(ch);
 
 // на случай вызова mobile_activity() не каждый пульс
 		// TODO: by WorM а где-то используется это mob_specials.speed ???
-		if ((ch_activity - activity_lev < missed_pulses) &&
-		   (ch_activity - activity_lev >= 0))
+		if (ch_activity - activity_lev < missed_pulses
+			&& ch_activity - activity_lev >= 0)
+		{
 			ch_activity = activity_lev;
-		if (ch_activity != activity_lev ||
-				(was_in = ch->in_room) == NOWHERE || GET_ROOM_VNUM(ch->in_room) % 100 == 99)
-			continue;
+		}
+		if (ch_activity != activity_lev
+			|| (was_in = ch->in_room) == NOWHERE
+			|| GET_ROOM_VNUM(ch->in_room) % 100 == 99)
+		{
+			return;
+		}
 
 		// Examine call for special procedure
 		if (MOB_FLAGGED(ch, MOB_SPEC) && !no_specials)
@@ -1043,8 +1052,10 @@ void mobile_activity(int activity_level, int missed_pulses)
 			else
 			{
 				buf2[0] = '\0';
-				if ((mob_index[GET_MOB_RNUM(ch)].func)(ch, ch, 0, buf2))
-					continue;	// go to next char
+				if ((mob_index[GET_MOB_RNUM(ch)].func)(ch.get(), ch.get(), 0, buf2))
+				{
+					return;	// go to next char
+				}
 			}
 		}
 		// Extract free horses
@@ -1053,9 +1064,10 @@ void mobile_activity(int activity_level, int missed_pulses)
 			&& !ch->has_master()) // если скакун, под седлом но нет хозяина
 		{
 			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
-				FALSE, ch, 0, 0, TO_ROOM);
-			extract_char(ch, FALSE);
-			continue;
+				FALSE, ch.get(), 0, 0, TO_ROOM);
+			extract_char(ch.get(), FALSE);
+
+			return;
 		}
 
 		// Extract uncharmed mobs
@@ -1070,8 +1082,9 @@ void mobile_activity(int activity_level, int missed_pulses)
 				EXTRACT_TIMER(ch)--;
 				if (!EXTRACT_TIMER(ch))
 				{
-					extract_charmice(ch);
-					continue;
+					extract_charmice(ch.get());
+
+					return;
 				}
 			}
 		}
@@ -1084,91 +1097,118 @@ void mobile_activity(int activity_level, int missed_pulses)
 				AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT) ||
 				AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
 		{
-			continue;
+			return;
 		}
 
 		if (IS_HORSE(ch))
 		{
 			if (GET_POS(ch) < POS_FIGHTING)
+			{
 				GET_POS(ch) = POS_STANDING;
-			continue;
+			}
+
+			return;
 		}
 
 		if (GET_POS(ch) == POS_SLEEPING && GET_DEFAULT_POS(ch) > POS_SLEEPING)
 		{
 			GET_POS(ch) = GET_DEFAULT_POS(ch);
-			act("$n проснул$u.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n проснул$u.", FALSE, ch.get(), 0, 0, TO_ROOM);
 		}
 
 		if (!AWAKE(ch))
-			continue;
-
-		for (vict = world[ch->in_room]->people, max = FALSE; vict; vict = vict->next_in_room)
 		{
-			if (ch == vict)
+			return;
+		}
+
+		max = FALSE;
+		bool found = false;
+		for (const auto vict : world[ch->in_room]->people)
+		{
+			if (ch.get() == vict)
+			{
 				continue;
-			if (vict->get_fighting() == ch)
-				break;
-			if (!IS_NPC(vict) && CAN_SEE(ch, vict))
+			}
+
+			if (vict->get_fighting() == ch.get())
+			{
+				found = true;
+			}
+
+			if (!IS_NPC(vict)
+				&& CAN_SEE(ch, vict))
+			{
 				max = TRUE;
+			}
 		}
 
 		// Mob is under attack
-		if (vict)
-			continue;
+		if (found)
+		{
+			return;
+		}
 
 		// Mob attemp rest if it is not an angel
 		if (!max && !MOB_FLAGGED(ch, MOB_NOREST) &&
 				GET_HIT(ch) < GET_REAL_MAX_HIT(ch) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_GHOST) && GET_POS(ch) > POS_RESTING)
 		{
-			act("$n присел$g отдохнуть.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n присел$g отдохнуть.", FALSE, ch.get(), 0, 0, TO_ROOM);
 			GET_POS(ch) = POS_RESTING;
 		}
 
 		// Mob return to default pos if full rested or if it is an angel
-		if ((GET_HIT(ch) >= GET_REAL_MAX_HIT(ch) &&
-				GET_POS(ch) != GET_DEFAULT_POS(ch)) || ((MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
-														&& GET_POS(ch) != GET_DEFAULT_POS(ch)))
+		if ((GET_HIT(ch) >= GET_REAL_MAX_HIT(ch)
+				&& GET_POS(ch) != GET_DEFAULT_POS(ch))
+			|| ((MOB_FLAGGED(ch, MOB_ANGEL)
+					|| MOB_FLAGGED(ch, MOB_GHOST))
+				&& GET_POS(ch) != GET_DEFAULT_POS(ch)))
+		{
 			switch (GET_DEFAULT_POS(ch))
 			{
 			case POS_STANDING:
-				act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n встал$g на ноги.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 				break;
 			case POS_SITTING:
-				act("$n сел$g.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n сел$g.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_SITTING;
 				break;
 			case POS_RESTING:
-				act("$n присел$g отдохнуть.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n присел$g отдохнуть.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_RESTING;
 				break;
 			case POS_SLEEPING:
-				act("$n уснул$g.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n уснул$g.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_SLEEPING;
 				break;
 			}
+		}
 		// continue, if the mob is an angel
 		// если моб ментальная тень или ангел он не должен проявлять активность
-		if ((MOB_FLAGGED(ch, MOB_ANGEL))||(MOB_FLAGGED(ch, MOB_GHOST)))
-			continue;
+		if ((MOB_FLAGGED(ch, MOB_ANGEL))
+			||(MOB_FLAGGED(ch, MOB_GHOST)))
+		{
+			return;
+		}
 
 		// look at room before moving
-		do_aggressive_mob(ch, FALSE);
+		do_aggressive_mob(ch.get(), FALSE);
 
 		// if mob attack something
-		if (ch->get_fighting() || GET_WAIT(ch) > 0)
-			continue;
+		if (ch->get_fighting()
+			|| GET_WAIT(ch) > 0)
+		{
+			return;
+		}
 
 		// Scavenger (picking up objects)
 		// От одного до трех предметов за раз
 		i = number(1, 3);
 		while (i)
 		{
-			npc_scavenge(ch);
+			npc_scavenge(ch.get());
 			i--;
 		}
-
 
 		if (EXTRACT_TIMER(ch) == 0)
 		{
@@ -1179,8 +1219,8 @@ void mobile_activity(int activity_level, int missed_pulses)
 			int grab_stuff = FALSE;
 			// Looting the corpses
 
-			grab_stuff += npc_loot(ch);
-			grab_stuff += npc_steal(ch);
+			grab_stuff += npc_loot(ch.get());
+			grab_stuff += npc_steal(ch.get());
 
 			if (grab_stuff)
 			{
@@ -1194,43 +1234,44 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 			//Niker: LootCR// End
 		}
-		npc_wield(ch);
-		npc_armor(ch);
+		npc_wield(ch.get());
+		npc_armor(ch.get());
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_INVIS))
 		{
-			AFF_FLAGS(ch).set(EAffectFlag::AFF_INVISIBLE);
+			ch->set_affect(EAffectFlag::AFF_INVISIBLE);
 		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_MOVEFLY))
 		{
-			AFF_FLAGS(ch).set(EAffectFlag::AFF_FLY);
+			ch->set_affect(EAffectFlag::AFF_FLY);
 		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_SNEAK))
 		{
-			if (calculate_skill(ch, SKILL_SNEAK, 0) >= number(0, 100))
+			if (calculate_skill(ch.get(), SKILL_SNEAK, 0) >= number(0, 100))
 			{
-				AFF_FLAGS(ch).set(EAffectFlag::AFF_SNEAK);
+				ch->set_affect(EAffectFlag::AFF_SNEAK);
 			}
 			else
 			{
-				AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
+				ch->remove_affect(EAffectFlag::AFF_SNEAK);
 			}
-			affect_total(ch);
+			affect_total(ch.get());
 		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_CAMOUFLAGE))
 		{
-			if (calculate_skill(ch, SKILL_CAMOUFLAGE, 0) >= number(0, 100))
+			if (calculate_skill(ch.get(), SKILL_CAMOUFLAGE, 0) >= number(0, 100))
 			{
-				AFF_FLAGS(ch).set(EAffectFlag::AFF_CAMOUFLAGE);
+				ch->set_affect(EAffectFlag::AFF_CAMOUFLAGE);
 			}
 			else
 			{
-				AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
+				ch->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
 			}
-			affect_total(ch);
+
+			affect_total(ch.get());
 		}
 
 		door = BFS_ERROR;
@@ -1248,50 +1289,76 @@ void mobile_activity(int activity_level, int missed_pulses)
 				ROOM_DATA::exit_data_ptr rdata;
 				for (rdata = EXIT(ch, door), max = MAX(1, GET_REAL_INT(ch) / 10); max > 0 && !found; max--)
 				{
-					if (!rdata ||
-							rdata->to_room == NOWHERE ||
-							!legal_dir(ch, door, TRUE, FALSE) ||
-							(is_room_forbidden(world[rdata->to_room]) && !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
-							|| IS_DARK(rdata->to_room)
-							|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
-								&& world[ch->in_room]->zone != world[rdata->to_room]->zone))
+					if (!rdata
+						|| rdata->to_room == NOWHERE
+						|| !legal_dir(ch.get(), door, TRUE, FALSE)
+						|| (is_room_forbidden(world[rdata->to_room])
+							&& !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
+						|| IS_DARK(rdata->to_room)
+						|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
+							&& world[ch->in_room]->zone != world[rdata->to_room]->zone))
+					{
 						break;
+					}
 
-					for (first = world[rdata->to_room]->people, kw = 0;
-							first && kw < 25; first = first->next_in_room, kw++)
-						if (IS_NPC(first) && !AFF_FLAGGED(first, EAffectFlag::AFF_CHARM)
-								&& !IS_HORSE(first) && CAN_SEE(ch, first)
-								&& first->get_fighting() && SAME_ALIGN(ch, first))
+					const auto room = world[rdata->to_room];
+					kw = 0;
+					for (auto first : room->people)
+					{
+						if (kw >= 25)
+						{
+							break;
+						}
+						++kw;
+
+						if (IS_NPC(first)
+							&& !AFF_FLAGGED(first, EAffectFlag::AFF_CHARM)
+							&& !IS_HORSE(first)
+							&& CAN_SEE(ch, first)
+							&& first->get_fighting()
+							&& SAME_ALIGN(ch, first))
 						{
 							found = TRUE;
 							break;
 						}
-					rdata = world[rdata->to_room]->dir_option[door];
+					}
+
+					rdata = room->dir_option[door];
 				}
+
 				if (found)
+				{
 					break;
+				}
 			}
+
 			if (!found)
+			{
 				door = BFS_ERROR;
+			}
 		}
 
-		if (GET_DEST(ch) != NOWHERE && GET_POS(ch) > POS_FIGHTING && door == BFS_ERROR)
+		if (GET_DEST(ch) != NOWHERE
+			&& GET_POS(ch) > POS_FIGHTING
+			&& door == BFS_ERROR)
 		{
-			npc_group(ch);
-			door = npc_walk(ch);
+			npc_group(ch.get());
+			door = npc_walk(ch.get());
 		}
 
 		if (MEMORY(ch) && door == BFS_ERROR && GET_POS(ch) > POS_FIGHTING && ch->get_skill(SKILL_TRACK))
-			door = npc_track(ch);
+			door = npc_track(ch.get());
 
 		if (door == BFS_ALREADY_THERE)
 		{
-			do_aggressive_mob(ch, FALSE);
-			continue;
+			do_aggressive_mob(ch.get(), FALSE);
+			return;
 		}
 
 		if (door == BFS_ERROR)
+		{
 			door = number(0, 18);
+		}
 
 		// Mob Movement
 		if (!MOB_FLAGGED(ch, MOB_SENTINEL)
@@ -1299,49 +1366,54 @@ void mobile_activity(int activity_level, int missed_pulses)
 				&& (door >= 0 && door < NUM_OF_DIRS)
 				&& EXIT(ch, door)
 				&& EXIT(ch, door)->to_room != NOWHERE
-				&& legal_dir(ch, door, TRUE, FALSE)
+				&& legal_dir(ch.get(), door, TRUE, FALSE)
 				&& (!is_room_forbidden(world[EXIT(ch, door)->to_room]) || MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
 				&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
 					|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)
-				&& allow_enter(world[EXIT(ch, door)->to_room], ch))
+				&& allow_enter(world[EXIT(ch, door)->to_room], ch.get()))
 		{
 			// После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
 			// оно не валится на муд.ру, но на цигвине у меня падало стабильно,
 			// т.к. в ch уже местами мусор после фри-чара // Krodo
-			if (npc_move(ch, door, 1))
+			if (npc_move(ch.get(), door, 1))
 			{
-				npc_group(ch);
-				npc_groupbattle(ch);
+				npc_group(ch.get());
+				npc_groupbattle(ch.get());
 			}
 			else
-				continue;
+			{
+				return;
+			}
 		}
 
-		npc_light(ch);
+		npc_light(ch.get());
 
 		// *****************  Mob Memory
-		if (MOB_FLAGGED(ch, MOB_MEMORY) &&
-				MEMORY(ch) && GET_POS(ch) > POS_SLEEPING && !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) && !ch->get_fighting())
+		if (MOB_FLAGGED(ch, MOB_MEMORY)
+			&& MEMORY(ch)
+			&& GET_POS(ch) > POS_SLEEPING
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
+			&& !ch->get_fighting())
 		{
-			victim = NULL;
 			// Find memory in world
-			for (names = MEMORY(ch); names && !victim && (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0
+			for (names = MEMORY(ch); names && (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0
 				|| GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0); names = names->next)
 			{
-				for (vict = character_list; vict && !victim; vict = vict->get_next())
+				for (const auto& vict : character_list)
 				{
-					if (names->id == GET_IDNUM(vict) &&
-						// PRF_FLAGGED(vict, PRF_SUMMONABLE) &&
-						CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE))
+					if (names->id == GET_IDNUM(vict)
+						&& CAN_SEE(ch, vict) && !PRF_FLAGGED(vict, PRF_NOHASSLE))
 					{
 						if (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0)
 						{
-							cast_spell(ch, vict, 0, 0, SPELL_SUMMON, SPELL_SUMMON);
+							cast_spell(ch.get(), vict.get(), 0, 0, SPELL_SUMMON, SPELL_SUMMON);
+
 							break;
 						}
 						else if (GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0)
 						{
-							cast_spell(ch, vict, 0, 0, SPELL_RELOCATE, SPELL_RELOCATE);
+							cast_spell(ch.get(), vict.get(), 0, 0, SPELL_RELOCATE, SPELL_RELOCATE);
+
 							break;
 						}
 					}
@@ -1353,9 +1425,9 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		if (was_in != ch->in_room)
 		{
-			do_aggressive_room(ch, FALSE);
+			do_aggressive_room(ch.get(), FALSE);
 		}
-	}			// end for()
+	});			// end for()
 }
 
 // Mob Memory Routines
@@ -1427,7 +1499,6 @@ void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 
 	free(curr);
 }
-
 
 // erase ch's memory
 // Можно заметить, что функция вызывается только при extract char/mob

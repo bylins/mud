@@ -6,14 +6,6 @@
 #define CHAR_PLAYER_HPP_INCLUDED
 
 #include "conf.h"
-#include <string>
-#include <array>
-#include <boost/shared_ptr.hpp>
-#include <boost/array.hpp>
-#include <boost/cstdint.hpp>
-#include <vector>
-#include <bitset>
-
 #include "sysdep.h"
 #include "structs.h"
 #include "quested.hpp"
@@ -26,6 +18,15 @@
 #include "reset_stats.hpp"
 #include "boards.types.hpp"
 #include "quest.hpp"
+
+#include <boost/shared_ptr.hpp>
+#include <boost/array.hpp>
+#include <boost/cstdint.hpp>
+
+#include <string>
+#include <array>
+#include <vector>
+#include <bitset>
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -101,7 +102,7 @@ public:
 	void dps_add_exp(int exp, bool battle = false);
 
 	void save_char();
-	int load_char_ascii(const char *name, bool reboot = 0);
+	int load_char_ascii(const char *name, bool reboot = 0, const bool find_id = true);
 
 	bool get_disposable_flag(int num);
 	void set_disposable_flag(int num);
@@ -144,8 +145,8 @@ public:
 	void add_value_cities(bool v);
 	void str_to_cities(std::string str);
 	std::string cities_to_str();
-	bool check_city(unsigned int index);
-	void mark_city(unsigned int index);
+	bool check_city(const size_t index);
+	void mark_city(const size_t index);
 
 private:
 	// показывает, является ли чар турнирным или нет
@@ -202,9 +203,8 @@ private:
 	// сколько дней подряд выполнялись дейлики 
 	int count_daily_quest;
 	// Отметка о том, в каких городах был наш чар
-	cities_t cities;
+	boost::dynamic_bitset<size_t> cities;
 };
-
 
 namespace PlayerSystem
 {

@@ -215,7 +215,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	d = ch->desc;
 
 	// лок/анлок редактирования зон только 34м и по привилегии
-	if ((lock || unlock) && !IS_IMPL(ch) && !Privilege::check_flag(d->character, Privilege::FULLZEDIT))
+	if ((lock || unlock) && !IS_IMPL(ch) && !Privilege::check_flag(d->character.get(), Privilege::FULLZEDIT))
 	{
 		send_to_char("Вы не можете использовать эту команду.\r\n", ch);
 		return;
@@ -374,7 +374,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		break;
 	}
 	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
-		TRUE, d->character, 0, 0, TO_ROOM);
+		TRUE, d->character.get(), 0, 0, TO_ROOM);
 	PLR_FLAGS(ch).set(PLR_WRITING);
 }
 
@@ -559,7 +559,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			PLR_FLAGS(d->character).unset(PLR_WRITING);
 			STATE(d) = CON_PLAYING;
 			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
-				TRUE, d->character, 0, 0, TO_ROOM);
+				TRUE, d->character.get(), 0, 0, TO_ROOM);
 		}
 		delete d->olc;
 	}
@@ -571,17 +571,17 @@ void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping)
 	char str[128];
 	int i = 0;
 
-	send_to_char("Ингредиенты:\r\n", d->character);
+	send_to_char("Ингредиенты:\r\n", d->character.get());
 	for (; im_ing_dump(ping, str + 5); ping += 2)
 	{
 		sprintf(str, "% 4d", i++);
 		str[4] = ' ';
-		send_to_char(str, d->character);
-		send_to_char("\r\n", d->character);
+		send_to_char(str, d->character.get());
+		send_to_char("\r\n", d->character.get());
 	}
 	send_to_char("у <номер> - [у]далить ингредиент\r\n"
 				 "у *       - [у]далить все ингредиенты\r\n"
-				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character);
+				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character.get());
 }
 
 int xparse_ing(DESCRIPTOR_DATA* /*d*/, int **pping, char *arg)

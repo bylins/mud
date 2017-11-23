@@ -108,8 +108,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
 		return 2;
 	}
 
-	if (!drop_otrigger(obj.get(), ch)
-		|| obj->purged())
+	if (!drop_otrigger(obj.get(), ch))
 	{
 		return 2;
 	}
@@ -1342,7 +1341,6 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 			else
 			{
 				int result = drop_wtrigger(obj.get(), ch);
-				if (obj->purged()) return;
 
 				if (!result)
 				{
@@ -1388,11 +1386,11 @@ const char *drop_op[3][3] =
 int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, room_rnum RDR)
 {
 	int value;
-	if (!drop_otrigger(obj, ch) || obj->purged())
+	if (!drop_otrigger(obj, ch))
 		return 0;
 	if (!bloody::handle_transfer(ch, NULL, obj))
 		return 0;
-	if ((mode == SCMD_DROP && !drop_wtrigger(obj, ch)) || obj->purged())
+	if ((mode == SCMD_DROP && !drop_wtrigger(obj, ch)))
 		return 0;
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 	{
@@ -2632,7 +2630,7 @@ void perform_remove(CHAR_DATA * ch, int pos)
 		}
 		else
 		{
-			if (!remove_otrigger(obj, ch) || obj->purged())
+			if (!remove_otrigger(obj, ch))
 			{
 				return;
 			}

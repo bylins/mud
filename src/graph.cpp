@@ -90,7 +90,6 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, int through_doors)
  */
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 {
-
 	int curr_dir, edge, through_doors;
 	room_rnum curr_room, rnum_start = FIRST_ROOM, rnum_stop = top_of_world;
 
@@ -133,6 +132,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 	// first, enqueue the first steps, saving which direction we're going.
 	for (curr_dir = 0; curr_dir < NUM_OF_DIRS; curr_dir++)
+	{
 		if (VALID_EDGE(src, curr_dir, edge, through_doors))
 		{
 			MARK(TOROOM(src, curr_dir));
@@ -140,6 +140,8 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 			temp_queue.dir = curr_dir;
 			bfs_queue.push_back(temp_queue);
 		}
+	}
+
 	// now, do the classic BFS.
 	for (unsigned int i = 0; i < bfs_queue.size(); ++i)
 	{
@@ -169,7 +171,6 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 	return (BFS_NO_PATH);
 }
 
-
 // * Functions and Commands which use the above functions. *
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
@@ -197,8 +198,6 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 		if ((GET_REMORT(victim) > num) && (num < 28))
 			return BFS_NO_PATH; //Чувства молчат
 	}
-	
-
 
 	if (percent > calculate_skill(ch, skill_no, victim))
 	{
@@ -322,7 +321,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict = NULL;
 	struct track_data *track;
-	int found = FALSE, c, calc_track = 0, track_t, i;
+	int found = FALSE, calc_track = 0, track_t, i;
 	char name[MAX_INPUT_LENGTH];
 
 	// The character must have the track skill. 
@@ -352,16 +351,20 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			*name = '\0';
 			if (IS_SET(track->track_info, TRACK_NPC))
+			{
 				strcpy(name, GET_NAME(mob_proto + track->who));
+			}
 			else
-				for (c = 0; c <= top_of_p_table; c++)
+			{
+				for (std::size_t c = 0; c < player_table.size(); c++)
 				{
-					if (player_table[c].id == track->who)
+					if (player_table[c].id() == track->who)
 					{
-						strcpy(name, player_table[c].name);
+						strcpy(name, player_table[c].name());
 						break;
 					}
 				}
+			}
 
 			if (*name && calc_track > number(1, 40))
 			{
@@ -393,14 +396,21 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		*name = '\0';
 		if (IS_SET(track->track_info, TRACK_NPC))
+		{
 			strcpy(name, GET_NAME(mob_proto + track->who));
+		}
 		else
-			for (c = 0; c <= top_of_p_table; c++)
-				if (player_table[c].id == track->who)
+		{
+			for (std::size_t c = 0; c < player_table.size(); c++)
+			{
+				if (player_table[c].id() == track->who)
 				{
-					strcpy(name, player_table[c].name);
+					strcpy(name, player_table[c].name());
 					break;
 				}
+			}
+		}
+
 		if (*name && isname(arg, name))
 			break;
 		else
@@ -417,7 +427,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CAP(name);
 	sprintf(buf, "%s:\r\n", name);
 
-	for (c = 0; c < NUM_OF_DIRS; c++)
+	for (int c = 0; c < NUM_OF_DIRS; c++)
 	{
 		if ((track && track->time_income[c]
 				&& calc_track >= number(0, skill_info[SKILL_TRACK].max_percent))

@@ -134,6 +134,8 @@ private:
 // fight.cpp
 
 void set_fighting(CHAR_DATA *ch, CHAR_DATA *victim);
+inline void set_fighting(const CHAR_DATA::shared_ptr& ch, CHAR_DATA *victim) { set_fighting(ch.get(), victim); }
+
 void stop_fighting(CHAR_DATA *ch, int switch_others);
 void perform_violence();
 int calc_initiative(CHAR_DATA *ch, bool mode);

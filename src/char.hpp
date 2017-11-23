@@ -600,11 +600,7 @@ public:
 	void inc_souls();
 	void dec_souls();
 	int get_souls();
-
-	CHAR_DATA* get_next() const { return next_; }
-	void set_next(CHAR_DATA* _) { next_ = _; }
-	void remove_from_list(CHAR_DATA*& list) const;
-
+	
 	unsigned get_wait() const { return m_wait; }
 	void set_wait(const unsigned _) { m_wait = _; }
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
@@ -633,7 +629,12 @@ public:
 	void add_ignore(const ignore_data::shared_ptr ignore);
 	void clear_ignores();
 
-	static void purge(CHAR_DATA* character);
+	template <typename T>
+	void set_affect(T affect) { char_specials.saved.affected_by.set(affect); }
+	template <typename T>
+	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
+
+	void set_purged(const bool _ = true) { purged_ = _; }
 
 private:
 	const auto& get_player_specials() const { return player_specials; }
@@ -645,7 +646,7 @@ private:
 	void zero_init();
 	void restore_mob();
 
-	void purge(bool destructor);
+	void purge();
 
 	CharSkillsType skills;  // список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
@@ -732,8 +733,6 @@ private:
 	// души, онли чернок
 	int souls;
 
-	CHAR_DATA *next_;	// For either monster or ppl-list
-
 public:
 	mob_rnum nr;		// Mob's rnum
 	room_rnum in_room;	// Location (real room number)
@@ -770,7 +769,6 @@ public:
 	struct SCRIPT_DATA *script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
-	CHAR_DATA *next_in_room;	// For room->people - list
 	CHAR_DATA *next_fighting;	// For fighting list
 
 	struct follow_type *followers;	// List of chars followers
@@ -807,26 +805,6 @@ public:
 	std::map<int, temporary_spell_data> temp_spells;
 };
 
-inline void CHAR_DATA::remove_from_list(CHAR_DATA*& list) const
-{
-	if (this == list)
-	{
-		list = next_;
-	}
-	else
-	{
-		CHAR_DATA* temp = list;
-		while (temp && temp->get_next() != this)
-		{
-			temp = temp->get_next();
-		}
-		if (temp)
-		{
-			temp->set_next(next_);
-		}
-	}
-}
-
 inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const
 {
 	const auto& ps = get_player_specials();
@@ -844,8 +822,11 @@ inline void CHAR_DATA::clear_ignores()
 	get_player_specials()->ignores.clear();
 }
 
-int GET_INVIS_LEV(const CHAR_DATA* ch);
-void SET_INVIS_LEV(const CHAR_DATA* ch, const int level);
+inline int GET_INVIS_LEV(const CHAR_DATA* ch) { return ch->player_specials->saved.invis_level; }
+inline int GET_INVIS_LEV(const CHAR_DATA::shared_ptr& ch) { return GET_INVIS_LEV(ch.get()); }
+
+inline void SET_INVIS_LEV(const CHAR_DATA* ch, const int level) { ch->player_specials->saved.invis_level = level; }
+inline void SET_INVIS_LEV(const CHAR_DATA::shared_ptr& ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
 inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 {
@@ -857,6 +838,7 @@ inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 
 inline FLAG_DATA& AFF_FLAGS(CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
 inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA::shared_ptr& ch) { return ch->char_specials.saved.affected_by; }
 
 inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlag flag)
 {
@@ -864,7 +846,14 @@ inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlag flag)
 		|| ch->isAffected(flag);
 }
 
+inline bool AFF_FLAGGED(const CHAR_DATA::shared_ptr& ch, const EAffectFlag flag)
+{
+	return AFF_FLAGS(ch).get(flag)
+		|| ch->isAffected(flag);
+}
+
 bool IS_CHARMICE(const CHAR_DATA* ch);
+inline bool IS_CHARMICE(const CHAR_DATA::shared_ptr& ch) { return IS_CHARMICE(ch.get()); }
 
 inline bool IS_FLY(const CHAR_DATA* ch)
 {
@@ -881,22 +870,28 @@ inline bool INVIS_OK(const CHAR_DATA* sub, const CHAR_DATA* obj)
 				|| AFF_FLAGGED(sub, EAffectFlag::AFF_SENSE_LIFE)));
 }
 
+inline bool INVIS_OK(const CHAR_DATA* sub, const CHAR_DATA::shared_ptr& obj) { return INVIS_OK(sub, obj.get()); }
+
 bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
 bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
 
-inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA* obj)
-{
-	return sub == obj;
-}
+inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA* obj) { return sub == obj; }
+inline bool SELF(const CHAR_DATA* sub, const CHAR_DATA::shared_ptr& obj) { return sub == obj.get(); }
 
 /// Can subject see character "obj"?
 bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj);
+inline bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA::shared_ptr& obj) { return CAN_SEE(sub, obj.get()); }
+inline bool CAN_SEE(const CHAR_DATA::shared_ptr& sub, const CHAR_DATA* obj) { return CAN_SEE(sub.get(), obj); }
+inline bool CAN_SEE(const CHAR_DATA::shared_ptr& sub, const CHAR_DATA::shared_ptr& obj) { return CAN_SEE(sub.get(), obj.get()); }
+
 bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj);
 
 bool IS_HORSE(const CHAR_DATA* ch);
+inline bool IS_HORSE(const CHAR_DATA::shared_ptr& ch) { return IS_HORSE(ch.get()); }
 bool IS_MORTIFIER(const CHAR_DATA* ch);
 
 bool MAY_ATTACK(const CHAR_DATA* sub);
+inline bool MAY_ATTACK(const CHAR_DATA::shared_ptr& sub) { return MAY_ATTACK(sub.get()); }
 
 inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
 {
@@ -904,6 +899,7 @@ inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
 }
 
 bool AWAKE(const CHAR_DATA* ch);
+inline bool AWAKE(const CHAR_DATA::shared_ptr& ch) { return AWAKE(ch.get()); }
 
 // Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
 //пока здесь только чарм, как и было раньше
@@ -916,11 +912,15 @@ inline bool CAN_START_MTRIG(const CHAR_DATA *ch)
 bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim);
 
 bool IS_MALE(const CHAR_DATA* ch);
+inline bool IS_MALE(const CHAR_DATA::shared_ptr& ch) { return IS_MALE(ch.get()); }
 bool IS_FEMALE(const CHAR_DATA* ch);
+inline bool IS_FEMALE(const CHAR_DATA::shared_ptr& ch) { return IS_FEMALE(ch.get()); }
 bool IS_NOSEXY(const CHAR_DATA* ch);
+inline bool IS_NOSEXY(const CHAR_DATA::shared_ptr& ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CHAR_DATA* ch);
 
 int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val);
+inline int VPOSI_MOB(const CHAR_DATA::shared_ptr& ch, const int stat_id, const int val) { return VPOSI_MOB(ch.get(), stat_id, val); }
 
 inline auto GET_REAL_DEX(const CHAR_DATA* ch)
 {
@@ -929,11 +929,6 @@ inline auto GET_REAL_DEX(const CHAR_DATA* ch)
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
 size_t fighting_list_size();
-
-namespace CharacterSystem
-{
-	extern void release_purged_list();
-} // namespace CharacterSystem
 
 #endif // CHAR_HPP_INCLUDED
 

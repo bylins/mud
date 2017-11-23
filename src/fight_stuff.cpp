@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj.hpp"
+#include "world.characters.hpp"
 #include "fight.h"
 #include "fight.penalties.hpp"
 #include "fight_hit.hpp"
@@ -23,10 +24,10 @@
 #include "mob_stat.hpp"
 #include "logger.hpp"
 #include "bonus.h"
-#include <algorithm>
-
 #include "backtrace.hpp"
-//#include "coredump.hpp"
+#include "spell_parser.hpp"
+
+#include <algorithm>
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -35,7 +36,6 @@ int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 int slot_for_char(CHAR_DATA * ch, int i);
-int mag_manacost(CHAR_DATA * ch, int spellnum);
 void do_flee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
@@ -504,13 +504,14 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (CAN_GO(ch, door))
 		{
-			CHAR_DATA *people = world[world[ch->in_room]->dir_option[door]->to_room]->people;
-			if (people)
+			const auto room_number = world[ch->in_room]->dir_option[door]->to_room;
+			const auto room = world[room_number];
+			if (!room->people.empty())
 			{
 				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
-					FALSE, people, 0, 0, TO_CHAR | CHECK_DEAF);
+					FALSE, room->first_character(), 0, 0, TO_CHAR | CHECK_DEAF);
 				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
-					FALSE, people, 0, 0, TO_ROOM | CHECK_DEAF);
+					FALSE, room->first_character(), 0, 0, TO_ROOM | CHECK_DEAF);
 			}
 		}
 	}
@@ -631,11 +632,11 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 
 void clear_mobs_memory(CHAR_DATA *ch)
 {
-	for (CHAR_DATA *hitter = character_list; hitter; hitter = hitter->get_next())
+	for (const auto hitter : character_list)
 	{
 		if (IS_NPC(hitter) && MEMORY(hitter))
 		{
-			forget(hitter, ch);
+			forget(hitter.get(), ch);
 		}
 	}
 }

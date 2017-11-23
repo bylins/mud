@@ -526,7 +526,6 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 		if (GET_EQ(ch, i))
 		{
 			remove_otrigger(GET_EQ(ch, i), ch);
-			if (GET_EQ(ch, i)->purged()) continue;
 
 			obj_to_char(unequip_char(ch, i), ch);
 		}

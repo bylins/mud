@@ -20,6 +20,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <pugixml.hpp>
+
 #include <vector>
 
 class BirthPlace;

@@ -734,11 +734,11 @@ namespace Boards
 				if (f->character
 					&& STATE(f) == CON_PLAYING
 					&& PRF_FLAGGED(f->character, PRF_BOARD_MODE)
-					&& can_read(f->character, board)
+					&& can_read(f->character.get(), board)
 					&& (board->get_type() != MISPRINT_BOARD
 						|| PRF_FLAGGED(f->character, PRF_MISPRINT)))
 				{
-					send_to_char(buf_, f->character);
+					send_to_char(buf_, f->character.get());
 				}
 			}
 		}

@@ -174,10 +174,11 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		// Ввод главного меню.
 		if (sagr == "1")
 		{
-			send_to_char("Введите VNUM изготавливаемого предмета : ", d->character);
+			send_to_char("Введите VNUM изготавливаемого предмета : ", d->character.get());
 			OLC_MODE(d) = MREDIT_OBJ_PROTO;
 			return;
 		}
+
 		if (sagr == "2")
 		{
 			// Выводить список умений ... или давать вводить ручками.
@@ -190,16 +191,18 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 				i++;
 			}
 			tmpstr += "Введите номер умения : ";
-			send_to_char(tmpstr.c_str(), d->character);
+			send_to_char(tmpstr.c_str(), d->character.get());
 			OLC_MODE(d) = MREDIT_SKILL;
 			return;
 		}
+
 		if (sagr == "3")
 		{
-			send_to_char("Блокировать рецепт? (y/n): ", d->character);
+			send_to_char("Блокировать рецепт? (y/n): ", d->character.get());
 			OLC_MODE(d) = MREDIT_LOCK;
 			return;
 		}
+
 		for (i = 0; i < MAX_PARTS; i++)
 		{
 			if (atoi(sagr.c_str()) - 4 == i)
@@ -209,27 +212,30 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 				return;
 			}
 		}
+
 		if (sagr == "d")
 		{
-			send_to_char("Удалить рецепт? (y/n):", d->character);
+			send_to_char("Удалить рецепт? (y/n):", d->character.get());
 			OLC_MODE(d) = MREDIT_DEL;
 			return;
 		}
+
 		if (sagr == "s")
 		{
 			// Сохраняем рецепты в файл
 			make_recepts.save();
-			send_to_char("Рецепты сохранены.\r\n", d->character);
+			send_to_char("Рецепты сохранены.\r\n", d->character.get());
 			mredit_disp_menu(d);
 			OLC_VAL(d) = 0;
 			return;
 		}
+
 		if (sagr == "q")
 		{
 			// Проверяем не производилось ли изменение
 			if (OLC_VAL(d))
 			{
-				send_to_char("Вы желаете сохранить изменения в рецепте? (y/n) : ", d->character);
+				send_to_char("Вы желаете сохранить изменения в рецепте? (y/n) : ", d->character.get());
 				OLC_MODE(d) = MREDIT_CONFIRM_SAVE;
 				return;
 			}
@@ -243,14 +249,16 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 				return;
 			}
 		}
-		send_to_char("Неверный ввод.\r\n", d->character);
+
+		send_to_char("Неверный ввод.\r\n", d->character.get());
 		mredit_disp_menu(d);
 		break;
+
 	case MREDIT_OBJ_PROTO:
 		i = atoi(sagr.c_str());
 		if (real_object(i) < 0)
 		{
-			send_to_char("Прототип выбранного вами объекта не существует.\r\n", d->character);
+			send_to_char("Прототип выбранного вами объекта не существует.\r\n", d->character.get());
 		}
 		else
 		{
@@ -259,6 +267,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+
 	case MREDIT_SKILL:
 		int skill_num;
 		skill_num = atoi(sagr.c_str());
@@ -274,13 +283,14 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 			i++;
 		}
-		send_to_char("Выбрано некорректное умение.\r\n", d->character);
+		send_to_char("Выбрано некорректное умение.\r\n", d->character.get());
 		mredit_disp_menu(d);
 		break;
+
 	case MREDIT_DEL:
 		if (sagr == "Y" || sagr == "y")
 		{
-			send_to_char("Рецепт удален. Рецепты сохранены.\r\n", d->character);
+			send_to_char("Рецепт удален. Рецепты сохранены.\r\n", d->character.get());
 			make_recepts.del(trec);
 			make_recepts.save();
 			make_recepts.load();
@@ -290,61 +300,68 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else if (sagr == "N" || sagr == "n")
 		{
-			send_to_char("Рецепт не удален.\r\n", d->character);
+			send_to_char("Рецепт не удален.\r\n", d->character.get());
 		}
 		else
 		{
-			send_to_char("Неверный ввод.\r\n", d->character);
+			send_to_char("Неверный ввод.\r\n", d->character.get());
 		}
 		mredit_disp_menu(d);
 		break;
+
 	case MREDIT_LOCK:
 		if (sagr == "Y" || sagr == "y")
 		{
-			send_to_char("Рецепт заблокирован от использования.\r\n", d->character);
+			send_to_char("Рецепт заблокирован от использования.\r\n", d->character.get());
 			trec->locked = true;
 			OLC_VAL(d) = 1;
 		}
 		else if (sagr == "N" || sagr == "n")
 		{
-			send_to_char("Рецепт разблокирован и может использоваться.\r\n", d->character);
+			send_to_char("Рецепт разблокирован и может использоваться.\r\n", d->character.get());
 			trec->locked = false;
 			OLC_VAL(d) = 1;
 		}
 		else
 		{
-			send_to_char("Неверный ввод.\r\n", d->character);
+			send_to_char("Неверный ввод.\r\n", d->character.get());
 		}
 		mredit_disp_menu(d);
 		break;
+
 	case MREDIT_INGR_MENU:
 		// Ввод меню ингридиентов.
 		if (sagr == "1")
 		{
-			send_to_char("Введите VNUM ингредиента : ", d->character);
+			send_to_char("Введите VNUM ингредиента : ", d->character.get());
 			OLC_MODE(d) = MREDIT_INGR_PROTO;
 			return;
 		}
+
 		if (sagr == "2")
 		{
-			send_to_char("Введите мин.вес ингредиента : ", d->character);
+			send_to_char("Введите мин.вес ингредиента : ", d->character.get());
 			OLC_MODE(d) = MREDIT_INGR_WEIGHT;
 			return;
 		}
+
 		if (sagr == "3")
 		{
-			send_to_char("Введите мин.силу ингредиента : ", d->character);
+			send_to_char("Введите мин.силу ингредиента : ", d->character.get());
 			OLC_MODE(d) = MREDIT_INGR_POWER;
 			return;
 		}
+
 		if (sagr == "q")
 		{
 			mredit_disp_menu(d);
 			return;
 		}
-		send_to_char("Неверный ввод.\r\n", d->character);
+
+		send_to_char("Неверный ввод.\r\n", d->character.get());
 		mredit_disp_ingr_menu(d);
 		break;
+
 	case MREDIT_INGR_PROTO:
 		i = atoi(sagr.c_str());
 		if (i == 0)
@@ -357,7 +374,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else if (real_object(i) < 0)
 		{
-			send_to_char("Прототип выбранного вами ингредиента не существует.\r\n", d->character);
+			send_to_char("Прототип выбранного вами ингредиента не существует.\r\n", d->character.get());
 		}
 		else
 		{
@@ -366,22 +383,25 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_ingr_menu(d);
 		break;
+
 	case MREDIT_INGR_WEIGHT:
 		i = atoi(sagr.c_str());
 		trec->parts[OLC_NUM(d)].min_weight = i;
 		OLC_VAL(d) = 1;
 		mredit_disp_ingr_menu(d);
 		break;
+
 	case MREDIT_INGR_POWER:
 		i = atoi(sagr.c_str());
 		trec->parts[OLC_NUM(d)].min_power = i;
 		OLC_VAL(d) = 1;
 		mredit_disp_ingr_menu(d);
 		break;
+
 	case MREDIT_CONFIRM_SAVE:
 		if (sagr == "Y" || sagr == "y")
 		{
-			send_to_char("Рецепты сохранены.\r\n", d->character);
+			send_to_char("Рецепты сохранены.\r\n", d->character.get());
 			make_recepts.save();
 			make_recepts.load();
 			// Очищаем структуры OLC выходим в нормальный режим работы
@@ -390,18 +410,19 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else if (sagr == "N" || sagr == "n")
 		{
-			send_to_char("Рецепт не был сохранен.\r\n", d->character);
+			send_to_char("Рецепт не был сохранен.\r\n", d->character.get());
 			cleanup_olc(d, CLEANUP_ALL);
 			return;
 		}
 		else
 		{
-			send_to_char("Неверный ввод.\r\n", d->character);
+			send_to_char("Неверный ввод.\r\n", d->character.get());
 		}
 		mredit_disp_menu(d);
 		break;
 	}
 }
+
 // Входим в режим редактирования рецептов для предметов.
 void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -409,14 +430,18 @@ void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	DESCRIPTOR_DATA *d;
 	char tmpbuf[MAX_INPUT_LENGTH];
 	MakeRecept *trec;
+
 	// Проверяем не правит ли кто-то рецепты для исключения конфликтов
 	for (d = descriptor_list; d; d = d->next)
+	{
 		if (d->olc && STATE(d) == CON_MREDIT)
 		{
 			sprintf(tmpbuf, "Рецепты в настоящий момент редактируются %s.\r\n", GET_PAD(d->character, 4));
 			send_to_char(tmpbuf, ch);
 			return;
 		}
+	}
+
 	argument = one_argument(argument, tmpbuf);
 	if (!*tmpbuf)
 	{
@@ -432,12 +457,14 @@ void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mredit_disp_menu(ch->desc);
 		return;
 	}
+
 	size_t i = atoi(tmpbuf);
 	if ((i > make_recepts.size()) || (i <= 0))
 	{
 		send_to_char("Выбранного рецепта не существует.", ch);
 		return;
 	}
+
 	i -= 1;
 	ch->desc->olc = new olc_data;
 	STATE(ch->desc) = CON_MREDIT;
@@ -445,6 +472,7 @@ void do_edit_make(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	mredit_disp_menu(ch->desc);
 	return;
 }
+
 // Отображение меню параметров ингридиента.
 void mredit_disp_ingr_menu(DESCRIPTOR_DATA * d)
 {
@@ -454,7 +482,7 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA * d)
 	char tmpbuf[MAX_INPUT_LENGTH];
 	int index = OLC_NUM(d);
 	trec = OLC_MREC(d);
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 	auto tobj = get_object_prototype(trec->obj_proto);
 	if (trec->obj_proto && tobj)
 	{
@@ -488,9 +516,10 @@ void mredit_disp_ingr_menu(DESCRIPTOR_DATA * d)
 	tmpstr = string(tmpbuf);
 	tmpstr += string(grn) + "q" + string(nrm) + ") Выход\r\n";
 	tmpstr += "Ваш выбор : ";
-	send_to_char(tmpstr.c_str(), d->character);
+	send_to_char(tmpstr.c_str(), d->character.get());
 	OLC_MODE(d) = MREDIT_INGR_MENU;
 }
+
 // Отображение главного меню.
 void mredit_disp_menu(DESCRIPTOR_DATA * d)
 {
@@ -499,7 +528,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	char tmpbuf[MAX_INPUT_LENGTH];
 	string tmpstr, objname, skillname;
 	trec = OLC_MREC(d);
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 	auto tobj = get_object_prototype(trec->obj_proto);
 	if (trec->obj_proto && tobj)
 	{
@@ -552,9 +581,10 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	tmpstr += string(grn) + "s" + string(nrm) + ") Сохранить\r\n";
 	tmpstr += string(grn) + "q" + string(nrm) + ") Выход\r\n";
 	tmpstr += "Ваш выбор : ";
-	send_to_char(tmpstr.c_str(), d->character);
+	send_to_char(tmpstr.c_str(), d->character.get());
 	OLC_MODE(d) = MREDIT_MAIN_MENU;
 }
+
 void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	string tmpstr, skill_name, obj_name;

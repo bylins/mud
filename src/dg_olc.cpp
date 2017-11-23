@@ -36,8 +36,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_of_trigt;
 extern struct zone_data *zone_table;
 
-void free_script(SCRIPT_DATA * sc);
-
 // prototype externally defined functions
 void free_varlist(struct trig_var_data *vd);
 
@@ -128,7 +126,7 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 	const char *attach_type;
 	char trgtypes[256];
 
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 
 	if (trig->get_attach_type() == MOB_TRIGGER)
 	{
@@ -172,7 +170,7 @@ void trigedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, cyn, OLC_STORAGE(d),	// the command list
 			grn, nrm);	// quit colors
 
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
 }
 
@@ -195,19 +193,21 @@ void trigedit_disp_types(DESCRIPTOR_DATA * d)
 		break;
 	}
 
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
+
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
+
 	for (i = 0; i < NUM_TRIG_TYPE_FLAGS; i++)
 	{
 		sprintf(buf, "%s%2d%s) %-20.20s  %s", grn, i + 1, nrm, types[i], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character);
+		send_to_char(buf, d->character.get());
 	}
+
 	sprintbit(GET_TRIG_TYPE(OLC_TRIG(d)), types, buf1, 2);
 	sprintf(buf, "\r\nCurrent types : %s%s%s\r\nEnter type (0 to quit) : ", cyn, buf1, nrm);
-	send_to_char(buf, d->character);
-
+	send_to_char(buf, d->character.get());
 }
 
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
@@ -224,41 +224,48 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			{
 				if (!GET_TRIG_TYPE(OLC_TRIG(d)))
 				{
-					send_to_char("Invalid Trigger Type! Answer a to abort quit!\r\n", d->character);
+					send_to_char("Invalid Trigger Type! Answer a to abort quit!\r\n", d->character.get());
 				}
-				send_to_char("Do you wish to save the changes to the trigger? (y/n): ", d->character);
+				send_to_char("Do you wish to save the changes to the trigger? (y/n): ", d->character.get());
 				OLC_MODE(d) = TRIGEDIT_CONFIRM_SAVESTRING;
 			}
 			else
+			{
 				cleanup_olc(d, CLEANUP_ALL);
+			}
 			return;
+
 		case '1':
 			OLC_MODE(d) = TRIGEDIT_NAME;
-			send_to_char("Name: ", d->character);
+			send_to_char("Name: ", d->character.get());
 			break;
+
 		case '2':
 			OLC_MODE(d) = TRIGEDIT_INTENDED;
-			send_to_char("0: Mobiles, 1: Objects, 2: Rooms: ", d->character);
+			send_to_char("0: Mobiles, 1: Objects, 2: Rooms: ", d->character.get());
 			break;
+
 		case '3':
 			OLC_MODE(d) = TRIGEDIT_TYPES;
 			trigedit_disp_types(d);
 			break;
 		case '4':
 			OLC_MODE(d) = TRIGEDIT_NARG;
-			send_to_char("Numeric argument: ", d->character);
+			send_to_char("Numeric argument: ", d->character.get());
 			break;
+
 		case '5':
 			OLC_MODE(d) = TRIGEDIT_ARGUMENT;
-			send_to_char("Argument: ", d->character);
+			send_to_char("Argument: ", d->character.get());
 			break;
+
 		case '6':
 			OLC_MODE(d) = TRIGEDIT_COMMANDS;
-			send_to_char("Enter trigger commands: (/s saves /h for help)\r\n\r\n", d->character);
+			send_to_char("Enter trigger commands: (/s saves /h for help)\r\n\r\n", d->character.get());
 			d->backstr = NULL;
 			if (OLC_STORAGE(d))
 			{
-				send_to_char(d->character, "&S%s&s", OLC_STORAGE(d));
+				send_to_char(d->character.get(), "&S%s&s", OLC_STORAGE(d));
 				d->backstr = str_dup(OLC_STORAGE(d));
 			}
 			d->writer.reset(new DelegatedStringWriter(OLC_STORAGE(d)));
@@ -282,14 +289,17 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
 			mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			// fall through
+
 		case 'n':
 			cleanup_olc(d, CLEANUP_ALL);
 			return;
+
 		case 'a':	// abort quitting
 			break;
+
 		default:
-			send_to_char("Invalid choice!\r\n", d->character);
-			send_to_char("Do you wish to save the trigger? : ", d->character);
+			send_to_char("Invalid choice!\r\n", d->character.get());
+			send_to_char("Do you wish to save the trigger? : ", d->character.get());
 			return;
 		}
 		break;
@@ -334,7 +344,6 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case TRIGEDIT_COMMANDS:
 		break;
-
 	}
 
 	OLC_MODE(d) = TRIGEDIT_MAIN_MENU;
@@ -550,14 +559,16 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 				strcat(buf, cmd->cmd.c_str());
 				strcat(buf, "\n");
 			}
+
 			if (lev > 0)
 			{
-				send_to_char(d->character,
-					"WARNING: Positive indent-level on trigger #%d end.\r\n", i);
+				send_to_char(d->character.get(), "WARNING: Positive indent-level on trigger #%d end.\r\n", i);
 			}
 
 			if (!buf[0])
+			{
 				strcpy(buf, "* Empty script");
+			}
 			else
 			{
 				char *p;
@@ -570,8 +581,6 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 				}
 				fprintf(trig_file, "~\n");
 			}
-
-//      fprintf(trig_file, "%s~\n", buf );
 
 			*buf = '\0';
 		}
@@ -589,10 +598,9 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 	remove(buf);
 	rename(fname, buf);
 
-	send_to_char("Saving Index file\r\n", d->character);
+	send_to_char("Saving Index file\r\n", d->character.get());
 	trigedit_create_index(zone, "trg");
 }
-
 
 void trigedit_create_index(int znum, const char *type)
 {
@@ -698,14 +706,15 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 #else
 #define FMT    "     Script Editor\r\n\r\n     Trigger List:\r\n"
 #endif
-	send_to_char(FMT, d->character);
+
+	send_to_char(FMT, d->character.get());
 #undef FMT
 	
 	for (const auto trigger_vnum : OLC_SCRIPT(d))
 	{
 		sprintf(buf, "     %2d) [%s%d%s] %s%s%s", ++i, cyn,
 			trigger_vnum, nrm, cyn, trig_index[real_trigger(trigger_vnum)]->proto->get_name().c_str(), nrm);
-		send_to_char(buf, d->character);
+		send_to_char(buf, d->character.get());
 		if (trig_index[real_trigger(trigger_vnum)]->proto->get_attach_type() != OLC_ITEM_TYPE(d))
 		{
 			sprintf(buf, "   %s** Mis-matched Trigger Type **%s\r\n", grn, nrm);
@@ -714,12 +723,12 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 		{
 			sprintf(buf, "\r\n");
 		}
-		send_to_char(buf, d->character);
+		send_to_char(buf, d->character.get());
 	}
 
 	if (i == 0)
 	{
-		send_to_char("     <none>\r\n", d->character);
+		send_to_char("     <none>\r\n", d->character.get());
 	}
 
 	sprintf(buf, "\r\n"
@@ -728,7 +737,7 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 			" %sX%s)  Exit Script Editor\r\n"
 			" %sQ%s)  Quit Script Editor (no save) \r\n\r\n"
 			"     Enter choice :", grn, nrm, grn, nrm, grn, nrm, grn, nrm);
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 }
 
 int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
@@ -760,12 +769,12 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return 0;
 
 		case 'n':
-			send_to_char("\r\nPlease enter position, vnum   (ex: 1, 200):", d->character);
+			send_to_char("\r\nPlease enter position, vnum   (ex: 1, 200):", d->character.get());
 			OLC_SCRIPT_EDIT_MODE(d) = SCRIPT_NEW_TRIGGER;
 			break;
 
 		case 'd':
-			send_to_char("     Which entry should be deleted?  0 to abort :", d->character);
+			send_to_char("     Which entry should be deleted?  0 to abort :", d->character.get());
 			OLC_SCRIPT_EDIT_MODE(d) = SCRIPT_DEL_TRIGGER;
 			break;
 
@@ -797,7 +806,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 		if (real_trigger(vnum) < 0)
 		{
 			send_to_char("Invalid Trigger VNUM!\r\n"
-						 "Please enter position, vnum   (ex: 1, 200):", d->character);
+						 "Please enter position, vnum   (ex: 1, 200):", d->character.get());
 			return 1;
 		}
 

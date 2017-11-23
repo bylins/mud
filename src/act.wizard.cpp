@@ -14,6 +14,7 @@
 
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "command.shutdown.hpp"
 #include "obj.hpp"
@@ -122,7 +123,6 @@ int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
 int compute_armor_class(CHAR_DATA * ch);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 extern bool can_be_reset(zone_rnum zone);
 extern int is_empty(zone_rnum zone_nr);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
@@ -244,7 +244,7 @@ void send_to_gods(char *text, bool demigod)
 				if ((GET_LEVEL(d->character) >= LVL_GOD) ||
 					(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod))
 				{
-					send_to_char(text, d->character);
+					send_to_char(text, d->character.get());
 				}	
     	    }
         }
@@ -361,7 +361,6 @@ void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			if (GET_EQ(vict, i))
 			{
 				remove_otrigger(GET_EQ(vict, i), vict);
-				if (GET_EQ(vict, i)->purged()) continue;
 				extract_obj(unequip_char(vict, i));
 			}
 		}
@@ -395,25 +394,25 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 	switch (punish)
 	{
 	case SCMD_MUTE:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pmute));
+		pundata = &(vict)->player_specials->pmute;
 		break;
 	case SCMD_DUMB:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pdumb));
+		pundata = &(vict)->player_specials->pdumb;
 		break;
 	case SCMD_HELL:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->phell));
+		pundata = &(vict)->player_specials->phell;
 		break;
 	case SCMD_NAME:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pname));
+		pundata = &(vict)->player_specials->pname;
 		break;
 
 	case SCMD_FREEZE:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pfreeze));
+		pundata = &(vict)->player_specials->pfreeze;
 		break;
 
 	case SCMD_REGISTER:
 	case SCMD_UNREGISTER:
-		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->punreg));
+		pundata = &(vict)->player_specials->punreg;
 		break;
 	}
 	assert(pundata);
@@ -879,7 +878,7 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	DESCRIPTOR_DATA *i;
 	int rnum_start, rnum_stop;
 	bool found = false;
-	CHAR_DATA *c, *caster;
+	CHAR_DATA *caster;
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.
 	for (auto it = RoomSpells::aff_room_list.begin(); it != RoomSpells::aff_room_list.end(); ++it)
 	{
@@ -924,29 +923,35 @@ void is_empty_ch(zone_rnum zone_nr, CHAR_DATA *ch)
 	for (; rnum_start <= rnum_stop; rnum_start++)
 	{
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
-		for (c = world[rnum_start]->people; c; c = c->next_in_room)
-			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
+		{
+			for (const auto c : world[rnum_start]->people)
 			{
-				sprintf(buf2, "Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n", zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)), GET_NAME(c));
-				send_to_char(buf2, ch);
-				found = true;
-
+				if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
+				{
+					sprintf(buf2, "Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n", zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)), GET_NAME(c));
+					send_to_char(buf2, ch);
+					found = true;
+				}
 			}
+		}
 	}
+
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
-	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
+	for (const auto c : world[STRANGE_ROOM]->people)
 	{
 		int was = c->get_was_in_room();
-		if (was == NOWHERE)
+		if (was == NOWHERE
+			|| GET_LEVEL(c) >= LVL_IMMORT
+			|| world[was]->zone != zone_nr)
+		{
 			continue;
-		if (GET_LEVEL(c) >= LVL_IMMORT)
-			continue;
-		if (world[was]->zone != zone_nr)
-			continue;
+		}
+
 		sprintf(buf2, "В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n", GET_NAME(c), zone_table[zone_nr].number, GET_ROOM_VNUM(IN_ROOM(c)));
 		send_to_char(buf2, ch);
 		found = true;
 	}
+
 	if (!found)
 	{
 		sprintf(buf2, "В зоне %d даже мышь не пробегала.\r\n", zone_table[zone_nr].number);
@@ -965,11 +970,13 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 		send_to_char("Usage: занятость внумзоны\r\n", ch);
 		return;
 	}
+
 	if ((number = atoi(buf)) < 0)
 	{
 		send_to_char("Такого внума не может быть!\r\n", ch);
 		return;
 	}
+
 	// что-то по другому не нашел, как проверить существует такая зона или нет
 	for (zrn = 0; zrn <= top_of_zone_table; zrn++)
 	{
@@ -980,6 +987,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 			break;
 	    }
 	}
+
 	if (!is_found)
 	{
 		send_to_char("Такой зоны нет.\r\n", ch);
@@ -1000,18 +1008,22 @@ void setall_inspect()
     SetAllInspReqListType::iterator it = setall_inspect_list.begin();
     CHAR_DATA *ch = 0;
     DESCRIPTOR_DATA *d_vict = 0;
-    DESCRIPTOR_DATA *imm_d = 0;
-	if (!(imm_d = DescByUID(player_table[it->first].unique)) || (STATE(imm_d) != CON_PLAYING) || !(ch = imm_d->character))
+
+    DESCRIPTOR_DATA *imm_d = DescByUID(player_table[it->first].unique);
+	if (!imm_d
+		|| (STATE(imm_d) != CON_PLAYING)
+		|| !(ch = imm_d->character.get()))
 	{
 		setall_inspect_list.erase(it->first);
 		return;
-	}    
+	}
+
 	struct timeval start, stop, result;
 	int is_online;
 	need_warn = false;
 	gettimeofday(&start, NULL);
 	Player *vict;
-	for(;it->second->pos <= top_of_p_table; it->second->pos++)
+	for(; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++)
 	{
 		vict = new Player;
 		gettimeofday(&stop, NULL);
@@ -1035,17 +1047,17 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
 						}
-						set_punish(imm_d->character, d_vict->character, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
+						set_punish(imm_d->character.get(), d_vict->character.get(), SCMD_FREEZE, it->second->reason, it->second->freeze_time);
 					}
 					else
 					{
-						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						if (load_char(player_table[it->second->pos].name(), vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							delete vict;
 							it->second->out += buf1;
 							continue;
@@ -1054,11 +1066,11 @@ void setall_inspect()
 						{
 							if (GET_LEVEL(vict) >= LVL_GOD)
 							{
-								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 								it->second->out += buf1;
 								continue;
 							}
-							set_punish(imm_d->character, vict, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
+							set_punish(imm_d->character.get(), vict, SCMD_FREEZE, it->second->reason, it->second->freeze_time);
 							vict->save_char();
 						}
 					}
@@ -1069,22 +1081,22 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
 						}
 						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
 						*(GET_EMAIL(d_vict->character) + 127) = '\0';
-						sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name, player_table[it->second->pos].mail, it->second->newmail);
-						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
+						sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name(), player_table[it->second->pos].mail, it->second->newmail);
+						add_karma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
 						
 					}
 					else
 					{
-						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						if (load_char(player_table[it->second->pos].name(), vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
 							continue;
@@ -1098,7 +1110,7 @@ void setall_inspect()
 							}
 							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
 							*(GET_EMAIL(vict) + 127) = '\0';
-							sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name, player_table[it->second->pos].mail, it->second->newmail);
+							sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name(), player_table[it->second->pos].mail, it->second->newmail);
 							it->second->out += buf2;
 							add_karma(vict, buf2, GET_NAME(imm_d->character));
 							vict->save_char();
@@ -1112,36 +1124,36 @@ void setall_inspect()
 					{
 						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
 						{
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
 						}
-						Password::set_password(d_vict->character, std::string(it->second->pwd));
-						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name);
+						Password::set_password(d_vict->character.get(), std::string(it->second->pwd));
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name());
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
-						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
+						add_karma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 					}
 					else
 					{
-						if (load_char(player_table[it->second->pos].name, vict) < 0)
+						if (load_char(player_table[it->second->pos].name(), vict) < 0)
 						{
-							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							delete vict;
 							continue;
 						}
 						if (GET_LEVEL(vict) >= LVL_GOD)
 						{
-							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name);
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
 							it->second->out += buf1;
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
-						std::string str = player_table[it->second->pos].name;
+						std::string str = player_table[it->second->pos].name();
 						str[0] = UPPER(str[0]);
-						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name);
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name());
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
@@ -1267,8 +1279,6 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
-	CHAR_DATA *to;
-
 	if (PLR_FLAGGED(ch, PLR_DUMB))
 	{
 		send_to_char("Вы не в состоянии что-либо продемонстрировать окружающим.\r\n", ch);
@@ -1303,9 +1313,10 @@ void do_echo(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			strcpy(buf, argument);
 		}
 
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		for (const auto to : world[ch->in_room]->people)
 		{
-			if (to == ch || ignores(to, ch, IGNORE_EMOTE))
+			if (to == ch
+				|| ignores(to, ch, IGNORE_EMOTE))
 			{
 				continue;
 			}
@@ -1781,25 +1792,38 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 		send_to_char(strcat(buf, "\r\n"), ch);
 	}
 	sprintf(buf, "Живые существа:%s", CCYEL(ch, C_NRM));
-	for (found = 0, k = rm->people; k; k = k->next_in_room)
+	found = 0;
+	size_t counter = 0;
+	for (auto k_i = rm->people.begin(); k_i != rm->people.end(); ++k_i)
 	{
+		const auto k = *k_i;
+		++counter;
+
 		if (!CAN_SEE(ch, k))
+		{
 			continue;
+		}
 		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
 				(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
 		strcat(buf, buf2);
 		if (strlen(buf) >= 62)
 		{
-			if (k->next_in_room)
+			if (counter != rm->people.size())
+			{
 				send_to_char(strcat(buf, ",\r\n"), ch);
+			}
 			else
+			{
 				send_to_char(strcat(buf, "\r\n"), ch);
+			}
 			*buf = found = 0;
 		}
 	}
 
 	if (*buf)
+	{
 		send_to_char(strcat(buf, "\r\n"), ch);
+	}
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	if (rm->contents)
@@ -2982,7 +3006,7 @@ void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		if (victim->desc->original)
-			tch = victim->desc->original;
+			tch = victim->desc->original.get();
 		else
 			tch = victim;
 
@@ -3016,38 +3040,66 @@ void do_snoop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_switch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *victim;
-
 	one_argument(argument, arg);
 
 	if (ch->desc->original)
+	{
 		send_to_char("Вы уже в чьем-то теле.\r\n", ch);
+	}
 	else if (!*arg)
+	{
 		send_to_char("Стать кем?\r\n", ch);
-	else if (!(victim = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
-		send_to_char("Нет такого создания.\r\n", ch);
-	else if (ch == victim)
-		send_to_char("Вы и так им являетесь.\r\n", ch);
-	else if (victim->desc)
-		send_to_char("Это тело уже под контролем.\r\n", ch);
-	else if (!IS_IMPL(ch) && !IS_NPC(victim))
-		send_to_char("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
-	else if (GET_LEVEL(ch) < LVL_GRGOD && ROOM_FLAGGED(IN_ROOM(victim), ROOM_GODROOM))
-		send_to_char("Вы не можете находиться в той комнате.\r\n", ch);
-	else if (!IS_GRGOD(ch) && !Clan::MayEnter(ch, IN_ROOM(victim), HCE_PORTAL))
-		send_to_char("Вы не сможете проникнуть на частную территорию.\r\n", ch);
+	}
 	else
 	{
-		send_to_char(OK, ch);
+		const auto visible_character = get_char_vis(ch, arg, FIND_CHAR_WORLD);
+		if (!visible_character)
+		{
+			send_to_char("Нет такого создания.\r\n", ch);
+		}
+		else if (ch == visible_character)
+		{
+			send_to_char("Вы и так им являетесь.\r\n", ch);
+		}
+		else if (visible_character->desc)
+		{
+			send_to_char("Это тело уже под контролем.\r\n", ch);
+		}
+		else if (!IS_IMPL(ch)
+			&& !IS_NPC(visible_character))
+		{
+			send_to_char("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
+		}
+		else if (GET_LEVEL(ch) < LVL_GRGOD
+			&& ROOM_FLAGGED(IN_ROOM(visible_character), ROOM_GODROOM))
+		{
+			send_to_char("Вы не можете находиться в той комнате.\r\n", ch);
+		}
+		else if (!IS_GRGOD(ch)
+			&& !Clan::MayEnter(ch, IN_ROOM(visible_character), HCE_PORTAL))
+		{
+			send_to_char("Вы не сможете проникнуть на частную территорию.\r\n", ch);
+		}
+		else
+		{
+			const auto victim = character_list.get_character_by_address(visible_character);
+			const auto me = character_list.get_character_by_address(ch);
+			if (!victim || !me)
+			{
+				send_to_char("Something went wrong. Report this bug to developers\r\n", ch);
+				return;
+			}
 
-		ch->desc->character = victim;
-		ch->desc->original = ch;
+			send_to_char(OK, ch);
 
-		victim->desc = ch->desc;
-		ch->desc = NULL;
+			ch->desc->character = victim;
+			ch->desc->original = me;
+
+			victim->desc = ch->desc;
+			ch->desc = NULL;
+		}
 	}
 }
-
 
 void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
@@ -3193,7 +3245,7 @@ void send_to_all(char * buffer)
 	{
 		if (STATE(pt) == CON_PLAYING && pt->character)
 		{
-			send_to_char(buffer, pt->character);
+			send_to_char(buffer, pt->character.get());
 		}
 	}
 }
@@ -3247,7 +3299,7 @@ void do_vstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // clean a room of all mobiles and objects
 void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *vict, *next_v;
+	CHAR_DATA *vict;
 	OBJ_DATA *obj, *next_o;
 
 	one_argument(argument, buf);
@@ -3304,9 +3356,9 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("$n произнес$q СЛОВО... вас окружило пламя!", FALSE, ch, 0, 0, TO_ROOM);
 		send_to_room("Мир стал немного чище.\r\n", ch->in_room, FALSE);
 
-		for (vict = world[ch->in_room]->people; vict; vict = next_v)
+		const auto people_copy = world[ch->in_room]->people;
+		for (const auto vict : people_copy)
 		{
-			next_v = vict->next_in_room;
 			if (IS_NPC(vict))
 			{
 				if (vict->followers
@@ -3330,14 +3382,12 @@ void do_purge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-
 void send_list_char(std::string list_char, std::string email)
 {
 	std::string cmd_line = "python3 send_list_char.py " + email + " " + list_char + " &";
 	auto result = system(cmd_line.c_str());
 	UNUSED_ARG(result);
 }
-
 
 const int IIP   = 1;
 const int IMAIL = 2;
@@ -3405,7 +3455,9 @@ void inspecting()
 	DESCRIPTOR_DATA *d_vict = 0;
 
 	//если нет дескриптора или он где-то там по меню шарица, то запрос отменяется
-	if (!(d_vict = DescByUID(player_table[it->first].unique)) || (STATE(d_vict) != CON_PLAYING) || !(ch = d_vict->character))
+	if (!(d_vict = DescByUID(player_table[it->first].unique))
+		|| (STATE(d_vict) != CON_PLAYING)
+		|| !(ch = d_vict->character.get()))
 	{
 		inspect_list.erase(it->first);
 		return;
@@ -3413,13 +3465,12 @@ void inspecting()
 
 	struct timeval start, stop, result;
 	time_t mytime;
-	CHAR_DATA *vict = 0;
 	int mail_found = 0;
 	int is_online;
 	need_warn = false;
 
 	gettimeofday(&start, NULL);
-	for(;it->second->pos <= top_of_p_table; it->second->pos++)
+	for(; it->second->pos < static_cast<int>(player_table.size()); it->second->pos++)
 	{
 		gettimeofday(&stop, NULL);
 		timediff(&result, &stop, &start);
@@ -3427,14 +3478,17 @@ void inspecting()
 		{
 			return;
 		}
+
 		#ifdef TEST_BUILD
-		log("inspecting %d/%d", it->second->pos, top_of_p_table);
+		log("inspecting %d/%d", 1 + it->second->pos, player_table.size());
 		#endif
+
 		if(!*it->second->req)
 		{
 			send_to_char(ch, "Ошибка: пустой параметр для поиска");//впринципе никогда не должно вылезти, но на всякий случай воткнул проверку
 			break;
 		}
+
 		if ((it->second->sfor == ICHAR && it->second->unique == player_table[it->second->pos].unique)//Это тот же перс которого мы статим
 			|| (player_table[it->second->pos].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
 			|| (player_table[it->second->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
@@ -3442,40 +3496,62 @@ void inspecting()
 		buf1[0] = '\0';
 		buf2[0] = '\0';
 		is_online = 0;
-		vict = 0;
+
+		CHAR_DATA::shared_ptr vict;
 		d_vict = DescByUID(player_table[it->second->pos].unique);
 		if (d_vict)
+		{
 			is_online = 1;
+		}
+
 		if (it->second->sfor != IMAIL && it->second->fullsearch)
 		{
 			if (d_vict)
+			{
 				vict = d_vict->character;
+			}
 			else
 			{
-				vict = new Player;
-				if (load_char(player_table[it->second->pos].name, vict) < 0)
+				vict.reset(new Player);
+				if (load_char(player_table[it->second->pos].name(), vict.get()) < 0)
 				{
-					send_to_char(ch, "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n", player_table[it->second->pos].name, (it->second->sfor==IMAIL?"mail":(it->second->sfor==IIP?"ip":"char")), it->second->req);
-					delete vict;
+					send_to_char(ch, "Некорректное имя персонажа (%s) inspecting %s: %s.\r\n",
+						player_table[it->second->pos].name(), (it->second->sfor==IMAIL?"mail":(it->second->sfor==IIP?"ip":"char")), it->second->req);
 					continue;
 				}
 			}
-			show_pun(vict, buf2);
+
+			show_pun(vict.get(), buf2);
 		}
+
 		if (it->second->sfor == IMAIL || it->second->sfor == ICHAR)
 		{
 			mail_found = 0;
 			if(player_table[it->second->pos].mail)
-			 if((it->second->sfor == IMAIL && strstr(player_table[it->second->pos].mail, it->second->req)) || (it->second->sfor == ICHAR && !strcmp(player_table[it->second->pos].mail, it->second->mail)))
-				mail_found = 1;
+			{
+				if ((it->second->sfor == IMAIL
+						&& strstr(player_table[it->second->pos].mail, it->second->req))
+					|| (it->second->sfor == ICHAR && !strcmp(player_table[it->second->pos].mail, it->second->mail)))
+				{
+					mail_found = 1;
+				}
+			}
 		}
-		if (it->second->sfor == IIP || it->second->sfor == ICHAR)
+
+		if (it->second->sfor == IIP
+			|| it->second->sfor == ICHAR)
 		{
 			if(!it->second->fullsearch)
 			{
 				if(player_table[it->second->pos].last_ip)
-				 if((it->second->sfor == IIP && strstr(player_table[it->second->pos].last_ip, it->second->req)) || (it->second->ip_log && !str_cmp(player_table[it->second->pos].last_ip, it->second->ip_log->ip)))
-					sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s\r\n", (it->second->sfor == ICHAR? CCBLU(ch, C_SPR) : ""), player_table[it->second->pos].last_ip, (it->second->sfor == ICHAR? CCNRM(ch, C_SPR) : ""));
+				{
+					if ((it->second->sfor == IIP
+						&& strstr(player_table[it->second->pos].last_ip, it->second->req))
+						|| (it->second->ip_log && !str_cmp(player_table[it->second->pos].last_ip, it->second->ip_log->ip)))
+					{
+						sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s\r\n", (it->second->sfor == ICHAR ? CCBLU(ch, C_SPR) : ""), player_table[it->second->pos].last_ip, (it->second->sfor == ICHAR ? CCNRM(ch, C_SPR) : ""));
+					}
+				}
 			}
 			else if (vict && LOGON_LIST(vict))
 			{
@@ -3491,27 +3567,37 @@ void inspecting()
 							send_to_char(ch, "Ошибка: пустой ip\r\n");//поиск прерываеться если криво заполнено поле ip для поиска
 							break;
 						}
-						if((it->second->sfor == IIP && strstr(cur_log->ip, ch_log->ip)) || !str_cmp(cur_log->ip, ch_log->ip))
+
+						if((it->second->sfor == IIP
+								&& strstr(cur_log->ip, ch_log->ip))
+							|| !str_cmp(cur_log->ip, ch_log->ip))
 						{
 							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%sCount:%5ld Last: %-30s%s",
-								(it->second->sfor == ICHAR? CCBLU(ch, C_SPR) : ""), cur_log->ip, (it->second->sfor == ICHAR? CCNRM(ch, C_SPR) : ""), cur_log->count, rustime(localtime(&cur_log->lasttime)),(it->second->sfor == IIP?"\r\n":""));
+								(it->second->sfor == ICHAR ? CCBLU(ch, C_SPR) : ""),
+								cur_log->ip,
+								(it->second->sfor == ICHAR ? CCNRM(ch, C_SPR) : ""),
+								cur_log->count,
+								rustime(localtime(&cur_log->lasttime)),
+								(it->second->sfor == IIP?"\r\n":""));
 							if(it->second->sfor == ICHAR)
+							{
 								sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
 									ch_log->count, rustime(localtime(&ch_log->lasttime)));
+							}
 						}
+
 						ch_log = ch_log->next;
 					}
 					cur_log = cur_log->next;
 				}
 			}
 		}
-		if ((vict) && (!d_vict))
-			delete vict;
+
 		if (*buf1 || mail_found)
 		{
 			mytime = player_table[it->second->pos].last_logon;
 			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d.\r\n",
-				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name, CCNRM(ch, C_SPR),
+				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name(), CCNRM(ch, C_SPR),
 				(mail_found && it->second->sfor!=IMAIL? CCBLU(ch, C_SPR) : ""),
 				player_table[it->second->pos].mail, (mail_found? CCNRM(ch, C_SPR) : ""),
 				rustime(localtime(&mytime)), player_table[it->second->pos].level);
@@ -3521,6 +3607,7 @@ void inspecting()
 			it->second->found++;
 		}
 	}
+
 	while (it->second->ip_log)
 	{
 		struct logon_data *log_next;
@@ -3552,7 +3639,6 @@ void inspecting()
 void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *d_vict = 0;
-	CHAR_DATA *vict = 0;
 	int i = 0;
 
 	if (ch->get_pfilepos() < 0)
@@ -3645,24 +3731,27 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		req->mail = str_dup(player_table[i].mail);
 		time_t tmp_time = player_table[i].last_logon;
 		sprintf(buf,  "Персонаж: %s%s%s e-mail: %s&S%s&s%s Last: %s%s%s from IP: %s%s%s\r\n", (d_vict ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
-				player_table[i].name, CCNRM(ch, C_SPR),	CCWHT(ch, C_SPR), req->mail, CCNRM(ch, C_SPR),
+				player_table[i].name(), CCNRM(ch, C_SPR),	CCWHT(ch, C_SPR), req->mail, CCNRM(ch, C_SPR),
 				CCWHT(ch, C_SPR), rustime(localtime(&tmp_time)), CCNRM(ch, C_SPR),
 				CCWHT(ch, C_SPR), player_table[i].last_ip, CCNRM(ch, C_SPR));
 		if (req->fullsearch)
 		{
+			CHAR_DATA::shared_ptr vict;
 			if (d_vict)
+			{
 				vict = d_vict->character;
+			}
 			else
 			{
-				vict = new Player;
-				if (load_char(req->req, vict) < 0)
+				vict.reset(new Player);
+				if (load_char(req->req, vict.get()) < 0)
 				{
 					send_to_char(ch, "Некорректное имя персонажа (%s) inspecting char.\r\n", req->req);
-					delete vict;
 					return;
 				}
 			}
-			show_pun(vict, buf2);
+
+			show_pun(vict.get(), buf2);
 			if (vict && LOGON_LIST(vict))
 			{
 				#ifdef TEST_BUILD
@@ -3694,8 +3783,6 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					cur_log = cur_log->next;
 				}
 			}
-			if (!d_vict && vict)
-				delete vict;
 		}
 		else
 		{
@@ -3706,9 +3793,12 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			req->ip_log->next = 0;
 		}
 	}
+
 	if (req->sfor < ICHAR)
-		sprintf(buf,  "%s: %s&S%s&s%s\r\n", (req->sfor==IIP?"IP":"e-mail"),
+	{
+		sprintf(buf, "%s: %s&S%s&s%s\r\n", (req->sfor == IIP ? "IP" : "e-mail"),
 			CCWHT(ch, C_SPR), req->req, CCNRM(ch, C_SPR));
+	}
 	req->pos = 0;
 	req->found = 0;
 	req->out += buf;
@@ -3717,8 +3807,6 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	gettimeofday(&req->start, NULL);
 	inspect_list[ch->get_pfilepos()] = req;
 }
-
-
 
 const char *logtypes[] =
 {
@@ -3934,19 +4022,27 @@ void perform_immort_vis(CHAR_DATA * ch)
 
 void perform_immort_invis(CHAR_DATA * ch, int level)
 {
-	CHAR_DATA *tch;
-
 	if (IS_NPC(ch))
+	{
 		return;
+	}
 
-	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[ch->in_room]->people)
 	{
 		if (tch == ch)
+		{
 			continue;
+		}
+
 		if (GET_LEVEL(tch) >= GET_INVIS_LEV(ch) && GET_LEVEL(tch) < level)
+		{
 			act("Вы вздрогнули, когда $n растворил$u на ваших глазах.", FALSE, ch, 0, tch, TO_VICT);
+		}
+
 		if (GET_LEVEL(tch) < GET_INVIS_LEV(ch) && GET_LEVEL(tch) >= level)
+		{
 			act("$n медленно появил$u из пустоты.", FALSE, ch, 0, tch, TO_VICT);
+		}
 	}
 
 	SET_INVIS_LEV(ch, level);
@@ -3999,17 +4095,30 @@ void do_gecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	delete_doubledollar(argument);
 
 	if (!*argument)
+	{
 		send_to_char("Это, пожалуй, ошибка...\r\n", ch);
+	}
 	else
 	{
 		sprintf(buf, "%s\r\n", argument);
 		for (pt = descriptor_list; pt; pt = pt->next)
-			if (STATE(pt) == CON_PLAYING && pt->character && pt->character != ch)
-				send_to_char(buf, pt->character);
+		{
+			if (STATE(pt) == CON_PLAYING
+				&& pt->character
+				&& pt->character.get() != ch)
+			{
+				send_to_char(buf, pt->character.get());
+			}
+		}
+
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+		{
 			send_to_char(OK, ch);
+		}
 		else
+		{
 			send_to_char(buf, ch);
+		}
 	}
 }
 
@@ -4214,7 +4323,6 @@ void do_last(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	DESCRIPTOR_DATA *i, *next_desc;
-	CHAR_DATA *vict, *next_force;
 	char to_force[MAX_INPUT_LENGTH + 2];
 
 	half_chop(argument, arg, to_force);
@@ -4222,14 +4330,21 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	sprintf(buf1, "$n принудил$g вас '%s'.", to_force);
 
 	if (!*arg || !*to_force)
+	{
 		send_to_char("Кого и что вы хотите принудить сделать?\r\n", ch);
+	}
 	else if (!IS_GRGOD(ch) || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
 							   && str_cmp("здесь", arg)))
 	{
-		if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
+		const auto vict = get_char_vis(ch, arg, FIND_CHAR_WORLD);
+		if (!vict)
+		{
 			send_to_char(NOPERSON, ch);
+		}
 		else if (!IS_NPC(vict) && GET_LEVEL(ch) <= GET_LEVEL(vict) && !PRF_FLAGGED(ch, PRF_CODERINFO))
+		{
 			send_to_char("Господи, только не это!\r\n", ch);
+		}
 		else
 		{
 			char *pstr;
@@ -4237,24 +4352,32 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
 			sprintf(buf, "(GC) %s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
 			while ((pstr = strstr(buf, "%")) != NULL)
+			{
 				pstr[0] = '*';
+			}
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 			imm_log("%s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
 			command_interpreter(vict, to_force);
 		}
 	}
-	else if (!str_cmp("room", arg) || !str_cmp("здесь", arg))
+	else if (!str_cmp("room", arg)
+		|| !str_cmp("здесь", arg))
 	{
 		send_to_char(OK, ch);
 		sprintf(buf, "(GC) %s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		imm_log("%s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
 
-		for (vict = world[ch->in_room]->people; vict; vict = next_force)
+		const auto people_copy = world[ch->in_room]->people;
+		for (const auto vict : people_copy)
 		{
-			next_force = vict->next_in_room;
-			if (!IS_NPC(vict) && GET_LEVEL(vict) >= GET_LEVEL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
+			if (!IS_NPC(vict)
+				&& GET_LEVEL(vict) >= GET_LEVEL(ch)
+				&& !PRF_FLAGGED(ch, PRF_CODERINFO))
+			{
 				continue;
+			}
+
 			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
 			command_interpreter(vict, to_force);
 		}
@@ -4270,13 +4393,17 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			next_desc = i->next;
 
+			const auto vict = i->character;
 			if (STATE(i) != CON_PLAYING
-					|| !(vict = i->character)
-					|| (!IS_NPC(vict) && GET_LEVEL(vict) >= GET_LEVEL(ch)
-						&& !PRF_FLAGGED(ch, PRF_CODERINFO)))
+				|| !vict
+				|| (!IS_NPC(vict) && GET_LEVEL(vict) >= GET_LEVEL(ch)
+					&& !PRF_FLAGGED(ch, PRF_CODERINFO)))
+			{
 				continue;
-			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
-			command_interpreter(vict, to_force);
+			}
+
+			act(buf1, TRUE, ch, NULL, vict.get(), TO_VICT);
+			command_interpreter(vict.get(), to_force);
 		}
 	}
 }
@@ -4296,25 +4423,25 @@ void do_sdemigod(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     
     // проходим по всем чарам и отправляем мессагу
     for (d = descriptor_list; d; d = d->next)
-    {
-	// Проверяем, в игре ли чар
-	if (STATE(d) == CON_PLAYING)
 	{
-	    // Если в игре, то проверяем, демигод ли чар
-	    // Иммы 34-левела тоже могут смотреть канал
-	    if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GET_LEVEL(d->character) == LVL_IMPL))
-	    {
-		// Проверяем пишет ли чар или отправляет письмо
-		// А так же на реж сдемигод
-		if ((!PLR_FLAGGED(d->character, PLR_WRITING)) &&
-		    (!PLR_FLAGGED(d->character, PLR_MAILING)) &&
-		    (!PLR_FLAGGED(d->character, PRF_SDEMIGOD)))
+		// Проверяем, в игре ли чар
+		if (STATE(d) == CON_PLAYING)
 		{
-		    d->character->remember_add(buf1, Remember::ALL);
-		    send_to_char(buf1, d->character);
+			// Если в игре, то проверяем, демигод ли чар
+			// Иммы 34-левела тоже могут смотреть канал
+			if ((GET_GOD_FLAG(d->character, GF_DEMIGOD)) || (GET_LEVEL(d->character) == LVL_IMPL))
+			{
+				// Проверяем пишет ли чар или отправляет письмо
+				// А так же на реж сдемигод
+				if ((!PLR_FLAGGED(d->character, PLR_WRITING)) &&
+					(!PLR_FLAGGED(d->character, PLR_MAILING)) &&
+					(!PLR_FLAGGED(d->character, PRF_SDEMIGOD)))
+				{
+					d->character->remember_add(buf1, Remember::ALL);
+					send_to_char(buf1, d->character.get());
+				}
+			}
 		}
-	    }
-	}
     }
 }
 
@@ -4455,15 +4582,18 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					CCCYN(d->character, C_NRM), buf1, CCNRM(d->character, C_NRM));
 			d->character->remember_add(buf2, Remember::ALL);
 			// не видино своих мессаг если 'режим repeat'
-			if (d != ch->desc || !(PRF_FLAGGED(d->character, PRF_NOREPEAT)))
+			if (d != ch->desc
+				|| !(PRF_FLAGGED(d->character, PRF_NOREPEAT)))
 			{
-				send_to_char(buf2, d->character);
+				send_to_char(buf2, d->character.get());
 			}
 		}
 	}
 
 	if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+	{
 		send_to_char(OK, ch);
+	}
 }
 
 void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -4988,10 +5118,12 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		j = 0;
 		con = 0;
 		int motion = 0;
-		for (vict = character_list; vict; vict = vict->get_next())
+		for (const auto vict : character_list)
 		{
 			if (IS_NPC(vict))
+			{
 				j++;
+			}
 			else
 			{
 				if (vict->is_active())
@@ -5002,14 +5134,16 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				{
 					i++;
 					if (vict->desc)
+					{
 						con++;
+					}
 				}
 			}
 		}
 
 		strcpy(buf, "Текущее состояние:\r\n");
 		sprintf(buf + strlen(buf), "  Игроков в игре - %5d, соединений - %5d\r\n", i, con);
-		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5d\r\n", top_of_p_table + 1);
+		sprintf(buf + strlen(buf), "  Всего зарегистрировано игроков - %5zd\r\n", player_table.size());
 		sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
 		sprintf(buf + strlen(buf), "  Предметов - %5zd, прообразов предметов - %5zd\r\n",
 			world_objects.size(), obj_proto.size());
@@ -5091,10 +5225,13 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("  Список игроков в состоянии 'link drop'\r\n", ch);
 		sprintf(buf, "%-50s%-16s   %s\r\n", "   Имя", "Комната", "Бездействие (тики)");
 		send_to_char(buf, ch);
-		for (i = 0, vict = character_list; vict; vict = vict->get_next())
+		i = 0;
+		for (const auto vict : character_list)
 		{
 			if (IS_GOD(vict) || IS_NPC(vict) || vict->desc != NULL || IN_ROOM(vict) == NOWHERE)
+			{
 				continue;
+			}
 			++i;
 			sprintf(buf, "%-50s[%6d][%6d]   %d\r\n",
 					vict->noclan_title().c_str(), GET_ROOM_VNUM(IN_ROOM(vict)),
@@ -5892,10 +6029,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				TopPlayer::Refresh(vict);
 			}
 
-			free(player_table[ptnum].name);
-			CREATE<char>(player_table[ptnum].name, strlen(npad[0]) + 1);
-			for (i = 0, player_table[ptnum].name[i] = '\0'; npad[0][i]; i++)
-				player_table[ptnum].name[i] = LOWER(npad[0][i]);
+			player_table.set_name(ptnum, npad[0]);
+
 			return_code = 2;
 			PLR_FLAGS(vict).set(PLR_CRASH);
 		}

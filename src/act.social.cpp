@@ -80,7 +80,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 	int act_nr;
 	char social[MAX_INPUT_LENGTH];
 	struct social_messg *action;
-	CHAR_DATA *vict, *to;
+	CHAR_DATA *vict;
 
 	if (!argument || !*argument)
 		return (FALSE);
@@ -112,10 +112,14 @@ int do_social(CHAR_DATA * ch, char *argument)
 	{
 		send_to_char(action->char_no_arg, ch);
 		send_to_char("\r\n", ch);
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		for (const auto to : world[ch->in_room]->people)
 		{
-			if (to == ch || ignores(to, ch, IGNORE_EMOTE))
+			if (to == ch
+				|| ignores(to, ch, IGNORE_EMOTE))
+			{
 				continue;
+			}
+
 			act(action->others_no_arg, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
 			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}
@@ -123,18 +127,24 @@ int do_social(CHAR_DATA * ch, char *argument)
 	}
 	if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
 	{
-		send_to_char(action->not_found ? action->not_found :
-					 "Поищите кого-нибудь более доступного для этих целей.\r\n", ch);
+		const auto message = action->not_found
+			? action->not_found
+			: "Поищите кого-нибудь более доступного для этих целей.\r\n";
+		send_to_char(message, ch);
 		send_to_char("\r\n", ch);
 	}
 	else if (vict == ch)
 	{
 		send_to_char(action->char_no_arg, ch);
 		send_to_char("\r\n", ch);
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		for (const auto to : world[ch->in_room]->people)
 		{
-			if (to == ch || ignores(to, ch, IGNORE_EMOTE))
+			if (to == ch
+				|| ignores(to, ch, IGNORE_EMOTE))
+			{
 				continue;
+			}
+
 			act(action->others_no_arg, FALSE, ch, 0, to, TO_VICT | CHECK_DEAF);
 			act(deaf_social, FALSE, ch, 0, to, TO_VICT | CHECK_NODEAF);
 		}

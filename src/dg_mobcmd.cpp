@@ -502,27 +502,6 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!*arg)
 	{
 		return;
-/*
-		CHAR_DATA *vnext;
-		OBJ_DATA *obj_next;
-
-		for (victim = world[ch->in_room]->people; victim; victim = vnext)
-		{
-			vnext = victim->next_in_room;
-			if (IS_NPC(victim) && victim != ch)
-			{
-				if (victim->followers || victim->master)
-					die_follower(victim);
-				extract_char(victim, FALSE);
-			}
-		}
-		for (obj = world[ch->in_room]->contents; obj; obj = obj_next)
-		{
-			obj_next = obj->next_content;
-			extract_obj(obj);
-		}
-		return;
-*/
 	}
 	if (*arg == UID_CHAR)
 		victim = get_char(arg);
@@ -654,7 +633,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 	int target;
 	room_rnum from_room;
-	CHAR_DATA *vict, *next_ch, *horse, *charmee, *ncharmee;
+	CHAR_DATA *vict, *horse;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -686,34 +665,28 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		for (vict = world[ch->in_room]->people; vict; vict = next_ch)
+		const auto people_copy = world[ch->in_room]->people;
+		for (const auto vict : people_copy)
 		{
-			next_ch = vict->next_in_room;
 			if (IS_NPC(vict)
-					&& !(IS_HORSE(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-						 || MOB_FLAGGED(vict, MOB_ANGEL)|| MOB_FLAGGED(vict, MOB_GHOST)))
+				&& !(IS_HORSE(vict)
+					|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+					|| MOB_FLAGGED(vict, MOB_ANGEL)
+					|| MOB_FLAGGED(vict, MOB_GHOST)))
+			{
 				continue;
-			/*			if (on_horse(vict) || has_horse(vict, TRUE))
-							horse = get_horse(vict);
-						else
-							horse = NULL;
-			*/
+			}
+
 			if (IN_ROOM(vict) == NOWHERE)
 			{
 				mob_log(ch, "mteleport transports from NOWHERE");
+
 				return;
 			}
 
 			char_from_room(vict);
 			char_to_room(vict, target);
-			/*			if (!str_cmp(argument, "horse") && horse) {
-							if (horse == next_ch)
-								next_ch = horse->next_in_room;
-							char_from_room(horse);
-							char_to_room(horse, target);
-						}
-						check_horse(vict);
-			*/
+
 			look_at_room(vict, TRUE);
 		}
 	}
@@ -734,9 +707,10 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, buf);
 			return;
 		}
-		for (charmee = world[IN_ROOM(vict)]->people; charmee; charmee = ncharmee)
+
+		const auto people_copy = world[IN_ROOM(vict)]->people;
+		for (const auto charmee : people_copy)
 		{
-			ncharmee = charmee->next_in_room;
 			if (IS_NPC(charmee)
 				&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 					|| MOB_FLAGGED(charmee, MOB_ANGEL)
@@ -767,6 +741,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			char_from_room(horse);
 			char_to_room(horse, target);
 		}
+
 //Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
 		if (!str_cmp(argument, "followers") && vict->followers)
 		{
@@ -817,25 +792,25 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
 	{
 		DESCRIPTOR_DATA *i;
-		CHAR_DATA *vch;
 
 		// не знаю почему здесь идут только по плеерам, но раз так,
 		// то LVL_IMMORT+ для мобов здесь исключать пока нет смысла
 		for (i = descriptor_list; i; i = i->next)
 		{
-			if ((i->character != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
+			if ((i->character.get() != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
 			{
-				vch = i->character;
+				const auto vch = i->character;
 				if (GET_LEVEL(vch) < GET_LEVEL(ch) && CAN_SEE(ch, vch) && GET_LEVEL(vch) < LVL_IMMORT)
 				{
-					command_interpreter(vch, argument);
+					command_interpreter(vch.get(), argument);
 				}
 			}
 		}
 	}
 	else
 	{
-		CHAR_DATA *victim;
+		CHAR_DATA *victim = nullptr;
+
 		if (*arg == UID_CHAR)
 		{
 			if (!(victim = get_char(arg)))
@@ -850,16 +825,25 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, "mforce: no such victim");
 			return;
 		}
+
 		if (!IS_NPC(victim))
+		{
 			if ((!victim->desc))
-			    return;
+			{
+				return;
+			}
+		}
+
 		if (victim == ch)
 		{
 			mob_log(ch, "mforce: forcing self");
 			return;
 		}
+
 		if (IS_NPC(victim) || GET_LEVEL(victim) < LVL_IMMORT)
+		{
 			command_interpreter(victim, argument);
+		}
 	}
 }
 
@@ -870,7 +854,6 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 
 	mob_log(ch, "WARNING: mexp command is depracated! Use: %actor.exp(amount-to-add)%");
-
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1192,10 +1175,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		m->script = tmpmob.script;
 		ch->memory = m->memory;
 		m->memory = tmpmob.memory;
-		ch->next_in_room = m->next_in_room;
-		m->next_in_room = tmpmob.next_in_room;
-		ch->set_next(m->get_next());
-		m->set_next(tmpmob.get_next());
+
 		ch->next_fighting = m->next_fighting;
 		m->next_fighting = tmpmob.next_fighting;
 		ch->followers = m->followers;

@@ -21,6 +21,7 @@
 #include "char_player.hpp"
 #include "room.hpp"
 #include "house.h"
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -100,7 +101,6 @@ void redit_setup(DESCRIPTOR_DATA * d, int real_num)
 void redit_save_internally(DESCRIPTOR_DATA * d)
 {
 	int j, room_num, zone, cmd_no;
-	CHAR_DATA *temp_ch;
 	OBJ_DATA *temp_obj;
 	DESCRIPTOR_DATA *dsc;
 
@@ -118,7 +118,6 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		// Теперь просто удалить OLC_ROOM(d) и все будет хорошо
 		room_free(OLC_ROOM(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
-
 	}
 	else
 	{
@@ -126,9 +125,14 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		auto it = world.cbegin();
 		advance(it, FIRST_ROOM);
 		int i = FIRST_ROOM;
+
 		for (; it != world.cend(); ++it, ++i)
+		{
 			if ((*it)->number > OLC_NUM(d))
+			{
 				break;
+			}
+		}
 
 		ROOM_DATA *new_room = new ROOM_DATA;
 		room_copy(new_room, OLC_ROOM(d));
@@ -143,7 +147,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 			// если комната потеснила рнумы, то их надо переписать у людей/шмота в этих комнатах
 			for (i = room_num; i <= top_of_world; i++)
 			{
-				for (temp_ch = world[i]->people; temp_ch; temp_ch = temp_ch->next_in_room)
+				for (const auto temp_ch : world[i]->people)
 				{
 					if (temp_ch->in_room != NOWHERE)
 					{
@@ -164,6 +168,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		{
 			world.push_back(new_room);
 		}
+
 		fix_ingr_chest_rnum(room_num);//Фиксим позиции сундуков с инграми
 
 		// Copy world table over to new one.
@@ -173,7 +178,9 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 
 		// Update zone table.
 		for (zone = 0; zone <= top_of_zone_table; zone++)
+		{
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
+			{
 				switch (ZCMD.command)
 				{
 				case 'M':
@@ -199,6 +206,8 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 						ZCMD.arg2++;
 					break;
 				}
+			}
+		}
 
 		// * Update load rooms, to fix creeping load room problem.
 		if (room_num <= r_mortal_start_room)
@@ -216,11 +225,13 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 
 
 		// поля in_room для объектов и персонажей уже изменены
-		for (temp_ch = character_list; temp_ch; temp_ch = temp_ch->get_next())
+		for (const auto& temp_ch : character_list)
 		{
 			room_rnum temp_room = temp_ch->get_was_in_room();
 			if (temp_room >= room_num)
+			{
 				temp_ch->set_was_in_room(++temp_room);
+			}
 		}
 
 		// Порталы, выходы
@@ -401,7 +412,7 @@ void redit_disp_extradesc_menu(DESCRIPTOR_DATA * d)
 
 	strcat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n");
 	strcat(buf, "Enter choice (0 to quit) : ");
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = REDIT_EXTRADESC_MENU;
 }
 
@@ -433,7 +444,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 		strcat(buf2, " (Выход скрыт)");
 	}
 	
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
 		"[H[J"
@@ -455,14 +466,14 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 		OLC_EXIT(d)->vkeyword ? OLC_EXIT(d)->vkeyword : "<NONE>", grn, nrm,
 		cyn, OLC_EXIT(d)->key, grn, nrm, cyn, buf2, grn, nrm);
 
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = REDIT_EXIT_MENU;
 }
 
 // * For exit flags.
 void redit_disp_exit_flag_menu(DESCRIPTOR_DATA * d)
 {
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 	sprintf(buf,
 		"ВНИМАНИЕ! Созданная здесь дверь будет всегда отперта и открыта.\r\n"
 		"Изменить состояние двери по умолчанию можно только командами зоны (zedit).\r\n\r\n"
@@ -475,7 +486,7 @@ void redit_disp_exit_flag_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF) ? 'x' : ' ',
 		grn, nrm, IS_SET(OLC_EXIT(d)->exit_info, EX_HIDDEN) ? 'x' : ' ',
 		grn, nrm, OLC_EXIT(d)->lock_complexity);
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 }
 
 // * For room flags.
@@ -484,7 +495,7 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 	int counter, columns = 0, plane = 0;
 	char c;
 
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
@@ -503,11 +514,11 @@ void redit_disp_flag_menu(DESCRIPTOR_DATA * d)
 
 		sprintf(buf, "%s%c%d%s) %-20.20s %s", grn, c, plane, nrm,
 				room_bits[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character);
+		send_to_char(buf, d->character.get());
 	}
 	OLC_ROOM(d)->flags_sprint(buf1, ",", true);
 	sprintf(buf, "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ", cyn, buf1, nrm);
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 	OLC_MODE(d) = REDIT_FLAGS;
 }
 
@@ -523,9 +534,9 @@ void redit_disp_sector_menu(DESCRIPTOR_DATA * d)
 	{
 		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
 				sector_types[counter], !(++columns % 2) ? "\r\n" : "");
-		send_to_char(buf, d->character);
+		send_to_char(buf, d->character.get());
 	}
-	send_to_char("\r\nТип поверхности в комнате : ", d->character);
+	send_to_char("\r\nТип поверхности в комнате : ", d->character.get());
 	OLC_MODE(d) = REDIT_SECTOR;
 }
 
@@ -534,7 +545,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 {
 	ROOM_DATA *room;
 
-	get_char_cols(d->character);
+	get_char_cols(d->character.get());
 	room = OLC_ROOM(d);
 
 	room->flags_sprint(buf1, ",");
@@ -581,7 +592,7 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 			NOWHERE ? world[room->dir_option[DOWN]->to_room]->
 			number : NOWHERE, grn, nrm, grn, nrm, cyn,
 			room->ing_list ? "Есть" : "Нет", grn, nrm, cyn, !room->proto_script->empty() ? "Set." : "Not Set.", grn, nrm);
-	send_to_char(buf, d->character);
+	send_to_char(buf, d->character.get());
 
 	OLC_MODE(d) = REDIT_MAIN_MENU;
 }
@@ -609,8 +620,9 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			mudlog(buf, NRM, MAX(LVL_BUILDER, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			// * Do NOT free strings! Just the room structure.
 			cleanup_olc(d, CLEANUP_STRUCTS);
-			send_to_char("Room saved to memory.\r\n", d->character);
+			send_to_char("Room saved to memory.\r\n", d->character.get());
 			break;
+
 		case 'n':
 		case 'N':
 		case 'н':
@@ -619,7 +631,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			cleanup_olc(d, CLEANUP_ALL);
 			break;
 		default:
-			send_to_char("Неверный выбор!\r\nВы желаете сохранить комнату в памяти? : ", d->character);
+			send_to_char("Неверный выбор!\r\nВы желаете сохранить комнату в памяти? : ", d->character.get());
 			break;
 		}
 		return;
@@ -631,7 +643,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'Q':
 			if (OLC_VAL(d))  	// Something has been modified.
 			{
-				send_to_char("Вы желаете сохранить комнату в памяти? : ", d->character);
+				send_to_char("Вы желаете сохранить комнату в памяти? : ", d->character.get());
 				OLC_MODE(d) = REDIT_CONFIRM_SAVESTRING;
 			}
 			else
@@ -641,7 +653,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 
 		case '1':
-			send_to_char("Введите название комнаты:-\r\n] ", d->character);
+			send_to_char("Введите название комнаты:-\r\n] ", d->character.get());
 			OLC_MODE(d) = REDIT_NAME;
 			break;
 
@@ -728,7 +740,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			dg_script_menu(d);
 			return;
 		default:
-			send_to_char("Неверный выбор!", d->character);
+			send_to_char("Неверный выбор!", d->character.get());
 			redit_disp_menu(d);
 			break;
 		}
@@ -757,7 +769,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = planebit(arg, &plane, &bit);
 		if (number < 0)
 		{
-			send_to_char("Неверный выбор!\r\n", d->character);
+			send_to_char("Неверный выбор!\r\n", d->character.get());
 			redit_disp_flag_menu(d);
 		}
 		else if (number == 0)
@@ -774,7 +786,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		if (number < 0 || number >= NUM_ROOM_SECTORS)
 		{
-			send_to_char("Неверный выбор!", d->character);
+			send_to_char("Неверный выбор!", d->character.get());
 			redit_disp_sector_menu(d);
 			return;
 		}
@@ -789,20 +801,20 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case '1':
 			OLC_MODE(d) = REDIT_EXIT_NUMBER;
-			send_to_char("Попасть в комнату N (vnum) : ", d->character);
+			send_to_char("Попасть в комнату N (vnum) : ", d->character.get());
 			return;
 		case '2':
 			OLC_MODE(d) = REDIT_EXIT_DESCRIPTION;
-			send_to_char("Введите описание выхода : ", d->character);
+			send_to_char("Введите описание выхода : ", d->character.get());
 			return;
 
 		case '3':
 			OLC_MODE(d) = REDIT_EXIT_KEYWORD;
-			send_to_char("Введите ключевое слово : ", d->character);
+			send_to_char("Введите ключевое слово : ", d->character.get());
 			return;
 		case '4':
 			OLC_MODE(d) = REDIT_EXIT_KEY;
-			send_to_char("Введите номер ключа : ", d->character);
+			send_to_char("Введите номер ключа : ", d->character.get());
 			return;
 		case '5':
 			redit_disp_exit_flag_menu(d);
@@ -817,7 +829,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_EXIT(d).reset();
 			break;
 		default:
-			send_to_char("Неверный выбор!\r\nВаш выбор : ", d->character);
+			send_to_char("Неверный выбор!\r\nВаш выбор : ", d->character.get());
 			return;
 		}
 		break;
@@ -826,7 +838,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		if ((number = atoi(arg)) != NOWHERE)
 			if ((number = real_room(number)) == NOWHERE)
 			{
-				send_to_char("Нет такой комнаты - повторите ввод : ", d->character);
+				send_to_char("Нет такой комнаты - повторите ввод : ", d->character.get());
 				return;
 			}
 		OLC_EXIT(d)->to_room = number;
@@ -876,7 +888,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		if ((number < 0) || (number > 6))
 		{
-			send_to_char("Неверный выбор!\r\n", d->character);
+			send_to_char("Неверный выбор!\r\n", d->character.get());
 			redit_disp_exit_flag_menu(d);
 		}
 		else if (number == 0)
@@ -904,7 +916,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			else if (number == 4)
 			{
 				OLC_MODE(d) = REDIT_LOCK_COMPLEXITY;
-				send_to_char("Введите сложность замка, (0-255): ", d->character);
+				send_to_char("Введите сложность замка, (0-255): ", d->character.get());
 				return;
 			}
 			redit_disp_exit_flag_menu(d);
@@ -935,7 +947,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 1:
 			OLC_MODE(d) = REDIT_EXTRADESC_KEY;
-			send_to_char("Введите ключевые слова, разделенные пробелами : ", d->character);
+			send_to_char("Введите ключевые слова, разделенные пробелами : ", d->character.get());
 			return;
 
 		case 2:
@@ -956,7 +968,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			if (!OLC_DESC(d)->keyword || !OLC_DESC(d)->description)
 			{
 				send_to_char("Вы не можете редактировать следующее экстраописание, не завершив текущее.\r\n",
-					d->character);
+					d->character.get());
 				redit_disp_extradesc_menu(d);
 			}
 			else

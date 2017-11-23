@@ -4,6 +4,7 @@
 
 #include "depot.hpp"
 
+#include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "db.h"
@@ -526,7 +527,7 @@ void init_depot()
 // * Загрузка самих хранилищ в банки делается после инита хранилищ и резета зон, потому как мобов надо.
 void load_chests()
 {
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (ch->nr > 0 && ch->nr <= top_of_mobt && mob_index[ch->nr].func == bank)
 		{
@@ -1574,32 +1575,35 @@ void reload_char(long uid, CHAR_DATA *ch)
 	it->second.reset();
 
 	// после чего надо записать ему бабла, иначе при входе все спуржится (бабло проставит в exit_char)
-	CHAR_DATA *vict = 0, *t_vict = 0;
+	CHAR_DATA::shared_ptr vict;
 	DESCRIPTOR_DATA *d = DescByUID(uid);
 	if (d)
+	{
 		vict = d->character; // чар онлайн
+	}
 	else
 	{
 		// чар соответственно оффлайн
-		t_vict = new Player; // TODO: переделать на стек
-		if (load_char(it->second.name.c_str(), t_vict) < 0)
+		const CHAR_DATA::shared_ptr t_vict(new Player);
+		if (load_char(it->second.name.c_str(), t_vict.get()) < 0)
 		{
 			// вообще эт нереальная ситуация после проверки в do_reboot
 			send_to_char(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
-			delete t_vict;
-			t_vict = 0;
 		}
 		vict = t_vict;
 	}
+
 	if (vict)
 	{
 		// вобщем тут мысль такая: кодить доп. обработку для релоада оффлайн чара мне стало лень,
 		// поэтому мы штатно грузим ему сначала онлайн список, после чего отправляем его в оффлайн
 		it->second.load_online_objs(PERS_DEPOT_FILE, 1);
 		// если чара грузили с оффлайна
-		if (!d) exit_char(vict);
+		if (!d)
+		{
+			exit_char(vict.get());
+		}
 	}
-	if (t_vict) delete t_vict;
 
 	snprintf(buf, MAX_STRING_LENGTH, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
 	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);

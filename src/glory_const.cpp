@@ -167,7 +167,7 @@ void add_glory(long uid, int amount)
 	DESCRIPTOR_DATA *d = DescByUID(uid);
 	if (d)
 	{
-		send_to_char(d->character, "%sВы заслужили %d %s постоянной славы!%s\r\n",
+		send_to_char(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
 			CCGRN(d->character, C_NRM),
 			amount, desc_count(amount, WHAT_POINT),
 			CCNRM(d->character, C_NRM));

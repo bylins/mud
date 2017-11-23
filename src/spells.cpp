@@ -66,12 +66,10 @@ extern int top_imtypes;
 ESkill get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
-void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int compute_armor_class(CHAR_DATA * ch);
 char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 int calc_anti_savings(CHAR_DATA * ch);
 void go_flee(CHAR_DATA * ch);
 
@@ -503,8 +501,8 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /
 
 inline void decay_portal(const int room_num)
 {
-	act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->people, 0, 0, TO_ROOM);
-	act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->people, 0, 0, TO_CHAR);
+	act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->first_character(), 0, 0, TO_ROOM);
+	act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->first_character(), 0, 0, TO_CHAR);
 	world[room_num]->portal_time = 0;
 	world[room_num]->portal_room = 0;
 }
@@ -601,12 +599,12 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 
 		if (pkPortal)
 		{
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_CHAR);
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_ROOM);
+			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[fnd_room]->first_character(), 0, 0, TO_CHAR);
+			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[fnd_room]->first_character(), 0, 0, TO_ROOM);
 		}else
 		{
-			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_CHAR);
-			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->people, 0, 0, TO_ROOM);
+			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->first_character(), 0, 0, TO_CHAR);
+			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[fnd_room]->first_character(), 0, 0, TO_ROOM);
 		}
 		check_auto_nosummon(victim);
 
@@ -620,12 +618,12 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 
 		if (pkPortal)
 		{
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_CHAR);
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_ROOM);
+			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[to_room]->first_character(), 0, 0, TO_CHAR);
+			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.", FALSE, world[to_room]->first_character(), 0, 0, TO_ROOM);
 		}else
 		{
-			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_CHAR);
-			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[to_room]->people, 0, 0, TO_ROOM);
+			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[to_room]->first_character(), 0, 0, TO_CHAR);
+			act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[to_room]->first_character(), 0, 0, TO_ROOM);
 		}
 	}
 }
@@ -2747,10 +2745,10 @@ void spell_control_weather(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, 
 				world[i]->weather.sky = what_sky;
 				world[i]->weather.weather_type = sky_type;
 				world[i]->weather.duration = duration;
-				if (world[i]->people)
+				if (world[i]->first_character())
 				{
-					act(sky_info, FALSE, world[i]->people, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-					act(sky_info, FALSE, world[i]->people, 0, 0, TO_CHAR);
+					act(sky_info, FALSE, world[i]->first_character(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act(sky_info, FALSE, world[i]->first_character(), 0, 0, TO_CHAR);
 				}
 			}
 	}
@@ -2855,7 +2853,7 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* 
 
 void spell_eviless(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
-	for (auto tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[ch->in_room]->people)
 	{
 		if (IS_NPC(tch)
 			&& tch->get_master() == ch
@@ -2873,29 +2871,32 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 {
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
-	CHAR_DATA *tch, *nxt;
-	OBJ_DATA *o;
 
 	act(msg1, FALSE, ch, 0, 0, TO_CHAR);
 	act(msg1, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
-	for (tch = world[ch->in_room]->people; tch; tch = nxt)
+	const auto people_copy = world[ch->in_room]->people;
+	for (const auto tch : people_copy)
 	{
-		nxt = tch->next_in_room;
-//    if ( SAME_GROUP( ch, tch ) ) continue;
 		if (IS_NPC(tch))
 		{
 			if (!MOB_FLAGGED(tch, MOB_CORPSE)
-				&& GET_RACE(tch) != NPC_RACE_ZOMBIE && GET_RACE(tch) != NPC_RACE_EVIL_SPIRIT)
+				&& GET_RACE(tch) != NPC_RACE_ZOMBIE
+				&& GET_RACE(tch) != NPC_RACE_EVIL_SPIRIT)
+			{
 				continue;
+			}
 		}
 		else
 		{
 			//Чуток нелогично, но раз зомби гоняет -- сам немного мертвяк. :)
 			//Тут сам спелл бредовый... Но пока на скорую руку.
 			if (!can_use_feat(tch, ZOMBIE_DROVER_FEAT))
+			{
 				continue;
+			}
 		}
+
 		mag_affects(GET_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);
 		mag_damage(GET_LEVEL(ch), ch, tch, SPELL_HOLYSTRIKE, SAVING_STABILITY);
 	}
@@ -2903,6 +2904,7 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 	act(msg2, FALSE, ch, 0, 0, TO_CHAR);
 	act(msg2, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
+	OBJ_DATA *o = nullptr;
 	do
 	{
 		for (o = world[ch->in_room]->contents; o; o = o->get_next_content())
@@ -2913,6 +2915,7 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 			}
 
 			extract_obj(o);
+
 			break;
 		}
 	} while (o);

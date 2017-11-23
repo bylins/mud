@@ -4,6 +4,7 @@
 
 #include "obj.hpp"
 
+#include "objsave.h"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "parse.hpp"
@@ -28,7 +29,6 @@
 #include <memory>
 
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
-extern int Crash_write_timer(int index);	// to avoid inclusion of "objsave.h"
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
 extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 
@@ -104,10 +104,7 @@ OBJ_DATA::OBJ_DATA(const OBJ_DATA& other): CObjectPrototype(other.get_vnum())
 
 OBJ_DATA::~OBJ_DATA()
 {
-	if (!m_purged)
-	{
-		this->purge(true);
-	}
+	this->purge();
 }
 
 // * См. Character::zero_init()
@@ -150,34 +147,13 @@ void OBJ_DATA::detach_ex_description()
 }
 
 // * См. Character::purge()
-void OBJ_DATA::purge(bool destructor)
+void OBJ_DATA::purge()
 {
-	if (m_purged)
-	{
-		log("SYSERROR: double purge (%s:%d)", __FILE__, __LINE__);
-		return;
-	}
-
 	caching::obj_cache.remove(this);
 	//см. комментарий в структуре BloodyInfo из pk.cpp
 	bloody::remove_obj(this);
 	//weak_ptr тут бы был какраз в тему
 	Celebrates::remove_from_obj_lists(this->get_uid());
-
-	if (!destructor)
-	{
-		// обнуляем все
-		this->zero_init();
-		// проставляем неподходящие из конструктора поля
-		m_purged = true;
-		// закидываем в список ожидающих делета указателей
-		purged_obj_list.push_back(this);
-	}
-}
-
-bool OBJ_DATA::purged() const
-{
-	return m_purged;
 }
 
 int OBJ_DATA::get_serial_num()
@@ -1696,7 +1672,7 @@ namespace SetSystem
 	}
 
 	// * Обнуление таймера шмотки в ренте или перс.хране.
-	void delete_item(int pt_num, int vnum)
+	void delete_item(const std::size_t pt_num, int vnum)
 	{
 		bool need_save = false;
 		// рента
@@ -1707,8 +1683,7 @@ namespace SetSystem
 			{
 				if (i->vnum == vnum)
 				{
-					log("[TO] Player %s : set-item %d deleted",
-						player_table[pt_num].name, i->vnum);
+					log("[TO] Player %s : set-item %d deleted", player_table[pt_num].name(), i->vnum);
 					i->timer = -1;
 					int rnum = real_object(i->vnum);
 					if (rnum >= 0)
@@ -1723,8 +1698,7 @@ namespace SetSystem
 		{
 			if (!Crash_write_timer(pt_num))
 			{
-				log("SYSERROR: [TO] Error writing timer file for %s",
-					player_table[pt_num].name);
+				log("SYSERROR: [TO] Error writing timer file for %s", player_table[pt_num].name());
 			}
 			return;
 		}
@@ -1737,7 +1711,7 @@ namespace SetSystem
 	{
 		init_set_list();
 
-		for (int i = 0; i <= top_of_p_table; i++)
+		for (std::size_t i = 0; i < player_table.size(); i++)
 		{
 			reset_set_list();
 			// рента

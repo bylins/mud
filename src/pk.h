@@ -14,9 +14,10 @@
 #ifndef _PK_H_
 #define _PK_H_
 
+#include "char.hpp"
+
 #include <string>
 
-class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 
 //*************************************************************************
@@ -95,6 +96,7 @@ int pk_player_count(CHAR_DATA * ch);
 
 void aura(CHAR_DATA * ch, int lvl, CHAR_DATA * victim, char *s);
 const char *CCPK(CHAR_DATA * ch, int lvl, CHAR_DATA * victim);
+inline const char *CCPK(CHAR_DATA* ch, int lvl, const CHAR_DATA::shared_ptr& victim) { return CCPK(ch, lvl, victim.get()); }
 void pk_list_sprintf(CHAR_DATA * ch, char *buff);
 
 //*************************************************************************

@@ -84,7 +84,7 @@ public:
 	virtual void dps_add_exp(int/* exp*/, bool/* battle*/ = false) {};
 
 	virtual void save_char() {};
-	virtual int load_char_ascii(const char* /*name*/, bool/* reboot*/ = 0) { return -1; };
+	virtual int load_char_ascii(const char* /*name*/, bool/* reboot*/ = 0, const bool /*find_id*/ = true) { return -1; };
 
 	virtual bool get_disposable_flag(int/* num*/) { return false; };
 	virtual void set_disposable_flag(int/* num*/) {};
@@ -121,8 +121,8 @@ public:
 
 	virtual void str_to_cities(std::string /*value*/) {};
 	std::string cities_to_str() { return ""; };
-	virtual bool check_city(unsigned int /* index */) { return false; };
-	virtual void mark_city(unsigned int /* index */) {};
+	virtual bool check_city(const size_t) { return false; };
+	virtual void mark_city(const size_t) {};
 
 	virtual int death_player_count() {
 		return 1;

@@ -14,6 +14,7 @@
 
 #include "magic.h"
 
+#include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
@@ -56,7 +57,6 @@ extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
 byte extend_saving_throws(int class_num, int type, int level);
-void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void alterate_object(OBJ_DATA * obj, int dam, int chance);
@@ -80,65 +80,74 @@ void pulse_affect_update(CHAR_DATA * ch);
 
 CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
 {
-	CHAR_DATA * tch, * next_ch;
 	assert(room);
 
-	for (tch = room->people ; tch ; tch = next_ch)
+	for (const auto tch : room->people)
 	{
-		next_ch = tch->next_in_room;
 		if (GET_ID(tch) == char_id)
+		{
 			return (tch);
+		}
 	}
+
 	return NULL;
 }
 
 CHAR_DATA * random_char_in_room(ROOM_DATA *room)
 {
-	CHAR_DATA * c , * result = NULL;
 	int count = 0, index = 0;
+
 	// посчитаем число перцев  в комнате
-	for (c = room->people; c; c = c->next_in_room)
+	for (const auto c : room->people)
+	{
 		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-				&& !GET_INVIS_LEV(c))
+			&& !GET_INVIS_LEV(c))
 		{
 			count++;
 		}
+	}
+
 	count = number(0, count - 1);
+
+	CHAR_DATA* result = nullptr;
 	// А теперь узнаем его указатель.
-	for (c = room->people; c; c = c->next_in_room)
+	for (const auto c : room->people)
+	{
 		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-				&& !GET_INVIS_LEV(c))
+			&& !GET_INVIS_LEV(c))
 		{
 			if (index == count)
 			{
 				result = c;
+
 				break;
 			}
 
 			index++;
 		}
-	return (result);
+	}
 
+	return result;
 }
 
 std::vector<CHAR_DATA*> AssignEnemyCrowd(CHAR_DATA *ch)
 {
     std::vector<CHAR_DATA*> EnemyCrowd;
-    CHAR_DATA *enemy;
-    for (enemy = world[ch->in_room]->people; enemy; enemy = enemy->next_in_room)
+
+    for (const auto enemy : world[ch->in_room]->people)
     {
-        if (IS_IMMORTAL(enemy))
-            continue;
-        if (!HERE(enemy))
-            continue;
-        if (enemy == ch)
-            continue;
-        if (same_group(ch, enemy))
-            continue;
-        if (!may_kill_here(ch, enemy))
-            continue;
+        if (IS_IMMORTAL(enemy)
+			|| !HERE(enemy)
+			|| enemy == ch
+			|| same_group(ch, enemy)
+			|| !may_kill_here(ch, enemy))
+		{
+			continue;
+		}
+
         EnemyCrowd.push_back(enemy);
     }
+
     return EnemyCrowd;
 }
 
@@ -334,7 +343,6 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 	// Тут надо понимать что если закл наложит не один аффект а несколько
 	// то обработчик будет вызываться за пульс именно столько раз.
 	int spellnum = aff->type;
-	CHAR_DATA * tch, *tch_next;
 	std::vector<CHAR_DATA*> ch_list;
 
 	switch (spellnum)
@@ -350,10 +358,9 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 		//send_to_room(buf2, room, 0);
 		if (ch) // Кастер нашелся и он тут ...
 		{
-			for (tch = room->people; tch ; tch = tch_next)
+			const auto people_copy = room->people;
+			for (const auto tch : people_copy)
 			{
-				tch_next = tch->next_in_room;
-
 				if (!call_magic(ch, tch, NULL, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_SPELL))
 				{
 					aff->duration = 0;
@@ -978,16 +985,9 @@ void show_spell_off(int aff, CHAR_DATA * ch)
 
 void mobile_affect_update(void)
 {
-	struct timed_type *timed, *timed_next;
-	CHAR_DATA *i, *i_next;
-	int was_charmed = 0, charmed_msg = FALSE;
-
-	for (i = character_list; i; i = i_next)
+	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr& i)
 	{
-		i_next = i->get_next();
-		charmed_msg = FALSE;
-		was_charmed = FALSE;
-
+		int was_charmed = FALSE, charmed_msg = FALSE;
 		bool was_purged = false;
 
 		if (IS_NPC(i))
@@ -1003,9 +1003,10 @@ void mobile_affect_update(void)
 					if (IS_SET(affect->battleflag, AF_SAME_TIME) && (!i->get_fighting() || affect->location == APPLY_POISON))
 					{
 						// здесь плеера могут спуржить
-						if (same_time_update(i, affect) == -1)
+						if (same_time_update(i.get(), affect) == -1)
 						{
 							was_purged = true;
+
 							break;
 						}
 					}
@@ -1013,7 +1014,7 @@ void mobile_affect_update(void)
 					affect->duration--;
 					if (affect->type == SPELL_CHARM && !charmed_msg && affect->duration <= 1)
 					{
-						act("$n начал$g растерянно оглядываться по сторонам.", FALSE, i, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+						act("$n начал$g растерянно оглядываться по сторонам.", FALSE, i.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 						charmed_msg = TRUE;
 					}
 				}
@@ -1034,7 +1035,7 @@ void mobile_affect_update(void)
 								&& affect->type <= SPELLS_COUNT
 								&& *spell_wear_off_msg[affect->type])
 							{
-								show_spell_off(affect->type, i);
+								show_spell_off(affect->type, i.get());
 								if (affect->type == SPELL_CHARM
 									|| affect->bitvector == to_underlying(EAffectFlag::AFF_CHARM))
 								{
@@ -1051,61 +1052,65 @@ void mobile_affect_update(void)
 
 		if (!was_purged)
 		{
-			//log("[MOBILE_AFFECT_UPDATE->AFFECT_TOTAL] (%s) Start",GET_NAME(i));
-			affect_total(i);
-			//log("[MOBILE_AFFECT_UPDATE->AFFECT_TOTAL] Stop");
-			for (timed = i->timed; timed; timed = timed_next)
+			affect_total(i.get());
+
+			decltype(i->timed) timed_next;
+			for (auto timed = i->timed; timed; timed = timed_next)
 			{
 				timed_next = timed->next;
 				if (timed->time >= 1)
+				{
 					timed->time--;
+				}
 				else
-					timed_from_char(i, timed);
-			}
-			for (timed = i->timed_feat; timed; timed = timed_next)
-			{
-				timed_next = timed->next;
-				if (timed->time >= 1)
-					timed->time--;
-				else
-					timed_feat_from_char(i, timed);
+				{
+					timed_from_char(i.get(), timed);
+				}
 			}
 
-			if (DeathTrap::check_death_trap(i))
+			for (auto timed = i->timed_feat; timed; timed = timed_next)
 			{
-				continue;
+				timed_next = timed->next;
+				if (timed->time >= 1)
+				{
+					timed->time--;
+				}
+				else
+				{
+					timed_feat_from_char(i.get(), timed);
+				}
+			}
+
+			if (DeathTrap::check_death_trap(i.get()))
+			{
+				return;
 			}
 
 			if (was_charmed)
 			{
-				stop_follower(i, SF_CHARMLOST);
+				stop_follower(i.get(), SF_CHARMLOST);
 			}
 		}
-	}
+	});
 }
 
 void player_affect_update(void)
 {
-	CHAR_DATA *i, *i_next;
-
-	for (i = character_list; i; i = i_next)
+	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr& i)
 	{
 		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
 		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
 		// добавлялись в чар-лист в начало списка и идут до самого чара
-		if (i->purged())
-			break;
-		i_next = i->get_next();
+		if (i->purged()
+			|| IS_NPC(i)
+			|| DeathTrap::tunnel_damage(i.get()))
+		{
+			return;
+		}
 
-		if (IS_NPC(i))
-			continue;
-		if (DeathTrap::tunnel_damage(i))
-			continue;
-
-		pulse_affect_update(i);
+		pulse_affect_update(i.get());
 
 		bool was_purged = false;
-
 		auto next_affect_i = i->affected.begin();
 		for (auto affect_i = next_affect_i; affect_i != i->affected.end(); affect_i = next_affect_i)
 		{
@@ -1117,7 +1122,7 @@ void player_affect_update(void)
 				if (IS_SET(affect->battleflag, AF_SAME_TIME) && !i->get_fighting())
 				{
 					// здесь плеера могут спуржить
-					if (same_time_update(i, affect) == -1)
+					if (same_time_update(i.get(), affect) == -1)
 					{
 						was_purged = true;
 						break;
@@ -1145,7 +1150,7 @@ void player_affect_update(void)
 								if (!(affect->type == SPELL_BATTLE
 									&& AFF_FLAGGED(i, EAffectFlag::AFF_MAGICSTOPFIGHT)))
 								{
-									show_spell_off(affect->type, i);
+									show_spell_off(affect->type, i.get());
 								}
 							}
 						}
@@ -1158,11 +1163,11 @@ void player_affect_update(void)
 
 		if (!was_purged)
 		{
-			MemQ_slots(i);	// сколько каких слотов занято (с коррекцией)
+			MemQ_slots(i.get());	// сколько каких слотов занято (с коррекцией)
 
-			affect_total(i);
+			affect_total(i.get());
 		}
-	}
+	});
 }
 
 // зависимость длительности закла от скила магии
@@ -5590,47 +5595,53 @@ void delete_from_tmp_char_list(CHAR_DATA *ch)
 //---------------------------------------------------------
 int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype)
 {
-	int i, k;
-	CHAR_DATA *ch_vict;
-	const char *msg;
-
 	if (ch == NULL)
+	{
 		return 0;
+	}
 
+	int i;
 	for (i = 0; masses_messages[i].spell != -1; ++i)
+	{
 		if (masses_messages[i].spell == spellnum)
+		{
 			break;
+		}
+	}
 
 	if (masses_messages[i].spell == -1)
+	{
 		return 0;
+	}
 
 	if (world[ch->in_room] == room)	 // Давим вывод если чар не в той же комнате
 	{
 		if (multi_cast_say(ch))
 		{
+			const char *msg;
 			if ((msg = masses_messages[i].to_char) != NULL)
+			{
 				act(msg, FALSE, ch, 0, 0, TO_CHAR);
+			}
 			if ((msg = masses_messages[i].to_room) != NULL)
+			{
 				act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			}
 		}
-	};
-
-	k = i;
+	}
 
 	tmp_char_list.clear();
-	for (i = 0, ch_vict = room->people; ch_vict; ch_vict = ch_vict->next_in_room)
+	for (const auto ch_vict : room->people)
 	{
-		if (IS_IMMORTAL(ch_vict))
+		if (IS_IMMORTAL(ch_vict)
+			|| !HERE(ch_vict)
+			|| (SpINFO.violent && same_group(ch, ch_vict))
+			|| IS_HORSE(ch_vict)
+			|| MOB_FLAGGED(ch_vict, MOB_PROTECT))
+		{
 			continue;
-		if (!HERE(ch_vict))
-			continue;
-		if (SpINFO.violent && same_group(ch, ch_vict))
-			continue;
-		// пони не трогаем
-		if (IS_HORSE(ch_vict))
-			continue;
-		if (MOB_FLAGGED(ch_vict, MOB_PROTECT))
-			continue;
+		}
+
 		add_to_tmp_char_list(ch_vict);
 	}
 
@@ -5640,29 +5651,38 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 	int targets_count = 0;
 	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
-		ch_vict = *it;
+		CHAR_DATA* ch_vict = *it;
 		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
-		}		
-		if ((msg = masses_messages[k].to_vict) != NULL && ch_vict->desc)
+		}
+
+		const char* msg;
+		if ((msg = masses_messages[i].to_vict) != NULL
+			&& ch_vict->desc)
 		{
 			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
 		}
-		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
+
+		if (!IS_NPC(ch)
+			&& !IS_NPC(ch_vict))
 		{
 			if (ch)
 			{
 				if (check_agr_in_house(ch))
+				{
 					return 0;
+				}
 			}
 			++targets_count;
 		}
+
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 		if (ch->purged())
 		{
 			return 1;
 		}
+
 		GET_CAST_SUCCESS(ch) = atacker_cast - atacker_cast * targets_count * 9 / 100;
 	}
 	GET_CAST_SUCCESS(ch) = atacker_cast;
@@ -5754,19 +5774,26 @@ const spl_message areas_messages[] =
 //---------------------------------------------------------
 int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
 {
-	int i, decay;
+	int decay;
 	CHAR_DATA *ch_vict;
 	const char *msg;
 
 	if (!ch || !victim)
 		return 0;
 
+	int i;
 	for (i = 0; areas_messages[i].spell != -1; ++i)
+	{
 		if (areas_messages[i].spell == spellnum)
+		{
 			break;
+		}
+	}
 
 	if (areas_messages[i].spell == -1)
+	{
 		return 0;
+	}
 
 	if (ch->in_room == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
 	{
@@ -5783,7 +5810,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 	// список генерится до дамага по виктиму, т.к. на нем могут висеть death тригеры
 	// с появлением новых мобов, по которым тот же шок бьет уже после смерти основной цели
 	tmp_char_list.clear();
-	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
+	for (const auto ch_vict : world[ch->in_room]->people)
 	{
 		if (IS_IMMORTAL(ch_vict))
 			continue;
@@ -5831,9 +5858,11 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		{
 			break;
 		}
-		i = number(0, static_cast<int>(size) - 1);
-		ch_vict = tmp_char_list[i];
-		tmp_char_list[i] = tmp_char_list[--size];
+
+		const auto index = number(0, static_cast<int>(size) - 1);
+		ch_vict = tmp_char_list[index];
+		tmp_char_list[index] = tmp_char_list[--size];
+
 		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
@@ -6016,22 +6045,29 @@ const spl_message groups_messages[] =
 //---------------------------------------------------------
 int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 {
-	int i;
-	CHAR_DATA *ch_vict;
-	const char *msg;
-
 	if (ch == NULL)
+	{
 		return 0;
+	}
 
+	int i;
 	for (i = 0; groups_messages[i].spell != -1; ++i)
+	{
 		if (groups_messages[i].spell == spellnum)
+		{
 			break;
+		}
+	}
 
 	if (groups_messages[i].spell == -1)
+	{
 		return 0;
+	}
 
 	if (multi_cast_say(ch))
 	{
+		const char *msg;
+
 		if ((msg = groups_messages[i].to_char) != NULL)
 			act(msg, FALSE, ch, 0, 0, TO_CHAR);
 		if ((msg = groups_messages[i].to_room) != NULL)
@@ -6039,22 +6075,25 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 	}
 
 	tmp_char_list.clear();
-	for (i = 0, ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
+	for (const auto ch_vict : world[ch->in_room]->people)
 	{
-		if (!HERE(ch_vict))
+		if (!HERE(ch_vict)
+			|| !same_group(ch, ch_vict))
+		{
 			continue;
-		if (!same_group(ch, ch_vict))
-			continue;
+		}
+
 		add_to_tmp_char_list(ch_vict);
 	}
 
 	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
 	{
-		ch_vict = *it;
+		const auto ch_vict = *it;
 		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
 			continue;
 		}
+
 		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
 		if (ch->purged())
 		{

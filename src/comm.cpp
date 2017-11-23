@@ -31,6 +31,7 @@
 
 #include "comm.h"
 
+#include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "external.trigger.hpp"
@@ -1457,7 +1458,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(NOWHERE);
-				act("$n вернул$u.", TRUE, d->character, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n вернул$u.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				d->character->set_wait(1u);
 			}
 		}
@@ -1480,7 +1481,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				d->has_prompt = 1;	// To get newline before next cmd output.
 			else if (perform_alias(d, comm))	// Run it through aliasing system
 				get_from_q(&d->input, comm, &aliased);
-			command_interpreter(d->character, comm);	// Send it to interpreter
+			command_interpreter(d->character.get(), comm);	// Send it to interpreter
 			cmd_cnt++;
 		}
 	}
@@ -2025,7 +2026,7 @@ void heartbeat(const int missed_pulses)
 	// очистка спурженных char_data и obj_data
 	if (!((pulse + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
-		CharacterSystem::release_purged_list();
+		character_list.purge();
 		ObjSystem::release_purged_list();
 	}
 
@@ -2404,7 +2405,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			count +=
 				sprintf(prompt + count, "%s",
-						color_value(d->character, GET_HIT(d->character), GET_REAL_MAX_HIT(d->character)));
+						color_value(d->character.get(), GET_HIT(d->character), GET_REAL_MAX_HIT(d->character)));
 			count += sprintf(prompt + count, "%dH%s ", GET_HIT(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Moves state
@@ -2412,7 +2413,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			count +=
 				sprintf(prompt + count, "%s",
-						color_value(d->character, GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character)));
+						color_value(d->character.get(), GET_MOVE(d->character), GET_REAL_MAX_MOVE(d->character)));
 			count += sprintf(prompt + count, "%dM%s ", GET_MOVE(d->character), CCNRM(d->character, C_NRM));
 		}
 		// Mana state
@@ -2434,7 +2435,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "??? ");
 			else
 				count += sprintf(prompt + count, "%ldо ",
-								 level_exp(d->character,
+								 level_exp(d->character.get(),
 										   GET_LEVEL(d->character) + 1) - GET_EXP(d->character));
 		}
 		// Mem Info
@@ -2443,7 +2444,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			if (!MEMQUEUE_EMPTY(d->character))
 			{
-				door = mana_gain(d->character);
+				door = mana_gain(d->character.get());
 				if (door)
 				{
 					sec_hp =
@@ -2464,27 +2465,27 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			if (d->character->get_skill(SKILL_WARCRY))
 			{
-				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character, SKILL_WARCRY)) / HOURS_PER_WARCRY;
+				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_WARCRY)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
 			if (d->character->get_skill(SKILL_COURAGE))
-				count += sprintf(prompt + count, "Яр:%d ", timed_by_skill(d->character, SKILL_COURAGE));
+				count += sprintf(prompt + count, "Яр:%d ", timed_by_skill(d->character.get(), SKILL_COURAGE));
 			if (d->character->get_skill(SKILL_STRANGLE))
-				count += sprintf(prompt + count, "Уд:%d ", timed_by_skill(d->character, SKILL_STRANGLE));
+				count += sprintf(prompt + count, "Уд:%d ", timed_by_skill(d->character.get(), SKILL_STRANGLE));
 			if (d->character->get_skill(SKILL_TOWNPORTAL))
-				count += sprintf(prompt + count, "Вр:%d ", timed_by_skill(d->character, SKILL_TOWNPORTAL));
+				count += sprintf(prompt + count, "Вр:%d ", timed_by_skill(d->character.get(), SKILL_TOWNPORTAL));
 			if (d->character->get_skill(SKILL_MANADRAIN))
-				count += sprintf(prompt + count, "Сг:%d ", timed_by_skill(d->character, SKILL_MANADRAIN));
+				count += sprintf(prompt + count, "Сг:%d ", timed_by_skill(d->character.get(), SKILL_MANADRAIN));
 			if (d->character->get_skill(SKILL_CAMOUFLAGE))
-				count += sprintf(prompt + count, "Мс:%d ", timed_by_skill(d->character, SKILL_CAMOUFLAGE));
+				count += sprintf(prompt + count, "Мс:%d ", timed_by_skill(d->character.get(), SKILL_CAMOUFLAGE));
 			if (d->character->get_skill(SKILL_TURN_UNDEAD))
-				count += sprintf(prompt + count, "Из:%d ", timed_by_skill(d->character, SKILL_TURN_UNDEAD));
+				count += sprintf(prompt + count, "Из:%d ", timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD));
 			if (d->character->get_skill(SKILL_STUN))
-				count += sprintf(prompt + count, "Ош:%d ", timed_by_skill(d->character, SKILL_STUN));
+				count += sprintf(prompt + count, "Ош:%d ", timed_by_skill(d->character.get(), SKILL_STUN));
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
-				count += sprintf(prompt + count, "Пр:%d ", timed_by_feat(d->character, RELOCATE_FEAT));
+				count += sprintf(prompt + count, "Пр:%d ", timed_by_feat(d->character.get(), RELOCATE_FEAT));
 			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))
-				count += sprintf(prompt + count, "Зч:%d ", timed_by_feat(d->character, SPELL_CAPABLE_FEAT));
+				count += sprintf(prompt + count, "Зч:%d ", timed_by_feat(d->character.get(), SPELL_CAPABLE_FEAT));
 		}
 
 		if (!d->character->get_fighting()
@@ -2519,24 +2520,34 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		else
 		{
 			if (PRF_FLAGGED(d->character, PRF_DISPFIGHT))
-				count += sprintf(prompt + count, "%s", show_state(d->character, d->character));
+			{
+				count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character.get()));
+			}
+
 			if (d->character->get_fighting()->get_fighting()
-					&& d->character->get_fighting()->get_fighting() != d->character)
+					&& d->character->get_fighting()->get_fighting() != d->character.get())
+			{
 				count +=
 					sprintf(prompt + count, "%s",
-							show_state(d->character, d->character->get_fighting()->get_fighting()));
-			count += sprintf(prompt + count, "%s", show_state(d->character, d->character->get_fighting()));
+						show_state(d->character.get(), d->character->get_fighting()->get_fighting()));
+			}
+
+			count += sprintf(prompt + count, "%s", show_state(d->character.get(), d->character->get_fighting()));
 		};
 		strcat(prompt, "> ");
 	}
-	else if (STATE(d) == CON_PLAYING && IS_NPC(d->character))
+	else if (STATE(d) == CON_PLAYING
+		&& IS_NPC(d->character))
+	{
 		sprintf(prompt, "{%s}-> ", GET_NAME(d->character));
+	}
 	else
+	{
 		*prompt = '\0';
+	}
 
-	return (prompt);
+	return prompt;
 }
-
 
 void write_to_q(const char *txt, struct txt_q *queue, int aliased)
 {
@@ -3882,11 +3893,16 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 */
 bool any_other_ch(CHAR_DATA *ch)
 {
-	for (CHAR_DATA *vict = character_list; vict; vict = vict->get_next())
+	for (const auto vict : character_list)
 	{
-		if (!IS_NPC(vict) && vict != ch && GET_UNIQUE(vict) == GET_UNIQUE(ch))
+		if (!IS_NPC(vict)
+			&& vict.get() != ch
+			&& GET_UNIQUE(vict) == GET_UNIQUE(ch))
+		{
 			return true;
+		}
 	}
+
 	return false;
 }
 
@@ -3980,17 +3996,17 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{
-			act("$n потерял$g связь.", TRUE, d->character, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n потерял$g связь.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
 			{
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
-				command_interpreter(d->character, buf2);
+				command_interpreter(d->character.get(), buf2);
 			}
 			if (!IS_NPC(d->character))
 			{
 				d->character->save_char();
-				check_light(d->character, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
-				Crash_ldsave(d->character);
+				check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
+				Crash_ldsave(d->character.get());
 				
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
@@ -3999,16 +4015,13 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		}
 		else
 		{
-//			Убрал непонятно зачем нужный спам в сислог
-//			sprintf(buf, "Losing player: %s %s.", GET_NAME(d->character) ? GET_NAME(d->character) : "<null>", STATE(d) > CON_CLOSE && STATE(d) < CON_DISCONNECT ? d->host : "");
-//			mudlog(buf, LGH, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
-			if (!any_other_ch(d->character))
-				Depot::exit_char(d->character);
-			delete d->character;
+			if (!any_other_ch(d->character.get()))
+			{
+				Depot::exit_char(d->character.get());
+			}
+			character_list.remove(d->character);
 		}
 	}
-//	 else
-//		mudlog("Losing descriptor without char.", LGH, LVL_IMMORT, SYSLOG, TRUE);
 
 	// JE 2/22/95 -- part of my unending quest to make switch stable
 	if (d->original && d->original->desc)
@@ -4285,7 +4298,7 @@ void signal_setup(void)
 /* ****************************************************************
 *       Public routines for system-to-player-communication        *
 **************************************************************** */
-void send_stat_char(CHAR_DATA * ch)
+void send_stat_char(const CHAR_DATA * ch)
 {
 	char fline[256];
 	sprintf(fline, "%d[%d]HP %d[%d]Mv %ldG %dL ",
@@ -4293,14 +4306,17 @@ void send_stat_char(CHAR_DATA * ch)
 	SEND_TO_Q(fline, ch->desc);
 }
 
-void send_to_char(const char *messg, CHAR_DATA * ch)
+void send_to_char(const char *messg, const CHAR_DATA* ch)
 {
-	if (ch->desc && messg)
+	if (ch->desc
+		&& messg)
+	{
 		SEND_TO_Q(messg, ch->desc);
+	}
 }
 
 // New edition :)
-void send_to_char(CHAR_DATA * ch, const char *messg, ...)
+void send_to_char(const CHAR_DATA* ch, const char *messg, ...)
 {
 	va_list args;
 	char tmpbuf[MAX_STRING_LENGTH];
@@ -4310,29 +4326,35 @@ void send_to_char(CHAR_DATA * ch, const char *messg, ...)
 	va_end(args);
 
 	if (ch->desc && messg)
+	{
 		SEND_TO_Q(tmpbuf, ch->desc);
+	}
 }
 
 // а вот те еще одна едишн Ж)
-void send_to_char(const std::string & buffer, CHAR_DATA * ch)
+void send_to_char(const std::string & buffer, const CHAR_DATA* ch)
 {
 	if (ch->desc && !buffer.empty())
+	{
 		SEND_TO_Q(buffer.c_str(), ch->desc);
+	}
 }
-
 
 void send_to_all(const char *messg)
 {
-	DESCRIPTOR_DATA *i;
-
 	if (messg == NULL)
+	{
 		return;
+	}
 
-	for (i = descriptor_list; i; i = i->next)
+	for (auto i = descriptor_list; i; i = i->next)
+	{
 		if (STATE(i) == CON_PLAYING)
+		{
 			SEND_TO_Q(messg, i);
+		}
+	}
 }
-
 
 void send_to_outdoor(const char *messg, int control)
 {
@@ -4383,22 +4405,25 @@ void send_to_gods(const char *messg)
 	}
 }
 
-
 void send_to_room(const char *messg, room_rnum room, int to_awake)
 {
-	CHAR_DATA *i;
-
 	if (messg == NULL)
+	{
 		return;
+	}
 
-	for (i = world[room]->people; i; i = i->next_in_room)
-		if (i->desc && !IS_NPC(i) && (!to_awake || AWAKE(i)))
+	for (const auto i : world[room]->people)
+	{
+		if (i->desc &&
+			!IS_NPC(i)
+			&& (!to_awake
+				|| AWAKE(i)))
 		{
 			SEND_TO_Q(messg, i->desc);
 			SEND_TO_Q("\r\n", i->desc);
 		}
+	}
 }
-
 
 #define CHK_NULL(pointer, expression) \
   ((pointer) == NULL) ? ACTNULL : (expression)
@@ -4717,17 +4742,20 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 			(IS_NPC(ch) || !PLR_FLAGGED((ch), PLR_WRITING)))
 #endif
 
-void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type, const std::string& kick_type)
+void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj, const void *vict_obj, int type, const std::string& kick_type)
 {
-	CHAR_DATA *to;
-	int to_sleeping, check_deaf, check_nodeaf, stopcount, to_arena=0, arena_room_rnum;
+	int to_sleeping, check_deaf, check_nodeaf, to_arena=0, arena_room_rnum;
 	int to_brief_shields = 0, to_no_brief_shields = 0;
 
 	if (!str || !*str)
+	{
 		return;
+	}
 
 	if (!(dg_act_check = !(type & DG_NO_TRIG)))
+	{
 		type &= ~DG_NO_TRIG;
+	}
 
 	/*
 	 * Warning: the following TO_SLEEP code is a hack.
@@ -4771,7 +4799,8 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 
 	if (type == TO_VICT)
 	{
-		if ((to = (CHAR_DATA *) vict_obj) != NULL
+		CHAR_DATA *to = (CHAR_DATA *)vict_obj;
+		if (to != NULL
 			&& SENDOK(to)
 			&& IN_ROOM(to) != NOWHERE
 			&& (!check_deaf || !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
@@ -4781,18 +4810,20 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 		{
 			perform_act(str, ch, obj, vict_obj, to, kick_type);
 		}
+
 		return;
 	}
 	// ASSUMPTION: at this point we know type must be TO_NOTVICT or TO_ROOM
 	// or TO_ROOM_HIDE
 
+	size_t room_number = ~0;
 	if (ch && ch->in_room != NOWHERE)
 	{
-		to = world[ch->in_room]->people;
+		room_number = ch->in_room;
 	}
 	else if (obj && obj->get_in_room() != NOWHERE)
 	{
-		to = world[obj->get_in_room()]->people;
+		room_number = obj->get_in_room();
 	}
 	else
 	{
@@ -4803,8 +4834,15 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 	// нужно чтоб не выводились сообщения только для арены лишний раз
 	if (type == TO_NOTVICT || type == TO_ROOM || type == TO_ROOM_HIDE)
 	{
-		for (stopcount = 0; to && stopcount < 1000; to = to->next_in_room, stopcount++)
+		int stop_counter = 0;
+		for (const auto to : world[room_number]->people)
 		{
+			if (stop_counter >= 1000)
+			{
+				break;
+			}
+			++stop_counter;
+
 			if (!SENDOK(to) || (to == ch))
 				continue;
 			if (hide_invisible && ch && !CAN_SEE(to, ch))
@@ -4854,9 +4892,15 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 			// находим клетку в которой слышно арену и всем игрокам в ней передаем сообщение с арены
 			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ROOM_ARENARECV))
 			{
-				to = world[arena_room_rnum]->people;
-				for (stopcount = 0; to && stopcount < 200; to = to->next_in_room, stopcount++)
+				int stop_count = 0;
+				for (const auto to : world[arena_room_rnum]->people)
 				{
+					if (stop_count >= 200)
+					{
+						break;
+					}
+					++stop_count;
+
 					if (!IS_NPC(to))
 					{
 						perform_act(str, ch, obj, vict_obj, to, to_arena, kick_type);
@@ -4866,7 +4910,6 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 			arena_room_rnum++;
 		}
 	}
-
 }
 
 /*

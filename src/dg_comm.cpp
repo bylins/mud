@@ -129,7 +129,6 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 	char type[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH];
 	char *tokens[MAX_INPUT_LENGTH], *s, *p;
 	void *otokens[MAX_INPUT_LENGTH];
-	CHAR_DATA *to;
 	OBJ_DATA *obj;
 	int i, tmp;
 	int to_sleeping = 0;	// mainly for windows compiles 
@@ -183,12 +182,21 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets)
 	tokens[++i] = NULL;
 
 	if (IS_SET(targets, TO_CHAR) && SENDOK(ch))
+	{
 		sub_write_to_char(ch, tokens, otokens, type);
+	}
 
 	if (IS_SET(targets, TO_ROOM))
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
-			if (to != ch && SENDOK(to))
+	{
+		for (const auto to : world[ch->in_room]->people)
+		{
+			if (to != ch
+				&& SENDOK(to))
+			{
 				sub_write_to_char(to, tokens, otokens, type);
+			}
+		}
+	}
 }
 
 void send_to_zone(char *messg, int zone_rnum)

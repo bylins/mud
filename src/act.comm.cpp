@@ -28,6 +28,7 @@
 #include "room.hpp"
 #include "spam.hpp"
 #include "char_obj_utils.inl"
+#include "world.characters.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -69,7 +70,6 @@ void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
-	CHAR_DATA *to;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
@@ -101,14 +101,20 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 //      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);
 // shapirus; для возможности игнорирования теллов в клетку
 // пришлось изменить act в клетку на проход по клетке
-		for (to = world[ch->in_room]->people; to; to = to->next_in_room)
+		for (const auto to : world[ch->in_room]->people)
 		{
 			if (ch == to || ignores(to, ch, IGNORE_SAY))
+			{
 				continue;
+			}
+
 			act(buf, FALSE, ch, 0, to, TO_VICT | DG_NO_TRIG | CHECK_DEAF);
 		}
+
 		if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_NOREPEAT))
+		{
 			send_to_char(OK, ch);
+		}
 		else
 		{
 			delete_doubledollar(argument);
@@ -367,8 +373,6 @@ void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *tch = character_list;
-
 	if (IS_NPC(ch))
 		return;
 
@@ -377,14 +381,6 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(SIELENCE, ch);
 		return;
 	}
-
-	/* И тут не ясно нафиг надо
-	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
-	{
-		send_to_char(SOUNDPROOF, ch);
-		return;
-	}
-	*/
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -399,25 +395,40 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!*argument)
 		send_to_char("Что вы собираетесь ответить?\r\n", ch);
 	else
-	{			/*
-				 * Make sure the person you're replying to is still playing by searching
-				 * for them.  Note, now last tell is stored as player IDnum instead of
-				 * a pointer, which is much better because it's safer, plus will still
-				 * work if someone logs out and back in again.
-				 */
+	{
+		/*
+		 * Make sure the person you're replying to is still playing by searching
+		 * for them.  Note, now last tell is stored as player IDnum instead of
+		 * a pointer, which is much better because it's safer, plus will still
+		 * work if someone logs out and back in again.
+		 */
 
 		/*
 		 * XXX: A descriptor list based search would be faster although
 		 *      we could not find link dead people.  Not that they can
 		 *      hear tells anyway. :) -gg 2/24/98
 		 */
-		while (tch != NULL && (IS_NPC(tch) || GET_IDNUM(tch) != ch->get_answer_id()))
-			tch = tch->get_next();
+		bool found = false;
+		for (const auto i : character_list)
+		{
+			if (!IS_NPC(i)
+				&& GET_IDNUM(i) == ch->get_answer_id())
+			{
+				if (is_tell_ok(ch, i.get()))
+				{
+					perform_tell(ch, i.get(), argument);
+				}
 
-		if (tch == NULL)
+				found = true;
+
+				break;
+			}
+		}
+
+		if (!found)
+		{
 			send_to_char("Этого игрока уже нет в игре.\r\n", ch);
-		else if (is_tell_ok(ch, tch))
-			perform_tell(ch, tch, argument);
+		}
 	}
 }
 
@@ -623,11 +634,17 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (IS_GRGOD(ch))
 			{
 				for (d = descriptor_list; d; d = d->next)
+				{
 					if (STATE(d) == CON_PLAYING && d->character)
-						act(buf, FALSE, ch, 0, d->character, TO_VICT);
+					{
+						act(buf, FALSE, ch, 0, d->character.get(), TO_VICT);
+					}
+				}
 			}
 			else
+			{
 				send_to_char("Это доступно только БОГАМ!\r\n", ch);
+			}
 			return;
 		}
 		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != NULL)
@@ -911,25 +928,32 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				!PLR_FLAGGED(i->character, PLR_WRITING) &&
 				!ROOM_FLAGGED(i->character->in_room, ROOM_SOUNDPROOF) && GET_POS(i->character) > POS_SLEEPING)
 		{
-			if (ignores(i->character, ch, ign_flag))
-				continue;
-			if (subcmd == SCMD_SHOUT &&
-					((world[ch->in_room]->zone != world[i->character->in_room]->zone) || !AWAKE(i->character)))
-				continue;
-
-			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(color_on, i->character);
-			act(out_str, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
-			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(KNRM, i->character);
-
-			std::string text = Remember::format_gossip(ch, i->character, subcmd, argument);
-			//пока закрыл это дело, ибо в лоб не получается сделать запоминание
-/*			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP || subcmd == SCMD_HOLLER))
+			if (ignores(i->character.get(), ch, ign_flag))
 			{
-				i->character->remember_add(buf1, Remember::GOSSIP);
+				continue;
 			}
-*/			i->character->remember_add(text, Remember::ALL);
+
+			if (subcmd == SCMD_SHOUT
+				&& ((world[ch->in_room]->zone != world[i->character->in_room]->zone)
+					|| !AWAKE(i->character)))
+			{
+				continue;
+			}
+
+			if (COLOR_LEV(i->character) >= C_NRM)
+			{
+				send_to_char(color_on, i->character.get());
+			}
+
+			act(out_str, FALSE, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
+			if (COLOR_LEV(i->character) >= C_NRM)
+			{
+				send_to_char(KNRM, i->character.get());
+			}
+
+			std::string text = Remember::format_gossip(ch, i->character.get(), subcmd, argument);
+
+			i->character->remember_add(text, Remember::ALL);
 		}
 	}
 }
@@ -950,14 +974,22 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next)
 	{
-		if (STATE(i) == CON_PLAYING && i->character &&
-				!PLR_FLAGGED(i->character, PLR_WRITING) && GET_POS(i->character) > POS_SLEEPING)
+		if (STATE(i) == CON_PLAYING
+			&& i->character
+			&& !PLR_FLAGGED(i->character, PLR_WRITING)
+			&& GET_POS(i->character) > POS_SLEEPING)
 		{
 			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(KIYEL, i->character);
-			act(buf, FALSE, ch, 0, i->character, TO_VICT | TO_SLEEP | CHECK_DEAF);
+			{
+				send_to_char(KIYEL, i->character.get());
+			}
+
+			act(buf, FALSE, ch, 0, i->character.get(), TO_VICT | TO_SLEEP | CHECK_DEAF);
+			
 			if (COLOR_LEV(i->character) >= C_NRM)
-				send_to_char(KNRM, i->character);
+			{
+				send_to_char(KNRM, i->character.get());
+			}
 		}
 	}
 }
@@ -1045,11 +1077,16 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) == CON_PLAYING) 
-		     if ((IS_IMMORTAL(i->character) || (GET_GOD_FLAG(i->character, GF_DEMIGOD) && (GET_LEVEL(ch) < 6))) && (i->character != ch))
+		{
+			if ((IS_IMMORTAL(i->character.get())
+					|| (GET_GOD_FLAG(i->character.get(), GF_DEMIGOD)
+						&& (GET_LEVEL(ch) < 6)))
+				&& (i->character.get() != ch))
 			{
-				send_to_char(buf, i->character);
+				send_to_char(buf, i->character.get());
 				i->character->remember_add(buf, Remember::ALL);
 			}
+		}
 	}
 }
 
@@ -1117,9 +1154,9 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			&& (GET_LEVEL(i->character) < LVL_IMMORT || IS_IMPL(i->character))
 			&& PRF_FLAGGED(i->character, PRF_OFFTOP_MODE)
 			&& !PRF_FLAGGED(i->character, PRF_IGVA_PRONA)
-			&& !ignores(i->character, ch, IGNORE_OFFTOP))
+			&& !ignores(i->character.get(), ch, IGNORE_OFFTOP))
 		{
-			send_to_char(i->character, "%s%s%s", CCCYN(i->character, C_NRM), buf, CCNRM(i->character, C_NRM));
+			send_to_char(i->character.get(), "%s%s%s", CCCYN(i->character, C_NRM), buf, CCNRM(i->character, C_NRM));
 			i->character->remember_add(buf1, Remember::ALL);
 		}
 	}
@@ -1137,15 +1174,16 @@ void ignore_usage(CHAR_DATA * ch)
 
 int ign_find_id(char *name, long *id)
 {
-	int i;
-
-	for (i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
-		if (!str_cmp(name, player_table[i].name))
+		if (!str_cmp(name, player_table[i].name()))
 		{
 			if (player_table[i].level >= LVL_IMMORT)
+			{
 				return 0;
-			*id = player_table[i].id;
+			}
+
+			*id = player_table[i].id();
 			return 1;
 		}
 	}
@@ -1154,11 +1192,14 @@ int ign_find_id(char *name, long *id)
 
 const char * ign_find_name(long id)
 {
-	int i;
+	for (std::size_t i = 0; i < player_table.size(); i++)
+	{
+		if (id == player_table[i].id())
+		{
+			return player_table[i].name();
+		}
+	}
 
-	for (i = 0; i <= top_of_p_table; i++)
-		if (id == player_table[i].id)
-			return player_table[i].name;
 	return "кто-то";
 }
 

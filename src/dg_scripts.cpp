@@ -10,6 +10,7 @@
 
 #include "dg_scripts.h"
 
+#include "world.characters.hpp"
 #include "find.obj.id.by.vnum.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
@@ -91,8 +92,6 @@ const char * spell_count(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
 const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 void reset_zone(int znum);
-
-void free_script(SCRIPT_DATA * sc);
 
 void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mpurge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -180,9 +179,7 @@ GlobalTriggersStorage trigger_list;	// all attached triggers
 
 int trgvar_in_room(int vnum)
 {
-	int rnum = real_room(vnum);
-	int i = 0;
-	CHAR_DATA *ch;
+	const int rnum = real_room(vnum);
 
 	if (NOWHERE == rnum)
 	{
@@ -190,10 +187,7 @@ int trgvar_in_room(int vnum)
 		return (-1);
 	}
 
-	for (ch = world[rnum]->people; ch != NULL; ch = ch->next_in_room)
-		i++;
-
-	return i;
+	return static_cast<int>(world[rnum]->people.size());
 };
 
 OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA * list)
@@ -292,9 +286,8 @@ const char * get_objs_in_world(OBJ_DATA * obj)
 int gcount_char_vnum(long n)
 {
 	int count = 0;
-	CHAR_DATA *ch;
 
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (n == GET_MOB_VNUM(ch))
 		{
@@ -372,9 +365,8 @@ ROOM_DATA *find_room(long n)
 */
 int find_char_vnum(long n, int num = 0)
 {
-	CHAR_DATA *ch;
 	int count = 0;
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE)
 		{
@@ -429,13 +421,13 @@ CHAR_DATA *get_char(char *name, int/* vnum*/)
 	}
 	else
 	{
-		for (i = character_list; i; i = i->get_next())
+		for (const auto i : character_list)
 		{
 			if (isname(name, i->get_pc_name())
 				&& (IS_NPC(i)
 					|| !GET_INVIS_LEV(i)))
 			{
-				return i;
+				return i.get();
 			}
 		}
 	}
@@ -517,13 +509,13 @@ CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name)
 			return obj->get_worn_by();
 		}
 
-		for (ch = character_list; ch; ch = ch->get_next())
+		for (const auto ch : character_list)
 		{
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch)))
 			{
-				return ch;
+				return ch.get();
 			}
 		}
 	}
@@ -559,7 +551,7 @@ CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name)
 	}
 	else
 	{
-		for (ch = room->people; ch; ch = ch->next_in_room)
+		for (const auto ch : room->people)
 		{
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
@@ -569,13 +561,13 @@ CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name)
 			}
 		}
 
-		for (ch = character_list; ch; ch = ch->get_next())
+		for (const auto ch : character_list)
 		{
 			if (isname(name, ch->get_pc_name())
 				&& (IS_NPC(ch)
 					|| !GET_INVIS_LEV(ch)))
 			{
-				return ch;
+				return ch.get();
 			}
 		}
 	}
@@ -733,20 +725,20 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 // checks every PLUSE_SCRIPT for random triggers
 void script_trigger_check(void)
 {
-	CHAR_DATA *ch;
 	ROOM_DATA *room = NULL;
 	int nr;
 	SCRIPT_DATA *sc;
 
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (SCRIPT(ch))
 		{
 			sc = SCRIPT(ch);
 
-			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM) &&
-					(!is_empty(world[ch->in_room]->zone) || IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
-				random_mtrigger(ch);
+			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM)
+				&& (!is_empty(world[ch->in_room]->zone)
+					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
+				random_mtrigger(ch.get());
 		}
 	}
 
@@ -787,12 +779,11 @@ void script_trigger_check(void)
 // проверка каждый час на триги изменении времени
 void script_timechange_trigger_check(const int time)
 {
-	CHAR_DATA *ch;
 	ROOM_DATA *room = NULL;
 	int nr;
 	SCRIPT_DATA *sc;
 
-	for (ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (SCRIPT(ch))
 		{
@@ -802,7 +793,7 @@ void script_timechange_trigger_check(const int time)
 				&& (!is_empty(world[ch->in_room]->zone)
 					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
 			{
-				timechange_mtrigger(ch, time);
+				timechange_mtrigger(ch.get(), time);
 			}
 		}
 	}
@@ -2137,55 +2128,80 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				if (type == MOB_TRIGGER)
 				{
 					ch = (CHAR_DATA *) go;
-					for (c = world[ch->in_room]->people; c; c = c->next_in_room)
-						if (!PRF_FLAGGED(c, PRF_NOHASSLE) && (c != ch)
-								&& CAN_SEE(ch, c)
-								&& ((IS_NPC(c) && *field != 'p')
-									|| (!IS_NPC(c) && *field != 'n')))
+					for (const auto c : world[ch->in_room]->people)
+					{
+						if (!PRF_FLAGGED(c, PRF_NOHASSLE)
+							&& (c != ch)
+							&& CAN_SEE(ch, c)
+							&& ((IS_NPC(c) && *field != 'p')
+								|| (!IS_NPC(c) && *field != 'n')))
 						{
 							if (!number(0, count))
+							{
 								rndm = c;
+							}
+
 							count++;
 						}
+					}
 				}
 				else if (type == OBJ_TRIGGER)
 				{
-					for (c = world[obj_room((OBJ_DATA *) go)]->people; c;
-							c = c->next_in_room)
-						if ((IS_NPC(c) && *field != 'p') ||
-								(!IS_NPC(c) && *field != 'n' &&
-								 !PRF_FLAGGED(c, PRF_NOHASSLE)
-								 && !GET_INVIS_LEV(c)))
+					for (const auto c : world[obj_room((OBJ_DATA *) go)]->people)
+					{
+						if ((IS_NPC(c) && *field != 'p')
+							|| (!IS_NPC(c)
+								&& *field != 'n'
+								&& !PRF_FLAGGED(c, PRF_NOHASSLE)
+								&& !GET_INVIS_LEV(c)))
 						{
 							if (!number(0, count))
+							{
 								rndm = c;
+							}
+
 							count++;
 						}
+					}
 				}
 				else if (type == WLD_TRIGGER)
 				{
-					for (c = ((ROOM_DATA *) go)->people; c; c = c->next_in_room)
-						if ((IS_NPC(c) && *field != 'p') ||
-								(!IS_NPC(c) && *field != 'n' &&
-								 !PRF_FLAGGED(c, PRF_NOHASSLE)
-								 && !GET_INVIS_LEV(c)))
+					for (const auto c : ((ROOM_DATA *) go)->people)
+					{
+						if ((IS_NPC(c) && *field != 'p')
+							|| (!IS_NPC(c)
+								&& *field != 'n'
+								&& !PRF_FLAGGED(c, PRF_NOHASSLE)
+								&& !GET_INVIS_LEV(c)))
 						{
 							if (!number(0, count))
+							{
 								rndm = c;
+							}
+
 							count++;
 						}
+					}
 				}
+
 				if (rndm)
+				{
 					sprintf(str, "%c%ld", UID_CHAR, GET_ID(rndm));
+				}
 			}
 			else
 			{
 				if (!str_cmp(field, "num"))
+				{
 					num = atoi(subfield);
+				}
 				else
+				{
 					num = atoi(field);
+				}
 				sprintf(str, "%d", (num > 0) ? number(1, num) : 0);
 			}
+
 			return;
 		}
 		else if (!str_cmp(var, "array"))
@@ -2956,7 +2972,6 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "varexist") || !str_cmp(field, "varexists"))
 		{
-//           struct trig_var_data *vd;
 			strcpy(str, "0");
 			if (SCRIPT(c))
 			{
@@ -2968,10 +2983,27 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "next_in_room"))
 		{
-			if (c->next_in_room)
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(c->next_in_room));
+			const auto room = world[c->in_room];
+			auto people_i = std::find(room->people.begin(), room->people.end(), c);
+
+			CHAR_DATA* next = nullptr;
+			if (people_i != room->people.end())
+			{
+				++people_i;
+				if (people_i != room->people.end())
+				{
+					next = *people_i;
+				}
+			}
+
+			if (next)
+			{
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(next));
+			}
 			else
+			{
 				strcpy(str, "");
+			}
 		}
 		else if (!str_cmp(field, "position"))
 		{
@@ -3077,13 +3109,15 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "people"))
 		{
-			if (world[IN_ROOM(c)]->people)
+			const auto first_char = world[IN_ROOM(c)]->first_character();
+			if (first_char)
 			{
-				sprintf(str, "%c%ld", UID_CHAR,
-						GET_ID(world[IN_ROOM(c)]->people));
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(first_char));
 			}
 			else
+			{
 				strcpy(str, "");
+			}
 		}
 //Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
 		else if (!str_cmp(field, "objs"))
@@ -3118,24 +3152,32 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 
 			size_t str_length = strlen(str);
-			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
+			for (const auto rndm : world[inroom]->people)
 			{
 				if (!CAN_SEE(c, rndm))
+				{
 					continue;
-				if ((*field == 'a') ||
-						(!IS_NPC(rndm) && *field != 'n' && rndm->desc) ||
-						(IS_NPC(rndm) && IS_CHARMED(rndm)
-						 && *field == 'c') || (IS_NPC(rndm)
-											   && !IS_CHARMED(rndm)
-											   && *field == 'n'))
+				}
+
+				if ((*field == 'a')
+					|| (!IS_NPC(rndm)
+						&& *field != 'n'
+						&& rndm->desc)
+					|| (IS_NPC(rndm)
+						&& IS_CHARMED(rndm)
+						&& *field == 'c')
+					|| (IS_NPC(rndm)
+						&& !IS_CHARMED(rndm)
+						&& *field == 'n'))
 				   {
-					int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR,
-							GET_ID(rndm));
+					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
 					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
-					} else {
+					}
+					else
+					{
 						break; // too many characters
 					}
 				}
@@ -3490,19 +3532,26 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 
 			size_t str_length = strlen(str);
-			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
+			for (const auto rndm : world[inroom]->people)
 			{
-				if ((*field == 'a') ||
-						(!IS_NPC(rndm) && *field != 'n') ||
-						(IS_NPC(rndm) && IS_CHARMED(rndm) && *field == 'c') ||
-						(IS_NPC(rndm) && !IS_CHARMED(rndm) && *field == 'n'))
+				if ((*field == 'a')
+					|| (!IS_NPC(rndm)
+						&& *field != 'n')
+					|| (IS_NPC(rndm)
+						&& IS_CHARMED(rndm)
+						&& *field == 'c')
+					|| (IS_NPC(rndm)
+						&& !IS_CHARMED(rndm)
+						&& *field == 'n'))
 				{
 					int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
 					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
-					} else {
+					}
+					else
+					{
 						break; // too many characters
 					}
 				}
@@ -3664,9 +3713,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "people"))
 		{
-			if (r->people)
+			const auto first_char = r->first_character();
+			if (first_char)
 			{
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(r->people));
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(first_char));
 			}
 		}
 		else if (!str_cmp(field, "char")
@@ -3685,19 +3735,26 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 
 			size_t str_length = strlen(str);
-			for (rndm = world[inroom]->people; rndm; rndm = rndm->next_in_room)
+			for (const auto rndm : world[inroom]->people)
 			{
 				if ((*field == 'a')
-						|| (!IS_NPC(rndm) && *field != 'n')
-						|| (IS_NPC(rndm) && IS_CHARMED(rndm) && *field == 'c')
-						|| (IS_NPC(rndm) && !IS_CHARMED(rndm) && *field == 'n'))
+					|| (!IS_NPC(rndm)
+						&& *field != 'n')
+					|| (IS_NPC(rndm)
+						&& IS_CHARMED(rndm)
+						&& *field == 'c')
+					|| (IS_NPC(rndm)
+						&& !IS_CHARMED(rndm)
+						&& *field == 'n'))
 				{
 					int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
 					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
-					} else {
+					}
+					else
+					{
 						break; // too many characters
 					}
 				}
@@ -3767,7 +3824,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 	}
 	else if (text_processed(field, subfield, vd, str))
+	{
 		return;
+	}
 }
 
 // substitutes any variables into line and returns it as buf
@@ -5100,7 +5159,6 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
  */
 void charuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 {
-	CHAR_DATA *tch;
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
 	char who[MAX_INPUT_LENGTH], uid[MAX_INPUT_LENGTH];
 	char uid_type = UID_CHAR;
@@ -5123,21 +5181,21 @@ void charuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 		return;
 	}
 
-	for (tch = character_list; tch; tch = tch->get_next())
+	for (const auto tch : character_list)
 	{
-		if (IS_NPC(tch))
+		if (IS_NPC(tch)
+			|| !HERE(tch)
+			|| (*who
+				&& !isname(who, GET_NAME(tch))))
+		{
 			continue;
-
-		if (!HERE(tch))
-			continue;
-
-		if (*who && !isname(who, GET_NAME(tch)))
-			continue;
+		}
 
 		if (IN_ROOM(tch) != NOWHERE)
+		{
 			result = GET_ID(tch);
+		}
 	}
-
 
 	if (result <= -1)
 	{
@@ -5155,7 +5213,7 @@ void charuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 bool find_all_char_vnum(long n, char *str)
 {
 	int count = 0;
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		if (n == GET_MOB_VNUM(ch) && ch->in_room != NOWHERE && count < 25)
 		{
@@ -5163,6 +5221,7 @@ bool find_all_char_vnum(long n, char *str)
 			++count;
 		}
 	}
+
 	return count ? true : false;
 }
 

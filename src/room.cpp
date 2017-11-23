@@ -42,4 +42,11 @@ ROOM_DATA::ROOM_DATA()
 	memset(&add_property, 0, sizeof(room_property_data));
 }
 
+CHAR_DATA* ROOM_DATA::first_character() const
+{
+	CHAR_DATA* first = people.empty() ? nullptr : *people.begin();
+
+	return first;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

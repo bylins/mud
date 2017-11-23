@@ -14,6 +14,7 @@
 
 #include "utils.h"
 
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
@@ -103,11 +104,11 @@ const char *ACTNULL = "<NULL>";
 // return char with UID n
 CHAR_DATA *find_char(long n)
 {
-	for (CHAR_DATA* ch = character_list; ch; ch = ch->get_next())
+	for (const auto& ch : character_list)
 	{
 		if (GET_ID(ch) == n)
 		{
-			return ch;
+			return ch.get();
 		}
 	}
 
@@ -1006,13 +1007,15 @@ int get_filename(const char *orig_name, char *filename, int mode)
 int num_pc_in_room(ROOM_DATA * room)
 {
 	int i = 0;
-	CHAR_DATA *ch;
-
-	for (ch = room->people; ch != NULL; ch = ch->next_in_room)
+	for (const auto ch : room->people)
+	{
 		if (!IS_NPC(ch))
+		{
 			i++;
+		}
+	}
 
-	return (i);
+	return i;
 }
 
 /*
@@ -1447,9 +1450,10 @@ bool is_rent(room_rnum room)
 		}
 	}
 	// комната без рентера в ней
-	for (CHAR_DATA *ch = world[room]->people; ch; ch = ch->next_in_room)
+	for (const auto ch : world[room]->people)
 	{
-		if (IS_NPC(ch) && IS_RENTKEEPER(ch))
+		if (IS_NPC(ch)
+			&& IS_RENTKEEPER(ch))
 		{
 			return true;
 		}
@@ -1460,10 +1464,14 @@ bool is_rent(room_rnum room)
 // Проверка является комната почтой.
 int is_post(room_rnum room)
 {
-	CHAR_DATA *ch;
-	for (ch = world[room]->people; ch; ch = ch->next_in_room)
-		if (IS_NPC(ch) && IS_POSTKEEPER(ch))
+	for (const auto ch : world[room]->people)
+	{
+		if (IS_NPC(ch)
+			&& IS_POSTKEEPER(ch))
+		{
 			return (TRUE);
+		}
+	}
 	return (FALSE);
 
 }
@@ -1775,7 +1783,7 @@ bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj)
 }
 
 // shapirus: проверка, игнорирет ли чар who чара whom
-bool ignores(CHAR_DATA * who, CHAR_DATA * whom, unsigned int flag)
+bool ignores(CHAR_DATA* who, CHAR_DATA * whom, unsigned int flag)
 {
 	if (IS_NPC(who)) return false;
 

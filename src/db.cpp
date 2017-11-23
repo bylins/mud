@@ -16,6 +16,7 @@
 
 #include "db.h"
 
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
 #include "logger.hpp"
@@ -32,6 +33,7 @@
 #include "corpse.hpp"
 #include "deathtrap.hpp"
 #include "depot.hpp"
+#include "dg_db_scripts.hpp"
 #include "dg_scripts.h"
 #include "ext_money.hpp"
 #include "fight.h"
@@ -92,11 +94,9 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
-CRooms world;
+Rooms world;
 
 room_rnum top_of_world = 0;	// ref to top element of world
-
-CHAR_DATA *character_list = NULL;	// global linked list of chars
 
 INDEX_DATA **trig_index;	// index table for triggers
 int top_of_trigt = 0;		// top of trigger index table
@@ -112,34 +112,11 @@ struct zone_data *zone_table;	// zone table
 zone_rnum top_of_zone_table = 0;	// top element of zone tab
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-struct player_index_element *player_table = NULL;	// index to plr file
+PlayersIndex player_table;	// index to plr file
 
-bool player_exists(const long id)
-{
-	if (id == -1)
-	{
-		return true;
-	}
-
-	if (0 == top_of_p_table)
-	{
-		return false;
-	}
-
-	for (auto i = 0; i <= top_of_p_table; i++)
-	{
-		if (id == player_table[i].id)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
+bool player_exists(const long id) { return player_table.player_exists(id); }
 
 FILE *player_fl = NULL;		// file desc of player file
-int top_of_p_table = 0;		// ref to top of table
-int top_of_p_file = 0;		// ref of size of p file
 long top_idnum = 0;		// highest idnum in use
 
 int circle_restrict = 0;	// level of game restriction
@@ -169,7 +146,6 @@ struct reset_q_type reset_q;	// queue of zones to be reset
 const FLAG_DATA clear_flags;
 
 struct portals_list_type *portals_list;	// Список проталов для townportal
-int now_entrycount = FALSE;
 
 extern int number_of_social_messages;
 extern int number_of_social_commands;
@@ -228,8 +204,8 @@ void Read_Invalid_List(void);
 int find_name(const char *name);
 int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
-int Crash_read_timer(int index, int temp);
-void Crash_clear_objects(int index);
+int Crash_read_timer(const std::size_t index, int temp);
+void Crash_clear_objects(const std::size_t index);
 void extract_mob(CHAR_DATA * ch);
 //F@N|
 int exchange_database_load(void);
@@ -237,7 +213,6 @@ int exchange_database_load(void);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
-int calc_loadroom(CHAR_DATA * ch, int bplace_mode = BIRTH_PLACE_UNDEFINED);
 extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
@@ -2247,7 +2222,7 @@ void set_zone_town()
 		// зона считается городом, если в ней есть рентер, банкир и почтовик
 		for (int k = rnum_start; k <= rnum_end; ++k)
 		{
-			for (CHAR_DATA *ch = world[k]->people; ch; ch = ch->next_in_room)
+			for (const auto ch : world[k]->people)
 			{
 				if (IS_RENTKEEPER(ch))
 				{
@@ -2263,6 +2238,7 @@ void set_zone_town()
 				}
 			}
 		}
+
 		if (rent_flag && bank_flag && post_flag)
 		{
 			zone_table[i].is_town = true;
@@ -2558,10 +2534,9 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading rented objects info");
 	log("Booting rented objects info");
-	zone_rnum i;
-	for (i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
-		(player_table + i)->timer = NULL;
+		player_table[i].timer = NULL;
 		Crash_read_timer(i, FALSE);
 	}
 
@@ -2659,7 +2634,7 @@ void boot_db(void)
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
-	for (i = 0; i <= top_of_zone_table; i++)
+	for (int i = 0; i <= top_of_zone_table; i++)
 	{
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
 			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
@@ -3720,9 +3695,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script.reset(new OBJ_DATA::triggers_list_t());
-	mob->set_next(character_list);
-	character_list = mob;
-//	CharacterAlias::add(mob);
+	character_list.push_front(mob);
 
 	if (!mob->points.max_hit)
 	{
@@ -4197,12 +4170,10 @@ void paste_obj(OBJ_DATA *obj, room_rnum room)
 
 void paste_mobiles()
 {
-	CHAR_DATA *ch_next;
-	for (CHAR_DATA *ch = character_list; ch; ch = ch_next)
+	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr& character)
 	{
-		ch_next = ch->get_next();
-		paste_mob(ch, ch->in_room);
-	}
+		paste_mob(character.get(), character->in_room);
+	});
 
 	world_objects.foreach_on_copy([](const OBJ_DATA::shared_ptr& object)
 	{
@@ -4212,10 +4183,9 @@ void paste_mobiles()
 
 void paste_on_reset(ROOM_DATA *to_room)
 {
-	CHAR_DATA *ch_next;
-	for (CHAR_DATA *ch = to_room->people; ch != NULL; ch = ch_next)
+	const auto people_copy = to_room->people;
+	for (const auto ch : people_copy)
 	{
-		ch_next = ch->next_in_room;
 		paste_mob(ch, ch->in_room);
 	}
 
@@ -4414,16 +4384,22 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 		//поскольку единственным доступным способом получить всех мобов одного внума является
 		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
-		for (CHAR_DATA *ch = character_list; ch; ch=ch->get_next())
+		for (const auto ch : character_list)
 		{
 			if (ch->nr > 0 && list.find(mob_index[ch->nr].vnum) != list.end())
 			{
 				if (!SCRIPT(ch))
+				{
 					CREATE(SCRIPT(ch), 1);
+				}
+
 				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
 						it != list[mob_index[ch->nr].vnum].end(); ++it)
+				{
 					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
-				Celebrates::add_mob_to_attach_list(ch->id, ch);
+				}
+
+				Celebrates::add_mob_to_attach_list(ch->id, ch.get());
 			}
 		}
 	}
@@ -4489,7 +4465,7 @@ void reset_zone(zone_rnum zone)
 {
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
-	CHAR_DATA *mob = NULL, *leader = NULL, *ch;
+	CHAR_DATA *mob = NULL, *leader = NULL;
 	OBJ_DATA *obj_to, *obj_room;
 	int rnum_start, rnum_stop;
 	CHAR_DATA *tmob = NULL;	// for trigger assignment
@@ -4522,7 +4498,7 @@ void reset_zone(zone_rnum zone)
 				// 'M' <flag> <mob_vnum> <max_in_world> <room_vnum> <max_in_room|-1>
 				mob = NULL;	//Добавлено Ладником
 				if (mob_index[ZCMD.arg1].number < ZCMD.arg2 &&
-						(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
+					(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
 				{
 					mob = read_mobile(ZCMD.arg1, REAL);
 					char_to_room(mob, ZCMD.arg3);
@@ -4539,7 +4515,7 @@ void reset_zone(zone_rnum zone)
 				leader = NULL;
 				if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world)
 				{
-					for (ch = world[ZCMD.arg1]->people; ch && !leader; ch = ch->next_in_room)
+					for (const auto ch : world[ZCMD.arg1]->people)
 					{
 						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg2)
 						{
@@ -4547,42 +4523,46 @@ void reset_zone(zone_rnum zone)
 						}
 					}
 
-					for (ch = world[ZCMD.arg1]->people; ch && leader; ch = ch->next_in_room)
+					if (leader)
 					{
-						if (IS_NPC(ch)
-							&& GET_MOB_RNUM(ch) == ZCMD.arg3
-							&& leader != ch
-							&& !ch->makes_loop(leader))
+						for (const auto ch : world[ZCMD.arg1]->people)
 						{
-							if (ch->has_master())
+							if (IS_NPC(ch)
+								&& GET_MOB_RNUM(ch) == ZCMD.arg3
+								&& leader != ch
+								&& !ch->makes_loop(leader))
 							{
-								stop_follower(ch, SF_EMPTY);
+								if (ch->has_master())
+								{
+									stop_follower(ch, SF_EMPTY);
+								}
+
+								leader->add_follower(ch);
+
+								curr_state = 1;
 							}
-
-							leader->add_follower(ch);
-
-							curr_state = 1;
 						}
 					}
 				}
 				break;
 
 			case 'Q':
-				// delete all mobiles
-				// 'Q' <flag> <mob_vnum>
-				for (ch = character_list; ch; ch = leader)
 				{
-					leader = ch->get_next();
-					// Карачун. Поднятые мобы не должны уничтожаться.
-					if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
+					const bool erased = false;
+					character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& ch)
 					{
-						// Карачун. Мобы должны оставлять стафф.
-						// Тока чужой стаф, а не свой же при резете зоны. -- Krodo
-						extract_char(ch, FALSE, 1);
-						//extract_mob(ch);
+						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
+						{
+							extract_char(ch.get(), FALSE);
+						}
+					});
+
+					if (erased)
+					{
 						curr_state = 1;
 					}
 				}
+
 				tobj = NULL;
 				tmob = NULL;
 				break;
@@ -5002,8 +4982,7 @@ int is_empty(zone_rnum zone_nr)
 {
 	DESCRIPTOR_DATA *i;
 	int rnum_start, rnum_stop;
-	CHAR_DATA *c;
-	//char *buf_tmp;
+
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
@@ -5019,28 +4998,34 @@ int is_empty(zone_rnum zone_nr)
 
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop))
+	{
 		return 1;	// в зоне нет комнат :)
+	}
 
 	for (; rnum_start <= rnum_stop; rnum_start++)
 	{
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
-		for (c = world[rnum_start]->people; c; c = c->next_in_room)
+		for (const auto c : world[rnum_start]->people)
+		{
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
 			{
 				return 0;
 			}
+		}
 	}
 
 // теперь проверю всех товарищей в void комнате STRANGE_ROOM
-	for (c = world[STRANGE_ROOM]->people; c; c = c->next_in_room)
+	for (const auto c : world[STRANGE_ROOM]->people)
 	{
-		int was = c->get_was_in_room();
-		if (was == NOWHERE)
+		const int was = c->get_was_in_room();
+
+		if (was == NOWHERE
+			|| GET_LEVEL(c) >= LVL_IMMORT
+			|| world[was]->zone != zone_nr)
+		{
 			continue;
-		if (GET_LEVEL(c) >= LVL_IMMORT)
-			continue;
-		if (world[was]->zone != zone_nr)
-			continue;
+		}
+
 		return 0;
 	}
 
@@ -5060,12 +5045,16 @@ int is_empty(zone_rnum zone_nr)
 
 int mobs_in_room(int m_num, int r_num)
 {
-	CHAR_DATA *ch;
 	int count = 0;
 
-	for (ch = world[r_num]->people; ch; ch = ch->next_in_room)
-		if (m_num == GET_MOB_RNUM(ch) && !MOB_FLAGGED(ch, MOB_RESURRECTED))
+	for (const auto ch : world[r_num]->people)
+	{
+		if (m_num == GET_MOB_RNUM(ch)
+			&& !MOB_FLAGGED(ch, MOB_RESURRECTED))
+		{
 			count++;
+		}
+	}
 
 	return count;
 }
@@ -5077,17 +5066,15 @@ int mobs_in_room(int m_num, int r_num)
 
 long cmp_ptable_by_name(char *name, int len)
 {
-	int i;
-
 	len = MIN(len, static_cast<int>(strlen(name)));
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): I am not sure but I guess that linear search is not the best solution here. TODO: make map helper (MAPHELPER). */
-	for (i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
-		const char* pname = player_table[i].name;
+		const char* pname = player_table[i].name();
 		if (!strn_cmp(pname, arg, MIN(len, static_cast<int>(strlen(pname)))))
 		{
-			return i;
+			return static_cast<long>(i);
 		}
 	}
 	return -1;
@@ -5097,16 +5084,14 @@ long cmp_ptable_by_name(char *name, int len)
 
 long get_ptable_by_name(const char *name)
 {
-	int i;
-
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
-		const char* pname = player_table[i].name;
+		const char* pname = player_table[i].name();
 		if (!str_cmp(pname, arg))
 		{
-			return (i);
+			return static_cast<long>(i);
 		}
 	}
 	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
@@ -5117,28 +5102,25 @@ long get_ptable_by_name(const char *name)
 long get_ptable_by_unique(long unique)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].unique == unique)
 		{
-			return i;
+			return static_cast<long>(i);
 		}
 	}
 	return 0;
 }
 
-
 long get_id_by_name(char *name)
 {
-	int i;
-
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i< player_table.size(); i++)
 	{
-		if (!str_cmp(player_table[i].name, arg))
+		if (!str_cmp(player_table[i].name(), arg))
 		{
-			return (player_table[i].id);
+			return (player_table[i].id());
 		}
 	}
 
@@ -5148,11 +5130,11 @@ long get_id_by_name(char *name)
 long get_id_by_uid(long uid)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].unique == uid)
 		{
-			return player_table[i].id;
+			return player_table[i].id();
 		}
 	}
 	return -1;
@@ -5161,9 +5143,9 @@ long get_id_by_uid(long uid)
 int get_uid_by_id(int id)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
-		if (player_table[i].id == id)
+		if (player_table[i].id() == id)
 		{
 			return player_table[i].unique;
 		}
@@ -5174,24 +5156,24 @@ int get_uid_by_id(int id)
 const char *get_name_by_id(long id)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
-		if (player_table[i].id == id)
+		if (player_table[i].id() == id)
 		{
-			return player_table[i].name;
+			return player_table[i].name();
 		}
 	}
 	return "";
 }
 
-char* get_name_by_unique(int unique)
+const char* get_name_by_unique(int unique)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].unique == unique)
 		{
-			return player_table[i].name;
+			return player_table[i].name();
 		}
 	}
 	return 0;
@@ -5202,7 +5184,7 @@ int get_level_by_unique(long unique)
 	int level = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i <= top_of_p_table; ++i)
+	for (std::size_t i = 0; i < player_table.size(); ++i)
 	{
 		if (player_table[i].unique == unique)
 		{
@@ -5217,7 +5199,7 @@ long get_lastlogon_by_unique(long unique)
 	long time = 0;
 
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i <= top_of_p_table; ++i)
+	for (std::size_t i = 0; i < player_table.size(); ++i)
 	{
 		if (player_table[i].unique == unique)
 		{
@@ -5230,7 +5212,7 @@ long get_lastlogon_by_unique(long unique)
 int correct_unique(int unique)
 {
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (int i = 0; i <= top_of_p_table; i++)
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		if (player_table[i].unique == unique)
 		{
@@ -5239,18 +5221,6 @@ int correct_unique(int unique)
 	}
 
 	return FALSE;
-}
-
-int create_unique(void)
-{
-	int unique;
-
-	do
-	{
-		unique = (number(0, 64) << 24) + (number(0, 255) << 16) + (number(0, 255) << 8) + (number(0, 255));
-	}
-	while (correct_unique(unique));
-	return (unique);
 }
 
 void recreate_saveinfo(const size_t number)
@@ -5274,11 +5244,9 @@ void set_god_skills(CHAR_DATA *ch)
 #define NUM_OF_SAVE_THROWS	5
 
 // по умолчанию reboot = 0 (пользуется только при ребуте)
-int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
+int load_char(const char *name, CHAR_DATA * char_element, bool reboot, const bool find_id)
 {
-	int player_i;
-
-	player_i = char_element->load_char_ascii(name, reboot);
+	const auto player_i = char_element->load_char_ascii(name, reboot, find_id);
 	if (player_i > -1)
 	{
 		char_element->set_pfilepos(player_i);
@@ -5286,51 +5254,9 @@ int load_char(const char *name, CHAR_DATA * char_element, bool reboot)
 	return (player_i);
 }
 
-
-/*
- * Create a new entry in the in-memory index table for the player file.
- * If the name already exists, by overwriting a deleted character, then
- * we re-use the old position.
- */
-int create_entry(const char *name)
-{
-	int i, pos;
-
-	if (top_of_p_table == -1)  	// no table
-	{
-		CREATE(player_table, 1);
-		pos = top_of_p_table = 0;
-	}
-	else if ((pos = get_ptable_by_name(name)) == -1)  	// new name
-	{
-		i = ++top_of_p_table + 1;
-		RECREATE(player_table, i);
-		pos = top_of_p_table;
-	}
-
-	CREATE(player_table[pos].name, strlen(name) + 1);
-
-	// copy lowercase equivalent of name to table field
-	for (i = 0, player_table[pos].name[i] = '\0'; (player_table[pos].name[i] = LOWER(name[i])); i++);
-	// create new save activity
-	player_table[pos].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
-	player_table[pos].timer = NULL;
-	player_table[pos].unique = -1;
-
-	return (pos);
-}
-
-
-
 /************************************************************************
 *  funcs of a (more or less) general utility nature                     *
 ************************************************************************/
-
-// release memory allocated for an obj struct
-void free_obj(OBJ_DATA* obj)
-{
-	obj->purge();
-}
 
 /*
  * Steps:
@@ -5420,112 +5346,6 @@ void clear_char_skills(CHAR_DATA * ch)
 	for (i = 0; i < MAX_SPELLS + 1; i++)
 		ch->real_abils.SplMem[i] = 0;
 	ch->clear_skills();
-}
-
-// initialize a new character only if class is set
-void init_char(CHAR_DATA * ch)
-{
-	int i;
-
-#ifdef TEST_BUILD
-	if (top_of_p_table == 0)
-	{
-		// При собирании через make test первый чар в маде становится иммом 34
-		ch->set_level(LVL_IMPL);
-	}
-#endif
-
-	GET_PORTALS(ch) = NULL;
-	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
-	ch->set_npc_name(0);
-	ch->player_data.long_descr = NULL;
-	ch->player_data.description = NULL;
-	ch->player_data.time.birth = time(0);
-	ch->player_data.time.played = 0;
-	ch->player_data.time.logon = time(0);
-
-	// make favors for sex
-	if (ch->player_data.sex == ESex::SEX_MALE)
-	{
-		ch->player_data.weight = number(120, 180);
-		ch->player_data.height = number(160, 200);
-	}
-	else
-	{
-		ch->player_data.weight = number(100, 160);
-		ch->player_data.height = number(150, 180);
-	}
-
-	ch->points.hit = GET_MAX_HIT(ch);
-	ch->points.max_move = 82;
-	ch->points.move = GET_MAX_MOVE(ch);
-	ch->real_abils.armor = 100;
-
-	if ((i = get_ptable_by_name(GET_NAME(ch))) != -1)
-	{
-		ch->set_idnum(++top_idnum);
-		player_table[i].id = ch->get_idnum();
-		ch->set_uid(create_unique());
-		player_table[i].unique = ch->get_uid();
-		player_table[i].level = 0;
-		player_table[i].last_logon = -1;
-		player_table[i].mail = NULL;//added by WorM mail
-		player_table[i].last_ip = NULL;//added by WorM последний айпи
-	}
-	else
-	{
-		log("SYSERR: init_char: Character '%s' not found in player table.", GET_NAME(ch));
-	}
-
-	if (GET_LEVEL(ch) > LVL_GOD)
-	{
-		set_god_skills(ch);
-		set_god_morphs(ch);
-	}
-
-	for (i = 1; i <= MAX_SPELLS; i++)
-	{
-		if (GET_LEVEL(ch) < LVL_GRGOD)
-			GET_SPELL_TYPE(ch, i) = 0;
-		else
-			GET_SPELL_TYPE(ch, i) = SPELL_KNOW;
-	}
-
-	ch->char_specials.saved.affected_by = clear_flags;
-	for (i = 0; i < SAVING_COUNT; i++)
-		GET_SAVE(ch, i) = 0;
-	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
-		GET_RESIST(ch, i) = 0;
-
-	if (GET_LEVEL(ch) == LVL_IMPL)
-	{
-		ch->set_str(25);
-		ch->set_int(25);
-		ch->set_wis(25);
-		ch->set_dex(25);
-		ch->set_con(25);
-		ch->set_cha(25);
-	}
-	ch->real_abils.size = 50;
-
-	for (i = 0; i < 3; i++)
-	{
-		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : 0);
-	}
-	GET_LASTIP(ch)[0] = 0;
-//	GET_LOADROOM(ch) = start_room;
-	PRF_FLAGS(ch).set(PRF_DISPHP);
-	PRF_FLAGS(ch).set(PRF_DISPMANA);
-	PRF_FLAGS(ch).set(PRF_DISPEXITS);
-	PRF_FLAGS(ch).set(PRF_DISPMOVE);
-	PRF_FLAGS(ch).set(PRF_DISPEXP);
-	PRF_FLAGS(ch).set(PRF_DISPFIGHT);
-	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
-	STRING_LENGTH(ch) = 80;
-	STRING_WIDTH(ch) = 30;
-	NOTIFY_EXCH_PRICE(ch) = 0;
-
-	ch->save_char();
 }
 
 const char *remort_msg =
@@ -5831,9 +5651,9 @@ int must_be_deleted(CHAR_DATA * short_ch)
 
 // данная функция работает с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
-void entrycount(char *name)
+void entrycount(char *name, const bool find_id /*= true*/)
 {
-	int i, deleted;
+	int deleted;
 	char filename[MAX_STRING_LENGTH];
 
 	if (get_filename(name, filename, PLAYERS_FILE))
@@ -5842,65 +5662,53 @@ void entrycount(char *name)
 		Player *short_ch = &t_short_ch;
 		deleted = 1;
 		// персонаж загружается неполностью
-		if (load_char(name, short_ch, 1) > -1)
+		if (load_char(name, short_ch, 1, find_id) > -1)
 		{
 			// если чар удален или им долго не входили, то не создаем для него запись
 			if (!must_be_deleted(short_ch))
 			{
 				deleted = 0;
-				// new record
-				if (player_table)
-					RECREATE(player_table, top_of_p_table + 2);
-				else
-					CREATE(player_table, 1);
-				top_of_p_file++;
-				top_of_p_table++;
 
-				CREATE(player_table[top_of_p_table].name, strlen(GET_NAME(short_ch)) + 1);
-				for (i = 0, player_table[top_of_p_table].name[i] = '\0';
-						(player_table[top_of_p_table].name[i] = LOWER(GET_NAME(short_ch)[i])); i++);
+				player_index_element element(GET_IDNUM(short_ch), GET_NAME(short_ch));
+
 				//added by WorM 2010.08.27 в индексе чистим мыло и ip
-				CREATE(player_table[top_of_p_table].mail, strlen(GET_EMAIL(short_ch)) + 1);
-				for (i = 0, player_table[top_of_p_table].mail[i] = '\0';
-						(player_table[top_of_p_table].mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
-				CREATE(player_table[top_of_p_table].last_ip, strlen(GET_LASTIP(short_ch)) + 1);
-				for (i = 0, player_table[top_of_p_table].last_ip[i] = '\0';
-						(player_table[top_of_p_table].last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
+				CREATE(element.mail, strlen(GET_EMAIL(short_ch)) + 1);
+				for (int i = 0; (element.mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
+
+				CREATE(element.last_ip, strlen(GET_LASTIP(short_ch)) + 1);
+				for (int i = 0; (element.last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
+
 				//end by WorM
-				player_table[top_of_p_table].id = GET_IDNUM(short_ch);
-				player_table[top_of_p_table].unique = GET_UNIQUE(short_ch);
-				player_table[top_of_p_table].level = (GET_REMORT(short_ch) && !IS_IMMORTAL(short_ch)) ? 30 : GET_LEVEL(short_ch);
-				player_table[top_of_p_table].timer = NULL;
+				element.unique = GET_UNIQUE(short_ch);
+				element.level = (GET_REMORT(short_ch) && !IS_IMMORTAL(short_ch)) ? 30 : GET_LEVEL(short_ch);
+				element.timer = NULL;
 				if (PLR_FLAGS(short_ch).get(PLR_DELETED))
 				{
-					player_table[top_of_p_table].last_logon = -1;
-					player_table[top_of_p_table].activity = -1;
-					/*//added by WorM 2010.08.27 в индексе чистим мыло и ip
-					if(player_table[top_of_p_table].mail)
-					{
-						free(player_table[top_of_p_table].mail);
-					}
-					player_table[top_of_p_table].mail = NULL;
-					if(player_table[top_of_p_table].last_ip)
-					{
-						free(player_table[top_of_p_table].last_ip);
-					}
-					player_table[top_of_p_table].last_ip = NULL;
-					//end by WorM*/
+					element.last_logon = -1;
+					element.activity = -1;
 				}
 				else
 				{
-					player_table[top_of_p_table].last_logon = LAST_LOGON(short_ch);
-					player_table[top_of_p_table].activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
+					element.last_logon = LAST_LOGON(short_ch);
+					element.activity = number(0, OBJECT_SAVE_ACTIVITY - 1);
 				}
+
 				#ifdef TEST_BUILD
-				log("entry: char:%s level:%d mail:%s ip:%s", player_table[top_of_p_table].name, player_table[top_of_p_table].level, player_table[top_of_p_table].mail, player_table[top_of_p_table].last_ip);
+				log("entry: char:%s level:%d mail:%s ip:%s", element.name(), element.level, element.mail, element.last_ip);
 				#endif
+
 				top_idnum = MAX(top_idnum, GET_IDNUM(short_ch));
 				TopPlayer::Refresh(short_ch, 1);
-				log("Add new player %s", player_table[top_of_p_table].name);
+
+				log("Adding new player %s", element.name());
+				player_table.append(element);
 			}
 		}
+		else
+		{
+			log("SYSERR: Failed to load player %s.", name);
+		}
+
 		// если чар уже удален, то стираем с диска его файл
 		if (deleted)
 		{
@@ -5930,98 +5738,97 @@ void new_build_player_index(void)
 {
 	FILE *players;
 	char name[MAX_INPUT_LENGTH], playername[MAX_INPUT_LENGTH];
-	int c;
 
-	player_table = NULL;
-	top_of_p_file = top_of_p_table = -1;
 	if (!(players = fopen(LIB_PLRS "players.lst", "r")))
 	{
 		log("Players list empty...");
 		return;
 	}
 
-	now_entrycount = TRUE;
 	while (get_line(players, name))
 	{
 		if (!*name || *name == ';')
 			continue;
 		if (sscanf(name, "%s ", playername) == 0)
 			continue;
-		for (c = 0; c <= top_of_p_table; c++)
-			if (!str_cmp(playername, player_table[c].name))
-				break;
-		if (c <= top_of_p_table)
-			continue;
-		entrycount(playername);
+
+		if (!player_table.player_exists(playername))
+		{
+			entrycount(playername, false);
+		}
 	}
+
 	fclose(players);
-	now_entrycount = FALSE;
 }
 
 void flush_player_index(void)
 {
 	FILE *players;
 	char name[MAX_STRING_LENGTH];
-	int i;
 
 	if (!(players = fopen(LIB_PLRS "players.lst", "w+")))
 	{
-		log("Cann't save players list...");
+		log("Can't save players list...");
 		return;
 	}
-	for (i = 0; i <= top_of_p_table; i++)
+
+	std::size_t saved = 0;
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
-		if (!player_table[i].name || !*player_table[i].name)
+		if (!player_table[i].name()
+			|| !*player_table[i].name())
+		{
 			continue;
+		}
 
-		// check double
-		// for (c = 0; c < i; c++)
-		//     if (!str_cmp(player_table[c].name, player_table[i].name))
-		//         break;
-		// if (c < i)
-		//    continue;
-
+		++saved;
 		sprintf(name, "%s %d %d %d %d\n",
-				player_table[i].name,
-				player_table[i].id, player_table[i].unique, player_table[i].level, player_table[i].last_logon);
+				player_table[i].name(),
+				player_table[i].id(), player_table[i].unique, player_table[i].level, player_table[i].last_logon);
 		fputs(name, players);
 	}
 	fclose(players);
-	log("Сохранено индексов %d (считано при загрузке %d)", i, top_of_p_file + 1);
+	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
 }
 
 void dupe_player_index(void)
 {
 	FILE *players;
 	char name[MAX_STRING_LENGTH];
-	int i, c;
 
 	sprintf(name, LIB_PLRS "players.dup");
 
 	if (!(players = fopen(name, "w+")))
 	{
-		log("Cann't save players list...");
+		log("Can't save players list...");
 		return;
 	}
-	for (i = 0; i <= top_of_p_table; i++)
+
+	std::size_t dupes = 0;
+	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
-		if (!player_table[i].name || !*player_table[i].name)
+		if (!player_table[i].name()
+			|| !*player_table[i].name())
+		{
 			continue;
+		}
 
 		// check double
-		for (c = 0; c < i; c++)
-			if (!str_cmp(player_table[c].name, player_table[i].name))
+		std::size_t c = 0;
+		for (; c < i; c++)
+			if (!str_cmp(player_table[c].name(), player_table[i].name()))
 				break;
 		if (c < i)
 			continue;
 
+		++dupes;
 		sprintf(name, "%s %d %d %d %d\n",
-				player_table[i].name,
-				player_table[i].id, player_table[i].unique, player_table[i].level, player_table[i].last_logon);
+				player_table[i].name(),
+				player_table[i].id(), player_table[i].unique, player_table[i].level, player_table[i].last_logon);
 		fputs(name, players);
 	}
 	fclose(players);
-	log("Продублировано индексов %d (считано при загрузке %d)", i, top_of_p_file + 1);
+	log("Продублировано индексов %zd (считано при загрузке %zd)", dupes, player_table.size());
 }
 
 void rename_char(CHAR_DATA * ch, char *oname)
@@ -6104,11 +5911,12 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 --*/
 {
 	int i;
+
 	{
 		// Сохраняю track, contents, people, аффекты
 		struct track_data *track = dst->track;
 		OBJ_DATA *contents = dst->contents;
-		CHAR_DATA *people = dst->people;
+		const auto people_backup = dst->people;
 		auto affected = dst->affected;
 
 		// Копирую все поверх
@@ -6117,7 +5925,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		// Восстанавливаю track, contents, people, аффекты
 		dst->track = track;
 		dst->contents = contents;
-		dst->people = people;
+		dst->people = std::move(people_backup);
 		dst->affected = affected;
 	}
 
@@ -6164,8 +5972,6 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 }
-
-void free_script(SCRIPT_DATA * sc);
 
 void room_free(ROOM_DATA * room)
 /*++
@@ -6425,11 +6231,12 @@ void init()
 		lower_convert(buffer);
 		block_list.push_back(buffer);
 	}
+
 	for (DESCRIPTOR_DATA* d = descriptor_list; d; d = d->next)
 	{
 		if (d->character)
 		{
-			set_flag(d->character);
+			set_flag(d->character.get());
 		}
 	}
 }
@@ -6484,14 +6291,16 @@ void load_speedwalk()
 		speedwalks.push_back(sw);
 
 	}
-	for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+	for (const auto ch : character_list)
 	{
 		for (auto &sw : speedwalks)
 		{
 			for (auto mob : sw.vnum_mobs)
 			{
 				if (GET_MOB_VNUM(ch) == mob)
-					sw.mobs.push_back(ch);
+				{
+					sw.mobs.push_back(ch.get());
+				}
 			}
 		}
 	}
@@ -6552,6 +6361,96 @@ void load_class_limit()
 		if (val > 0)
 			class_stats_limit[id][5] = val;
 	}
+}
+
+const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);
+
+std::size_t PlayersIndex::append(const player_index_element& element)
+{
+	const auto index = size();
+
+	push_back(element);
+	m_id_to_index.emplace(element.id(), index);
+	add_name_to_index(element.name(), index);
+
+	return index;
+}
+
+std::size_t PlayersIndex::get_by_name(const char* name) const
+{
+	name_to_index_t::const_iterator i = m_name_to_index.find(name);
+	if (i != m_name_to_index.end())
+	{
+		return i->second;
+	}
+
+	return NOT_FOUND;
+}
+
+void PlayersIndex::set_name(const std::size_t index, const char* name)
+{
+	name_to_index_t::const_iterator i = m_name_to_index.find(operator[](index).name());
+	m_name_to_index.erase(i);
+	operator[](index).set_name(name);
+	add_name_to_index(name, index);
+}
+
+void PlayersIndex::add_name_to_index(const char* name, const std::size_t index)
+{
+	if (m_name_to_index.find(name) != m_name_to_index.end())
+	{
+		log("SYSERR: Detected attempt to create player with duplicate name.");
+		abort();
+	}
+
+	m_name_to_index.emplace(name, index);
+}
+
+void player_index_element::set_name(const char* name)
+{
+	delete[] m_name;
+
+	char* new_name = new char[strlen(name) + 1];
+	for (int i = 0; (new_name[i] = LOWER(name[i])); i++);
+
+	m_name = new_name;
+}
+
+std::size_t PlayersIndex::hasher::operator()(const std::string& value) const
+{
+	// FNV-1a implementation
+	static_assert(sizeof(size_t) == 8, "This code is for 64-bit size_t.");
+
+	const std::size_t FNV_offset_basis = 14695981039346656037ULL;
+	const std::size_t FNV_prime = 1099511628211ULL;
+
+	const auto count = value.size();
+	std::size_t result = FNV_offset_basis;
+	for (std::size_t i = 0; i < count; ++i)
+	{
+		result ^= (std::size_t) LOWER(value[i]);
+		result *= FNV_prime;
+	}
+
+	return result;
+}
+
+bool PlayersIndex::equal_to::operator()(const std::string& left, const std::string& right) const
+{
+	if (left.size() != right.size())
+	{
+		return false;
+	}
+
+	for (std::size_t i = 0; i < left.size(); ++i)
+	{
+		if (LOWER(left[i]) != LOWER(right[i]))
+		{
+			return false;
+		}
+	}
+
+	return true;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

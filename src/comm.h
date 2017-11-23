@@ -28,10 +28,10 @@ extern DESCRIPTOR_DATA *descriptor_list;
 
 // comm.cpp
 void send_to_all(const char *messg);
-void send_to_char(const char *messg, CHAR_DATA * ch);
-void send_to_char(CHAR_DATA * ch, const char *messg, ...);
-void send_to_char(const std::string & buffer, CHAR_DATA * ch);
-void send_stat_char(CHAR_DATA * ch);
+void send_to_char(const char *messg, const CHAR_DATA* ch);
+void send_to_char(const CHAR_DATA* ch, const char *messg, ...);
+void send_to_char(const std::string & buffer, const CHAR_DATA* ch);
+void send_stat_char(const CHAR_DATA* ch);
 void send_to_room(const char *messg, room_rnum room, int to_awake);
 void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
@@ -57,7 +57,7 @@ inline void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, c
 }
 
 void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type, const std::string& kick_type);
-inline void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* obj, const void *vict_obj, int type)
+inline void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj, const void *vict_obj, int type)
 {
 	act(str, hide_invisible, ch, obj, vict_obj, type, "");
 }

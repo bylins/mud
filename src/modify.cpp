@@ -756,16 +756,13 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 	{
 		if (strlen(str) + 3 > d->max_str)
 		{
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
+			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
 			strcpy(&str[d->max_str - 3], "\r\n");
 			d->writer->set_string(str);
-
-			// Changed this to NOT abort out.. just give warning. //
-			// terminator = 1;                                    //
 		}
 		else if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80)
 		{
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
+			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
 			str[80 - 3] = '\0';
 			d->writer->set_string(str);
 		}
@@ -778,13 +775,13 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 	{
 		if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80)
 		{
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character);
+			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
 			str[80 - 3] = '\0';
 		}
 
 		if (strlen(str) + d->writer->length() + 3 > d->max_str)  	// \r\n\0 //
 		{
-			send_to_char(d->character, "Слишком длинное послание > %d симв. Последняя строка проигнорирована.\r\n", d->max_str - 3);
+			send_to_char(d->character.get(), "Слишком длинное послание > %d симв. Последняя строка проигнорирована.\r\n", d->max_str - 3);
 			action = TRUE;
 		}
 		else
@@ -921,7 +918,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				if (body.empty())
 				{
 					CLAN(d->character)->write_mod(body);
-					send_to_char("Сообщение удалено.\r\n", d->character);
+					send_to_char("Сообщение удалено.\r\n", d->character.get());
 				}
 				else
 				{
@@ -1411,10 +1408,14 @@ void paginate_string(char *str, DESCRIPTOR_DATA * d)
 	int i;
 
 	if (d->showstr_count)
+	{
 		*(d->showstr_vector) = str;
+	}
 
 	for (i = 1; i < d->showstr_count && str; i++)
-		str = d->showstr_vector[i] = next_page(str, d->character);
+	{
+		str = d->showstr_vector[i] = next_page(str, d->character.get());
+	}
 
 	d->showstr_page = 0;
 }
@@ -1427,10 +1428,10 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 
 	if (!str || !*str)
 	{
-		send_to_char("", d->character);
+		send_to_char("", d->character.get());
 		return;
 	}
-	d->showstr_count = count_pages(str, d->character);
+	d->showstr_count = count_pages(str, d->character.get());
 	CREATE(d->showstr_vector, d->showstr_count);
 
 	if (keep_internal)
@@ -1439,7 +1440,9 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 		paginate_string(d->showstr_head, d);
 	}
 	else
+	{
 		paginate_string(str, d);
+	}
 
 	buf2[0] = '\0';
 	show_string(d, buf2);
@@ -1480,28 +1483,32 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 	// R is for refresh, so back up one page internally so we can display
 	// it again.
 	else if (LOWER(*buf) == 'r' || LOWER(*buf) == 'п')
+	{
 		d->showstr_page = MAX(0, d->showstr_page - 1);
-
+	}
 	// B is for back, so back up two pages internally so we can display the
 	// correct page here.
 	else if (LOWER(*buf) == 'b' || LOWER(*buf) == 'н')
+	{
 		d->showstr_page = MAX(0, d->showstr_page - 2);
-
+	}
 	// Feature to 'goto' a page.  Just type the number of the page and you
 	// are there!
 	else if (a_isdigit(*buf))
+	{
 		d->showstr_page = MAX(0, MIN(atoi(buf) - 1, d->showstr_count - 1));
+	}
 
 	else if (*buf)
 	{
-		send_to_char("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character);
+		send_to_char("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character.get());
 		return;
 	}
 	// If we're displaying the last page, just send it to the character, and
 	// then free up the space we used.
 	if (d->showstr_page + 1 >= d->showstr_count)
 	{
-		send_to_char(d->showstr_vector[d->showstr_page], d->character);
+		send_to_char(d->showstr_vector[d->showstr_page], d->character.get());
 		free(d->showstr_vector);
 		d->showstr_vector = nullptr;
 		d->showstr_count = 0;
@@ -1520,7 +1527,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 			diff = MAX_STRING_LENGTH - 1;
 		strncpy(buffer, d->showstr_vector[d->showstr_page], diff);
 		buffer[diff] = '\0';
-		send_to_char(buffer, d->character);
+		send_to_char(buffer, d->character.get());
 		d->showstr_page++;
 	}
 }
@@ -1540,7 +1547,7 @@ void print_con_prompt(DESCRIPTOR_DATA *d)
 	}
 	if (STATE(d) == CON_RESET_STATS)
 	{
-		genchar_disp_menu(d->character);
+		genchar_disp_menu(d->character.get());
 	}
 }
 

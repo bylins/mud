@@ -1,6 +1,7 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "conf.h"
 #include "logger.hpp"
@@ -21,12 +22,12 @@
 #include "spells.h"
 #include "help.hpp"
 #include "sets_drop.hpp"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 #include <boost/algorithm/string.hpp>
-// GCC 4.4
 
 #include <string>
 #include <vector>
@@ -138,11 +139,12 @@ bool is_duplicate(int set_uid, int vnum)
 
 void update_char_sets()
 {
-	for (CHAR_DATA* ch = character_list; ch; ch = ch->get_next())
+	for (const auto& ch : character_list)
 	{
-		if (!IS_NPC(ch) || IS_CHARMICE(ch))
+		if (!IS_NPC(ch)
+			|| IS_CHARMICE(ch))
 		{
-			ch->obj_bonus().update(ch);
+			ch->obj_bonus().update(ch.get());
 		}
 	}
 }

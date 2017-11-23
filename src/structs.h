@@ -1650,51 +1650,7 @@ private:
 
 struct DESCRIPTOR_DATA
 {
-	DESCRIPTOR_DATA() : bad_pws(0),
-		idle_tics(0),
-		connected(0),
-		desc_num(0),
-		input_time(0),
-		login_time(0),
-		showstr_head(0),
-		showstr_vector(0),
-		showstr_count(0),
-		showstr_page(0),
-		max_str(0),
-		backstr(0),
-		mail_to(0),
-		has_prompt(0),
-		output(0),
-		history(0),
-		history_pos(0),
-		bufptr(0),
-		bufspace(0),
-		large_outbuf(0),
-		character(0),
-		original(0),
-		snooping(0),
-		snoop_by(0),
-		next(0),
-		olc(0),
-		keytable(0),
-		options(0),
-		deflate(nullptr),
-		mccp_version(0),
-		ip(0),
-		registered_email(0),
-		pers_log(0),
-		cur_vnum(0),
-		old_vnum(0),
-		snoop_with_map(0),
-		m_msdp_support(false),
-		m_msdp_last_max_hit(0),
-		m_msdp_last_max_move(0)
-	{
-		host[0] = 0;
-		inbuf[0] = 0;
-		last_input[0] = 0;
-		small_outbuf[0] = 0;
-	}
+	DESCRIPTOR_DATA();
 
 	void msdp_support(bool on);
 	void msdp_add_report_variable(const std::string& name) { m_msdp_requested_report.insert(name); }
@@ -1704,6 +1660,8 @@ struct DESCRIPTOR_DATA
 	void msdp_report_changed_vars();
 
 	void string_to_client_encoding(const char* input, char* output) const;
+	auto get_character() const { return original ? original : character; }
+
 	socket_t descriptor;	// file descriptor for socket    //
 	char host[HOST_LENGTH + 1];	// hostname          //
 	byte bad_pws;		// number of bad pw attemps this login //
@@ -1731,8 +1689,10 @@ struct DESCRIPTOR_DATA
 	size_t bufspace;		// space left in the output buffer  //
 	struct txt_block *large_outbuf;	// ptr to large buffer, if we need it //
 	struct txt_q input;			// q of unprocessed input     //
-	CHAR_DATA *character;	// linked to char       //
-	CHAR_DATA *original;	// original char if switched     //
+
+	std::shared_ptr<CHAR_DATA> character;	// linked to char       //
+	std::shared_ptr<CHAR_DATA> original;	// original char if switched     //
+
 	DESCRIPTOR_DATA *snooping;	// Who is this char snooping  //
 	DESCRIPTOR_DATA *snoop_by;	// And who is snooping this char //
 	DESCRIPTOR_DATA *next;	// link to next descriptor     //

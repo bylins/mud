@@ -11,6 +11,7 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromStringAn
 */
 #include "scripting.hpp"
 
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "utils.h"
@@ -68,19 +69,18 @@ std::string parse_python_exception();
 void register_global_command(const std::string& command, const std::string& command_koi8r, object callable, sh_int minimum_position, sh_int minimum_level, int unhide_percent);
 void unregister_global_command(const std::string& command);
 
-template <class t>
-inline t pass_through(const t& o) { return o; }
-
 //Класс-обертка вокруг связаных списков сишного стиля
-template <class t, class nextfunc, class getfunc, class result_t=t>
+template <class t, class nextfunc, class getfunc, class result_t = t>
 class CIterator
 {
 public:
 	typedef t object_t;
-	CIterator(const object_t& o, const nextfunc nfunc, const getfunc gfunc):
+
+	CIterator(const object_t& o, const nextfunc nfunc, const getfunc gfunc) :
 		_object(o), _next_func(nfunc), _get_func(gfunc) { }
 	result_t next();
-	private:
+
+private:
 	object_t _object;
 	const nextfunc _next_func;
 	const getfunc _get_func;
@@ -138,588 +138,586 @@ private:
 	caching::id_t id;
 };
 
-class CharacterWrapper: public Wrapper<CHAR_DATA>
+class CharacterWrapper : public Wrapper<CHAR_DATA>
 {
 public:
-CharacterWrapper(CHAR_DATA* ch):Wrapper<CHAR_DATA>(ch, caching::character_cache) { }
-const char* get_name() const
-{
-	Ensurer ch(*this);
-	return ch->get_name().c_str();
-}
-
-void set_name(const char* name)
-{
-	Ensurer ch(*this);
-	ch->set_name(name);
-}
-
-void send(const std::string& msg)
-{
-	Ensurer ch(*this);
-	send_to_char(msg, (CHAR_DATA*)ch);
-}
-
-void _page_string(const std::string& msg)
-{
-	Ensurer ch(*this);
-	page_string(ch->desc, msg);
-}
-
-void act_on_char(const char *str, bool hide_invisible, const OBJ_DATA * obj, const CharacterWrapper& victim, int type)
-{
-	Ensurer ch(*this);
-	Ensurer v(victim);
-	act(str, hide_invisible, ch, obj, (CHAR_DATA*)victim, type);
-}
-
-void act_on_obj(const char *str, bool hide_invisible, const OBJ_DATA * obj, const OBJ_DATA *victim, int type)
-{
-	Ensurer ch(*this);
-	act(str, hide_invisible, ch, obj, victim, type);
-}
-
-py::list get_followers()
-{
-	Ensurer ch(*this);
-	py::list result;
-	for (follow_type* i=ch->followers; i; i=i->next)
-		result.append(CharacterWrapper(i->follower));
-	return result;
-}
-
-bool is_immortal()
-{
-	Ensurer ch(*this);
-	return IS_IMMORTAL(ch);
-}
-
-bool is_impl()
-{
-	Ensurer ch(*this);
-	return IS_IMPL(ch);
-}
-
-bool is_NPC()
-{
-	Ensurer ch(*this);
-	return IS_NPC(ch);
-}
-
-const char* get_long_descr() const
-{
-	Ensurer ch(*this);
-	return ch->get_long_descr();
-}
-
-void set_long_descr(const char* v)
-{
-	Ensurer ch(*this);
-	ch->set_long_descr(v);
-}
-
-const char* get_description() const
-{
-	Ensurer ch(*this);
-	return ch->get_description();
-}
-
-void set_description(const char* v)
-{
-	Ensurer ch(*this);
-	ch->set_description(v);
-}
-
-short get_class() const
-{
-	Ensurer ch(*this);
-	return ch->get_class();
-}
-
-void set_class(const short v)
-{
-	Ensurer ch(*this);
-	ch->set_class(v);
-}
-
-short get_level() const
-{
-	Ensurer ch(*this);
-	return ch->get_level();
-}
-
-void set_level(const short v)
-{
-	Ensurer ch(*this);
-	ch->set_level(v);
-}
-
-long get_exp() const
-{
-	Ensurer ch(*this);
-	return ch->get_exp();
-}
-
-void set_exp(const long v)
-{
-	Ensurer ch(*this);
-	gain_exp(ch, v-ch->get_exp());
-}
-
-long get_gold() const
-{
-	Ensurer ch(*this);
-	return ch->get_gold();
-}
-
-void set_gold(const long v)
-{
-	Ensurer ch(*this);
-	ch->set_gold(v);
-}
-
-long get_bank() const
-{
-	Ensurer ch(*this);
-	return ch->get_bank();
-}
-
-void set_bank(const long v)
-{
-	Ensurer ch(*this);
-	ch->set_bank(v);
-}
-
-int get_str() const
-{
-	Ensurer ch(*this);
-	return ch->get_str();
-}
-
-void set_str(const int v)
-{
-	Ensurer ch(*this);
-	ch->set_str(v);
-}
-
-int get_dex() const
-{
-	Ensurer ch(*this);
-	return ch->get_dex();
-}
-
-void set_dex(const int v)
-{
-	Ensurer ch(*this);
-	ch->set_dex(v);
-}
-
-int get_con() const
-{
-	Ensurer ch(*this);
-	return ch->get_con();
-}
-
-void set_con(const int v)
-{
-	Ensurer ch(*this);
-	ch->set_con(v);
-}
-
-int get_wis() const
-{
-	Ensurer ch(*this);
-	return ch->get_wis();
-}
-
-void set_wis(const int v)
-{
-	Ensurer ch(*this);
-	ch->set_wis(v);
-}
-
-int get_int() const
-{
-	Ensurer ch(*this);
-	return ch->get_int();
-}
-
-void set_int(const int v)
-{
-	Ensurer ch(*this);
-	ch->set_int(v);
-}
-
-int get_cha() const
-{
-	Ensurer ch(*this);
-	return ch->get_cha();
-}
-
-void set_cha(const int v)
-{
-	Ensurer ch(*this);
-	ch->set_cha(v);
-}
-
-byte get_sex() const
-{
-	Ensurer ch(*this);
-	return to_underlying(ch->get_sex());
-}
-
-void set_sex(const byte v)
-{
-	Ensurer ch(*this);
-	ch->set_sex(static_cast<ESex>(v));
-}
-
-ubyte get_weight() const
-{
-	Ensurer ch(*this);
-	return ch->get_weight();
-}
-
-void set_weight(const ubyte v)
-{
-	Ensurer ch(*this);
-	ch->set_weight(v);
-}
-
-ubyte get_height() const
-{
-	Ensurer ch(*this);
-	return ch->get_height();
-}
-
-void set_height(const ubyte v)
-{
-	Ensurer ch(*this);
-	ch->set_height(v);
-}
-
-ubyte get_religion() const
-{
-	Ensurer ch(*this);
-	return ch->get_religion();
-}
-
-void set_religion(const ubyte v)
-{
-	Ensurer ch(*this);
-	ch->set_religion(v);
-}
-
-ubyte get_kin() const
-{
-	Ensurer ch(*this);
-	return ch->get_kin();
-}
-
-void set_kin(const ubyte v)
-{
-	Ensurer ch(*this);
-	ch->set_kin(v);
-}
-
-ubyte get_race() const
-{
-	Ensurer ch(*this);
-	return ch->get_race();
-}
-
-void set_race(const ubyte v)
-{
-	Ensurer ch(*this);
-	ch->set_race(v);
-}
-
-int get_hit() const
-{
-	Ensurer ch(*this);
-	return ch->get_hit();
-}
-
-void set_hit(const int v)
-{
-	Ensurer ch(*this);
-	ch->set_hit(v);
-}
-
-int get_max_hit() const
-{
-	Ensurer ch(*this);
-	return ch->get_max_hit();
-}
-
-void set_max_hit(const int v)
-{
-	Ensurer ch(*this);
-	ch->set_max_hit(v);
-}
-
-sh_int get_move() const
-{
-	Ensurer ch(*this);
-	return ch->get_move();
-}
-
-void set_move(const sh_int v)
-{
-	Ensurer ch(*this);
-	ch->set_move(v);
-}
-
-sh_int get_max_move() const
-{
-	Ensurer ch(*this);
-	return ch->get_max_move();
-}
-
-void set_max_move(const sh_int v)
-{
-	Ensurer ch(*this);
-	ch->set_max_move(v);
-}
-
-const char* get_email() const
-{
-	Ensurer ch(*this);
-	return GET_EMAIL(ch);
-}
-
-const object get_pad(const int v) const
-{
-	Ensurer ch(*this);
-	const char* val = ch->get_pad(v);
-	size_t size = strlen(val);
-	PyObject* py_buf = PyBytes_FromStringAndSize(val, size);
-	object retval = object(handle<>(py_buf));
-	return retval;
-}
-
-void set_pad(const int pad, const char* v)
-{
-	Ensurer ch(*this);
-	ch->set_pad(pad, v);
-}
-
-void remove_gold(const long num, const bool log=true)
-{
-	Ensurer ch(*this);
-	ch->remove_gold(num, log);
-}
-
-void remove_bank(const long num, const bool log=true)
-{
-	Ensurer ch(*this);
-	ch->remove_bank(num, log);
-}
-
-void remove_both_gold(const long num, const bool log=true)
-{
-	Ensurer ch(*this);
-	ch->remove_both_gold(num, log);
-}
-
-void add_gold(const long num, const bool log=true)
-{
-	Ensurer ch(*this);
-	ch->add_gold(num, log);
-}
-
-void add_bank(const long num, const bool log=true)
-{
-	Ensurer ch(*this);
-	ch->add_bank(num, log);
-}
-
-long get_total_gold() const
-{
-	Ensurer ch(*this);
-	return ch->get_total_gold();
-	}
-
-int get_uid() const
-{
-	Ensurer ch(*this);
-	return ch->get_uid();
-}
-
-short get_remort() const
-{
-	Ensurer ch(*this);
-	return ch->get_remort();
-}
-
-int get_skill(int skill_num) const
-{
-	Ensurer ch(*this);
-	return ch->get_skill(static_cast<ESkill>(skill_num));
-}
-
-void set_skill(int skill_num, int percent)
-{
-	Ensurer ch(*this);
-	ch->set_skill(static_cast<ESkill>(skill_num), percent);
-}
-
-void clear_skills()
-{
-	Ensurer ch(*this);
-	ch->clear_skills();
-}
-
-int get_skills_count() const
-{
-	Ensurer ch(*this);
-	return ch->get_skills_count();
-}
-
-int get_equipped_skill(int skill_num) const
-{
-	Ensurer ch(*this);
-	return ch->get_equipped_skill(static_cast<ESkill>(skill_num));
-}
-
-int get_trained_skill(int skill_num) const
-{
-	Ensurer ch(*this);
-	return ch->get_trained_skill(static_cast<ESkill>(skill_num));
-}
-
-ubyte get_spell(int spell_num) const
-{
-	Ensurer ch(*this);
-	return GET_SPELL_TYPE(ch, spell_num);
-}
-
-void set_spell(int spell_num, ubyte value)
-{
-	Ensurer ch(*this);
-	GET_SPELL_TYPE(ch, spell_num) = value;
-}
-
-void interpret(char* command)
-{
-	Ensurer ch(*this);
-	command_interpreter(ch, command);
-}
-
-mob_rnum get_nr() const
-{
-	Ensurer ch(*this);
-	return ch->nr;
-}
-
-void set_nr(const mob_rnum nr)
-{
-	Ensurer ch(*this);
-	ch->nr = nr;
-}
-
-room_rnum get_in_room() const
-{
-	Ensurer ch(*this);
-	return ch->in_room;
-}
-
-void set_in_room(room_rnum in_room)
-{
-	Ensurer ch(*this);
-	char_from_room(ch);
-	char_to_room(ch, in_room);
-	check_horse(ch);
-}
-
-bool is_affected_by_spell(int spell_num) const
-{
-	Ensurer ch(*this);
-	return affected_by_spell(ch, spell_num);
-}
-
-void add_affect(const AFFECT_DATA<EApplyLocation>& af)
-{
-	Ensurer ch(*this);
-	affect_to_char(ch, af);
-}
-
-CharacterWrapper get_vis(const char* name, int where) const
-{
-	Ensurer ch(*this);
-	CHAR_DATA* r = get_char_vis(ch, name, where);
-	if (!r)
+	CharacterWrapper(CHAR_DATA* ch) :Wrapper<CHAR_DATA>(ch, caching::character_cache) { }
+	const char* get_name() const
 	{
-		PyErr_SetString(PyExc_ValueError, "Character not found");
-		throw_error_already_set();
+		Ensurer ch(*this);
+		return ch->get_name().c_str();
 	}
-	return r;
-}
 
-void restore()
-{
-	Ensurer vict(*this);
-	GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
-	GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
-	if (IS_MANA_CASTER(vict))
+	void set_name(const char* name)
 	{
-		GET_MANA_STORED(vict) = GET_MAX_MANA(vict);
+		Ensurer ch(*this);
+		ch->set_name(name);
 	}
-	else
+
+	void send(const std::string& msg)
 	{
-		GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
+		Ensurer ch(*this);
+		send_to_char(msg, (CHAR_DATA*)ch);
 	}
-}
 
-void quested_add(const CharacterWrapper& ch, int vnum, char *text)
-{
-	Ensurer self(*this);
-	self->quested_add((CHAR_DATA*)Ensurer(ch), vnum, text);
-}
+	void _page_string(const std::string& msg)
+	{
+		Ensurer ch(*this);
+		page_string(ch->desc, msg);
+	}
 
-bool quested_remove(int vnum)
-{
-	Ensurer ch(*this);
-	return ch->quested_remove(vnum);
-}
+	void act_on_char(const char *str, bool hide_invisible, const OBJ_DATA * obj, const CharacterWrapper& victim, int type)
+	{
+		Ensurer ch(*this);
+		Ensurer v(victim);
+		act(str, hide_invisible, ch, obj, (CHAR_DATA*)victim, type);
+	}
 
-std::string quested_get_text(int vnum)
-{
-	Ensurer ch(*this);
-	return ch->quested_get_text(vnum);
-}
+	void act_on_obj(const char *str, bool hide_invisible, const OBJ_DATA * obj, const OBJ_DATA *victim, int type)
+	{
+		Ensurer ch(*this);
+		act(str, hide_invisible, ch, obj, victim, type);
+	}
 
-std::string quested_print() const
-{
-	Ensurer ch(*this);
-	return ch->quested_print();
-}
+	py::list get_followers()
+	{
+		Ensurer ch(*this);
+		py::list result;
+		for (follow_type* i = ch->followers; i; i = i->next)
+			result.append(CharacterWrapper(i->follower));
+		return result;
+	}
 
-unsigned get_wait() const
-{
-	Ensurer ch(*this);
-	return ch->get_wait();
-}
+	bool is_immortal()
+	{
+		Ensurer ch(*this);
+		return IS_IMMORTAL(ch);
+	}
 
-void set_wait(const unsigned v)
-{
-	Ensurer ch(*this);
-	ch->set_wait(v);
-}
+	bool is_impl()
+	{
+		Ensurer ch(*this);
+		return IS_IMPL(ch);
+	}
 
-std::string clan_status()
-{
-	Ensurer ch(*this);
-	return GET_CLAN_STATUS(ch);
-}
+	bool is_NPC()
+	{
+		Ensurer ch(*this);
+		return IS_NPC(ch);
+	}
 
-bool set_password_wrapped(const std::string&/* name*/, const std::string&/* password*/)
-{
-	// заглушка
-	return true;
-}
+	const char* get_long_descr() const
+	{
+		Ensurer ch(*this);
+		return ch->get_long_descr();
+	}
 
+	void set_long_descr(const char* v)
+	{
+		Ensurer ch(*this);
+		ch->set_long_descr(v);
+	}
 
+	const char* get_description() const
+	{
+		Ensurer ch(*this);
+		return ch->get_description();
+	}
+
+	void set_description(const char* v)
+	{
+		Ensurer ch(*this);
+		ch->set_description(v);
+	}
+
+	short get_class() const
+	{
+		Ensurer ch(*this);
+		return ch->get_class();
+	}
+
+	void set_class(const short v)
+	{
+		Ensurer ch(*this);
+		ch->set_class(v);
+	}
+
+	short get_level() const
+	{
+		Ensurer ch(*this);
+		return ch->get_level();
+	}
+
+	void set_level(const short v)
+	{
+		Ensurer ch(*this);
+		ch->set_level(v);
+	}
+
+	long get_exp() const
+	{
+		Ensurer ch(*this);
+		return ch->get_exp();
+	}
+
+	void set_exp(const long v)
+	{
+		Ensurer ch(*this);
+		gain_exp(ch, v - ch->get_exp());
+	}
+
+	long get_gold() const
+	{
+		Ensurer ch(*this);
+		return ch->get_gold();
+	}
+
+	void set_gold(const long v)
+	{
+		Ensurer ch(*this);
+		ch->set_gold(v);
+	}
+
+	long get_bank() const
+	{
+		Ensurer ch(*this);
+		return ch->get_bank();
+	}
+
+	void set_bank(const long v)
+	{
+		Ensurer ch(*this);
+		ch->set_bank(v);
+	}
+
+	int get_str() const
+	{
+		Ensurer ch(*this);
+		return ch->get_str();
+	}
+
+	void set_str(const int v)
+	{
+		Ensurer ch(*this);
+		ch->set_str(v);
+	}
+
+	int get_dex() const
+	{
+		Ensurer ch(*this);
+		return ch->get_dex();
+	}
+
+	void set_dex(const int v)
+	{
+		Ensurer ch(*this);
+		ch->set_dex(v);
+	}
+
+	int get_con() const
+	{
+		Ensurer ch(*this);
+		return ch->get_con();
+	}
+
+	void set_con(const int v)
+	{
+		Ensurer ch(*this);
+		ch->set_con(v);
+	}
+
+	int get_wis() const
+	{
+		Ensurer ch(*this);
+		return ch->get_wis();
+	}
+
+	void set_wis(const int v)
+	{
+		Ensurer ch(*this);
+		ch->set_wis(v);
+	}
+
+	int get_int() const
+	{
+		Ensurer ch(*this);
+		return ch->get_int();
+	}
+
+	void set_int(const int v)
+	{
+		Ensurer ch(*this);
+		ch->set_int(v);
+	}
+
+	int get_cha() const
+	{
+		Ensurer ch(*this);
+		return ch->get_cha();
+	}
+
+	void set_cha(const int v)
+	{
+		Ensurer ch(*this);
+		ch->set_cha(v);
+	}
+
+	byte get_sex() const
+	{
+		Ensurer ch(*this);
+		return to_underlying(ch->get_sex());
+	}
+
+	void set_sex(const byte v)
+	{
+		Ensurer ch(*this);
+		ch->set_sex(static_cast<ESex>(v));
+	}
+
+	ubyte get_weight() const
+	{
+		Ensurer ch(*this);
+		return ch->get_weight();
+	}
+
+	void set_weight(const ubyte v)
+	{
+		Ensurer ch(*this);
+		ch->set_weight(v);
+	}
+
+	ubyte get_height() const
+	{
+		Ensurer ch(*this);
+		return ch->get_height();
+	}
+
+	void set_height(const ubyte v)
+	{
+		Ensurer ch(*this);
+		ch->set_height(v);
+	}
+
+	ubyte get_religion() const
+	{
+		Ensurer ch(*this);
+		return ch->get_religion();
+	}
+
+	void set_religion(const ubyte v)
+	{
+		Ensurer ch(*this);
+		ch->set_religion(v);
+	}
+
+	ubyte get_kin() const
+	{
+		Ensurer ch(*this);
+		return ch->get_kin();
+	}
+
+	void set_kin(const ubyte v)
+	{
+		Ensurer ch(*this);
+		ch->set_kin(v);
+	}
+
+	ubyte get_race() const
+	{
+		Ensurer ch(*this);
+		return ch->get_race();
+	}
+
+	void set_race(const ubyte v)
+	{
+		Ensurer ch(*this);
+		ch->set_race(v);
+	}
+
+	int get_hit() const
+	{
+		Ensurer ch(*this);
+		return ch->get_hit();
+	}
+
+	void set_hit(const int v)
+	{
+		Ensurer ch(*this);
+		ch->set_hit(v);
+	}
+
+	int get_max_hit() const
+	{
+		Ensurer ch(*this);
+		return ch->get_max_hit();
+	}
+
+	void set_max_hit(const int v)
+	{
+		Ensurer ch(*this);
+		ch->set_max_hit(v);
+	}
+
+	sh_int get_move() const
+	{
+		Ensurer ch(*this);
+		return ch->get_move();
+	}
+
+	void set_move(const sh_int v)
+	{
+		Ensurer ch(*this);
+		ch->set_move(v);
+	}
+
+	sh_int get_max_move() const
+	{
+		Ensurer ch(*this);
+		return ch->get_max_move();
+	}
+
+	void set_max_move(const sh_int v)
+	{
+		Ensurer ch(*this);
+		ch->set_max_move(v);
+	}
+
+	const char* get_email() const
+	{
+		Ensurer ch(*this);
+		return GET_EMAIL(ch);
+	}
+
+	const object get_pad(const int v) const
+	{
+		Ensurer ch(*this);
+		const char* val = ch->get_pad(v);
+		size_t size = strlen(val);
+		PyObject* py_buf = PyBytes_FromStringAndSize(val, size);
+		object retval = object(handle<>(py_buf));
+		return retval;
+	}
+
+	void set_pad(const int pad, const char* v)
+	{
+		Ensurer ch(*this);
+		ch->set_pad(pad, v);
+	}
+
+	void remove_gold(const long num, const bool log = true)
+	{
+		Ensurer ch(*this);
+		ch->remove_gold(num, log);
+	}
+
+	void remove_bank(const long num, const bool log = true)
+	{
+		Ensurer ch(*this);
+		ch->remove_bank(num, log);
+	}
+
+	void remove_both_gold(const long num, const bool log = true)
+	{
+		Ensurer ch(*this);
+		ch->remove_both_gold(num, log);
+	}
+
+	void add_gold(const long num, const bool log = true)
+	{
+		Ensurer ch(*this);
+		ch->add_gold(num, log);
+	}
+
+	void add_bank(const long num, const bool log = true)
+	{
+		Ensurer ch(*this);
+		ch->add_bank(num, log);
+	}
+
+	long get_total_gold() const
+	{
+		Ensurer ch(*this);
+		return ch->get_total_gold();
+	}
+
+	int get_uid() const
+	{
+		Ensurer ch(*this);
+		return ch->get_uid();
+	}
+
+	short get_remort() const
+	{
+		Ensurer ch(*this);
+		return ch->get_remort();
+	}
+
+	int get_skill(int skill_num) const
+	{
+		Ensurer ch(*this);
+		return ch->get_skill(static_cast<ESkill>(skill_num));
+	}
+
+	void set_skill(int skill_num, int percent)
+	{
+		Ensurer ch(*this);
+		ch->set_skill(static_cast<ESkill>(skill_num), percent);
+	}
+
+	void clear_skills()
+	{
+		Ensurer ch(*this);
+		ch->clear_skills();
+	}
+
+	int get_skills_count() const
+	{
+		Ensurer ch(*this);
+		return ch->get_skills_count();
+	}
+
+	int get_equipped_skill(int skill_num) const
+	{
+		Ensurer ch(*this);
+		return ch->get_equipped_skill(static_cast<ESkill>(skill_num));
+	}
+
+	int get_trained_skill(int skill_num) const
+	{
+		Ensurer ch(*this);
+		return ch->get_trained_skill(static_cast<ESkill>(skill_num));
+	}
+
+	ubyte get_spell(int spell_num) const
+	{
+		Ensurer ch(*this);
+		return GET_SPELL_TYPE(ch, spell_num);
+	}
+
+	void set_spell(int spell_num, ubyte value)
+	{
+		Ensurer ch(*this);
+		GET_SPELL_TYPE(ch, spell_num) = value;
+	}
+
+	void interpret(char* command)
+	{
+		Ensurer ch(*this);
+		command_interpreter(ch, command);
+	}
+
+	mob_rnum get_nr() const
+	{
+		Ensurer ch(*this);
+		return ch->nr;
+	}
+
+	void set_nr(const mob_rnum nr)
+	{
+		Ensurer ch(*this);
+		ch->nr = nr;
+	}
+
+	room_rnum get_in_room() const
+	{
+		Ensurer ch(*this);
+		return ch->in_room;
+	}
+
+	void set_in_room(room_rnum in_room)
+	{
+		Ensurer ch(*this);
+		char_from_room(ch);
+		char_to_room(ch, in_room);
+		check_horse(ch);
+	}
+
+	bool is_affected_by_spell(int spell_num) const
+	{
+		Ensurer ch(*this);
+		return affected_by_spell(ch, spell_num);
+	}
+
+	void add_affect(const AFFECT_DATA<EApplyLocation>& af)
+	{
+		Ensurer ch(*this);
+		affect_to_char(ch, af);
+	}
+
+	CharacterWrapper get_vis(const char* name, int where) const
+	{
+		Ensurer ch(*this);
+		CHAR_DATA* r = get_char_vis(ch, name, where);
+		if (!r)
+		{
+			PyErr_SetString(PyExc_ValueError, "Character not found");
+			throw_error_already_set();
+		}
+		return r;
+	}
+
+	void restore()
+	{
+		Ensurer vict(*this);
+		GET_HIT(vict) = GET_REAL_MAX_HIT(vict);
+		GET_MOVE(vict) = GET_REAL_MAX_MOVE(vict);
+		if (IS_MANA_CASTER(vict))
+		{
+			GET_MANA_STORED(vict) = GET_MAX_MANA(vict);
+		}
+		else
+		{
+			GET_MEM_COMPLETED(vict) = GET_MEM_TOTAL(vict);
+		}
+	}
+
+	void quested_add(const CharacterWrapper& ch, int vnum, char *text)
+	{
+		Ensurer self(*this);
+		self->quested_add((CHAR_DATA*)Ensurer(ch), vnum, text);
+	}
+
+	bool quested_remove(int vnum)
+	{
+		Ensurer ch(*this);
+		return ch->quested_remove(vnum);
+	}
+
+	std::string quested_get_text(int vnum)
+	{
+		Ensurer ch(*this);
+		return ch->quested_get_text(vnum);
+	}
+
+	std::string quested_print() const
+	{
+		Ensurer ch(*this);
+		return ch->quested_print();
+	}
+
+	unsigned get_wait() const
+	{
+		Ensurer ch(*this);
+		return ch->get_wait();
+	}
+
+	void set_wait(const unsigned v)
+	{
+		Ensurer ch(*this);
+		ch->set_wait(v);
+	}
+
+	std::string clan_status()
+	{
+		Ensurer ch(*this);
+		return GET_CLAN_STATUS(ch);
+	}
+
+	bool set_password_wrapped(const std::string&/* name*/, const std::string&/* password*/)
+	{
+		// заглушка
+		return true;
+	}
 };
 
 CharacterWrapper create_mob_from_proto(mob_rnum proto_rnum, bool is_virtual=true)
@@ -731,22 +729,40 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(create_mob_from_proto_overloads, create_mob_from
 
 struct CharacterListWrapper
 {
-typedef CharacterWrapper (*func_type)(const CharacterWrapper& );
-typedef CIterator<CharacterWrapper, func_type, func_type> iterator;
-
-static CharacterWrapper my_next_func(const CharacterWrapper& w)
-{
-	CharacterWrapper::Ensurer ch(w);
-	if (ch->get_next())
+	struct iterator_data_t : public std::pair<Characters::const_iterator, Characters&>
 	{
-		return ch->get_next();
-	}
-	PyErr_SetString(PyExc_StopIteration, "End of list.");
-	throw_error_already_set();
-	return CharacterWrapper(NULL); //to prevent compiler warning
-}
+		iterator_data_t(Characters::const_iterator beginning, Characters& list) : std::pair<Characters::const_iterator, Characters&>(beginning, list) {}
 
-static iterator* iter() { return new iterator(character_list, my_next_func, pass_through); }
+		operator bool() const { return first != second.end(); }
+	};
+
+	typedef iterator_data_t(*next_func_type)(const iterator_data_t&);
+	typedef CharacterWrapper(*get_func_type)(const iterator_data_t&);
+
+	typedef CIterator<iterator_data_t, next_func_type, get_func_type, CharacterWrapper> iterator;
+
+	static iterator_data_t my_next_func(const iterator_data_t& i)
+	{
+		auto result = i;
+		if (result.first != result.second.end())
+		{
+			++result.first;
+		}
+
+		if (result.first == result.second.end())
+		{
+			PyErr_SetString(PyExc_StopIteration, "End of list.");
+			throw_error_already_set();
+		}
+
+		return result;
+	}
+
+	static iterator* iter()
+	{
+		const iterator_data_t beginning(character_list.begin(), character_list);
+		return new iterator(beginning, my_next_func, [](const auto& i) -> auto { return CharacterWrapper(i.first->get()); });
+	}
 };
 
 CharacterWrapper get_mob_proto(const mob_rnum rnum)
@@ -1348,7 +1364,7 @@ boost::python::list get_players()
 	{
 		if (STATE(d) == CON_PLAYING)
 		{
-			tmp_list.append(CharacterWrapper(d->character));
+			tmp_list.append(CharacterWrapper(d->character.get()));
 		}
 	}
 	return tmp_list;
@@ -2592,8 +2608,6 @@ void publish_event(const char* event_name, dict kwargs)
 			mudlog((std::string("Error executing Python event ") + event_name + std::string(": " + parse_python_exception())).c_str(), CMP, LVL_IMMORT, ERRLOG, true);
 	}
 }
-
-
 
 template <class t, class nextfunc, class getfunc, class result_t>
 result_t CIterator<t, nextfunc, getfunc, result_t>::next()

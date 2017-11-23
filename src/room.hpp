@@ -54,6 +54,7 @@ struct ROOM_DATA
 {
 	using room_affects_list_t = std::list<AFFECT_DATA<ERoomApplyLocation>::shared_ptr>;
 	using exit_data_ptr = std::shared_ptr<EXIT_DATA>;
+	using people_t = std::list<CHAR_DATA*>;
 
 	ROOM_DATA();
 
@@ -79,7 +80,7 @@ struct ROOM_DATA
 	struct track_data *track;
 
 	OBJ_DATA *contents;	// List of items in room              //
-	CHAR_DATA *people;	// List of NPC / PC in room           //
+	people_t people;	// List of NPC / PC in room           //
 
 	room_affects_list_t affected;	// affected by what spells       //
 	FLAG_DATA affected_by;	// флаги которые в отличии от room_flags появляются от аффектов
@@ -114,6 +115,8 @@ struct ROOM_DATA
 	void flags_tascii(int num_planes, char* ascii) { m_room_flags.tascii(num_planes, ascii); }
 
 	void gm_flag(char *subfield, const char * const * const list, char *res) { m_room_flags.gm_flag(subfield, list, res); }
+
+	CHAR_DATA* first_character() const;
 
 private:
 	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //

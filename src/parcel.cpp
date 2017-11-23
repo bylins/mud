@@ -116,10 +116,10 @@ void invoice(long uid)
 	DESCRIPTOR_DATA *d = DescByUID(uid);
 	if (d)
 	{
-		if (!has_parcel(d->character))
+		if (!has_parcel(d->character.get()))
 		{
-			send_to_char(d->character, "%sВам пришла посылка, зайдите на почту и распишитесь!%s\r\n",
-					CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
+			send_to_char(d->character.get(), "%sВам пришла посылка, зайдите на почту и распишитесь!%s\r\n",
+				CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
 		}
 	}
 }
@@ -649,11 +649,10 @@ void receive(CHAR_DATA *ch, CHAR_DATA *mailman)
 void create_mail(int to_uid, int from_uid, char *text)
 {
 	mail::add(to_uid, from_uid, text);
-	DESCRIPTOR_DATA* i = DescByUID(to_uid);
+	const DESCRIPTOR_DATA* i = DescByUID(to_uid);
 	if (i)
 	{
-		send_to_char(i->character,
-			"%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
+		send_to_char(i->character.get(), "%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
 			CCWHT(i->character, C_NRM), CCNRM(i->character, C_NRM));
 	}
 }

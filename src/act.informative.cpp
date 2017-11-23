@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "world.objects.hpp"
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "shutdown.parameters.hpp"
@@ -136,7 +137,7 @@ void do_cities(CHAR_DATA *ch, char*, int, int);
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch);
 void look_at_char(CHAR_DATA * i, CHAR_DATA * ch);
 void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode);
-void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch);
+void list_char_to_char(const ROOM_DATA::people_t& list, CHAR_DATA* ch);
 void do_auto_exits(CHAR_DATA * ch);
 void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void look_in_direction(CHAR_DATA * ch, int dir, int info_is);
@@ -1723,11 +1724,9 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 }
 
-void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
+void list_char_to_char(const ROOM_DATA::people_t& list, CHAR_DATA* ch)
 {
-	CHAR_DATA *i;
-
-	for (i = list; i; i = i->next_in_room)
+	for (const auto i : list)
 	{
 		if (ch != i)
 		{
@@ -1747,11 +1746,9 @@ void list_char_to_char(CHAR_DATA * list, CHAR_DATA * ch)
 		}
 	}
 }
-void list_char_to_char_thing(CHAR_DATA * list, CHAR_DATA * ch)   //мобы рассы предмет будем выводить вместе с предметами желтеньким
+void list_char_to_char_thing(const ROOM_DATA::people_t& list, CHAR_DATA* ch)   //мобы рассы предмет будем выводить вместе с предметами желтеньким
 {
-	CHAR_DATA *i;
-
-	for (i = list; i; i = i->next_in_room)
+	for (const auto i : list)
 	{
 		if (ch != i)
 		{
@@ -2093,7 +2090,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		&& ch->desc->snoop_by->snoop_with_map
 		&& ch->desc->snoop_by->character)
 	{
-		ch->map_print_to_snooper(ch->desc->snoop_by->character);
+		ch->map_print_to_snooper(ch->desc->snoop_by->character.get());
 	}
 
 	send_to_char(CCICYN(ch, C_NRM), ch);
@@ -2260,7 +2257,6 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
 	int count = 0, probe, percent;
 	ROOM_DATA::exit_data_ptr rdata;
-	CHAR_DATA *tch;
 
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
@@ -2278,6 +2274,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			{
 				count += sprintf(buf + count, " закрыто (вероятно дверь).\r\n");
 			}
+
 			int skill_pick = ch->get_skill(SKILL_PICK_LOCK) ;
 			if (EXIT_FLAGGED(rdata, EX_LOCKED) && skill_pick)
 			{
@@ -2296,17 +2293,24 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 
 					std::string color = Locks[index][1];
 					if (abs(skill_pick - rdata->lock_complexity)>10)
+					{
 						color = KIDRK;
+					}
 					if (COLOR_LEV(ch)>C_NRM)
-						count += sprintf(buf+count-2, Locks[index][0], color.c_str(), KNRM);
+					{
+						count += sprintf(buf + count - 2, Locks[index][0], color.c_str(), KNRM);
+					}
 					else
-						count += sprintf(buf+count-2, Locks[index][0], KNUL, KNUL);
+					{
+						count += sprintf(buf + count - 2, Locks[index][0], KNUL, KNUL);
+					}
 				}
 			}
 
 			send_to_char(buf, ch);
 			return;
-		};
+		}
+
 		if (IS_TIMEDARK(rdata->to_room))
 		{
 			count += sprintf(buf + count, " слишком темно.\r\n");
@@ -2314,7 +2318,8 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			if (info_is & EXIT_SHOW_LOOKING)
 			{
 				send_to_char("&R&q", ch);
-				for (count = 0, tch = world[rdata->to_room]->people; tch; tch = tch->next_in_room)
+				count = 0;
+				for (const auto tch : world[rdata->to_room]->people)
 				{
 					percent = number(1, skill_info[SKILL_LOOKING].max_percent);
 					probe =
@@ -2329,8 +2334,11 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 						}
 					}
 				}
+
 				if (!count)
+				{
 					send_to_char("Вы ничего не смогли разглядеть!\r\n", ch);
+				}
 				send_to_char("&Q&n", ch);
 			}
 		}
@@ -2358,7 +2366,6 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 {
 	int count = 0, percent = 0, probe = 0;
 	ROOM_DATA::exit_data_ptr rdata;
-	CHAR_DATA *tch;
 	int fight_count = 0;
 	string tmpstr = "";
 
@@ -2375,7 +2382,8 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
 		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
 		send_to_char(buf, ch);
-		for (count = 0, tch = world[rdata->to_room]->people; tch; tch = tch->next_in_room)
+		count = 0;
+		for (const auto tch : world[rdata->to_room]->people)
 		{
 			percent = number(1, skill_info[SKILL_HEARING].max_percent);
 			probe = train_skill(ch, SKILL_HEARING, skill_info[SKILL_HEARING].max_percent, tch);
@@ -2383,12 +2391,17 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			if (tch->get_fighting())
 			{
 				if (IS_NPC(tch))
+				{
 					tmpstr += " Вы слышите шум чьей-то борьбы.\r\n";
+				}
 				else
+				{
 					tmpstr += " Вы слышите звуки чьих-то ударов.\r\n";
+				}
 				fight_count++;
 				continue;
 			}
+
 			if ((probe >= percent || ((!AFF_FLAGGED(tch, EAffectFlag::AFF_SNEAK) || !AFF_FLAGGED(tch, EAffectFlag::AFF_HIDE)) && (probe > percent * 2)))
 					&& (percent < 100 || IS_IMMORTAL(ch))
 					&& !fight_count)
@@ -2429,20 +2442,30 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 					}
 				}
 				else
+				{
 					tmpstr += " Вы слышите чье-то присутствие.\r\n";
+				}
 				count++;
 			}
 		}
+
 		if ((!count) && (!fight_count))
+		{
 			send_to_char(" Тишина и покой.\r\n", ch);
+		}
 		else
+		{
 			send_to_char(tmpstr.c_str(), ch);
+		}
+
 		send_to_char(CCNRM(ch, C_NRM), ch);
 	}
 	else
 	{
 		if (info_is & EXIT_SHOW_WALL)
+		{
 			send_to_char("И что вы там хотите услышать?\r\n", ch);
+		}
 	}
 }
 
@@ -2910,9 +2933,13 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 
 	if (GET_POS(ch) < POS_SLEEPING)
+	{
 		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
+	}
 	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
+	{
 		send_to_char("Вы ослеплены!\r\n", ch);
+	}
 	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
 		skip_hide_on_look(ch);
@@ -4605,7 +4632,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	int all = 0;
 
-	for (CHAR_DATA* tch = character_list; tch; tch = tch->get_next())
+	for (const auto tch: character_list)
 	{
 		if (IS_NPC(tch))
 			continue;
@@ -4629,7 +4656,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			continue;
 		if (showname && !(!NAME_GOD(tch) && GET_LEVEL(tch) <= NAME_LEVEL))
 			continue;
-		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO) && ch != tch)
+		if (PLR_FLAGGED(tch, PLR_NAMED) && NAME_DURATION(tch) && !IS_IMMORTAL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO) && ch != tch.get())
 			continue;
 
 		*buf = '\0';
@@ -4638,8 +4665,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (short_list)
 		{
 			char tmp[MAX_INPUT_LENGTH];
-			snprintf(tmp, sizeof(tmp), "%s%s%s",
-				CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
+			snprintf(tmp, sizeof(tmp), "%s%s%s", CCPK(ch, C_NRM, tch), GET_NAME(tch), CCNRM(ch, C_NRM));
 			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 			{
 				sprintf(buf, "%s[%2d %s %s] %-30s%s",
@@ -4656,19 +4682,24 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
+			if (IS_IMPL(ch)
+				|| PRF_FLAGGED(ch, PRF_CODERINFO))
+			{
 				sprintf(buf, "%s[%2d %2d %s(%5d)] %s%s%s%s",
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
-						GET_LEVEL(tch),
-						GET_REMORT(tch),
-						CLASS_ABBR(tch),
-						tch->get_pfilepos(),
-						CCPK(ch, C_NRM, tch),
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "",
+					GET_LEVEL(tch),
+					GET_REMORT(tch),
+					CLASS_ABBR(tch),
+					tch->get_pfilepos(),
+					CCPK(ch, C_NRM, tch),
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+			}
 			else
+			{
 				sprintf(buf, "%s %s%s%s",
-						CCPK(ch, C_NRM, tch),
-						IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+					CCPK(ch, C_NRM, tch),
+					IS_IMMORTAL(tch) ? CCWHT(ch, C_SPR) : "", tch->race_or_title().c_str(), CCNRM(ch, C_NRM));
+			}
 
 			if (GET_INVIS_LEV(tch))
 				sprintf(buf + strlen(buf), " (i%d)", GET_INVIS_LEV(tch));
@@ -4817,7 +4848,6 @@ std::string print_server_uptime()
 
 void do_statistic(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *tch;
 	int proff[NUM_PLAYER_CLASSES][2];
 	int ptot[NUM_PLAYER_CLASSES];
 	int i, clan = 0, noclan = 0, hilvl = 0, lowlvl = 0, all = 0, rem = 0, norem = 0, pk = 0, nopk = 0;
@@ -4829,7 +4859,7 @@ void do_statistic(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		ptot[i] = 0;
 	}
 
-	for (tch = character_list; tch; tch = tch->get_next())
+	for (const auto tch : character_list)
 	{
 		if (IS_NPC(tch) || GET_LEVEL(tch) >= LVL_IMMORT || !HERE(tch))
 			continue;
@@ -4847,10 +4877,14 @@ void do_statistic(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		else
 			norem++;
 		all++;
-		if (pk_count(tch) >= 1)
+		if (pk_count(tch.get()) >= 1)
+		{
 			pk++;
+		}
 		else
+		{
 			nopk++;
+		}
 
 		if (GET_LEVEL(tch) >= 25)
 			proff[(int)GET_CLASS(tch)][0]++;
@@ -4964,9 +4998,6 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	unsigned long a1, a2;
 	int showremorts = 0, showemail = 0, locating = 0;
 	char sorting = '!';
-	CHAR_DATA *ci;
-// ---
-	CHAR_DATA *tch, *t, *t_tmp;
 	DESCRIPTOR_DATA *d;
 	int low = 0, high = LVL_IMPL, num_can_see = 0;
 	int showclass = 0, outlaws = 0, playing = 0, deadweight = 0;
@@ -5074,18 +5105,26 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // Хорс
 	if (strlen(host_by_name) != 0)
+	{
 		strcpy(host_search, "!");
+	}
+
 	for (d = descriptor_list, count_pl = 0; d && count_pl < MAX_LIST_LEN; d = d->next, count_pl++)
 	{
 		list_players[count_pl] = d;
-		if (d->original)
-			tch = d->original;
-		else if (!(tch = d->character))
+
+		const auto character = d->get_character();
+		if (!character)
+		{
 			continue;
-//		if (host_by_name != 0) local array is always not NULL
-			if (isname(host_by_name, GET_NAME(tch)))
-				strcpy(host_search, d->host);
+		}
+
+		if (isname(host_by_name, GET_NAME(character)))
+		{
+			strcpy(host_search, d->host);
+		}
 	}
+
 	if (sorting != '!')
 	{
 		is = 1;
@@ -5096,15 +5135,13 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				flag_change = 0;
 				d = list_players[cycle_i - 1];
-				if (d->original)
-					t = d->original;
-				else
-					t = d->character;
+
+				const auto t = d->get_character();
+
 				d_tmp = list_players[cycle_i];
-				if (d_tmp->original)
-					t_tmp = d_tmp->original;
-				else
-					t_tmp = d_tmp->character;
+
+				const auto t_tmp = d_tmp->get_character();
+
 				switch (sorting)
 				{
 				case 'n':
@@ -5113,10 +5150,12 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						flag_change = 1;
 					}
 					break;
+
 				case 'e':
 					if (strcoll(t ? GET_EMAIL(t) : "", t_tmp ? GET_EMAIL(t_tmp) : "") > 0)
 						flag_change = 1;
 					break;
+
 				default:
 					a1 = get_ip((const char *) d->host);
 					a2 = get_ip((const char *) d_tmp->host);
@@ -5143,22 +5182,23 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			continue;
 		if (STATE(d) == CON_PLAYING)
 		{
-			if (d->original)
-				tch = d->original;
-			else if (!(tch = d->character))
+			const auto character = d->get_character();
+			if (!character)
+			{
 				continue;
+			}
 
 			if (*host_search && !strstr(d->host, host_search))
 				continue;
-			if (*name_search && !isname(name_search, GET_NAME(tch)))
+			if (*name_search && !isname(name_search, GET_NAME(character)))
 				continue;
-			if (!CAN_SEE(ch, tch) || GET_LEVEL(tch) < low || GET_LEVEL(tch) > high)
+			if (!CAN_SEE(ch, character) || GET_LEVEL(character) < low || GET_LEVEL(character) > high)
 				continue;
 			if (outlaws && !PLR_FLAGGED((ch), PLR_KILLER))
 				continue;
-			if (showclass && !(showclass & (1 << GET_CLASS(tch))))
+			if (showclass && !(showclass & (1 << GET_CLASS(character))))
 				continue;
-			if (GET_INVIS_LEV(tch) > GET_LEVEL(ch))
+			if (GET_INVIS_LEV(character) > GET_LEVEL(ch))
 				continue;
 
 			if (d->original)
@@ -5173,9 +5213,15 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					sprintf(classname, "[%2d %s %s]   ", GET_LEVEL(d->character), KIN_ABBR(d->character), CLASS_ABBR(d->character));
 		}
 		else
+		{
 			strcpy(classname, "      -      ");
+		}
+
 		if (GET_LEVEL(ch) < LVL_IMPL && !PRF_FLAGGED(ch, PRF_CODERINFO))
+		{
 			strcpy(classname, "      -      ");
+		}
+
 		timeptr = asctime(localtime(&d->login_time));
 		timeptr += 11;
 		*(timeptr + 8) = '\0';
@@ -5185,13 +5231,20 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else
 			sprinttype(STATE(d), connected_types, state);
 
-		if (d->character && STATE(d) == CON_PLAYING && !IS_GOD(d->character))
+		if (d->character
+			&& STATE(d) == CON_PLAYING
+			&& !IS_GOD(d->character))
+		{
 			sprintf(idletime, "%3d", d->character->char_specials.timer *
-					SECS_PER_MUD_HOUR / SECS_PER_REAL_MIN);
+				SECS_PER_MUD_HOUR / SECS_PER_REAL_MIN);
+		}
 		else
+		{
 			strcpy(idletime, "");
+		}
 
-		if (d->character && d->character->get_pc_name().c_str())
+		if (d->character
+			&& d->character->get_pc_name().c_str())
 		{
 			if (d->original)
 			{
@@ -5206,14 +5259,17 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			sprintf(line, format, d->desc_num, "   -   ", "UNDEFINED", state, idletime, timeptr);
 		}
+
 // Хорс
-		if (d/*->host*/ && *d->host)	// address of field is always not NULL if it is not first field. So, host is not first field
+		if (d && *d->host)
 		{
 			sprintf(line2, "[%s]", d->host);
 			strcat(line, line2);
 		}
 		else
+		{
 			strcat(line, "[Неизвестный хост]");
+		}
 
 		if (showemail)
 		{
@@ -5223,21 +5279,31 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 
 		if (locating && (*name_search || *host_by_name))
+		{
 			if (STATE(d) == CON_PLAYING)
 			{
-				ci = (d->original ? d->original : d->character);
-				if (ci && CAN_SEE(ch, ci) && (ci->in_room != NOWHERE))
+				const auto ci = d->get_character();
+				if (ci
+					&& CAN_SEE(ch, ci)
+					&& ci->in_room != NOWHERE)
 				{
 					if (d->original && d->character)
+					{
 						sprintf(line2, " [%5d] %s (in %s)",
-								GET_ROOM_VNUM(IN_ROOM(d->character)),
-								world[d->character->in_room]->name, GET_NAME(d->character));
+							GET_ROOM_VNUM(IN_ROOM(d->character)),
+							world[d->character->in_room]->name, GET_NAME(d->character));
+					}
 					else
+					{
 						sprintf(line2, " [%5d] %s",
-								GET_ROOM_VNUM(IN_ROOM(ci)), world[ci->in_room]->name);
+							GET_ROOM_VNUM(IN_ROOM(ci)), world[ci->in_room]->name);
+					}
 				}
+
 				strcat(line, line2);
 			}
+		}
+
 //--
 		strcat(line, "\r\n");
 		if (STATE(d) != CON_PLAYING)
@@ -5245,6 +5311,7 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			sprintf(line2, "%s%s%s", CCGRN(ch, C_SPR), line, CCNRM(ch, C_SPR));
 			strcpy(line, line2);
 		}
+
 		if (STATE(d) != CON_PLAYING || (STATE(d) == CON_PLAYING && d->character && CAN_SEE(ch, d->character)))
 		{
 			send_to_char(line, ch);
@@ -5253,7 +5320,6 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	sprintf(line, "\r\n%d видимых соединений.\r\n", num_can_see);
-//  send_to_char(line, ch);
 	page_string(ch->desc, line, TRUE);
 }
 
@@ -5336,7 +5402,6 @@ void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 
 void perform_mortal_where(CHAR_DATA * ch, char *arg)
 {
-	CHAR_DATA *i;
 	DESCRIPTOR_DATA *d;
 
 	send_to_char("Кто много знает, тот плохо спит.\r\n", ch);
@@ -5347,31 +5412,54 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 		send_to_char("Игроки, находящиеся в зоне\r\n--------------------\r\n", ch);
 		for (d = descriptor_list; d; d = d->next)
 		{
-			if (STATE(d) != CON_PLAYING || d->character == ch)
+			if (STATE(d) != CON_PLAYING
+				|| d->character.get() == ch)
+			{
 				continue;
-			if ((i = (d->original ? d->original : d->character)) == NULL)
+			}
+
+			const auto i = d->get_character();
+			if (!i)
+			{
 				continue;
-			if (i->in_room == NOWHERE || !CAN_SEE(ch, i))
+			}
+
+			if (i->in_room == NOWHERE
+				|| !CAN_SEE(ch, i))
+			{
 				continue;
+			}
+
 			if (world[ch->in_room]->zone != world[i->in_room]->zone)
+			{
 				continue;
+			}
+
 			sprintf(buf, "%-20s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
 			send_to_char(buf, ch);
 		}
 	}
 	else  		// print only FIRST char, not all.
 	{
-		for (i = character_list; i; i = i->get_next())
+		for (const auto i : character_list)
 		{
-			if (i->in_room == NOWHERE || i == ch)
+			if (i->in_room == NOWHERE
+				|| i.get() == ch)
+			{
 				continue;
+			}
+
 			if (!CAN_SEE(ch, i)
-					|| world[i->in_room]->zone != world[ch->in_room]->zone)
+				|| world[i->in_room]->zone != world[ch->in_room]->zone)
+			{
 				continue;
+			}
+
 			if (!isname(arg, i->get_pc_name()))
 			{
 				continue;
 			}
+
 			sprintf(buf, "%-25s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
 			send_to_char(buf, ch);
 			return;
@@ -5507,40 +5595,47 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 
 void perform_immort_where(CHAR_DATA * ch, char *arg)
 {
-	CHAR_DATA *i;
 	DESCRIPTOR_DATA *d;
 	int num = 1, found = 0;
 
 	if (!*arg)
 	{
 		if (GET_LEVEL(ch) < LVL_IMPL && !PRF_FLAGGED(ch, PRF_CODERINFO))
+		{
 			send_to_char("Где КТО конкретно?", ch);
+		}
 		else
 		{
 			send_to_char("ИГРОКИ\r\n------\r\n", ch);
 			for (d = descriptor_list; d; d = d->next)
+			{
 				if (STATE(d) == CON_PLAYING)
 				{
-					i = (d->original ? d->original : d->character);
+					const auto i = d->get_character();
 					if (i && CAN_SEE(ch, i) && (i->in_room != NOWHERE))
 					{
 						if (d->original)
+						{
 							sprintf(buf, "%-20s - [%5d] %s (in %s)\r\n",
-									GET_NAME(i),
-									GET_ROOM_VNUM(IN_ROOM(d->character)),
-									world[d->character->in_room]->name,
-									GET_NAME(d->character));
+								GET_NAME(i),
+								GET_ROOM_VNUM(IN_ROOM(d->character)),
+								world[d->character->in_room]->name,
+								GET_NAME(d->character));
+						}
 						else
+						{
 							sprintf(buf, "%-20s - [%5d] %s\r\n", GET_NAME(i),
-									GET_ROOM_VNUM(IN_ROOM(i)), world[i->in_room]->name);
+								GET_ROOM_VNUM(IN_ROOM(i)), world[i->in_room]->name);
+						}
 						send_to_char(buf, ch);
 					}
 				}
+			}
 		}
 	}
 	else
 	{
-		for (i = character_list; i; i = i->get_next())
+		for (const auto i : character_list)
 		{
 			if (CAN_SEE(ch, i)
 				&& i->in_room != NOWHERE
@@ -5553,8 +5648,12 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 				send_to_char(buf, ch);
 			}
 		}
-		if (!print_imm_where_obj(ch, arg, num) && !found)
+
+		if (!print_imm_where_obj(ch, arg, num)
+			&& !found)
+		{
 			send_to_char("Нет ничего похожего.\r\n", ch);
+		}
 	}
 }
 
@@ -6092,11 +6191,8 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 // Create web-page with users list
 void make_who2html(void)
 {
-
 	FILE *opf;
-
 	DESCRIPTOR_DATA *d;
-	CHAR_DATA *ch;
 
 	int imms_num = 0, morts_num = 0;
 
@@ -6116,9 +6212,11 @@ void make_who2html(void)
 	morts = str_add(morts, buf);
 
 	for (d = descriptor_list; d; d = d->next)
-		if (STATE(d) == CON_PLAYING && GET_INVIS_LEV(d->character) < 31)
+	{
+		if (STATE(d) == CON_PLAYING
+			&& GET_INVIS_LEV(d->character) < 31)
 		{
-			ch = d->character;
+			const auto ch = d->character;
 			sprintf(buf, "%s <BR> \r\n ", ch->race_or_title().c_str());
 
 			if (IS_IMMORTAL(ch))
@@ -6132,6 +6230,7 @@ void make_who2html(void)
 				morts = str_add(morts, buf);
 			}
 		}
+	}
 
 	if (morts_num + imms_num == 0)
 	{

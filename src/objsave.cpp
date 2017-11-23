@@ -12,6 +12,7 @@
 #include "objsave.h"
 
 #include "world.objects.hpp"
+#include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -58,7 +59,7 @@ extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;
 
-#define RENTCODE(number) ((player_table+number)->timer->rent.rentcode)
+#define RENTCODE(number) (player_table[(number)].timer->rent.rentcode)
 #define GET_INDEX(ch) (get_ptable_by_name(GET_NAME(ch)))
 
 // Extern functions
@@ -85,8 +86,6 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj);
 void Crash_extract_norents(CHAR_DATA *ch, OBJ_DATA * obj);
 int Crash_calculate_rent(OBJ_DATA * obj);
 int Crash_calculate_rent_eq(OBJ_DATA * obj);
-int Crash_delete_files(int index);
-int Crash_read_timer(int index, int temp);
 void Crash_save_all_rent();
 int Crash_calc_charmee_items(CHAR_DATA *ch);
 
@@ -156,8 +155,6 @@ int get_buf_lines(char **source, char *target)
 	}
 	return (FALSE);
 }
-
-extern void free_script(SCRIPT_DATA * sc);
 
 // Данная процедура выбирает предмет из буфера.
 // с поддержкой нового формата вещей игроков [от 10.12.04].
@@ -613,9 +610,9 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error)
 				object->get_custom_label()->author = atoi(buffer);
 				if (object->get_custom_label()->author > 0)
 				{
-					for (int i = 0; i <= top_of_p_table; i++)
+					for (std::size_t i = 0; i < player_table.size(); i++)
 					{
-						if (player_table[i].id == object->get_custom_label()->author)
+						if (player_table[i].id() == object->get_custom_label()->author)
 						{
 							object->get_custom_label()->author_mail = str_dup(player_table[i].mail);
 							break;
@@ -1644,28 +1641,18 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 	return (location);
 }
 
-int Crash_delete_crashfile(CHAR_DATA * ch)
-{
-	int index;
-
-	index = GET_INDEX(ch);
-	if (index < 0)
-		return FALSE;
-	if (!SAVEINFO(index))
-		Crash_delete_files(index);
-	return TRUE;
-}
-
-int Crash_delete_files(int index)
+int Crash_delete_files(const std::size_t index)
 {
 	char filename[MAX_STRING_LENGTH + 1], name[MAX_NAME_LENGTH + 1];
 	FILE *fl;
 	int retcode = FALSE;
 
-	if (index < 0)
+	if (static_cast<int>(index) < 0)
+	{
 		return retcode;
+	}
 
-	strcpy(name, player_table[index].name);
+	strcpy(name, player_table[index].name());
 
 	//удаляем файл описания объектов
 	if (!get_filename(name, filename, TEXT_CRASH_FILE))
@@ -1724,9 +1711,21 @@ int Crash_delete_files(int index)
 	return (retcode);
 }
 
+int Crash_delete_crashfile(CHAR_DATA * ch)
+{
+	int index;
+
+	index = GET_INDEX(ch);
+	if (index < 0)
+		return FALSE;
+	if (!SAVEINFO(index))
+		Crash_delete_files(index);
+	return TRUE;
+}
+
 // ********* Timer utils: create, read, write, list, timer_objects *********
 
-void Crash_clear_objects(int index)
+void Crash_clear_objects(const std::size_t index)
 {
 	int i = 0, rnum;
 	Crash_delete_files(index);
@@ -1744,68 +1743,12 @@ void Crash_clear_objects(int index)
 	}
 }
 
-void Crash_reload_timer(int index)
-{
-	int i = 0, rnum;
-	if (SAVEINFO(index))
-	{
-		for (; i < SAVEINFO(index)->rent.nitems; i++)
-		{
-			if (SAVEINFO(index)->time[i].timer >= 0 &&
-				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
-			{
-				obj_proto.dec_stored(rnum);
-			}
-		}
-		clear_saveinfo(index);
-	}
-
-	if (!Crash_read_timer(index, FALSE))
-	{
-		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name);
-		mudlog(buf, BRF, MAX(LVL_IMMORT, LVL_GOD), SYSLOG, TRUE);
-	}
-
-}
-
-void Crash_create_timer(int index, int/* num*/)
+void Crash_create_timer(const std::size_t index, int/* num*/)
 {
 	recreate_saveinfo(index);
 }
 
-int Crash_write_timer(int index)
-{
-	FILE *fl;
-	char fname[MAX_STRING_LENGTH];
-	char name[MAX_NAME_LENGTH + 1];
-
-	strcpy(name, player_table[index].name);
-	if (!SAVEINFO(index))
-	{
-		log("SYSERR: Error writing %s timer file - no data.", name);
-		return FALSE;
-	}
-	if (!get_filename(name, fname, TIME_CRASH_FILE))
-	{
-		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name);
-		return FALSE;
-	}
-	if (!(fl = fopen(fname, "wb")))
-	{
-		log("[WriteTimer] Error writing %s timer file - unable to open file %s.", name, fname);
-		return FALSE;
-	}
-	fwrite(&(SAVEINFO(index)->rent), sizeof(save_rent_info), 1, fl);
-	for (int i = 0; i < SAVEINFO(index)->rent.nitems; ++i)
-	{
-		fwrite(&(SAVEINFO(index)->time[i]), sizeof(save_time_info), 1, fl);
-	}
-	fclose(fl);
-	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
-	return TRUE;
-}
-
-int Crash_read_timer(int index, int temp)
+int Crash_read_timer(const std::size_t index, int temp)
 {
 	FILE *fl;
 	char fname[MAX_INPUT_LENGTH];
@@ -1814,7 +1757,7 @@ int Crash_read_timer(int index, int temp)
 	struct save_rent_info rent;
 	struct save_time_info info;
 
-	strcpy(name, player_table[index].name);
+	strcpy(name, player_table[index].name());
 	if (!get_filename(name, fname, TIME_CRASH_FILE))
 	{
 		log("[ReadTimer] Error reading %s timer file - unable to resolve file name.", name);
@@ -1848,7 +1791,7 @@ int Crash_read_timer(int index, int temp)
 		strcat(buf, " Rent ");
 		break;
 	case RENT_CRASH:
-//           if (rent.time<1001651000L) //креш-сейв до Sep 28 00:26:20 2001
+		//           if (rent.time<1001651000L) //креш-сейв до Sep 28 00:26:20 2001
 		rent.net_cost_per_diem = 0;	//бесплатно!
 		strcat(buf, " Crash ");
 		break;
@@ -1891,7 +1834,7 @@ int Crash_read_timer(int index, int temp)
 		else
 		{
 			log("[ReadTimer] Warning: incorrect vnum (%d) or timer (%d) while reading %s timer file.",
-					info.vnum, info.timer, name);
+				info.vnum, info.timer, name);
 		}
 		if (info.timer >= 0 && (rnum = real_object(info.vnum)) >= 0 && !temp)
 		{
@@ -1913,7 +1856,62 @@ int Crash_read_timer(int index, int temp)
 		return TRUE;
 }
 
-void Crash_timer_obj(int index, long time)
+void Crash_reload_timer(int index)
+{
+	int i = 0, rnum;
+	if (SAVEINFO(index))
+	{
+		for (; i < SAVEINFO(index)->rent.nitems; i++)
+		{
+			if (SAVEINFO(index)->time[i].timer >= 0 &&
+				(rnum = real_object(SAVEINFO(index)->time[i].vnum)) >= 0)
+			{
+				obj_proto.dec_stored(rnum);
+			}
+		}
+		clear_saveinfo(index);
+	}
+
+	if (!Crash_read_timer(index, FALSE))
+	{
+		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name());
+		mudlog(buf, BRF, MAX(LVL_IMMORT, LVL_GOD), SYSLOG, TRUE);
+	}
+}
+
+int Crash_write_timer(const std::size_t index)
+{
+	FILE *fl;
+	char fname[MAX_STRING_LENGTH];
+	char name[MAX_NAME_LENGTH + 1];
+
+	strcpy(name, player_table[index].name());
+	if (!SAVEINFO(index))
+	{
+		log("SYSERR: Error writing %s timer file - no data.", name);
+		return FALSE;
+	}
+	if (!get_filename(name, fname, TIME_CRASH_FILE))
+	{
+		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name);
+		return FALSE;
+	}
+	if (!(fl = fopen(fname, "wb")))
+	{
+		log("[WriteTimer] Error writing %s timer file - unable to open file %s.", name, fname);
+		return FALSE;
+	}
+	fwrite(&(SAVEINFO(index)->rent), sizeof(save_rent_info), 1, fl);
+	for (int i = 0; i < SAVEINFO(index)->rent.nitems; ++i)
+	{
+		fwrite(&(SAVEINFO(index)->time[i]), sizeof(save_time_info), 1, fl);
+	}
+	fclose(fl);
+	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].unique);
+	return TRUE;
+}
+
+void Crash_timer_obj(const std::size_t index, long time)
 {
 	char name[MAX_NAME_LENGTH + 1];
 	int nitems = 0, idelete = 0, ideleted = 0, rnum, timer, i;
@@ -1924,7 +1922,7 @@ void Crash_timer_obj(int index, long time)
 	return;
 #endif
 
-	strcpy(name, player_table[index].name);
+	strcpy(name, player_table[index].name());
 
 	if (!player_table[index].timer)
 	{
@@ -2714,7 +2712,7 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, OBJ_DATA * obj, in
 
 			if (savetype != RENT_CRASH)
 			{
-				log("%s save_char_obj %d %d %u", player_table[iplayer].name,
+				log("%s save_char_obj %d %d %u", player_table[iplayer].name(),
 					GET_OBJ_VNUM(obj), obj->get_uid(), obj->get_timer());
 			}
 		}
@@ -3393,7 +3391,7 @@ void Crash_frac_save_all(int frac_part)
 	{
 		if ((STATE(d) == CON_PLAYING) && !IS_NPC(d->character) && GET_ACTIVITY(d->character) == frac_part)
 		{
-			Crash_crashsave(d->character);
+			Crash_crashsave(d->character.get());
 			d->character->save_char();
 			PLR_FLAGS(d->character).unset(PLR_CRASH);
 		}
@@ -3407,7 +3405,7 @@ void Crash_save_all(void)
 	{
 		if ((STATE(d) == CON_PLAYING) && PLR_FLAGGED(d->character, PLR_CRASH))
 		{
-			Crash_crashsave(d->character);
+			Crash_crashsave(d->character.get());
 			d->character->save_char();
 			PLR_FLAGS(d->character).unset(PLR_CRASH);
 		}
@@ -3421,25 +3419,24 @@ void Crash_save_all_rent(void)
 	// а по списку чаров, чтобы сохранить заодно и тех,
 	// кто перед ребутом ушел в ЛД с целью сохранить
 	// свои грязные денежки.
-	CHAR_DATA *tch;
-	for (CHAR_DATA *ch = character_list; ch; ch = tch)
+	
+	character_list.foreach_on_copy([&](const auto& ch)
 	{
-		tch = ch->get_next();
 		if (!IS_NPC(ch))
 		{
-			save_char_objects(ch, RENT_FORCED, 0);
+			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(PLR_CRASH);
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
-			extract_char(ch, FALSE);
+			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
+			extract_char(ch.get(), FALSE);
 		}
-	}
+	});
 }
 
 void Crash_frac_rent_time(int frac_part)
 {
-	for (int c = 0; c <= top_of_p_table; c++)
+	for (std::size_t c = 0; c < player_table.size(); c++)
 	{
 		if (player_table[c].activity == frac_part
 			&& player_table[c].unique != -1
@@ -3452,7 +3449,7 @@ void Crash_frac_rent_time(int frac_part)
 
 void Crash_rent_time(int/* dectime*/)
 {
-	for (int c = 0; c <= top_of_p_table; c++)
+	for (std::size_t c = 0; c < player_table.size(); c++)
 	{
 		if (player_table[c].unique != -1)
 		{

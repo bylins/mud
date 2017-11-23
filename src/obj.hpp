@@ -761,8 +761,7 @@ public:
 	static id_to_set_info_map set_table;
 	static void init_set_table();
 
-	void purge(bool destructor = false);
-	bool purged() const;
+	void purge();
 
 	void set_activator(bool flag, int num);
 	std::pair<bool, int> get_activator() const;

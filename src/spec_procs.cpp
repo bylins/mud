@@ -34,6 +34,7 @@
 #include "fight.h"
 #include "fight_hit.hpp"
 #include "char_obj_utils.inl"
+#include "world.characters.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -62,7 +63,6 @@ int has_key(CHAR_DATA * ch, obj_vnum key);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
 void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
 void ASSIGNMASTER(mob_vnum mob, special_f, int learn_info);
-int mag_manacost(CHAR_DATA * ch, int spellnum);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 
@@ -1768,66 +1768,66 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	return (0);
 }
 
-int npc_track(CHAR_DATA * ch)
+int check_room_tracks(const room_rnum room, const long victim_id)
 {
-	CHAR_DATA *vict;
-	memory_rec *names;
-	int door = BFS_ERROR, msg = FALSE, i;
-	struct track_data *track;
-
-	if (GET_REAL_INT(ch) < number(15, 20))
+	for (auto track = world[room]->track; track; track = track->next)
 	{
-		for (vict = character_list; vict && door == BFS_ERROR; vict = vict->get_next())
+		if (track->who == victim_id)
 		{
-			if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
-				for (names = MEMORY(ch); names && door == BFS_ERROR; names = names->next)
-					if (GET_IDNUM(vict) == names->id && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-														 || world[ch->in_room]->zone ==
-														 world[IN_ROOM(vict)]->zone))
-					{
-						for (track = world[ch->in_room]->track;
-								track && door == BFS_ERROR; track = track->next)
-							if (track->who == GET_IDNUM(vict))
-								for (i = 0; i < NUM_OF_DIRS; i++)
-									if (IS_SET(track->time_outgone[i], 7))
-									{
-										door = i;
-										// log("MOB %s track %s at dir %d", GET_NAME(ch), GET_NAME(vict), door);
-										break;
-									}
-						if (!msg)
-						{
-							msg = TRUE;
-							act("$n начал$g внимательно искать чьи-то следы.",
-								FALSE, ch, 0, 0, TO_ROOM);
-						}
-					}
-		}
-	}
-	else
-	{
-		for (vict = character_list; vict && door == BFS_ERROR; vict = vict->get_next())
-		{
-			if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
+			for (int i = 0; i < NUM_OF_DIRS; i++)
 			{
-				for (names = MEMORY(ch); names && door == BFS_ERROR; names = names->next)
-					if (GET_IDNUM(vict) == names->id
-						&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-							|| world[ch->in_room]->zone == world[IN_ROOM(vict)]->zone))
-					{
-						if (!msg)
-						{
-							msg = TRUE;
-							act("$n начал$g внимательно искать чьи-то следы.",
-								FALSE, ch, 0, 0, TO_ROOM);
-						}
-						door = go_track(ch, vict, SKILL_TRACK);
-						// log("MOB %s sense %s at dir %d", GET_NAME(ch), GET_NAME(vict), door);
-					}
+				if (IS_SET(track->time_outgone[i], 7))
+				{
+					return i;
+				}
 			}
 		}
 	}
-	return (door);
+
+	return BFS_ERROR;
+}
+
+int find_door(CHAR_DATA* ch, const bool track_method)
+{
+	bool msg = false;
+
+	for (const auto& vict : character_list)
+	{
+		if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
+		{
+			for (auto names = MEMORY(ch); names; names = names->next)
+			{
+				if (GET_IDNUM(vict) == names->id
+					&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
+						|| world[ch->in_room]->zone == world[IN_ROOM(vict)]->zone))
+				{
+					if (!msg)
+					{
+						msg = true;
+						act("$n начал$g внимательно искать чьи-то следы.", FALSE, ch, 0, 0, TO_ROOM);
+					}
+
+					const auto door = track_method
+						? check_room_tracks(ch->in_room, GET_IDNUM(vict))
+						: go_track(ch, vict.get(), SKILL_TRACK);
+
+					if (BFS_ERROR != door)
+					{
+						return door;
+					}
+				}
+			}
+		}
+	}
+
+	return BFS_ERROR;
+}
+
+int npc_track(CHAR_DATA * ch)
+{
+	const auto result = find_door(ch, GET_REAL_INT(ch) < number(15, 20));
+
+	return result;
 }
 
 bool item_nouse(OBJ_DATA * obj)
@@ -2715,21 +2715,23 @@ int do_npc_steal(CHAR_DATA * ch, CHAR_DATA * victim)
 
 int npc_steal(CHAR_DATA * ch)
 {
-	CHAR_DATA *cons;
-
 	if (!NPC_FLAGGED(ch, NPC_STEALING))
 		return (FALSE);
 
 	if (GET_POS(ch) != POS_STANDING || IS_SHOPKEEPER(ch) || ch->get_fighting())
 		return (FALSE);
 
-	for (cons = world[ch->in_room]->people; cons; cons = cons->next_in_room)
-		if (!IS_NPC(cons) && !IS_IMMORTAL(cons)
-				&& (number(0, GET_REAL_INT(ch)) > 10))
+	for (const auto cons : world[ch->in_room]->people)
+	{
+		if (!IS_NPC(cons)
+			&& !IS_IMMORTAL(cons)
+			&& (number(0, GET_REAL_INT(ch)) > 10))
 		{
 			return (do_npc_steal(ch, cons));
 		}
-	return (FALSE);
+	}
+
+	return FALSE;
 }
 
 #define ZONE(ch)  (GET_MOB_VNUM(ch) / 100)
@@ -2737,7 +2739,7 @@ int npc_steal(CHAR_DATA * ch)
 
 void npc_group(CHAR_DATA * ch)
 {
-	CHAR_DATA *vict, *leader = NULL;
+	CHAR_DATA *leader = NULL;
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
 	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
@@ -2762,15 +2764,18 @@ void npc_group(CHAR_DATA * ch)
 	}
 
 	// Find leader
-	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+	for (const auto vict : world[ch->in_room]->people)
 	{
-		if (!IS_NPC(vict) ||
-				GET_DEST(vict) != GET_DEST(ch) ||
-				zone != ZONE(vict) ||
-				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+		if (!IS_NPC(vict)
+			|| GET_DEST(vict) != GET_DEST(ch)
+			|| zone != ZONE(vict)
+			|| group != GROUP(vict)
+			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			|| GET_POS(vict) < POS_SLEEPING)
 		{
 			continue;
 		}
+
 		members++;
 
 		if (!leader
@@ -2786,6 +2791,7 @@ void npc_group(CHAR_DATA * ch)
 		{
 			stop_follower(ch, SF_EMPTY);
 		}
+
 		return;
 	}
 
@@ -2795,12 +2801,14 @@ void npc_group(CHAR_DATA * ch)
 	}
 
 	// Assign leader
-	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
+	for (const auto vict : world[ch->in_room]->people)
 	{
-		if (!IS_NPC(vict) ||
-				GET_DEST(vict) != GET_DEST(ch) ||
-				zone != ZONE(vict) ||
-				group != GROUP(vict) || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM) || GET_POS(vict) < POS_SLEEPING)
+		if (!IS_NPC(vict)
+			|| GET_DEST(vict) != GET_DEST(ch)
+			|| zone != ZONE(vict)
+			|| group != GROUP(vict)
+			|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
+			|| GET_POS(vict) < POS_SLEEPING)
 		{
 			continue;
 		}
@@ -3008,93 +3016,121 @@ int snake(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 
 int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
-	CHAR_DATA *cons;
-
 	if (cmd)
 		return (FALSE);
 
 	if (GET_POS(ch) != POS_STANDING)
 		return (FALSE);
 
-	for (cons = world[ch->in_room]->people; cons; cons = cons->next_in_room)
-		if (!IS_NPC(cons) && (GET_LEVEL(cons) < LVL_IMMORT) && (!number(0, 4)))
+	for (const auto cons : world[ch->in_room]->people)
+	{
+		if (!IS_NPC(cons)
+			&& GET_LEVEL(cons) < LVL_IMMORT
+			&& !number(0, 4))
 		{
 			do_npc_steal(ch, cons);
-			return (TRUE);
+
+			return TRUE;
 		}
-	return (FALSE);
+	}
+
+	return FALSE;
 }
 
 int magic_user(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
-	CHAR_DATA *vict;
-
 	if (cmd || GET_POS(ch) != POS_FIGHTING)
+	{
 		return (FALSE);
+	}
 
+	CHAR_DATA *target = nullptr;
 	// pseudo-randomly choose someone in the room who is fighting me //
-	for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
-		if (vict->get_fighting() == ch && !number(0, 4))
+	for (const auto vict : world[ch->in_room]->people)
+	{
+		if (vict->get_fighting() == ch
+			&& !number(0, 4))
+		{
+			target = vict;
+
 			break;
+		}
+	}
 
 	// if I didn't pick any of those, then just slam the guy I'm fighting //
-	if (vict == NULL && IN_ROOM(ch->get_fighting()) == ch->in_room)
-		vict = ch->get_fighting();
+	if (target == nullptr
+		&& IN_ROOM(ch->get_fighting()) == ch->in_room)
+	{
+		target = ch->get_fighting();
+	}
 
 	// Hm...didn't pick anyone...I'll wait a round. //
-	if (vict == NULL)
+	if (target == nullptr)
+	{
 		return (TRUE);
+	}
 
 	if ((GET_LEVEL(ch) > 13) && (number(0, 10) == 0))
-		cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP, SPELL_SLEEP);
+	{
+		cast_spell(ch, target, NULL, NULL, SPELL_SLEEP, SPELL_SLEEP);
+	}
 
 	if ((GET_LEVEL(ch) > 7) && (number(0, 8) == 0))
-		cast_spell(ch, vict, NULL, NULL, SPELL_BLINDNESS, SPELL_BLINDNESS);
+	{
+		cast_spell(ch, target, NULL, NULL, SPELL_BLINDNESS, SPELL_BLINDNESS);
+	}
 
 	if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0))
 	{
 		if (IS_EVIL(ch))
-			cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN, SPELL_ENERGY_DRAIN);
+		{
+			cast_spell(ch, target, NULL, NULL, SPELL_ENERGY_DRAIN, SPELL_ENERGY_DRAIN);
+		}
 		else if (IS_GOOD(ch))
-			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL, SPELL_DISPEL_EVIL);
+		{
+			cast_spell(ch, target, NULL, NULL, SPELL_DISPEL_EVIL, SPELL_DISPEL_EVIL);
+		}
 	}
+
 	if (number(0, 4))
+	{
 		return (TRUE);
+	}
 
 	switch (GET_LEVEL(ch))
 	{
 	case 4:
 	case 5:
-		cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE, SPELL_MAGIC_MISSILE);
+		cast_spell(ch, target, NULL, NULL, SPELL_MAGIC_MISSILE, SPELL_MAGIC_MISSILE);
 		break;
 	case 6:
 	case 7:
-		cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH, SPELL_CHILL_TOUCH);
+		cast_spell(ch, target, NULL, NULL, SPELL_CHILL_TOUCH, SPELL_CHILL_TOUCH);
 		break;
 	case 8:
 	case 9:
-		cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS, SPELL_BURNING_HANDS);
+		cast_spell(ch, target, NULL, NULL, SPELL_BURNING_HANDS, SPELL_BURNING_HANDS);
 		break;
 	case 10:
 	case 11:
-		cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP, SPELL_SHOCKING_GRASP);
+		cast_spell(ch, target, NULL, NULL, SPELL_SHOCKING_GRASP, SPELL_SHOCKING_GRASP);
 		break;
 	case 12:
 	case 13:
-		cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT);
+		cast_spell(ch, target, NULL, NULL, SPELL_LIGHTNING_BOLT, SPELL_LIGHTNING_BOLT);
 		break;
 	case 14:
 	case 15:
 	case 16:
 	case 17:
-		cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY, SPELL_COLOR_SPRAY);
+		cast_spell(ch, target, NULL, NULL, SPELL_COLOR_SPRAY, SPELL_COLOR_SPRAY);
 		break;
 	default:
-		cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, SPELL_FIREBALL);
+		cast_spell(ch, target, NULL, NULL, SPELL_FIREBALL, SPELL_FIREBALL);
 		break;
 	}
-	return (TRUE);
 
+	return (TRUE);
 }
 
 
@@ -3193,36 +3229,42 @@ int janitor(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 
 int cityguard(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
-	CHAR_DATA *tch, *evil;
+	CHAR_DATA *evil;
 	int max_evil;
 
-	if (cmd || !AWAKE(ch) || ch->get_fighting())
+	if (cmd
+		|| !AWAKE(ch)
+		|| ch->get_fighting())
+	{
 		return (FALSE);
+	}
 
 	max_evil = 1000;
 	evil = 0;
 
-	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[ch->in_room]->people)
 	{
 		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_KILLER))
 		{
 			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
 			hit(ch, tch, TYPE_UNDEFINED, 1);
+
 			return (TRUE);
 		}
 	}
 
-	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[ch->in_room]->people)
 	{
 		if (!IS_NPC(tch) && CAN_SEE(ch, tch) && PLR_FLAGGED(tch, PLR_THIEF))
 		{
 			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", FALSE, ch, 0, 0, TO_ROOM);
 			hit(ch, tch, TYPE_UNDEFINED, 1);
+
 			return (TRUE);
 		}
 	}
 
-	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[ch->in_room]->people)
 	{
 		if (CAN_SEE(ch, tch) && tch->get_fighting())
 		{
@@ -3234,12 +3276,15 @@ int cityguard(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 		}
 	}
 
-	if (evil && (GET_ALIGNMENT(evil->get_fighting()) >= 0))
+	if (evil
+		&& (GET_ALIGNMENT(evil->get_fighting()) >= 0))
 	{
 		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", FALSE, ch, 0, 0, TO_ROOM);
 		hit(ch, evil, TYPE_UNDEFINED, 1);
+
 		return (TRUE);
 	}
+
 	return (FALSE);
 }
 
@@ -3257,11 +3302,12 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 	if (CMD_IS("list"))
 	{
 		send_to_char("Available pets are:\r\n", ch);
-		for (pet = world[pet_room]->people; pet; pet = pet->next_in_room)
+		for (const auto pet : world[pet_room]->people)
 		{
 			sprintf(buf, "%8d - %s\r\n", PET_PRICE(pet), GET_NAME(pet));
 			send_to_char(buf, ch);
 		}
+
 		return (TRUE);
 	}
 	else if (CMD_IS("buy"))
@@ -3309,6 +3355,7 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 		return (1);
 	}
+
 	// All commands except list and buy
 	return (0);
 }
@@ -3316,20 +3363,22 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 CHAR_DATA *get_player_of_name(const char *name)
 {
-	CHAR_DATA *i;
-
-	for (i = character_list; i; i = i->get_next())
+	for (const auto& i : character_list)
 	{
 		if (IS_NPC(i))
+		{
 			continue;
+		}
+
 		if (!isname(name, i->get_pc_name()))
 		{
 			continue;
 		}
-		return (i);
+
+		return i.get();
 	}
 
-	return (NULL);
+	return nullptr;
 }
 
 // ********************************************************************

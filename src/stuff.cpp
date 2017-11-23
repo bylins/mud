@@ -387,7 +387,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	}
 	else
 	{
-		for (CHAR_DATA *tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+		for (const auto tch : world[ch->in_room]->people)
 		{
 			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n", CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}

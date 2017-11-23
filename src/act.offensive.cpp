@@ -198,8 +198,6 @@ int onhorse(CHAR_DATA * ch)
 // Add by Voropay 8/05/2004
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 {
-
-	CHAR_DATA *vict;
 	int percent = 0;
 	int prob = 0;
 	bool protect = false;
@@ -208,12 +206,14 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 	if (ch->get_fighting()==victim)
 		return victim;
 
-	for (vict = world[IN_ROOM(victim)]->people; vict; vict = vict->next_in_room)
+	for (const auto vict : world[IN_ROOM(victim)]->people)
 	{
-		if (vict->get_protecting() == victim &&
-				!AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT) &&
-				!AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT) &&
-				!AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND) && !GET_MOB_HOLD(vict) && GET_POS(vict) >= POS_FIGHTING)
+		if (vict->get_protecting() == victim
+			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
+			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
+			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_BLIND)
+			&& !GET_MOB_HOLD(vict)
+			&& GET_POS(vict) >= POS_FIGHTING)
 		{
 			if (vict == ch)
 			{
@@ -232,11 +232,13 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
 				return victim;
 			}
+
 			if (protect) 
 			{ 
 				send_to_char(vict, "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n", GET_PAD(vict->get_protecting(), 3)); 
 				continue; 
 			}
+
 			protect = true;
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
 			prob = calculate_skill(vict, SKILL_PROTECT, victim);
@@ -356,14 +358,16 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*arg)
 	{
-		for (helpee = world[ch->in_room]->people; helpee; helpee = helpee->next_in_room)
+		helpee = nullptr;
+		for (const auto i : world[ch->in_room]->people)
 		{
-			if (helpee->get_fighting()
-				&& helpee->get_fighting() != ch
-				&& ((ch->has_master() && ch->get_master() == helpee->get_master())
-					|| ch->get_master() == helpee
-					|| helpee->get_master() == ch))
+			if (i->get_fighting()
+				&& i->get_fighting() != ch
+				&& ((ch->has_master() && ch->get_master() == i->get_master())
+					|| ch->get_master() == i
+					|| i->get_master() == ch))
 			{
+				helpee = i;
 				break;
 			}
 		}
@@ -387,10 +391,21 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	// * Hit the same enemy the person you're helping is.
 	if (helpee->get_fighting())
+	{
 		opponent = helpee->get_fighting();
+	}
 	else
-		for (opponent = world[ch->in_room]->people;
-				opponent && (opponent->get_fighting() != helpee); opponent = opponent->next_in_room);
+	{
+		opponent = nullptr;
+		for (const auto i : world[ch->in_room]->people)
+		{
+			if (i->get_fighting() == helpee)
+			{
+				opponent = i;
+				break;
+			}
+		}
+	}
 
 	if (!opponent)
 		act("Но никто не сражается с $N4!", FALSE, ch, 0, helpee, TO_CHAR);
@@ -1365,7 +1380,15 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	for (tmp_ch = world[ch->in_room]->people; tmp_ch && (tmp_ch->get_fighting() != vict); tmp_ch = tmp_ch->next_in_room);
+	tmp_ch = nullptr;
+	for (const auto i : world[ch->in_room]->people)
+	{
+		if (i->get_fighting() == vict)
+		{
+			tmp_ch = i;
+			break;
+		}
+	}
 
 	if (!tmp_ch)
 	{
@@ -1804,7 +1827,7 @@ void go_protect(CHAR_DATA * ch, CHAR_DATA * vict)
 
 void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *vict, *tch;
+	CHAR_DATA *vict;
 
 	one_argument(argument, arg);
 	if (!*arg)
@@ -1845,10 +1868,13 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	CHAR_DATA *tch = nullptr;
+	for (const auto i : world[ch->in_room]->people)
 	{
-		if (tch->get_fighting() == vict)
+		if (i->get_fighting() == vict)
 		{
+			tch = i;
+
 			break;
 		}
 	}
@@ -1868,7 +1894,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	for (tch = world[ch->in_room]->people; tch; tch = tch->next_in_room)
+	for (const auto tch : world[ch->in_room]->people)
 	{
 		if (tch->get_fighting() == vict
 			&& !may_kill_here(ch, tch))
@@ -1876,6 +1902,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 	}
+
 	go_protect(ch, vict);
 }
 
@@ -1916,9 +1943,16 @@ void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		for (vict = world[ch->in_room]->people; vict; vict = vict->next_in_room)
-			if (vict->get_fighting() == ch)
+		vict = nullptr;
+		for (const auto i : world[ch->in_room]->people)
+		{
+			if (i->get_fighting() == ch)
+			{
+				vict = i;
 				break;
+			}
+		}
+
 		if (!vict)
 		{
 			if (!ch->get_fighting())
@@ -1927,7 +1961,9 @@ void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				return;
 			}
 			else
+			{
 				vict = ch->get_fighting();
+			}
 		}
 	}
 
@@ -2660,9 +2696,15 @@ void do_stopfight(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	for (tmp_ch = world[ch->in_room]->people; tmp_ch; tmp_ch = tmp_ch->next_in_room)
-		if (tmp_ch->get_fighting() == ch)
+	tmp_ch = nullptr;
+	for (const auto i : world[ch->in_room]->people)
+	{
+		if (i->get_fighting() == ch)
+		{
+			tmp_ch = i;
 			break;
+		}
+	}
 
 	if (tmp_ch)
 	{
@@ -2926,7 +2968,6 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 	int sum, max_level;
 	struct timed_type timed;
 	std::vector<CHAR_DATA*> ch_list;
-	CHAR_DATA *ch_vict;
 
 	if (IS_NPC(ch))		// Cannot use on mobs.
 		return;
@@ -2954,7 +2995,7 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 //Составляем список всех персов в комнате и выкидываем дружественных и не-нежить
-	for (ch_vict = world[ch->in_room]->people; ch_vict; ch_vict = ch_vict->next_in_room)
+	for (const auto ch_vict : world[ch->in_room]->people)
 	{
 		if (IS_IMMORTAL(ch_vict))
 			continue;
@@ -2970,7 +3011,9 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 	}
 
 	if (ch_list.size() > 0)
+	{
 		percent = ch->get_skill(SKILL_TURN_UNDEAD);
+	}
 	else
 	{
 		ch_list.clear();
@@ -2990,22 +3033,29 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 	for (std::vector<CHAR_DATA *>::iterator it=ch_list.begin();it!=ch_list.end();++it)
 	{
 		if (sum <= 0)
+		{
 			break;
-		ch_vict = *it;
+		}
+
+		CHAR_DATA *ch_vict = *it;
 		if (ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		{
 			continue;
-		if ((GET_LEVEL(ch_vict) > max_level) ||
-			//(dice(1, GET_SAVE(ch_vict, SAVING_STABILITY) + GET_REAL_CON(ch_vict)) >
-			(dice(1, GET_REAL_SAVING_STABILITY(ch_vict)) >
-				 dice(1, GET_REAL_WIS(ch))))
+		}
+
+		if ((GET_LEVEL(ch_vict) > max_level)
+			|| (dice(1, GET_REAL_SAVING_STABILITY(ch_vict)) > dice(1, GET_REAL_WIS(ch))))
 		{
 			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
 			if (!pk_agro_action(ch, ch_vict))
+			{
 				return;
+			}
 
 			Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), 0, FightSystem::MAGE_DMG);
 			dmg.flags.set(FightSystem::IGNORE_FSHIELD);
 			dmg.process(ch, ch_vict);
+
 			continue;
 		}
 		sum -= GET_LEVEL(ch_vict);

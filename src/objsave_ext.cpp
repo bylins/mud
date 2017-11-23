@@ -6,6 +6,7 @@
 #include "house.h"
 #include "depot.hpp"
 #include "parcel.hpp"
+#include "world.characters.hpp"
 
 #include <boost/bind.hpp>
 
@@ -52,11 +53,11 @@ void write_file(int uid, int type)
 {
 	if (type == CHAR_SAVE)
 	{
-		for (CHAR_DATA *ch = character_list; ch; ch = ch->get_next())
+		for (const auto& ch : character_list)
 		{
 			if (ch->get_uid() == uid)
 			{
-				Crash_crashsave(ch);
+				Crash_crashsave(ch.get());
 				return;
 			}
 		}

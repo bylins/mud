@@ -6,7 +6,6 @@
 
 #include "logger.hpp"
 #include "utils.h"
-#include "conf.h"
 #include "db.h"
 #include "dg_scripts.h"
 #include "handler.h"
@@ -30,12 +29,12 @@
 #include "screen.h"
 #include "ext_money.hpp"
 #include "temp_spells.hpp"
+#include "conf.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
 #ifdef _WIN32
-
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -221,28 +220,27 @@ void Player::set_last_tell(const char *text)
 	}
 }
 
-
-
 void Player::str_to_cities(std::string str)
 {
-	Player::cities_t tmp_bitset(str);
+	decltype(cities) tmp_bitset(str);
 	this->cities = tmp_bitset;
 }
 
-void Player::mark_city(unsigned int index)
+void Player::mark_city(const size_t index)
 {
-	if (this->cities.size() != 0 && index < this->cities.size())
+	if (index < cities.size())
 	{
-		this->cities[index] = true;
+		cities[index] = true;
 	}
 }
 
-bool Player::check_city(unsigned int index)
+bool Player::check_city(const size_t index)
 {
-	if (this->cities.size() != 0 && index < this->cities.size())
+	if (index < cities.size())
 	{
-		return this->cities[index];
+		return cities[index];
 	}
+
 	return false;
 }
 
@@ -375,9 +373,9 @@ void Player::save_char()
 	struct timed_type *skj;
 	struct char_portal_type *prt;
 	int tmp = time(0) - this->player_data.time.logon;
-	if (!now_entrycount)
-		if (IS_NPC(this) || this->get_pfilepos() < 0)
-			return;
+
+	if (IS_NPC(this) || this->get_pfilepos() < 0)
+		return;
 
 	log("Save char %s", GET_NAME(this));
 	save_char_vars(this);
@@ -949,7 +947,7 @@ void Player::save_char()
 // убедиться, что изменный код работает с действительно проинициализированными полями персонажа
 // на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
 // * \param reboot - по дефолту = false
-int Player::load_char_ascii(const char *name, bool reboot)
+int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
 	long int lnum = 0, lnum3 = 0;
@@ -962,7 +960,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 
 	*filename = '\0';
 	log("Load ascii char %s", name);
-	if (now_entrycount)
+	if (!find_id)
 	{
 		id = 1;
 	}
@@ -970,10 +968,16 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	{
 		id = find_name(name);
 	}
-	if (!(id >= 0 && get_filename(name, filename, PLAYERS_FILE) && (fl = fbopen(filename, FB_READ))))
+
+	bool result = id >= 0;
+	result = result && get_filename(name, filename, PLAYERS_FILE);
+	result = result && (fl = fbopen(filename, FB_READ));
+	if (!result)
 	{
-		log("Can't load ascii %d %s", id, filename);
-		return (-1);
+		const std::size_t BUFFER_SIZE = 1024;
+		char buffer[BUFFER_SIZE];
+		log("Can't load ascii. ID: %d; File name: \"%s\"; Current directory: \"%s\")", id, filename, getcwd(buffer, BUFFER_SIZE));
+		return -1;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -2199,6 +2203,7 @@ int Player::get_percent_daily_quest(int id)
 	
 }
 
+
 void Player::add_value_cities(bool v)
 {
 	this->cities.push_back(v);
@@ -2210,12 +2215,11 @@ bool Player::add_percent_daily_quest(int id, int percent)
 	{
 		this->daily_quest[id] += percent;
 		if (this->daily_quest[id] >= 100)
-		{
 			return true;
-		}
 	}
 
 	return false;
+
 }
 
 int Player::death_player_count()
