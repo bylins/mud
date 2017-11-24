@@ -52,6 +52,7 @@ int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+extern void fix_name_feat(char *name);
 
 ///
 /// Поиск номера способности по имени
@@ -60,33 +61,27 @@ void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 ///
 int find_feat_num(const char *name, bool alias)
 {
-	int ok;
-	char const *temp, *temp2;
-	char first[256], first2[256];
+//	char *name = const_cast<char *>(name_);
+//	fix_name_feat(name);
 	for (int index = 1; index < MAX_FEATS; index++)
 	{
-		const char* feat_name = alias ?
-			feat_info[index].alias.c_str() : feat_info[index].name;
-
-		if (is_abbrev(name, feat_name))
+		bool flag = true;
+		std::string name_feat(alias ? feat_info[index].alias.c_str() : feat_info[index].name);
+		std::vector<std::string> strs_feat, strs_args;
+		boost::split(strs_feat, name_feat, boost::is_any_of(" "));
+		boost::split(strs_args, name, boost::is_any_of(" "));
+		const int bound = static_cast<int>(strs_feat.size() >= strs_args.size()
+				? strs_args.size()
+				: strs_feat.size());
+		for (int i = 0; i < bound; i++)
 		{
-			return (index);
+			if (!boost::starts_with(strs_feat[i], strs_args[i]))
+			{
+				flag = false;
+			}
 		}
-
-		ok = TRUE;
-		// It won't be changed, but other uses of this function elsewhere may.
-		temp = any_one_arg(feat_name, first);
-		temp2 = any_one_arg(name, first2);
-		while (*first && *first2 && ok)
-		{
-			if (!is_abbrev(first2, first))
-				ok = FALSE;
-			temp = any_one_arg(temp, first);
-			temp2 = any_one_arg(temp2, first2);
-		}
-
-		if (ok && !*first2)
-			return (index);
+		if (flag)
+			return index;
 	}
 	return (-1);
 }
@@ -882,18 +877,14 @@ void check_berserk(CHAR_DATA * ch)
 		affect_from_char(ch, SPELL_BERSERK);
 		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
 	}
-//!IS_NPC(ch) &&
-	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
-			!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) &&
-			(GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
-	{
 
-//		if (!IS_NPC(ch)) {
+	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
+		!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) && (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
+	{
 //Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
 		timed.skill = BERSERK_FEAT;
 		timed.time = 4;
 		timed_feat_to_char(ch, &timed);
-//		}
 
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_BERSERK;

@@ -31,7 +31,7 @@
 #include "conf.h"
 
 #include <boost/format.hpp>
-
+#include <stack>
 #include <sstream>
 
  // * Set this to 1 for debugging logs in medit_save_internally.
@@ -287,7 +287,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 	}
 	if (mob->dl_list)
 	{
-		free(mob->dl_list);
+		delete(mob->dl_list);
 		mob->dl_list = NULL;
 	}
 
@@ -653,7 +653,7 @@ void medit_save_to_disk(int zone_num)
 				GET_MEM_TOTAL(mob), GET_MEM_COMPLETED(mob), GET_HIT(mob),
 				GET_NDD(mob), GET_SDD(mob), GET_DR(mob), GET_GOLD_NoDs(mob),
 				GET_GOLD_SiDs(mob), mob->get_gold(), GET_EXP(mob),
-				GET_POS(mob), GET_DEFAULT_POS(mob), GET_SEX(mob));
+				GET_POS(mob), GET_DEFAULT_POS(mob), static_cast<int>(GET_SEX(mob)));
 
 			// * Deal with Extra stats in case they are there.
 			sum = 0;
@@ -746,9 +746,16 @@ void medit_save_to_disk(int zone_num)
 					fprintf(mob_file, "Spell: %d\n", c);
 				}
 			}
+			std::stack<decltype(helper)> stack;
 			for (helper = GET_HELPER(mob); helper; helper = helper->next_helper)
 			{
-				fprintf(mob_file, "Helper: %d\n", helper->mob_vnum);
+				stack.push(helper);
+			}
+			while (!stack.empty())
+			{
+				const auto h = stack.top();
+				fprintf(mob_file, "Helper: %d\n", h->mob_vnum);
+				stack.pop();
 			}
 			if (mob->get_role_bits().any())
 			{
@@ -1237,7 +1244,7 @@ void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
 			action_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 1);
+	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 5);
 	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1267,7 +1274,7 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA * d)
 			function_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 1);
+	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",",5);
 	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1302,7 +1309,7 @@ void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
 			affected_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character);
 	}
-	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 1);
+	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 5);
 	sprintf(buf, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character);
 }
@@ -1366,8 +1373,8 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
 	send_to_char(buf, d->character);
 
-	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",");
-	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
+	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",",4);
+	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",",4);
 	sprintf(buf,
 		"%sP%s) Положение     : %s%s\r\n"
 		"%sR%s) По умолчанию  : %s%s\r\n"
@@ -1379,7 +1386,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character);
 
-	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",");
+	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",",4);
 	*buf2 = '\0';
 	if (GET_DEST(mob) == NOWHERE)
 		strcpy(buf2, "-1,");
@@ -1578,6 +1585,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		//-------------------------------------------------------------------
 	case MEDIT_MAIN_MENU:
 		i = 0;
+		olc_log("%s command %c", GET_NAME(d->character), *arg);
 		switch (*arg)
 		{
 		case 'q':
@@ -1944,6 +1952,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		default:
 			medit_disp_menu(d);
 			return;
+
 		}
 
 		if (i != 0)

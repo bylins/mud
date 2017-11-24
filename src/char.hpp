@@ -366,7 +366,7 @@ public:
 	using shared_ptr = std::shared_ptr<CHAR_DATA>;
 	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
-	using role_t = boost::dynamic_bitset<>;
+	using role_t = boost::dynamic_bitset<std::size_t>;
 	using followers_list_t = std::list<CHAR_DATA*>;
 
 	CHAR_DATA();
@@ -545,6 +545,11 @@ public:
 	** Returns true if character is mob and located in used zone.
 	**/
 	bool in_used_zone() const;
+	
+	/**
+	 * Возвращает коэффициент штрафа за состояние
+	**/
+	float get_cond_penalty(int type) const;
 
 	bool know_morph(const std::string& morph_id) const;
 	void add_morph(const std::string& morph_id);
@@ -579,7 +584,7 @@ public:
 	/// роли (mob only)
 	bool get_role(unsigned num) const;
 	void set_role(unsigned num, bool flag);
-	const boost::dynamic_bitset<>& get_role_bits() const;
+	const CHAR_DATA::role_t& get_role_bits() const;
 
 	void add_attacker(CHAR_DATA *ch, unsigned type, int num);
 	int get_attacker(CHAR_DATA *ch, unsigned type) const;
@@ -914,6 +919,13 @@ bool IS_MALE(const CHAR_DATA* ch);
 bool IS_FEMALE(const CHAR_DATA* ch);
 bool IS_NOSEXY(const CHAR_DATA* ch);
 bool IS_POLY(const CHAR_DATA* ch);
+
+int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val);
+
+inline auto GET_REAL_DEX(const CHAR_DATA* ch)
+{
+	return VPOSI_MOB(ch, 1, ch->get_dex() + ch->get_dex_add());
+}
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
 size_t fighting_list_size();

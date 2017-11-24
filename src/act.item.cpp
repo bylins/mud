@@ -50,7 +50,7 @@
 // extern variables
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
-extern boost::array<int, 5> animals_levels;
+extern boost::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels;
 // from act.informative.cpp
 char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 
@@ -96,6 +96,7 @@ void do_wield(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_upgrade(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/);
+void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
@@ -378,7 +379,6 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	const int vnum_skin_prototype = 1660;
 
 	vnum = vnum_skin_prototype + MIN((int)(GET_LEVEL(mob) / 5), 9);
-
 	const auto skin = world_objects.create_from_prototype_by_vnum(vnum);
 	if (!skin)
 	{
@@ -435,7 +435,9 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 
 	act("$n умело срезал$g $o3.", FALSE, ch, skin.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("Вы умело срезали $o3.", FALSE, ch, skin.get(), 0, TO_CHAR);
-
+	
+	//ставим флажок "не зависит от прототипа"
+	skin->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
 	return skin.get();
 }
 
@@ -629,6 +631,94 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+//переложить стрелы из пучка стрел 
+//в колчан
+void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	char arg1[MAX_INPUT_LENGTH];
+	char arg2[MAX_INPUT_LENGTH];
+	OBJ_DATA *from_obj = NULL, *to_obj = NULL;
+
+	argument = two_arguments(argument, arg1, arg2);
+
+	if (!*arg1)  	// No arguments //
+	{
+		send_to_char("Откуда брать стрелы?\r\n", ch);
+		return;
+	}
+	if (!(from_obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+	{
+		send_to_char("У вас нет этого!\r\n", ch);
+		return;
+	}
+	if (GET_OBJ_TYPE(from_obj) != OBJ_DATA::ITEM_MAGIC_ARROW)
+	{
+		send_to_char("И как вы себе это представляете?\r\n", ch);
+		return;
+	}
+ 	if (GET_OBJ_VAL(from_obj, 1) == 0)
+	{
+		act("Пусто.", FALSE, ch, from_obj, 0, TO_CHAR);
+		return;
+	}
+	if (!*arg2)
+	{
+		send_to_char("Куда вы хотите их засунуть?\r\n", ch);
+		return;
+	}
+	if (!(to_obj = get_obj_in_list_vis(ch, arg2, ch->carrying)))
+	{
+		send_to_char("Вы не можете этого найти!\r\n", ch);
+		return;
+	}
+	if (!((GET_OBJ_TYPE(to_obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER) || GET_OBJ_TYPE(to_obj) == OBJ_DATA::ITEM_MAGIC_ARROW))
+	{
+		send_to_char("Вы не сможете в это сложить стрелы.\r\n", ch);
+		return;
+	}
+       
+	if (to_obj == from_obj)
+	{
+		send_to_char("Нечем заняться? На печи ездить еще не научились?\r\n", ch);
+		return;
+	}
+        
+	if (GET_OBJ_VAL(to_obj, 2) >= GET_OBJ_VAL(to_obj, 1))
+	{
+		send_to_char("Там нет места.\r\n", ch);
+		return;
+	}
+        else //вроде прошли все проверки. начинаем перекладывать
+        {
+            if (GET_OBJ_VAL(from_obj, 0) != GET_OBJ_VAL(to_obj, 0))
+            {
+                    send_to_char("Хамово ремесло еще не известно на руси.\r\n", ch);
+                    return;
+            }
+            int t1 = GET_OBJ_VAL(from_obj, 3);  // количество зарядов
+            int t2 = GET_OBJ_VAL(to_obj, 3);
+            int delta = (GET_OBJ_VAL(to_obj, 2) - GET_OBJ_VAL(to_obj, 3));
+            if (delta >= t1) //объем колчана больше пучка
+            {
+                to_obj->add_val(2, t1);
+		send_to_char("Вы аккуратно сложили стрелы в колчан.\r\n", ch);
+		extract_obj(from_obj);
+		return;
+            }
+            else
+            {
+                to_obj->add_val(2, (t2-GET_OBJ_VAL(to_obj, 2)));
+		send_to_char("Вы аккуратно переложили несколько стрел в колчан.\r\n", ch);
+		from_obj->add_val(2, (GET_OBJ_VAL(to_obj, 2)-t2));
+		return;
+            }
+        }
+        
+        
+	send_to_char("С таким успехом надо пополнять соседние камни, для разговоров по ним.\r\n", ch);
+	return ;
+	
+}
 
 
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
@@ -710,6 +800,7 @@ void split_or_clan_tax(CHAR_DATA *ch, long amount)
 
 void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 {
+
 	if (system_obj::is_purse(obj) && GET_OBJ_VAL(obj, 3) == ch->get_uid())
 	{
 		system_obj::process_open_purse(ch, obj);
@@ -723,7 +814,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	{
 		return;
 	}
-
+	
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
 
@@ -735,6 +826,8 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		// добавляем бабло, пишем в лог, клан-налог снимаем
 		// только по факту деления на группу в do_split()
 		ch->add_gold(value);
+		sprintf(buf, "<%s> {%d} заработал %d %s в группе.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
 		do_split(ch, local_buf, 0, 0);
@@ -743,10 +836,29 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	{
 		// лут из трупа моба или из предметов-денег с внумом
 		// (предметы-награды в зонах) - снимаем клан-налог
+/*		int mob_num = GET_OBJ_VAL(cont, 2);
+		CHAR_DATA *mob;
+		if (mob_num  <= 0)
+		{
+			sprintf(buf, "<%s> {%d} заработал %d %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), value,desc_count(value, WHAT_MONEYu));
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+		}
+		else
+		{
+			mob = read_mobile(mob_num, VIRTUAL);
+			sprintf(buf, "<%s> {%d} получил %d %s кун из трупа моба. [Имя: %s, Vnum: %d]", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), value,desc_count(value, WHAT_MONEYu),  GET_NAME(mob), mob_num);
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			extract_char(mob, FALSE);
+		}
+*/
+		sprintf(buf, "%s заработал %d  %s.", GET_PAD(ch, 0),  value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		ch->add_gold(value, true, true);
 	}
 	else
 	{
+		sprintf(buf, "<%s> {%d} как-то получил %d  %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), value,desc_count(value, WHAT_MONEYu));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		ch->add_gold(value);
 	}
 
@@ -1243,6 +1355,8 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				{
 					send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
 						amount, desc_count(amount, WHAT_MONEYu));
+					sprintf(buf, "<%s> {%d} выбросил %d %s на землю.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), amount, desc_count(amount, WHAT_MONEYu));
+					mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 					sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
 					act(buf, TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				}
@@ -1546,6 +1660,11 @@ void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount)
 	act(buf, FALSE, ch, 0, vict, TO_VICT);
 	sprintf(buf, "$n дал$g %s $N2.", money_desc(amount, 3));
 	act(buf, TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+	if (!(IS_NPC(ch) || IS_NPC(vict)))
+	{
+		sprintf(buf, "<%s> {%d} передал %d кун при личной встрече c %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 4));
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+	}
 	if (IS_NPC(ch) || !IS_IMPL(ch))
 	{
 		ch->remove_gold(amount);
@@ -1805,7 +1924,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			return;
 		}
 	}
-	if (GET_COND(ch, FULL) > 20
+	if (GET_COND(ch, FULL) == 0
 		&& GET_OBJ_TYPE(food) != OBJ_DATA::ITEM_NOTE)  	// Stomach full
 	{
 		send_to_char("Вы слишком сыты для этого!\r\n", ch);
@@ -1828,9 +1947,9 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		? GET_OBJ_VAL(food, 0)
 		: 1);
 
-	gain_condition(ch, FULL, amount);
+	gain_condition(ch, FULL, -2*amount);
 
-	if (GET_COND(ch, FULL) > 20)
+	if (GET_COND(ch, FULL)==0)
 	{
 		send_to_char("Вы наелись.\r\n", ch);
 	}
@@ -1918,7 +2037,8 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		EWearFlag::ITEM_WEAR_WRIST,
 		EWearFlag::ITEM_WEAR_WIELD,
 		EWearFlag::ITEM_WEAR_TAKE,
-		EWearFlag::ITEM_WEAR_BOTHS
+		EWearFlag::ITEM_WEAR_BOTHS,
+		EWearFlag::ITEM_WEAR_QUIVER
 	};
 
 	const std::array<const char *, sizeof(wear_bitvectors)> already_wearing =
@@ -1942,6 +2062,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		"Вы уже что-то держите в правой руке.\r\n",
 		"Вы уже что-то держите в левой руке.\r\n",
 		"Вы уже держите оружие в обеих руках.\r\n"
+		"Вы уже используете колчан.\r\n"
 	};
 
 	// first, make sure that the wear position is valid.
@@ -1973,12 +2094,18 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
+	if (   // не может одеть колчан если одет не лук
+		(where == WEAR_QUIVER && 
+                !(GET_EQ(ch, WEAR_BOTHS) &&
+                (((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) 
+                    && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))))
+        {
+		send_to_char("А стрелять чем будете?\r\n", ch);
+		return;
+        }
 	// нельзя надеть щит, если недостаточно силы
 	if (!IS_IMMORTAL(ch) && (where == WEAR_SHIELD) && !OK_SHIELD(ch, obj))
 	{
-		act("Вам слишком тяжело нести $o3 на левой руке.", FALSE, ch, obj, 0, TO_CHAR);
-		message_str_need(ch, obj, STR_SHIELD_W);
-		return;
 	}
 
 	if ((where == WEAR_FINGER_R) || (where == WEAR_NECK_1) || (where == WEAR_WRIST_R))
@@ -2164,6 +2291,18 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg)
 			else
 			{
 				tmp_where = WEAR_WAIST;
+			}
+		}
+
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+		{
+			if (!GET_EQ(ch, WEAR_QUIVER))
+			{
+				where = WEAR_QUIVER;
+			}
+			else
+			{
+				tmp_where = WEAR_QUIVER;
 			}
 		}
 
@@ -2508,6 +2647,7 @@ void perform_remove(CHAR_DATA * ch, int pos)
 void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int i, dotmode, found;
+	OBJ_DATA *obj;
 
 	one_argument(argument, arg);
 
@@ -2532,6 +2672,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!found)
 		{
 			send_to_char("На вас не надето предметов этого типа.\r\n", ch);
+        		return;
 		}
 	}
 	else if (dotmode == FIND_ALLDOT)
@@ -2539,6 +2680,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!*arg)
 		{
 			send_to_char("Снять все вещи какого типа?\r\n", ch);
+        		return;
 		}
 		else
 		{
@@ -2558,6 +2700,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "Вы не используете ни одного '%s'.\r\n", arg);
 				send_to_char(buf, ch);
+                                return;
 			}
 		}
 	}
@@ -2588,11 +2731,20 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "Вы не используете '%s'.\r\n", arg);
 				send_to_char(buf, ch);
+                                return;
 			}
 		}
 		else
 			perform_remove(ch, i);
 	}
+        //мы что-то да снимали. значит проверю я доп слот
+        if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
+                {
+                    send_to_char("Нету лука, нет и стрел.\r\n", ch);
+                    act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+                    obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+                    return;
+                }
 }
 
 void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2693,6 +2845,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		obj->set_extra_flag(EExtraFlag::ITEM_SHARPEN);
+		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
 	}
 
 	percent = number(1, skill_info[SKILL_UPGRADE].max_percent);
@@ -2839,8 +2992,9 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 		return;
 	}
-
 	obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
+	obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+	
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
 
@@ -3434,7 +3588,13 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			return false;
 		}
 		break;
-
+	//TODO: Добавить для мобов выше 54 уровня
+	case 5:
+	case 6:
+	case 7:
+	case 8:
+	case 9:
+	case 10:
 	default:
 		return false;
 	}

@@ -116,7 +116,7 @@ extern void check_auction(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void check_exchange(OBJ_DATA * obj);
 void free_script(SCRIPT_DATA * sc);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
-
+extern std::vector<City> cities;
 extern struct zone_data *zone_table;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
@@ -701,7 +701,14 @@ void affect_total(CHAR_DATA * ch)
 			obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
 			return;
 		}
-	}
+                if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
+                {
+                    send_to_char("Нету лука, нет и стрел.\r\n", ch);
+                    act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+                    obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+                    return;
+                }
+        }
 
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch)) * 2;
@@ -1055,7 +1062,7 @@ void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 			return;
 		}
 	}
-
+	
 	CREATE(timed_alloc, 1);
 
 	*timed_alloc = *timed;
@@ -1251,6 +1258,15 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 	if (ch->desc)
 	{
 		ch->desc->msdp_report("ROOM");
+	}
+
+	for (unsigned int i = 0; i < cities.size(); i++)
+	{
+		if (GET_ROOM_VNUM(room) == cities[i].rent_vnum)
+		{
+			ch->mark_city(i);
+			break;
+		}
 	}
 }
 
@@ -1686,7 +1702,10 @@ void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		 "Вы взяли $o3 в левую руку."},
 
 		{"$n0 взял$g $o3 в обе руки.",
-		 "Вы взяли $o3 в обе руки."}
+		 "Вы взяли $o3 в обе руки."},
+
+		{"$n0 начал$g использовать $o3 как колчан.",
+		 "Вы начали использовать $o3 как колчан."}
 	};
 
 	act(wear_messages[where][1], FALSE, ch, obj, 0, TO_CHAR);
@@ -1948,12 +1967,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	if (!IS_NPC(ch) || IS_CHARMICE(ch))
 	{
 		CHAR_DATA *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
-		if ((obj->get_manual_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
+		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
 			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
 				GET_OBJ_PNAME(obj, 1).c_str(),
-				obj->get_manual_mort_req(),
-				desc_count(obj->get_manual_mort_req(), WHAT_REMORT));
+				obj->get_auto_mort_req(),
+				desc_count(obj->get_auto_mort_req(), WHAT_REMORT));
 			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
 				FALSE, ch, obj, 0, TO_ROOM);
 			if (!obj->get_carried_by())
@@ -1962,6 +1981,20 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			}
 			return;
 		}
+		else if ((obj->get_auto_mort_req() < -1)  && (abs(obj->get_auto_mort_req()) < GET_REMORT(master)) && !IS_IMMORTAL(master))
+		{
+			send_to_char(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
+				GET_OBJ_PNAME(obj, 1).c_str(),
+				abs(obj->get_auto_mort_req()));
+			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
+				FALSE, ch, obj, 0, TO_ROOM);
+			if (!obj->get_carried_by())
+			{
+				obj_to_char(obj, ch);
+			}
+			return;
+		}
+                
 	}
 
 	//if (!IS_NPC(ch) && !check_armor_type(ch, obj))
@@ -3533,7 +3566,6 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 	{
 		return nullptr;
 	}
-
 	// ok.. no luck yet. scan the entire obj list   //
 	const WorldObjects::predicate_f locate_predicate = [&](const OBJ_DATA::shared_ptr& i) -> bool
 	{
@@ -3555,7 +3587,7 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 	OBJ_DATA::shared_ptr result;
 	if (!locate_item)
 	{
-		result = world_objects.find_if(predicate, number);
+		result = world_objects.find_if(predicate, number - 1);
 	}
 	else
 	{
@@ -4293,38 +4325,63 @@ float get_damage_per_round(CHAR_DATA * victim)
 
 float get_effective_cha(CHAR_DATA * ch, int spellnum)
 {
-	int key_value, key_value_add, i;
+	int key_value, key_value_add;
 
 //Для поднять/оживить труп учитываем мудрость, в любом другом случае - обаяние
 	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
 	{
 		key_value = ch->get_wis() - 6;
 		key_value_add = MIN(56 - ch->get_wis(), GET_WIS_ADD(ch));
-		i = 3;
 	}
 	else
 	{
 		key_value = ch->get_cha();
 		key_value_add = MIN(50 - ch->get_cha(), GET_CHA_ADD(ch));
-		i = 5;
 	}
 	float eff_cha = 0.0;
 	if (GET_LEVEL(ch) <= 14)
-		eff_cha = MIN(max_stats2[(int) GET_CLASS(ch)][i], key_value)
+		eff_cha = key_value
 				  - 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
 				  * (0.2 + 0.3 * (float)(GET_LEVEL(ch) - 1) / 13.0);
 	else if (GET_LEVEL(ch) <= 26)
 	{
-		if (key_value <= 16)
-			eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
-		else
-			eff_cha =
-				16 + (float)((key_value - 16) * (GET_LEVEL(ch) - 14)) / 12.0 +
-				key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
+		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
 	}
 	else
 		eff_cha = key_value + key_value_add;
-	return eff_cha;
+
+	return VPOSI<float>(eff_cha, 1.0f, 50.0f);
+}
+
+float get_effective_wis(CHAR_DATA * ch, int spellnum)
+{
+	int key_value, key_value_add;
+
+//Для поднять/оживить труп учитываем мудрость, в любом другом случае - обаяние
+	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
+	{
+		key_value = ch->get_wis();
+		key_value_add = GET_WIS_ADD(ch);
+	}
+	else
+	{
+                //если гдето вылезет косяком
+		key_value = 0;
+		key_value_add = 0;
+	}
+	float eff_cha = 0.0;
+	if (GET_LEVEL(ch) <= 14)
+		eff_cha = key_value
+				  - 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
+				  * (0.4 + 0.6 * (float)(GET_LEVEL(ch) - 1) / 13.0);
+	else if (GET_LEVEL(ch) <= 26)
+	{
+		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
+	}
+	else
+		eff_cha = key_value + key_value_add;
+
+	return VPOSI<float>(eff_cha, 1.0f, 100.0f);
 }
 
 float get_effective_int(CHAR_DATA * ch)
@@ -4409,12 +4466,30 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 {
 	float r_hp = 0;
 	float eff_cha = 0.0;
-	eff_cha = get_effective_cha(ch, spellnum);
-	if (spellnum != SPELL_CHARM)
-		eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	float max_cha = 50.0;
+	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
+	{
+            eff_cha = get_effective_wis(ch, spellnum);
+            max_cha = 100.0;
+            eff_cha = MMIN(98, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+	}
+	else
+	{
+            eff_cha = get_effective_cha(ch, spellnum);
+            if (spellnum != SPELL_CHARM)
+                eff_cha = MMIN(48, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+	}
+        
 
-	r_hp = (1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].charms +
-		   (eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].charms;
+	if (eff_cha < max_cha)
+	{
+		r_hp = (1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].charms +
+			(eff_cha - (int)eff_cha) * cha_app[(int)eff_cha + 1].charms;
+	}
+	else
+	{
+		r_hp = (1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].charms;
+	}
 
 	return (int) r_hp;
 }
@@ -4424,14 +4499,32 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 {
 	float r_hp = 0;
 	float eff_cha = 0.0;
-	eff_cha = get_effective_cha(ch, spellnum);
-	if (spellnum != SPELL_CHARM)
-		eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	float max_cha = 50.0;
+	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
+	{
+            eff_cha = get_effective_wis(ch, spellnum);
+            max_cha = 100.0;
+            eff_cha = MMIN(98, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	}
+	else
+	{
+            eff_cha = get_effective_cha(ch, spellnum);
+            if (spellnum != SPELL_CHARM)
+                    eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	}
 
 	// Интерполяция между значениями для целых значений обаяния
-	r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
-		   ((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
-			(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
+	if (eff_cha < max_cha)
+	{
+		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
+			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate +
+				(eff_cha - (int)eff_cha) * cha_app[(int)eff_cha + 1].dam_to_hit_rate);
+	}
+	else
+	{
+		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
+			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate);
+	}
 
 	return (int) r_hp;
 }

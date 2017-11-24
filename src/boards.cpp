@@ -183,7 +183,7 @@ namespace Boards
 			send_to_char("Вы ослеплены!\r\n", ch);
 			return;
 		}
-
+		
 		Board::shared_ptr board_ptr;
 		for (const auto& board_i : board_list)
 		{
@@ -306,6 +306,16 @@ namespace Boards
 				send_to_char("Да вы ведь только что писали сюда.\r\n", ch);
 				return;
 			}
+
+			if (subcmd == Boards::CLAN_BOARD)
+			{
+				if (!CLAN(ch)->check_write_board(ch))
+				{
+					send_to_char("Вам запретили сюда писать!\r\n", ch);
+					return;
+				}
+			}
+
 			if (board.is_special() && board.messages.size() >= MAX_REPORT_MESSAGES)
 			{
 				send_to_char(constants::OVERFLOW_MESSAGE, ch);

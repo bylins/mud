@@ -2,13 +2,16 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <sstream>
+#include "quested.hpp"
+
+#include "char.hpp"
+#include "utils.h"
+
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-#include "quested.hpp"
-#include "utils.h"
-#include "char.hpp"
 #include <boost/algorithm/string/predicate.hpp>
+
+#include <sstream>
 
 void smash_tilde(char *str);
 
@@ -34,8 +37,9 @@ bool Quested::remove(int vnum)
 	if (it != quested_.end())
 	{
 		quested_.erase(it);
-			return true;
+		return true;
 	}
+
 	return false;
 }
 
@@ -43,7 +47,9 @@ bool Quested::get(int vnum) const
 {
 	QuestedType::const_iterator it = quested_.find(vnum);
 	if (it != quested_.end())
+	{
 		return true;
+	}
 	return false;
 }
 
@@ -62,23 +68,32 @@ std::string Quested::print() const
 {
 	std::stringstream text;
 	for (QuestedType::const_iterator it = quested_.begin(); it != quested_.end(); ++it)
+	{
 		text << " " << it->first << " " << it->second << "\r\n";
+	}
 	return text.str();
 }
 
 void Quested::save(FILE *saved) const
 {
 	for (QuestedType::const_iterator it = quested_.begin(); it != quested_.end(); ++it)
+	{
 		fprintf(saved, "Qst : %d %s~\n", it->first, it->second.c_str());
+	}
 }
 
 void Quested::clear()
 {
-	for (QuestedType::const_iterator it = quested_.begin(); it != quested_.end(); ++it)
+	QuestedType::const_iterator it = quested_.begin();
+	while (it != quested_.end())
 	{
 		if (!boost::starts_with((*it).second, "@"))
 		{
-			quested_.erase(it);
+			it = quested_.erase(it);
+		}
+		else
+		{
+			++it;
 		}
 	}
 }

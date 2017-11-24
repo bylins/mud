@@ -144,6 +144,74 @@ bool CHAR_DATA::in_used_zone() const
 	return false;
 }
 
+//вычисление штрафов за голод и жажду
+//P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN
+float CHAR_DATA::get_cond_penalty(int type) const
+{
+	if (IS_NPC(this)) return 1;
+	if (!(GET_COND_M(this,FULL)||GET_COND_M(this,THIRST))) return 1;
+	
+	float penalty = 0;
+	
+	if (GET_COND_M(this,FULL)) {
+		int tmp = GET_COND_K(this,FULL); // 0 - 1
+		switch (type) {
+			case P_DAMROLL://-50%
+				penalty+=tmp/2; 
+				break;
+			case P_HITROLL://-25%
+				penalty+=tmp/4; 
+				break;
+			case P_CAST://-25%
+				penalty+=tmp/4; 
+				break;
+			case P_MEM_GAIN://-25%
+				penalty+=tmp/4;
+				break;
+			case P_MOVE_GAIN://-50%
+				penalty+=tmp/2;
+				break;
+			case P_HIT_GAIN://-50%
+				penalty+=tmp/2;
+				break;
+			case P_AC://-50%
+				penalty+=tmp/2;
+				break;
+			default:
+				break;
+		}
+	}
+
+	if (GET_COND_M(this,THIRST)) {
+		int tmp = GET_COND_K(this,THIRST); // 0 - 1
+		switch (type) {
+			case P_DAMROLL://-25%
+				penalty+=tmp/4; 
+				break;
+			case P_HITROLL://-50%
+				penalty+=tmp/2; 
+				break;
+			case P_CAST://-50%
+				penalty+=tmp/2; 
+				break;
+			case P_MEM_GAIN://-50%
+				penalty+=tmp/2;
+				break;
+			case P_MOVE_GAIN://-25%
+				penalty+=tmp/4;
+				break;
+			case P_AC://-25%
+				penalty+=tmp/4;
+				break;
+			default:
+				break;
+		}
+	}
+	penalty=100-MIN(MAX(0,penalty),100);
+	penalty/=100.0;
+	return penalty;
+}
+
 void CHAR_DATA::reset()
 {
 	int i;
@@ -967,6 +1035,14 @@ bool IS_NOSEXY(const CHAR_DATA* ch)
 bool IS_POLY(const CHAR_DATA* ch)
 {
 	return GET_SEX(ch) == ESex::SEX_POLY;
+}
+
+int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val)
+{
+	const int character_class = ch->get_class();
+	return IS_NPC(ch)
+		? VPOSI(val, 1, 100)
+		: VPOSI(val, 1, class_stats_limit[character_class][stat_id]);
 }
 
 bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
@@ -2120,7 +2196,7 @@ void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)
 	followers = k;
 }
 
-const boost::dynamic_bitset<>& CHAR_DATA::get_role_bits() const
+const CHAR_DATA::role_t& CHAR_DATA::get_role_bits() const
 {
 	return role_;
 }

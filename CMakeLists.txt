@@ -152,16 +152,20 @@ set(SOURCES
 	src/world.objects.cpp
 	src/object.prototypes.cpp
 	src/id.cpp
+	src/find.obj.id.by.vnum.cpp
+	src/global.objects.cpp
+	src/shops.implementation.cpp
 	src/radix.trie.cpp
 	src/compact.trie.cpp
-	src/id.cpp
-	src/find.obj.id.by.vnum.cpp)
+	src/id.cpp)
 
 set(HEADERS
-	src/compact.trie.hpp
-	src/radix.trie.hpp
+	src/shops.implementation.hpp
+	src/global.objects.hpp
 	src/find.obj.id.by.vnum.hpp
 	src/id.hpp
+	src/compact.trie.hpp
+	src/radix.trie.hpp
 	src/object.prototypes.hpp
 	src/world.objects.hpp
 	src/utils.string.hpp

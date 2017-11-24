@@ -232,7 +232,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 		return out.str();
 	}
 
-	const std::shared_ptr<char> databuf(new char[fsize + 1], [](char* p) { delete[] p; });
+	const std::shared_ptr<char> databuf(new char[fsize + 1], std::default_delete<char[]>());
 
 	fseek(fl, 0L, SEEK_SET);
 	if (!databuf
@@ -1636,7 +1636,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 
 			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",
 				(*obj_it)->get_short_description().c_str(), GET_OBJ_POLY_1(ch, (*obj_it)));
-			CAP(buf);
+//			CAP(buf); issue #59
 			send_to_char(buf, ch);
 
 			if (--count <= 0)

@@ -43,6 +43,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "obj_sets.hpp"
+#include "utils.string.hpp"
 
 #ifdef HAVE_ICONV
 #include <iconv.h>
@@ -134,6 +135,60 @@ int MIN(int a, int b)
 int MAX(int a, int b)
 {
 	return (a > b ? a : b);
+}
+
+char* first_letter(char* txt)
+{
+	if (txt)
+	{
+		while (*txt && !a_isalpha(*txt))
+		{
+			//Предполагается, что для отправки клиенту используется только управляющий код с цветом
+			//На данный момент в коде присутствует только еще один управляющий код для очистки экрана,
+			//но он не используется (см. CLEAR_SCREEN)
+			if ('\x1B' == *txt)
+			{
+				while (*txt && 'm' != *txt)
+				{
+					++txt;
+				}
+				if (!*txt)
+				{
+					return txt;
+				}
+			}
+			else if ('&' == *txt)
+			{
+				++txt;
+				if (!*txt)
+				{
+					return txt;
+				}
+			}
+			++txt;
+		}
+	}
+	return txt;
+}
+
+char *colorCAP(char *txt) 
+{
+	char* letter = first_letter(txt);
+	if (letter && *letter)
+	{
+		*letter = UPPER(*letter);
+	}
+	return txt;
+}
+
+char *colorLOW(char *txt)
+{
+	char* letter = first_letter(txt);
+	if (letter && *letter)
+	{
+		*letter = LOWER(*letter);
+	}
+	return txt;
 }
 
 char * CAP(char *txt)
@@ -2079,9 +2134,9 @@ void add(int zone_vnum, long money)
 
 void print(CHAR_DATA *ch)
 {
-	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (!IS_GRGOD(ch))
 	{
-		send_to_char(ch, "Пока в разработке.\r\n");
+		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;
 	}
 
@@ -2801,6 +2856,11 @@ bool ParseFilter::init_wear(const char *str)
 		wear = EWearFlag::ITEM_WEAR_BOTHS;
 		wear_message = 15;
 	}
+	else if (is_abbrev(str, "колчан"))
+	{
+		wear = EWearFlag::ITEM_WEAR_QUIVER;
+		wear_message = 16;
+	}
 	else
 	{
 		return false;
@@ -2818,6 +2878,20 @@ bool ParseFilter::init_cost(const char *str)
 	if (cost_sign == '-')
 	{
 		cost = -cost;
+	}
+
+	return true;
+}
+
+bool ParseFilter::init_rent(const char *str)
+{
+	if (sscanf(str, "%d%[-+]", &rent, &rent_sign) != 2)
+	{
+		return false;
+	}
+	if (rent_sign == '-')
+	{
+		rent = -rent;
 	}
 
 	return true;
@@ -3103,8 +3177,11 @@ bool ParseFilter::init_affect(char *str, size_t str_len)
 bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
 {
 	bool result = false;
+        char name_obj[MAX_STRING_LENGTH];
+        strcpy(name_obj, GET_OBJ_PNAME(obj, 0).c_str());
+        utils::remove_colors(name_obj);
 	if (name.empty()
-		|| isname(name, GET_OBJ_PNAME(obj, 0)))
+		|| isname(name, name_obj))
 	{
 		result = true;
 	}
@@ -3212,6 +3289,25 @@ bool ParseFilter::check_cost(int obj_price) const
 		result = true;
 	}
 	else if (cost < 0 && obj_price <= -cost)
+	{
+		result = true;
+	}
+	return result;
+}
+
+bool ParseFilter::check_rent(int obj_price) const
+{
+	bool result = false;
+
+	if (rent_sign == '\0')
+	{
+		result = true;
+	}
+	else if (rent >= 0 && obj_price >= rent)
+	{
+		result = true;
+	}
+	else if (rent < 0 && obj_price <= -rent)
 	{
 		result = true;
 	}
@@ -3379,6 +3475,7 @@ bool ParseFilter::check(OBJ_DATA *obj, CHAR_DATA *ch)
 		&& check_wear(obj)
 		&& check_weap_class(obj)
 		&& check_cost(GET_OBJ_COST(obj))
+		&& check_rent(GET_OBJ_RENTEQ(obj) * CLAN_STOREHOUSE_COEFF / 100)
 		&& check_affect_apply(obj)
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj))
@@ -3587,6 +3684,11 @@ std::string ParseFilter::print() const
 	if (cost >= 0)
 	{
 		sprintf(buf, "%d%c ", cost, cost_sign);
+		buffer += buf;
+	}
+	if (rent >= 0)
+	{
+		sprintf(buf, "%d%c ", rent, rent_sign);
 		buffer += buf;
 	}
 	if (!affect_weap.empty())

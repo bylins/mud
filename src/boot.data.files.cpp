@@ -733,22 +733,22 @@ void ObjectFile::parse_object(const int nr)
 
 	tobj->set_aliases(aliases);
 	tmpptr = fread_string();
-	*tmpptr = LOWER(*tmpptr);
-	tobj->set_short_description(tmpptr);
+//	*tmpptr = LOWER(*tmpptr);
+	tobj->set_short_description(colorLOW(tmpptr));
 
-	tobj->set_PName(0, tobj->get_short_description());
+	strcpy(buf, tobj->get_short_description().c_str());
+	tobj->set_PName(0, colorLOW(buf)); //именительный падеж равен короткому описанию
 
 	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
-		char* str = fread_string();
-		*str = LOWER(*str);
-		tobj->set_PName(j, str);
+		char *str = fread_string();
+		tobj->set_PName(j, colorLOW(str));
 	}
 
 	tmpptr = fread_string();
 	if (tmpptr && *tmpptr)
 	{
-		CAP(tmpptr);
+		colorCAP(tmpptr);
 	}
 	tobj->set_description(tmpptr ? tmpptr : "");
 
@@ -1025,14 +1025,14 @@ bool ObjectFile::check_object(OBJ_DATA* obj)
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",",4);
 	if (strstr(buf, "UNDEFINED"))
 	{
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown extra flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
-	obj->get_affect_flags().sprintbits(affected_bits, buf, ",");
+	obj->get_affect_flags().sprintbits(affected_bits, buf, ",",4);
 
 	if (strstr(buf, "UNDEFINED"))
 	{
@@ -1180,6 +1180,7 @@ void MobileFile::parse_mobile(const int nr)
 	int j, t[10];
 	char line[256], letter;
 	char f1[128], f2[128];
+	char *str;
 	mob_index[i].vnum = nr;
 	mob_index[i].number = 0;
 	mob_index[i].func = NULL;
@@ -1210,8 +1211,8 @@ void MobileFile::parse_mobile(const int nr)
 	{
 		GET_PAD(mob_proto + i, j) = fread_string();
 	}
-
-	mob_proto[i].player_data.long_descr = fread_string();
+	str = fread_string();
+	mob_proto[i].player_data.long_descr = colorCAP(str);
 	mob_proto[i].player_data.description = fread_string();
 	mob_proto[i].mob_specials.Questor = NULL;
 	mob_proto[i].player_data.title = NULL;
@@ -1697,7 +1698,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		if (value && *value)
 		{
 			std::string str(value);
-			boost::dynamic_bitset<> tmp(str);
+			CHAR_DATA::role_t tmp(str);
 			tmp.resize(mob_proto[i].get_role().size());
 			mob_proto[i].set_role(tmp);
 		}
@@ -1747,8 +1748,10 @@ bool ZoneFile::load_zones()
 	Z.comment = 0;
 	Z.location = 0;
 	Z.description = 0;
+	Z.autor = 0;
 	Z.group = false;
 	Z.count_reset = 0;
+	Z.traffic = 0;
 
 	while (get_line(file(), buf))
 	{
@@ -1797,43 +1800,56 @@ bool ZoneFile::load_zones()
 	if ((ptr = strchr(buf, '~')) != NULL)	// take off the '~' if it's there
 		*ptr = '\0';
 	Z.name = str_dup(buf);
-	line_num += get_line(file(), buf);
-	if (*buf == '^')
-	{
-		std::string comment(buf);
-		boost::trim_if(comment, boost::is_any_of(std::string("^~")));
-		Z.comment = str_dup(comment.c_str());
-		line_num += get_line(file(), buf);
-	}
-	if (*buf == '&')
-	{
-		std::string location(buf);
-		boost::trim_if(location, boost::is_any_of(std::string("&~")));
-		Z.location = str_dup(location.c_str());
-		line_num += get_line(file(), buf);
-	}
-	if (*buf == '$')
-	{
-		std::string description(buf);
-		boost::trim_if(description, boost::is_any_of(std::string("$~")));
-		Z.description = str_dup(description.c_str());
-		line_num += get_line(file(), buf);
-	}
 
-	if (*buf == '#')
-	{
-		int group = 0;
-		if (sscanf(buf, "#%d %d %d", &Z.level, &Z.type, &group) < 3)
-		{
-			if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
-			{
-				log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
-				exit(1);
-			}
-		}
-		Z.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+	log("Читаем zon файл: %s", full_file_name().c_str());
+	while (*buf !='S' && !feof(file()))
+	{	
 		line_num += get_line(file(), buf);
+		if (*buf == '#')
+			break;
+		if (*buf == '^')
+		{
+			std::string comment(buf);
+			boost::trim_if(comment, boost::is_any_of(std::string("^~")));
+			Z.comment = str_dup(comment.c_str());
+		}
+		if (*buf == '&')
+		{
+			std::string location(buf);
+			boost::trim_if(location, boost::is_any_of(std::string("&~")));
+			Z.location = str_dup(location.c_str());
+		}
+		if (*buf == '!')
+		{
+			std::string autor(buf);
+			boost::trim_if(autor, boost::is_any_of(std::string("!~")));
+			Z.autor = str_dup(autor.c_str());
+		}
+		if (*buf == '$')
+		{
+			std::string description(buf);
+			boost::trim_if(description, boost::is_any_of(std::string("$~")));
+			Z.description = str_dup(description.c_str());
+		}
 	}
+	if (*buf != '#')
+	{
+		log("SYSERR: ERROR!!! not # in file %s", full_file_name().c_str());
+		exit(1);
+	}
+	
+	int group = 0;
+	if (sscanf(buf, "#%d %d %d", &Z.level, &Z.type, &group) < 3)
+	{
+		if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
+		{
+			log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
+			exit(1);
+		}
+	}
+	Z.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+	line_num += get_line(file(), buf);
+
 	*t1 = 0;
 	*t2 = 0;
 	int tmp_reset_idle = 0;

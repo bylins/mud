@@ -600,13 +600,19 @@ const byte sav_05[50] =
 	35, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_06[50] =
+//CLASS_MOB
+const byte sav_06[100] =
 {
 	90, 90, 90, 90, 90, 90, 89, 89, 88, 88,	// 00-09
 	87, 86, 85, 84, 82, 80, 78, 76, 74, 72,	// 10-19
 	70, 67, 64, 61, 58, 55, 52, 49, 46, 43,	// 20-29
-	40, 45, 41, 37, 33, 25, 20, 15, 10, 5,	// 30-39
-	4, 3, 2, 1, 0, 0, 0, 0, 0, 0	// 40-49
+	41, 39, 38, 37, 33, 25, 20, 15, 10, 5,	// 30-39
+	4, 3, 2, 1, 0, 0, 0, 0, 0, 0,			// 40-49
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			// 50-59
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			// 60-69
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			// 70-79
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			// 80-89
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0			// 90-99
 };
 const byte sav_08[50] =
 {
@@ -648,13 +654,19 @@ const byte sav_12[50] =
 	17, 16, 15, 14, 13, 12, 11, 10, 9, 8,	// 30-39
 	7, 6, 5, 4, 3, 2, 1, 0, 0, 0	// 40-49
 };
-const byte sav_13[50] =
+//CLASS_MOB
+const byte sav_13[100] =
 {
 	90, 83, 81, 79, 77, 75, 72, 68, 65, 63,	// 00-09
 	61, 58, 56, 53, 50, 47, 45, 43, 42, 41,	// 10-19
 	40, 38, 37, 36, 34, 33, 32, 31, 30, 29,	// 20-29
 	27, 26, 25, 24, 23, 22, 21, 20, 18, 16,	// 30-39
-	12, 10, 8, 6, 4, 2, 1, 0, 0, 0	// 40-49
+	12, 10, 8, 6, 4, 2, 1, 0, 0, 0,			// 40-49
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			// 50-59
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			// 60-69
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			// 70-79
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0,			// 80-89
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0			// 90-99
 };
 const byte sav_14[50] =
 {
@@ -688,13 +700,19 @@ const byte sav_17[50] =
 	45, 0, 0, 0, 0, 0, 0, 0, 0, 0,	// 30-39
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0	// 40-49
 };
-const byte sav_18[50] =
+//CLASS_MOB
+const byte sav_18[100] =
 {
 	100, 100, 100, 100, 100, 99, 99, 99, 99, 99,	// 00-09
-	98, 98, 98, 98, 98, 97, 97, 97, 97, 97,	// 10-19
-	96, 96, 96, 96, 96, 95, 95, 95, 95, 95,	// 20-29
-	94, 94, 94, 94, 94, 93, 93, 93, 93, 93,	// 30-39
-	92, 92, 92, 92, 92, 91, 91, 91, 91, 91	// 40-49
+	98, 98, 98, 98, 98, 97, 97, 97, 97, 97,			// 10-19
+	96, 96, 96, 96, 96, 95, 95, 95, 95, 95,			// 20-29
+	94, 94, 94, 94, 94, 93, 93, 93, 93, 93,			// 30-39
+	92, 92, 92, 92, 92, 91, 91, 91, 91, 91,			// 40-49
+	91, 91, 91, 91, 91, 90, 90, 90, 90, 90,			// 50-59
+	89, 89, 89, 89, 89, 88, 88, 88, 88, 88,			// 60-69
+	87, 87, 87, 87, 87, 86, 86, 86, 86, 86,			// 70-79
+	85, 85, 85, 85, 85, 84, 84, 84, 84, 84,			// 80-89
+	83, 83, 83, 83, 83, 82, 82, 82, 82, 82			// 90-99
 };
 
 
@@ -752,7 +770,7 @@ byte extend_saving_throws(int class_num, int type, int level)
 	int i;
 	if (type < 0 || type >= SAVING_COUNT)
 		return 100;
-	if (level <= 0 || level > 50)
+	if (level <= 0 || level > 100)
 		return 100;
 	--level;
 
@@ -2051,8 +2069,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_HIT(ch) = GET_REAL_MAX_HIT(ch);
 	GET_MOVE(ch) = GET_REAL_MAX_MOVE(ch);
 
-	GET_COND(ch, THIRST) = 24;
-	GET_COND(ch, FULL) = 24;
+	GET_COND(ch, THIRST) = 0;
+	GET_COND(ch, FULL) = 0;
 	GET_COND(ch, DRUNK) = 0;
 	// проставим кличи
 	init_warcry(ch);
@@ -2258,8 +2276,6 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj)
 	return false;
 }
 
-
-
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 {
 	if (!IS_CORPSE(obj))
@@ -2308,10 +2324,6 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 	}
 	return (FALSE);
 }
-
-
-
-
 
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj)
 {
@@ -2922,66 +2934,53 @@ void init_basic_values(void)
 		i[0] = i[1] = i[2] = i[3] = i[4] = i[5] = 100000;
 		if (sscanf(name, "%s %d %d %d %d %d %d", line, i, i + 1, i + 2, i + 3, i + 4, i + 5) < 1)
 			continue;
-		if (!str_cmp(line, "str"))
+		if (!str_cmp(line, "int"))
 			mode = 1;
-		else if (!str_cmp(line, "dex_app"))
-			mode = 2;
-		else if (!str_cmp(line, "dex_skill"))
-			mode = 3;
-		else if (!str_cmp(line, "con"))
-			mode = 4;
-		else if (!str_cmp(line, "wis"))
-			mode = 5;
-		else if (!str_cmp(line, "int"))
-			mode = 6;
 		else if (!str_cmp(line, "cha"))
-			mode = 7;
+			mode = 2;
 		else if (!str_cmp(line, "size"))
-			mode = 8;
+			mode = 3;
 		else if (!str_cmp(line, "weapon"))
-			mode = 9;
-		else if ((c = atoi(line)) > 0 && c <= 50 && mode > 0 && mode < 10)
+			mode = 4;
+		else if ((c = atoi(line)) > 0 && c <= 100 && mode > 0 && mode < 10)
 		{
+			int fields = 0;
 			switch (mode)
-			{
+			{			
 			case 1:
-				pointer = (int *) & (str_app[c].tohit);
-				break;
-			case 2:
-				pointer = (int *) & (dex_app[c].reaction);
-				break;
-			case 3:
-				pointer = (int *) & (dex_app_skill[c].p_pocket);
-				break;
-			case 4:
-				pointer = (int *) & (con_app[c].hitp);
-				break;
-			case 5:
-				pointer = (int *) & (wis_app[c].spell_additional);
-				break;
-			case 6:
 				pointer = (int *) & (int_app[c].spell_aknowlege);
+				fields = sizeof(int_app[c])/sizeof(int);
 				break;
-			case 7:
+
+			case 2:
 				pointer = (int *) & (cha_app[c].leadership);
+				fields = sizeof(cha_app[c])/sizeof(int);
 				break;
-			case 8:
+
+			case 3:
 				pointer = (int *) & (size_app[c].ac);
+				fields = sizeof(size_app[c])/sizeof(int);
 				break;
-			case 9:
+
+			case 4:
 				pointer = (int *) & (weapon_app[c].shocking);
+				fields = sizeof(weapon_app[c])/sizeof(int);
 				break;
+
 			default:
 				pointer = NULL;
 			}
+
 			if (pointer)  	//log("Mode %d - %d = %d %d %d %d %d %d",mode,c,
 			{
 				//    *i, *(i+1), *(i+2), *(i+3), *(i+4), *(i+5));
-				for (j = 0; j < 6; j++)
+				for (j = 0; j < fields; j++)
+				{
 					if (i[j] != 100000)  	//log("[%d] %d <-> %d",j,*(pointer+j),*(i+j));
 					{
 						*(pointer + j) = *(i + j);
 					}
+				}
 				//getchar();
 			}
 		}

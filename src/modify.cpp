@@ -521,7 +521,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 					SEND_TO_Q("Номер строки вне диапазона - прервано.\r\n", d);
 					return;
 				}
-				if ((pos - beginning + strlen(buf2) + strlen(pos + 1) + 3) > d->max_str)
+				if ((pos - beginning + strlen(buf2) + strlen(pos) + 3) > d->max_str)
 				{
 					SEND_TO_Q("Превышение размеров буфера - прервано.\r\n", d);
 					return;

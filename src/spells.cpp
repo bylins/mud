@@ -65,6 +65,7 @@ extern int top_imtypes;
 
 ESkill get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
+bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 void clearMemory(CHAR_DATA * ch);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int compute_armor_class(CHAR_DATA * ch);
@@ -126,6 +127,27 @@ ESkill get_magic_skill_number_by_spell(int spellnum)
 		return SKILL_INVALID;
 	}
 }
+
+//Определим мин уровень для изучения спелла из книги
+//req_lvl - требуемый уровень из книги
+int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl)
+{
+	int min_lvl = MAX(req_lvl, BASE_CAST_LEV(spell_info[spellnum], ch)) - (MAX(GET_REMORT(ch) - MIN_CAST_REM(spell_info[spellnum], ch), 0) / 3);
+
+	return MAX(1, min_lvl);
+}
+
+bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl)
+{
+	if (min_spell_lvl_with_req(ch, spellnum, req_lvl) > GET_LEVEL(ch)
+		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch))
+		return FALSE;
+
+	if (slot_for_char(ch, spell_info[spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)]) <= 0)
+		return FALSE;
+
+	return TRUE;
+};
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool can_get_spell(CHAR_DATA *ch, int spellnum)
@@ -215,7 +237,7 @@ void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DAT
 	}
 	if (victim && !IS_NPC(victim) && !IS_IMMORTAL(victim))
 	{
-		gain_condition(victim, THIRST, 25);
+		GET_COND(victim, THIRST) = 0;
 		send_to_char("Вы полностью утолили жажду.\r\n", victim);
 		if (victim != ch)
 		{
@@ -714,16 +736,31 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 			return;
 		}
 		// Жертву нельзя призвать если она в:
-		if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
+                //разные варианты моб и игрок
+                if (!IS_NPC(ch))
+		{
+                    // для чаров
+                    if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
 				ROOM_FLAGGED(vic_room, ROOM_TUNNEL)	||	// жертва стоит в ван-руме
 				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
 				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
 				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
 				AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
-		{
+                    {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
-		}
+                    }
+                }
+                else
+                {
+                    //для мобов возможно только 2 ошибки 
+                   if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
+			AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
+                    {
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+                    }
+                }
 
 		// Фейл заклинания суммон
 		if (number(1, 100) < 30)
@@ -835,6 +872,14 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
 			return;
 		}
+		//удаляем переходы
+		if (world[ch->in_room]->portal_time)
+		{
+			if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time)
+				decay_portal(world[ch->in_room]->portal_room);
+				decay_portal(ch->in_room);
+		}
+
 
 		// Открываем пентаграмму в комнату rnum //
 		improove_skill(ch, SKILL_TOWNPORTAL, 1, NULL);
@@ -1071,7 +1116,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
 		}
 
-		CAP(buf);
+//		CAP(buf); issue #59
 		send_to_char(buf, ch);
 
 		return true;
@@ -1205,8 +1250,6 @@ int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	}
 
 	if (spellnum != SPELL_CLONE &&
-//    !WAITLESS(ch) &&
-//    hp_summ + GET_REAL_MAX_HIT(victim) >= cha_app[GET_REAL_CHA(ch)].charms )
 			reformed_hp_summ + get_reformed_charmice_hp(ch, victim, spellnum) >= get_player_charms(ch, spellnum))
 	{
 		send_to_char("Вам не под силу управлять такой боевой мощью.\r\n", ch);
@@ -1673,7 +1716,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_no_flags().sprintbits(no_bits, buf, ",");
+	obj->get_no_flags().sprintbits(no_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1683,15 +1726,20 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_anti_flags().sprintbits(anti_bits, buf, ",");
+	obj->get_anti_flags().sprintbits(anti_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
-	if (obj->get_manual_mort_req() > 0)
+	if (obj->get_auto_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-			CCCYN(ch, C_NRM), obj->get_manual_mort_req(), CCNRM(ch, C_NRM));
+			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
+	}
+	else if (obj->get_auto_mort_req() < -1)
+	{
+		send_to_char(ch, "Максимальное количество перевоплощение : %s%d%s\r\n",
+			CCCYN(ch, C_NRM), abs(obj->get_minimum_remorts()), CCNRM(ch, C_NRM));
 	}
 
 	if (fullness < 60)
@@ -1699,7 +1747,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -1761,7 +1809,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
 					drsdice = 34;
 				else
-					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL(obj, 1)], ch);
+					drsdice = min_spell_lvl_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
 				send_to_char(buf, ch);
 				sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
@@ -1775,7 +1823,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
 				{
-					drsdice = min_skill_level(ch, drndice);
+					drsdice = min_skill_level_with_req(ch, drndice, GET_OBJ_VAL(obj, 2));
 				}
 				else
 				{
@@ -1796,7 +1844,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (drndice >= 0)
 			{
-				drsdice = imrecipes[drndice].level;
+				drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 				int count = imrecipes[drndice].remort;
 				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
 					drsdice = LVL_IMPL;
@@ -1928,11 +1976,19 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-
-	case OBJ_DATA::ITEM_DRINKCON:
+	
+ 	case OBJ_DATA::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
 //Конец инфы о емкостях и контейнерах (Купала)
+
+           case OBJ_DATA::ITEM_MAGIC_ARROW:
+           case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+		sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
+			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+		send_to_char(buf, ch);
+		break;
 
 	default:
 		break;
@@ -1945,7 +2001,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2072,36 +2128,41 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Имеет экстрафлаги: ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",");
+	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Недоступен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_anti_flags().sprintbits(anti_bits, buf, ",");
+	obj->get_anti_flags().sprintbits(anti_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	send_to_char("Неудобен : ", ch);
 	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_no_flags().sprintbits(no_bits, buf, ",");
+	obj->get_no_flags().sprintbits(no_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
-	if (obj->get_manual_mort_req() > 0)
+	if (obj->get_auto_mort_req() > 0)
 	{
 		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-			CCCYN(ch, C_NRM), obj->get_manual_mort_req(), CCNRM(ch, C_NRM));
+			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
+	}
+	else if (obj->get_auto_mort_req() < -1)
+	{
+		send_to_char(ch, "Максимальное перевоплощений : %s%d%s\r\n",
+			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
 	}
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
@@ -2159,7 +2220,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
 					drsdice = 34;
 				else
-					drsdice = MIN_CAST_LEV(spell_info[GET_OBJ_VAL(obj, 1)], ch);
+					drsdice = min_spell_lvl_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
 				send_to_char(buf, ch);
 				sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
@@ -2173,7 +2234,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 				drndice = GET_OBJ_VAL(obj, 1);
 				if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
 				{
-					drsdice = GET_OBJ_VAL(obj, 2);
+					drsdice = min_skill_level_with_req(ch, drndice, GET_OBJ_VAL(obj, 2));
 				}
 				else
 				{
@@ -2194,7 +2255,7 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
 			if (drndice >= 0)
 			{
-				drsdice = imrecipes[drndice].level;
+				drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
 				i = imrecipes[drndice].remort;
 				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
 					drsdice = LVL_IMPL;
@@ -2478,7 +2539,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCICYN(ch, C_NRM), ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
 	sprintf(buf, "%s\r\n", buf2);
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2563,7 +2624,7 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCIBLU(ch, C_NRM), ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
 	sprintf(buf, "%s\r\n", buf2);
 
 	if (victim->followers)
@@ -3323,7 +3384,18 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL_MELFS_ACID_ARROW!",
 	"!SPELL_THUNDERSTONE!",
 	"!SPELL_CLOD!",
-	"Эффект боевого приема завершился."
+	"Эффект боевого приема завершился.",
+	"!SPELL SIGHT OF DARKNESS!",
+	"!SPELL GENERAL SINCERITY!",
+	"!SPELL MAGICAL GAZE!",
+	"!SPELL ALL SEEING EYE!",
+	"!SPELL EYE OF GODS!",
+	"!SPELL BREATHING AT DEPTH!",
+	"!SPELL GENERAL RECOVERY!",
+	"!SPELL COMMON MEAL!",
+	"!SPELL STONE WALL!",
+	"!SPELL SNAKE EYES!",
+	"Матушка земля забыла про Вас."
 };
 
 /**
@@ -3485,7 +3557,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "разум аки мутный омут", "... и безумие его с ним." },
 	cast_phrase_t{ "окружен радугой", "... явится радуга в облаке." },
 	cast_phrase_t{ "зло творяще", "... и ты воздашь им злом." },
-	cast_phrase_t{ "Стрибог, даруй защиту.", ".... четыре ветра земли." },	// 140
+	cast_phrase_t{ "Мать-земля, даруй защиту.", "... поклон тебе матушка земля." },	// 140
 	cast_phrase_t{ "Сварог, даруй защиту.", "... и огонь низводит с неба." },
 	cast_phrase_t{ "Морена, даруй защиту.", "... текущие холодные воды." },
 	cast_phrase_t{ "будет слеп и глух, аки мертвец", "... кто делает или глухим, или слепым." },
@@ -3553,14 +3625,25 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Обрасти плотью сызнова.", "... прости Господи грехи, верни плоть созданию." }, // SPELL_RECOVERY
 	cast_phrase_t{ "Обрастите плотью сызнова.", "... прости Господи грехи, верни плоть созданиям." }, // SPELL_MASS_RECOVERY
 	cast_phrase_t{ "Возьми личину зла для жатвы славной.", "Надели силой злою во благо." }, // SPELL_AURA_EVIL
-	cast_phrase_t{ "\n", "\n" }, // SPELL_MENTAL_SHADOW
+	cast_phrase_t{ "Силою мысли защиту будую себе.", "Даруй Отче защиту, силой разума воздвигнутую." }, // SPELL_MENTAL_SHADOW
 	cast_phrase_t{ "Ато егоже руци попасти.", "И он не знает, что мертвецы там и что в глубине..." }, // SPELL_EVARDS_BLACK_TENTACLES
 	cast_phrase_t{ "Вждати бурю обло створити.", "И поднялась великая буря..." }, // SPELL_WHIRLWIND
-    cast_phrase_t{ "Идеже индрика зубы супостаты изъмати.", "Есть род, у которого зубы - мечи и челюсти - ножи..." }, // SPELL_WHIRLWIND
-    cast_phrase_t{ "Варно сожжет струя!", "...и на коже его сделаются как бы язвы проказы" }, // SPELL_MELFS_ACID_ARROW
-    cast_phrase_t{ "Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи." }, // SPELL_THUNDERSTONE
-    cast_phrase_t{ "Онома утес низринется!", "...доколе камень не оторвался от горы без содействия рук." }, // SPELL_CLODd
-    cast_phrase_t{ "!Применил боевой прием!", "!use battle expedient!" }, // SPELL_EXPEDIENT (set by program)
+	cast_phrase_t{ "Идеже индрика зубы супостаты изъмати.", "Есть род, у которого зубы - мечи и челюсти - ножи..." }, // SPELL_WHIRLWIND
+	cast_phrase_t{ "Варно сожжет струя!", "...и на коже его сделаются как бы язвы проказы" }, // SPELL_MELFS_ACID_ARROW
+	cast_phrase_t{ "Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи." }, // SPELL_THUNDERSTONE
+	cast_phrase_t{ "Онома утес низринется!", "...доколе камень не оторвался от горы без содействия рук." }, // SPELL_CLODd
+	cast_phrase_t{ "!Применил боевой прием!", "!use battle expedient!" }, // SPELL_EXPEDIENT (set by program)
+	cast_phrase_t{ "Что свет, что тьма - глазу однаково.", "Станьте зрячи в тьме кромешной!" }, // SPELL_SIGHT_OF_DARKNESS
+	cast_phrase_t{ "...да не скроются намерения.", "И узрим братья намерения окружающих." }, // SPELL_GENERAL_SINCERITY
+	cast_phrase_t{ "Узрим же все, что с магией навкруги нас.", "Покажи, Спаситель, магические силы братии." }, // SPELL_MAGICAL_GAZE
+	cast_phrase_t{ "Все тайное станет явным.", "Не спрячется, не скроется, ни заяц, ни блоха." }, // SPELL_ALL_SEEING_EYE
+	cast_phrase_t{ "Осязаемое откройся взору!", "Да не скроется от взора вашего, ни одна живая душа." }, // SPELL_EYE_OF_GODS
+	cast_phrase_t{ "Аки стайка рыбок, плывите вместе.", "Что в воде, что на земле, воздух свежим будет." }, // SPELL_BREATHING_AT_DEPTH
+	cast_phrase_t{ "...дабы пройти вместе не одну сотню верст", "Сохрани Отче от усталости детей своих!" }, // SPELL_GENERAL_RECOVERY
+	cast_phrase_t{ "Благодарите богов за хлеб и соль!", "...дабы не осталось голодающих на свете белом" }, // SPELL_COMMON_MEAL
+	cast_phrase_t{ "Станем други крепки як николы!", "Укрепим тела наши перед битвой!" }, // SPELL_STONE_WALL
+	cast_phrase_t{ "Что яд, а что мед. Не обманемся!", "...и самый сильный яд станет вам виден." }, // SPELL_SNAKE_EYES
+	cast_phrase_t{ "Велес, даруй защиту.", "... земля благословенна твоя." }, // SPELL_EARTH_AURA
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3788,6 +3871,17 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_THUNDERSTONE] = "SPELL_THUNDERSTONE";
 	ESpell_name_by_value[ESpell::SPELL_CLOD] = "SPELL_CLOD";
 	ESpell_name_by_value[ESpell::SPELL_EXPEDIENT] = "SPELL_EXPEDIENT";
+	ESpell_name_by_value[ESpell::SPELL_SIGHT_OF_DARKNESS] = "SPELL_SIGHT_OF_DARKNESS";
+	ESpell_name_by_value[ESpell::SPELL_GENERAL_SINCERITY] = "SPELL_GENERAL_SINCERITY";
+	ESpell_name_by_value[ESpell::SPELL_MAGICAL_GAZE] = "SPELL_MAGICAL_GAZE";
+	ESpell_name_by_value[ESpell::SPELL_ALL_SEEING_EYE] = "SPELL_ALL_SEEING_EYE";
+	ESpell_name_by_value[ESpell::SPELL_EYE_OF_GODS] = "SPELL_EYE_OF_GODS";
+	ESpell_name_by_value[ESpell::SPELL_BREATHING_AT_DEPTH] = "SPELL_BREATHING_AT_DEPTH";
+	ESpell_name_by_value[ESpell::SPELL_GENERAL_RECOVERY] = "SPELL_GENERAL_RECOVERY";
+	ESpell_name_by_value[ESpell::SPELL_COMMON_MEAL] = "SPELL_COMMON_MEAL";
+	ESpell_name_by_value[ESpell::SPELL_STONE_WALL] = "SPELL_STONE_WALL";
+	ESpell_name_by_value[ESpell::SPELL_SNAKE_EYES] = "SPELL_SNAKE_EYES";
+	ESpell_name_by_value[ESpell::SPELL_EARTH_AURA] = "SPELL_EARTH_AURA";
 	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
 
 	for (const auto& i : ESpell_name_by_value)

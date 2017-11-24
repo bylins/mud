@@ -709,10 +709,10 @@ void load()
 			message.date = coder::from_iso8601(param_list[0]);
 			try
 			{
-				message.from = boost::lexical_cast<int>(param_list[1]);
-				to_uid = boost::lexical_cast<int>(param_list[2]);
+				message.from = std::stol(param_list[1], nullptr, 10);
+				to_uid = std::stol(param_list[2], nullptr, 10);
 			}
-			catch (boost::bad_lexical_cast&)
+			catch (const std::invalid_argument &)
 			{
 				log("SYSERROR: ошибка чтения mail header #1 (%s)",
 					header.c_str());

@@ -217,6 +217,14 @@ pzcmd zedit_seek_cmd(pzcmd head, int pos)
 	return n == pos ? item : NULL;
 }
 
+// увеличиваем сложность зоны
+void up_zone(int number_zone)
+{
+	if (!(number_zone >= 0 && number_zone <= top_of_zone_table))
+		return;
+	
+}
+
 // Удаляю команду номер pos
 int delete_command(DESCRIPTOR_DATA * d, int pos)
 {
@@ -347,6 +355,7 @@ void zedit_setup(DESCRIPTOR_DATA * d, int/* room_num*/)
 	zone->name = str_dup(zone_table[OLC_ZNUM(d)].name);
 	zone->comment = str_dup(zone_table[OLC_ZNUM(d)].comment);
 	zone->location = zone_table[OLC_ZNUM(d)].location;
+	zone->autor = zone_table[OLC_ZNUM(d)].autor;
 	zone->description = zone_table[OLC_ZNUM(d)].description;
 //MZ.load
 	zone->level = zone_table[OLC_ZNUM(d)].level;
@@ -424,6 +433,7 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 		}
 		zone_table[OLC_ZNUM(d)].comment = str_dup(OLC_ZONE(d)->comment);
 		zone_table[OLC_ZNUM(d)].location = OLC_ZONE(d)->location;
+		zone_table[OLC_ZNUM(d)].autor = OLC_ZONE(d)->autor;
 		zone_table[OLC_ZNUM(d)].description = OLC_ZONE(d)->description;
 
 //MZ.load
@@ -502,6 +512,10 @@ void zedit_save_to_disk(int zone_num)
 	if (zone_table[zone_num].location && *zone_table[zone_num].location)
 	{
 		fprintf(zfile, "&%s~\n", zone_table[zone_num].location);
+	}
+	if (zone_table[zone_num].autor && *zone_table[zone_num].autor)
+	{
+		fprintf(zfile, "!%s~\n", zone_table[zone_num].autor);
 	}
 	if (zone_table[zone_num].description && *zone_table[zone_num].description)
 	{
@@ -944,21 +958,23 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 			"[H[J"
 #endif
 			"Room number: %s%d%s		Room zone: %s%d\r\n"
-			"%sZ%s) Имя зоны    : %s%s\r\n"
-			"%sC%s) Комментарий : %s%s\r\n"
-			"%sW%s) Местоположение : %s%s\r\n"
-			"%sO%s) Описание : %s%s\r\n"
-			"%sS%s) Уровень зоны: %s%d\r\n"
-			"%sY%s) Тип зоны    : %s%s\r\n"
-			"%sL%s) Время жизни : %s%d minutes\r\n"
-			"%sP%s) Макс.комната: %s%d\r\n"
-			"%sR%s) Тип очистки : %s%s\r\n"
-			"%sI%s) Оч. неисп.  : %s%s%s\r\n",
+			"%sZ%s) Имя зоны         : %s%s\r\n"
+			"%sC%s) Комментарий      : %s%s\r\n"
+			"%sW%s) Местоположение   : %s%s\r\n"
+			"%sO%s) Описание         : %s%s\r\n"
+			"%sU%s) Автор зоны       : %s%s\r\n"
+			"%sS%s) Уровень зоны     : %s%d\r\n"
+			"%sY%s) Тип зоны         : %s%s\r\n"
+			"%sL%s) Время жизни      : %s%d minutes\r\n"
+			"%sP%s) Макс.комната     : %s%d\r\n"
+			"%sR%s) Тип очистки      : %s%s\r\n"
+			"%sI%s) Оч. никто не был : %s%s%s\r\n",
 			cyn, OLC_NUM(d), nrm, cyn, zone_table[OLC_ZNUM(d)].number,
 			grn, nrm, yel, OLC_ZONE(d)->name ? OLC_ZONE(d)->name : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->comment ? OLC_ZONE(d)->comment : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->location ? OLC_ZONE(d)->location : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->description ? OLC_ZONE(d)->description : "<NONE!>",
+	grn, nrm, yel, OLC_ZONE(d)->autor ? OLC_ZONE(d)->autor : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->level,
 			grn, nrm, yel, zone_types[OLC_ZONE(d)->type].name,
 			grn, nrm, yel, OLC_ZONE(d)->lifespan,
@@ -1503,6 +1519,11 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'W':
 			send_to_char("Введите местоположение зоны : ", d->character);
 			OLC_MODE(d) = ZEDIT_ZONE_LOCATION;
+			break;
+		case 'u':
+		case 'U':
+			send_to_char("Введите автора зоны : ", d->character);
+			OLC_MODE(d) = ZEDIT_ZONE_AUTOR;
 			break;
 		case 'o':
 		case 'O':
@@ -2136,6 +2157,21 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		if (arg && *arg)
 		{
 		    OLC_ZONE(d)->location = str_dup(arg);
+		}
+		OLC_ZONE(d)->number = 1;
+		zedit_disp_menu(d);
+		break;
+		//------------------------------------------------------------------------
+
+	case ZEDIT_ZONE_AUTOR:
+		if (OLC_ZONE(d)->autor)
+		{
+		    free(OLC_ZONE(d)->autor);
+		    OLC_ZONE(d)->autor = NULL;
+		}
+		if (arg && *arg)
+		{
+		    OLC_ZONE(d)->autor = str_dup(arg);
 		}
 		OLC_ZONE(d)->number = 1;
 		zedit_disp_menu(d);

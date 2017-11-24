@@ -302,6 +302,21 @@ void OBJ_DATA::set_script(SCRIPT_DATA* _)
 	m_script.reset(_);
 }
 
+void OBJ_DATA::set_uid(const unsigned _)
+{
+	if (_ != m_uid)
+	{
+		const auto old_uid = m_uid;
+
+		m_uid = _;
+
+		for (const auto& observer : m_uid_change_observers)
+		{
+			observer->notify(*this, old_uid);
+		}
+	}
+}
+
 void CObjectPrototype::toggle_skill(const uint32_t skill)
 {
 	TOGGLE_BIT(m_skill, skill);
@@ -384,7 +399,7 @@ void CObjectPrototype::zero_init()
 	m_max_in_world = 0;
 	m_skills.clear();
 	m_timer = 0;
-	m_minimum_remorts = -1;
+	m_minimum_remorts = 0;
 	m_cost = 0;
 	m_rent_on = 0;
 	m_rent_off = 0;
@@ -549,55 +564,25 @@ void OBJ_DATA::set_enchant(int skill)
 		set_affected_modifier(0, 2);
 		set_affected_modifier(1, 2);
     };
-    set_extra_flag(EExtraFlag::ITEM_MAGIC);    
+	set_extra_flag(EExtraFlag::ITEM_MAGIC);
+	set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 }
 
 void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 {
     int i = 0;
     int random_drop = 0;
-
-    for (i = 0; i < MAX_OBJ_AFFECT; i++)
-    if (get_affected(i).location != APPLY_NONE)
-	{
-		set_affected_location(i, APPLY_NONE);
-	}
-
-	set_affected_location(0, APPLY_HITROLL);
-	set_affected_location(1, APPLY_DAMROLL);
-
-    if (skill <= 100)
-    // 4 мортов (скил магия света 100)
-    {
-       set_affected_modifier(0, 1 + number(0, 1));
-       set_affected_modifier(1, 1 + number(0, 1));
-    }
-    else if (skill <= 125)
+	//накидываем хитрол и дамрол
+    set_enchant(skill);
+	
+	// 4 мортов (скил магия света 100)
+	if (skill <= 100) {} 
     // 8 мортов (скил магия света 125)
-    {
-       random_drop = 1;
-	   set_affected_modifier(0, 1 + number(-3, 2));
-	   set_affected_modifier(1, 1 + number(-3, 2));
-    }
-    else if (skill <= 160)
+    else if (skill <= 125) { random_drop = 1; }
     // 12 мортов (скил магия света 160)
-    {
-       random_drop = 2;
-	   set_affected_modifier(0, 1 + number(-4, 3));
-	   set_affected_modifier(1, 1 + number(-4, 3));
-    }
-    else if (skill >160)
+	else if (skill <= 160) { random_drop = 2; }
     // 16 мортов (скил магия света 160+)
-    {
-       random_drop = 3;
-	   set_affected_modifier(0, 1 + number(-5, 4));
-	   set_affected_modifier(1, 1 + number(-5, 4));
-    }
-    else
-    {  // волхвы
-		set_affected_modifier(0, 2);
-		set_affected_modifier(1, 2);
-    };
+    else if (skill >160) { random_drop = 3; }
 
     i=0;
     while (i < random_drop)
@@ -611,11 +596,7 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 
     add_affect_flags(GET_OBJ_AFFECTS(obj));
     add_extra_flags(GET_OBJ_EXTRA(obj));
-    add_no_flags(GET_OBJ_NO(obj));
-
-    set_extra_flag(EExtraFlag::ITEM_MAGIC);
-    set_extra_flag(EExtraFlag::ITEM_MAGIC);
-    set_extra_flag(EExtraFlag::ITEM_MAGIC);
+	add_no_flags(GET_OBJ_NO(obj));
 }
 
 void OBJ_DATA::unset_enchant()
@@ -647,7 +628,8 @@ void OBJ_DATA::unset_enchant()
 	{
 		set_extra_flag(EExtraFlag::ITEM_WITH1SLOT);
 	}
-    unset_extraflag(EExtraFlag::ITEM_MAGIC);
+	unset_extraflag(EExtraFlag::ITEM_MAGIC);
+	unset_extraflag(EExtraFlag::ITEM_TRANSFORMED);
 }
 
 bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
@@ -668,6 +650,21 @@ bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
 
 	return true;
 }
+
+//копирование имени
+void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
+	int i;
+
+	//Копируем псевдонимы и дескрипшены
+	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
+	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
+	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+	
+	//Копируем имя по падежам
+	for (i=0;i<NUM_PADS;i++)
+		set_PName(i,src->get_PName(i));
+}
+
 
 void OBJ_DATA::copy_from(const CObjectPrototype* src)
 {
@@ -762,7 +759,24 @@ void OBJ_DATA::set_tag(const char* tag)
 	}
 }
 
-float count_remort_requred(const CObjectPrototype* obj);
+void OBJ_DATA::attach_triggers(const triggers_list_t& trigs)
+{
+	if (!get_script())
+	{
+		set_script(new SCRIPT_DATA());
+	}
+
+	for (auto it = trigs.begin(); it != trigs.end(); ++it)
+	{
+		int rnum = real_trigger(*it);
+		if (rnum != -1)
+		{
+			add_trigger(get_script().get(), read_trigger(rnum), -1);
+		}
+	}
+}
+
+float count_mort_requred(const CObjectPrototype* obj);
 float count_unlimited_timer(const CObjectPrototype* obj);
 
 /**
@@ -800,7 +814,7 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 
 float CObjectPrototype::show_mort_req() 
 {
-	return count_remort_requred(this);
+	return count_mort_requred(this);
 }
 
 float CObjectPrototype::show_koef_obj()
@@ -808,12 +822,12 @@ float CObjectPrototype::show_koef_obj()
 	return count_unlimited_timer(this);
 }
 
-unsigned CObjectPrototype::get_ilevel() const
+float CObjectPrototype::get_ilevel() const
 {
 	return m_ilevel;
 }
 
-void CObjectPrototype::set_ilevel(unsigned ilvl)
+void CObjectPrototype::set_ilevel(float ilvl)
 {
 	m_ilevel = ilvl;
 }
@@ -833,16 +847,56 @@ void CObjectPrototype::set_rnum(const obj_rnum _)
 	}
 }
 
-int CObjectPrototype::get_manual_mort_req() const
+std::string CObjectPrototype::item_count_message(int num, int pad)
 {
-	if (get_minimum_remorts() >= 0)
+	if (num <= 0
+		|| pad < 0
+		|| pad > 5
+		|| get_PName(pad).empty())
 	{
-		return get_minimum_remorts();
+		log("SYSERROR : num=%d, pad=%d, pname=%s (%s:%d)", num, pad, get_PName(pad).c_str(), __FILE__, __LINE__);
+
+		return "<ERROR>";
+	}
+
+	std::stringstream out;
+	out << get_PName(pad);
+	if (num > 1)
+	{
+		out << " (x " << num << " " << desc_count(num, WHAT_THINGa) << ")";
+	}
+	return out.str();
+}
+
+int CObjectPrototype::get_auto_mort_req() const
+{
+	if (get_minimum_remorts() == -1)
+		return 0;
+	if (get_minimum_remorts() != 0)
+	{
+            return get_minimum_remorts();
+	}
+	else if (m_ilevel > 35)
+	{
+		return 12;
+	}
+	else if (m_ilevel > 33)
+	{
+		return 11;
 	}
 	else if (m_ilevel > 30)
 	{
 		return 9;
 	}
+	else if (m_ilevel > 25)
+	{
+		return 6;
+	}
+	else if (m_ilevel > 20)
+	{
+		return 3;
+	}
+	
 
 	return 0;
 }
@@ -928,7 +982,7 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 	switch(num)
 	{
 	case APPLY_STR:
-		weight = mod * 5.0;
+		weight = mod * 7.5;
 		break;
 	case APPLY_DEX:
 		weight = mod * 10.0;
@@ -946,40 +1000,49 @@ float count_affect_weight(const CObjectPrototype* /*obj*/, int num, int mod)
 		weight = mod * 10.0;
 		break;
 	case APPLY_HIT:
-		weight = mod * 0.2;
+		weight = mod * 0.3;
 		break;
 	case APPLY_AC:
-		weight = mod * -1.0;
+		weight = mod * -0.5;
 		break;
 	case APPLY_HITROLL:
-		weight = mod * 3.3;
+		weight = mod * 2.3;
 		break;
 	case APPLY_DAMROLL:
 		weight = mod * 3.3;
 		break;
 	case APPLY_SAVING_WILL:
-		weight = mod * -1.0;
+		weight = mod * -0.5;
 		break;
 	case APPLY_SAVING_CRITICAL:
-		weight = mod * -1.0;
+		weight = mod * -0.5;
 		break;
 	case APPLY_SAVING_STABILITY:
-		weight = mod * -1.0;
+		weight = mod * -0.5;
 		break;
 	case APPLY_SAVING_REFLEX:
-		weight = mod * -1.0;
+		weight = mod * -0.5;
 		break;
 	case APPLY_CAST_SUCCESS:
-		weight = mod * 1.0;
+		weight = mod * 1.5;
+		break;
+	case APPLY_MANAREG:
+		weight = mod * 0.2;
 		break;
 	case APPLY_MORALE:
-		weight = mod * 2.0;
+		weight = mod * 1.0;
 		break;
 	case APPLY_INITIATIVE:
-		weight = mod * 1.0;
+		weight = mod * 2.0;
 		break;
 	case APPLY_ABSORBE:
 		weight = mod * 1.0;
+		break;
+	case APPLY_AR:
+		weight = mod * 1.5;
+		break;
+	case APPLY_MR:
+		weight = mod * 1.5;
 		break;
 	}
 
@@ -1106,64 +1169,15 @@ void init_ilvl(CObjectPrototype *obj)
 {
 	if (is_mob_item(obj)
 		|| obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF)
-		|| obj->get_manual_mort_req() >= 0)
+		|| obj->get_minimum_remorts() > 0)
 	{
 		obj->set_ilevel(0);
 		return;
 	}
 
-	float total_weight = 0.0;
+	float total_weight = count_mort_requred(obj);
 
-	// аффекты APPLY_x
-	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
-	{
-		if (obj->get_affected(k).location == 0) continue;
-
-		// случай, если один аффект прописан в нескольких полях
-		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
-		{
-			if (obj->get_affected(k).location == obj->get_affected(kk).location
-				&& k != kk)
-			{
-				log("SYSERROR: double affect=%d, obj_vnum=%d",
-					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
-				obj->set_ilevel(1000000);
-				return;
-			}
-		}
-		//если аффект отрицательный. убирем ошибку от степени
-		if (obj->get_affected(k).modifier < 0)
-		{
-			continue;
-		}
-		float weight = count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-		total_weight += pow(weight, SQRT_MOD);
-	}
-	// аффекты AFF_x через weapon_affect
-	for (const auto& m : weapon_affect)
-	{
-		if (IS_OBJ_AFF(obj, m.aff_pos))
-		{
-			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
-			{
-				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
-			}
-		}
-	}
-
-	obj->set_ilevel(ceil(pow(total_weight, 1/SQRT_MOD)));
+	obj->set_ilevel(total_weight);
 }
 
 void init_item_levels()
@@ -1531,7 +1545,10 @@ void init_EObjectType_ITEM_NAMES()
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_MEDIAN] = "ITEM_ARMOR_MEDIAN";
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ARMOR_HEAVY] = "ITEM_ARMOR_HEAVY";
 	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_ENCHANT] = "ITEM_ENCHANT";
-	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_CRAFT_MATERIAL] = "ITEM_CRAFT_MATERIAL";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MAGIC_MATERIAL] = "ITEM_MAGIC_MATERIAL";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MAGIC_ARROW]    = "ITEM_MAGIC_ARROW";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_MAGIC_CONTAINER] = "ITEM_MAGIC_CONTAINER";
+	EObjectType_name_by_value[OBJ_DATA::EObjectType::ITEM_CRAFT_MATERIAL]  = "ITEM_CRAFT_MATERIAL";
 
 	for (const auto& i : EObjectType_name_by_value)
 	{

@@ -361,14 +361,25 @@ enum ESpell
 	SPELL_MASS_RECOVERY = 206,	// масовое исцеление нежити
 	SPELL_AURA_EVIL = 207,	// аура зла для всей нежити в группе
 	SPELL_MENTAL_SHADOW = 208,	// ментальная тень
-    SPELL_EVARDS_BLACK_TENTACLES = 209, //навьи руки
-    SPELL_WHIRLWIND = 210, //вихрь
-    SPELL_INDRIKS_TEETH = 211, //зубы индрика
-    SPELL_MELFS_ACID_ARROW = 212, //кислотная стрела
-    SPELL_THUNDERSTONE = 213, //громовой камень
-    SPELL_CLOD = 214,
-    SPELL_EXPEDIENT = 215,
-	SPELLS_COUNT = SPELL_EXPEDIENT   // Counter corresponds to the last value because we count spells from 1.
+	SPELL_EVARDS_BLACK_TENTACLES = 209, //навьи руки
+	SPELL_WHIRLWIND = 210, //вихрь
+	SPELL_INDRIKS_TEETH = 211, //зубы индрика
+	SPELL_MELFS_ACID_ARROW = 212, //кислотная стрела
+	SPELL_THUNDERSTONE = 213, //громовой камень
+	SPELL_CLOD = 214,  // глыба
+	SPELL_EXPEDIENT = 215, //боевой приъем
+	SPELL_SIGHT_OF_DARKNESS = 216, // зрение тьмы
+	SPELL_GENERAL_SINCERITY = 217, // общая искреность
+	SPELL_MAGICAL_GAZE = 218, // магический взор
+	SPELL_ALL_SEEING_EYE = 219, // всевидящее око
+	SPELL_EYE_OF_GODS = 220, // око богов
+	SPELL_BREATHING_AT_DEPTH = 221, // дыхание на глыбине
+	SPELL_GENERAL_RECOVERY = 222, // общее востановление
+	SPELL_COMMON_MEAL = 223, // общая трапеза
+	SPELL_STONE_WALL = 224, // каменная стена
+	SPELL_SNAKE_EYES = 225, // глаза змея
+	SPELL_EARTH_AURA = 226, // земной поклон
+	SPELLS_COUNT = SPELL_EARTH_AURA   // Counter corresponds to the last value because we count spells from 1.
 };
 
 typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
@@ -626,6 +637,8 @@ const char *skill_name(int num);
 const char *spell_name(int num);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
+int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
+bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 ESkill get_magic_skill_number_by_spell(int spellnum);
 
 //Polud статистика использования заклинаний

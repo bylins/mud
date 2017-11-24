@@ -52,10 +52,10 @@ namespace Boards
 
 		// из текста первая строка в заголовок
 		std::string subj(message->text.begin(), std::find(message->text.begin(), message->text.end(), '\n'));
-		if (subj.size() > 40)
+/*		if (subj.size() > 40)
 		{
 			subj = subj.substr(0, 40);
-		}
+		} */
 		boost::trim(subj);
 		message->subject = subj;
 		message->date = parsed_time;

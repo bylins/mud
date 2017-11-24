@@ -362,7 +362,7 @@ void add_agree_name(CHAR_DATA * d, const char *immname, int immlev)
 	}
 	// Pos to the end ...
 	fprintf(fl, "%s %s %s %s %s %s %d %s %d\r\n", GET_NAME(d),
-			GET_PAD(d, 1), GET_PAD(d, 2), GET_PAD(d, 3), GET_PAD(d, 4), GET_PAD(d, 5), GET_SEX(d), immname, immlev);
+			GET_PAD(d, 1), GET_PAD(d, 2), GET_PAD(d, 3), GET_PAD(d, 4), GET_PAD(d, 5), static_cast<int>(GET_SEX(d)), immname, immlev);
 	fclose(fl);
 	return;
 }

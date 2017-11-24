@@ -521,6 +521,7 @@ extern const religion_names_t religion_name;
 #define NPC_EARTHCREATURE (1 << 22)
 #define NPC_FIRECREATURE  (1 << 23)
 #define NPC_HELPED        (1 << 24)
+#define NPC_NOSETSDROP    (1 << 25)
 
 #define NPC_STEALING      (INT_ONE | (1 << 0))
 #define NPC_WIELDING      (INT_ONE | (1 << 1))
@@ -605,6 +606,7 @@ extern const religion_names_t religion_name;
 #define PRF_BLIND         (INT_TWO | 1 << 9)  // примочки для слепых
 #define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
 #define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
+#define PRF_IPCONTROL (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -692,7 +694,9 @@ enum class EAffectFlag: uint32_t
 	AFF_RECALL_SPELLS = INT_TWO | (1u << 18),
 	AFF_NOOB_REGEN = INT_TWO | (1u << 19),
 	AFF_VAMPIRE = INT_TWO | (1u << 20),
-	AFF_EXPEDIENT = INT_TWO | (1u << 21)
+	AFF_EXPEDIENT = INT_TWO | (1u << 21),
+	AFF_COMMANDER = INT_TWO | (1u << 22),
+	AFF_EARTHAURA = INT_TWO | (1u << 23)
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
@@ -772,6 +776,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
 #define CON_SEDIT        54 // sedit - редактирование сетов
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
+#define CON_RANDOM_NUMBER	 56 // where player enter in the game from new location
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
@@ -793,10 +798,11 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define WEAR_WAIST     13
 #define WEAR_WRIST_R   14
 #define WEAR_WRIST_L   15
-#define WEAR_WIELD     16
-#define WEAR_HOLD      17
-#define WEAR_BOTHS     18
-#define NUM_WEARS      19	// This must be the # of eq positions!! //
+#define WEAR_WIELD     16      // правая рука 
+#define WEAR_HOLD      17      // левая рука
+#define WEAR_BOTHS     18      // обе руки
+#define WEAR_QUIVER    19      // под лук (колчан)
+#define NUM_WEARS      20	// This must be the # of eq positions!! //
 
 
 // object-related defines ******************************************* //
@@ -835,7 +841,8 @@ enum class EWearFlag: uint32_t
 	ITEM_WEAR_WRIST = 1 << 12,	// Can be worn on wrist   //
 	ITEM_WEAR_WIELD = 1 << 13,	// Can be wielded      //
 	ITEM_WEAR_HOLD = 1 << 14,	// Can be held      //
-	ITEM_WEAR_BOTHS = 1 << 15
+	ITEM_WEAR_BOTHS = 1 << 15,
+	ITEM_WEAR_QUIVER = 1 << 16      // колчан
 };
 
 template <> const std::string& NAME_BY_ITEM<EWearFlag>(const EWearFlag item);
@@ -888,8 +895,11 @@ enum class EExtraFlag: uint32_t
 	ITEM_2INLAID = INT_ONE | (1 << 11),
 	ITEM_3INLAID = INT_ONE | (1 << 12),
 	ITEM_NOPOUR = INT_ONE | (1 << 13),		///< нельзя перелить
-	ITEM_UNIQUE = INT_ONE | (1 << 14)		// объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
+	ITEM_UNIQUE = INT_ONE | (1 << 14),		// объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
 											// на разные слоты, то чар может одеть на себя только одну шмотку
+	ITEM_TRANSFORMED = INT_ONE | (1 << 15),		// Наложено заклинание заколдовать оружие
+	ITEM_NOT_DEPEND_RPOTO = INT_ONE | (1 << 16),	// Не зависит от прототипа
+	ITEM_NOT_UNLIMIT_TIMER = INT_ONE | (1 << 17)	// Не может быть нерушимой
 
 };
 
@@ -1109,6 +1119,9 @@ struct obj_affected_type
 // other miscellaneous defines ****************************************** //
 
 enum { DRUNK, FULL, THIRST};
+// pernalty types
+//     Хитрол,    Дамрол,    Каст,   Мем,        Восст. эн., Восст. жиз. 
+enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
 // Sun state for weather_data //
 #define SUN_DARK  0
@@ -1204,7 +1217,7 @@ const long MAX_MONEY_KEPT = 1000000000;
 #define INT_HIGH_AI 40
 #define MIN_HP_MOBACT 100
 #define STRONG_MOB_LEVEL 30
-const short MAX_MOB_LEVEL = 50;
+const short MAX_MOB_LEVEL = 100;
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 
@@ -1673,7 +1686,9 @@ struct DESCRIPTOR_DATA
 		cur_vnum(0),
 		old_vnum(0),
 		snoop_with_map(0),
-		m_msdp_support(false)
+		m_msdp_support(false),
+		m_msdp_last_max_hit(0),
+		m_msdp_last_max_move(0)
 	{
 		host[0] = 0;
 		inbuf[0] = 0;
@@ -1686,6 +1701,7 @@ struct DESCRIPTOR_DATA
 	void msdp_remove_report_variable(const std::string& name) { m_msdp_requested_report.erase(name); }
 	bool msdp_need_report(const std::string& name) { return m_msdp_requested_report.find(name) != m_msdp_requested_report.end(); }
 	void msdp_report(const std::string& name);
+	void msdp_report_changed_vars();
 
 	void string_to_client_encoding(const char* input, char* output) const;
 	socket_t descriptor;	// file descriptor for socket    //
@@ -1749,6 +1765,7 @@ struct DESCRIPTOR_DATA
 private:
 	bool m_msdp_support;
 	std::unordered_set<std::string> m_msdp_requested_report;
+	int m_msdp_last_max_hit, m_msdp_last_max_move;
 };
 
 // other miscellaneous structures **************************************
@@ -1788,42 +1805,6 @@ struct zone_type
 };
 //-MZ.load
 
-struct dex_skill_type
-{
-	int p_pocket;
-	int p_locks;
-	int traps;
-	int sneak;
-	int hide;
-};
-
-struct dex_app_type
-{
-	int reaction;
-	int miss_att;
-	int defensive;
-};
-
-
-struct str_app_type
-{
-	int tohit;			// To Hit (THAC0) Bonus/Penalty        //
-	int todam;			// Damage Bonus/Penalty                //
-	int carry_w;		// Maximum weight that can be carrried //
-	int wield_w;		// Maximum weight that can be wielded  //
-	int hold_w;		// MAXIMUM WEIGHT THAT CAN BE HELDED   //
-};
-
-
-struct wis_app_type
-{
-	int spell_additional;	// bitvector //
-	int max_learn_l20;		// MAX SKILL on LEVEL 20        //
-	int spell_success;		// spell using success          //
-	int char_savings;		// saving spells (damage)       //
-	int max_skills;
-};
-
 struct int_app_type
 {
 	int spell_aknowlege;	// chance to know spell               //
@@ -1832,15 +1813,6 @@ struct int_app_type
 	int spell_success;		//  max count of spell on 1s level    //
 	int improove;		// chance to improove skill           //
 	int observation;		// chance to use SKILL_AWAKE/CRITICAL //
-};
-
-struct con_app_type
-{
-	int hitp;
-	int ressurection;
-	int affect_saving;		// saving spells (affects)  //
-	int poison_saving;
-	int critic_saving;
 };
 
 struct cha_app_type
@@ -1965,9 +1937,11 @@ enum class EWeaponAffectFlag : uint32_t
 	WAFF_FIRE_AURA = INT_ONE | (1 << 11),
 	WAFF_ICE_AURA = INT_ONE | (1 << 12),
 	WAFF_DEAFNESS = INT_ONE | (1 << 13),
+	WAFF_COMMANDER = INT_ONE | (1 << 14),
+	WAFF_EARTHAURA = INT_ONE | (1 << 15)
 };
 
-constexpr size_t WAFF_COUNT = 44;
+constexpr size_t WAFF_COUNT = 46;
 
 template <> EWeaponAffectFlag ITEM_BY_NAME<EWeaponAffectFlag>(const std::string& name);
 template <> const std::string& NAME_BY_ITEM(const EWeaponAffectFlag item);

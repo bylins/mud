@@ -87,6 +87,7 @@ extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
 extern int nameserver_is_slow; //config.cpp
 extern void login_change_invoice(CHAR_DATA *ch);
+extern std::vector<City> cities;
 // extern functions
 long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA * ch, int level);
@@ -131,7 +132,7 @@ void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_quest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_check(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
+void do_cities(CHAR_DATA *ch, char*, int, int);
 void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch);
 void look_at_char(CHAR_DATA * i, CHAR_DATA * ch);
 void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode);
@@ -150,7 +151,8 @@ const char *diag_liquid_timer(const OBJ_DATA * obj);
 
 void do_quest(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-    send_to_char("У Вас нет никаких поручений.\r\n", ch);
+	
+	send_to_char("У Вас нет никаких ежедневных поручений.\r\nЧтобы взять новые, наберите &Wпоручения получить&n.\r\n", ch);
 }
 
 /*
@@ -362,6 +364,11 @@ char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear)
 				sprintf(out_str + strlen(out_str), "Можно надеть на пояс.\r\n");
 			}
 
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+			{
+				sprintf(out_str + strlen(out_str), "Можно использовать как колчан.\r\n");
+			}
+
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
 			{
 				sprintf(out_str + strlen(out_str), "Можно надеть на запястья.\r\n");
@@ -451,6 +458,8 @@ const char *diag_obj_timer(const OBJ_DATA* obj)
 	return "";
 }
 
+
+
 char *diag_timer_to_char(const OBJ_DATA* obj)
 {
 	static char out_str[MAX_STRING_LENGTH];
@@ -476,6 +485,20 @@ char *diag_uses_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
 		}
 		sprintf(out_str + strlen(out_str), "Осталось применений: %s%d&n.\r\n",
 			GET_OBJ_VAL(obj, 2) > 100 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+	}
+	return (out_str);
+}
+
+char *diag_shot_to_char(OBJ_DATA * obj, CHAR_DATA * ch)
+{
+	static char out_str[MAX_STRING_LENGTH];
+
+	*out_str = 0;
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_MAGIC_CONTAINER
+		&& (GET_CLASS(ch) == CLASS_RANGER||GET_CLASS(ch) == CLASS_CHARMMAGE||GET_CLASS(ch) == CLASS_DRUID))
+	{
+		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
+			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}
 	return (out_str);
 }
@@ -730,6 +753,24 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 	page_string(ch->desc, buf, TRUE);
 	return 0;
 }
+
+void do_cities(CHAR_DATA *ch, char*, int, int)
+{
+	send_to_char("Города на Руси:\r\n", ch);
+	for (unsigned int i = 0; i < cities.size(); i++)
+	{
+		sprintf(buf, "%3d.", i + 1);
+		if (IS_IMMORTAL(ch))
+		{
+			sprintf(buf1, " [VNUM: %d]", cities[i].rent_vnum);
+			strcat(buf, buf1);
+		}
+		sprintf(buf1, " %s: %s\r\n", cities[i].name.c_str(), (ch->check_city(i) ? "&gВы были там.&n" : "&rВы еще не были там.&n"));
+		strcat(buf, buf1);
+		send_to_char(buf, ch);
+	}
+}
+
 
 bool quest_item(OBJ_DATA *obj)
 {
@@ -1187,7 +1228,11 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	{
 		if (HERE(i) && INVIS_OK(ch, i) && GET_REAL_LEVEL(ch) >= (IS_NPC(i) ? 0 : GET_INVIS_LEV(i)))
 		{
-			sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
+			if (GET_RACE(i)==NPC_RACE_THING && IS_IMMORTAL(ch)) {
+				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
+			} else {
+				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
+			}
 			send_to_char(buf, ch);
 		}
 		return;
@@ -1360,6 +1405,14 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 					strcat(aura_txt, ", ледяная");
 				else
 					strcat(aura_txt, "ледяная");
+				n++;
+                        }
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
+			{
+				if (n > 0)
+					strcat(aura_txt, ", коричневая");
+				else
+					strcat(aura_txt, "коричневая");
 				n++;
 			}
 			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
@@ -1585,6 +1638,14 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		strcat(aura_txt, " щитами ");
 	if (n > 0)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_ALIGN))
+	{
+	*aura_txt = '\0';
+	if (AFF_FLAGGED(i, EAffectFlag::AFF_COMMANDER))
+		strcat(aura_txt, "... реет стяг над головой ");
+	if (*aura_txt)
+		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
+	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC))
 	{
@@ -1610,6 +1671,14 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 				strcat(aura_txt, ", ледяная");
 			else
 				strcat(aura_txt, "ледяная");
+			n++;
+                }
+		if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
+		{
+			if (n > 0)
+				strcat(aura_txt, ", коричневая");
+			else
+				strcat(aura_txt, "коричневая");
 			n++;
 		}
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
@@ -1839,40 +1908,42 @@ int paste_description(char *string, const char *tag, int need)
 	}
 
 	if (!need)
-		{
+	{
 		const size_t offset = pos - string;
 		string[offset] = '\0';
 		pos = str_str(pos + 1, tag);
 		if (pos)
 		{
-			strcat(string, pos + strlen(tag));
+			auto to_pos = string + offset;
+			auto from_pos = pos + strlen(tag);
+			while ((*(to_pos++) = *(from_pos++)));
 		}
 		return FALSE;
 	}
 
-			for (; *pos && *pos != '>'; pos++);
+	for (; *pos && *pos != '>'; pos++);
 
-			if (*pos)
+	if (*pos)
 	{
-				pos++;
+		pos++;
 	}
 
-			if (*pos == 'R')
-			{
-				pos++;
-				buf[0] = '\0';
-			}
+	if (*pos == 'R')
+	{
+		pos++;
+		buf[0] = '\0';
+	}
 
-			strcat(buf, pos);
+	strcat(buf, pos);
 	pos = str_str(buf, tag);
 	if (pos)
-		{
+	{
 		const size_t offset = pos - buf;
 		buf[offset] = '\0';
-		}
+	}
 
 	return (TRUE);
-	}
+}
 
 
 void show_extend_room(const char * const description, CHAR_DATA * ch)
@@ -2171,10 +2242,12 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&Q&n", ch);
 
 	// вход в новую зону
-	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number
-		&& PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number)
 	{
-		print_zone_info(ch);
+		if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+			print_zone_info(ch);
+		++zone_table[world[ch->in_room]->zone].traffic;
+		
 	}
 }
 
@@ -2249,8 +2322,11 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
 							&& (percent < 100 || IS_IMMORTAL(ch)))
 					{
-						list_one_char(tch, ch, SKILL_LOOKING);
-						count++;
+						// Если моб не вещь и смотрящий не им
+						if ( GET_RACE(tch) != NPC_RACE_THING || IS_IMMORTAL(ch) ) {
+							list_one_char(tch, ch, SKILL_LOOKING);
+							count++;
+						}
 					}
 				}
 				if (!count)
@@ -2291,17 +2367,12 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 		send_to_char("Вы забыли, что вы глухи?\r\n", ch);
 		return;
 	}
-	if (CAN_GO(ch, dir))
+	if (CAN_GO(ch, dir)
+		|| (EXIT(ch, dir)
+		&& EXIT(ch, dir)->to_room != NOWHERE))
 	{
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
-
-		if (EXIT_FLAGGED(rdata, EX_CLOSED) && rdata->keyword)
-		{
-			count += sprintf(buf + count, " закрыто (%s).\r\n", fname(rdata->keyword));
-			send_to_char(buf, ch);
-			return;
-		};
 		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
 		send_to_char(buf, ch);
 		for (count = 0, tch = world[rdata->to_room]->people; tch; tch = tch->next_in_room)
@@ -2324,7 +2395,17 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			{
 				if (IS_NPC(tch))
 				{
-					if (real_sector(ch->in_room) != SECT_UNDERWATER)
+					if (GET_RACE(tch)==NPC_RACE_THING) {
+						if (GET_LEVEL(tch) < 5)
+							tmpstr += " Вы слышите чье-то тихое поскрипывание.\r\n";
+						else if (GET_LEVEL(tch) < 15)
+							tmpstr += " Вы слышите чей-то скрип.\r\n";
+						else if (GET_LEVEL(tch) < 25)
+							tmpstr += " Вы слышите чей-то громкий скрип.\r\n";
+						else
+							tmpstr += " Вы слышите чей-то грозный скрип.\r\n";
+					} 
+					else if (real_sector(ch->in_room) != SECT_UNDERWATER)
 					{
 						if (GET_LEVEL(tch) < 5)
 							tmpstr += " Вы слышите чью-то тихую возню.\r\n";
@@ -2612,6 +2693,7 @@ void obj_info(CHAR_DATA * ch, OBJ_DATA *obj, char buf[MAX_STRING_LENGTH])
 			sprintf(buf + strlen(buf), "%s\r\n", obj->get_custom_label()->label_text);
 		}
 		sprintf(buf+strlen(buf), "%s", diag_uses_to_char(obj, ch));
+		sprintf(buf+strlen(buf), "%s", diag_shot_to_char(obj, ch));
 		if (GET_OBJ_VNUM(obj) >= DUPLICATE_MINI_SET_VNUM)
 		{
 			sprintf(buf + strlen(buf), "Светится белым сиянием.\r\n");
@@ -3142,6 +3224,10 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCIYEL(ch, C_NRM), CCCYN(ch, C_NRM));
 
 	ac = compute_armor_class(ch) / 10;
+	if (ac<5) {
+		int mod = (1 - ch->get_cond_penalty(P_AC))*40;
+		ac = ac + mod>5 ? 5 : ac + mod;
+	}
 	resist = MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sРод: %-13s %s|"
@@ -3277,8 +3363,13 @@ void print_do_score_all(CHAR_DATA *ch)
 		hr += 4;
 		max_dam -= 10;
 	}
+
 	max_dam += ch->obj_bonus().calc_phys_dmg(max_dam);
 	max_dam = MAX(0, max_dam);
+	max_dam *= ch->get_cond_penalty(P_DAMROLL);
+
+	if (hr)
+		hr *= ch->get_cond_penalty(P_HITROLL);
 
 	resist = MIN(GET_RESIST(ch, WATER_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
@@ -3309,6 +3400,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCICYN(ch, C_NRM), ch->get_con(), GET_REAL_CON(ch), CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75);
+	int rcast = GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST);
 	sprintf(buf + strlen(buf),
 			" || %sОпыт: %s%-10ld   %s|"
 			" %sМудрость:      %2d(%2d) %s|"
@@ -3316,8 +3408,8 @@ void print_do_score_all(CHAR_DATA *ch)
 			" %sЖивучесть: %3d %s||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_EXP(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_wis(), GET_REAL_WIS(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), GET_CAST_SUCCESS(ch), CCCYN(ch, C_NRM),
-			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
+			CCIGRN(ch, C_NRM), rcast, CCCYN(ch, C_NRM),
+			CCIYEL(ch, C_NRM), (int) resist, CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, MIND_RESISTANCE), 75);
 
@@ -3328,13 +3420,14 @@ void print_do_score_all(CHAR_DATA *ch)
 		sprintf(buf + strlen(buf),
 				" || %sДСУ: %s%-10ld    %s|",
 				CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch), CCCYN(ch, C_NRM));
-
+	int itmp =  GET_MANAREG(ch);
+	itmp *= ch->get_cond_penalty(P_CAST);
 	sprintf(buf + strlen(buf),
 			" %sУм:            %2d(%2d) %s|"
 			" %sЗапоминание: %4d %s|"
 			" %sРазум:     %3d %s||\r\n",
 			CCICYN(ch, C_NRM), ch->get_int(), GET_REAL_INT(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), GET_MANAREG(ch), CCCYN(ch, C_NRM),
+			CCIGRN(ch, C_NRM), itmp , CCCYN(ch, C_NRM),
 			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75);
@@ -3414,7 +3507,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCGRN(ch, C_NRM), GET_REAL_SAVING_CRITICAL(ch), CCCYN(ch, C_NRM),
 			CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
 
-	if (GET_COND(ch, FULL) == 0)
+	if (GET_COND(ch, FULL) > NORM_COND_VALUE)
 		sprintf(buf + strlen(buf), " || %sГолоден: %sугу :(%s    |", CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
 	else
 		sprintf(buf + strlen(buf), " || %sГолоден: %sнет%s       |", CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3433,7 +3526,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM)
 		   );
 
-	if (GET_COND(ch, THIRST) == 0)
+	if (GET_COND_M(ch, THIRST))
 		sprintf(buf + strlen(buf),
 				" || %sЖажда: %sналивай!%s    |",
 				CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3809,6 +3902,13 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		ac = compute_armor_class(ch) / 10;
+
+		if (ac<5) 
+		{
+			int mod = (1 - ch->get_cond_penalty(P_AC)) * 40;
+			ac = ac + mod>5 ? 5 : ac + mod;
+		}
+
 		ac_t = MAX(MIN(ac + 30, 40), 0);
 		sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
 				"  Защита  (AC)     : %4d - %s&G\r\n"
@@ -3908,9 +4008,9 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else
 			strcat(buf, "Вы пьяны.\r\n");
 	}
-	if (GET_COND(ch, FULL) == 0)
+	if (GET_COND_M(ch, FULL))
 		strcat(buf, "Вы голодны.\r\n");
-	if (GET_COND(ch, THIRST) == 0)
+	if (GET_COND_M(ch, THIRST))
 		strcat(buf, "Вас мучает жажда.\r\n");
 	/*
 	   strcat(buf, CCICYN(ch, C_NRM));
@@ -4153,7 +4253,14 @@ void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			    if (GET_EQ(ch, 18))
 				if ((i==16) || (i==17))
 				    continue;
-			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
+                            if ((i==19)&&(GET_EQ(ch, WEAR_BOTHS)))
+                            {
+                                if (!(((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))
+                                    continue;
+                            }
+                            else if (i==19)
+				continue;
+ 			    if (GET_EQ(ch, 16) || GET_EQ(ch, 17))
 				if (i==18)
 				    continue;
 			    if (GET_EQ(ch, 11))
@@ -4607,7 +4714,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", get_name_by_id(NAME_ID_GOD(tch)));
 			}
-			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER)))
+			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER) || PRF_FLAGGED(tch, PRF_TESTER)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));
@@ -5286,28 +5393,46 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 
 	if (obj->get_in_room() > NOWHERE)
 	{
-		sprintf(buf + strlen(buf), "[%5d] %s\r\n", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
+		sprintf(buf + strlen(buf), "[%5d] %s", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
+		if (IS_GRGOD(ch))
+		{
+			sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+			strcat(buf, buf2);
+		}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_carried_by())
 	{
-		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]\r\n",
+		sprintf(buf + strlen(buf), "затарено %s[%d] в комнате [%d]",
 			PERS(obj->get_carried_by(), ch, 4),
 			GET_MOB_VNUM(obj->get_carried_by()),
 			world[obj->get_carried_by()->in_room]->number);
+			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_worn_by())
 	{
-		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]\r\n",
+		sprintf(buf + strlen(buf), "надет на %s[%d] в комнате [%d]",
 			PERS(obj->get_worn_by(), ch, 3),
 			GET_MOB_VNUM(obj->get_worn_by()),
 			world[obj->get_worn_by()->in_room]->number);
+			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 	else if (obj->get_in_obj())
 	{
-		if (Clan::is_clan_chest(obj->get_in_obj()))
+		if (Clan::is_clan_chest(obj->get_in_obj()))// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
 		{
 			return; // шоб не забивало локейт на мобах/плеерах - по кланам проходим ниже отдельно
 		}
@@ -5316,6 +5441,12 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 			sprintf(buf + strlen(buf), "лежит в %s%s\r\n",
 				obj->get_in_obj()->get_PName(5).c_str(),
 				(recur ? ", который находится " : " "));
+/*			if (IS_GRGOD(ch))
+			{
+				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+				strcat(buf, buf2);
+			}
+			strcat(buf, "\r\n");*/
 			send_to_char(buf, ch);
 			if (recur)
 			{
@@ -5325,7 +5456,13 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 	}
 	else
 	{
-		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.\r\n");
+		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.");
+		if (IS_GRGOD(ch))
+		{
+			sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
+			strcat(buf, buf2);
+		}
+		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
 }
@@ -5681,12 +5818,14 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		" Вход в зону   : %-3s     "
 		" Магщиты (вид) : %s\r\n"
 		" Автопризыв    : %-3s     "
-		" Маппер        : %-3s     ",
+		" Маппер        : %-3s     "
+		" Контроль IP   : %-3s",
 		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
 		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
 		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"),
 		ONOFF(PRF_FLAGGED(ch, PRF_AUTO_NOSUMMON)),
-		ONOFF(PRF_FLAGGED(ch, PRF_MAPPER)));
+		ONOFF(PRF_FLAGGED(ch, PRF_MAPPER)),
+		ONOFF(PRF_FLAGGED(ch, PRF_IPCONTROL)));
 	send_to_char(buf, ch);
 	if (GET_GOD_FLAG(ch, GF_TESTER))
 		sprintf(buf, " Тестер        : %-3s\r\n", ONOFF(PRF_FLAGGED(ch, PRF_TESTER)));

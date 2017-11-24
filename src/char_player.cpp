@@ -34,12 +34,21 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
 
+#ifdef _WIN32
+
+#else
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
+
 #include <ctime>
 #include <sstream>
 #include <bitset>
 
 int level_exp(CHAR_DATA * ch, int level);
-
+extern std::vector<City> cities;
+extern std::string default_str_cities;
 namespace
 {
 
@@ -210,6 +219,38 @@ void Player::set_last_tell(const char *text)
 	{
 		last_tell_ = text;
 	}
+}
+
+
+
+void Player::str_to_cities(std::string str)
+{
+	Player::cities_t tmp_bitset(str);
+	this->cities = tmp_bitset;
+}
+
+void Player::mark_city(unsigned int index)
+{
+	if (this->cities.size() != 0 && index < this->cities.size())
+	{
+		this->cities[index] = true;
+	}
+}
+
+bool Player::check_city(unsigned int index)
+{
+	if (this->cities.size() != 0 && index < this->cities.size())
+	{
+		return this->cities[index];
+	}
+	return false;
+}
+
+std::string Player::cities_to_str()
+{
+	std::string return_value;
+	boost::to_string(this->cities, return_value);
+	return return_value;
 }
 
 std::string const & Player::get_last_tell()
@@ -492,7 +533,7 @@ void Player::save_char()
 		fprintf(saved, "PfIn: %s\n", POOFIN(this));
 	if (POOFOUT(this))
 		fprintf(saved, "PfOt: %s\n", POOFOUT(this));
-	fprintf(saved, "Sex : %d %s\n", GET_SEX(this), genders[(int) GET_SEX(this)]);
+	fprintf(saved, "Sex : %d %s\n", static_cast<int>(GET_SEX(this)), genders[(int) GET_SEX(this)]);
 	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), PlayerRace::GetKinNameByNum(GET_KIN(this),GET_SEX(this)).c_str());
 	li = this->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
@@ -558,6 +599,9 @@ void Player::save_char()
 		}
 		fprintf(saved, "0 0\n");
 	}
+
+	// города
+	fprintf(saved, "Cits: %s\n", this->cities_to_str().c_str());
 
 	// Задержки на скилы
 	if (GET_LEVEL(this) < LVL_IMMORT)
@@ -1086,7 +1130,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 		fbclose(fl);
 		return id;
 	}
-
+	this->str_to_cities(default_str_cities);
 	// если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1202,7 +1246,7 @@ int Player::load_char_ascii(const char *name, bool reboot)
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
 	GET_SEX(this) = ESex::SEX_NEUTRAL;
-	GET_COND(this, THIRST) = 0;
+	GET_COND(this, THIRST) = NORM_COND_VALUE;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
 	PRF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
@@ -1231,10 +1275,13 @@ int Player::load_char_ascii(const char *name, bool reboot)
 			llnum = std::stoull(line1, nullptr, 10);
 		}
 		catch (const std::invalid_argument &)
-        {
+		{
 			llnum = 0;
 		}
-
+		catch (const std::out_of_range &)
+		{
+		    llnum = 0;
+		}
 		switch (*tag)
 		{
 		case 'A':
@@ -1334,6 +1381,28 @@ int Player::load_char_ascii(const char *name, bool reboot)
 				this->reset_stats_cnt_[ResetStats::Type::RACE] = num;
 			else if (!strcmp(tag, "CntF"))
 				this->reset_stats_cnt_[ResetStats::Type::FEATS] = num;
+			else if (!strcmp(tag, "Cits"))
+			{
+				std::string buffer_cities = std::string(line);
+				// это на тот случай, если вдруг количество городов поменялось
+				if (buffer_cities.size() != ::cities.size())
+				{
+					// если меньше
+					if (buffer_cities.size() < ::cities.size())
+					{
+						const size_t b_size = buffer_cities.size();
+						// то добиваем нулями
+						for (unsigned int i = 0; i < ::cities.size() - b_size; i++)
+							buffer_cities += "0";
+					}
+					else
+					{
+						// режем строку
+						buffer_cities.resize(buffer_cities.size() - (buffer_cities.size() - ::cities.size()));
+					}
+				}
+				this->str_to_cities(std::string(buffer_cities));
+			}
 			break;
 
 		case 'D':
@@ -2121,6 +2190,34 @@ bool Player::is_arena_player()
 	return this->arena_player;
 }
 
+
+int Player::get_percent_daily_quest(int id)
+{
+	if (this->daily_quest.count(id))
+		return this->daily_quest[id];
+	return -1;
+	
+}
+
+void Player::add_value_cities(bool v)
+{
+	this->cities.push_back(v);
+}
+
+bool Player::add_percent_daily_quest(int id, int percent)
+{
+	if (this->daily_quest.count(id))
+	{
+		this->daily_quest[id] += percent;
+		if (this->daily_quest[id] >= 100)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 int Player::death_player_count()
 {
 	const int zone_vnum = zone_table[world[this->in_room]->zone].number;
@@ -2162,7 +2259,7 @@ namespace PlayerSystem
 int con_natural_hp(CHAR_DATA *ch)
 {
 	double add_hp_per_level = class_app[GET_CLASS(ch)].base_con
-		+ (ch->get_con() - class_app[GET_CLASS(ch)].base_con)
+		+ (VPOSI_MOB(ch, 2, ch->get_con()) - class_app[GET_CLASS(ch)].base_con)
 		* class_app[GET_CLASS(ch)].koef_con / 100.0 + 3;
 	return 10 + static_cast<int>(add_hp_per_level * GET_LEVEL(ch));
 }
@@ -2172,7 +2269,8 @@ int con_natural_hp(CHAR_DATA *ch)
 ///
 int con_add_hp(CHAR_DATA *ch)
 {
-	return class_app[(int) GET_CLASS(ch)].koef_con * GET_CON_ADD(ch) * GET_LEVEL(ch) / 100;
+	int con_add = MAX(0, GET_REAL_CON(ch) - ch->get_con());
+	return class_app[(int)GET_CLASS(ch)].koef_con * con_add * GET_LEVEL(ch) / 100;
 }
 
 ///

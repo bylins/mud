@@ -114,6 +114,16 @@ struct ExtraAffects
 	int chance; // вероятность того, что данный экстраффект будет на шмотке
 };
 
+
+
+struct City
+{
+		std::string name; // имя города
+		std::vector<int> vnums; // номера зон, которые принадлежат городу
+		int rent_vnum; // внум ренты города
+};
+
+
 class RandomObj
 {
 	public:
@@ -142,13 +152,12 @@ class RandomObj
 // zone definition structure. for the 'zone-table'
 struct zone_data
 {
-	char *name;		// name of this zone
-	// автор, дата...
+	char *name;		// назвение зоны
 	char *comment;
-//MZ.load
+	char *autor;
+	int traffic;
 	int level;	// level of this zone (is used in ingredient loading)
 	int type;	// the surface type of this zone (is used in ingredient loading)
-//-MZ.load
 
 	int lifespan;		// how long between resets (minutes)
 	int age;		// current age of this zone (minutes)

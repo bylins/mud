@@ -514,7 +514,6 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!object)
 		{
 			obj_log(obj, "oload: bad object vnum");
-			return;
 		}
 
 		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
@@ -522,8 +521,10 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d", number);
+				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
 				obj_log(obj, buf);
+				extract_obj(object.get());
+				return;
 			}
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
@@ -771,7 +772,7 @@ void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (isFeat)
-		trg_featturn(ch, featnum, featdiff);
+		trg_featturn(ch, featnum, featdiff, last_trig_vnum);
 }
 
 void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)

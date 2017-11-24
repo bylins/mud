@@ -1702,11 +1702,10 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 	*helpee_vict, *damagee_vict, *format;
 	CHAR_DATA *i;
-	int j = 0, religion;
+	int  religion;
 
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
-
 	// Say phrase ?
     if (IS_NPC(ch))
     {
@@ -1744,7 +1743,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
             // damagee_vict     = "$n злобно рыкнул$g на вас : '%s'.";
             // helpee_vict      = "$n тихо пробормотал$g вам : '%s'.";
 	}
-    } else {
+    }
+    else {
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
@@ -1758,9 +1758,12 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 
 	if (!*buf)
 	{
-		size_t ofs = 0;
+            // не понимаю
+            /*
+            size_t ofs = 0;
 		while (lbuf[ofs])
 		{
+                        log("  1  No entry in syllable table for substring of '%s'", lbuf);
 			for (j = 0; *(syls[j].org); j++)
 			{
 				if (!strncmp(syls[j].org, lbuf + ofs, strlen(syls[j].org)))
@@ -1770,13 +1773,15 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 					break;
 				}
 			}
+                    //походу это условие должно быть здесь. в противном случае цикл вечный
+                    // i.e., we didn't find a match in syls[]
+                    if (!*syls[j].org)
+                    {
+                            log("No entry in syllable table for substring of '%s'", lbuf);
+                            ofs++;
+                    }
 		}
-		// i.e., we didn't find a match in syls[]
-		if (!*syls[j].org)
-		{
-			log("No entry in syllable table for substring of '%s'", lbuf);
-			ofs++;
-		}
+            */
 	}
 
 	if (tch != NULL && IN_ROOM(tch) == ch->in_room)
@@ -1881,12 +1886,17 @@ void fix_name(T& name)
 	size_t pos = 0;
 	while ('\0' != name[pos] && pos < MAX_STRING_LENGTH)
 	{
-		if ('.' == name[pos])
+		if (('.' == name[pos]) || ('_' == name[pos]))
 		{
 			name[pos] = ' ';
 		}
 		++pos;
 	}
+}
+
+void fix_name_feat(char *name)
+{
+	fix_name(name);
 }
 
 ESkill find_skill_num(const char *name)
@@ -2983,13 +2993,16 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		}
 	}
 	// Конец изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
-
-	if (!ch->get_fighting() && !IS_NPC(ch))
+	if (!IS_NPC(ch))
 	{
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
-			send_to_char(OK, ch);
+		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) //если включен режим без повторов (подавление ехо) не показываем
+		{
+			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
+				send_to_char(OK, ch);
+		}
 		else
 		{
+			//если режима нет, ехо включено, выводим сообщение
 			sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
 					CCICYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
@@ -3088,7 +3101,7 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 		skill = ch->get_skill(skill_number) / 20;
 		prob += skill;
 	}
-
+	//prob*=ch->get_cond_penalty(P_CAST);
 	// умения магии дают + к успеху колдовства
 	return (prob > number(0, 100));
 }
@@ -3802,7 +3815,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	}
 
 		//	skill_info[GET_OBJ_VAL(obj, 1)].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
-	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && can_get_skill(ch, GET_OBJ_VAL(obj, 1)))
+	if (GET_OBJ_VAL(obj, 0) == BOOK_SKILL && can_get_skill_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)))
 	{
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
@@ -3812,14 +3825,14 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = skill_info[spellnum].name;
 	}
-	else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && can_get_spell(ch, GET_OBJ_VAL(obj, 1)))
+	else if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL && can_get_spell_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)))
 	{
 		spellnum = GET_OBJ_VAL(obj, 1);
 		spellname = SpINFO.name;
 	}
 	else if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
 			&& imrecipes[rcpt].classknow[(int) GET_CLASS(ch)] == KNOW_RECIPE
-			&& imrecipes[rcpt].level <= GET_LEVEL(ch) && imrecipes[rcpt].remort <= GET_REMORT(ch))
+			&& MAX(GET_OBJ_VAL(obj, 2), imrecipes[rcpt].level) <= GET_LEVEL(ch) && imrecipes[rcpt].remort <= GET_REMORT(ch))
 	{
 		spellnum = rcpt;
 		rs = im_get_char_rskill(ch, spellnum);
@@ -3922,6 +3935,8 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			stype2[GET_OBJ_VAL(obj, 0)],
 			spellname);
 		send_to_char(buf, ch);
+		sprintf(buf, "LEARN: Игрок %s выучил %s %s \"%s\"", GET_NAME(ch), (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0], stype2[GET_OBJ_VAL(obj, 0)], spellname);
+		log("%s", buf);
 		switch (GET_OBJ_VAL(obj, 0))
 		{
 		case BOOK_SPELL:
@@ -3958,6 +3973,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			SET_FEAT(ch, spellnum);
 			break;
 		}
+		
 	}
 	extract_obj(obj);
 }
@@ -5335,7 +5351,40 @@ void mag_assign_spells(void)
 //215
 	spello(SPELL_EXPEDIENT, "!боевой прием!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
-
+//216
+	spello(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
+//217        
+	spello(SPELL_GENERAL_SINCERITY, "общая искренность", "general sincerity", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//218        
+	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//219        
+	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "allseeing eye", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//220        
+	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+//221        
+	spello(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
+//222        
+	spello(SPELL_GENERAL_RECOVERY, "общее востановление", "general recovery", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
+//223        
+	spello(SPELL_COMMON_MEAL, "общая трапеза", "common meal", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
+//224        
+	spello(SPELL_STONE_WALL, "каменная стена", "stone wall", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_EARTH);
+//225        
+	spello(SPELL_SNAKE_EYES, "глаза змея", "snake eyes", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
+//226
+	spello(SPELL_EARTH_AURA, "земной поклон", "earth aura", 140, 120, 2,
+                   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+       
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.

@@ -42,11 +42,12 @@ enum Privileges: unsigned
 	MAY_CLAN_EXIT,
 	MAY_CLAN_MOD,
 	MAY_CLAN_TAX,
+	MAY_CLAN_BOARD,
 	/// всего привилегий
 	CLAN_PRIVILEGES_NUM
 };
 
-const unsigned MAX_GOLD_TAX_PCT = 25;
+const unsigned MAX_GOLD_TAX_PCT = 50;
 const int MIN_GOLD_TAX_AMOUNT = 100;
 bool is_alliance(CHAR_DATA *ch, char *clan_abbr);
 void check_player_in_house();
@@ -176,9 +177,10 @@ public:
 	~Clan();
 
 	static ClanListType ClanList; // список кланов
-
+	
 	static void ClanLoad();
-	static void reload_one(std::string name);
+	static void ClanLoadSingle(std::string index);
+	static void ClanReload(std::string index);
 	static void ClanSave();
 	static void SaveChestAll();
 	static void HconShow(CHAR_DATA * ch);
@@ -200,6 +202,7 @@ public:
 	static int GetClanWars(CHAR_DATA * ch);
 	static void init_chest_rnum();
 	static bool is_clan_chest(OBJ_DATA *obj);
+	static bool is_ingr_chest(OBJ_DATA *obj);
 	static void clan_invoice(CHAR_DATA *ch, bool enter);
 	static int delete_obj(int vnum);
 	static void save_pk_log();
@@ -213,6 +216,7 @@ public:
 	void AddTopExp(CHAR_DATA * ch, int add_exp);
 
 	const char* GetAbbrev() { return this->abbrev.c_str(); };
+	int get_chest_room();
 	int GetRent();
 	int GetOutRent();
 	void SetClanExp(CHAR_DATA *ch, int add);
@@ -264,7 +268,8 @@ public:
 	friend void DoStoreHouse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
+	friend void do_show_alliance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+	bool check_write_board(CHAR_DATA *ch);
 	int out_rent;   // номер румы для отписанных, чтобы не тусовались в замке дальше
 
 	// клан пк

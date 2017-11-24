@@ -12,6 +12,7 @@
 #include <boost/array.hpp>
 #include <boost/cstdint.hpp>
 #include <vector>
+#include <bitset>
 
 #include "sysdep.h"
 #include "structs.h"
@@ -40,7 +41,10 @@ enum
 class Player : public CHAR_DATA
 {
 public:
+	using cities_t = boost::dynamic_bitset<std::size_t>;
+
 	Player();
+
 	int get_pfilepos() const;
 	void set_pfilepos(int pfilepos);
 
@@ -52,7 +56,7 @@ public:
 
 	room_rnum get_from_room() const;
 	void set_from_room(room_rnum was_in_room);
-
+	
 	void remort();
 	void reset();
 
@@ -134,6 +138,15 @@ public:
 
 	bool is_arena_player();
 
+	int get_percent_daily_quest(int id);
+	bool add_percent_daily_quest(int id, int percent);
+
+	void add_value_cities(bool v);
+	void str_to_cities(std::string str);
+	std::string cities_to_str();
+	bool check_city(unsigned int index);
+	void mark_city(unsigned int index);
+
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -182,8 +195,16 @@ private:
 	int ice_currency;
 	// список зон, где чар умер и в каком количестве
 	std::map<int, int> count_death_zone;
-
+	// время, когда были выполнены все дейлики
+	time_t time_daily;
+	// id задания и процент их выполения от 0 до 100
+	std::map<int, int> daily_quest;
+	// сколько дней подряд выполнялись дейлики 
+	int count_daily_quest;
+	// Отметка о том, в каких городах был наш чар
+	cities_t cities;
 };
+
 
 namespace PlayerSystem
 {

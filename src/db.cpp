@@ -77,6 +77,8 @@
 #define RANDOMOBJ_FILE "randomobj.xml"
 #define SPEEDWALKS_FILE "speedwalks.xml"
 #define CLASS_LIMIT_FILE "class_limit.xml"
+#define DAILY_FILE "daily.xml"
+#define CITIES_FILE "cities.xml"
 /**************************************************************************
 *  declarations of global containers and objects                          *
 **************************************************************************/
@@ -417,6 +419,11 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WAIST);
 	}
 
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_QUIVER))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_QUIVER);
+	}
+
 	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WRIST))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
@@ -452,7 +459,7 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		return false;
 	}
 	// если шмотка магическая или энчантнута таймер обычный
-    if (obj->get_extra_flag(EExtraFlag::ITEM_MAGIC))
+	if (obj->get_extra_flag(EExtraFlag::ITEM_MAGIC))
 	{
 		return false;
 	}
@@ -461,14 +468,26 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	{
 		return false;
 	}
+	// !нерушима
+	if (obj->get_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER))
+	{
+		return false;
+	}
 	// рассыпется вне зоны
 	if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY))
 	{
 		return false;
 	}
+	// рассыпется на репоп зоны
+	if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
+	{
+		return false;
+	}
 
 	// если предмет требует реморты, то он явно овер
-	if (obj->get_manual_mort_req() > 0)
+	if (obj->get_auto_mort_req() > 0)
+		return false;
+	if (obj->get_minimum_remorts() > 0)
 		return false;
 	// проверяем дырки в предмете
 	 if (obj->get_extra_flag(EExtraFlag::ITEM_WITH1SLOT)
@@ -645,6 +664,11 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WAIST));
 	}
 
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+	{
+		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_QUIVER));
+	}
+
 	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
 	{
 		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_WRIST));
@@ -673,11 +697,18 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 	return result;
 }
 
-float count_remort_requred(const CObjectPrototype *obj)
+
+
+
+
+
+float count_mort_requred(const CObjectPrototype *obj)
 {
+    
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
+	const int AFF_MAGICGLASS_MOD = 10;
 	const int AFF_BLINK_MOD = 10;
 
 	result = 0.0;
@@ -706,12 +737,47 @@ float count_remort_requred(const CObjectPrototype *obj)
 				return 1000000;
 			}
 		}
-		if (obj->get_affected(k).modifier < 0)
+		if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location != APPLY_AC)&&
+			(obj->get_affected(k).location != APPLY_SAVING_WILL)&&
+			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
+			(obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+			(obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
 		{
-			continue;
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+			total_weight += pow(weight, SQRT_MOD);
 		}
-		float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
-		total_weight += pow(weight, SQRT_MOD);
+		// савесы которые с минусом должны тогда понижать вес если в +
+		else if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location == APPLY_AC)||
+			(obj->get_affected(k).location == APPLY_SAVING_WILL)||
+			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
+			(obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+			(obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		{
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
+		}
+		//Добавленый кусок учет савесов с - значениями
+		else if ((obj->get_affected(k).modifier < 0)
+			&&((obj->get_affected(k).location == APPLY_AC)||
+			(obj->get_affected(k).location == APPLY_SAVING_WILL)||
+			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
+			(obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+			(obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		{
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
+			total_weight += pow(weight, SQRT_MOD);
+		}
+		//Добавленый кусок учет отрицательного значения но не савесов
+		else if ((obj->get_affected(k).modifier < 0)
+			&&((obj->get_affected(k).location != APPLY_AC)&&
+			(obj->get_affected(k).location != APPLY_SAVING_WILL)&&
+			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
+			(obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+			(obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+		{
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
+		}
 	}
 	// аффекты AFF_x через weapon_affect
 	for (const auto& m : weapon_affect)
@@ -730,16 +796,22 @@ float count_remort_requred(const CObjectPrototype *obj)
 			{
 				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
 			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS)
+			{
+				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
+			}
 			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
 			{
 				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
 			}
 		}
 	}
-
-	result = ceil(pow(total_weight, 1/SQRT_MOD));
+        if (total_weight < 1) return result;
+	
+        result = ceil(pow(total_weight, 1/SQRT_MOD));
 
 	return result;
+    
 }
 
 void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
@@ -956,6 +1028,31 @@ void load_cases()
 	}
 }
 
+std::vector<City> cities;
+std::string default_str_cities;
+/* Загрузка городов из xml файлов */
+void load_cities()
+{
+	default_str_cities = "";
+	pugi::xml_document doc_cities;
+	pugi::xml_node child_, object_, file_;
+	file_ = XMLLoad(LIB_MISC CITIES_FILE, "cities", "Error loading cases file: cities.xml", doc_cities);
+	for (child_ = file_.child("city"); child_; child_ = child_.next_sibling("city"))
+	{
+		City city;
+		city.name = child_.child("name").attribute("value").as_string();
+		city.rent_vnum = child_.child("rent_vnum").attribute("value").as_int();
+		for (object_ = child_.child("zone_vnum"); object_; object_ = object_.next_sibling("zone_vnum"))
+		{
+			city.vnums.push_back(object_.attribute("value").as_int());
+		}
+		cities.push_back(city);
+		default_str_cities += "0";
+	}
+}
+
+
+
 std::vector<RandomObj> random_objs;
 
 // загрузка параметров для рандомных шмоток
@@ -1100,7 +1197,26 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (!str_cmp(arg, "schedule"))
 		load_sheduled_reboot();
 	else if (!str_cmp(arg, "clan"))
-		Clan::ClanLoad();
+	{
+		skip_spaces(&argument);
+		if (!*argument)
+		{
+			Clan::ClanLoad();
+			return;
+		}
+		Clan::ClanListType::iterator clan;
+		std::string buffer(argument);
+		for (clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+		{
+			if (CompareParam(buffer, (*clan)->get_abbrev()))
+			{
+				CreateFileName(buffer);
+				Clan::ClanReload(buffer);
+				send_to_char("Перезагрузка клана.\r\n", ch);
+				break;
+			}
+		}
+	}
 	else if (!str_cmp(arg, "proxy"))
 		LoadProxyList();
 	else if (!str_cmp(arg, "boards"))
@@ -2342,6 +2458,7 @@ void boot_db(void)
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "shield", "Error Loading Criterion.xml: <shield>", doc1), EWearFlag::ITEM_WEAR_SHIELD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "about", "Error Loading Criterion.xml: <about>", doc1), EWearFlag::ITEM_WEAR_ABOUT);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), EWearFlag::ITEM_WEAR_WAIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1), EWearFlag::ITEM_WEAR_QUIVER);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), EWearFlag::ITEM_WEAR_WRIST);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), EWearFlag::ITEM_WEAR_WIELD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), EWearFlag::ITEM_WEAR_HOLD);
@@ -2649,9 +2766,10 @@ void boot_db(void)
 	boot_profiler.next_step("Loading class_limit.xml");
 	log("Load class_limit.xml");
 	load_class_limit();
-
+	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
+	
 }
 
 // reset the time in the game from file
@@ -3281,54 +3399,58 @@ void set_test_data(CHAR_DATA *mob)
 		return;
 	}
 
-	if (GET_EXP(mob) > test_levels[49])
+	if (GET_LEVEL(mob) <= 50)
 	{
-		// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
-		mob->set_level(50);
-	}
-	else
-	{
-		if (mob->get_level() == 0)
+		if (GET_EXP(mob) > test_levels[49])
 		{
-			for (int i = 0; i < 50; ++i)
+			// log("test1: %s - %d -> %d", mob->get_name(), mob->get_level(), 50);
+			mob->set_level(50);
+		}
+		else
+		{
+			if (mob->get_level() == 0)
 			{
-				if (test_levels[i] >= GET_EXP(mob))
+				for (int i = 0; i < 50; ++i)
 				{
-					// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
-					mob->set_level(i + 1);
-					break;
+					if (test_levels[i] >= GET_EXP(mob))
+					{
+						// log("test2: %s - %d -> %d", mob->get_name(), mob->get_level(), i + 1);
+						mob->set_level(i + 1);
+
+						// -10..-86
+						int min_save = -(10 + 4 * (mob->get_level() - 31));
+						min_save = calc_boss_value(mob, min_save);
+
+						for (int i = 0; i < 4; ++i)
+						{
+							if (GET_SAVE(mob, i) > min_save)
+							{
+								//log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
+								GET_SAVE(mob, i) = min_save;
+							}
+						}
+						// 20..77
+						int min_cast = 20 + 3 * (mob->get_level() - 31);
+						min_cast = calc_boss_value(mob, min_cast);
+
+						if (GET_CAST_SUCCESS(mob) < min_cast)
+						{
+							//log("test4: %s - %d -> %d", mob->get_name(), GET_CAST_SUCCESS(mob), min_cast);
+							GET_CAST_SUCCESS(mob) = min_cast;
+						}
+
+						int min_absorbe = calc_boss_value(mob, mob->get_level());
+						if (GET_ABSORBE(mob) < min_absorbe)
+						{
+							GET_ABSORBE(mob) = min_absorbe;
+						}
+
+						break;
+					}
 				}
 			}
 		}
 	}
-
-	if (mob->get_level() > 30)
-	{
-		// -10..-86
-		int min_save = -(10 + 4 * (mob->get_level() - 31));
-		min_save = calc_boss_value(mob, min_save);
-
-		for (int i = 0; i < 4; ++i)
-		{
-			if (GET_SAVE(mob, i) > min_save)
-			{
-				//log("test3: %s - %d -> %d", mob->get_name(), GET_SAVE(mob, i), min_save);
-				GET_SAVE(mob, i) = min_save;
-			}
-		}
-		// 20..77
-		int min_cast = 20 + 3 * (mob->get_level() - 31);
-		min_cast = calc_boss_value(mob, min_cast);
-
-		if (GET_CAST_SUCCESS(mob) < min_cast)
-		{
-			//log("test4: %s - %d -> %d", mob->get_name(), GET_CAST_SUCCESS(mob), min_cast);
-			GET_CAST_SUCCESS(mob) = min_cast;
-		}
-	}
-
-	// поглощение пока принудительно всем
-	GET_ABSORBE(mob) = calc_boss_value(mob, mob->get_level());
 }
 
 int csort(const void *a, const void *b)
@@ -3439,12 +3561,12 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		{
 			for (plane = 0; plane < MAX_OBJ_AFFECT; plane++)
 			{
-				if (i->get_affected(plane).location == counter)
+				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter))
 				{
-					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
+					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
 						++found, i->get_vnum(),
 						i->get_short_description().c_str(),
-						apply_types[counter]);
+						apply_types[counter], i->get_affected(plane).modifier);
 					out += buf;
 					continue;
 				}
@@ -3472,7 +3594,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	{
 		for (const auto i : obj_proto)
 		{
-			if (i->get_extra_flag(plane, 1 << (plane_offset)))
+			if (i->get_affect_flags().get_flag(plane, 1 << plane_offset))
 			{
 				snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s :   %s\r\n",
 					++found, i->get_vnum(),
@@ -5388,7 +5510,7 @@ void init_char(CHAR_DATA * ch)
 
 	for (i = 0; i < 3; i++)
 	{
-		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : i == DRUNK ? 0 : 24);
+		GET_COND(ch, i) = (GET_LEVEL(ch) == LVL_IMPL ? -1 : 0);
 	}
 	GET_LASTIP(ch)[0] = 0;
 //	GET_LOADROOM(ch) = start_room;
@@ -5528,8 +5650,6 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			GET_SPELL_TYPE(ch, i) = (GET_CLASS(ch) == CLASS_DRUID ? SPELL_RUNES : 0);
 			GET_SPELL_MEM(ch, i) = 0;
 		}
-		// Убираем все заученные порталы
-		check_portals(ch);
 	}
 	else
 	{
@@ -5562,6 +5682,8 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 	PRF_FLAGS(ch).unset(PRF_AWAKE);
 	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
+	// Убираем все заученные порталы
+	check_portals(ch);
 	if (ch->get_protecting())
 	{
 		ch->set_protecting(0);
@@ -6314,6 +6436,28 @@ void init()
 
 } // namespace OfftopSystem
 ////////////////////////////////////////////////////////////////////////////////
+std::map<int, std::string> daily_array;
+
+
+int dg_daily_quest(CHAR_DATA *, int, int)
+{
+	return 0;
+}
+
+void load_daily_quest()
+{
+	pugi::xml_document doc_;
+	pugi::xml_node child_, object_, file_;
+	file_ = XMLLoad(LIB_MISC DAILY_FILE, "daily_root", "Error loading cases file: daily.xml", doc_);
+
+	for (child_ = file_.child("daily"); child_; child_ = child_.next_sibling("daily"))
+	{
+		int temp_id = child_.attribute("id").as_int();
+		std::string temp_desk = child_.attribute("desk").as_string();
+		daily_array.insert(std::pair<int, std::string>(temp_id, temp_desk));
+	}
+
+}
 
 void load_speedwalk()
 {

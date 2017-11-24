@@ -1,9 +1,10 @@
 #include "structs.h"
-
+#include "char.hpp"
 #include "spells.h"
 #include "utils.h"
 #include "logger.hpp"
 #include "msdp.hpp"
+#include "msdp.constants.hpp"
 
 void asciiflag_conv(const char *flag, void *to)
 {
@@ -215,6 +216,7 @@ const char* nothing_string = "ничего";
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
+	
 	long nr = 0;
 	int fail = 0;
 	int plane = 0;
@@ -234,43 +236,44 @@ bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const
 		nr++;
 	}
 
-	bool first = true;
+	bool can_show = true;
 	for (; bitvector; bitvector >>= 1)
 	{
 		if (IS_SET(bitvector, 1))
 		{
-			if (!first)
-			{
-				strcat(result, div);
-			}
-			first = false;
+			can_show = ((*names[nr]!='*') || (print_flag&4));
+
+			if (*result != '\0' && can_show)
+				strcat(result,div);
 
 			if (*names[nr] != '\n')
 			{
-				if (print_flag == 1)
+				if (print_flag & 1)
 				{
 					sprintf(result + strlen(result), "%c%d:", c, plane);
 				}
-				if ((print_flag == 2) && (!strcmp(names[nr], "UNUSED")))
+				if ((print_flag & 2) && (!strcmp(names[nr], "UNUSED")))
 				{
 					sprintf(result + strlen(result), "%ld:", nr + 1);
 				}
-				strcat(result, names[nr]);
+				if (can_show)
+					strcat(result, (*names[nr]!='*'?names[nr]:names[nr]+1));
 			}
 			else
 			{
-				if (print_flag == 2)
+				if (print_flag & 2)
 				{
 					sprintf(result + strlen(result), "%ld:", nr + 1);
 				}
-				else if (print_flag == 1)
+				else if (print_flag & 1)
 				{
 					sprintf(result + strlen(result), "%c%d:", c, plane);
 				}
 				strcat(result, "UNDEF");
 			}
 		}
-		if (print_flag == 1)
+
+		if (print_flag & 1)
 		{
 			c++;
 			if (c > 'z')
@@ -494,6 +497,8 @@ void init_EWeaponAffectFlag_ITEM_NAMES()
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_FIRE_AURA] = "WAFF_FIRE_AURA";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_ICE_AURA] = "WAFF_ICE_AURA";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DEAFNESS] = "WAFF_DEAFNESS";
+	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_COMMANDER] = "WAFF_COMMANDER";
+	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_EARTHAURA] = "WAFF_EARTHAURA";
 
 	for (const auto& i : EWeaponAffectFlag_name_by_value)
 	{
@@ -547,6 +552,7 @@ void init_EWearFlag_ITEM_NAMES()
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_WIELD] = "ITEM_WEAR_WIELD";
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_HOLD] = "ITEM_WEAR_HOLD";
 	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_BOTHS] = "ITEM_WEAR_BOTHS";
+	EWearFlag_name_by_value[EWearFlag::ITEM_WEAR_QUIVER] = "ITEM_WEAR_QUIVER";
 
 	for (const auto& i : EWearFlag_name_by_value)
 	{
@@ -627,6 +633,9 @@ void init_EExtraFlag_ITEM_NAMES()
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_3INLAID] = "ITEM_3INLAID";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOPOUR] = "ITEM_NOPOUR";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE] = "ITEM_UNIQUE";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_TRANSFORMED] = "ITEM_TRANSFORMED";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_DEPEND_RPOTO] = "ITEM_NOT_DEPEND_RPOTO";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_UNLIMIT_TIMER] = "ITEM_NOT_UNLIMIT_TIMER";
 
 	for (const auto& i : EExtraFlag_name_by_value)
 	{
@@ -743,8 +752,10 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_STRANGLED] = "AFF_STRANGLED";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_RECALL_SPELLS] = "AFF_RECALL_SPELLS";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_NOOB_REGEN] = "AFF_NOOB_REGEN";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE] = "AFF_VAMPIRE";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_VAMPIRE]   = "AFF_VAMPIRE";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_COMMANDER] = "AFF_COMMANDER";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_EARTHAURA] = "AFF_EARTHAURA";
 
 	for (const auto& i : EAffectFlag_name_by_value)
 	{
@@ -1076,6 +1087,24 @@ void DESCRIPTOR_DATA::msdp_report(const std::string& name)
 	if (msdp_need_report(name))
 	{
 		msdp::report(this, name);
+	}
+}
+
+// Should be called periodically to update changing msdp variables.
+// this is mostly to overcome complication of hunting every possible place affect are added/removed to/from char.
+void DESCRIPTOR_DATA::msdp_report_changed_vars()
+{
+	if (!m_msdp_support || !character)
+		return;
+	if (m_msdp_last_max_hit != GET_REAL_MAX_HIT(character))
+	{
+		msdp_report(msdp::constants::MAX_HIT);
+		m_msdp_last_max_hit = GET_REAL_MAX_HIT(character);
+	}
+	if (m_msdp_last_max_move != GET_REAL_MAX_MOVE(character))
+	{
+		msdp_report(msdp::constants::MAX_MOVE);
+		m_msdp_last_max_move = GET_REAL_MAX_MOVE(character);
 	}
 }
 

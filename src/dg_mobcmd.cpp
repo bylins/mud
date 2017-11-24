@@ -449,8 +449,10 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d", number);
+				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
 				mob_log(ch, buf);
+				extract_obj(object.get());
+				return;
 			}
 		}
 
@@ -1438,7 +1440,7 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	};
 
 	if (isFeat)
-		trg_featturn(victim, featnum, featdiff);
+		trg_featturn(victim, featnum, featdiff, last_trig_vnum);
 
 }
 
@@ -1934,7 +1936,6 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int dam = 0;
-	CHAR_DATA *victim;
 
 	if (!MOB_OR_IMPL(ch))
 	{
@@ -1956,8 +1957,8 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	dam = atoi(amount);
-
-	if ((victim = get_char(name)))
+	auto victim = get_char(name);
+	if (victim)
 	{
 		if (world[IN_ROOM(victim)]->zone != world[ch->in_room]->zone)
 		{

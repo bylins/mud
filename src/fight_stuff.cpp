@@ -23,8 +23,10 @@
 #include "mob_stat.hpp"
 #include "logger.hpp"
 #include "bonus.h"
-
 #include <algorithm>
+
+#include "backtrace.hpp"
+//#include "coredump.hpp"
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
@@ -47,6 +49,8 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	bool leader_partner = false;
 	int partner_feat = 0;
+	int total_group_members = 1;
+	CHAR_DATA *partner = nullptr;
 
 	CHAR_DATA *master = nullptr;
 	if (IS_NPC(killer)
@@ -65,9 +69,9 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 	// На этот момент master - PC
 	if (master)
 	{
+		int cnt = 0;
 		if (AFF_FLAGGED(master, EAffectFlag::AFF_GROUP))
 		{
-			int cnt = 0;
 
 			// master - член группы, переходим на лидера группы
 			if (master->has_master())
@@ -79,8 +83,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 			{
 				// лидер группы в тойже комнате, что и убивец
 				cnt = 1;
-				if (can_use_feat(master, PARTNER_FEAT)
-					&& (GET_LEVEL(master) < 25))
+				if (can_use_feat(master, PARTNER_FEAT))
 				{
 					leader_partner = true;
 				}
@@ -88,32 +91,45 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 
 			for (struct follow_type *f = master->followers; f; f = f->next)
 			{
+				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
 				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 					&& IN_ROOM(f->follower) == IN_ROOM(killer))
 				{
-					if (!number(0, cnt))
-					{
-						master = f->follower;
-					}
 					++cnt;
 					if (leader_partner)
 					{
 						if (!IS_NPC(f->follower))
 						{
 							partner_feat++;
+							partner = f->follower;
 						}
 					}
 				}
 			}
 		}
 
-		// 2x замакс, если способность напарник работает
+		// обоим замакс, если способность напарник работает
+		// получается замакс идет в 2 раза быстрее, чем без способности в той же группе
 		if (leader_partner
-			&& partner_feat == 1)
+			&& partner_feat == 1 && total_group_members == 2)
 		{
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+			partner->mobmax_add(partner, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
+		} else {
+			// выберем случайным образом мембера группы для замакса
+			auto n = number(0, cnt);
+			int i = 0;
+			for (struct follow_type *f = master->followers; f && i < n; f = f->next)
+			{
+				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+					&& IN_ROOM(f->follower) == IN_ROOM(killer))
+				{
+					++i;
+					master = f->follower;
+				}
+			}
+			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 		}
-		master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 	}
 }
 
@@ -269,9 +285,7 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 
 
-	if (killer
-		&& (!IS_NPC(killer)
-			|| IS_CHARMICE(killer))) // рип в тестовой зоне от моба но не чармиса
+	if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && (ch != killer)) // рип в тестовой зоне от моба но не чармиса
 	{
 		return false;
 	}
@@ -722,6 +736,14 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		}
 	}
 
+	if (!ch || ch->purged())
+	{
+//		debug::coredump();
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		mudlog("SYSERR: Опять где-то кто-то спуржился не в то в время, не в том месте. Сброшен текущий стек и кора.", NRM, LVL_GOD, ERRLOG, TRUE);
+		return;
+	}
+
 	reset_affects(ch);
 	// для начала проверяем, активны ли евенты
 	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != NOWHERE)
@@ -930,6 +952,7 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 	int inroom_members, koef = 100, maxlevel;
 	struct follow_type *f;
 	int partner_count = 0;
+	int total_group_members = 1;
 	bool use_partner_exp = false;
 
 	// если наем лидер, то тоже режем экспу
@@ -966,6 +989,7 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 	// Вычисляем максимальный уровень в группе
 	for (f = leader->followers; f; f = f->next)
 	{
+		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 			&& f->follower->in_room == IN_ROOM(killer))
 		{
@@ -1004,13 +1028,15 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 	// если групповой уровень зоны равняется единице
 	if (zone_table[world[killer->in_room]->zone].group < 2)
 	{
-		use_partner_exp = true;
+		// чтобы не абьюзили на суммонах, когда в группе на самом деле больше
+		// двух мемберов, но лишних реколят перед непосредственным рипом
+		use_partner_exp = total_group_members == 2;
 	}
 
 	// если лидер группы в комнате
 	if (leader_inroom)
 	{
-		// если у лидера группы есть способность напарник и лидер меньше 25 лева
+		// если у лидера группы есть способность напарник
 		if (can_use_feat(leader, PARTNER_FEAT) && use_partner_exp)
 		{
 			// если в группе всего двое человек
@@ -1232,30 +1258,40 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 		break;
 	default:		// >= POSITION SLEEPING
 		if (dam > (GET_REAL_MAX_HIT(victim) / 4))
-			send_to_char("Это действительно БОЛЬНО!\r\n", victim);
-
-		if (dam > 0 && GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4))
 		{
-			sprintf(buf2,
-					"%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
-					CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
+			send_to_char("Это действительно БОЛЬНО!\r\n", victim);
+		}
+
+		if (dam > 0
+			&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4))
+		{
+			sprintf(buf2, "%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
+				CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
 			send_to_char(buf2, victim);
 		}
-		if (ch != victim &&
-				IS_NPC(victim) &&
-				GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4) &&
-				MOB_FLAGGED(victim, MOB_WIMPY) && !noflee && GET_POS(victim) > POS_SITTING)
-			do_flee(victim, NULL, 0, 0);
 
-		if (ch != victim &&
-				!IS_NPC(victim) &&
-				HERE(victim) &&
-				GET_WIMP_LEV(victim) &&
-				GET_HIT(victim) < GET_WIMP_LEV(victim) && !noflee && GET_POS(victim) > POS_SITTING)
+		if (ch != victim
+			&& IS_NPC(victim)
+			&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4)
+			&& MOB_FLAGGED(victim, MOB_WIMPY)
+			&& !noflee
+			&& GET_POS(victim) > POS_SITTING)
+		{
+			do_flee(victim, NULL, 0, 0);
+		}
+
+		if (ch != victim
+			&& GET_POS(victim) > POS_SITTING
+			&& !IS_NPC(victim)
+			&& HERE(victim)
+			&& GET_WIMP_LEV(victim)
+			&& GET_HIT(victim) < GET_WIMP_LEV(victim)
+			&& !noflee)
 		{
 			send_to_char("Вы запаниковали и попытались убежать!\r\n", victim);
 			do_flee(victim, NULL, 0, 0);
 		}
+
 		break;
 	}
 }

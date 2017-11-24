@@ -837,7 +837,7 @@ int timer_affected_roomt(long id, int spellnum)
 int calc_anti_savings(CHAR_DATA * ch)
 {
 	int modi = 0;
-
+	
 	if (WAITLESS(ch))
 		modi = 350;
 	else if (GET_GOD_FLAG(ch, GF_GODSLIKE))
@@ -847,6 +847,7 @@ int calc_anti_savings(CHAR_DATA * ch)
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int)((GET_REAL_WIS(ch) - 23) * 3 / 2)));
+	if (!IS_NPC(ch)) modi *= ch->get_cond_penalty(P_CAST);
 //  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
 	return modi;
 }
@@ -908,7 +909,10 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	if (type != SAVING_REFLEX)
 	{
 		if ((save > 0) &&
-				(AFF_FLAGGED(victim, EAffectFlag::AFF_AIRAURA) || AFF_FLAGGED(victim, EAffectFlag::AFF_FIREAURA) || AFF_FLAGGED(victim, EAffectFlag::AFF_ICEAURA)))
+				(AFF_FLAGGED(victim, EAffectFlag::AFF_AIRAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_FIREAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_EARTHAURA) 
+                                  || AFF_FLAGGED(victim, EAffectFlag::AFF_ICEAURA)))
 			save >>= 1;
 	}
 	// Учет осторожного стиля
@@ -1419,9 +1423,9 @@ void add_rune_stats(CHAR_DATA *ch, int vnum, int spelltype)
 
 void print_rune_stats(CHAR_DATA *ch)
 {
-	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (!IS_GRGOD(ch))
 	{
-		send_to_char(ch, "Пока в разработке.\r\n");
+		send_to_char(ch, "Только для иммов 33+.\r\n");
 		return;
 	}
 
@@ -1845,13 +1849,13 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	{
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * koeff) / 100;
 	}
-
+	
 	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.
 	if (!IS_NPC(ch))
 	{
 		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 	}
-
+	
 	return (dam);
 }
 
@@ -2155,9 +2159,19 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		// ВОЗДУХ, ареа
 	case SPELL_ARMAGEDDON:
 		savetype = SAVING_WILL;
-		ndice = 10;
-		sdice = 3;
-		adice = level * 6;
+                //в современных реалиях колдуны имеют 12+ мортов
+                if (!(IS_NPC(ch)))
+                {        
+                    ndice = 10+((ch->get_remort()/3) - 4);
+                    sdice = level / 9;
+                    adice = level * (number(4, 6));
+                }
+                else
+                {
+                    ndice = 12;
+                    sdice = 3;
+                    adice = level *  6;
+                }    
 		break;
 
 		// ******* ХАЙЛЕВЕЛ СУПЕРДАМАДЖ МАГИЯ ******
@@ -2200,13 +2214,14 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		sdice = MAX(1, GET_REAL_WIS(ch) - 10);
 		//	    adice = MAX(1, 2 + 30 - GET_LEVEL(ch) + (GET_REAL_WIS(ch) - 29)) / 7;
 		//	    Ну явно кривота была. Отбалансил на свой вкус. В 50 мудры на 25м леве лаг на 3 на 30 лаг на 4 а не наоборот
-		adice = MAX(1, GET_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;
+		//чтобы не обижать колдунов
+                adice = 4 + MAX(1, GET_LEVEL(ch) + 1 + (GET_REAL_WIS(ch) - 29)) / 7;
 		if (ch == victim ||
 				(!general_savingthrow(ch, victim, SAVING_CRITICAL, CALC_SUCCESS(modi, GET_REAL_WIS(ch))) &&
 				 (number(1, 999)  > GET_AR(victim) * 10) &&
 				 number(0, 1000) <= 500))
 		{
-			GET_POS(victim) = POS_INCAP;
+			GET_POS(victim) = POS_STUNNED;
 			WAIT_STATE(victim, adice * PULSE_VIOLENCE);
 		}
 		break;
@@ -2332,9 +2347,18 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_WHIRLWIND:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort()+level;
-		sdice = 20;
-		adice = level + ch->get_remort() - 25;
+                if (!(IS_NPC(ch)))
+                {        
+                    ndice = 10+((ch->get_remort()/3) - 4);
+                    sdice = 18 + (3 - (30 - level) / 3 );
+                    adice = (level + ch->get_remort() - 25)*(number(1, 4));
+                }
+                else
+                {
+                    ndice = 10;
+                    sdice = 21;
+                    adice = (level - 5)*(number(2, 4));
+                }    
 		break;
 
 	case SPELL_INDRIKS_TEETH:
@@ -2345,7 +2369,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_MELFS_ACID_ARROW:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort();
+		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
 		adice = level + ch->get_remort() - 25;
 		break;
@@ -2359,9 +2383,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	case SPELL_CLOD:
 		savetype = SAVING_REFLEX;
-		ndice = 10+ch->get_remort();
+		ndice = 10+ch->get_remort()/3;
 		sdice = 20;
-		adice = level + ch->get_remort() - 25;
+		adice = (level + ch->get_remort() - 25)*(number(1, 4));
 		break;
 
 	case SPELL_HOLYSTRIKE:
@@ -2478,6 +2502,11 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
 		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
 	}
+	
+	//Голодный кастер меньше дамажит!
+	if (!IS_NPC(ch))
+		dam*=ch->get_cond_penalty(P_DAMROLL);
+
 	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
 
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && number(1, 999) <= GET_MR(victim) * 10)
@@ -2795,6 +2824,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы почувствовали себя слабее!";
 		spellnum = SPELL_WEAKNESS;
 		break;
+	case SPELL_STONE_WALL:
 	case SPELL_STONESKIN:
 		af[0].location = APPLY_ABSORBE;
 		af[0].modifier = (level * 2 + 1) / 3;
@@ -2802,8 +2832,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_room = "Кожа $n1 покрылась каменными пластинами.";
 		to_vict = "Вы стали менее чувствительны к ударам.";
+		spellnum = SPELL_STONESKIN;
 		break;
 
+	case SPELL_GENERAL_RECOVERY:
 	case SPELL_FAST_REGENERATION:
 		af[0].location = APPLY_HITREG;
 		af[0].modifier = 50;
@@ -2814,6 +2846,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_room = "$n расцвел$g на ваших глазах.";
 		to_vict = "Вас наполнила живительная сила.";
+		spellnum = SPELL_FAST_REGENERATION;
 		break;
 
 	case SPELL_AIR_SHIELD:
@@ -2869,6 +2902,16 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_room = "$n3 окружила воздушная аура.";
 		to_vict = "Вас окружила воздушная аура.";
+		break;
+
+	case SPELL_EARTH_AURA:
+		af[0].location = APPLY_RESIST_EARTH;
+		af[0].modifier = level;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_EARTHAURA);
+		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		accum_duration = TRUE;
+		to_room = "$n глубоко поклонил$u земле.";
+		to_vict = "Глубокий поклон тебе матушка земля.";
 		break;
 
 	case SPELL_FIRE_AURA:
@@ -3095,8 +3138,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы стали мельче.";
 		break;
 
-	case SPELL_GROUP_MAGICGLASS:
 	case SPELL_MAGICGLASS:
+	case SPELL_GROUP_MAGICGLASS:
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_MAGICGLASS);
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		accum_duration = TRUE;
@@ -3325,44 +3368,54 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		spellnum = SPELL_SLOW;
 		break;
 
+	case SPELL_GENERAL_SINCERITY:
 	case SPELL_DETECT_ALIGN:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_ALIGN);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели зеленый оттенок.";
 		to_room = "Глаза $n1 приобрели зеленый оттенок.";
+		spellnum = SPELL_DETECT_ALIGN;
 		break;
 
+	case SPELL_ALL_SEEING_EYE:
 	case SPELL_DETECT_INVIS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_INVIS);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели золотистый оттенок.";
 		to_room = "Глаза $n1 приобрели золотистый оттенок.";
+		spellnum = SPELL_DETECT_INVIS;
 		break;
 
+	case SPELL_MAGICAL_GAZE:
 	case SPELL_DETECT_MAGIC:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_MAGIC);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели желтый оттенок.";
 		to_room = "Глаза $n1 приобрели желтый оттенок.";
+		spellnum = SPELL_DETECT_MAGIC;
 		break;
 
+	case SPELL_SIGHT_OF_DARKNESS:
 	case SPELL_INFRAVISION:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели красный оттенок.";
 		to_room = "Глаза $n1 приобрели красный оттенок.";
+		spellnum = SPELL_INFRAVISION;
 		break;
 
+	case SPELL_SNAKE_EYES:
 	case SPELL_DETECT_POISON:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_DETECT_POISON);
 		accum_duration = TRUE;
 		to_vict = "Ваши глаза приобрели карий оттенок.";
 		to_room = "Глаза $n1 приобрели карий оттенок.";
+		spellnum = SPELL_DETECT_POISON;
 		break;
 
 	case SPELL_GROUP_INVISIBLE:
@@ -3546,11 +3599,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		break;
 
+	case SPELL_EYE_OF_GODS:
 	case SPELL_SENSE_LIFE:
 		to_vict = "Вы способны разглядеть даже микроба.";
+		to_room = "$n1 начал$g замечать любые движения.";
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_SENSE_LIFE);
 		accum_duration = TRUE;
+		spellnum = SPELL_SENSE_LIFE;
 		break;
 
 	case SPELL_WATERWALK:
@@ -3560,12 +3616,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "На рыбалку вы можете отправляться без лодки.";
 		break;
 
+	case SPELL_BREATHING_AT_DEPTH:
 	case SPELL_WATERBREATH:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_WATERBREATH);
 		accum_duration = TRUE;
 		to_vict = "У вас выросли жабры.";
 		to_room = "У $n1 выросли жабры.";
+		spellnum = SPELL_WATERBREATH;
 		break;
 
 	case SPELL_HOLYSTRIKE:
@@ -4579,6 +4637,10 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		extract_char(mob, FALSE);
 		return 0;
 	}
+        if (MOB_FLAGGED(mob, MOB_MOUNTING))
+	{
+		MOB_FLAGS(mob).unset(MOB_MOUNTING);
+	}
 	if (IS_HORSE(mob))
 	{
 		send_to_char("Это был боевой скакун, а не хухры-мухры.\r\n", ch);
@@ -4801,10 +4863,11 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 		send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 		break;
 	case SPELL_FULL:
-		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
+	case SPELL_COMMON_MEAL:
+//		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
 		{
-			GET_COND(victim, THIRST) = 24;
-			GET_COND(victim, FULL) = 24;
+			GET_COND(victim, THIRST) = 0;
+			GET_COND(victim, FULL) = 0;
 			send_to_char("Вы полностью насытились.\r\n", victim);
 		}
 		break;
@@ -5372,7 +5435,7 @@ int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA
 	//туповато конечно, но подобные проверки тут как счупалцьа перепутаны
 	//и чтоб сделать по человечески надо треть пары модулей перелопатить
 	if (cvict && (caster != cvict))
-		if  (IS_GOD(cvict) || (((GET_LEVEL(cvict) / 2) > (GET_LEVEL(caster) + (GET_REMORT(caster) / 2))) && !IS_NPC(caster))) // при разнице уровня в 2 раза закл фэйл (из-за опечатки не работало)
+		if  (IS_GOD(cvict) || (((GET_LEVEL(cvict) / 2) > (GET_LEVEL(caster) + (GET_REMORT(caster) / 2))) && !IS_NPC(caster))) // при разнице уровня более чем в 2 раза закл фэйл
 		{
 			send_to_char(NOEFFECT, caster);
 			return (-1);
@@ -5889,6 +5952,63 @@ const spl_message groups_messages[] =
 	 NULL,
 	 NULL,
 	 0},
+// новые спелы. описание по ходу появления идей         
+	{SPELL_SIGHT_OF_DARKNESS,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_GENERAL_SINCERITY,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_MAGICAL_GAZE,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_ALL_SEEING_EYE,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_EYE_OF_GODS,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_BREATHING_AT_DEPTH,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_GENERAL_RECOVERY,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_COMMON_MEAL,
+	 "Вы услышали гомон лакеев готовящих трапезу.\r\n",
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_STONE_WALL,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_SNAKE_EYES,
+	 NULL,
+	 NULL,
+	 NULL,
+	 0},
+	{SPELL_EARTH_AURA,
+	 "Земля одарила вас своей зашитой.\r\n",
+	 NULL,
+	 NULL,
+	 0},
+// конец групповых спелов         
 	{ -1, 0, 0, 0, 0 }
 };
 

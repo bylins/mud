@@ -407,7 +407,7 @@ void assign_triggers(void *i, int type)
 	}
 }
 
-void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
+void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff, int vnum)
 {
 	if (HAVE_FEAT(ch, featnum))
 	{
@@ -417,6 +417,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 		{
 			sprintf(buf, "Вы утратили способность '%s'.\r\n", feat_info[featnum].name);
 			send_to_char(buf, ch);
+			log("Remove %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);
 			UNSET_FEAT(ch, featnum);
 		}
 	}
@@ -428,6 +429,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff)
 			{
 				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
 				send_to_char(buf, ch);
+				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);
 				SET_FEAT(ch, featnum);
 			}
 		};
@@ -477,7 +479,7 @@ void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum
 	else
 	{
 		send_to_char(ch, "Ваше умение осталось неизменным '%s '.\r\n", skill_name(skillnum));
-		log("Unchanged %s on %s (trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), vnum);
+		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 }
 

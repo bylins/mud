@@ -730,6 +730,8 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 						send_to_char("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
 					}
 					ch->add_gold(gold);
+					sprintf(buf, "<%s> {%d} нагло спер %d кун у %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room),  gold, GET_PAD(vict, 0));
+					mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 					split_or_clan_tax(ch, gold);
 					vict->remove_gold(gold);
 				}
@@ -982,7 +984,10 @@ void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 int max_group_size(CHAR_DATA *ch)
 {
-	return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4);
+    int bonus_commander = 0;
+    if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER)) bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 120) / 10, 0 , 8);
+    
+    return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4) + bonus_commander;
 }
 
 bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
@@ -2208,6 +2213,7 @@ const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "незрячий", "blind",
 							   "маппер", "mapper",
 							   "тестер", "tester",
+							   "контроль IP", "IP control",
 							   "\n"
 							 };
 
@@ -2276,7 +2282,8 @@ struct gen_tog_param_type
 		LVL_IMPL, SCMD_SDEMIGOD, false}, {
 		0, SCMD_BLIND, false}, {
 		0, SCMD_MAPPER, false}, {
-		0, SCMD_TESTER, true}
+		0, SCMD_TESTER, true}, {
+			0, SCMD_IPCONTROL, false}
 };
 
 void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2534,7 +2541,9 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{"Режим для мапперов выключен.\r\n",
 		 "Режим для мапперов включен.\r\n"},
 		{"Режим вывода тестовой информации выключен.\r\n",
-		 "Режим вывода тестовой информации включен.\r\n"}
+		 "Режим вывода тестовой информации включен.\r\n"},
+		{"Режим контроля смены IP-адреса персонажа выключен.\r\n",
+		 "Режим контроля смены IP-адреса персонажа включен.\r\n"}
 	};
 
 	if (IS_NPC(ch))
@@ -2617,6 +2626,9 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		result = PRF_TOG_CHK(ch, PRF_TESTER);
 			//return;
 		//}
+		break;
+	case SCMD_IPCONTROL:
+		result = PRF_TOG_CHK(ch, PRF_IPCONTROL);
 		break;
 #if defined(HAVE_ZLIB)
 	case SCMD_COMPRESS:
@@ -3315,6 +3327,8 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		send_to_char(textbuf, ch);
 		ch->add_gold(gold);
+		sprintf(buf, "<%s> {%d} нарыл %d кун.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), gold);
+		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		split_or_clan_tax(ch, gold);
 		return;
 	}
@@ -3998,7 +4012,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 //-Polos.insert_wanted_gem
 // Теперь все вплавленное занимает слоты
 	}
-		// флаги, определяющие, сколько остается свободных слотов
+
 	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
 	{
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH3SLOTS);
@@ -4013,6 +4027,9 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	{
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH1SLOT);
 	}
+
+	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_TRANSFORMED))
+		itemobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 	extract_obj(gemobj);
 }
 

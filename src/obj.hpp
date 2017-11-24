@@ -114,6 +114,16 @@ public:
 	virtual void notify(CObjectPrototype& object, const obj_rnum old_rnum) = 0;
 };
 
+class UIDChangeObserver
+{
+public:
+	using shared_ptr = std::shared_ptr<UIDChangeObserver>;
+
+	virtual ~UIDChangeObserver() {}
+
+	virtual void notify(OBJ_DATA& object, const int old_uid) = 0;
+};
+
 class CObjectPrototype
 {
 public:
@@ -154,7 +164,10 @@ public:
 		ITEM_ARMOR_MEDIAN = 30,	// средний тип брони
 		ITEM_ARMOR_HEAVY = 31,	// тяжелый тип брони
 		ITEM_ENCHANT = 32,		// зачарование предмета
-		ITEM_CRAFT_MATERIAL = 33,	// Item is a material related to craft system
+		ITEM_MAGIC_MATERIAL = 33,	// Item is a material related to craft system
+		ITEM_MAGIC_ARROW = 34,	// Item is a material related to craft system
+		ITEM_MAGIC_CONTAINER = 35,	// Item is a material related to craft system
+		ITEM_CRAFT_MATERIAL = 36,	// Item is a material related to craft system
 	};
 
 	enum EObjectMaterial
@@ -230,7 +243,7 @@ public:
 		m_sex(DEFAULT_SEX),
 		m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
 		m_timer(DEFAULT_TIMER),
-		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),
+		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
 		m_cost(DEFAULT_COST),
 		m_rent_on(DEFAULT_RENT_ON),
 		m_rent_off(DEFAULT_RENT_OFF),
@@ -377,11 +390,11 @@ public:
 	void set_rent_on(int x);
 	void set_ex_description(const char* keyword, const char* description);
 	void set_minimum_remorts(const int _) { m_minimum_remorts = _; }
-	int get_manual_mort_req() const;
+	int get_auto_mort_req() const;
 	float show_mort_req();
 	float show_koef_obj();
-	unsigned get_ilevel() const;	///< разные системы расчета привлекательности предмета
-	void set_ilevel(unsigned ilvl);
+	float get_ilevel() const;	///< разные системы расчета привлекательности предмета
+	void set_ilevel(float ilvl);
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const obj_rnum _);
 	auto get_vnum() const { return m_vnum; }
@@ -391,6 +404,8 @@ public:
 
 	void subscribe_for_rnum_changes(const RNumChangeObserver::shared_ptr& observer) { m_rnum_change_observers.insert(observer); }
 	void unsubscribe_for_rnum_changes(const RNumChangeObserver::shared_ptr& observer) { m_rnum_change_observers.erase(observer); }
+
+	std::string item_count_message(int num, int pad);
 
 protected:
 	void zero_init();
@@ -442,13 +457,13 @@ private:
 
 	skills_t m_skills;	///< если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
 
-	int m_minimum_remorts;	///< если >= 0 - требование по минимальным мортам, проставленное в олц
+	int m_minimum_remorts;	///< если > 0 - требование по минимальным мортам, проставленное в олц
 
 	int m_cost;	///< цена шмотки при продаже
 	int m_rent_on;	///< стоимость ренты, если надета
 	int m_rent_off;	///< стоимость ренты, если в инве
 
-	unsigned m_ilevel;	///< расчетный уровень шмотки, не сохраняется
+	float m_ilevel;	///< расчетный уровень шмотки, не сохраняется
 	obj_vnum m_rnum;	///< Where in data-base
 
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;
@@ -802,7 +817,7 @@ public:
 	void set_room_was_in(const int _) { m_room_was_in = _; }
 	void set_script(const std::shared_ptr<SCRIPT_DATA>& _) { m_script = _; }
 	void set_script(SCRIPT_DATA* _);
-	void set_uid(const unsigned _) { m_uid = _; }
+	void set_uid(const unsigned _);
 	void set_worn_by(CHAR_DATA* _) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }
 	void set_zone(const int _) { m_zone = _; }
@@ -811,14 +826,21 @@ public:
 	void set_enchant(int skill, OBJ_DATA *obj);
 	void unset_enchant();
 
+	void copy_name_from(const CObjectPrototype* src);
+	
 	bool clone_olc_object_from_prototype(const obj_vnum vnum);
 	void copy_from(const CObjectPrototype* src);
-
+	
 	void swap(OBJ_DATA& object);
 	void set_tag(const char* tag);
 
 	void subscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.insert(observer); }
 	void unsubscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.erase(observer); }
+
+	void subscribe_for_uid_change(const UIDChangeObserver::shared_ptr& observer) { m_uid_change_observers.insert(observer); }
+	void unsubscribe_for_uid_change(const UIDChangeObserver::shared_ptr& observer) { m_uid_change_observers.erase(observer); }
+
+	void attach_triggers(const triggers_list_t& trigs);
 
 private:
 	void zero_init();
@@ -863,6 +885,7 @@ private:
 	std::pair<bool, int> m_activator;
 
 	std::unordered_set<IDChangeObserver::shared_ptr> m_id_change_observers;
+	std::unordered_set<UIDChangeObserver::shared_ptr> m_uid_change_observers;
 };
 
 template <> const std::string& NAME_BY_ITEM<OBJ_DATA::EObjectType>(const OBJ_DATA::EObjectType item);

@@ -110,7 +110,6 @@ bool is_head(std::string name);
 extern std::list<FILE *> opened_files;
 extern bool is_dark(room_rnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
-int VPOSI_MOB(CHAR_DATA *ch, int stat);
 extern const char *ACTNULL;
 
 #define CHECK_NULL(pointer, expression) \
@@ -139,8 +138,13 @@ extern const char *ACTNULL;
 #define MAX_AUCTION_TACT_PRESENT   (MAX_AUCTION_TACT_BUY + 3)
 #define AUCTION_PULSES             30
 #define CHAR_DRUNKED               10
-#define CHAR_MORTALLY_DRUNKED      16
-#define MAX_COND_VALUE			   24
+#define CHAR_MORTALLY_DRUNKED      18
+
+#define MAX_COND_VALUE			   48
+#define NORM_COND_VALUE			   22
+#define GET_COND_M(ch,cond) ((GET_COND(ch,cond)<=NORM_COND_VALUE)?0:GET_COND(ch,cond)-NORM_COND_VALUE)
+#define GET_COND_K(ch,cond) (((GET_COND_M(ch,cond)*100)/(MAX_COND_VALUE-NORM_COND_VALUE)))
+
 
 int MAX(int a, int b);
 int MIN(int a, int b);
@@ -148,6 +152,8 @@ int MIN(int a, int b);
 #define MMIN(a,b) ((a<b)?a:b)
 #define MMAX(a,b) ((a<b)?b:a)
 
+char *colorLOW(char *txt);
+char * colorCAP(char *txt);
 char * CAP(char *txt);
 
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
@@ -507,7 +513,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 
 #define IS_LIGHT(room)     (!IS_DARK(room))
 
-#define VALID_RNUM(rnum)   ((rnum) >= 0 && (rnum) <= top_of_world)
+#define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
 #define GET_ROOM_VNUM(rnum) ((room_vnum)(VALID_RNUM(rnum) ? world[(rnum)]->number : NOWHERE))
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : NULL)
 
@@ -599,9 +605,7 @@ inline T VPOSI(const T val, const T min, const T max)
 }
 
 // С ВЮПНБ ПЕФЕР ДН 50, С ЛНАНБ ДН ЯРЮ
-#define VPOSI_MOB(ch, stat_id, val)	IS_NPC(ch) ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
-
-
+//#define VPOSI_MOB(ch, stat_id, val)	IS_NPC(ch) ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
 
 #define GET_CLASS(ch)   ((ch)->get_class())
 #define GET_KIN(ch)     ((ch)->player_data.Kin)
@@ -620,8 +624,6 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define GET_STR_ADD(ch) ((ch)->get_str_add())
 #define GET_REAL_STR(ch) (VPOSI_MOB(ch, 0, ((ch)->get_str() + GET_STR_ADD(ch))))
-#define GET_DEX_ADD(ch) ((ch)->get_dex_add())
-#define GET_REAL_DEX(ch) (VPOSI_MOB(ch, 1, (ch)->get_dex() + GET_DEX_ADD(ch)))
 #define GET_CON_ADD(ch) ((ch)->get_con_add())
 #define GET_REAL_CON(ch) (VPOSI_MOB(ch, 2, (ch)->get_con() + GET_CON_ADD(ch)))
 #define GET_WIS_ADD(ch) ((ch)->get_wis_add())
@@ -776,7 +778,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define HAVE_FEAT(ch, feat) ((ch)->real_abils.Feats.test(feat))
 #define	NUM_LEV_FEAT(ch) ((int) 1+GET_LEVEL(ch)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 #define FEAT_SLOT(ch, feat) (feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
-
 
 // Min cast level getting
 #define MIN_CAST_LEV(sp, ch) (MMAX(0,MOD_CAST_LEV(sp,ch)))
@@ -1508,7 +1509,7 @@ struct ParseFilter
 	enum { CLAN, EXCHANGE };
 
 	ParseFilter(int type) : type(-1), state(-1), wear(EWearFlag::ITEM_WEAR_UNDEFINED), wear_message(-1),
-		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),
+		weap_class(-1), weap_message(-1), cost(-1), cost_sign('\0'),rent(-1), rent_sign('\0'),
 		new_timesign('\0'), new_timedown(time(0)), new_timeup(time(0)),
 		filter_type(type) {};
 
@@ -1516,6 +1517,7 @@ struct ParseFilter
 	bool init_state(const char *str);
 	bool init_wear(const char *str);
 	bool init_cost(const char *str);
+	bool init_rent(const char *str);
 	bool init_weap_class(const char *str);
 	bool init_affect(char *str, size_t str_len);
 	bool init_realtime(const char *str);
@@ -1534,6 +1536,8 @@ struct ParseFilter
 	int weap_message;      // для названия оружия
 	int cost;              // для цены
 	char cost_sign;        // знак цены +/-
+	int  rent;             // для стоимости ренты
+	char rent_sign;        // знак ренты +/-
 	char new_timesign;	   // знак времени < > =
 	time_t new_timedown;   // нижняя граница времени
 	time_t new_timeup;	   // верхняя граница времени
@@ -1552,6 +1556,7 @@ private:
 	bool check_wear(OBJ_DATA *obj) const;
 	bool check_weap_class(OBJ_DATA *obj) const;
 	bool check_cost(int obj_price) const;
+	bool check_rent(int obj_price) const;
 	bool check_affect_weap(OBJ_DATA *obj) const;
 	bool check_affect_apply(OBJ_DATA *obj) const;
 	bool check_affect_extra(OBJ_DATA *obj) const;

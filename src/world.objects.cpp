@@ -7,6 +7,7 @@
 #include "liquid.hpp"
 #include "dg_scripts.h"
 #include "utils.h"
+#include "global.objects.hpp"
 
 #include <algorithm>
 
@@ -126,6 +127,40 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(obj_vnum vnum)
 
 OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 {
+	const auto new_object = create_raw_from_prototype_by_rnum(rnum);
+	if (new_object)
+	{
+		rnum = obj_proto.zone(rnum);
+		if (rnum != -1 && zone_table[rnum].under_construction)
+		{
+			// модификация объектов тестовой зоны
+			constexpr int TEST_OBJECT_TIMER = 30;
+			new_object->set_timer(TEST_OBJECT_TIMER);
+			new_object->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
+			new_object->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
+		}
+
+		new_object->clear_proto_script();
+
+		const auto id = max_id.allocate();
+		new_object->set_id(id);
+		if (new_object->get_type() == OBJ_DATA::ITEM_DRINKCON)
+		{
+			if (new_object->get_val(1)
+				&& new_object->get_val(2))
+			{
+				name_to_drinkcon(new_object.get(), new_object->get_val(2));
+			}
+		}
+
+		assign_triggers(new_object.get(), OBJ_TRIGGER);
+	}
+
+	return std::move(new_object);
+}
+
+OBJ_DATA::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(obj_rnum rnum)
+{
 	// and obj_rnum
 	if (rnum < 0)
 	{
@@ -133,34 +168,9 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 		return nullptr;
 	}
 
-	OBJ_DATA::shared_ptr new_object(new OBJ_DATA(*obj_proto[rnum]));
+	const auto new_object = std::make_shared<OBJ_DATA>(*obj_proto[rnum]);
 	obj_proto.inc_number(rnum);
-
-	rnum = obj_proto.zone(rnum);
-	if (rnum != -1 && zone_table[rnum].under_construction)
-	{
-		// модификация объектов тестовой зоны
-		constexpr int TEST_OBJECT_TIMER = 30;
-		new_object->set_timer(TEST_OBJECT_TIMER);
-		new_object->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-	}
-
-	new_object->clear_proto_script();
-
 	world_objects.add(new_object);
-
-	const auto id = max_id.allocate();
-	new_object->set_id(id);
-	if (new_object->get_type() == OBJ_DATA::ITEM_DRINKCON)
-	{
-		if (new_object->get_val(1)
-			&& new_object->get_val(2))
-		{
-			name_to_drinkcon(new_object.get(), new_object->get_val(2));
-		}
-	}
-
-	assign_triggers(new_object.get(), OBJ_TRIGGER);
 
 	return std::move(new_object);
 }
@@ -311,17 +321,26 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_vnum(const obj_vnum vnum, unsigned nu
 
 OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number) const
 {
+	object_id_set_t except;
+	return find_by_vnum_and_dec_number(vnum, number, except);
+}
+
+OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number, const object_id_set_t& except) const
+{
 	const auto set_i = m_vnum_to_object.find(vnum);
 	if (set_i != m_vnum_to_object.end())
 	{
 		for (const auto& object : set_i->second)
 		{
-			if (0 == number)
+			if (except.find(object->get_id()) == except.end())
 			{
-				return object;
-			}
+				if (0 == number)
+				{
+					return object;
+				}
 
-			--number;
+				--number;
+			}
 		}
 	}
 
@@ -370,6 +389,6 @@ void WorldObjects::add_to_index(const list_t::iterator& object_i)
 	m_object_raw_ptr_to_object_ptr.emplace(object.get(), object_i);
 }
 
-WorldObjects world_objects;	// contains all objects in the world
+WorldObjects& world_objects = GlobalObjects::world_objects();	// contains all objects in the world
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

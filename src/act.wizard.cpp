@@ -186,7 +186,8 @@ void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_check_occupation(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-
+void do_showzonestats(CHAR_DATA*, char*, int, int);
+void do_overstuff(CHAR_DATA *ch, char*, int, int);
 void save_zone_count_reset()
 {
 	for (int i = 0; i <= top_of_zone_table; ++i)
@@ -195,6 +196,38 @@ void save_zone_count_reset()
 		log("%s", buf);
 	}
 }
+
+
+// показывает количество вещей (чтобы носить которые, нужно больше 8 ремортов) в хранах кланов
+void do_overstuff(CHAR_DATA *ch, char*, int, int)
+{
+	std::map<std::string, int> objects;
+	for (Clan::ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan)
+	{
+		for (OBJ_DATA *chest = world[real_room((*clan)->get_chest_room())]->contents; chest; chest = chest->get_next_content())
+		{
+			if (Clan::is_clan_chest(chest))
+			{
+				for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content())
+				{
+					if (temp->get_auto_mort_req() > 8)
+					{
+						if (objects.count((*clan)->get_abbrev()))
+							objects[(*clan)->get_abbrev()] += 1;							
+						else
+							objects.insert(std::pair<std::string, int>((*clan)->get_abbrev(), 1));
+					}
+				}
+			}
+		}
+	}
+	for (auto it = objects.begin(); it != objects.end(); ++it)///вывод на экран
+	{
+		sprintf(buf, "Дружина: %s, количество объектов: %d\r\n", it->first.c_str(), it->second);
+		send_to_char(buf, ch);
+	}
+}
+
 
 // Функция для отправки текста богам
 // При demigod = True, текст отправляется и демигодам тоже
@@ -206,13 +239,13 @@ void send_to_gods(char *text, bool demigod)
     	    // Чар должен быть в игре
     	    if (STATE(d) == CON_PLAYING)
     	    {
-    		// Чар должен быть имморталом
-    		// Либо же демигодом (при demigod = true)
-    		if ((GET_LEVEL(d->character) >= LVL_GOD) ||
-    		(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod))
-    		{
-    		    send_to_char(text, d->character);
-    		}
+    			// Чар должен быть имморталом
+    			// Либо же демигодом (при demigod = true)
+				if ((GET_LEVEL(d->character) >= LVL_GOD) ||
+					(GET_GOD_FLAG(d->character, GF_DEMIGOD) && demigod))
+				{
+					send_to_char(text, d->character);
+				}	
     	    }
         }
 }
@@ -262,6 +295,17 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	sprintf(buf2, "Удалено всего предметов: %d", num);
 	send_to_char(buf2, ch);
 	
+}
+
+void do_showzonestats(CHAR_DATA* ch, char*, int, int)
+{
+	std::string buffer = "";
+	for (int i = 0; i <= top_of_zone_table; ++i)
+	{
+		sprintf(buf, "Zone: %d, count_reset: %d, посещено с ребута: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
+		buffer += std::string(buf) + "\r\n";
+	}
+	page_string(ch->desc, buffer);
 }
 
 void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -341,7 +385,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		return 0;
 	}
 
-	if ((GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || PRF_FLAGGED(vict, PRF_CODERINFO) || IS_IMPL(vict))
+	if ((GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch)) || IS_IMPL(vict))
 	{
 		send_to_char("Кем вы себя возомнили?\r\n", ch);
 		return 0;
@@ -367,6 +411,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->pfreeze));
 		break;
 
+	case SCMD_REGISTER:
 	case SCMD_UNREGISTER:
 		pundata = & CHECK_PLAYER_SPECIAL((vict), ((vict)->player_specials->punreg));
 		break;
@@ -575,7 +620,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			sprintf(buf2, "$n выпущен$a из комнаты имени!");
 			break;
 
-		case SCMD_UNREGISTER:
+		case SCMD_REGISTER:
 			// Регистриуем чара
 			if (PLR_FLAGGED(vict, PLR_REGISTERED))
 			{
@@ -615,13 +660,48 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish , char * reason , lo
 			};
 			sprintf(buf, "%s%s зарегистрировал$G вас.%s",
 					CCIGRN(vict, C_NRM), GET_NAME(ch), CCNRM(vict, C_NRM));
-
 			sprintf(buf2, "$n появил$u в центре комнаты, с гордостью показывая всем штампик регистрации!");
-
 			break;
+		case SCMD_UNREGISTER:
+			if (!PLR_FLAGGED(vict, PLR_REGISTERED))
+			{
+				send_to_char("Ваша цель и так не зарегистрирована.\r\n", ch);
+				return (0);
+			};
 
+			sprintf(buf, "%s unregistered by %s.", GET_NAME(vict), GET_NAME(ch));
+			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+			imm_log(buf);
+
+			sprintf(buf, "Unregistered by %s", GET_NAME(ch));
+			RegisterSystem::remove(vict);
+			add_karma(vict, buf, reason);
+
+			if (IN_ROOM(vict) != NOWHERE)
+			{
+				act("C $n1 снята метка регистрации!", FALSE, vict, 0, 0, TO_ROOM);
+/*				if ((result = GET_LOADROOM(vict)) == NOWHERE)
+					result = r_unreg_start_room;
+
+				result = real_room(result);
+
+				if (result == NOWHERE)
+				{
+					if (GET_LEVEL(vict) >= LVL_IMMORT)
+						result = r_immort_start_room;
+					else
+						result = r_mortal_start_room;
+				}
+
+				char_from_room(vict);
+				char_to_room(vict, result);
+				look_at_room(vict, result);
+*/
+			}
+			sprintf(buf, "&W%s снял$G с вас метку регистрации.&n", GET_NAME(ch));
+			sprintf(buf2, "$n лишен$g регистрации!");
+			break;
 		}
-
 	}
 	else
 	{
@@ -995,7 +1075,7 @@ void setall_inspect()
 						}
 						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
 						*(GET_EMAIL(d_vict->character) + 127) = '\0';
-						sprintf(buf2, "Смена e-mail адреса персонажа %s на %s.\r\n", player_table[it->second->pos].name, it->second->newmail);
+						sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name, player_table[it->second->pos].mail, it->second->newmail);
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
 						
@@ -1017,8 +1097,8 @@ void setall_inspect()
 								continue;
 							}
 							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
-							*(GET_EMAIL(vict) + 127) = '\0';							
-							sprintf(buf2, "Смена e-mail адреса персонажа %s на %s.\r\n", player_table[it->second->pos].name, it->second->newmail);
+							*(GET_EMAIL(vict) + 127) = '\0';
+							sprintf(buf2, "Смена e-mail адреса персонажа %s с %s на %s.\r\n", player_table[it->second->pos].name, player_table[it->second->pos].mail, it->second->newmail);
 							it->second->out += buf2;
 							add_karma(vict, buf2, GET_NAME(imm_d->character));
 							vict->save_char();
@@ -1037,8 +1117,10 @@ void setall_inspect()
 							continue;
 						}
 						Password::set_password(d_vict->character, std::string(it->second->pwd));
-						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name);
 						it->second->out += buf2;
+						sprintf(buf1, "\r\n");
+						it->second->out += buf1;
 						add_karma(d_vict->character, buf2, GET_NAME(imm_d->character));
 					}
 					else
@@ -1059,8 +1141,10 @@ void setall_inspect()
 						Password::set_password(vict, std::string(it->second->pwd));
 						std::string str = player_table[it->second->pos].name;
 						str[0] = UPPER(str[0]);
-						sprintf(buf2, "У персонажа %s изменен пароль.\r\n", player_table[it->second->pos].name);
+						sprintf(buf2, "У персонажа %s изменен пароль (setall).", player_table[it->second->pos].name);
 						it->second->out += buf2;
+						sprintf(buf1, "\r\n");
+						it->second->out += buf1;
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();
 					}
@@ -1806,15 +1890,21 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = GET_OBJ_RNUM(j);
-	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: &S%s&s\r\n",
+	sprintf(buf, "Название: '%s%s%s',\r\nСинонимы: '&c%s&n',",
 		CCYEL(ch, C_NRM),
 		(!j->get_short_description().empty() ? j->get_short_description().c_str() : "<None>"),
 		CCNRM(ch, C_NRM),
 		j->get_aliases().c_str());
 	send_to_char(buf, ch);
+	if (j->get_custom_label() && j->get_custom_label()->label_text)
+	{
+		sprintf(buf, " нацарапано: '&c%s&n',", j->get_custom_label()->label_text);
+		send_to_char(buf, ch);
+	}
+	sprintf(buf,"\r\n");
+	send_to_char(buf, ch);
 	sprinttype(GET_OBJ_TYPE(j), item_types, buf1);
-
-	if (GET_OBJ_RNUM(j) >= 0)
+	if (rnum >= 0)
 	{
 		strcpy(buf2, (obj_proto.func(j->get_rnum()) ? "Есть" : "Нет"));
 	}
@@ -1823,10 +1913,10 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		strcpy(buf2, "None");
 	}
 
-	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d]\r\n",
-		CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j));
+	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], ID: [%d]\r\n",
+		CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j),j->get_id());
 
-	send_to_char(ch, "Расчет критерия: %f, мортов: %f  \r\n", j->show_koef_obj(),j->show_mort_req());
+	send_to_char(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(),j->show_mort_req());
 	send_to_char(ch, "Тип: %s, СпецПроцедура: %s", buf1, buf2);
 
 	if (GET_OBJ_OWNER(j))
@@ -1878,27 +1968,32 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	send_to_char(buf, ch);
 
 	send_to_char("Неудобства : ", ch);
-	j->get_no_flags().sprintbits(no_bits, buf, ",");
+	j->get_no_flags().sprintbits(no_bits, buf, ",",4);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Запреты : ", ch);
-	j->get_anti_flags().sprintbits(anti_bits, buf, ",");
+	j->get_anti_flags().sprintbits(anti_bits, buf, ",",4);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Устанавливает аффекты : ", ch);
-	j->get_affect_flags().sprintbits(weapon_affects, buf, ",");
+	j->get_affect_flags().sprintbits(weapon_affects, buf, ",",4);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
 	send_to_char("Дополнительные флаги  : ", ch);
-	GET_OBJ_EXTRA(j).sprintbits(extra_bits, buf, ",");
+	GET_OBJ_EXTRA(j).sprintbits(extra_bits, buf, ",",4);
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
-	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, Таймер: %d\r\n",
-		GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j), j->get_timer());
+	sprintf(buf, "Вес: %d, Цена: %d, Рента(eq): %d, Рента(inv): %d, ",
+		GET_OBJ_WEIGHT(j), GET_OBJ_COST(j), GET_OBJ_RENTEQ(j), GET_OBJ_RENT(j));
+	send_to_char(buf, ch);
+	if (check_unlimited_timer(j))
+		sprintf(buf, "Таймер: нерушимо\r\n");
+	else
+		sprintf(buf, "Таймер: %d\r\n", j->get_timer());
 	send_to_char(buf, ch);
 
 	strcpy(buf, "Находится : ");
@@ -2041,6 +2136,11 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			send_to_char(buf, ch);
 		}
 		break;
+	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+	case OBJ_DATA::ITEM_MAGIC_ARROW:
+		sprintf(buf, "Заклинание: [%s]. Объем [%d]. Осталось стрел[%d].",
+			spell_name(GET_OBJ_VAL(j, 0)), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2));
+		break;
 
 	default:
 		sprintf(buf, "Values 0-3: [%d] [%d] [%d] [%d]",
@@ -2121,22 +2221,22 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	if (j->get_ilevel() > 0)
 	{
-		send_to_char(ch, "Уровень (ilvl): %d\r\n", j->get_ilevel());
+		send_to_char(ch, "Уровень (ilvl): %f\r\n", j->get_ilevel());
 	}
 
-	if (j->get_manual_mort_req() >= 0)
+	if (j->get_minimum_remorts() != 0)
 	{
-		send_to_char(ch, "Проставлено поле минимальных перевоплощений: %d\r\n", j->get_manual_mort_req());
+		send_to_char(ch, "Проставлено поле перевоплощений: %d\r\n", j->get_minimum_remorts());
 	}
-	else if (j->get_manual_mort_req() > 0)
+	else if (j->get_auto_mort_req() > 0)
 	{
-		send_to_char(ch, "Требует перевоплощений: %d\r\n", j->get_manual_mort_req());
+		send_to_char(ch, "Вычислено поле минимальных перевоплощений: %d\r\n", j->get_auto_mort_req());
 	}
 
 	if (is_grgod)
 	{
-		sprintf(buf, "Сейчас в мире : %d. На постое : %d\r\n",
-				rnum >= 0 ? obj_proto.number(rnum) - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_proto.stored(rnum) : -1);
+		sprintf(buf, "Сейчас в мире : %d. На постое : %d. Макс в мире: %d\r\n",
+				rnum >= 0 ? obj_proto.number(rnum) - (virt ? 1 : 0) : -1, rnum >= 0 ? obj_proto.stored(rnum) : -1, GET_OBJ_MIW(j)) ;
 		send_to_char(buf, ch);
 		// check the object for a script
 		do_sstat_object(ch, j);
@@ -2441,10 +2541,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 	if (IS_NPC(k))
 	{
-		k->char_specials.saved.act.sprintbits(action_bits, buf2, ",");
+		k->char_specials.saved.act.sprintbits(action_bits, buf2, ",",4);
 		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",");
+		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",",4);
 		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
@@ -2461,11 +2561,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	}
 	else
 	{
-		k->char_specials.saved.act.sprintbits(player_bits, buf2, ",");
+		k->char_specials.saved.act.sprintbits(player_bits, buf2, ",",4);
 		sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 
-		k->player_specials->saved.pref.sprintbits(preference_bits, buf2, ",");
+		k->player_specials->saved.pref.sprintbits(preference_bits, buf2, ",",4);
 		sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 
@@ -2529,7 +2629,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			send_to_char(strcat(buf, "\r\n"), ch);
 	}
 	// Showing the bitvector
-	k->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
+	k->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",",4);
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
@@ -4479,12 +4579,11 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			break;
 
 		case SCMD_REGISTER:
-			set_punish(ch, vict, SCMD_UNREGISTER, reason, 0);
+			set_punish(ch, vict, SCMD_REGISTER, reason, 0);
 			break;
 
 		case SCMD_UNREGISTER:
-			if (*num) times = atol(num);
-			set_punish(ch, vict, SCMD_UNREGISTER, reason, times);
+			set_punish(ch, vict, SCMD_UNREGISTER, reason, 0);
 			break;
 
 		case SCMD_UNAFFECT:
@@ -4518,23 +4617,25 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 void print_zone_to_buf(char **bufptr, zone_rnum zone)
 {
-	char tmpstr[255];
-	sprintf(tmpstr,
-			"%3d %-30.30s Level: %2d; Type: %-10.10s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-			"    Top: %5d %s%s; ResetIdle: %s; Used: %s; Activity: %.2f; Group: %2d, Mob-level: %2d\r\n",
+	const size_t BUFFER_SIZE = 1024;
+	char tmpstr[BUFFER_SIZE];
+	snprintf(tmpstr, BUFFER_SIZE,
+			"%3d %-60.60s Уровень: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
+			"    Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d, Mob-level: %2d; Автор: %s\r\n",
 			zone_table[zone].number, zone_table[zone].name,
 			zone_table[zone].level, zone_types[zone_table[zone].type].name,
 			zone_table[zone].age, zone_table[zone].lifespan,
 			zone_table[zone].reset_mode,
 			(zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
 					zone_table[zone].top,
-					zone_table[zone].under_construction ? "T" : " ",
-					zone_table[zone].locked ? " L" : " ",
+					zone_table[zone].under_construction ? "&GТестовая!&n" : " ",
+					zone_table[zone].locked ? "&RРедактирование запрещено!&n" : " ",
 					zone_table[zone].reset_idle ? "Y" : "N",
 					zone_table[zone].used ? "Y" : "N",
 					(double)zone_table[zone].activity / 1000,
 					zone_table[zone].group,
-					zone_table[zone].mob_level);
+					zone_table[zone].mob_level, 
+					zone_table[zone].autor ? zone_table[zone].autor : "Не известен.");
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
@@ -5481,7 +5582,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		else if (is_number(val_arg))
 		{
 			value = atoi(val_arg);
-			RANGE(0, 24);
+			RANGE(0, MAX_COND_VALUE);
 			GET_COND(vict, num) = value;
 			sprintf(output, "Для %s %s установлен в %d.", GET_PAD(vict, 1), set_fields[mode].cmd, value);
 		}
@@ -5605,10 +5706,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char(ch, "%s\r\n", Password::BAD_PASSWORD);
 			return 0;
 		}
-		Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
 		Password::set_password(vict, val_arg);
+		Password::send_password(GET_EMAIL(vict), val_arg, std::string(GET_NAME(vict)));
+		sprintf(buf, "%s заменен пароль богом.", GET_PAD(vict, 2));
+		add_karma(vict, buf, GET_NAME(ch));
 		sprintf(output, "Пароль изменен на '%s'.", val_arg);
-		
 		break;
 	case 37:
 		SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_NODELETE);
@@ -5955,7 +6057,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 56:      // Разрегистрация персонажа
 		reason = one_argument(val_arg, num);
 		if (*num) times = atol(num);
-		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, times)) return (0);
+		if (!set_punish(ch, vict, SCMD_REGISTER, reason, times)) return (0);
 		break;
 
 	case 57:      // Установка флага палач
@@ -5987,7 +6089,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл"))
 		{
 			CLR_GOD_FLAG(vict, GF_TESTER);
-			PRF_FLAGS(ch).unset(PRF_TESTER); // обнулим реж тестер
+			PRF_FLAGS(vict).unset(PRF_TESTER); // обнулим реж тестер
 			sprintf(buf,"%s убрал флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		}
@@ -6396,9 +6498,9 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 		const auto vnum = i->first;
 		const auto rnum = i->second;
 		const auto prototype = obj_proto[rnum];
-		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%d]", ++result,
+		snprintf(buf_, sizeof(buf_), "%5d. %s [%5d] [ilvl=%f : mort =%d]", ++result,
 			colored_name(prototype->get_short_description().c_str(), 45),
-			vnum, prototype->get_ilevel());
+			vnum, prototype->get_ilevel(),prototype->get_auto_mort_req());
 		ss << buf_;
 
 		if (GET_LEVEL(ch) >= LVL_GRGOD

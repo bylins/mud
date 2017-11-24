@@ -2029,12 +2029,6 @@ void heartbeat(const int missed_pulses)
 		ObjSystem::release_purged_list();
 	}
 
-	// апдейт таймеров в магазинах
-	if (!((pulse + 27) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		ShopExt::update_timers();
-	}
-
 	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
@@ -3097,6 +3091,9 @@ int process_output(DESCRIPTOR_DATA * t)
 			}
 		}
 	}// end by WorM
+
+	if (STATE(t) == CON_PLAYING && t->character)
+		t->msdp_report_changed_vars();
 
 	// add a prompt
 	strncat(i, make_prompt(t), MAX_PROMPT_LENGTH);

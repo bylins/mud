@@ -1264,10 +1264,10 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 
 		// требования по мортам
-		if (object->get_manual_mort_req() >= 0
-			&& object->get_manual_mort_req() != proto->get_manual_mort_req())
+		if (object->get_auto_mort_req() > 0)
+//			&& object->get_manual_mort_req() != proto->get_manual_mort_req())
 		{
-			out << "Mort: " << object->get_manual_mort_req() << "~\n";
+			out << "Mort: " << object->get_auto_mort_req() << "~\n";
 		}
 
 		// ObjectValue предмета, если есть что сохранять
@@ -1449,9 +1449,9 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		}
 
 		// требования по мортам
-		if (object->get_manual_mort_req() >= 0)
+		if (object->get_auto_mort_req() > 0)
 		{
-			out << "Mort: " << object->get_manual_mort_req() << "~\n";
+			out << "Mort: " << object->get_auto_mort_req() << "~\n";
 		}
 
 		// ObjectValue предмета, если есть что сохранять
@@ -1567,6 +1567,13 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 
 		case WEAR_WAIST:
 			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+			{
+				location = LOC_INVENTORY;
+			}
+			break;
+
+		case WEAR_QUIVER:
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
 			{
 				location = LOC_INVENTORY;
 			}
@@ -2377,6 +2384,14 @@ int Crash_load(CHAR_DATA * ch)
 			extract_obj(obj.get());
 			continue;
 		}
+		//очищаем RepopDecay объедки
+		if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
+		{
+			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
+			send_to_char(buf, ch);
+			extract_obj(obj.get());
+			continue;
+		}
 
 		// Check valid class
 		if (invalid_anti_class(ch, obj.get())
@@ -2528,6 +2543,8 @@ int Crash_is_unrentable(CHAR_DATA *ch, OBJ_DATA * obj)
 
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NORENT)
 		|| GET_OBJ_RENT(obj) < 0
+		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
+		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ZONEDECAY)
 		|| (GET_OBJ_RNUM(obj) <= NOTHING
 			&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY

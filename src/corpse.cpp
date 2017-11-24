@@ -351,6 +351,8 @@ int get_obj_to_drop(DropListType::iterator &i)
  */
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 {
+	if (MOB_FLAGGED(mob, MOB_MOUNTING))
+		return false;
 	for (size_t i = 0; i < tables_drop.size(); i++)
 	{
 		if (tables_drop[i].check_mob(GET_MOB_VNUM(mob)))
@@ -372,12 +374,13 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	for (DropListType::iterator i = drop_list.begin(), iend = drop_list.end(); i != iend; ++i)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
 		if (GET_LEVEL(mob) >= i->mob_lvl 				   
-		    && (!i->max_mob_lvl
+		    &&	(!i->max_mob_lvl
 				|| GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
 		    && ((i->race_mob < 0)
 				|| (GET_RACE(mob) == i->race_mob)
 				|| (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
 		    && (i->day_start <= day && i->day_end >= day)			// временной промежуток
+		    && (!NPC_FLAGGED(mob, NPC_NOSETSDROP))  //нет флага не падать сетам
 		    && (!mob->has_master()
 				|| IS_NPC(mob->get_master()))) // не чармис	
 

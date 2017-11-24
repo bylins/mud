@@ -202,6 +202,7 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 	CHAR_DATA *vict;
 	int percent = 0;
 	int prob = 0;
+	bool protect = false;
 
 	//Polud прикрываем только от нападения
 	if (ch->get_fighting()==victim)
@@ -231,6 +232,12 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
 				return victim;
 			}
+			if (protect) 
+			{ 
+				send_to_char(vict, "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n", GET_PAD(vict->get_protecting(), 3)); 
+				continue; 
+			}
+			protect = true;
 			percent = number(1, skill_info[SKILL_PROTECT].max_percent);
 			prob = calculate_skill(vict, SKILL_PROTECT, victim);
 			prob = prob * 8 / 10;
@@ -1248,7 +1255,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	//float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 		//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 
-	percent = number(1, skill_info[SKILL_STUN].max_percent);
+	percent = number(1, skill_info[SKILL_STUN].max_percent * 3 / 2);
 	prob = calculate_skill(ch, SKILL_STUN, vict);
 
 	if (percent > prob)
@@ -1267,10 +1274,10 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		// кастуем аналог круга пустоты
 		act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
 		act("Ошеломительный удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
-		act("$n мощным ударом ошеломи$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("$n мощным ударом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		GET_POS(vict) = POS_INCAP;
 		//аффект "кома" действует (раундов) на цель 5+морты чара/3
-		WAIT_STATE(vict, (2 + GET_REMORT(ch) / 3) * PULSE_VIOLENCE);
+		WAIT_STATE(vict, (2 + GET_REMORT(ch) / 5) * PULSE_VIOLENCE);
 		set_hit(ch, vict);
 	}
 }
@@ -1517,9 +1524,9 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					break;
 				case 2:
 				case 3:
-					to_char = "Сильно пнув в челюсть, вы заставили $N4 замолчать.";
+					to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
 					to_vict = "Мощный удар ногой $n1 попал точно в челюсть, заставив вас замолчать.";
-					to_room = "Сильно пнув ногой в челюсть $N4, $n застави$q $S замолчать.";
+					to_room = "Сильно пнув ногой в челюсть $N3, $n застави$q $S замолчать.";
 					af.type = SPELL_BATTLE;
 					af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
@@ -2850,6 +2857,8 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
 
+                
+                
 		Damage dmg(SkillDmg(SKILL_MANADRAIN), 10, FightSystem::MAGE_DMG);
 		dmg.process(ch, vict);
 	}
@@ -2857,7 +2866,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_MANADRAIN;
-		timed.time = 6;
+		timed.time = 6 - MIN(4, (ch->get_skill(SKILL_MANADRAIN) + 30) / 50);
 		timed_to_char(ch, &timed);
 	}
 

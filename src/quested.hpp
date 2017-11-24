@@ -26,6 +26,7 @@ public:
 private:
 	// выполненные квесты
 	typedef std::map<int /* внум */, std::string /* текст данных конкретного квеста */> QuestedType;
+
 	QuestedType quested_;
 };
 

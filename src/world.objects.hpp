@@ -67,6 +67,8 @@ public:
 	// create a new object from a prototype
 	OBJ_DATA::shared_ptr create_from_prototype_by_rnum(obj_rnum rnum);
 
+	OBJ_DATA::shared_ptr create_raw_from_prototype_by_rnum(obj_rnum rnum);
+
 	void add(const OBJ_DATA::shared_ptr& object);
 	void remove(OBJ_DATA* object);
 	void remove(const OBJ_DATA::shared_ptr& object) { remove(object.get()); }
@@ -85,6 +87,7 @@ public:
 	OBJ_DATA::shared_ptr find_first_by_id(const object_id_t id) const { return find_by_id(id, 0); }
 	OBJ_DATA::shared_ptr find_by_vnum(const obj_vnum vnum, unsigned number) const;
 	OBJ_DATA::shared_ptr find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number) const;
+	OBJ_DATA::shared_ptr find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number, const object_id_set_t& except) const;
 	OBJ_DATA::shared_ptr find_first_by_vnum(const obj_vnum vnum) const { return find_by_vnum(vnum, 0); }
 	OBJ_DATA::shared_ptr find_by_rnum(const obj_rnum rnum, unsigned number) const;
 	OBJ_DATA::shared_ptr find_first_by_rnum(const obj_rnum rnum) const { return find_by_rnum(rnum, 0); }
@@ -111,7 +114,7 @@ private:
 	WO_VNumChangeObserver::shared_ptr m_vnum_change_observer;
 };
 
-extern WorldObjects world_objects;
+extern WorldObjects& world_objects;
 
 #endif // __WORLD_OBJECTS_HPP__
 

@@ -222,8 +222,9 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	{
 		if (clr(vict, C_NRM)) // реж цвет >= обычный
 			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
-						" Зеленым цветом выделены уже изученные способности.\r\n"
-						" Красным цветом выделены способности, недоступные вам в настоящий момент.\r\n\r\n", vict);
+						" &gЗеленым цветом и пометкой [И] выделены уже изученные способности.\r\n&n"
+						" Пометкой [Д] выделены доступные для изучения способности.\r\n"
+						" &rКрасным цветом и пометкой [Н] выделены способности, недоступные вам в настоящий момент.&n\r\n\r\n", vict);
 		else
 			send_to_char(" Список способностей, доступных с текущим числом перевоплощений.\r\n"
 						" Пометкой [И] выделены уже изученные способности.\r\n"
@@ -234,9 +235,11 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			if (!feat_info[sortpos].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 				continue;
 			if (clr(vict, C_NRM))
-				sprintf(buf, "        %s%-30s%s\r\n",
+				sprintf(buf, "        %s%s %-30s%s\r\n",
 					HAVE_FEAT(ch, sortpos) ? KGRN :
 					can_get_feat(ch, sortpos) ? KNRM : KRED,
+					HAVE_FEAT(ch, sortpos) ? "[И]" :
+					can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
 					feat_info[sortpos].name, KNRM);
 			else
 				sprintf(buf, "    %s %-30s\r\n",
@@ -2503,6 +2506,11 @@ void npc_armor(CHAR_DATA * ch)
 			where = WEAR_WAIST;
 		}
 
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+		{
+			where = WEAR_QUIVER;
+		}
+
 		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
 		{
 			where = WEAR_WRIST_R;
@@ -3403,8 +3411,11 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 		}
 		if (amount <= 100)
 		{
-			send_to_char("Сумма перевода должна быть больше 100 кун.\r\n", ch);
+                    if (ch->get_bank() < (amount + 5))
+                    {
+                        send_to_char("У вас не хватит денег на налоги!\r\n", ch);
 			return (1);
+                    }
 		}
 
 		if (ch->get_bank() < amount)
@@ -3420,7 +3431,9 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 		if ((vict = get_player_of_name(arg)))
 		{
-			ch->remove_bank(amount + (amount * 5) / 100);
+			ch->remove_bank(amount);
+                        if (amount <= 100) ch->remove_bank(5);
+                        else ch->remove_bank(((amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
@@ -3428,6 +3441,8 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
 			send_to_char(buf, vict);
+			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			return (1);
 
 		}
@@ -3441,10 +3456,14 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 				return (1);
 			}
 
-			ch->remove_bank(amount + (amount * 5) / 100);
+			ch->remove_bank(amount);
+                        if (amount <= 100) ch->remove_bank(5);
+                        else ch->remove_bank(((amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
+			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			vict->add_bank(amount);
 			Depot::add_offline_money(GET_UNIQUE(vict), amount);
 			vict->save_char();

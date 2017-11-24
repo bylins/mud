@@ -81,6 +81,13 @@
 #include <algorithm>
 #include <stdexcept>
 
+#ifndef WIN32
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#endif
+
+
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
 extern room_rnum r_frozen_start_room;
@@ -104,7 +111,7 @@ extern int no_specials;
 extern int max_bad_pws;
 extern INDEX_DATA *mob_index;
 extern const char *default_race[];
-
+extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 extern struct pclean_criteria_data pclean_criteria[];
 
 extern char *GREETINGS;
@@ -278,6 +285,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rent(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rescue(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stopfight(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -409,6 +417,7 @@ void DoClanChannel(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoClanList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoShowPolitics(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_show_alliance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoHcontrol(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoWhoClan(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void DoClanPkList(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -433,6 +442,9 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void Bonus::do_bonus_info(CHAR_DATA*, char*, int, int);
 void do_stun(CHAR_DATA*, char*, int, int);
+void do_showzonestats(CHAR_DATA*, char*, int, int);
+void do_overstuff(CHAR_DATA *ch, char*, int, int);
+void do_cities(CHAR_DATA *ch, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -448,6 +460,11 @@ void do_stun(CHAR_DATA*, char*, int, int);
 
 #define MAGIC_NUM 419
 #define MAGIC_LEN 8
+
+// здесь храним коды, которые отправили игрокам на почту
+// строка - это мыло, если один чар вошел с необычного места, то блочим сразу всех чаров на этом мыле,
+// пока не введет код (или до ребута)
+std::map<std::string, int> new_loc_codes;
 
 cpp_extern const struct command_info cmd_info[] =
 {
@@ -520,6 +537,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"где", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
 	{"гдея", POS_RESTING, do_zone, 0, 0, 0},
 	{"глоток", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
+	{"города", POS_DEAD, do_cities, 0, 0, 0 },
 	{"группа", POS_SLEEPING, do_group, 1, 0, -1},
 	{"гсоюзникам", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},
 	{"гэхо", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
@@ -565,7 +583,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"зачистить", POS_DEAD, do_sanitize, LVL_GRGOD, 0, 0},
 	{"золото", POS_RESTING, do_gold, 0, 0, 0},
 	{"зона", POS_RESTING, do_zone, 0, 0, 0},
-
+	{"зоныстат", POS_DEAD, do_showzonestats, LVL_IMMORT, 0, 0 },
 	{"инвентарь", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"игнорировать", POS_DEAD, do_ignore, 0, 0, 0},
 	{"идеи", POS_DEAD, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
@@ -690,6 +708,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"поселиться", POS_STANDING, do_not_here, 1, 0, -1},
 	{"постой", POS_STANDING, do_not_here, 1, 0, -1},
 	{"почта", POS_STANDING, do_not_here, 1, 0, -1},
+	{"пополнить", POS_STANDING, do_refill, 0, 0, 300},
 	{"поручения", POS_RESTING, do_quest, 1, 0, -1},
 	{"появиться", POS_RESTING, do_visible, 1, 0, -1},
 	{"правила", POS_DEAD, do_gen_ps, 0, SCMD_POLICIES, 0},
@@ -749,6 +768,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"соскочить", POS_FIGHTING, do_horseoff, 0, 0, -1},
 	{"состав", POS_RESTING, do_create, 0, SCMD_RECIPE, 0},
 	{"сохранить", POS_SLEEPING, do_save, 0, 0, 0},
+	{"союзы", POS_RESTING, do_show_alliance, 0, 0, 0},
 	{"социалы", POS_DEAD, do_commands, 0, SCMD_SOCIALS, 0},
 	{"спать", POS_SLEEPING, do_sleep, 0, 0, -1},
 	{"спасти", POS_FIGHTING, do_rescue, 1, 0, -1},
@@ -931,6 +951,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"olc", POS_DEAD, do_olc, LVL_GOD, SCMD_OLC_SAVEINFO, 0},
 	{"open", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
 	{"order", POS_RESTING, do_order, 1, 0, -1},
+	{"overstuff", POS_DEAD, do_overstuff, LVL_GRGOD, 0, 0 },
 	{"page", POS_DEAD, do_page, LVL_GOD, 0, 0},
 	{"parry", POS_FIGHTING, do_parry, 0, 0, -1},
 	{"pick", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
@@ -979,6 +1000,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"settle", POS_STANDING, do_not_here, 1, 0, -1},
 	{"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"show", POS_DEAD, do_show, LVL_IMMORT, 0, 0},
+	
 	{"shutdown", POS_DEAD, do_shutdown, LVL_IMPL, SCMD_SHUTDOWN, 0},
 	{"sip", POS_RESTING, do_drink, 0, SCMD_SIP, 500},
 	{"sit", POS_RESTING, do_sit, 0, 0, -1},
@@ -2671,7 +2693,43 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 		mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
+	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0)
+	{
+		SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+		STATE(d) = CON_RANDOM_NUMBER;
+		return;
+	}
+	// нам нужен массив сетей с маской /24
+	std::set<uint32_t> subnets;
 
+	struct logon_data * log_info = LOGON_LIST(d->character);
+
+	// маска сети /24, можно покрутить в большую сторону, если есть желание
+	uint32_t MASK = 16777215;
+	while (log_info)
+	{
+		uint32_t current_subnet = inet_addr(log_info->ip) & MASK;
+		subnets.insert(current_subnet);
+		log_info = log_info->next;
+	}
+	if (subnets.size() != 0)
+	{
+		if (subnets.count(inet_addr(d->host) & MASK) == 0)
+		{
+			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
+			mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
+			if (PRF_FLAGGED(d->character, PRF_IPCONTROL)) {
+				int random_number = number(1000000, 9999999);
+				new_loc_codes[GET_EMAIL(d->character)] = random_number;
+				std::string cmd_line =  str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
+				auto result = system(cmd_line.c_str());
+				UNUSED_ARG(result);
+				SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+				STATE(d) = CON_RANDOM_NUMBER;
+				return;
+			}
+		}
+	}
 	// check and make sure no other copies of this player are logged in
 	if (perform_dupe_check(d))
 	{
@@ -2702,7 +2760,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	if (!ValidateStats(d))
 	{
 		return;
-	}
+	}	
 
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
@@ -3162,7 +3220,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				STATE(d) = CON_CHPWD_GETNEW;
 			return;
 		}
-
 		// commented by WorM: убрал выбор расы раз уж делать их никто не собирается то и смущать людей выбором незачем
 		/*if (STATE(d) == CON_CNFPASSWD)
 		{
@@ -3183,6 +3240,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
+			sprintf(buf, "%s заменил себе пароль.", GET_NAME(d->character));
+			add_karma(d->character, buf, "");
 			d->character->save_char();
 			SEND_TO_Q("\r\nГотово.\r\n", d);
 			SEND_TO_Q(MENU, d);
@@ -3524,7 +3583,24 @@ Sventovit
 		// SEND_TO_Q(MENU, d);
 		// STATE(d) = CON_MENU;
 		break;
-
+	case CON_RANDOM_NUMBER:
+	    {
+		int code_rand = atoi(arg);
+		//printf("%d\n", code_rand);
+		if (new_loc_codes.count(GET_EMAIL(d->character)) == 0)
+			break;
+		//printf("%d\n", new_loc_codes[GET_EMAIL(d->character)])
+		if (new_loc_codes[GET_EMAIL(d->character)] != code_rand)
+		{
+			SEND_TO_Q("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
+			STATE(d) = CON_CLOSE;
+			break;
+		}
+		new_loc_codes.erase(GET_EMAIL(d->character));
+		add_logon_record(d);
+		DoAfterPassword(d);
+		break;
+	    }
 	case CON_MENU:		// get selection from main menu
 		switch (*arg)
 		{

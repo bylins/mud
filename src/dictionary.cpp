@@ -11,7 +11,6 @@ Dictionary::Dictionary(DictionaryMode mode)
 			fill_shop_dictionary(dictionary_);
 			break;
 	}
-
 }
 
 size_t Dictionary::Size()

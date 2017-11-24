@@ -42,9 +42,9 @@
 #define NUM_AFF_FLAGS		22
 #define NUM_ATTACK_TYPES	20
 
-#define NUM_ITEM_TYPES		33
+#define NUM_ITEM_TYPES		36
 #define NUM_ITEM_FLAGS		30
-#define NUM_ITEM_WEARS 		16
+#define NUM_ITEM_WEARS 		17
 #define NUM_POSITIONS		16
 #define NUM_SPELLS	        108
 #define NUM_MATERIALS       19
@@ -242,9 +242,10 @@ extern struct olc_save_info *olc_save_list;
 #define ZEDIT_ZONE_TOP           12
 #define ZEDIT_ZONE_RESET         13
 #define ZEDIT_RESET_IDLE         14
+#define ZEDIT_CONFIRM_SAVESTRING 15
 #define ZEDIT_ZONE_LOCATION      16
 #define ZEDIT_ZONE_DESCRIPTION   17
-#define ZEDIT_CONFIRM_SAVESTRING 15
+#define ZEDIT_ZONE_AUTOR	 18
 #define ZEDIT_SARG1              20
 #define ZEDIT_SARG2              21
 #define ZEDIT_MOVE_ENTRY         22

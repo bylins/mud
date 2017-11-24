@@ -23,6 +23,7 @@ void write_aliases(CHAR_DATA * ch);
 void read_aliases(CHAR_DATA * ch);
 
 void write_aliases(CHAR_DATA * ch)
+
 {
 	FILE *file;
 	char fn[MAX_STRING_LENGTH];

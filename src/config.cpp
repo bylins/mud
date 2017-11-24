@@ -486,6 +486,11 @@ void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node* root
 	{
 		load_stream_config(m_logs[MSDP_LOG], &msdplog);
 	}
+	const auto moneylog = logging.child("moneylog");
+	if (moneylog)
+	{
+		load_stream_config(m_logs[MONEY_LOG], &moneylog);
+	}
 }
 
 void RuntimeConfiguration::load_features_configuration(const pugi::xml_node* root)
@@ -609,6 +614,7 @@ void init_EOutputStream_ITEM_NAMES()
 	EOutputStream_name_by_value[IMLOG] = "IMLOG";
 	EOutputStream_name_by_value[ERRLOG] = "ERRLOG";
 	EOutputStream_name_by_value[MSDP_LOG] = "MSDPLOG";
+	EOutputStream_name_by_value[MONEY_LOG] = "MONEYLOG";
 
 	for (const auto& i : EOutputStream_name_by_value)
 	{
@@ -721,7 +727,8 @@ const RuntimeConfiguration::logs_t LOGS({
 	CLogInfo("syslog", "СИСТЕМНЫЙ"),
 	CLogInfo("log/errlog.txt", "ОШИБКИ МИРА"),
 	CLogInfo("log/imlog.txt", "ИНГРЕДИЕНТНАЯ МАГИЯ"),
-	CLogInfo("log/msdp.txt", "лог MSDP пакетов")
+	CLogInfo("log/msdp.txt", "лог MSDP пакетов"),
+	CLogInfo("log/money.txt", "лог обращения денег")
 });
 
 RuntimeConfiguration::RuntimeConfiguration():
