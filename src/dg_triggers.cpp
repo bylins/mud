@@ -497,7 +497,7 @@ void income_mtrigger(CHAR_DATA * ch, int dir)
 	for (const auto i : world[ch->in_room]->people)
 	{
 		if ((!IS_NPC(i)
-			&& CAN_SEE(ch, i)) || GET_INVIS_LEV(actor))
+			&& CAN_SEE(ch, i)) || !GET_INVIS_LEV(i))
 		{
 			ispcinroom = 1;
 			actor = i;
