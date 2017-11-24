@@ -77,7 +77,8 @@ void DeathTrap::activity()
 {
 	for (auto it = room_list.cbegin(); it != room_list.cend(); ++it)
 	{
-		for (const auto i : (*it)->people)
+		const auto people = (*it)->people; // make copy of people in the room
+		for (const auto i : people)
 		{
 			if (i->purged() || IS_NPC(i))
 			{
