@@ -1549,7 +1549,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 		case 'g':
 		case 'G':
-			send_to_char(d->character.get(), "Оптимальное число игроков (1 - 12): ");
+			send_to_char(d->character.get(), "Оптимальное число игроков (1 - 20): ");
 			OLC_MODE(d) = ZEDIT_ZONE_GROUP;
 			break;
 		case 'p':
@@ -2177,9 +2177,9 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case ZEDIT_ZONE_GROUP:
 		{
 			int num = atoi(arg);
-			if (num < 1 || num > 12)
+			if (num < 1 || num > 20)
 			{
-				send_to_char("Повторите ввод (от 1 до 12) :", d->character.get());
+				send_to_char("Повторите ввод (от 1 до 20) :", d->character.get());
 			}
 			else
 			{
