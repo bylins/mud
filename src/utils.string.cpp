@@ -45,7 +45,14 @@ namespace utils
 		shared_string_ptr result;
 		if (string)
 		{
+#ifdef WIN32
+// map strdup to _strdup to get rid of warning C4996: 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _strdup. See online help for details.
+#define strdup(x) _strdup(x)
+#endif
 			result.reset(strdup(string), free);
+#ifdef WIN32
+#undef strdup
+#endif
 
 			remove_colors(result.get());
 		}
@@ -60,6 +67,16 @@ namespace utils
 		remove_colors(result);
 
 		return result;
+	}
+
+	std::ostream& Padding::output(std::ostream& os) const
+	{
+		for (std::size_t i = 0; i < m_length; ++i)
+		{
+			os << m_padding;
+		}
+
+		return os;
 	}
 }
 

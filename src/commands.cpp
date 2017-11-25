@@ -3,6 +3,8 @@
 #include "utils.h"
 #include "char.hpp"
 #include "levenshtein.hpp"
+#include "compact.trie.hpp"
+#include "utils.string.hpp"
 
 #include <sstream>
 #include <iomanip>
@@ -15,61 +17,127 @@ namespace commands
 		class CommandEmbranchmentImplementation : public CommandEmbranchment
 		{
 		public:
-			static constexpr int SUGGESTIONS_COUNT = 2;
+			static constexpr int SUGGESTIONS_COUNT = 4;
 
 			using branch_t = CommandWithHelp::shared_ptr;
-			using branches_t = std::map<std::string, branch_t>;
 			using shared_ptr = std::shared_ptr<CommandEmbranchmentImplementation>;
 
 			CommandEmbranchmentImplementation() {}
 
-			void add_command(const std::string& branch, const branch_t& command) { m_branches.emplace(branch, command); }
+			virtual CommandEmbranchment& add_command(const std::string& branch, const branch_t& command) override;
+			virtual CommandEmbranchment& set_noargs_handler(AbstractCommand::shared_ptr command) override;
+			virtual CommandEmbranchment& set_unexpected_command_handler(AbstractCommand::shared_ptr command) override;
+			virtual CommandEmbranchment& rebuild_help() override;
 
-			void set_noargs_handler(AbstractCommand::shared_ptr command) { m_noargs_handler = command; }
-			void set_unexpected_command_handler(AbstractCommand::shared_ptr command) { m_unexpected_command_handler = command; }
-			void set_name(const std::string& name) { m_name = name; }
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 
-			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& arguments) override;
+			virtual branch_t get_command(const std::string& command) const override { return std::move(get_handler(command)); }
 
 			void show_commands_list(const CommandContext::shared_ptr& context) const;
 
 		private:
+			using handlers_t = std::unordered_map<std::string, branch_t>;
+			class Branches
+			{
+			public:
+				Branches();
+
+				void add_command(const std::string& branch, const branch_t& command);
+
+				const auto& trie() const { return m_trie; }
+				const auto& handlers() const { return m_handlers; }
+				auto max_length() const { return m_max_length; }
+
+				auto begin() const { return std::move(m_trie.begin()); }
+				auto end() const { return std::move(m_trie.end()); }
+
+			private:
+				CompactTrie m_trie;
+				handlers_t m_handlers;
+				std::size_t m_max_length;
+			};
+
 			void build_commands_list() const;
-			void execution_without_arguments(const CommandContext::shared_ptr& context) const;
-			void unexpected_branch(const CommandContext::shared_ptr& context, const arguments_t& arguments) const;
+			void execution_without_arguments(const CommandContext::shared_ptr& context, const arguments_t& path) const;
+			void unexpected_branch(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) const;
 			branch_t get_handler(const std::string& prefix) const;
-			bool check_uniqueness(const std::string& prefix) const;
-			bool check_prefix(const std::string& prefix) const;
 			void make_suggestion(const CommandContext::shared_ptr& context, const std::string& wrong_subcommand) const;
 			bool replyable_context(const CommandContext::shared_ptr& context) const;
 			void reply(const CommandContext::shared_ptr& context, const std::string& message) const;
+			void print_branches_list(std::stringstream& ss) const;
 
-			branches_t m_branches;
+			Branches m_branches;
 
 			AbstractCommand::shared_ptr m_noargs_handler;
 			AbstractCommand::shared_ptr m_unexpected_command_handler;
 
-			std::string m_name;
 			mutable std::string m_commands_list;
 		};
 
-		void CommandEmbranchmentImplementation::execute(const CommandContext::shared_ptr& context, const arguments_t& arguments)
+		CommandEmbranchmentImplementation::Branches::Branches() : m_max_length(0)
+		{
+		}
+
+		void CommandEmbranchmentImplementation::Branches::add_command(const std::string& branch, const branch_t& command)
+		{
+			m_trie.add_string(branch);
+			m_handlers.emplace(branch, command);
+
+			if (m_max_length < branch.size())
+			{
+				m_max_length = branch.size();
+			}
+		}
+
+		CommandEmbranchment& CommandEmbranchmentImplementation::add_command(const std::string& branch, const branch_t& command)
+		{
+			m_branches.add_command(branch, command);
+			return *this;
+		}
+
+		CommandEmbranchment& CommandEmbranchmentImplementation::set_noargs_handler(AbstractCommand::shared_ptr command)
+		{
+			m_noargs_handler = command;
+			return *this;
+		}
+
+		commands::utils::CommandEmbranchment& CommandEmbranchmentImplementation::set_unexpected_command_handler(AbstractCommand::shared_ptr command)
+		{
+			m_unexpected_command_handler = command;
+			return *this;
+		}
+
+		CommandEmbranchment& CommandEmbranchmentImplementation::rebuild_help()
+		{
+			std::stringstream ss;
+			print_branches_list(ss);
+			set_help(ss.str());
+
+			return *this;
+		}
+
+		void CommandEmbranchmentImplementation::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
 		{
 			if (arguments.empty())
 			{
-				execution_without_arguments(context);
+				execution_without_arguments(context, path);
 				return;
 			}
 
 			const auto& subcommand = arguments.front();
+
 			const auto handler = get_handler(subcommand);
 			if (handler)
 			{
-				handler->execute(context, arguments);
+				const arguments_t new_arguments(++arguments.begin(), arguments.end());
+				arguments_t new_path = path;
+				new_path.push_back(subcommand);
+
+				handler->execute(context, new_path, new_arguments);
 			}
 			else
 			{
-				unexpected_branch(context, arguments);
+				unexpected_branch(context, path, arguments);
 			}
 		}
 
@@ -85,31 +153,16 @@ namespace commands
 
 		void CommandEmbranchmentImplementation::build_commands_list() const
 		{
-			constexpr int COMMAND_LENGTH = 12;
-
 			std::stringstream help;
-			help << std::endl << std::endl;
-
-			if (!m_name.empty())
-			{
-				help << "Аргументы команды " << m_name << ":" << std::endl << std::endl;
-			}
-
-			for (const auto& branch : m_branches)
-			{
-				help << "    " << std::setw(COMMAND_LENGTH) << branch.first
-					<< branch.second->get_help_line() << std::endl;
-			}
-			help << std::endl;
-
+			print_branches_list(help);
 			m_commands_list = help.str();
 		}
 
-		void CommandEmbranchmentImplementation::execution_without_arguments(const CommandContext::shared_ptr& context) const
+		void CommandEmbranchmentImplementation::execution_without_arguments(const CommandContext::shared_ptr& context, const arguments_t& path) const
 		{
 			if (m_noargs_handler)
 			{
-				m_noargs_handler->execute(context);
+				m_noargs_handler->execute(context, path);
 			}
 			else
 			{
@@ -117,11 +170,11 @@ namespace commands
 			}
 		}
 
-		void CommandEmbranchmentImplementation::unexpected_branch(const CommandContext::shared_ptr& context, const arguments_t& arguments) const
+		void CommandEmbranchmentImplementation::unexpected_branch(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) const
 		{
 			if (m_unexpected_command_handler)
 			{
-				m_unexpected_command_handler->execute(context, arguments);
+				m_unexpected_command_handler->execute(context, path, arguments);
 				return;
 			}
 
@@ -137,39 +190,15 @@ namespace commands
 
 		CommandEmbranchmentImplementation::branch_t CommandEmbranchmentImplementation::get_handler(const std::string& prefix) const
 		{
-			if (check_uniqueness(prefix)
-				&& check_prefix(prefix))
+			const auto range = m_branches.trie().find_by_prefix(prefix);
+			if (!range.empty()
+				&& ++range.begin() == range.end())
 			{
-				const auto lower = m_branches.lower_bound(prefix);
-				return lower->second;
+				const auto prefix = range.begin()->prefix();
+				return m_branches.handlers().at(prefix);
 			}
 
 			return nullptr;
-		}
-
-		bool CommandEmbranchmentImplementation::check_uniqueness(const std::string& prefix) const
-		{
-			const auto lower = m_branches.lower_bound(prefix + '\0');
-			const auto upper = m_branches.upper_bound(prefix + '\xff');
-			if (lower != m_branches.end()
-				&& 1 == std::distance(lower, upper))
-			{
-				return true;
-			}
-
-			return false;
-		}
-
-		bool CommandEmbranchmentImplementation::check_prefix(const std::string& prefix) const
-		{
-			const auto lower = m_branches.lower_bound(prefix);
-			if (lower != m_branches.end()
-				&& 0 == lower->first.find(prefix))
-			{
-				return true;
-			}
-
-			return false;
 		}
 
 		void CommandEmbranchmentImplementation::make_suggestion(const CommandContext::shared_ptr& context, const std::string& wrong_subcommand) const
@@ -181,12 +210,12 @@ namespace commands
 
 			std::list<std::string> suggestions;
 
-			using distances_t = std::multimap<int, const std::string*>;
+			using distances_t = std::multimap<int, std::string>;
 			distances_t command_distances;
 			for (const auto& branch : m_branches)
 			{
-				const auto distance = levenshtein(wrong_subcommand, branch.first, 0, 2, 1, 3);
-				distances_t::value_type command(distance, &branch.first);
+				const auto distance = levenshtein(wrong_subcommand, branch.prefix(), 0, 2, 1, 3);
+				distances_t::value_type command(distance, branch.prefix());
 				command_distances.insert(command);
 			}
 
@@ -194,7 +223,7 @@ namespace commands
 			while (i != command_distances.end()
 				&& suggestions.size() < SUGGESTIONS_COUNT)
 			{
-				suggestions.push_back(*i->second);
+				suggestions.push_back(i->second);
 				++i;
 			}
 
@@ -223,9 +252,95 @@ namespace commands
 			caller->reply(message);
 		}
 
-		commands::utils::CommandEmbranchment::shared_ptr CommandEmbranchment::create()
+		void CommandEmbranchmentImplementation::print_branches_list(std::stringstream& ss) const
 		{
-			return std::make_shared<CommandEmbranchmentImplementation>();
+			ss << std::endl;
+			for (const auto& branch : m_branches.trie())
+			{
+				const std::string& prefix = branch.prefix();
+				ss << "    " << std::setw(m_branches.max_length()) << prefix
+					<< " - " << m_branches.handlers().at(prefix)->get_help_line() << std::endl;
+			}
+			ss << std::endl;
+		}
+
+		CommandEmbranchment::shared_ptr CommandEmbranchment::create(const std::string& help_line/* = ""*/)
+		{
+			const auto result = std::make_shared<CommandEmbranchmentImplementation>();
+			result->set_help_line(help_line);
+			return result;
+		}
+
+		ParentialHelp::ParentialHelp(const shared_ptr& parent) : CommandWithHelp("Показать справку."), m_parent(parent)
+		{
+		}
+
+		void ParentialHelp::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+		{
+			const auto parent = std::dynamic_pointer_cast<CommandWithHelp>(m_parent);
+			if (!parent)
+			{
+				return;
+			}
+
+			const auto replyable_context = std::dynamic_pointer_cast<ReplyableContext>(context);
+			if (!replyable_context)
+			{
+				return;
+			}
+
+			if (!arguments.empty())
+			{
+				std::stringstream ss;
+				auto embranchment = std::dynamic_pointer_cast<CommandEmbranchment>(m_parent);
+				for (arguments_t::const_iterator argument = arguments.begin(); argument != arguments.end(); ++argument)
+				{
+					const char* COMMANDS_DELIMITER = " ";
+
+					const auto handler = embranchment->get_command(*argument);
+					if (!handler)
+					{
+						ss << "Invalid argument '" << *argument << "' for command '"
+							<< JoinRange<arguments_t>(path, COMMANDS_DELIMITER)
+							<< (path.empty() || argument == arguments.begin() ? "" : COMMANDS_DELIMITER)
+							<< JoinRange<arguments_t>(arguments.begin(), argument, COMMANDS_DELIMITER) << "'.";
+						break;
+					}
+
+					embranchment = std::dynamic_pointer_cast<CommandEmbranchment>(handler);
+					if (!embranchment)
+					{
+						auto next = argument;
+						if (++next == arguments.end())
+						{
+							ss << handler->get_help();
+						}
+						else
+						{
+							ss << "Command '"
+								<< JoinRange<arguments_t>(path, COMMANDS_DELIMITER)
+								<< (path.empty() || argument == arguments.begin() ? "" : COMMANDS_DELIMITER)
+								<< JoinRange<arguments_t>(arguments.begin(), argument, COMMANDS_DELIMITER) << "'."
+								<< "' doesn't have subcommand '" << *argument << "'";
+						}
+						break;
+					}
+				}
+
+				if (embranchment
+					&& embranchment.get() != parent.get())
+				{
+					replyable_context->reply(embranchment->get_help());
+				}
+				else
+				{
+					replyable_context->reply(ss.str());
+				}
+
+				return;
+			}
+
+			replyable_context->reply(parent->get_help());
 		}
 	}
 }

@@ -1,9 +1,10 @@
 #include "compact.trie.hpp"
 
+#include <set>
 #include <sstream>
 #include <algorithm>
 
-bool CompactTrie::add_string(const std::string& string)
+bool BasicCompactTrie::add_string(const std::string& string)
 {
 	const auto original_size = m_contents.size();
 
@@ -49,7 +50,7 @@ bool CompactTrie::add_string(const std::string& string)
 	return true;
 }
 
-bool CompactTrie::has_string(const std::string& string) const
+bool BasicCompactTrie::has_string(const std::string& string) const
 {
 	if (0 == string.size())
 	{
@@ -76,7 +77,7 @@ bool CompactTrie::has_string(const std::string& string) const
 	return true;
 }
 
-CompactTrie::Node::Node(const char character):
+BasicCompactTrie::Node::Node(const char character):
 	character(character),
 	has_child(false),
 	is_terminal(false),
@@ -85,7 +86,7 @@ CompactTrie::Node::Node(const char character):
 {
 }
 
-size_t CompactTrie::get_or_create_sibling(const char c, size_t offset, path_t& path)
+size_t BasicCompactTrie::get_or_create_sibling(const char c, size_t offset, path_t& path)
 {
 	while (c != m_contents[offset].character)
 	{
@@ -105,7 +106,7 @@ size_t CompactTrie::get_or_create_sibling(const char c, size_t offset, path_t& p
 	return offset;
 }
 
-size_t CompactTrie::find_sibling(const char c, size_t offset) const
+size_t BasicCompactTrie::find_sibling(const char c, size_t offset) const
 {
 	if (offset >= m_contents.size())
 	{
@@ -121,7 +122,7 @@ size_t CompactTrie::find_sibling(const char c, size_t offset) const
 	return offset;
 }
 
-const CompactTrie::Range& CompactTrie::Range::DFS_Iterator::operator*() const
+const BasicCompactTrie::Range& BasicCompactTrie::Range::DFS_Iterator::operator*() const
 {
 	if (!m_current_element)
 	{
@@ -131,14 +132,14 @@ const CompactTrie::Range& CompactTrie::Range::DFS_Iterator::operator*() const
 	return *m_current_element;
 }
 
-CompactTrie::Range::DFS_Iterator::DFS_Iterator(const Range* range) :
+BasicCompactTrie::Range::DFS_Iterator::DFS_Iterator(const Range* range) :
 	m_range(range),
 	m_current(range->m_root)
 {
 	go_to_first_leaf();
 }
 
-CompactTrie::Range::DFS_Iterator::DFS_Iterator(const Range* range, const size_t current, const bool end/* = false*/):
+BasicCompactTrie::Range::DFS_Iterator::DFS_Iterator(const Range* range, const size_t current, const bool end/* = false*/):
 	m_range(range),
 	m_current(current)
 {
@@ -148,13 +149,13 @@ CompactTrie::Range::DFS_Iterator::DFS_Iterator(const Range* range, const size_t 
 	}
 }
 
-bool CompactTrie::Range::DFS_Iterator::operator==(const DFS_Iterator& right) const
+bool BasicCompactTrie::Range::DFS_Iterator::operator==(const DFS_Iterator& right) const
 {
 	return (NO_INDEX == m_current && NO_INDEX == right.m_current)
 		|| (*m_range == *right.m_range && m_current == right.m_current);
 }
 
-CompactTrie::Range::DFS_Iterator& CompactTrie::Range::DFS_Iterator::next()
+BasicCompactTrie::Range::DFS_Iterator& BasicCompactTrie::Range::DFS_Iterator::next()
 {
 	if (NO_INDEX == m_current)	// end of range
 	{
@@ -163,7 +164,7 @@ CompactTrie::Range::DFS_Iterator& CompactTrie::Range::DFS_Iterator::next()
 
 	m_current_element.reset();
 
-	const CompactTrie& trie = *m_range->m_trie;
+	const BasicCompactTrie& trie = *m_range->m_trie;
 	bool end_of_whole_trie = false;
 	do
 	{
@@ -193,9 +194,9 @@ CompactTrie::Range::DFS_Iterator& CompactTrie::Range::DFS_Iterator::next()
 	return *this;
 }
 
-void CompactTrie::Range::DFS_Iterator::go_to_first_leaf()
+void BasicCompactTrie::Range::DFS_Iterator::go_to_first_leaf()
 {
-	const CompactTrie& trie = *m_range->m_trie;
+	const BasicCompactTrie& trie = *m_range->m_trie;
 
 	if (m_current >= trie.m_contents.size())	// end of trie
 	{
@@ -221,7 +222,7 @@ void CompactTrie::Range::DFS_Iterator::go_to_first_leaf()
 	}
 }
 
-bool CompactTrie::Range::DFS_Iterator::go_to_child()
+bool BasicCompactTrie::Range::DFS_Iterator::go_to_child()
 {
 	const size_t pos = m_current;
 
@@ -234,14 +235,14 @@ bool CompactTrie::Range::DFS_Iterator::go_to_child()
 	return result;
 }
 
-bool CompactTrie::Range::DFS_Iterator::go_to_sibling()
+bool BasicCompactTrie::Range::DFS_Iterator::go_to_sibling()
 {
 	return m_range->go_to_sibling(m_current);
 }
 
-bool CompactTrie::Range::DFS_Iterator::go_to_parent()
+bool BasicCompactTrie::Range::DFS_Iterator::go_to_parent()
 {
-	const CompactTrie& trie = *m_range->m_trie;
+	const BasicCompactTrie& trie = *m_range->m_trie;
 
 	if (!m_path.empty())
 	{
@@ -253,7 +254,7 @@ bool CompactTrie::Range::DFS_Iterator::go_to_parent()
 	return false;
 }
 
-void CompactTrie::Range::DFS_Iterator::build_current() const
+void BasicCompactTrie::Range::DFS_Iterator::build_current() const
 {
 	std::stringstream ss;
 	if (NO_INDEX != m_current)
@@ -269,7 +270,7 @@ void CompactTrie::Range::DFS_Iterator::build_current() const
 	m_current_element.reset(new Range(m_range->m_trie, m_current, ss.str()));
 }
 
-CompactTrie::Range CompactTrie::Range::find(const std::string& relative_prefix) const
+BasicCompactTrie::Range BasicCompactTrie::Range::find(const std::string& relative_prefix) const
 {
 	if (0 == relative_prefix.size())	// empty prefix case
 	{
@@ -295,23 +296,23 @@ CompactTrie::Range CompactTrie::Range::find(const std::string& relative_prefix) 
 		if (NO_INDEX == current)
 		{
 			// next sibling not found
-			return std::move(Range(m_trie, parent, m_prefix + relative_prefix.substr(0, pos)));
+			return std::move(Range(m_trie, NO_INDEX));
 		}
 		
 		++pos;
 		if (pos == relative_prefix.size())
 		{
-			// reached end of prefix and NO_INDEX != current	
+			// reached end of prefix and NO_INDEX != current
 			return std::move(Range(m_trie, current, m_prefix + relative_prefix));
 		}
 
 		parent = current;
 	} while (go_to_child(current));
 
-	return std::move(Range(m_trie, current, m_prefix + relative_prefix.substr(0, pos)));	// couldn't find child
+	return std::move(Range(m_trie, NO_INDEX));	// couldn't find child
 }
 
-bool CompactTrie::Range::go_to_child(size_t& node) const
+bool BasicCompactTrie::Range::go_to_child(size_t& node) const
 {
 	if (m_trie->m_contents[node].has_child)
 	{
@@ -322,17 +323,43 @@ bool CompactTrie::Range::go_to_child(size_t& node) const
 	return false;
 }
 
-bool CompactTrie::Range::go_to_sibling(size_t& current) const
+bool BasicCompactTrie::Range::go_to_sibling(size_t& current) const
 {
 	const Node& node = m_trie->m_contents[current];
 
-	if (NO_INDEX != node.next_sibling_index)
+	current = node.next_sibling_index;
+	if (NO_INDEX != current)
 	{
-		current = node.next_sibling_index;
 		return true;
 	}
 
 	return false;
+}
+
+bool CompactTrie::add_string(const std::string& string)
+{
+	if (BasicCompactTrie::add_string(string))
+	{
+		return true;
+	}
+
+	std::set<std::string> contents;
+	for (const auto& item : *this)
+	{
+		contents.insert(item.prefix());
+	}
+	contents.insert(string);
+
+	clear();
+	for (const auto& item : contents)
+	{
+		if (!BasicCompactTrie::add_string(item))
+		{
+			throw std::runtime_error("Failed to insert new item into compact trie even using lexical order.");
+		}
+	}
+
+	return true;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

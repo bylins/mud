@@ -1617,16 +1617,56 @@ void StringReplace(std::string& buffer, char s, const std::string& d);
 std::string& format_news_message(std::string &text);
 
 template <typename T>
-void joinList(const T& list, std::string& result, const std::string& delimiter = ", ")
+class JoinRange
+{
+public:
+	JoinRange(const T& container, const std::string& delimiter = ", ") :
+		m_begin(container.begin()),
+		m_end(container.end()),
+		m_delimiter(delimiter)
+	{
+	}
+
+	JoinRange(const typename T::const_iterator& begin, const typename T::const_iterator& end, const std::string& delimiter = ", "):
+		m_begin(begin),
+		m_end(end),
+		m_delimiter(delimiter)
+	{
+	}
+
+	std::ostream& output(std::ostream& os) const
+	{
+		bool first = true;
+		for (auto i = m_begin; i != m_end; ++i)
+		{
+			os << (first ? "" : m_delimiter) << *i;
+			first = false;
+		}
+
+		return os;
+	}
+
+private:
+	typename T::const_iterator m_begin;
+	typename T::const_iterator m_end;
+	std::string m_delimiter;
+};
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const JoinRange<T>& range_printer) { return range_printer.output(os); }
+
+template <typename T>
+void joinRange(const typename T::const_iterator& begin, const typename T::const_iterator& end, std::string& result, const std::string& delimiter = ", ")
 {
 	std::stringstream ss;
-	bool first = true;
-	for (const auto& i : list)
-	{
-		ss << (first ? "" : delimiter) << i;
-		first = false;
-	}
+	ss << JoinRange<T>(begin, end, delimiter);
 	result = ss.str();
+}
+
+template <typename T>
+void joinList(const T& list, std::string& result, const std::string& delimiter = ", ")
+{
+	joinRange<T>(list.begin(), list.end(), result, delimiter);
 }
 
 #endif // _UTILS_H_

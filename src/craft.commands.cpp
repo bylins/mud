@@ -49,219 +49,6 @@ namespace craft
 			return result;
 		}
 
-		void list_skills(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Listing craft skills...\nArguments: '%s'\nCount:%d\n", arguments, model.skills().size());
-
-			size_t counter = 0;
-			for (const auto& s : model.skills())
-			{
-				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, s.id().c_str());
-			}
-		}
-
-		void list_recipes(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Listing craft recipes...\nArguments: '%s'\nCount:%d\n", arguments, model.recipes().size());
-
-			size_t counter = 0;
-			for (const auto& r : model.recipes())
-			{
-				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, r.id().c_str());
-			}
-		}
-
-		void list_prototypes(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Listing craft prototypes...\nArguments: '%s'\nCount: %d\n", arguments, model.prototypes().size());
-
-			size_t counter = 0;
-			for (const auto& p : model.prototypes())
-			{
-				++counter;
-				send_to_char(ch, "%2d. %s\n", counter, p->get_short_description().c_str());
-			}
-		}
-
-		void list_properties(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Craft properties...\nArguments: '%s'\n", arguments);
-			send_to_char(ch, "Base count:              &W%4d&n crafts\n", model.base_count());
-			send_to_char(ch, "Remorts for count bonus: &W%4d&n remorts\n", model.remort_for_count_bonus());
-			send_to_char(ch, "Base top:                &W%4d&n percents\n", model.base_top());
-			send_to_char(ch, "Remorts bonus:           &W%4d&n percent\n", model.remorts_bonus());
-		}
-
-		void list_materials(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			send_to_char(ch, "Craft materials...\nArguments: '%s'\n", arguments);
-			size_t number = 0;
-			const size_t size = model.materials().size();
-
-			if (0 == size)
-			{
-				send_to_char(ch, "No materials loaded.\n");
-			}
-
-			for (const auto& material : model.materials())
-			{
-				++number;
-				const size_t classes_count = material.classes().size();
-				send_to_char(ch, " &W%d. %s&n (&Y%s&n)%s\n",
-					number,
-					material.get_name().c_str(),
-					material.id().c_str(),
-					(0 == classes_count ? " <&Rmaterial does not have classes&n>" : ":"));
-				size_t class_number = 0;
-				for (const auto& material_class : material.classes())
-				{
-					++class_number;
-					send_to_char(ch, "   &g%d. %s&n (&B%s&n)\n",
-						class_number,
-						material_class.name().c_str(),
-						material_class.id().c_str());
-				}
-			}
-		}
-
-		using subcommand_handler_t = void(*)(CHAR_DATA *, char*, void*);
-		using subcommands_t = std::map<std::string, subcommand_handler_t>;
-
-		class CSubcommands
-		{
-		public:
-			enum EProcessResult
-			{
-				EPR_PROCESSED,		///< Subcommand has been successfully processed
-				EPR_UNKNOWN,		///< Unknown subcommand has been provided
-				EPR_NO_SUBCOMMAND,	///< No subcommand has been provided
-				EPR_WRONG_ARGUMENT	///< Logic error: passed #argument has nullptr value
-			};
-
-			static EProcessResult process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* data);
-		};
-
-		CSubcommands::EProcessResult CSubcommands::process(const subcommands_t& subcommands_table, CHAR_DATA* ch, char*arguments, void* /*data*/)
-		{
-			if (!arguments)
-			{
-				logger("SYSERROR: argument passed into %s:%d is NULL.", __FILE__, __LINE__);
-				send_to_char(ch, "Something went wrong... Send bug report, please. :(\n");
-
-				return EPR_WRONG_ARGUMENT;
-			}
-
-			const char* subcommand = first_argument(arguments);
-			if (!*subcommand)
-			{
-				return EPR_NO_SUBCOMMAND;
-			}
-
-			subcommands_t::const_iterator i = subcommands_table.lower_bound(subcommand);
-
-			if (i != subcommands_table.end()
-				&& i->first.c_str() == strstr(i->first.c_str(), subcommand))
-			{
-				// found subcommand handler
-				i->second(ch, arguments, nullptr);
-				return EPR_PROCESSED;
-			}
-
-			return EPR_UNKNOWN;
-		}
-
-		void do_craft_list(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			static subcommands_t subcommands =
-			{
-				{ "properties", cmd::list_properties },
-				{ "prototypes", cmd::list_prototypes },
-				{ "recipes", cmd::list_recipes },
-				{ "skills", cmd::list_skills },
-				{ "materials", cmd::list_materials }
-			};
-
-			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
-			switch (result)
-			{
-			case CSubcommands::EPR_NO_SUBCOMMAND:
-				{
-					send_to_char(ch, "Listing crafts...\nArguments: '%s'\nCount:%d\n", arguments, model.crafts().size());
-
-					size_t counter = 0;
-					for (const auto& c : model.crafts())
-					{
-						++counter;
-						send_to_char(ch, "%2d. %s\n", counter, c.id().c_str());
-					}
-				}
-				break;
-
-			case CSubcommands::EPR_PROCESSED:
-				break;
-
-			default:
-				send_to_char(ch, "Wrong syntax of the '&glist&n' subcommand.\n");
-			}
-		}
-
-		void do_craft_export_prototype(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			const auto vnum_str = first_argument(arguments);
-			obj_vnum vnum = 0;
-			try
-			{
-				CHelper::load_integer(vnum_str, vnum,
-					[&]() { throw std::runtime_error("wrong VNUM value"); });
-			}
-			catch (...)
-			{
-				send_to_char(ch, "Could not convert prototype VNUM value '%s' to integer number.\n", vnum_str);
-				return;
-			}
-
-			const auto filename = first_argument(arguments);
-			if (!*filename)
-			{
-				send_to_char(ch, "File name to export is not specified.");
-				return;
-			}
-
-			if (!model.export_object(vnum, filename))
-			{
-				send_to_char(ch, "Failed to export prototype.");
-			}
-			else
-			{
-				send_to_char(ch, "Prototype with VNUM %d successfully exported into file '%s'.", vnum, filename);
-			}
-		}
-
-		void do_craft_export(CHAR_DATA* ch, char* arguments, void* /*data*/)
-		{
-			static subcommands_t subcommands =
-			{
-				{ "prototype", do_craft_export_prototype }
-			};
-
-			const auto result = CSubcommands::process(subcommands, ch, arguments, nullptr);
-			switch (result)
-			{
-			case CSubcommands::EPR_NO_SUBCOMMAND:
-				send_to_char(ch, "Usage: craft export prototype <vnum> <filename>\n");
-				break;
-
-			case CSubcommands::EPR_PROCESSED:
-				break;
-
-			default:
-				send_to_char(ch, "Wrong syntax of the '&gexport&n' subcommand.\n");
-				send_to_char(ch, "Usage: craft export prototype <vnum> <filename>\n");
-			}
-		}
-
 		using namespace commands::utils;
 
 		class CraftContext : public ReplyableContext
@@ -306,12 +93,12 @@ namespace craft
 		public:
 			using shared_ptr = std::shared_ptr<ExportPrototype>;
 
-			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& arguments) override;
+			ExportPrototype() { set_help_line("Allows to export prototype into XML file."); }
 
-			static auto create() { return std::make_shared<ExportPrototype>(); }
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 		};
 
-		void ExportPrototype::execute(const CommandContext::shared_ptr& context, const arguments_t& arguments)
+		void ExportPrototype::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
 		{
 			if (2 != arguments.size())
 			{
@@ -324,8 +111,7 @@ namespace craft
 			obj_vnum vnum = 0;
 			try
 			{
-				CHelper::load_integer(vnum_str, vnum,
-					[&]() { throw std::runtime_error("wrong VNUM value"); });
+				CHelper::load_integer(vnum_str, vnum, [&]() { throw std::runtime_error("wrong VNUM value"); });
 			}
 			catch (...)
 			{
@@ -355,18 +141,147 @@ namespace craft
 			}
 		}
 
+		// "craft list skills" command leaf
+		class ListSkills : public CommonCraftCommand
+		{
+		public:
+			using shared_ptr = std::shared_ptr<ListSkills>;
+
+			ListSkills() { set_help_line("Shows skills registered in the craft system."); }
+
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
+		};
+
+		void ListSkills::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+		{
+			std::stringstream ss;
+
+			ss << "Listing craft skills..." << std::endl
+				<< "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << std::endl
+				<< "Count: " << model.skills().size() << std::endl;
+
+			size_t counter = 0;
+			for (const auto& s : model.skills())
+			{
+				++counter;
+				ss << std::setw(2) << counter << ". " << s.id() << std::endl;
+			}
+
+			send(context, ss.str());
+		}
+
+		// "craft list materials" command leaf
+		class ListMaterials : public CommonCraftCommand
+		{
+		public:
+			using shared_ptr = std::shared_ptr<ListMaterials>;
+
+			ListMaterials() { set_help_line("Shows materials registered in the craft system."); }
+
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
+		};
+
+		void ListMaterials::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+		{
+			std::stringstream ss;
+
+			ss << "Craft materials..." << std::endl
+				<< "Arguments: '" << JoinRange<arguments_t>(arguments) << "'" << std::endl;
+			size_t number = 0;
+			const size_t size = model.materials().size();
+
+			if (0 == size)
+			{
+				ss << "No materials loaded." << std::endl;
+			}
+
+			for (const auto& material : model.materials())
+			{
+				++number;
+				const size_t classes_count = material.classes().size();
+				ss << " &W" << number << ". " << material.get_name() << "&n (&Y" << material.id() << "&n)"
+					<< (0 == classes_count ? " <&Rmaterial does not have classes&n>" : ":") << std::endl;
+				size_t class_number = 0;
+				for (const auto& material_class : material.classes())
+				{
+					++class_number;
+					ss << "   &g" << class_number << ". " << material_class.name() << "&n (&B"
+						<< material_class.id() << "&n)" << std::endl;
+				}
+			}
+
+			send(context, ss.str());
+		}
+
+		// "craft list recipes" command leaf
+		class ListRecipes : public CommonCraftCommand
+		{
+		public:
+			using shared_ptr = std::shared_ptr<ListRecipes>;
+
+			ListRecipes() { set_help_line("Shows recipes registered in the craft system."); }
+
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
+		};
+
+		void ListRecipes::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+		{
+			std::stringstream ss;
+
+			ss << "Listing craft recipes..." << std::endl
+				<< "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << std::endl
+				<< "Count: " << model.recipes().size() << std::endl;
+
+			size_t counter = 0;
+			for (const auto& r : model.recipes())
+			{
+				++counter;
+				ss << std::setw(2) << counter << ". " << r.id() << std::endl;
+			}
+
+			send(context, ss.str());
+		}
+
+		// "craft list prototypes" command leaf
+		class ListPrototypes : public CommonCraftCommand
+		{
+		public:
+			using shared_ptr = std::shared_ptr<ListPrototypes>;
+
+			ListPrototypes() { set_help_line("Shows prototypes registered in the craft system."); }
+
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
+		};
+
+		void ListPrototypes::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+		{
+			std::stringstream ss;
+			ss << "Listing craft prototypes..." << std::endl
+				<< "Arguments: '" << JoinRange<arguments_t>(arguments) << '\'' << std::endl
+				<< "Count: " << model.prototypes().size() << std::endl;
+
+			size_t counter = 0;
+			for (const auto& p : model.prototypes())
+			{
+				++counter;
+				ss << std::setw(2) << counter << ". " << p->get_short_description() << std::endl;
+			}
+
+			send(context, ss.str());
+		}
+
 		// "craft list properties" command leaf
 		class ListProperties : public CommonCraftCommand
 		{
 		public:
 			using shared_ptr = std::shared_ptr<ListProperties>;
 
-			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& arguments) override;
+			ListProperties() { set_help_line("Shows craft system properties."); }
 
-			static auto create() { return std::make_shared<ListProperties>(); }
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 		};
 
-		void ListProperties::execute(const CommandContext::shared_ptr& context, const arguments_t& arguments)
+		void ListProperties::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
 		{
 			std::stringstream ss;
 			std::string arguments_string;
@@ -385,12 +300,12 @@ namespace craft
 		public:
 			using shared_ptr = std::shared_ptr<Root>;
 
-			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& arguments) override;
+			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 
 			static auto create() { return std::make_shared<Root>(); }
 		};
 
-		void Root::execute(const CommandContext::shared_ptr& context, const arguments_t& arguments)
+		void Root::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
 		{
 			send(context, "Crafting something... :)\n");
 		}
@@ -408,22 +323,24 @@ namespace craft
 		void CommandsHandlerImplementation::initialize()
 		{
 			m_command = CommandEmbranchment::create();
-			m_command->set_name("craft");
-			m_command->set_noargs_handler(Root::create());
+			const auto export_command = CommandEmbranchment::create("Allows to export craft objects.");
+			export_command->add_command("prototype", std::make_shared<ExportPrototype>())
+				.rebuild_help();
 
-			const auto list_command = CommandEmbranchment::create();
-			//list_command->add_command("properties", ListProperties::create());
-			list_command->set_name("craft list");
-			m_command->add_command("list1", list_command);
-			m_command->add_command("list2", list_command);
-			m_command->add_command("list3", list_command);
-			m_command->add_command("list31", list_command);
-			m_command->add_command("list32", list_command);
+			const auto list_command = CommandEmbranchment::create("Shows various properties of the craft system.");
+			list_command->add_command("properties", std::make_shared<ListProperties>())
+				.add_command("prototypes", std::make_shared<ListPrototypes>())
+				.add_command("recipes", std::make_shared<ListRecipes>())
+				.add_command("skills", std::make_shared<ListSkills>())
+				.add_command("materials", std::make_shared<ListMaterials>())
+				.add_command("help", std::make_shared<ParentialHelp>(list_command))
+				.rebuild_help();
 
-			const auto export_command = CommandEmbranchment::create();
-			list_command->set_name("craft prototype");
-			//export_command->add_command("prototype", ExportPrototype::create());
-			m_command->add_command("export", export_command);
+			m_command->set_noargs_handler(Root::create())
+				.add_command("export", export_command)
+				.add_command("list", list_command)
+				.add_command("help", std::make_shared<ParentialHelp>(m_command))
+				.rebuild_help();
 		}
 
 		void CommandsHandlerImplementation::process(CHAR_DATA* character, char* arguments)
@@ -438,7 +355,7 @@ namespace craft
 				}
 			}
 			const auto context = CraftContext::create(character);
-			m_command->execute(context, arguments_list);
+			m_command->execute(context, { craft::cmd::CRAFT_COMMAND }, arguments_list);
 		}
 
 		CommandsHandler::shared_ptr CommandsHandler::create()

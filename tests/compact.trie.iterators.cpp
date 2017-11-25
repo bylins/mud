@@ -12,7 +12,7 @@ protected:
 
 	void check(strings_t strings);
 
-	CompactTrie trie;
+	BasicCompactTrie trie;
 };
 
 void CompactTrieIterators::check(strings_t strings)

@@ -5,7 +5,7 @@
 class CompactTrieBasics: public ::testing::Test
 {
 protected:
-	CompactTrie trie;
+	BasicCompactTrie trie;
 };
 
 TEST_F(CompactTrieBasics, EmptyTrie)
@@ -116,6 +116,32 @@ TEST_F(CompactTrieBasics, AllChars)
 	}
 
 	EXPECT_EQ(CHARS_NUMBER, trie.size());
+}
+
+class CompactTrieF : public ::testing::Test
+{
+protected:
+	CompactTrie trie;
+};
+
+TEST_F(CompactTrieF, Order)
+{
+	const std::string str111 = "111";
+	const std::string str12 = "12";
+	const std::string str112 = "112";
+	const std::string str123 = "123";
+
+	EXPECT_TRUE(trie.add_string(str111));
+	EXPECT_TRUE(trie.add_string(str12));
+	EXPECT_TRUE(trie.add_string(str112));
+	EXPECT_TRUE(trie.add_string(str123));
+
+	EXPECT_TRUE(trie.has_string(str111));
+	EXPECT_TRUE(trie.has_string(str12));
+	EXPECT_TRUE(trie.has_string(str112));
+	EXPECT_TRUE(trie.has_string(str123));
+
+	EXPECT_EQ(4, trie.size());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
