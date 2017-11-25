@@ -1130,7 +1130,7 @@ void DESCRIPTOR_DATA::msdp_support(bool on)
 
 void DESCRIPTOR_DATA::msdp_report(const std::string& name)
 {
-	if (msdp_need_report(name))
+	if (m_msdp_support && msdp_need_report(name))
 	{
 		msdp::report(this, name);
 	}

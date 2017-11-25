@@ -39,6 +39,7 @@
 #include "olc.h"
 #include "logger.hpp"
 #include "utils.h"
+#include "msdp.constants.hpp"
 
 // Structures
 CHAR_DATA *combat_list = NULL;	// head of l-list of fighting chars
@@ -2238,6 +2239,10 @@ void perform_violence()
 	{
 		next_combat_list = ch->next_fighting;
 
+		// покажем группу по msdp
+		// проверка на поддержку протокола есть в методе msdp_report
+		if (ch->desc)
+			ch->desc->msdp_report(msdp::constants::GROUP);
 		if (!stuff_before_round(ch))
 			continue;
 

@@ -3,6 +3,7 @@
 #include "char.hpp"
 #include "constants.h"
 #include "db.h"
+#include "magic.h"
 #include "utils.h"
 #include "structs.h"
 #include "telnet.h"
@@ -13,6 +14,9 @@
 #include <deque>
 #include <unordered_map>
 #include <memory>
+
+int posi_value(int real, int max);
+int low_charm(CHAR_DATA * ch);
 
 namespace msdp
 {
@@ -248,7 +252,110 @@ namespace msdp
 		response = std::make_shared<Variable>(constants::STATE, state);
 	}
 
-	class ReporterFactory
+	class GroupReporter : public DescriptorBasedReporter
+	{
+		void output_char(std::shared_ptr<ArrayValue> array, CHAR_DATA * ch, CHAR_DATA * k, bool leader);
+	public:
+		GroupReporter(const DESCRIPTOR_DATA* descriptor) : DescriptorBasedReporter(descriptor) {}
+
+		virtual void get(Variable::shared_ptr& response) override;
+
+		static shared_ptr create(const DESCRIPTOR_DATA* descriptor) { return std::make_shared<GroupReporter>(descriptor); }
+	};
+
+	void GroupReporter::output_char(std::shared_ptr<ArrayValue> array, CHAR_DATA * ch, CHAR_DATA * k, bool leader)
+	{
+		if (PRF_FLAGGED(ch, PRF_NOCLONES) && IS_NPC(k)
+		&& (MOB_FLAGGED(k, MOB_CLONE)
+			|| GET_MOB_VNUM(k) == MOB_KEEPER))
+			return;
+		const auto member = std::make_shared<ArrayValue>();
+		char buf[MAX_INPUT_LENGTH];
+		buf[0] = 0;
+		descriptor()->string_to_client_encoding(GET_NAME(k), buf);
+		member->add(std::make_shared<StringValue>(buf));
+		member->add(std::make_shared<StringValue>(std::to_string(posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) * 10)));
+		member->add(std::make_shared<StringValue>(std::to_string(posi_value(GET_MOVE(k), GET_REAL_MAX_MOVE(k)) * 10)));
+		member->add(std::make_shared<StringValue>(std::to_string(int(ch->in_room == IN_ROOM(k)))));
+		int mem = 0, div = 0;
+		if (!IS_NPC(k) && ((!IS_MANA_CASTER(k) && !MEMQUEUE_EMPTY(k)) ||
+				(IS_MANA_CASTER(k) && GET_MANA_STORED(k) < GET_MAX_MANA(k))))
+		{
+			div = mana_gain(k);
+			if (div > 0)
+			{
+				if (!IS_MANA_CASTER(k))
+				{
+					mem = MAX(0, 1 + GET_MEM_TOTAL(k) - GET_MEM_COMPLETED(k));
+					mem = mem * 60 / div;
+				}
+				else
+				{
+					mem = MAX(0, 1 + GET_MAX_MANA(k) - GET_MANA_STORED(k));
+					mem = mem / div;
+				}
+			}
+			else
+				mem = -1;
+		}
+		member->add(std::make_shared<StringValue>(std::to_string(mem)));
+		std::string affects;
+		affects += AFF_FLAGGED(k, EAffectFlag::AFF_SANCTUARY) ? "ï" : (AFF_FLAGGED(k, EAffectFlag::AFF_PRISMATICAURA) ? "ð" : "");
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_WATERBREATH))
+			affects += "ä";
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_INVISIBLE))
+			affects += "î";
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
+						|| AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
+						|| (GET_EQ(k, WEAR_LIGHT)
+							&& GET_OBJ_VAL(GET_EQ(k, WEAR_LIGHT), 2)))
+			affects += "ó";
+		if (AFF_FLAGGED(k, EAffectFlag::AFF_FLY))
+			affects += "ì";
+		if (!IS_NPC(k) && on_horse(k))
+			affects += "÷";
+		if (IS_NPC(k) && low_charm(k))
+			affects += "ô";
+		descriptor()->string_to_client_encoding(affects.c_str(), buf);
+		member->add(std::make_shared<StringValue>(buf));
+		member->add(std::make_shared<StringValue>(std::string(leader ? "leader" : (IS_NPC(k) ? "npc": "pc"))));
+		char buf2[MAX_INPUT_LENGTH];
+		sprinttype(GET_POS(k), position_types, buf2);
+		descriptor()->string_to_client_encoding(buf2, buf);
+		member->add(std::make_shared<StringValue>(buf));
+		array->add(member);
+	}
+
+	void GroupReporter::get(Variable::shared_ptr& response)
+	{
+		// format: array of arrays of [name, hit_percent, move_percent,
+		// is_here (1|0), mem_time, affects, role (leader/pc/npc), pos]
+		const auto group_descriptor = std::make_shared<ArrayValue>();
+		const auto ch = descriptor()->character.get();
+		const auto master = ch->has_master() ? ch->get_master() : ch;
+		output_char(group_descriptor, ch, master, true);
+		for (auto f = master->followers; f; f = f->next)
+		{
+	if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) &&
+		!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
+			|| MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST)))
+				continue;
+			output_char(group_descriptor, ch, f->follower, false);
+			// followers of a follower
+			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
+				continue;
+			for (auto ff = f->follower->followers; ff; ff = ff->next)
+			{
+				if (!(AFF_FLAGGED(ff->follower, EAffectFlag::AFF_CHARM)
+					|| MOB_FLAGGED(ff->follower, MOB_ANGEL) || MOB_FLAGGED(ff->follower, MOB_GHOST)))
+					continue;
+				output_char(group_descriptor, ch, ff->follower, false);
+			}
+		}
+		response = std::make_shared<Variable>(constants::GROUP, group_descriptor);
+	}
+
+class ReporterFactory
 	{
 	public:
 		static AbstractReporter::shared_ptr create(const DESCRIPTOR_DATA* descriptor, const std::string& name);
@@ -288,7 +395,8 @@ namespace msdp
 		{ constants::LEVEL, std::bind(LevelReporter::create, std::placeholders::_1) },
 		{ constants::MAX_HIT, std::bind(MaxHitReporter::create, std::placeholders::_1) },
 		{ constants::MAX_MOVE, std::bind(MaxMoveReporter::create, std::placeholders::_1) },
-		{ constants::STATE, std::bind(StateReporter::create, std::placeholders::_1) }
+		{ constants::STATE, std::bind(StateReporter::create, std::placeholders::_1) },
+		{ constants::GROUP, std::bind(GroupReporter::create, std::placeholders::_1) }
 	};
 
 	const ArrayValue::array_t ReporterFactory::REPORTABLE_VARIABLES_ARRAY =
@@ -299,7 +407,8 @@ namespace msdp
 		std::make_shared<StringValue>(constants::LEVEL),
 		std::make_shared<StringValue>(constants::MAX_HIT),
 		std::make_shared<StringValue>(constants::MAX_MOVE),
-		std::make_shared<StringValue>(constants::STATE)
+		std::make_shared<StringValue>(constants::STATE),
+		std::make_shared<StringValue>(constants::GROUP)
 	};
 	const Value::shared_ptr ReporterFactory::REPORTABLE_VARIABLES_VALUE = std::make_shared<ArrayValue>(ReporterFactory::REPORTABLE_VARIABLES_ARRAY);
 	const Variable::shared_ptr ReporterFactory::REPORTABLE_VARIABLES = std::make_shared<Variable>("REPORTABLE_VARIABLES", ReporterFactory::REPORTABLE_VARIABLES_VALUE);

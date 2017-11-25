@@ -127,12 +127,12 @@ namespace msdp
 		ArrayValue() : m_size(3) {}	// 3 - MSDP_VAL MSDP_ARRAY_OPEN ... MSDP_ARRAY_CLOSE
 		ArrayValue(const array_t& array);
 
-		virtual EValueType type() const override { return EVT_TABLE; }
+		virtual EValueType type() const override { return EVT_ARRAY; }
 		virtual size_t required_size() const override { return m_size; }
 		virtual size_t serialize(char* buffer, size_t size) const override;
 		virtual void dump(const size_t level = 0) const override;
 
-		void add(const shared_ptr& value) { m_data.push_back(value); }
+		void add(const shared_ptr& value) { m_data.push_back(value); m_size += value->required_size();}
 
 	private:
 		std::list<shared_ptr> m_data;

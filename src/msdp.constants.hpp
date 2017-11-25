@@ -14,6 +14,7 @@ namespace msdp
 		const std::string MAX_HIT = "MAX_HIT";
 		const std::string MAX_MOVE = "MAX_MOVE";
 		const std::string STATE = "STATE";
+		const std::string GROUP = "GROUP";
 	}
 }
 
