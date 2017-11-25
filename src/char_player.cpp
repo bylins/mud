@@ -935,6 +935,7 @@ void Player::save_char()
 		if(player_table[i].mail)
 			free(player_table[i].mail);
 		player_table[i].mail = str_dup(GET_EMAIL(this));
+		player_table[i].unique = GET_UNIQUE(this);
 		//end by WorM
 	}
 }
