@@ -101,7 +101,7 @@ namespace commands
 			return *this;
 		}
 
-		commands::utils::CommandEmbranchment& CommandEmbranchmentImplementation::set_unexpected_command_handler(AbstractCommand::shared_ptr command)
+		CommandEmbranchment& CommandEmbranchmentImplementation::set_unexpected_command_handler(AbstractCommand::shared_ptr command)
 		{
 			m_unexpected_command_handler = command;
 			return *this;
@@ -271,11 +271,11 @@ namespace commands
 			return result;
 		}
 
-		ParentialHelp::ParentialHelp(const shared_ptr& parent) : CommandWithHelp("Показать справку."), m_parent(parent)
+		ParentalHelp::ParentalHelp(const shared_ptr& parent) : CommandWithHelp("Показать справку."), m_parent(parent)
 		{
 		}
 
-		void ParentialHelp::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+		void ParentalHelp::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
 		{
 			const auto parent = std::dynamic_pointer_cast<CommandWithHelp>(m_parent);
 			if (!parent)

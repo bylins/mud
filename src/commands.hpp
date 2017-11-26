@@ -89,10 +89,10 @@ namespace commands
 			static shared_ptr create(const std::string& help_line = "");
 		};
 
-		class ParentialHelp : public CommandWithHelp
+		class ParentalHelp : public CommandWithHelp
 		{
 		public:
-			ParentialHelp(const shared_ptr& parent);
+			ParentalHelp(const shared_ptr& parent);
 
 			virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 

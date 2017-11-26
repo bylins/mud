@@ -41,10 +41,6 @@ set(SOURCES
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
-	src/craft.commands.cpp
-	src/craft.cpp
-	src/craft.logger.cpp
-	src/craft.static.cpp
 	src/db.cpp
 	src/deathtrap.cpp
 	src/depot.cpp
@@ -201,10 +197,6 @@ set(HEADERS
 	src/constants.h
 	src/coredump.hpp
 	src/corpse.hpp
-	src/craft.commands.hpp
-	src/craft.hpp
-	src/craft.logger.hpp
-	src/craft.static.hpp
 	src/db.h
 	src/deathtrap.hpp
 	src/depot.hpp
@@ -422,20 +414,44 @@ set(CRAFT_MATERIAL_FILES
 	lib.template/misc/craft/tough_leather.xml
 	lib.template/misc/craft/soft_leather.xml
 	lib.template/misc/craft/inwrought_flax.xml)
+set(CRAFT_RECIPE_FILES
+	lib.template/misc/craft/recipe1.xml)
 set(CRAFT_CRAFT_FILES
 	lib.template/misc/craft/craft1.xml)
 set(CRAFT_TEMPLATE_FILES
 	lib.template/misc/craft/material_template.xml
-	lib.template/misc/craft/prototype_template.xml)
+	lib.template/misc/craft/prototype_template.xml
+	lib.template/misc/craft/recipe_template.xml)
 set(CRAFT_PROTOTYPES)
+set(CRAFT_SOURCE_FILES
+	src/craft.commands.cpp
+	src/craft.cpp
+	src/craft.logger.cpp
+	src/craft.static.cpp)
+set(CRAFT_HEADER_FILES
+	src/craft.commands.hpp
+	src/craft.hpp
+	src/craft.logger.hpp
+	src/craft.static.hpp)
 
-source_group("Misc\\Craft" FILES ${CRAFT_GENERAL_FILES})
-source_group("Misc\\Craft\\Includes\\Tailoring" FILES ${CRAFT_TAILORING_FILES})
-source_group("Misc\\Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
-source_group("Misc\\Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
-source_group("Misc\\Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
+source_group("Craft\\Configuration" FILES ${CRAFT_GENERAL_FILES})
+source_group("Craft\\Configuration\\Tailoring" FILES ${CRAFT_TAILORING_FILES})
+source_group("Craft\\Configuration\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
+source_group("Craft\\Configuration\\Materials" FILES ${CRAFT_MATERIAL_FILES})
+source_group("Craft\\Configuration\\Recipes" FILES ${CRAFT_RECIPE_FILES})
+source_group("Craft\\Configuration\\Crafts" FILES ${CRAFT_CRAFT_FILES})
+source_group("Craft\\Source files" FILES ${CRAFT_SOURCE_FILES})
+source_group("Craft\\Header files" FILES ${CRAFT_HEADER_FILES})
 
-set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_TAILORING_FILES} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
+set(CRAFT_FILES
+	${CRAFT_GENERAL_FILES}
+	${CRAFT_TAILORING_FILES}
+	${CRAFT_MATERIAL_FILES}
+	${CRAFT_RECIPE_FILES}
+	${CRAFT_CRAFT_FILES}
+	${CRAFT_TEMPLATE_FILES}
+	${CRAFT_SOURCE_FILES}
+	${CRAFT_HEADER_FILES})
 
 set(MISC_FILES
 	lib.template/misc/noob_help.xml

@@ -68,7 +68,7 @@ namespace craft
 
 	const std::string CCraftModel::FILE_NAME = LIB_MISC_CRAFT "index.xml";
 
-	bool CCases::load_from_node(const pugi::xml_node* node)
+	bool Cases::load_from_node(const pugi::xml_node* node)
 	{
 		for (int c = 0; c < CASES_COUNT; ++c)
 		{
@@ -96,7 +96,7 @@ namespace craft
 		return true;
 	}
 
-	void CCases::load_from_object(const CObjectPrototype::shared_ptr& object)
+	void Cases::load_from_object(const CObjectPrototype::shared_ptr& object)
 	{
 		const std::string& aliases = object->get_aliases();
 		boost::algorithm::split(m_aliases, aliases, boost::algorithm::is_any_of(" "), boost::token_compress_on);
@@ -106,7 +106,7 @@ namespace craft
 		}
 	}
 
-	bool CCases::save_to_node(pugi::xml_node* node) const
+	bool Cases::save_to_node(pugi::xml_node* node) const
 	{
 		try
 		{
@@ -140,7 +140,7 @@ namespace craft
 		return true;
 	}
 
-	OBJ_DATA::pnames_t CCases::build_pnames() const
+	OBJ_DATA::pnames_t Cases::build_pnames() const
 	{
 		OBJ_DATA::pnames_t result;
 		for (size_t n = 0; n < CASES_COUNT; ++n)
@@ -855,7 +855,7 @@ namespace craft
 		const auto male = node->child("male");
 		if (male)
 		{
-			m_male_adjectives.reset(new CCases());
+			m_male_adjectives.reset(new Cases());
 			if (!m_male_adjectives->load_from_node(&male))
 			{
 				logger("ERROR: could not load male adjective cases for material class '%s'.\n", m_id.c_str());
@@ -866,7 +866,7 @@ namespace craft
 		const auto female = node->child("female");
 		if (female)
 		{
-			m_female_adjectives.reset(new CCases());
+			m_female_adjectives.reset(new Cases());
 			if (!m_female_adjectives->load_from_node(&female))
 			{
 				logger("ERROR: Could not load female adjective cases for material class '%s'.\n", m_id.c_str());
@@ -877,7 +877,7 @@ namespace craft
 		const auto neuter = node->child("neuter");
 		if (neuter)
 		{
-			m_neuter_adjectives.reset(new CCases);
+			m_neuter_adjectives.reset(new Cases);
 			if (!m_neuter_adjectives->load_from_node(&neuter))
 			{
 				logger("ERROR: Could not load neuter adjective cases for material class '%s'.\n", m_id.c_str());
@@ -1174,11 +1174,12 @@ namespace craft
 				number, suffix(number));
 			return false;
 		}
+
 		id_t id = material->attribute("id").as_string();
-		CMaterial m(id);
+		const auto m = std::make_shared<CMaterial>(id);
 		if (material->attribute("filename").empty())
 		{
-			if (!m.load(material))
+			if (!m->load(material))
 			{
 				logger("WARNING: Skipping material with ID '%s'.\n", id.c_str());
 				return false;
@@ -1190,6 +1191,7 @@ namespace craft
 			const std::string filename = (path(FILE_NAME).parent_path() / material->attribute("filename").value()).generic_string();
 			pugi::xml_document mdoc;
 			const auto mresult = mdoc.load_file(filename.c_str());
+
 			if (!mresult)
 			{
 				logger("WARNING: could not load external file '%s' with material '%s': '%s' "
@@ -1200,6 +1202,7 @@ namespace craft
 					mresult.offset);
 				return false;
 			}
+
 			const auto mroot = mdoc.child("material");
 			if (!mroot)
 			{
@@ -1209,10 +1212,12 @@ namespace craft
 					filename.c_str());
 				return false;
 			}
+
 			logger("Using external file '%s' for material with ID '%s'.\n",
 				filename.c_str(),
 				id.c_str());
-			if (!m.load(&mroot))
+
+			if (!m->load(&mroot))
 			{
 				logger("WARNING: Skipping material with ID '%s'.\n",
 					id.c_str());
@@ -1220,6 +1225,70 @@ namespace craft
 			}
 		}
 		m_materials.push_back(m);
+
+		return true;
+	}
+
+	bool CCraftModel::load_recipe(const pugi::xml_node* recipe, const size_t number)
+	{
+		if (recipe->attribute("id").empty())
+		{
+			logger("%zd-%s recipe tag does not have ID attribute. Will be skipped.\n",
+				number, suffix(number));
+			return false;
+		}
+
+		id_t id = recipe->attribute("id").as_string();
+		const auto r = std::make_shared<CRecipe>(id);
+		if (recipe->attribute("filename").empty())
+		{
+			if (!r->load(recipe))
+			{
+				logger("WARNING: Skipping recipe with ID '%s'.\n", id.c_str());
+				return false;
+			}
+		}
+		else
+		{
+			using boost::filesystem::path;
+			const std::string filename = (path(FILE_NAME).parent_path() / recipe->attribute("filename").value()).generic_string();
+			pugi::xml_document rdoc;
+			const auto rresult = rdoc.load_file(filename.c_str());
+
+			if (!rresult)
+			{
+				logger("WARNING: could not load external file '%s' with recipe '%s': '%s' "
+					"at offset %zu. Recipe will be skipped.\n",
+					filename.c_str(),
+					id.c_str(),
+					rresult.description(),
+					rresult.offset);
+				return false;
+			}
+
+			const auto rroot = rdoc.child("recipe");
+			if (!rroot)
+			{
+				logger("WARNING: could not find root \"recipe\" tag for recipe with ID "
+					"'%s' in the external file '%s'. Recipe will be skipped.\n",
+					id.c_str(),
+					filename.c_str());
+				return false;
+			}
+
+			logger("Using external file '%s' for recipe with ID '%s'.\n",
+				filename.c_str(),
+				id.c_str());
+
+			if (!r->load(&rroot))
+			{
+				logger("WARNING: Skipping recipe with ID '%s'.\n",
+					id.c_str());
+				return false;
+			}
+		}
+
+		m_recipes.push_back(r);
 
 		return true;
 	}
@@ -1238,7 +1307,15 @@ namespace craft
 		}
 
 		// Load recipes.
-		// TODO: load it.
+		const auto recipes = model->child("recipes");
+		if (recipes)
+		{
+			size_t number = 0;
+			for (const auto recipe : recipes.children("recipe"))
+			{
+				load_recipe(&recipe, ++number);
+			}
+		}
 
 		// Load skills.
 		// TODO: load it.

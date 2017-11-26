@@ -198,11 +198,11 @@ namespace craft
 			for (const auto& material : model.materials())
 			{
 				++number;
-				const size_t classes_count = material.classes().size();
-				ss << " &W" << number << ". " << material.get_name() << "&n (&Y" << material.id() << "&n)"
+				const size_t classes_count = material->classes().size();
+				ss << " &W" << number << ". " << material->get_name() << "&n (&Y" << material->id() << "&n)"
 					<< (0 == classes_count ? " <&Rmaterial does not have classes&n>" : ":") << std::endl;
 				size_t class_number = 0;
-				for (const auto& material_class : material.classes())
+				for (const auto& material_class : material->classes())
 				{
 					++class_number;
 					ss << "   &g" << class_number << ". " << material_class.name() << "&n (&B"
@@ -236,7 +236,7 @@ namespace craft
 			for (const auto& r : model.recipes())
 			{
 				++counter;
-				ss << std::setw(2) << counter << ". " << r.id() << std::endl;
+				ss << std::setw(2) << counter << ". " << r->id() << std::endl;
 			}
 
 			send(context, ss.str());
@@ -333,13 +333,13 @@ namespace craft
 				.add_command("recipes", std::make_shared<ListRecipes>())
 				.add_command("skills", std::make_shared<ListSkills>())
 				.add_command("materials", std::make_shared<ListMaterials>())
-				.add_command("help", std::make_shared<ParentialHelp>(list_command))
+				.add_command("help", std::make_shared<ParentalHelp>(list_command))
 				.rebuild_help();
 
 			m_command->set_noargs_handler(Root::create())
 				.add_command("export", export_command)
 				.add_command("list", list_command)
-				.add_command("help", std::make_shared<ParentialHelp>(m_command))
+				.add_command("help", std::make_shared<ParentalHelp>(m_command))
 				.rebuild_help();
 		}
 
