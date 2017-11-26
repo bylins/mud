@@ -76,6 +76,7 @@
 #include "char_obj_utils.inl"
 #include "logger.hpp"
 #include "msdp.hpp"
+#include "msdp.constants.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -712,7 +713,7 @@ const char compress_start_v2[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS2, 
 
 #endif
 
-const char will_msdp[] = { char(IAC), char(WILL), char(TELOPT_MSDP) };
+const char will_msdp[] = { char(IAC), char(WILL), char(::msdp::constants::TELOPT_MSDP) };
 
 const char str_goahead[] = { (char)IAC, (char)GA, 0 };
 
@@ -3487,7 +3488,7 @@ int process_input(DESCRIPTOR_DATA * t)
 #endif
 					break;
 
-				case TELOPT_MSDP:
+				case ::msdp::constants::TELOPT_MSDP:
 					if (runtime_config.msdp_disabled())
 					{
 						continue;
@@ -3520,7 +3521,7 @@ int process_input(DESCRIPTOR_DATA * t)
 #endif
 					break;
 
-				case TELOPT_MSDP:
+				case ::msdp::constants::TELOPT_MSDP:
 					if (runtime_config.msdp_disabled())
 					{
 						continue;
@@ -3542,7 +3543,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				size_t sb_length = 0;
 				switch (ptr[2])
 				{
-				case char(TELOPT_MSDP):
+				case ::msdp::constants::TELOPT_MSDP:
 					if (!runtime_config.msdp_disabled())
 					{
 						sb_length = msdp::handle_conversation(t, ptr, bytes_read - (ptr - read_point));

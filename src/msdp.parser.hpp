@@ -10,18 +10,18 @@
 namespace msdp
 {
 	/** MSDP protocol related constants @{ */
-	const char MSDP_VAR = 1;
-	const char MSDP_VAL = 2;
+	constexpr char MSDP_VAR = 1;
+	constexpr char MSDP_VAL = 2;
 
-	const char MSDP_TABLE_OPEN = 3;
-	const char MSDP_TABLE_CLOSE = 4;
+	constexpr char MSDP_TABLE_OPEN = 3;
+	constexpr char MSDP_TABLE_CLOSE = 4;
 
-	const char MSDP_ARRAY_OPEN = 5;
-	const char MSDP_ARRAY_CLOSE = 6;
+	constexpr char MSDP_ARRAY_OPEN = 5;
+	constexpr char MSDP_ARRAY_CLOSE = 6;
 
-	const size_t HEAD_LENGTH = 3;	// IAC SB TELOPT_MSDP
-	const size_t TAIL_LENGTH = 2;	// IAC SE
-	const size_t WRAPPER_LENGTH = HEAD_LENGTH + TAIL_LENGTH;
+	constexpr size_t HEAD_LENGTH = 3;	// IAC SB TELOPT_MSDP
+	constexpr size_t TAIL_LENGTH = 2;	// IAC SE
+	constexpr size_t WRAPPER_LENGTH = HEAD_LENGTH + TAIL_LENGTH;
 	/** @} */
 
 	void debug(const bool on);
