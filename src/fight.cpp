@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include <unordered_set>
 #include "fight.h"
 
 #include "world.characters.hpp"
@@ -2234,15 +2235,23 @@ void perform_violence()
 	//* суммон хелперов
 	check_mob_helpers();
 
+	// храним список писей, которым надо показать состояние группы по msdp 
+	std::unordered_set<CHAR_DATA *> msdp_report_chars;
 	//* действия до раунда и расчет инициативы
 	for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list)
 	{
 		next_combat_list = ch->next_fighting;
 
-		// покажем группу по msdp
-		// проверка на поддержку протокола есть в методе msdp_report
 		if (ch->desc)
-			ch->desc->msdp_report(msdp::constants::GROUP);
+			msdp_report_chars.insert(ch);
+			else if (ch->has_master() &&
+		(AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL) ||
+		MOB_FLAGGED(ch, MOB_GHOST)))
+		{
+			auto master = ch->get_master();
+			if (master->desc && !master->get_fighting() && master->in_room == ch->in_room)
+				msdp_report_chars.insert(master);
+		}
 		if (!stuff_before_round(ch))
 			continue;
 
@@ -2299,6 +2308,12 @@ void perform_violence()
 
 	//* обновление аффектов и лагов после раунда
 	update_round_affs();
+
+	// покажем группу по msdp
+	// проверка на поддержку протокола есть в методе msdp_report
+	for (const auto& ch: msdp_report_chars)
+		if (!ch->purged())
+			ch->desc->msdp_report(msdp::constants::GROUP);
 }
 
 // returns 1 if only ch was outcasted
