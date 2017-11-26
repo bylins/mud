@@ -2243,6 +2243,14 @@ void perform_violence()
 		// проверка на поддержку протокола есть в методе msdp_report
 		if (ch->desc)
 			ch->desc->msdp_report(msdp::constants::GROUP);
+			else if (ch->has_master() &&
+		(AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(ch, MOB_ANGEL) ||
+		MOB_FLAGGED(ch, MOB_GHOST)))
+		{
+			auto master = ch->get_master();
+			if (master->desc && !master->get_fighting() && master->in_room == ch->in_room)
+				master->desc->msdp_report(msdp::constants::GROUP);
+		}
 		if (!stuff_before_round(ch))
 			continue;
 
