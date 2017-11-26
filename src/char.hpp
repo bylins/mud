@@ -633,6 +633,7 @@ public:
 	void set_affect(T affect) { char_specials.saved.affected_by.set(affect); }
 	template <typename T>
 	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
+	bool low_charm() const;
 
 	void set_purged(const bool _ = true) { purged_ = _; }
 

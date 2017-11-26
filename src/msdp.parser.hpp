@@ -132,7 +132,7 @@ namespace msdp
 		virtual size_t serialize(char* buffer, size_t size) const override;
 		virtual void dump(const size_t level = 0) const override;
 
-		void add(const shared_ptr& value) { m_data.push_back(value); m_size += value->required_size();}
+		void add(const shared_ptr& value);
 
 	private:
 		std::list<shared_ptr> m_data;

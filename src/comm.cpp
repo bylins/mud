@@ -2282,17 +2282,6 @@ void record_usage(void)
 
 }
 
-
-int posi_value(int real, int max)
-{
-	if (real < 0)
-		return (-1);
-	else if (real >= max)
-		return (10);
-
-	return (real * 10 / MAX(max, 1));
-}
-
 char *color_value(CHAR_DATA* /*ch*/, int real, int max)
 {
 	static char color[8];

@@ -3,6 +3,8 @@
 
 #include "comm.h"
 
+#include <ostream>
+
 struct DESCRIPTOR_DATA;	// to avoid inclusion of "structs.h"
 
 const char TELOPT_MSDP = 69;

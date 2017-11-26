@@ -1141,12 +1141,16 @@ void DESCRIPTOR_DATA::msdp_report(const std::string& name)
 void DESCRIPTOR_DATA::msdp_report_changed_vars()
 {
 	if (!m_msdp_support || !character)
+	{
 		return;
+	}
+
 	if (m_msdp_last_max_hit != GET_REAL_MAX_HIT(character))
 	{
 		msdp_report(msdp::constants::MAX_HIT);
 		m_msdp_last_max_hit = GET_REAL_MAX_HIT(character);
 	}
+
 	if (m_msdp_last_max_move != GET_REAL_MAX_MOVE(character))
 	{
 		msdp_report(msdp::constants::MAX_MOVE);

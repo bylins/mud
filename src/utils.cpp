@@ -588,7 +588,7 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1)
 
 
 
-TIME_INFO_DATA *age(CHAR_DATA * ch)
+TIME_INFO_DATA *age(const CHAR_DATA * ch)
 {
 	static TIME_INFO_DATA player_age;
 
@@ -632,17 +632,20 @@ void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
 	AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
 }
 
-int on_horse(CHAR_DATA * ch)
+int on_horse(const CHAR_DATA * ch)
 {
-	return (AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE) && has_horse(ch, TRUE));
+	return AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
+		&& has_horse(ch, TRUE);
 }
 
-int has_horse(CHAR_DATA * ch, int same_room)
+int has_horse(const CHAR_DATA * ch, int same_room)
 {
 	struct follow_type *f;
 
 	if (IS_NPC(ch))
-		return (FALSE);
+	{
+		return FALSE;
+	}
 
 	for (f = ch->followers; f; f = f->next)
 	{
@@ -654,6 +657,7 @@ int has_horse(CHAR_DATA * ch, int same_room)
 			return (TRUE);
 		}
 	}
+
 	return (FALSE);
 }
 
