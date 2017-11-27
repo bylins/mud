@@ -497,7 +497,7 @@ void income_mtrigger(CHAR_DATA * ch, int dir)
 	for (const auto i : world[ch->in_room]->people)
 	{
 		if ((!IS_NPC(i)
-			&& CAN_SEE(ch, i)) || !GET_INVIS_LEV(i))
+			&& CAN_SEE(ch, i)) && !GET_INVIS_LEV(i))
 		{
 			ispcinroom = 1;
 			actor = i;
@@ -575,7 +575,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 	const auto people_copy = world[IN_ROOM(actor)]->people;
 	for (const auto ch : people_copy)
 	{
-		if ((SCRIPT_CHECK(ch, MTRIG_COMMAND) && CAN_START_MTRIG(ch) && (actor != ch)) || GET_INVIS_LEV(actor))
+		if ((SCRIPT_CHECK(ch, MTRIG_COMMAND) && CAN_START_MTRIG(ch) && (actor != ch)) && !GET_INVIS_LEV(actor))
 		{
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 			{
@@ -646,7 +646,7 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS)
 			&& CAN_START_MTRIG(ch)
 			&& (actor != ch))
-			|| GET_INVIS_LEV(actor))
+			&& !GET_INVIS_LEV(actor))
 		{
 			for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 			{
@@ -680,7 +680,7 @@ void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * vict
 	TRIG_DATA *t;
 	char buf[MAX_INPUT_LENGTH];
 
-	if ((SCRIPT_CHECK(ch, MTRIG_ACT) && CAN_START_MTRIG(ch) && (actor != ch)) || GET_INVIS_LEV(actor))
+	if ((SCRIPT_CHECK(ch, MTRIG_ACT) && CAN_START_MTRIG(ch) && (actor != ch)) && !GET_INVIS_LEV(actor))
 		for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
 		{
 			if (!TRIGGER_CHECK(t, MTRIG_ACT))
@@ -1069,7 +1069,7 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, const char *argument
 	TRIG_DATA *dummy;
 	char buf[MAX_INPUT_LENGTH];
 
-	if ((obj && SCRIPT_CHECK(obj, OTRIG_COMMAND)) || GET_INVIS_LEV(actor))
+	if ((obj && SCRIPT_CHECK(obj, OTRIG_COMMAND)) && !GET_INVIS_LEV(actor))
 	{
 		for (t = TRIGGERS(obj->get_script()); t; t = t->next)
 		{
@@ -1131,6 +1131,7 @@ int command_otrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 {
 	if (GET_INVIS_LEV(actor))
 		return 0;
+
 	for (int i = 0; i < NUM_WEARS; i++)
 	{
 		if (cmd_otrig(GET_EQ(actor, i), actor, cmd, argument, OCMD_EQUIP))
@@ -1464,15 +1465,14 @@ int enter_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir)
 	for (t = TRIGGERS(SCRIPT(room)); t; t = t->next)
 	{
 		if ((TRIGGER_CHECK(t, WTRIG_ENTER) ||
-				(TRIGGER_CHECK(t, WTRIG_ENTER_PC) && !IS_NPC(actor))) && (number(1, 100) <= GET_TRIG_NARG(t)))
-			if  (GET_INVIS_LEV(actor))
-			{
-				if (dir >= 0)
-					add_var_cntx(&GET_TRIG_VARS(t), "direction", dirs[rev_dir[dir]], 0);
-					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-					// триггер может удалить выход, но не вернуть 0 (есть такие билдеры)
-					return (script_driver(room, t, WLD_TRIGGER, TRIG_NEW) && CAN_GO(actor, dir));
-			}
+			(TRIGGER_CHECK(t, WTRIG_ENTER_PC) && !IS_NPC(actor))) && (number(1, 100) <= GET_TRIG_NARG(t)))
+		{
+			if (dir >= 0)
+				add_var_cntx(&GET_TRIG_VARS(t), "direction", dirs[rev_dir[dir]], 0);
+			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			// триггер может удалить выход, но не вернуть 0 (есть такие билдеры)
+			return (script_driver(room, t, WLD_TRIGGER, TRIG_NEW) && CAN_GO(actor, dir));
+		}
 	}
 
 	return 1;
