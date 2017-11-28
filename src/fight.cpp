@@ -39,6 +39,9 @@
 #include "olc.h"
 #include "logger.hpp"
 #include "utils.h"
+#include "msdp.constants.hpp"
+
+#include <unordered_set>
 
 // Structures
 CHAR_DATA *combat_list = NULL;	// head of l-list of fighting chars
@@ -2233,13 +2236,36 @@ void perform_violence()
 	//* суммон хелперов
 	check_mob_helpers();
 
+	// храним список писей, которым надо показать состояние группы по msdp 
+	std::unordered_set<CHAR_DATA *> msdp_report_chars;
+
 	//* действия до раунда и расчет инициативы
 	for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list)
 	{
 		next_combat_list = ch->next_fighting;
 
+		if (ch->desc)
+		{
+			msdp_report_chars.insert(ch);
+		}
+		else if (ch->has_master()
+			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
+				|| MOB_FLAGGED(ch, MOB_ANGEL)
+				|| MOB_FLAGGED(ch, MOB_GHOST)))
+		{
+			auto master = ch->get_master();
+			if (master->desc
+				&& !master->get_fighting()
+				&& master->in_room == ch->in_room)
+			{
+				msdp_report_chars.insert(master);
+			}
+		}
+
 		if (!stuff_before_round(ch))
+		{
 			continue;
+		}
 
 		const int initiative = calc_initiative(ch, true);
 		if (initiative == 0)
@@ -2248,7 +2274,10 @@ void perform_violence()
 			min_init = MIN(min_init, -100);
 		}
 		else
+		{
 			INITIATIVE(ch) = initiative;
+		}
+
 		SET_AF_BATTLE(ch, EAF_FIRST);
 		max_init = MAX(max_init, initiative);
 		min_init = MIN(min_init, initiative);
@@ -2264,6 +2293,7 @@ void perform_violence()
 			{
 				continue;
 			}
+
 			// If mob cast 'hold' when initiative setted
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
 				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
@@ -2272,14 +2302,19 @@ void perform_violence()
 			{
 				continue;
 			}
+
 			// If mob cast 'fear', 'teleport', 'recall', etc when initiative setted
 			if (!ch->get_fighting()
 				|| ch->in_room != IN_ROOM(ch->get_fighting()))
 			{
 				continue;
 			}
+
 			if (initiative == 0) //везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
+			{
 				continue;
+			}
+
 			//* выполнение атак в раунде
 			if (IS_NPC(ch))
 			{
@@ -2294,6 +2329,16 @@ void perform_violence()
 
 	//* обновление аффектов и лагов после раунда
 	update_round_affs();
+
+	// покажем группу по msdp
+	// проверка на поддержку протокола есть в методе msdp_report
+	for (const auto& ch: msdp_report_chars)
+	{
+		if (!ch->purged())
+		{
+			ch->desc->msdp_report(msdp::constants::GROUP);
+		}
+	}
 }
 
 // returns 1 if only ch was outcasted
@@ -2304,8 +2349,12 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	CHAR_DATA *cleader, *vleader;
 	int return_value = 0;
+
 	if (ch == victim)
+	{
 		return return_value;
+	}
+
 // translating pointers from charimces to their leaders
 	if (IS_NPC(ch)
 		&& ch->has_master()
@@ -2326,6 +2375,7 @@ int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
 	{
 		victim = victim->get_master();
 	}
+
 	cleader = ch;
 	vleader = victim;
 // finding leaders

@@ -174,7 +174,7 @@ void handle_recall_spells(CHAR_DATA::shared_ptr& ch) { handle_recall_spells(ch.g
  */
 
 // manapoint gain pr. game hour
-int mana_gain(CHAR_DATA * ch)
+int mana_gain(const CHAR_DATA * ch)
 {
 	int gain = 0, restore = int_app[GET_REAL_INT(ch)].mana_per_tic, percent = 100;
 	int stopmem = FALSE;
@@ -189,11 +189,14 @@ int mana_gain(CHAR_DATA * ch)
 			return (0);
 
 		if (!IS_MANA_CASTER(ch))
-			gain =
-				graf(age(ch)->year, restore - 8, restore - 4, restore,
-					 restore + 5, restore, restore - 4, restore - 8);
+		{
+			gain = graf(age(ch)->year, restore - 8, restore - 4, restore,
+				restore + 5, restore, restore - 4, restore - 8);
+		}
 		else
+		{
 			gain = mana_gain_cs[GET_REAL_INT(ch)];
+		}
 
 		// Room specification
 		if (LIKE_ROOM(ch))

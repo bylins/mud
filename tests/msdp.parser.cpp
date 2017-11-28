@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "telnet.h"
-#include "msdp.parser.hpp"
+#include <telnet.h>
+#include <msdp.parser.hpp>
 
 TEST(MSDP_Parser, EmptyRequest)
 {
@@ -68,3 +68,5 @@ TEST(MSDP_Parser, REPORT_ROOM)
 	EXPECT_EQ(true, ::msdp::parse_request(request, sizeof(request) - 1, conversation_length, result, true));
 	EXPECT_EQ(sizeof(request) - 1, conversation_length);
 }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

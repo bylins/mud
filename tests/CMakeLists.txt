@@ -16,6 +16,7 @@ set(TESTS
 	boards.changelog.cpp
 	boards.news.cpp
 	msdp.parser.cpp
+	msdp.builder.cpp
 	char.affects.cpp
 	char.leaders.cpp
 	obj.copy.cpp

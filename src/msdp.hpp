@@ -3,9 +3,9 @@
 
 #include "comm.h"
 
-struct DESCRIPTOR_DATA;	// to avoid inclusion of "structs.h"
+#include <ostream>
 
-const char TELOPT_MSDP = 69;
+struct DESCRIPTOR_DATA;	// to avoid inclusion of "structs.h"
 
 namespace msdp
 {

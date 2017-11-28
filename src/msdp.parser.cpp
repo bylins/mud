@@ -188,6 +188,12 @@ namespace msdp
 		}
 	}
 
+	void ArrayValue::add(const shared_ptr& value)
+	{
+		m_data.push_back(value);
+		m_size += value->required_size();
+	}
+
 	inline bool is_stop_byte(const char c)
 	{
 		return c == char(IAC) || c == MSDP_ARRAY_CLOSE || c == MSDP_TABLE_CLOSE;

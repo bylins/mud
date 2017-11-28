@@ -390,7 +390,11 @@ set(MSDP_FILES
 	src/msdp.parser.cpp
 	src/msdp.parser.hpp
 	src/msdp.constants.hpp
-	src/msdp.constants.cpp)
+	src/msdp.constants.cpp
+	src/msdp.reporters.cpp
+	src/msdp.reporters.hpp
+	src/msdp.senders.cpp
+	src/msdp.senders.hpp)
 list(APPEND SOURCES ${MSDP_FILES})
 
 # Versioning
