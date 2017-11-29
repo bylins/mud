@@ -465,7 +465,7 @@ void do_cities(CHAR_DATA *ch, char*, int, int);
 // пока не введет код (или до ребута)
 std::map<std::string, int> new_loc_codes;
 
-void do_debug_queues(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_debug_queues(CHAR_DATA * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/)
 {
 	std::stringstream ss;
 	if (argument && *argument)
