@@ -70,6 +70,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "bonus.h"
+#include "debug.utils.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -463,6 +464,24 @@ void do_cities(CHAR_DATA *ch, char*, int, int);
 // строка - это мыло, если один чар вошел с необычного места, то блочим сразу всех чаров на этом мыле,
 // пока не введет код (или до ребута)
 std::map<std::string, int> new_loc_codes;
+
+void do_debug_queues(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+{
+	std::stringstream ss;
+	if (argument && *argument)
+	{
+		debug::log_queue(argument).print_queue(ss, argument);
+
+		return;
+	}
+
+	for (const auto& q : debug::log_queues())
+	{
+		q.second.print_queue(ss, q.first);
+	}
+
+	mudlog(ss.str().c_str(), DEF, LVL_GOD, ERRLOG, TRUE);
+}
 
 cpp_extern const struct command_info cmd_info[] =
 {
@@ -1120,6 +1139,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mspelladd", POS_DEAD, do_mspelladd, -1, 0, -1},
 	{"mspellitem", POS_DEAD, do_mspellitem, -1, 0, -1},
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
+	{"debug_queues", POS_DEAD, do_debug_queues, LVL_IMPL, 0, 0 },
 
 	// Craft
 	//{"craft", craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
