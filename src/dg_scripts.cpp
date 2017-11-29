@@ -44,6 +44,7 @@
 #include "dg_db_scripts.hpp"
 #include "bonus.h"
 
+#include "debug.utils.hpp"
 #include "backtrace.hpp"
 #include "coredump.hpp"
 
@@ -5144,6 +5145,11 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		sprintf(buf2, "calcuid target not found vnum: %s, count: %d. Создана кора для исследований", vnum, count_num);
 		trig_log(trig, buf2);
+
+		std::stringstream ss;
+		debug::log_queue("characters").print_queue(ss, "characters");
+		trig_log(trig, ss.str().c_str());
+
 		*uid = '\0';
 		return;
 	}

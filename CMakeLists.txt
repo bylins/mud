@@ -152,7 +152,8 @@ set(SOURCES
 	src/find.obj.id.by.vnum.cpp
 	src/global.objects.cpp
 	src/shops.implementation.cpp
-	src/world.characters.cpp)
+	src/world.characters.cpp
+	src/debug.utils.cpp)
 
 set(HEADERS
 	src/world.characters.hpp
@@ -285,7 +286,8 @@ set(HEADERS
 	src/title.hpp
 	src/top.h
 	src/utils.h
-	src/xml_loading_helper.hpp)
+	src/xml_loading_helper.hpp
+	src/debug.utils.hpp)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 
