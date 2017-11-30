@@ -141,18 +141,15 @@ bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl)
 		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch))
 		return FALSE;
 
-	if (slot_for_char(ch, spell_info[spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)]) <= 0)
-		return FALSE;
-
 	return TRUE;
 };
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool can_get_spell(CHAR_DATA *ch, int spellnum)
 {
-	if ((MIN_CAST_LEV(spell_info[spellnum], ch) > GET_LEVEL(ch) || MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch) ||
-			 		 slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0))
-			 		 return FALSE;
+	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GET_LEVEL(ch) || MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch))
+		return FALSE;
+
 	return TRUE;
 };
 
