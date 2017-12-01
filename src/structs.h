@@ -476,6 +476,7 @@ extern const religion_names_t religion_name;
 #define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // не дает экспу за удары
 #define MOB_NOHAMER          (INT_ONE | (1 << 24)) // нельзя оглушить богатырским молотом
 #define MOB_GHOST            (INT_ONE | (1 << 25)) // Используется для ментальной тени
+#define MOB_PLAYER_SUMMON    (INT_ONE | (1 << 26)) // Моб является суммоном игрока (ангел, тень, храны, трупы, умки)
 
 #define MOB_FIREBREATH    (INT_TWO | (1 << 0))
 #define MOB_GASBREATH     (INT_TWO | (1 << 1))

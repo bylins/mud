@@ -3689,7 +3689,9 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		}
 	}
 	else
+	{
 		i = nr;
+	}
 
 	CHAR_DATA *mob = new CHAR_DATA;
 	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
@@ -3737,6 +3739,10 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	{
 		mob_index[i].number++;
 		assign_triggers(mob, MOB_TRIGGER);
+	}
+	else
+	{
+		MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
 	}
 
 	i = mob_index[i].zone;

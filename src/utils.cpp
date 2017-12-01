@@ -839,6 +839,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	}
 
 	if (IS_NPC(ch)
+		&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)	//Не ресетим флаги, если моб призван игроком
 		&& (i = GET_MOB_RNUM(ch)) >= 0)
 	{
 		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
