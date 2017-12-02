@@ -3492,7 +3492,10 @@ void inspecting()
 		if ((it->second->sfor == ICHAR && it->second->unique == player_table[it->second->pos].unique)//Это тот же перс которого мы статим
 			|| (player_table[it->second->pos].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
 			|| (player_table[it->second->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
-				continue;
+		{
+			continue;
+		}
+
 		buf1[0] = '\0';
 		buf2[0] = '\0';
 		is_online = 0;
@@ -3595,12 +3598,17 @@ void inspecting()
 
 		if (*buf1 || mail_found)
 		{
+			const auto& player = player_table[it->second->pos];
 			mytime = player_table[it->second->pos].last_logon;
-			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d.\r\n",
-				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name(), CCNRM(ch, C_SPR),
+			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d/%d.\r\n",
+				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
+				player.name(),
+				CCNRM(ch, C_SPR),
 				(mail_found && it->second->sfor!=IMAIL? CCBLU(ch, C_SPR) : ""),
-				player_table[it->second->pos].mail, (mail_found? CCNRM(ch, C_SPR) : ""),
-				rustime(localtime(&mytime)), player_table[it->second->pos].level);
+				player.mail,
+				(mail_found ? CCNRM(ch, C_SPR) : ""),
+				rustime(localtime(&mytime)),
+				player.level, player.remorts);
 			it->second->out += buf;
 			it->second->out += buf2;
 			it->second->out += buf1;

@@ -931,6 +931,7 @@ void Player::save_char()
 	{
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GET_LEVEL(this);
+		player_table[i].remorts = get_remort();
 		//added by WorM 2010.08.27 в индексе добавляем мыло
 		if(player_table[i].mail)
 			free(player_table[i].mail);
