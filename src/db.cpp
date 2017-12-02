@@ -5708,7 +5708,8 @@ void entrycount(char *name, const bool find_id /*= true*/)
 
 				//end by WorM
 				element.unique = GET_UNIQUE(short_ch);
-				element.level = (GET_REMORT(short_ch) && !IS_IMMORTAL(short_ch)) ? 30 : GET_LEVEL(short_ch);
+				element.level = GET_LEVEL(short_ch);
+				element.remorts = short_ch->get_remort();
 				element.timer = NULL;
 				if (PLR_FLAGS(short_ch).get(PLR_DELETED))
 				{
@@ -5915,6 +5916,7 @@ void delete_char(const char *name)
 		Crash_clear_objects(id);
 		player_table[id].unique = -1;
 		player_table[id].level = -1;
+		player_table[id].remorts = -1;
 		player_table[id].last_logon = -1;
 		player_table[id].activity = -1;
 		if(player_table[id].mail)
@@ -6432,6 +6434,21 @@ void PlayersIndex::add_name_to_index(const char* name, const std::size_t index)
 	}
 
 	m_name_to_index.emplace(name, index);
+}
+
+player_index_element::player_index_element(const int id, const char* name):
+	mail(nullptr),
+	last_ip(nullptr),
+	unique(0),
+	level(0),
+	remorts(0),
+	last_logon(0),
+	activity(0),
+	timer(nullptr),
+	m_id(id),
+	m_name(nullptr)
+{
+	set_name(name);
 }
 
 void player_index_element::set_name(const char* name)
