@@ -1119,8 +1119,8 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		}
 		return;
 	case DRUNK:
-		if (!GET_COND(ch, condition)) return;
-		if (cond_state >= CHAR_DRUNKED && GET_COND(ch, DRUNK) < CHAR_DRUNKED && GET_DRUNK_STATE(ch)==0) {
+		//Если чара прекратило штормить, шлем сообщение
+		if (cond_state >= CHAR_MORTALLY_DRUNKED && GET_COND(ch, DRUNK) < CHAR_MORTALLY_DRUNKED) {
 			send_to_char("Наконец-то вы протрезвели.\r\n", ch);
 		}
 		return;
