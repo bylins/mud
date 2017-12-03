@@ -10,7 +10,7 @@ namespace debug
 	class LogQueue
 	{
 	public:
-		constexpr static std::size_t QUEUE_SIZE = 12;
+		constexpr static std::size_t QUEUE_SIZE = 100;
 
 		void push(const std::string& s);
 		std::ostream& print(std::ostream& os) const;

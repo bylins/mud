@@ -127,8 +127,8 @@ void script_log(const char *msg, const int type)
  */
 void trig_log(TRIG_DATA * trig, const char *msg, const int type)
 {
-	char tmpbuf[MAX_INPUT_LENGTH];
-	sprintf(tmpbuf, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
+	char tmpbuf[MAX_STRING_LENGTH];
+	snprintf(tmpbuf, MAX_STRING_LENGTH, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
 	script_log(tmpbuf, type);
 }
 
