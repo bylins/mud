@@ -2861,8 +2861,8 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				send_to_char("Этого персонажа сейчас нет в игре.\r\n", ch);
 		}
 	}
-        else if (is_abbrev(buf1, "ip"))
-        {        
+	else if (is_abbrev(buf1, "ip"))
+	{
 		if (!*buf2)
 		{
 			send_to_char("Состояние ip какого игрока?\r\n", ch);
@@ -2876,10 +2876,10 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 				send_to_char("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
-                 	Player t_vict;
+			Player t_vict;
 			if (load_char(buf2, &t_vict) > -1)
 			{
-//				Clan::SetClanData(&t_vict); не понял зачем проставлять клановый статус тут?
+				//Clan::SetClanData(&t_vict); не понял зачем проставлять клановый статус тут?
 				do_statip(ch, &t_vict);
 			}
 			else
@@ -2888,7 +2888,6 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
-                     
 	else if (is_abbrev(buf1, "file"))
 	{
 		if (!*buf2)

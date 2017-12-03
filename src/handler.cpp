@@ -3112,7 +3112,7 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	{
 		log("[Extract char] All clear for NPC");
 		if ((GET_MOB_RNUM(ch) > -1)
-			&& (!MOB_FLAGGED(ch, MOB_RESURRECTED)))	// if mobile и не умертвие
+			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))	// if mobile и не умертвие
 		{
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		}
