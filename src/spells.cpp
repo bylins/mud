@@ -2956,7 +2956,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	af.type = SPELL_CHARM;
 	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
-	af.location = APPLY_NONE;
+	af.location = EApplyLocation::APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
 	affect_to_char(mob, af);

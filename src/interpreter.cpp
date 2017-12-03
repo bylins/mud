@@ -2906,6 +2906,7 @@ void init_char(CHAR_DATA* ch, player_index_element& element)
 	ch->set_uid(create_unique());
 	element.unique = ch->get_uid();
 	element.level = 0;
+	element.remorts = 0;
 	element.last_logon = -1;
 	element.mail = NULL;//added by WorM mail
 	element.last_ip = NULL;//added by WorM последний айпи

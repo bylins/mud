@@ -2861,8 +2861,8 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				send_to_char("Этого персонажа сейчас нет в игре.\r\n", ch);
 		}
 	}
-        else if (is_abbrev(buf1, "ip"))
-        {        
+	else if (is_abbrev(buf1, "ip"))
+	{
 		if (!*buf2)
 		{
 			send_to_char("Состояние ip какого игрока?\r\n", ch);
@@ -2876,10 +2876,10 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 				send_to_char("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
-                 	Player t_vict;
+			Player t_vict;
 			if (load_char(buf2, &t_vict) > -1)
 			{
-//				Clan::SetClanData(&t_vict); не понял зачем проставлять клановый статус тут?
+				//Clan::SetClanData(&t_vict); не понял зачем проставлять клановый статус тут?
 				do_statip(ch, &t_vict);
 			}
 			else
@@ -2888,7 +2888,6 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
-                     
 	else if (is_abbrev(buf1, "file"))
 	{
 		if (!*buf2)
@@ -3492,7 +3491,10 @@ void inspecting()
 		if ((it->second->sfor == ICHAR && it->second->unique == player_table[it->second->pos].unique)//Это тот же перс которого мы статим
 			|| (player_table[it->second->pos].level >= LVL_IMMORT && !IS_GRGOD(ch))//Иммов могут чекать только 33+
 			|| (player_table[it->second->pos].level > GET_LEVEL(ch) && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO)))//если левел больше то облом
-				continue;
+		{
+			continue;
+		}
+
 		buf1[0] = '\0';
 		buf2[0] = '\0';
 		is_online = 0;
@@ -3595,12 +3597,17 @@ void inspecting()
 
 		if (*buf1 || mail_found)
 		{
+			const auto& player = player_table[it->second->pos];
 			mytime = player_table[it->second->pos].last_logon;
-			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d.\r\n",
-				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)), player_table[it->second->pos].name(), CCNRM(ch, C_SPR),
+			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d/%d.\r\n",
+				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
+				player.name(),
+				CCNRM(ch, C_SPR),
 				(mail_found && it->second->sfor!=IMAIL? CCBLU(ch, C_SPR) : ""),
-				player_table[it->second->pos].mail, (mail_found? CCNRM(ch, C_SPR) : ""),
-				rustime(localtime(&mytime)), player_table[it->second->pos].level);
+				player.mail,
+				(mail_found ? CCNRM(ch, C_SPR) : ""),
+				rustime(localtime(&mytime)),
+				player.level, player.remorts);
 			it->second->out += buf;
 			it->second->out += buf2;
 			it->second->out += buf1;
