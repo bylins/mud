@@ -2919,6 +2919,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE]);
 
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
+	{
+		sprintf(buf, "&MПрименен урон = %d&n\r\n", dam);
+		send_to_char(buf,ch);
+	}
+
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
 	// Думаю, простой проверки достаточно.
 	// Примечание, если сбежал в FIRESHIELD,
@@ -2953,12 +2959,6 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		dmg.flags.set(FightSystem::MAGIC_REFLECT);
 		dmg.process(victim, ch);
 	}
-
-	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
-	{
-        sprintf(buf, "&MПрименен урон = %d&n\r\n", dam);
-        send_to_char(buf,ch);
-    }
 
 	return dam;
 }
@@ -4181,8 +4181,15 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			}
 		}
 
+		int initial_dam = hit_params.dam;
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
+		// выводим временно влияние живучести
+		if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
+		{
+			sprintf(buf, "&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g&n\r\n", initial_dam, GET_RESIST(ch, VITALITY_RESISTANCE), float(hit_params.dam) / initial_dam);
+			send_to_char(buf,ch);
+		}
 		// режем стаб
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch))
 		{
