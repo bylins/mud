@@ -1454,6 +1454,12 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 		for (k = 0; k < MAX_NUMBER_RESISTANCE; k++)
 			GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
+//		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
+//		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
+//		{
+//			if (zone_table[world[IN_ROOM(&mob_proto[i])]->zone].group < 3) // в зонах 0-2 группы
+//				log("RESIST LIVE num: %d Vnum: %d Level: %d Name: %s", GET_RESIST(mob_proto + i, 4), mob_index[i].vnum, GET_LEVEL(&mob_proto[i]), GET_PAD(&mob_proto[i], 0));
+//		}
 	}
 
 	CASE("Saves")
