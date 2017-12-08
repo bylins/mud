@@ -218,7 +218,7 @@ struct reset_q_type
 class player_index_element
 {
 public:
-	player_index_element(const int id, const char* name) : m_id(id), m_name(nullptr) { set_name(name); }
+	player_index_element(const int id, const char* name);
 
 	//added by WorM индексируюца еще мыло и последний айпи
 	char *mail;
@@ -226,6 +226,7 @@ public:
 	//end by WorM
 	int unique;
 	int level;
+	int remorts;
 	int last_logon;
 	int activity;		// When player be saved and checked
 	save_info *timer;

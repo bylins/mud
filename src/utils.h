@@ -1640,6 +1640,17 @@ inline int posi_value(int real, int max)
 	return (real * 10 / MAX(max, 1));
 }
 
+class StreamFlagsHolder
+{
+public:
+	StreamFlagsHolder(std::ostream& os) : m_stream(os), m_flags(os.flags()) {}
+	~StreamFlagsHolder() { m_stream.flags(m_flags); }
+
+private:
+	std::ostream& m_stream;
+	std::ios::fmtflags m_flags;
+};
+
 #endif // _UTILS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -141,18 +141,15 @@ bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl)
 		|| MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch))
 		return FALSE;
 
-	if (slot_for_char(ch, spell_info[spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)]) <= 0)
-		return FALSE;
-
 	return TRUE;
 };
 
 // Функция определяет возможность изучения спелла из книги или в гильдии
 bool can_get_spell(CHAR_DATA *ch, int spellnum)
 {
-	if ((MIN_CAST_LEV(spell_info[spellnum], ch) > GET_LEVEL(ch) || MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch) ||
-			 		 slot_for_char(ch, spell_info[spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0))
-			 		 return FALSE;
+	if (MIN_CAST_LEV(spell_info[spellnum], ch) > GET_LEVEL(ch) || MIN_CAST_REM(spell_info[spellnum], ch) > GET_REMORT(ch))
+		return FALSE;
+
 	return TRUE;
 };
 
@@ -2959,7 +2956,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	af.type = SPELL_CHARM;
 	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
-	af.location = APPLY_NONE;
+	af.location = EApplyLocation::APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
 	affect_to_char(mob, af);

@@ -905,10 +905,8 @@ int main_function(int argc, char **argv)
 		init_game(port);
 	}
 
-	return (0);
+	return 0;
 }
-
-
 
 // Init sockets, run game, and cleanup sockets
 void init_game(ush_int port)
@@ -4009,7 +4007,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			{
 				Depot::exit_char(d->character.get());
 			}
-			character_list.remove(d->character);
+
+			if (character_list.get_character_by_address(d->character.get()))
+			{
+				character_list.remove(d->character);
+			}
 		}
 	}
 

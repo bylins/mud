@@ -1523,7 +1523,10 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 			wis_is = MERCHANT_SLOTS[(int) GET_LEVEL(ch) - 1][slot_num];
 		break;
 	}
-	if (wis_is == -1) return 0; //Go here if no magic for char
+
+	if (wis_is == -1) 
+		return 0; //Go here if no magic for char
+
 	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REMORT(ch)) : 0);
 }
 
