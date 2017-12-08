@@ -2866,7 +2866,7 @@ int new_descriptor(socket_t s)
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
 		// mudlog(buf2, CMP, LVL_GOD, SYSLOG, TRUE);
-		free(newd);
+		delete newd;
 		return (-3);
 	}
 
@@ -2906,7 +2906,7 @@ int new_descriptor(socket_t s)
 		log("%s", boost::str(boost::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD in %s() at %s:%d")
 		               % __func__ % __FILE__ % __LINE__).c_str());
 		CLOSE_SOCKET(desc);
-		free(newd);
+		delete newd;
 		return -2;
 	}
 #endif
