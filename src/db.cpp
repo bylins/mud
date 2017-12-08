@@ -4553,7 +4553,7 @@ void reset_zone(zone_rnum zone)
 					{
 						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
 						{
-							extract_char(ch.get(), FALSE);
+							extract_char(ch.get(), FALSE, TRUE);
 						}
 					});
 
