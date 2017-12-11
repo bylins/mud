@@ -3580,6 +3580,34 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 		}
 	}
 
+	f = FALSE;
+	for (counter = 0; counter <= MAX_SKILL_NUM; ++counter)
+	{
+		if (is_abbrev(searchname, skill_info[counter].name))
+		{
+			f = TRUE;
+			break;
+		}
+	}
+	if (f)
+	{
+		for (const auto i : obj_proto)
+		{
+			if (i->has_skills())
+			{
+				auto it = i->get_skills().find(static_cast<ESkill>(counter));
+				if (it != i->get_skills().end())
+				{
+					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
+						++found, i->get_vnum(),
+						i->get_short_description().c_str(),
+						skill_info[counter].name, it->second);
+					out += buf;
+				}
+			}
+		}
+	}
+
 	if (!out.empty())
 	{
 		page_string(ch->desc, out);
