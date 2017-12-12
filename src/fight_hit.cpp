@@ -4187,7 +4187,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		// выводим временно влияние живучести
 		if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 		{
-			sprintf(buf, "&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g&n\r\n", initial_dam, GET_RESIST(ch, VITALITY_RESISTANCE), float(hit_params.dam) / initial_dam);
+			sprintf(buf, "&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g&n\r\n", initial_dam, GET_RESIST(victim, VITALITY_RESISTANCE), float(hit_params.dam) / initial_dam);
 			send_to_char(buf,ch);
 		}
 		// режем стаб
