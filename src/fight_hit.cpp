@@ -4196,7 +4196,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			hit_params.dam = MIN(8000 + GET_REMORT(ch) * 20 * GET_LEVEL(ch), hit_params.dam);
 		}
 
-		if (IS_IMPL(ch) || IS_IMPL(victim))
+		if (IS_IMPL(ch) || IS_IMPL(victim) || PRF_FLAGGED(ch, PRF_TESTER))
 		{
 			sprintf(buf, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,ch);
