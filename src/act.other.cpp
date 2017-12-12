@@ -1128,18 +1128,6 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	}
 }
 
-int low_charm(CHAR_DATA * ch)
-{
-	for (const auto& aff : ch->affected)
-	{
-		if (aff->type == SPELL_CHARM && aff->duration <= 1)
-		{
-			return (TRUE);
-		}
-	}
-	return (FALSE);
-}
-
 void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 {
 	int ok, ok2, div;
@@ -1198,23 +1186,18 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 				ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
 
 		sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
-				CCIRED(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(k, EAffectFlag::AFF_PRISMATICAURA)
-						? "П" : " "), CCGRN(ch,
-											 C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch,
-						C_NRM),
-				AFF_FLAGGED(k, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM), (AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
-						|| AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
-						|| (GET_EQ(k, WEAR_LIGHT)
-							&&
-							GET_OBJ_VAL(GET_EQ
-										(k, WEAR_LIGHT),
-										2))) ? "С" : " ",
-				CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
-				low_charm(k) ? "Т" : " ", CCNRM(ch, C_NRM));
+			CCIRED(ch, C_NRM),
+			AFF_FLAGGED(k, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(k, EAffectFlag::AFF_PRISMATICAURA) ? "П" : " "),
+			CCGRN(ch, C_NRM),
+			AFF_FLAGGED(k, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch, C_NRM),
+			AFF_FLAGGED(k, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM),
+			(AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
+				|| AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
+				|| (GET_EQ(k, WEAR_LIGHT)
+					&& GET_OBJ_VAL(GET_EQ(k, WEAR_LIGHT), 2))) ? "С" : " ",
+			CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
+			k->low_charm() ? "Т" : " ", CCNRM(ch, C_NRM));
 
-//      sprintf(buf+strlen(buf),"%-15s| %d",POS_STATE[(int) GET_POS(k)],
-//                                        on_charm_points(k));
 		sprintf(buf + strlen(buf), "%-15s", POS_STATE[(int) GET_POS(k)]);
 
 		act(buf, FALSE, ch, 0, k, TO_CHAR);

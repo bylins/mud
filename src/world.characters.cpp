@@ -6,6 +6,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "dg_scripts.h"
+#include "debug.utils.hpp"
 
 #include <iostream>
 
@@ -13,6 +14,21 @@ Characters character_list;	// global container of chars
 
 void Characters::push_front(const CHAR_DATA::shared_ptr& character)
 {
+	std::stringstream ss;
+	{
+		StreamFlagsHolder holder(ss);
+		ss << "Adding character at address 0x" << std::hex << character << ".";
+	}
+	if (IS_NPC(character))
+	{
+		ss << " VNUM: " << GET_MOB_VNUM(character) << "; Name: '" << character->get_name() << "'";
+	}
+	else
+	{
+		ss << " Player: " << character->get_name();
+	}
+	debug::log_queue("characters").push(ss.str());
+
 	m_list.push_front(character);
 	m_object_raw_ptr_to_object_ptr[character.get()] = m_list.begin();
 	if (character->purged())
@@ -47,6 +63,21 @@ void Characters::remove(CHAR_DATA* character)
 
 		return;
 	}
+
+	std::stringstream ss;
+	{
+		StreamFlagsHolder flags_holder(ss);
+		ss << "Removing character at address 0x" << std::hex << character << ".";
+	}
+	if (IS_NPC(character))
+	{
+		ss << " VNUM: " << GET_MOB_VNUM(character) << "; Name: '" << character->get_name() <<"'";
+	}
+	else
+	{
+		ss << " Player: " << character->get_name();
+	}
+	debug::log_queue("characters").push(ss.str());
 
 	m_purge_list.push_back(*index_i->second);
 	m_purge_set.insert(index_i->second->get());

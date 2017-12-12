@@ -78,7 +78,7 @@ int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int get_filename(const char *orig_name, char *filename, int mode);
-TIME_INFO_DATA *age(CHAR_DATA * ch);
+TIME_INFO_DATA *age(const CHAR_DATA * ch);
 int num_pc_in_room(ROOM_DATA * room);
 void core_dump_real(const char *, int);
 int replace_str(const AbstractStringWriter::shared_ptr& writer, const char *pattern, const char *replacement, int rep_all, int max_size);
@@ -145,9 +145,9 @@ extern const char *ACTNULL;
 #define GET_COND_M(ch,cond) ((GET_COND(ch,cond)<=NORM_COND_VALUE)?0:GET_COND(ch,cond)-NORM_COND_VALUE)
 #define GET_COND_K(ch,cond) (((GET_COND_M(ch,cond)*100)/(MAX_COND_VALUE-NORM_COND_VALUE)))
 
-
 int MAX(int a, int b);
 int MIN(int a, int b);
+
 // all argument min/max macros definition
 #define MMIN(a,b) ((a<b)?a:b)
 #define MMAX(a,b) ((a<b)?b:a)
@@ -174,7 +174,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int following, CHAR_DATA * leader);
 int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA * leader);
 
 // in limits.cpp //
-int mana_gain(CHAR_DATA * ch);
+int mana_gain(const CHAR_DATA * ch);
 int hit_gain(CHAR_DATA * ch);
 int move_gain(CHAR_DATA * ch);
 void advance_level(CHAR_DATA * ch);
@@ -1135,8 +1135,8 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
 
-int on_horse(CHAR_DATA * ch);
-int has_horse(CHAR_DATA * ch, int same_room);
+int on_horse(const CHAR_DATA* ch);
+int has_horse(const CHAR_DATA * ch, int same_room);
 CHAR_DATA *get_horse(CHAR_DATA * ch);
 void horse_drop(CHAR_DATA * ch);
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch);
@@ -1625,6 +1625,31 @@ void joinList(const T& list, std::string& result, const std::string& delimiter =
 	}
 	result = ss.str();
 }
+
+inline int posi_value(int real, int max)
+{
+	if (real < 0)
+	{
+		return (-1);
+	}
+	else if (real >= max)
+	{
+		return (10);
+	}
+
+	return (real * 10 / MAX(max, 1));
+}
+
+class StreamFlagsHolder
+{
+public:
+	StreamFlagsHolder(std::ostream& os) : m_stream(os), m_flags(os.flags()) {}
+	~StreamFlagsHolder() { m_stream.flags(m_flags); }
+
+private:
+	std::ostream& m_stream;
+	std::ios::fmtflags m_flags;
+};
 
 #endif // _UTILS_H_
 

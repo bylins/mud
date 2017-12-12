@@ -76,6 +76,7 @@
 #include "char_obj_utils.inl"
 #include "logger.hpp"
 #include "msdp.hpp"
+#include "msdp.constants.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
@@ -712,7 +713,7 @@ const char compress_start_v2[] = { (char)IAC, (char)SB, (char)TELOPT_COMPRESS2, 
 
 #endif
 
-const char will_msdp[] = { char(IAC), char(WILL), char(TELOPT_MSDP) };
+const char will_msdp[] = { char(IAC), char(WILL), char(::msdp::constants::TELOPT_MSDP) };
 
 const char str_goahead[] = { (char)IAC, (char)GA, 0 };
 
@@ -904,10 +905,8 @@ int main_function(int argc, char **argv)
 		init_game(port);
 	}
 
-	return (0);
+	return 0;
 }
-
-
 
 // Init sockets, run game, and cleanup sockets
 void init_game(ush_int port)
@@ -2282,17 +2281,6 @@ void record_usage(void)
 
 }
 
-
-int posi_value(int real, int max)
-{
-	if (real < 0)
-		return (-1);
-	else if (real >= max)
-		return (10);
-
-	return (real * 10 / MAX(max, 1));
-}
-
 char *color_value(CHAR_DATA* /*ch*/, int real, int max)
 {
 	static char color[8];
@@ -2878,7 +2866,7 @@ int new_descriptor(socket_t s)
 		CLOSE_SOCKET(desc);
 		// sprintf(buf2, "Connection attempt denied from [%s]", newd->host);
 		// mudlog(buf2, CMP, LVL_GOD, SYSLOG, TRUE);
-		free(newd);
+		delete newd;
 		return (-3);
 	}
 
@@ -2918,7 +2906,7 @@ int new_descriptor(socket_t s)
 		log("%s", boost::str(boost::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD in %s() at %s:%d")
 		               % __func__ % __FILE__ % __LINE__).c_str());
 		CLOSE_SOCKET(desc);
-		free(newd);
+		delete newd;
 		return -2;
 	}
 #endif
@@ -3498,7 +3486,7 @@ int process_input(DESCRIPTOR_DATA * t)
 #endif
 					break;
 
-				case TELOPT_MSDP:
+				case ::msdp::constants::TELOPT_MSDP:
 					if (runtime_config.msdp_disabled())
 					{
 						continue;
@@ -3531,7 +3519,7 @@ int process_input(DESCRIPTOR_DATA * t)
 #endif
 					break;
 
-				case TELOPT_MSDP:
+				case ::msdp::constants::TELOPT_MSDP:
 					if (runtime_config.msdp_disabled())
 					{
 						continue;
@@ -3553,7 +3541,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				size_t sb_length = 0;
 				switch (ptr[2])
 				{
-				case char(TELOPT_MSDP):
+				case ::msdp::constants::TELOPT_MSDP:
 					if (!runtime_config.msdp_disabled())
 					{
 						sb_length = msdp::handle_conversation(t, ptr, bytes_read - (ptr - read_point));
@@ -4019,7 +4007,11 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			{
 				Depot::exit_char(d->character.get());
 			}
-			character_list.remove(d->character);
+
+			if (character_list.get_character_by_address(d->character.get()))
+			{
+				character_list.remove(d->character);
+			}
 		}
 	}
 

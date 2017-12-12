@@ -152,7 +152,8 @@ set(SOURCES
 	src/find.obj.id.by.vnum.cpp
 	src/global.objects.cpp
 	src/shops.implementation.cpp
-	src/world.characters.cpp)
+	src/world.characters.cpp
+	src/debug.utils.cpp)
 
 set(HEADERS
 	src/world.characters.hpp
@@ -285,7 +286,8 @@ set(HEADERS
 	src/title.hpp
 	src/top.h
 	src/utils.h
-	src/xml_loading_helper.hpp)
+	src/xml_loading_helper.hpp
+	src/debug.utils.hpp)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 
@@ -390,7 +392,11 @@ set(MSDP_FILES
 	src/msdp.parser.cpp
 	src/msdp.parser.hpp
 	src/msdp.constants.hpp
-	src/msdp.constants.cpp)
+	src/msdp.constants.cpp
+	src/msdp.reporters.cpp
+	src/msdp.reporters.hpp
+	src/msdp.senders.cpp
+	src/msdp.senders.hpp)
 list(APPEND SOURCES ${MSDP_FILES})
 
 # Versioning

@@ -94,7 +94,6 @@ long find_class_bitvector(char arg);
 int level_exp(CHAR_DATA * ch, int level);
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 int compute_armor_class(CHAR_DATA * ch);
-int low_charm(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);
 // local functions
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
@@ -1071,7 +1070,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	if (AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
 		&& i->get_master() == ch)
 	{
-		if (low_charm(i))
+		if (i->low_charm())
 		{
 			act("$n скоро перестанет следовать за вами.", FALSE, i, 0, ch, TO_VICT);
 		}

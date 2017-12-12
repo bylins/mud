@@ -44,6 +44,7 @@
 #include "dg_db_scripts.hpp"
 #include "bonus.h"
 
+#include "debug.utils.hpp"
 #include "backtrace.hpp"
 #include "coredump.hpp"
 
@@ -126,8 +127,8 @@ void script_log(const char *msg, const int type)
  */
 void trig_log(TRIG_DATA * trig, const char *msg, const int type)
 {
-	char tmpbuf[MAX_INPUT_LENGTH];
-	sprintf(tmpbuf, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
+	char tmpbuf[MAX_STRING_LENGTH];
+	snprintf(tmpbuf, MAX_STRING_LENGTH, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);
 	script_log(tmpbuf, type);
 }
 
@@ -5144,6 +5145,11 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		sprintf(buf2, "calcuid target not found vnum: %s, count: %d. Создана кора для исследований", vnum, count_num);
 		trig_log(trig, buf2);
+
+		std::stringstream ss;
+		debug::log_queue("characters").print_queue(ss, "characters");
+		trig_log(trig, ss.str().c_str());
+
 		*uid = '\0';
 		return;
 	}
