@@ -110,15 +110,16 @@ bool CharacterLinkDrop = false;
 
 void script_log(const char *msg, const int type)
 {
-	char tmpbuf[MAX_INPUT_LENGTH];
+	char tmpbuf[MAX_STRING_LENGTH];
 	char *pos;
-	sprintf(tmpbuf, "SCRIPT LOG %s", msg);
+	snprintf(tmpbuf, MAX_STRING_LENGTH, "SCRIPT LOG %s", msg);
 	// Чистим строчку от левых %-тов.
 	while ((pos = strchr(tmpbuf, '%')) != NULL)
-		* pos = '$';
+	{
+		*pos = '$';
+	}
 	log("%s", tmpbuf);
 	mudlog(tmpbuf, type ? type : NRM, LVL_BUILDER, ERRLOG, TRUE);
-
 }
 
 /*
