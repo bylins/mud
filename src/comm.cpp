@@ -4314,7 +4314,7 @@ void send_to_char(const CHAR_DATA* ch, const char *messg, ...)
 	char tmpbuf[MAX_STRING_LENGTH];
 
 	va_start(args, messg);
-	vsprintf(tmpbuf, messg, args);
+	vsnprintf(tmpbuf, sizeof(tmpbuf), messg, args);
 	va_end(args);
 
 	if (ch->desc && messg)
