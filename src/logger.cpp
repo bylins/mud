@@ -230,7 +230,7 @@ void mudlog(const char *str, int type, int level, EOutputStream channel, int fil
 	char time_buf[20];
 	time_t ct = time(0);
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
-	sprintf(tmpbuf, "[%s][ %s ]\r\n", time_buf, str);
+	snprintf(tmpbuf, sizeof(tmpbuf), "[%s][ %s ]\r\n", time_buf, str);
 	for (i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING || IS_NPC(i->character))	// switch
