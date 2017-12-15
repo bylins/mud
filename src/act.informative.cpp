@@ -4191,7 +4191,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			sprintf(buf, "У вас в наличии есть %d искристых снежинкок.\r\n", ch->get_ice_currency());
+			sprintf(buf, "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
 			send_to_char(buf, ch);
 		}
 	}
