@@ -35,7 +35,6 @@
 
 namespace ExtMoney
 {
-
 // золотые гривны
 const unsigned TORC_GOLD = 0;
 // серебряные гривны
@@ -44,8 +43,12 @@ const unsigned TORC_SILVER = 1;
 const unsigned TORC_BRONZE = 2;
 // терминатор всегда в конце
 const unsigned TOTAL_TYPES = 3;
-
 } // namespace ExtMoney
+
+namespace CURRENCY
+{
+	enum {GOLD,GLORY,TORC,ICE};
+}
 
 #define MAX_ALIAS_LENGTH 100
 //-Polos.insert_wanted_gem

@@ -82,6 +82,7 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj);
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
 void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_put(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -807,6 +808,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	}
 
 	const int value = GET_OBJ_VAL(obj, 0);
+	const int curr_type = GET_OBJ_VAL(obj, 1);
 
 	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY
 		|| value <= 0)
@@ -814,6 +816,24 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		return;
 	}
 	
+	if (curr_type == CURRENCY::ICE) {
+		sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_ICEu));
+		send_to_char(buf, ch);
+		ch->add_ice_currency(value);
+		//Делить лед ВСЕГДА!
+		if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0) {
+			char local_buf[256];
+			sprintf(local_buf, "%d", value);
+			do_split(ch, local_buf, 0, 0,curr_type);
+		}
+		return;
+	}
+	
+	//Все что ниже должно быть золотом (кунами)
+	if (curr_type != CURRENCY::GOLD) {
+		//Вот тут неопознанная валюта
+		return;
+	}
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
 
