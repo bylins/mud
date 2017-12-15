@@ -826,9 +826,10 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 			sprintf(local_buf, "%d", value);
 			do_split(ch, local_buf, 0, 0,curr_type);
 		}
+		extract_obj(obj);
 		return;
 	}
-	
+
 	//Все что ниже должно быть золотом (кунами)
 	if (curr_type != CURRENCY::GOLD) {
 		//Вот тут неопознанная валюта
@@ -1337,7 +1338,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				for (OBJ_DATA* existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj)
 				{
 					next_obj = existing_obj->get_next_content();
-					if (GET_OBJ_TYPE(existing_obj) == OBJ_DATA::ITEM_MONEY)
+					if (GET_OBJ_TYPE(existing_obj) == OBJ_DATA::ITEM_MONEY && GET_OBJ_VAL(existing_obj, 1) == CURRENCY::GOLD)
 					{
 						//Запоминаем стоимость существующей кучки и удаляем ее
 						additional_amount = GET_OBJ_VAL(existing_obj, 0);
