@@ -3101,7 +3101,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			ss << "Введите имя";
 			if (0 < player_table.free_names_count())
 			{
-				ss << " (доступные имена : ";
+				ss << " (примеры доступных имен : ";
 				print_free_names(ss, player_table);
 			ss << ")";
 			}

@@ -5740,7 +5740,12 @@ void entrycount(char *name, const bool find_id /*= true*/)
 			}
 			else
 			{
-				player_table.add_free(short_ch->get_name());
+				const auto& name = short_ch->get_name();
+				constexpr int MINIMAL_NAME_LENGTH = 5;
+				if (name.length() >= MINIMAL_NAME_LENGTH)
+				{
+					player_table.add_free(name);
+				}
 			}
 		}
 		else
