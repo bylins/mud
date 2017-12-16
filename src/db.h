@@ -22,6 +22,7 @@
 
 #include <boost/array.hpp>
 #include <map>
+#include <list>
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -367,6 +368,7 @@ public:
 	using parent_t = std::vector<player_index_element>;
 	using parent_t::operator[];
 	using parent_t::size;
+	using free_names_list_t = std::list<std::string>;
 
 	static const std::size_t NOT_FOUND;
 
@@ -375,6 +377,10 @@ public:
 	bool player_exists(const char* name) const { return NOT_FOUND != get_by_name(name); }
 	std::size_t get_by_name(const char* name) const;
 	void set_name(const std::size_t index, const char* name);
+
+	void add_free(const std::string& name) { m_free_names.push_back(name); }
+	const auto free_names_count() const { return m_free_names.size(); }
+	void get_free_names(const int count, free_names_list_t& names) const;
 
 private:
 	class hasher
@@ -391,11 +397,13 @@ private:
 
 	using id_to_index_t = std::unordered_map<int, std::size_t>;
 	using name_to_index_t = std::unordered_map<std::string, std::size_t, hasher, equal_to>;
+	using free_names_t = std::deque<std::string>;
 
 	void add_name_to_index(const char* name, const std::size_t index);
 
 	id_to_index_t m_id_to_index;
 	name_to_index_t m_name_to_index;
+	free_names_t m_free_names;
 };
 
 extern PlayersIndex player_table;

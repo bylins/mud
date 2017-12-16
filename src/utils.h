@@ -1614,15 +1614,21 @@ void StringReplace(std::string& buffer, char s, const std::string& d);
 std::string& format_news_message(std::string &text);
 
 template <typename T>
-void joinList(const T& list, std::string& result, const std::string& delimiter = ", ")
+void printList(const T& list, std::ostream& result, const std::string& delimiter = ", ")
 {
-	std::stringstream ss;
 	bool first = true;
 	for (const auto& i : list)
 	{
-		ss << (first ? "" : delimiter) << i;
+		result << (first ? "" : delimiter) << i;
 		first = false;
 	}
+}
+
+template <typename T>
+void joinList(const T& list, std::string& result, const std::string& delimiter = ", ")
+{
+	std::stringstream ss;
+	printList(list, ss, delimiter);
 	result = ss.str();
 }
 
