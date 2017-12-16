@@ -1143,12 +1143,19 @@ namespace ShopExt
 
 	void shop_node::clear_store()
 	{
+		using to_remove_list_t = std::list<OBJ_DATA*>;
+		to_remove_list_t to_remove;
 		for (const auto& stored_item : m_storage)
 		{
-			extract_obj(stored_item.first);
+			to_remove.push_back(stored_item.first);
 		}
 
 		m_storage.clear();
+
+		for (const auto& item : to_remove)
+		{
+			extract_obj(item);
+		}
 	}
 
 	void shop_node::remove_from_storage(OBJ_DATA *object)
