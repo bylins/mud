@@ -4181,17 +4181,17 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (ch->get_ice_currency() == 1)
 		{
-			sprintf(buf, "У вас в наличии есть одна жалкая волшебная льдинка.\r\n");
+			sprintf(buf, "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
 			send_to_char(buf, ch);
 		}
 		else if (ch->get_ice_currency() < 5)
 		{
-			sprintf(buf, "У вас в наличии есть жалкие %d волшебные льдинки\r\n", ch->get_ice_currency());
+			sprintf(buf, "У вас в наличии есть жалкие %d искристые снежинки.\r\n", ch->get_ice_currency());
 			send_to_char(buf, ch);
 		}
 		else
 		{
-			sprintf(buf, "У вас в наличии есть %d волшебного льда.\r\n", ch->get_ice_currency());
+			sprintf(buf, "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
 			send_to_char(buf, ch);
 		}
 	}

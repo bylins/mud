@@ -100,6 +100,7 @@ void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
 void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -1677,8 +1678,11 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 	send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
+void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	do_split(ch,argument,0,0,0);
+}
 
-void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency)
 {
 	int amount, num, share, rest;
 	CHAR_DATA *k;
@@ -1689,6 +1693,17 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, buf);
 
+	int what_currency;
+		
+	switch (currency) {
+		case CURRENCY::ICE :
+			what_currency = WHAT_ICEu;
+			break;
+		default :
+			what_currency = WHAT_MONEYu;
+			break;
+	}
+
 	if (is_number(buf))
 	{
 		amount = atoi(buf);
@@ -1697,12 +1712,12 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("И как вы это планируете сделать?\r\n", ch);
 			return;
 		}
-		if (amount > ch->get_gold())
+		
+		if (amount > ch->get_gold() && currency == CURRENCY::GOLD)
 		{
 			send_to_char("И где бы взять вам столько денег?.\r\n", ch);
 			return;
 		}
-
 		k = ch->has_master() ? ch->get_master() : ch;
 
 		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
@@ -1735,11 +1750,19 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("С кем вы хотите разделить это добро?\r\n", ch);
 			return;
 		}
-
-		ch->remove_gold(share * (num - 1));
+		//MONEY_HACK
+	
+		switch (currency) {
+			case CURRENCY::ICE :
+				ch->sub_ice_currency(share* (num - 1));
+				break;
+			case CURRENCY::GOLD :
+				ch->remove_gold(share * (num - 1));
+				break;
+		}
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
-				GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, WHAT_MONEYu), share);
+				GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, what_currency), share);
 		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == ch->in_room && !IS_NPC(k) && k != ch)
 		{
 			send_to_char(buf, k);
@@ -1753,21 +1776,31 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				&& f->follower != ch)
 			{
 				send_to_char(buf, f->follower);
-				f->follower->add_gold(share, true, true);
+				switch (currency) {
+					case CURRENCY::ICE :
+						f->follower->add_ice_currency(share);
+						break;
+					case CURRENCY::GOLD :
+						f->follower->add_gold(share, true, true);
+						break;
+				}
 			}
 		}
 		sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
-				amount, desc_count(amount, WHAT_MONEYu), num, share);
+				amount, desc_count(amount, what_currency), num, share);
 		if (rest)
 		{
 			sprintf(buf + strlen(buf),
 				"Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
-				rest, desc_count(rest, WHAT_MONEYu));
+				rest, desc_count(rest, what_currency));
 		}
+
 		send_to_char(buf, ch);
 		// клан-налог лутера с той части, которая пошла каждому в группе
-		const long clan_tax = ClanSystem::do_gold_tax(ch, share);
-		ch->remove_gold(clan_tax);
+		if (currency == CURRENCY::GOLD) {
+			const long clan_tax = ClanSystem::do_gold_tax(ch, share);
+			ch->remove_gold(clan_tax);
+		}
 	}
 	else
 	{
