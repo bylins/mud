@@ -1696,7 +1696,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 	int what_currency;
 		
 	switch (currency) {
-		case CURRENCY::ICE :
+		case currency::ICE :
 			what_currency = WHAT_ICEu;
 			break;
 		default :
@@ -1713,7 +1713,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 			return;
 		}
 		
-		if (amount > ch->get_gold() && currency == CURRENCY::GOLD)
+		if (amount > ch->get_gold() && currency == currency::GOLD)
 		{
 			send_to_char("И где бы взять вам столько денег?.\r\n", ch);
 			return;
@@ -1753,10 +1753,10 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 		//MONEY_HACK
 	
 		switch (currency) {
-			case CURRENCY::ICE :
+			case currency::ICE :
 				ch->sub_ice_currency(share* (num - 1));
 				break;
-			case CURRENCY::GOLD :
+			case currency::GOLD :
 				ch->remove_gold(share * (num - 1));
 				break;
 		}
@@ -1777,10 +1777,10 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 			{
 				send_to_char(buf, f->follower);
 				switch (currency) {
-					case CURRENCY::ICE :
+					case currency::ICE :
 						f->follower->add_ice_currency(share);
 						break;
-					case CURRENCY::GOLD :
+					case currency::GOLD :
 						f->follower->add_gold(share, true, true);
 						break;
 				}
@@ -1797,7 +1797,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 
 		send_to_char(buf, ch);
 		// клан-налог лутера с той части, которая пошла каждому в группе
-		if (currency == CURRENCY::GOLD) {
+		if (currency == currency::GOLD) {
 			const long clan_tax = ClanSystem::do_gold_tax(ch, share);
 			ch->remove_gold(clan_tax);
 		}

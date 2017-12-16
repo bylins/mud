@@ -816,7 +816,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		return;
 	}
 	
-	if (curr_type == CURRENCY::ICE) {
+	if (curr_type == currency::ICE) {
 		sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_ICEu));
 		send_to_char(buf, ch);
 		ch->add_ice_currency(value);
@@ -831,7 +831,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	}
 
 	//Все что ниже должно быть золотом (кунами)
-	if (curr_type != CURRENCY::GOLD) {
+	if (curr_type != currency::GOLD) {
 		//Вот тут неопознанная валюта
 		return;
 	}
@@ -1338,7 +1338,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 				for (OBJ_DATA* existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj)
 				{
 					next_obj = existing_obj->get_next_content();
-					if (GET_OBJ_TYPE(existing_obj) == OBJ_DATA::ITEM_MONEY && GET_OBJ_VAL(existing_obj, 1) == CURRENCY::GOLD)
+					if (GET_OBJ_TYPE(existing_obj) == OBJ_DATA::ITEM_MONEY && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD)
 					{
 						//Запоминаем стоимость существующей кучки и удаляем ее
 						additional_amount = GET_OBJ_VAL(existing_obj, 0);

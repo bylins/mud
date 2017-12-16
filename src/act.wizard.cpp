@@ -2121,8 +2121,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	case OBJ_DATA::ITEM_MONEY:
 		sprintf(buf, "Сумма: %d\r\nВалюта: %s", GET_OBJ_VAL(j, 0),
-			GET_OBJ_VAL(j,1)==CURRENCY::GOLD?"куны":
-			GET_OBJ_VAL(j,1)==CURRENCY::ICE?"искристые снежинки":
+			GET_OBJ_VAL(j,1)==currency::GOLD?"куны":
+			GET_OBJ_VAL(j,1)==currency::ICE?"искристые снежинки":
 			"что-то другое"
 		);
 		break;

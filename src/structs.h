@@ -45,9 +45,9 @@ const unsigned TORC_BRONZE = 2;
 const unsigned TOTAL_TYPES = 3;
 } // namespace ExtMoney
 
-namespace CURRENCY
+namespace currency
 {
-	enum {GOLD,GLORY,TORC,ICE};
+	enum { GOLD, GLORY, TORC, ICE };
 }
 
 #define MAX_ALIAS_LENGTH 100
