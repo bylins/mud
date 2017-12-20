@@ -5206,7 +5206,12 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		break;
 
 	case SPELL_REMOVE_POISON:
-		if (GET_OBJ_VAL(obj, 3)
+		if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1)
+		{
+			to_char = "Содержимое $o1 протухло и не поддается магии.";
+			break;
+		}
+		if ((GET_OBJ_VAL(obj, 3) == 1)
 			&& ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
 				|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
 				|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOOD))
