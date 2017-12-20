@@ -718,7 +718,7 @@ void oedit_disp_val1_menu(DESCRIPTOR_DATA * d)
 		break;
 
 	case OBJ_DATA::ITEM_MONEY:
-		send_to_char("Сколько кун содержит : ", d->character.get());
+		send_to_char("Сумма : ", d->character.get());
 		break;
 
 	case OBJ_DATA::ITEM_NOTE:
@@ -799,10 +799,10 @@ void oedit_disp_val2_menu(DESCRIPTOR_DATA * d)
 	
 	case OBJ_DATA::ITEM_MONEY:
 		sprintf(buf,
-				"%s0%s) %sКуны (золото)\r\n"
+				"%s0%s) %sКуны\r\n"
 				"%s1%s) %sСлава\r\n"
 				"%s2%s) %sГривны\r\n"
-				"%s3%s) %sЛед\r\n"
+				"%s3%s) %sСнежинки\r\n"
 				"%sВыберите тип валюты : ", 
 					grn, nrm, yel,
 					grn, nrm, yel,
