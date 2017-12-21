@@ -830,11 +830,12 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		return;
 	}
 
-	//Все что ниже должно быть золотом (кунами)
-	if (curr_type != currency::GOLD) {
+// Все что неизвестно - куны (для совместимости)
+/*	if (curr_type != currency::GOLD) {
 		//Вот тут неопознанная валюта
 		return;
 	}
+*/
 	sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_MONEYu));
 	send_to_char(buf, ch);
 
