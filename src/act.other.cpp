@@ -1768,10 +1768,10 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 			send_to_char(buf, k);
 			switch (currency) {
 				case CURRENCY::ICE :
-					f->follower->add_ice_currency(share);
+					k->follower->add_ice_currency(share);
 					break;
 				case CURRENCY::GOLD :
-					f->follower->add_gold(share, true, true);
+					k->follower->add_gold(share, true, true);
 					break;
 			}
 		}
