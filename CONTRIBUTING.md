@@ -1,4 +1,4 @@
-﻿# Как внести свой вклад в развитие исходного кода Былин
+# Как внести свой вклад в развитие исходного кода Былин
 ## Правила написания кода
 
 В этом разделе описаны некоторые правила и рекомендации которым нужно следовать
@@ -20,7 +20,7 @@
 
 Например:
 
-using meat_mapping_t = std::pair<obj_vnum, obj_vnum>;
+    using meat_mapping_t = std::pair<obj_vnum, obj_vnum>;
 
 Код должен быть компилируемым на Windows, Linux. При компиляции вы должны
 уделять особое внимание предупреждениям компилятора и исправлять их при первой
@@ -53,7 +53,9 @@ using meat_mapping_t = std::pair<obj_vnum, obj_vnum>;
 
 Например:
 
-if (a) { }
+    if (a)
+	{
+	}
 
 Метки case, default, public, private, protected должны иметь тот же отступ, что
 и конструкция, к которой они относятcя.
@@ -63,16 +65,22 @@ if (a) { }
 
 Например:
 
-class A { public: A() {}
+    class A
+	{
+	public:
+		A() {}
 
-	private: std::list<int> m_b; };
+	private:
+		std::list<int> m_b;
+	};
 
 Символы '*' и '&' при описании типа данных не должны иметь пробелов слева, но
 должны иметь хотя бы один пробел справа.
 
 Например:
 
-const char* message = "blah-blah-blah"; const auto& message_ref = message;
+    const char* message = "blah-blah-blah";
+    const auto& message_ref = message;
 
 ### Добавление новых файлов
 
@@ -80,7 +88,7 @@ const char* message = "blah-blah-blah"; const auto& message_ref = message;
 с описанием его формата. Строчка эта - vim mode line. Например, для C/C++
 исходных файлов это
 
-// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+    // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 
 Здесь сообщается информация для текстового редактора Vim, что следует
 использовать размер табуляции равный 4 символа, автоотступа - 4 символа, не
