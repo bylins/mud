@@ -1760,12 +1760,12 @@ void heartbeat(const int missed_pulses)
 		uptime_minutes = ((time(NULL) - boot_time) / 60);
 	}
 
-	// каждые 30 минут подарки под случайную елку
-	/*if ((pulse % (PASSES_PER_SEC * 30 * 60)) == 0)
+/*	// каждые 30 минут подарки под случайную елку
+	if ((pulse % (PASSES_PER_SEC * 30 * 60)) == 0)
 	{
 		gifts();
-	}*/
-	
+	}
+*/	
 
 	if ((pulse % (PASSES_PER_SEC)) == 0)
 	{
