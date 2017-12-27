@@ -2302,7 +2302,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "hitp"))
 		{
-			GET_HIT(c) = (sh_int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));
+			GET_HIT(c) = (int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));
 			sprintf(str, "%d", GET_HIT(c));
 		}
 		else if (!str_cmp(field, "arenahp"))
