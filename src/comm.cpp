@@ -3946,6 +3946,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	case CON_REDIT:
 	case CON_ZEDIT:
 	case CON_MEDIT:
+	case CON_MREDIT:
 	case CON_TRIGEDIT:
 		cleanup_olc(d, CLEANUP_ALL);
 		break;
