@@ -151,6 +151,7 @@ const char *MOB_STAT_FILE_NEW = LIB_PLRSTUFF"mob_stat_new.xml";
 const int HISTORY_SIZE = 6;
 /// выборка кол-ва мобов для show stats при старте мада <months, mob-count>
 std::map<int, int> count_stats;
+std::map<int, int> kill_stats;
 /// список мобов по внуму и месяцам
 std::unordered_map<int, std::list<mob_node>> mob_list;
 
@@ -224,6 +225,11 @@ void load()
 				if (attr && attr.as_int() > 0)
 				{
 					tmp_mob.kills.at(k) = attr.as_int();
+
+					if (k > 0)
+					{
+						kill_stats[tmp_mob.month] += attr.as_int();
+					}
 				}
 			}
 			tmp_time.push_back(tmp_mob);
@@ -283,12 +289,19 @@ void clear_zone(int zone_vnum)
 void show_stats(CHAR_DATA *ch)
 {
 	std::stringstream out;
-	out << "  Всего мобов в статистике убийств: " << mob_list.size() << "\r\n"
-		<< "  По месяцам:";
+	out << "  Всего уникальных мобов в статистике убийств: " << mob_list.size() << "\r\n"
+		<< "  Количество уникальных мобов по месяцам:";
 	for (auto i = count_stats.begin(); i != count_stats.end(); ++i)
 	{
 		out << " " << std::setw(2) << std::setfill('0') << i->first << ":" << i->second;
 	}
+
+	out << "\r\n" << "  Количество убитых мобов по месяцам:";
+	for (auto i = kill_stats.begin(); i != kill_stats.end(); ++i)
+	{                                                                            
+		out << " " << std::setw(2) << std::setfill('0') << i->first << ":" << i->second;
+	}
+                
 	out << "\r\n";
 	send_to_char(out.str(), ch);
 }
