@@ -1027,6 +1027,8 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 	strcat(buf, buf1);
 	send_to_char(buf, d->character.get());
 	free(buf);
+	free(type1_zones);
+	free(type2_zones);
 
 	OLC_MODE(d) = ZEDIT_MAIN_MENU;
 }

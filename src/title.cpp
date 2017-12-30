@@ -146,11 +146,11 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 		}
 
 		std::string pre_title, title;
-		std::string::size_type beg_idx = buffer.find("!");
+		std::string::size_type beg_idx = buffer.find('!');
 		if (beg_idx != std::string::npos)
 		{
 			pre_title = buffer.substr(0, beg_idx);
-			beg_idx = buffer.find_first_not_of("!", beg_idx);
+			beg_idx = buffer.find_first_not_of('!', beg_idx);
 			if (beg_idx != std::string::npos)
 				title = buffer.substr(beg_idx);
 			boost::trim(title);

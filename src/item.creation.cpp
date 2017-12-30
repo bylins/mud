@@ -1370,9 +1370,9 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 			return 0;
 		}
 		std::string tmpstr = tobj->get_aliases() + " ";
-		while (int(tmpstr.find(" ")) > 0)
+		while (int(tmpstr.find(' ')) > 0)
 		{
-			if ((tmpstr.substr(0, tmpstr.find(" "))).find(rname) == 0)
+			if ((tmpstr.substr(0, tmpstr.find(' '))).find(rname) == 0)
 			{
 				if ((k - 1) == j)
 				{
@@ -1381,7 +1381,7 @@ MakeRecept *MakeReceptList::get_by_name(string & rname)
 				j++;
 				break;
 			}
-			tmpstr = tmpstr.substr(tmpstr.find(" ") + 1);
+			tmpstr = tmpstr.substr(tmpstr.find(' ') + 1);
 		}
 		p++;
 	}

@@ -343,7 +343,6 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 	// Тут надо понимать что если закл наложит не один аффект а несколько
 	// то обработчик будет вызываться за пульс именно столько раз.
 	int spellnum = aff->type;
-	std::vector<CHAR_DATA*> ch_list;
 
 	switch (spellnum)
 	{
@@ -569,7 +568,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	const char *to_room = NULL;
 	int i = 0, lag = 0;
 	// Sanity check
-	if (room == NULL || ch->in_room == NOWHERE || ch == NULL)
+	if (room == NULL || ch == NULL || ch->in_room == NOWHERE)
 	{
 		return 0;
 	}
