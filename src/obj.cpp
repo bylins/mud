@@ -1351,13 +1351,27 @@ std::string ObjVal::print_to_zone() const
 
 	std::stringstream out;
 
-	for(auto i = m_values.begin(), iend = m_values.end(); i != iend; ++i)
+	//sort before output
+	std::vector<std::pair<std::string, int>> m_val_vec;
+
+	for (auto const i : m_values)
 	{
-		std::string key_str = TextId::to_str(TextId::OBJ_VALS, to_underlying(i->first));
+		std::string key_str = TextId::to_str(TextId::OBJ_VALS, to_underlying(i.first));
 		if (!key_str.empty())
 		{
-			out << "V " << key_str << " " << i->second << "\n";
+			m_val_vec.push_back(std::make_pair(key_str, i.second));
 		}
+	}
+
+	std::sort(m_val_vec.begin(), m_val_vec.end(),
+		[](std::pair<std::string, int>& a, std::pair<std::string, int>& b)
+		{
+			return a.first < b.first;
+		});
+
+	for (auto const i : m_val_vec)
+	{
+		out << "V " << i.first << " " << i.second << "\n";
 	}
 
 	return out.str();
