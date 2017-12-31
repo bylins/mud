@@ -676,7 +676,6 @@ void Clan::ClanLoadSingle(std::string index)
 	std::ifstream stuffFile((filename + ".stuff").c_str());
 	if (stuffFile.is_open())
 	{
-		std::string line;
 		int i;
 		while (stuffFile >> i)
 		{
@@ -4588,7 +4587,6 @@ void Clan::ClanAddMember(CHAR_DATA * ch, int rank)
 
 	Clan::SetClanData(ch);
 	DESCRIPTOR_DATA *d;
-	std::string buffer;
 	for (d = descriptor_list; d; d = d->next)
 	{
 		if (d->character

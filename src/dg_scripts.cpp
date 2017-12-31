@@ -1246,7 +1246,7 @@ int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr)
 	if (!sc)
 		return 0;
 
-	if ((cname = strstr(name, ".")) || (!a_isdigit(*name)))
+	if ((cname = strchr(name, '.')) || (!a_isdigit(*name)))
 	{
 		string = TRUE;
 		if (cname)
@@ -4902,7 +4902,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	};
 
 	name = trignum_s;
-	if ((cname = strstr(name, ".")) || (!a_isdigit(*name)))
+	if ((cname = strchr(name, '.')) || (!a_isdigit(*name)))
 	{
 		string = TRUE;
 		if (cname)

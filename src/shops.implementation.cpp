@@ -1180,7 +1180,7 @@ namespace ShopExt
 		int num = 1;
 		if (!item_name.empty() && a_isdigit(item_name[0]))
 		{
-			std::string::size_type dot_idx = item_name.find_first_of(".");
+			std::string::size_type dot_idx = item_name.find_first_of('.');
 			if (dot_idx != std::string::npos)
 			{
 				std::string first_param = item_name.substr(0, dot_idx);

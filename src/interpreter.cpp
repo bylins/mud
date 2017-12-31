@@ -4419,16 +4419,16 @@ Sventovit
 void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 {
 	std::string::size_type beg_idx = 0, end_idx = 0;
-	beg_idx = in_buffer.find_first_not_of(" ");
+	beg_idx = in_buffer.find_first_not_of(' ');
 
 	if (beg_idx != std::string::npos)
 	{
 		// случай с кавычками
 		if (in_buffer[beg_idx] == '\'')
 		{
-			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of("\'", beg_idx)))
+			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of('\'', beg_idx)))
 			{
-				if (std::string::npos == (end_idx = in_buffer.find_first_of("\'", beg_idx)))
+				if (std::string::npos == (end_idx = in_buffer.find_first_of('\'', beg_idx)))
 				{
 					out_buffer = in_buffer.substr(beg_idx);
 					in_buffer.clear();
@@ -4443,9 +4443,9 @@ void GetOneParam(std::string & in_buffer, std::string & out_buffer)
 		}
 		else
 		{
-			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of(" ", beg_idx)))
+			if (std::string::npos != (beg_idx = in_buffer.find_first_not_of(' ', beg_idx)))
 			{
-				if (std::string::npos == (end_idx = in_buffer.find_first_of(" ", beg_idx)))
+				if (std::string::npos == (end_idx = in_buffer.find_first_of(' ', beg_idx)))
 				{
 					out_buffer = in_buffer.substr(beg_idx);
 					in_buffer.clear();

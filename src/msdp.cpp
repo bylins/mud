@@ -97,7 +97,6 @@ namespace msdp
 		size_t actual_length = 0;
 		Variable::shared_ptr request;
 
-		std::string i = indent(0);
 		debug_log("Conversation from '%s':\n",
 			(m_descriptor && m_descriptor->character) ? m_descriptor->character->get_name().c_str() : "<unknown>");
 		hexdump(buffer, length);

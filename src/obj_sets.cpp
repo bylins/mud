@@ -344,7 +344,7 @@ void verify_set(set_node &set)
 		}
 		if (i->second.enchant.second.ndice < -100
 			|| i->second.enchant.second.ndice > 100
-			|| i->second.enchant.second.sdice > 100
+			|| i->second.enchant.second.sdice < -100
 			|| i->second.enchant.second.sdice > 100)
 		{
 			err_log("сет #%zu: некорректные кубики для энчанта (%dD%d, activ=%d)",

@@ -1415,6 +1415,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	if (!fread(databuf, fsize, 1, fl) || ferror(fl) || !databuf)
 	{
 		fclose(fl);
+		delete[] databuf;
 		log("Хранилище: ошибка чтения файла предметов (%s).", filename);
 		return;
 	}
