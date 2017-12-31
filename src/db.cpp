@@ -6447,14 +6447,20 @@ void PlayersIndex::get_free_names(const int count, free_names_list_t& names) con
 	const auto free_count = m_free_names.size();
 	for (int i = 0; i < std::min<int>(count, static_cast<int>(free_count)); ++i)
 	{
+		std::size_t skipped = 0;
 		std::size_t index = rand() % free_count;
-		while (used.find(index) != used.end())
+		while (used.find(index) != used.end()
+			&& skipped < free_count)
 		{
-			index = (1 + index) % count;
+			index = (1 + index) % free_count;
+			++skipped;
 		}
 
-		names.push_back(m_free_names[index]);
-		used.insert(index);
+		if (skipped < free_count)
+		{
+			names.push_back(m_free_names[index]);
+			used.insert(index);
+		}
 	}
 }
 
