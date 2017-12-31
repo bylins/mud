@@ -2977,6 +2977,14 @@ int create_entry(player_index_element& element)
 	return static_cast<int>(player_table.append(element));
 }
 
+void print_free_names(std::ostream& os, const PlayersIndex& index)
+{
+	constexpr int SUGGESTIONS_COUNT = 4;
+	PlayersIndex::free_names_list_t names;
+	index.get_free_names(SUGGESTIONS_COUNT, names);
+	printList(names, os);
+}
+
 // deal with newcomers and other non-playing sockets
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -3089,7 +3097,18 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		else if (!str_cmp("новый", arg))
 		{
 			SEND_TO_Q(name_rules, d);
-			SEND_TO_Q("Введите имя: ", d);
+
+			std::stringstream ss;
+			ss << "Введите имя";
+			if (0 < player_table.free_names_count())
+			{
+				ss << " (примеры доступных имен : ";
+				print_free_names(ss, player_table);
+			ss << ")";
+			}
+			ss << ": ";
+
+			SEND_TO_Q(ss.str().c_str(), d);
 			STATE(d) = CON_NEW_CHAR;
 			return;
 		}
