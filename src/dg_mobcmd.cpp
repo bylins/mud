@@ -411,11 +411,15 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	{
+		mob_log(ch, "mload: in charm");
 		return;
-
+	}
 	if (ch->desc && GET_LEVEL(ch->desc->original) < LVL_IMPL)
+	{
+		mob_log(ch, "mload: not IMPL");
 		return;
-
+	}
 	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2 || !is_number(arg2) || ((number = atoi(arg2)) < 0))
