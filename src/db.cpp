@@ -5738,6 +5738,15 @@ void entrycount(char *name, const bool find_id /*= true*/)
 				log("Adding new player %s", element.name());
 				player_table.append(element);
 			}
+			else
+			{
+				const auto& name = short_ch->get_name();
+				constexpr int MINIMAL_NAME_LENGTH = 5;
+				if (name.length() >= MINIMAL_NAME_LENGTH)
+				{
+					player_table.add_free(name);
+				}
+			}
 		}
 		else
 		{
@@ -6429,6 +6438,30 @@ void PlayersIndex::set_name(const std::size_t index, const char* name)
 	m_name_to_index.erase(i);
 	operator[](index).set_name(name);
 	add_name_to_index(name, index);
+}
+
+void PlayersIndex::get_free_names(const int count, free_names_list_t& names) const
+{
+	names.clear();
+	std::set<std::size_t> used;
+	const auto free_count = m_free_names.size();
+	for (int i = 0; i < std::min<int>(count, static_cast<int>(free_count)); ++i)
+	{
+		std::size_t skipped = 0;
+		std::size_t index = rand() % free_count;
+		while (used.find(index) != used.end()
+			&& skipped < free_count)
+		{
+			index = (1 + index) % free_count;
+			++skipped;
+		}
+
+		if (skipped < free_count)
+		{
+			names.push_back(m_free_names[index]);
+			used.insert(index);
+		}
+	}
 }
 
 void PlayersIndex::add_name_to_index(const char* name, const std::size_t index)

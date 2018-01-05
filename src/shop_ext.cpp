@@ -328,7 +328,6 @@ void load(bool reload)
 		{
 			int item_vnum = Parse::attr_int(item, "vnum");
 			int price = Parse::attr_int(item, "price");
-			std::string items_template = item.attribute("template").value();
 			if (item_vnum < 0
 				|| price < 0)
 			{

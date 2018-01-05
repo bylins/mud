@@ -65,7 +65,6 @@ const char *auction_cmd[] = { "поставить", "set",
 
 void showlots(CHAR_DATA * ch)
 {
-	std::string tmpstr;
 	char tmpbuf[MAX_INPUT_LENGTH];
 
 	CHAR_DATA *sch;

@@ -4362,7 +4362,7 @@ void do_force(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char(OK, ch);
 			act(buf1, TRUE, ch, NULL, vict, TO_VICT);
 			sprintf(buf, "(GC) %s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
-			while ((pstr = strstr(buf, "%")) != NULL)
+			while ((pstr = strchr(buf, '%')) != NULL)
 			{
 				pstr[0] = '*';
 			}

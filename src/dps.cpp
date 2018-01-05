@@ -445,7 +445,6 @@ std::string PlayerDpsNode::print_charm_stats() const
 // * Распечатка групповой статистики живых чармисов по данному игроку.
 void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 {
-	std::ostringstream text;
 	for (follow_type *f = ch->followers; f; f = f->next)
 	{
 		if (!IS_CHARMICE(f->follower))
