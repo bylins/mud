@@ -880,7 +880,9 @@ void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
 	{
 		return;
 	}
-	for (const auto vict : world[ch->in_room]->people)
+
+	const auto people = world[ch->in_room]->people;	// сделать копию people, т. к. оно может измениться в теле цикла и итераторы будут испорчены
+	for (const auto& vict: people)
 	{
 		// здесь не надо преварително запоминать next_in_room, потому что как раз
 		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
