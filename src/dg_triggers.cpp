@@ -358,7 +358,6 @@ void greet_memory_mtrigger(CHAR_DATA * actor)
 	}
 }
 
-
 int greet_mtrigger(CHAR_DATA * actor, int dir)
 {
 	TRIG_DATA *t;

@@ -215,6 +215,7 @@ void trig_data_free(TRIG_DATA * this_data)
 	}
 
 	delete this_data;
+	this_data = nullptr;
 }
 
 // vnum_owner - триг, который приаттачил данный триг
