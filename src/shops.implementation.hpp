@@ -146,8 +146,8 @@ namespace ShopExt
 		const auto& mob_vnums() const { return m_mob_vnums; }
 
 		void process_buy(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument);
-		void print_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum);	// it should be const
-		void filter_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum);
+		void print_shop_list(CHAR_DATA *ch, const std::string& arg, int keeper_vnum) const;
+		void filter_shop_list(CHAR_DATA *ch, const std::string& arg, int keeper_vnum);
 		void process_cmd(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, const std::string& cmd);
 		void process_ident(CHAR_DATA *ch, CHAR_DATA *keeper, char *argument, const std::string& cmd);	// it should be const
 		void clear_store();
@@ -157,8 +157,8 @@ namespace ShopExt
 		void put_to_storage(OBJ_DATA* object) { m_storage.add(object); }
 
 		void remove_from_storage(OBJ_DATA *obj);
-		OBJ_DATA* get_from_shelve(const size_t index);
-		unsigned get_item_num(std::string &item_name, int keeper_vnum);	// it should be const
+		OBJ_DATA* get_from_shelve(const size_t index) const;
+		unsigned get_item_num(std::string &item_name, int keeper_vnum) const;
 		int can_sell_count(const int item_index) const;
 		void put_item_to_shop(OBJ_DATA* obj);
 		void do_shop_cmd(CHAR_DATA* ch, CHAR_DATA *keeper, OBJ_DATA* obj, std::string cmd);

@@ -518,7 +518,7 @@ namespace ShopExt
 		}
 	}
 
-	void shop_node::print_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum)
+	void shop_node::print_shop_list(CHAR_DATA *ch, const std::string& arg, int keeper_vnum) const
 	{
 		send_to_char(ch,
 			" ##    Доступно   Предмет                                      Цена (%s)\r\n"
@@ -551,17 +551,12 @@ namespace ShopExt
 			}
 			else
 			{
-				OBJ_DATA* tmp_obj = get_from_shelve(k);
+				const OBJ_DATA* tmp_obj = get_from_shelve(k);
 				if (tmp_obj)
 				{
 					print_value = tmp_obj->get_short_description();
 					name_value = tmp_obj->get_aliases();
 					item->set_price(GET_OBJ_COST(tmp_obj));
-				}
-				else
-				{
-					m_items_list.remove(k);	// remove from shop object that we cannot instantiate
-					continue;
 				}
 			}
 
@@ -588,7 +583,7 @@ namespace ShopExt
 		page_string(ch->desc, out.str());
 	}
 
-	bool init_type(const char *str, int& type)
+	bool init_type(const std::string& str, int& type)
 	{
 		if (is_abbrev(str, "свет")
 			|| is_abbrev(str, "light"))
@@ -692,7 +687,7 @@ namespace ShopExt
 		return true;
 	}
 
-	bool init_wear(const char *str, EWearFlag& wear)
+	bool init_wear(const std::string& str, EWearFlag& wear)
 	{
 		if (is_abbrev(str, "палец"))
 		{
@@ -766,7 +761,7 @@ namespace ShopExt
 		return true;
 	}
 
-	void shop_node::filter_shop_list(CHAR_DATA *ch, std::string arg, int keeper_vnum)
+	void shop_node::filter_shop_list(CHAR_DATA *ch, const std::string& arg, int keeper_vnum)
 	{
 		int num = 1;
 		EWearFlag wear = EWearFlag::ITEM_WEAR_UNDEFINED;
@@ -775,13 +770,13 @@ namespace ShopExt
 		std::string print_value = "";
 		std::string name_value = "";
 
-		const char *filtr_value = "";
+		std::string filtr_value;
 		const char *first_simvol = "";
 
 		if (!arg.empty())
 		{
 			first_simvol = arg.c_str();
-			filtr_value = arg.substr(1, arg.size() - 1).c_str();
+			filtr_value = arg.substr(1, arg.size() - 1);
 		}
 
 		switch (first_simvol[0])
@@ -1163,7 +1158,7 @@ namespace ShopExt
 		m_storage.remove(object);
 	}
 
-	OBJ_DATA* shop_node::get_from_shelve(const size_t index)
+	OBJ_DATA* shop_node::get_from_shelve(const size_t index) const
 	{
 		const auto node = m_items_list.node(index);
 		const auto uid = node->uid();
@@ -1175,7 +1170,7 @@ namespace ShopExt
 		return m_storage.get_by_uid(uid);
 	}
 
-	unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum)
+	unsigned shop_node::get_item_num(std::string &item_name, int keeper_vnum) const
 	{
 		int num = 1;
 		if (!item_name.empty() && a_isdigit(item_name[0]))
