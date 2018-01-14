@@ -29,11 +29,11 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-
+#include "dg_scripts.h"
 #include <map>
 
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
-
+extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #define FirstPK  1
@@ -343,6 +343,27 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 	agressor->agrobd = true;
 	pk_update_revenge(agressor, victim, BATTLE_DURATION, rent ? KILLER_UNRENTABLE : 0);
 	pk_update_revenge(victim, agressor, BATTLE_DURATION, rent ? REVENGE_UNRENTABLE : 0);
+	//Костыль cнимаем цацки недоступные и кладем в чара.
+	for (int i = 0; i < NUM_WEARS; i++)
+	{
+		OBJ_DATA *p_item;
+		if (GET_EQ(agressor, i))
+		{
+			p_item = GET_EQ(agressor, i);
+			if (invalid_no_class(agressor,p_item)) {
+				obj_to_char(unequip_char(agressor, i),agressor);
+				remove_otrigger(p_item, agressor);
+			}
+		}
+		if (GET_EQ(victim, i))
+		{
+			p_item = GET_EQ(victim, i);
+			if (invalid_no_class(victim,p_item)) {
+				obj_to_char(unequip_char(victim, i),victim);
+				remove_otrigger(p_item, victim);
+			}
+		}
+	}
 	agressor->save_char();
 	victim->save_char();
 	return;
