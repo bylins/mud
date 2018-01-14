@@ -1751,14 +1751,6 @@ int reserved_word(const char *argument)
 	return (search_block(argument, reserved, TRUE) >= 0);
 }
 
-/*
- * determine if a given string is an abbreviation of another
- * (now works symmetrically -- JE 7/25/94)
- *
- * that was dumb.  it shouldn't be symmetrical.  JE 5/1/95
- *
- * returnss 1 if arg1 is an abbreviation of arg2
- */
 int is_abbrev(const char *arg1, const char *arg2)
 {
 	if (!*arg1)

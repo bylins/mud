@@ -585,97 +585,97 @@ namespace ShopExt
 
 	bool init_type(const std::string& str, int& type)
 	{
-		if (is_abbrev(str.c_str(), "свет")
-			|| is_abbrev(str.c_str(), "light"))
+		if (is_abbrev(str, "свет")
+			|| is_abbrev(str, "light"))
 		{
 			type = OBJ_DATA::ITEM_LIGHT;
 		}
-		else if (is_abbrev(str.c_str(), "свиток")
-			|| is_abbrev(str.c_str(), "scroll"))
+		else if (is_abbrev(str, "свиток")
+			|| is_abbrev(str, "scroll"))
 		{
 			type = OBJ_DATA::ITEM_SCROLL;
 		}
-		else if (is_abbrev(str.c_str(), "палочка")
-			|| is_abbrev(str.c_str(), "wand"))
+		else if (is_abbrev(str, "палочка")
+			|| is_abbrev(str, "wand"))
 		{
 			type = OBJ_DATA::ITEM_WAND;
 		}
-		else if (is_abbrev(str.c_str(), "посох")
-			|| is_abbrev(str.c_str(), "staff"))
+		else if (is_abbrev(str, "посох")
+			|| is_abbrev(str, "staff"))
 		{
 			type = OBJ_DATA::ITEM_STAFF;
 		}
-		else if (is_abbrev(str.c_str(), "оружие")
-			|| is_abbrev(str.c_str(), "weapon"))
+		else if (is_abbrev(str, "оружие")
+			|| is_abbrev(str, "weapon"))
 		{
 			type = OBJ_DATA::ITEM_WEAPON;
 		}
-		else if (is_abbrev(str.c_str(), "броня")
-			|| is_abbrev(str.c_str(), "armor"))
+		else if (is_abbrev(str, "броня")
+			|| is_abbrev(str, "armor"))
 		{
 			type = OBJ_DATA::ITEM_ARMOR;
 		}
-		else if (is_abbrev(str.c_str(), "материал")
-			|| is_abbrev(str.c_str(), "material"))
+		else if (is_abbrev(str, "материал")
+			|| is_abbrev(str, "material"))
 		{
 			type = OBJ_DATA::ITEM_MATERIAL;
 		}
-		else if (is_abbrev(str.c_str(), "напиток")
-			|| is_abbrev(str.c_str(), "potion"))
+		else if (is_abbrev(str, "напиток")
+			|| is_abbrev(str, "potion"))
 		{
 			type = OBJ_DATA::ITEM_POTION;
 		}
-		else if (is_abbrev(str.c_str(), "прочее")
-			|| is_abbrev(str.c_str(), "другое")
-			|| is_abbrev(str.c_str(), "other"))
+		else if (is_abbrev(str, "прочее")
+			|| is_abbrev(str, "другое")
+			|| is_abbrev(str, "other"))
 		{
 			type = OBJ_DATA::ITEM_OTHER;
 		}
-		else if (is_abbrev(str.c_str(), "контейнер")
-			|| is_abbrev(str.c_str(), "container"))
+		else if (is_abbrev(str, "контейнер")
+			|| is_abbrev(str, "container"))
 		{
 			type = OBJ_DATA::ITEM_CONTAINER;
 		}
-		else if (is_abbrev(str.c_str(), "емкость")
-			|| is_abbrev(str.c_str(), "tank"))
+		else if (is_abbrev(str, "емкость")
+			|| is_abbrev(str, "tank"))
 		{
 			type = OBJ_DATA::ITEM_DRINKCON;
 		}
-		else if (is_abbrev(str.c_str(), "книга")
-			|| is_abbrev(str.c_str(), "book"))
+		else if (is_abbrev(str, "книга")
+			|| is_abbrev(str, "book"))
 		{
 			type = OBJ_DATA::ITEM_BOOK;
 		}
-		else if (is_abbrev(str.c_str(), "руна")
-			|| is_abbrev(str.c_str(), "rune"))
+		else if (is_abbrev(str, "руна")
+			|| is_abbrev(str, "rune"))
 		{
 			type = OBJ_DATA::ITEM_INGREDIENT;
 		}
-		else if (is_abbrev(str.c_str(), "ингредиент")
-			|| is_abbrev(str.c_str(), "ingradient"))
+		else if (is_abbrev(str, "ингредиент")
+			|| is_abbrev(str, "ingradient"))
 		{
 			type = OBJ_DATA::ITEM_MING;
 		}
-		else if (is_abbrev(str.c_str(), "легкие")
-			|| is_abbrev(str.c_str(), "легкая"))
+		else if (is_abbrev(str, "легкие")
+			|| is_abbrev(str, "легкая"))
 		{
 			type = OBJ_DATA::ITEM_ARMOR_LIGHT;
 		}
-		else if (is_abbrev(str.c_str(), "средние")
-			|| is_abbrev(str.c_str(), "средняя"))
+		else if (is_abbrev(str, "средние")
+			|| is_abbrev(str, "средняя"))
 		{
 			type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
 		}
-		else if (is_abbrev(str.c_str(), "тяжелые")
-			|| is_abbrev(str.c_str(), "тяжелая"))
+		else if (is_abbrev(str, "тяжелые")
+			|| is_abbrev(str, "тяжелая"))
 		{
 			type = OBJ_DATA::ITEM_ARMOR_HEAVY;
 		}
-		else if (is_abbrev(str.c_str(), "колчан"))
+		else if (is_abbrev(str, "колчан"))
 		{
 			type = OBJ_DATA::ITEM_MAGIC_CONTAINER;
 		}
-		else if (is_abbrev(str.c_str(), "стрела"))
+		else if (is_abbrev(str, "стрела"))
 		{
 			type = OBJ_DATA::ITEM_MAGIC_ARROW;
 		}
@@ -689,67 +689,67 @@ namespace ShopExt
 
 	bool init_wear(const std::string& str, EWearFlag& wear)
 	{
-		if (is_abbrev(str.c_str(), "палец"))
+		if (is_abbrev(str, "палец"))
 		{
 			wear = EWearFlag::ITEM_WEAR_FINGER;
 		}
-		else if (is_abbrev(str.c_str(), "шея") || is_abbrev(str.c_str(), "грудь"))
+		else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь"))
 		{
 			wear = EWearFlag::ITEM_WEAR_NECK;
 		}
-		else if (is_abbrev(str.c_str(), "тело"))
+		else if (is_abbrev(str, "тело"))
 		{
 			wear = EWearFlag::ITEM_WEAR_BODY;
 		}
-		else if (is_abbrev(str.c_str(), "голова"))
+		else if (is_abbrev(str, "голова"))
 		{
 			wear = EWearFlag::ITEM_WEAR_HEAD;
 		}
-		else if (is_abbrev(str.c_str(), "ноги"))
+		else if (is_abbrev(str, "ноги"))
 		{
 			wear = EWearFlag::ITEM_WEAR_LEGS;
 		}
-		else if (is_abbrev(str.c_str(), "ступни"))
+		else if (is_abbrev(str, "ступни"))
 		{
 			wear = EWearFlag::ITEM_WEAR_FEET;
 		}
-		else if (is_abbrev(str.c_str(), "кисти"))
+		else if (is_abbrev(str, "кисти"))
 		{
 			wear = EWearFlag::ITEM_WEAR_HANDS;
 		}
-		else if (is_abbrev(str.c_str(), "руки"))
+		else if (is_abbrev(str, "руки"))
 		{
 			wear = EWearFlag::ITEM_WEAR_ARMS;
 		}
-		else if (is_abbrev(str.c_str(), "щит"))
+		else if (is_abbrev(str, "щит"))
 		{
 			wear = EWearFlag::ITEM_WEAR_SHIELD;
 		}
-		else if (is_abbrev(str.c_str(), "плечи"))
+		else if (is_abbrev(str, "плечи"))
 		{
 			wear = EWearFlag::ITEM_WEAR_ABOUT;
 		}
-		else if (is_abbrev(str.c_str(), "пояс"))
+		else if (is_abbrev(str, "пояс"))
 		{
 			wear = EWearFlag::ITEM_WEAR_WAIST;
 		}
-		else if (is_abbrev(str.c_str(), "колчан"))
+		else if (is_abbrev(str, "колчан"))
 		{
 			wear = EWearFlag::ITEM_WEAR_QUIVER;
 		}
-		else if (is_abbrev(str.c_str(), "запястья"))
+		else if (is_abbrev(str, "запястья"))
 		{
 			wear = EWearFlag::ITEM_WEAR_WRIST;
 		}
-		else if (is_abbrev(str.c_str(), "правая"))
+		else if (is_abbrev(str, "правая"))
 		{
 			wear = EWearFlag::ITEM_WEAR_WIELD;
 		}
-		else if (is_abbrev(str.c_str(), "левая"))
+		else if (is_abbrev(str, "левая"))
 		{
 			wear = EWearFlag::ITEM_WEAR_HOLD;
 		}
-		else if (is_abbrev(str.c_str(), "обе"))
+		else if (is_abbrev(str, "обе"))
 		{
 			wear = EWearFlag::ITEM_WEAR_BOTHS;
 		}

@@ -34,7 +34,13 @@ int search_block(const std::string &arg, const char **list, int exact);
 int fill_word(const char *argument);
 void half_chop(char const *string, char *arg1, char *arg2);
 void nanny(DESCRIPTOR_DATA * d, char *arg);
+
+/**
+* returns 1 if arg1 is an abbreviation of arg2
+*/
 int is_abbrev(const char *arg1, const char *arg2);
+inline int is_abbrev(const std::string& arg1, const char *arg2) { return is_abbrev(arg1.c_str(), arg2); }
+
 int is_number(const char *str);
 int find_command(const char *command);
 // блок подобной же фигни для стрингов
