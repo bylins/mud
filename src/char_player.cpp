@@ -456,7 +456,6 @@ void Player::save_char()
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
-	fprintf(saved, "ICur: %d\n", this->get_ice_currency());
 	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
 		strcpy(buf, this->desc->host);
@@ -679,6 +678,7 @@ void Player::save_char()
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
 	fprintf(saved, "Gold: %ld\n", get_gold());
 	fprintf(saved, "Bank: %ld\n", get_bank());
+	fprintf(saved, "ICur: %d\n", get_ice_currency());
 	fprintf(saved, "Ruble: %ld\n", get_ruble());
 	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(this));
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(this));
@@ -1066,7 +1066,10 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "ICur"))
 			{
-				this->set_ice_currency(lnum);
+				//Тут контроль льда потом можно сделать
+				//this->set_ice_currency(lnum);//на праздники
+				if (get_ice_currency()>0) //обнуляем если есть лед
+					this->set_ice_currency(0);
 			}
 			break;
 		case 'L':
