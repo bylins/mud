@@ -383,8 +383,12 @@ int greet_mtrigger(CHAR_DATA * actor, int dir)
 		{
 			continue;
 		}
-
+		std::list<TRIG_DATA*> iteration_list;
 		for (t = TRIGGERS(SCRIPT(ch)); t; t = t->next)
+		{
+			iteration_list.push_back(t);
+		}
+		for (const auto& t: iteration_list)
 		{
 			if (((IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET)
 					&& CAN_SEE(ch, actor))
