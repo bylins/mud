@@ -472,9 +472,6 @@ void remove_triggers(TrigList trigs, SCRIPT_DATA* sc)
 	
 	for (TrigList::const_iterator it = trigs.begin(); it!= trigs.end(); ++it)
 	{
-		TRIG_DATA* tr;
-		TRIG_DATA* tmp;
-
 		if (nullptr == sc)
 		{
 			checker.set_inside_loop();
@@ -483,32 +480,11 @@ void remove_triggers(TrigList trigs, SCRIPT_DATA* sc)
 			return;
 		}
 
-		for (tmp = nullptr, tr = TRIGGERS(sc); tr; tmp = tr, tr = tr->next)
+		TRIG_DATA* removed = sc->trig_list.remove_by_vnum(*it);
+		if (removed)
 		{
-			const auto trigger_rnum = tr->get_rnum();
-			if (trig_index[trigger_rnum]->vnum == *it)
-			{
-				break;
-			}
-		}
-
-		if (tr)
-		{
-			if (tmp)
-			{
-				tmp->next = tr->next;
-				extract_trigger(tr);
-			}
-			// this was the first trigger
-			else
-			{
-				TRIGGERS(sc) = tr->next;
-				extract_trigger(tr);
-			}
-			// update the script type bitvector
-			SCRIPT_TYPES(sc) = 0;
-			for (tr = TRIGGERS(sc); tr; tr = tr->next)
-				SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(tr);
+			extract_trigger(removed);
+			SCRIPT_TYPES(sc) = sc->trig_list.get_type();
 		}
 	}
 }
@@ -517,10 +493,15 @@ void remove_from_obj_lists(long uid)
 {
 	CelebrateObjs::iterator it = attached_objs.find(uid);
 	if (it != attached_objs.end())
+	{
 		attached_objs.erase(it);
+	}
+
 	it = loaded_objs.find(uid);
 	if (it != loaded_objs.end())
+	{
 		loaded_objs.erase(it);
+	}
 }
 
 void remove_from_mob_lists(long uid)

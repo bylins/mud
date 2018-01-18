@@ -39,6 +39,7 @@
 
 #include <algorithm>
 #include <stack>
+#include <iostream>
 
 void trig_data_free(TRIG_DATA * this_data);
 //внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
@@ -215,7 +216,6 @@ void trig_data_free(TRIG_DATA * this_data)
 	}
 
 	delete this_data;
-	this_data = nullptr;
 }
 
 // vnum_owner - триг, который приаттачил данный триг

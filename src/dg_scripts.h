@@ -99,7 +99,6 @@ extern const char *attach_name[];
 #define TRIG_NEW                0	// trigger starts from top  //
 #define TRIG_RESTART            1	// trigger restarting       //
 
-
 /*
  * These are slightly off of PULSE_MOBILE so
  * everything isnt happening at the same time
@@ -180,6 +179,73 @@ public:
 	TRIG_DATA* next;
 };
 
+class TriggerEventObserver
+{
+public:
+	using shared_ptr = std::shared_ptr<TriggerEventObserver>;
+
+	~TriggerEventObserver() {}
+
+	virtual void notify(TRIG_DATA* trigger) = 0;
+};
+
+/**
+* In addition to simple list properties this class provides safe iterators allowing to remove triggers
+* from list while iterating. However this class doesn't perform any checks.
+*/
+class TriggersList
+{
+public:
+	class iterator
+	{
+	public:
+		iterator() : m_trigger(nullptr), m_owner(nullptr) {}
+		iterator(TRIG_DATA* trigger, TriggersList* owner);
+		iterator(const iterator& rhv) = delete;
+		~iterator();
+
+		TRIG_DATA* operator*() { return m_trigger; }
+		TRIG_DATA* operator->() { return m_trigger; }
+		iterator& operator++();
+		operator bool() const { return nullptr != m_trigger; }
+
+	private:
+		TRIG_DATA* m_trigger;
+		TriggersList* m_owner;
+	};
+
+	TriggersList();
+	~TriggersList();
+
+	void add(TRIG_DATA* trigger, const bool to_front = false);
+	void remove(TRIG_DATA* trigger);
+	TRIG_DATA* find(const bool by_name, const char* name, const int vnum_or_position);
+	TRIG_DATA* find_by_name(const char* name, const int number);
+	TRIG_DATA* find_by_vnum_or_position(const int vnum_or_position);
+	TRIG_DATA* find_by_vnum(const int vnum);
+	TRIG_DATA* remove_by_name(const char* name, const int number);
+	TRIG_DATA* remove_by_vnum_or_position(const int vnum_or_position);
+	TRIG_DATA* remove_by_vnum(const int vnum);
+	long get_type() const;
+	bool has_trigger(const TRIG_DATA* const trigger);
+	void clear();
+
+	iterator&& begin() { return std::move(iterator(rewind(), this)); }
+
+	operator bool() const { return !m_list.empty(); }
+
+private:
+	using list_t = std::list<TRIG_DATA *>;
+
+	TRIG_DATA* rewind();
+	TRIG_DATA* next();
+
+	list_t m_list;
+	TriggerEventObserver::shared_ptr m_observer;
+	list_t::iterator m_next;
+	bool m_iteration_in_progress;
+};
+
 // a complete script (composed of several triggers) //
 struct SCRIPT_DATA
 {
@@ -188,7 +254,7 @@ struct SCRIPT_DATA
 	~SCRIPT_DATA();
 
 	long types;		// bitvector of trigger types //
-	TRIG_DATA* trig_list;	// list of triggers           //
+	TriggersList trig_list;	// list of triggers           //
 	struct trig_var_data *global_vars;	// list of global variables   //
 	ubyte purged;		// script is set to be purged //
 	long context;		// current context for statics //
@@ -203,7 +269,6 @@ struct script_memory
 	char *cmd;		// command, or NULL for generic //
 	struct script_memory *next;
 };
-
 
 // function prototypes from triggers.cpp (and others) //
 void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * victim, const OBJ_DATA * object, const OBJ_DATA * target, char *arg);
@@ -234,7 +299,7 @@ void hitprcnt_mtrigger(CHAR_DATA * ch);
 int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim);
 void random_mtrigger(CHAR_DATA * ch);
 void random_otrigger(OBJ_DATA * obj);
-void random_wtrigger(ROOM_DATA * room, int num, void *s, int types, void *list, void *next);
+void random_wtrigger(ROOM_DATA * room, int num, void *s, int types, const TriggersList& list, void *next);
 void reset_wtrigger(ROOM_DATA * ch);
 void load_mtrigger(CHAR_DATA * ch);
 void load_otrigger(OBJ_DATA * obj);
@@ -246,7 +311,13 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 void script_trigger_check(void);
 void script_timechange_trigger_check(const int time);
 void add_trigger(struct SCRIPT_DATA *sc, TRIG_DATA * t, int loc);
-int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA ** trig_addr);
+
+int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA*& trig_addr);
+inline int remove_trigger(SCRIPT_DATA * sc, char *name)
+{
+	TRIG_DATA* dummy = nullptr;
+	return remove_trigger(sc, name, dummy);
+}
 
 void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig);
 void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch);
@@ -260,19 +331,26 @@ void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);
 class GlobalTriggersStorage
 {
 public:
+	~GlobalTriggersStorage();
+
 	void add(TRIG_DATA* trigger);
 	void remove(TRIG_DATA* trigger);
 	void shift_rnums_from(const rnum_t rnum);
 	bool has_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.find(rnum) != m_rnum2trigers_set.end(); }
 	const auto& get_triggers_with_rnum(const rnum_t rnum) const { return m_rnum2trigers_set.at(rnum); }
+	void register_remove_observer(TRIG_DATA* trigger, const TriggerEventObserver::shared_ptr& observer);
+	void unregister_remove_observer(TRIG_DATA* trigger, const TriggerEventObserver::shared_ptr& observer);
 
 private:
 	using triggers_set_t = std::unordered_set<TRIG_DATA*>;
 	using storage_t = triggers_set_t;
 	using rnum2trigers_set_t = std::unordered_map<rnum_t, triggers_set_t>;
+	using observers_set_t = std::unordered_set<TriggerEventObserver::shared_ptr>;
+	using observers_t = std::unordered_map<TRIG_DATA*, observers_set_t>;
 
 	storage_t m_triggers;
 	rnum2trigers_set_t m_rnum2trigers_set;
+	observers_t m_observers;
 };
 
 extern GlobalTriggersStorage trigger_list;
@@ -289,13 +367,9 @@ ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj);
 void do_dg_cast(void *go, struct SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
 void do_dg_affect(void *go, struct SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
 
-
-
 void add_var_cntx(struct trig_var_data **var_list, const char *name, const char *value, long id);
 struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name, long id);
 int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
-
-
 
 // Macros for scripts //
 
