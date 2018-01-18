@@ -2717,7 +2717,7 @@ room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep)
 	}
 	else if (obj->get_worn_by())
 	{
-		return GET_ROOM_VNUM(IN_ROOM(obj->get_carried_by()));
+		return GET_ROOM_VNUM(IN_ROOM(obj->get_worn_by()));
 	}
 
 	return NOWHERE;
