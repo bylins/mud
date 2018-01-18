@@ -2701,6 +2701,28 @@ void object_list_new_owner(OBJ_DATA * list, CHAR_DATA * ch)
 	}
 }
 
+room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep)
+{
+	if (GET_ROOM_VNUM(obj->get_in_room()) != NOWHERE)
+	{
+		return GET_ROOM_VNUM(obj->get_in_room());
+	}
+	else if (obj->get_in_obj() && !deep)
+	{
+		return get_room_where_obj(obj->get_in_obj(), 1);
+	}
+	else if (obj->get_carried_by())
+	{
+		return GET_ROOM_VNUM(IN_ROOM(obj->get_carried_by()));
+	}
+	else if (obj->get_worn_by())
+	{
+		return GET_ROOM_VNUM(IN_ROOM(obj->get_carried_by()));
+	}
+
+	return NOWHERE;
+}
+
 // Extract an object from the world
 void extract_obj(OBJ_DATA * obj)
 {
@@ -2708,7 +2730,7 @@ void extract_obj(OBJ_DATA * obj)
 	OBJ_DATA *temp;
 
 	strcpy(name, obj->get_PName(0).c_str());
-	log("Extracting obj %s vnum == %d timer == %d", name, GET_OBJ_VNUM(obj), obj->get_timer());
+	log("Extracting obj %s vnum == %d room = %d timer == %d", name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, 0), obj->get_timer());
 // TODO: в дебаг log("Start extract obj %s", name);
 
 	// Get rid of the contents of the object, as well.
