@@ -272,7 +272,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 		{
 			if (!(room->script))
 			{
-				CREATE(room->script, 1);
+				room->script = new SCRIPT_DATA();
 			}
 
 			const auto trigger_instance = read_trigger(rnum);

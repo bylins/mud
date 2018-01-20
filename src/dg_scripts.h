@@ -202,6 +202,11 @@ public:
 		iterator() : m_trigger(nullptr), m_owner(nullptr) {}
 		iterator(TRIG_DATA* trigger, TriggersList* owner);
 		iterator(const iterator& rhv) = delete;
+		iterator(iterator&& rhv): m_trigger(rhv.m_trigger), m_owner(rhv.m_owner)
+		{
+			rhv.m_trigger = nullptr;
+			rhv.m_owner = nullptr;
+		}
 		~iterator();
 
 		TRIG_DATA* operator*() { return m_trigger; }
@@ -230,7 +235,8 @@ public:
 	bool has_trigger(const TRIG_DATA* const trigger);
 	void clear();
 
-	iterator&& begin() { return std::move(iterator(rewind(), this)); }
+	iterator begin() { return std::move(iterator(rewind(), this)); }
+	iterator end() { return std::move(iterator(nullptr, this)); }
 
 	operator bool() const { return !m_list.empty(); }
 

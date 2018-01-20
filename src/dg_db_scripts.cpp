@@ -200,7 +200,7 @@ void free_script(SCRIPT_DATA* sc)
 
 	free_varlist(sc->global_vars);
 
-	free(sc);
+	delete sc;
 }
 
 void trig_data_free(TRIG_DATA * this_data)
@@ -309,7 +309,7 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(mob))
 					{
-						CREATE(mob->script, 1);
+						mob->script = new SCRIPT_DATA();
 					}
 					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
 

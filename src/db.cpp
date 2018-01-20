@@ -4258,7 +4258,9 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			if ( rn != NOWHERE)
 			{
 				if (!(world[rn]->script))
-					CREATE(world[rn]->script, 1);
+				{
+					world[rn]->script = new SCRIPT_DATA();
+				}
 
 				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin();
 						it != (*room)->triggers.end(); ++it)

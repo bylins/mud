@@ -996,7 +996,7 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 		send_to_char(buf, ch);
 	}
 
-	for (auto& t = sc->trig_list.begin(); t; ++t)
+	for (auto t : sc->trig_list)
 	{
 		sprintf(buf, "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d]\r\n",
 				CCYEL(ch, C_NRM), GET_TRIG_NAME(t), CCNRM(ch, C_NRM),
@@ -1171,7 +1171,9 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
 					if (!SCRIPT(victim))
-						CREATE(SCRIPT(victim), 1);
+					{
+						SCRIPT(victim) = new SCRIPT_DATA();
+					}
 					add_trigger(SCRIPT(victim), trig, loc);
 
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
@@ -1222,7 +1224,7 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				{
 					if (!(world[room]->script))
 					{
-						CREATE(world[room]->script, 1);
+						world[room]->script = new SCRIPT_DATA();
 					}
 					add_trigger(world[room]->script, trig, loc);
 
@@ -1379,9 +1381,13 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (victim)
 		{
 			if (!IS_NPC(victim))
+			{
 				send_to_char("Players don't have triggers.\r\n", ch);
+			}
 			else if (!SCRIPT(victim))
+			{
 				send_to_char("That mob doesn't have any triggers.\r\n", ch);
+			}
 			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
 			{
 				free_script(SCRIPT(victim));
@@ -1428,9 +1434,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
-
 }
-
 
 // frees memory associated with var
 void free_var_el(struct trig_var_data *var)
@@ -4692,7 +4696,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	{
 		if (!SCRIPT(c))
 		{
-			CREATE(SCRIPT(c), 1);
+			SCRIPT(c) = new SCRIPT_DATA();
 		}
 		add_trigger(SCRIPT(c), newtrig, -1);
 		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
@@ -4714,7 +4718,7 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 	{
 		if (!SCRIPT(r))
 		{
-			CREATE(SCRIPT(r), 1);
+			SCRIPT(r) = new SCRIPT_DATA();
 		}
 		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->number);
 		add_trigger(SCRIPT(r), newtrig, -1);
@@ -6316,7 +6320,7 @@ void read_saved_vars(CHAR_DATA * ch)
 	char context_str[16], *c;
 
 	// create the space for the script structure which holds the vars
-	CREATE(SCRIPT(ch), 1);
+	SCRIPT(ch) = new SCRIPT_DATA();
 
 	// find the file that holds the saved variables and open it
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);
@@ -6410,22 +6414,26 @@ void TriggerRemoveObserver::notify(TRIG_DATA* trigger)
 
 TriggersList::iterator::iterator(TRIG_DATA* trigger, TriggersList* owner) : m_trigger(trigger), m_owner(owner)
 {
-	if (m_owner->m_iteration_in_progress)
+	if (m_trigger)
 	{
-		trig_log(trigger, "Attempt to a nested iteration from this trigger.");
+		if (m_owner->m_iteration_in_progress)
+		{
+			trig_log(trigger, "Attempt to a nested iteration from this trigger.");
 
-		m_owner = nullptr;
-		m_trigger = nullptr;
-	}
-	else
-	{
-		m_owner->m_iteration_in_progress = true;
+			m_owner = nullptr;
+			m_trigger = nullptr;
+		}
+		else
+		{
+			m_owner->m_iteration_in_progress = true;
+		}
 	}
 }
 
 TriggersList::iterator::~iterator()
 {
-	if (m_owner)
+	if (m_owner
+		&& m_trigger)
 	{
 		m_owner->m_iteration_in_progress = false;
 	}
