@@ -6414,19 +6414,10 @@ void TriggerRemoveObserver::notify(TRIG_DATA* trigger)
 
 TriggersList::iterator::iterator(TRIG_DATA* trigger, TriggersList* owner) : m_trigger(trigger), m_owner(owner)
 {
-	if (m_trigger)
+	if (m_owner
+		&& m_trigger)
 	{
-		if (m_owner->m_iteration_in_progress)
-		{
-			trig_log(trigger, "Attempt to a nested iteration from this trigger.");
-
-			m_owner = nullptr;
-			m_trigger = nullptr;
-		}
-		else
-		{
-			m_owner->m_iteration_in_progress = true;
-		}
+		m_owner->m_iteration_in_progress = true;
 	}
 }
 
@@ -6493,16 +6484,27 @@ void TriggersList::remove(TRIG_DATA* const trigger)
 {
 	trigger_list.unregister_remove_observer(trigger, m_observer);
 
-	if (*m_next == trigger)
+	bool removed = false;
+	if (m_next != m_list.end()
+		&& *m_next == trigger)
 	{
 		m_next = m_list.erase(m_next);
+		removed = true;
 	}
 	else
 	{
-		m_list.remove(trigger);	// Script lists usually are small. So it doesn't make sense to create any indexes.
+		const auto i = std::find(m_list.begin(), m_list.end(), trigger);	// Script lists usually are small. So it doesn't make sense to create any indexes.
+		if (i != m_list.end())
+		{
+			removed = true;
+			m_list.erase(i);
+		}
 	}
 
-	extract_trigger(trigger);
+	if (removed)
+	{
+		extract_trigger(trigger);
+	}
 }
 
 TRIG_DATA* TriggersList::find(const bool by_name, const char* name, const int vnum_or_position)
@@ -6648,6 +6650,11 @@ void TriggersList::clear()
 
 TRIG_DATA* TriggersList::rewind()
 {
+	if (m_iteration_in_progress)
+	{
+		return nullptr;
+	}
+
 	m_next = m_list.begin();
 
 	return next();
@@ -6657,7 +6664,7 @@ TRIG_DATA* TriggersList::next()
 {
 	if (m_next != m_list.end())
 	{
-		return *m_next++;
+		return *(m_next++);
 	}
 
 	return nullptr;
@@ -6688,13 +6695,11 @@ TRIG_DATA::TRIG_DATA():
 	trigger_type(0),
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
-	arglist(nullptr),
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
 	purged(0),
-	var_list(nullptr),
-	next(nullptr)
+	var_list(nullptr)
 {
 }
 
@@ -6710,8 +6715,7 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 	loops(-1),
 	wait_event(nullptr),
 	purged(0),
-	var_list(nullptr),
-	next(nullptr)
+	var_list(nullptr)
 {
 }
 
@@ -6732,8 +6736,7 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	loops(from.loops),
 	wait_event(nullptr),
 	purged(0),
-	var_list(nullptr),
-	next(nullptr)
+	var_list(nullptr)
 {
 }
 
@@ -6753,7 +6756,6 @@ void TRIG_DATA::reset()
 	wait_event = nullptr;
 	purged = 0;
 	var_list = nullptr;
-	next = nullptr;
 }
 
 TRIG_DATA& TRIG_DATA::operator=(const TRIG_DATA& right)

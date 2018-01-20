@@ -28,8 +28,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-extern INDEX_DATA **trig_index;
-
 void trig_data_free(TRIG_DATA * this_data);
 
 // return memory used by a trigger 

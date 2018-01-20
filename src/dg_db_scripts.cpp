@@ -45,7 +45,6 @@ void trig_data_free(TRIG_DATA * this_data);
 //внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
 trigger_to_owners_map_t owner_trig;
 
-extern INDEX_DATA **trig_index;
 extern int top_of_trigt;
 
 extern INDEX_DATA *mob_index;

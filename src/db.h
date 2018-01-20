@@ -308,6 +308,9 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 
 extern room_rnum top_of_world;
 
+void add_trig_index_entry(int nr, TRIG_DATA* proto);
+extern INDEX_DATA **trig_index;
+
 #ifndef __CONFIG_C__
 extern char const *OK;
 extern char const *NOPERSON;

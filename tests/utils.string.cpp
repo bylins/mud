@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <utils.h>
+
 struct
 {
 	const char* data;
@@ -26,7 +28,7 @@ TEST(Utils_String, ProcedureNullTerminated)
 {
 	for (const auto& test : test_data)
 	{
-		utils::shared_string_ptr string(strdup(test.data), free);
+		utils::shared_string_ptr string(str_dup(test.data), free);
 		EXPECT_NO_FATAL_FAILURE(utils::remove_colors(string.get()));
 		EXPECT_EQ(0, strcmp(test.result, string.get()))
 			<< "Failed test case '" << test.description << "'";

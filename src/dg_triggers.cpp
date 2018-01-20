@@ -32,8 +32,6 @@
 
 #include <boost/lexical_cast.hpp>
 
-extern INDEX_DATA **trig_index;
-
 extern const char *dirs[];
 
 #ifndef LVL_BUILDER

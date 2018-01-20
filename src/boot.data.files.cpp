@@ -377,13 +377,7 @@ void TriggersFile::parse_trigger(int nr)
 
 	free(cmds);
 
-	index_data *index;
-	CREATE(index, 1);
-	index->vnum = nr;
-	index->number = 0;
-	index->func = NULL;
-	index->proto = trig;
-	trig_index[top_of_trigt++] = index;
+	add_trig_index_entry(nr, trig);
 }
 
 class WorldFile : public DiscreteFile

@@ -5,6 +5,7 @@ enable_testing()
 find_path(GTEST_ROOT include/gtest/gtest.h PATHS $ENV{GTEST_ROOT} /usr/ NO_DEFAULT_PATH)
 set(GTEST_INCLUDE ${GTEST_ROOT}/include)
 find_library(GTEST_LIB gtest PATHS ${GTEST_ROOT}/lib NO_DEFAULT_PATH)
+find_library(GMOCK_LIB gmock PATHS ${GTEST_ROOT}/lib NO_DEFAULT_PATH)
 
 include_directories(system ${GTEST_INCLUDE})
 
@@ -26,7 +27,8 @@ set(TESTS
 	fight.penalties.cpp
 	bonus.command.parser.cpp
 	quested.cpp
-	sprintbitwd.cpp)
+	sprintbitwd.cpp
+	triggers.list.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)
@@ -39,7 +41,7 @@ source_group("Tests helpers" FILES ${UTILITIES})
 add_executable(tests main.cpp ${TESTS} ${UTILITIES} ${ADDITIONAL_FILES})
 
 set_target_properties(tests PROPERTIES CXX_STANDARD 14)
-target_link_libraries(tests circle.library ${GTEST_LIB})
+target_link_libraries(tests circle.library ${GMOCK_LIB})
 if (NOT WIN32)
 	target_link_libraries(tests pthread)
 endif ()

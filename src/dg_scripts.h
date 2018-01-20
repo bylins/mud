@@ -137,9 +137,9 @@ struct trig_var_data
 // structure for triggers //
 class TRIG_DATA
 {
-	void reset();
-
 public:
+	using cmdlist_ptr = std::shared_ptr<cmdlist_element::shared_ptr>;
+
 	static const char* DEFAULT_TRIGGER_NAME;
 
 	TRIG_DATA();
@@ -147,6 +147,8 @@ public:
 	TRIG_DATA& operator=(const TRIG_DATA& right);
 	TRIG_DATA(const sh_int rnum, const char* name, const long trigger_type);
 	TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type, const long trigger_type);
+
+	virtual ~TRIG_DATA() {}	// make constructor virtual to be able to create a mock for this class
 
 	auto get_rnum() const { return nr; }
 	void set_rnum(const sh_int _) { nr = _; }
@@ -158,17 +160,9 @@ public:
 	auto get_trigger_type() const { return trigger_type; }
 	void set_trigger_type(const long _) { trigger_type = _; }
 
-private:
-	sh_int nr;			// trigger's rnum                  //
-	byte attach_type;	// mob/obj/wld intentions          //
-	byte data_type;		// type of game_data for trig      //
-	std::string name;	// name of trigger
-	long trigger_type;	// type of trigger (for bitvector) //
-
-public:
-	using cmdlist_ptr = std::shared_ptr<cmdlist_element::shared_ptr>;
 	cmdlist_ptr cmdlist;	// top of command list             //
 	cmdlist_element::shared_ptr curr_state;	// ptr to current line of trigger  //
+
 	int narg;		// numerical argument              //
 	std::string arglist;		// argument list                   //
 	int depth;		// depth into nest ifs/whiles/etc  //
@@ -176,7 +170,15 @@ public:
 	struct event_info *wait_event;	// event to pause the trigger      //
 	ubyte purged;		// trigger is set to be purged     //
 	struct trig_var_data *var_list;	// list of local vars for trigger  //
-	TRIG_DATA* next;
+
+private:
+	void reset();
+
+	sh_int nr;			// trigger's rnum                  //
+	byte attach_type;	// mob/obj/wld intentions          //
+	byte data_type;		// type of game_data for trig      //
+	std::string name;	// name of trigger
+	long trigger_type;	// type of trigger (for bitvector) //
 };
 
 class TriggerEventObserver
@@ -234,6 +236,7 @@ public:
 	long get_type() const;
 	bool has_trigger(const TRIG_DATA* const trigger);
 	void clear();
+	bool empty() const { return m_list.empty(); }
 
 	iterator begin() { return std::move(iterator(rewind(), this)); }
 	iterator end() { return std::move(iterator(nullptr, this)); }
@@ -439,7 +442,6 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell);
 
 // external vars from db.cpp //
 extern int top_of_trigt;
-extern INDEX_DATA **trig_index;
 extern int last_trig_vnum;//последний триг в котором произошла ошибка
 
 const int MAX_TRIG_USEC = 30000;

@@ -98,6 +98,18 @@ Rooms world;
 
 room_rnum top_of_world = 0;	// ref to top element of world
 
+void add_trig_index_entry(int nr, TRIG_DATA* trig)
+{
+	index_data *index;
+	CREATE(index, 1);
+	index->vnum = nr;
+	index->number = 0;
+	index->func = NULL;
+	index->proto = trig;
+
+	trig_index[top_of_trigt++] = index;
+}
+
 INDEX_DATA **trig_index;	// index table for triggers
 int top_of_trigt = 0;		// top of trigger index table
 
