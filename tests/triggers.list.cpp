@@ -42,6 +42,8 @@ protected:
 	test_triggers_list_t m_test_triggers;	// so far triggers are being deleted when they are being removed from TriggersList. So, we shouldn't care about that.
 };
 
+const int TriggersList_F::TRIGGERS_NUMBER;
+
 void TriggersList_F::SetUp()
 {
 	trigger_list = GlobalTriggersStorage(); // reset global triggers storage before each test
@@ -128,6 +130,7 @@ TEST_F(TriggersList_F, RemoveAllWhenIterating)
 	int counter = 0;
 	for (auto t : m_script.trig_list)
 	{
+		UNUSED_ARG(t);
 		++counter;
 		for (auto to_remove : m_test_triggers)
 		{
@@ -145,6 +148,7 @@ TEST_F(TriggersList_F, NestedLoops)
 
 	for (auto t : m_script.trig_list)
 	{
+		UNUSED_ARG(t);
 		EXPECT_EQ(m_script.trig_list.begin(), m_script.trig_list.end());	// all nested loops must be locked
 	}
 }

@@ -6688,34 +6688,34 @@ SCRIPT_DATA::~SCRIPT_DATA()
 const char* TRIG_DATA::DEFAULT_TRIGGER_NAME = "no name";
 
 TRIG_DATA::TRIG_DATA():
+	cmdlist(new cmdlist_element::shared_ptr()),
+	narg(0),
+	depth(0),
+	loops(-1),
+	wait_event(nullptr),
+	purged(0),
+	var_list(nullptr),
 	nr(NOTHING),
 	attach_type(0),
 	data_type(0),
 	name(DEFAULT_TRIGGER_NAME),
-	trigger_type(0),
-	cmdlist(new cmdlist_element::shared_ptr()),
-	narg(0),
-	depth(0),
-	loops(-1),
-	wait_event(nullptr),
-	purged(0),
-	var_list(nullptr)
+	trigger_type(0)
 {
 }
 
 TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type, const long trigger_type) :
-	nr(rnum),
-	attach_type(attach_type),
-	data_type(0),
-	name(name),
-	trigger_type(trigger_type),
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
 	purged(0),
-	var_list(nullptr)
+	var_list(nullptr),
+	nr(rnum),
+	attach_type(attach_type),
+	data_type(0),
+	name(name),
+	trigger_type(trigger_type)
 {
 }
 
@@ -6724,11 +6724,6 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const long trigger_typ
 }
 
 TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
-	nr(from.nr),
-	attach_type(from.attach_type),
-	data_type(from.data_type),
-	name(from.name),
-	trigger_type(from.trigger_type),
 	cmdlist(from.cmdlist),
 	narg(from.narg),
 	arglist(from.arglist),
@@ -6736,7 +6731,12 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	loops(from.loops),
 	wait_event(nullptr),
 	purged(0),
-	var_list(nullptr)
+	var_list(nullptr),
+	nr(from.nr),
+	attach_type(from.attach_type),
+	data_type(from.data_type),
+	name(from.name),
+	trigger_type(from.trigger_type)
 {
 }
 
