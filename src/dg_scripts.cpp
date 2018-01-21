@@ -1120,11 +1120,12 @@ void add_trigger(SCRIPT_DATA* sc, TRIG_DATA * t, int loc)
 		return;
 	}
 
-	sc->trig_list.add(t, 0 == loc);
-
-	SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
-
-	trigger_list.add(t);
+	const bool added = sc->trig_list.add(t, 0 == loc);
+	if (added)
+	{
+		SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
+		trigger_list.add(t);
+	}
 }
 
 void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -6450,7 +6451,7 @@ TriggersList::~TriggersList()
 	clear();
 }
 
-void TriggersList::add(TRIG_DATA* trigger, const bool to_front /*= false*/)
+bool TriggersList::add(TRIG_DATA* trigger, const bool to_front /*= false*/)
 {
 	for (const auto& i : m_list)
 	{
@@ -6464,7 +6465,7 @@ void TriggersList::add(TRIG_DATA* trigger, const bool to_front /*= false*/)
 			*/
 			extract_trigger(trigger);
 
-			return;
+			return false;
 		}
 	}
 
@@ -6478,6 +6479,8 @@ void TriggersList::add(TRIG_DATA* trigger, const bool to_front /*= false*/)
 	{
 		m_list.push_back(trigger);
 	}
+
+	return true;
 }
 
 void TriggersList::remove(TRIG_DATA* const trigger)

@@ -224,7 +224,7 @@ public:
 	TriggersList();
 	~TriggersList();
 
-	void add(TRIG_DATA* trigger, const bool to_front = false);
+	bool add(TRIG_DATA* trigger, const bool to_front = false);
 	void remove(TRIG_DATA* trigger);
 	TRIG_DATA* find(const bool by_name, const char* name, const int vnum_or_position);
 	TRIG_DATA* find_by_name(const char* name, const int number);

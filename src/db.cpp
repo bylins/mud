@@ -4852,7 +4852,9 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
 					if (!SCRIPT(tmob))
-						CREATE(SCRIPT(tmob), 1);
+					{
+						SCRIPT(tmob) = new SCRIPT_DATA();
+					}
 					add_trigger(SCRIPT(tmob), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
@@ -4871,7 +4873,7 @@ void reset_zone(zone_rnum zone)
 					{
 						if (!(world[ZCMD.arg3]->script))
 						{
-							CREATE(world[ZCMD.arg3]->script, 1);
+							world[ZCMD.arg3]->script = new SCRIPT_DATA();;
 						}
 						add_trigger(world[ZCMD.arg3]->script,
 									read_trigger(real_trigger(ZCMD.arg2)), -1);
