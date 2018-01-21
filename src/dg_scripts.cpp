@@ -4778,14 +4778,8 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 
 	if (c && SCRIPT(c))
 	{
-		if (remove_trigger(SCRIPT(c), trignum_s, retval))
-		{
-			if (!TRIGGERS(SCRIPT(c)))
-			{
-				free_script(SCRIPT(c));
-				SCRIPT(c) = NULL;
-			}
-		}
+		remove_trigger(SCRIPT(c), trignum_s, retval);
+
 		return retval;
 	}
 
