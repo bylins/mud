@@ -204,7 +204,7 @@ public:
 		iterator() : m_trigger(nullptr), m_owner(nullptr) {}
 		iterator(TRIG_DATA* trigger, TriggersList* owner);
 		iterator(const iterator& rhv) = delete;
-		iterator(iterator&& rhv): m_trigger(rhv.m_trigger), m_owner(rhv.m_owner)
+		iterator(iterator&& rhv) : m_trigger(rhv.m_trigger), m_owner(rhv.m_owner)
 		{
 			rhv.m_trigger = nullptr;
 			rhv.m_owner = nullptr;
@@ -217,7 +217,7 @@ public:
 		operator bool() const { return nullptr != m_trigger; }
 
 	private:
-		TRIG_DATA* m_trigger;
+		TRIG_DATA * m_trigger;
 		TriggersList* m_owner;
 	};
 
@@ -248,6 +248,7 @@ private:
 
 	TRIG_DATA* rewind();
 	TRIG_DATA* next();
+	list_t::iterator remove(const list_t::iterator& iterator);
 
 	list_t m_list;
 	TriggerEventObserver::shared_ptr m_observer;

@@ -96,8 +96,7 @@ void Characters::purge()
 			clearMemory(character.get());
 		}
 
-		free_script(SCRIPT(character));	// см. выше
-		SCRIPT(character) = NULL;
+		character->remove_script();
 
 		if (SCRIPT_MEM(character))
 		{

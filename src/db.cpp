@@ -6066,7 +6066,7 @@ void room_free(ROOM_DATA * room)
 	}
 
 	// óËÒÉĞÔ
-	free_script(SCRIPT(room));
+	room->remove_script();
 
 	if (room->ing_list)
 	{

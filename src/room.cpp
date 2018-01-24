@@ -6,6 +6,8 @@
 
 #include "room.hpp"
 
+#include "dg_scripts.h"
+
 ROOM_DATA::ROOM_DATA()
 	: number(0),
 	zone(0),
@@ -47,6 +49,12 @@ CHAR_DATA* ROOM_DATA::first_character() const
 	CHAR_DATA* first = people.empty() ? nullptr : *people.begin();
 
 	return first;
+}
+
+void ROOM_DATA::remove_script()
+{
+	delete script;
+	script = nullptr;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

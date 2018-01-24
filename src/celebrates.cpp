@@ -525,18 +525,22 @@ bool make_clean(CelebrateDataPtr celebrate)
 		for (AttachZonList::iterator it = celebrate->mobsToAttach.begin(); it != celebrate->mobsToAttach.end();++it)
 		{
 			if (it->second.find(vnum) != it->second.end())
+			{
 				remove_triggers(it->second[vnum], mob_it->second->script);
+			}
 		}
+
 		if (SCRIPT(mob_it->second) && !TRIGGERS(SCRIPT(mob_it->second)))
 		{
-			free_script(SCRIPT(mob_it->second));	// без комментариев
-			SCRIPT(mob_it->second) = NULL;
+			mob_it->second->remove_script();
 		}
+
 		attached_mobs.erase(mob_it);
 		if (attached_mobs.empty())
+		{
 			break;
+		}
 	}
-	
 
 	for (obj_it = attached_objs.begin(); obj_it != attached_objs.end(); ++obj_it)
 	{
@@ -610,8 +614,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 				remove_triggers((*room)->triggers, world[rnum]->script);
 				if (SCRIPT(world[rnum]) && !TRIGGERS(SCRIPT(world[rnum])))
 				{
-					free_script(SCRIPT(world[rnum]));	// без комментариев
-					SCRIPT(world[rnum]) = NULL;
+					world[rnum]->remove_script();
 				}
 			}
 		}

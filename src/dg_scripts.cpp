@@ -1062,7 +1062,6 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 	}
 }
 
-
 void do_sstat_room(CHAR_DATA * ch)
 {
 	ROOM_DATA *rm = world[ch->in_room];
@@ -1327,24 +1326,27 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		room = world[ch->in_room];
 		if (!SCRIPT(room))
+		{
 			send_to_char("This room does not have any triggers.\r\n", ch);
+		}
 		else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
 		{
-			free_script(SCRIPT(room));
-			SCRIPT(room) = NULL;
+			room->remove_script();
+
 			send_to_char("All triggers removed from room.\r\n", ch);
 		}
 		else if (remove_trigger(SCRIPT(room), arg2))
 		{
 			send_to_char("Trigger removed.\r\n", ch);
-			if (!TRIGGERS(SCRIPT(room)))
+			if (SCRIPT(room)->trig_list.empty())
 			{
-				free_script(SCRIPT(room));
-				SCRIPT(room) = NULL;
+				room->remove_script();
 			}
 		}
 		else
+		{
 			send_to_char("That trigger was not found.\r\n", ch);
+		}
 	}
 	else
 	{
@@ -1391,22 +1393,23 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
 			{
-				free_script(SCRIPT(victim));
-				SCRIPT(victim) = NULL;
+				victim->remove_script();
 				sprintf(buf, "All triggers removed from %s.\r\n", GET_SHORT(victim));
 				send_to_char(buf, ch);
 			}
-			else if (trigger && remove_trigger(SCRIPT(victim), trigger))
+			else if (trigger
+				&& remove_trigger(SCRIPT(victim), trigger))
 			{
 				send_to_char("Trigger removed.\r\n", ch);
 				if (!TRIGGERS(SCRIPT(victim)))
 				{
-					free_script(SCRIPT(victim));
-					SCRIPT(victim) = NULL;
+					victim->remove_script();
 				}
 			}
 			else
+			{
 				send_to_char("That trigger was not found.\r\n", ch);
+			}
 		}
 		else if (object)
 		{
@@ -4797,14 +4800,8 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 
 	if (r && SCRIPT(r))
 	{
-		if (remove_trigger(SCRIPT(r), trignum_s, retval))
-		{
-			if (!TRIGGERS(SCRIPT(r)))
-			{
-				free_script(SCRIPT(r));
-				SCRIPT(r) = NULL;
-			}
-		}
+		remove_trigger(SCRIPT(r), trignum_s, retval);
+
 		return retval;
 	}
 
@@ -6479,29 +6476,31 @@ bool TriggersList::add(TRIG_DATA* trigger, const bool to_front /*= false*/)
 
 void TriggersList::remove(TRIG_DATA* const trigger)
 {
-	trigger_list.unregister_remove_observer(trigger, m_observer);
-
-	bool removed = false;
-	if (m_next != m_list.end()
-		&& *m_next == trigger)
+	const auto i = std::find(m_list.begin(), m_list.end(), trigger);
+	if (i != m_list.end())
 	{
-		m_next = m_list.erase(m_next);
-		removed = true;
+		remove(i);
+	}
+}
+
+TriggersList::list_t::iterator TriggersList::remove(const list_t::iterator& iterator)
+{
+	TRIG_DATA* trigger = *iterator;
+	trigger_list.unregister_remove_observer(*iterator, m_observer);
+
+	list_t::iterator result = m_list.end();
+	if (m_next == iterator)
+	{
+		m_next = result = m_list.erase(iterator);
 	}
 	else
 	{
-		const auto i = std::find(m_list.begin(), m_list.end(), trigger);	// Script lists usually are small. So it doesn't make sense to create any indexes.
-		if (i != m_list.end())
-		{
-			removed = true;
-			m_list.erase(i);
-		}
+		result = m_list.erase(iterator);
 	}
 
-	if (removed)
-	{
-		extract_trigger(trigger);
-	}
+	extract_trigger(trigger);
+
+	return result;
 }
 
 TRIG_DATA* TriggersList::find(const bool by_name, const char* name, const int vnum_or_position)

@@ -118,6 +118,8 @@ struct ROOM_DATA
 
 	CHAR_DATA* first_character() const;
 
+	void remove_script();
+
 private:
 	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //
 };

@@ -2955,7 +2955,7 @@ void change_npc_leader(CHAR_DATA *ch)
 * Extract a ch completely from the world, and leave his stuff behind
 * \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
 */
-void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
+void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 {
 	if (ch->purged())
 	{
@@ -3089,8 +3089,8 @@ void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset)
 	}
 
     // на плееров сейчас тоже триги вешают
-	free_script(SCRIPT(ch));	// без комментариев
-	SCRIPT(ch) = NULL;	// т.к. реально char будет удален позже
+	ch->remove_script();
+
 	// нужно обнулить его script_data, иначе
 	// там начнут искать random_triggers
 	if (SCRIPT_MEM(ch))

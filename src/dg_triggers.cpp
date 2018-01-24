@@ -254,8 +254,14 @@ void random_mtrigger(CHAR_DATA * ch)
 		if (TRIGGER_CHECK(t, MTRIG_RANDOM) && (number(1, 100) <= GET_TRIG_NARG(t)))
 		{
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+
 			break;
 		}
+	}
+
+	if (SCRIPT(ch)->trig_list.empty())
+	{
+		ch->remove_script();
 	}
 }
 
@@ -278,6 +284,7 @@ void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
 			add_var_cntx(&GET_TRIG_VARS(t), "amount", buf, 0);
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+
 			break;
 		}
 	}
@@ -584,7 +591,10 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 	const auto people_copy = world[IN_ROOM(actor)]->people;
 	for (const auto ch : people_copy)
 	{
-		if ((SCRIPT_CHECK(ch, MTRIG_COMMAND) && CAN_START_MTRIG(ch) && (actor != ch)) && !GET_INVIS_LEV(actor))
+		if ((SCRIPT_CHECK(ch, MTRIG_COMMAND)
+			&& CAN_START_MTRIG(ch)
+			&& (actor != ch))
+			&& !GET_INVIS_LEV(actor))
 		{
 			for (auto t : SCRIPT(ch)->trig_list)
 			{
@@ -595,11 +605,6 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 					snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
 					remove_trigger(SCRIPT(ch), buf);
-					if (!TRIGGERS(SCRIPT(ch)))
-					{
-						free_script(SCRIPT(ch));
-						SCRIPT(ch) = NULL;
-					}
 
 					break;
 				}
@@ -635,6 +640,11 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 						return 1;
 					}
 				}
+			}
+
+			if (SCRIPT(ch)->trig_list.empty())
+			{
+				ch->remove_script();
 			}
 		}
 	}
@@ -1533,12 +1543,6 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 			snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
 			remove_trigger(SCRIPT(room), buf);
 
-			if (!TRIGGERS(SCRIPT(room)))
-			{
-				free_script(SCRIPT(room));
-				SCRIPT(room) = NULL;
-			}
-
 			break;
 		}
 				
@@ -1576,6 +1580,11 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 
 			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
 		}
+	}
+
+	if (SCRIPT(room)->trig_list.empty())
+	{
+		room->remove_script();
 	}
 
 	return 0;

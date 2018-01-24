@@ -29,6 +29,7 @@
 #include "utils.h"
 #include "msdp.constants.hpp"
 #include "backtrace.hpp"
+#include "dg_scripts.h"
 
 #include <boost/format.hpp>
 
@@ -2086,6 +2087,12 @@ bool CHAR_DATA::low_charm() const
 	}
 
 	return false;
+}
+
+void CHAR_DATA::remove_script()
+{
+	delete script;
+	script = nullptr;
 }
 
 void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)
