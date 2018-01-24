@@ -1,17 +1,7 @@
 #include <gtest/gtest.h>
-#include <gmock/gmock.h>
 
 #include <dg_scripts.h>
 #include <db.h>
-
-class Mock_TRIG_DATA : public TRIG_DATA
-{
-public:
-	MOCK_METHOD0(destruct, void());
-
-private:
-	virtual ~Mock_TRIG_DATA() { destruct(); }
-};
 
 class TriggersList_F : public ::testing::Test
 {
@@ -32,6 +22,7 @@ protected:
 			for (int i = 0; i < top_of_trigt; ++i)
 			{
 				delete trig_index[i]->proto;
+
 				free(trig_index[i]);
 			}
 
@@ -52,8 +43,7 @@ void TriggersList_F::SetUp()
 
 	for (int i = 0; i < TRIGGERS_NUMBER; ++i)
 	{
-		const auto trigger = new Mock_TRIG_DATA();
-		EXPECT_CALL(*trigger, destruct()).Times(1);
+		const auto trigger = new TRIG_DATA();
 
 		trigger->set_rnum(i);
 
