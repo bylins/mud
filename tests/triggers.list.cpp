@@ -13,6 +13,7 @@ protected:
 	virtual void SetUp() override;
 
 	void populate_tests_triggers_list();
+	void remove_in_nested_loop();
 
 	class TrigIndexRemover	// this class needed to make sure that global trig_index will be deleted last
 	{
@@ -136,11 +137,48 @@ TEST_F(TriggersList_F, NestedLoops)
 {
 	populate_tests_triggers_list();
 
+	int inner_counter = 0;
+	int outer_counter = 0;
 	for (auto t : m_script.trig_list)
 	{
+		++outer_counter;
 		UNUSED_ARG(t);
-		EXPECT_EQ(m_script.trig_list.begin(), m_script.trig_list.end());	// all nested loops must be locked
+		for (auto t : m_script.trig_list)
+		{
+			++inner_counter;
+		}
 	}
+
+	EXPECT_EQ(outer_counter, TRIGGERS_NUMBER);
+	EXPECT_EQ(inner_counter, TRIGGERS_NUMBER*TRIGGERS_NUMBER);
+}
+
+void TriggersList_F::remove_in_nested_loop()
+{
+	int inner_counter = 0;
+	int outer_counter = 0;
+	for (auto t : m_script.trig_list)
+	{
+		++outer_counter;
+		UNUSED_ARG(t);
+		for (auto t : m_script.trig_list)
+		{
+			++inner_counter;
+			if (0 == inner_counter % 2)
+			{
+				m_script.trig_list.remove(t);
+			}
+		}
+	}
+
+	exit(0);
+}
+
+TEST_F(TriggersList_F, NestedLoops_WithRemoving)
+{
+	populate_tests_triggers_list();
+
+	EXPECT_EXIT(remove_in_nested_loop(), ::testing::ExitedWithCode(0), ".*");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

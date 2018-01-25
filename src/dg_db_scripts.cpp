@@ -189,13 +189,6 @@ void free_varlist(struct trig_var_data *vd)
 	}
 }
 
-// release memory allocated for a script
-void delete_script(SCRIPT_DATA*& sc)
-{
-	delete sc;
-	sc = nullptr;
-}
-
 void trig_data_free(TRIG_DATA * this_data)
 {
 	free_varlist(this_data->var_list);

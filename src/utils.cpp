@@ -1102,6 +1102,17 @@ void koi_to_alt(char *str, int size)
 	for (; size > 0; *str = KtoA(*str), size--, str++);
 }
 
+std::string koi_to_alt(const std::string& input)
+{
+	std::string result = input;
+	for (std::size_t i = 0; i < result.size(); ++i)
+	{
+		result[i] = KtoA(result[i]);
+	}
+
+	return std::move(result);
+}
+
 // string manipulation fucntion originally by Darren Wilson //
 // (wilson@shark.cc.cc.ca.us) improved and bug fixed by Chris (zero@cnw.com) //
 // completely re-written again by M. Scott 10/15/96 (scottm@workcommn.net), //

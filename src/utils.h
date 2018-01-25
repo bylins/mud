@@ -87,6 +87,7 @@ int check_moves(CHAR_DATA * ch, int how_moves);
 void to_koi(char *str, int from);
 void from_koi(char *str, int to);
 void koi_to_alt(char *str, int len);
+std::string koi_to_alt(const std::string& input);
 void koi_to_win(char *str, int len);
 void koi_to_winz(char *str, int len);
 #ifdef HAVE_ICONV

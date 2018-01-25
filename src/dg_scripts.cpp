@@ -6388,15 +6388,77 @@ void save_char_vars(CHAR_DATA * ch)
 	fclose(file);
 }
 
-class TriggerRemoveObserver : public TriggerEventObserver
+class TriggerRemoveObserverI : public TriggerEventObserver
 {
 public:
-	TriggerRemoveObserver(TriggersList* owner): m_owner(owner) {}
-	
+	TriggerRemoveObserverI(TriggersList::iterator* owner) : m_owner(owner) {}
+
 	virtual void notify(TRIG_DATA* trigger) override;
 
 private:
-	TriggersList* m_owner;
+	TriggersList::iterator* m_owner;
+};
+
+void TriggerRemoveObserverI::notify(TRIG_DATA* trigger)
+{
+	m_owner->remove_event(trigger);
+}
+
+TriggersList::iterator::iterator(TriggersList* owner, const IteratorPosition position) : m_owner(owner), m_removed(false)
+{
+	m_iterator = position == BEGIN ? m_owner->m_list.begin() : m_owner->m_list.end();
+	setup_observer();
+}
+
+TriggersList::iterator::iterator(const iterator& rhv) : m_owner(rhv.m_owner), m_iterator(rhv.m_iterator), m_removed(rhv.m_removed)
+{
+	setup_observer();
+}
+
+TriggersList::iterator::~iterator()
+{
+	m_owner->unregister_observer(m_observer);
+}
+
+TriggersList::TriggersList::iterator& TriggersList::iterator::operator++()
+{
+	if (!m_removed)
+	{
+		++m_iterator;
+	}
+	else
+	{
+		m_removed = false;
+	}
+
+	return *this;
+}
+
+void TriggersList::iterator::setup_observer()
+{
+	m_observer = std::make_shared<TriggerRemoveObserverI>(this);
+	m_owner->register_observer(m_observer);
+}
+
+void TriggersList::iterator::remove_event(TRIG_DATA* trigger)
+{
+	if (m_iterator != m_owner->m_list.end()
+		&& *m_iterator == trigger)
+	{
+		++m_iterator;
+		m_removed = true;
+	}
+}
+
+class TriggerRemoveObserver : public TriggerEventObserver
+{
+public:
+	TriggerRemoveObserver(TriggersList* owner) : m_owner(owner) {}
+
+	virtual void notify(TRIG_DATA* trigger) override;
+
+private:
+	TriggersList * m_owner;
 };
 
 void TriggerRemoveObserver::notify(TRIG_DATA* trigger)
@@ -6404,35 +6466,7 @@ void TriggerRemoveObserver::notify(TRIG_DATA* trigger)
 	m_owner->remove(trigger);
 }
 
-TriggersList::iterator::iterator(TRIG_DATA* trigger, TriggersList* owner) : m_trigger(trigger), m_owner(owner)
-{
-	if (m_owner
-		&& m_trigger)
-	{
-		m_owner->m_iteration_in_progress = true;
-	}
-}
-
-TriggersList::iterator::~iterator()
-{
-	if (m_owner
-		&& m_trigger)
-	{
-		m_owner->m_iteration_in_progress = false;
-	}
-}
-
-TriggersList::TriggersList::iterator& TriggersList::iterator::operator++()
-{
-	if (m_owner)
-	{
-		m_trigger = m_owner->next();
-	}
-
-	return *this;
-}
-
-TriggersList::TriggersList(): m_next(m_list.end()), m_iteration_in_progress(false)
+TriggersList::TriggersList()
 {
 	m_observer = std::make_shared<TriggerRemoveObserver>(this);
 }
@@ -6483,24 +6517,31 @@ void TriggersList::remove(TRIG_DATA* const trigger)
 	}
 }
 
-TriggersList::list_t::iterator TriggersList::remove(const list_t::iterator& iterator)
+TriggersList::triggers_list_t::iterator TriggersList::remove(const triggers_list_t::iterator& iterator)
 {
 	TRIG_DATA* trigger = *iterator;
-	trigger_list.unregister_remove_observer(*iterator, m_observer);
+	trigger_list.unregister_remove_observer(trigger, m_observer);
 
-	list_t::iterator result = m_list.end();
-	if (m_next == iterator)
+	for (const auto& observer : m_iterator_observers)
 	{
-		m_next = result = m_list.erase(iterator);
+		observer->notify(trigger);
 	}
-	else
-	{
-		result = m_list.erase(iterator);
-	}
+
+	triggers_list_t::iterator result = m_list.erase(iterator);
 
 	extract_trigger(trigger);
 
 	return result;
+}
+
+void TriggersList::register_observer(const TriggerEventObserver::shared_ptr& observer)
+{
+	m_iterator_observers.insert(observer);
+}
+
+void TriggersList::unregister_observer(const TriggerEventObserver::shared_ptr& observer)
+{
+	m_iterator_observers.erase(observer);
 }
 
 TRIG_DATA* TriggersList::find(const bool by_name, const char* name, const int vnum_or_position)
@@ -6644,26 +6685,20 @@ void TriggersList::clear()
 	}
 }
 
-TRIG_DATA* TriggersList::rewind()
+std::ostream& TriggersList::dump(std::ostream& os) const
 {
-	if (m_iteration_in_progress)
+	bool first = true;
+	for (const auto t : m_list)
 	{
-		return nullptr;
+		if (!first)
+		{
+			os << ", ";
+		}
+		os << trig_index[t->get_rnum()]->vnum;
+		first = false;
 	}
 
-	m_next = m_list.begin();
-
-	return next();
-}
-
-TRIG_DATA* TriggersList::next()
-{
-	if (m_next != m_list.end())
-	{
-		return *(m_next++);
-	}
-
-	return nullptr;
+	return os;
 }
 
 SCRIPT_DATA::SCRIPT_DATA():

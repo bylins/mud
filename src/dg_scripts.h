@@ -198,27 +198,38 @@ public:
 class TriggersList
 {
 public:
+	using triggers_list_t = std::list<TRIG_DATA *>;
+
+	enum IteratorPosition
+	{
+		BEGIN,
+		END
+	};
+
 	class iterator
 	{
 	public:
-		iterator() : m_trigger(nullptr), m_owner(nullptr) {}
-		iterator(TRIG_DATA* trigger, TriggersList* owner);
-		iterator(const iterator& rhv) = delete;
-		iterator(iterator&& rhv) : m_trigger(rhv.m_trigger), m_owner(rhv.m_owner)
-		{
-			rhv.m_trigger = nullptr;
-			rhv.m_owner = nullptr;
-		}
+		iterator(const iterator& rhv);
 		~iterator();
 
-		TRIG_DATA* operator*() { return m_trigger; }
-		TRIG_DATA* operator->() { return m_trigger; }
+		TRIG_DATA* operator*() { return *m_iterator; }
+		TRIG_DATA* operator->() { return *m_iterator; }
 		iterator& operator++();
-		operator bool() const { return nullptr != m_trigger; }
+		operator bool() const { return m_iterator != m_owner->m_list.end(); }
 
 	private:
-		TRIG_DATA * m_trigger;
+		iterator(TriggersList* owner, const IteratorPosition position);
+
+		friend class TriggerRemoveObserverI;
+		friend class TriggersList;
+
+		void setup_observer();
+		void remove_event(TRIG_DATA* trigger);
+
 		TriggersList* m_owner;
+		triggers_list_t::const_iterator m_iterator;
+		TriggerEventObserver::shared_ptr m_observer;
+		bool m_removed;
 	};
 
 	TriggersList();
@@ -238,23 +249,29 @@ public:
 	void clear();
 	bool empty() const { return m_list.empty(); }
 
-	iterator begin() { return std::move(iterator(rewind(), this)); }
-	iterator end() { return std::move(iterator(nullptr, this)); }
+	iterator begin() { return std::move(iterator(this, BEGIN)); }
+	iterator end() { return std::move(iterator(this, END)); }
 
 	operator bool() const { return !m_list.empty(); }
 
+	std::ostream& dump(std::ostream& os) const;
+
 private:
-	using list_t = std::list<TRIG_DATA *>;
+	using iterator_observers_t = std::unordered_set<TriggerEventObserver::shared_ptr>;
 
-	TRIG_DATA* rewind();
-	TRIG_DATA* next();
-	list_t::iterator remove(const list_t::iterator& iterator);
+	triggers_list_t::iterator remove(const triggers_list_t::iterator& iterator);
+	void register_observer(const TriggerEventObserver::shared_ptr& observer);
+	void unregister_observer(const TriggerEventObserver::shared_ptr& observer);
 
-	list_t m_list;
+	triggers_list_t m_list;
 	TriggerEventObserver::shared_ptr m_observer;
-	list_t::iterator m_next;
-	bool m_iteration_in_progress;
+	iterator_observers_t m_iterator_observers;
 };
+
+inline std::ostream& operator<<(std::ostream& os, const TriggersList& triggers_list)
+{
+	return triggers_list.dump(os);
+}
 
 // a complete script (composed of several triggers) //
 struct SCRIPT_DATA
