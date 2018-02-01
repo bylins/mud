@@ -3733,8 +3733,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		i = nr;
 	}
 
-	CHAR_DATA *mob = new CHAR_DATA;
-	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
+	CHAR_DATA *mob = new CHAR_DATA(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	character_list.push_front(mob);
@@ -4271,13 +4270,12 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			{
 				if (!(world[rn]->script))
 				{
-					world[rn]->script = new SCRIPT_DATA();
+					world[rn]->script = std::make_shared<SCRIPT_DATA>();
 				}
 
-				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin();
-						it != (*room)->triggers.end(); ++it)
+				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); it != (*room)->triggers.end(); ++it)
 				{
-					add_trigger(world[rn]->script, read_trigger(real_trigger(*it)), -1);
+					add_trigger(world[rn]->script.get(), read_trigger(real_trigger(*it)), -1);
 				}
 			}
 
@@ -4293,12 +4291,12 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					{
 						if (!SCRIPT(mob))
 						{
-							CREATE(SCRIPT(mob), 1);
+							SCRIPT(mob) = std::make_shared<SCRIPT_DATA>();
 						}
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 						{
-							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
+							add_trigger(SCRIPT(mob).get(), read_trigger(real_trigger(*it)), -1);
 						}
 						load_mtrigger(mob);
 						char_to_room(mob, real_room((*room)->vnum));
@@ -4438,13 +4436,13 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			{
 				if (!SCRIPT(ch))
 				{
-					CREATE(SCRIPT(ch), 1);
+					SCRIPT(ch) = std::make_shared<SCRIPT_DATA>();
 				}
 
 				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
 						it != list[mob_index[ch->nr].vnum].end(); ++it)
 				{
-					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
+					add_trigger(SCRIPT(ch).get(), read_trigger(real_trigger(*it)), -1);
 				}
 
 				Celebrates::add_mob_to_attach_list(ch->id, ch.get());
@@ -4853,9 +4851,9 @@ void reset_zone(zone_rnum zone)
 				{
 					if (!SCRIPT(tmob))
 					{
-						SCRIPT(tmob) = new SCRIPT_DATA();
+						SCRIPT(tmob) = std::make_shared<SCRIPT_DATA>();
 					}
-					add_trigger(SCRIPT(tmob), read_trigger(real_trigger(ZCMD.arg2)), -1);
+					add_trigger(SCRIPT(tmob).get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
@@ -4873,10 +4871,9 @@ void reset_zone(zone_rnum zone)
 					{
 						if (!(world[ZCMD.arg3]->script))
 						{
-							world[ZCMD.arg3]->script = new SCRIPT_DATA();;
+							world[ZCMD.arg3]->script = std::make_shared<SCRIPT_DATA>();
 						}
-						add_trigger(world[ZCMD.arg3]->script,
-									read_trigger(real_trigger(ZCMD.arg2)), -1);
+						add_trigger(world[ZCMD.arg3]->script.get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 						curr_state = 1;
 					}
 				}
@@ -6027,7 +6024,8 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 	}
 
 	// Копирую скрипт и прототипы
-	SCRIPT(dst) = nullptr;
+	SCRIPT(dst).reset();
+
 	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	*dst->proto_script = *src->proto_script;
 
@@ -6041,11 +6039,12 @@ void room_free(ROOM_DATA * room)
              Необходимо дополнительно использовать delete()
 --*/
 {
-	int i;
-
 	// Название и описание
 	if (room->name)
+	{
 		free(room->name);
+	}
+
 	if (room->temp_description)
 	{
 		free(room->temp_description);
@@ -6053,20 +6052,26 @@ void room_free(ROOM_DATA * room)
 	}
 
 	// Выходы и входы
-	for (i = 0; i < NUM_OF_DIRS; i++)
+	for (int i = 0; i < NUM_OF_DIRS; i++)
 	{
 		if (room->dir_option[i])
 		{
 			if (room->dir_option[i]->keyword)
+			{
 				free(room->dir_option[i]->keyword);
+			}
+
 			if (room->dir_option[i]->vkeyword)
+			{
 				free(room->dir_option[i]->vkeyword);
+			}
+
 			room->dir_option[i].reset();
 		}
 	}
 
 	// Скрипт
-	room->remove_script();
+	room->cleanup_script();
 
 	if (room->ing_list)
 	{

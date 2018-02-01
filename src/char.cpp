@@ -79,6 +79,7 @@ CHAR_DATA::CHAR_DATA() :
 	m_wait(~0u),
 	m_master(nullptr),
 	proto_script(new OBJ_DATA::triggers_list_t()),
+	script(nullptr),
 	followers(nullptr)
 {
 	this->zero_init();
@@ -413,8 +414,6 @@ void CHAR_DATA::zero_init()
 	carrying = 0;
 	desc = 0;
 	id = 0;
-	proto_script.reset(new OBJ_DATA::triggers_list_t());
-	script = 0;
 	memory = 0;
 	next_fighting = 0;
 	followers = 0;
@@ -2089,10 +2088,9 @@ bool CHAR_DATA::low_charm() const
 	return false;
 }
 
-void CHAR_DATA::remove_script()
+void CHAR_DATA::cleanup_script()
 {
-	delete script;
-	script = nullptr;
+	script->cleanup();
 }
 
 void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)

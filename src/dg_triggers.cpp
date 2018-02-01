@@ -258,11 +258,6 @@ void random_mtrigger(CHAR_DATA * ch)
 			break;
 		}
 	}
-
-	if (SCRIPT(ch)->trig_list.empty())
-	{
-		ch->remove_script();
-	}
 }
 
 void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
@@ -604,7 +599,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 						GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[MOB_TRIGGER], GET_PAD(ch, 0), GET_MOB_VNUM(ch));
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 					snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
-					remove_trigger(SCRIPT(ch), buf);
+					SCRIPT(ch)->remove_trigger(buf);
 
 					break;
 				}
@@ -640,11 +635,6 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 						return 1;
 					}
 				}
-			}
-
-			if (SCRIPT(ch)->trig_list.empty())
-			{
-				ch->remove_script();
 			}
 		}
 	}
@@ -1129,11 +1119,7 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, const char *argument
 					GET_OBJ_VNUM(obj));
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 				snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
-				remove_trigger(obj->get_script().get(), buf);
-				if (!TRIGGERS(obj->get_script()))
-				{
-					obj->set_script(nullptr);
-				}
+				obj->get_script()->remove_trigger(buf);
 				break;
 			}
 
@@ -1478,7 +1464,7 @@ void reset_wtrigger(ROOM_DATA * room)
 	}
 }
 
-void random_wtrigger(ROOM_DATA * room, int/* num*/, void* /*s*/, int/* types*/, const TriggersList& /*list*/, void* /*next*/)
+void random_wtrigger(ROOM_DATA * room, int/* num*/, void* /*s*/, int/* types*/, const TriggersList& /*list*/)
 {
 	if (!SCRIPT_CHECK(room, WTRIG_RANDOM))
 		return;
@@ -1541,7 +1527,7 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 				GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[WLD_TRIGGER], room->name, room->number);
 			mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
-			remove_trigger(SCRIPT(room), buf);
+			SCRIPT(room)->remove_trigger(buf);
 
 			break;
 		}
@@ -1580,11 +1566,6 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 
 			return script_driver(room, t, WLD_TRIGGER, TRIG_NEW);
 		}
-	}
-
-	if (SCRIPT(room)->trig_list.empty())
-	{
-		room->remove_script();
 	}
 
 	return 0;

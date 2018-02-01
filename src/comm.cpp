@@ -4842,9 +4842,6 @@ void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj
 				continue;
 			if ((type != TO_ROOM && type != TO_ROOM_HIDE) && to == vict_obj)
 				continue;
-			//надо отдельно PRF_DEAF
-			//if (!IS_NPC(to) && check_deaf && PRF_FLAGGED(to, PRF_NOTELL))
-			//	continue;
 			if (check_deaf && AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))
 				continue;
 			if (check_nodeaf && !AFF_FLAGGED(to, EAffectFlag::AFF_DEAFNESS))

@@ -274,19 +274,36 @@ inline std::ostream& operator<<(std::ostream& os, const TriggersList& triggers_l
 }
 
 // a complete script (composed of several triggers) //
-struct SCRIPT_DATA
+class SCRIPT_DATA
 {
+public:
+	using shared_ptr = std::shared_ptr<SCRIPT_DATA>;
+
 	// привет костыли
 	SCRIPT_DATA();
+	SCRIPT_DATA(const SCRIPT_DATA& script);
 	~SCRIPT_DATA();
+
+	/*
+	*  removes the trigger specified by name, and the script of o if
+	*  it removes the last trigger.  name can either be a number, or
+	*  a 'silly' name for the trigger, including things like 2.beggar-death.
+	*  returns 0 if did not find the trigger, otherwise 1.  If it matters,
+	*  you might need to check to see if all the triggers were removed after
+	*  this function returns, in order to remove the script.
+	*/
+	int remove_trigger(char *name, TRIG_DATA*& trig_addr);
+	int remove_trigger(char *name);
+
+	void cleanup();
 
 	long types;		// bitvector of trigger types //
 	TriggersList trig_list;	// list of triggers           //
 	struct trig_var_data *global_vars;	// list of global variables   //
-	ubyte purged;		// script is set to be purged //
 	long context;		// current context for statics //
 
-	SCRIPT_DATA *next;	// used for purged_scripts    //
+private:
+	SCRIPT_DATA& operator=(const SCRIPT_DATA& script) = delete;
 };
 
 // used for actor memory triggers //
@@ -326,7 +343,7 @@ void hitprcnt_mtrigger(CHAR_DATA * ch);
 int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim);
 void random_mtrigger(CHAR_DATA * ch);
 void random_otrigger(OBJ_DATA * obj);
-void random_wtrigger(ROOM_DATA * room, int num, void *s, int types, const TriggersList& list, void *next);
+void random_wtrigger(ROOM_DATA * room, int num, void *s, int types, const TriggersList& list);
 void reset_wtrigger(ROOM_DATA * ch);
 void load_mtrigger(CHAR_DATA * ch);
 void load_otrigger(OBJ_DATA * obj);
@@ -337,14 +354,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 // function prototypes from scripts.cpp //
 void script_trigger_check(void);
 void script_timechange_trigger_check(const int time);
-void add_trigger(struct SCRIPT_DATA *sc, TRIG_DATA * t, int loc);
-
-int remove_trigger(SCRIPT_DATA * sc, char *name, TRIG_DATA*& trig_addr);
-inline int remove_trigger(SCRIPT_DATA * sc, char *name)
-{
-	TRIG_DATA* dummy = nullptr;
-	return remove_trigger(sc, name, dummy);
-}
+void add_trigger(SCRIPT_DATA *sc, TRIG_DATA * t, int loc);
 
 void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig);
 void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch);
@@ -385,14 +395,14 @@ extern GlobalTriggersStorage trigger_list;
 void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);
 int real_trigger(int vnum);
-void extract_script(struct SCRIPT_DATA *sc);
+void extract_script(SCRIPT_DATA *sc);
 void extract_script_mem(struct script_memory *sc);
 
 TRIG_DATA *read_trigger(int nr);
 // void add_var(struct trig_var_data **var_list, char *name, char *value, long id);
 ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj);
-void do_dg_cast(void *go, struct SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
-void do_dg_affect(void *go, struct SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
+void do_dg_cast(void *go, SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
+void do_dg_affect(void *go, SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
 
 void add_var_cntx(struct trig_var_data **var_list, const char *name, const char *value, long id);
 struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name, long id);

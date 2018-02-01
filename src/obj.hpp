@@ -734,7 +734,7 @@ inline custom_label::~custom_label()
 	}
 }
 
-struct SCRIPT_DATA;	// to avoid inclusion of "dg_scripts.h"
+class SCRIPT_DATA;	// to avoid inclusion of "dg_scripts.h"
 
 class OBJ_DATA : public CObjectPrototype
 {
@@ -816,6 +816,7 @@ public:
 	void set_room_was_in(const int _) { m_room_was_in = _; }
 	void set_script(const std::shared_ptr<SCRIPT_DATA>& _) { m_script = _; }
 	void set_script(SCRIPT_DATA* _);
+	void cleanup_script();
 	void set_uid(const unsigned _);
 	void set_worn_by(CHAR_DATA* _) { m_worn_by = _; }
 	void set_worn_on(const short _) { m_worn_on = _; }

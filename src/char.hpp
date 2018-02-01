@@ -637,7 +637,7 @@ public:
 
 	void set_purged(const bool _ = true) { purged_ = _; }
 
-	void remove_script();
+	void cleanup_script();
 
 private:
 	const auto& get_player_specials() const { return player_specials; }
@@ -769,7 +769,7 @@ public:
 	DESCRIPTOR_DATA* desc;	// NULL for mobiles
 	long id;			// used by DG triggers
 	OBJ_DATA::triggers_list_ptr proto_script;	// list of default triggers
-	struct SCRIPT_DATA *script;	// script info for the object
+	SCRIPT_DATA::shared_ptr script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
 	CHAR_DATA *next_fighting;	// For fighting list

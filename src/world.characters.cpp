@@ -96,8 +96,6 @@ void Characters::purge()
 			clearMemory(character.get());
 		}
 
-		character->remove_script();
-
 		if (SCRIPT_MEM(character))
 		{
 			extract_script_mem(SCRIPT_MEM(character));

@@ -526,13 +526,14 @@ bool make_clean(CelebrateDataPtr celebrate)
 		{
 			if (it->second.find(vnum) != it->second.end())
 			{
-				remove_triggers(it->second[vnum], mob_it->second->script);
+				remove_triggers(it->second[vnum], mob_it->second->script.get());
 			}
 		}
 
-		if (SCRIPT(mob_it->second) && !TRIGGERS(SCRIPT(mob_it->second)))
+		if (SCRIPT(mob_it->second)
+			&& !TRIGGERS(SCRIPT(mob_it->second)))
 		{
-			mob_it->second->remove_script();
+			mob_it->second->cleanup_script();
 		}
 
 		attached_mobs.erase(mob_it);
@@ -555,7 +556,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 		if (obj_it->second->get_script()
 			&& !TRIGGERS(obj_it->second->get_script()))
 		{
-			obj_it->second->set_script(nullptr);
+			obj_it->second->cleanup_script();
 		}			
 		attached_objs.erase(obj_it);
 		if (attached_objs.empty())
@@ -611,10 +612,10 @@ bool make_clean(CelebrateDataPtr celebrate)
 			if (!(*room)->triggers.empty())
 			{
 				int rnum = real_room((*room)->vnum);
-				remove_triggers((*room)->triggers, world[rnum]->script);
+				remove_triggers((*room)->triggers, world[rnum]->script.get());
 				if (SCRIPT(world[rnum]) && !TRIGGERS(SCRIPT(world[rnum])))
 				{
-					world[rnum]->remove_script();
+					world[rnum]->cleanup_script();
 				}
 			}
 		}

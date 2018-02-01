@@ -51,10 +51,9 @@ CHAR_DATA* ROOM_DATA::first_character() const
 	return first;
 }
 
-void ROOM_DATA::remove_script()
+void ROOM_DATA::cleanup_script()
 {
-	delete script;
-	script = nullptr;
+	script->cleanup();
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

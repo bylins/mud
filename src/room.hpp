@@ -5,6 +5,7 @@
 #ifndef ROOM_HPP_INCLUDED
 #define ROOM_HPP_INCLUDED
 
+#include "dg_scripts.h"
 #include "obj.hpp"
 #include "constants.h"
 #include "structs.h"
@@ -76,7 +77,7 @@ struct ROOM_DATA
 	int (*func)(CHAR_DATA*, void*, int, char*);
 
 	OBJ_DATA::triggers_list_ptr proto_script;	// list of default triggers  //
-	struct SCRIPT_DATA *script;	// script info for the object //
+	SCRIPT_DATA::shared_ptr script;	// script info for the object //
 	struct track_data *track;
 
 	OBJ_DATA *contents;	// List of items in room              //
@@ -118,7 +119,7 @@ struct ROOM_DATA
 
 	CHAR_DATA* first_character() const;
 
-	void remove_script();
+	void cleanup_script();
 
 private:
 	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //

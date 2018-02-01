@@ -270,13 +270,13 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 
 		if (rnum >= 0)
 		{
-			if (!(room->script))
+			if (!room->script)
 			{
-				room->script = new SCRIPT_DATA();
+				room->script = std::make_shared<SCRIPT_DATA>();
 			}
 
 			const auto trigger_instance = read_trigger(rnum);
-			add_trigger(SCRIPT(room), trigger_instance, -1);
+			add_trigger(SCRIPT(room).get(), trigger_instance, -1);
 
 			// для начала определяем, есть ли такой внум у нас в контейнере
 			if (owner_trig.find(vnum) == owner_trig.end())

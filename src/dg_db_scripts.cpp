@@ -295,10 +295,9 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(mob))
 					{
-						mob->script = new SCRIPT_DATA();
+						mob->script = std::make_shared<SCRIPT_DATA>();
 					}
-					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
-
+					add_trigger(SCRIPT(mob).get(), read_trigger(rnum), -1);
 
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{
@@ -374,9 +373,9 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(room))
 					{
-						room->script = new SCRIPT_DATA();
+						room->script = std::make_shared<SCRIPT_DATA>();
 					}
-					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+					add_trigger(SCRIPT(room).get(), read_trigger(rnum), -1);
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{
 						owner_to_triggers_map_t tmp_map;

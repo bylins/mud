@@ -583,7 +583,7 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 				const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 				obj->set_extra_flag(EExtraFlag::ITEM_NAMED);
 				obj_to_char(obj.get(), ch);
-				obj->set_script(nullptr);	//детачим все триги чтоб не обламывать соклановцев и т.п.
+				obj->cleanup_script();
 				obj_decay(obj.get());
 
 				act("$n дал$g вам $o3.", FALSE, mailman, obj.get(), ch, TO_VICT);

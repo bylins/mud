@@ -687,7 +687,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error)
 	}
 	if (object->get_extra_flag(EExtraFlag::ITEM_NAMED))//Именной предмет
 	{
-		object->set_script(nullptr);	//детачим все триги, пока что так
+		object->cleanup_script();
 	}
 	convert_drinkcon_skill(object.get(), false);
 	object->remove_incorrect_values_keys(GET_OBJ_TYPE(object));
