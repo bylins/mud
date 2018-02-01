@@ -6654,7 +6654,7 @@ SCRIPT_DATA::SCRIPT_DATA():
 }
 
 // don't copy anything for now
-SCRIPT_DATA::SCRIPT_DATA(const SCRIPT_DATA& script) :
+SCRIPT_DATA::SCRIPT_DATA(const SCRIPT_DATA&):
 	types(0),
 	global_vars(nullptr),
 	context(0)

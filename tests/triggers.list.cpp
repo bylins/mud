@@ -139,12 +139,13 @@ TEST_F(TriggersList_F, NestedLoops)
 
 	int inner_counter = 0;
 	int outer_counter = 0;
-	for (auto t : m_script.trig_list)
+	for (auto to : m_script.trig_list)
 	{
 		++outer_counter;
-		UNUSED_ARG(t);
-		for (auto t : m_script.trig_list)
+		UNUSED_ARG(to);
+		for (auto ti : m_script.trig_list)
 		{
+			UNUSED_ARG(ti);
 			++inner_counter;
 		}
 	}
