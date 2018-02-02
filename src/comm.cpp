@@ -82,6 +82,7 @@
 #include "conf.h"
 #include "bonus.h"
 #include "temp_spells.hpp"
+#include "time_utils.hpp"
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -140,6 +141,8 @@
 
 #include <string>
 #include <exception>
+#include <iomanip>
+
 #include <locale.h>
 
  // for epoll
@@ -908,6 +911,125 @@ int main_function(int argc, char **argv)
 	return 0;
 }
 
+class HeartbeatStats
+{
+	public:
+		struct StatItem
+		{
+			using stats_window_t = std::list<utils::CExecutionTimer::duration_t>;
+			stats_window_t stats;
+
+			utils::CExecutionTimer::duration_t min;
+			utils::CExecutionTimer::duration_t max;
+		};
+
+		void add_measurement(const std::string& label, utils::CExecutionTimer::duration_t duration)
+		{
+			auto& stats_window = m_stats[label];
+			stats_window.stats.push_back(duration);
+
+			if (stats_window.min == stats_window.min.zero()
+					|| stats_window.min > duration)
+			{
+				stats_window.min = duration;
+			}
+
+			if (stats_window.max == stats_window.max.zero()
+					|| stats_window.max < duration)
+			{
+				stats_window.max = duration;
+			}
+
+			while (100 < stats_window.stats.size())
+			{
+				stats_window.stats.pop_front();
+			}
+		}
+
+		struct ReportItem
+		{
+			ReportItem(const std::string& l, const double mn, const double mx, const double avg, const std::size_t ws, const double omn, const double omx): label(l), min(mn), max(mx), average(avg), window_size(ws), overall_min(omn), overall_max(omx) {}
+
+			std::ostream& dump(std::ostream& os) const
+			{
+				return os << "(" << label << ": [" << min << "; " << max << "]/" << average << "{" << window_size << "}; [" << overall_min << "; " << overall_max << "])";
+			}
+
+			std::string label;
+			double min;
+			double max;
+			double average;
+			std::size_t window_size;
+			double overall_min;
+			double overall_max;
+		};
+
+		void report(std::ostream& os) const;
+
+	private:
+		using stats_t = std::unordered_map<std::string, StatItem>;
+
+		stats_t m_stats;
+};
+
+inline std::ostream& operator<<(std::ostream& os, const HeartbeatStats::ReportItem& item)
+{
+	return item.dump(os);
+}
+
+void HeartbeatStats::report(std::ostream& os) const
+{
+	StreamFlagsHolder holder(os);
+
+	std::multimap<double, ReportItem, std::greater<double>> report;
+	for (const auto& w : m_stats)
+	{
+		double sum = 0.0;
+		double min = -1.0;
+		double max = -1.0;
+		for (const auto& m : w.second.stats)
+		{
+			const double duration = m.count();
+			sum += duration;
+			if (min < 0.0 || min > duration)
+			{
+				min = duration;
+			}
+			
+			if (max < duration)
+			{
+				max = duration;
+			}
+		}
+		const auto average = sum / w.second.stats.size();
+		report.emplace(w.second.max.count(), ReportItem(w.first, min, max, average, w.second.stats.size(), w.second.min.count(), w.second.max.count()));
+	}
+
+	os << std::fixed << std::setprecision(6);
+	os << "-- Report:" << std::endl;
+	int i = 0;
+	for (const auto& r : report)
+	{
+		++i;
+		const auto& item = r.second;
+		os << i << ". " << r.first << ": " << item << std::endl;
+	}
+}
+
+class Timer: public utils::CExecutionTimer
+{
+	public:
+		Timer(const std::string& label, HeartbeatStats& stats): m_label(label), m_stats(stats) {}
+		~Timer() { m_stats.add_measurement(m_label, delta()); }
+
+	private:
+		std::string m_label;
+		HeartbeatStats& m_stats;
+};
+
+HeartbeatStats stats;
+utils::CExecutionTimer timer;
+
 // Init sockets, run game, and cleanup sockets
 void init_game(ush_int port)
 {
@@ -1273,6 +1395,8 @@ int get_max_players(void)
 
 int shutting_down(void)
 {
+	Timer timer("shutting_down()", stats);
+
 	static int lastmessage = 0;
 	int wait;
 
@@ -1626,55 +1750,62 @@ void game_loop(socket_t mother_desc)
 		}
 #endif
 
-		/*
-		 * At this point, we have completed all input, output and heartbeat
-		 * activity from the previous iteration, so we have to put ourselves
-		 * to sleep until the next 0.1 second tick.  The first step is to
-		 * calculate how long we took processing the previous iteration.
-		 */
-
-		gettimeofday(&before_sleep, (struct timezone *) 0);	// current time
-		timediff(&process_time, &before_sleep, &last_time);
-
-		/*
-		 * If we were asleep for more than one pass, count missed pulses and sleep
-		 * until we're resynchronized with the next upcoming pulse.
-		 */
-		if (process_time.tv_sec == 0 && process_time.tv_usec < OPT_USEC)
 		{
-			missed_pulses = 0;
-		}
-		else
-		{
-			missed_pulses = process_time.tv_sec * PASSES_PER_SEC;
-			missed_pulses += process_time.tv_usec / OPT_USEC;
-			process_time.tv_sec = 0;
-			process_time.tv_usec = process_time.tv_usec % OPT_USEC;
-		}
+			Timer timer("calculate time difference", stats);
+			/*
+			 * At this point, we have completed all input, output and heartbeat
+			 * activity from the previous iteration, so we have to put ourselves
+			 * to sleep until the next 0.1 second tick.  The first step is to
+			 * calculate how long we took processing the previous iteration.
+			 */
 
-		// Calculate the time we should wake up
-		timediff(&temp_time, &opt_time, &process_time);
-		timeadd(&last_time, &before_sleep, &temp_time);
+			gettimeofday(&before_sleep, (struct timezone *) 0);	// current time
+			timediff(&process_time, &before_sleep, &last_time);
 
-		// Now keep sleeping until that time has come
-		gettimeofday(&now, (struct timezone *) 0);
-		timediff(&timeout, &last_time, &now);
+			/*
+			 * If we were asleep for more than one pass, count missed pulses and sleep
+			 * until we're resynchronized with the next upcoming pulse.
+			 */
+			if (process_time.tv_sec == 0 && process_time.tv_usec < OPT_USEC)
+			{
+				missed_pulses = 0;
+			}
+			else
+			{
+				missed_pulses = process_time.tv_sec * PASSES_PER_SEC;
+				missed_pulses += process_time.tv_usec / OPT_USEC;
+				process_time.tv_sec = 0;
+				process_time.tv_usec = process_time.tv_usec % OPT_USEC;
+			}
 
-		// Go to sleep
-		do
-		{
-			circle_sleep(&timeout);
+			// Calculate the time we should wake up
+			timediff(&temp_time, &opt_time, &process_time);
+			timeadd(&last_time, &before_sleep, &temp_time);
+
+			// Now keep sleeping until that time has come
 			gettimeofday(&now, (struct timezone *) 0);
 			timediff(&timeout, &last_time, &now);
-		}
-		while (timeout.tv_usec || timeout.tv_sec);
 
-		/*
-		 * Now, we execute as many pulses as necessary--just one if we haven't
-		 * missed any pulses, or make up for lost time if we missed a few
-		 * pulses by sleeping for too long.
-		 */
-		missed_pulses++;
+			// Go to sleep
+			{
+				Timer timer("game loop sleep", stats);
+
+				do
+				{
+					circle_sleep(&timeout);
+					gettimeofday(&now, (struct timezone *) 0);
+					timediff(&timeout, &last_time, &now);
+				}
+				while (timeout.tv_usec || timeout.tv_sec);
+			}
+
+			/*
+			 * Now, we execute as many pulses as necessary--just one if we haven't
+			 * missed any pulses, or make up for lost time if we missed a few
+			 * pulses by sleeping for too long.
+			 */
+			missed_pulses++;
+		}
 
 		if (missed_pulses <= 0)
 		{
@@ -1694,12 +1825,18 @@ void game_loop(socket_t mother_desc)
 		// Now execute the heartbeat functions
 		while (missed_pulses--)
 		{
+			Timer timer("process_io iteration", stats);
+
 #ifdef HAS_EPOLL
 			process_io(epoll, mother_desc, events);
 #else
 			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
 #endif
-			heartbeat(missed_pulses);
+			{
+				Timer timer("heartbeat", stats);
+
+				heartbeat(missed_pulses);
+			}
 		}
 
 #ifdef CIRCLE_UNIX
@@ -1741,6 +1878,13 @@ void check_external_reboot_trigget(const int pulse)
 
 void heartbeat(const int missed_pulses)
 {
+	if (5.0 < timer.delta().count())
+	{
+		stats.report(std::cerr);
+		timer.restart();
+	}
+
+
 	static int mins_since_crashsave = 0, pulse = 0;
 	int uptime_minutes = 0;
 	long check_at = 0;
@@ -1756,19 +1900,16 @@ void heartbeat(const int missed_pulses)
 
 	if (!(pulse % PASSES_PER_SEC))
 	{
+		Timer timer("get_boot_time", stats);
+
 		const auto boot_time = shutdown_parameters.get_boot_time();
 		uptime_minutes = ((time(NULL) - boot_time) / 60);
 	}
 
-/*	// каждые 30 минут подарки под случайную елку
-	if ((pulse % (PASSES_PER_SEC * 30 * 60)) == 0)
-	{
-		gifts();
-	}
-*/	
-
 	if ((pulse % (PASSES_PER_SEC)) == 0)
 	{
+		Timer timer("speedwalks", stats);
+
 		for (auto &sw : speedwalks)
 		{
 			if (sw.wait > sw.route[sw.cur_state].wait)
@@ -1803,27 +1944,37 @@ void heartbeat(const int missed_pulses)
 		}
 	}
 
-
 	// таблица меняется каждые два часа
 	if ((pulse % (PASSES_PER_SEC * 120 * 60)) == 0)
 	{
+		Timer timer("GlobalDrop::reload_tables()", stats);
+
 		GlobalDrop::reload_tables();
 	}
 
-	process_events();
+	{
+		Timer timer("process_events()", stats);
+		process_events();
+	}
 
 	if (!((pulse + 1) % PULSE_DG_SCRIPT))  	//log("Triggers check...");
 	{
+		Timer timer("script_trigger_check()", stats);
+
 		script_trigger_check();
 	}
 
 	if (!((pulse + 2) % (60 * PASSES_PER_SEC)))
 	{
+		Timer timer("sanity_check()", stats);
+
 		sanity_check();
 	}
 
 	if (!(pulse % (40 * PASSES_PER_SEC)))
 	{
+		Timer timer("check_idle_passwords()", stats);
+
 		check_idle_passwords();
 	}
 
@@ -1833,21 +1984,29 @@ void heartbeat(const int missed_pulses)
 // выраженные в количестве пульсов, были ему кратны.
 	if (!(pulse % 10))
 	{
+		Timer timer("mobile_activity()", stats);
+
 		mobile_activity(pulse, 10);
 	}
 
 	if ((missed_pulses == 0) && (inspect_list.size() > 0))
 	{
+		Timer timer("inspecting()", stats);
+
 		inspecting();
 	}
 		
 	if ((missed_pulses == 0) && (setall_inspect_list.size() > 0))
 	{
+		Timer timer("setall_inspect()", stats);
+
 		setall_inspect();
 	}
 
 	if (!(pulse % (2 * PASSES_PER_SEC)))
 	{
+		Timer timer("DeathTrap, underwater, ClanSystem", stats);
+
 		DeathTrap::activity();
 		underwater_check();
 		ClanSystem::check_player_in_house();
@@ -1855,11 +2014,15 @@ void heartbeat(const int missed_pulses)
 
 	if (!((pulse + 3) % PULSE_VIOLENCE))
 	{
+		Timer timer("perform_violence()", stats);
+
 		perform_violence();
 	}
 
 	if (!(pulse % (30 * PASSES_PER_SEC)))
 	{
+		Timer timer("reboot stuff", stats);
+
 		if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
 			&& shutdown_parameters.get_shutdown_timeout() == 0)
 		{
@@ -1869,25 +2032,37 @@ void heartbeat(const int missed_pulses)
 		}
 	}
 
-	check_external_reboot_trigget(pulse);
+	{
+		Timer timer("check_external_reboot_trigger(...)", stats);
+
+		check_external_reboot_trigget(pulse);
+	}
 
 	if (!(pulse % (AUCTION_PULSES * PASSES_PER_SEC)))  	//log("Auction update...");
 	{
+		Timer timer("tact_auction()", stats);
+
 		tact_auction();
 	}
 
 	if (!(pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))
 	{
+		Timer timer("RoomSpells::...", stats);
+
 		RoomSpells::room_affect_update();
 	}
 
 	if (!(pulse % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC)))
 	{
+		Timer timer("player_affect_update()", stats);
+
 		player_affect_update();
 	}
 
 	if (!(pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("hour_update(), ...", stats);
+
 		hour_update();
 		Bonus::timer_bonus();
 		weather_and_time(1);
@@ -1896,11 +2071,15 @@ void heartbeat(const int missed_pulses)
 
 	if (!((pulse + 5) % PULSE_ZONE))
 	{
+		Timer timer("zone_update()", stats);
+
 		zone_update();
 	}
 
 	if (!((pulse + 49) % (60 * 60 * PASSES_PER_SEC)))
 	{
+		Timer timer("MoneyDropStat::..., ...", stats);
+
 		MoneyDropStat::print_log();
 		ZoneExpStat::print_log();
 		print_rune_log();
@@ -1908,11 +2087,15 @@ void heartbeat(const int missed_pulses)
 
 	if (!((pulse + 57) % (60 * mob_stat::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("mob_stat::save()", stats);
+
 		mob_stat::save();
 	}
 
 	if (!((pulse + 52) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("SetsDrop::...", stats);
+
 		SetsDrop::save_drop_table();
 	}
 
@@ -1927,42 +2110,56 @@ void heartbeat(const int missed_pulses)
 	// сохранение лога клан-хранов
 	if (!((pulse + 50) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("ClanSystem::save_chest_log()", stats);
+
 		ClanSystem::save_chest_log();
 	}
 
 	// сохранение клан-хранов для ингров
 	if (!((pulse + 48) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("ClanSystem::save_ingr_chests()", stats);
+
 		ClanSystem::save_ingr_chests();
 	}
 
 	// убитые мобы для глобал-дропа
 	if (!((pulse + 47) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("GlobalDrop::save()", stats);
+
 		GlobalDrop::save();
 	}
 
 	// снятие денег за шмот в клановых сундуках
 	if (!((pulse + 46) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("Clan::ChestUpdate()", stats);
+
 		Clan::ChestUpdate();
 	}
 
 	// сохранение клан-хранов
 	if (!((pulse + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("Clan::SaveChestAll()", stats);
+
 		Clan::SaveChestAll();
 	}
 
 	// и самих кланов
 	if (!((pulse + 40) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("Clan::ClanSave()", stats);
+
 		Clan::ClanSave();
 	}
 
 //Polud организуем зачистку после праздника
 	if (!((pulse+39) % (Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC)))
 	{
+		Timer timer("Celebrates::sanitize()", stats);
+
 		Celebrates::sanitize();
 	}
 
@@ -1970,29 +2167,39 @@ void heartbeat(const int missed_pulses)
 
 	if (!((pulse + 37) % (5 * 60 * PASSES_PER_SEC)))
 	{
+		Timer timer("record_usage()", stats);
+
 		record_usage();
 	}
 
 	if (!((pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
 	{
+		Timer timer("reload_proxy_ban", stats);
+
 		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
 	}
 
 	// вывод иммам о неодобренных именах и титулах
 	if (!((pulse + 35) % (5 * 60 * PASSES_PER_SEC)))
 	{
+		Timer timer("god_work_invoice", stats);
+
 		god_work_invoice();
 	}
 
 	// сейв титулов, ждущих одобрения
 	if (!((pulse + 34) % (5 * 60 * PASSES_PER_SEC)))
 	{
+		Timer timer("TitleSystem::save_title_list()", stats);
+
 		TitleSystem::save_title_list();
 	}
 
 	// сейв зареганных мыл
 	if (!((pulse + 33) % (5 * 60 * PASSES_PER_SEC)))
 	{
+		Timer timer("RegisterSystem::save()", stats);
+
 		RegisterSystem::save();
 	}
 
@@ -2001,30 +2208,40 @@ void heartbeat(const int missed_pulses)
 	// сохранение почты (при наличии изменений)
 	if (!((pulse + 32) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("mail::save()", stats);
+
 		mail::save();
 	}
 
 	// проверка необходимости обновления динамической справки
 	if (!((pulse + 31) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("HelpSystem::check_update_dynamic()", stats);
+
 		HelpSystem::check_update_dynamic();
 	}
 
 	// обновление таблицы дропа сетов
 	if (!((pulse + 30) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("SetsDrop::reload_by_timer()", stats);
+
 		SetsDrop::reload_by_timer();
 	}
 
 	// клан-пк
 	if (!((pulse + 29) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("Clan::save_pk_log()", stats);
+
 		Clan::save_pk_log();
 	}
 
 	// очистка спурженных char_data и obj_data
 	if (!((pulse + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("character_list.purge", stats);
+
 		character_list.purge();
 		ObjSystem::release_purged_list();
 	}
@@ -2032,71 +2249,97 @@ void heartbeat(const int missed_pulses)
 	// апдейт таймеров в личных хранах + пурж чего надо
 	if (!((pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("Depot::update_timers()", stats);
+
 		Depot::update_timers();
 	}
 	// апдейт таймеров на почте + разворот посылок/пурж
 	if (!((pulse + 24) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("Parcel::update_timers()", stats);
+
 		Parcel::update_timers();
 	}
 
 	// апдейт таймеров славы
 	if (!((pulse + 23) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("Glory::timers_update()", stats);
+
 		Glory::timers_update();
 	}
 
 	// сохранение файла славы
 	if (!((pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("Glory::save_glory()", stats);
+
 		Glory::save_glory();
 	}
 
 	// сохранение онлайновых списков шмота
 	if (!((pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("Depot::save_all_online_objs()", stats);
+
 		Depot::save_all_online_objs();
 	}
 
 	// сохранение таймер-инфы всех шмоток в общий файл
 	if (!((pulse + 17) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("Depot::save_timedata()", stats);
+
 		Depot::save_timedata();
 	}
 
 	if (!((pulse + 16) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("mobile_affect_update()", stats);
+
 		mobile_affect_update();
 	}
 
 	if (!((pulse + 11) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("obj_point_update", stats);
+
 		obj_point_update();
 		bloody::update();
 	}
 
 	if (!((pulse + 6) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("room_point_update", stats);
+
 		room_point_update();
 	}
 
 	if (!((pulse + 5) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("Temporary_Spells::update_times()", stats);
+
 		Temporary_Spells::update_times();
 	}
 
 	if (!((pulse + 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("exchange_point_update", stats);
+
 		exchange_point_update();
 	}
 
 	if (!((pulse + 1) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("flush_player_index/heartbeat", stats);
+
 		flush_player_index();
 	}
 
 	if (!(pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
+		Timer timer("point_update", stats);
+
 		point_update();
 	}
 
@@ -2104,23 +2347,31 @@ void heartbeat(const int missed_pulses)
 
 	if (pulse == 720)
 	{
+		Timer timer("dupe_player_index", stats);
+
 		dupe_player_index();
 	}
 
 	if (!(pulse % PASSES_PER_SEC))
 	{
+		Timer timer("beat_points_update", stats);
+
 		beat_points_update(pulse / PASSES_PER_SEC);
 	}
 
 #if defined WITH_SCRIPTING
 	if (!(pulse % scripting::HEARTBEAT_PASSES))
 	{
+		Timer timer("scripting::heartbeat()", stats);
+
 		scripting::heartbeat();
 	}
 #endif
 
 	if (FRAC_SAVE && auto_save && !((pulse + 7) % PASSES_PER_SEC))  	// 1 game second
 	{
+		Timer timer("Crash_frac_...", stats);
+
 		Crash_frac_save_all((pulse / PASSES_PER_SEC) % PLAYER_SAVE_ACTIVITY);
 		Crash_frac_rent_time((pulse / PASSES_PER_SEC) % OBJECT_SAVE_ACTIVITY);
 	}
@@ -2128,21 +2379,29 @@ void heartbeat(const int missed_pulses)
 
 	if (EXCHANGE_AUTOSAVETIME && auto_save && !((pulse + 9) % (EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC)))
 	{
+		Timer timer("exchange_database_save", stats);
+
 		exchange_database_save();
 	}
 
 	if (EXCHANGE_AUTOSAVEBACKUPTIME && !((pulse + 9) % (EXCHANGE_AUTOSAVEBACKUPTIME * PASSES_PER_SEC)))
 	{
+		Timer timer("exchange_database_save", stats);
+
 		exchange_database_save(true);
 	}
 
 	if (auto_save && !((pulse + 9) % (60 * PASSES_PER_SEC)))
 	{
+		Timer timer("SaveGlobalUID", stats);
+
 		SaveGlobalUID();
 	}
 
 	if (!FRAC_SAVE && auto_save && !((pulse + 11) % (60 * PASSES_PER_SEC)))  	// 1 minute
 	{
+		Timer timer("if (++mins_since_crashsave >= autosave_time)", stats);
+
 		if (++mins_since_crashsave >= autosave_time)
 		{
 			mins_since_crashsave = 0;
@@ -2161,6 +2420,8 @@ void heartbeat(const int missed_pulses)
 	// обновление и сохранение клановой экспы
 	if (!((pulse + 14) % (60 * CLAN_EXP_UPDATE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("update_clan_exp", stats);
+
 		update_clan_exp();
 		save_clan_exp();
 	}
@@ -2168,24 +2429,32 @@ void heartbeat(const int missed_pulses)
 	// оповещение о скорой кончине денег в дружине
 	if (!((pulse + 15) % (60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("Clan::ChestInvoice()", stats);
+
 		Clan::ChestInvoice();
 	}
 
 	// обновление статов экспы в топе кланов для тех, кто вырубил показ на лету
 	if (!((pulse + 16) % (60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC)))
 	{
+		Timer timer("Clan::SyncTopExp()", stats);
+
 		Clan::SyncTopExp();
 	}
 
 	// сохранение файла чексумм, если в нем были изменения
 	if (!((pulse + 23) % (PASSES_PER_SEC)))
 	{
+		Timer timer("FileCRC::save()", stats);
+
 		FileCRC::save();
 	}
 
 	//Polud раз в час проверяем не пришло ли время сохранить статистику
 	if (SpellUsage::isActive && (!(pulse % (60*60*PASSES_PER_SEC))))
 	{
+		Timer timer("SpellUsage::save", stats);
+
 		time_t tmp_time = time(0);
 		if ((tmp_time - SpellUsage::start) >= (60*60*24))
 		{
