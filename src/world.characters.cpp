@@ -104,18 +104,18 @@ void Characters::remove(CHAR_DATA* character)
 
 	m_purge_list.push_back(*index_i->second);
 	m_purge_set.insert(index_i->second->get());
-	m_list.erase(index_i->second);
-	m_object_raw_ptr_to_object_ptr.erase(index_i);
 
 	const auto rnum = character->nr;
 	if (NOBODY != rnum)
 	{
-		m_rnum_to_characters_set[rnum].insert(character);
+		m_rnum_to_characters_set[rnum].erase(character);
 		if (m_rnum_to_characters_set[rnum].empty())
 		{
 			m_rnum_to_characters_set.erase(rnum);
 		}
 	}
+	m_list.erase(index_i->second);
+	m_object_raw_ptr_to_object_ptr.erase(index_i);
 
 	character->set_purged();
 }
