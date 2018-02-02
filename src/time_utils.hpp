@@ -34,17 +34,6 @@ namespace utils
 		return std::chrono::duration_cast<duration_t>(stop_time - m_start_time);
 	}
 
-	class CExecutionProfiler
-	{
-	public:
-		CExecutionProfiler(const std::string& title) : m_title(title) {}
-		~CExecutionProfiler();
-
-	private:
-		const std::string m_title;
-		CExecutionTimer m_timer;
-	};
-
 	class CSteppedProfiler
 	{
 	public:

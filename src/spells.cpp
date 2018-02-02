@@ -3380,7 +3380,7 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL_MENTAL_SHADOW!",                 // 208
 	"Жуткие черные руки побледнели и расплылись зловонной дымкой.", //209 SPELL_EVARDS_BLACK_TENTACLES
 	"!SPELL_WHIRLWIND!",
-	"!SPELL_INDRIKS_TEETH!",
+	"Каменные зубы исчезли, возвратив способность двигаться.",
 	"!SPELL_MELFS_ACID_ARROW!",
 	"!SPELL_THUNDERSTONE!",
 	"!SPELL_CLOD!",

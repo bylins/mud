@@ -3770,8 +3770,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_NOFLEE: // "приковать противника"
-        af[0].battleflag = AF_BATTLEDEC;
 	case SPELL_INDRIKS_TEETH:
+		af[0].battleflag = AF_BATTLEDEC;
 		savetype = SAVING_WILL;
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
 				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
@@ -3780,9 +3780,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
-
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
-						 pc_duration(victim, 3, level, 4, 4, 0)) * koef_duration;
+				 pc_duration(victim, 3, level, 4, 4, 0)) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 		to_room = "$n0 теперь прикован$a к $N2.";
 		to_vict = "Вы не сможете покинуть $N3.";
