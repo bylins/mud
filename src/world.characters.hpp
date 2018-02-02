@@ -22,6 +22,7 @@ public:
 
 	const auto& get_list() const { return m_list; }
 	const auto get_character_by_address(const CHAR_DATA* character) const;
+	void get_mobs_by_rnum(const mob_rnum rnum, list_t& result);
 
 	const auto begin() const { return m_list.begin(); }
 	const auto end() const { return m_list.end(); }
@@ -36,11 +37,13 @@ public:
 	bool has(const CHAR_DATA* character) const;
 
 private:
-	using object_raw_ptr_to_object_ptr_t = std::unordered_map<const void*, list_t::iterator>;
+	using character_raw_ptr_to_character_ptr_t = std::unordered_map<const void*, list_t::iterator>;
 	using set_t = std::unordered_set<const CHAR_DATA*>;
+	using rnum_to_characters_set_t = std::unordered_map<mob_rnum, set_t>;
 
 	list_t m_list;
-	object_raw_ptr_to_object_ptr_t m_object_raw_ptr_to_object_ptr;
+	character_raw_ptr_to_character_ptr_t m_object_raw_ptr_to_object_ptr;
+	rnum_to_characters_set_t m_rnum_to_characters_set;
 	list_t m_purge_list;
 	set_t m_purge_set;
 };

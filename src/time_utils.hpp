@@ -34,17 +34,6 @@ namespace utils
 		return stop_time - m_start_time;
 	}
 
-	class CExecutionProfiler
-	{
-	public:
-		CExecutionProfiler(const std::string& title) : m_title(title) {}
-		~CExecutionProfiler();
-
-	private:
-		const std::string m_title;
-		CExecutionTimer m_timer;
-	};
-
 	class CSteppedProfiler
 	{
 	public:

@@ -4494,6 +4494,24 @@ void process_celebrates(int vnum)
 // Команда не должна изменить флаг
 #define		FLAG_PERSIST		2
 
+bool handle_zone_Q_command(const mob_rnum rnum)
+{
+	bool extracted = false;
+
+	Characters::list_t mobs;
+	character_list.get_mobs_by_rnum(rnum, mobs);
+	for (const auto& mob : mobs)
+	{
+		if (!MOB_FLAGGED(mob, MOB_RESURRECTED))
+		{
+			extract_char(mob.get(), FALSE, TRUE);
+			extracted = true;
+		}
+	}
+
+	return extracted;
+}
+
 // execute the reset command table of a given zone
 void reset_zone(zone_rnum zone)
 {
@@ -4581,20 +4599,9 @@ void reset_zone(zone_rnum zone)
 				break;
 
 			case 'Q':
+				if (handle_zone_Q_command(ZCMD.arg1))
 				{
-					const bool erased = false;
-					character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& ch)
-					{
-						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
-						{
-							extract_char(ch.get(), FALSE, TRUE);
-						}
-					});
-
-					if (erased)
-					{
-						curr_state = 1;
-					}
+					curr_state = 1;
 				}
 
 				tobj = NULL;
@@ -4919,21 +4926,23 @@ void reset_zone(zone_rnum zone)
 				break;
 			}
 		}
-		// if ( (ZCMD.if_flag&CHECK_SUCCESS) && !last_state )
+
 		if (!(ZCMD.if_flag & FLAG_PERSIST))
 		{
 			// команда изменяет флаг
 			last_state = curr_state;
 		}
-
 	}
+
 	if (zone_table[zone].used)
 	{
 		zone_table[zone].count_reset++;
 	}
+
 	zone_table[zone].age = 0;
 	zone_table[zone].used = FALSE;
 	process_celebrates(zone_table[zone].number);
+
 	if (get_zone_rooms(zone, &rnum_start, &rnum_stop))
 	{
 		ROOM_DATA* room;
@@ -4960,8 +4969,6 @@ void reset_zone(zone_rnum zone)
 		}
 	}
 
-	//process_celebrates(zone_table[zone].number);
-
 	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
 	{
 		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
@@ -4970,12 +4977,12 @@ void reset_zone(zone_rnum zone)
 			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[zone].number)
 			{
 				zone_table[rnum_start].typeB_flag[curr_state - 1] = TRUE;
-//				log("[Reset] Adding TRUE for zone %d in the array contained by zone %d",
-//				    zone_table[zone].number, zone_table[rnum_start].number);
+
 				break;
 			}
 		}
 	}
+
 	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
 	for (rnum_start = zone_table[zone].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[zone].typeB_flag[rnum_start - 1] = FALSE;

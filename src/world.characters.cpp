@@ -31,6 +31,13 @@ void Characters::push_front(const CHAR_DATA::shared_ptr& character)
 
 	m_list.push_front(character);
 	m_object_raw_ptr_to_object_ptr[character.get()] = m_list.begin();
+
+	const auto rnum = character->nr;
+	if (NOBODY != rnum)
+	{
+		m_rnum_to_characters_set[rnum].insert(character.get());
+	}
+
 	if (character->purged())
 	{
 		/*
@@ -42,6 +49,22 @@ void Characters::push_front(const CHAR_DATA::shared_ptr& character)
 		* Thus we can safely put character with flag #purged and just clear this flag.
 		*/
 		character->set_purged(false);
+	}
+}
+
+void Characters::get_mobs_by_rnum(const mob_rnum rnum, list_t& result)
+{
+	result.clear();
+
+	const auto i = m_rnum_to_characters_set.find(rnum);
+	if (i == m_rnum_to_characters_set.end())
+	{
+		return;
+	}
+
+	for (const auto& character : i->second)
+	{
+		result.push_back(*m_object_raw_ptr_to_object_ptr[character]);
 	}
 }
 
@@ -83,6 +106,17 @@ void Characters::remove(CHAR_DATA* character)
 	m_purge_set.insert(index_i->second->get());
 	m_list.erase(index_i->second);
 	m_object_raw_ptr_to_object_ptr.erase(index_i);
+
+	const auto rnum = character->nr;
+	if (NOBODY != rnum)
+	{
+		m_rnum_to_characters_set[rnum].insert(character);
+		if (m_rnum_to_characters_set[rnum].empty())
+		{
+			m_rnum_to_characters_set.erase(rnum);
+		}
+	}
+
 	character->set_purged();
 }
 
