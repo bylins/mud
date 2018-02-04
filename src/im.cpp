@@ -1189,7 +1189,7 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 
 			if (strlen(buf1) >= MAX_STRING_LENGTH - 60)
 			{
-				strcat(buf1, "**OVERFLOW**\r\n");
+				strcat(buf1, "***נועונןלמומיו***\r\n");
 				break;
 			}
 			rs = im_get_char_rskill(ch, sortpos);
@@ -1224,7 +1224,7 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 // -newbook.patch (Alisher)
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60)
 		{
-			strcat(buf2, "**OVERFLOW**\r\n");
+			strcat(buf2, "***נועונןלמומיו***\r\n");
 			break;
 		}
 		if (rs->perc <= 0)

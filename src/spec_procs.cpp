@@ -260,7 +260,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 		{
 			if (strlen(buf1) >= MAX_STRING_LENGTH - 60)
 			{
-				strcat(buf1, "**OVERFLOW**\r\n");
+				strcat(buf1, "***נועונןלמומיו***\r\n");
 				break;
 			}
 			sprintf(buf1 + strlen(buf1), "%s", names[i]);
@@ -287,7 +287,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 	{
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60)
 		{
-			strcat(buf2, "**OVERFLOW**\r\n");
+			strcat(buf2, "***נועונןלמומיו***\r\n");
 			break;
 		}
 		if (HAVE_FEAT(ch, sortpos))
@@ -489,7 +489,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 		{
 			if (buf2_length + i->length() >= MAX_STRING_LENGTH - 60)		// why 60?
 			{
-				strcat(buf2, "**OVERFLOW**\r\n");
+				strcat(buf2, "***נועונןלמומיו***\r\n");
 				break;
 			}
 
