@@ -676,7 +676,10 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		break;
 
 	case SPELL_RUNE_LABEL:
-		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
+	{
+		const auto& room = world[ch->in_room];
+		const auto aff_i = find_room_affect(room, SPELL_RUNE_LABEL);
+		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL) || aff_i != room->affected.end())
 		{
 			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 			to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
@@ -697,7 +700,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		to_room = "$n начертил$g на земле несколько рун и произнес$q заклинание.";
 		lag = 2;
 		break;
-
+	}
 	case SPELL_HYPNOTIC_PATTERN:
 		if (material_component_processing(ch, ch, spellnum))
 		{
