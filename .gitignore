@@ -2,5 +2,4 @@
 src/version.cpp
 build
 bin
-buildx64
 .vscode
