@@ -105,6 +105,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 {
 	OBJ_DATA *obj;
 	const auto vnum = OLC_NUM(d);
+
 	NEWCREATE(obj, vnum);
 
 	if (real_num == -1)
@@ -122,7 +123,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	}
 	else
 	{
-		obj->copy_from(obj_proto[real_num].get());
+		obj->clone_olc_object_from_prototype(vnum);
 	}
 
 	OLC_OBJ(d) = obj;
@@ -1506,6 +1507,25 @@ void parse_val_spell_lvl(DESCRIPTOR_DATA *d, const ObjVal::EValueKey key, int va
 	drinkcon_values_menu(d);
 }
 
+void oedit_disp_clone_menu(DESCRIPTOR_DATA* d)
+{
+	get_char_cols(d->character.get());
+
+	sprintf(buf,
+#if defined(CLEAR_SCREEN)
+		"[H[J"
+#endif
+		"%s1%s) Заменить триггеры\r\n"
+		"%s2%s) Не заменять триггеры\r\n"
+		"%s3%s) Quit\r\n"
+		"Ваш выбор : ",
+		grn, nrm,
+		grn, nrm,
+		grn, nrm);
+
+	send_to_char(buf, d->character.get());
+}
+
 void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
 	int number = 0;
@@ -1778,7 +1798,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'z':
 		case 'Z':
 			OLC_MODE(d) = OEDIT_CLONE;
-			send_to_char("Введите VNUM объекта для клонирования:", d->character.get());
+			oedit_disp_clone_menu(d);
 			break;
 
 		default:
@@ -2456,17 +2476,48 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		parse_val_spell_lvl(d, ObjVal::EValueKey::POTION_SPELL3_LVL, number);
 		return;
 	case OEDIT_CLONE:
+		switch (*arg)
 		{
-			const auto vnum = atoi(arg);
-			const auto olc_object = OLC_OBJ(d);
-			if (!olc_object->clone_olc_object_from_prototype(vnum))
-			{
-				send_to_char("Нет объекта с таким внумом.\r\n", d->character.get());
-				return;
-			}
+		case '1':
+			OLC_MODE(d) = OEDIT_CLONE_WITH_TRIGGERS;
+			send_to_char("Введите VNUM объекта для клонирования:", d->character.get());
+			return;
+		case '2':
+			OLC_MODE(d) = OEDIT_CLONE_WITHOUT_TRIGGERS;
+			send_to_char("Введите VNUM объекта для клонирования:", d->character.get());
+			return;
+		case '3':
+			break;	//to main menu
+		default:
+			oedit_disp_clone_menu(d);
+			return;
 		}
 		break;
+	case OEDIT_CLONE_WITH_TRIGGERS:
+	{
+		number = atoi(arg);
 
+		if (!OLC_OBJ(d)->clone_olc_object_from_prototype(number))
+		{
+			send_to_char("Нет объекта с таким внумом. Повторите ввод : ", d->character.get());
+			return;
+		}
+		break;
+	}
+	case OEDIT_CLONE_WITHOUT_TRIGGERS:
+	{
+		number = atoi(arg);
+
+		auto proto_script_old = OLC_OBJ(d)->get_proto_script();
+		if (!OLC_OBJ(d)->clone_olc_object_from_prototype(number))
+		{
+			send_to_char("Нет объекта с таким внумом. Повторите ввод: :", d->character.get());
+			return;
+		}
+
+		OLC_OBJ(d)->set_proto_script(proto_script_old);
+		break;
+	}
 	default:
 		mudlog("SYSERR: OLC: Reached default case in oedit_parse()!", BRF, LVL_BUILDER, SYSLOG, TRUE);
 		send_to_char("Oops...\r\n", d->character.get());

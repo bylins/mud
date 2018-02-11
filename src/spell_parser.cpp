@@ -1603,8 +1603,8 @@ int mag_manacost(const CHAR_DATA* ch, int spellnum)
 
 //		Меняем мем на коэффициент скилла магии
 		if ((GET_CLASS(ch) == CLASS_DRUID)
-			&& (GET_CLASS(ch) == CLASS_PALADINE)
-			&& (GET_CLASS(ch) == CLASS_MERCHANT))
+			|| (GET_CLASS(ch) == CLASS_PALADINE)
+			|| (GET_CLASS(ch) == CLASS_MERCHANT))
 		{
 			return mana_cost;
 		}

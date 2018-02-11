@@ -205,6 +205,8 @@ extern struct olc_save_info *olc_save_list;
 #define OEDIT_POTION_SPELL3_NUM         48
 #define OEDIT_POTION_SPELL3_LVL         49
 #define OEDIT_CLONE						50
+#define OEDIT_CLONE_WITH_TRIGGERS			51
+#define OEDIT_CLONE_WITHOUT_TRIGGERS			52
 
 // * Submodes of REDIT connectedness.
 #define REDIT_MAIN_MENU 		1
@@ -317,6 +319,8 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_ADD_PARAMETERS		61
 #define MEDIT_FEATURES		62
 #define MEDIT_CLONE			63
+#define MEDIT_CLONE_WITH_TRIGGERS	64
+#define MEDIT_CLONE_WITHOUT_TRIGGERS 65
 
 #if defined(OASIS_MPROG)
 #define MEDIT_MPROG                     60
