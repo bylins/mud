@@ -1846,11 +1846,6 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				log("SYSERROR: null ch (%s:%d %s)", __FILE__, __LINE__, __func__);
 				break;
 			}
-			if (*name != UID_OBJ || *name != UID_CHAR || *name != UID_ROOM)
-			{
-				sprintf(buf, "ERROR: Var data not UID '%s'!", name);
-				trig_log(trig, buf);
-			}
 			if ((o = get_object_in_equip(ch, name)));
 			else if ((o = get_obj_in_list(name, ch->carrying)));
 			else if ((c = get_char_room(name, ch->in_room)));
