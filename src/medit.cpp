@@ -190,8 +190,9 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 	// Копирую скрипт и прототипы
 	SCRIPT(dst) = NULL;
-	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
-	*dst->proto_script = *src->proto_script;
+	auto proto_script_old = new OBJ_DATA::triggers_list_t(*src->proto_script);
+	dst->proto_script.reset(proto_script_old);
+	//*dst->proto_script = *src->proto_script;
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
 	dst->in_fighting_list_ = tmp.in_fighting_list_;
@@ -1515,6 +1516,25 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character.get());
 }
 
+void medit_disp_clone_menu(DESCRIPTOR_DATA* d)
+{
+	get_char_cols(d->character.get());
+
+	sprintf(buf,
+#if defined(CLEAR_SCREEN)
+		"[H[J"
+#endif
+		"%s1%s) Заменить триггеры\r\n"
+		"%s2%s) Не заменять триггеры\r\n"
+		"%s3%s) Quit\r\n"
+		"Ваш выбор : ",
+		grn, nrm,
+		grn, nrm,
+		grn, nrm);
+
+	send_to_char(buf, d->character.get());
+}
+
 // ************************************************************************
 // *      The GARGANTAUN event handler                                    *
 // ************************************************************************
@@ -1522,7 +1542,7 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
 	struct helper_data_type *helper;
-	int i, number, plane, bit;
+	int i, number = 0, plane, bit;
 
 	if (OLC_MODE(d) > MEDIT_NUMERICAL_RESPONSE)
 	{
@@ -1933,7 +1953,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'ч':
 		case 'Ч':
 			OLC_MODE(d) = MEDIT_CLONE;
-			send_to_char(d->character.get(), "Введите VNUM моба с которого будут склонированы все характеристики:");
+			medit_disp_clone_menu(d);
 			return;
 
 		default:
@@ -2687,19 +2707,55 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case MEDIT_CLONE:
-		mob_rnum rnum, rnum_old;
-		int vnum;
-		vnum = atoi(arg);
-		if ((rnum = real_mobile(vnum)) < 0)
+		switch (*arg)
+		{
+		case '1':
+			OLC_MODE(d) = MEDIT_CLONE_WITH_TRIGGERS;
+			send_to_char("Введите VNUM моба для клонирования:", d->character.get());
+			return;
+		case '2':
+			OLC_MODE(d) = MEDIT_CLONE_WITHOUT_TRIGGERS;
+			send_to_char("Введите VNUM моба для клонирования:", d->character.get());
+			return;
+		case '3':
+			break;	//to main menu
+		default:
+			medit_disp_clone_menu(d);
+			return;
+		}
+		break;
+	case MEDIT_CLONE_WITH_TRIGGERS:
+	{
+		auto rnum = real_mobile(atoi(arg));
+
+		if (rnum < 0)
 		{
 			send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character.get());
 			return;
 		}
-		rnum_old = GET_MOB_RNUM(OLC_MOB(d));
+
+		auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 		medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum]);
 		GET_MOB_RNUM(OLC_MOB(d)) = rnum_old;
 		break;
+	}
+	case MEDIT_CLONE_WITHOUT_TRIGGERS:
+	{
+		auto rnum = real_mobile(atoi(arg));
 
+		if (rnum < 0)
+		{
+			send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character.get());
+			return;
+		}
+
+		auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
+		auto proto_script_old = OLC_MOB(d)->proto_script;
+		medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum]);
+		GET_MOB_RNUM(OLC_MOB(d)) = rnum_old;
+		OLC_MOB(d)->proto_script = proto_script_old;
+		break;
+	}
 	default:
 		// * We should never get here.
 		cleanup_olc(d, CLEANUP_ALL);
