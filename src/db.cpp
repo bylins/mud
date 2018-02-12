@@ -5842,46 +5842,6 @@ void flush_player_index(void)
 	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
 }
 
-void dupe_player_index(void)
-{
-	FILE *players;
-	char name[MAX_STRING_LENGTH];
-
-	sprintf(name, LIB_PLRS "players.dup");
-
-	if (!(players = fopen(name, "w+")))
-	{
-		log("Can't save players list...");
-		return;
-	}
-
-	std::size_t dupes = 0;
-	for (std::size_t i = 0; i < player_table.size(); i++)
-	{
-		if (!player_table[i].name()
-			|| !*player_table[i].name())
-		{
-			continue;
-		}
-
-		// check double
-		std::size_t c = 0;
-		for (; c < i; c++)
-			if (!str_cmp(player_table[c].name(), player_table[i].name()))
-				break;
-		if (c < i)
-			continue;
-
-		++dupes;
-		sprintf(name, "%s %d %d %d %d\n",
-				player_table[i].name(),
-				player_table[i].id(), player_table[i].unique, player_table[i].level, player_table[i].last_logon);
-		fputs(name, players);
-	}
-	fclose(players);
-	log("Продублировано индексов %zd (считано при загрузке %zd)", dupes, player_table.size());
-}
-
 void rename_char(CHAR_DATA * ch, char *oname)
 {
 	char filename[MAX_INPUT_LENGTH], ofilename[MAX_INPUT_LENGTH];
