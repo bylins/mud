@@ -2599,6 +2599,16 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			set_fighting(victim, ch);
 			npc_groupbattle(victim);
 		}
+
+		//check self horse attack
+		if (on_horse(ch) && get_horse(ch) == victim)
+		{
+			horse_drop(victim);
+		}
+		else if (on_horse(victim) && get_horse(victim) == ch)
+		{
+			horse_drop(ch);
+		}
 	}
 
 	// If negative damage - return
@@ -2704,19 +2714,19 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// added by WorM(Видолюб) поглощение физ.урона в %
 	//if(GET_PR(victim) && IS_NPC(victim)
-	if(GET_PR(victim) && dmg_type == FightSystem::PHYS_DMG)
+	if (GET_PR(victim) && dmg_type == FightSystem::PHYS_DMG)
 	{
 		if (PRF_FLAGGED(victim, PRF_TESTER))
 		{
-        		int ResultDam = dam - (dam * GET_PR(victim) / 100);
-        		sprintf(buf, "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
-        		send_to_char(buf, victim);
-        		dam = ResultDam;
-    		} 
-	else
-        {
-            dam = dam - (dam * GET_PR(victim) / 100);
-        }
+			int ResultDam = dam - (dam * GET_PR(victim) / 100);
+			sprintf(buf, "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
+			send_to_char(buf, victim);
+			dam = ResultDam;
+		}
+		else
+		{
+			dam = dam - (dam * GET_PR(victim) / 100);
+		}
 	}
 
 	// зб, щиты, броня, поглощение
