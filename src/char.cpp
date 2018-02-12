@@ -997,7 +997,7 @@ bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
 void change_fighting(CHAR_DATA* ch, int need_stop)
 {
-	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& k)
+	for (const auto& k : character_list)
 	{
 		if (k->get_protecting() == ch)
 		{
@@ -1045,7 +1045,7 @@ void change_fighting(CHAR_DATA* ch, int need_stop)
 				stop_fighting(k.get(), FALSE);
 			}
 		}
-	});
+	}
 }
 
 size_t fighting_list_size()

@@ -667,7 +667,6 @@ void Crash_ldsave(CHAR_DATA * ch);
 void Crash_save_all_rent();
 int level_exp(CHAR_DATA * ch, int level);
 void flush_player_index(void);
-void dupe_player_index(void);
 void Crash_frac_save_all(int frac_part);
 void Crash_frac_rent_time(int frac_part);
 unsigned long TxtToIp(const char * text);
@@ -2344,13 +2343,6 @@ void heartbeat(const int missed_pulses)
 	}
 
 // << раз в минуту /////////////////////////////////////////////////////////////
-
-	if (pulse == 720)
-	{
-		Timer timer("dupe_player_index", stats);
-
-		dupe_player_index();
-	}
 
 	if (!(pulse % PASSES_PER_SEC))
 	{
