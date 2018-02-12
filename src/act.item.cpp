@@ -3152,37 +3152,45 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         break;
 
     case 1:
-		const auto& room = world[ch->in_room];
-		const auto aff_i = find_room_affect(room, SPELL_RUNE_LABEL);
-		if (aff_i != room->affected.end()
+	const auto& room = world[ch->in_room];
+	const auto aff_i = find_room_affect(room, SPELL_RUNE_LABEL);
+
+	if (aff_i != room->affected.end()
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
-				|| IS_IMMORTAL(ch)
-				|| PRF_FLAGGED(ch, PRF_CODERINFO)))
-        {
-			const auto& aff = *aff_i;
-			send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
-            act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-            if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
-            {
-                //Ищем кастера по миру
-                caster = find_char(aff->caster_id);
-                //Если кастер онлайн - выдаем деятелю БД как за воровство
-                if (caster)
-                {
-                    pk_thiefs_action(ch, caster);
-                    sprintf(buf, "Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n", GET_PAD(ch,1));
-                    send_to_char(buf, caster);
-                }
-            }
-            affect_room_remove(world[ch->in_room], aff_i);
-            lag = 3;
-        }
-        else
-        {
-            send_to_char("А тут топтать и нечего :)\r\n", ch);
-        }
-        break;
-    }
+			|| IS_IMMORTAL(ch)
+			|| PRF_FLAGGED(ch, PRF_CODERINFO)))
+	{
+		send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
+		act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		ROOM_DATA * label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+		if (label_room)
+		{
+			remove_rune_label(ch);
+			lag = 3;
+			break;
+		}
+		const auto& aff = *aff_i;
+		if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
+		{
+			//Ищем кастера по миру
+			caster = find_char(aff->caster_id);
+			//Если кастер онлайн - выдаем деятелю БД как за воровство
+			if (caster)
+			{
+				pk_thiefs_action(ch, caster);
+				sprintf(buf, "Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n", GET_PAD(ch,1));
+				send_to_char(buf, caster);
+			}
+		}
+		affect_room_remove(world[ch->in_room], aff_i);
+		lag = 3;
+	}
+	else
+	{
+		send_to_char("А тут топтать и нечего :)\r\n", ch);
+	}
+	break;
+}
 
     //Выдадим-ка лаг за эти дела.
     if (!WAITLESS(ch))
