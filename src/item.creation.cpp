@@ -2414,8 +2414,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 	};
         // простановка мортов при шитье
 	float total_weight = count_mort_requred(obj.get()) * 7 / 10;
-          
-        if (total_weight > 35)
+      
+	if (total_weight > 35)
 	{
 		obj->set_minimum_remorts(12);
 	}
@@ -2435,7 +2435,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 	{
 		obj->set_minimum_remorts(3);
 	}
-	else if (total_weight > 20)
+	else
 	{
 		obj->set_minimum_remorts(0);
 	}

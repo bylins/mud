@@ -5041,13 +5041,13 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 	if (result <= -1)
 	{
 		debug::coredump();
-		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		sprintf(buf2, "calcuid target not found vnum: %s, count: %d. Создана кора для исследований", vnum, count_num);
+//		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		sprintf(buf2, "calcuid target not found vnum: %s, count: %d. Создана кора для исследований", vnum, count_num + 1);
 		trig_log(trig, buf2);
 
-		std::stringstream ss;
-		debug::log_queue("characters").print_queue(ss, "characters");
-		trig_log(trig, ss.str().c_str());
+//		std::stringstream ss;
+//		debug::log_queue("characters").print_queue(ss, "characters");
+//		trig_log(trig, ss.str().c_str());
 
 		*uid = '\0';
 		return;

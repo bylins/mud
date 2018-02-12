@@ -189,6 +189,7 @@ int is_colour(char code)
 	return -1;
 }
 
+#define MAX_COLOR_STRING_LENGTH		(MAX_SOCK_BUF * 2 - GARBAGE_SPACE)
 int proc_color(char *inbuf, int colour)
 {
 	int p = 0;
@@ -208,6 +209,13 @@ int proc_color(char *inbuf, int colour)
 	size_t j = 0;
 	while (j < len)
 	{
+		if (p > MAX_COLOR_STRING_LENGTH)
+		{
+			snprintf(&out_buf[p], MAX_SOCK_BUF * 2 - p, "\r\n%s%s\r\n", CNRM, "***ПЕРЕПОЛНЕНИЕ***");
+			strcpy(inbuf, out_buf);
+			return 0;
+		}
+
 		// WorM: Добавил ключи &S и &s, начало и конец текста без обработки цветов и _
 		if (inbuf[j] == '&' && ((!show_all && inbuf[j + 1] == 'S') || (show_all && inbuf[j + 1] == 's')))
 		{

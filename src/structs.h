@@ -1185,7 +1185,7 @@ constexpr long long PASSES_PER_SEC = 1000000 / OPT_USEC;
 #define PULSE_LOGROTATE (10 RL_SEC)
 
 // Variables for the output buffering system //
-#define MAX_SOCK_BUF            (24 * 1024)	// Size of kernel's sock buf   //
+#define MAX_SOCK_BUF            (48 * 1024)	// Size of kernel's sock buf   //
 #define MAX_PROMPT_LENGTH       256	// Max length of prompt        //
 #define GARBAGE_SPACE         32	// Space for **OVERFLOW** etc  //
 #define SMALL_BUFSIZE         1024	// Static output buffer size   //

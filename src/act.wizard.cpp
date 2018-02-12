@@ -1030,6 +1030,7 @@ void setall_inspect()
 		timediff(&result, &stop, &start);
 		if (result.tv_sec > 0 || result.tv_usec >= OPT_USEC)
 		{
+			delete vict;
 			return;
 		}
 		buf1[0] = '\0';
@@ -1041,7 +1042,7 @@ void setall_inspect()
 		    if(strstr(player_table[it->second->pos].mail, it->second->mail))
 			{
 				it->second->found++;
-				if (it->second->type_req == SETALL_FREEZE)		
+				if (it->second->type_req == SETALL_FREEZE)
 				{
 					if (is_online)
 					{
@@ -1162,7 +1163,7 @@ void setall_inspect()
 					}
 				}							
 			}
-		delete vict;	
+		delete vict;
 	}
 	if (it->second->mail && it->second->pwd)
 		Password::send_password(it->second->mail, it->second->pwd);

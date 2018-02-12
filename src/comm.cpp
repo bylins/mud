@@ -3327,7 +3327,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	// if we're in the overflow state, notify the user
 	if (t->bufptr == ~0ull)
 	{
-		strcat(i, "**OVERFLOW**\r\n");
+		strcat(i, "***נועונןלמומיו***\r\n");
 	}
 
 	// add the extra CRLF if the person isn't in compact mode
@@ -3377,22 +3377,15 @@ int process_output(DESCRIPTOR_DATA * t)
 
 	t->string_to_client_encoding(pi, po);
 
-	size_t c = 0;
-	for (; o[c]; c++)
-	{
-		i[c] = o[c];
-	}
-	i[c] = 0;
-
 	if (t->has_prompt)	// && !t->connected)
 		offset = 0;
 	else
 		offset = 2;
 
 	if (t->character && PRF_FLAGGED(t->character, PRF_GOAHEAD))
-		strncat(i, str_goahead, MAX_PROMPT_LENGTH);
+		strncat(o, str_goahead, MAX_PROMPT_LENGTH);
 
-	if (!write_to_descriptor_with_options(t, i + offset, strlen(i + offset), result))
+	if (!write_to_descriptor_with_options(t, o + offset, strlen(o + offset), result))
 	{
 		return -1;
 	}
@@ -3428,7 +3421,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	 * bug in that the snooping immortal will see it twice
 	 * but details...
 	 */
-	write_to_output(i + written + offset, t);
+	write_to_output(o + written + offset, t);
 	return (0);
 }
 

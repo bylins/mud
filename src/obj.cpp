@@ -621,15 +621,20 @@ void OBJ_DATA::unset_enchant()
 bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
 {
 	const auto rnum = real_object(vnum);
+
 	if (rnum < 0)
 	{
 		return false;
 	}
 
 	const auto obj_original = world_objects.create_from_prototype_by_rnum(rnum);
-
 	const auto old_rnum = get_rnum();
+	
 	copy_from(obj_original.get());
+
+	const auto proto_script_copy = OBJ_DATA::triggers_list_t(obj_proto.proto_script(rnum));
+	set_proto_script(proto_script_copy);
+
 	set_rnum(old_rnum);
 
 	extract_obj(obj_original.get());
@@ -647,8 +652,8 @@ void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
 	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
 	
 	//Копируем имя по падежам
-	for (i=0;i<NUM_PADS;i++)
-		set_PName(i,src->get_PName(i));
+	for (i = 0; i < NUM_PADS; i++)
+		set_PName(i, src->get_PName(i));
 }
 
 

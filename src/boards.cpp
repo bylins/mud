@@ -532,7 +532,7 @@ namespace Boards
 		// для писем
 		if ((CMD_IS("читать") || CMD_IS("read")) && !buffer2.empty() && a_isdigit(buffer2[0]))
 		{
-			if (buffer2.find(".") != std::string::npos)
+			if (buffer2.find('.') != std::string::npos)
 			{
 				return 0;
 			}

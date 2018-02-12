@@ -3892,6 +3892,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
 				act(to_room, TRUE, victim, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
+			break;
 
 		case SPELL_ICESTORM:
 		case SPELL_EARTHFALL:

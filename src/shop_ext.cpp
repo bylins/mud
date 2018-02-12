@@ -477,7 +477,7 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	if (CMD_IS("steal")
 		|| CMD_IS("украсть"))
 	{
-		sprintf(argm, "$N вскричал$g '%s'", MSG_NO_STEAL_HERE);
+		sprintf(argm, "$N вскричал$G '%s'", MSG_NO_STEAL_HERE);
 		sprintf(buf, "ругать %s", GET_NAME(ch));
 		do_social(keeper, buf);
 		act(argm, FALSE, ch, 0, keeper, TO_CHAR);
