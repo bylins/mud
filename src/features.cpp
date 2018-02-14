@@ -47,7 +47,7 @@ void unused_feat(int feat);
 void assign_feats(void);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-bool find_feat_slot(CHAR_DATA *ch, int feat);
+bool have_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 
@@ -676,7 +676,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		return FALSE;
 
 	// Наличие свободных слотов
-	if (!find_feat_slot(ch, feat))
+	if (!have_feat_slot(ch, feat))
 		return FALSE;
 
 	// Специальные требования для изучения
@@ -820,39 +820,62 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	return TRUE;
 }
 
-/*
-	Ищем свободный слот под способность.
-	Возвращает число от 0 до MAX_ACC_FEAT-1 - номер слота,
-	0, если способность врожденная и -1 если слотов не найдено.
-	НЕ проверяет доступность врожденной способности на данном уровне.
-*/
-bool find_feat_slot(CHAR_DATA *ch, int feat)
+//Ищем свободный слот под способность (кроме врожденных).
+bool have_feat_slot(CHAR_DATA *ch, int feat)
 {
 	int i, lowfeat, hifeat;
 	//если способность врожденная - ее всегда можно получить
-	if (feat_info[feat].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat))
+	if (feat_info[feat].natural_classfeat[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat))
 		return TRUE;
-    //сколько у нас вообще способностей, у которых слот меньше требуемого, и сколько - тех, у которых больше или равно?
-    lowfeat = 0;
-    hifeat = 0;
-	for (i = 1; i < MAX_FEATS; i++)
+
+	//сколько у нас вообще способностей, у которых слот меньше требуемого, и сколько - тех, у которых больше или равно?
+	lowfeat = 0;
+	hifeat = 0;
+
+	//Мы не можем просто учесть кол-во способностей меньше требуемого и больше требуемого,
+	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
+	auto slot_list = std::vector<int>();
+	for (i = 1; i < MAX_FEATS; ++i)
 	{
-        if (feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),i))
-            continue;
-	    if (HAVE_FEAT(ch,i) && (FEAT_SLOT(ch,i) < FEAT_SLOT(ch,feat)))
-            lowfeat++;
-        if (HAVE_FEAT(ch,i) && (FEAT_SLOT(ch,i) >= FEAT_SLOT(ch,feat)))
-            hifeat++;
+		if (feat_info[i].natural_classfeat[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), i))
+			continue;
+
+		if (HAVE_FEAT(ch, i))
+		{
+			if (FEAT_SLOT(ch, i) >= FEAT_SLOT(ch, feat))
+			{
+				++hifeat;
+			}
+			else
+			{
+				slot_list.push_back(FEAT_SLOT(ch, i));
+			}
+		}
+	}
+	  
+	std::sort(slot_list.begin(), slot_list.end());
+
+	//Посчитаем сколько действительно нижние способности занимают слотов (с учетом пропусков)
+	for (const auto& slot : slot_list)
+	{
+		if (lowfeat < slot)
+		{
+			lowfeat = slot + 1;
+		}
+		else
+		{
+			++lowfeat;
+		}
 	}
 
-//из имеющегося количества слотов нужно вычесть:
-//число высоких слотов, занятых низкоуровневыми способностями,
-//с учтом, что низкоуровневые могут и не занимать слотов выше им положенных,
-//а также собственно число слотов, занятых высокоуровневыми способностями
-	if (NUM_LEV_FEAT(ch)-FEAT_SLOT(ch, feat)-hifeat-MAX(0, lowfeat-FEAT_SLOT(ch, feat)) > 0)
-        return TRUE;
+	//из имеющегося количества слотов нужно вычесть:
+	//число высоких слотов, занятых низкоуровневыми способностями,
+	//с учетом, что низкоуровневые могут и не занимать слотов выше им положенных,
+	//а также собственно число слотов, занятых высокоуровневыми способностями
+	if (NUM_LEV_FEAT(ch) - FEAT_SLOT(ch, feat) - hifeat - MAX(0, lowfeat - FEAT_SLOT(ch, feat)) > 0)
+		return TRUE;
 
-//oops.. слотов нет
+	//oops.. слотов нет
 	return FALSE;
 }
 

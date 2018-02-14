@@ -166,8 +166,12 @@ int feat_slot_lvl(int remort, int slot_for_remort, int slot)
 {
 	int result = 0;
 	for (result = 1; result < LVL_IMMORT; result++)
-		if (result*(5+remort/slot_for_remort)/28 == slot)
+	{
+		if (result*(5 + remort / slot_for_remort) / 28 == slot)
+		{
 			break;
+		}
+	}
 	/*
 	÷îéíáîéå: ÆÏÒÍÕÌÁ ÓÏÄÒÁÎÁ Ó NUM_LEV_FEAT (utils.h)!
 	((int) 1+GET_LEVEL(ch)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
@@ -253,7 +257,10 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				j++;
 			}
 			else if (FEAT_SLOT(ch, sortpos) < max_slot)
-                        	strcat(names[FEAT_SLOT(ch, sortpos)], buf);
+			{
+				auto slot = FEAT_SLOT(ch, sortpos);
+				strcat(names[FEAT_SLOT(ch, sortpos)], buf);
+			}
 		}
 		sprintf(buf1, "--------------------------------------");
 		for (i = 0; i < max_slot; i++)
