@@ -208,7 +208,7 @@ int find_feat_num(const char *name, bool alias = false);
 void assign_feats(void);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-bool find_feat_slot(CHAR_DATA *ch, int feat);
+bool have_feat_slot(CHAR_DATA *ch, int feat);
 int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 void set_race_feats(CHAR_DATA *ch, bool flag = true);
