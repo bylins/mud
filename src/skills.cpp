@@ -1463,8 +1463,8 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 		return;
 	}
 
-	if (victim && (IS_HORSE(victim)
-		|| MOB_FLAGGED(victim, MOB_NOTRAIN)))
+	if (victim && 
+		(MOB_FLAGGED(victim, MOB_MOUNTING)|| MOB_FLAGGED(victim, MOB_NOTRAIN)))
 	{
 		return;
 	}
