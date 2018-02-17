@@ -1184,7 +1184,8 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		m->next_fighting = tmpmob.next_fighting;
 		ch->followers = m->followers;
 		m->followers = tmpmob.followers;
-
+		ch->set_wait(m->get_wait());  // а лаг то у нас не копировался
+		m->set_wait(tmpmob.get_wait());
 		ch->set_master(m->get_master());
 		m->set_master(tmpmob.get_master());
 
