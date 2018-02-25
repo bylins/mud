@@ -61,6 +61,7 @@ extern const char *pray_metter[];
 extern const char *pray_whom[];
 extern const char *room_aff_visib_bits[];
 extern const char *room_aff_invis_bits[];
+extern const char *room_self_aff_invis_bits[];
 extern const char *equipment_types[];
 extern struct int_app_type int_app[];
 extern const size_t INT_APP_SIZE;
