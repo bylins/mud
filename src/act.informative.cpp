@@ -2120,8 +2120,6 @@ string show_room_affects(CHAR_DATA* ch, const char* name_affects[], const char* 
 			{
 				result.append("\r\n");
 			}
-
-			SET_BIT(bitvector, AFF_ROOM_RUNE_LABEL);
 			break;
 		case AFF_ROOM_FORBIDDEN:				// 1 << 3
 			if (!IS_SET(bitvector, AFF_ROOM_FORBIDDEN))
