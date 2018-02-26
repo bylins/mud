@@ -466,6 +466,9 @@ void do_cities(CHAR_DATA *ch, char*, int, int);
 // пока не введет код (или до ребута)
 std::map<std::string, int> new_loc_codes;
 
+// имя чара на код, отправленный на почту для подтверждения мыла при создании
+std::map<std::string, int> new_char_codes;
+
 void do_debug_queues(CHAR_DATA * /*ch*/, char *argument, int /*cmd*/, int /*subcmd*/)
 {
 	std::stringstream ss;
@@ -2977,6 +2980,40 @@ void print_free_names(std::ostream& os, const PlayersIndex& index)
 	printList(names, os);
 }
 
+void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
+{
+	player_index_element element(-1, GET_PC_NAME(d->character));
+
+	// Now GET_NAME() will work properly.
+	init_char(d->character.get(), element);
+
+	if (d->character->get_pfilepos() < 0)
+	{
+		d->character->set_pfilepos(create_entry(element));
+	}
+
+	d->character->save_char();
+
+	// добавляем в список ждущих одобрения
+	if (!(int)NAME_FINE(d->character))
+	{
+		sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
+					 "[ %s ждет одобрения имени.",
+				GET_NAME(d->character), GET_PAD(d->character, 0),
+				GET_PAD(d->character, 1), GET_PAD(d->character, 2),
+				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
+				GET_PAD(d->character, 5), GET_EMAIL(d->character),
+				genders[(int)GET_SEX(d->character)], GET_NAME(d->character));
+		NewNameAdd(d->character.get());
+	}
+
+	SEND_TO_Q(motd, d);
+	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
+	STATE(d) = CON_RMOTD;
+	d->character->set_who_mana(0);
+	d->character->set_who_last(time(0));
+}
+
 // deal with newcomers and other non-playing sockets
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -3815,7 +3852,8 @@ Sventovit
 
 		do_color(d->character.get(), buf2, 0, 0);
 		SEND_TO_Q("\r\nВведите ваш E-mail"
-				  "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail): ", d);
+				  "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
+				  "\r\nНа этот адрес вам будет отправлен код для подтверждения: ", d);
 		STATE(d) = CON_GET_EMAIL;
 		break;
 
@@ -3832,41 +3870,17 @@ Sventovit
 		}
 
 		{
-			player_index_element element(-1, GET_PC_NAME(d->character));
-
-			// Now GET_NAME() will work properly.
-			init_char(d->character.get(), element);
-
-			if (d->character->get_pfilepos() < 0)
-			{
-				d->character->set_pfilepos(create_entry(element));
-			}
+			int random_number = number(1000000, 9999999);
+			new_char_codes[d->character->get_pc_name()] = random_number;
+			strncpy(GET_EMAIL(d->character), arg, 127);
+			*(GET_EMAIL(d->character) + 127) = '\0';
+			lower_convert(GET_EMAIL(d->character));
+			std::string cmd_line = str(boost::format("python3 send_code.py %s %d &") % GET_EMAIL(d->character) % random_number);
+			auto result = system(cmd_line.c_str());
+			UNUSED_ARG(result);
+			SEND_TO_Q("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
+			STATE(d) = CON_RANDOM_NUMBER;
 		}
-
-		strncpy(GET_EMAIL(d->character), arg, 127);
-		*(GET_EMAIL(d->character) + 127) = '\0';
-		lower_convert(GET_EMAIL(d->character));
-		d->character->save_char();
-
-		// добавляем в список ждущих одобрения
-		if (!(int)NAME_FINE(d->character))
-		{
-			sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
-					"[ %s ждет одобрения имени.",
-					GET_NAME(d->character),	GET_PAD(d->character, 0),
-					GET_PAD(d->character, 1), GET_PAD(d->character, 2),
-					GET_PAD(d->character, 3), GET_PAD(d->character, 4),
-					GET_PAD(d->character, 5), GET_EMAIL(d->character),
-					genders[(int)GET_SEX(d->character)], GET_NAME(d->character));
-			NewNameAdd(d->character.get());
-		}
-
-		SEND_TO_Q(motd, d);
-		SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
-		STATE(d) = CON_RMOTD;
-		d->character->set_who_mana(0);
-		d->character->set_who_last(time(0));
-
 		break;
 
 	case CON_RMOTD:	// read CR after printing motd
@@ -3883,6 +3897,18 @@ Sventovit
 	case CON_RANDOM_NUMBER:
 		{
 			int code_rand = atoi(arg);
+
+			if (new_char_codes.count(d->character->get_pc_name()) != 0)
+			{
+				if (new_char_codes[d->character->get_pc_name()] != code_rand)
+				{
+					SEND_TO_Q("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
+					break;
+				}
+				new_char_codes.erase(d->character->get_pc_name());
+				DoAfterEmailConfirm(d);
+				break;
+			}
 
 			if (new_loc_codes.count(GET_EMAIL(d->character)) == 0)
 			{
