@@ -583,6 +583,21 @@ const char *room_aff_invis_bits[] =
 	"\n",
 };
 
+const char *room_self_aff_invis_bits[] =
+{
+	"&W... земля освещена колдовством ...&n",	// 0
+	"&G... колдовской туман плывет над вами &n ...", // AFF_FOG
+	"&G... светящиеся руны на земле складываются в Ваше имя ...&n",	// AFF_RUNE_LABEL
+	"&c... магическая печать закрывает все входы ...&n", // AFF_FORBIDDEN
+	"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN
+	"&K... множество черных сухих рук высовывается из земли и шарит в воздухе!&n", // AFF_EVARDS_BLACK_TENTACLES
+	"&R... раскаленные громовые камни рушатся на землю!&n", // AFF_METEORSTORM
+	"&W... чудовищная буря кружится над вашей головой ...&n", // AFF_THUNDERSTORM
+	"\n",
+	"\n",
+	"\n",
+};
+
 // CON_x
 const char *connected_types[] = { "В игре",
 								  "Disconnecting",
