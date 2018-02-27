@@ -5833,6 +5833,7 @@ void Clan::init_ingr_chest()
 	{
 		fclose(fl);
 		log("<Clan> Error reading file '%s'. (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
+		delete [] databuf;
 		return;
 	}
 	fclose(fl);
