@@ -3277,7 +3277,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	need = FALSE;
 
 	if ((GET_REAL_MAX_HIT(vict) > 0
-			&& (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
+		&& (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
 		|| (GET_REAL_MAX_HIT(vict) <= 0
 			&& GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
 		|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict)
@@ -3310,38 +3310,38 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
 		send_to_char(ch, "&RСнимаю %d аффектов\r\n", count);
 
-		send_to_char(ch, "Аффекты на цели:");
+		send_to_char(ch, "Аффекты на цели до снятия:");
 		vict->print_affects_to_buffer(buf, MAX_STRING_LENGTH);
 		send_to_char(buf, ch);
-
 		send_to_char("\r\n", ch);
-		send_to_char("Удаляемые: ", ch);
 
-		const auto affects_count = vict->affected.size();
-		if (0 != affects_count)
-		{
-			vict->remove_random_affects(count);
-		}
-		else
-		{
-			send_to_char(ch, "Аффектов нет!\r\n");
-		}
+		auto remove_count = vict->remove_random_affects(count);
+		send_to_char(ch, "Снято %d аффектов\r\n", remove_count);
+
+		send_to_char(ch, "Аффекты на цели после снятия:");
+		vict->print_affects_to_buffer(buf, MAX_STRING_LENGTH);
+
+		send_to_char(buf, ch);
 		send_to_char("&n\r\n", ch);
+
+		//
+		need = TRUE;
+		prob = TRUE;
 	}
 	else
 	{
 		count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
-	}
 
-	for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
-	{
-		if (affected_by_spell(vict, RemoveSpell[percent]))
+		for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
 		{
-			need = TRUE;
-			if (percent < count)
+			if (affected_by_spell(vict, RemoveSpell[percent]))
 			{
-				spellnum = RemoveSpell[percent];
-				prob = TRUE;
+				need = TRUE;
+				if (percent < count)
+				{
+					spellnum = RemoveSpell[percent];
+					prob = TRUE;
+				}
 			}
 		}
 	}
