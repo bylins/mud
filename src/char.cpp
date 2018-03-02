@@ -348,7 +348,7 @@ const char* CHAR_DATA::print_affects_to_buffer(char* buffer, const size_t size) 
 			break;
 		}
 
-		if (remaining >= static_cast<size_t>(written))
+		if (remaining < static_cast<size_t>(written))
 		{
 			log("SYSERR: Provided buffer is not big enough to print list of affects. Truncated.");
 			buffer[size - 1] = '\0';	// Terminate string at the end of buffer
