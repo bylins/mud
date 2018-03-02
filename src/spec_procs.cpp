@@ -921,25 +921,35 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	CHAR_DATA *victim = (CHAR_DATA *) me;
 
 	if (IS_NPC(ch))
-		return (0);
+	{
+		return 0;
+	}
 
-	if (CMD_IS("учить") || CMD_IS("practice"))
+	if (CMD_IS("учить")
+		|| CMD_IS("practice"))
+	{
 		command = SCMD_LEARN;
+	}
 	else
-		return (0);
+	{
+		return 0;
+	}
 
-	if ((info_num = mob_index[victim->nr].stored) <= 0 || info_num > GUILDS_MONO_USED)
+	info_num = mob_index[victim->get_rnum()].stored;
+	if (info_num <= 0
+		|| info_num > GUILDS_MONO_USED)
 	{
 		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", FALSE, ch, 0, victim, TO_CHAR);
 		return (1);
-	};
+	}
+
 	info_num--;
-	if (!IS_BITS(guild_mono_info[info_num].classes, GET_CLASS(ch)) ||
-			!IS_BITS(guild_mono_info[info_num].races, GET_RACE(ch)) ||
-			!IS_BITS(guild_mono_info[info_num].religion, GET_RELIGION(ch)))
+	if (!IS_BITS(guild_mono_info[info_num].classes, GET_CLASS(ch))
+		|| !IS_BITS(guild_mono_info[info_num].races, GET_RACE(ch))
+		|| !IS_BITS(guild_mono_info[info_num].religion, GET_RELIGION(ch)))
 	{
 		act("$N сказал$g : '$n, я не учу таких, как ты.'", FALSE, ch, 0, victim, TO_CHAR);
-		return (1);
+		return 1;
 	}
 
 	skip_spaces(&argument);
@@ -953,8 +963,9 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			for (i = 0, found = FALSE; (guild_mono_info[info_num].learn_info + i)->spell_no >= 0; i++)
 			{
 				if ((guild_mono_info[info_num].learn_info + i)->level > GET_LEVEL(ch))
+				{
 					continue;
-				// log("%d - %d",(guild_mono_info[info_num].learn_info+i)->skill_no, (guild_mono_info[info_num].learn_info+i)->spell_no);
+				}
 
 				const auto skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 				bits = skill_no;
@@ -1274,21 +1285,27 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 {
 	int command = 0, gcount = 0, info_num = 0, found = FALSE, sfound = FALSE, i, bits;
 	CHAR_DATA *victim = (CHAR_DATA *) me;
-//	int found_skill = TRUE, found_feat = TRUE, found_spell = TRUE;
 
 	if (IS_NPC(ch))
-		return (0);
+	{
+		return 0;
+	}
 
 	if (CMD_IS("учить") || CMD_IS("practice"))
+	{
 		command = SCMD_LEARN;
+	}
 	else
-		return (0);
+	{
+		return 0;
+	}
 
-	if ((info_num = mob_index[victim->nr].stored) <= 0 || info_num > GUILDS_POLY_USED)
+	if ((info_num = mob_index[victim->get_rnum()].stored) <= 0 || info_num > GUILDS_POLY_USED)
 	{
 		act("$N сказал$G : 'Извини, $n, я уже в отставке.'", FALSE, ch, 0, victim, TO_CHAR);
-		return (1);
-	};
+		return 1;
+	}
+
 	info_num--;
 
 	skip_spaces(&argument);
@@ -1302,8 +1319,10 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 			for (i = 0, found = FALSE; (guild_poly_info[info_num] + i)->spell_no >= 0; i++)
 			{
 				if ((guild_poly_info[info_num] + i)->level > GET_LEVEL(ch))
+				{
 					continue;
-				// log("%d - %d",(guild_poly_info[info_num]+i)->skill_no,(guild_poly_info[info_num]+i)->spell_no);
+				}
+
 				if (!IS_BITS((guild_poly_info[info_num] + i)->classes, GET_CLASS(ch))
 					|| !IS_BITS((guild_poly_info[info_num] + i)->races, GET_RACE(ch))
 					|| !IS_BITS((guild_poly_info[info_num] + i)->religion, GET_RELIGION(ch)))

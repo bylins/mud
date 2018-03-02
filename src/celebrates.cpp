@@ -521,7 +521,8 @@ bool make_clean(CelebrateDataPtr celebrate)
 	
 	for (mob_it = attached_mobs.begin(); mob_it != attached_mobs.end(); ++mob_it)
 	{
-		int vnum = mob_index[mob_it->second->nr].vnum;	
+		const auto rnum = mob_it->second->get_rnum();
+		int vnum = mob_index[rnum].vnum;	
 		for (AttachZonList::iterator it = celebrate->mobsToAttach.begin(); it != celebrate->mobsToAttach.end();++it)
 		{
 			if (it->second.find(vnum) != it->second.end())
@@ -553,11 +554,13 @@ bool make_clean(CelebrateDataPtr celebrate)
 				remove_triggers(it->second[vnum], obj_it->second->get_script().get());
 			}
 		}
+
 		if (obj_it->second->get_script()
 			&& !TRIGGERS(obj_it->second->get_script()))
 		{
 			obj_it->second->cleanup_script();
-		}			
+		}
+
 		attached_objs.erase(obj_it);
 		if (attached_objs.empty())
 		{
@@ -570,7 +573,8 @@ bool make_clean(CelebrateDataPtr celebrate)
 
 	for (const auto& mob : loaded_mobs_copy)
 	{
-		int vnum = mob_index[mob->nr].vnum;	
+		const auto rnum = mob->get_rnum();
+		const int vnum = mob_index[rnum].vnum;	
 		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
 		{
 			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
@@ -591,18 +595,25 @@ bool make_clean(CelebrateDataPtr celebrate)
 
 	for (obj_it = loaded_objs.begin(); obj_it != loaded_objs.end(); ++obj_it)
 	{
-		int vnum = obj_it->second->get_rnum();	
+		const int vnum = obj_it->second->get_rnum();	
 		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
 		{
 			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
 			{
 				for (LoadList::iterator it = (*room)->objects.begin(); it != (*room)->objects.end();++it)
+				{
 					if ((*it)->vnum == vnum)
+					{
 						extract_obj(obj_it->second);
+					}
+				}
 			}
 		}
+
 		if (loaded_objs.empty())
+		{
 			break;
+		}
 	}
 
 	for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
@@ -611,7 +622,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 		{
 			if (!(*room)->triggers.empty())
 			{
-				int rnum = real_room((*room)->vnum);
+				const int rnum = real_room((*room)->vnum);
 				remove_triggers((*room)->triggers, world[rnum]->script.get());
 				if (SCRIPT(world[rnum]) && !TRIGGERS(SCRIPT(world[rnum])))
 				{
@@ -627,11 +638,17 @@ bool make_clean(CelebrateDataPtr celebrate)
 void clear_real_celebrates(CelebrateList celebrates)
 {
 	CelebrateList::iterator it;
-	for (it = celebrates.begin();it != celebrates.end(); ++it)
+	for (it = celebrates.begin(); it != celebrates.end(); ++it)
 	{
-		if (!it->second->celebrate->is_clean && !is_active(it, true) && it->second->last) 
+		if (!it->second->celebrate->is_clean
+			&& !is_active(it, true)
+			&& it->second->last) 
+		{
 			if (make_clean(it->second->celebrate))
+			{
 				it->second->celebrate->is_clean = true;
+			}
+		}
 	}
 }
 
@@ -640,9 +657,15 @@ void clear_mud_celebrates(CelebrateList celebrates)
 	CelebrateList::iterator it;
 	for (it = celebrates.begin();it != celebrates.end(); ++it)
 	{
-		if (!it->second->celebrate->is_clean && !is_active(it, false) && it->second->last) 
+		if (!it->second->celebrate->is_clean
+			&& !is_active(it, false)
+			&& it->second->last) 
+		{
 			if (make_clean(it->second->celebrate))
+			{
 				it->second->celebrate->is_clean = true;
+			}
+		}
 	}
 }
 

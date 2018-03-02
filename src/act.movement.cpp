@@ -965,14 +965,18 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	{
 		greet_memory_mtrigger(ch);
 		// add track info
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOTRACK) && (!IS_NPC(ch) || (mob_rnum = GET_MOB_RNUM(ch)) >= 0))
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOTRACK)
+			&& (!IS_NPC(ch)
+				|| (mob_rnum = GET_MOB_RNUM(ch)) >= 0))
 		{
 			for (track = world[go_to]->track; track; track = track->next)
-				if ((IS_NPC(ch) && IS_SET(track->track_info, TRACK_NPC)
-						&& track->who == mob_rnum) || (!IS_NPC(ch)
-													   && !IS_SET(track->track_info, TRACK_NPC)
-													   && track->who == GET_IDNUM(ch)))
+			{
+				if ((IS_NPC(ch) && IS_SET(track->track_info, TRACK_NPC) && track->who == mob_rnum)
+					|| (!IS_NPC(ch) && !IS_SET(track->track_info, TRACK_NPC) && track->who == GET_IDNUM(ch)))
+				{
 					break;
+				}
+			}
 
 			if (!track && !ROOM_FLAGGED(go_to, ROOM_NOTRACK))
 			{

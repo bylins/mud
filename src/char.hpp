@@ -357,8 +357,40 @@ enum
 typedef std::map<ESkill/* номер скилла */, int/* значение скилла */> CharSkillsType;
 //typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
+class ProtectedCharacterData;	// to break up cyclic dependencies
+
+class CharacterRNum_ChangeObserver
+{
+public:
+	using shared_ptr = std::shared_ptr<CharacterRNum_ChangeObserver>;
+
+	CharacterRNum_ChangeObserver() {}
+	virtual ~CharacterRNum_ChangeObserver() {}
+
+	virtual void notify(ProtectedCharacterData& character, const mob_rnum old_rnum) = 0;
+};
+
+class ProtectedCharacterData : public PlayerI
+{
+public:
+	ProtectedCharacterData();
+	ProtectedCharacterData(const ProtectedCharacterData& rhv);
+	ProtectedCharacterData& operator=(const ProtectedCharacterData& rhv);
+
+	auto get_rnum() const { return m_rnum; }
+	void set_rnum(const mob_rnum rnum);
+
+	void subscribe_for_rnum_changes(const CharacterRNum_ChangeObserver::shared_ptr& observer) { m_rnum_change_observers.insert(observer); }
+	void unsubscribe_from_rnum_changes(const CharacterRNum_ChangeObserver::shared_ptr& observer) { m_rnum_change_observers.erase(observer); }
+
+private:
+	mob_rnum m_rnum;		// Mob's rnum
+
+	std::unordered_set<CharacterRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
+};
+
 // * Общий класс для игроков/мобов.
-class CHAR_DATA : public PlayerI
+class CHAR_DATA : public ProtectedCharacterData
 {
 // новое
 public:
@@ -737,7 +769,6 @@ private:
 	int souls;
 
 public:
-	mob_rnum nr;		// Mob's rnum
 	room_rnum in_room;	// Location (real room number)
 
 private:

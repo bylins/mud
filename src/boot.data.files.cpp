@@ -1281,7 +1281,7 @@ void MobileFile::parse_mobile(const int nr)
 		mob_proto[i].equipment[j] = NULL;
 	}
 
-	mob_proto[i].nr = i;
+	mob_proto[i].set_rnum(i);
 	mob_proto[i].desc = NULL;
 
 	set_test_data(mob_proto + i);

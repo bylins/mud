@@ -278,17 +278,19 @@ void assign_triggers(void *i, int type)
 			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
-				sprintf(buf, "SYSERR: trigger #%d non-existent, for mob #%d",
-					trigger_vnum, mob_index[mob->nr].vnum);
+				const auto rnum = mob->get_rnum();
+				sprintf(buf, "SYSERR: trigger #%d non-existent, for mob #%d", trigger_vnum, mob_index[rnum].vnum);
 				log("%s",buf);
 			}
 			else
 			{
 				if (trig_index[rnum]->proto->get_attach_type() != MOB_TRIGGER)
 				{
+					const auto rnum = mob->get_rnum();
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for mob #%d",
-						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
-						mob_index[mob->nr].vnum);
+						trigger_vnum,
+						static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
+						mob_index[rnum].vnum);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else

@@ -195,9 +195,9 @@ void WorldObjects::remove(OBJ_DATA* object)
 	}
 	OBJ_DATA::shared_ptr object_ptr = get_by_raw_ptr(object);
 
-	object_ptr->unsubscribe_for_id_change(m_id_change_observer);
-	object_ptr->unsubscribe_for_rnum_changes(m_rnum_change_observer);
-	object_ptr->unsubscribe_for_vnum_changes(m_vnum_change_observer);
+	object_ptr->unsubscribe_from_id_change(m_id_change_observer);
+	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
+	object_ptr->unsubscribe_from_vnum_changes(m_vnum_change_observer);
 
 	m_id_to_object_ptr[object_ptr->get_id()].erase(object_ptr);
 	m_vnum_to_object[object_ptr->get_vnum()].erase(object_ptr);

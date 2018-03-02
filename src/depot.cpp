@@ -529,7 +529,10 @@ void load_chests()
 {
 	for (const auto ch : character_list)
 	{
-		if (ch->nr > 0 && ch->nr <= top_of_mobt && mob_index[ch->nr].func == bank)
+		const auto rnum = ch->get_rnum();
+		if (rnum > 0
+			&& rnum <= top_of_mobt
+			&& mob_index[rnum].func == bank)
 		{
 			const auto pers_chest = world_objects.create_from_prototype_by_rnum(system_obj::PERS_CHEST_RNUM);
 			if (!pers_chest)

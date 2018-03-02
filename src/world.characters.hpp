@@ -17,6 +17,21 @@ public:
 
 	using const_iterator = list_t::const_iterator;
 
+	class CL_RNumChangeObserver : public CharacterRNum_ChangeObserver
+	{
+	public:
+		CL_RNumChangeObserver(Characters& cl);
+
+		virtual void notify(ProtectedCharacterData& character, const mob_rnum old_rnum) override;
+
+	private:
+		Characters& m_parent;
+	};
+
+	Characters();
+	Characters(const Characters&) = delete;
+	Characters& operator=(const Characters&) = delete;
+
 	void push_front(const CHAR_DATA::shared_ptr& character);
 	void push_front(CHAR_DATA* character) { push_front(CHAR_DATA::shared_ptr(character)); }
 
@@ -44,6 +59,7 @@ private:
 	list_t m_list;
 	character_raw_ptr_to_character_ptr_t m_object_raw_ptr_to_object_ptr;
 	rnum_to_characters_set_t m_rnum_to_characters_set;
+	CharacterRNum_ChangeObserver::shared_ptr m_rnum_change_observer;
 	list_t m_purge_list;
 	set_t m_purge_set;
 };

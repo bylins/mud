@@ -310,7 +310,7 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 
 	if (real_num == -1)
 	{
-		GET_MOB_RNUM(mob) = -1;
+		mob->set_rnum(NOBODY);
 		mob->set_pc_name("неоконченный моб");
 		mob->set_npc_name("неоконченный моб");
 		GET_LDESC(mob) = str_dup("Неоконченный моб стоит тут.\r\n");
@@ -455,7 +455,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 					new_index[rmob_num].number = 0;
 					new_index[rmob_num].func = NULL;
 					new_mob_num = rmob_num;
-					GET_MOB_RNUM(OLC_MOB(d)) = rmob_num;
+					OLC_MOB(d)->set_rnum(rmob_num);
 					medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
 					//					new_proto[rmob_num] = *(OLC_MOB(d));
 					new_index[rmob_num].zone = real_zone(OLC_NUM(d));
@@ -473,7 +473,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			{
 				new_index[rmob_num + 1] = mob_index[rmob_num];
 				new_proto[rmob_num + 1] = mob_proto[rmob_num];
-				GET_MOB_RNUM(new_proto + rmob_num + 1) = rmob_num + 1;
+				new_proto[rmob_num + 1].set_rnum(rmob_num + 1);
 			}
 		}
 #if defined(DEBUG)
@@ -490,9 +490,10 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			new_index[rmob_num].number = 0;
 			new_index[rmob_num].func = NULL;
 			new_mob_num = rmob_num;
-			GET_MOB_RNUM(OLC_MOB(d)) = rmob_num;
+			OLC_MOB(d)->set_rnum(rmob_num);
+
 			medit_mobile_copy(&new_proto[rmob_num], OLC_MOB(d));
-			//			new_proto[rmob_num] = *(OLC_MOB(d));
+
 			new_index[rmob_num].zone = real_zone(OLC_NUM(d));
 			new_index[rmob_num].set_idx = -1;
 		}
@@ -508,6 +509,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		mob_index = new_index;
 		mob_proto = new_proto;
 		top_of_mobt++;
+
 #if defined(DEBUG)
 		fprintf(stderr, "Free ok.\n");
 #endif
@@ -522,7 +524,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		{
 			if (GET_MOB_RNUM(live_mob) >= new_mob_num)
 			{
-				GET_MOB_RNUM(live_mob)++;
+				live_mob->set_rnum(1 + live_mob->get_rnum());
 			}
 		}
 
@@ -544,15 +546,18 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 				}
 
 		// 4. Другие редактируемые мобы
-				// * Update keepers in shops being edited and other mobs being edited.
+		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
 		{
 			if (dsc->connected == CON_MEDIT)
 			{
 				if (GET_MOB_RNUM(OLC_MOB(dsc)) >= new_mob_num)
-					GET_MOB_RNUM(OLC_MOB(dsc))++;
+				{
+					OLC_MOB(dsc)->set_rnum(1 + OLC_MOB(dsc)->get_rnum());
+				}
 			}
 		}
+
 		// 5. Информация о выслеживании
 		for (j = FIRST_ROOM; j <= top_of_world; j++)
 		{
@@ -561,7 +566,9 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			for (track = world[j]->track; track; track = track->next)
 			{
 				if (IS_SET(track->track_info, TRACK_NPC) && track->who >= new_mob_num)
+				{
 					track->who++;
+				}
 			}
 		}
 
@@ -2724,6 +2731,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		break;
+
 	case MEDIT_CLONE_WITH_TRIGGERS:
 	{
 		auto rnum = real_mobile(atoi(arg));
@@ -2736,9 +2744,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 		medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum]);
-		GET_MOB_RNUM(OLC_MOB(d)) = rnum_old;
+		OLC_MOB(d)->set_rnum(rnum_old);
+
 		break;
 	}
+
 	case MEDIT_CLONE_WITHOUT_TRIGGERS:
 	{
 		auto rnum = real_mobile(atoi(arg));
@@ -2752,10 +2762,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
 		auto proto_script_old = OLC_MOB(d)->proto_script;
 		medit_mobile_copy(OLC_MOB(d), &mob_proto[rnum]);
-		GET_MOB_RNUM(OLC_MOB(d)) = rnum_old;
+		OLC_MOB(d)->set_rnum(rnum_old);
 		OLC_MOB(d)->proto_script = proto_script_old;
+
 		break;
 	}
+
 	default:
 		// * We should never get here.
 		cleanup_olc(d, CLEANUP_ALL);

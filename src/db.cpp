@@ -4432,15 +4432,18 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
 		for (const auto ch : character_list)
 		{
-			if (ch->nr > 0 && list.find(mob_index[ch->nr].vnum) != list.end())
+			const auto rnum = ch->get_rnum();
+			if (rnum > 0
+				&& list.find(mob_index[rnum].vnum) != list.end())
 			{
 				if (!SCRIPT(ch))
 				{
 					SCRIPT(ch) = std::make_shared<SCRIPT_DATA>();
 				}
 
-				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
-						it != list[mob_index[ch->nr].vnum].end(); ++it)
+				for (Celebrates::TrigList::iterator it = list[mob_index[rnum].vnum].begin();
+					it != list[mob_index[rnum].vnum].end();
+					++it)
 				{
 					add_trigger(SCRIPT(ch).get(), read_trigger(real_trigger(*it)), -1);
 				}

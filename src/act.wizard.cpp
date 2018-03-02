@@ -4891,13 +4891,15 @@ void print_mob_bosses(CHAR_DATA *ch, bool lvl_sort)
 		std::string zone_name_str = zone_table[mob_index[mob_rnum].zone].name ?
 			zone_table[mob_index[mob_rnum].zone].name  : "EMPTY" ;
 
+		const auto mob = mob_proto + mob_rnum;
+		const auto vnum = GET_MOB_VNUM(mob);
 		out += boost::str(boost::format("%3d %31s [%2d][%6d] %31s\r\n")
 			% ++cnt
-			% (mob_proto[mob_rnum].get_name_str().size() > 31
-				? mob_proto[mob_rnum].get_name_str().substr(0, 31)
-				: mob_proto[mob_rnum].get_name_str())
+			% (mob->get_name_str().size() > 31
+				? mob->get_name_str().substr(0, 31)
+				: mob->get_name_str())
 			% zone_table[mob_index[mob_rnum].zone].mob_level
-			% GET_MOB_VNUM(mob_proto + mob_rnum)
+			% vnum
 			% (zone_name_str.size() > 31
 				? zone_name_str.substr(0, 31)
 				: zone_name_str));

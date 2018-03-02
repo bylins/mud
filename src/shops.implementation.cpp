@@ -108,7 +108,7 @@ namespace ShopExt
 	{
 		std::stringstream error;
 
-		object->unsubscribe_for_uid_change(m_object_uid_change_observer);
+		object->unsubscribe_from_uid_change(m_object_uid_change_observer);
 
 		const auto uid = object->get_uid();
 		const auto object_by_uid_i = m_objects_by_uid.find(uid);
@@ -157,7 +157,7 @@ namespace ShopExt
 		m_activities.clear();
 		for (const auto& uid_pair : m_objects_by_uid)
 		{
-			uid_pair.second->unsubscribe_for_uid_change(m_object_uid_change_observer);
+			uid_pair.second->unsubscribe_from_uid_change(m_object_uid_change_observer);
 		}
 		m_objects_by_uid.clear();
 	}

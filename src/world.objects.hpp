@@ -21,7 +21,7 @@ private:
 		WorldObjects& m_parent;
 	};
 
-	class WO_RNumChangeObserver : public RNumChangeObserver
+	class WO_RNumChangeObserver : public ObjectRNum_ChangeObserver
 	{
 	public:
 		WO_RNumChangeObserver(WorldObjects& parent) : m_parent(parent) {}
@@ -50,6 +50,8 @@ public:
 	using predicate_f = std::function<bool(const OBJ_DATA::shared_ptr&)>;
 
 	WorldObjects();
+	WorldObjects(const WorldObjects&) = delete;
+	WorldObjects& operator=(const WorldObjects&) = delete;
 
 	/**
 	* Creates an object, and add it to the object list

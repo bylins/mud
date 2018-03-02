@@ -104,12 +104,12 @@ public:
 	virtual void notify(OBJ_DATA& object, const object_id_t old_id) = 0;
 };
 
-class RNumChangeObserver
+class ObjectRNum_ChangeObserver
 {
 public:
-	using shared_ptr = std::shared_ptr<RNumChangeObserver>;
+	using shared_ptr = std::shared_ptr<ObjectRNum_ChangeObserver>;
 
-	virtual ~RNumChangeObserver() {}
+	virtual ~ObjectRNum_ChangeObserver() {}
 
 	virtual void notify(CObjectPrototype& object, const obj_rnum old_rnum) = 0;
 };
@@ -400,10 +400,10 @@ public:
 	auto get_vnum() const { return m_vnum; }
 
 	void subscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr& observer) { m_vnum_change_observers.insert(observer); }
-	void unsubscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr& observer) { m_vnum_change_observers.erase(observer); }
+	void unsubscribe_from_vnum_changes(const VNumChangeObserver::shared_ptr& observer) { m_vnum_change_observers.erase(observer); }
 
-	void subscribe_for_rnum_changes(const RNumChangeObserver::shared_ptr& observer) { m_rnum_change_observers.insert(observer); }
-	void unsubscribe_for_rnum_changes(const RNumChangeObserver::shared_ptr& observer) { m_rnum_change_observers.erase(observer); }
+	void subscribe_for_rnum_changes(const ObjectRNum_ChangeObserver::shared_ptr& observer) { m_rnum_change_observers.insert(observer); }
+	void unsubscribe_from_rnum_changes(const ObjectRNum_ChangeObserver::shared_ptr& observer) { m_rnum_change_observers.erase(observer); }
 
 	std::string item_count_message(int num, int pad);
 
@@ -467,7 +467,7 @@ private:
 	obj_vnum m_rnum;	///< Where in data-base
 
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;
-	std::unordered_set<RNumChangeObserver::shared_ptr> m_rnum_change_observers;
+	std::unordered_set<ObjectRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
 };
 
 class activation
@@ -835,10 +835,10 @@ public:
 	void set_tag(const char* tag);
 
 	void subscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.insert(observer); }
-	void unsubscribe_for_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.erase(observer); }
+	void unsubscribe_from_id_change(const IDChangeObserver::shared_ptr& observer) { m_id_change_observers.erase(observer); }
 
 	void subscribe_for_uid_change(const UIDChangeObserver::shared_ptr& observer) { m_uid_change_observers.insert(observer); }
-	void unsubscribe_for_uid_change(const UIDChangeObserver::shared_ptr& observer) { m_uid_change_observers.erase(observer); }
+	void unsubscribe_from_uid_change(const UIDChangeObserver::shared_ptr& observer) { m_uid_change_observers.erase(observer); }
 
 	void attach_triggers(const triggers_list_t& trigs);
 

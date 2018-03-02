@@ -1122,28 +1122,39 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 		return (FALSE);
 	}
 
-	if ((ch->get_fighting() && ch->get_fighting() == victim) || (victim->get_fighting() && victim->get_fighting() == ch))
-		return (TRUE);
+	if ((ch->get_fighting() && ch->get_fighting() == victim)
+		|| (victim->get_fighting() && victim->get_fighting() == ch))
+	{
+		return TRUE;
+	}
 
-	if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
-		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
+	if (ch != victim
+		&& !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
+		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
+			|| ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
 	{
 		// Один из участников в мирной комнате
-		if (MOB_FLAGGED(victim, MOB_HORDE) || (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)))
+		if (MOB_FLAGGED(victim, MOB_HORDE)
+			|| (MOB_FLAGGED(ch, MOB_IGNORPEACE)
+				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)))
 		{
 			return TRUE;
 		}
-		if (IS_GOD(ch) ||
-				(IS_NPC(ch) && ch->nr == real_mobile(DG_CASTER_PROXY)) ||
-				(pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT)))
-			return (TRUE);
+
+		if (IS_GOD(ch)
+			|| (IS_NPC(ch)
+				&& ch->get_rnum() == real_mobile(DG_CASTER_PROXY))
+			|| (pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT)))
+		{
+			return TRUE;
+		}
 		else
 		{
 			send_to_char("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
-			return (FALSE);
+			return FALSE;
 		}
 	}
-	return (TRUE);
+	return TRUE;
 }
 
 // Определяет необходимость вводить
