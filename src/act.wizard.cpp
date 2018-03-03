@@ -6849,8 +6849,6 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-
-	extern void heartbeat(const int missed_pulses);	// from comm.c
 	int m, t = 0;
 	char *ca;
 
@@ -6876,10 +6874,14 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!t)			// 1 tick default
+	{
 		t = (SECS_PER_MUD_HOUR);
+	}
 
 	for (m = 0; m < t * PASSES_PER_SEC; m++)
+	{
 		heartbeat(t * PASSES_PER_SEC - m);
+	}
 
 	sprintf(buf, "(GC) %s перевел игровое время на %d сек.", GET_NAME(ch), t);
 	mudlog(buf, NRM, LVL_IMMORT, IMLOG, FALSE);
