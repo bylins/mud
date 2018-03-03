@@ -57,7 +57,7 @@ private:
 	using rnum_to_characters_set_t = std::unordered_map<mob_rnum, set_t>;
 
 	list_t m_list;
-	character_raw_ptr_to_character_ptr_t m_object_raw_ptr_to_object_ptr;
+	character_raw_ptr_to_character_ptr_t m_character_raw_ptr_to_character_ptr;
 	rnum_to_characters_set_t m_rnum_to_characters_set;
 	CharacterRNum_ChangeObserver::shared_ptr m_rnum_change_observer;
 	list_t m_purge_list;
@@ -66,8 +66,8 @@ private:
 
 inline const auto Characters::get_character_by_address(const CHAR_DATA* character) const
 {
-	const auto i = m_object_raw_ptr_to_object_ptr.find(character);
-	return i != m_object_raw_ptr_to_object_ptr.end() ? *i->second : list_t::value_type();
+	const auto i = m_character_raw_ptr_to_character_ptr.find(character);
+	return i != m_character_raw_ptr_to_character_ptr.end() ? *i->second : list_t::value_type();
 }
 
 extern Characters character_list;

@@ -49,7 +49,7 @@ Characters::Characters()
 void Characters::push_front(const CHAR_DATA::shared_ptr& character)
 {
 	m_list.push_front(character);
-	m_object_raw_ptr_to_object_ptr[character.get()] = m_list.begin();
+	m_character_raw_ptr_to_character_ptr[character.get()] = m_list.begin();
 
 	const auto rnum = character->get_rnum();
 	if (NOBODY != rnum)
@@ -84,7 +84,7 @@ void Characters::get_mobs_by_rnum(const mob_rnum rnum, list_t& result)
 
 	for (const auto& character : i->second)
 	{
-		result.push_back(*m_object_raw_ptr_to_object_ptr[character]);
+		result.push_back(*m_character_raw_ptr_to_character_ptr[character]);
 	}
 }
 
@@ -96,8 +96,8 @@ void Characters::foreach_on_copy(const foreach_f function) const
 
 void Characters::remove(CHAR_DATA* character)
 {
-	const auto index_i = m_object_raw_ptr_to_object_ptr.find(character);
-	if (index_i == m_object_raw_ptr_to_object_ptr.end())
+	const auto index_i = m_character_raw_ptr_to_character_ptr.find(character);
+	if (index_i == m_character_raw_ptr_to_character_ptr.end())
 	{
 		const size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
@@ -122,7 +122,7 @@ void Characters::remove(CHAR_DATA* character)
 	}
 
 	m_list.erase(index_i->second);
-	m_object_raw_ptr_to_object_ptr.erase(index_i);
+	m_character_raw_ptr_to_character_ptr.erase(index_i);
 
 	character->set_purged();
 }
@@ -151,7 +151,7 @@ void Characters::purge()
 
 bool Characters::has(const CHAR_DATA* character) const
 {
-	return m_object_raw_ptr_to_object_ptr.find(character) != m_object_raw_ptr_to_object_ptr.end()
+	return m_character_raw_ptr_to_character_ptr.find(character) != m_character_raw_ptr_to_character_ptr.end()
 		|| m_purge_set.find(character) != m_purge_set.end();
 }
 
