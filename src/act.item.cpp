@@ -3098,8 +3098,8 @@ void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-    CHAR_DATA *caster;
-    int tp, lag = 0;
+	CHAR_DATA *caster;
+	int tp, lag = 0;
 	const char *targets[] =
 	{
 		"костер",
@@ -3113,7 +3113,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		"\n"
 	};
 
-    if (IS_NPC(ch))
+	if (IS_NPC(ch))
 	{
 		return;
 	}
@@ -3125,67 +3125,94 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Что вы хотите затоптать?\r\n", ch);
 		return;
 	}
-    tp >>= 2;
+	tp >>= 2;
 
-    switch (tp)
-    {
-    case 0:
-        if (world[ch->in_room]->fires)
-        {
-	    if (world[ch->in_room]->fires < 5)
-        	    --world[ch->in_room]->fires;
-	    else 
-		    world[ch->in_room]->fires = 4;
-            send_to_char("Вы затоптали костер.\r\n", ch);
-            act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-	    if (world[ch->in_room]->fires == 0)
-	    {
-        	    send_to_char("Костер потух.\r\n", ch);
-        	    act("Костер потух.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-	    }
-            lag = 1;
-        }
-        else
-        {
-            send_to_char("А тут топтать и нечего :)\r\n", ch);
-        }
-        break;
+	switch (tp)
+	{
+	case 0:
+		if (world[ch->in_room]->fires)
+		{
+			if (world[ch->in_room]->fires < 5)
+				--world[ch->in_room]->fires;
+			else
+				world[ch->in_room]->fires = 4;
+			send_to_char("Вы затоптали костер.\r\n", ch);
+			act("$n затоптал$g костер.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			if (world[ch->in_room]->fires == 0)
+			{
+				send_to_char("Костер потух.\r\n", ch);
+				act("Костер потух.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			}
+			lag = 1;
+		}
+		else
+		{
+			send_to_char("А тут топтать и нечего :)\r\n", ch);
+		}
+		break;
 
-    case 1:
+	case 1:
 		const auto& room = world[ch->in_room];
-		const auto aff_i = find_room_affect(room, SPELL_RUNE_LABEL);
+		auto aff_i = room->affected.end();
+		auto aff_first = room->affected.end();
+		
+		//Find own rune label or first run label in room
+		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it)
+		{
+			if (affect_it->get()->type == SPELL_RUNE_LABEL)
+			{
+				if (affect_it->get()->caster_id == GET_ID(ch))
+				{
+					aff_i = affect_it;
+					break;
+				}
+
+				if (aff_first == room->affected.end())
+				{
+					aff_first = affect_it;
+				}
+			}
+		}
+
+		if (aff_i == room->affected.end())
+		{
+			//Own rune label not found. Use first in room
+			aff_i = aff_first;
+		}
+
 		if (aff_i != room->affected.end()
 			&& (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC)
 				|| IS_IMMORTAL(ch)
 				|| PRF_FLAGGED(ch, PRF_CODERINFO)))
-        {
-			const auto& aff = *aff_i;
+		{
 			send_to_char("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
-            act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-            if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
-            {
-                //Ищем кастера по миру
-                caster = find_char(aff->caster_id);
-                //Если кастер онлайн - выдаем деятелю БД как за воровство
-                if (caster)
-                {
-                    pk_thiefs_action(ch, caster);
-                    sprintf(buf, "Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n", GET_PAD(ch,1));
-                    send_to_char(buf, caster);
-                }
-            }
-            affect_room_remove(world[ch->in_room], aff_i);
-            lag = 3;
-        }
-        else
-        {
-            send_to_char("А тут топтать и нечего :)\r\n", ch);
-        }
-        break;
-    }
+			act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
-    //Выдадим-ка лаг за эти дела.
-    if (!WAITLESS(ch))
+			const auto& aff = *aff_i;
+			if (GET_ID(ch) != aff->caster_id) //чел стирает не свою метку - вай, нехорошо
+			{
+				//Ищем кастера по миру
+				caster = find_char(aff->caster_id);
+				//Если кастер онлайн - выдаем деятелю БД как за воровство
+				if (caster)
+				{
+					pk_thiefs_action(ch, caster);
+					sprintf(buf, "Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n", GET_PAD(ch, 1));
+					send_to_char(buf, caster);
+				}
+			}
+			affect_room_remove(world[ch->in_room], aff_i);
+			lag = 3;
+		}
+		else
+		{
+			send_to_char("А тут топтать и нечего :)\r\n", ch);
+		}
+		break;
+	}
+
+	//Выдадим-ка лаг за эти дела.
+	if (!WAITLESS(ch))
 	{
 		WAIT_STATE(ch, lag * PULSE_VIOLENCE);
 	}
@@ -3250,7 +3277,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	need = FALSE;
 
 	if ((GET_REAL_MAX_HIT(vict) > 0
-			&& (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
+		&& (GET_HIT(vict) * 100 / GET_REAL_MAX_HIT(vict)) < 31)
 		|| (GET_REAL_MAX_HIT(vict) <= 0
 			&& GET_HIT(vict) < GET_REAL_MAX_HIT(vict))
 		|| (GET_HIT(vict) < GET_REAL_MAX_HIT(vict)
@@ -3283,38 +3310,38 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
 		send_to_char(ch, "&RСнимаю %d аффектов\r\n", count);
 
-		send_to_char(ch, "Аффекты на цели:");
+		send_to_char(ch, "Аффекты на цели до снятия:");
 		vict->print_affects_to_buffer(buf, MAX_STRING_LENGTH);
 		send_to_char(buf, ch);
-
 		send_to_char("\r\n", ch);
-		send_to_char("Удаляемые: ", ch);
 
-		const auto affects_count = vict->affected.size();
-		if (0 != affects_count)
-		{
-			vict->remove_random_affects(count);
-		}
-		else
-		{
-			send_to_char(ch, "Аффектов нет!\r\n");
-		}
+		auto remove_count = vict->remove_random_affects(count);
+		send_to_char(ch, "Снято %d аффектов\r\n", remove_count);
+
+		send_to_char(ch, "Аффекты на цели после снятия:");
+		vict->print_affects_to_buffer(buf, MAX_STRING_LENGTH);
+
+		send_to_char(buf, ch);
 		send_to_char("&n\r\n", ch);
+
+		//
+		need = TRUE;
+		prob = TRUE;
 	}
 	else
 	{
 		count = MIN(MAX_REMOVE, MAX_REMOVE * prob / 100);
-	}
 
-	for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
-	{
-		if (affected_by_spell(vict, RemoveSpell[percent]))
+		for (percent = 0, prob = need; !need && percent < MAX_REMOVE && RemoveSpell[percent]; percent++)
 		{
-			need = TRUE;
-			if (percent < count)
+			if (affected_by_spell(vict, RemoveSpell[percent]))
 			{
-				spellnum = RemoveSpell[percent];
-				prob = TRUE;
+				need = TRUE;
+				if (percent < count)
+				{
+					spellnum = RemoveSpell[percent];
+					prob = TRUE;
+				}
 			}
 		}
 	}

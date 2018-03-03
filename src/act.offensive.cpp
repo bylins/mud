@@ -524,10 +524,10 @@ void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 }
 
 // *********************** BACKSTAB VICTIM
+// Проверка на стаб в бою происходит до вызова этой функции
 void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob;
-
 
 	if (onhorse(ch))
 		return;
@@ -537,9 +537,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (!pk_agro_action(ch, vict))
 		return;
 
-
-	if (((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) || (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT)))
-			&& !IS_GOD(ch))
+	if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch))
 	{
 		act("Вы заметили, что $N попытал$u вас заколоть!", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n заметил$g Вашу попытку заколоть $s!", FALSE, vict, 0, ch, TO_VICT);

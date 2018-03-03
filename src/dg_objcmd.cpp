@@ -494,7 +494,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				if (IS_NPC(charmee)
 					&& (AFF_FLAGGED(charmee, EAffectFlag::AFF_CHARM)
 						|| MOB_FLAGGED(charmee, MOB_ANGEL)
-						|| MOB_FLAGGED(ch, MOB_GHOST))
+						|| MOB_FLAGGED(charmee, MOB_GHOST))
 					&& charmee->get_master() == ch)
 				{
 					char_from_room(charmee);

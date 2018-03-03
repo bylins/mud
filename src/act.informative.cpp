@@ -2060,6 +2060,143 @@ void show_glow_objs(CHAR_DATA *ch)
 	send_to_char(str, ch);
 }
 
+void show_room_affects(CHAR_DATA* ch, const char* name_affects[], const char* name_self_affects[])
+{
+	bitvector_t bitvector = 0;
+	std::ostringstream buffer;
+
+	for (const auto& af : world[ch->in_room]->affected)
+	{
+		switch (af->bitvector)
+		{
+		case AFF_ROOM_LIGHT:					// 1 << 0
+			if (!IS_SET(bitvector, AFF_ROOM_LIGHT))
+			{
+				if (af->caster_id == ch->id && *name_self_affects[0] != '\0')
+				{
+					buffer << name_self_affects[0] << "\r\n";
+				}
+				else if(*name_affects[0] != '\0')
+				{
+					buffer << name_affects[0] << "\r\n";
+				}
+
+				SET_BIT(bitvector, AFF_ROOM_LIGHT);
+			}
+			break;
+		case AFF_ROOM_FOG:						// 1 << 1
+			if (!IS_SET(bitvector, AFF_ROOM_FOG))
+			{
+				if (af->caster_id == ch->id && *name_self_affects[1] != '\0')
+				{
+					buffer << name_self_affects[1] << "\r\n";
+				}
+				else if (*name_affects[1] != '\0')
+				{
+					buffer << name_affects[1] << "\r\n";
+				}
+
+				SET_BIT(bitvector, AFF_ROOM_FOG);
+			}
+			break;
+		case AFF_ROOM_RUNE_LABEL:				// 1 << 2
+			if (af->caster_id == ch->id && *name_self_affects[2] != '\0')
+			{
+				buffer << name_self_affects[2] << "\r\n";
+			}
+			else if (*name_affects[2] != '\0')
+			{
+				buffer << name_affects[2] << "\r\n";
+			}
+			break;
+		case AFF_ROOM_FORBIDDEN:				// 1 << 3
+			if (!IS_SET(bitvector, AFF_ROOM_FORBIDDEN))
+			{
+				if (af->caster_id == ch->id && *name_self_affects[3] != '\0')
+				{
+					buffer << name_self_affects[3] << "\r\n";
+				}
+				else if (*name_affects[3] != '\0')
+				{
+					buffer << name_affects[3] << "\r\n";
+				}
+
+				SET_BIT(bitvector, AFF_ROOM_FORBIDDEN);
+			}
+			break;
+		case AFF_ROOM_HYPNOTIC_PATTERN:			// 1 << 4
+			if (!IS_SET(bitvector, AFF_ROOM_HYPNOTIC_PATTERN))
+			{
+				if (af->caster_id == ch->id && *name_self_affects[4] != '\0')
+				{
+					buffer << name_self_affects[4] << "\r\n";
+				}
+				else if (*name_affects[4] != '\0')
+				{
+					buffer << name_affects[4] << "\r\n";
+				}
+
+				SET_BIT(bitvector, AFF_ROOM_HYPNOTIC_PATTERN);
+			}
+			break;
+		case AFF_ROOM_EVARDS_BLACK_TENTACLES:	// 1 << 5
+			if (!IS_SET(bitvector, AFF_ROOM_EVARDS_BLACK_TENTACLES))
+			{
+				if (af->caster_id == ch->id && *name_self_affects[5] != '\0')
+				{
+					buffer << name_self_affects[5] << "\r\n";
+				}
+				else if (*name_affects[5] != '\0')
+				{
+					buffer << name_affects[5] << "\r\n";
+				}
+
+				SET_BIT(bitvector, AFF_ROOM_EVARDS_BLACK_TENTACLES);
+			}
+			break;
+		case AFF_ROOM_METEORSTORM:				// 1 << 6
+			if (!IS_SET(bitvector, AFF_ROOM_METEORSTORM))
+			{
+				if (af->caster_id == ch->id && *name_self_affects[6] != '\0')
+				{
+					buffer << name_self_affects[6] << "\r\n";
+				}
+				else if (*name_affects[6] != '\0')
+				{
+					buffer << name_affects[6] << "\r\n";
+				}
+
+				SET_BIT(bitvector, AFF_ROOM_METEORSTORM);
+			}
+			break;
+		case AFF_ROOM_THUNDERSTORM:				// 1 << 7
+			if (!IS_SET(bitvector, AFF_ROOM_THUNDERSTORM))
+			{
+				if (af->caster_id == ch->id && *name_self_affects[7] != '\0')
+				{
+					buffer << name_self_affects[7] << "\r\n";
+				}
+				else if (*name_affects[7] != '\0')
+				{
+					buffer << name_affects[7] << "\r\n";
+				}
+
+				SET_BIT(bitvector, AFF_ROOM_THUNDERSTORM);
+			}
+			break;
+		default:
+			log("SYSERR: Unknown room affect: %d", af->type);
+		}
+	}
+
+	auto affects = buffer.str();
+	if (!affects.empty())
+	{
+		affects.append("\r\n");
+		send_to_char(affects.c_str(), ch);
+	}
+}
+
 void look_at_room(CHAR_DATA * ch, int ignore_brief)
 {
 	if (!ch->desc)
@@ -2141,18 +2278,11 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC) || IS_IMMORTAL(ch))
 	{
-		world[ch->in_room]->affected_by.sprintbits(room_aff_invis_bits, buf2, "\n");
+		show_room_affects(ch, room_aff_invis_bits, room_self_aff_invis_bits);
 	}
 	else
 	{
-		world[ch->in_room]->affected_by.sprintbits(room_aff_visib_bits, buf2, "\n");
-	}
-
-	// подавляем если нет аффектов
-	if (strcmp(buf2, "ничего"))
-	{
-		sprintf(buf, "%s\r\n\r\n", buf2);
-		send_to_char(buf, ch);
+		show_room_affects(ch, room_aff_visib_bits, room_aff_visib_bits);
 	}
 
 	// now list characters & objects
