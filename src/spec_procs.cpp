@@ -258,8 +258,8 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			}
 			else if (FEAT_SLOT(ch, sortpos) < max_slot)
 			{
-				auto slot = FEAT_SLOT(ch, sortpos);
-				strcat(names[FEAT_SLOT(ch, sortpos)], buf);
+				const auto slot = FEAT_SLOT(ch, sortpos);
+				strcat(names[slot], buf);
 			}
 		}
 		sprintf(buf1, "--------------------------------------");
