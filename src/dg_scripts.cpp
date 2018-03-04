@@ -4897,10 +4897,10 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 			break;
 		}
 
-		if (!triggers_list
-			|| !triggers_list->has_trigger(runtrig))
+		if (triggers_list
+			&& triggers_list->has_trigger(*trig))
 		{
-			runtrig = nullptr;
+			runtrig = *trig;
 		}
 	}
 
