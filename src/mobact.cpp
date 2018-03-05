@@ -1133,8 +1133,8 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 
 			if (vict->get_fighting() == ch.get())
-			{
-				found = true;
+			{				
+				return;		// Mob is under attack
 			}
 
 			if (!IS_NPC(vict)
@@ -1142,12 +1142,6 @@ void mobile_activity(int activity_level, int missed_pulses)
 			{
 				max = TRUE;
 			}
-		}
-
-		// Mob is under attack
-		if (found)
-		{
-			return;
 		}
 
 		// Mob attemp rest if it is not an angel
@@ -1279,8 +1273,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		door = BFS_ERROR;
 
 		// Helpers go to some dest
-		if (door == BFS_ERROR
-			&& MOB_FLAGGED(ch, MOB_HELPER)
+		if (MOB_FLAGGED(ch, MOB_HELPER)
 			&& !MOB_FLAGGED(ch, MOB_SENTINEL)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
 			&& !ch->has_master()
@@ -1288,44 +1281,32 @@ void mobile_activity(int activity_level, int missed_pulses)
 		{
 			for (found = FALSE, door = 0; door < NUM_OF_DIRS; door++)
 			{
-				ROOM_DATA::exit_data_ptr rdata;
-				for (rdata = EXIT(ch, door), max = MAX(1, GET_REAL_INT(ch) / 10); max > 0 && !found; max--)
+				ROOM_DATA::exit_data_ptr rdata = EXIT(ch, door);
+				if (!rdata
+					|| rdata->to_room == NOWHERE
+					|| !legal_dir(ch.get(), door, TRUE, FALSE)
+					|| (is_room_forbidden(world[rdata->to_room])
+						&& !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
+					|| IS_DARK(rdata->to_room)
+					|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
+						&& world[ch->in_room]->zone != world[rdata->to_room]->zone))
 				{
-					if (!rdata
-						|| rdata->to_room == NOWHERE
-						|| !legal_dir(ch.get(), door, TRUE, FALSE)
-						|| (is_room_forbidden(world[rdata->to_room])
-							&& !MOB_FLAGGED(ch, MOB_IGNORE_FORBIDDEN))
-						|| IS_DARK(rdata->to_room)
-						|| (MOB_FLAGGED(ch, MOB_STAY_ZONE)
-							&& world[ch->in_room]->zone != world[rdata->to_room]->zone))
+					continue;
+				}
+
+				const auto room = world[rdata->to_room];
+				for (auto first : room->people)
+				{
+					if (IS_NPC(first)
+						&& !AFF_FLAGGED(first, EAffectFlag::AFF_CHARM)
+						&& !IS_HORSE(first)
+						&& CAN_SEE(ch, first)
+						&& first->get_fighting()
+						&& SAME_ALIGN(ch, first))
 					{
+						found = TRUE;
 						break;
 					}
-
-					const auto room = world[rdata->to_room];
-					kw = 0;
-					for (auto first : room->people)
-					{
-						if (kw >= 25)
-						{
-							break;
-						}
-						++kw;
-
-						if (IS_NPC(first)
-							&& !AFF_FLAGGED(first, EAffectFlag::AFF_CHARM)
-							&& !IS_HORSE(first)
-							&& CAN_SEE(ch, first)
-							&& first->get_fighting()
-							&& SAME_ALIGN(ch, first))
-						{
-							found = TRUE;
-							break;
-						}
-					}
-
-					rdata = room->dir_option[door];
 				}
 
 				if (found)
