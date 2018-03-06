@@ -909,114 +909,6 @@ int main_function(int argc, char **argv)
 	return 0;
 }
 
-class HeartbeatStats
-{
-	public:
-		struct StatItem
-		{
-			using stats_window_t = std::list<utils::CExecutionTimer::duration_t>;
-			stats_window_t stats;
-
-			utils::CExecutionTimer::duration_t min;
-			utils::CExecutionTimer::duration_t max;
-		};
-
-		void add_measurement(const std::string& label, utils::CExecutionTimer::duration_t duration)
-		{
-			auto& stats_window = m_stats[label];
-			stats_window.stats.push_back(duration);
-
-			if (stats_window.min == stats_window.min.zero()
-					|| stats_window.min > duration)
-			{
-				stats_window.min = duration;
-			}
-
-			if (stats_window.max == stats_window.max.zero()
-					|| stats_window.max < duration)
-			{
-				stats_window.max = duration;
-			}
-
-			while (100 < stats_window.stats.size())
-			{
-				stats_window.stats.pop_front();
-			}
-		}
-
-		struct ReportItem
-		{
-			ReportItem(const std::string& l, const double mn, const double mx, const double avg, const std::size_t ws, const double omn, const double omx): label(l), min(mn), max(mx), average(avg), window_size(ws), overall_min(omn), overall_max(omx) {}
-
-			std::ostream& dump(std::ostream& os) const
-			{
-				return os << "(" << label << ": [" << min << "; " << max << "]/" << average << "{" << window_size << "}; [" << overall_min << "; " << overall_max << "])";
-			}
-
-			std::string label;
-			double min;
-			double max;
-			double average;
-			std::size_t window_size;
-			double overall_min;
-			double overall_max;
-		};
-
-		void report(std::ostream& os) const;
-
-	private:
-		using stats_t = std::unordered_map<std::string, StatItem>;
-
-		stats_t m_stats;
-};
-
-inline std::ostream& operator<<(std::ostream& os, const HeartbeatStats::ReportItem& item)
-{
-	return item.dump(os);
-}
-
-void HeartbeatStats::report(std::ostream& os) const
-{
-	StreamFlagsHolder holder(os);
-
-	std::multimap<double, ReportItem, std::greater<double>> report;
-	for (const auto& w : m_stats)
-	{
-		double sum = 0.0;
-		double min = -1.0;
-		double max = -1.0;
-		for (const auto& m : w.second.stats)
-		{
-			const double duration = m.count();
-			sum += duration;
-			if (min < 0.0 || min > duration)
-			{
-				min = duration;
-			}
-			
-			if (max < duration)
-			{
-				max = duration;
-			}
-		}
-		const auto average = sum / w.second.stats.size();
-		report.emplace(w.second.max.count(), ReportItem(w.first, min, max, average, w.second.stats.size(), w.second.min.count(), w.second.max.count()));
-	}
-
-	os << std::fixed << std::setprecision(6);
-	os << "-- Report:" << std::endl;
-	int i = 0;
-	for (const auto& r : report)
-	{
-		++i;
-		const auto& item = r.second;
-		os << i << ". " << r.first << ": " << item << std::endl;
-	}
-}
-
-HeartbeatStats stats;
-utils::CExecutionTimer timer;
-
 // Init sockets, run game, and cleanup sockets
 void init_game(ush_int port)
 {
@@ -1861,12 +1753,6 @@ Heartbeat::Heartbeat() :
 
 void Heartbeat::operator()(const int missed_pulses)
 {
-	if (5.0 < timer.delta().count())
-	{
-		stats.report(std::cerr);
-		timer.restart();
-	}
-
 	int uptime_minutes = 0;
 	long check_at = 0;
 
