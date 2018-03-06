@@ -95,6 +95,7 @@ public:
 	OBJ_DATA::shared_ptr find_first_by_rnum(const obj_rnum rnum) const { return find_by_rnum(rnum, 0); }
 	OBJ_DATA::shared_ptr get_by_raw_ptr(OBJ_DATA* object) const;
 	auto size() const { return m_objects_list.size(); }
+	void purge() { m_purge_list.clear(); }
 
 private:
 	using objects_set_t = std::unordered_set<OBJ_DATA::shared_ptr>;
@@ -114,6 +115,8 @@ private:
 	WO_IDChangeObserver::shared_ptr m_id_change_observer;
 	WO_RNumChangeObserver::shared_ptr m_rnum_change_observer;
 	WO_VNumChangeObserver::shared_ptr m_vnum_change_observer;
+
+	list_t m_purge_list;
 };
 
 extern WorldObjects& world_objects;

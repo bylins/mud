@@ -7,10 +7,11 @@
 #include "utils.h"
 #include "dg_scripts.h"
 #include "debug.utils.hpp"
+#include "global.objects.hpp"
 
 #include <iostream>
 
-Characters character_list;	// global container of chars
+Characters& character_list = GlobalObjects::characters();	// global container of chars
 
 Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters& cl) : m_parent(cl)
 {

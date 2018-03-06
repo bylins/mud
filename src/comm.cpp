@@ -2029,7 +2029,7 @@ void Heartbeat::operator()(const int missed_pulses)
 	if (!((m_pulse + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		character_list.purge();
-		ObjSystem::release_purged_list();
+		world_objects.purge();
 	}
 
 	// апдейт таймеров в личных хранах + пурж чего надо

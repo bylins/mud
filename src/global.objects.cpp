@@ -8,6 +8,7 @@ struct GlobalObjectsStorage
 {
 	WorldObjects m_world_objects;
 	ShopExt::ShopListType m_shop_list;
+	Characters m_characters;
 };
 
 // This function ensures that global objects will be created at the moment of getting access to them
@@ -26,4 +27,9 @@ WorldObjects& GlobalObjects::world_objects()
 ShopExt::ShopListType& GlobalObjects::shop_list()
 {
 	return global_objects().m_shop_list;
+}
+
+Characters& GlobalObjects::characters()
+{
+	return global_objects().m_characters;
 }

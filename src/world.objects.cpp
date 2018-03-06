@@ -193,7 +193,8 @@ void WorldObjects::remove(OBJ_DATA* object)
 		log("LOGIC ERROR: Couldn't find object at address %p. It cannot be removed.", object);
 		return;
 	}
-	OBJ_DATA::shared_ptr object_ptr = get_by_raw_ptr(object);
+
+	const OBJ_DATA::shared_ptr object_ptr = get_by_raw_ptr(object);
 
 	object_ptr->unsubscribe_from_id_change(m_id_change_observer);
 	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
@@ -204,6 +205,8 @@ void WorldObjects::remove(OBJ_DATA* object)
 	m_rnum_to_object_ptr.erase(object_ptr->get_rnum());
 	m_objects_list.erase(object_i->second);
 	m_object_raw_ptr_to_object_ptr.erase(object);
+
+	m_purge_list.push_back(object_ptr);
 }
 
 void WorldObjects::foreach(const foreach_f function) const

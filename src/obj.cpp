@@ -34,15 +34,6 @@ extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 
 id_to_set_info_map OBJ_DATA::set_table;
 
-namespace
-{
-
-// список шмоток после пуржа для последующего удаления оболочки
-typedef std::vector<OBJ_DATA *> PurgedObjList;
-PurgedObjList purged_obj_list;
-
-} // namespace
-
 OBJ_DATA::OBJ_DATA(const obj_vnum vnum):
 	CObjectPrototype(vnum),
 	m_uid(0),
@@ -1053,17 +1044,6 @@ bool is_armor_type(const CObjectPrototype *obj)
 	default:
 		return false;
 	}
-}
-
-// * См. CharacterSystem::release_purged_list()
-void release_purged_list()
-{
-	for (PurgedObjList::iterator i = purged_obj_list.begin();
-		i != purged_obj_list.end(); ++i)
-	{
-		delete *i;
-	}
-	purged_obj_list.clear();
 }
 
 bool is_mob_item(const CObjectPrototype *obj)

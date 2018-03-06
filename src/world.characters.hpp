@@ -70,7 +70,7 @@ inline const auto Characters::get_character_by_address(const CHAR_DATA* characte
 	return i != m_character_raw_ptr_to_character_ptr.end() ? *i->second : list_t::value_type();
 }
 
-extern Characters character_list;
+extern Characters& character_list;
 
 #endif // __WORLD_CHARACTERS_HPP__
 
