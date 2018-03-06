@@ -115,6 +115,8 @@ public:
 	auto pulse() const { return m_pulse; }
 
 private:
+	void tick(const int missed_pulses);
+
 	int m_mins_since_crashsave;
 	int m_pulse;
 };
