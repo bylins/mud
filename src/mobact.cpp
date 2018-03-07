@@ -988,7 +988,7 @@ void extract_charmice(CHAR_DATA* ch)
 
 void mobile_activity(int activity_level, int missed_pulses)
 {
-	int door, max, was_in = -1, kw, activity_lev, std_lev, i, ch_activity;
+	int door, max, was_in = -1, activity_lev, std_lev, i, ch_activity;
 	memory_rec *names;
 
 	std_lev = activity_level % PULSE_MOBILE;
