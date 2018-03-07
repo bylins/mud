@@ -1753,14 +1753,13 @@ Heartbeat::Heartbeat() :
 
 void Heartbeat::operator()(const int missed_pulses)
 {
-	const auto pulse = this->pulse();
 	utils::CExecutionTimer timer;
 	tick(missed_pulses);
 	const auto execution_time = timer.delta();
-	if (PASSES_PER_SEC / 60.0 > execution_time.count())
+	if (PASSES_PER_SEC / 60.0 < execution_time.count())
 	{
-		log("SYSERR: Long-running pulse %d worked for %d seconds (missed pulses argument has value %d)",
-			pulse, execution_time.count(), missed_pulses);
+		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
+			pulse(), execution_time.count(), missed_pulses);
 	}
 }
 
