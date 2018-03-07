@@ -199,7 +199,7 @@ struct setall_inspect_request
 {
 	int unique; // UID
 	int found; //сколько найдено
-	int type_req; // тип запроса: фриз, смена мыла или пароля (0, 1 и 2)
+	int type_req; // тип запроса: фриз, смена мыла, пароля или ад (0, 1, 2 или 3)
 	int freeze_time; // время, на которое фризим
 	char *mail; // мыло игрока
 	char *pwd; // пароль

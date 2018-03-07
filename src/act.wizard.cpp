@@ -1000,6 +1000,7 @@ InspReqListType inspect_list;
 #define SETALL_FREEZE 0
 #define SETALL_EMAIL 1
 #define SETALL_PSWD 2
+#define SETALL_HELL 3
 
 void setall_inspect()
 {
@@ -1076,7 +1077,7 @@ void setall_inspect()
 						}
 					}
 				}
-				if (it->second->type_req == SETALL_EMAIL)
+				else if (it->second->type_req == SETALL_EMAIL)
 				{
 					if (is_online)
 					{
@@ -1118,8 +1119,7 @@ void setall_inspect()
 						}
 					}
 				}
-				
-				if (it->second->type_req == SETALL_PSWD)
+				else if (it->second->type_req == SETALL_PSWD)
 				{
 					if (is_online)
 					{
@@ -1161,7 +1161,41 @@ void setall_inspect()
 						add_karma(vict, buf2, GET_NAME(imm_d->character));
 						vict->save_char();
 					}
-				}							
+				}
+				else if (it->second->type_req == SETALL_HELL)
+				{
+					if (is_online)
+					{
+						if (GET_LEVEL(d_vict->character) >= LVL_GOD)
+						{
+							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+							it->second->out += buf1;
+							continue;
+						}
+						set_punish(imm_d->character.get(), d_vict->character.get(), SCMD_HELL, it->second->reason, it->second->freeze_time);
+					}
+					else
+					{
+						if (load_char(player_table[it->second->pos].name(), vict) < 0)
+						{
+							sprintf(buf1, "Ошибка загрузки персонажа: %s.\r\n", player_table[it->second->pos].name());
+							delete vict;
+							it->second->out += buf1;
+							continue;
+						}
+						else
+						{
+							if (GET_LEVEL(vict) >= LVL_GOD)
+							{
+								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name());
+								it->second->out += buf1;
+								continue;
+							}
+							set_punish(imm_d->character.get(), vict, SCMD_HELL, it->second->reason, it->second->freeze_time);
+							vict->save_char();
+						}
+					}
+				}
 			}
 		delete vict;
 	}
@@ -1210,7 +1244,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	
 	if (!*buf)
 	{
-		send_to_char("Usage: setall <e-mail> <email|passwd|frozen> <arguments>\r\n", ch);
+		send_to_char("Usage: setall <e-mail> <email|passwd|frozen|hell> <arguments>\r\n", ch);
 		return;
 	}
 	
@@ -1220,7 +1254,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	
-	if (!isname(buf1, "frozen email passwd"))
+	if (!isname(buf1, "frozen email passwd hell"))
 	{
 		send_to_char("Данное действие совершить нельзя.\r\n", ch);
 		return;
@@ -1263,12 +1297,24 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		req->pwd = strdup(buf2);
 		type_request = SETALL_PSWD;
 	}
+	if (is_abbrev(buf1, "hell"))
+	{	
+		skip_spaces(&argument);
+		if (!argument || !*argument)
+		{
+			send_to_char("Необходимо указать причину такой немилости.\r\n", ch);
+			return;
+		}
+		if (*buf2) times = atol(buf2);
+		type_request = SETALL_HELL;
+		req->freeze_time = times;
+		req->reason = strdup(argument);
+	}
 	else
 	{
 		send_to_char("Какой-то баг. Вы эту надпись видеть не должны.\r\n", ch);
 		return;
 	}
-
 	
 	req->type_req = type_request;
 	req->mail = str_dup(buf);
