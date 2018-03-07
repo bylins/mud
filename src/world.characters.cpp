@@ -95,6 +95,13 @@ void Characters::foreach_on_copy(const foreach_f function) const
 	std::for_each(list.begin(), list.end(), function);
 }
 
+void Characters::foreach_on_filtered_copy(const foreach_f function, const predicate_f predicate) const
+{
+	list_t list;
+	std::copy_if(get_list().begin(), get_list().end(), std::back_inserter(list), predicate);
+	std::for_each(list.begin(), list.end(), function);
+}
+
 void Characters::remove(CHAR_DATA* character)
 {
 	const auto index_i = m_character_raw_ptr_to_character_ptr.find(character);

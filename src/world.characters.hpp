@@ -43,6 +43,7 @@ public:
 	const auto end() const { return m_list.end(); }
 
 	void foreach_on_copy(const foreach_f function) const;
+	void foreach_on_filtered_copy(const foreach_f function, const predicate_f predicate) const;
 
 	void remove(CHAR_DATA* character);
 	void remove(const CHAR_DATA::shared_ptr& character) { remove(character.get()); }

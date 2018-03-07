@@ -1902,7 +1902,7 @@ void Heartbeat::tick(const int missed_pulses)
 		player_affect_update();
 	}
 
-	if (!(m_pulse % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	if (!((m_pulse + PASSES_PER_SEC - 1)% (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		hour_update();
 		Bonus::timer_bonus();
@@ -2111,7 +2111,7 @@ void Heartbeat::tick(const int missed_pulses)
 		flush_player_index();
 	}
 
-	if (!(m_pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
+	if (!((m_pulse + PASSES_PER_SEC - 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
 	{
 		point_update();
 	}

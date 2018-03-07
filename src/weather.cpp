@@ -105,7 +105,9 @@ void weather_and_time(int mode)
 {
 	another_hour(mode);
 	if (mode)
+	{
 		weather_change();
+	}
 }
 
 const int sunrise[][2] = { {8, 17},

@@ -2816,7 +2816,7 @@ void extract_obj(OBJ_DATA * obj)
 
 void update_object(OBJ_DATA * obj, int use)
 {
-	// dont update objects with a timer trigger
+	// don't update objects with a timer trigger
 	const bool trig_timer = SCRIPT_CHECK(obj, OTRIG_TIMER);
 	const bool has_timer = obj->get_timer() > 0;
 	const bool tick_timer = 0 != OBJ_FLAGGED(obj, EExtraFlag::ITEM_TICKTIMER);
@@ -2839,7 +2839,6 @@ void update_object(OBJ_DATA * obj, int use)
 
 void update_char_objects(CHAR_DATA * ch)
 {
-	int i;
 //Polud раз уж светит любой источник света, то и гаснуть тоже должны все
 	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++)
 	{
@@ -2849,7 +2848,7 @@ void update_char_objects(CHAR_DATA * ch)
 			{
 				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0)
 				{
-					i = GET_EQ(ch, wear_pos)->dec_val(2);
+					const int i = GET_EQ(ch, wear_pos)->dec_val(2);
 					if (i == 1)
 					{
 						act("$z $o замерцал$G и начал$G угасать.\r\n",
@@ -2866,8 +2865,11 @@ void update_char_objects(CHAR_DATA * ch)
 							if (world[ch->in_room]->light > 0)
 								world[ch->in_room]->light -= 1;
 						}
+
 						if (OBJ_FLAGGED(GET_EQ(ch, wear_pos), EExtraFlag::ITEM_DECAY))
+						{
 							extract_obj(GET_EQ(ch, wear_pos));
+						}
 					}
 				}
 			}
@@ -2875,7 +2877,7 @@ void update_char_objects(CHAR_DATA * ch)
 	}
 	//-Polud
 
-	for (i = 0; i < NUM_WEARS; i++)
+	for (int i = 0; i < NUM_WEARS; i++)
 	{
 		if (GET_EQ(ch, i))
 		{

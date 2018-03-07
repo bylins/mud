@@ -1067,7 +1067,8 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		return;
 	}
 
-	if (IS_GOD(ch) && condition != DRUNK) {
+	if (IS_GOD(ch) && condition != DRUNK)
+	{
 		GET_COND(ch, condition)=-1;
 		return;
 	}
@@ -1076,12 +1077,14 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
 	
 	// обработка после увеличения
-	switch (condition) {
-		case DRUNK:
-			GET_COND(ch, condition) = MIN(CHAR_MORTALLY_DRUNKED+1, GET_COND(ch, condition));
+	switch (condition)
+	{
+	case DRUNK:
+		GET_COND(ch, condition) = MIN(CHAR_MORTALLY_DRUNKED + 1, GET_COND(ch, condition));
 		break;
-		default:
-	GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
+
+	default:
+		GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
 		break;
 	}
 
@@ -1097,33 +1100,55 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 	switch (condition)
 	{
 	case FULL:
-		if (!GET_COND_M(ch,condition)) return;
+		if (!GET_COND_M(ch, condition))
+		{
+			return;
+		}
+
 		if (cond_value < 30)
-		send_to_char("Вы голодны.\r\n", ch);
-		else if ( cond_value < 40 )
+		{
+			send_to_char("Вы голодны.\r\n", ch);
+		}
+		else if (cond_value < 40)
+		{
 			send_to_char("Вы очень голодны.\r\n", ch);
-		else {
+		}
+		else
+		{
 			send_to_char("Вы готовы сожрать быка.\r\n", ch);
 			//сюда оповещение можно вставить что бы люди видели что чар страдает
 		}
 		return;
+
 	case THIRST:
-		if (!GET_COND_M(ch,condition)) return;
+		if (!GET_COND_M(ch,condition))
+		{
+			return;
+		}
+
 		if (cond_value < 30)
-		send_to_char("Вас мучает жажда.\r\n", ch);
+		{
+			send_to_char("Вас мучает жажда.\r\n", ch);
+		}
 		else if ( cond_value < 40 )
+		{
 			send_to_char("Вас сильно мучает жажда.\r\n", ch);
-		else {
+		}
+		else
+		{
 			send_to_char("Вам хочется выпить озеро.\r\n", ch);
 			//сюда оповещение можно вставить что бы люди видели что чар страдает
 		}
 		return;
+
 	case DRUNK:
 		//Если чара прекратило штормить, шлем сообщение
-		if (cond_state >= CHAR_MORTALLY_DRUNKED && GET_COND(ch, DRUNK) < CHAR_MORTALLY_DRUNKED) {
+		if (cond_state >= CHAR_MORTALLY_DRUNKED && GET_COND(ch, DRUNK) < CHAR_MORTALLY_DRUNKED)
+		{
 			send_to_char("Наконец-то вы протрезвели.\r\n", ch);
 		}
 		return;
+
 	default:
 		break;
 	}
@@ -1868,6 +1893,7 @@ void point_update(void)
 		buffer_mem[count] = count;
 		real_spell[count] = 0;
 	}
+
 	for (spellnum = MAX_SPELLS; spellnum > 0; spellnum--)
 	{
 		count = number(1, spellnum);
@@ -1875,54 +1901,59 @@ void point_update(void)
 		for (; count < MAX_SPELLS; buffer_mem[count] = buffer_mem[count + 1], count++);
 	}
 
-	// characters
-	character_list.foreach_on_copy([&](const auto& i)
+	for (const auto& character: character_list)
 	{
+		const auto i = character.get();
+
 		if (IS_NPC(i))
 		{
 			i->inc_restore_timer(SECS_PER_MUD_HOUR);
 		}
 
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
-		   то он снова должен валиться в сон */
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP) && GET_POS(i) > POS_SLEEPING)
+		то он снова должен валиться в сон */
+		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP)
+			&& GET_POS(i) > POS_SLEEPING)
 		{
 			GET_POS(i) = POS_SLEEPING;
-			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i.get());
-			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", TRUE, i.get(), 0, 0, TO_ROOM);
+			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
+			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", TRUE, i, 0, 0, TO_ROOM);
 		}
 
 		if (!IS_NPC(i))
 		{
-			gain_condition(i.get(), DRUNK, -1);
+			gain_condition(i, DRUNK, -1);
 
 			if (average_day_temp() < -20)
 			{
-				gain_condition(i.get(), FULL, +2);
+				gain_condition(i, FULL, +2);
 			}
 			else if (average_day_temp() < -5)
 			{
-				gain_condition(i.get(), FULL, number(+2, +1));
+				gain_condition(i, FULL, number(+2, +1));
 			}
 			else
 			{
-				gain_condition(i.get(), FULL, +1);
+				gain_condition(i, FULL, +1);
 			}
 
 			if (average_day_temp() > 25)
 			{
-				gain_condition(i.get(), THIRST, +2);
+				gain_condition(i, THIRST, +2);
 			}
 			else if (average_day_temp() > 20)
 			{
-				gain_condition(i.get(), THIRST, number(+2, +1));
+				gain_condition(i, THIRST, number(+2, +1));
 			}
 			else
 			{
-				gain_condition(i.get(), THIRST, +1);
+				gain_condition(i, THIRST, +1);
 			}
 		}
+	}
 
+	character_list.foreach_on_filtered_copy([&](const auto& i)
+	{
 		if (GET_POS(i) >= POS_STUNNED)  	// Restore hit points
 		{
 			if (IS_NPC(i)
@@ -2043,7 +2074,8 @@ void point_update(void)
 			}
 
 			// Restore moves
-			if (IS_NPC(i) || !UPDATE_PC_ON_BEAT)
+			if (IS_NPC(i)
+				|| !UPDATE_PC_ON_BEAT)
 			{
 				//MZ.overflow_fix
 				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i))
@@ -2079,16 +2111,25 @@ void point_update(void)
 				return;
 			}
 		}
+	}, [&](const auto& i)
+	{
+		return GET_POS(i) >= POS_STUNNED
+			|| GET_POS(i) == POS_INCAP
+			|| GET_POS(i) == POS_MORTALLYW;
+	});
 
-		update_char_objects(i.get());
+	for (const auto& character : character_list)
+	{
+		const auto i = character.get();
+		update_char_objects(i);
 
 		if (!IS_NPC(i)
 			&& GET_LEVEL(i) < idle_max_level
 			&& !PRF_FLAGGED(i, PRF_CODERINFO))
 		{
-			check_idling(i.get());
+			check_idling(i);
 		}
-	});
+	}
 }
 
 void repop_decay(zone_rnum zone)
