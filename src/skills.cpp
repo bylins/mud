@@ -654,6 +654,7 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add)
 {
 	int i, j, nr;
+	bool to_sleeping = true;
 	struct message_type *msg;
 
 	// log("[SKILL MESSAGE] Message for skill %d",attacktype);
@@ -676,7 +677,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 				brief.reflect = true;
 			}
 
-			if (!IS_NPC(vict) && (GET_LEVEL(vict) >= LVL_IMMORT))
+			if (!IS_NPC(vict) && (GET_LEVEL(vict) >= LVL_IMMORT) && !PLR_FLAGGED((ch), PLR_WRITING))
 			{
 				switch (attacktype)
 				{
