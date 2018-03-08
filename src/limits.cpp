@@ -1884,22 +1884,13 @@ void obj_point_update()
 void point_update(void)
 {
 	memory_rec *mem, *nmem, *pmem;
-	int count, mob_num, spellnum, mana;
-	boost::array<int, MAX_SPELLS + 1> buffer_mem;
-	boost::array<int, MAX_SPELLS + 1> real_spell;
 
-	for (count = 0; count <= MAX_SPELLS; count++)
+	std::vector<int> real_spell(MAX_SPELLS + 1);
+	for (int count = 0; count <= MAX_SPELLS; count++)
 	{
-		buffer_mem[count] = count;
-		real_spell[count] = 0;
+		real_spell[count] = count;
 	}
-
-	for (spellnum = MAX_SPELLS; spellnum > 0; spellnum--)
-	{
-		count = number(1, spellnum);
-		real_spell[MAX_SPELLS - spellnum] = buffer_mem[count];
-		for (; count < MAX_SPELLS; buffer_mem[count] = buffer_mem[count + 1], count++);
-	}
+	std::random_shuffle(real_spell.begin(), real_spell.end());
 
 	for (const auto& character: character_list)
 	{
@@ -1959,7 +1950,7 @@ void point_update(void)
 			if (IS_NPC(i)
 				|| !UPDATE_PC_ON_BEAT)
 			{
-				count = hit_gain(i);
+				const int count = hit_gain(i);
 				if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
 				{
 					GET_HIT(i) = MIN(GET_HIT(i) + count, GET_REAL_MAX_HIT(i));
@@ -1972,6 +1963,8 @@ void point_update(void)
 			{
 				if (IS_HORSE(i))
 				{
+					int mana = 0;
+
 					switch (real_sector(IN_ROOM(i)))
 					{
 					case SECT_FLYING:
@@ -2057,18 +2050,23 @@ void point_update(void)
 				}
 
 				// Remember some spells
-				if ((mob_num = GET_MOB_RNUM(i)) >= 0)
+				const auto mob_num = GET_MOB_RNUM(i);
+				if (mob_num >= 0)
 				{
-					for (count = 0, mana = 0; count < MAX_SPELLS && mana < GET_REAL_INT(i) * 10; count++)
+					int mana = 0;
+					int count = 0;
+					const auto max_mana = GET_REAL_INT(i) * 10;
+					while (count < MAX_SPELLS && mana < max_mana)
 					{
-						spellnum = real_spell[count];
-						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) >
-							GET_SPELL_MEM(i, spellnum))
+						const auto spellnum = real_spell[count];
+						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) > GET_SPELL_MEM(i, spellnum))
 						{
 							GET_SPELL_MEM(i, spellnum)++;
 							mana += ((spell_info[spellnum].mana_max + spell_info[spellnum].mana_min) / 2);
 							GET_CASTER(i) += (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 						}
+
+						++count;
 					}
 				}
 			}

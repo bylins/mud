@@ -467,17 +467,20 @@ CHAR_DATA *get_char(char *name, int/* vnum*/)
 		i = find_char(atoi(name + 1));
 
 		if (i && (IS_NPC(i) || !GET_INVIS_LEV(i)))
+		{
 			return i;
+		}
 	}
 	else
 	{
-		for (const auto i : character_list)
+		for (const auto& character : character_list)
 		{
+			const auto i = character.get();
 			if (isname(name, i->get_pc_name())
 				&& (IS_NPC(i)
 					|| !GET_INVIS_LEV(i)))
 			{
-				return i.get();
+				return i;
 			}
 		}
 	}

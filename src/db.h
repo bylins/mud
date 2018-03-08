@@ -328,7 +328,7 @@ extern CHAR_DATA *combat_list;
 #include <vector>
 #include <deque>
 
-class Rooms: public std::deque<ROOM_DATA *>
+class Rooms: public std::vector<ROOM_DATA *>
 {
 public:
 	static constexpr int UNDEFINED_ROOM_VNUM = -1;
