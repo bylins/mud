@@ -1943,8 +1943,10 @@ void point_update(void)
 		}
 	}
 
-	character_list.foreach_on_filtered_copy([&](const auto& i)
+	character_list.foreach_on_copy([&](const auto& character)
 	{
+		const auto i = character.get();
+
 		if (GET_POS(i) >= POS_STUNNED)  	// Restore hit points
 		{
 			if (IS_NPC(i)
@@ -2086,7 +2088,7 @@ void point_update(void)
 			// Update PC/NPC position
 			if (GET_POS(i) <= POS_STUNNED)
 			{
-				update_pos(i.get());
+				update_pos(i);
 			}
 		}
 		else if (GET_POS(i) == POS_INCAP)
@@ -2094,7 +2096,7 @@ void point_update(void)
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 1, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE);
 
-			if (dmg.process(i.get(), i.get()) == -1)
+			if (dmg.process(i, i) == -1)
 			{
 				return;
 			}
@@ -2104,21 +2106,12 @@ void point_update(void)
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 2, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE);
 
-			if (dmg.process(i.get(), i.get()) == -1)
+			if (dmg.process(i, i) == -1)
 			{
 				return;
 			}
 		}
-	}, [&](const auto& i)
-	{
-		return GET_POS(i) >= POS_STUNNED
-			|| GET_POS(i) == POS_INCAP
-			|| GET_POS(i) == POS_MORTALLYW;
-	});
 
-	for (const auto& character : character_list)
-	{
-		const auto i = character.get();
 		update_char_objects(i);
 
 		if (!IS_NPC(i)
@@ -2127,7 +2120,7 @@ void point_update(void)
 		{
 			check_idling(i);
 		}
-	}
+	});
 }
 
 void repop_decay(zone_rnum zone)
