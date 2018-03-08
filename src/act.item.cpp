@@ -3308,21 +3308,10 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
-		send_to_char(ch, "&RСнимаю %d аффектов\r\n", count);
-
-		send_to_char(ch, "Аффекты на цели до снятия:");
-		vict->print_affects_to_buffer(buf, MAX_STRING_LENGTH);
-		send_to_char(buf, ch);
-		send_to_char("\r\n", ch);
+		send_to_char(ch, "Снимаю %d аффектов\r\n", count);
 
 		auto remove_count = vict->remove_random_affects(count);
 		send_to_char(ch, "Снято %d аффектов\r\n", remove_count);
-
-		send_to_char(ch, "Аффекты на цели после снятия:");
-		vict->print_affects_to_buffer(buf, MAX_STRING_LENGTH);
-
-		send_to_char(buf, ch);
-		send_to_char("&n\r\n", ch);
 
 		//
 		need = TRUE;

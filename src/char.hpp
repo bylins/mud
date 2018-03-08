@@ -612,7 +612,6 @@ public:
 	void affect_remove(const char_affects_list_t::iterator& affect_i);
 	bool has_any_affect(const affects_list_t& affects);
 	size_t remove_random_affects(const size_t count);
-	const char* print_affects_to_buffer(char* buffer, const size_t size) const;
 
 	const auto& get_role() const { return role_; }
 	void set_role(const role_t& new_role) { role_ = new_role; }
