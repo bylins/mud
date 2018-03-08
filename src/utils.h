@@ -432,7 +432,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
 // See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC.
-#define IS_NPC(ch)           (ch->is_npc())
+#define IS_NPC(ch)           ((ch)->is_npc())
 #define IS_MOB(ch)          (IS_NPC(ch) && ch->get_rnum() >= 0)
 
 #define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && MOB_FLAGS(ch).get(flag))
