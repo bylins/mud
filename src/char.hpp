@@ -12,6 +12,7 @@
 #include "ignores.hpp"
 #include "im.h"
 #include "skills.h"
+#include "utils.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -224,7 +225,6 @@ struct inspect_request
 	std::string out;		//буфер в который накапливается вывод
 	bool sendmail; // отправлять ли на мыло список чаров
 };
-
 
 typedef boost::shared_ptr<inspect_request> InspReqPtr;
 typedef std::map < int/* filepos, позиция в player_table перса который делает запрос */, InspReqPtr/* сам запрос */ > InspReqListType;
@@ -671,6 +671,8 @@ public:
 
 	void cleanup_script();
 
+	bool is_npc() const { return char_specials.saved.act.get(MOB_ISNPC); }
+
 private:
 	const auto& get_player_specials() const { return player_specials; }
 	auto& get_player_specials() { return player_specials; }
@@ -959,7 +961,13 @@ bool IS_NOSEXY(const CHAR_DATA* ch);
 inline bool IS_NOSEXY(const CHAR_DATA::shared_ptr& ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CHAR_DATA* ch);
 
-int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val);
+inline int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val)
+{
+	const int character_class = ch->get_class();
+	return ch->is_npc()
+		? VPOSI(val, 1, 100)
+		: VPOSI(val, 1, class_stats_limit[character_class][stat_id]);
+}
 inline int VPOSI_MOB(const CHAR_DATA::shared_ptr& ch, const int stat_id, const int val) { return VPOSI_MOB(ch.get(), stat_id, val); }
 
 inline auto GET_REAL_DEX(const CHAR_DATA* ch)

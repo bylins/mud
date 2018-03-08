@@ -1007,14 +1007,6 @@ bool IS_POLY(const CHAR_DATA* ch)
 	return GET_SEX(ch) == ESex::SEX_POLY;
 }
 
-int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val)
-{
-	const int character_class = ch->get_class();
-	return IS_NPC(ch)
-		? VPOSI(val, 1, 100)
-		: VPOSI(val, 1, class_stats_limit[character_class][stat_id]);
-}
-
 bool IMM_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 {
 	return MORT_CAN_SEE(sub, obj)
