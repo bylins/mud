@@ -341,13 +341,16 @@ bool CHAR_DATA::has_any_affect(const affects_list_t& affects)
 
 size_t CHAR_DATA::remove_random_affects(const size_t count)
 {
+	int last_type = -1;
 	std::deque<char_affects_list_t::iterator> removable_affects;
 	for (auto affect_i = affected.begin(); affect_i != affected.end(); ++affect_i)
 	{
 		const auto& affect = *affect_i;
-		if (affect->removable())
+
+		if (affect->type != last_type && affect->removable())
 		{
 			removable_affects.push_back(affect_i);
+			last_type = affect->type;
 		}
 	}
 
@@ -356,47 +359,10 @@ size_t CHAR_DATA::remove_random_affects(const size_t count)
 	for (auto counter = 0u; counter < to_remove; ++counter)
 	{
 		const auto affect_i = removable_affects[counter];
-		affect_remove(affect_i);
+		affect_from_char(this, affect_i->get()->type);
 	}
 
 	return to_remove;
-}
-
-const char* CHAR_DATA::print_affects_to_buffer(char* buffer, const size_t size) const
-{
-	char* pos = buf;
-	size_t remaining = size;
-
-	if (1 > size)
-	{
-		log("SYSERR: Requested print into buffer of zero size.");
-		*buffer = '\0';
-		return buffer;
-	}
-
-	for (const auto affect : affected)
-	{
-		const auto written = snprintf(pos, remaining, " %s", apply_types[affect->location]);
-
-		if (written < 0)
-		{
-			log("SYSERR: Something went wrong while printing list of affects.");
-			*buffer = '\0';				// Return empty string
-			break;
-		}
-
-		if (remaining < static_cast<size_t>(written))
-		{
-			log("SYSERR: Provided buffer is not big enough to print list of affects. Truncated.");
-			buffer[size - 1] = '\0';	// Terminate string at the end of buffer
-			break;
-		}
-
-		remaining -= written;
-		pos += written;
-	}
-
-	return buffer;
 }
 
 /**

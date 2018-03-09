@@ -1229,13 +1229,17 @@ bool AFFECT_DATA<EApplyLocation>::removable() const
 		|| type == SPELL_CURSE
 		|| type == SPELL_PLAQUE
 		|| type == SPELL_SILENCE
+		|| type == SPELL_POWER_SILENCE
 		|| type == SPELL_BLINDNESS
+		|| type == SPELL_POWER_BLINDNESS
 		|| type == SPELL_HAEMORRAGIA
 		|| type == SPELL_HOLD
+		|| type == SPELL_POWER_HOLD
 		|| type == SPELL_PEACEFUL
-		|| type == SPELL_CLONE
 		|| type == SPELL_CONE_OF_COLD
-		|| type == SPELL_DEAFNESS;
+		|| type == SPELL_DEAFNESS
+		|| type == SPELL_POWER_DEAFNESS
+		|| type == SPELL_BATTLE;
 }
 
 punish_data::punish_data() : duration(0), reason(nullptr), level(0), godid(0)
