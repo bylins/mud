@@ -28,8 +28,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-extern INDEX_DATA **trig_index;
-
 void trig_data_free(TRIG_DATA * this_data);
 
 // return memory used by a trigger 
@@ -40,7 +38,7 @@ void free_trigger(TRIG_DATA* trig)
 }
 
 // remove a single trigger from a mob/obj/room 
-void extract_trigger(TRIG_DATA * trig)
+void extract_trigger(TRIG_DATA* trig)
 {
 	if (GET_TRIG_WAIT(trig))
 	{
@@ -61,14 +59,7 @@ void extract_trigger(TRIG_DATA * trig)
 // remove all triggers from a mob/obj/room 
 void extract_script(SCRIPT_DATA * sc)
 {
-	TRIG_DATA* next_trig;
-
-	for (auto trig = TRIGGERS(sc); trig; trig = next_trig)
-	{
-		next_trig = trig->next;
-		extract_trigger(trig);
-	}
-	TRIGGERS(sc) = NULL;
+	sc->trig_list.clear();
 }
 
 // erase the script memory of a mob 

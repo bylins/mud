@@ -1067,7 +1067,8 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		return;
 	}
 
-	if (IS_GOD(ch) && condition != DRUNK) {
+	if (IS_GOD(ch) && condition != DRUNK)
+	{
 		GET_COND(ch, condition)=-1;
 		return;
 	}
@@ -1076,12 +1077,14 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
 	
 	// обработка после увеличения
-	switch (condition) {
-		case DRUNK:
-			GET_COND(ch, condition) = MIN(CHAR_MORTALLY_DRUNKED+1, GET_COND(ch, condition));
+	switch (condition)
+	{
+	case DRUNK:
+		GET_COND(ch, condition) = MIN(CHAR_MORTALLY_DRUNKED + 1, GET_COND(ch, condition));
 		break;
-		default:
-	GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
+
+	default:
+		GET_COND(ch, condition) = MIN(MAX_COND_VALUE, GET_COND(ch, condition));
 		break;
 	}
 
@@ -1097,33 +1100,55 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 	switch (condition)
 	{
 	case FULL:
-		if (!GET_COND_M(ch,condition)) return;
+		if (!GET_COND_M(ch, condition))
+		{
+			return;
+		}
+
 		if (cond_value < 30)
-		send_to_char("Вы голодны.\r\n", ch);
-		else if ( cond_value < 40 )
+		{
+			send_to_char("Вы голодны.\r\n", ch);
+		}
+		else if (cond_value < 40)
+		{
 			send_to_char("Вы очень голодны.\r\n", ch);
-		else {
+		}
+		else
+		{
 			send_to_char("Вы готовы сожрать быка.\r\n", ch);
 			//сюда оповещение можно вставить что бы люди видели что чар страдает
 		}
 		return;
+
 	case THIRST:
-		if (!GET_COND_M(ch,condition)) return;
+		if (!GET_COND_M(ch,condition))
+		{
+			return;
+		}
+
 		if (cond_value < 30)
-		send_to_char("Вас мучает жажда.\r\n", ch);
+		{
+			send_to_char("Вас мучает жажда.\r\n", ch);
+		}
 		else if ( cond_value < 40 )
+		{
 			send_to_char("Вас сильно мучает жажда.\r\n", ch);
-		else {
+		}
+		else
+		{
 			send_to_char("Вам хочется выпить озеро.\r\n", ch);
 			//сюда оповещение можно вставить что бы люди видели что чар страдает
 		}
 		return;
+
 	case DRUNK:
 		//Если чара прекратило штормить, шлем сообщение
-		if (cond_state >= CHAR_MORTALLY_DRUNKED && GET_COND(ch, DRUNK) < CHAR_MORTALLY_DRUNKED) {
+		if (cond_state >= CHAR_MORTALLY_DRUNKED && GET_COND(ch, DRUNK) < CHAR_MORTALLY_DRUNKED)
+		{
 			send_to_char("Наконец-то вы протрезвели.\r\n", ch);
 		}
 		return;
+
 	default:
 		break;
 	}
@@ -1859,76 +1884,75 @@ void obj_point_update()
 void point_update(void)
 {
 	memory_rec *mem, *nmem, *pmem;
-	int count, mob_num, spellnum, mana;
-	boost::array<int, MAX_SPELLS + 1> buffer_mem;
-	boost::array<int, MAX_SPELLS + 1> real_spell;
 
-	for (count = 0; count <= MAX_SPELLS; count++)
+	std::vector<int> real_spell(MAX_SPELLS + 1);
+	for (int count = 0; count <= MAX_SPELLS; count++)
 	{
-		buffer_mem[count] = count;
-		real_spell[count] = 0;
+		real_spell[count] = count;
 	}
-	for (spellnum = MAX_SPELLS; spellnum > 0; spellnum--)
-	{
-		count = number(1, spellnum);
-		real_spell[MAX_SPELLS - spellnum] = buffer_mem[count];
-		for (; count < MAX_SPELLS; buffer_mem[count] = buffer_mem[count + 1], count++);
-	}
+	std::random_shuffle(real_spell.begin(), real_spell.end());
 
-	// characters
-	character_list.foreach_on_copy([&](const auto& i)
+	for (const auto& character: character_list)
 	{
+		const auto i = character.get();
+
 		if (IS_NPC(i))
 		{
 			i->inc_restore_timer(SECS_PER_MUD_HOUR);
 		}
 
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
-		   то он снова должен валиться в сон */
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP) && GET_POS(i) > POS_SLEEPING)
+		то он снова должен валиться в сон */
+		if (AFF_FLAGGED(i, EAffectFlag::AFF_SLEEP)
+			&& GET_POS(i) > POS_SLEEPING)
 		{
 			GET_POS(i) = POS_SLEEPING;
-			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i.get());
-			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", TRUE, i.get(), 0, 0, TO_ROOM);
+			send_to_char("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
+			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.", TRUE, i, 0, 0, TO_ROOM);
 		}
 
 		if (!IS_NPC(i))
 		{
-			gain_condition(i.get(), DRUNK, -1);
+			gain_condition(i, DRUNK, -1);
 
 			if (average_day_temp() < -20)
 			{
-				gain_condition(i.get(), FULL, +2);
+				gain_condition(i, FULL, +2);
 			}
 			else if (average_day_temp() < -5)
 			{
-				gain_condition(i.get(), FULL, number(+2, +1));
+				gain_condition(i, FULL, number(+2, +1));
 			}
 			else
 			{
-				gain_condition(i.get(), FULL, +1);
+				gain_condition(i, FULL, +1);
 			}
 
 			if (average_day_temp() > 25)
 			{
-				gain_condition(i.get(), THIRST, +2);
+				gain_condition(i, THIRST, +2);
 			}
 			else if (average_day_temp() > 20)
 			{
-				gain_condition(i.get(), THIRST, number(+2, +1));
+				gain_condition(i, THIRST, number(+2, +1));
 			}
 			else
 			{
-				gain_condition(i.get(), THIRST, +1);
+				gain_condition(i, THIRST, +1);
 			}
 		}
+	}
+
+	character_list.foreach_on_copy([&](const auto& character)
+	{
+		const auto i = character.get();
 
 		if (GET_POS(i) >= POS_STUNNED)  	// Restore hit points
 		{
 			if (IS_NPC(i)
 				|| !UPDATE_PC_ON_BEAT)
 			{
-				count = hit_gain(i);
+				const int count = hit_gain(i);
 				if (GET_HIT(i) < GET_REAL_MAX_HIT(i))
 				{
 					GET_HIT(i) = MIN(GET_HIT(i) + count, GET_REAL_MAX_HIT(i));
@@ -1941,6 +1965,8 @@ void point_update(void)
 			{
 				if (IS_HORSE(i))
 				{
+					int mana = 0;
+
 					switch (real_sector(IN_ROOM(i)))
 					{
 					case SECT_FLYING:
@@ -2026,24 +2052,30 @@ void point_update(void)
 				}
 
 				// Remember some spells
-				if ((mob_num = GET_MOB_RNUM(i)) >= 0)
+				const auto mob_num = GET_MOB_RNUM(i);
+				if (mob_num >= 0)
 				{
-					for (count = 0, mana = 0; count < MAX_SPELLS && mana < GET_REAL_INT(i) * 10; count++)
+					int mana = 0;
+					int count = 0;
+					const auto max_mana = GET_REAL_INT(i) * 10;
+					while (count < MAX_SPELLS && mana < max_mana)
 					{
-						spellnum = real_spell[count];
-						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) >
-							GET_SPELL_MEM(i, spellnum))
+						const auto spellnum = real_spell[count];
+						if (GET_SPELL_MEM(mob_proto + mob_num, spellnum) > GET_SPELL_MEM(i, spellnum))
 						{
 							GET_SPELL_MEM(i, spellnum)++;
 							mana += ((spell_info[spellnum].mana_max + spell_info[spellnum].mana_min) / 2);
 							GET_CASTER(i) += (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 						}
+
+						++count;
 					}
 				}
 			}
 
 			// Restore moves
-			if (IS_NPC(i) || !UPDATE_PC_ON_BEAT)
+			if (IS_NPC(i)
+				|| !UPDATE_PC_ON_BEAT)
 			{
 				//MZ.overflow_fix
 				if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i))
@@ -2056,7 +2088,7 @@ void point_update(void)
 			// Update PC/NPC position
 			if (GET_POS(i) <= POS_STUNNED)
 			{
-				update_pos(i.get());
+				update_pos(i);
 			}
 		}
 		else if (GET_POS(i) == POS_INCAP)
@@ -2064,7 +2096,7 @@ void point_update(void)
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 1, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE);
 
-			if (dmg.process(i.get(), i.get()) == -1)
+			if (dmg.process(i, i) == -1)
 			{
 				return;
 			}
@@ -2074,19 +2106,19 @@ void point_update(void)
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 2, FightSystem::UNDEF_DMG);
 			dmg.flags.set(FightSystem::NO_FLEE);
 
-			if (dmg.process(i.get(), i.get()) == -1)
+			if (dmg.process(i, i) == -1)
 			{
 				return;
 			}
 		}
 
-		update_char_objects(i.get());
+		update_char_objects(i);
 
 		if (!IS_NPC(i)
 			&& GET_LEVEL(i) < idle_max_level
 			&& !PRF_FLAGGED(i, PRF_CODERINFO))
 		{
-			check_idling(i.get());
+			check_idling(i);
 		}
 	});
 }

@@ -34,15 +34,6 @@ extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 
 id_to_set_info_map OBJ_DATA::set_table;
 
-namespace
-{
-
-// список шмоток после пуржа для последующего удаления оболочки
-typedef std::vector<OBJ_DATA *> PurgedObjList;
-PurgedObjList purged_obj_list;
-
-} // namespace
-
 OBJ_DATA::OBJ_DATA(const obj_vnum vnum):
 	CObjectPrototype(vnum),
 	m_uid(0),
@@ -62,6 +53,7 @@ OBJ_DATA::OBJ_DATA(const obj_vnum vnum):
 	m_next(nullptr),
 	m_craft_timer(0),
 	m_id(0),
+	m_script(new SCRIPT_DATA()),
 	m_serial_number(0),
 	m_purged(false),
 	m_activator(false, 0)
@@ -89,6 +81,7 @@ OBJ_DATA::OBJ_DATA(const CObjectPrototype& other):
 	m_next(nullptr),
 	m_craft_timer(0),
 	m_id(0),
+	m_script(new SCRIPT_DATA()),
 	m_serial_number(0),
 	m_purged(false),
 	m_activator(false, 0)
@@ -99,6 +92,9 @@ OBJ_DATA::OBJ_DATA(const CObjectPrototype& other):
 OBJ_DATA::OBJ_DATA(const OBJ_DATA& other): CObjectPrototype(other.get_vnum())
 {
 	*this = other;
+
+	m_script.reset(new SCRIPT_DATA(*other.m_script));	// each object must have its own script. Just copy it
+
 	caching::obj_cache.add(this);
 }
 
@@ -276,6 +272,11 @@ void OBJ_DATA::set_id(const long _)
 void OBJ_DATA::set_script(SCRIPT_DATA* _)
 {
 	m_script.reset(_);
+}
+
+void OBJ_DATA::cleanup_script()
+{
+	m_script->cleanup();
 }
 
 void OBJ_DATA::set_uid(const unsigned _)
@@ -1043,17 +1044,6 @@ bool is_armor_type(const CObjectPrototype *obj)
 	default:
 		return false;
 	}
-}
-
-// * См. CharacterSystem::release_purged_list()
-void release_purged_list()
-{
-	for (PurgedObjList::iterator i = purged_obj_list.begin();
-		i != purged_obj_list.end(); ++i)
-	{
-		delete *i;
-	}
-	purged_obj_list.clear();
 }
 
 bool is_mob_item(const CObjectPrototype *obj)

@@ -1,5 +1,7 @@
 #include "utils.string.hpp"
 
+#include "utils.h"
+
 #include <string.h>
 
 namespace utils
@@ -45,7 +47,7 @@ namespace utils
 		shared_string_ptr result;
 		if (string)
 		{
-			result.reset(strdup(string), free);
+			result.reset(str_dup(string), free);
 
 			remove_colors(result.get());
 		}

@@ -2880,7 +2880,10 @@ void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				return;
 			}
 			else
+			{
 				send_to_char("Этого персонажа сейчас нет в игре, смотрим пфайл.\r\n", ch);
+			}
+
 			Player t_vict;
 			if (load_char(buf2, &t_vict) > -1)
 			{
@@ -4888,13 +4891,15 @@ void print_mob_bosses(CHAR_DATA *ch, bool lvl_sort)
 		std::string zone_name_str = zone_table[mob_index[mob_rnum].zone].name ?
 			zone_table[mob_index[mob_rnum].zone].name  : "EMPTY" ;
 
+		const auto mob = mob_proto + mob_rnum;
+		const auto vnum = GET_MOB_VNUM(mob);
 		out += boost::str(boost::format("%3d %31s [%2d][%6d] %31s\r\n")
 			% ++cnt
-			% (mob_proto[mob_rnum].get_name_str().size() > 31
-				? mob_proto[mob_rnum].get_name_str().substr(0, 31)
-				: mob_proto[mob_rnum].get_name_str())
+			% (mob->get_name_str().size() > 31
+				? mob->get_name_str().substr(0, 31)
+				: mob->get_name_str())
 			% zone_table[mob_index[mob_rnum].zone].mob_level
-			% GET_MOB_VNUM(mob_proto + mob_rnum)
+			% vnum
 			% (zone_name_str.size() > 31
 				? zone_name_str.substr(0, 31)
 				: zone_name_str));
@@ -6261,7 +6266,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *vict = NULL, *cbuf = NULL;
+	CHAR_DATA *vict = NULL;
 	char field[MAX_INPUT_LENGTH], name[MAX_INPUT_LENGTH], val_arg[MAX_INPUT_LENGTH], OName[MAX_INPUT_LENGTH];
 	int mode, player_i = 0, retval;
 	char is_file = 0, is_player = 0;
@@ -6305,6 +6310,7 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
+	CHAR_DATA::shared_ptr cbuf;
 	// find the target
 	if (!is_file)
 	{
@@ -6316,6 +6322,7 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				send_to_char("Нет такого игрока.\r\n", ch);
 				return;
 			}
+
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
 			{
@@ -6337,7 +6344,7 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else  	// is_mob
 		{
 			if (!(vict = get_char_vis(ch, name, FIND_CHAR_WORLD))
-					|| !IS_NPC(vict))
+				|| !IS_NPC(vict))
 			{
 				send_to_char("Нет такой твари Божьей.\r\n", ch);
 				return;
@@ -6352,9 +6359,8 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		cbuf = new Player; // TODO: переделать на стек
-
-		if ((player_i = load_char(name, cbuf)) > -1)
+		cbuf = std::make_unique<Player>();
+		if ((player_i = load_char(name, cbuf.get())) > -1)
 		{
 			// Запрет на злоупотребление командой SET на бессмертных
 			if (!GET_GOD_FLAG(ch, GF_DEMIGOD))
@@ -6362,7 +6368,6 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				if (GET_LEVEL(ch) <= GET_LEVEL(cbuf) && !(is_head(ch->get_name_str())))
 				{
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
-					delete cbuf;
 					return;
 				}
 			}
@@ -6371,16 +6376,14 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				if (GET_LEVEL(cbuf) >= LVL_IMMORT)
 				{
 					send_to_char("Вы не можете сделать этого.\r\n", ch);
-					delete cbuf;
 					return;
 				}
 			}
-			vict = cbuf;
+			vict = cbuf.get();
 		}
 		else
 		{
 			send_to_char("Нет такого игрока.\r\n", ch);
-			delete cbuf;
 			return;
 		}
 	}
@@ -6420,13 +6423,8 @@ void do_set(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 
-	// free the memory if we allocated it earlier
-	if (is_file)
-		delete cbuf;
-
 	log("(GC) %s try to set: %s", GET_NAME(ch), argument);
 	imm_log("%s try to set: %s", GET_NAME(ch), argument);
-
 }
 
 int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument);
@@ -6851,8 +6849,6 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-
-	extern void heartbeat(const int missed_pulses);	// from comm.c
 	int m, t = 0;
 	char *ca;
 
@@ -6878,10 +6874,14 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!t)			// 1 tick default
+	{
 		t = (SECS_PER_MUD_HOUR);
+	}
 
 	for (m = 0; m < t * PASSES_PER_SEC; m++)
+	{
 		heartbeat(t * PASSES_PER_SEC - m);
+	}
 
 	sprintf(buf, "(GC) %s перевел игровое время на %d сек.", GET_NAME(ch), t);
 	mudlog(buf, NRM, LVL_IMMORT, IMLOG, FALSE);

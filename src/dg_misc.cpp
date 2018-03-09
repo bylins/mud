@@ -28,9 +28,6 @@
 // copied from spell_parser.c:
 #define SINFO spell_info[spellnum]
 
-// external vars
-extern INDEX_DATA **trig_index;
-
 extern const char *item_types[];
 extern const char *apply_types[];
 extern const char *affected_bits[];

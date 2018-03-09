@@ -7,30 +7,58 @@
 #include "utils.h"
 #include "dg_scripts.h"
 #include "debug.utils.hpp"
+#include "global.objects.hpp"
 
 #include <iostream>
 
-Characters character_list;	// global container of chars
+Characters& character_list = GlobalObjects::characters();	// global container of chars
+
+Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters& cl) : m_parent(cl)
+{
+}
+
+void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData& character, const mob_rnum old_rnum)
+{
+	const auto character_ptr = dynamic_cast<CHAR_DATA*>(&character);
+	if (nullptr == character_ptr)
+	{
+		log("LOGIC ERROR: Character object passed to RNUM change observer "
+			"is not an instance of CHAR_DATA class. Old RNUM: %d.",
+			old_rnum);
+
+		return;
+	}
+
+	m_parent.m_rnum_to_characters_set[old_rnum].erase(character_ptr);
+	if (m_parent.m_rnum_to_characters_set[old_rnum].empty())
+	{
+		m_parent.m_rnum_to_characters_set.erase(old_rnum);
+	}
+
+	const auto new_rnum = character.get_rnum();
+	if (new_rnum != NOBODY)
+	{
+		m_parent.m_rnum_to_characters_set[new_rnum].insert(character_ptr);
+	}
+}
+
+Characters::Characters()
+{
+	m_rnum_change_observer = std::make_shared<CL_RNumChangeObserver>(*this);
+}
 
 void Characters::push_front(const CHAR_DATA::shared_ptr& character)
 {
-	std::stringstream ss;
-	{
-		StreamFlagsHolder holder(ss);
-		ss << "Adding character at address 0x" << std::hex << character << ".";
-	}
-	if (IS_NPC(character))
-	{
-		ss << " VNUM: " << GET_MOB_VNUM(character) << "; Name: '" << character->get_name() << "'";
-	}
-	else
-	{
-		ss << " Player: " << character->get_name();
-	}
-	debug::log_queue("characters").push(ss.str());
-
 	m_list.push_front(character);
-	m_object_raw_ptr_to_object_ptr[character.get()] = m_list.begin();
+	m_character_raw_ptr_to_character_ptr[character.get()] = m_list.begin();
+
+	const auto rnum = character->get_rnum();
+	if (NOBODY != rnum)
+	{
+		m_rnum_to_characters_set[rnum].insert(character.get());
+	}
+	character->subscribe_for_rnum_changes(m_rnum_change_observer);
+
 	if (character->purged())
 	{
 		/*
@@ -45,16 +73,39 @@ void Characters::push_front(const CHAR_DATA::shared_ptr& character)
 	}
 }
 
+void Characters::get_mobs_by_rnum(const mob_rnum rnum, list_t& result)
+{
+	result.clear();
+
+	const auto i = m_rnum_to_characters_set.find(rnum);
+	if (i == m_rnum_to_characters_set.end())
+	{
+		return;
+	}
+
+	for (const auto& character : i->second)
+	{
+		result.push_back(*m_character_raw_ptr_to_character_ptr[character]);
+	}
+}
+
 void Characters::foreach_on_copy(const foreach_f function) const
 {
 	const list_t list = get_list();
 	std::for_each(list.begin(), list.end(), function);
 }
 
+void Characters::foreach_on_filtered_copy(const foreach_f function, const predicate_f predicate) const
+{
+	list_t list;
+	std::copy_if(get_list().begin(), get_list().end(), std::back_inserter(list), predicate);
+	std::for_each(list.begin(), list.end(), function);
+}
+
 void Characters::remove(CHAR_DATA* character)
 {
-	const auto index_i = m_object_raw_ptr_to_object_ptr.find(character);
-	if (index_i == m_object_raw_ptr_to_object_ptr.end())
+	const auto index_i = m_character_raw_ptr_to_character_ptr.find(character);
+	if (index_i == m_character_raw_ptr_to_character_ptr.end())
 	{
 		const size_t BUFFER_SIZE = 1024;
 		char buffer[BUFFER_SIZE];
@@ -64,25 +115,23 @@ void Characters::remove(CHAR_DATA* character)
 		return;
 	}
 
-	std::stringstream ss;
-	{
-		StreamFlagsHolder flags_holder(ss);
-		ss << "Removing character at address 0x" << std::hex << character << ".";
-	}
-	if (IS_NPC(character))
-	{
-		ss << " VNUM: " << GET_MOB_VNUM(character) << "; Name: '" << character->get_name() <<"'";
-	}
-	else
-	{
-		ss << " Player: " << character->get_name();
-	}
-	debug::log_queue("characters").push(ss.str());
-
 	m_purge_list.push_back(*index_i->second);
 	m_purge_set.insert(index_i->second->get());
+
+	character->unsubscribe_from_rnum_changes(m_rnum_change_observer);
+	const auto rnum = character->get_rnum();
+	if (NOBODY != rnum)
+	{
+		m_rnum_to_characters_set[rnum].erase(character);
+		if (m_rnum_to_characters_set[rnum].empty())
+		{
+			m_rnum_to_characters_set.erase(rnum);
+		}
+	}
+
 	m_list.erase(index_i->second);
-	m_object_raw_ptr_to_object_ptr.erase(index_i);
+	m_character_raw_ptr_to_character_ptr.erase(index_i);
+
 	character->set_purged();
 }
 
@@ -95,9 +144,6 @@ void Characters::purge()
 		{
 			clearMemory(character.get());
 		}
-
-		free_script(SCRIPT(character));	// см. выше
-		SCRIPT(character) = NULL;
 
 		if (SCRIPT_MEM(character))
 		{
@@ -113,7 +159,7 @@ void Characters::purge()
 
 bool Characters::has(const CHAR_DATA* character) const
 {
-	return m_object_raw_ptr_to_object_ptr.find(character) != m_object_raw_ptr_to_object_ptr.end()
+	return m_character_raw_ptr_to_character_ptr.find(character) != m_character_raw_ptr_to_character_ptr.end()
 		|| m_purge_set.find(character) != m_purge_set.end();
 }
 

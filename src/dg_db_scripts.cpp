@@ -39,12 +39,12 @@
 
 #include <algorithm>
 #include <stack>
+#include <iostream>
 
 void trig_data_free(TRIG_DATA * this_data);
 //внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
 trigger_to_owners_map_t owner_trig;
 
-extern INDEX_DATA **trig_index;
 extern int top_of_trigt;
 
 extern INDEX_DATA *mob_index;
@@ -189,19 +189,6 @@ void free_varlist(struct trig_var_data *vd)
 	}
 }
 
-// release memory allocated for a script
-void free_script(SCRIPT_DATA* sc)
-{
-	if (sc == NULL)
-		return;
-
-	extract_script(sc);
-
-	free_varlist(sc->global_vars);
-
-	free(sc);
-}
-
 void trig_data_free(TRIG_DATA * this_data)
 {
 	free_varlist(this_data->var_list);
@@ -215,7 +202,6 @@ void trig_data_free(TRIG_DATA * this_data)
 	}
 
 	delete this_data;
-	this_data = nullptr;
 }
 
 // vnum_owner - триг, который приаттачил данный триг
@@ -292,27 +278,28 @@ void assign_triggers(void *i, int type)
 			rnum = real_trigger(trigger_vnum);
 			if (rnum == -1)
 			{
-				sprintf(buf, "SYSERR: trigger #%d non-existent, for mob #%d",
-					trigger_vnum, mob_index[mob->nr].vnum);
+				const auto rnum = mob->get_rnum();
+				sprintf(buf, "SYSERR: trigger #%d non-existent, for mob #%d", trigger_vnum, mob_index[rnum].vnum);
 				log("%s",buf);
 			}
 			else
 			{
 				if (trig_index[rnum]->proto->get_attach_type() != MOB_TRIGGER)
 				{
+					const auto rnum = mob->get_rnum();
 					sprintf(buf, "SYSERR: trigger #%d has wrong attach_type: %d, for mob #%d",
-						trigger_vnum, static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
-						mob_index[mob->nr].vnum);
+						trigger_vnum,
+						static_cast<int>(trig_index[rnum]->proto->get_attach_type()),
+						mob_index[rnum].vnum);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 				}
 				else
 				{
 					if (!SCRIPT(mob))
 					{
-						CREATE(mob->script, 1);
+						mob->script = std::make_shared<SCRIPT_DATA>();
 					}
-					add_trigger(SCRIPT(mob), read_trigger(rnum), -1);
-
+					add_trigger(SCRIPT(mob).get(), read_trigger(rnum), -1);
 
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{
@@ -388,9 +375,9 @@ void assign_triggers(void *i, int type)
 				{
 					if (!SCRIPT(room))
 					{
-						room->script = new SCRIPT_DATA();
+						room->script = std::make_shared<SCRIPT_DATA>();
 					}
-					add_trigger(SCRIPT(room), read_trigger(rnum), -1);
+					add_trigger(SCRIPT(room).get(), read_trigger(rnum), -1);
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{
 						owner_to_triggers_map_t tmp_map;

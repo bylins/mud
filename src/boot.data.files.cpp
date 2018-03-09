@@ -270,13 +270,13 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 
 		if (rnum >= 0)
 		{
-			if (!(room->script))
+			if (!room->script)
 			{
-				CREATE(room->script, 1);
+				room->script = std::make_shared<SCRIPT_DATA>();
 			}
 
 			const auto trigger_instance = read_trigger(rnum);
-			add_trigger(SCRIPT(room), trigger_instance, -1);
+			add_trigger(SCRIPT(room).get(), trigger_instance, -1);
 
 			// для начала определяем, есть ли такой внум у нас в контейнере
 			if (owner_trig.find(vnum) == owner_trig.end())
@@ -377,13 +377,7 @@ void TriggersFile::parse_trigger(int nr)
 
 	free(cmds);
 
-	index_data *index;
-	CREATE(index, 1);
-	index->vnum = nr;
-	index->number = 0;
-	index->func = NULL;
-	index->proto = trig;
-	trig_index[top_of_trigt++] = index;
+	add_trig_index_entry(nr, trig);
 }
 
 class WorldFile : public DiscreteFile
@@ -1287,7 +1281,7 @@ void MobileFile::parse_mobile(const int nr)
 		mob_proto[i].equipment[j] = NULL;
 	}
 
-	mob_proto[i].nr = i;
+	mob_proto[i].set_rnum(i);
 	mob_proto[i].desc = NULL;
 
 	set_test_data(mob_proto + i);
@@ -1687,7 +1681,6 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 		GET_SPELL_MEM(mob_proto + i, t[0]) += 1;
 		GET_CASTER(mob_proto + i) += (IS_SET(spell_info[t[0]].routines, NPC_CALCULATE) ? 1 : 0);
-		// log("Set spell %d to %d(%s)", t[0], GET_SPELL_MEM(mob_proto + i, t[0]), GET_NAME(mob_proto + i));
 	}
 
 	CASE("Helper")

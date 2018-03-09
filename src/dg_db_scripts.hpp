@@ -4,15 +4,13 @@
 #include <unordered_set>
 #include <unordered_map>
 
-struct SCRIPT_DATA;	// to avoid inclusion of "dg_scripts.h"
+class SCRIPT_DATA;	// to avoid inclusion of "dg_scripts.h"
 
 using triggers_set_t = std::unordered_set<int>;
 using owner_to_triggers_map_t = std::unordered_map<int, triggers_set_t>;
 using trigger_to_owners_map_t = std::unordered_map<int, owner_to_triggers_map_t>;
 
 void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
-
-void free_script(SCRIPT_DATA* sc);
 
 extern trigger_to_owners_map_t owner_trig;
 

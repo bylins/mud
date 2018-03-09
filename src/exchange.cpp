@@ -674,8 +674,11 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	if (seller == NULL)
 	{
 		const char *seller_name = get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
-		seller = new Player; // TODO: переделать на стек
-		if ((seller_name == NULL) || (load_char(seller_name, seller) < 0))
+
+		auto seller_ptr = std::make_unique<Player>();
+		seller = seller_ptr.get(); // TODO: переделать на стек
+		if (seller_name == NULL
+			|| load_char(seller_name, seller) < 0)
 		{
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
@@ -698,7 +701,6 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 				ch->save_char();
 			}
 
-			delete seller;
 			return true;
 		}
 
@@ -714,7 +716,7 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		}
 //-Polud
 		seller->save_char();
-		delete seller;
+
 		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
@@ -761,7 +763,6 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 		return true;
 	}
-
 }
 
 /**

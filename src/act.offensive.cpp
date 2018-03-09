@@ -1249,7 +1249,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	int percent = 0, prob = 0;
 	if (GET_SKILL(ch, SKILL_STUN) < 150)
 	{
-		improove_skill(ch, SKILL_STUN, TRUE, 0);
+		improove_skill(ch, SKILL_STUN, TRUE, vict);
 		struct timed_type timed;
 		timed.skill = SKILL_STUN;
 		timed.time = 7;
@@ -1273,7 +1273,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (percent > prob)
 	{
-		improove_skill(ch, SKILL_STUN, FALSE, 0);
+		improove_skill(ch, SKILL_STUN, FALSE, vict);
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
 		act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1283,7 +1283,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	else
 	{
-		improove_skill(ch, SKILL_STUN, TRUE, 0);
+		improove_skill(ch, SKILL_STUN, TRUE, vict);
 		// кастуем аналог круга пустоты
 		act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
 		act("Ошеломительный удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);

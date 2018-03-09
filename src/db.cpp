@@ -98,6 +98,18 @@ Rooms world;
 
 room_rnum top_of_world = 0;	// ref to top element of world
 
+void add_trig_index_entry(int nr, TRIG_DATA* trig)
+{
+	index_data *index;
+	CREATE(index, 1);
+	index->vnum = nr;
+	index->number = 0;
+	index->func = NULL;
+	index->proto = trig;
+
+	trig_index[top_of_trigt++] = index;
+}
+
 INDEX_DATA **trig_index;	// index table for triggers
 int top_of_trigt = 0;		// top of trigger index table
 
@@ -3721,8 +3733,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		i = nr;
 	}
 
-	CHAR_DATA *mob = new CHAR_DATA;
-	*mob = mob_proto[i]; //чет мне кажется что конструкции типа этой не принесут нам щастья...
+	CHAR_DATA *mob = new CHAR_DATA(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	character_list.push_front(mob);
@@ -4258,12 +4269,13 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			if ( rn != NOWHERE)
 			{
 				if (!(world[rn]->script))
-					CREATE(world[rn]->script, 1);
-
-				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin();
-						it != (*room)->triggers.end(); ++it)
 				{
-					add_trigger(world[rn]->script, read_trigger(real_trigger(*it)), -1);
+					world[rn]->script = std::make_shared<SCRIPT_DATA>();
+				}
+
+				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); it != (*room)->triggers.end(); ++it)
+				{
+					add_trigger(world[rn]->script.get(), read_trigger(real_trigger(*it)), -1);
 				}
 			}
 
@@ -4279,12 +4291,12 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					{
 						if (!SCRIPT(mob))
 						{
-							CREATE(SCRIPT(mob), 1);
+							SCRIPT(mob) = std::make_shared<SCRIPT_DATA>();
 						}
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 						{
-							add_trigger(SCRIPT(mob), read_trigger(real_trigger(*it)), -1);
+							add_trigger(SCRIPT(mob).get(), read_trigger(real_trigger(*it)), -1);
 						}
 						load_mtrigger(mob);
 						char_to_room(mob, real_room((*room)->vnum));
@@ -4420,17 +4432,20 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
 		for (const auto ch : character_list)
 		{
-			if (ch->nr > 0 && list.find(mob_index[ch->nr].vnum) != list.end())
+			const auto rnum = ch->get_rnum();
+			if (rnum > 0
+				&& list.find(mob_index[rnum].vnum) != list.end())
 			{
 				if (!SCRIPT(ch))
 				{
-					CREATE(SCRIPT(ch), 1);
+					SCRIPT(ch) = std::make_shared<SCRIPT_DATA>();
 				}
 
-				for (Celebrates::TrigList::iterator it = list[mob_index[ch->nr].vnum].begin();
-						it != list[mob_index[ch->nr].vnum].end(); ++it)
+				for (Celebrates::TrigList::iterator it = list[mob_index[rnum].vnum].begin();
+					it != list[mob_index[rnum].vnum].end();
+					++it)
 				{
-					add_trigger(SCRIPT(ch), read_trigger(real_trigger(*it)), -1);
+					add_trigger(SCRIPT(ch).get(), read_trigger(real_trigger(*it)), -1);
 				}
 
 				Celebrates::add_mob_to_attach_list(ch->id, ch.get());
@@ -4493,6 +4508,24 @@ void process_celebrates(int vnum)
 #define		CHECK_SUCCESS		1
 // Команда не должна изменить флаг
 #define		FLAG_PERSIST		2
+
+bool handle_zone_Q_command(const mob_rnum rnum)
+{
+	bool extracted = false;
+
+	Characters::list_t mobs;
+	character_list.get_mobs_by_rnum(rnum, mobs);
+	for (const auto& mob : mobs)
+	{
+		if (!MOB_FLAGGED(mob, MOB_RESURRECTED))
+		{
+			extract_char(mob.get(), FALSE, TRUE);
+			extracted = true;
+		}
+	}
+
+	return extracted;
+}
 
 // execute the reset command table of a given zone
 void reset_zone(zone_rnum zone)
@@ -4581,20 +4614,9 @@ void reset_zone(zone_rnum zone)
 				break;
 
 			case 'Q':
+				if (handle_zone_Q_command(ZCMD.arg1))
 				{
-					const bool erased = false;
-					character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& ch)
-					{
-						if (IS_NPC(ch) && GET_MOB_RNUM(ch) == ZCMD.arg1 && !MOB_FLAGGED(ch, MOB_RESURRECTED))
-						{
-							extract_char(ch.get(), FALSE, TRUE);
-						}
-					});
-
-					if (erased)
-					{
-						curr_state = 1;
-					}
+					curr_state = 1;
 				}
 
 				tobj = NULL;
@@ -4838,8 +4860,10 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
 					if (!SCRIPT(tmob))
-						CREATE(SCRIPT(tmob), 1);
-					add_trigger(SCRIPT(tmob), read_trigger(real_trigger(ZCMD.arg2)), -1);
+					{
+						SCRIPT(tmob) = std::make_shared<SCRIPT_DATA>();
+					}
+					add_trigger(SCRIPT(tmob).get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
@@ -4857,10 +4881,9 @@ void reset_zone(zone_rnum zone)
 					{
 						if (!(world[ZCMD.arg3]->script))
 						{
-							CREATE(world[ZCMD.arg3]->script, 1);
+							world[ZCMD.arg3]->script = std::make_shared<SCRIPT_DATA>();
 						}
-						add_trigger(world[ZCMD.arg3]->script,
-									read_trigger(real_trigger(ZCMD.arg2)), -1);
+						add_trigger(world[ZCMD.arg3]->script.get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 						curr_state = 1;
 					}
 				}
@@ -4919,21 +4942,23 @@ void reset_zone(zone_rnum zone)
 				break;
 			}
 		}
-		// if ( (ZCMD.if_flag&CHECK_SUCCESS) && !last_state )
+
 		if (!(ZCMD.if_flag & FLAG_PERSIST))
 		{
 			// команда изменяет флаг
 			last_state = curr_state;
 		}
-
 	}
+
 	if (zone_table[zone].used)
 	{
 		zone_table[zone].count_reset++;
 	}
+
 	zone_table[zone].age = 0;
 	zone_table[zone].used = FALSE;
 	process_celebrates(zone_table[zone].number);
+
 	if (get_zone_rooms(zone, &rnum_start, &rnum_stop))
 	{
 		ROOM_DATA* room;
@@ -4960,8 +4985,6 @@ void reset_zone(zone_rnum zone)
 		}
 	}
 
-	//process_celebrates(zone_table[zone].number);
-
 	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
 	{
 		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
@@ -4970,12 +4993,12 @@ void reset_zone(zone_rnum zone)
 			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[zone].number)
 			{
 				zone_table[rnum_start].typeB_flag[curr_state - 1] = TRUE;
-//				log("[Reset] Adding TRUE for zone %d in the array contained by zone %d",
-//				    zone_table[zone].number, zone_table[rnum_start].number);
+
 				break;
 			}
 		}
 	}
+
 	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
 	for (rnum_start = zone_table[zone].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[zone].typeB_flag[rnum_start - 1] = FALSE;
@@ -5835,46 +5858,6 @@ void flush_player_index(void)
 	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
 }
 
-void dupe_player_index(void)
-{
-	FILE *players;
-	char name[MAX_STRING_LENGTH];
-
-	sprintf(name, LIB_PLRS "players.dup");
-
-	if (!(players = fopen(name, "w+")))
-	{
-		log("Can't save players list...");
-		return;
-	}
-
-	std::size_t dupes = 0;
-	for (std::size_t i = 0; i < player_table.size(); i++)
-	{
-		if (!player_table[i].name()
-			|| !*player_table[i].name())
-		{
-			continue;
-		}
-
-		// check double
-		std::size_t c = 0;
-		for (; c < i; c++)
-			if (!str_cmp(player_table[c].name(), player_table[i].name()))
-				break;
-		if (c < i)
-			continue;
-
-		++dupes;
-		sprintf(name, "%s %d %d %d %d\n",
-				player_table[i].name(),
-				player_table[i].id(), player_table[i].unique, player_table[i].level, player_table[i].last_logon);
-		fputs(name, players);
-	}
-	fclose(players);
-	log("Продублировано индексов %zd (считано при загрузке %zd)", dupes, player_table.size());
-}
-
 void rename_char(CHAR_DATA * ch, char *oname)
 {
 	char filename[MAX_INPUT_LENGTH], ofilename[MAX_INPUT_LENGTH];
@@ -6011,7 +5994,8 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 	}
 
 	// Копирую скрипт и прототипы
-	SCRIPT(dst) = nullptr;
+	SCRIPT(dst).reset();
+
 	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	*dst->proto_script = *src->proto_script;
 
@@ -6025,11 +6009,12 @@ void room_free(ROOM_DATA * room)
              Необходимо дополнительно использовать delete()
 --*/
 {
-	int i;
-
 	// Название и описание
 	if (room->name)
+	{
 		free(room->name);
+	}
+
 	if (room->temp_description)
 	{
 		free(room->temp_description);
@@ -6037,20 +6022,26 @@ void room_free(ROOM_DATA * room)
 	}
 
 	// Выходы и входы
-	for (i = 0; i < NUM_OF_DIRS; i++)
+	for (int i = 0; i < NUM_OF_DIRS; i++)
 	{
 		if (room->dir_option[i])
 		{
 			if (room->dir_option[i]->keyword)
+			{
 				free(room->dir_option[i]->keyword);
+			}
+
 			if (room->dir_option[i]->vkeyword)
+			{
 				free(room->dir_option[i]->vkeyword);
+			}
+
 			room->dir_option[i].reset();
 		}
 	}
 
 	// Скрипт
-	free_script(SCRIPT(room));
+	room->cleanup_script();
 
 	if (room->ing_list)
 	{

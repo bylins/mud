@@ -26,7 +26,8 @@ set(TESTS
 	fight.penalties.cpp
 	bonus.command.parser.cpp
 	quested.cpp
-	sprintbitwd.cpp)
+	sprintbitwd.cpp
+	triggers.list.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)

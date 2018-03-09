@@ -449,11 +449,11 @@ void RuntimeConfiguration::setup_converters()
 		const auto& encoding = log_stderr();
 		if ("cp1251" == encoding)
 		{
-			m_syslog_converter = koi_to_win;
+			m_syslog_converter = &koi_to_win;
 		}
 		else if ("alt" == encoding)
 		{
-			m_syslog_converter = koi_to_alt;
+			m_syslog_converter = static_cast<void (*)(char*, int)>(koi_to_alt);
 		}
 	}
 }

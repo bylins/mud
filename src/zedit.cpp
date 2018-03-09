@@ -27,7 +27,7 @@ extern CHAR_DATA *mob_proto;
 extern INDEX_DATA *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
-extern INDEX_DATA **trig_index;
+
 //MZ.load
 extern struct zone_type * zone_types;
 //-MZ.load

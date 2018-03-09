@@ -12,6 +12,7 @@
 #include "ignores.hpp"
 #include "im.h"
 #include "skills.h"
+#include "utils.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -225,7 +226,6 @@ struct inspect_request
 	bool sendmail; // отправлять ли на мыло список чаров
 };
 
-
 typedef boost::shared_ptr<inspect_request> InspReqPtr;
 typedef std::map < int/* filepos, позиция в player_table перса который делает запрос */, InspReqPtr/* сам запрос */ > InspReqListType;
 
@@ -357,8 +357,40 @@ enum
 typedef std::map<ESkill/* номер скилла */, int/* значение скилла */> CharSkillsType;
 //typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
 
+class ProtectedCharacterData;	// to break up cyclic dependencies
+
+class CharacterRNum_ChangeObserver
+{
+public:
+	using shared_ptr = std::shared_ptr<CharacterRNum_ChangeObserver>;
+
+	CharacterRNum_ChangeObserver() {}
+	virtual ~CharacterRNum_ChangeObserver() {}
+
+	virtual void notify(ProtectedCharacterData& character, const mob_rnum old_rnum) = 0;
+};
+
+class ProtectedCharacterData : public PlayerI
+{
+public:
+	ProtectedCharacterData();
+	ProtectedCharacterData(const ProtectedCharacterData& rhv);
+	ProtectedCharacterData& operator=(const ProtectedCharacterData& rhv);
+
+	auto get_rnum() const { return m_rnum; }
+	void set_rnum(const mob_rnum rnum);
+
+	void subscribe_for_rnum_changes(const CharacterRNum_ChangeObserver::shared_ptr& observer) { m_rnum_change_observers.insert(observer); }
+	void unsubscribe_from_rnum_changes(const CharacterRNum_ChangeObserver::shared_ptr& observer) { m_rnum_change_observers.erase(observer); }
+
+private:
+	mob_rnum m_rnum;		// Mob's rnum
+
+	std::unordered_set<CharacterRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
+};
+
 // * Общий класс для игроков/мобов.
-class CHAR_DATA : public PlayerI
+class CHAR_DATA : public ProtectedCharacterData
 {
 // новое
 public:
@@ -637,6 +669,10 @@ public:
 
 	void set_purged(const bool _ = true) { purged_ = _; }
 
+	void cleanup_script();
+
+	bool is_npc() const { return char_specials.saved.act.get(MOB_ISNPC); }
+
 private:
 	const auto& get_player_specials() const { return player_specials; }
 	auto& get_player_specials() { return player_specials; }
@@ -735,7 +771,6 @@ private:
 	int souls;
 
 public:
-	mob_rnum nr;		// Mob's rnum
 	room_rnum in_room;	// Location (real room number)
 
 private:
@@ -767,7 +802,7 @@ public:
 	DESCRIPTOR_DATA* desc;	// NULL for mobiles
 	long id;			// used by DG triggers
 	OBJ_DATA::triggers_list_ptr proto_script;	// list of default triggers
-	struct SCRIPT_DATA *script;	// script info for the object
+	SCRIPT_DATA::shared_ptr script;	// script info for the object
 	struct script_memory *memory;	// for mob memory triggers
 
 	CHAR_DATA *next_fighting;	// For fighting list
@@ -926,7 +961,13 @@ bool IS_NOSEXY(const CHAR_DATA* ch);
 inline bool IS_NOSEXY(const CHAR_DATA::shared_ptr& ch) { return IS_NOSEXY(ch.get()); }
 bool IS_POLY(const CHAR_DATA* ch);
 
-int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val);
+inline int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val)
+{
+	const int character_class = ch->get_class();
+	return ch->is_npc()
+		? VPOSI(val, 1, 100)
+		: VPOSI(val, 1, class_stats_limit[character_class][stat_id]);
+}
 inline int VPOSI_MOB(const CHAR_DATA::shared_ptr& ch, const int stat_id, const int val) { return VPOSI_MOB(ch.get(), stat_id, val); }
 
 inline auto GET_REAL_DEX(const CHAR_DATA* ch)

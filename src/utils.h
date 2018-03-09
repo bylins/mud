@@ -87,6 +87,7 @@ int check_moves(CHAR_DATA * ch, int how_moves);
 void to_koi(char *str, int from);
 void from_koi(char *str, int to);
 void koi_to_alt(char *str, int len);
+std::string koi_to_alt(const std::string& input);
 void koi_to_win(char *str, int len);
 void koi_to_winz(char *str, int len);
 #ifdef HAVE_ICONV
@@ -431,8 +432,8 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define SPELL_ROUTINES(spl) (spell_info[spl].routines)
 
 // See http://www.circlemud.org/~greerga/todo.009 to eliminate MOB_ISNPC.
-#define IS_NPC(ch)           (MOB_FLAGS(ch).get(MOB_ISNPC))
-#define IS_MOB(ch)          (IS_NPC(ch) && GET_MOB_RNUM(ch) >= 0)
+#define IS_NPC(ch)           ((ch)->is_npc())
+#define IS_MOB(ch)          (IS_NPC(ch) && ch->get_rnum() >= 0)
 
 #define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && MOB_FLAGS(ch).get(flag))
 #define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && PLR_FLAGS(ch).get(flag))
@@ -785,10 +786,9 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->nr].func : NULL)
-#define GET_MOB_RNUM(mob)  ((mob)->nr)
-#define GET_MOB_VNUM(mob)  (IS_MOB(mob) ? \
-             mob_index[GET_MOB_RNUM(mob)].vnum : -1)
+#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : NULL)
+#define GET_MOB_RNUM(mob)  (mob)->get_rnum()
+#define GET_MOB_VNUM(mob)  (IS_MOB(mob) ? mob_index[(mob)->get_rnum()].vnum : -1)
 
 #define GET_DEFAULT_POS(ch)   ((ch)->mob_specials.default_pos)
 #define MEMORY(ch)          ((ch)->mob_specials.memory)

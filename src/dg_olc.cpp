@@ -29,8 +29,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-// declare externally defined globals
-extern INDEX_DATA **trig_index;
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_of_trigt;

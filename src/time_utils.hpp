@@ -16,7 +16,7 @@ namespace utils
 	public:
 		using call_t = std::function<void()>;
 		using clock_t = std::chrono::high_resolution_clock;
-		using duration_t = std::chrono::duration<double, std::chrono::seconds::period>;
+		using duration_t = std::chrono::duration<double>;
 
 		CExecutionTimer() { start(); }
 		void restart() { start(); }
@@ -31,19 +31,8 @@ namespace utils
 	inline CExecutionTimer::duration_t CExecutionTimer::delta() const
 	{
 		const auto stop_time = clock_t::now();
-		return stop_time - m_start_time;
+		return std::chrono::duration_cast<duration_t>(stop_time - m_start_time);
 	}
-
-	class CExecutionProfiler
-	{
-	public:
-		CExecutionProfiler(const std::string& title) : m_title(title) {}
-		~CExecutionProfiler();
-
-	private:
-		const std::string m_title;
-		CExecutionTimer m_timer;
-	};
 
 	class CSteppedProfiler
 	{

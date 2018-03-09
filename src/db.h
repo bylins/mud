@@ -308,6 +308,9 @@ typedef std::map<int, MobRacePtr> MobRaceListType;
 
 extern room_rnum top_of_world;
 
+void add_trig_index_entry(int nr, TRIG_DATA* proto);
+extern INDEX_DATA **trig_index;
+
 #ifndef __CONFIG_C__
 extern char const *OK;
 extern char const *NOPERSON;
@@ -325,7 +328,7 @@ extern CHAR_DATA *combat_list;
 #include <vector>
 #include <deque>
 
-class Rooms: public std::deque<ROOM_DATA *>
+class Rooms: public std::vector<ROOM_DATA *>
 {
 public:
 	static constexpr int UNDEFINED_ROOM_VNUM = -1;
