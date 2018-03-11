@@ -1586,10 +1586,6 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 	}
 	else if (IS_NPC(killer) || IS_NPC(victim))
 	{
-		// если чар наем, то не режем осторогу вообще, ибо нефиг
-		if (!can_use_feat(victim, SHADOW_STRIKE_FEAT))
-		    result = victim->get_skill(SKILL_AWAKE) / 2;
-		else
 		    result = victim->get_skill(SKILL_AWAKE);
 	}
 	else
