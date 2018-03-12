@@ -1573,9 +1573,7 @@ int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA 
 
 /**
 * Расчет влияния осторожки у victim против умений killer.
-* В данный момент учитывается случай 'наем против игрока', где осторожка считается
-* как скилл/2.5, т.е. 80% от дружа на тех же мортах/скилле без дальнейшего увеличения разницы.
-* У дружа в савингах от заклинаний идет доп. бонус от осторожки выше 80ти (чтобы не считали за баг).
+* В данный момент учитывается случай 'игрок против игрока', где осторожка считается как скилл/2
 */
 int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 {
@@ -1586,15 +1584,10 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 	}
 	else if (IS_NPC(killer) || IS_NPC(victim))
 	{
-		// если чар наем, то не режем осторогу вообще, ибо нефиг
-		if (!can_use_feat(victim, SHADOW_STRIKE_FEAT))
-		    result = victim->get_skill(SKILL_AWAKE) / 2;
-		else
-		    result = victim->get_skill(SKILL_AWAKE);
+		result = victim->get_skill(SKILL_AWAKE);
 	}
 	else
 	{
-		// Нафига резали так сильно осторогу у наемов в ПК ? Наемник - ПК профессия
 		result = victim->get_skill(SKILL_AWAKE) / 2;
 	}
 	return result;
