@@ -981,6 +981,11 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 		if (i->get_carried_by())
 		{
+			if (!VALID_RNUM(IN_ROOM(i->get_carried_by())))
+			{
+				log("SYSERR: Illegal room %d, char %s", IN_ROOM(i->get_carried_by()), i->get_carried_by()->get_name().c_str());
+				return false;
+			}
 			if (SECT(IN_ROOM(i->get_carried_by())) == SECT_SECRET
 				|| IS_IMMORTAL(i->get_carried_by()))
 			{
