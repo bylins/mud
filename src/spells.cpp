@@ -14,6 +14,7 @@
 
 #include "spells.h"
 
+#include "coredump.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "char_obj_utils.inl"
@@ -981,13 +982,15 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 		if (i->get_carried_by())
 		{
-			if (!VALID_RNUM(IN_ROOM(i->get_carried_by())))
+			const auto carried_by = i->get_carried_by();
+			if (!VALID_RNUM(IN_ROOM(carried_by)))
 			{
-				log("SYSERR: Illegal room %d, char %s", IN_ROOM(i->get_carried_by()), i->get_carried_by()->get_name().c_str());
+				debug::coredump();
+				log("SYSERR: Illegal room %d, char %s. Создана кора для исследований", IN_ROOM(carried_by), carried_by->get_name().c_str());
 				return false;
 			}
-			if (SECT(IN_ROOM(i->get_carried_by())) == SECT_SECRET
-				|| IS_IMMORTAL(i->get_carried_by()))
+			if (SECT(IN_ROOM(carried_by)) == SECT_SECRET
+				|| IS_IMMORTAL(carried_by))
 			{
 				return false;
 			}
@@ -1000,13 +1003,14 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 		if (i->get_carried_by())
 		{
-			if (world[IN_ROOM(i->get_carried_by())]->zone == world[ch->in_room]->zone
-				|| !IS_NPC(i->get_carried_by())
+			const auto carried_by = i->get_carried_by();
+			if (world[IN_ROOM(carried_by)]->zone == world[ch->in_room]->zone
+				|| !IS_NPC(carried_by)
 				|| IS_GOD(ch))
 			{
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
 					i->get_short_description().c_str(),
-					GET_OBJ_POLY_1(ch, i), PERS(i->get_carried_by(), ch, 1));
+					GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
 			}
 			else
 			{
@@ -1055,9 +1059,10 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 				{
 					if (i->get_in_obj()->get_carried_by())
 					{
+						const auto carried_by = i->get_in_obj()->get_carried_by();
 						if (IS_NPC(i->get_in_obj()->get_carried_by())
 							&& (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-								|| world[IN_ROOM(i->get_in_obj()->get_carried_by())]->zone != world[ch->in_room]->zone))
+								|| world[IN_ROOM(carried_by)]->zone != world[ch->in_room]->zone))
 						{
 							return false;
 						}
@@ -1093,18 +1098,19 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		else if (i->get_worn_by())
 		{
-			if ((IS_NPC(i->get_worn_by())
+			const auto worn_by = i->get_worn_by();
+			if ((IS_NPC(worn_by)
 					&& !i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-					&& world[IN_ROOM(i->get_worn_by())]->zone == world[ch->in_room]->zone)
-				|| (!IS_NPC(i->get_worn_by())
-					&& GET_LEVEL(i->get_worn_by()) < LVL_IMMORT)
+					&& world[IN_ROOM(worn_by)]->zone == world[ch->in_room]->zone)
+				|| (!IS_NPC(worn_by)
+					&& GET_LEVEL(worn_by) < LVL_IMMORT)
 				|| IS_GOD(ch)
 				|| bloody_corpse)
 			{
 				sprintf(buf, "%s надет%s на %s.\r\n",
 					i->get_short_description().c_str(),
 					GET_OBJ_SUF_6(i),
-					PERS(i->get_worn_by(), ch, 3));
+					PERS(worn_by, ch, 3));
 			}
 			else
 			{
