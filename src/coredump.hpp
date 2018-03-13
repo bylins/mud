@@ -10,7 +10,7 @@
 
 namespace debug
 {
-	void coredump()
+	inline void coredump()
 	{
 #ifndef WIN32
 		pid_t pid = fork();
