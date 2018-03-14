@@ -2538,7 +2538,8 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 			object->set_extra_flag(EExtraFlag::ITEM_DECAY);
 		}
 
-		if (object->get_script())
+		if (object->get_script()
+			&& !object->get_script()->trig_list.empty())
 		{
 			object->set_destroyer(script_destroy_timer);
 		}
