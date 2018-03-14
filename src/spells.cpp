@@ -986,7 +986,8 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			if (!VALID_RNUM(IN_ROOM(carried_by)))
 			{
 				debug::coredump();
-				log("SYSERR: Illegal room %d, char %s. Создана кора для исследований", IN_ROOM(carried_by), carried_by->get_name().c_str());
+				sprintf(buf, "SYSERR: Illegal room %d, char %s. Создана кора для исследований", IN_ROOM(carried_by), carried_by->get_name().c_str());
+				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 				return false;
 			}
 			if (SECT(IN_ROOM(carried_by)) == SECT_SECRET
