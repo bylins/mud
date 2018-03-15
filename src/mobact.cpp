@@ -77,9 +77,7 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 
 // local functions
-void mobile_activity(int activity_level, int missed_pulses);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
-
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
 

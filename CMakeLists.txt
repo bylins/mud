@@ -5,6 +5,7 @@ project(bylins CXX)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
+	src/heartbeat.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -153,9 +154,15 @@ set(SOURCES
 	src/global.objects.cpp
 	src/shops.implementation.cpp
 	src/world.characters.cpp
-	src/debug.utils.cpp)
+	src/debug.utils.cpp
+	src/speedwalks.cpp)
 
 set(HEADERS
+	src/weather.hpp
+	src/limits.hpp
+	src/act.wizard.hpp
+	src/heartbeat.hpp
+	src/speedwalks.hpp
 	src/world.characters.hpp
 	src/shops.implementation.hpp
 	src/global.objects.hpp

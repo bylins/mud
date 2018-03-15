@@ -23,6 +23,10 @@ int Crash_offer_rent(CHAR_DATA * ch, CHAR_DATA * receptionist, int display, int 
 void Crash_rentsave(CHAR_DATA * ch, int cost);
 void Crash_crashsave(CHAR_DATA * ch);
 int Crash_write_timer(const std::size_t index);
+void Crash_rent_time(int dectime);
+void Crash_save_all(void);
+void Crash_frac_save_all(int frac_part);
+void Crash_frac_rent_time(int frac_part);
 
 namespace ObjSaveSync
 {

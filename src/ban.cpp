@@ -19,6 +19,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "global.objects.hpp"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -29,7 +30,6 @@
 #include <iomanip>
 
 extern DESCRIPTOR_DATA *descriptor_list;
-extern BanList *ban;
 
 // local functions
 void load_banned(void);
@@ -1349,5 +1349,8 @@ void RegisterSystem::save()
 	file.close();
 	need_save = 0;
 }
+
+// contains list of banned ip's and proxies + interface
+BanList*& ban = GlobalObjects::ban();
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

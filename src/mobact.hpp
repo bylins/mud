@@ -4,6 +4,7 @@
 class CHAR_DATA;	// to avoid inclusion of "char.hpp"
 
 void clearMemory(CHAR_DATA* ch);
+void mobile_activity(int activity_level, int missed_pulses);
 
 #endif // __MOBACT_HPP__
 

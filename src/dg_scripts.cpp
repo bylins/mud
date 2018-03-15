@@ -11,6 +11,7 @@
 #include "dg_scripts.h"
 
 #include "world.characters.hpp"
+#include "heartbeat.hpp"
 #include "find.obj.id.by.vnum.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
@@ -4473,7 +4474,6 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, const cmdlist
 	char c;
 
 	extern TIME_INFO_DATA time_info;
-	extern unsigned long dg_global_pulse;
 
 	if (trig->get_attach_type() == MOB_TRIGGER
 		&& IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
@@ -4505,8 +4505,8 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, const cmdlist
 		ntime = (min * SECS_PER_MUD_HOUR * PASSES_PER_SEC) / 60;
 
 		// calculate pulse of day of current time
-		time = (dg_global_pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)) +
-			   (time_info.hours * SECS_PER_MUD_HOUR * PASSES_PER_SEC);
+		time = (heartbeat.global_pulse_number() % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))
+			+ (time_info.hours * SECS_PER_MUD_HOUR * PASSES_PER_SEC);
 
 		if (time >= ntime)	// adjust for next day
 			time = (SECS_PER_MUD_DAY * PASSES_PER_SEC) - time + ntime;
@@ -5043,16 +5043,11 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 
 	if (result <= -1)
 	{
-		debug::coredump();
-//		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		sprintf(buf2, "calcuid target not found vnum: %s, count: %d. Создана кора для исследований", vnum, count_num + 1);
+		sprintf(buf2, "calcuid target not found vnum: %s, count: %d.", vnum, count_num + 1);
 		trig_log(trig, buf2);
 
-//		std::stringstream ss;
-//		debug::log_queue("characters").print_queue(ss, "characters");
-//		trig_log(trig, ss.str().c_str());
-
 		*uid = '\0';
+
 		return;
 	}
 

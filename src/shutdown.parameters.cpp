@@ -1,5 +1,6 @@
 #include "shutdown.parameters.hpp"
 
+#include "global.objects.hpp"
 #include "sysdep.h"
 
 ShutdownParameters::ShutdownParameters() :
@@ -39,6 +40,6 @@ void ShutdownParameters::cancel_shutdown()
 	m_shutdown_time = 0;
 }
 
-ShutdownParameters shutdown_parameters;
+ShutdownParameters& shutdown_parameters = GlobalObjects::shutdown_parameters();
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

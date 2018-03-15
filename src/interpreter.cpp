@@ -125,7 +125,6 @@ extern const char *race_types_vik[];
 extern const char *kin_types[];
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
-extern BanList *ban;
 extern char *name_rules;
 
 // external functions

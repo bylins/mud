@@ -7,6 +7,22 @@
 #include <cstdio>
 #include <array>
 
+/*
+* Should the game automatically save people?  (i.e., save player data
+* every 4 kills (on average), and Crash-save as defined below.  This
+* option has an added meaning past bpl13.  If auto_save is YES, then
+* the 'save' command will be disabled to prevent item duplication via
+* game crashes.
+*/
+constexpr bool AUTO_SAVE = true;
+
+/*
+* if auto_save (above) is yes, how often (in minutes) should the MUD
+* Crash-save people's objects?   Also, this number indicates how often
+* the MUD will Crash-save players' houses.
+*/
+constexpr int AUTOSAVE_TIME = 5;
+
 namespace pugi
 {
 	class xml_node;
