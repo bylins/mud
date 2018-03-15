@@ -66,6 +66,8 @@ char *fname(const char *namelist);
 int get_number(char **name);
 int get_number(std::string &name);
 
+room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep = false);
+
 // ******** objects *********** //
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch);

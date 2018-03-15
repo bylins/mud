@@ -2067,14 +2067,15 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		sprintf(buf, "Таймер: %d\r\n", j->get_timer());
 	send_to_char(buf, ch);
 
-	strcpy(buf, "Находится : ");
-	if ((j->get_in_room() == NOWHERE) || !is_grgod)
+	auto room = get_room_where_obj(j);
+	strcpy(buf, "Находится в комнате : ");
+	if (room == NOWHERE || !is_grgod)
 	{
 		strcat(buf, "нигде");
 	}
 	else
 	{
-		sprintf(buf2, "%d", GET_ROOM_VNUM(j->get_in_room()));
+		sprintf(buf2, "%d", room);
 		strcat(buf, buf2);
 	}
 	// NOTE: In order to make it this far, we must already be able to see the
