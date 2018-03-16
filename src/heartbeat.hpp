@@ -1,27 +1,54 @@
 #ifndef __HEARTBEAT_HPP__
 #define __HEARTBEAT_HPP__
 
+#include <functional>
+#include <queue>
+#include <list>
+#include <memory>
+
+class AbstractPulseAction
+{
+public:
+	using shared_ptr = std::shared_ptr<AbstractPulseAction>;
+
+	virtual ~AbstractPulseAction() {}
+
+	virtual void perform(int pulse_number, int missed_pulses) = 0;
+};
+
 class Heartbeat
 {
 public:
+	using pulse_action_t = AbstractPulseAction::shared_ptr;
+
+	struct PulseStep
+	{
+		PulseStep(const std::string& name, const int modulo, const int offset, const pulse_action_t& action);
+
+		std::string name;
+		int modulo;
+		int offset;
+		pulse_action_t action;
+	};
+
+	using steps_t = std::list<PulseStep>;
+
 	Heartbeat();
-	~Heartbeat();
 
 	void operator()(const int missed_pulses);
 
 	auto pulse_number() const { return m_pulse_number; }
 	auto global_pulse_number() const { return m_global_pulse_number; }
-	void reset_last_rent_check();
 
 private:
-	void pulse(const int missed_pulses);
-	void check_external_reboot_trigget();
+	using pulse_t = int;
 
-	int m_mins_since_crashsave;
-	int m_pulse_number;
+	void advance_pulses_number();
+	void pulse(const int missed_pulses);
+
+	steps_t m_steps;
+	pulse_t m_pulse_number;
 	unsigned long m_global_pulse_number;	// number of pulses since game start
-	long m_last_rent_check;	// at what time checked rented time
-	class ExternalTriggerChecker* m_external_trigger_checker;	// "class" to avoid inclusion of external.trigger.hpp
 };
 
 extern Heartbeat& heartbeat;

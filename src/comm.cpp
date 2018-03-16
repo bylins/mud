@@ -1514,7 +1514,6 @@ void game_loop(socket_t mother_desc)
 	null_time.tv_usec = 0;
 	opt_time.tv_usec = OPT_USEC;
 	opt_time.tv_sec = 0;
-	heartbeat.reset_last_rent_check();
 
 #ifdef HAS_EPOLL
 	events = (struct epoll_event *)calloc(1, MAXEVENTS * sizeof(struct epoll_event));

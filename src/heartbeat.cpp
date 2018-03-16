@@ -89,62 +89,10 @@ void record_usage(void)
 #endif
 }
 
-struct InternalStructures
+// pulse steps
+namespace
 {
-};
-
-Heartbeat::Heartbeat() :
-	m_mins_since_crashsave(0),
-	m_pulse_number(0),
-	m_global_pulse_number(0),
-	m_last_rent_check(0),
-	m_external_trigger_checker(nullptr)
-{
-}
-
-Heartbeat::~Heartbeat()
-{
-	delete m_external_trigger_checker;
-}
-
-void Heartbeat::operator()(const int missed_pulses)
-{
-	utils::CExecutionTimer timer;
-	pulse(missed_pulses);
-	const auto execution_time = timer.delta();
-	if (PASSES_PER_SEC / 60.0 < execution_time.count())
-	{
-		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
-			pulse_number(), execution_time.count(), missed_pulses);
-	}
-}
-
-void Heartbeat::reset_last_rent_check()
-{
-	m_last_rent_check = time(NULL);
-}
-
-void Heartbeat::pulse(const int missed_pulses)
-{
-	int uptime_minutes = 0;
-	long check_at = 0;
-
-	m_pulse_number++;
-	m_global_pulse_number++;
-
-	// Roll pulse over after 10 hours
-	if (m_pulse_number >= (600 * 60 * PASSES_PER_SEC))
-	{
-		m_pulse_number = 0;
-	}
-
-	if (!(m_pulse_number % PASSES_PER_SEC))
-	{
-		const auto boot_time = GlobalObjects::shutdown_parameters().get_boot_time();
-		uptime_minutes = ((time(NULL) - boot_time) / 60);
-	}
-
-	if ((m_pulse_number % (PASSES_PER_SEC)) == 0)
+	void process_speedwalks()
 	{
 		for (auto &sw : GlobalObjects::speedwalks())
 		{
@@ -180,62 +128,66 @@ void Heartbeat::pulse(const int missed_pulses)
 		}
 	}
 
-	// таблица меняется каждые два часа
-	if ((m_pulse_number % (PASSES_PER_SEC * 120 * 60)) == 0)
+	class SimpleCall : public AbstractPulseAction
 	{
-		GlobalDrop::reload_tables();
+	public:
+		using call_t = std::function<void()>;
+
+		SimpleCall(call_t call): m_call(call) {}
+
+		virtual void perform(int, int) override { m_call(); }
+
+	private:
+		call_t m_call;
+	};
+
+	class MobActCall : public AbstractPulseAction
+	{
+	public:
+		virtual void perform(int pulse_number, int) override { mobile_activity(pulse_number, 10); }
+	};
+
+	class InspectCall : public AbstractPulseAction
+	{
+	public:
+		virtual void perform(int, int missed_pulses) override;
+	};
+
+	void InspectCall::perform(int, int missed_pulses)
+	{
+		if (0 == missed_pulses
+			&& 0 < inspect_list.size())
+		{
+			inspecting();
+		}
 	}
 
-	process_events();
-
-	if (!((m_pulse_number + 1) % PULSE_DG_SCRIPT))  	//log("Triggers check...");
+	class SetAllInspectCall : public AbstractPulseAction
 	{
-		script_trigger_check();
+	public:
+		virtual void perform(int, int missed_pulses) override;
+	};
+
+	void SetAllInspectCall::perform(int, int missed_pulses)
+	{
+		if (0 == missed_pulses
+			&& 0 < setall_inspect_list.size())
+		{
+			setall_inspect();
+		}
 	}
 
-	if (!((m_pulse_number + 2) % (60 * PASSES_PER_SEC)))
+	class CheckScheduledRebootCall : public AbstractPulseAction
 	{
-		sanity_check();
-	}
+	public:
+		virtual void perform(int, int) override;
+	};
 
-	if (!(m_pulse_number % (40 * PASSES_PER_SEC)))
+	void CheckScheduledRebootCall::perform(int, int)
 	{
-		check_idle_passwords();
-	}
+		const auto boot_time = GlobalObjects::shutdown_parameters().get_boot_time();
+		const auto uptime_minutes = ((time(NULL) - boot_time) / 60);
 
-	// экономим процессор. mobile_activity() дергать каждый пульс совсем не обязательно.
-	// второй аргумент -- период вызова в пульсах
-	// желательно, чтобы этот период был таким, чтобы различные задержки,
-	// выраженные в количестве пульсов, были ему кратны.
-	if (!(m_pulse_number % 10))
-	{
-		mobile_activity(m_pulse_number, 10);
-	}
-
-	if ((missed_pulses == 0) && (inspect_list.size() > 0))
-	{
-		inspecting();
-	}
-
-	if ((missed_pulses == 0) && (setall_inspect_list.size() > 0))
-	{
-		setall_inspect();
-	}
-
-	if (!(m_pulse_number % (2 * PASSES_PER_SEC)))
-	{
-		DeathTrap::activity();
-		underwater_check();
-		ClanSystem::check_player_in_house();
-	}
-
-	if (!((m_pulse_number + 3) % PULSE_VIOLENCE))
-	{
-		perform_violence();
-	}
-
-	if (!(m_pulse_number % (30 * PASSES_PER_SEC)))
-	{
 		if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
 			&& shutdown_parameters.get_shutdown_timeout() == 0)
 		{
@@ -245,353 +197,303 @@ void Heartbeat::pulse(const int missed_pulses)
 		}
 	}
 
-	if (!(m_pulse_number % PASSES_PER_SEC))
+	class CheckTriggeredRebootCall : public AbstractPulseAction
 	{
-		check_external_reboot_trigget();
-	}
+	public:
+		virtual void perform(int, int) override;
 
-	if (!(m_pulse_number % (AUCTION_PULSES * PASSES_PER_SEC)))  	//log("Auction update...");
+	private:
+		std::unique_ptr<ExternalTriggerChecker> m_external_trigger_checker;
+	};
+
+	void CheckTriggeredRebootCall::perform(int, int)
 	{
-		tact_auction();
-	}
-
-	if (!(m_pulse_number % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))
-	{
-		RoomSpells::room_affect_update();
-	}
-
-	if (!(m_pulse_number % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC)))
-	{
-		player_affect_update();
-	}
-
-	if (!((m_pulse_number + PASSES_PER_SEC - 1) % (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		hour_update();
-		Bonus::timer_bonus();
-		weather_and_time(1);
-		paste_mobiles();
-	}
-
-	if (!((m_pulse_number + 5) % PULSE_ZONE))
-	{
-		zone_update();
-	}
-
-	if (!((m_pulse_number + 49) % (60 * 60 * PASSES_PER_SEC)))
-	{
-		MoneyDropStat::print_log();
-		ZoneExpStat::print_log();
-		print_rune_log();
-	}
-
-	if (!((m_pulse_number + 57) % (60 * mob_stat::SAVE_PERIOD * PASSES_PER_SEC)))
-	{
-		mob_stat::save();
-	}
-
-	if (!((m_pulse_number + 52) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
-	{
-		SetsDrop::save_drop_table();
-	}
-
-	// раз в 10 минут >> ///////////////////////////////////////////////////////////
-
-	// если здесь прибавляется больше 25 пульсов - это фигня, потому что
-	// перекрываться с другими тайм-фреймами они так или иначе будут в любом случае
-	// все на разные пульсы не раскидаешь внутри одной секунды, а многие функции
-	// сами по себе работают намного дольше 1го пульса
-	// здесь важно то, что они не перекрываются друг другом в момент тика
-
-	// сохранение лога клан-хранов
-	if (!((m_pulse_number + 50) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		ClanSystem::save_chest_log();
-	}
-
-	// сохранение клан-хранов для ингров
-	if (!((m_pulse_number + 48) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		ClanSystem::save_ingr_chests();
-	}
-
-	// убитые мобы для глобал-дропа
-	if (!((m_pulse_number + 47) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
-	{
-		GlobalDrop::save();
-	}
-
-	// снятие денег за шмот в клановых сундуках
-	if (!((m_pulse_number + 46) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::ChestUpdate();
-	}
-
-	// сохранение клан-хранов
-	if (!((m_pulse_number + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::SaveChestAll();
-	}
-
-	// и самих кланов
-	if (!((m_pulse_number + 40) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::ClanSave();
-	}
-
-	//Polud организуем зачистку после праздника
-	if (!((m_pulse_number + 39) % (Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC)))
-	{
-		Celebrates::sanitize();
-	}
-
-	// раз в 5 минут >> ////////////////////////////////////////////////////////////
-
-	if (!((m_pulse_number + 37) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		record_usage();
-	}
-
-	if (!((m_pulse_number + 36) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
-	}
-
-	// вывод иммам о неодобренных именах и титулах
-	if (!((m_pulse_number + 35) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		god_work_invoice();
-	}
-
-	// сейв титулов, ждущих одобрения
-	if (!((m_pulse_number + 34) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		TitleSystem::save_title_list();
-	}
-
-	// сейв зареганных мыл
-	if (!((m_pulse_number + 33) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		RegisterSystem::save();
-	}
-
-	// раз в минуту >> /////////////////////////////////////////////////////////////
-
-	// сохранение почты (при наличии изменений)
-	if (!((m_pulse_number + 32) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		mail::save();
-	}
-
-	// проверка необходимости обновления динамической справки
-	if (!((m_pulse_number + 31) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		HelpSystem::check_update_dynamic();
-	}
-
-	// обновление таблицы дропа сетов
-	if (!((m_pulse_number + 30) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		SetsDrop::reload_by_timer();
-	}
-
-	// клан-пк
-	if (!((m_pulse_number + 29) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Clan::save_pk_log();
-	}
-
-	// очистка спурженных char_data и obj_data
-	if (!((m_pulse_number + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		character_list.purge();
-		world_objects.purge();
-	}
-
-	// апдейт таймеров в личных хранах + пурж чего надо
-	if (!((m_pulse_number + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Depot::update_timers();
-	}
-	// апдейт таймеров на почте + разворот посылок/пурж
-	if (!((m_pulse_number + 24) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Parcel::update_timers();
-	}
-
-	// апдейт таймеров славы
-	if (!((m_pulse_number + 23) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Glory::timers_update();
-	}
-
-	// сохранение файла славы
-	if (!((m_pulse_number + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Glory::save_glory();
-	}
-
-	// сохранение онлайновых списков шмота
-	if (!((m_pulse_number + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Depot::save_all_online_objs();
-	}
-
-	// сохранение таймер-инфы всех шмоток в общий файл
-	if (!((m_pulse_number + 17) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Depot::save_timedata();
-	}
-
-	if (!((m_pulse_number + 16) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		mobile_affect_update();
-	}
-
-	if (!((m_pulse_number + 11) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		obj_point_update();
-		bloody::update();
-	}
-
-	if (!((m_pulse_number + 6) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		room_point_update();
-	}
-
-	if (!((m_pulse_number + 5) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Temporary_Spells::update_times();
-	}
-
-	if (!((m_pulse_number + 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		exchange_point_update();
-	}
-
-	if (!((m_pulse_number + 1) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		flush_player_index();
-	}
-
-	if (!((m_pulse_number + PASSES_PER_SEC - 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		point_update();
-	}
-
-	// << раз в минуту /////////////////////////////////////////////////////////////
-
-	if (!(m_pulse_number % PASSES_PER_SEC))
-	{
-		beat_points_update(m_pulse_number / PASSES_PER_SEC);
-	}
-
-#if defined WITH_SCRIPTING
-	if (!(m_pulse_number % scripting::HEARTBEAT_PASSES))
-	{
-		scripting::heartbeat();
-	}
-#endif
-
-	if (FRAC_SAVE && AUTO_SAVE && !((m_pulse_number + 7) % PASSES_PER_SEC))  	// 1 game second
-	{
-		Crash_frac_save_all((m_pulse_number / PASSES_PER_SEC) % PLAYER_SAVE_ACTIVITY);
-		Crash_frac_rent_time((m_pulse_number / PASSES_PER_SEC) % OBJECT_SAVE_ACTIVITY);
-	}
-
-	if (EXCHANGE_AUTOSAVETIME && AUTO_SAVE && !((m_pulse_number + 9) % (EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC)))
-	{
-		exchange_database_save();
-	}
-
-	if (EXCHANGE_AUTOSAVEBACKUPTIME && !((m_pulse_number + 9) % (EXCHANGE_AUTOSAVEBACKUPTIME * PASSES_PER_SEC)))
-	{
-		exchange_database_save(true);
-	}
-
-	if (AUTO_SAVE && !((m_pulse_number + 9) % (60 * PASSES_PER_SEC)))
-	{
-		SaveGlobalUID();
-	}
-
-	if (!FRAC_SAVE && AUTO_SAVE && !((m_pulse_number + 11) % (60 * PASSES_PER_SEC)))  	// 1 minute
-	{
-		if (++m_mins_since_crashsave >= AUTOSAVE_TIME)
+		if (!m_external_trigger_checker)
 		{
-			m_mins_since_crashsave = 0;
-			Crash_save_all();
-			check_at = time(NULL);
+			m_external_trigger_checker = std::make_unique<ExternalTriggerChecker>(runtime_config.external_reboot_trigger_file_name());
+		}
 
-			if (m_last_rent_check > check_at)
-			{
-				m_last_rent_check = check_at;
-			}
-
-			if (((check_at - m_last_rent_check) / 60))
-			{
-				Crash_rent_time((check_at - m_last_rent_check) / 60);
-				m_last_rent_check = time(NULL) - (check_at - m_last_rent_check) % 60;
-			}
+		if (m_external_trigger_checker
+			&& m_external_trigger_checker->check())
+		{
+			mudlog("Сработал внешний триггер перезагрузки.", DEF, LVL_IMPL, SYSLOG, true);
+			shutdown_parameters.reboot();
 		}
 	}
 
-	// обновление и сохранение клановой экспы
-	if (!((m_pulse_number + 14) % (60 * CLAN_EXP_UPDATE_PERIOD * PASSES_PER_SEC)))
+	class BeatPointsUpdateCall : public AbstractPulseAction
+	{
+	public:
+		virtual void perform(int pulse_number, int) override { beat_points_update(pulse_number / PASSES_PER_SEC); }
+	};
+
+	class CrashFracSaveCall : public AbstractPulseAction
+	{
+	public:
+		virtual void perform(int pulse_number, int) override;
+	};
+
+	void CrashFracSaveCall::perform(int pulse_number, int)
+	{
+		if (FRAC_SAVE && AUTO_SAVE)
+		{
+			Crash_frac_save_all((pulse_number / PASSES_PER_SEC) % PLAYER_SAVE_ACTIVITY);
+			Crash_frac_rent_time((pulse_number / PASSES_PER_SEC) % OBJECT_SAVE_ACTIVITY);
+		}
+	}
+
+	class ExchangeDatabaseSaveCall : public AbstractPulseAction
+	{
+	public:
+		virtual void perform(int, int) override;
+	};
+
+	void ExchangeDatabaseSaveCall::perform(int, int)
+	{
+		if (EXCHANGE_AUTOSAVETIME && AUTO_SAVE)
+		{
+			exchange_database_save();
+		}
+	}
+
+	class ExchangeDatabaseBackupSaveCall : public AbstractPulseAction
+	{
+	public:
+		virtual void perform(int, int) override;
+	};
+
+	void ExchangeDatabaseBackupSaveCall::perform(int, int)
+	{
+		if (EXCHANGE_AUTOSAVEBACKUPTIME)
+		{
+			exchange_database_save(true);
+		}
+	}
+
+	class GlobalSaveUIDCall : public AbstractPulseAction
+	{
+	public:
+		virtual void perform(int, int) override;
+	};
+
+	void GlobalSaveUIDCall::perform(int, int)
+	{
+		if (AUTO_SAVE)
+		{
+			SaveGlobalUID();
+		}
+	}
+
+	class CrashSaveCall : public AbstractPulseAction
+	{
+	public:
+		CrashSaveCall();
+
+		virtual void perform(int, int) override;
+
+	private:
+		int m_mins_since_crashsave;
+		long m_last_rent_check;	// at what time checked rented time
+	};
+
+	CrashSaveCall::CrashSaveCall() :
+		m_mins_since_crashsave(0),
+		m_last_rent_check(time(NULL))
+	{
+	}
+
+	void CrashSaveCall::perform(int, int)
+	{
+		if (FRAC_SAVE || !AUTO_SAVE)
+		{
+			return;
+		}
+
+		if (++m_mins_since_crashsave < AUTOSAVE_TIME)
+		{
+			return;
+		}
+
+		m_mins_since_crashsave = 0;
+		Crash_save_all();
+		const auto check_at = time(NULL);
+
+		if (m_last_rent_check > check_at)
+		{
+			m_last_rent_check = check_at;
+		}
+
+		if (((check_at - m_last_rent_check) / 60))
+		{
+			Crash_rent_time((check_at - m_last_rent_check) / 60);
+			m_last_rent_check = time(NULL) - (check_at - m_last_rent_check) % 60;
+		}
+	}
+
+	class UpdateClanExpCall : public AbstractPulseAction
+	{
+	public:
+		virtual void perform(int, int) override;
+	};
+
+	void UpdateClanExpCall::perform(int, int)
 	{
 		update_clan_exp();
 		save_clan_exp();
 	}
 
-	// оповещение о скорой кончине денег в дружине
-	if (!((m_pulse_number + 15) % (60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC)))
+	class SpellUsageCall : public AbstractPulseAction
 	{
-		Clan::ChestInvoice();
-	}
-
-	// обновление статов экспы в топе кланов для тех, кто вырубил показ на лету
-	if (!((m_pulse_number + 16) % (60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::SyncTopExp();
-	}
-
-	// сохранение файла чексумм, если в нем были изменения
-	if (!((m_pulse_number + 23) % (PASSES_PER_SEC)))
-	{
-		FileCRC::save();
-	}
-
-	//Polud раз в час проверяем не пришло ли время сохранить статистику
-	if (SpellUsage::isActive && (!(m_pulse_number % (60 * 60 * PASSES_PER_SEC))))
-	{
-		time_t tmp_time = time(0);
-		if ((tmp_time - SpellUsage::start) >= (60 * 60 * 24))
+	public:
+		virtual void perform(int pulse_number, int missed_pulses) override
 		{
-			SpellUsage::save();
-			SpellUsage::clear();
+			if (!SpellUsage::isActive)
+			{
+				return;
+			}
+
+			time_t tmp_time = time(0);
+			if ((tmp_time - SpellUsage::start) >= (60 * 60 * 24))
+			{
+				SpellUsage::save();
+				SpellUsage::clear();
+			}
+		}
+	};
+
+	Heartbeat::steps_t& pulse_steps()
+	{
+		static Heartbeat::steps_t pulse_steps_storage = {
+			Heartbeat::PulseStep("Speed walks processing", PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(process_speedwalks)),
+			Heartbeat::PulseStep("Global drop: tables reloading", PASSES_PER_SEC * 120 * 60, 0, std::make_shared<SimpleCall>(GlobalDrop::reload_tables)),
+			Heartbeat::PulseStep("Events processing", 1, 0, std::make_shared<SimpleCall>(process_events)),
+			Heartbeat::PulseStep("Triggers check", PULSE_DG_SCRIPT, 1, std::make_shared<SimpleCall>(script_trigger_check)),
+			Heartbeat::PulseStep("Sanity check", 60 * PASSES_PER_SEC, 2, std::make_shared<SimpleCall>(sanity_check)),
+			Heartbeat::PulseStep("Check idle passwords", 40 * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(check_idle_passwords)),
+			Heartbeat::PulseStep("Mobile activity", 10, 0, std::make_shared<MobActCall>()),
+			Heartbeat::PulseStep("Inspecting", 1, 0, std::make_shared<InspectCall>()),
+			Heartbeat::PulseStep("Set all inspecting", 1, 0, std::make_shared<SetAllInspectCall>()),
+			Heartbeat::PulseStep("Death trap activity", 2 * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(DeathTrap::activity)),
+			Heartbeat::PulseStep("Underwater check", 2 * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(underwater_check)),
+			Heartbeat::PulseStep("Clan system: check player in house", 2 * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(ClanSystem::check_player_in_house)),
+			Heartbeat::PulseStep("Violence performing", PULSE_VIOLENCE, 3, std::make_shared<SimpleCall>(perform_violence)),
+			Heartbeat::PulseStep("Scheduled reboot checking", 30 * PASSES_PER_SEC, 0, std::make_shared<CheckScheduledRebootCall>()),
+			Heartbeat::PulseStep("Check of reboot trigger", PASSES_PER_SEC, 0, std::make_shared<CheckTriggeredRebootCall>()),
+			Heartbeat::PulseStep("Auction update", AUCTION_PULSES * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(tact_auction)),
+			Heartbeat::PulseStep("Room affect update", SECS_PER_ROOM_AFFECT * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(RoomSpells::room_affect_update)),
+			Heartbeat::PulseStep("Player affect update", SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(player_affect_update)),
+			Heartbeat::PulseStep("Hour update", TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC, PASSES_PER_SEC - 4, std::make_shared<SimpleCall>(hour_update)),
+			Heartbeat::PulseStep("Timer bonus", TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC, PASSES_PER_SEC - 3, std::make_shared<SimpleCall>(Bonus::timer_bonus)),
+			Heartbeat::PulseStep("Weather and time", TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC, PASSES_PER_SEC - 2, std::make_shared<SimpleCall>([]() { weather_and_time(1); })),
+			Heartbeat::PulseStep("Paste mobiles", TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC, PASSES_PER_SEC - 1, std::make_shared<SimpleCall>(paste_mobiles)),
+			Heartbeat::PulseStep("Zone update", PULSE_ZONE, 5, std::make_shared<SimpleCall>(zone_update)),
+			Heartbeat::PulseStep("Money drop stat: print log", 60 * 60 * PASSES_PER_SEC, 49, std::make_shared<SimpleCall>(MoneyDropStat::print_log)),
+			Heartbeat::PulseStep("Zone exp stat: print log", 60 * 60 * PASSES_PER_SEC, 49, std::make_shared<SimpleCall>(ZoneExpStat::print_log)),
+			Heartbeat::PulseStep("Print rune log", 60 * 60 * PASSES_PER_SEC, 49, std::make_shared<SimpleCall>(print_rune_log)),
+			Heartbeat::PulseStep("Mob stats saving", 60 * mob_stat::SAVE_PERIOD * PASSES_PER_SEC, 57, std::make_shared<SimpleCall>(mob_stat::save)),
+			Heartbeat::PulseStep("Sets drop table saving", 60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC, 52, std::make_shared<SimpleCall>(SetsDrop::save_drop_table)),
+			Heartbeat::PulseStep("Clan system: chest log saving", 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC, 50, std::make_shared<SimpleCall>(ClanSystem::save_chest_log)),
+			Heartbeat::PulseStep("Clan system: ingredients chests saving", 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC, 48, std::make_shared<SimpleCall>(ClanSystem::save_ingr_chests)),
+			Heartbeat::PulseStep("Global drop: saving", 60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC, 47, std::make_shared<SimpleCall>(GlobalDrop::save)),
+			Heartbeat::PulseStep("Clan: chest update", 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC, 46, std::make_shared<SimpleCall>(Clan::ChestUpdate)),
+			Heartbeat::PulseStep("Clan: save chest all", 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC, 44, std::make_shared<SimpleCall>(Clan::SaveChestAll)),
+			Heartbeat::PulseStep("Clan: clan save", 60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC, 40, std::make_shared<SimpleCall>(Clan::ClanSave)),
+			Heartbeat::PulseStep("Celebrates: sanitize", Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC, 39, std::make_shared<SimpleCall>(Celebrates::sanitize)),
+			Heartbeat::PulseStep("Record usage", 5 * 60 * PASSES_PER_SEC, 37, std::make_shared<SimpleCall>(record_usage)),
+			Heartbeat::PulseStep("Reload proxy ban", 5 * 60 * PASSES_PER_SEC, 36, std::make_shared<SimpleCall>([]() { ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE); })),
+			Heartbeat::PulseStep("God work invoice", 5 * 60 * PASSES_PER_SEC, 35, std::make_shared<SimpleCall>(god_work_invoice)),
+			Heartbeat::PulseStep("Title system: title list saving", 5 * 60 * PASSES_PER_SEC, 34, std::make_shared<SimpleCall>(TitleSystem::save_title_list)),
+			Heartbeat::PulseStep("Register system: save", 5 * 60 * PASSES_PER_SEC, 33, std::make_shared<SimpleCall>(RegisterSystem::save)),
+			Heartbeat::PulseStep("Mail: save", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 32, std::make_shared<SimpleCall>(mail::save)),
+			Heartbeat::PulseStep("Help system: update dynamic checking", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 31, std::make_shared<SimpleCall>(HelpSystem::check_update_dynamic)),
+			Heartbeat::PulseStep("Sets drop: reload by timer", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 30, std::make_shared<SimpleCall>(SetsDrop::reload_by_timer)),
+			Heartbeat::PulseStep("Clan: save PK log", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 29, std::make_shared<SimpleCall>(Clan::save_pk_log)),
+			Heartbeat::PulseStep("Characters purging", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 28, std::make_shared<SimpleCall>([]() { character_list.purge(); })),
+			Heartbeat::PulseStep("Objects purging", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 27, std::make_shared<SimpleCall>([]() { world_objects.purge(); })),
+			Heartbeat::PulseStep("Depot: timers updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 25, std::make_shared<SimpleCall>(Depot::update_timers)),
+			Heartbeat::PulseStep("Parcel: timers updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 24, std::make_shared<SimpleCall>(Parcel::update_timers)),
+			Heartbeat::PulseStep("Glory: timers updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 23, std::make_shared<SimpleCall>(Glory::timers_update)),
+			Heartbeat::PulseStep("Glory: saving", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 22, std::make_shared<SimpleCall>(Glory::save_glory)),
+			Heartbeat::PulseStep("Depot: saving all online objects", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 21, std::make_shared<SimpleCall>(Depot::save_all_online_objs)),
+			Heartbeat::PulseStep("Depot: time data saving", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 17, std::make_shared<SimpleCall>(Depot::save_timedata)),
+			Heartbeat::PulseStep("Mobile affects updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 16, std::make_shared<SimpleCall>(mobile_affect_update)),
+			Heartbeat::PulseStep("Objects point updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 11, std::make_shared<SimpleCall>(obj_point_update)),
+			Heartbeat::PulseStep("Bloody: updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 10, std::make_shared<SimpleCall>(bloody::update)),
+			Heartbeat::PulseStep("Room point updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 6, std::make_shared<SimpleCall>(room_point_update)),
+			Heartbeat::PulseStep("Temporary spells: times updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 5, std::make_shared<SimpleCall>(Temporary_Spells::update_times)),
+			Heartbeat::PulseStep("Exchange point updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 2, std::make_shared<SimpleCall>(exchange_point_update)),
+			Heartbeat::PulseStep("Players index flushing", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 1, std::make_shared<SimpleCall>(flush_player_index)),
+			Heartbeat::PulseStep("Point updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, PASSES_PER_SEC - 5, std::make_shared<SimpleCall>(point_update)),
+			Heartbeat::PulseStep("Beat points updating", PASSES_PER_SEC, 0, std::make_shared<BeatPointsUpdateCall>()),
+#if defined WITH_SCRIPTING
+			Heartbeat::PulseStep("Scripting: heartbeat", scripting::HEARTBEAT_PASSES, 0, std::make_shared<SimpleCall>(scripting::heartbeat)),
+#endif
+			Heartbeat::PulseStep("Crash frac save", PASSES_PER_SEC, 7, std::make_shared<CrashFracSaveCall>()),
+			Heartbeat::PulseStep("Exchange database save", EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC, 9, std::make_shared<ExchangeDatabaseSaveCall>()),
+			Heartbeat::PulseStep("Exchange database backup save", EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC, 9, std::make_shared<ExchangeDatabaseBackupSaveCall>()),
+			Heartbeat::PulseStep("Global UID saving", 60 * PASSES_PER_SEC, 9, std::make_shared<GlobalSaveUIDCall>()),
+			Heartbeat::PulseStep("Crash save", 60 * PASSES_PER_SEC, 11, std::make_shared<CrashSaveCall>()),
+			Heartbeat::PulseStep("Clan experience updating", 60 * CLAN_EXP_UPDATE_PERIOD * PASSES_PER_SEC, 14, std::make_shared<UpdateClanExpCall>()),
+			Heartbeat::PulseStep("Clan: chest invoice", 60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC, 15, std::make_shared<SimpleCall>(Clan::ChestInvoice)),
+			Heartbeat::PulseStep("Clan: synchronize top experience", 60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC, 16, std::make_shared<SimpleCall>(Clan::SyncTopExp)),
+			Heartbeat::PulseStep("File CRC: saving", PASSES_PER_SEC, 23, std::make_shared<SimpleCall>([]() { FileCRC::save(false); })),
+			Heartbeat::PulseStep("Spells usage saving", 60 * 60 * PASSES_PER_SEC, 0, std::make_shared<SpellUsageCall>())
+		};
+
+		return pulse_steps_storage;
+	}
+}
+
+Heartbeat::Heartbeat() :
+	m_steps(pulse_steps()),
+	m_pulse_number(0),
+	m_global_pulse_number(0)
+{
+}
+
+void Heartbeat::operator()(const int missed_pulses)
+{
+	utils::CExecutionTimer timer;
+	pulse(missed_pulses);
+	const auto execution_time = timer.delta();
+	if (PASSES_PER_SEC / 60.0 < execution_time.count())
+	{
+		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
+			pulse_number(), execution_time.count(), missed_pulses);
+	}
+}
+
+void Heartbeat::advance_pulses_number()
+{
+	m_pulse_number++;
+	m_global_pulse_number++;
+
+	// Roll pulse over after 10 hours
+	if (m_pulse_number >= (600 * 60 * PASSES_PER_SEC))
+	{
+		m_pulse_number = 0;
+	}
+}
+
+void Heartbeat::pulse(const int missed_pulses)
+{
+	advance_pulses_number();
+
+	for (const auto& step : m_steps)
+	{
+		if (0 == (m_pulse_number + step.offset) % step.modulo)
+		{
+			step.action->perform(pulse_number(), missed_pulses);
 		}
 	}
 }
 
-void Heartbeat::check_external_reboot_trigget()
+Heartbeat::PulseStep::PulseStep(const std::string& name, const int modulo, const int offset, const pulse_action_t& action) :
+	name(name),
+	modulo(modulo),
+	offset(offset),
+	action(action)
 {
-	try
-	{
-		if (!m_external_trigger_checker)
-		{
-			m_external_trigger_checker = new ExternalTriggerChecker(runtime_config.external_reboot_trigger_file_name());
-		}
-	}
-	catch (const std::bad_alloc&)
-	{
-		log("SYSERR: Couldn't allocate memory for external trigger checker.");
-		return;
-	}
-
-	if (m_external_trigger_checker->check())
-	{
-		mudlog("Сработал внешний триггер перезагрузки.", DEF, LVL_IMPL, SYSLOG, true);
-		shutdown_parameters.reboot();
-	}
 }
 
 Heartbeat& heartbeat = GlobalObjects::heartbeat();
