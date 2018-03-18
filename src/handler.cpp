@@ -3410,8 +3410,124 @@ OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list,
 
 class ExitLoopException : std::exception {};
 
+OBJ_DATA* get_obj_vis_and_dec_num(CHAR_DATA* ch, const char* name, OBJ_DATA* list, std::unordered_set<unsigned int>& id_obj_set, int& number)
+{
+	for (auto item = list; item != nullptr; item = item->get_next_content())
+	{
+		if (CAN_SEE_OBJ(ch, item))
+		{
+			if (isname(name, item->get_aliases())
+				|| CHECK_CUSTOM_LABEL(name, item, ch))
+			{
+				if (--number == 0)
+				{
+					return item;
+				}
+				id_obj_set.insert(item->get_id());
+			}
+		}
+	}
+
+	return nullptr;
+}
+
+OBJ_DATA* get_obj_vis_and_dec_num(CHAR_DATA* ch, const char* name, OBJ_DATA* equip[], std::unordered_set<unsigned int>& id_obj_set, int& number)
+{
+	for (auto i = 0; i < NUM_WEARS; ++i)
+	{
+		auto item = equip[i];
+		if (item && CAN_SEE_OBJ(ch, item))
+		{
+			if (isname(name, item->get_aliases())
+				|| CHECK_CUSTOM_LABEL(name, item, ch))
+			{
+				if (--number == 0)
+				{
+					return item;
+				}
+				id_obj_set.insert(item->get_id());
+			}
+		}
+	}
+
+	return nullptr;
+}
+
 // search the entire world for an object, and return a pointer
-OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
+OBJ_DATA* get_obj_vis(CHAR_DATA* ch, const char* name)
+{
+	int number;
+	char tmpname[MAX_INPUT_LENGTH];
+	char *tmp = tmpname;
+
+	strcpy(tmp, name);
+	number = get_number(&tmp);
+	if (number < 1)
+	{
+		return nullptr;
+	}
+
+	auto id_obj_set = std::unordered_set<unsigned int>();
+
+	//Scan in equipment
+	auto obj = get_obj_vis_and_dec_num(ch, tmp, ch->equipment, id_obj_set, number);
+	if (obj)
+	{
+		return obj;
+	}
+
+	//Scan in carried items
+	obj = get_obj_vis_and_dec_num(ch, tmp, ch->carrying, id_obj_set, number);
+	if (obj)
+	{
+		return obj;
+	}
+
+	//Scan in room
+	obj = get_obj_vis_and_dec_num(ch, tmp, world[ch->in_room]->contents, id_obj_set, number);
+	if (obj)
+	{
+		return obj;
+	}
+	
+	//Scan charater's in room
+	for (const auto& vict : world[ch->in_room]->people)
+	{
+		if (ch->get_uid() == vict->get_uid())
+		{
+			continue;
+		}
+
+		//Scan in equipment
+		obj = get_obj_vis_and_dec_num(ch, tmp, vict->equipment, id_obj_set, number);
+		if (obj)
+		{
+			return obj;
+		}
+
+		//Scan in carried items
+		obj = get_obj_vis_and_dec_num(ch, tmp, vict->carrying, id_obj_set, number);
+		if (obj)
+		{
+			return obj;
+		}
+	}
+
+	// ok.. no luck yet. scan the entire obj list except already found
+	const WorldObjects::predicate_f predicate = [&](const OBJ_DATA::shared_ptr& i) -> bool
+	{
+		const auto result = CAN_SEE_OBJ(ch, i.get())
+			&& (isname(tmp, i->get_aliases())
+				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
+			&& (id_obj_set.count(i.get()->get_id()) == 0);
+		return result;
+	};
+	
+	return world_objects.find_if(predicate, number - 1).get();
+}
+
+// search the entire world for an object, and return a pointer
+OBJ_DATA *get_obj_vis_for_locate(CHAR_DATA * ch, const char *name)
 {
 	OBJ_DATA *i;
 	int number;
@@ -3431,16 +3547,12 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 	}
 
 	strcpy(tmp, name);
-	if (!(number = get_number(&tmp)))
+	number = get_number(&tmp);
+	if (number != 1)
 	{
 		return nullptr;
 	}
 
-	//Запретим локейт 2. 3. n. стафин
-	if (number > 1 && locate_item)
-	{
-		return nullptr;
-	}
 	// ok.. no luck yet. scan the entire obj list   //
 	const WorldObjects::predicate_f locate_predicate = [&](const OBJ_DATA::shared_ptr& i) -> bool
 	{
@@ -3450,26 +3562,8 @@ OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item)
 			&& try_locate_obj(ch, i.get());
 		return result;
 	};
-	const WorldObjects::predicate_f not_locate_predicate = [&](const OBJ_DATA::shared_ptr& i) -> bool
-	{
-		const auto result = CAN_SEE_OBJ(ch, i.get())
-			&& (isname(tmp, i->get_aliases())
-				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch));
-		return result;
-	};
 
-	const auto predicate = locate_item ? locate_predicate : not_locate_predicate;
-	OBJ_DATA::shared_ptr result;
-	if (!locate_item)
-	{
-		result = world_objects.find_if(predicate, number - 1);
-	}
-	else
-	{
-		result = world_objects.find_if(predicate);
-	}
-
-	return result.get();
+	return world_objects.find_if(locate_predicate).get();
 }
 
 bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
