@@ -1554,8 +1554,6 @@ void do_send(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-
-
 // take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 {
