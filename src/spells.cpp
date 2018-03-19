@@ -46,6 +46,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "world.characters.hpp"
 
 #include <vector>
 
@@ -951,6 +952,15 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 	unsigned count = tmp_lvl;
 	const auto result = world_objects.find_if_and_dec_number([&](const OBJ_DATA::shared_ptr& i)
 	{
+		const auto obj_ptr = world_objects.get_by_raw_ptr(i.get());
+		if (!obj_ptr)
+		{
+			sprintf(buf, "SYSERR: Illegal object iterator while locate");
+			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+
+			return false;
+		}
+
 		bloody_corpse = false;
 		if (!IS_GOD(ch))
 		{
@@ -983,6 +993,16 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		if (i->get_carried_by())
 		{
 			const auto carried_by = i->get_carried_by();
+			const auto carried_by_ptr = character_list.get_character_by_address(carried_by);
+
+			if (!carried_by_ptr)
+			{
+				debug::coredump();
+				sprintf(buf, "SYSERR: Illegal carried_by ptr. Создана кора для исследований");
+				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
+				return false;
+			}
+
 			if (!VALID_RNUM(IN_ROOM(carried_by)))
 			{
 				debug::coredump();

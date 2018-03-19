@@ -107,7 +107,7 @@ private:
 	void add_to_index(const list_t::iterator& object_i);
 
 	list_t m_objects_list;
-	vnum_to_object_ptr_t m_vnum_to_object;
+	vnum_to_object_ptr_t m_vnum_to_object_ptr;
 	object_raw_ptr_to_object_ptr_t m_object_raw_ptr_to_object_ptr;
 	id_to_object_ptr_t m_id_to_object_ptr;
 	rnum_to_object_ptr_t m_rnum_to_object_ptr;

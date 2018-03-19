@@ -26,15 +26,15 @@ void WorldObjects::WO_VNumChangeObserver::notify(CObjectPrototype& object, const
 		OBJ_DATA::shared_ptr object_ptr = *i->second;
 
 		// remove old index entry
-		vnum_to_object_ptr_t::iterator vnum_to_object_i = m_parent.m_vnum_to_object.find(old_vnum);
-		if (vnum_to_object_i != m_parent.m_vnum_to_object.end())
+		vnum_to_object_ptr_t::iterator vnum_to_object_i = m_parent.m_vnum_to_object_ptr.find(old_vnum);
+		if (vnum_to_object_i != m_parent.m_vnum_to_object_ptr.end())
 		{
 			vnum_to_object_i->second.erase(object_ptr);
 		}
 
 		// insert new entry to the index
 		const auto vnum = object_ptr->get_vnum();
-		m_parent.m_vnum_to_object[vnum].insert(object_ptr);
+		m_parent.m_vnum_to_object_ptr[vnum].insert(object_ptr);
 	}
 }
 
@@ -54,7 +54,7 @@ void WorldObjects::WO_RNumChangeObserver::notify(CObjectPrototype& object, const
 
 		// remove old index entry
 		rnum_to_object_ptr_t::iterator rnum_to_object_ptr_i = m_parent.m_rnum_to_object_ptr.find(old_rnum);
-		if (rnum_to_object_ptr_i != m_parent.m_vnum_to_object.end())
+		if (rnum_to_object_ptr_i != m_parent.m_vnum_to_object_ptr.end())
 		{
 			rnum_to_object_ptr_i->second.erase(object_ptr);
 		}
@@ -201,8 +201,8 @@ void WorldObjects::remove(OBJ_DATA* object)
 	object_ptr->unsubscribe_from_vnum_changes(m_vnum_change_observer);
 
 	m_id_to_object_ptr[object_ptr->get_id()].erase(object_ptr);
-	m_vnum_to_object[object_ptr->get_vnum()].erase(object_ptr);
-	m_rnum_to_object_ptr.erase(object_ptr->get_rnum());
+	m_vnum_to_object_ptr[object_ptr->get_vnum()].erase(object_ptr);
+	m_rnum_to_object_ptr[object_ptr->get_rnum()].erase(object_ptr);
 	m_objects_list.erase(object_i->second);
 	m_object_raw_ptr_to_object_ptr.erase(object);
 
@@ -235,8 +235,8 @@ void WorldObjects::foreach_on_copy_while(const foreach_while_f function) const
 
 void WorldObjects::foreach_with_vnum(const obj_vnum vnum, const foreach_f function) const
 {
-	const auto set_i = m_vnum_to_object.find(vnum);
-	if (set_i != m_vnum_to_object.end())
+	const auto set_i = m_vnum_to_object_ptr.find(vnum);
+	if (set_i != m_vnum_to_object_ptr.end())
 	{
 		std::for_each(set_i->second.begin(), set_i->second.end(), function);
 	}
@@ -330,8 +330,8 @@ OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vn
 
 OBJ_DATA::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const obj_vnum vnum, unsigned& number, const object_id_set_t& except) const
 {
-	const auto set_i = m_vnum_to_object.find(vnum);
-	if (set_i != m_vnum_to_object.end())
+	const auto set_i = m_vnum_to_object_ptr.find(vnum);
+	if (set_i != m_vnum_to_object_ptr.end())
 	{
 		for (const auto& object : set_i->second)
 		{
@@ -386,7 +386,7 @@ void WorldObjects::add_to_index(const list_t::iterator& object_i)
 {
 	const auto object = *object_i;
 	const auto vnum = object->get_vnum();
-	m_vnum_to_object[vnum].insert(object);
+	m_vnum_to_object_ptr[vnum].insert(object);
 	m_id_to_object_ptr[object->get_id()].insert(object);
 	m_rnum_to_object_ptr[object->get_rnum()].insert(object);
 	m_object_raw_ptr_to_object_ptr.emplace(object.get(), object_i);
