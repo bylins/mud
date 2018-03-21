@@ -4563,6 +4563,15 @@ void reset_zone(zone_rnum zone)
 			case 'M':
 				// read a mobile
 				// 'M' <flag> <mob_vnum> <max_in_world> <room_vnum> <max_in_room|-1>
+
+				if (ZCMD.arg3 < FIRST_ROOM)
+				{
+					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату в зоне %d. (VNUM=%d)",
+						zone, ZCMD.arg1);
+					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+					break;
+				}
+
 				mob = NULL;	//Добавлено Ладником
 				if (mob_index[ZCMD.arg1].number < ZCMD.arg2 &&
 					(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
@@ -4627,20 +4636,26 @@ void reset_zone(zone_rnum zone)
 				// read an object
 				// 'O' <flag> <obj_vnum> <max_in_world> <room_vnum|-1> <load%|-1>
 				// Проверка  - сколько всего таких же обьектов надо на эту клетку
+
+				if (ZCMD.arg3 < FIRST_ROOM)
+				{
+					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату в зоне %d. (VNUM=%d)",
+						zone, ZCMD.arg1);
+					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+					break;
+				}
+
 				for (cmd_tmp = 0, obj_in_room_max = 0; ZCMD_CMD(cmd_tmp).command != 'S'; cmd_tmp++)
 					if ((ZCMD_CMD(cmd_tmp).command == 'O')
 							&& (ZCMD.arg1 == ZCMD_CMD(cmd_tmp).arg1)
 							&& (ZCMD.arg3 == ZCMD_CMD(cmd_tmp).arg3))
 						obj_in_room_max++;
 				// Теперь считаем склько их на текущей клетке
-				if (ZCMD.arg3 >= 0)
+				for (obj_room = world[ZCMD.arg3]->contents, obj_in_room = 0; obj_room; obj_room = obj_room->get_next_content())
 				{
-					for (obj_room = world[ZCMD.arg3]->contents, obj_in_room = 0; obj_room; obj_room = obj_room->get_next_content())
+					if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
 					{
-						if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
-						{
-							obj_in_room++;
-						}
+						obj_in_room++;
 					}
 				}
 				// Теперь грузим обьект если надо
@@ -4652,20 +4667,15 @@ void reset_zone(zone_rnum zone)
 					&& (obj_in_room < obj_in_room_max))
 				{
 					const auto obj = world_objects.create_from_prototype_by_rnum(ZCMD.arg1);
-					if (ZCMD.arg3 >= 0)
+					obj->set_zone(world[ZCMD.arg3]->zone);
+
+					if (!obj_to_room(obj.get(), ZCMD.arg3))
 					{
-						obj->set_zone(world[ZCMD.arg3]->zone);
-						if (!obj_to_room(obj.get(), ZCMD.arg3))
-						{
-							extract_obj(obj.get());
-							break;
-						}
-						load_otrigger(obj.get());
+						extract_obj(obj.get());
+						break;
 					}
-					else
-					{
-						obj->set_in_room(NOWHERE);
-					}
+					load_otrigger(obj.get());
+
 					tobj = obj.get();
 					curr_state = 1;
 
@@ -4801,6 +4811,15 @@ void reset_zone(zone_rnum zone)
 			case 'R':
 				// rem obj from room
 				// 'R' <flag> <room_vnum> <obj_vnum>
+
+				if (ZCMD.arg1 < FIRST_ROOM)
+				{
+					sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты в зоне %d. (VNUM=%d)",
+						zone, ZCMD.arg2);
+					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+					break;
+				}
+
 				if (const auto obj = get_obj_in_list_num(ZCMD.arg2, world[ZCMD.arg1]->contents))
 				{
 					obj_from_room(obj);
@@ -4814,6 +4833,15 @@ void reset_zone(zone_rnum zone)
 			case 'D':
 				// set state of door
 				// 'D' <flag> <room_vnum> <door_pos> <door_state>
+
+				if (ZCMD.arg1 < FIRST_ROOM)
+				{
+					sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате в зоне %d.",
+						zone);
+					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
+					break;
+				}
+
 				if (ZCMD.arg2 < 0 || ZCMD.arg2 >= NUM_OF_DIRS ||
 						(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == NULL))
 				{
