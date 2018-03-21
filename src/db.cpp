@@ -4566,8 +4566,8 @@ void reset_zone(zone_rnum zone)
 
 				if (ZCMD.arg3 < FIRST_ROOM)
 				{
-					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату в зоне %d. (VNUM=%d)",
-						zone, ZCMD.arg1);
+					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
+						ZCMD.arg1, zone);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 					break;
 				}
@@ -4639,8 +4639,8 @@ void reset_zone(zone_rnum zone)
 
 				if (ZCMD.arg3 < FIRST_ROOM)
 				{
-					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату в зоне %d. (VNUM=%d)",
-						zone, ZCMD.arg1);
+					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
+						ZCMD.arg1, zone);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 					break;
 				}
@@ -4814,8 +4814,8 @@ void reset_zone(zone_rnum zone)
 
 				if (ZCMD.arg1 < FIRST_ROOM)
 				{
-					sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты в зоне %d. (VNUM=%d)",
-						zone, ZCMD.arg2);
+					sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
+						ZCMD.arg2, zone);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 					break;
 				}
@@ -4836,7 +4836,7 @@ void reset_zone(zone_rnum zone)
 
 				if (ZCMD.arg1 < FIRST_ROOM)
 				{
-					sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате в зоне %d.",
+					sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
 						zone);
 					mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 					break;
