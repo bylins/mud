@@ -52,6 +52,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include <backtrace.hpp>
 
 #include <math.h>
 
@@ -1143,6 +1144,7 @@ void char_from_room(CHAR_DATA * ch)
 {
 	if (ch == NULL || ch->in_room == NOWHERE)
 	{
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: NULL character or NOWHERE in %s, char_from_room", __FILE__);
 		return;
 	}
@@ -1196,6 +1198,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 {
 	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world)
 	{
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
 		return;
 	}
@@ -2522,6 +2525,7 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 //	int sect = 0;
 	if (!object || room < FIRST_ROOM || room > top_of_world)
 	{
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: Illegal value(s) passed to obj_to_room. (Room #%d/%d, obj %p)",
 			room, top_of_world, object);
 		return 0;
@@ -2617,6 +2621,7 @@ void obj_from_room(OBJ_DATA * object)
 {
 	if (!object || object->get_in_room() == NOWHERE)
 	{
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: NULL object (%p) or obj not in a room (%d) passed to obj_from_room",
 			object, object->get_in_room());
 		return;
@@ -2635,6 +2640,7 @@ void obj_to_obj(OBJ_DATA * obj, OBJ_DATA * obj_to)
 
 	if (!obj || !obj_to || obj == obj_to)
 	{
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: NULL object (%p) or same source (%p) and target (%p) obj passed to obj_to_obj.",
 			obj, obj, obj_to);
 		return;
@@ -2664,6 +2670,7 @@ void obj_from_obj(OBJ_DATA * obj)
 {
 	if (obj->get_in_obj() == nullptr)
 	{
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
 		log("SYSERR: (%s): trying to illegally extract obj from obj.", __FILE__);
 		return;
 	}
