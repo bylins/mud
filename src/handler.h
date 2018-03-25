@@ -66,6 +66,8 @@ char *fname(const char *namelist);
 int get_number(char **name);
 int get_number(std::string &name);
 
+room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep = false);
+
 // ******** objects *********** //
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two);
 void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch);
@@ -120,8 +122,11 @@ inline CHAR_DATA *get_char_vis(CHAR_DATA * ch, const std::string &name, int wher
 OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list, bool locate_item = false);
 inline OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const std::string &name, OBJ_DATA * list) { return get_obj_in_list_vis(ch, name.c_str(), list); }
 
-OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const char *name, bool locate_item = false);
+OBJ_DATA* get_obj_vis(CHAR_DATA * ch, const char *name);
 inline OBJ_DATA *get_obj_vis(CHAR_DATA * ch, const std::string &name) { return get_obj_vis(ch, name.c_str()); }
+
+OBJ_DATA* get_obj_vis_for_locate(CHAR_DATA * ch, const char *name);
+inline OBJ_DATA* get_obj_vis_for_locate(CHAR_DATA * ch, const std::string &name) { return get_obj_vis_for_locate(ch, name.c_str()); }
 
 bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i);
 

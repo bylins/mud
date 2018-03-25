@@ -1560,8 +1560,6 @@ void do_send(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-
-
 // take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
 {
@@ -2073,14 +2071,15 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		sprintf(buf, "Таймер: %d\r\n", j->get_timer());
 	send_to_char(buf, ch);
 
-	strcpy(buf, "Находится : ");
-	if ((j->get_in_room() == NOWHERE) || !is_grgod)
+	auto room = get_room_where_obj(j);
+	strcpy(buf, "Находится в комнате : ");
+	if (room == NOWHERE || !is_grgod)
 	{
 		strcat(buf, "нигде");
 	}
 	else
 	{
-		sprintf(buf2, "%d", GET_ROOM_VNUM(j->get_in_room()));
+		sprintf(buf2, "%d", room);
 		strcat(buf, buf2);
 	}
 	// NOTE: In order to make it this far, we must already be able to see the
