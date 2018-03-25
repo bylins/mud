@@ -170,11 +170,11 @@ TEST_F(FightPenalties, NoPenaltyWithing5Levels)
 		{
 			const auto killer_level = killer->get_level();
 			const auto leader_level = leader->get_level();
-			const auto max_level = std::max(killer_level, leader_level);
-			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, this->penalties());
 
 			if (5 >= std::abs(killer_level - leader_level))
 			{
+				const auto max_level = std::max(killer_level, leader_level);
+				GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, this->penalties());
 				EXPECT_EQ(penalty.get(), 0);
 			}
 		}
@@ -188,11 +188,11 @@ TEST_F(FightPenalties, HasPenaltyWithingMoreThan5Levels)
 		{
 			const auto killer_level = killer->get_level();
 			const auto leader_level = leader->get_level();
-			const auto max_level = std::max(killer_level, leader_level);
-			GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, this->penalties());
 
 			if (5 < std::abs(killer_level - leader_level))
 			{
+				const auto max_level = std::max(killer_level, leader_level);
+				GroupPenaltyCalculator penalty(killer.get(), leader.get(), max_level, this->penalties());
 				EXPECT_GT(penalty.get(), 0);
 			}
 		}
@@ -202,7 +202,7 @@ TEST_F(FightPenalties, HasPenaltyWithingMoreThan5Levels)
 TEST_F(FightPenalties, DISABLED_PrintTable)
 {
 	// Anton Gorev(2016-11-25): seems like I stepped on a bug in compiler (g++ (Ubuntu 4.9.4-2ubuntu1~14.04.1) 4.9.4):
-	// it does not capture constexpr/const constants. To workaround that bug I removed constexpr keyword.
+	// Lambda does not capture constexpr/const constants. To workaround this bug I removed constexpr keyword.
 	int PLACEHOLDER_LENGTH = 4;
 
 	const auto header_handler = [&](const auto killer_class, const auto leader_class)

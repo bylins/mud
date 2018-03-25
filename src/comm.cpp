@@ -2642,7 +2642,7 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 
 	if (result > 0)
 	{
-		// Write was sucessful
+		// Write was successful
 		number_of_bytes_written += result;
 		return (result);
 	}

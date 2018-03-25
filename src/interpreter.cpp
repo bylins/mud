@@ -18,7 +18,7 @@
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
-#include "craft_commands.hpp"
+#include "craft.commands.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "constants.h"
@@ -1145,7 +1145,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"debug_queues", POS_DEAD, do_debug_queues, LVL_IMPL, 0, 0 },
 
 	// Craft
-	//{"craft", craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
+	//{craft::cmd::CRAFT_COMMAND, craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
 
 	{"\n", 0, 0, 0, 0, 0}
 };				// this must be last
@@ -2976,7 +2976,7 @@ void print_free_names(std::ostream& os, const PlayersIndex& index)
 	constexpr int SUGGESTIONS_COUNT = 4;
 	PlayersIndex::free_names_list_t names;
 	index.get_free_names(SUGGESTIONS_COUNT, names);
-	printList(names, os);
+	os << JoinRange<PlayersIndex::free_names_list_t>(names);
 }
 
 void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
