@@ -40,6 +40,8 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
+#include <iostream>
+
 constexpr bool FRAC_SAVE = true;
 
 void check_idle_passwords(void)
@@ -444,6 +446,26 @@ namespace
 	}
 }
 
+long long NOD(long long a, long long b)
+{
+	if (a > b)
+	{
+		std::swap(a, b);
+	}
+
+	for (;0 != a; std::swap(a, b))
+	{
+		b = b % a;
+	}
+
+	return b;
+}
+
+long long NOK(long long a, long long b)
+{
+	return a * b / NOD(a, b);
+}
+
 Heartbeat::Heartbeat() :
 	m_steps(pulse_steps()),
 	m_pulse_number(0),
@@ -463,7 +485,21 @@ void Heartbeat::operator()(const int missed_pulses)
 	}
 }
 
-void Heartbeat::advance_pulses_number()
+long long Heartbeat::period() const
+{
+	long long period = 1;
+	for (const auto& step : m_steps)
+	{
+		if (step.on())
+		{
+			period = NOK(period, step.modulo());
+		}
+	}
+
+	return period;
+}
+
+void Heartbeat::advance_pulse_numbers()
 {
 	m_pulse_number++;
 	m_global_pulse_number++;
@@ -477,25 +513,82 @@ void Heartbeat::advance_pulses_number()
 
 void Heartbeat::pulse(const int missed_pulses)
 {
-	advance_pulses_number();
+	advance_pulse_numbers();
 
-	for (const auto& step : m_steps)
+	for (auto& step : m_steps)
 	{
-		if (0 == (m_pulse_number + step.offset) % step.modulo)
+		if (step.off())
 		{
-			step.action->perform(pulse_number(), missed_pulses);
+			continue;
+		}
+
+		if (0 == (m_pulse_number + step.offset()) % step.modulo())
+		{
+			utils::CExecutionTimer timer;
+
+			step.action()->perform(pulse_number(), missed_pulses);
+
+			step.add_measurement(pulse_number(), timer.delta().count());
 		}
 	}
 }
 
 Heartbeat::PulseStep::PulseStep(const std::string& name, const int modulo, const int offset, const pulse_action_t& action) :
-	name(name),
-	modulo(modulo),
-	offset(offset),
-	action(action)
+	m_name(name),
+	m_modulo(modulo),
+	m_offset(offset),
+	m_action(action),
+	m_off(false)
 {
 }
 
+void Heartbeat::PulseStep::add_measurement(const pulse_t pulse, const PulseMeasurements::value_t value)
+{
+	m_measurements.add(PulseMeasurements::measurement_t(pulse, value));
+}
+
 Heartbeat& heartbeat = GlobalObjects::heartbeat();
+
+PulseMeasurements::PulseMeasurements():
+	m_sum(0.0),
+	m_global_min(NO_VALUE),
+	m_global_max(NO_VALUE)
+{
+}
+
+void PulseMeasurements::add(const measurement_t& measurement)
+{
+	const auto& pulse = measurement.first;
+	const auto& value = measurement.second;
+
+	m_measurements.emplace_back(pulse, value);
+	while (m_measurements.size() > WINDOW_SIZE)
+	{
+		const auto& front_value = m_measurements.front();
+
+		const auto min_i = m_min.find(front_value);
+		m_min.erase(min_i);
+
+		const auto max_i = m_max.find(front_value);
+		m_max.erase(max_i);
+
+		if (m_global_min.second > value
+			|| m_global_min == NO_VALUE)
+		{
+			m_global_min = std::move(measurement_t(pulse, value));
+		}
+
+		if (m_global_max.second < value
+			|| m_global_max == NO_VALUE)
+		{
+			m_global_max = std::move(measurement_t(pulse, value));
+		}
+
+		m_measurements.pop_front();
+	}
+}
+
+constexpr std::size_t PulseMeasurements::WINDOW_SIZE;
+constexpr PulseMeasurements::measurement_t PulseMeasurements::NO_VALUE;
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
