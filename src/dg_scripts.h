@@ -296,6 +296,7 @@ public:
 	int remove_trigger(char *name);
 
 	void cleanup();
+	bool has_triggers() { return !trig_list.empty(); }
 
 	long types;		// bitvector of trigger types //
 	TriggersList trig_list;	// list of triggers           //

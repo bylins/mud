@@ -263,7 +263,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		DeathTrap::remove(world[room_num]);
 
 	// Настало время добавить триггеры
-	SCRIPT(world[room_num]) = NULL;
+	SCRIPT(world[room_num])->cleanup();
 	assign_triggers(world[room_num], WLD_TRIGGER);
 	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].number, OLC_SAVE_ROOM);
 }

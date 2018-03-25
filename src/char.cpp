@@ -114,7 +114,7 @@ CHAR_DATA::CHAR_DATA() :
 	m_wait(~0u),
 	m_master(nullptr),
 	proto_script(new OBJ_DATA::triggers_list_t()),
-	script(nullptr),
+	script(new SCRIPT_DATA()),
 	followers(nullptr)
 {
 	this->zero_init();

@@ -189,7 +189,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	}
 
 	// Копирую скрипт и прототипы
-	SCRIPT(dst) = NULL;
+	SCRIPT(dst)->cleanup();
 	auto proto_script_old = new OBJ_DATA::triggers_list_t(*src->proto_script);
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;

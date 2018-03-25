@@ -116,7 +116,6 @@ void OBJ_DATA::zero_init()
 	m_in_obj = nullptr;
 	m_contains = nullptr;
 	m_id = 0;
-	m_script = nullptr;
 	m_next_content = nullptr;
 	m_next = nullptr;
 	m_room_was_in = NOWHERE;
@@ -743,11 +742,6 @@ void OBJ_DATA::set_tag(const char* tag)
 
 void OBJ_DATA::attach_triggers(const triggers_list_t& trigs)
 {
-	if (!get_script())
-	{
-		set_script(new SCRIPT_DATA());
-	}
-
 	for (auto it = trigs.begin(); it != trigs.end(); ++it)
 	{
 		int rnum = real_trigger(*it);
