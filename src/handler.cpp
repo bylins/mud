@@ -3145,6 +3145,8 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		{
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		}
+
+		ch->script->cleanup();
 	}
 
 	bool left_in_game = false;
