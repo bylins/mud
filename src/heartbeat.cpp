@@ -562,6 +562,21 @@ void PulseMeasurements::add(const measurement_t& measurement)
 	const auto& value = measurement.second;
 
 	m_measurements.emplace_back(pulse, value);
+	m_min.insert(measurement);
+	m_max.insert(measurement);
+
+	if (m_global_min.second > value
+		|| m_global_min == NO_VALUE)
+	{
+		m_global_min = std::move(measurement_t(pulse, value));
+	}
+
+	if (m_global_max.second < value
+		|| m_global_max == NO_VALUE)
+	{
+		m_global_max = std::move(measurement_t(pulse, value));
+	}
+
 	while (m_measurements.size() > WINDOW_SIZE)
 	{
 		const auto& front_value = m_measurements.front();
@@ -571,18 +586,6 @@ void PulseMeasurements::add(const measurement_t& measurement)
 
 		const auto max_i = m_max.find(front_value);
 		m_max.erase(max_i);
-
-		if (m_global_min.second > value
-			|| m_global_min == NO_VALUE)
-		{
-			m_global_min = std::move(measurement_t(pulse, value));
-		}
-
-		if (m_global_max.second < value
-			|| m_global_max == NO_VALUE)
-		{
-			m_global_max = std::move(measurement_t(pulse, value));
-		}
 
 		m_measurements.pop_front();
 	}

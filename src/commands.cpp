@@ -238,12 +238,12 @@ namespace commands
 
 		bool CommandEmbranchmentImplementation::replyable_context(const CommandContext::shared_ptr& context) const
 		{
-			return bool(std::dynamic_pointer_cast<ReplyableContext>(context));
+			return bool(std::dynamic_pointer_cast<AbstractReplyableContext>(context));
 		}
 
 		void CommandEmbranchmentImplementation::reply(const CommandContext::shared_ptr& context, const std::string& message) const
 		{
-			const auto caller = std::dynamic_pointer_cast<ReplyableContext>(context);
+			const auto caller = std::dynamic_pointer_cast<AbstractReplyableContext>(context);
 			if (!caller)
 			{
 				return;
@@ -283,7 +283,7 @@ namespace commands
 				return;
 			}
 
-			const auto replyable_context = std::dynamic_pointer_cast<ReplyableContext>(context);
+			const auto replyable_context = std::dynamic_pointer_cast<AbstractReplyableContext>(context);
 			if (!replyable_context)
 			{
 				return;
@@ -341,6 +341,64 @@ namespace commands
 			}
 
 			replyable_context->reply(parent->get_help());
+		}
+
+		void ReplyableContext::reply(const std::string& message) const
+		{
+			send_to_char(message, m_character);
+		}
+
+		namespace
+		{
+			/**
+			* Returns pointer to the first argument, moves command_line to the beginning of the next argument.
+			*
+			* \note This routine changes a passed buffer: puts '\0' character after the first argument.
+			*/
+			const char* first_argument(char*& command_line)
+			{
+				// skip leading spaces
+				while (*command_line && ' ' == *command_line)
+				{
+					++command_line;
+				}
+
+				// getting subcommand
+				const char* result = command_line;
+				while (*command_line && ' ' != *command_line)
+				{
+					++command_line;
+				}
+
+				// anchor subcommand and move argument pointer to the next one
+				if (*command_line)
+				{
+					*(command_line++) = '\0';
+				}
+
+				return result;
+			}
+		}
+
+		AbstractCommand::Arguments::Arguments(char* arguments)
+		{
+			while (*arguments)
+			{
+				auto next_argument = first_argument(arguments);
+				if (*next_argument)
+				{
+					push_back(next_argument);
+				}
+			}
+		}
+
+		void CommonCommand::send(const CommandContext::shared_ptr& context, const std::string& message) const
+		{
+			const auto rcontext = std::dynamic_pointer_cast<AbstractReplyableContext>(context);
+			if (rcontext)
+			{
+				rcontext->reply(message);
+			}
 		}
 	}
 }

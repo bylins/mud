@@ -6,6 +6,8 @@
 #include <memory>
 #include <map>
 
+class CHAR_DATA;	// to avoid inclusion of char.hpp
+
 namespace commands
 {
 	namespace utils
@@ -18,10 +20,25 @@ namespace commands
 			virtual ~CommandContext() {}
 		};
 
-		class ReplyableContext: public CommandContext
+		class AbstractReplyableContext: public CommandContext
 		{
 		public:
 			virtual void reply(const std::string& message) const = 0;
+		};
+
+		class ReplyableContext : public AbstractReplyableContext
+		{
+		public:
+			using shared_ptr = std::shared_ptr<ReplyableContext>;
+
+			ReplyableContext(CHAR_DATA* character) : m_character(character) {}
+
+			virtual void reply(const std::string& message) const override;
+
+			static shared_ptr create(CHAR_DATA* character) { return std::make_shared<ReplyableContext>(character); }
+
+		private:
+			CHAR_DATA * m_character;
 		};
 
 		class AbstractCommand
@@ -30,7 +47,25 @@ namespace commands
 			using shared_ptr = std::shared_ptr<AbstractCommand>;
 
 			using argument_t = std::string;
-			using arguments_t = std::list<argument_t>;
+
+			class Arguments: public std::list<argument_t>
+			{
+			public:
+				using parent_t = std::list<argument_t>;
+
+				Arguments() {}
+				Arguments(const_iterator& _begin, const_iterator _end) : parent_t(_begin, _end) {}
+
+				/**
+				* This constructor splits value passed by arguments into tokens.
+				* '\0' character after each token will be added.
+				*
+				* \note This constructor changes (!) passed argument.
+				*/
+				Arguments(char* arguments);
+			};
+
+			using arguments_t = Arguments;
 
 			virtual ~AbstractCommand() {}
 
@@ -69,6 +104,13 @@ namespace commands
 			CommandWithHelp(const std::string& help_line, const std::string& help) : Help(help_line, help) {}
 		};
 
+		class CommonCommand : public CommandWithHelp
+		{
+		protected:
+			void send(const CommandContext::shared_ptr& context, const std::string& message) const;
+			void usage(const CommandContext::shared_ptr& context) const { send(context, get_help()); }
+		};
+
 		class CommandEmbranchment : public CommandWithHelp
 		{
 		public:
@@ -99,6 +141,34 @@ namespace commands
 		private:
 			shared_ptr m_parent;
 		};
+	}
+
+	class AbstractCommandsHanler
+	{
+	public:
+		using shared_ptr = std::shared_ptr<AbstractCommandsHanler>;
+
+		virtual void initialize() = 0;
+		virtual void process(CHAR_DATA* character, char* arguments) = 0;
+	};
+
+	template <class T>
+	class HandlerInitializer
+	{
+	public:
+		HandlerInitializer();
+
+		auto& operator()() const { return m_handler; }
+
+	private:
+		commands::AbstractCommandsHanler::shared_ptr m_handler;
+	};
+
+	template <class T>
+	commands::HandlerInitializer<T>::HandlerInitializer():
+		m_handler(std::make_shared<T>())
+	{
+		m_handler->initialize();
 	}
 }
 

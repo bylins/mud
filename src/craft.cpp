@@ -47,7 +47,6 @@ namespace craft
 	bool start()
 	{
 		utils::CExecutionTimer timer;
-		commands_handler->initialize();
 
 		const bool load_result = model.load();
 		const auto loading_duration = timer.delta();

@@ -6,6 +6,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
 	src/heartbeat.cpp
+	src/heartbeat.commands.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -161,6 +162,7 @@ set(SOURCES
 	src/id.cpp)
 
 set(HEADERS
+	src/heartbeat.commands.hpp
 	src/weather.hpp
 	src/limits.hpp
 	src/act.wizard.hpp

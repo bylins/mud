@@ -1,6 +1,8 @@
 #ifndef __CRAFT_STATIC_HPP__
 #define __CRAFT_STATIC_HPP__
 
+#include "commands.hpp"
+
 #include <memory>
 
 namespace craft
@@ -12,7 +14,6 @@ namespace craft
 	}
 
 	extern CCraftModel model;
-	extern std::shared_ptr<cmd::CommandsHandler> commands_handler;
 }
 
 #endif // __CRAFT_STATIC_HPP__
