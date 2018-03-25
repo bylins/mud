@@ -2819,6 +2819,7 @@ void extract_obj(OBJ_DATA * obj)
 		obj_proto.dec_number(rnum);
 	}
 
+	obj->get_script()->cleanup();
 	world_objects.remove(obj);
 }
 
