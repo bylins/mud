@@ -3494,6 +3494,7 @@ void Clan::save_chest()
 			out << "* Items file\n";
 			for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content())
 			{
+				log("Saving obj: %s", temp->get_short_description());
 				write_one_object(out, temp, 0);
 			}
 			out << "\n$\n$\n";
