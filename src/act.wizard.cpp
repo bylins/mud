@@ -6931,7 +6931,7 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (m = 0; m < t * PASSES_PER_SEC; m++)
 	{
-		heartbeat(t * PASSES_PER_SEC - m);
+		GlobalObjects::heartbeat()(t * PASSES_PER_SEC - m);
 	}
 
 	sprintf(buf, "(GC) %s перевел игровое время на %d сек.", GET_NAME(ch), t);

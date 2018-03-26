@@ -16,7 +16,7 @@ namespace heartbeat
 		constexpr int MINIMAL_POSITION = POS_SITTING;
 
 		// Minimal level for heartbeat command
-		constexpr int MINIMAL_LEVEL = 0;
+		constexpr int MINIMAL_LEVEL = LVL_IMPL;
 
 		// Probability to stop hide when using heartbeat command
 		constexpr int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never

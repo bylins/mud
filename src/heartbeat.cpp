@@ -473,16 +473,22 @@ Heartbeat::Heartbeat() :
 {
 }
 
+constexpr long long Heartbeat::ROLL_OVER_AFTER;
+
 void Heartbeat::operator()(const int missed_pulses)
 {
+	pulse_label_t label;
+
 	utils::CExecutionTimer timer;
-	pulse(missed_pulses);
+	pulse(missed_pulses, label);
 	const auto execution_time = timer.delta();
 	if (PASSES_PER_SEC / 60.0 < execution_time.count())
 	{
 		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
 			pulse_number(), execution_time.count(), missed_pulses);
 	}
+
+	m_measurements.add(label, pulse_number(), execution_time.count());
 }
 
 long long Heartbeat::period() const
@@ -505,18 +511,22 @@ void Heartbeat::advance_pulse_numbers()
 	m_global_pulse_number++;
 
 	// Roll pulse over after 10 hours
-	if (m_pulse_number >= (600 * 60 * PASSES_PER_SEC))
+	if (m_pulse_number >= ROLL_OVER_AFTER)
 	{
 		m_pulse_number = 0;
 	}
 }
 
-void Heartbeat::pulse(const int missed_pulses)
+void Heartbeat::pulse(const int missed_pulses, pulse_label_t& label)
 {
+	label.clear();
+
 	advance_pulse_numbers();
 
-	for (auto& step : m_steps)
+	for (auto i = 0; i != m_steps.size(); ++i)
 	{
+		auto& step = m_steps[i];
+
 		if (step.off())
 		{
 			continue;
@@ -524,11 +534,14 @@ void Heartbeat::pulse(const int missed_pulses)
 
 		if (0 == (m_pulse_number + step.offset()) % step.modulo())
 		{
+			label.insert(i);
+
 			utils::CExecutionTimer timer;
 
 			step.action()->perform(pulse_number(), missed_pulses);
+			const auto execution_time = timer.delta().count();
 
-			step.add_measurement(pulse_number(), timer.delta().count());
+			step.add_measurement(i, pulse_number(), execution_time);
 		}
 	}
 }
@@ -542,56 +555,55 @@ Heartbeat::PulseStep::PulseStep(const std::string& name, const int modulo, const
 {
 }
 
-void Heartbeat::PulseStep::add_measurement(const pulse_t pulse, const PulseMeasurements::value_t value)
+void Heartbeat::PulseStep::add_measurement(const std::size_t index, const pulse_t pulse, const BasePulseMeasurements::value_t value)
 {
-	m_measurements.add(PulseMeasurements::measurement_t(pulse, value));
+	m_measurements.add(index, pulse, value);
 }
 
-Heartbeat& heartbeat = GlobalObjects::heartbeat();
-
-PulseMeasurements::PulseMeasurements():
-	m_sum(0.0),
-	m_global_min(NO_VALUE),
-	m_global_max(NO_VALUE)
+BasePulseMeasurements::BasePulseMeasurements():
+	m_sum(0.0)
 {
 }
 
-void PulseMeasurements::add(const measurement_t& measurement)
+void BasePulseMeasurements::add(const measurement_t& measurement)
+{
+	add_measurement(measurement);
+	squeeze();
+}
+
+void BasePulseMeasurements::add_measurement(const measurement_t& measurement)
 {
 	const auto& pulse = measurement.first;
 	const auto& value = measurement.second;
 
-	m_measurements.emplace_back(pulse, value);
+	m_measurements.push_front(measurement);
+	m_sum += measurement.second;
+
 	m_min.insert(measurement);
 	m_max.insert(measurement);
+}
 
-	if (m_global_min.second > value
-		|| m_global_min == NO_VALUE)
+void BasePulseMeasurements::squeeze()
+{
+	while (m_measurements.size() > window_size())
 	{
-		m_global_min = std::move(measurement_t(pulse, value));
-	}
+		const auto& last_value = m_measurements.back();
 
-	if (m_global_max.second < value
-		|| m_global_max == NO_VALUE)
-	{
-		m_global_max = std::move(measurement_t(pulse, value));
-	}
+		remove_handler(last_value.first);
 
-	while (m_measurements.size() > WINDOW_SIZE)
-	{
-		const auto& front_value = m_measurements.front();
-
-		const auto min_i = m_min.find(front_value);
+		const auto min_i = m_min.find(last_value);
 		m_min.erase(min_i);
 
-		const auto max_i = m_max.find(front_value);
+		const auto max_i = m_max.find(last_value);
 		m_max.erase(max_i);
 
-		m_measurements.pop_front();
+		m_sum -= last_value.second;
+
+		m_measurements.pop_back();
 	}
 }
 
-constexpr std::size_t PulseMeasurements::WINDOW_SIZE;
-constexpr PulseMeasurements::measurement_t PulseMeasurements::NO_VALUE;
+constexpr std::size_t BasePulseMeasurements::WINDOW_SIZE;
+constexpr BasePulseMeasurements::measurement_t BasePulseMeasurements::NO_VALUE;
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -10,6 +10,7 @@
 
 #include "dg_scripts.h"
 
+#include "global.objects.hpp"
 #include "world.characters.hpp"
 #include "heartbeat.hpp"
 #include "find.obj.id.by.vnum.hpp"
@@ -4505,7 +4506,7 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, const cmdlist
 		ntime = (min * SECS_PER_MUD_HOUR * PASSES_PER_SEC) / 60;
 
 		// calculate pulse of day of current time
-		time = (heartbeat.global_pulse_number() % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))
+		time = (GlobalObjects::heartbeat().global_pulse_number() % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))
 			+ (time_info.hours * SECS_PER_MUD_HOUR * PASSES_PER_SEC);
 
 		if (time >= ntime)	// adjust for next day

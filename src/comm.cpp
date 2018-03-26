@@ -31,6 +31,7 @@
 
 #include "comm.h"
 
+#include "global.objects.hpp"
 #include "magic.h"
 #include "world.objects.hpp"
 #include "world.characters.hpp"
@@ -1638,8 +1639,10 @@ void game_loop(socket_t mother_desc)
 		// изменили на 1 сек -- слишком уж опасно лагает :)
 		if (missed_pulses > (1 * PASSES_PER_SEC))
 		{
+			const auto missed_seconds = missed_pulses / PASSES_PER_SEC;
+			const auto current_pulse = GlobalObjects::heartbeat().pulse_number();
 			log("SYSERR: Missed %d seconds worth of pulses (%d) on the pulse %d.",
-				static_cast<int>(missed_pulses / PASSES_PER_SEC), missed_pulses, heartbeat.pulse_number());
+				static_cast<int>(missed_seconds), missed_pulses, current_pulse);
 			missed_pulses = 1 * PASSES_PER_SEC;
 		}
 
@@ -1651,7 +1654,7 @@ void game_loop(socket_t mother_desc)
 #else
 			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
 #endif
-			heartbeat(missed_pulses);
+			GlobalObjects::heartbeat()(missed_pulses);
 		}
 
 #ifdef CIRCLE_UNIX

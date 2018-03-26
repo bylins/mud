@@ -1647,21 +1647,31 @@ public:
 
 	std::ostream& output(std::ostream& os) const
 	{
-	bool first = true;
+		bool first = true;
 		for (auto i = m_begin; i != m_end; ++i)
-	{
+		{
 			os << (first ? "" : m_delimiter) << *i;
-		first = false;
-	}
+			first = false;
+		}
 
 		return os;
 	}
+
+	std::string as_string() const;
 
 private:
 	typename T::const_iterator m_begin;
 	typename T::const_iterator m_end;
 	std::string m_delimiter;
 };
+
+template <typename T>
+std::string JoinRange<T>::as_string() const
+{
+	std::stringstream ss;
+	output(ss);
+	return std::move(ss.str());
+}
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const JoinRange<T>& range_printer) { return range_printer.output(os); }

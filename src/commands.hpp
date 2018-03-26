@@ -35,8 +35,6 @@ namespace commands
 
 			virtual void reply(const std::string& message) const override;
 
-			static shared_ptr create(CHAR_DATA* character) { return std::make_shared<ReplyableContext>(character); }
-
 		private:
 			CHAR_DATA * m_character;
 		};

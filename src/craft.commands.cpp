@@ -283,7 +283,7 @@ namespace craft
 			void CommandsHandler::process(CHAR_DATA* character, char* arguments)
 			{
 				AbstractCommand::arguments_t arguments_list(arguments);
-				const auto context = ReplyableContext::create(character);
+				const auto context = std::make_shared<ReplyableContext>(character);
 				m_command->execute(context, { craft::cmd::CRAFT_COMMAND }, arguments_list);
 			}
 
