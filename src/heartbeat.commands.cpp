@@ -84,7 +84,7 @@ namespace heartbeat
 					<< "\tCurrent pulse number &Y" << heartbeat.pulse_number() << "&n"
 					<< ", rolls over after &W" << Heartbeat::ROLL_OVER_AFTER << "&n pulses" << std::endl
 					<< "\tCurrent global pulse number: &Y" << heartbeat.global_pulse_number() << "&n" << std::endl
-					<< "\tNumber of different steps: &Y" << heartbeat.steps().size() << "&n" << std::endl
+					<< "\tNumber of different steps: &W" << heartbeat.steps().size() << "&n" << std::endl
 					<< "\tSteps period: &Y" << heartbeat.period() << "&n pulses." << std::endl
 					<< "\tAverage pulse duration: ";
 				if (0 == stats.count())
