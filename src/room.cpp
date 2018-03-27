@@ -53,10 +53,7 @@ CHAR_DATA* ROOM_DATA::first_character() const
 
 void ROOM_DATA::cleanup_script()
 {
-	if (script)
-	{
-		script->cleanup();
-	}
+	script->cleanup();
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

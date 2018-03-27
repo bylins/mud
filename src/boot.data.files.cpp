@@ -270,11 +270,6 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 
 		if (rnum >= 0)
 		{
-			if (!room->script)
-			{
-				room->script = std::make_shared<SCRIPT_DATA>();
-			}
-
 			const auto trigger_instance = read_trigger(rnum);
 			add_trigger(SCRIPT(room).get(), trigger_instance, -1);
 

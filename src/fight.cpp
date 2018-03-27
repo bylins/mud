@@ -1303,7 +1303,9 @@ void summon_mob_helpers(CHAR_DATA *ch)
 	for (struct helper_data_type *helpee = GET_HELPER(ch);
 		helpee; helpee = helpee->next_helper)
 	{
-		for (const auto vict : character_list)
+		// Start_fight_mtrigger using inside this loop
+		// So we have to iterate on copy list
+		character_list.foreach_on_copy([&] (const CHAR_DATA::shared_ptr& vict)
 		{
 			if (!IS_NPC(vict)
 				|| GET_MOB_VNUM(vict) != helpee->mob_vnum
@@ -1316,7 +1318,7 @@ void summon_mob_helpers(CHAR_DATA *ch)
 				|| IN_ROOM(vict) == NOWHERE
 				|| vict->get_fighting())
 			{
-				continue;
+				return;
 			}
 			if (GET_RACE(ch) == NPC_RACE_HUMAN)
 			{
@@ -1339,7 +1341,7 @@ void summon_mob_helpers(CHAR_DATA *ch)
 			{
 				set_fighting(vict, ch->get_fighting());
 			}
-		}
+		});
 	}
 }
 

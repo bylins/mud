@@ -555,8 +555,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 			}
 		}
 
-		if (obj_it->second->get_script()
-			&& !TRIGGERS(obj_it->second->get_script()))
+		if (obj_it->second->get_script()->has_triggers())
 		{
 			obj_it->second->cleanup_script();
 		}

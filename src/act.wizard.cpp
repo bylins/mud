@@ -2776,7 +2776,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	}
 	else  		// this is a PC, display their global variables
 	{
-		if (k->script && k->script->global_vars)
+		if (SCRIPT(k)->global_vars)
 		{
 			struct trig_var_data *tv;
 			char name[MAX_INPUT_LENGTH];
