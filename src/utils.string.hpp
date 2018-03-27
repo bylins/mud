@@ -22,7 +22,11 @@ namespace utils
 		{
 		}
 
+		const auto length() const { return m_length; }
 		std::ostream& output(std::ostream& os) const;
+
+	protected:
+		std::ostream& pad(std::ostream& os, const std::size_t length) const;
 
 	private:
 		std::size_t m_length;
@@ -30,6 +34,19 @@ namespace utils
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Padding& padding) { return padding.output(os); }
+
+	class SpacedPadding : public Padding
+	{
+	public:
+		SpacedPadding(const std::string& string, std::size_t minimal_length, const char padding = ' ') :
+			Padding(string, minimal_length, padding)
+		{
+		}
+
+		std::ostream& output(std::ostream& os) const;
+	};
+
+	inline std::ostream& operator<<(std::ostream& os, const SpacedPadding& padding) { return padding.output(os); }
 }
 
 #endif

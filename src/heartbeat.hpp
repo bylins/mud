@@ -34,8 +34,12 @@ public:
 	virtual ~BasePulseMeasurements() {}
 
 	const auto window_size() const { return WINDOW_SIZE; }
-	const auto sum() const { return m_sum; }
-	const auto count() const { return m_measurements.size(); }
+
+	const auto window_sum() const { return m_sum; }
+	const auto current_window_size() const { return m_measurements.size(); }
+
+	const auto global_sum() const { return m_global_sum; }
+	const auto global_count() const { return m_global_count; }
 
 	const auto& min() const { return m_min; }
 	const auto& max() const { return m_max; }
@@ -74,6 +78,9 @@ private:
 	max_t m_max;
 
 	value_t m_sum;
+
+	value_t m_global_sum;
+	std::size_t m_global_count;
 };
 
 template <typename Label>
@@ -159,6 +166,8 @@ public:
 
 		void add_measurement(const std::size_t index, const pulse_t pulse, const StepMeasurement::value_t value);
 
+		const auto& stats() const { return m_measurements; }
+
 	private:
 		std::string m_name;
 		int m_modulo;
@@ -170,7 +179,7 @@ public:
 	};
 
 	using steps_t = std::vector<PulseStep>;
-	using pulse_label_t = std::unordered_set<std::size_t>;
+	using pulse_label_t = std::unordered_map<std::size_t, double>;
 	using PulseMeasurement = LabelledMeasurements<pulse_label_t>;
 
 	Heartbeat();
@@ -183,10 +192,13 @@ public:
 
 	const auto& stats() const { return m_measurements; }
 	const auto& steps() const { return m_steps; }
+	const auto& executed_steps() const { return m_executed_steps; }
 
-	std::ostream& print_step_name(std::ostream& os, const std::size_t index) const { return os << m_steps[index].name(); }
+	const std::string& step_name(const std::size_t index) const { return m_steps[index].name(); }
 
 private:
+	using steps_set_t = std::unordered_set<std::size_t>;
+
 	void advance_pulse_numbers();
 	void pulse(const int missed_pulses, pulse_label_t& label);
 
@@ -194,6 +206,7 @@ private:
 	pulse_t m_pulse_number;
 	unsigned long m_global_pulse_number;	// number of pulses since game start
 
+	steps_set_t m_executed_steps;	// set of step indexes ever executed
 	PulseMeasurement m_measurements;
 };
 

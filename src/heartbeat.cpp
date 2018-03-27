@@ -523,7 +523,7 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t& label)
 
 	advance_pulse_numbers();
 
-	for (auto i = 0; i != m_steps.size(); ++i)
+	for (std::size_t i = 0; i != m_steps.size(); ++i)
 	{
 		auto& step = m_steps[i];
 
@@ -534,13 +534,13 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t& label)
 
 		if (0 == (m_pulse_number + step.offset()) % step.modulo())
 		{
-			label.insert(i);
-
 			utils::CExecutionTimer timer;
 
 			step.action()->perform(pulse_number(), missed_pulses);
 			const auto execution_time = timer.delta().count();
 
+			label.emplace(i, execution_time);
+			m_executed_steps.insert(i);
 			step.add_measurement(i, pulse_number(), execution_time);
 		}
 	}
@@ -561,7 +561,9 @@ void Heartbeat::PulseStep::add_measurement(const std::size_t index, const pulse_
 }
 
 BasePulseMeasurements::BasePulseMeasurements():
-	m_sum(0.0)
+	m_sum(0.0),
+	m_global_sum(0.0),
+	m_global_count(0)
 {
 }
 
@@ -578,6 +580,8 @@ void BasePulseMeasurements::add_measurement(const measurement_t& measurement)
 
 	m_measurements.push_front(measurement);
 	m_sum += measurement.second;
+	m_global_sum += measurement.second;
+	++m_global_count;
 
 	m_min.insert(measurement);
 	m_max.insert(measurement);

@@ -73,10 +73,29 @@ namespace utils
 
 	std::ostream& Padding::output(std::ostream& os) const
 	{
-		for (std::size_t i = 0; i < m_length; ++i)
+		return pad(os, m_length);
+	}
+
+	std::ostream& Padding::pad(std::ostream& os, const std::size_t length) const
+	{
+		for (std::size_t i = 0; i < length; ++i)
 		{
 			os << m_padding;
-}
+		}
+
+		return os;
+	}
+
+	std::ostream& SpacedPadding::output(std::ostream& os) const
+	{
+		os << ' ';
+
+		pad(os, std::max<std::size_t>(1, length()) - 1);
+
+		if (0 < length())
+		{
+			os << ' ';
+		}
 
 		return os;
 	}
