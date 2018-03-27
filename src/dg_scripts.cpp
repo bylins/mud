@@ -775,24 +775,20 @@ OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 }
 
 // checks every PLUSE_SCRIPT for random triggers
-void script_trigger_check(void)
+void script_trigger_check()
 {
-	ROOM_DATA *room = NULL;
-	int nr;
-	SCRIPT_DATA *sc;
-
-	for (const auto ch : character_list)
+	character_list.foreach_on_copy([](const CHAR_DATA::shared_ptr& ch)
 	{
-		if (SCRIPT(ch))
+		if (SCRIPT(ch)->has_triggers())
 		{
-			sc = SCRIPT(ch).get();
+			auto sc = SCRIPT(ch).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM)
 				&& (!is_empty(world[ch->in_room]->zone)
 					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
 				random_mtrigger(ch.get());
 		}
-	}
+	});
 
 	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& obj)
 	{
@@ -803,9 +799,9 @@ void script_trigger_check(void)
 				NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
 			}
 		}
-		else if (obj->get_script())
+		else if (obj->get_script()->has_triggers())
 		{
-			sc = obj->get_script().get();
+			auto sc = obj->get_script().get();
 			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM))
 			{
 				random_otrigger(obj.get());
@@ -813,12 +809,12 @@ void script_trigger_check(void)
 		}
 	});
 
-	for (nr = FIRST_ROOM; nr <= top_of_world; nr++)
+	for (size_t nr = FIRST_ROOM; nr <= top_of_world; nr++)
 	{
-		if (SCRIPT(world[nr]))
+		if (SCRIPT(world[nr])->has_triggers())
 		{
-			room = world[nr];
-			sc = SCRIPT(room).get();
+			auto room = world[nr];
+			auto sc = SCRIPT(room).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_RANDOM)
 				&& (!is_empty(room->zone)
@@ -834,15 +830,11 @@ void script_trigger_check(void)
 // проверка каждый час на триги изменении времени
 void script_timechange_trigger_check(const int time)
 {
-	ROOM_DATA *room = NULL;
-	int nr;
-	SCRIPT_DATA *sc;
-
-	for (const auto ch : character_list)
+	character_list.foreach_on_copy([&](const std::shared_ptr<CHAR_DATA>& ch)
 	{
-		if (SCRIPT(ch))
+		if (SCRIPT(ch)->has_triggers())
 		{
-			sc = SCRIPT(ch).get();
+			auto sc = SCRIPT(ch).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE)
 				&& (!is_empty(world[ch->in_room]->zone)
@@ -851,13 +843,13 @@ void script_timechange_trigger_check(const int time)
 				timechange_mtrigger(ch.get(), time);
 			}
 		}
-	}
+	});
 
 	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& obj)
 	{
-		if (obj->get_script())
+		if (obj->get_script()->has_triggers())
 		{
-			sc = obj->get_script().get();
+			auto sc = obj->get_script().get();
 			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_TIMECHANGE))
 			{
 				timechange_otrigger(obj.get(), time);
@@ -865,12 +857,12 @@ void script_timechange_trigger_check(const int time)
 		}
 	});
 
-	for (nr = FIRST_ROOM; nr <= top_of_world; nr++)
+	for (size_t nr = FIRST_ROOM; nr <= top_of_world; nr++)
 	{
-		if (SCRIPT(world[nr]))
+		if (SCRIPT(world[nr])->has_triggers())
 		{
-			room = world[nr];
-			sc = SCRIPT(room).get();
+			auto room = world[nr];
+			auto sc = SCRIPT(room).get();
 
 			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE)
 				&& (!is_empty(room->zone)
@@ -1077,7 +1069,7 @@ void do_sstat_room(CHAR_DATA * ch)
 void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch)
 {
 	send_to_char("Script information:\r\n", ch);
-	if (!SCRIPT(rm))
+	if (!SCRIPT(rm)->has_triggers())
 	{
 		send_to_char("  None.\r\n", ch);
 		return;
@@ -1090,7 +1082,7 @@ void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch)
 void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j)
 {
 	send_to_char("Script information:\r\n", ch);
-	if (!j->get_script())
+	if (!j->get_script()->has_triggers())
 	{
 		send_to_char("  None.\r\n", ch);
 		return;
@@ -1102,7 +1094,7 @@ void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j)
 void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k)
 {
 	send_to_char("Script information:\r\n", ch);
-	if (!SCRIPT(k))
+	if (!SCRIPT(k)->has_triggers())
 	{
 		send_to_char("  None.\r\n", ch);
 		return;
@@ -1173,10 +1165,6 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
-					if (!SCRIPT(victim))
-					{
-						SCRIPT(victim) = std::make_shared<SCRIPT_DATA>();
-					}
 					add_trigger(SCRIPT(victim).get(), trig, loc);
 
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n", tn, GET_TRIG_NAME(trig), GET_SHORT(victim));
@@ -1202,10 +1190,6 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			rn = real_trigger(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn)))
 			{
-				if (!object->get_script())
-				{
-					object->set_script(new SCRIPT_DATA());
-				}
 				add_trigger(object->get_script().get(), trig, loc);
 
 				sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
@@ -1228,10 +1212,6 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
-					if (!(world[room]->script))
-					{
-						world[room]->script = std::make_shared<SCRIPT_DATA>();
-					}
 					add_trigger(world[room]->script.get(), trig, loc);
 
 					sprintf(buf, "Trigger %d (%s) attached to room %d.\r\n",
@@ -1276,7 +1256,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!str_cmp(arg1, "room"))
 	{
 		room = world[ch->in_room];
-		if (!SCRIPT(room))
+		if (!SCRIPT(room)->has_triggers())
 		{
 			send_to_char("This room does not have any triggers.\r\n", ch);
 		}
@@ -1289,10 +1269,6 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else if (SCRIPT(room)->remove_trigger(arg2))
 		{
 			send_to_char("Trigger removed.\r\n", ch);
-			if (SCRIPT(room)->trig_list.empty())
-			{
-				room->cleanup_script();
-			}
 		}
 		else
 		{
@@ -1338,7 +1314,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				send_to_char("Players don't have triggers.\r\n", ch);
 			}
-			else if (!SCRIPT(victim))
+			else if (!SCRIPT(victim)->has_triggers())
 			{
 				send_to_char("That mob doesn't have any triggers.\r\n", ch);
 			}
@@ -1352,10 +1328,6 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				&& SCRIPT(victim)->remove_trigger(trigger))
 			{
 				send_to_char("Trigger removed.\r\n", ch);
-				if (!TRIGGERS(SCRIPT(victim)))
-				{
-					victim->cleanup_script();
-				}
 			}
 			else
 			{
@@ -1364,7 +1336,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else if (object)
 		{
-			if (!object->get_script())
+			if (!object->get_script()->has_triggers())
 			{
 				send_to_char("That object doesn't have any triggers.\r\n", ch);
 			}
@@ -1378,10 +1350,6 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			else if (object->get_script()->remove_trigger(trigger))
 			{
 				send_to_char("Trigger removed.\r\n", ch);
-				if (!TRIGGERS(object->get_script().get()))
-				{
-					object->cleanup_script();
-				}
 			}
 			else
 			{
@@ -1512,17 +1480,17 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 
 bool SCRIPT_CHECK(const OBJ_DATA* go, const long type)
 {
-	return go->get_script() && IS_SET(SCRIPT_TYPES(go->get_script()), type);
+	return go->get_script()->has_triggers() && IS_SET(SCRIPT_TYPES(go->get_script()), type);
 }
 
 bool SCRIPT_CHECK(const CHAR_DATA* go, const long type)
 {
-	return go->script && IS_SET(SCRIPT_TYPES(go->script), type);
+	return go->script->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
 bool SCRIPT_CHECK(const ROOM_DATA* go, const long type)
 {
-	return go->script && IS_SET(SCRIPT_TYPES(go->script), type);
+	return go->script->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
 // * Изменение указанной целочисленной константы
@@ -2210,7 +2178,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "global"))  	// get global of something else
 		{
-			if (IS_NPC(c) && c->script)
+			if (IS_NPC(c))
 			{
 				find_replacement(go, c->script.get(), NULL, MOB_TRIGGER, subfield, NULL, NULL, str);
 			}
@@ -2920,12 +2888,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if (!str_cmp(field, "varexist") || !str_cmp(field, "varexists"))
 		{
 			strcpy(str, "0");
-			if (SCRIPT(c))
+			if (find_var_cntx(&((SCRIPT(c))->global_vars), subfield, sc->context))
 			{
-				if (find_var_cntx(&((SCRIPT(c))->global_vars), subfield, sc->context))
-				{
-					strcpy(str, "1");
-				}
+				strcpy(str, "1");
 			}
 		}
 		else if (!str_cmp(field, "next_in_room"))
@@ -3143,18 +3108,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else
 		{
-			if (SCRIPT(c))
-			{
-				vd = find_var_cntx(&((SCRIPT(c))->global_vars), field,
-								   sc->context);
-				if (vd)
-					sprintf(str, "%s", vd->value);
-				else
-				{
-					sprintf(buf2, "unknown char field: '%s'", field);
-					trig_log(trig, buf2);
-				}
-			}
+			vd = find_var_cntx(&((SCRIPT(c))->global_vars), field,
+				sc->context);
+			if (vd)
+				sprintf(str, "%s", vd->value);
 			else
 			{
 				sprintf(buf2, "unknown char field: '%s'", field);
@@ -3524,12 +3481,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if (!str_cmp(field, "varexists"))
 		{
 			strcpy(str, "0");
-			if (o->get_script())
+			if (find_var_cntx(&o->get_script()->global_vars, subfield, sc->context))
 			{
-				if (find_var_cntx(&o->get_script()->global_vars, subfield, sc->context))
-				{
-					strcpy(str, "1");
-				}
+				strcpy(str, "1");
 			}
 		}
 		else if (!str_cmp(field, "cost"))
@@ -3570,18 +3524,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else //get global var. obj.varname
 		{
-			if (o->get_script())
+			vd = find_var_cntx(&o->get_script()->global_vars, field, sc->context);
+			if (vd)
 			{
-				vd = find_var_cntx(&o->get_script()->global_vars, field, sc->context);
-				if (vd)
-				{
-					sprintf(str, "%s", vd->value);
-				}
-				else
-				{
-					sprintf(buf2, "Type: %d. unknown object field: '%s'", type, field);
-					trig_log(trig, buf2);
-				}
+				sprintf(str, "%s", vd->value);
 			}
 			else
 			{
@@ -3740,28 +3686,17 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			//room.varexists<0;1>
 			strcpy(str, "0");
-			if (SCRIPT(r))
+			if (find_var_cntx(&((SCRIPT(r))->global_vars), subfield, sc->context))
 			{
-				if (find_var_cntx(&((SCRIPT(r))->global_vars), subfield, sc->context))
-				{
-					strcpy(str, "1");
-				}
+				strcpy(str, "1");
 			}
 		}
 		else //get global var. room.varname
 		{
-			if (SCRIPT(r))
+			vd = find_var_cntx(&((SCRIPT(r))->global_vars), field, sc->context);
+			if (vd)
 			{
-				vd = find_var_cntx(&((SCRIPT(r))->global_vars), field, sc->context);
-				if (vd)
-				{
-					sprintf(str, "%s", vd->value);
-				}
-				else
-				{
-					sprintf(buf2, "Type: %d. unknown room field: '%s'", type, field);
-					trig_log(trig, buf2);
-				}
+				sprintf(str, "%s", vd->value);
 			}
 			else
 			{
@@ -4649,10 +4584,6 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	if (c)
 	{
-		if (!SCRIPT(c))
-		{
-			SCRIPT(c) = std::make_shared<SCRIPT_DATA>();
-		}
 		add_trigger(SCRIPT(c).get(), newtrig, -1);
 		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
 
@@ -4661,10 +4592,6 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	if (o)
 	{
-		if (!o->get_script())
-		{
-			o->set_script(new SCRIPT_DATA());
-		}
 		add_trigger(o->get_script().get(), newtrig, -1);
 		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
 		return;
@@ -4672,10 +4599,6 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	if (r)
 	{
-		if (!SCRIPT(r))
-		{
-			SCRIPT(r) = std::make_shared<SCRIPT_DATA>();
-		}
 		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->number);
 		add_trigger(SCRIPT(r).get(), newtrig, -1);
 		return;
@@ -4731,21 +4654,21 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 		}
 	}
 
-	if (c && SCRIPT(c))
+	if (c && SCRIPT(c)->has_triggers())
 	{
 		SCRIPT(c)->remove_trigger(trignum_s, retval);
 
 		return retval;
 	}
 
-	if (o && o->get_script())
+	if (o && o->get_script()->has_triggers())
 	{
 		o->get_script()->remove_trigger(trignum_s, retval);
 
 		return retval;
 	}
 
-	if (r && SCRIPT(r))
+	if (r && SCRIPT(r)->has_triggers())
 	{
 		SCRIPT(r)->remove_trigger(trignum_s, retval);
 
@@ -4824,19 +4747,19 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 		num = atoi(name);
 	}
 
-	if (c && SCRIPT(c))
+	if (c && SCRIPT(c)->has_triggers())
 	{
 		runtrig = SCRIPT(c)->trig_list.find(string, name, num);
 		trgtype = MOB_TRIGGER;
 		trggo = (void *)c;
 	}
-	else if (o && o->get_script())
+	else if (o && o->get_script()->has_triggers())
 	{
 		runtrig = o->get_script()->trig_list.find(string, name, num);
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *)o;
 	}
-	else if (r && SCRIPT(r))
+	else if (r && SCRIPT(r)->has_triggers())
 	{
 		runtrig = SCRIPT(r)->trig_list.find(string, name, num);
 		trgtype = WLD_TRIGGER;
@@ -5556,9 +5479,6 @@ void process_worlds(SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd, long id)
 	remove_var_cntx(&GET_TRIG_VARS(trig), vd->name, 0);
 }
 
-
-
-
 // set the current context for a script
 void process_context(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 {
@@ -6256,9 +6176,6 @@ void read_saved_vars(CHAR_DATA * ch)
 	char input_line[1024], *p;
 	char varname[32], *v;
 	char context_str[16], *c;
-
-	// create the space for the script structure which holds the vars
-	SCRIPT(ch) = std::make_shared<SCRIPT_DATA>();
 
 	// find the file that holds the saved variables and open it
 	get_filename(GET_NAME(ch), fn, SCRIPT_VARS_FILE);

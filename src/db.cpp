@@ -4268,11 +4268,6 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			room_rnum rn = real_room((*room)->vnum);
 			if ( rn != NOWHERE)
 			{
-				if (!(world[rn]->script))
-				{
-					world[rn]->script = std::make_shared<SCRIPT_DATA>();
-				}
-
 				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); it != (*room)->triggers.end(); ++it)
 				{
 					add_trigger(world[rn]->script.get(), read_trigger(real_trigger(*it)), -1);
@@ -4289,10 +4284,6 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					mob = read_mobile(i, REAL);
 					if (mob)
 					{
-						if (!SCRIPT(mob))
-						{
-							SCRIPT(mob) = std::make_shared<SCRIPT_DATA>();
-						}
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 						{
@@ -4313,10 +4304,6 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									obj_to_char(obj.get(), mob);
 									obj->set_zone(world[IN_ROOM(mob)]->zone);
 
-									if (!obj->get_script())
-									{
-										obj->set_script(new SCRIPT_DATA());
-									}
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 									{
@@ -4364,10 +4351,6 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 					const auto obj = world_objects.create_from_prototype_by_vnum((*load)->vnum);
 					if (obj)
 					{
-						if (!obj->get_script())
-						{
-							obj->set_script(new SCRIPT_DATA());
-						}
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 						{
@@ -4391,10 +4374,6 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									obj_to_obj(obj_in.get(), obj.get());
 									obj_in->set_zone(GET_OBJ_ZONE(obj));
 
-									if (!obj_in->get_script())
-									{
-										obj_in->set_script(new SCRIPT_DATA());
-									}
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 									{
@@ -4436,11 +4415,6 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			if (rnum > 0
 				&& list.find(mob_index[rnum].vnum) != list.end())
 			{
-				if (!SCRIPT(ch))
-				{
-					SCRIPT(ch) = std::make_shared<SCRIPT_DATA>();
-				}
-
 				for (Celebrates::TrigList::iterator it = list[mob_index[rnum].vnum].begin();
 					it != list[mob_index[rnum].vnum].end();
 					++it)
@@ -4461,11 +4435,6 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 		{
 			if (o->get_rnum() > 0 && list.find(o->get_rnum()) != list.end())
 			{
-				if (!o->get_script())
-				{
-					o->set_script(new SCRIPT_DATA());
-				}
-
 				for (Celebrates::TrigList::iterator it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end(); ++it)
 				{
 					add_trigger(o->get_script().get(), read_trigger(real_trigger(*it)), -1);
@@ -4887,19 +4856,11 @@ void reset_zone(zone_rnum zone)
 				// 'T' <flag> <trigger_type> <trigger_vnum> <room_vnum, для WLD_TRIGGER>
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
-					if (!SCRIPT(tmob))
-					{
-						SCRIPT(tmob) = std::make_shared<SCRIPT_DATA>();
-					}
 					add_trigger(SCRIPT(tmob).get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
 				{
-					if (!tobj->get_script())
-					{
-						tobj->set_script(new SCRIPT_DATA());
-					}
 					add_trigger(tobj->get_script().get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 					curr_state = 1;
 				}
@@ -4907,10 +4868,6 @@ void reset_zone(zone_rnum zone)
 				{
 					if (ZCMD.arg3 != NOWHERE)
 					{
-						if (!(world[ZCMD.arg3]->script))
-						{
-							world[ZCMD.arg3]->script = std::make_shared<SCRIPT_DATA>();
-						}
 						add_trigger(world[ZCMD.arg3]->script.get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 						curr_state = 1;
 					}
@@ -4921,19 +4878,12 @@ void reset_zone(zone_rnum zone)
 				// 'V' <flag> <trigger_type> <room_vnum> <context> <var_name> <var_value>
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
-					if (!SCRIPT(tmob))
-					{
-						ZONE_ERROR("Attempt to give variable to scriptless mobile");
-					}
-					else
-					{
-						add_var_cntx(&(SCRIPT(tmob)->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
-						curr_state = 1;
-					}
+					add_var_cntx(&(SCRIPT(tmob)->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
+					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
 				{
-					if (!tobj->get_script())
+					if (!tobj->get_script()->has_triggers())
 					{
 						ZONE_ERROR("Attempt to give variable to scriptless object");
 					}
@@ -4951,15 +4901,8 @@ void reset_zone(zone_rnum zone)
 					}
 					else
 					{
-						if (!(world[ZCMD.arg2]->script))
-						{
-							ZONE_ERROR("Attempt to give variable to scriptless object");
-						}
-						else
-						{
-							add_var_cntx(&(world[ZCMD.arg2]->script->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
-							curr_state = 1;
-						}
+						add_var_cntx(&(world[ZCMD.arg2]->script->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
+						curr_state = 1;
 					}
 				}
 				break;
