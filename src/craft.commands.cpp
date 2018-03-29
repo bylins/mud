@@ -35,7 +35,7 @@ namespace craft
 				virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 			};
 
-			void ExportPrototype::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void ExportPrototype::execute(const CommandContext::shared_ptr& context, const arguments_t&, const arguments_t& arguments)
 			{
 				if (2 != arguments.size())
 				{
@@ -89,7 +89,7 @@ namespace craft
 				virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 			};
 
-			void ListSkills::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void ListSkills::execute(const CommandContext::shared_ptr& context, const arguments_t&, const arguments_t& arguments)
 			{
 				std::stringstream ss;
 
@@ -118,7 +118,7 @@ namespace craft
 				virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 			};
 
-			void ListMaterials::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void ListMaterials::execute(const CommandContext::shared_ptr& context, const arguments_t&, const arguments_t& arguments)
 			{
 				std::stringstream ss;
 
@@ -161,7 +161,7 @@ namespace craft
 				virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 			};
 
-			void ListRecipes::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void ListRecipes::execute(const CommandContext::shared_ptr& context, const arguments_t&, const arguments_t& arguments)
 			{
 				std::stringstream ss;
 
@@ -190,7 +190,7 @@ namespace craft
 				virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 			};
 
-			void ListPrototypes::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void ListPrototypes::execute(const CommandContext::shared_ptr& context, const arguments_t&, const arguments_t& arguments)
 			{
 				std::stringstream ss;
 				ss << "Listing craft prototypes..." << std::endl
@@ -218,7 +218,7 @@ namespace craft
 				virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 			};
 
-			void ListProperties::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void ListProperties::execute(const CommandContext::shared_ptr& context, const arguments_t&, const arguments_t& arguments)
 			{
 				std::stringstream ss;
 				std::string arguments_string;
@@ -242,7 +242,7 @@ namespace craft
 				static auto create() { return std::make_shared<Root>(); }
 			};
 
-			void Root::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void Root::execute(const CommandContext::shared_ptr& context, const arguments_t&, const arguments_t&)
 			{
 				send(context, "Crafting something... :)\n");
 			}
@@ -284,7 +284,9 @@ namespace craft
 			{
 				AbstractCommand::arguments_t arguments_list(arguments);
 				const auto context = std::make_shared<ReplyableContext>(character);
-				m_command->execute(context, { craft::cmd::CRAFT_COMMAND }, arguments_list);
+				AbstractCommand::arguments_t path;
+				path.push_back(craft::cmd::CRAFT_COMMAND);
+				m_command->execute(context, path, arguments_list);
 			}
 
 			const commands::AbstractCommandsHanler::shared_ptr& commands_handler()

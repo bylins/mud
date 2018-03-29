@@ -47,7 +47,7 @@ public:
 	void add(const measurement_t& measurement);
 
 protected:
-	virtual void remove_handler(const pulse_t pulse) { /* do nothing by default */ }
+	virtual void remove_handler(const pulse_t) { /* do nothing by default */ }
 
 private:
 	using measurements_t = std::list<measurement_t>;

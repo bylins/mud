@@ -14,7 +14,7 @@ namespace craft
 	/// Defines for the "craft" command (base craft command)
 	namespace cmd
 	{
-		constexpr char* CRAFT_COMMAND = "craft";
+		const char* CRAFT_COMMAND = "craft";
 
 		/// Minimal position for base craft command
 		constexpr int MINIMAL_POSITION = POS_SITTING;

@@ -10,7 +10,7 @@ namespace heartbeat
 
 	namespace cmd
 	{
-		constexpr char* HEARTBEAT_COMMAND = "heartbeat";
+		extern const char* HEARTBEAT_COMMAND;
 
 		/// Minimal position for heartbeat command
 		constexpr int MINIMAL_POSITION = POS_SITTING;

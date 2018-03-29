@@ -146,7 +146,7 @@ namespace heartbeat
 				virtual void execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments) override;
 			};
 
-			void ShowStepsStats::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void ShowStepsStats::execute(const CommandContext::shared_ptr& context, const arguments_t&, const arguments_t&)
 			{
 				send(context, "Coming soon...");
 			}
@@ -162,7 +162,7 @@ namespace heartbeat
 				static void print_steps(std::ostream& os, const Heartbeat& heartbeat, const Heartbeat::pulse_label_t& label);
 			};
 
-			void ShowHeartbeatStats::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t& arguments)
+			void ShowHeartbeatStats::execute(const CommandContext::shared_ptr& context, const arguments_t& path, const arguments_t&)
 			{
 				const auto heartbeat_context = std::dynamic_pointer_cast<HeartbeatCommandContext>(context);
 				if (!heartbeat_context)
@@ -298,7 +298,9 @@ namespace heartbeat
 			{
 				AbstractCommand::arguments_t arguments_list(arguments);
 				const auto context = std::make_shared<HeartbeatCommandContext>(character, GlobalObjects::heartbeat());
-				m_command->execute(context, { heartbeat::cmd::HEARTBEAT_COMMAND }, arguments_list);
+				AbstractCommand::arguments_t path;
+				path.push_back(heartbeat::cmd::HEARTBEAT_COMMAND);
+				m_command->execute(context, path, arguments_list);
 			}
 
 			const commands::AbstractCommandsHanler::shared_ptr& commands_handler()
@@ -313,6 +315,8 @@ namespace heartbeat
 		{
 			commands_handler()->process(ch, arguments);
 		}
+
+		const char* HEARTBEAT_COMMAND = "heartbeat";
 	}
 }
 

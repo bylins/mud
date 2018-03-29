@@ -242,8 +242,6 @@ bool BasicCompactTrie::Range::DFS_Iterator::go_to_sibling()
 
 bool BasicCompactTrie::Range::DFS_Iterator::go_to_parent()
 {
-	const BasicCompactTrie& trie = *m_range->m_trie;
-
 	if (!m_path.empty())
 	{
 		m_current = m_path.back();
@@ -280,7 +278,6 @@ BasicCompactTrie::Range BasicCompactTrie::Range::find(const std::string& relativ
 	size_t pos = 0;
 	size_t current = m_root;
 
-	size_t parent = current;
 	if (!go_to_child(current))	// root without subtree
 	{
 		return std::move(Range(m_trie, current, m_prefix));
@@ -305,8 +302,6 @@ BasicCompactTrie::Range BasicCompactTrie::Range::find(const std::string& relativ
 			// reached end of prefix and NO_INDEX != current
 			return std::move(Range(m_trie, current, m_prefix + relative_prefix));
 		}
-
-		parent = current;
 	} while (go_to_child(current));
 
 	return std::move(Range(m_trie, NO_INDEX));	// couldn't find child
@@ -361,5 +356,8 @@ bool CompactTrie::add_string(const std::string& string)
 
 	return true;
 }
+
+constexpr size_t BasicCompactTrie::CHARS_NUMBER;
+constexpr size_t BasicCompactTrie::NO_INDEX;
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

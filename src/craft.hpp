@@ -179,7 +179,7 @@ namespace craft
 
 		const auto& id() const { return m_id; }
 
-		bool satisfy(const CHAR_DATA* character) const { return false; }
+		bool satisfy(const CHAR_DATA*) const { return false; }
 
 	private:
 		bool load(const pugi::xml_node* node);

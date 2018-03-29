@@ -64,10 +64,10 @@ int levenshtein(const std::string& string1, const std::string& string2, int w, i
 		row1[j] = j * a;
 	}
 
-	for (auto i = 0; i < len1; i++)
+	for (auto i = 0u; i < len1; i++)
 	{
 		row2[0] = (i + 1) * d;
-		for (auto j = 0; j < len2; j++)
+		for (auto j = 0u; j < len2; j++)
 		{
 			/* substitution */
 			row2[j + 1] = row1[j] + s * (string1[i] != string2[j]);

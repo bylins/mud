@@ -347,7 +347,7 @@ namespace
 	class SpellUsageCall : public AbstractPulseAction
 	{
 	public:
-		virtual void perform(int pulse_number, int missed_pulses) override
+		virtual void perform(int, int) override
 		{
 			if (!SpellUsage::isActive)
 			{
@@ -575,9 +575,6 @@ void BasePulseMeasurements::add(const measurement_t& measurement)
 
 void BasePulseMeasurements::add_measurement(const measurement_t& measurement)
 {
-	const auto& pulse = measurement.first;
-	const auto& value = measurement.second;
-
 	m_measurements.push_front(measurement);
 	m_sum += measurement.second;
 	m_global_sum += measurement.second;

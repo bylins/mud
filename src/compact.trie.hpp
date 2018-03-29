@@ -72,7 +72,7 @@ public:
 	static constexpr size_t CHARS_NUMBER = 1 << (sizeof(char) * 8);
 	static constexpr size_t NO_INDEX = ~0u;
 
-	BasicCompactTrie(): m_range(this), m_contents(1, Node('\0')) {}
+	BasicCompactTrie(): m_contents(1, Node('\0')), m_range(this) {}
 
 	/// Each next string must be added into trie in lexical order
 	bool add_string(const std::string& string);
@@ -113,9 +113,6 @@ class CompactTrie : public BasicCompactTrie
 public:
 	bool add_string(const std::string& string);
 };
-
-constexpr size_t BasicCompactTrie::CHARS_NUMBER;
-constexpr size_t BasicCompactTrie::NO_INDEX;
 
 #endif // __COMPACT_TRIE_HPP__
 
