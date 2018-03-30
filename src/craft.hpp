@@ -32,14 +32,16 @@ namespace craft
 
 	using id_t = std::string;	///< Common type for IDs.
 
-	class CCases
+	class Cases
 	{
 		const static int CASES_COUNT = CObjectPrototype::NUM_PADS;
 
 		using cases_t = std::array<std::string, CASES_COUNT>;
 
 	public:
-		CCases() {}
+		using shared_ptr = std::shared_ptr<Cases>;
+
+		Cases() {}
 
 		bool load_from_node(const pugi::xml_node* node);
 		void load_from_object(const CObjectPrototype::shared_ptr& object);
@@ -97,7 +99,7 @@ namespace craft
 		const std::string& aliases() const { return m_cases.aliases(); }
 		virtual const std::string& kind() const { return KIND; }
 
-		CCases m_cases;
+		Cases m_cases;
 
 		friend class CCraftModel;
 	};
@@ -121,11 +123,11 @@ namespace craft
 		std::string m_short_desc;	///< Short description
 		std::string m_long_desc;	///< Long description
 
-		CCases m_item_cases;		///< Item cases (including aliases)
-		CCases m_name_cases;		///< Name cases (including aliases)
-		std::shared_ptr<CCases> m_male_adjectives;	///< Male adjective cases
-		std::shared_ptr<CCases> m_female_adjectives;	///< Female adjective cases
-		std::shared_ptr<CCases> m_neuter_adjectives;	///< Neuter adjective cases
+		Cases m_item_cases;		///< Item cases (including aliases)
+		Cases m_name_cases;		///< Name cases (including aliases)
+		Cases::shared_ptr m_male_adjectives;	///< Male adjective cases
+		Cases::shared_ptr m_female_adjectives;	///< Female adjective cases
+		Cases::shared_ptr m_neuter_adjectives;	///< Neuter adjective cases
 
 		friend class CMaterial;
 	};
@@ -136,6 +138,8 @@ namespace craft
 	class CMaterial
 	{
 	public:
+		using shared_ptr = std::shared_ptr<CMaterial>;
+
 		CMaterial(const std::string& id) : m_id(id) {}
 
 		const auto& id() const { return m_id; }
@@ -156,8 +160,6 @@ namespace craft
 
 	class CMaterialInstance
 	{
-	public:
-
 	private:
 		const id_t m_type;
 		const id_t m_class;
@@ -171,13 +173,31 @@ namespace craft
 	class CRecipe
 	{
 	public:
+		using shared_ptr = std::shared_ptr<CRecipe>;
+
+		CRecipe(const std::string& id) : m_id(id) {}
+
 		const auto& id() const { return m_id; }
+
+		bool satisfy(const CHAR_DATA*) const { return false; }
 
 	private:
 		bool load(const pugi::xml_node* node);
 
+		struct ResultObject
+		{
+			obj_vnum m_vnum;
+		};
+
 		id_t m_id;                          ///< Recipe ID.
-		std::string m_name;					///< Recipe name.
+		::std::string m_name;				///< Recipe name.
+
+		// TODO: add field with requirements to learn: skills where one of them is primary skill
+		// TODO: add field with requirements to use: skills and tools
+
+		int m_training_cap;					///< Trains skill (which one?) up to this value.
+
+		ResultObject m_result;
 
 		friend class CCraftModel;
 	};
@@ -234,8 +254,8 @@ namespace craft
 		using id_set_t = std::set<id_t>;
 		using crafts_t = std::list<CCraft>;
 		using skills_t = std::list<CSkillBase>;
-		using recipes_t = std::list<CRecipe>;
-		using materials_t = std::list<CMaterial>;
+		using recipes_t = std::list<CRecipe::shared_ptr>;
+		using materials_t = std::list<CMaterial::shared_ptr>;
 		using prototypes_t = std::list<CObjectPrototype::shared_ptr>;
 
 		const static std::string FILE_NAME;
@@ -318,6 +338,12 @@ namespace craft
 		** if it was successful and false otherwise.
 		*/
 		bool load_material(const pugi::xml_node* material, const size_t number);
+
+		/**
+		** Loads N-th recipe from specified XML node and returns true
+		** if it was successful and false otherwise.
+		*/
+		bool load_recipe(const pugi::xml_node* recipe, const size_t number);
 
 		bool load_from_node(const pugi::xml_node* node);
 

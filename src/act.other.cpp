@@ -65,7 +65,6 @@ extern char const *class_abbrevs[];
 extern int free_rent;
 extern int max_filesize;
 extern int nameserver_is_slow;
-extern int auto_save;
 extern struct skillvariables_dig dig_vars;
 extern struct skillvariables_insgem insgem_vars;
 
@@ -228,21 +227,7 @@ void do_save(CHAR_DATA *ch, char* /*argument*/, int cmd, int/* subcmd*/)
 
 	// Only tell the char we're saving if they actually typed "save"
 	if (cmd)
-	{		/*
-				 * This prevents item duplication by two PC's using coordinated saves
-				 * (or one PC with a house) and system crashes. Note that houses are
-				 * still automatically saved without this enabled. This code assumes
-				 * that guest immortals aren't trustworthy. If you've disabled guest
-				 * immortal advances from mortality, you may want < instead of <=.
-				 */
-		/*if (auto_save && GET_LEVEL(ch) <= LVL_IMMORT)
-		{
-			send_to_char("Записываю синонимы.\r\n", ch);
-			write_aliases(ch);
-			return;
-		}
-		sprintf(buf, "Записываю %s и алиасы.\r\n", GET_NAME(ch));
-		send_to_char(buf, ch);*/
+	{
 		send_to_char("Ладушки.\r\n", ch);
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 	}	

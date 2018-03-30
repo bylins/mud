@@ -31,58 +31,39 @@
 
 #include "comm.h"
 
-#include "world.characters.hpp"
+#include "global.objects.hpp"
+#include "magic.h"
 #include "world.objects.hpp"
+#include "world.characters.hpp"
+#include "shutdown.parameters.hpp"
 #include "object.prototypes.hpp"
 #include "external.trigger.hpp"
-#include "shutdown.parameters.hpp"
-#include "obj.hpp"
-#include "interpreter.h"
 #include "handler.h"
-#include "db.h"
 #include "house.h"
 #include "olc.h"
-#include "dg_scripts.h"
 #include "screen.h"
 #include "ban.hpp"
-#include "auction.h"
 #include "exchange.h"
-#include "deathtrap.hpp"
 #include "title.hpp"
 #include "depot.hpp"
 #include "glory.hpp"
 #include "file_crc.hpp"
-#include "char.hpp"
-#include "char_player.hpp"
-#include "parcel.hpp"
-#include "pk.h"
-#include "spells.h"
-#include "house_exp.hpp"
-#include "skills.h"
 #include "corpse.hpp"
-#include "room.hpp"
 #include "glory_misc.hpp"
 #include "glory_const.hpp"
-#include "celebrates.hpp"
-#if defined WITH_SCRIPTING
-	#include "scripting.hpp"
-#endif
 #include "shop_ext.hpp"
 #include "sets_drop.hpp"
-#include "fight.h"
-#include "help.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
 #include "char_obj_utils.inl"
 #include "logger.hpp"
 #include "msdp.hpp"
 #include "msdp.constants.hpp"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "bonus.h"
-#include "temp_spells.hpp"
-#include "time_utils.hpp"
+#include "heartbeat.hpp"
+
+#if defined WITH_SCRIPTING
+#include "scripting.hpp"
+#endif
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
@@ -181,7 +162,6 @@
 
 #define MXPMODE(arg) ESC "[" #arg "z"
 extern void save_zone_count_reset();
-extern std::vector<SpeedWalk>  speedwalks;
 extern int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA * leader);
 // flags for show_list_to_char 
 
@@ -410,8 +390,6 @@ extern const char *DFLT_IP;
 extern const char *LOGNAME;
 extern int max_playing;
 extern int nameserver_is_slow;	// see config.cpp
-extern int auto_save;		// see config.cpp
-extern int autosave_time;	// see config.cpp
 extern int mana[];
 extern struct zone_data *zone_table;
 extern const char *save_info_msg[];	// In olc.cpp
@@ -419,10 +397,6 @@ extern CHAR_DATA *combat_list;
 extern int proc_color(char *inbuf, int color);
 extern void tact_auction(void);
 extern void log_code_date();
-extern void print_rune_log();
-
-// external global objects and containers
-extern BanList *ban;
 
 // local globals
 DESCRIPTOR_DATA *descriptor_list = NULL;	// master desc list
@@ -434,10 +408,8 @@ int no_specials = 0;		// Suppress ass. of special routines
 int max_players = 0;		// max descriptors available
 int tics = 0;			// for extern checkpointing
 int scheck = 0;			// for syntax checking mode
-long last_rent_check = 0;	// at what time checked rented time
 struct timeval null_time;	// zero-valued time structure
 int dg_act_check;		// toggle for act_trigger
-unsigned long dg_global_pulse = 0;	// number of pulses since game start
 unsigned long cmd_cnt = 0;
 unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
@@ -571,8 +543,6 @@ const int vnum_gifts[len_array_gifts] = { 27113,
 	10616
 };
 
-
-
 void gifts()
 {
 	// выбираем случайную комнату с елкой
@@ -627,9 +597,7 @@ void flush_queues(DESCRIPTOR_DATA * d);
 void nonblock(socket_t s);
 int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst);
 int perform_alias(DESCRIPTOR_DATA * d, char *orig);
-void record_usage(void);
 char *make_prompt(DESCRIPTOR_DATA * point);
-void check_idle_passwords(void);
 struct in_addr *get_bind_addr(void);
 int parse_ip(const char *addr, struct in_addr *inaddr);
 int set_sendbuf(socket_t s);
@@ -642,34 +610,17 @@ void *zlib_alloc(void *opaque, unsigned int items, unsigned int size);
 void zlib_free(void *opaque, void *address);
 #endif
 
-// extern fcnts
-void SaveGlobalUID(void);
-void boot_world(void);
-void player_affect_update(void);	// In spells.cpp
-namespace RoomSpells
-{
-void room_affect_update(void);		// In spells.cpp
-}
-void mobile_affect_update(void);
-void mobile_activity(int activity_level, int missed_pulses);
-void process_events(void);
+
 void show_string(DESCRIPTOR_DATA * d, char *input);
-void weather_and_time(int mode);
 void redit_save_to_disk(int zone_num);
 void oedit_save_to_disk(int zone_num);
 void medit_save_to_disk(int zone_num);
 void zedit_save_to_disk(int zone_num);
-void hour_update();
 int real_zone(int number);
-void Crash_rent_time(int dectime);
 void Crash_ldsave(CHAR_DATA * ch);
 void Crash_save_all_rent();
 int level_exp(CHAR_DATA * ch, int level);
-void flush_player_index(void);
-void Crash_frac_save_all(int frac_part);
-void Crash_frac_rent_time(int frac_part);
 unsigned long TxtToIp(const char * text);
-void underwater_check(void);
 
 #ifdef __CXREF__
 #undef FD_ZERO
@@ -744,9 +695,6 @@ void gettimeofday(struct timeval *t, void *dummy)
 }
 
 #endif				// CIRCLE_WINDOWS || CIRCLE_MACINTOSH
-
-#define plant_magic(x)	do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)
-#define test_magic(x)	((x)[sizeof(x) - 1])
 
 #include <iostream>
 
@@ -1567,7 +1515,6 @@ void game_loop(socket_t mother_desc)
 	null_time.tv_usec = 0;
 	opt_time.tv_usec = OPT_USEC;
 	opt_time.tv_sec = 0;
-	last_rent_check = time(NULL);
 
 #ifdef HAS_EPOLL
 	events = (struct epoll_event *)calloc(1, MAXEVENTS * sizeof(struct epoll_event));
@@ -1692,8 +1639,10 @@ void game_loop(socket_t mother_desc)
 		// изменили на 1 сек -- слишком уж опасно лагает :)
 		if (missed_pulses > (1 * PASSES_PER_SEC))
 		{
+			const auto missed_seconds = missed_pulses / PASSES_PER_SEC;
+			const auto current_pulse = GlobalObjects::heartbeat().pulse_number();
 			log("SYSERR: Missed %d seconds worth of pulses (%d) on the pulse %d.",
-				static_cast<int>(missed_pulses / PASSES_PER_SEC), missed_pulses, heartbeat.pulse());
+				static_cast<int>(missed_seconds), missed_pulses, current_pulse);
 			missed_pulses = 1 * PASSES_PER_SEC;
 		}
 
@@ -1705,7 +1654,7 @@ void game_loop(socket_t mother_desc)
 #else
 			process_io(input_set, output_set, exc_set, null_set, mother_desc, maxdesc);
 #endif
-			heartbeat(missed_pulses);
+			GlobalObjects::heartbeat()(missed_pulses);
 		}
 
 #ifdef CIRCLE_UNIX
@@ -1717,495 +1666,6 @@ void game_loop(socket_t mother_desc)
 	free(events);
 #endif
 }
-
-void beat_points_update(int pulse);
-#define FRAC_SAVE TRUE
-
-//вызов инспекта
-extern void inspecting();
-//список запросов инспекта
-extern InspReqListType inspect_list;
-
-extern SetAllInspReqListType setall_inspect_list;
-extern void setall_inspect();
-
-void check_external_reboot_trigget(const int pulse)
-{
-	if (0 != pulse % PASSES_PER_SEC)
-	{
-		return;
-	}
-
-	static ExternalTriggerChecker reboot(runtime_config.external_reboot_trigger_file_name());
-
-	if (reboot.check())
-	{
-		mudlog("Сработал внешний триггер перезагрузки.", DEF, LVL_IMPL, SYSLOG, true);
-		shutdown_parameters.reboot();
-	}
-}
-
-Heartbeat::Heartbeat() :
-	m_mins_since_crashsave(0),
-	m_pulse(0)
-{
-}
-
-void Heartbeat::operator()(const int missed_pulses)
-{
-	utils::CExecutionTimer timer;
-	tick(missed_pulses);
-	const auto execution_time = timer.delta();
-	if (PASSES_PER_SEC / 60.0 < execution_time.count())
-	{
-		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
-			pulse(), execution_time.count(), missed_pulses);
-	}
-}
-
-void Heartbeat::tick(const int missed_pulses)
-{
-	int uptime_minutes = 0;
-	long check_at = 0;
-
-	m_pulse++;
-	// Roll pulse over after 10 hours
-	if (m_pulse >= (600 * 60 * PASSES_PER_SEC))
-	{
-		m_pulse = 0;
-	}
-
-	dg_global_pulse++;
-
-	if (!(m_pulse % PASSES_PER_SEC))
-	{
-		const auto boot_time = shutdown_parameters.get_boot_time();
-		uptime_minutes = ((time(NULL) - boot_time) / 60);
-	}
-
-	if ((m_pulse % (PASSES_PER_SEC)) == 0)
-	{
-		for (auto &sw : speedwalks)
-		{
-			if (sw.wait > sw.route[sw.cur_state].wait)
-			{
-				for (CHAR_DATA *ch : sw.mobs) {
-					if (ch && !ch->purged())
-					{
-						std::string direction = sw.route[sw.cur_state].direction;
-						int dir = 1;
-						if (boost::starts_with(direction, "север"))
-							dir = SCMD_NORTH;
-						if (boost::starts_with(direction, "восток"))
-							dir = SCMD_EAST;
-						if (boost::starts_with(direction, "юг"))
-							dir = SCMD_SOUTH;
-						if (boost::starts_with(direction, "запад"))
-							dir = SCMD_WEST;
-						if (boost::starts_with(direction, "вверх"))
-							dir = SCMD_UP;
-						if (boost::starts_with(direction, "вниз"))
-							dir = SCMD_DOWN;
-						perform_move(ch, dir - 1, 0, TRUE, 0);
-					}
-				}
-				sw.wait = 0;
-				sw.cur_state = (sw.cur_state >= static_cast<decltype(sw.cur_state)>(sw.route.size()) - 1) ? 0 : sw.cur_state + 1;
-			}
-			else
-			{
-				sw.wait += 1;
-			}
-		}
-	}
-
-	// таблица меняется каждые два часа
-	if ((m_pulse % (PASSES_PER_SEC * 120 * 60)) == 0)
-	{
-		GlobalDrop::reload_tables();
-	}
-
-	process_events();
-
-	if (!((m_pulse + 1) % PULSE_DG_SCRIPT))  	//log("Triggers check...");
-	{
-		script_trigger_check();
-	}
-
-	if (!((m_pulse + 2) % (60 * PASSES_PER_SEC)))
-	{
-		sanity_check();
-	}
-
-	if (!(m_pulse % (40 * PASSES_PER_SEC)))
-	{
-		check_idle_passwords();
-	}
-
-// экономим процессор. mobile_activity() дергать каждый пульс совсем не обязательно.
-// второй аргумент -- период вызова в пульсах
-// желательно, чтобы этот период был таким, чтобы различные задержки,
-// выраженные в количестве пульсов, были ему кратны.
-	if (!(m_pulse % 10))
-	{
-		mobile_activity(m_pulse, 10);
-	}
-
-	if ((missed_pulses == 0) && (inspect_list.size() > 0))
-	{
-		inspecting();
-	}
-		
-	if ((missed_pulses == 0) && (setall_inspect_list.size() > 0))
-	{
-		setall_inspect();
-	}
-
-	if (!(m_pulse % (2 * PASSES_PER_SEC)))
-	{
-		DeathTrap::activity();
-		underwater_check();
-		ClanSystem::check_player_in_house();
-	}
-
-	if (!((m_pulse + 3) % PULSE_VIOLENCE))
-	{
-		perform_violence();
-	}
-
-	if (!(m_pulse % (30 * PASSES_PER_SEC)))
-	{
-		if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 30)
-			&& shutdown_parameters.get_shutdown_timeout() == 0)
-		{
-			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
-			send_to_all("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
-			shutdown_parameters.reboot(1800);
-		}
-	}
-
-	check_external_reboot_trigget(m_pulse);
-
-	if (!(m_pulse % (AUCTION_PULSES * PASSES_PER_SEC)))  	//log("Auction update...");
-	{
-		tact_auction();
-	}
-
-	if (!(m_pulse % (SECS_PER_ROOM_AFFECT * PASSES_PER_SEC)))
-	{
-		RoomSpells::room_affect_update();
-	}
-
-	if (!(m_pulse % (SECS_PER_PLAYER_AFFECT * PASSES_PER_SEC)))
-	{
-		player_affect_update();
-	}
-
-	if (!((m_pulse + PASSES_PER_SEC - 1)% (TIME_KOEFF * SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		hour_update();
-		Bonus::timer_bonus();
-		weather_and_time(1);
-		paste_mobiles();
-	}
-
-	if (!((m_pulse + 5) % PULSE_ZONE))
-	{
-		zone_update();
-	}
-
-	if (!((m_pulse + 49) % (60 * 60 * PASSES_PER_SEC)))
-	{
-		MoneyDropStat::print_log();
-		ZoneExpStat::print_log();
-		print_rune_log();
-	}
-
-	if (!((m_pulse + 57) % (60 * mob_stat::SAVE_PERIOD * PASSES_PER_SEC)))
-	{
-		mob_stat::save();
-	}
-
-	if (!((m_pulse + 52) % (60 * SetsDrop::SAVE_PERIOD * PASSES_PER_SEC)))
-	{
-		SetsDrop::save_drop_table();
-	}
-
-	// раз в 10 минут >> ///////////////////////////////////////////////////////////
-
-	// если здесь прибавляется больше 25 пульсов - это фигня, потому что
-	// перекрываться с другими тайм-фреймами они так или иначе будут в любом случае
-	// все на разные пульсы не раскидаешь внутри одной секунды, а многие функции
-	// сами по себе работают намного дольше 1го пульса
-	// здесь важно то, что они не перекрываются друг другом в момент тика
-
-	// сохранение лога клан-хранов
-	if (!((m_pulse + 50) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		ClanSystem::save_chest_log();
-	}
-
-	// сохранение клан-хранов для ингров
-	if (!((m_pulse + 48) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		ClanSystem::save_ingr_chests();
-	}
-
-	// убитые мобы для глобал-дропа
-	if (!((m_pulse + 47) % (60 * GlobalDrop::SAVE_PERIOD * PASSES_PER_SEC)))
-	{
-		GlobalDrop::save();
-	}
-
-	// снятие денег за шмот в клановых сундуках
-	if (!((m_pulse + 46) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::ChestUpdate();
-	}
-
-	// сохранение клан-хранов
-	if (!((m_pulse + 44) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::SaveChestAll();
-	}
-
-	// и самих кланов
-	if (!((m_pulse + 40) % (60 * CHEST_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::ClanSave();
-	}
-
-//Polud организуем зачистку после праздника
-	if (!((m_pulse+39) % (Celebrates::CLEAN_PERIOD * 60 * PASSES_PER_SEC)))
-	{
-		Celebrates::sanitize();
-	}
-
-// раз в 5 минут >> ////////////////////////////////////////////////////////////
-
-	if (!((m_pulse + 37) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		record_usage();
-	}
-
-	if (!((m_pulse + 36) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		ban->reload_proxy_ban(ban->RELOAD_MODE_TMPFILE);
-	}
-
-	// вывод иммам о неодобренных именах и титулах
-	if (!((m_pulse + 35) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		god_work_invoice();
-	}
-
-	// сейв титулов, ждущих одобрения
-	if (!((m_pulse + 34) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		TitleSystem::save_title_list();
-	}
-
-	// сейв зареганных мыл
-	if (!((m_pulse + 33) % (5 * 60 * PASSES_PER_SEC)))
-	{
-		RegisterSystem::save();
-	}
-
-// раз в минуту >> /////////////////////////////////////////////////////////////
-
-	// сохранение почты (при наличии изменений)
-	if (!((m_pulse + 32) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		mail::save();
-	}
-
-	// проверка необходимости обновления динамической справки
-	if (!((m_pulse + 31) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		HelpSystem::check_update_dynamic();
-	}
-
-	// обновление таблицы дропа сетов
-	if (!((m_pulse + 30) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		SetsDrop::reload_by_timer();
-	}
-
-	// клан-пк
-	if (!((m_pulse + 29) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Clan::save_pk_log();
-	}
-
-	// очистка спурженных char_data и obj_data
-	if (!((m_pulse + 28) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		character_list.purge();
-		world_objects.purge();
-	}
-
-	// апдейт таймеров в личных хранах + пурж чего надо
-	if (!((m_pulse + 25) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Depot::update_timers();
-	}
-	// апдейт таймеров на почте + разворот посылок/пурж
-	if (!((m_pulse + 24) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Parcel::update_timers();
-	}
-
-	// апдейт таймеров славы
-	if (!((m_pulse + 23) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Glory::timers_update();
-	}
-
-	// сохранение файла славы
-	if (!((m_pulse + 22) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Glory::save_glory();
-	}
-
-	// сохранение онлайновых списков шмота
-	if (!((m_pulse + 21) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Depot::save_all_online_objs();
-	}
-
-	// сохранение таймер-инфы всех шмоток в общий файл
-	if (!((m_pulse + 17) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Depot::save_timedata();
-	}
-
-	if (!((m_pulse + 16) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		mobile_affect_update();
-	}
-
-	if (!((m_pulse + 11) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		obj_point_update();
-		bloody::update();
-	}
-
-	if (!((m_pulse + 6) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		room_point_update();
-	}
-
-	if (!((m_pulse + 5) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		Temporary_Spells::update_times();
-	}
-
-	if (!((m_pulse + 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		exchange_point_update();
-	}
-
-	if (!((m_pulse + 1) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		flush_player_index();
-	}
-
-	if (!((m_pulse + PASSES_PER_SEC - 2) % (SECS_PER_MUD_HOUR * PASSES_PER_SEC)))
-	{
-		point_update();
-	}
-
-// << раз в минуту /////////////////////////////////////////////////////////////
-
-	if (!(m_pulse % PASSES_PER_SEC))
-	{
-		beat_points_update(m_pulse / PASSES_PER_SEC);
-	}
-
-#if defined WITH_SCRIPTING
-	if (!(m_pulse % scripting::HEARTBEAT_PASSES))
-	{
-		scripting::heartbeat();
-	}
-#endif
-
-	if (FRAC_SAVE && auto_save && !((m_pulse + 7) % PASSES_PER_SEC))  	// 1 game second
-	{
-		Crash_frac_save_all((m_pulse / PASSES_PER_SEC) % PLAYER_SAVE_ACTIVITY);
-		Crash_frac_rent_time((m_pulse / PASSES_PER_SEC) % OBJECT_SAVE_ACTIVITY);
-	}
-
-
-	if (EXCHANGE_AUTOSAVETIME && auto_save && !((m_pulse + 9) % (EXCHANGE_AUTOSAVETIME * PASSES_PER_SEC)))
-	{
-		exchange_database_save();
-	}
-
-	if (EXCHANGE_AUTOSAVEBACKUPTIME && !((m_pulse + 9) % (EXCHANGE_AUTOSAVEBACKUPTIME * PASSES_PER_SEC)))
-	{
-		exchange_database_save(true);
-	}
-
-	if (auto_save && !((m_pulse + 9) % (60 * PASSES_PER_SEC)))
-	{
-		SaveGlobalUID();
-	}
-
-	if (!FRAC_SAVE && auto_save && !((m_pulse + 11) % (60 * PASSES_PER_SEC)))  	// 1 minute
-	{
-		if (++m_mins_since_crashsave >= autosave_time)
-		{
-			m_mins_since_crashsave = 0;
-			Crash_save_all();
-			check_at = time(NULL);
-			if (last_rent_check > check_at)
-				last_rent_check = check_at;
-			if (((check_at - last_rent_check) / 60))
-			{
-				Crash_rent_time((check_at - last_rent_check) / 60);
-				last_rent_check = time(NULL) - (check_at - last_rent_check) % 60;
-			}
-		}
-	}
-
-	// обновление и сохранение клановой экспы
-	if (!((m_pulse + 14) % (60 * CLAN_EXP_UPDATE_PERIOD * PASSES_PER_SEC)))
-	{
-		update_clan_exp();
-		save_clan_exp();
-	}
-
-	// оповещение о скорой кончине денег в дружине
-	if (!((m_pulse + 15) % (60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::ChestInvoice();
-	}
-
-	// обновление статов экспы в топе кланов для тех, кто вырубил показ на лету
-	if (!((m_pulse + 16) % (60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC)))
-	{
-		Clan::SyncTopExp();
-	}
-
-	// сохранение файла чексумм, если в нем были изменения
-	if (!((m_pulse + 23) % (PASSES_PER_SEC)))
-	{
-		FileCRC::save();
-	}
-
-	//Polud раз в час проверяем не пришло ли время сохранить статистику
-	if (SpellUsage::isActive && (!(m_pulse % (60*60*PASSES_PER_SEC))))
-	{
-		time_t tmp_time = time(0);
-		if ((tmp_time - SpellUsage::start) >= (60*60*24))
-		{
-			SpellUsage::save();
-			SpellUsage::clear();
-		}
-	}
-}
-
-Heartbeat heartbeat;
 
 /* ******************************************************************
 *  general utility stuff (for local use)                            *
@@ -2263,33 +1723,6 @@ void timeadd(struct timeval *rslt, struct timeval *a, struct timeval *b)
 		rslt->tv_usec -= 1000000;
 		rslt->tv_sec++;
 	}
-}
-
-
-void record_usage(void)
-{
-	int sockets_connected = 0, sockets_playing = 0;
-	DESCRIPTOR_DATA *d;
-
-	for (d = descriptor_list; d; d = d->next)
-	{
-		sockets_connected++;
-		if (STATE(d) == CON_PLAYING)
-			sockets_playing++;
-	}
-
-	log("nusage: %-3d sockets connected, %-3d sockets playing", sockets_connected, sockets_playing);
-
-#ifdef RUSAGE			// Not RUSAGE_SELF because it doesn't guarantee prototype.
-	{
-		struct rusage ru;
-
-		getrusage(RUSAGE_SELF, &ru);
-		log("rusage: user time: %ld sec, system time: %ld sec, max res size: %ld",
-			ru.ru_utime.tv_sec, ru.ru_stime.tv_sec, ru.ru_maxrss);
-	}
-#endif
-
 }
 
 char *color_value(CHAR_DATA* /*ch*/, int real, int max)
@@ -3212,7 +2645,7 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 
 	if (result > 0)
 	{
-		// Write was sucessful
+		// Write was successful
 		number_of_bytes_written += result;
 		return (result);
 	}
@@ -4064,31 +3497,6 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	delete d;
 }
 
-
-void check_idle_passwords(void)
-{
-	DESCRIPTOR_DATA *d, *next_d;
-
-	for (d = descriptor_list; d; d = next_d)
-	{
-		next_d = d->next;
-		if (STATE(d) != CON_PASSWORD && STATE(d) != CON_GET_NAME && STATE(d) != CON_GET_KEYTABLE)
-			continue;
-		if (!d->idle_tics)
-		{
-			d->idle_tics++;
-			continue;
-		}
-		else
-		{
-			SEND_TO_Q("\r\nTimed out... goodbye.\r\n", d);
-			STATE(d) = CON_CLOSE;
-		}
-	}
-}
-
-
-
 /*
  * I tried to universally convert Circle over to POSIX compliance, but
  * alas, some systems are still straggling behind and don't have all the
@@ -4904,45 +4312,6 @@ void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj
 			arena_room_rnum++;
 		}
 	}
-}
-
-/*
- * This function is called every 30 seconds from heartbeat().  It checks
- * the four global buffers in CircleMUD to ensure that no one has written
- * past their bounds.  If our check digit is not there (and the position
- * doesn't have a NUL which may result from snprintf) then we gripe that
- * someone has overwritten our buffer.  This could cause a false positive
- * if someone uses the buffer as a non-terminated character array but that
- * is not likely. -gg
- */
-void sanity_check(void)
-{
-	int ok = TRUE;
-
-	// * If any line is false, 'ok' will become false also.
-	ok &= (test_magic(buf) == MAGIC_NUMBER || test_magic(buf) == '\0');
-	ok &= (test_magic(buf1) == MAGIC_NUMBER || test_magic(buf1) == '\0');
-	ok &= (test_magic(buf2) == MAGIC_NUMBER || test_magic(buf2) == '\0');
-	ok &= (test_magic(arg) == MAGIC_NUMBER || test_magic(arg) == '\0');
-
-	/*
-	 * This isn't exactly the safest thing to do (referencing known bad memory)
-	 * but we're doomed to crash eventually, might as well try to get something
-	 * useful before we go down. -gg
-	 * However, lets fix the problem so we don't spam the logs. -gg 11/24/98
-	 */
-	if (!ok)
-	{
-		log("SYSERR: *** Buffer overflow! ***\n" "buf: %s\nbuf1: %s\nbuf2: %s\narg: %s", buf, buf1, buf2, arg);
-
-		plant_magic(buf);
-		plant_magic(buf1);
-		plant_magic(buf2);
-		plant_magic(arg);
-	}
-#if 0
-	log("Statistics: buf=%d buf1=%d buf2=%d arg=%d", strlen(buf), strlen(buf1), strlen(buf2), strlen(arg));
-#endif
 }
 
 // * This may not be pretty but it keeps game_loop() neater than if it was inline.

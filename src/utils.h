@@ -1596,6 +1596,20 @@ extern char buf2[MAX_STRING_LENGTH];
 extern char arg[MAX_STRING_LENGTH];
 #endif
 
+#define plant_magic(x)	do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)
+#define test_magic(x)	((x)[sizeof(x) - 1])
+
+/*
+* This function is called every 30 seconds from heartbeat().  It checks
+* the four global buffers in CircleMUD to ensure that no one has written
+* past their bounds.  If our check digit is not there (and the position
+* doesn't have a NUL which may result from snprintf) then we gripe that
+* someone has overwritten our buffer.  This could cause a false positive
+* if someone uses the buffer as a non-terminated character array but that
+* is not likely. -gg
+*/
+void sanity_check(void);
+
 inline void graceful_exit(int retcode)
 {
 	_exit(retcode);
@@ -1614,22 +1628,66 @@ void StringReplace(std::string& buffer, char s, const std::string& d);
 std::string& format_news_message(std::string &text);
 
 template <typename T>
-void printList(const T& list, std::ostream& result, const std::string& delimiter = ", ")
+class JoinRange
 {
-	bool first = true;
-	for (const auto& i : list)
+public:
+	JoinRange(const T& container, const std::string& delimiter = ", ") :
+		m_begin(container.begin()),
+		m_end(container.end()),
+		m_delimiter(delimiter)
 	{
-		result << (first ? "" : delimiter) << i;
-		first = false;
 	}
+
+	JoinRange(const typename T::const_iterator& begin, const typename T::const_iterator& end, const std::string& delimiter = ", "):
+		m_begin(begin),
+		m_end(end),
+		m_delimiter(delimiter)
+	{
+	}
+
+	std::ostream& output(std::ostream& os) const
+	{
+		bool first = true;
+		for (auto i = m_begin; i != m_end; ++i)
+		{
+			os << (first ? "" : m_delimiter) << *i;
+			first = false;
+		}
+
+		return os;
+	}
+
+	std::string as_string() const;
+
+private:
+	typename T::const_iterator m_begin;
+	typename T::const_iterator m_end;
+	std::string m_delimiter;
+};
+
+template <typename T>
+std::string JoinRange<T>::as_string() const
+{
+	std::stringstream ss;
+	output(ss);
+	return std::move(ss.str());
+}
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const JoinRange<T>& range_printer) { return range_printer.output(os); }
+
+template <typename T>
+void joinRange(const typename T::const_iterator& begin, const typename T::const_iterator& end, std::string& result, const std::string& delimiter = ", ")
+{
+	std::stringstream ss;
+	ss << JoinRange<T>(begin, end, delimiter);
+	result = ss.str();
 }
 
 template <typename T>
 void joinList(const T& list, std::string& result, const std::string& delimiter = ", ")
 {
-	std::stringstream ss;
-	printList(list, ss, delimiter);
-	result = ss.str();
+	joinRange<T>(list.begin(), list.end(), result, delimiter);
 }
 
 inline int posi_value(int real, int max)

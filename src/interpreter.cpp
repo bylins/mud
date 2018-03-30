@@ -18,7 +18,8 @@
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
-#include "craft_commands.hpp"
+#include "craft.commands.hpp"
+#include "heartbeat.commands.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "constants.h"
@@ -125,7 +126,6 @@ extern const char *race_types_vik[];
 extern const char *kin_types[];
 extern struct set_struct set_fields[];
 extern struct show_struct show_fields[];
-extern BanList *ban;
 extern char *name_rules;
 
 // external functions
@@ -1144,10 +1144,8 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mspellitem", POS_DEAD, do_mspellitem, -1, 0, -1},
 	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
 	{"debug_queues", POS_DEAD, do_debug_queues, LVL_IMPL, 0, 0 },
-
-	// Craft
-	//{"craft", craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
-
+	{ heartbeat::cmd::HEARTBEAT_COMMAND, heartbeat::cmd::MINIMAL_POSITION, heartbeat::cmd::do_heartbeat, heartbeat::cmd::MINIMAL_LEVEL, heartbeat::SCMD_NOTHING, heartbeat::cmd::UNHIDE_PROBABILITY },
+	//{craft::cmd::CRAFT_COMMAND, craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
 	{"\n", 0, 0, 0, 0, 0}
 };				// this must be last
 
@@ -2977,7 +2975,7 @@ void print_free_names(std::ostream& os, const PlayersIndex& index)
 	constexpr int SUGGESTIONS_COUNT = 4;
 	PlayersIndex::free_names_list_t names;
 	index.get_free_names(SUGGESTIONS_COUNT, names);
-	printList(names, os);
+	os << JoinRange<PlayersIndex::free_names_list_t>(names);
 }
 
 void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)

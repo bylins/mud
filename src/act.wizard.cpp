@@ -12,6 +12,8 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "act.wizard.hpp"
+
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
 #include "world.characters.hpp"
@@ -68,6 +70,8 @@
 #include "conf.h"
 #include "config.hpp"
 #include "time_utils.hpp"
+#include "global.objects.hpp"
+#include "heartbeat.hpp"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -106,8 +110,6 @@ extern struct spell_info_type spell_info[];
 // for name auto-agree
 extern void agree_name(CHAR_DATA * d, const char *immname, int immlev);
 extern void disagree_name(CHAR_DATA * d, const char *immname, int immlev);
-// privileges class
-extern BanList *ban;
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect);	// to avoid inclusion of utils.h
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -197,7 +199,6 @@ void save_zone_count_reset()
 	}
 }
 
-
 // показывает количество вещей (чтобы носить которые, нужно больше 8 ремортов) в хранах кланов
 void do_overstuff(CHAR_DATA *ch, char*, int, int)
 {
@@ -213,14 +214,19 @@ void do_overstuff(CHAR_DATA *ch, char*, int, int)
 					if (temp->get_auto_mort_req() > 8)
 					{
 						if (objects.count((*clan)->get_abbrev()))
-							objects[(*clan)->get_abbrev()] += 1;							
+						{
+							objects[(*clan)->get_abbrev()] += 1;
+						}
 						else
+						{
 							objects.insert(std::pair<std::string, int>((*clan)->get_abbrev(), 1));
+						}
 					}
 				}
 			}
 		}
 	}
+
 	for (auto it = objects.begin(); it != objects.end(); ++it)///вывод на экран
 	{
 		sprintf(buf, "Дружина: %s, количество объектов: %d\r\n", it->first.c_str(), it->second);
@@ -994,8 +1000,8 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 	}
 }
 
-SetAllInspReqListType setall_inspect_list;
-InspReqListType inspect_list;
+SetAllInspReqListType& setall_inspect_list = GlobalObjects::setall_inspect_list();
+InspReqListType& inspect_list = GlobalObjects::inspect_list();
 
 #define SETALL_FREEZE 0
 #define SETALL_EMAIL 1
@@ -6925,7 +6931,7 @@ void do_forcetime(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	for (m = 0; m < t * PASSES_PER_SEC; m++)
 	{
-		heartbeat(t * PASSES_PER_SEC - m);
+		GlobalObjects::heartbeat()(t * PASSES_PER_SEC - m);
 	}
 
 	sprintf(buf, "(GC) %s перевел игровое время на %d сек.", GET_NAME(ch), t);
