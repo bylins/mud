@@ -4879,7 +4879,7 @@ void reset_zone(zone_rnum zone)
 				// 'V' <flag> <trigger_type> <room_vnum> <context> <var_name> <var_value>
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
-					if (!SCRIPT(tmob)->has_triggers)
+					if (!SCRIPT(tmob)->has_triggers())
 					{
 						ZONE_ERROR("Attempt to give variable to scriptless mobile");
 					}
