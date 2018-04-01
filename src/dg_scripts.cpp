@@ -5957,7 +5957,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				switch (type)
 				{
 				case MOB_TRIGGER:
-					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					//last_trig_vnum = GET_TRIG_VNUM(trig);
 					if (!mob_command_interpreter((CHAR_DATA *)(go), cmd))
 					{
 						command_interpreter((CHAR_DATA *)go, cmd);
@@ -5965,12 +5965,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					break;
 
 				case OBJ_TRIGGER:
-					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					//last_trig_vnum = GET_TRIG_VNUM(trig);
 					obj_command_interpreter((OBJ_DATA *)go, cmd);
 					break;
 
 				case WLD_TRIGGER:
-					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					//last_trig_vnum = GET_TRIG_VNUM(trig);
 					wld_command_interpreter((ROOM_DATA *)go, cmd);
 					break;
 				}
@@ -6216,11 +6216,6 @@ void save_char_vars(CHAR_DATA * ch)
 	char fn[127];
 	struct trig_var_data *vars;
 
-	// immediate return if no script (and therefore no variables) structure
-	// has been created. this will happen when the player is logging in
-	if (SCRIPT(ch) == NULL)
-		return;
-
 	// we should never be called for an NPC, but just in case...
 	if (IS_NPC(ch))
 		return;
@@ -6231,6 +6226,7 @@ void save_char_vars(CHAR_DATA * ch)
 	// make sure this char has global variables to save
 	if (ch->script->global_vars == NULL)
 		return;
+
 	vars = ch->script->global_vars;
 
 	file = fopen(fn, "wt");
