@@ -3736,6 +3736,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	CHAR_DATA *mob = new CHAR_DATA(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
 	mob->set_normal_morph();
 	mob->proto_script.reset(new OBJ_DATA::triggers_list_t());
+	mob->script.reset(new SCRIPT_DATA());	//fill it in assign_triggers from proto_script
 	character_list.push_front(mob);
 
 	if (!mob->points.max_hit)

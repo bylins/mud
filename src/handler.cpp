@@ -2818,7 +2818,7 @@ void extract_obj(OBJ_DATA * obj)
 		obj_proto.dec_number(rnum);
 	}
 
-	obj->cleanup_script();
+	obj->get_script()->set_purged();
 	world_objects.remove(obj);
 }
 
@@ -3145,8 +3145,6 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		{
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		}
-
-		ch->cleanup_script();
 	}
 
 	bool left_in_game = false;
