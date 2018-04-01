@@ -331,7 +331,7 @@ extern CHAR_DATA *combat_list;
 class Rooms: public std::vector<ROOM_DATA *>
 {
 public:
-	static constexpr int UNDEFINED_ROOM_VNUM = -1;
+	static constexpr int UNDEFINED_ROOM_VNUM = NOWHERE;
 };
 
 extern Rooms world;

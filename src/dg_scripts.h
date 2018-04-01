@@ -169,7 +169,6 @@ public:
 	int depth;		// depth into nest ifs/whiles/etc  //
 	int loops;		// loop iteration counter          //
 	struct event_info *wait_event;	// event to pause the trigger      //
-	ubyte purged;		// trigger is set to be purged     //
 	struct trig_var_data *var_list;	// list of local vars for trigger  //
 
 private:

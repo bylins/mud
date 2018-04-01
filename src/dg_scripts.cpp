@@ -1480,17 +1480,17 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 
 bool SCRIPT_CHECK(const OBJ_DATA* go, const long type)
 {
-	return go->get_script()->has_triggers() && IS_SET(SCRIPT_TYPES(go->get_script()), type);
+	return !go->get_script()->is_purged() && go->get_script()->has_triggers() && IS_SET(SCRIPT_TYPES(go->get_script()), type);
 }
 
 bool SCRIPT_CHECK(const CHAR_DATA* go, const long type)
 {
-	return go->script->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
+	return !SCRIPT(go)->is_purged() && SCRIPT(go)->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
 bool SCRIPT_CHECK(const ROOM_DATA* go, const long type)
 {
-	return go->script->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
+	return !SCRIPT(go)->is_purged() && SCRIPT(go)->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
 // * Изменение указанной целочисленной константы
@@ -6653,7 +6653,6 @@ TRIG_DATA::TRIG_DATA():
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
-	purged(0),
 	var_list(nullptr),
 	nr(NOTHING),
 	attach_type(0),
@@ -6669,7 +6668,6 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
-	purged(0),
 	var_list(nullptr),
 	nr(rnum),
 	attach_type(attach_type),
@@ -6690,7 +6688,6 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	depth(from.depth),
 	loops(from.loops),
 	wait_event(nullptr),
-	purged(0),
 	var_list(nullptr),
 	nr(from.nr),
 	attach_type(from.attach_type),
@@ -6714,7 +6711,6 @@ void TRIG_DATA::reset()
 	depth = 0;
 	loops = -1;
 	wait_event = nullptr;
-	purged = 0;
 	var_list = nullptr;
 }
 
