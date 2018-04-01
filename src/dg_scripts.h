@@ -107,6 +107,7 @@ extern const char *attach_name[];
 
 // maximum depth triggers can recurse into each other
 #define MAX_SCRIPT_DEPTH        512
+
 struct wait_event_data
 {
 	TRIG_DATA *trigger;
@@ -297,6 +298,8 @@ public:
 
 	void cleanup();
 	bool has_triggers() { return !trig_list.empty(); }
+	bool is_purged() { return m_purged; }
+	void set_purged(bool purged = true) { m_purged = purged; }
 
 	long types;		// bitvector of trigger types //
 	TriggersList trig_list;	// list of triggers           //
@@ -305,6 +308,8 @@ public:
 
 private:
 	SCRIPT_DATA& operator=(const SCRIPT_DATA& script) = delete;
+
+	bool m_purged;
 };
 
 // used for actor memory triggers //

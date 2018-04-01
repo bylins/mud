@@ -57,6 +57,15 @@
 #include "sysdep.h"
 #include "conf.h"
 
+struct mob_command_info
+{
+	const char *command;
+	byte minimum_position;	
+	typedef void(*handler_f)(CHAR_DATA* ch, char *argument, int cmd, int subcmd);
+	handler_f command_pointer;
+	int subcmd;				///< Subcommand. See SCMD_* constants.
+};
+
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -1980,6 +1989,90 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		mob_log(ch, "mdamage: target not found");
+	}
+}
+
+const struct mob_command_info mob_cmd_info[] =
+{
+	{ "RESERVED", 0, 0 },	// this must be first -- for specprocs
+	{ "masound", POS_DEAD, do_masound, -1},
+	{ "mkill", POS_STANDING, do_mkill, -1},
+	{ "mjunk", POS_SITTING, do_mjunk, -1},
+	{ "mdamage", POS_DEAD, do_mdamage, -1},
+	{ "mdoor", POS_DEAD, do_mdoor, -1},
+	{ "mecho", POS_DEAD, do_mecho, -1},
+	{ "mechoaround", POS_DEAD, do_mechoaround, -1},
+	{ "msend", POS_DEAD, do_msend, -1},
+	{ "mload", POS_DEAD, do_mload, -1},
+	{ "mpurge", POS_DEAD, do_mpurge, -1},
+	{ "mgoto", POS_DEAD, do_mgoto, -1},
+	{ "mat", POS_DEAD, do_mat, -1},
+	{ "mteleport", POS_DEAD, do_mteleport, -1},
+	{ "mforce", POS_DEAD, do_mforce, -1},
+	{ "mexp", POS_DEAD, do_mexp, -1},
+	{ "mgold", POS_DEAD, do_mgold, -1},
+	{ "mremember", POS_DEAD, do_mremember, -1},
+	{ "mforget", POS_DEAD, do_mforget, -1},
+	{ "mtransform", POS_DEAD, do_mtransform, -1},
+	{ "mfeatturn", POS_DEAD, do_mfeatturn, -1},
+	{ "mskillturn", POS_DEAD, do_mskillturn, -1},
+	{ "mskilladd", POS_DEAD, do_mskilladd, -1},
+	{ "mspellturn", POS_DEAD, do_mspellturn, -1},
+	{ "mspellturntemp", POS_DEAD, do_mspellturntemp, -1 },
+	{ "mspelladd", POS_DEAD, do_mspelladd, -1},
+	{ "mspellitem", POS_DEAD, do_mspellitem, -1},
+	{ "\n", 0, 0 }		// this must be last
+};
+
+// *  This is the command interpreter used by mob, called by script_driver.
+bool mob_command_interpreter(CHAR_DATA* ch, char *argument)
+{
+	char *line, arg[MAX_INPUT_LENGTH];
+
+	// just drop to next line for hitting CR
+	skip_spaces(&argument);
+
+	if (!*argument)
+		return false;
+
+	if (GET_MOB_HOLD(ch)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
+	{
+		return false;
+	}
+
+	line = any_one_arg(argument, arg);
+
+	// find the command
+	int cmd = 0;
+	const size_t length = strlen(arg);
+
+	while (*mob_cmd_info[cmd].command != '\n')
+	{
+		if (!strncmp(mob_cmd_info[cmd].command, arg, length))
+		{
+			break;
+		}
+		cmd++;
+	}
+
+	if (*mob_cmd_info[cmd].command == '\n')
+	{
+		return false;
+	}
+	else if (GET_POS(ch) < cmd_info[cmd].minimum_position)
+	{
+		return false;
+	}
+	else
+	{
+		check_hiding_cmd(ch, -1);
+
+		const mob_command_info::handler_f& command = mob_cmd_info[cmd].command_pointer;
+		command(ch, line, cmd, mob_cmd_info[cmd].subcmd);
+
+		return true;
 	}
 }
 

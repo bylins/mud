@@ -4617,7 +4617,6 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 	ROOM_DATA *r = NULL;
 	TRIG_DATA *retval = trig;
 
-
 	id_p = two_arguments(cmd, arg, trignum_s);
 	skip_spaces(&id_p);
 
@@ -4790,6 +4789,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 		*retval = script_driver(trggo, runtrig, trgtype, TRIG_NEW);
 	}
 
+	//TODO: Why only for char?
 	if (go && type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged())
 	{
 		*sc = NULL;
@@ -4798,6 +4798,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	}
 
 	runtrig = nullptr;
+	//TODO: How that possible?
 	if (!go || (type == MOB_TRIGGER ? SCRIPT((CHAR_DATA *) go).get() :
 				type == OBJ_TRIGGER ? ((OBJ_DATA *) go)->get_script().get() :
 				type == WLD_TRIGGER ? SCRIPT((ROOM_DATA *) go).get() : nullptr) != *sc)
@@ -4834,7 +4835,6 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 
 	return (TRUE);
 }
-
 
 ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj)
 {
@@ -5620,8 +5620,9 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	unsigned long loops = 0;
 	TRIG_DATA *prev_trig;
 
-	void obj_command_interpreter(OBJ_DATA * obj, char *argument);
-	void wld_command_interpreter(ROOM_DATA * room, char *argument);
+	bool mob_command_interpreter(CHAR_DATA* ch, char* argument);
+	void obj_command_interpreter(OBJ_DATA* obj, char* argument);
+	void wld_command_interpreter(ROOM_DATA* room, char* argument);
 
 	sprintf(buf, "[%s] %s (VNUM=%d)", mode == TRIG_NEW ? "NEW" : "OLD", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
 	mudlog(buf, BRF, -1, ERRLOG, TRUE);
@@ -5632,25 +5633,31 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		return ret_val;
 	}
 
+	switch (type)
+	{
+	case MOB_TRIGGER:
+		sc = SCRIPT((CHAR_DATA *)go).get();
+		break;
+
+	case OBJ_TRIGGER:
+		sc = ((OBJ_DATA *)go)->get_script().get();
+		break;
+
+	case WLD_TRIGGER:
+		sc = SCRIPT((ROOM_DATA *)go).get();
+		break;
+	}
+
+	if (sc->is_purged())
+	{
+		return ret_val;
+	}
+
 	prev_trig = cur_trig;
 	cur_trig = trig;
 
 	depth++;
 	last_trig_vnum = GET_TRIG_VNUM(trig);
-	switch (type)
-	{
-	case MOB_TRIGGER:
-		sc = SCRIPT((CHAR_DATA *) go).get();
-		break;
-
-	case OBJ_TRIGGER:
-		sc = ((OBJ_DATA *) go)->get_script().get();
-		break;
-
-	case WLD_TRIGGER:
-		sc = SCRIPT((ROOM_DATA *) go).get();
-		break;
-	}
 
 	if (mode == TRIG_NEW)
 	{
@@ -5947,45 +5954,33 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 			}
 			else
 			{
-//Polud Вывел обработку mpurge и mjunk из command_interpreter.
-//Если будет глючить пурж - в первую очередь смотреть СЮДА
-//TODO: написать mob_command_interpreter и убрать в него обработку всех mob-команд.
-// перевоткнуто временно сюда, ибо падает потом на free_varlist, если пуржим себя и должны выйти по dg_owner_purged -- Krodo
-				if (!strn_cmp(cmd, "mpurge", 6))
+				switch (type)
 				{
-					do_mpurge((CHAR_DATA *)go, cmd + 6, 0, 0);
-				}
-				else if (!strn_cmp(cmd, "mjunk", 5))
-				{
-					do_mjunk((CHAR_DATA *)go, cmd + 5, 0, 0);
-				}
-				else
-				{
-					switch (type)
+				case MOB_TRIGGER:
+					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					if (!mob_command_interpreter((CHAR_DATA *)(go), cmd))
 					{
-					case MOB_TRIGGER:
-//						last_trig_vnum = GET_TRIG_VNUM(trig);
-						command_interpreter((CHAR_DATA *) go, cmd);
-						break;
-
-					case OBJ_TRIGGER:
-//						last_trig_vnum = GET_TRIG_VNUM(trig);
-						obj_command_interpreter((OBJ_DATA *) go, cmd);
-						break;
-
-					case WLD_TRIGGER:
-//						last_trig_vnum = GET_TRIG_VNUM(trig);
-						wld_command_interpreter((ROOM_DATA *) go, cmd);
-						break;
+						command_interpreter((CHAR_DATA *)go, cmd);
 					}
-				}
+					break;
 
-				if (dg_owner_purged || (type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged()))
-				{
-					depth--;
-					cur_trig = prev_trig;
-					return ret_val;
+				case OBJ_TRIGGER:
+					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					obj_command_interpreter((OBJ_DATA *)go, cmd);
+					break;
+
+				case WLD_TRIGGER:
+					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					wld_command_interpreter((ROOM_DATA *)go, cmd);
+					break;
 				}
+			}
+
+			if (sc->is_purged() || dg_owner_purged || (type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged()))
+			{
+				depth--;
+				cur_trig = prev_trig;
+				return ret_val;
 			}
 		}
 	}
@@ -6004,7 +5999,6 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-
 	int first, last, nr, found = 0;
 	char pagebuf[65536];
 
@@ -6566,18 +6560,20 @@ std::ostream& TriggersList::dump(std::ostream& os) const
 	return os;
 }
 
-SCRIPT_DATA::SCRIPT_DATA():
+SCRIPT_DATA::SCRIPT_DATA() :
 	types(0),
 	global_vars(nullptr),
-	context(0)
+	context(0),
+	m_purged(false)
 {
 }
 
 // don't copy anything for now
-SCRIPT_DATA::SCRIPT_DATA(const SCRIPT_DATA&):
+SCRIPT_DATA::SCRIPT_DATA(const SCRIPT_DATA&) :
 	types(0),
 	global_vars(nullptr),
-	context(0)
+	context(0),
+	m_purged(false)
 {
 }
 

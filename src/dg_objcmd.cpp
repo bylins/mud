@@ -1139,8 +1139,6 @@ const struct obj_command_info obj_cmd_info[] =
 	{"\n", 0, 0}		// this must be last
 };
 
-
-
 // *  This is the command interpreter used by objects, called by script_driver.
 void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 {
@@ -1153,7 +1151,6 @@ void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 		return;
 
 	line = any_one_arg(argument, arg);
-
 
 	// find the command
 	int cmd = 0;
