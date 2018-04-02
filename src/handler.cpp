@@ -3018,12 +3018,6 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		}
 	}
 
-	if (ch->in_room == NOWHERE)
-	{
-		//TODO: Why not extract?
-		return;
-	}
-
 	// Forget snooping, if applicable
 	log("[Extract char] Stop snooping");
 	if (ch->desc)
