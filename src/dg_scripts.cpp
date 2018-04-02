@@ -1480,17 +1480,17 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 
 bool SCRIPT_CHECK(const OBJ_DATA* go, const long type)
 {
-	return go->get_script()->has_triggers() && IS_SET(SCRIPT_TYPES(go->get_script()), type);
+	return !go->get_script()->is_purged() && go->get_script()->has_triggers() && IS_SET(SCRIPT_TYPES(go->get_script()), type);
 }
 
 bool SCRIPT_CHECK(const CHAR_DATA* go, const long type)
 {
-	return go->script->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
+	return !SCRIPT(go)->is_purged() && SCRIPT(go)->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
 bool SCRIPT_CHECK(const ROOM_DATA* go, const long type)
 {
-	return go->script->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
+	return !SCRIPT(go)->is_purged() && SCRIPT(go)->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
 // * Изменение указанной целочисленной константы
@@ -5957,7 +5957,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				switch (type)
 				{
 				case MOB_TRIGGER:
-					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					//last_trig_vnum = GET_TRIG_VNUM(trig);
 					if (!mob_command_interpreter((CHAR_DATA *)(go), cmd))
 					{
 						command_interpreter((CHAR_DATA *)go, cmd);
@@ -5965,12 +5965,12 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 					break;
 
 				case OBJ_TRIGGER:
-					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					//last_trig_vnum = GET_TRIG_VNUM(trig);
 					obj_command_interpreter((OBJ_DATA *)go, cmd);
 					break;
 
 				case WLD_TRIGGER:
-					//						last_trig_vnum = GET_TRIG_VNUM(trig);
+					//last_trig_vnum = GET_TRIG_VNUM(trig);
 					wld_command_interpreter((ROOM_DATA *)go, cmd);
 					break;
 				}
@@ -6216,11 +6216,6 @@ void save_char_vars(CHAR_DATA * ch)
 	char fn[127];
 	struct trig_var_data *vars;
 
-	// immediate return if no script (and therefore no variables) structure
-	// has been created. this will happen when the player is logging in
-	if (SCRIPT(ch) == NULL)
-		return;
-
 	// we should never be called for an NPC, but just in case...
 	if (IS_NPC(ch))
 		return;
@@ -6231,6 +6226,7 @@ void save_char_vars(CHAR_DATA * ch)
 	// make sure this char has global variables to save
 	if (ch->script->global_vars == NULL)
 		return;
+
 	vars = ch->script->global_vars;
 
 	file = fopen(fn, "wt");
@@ -6657,7 +6653,6 @@ TRIG_DATA::TRIG_DATA():
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
-	purged(0),
 	var_list(nullptr),
 	nr(NOTHING),
 	attach_type(0),
@@ -6673,7 +6668,6 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 	depth(0),
 	loops(-1),
 	wait_event(nullptr),
-	purged(0),
 	var_list(nullptr),
 	nr(rnum),
 	attach_type(attach_type),
@@ -6694,7 +6688,6 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	depth(from.depth),
 	loops(from.loops),
 	wait_event(nullptr),
-	purged(0),
 	var_list(nullptr),
 	nr(from.nr),
 	attach_type(from.attach_type),
@@ -6718,7 +6711,6 @@ void TRIG_DATA::reset()
 	depth = 0;
 	loops = -1;
 	wait_event = nullptr;
-	purged = 0;
 	var_list = nullptr;
 }
 

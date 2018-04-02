@@ -4879,8 +4879,15 @@ void reset_zone(zone_rnum zone)
 				// 'V' <flag> <trigger_type> <room_vnum> <context> <var_name> <var_value>
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
-					add_var_cntx(&(SCRIPT(tmob)->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
-					curr_state = 1;
+					if (!SCRIPT(tmob)->has_triggers())
+					{
+						ZONE_ERROR("Attempt to give variable to scriptless mobile");
+					}
+					else
+					{
+						add_var_cntx(&(SCRIPT(tmob)->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
+						curr_state = 1;
+					}
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
 				{
@@ -4902,8 +4909,15 @@ void reset_zone(zone_rnum zone)
 					}
 					else
 					{
-						add_var_cntx(&(world[ZCMD.arg2]->script->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
-						curr_state = 1;
+						if (!SCRIPT(world[ZCMD.arg2])->has_triggers())
+						{
+							ZONE_ERROR("Attempt to give variable to scriptless room");
+						}
+						else
+						{
+							add_var_cntx(&(world[ZCMD.arg2]->script->global_vars), ZCMD.sarg1, ZCMD.sarg2, ZCMD.arg3);
+							curr_state = 1;
+						}
 					}
 				}
 				break;
@@ -5966,7 +5980,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 	}
 
 	// Копирую скрипт и прототипы
-	SCRIPT(dst).reset();
+	SCRIPT(dst).reset(new SCRIPT_DATA());
 
 	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	*dst->proto_script = *src->proto_script;
