@@ -3020,6 +3020,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 
 	if (ch->in_room == NOWHERE)
 	{
+		//TODO: Why not extract?
 		return;
 	}
 
@@ -3048,10 +3049,12 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		if (GET_EQ(ch, i))
 		{
 			OBJ_DATA *obj_eq = unequip_char(ch, i);
-			if (!obj_eq) continue;
+			if (!obj_eq)
+			{
+				continue;
+			}
 
 			remove_otrigger(obj_eq, ch);
-
 			drop_obj_on_zreset(ch, obj_eq, 0, zone_reset);
 		}
 	}
@@ -3093,7 +3096,6 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		&& die_follower(ch))
 	{
 		// TODO: странно все это с пуржем в stop_follower
-		// extract_mob тоже самое
 		return;
 	}
 
@@ -3166,83 +3168,6 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 	log("[Extract char] Stop function for char %s", name.c_str());
-}
-
-// Extract a MOB completely from the world, and destroy his stuff
-void extract_mob(CHAR_DATA * ch)
-{
-	if (ch->purged())
-	{
-		log("SYSERROR: double extract_mob (%s:%d)", __FILE__, __LINE__);
-		return;
-	}
-
-	int i;
-
-	if (MOB_FLAGGED(ch, MOB_FREE) || MOB_FLAGGED(ch, MOB_DELETE))
-		return;
-
-	if (ch->in_room == NOWHERE)
-	{
-		log("SYSERR: NOWHERE extracting char %s. (%s, extract_mob)", GET_NAME(ch), __FILE__);
-		return;
-		exit(1);
-	}
-
-	if ((ch->followers || ch->has_master())
-		&& die_follower(ch))
-	{
-		// TODO: странно все это с пуржем в stop_follower
-		// extract_char тоже самое
-		return;
-	}
-
-	// Forget snooping, if applicable
-	if (ch->desc)
-	{
-		if (ch->desc->snooping)
-		{
-			ch->desc->snooping->snoop_by = NULL;
-			ch->desc->snooping = NULL;
-		}
-		if (ch->desc->snoop_by)
-		{
-			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
-			ch->desc->snoop_by->snooping = NULL;
-			ch->desc->snoop_by = NULL;
-		}
-	}
-
-	// extract objects, if any
-	while (ch->carrying)
-	{
-		extract_obj(ch->carrying);
-	}
-
-	// transfer equipment to room, if any
-	for (i = 0; i < NUM_WEARS; i++)
-		if (GET_EQ(ch, i))
-			extract_obj(GET_EQ(ch, i));
-
-	if (ch->get_fighting())
-		stop_fighting(ch, TRUE);
-
-	log("[Extract mob] Stop all fight for opponee");
-	change_fighting(ch, TRUE);
-
-	char_from_room(ch);
-
-	delete_from_tmp_char_list(ch);
-	ch->clear_fighing_list();
-
-	// pull the char from the list
-	MOB_FLAGS(ch).set(MOB_DELETE);
-	character_list.remove(ch);
-
-	if (ch->desc && ch->desc->original)
-	{
-		do_return(ch, NULL, 0, 0);
-	}
 }
 
 /* ***********************************************************************
@@ -4155,39 +4080,6 @@ int used_charm_points(CHAR_DATA * ch)
 		lp = lp + GET_LEVEL(f->follower);
 	}
 	return (lp);
-}
-
-/* Функция делает нового моба взамен имеющегося если это необходимо
-   - для чарма. Возвращает указатель на зачармленого моба или
-   NULL если неудалось зачармить */
-CHAR_DATA *charm_mob(CHAR_DATA * victim)
-{
-	int vnum = 0;
-	CHAR_DATA *mob;
-
-	vnum = CHARM_MOB_VNUM + GET_LEVEL(victim);
-
-	if (vnum == GET_MOB_VNUM(victim))
-		return (victim);
-
-	// Загружаем моба CHARM_MOB_VNUM+уровень victim
-	if (!(mob = read_mobile(CHARM_MOB_VNUM + GET_LEVEL(victim), VIRTUAL)))
-		return (NULL);
-	char_to_room(mob, victim->in_room);
-	// Делаем название моба таким же как у чармленого
-	GET_PAD(mob, 0) = str_dup(GET_PAD(victim, 0));
-	GET_PAD(mob, 1) = str_dup(GET_PAD(victim, 1));
-	GET_PAD(mob, 2) = str_dup(GET_PAD(victim, 2));
-	GET_PAD(mob, 3) = str_dup(GET_PAD(victim, 3));
-	GET_PAD(mob, 4) = str_dup(GET_PAD(victim, 4));
-	GET_PAD(mob, 5) = str_dup(GET_PAD(victim, 5));
-	mob->set_pc_name(victim->get_pc_name().c_str());
-	mob->set_npc_name(victim->get_npc_name().c_str());
-	mob->player_data.long_descr = str_dup(victim->player_data.long_descr);
-	mob->player_data.description = str_dup(victim->player_data.description);
-	//Убираем моба victim
-	extract_mob(victim);
-	return (mob);
 }
 
 //Функции для модифицированного чарма

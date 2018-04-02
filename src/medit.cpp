@@ -49,7 +49,6 @@ extern CHAR_DATA *mob_proto;
 extern mob_rnum top_of_mobt;
 extern struct zone_data *zone_table;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern void extract_mob(CHAR_DATA *ch);
 #if defined(OASIS_MPROG)
 extern const char *mobprog_types[];
 #endif
