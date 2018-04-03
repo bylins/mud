@@ -2716,7 +2716,7 @@ room_vnum get_room_where_obj(OBJ_DATA *obj, bool deep)
 	}
 	else if (obj->get_in_obj() && !deep)
 	{
-		return get_room_where_obj(obj->get_in_obj(), 1);
+		return get_room_where_obj(obj->get_in_obj(), true);
 	}
 	else if (obj->get_carried_by())
 	{
@@ -2737,7 +2737,7 @@ void extract_obj(OBJ_DATA * obj)
 	OBJ_DATA *temp;
 
 	strcpy(name, obj->get_PName(0).c_str());
-	log("Extracting obj %s vnum == %d room = %d timer == %d", name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, 0), obj->get_timer());
+	log("Extracting obj %s vnum == %d room = %d timer == %d", name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, false), obj->get_timer());
 // TODO: в дебаг log("Start extract obj %s", name);
 
 	// Get rid of the contents of the object, as well.
