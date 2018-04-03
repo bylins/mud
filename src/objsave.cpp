@@ -1021,7 +1021,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 	if (!obj_ptr)
 	{
 		log("Object was purged.");
-		return;
+		//return;
 	}
 
 	log("Write one object: %s", object->get_PName(0).c_str());

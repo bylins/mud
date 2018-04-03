@@ -218,7 +218,6 @@ int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
 int Crash_read_timer(const std::size_t index, int temp);
 void Crash_clear_objects(const std::size_t index);
-void extract_mob(CHAR_DATA * ch);
 //F@N|
 int exchange_database_load(void);
 
@@ -4073,11 +4072,13 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 		{
 			if (world[room]->number != zone_table[world[room]->zone].top)
 				return;
+
 			if (GET_LASTROOM(ch) == NOWHERE)
 			{
-				extract_mob(ch);
+				extract_char(ch, FALSE, TRUE);
 				return;
 			}
+
 			char_from_room(ch);
 			char_to_room(ch, real_room(GET_LASTROOM(ch)));
 		}
@@ -4085,11 +4086,14 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 		{
 			if (world[room]->number == zone_table[world[room]->zone].top)
 				return;
+
 			GET_LASTROOM(ch) = GET_ROOM_VNUM(room);
 			char_from_room(ch);
 			room = real_room(zone_table[world[room]->zone].top);
+
 			if (room == NOWHERE)
 				room = real_room(GET_LASTROOM(ch));
+
 			char_to_room(ch, room);
 		}
 	}
@@ -4867,7 +4871,7 @@ void reset_zone(zone_rnum zone)
 				}
 				else if (ZCMD.arg1 == WLD_TRIGGER)
 				{
-					if (ZCMD.arg3 != NOWHERE)
+					if (ZCMD.arg3 > NOWHERE)
 					{
 						add_trigger(world[ZCMD.arg3]->script.get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
 						curr_state = 1;

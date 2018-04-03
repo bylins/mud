@@ -1994,7 +1994,7 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 const struct mob_command_info mob_cmd_info[] =
 {
-	{ "RESERVED", 0, 0 },	// this must be first -- for specprocs
+	{ "RESERVED", 0, 0, 0 },	// this must be first -- for specprocs
 	{ "masound", POS_DEAD, do_masound, -1},
 	{ "mkill", POS_STANDING, do_mkill, -1},
 	{ "mjunk", POS_SITTING, do_mjunk, -1},
@@ -2021,7 +2021,7 @@ const struct mob_command_info mob_cmd_info[] =
 	{ "mspellturntemp", POS_DEAD, do_mspellturntemp, -1 },
 	{ "mspelladd", POS_DEAD, do_mspelladd, -1},
 	{ "mspellitem", POS_DEAD, do_mspellitem, -1},
-	{ "\n", 0, 0 }		// this must be last
+	{ "\n", 0, 0, 0 }		// this must be last
 };
 
 // *  This is the command interpreter used by mob, called by script_driver.

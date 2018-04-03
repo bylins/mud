@@ -1154,7 +1154,7 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 	}
 }
 
-void underwater_check(void)
+void underwater_check()
 {
 	DESCRIPTOR_DATA *d;
 	for (d = descriptor_list; d; d = d->next)
@@ -1176,7 +1176,6 @@ void underwater_check(void)
 			}
 		}
 	}
-
 }
 
 void check_idling(CHAR_DATA * ch)
