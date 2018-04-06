@@ -56,11 +56,13 @@ void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype* obj);
 
+void SaveGlobalUID(void);
+void flush_player_index(void);
+
 #define REAL          0
 #define VIRTUAL       (1 << 0)
 #define OBJ_NO_CALC   (1 << 1)
 
-void free_obj(OBJ_DATA * obj);
 CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUAL);
 
 int vnum_object(char *searchname, CHAR_DATA * ch);
@@ -243,22 +245,6 @@ private:
 	const char *m_name;
 };
 
-struct Route
-{
-	std::string direction;
-	int wait;
-};
-
-struct SpeedWalk
-{
-	int default_wait;
-	std::vector<int> vnum_mobs;
-	std::vector<Route> route;
-	int cur_state;
-	int wait;
-	std::vector<CHAR_DATA *> mobs;
-};
-
 #define SEASON_WINTER		0
 #define SEASON_SPRING		1
 #define SEASON_SUMMER		2
@@ -331,7 +317,7 @@ extern CHAR_DATA *combat_list;
 class Rooms: public std::vector<ROOM_DATA *>
 {
 public:
-	static constexpr int UNDEFINED_ROOM_VNUM = NOWHERE;
+	static constexpr int UNDEFINED_ROOM_VNUM = -1;
 };
 
 extern Rooms world;

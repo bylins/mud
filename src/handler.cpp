@@ -2824,24 +2824,26 @@ void extract_obj(OBJ_DATA * obj)
 
 void update_object(OBJ_DATA * obj, int use)
 {
-	// don't update objects with a timer trigger
-	const bool trig_timer = SCRIPT_CHECK(obj, OTRIG_TIMER);
-	const bool has_timer = obj->get_timer() > 0;
-	const bool tick_timer = 0 != OBJ_FLAGGED(obj, EExtraFlag::ITEM_TICKTIMER);
+	OBJ_DATA* obj_it = obj;
 
-	if (!trig_timer && has_timer && tick_timer)
+	while (obj_it)
 	{
-		obj->dec_timer(use);
-	}
+		// don't update objects with a timer trigger
+		const bool trig_timer = SCRIPT_CHECK(obj_it, OTRIG_TIMER);
+		const bool has_timer = obj_it->get_timer() > 0;
+		const bool tick_timer = 0 != OBJ_FLAGGED(obj_it, EExtraFlag::ITEM_TICKTIMER);
 
-	if (obj->get_contains())
-	{
-		update_object(obj->get_contains(), use);
-	}
+		if (!trig_timer && has_timer && tick_timer)
+		{
+			obj_it->dec_timer(use);
+		}
 
-	if (obj->get_next_content())
-	{
-		update_object(obj->get_next_content(), use);
+		if (obj_it->get_contains())
+		{
+			update_object(obj_it->get_contains(), use);
+		}
+
+		obj_it = obj_it->get_next_content();
 	}
 }
 

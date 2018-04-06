@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<recipe>
+	<!-- This is a template for recipe description file.-->
+	
+	<name><!-- Name of recipe --></name>
+	
+	<training_cap><!-- Key skill of this recipe might be trained up to this value using this recipe. --></training_cap>
+
+	<outcome>
+		<prototype><!-- Prototype VNUM of the result. --></prototype>
+	</outcome>
+
+	<!-- TODO: make meaning to all fields below this line -->
+	<requirements>
+		<skills>
+			<skill key="yes">ID of the first required skill</skill>
+			<skill>ID of the second requried skill</skill>
+		</skills>
+
+		<tools>
+			<tool min_qualtiy="50">Type of the first required tool</tool>
+			<tool min_qualtiy="50">Type of the second required tool</tool>
+		</tools>
+
+		<materials>
+			<material base="yes" min_quality="50" amount="1">ID of the first material type</material>
+			<material min_quality="50" amount="1">ID of the second material type</material>
+		</materials>
+
+		<items>
+			<item>VNum of required item</item>
+			<recipe>ID of recipe used to craft item</recipe>
+		</items>
+	</requirements>
+
+	<outcome>
+		<name>
+			<case1></case1>
+			<case2></case2>
+			<case3></case3>
+			<case4></case4>
+			<case5></case5>
+			<case6></case6>
+			<aliases>
+				<alias></alias>
+			</aliases>
+			<sex></sex>
+			<!-- Possible values: Male, Female, Neuter -->
+		</name>
+		<description>
+			<short>Short description of the new item.</short>
+			<long>Long description of the new item.</long>
+		</description>
+
+		<!-- required attributes -->
+		<timer>50</timer>
+
+		<durability>
+			<maximum></maximum>
+			<current></current>
+		</durability>
+
+		<weight>50</weight>
+		<cost></cost>
+		<!-- Item cost -->
+		<rent>
+			<!-- Rent cost -->
+			<on></on>
+			<!-- If taken on -->
+			<off></off>
+			<!-- If taken off -->
+		</rent>
+		<maximum_in_world></maximum_in_world>
+		<!-- Optional. 0 by default. 0 mean unlimited. -->
+		<minimal_remorts></minimal_remorts>
+
+		<!-- Unnecessary attributes -->
+		<type>ITEM_WAND</type>
+		<!-- Possible values (see structs.h): ITEM_LIGHT, ITEM_SCROLL, ITEM_WAND, ITEM_STAFF, ITEM_WEAPON, ITEM_FIREWEAPON, ITEM_MISSILE, ITEM_TREASURE, ITEM_ARMOR, ITEM_POTION, ITEM_WORN, ITEM_OTHER, ITEM_TRASH, ITEM_TRAP, ITEM_CONTAINER, ITEM_NOTE, ITEM_DRINKCON, ITEM_KEY, ITEM_FOOD, ITEM_MONEY, ITEM_PEN, ITEM_BOAT, ITEM_FOUNTAIN, ITEM_BOOK, ITEM_INGREDIENT, ITEM_MING, ITEM_MATERIAL, ITEM_BANDAGE, ITEM_ARMOR_LIGHT, ITEM_ARMOR_MEDIAN, ITEM_ARMOR_HEAVY, ITEM_ENCHANT -->
+		<wearflags>
+			<!-- Possible values (see structs.h): ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_NECK, ITEM_WEAR_BODY, ITEM_WEAR_HEAD, ITEM_WEAR_LEGS, ITEM_WEAR_FEET, ITEM_WEAR_HANDS, ITEM_WEAR_ARMS, ITEM_WEAR_SHIELD, ITEM_WEAR_ABOUT, ITEM_WEAR_WAIST, ITEM_WEAR_WRIST, ITEM_WEAR_WIELD, ITEM_WEAR_HOLD, ITEM_WEAR_BOTHS -->
+			<wearflag></wearflag>
+		</wearflags>
+
+		<extraflags>
+			<!-- Possible values (see structs.h): ITEM_GLOW, ITEM_HUM, ITEM_NORENT, ITEM_NODONATE, ITEM_NOINVIS, ITEM_INVISIBLE, ITEM_MAGIC, ITEM_NODROP, ITEM_BLESS, ITEM_NOSELL, ITEM_DECAY, ITEM_ZONEDECAY, ITEM_NODISARM, ITEM_NODECAY, ITEM_POISONED, ITEM_SHARPEN, ITEM_ARMORED, ITEM_DAY, ITEM_NIGHT, ITEM_FULLMOON, ITEM_WINTER, ITEM_SPRING, ITEM_SUMMER, ITEM_AUTUMN, ITEM_SWIMMING, ITEM_FLYING, ITEM_THROWING, ITEM_TICKTIMER, ITEM_FIRE, ITEM_REPOP_DECAY, ITEM_NOLOCATE, ITEM_TIMEDLVL, ITEM_NOALTER, ITEM_WITH1SLOT, ITEM_WITH2SLOTS, ITEM_WITH3SLOTS, ITEM_SETSTUFF, ITEM_NO_FAIL, ITEM_NAMED, ITEM_BLOODY, ITEM_1INLAID, ITEM_2INLAID, ITEM_3INLAID, ITEM_NOPOUR -->
+			<extraflag></extraflag>
+		</extraflags>
+
+		<applies>
+			<apply>
+				<!-- Possible values (see structs.h): APPLY_NONE, APPLY_STR, APPLY_DEX, APPLY_INT, APPLY_WIS, APPLY_CON, APPLY_CHA, APPLY_CLASS, APPLY_LEVEL, APPLY_AGE, APPLY_CHAR_WEIGHT, APPLY_CHAR_HEIGHT, APPLY_MANAREG, APPLY_HIT, APPLY_MOVE, APPLY_GOLD, APPLY_EXP, APPLY_AC, APPLY_HITROLL, APPLY_DAMROLL, APPLY_SAVING_WILL, APPLY_RESIST_FIRE, APPLY_RESIST_AIR, APPLY_SAVING_CRITICAL, APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_MOVEREG, APPLY_C1, APPLY_C2, APPLY_C3, APPLY_C4, APPLY_C5, APPLY_C6, APPLY_C7, APPLY_C8, APPLY_C9, APPLY_SIZE, APPLY_ARMOUR, APPLY_POISON, APPLY_SAVING_REFLEX, APPLY_CAST_SUCCESS, APPLY_MORALE, APPLY_INITIATIVE, APPLY_RELIGION, APPLY_ABSORBE, APPLY_LIKES, APPLY_RESIST_WATER, APPLY_RESIST_EARTH, APPLY_RESIST_VITALITY, APPLY_RESIST_MIND, APPLY_RESIST_IMMUNITY, APPLY_AR, APPLY_MR, APPLY_ACONITUM_POISON, APPLY_SCOPOLIA_POISON, APPLY_BELENA_POISON, APPLY_DATURA_POISON, APPLY_HIT_GLORY, APPLY_BONUS_EXP, APPLY_BONUS_SKILLS -->
+				<location></location>
+				<modifier></modifier>
+			</apply>
+		</applies>
+
+		<weapon_affects>
+			<!-- Possible values (see structs.h): WAFF_BLINDNESS, WAFF_INVISIBLE, WAFF_DETECT_ALIGN, WAFF_DETECT_INVISIBLE, WAFF_DETECT_MAGIC, WAFF_SENSE_LIFE, WAFF_WATER_WALK, WAFF_SANCTUARY, WAFF_CURSE, WAFF_INFRAVISION, WAFF_POISON, WAFF_PROTECT_EVIL, WAFF_PROTECT_GOOD, WAFF_SLEEP, WAFF_NOTRACK, WAFF_BLESS, WAFF_SNEAK, WAFF_HIDE, WAFF_HOLD, WAFF_FLY, WAFF_SILENCE, WAFF_AWARENESS, WAFF_BLINK, WAFF_NOFLEE, WAFF_SINGLE_LIGHT, WAFF_HOLY_LIGHT, WAFF_HOL_YDARK, WAFF_DETECT_POISON, WAFF_SLOW, WAFF_HASTE, WAFF_WATER_BREATH, WAFF_HAEMORRAGIA, WAFF_CAMOUFLAGE, WAFF_SHIELD, WAFF_AIR_SHIELD, WAFF_FIRE_SHIELD, WAFF_ICE_SHIELD, WAFF_MAGIC_GLASS, WAFF_STONE_HAND, WAFF_PRISMATIC_AURA, WAFF_AIR_AURA, WAFF_FIRE_AURA, WAFF_ICE_AURA, WAFF_DEAFNESS -->
+			<weapon_affect></weapon_affect>
+		</weapon_affects>
+
+		<skills>
+			<skill>
+				<!-- Possible values (see structs.h): SKILL_PROTECT, SKILL_TOUCH, SKILL_SHIT, SKILL_MIGHTHIT, SKILL_STUPOR, SKILL_POISONED, SKILL_SENSE, SKILL_HORSE, SKILL_HIDETRACK, SKILL_RELIGION, SKILL_MAKEFOOD, SKILL_MULTYPARRY, SKILL_TRANSFORMWEAPON, SKILL_LEADERSHIP, SKILL_PUNCTUAL, SKILL_AWAKE, SKILL_IDENTIFY, SKILL_HEARING, SKILL_CREATE_POTION, SKILL_CREATE_SCROLL, SKILL_CREATE_WAND, SKILL_LOOK_HIDE, SKILL_ARMORED, SKILL_DRUNKOFF, SKILL_AID, SKILL_FIRE, SKILL_CREATEBOW, SKILL_THROW, SKILL_BACKSTAB, SKILL_BASH, SKILL_HIDE, SKILL_KICK, SKILL_PICK_LOCK, SKILL_PUNCH, SKILL_RESCUE, SKILL_SNEAK, SKILL_STEAL, SKILL_TRACK, SKILL_CLUBS, SKILL_AXES, SKILL_LONGS, SKILL_SHORTS, SKILL_NONSTANDART, SKILL_BOTHHANDS, SKILL_PICK, SKILL_SPADES, SKILL_SATTACK, SKILL_DISARM, SKILL_PARRY, SKILL_HEAL, SKILL_MORPH, SKILL_BOWS, SKILL_ADDSHOT, SKILL_CAMOUFLAGE, SKILL_DEVIATE, SKILL_BLOCK, SKILL_LOOKING, SKILL_CHOPOFF, SKILL_REPAIR, SKILL_UPGRADE, SKILL_COURAGE, SKILL_MANADRAIN, SKILL_NOPARRYHIT, SKILL_TOWNPORTAL, SKILL_MAKE_STAFF, SKILL_MAKE_BOW, SKILL_MAKE_WEAPON, SKILL_MAKE_ARMOR, SKILL_MAKE_JEWEL, SKILL_MAKE_WEAR, SKILL_MAKE_POTION, SKILL_DIG, SKILL_INSERTGEM, SKILL_WARCRY, SKILL_TURN_UNDEAD, SKILL_IRON_WIND, SKILL_STRANGLE, SKILL_AIR_MAGIC, SKILL_FIRE_MAGIC, SKILL_WATER_MAGIC, SKILL_EARTH_MAGIC, SKILL_LIGHT_MAGIC, SKILL_DARK_MAGIC, SKILL_MIND_MAGIC, SKILL_LIFE_MAGIC-->
+				<id></id>
+				<value></value>
+			</skill>
+		</skills>
+
+		<no_flags>
+			<!-- Possible values (see structs.h): ITEM_NO_MONO, ITEM_NO_POLY, ITEM_NO_NEUTRAL, ITEM_NO_MAGIC_USER, ITEM_NO_CLERIC, ITEM_NO_THIEF, ITEM_NO_WARRIOR, ITEM_NO_ASSASINE, ITEM_NO_GUARD, ITEM_NO_PALADINE, ITEM_NO_RANGER, ITEM_NO_SMITH, ITEM_NO_MERCHANT, ITEM_NO_DRUID, ITEM_NO_BATTLEMAGE, ITEM_NO_CHARMMAGE, ITEM_NO_DEFENDERMAGE, ITEM_NO_NECROMANCER, ITEM_NO_KILLER, ITEM_NO_COLORED, ITEM_NO_BD, ITEM_NO_MALE, ITEM_NO_FEMALE, ITEM_NO_CHARMICE, ITEM_NO_POLOVCI, ITEM_NO_PECHENEGI, ITEM_NO_MONGOLI, ITEM_NO_YIGURI, ITEM_NO_KANGARI, ITEM_NO_XAZARI, ITEM_NO_SVEI, ITEM_NO_DATCHANE, ITEM_NO_GETTI, ITEM_NO_UTTI, ITEM_NO_XALEIGI, ITEM_NO_NORVEZCI, ITEM_NO_RUSICHI, ITEM_NO_STEPNYAKI, ITEM_NO_VIKINGI -->
+			<flag></flag>
+		</no_flags>
+
+		<val0>value</val0>
+		<val1>value</val1>
+		<val2>value</val2>
+		<val3>value</val3>
+
+		<triggers>
+			<trigger></trigger>
+		</triggers>
+	</outcome>
+</recipe>
+
+<!-- vim: set ts=4 sw=4 tw=0 noet syntax=xml : -->

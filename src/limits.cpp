@@ -64,7 +64,6 @@ extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
 extern int free_rent;
-extern unsigned long dg_global_pulse;
 extern room_rnum r_mortal_start_room;
 extern room_rnum r_immort_start_room;
 extern room_rnum r_helled_start_room;

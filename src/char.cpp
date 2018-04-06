@@ -84,12 +84,11 @@ ProtectedCharacterData::ProtectedCharacterData(const ProtectedCharacterData& rhv
 
 void ProtectedCharacterData::set_rnum(const mob_rnum rnum)
 {
+	const auto old_rnum = m_rnum;
+	m_rnum = rnum;
+
 	if (rnum != m_rnum)
 	{
-		const auto old_rnum = m_rnum;
-
-		m_rnum = rnum;
-
 		for (const auto& observer : m_rnum_change_observers)
 		{
 			observer->notify(*this, old_rnum);

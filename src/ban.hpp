@@ -155,6 +155,8 @@ void save();
 
 } // namespace RegisterSystem
 
+extern BanList*& ban;
+
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -441,8 +441,6 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 	}
 }
 
-// =============================================================== //
-
 // Апдейт аффектов для комнат - надеюсь это мир не прикончит//
 // Gorrah: Вынес в отдельный лист обкастованные комнаты - теперь думаю не прикончит //
 void room_affect_update(void)
@@ -1459,8 +1457,6 @@ void print_rune_log()
 		log("RuneUsed: %d %d", i->first, i->second);
 	}
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 {

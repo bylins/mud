@@ -3547,6 +3547,33 @@ const char *print_obj_state(int tm_pct)
 	else return "нерушимо";
 }
 
+void sanity_check(void)
+{
+	int ok = TRUE;
+
+	// * If any line is false, 'ok' will become false also.
+	ok &= (test_magic(buf) == MAGIC_NUMBER || test_magic(buf) == '\0');
+	ok &= (test_magic(buf1) == MAGIC_NUMBER || test_magic(buf1) == '\0');
+	ok &= (test_magic(buf2) == MAGIC_NUMBER || test_magic(buf2) == '\0');
+	ok &= (test_magic(arg) == MAGIC_NUMBER || test_magic(arg) == '\0');
+
+	/*
+	* This isn't exactly the safest thing to do (referencing known bad memory)
+	* but we're doomed to crash eventually, might as well try to get something
+	* useful before we go down. -gg
+	* However, lets fix the problem so we don't spam the logs. -gg 11/24/98
+	*/
+	if (!ok)
+	{
+		log("SYSERR: *** Buffer overflow! ***\n" "buf: %s\nbuf1: %s\nbuf2: %s\narg: %s", buf, buf1, buf2, arg);
+
+		plant_magic(buf);
+		plant_magic(buf1);
+		plant_magic(buf2);
+		plant_magic(arg);
+	}
+}
+
 bool isname(const char *str, const char *namelist)
 {
 	bool once_ok = false;

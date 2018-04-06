@@ -615,8 +615,6 @@ namespace RoomSpells {
 extern std::list<ROOM_DATA*> aff_room_list;
 // Показываем комнаты под аффектами //
 void ShowRooms(CHAR_DATA *ch);
-// Обработка таймеров аффектов на комнатах //
-void room_affect_update(void);
 // Применение заклинания к комнате //
 int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
 // Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //

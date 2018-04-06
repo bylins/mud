@@ -16,6 +16,7 @@
 
 #include "db.h"
 
+#include "speedwalks.hpp"
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
@@ -80,10 +81,6 @@
 #define CLASS_LIMIT_FILE "class_limit.xml"
 #define DAILY_FILE "daily.xml"
 #define CITIES_FILE "cities.xml"
-/**************************************************************************
-*  declarations of global containers and objects                          *
-**************************************************************************/
-BanList *ban = 0;		// contains list of banned ip's and proxies + interface
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -173,7 +170,6 @@ GameLoader::GameLoader()
 GameLoader world_loader;
 
 // local functions
-void SaveGlobalUID(void);
 void LoadGlobalUID(void);
 void parse_room(FILE * fl, int virtual_nr, int virt);
 void parse_object(FILE * obj_f, const int nr);
@@ -209,7 +205,6 @@ void load_guardians();
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1);
 void free_alias(struct alias_data *a);
 void load_messages(void);
-void weather_and_time(int mode);
 void mag_assign_spells(void);
 void sort_commands(void);
 void Read_Invalid_List(void);
@@ -682,11 +677,6 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 	return result;
 }
 
-
-
-
-
-
 float count_mort_requred(const CObjectPrototype *obj)
 {
     
@@ -820,11 +810,6 @@ void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
 		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}	
 }
-
-std::vector<SpeedWalk>  speedwalks;
-
-
-
 
 // Separate a 4-character id tag from the data it precedes
 void tag_argument(char *argument, char *tag)
