@@ -2,6 +2,9 @@
 #define __CRAFT_COMMANDS_HPP__
 
 #include "structs.h"
+#include "commands.hpp"
+
+#include <memory>
 
 namespace craft
 {
@@ -11,18 +14,20 @@ namespace craft
 	/// Defines for the "craft" command (base craft command)
 	namespace cmd
 	{
+		const char* CRAFT_COMMAND = "craft";
+
 		/// Minimal position for base craft command
-		const int MINIMAL_POSITION = POS_SITTING;
+		constexpr int MINIMAL_POSITION = POS_SITTING;
 
 		// Minimal level for base craft command
-		const int MINIMAL_LEVEL = 0;
+		constexpr int MINIMAL_LEVEL = 0;
 
 		// Probability to stop hide when using base craft command
-		const int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never
+		constexpr int UNHIDE_PROBABILITY = 0;	// -1 - always, 0 - never
 
 		extern void do_craft(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-	};
-};
+	}
+}
 
 #endif // __CRAFT_COMMANDS_HPP__
 

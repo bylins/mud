@@ -196,42 +196,6 @@ struct cast_attack_type
 	ROOM_DATA *troom;
 };
 
-struct setall_inspect_request
-{
-	int unique; // UID
-	int found; //сколько найдено
-	int type_req; // тип запроса: фриз, смена мыла, пароля или ад (0, 1, 2 или 3)
-	int freeze_time; // время, на которое фризим
-	char *mail; // мыло игрока
-	char *pwd; // пароль
-	char *newmail; // новое мыло
-	char *reason; // причина для фриза
-	int pos; // позиция в таблице
-	struct timeval start;		//время когда запустили запрос для отладки
-	std::string out;		//буфер в который накапливается вывод
-};
-
-struct inspect_request
-{
-	int sfor;			//тип запроса
-	int unique;			//UID
-	int fullsearch;			//полный поиск или нет
-	int found;			//сколько всего найдено
-	char *req;			//собственно сам запрос
-	char *mail;			//мыло
-	int pos;			//позиция в таблице
-	struct logon_data * ip_log;	//айпи адреса по которым идет поиск
-	struct timeval start;		//время когда запустили запрос для отладки
-	std::string out;		//буфер в который накапливается вывод
-	bool sendmail; // отправлять ли на мыло список чаров
-};
-
-typedef boost::shared_ptr<inspect_request> InspReqPtr;
-typedef std::map < int/* filepos, позиция в player_table перса который делает запрос */, InspReqPtr/* сам запрос */ > InspReqListType;
-
-typedef boost::shared_ptr<setall_inspect_request> SetAllInspReqPtr;
-typedef std::map <int, SetAllInspReqPtr> SetAllInspReqListType;
-
 struct player_special_data_saved
 {
 	player_special_data_saved();

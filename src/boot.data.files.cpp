@@ -791,7 +791,7 @@ void ObjectFile::parse_object(const int nr)
 		tobj->set_extra_flag(EExtraFlag::ITEM_TICKTIMER);
 	}
 	tobj->set_timer(timer);
-	tobj->set_spell(t[2]);
+	tobj->set_spell(t[2] < 1 || t[2] > SPELLS_COUNT ? SPELL_NO_SPELL : t[2]);
 	tobj->set_level(t[3]);
 
 	if (!get_line(file(), m_line))

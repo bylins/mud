@@ -164,7 +164,6 @@ void Crash_listrent(CHAR_DATA * ch, char *name);
 int Crash_load(CHAR_DATA * ch);
 void Crash_crashsave(CHAR_DATA * ch);
 void Crash_idlesave(CHAR_DATA * ch);
-void Crash_save_all(void);
 
 bool stop_follower(CHAR_DATA * ch, int mode);
 void forget(CHAR_DATA * ch, CHAR_DATA * victim);

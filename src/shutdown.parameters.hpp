@@ -47,7 +47,7 @@ private:
 	time_t m_boot_time;			// time of mud boot
 };
 
-extern ShutdownParameters shutdown_parameters;
+extern ShutdownParameters& shutdown_parameters;
 
 #endif // __SHUTDOWN_PARAMETERS_HPP__
 

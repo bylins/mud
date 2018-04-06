@@ -13,6 +13,9 @@
 
 typedef struct auction_data AUCTION_DATA;
 
+class OBJ_DATA; // to avoid inclusion of obj.hpp
+class CHAR_DATA; // to avoid inclusion of char.hpp
+
 struct auction_data
 {
 	int item_id;

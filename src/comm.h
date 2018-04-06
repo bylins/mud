@@ -105,24 +105,6 @@ void timediff(struct timeval *diff, struct timeval *a, struct timeval *b);
 
 int main_function(int argc, char **argv);
 
-class Heartbeat
-{
-public:
-	Heartbeat();
-
-	void operator()(const int missed_pulses);
-
-	auto pulse() const { return m_pulse; }
-
-private:
-	void tick(const int missed_pulses);
-
-	int m_mins_since_crashsave;
-	int m_pulse;
-};
-
-extern Heartbeat heartbeat;
-
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

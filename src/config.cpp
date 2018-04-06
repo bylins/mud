@@ -120,22 +120,6 @@ int min_rent_cost(CHAR_DATA * ch)
 		return ((GET_LEVEL(ch) + 30 * GET_REMORT(ch)) * 2);
 }
 
-/*
- * Should the game automatically save people?  (i.e., save player data
- * every 4 kills (on average), and Crash-save as defined below.  This
- * option has an added meaning past bpl13.  If auto_save is YES, then
- * the 'save' command will be disabled to prevent item duplication via
- * game crashes.
- */
-int auto_save = YES;
-
-/*
- * if auto_save (above) is yes, how often (in minutes) should the MUD
- * Crash-save people's objects?   Also, this number indicates how often
- * the MUD will Crash-save players' houses.
- */
-int autosave_time = 5;
-
 // Lifetime of crashfiles, forced-rent and idlesave files in days
 int crash_file_timeout = 30;
 

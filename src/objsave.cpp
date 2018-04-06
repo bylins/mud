@@ -53,8 +53,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern int rent_file_timeout, crash_file_timeout;
 extern int free_crashrent_period;
 extern int free_rent;
-//extern int max_obj_save;      // change in config.cpp
-extern long last_rent_check;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_named_start_room;
 extern room_rnum r_unreg_start_room;

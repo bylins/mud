@@ -27,7 +27,13 @@ set(TESTS
 	bonus.command.parser.cpp
 	quested.cpp
 	sprintbitwd.cpp
-	triggers.list.cpp)
+	triggers.list.cpp
+	sprintbitwd.cpp
+	bonus.command.parser.cpp
+	radix.trie.cpp
+	compact.trie.cpp
+	compact.trie.iterators.cpp
+	compact.trie.prefixes.cpp)
 set(UTILITIES
 	char.utilities.hpp
 	char.utilities.cpp)

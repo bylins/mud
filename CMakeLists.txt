@@ -5,6 +5,8 @@ project(bylins CXX)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
+	src/heartbeat.cpp
+	src/heartbeat.commands.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -41,8 +43,6 @@ set(SOURCES
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
-	src/craft_commands.cpp
-	src/craft.cpp
 	src/db.cpp
 	src/deathtrap.cpp
 	src/depot.cpp
@@ -85,6 +85,7 @@ set(SOURCES
 	src/interpreter.cpp
 	src/item.creation.cpp
 	src/limits.cpp
+	src/levenshtein.cpp
 	src/liquid.cpp
 	src/logger.cpp
 	src/magic.cpp
@@ -153,14 +154,27 @@ set(SOURCES
 	src/global.objects.cpp
 	src/shops.implementation.cpp
 	src/world.characters.cpp
-	src/debug.utils.cpp)
+	src/debug.utils.cpp
+	src/speedwalks.cpp
+	src/shops.implementation.cpp
+	src/radix.trie.cpp
+	src/compact.trie.cpp
+	src/id.cpp)
 
 set(HEADERS
+	src/heartbeat.commands.hpp
+	src/weather.hpp
+	src/limits.hpp
+	src/act.wizard.hpp
+	src/heartbeat.hpp
+	src/speedwalks.hpp
 	src/world.characters.hpp
 	src/shops.implementation.hpp
 	src/global.objects.hpp
 	src/find.obj.id.by.vnum.hpp
 	src/id.hpp
+	src/compact.trie.hpp
+	src/radix.trie.hpp
 	src/object.prototypes.hpp
 	src/world.objects.hpp
 	src/utils.string.hpp
@@ -196,8 +210,6 @@ set(HEADERS
 	src/constants.h
 	src/coredump.hpp
 	src/corpse.hpp
-	src/craft_commands.hpp
-	src/craft.hpp
 	src/db.h
 	src/deathtrap.hpp
 	src/depot.hpp
@@ -233,6 +245,7 @@ set(HEADERS
 	src/im.h
 	src/interpreter.h
 	src/item.creation.hpp
+	src/levenshtein.hpp
 	src/liquid.hpp
 	src/logger.hpp
 	src/magic.h
@@ -420,20 +433,44 @@ set(CRAFT_MATERIAL_FILES
 	lib.template/misc/craft/tough_leather.xml
 	lib.template/misc/craft/soft_leather.xml
 	lib.template/misc/craft/inwrought_flax.xml)
+set(CRAFT_RECIPE_FILES
+	lib.template/misc/craft/recipe1.xml)
 set(CRAFT_CRAFT_FILES
 	lib.template/misc/craft/craft1.xml)
 set(CRAFT_TEMPLATE_FILES
 	lib.template/misc/craft/material_template.xml
-	lib.template/misc/craft/prototype_template.xml)
+	lib.template/misc/craft/prototype_template.xml
+	lib.template/misc/craft/recipe_template.xml)
 set(CRAFT_PROTOTYPES)
+set(CRAFT_SOURCE_FILES
+	src/craft.commands.cpp
+	src/craft.cpp
+	src/craft.logger.cpp
+	src/craft.static.cpp)
+set(CRAFT_HEADER_FILES
+	src/craft.commands.hpp
+	src/craft.hpp
+	src/craft.logger.hpp
+	src/craft.static.hpp)
 
-source_group("Misc\\Craft" FILES ${CRAFT_GENERAL_FILES})
-source_group("Misc\\Craft\\Includes\\Tailoring" FILES ${CRAFT_TAILORING_FILES})
-source_group("Misc\\Craft\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
-source_group("Misc\\Craft\\Materials" FILES ${CRAFT_MATERIAL_FILES})
-source_group("Misc\\Craft\\Crafts" FILES ${CRAFT_CRAFT_FILES})
+source_group("Craft\\Configuration" FILES ${CRAFT_GENERAL_FILES})
+source_group("Craft\\Configuration\\Tailoring" FILES ${CRAFT_TAILORING_FILES})
+source_group("Craft\\Configuration\\Templates" FILES ${CRAFT_TEMPLATE_FILES})
+source_group("Craft\\Configuration\\Materials" FILES ${CRAFT_MATERIAL_FILES})
+source_group("Craft\\Configuration\\Recipes" FILES ${CRAFT_RECIPE_FILES})
+source_group("Craft\\Configuration\\Crafts" FILES ${CRAFT_CRAFT_FILES})
+source_group("Craft\\Source files" FILES ${CRAFT_SOURCE_FILES})
+source_group("Craft\\Header files" FILES ${CRAFT_HEADER_FILES})
 
-set(CRAFT_FILES ${CRAFT_GENERAL_FILES} ${CRAFT_TAILORING_FILES} ${CRAFT_MATERIAL_FILES} ${CRAFT_CRAFT_FILES} ${CRAFT_TEMPLATE_FILES})
+set(CRAFT_FILES
+	${CRAFT_GENERAL_FILES}
+	${CRAFT_TAILORING_FILES}
+	${CRAFT_MATERIAL_FILES}
+	${CRAFT_RECIPE_FILES}
+	${CRAFT_CRAFT_FILES}
+	${CRAFT_TEMPLATE_FILES}
+	${CRAFT_SOURCE_FILES}
+	${CRAFT_HEADER_FILES})
 
 set(MISC_FILES
 	lib.template/misc/noob_help.xml
@@ -549,7 +586,7 @@ set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
-		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC -fsanitize=address")
+		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC -fsanitize=address -static-libasan")
 		set(CMAKE_CXX_FLAGS_TEST     "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 
