@@ -2061,7 +2061,7 @@ bool mob_command_interpreter(CHAR_DATA* ch, char *argument)
 	{
 		return false;
 	}
-	else if (GET_POS(ch) < cmd_info[cmd].minimum_position)
+	else if (GET_POS(ch) < mob_cmd_info[cmd].minimum_position)
 	{
 		return false;
 	}
