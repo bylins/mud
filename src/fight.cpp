@@ -1133,7 +1133,7 @@ void mob_casting(CHAR_DATA * ch)
 {
 	CHAR_DATA *victim;
 	int battle_spells[MAX_STRING_LENGTH];
-	int i, spellnum, spells, sp_num;
+	int spellnum, spells, sp_num;
 	OBJ_DATA *item;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
@@ -1144,21 +1144,30 @@ void mob_casting(CHAR_DATA * ch)
 		return;
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
-	for (i = 1, spells = 0; i <= MAX_SPELLS; i++)
+	for (int i = 1, spells = 0; i <= MAX_SPELLS; i++)
+	{
 		if (GET_SPELL_MEM(ch, i) && IS_SET(spell_info[i].routines, NPC_CALCULATE))
+		{
 			battle_spells[spells++] = i;
+		}
+	}
 
 	item = ch->carrying;
 	while (spells < MAX_STRING_LENGTH
 		&& item
 		&& GET_RACE(ch) == NPC_RACE_HUMAN
-		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST)))
 	{
 		switch (GET_OBJ_TYPE(item))
 		{
 		case OBJ_DATA::ITEM_WAND:
 		case OBJ_DATA::ITEM_STAFF:
+			if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > ESpell::SPELLS_COUNT)
+			{
+				log("SYSERR: Не верно указано значение спела в стафе %s, позиция: 3, значение: %d ", item->get_PName(0).c_str(), GET_OBJ_VAL(item, 3));
+				break;
+			}
+
 			if (GET_OBJ_VAL(item, 2) > 0 &&
 				IS_SET(spell_info[GET_OBJ_VAL(item, 3)].routines, NPC_CALCULATE))
 			{
@@ -1167,9 +1176,9 @@ void mob_casting(CHAR_DATA * ch)
 			break;
 
 		case OBJ_DATA::ITEM_POTION:
-			for (i = 1; i <= 3; i++)
+			for (int i = 1; i <= 3; i++)
 			{
-				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
+				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > ESpell::SPELLS_COUNT)
 				{
 					log("SYSERR: Не верно указано значение спела в напитке %s, позиция: %d, значение: %d ", item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
@@ -1182,8 +1191,14 @@ void mob_casting(CHAR_DATA * ch)
 			break;
 
 		case OBJ_DATA::ITEM_SCROLL:
-			for (i = 1; i <= 3; i++)
+			for (int i = 1; i <= 3; i++)
 			{
+				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > ESpell::SPELLS_COUNT)
+				{
+					log("SYSERR: Не верно указано значение спела в свитке %s, позиция: %d, значение: %d ", item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
+					continue;
+				}
+
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_CALCULATE))
 				{
 					battle_spells[spells++] = GET_OBJ_VAL(item, i);
@@ -1202,9 +1217,10 @@ void mob_casting(CHAR_DATA * ch)
 	spellnum = 0;
 	victim = find_cure(ch, ch, &spellnum);
 	// Ищем рандомную заклинашку и цель для нее
-	for (i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++)
+	for (int i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++)
+	{
 		if (!spellnum && (spellnum = battle_spells[(sp_num = number(0, spells - 1))])
-				&& spellnum > 0 && spellnum <= MAX_SPELLS)  	// sprintf(buf,"$n using spell '%s', %d from %d",
+			&& spellnum > 0 && spellnum <= MAX_SPELLS)  	// sprintf(buf,"$n using spell '%s', %d from %d",
 		{
 			//         spell_name(spellnum), sp_num, spells);
 			// act(buf,FALSE,ch,0,ch->get_fighting(),TO_VICT);
@@ -1239,6 +1255,8 @@ void mob_casting(CHAR_DATA * ch)
 			else
 				spellnum = 0;
 		}
+	}
+
 	if (spellnum && victim)  	// Is this object spell ?
 	{
 		item = ch->carrying;
