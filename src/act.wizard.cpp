@@ -1303,7 +1303,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		req->pwd = strdup(buf2);
 		type_request = SETALL_PSWD;
 	}
-	if (is_abbrev(buf1, "hell"))
+	else if (is_abbrev(buf1, "hell"))
 	{	
 		skip_spaces(&argument);
 		if (!argument || !*argument)
