@@ -1133,7 +1133,7 @@ void mob_casting(CHAR_DATA * ch)
 {
 	CHAR_DATA *victim;
 	int battle_spells[MAX_STRING_LENGTH];
-	int spellnum, spells, sp_num;
+	int spellnum, spells = 0, sp_num;
 	OBJ_DATA *item;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
@@ -1144,7 +1144,7 @@ void mob_casting(CHAR_DATA * ch)
 		return;
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
-	for (int i = 1, spells = 0; i <= MAX_SPELLS; i++)
+	for (int i = 1; i <= MAX_SPELLS; i++)
 	{
 		if (GET_SPELL_MEM(ch, i) && IS_SET(spell_info[i].routines, NPC_CALCULATE))
 		{
@@ -1162,7 +1162,7 @@ void mob_casting(CHAR_DATA * ch)
 		{
 		case OBJ_DATA::ITEM_WAND:
 		case OBJ_DATA::ITEM_STAFF:
-			if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > ESpell::SPELLS_COUNT)
+			if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > TOP_SPELL_DEFINE)
 			{
 				log("SYSERR: Не верно указано значение спела в стафе %s, позиция: 3, значение: %d ", item->get_PName(0).c_str(), GET_OBJ_VAL(item, 3));
 				break;
@@ -1178,7 +1178,7 @@ void mob_casting(CHAR_DATA * ch)
 		case OBJ_DATA::ITEM_POTION:
 			for (int i = 1; i <= 3; i++)
 			{
-				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > ESpell::SPELLS_COUNT)
+				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
 				{
 					log("SYSERR: Не верно указано значение спела в напитке %s, позиция: %d, значение: %d ", item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
@@ -1193,8 +1193,8 @@ void mob_casting(CHAR_DATA * ch)
 		case OBJ_DATA::ITEM_SCROLL:
 			for (int i = 1; i <= 3; i++)
 			{
-				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > ESpell::SPELLS_COUNT)
-				{
+				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
+				{	
 					log("SYSERR: Не верно указано значение спела в свитке %s, позиция: %d, значение: %d ", item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
@@ -1278,7 +1278,7 @@ void mob_casting(CHAR_DATA * ch)
 				break;
 
 			case OBJ_DATA::ITEM_POTION:
-				for (i = 1; i <= 3; i++)
+				for (int i = 1; i <= 3; i++)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
 					{
@@ -1299,7 +1299,7 @@ void mob_casting(CHAR_DATA * ch)
 				break;
 
 			case OBJ_DATA::ITEM_SCROLL:
-				for (i = 1; i <= 3; i++)
+				for (int i = 1; i <= 3; i++)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
 					{
