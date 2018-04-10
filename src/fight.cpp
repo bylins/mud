@@ -1133,10 +1133,14 @@ void mob_casting(CHAR_DATA * ch)
 {
 	CHAR_DATA *victim;
 	int battle_spells[MAX_STRING_LENGTH];
-	int lag = GET_WAIT(ch), i, spellnum, spells, sp_num;
+	int i, spellnum, spells, sp_num;
 	OBJ_DATA *item;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED) || lag > 0)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
+		|| GET_WAIT(ch) > 0)
 		return;
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
@@ -1167,7 +1171,7 @@ void mob_casting(CHAR_DATA * ch)
 			{
 				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
 				{
-					log("SYSERR: Не верно указано значение спела в напитке %s, позиция: %d, значение: %d ", item->get_PName(0), i, GET_OBJ_VAL(item, i));
+					log("SYSERR: Не верно указано значение спела в напитке %s, позиция: %d, значение: %d ", item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER))
