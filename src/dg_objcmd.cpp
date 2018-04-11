@@ -795,7 +795,8 @@ void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		isFeat = 1;
 	else
 	{
-		obj_log(obj, "ofeatturn: feat/recipe not found");
+		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);
+		obj_log(obj, buf);
 		return;
 	}
 
@@ -842,7 +843,8 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		obj_log(obj, "oskillturn: skill/recipe not found");
+		sprintf(buf, "oskillturn: %s skill/recipe not found", skillname);
+		obj_log(obj, buf);
 		return;
 	}
 
@@ -907,7 +909,8 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		obj_log(obj, "oskilladd: skill/recipe not found");
+		sprintf(buf, "oskilladd: %s skill/recipe not found", skillname);
+		obj_log(obj, buf);
 		return;
 	}
 

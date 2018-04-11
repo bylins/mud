@@ -1472,7 +1472,8 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		mob_log(ch, "mskillturn: skill/recipe not found");
+		sprintf(buf, "mskillturn: %s skill/recipe not found", skillname);
+		mob_log(ch, buf);
 		return;
 	}
 
@@ -1574,7 +1575,8 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		mob_log(ch, "mskilladd: skill/recipe not found");
+		sprintf(buf, "mskilladd: %s skill/recipe not found", skillname);
+		mob_log(ch, buf);
 		return;
 	}
 

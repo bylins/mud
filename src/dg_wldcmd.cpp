@@ -776,7 +776,8 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
     }
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		wld_log(room, "wskillturn: skill/recipe not found");
+		sprintf(buf, "wskillturn: %s skill/recipe not found", skillname);
+		wld_log(room, buf);
 		return;
 	}
 
@@ -841,7 +842,8 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		wld_log(room, "wskilladd: skill/recipe not found");
+		sprintf(buf, "wskillturn: %s skill/recipe not found", skillname);
+		wld_log(room, buf);
 		return;
 	}
 
