@@ -44,6 +44,8 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 ROOM_DATA *get_room(char *name);
 
+bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
+
 struct obj_command_info
 {
 	const char *command;
@@ -178,7 +180,10 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!str_cmp(arg1, "all")
 		|| !str_cmp(arg1, "все"))
 	{
-		if ((room = obj_room(obj)) == NOWHERE)
+		obj_log(obj, "ERROR: \'oforce all\' command disabled.");
+		return;
+
+		/*if ((room = obj_room(obj)) == NOWHERE)
 		{
 			obj_log(obj, "oforce called by object in NOWHERE");
 		}
@@ -193,7 +198,7 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 					command_interpreter(ch, line);
 				}
 			}
-		}
+		}*/
 	}
 	else
 	{
@@ -208,10 +213,19 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 			}
 
-			if (IS_NPC(ch)
-				|| GET_LEVEL(ch) < LVL_IMMORT)
+			if (IS_NPC(ch))
 			{
-				command_interpreter(ch, line);
+				if (mob_script_command_interpreter(ch, argument))
+				{
+					obj_log(obj, "Mob trigger commands in oforce. Please rewrite trigger.");
+					return;
+				}
+
+				command_interpreter(ch, argument);
+			}
+			else if (GET_LEVEL(ch) < LVL_IMMORT)
+			{
+				command_interpreter(ch, argument);
 			}
 		}
 		else

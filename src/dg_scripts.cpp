@@ -5616,7 +5616,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	unsigned long loops = 0;
 	TRIG_DATA *prev_trig;
 
-	bool mob_command_interpreter(CHAR_DATA* ch, char* argument);
+	void mob_command_interpreter(CHAR_DATA* ch, char* argument);
 	void obj_command_interpreter(OBJ_DATA* obj, char* argument);
 	void wld_command_interpreter(ROOM_DATA* room, char* argument);
 
@@ -5954,10 +5954,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				{
 				case MOB_TRIGGER:
 					//last_trig_vnum = GET_TRIG_VNUM(trig);
-					if (!mob_command_interpreter((CHAR_DATA *)(go), cmd))
-					{
-						command_interpreter((CHAR_DATA *)go, cmd);
-					}
+					mob_command_interpreter((CHAR_DATA *)(go), cmd);
 					break;
 
 				case OBJ_TRIGGER:

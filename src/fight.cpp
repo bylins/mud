@@ -1195,7 +1195,7 @@ void mob_casting(CHAR_DATA * ch)
 			{
 				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
 				{	
-					log("SYSERR: Не верно указано значение спела в свитке %s, позиция: %d, значение: %d ", item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
+					log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
 

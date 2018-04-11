@@ -83,6 +83,8 @@ ROOM_DATA *get_room(char *name);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
 extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
 // * Local functions.
+void mob_command_interpreter(CHAR_DATA* ch, char *argument);
+bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
 
 // attaches mob's name and vnum to msg and sends it to script_log
 void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
@@ -625,7 +627,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	original = ch->in_room;
 	char_from_room(ch);
 	char_to_room(ch, location);
-	command_interpreter(ch, argument);
+	mob_command_interpreter(ch, argument);
 	reloc_target = -1;
 
 	 // See if 'ch' still exists before continuing!
@@ -802,23 +804,26 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
+	if (!str_cmp(arg, "all")
+		|| !str_cmp(arg, "все"))
 	{
-		DESCRIPTOR_DATA *i;
+		mob_log(ch, "ERROR: \'mforce all\' command disabled.");
+		return;
+		//DESCRIPTOR_DATA *i;
 
-		// не знаю почему здесь идут только по плеерам, но раз так,
-		// то LVL_IMMORT+ для мобов здесь исключать пока нет смысла
-		for (i = descriptor_list; i; i = i->next)
-		{
-			if ((i->character.get() != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
-			{
-				const auto vch = i->character;
-				if (GET_LEVEL(vch) < GET_LEVEL(ch) && CAN_SEE(ch, vch) && GET_LEVEL(vch) < LVL_IMMORT)
-				{
-					command_interpreter(vch.get(), argument);
-				}
-			}
-		}
+		//// не знаю почему здесь идут только по плеерам, но раз так,
+		//// то LVL_IMMORT+ для мобов здесь исключать пока нет смысла
+		//for (i = descriptor_list; i; i = i->next)
+		//{
+		//	if ((i->character.get() != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
+		//	{
+		//		const auto vch = i->character;
+		//		if (GET_LEVEL(vch) < GET_LEVEL(ch) && CAN_SEE(ch, vch) && GET_LEVEL(vch) < LVL_IMMORT)
+		//		{
+		//			command_interpreter(vch.get(), argument);
+		//		}
+		//	}
+		//}
 	}
 	else
 	{
@@ -853,7 +858,17 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		if (IS_NPC(victim) || GET_LEVEL(victim) < LVL_IMMORT)
+		if (IS_NPC(victim))
+		{
+			if (mob_script_command_interpreter(ch, argument))
+			{
+				mob_log(ch, "Mob trigger commands in mforce. Please rewrite trigger.");
+				return;
+			}
+
+			command_interpreter(victim, argument);
+		}
+		else if(GET_LEVEL(victim) < LVL_IMMORT)
 		{
 			command_interpreter(victim, argument);
 		}
@@ -2026,8 +2041,7 @@ const struct mob_command_info mob_cmd_info[] =
 	{ "\n", 0, 0, 0 }		// this must be last
 };
 
-// *  This is the command interpreter used by mob, called by script_driver.
-bool mob_command_interpreter(CHAR_DATA* ch, char *argument)
+bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
 {
 	char *line, arg[MAX_INPUT_LENGTH];
 
@@ -2075,6 +2089,15 @@ bool mob_command_interpreter(CHAR_DATA* ch, char *argument)
 		command(ch, line, cmd, mob_cmd_info[cmd].subcmd);
 
 		return true;
+	}
+}
+
+// *  This is the command interpreter used by mob, include common interpreter's commands
+void mob_command_interpreter(CHAR_DATA* ch, char *argument)
+{
+	if (!mob_script_command_interpreter(ch, argument))
+	{
+		command_interpreter(ch, argument);
 	}
 }
 
