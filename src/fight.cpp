@@ -1164,7 +1164,7 @@ void mob_casting(CHAR_DATA * ch)
 		case OBJ_DATA::ITEM_STAFF:
 			if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > TOP_SPELL_DEFINE)
 			{
-				log("SYSERR: Не верно указано значение спела в стафе %s, позиция: 3, значение: %d ", item->get_PName(0).c_str(), GET_OBJ_VAL(item, 3));
+				log("SYSERR: Не верно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), GET_OBJ_VAL(item, 3));
 				break;
 			}
 
@@ -1180,7 +1180,7 @@ void mob_casting(CHAR_DATA * ch)
 			{
 				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
 				{
-					log("SYSERR: Не верно указано значение спела в напитке %s, позиция: %d, значение: %d ", item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
+					log("SYSERR: Не верно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER))
