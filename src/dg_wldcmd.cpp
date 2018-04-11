@@ -477,17 +477,17 @@ void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 			if (IS_NPC(ch))
 			{
-				if (mob_script_command_interpreter(ch, argument))
+				if (mob_script_command_interpreter(ch, line))
 				{
 					wld_log(room, "Mob trigger commands in wforce. Please rewrite trigger.");
 					return;
 				}
 
-				command_interpreter(ch, argument);
+				command_interpreter(ch, line);
 			}
 			else if (GET_LEVEL(ch) < LVL_IMMORT)
 			{
-				command_interpreter(ch, argument);
+				command_interpreter(ch, line);
 			}
 		}
 		else

@@ -165,7 +165,6 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
-	int room;
 	char arg1[MAX_INPUT_LENGTH], *line;
 
 	line = one_argument(argument, arg1);
@@ -215,17 +214,17 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 			if (IS_NPC(ch))
 			{
-				if (mob_script_command_interpreter(ch, argument))
+				if (mob_script_command_interpreter(ch, line))
 				{
 					obj_log(obj, "Mob trigger commands in oforce. Please rewrite trigger.");
 					return;
 				}
 
-				command_interpreter(ch, argument);
+				command_interpreter(ch, line);
 			}
 			else if (GET_LEVEL(ch) < LVL_IMMORT)
 			{
-				command_interpreter(ch, argument);
+				command_interpreter(ch, line);
 			}
 		}
 		else
