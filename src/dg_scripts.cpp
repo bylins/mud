@@ -2048,6 +2048,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					for (const auto c : world[ch->in_room]->people)
 					{
 						if (!PRF_FLAGGED(c, PRF_NOHASSLE)
+							&& !GET_INVIS_LEV(c)
 							&& (c != ch)
 							&& CAN_SEE(ch, c)
 							&& ((IS_NPC(c) && *field != 'p')
