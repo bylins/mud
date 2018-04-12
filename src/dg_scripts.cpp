@@ -1142,7 +1142,6 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char loc_name[MAX_INPUT_LENGTH];
 	int loc, room, tn, rn;
 
-
 	argument = two_arguments(argument, arg, trig_name);
 	two_arguments(argument, targ_name, loc_name);
 
@@ -2904,13 +2903,20 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "next_in_room"))
 		{
+			CHAR_DATA* next = nullptr;
 			const auto room = world[c->in_room];
+
 			auto people_i = std::find(room->people.begin(), room->people.end(), c);
 
-			CHAR_DATA* next = nullptr;
 			if (people_i != room->people.end())
 			{
 				++people_i;
+				people_i = std::find_if(people_i, room->people.end(),
+					[](const CHAR_DATA* ch)
+					{
+						return !GET_INVIS_LEV(ch);
+					});
+
 				if (people_i != room->people.end())
 				{
 					next = *people_i;
@@ -3030,10 +3036,17 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "people"))
 		{
-			const auto first_char = world[IN_ROOM(c)]->first_character();
-			if (first_char)
+			//const auto first_char = world[IN_ROOM(c)]->first_character();
+			const auto room = world[IN_ROOM(c)]->people;
+			const auto first_char = std::find_if(room.begin(), room.end(), 
+				[](CHAR_DATA* ch)
+				{
+					return !GET_INVIS_LEV(ch);
+				});
+
+			if (first_char != room.end())
 			{
-				sprintf(str, "%c%ld", UID_CHAR, GET_ID(first_char));
+				sprintf(str, "%c%ld", UID_CHAR, GET_ID(*first_char));
 			}
 			else
 			{
@@ -3075,7 +3088,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			size_t str_length = strlen(str);
 			for (const auto rndm : world[inroom]->people)
 			{
-				if (!CAN_SEE(c, rndm))
+				if (!CAN_SEE(c, rndm)
+					|| GET_INVIS_LEV(rndm))
 				{
 					continue;
 				}
@@ -3447,6 +3461,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			size_t str_length = strlen(str);
 			for (const auto rndm : world[inroom]->people)
 			{
+				if (GET_INVIS_LEV(rndm))
+					continue;
+
 				if ((*field == 'a')
 					|| (!IS_NPC(rndm)
 						&& *field != 'n')
@@ -3639,6 +3656,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			size_t str_length = strlen(str);
 			for (const auto rndm : world[inroom]->people)
 			{
+				if (GET_INVIS_LEV(rndm))
+					continue;
+
 				if ((*field == 'a')
 					|| (!IS_NPC(rndm)
 						&& *field != 'n')
