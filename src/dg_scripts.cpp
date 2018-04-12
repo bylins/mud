@@ -239,7 +239,16 @@ int trgvar_in_room(int vnum)
 		return (-1);
 	}
 
-	return static_cast<int>(world[rnum]->people.size());
+	int count = 0;
+	for (const auto& ch : world[rnum]->people)
+	{
+		if (!GET_INVIS_LEV(ch))
+		{
+			++count;
+		}
+	}
+
+	return count;
 };
 
 OBJ_DATA *get_obj_in_list(char *name, OBJ_DATA * list)
@@ -1845,7 +1854,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					sprintf(str, "0");
 				}
 			}
-			else if ((!str_cmp(field, "gameobj") || !str_cmp(field, "gameobjs"))&& num > 0)
+			else if ((!str_cmp(field, "gameobj") || !str_cmp(field, "gameobjs")) && num > 0)
 			{
 				num = gcount_obj_vnum(num);
 				if (num >= 0)
@@ -2047,8 +2056,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					ch = (CHAR_DATA *) go;
 					for (const auto c : world[ch->in_room]->people)
 					{
-						if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-							&& !GET_INVIS_LEV(c)
+						if (!GET_INVIS_LEV(c)
 							&& (c != ch)
 							&& CAN_SEE(ch, c)
 							&& ((IS_NPC(c) && *field != 'p')
@@ -2070,7 +2078,6 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 						if ((IS_NPC(c) && *field != 'p')
 							|| (!IS_NPC(c)
 								&& *field != 'n'
-								&& !PRF_FLAGGED(c, PRF_NOHASSLE)
 								&& !GET_INVIS_LEV(c)))
 						{
 							if (!number(0, count))
@@ -2089,7 +2096,6 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 						if ((IS_NPC(c) && *field != 'p')
 							|| (!IS_NPC(c)
 								&& *field != 'n'
-								&& !PRF_FLAGGED(c, PRF_NOHASSLE)
 								&& !GET_INVIS_LEV(c)))
 						{
 							if (!number(0, count))
