@@ -1175,10 +1175,10 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
-					add_trigger(SCRIPT(victim).get(), trig, loc);
-
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n", tn, GET_TRIG_NAME(trig), GET_SHORT(victim));
 					send_to_char(buf, ch);
+
+					add_trigger(SCRIPT(victim).get(), trig, loc);
 				}
 				else
 				{
@@ -1200,12 +1200,12 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			rn = real_trigger(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn)))
 			{
-				add_trigger(object->get_script().get(), trig, loc);
-
 				sprintf(buf, "Trigger %d (%s) attached to %s.\r\n",
 					tn, GET_TRIG_NAME(trig),
 					(!object->get_short_description().empty() ? object->get_short_description().c_str() : object->get_aliases().c_str()));
 				send_to_char(buf, ch);
+
+				add_trigger(object->get_script().get(), trig, loc);
 			}
 			else
 				send_to_char("That trigger does not exist.\r\n", ch);
@@ -1222,11 +1222,11 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn)))
 				{
-					add_trigger(world[room]->script.get(), trig, loc);
-
 					sprintf(buf, "Trigger %d (%s) attached to room %d.\r\n",
-							tn, GET_TRIG_NAME(trig), world[room]->number);
+						tn, GET_TRIG_NAME(trig), world[room]->number);
 					send_to_char(buf, ch);
+
+					add_trigger(world[room]->script.get(), trig, loc);
 				}
 				else
 				{
