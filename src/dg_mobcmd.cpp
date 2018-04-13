@@ -143,8 +143,6 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
 
-	auto tt = mob_index[ch->get_rnum()].vnum;
-
 	if (!MOB_OR_IMPL(ch))
 	{
 		send_to_char("Чаво?\r\n", ch);
