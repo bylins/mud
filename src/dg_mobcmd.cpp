@@ -143,6 +143,8 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
 
+	auto tt = mob_index[ch->get_rnum()].vnum;
+
 	if (!MOB_OR_IMPL(ch))
 	{
 		send_to_char("Чаво?\r\n", ch);
@@ -860,7 +862,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		if (IS_NPC(victim))
 		{
-			if (mob_script_command_interpreter(ch, argument))
+			if (mob_script_command_interpreter(victim, argument))
 			{
 				mob_log(ch, "Mob trigger commands in mforce. Please rewrite trigger.");
 				return;
