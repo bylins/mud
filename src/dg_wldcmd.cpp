@@ -44,6 +44,8 @@ CHAR_DATA *get_char_by_room(ROOM_DATA * room, char *name);
 ROOM_DATA *get_room(char *name);
 OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name);
 
+bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
+
 extern int reloc_target;
 extern TRIG_DATA *cur_trig;
 
@@ -447,15 +449,18 @@ void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
 	{
-		const auto people_copy = room->people;
-		for (const auto ch : people_copy)
-		{
-			if (IS_NPC(ch)
-				|| GET_LEVEL(ch) < LVL_IMMORT)
-			{
-				command_interpreter(ch, line);
-			}
-		}
+		wld_log(room, "ERROR: \'wforce all\' command disabled.");
+		return;
+
+		//const auto people_copy = room->people;
+		//for (const auto ch : people_copy)
+		//{
+		//	if (IS_NPC(ch)
+		//		|| GET_LEVEL(ch) < LVL_IMMORT)
+		//	{
+		//		command_interpreter(ch, line);
+		//	}
+		//}
 	}
 	else
 	{
@@ -470,7 +475,17 @@ void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 			}
 
-			if (IS_NPC(ch) || GET_LEVEL(ch) < LVL_IMMORT)
+			if (IS_NPC(ch))
+			{
+				if (mob_script_command_interpreter(ch, line))
+				{
+					wld_log(room, "Mob trigger commands in wforce. Please rewrite trigger.");
+					return;
+				}
+
+				command_interpreter(ch, line);
+			}
+			else if (GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
 			}
@@ -776,7 +791,8 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
     }
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		wld_log(room, "wskillturn: skill/recipe not found");
+		sprintf(buf, "wskillturn: %s skill/recipe not found", skillname);
+		wld_log(room, buf);
 		return;
 	}
 
@@ -841,7 +857,8 @@ void do_wskilladd(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		wld_log(room, "wskilladd: skill/recipe not found");
+		sprintf(buf, "wskillturn: %s skill/recipe not found", skillname);
+		wld_log(room, buf);
 		return;
 	}
 

@@ -2199,7 +2199,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case OBJ_DATA::ITEM_SCROLL:
 		case OBJ_DATA::ITEM_POTION:
-			min_val = 1;
+			min_val = 0;
 			max_val = SPELLS_COUNT;
 			break;
 
@@ -2240,7 +2240,7 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case OBJ_DATA::ITEM_SCROLL:
 		case OBJ_DATA::ITEM_POTION:
-			min_val = 1;
+			min_val = 0;
 			max_val = SPELLS_COUNT;
 			break;
 

@@ -372,32 +372,6 @@ void do_attach(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_detach(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_tstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_masound(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mkill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mjunk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mdamage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mdoor(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mechoaround(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_msend(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mload(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mpurge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mgoto(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mteleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mforce(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mexp(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mgold(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mremember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mforget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mfeatturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mtransform(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mskillturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mskilladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mspellturn(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mspellturntemp(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mspelladd(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_mspellitem(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_vdelete(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_hearing(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_looking(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -1111,39 +1085,14 @@ cpp_extern const struct command_info cmd_info[] =
 	{"rlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
 	{"zlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
 	{"clist", POS_DEAD, do_liblist, LVL_GOD, SCMD_CLIST, 0},
-	// DG trigger commands
-	{"attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0},
-	{"detach", POS_DEAD, do_detach, LVL_IMPL, 0, 0},
-	{"tlist", POS_DEAD, do_tlist, LVL_GRGOD, 0, 0},
-	{"tstat", POS_DEAD, do_tstat, LVL_GRGOD, 0, 0},
-	{"masound", POS_DEAD, do_masound, -1, 0, -1},
-	{"mkill", POS_STANDING, do_mkill, -1, 0, -1},
-	{"mjunk", POS_SITTING, do_mjunk, -1, 0, -1},
-	{"mdamage", POS_DEAD, do_mdamage, -1, 0, -1},
-	{"mdoor", POS_DEAD, do_mdoor, -1, 0, -1},
-	{"mecho", POS_DEAD, do_mecho, -1, 0, -1},
-	{"mechoaround", POS_DEAD, do_mechoaround, -1, 0, -1},
-	{"msend", POS_DEAD, do_msend, -1, 0, -1},
-	{"mload", POS_DEAD, do_mload, -1, 0, -1},
-	{"mpurge", POS_DEAD, do_mpurge, -1, 0, -1},
-	{"mgoto", POS_DEAD, do_mgoto, -1, 0, -1},
-	{"mat", POS_DEAD, do_mat, -1, 0, -1},
-	{"mteleport", POS_DEAD, do_mteleport, -1, 0, -1},
-	{"mforce", POS_DEAD, do_mforce, -1, 0, -1},
-	{"mexp", POS_DEAD, do_mexp, -1, 0, -1},
-	{"mgold", POS_DEAD, do_mgold, -1, 0, -1},
-	{"mremember", POS_DEAD, do_mremember, -1, 0, -1},
-	{"mforget", POS_DEAD, do_mforget, -1, 0, -1},
-	{"mtransform", POS_DEAD, do_mtransform, -1, 0, -1},
-	{"mfeatturn", POS_DEAD, do_mfeatturn, -1, 0, -1},
-	{"mskillturn", POS_DEAD, do_mskillturn, -1, 0, -1},
-	{"mskilladd", POS_DEAD, do_mskilladd, -1, 0, -1},
-	{"mspellturn", POS_DEAD, do_mspellturn, -1, 0, -1},
-	{"mspellturntemp", POS_DEAD, do_mspellturntemp, -1, 0, -1},
-	{"mspelladd", POS_DEAD, do_mspelladd, -1, 0, -1},
-	{"mspellitem", POS_DEAD, do_mspellitem, -1, 0, -1},
-	{"vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0},
-	{"debug_queues", POS_DEAD, do_debug_queues, LVL_IMPL, 0, 0 },
+
+	{ "attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0 },
+	{ "detach", POS_DEAD, do_detach, LVL_IMPL, 0, 0 },
+	{ "tlist", POS_DEAD, do_tlist, LVL_GRGOD, 0, 0 },
+	{ "tstat", POS_DEAD, do_tstat, LVL_GRGOD, 0, 0 },
+	{ "vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0 },
+	{ "debug_queues", POS_DEAD, do_debug_queues, LVL_IMPL, 0, 0 },
+
 	{ heartbeat::cmd::HEARTBEAT_COMMAND, heartbeat::cmd::MINIMAL_POSITION, heartbeat::cmd::do_heartbeat, heartbeat::cmd::MINIMAL_LEVEL, heartbeat::SCMD_NOTHING, heartbeat::cmd::UNHIDE_PROBABILITY },
 	//{craft::cmd::CRAFT_COMMAND, craft::cmd::MINIMAL_POSITION, craft::cmd::do_craft, craft::cmd::MINIMAL_LEVEL, craft::SCMD_NOTHING, craft::cmd::UNHIDE_PROBABILITY},
 	{"\n", 0, 0, 0, 0, 0}
@@ -1253,6 +1202,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 
 	if (!*argument)
 		return;
+
 	if (!IS_NPC(ch))
 	{
 		log("<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
@@ -1288,7 +1238,10 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		*(argument + length - 1) = ' ';
 	}
 
-	if ((!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)))
+	if (!IS_NPC(ch)
+		&& !GET_MOB_HOLD(ch)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
 	{
 		int cont;	// continue the command checks
 		cont = command_wtrigger(ch, arg, line);
@@ -1421,8 +1374,6 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 // ************************************************************************
 // * Routines to handle aliasing                                          *
 // ************************************************************************
-
-
 struct alias_data *find_alias(struct alias_data *alias_list, char *str)
 {
 	while (alias_list != NULL)
@@ -1436,7 +1387,6 @@ struct alias_data *find_alias(struct alias_data *alias_list, char *str)
 
 	return (NULL);
 }
-
 
 void free_alias(struct alias_data *a)
 {

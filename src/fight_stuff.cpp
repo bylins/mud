@@ -667,8 +667,6 @@ bool change_rep(CHAR_DATA *ch, CHAR_DATA *killer)
 	return true;
 }
 
-
-
 void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	const long local_gold = ch->get_gold();

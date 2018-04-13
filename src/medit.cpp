@@ -49,7 +49,6 @@ extern CHAR_DATA *mob_proto;
 extern mob_rnum top_of_mobt;
 extern struct zone_data *zone_table;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern void extract_mob(CHAR_DATA *ch);
 #if defined(OASIS_MPROG)
 extern const char *mobprog_types[];
 #endif
@@ -189,7 +188,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	}
 
 	// Копирую скрипт и прототипы
-	SCRIPT(dst) = NULL;
+	SCRIPT(dst)->cleanup();
 	auto proto_script_old = new OBJ_DATA::triggers_list_t(*src->proto_script);
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;

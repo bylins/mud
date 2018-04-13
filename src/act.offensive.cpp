@@ -654,12 +654,13 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // ****************** CHARM ORDERS PROCEDURES
 void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	if (!ch)
-		return;
 	char name[MAX_INPUT_LENGTH], message[MAX_INPUT_LENGTH];
 	bool found = FALSE;
 	room_rnum org_room;
 	CHAR_DATA *vict;
+
+	if (!ch)
+		return;
 
 	half_chop(argument, name, message);
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE))

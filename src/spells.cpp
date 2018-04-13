@@ -1010,6 +1010,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 //				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 				return false;
 			}
+
 			if (SECT(IN_ROOM(carried_by)) == SECT_SECRET
 				|| IS_IMMORTAL(carried_by))
 			{

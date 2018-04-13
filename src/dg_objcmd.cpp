@@ -44,6 +44,8 @@ void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 ROOM_DATA *get_room(char *name);
 
+bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
+
 struct obj_command_info
 {
 	const char *command;
@@ -163,7 +165,6 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *ch;
-	int room;
 	char arg1[MAX_INPUT_LENGTH], *line;
 
 	line = one_argument(argument, arg1);
@@ -178,7 +179,10 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!str_cmp(arg1, "all")
 		|| !str_cmp(arg1, "все"))
 	{
-		if ((room = obj_room(obj)) == NOWHERE)
+		obj_log(obj, "ERROR: \'oforce all\' command disabled.");
+		return;
+
+		/*if ((room = obj_room(obj)) == NOWHERE)
 		{
 			obj_log(obj, "oforce called by object in NOWHERE");
 		}
@@ -193,7 +197,7 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 					command_interpreter(ch, line);
 				}
 			}
-		}
+		}*/
 	}
 	else
 	{
@@ -208,8 +212,17 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 			}
 
-			if (IS_NPC(ch)
-				|| GET_LEVEL(ch) < LVL_IMMORT)
+			if (IS_NPC(ch))
+			{
+				if (mob_script_command_interpreter(ch, line))
+				{
+					obj_log(obj, "Mob trigger commands in oforce. Please rewrite trigger.");
+					return;
+				}
+
+				command_interpreter(ch, line);
+			}
+			else if (GET_LEVEL(ch) < LVL_IMMORT)
 			{
 				command_interpreter(ch, line);
 			}
@@ -795,7 +808,8 @@ void do_ofeatturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		isFeat = 1;
 	else
 	{
-		obj_log(obj, "ofeatturn: feat/recipe not found");
+		sprintf(buf, "ofeatturn: %s skill/recipe not found", featname);
+		obj_log(obj, buf);
 		return;
 	}
 
@@ -842,7 +856,8 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		obj_log(obj, "oskillturn: skill/recipe not found");
+		sprintf(buf, "oskillturn: %s skill/recipe not found", skillname);
+		obj_log(obj, buf);
 		return;
 	}
 
@@ -907,7 +922,8 @@ void do_oskilladd(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if ((recipenum = im_get_recipe_by_name(skillname)) < 0)
 	{
-		obj_log(obj, "oskilladd: skill/recipe not found");
+		sprintf(buf, "oskilladd: %s skill/recipe not found", skillname);
+		obj_log(obj, buf);
 		return;
 	}
 
@@ -1139,8 +1155,6 @@ const struct obj_command_info obj_cmd_info[] =
 	{"\n", 0, 0}		// this must be last
 };
 
-
-
 // *  This is the command interpreter used by objects, called by script_driver.
 void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 {
@@ -1153,7 +1167,6 @@ void obj_command_interpreter(OBJ_DATA * obj, char *argument)
 		return;
 
 	line = any_one_arg(argument, arg);
-
 
 	// find the command
 	int cmd = 0;

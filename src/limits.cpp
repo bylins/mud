@@ -1153,7 +1153,7 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 	}
 }
 
-void underwater_check(void)
+void underwater_check()
 {
 	DESCRIPTOR_DATA *d;
 	for (d = descriptor_list; d; d = d->next)
@@ -1235,8 +1235,7 @@ inline bool NO_DESTROY(const OBJ_DATA* obj)
 	return (obj->get_carried_by()
 		|| obj->get_worn_by()
 		|| obj->get_in_obj()
-		|| (obj->get_script()
-			&& !obj->get_script()->trig_list.empty())
+		|| (obj->get_script()->has_triggers())
 		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_FOUNTAIN
 		|| obj->get_in_room() == NOWHERE
 		|| (obj->get_extra_flag(EExtraFlag::ITEM_NODECAY)

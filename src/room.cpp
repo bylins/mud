@@ -21,7 +21,7 @@ ROOM_DATA::ROOM_DATA()
 	glight(0),
 	gdark(0),
 	proto_script(new OBJ_DATA::triggers_list_t()),
-	script(0),
+	script(new SCRIPT_DATA()),
 	track(0),
 	contents(0),
 	people(0),
@@ -53,10 +53,7 @@ CHAR_DATA* ROOM_DATA::first_character() const
 
 void ROOM_DATA::cleanup_script()
 {
-	if (script)
-	{
-		script->cleanup();
-	}
+	script->cleanup();
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

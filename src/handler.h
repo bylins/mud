@@ -185,7 +185,6 @@ struct portals_list_type *get_portal(int vnum, char *wrd);
 int charm_points(CHAR_DATA * ch);
 int on_charm_points(CHAR_DATA * ch);
 int used_charm_points(CHAR_DATA * ch);
-CHAR_DATA *charm_mob(CHAR_DATA * victim);
 float get_damage_per_round(CHAR_DATA * victim);
 float get_effective_cha(CHAR_DATA * ch, int spellnum);
 float get_effective_wis(CHAR_DATA * ch, int spellnum);

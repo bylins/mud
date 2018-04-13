@@ -295,10 +295,6 @@ void assign_triggers(void *i, int type)
 				}
 				else
 				{
-					if (!SCRIPT(mob))
-					{
-						mob->script = std::make_shared<SCRIPT_DATA>();
-					}
 					add_trigger(SCRIPT(mob).get(), read_trigger(rnum), -1);
 
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())
@@ -335,10 +331,6 @@ void assign_triggers(void *i, int type)
 				}
 				else
 				{
-					if (!obj->get_script())
-					{
-						obj->set_script(new SCRIPT_DATA());
-					}
 					add_trigger(obj->get_script().get(), read_trigger(rnum), -1);
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{
@@ -373,10 +365,6 @@ void assign_triggers(void *i, int type)
 				}
 				else
 				{
-					if (!SCRIPT(room))
-					{
-						room->script = std::make_shared<SCRIPT_DATA>();
-					}
 					add_trigger(SCRIPT(room).get(), read_trigger(rnum), -1);
 					if (owner_trig.find(trigger_vnum) == owner_trig.end())
 					{

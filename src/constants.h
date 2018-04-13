@@ -119,10 +119,6 @@ extern int HORSE_COST;
 extern int START_BREAD;
 extern int CREATE_LIGHT;
 
-/* Номер моба-чармиса 0го уровня. Для лоада берется моб с этим номером +
-   уровень жертвы. Т.е таких мобов должно быть до 250го есои максимальный
-   уровень моба 50 */
-#define CHARM_MOB_VNUM 200
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -77,7 +77,7 @@ ProtectedCharacterData::ProtectedCharacterData(): m_rnum(NOBODY)
 {
 }
 
-ProtectedCharacterData::ProtectedCharacterData(const ProtectedCharacterData& rhv)
+ProtectedCharacterData::ProtectedCharacterData(const ProtectedCharacterData& rhv) : m_rnum(NOBODY)
 {
 	*this = rhv;
 }
@@ -114,7 +114,7 @@ CHAR_DATA::CHAR_DATA() :
 	m_wait(~0u),
 	m_master(nullptr),
 	proto_script(new OBJ_DATA::triggers_list_t()),
-	script(nullptr),
+	script(new SCRIPT_DATA()),
 	followers(nullptr)
 {
 	this->zero_init();

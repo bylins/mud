@@ -60,6 +60,9 @@ void god_work_invoice();
 int special(CHAR_DATA * ch, int cmd, char *arg, int fnum);
 int find_name(const char *name);
 
+void check_hiding_cmd(CHAR_DATA * ch, int percent);
+void do_aggressive_room(CHAR_DATA *ch, int check_sneak);
+
 char *delete_doubledollar(char *string);
 // Cоответствие классов и религий (Кард)
 extern const int class_religion[];

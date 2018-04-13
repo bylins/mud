@@ -630,7 +630,7 @@ public:
 	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
 	bool low_charm() const;
 
-	void set_purged(const bool _ = true) { purged_ = _; }
+	void set_purged(const bool _ = true) { purged_ = _; script->set_purged(_); }
 
 	void cleanup_script();
 

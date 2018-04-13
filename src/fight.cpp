@@ -1133,28 +1133,41 @@ void mob_casting(CHAR_DATA * ch)
 {
 	CHAR_DATA *victim;
 	int battle_spells[MAX_STRING_LENGTH];
-	int lag = GET_WAIT(ch), i, spellnum, spells, sp_num;
+	int spellnum, spells = 0, sp_num;
 	OBJ_DATA *item;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) || AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) || AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED) || lag > 0)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
+		|| GET_WAIT(ch) > 0)
 		return;
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
-	for (i = 1, spells = 0; i <= MAX_SPELLS; i++)
+	for (int i = 1; i <= MAX_SPELLS; i++)
+	{
 		if (GET_SPELL_MEM(ch, i) && IS_SET(spell_info[i].routines, NPC_CALCULATE))
+		{
 			battle_spells[spells++] = i;
+		}
+	}
 
 	item = ch->carrying;
 	while (spells < MAX_STRING_LENGTH
 		&& item
 		&& GET_RACE(ch) == NPC_RACE_HUMAN
-		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+		&& !(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST)))
 	{
 		switch (GET_OBJ_TYPE(item))
 		{
 		case OBJ_DATA::ITEM_WAND:
 		case OBJ_DATA::ITEM_STAFF:
+			if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > TOP_SPELL_DEFINE)
+			{
+				log("SYSERR: Не верно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), GET_OBJ_VAL(item, 3));
+				break;
+			}
+
 			if (GET_OBJ_VAL(item, 2) > 0 &&
 				IS_SET(spell_info[GET_OBJ_VAL(item, 3)].routines, NPC_CALCULATE))
 			{
@@ -1163,8 +1176,13 @@ void mob_casting(CHAR_DATA * ch)
 			break;
 
 		case OBJ_DATA::ITEM_POTION:
-			for (i = 1; i <= 3; i++)
+			for (int i = 1; i <= 3; i++)
 			{
+				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
+				{
+					log("SYSERR: Не верно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
+					continue;
+				}
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER))
 				{
 					battle_spells[spells++] = GET_OBJ_VAL(item, i);
@@ -1173,8 +1191,14 @@ void mob_casting(CHAR_DATA * ch)
 			break;
 
 		case OBJ_DATA::ITEM_SCROLL:
-			for (i = 1; i <= 3; i++)
+			for (int i = 1; i <= 3; i++)
 			{
+				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
+				{	
+					log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
+					continue;
+				}
+
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_CALCULATE))
 				{
 					battle_spells[spells++] = GET_OBJ_VAL(item, i);
@@ -1193,9 +1217,10 @@ void mob_casting(CHAR_DATA * ch)
 	spellnum = 0;
 	victim = find_cure(ch, ch, &spellnum);
 	// Ищем рандомную заклинашку и цель для нее
-	for (i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++)
+	for (int i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++)
+	{
 		if (!spellnum && (spellnum = battle_spells[(sp_num = number(0, spells - 1))])
-				&& spellnum > 0 && spellnum <= MAX_SPELLS)  	// sprintf(buf,"$n using spell '%s', %d from %d",
+			&& spellnum > 0 && spellnum <= MAX_SPELLS)  	// sprintf(buf,"$n using spell '%s', %d from %d",
 		{
 			//         spell_name(spellnum), sp_num, spells);
 			// act(buf,FALSE,ch,0,ch->get_fighting(),TO_VICT);
@@ -1230,6 +1255,8 @@ void mob_casting(CHAR_DATA * ch)
 			else
 				spellnum = 0;
 		}
+	}
+
 	if (spellnum && victim)  	// Is this object spell ?
 	{
 		item = ch->carrying;
@@ -1251,7 +1278,7 @@ void mob_casting(CHAR_DATA * ch)
 				break;
 
 			case OBJ_DATA::ITEM_POTION:
-				for (i = 1; i <= 3; i++)
+				for (int i = 1; i <= 3; i++)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
 					{
@@ -1272,7 +1299,7 @@ void mob_casting(CHAR_DATA * ch)
 				break;
 
 			case OBJ_DATA::ITEM_SCROLL:
-				for (i = 1; i <= 3; i++)
+				for (int i = 1; i <= 3; i++)
 				{
 					if (GET_OBJ_VAL(item, i) == spellnum)
 					{
@@ -1303,7 +1330,9 @@ void summon_mob_helpers(CHAR_DATA *ch)
 	for (struct helper_data_type *helpee = GET_HELPER(ch);
 		helpee; helpee = helpee->next_helper)
 	{
-		for (const auto vict : character_list)
+		// Start_fight_mtrigger using inside this loop
+		// So we have to iterate on copy list
+		character_list.foreach_on_copy([&] (const CHAR_DATA::shared_ptr& vict)
 		{
 			if (!IS_NPC(vict)
 				|| GET_MOB_VNUM(vict) != helpee->mob_vnum
@@ -1316,7 +1345,7 @@ void summon_mob_helpers(CHAR_DATA *ch)
 				|| IN_ROOM(vict) == NOWHERE
 				|| vict->get_fighting())
 			{
-				continue;
+				return;
 			}
 			if (GET_RACE(ch) == NPC_RACE_HUMAN)
 			{
@@ -1339,7 +1368,7 @@ void summon_mob_helpers(CHAR_DATA *ch)
 			{
 				set_fighting(vict, ch->get_fighting());
 			}
-		}
+		});
 	}
 }
 
