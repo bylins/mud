@@ -1022,7 +1022,7 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 		//return;
 	}
 
-	log("Write one object: %s", object->get_PName(0).c_str());
+//	log("Write one object: %s", object->get_PName(0).c_str());
 
 	if (GET_OBJ_VNUM(object) >= 0 && proto)
 	{
