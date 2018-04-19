@@ -35,7 +35,6 @@
 #include "conf.h"
 
 extern const char *dirs[];
-extern int dg_owner_purged;
 extern int up_obj_where(OBJ_DATA * obj);
 
 CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name);
@@ -378,8 +377,6 @@ void do_opurge(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if ((o = get_obj_by_obj(obj, arg)))
 		{
-			if (o == obj)
-				dg_owner_purged = 1;
 			extract_obj(o);
 		}
 		else

@@ -741,12 +741,12 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 	return NULL;
 }
 
-
 // returns obj with name
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name)
 {
 	OBJ_DATA *obj;
 	long id;
+
 	if ((*name == UID_ROOM) || (*name == UID_CHAR))
 		return NULL;
 
@@ -5550,8 +5550,6 @@ void extract_value(SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char* cmd)
 	add_var_cntx(&GET_TRIG_VARS(trig), to, buf, 0);
 }
 
-int dg_owner_purged;
-
 //  This is the core driver for scripts.
 //  define this if you want measure time of you scripts
 #define TIMED_SCRIPT
@@ -5688,8 +5686,6 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		GET_TRIG_LOOPS(trig) = 0;
 		sc->context = 0;
 	}
-
-	dg_owner_purged = 0;
 
 	for (auto cl = (mode == TRIG_NEW) ? *trig->cmdlist : trig->curr_state; !stop && cl && trig && GET_TRIG_DEPTH(trig); cl = cl ? cl->next : cl)  	//log("Drive go <%s>",cl->cmd);
 	{
@@ -5996,7 +5992,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				}
 			}
 
-			if (sc->is_purged() || dg_owner_purged || (type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged()))
+			if (sc->is_purged() || (type == MOB_TRIGGER && reinterpret_cast<CHAR_DATA *>(go)->purged()))
 			{
 				depth--;
 				cur_trig = prev_trig;
