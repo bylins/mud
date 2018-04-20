@@ -53,12 +53,9 @@ struct obj_command_info
 	int subcmd;
 };
 
-
 // do_osend 
 #define SCMD_OSEND         0
 #define SCMD_OECHOAROUND   1
-
-
 
 // attaches object name and vnum to msg and sends it to script_log 
 void obj_log(OBJ_DATA * obj, const char *msg, const int type = 0)
@@ -68,7 +65,6 @@ void obj_log(OBJ_DATA * obj, const char *msg, const int type = 0)
 	sprintf(buf, "(Obj: '%s', VNum: %d, trig: %d): %s", obj->get_short_description().c_str(), GET_OBJ_VNUM(obj), last_trig_vnum, msg);
 	script_log(buf, type);
 }
-
 
 // returns the real room number that the object or object's carrier is in 
 int obj_room(OBJ_DATA * obj)
@@ -95,7 +91,6 @@ int obj_room(OBJ_DATA * obj)
 	}
 }
 
-
 // returns the real room number, or NOWHERE if not found or invalid 
 int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 {
@@ -112,12 +107,15 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 
 	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
 	{
+		obj_log(obj, "SYSERR: Invalid location in oteleport. Please rewrite trigger.");
 		tmp = atoi(roomstr);
 		if ((location = real_room(tmp)) == NOWHERE)
 			return NOWHERE;
 	}
 	else if ((target_mob = get_char_by_obj(obj, roomstr)))
+	{
 		location = IN_ROOM(target_mob);
+	}
 	else if ((target_obj = get_obj_by_obj(obj, roomstr)))
 	{
 		if (target_obj->get_in_room() != NOWHERE)
@@ -126,23 +124,14 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 			return NOWHERE;
 	}
 	else
+	{
 		return NOWHERE;
-
-	// a room has been found.  Check for permission 
-	if (ROOM_FLAGGED(location, ROOM_GODROOM) ||
-#ifdef ROOM_IMPROOM
-			ROOM_FLAGGED(location, ROOM_IMPROOM) ||
-#endif
-			ROOM_FLAGGED(location, ROOM_HOUSE))
-		return NOWHERE;
+	}
 
 	return location;
 }
 
-
-
 // Object commands 
-
 void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
