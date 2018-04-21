@@ -72,7 +72,6 @@ extern DESCRIPTOR_DATA *descriptor_list;
 extern room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 extern INDEX_DATA *mob_index;
 
-extern int dg_owner_purged;
 extern const char *dirs[];
 
 extern int reloc_target;
@@ -518,6 +517,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		return;
 	}
+
 	if (*arg == UID_CHAR)
 		victim = get_char(arg);
 	else
@@ -530,7 +530,9 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			extract_obj(obj);
 		}
 		else
+		{
 			mob_log(ch, "mpurge: bad argument");
+		}
 		return;
 	}
 
@@ -540,16 +542,12 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (victim == ch)
-	{
-		dg_owner_purged = 1;
-	}
-
 	if (victim->followers
 		|| victim->has_master())
 	{
 		die_follower(victim);
 	}
+
 	extract_char(victim, FALSE);
 }
 
