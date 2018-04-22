@@ -100,6 +100,46 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 
 // mob commands
 
+//returns the real room number, or NOWHERE if not found or invalid
+//copy from find_target_room except char's messages
+room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
+{
+	room_vnum tmp;
+	room_rnum location;
+	CHAR_DATA *target_mob;
+	OBJ_DATA *target_obj;
+	char roomstr[MAX_INPUT_LENGTH];
+
+	one_argument(rawroomstr, roomstr);
+
+	if (!*roomstr)
+	{
+		return NOWHERE;
+	}
+
+	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
+	{
+		tmp = atoi(roomstr);
+		location = real_room(tmp);
+	}
+	else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != NULL)
+	{
+		mob_log(ch, "SYSERR: Invalid location while find_target_room. Please rewrite trigger.");
+		location = target_mob->in_room;
+	}
+	else if ((target_obj = get_obj_vis(ch, roomstr)) != NULL)
+	{
+		mob_log(ch, "SYSERR: Invalid location while find_target_room. Please rewrite trigger.");
+		location = target_obj->get_in_room();
+	}
+	else
+	{
+		return NOWHERE;
+	}
+
+	return location;
+}
+
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -575,7 +615,7 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((location = find_target_room(ch, arg, 1)) == NOWHERE)
+	if ((location = dg_find_target_room(ch, arg, 1)) == NOWHERE)
 	{
 		sprintf(buf, "mgoto: invalid location '%s'", arg);
 		mob_log(ch, buf);
@@ -614,7 +654,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((location = find_target_room(ch, arg, 1)) == NOWHERE)
+	if ((location = dg_find_target_room(ch, arg, 1)) == NOWHERE)
 	{
 		sprintf(buf, "mat: invalid location '%s'", arg);
 		mob_log(ch, buf);
@@ -666,7 +706,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	target = find_target_room(ch, arg2, 1);
+	target = dg_find_target_room(ch, arg2, 1);
 
 	if (target == NOWHERE)
 		mob_log(ch, "mteleport target is an invalid room");
