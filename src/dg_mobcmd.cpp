@@ -64,6 +64,7 @@ struct mob_command_info
 	typedef void(*handler_f)(CHAR_DATA* ch, char *argument, int cmd, int subcmd);
 	handler_f command_pointer;
 	int subcmd;				///< Subcommand. See SCMD_* constants.
+	bool use_in_lag;
 };
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -2049,34 +2050,34 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 const struct mob_command_info mob_cmd_info[] =
 {
-	{ "RESERVED", 0, 0, 0 },	// this must be first -- for specprocs
-	{ "masound", POS_DEAD, do_masound, -1},
-	{ "mkill", POS_STANDING, do_mkill, -1},
-	{ "mjunk", POS_SITTING, do_mjunk, -1},
-	{ "mdamage", POS_DEAD, do_mdamage, -1},
-	{ "mdoor", POS_DEAD, do_mdoor, -1},
-	{ "mecho", POS_DEAD, do_mecho, -1},
-	{ "mechoaround", POS_DEAD, do_mechoaround, -1},
-	{ "msend", POS_DEAD, do_msend, -1},
-	{ "mload", POS_DEAD, do_mload, -1},
-	{ "mpurge", POS_DEAD, do_mpurge, -1},
-	{ "mgoto", POS_DEAD, do_mgoto, -1},
-	{ "mat", POS_DEAD, do_mat, -1},
-	{ "mteleport", POS_DEAD, do_mteleport, -1},
-	{ "mforce", POS_DEAD, do_mforce, -1},
-	{ "mexp", POS_DEAD, do_mexp, -1},
-	{ "mgold", POS_DEAD, do_mgold, -1},
-	{ "mremember", POS_DEAD, do_mremember, -1},
-	{ "mforget", POS_DEAD, do_mforget, -1},
-	{ "mtransform", POS_DEAD, do_mtransform, -1},
-	{ "mfeatturn", POS_DEAD, do_mfeatturn, -1},
-	{ "mskillturn", POS_DEAD, do_mskillturn, -1},
-	{ "mskilladd", POS_DEAD, do_mskilladd, -1},
-	{ "mspellturn", POS_DEAD, do_mspellturn, -1},
-	{ "mspellturntemp", POS_DEAD, do_mspellturntemp, -1 },
-	{ "mspelladd", POS_DEAD, do_mspelladd, -1},
-	{ "mspellitem", POS_DEAD, do_mspellitem, -1},
-	{ "\n", 0, 0, 0 }		// this must be last
+	{ "RESERVED", 0, 0, 0, 0 },	// this must be first -- for specprocs
+	{ "masound", POS_DEAD, do_masound, -1, false},
+	{ "mkill", POS_STANDING, do_mkill, -1, false},
+	{ "mjunk", POS_SITTING, do_mjunk, -1, true},
+	{ "mdamage", POS_DEAD, do_mdamage, -1, false},
+	{ "mdoor", POS_DEAD, do_mdoor, -1, false},
+	{ "mecho", POS_DEAD, do_mecho, -1, false},
+	{ "mechoaround", POS_DEAD, do_mechoaround, -1, false},
+	{ "msend", POS_DEAD, do_msend, -1, false},
+	{ "mload", POS_DEAD, do_mload, -1, false},
+	{ "mpurge", POS_DEAD, do_mpurge, -1, true},
+	{ "mgoto", POS_DEAD, do_mgoto, -1, false},
+	{ "mat", POS_DEAD, do_mat, -1, false},
+	{ "mteleport", POS_DEAD, do_mteleport, -1, false},
+	{ "mforce", POS_DEAD, do_mforce, -1, false},
+	{ "mexp", POS_DEAD, do_mexp, -1, false},
+	{ "mgold", POS_DEAD, do_mgold, -1, false},
+	{ "mremember", POS_DEAD, do_mremember, -1, false},
+	{ "mforget", POS_DEAD, do_mforget, -1, false},
+	{ "mtransform", POS_DEAD, do_mtransform, -1, false},
+	{ "mfeatturn", POS_DEAD, do_mfeatturn, -1, false},
+	{ "mskillturn", POS_DEAD, do_mskillturn, -1, false},
+	{ "mskilladd", POS_DEAD, do_mskilladd, -1, false},
+	{ "mspellturn", POS_DEAD, do_mspellturn, -1, false},
+	{ "mspellturntemp", POS_DEAD, do_mspellturntemp, -1, false},
+	{ "mspelladd", POS_DEAD, do_mspelladd, -1, false},
+	{ "mspellitem", POS_DEAD, do_mspellitem, -1, false},
+	{ "\n", 0, 0, 0, 0}		// this must be last
 };
 
 bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
@@ -2088,13 +2089,6 @@ bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
 
 	if (!*argument)
 		return false;
-
-	if (GET_MOB_HOLD(ch)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
-	{
-		return false;
-	}
 
 	line = any_one_arg(argument, arg);
 
@@ -2109,6 +2103,14 @@ bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
 			break;
 		}
 		cmd++;
+	}
+
+	if (!mob_cmd_info[cmd].use_in_lag &&
+		(GET_MOB_HOLD(ch)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)))
+	{
+		return false;
 	}
 
 	if (*mob_cmd_info[cmd].command == '\n')
