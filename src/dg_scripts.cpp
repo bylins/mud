@@ -1077,6 +1077,7 @@ void do_sstat_room(CHAR_DATA * ch)
 	do_sstat_room(rm, ch);
 
 }
+
 void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch)
 {
 	send_to_char("Script information:\r\n", ch);
@@ -1088,7 +1089,6 @@ void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch)
 
 	script_stat(ch, SCRIPT(rm).get());
 }
-
 
 void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j)
 {

@@ -107,17 +107,18 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 
 	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
 	{
-		obj_log(obj, "SYSERR: Invalid location in oteleport. Please rewrite trigger.");
 		tmp = atoi(roomstr);
 		if ((location = real_room(tmp)) == NOWHERE)
 			return NOWHERE;
 	}
 	else if ((target_mob = get_char_by_obj(obj, roomstr)))
 	{
+		obj_log(obj, "SYSERR: Invalid location in oteleport. Please rewrite trigger.");
 		location = IN_ROOM(target_mob);
 	}
 	else if ((target_obj = get_obj_by_obj(obj, roomstr)))
 	{
+		obj_log(obj, "SYSERR: Invalid location in oteleport. Please rewrite trigger.");
 		if (target_obj->get_in_room() != NOWHERE)
 			location = target_obj->get_in_room();
 		else

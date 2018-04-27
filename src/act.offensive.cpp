@@ -354,6 +354,7 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Невозможно. Вы сражаетесь сами.\r\n", ch);
 		return;
 	}
+
 	one_argument(argument, arg);
 
 	if (!*arg)
@@ -363,9 +364,12 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (i->get_fighting()
 				&& i->get_fighting() != ch
-				&& ((ch->has_master() && ch->get_master() == i->get_master())
-					|| ch->get_master() == i
-					|| i->get_master() == ch))
+				&& ((ch->has_master() && ch->get_master() == i->get_master())	//same leader
+					|| ch->get_master() == i	//i leader for ch
+					|| i->get_master() == ch	//ch leader for i
+					|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_master() && ch->get_master()->get_master()
+						&& (ch->get_master()->get_master() == i							//i is leader for charm's master
+							|| ch->get_master()->get_master() == i->get_master()))))	//same leader with charm's master
 			{
 				helpee = i;
 				break;

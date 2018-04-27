@@ -64,6 +64,7 @@ struct mob_command_info
 	typedef void(*handler_f)(CHAR_DATA* ch, char *argument, int cmd, int subcmd);
 	handler_f command_pointer;
 	int subcmd;				///< Subcommand. See SCMD_* constants.
+	bool use_in_lag;
 };
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -99,6 +100,46 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
         (IS_NPC(ch) && (!(ch)->desc || GET_LEVEL((ch)->desc->original)>=LVL_IMPL))
 
 // mob commands
+
+//returns the real room number, or NOWHERE if not found or invalid
+//copy from find_target_room except char's messages
+room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
+{
+	room_vnum tmp;
+	room_rnum location;
+	CHAR_DATA *target_mob;
+	OBJ_DATA *target_obj;
+	char roomstr[MAX_INPUT_LENGTH];
+
+	one_argument(rawroomstr, roomstr);
+
+	if (!*roomstr)
+	{
+		return NOWHERE;
+	}
+
+	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
+	{
+		tmp = atoi(roomstr);
+		location = real_room(tmp);
+	}
+	else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != NULL)
+	{
+		mob_log(ch, "SYSERR: Invalid location while find_target_room. Please rewrite trigger.");
+		location = target_mob->in_room;
+	}
+	else if ((target_obj = get_obj_vis(ch, roomstr)) != NULL)
+	{
+		mob_log(ch, "SYSERR: Invalid location while find_target_room. Please rewrite trigger.");
+		location = target_obj->get_in_room();
+	}
+	else
+	{
+		return NOWHERE;
+	}
+
+	return location;
+}
 
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -575,7 +616,7 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((location = find_target_room(ch, arg, 1)) == NOWHERE)
+	if ((location = dg_find_target_room(ch, arg, 1)) == NOWHERE)
 	{
 		sprintf(buf, "mgoto: invalid location '%s'", arg);
 		mob_log(ch, buf);
@@ -614,7 +655,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((location = find_target_room(ch, arg, 1)) == NOWHERE)
+	if ((location = dg_find_target_room(ch, arg, 1)) == NOWHERE)
 	{
 		sprintf(buf, "mat: invalid location '%s'", arg);
 		mob_log(ch, buf);
@@ -666,7 +707,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	target = find_target_room(ch, arg2, 1);
+	target = dg_find_target_room(ch, arg2, 1);
 
 	if (target == NOWHERE)
 		mob_log(ch, "mteleport target is an invalid room");
@@ -2009,34 +2050,34 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 const struct mob_command_info mob_cmd_info[] =
 {
-	{ "RESERVED", 0, 0, 0 },	// this must be first -- for specprocs
-	{ "masound", POS_DEAD, do_masound, -1},
-	{ "mkill", POS_STANDING, do_mkill, -1},
-	{ "mjunk", POS_SITTING, do_mjunk, -1},
-	{ "mdamage", POS_DEAD, do_mdamage, -1},
-	{ "mdoor", POS_DEAD, do_mdoor, -1},
-	{ "mecho", POS_DEAD, do_mecho, -1},
-	{ "mechoaround", POS_DEAD, do_mechoaround, -1},
-	{ "msend", POS_DEAD, do_msend, -1},
-	{ "mload", POS_DEAD, do_mload, -1},
-	{ "mpurge", POS_DEAD, do_mpurge, -1},
-	{ "mgoto", POS_DEAD, do_mgoto, -1},
-	{ "mat", POS_DEAD, do_mat, -1},
-	{ "mteleport", POS_DEAD, do_mteleport, -1},
-	{ "mforce", POS_DEAD, do_mforce, -1},
-	{ "mexp", POS_DEAD, do_mexp, -1},
-	{ "mgold", POS_DEAD, do_mgold, -1},
-	{ "mremember", POS_DEAD, do_mremember, -1},
-	{ "mforget", POS_DEAD, do_mforget, -1},
-	{ "mtransform", POS_DEAD, do_mtransform, -1},
-	{ "mfeatturn", POS_DEAD, do_mfeatturn, -1},
-	{ "mskillturn", POS_DEAD, do_mskillturn, -1},
-	{ "mskilladd", POS_DEAD, do_mskilladd, -1},
-	{ "mspellturn", POS_DEAD, do_mspellturn, -1},
-	{ "mspellturntemp", POS_DEAD, do_mspellturntemp, -1 },
-	{ "mspelladd", POS_DEAD, do_mspelladd, -1},
-	{ "mspellitem", POS_DEAD, do_mspellitem, -1},
-	{ "\n", 0, 0, 0 }		// this must be last
+	{ "RESERVED", 0, 0, 0, 0 },	// this must be first -- for specprocs
+	{ "masound", POS_DEAD, do_masound, -1, false},
+	{ "mkill", POS_STANDING, do_mkill, -1, false},
+	{ "mjunk", POS_SITTING, do_mjunk, -1, true},
+	{ "mdamage", POS_DEAD, do_mdamage, -1, false},
+	{ "mdoor", POS_DEAD, do_mdoor, -1, false},
+	{ "mecho", POS_DEAD, do_mecho, -1, false},
+	{ "mechoaround", POS_DEAD, do_mechoaround, -1, false},
+	{ "msend", POS_DEAD, do_msend, -1, false},
+	{ "mload", POS_DEAD, do_mload, -1, false},
+	{ "mpurge", POS_DEAD, do_mpurge, -1, true},
+	{ "mgoto", POS_DEAD, do_mgoto, -1, false},
+	{ "mat", POS_DEAD, do_mat, -1, false},
+	{ "mteleport", POS_DEAD, do_mteleport, -1, false},
+	{ "mforce", POS_DEAD, do_mforce, -1, false},
+	{ "mexp", POS_DEAD, do_mexp, -1, false},
+	{ "mgold", POS_DEAD, do_mgold, -1, false},
+	{ "mremember", POS_DEAD, do_mremember, -1, false},
+	{ "mforget", POS_DEAD, do_mforget, -1, false},
+	{ "mtransform", POS_DEAD, do_mtransform, -1, false},
+	{ "mfeatturn", POS_DEAD, do_mfeatturn, -1, false},
+	{ "mskillturn", POS_DEAD, do_mskillturn, -1, false},
+	{ "mskilladd", POS_DEAD, do_mskilladd, -1, false},
+	{ "mspellturn", POS_DEAD, do_mspellturn, -1, false},
+	{ "mspellturntemp", POS_DEAD, do_mspellturntemp, -1, false},
+	{ "mspelladd", POS_DEAD, do_mspelladd, -1, false},
+	{ "mspellitem", POS_DEAD, do_mspellitem, -1, false},
+	{ "\n", 0, 0, 0, 0}		// this must be last
 };
 
 bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
@@ -2048,13 +2089,6 @@ bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
 
 	if (!*argument)
 		return false;
-
-	if (GET_MOB_HOLD(ch)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
-	{
-		return false;
-	}
 
 	line = any_one_arg(argument, arg);
 
@@ -2069,6 +2103,14 @@ bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument)
 			break;
 		}
 		cmd++;
+	}
+
+	if (!mob_cmd_info[cmd].use_in_lag &&
+		(GET_MOB_HOLD(ch)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)))
+	{
+		return false;
 	}
 
 	if (*mob_cmd_info[cmd].command == '\n')
