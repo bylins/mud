@@ -201,7 +201,6 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	//	CharacterAlias::add(dst);
 }
 
-
 void medit_mobile_free(CHAR_DATA * mob)
 /*++
 	Функция полностью освобождает память, занимаемую данными моба.

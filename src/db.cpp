@@ -213,6 +213,7 @@ int csort(const void *a, const void *b);
 void prune_crlf(char *txt);
 int Crash_read_timer(const std::size_t index, int temp);
 void Crash_clear_objects(const std::size_t index);
+extern void extract_trigger(TRIG_DATA * trig);
 //F@N|
 int exchange_database_load(void);
 
@@ -4260,7 +4261,11 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 			{
 				for (Celebrates::TrigList::iterator it = (*room)->triggers.begin(); it != (*room)->triggers.end(); ++it)
 				{
-					add_trigger(world[rn]->script.get(), read_trigger(real_trigger(*it)), -1);
+					auto trig = read_trigger(real_trigger(*it));
+					if (!add_trigger(world[rn]->script.get(), trig, -1))
+					{
+						extract_trigger(trig);
+					}
 				}
 			}
 
@@ -4277,7 +4282,11 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 						{
-							add_trigger(SCRIPT(mob).get(), read_trigger(real_trigger(*it)), -1);
+							auto trig = read_trigger(real_trigger(*it));
+							if (!add_trigger(SCRIPT(mob).get(), trig, -1))
+							{
+								extract_trigger(trig);
+							}
 						}
 						load_mtrigger(mob);
 						char_to_room(mob, real_room((*room)->vnum));
@@ -4297,7 +4306,11 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 									{
-										add_trigger(obj->get_script().get(), read_trigger(real_trigger(*it)), -1);
+										auto trig = read_trigger(real_trigger(*it));
+										if (!add_trigger(obj->get_script().get(), trig, -1))
+										{
+											extract_trigger(trig);
+										}
 									}
 
 									load_otrigger(obj.get());
@@ -4344,7 +4357,11 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 						for (Celebrates::TrigList::iterator it = (*load)->triggers.begin();
 							it != (*load)->triggers.end(); ++it)
 						{
-							add_trigger(obj->get_script().get(), read_trigger(real_trigger(*it)), -1);
+							auto trig = read_trigger(real_trigger(*it));
+							if (!add_trigger(obj->get_script().get(), trig, -1))
+							{
+								extract_trigger(trig);
+							}
 						}
 						load_otrigger(obj.get());
 						Celebrates::add_obj_to_load_list(obj->get_uid(), obj.get());
@@ -4367,7 +4384,11 @@ void process_load_celebrate(Celebrates::CelebrateDataPtr celebrate, int vnum)
 									for (Celebrates::TrigList::iterator it = (*load_in)->triggers.begin();
 											it != (*load_in)->triggers.end(); ++it)
 									{
-										add_trigger(obj_in->get_script().get(), read_trigger(real_trigger(*it)), -1);
+										auto trig = read_trigger(real_trigger(*it));
+										if (!add_trigger(obj_in->get_script().get(), trig, -1))
+										{
+											extract_trigger(trig);
+										}
 									}
 
 									load_otrigger(obj_in.get());
@@ -4409,7 +4430,11 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 					it != list[mob_index[rnum].vnum].end();
 					++it)
 				{
-					add_trigger(SCRIPT(ch).get(), read_trigger(real_trigger(*it)), -1);
+					auto trig = read_trigger(real_trigger(*it));
+					if (!add_trigger(SCRIPT(ch).get(), trig, -1))
+					{
+						extract_trigger(trig);
+					}
 				}
 
 				Celebrates::add_mob_to_attach_list(ch->id, ch.get());
@@ -4427,7 +4452,11 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 			{
 				for (Celebrates::TrigList::iterator it = list[o->get_rnum()].begin(); it != list[o->get_rnum()].end(); ++it)
 				{
-					add_trigger(o->get_script().get(), read_trigger(real_trigger(*it)), -1);
+					auto trig = read_trigger(real_trigger(*it));
+					if (!add_trigger(o->get_script().get(), trig, -1))
+					{
+						extract_trigger(trig);
+					}
 				}
 
 				Celebrates::add_obj_to_attach_list(o->get_uid(), o.get());
@@ -4846,19 +4875,31 @@ void reset_zone(zone_rnum zone)
 				// 'T' <flag> <trigger_type> <trigger_vnum> <room_vnum, для WLD_TRIGGER>
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
-					add_trigger(SCRIPT(tmob).get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
+					auto trig = read_trigger(real_trigger(ZCMD.arg2));
+					if (!add_trigger(SCRIPT(tmob).get(), trig, -1))
+					{
+						extract_trigger(trig);
+					}
 					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == OBJ_TRIGGER && tobj)
 				{
-					add_trigger(tobj->get_script().get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
+					auto trig = read_trigger(real_trigger(ZCMD.arg2));
+					if (!add_trigger(tobj->get_script().get(), trig, -1))
+					{
+						extract_trigger(trig);
+					}
 					curr_state = 1;
 				}
 				else if (ZCMD.arg1 == WLD_TRIGGER)
 				{
 					if (ZCMD.arg3 > NOWHERE)
 					{
-						add_trigger(world[ZCMD.arg3]->script.get(), read_trigger(real_trigger(ZCMD.arg2)), -1);
+						auto trig = read_trigger(real_trigger(ZCMD.arg2));
+						if (!add_trigger(world[ZCMD.arg3]->script.get(), trig, -1))
+						{
+							extract_trigger(trig);
+						}
 						curr_state = 1;
 					}
 				}

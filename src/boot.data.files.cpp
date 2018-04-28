@@ -22,6 +22,8 @@ extern int scheck;						// TODO: get rid of this line
 extern const char *unused_spellname;	// TODO: get rid of this line
 CHAR_DATA *mob_proto;					// TODO: get rid of this global variable
 
+extern void extract_trigger(TRIG_DATA* trig);
+
 class DataFile : public BaseDataFile
 {
 protected:
@@ -271,15 +273,20 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 		if (rnum >= 0)
 		{
 			const auto trigger_instance = read_trigger(rnum);
-			add_trigger(SCRIPT(room).get(), trigger_instance, -1);
-
-			// для начала определяем, есть ли такой внум у нас в контейнере
-			if (owner_trig.find(vnum) == owner_trig.end())
+			if (add_trigger(SCRIPT(room).get(), trigger_instance, -1))
 			{
-				owner_to_triggers_map_t tmp_map;
-				owner_trig.emplace(vnum, tmp_map);
+				// для начала определяем, есть ли такой внум у нас в контейнере
+				if (owner_trig.find(vnum) == owner_trig.end())
+				{
+					owner_to_triggers_map_t tmp_map;
+					owner_trig.emplace(vnum, tmp_map);
+				}
+				add_trig_to_owner(-1, vnum, room->number);
 			}
-			add_trig_to_owner(-1, vnum, room->number);
+			else
+			{
+				extract_trigger(trigger_instance);
+			}
 		}
 		else
 		{

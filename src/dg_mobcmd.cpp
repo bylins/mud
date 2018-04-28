@@ -70,7 +70,6 @@ struct mob_command_info
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
 extern DESCRIPTOR_DATA *descriptor_list;
-extern room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 extern INDEX_DATA *mob_index;
 
 extern const char *dirs[];
@@ -103,7 +102,7 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 
 //returns the real room number, or NOWHERE if not found or invalid
 //copy from find_target_room except char's messages
-room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
+room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr)
 {
 	room_vnum tmp;
 	room_rnum location;
@@ -616,7 +615,7 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((location = dg_find_target_room(ch, arg, 1)) == NOWHERE)
+	if ((location = dg_find_target_room(ch, arg)) == NOWHERE)
 	{
 		sprintf(buf, "mgoto: invalid location '%s'", arg);
 		mob_log(ch, buf);
@@ -655,7 +654,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((location = dg_find_target_room(ch, arg, 1)) == NOWHERE)
+	if ((location = dg_find_target_room(ch, arg)) == NOWHERE)
 	{
 		sprintf(buf, "mat: invalid location '%s'", arg);
 		mob_log(ch, buf);
@@ -707,7 +706,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	target = dg_find_target_room(ch, arg2, 1);
+	target = dg_find_target_room(ch, arg2);
 
 	if (target == NOWHERE)
 		mob_log(ch, "mteleport target is an invalid room");

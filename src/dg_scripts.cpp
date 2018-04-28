@@ -1117,12 +1117,15 @@ void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k)
 /*
  * adds the trigger t to script sc in in location loc.  loc = -1 means
  * add to the end, loc = 0 means add before all other triggers.
+ *
+ * Return true if trigger successfully added
+ * Return false if trigger with same rnum already exists and can not be added
  */
-void add_trigger(SCRIPT_DATA* sc, TRIG_DATA * t, int loc)
+bool add_trigger(SCRIPT_DATA* sc, TRIG_DATA * t, int loc)
 {
 	if (!t || !sc)
 	{
-		return;
+		return false;
 	}
 
 	const bool added = sc->trig_list.add(t, 0 == loc);
@@ -1131,6 +1134,8 @@ void add_trigger(SCRIPT_DATA* sc, TRIG_DATA * t, int loc)
 		SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
 		trigger_list.add(t);
 	}
+
+	return added;
 }
 
 void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1178,7 +1183,10 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n", tn, GET_TRIG_NAME(trig), GET_SHORT(victim));
 					send_to_char(buf, ch);
 
-					add_trigger(SCRIPT(victim).get(), trig, loc);
+					if (!add_trigger(SCRIPT(victim).get(), trig, loc))
+					{
+						extract_trigger(trig);
+					}
 				}
 				else
 				{
@@ -1205,7 +1213,10 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					(!object->get_short_description().empty() ? object->get_short_description().c_str() : object->get_aliases().c_str()));
 				send_to_char(buf, ch);
 
-				add_trigger(object->get_script().get(), trig, loc);
+				if (!add_trigger(object->get_script().get(), trig, loc))
+				{
+					extract_trigger(trig);
+				}
 			}
 			else
 				send_to_char("That trigger does not exist.\r\n", ch);
@@ -1226,7 +1237,10 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						tn, GET_TRIG_NAME(trig), world[room]->number);
 					send_to_char(buf, ch);
 
-					add_trigger(world[room]->script.get(), trig, loc);
+					if (!add_trigger(world[room]->script.get(), trig, loc))
+					{
+						extract_trigger(trig);
+					}
 				}
 				else
 				{
@@ -4541,7 +4555,6 @@ void process_eval(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *
 	add_var_cntx(&GET_TRIG_VARS(trig), name, result, 0);
 }
 
-
 // script attaching a trigger to something
 void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
@@ -4612,23 +4625,41 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	if (c)
 	{
-		add_trigger(SCRIPT(c).get(), newtrig, -1);
-		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
+		if (add_trigger(SCRIPT(c).get(), newtrig, -1))
+		{
+			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
+		}
+		else
+		{
+			extract_trigger(newtrig);
+		}
 
 		return;
 	}
 
 	if (o)
 	{
-		add_trigger(o->get_script().get(), newtrig, -1);
-		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
+		if (add_trigger(o->get_script().get(), newtrig, -1))
+		{
+			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
+		}
+		else
+		{
+			extract_trigger(newtrig);
+		}
 		return;
 	}
 
 	if (r)
 	{
-		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->number);
-		add_trigger(SCRIPT(r).get(), newtrig, -1);
+		if (add_trigger(SCRIPT(r).get(), newtrig, -1))
+		{
+			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->number);
+		}
+		else
+		{
+			extract_trigger(newtrig);
+		}
 		return;
 	}
 
@@ -4720,7 +4751,8 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	OBJ_DATA *o = NULL;
 	ROOM_DATA *r = NULL;
 	void *trggo = NULL;
-	int trgtype = 0, string = FALSE, num = 0;
+	int trgtype = 0, num = 0;
+	bool is_string = false;
 
 	id_p = two_arguments(cmd, arg, trignum_s);
 	skip_spaces(&id_p);
@@ -4761,7 +4793,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	name = trignum_s;
 	if ((cname = strchr(name, '.')) || (!a_isdigit(*name)))
 	{
-		string = TRUE;
+		is_string = true;
 		if (cname)
 		{
 			*cname = '\0';
@@ -4776,19 +4808,19 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 
 	if (c && SCRIPT(c)->has_triggers())
 	{
-		runtrig = SCRIPT(c)->trig_list.find(string, name, num);
+		runtrig = SCRIPT(c)->trig_list.find(is_string, name, num);
 		trgtype = MOB_TRIGGER;
 		trggo = (void *)c;
 	}
 	else if (o && o->get_script()->has_triggers())
 	{
-		runtrig = o->get_script()->trig_list.find(string, name, num);
+		runtrig = o->get_script()->trig_list.find(is_string, name, num);
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *)o;
 	}
 	else if (r && SCRIPT(r)->has_triggers())
 	{
-		runtrig = SCRIPT(r)->trig_list.find(string, name, num);
+		runtrig = SCRIPT(r)->trig_list.find(is_string, name, num);
 		trgtype = WLD_TRIGGER;
 		trggo = (void *)r;
 	};
@@ -6003,7 +6035,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	if (trig)
 	{
-		free_varlist(GET_TRIG_VARS(trig));
+		trig->clear_var_list();
 		GET_TRIG_VARS(trig) = NULL;
 		GET_TRIG_DEPTH(trig) = 0;
 	}
@@ -6347,20 +6379,16 @@ TriggersList::~TriggersList()
 	clear();
 }
 
+// Return true if trigger successfully added
+// Return false if trigger with same rnum already exists and can not be added
 bool TriggersList::add(TRIG_DATA* trigger, const bool to_front /*= false*/)
 {
 	for (const auto& i : m_list)
 	{
 		if (trigger->get_rnum() == i->get_rnum())
 		{
-			/*
-			* А вот это действительно неожиданно!
-			* Вызывающая сторона наивно полагает, что триггер будет добавлен
-			* в соответствующие списки, а мы говорим, что такой триггер нам
-			* не нужен. Придется позаботится о нем, нам он тоже больше не нужен!
-			*/
-			extract_trigger(trigger);
-
+			//Мы не можем здесь заменить имеющийся триггер на новый
+			//т.к. имеющийся триггер может уже использоваться или быть в ожидание (wait command)
 			return false;
 		}
 	}
@@ -6591,8 +6619,8 @@ SCRIPT_DATA::SCRIPT_DATA(const SCRIPT_DATA&) :
 
 SCRIPT_DATA::~SCRIPT_DATA()
 {
-	extract_script(this);
-	free_varlist(global_vars);
+	trig_list.clear();
+	clear_global_vars();
 }
 
 int SCRIPT_DATA::remove_trigger(char *name, TRIG_DATA*& trig_addr)
@@ -6653,11 +6681,25 @@ int SCRIPT_DATA::remove_trigger(char *name)
 	return remove_trigger(name, dummy);
 }
 
+void SCRIPT_DATA::clear_global_vars()
+{
+	for (auto i = global_vars; i;)
+	{
+		auto j = i;
+		i = i->next;
+		if (j->name)
+			free(j->name);
+		if (j->value)
+			free(j->value);
+		free(j);
+	}
+}
+
 void SCRIPT_DATA::cleanup()
 {
 	trig_list.clear();
 
-	free_varlist(global_vars);	// TODO: make it class member
+	clear_global_vars();
 	global_vars = nullptr;
 }
 
@@ -6672,7 +6714,6 @@ TRIG_DATA::TRIG_DATA():
 	var_list(nullptr),
 	nr(NOTHING),
 	attach_type(0),
-	data_type(0),
 	name(DEFAULT_TRIGGER_NAME),
 	trigger_type(0)
 {
@@ -6687,7 +6728,6 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 	var_list(nullptr),
 	nr(rnum),
 	attach_type(attach_type),
-	data_type(0),
 	name(name),
 	trigger_type(trigger_type)
 {
@@ -6707,7 +6747,6 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	var_list(nullptr),
 	nr(from.nr),
 	attach_type(from.attach_type),
-	data_type(from.data_type),
 	name(from.name),
 	trigger_type(from.trigger_type)
 {
@@ -6717,7 +6756,6 @@ void TRIG_DATA::reset()
 {
 	nr = NOTHING;
 	attach_type = 0;
-	data_type = 0;
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;
 	cmdlist.reset();
@@ -6736,7 +6774,6 @@ TRIG_DATA& TRIG_DATA::operator=(const TRIG_DATA& right)
 
 	nr = right.nr;
 	set_attach_type(right.get_attach_type());
-	data_type = right.data_type;
 	name = right.name;
 	trigger_type = right.trigger_type;
 	cmdlist = right.cmdlist;
@@ -6744,6 +6781,20 @@ TRIG_DATA& TRIG_DATA::operator=(const TRIG_DATA& right)
 	arglist = right.arglist;
 
 	return *this;
+}
+
+void TRIG_DATA::clear_var_list()
+{
+	for (auto i = var_list; i;)
+	{
+		auto j = i;
+		i = i->next;
+		if (j->name)
+			free(j->name);
+		if (j->value)
+			free(j->value);
+		free(j);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

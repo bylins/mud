@@ -155,11 +155,11 @@ public:
 	void set_rnum(const sh_int _) { nr = _; }
 	void set_attach_type(const byte _) { attach_type = _; }
 	auto get_attach_type() const { return attach_type; }
-	auto get_data_type() const { return data_type; }
 	const auto& get_name() const { return name; }
 	void set_name(const std::string& _) { name = _; }
 	auto get_trigger_type() const { return trigger_type; }
 	void set_trigger_type(const long _) { trigger_type = _; }
+	void clear_var_list();
 
 	cmdlist_ptr cmdlist;	// top of command list             //
 	cmdlist_element::shared_ptr curr_state;	// ptr to current line of trigger  //
@@ -176,7 +176,6 @@ private:
 
 	sh_int nr;			// trigger's rnum                  //
 	byte attach_type;	// mob/obj/wld intentions          //
-	byte data_type;		// type of game_data for trig      //
 	std::string name;	// name of trigger
 	long trigger_type;	// type of trigger (for bitvector) //
 };
@@ -295,7 +294,9 @@ public:
 	int remove_trigger(char *name, TRIG_DATA*& trig_addr);
 	int remove_trigger(char *name);
 
+	void clear_global_vars();
 	void cleanup();
+
 	bool has_triggers() { return !trig_list.empty(); }
 	bool is_purged() { return m_purged; }
 	void set_purged(bool purged = true) { m_purged = purged; }
@@ -359,7 +360,7 @@ void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum);
 // function prototypes from scripts.cpp //
 void script_trigger_check(void);
 void script_timechange_trigger_check(const int time);
-void add_trigger(SCRIPT_DATA *sc, TRIG_DATA * t, int loc);
+bool add_trigger(SCRIPT_DATA *sc, TRIG_DATA * t, int loc);
 
 void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig);
 void do_sstat_room(ROOM_DATA *rm, CHAR_DATA * ch);
@@ -400,7 +401,6 @@ extern GlobalTriggersStorage trigger_list;
 void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);
 int real_trigger(int vnum);
-void extract_script(SCRIPT_DATA *sc);
 void extract_script_mem(struct script_memory *sc);
 
 TRIG_DATA *read_trigger(int nr);
