@@ -104,36 +104,27 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 //copy from find_target_room except char's messages
 room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr)
 {
-	room_vnum tmp;
-	room_rnum location;
-	CHAR_DATA *target_mob;
-	OBJ_DATA *target_obj;
 	char roomstr[MAX_INPUT_LENGTH];
+	room_rnum location = NOWHERE;
 
 	one_argument(rawroomstr, roomstr);
 
 	if (!*roomstr)
 	{
+		sprintf(buf, "Undefined mteleport room: %s", rawroomstr);
+		mob_log(ch, buf);
 		return NOWHERE;
 	}
 
-	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
+	auto tmp = atoi(roomstr);
+	if (tmp > 0)
 	{
-		tmp = atoi(roomstr);
 		location = real_room(tmp);
-	}
-	else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != NULL)
-	{
-		mob_log(ch, "SYSERR: Invalid location while find_target_room. Please rewrite trigger.");
-		location = target_mob->in_room;
-	}
-	else if ((target_obj = get_obj_vis(ch, roomstr)) != NULL)
-	{
-		mob_log(ch, "SYSERR: Invalid location while find_target_room. Please rewrite trigger.");
-		location = target_obj->get_in_room();
 	}
 	else
 	{
+		sprintf(buf, "Undefined mteleport room: %s", roomstr);
+		mob_log(ch, buf);
 		return NOWHERE;
 	}
 
@@ -709,7 +700,9 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	target = dg_find_target_room(ch, arg2);
 
 	if (target == NOWHERE)
+	{
 		mob_log(ch, "mteleport target is an invalid room");
+	}
 	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
 	{
 		if (target == ch->in_room)

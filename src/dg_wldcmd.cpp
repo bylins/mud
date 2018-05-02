@@ -332,7 +332,16 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	nr = atoi(arg2);
-	target = real_room(nr);
+	if (nr > 0)
+	{
+		target = real_room(nr);
+	}
+	else
+	{
+		sprintf(buf, "Undefined wteleport room: %s", arg2);
+		wld_log(room, buf);
+		return;
+	}
 
 	if (target == NOWHERE)
 		wld_log(room, "wteleport target is an invalid room");
