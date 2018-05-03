@@ -4071,12 +4071,6 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				"  Броня/Поглощение : %4d/%d&n\r\n",
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
-	/*  if (charm_points(ch) > 0) {
-	     sprintf(buf + strlen(buf),  " Пунктов лояльности: %4d\r\n",
-	             charm_points(ch));
-	     sprintf(buf + strlen(buf),  " Из них свободно   : %4d\r\n",
-	             charm_points(ch) - used_charm_points(ch));
-	  } */
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, у вас на руках %ld %s",
 			GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT), ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa));
 	if (ch->get_bank() > 0)

@@ -4038,46 +4038,6 @@ void check_portals(CHAR_DATA * ch)
 	}
 }
 
-//-----------------------------------------
-// Функции для работы с чармисами
-// Функция возвращающая общее количество пунктов лояльности у игрока
-int charm_points(CHAR_DATA * ch)
-{
-	int lp;
-
-	if (!can_use_feat(ch, GOLD_TONGUE_FEAT))
-		return (0);
-	lp = GET_LEVEL(ch) + GET_REAL_CHA(ch) - 16;
-	return (lp);
-}
-
-/* Функция возвращает количество требуемых пунктов лояльности для того,
-   чтобы подчинить моба */
-int on_charm_points(CHAR_DATA * ch)
-{
-	int lp;
-	lp = GET_LEVEL(ch);
-	return (lp);
-}
-
-// Функция возвращающая задействованное количество пунктов лояльности у игрока
-int used_charm_points(CHAR_DATA * ch)
-{
-	int lp;
-	struct follow_type *f;
-
-	lp = 0;
-	for (f = ch->followers; f; f = f->next)
-	{
-		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM))
-		{
-			continue;
-		}
-		lp = lp + GET_LEVEL(f->follower);
-	}
-	return (lp);
-}
-
 //Функции для модифицированного чарма
 float get_damage_per_round(CHAR_DATA * victim)
 {
@@ -4102,82 +4062,91 @@ float get_effective_cha(CHAR_DATA * ch, int spellnum)
 {
 	int key_value, key_value_add;
 
-//Для поднять/оживить труп учитываем мудрость, в любом другом случае - обаяние
-	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
-	{
-		key_value = ch->get_wis() - 6;
-		key_value_add = MIN(56 - ch->get_wis(), GET_WIS_ADD(ch));
-	}
-	else
-	{
-		key_value = ch->get_cha();
-		key_value_add = MIN(50 - ch->get_cha(), GET_CHA_ADD(ch));
-	}
+	key_value = ch->get_cha();
+	auto max_cha = class_stats_limit[ch->get_class()][5];
+	key_value_add = MIN(max_cha - ch->get_cha(), GET_CHA_ADD(ch));
+
 	float eff_cha = 0.0;
 	if (GET_LEVEL(ch) <= 14)
+	{
 		eff_cha = key_value
-				  - 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
-				  * (0.2 + 0.3 * (float)(GET_LEVEL(ch) - 1) / 13.0);
+			- 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
+			* (0.2 + 0.3 * (float)(GET_LEVEL(ch) - 1) / 13.0);
+	}
 	else if (GET_LEVEL(ch) <= 26)
 	{
 		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
 	}
 	else
+	{
 		eff_cha = key_value + key_value_add;
+	}
 
-	return VPOSI<float>(eff_cha, 1.0f, 50.0f);
+	return VPOSI<float>(eff_cha, 1.0f, static_cast<float>(max_cha));
 }
 
 float get_effective_wis(CHAR_DATA * ch, int spellnum)
 {
 	int key_value, key_value_add;
 
-//Для поднять/оживить труп учитываем мудрость, в любом другом случае - обаяние
+	auto max_wis = class_stats_limit[ch->get_class()][3];
+
 	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
 	{
 		key_value = ch->get_wis();
-		key_value_add = GET_WIS_ADD(ch);
+		key_value_add = MIN(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
 	}
 	else
 	{
-                //если гдето вылезет косяком
+		//если гдето вылезет косяком
 		key_value = 0;
 		key_value_add = 0;
 	}
-	float eff_cha = 0.0;
+
+	float eff_wis = 0.0;
 	if (GET_LEVEL(ch) <= 14)
-		eff_cha = key_value
-				  - 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
-				  * (0.4 + 0.6 * (float)(GET_LEVEL(ch) - 1) / 13.0);
+	{
+		eff_wis = key_value
+			- 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
+			* (0.4 + 0.6 * (float)(GET_LEVEL(ch) - 1) / 13.0);
+	}
 	else if (GET_LEVEL(ch) <= 26)
 	{
-		eff_cha = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
+		eff_wis = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
 	}
 	else
-		eff_cha = key_value + key_value_add;
+	{
+		eff_wis = key_value + key_value_add;
+	}
 
-	return VPOSI<float>(eff_cha, 1.0f, 100.0f);
+	return VPOSI<float>(eff_wis, 1.0f, static_cast<float>(max_wis));
 }
 
 float get_effective_int(CHAR_DATA * ch)
 {
+	int key_value, key_value_add;
+
+	key_value = ch->get_int();
+	auto max_int = class_stats_limit[ch->get_class()][4];
+	key_value_add = MIN(max_int - ch->get_int(), GET_INT_ADD(ch));
+
 	float eff_int = 0.0;
 	if (GET_LEVEL(ch) <= 14)
-		eff_int = MIN(max_stats2[(int) GET_CLASS(ch)][2], ch->get_int())
-				  - 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + GET_INT_ADD(ch)
-				  * (0.2 + 0.3 * (float)(GET_LEVEL(ch) - 1) / 13.0);
+	{
+		eff_int = key_value
+			- 6 * (float)(14 - GET_LEVEL(ch)) / 13.0 + key_value_add
+			* (0.2 + 0.3 * (float)(GET_LEVEL(ch) - 1) / 13.0);
+	}
 	else if (GET_LEVEL(ch) <= 26)
 	{
-		if (ch->get_int() <= 16)
-			eff_int = ch->get_int() + GET_INT_ADD(ch) * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
-		else
-			eff_int =
-				16 + (float)((ch->get_int() - 16) * (GET_LEVEL(ch) - 14)) / 12.0 +
-				GET_INT_ADD(ch) * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
+		eff_int = key_value + key_value_add * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0);
 	}
 	else
-		eff_int = GET_REAL_INT(ch);
-	return eff_int;
+	{
+		eff_int = key_value + key_value_add;
+	}
+
+	return VPOSI<float>(eff_int, 1.0f, static_cast<float>(max_int));
 }
 
 float calc_cha_for_hire(CHAR_DATA * victim)
@@ -4197,30 +4166,18 @@ float calc_cha_for_hire(CHAR_DATA * victim)
 	return VPOSI<float>(needed_cha, 1.0, 50.0);
 }
 
-
 int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	float needed_cha = calc_cha_for_hire(victim), dpr = 0.0;
 	float e_cha = get_effective_cha(ch, 0), e_int = get_effective_int(ch);
-	//((e_cha<(1+min_stats2[(int)GET_CLASS(ch)][5]))?MIN(ch->get_cha(),(1+min_stats2[(int)GET_CLASS(ch)][5])):e_cha)-
-	//                     1 - min_stats2[(int)GET_CLASS(ch)][5] +
-	//((e_int<(1+min_stats2[(int)GET_CLASS(ch)][2]))?MIN(ch->get_int(),(1+min_stats2[(int)GET_CLASS(ch)][2])):e_int)-
-	//                     1.0 - min_stats2[(int)GET_CLASS(ch)][2];
 	float stat_overlimit = VPOSI<float>(e_cha + e_int - 1.0 -
 								 min_stats2[(int) GET_CLASS(ch)][5] - 1 -
 								 min_stats2[(int) GET_CLASS(ch)][2], 0, 100);
 
-	/*if (GET_LEVEL(ch) > 14 && GET_LEVEL(ch) <= 26)
-		stat_overlimit =
-			VPOSI(stat_overlimit - MIN(GET_REMORT(ch), 16) * (0.5 + 0.5 * (float)(GET_LEVEL(ch) - 14) / 12.0), 0, 100);
-	else if (GET_LEVEL(ch) > 26)
-		stat_overlimit = VPOSI(stat_overlimit - MIN(GET_REMORT(ch), 16), 0, 100);*/
-
 	float price = 0;
 	float real_cha = 1.0 + GET_LEVEL(ch) / 2.0 + stat_overlimit / 2.0;
 	float difference = needed_cha - real_cha;
-	//sprintf(buf,"diff =%f statover=%f ncha=%f rcha=%f pow:%f\r\n",difference,stat_overlimit,needed_cha, real_cha, pow(2.0,difference));
-	//send_to_char(buf,ch);
+
 	dpr = get_damage_per_round(victim);
 
 	log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);
@@ -4236,25 +4193,27 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 	return (int) ceil(price);
 }
 
-
 int get_player_charms(CHAR_DATA * ch, int spellnum)
 {
 	float r_hp = 0;
 	float eff_cha = 0.0;
-	float max_cha = 50.0;
+	float max_cha;
+
 	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
 	{
             eff_cha = get_effective_wis(ch, spellnum);
-            max_cha = 100.0;
-            eff_cha = MMIN(98, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+			max_cha = class_stats_limit[ch->get_class()][3];
 	}
 	else
 	{
+			max_cha = class_stats_limit[ch->get_class()][5];
             eff_cha = get_effective_cha(ch, spellnum);
-            if (spellnum != SPELL_CHARM)
-                eff_cha = MMIN(48, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
-        
+
+	if (spellnum != SPELL_CHARM)
+	{
+		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+	}
 
 	if (eff_cha < max_cha)
 	{
@@ -4269,23 +4228,26 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 	return (int) r_hp;
 }
 
-
 int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 {
 	float r_hp = 0;
 	float eff_cha = 0.0;
-	float max_cha = 50.0;
+	float max_cha;
+	
 	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
 	{
             eff_cha = get_effective_wis(ch, spellnum);
-            max_cha = 100.0;
-            eff_cha = MMIN(98, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+			max_cha = class_stats_limit[ch->get_class()][3];
 	}
 	else
 	{
+			max_cha = class_stats_limit[ch->get_class()][5];
             eff_cha = get_effective_cha(ch, spellnum);
-            if (spellnum != SPELL_CHARM)
-                    eff_cha = MMIN(48, eff_cha + 2);	// Все кроме чарма кастится с бонусом в 2
+	}
+
+	if (spellnum != SPELL_CHARM)
+	{
+		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
 	}
 
 	// Интерполяция между значениями для целых значений обаяния
