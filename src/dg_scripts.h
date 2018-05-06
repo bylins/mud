@@ -415,9 +415,9 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 
 // Macros for scripts //
 
-#define UID_CHAR   '\x1e'
 #define UID_OBJ    '\x1c'
 #define UID_ROOM   '\x1d'
+#define UID_CHAR   '\x1e'
 
 #define GET_TRIG_NAME(t)          ((t)->get_name().c_str())
 #define GET_TRIG_RNUM(t)          ((t)->get_rnum())

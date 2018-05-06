@@ -200,7 +200,7 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mkill: victim (%s) not found", arg);
+			sprintf(buf, "mkill: victim (%s) not found", arg + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -327,7 +327,7 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mechoaround: victim (%s) does not exist", arg);
+			sprintf(buf, "mechoaround: victim (%s) does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
 		}
@@ -379,7 +379,7 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "msend: victim (%s) does not exist", arg);
+			sprintf(buf, "msend: victim (%s) does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
 		}
@@ -742,7 +742,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!(vict = get_char(arg1)))
 			{
-				sprintf(buf, "mteleport: victim (%s) does not exist", arg1);
+				sprintf(buf, "mteleport: victim (%s) does not exist", arg1 + 1);
 				mob_log(ch, buf);
 				return;
 			}
@@ -864,7 +864,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!(victim = get_char(arg)))
 			{
-				sprintf(buf, "mforce: victim (%s) does not exist", arg);
+				sprintf(buf, "mforce: victim (%s) does not exist", arg + 1);
 				mob_log(ch, buf);
 				return;
 			}
@@ -938,7 +938,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mexp: victim (%s) does not exist", name);
+			sprintf(buf, "mexp: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -986,7 +986,7 @@ void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mgold: victim (%s) does not exist", name);
+			sprintf(buf, "mgold: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1044,7 +1044,7 @@ void do_mremember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mremember: victim (%s) does not exist", arg);
+			sprintf(buf, "mremember: victim (%s) does not exist", arg + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1107,7 +1107,7 @@ void do_mforget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mforget: victim (%s) does not exist", arg);
+			sprintf(buf, "mforget: victim (%s) does not exist", arg + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1467,7 +1467,7 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
+			sprintf(buf, "mfeatturn: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1557,7 +1557,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mskillturn: victim (%s) does not exist", name);
+			sprintf(buf, "mskillturn: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1732,7 +1732,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mspellturn: victim (%s) does not exist", name);
+			sprintf(buf, "mspellturn: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1803,7 +1803,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
+			sprintf(buf, "mspellturntemp: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}

@@ -280,7 +280,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	{
 		if (!(tch = get_char(arg)))
 		{
-			sprintf(buf2, "dg_cast: victim (%s) not found", arg);
+			sprintf(buf2, "dg_cast: victim (%s) not found", arg + 1);
 			trig_log(trig, buf2);
 		}
 		else
@@ -292,7 +292,6 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	{
 		target = find_dg_cast_target(spellnum, arg, caster, &tch, &tobj, &troom);
 	}
-
 
 	if (target)
 	{
