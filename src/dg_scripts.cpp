@@ -6689,11 +6689,6 @@ int SCRIPT_DATA::remove_trigger(char *name, TRIG_DATA*& trig_addr)
 	// update the script type bitvector
 	types = trig_list.get_type();
 
-	if (trig_list.empty())
-	{
-		cleanup();
-	}
-
 	return 1;
 }
 
