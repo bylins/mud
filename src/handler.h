@@ -183,7 +183,7 @@ struct portals_list_type *get_portal(int vnum, char *wrd);
 #define MAXPRICE 9999999
 
 float get_damage_per_round(CHAR_DATA * victim);
-float get_effective_cha(CHAR_DATA * ch, int spellnum);
+float get_effective_cha(CHAR_DATA * ch);
 float get_effective_wis(CHAR_DATA * ch, int spellnum);
 float get_effective_int(CHAR_DATA * ch);
 int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);

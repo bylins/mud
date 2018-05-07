@@ -391,9 +391,8 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 			update_leadership(ch, killer);
 		}
 	}
-
 	
-		update_die_counts(ch, killer, dec_exp );
+	update_die_counts(ch, killer, dec_exp );
 	raw_kill(ch, killer);
 }
 

@@ -3006,7 +3006,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		return;
 	}
 
-	std::string name = GET_NAME(ch) ? GET_NAME(ch) : "<null>";
+	std::string name = GET_NAME(ch);
 	log("[Extract char] Start function for char %s", name.c_str());
 	if (!IS_NPC(ch) && !ch->desc)
 	{
@@ -4058,7 +4058,7 @@ float get_damage_per_round(CHAR_DATA * victim)
  	return dam_per_round;
 }
 
-float get_effective_cha(CHAR_DATA * ch, int spellnum)
+float get_effective_cha(CHAR_DATA * ch)
 {
 	int key_value, key_value_add;
 
@@ -4169,7 +4169,7 @@ float calc_cha_for_hire(CHAR_DATA * victim)
 int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	float needed_cha = calc_cha_for_hire(victim), dpr = 0.0;
-	float e_cha = get_effective_cha(ch, 0), e_int = get_effective_int(ch);
+	float e_cha = get_effective_cha(ch), e_int = get_effective_int(ch);
 	float stat_overlimit = VPOSI<float>(e_cha + e_int - 1.0 -
 								 min_stats2[(int) GET_CLASS(ch)][5] - 1 -
 								 min_stats2[(int) GET_CLASS(ch)][2], 0, 100);
@@ -4207,7 +4207,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 	else
 	{
 			max_cha = class_stats_limit[ch->get_class()][5];
-            eff_cha = get_effective_cha(ch, spellnum);
+            eff_cha = get_effective_cha(ch);
 	}
 
 	if (spellnum != SPELL_CHARM)
@@ -4242,7 +4242,7 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	else
 	{
 			max_cha = class_stats_limit[ch->get_class()][5];
-            eff_cha = get_effective_cha(ch, spellnum);
+            eff_cha = get_effective_cha(ch);
 	}
 
 	if (spellnum != SPELL_CHARM)

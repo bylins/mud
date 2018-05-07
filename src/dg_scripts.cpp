@@ -139,7 +139,7 @@ void script_log(const char *msg, const int type)
 	char* pos = tmpbuf;
 	while (*pos != '\0')
 	{
-		*pos++ = uid_replace_table[static_cast<unsigned char>(*pos)];
+		*pos++ = uid_replace_table[reinterpret_cast<unsigned char&>(*pos)];
 	}
 
 	log("%s", tmpbuf);
@@ -2892,7 +2892,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				pos = atoi(subfield);
 			else if (*subfield)
 				pos = find_eq_pos(c, NULL, subfield);
-			if (!*subfield || pos < 0 || pos > NUM_WEARS)
+			if (!*subfield || pos < 0 || pos >= NUM_WEARS)
 				strcpy(str, "");
 			else
 			{
@@ -3242,7 +3242,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "pname"))
 		{
-			if (!o->get_PName(5).c_str())
+			if (!o->get_PName(5).empty())
 			{
 				strcpy(str, o->get_PName(5).c_str());
 			}
@@ -4463,7 +4463,6 @@ cmdlist_element::shared_ptr find_case(TRIG_DATA * trig, cmdlist_element::shared_
 
 	return cl;
 }
-
 
 // processes any 'wait' commands in a trigger
 void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, const cmdlist_element::shared_ptr& cl)

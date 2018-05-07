@@ -308,7 +308,7 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case TRIGEDIT_INTENDED:
-		if ((atoi(arg) >= MOB_TRIGGER) || (atoi(arg) <= WLD_TRIGGER))
+		if ((atoi(arg) >= MOB_TRIGGER) && (atoi(arg) <= WLD_TRIGGER))
 		{
 			OLC_TRIG(d)->set_attach_type(atoi(arg));
 		}

@@ -628,7 +628,7 @@ void oedit_disp_feats_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	for (counter = 0; counter < MAX_FEATS; counter++)
+	for (counter = 1; counter < MAX_FEATS; counter++)
 	{
 		if (!feat_info[counter].name || *feat_info[counter].name == '!')
 		{
@@ -2176,7 +2176,10 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 					oedit_disp_menu(d);
 					return;
 				}
-				if (number > MAX_FEATS || !feat_info[number].name || *feat_info[number].name == '!')
+				if (number <= 0 
+					|| number >= MAX_FEATS 
+					|| !feat_info[number].name 
+					|| *feat_info[number].name == '!')
 				{
 					send_to_char("Неизвестная способность, повторите.\r\n", d->character.get());
 					oedit_disp_val2_menu(d);

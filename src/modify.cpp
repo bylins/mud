@@ -1052,7 +1052,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		send_to_char("Формат: featset <игрок> '<способность>' <значение>\r\n", ch);
 		strcpy(help, "Возможные способности:\r\n");
-		for (qend = 0, i = 0; i < MAX_FEATS; i++)
+		for (qend = 0, i = 1; i < MAX_FEATS; i++)
 		{
 			if (feat_info[i].type == UNUSED_FTYPE)	// This is valid. //
 				continue;

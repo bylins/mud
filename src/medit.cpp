@@ -2002,7 +2002,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 			break;
 		}
-		if (number > MAX_FEATS
+		if (number >= MAX_FEATS
 			|| number <= 0
 			|| !feat_info[number].name
 			|| *feat_info[number].name == '!')

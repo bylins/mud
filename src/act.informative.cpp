@@ -2598,8 +2598,6 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 	}
 }
 
-
-
 void look_in_obj(CHAR_DATA * ch, char *arg)
 {
 	OBJ_DATA *obj = NULL;
@@ -5521,7 +5519,6 @@ void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 		return;
 	}
 }
-
 
 void perform_mortal_where(CHAR_DATA * ch, char *arg)
 {

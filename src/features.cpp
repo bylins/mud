@@ -143,7 +143,7 @@ void assign_feats(void)
 {
 	int i;
 	CFeatArray feat_app;
-	for (i = 0; i < MAX_FEATS; i++)
+	for (i = 1; i < MAX_FEATS; i++)
 	{
 		unused_feat(i);
 	}

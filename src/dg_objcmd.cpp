@@ -547,6 +547,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!object)
 		{
 			obj_log(obj, "oload: bad object vnum");
+			return;
 		}
 
 		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0

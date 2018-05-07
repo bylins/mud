@@ -741,7 +741,7 @@ void do_wfeatturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
         *pos = ' ';
     }
 
-	if ((featnum = find_feat_num(featname)) > 0 && featnum <= MAX_FEATS)
+	if ((featnum = find_feat_num(featname)) > 0 && featnum < MAX_FEATS)
     {
         isFeat = 1;
     }

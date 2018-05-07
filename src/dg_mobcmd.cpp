@@ -1435,9 +1435,9 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(featname, '.')))
-		* pos = ' ';
+		*pos = ' ';
 	while ((pos = strchr(featname, '_')))
-		* pos = ' ';
+		*pos = ' ';
 
 	if ((featnum = find_feat_num(featname)) > 0 && featnum < MAX_FEATS)
 		isFeat = 1;
@@ -1481,7 +1481,6 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (isFeat)
 		trg_featturn(victim, featnum, featdiff, last_trig_vnum);
-
 }
 
 void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)

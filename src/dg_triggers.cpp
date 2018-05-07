@@ -32,6 +32,9 @@
 
 #include <boost/lexical_cast.hpp>
 
+//extrernal functions
+extern void mob_command_interpreter(CHAR_DATA* ch, char *argument);
+
 extern const char *dirs[];
 
 #ifndef LVL_BUILDER
@@ -446,7 +449,7 @@ void entry_memory_mtrigger(CHAR_DATA* const ch)
 
 				if (mem->cmd)
 				{
-					command_interpreter(ch, mem->cmd);
+					mob_command_interpreter(ch, mem->cmd);
 				}
 				else
 				{
@@ -466,6 +469,12 @@ void entry_memory_mtrigger(CHAR_DATA* const ch)
 				if (SCRIPT_MEM(ch) == mem)
 				{
 					SCRIPT_MEM(ch) = mem->next;
+
+					if (mem->cmd)
+					{
+						free(mem->cmd);
+					}
+					free(mem);
 				}
 				else
 				{
@@ -475,13 +484,15 @@ void entry_memory_mtrigger(CHAR_DATA* const ch)
 						prev = prev->next;
 					}
 					prev->next = mem->next;
-				}
 
-				if (mem->cmd)
-				{
-					free(mem->cmd);
+					if (mem->cmd)
+					{
+						free(mem->cmd);
+					}
+					free(mem);
+
+					mem = prev;
 				}
-				free(mem);
 			}
 		}	// for (mem =.....
 	}

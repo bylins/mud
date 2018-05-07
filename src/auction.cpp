@@ -218,7 +218,7 @@ bool auction_drive(CHAR_DATA * ch, char *argument)
 			lotis->prefect_unique = GET_UNIQUE(tch);
 			lotis->prefect = tch;
 		}
-		lotis->cost = value;
+
 		if (tch)
 		{
 			sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s (для %s)",
