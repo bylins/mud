@@ -41,7 +41,9 @@
 #include <stack>
 #include <iostream>
 
-void trig_data_free(TRIG_DATA * this_data);
+//External functions
+extern void extract_trigger(TRIG_DATA * trig);
+
 //внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
 trigger_to_owners_map_t owner_trig;
 
@@ -172,38 +174,6 @@ TRIG_DATA *read_trigger(int nr)
 	return trig;
 }
 
-// release memory allocated for a variable list
-void free_varlist(struct trig_var_data *vd)
-{
-	struct trig_var_data *i, *j;
-
-	for (i = vd; i;)
-	{
-		j = i;
-		i = i->next;
-		if (j->name)
-			free(j->name);
-		if (j->value)
-			free(j->value);
-		free(j);
-	}
-}
-
-void trig_data_free(TRIG_DATA * this_data)
-{
-	free_varlist(this_data->var_list);
-
-	if (this_data->wait_event)
-	{
-		// Не нужно забывать эмулировать callback вызов trig_wait_event
-		// а именно выполнить освобождение структуры info
-		free(this_data->wait_event->info);
-		remove_event(this_data->wait_event);
-	}
-
-	delete this_data;
-}
-
 // vnum_owner - триг, который приаттачил данный триг
 // vnum_trig - внум приатаченного трига
 // vnum - к кому приатачился триг
@@ -295,14 +265,20 @@ void assign_triggers(void *i, int type)
 				}
 				else
 				{
-					add_trigger(SCRIPT(mob).get(), read_trigger(rnum), -1);
-
-					if (owner_trig.find(trigger_vnum) == owner_trig.end())
+					auto trig = read_trigger(rnum);
+					if (add_trigger(SCRIPT(mob).get(), trig, -1))
 					{
-						owner_to_triggers_map_t tmp_map;
-						owner_trig.emplace(trigger_vnum, tmp_map);
+						if (owner_trig.find(trigger_vnum) == owner_trig.end())
+						{
+							owner_to_triggers_map_t tmp_map;
+							owner_trig.emplace(trigger_vnum, tmp_map);
+						}
+						add_trig_to_owner(-1, trigger_vnum, GET_MOB_VNUM(mob));
 					}
-					add_trig_to_owner(-1, trigger_vnum, GET_MOB_VNUM(mob));
+					else
+					{
+						extract_trigger(trig);
+					}
 				}
 			}
 		}
@@ -331,13 +307,20 @@ void assign_triggers(void *i, int type)
 				}
 				else
 				{
-					add_trigger(obj->get_script().get(), read_trigger(rnum), -1);
-					if (owner_trig.find(trigger_vnum) == owner_trig.end())
+					auto trig = read_trigger(rnum);
+					if (add_trigger(obj->get_script().get(), trig, -1))
 					{
-						owner_to_triggers_map_t tmp_map;
-						owner_trig.emplace(trigger_vnum, tmp_map);
+						if (owner_trig.find(trigger_vnum) == owner_trig.end())
+						{
+							owner_to_triggers_map_t tmp_map;
+							owner_trig.emplace(trigger_vnum, tmp_map);
+						}
+						add_trig_to_owner(-1, trigger_vnum, GET_OBJ_VNUM(obj));
 					}
-					add_trig_to_owner(-1, trigger_vnum, GET_OBJ_VNUM(obj));
+					else
+					{
+						extract_trigger(trig);
+					}
 				}
 			}
 		}
@@ -365,13 +348,20 @@ void assign_triggers(void *i, int type)
 				}
 				else
 				{
-					add_trigger(SCRIPT(room).get(), read_trigger(rnum), -1);
-					if (owner_trig.find(trigger_vnum) == owner_trig.end())
+					auto trig = read_trigger(rnum);
+					if (add_trigger(SCRIPT(room).get(), trig, -1))
 					{
-						owner_to_triggers_map_t tmp_map;
-						owner_trig.emplace(trigger_vnum, tmp_map);
+						if (owner_trig.find(trigger_vnum) == owner_trig.end())
+						{
+							owner_to_triggers_map_t tmp_map;
+							owner_trig.emplace(trigger_vnum, tmp_map);
+						}
+						add_trig_to_owner(-1, trigger_vnum, room->number);
 					}
-					add_trig_to_owner(-1, trigger_vnum, room->number);
+					else
+					{
+						extract_trigger(trig);
+					}
 				}
 			}
 		}

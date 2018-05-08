@@ -270,6 +270,7 @@ size_t fbclose_for_write(FBFILE * fbfl)
 	size_t len = strlen(fbfl->buf);
 	if (0 == len)
 	{
+		free(tname);
 		return 0;
 	}
 	sprintf(tname, "%s.tmp", fbfl->name);

@@ -2598,8 +2598,6 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 	}
 }
 
-
-
 void look_in_obj(CHAR_DATA * ch, char *arg)
 {
 	OBJ_DATA *obj = NULL;
@@ -3810,8 +3808,7 @@ void print_do_score_all(CHAR_DATA *ch)
 				" || Режим слепого игрока включен.                                                   ||\r\n");
 	if (Bonus::is_bonus(0))
 		sprintf(buf + strlen(buf),
-			" || %-83s ||\r\n || %-83s ||\r\n", Bonus::str_type_bonus().c_str(), Bonus::bonus_end().c_str());
-
+			" || %-79s ||\r\n || %-79s ||\r\n", Bonus::str_type_bonus().c_str(), Bonus::bonus_end().c_str());
 
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{
@@ -4071,12 +4068,6 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				"  Броня/Поглощение : %4d/%d&n\r\n",
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
-	/*  if (charm_points(ch) > 0) {
-	     sprintf(buf + strlen(buf),  " Пунктов лояльности: %4d\r\n",
-	             charm_points(ch));
-	     sprintf(buf + strlen(buf),  " Из них свободно   : %4d\r\n",
-	             charm_points(ch) - used_charm_points(ch));
-	  } */
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, у вас на руках %ld %s",
 			GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT), ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa));
 	if (ch->get_bank() > 0)
@@ -5527,7 +5518,6 @@ void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 		return;
 	}
 }
-
 
 void perform_mortal_where(CHAR_DATA * ch, char *arg)
 {

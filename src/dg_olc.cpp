@@ -308,7 +308,7 @@ void trigedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case TRIGEDIT_INTENDED:
-		if ((atoi(arg) >= MOB_TRIGGER) || (atoi(arg) <= WLD_TRIGGER))
+		if ((atoi(arg) >= MOB_TRIGGER) && (atoi(arg) <= WLD_TRIGGER))
 		{
 			OLC_TRIG(d)->set_attach_type(atoi(arg));
 		}
@@ -429,7 +429,8 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					free(GET_TRIG_WAIT(trigger)->info);	// Причина уже обсуждалась
 					remove_event(GET_TRIG_WAIT(trigger));
 				}
-				free_varlist(trigger->var_list);
+
+				trigger->clear_var_list();
 				*trigger = *proto;
 
 				trigger_list.add(trigger);

@@ -28,15 +28,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-void trig_data_free(TRIG_DATA * this_data);
-
-// return memory used by a trigger 
-void free_trigger(TRIG_DATA* trig)
-{
-	// threw this in for minor consistance in names with the rest of circle 
-	trig_data_free(trig);
-}
-
 // remove a single trigger from a mob/obj/room 
 void extract_trigger(TRIG_DATA* trig)
 {
@@ -53,7 +44,9 @@ void extract_trigger(TRIG_DATA* trig)
 	// walk the trigger list and remove this one 
 	trigger_list.remove(trig);
 
-	free_trigger(trig);
+	trig->clear_var_list();
+
+	delete trig;
 }
 
 // remove all triggers from a mob/obj/room 

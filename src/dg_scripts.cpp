@@ -110,16 +110,38 @@ int trgvar_in_room(int vnum);
 */
 bool CharacterLinkDrop = false;
 
+//table for replace UID_CHAR, UID_OBJ, UID_ROOM
+const char uid_replace_table[] = {
+	'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',	//16
+	'\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x20', '\x20', '\x20', '\x1f',	//32
+	'\x20', '\x21', '\x22', '\x23', '\x24', '\x25', '\x26', '\x27', '\x28', '\x29', '\x2a', '\x2b', '\x2c', '\x2d', '\x2e', '\x2f',	//48
+	'\x30', '\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38', '\x39', '\x3a', '\x3b', '\x3c', '\x3d', '\x3e', '\x3f',	//64
+	'\x40', '\x41', '\x42', '\x43', '\x44', '\x45', '\x46', '\x47', '\x48', '\x49', '\x4a', '\x4b', '\x4c', '\x4d', '\x4e', '\x4f',	//80
+	'\x50', '\x51', '\x52', '\x53', '\x54', '\x55', '\x56', '\x57', '\x58', '\x59', '\x5a', '\x5b', '\x5c', '\x5d', '\x5e', '\x5f',	//96
+	'\x60', '\x61', '\x62', '\x63', '\x64', '\x65', '\x66', '\x67', '\x68', '\x69', '\x6a', '\x6b', '\x6c', '\x6d', '\x6e', '\x6f',	//112
+	'\x70', '\x71', '\x72', '\x73', '\x74', '\x75', '\x76', '\x77', '\x78', '\x79', '\x7a', '\x7b', '\x7c', '\x7d', '\x7e', '\x7f',	//128
+	'\x80', '\x81', '\x82', '\x83', '\x84', '\x85', '\x86', '\x87', '\x88', '\x89', '\x8a', '\x8b', '\x8c', '\x8d', '\x8e', '\x8f',	//144
+	'\x90', '\x91', '\x92', '\x93', '\x94', '\x95', '\x96', '\x97', '\x98', '\x99', '\x9a', '\x9b', '\x9c', '\x9d', '\x9e', '\x9f',	//160
+	'\xa0', '\xa1', '\xa2', '\xa3', '\xa4', '\xa5', '\xa6', '\xa7', '\xa8', '\xa9', '\xaa', '\xab', '\xac', '\xad', '\xae', '\xaf',	//176
+	'\xb0', '\xb1', '\xb2', '\xb3', '\xb4', '\xb5', '\xb6', '\xb7', '\xb8', '\xb9', '\xba', '\xbb', '\xbc', '\xbd', '\xbe', '\xbf',	//192
+	'\xc0', '\xc1', '\xc2', '\xc3', '\xc4', '\xc5', '\xc6', '\xc7', '\xc8', '\xc9', '\xca', '\xcb', '\xcc', '\xcd', '\xce', '\xcf',	//208
+	'\xd0', '\xd1', '\xd2', '\xd3', '\xd4', '\xd5', '\xd6', '\xd7', '\xd8', '\xd9', '\xda', '\xdb', '\xdc', '\xdd', '\xde', '\xdf',	//224
+	'\xe0', '\xe1', '\xe2', '\xe3', '\xe4', '\xe5', '\xe6', '\xe7', '\xe8', '\xe9', '\xea', '\xeb', '\xec', '\xed', '\xee', '\xef',	//240
+	'\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7', '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'	//256
+};
+
 void script_log(const char *msg, const int type)
 {
 	char tmpbuf[MAX_STRING_LENGTH];
-	char *pos;
+
 	snprintf(tmpbuf, MAX_STRING_LENGTH, "SCRIPT LOG %s", msg);
-	// Чистим строчку от левых %-тов.
-	while ((pos = strchr(tmpbuf, '%')) != NULL)
+
+	char* pos = tmpbuf;
+	while (*pos != '\0')
 	{
-		*pos = '$';
+		*pos++ = uid_replace_table[reinterpret_cast<unsigned char&>(*pos)];
 	}
+
 	log("%s", tmpbuf);
 	mudlog(tmpbuf, type ? type : NRM, LVL_BUILDER, ERRLOG, TRUE);
 }
@@ -708,6 +730,7 @@ OBJ_DATA *get_obj_by_room(ROOM_DATA * room, char *name)
 {
 	OBJ_DATA *obj;
 	long id;
+
 	if ((*name == UID_ROOM) || (*name == UID_CHAR))
 		return NULL;
 
@@ -1117,12 +1140,15 @@ void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k)
 /*
  * adds the trigger t to script sc in in location loc.  loc = -1 means
  * add to the end, loc = 0 means add before all other triggers.
+ *
+ * Return true if trigger successfully added
+ * Return false if trigger with same rnum already exists and can not be added
  */
-void add_trigger(SCRIPT_DATA* sc, TRIG_DATA * t, int loc)
+bool add_trigger(SCRIPT_DATA* sc, TRIG_DATA * t, int loc)
 {
 	if (!t || !sc)
 	{
-		return;
+		return false;
 	}
 
 	const bool added = sc->trig_list.add(t, 0 == loc);
@@ -1131,6 +1157,8 @@ void add_trigger(SCRIPT_DATA* sc, TRIG_DATA * t, int loc)
 		SCRIPT_TYPES(sc) |= GET_TRIG_TYPE(t);
 		trigger_list.add(t);
 	}
+
+	return added;
 }
 
 void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1178,7 +1206,10 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					sprintf(buf, "Trigger %d (%s) attached to %s.\r\n", tn, GET_TRIG_NAME(trig), GET_SHORT(victim));
 					send_to_char(buf, ch);
 
-					add_trigger(SCRIPT(victim).get(), trig, loc);
+					if (!add_trigger(SCRIPT(victim).get(), trig, loc))
+					{
+						extract_trigger(trig);
+					}
 				}
 				else
 				{
@@ -1205,7 +1236,10 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					(!object->get_short_description().empty() ? object->get_short_description().c_str() : object->get_aliases().c_str()));
 				send_to_char(buf, ch);
 
-				add_trigger(object->get_script().get(), trig, loc);
+				if (!add_trigger(object->get_script().get(), trig, loc))
+				{
+					extract_trigger(trig);
+				}
 			}
 			else
 				send_to_char("That trigger does not exist.\r\n", ch);
@@ -1226,7 +1260,10 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						tn, GET_TRIG_NAME(trig), world[room]->number);
 					send_to_char(buf, ch);
 
-					add_trigger(world[room]->script.get(), trig, loc);
+					if (!add_trigger(world[room]->script.get(), trig, loc))
+					{
+						extract_trigger(trig);
+					}
 				}
 				else
 				{
@@ -2855,7 +2892,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				pos = atoi(subfield);
 			else if (*subfield)
 				pos = find_eq_pos(c, NULL, subfield);
-			if (!*subfield || pos < 0 || pos > NUM_WEARS)
+			if (!*subfield || pos < 0 || pos >= NUM_WEARS)
 				strcpy(str, "");
 			else
 			{
@@ -3205,7 +3242,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "pname"))
 		{
-			if (!o->get_PName(5).c_str())
+			if (!o->get_PName(5).empty())
 			{
 				strcpy(str, o->get_PName(5).c_str());
 			}
@@ -4427,7 +4464,6 @@ cmdlist_element::shared_ptr find_case(TRIG_DATA * trig, cmdlist_element::shared_
 	return cl;
 }
 
-
 // processes any 'wait' commands in a trigger
 void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, const cmdlist_element::shared_ptr& cl)
 {
@@ -4541,7 +4577,6 @@ void process_eval(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *
 	add_var_cntx(&GET_TRIG_VARS(trig), name, result, 0);
 }
 
-
 // script attaching a trigger to something
 void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *cmd)
 {
@@ -4612,23 +4647,41 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	if (c)
 	{
-		add_trigger(SCRIPT(c).get(), newtrig, -1);
-		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
+		if (add_trigger(SCRIPT(c).get(), newtrig, -1))
+		{
+			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_MOB_VNUM(c));
+		}
+		else
+		{
+			extract_trigger(newtrig);
+		}
 
 		return;
 	}
 
 	if (o)
 	{
-		add_trigger(o->get_script().get(), newtrig, -1);
-		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
+		if (add_trigger(o->get_script().get(), newtrig, -1))
+		{
+			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
+		}
+		else
+		{
+			extract_trigger(newtrig);
+		}
 		return;
 	}
 
 	if (r)
 	{
-		add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->number);
-		add_trigger(SCRIPT(r).get(), newtrig, -1);
+		if (add_trigger(SCRIPT(r).get(), newtrig, -1))
+		{
+			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, r->number);
+		}
+		else
+		{
+			extract_trigger(newtrig);
+		}
 		return;
 	}
 
@@ -4720,7 +4773,8 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	OBJ_DATA *o = NULL;
 	ROOM_DATA *r = NULL;
 	void *trggo = NULL;
-	int trgtype = 0, string = FALSE, num = 0;
+	int trgtype = 0, num = 0;
+	bool is_string = false;
 
 	id_p = two_arguments(cmd, arg, trignum_s);
 	skip_spaces(&id_p);
@@ -4761,7 +4815,7 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 	name = trignum_s;
 	if ((cname = strchr(name, '.')) || (!a_isdigit(*name)))
 	{
-		string = TRUE;
+		is_string = true;
 		if (cname)
 		{
 			*cname = '\0';
@@ -4776,19 +4830,19 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 
 	if (c && SCRIPT(c)->has_triggers())
 	{
-		runtrig = SCRIPT(c)->trig_list.find(string, name, num);
+		runtrig = SCRIPT(c)->trig_list.find(is_string, name, num);
 		trgtype = MOB_TRIGGER;
 		trggo = (void *)c;
 	}
 	else if (o && o->get_script()->has_triggers())
 	{
-		runtrig = o->get_script()->trig_list.find(string, name, num);
+		runtrig = o->get_script()->trig_list.find(is_string, name, num);
 		trgtype = OBJ_TRIGGER;
 		trggo = (void *)o;
 	}
 	else if (r && SCRIPT(r)->has_triggers())
 	{
-		runtrig = SCRIPT(r)->trig_list.find(string, name, num);
+		runtrig = SCRIPT(r)->trig_list.find(is_string, name, num);
 		trgtype = WLD_TRIGGER;
 		trggo = (void *)r;
 	};
@@ -5645,9 +5699,6 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	void obj_command_interpreter(OBJ_DATA* obj, char* argument);
 	void wld_command_interpreter(ROOM_DATA* room, char* argument);
 
-	sprintf(buf, "[%s] %s (VNUM=%d)", mode == TRIG_NEW ? "NEW" : "OLD", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
-	mudlog(buf, BRF, -1, ERRLOG, TRUE);
-
 	if (depth > MAX_SCRIPT_DEPTH)
 	{
 		trig_log(trig, "Triggers recursed beyond maximum allowed depth.");
@@ -6003,7 +6054,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 
 	if (trig)
 	{
-		free_varlist(GET_TRIG_VARS(trig));
+		trig->clear_var_list();
 		GET_TRIG_VARS(trig) = NULL;
 		GET_TRIG_DEPTH(trig) = 0;
 	}
@@ -6347,20 +6398,16 @@ TriggersList::~TriggersList()
 	clear();
 }
 
+// Return true if trigger successfully added
+// Return false if trigger with same rnum already exists and can not be added
 bool TriggersList::add(TRIG_DATA* trigger, const bool to_front /*= false*/)
 {
 	for (const auto& i : m_list)
 	{
 		if (trigger->get_rnum() == i->get_rnum())
 		{
-			/*
-			* А вот это действительно неожиданно!
-			* Вызывающая сторона наивно полагает, что триггер будет добавлен
-			* в соответствующие списки, а мы говорим, что такой триггер нам
-			* не нужен. Придется позаботится о нем, нам он тоже больше не нужен!
-			*/
-			extract_trigger(trigger);
-
+			//Мы не можем здесь заменить имеющийся триггер на новый
+			//т.к. имеющийся триггер может уже использоваться или быть в ожидание (wait command)
 			return false;
 		}
 	}
@@ -6591,8 +6638,8 @@ SCRIPT_DATA::SCRIPT_DATA(const SCRIPT_DATA&) :
 
 SCRIPT_DATA::~SCRIPT_DATA()
 {
-	extract_script(this);
-	free_varlist(global_vars);
+	trig_list.clear();
+	clear_global_vars();
 }
 
 int SCRIPT_DATA::remove_trigger(char *name, TRIG_DATA*& trig_addr)
@@ -6639,11 +6686,6 @@ int SCRIPT_DATA::remove_trigger(char *name, TRIG_DATA*& trig_addr)
 	// update the script type bitvector
 	types = trig_list.get_type();
 
-	if (trig_list.empty())
-	{
-		cleanup();
-	}
-
 	return 1;
 }
 
@@ -6653,11 +6695,25 @@ int SCRIPT_DATA::remove_trigger(char *name)
 	return remove_trigger(name, dummy);
 }
 
+void SCRIPT_DATA::clear_global_vars()
+{
+	for (auto i = global_vars; i;)
+	{
+		auto j = i;
+		i = i->next;
+		if (j->name)
+			free(j->name);
+		if (j->value)
+			free(j->value);
+		free(j);
+	}
+}
+
 void SCRIPT_DATA::cleanup()
 {
 	trig_list.clear();
 
-	free_varlist(global_vars);	// TODO: make it class member
+	clear_global_vars();
 	global_vars = nullptr;
 }
 
@@ -6672,7 +6728,6 @@ TRIG_DATA::TRIG_DATA():
 	var_list(nullptr),
 	nr(NOTHING),
 	attach_type(0),
-	data_type(0),
 	name(DEFAULT_TRIGGER_NAME),
 	trigger_type(0)
 {
@@ -6687,7 +6742,6 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 	var_list(nullptr),
 	nr(rnum),
 	attach_type(attach_type),
-	data_type(0),
 	name(name),
 	trigger_type(trigger_type)
 {
@@ -6707,7 +6761,6 @@ TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
 	var_list(nullptr),
 	nr(from.nr),
 	attach_type(from.attach_type),
-	data_type(from.data_type),
 	name(from.name),
 	trigger_type(from.trigger_type)
 {
@@ -6717,7 +6770,6 @@ void TRIG_DATA::reset()
 {
 	nr = NOTHING;
 	attach_type = 0;
-	data_type = 0;
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;
 	cmdlist.reset();
@@ -6736,7 +6788,6 @@ TRIG_DATA& TRIG_DATA::operator=(const TRIG_DATA& right)
 
 	nr = right.nr;
 	set_attach_type(right.get_attach_type());
-	data_type = right.data_type;
 	name = right.name;
 	trigger_type = right.trigger_type;
 	cmdlist = right.cmdlist;
@@ -6744,6 +6795,20 @@ TRIG_DATA& TRIG_DATA::operator=(const TRIG_DATA& right)
 	arglist = right.arglist;
 
 	return *this;
+}
+
+void TRIG_DATA::clear_var_list()
+{
+	for (auto i = var_list; i;)
+	{
+		auto j = i;
+		i = i->next;
+		if (j->name)
+			free(j->name);
+		if (j->value)
+			free(j->value);
+		free(j);
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

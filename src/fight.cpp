@@ -1462,7 +1462,7 @@ void set_mob_skills_flags(CHAR_DATA *ch)
 	bool sk_use = false;
 	// 1) parry
 	int do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_PARRY))
+	if (do_this <= GET_LIKES(ch) && ch->get_skill(SKILL_PARRY))
 	{
 		SET_AF_BATTLE(ch, EAF_PARRY);
 		sk_use = true;
@@ -1626,11 +1626,6 @@ void using_mob_skills(CHAR_DATA *ch)
 		if (ch->get_skill(sk_num) <= 0)
 		{
 			sk_num = SKILL_INVALID;
-		}
-
-		if (!sk_num)
-		{
-			continue;
 		}
 
 		////////////////////////////////////////////////////////////////////////

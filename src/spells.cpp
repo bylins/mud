@@ -211,9 +211,6 @@ void spell_create_water(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DAT
 		{
 			send_to_char("Прекратите, ради бога, химичить.\r\n", ch);
 			return;
-			name_from_drinkcon(obj);
-			obj->set_val(2, LIQ_BLOOD);
-			name_to_drinkcon(obj, LIQ_BLOOD);
 		}
 		else
 		{
@@ -2955,9 +2952,11 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 {
 	mob_vnum mob_num = 108;
 	int modifier = 0;
-
 	CHAR_DATA *mob = NULL;
 	struct follow_type *k, *k_next;
+
+	auto eff_cha = get_effective_cha(ch);
+
 	for (k = ch->followers; k; k = k_next)
 	{
 		k_next = k->next;
@@ -2968,7 +2967,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 			stop_follower(k->follower, SF_CHARMLOST);
 		}
 	}
-	if (get_effective_cha(ch, SPELL_ANGEL) < 16 && !IS_IMMORTAL(ch))
+	if (eff_cha < 16 && !IS_IMMORTAL(ch))
 	{
 		send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
 		return;
@@ -2987,7 +2986,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	clear_char_skills(mob);
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
-	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_cha(ch, SPELL_ANGEL) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((eff_cha - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
@@ -3086,7 +3085,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 // level
 
 	modifier = (int)(5 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
-					 + 5 * VPOSI<float>(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+					 + 5 * VPOSI<float>(eff_cha - 16, 0, 50));
 
 	mob->set_skill(SKILL_RESCUE, mob->get_skill(SKILL_RESCUE) + modifier);
 	mob->set_skill(SKILL_AWAKE, mob->get_skill(SKILL_AWAKE) + modifier);
@@ -3094,41 +3093,41 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	mob->set_skill(SKILL_BLOCK, mob->get_skill(SKILL_BLOCK) + modifier);
 
 	modifier = (int)(2 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
-					 + 1 * VPOSI<float>(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+					 + 1 * VPOSI<float>(eff_cha - 16, 0, 50));
 	GET_HR(mob) += modifier;
 
 	modifier = VPOSI(GET_LEVEL(ch) - 26, 0, 50);
 	mob->inc_con(modifier);
 
-	modifier = (int)(20 * VPOSI<float>(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+	modifier = (int)(20 * VPOSI<float>(eff_cha - 16, 0, 50));
 	GET_MAX_HIT(mob) += modifier;
 	GET_HIT(mob) += modifier;
 
-	modifier = (int)(3 * VPOSI<float>(get_effective_cha(ch, SPELL_ANGEL) - 16, 0, 50));
+	modifier = (int)(3 * VPOSI<float>(eff_cha - 16, 0, 50));
 	GET_AC(mob) -= modifier;
 
-	modifier = 1 * VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 16) / 2), 0, 50);
+	modifier = 1 * VPOSI((int)((eff_cha - 16) / 2), 0, 50);
 	mob->inc_str(modifier);
 	mob->inc_dex(modifier);
 
-	modifier = VPOSI((int)((get_effective_cha(ch, SPELL_ANGEL) - 22) / 4), 0, 50);
+	modifier = VPOSI((int)((eff_cha - 22) / 4), 0, 50);
 	SET_SPELL(mob, SPELL_HEAL, GET_SPELL_MEM(mob, SPELL_HEAL) + modifier);
 
-	if (get_effective_cha(ch, SPELL_ANGEL) >= 26)
+	if (eff_cha >= 26)
 		mob->mob_specials.ExtraAttack += 1;
 
-	if (get_effective_cha(ch, SPELL_ANGEL) >= 24)
+	if (eff_cha >= 24)
 	{
 		mob->mob_specials.damnodice += 1;
 		mob->mob_specials.damsizedice += 1;
 	}
 
-	if (get_effective_cha(ch, SPELL_ANGEL) >= 22)
+	if (eff_cha >= 22)
 	{
 		AFF_FLAGS(mob).set(EAffectFlag::AFF_SANCTUARY);
 	}
 
-	if (get_effective_cha(ch, SPELL_ANGEL) >= 30)
+	if (eff_cha >= 30)
 	{
 		AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
 	}

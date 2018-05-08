@@ -94,38 +94,27 @@ int obj_room(OBJ_DATA * obj)
 // returns the real room number, or NOWHERE if not found or invalid 
 int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 {
-	int tmp;
-	int location;
-	CHAR_DATA *target_mob;
-	OBJ_DATA *target_obj;
 	char roomstr[MAX_INPUT_LENGTH];
+	room_rnum location = NOWHERE;
 
 	one_argument(rawroomstr, roomstr);
 
 	if (!*roomstr)
+	{
+		sprintf(buf, "Undefined oteleport room: %s", rawroomstr);
+		obj_log(obj, buf);
 		return NOWHERE;
+	}
 
-	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
+	auto tmp = atoi(roomstr);
+	if (tmp > 0)
 	{
-		tmp = atoi(roomstr);
-		if ((location = real_room(tmp)) == NOWHERE)
-			return NOWHERE;
-	}
-	else if ((target_mob = get_char_by_obj(obj, roomstr)))
-	{
-		obj_log(obj, "SYSERR: Invalid location in oteleport. Please rewrite trigger.");
-		location = IN_ROOM(target_mob);
-	}
-	else if ((target_obj = get_obj_by_obj(obj, roomstr)))
-	{
-		obj_log(obj, "SYSERR: Invalid location in oteleport. Please rewrite trigger.");
-		if (target_obj->get_in_room() != NOWHERE)
-			location = target_obj->get_in_room();
-		else
-			return NOWHERE;
+		location = real_room(tmp);
 	}
 	else
 	{
+		sprintf(buf, "Undefined oteleport room: %s", roomstr);
+		obj_log(obj, buf);
 		return NOWHERE;
 	}
 
@@ -558,6 +547,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (!object)
 		{
 			obj_log(obj, "oload: bad object vnum");
+			return;
 		}
 
 		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0

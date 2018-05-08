@@ -201,7 +201,6 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	//	CharacterAlias::add(dst);
 }
 
-
 void medit_mobile_free(CHAR_DATA * mob)
 /*++
 	Функция полностью освобождает память, занимаемую данными моба.
@@ -2003,7 +2002,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 			break;
 		}
-		if (number > MAX_FEATS
+		if (number >= MAX_FEATS
 			|| number <= 0
 			|| !feat_info[number].name
 			|| *feat_info[number].name == '!')

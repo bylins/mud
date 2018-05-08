@@ -3482,7 +3482,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				pc_duration(victim, 0, level, 1, 0, 0)) * koef_duration;
 		af[0].modifier = -2;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_POISON);
-		af[1].battleflag = AF_SAME_TIME;
+		af[0].battleflag = AF_SAME_TIME;
 
 		af[1].location = APPLY_POISON;
 		af[1].duration = af[0].duration;
@@ -3813,6 +3813,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_VAMPIRE);
 		to_room = "Зрачки $n3 приобрели красный оттенок.";
 		to_vict = "Ваши зрачки приобрели красный оттенок.";
+		break;
+
 	case SPELL_EVILESS:
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].location = APPLY_DAMROLL;
@@ -4778,7 +4780,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 //added by Adept
 	if (spellnum == SPELL_SUMMON_FIREKEEPER)
 	{
-		if (get_effective_cha(ch, SPELL_SUMMON_FIREKEEPER) >= 30)
+		if (get_effective_cha(ch) >= 30)
 		{
 			AFF_FLAGS(mob).set(EAffectFlag::AFF_FIRESHIELD);
 		}
@@ -4787,7 +4789,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			AFF_FLAGS(mob).set(EAffectFlag::AFF_FIREAURA);
 		}
 
-		modifier = VPOSI((int)get_effective_cha(ch, SPELL_SUMMON_FIREKEEPER) - 20, 0, 30);
+		modifier = VPOSI((int)get_effective_cha(ch) - 20, 0, 30);
 
 		GET_DR(mob) = 10 + modifier * 3 / 2;
 		GET_NDD(mob) = 1;
@@ -5057,7 +5059,7 @@ int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnu
 int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int/* savetype*/)
 {
 	OBJ_DATA *reagobj;
-	const char *to_char = NULL, *to_room = NULL;
+	const char *to_char = NULL;
 
 	if (obj == NULL)
 	{
@@ -5244,7 +5246,6 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		}
 		else
 		{
-			to_char = "Этот предмет нельзя восстановить.";
 			return 0;
 		}
 		break;
@@ -5256,14 +5257,12 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			{
 				if (obj_proto.at(GET_OBJ_RNUM(obj))->get_extra_flag(EExtraFlag::ITEM_MAGIC))
 				{
-					to_char = "Не велено!";
 					return 0;
 				}
 				obj->unset_enchant();
 			}
 			else
 			{
-				to_char = "Какая ж тяжкая заставила меня делать работу Богов.";
 				return 0;
 			}
 			to_char = "$o осветил$U на миг внутренним светом и тут же потух$Q.";
@@ -5292,11 +5291,6 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 	else
 	{
 		act(to_char, TRUE, ch, obj, 0, TO_CHAR);
-	}
-
-	if (to_room != NULL)
-	{
-		act(to_room, TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
 	return 1;

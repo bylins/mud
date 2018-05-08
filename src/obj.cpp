@@ -31,6 +31,7 @@
 extern void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
 extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
+extern void extract_trigger(TRIG_DATA* trig);
 
 id_to_set_info_map OBJ_DATA::set_table;
 
@@ -747,7 +748,11 @@ void OBJ_DATA::attach_triggers(const triggers_list_t& trigs)
 		int rnum = real_trigger(*it);
 		if (rnum != -1)
 		{
-			add_trigger(get_script().get(), read_trigger(rnum), -1);
+			auto trig = read_trigger(rnum);
+			if (!add_trigger(get_script().get(), trig, -1))
+			{
+				extract_trigger(trig);
+			}
 		}
 	}
 }

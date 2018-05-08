@@ -70,7 +70,6 @@ struct mob_command_info
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
 extern DESCRIPTOR_DATA *descriptor_list;
-extern room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 extern INDEX_DATA *mob_index;
 
 extern const char *dirs[];
@@ -103,38 +102,29 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 
 //returns the real room number, or NOWHERE if not found or invalid
 //copy from find_target_room except char's messages
-room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig)
+room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr)
 {
-	room_vnum tmp;
-	room_rnum location;
-	CHAR_DATA *target_mob;
-	OBJ_DATA *target_obj;
 	char roomstr[MAX_INPUT_LENGTH];
+	room_rnum location = NOWHERE;
 
 	one_argument(rawroomstr, roomstr);
 
 	if (!*roomstr)
 	{
+		sprintf(buf, "Undefined mteleport room: %s", rawroomstr);
+		mob_log(ch, buf);
 		return NOWHERE;
 	}
 
-	if (a_isdigit(*roomstr) && !strchr(roomstr, '.'))
+	auto tmp = atoi(roomstr);
+	if (tmp > 0)
 	{
-		tmp = atoi(roomstr);
 		location = real_room(tmp);
-	}
-	else if ((target_mob = get_char_vis(ch, roomstr, FIND_CHAR_WORLD)) != NULL)
-	{
-		mob_log(ch, "SYSERR: Invalid location while find_target_room. Please rewrite trigger.");
-		location = target_mob->in_room;
-	}
-	else if ((target_obj = get_obj_vis(ch, roomstr)) != NULL)
-	{
-		mob_log(ch, "SYSERR: Invalid location while find_target_room. Please rewrite trigger.");
-		location = target_obj->get_in_room();
 	}
 	else
 	{
+		sprintf(buf, "Undefined mteleport room: %s", roomstr);
+		mob_log(ch, buf);
 		return NOWHERE;
 	}
 
@@ -210,7 +200,7 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mkill: victim (%s) not found", arg);
+			sprintf(buf, "mkill: victim (%s) not found", arg + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -337,7 +327,7 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mechoaround: victim (%s) does not exist", arg);
+			sprintf(buf, "mechoaround: victim (%s) does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
 		}
@@ -389,7 +379,7 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "msend: victim (%s) does not exist", arg);
+			sprintf(buf, "msend: victim (%s) does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
 		}
@@ -616,7 +606,7 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((location = dg_find_target_room(ch, arg, 1)) == NOWHERE)
+	if ((location = dg_find_target_room(ch, arg)) == NOWHERE)
 	{
 		sprintf(buf, "mgoto: invalid location '%s'", arg);
 		mob_log(ch, buf);
@@ -655,7 +645,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if ((location = dg_find_target_room(ch, arg, 1)) == NOWHERE)
+	if ((location = dg_find_target_room(ch, arg)) == NOWHERE)
 	{
 		sprintf(buf, "mat: invalid location '%s'", arg);
 		mob_log(ch, buf);
@@ -707,10 +697,12 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	target = dg_find_target_room(ch, arg2, 1);
+	target = dg_find_target_room(ch, arg2);
 
 	if (target == NOWHERE)
+	{
 		mob_log(ch, "mteleport target is an invalid room");
+	}
 	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
 	{
 		if (target == ch->in_room)
@@ -750,7 +742,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!(vict = get_char(arg1)))
 			{
-				sprintf(buf, "mteleport: victim (%s) does not exist", arg1);
+				sprintf(buf, "mteleport: victim (%s) does not exist", arg1 + 1);
 				mob_log(ch, buf);
 				return;
 			}
@@ -872,7 +864,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!(victim = get_char(arg)))
 			{
-				sprintf(buf, "mforce: victim (%s) does not exist", arg);
+				sprintf(buf, "mforce: victim (%s) does not exist", arg + 1);
 				mob_log(ch, buf);
 				return;
 			}
@@ -946,7 +938,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mexp: victim (%s) does not exist", name);
+			sprintf(buf, "mexp: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -994,7 +986,7 @@ void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mgold: victim (%s) does not exist", name);
+			sprintf(buf, "mgold: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1052,7 +1044,7 @@ void do_mremember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mremember: victim (%s) does not exist", arg);
+			sprintf(buf, "mremember: victim (%s) does not exist", arg + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1115,7 +1107,7 @@ void do_mforget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mforget: victim (%s) does not exist", arg);
+			sprintf(buf, "mforget: victim (%s) does not exist", arg + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1443,9 +1435,9 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	while ((pos = strchr(featname, '.')))
-		* pos = ' ';
+		*pos = ' ';
 	while ((pos = strchr(featname, '_')))
-		* pos = ' ';
+		*pos = ' ';
 
 	if ((featnum = find_feat_num(featname)) > 0 && featnum < MAX_FEATS)
 		isFeat = 1;
@@ -1475,7 +1467,7 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
+			sprintf(buf, "mfeatturn: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1489,7 +1481,6 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (isFeat)
 		trg_featturn(victim, featnum, featdiff, last_trig_vnum);
-
 }
 
 void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1565,7 +1556,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mskillturn: victim (%s) does not exist", name);
+			sprintf(buf, "mskillturn: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1740,7 +1731,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mspellturn: victim (%s) does not exist", name);
+			sprintf(buf, "mspellturn: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1811,7 +1802,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
+			sprintf(buf, "mspellturntemp: victim (%s) does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
