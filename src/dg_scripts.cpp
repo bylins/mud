@@ -5699,9 +5699,6 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	void obj_command_interpreter(OBJ_DATA* obj, char* argument);
 	void wld_command_interpreter(ROOM_DATA* room, char* argument);
 
-	sprintf(buf, "[%s] %s (VNUM=%d)", mode == TRIG_NEW ? "NEW" : "OLD", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
-	mudlog(buf, BRF, -1, ERRLOG, TRUE);
-
 	if (depth > MAX_SCRIPT_DEPTH)
 	{
 		trig_log(trig, "Triggers recursed beyond maximum allowed depth.");

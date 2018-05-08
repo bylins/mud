@@ -1051,7 +1051,6 @@ void timechange_mtrigger(CHAR_DATA * ch, const int time)
 }
 
 // *  object triggers
-
 void random_otrigger(OBJ_DATA * obj)
 {
 	if (!SCRIPT_CHECK(obj, OTRIG_RANDOM))
@@ -1071,7 +1070,6 @@ void random_otrigger(OBJ_DATA * obj)
 	}
 }
 
-
 void timer_otrigger(OBJ_DATA * obj)
 {
 	if (!SCRIPT_CHECK(obj, OTRIG_TIMER))
@@ -1089,7 +1087,6 @@ void timer_otrigger(OBJ_DATA * obj)
 
 	return;
 }
-
 
 int get_otrigger(OBJ_DATA * obj, CHAR_DATA * actor)
 {
