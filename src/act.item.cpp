@@ -43,14 +43,12 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "char_obj_utils.inl"
-
-#include <boost/array.hpp>
 #include <boost/bind.hpp>
 
 // extern variables
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];
-extern boost::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels;
+extern std::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels;
 // from act.informative.cpp
 char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 

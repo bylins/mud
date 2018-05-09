@@ -93,7 +93,7 @@ struct type_node
 };
 
 // список типов гривен со всеми их параметрами
-boost::array<type_node, TOTAL_TYPES> type_list;
+std::array<type_node, TOTAL_TYPES> type_list;
 
 struct TorcReq
 {

@@ -20,7 +20,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
-#include <boost/array.hpp>
 
 #include <vector>
 #include <list>
@@ -1258,7 +1257,7 @@ class FLAG_DATA
 {
 public:
 	static constexpr size_t PLANES_NUMBER = 4;
-	using flags_t = boost::array<uint32_t, PLANES_NUMBER>;
+	using flags_t = std::array<uint32_t, PLANES_NUMBER>;
 	static constexpr size_t PLANE_SIZE = 8*sizeof(flags_t::value_type) - 2;	// 2 bits spent for plane number
 
 	FLAG_DATA() { clear(); }
@@ -1298,7 +1297,7 @@ public:
 	void gm_flag(const char *subfield, const char * const * const list, char *res);
 
 protected:
-	boost::array<uint32_t, PLANES_NUMBER> m_flags;
+	std::array<uint32_t, PLANES_NUMBER> m_flags;
 };
 
 template <> inline bool FLAG_DATA::get(const uint32_t packed_flag) const { return 0 != (m_flags[packed_flag >> 30] & (packed_flag & 0x3fffffff)); }
@@ -1723,7 +1722,7 @@ struct DESCRIPTOR_DATA
 	unsigned long old_vnum;					// старый внум именной шмотки
     boost::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
     bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
-    boost::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
+    std::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
     boost::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 	bool mxp; // Для MXP
 

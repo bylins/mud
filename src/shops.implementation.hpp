@@ -59,7 +59,7 @@ namespace ShopExt
 		std::string name;
 		std::string description;
 		std::string short_description;
-		boost::array<std::string, 6> PNames;
+		std::array<std::string, 6> PNames;
 		ESex sex;
 		CObjectPrototype::triggers_list_t trigs;
 	};

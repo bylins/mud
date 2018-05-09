@@ -30,8 +30,8 @@ struct track_data
 {
 	int track_info;		// bitvector //
 	int who;			// real_number for NPC, IDNUM for PC //
-	boost::array<int, 6> time_income;	// time bitvector //
-	boost::array<int, 6> time_outgone;
+	std::array<int, 6> time_income;	// time bitvector //
+	std::array<int, 6> time_outgone;
 	struct track_data *next;
 };
 
@@ -68,7 +68,7 @@ struct ROOM_DATA
 	size_t description_num;    // номер описания в глобальном списке
 	char *temp_description; // для олц, пока редактора не будет нормального
 	EXTRA_DESCR_DATA::shared_ptr ex_description;	// for examine/look       //
-	boost::array<exit_data_ptr, NUM_OF_DIRS> dir_option;	// Directions //
+	std::array<exit_data_ptr, NUM_OF_DIRS> dir_option;	// Directions //
 
 	byte light;		// Number of lightsources in room //
 	byte glight;		// Number of lightness person     //

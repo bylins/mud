@@ -13,7 +13,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/array.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -222,7 +221,7 @@ public:
 	using skills_t = std::map<ESkill, int>;
 	using vals_t = std::array<int, VALS_COUNT>;
 	using wear_flags_t = std::underlying_type<EWearFlag>::type;
-	using pnames_t = boost::array<std::string, NUM_PADS>;
+	using pnames_t = std::array<std::string, NUM_PADS>;
 	using triggers_list_t = std::list<obj_vnum>;
 	using triggers_list_ptr = std::shared_ptr<triggers_list_t>;
 	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;

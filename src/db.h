@@ -20,7 +20,6 @@
 #include "structs.h"
 #include "conf.h"	// to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 
-#include <boost/array.hpp>
 #include <map>
 #include <list>
 
@@ -276,7 +275,7 @@ struct ingredient
 {
 	int imtype;
 	std::string imname;
-	boost::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
+	std::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
 };
 
 class MobRace{

@@ -20,7 +20,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
-#include <boost/array.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <list>
@@ -84,9 +83,9 @@ struct glory_olc
 		}
 	};
 
-	boost::array<int, GLORY_TOTAL> stat_cur;
-	boost::array<int, GLORY_TOTAL> stat_add;
-	boost::array<int, GLORY_TOTAL> stat_was;
+	std::array<int, GLORY_TOTAL> stat_cur;
+	std::array<int, GLORY_TOTAL> stat_add;
+	std::array<int, GLORY_TOTAL> stat_was;
 
 	int olc_free_glory;
 	int olc_was_free_glory;

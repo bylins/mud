@@ -15,8 +15,6 @@
 #include "features.hpp"
 #include "conf.h"
 
-#include <boost/array.hpp>
-
 #include <string>
 #include <list>
 #include <iostream>
@@ -75,7 +73,7 @@ struct create_item_type
 	int material_bits;
 	int min_weight;
 	int max_weight;
-	boost::array<int, MAX_PROTO> proto;
+	std::array<int, MAX_PROTO> proto;
 	ESkill skill;
 	std::underlying_type<EWearFlag>::type wear;
 };
@@ -163,7 +161,7 @@ public:
 
 	ESkill skill;
 	int obj_proto;
-	boost::array<ingr_part_type, MAX_PARTS> parts;
+	std::array<ingr_part_type, MAX_PARTS> parts;
 
 	// конструктор деструктор загрузка из строчки.
 	// изготовление рецепта указанным чаром.

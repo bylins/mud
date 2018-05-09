@@ -640,7 +640,6 @@ void clear_mobs_memory(CHAR_DATA *ch)
 	}
 }
 
-
 bool change_rep(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	return false;

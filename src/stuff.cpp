@@ -28,13 +28,11 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/array.hpp>
 extern std::vector<RandomObj> random_objs;
 extern const char *skill_name(int num);
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod);
 extern void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv);
 extern int planebit(const char *str, int *plane, int *bit);
-
 
 void LoadRandomObj(OBJ_DATA *obj)
 {
@@ -186,13 +184,12 @@ obj_rnum ornum_by_info(const std::pair<obj_vnum, obj_load_info>& it)
 
 void generate_book_upgrd(OBJ_DATA *obj)
 {
-	const int skills_count = 11;
-	boost::array<int, skills_count> skill_list = { {
-			SKILL_BACKSTAB, SKILL_PUNCTUAL, SKILL_BASH, SKILL_MIGHTHIT,
-			SKILL_STUPOR, SKILL_ADDSHOT, SKILL_AWAKE, SKILL_NOPARRYHIT,
-			SKILL_WARCRY, SKILL_IRON_WIND, SKILL_STRANGLE} };
+	auto skill_list = make_array<int>(
+		SKILL_BACKSTAB,	SKILL_PUNCTUAL, SKILL_BASH, SKILL_MIGHTHIT,
+		SKILL_STUPOR, SKILL_ADDSHOT, SKILL_AWAKE, SKILL_NOPARRYHIT,
+		SKILL_WARCRY, SKILL_IRON_WIND, SKILL_STRANGLE);
 
-	obj->set_val(1, skill_list[number(0, skills_count - 1)]);
+	obj->set_val(1, skill_list[number(0, static_cast<int>(skill_list.size()) - 1)]);
 	std::string book_name = skill_name(GET_OBJ_VAL(obj, 1));
 
 	obj->set_aliases("книга секретов умения: " + book_name);
@@ -252,96 +249,90 @@ int get_stat_mod(int stat)
 
 void generate_warrior_enchant(OBJ_DATA *obj)
 {
-	const int main_count = 5;
-	boost::array<EApplyLocation, main_count> main_list = { {
-			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL} };
-	const int other_count = 11;
-	boost::array<EApplyLocation, other_count> other_list = { {
-			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
-			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
-			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR} };
+	const auto main_list = make_array<EApplyLocation>(
+		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_AC, APPLY_DAMROLL);
+
+	const auto other_list = make_array<EApplyLocation>(
+		APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
+		APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
+		APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR);
 
 	if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR1_ENCHANT_VNUM)
 	{
-		const auto stat = main_list[number(0, main_count - 1)];
+		const auto stat = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR2_ENCHANT_VNUM)
 	{
-		auto stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
-		stat = other_list[number(0, other_count - 1)];
+		stat = other_list[number(0, static_cast<int>(other_list.size()) - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::WARR3_ENCHANT_VNUM)
 	{
-		auto stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
-		stat = other_list[number(0, other_count - 1)];
+		stat = other_list[number(0, static_cast<int>(other_list.size()) - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 	}
 }
 
 void generate_magic_enchant(OBJ_DATA *obj)
 {
-	const int main_count = 10;
-	boost::array<EApplyLocation, main_count> main_list = { {
-			APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT , APPLY_WIS, APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR} };
-	const int other_count = 15;
-	boost::array<EApplyLocation, other_count> other_list = { {
-			APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
-			APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
-			APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR,
-			APPLY_MANAREG, APPLY_CAST_SUCCESS, APPLY_RESIST_MIND, APPLY_DAMROLL} };
-	const int negativ_count = 7;
-	boost::array<EAffectFlag, other_count> negativ_list =
-	{
-		EAffectFlag::AFF_CURSE,
-		EAffectFlag::AFF_SLEEP,
-		EAffectFlag::AFF_HOLD,
-		EAffectFlag::AFF_SILENCE,
-		EAffectFlag::AFF_CRYING,
-		EAffectFlag::AFF_BLIND,
-		EAffectFlag::AFF_SLOW
-	};
+	const auto main_list = make_array<EApplyLocation>(
+		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT, APPLY_WIS, 
+		APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR);
+
+	const auto other_list = make_array<EApplyLocation>(
+		APPLY_HITROLL, APPLY_SAVING_WILL, APPLY_SAVING_CRITICAL,
+		APPLY_SAVING_STABILITY, APPLY_HITREG, APPLY_SAVING_REFLEX,
+		APPLY_MORALE, APPLY_INITIATIVE, APPLY_ABSORBE, APPLY_AR, APPLY_MR,
+		APPLY_MANAREG, APPLY_CAST_SUCCESS, APPLY_RESIST_MIND, APPLY_DAMROLL
+		);
+
+	const auto negative_list = make_array<EAffectFlag>(
+		EAffectFlag::AFF_CURSE,	EAffectFlag::AFF_SLEEP,	EAffectFlag::AFF_HOLD,
+		EAffectFlag::AFF_SILENCE, EAffectFlag::AFF_CRYING, EAffectFlag::AFF_BLIND,
+		EAffectFlag::AFF_SLOW);
 			
 	if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC1_ENCHANT_VNUM)
 	{
-		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];
+		EAffectFlag affect = negative_list[number(0, static_cast<int>(negative_list.size()) - 1)];
 		set_obj_aff(obj, affect);
 
-		auto effect = main_list[number(0, main_count - 1)];
+		auto effect = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
 		set_obj_eff(obj, effect, get_stat_mod(effect));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC2_ENCHANT_VNUM)
 	{
-		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];
+		EAffectFlag affect = negative_list[number(0, static_cast<int>(negative_list.size()) - 1)];
 		set_obj_aff(obj, affect);
 
-		auto effect = main_list[number(0, main_count - 1)];
+		auto effect = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
 		set_obj_eff(obj, effect, get_stat_mod(effect) * 2);
-		effect = other_list[number(0, other_count - 1)];
+		effect = other_list[number(0, static_cast<int>(other_list.size()) - 1)];
 		set_obj_eff(obj, effect, get_stat_mod(effect));
 	}
 	else if (GET_OBJ_VNUM(obj) == GlobalDrop::MAGIC3_ENCHANT_VNUM)
 	{
-		auto stat = main_list[number(0, main_count - 1)];
+		auto stat = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
 		
-		EAffectFlag affect = negativ_list[number(0, negativ_count - 1)];
+		EAffectFlag affect = negative_list[number(0, static_cast<int>(negative_list.size()) - 1)];
 		set_obj_aff(obj, affect);
 
-		stat = other_list[number(0, other_count - 1)];
+		stat = other_list[number(0, static_cast<int>(other_list.size()) - 1)];
 		set_obj_eff(obj, stat, get_stat_mod(stat));
 		int add_random = number(0, 1);
 		if (add_random == 0)
 		{
-			stat = main_list[number(0, main_count - 1)];
+			stat = main_list[number(0, static_cast<int>(main_list.size()) - 1)];
 			set_obj_eff(obj, stat, get_stat_mod(stat) * 2);
 		}
 		else
 		{
-			stat = other_list[number(0, other_count - 1)];
+			stat = other_list[number(0, static_cast<int>(other_list.size()) - 1)];
 			set_obj_eff(obj, stat, get_stat_mod(stat));
 		};
 	}
