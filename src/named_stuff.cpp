@@ -22,7 +22,6 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
-#include <boost/array.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <list>

@@ -48,7 +48,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/array.hpp>
 #include <boost/format.hpp>
 #include <boost/bind.hpp>
 
