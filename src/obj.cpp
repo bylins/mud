@@ -495,7 +495,7 @@ int CObjectPrototype::get_timer() const
 	return m_timer;
 }
 
- //заколдование предмета
+//заколдование предмета
 void OBJ_DATA::set_enchant(int skill)
 {
     int i = 0;
@@ -529,46 +529,56 @@ void OBJ_DATA::set_enchant(int skill)
        set_affected_modifier(0, 1 + number(-4, 3));
        set_affected_modifier(1, 1 + number(-4, 3));
     }
-    else if (skill >160)
+    else
     // 16 мортов (скил магия света 160+)
     {
        set_affected_modifier(0, 1 + number(-5, 4));
        set_affected_modifier(1, 1 + number(-5, 4));
     }
-    else
-    {
-		// волхвы
-		set_affected_modifier(0, 2);
-		set_affected_modifier(1, 2);
-    };
+
 	set_extra_flag(EExtraFlag::ITEM_MAGIC);
 	set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 }
 
 void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 {
-    int i = 0;
-    int random_drop = 0;
+	const auto negative_list = make_array<EAffectFlag>(
+		EAffectFlag::AFF_CURSE, EAffectFlag::AFF_SLEEP, EAffectFlag::AFF_HOLD,
+		EAffectFlag::AFF_SILENCE, EAffectFlag::AFF_CRYING, EAffectFlag::AFF_BLIND,
+		EAffectFlag::AFF_SLOW);
+
 	//накидываем хитрол и дамрол
     set_enchant(skill);
-	
-	// 4 мортов (скил магия света 100)
-	if (skill <= 100) {} 
-    // 8 мортов (скил магия света 125)
-    else if (skill <= 125) { random_drop = 1; }
-    // 12 мортов (скил магия света 160)
-	else if (skill <= 160) { random_drop = 2; }
-    // 16 мортов (скил магия света 160+)
-    else if (skill >160) { random_drop = 3; }
 
-    i=0;
-    while (i < random_drop)
+	int enchant_count = 0;
+
+    // 8 мортов (скил магия света 125)
+    if (skill > 100 && skill <= 125) 
+	{
+		enchant_count = 1;
+	}
+    // 12 мортов (скил магия света 160)
+	else if (skill <= 160) 
+	{
+		enchant_count = 2;
+	}
+    // 16 мортов (скил магия света 160+)
+	else
+	{
+		enchant_count = 3;
+	}
+
+	for (int i = 0; i < enchant_count; ++i)
 	{
 		if (obj->get_affected(i).location != APPLY_NONE)
 		{
 			set_obj_eff(this, obj->get_affected(i).location, obj->get_affected(i).modifier);
 		}
-		i++;
+	}
+
+	//if (number(0, 3) == 0) //25% negative affect
+	{
+		::set_obj_aff(this, negative_list[number(0, static_cast<int>(negative_list.size() - 1))]);
 	}
 
     add_affect_flags(GET_OBJ_AFFECTS(obj));

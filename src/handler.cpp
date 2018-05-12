@@ -569,7 +569,7 @@ void affect_total(CHAR_DATA * ch)
 		}
 	};
 
-	        // Обработка изворотливости (с) Числобог
+	// Обработка изворотливости (с) Числобог
 	if (can_use_feat(ch, DODGER_FEAT))
 	{
 		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
@@ -599,7 +599,7 @@ void affect_total(CHAR_DATA * ch)
 	// move race and class modifiers
 	if (!IS_NPC(ch))
 	{
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_PLAYER_CLASSES)
+		if ((int)GET_CLASS(ch) >= 0 && (int)GET_CLASS(ch) < NUM_PLAYER_CLASSES)
 		{
 			for (auto i : *class_app[(int)GET_CLASS(ch)].extra_affects)
 			{
@@ -613,10 +613,10 @@ void affect_total(CHAR_DATA * ch)
 		{
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+		GET_DR_ADD(ch) += extra_damroll((int)GET_CLASS(ch), (int)GET_LEVEL(ch));
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))
 		{
-			GET_HITREG(ch) += ((int) GET_LEVEL(ch) + 4) / 5 * 10;
+			GET_HITREG(ch) += ((int)GET_LEVEL(ch) + 4) / 5 * 10;
 		}
 		if (can_use_feat(ch, DARKREGEN_FEAT))
 		{
@@ -699,14 +699,14 @@ void affect_total(CHAR_DATA * ch)
 			obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
 			return;
 		}
-                if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
-                {
-                    send_to_char("Нету лука, нет и стрел.\r\n", ch);
-                    act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
-                    obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
-                    return;
-                }
-        }
+		if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
+		{
+			send_to_char("Нету лука, нет и стрел.\r\n", ch);
+			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+			return;
+		}
+	}
 
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch)) * 2;

@@ -190,6 +190,9 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
 void do_overstuff(CHAR_DATA *ch, char*, int, int);
+
+void generate_magic_enchant(OBJ_DATA *obj);
+
 void save_zone_count_reset()
 {
 	for (int i = 0; i <= top_of_zone_table; ++i)
@@ -3245,6 +3248,13 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 		obj->set_crafter_uid(GET_UNIQUE(ch));
+
+		if (number == GlobalDrop::MAGIC1_ENCHANT_VNUM
+			|| number == GlobalDrop::MAGIC2_ENCHANT_VNUM
+			|| number == GlobalDrop::MAGIC3_ENCHANT_VNUM)
+		{
+			generate_magic_enchant(obj.get());
+		}
 
 		if (load_into_inventory)
 		{

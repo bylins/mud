@@ -680,7 +680,6 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 
 float count_mort_requred(const CObjectPrototype *obj)
 {
-    
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
@@ -688,7 +687,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 	const int AFF_BLINK_MOD = 10;
 
 	result = 0.0;
-	
+
 	if (ObjSystem::is_mob_item(obj)
 		|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 	{
@@ -713,45 +712,45 @@ float count_mort_requred(const CObjectPrototype *obj)
 				return 1000000;
 			}
 		}
-		if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location != APPLY_AC)&&
-			(obj->get_affected(k).location != APPLY_SAVING_WILL)&&
-			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
-			(obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
+		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != APPLY_AC) &&
+			(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
+			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
+			(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
 			(obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
 		{
 			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
 		// савесы которые с минусом должны тогда понижать вес если в +
-		else if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location == APPLY_AC)||
-			(obj->get_affected(k).location == APPLY_SAVING_WILL)||
-			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
-			(obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
+		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
+			(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
+			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
+			(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
 			(obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
 		{
-			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 		//Добавленый кусок учет савесов с - значениями
 		else if ((obj->get_affected(k).modifier < 0)
-			&&((obj->get_affected(k).location == APPLY_AC)||
-			(obj->get_affected(k).location == APPLY_SAVING_WILL)||
-			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
-			(obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
-			(obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+			&& ((obj->get_affected(k).location == APPLY_AC) ||
+			(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
+				(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
+				(obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
+				(obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
 		{
 			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
 		//Добавленый кусок учет отрицательного значения но не савесов
 		else if ((obj->get_affected(k).modifier < 0)
-			&&((obj->get_affected(k).location != APPLY_AC)&&
-			(obj->get_affected(k).location != APPLY_SAVING_WILL)&&
-			(obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
-			(obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
-			(obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+			&& ((obj->get_affected(k).location != APPLY_AC) &&
+			(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
+				(obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
+				(obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
+				(obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
 		{
-			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 	}
@@ -782,12 +781,13 @@ float count_mort_requred(const CObjectPrototype *obj)
 			}
 		}
 	}
-        if (total_weight < 1) return result;
-	
-        result = ceil(pow(total_weight, 1/SQRT_MOD));
+
+	if (total_weight < 1) 
+		return result;
+
+	result = ceil(pow(total_weight, 1 / SQRT_MOD));
 
 	return result;
-    
 }
 
 void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)

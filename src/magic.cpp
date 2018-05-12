@@ -5058,7 +5058,6 @@ int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnu
 
 int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int/* savetype*/)
 {
-	OBJ_DATA *reagobj;
 	const char *to_char = NULL;
 
 	if (obj == NULL)
@@ -5153,10 +5152,12 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		break;
 
 	case SPELL_ENCHANT_WEAPON:
+	{
 		if (ch == NULL || obj == NULL)
 		{
 			return 0;
 		}
+
 		// Either already enchanted or not a weapon.
 		if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON)
 		{
@@ -5167,14 +5168,15 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		{
 			to_char = "Вам не под силу зачаровать магическую вещь.";
 			break;
-		};
+		}
+
 		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		{
 			send_to_char(ch, "Сетовый предмет не может быть заколдован.\r\n");
 			break;
 		}
 
-		reagobj = GET_EQ(ch, WEAR_HOLD);
+		auto reagobj = GET_EQ(ch, WEAR_HOLD);
 		if (reagobj
 			&& (get_obj_in_list_vnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
 				|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
@@ -5201,7 +5203,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
 		}
 		break;
-
+	}
 	case SPELL_REMOVE_POISON:
 		if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1)
 		{

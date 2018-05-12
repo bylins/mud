@@ -3487,9 +3487,7 @@ void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv)
 
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod)
 {
-	int i;
-
-	for (i = 0; i < MAX_OBJ_AFFECT; i++)
+	for (auto i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
 		if (itemobj->get_affected(i).location == type)
 		{
