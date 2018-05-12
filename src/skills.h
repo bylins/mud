@@ -18,8 +18,6 @@
 #include "structs.h"
 #include "pugixml.hpp"
 
-#include <boost/shared_ptr.hpp>
-
 #include <map>
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -253,7 +251,7 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim);
 
 class Skill;
 
-typedef boost::shared_ptr<Skill> SkillPtr;
+typedef std::shared_ptr<Skill> SkillPtr;
 typedef std::map<std::string, SkillPtr> SkillListType;
 
 class Skill

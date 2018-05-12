@@ -26,9 +26,6 @@
 #include "char_obj_utils.inl"
 #include "logger.hpp"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
-
 #include <map>
 #include <list>
 #include <sstream>
@@ -927,9 +924,10 @@ unsigned int get_max_pers_slots(CHAR_DATA *ch)
 */
 std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 {
-	cont.sort(boost::bind(std::less<std::string>(),
-		boost::bind(&OBJ_DATA::get_aliases, _1),
-		boost::bind(&OBJ_DATA::get_aliases, _2)));
+	cont.sort([](OBJ_DATA::shared_ptr lrs, OBJ_DATA::shared_ptr rhs)
+	{
+		return lrs->get_aliases() < rhs->get_aliases();
+	});
 
 	// чтобы сначала вывести шмотки, а потом ингры
 	std::stringstream s_out, i_out;
@@ -1445,8 +1443,11 @@ void CharNode::load_online_objs(int file_type, bool reload)
 		{
 			// собсна сверимся со списком таймеров и проставим изменившиеся данные
 			TimerListType::iterator obj_it = std::find_if(offline_list.begin(), offline_list.end(),
-											 boost::bind(std::equal_to<long>(),
-														 boost::bind(&OfflineNode::uid, _1), GET_OBJ_UID(obj)));
+				[&](const OfflineNode& x)
+			{
+				return x.uid == GET_OBJ_UID(obj);
+			});
+
 			if (obj_it != offline_list.end() && obj_it->vnum == obj->get_vnum())
 			{
 				depot_log("load object %s %d %d", obj->get_short_description().c_str(), GET_OBJ_UID(obj), obj->get_vnum());
@@ -1792,8 +1793,11 @@ void delete_set_item(int uid, int vnum)
 		TimerListType::iterator k = std::find_if(
 			i->second.offline_list.begin(),
 			i->second.offline_list.end(),
-			boost::bind(std::equal_to<long>(),
-				boost::bind(&OfflineNode::vnum, _1), vnum));
+			[&](const OfflineNode& x)
+		{
+			return x.vnum == vnum;
+		});
+
 		if (k != i->second.offline_list.end())
 		{
 			log("[TO] Player %s depot : set-item %d deleted",

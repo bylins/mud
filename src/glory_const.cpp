@@ -17,7 +17,7 @@
 #include "char_player.hpp"
 #include "glory_misc.hpp"
 
-#include <boost/shared_ptr.hpp>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -63,7 +63,7 @@ struct glory_node
 };
 
 // общий список свободной и вложенной славы
-typedef boost::shared_ptr<glory_node> GloryNodePtr;
+typedef std::shared_ptr<glory_node> GloryNodePtr;
 typedef std::map<long /* уид чара */, GloryNodePtr> GloryListType;
 GloryListType glory_list;
 // суммарное списанное в виде комиса кол-во славы
@@ -225,7 +225,7 @@ void print_to_god(CHAR_DATA *ch, CHAR_DATA *god)
 	return;
 }
 
-int add_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
+int add_stat_cost(int stat, std::shared_ptr<GloryConst::glory_olc> olc)
 {
 	if (stat < 0 || stat >= GLORY_TOTAL)
 	{
@@ -239,7 +239,7 @@ int add_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
 	return glory;
 }
 
-int remove_stat_cost(int stat, boost::shared_ptr<GloryConst::glory_olc> olc)
+int remove_stat_cost(int stat, std::shared_ptr<GloryConst::glory_olc> olc)
 {
 	if (stat < 0 || stat >= GLORY_TOTAL)
 	{
@@ -589,7 +589,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		boost::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
+		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
 		tmp_glory_olc->stat_cur[GLORY_STR] = ch->get_inborn_str();
 		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->get_inborn_dex();
 		tmp_glory_olc->stat_cur[GLORY_INT] = ch->get_inborn_int();

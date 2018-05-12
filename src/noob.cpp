@@ -18,8 +18,6 @@
 #include "structs.h"
 #include "conf.h"
 
-#include <boost/lambda/lambda.hpp>
-
 #include <array>
 #include <vector>
 #include <sstream>
@@ -136,7 +134,10 @@ std::string print_start_outfit(CHAR_DATA *ch)
 {
 	std::stringstream out;
 	std::vector<int> tmp(get_start_outfit(ch));
-	for_each(tmp.begin(), tmp.end(), out << boost::lambda::_1 << " ");
+	for (const auto &item : tmp)
+	{
+		out << item << " ";
+	}
 	return out.str();
 }
 

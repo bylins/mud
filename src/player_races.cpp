@@ -8,11 +8,6 @@
 #include "sysdep.h"
 #include "utils.h"
 #include "comm.h"
-//#include "db.h"
-//#include "dg_scripts.h"
-//#include "char.hpp"
-//#include "handler.h"
-
 #include "player_races.hpp"
 #include "pugixml.hpp"
 

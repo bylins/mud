@@ -12,9 +12,6 @@
 #include "conf.h"
 #include "screen.h"
 
-#include <boost/format.hpp>
-#include <boost/bind.hpp>
-
 #include <sstream>
 #include <iomanip>
 #include <string>
@@ -89,10 +86,11 @@ std::string print_class_exp(CHAR_DATA *ch)
 {
 	auto tmp_array = class_exp;
 
-	std::sort(tmp_array.begin(), tmp_array.end(), boost::bind(
-		std::greater<unsigned long long>(),
-		boost::bind(&class_exp_node::exp, _1),
-		boost::bind(&class_exp_node::exp, _2)));
+	std::sort(tmp_array.begin(), tmp_array.end(), 
+		[](const class_exp_node& lhs, const class_exp_node& rhs)
+	{
+		return lhs.exp > rhs.exp;
+	});
 
 	std::string out("\r\nСоотношения набранного с перезагрузки опыта:\r\n");
 	const unsigned long long top_exp = tmp_array.at(0).exp;
@@ -126,10 +124,11 @@ void log_class_exp()
 	log("Saving class exp stats.");
 	auto tmp_array = class_exp;
 
-	std::sort(tmp_array.begin(), tmp_array.end(), boost::bind(
-		std::greater<unsigned long long>(),
-		boost::bind(&class_exp_node::exp, _1),
-		boost::bind(&class_exp_node::exp, _2)));
+	std::sort(tmp_array.begin(), tmp_array.end(), 
+		[](const class_exp_node& lhs, const class_exp_node& rhs)
+	{
+		return lhs.exp > rhs.exp;
+	});
 
 	const unsigned long long top_exp_pct = tmp_array.at(0).exp;
 	for (auto i = tmp_array.cbegin(); i != tmp_array.cend(); ++i)

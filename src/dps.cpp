@@ -12,7 +12,6 @@
 #include "db.h"
 #include "handler.h"
 
-#include <boost/bind.hpp>
 #include <boost/format.hpp>
 
 #include <sstream>
@@ -382,8 +381,10 @@ void Dps::add_battle_exp(int exp)
 CharmListType::iterator PlayerDpsNode::find_charmice(CHAR_DATA *ch)
 {
 	CharmListType::iterator i = std::find_if(charm_list_.begin(), charm_list_.end(),
-			boost::bind(std::equal_to<int>(),
-			boost::bind(&DpsNode::get_id, _1), GET_ID(ch)));
+		[&](const DpsNode& x)
+	{
+		return x.get_id() == GET_ID(ch);
+	});
 
 	if (i != charm_list_.end())
 	{
@@ -452,8 +453,11 @@ void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 			continue;
 		}
 		CharmListType::const_iterator it = std::find_if(charm_list_.begin(), charm_list_.end(),
-				boost::bind(std::equal_to<int>(),
-				boost::bind(&DpsNode::get_id, _1), GET_ID(f->follower)));
+			[&](const DpsNode& dps_node)
+		{
+			return dps_node.get_id() == GET_ID(f->follower);
+		});
+
 		if (it != charm_list_.end() && it->get_dmg() > 0)
 		{
 			sort_node tmp_node(it->get_name(), it->get_stat(), it->get_round_dmg(), it->get_over_dmg());

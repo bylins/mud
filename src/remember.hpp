@@ -26,7 +26,7 @@ struct RememberMsg
 	int level;
 };
 
-typedef boost::shared_ptr <RememberMsg> RememberMsgPtr;
+typedef std::shared_ptr <RememberMsg> RememberMsgPtr;
 typedef std::list<RememberMsgPtr> RememberWiznetListType;
 typedef std::list<std::string> RememberListType;
 

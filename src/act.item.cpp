@@ -43,7 +43,6 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "char_obj_utils.inl"
-#include <boost/bind.hpp>
 
 // extern variables
 extern CHAR_DATA *mob_proto;

@@ -19,7 +19,6 @@
 #include "structs.h"
 
 #include <boost/format.hpp>
-#include <boost/bind.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm/remove_if.hpp>
 
@@ -32,7 +31,6 @@ extern char *help;
 extern const char *weapon_affects[];
 extern const char *no_bits[];
 extern const char *class_name[];
-void index_boot(int mode);
 
 ////////////////////////////////////////////////////////////////////////////////
 namespace PrintActivators
@@ -366,9 +364,11 @@ std::string activators_obj::print()
 		sum_apply(cls_it->second.affected, native_affected);
 		// сортировка для более удобного сравнения статов по распечатке
 		std::sort(cls_it->second.affected.begin(), cls_it->second.affected.end(),
-			boost::bind(std::less<int>(),
-				boost::bind(&obj_affected_type::location, _1),
-				boost::bind(&obj_affected_type::location, _2)));
+			[](const obj_affected_type& lrs, const obj_affected_type& rhs)
+		{
+			return lrs.location < rhs.location;
+		});
+
 		std::string tmp_str;
 		for (std::vector<obj_affected_type>::const_iterator i = cls_it->second.affected.begin(),
 			iend = cls_it->second.affected.end(); i != iend; ++i)
@@ -384,10 +384,12 @@ std::string activators_obj::print()
 		node.afct += print_skills(cls_it->second.skills, true);
 
 		// слияние одинаковых по аффектам проф
-		std::vector<dup_node>::iterator i =
-			std::find_if(dup_list.begin(), dup_list.end(),
-				boost::bind(std::equal_to<std::string>(),
-					boost::bind(&dup_node::afct, _1), node.afct));
+		std::vector<dup_node>::iterator i =	std::find_if(dup_list.begin(), dup_list.end(),
+			[&](const dup_node& x)
+		{
+			return x.afct == node.afct;
+		});
+
 		if (i != dup_list.end())
 		{
 			i->clss += ", " + node.clss;
@@ -710,9 +712,10 @@ void reload(Flags flag)
 		obj_sets::init_xhelp();
 		// итоговая сортировка массива через дефолтное < для строковых ключей
 		std::sort(static_help.begin(), static_help.end(),
-			boost::bind(std::less<std::string>(),
-				boost::bind(&help_node::keyword, _1),
-				boost::bind(&help_node::keyword, _2)));
+			[](const help_node& lrs, const help_node& rhs)
+		{
+			return lrs.keyword < rhs.keyword;
+		});
 		break;
 	case DYNAMIC:
 		dynamic_help.clear();
@@ -721,9 +724,10 @@ void reload(Flags flag)
 		ClanSystem::init_xhelp();
 		need_update = false;
 		std::sort(dynamic_help.begin(), dynamic_help.end(),
-			boost::bind(std::less<std::string>(),
-				boost::bind(&help_node::keyword, _1),
-				boost::bind(&help_node::keyword, _2)));
+			[](const help_node& lrs, const help_node& rhs)
+		{
+			return lrs.keyword < rhs.keyword;
+		});
 		break;
 	default:
 		log("SYSERROR: wrong flag = %d (%s %s %d)", flag, __FILE__, __func__, __LINE__ );
@@ -830,8 +834,10 @@ void UserSearch::search(const std::vector<help_node> &cont)
 	// поиск в сортированном по ключам массиве через lower_bound
 	std::vector<help_node>::const_iterator i =
 		std::lower_bound(cont.begin(), cont.end(), arg_str,
-			boost::bind(std::less<std::string>(),
-				boost::bind(&help_node::keyword, _1), _2));
+			[](const help_node& h, const std::string arg)
+	{
+		return h.keyword < arg;
+	});
 
 	while (i != cont.end())
 	{

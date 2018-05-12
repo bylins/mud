@@ -32,7 +32,6 @@
 #include "conf.h"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
 
 #ifdef _WIN32
 #else
@@ -51,7 +50,7 @@ extern std::string default_str_cities;
 namespace
 {
 
-boost::uint8_t get_day_today()
+uint8_t get_day_today()
 {
 	time_t rawtime;
 	struct tm *timeinfo;
@@ -2070,7 +2069,7 @@ void Player::set_motion(bool flag)
 
 void Player::map_olc()
 {
-	boost::shared_ptr<MapSystem::Options> tmp(new MapSystem::Options);
+	std::shared_ptr<MapSystem::Options> tmp(new MapSystem::Options);
 	this->desc->map_options = tmp;
 
 	*(this->desc->map_options) = map_options_;
@@ -2145,7 +2144,7 @@ void Player::set_ext_money(unsigned type, int num, bool write_log)
 
 int Player::get_today_torc()
 {
-	boost::uint8_t day = get_day_today();
+	uint8_t day = get_day_today();
 	if (today_torc_.first != day)
 	{
 		today_torc_.first = day;
@@ -2157,7 +2156,7 @@ int Player::get_today_torc()
 
 void Player::add_today_torc(int num)
 {
-	boost::uint8_t day = get_day_today();
+	uint8_t day = get_day_today();
 	if (today_torc_.first == day)
 	{
 		today_torc_.second += num;

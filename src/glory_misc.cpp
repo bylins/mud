@@ -16,7 +16,6 @@
 #include "char_player.hpp"
 #include "modify.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <map>
@@ -36,7 +35,7 @@ public:
 	std::string karma;
 };
 
-typedef boost::shared_ptr<GloryLog> GloryLogPtr;
+typedef std::shared_ptr<GloryLog> GloryLogPtr;
 typedef std::multimap<time_t /* время */, GloryLogPtr> GloryLogType;
 // лог манипуляций со славой
 GloryLogType glory_log;

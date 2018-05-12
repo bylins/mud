@@ -11,10 +11,7 @@
 #include "interpreter.h"
 #include "comm.h"
 
-#include <boost/shared_ptr.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/crc.hpp>
-#include <boost/cstdint.hpp>
 
 #include <fstream>
 #include <string>
@@ -29,13 +26,13 @@ class PlayerCRC
 public:
 	PlayerCRC() : player(0), textobjs(0), timeobjs(0) {};
 	std::string name; // имя игрока
-	boost::uint32_t player; // crc .player
-	boost::uint32_t textobjs; // crc .textobjs
-	boost::uint32_t timeobjs; // crc .timeobjs
+	uint32_t player; // crc .player
+	uint32_t textobjs; // crc .textobjs
+	uint32_t timeobjs; // crc .timeobjs
 	// TODO: мб кланы еще
 };
 
-typedef boost::shared_ptr<PlayerCRC> CRCListPtr;
+typedef std::shared_ptr<PlayerCRC> CRCListPtr;
 typedef std::map<long, CRCListPtr> CRCListType;
 const char CRC_UID = '*';
 
@@ -61,7 +58,7 @@ void add_message(const char *text, ...)
 }
 
 // * Подсчет crc для строки.
-boost::uint32_t calculate_str_crc(const std::string &text)
+uint32_t calculate_str_crc(const std::string &text)
 {
 	boost::crc_32_type crc;
 	crc = std::for_each(text.begin(), text.end(), crc);
@@ -69,7 +66,7 @@ boost::uint32_t calculate_str_crc(const std::string &text)
 }
 
 // * Подсчет crc для файла.
-boost::uint32_t calculate_file_crc(const char *name)
+uint32_t calculate_file_crc(const char *name)
 {
 	std::ifstream in(name, std::ios::binary);
 	if (!in.is_open())
@@ -129,7 +126,7 @@ void load()
 	bool checked = false;
 	if ((file >> buffer))
 	{
-		boost::uint32_t prev_crc;
+		uint32_t prev_crc;
 		try
 		{
 			prev_crc = std::stoul(buffer, nullptr, 10);
@@ -140,7 +137,7 @@ void load()
 			return;
 		}
 		stream.clear();
-		const boost::uint32_t crc = calculate_str_crc(stream.str());
+		const uint32_t crc = calculate_str_crc(stream.str());
 		if (crc != prev_crc)
 		{
 			add_message("SYSERROR: несовпадение контрольной суммы файла: %s", file_name);
@@ -173,7 +170,7 @@ void save(bool force_save)
 	}
 
 	// crc32 самого файла пишется ему же в конец
-	const boost::uint32_t crc = calculate_str_crc(out.str());
+	const uint32_t crc = calculate_str_crc(out.str());
 
 	// это все в конце, чтобы не завалить на креше файл
 	const char *file_name = LIB_PLRSTUFF"crc.lst";
@@ -187,7 +184,7 @@ void save(bool force_save)
 	file.close();
 }
 
-void create_message(std::string &name, int mode, const boost::uint32_t& expected, const boost::uint32_t& calculated)
+void create_message(std::string &name, int mode, const uint32_t& expected, const uint32_t& calculated)
 {
 	if(!need_warn)
 	{

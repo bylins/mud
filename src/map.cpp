@@ -16,7 +16,7 @@
 #include "logger.hpp"
 #include "conf.h"
 
-#include <boost/shared_ptr.hpp>
+
 #include <boost/algorithm/string.hpp>
 #include "boost/multi_array.hpp"
 #include <boost/format.hpp>

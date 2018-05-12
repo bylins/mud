@@ -22,6 +22,7 @@
 
 #include <map>
 #include <list>
+#include <memory>
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -286,7 +287,7 @@ public:
 	std::vector<ingredient> ingrlist;
 };
 
-typedef boost::shared_ptr<MobRace> MobRacePtr;
+typedef std::shared_ptr<MobRace> MobRacePtr;
 typedef std::map<int, MobRacePtr> MobRaceListType;
 
 //-Polud

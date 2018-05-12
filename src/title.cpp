@@ -52,7 +52,7 @@ const char* GOD_DO_TITLE_FORMAT =
 const char* TITLE_SEND_FORMAT = "Вы можете бесплатно изменить ее, отправив новую, или отменить командой 'титул отменить'\r\n";
 
 enum { TITLE_FIND_CHAR = 0, TITLE_CANT_FIND_CHAR, TITLE_NEED_HELP };
-typedef boost::shared_ptr<waiting_title> WaitingTitlePtr;
+typedef std::shared_ptr<waiting_title> WaitingTitlePtr;
 typedef std::map<std::string, WaitingTitlePtr> TitleListType;
 TitleListType title_list;
 TitleListType temp_title_list;

@@ -4,7 +4,6 @@
 // комментарий на русском в надежде починить кодировки bitbucket
 
 #include "cache.hpp"
-using namespace boost;
 
 template class caching::Cache<CHAR_DATA*>;
 template<class t>

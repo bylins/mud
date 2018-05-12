@@ -22,8 +22,6 @@
 #include "utils.h"
 #include "conf.h"
 
-#include <boost/algorithm/string.hpp>
-
 #include <cmath>
 #include <sstream>
 #include <memory>

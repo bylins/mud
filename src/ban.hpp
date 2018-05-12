@@ -11,17 +11,12 @@
 #define __BAN_HPP__
 
 #include "conf.h"
+#include "diskio.h"
+
 #include <string>
 #include <list>
 #include <algorithm>
-#include <functional>
 #include <sys/types.h>
-#include <boost/bind.hpp>
-#include <boost/mem_fn.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/tokenizer.hpp>
-
-#include "diskio.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,9 +38,9 @@ struct ProxyBanNode
 };
 
 typedef
-boost::shared_ptr < BanNode > BanNodePtr;
+std::shared_ptr < BanNode > BanNodePtr;
 typedef
-boost::shared_ptr < ProxyBanNode > ProxyBanNodePtr;
+std::shared_ptr < ProxyBanNode > ProxyBanNodePtr;
 
 class BanList
 {

@@ -1,5 +1,4 @@
 #include "celebrates.hpp"
-
 #include "logger.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -15,9 +14,9 @@
 #include "pugixml.hpp"
 #include "backtrace.hpp"
 
-#include <algorithm>
-
 #include <boost/lexical_cast.hpp>
+
+#include <algorithm>
 
 extern void extract_trigger(TRIG_DATA * trig);
 

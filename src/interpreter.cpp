@@ -77,12 +77,7 @@
 #include <boost/format.hpp>
 
 #include <stdexcept>
-
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-
 #include <algorithm>
-#include <stdexcept>
 
 #ifndef WIN32
 #include <sys/socket.h>

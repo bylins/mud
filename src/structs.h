@@ -18,9 +18,6 @@
 #include "boards.types.hpp"
 #include "sysdep.h"
 
-#include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
-
 #include <vector>
 #include <list>
 #include <bitset>
@@ -1708,22 +1705,22 @@ struct DESCRIPTOR_DATA
 	unsigned long ip; // ип адрес в виде числа для внутреннего пользования
 	std::weak_ptr<Boards::Board> board; // редактируемая доска
 	Message::shared_ptr message; // редактируемое сообщение
-	boost::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
-	boost::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
+	std::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
+	std::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
 	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
 	FILE *pers_log; // чтобы не открывать файл на каждую команду чара при персональном логе
-	boost::shared_ptr<class Glory::spend_glory> glory; // вливание славы
-	boost::shared_ptr<GloryConst::glory_olc> glory_const; // вливание славы2
-	boost::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
+	std::shared_ptr<class Glory::spend_glory> glory; // вливание славы
+	std::shared_ptr<GloryConst::glory_olc> glory_const; // вливание славы2
+	std::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
 #if defined WITH_SCRIPTING
-	//boost::shared_ptr<scripting::Console> console;	// Скриптовая консоль
+	//std::shared_ptr<scripting::Console> console;	// Скриптовая консоль
 #endif
 	unsigned long cur_vnum;					// текущий внум именной шмотки
 	unsigned long old_vnum;					// старый внум именной шмотки
-    boost::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
+    std::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
     bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
     std::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
-    boost::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
+    std::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 	bool mxp; // Для MXP
 
 private:

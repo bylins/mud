@@ -9,8 +9,6 @@
 #include "utils.h"
 #include "db.h"
 
-#include <boost/bind.hpp>
-
 #include <map>
 
 std::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels = { { 0 } };
@@ -107,8 +105,10 @@ void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
 
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-			boost::bind(std::equal_to<int>(),
-			boost::bind(&mobmax_data::vnum, _1), vnum));
+		[&](const mobmax_data& data)
+	{
+		return data.vnum == vnum;
+	});
 
 	if (it != mobmax_.end())
 		it->count += count;
@@ -133,8 +133,10 @@ void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 void MobMax::remove(int vnum)
 {
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-			boost::bind(std::equal_to<int>(),
-			boost::bind(&mobmax_data::vnum, _1), vnum));
+		[&](const mobmax_data& data)
+	{
+		return data.vnum == vnum;
+	});
 
 	if (it != mobmax_.end())
 		mobmax_.erase(it);
@@ -144,8 +146,10 @@ void MobMax::remove(int vnum)
 int MobMax::get_kill_count(int vnum) const
 {
 	MobMaxType::const_iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-			boost::bind(std::equal_to<int>(),
-			boost::bind(&mobmax_data::vnum, _1), vnum));
+		[&](const mobmax_data& data)
+	{
+		return data.vnum == vnum;
+	});
 
 	if (it != mobmax_.end())
 		return it->count;

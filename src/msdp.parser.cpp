@@ -4,8 +4,6 @@
 #include "telnet.h"
 #include "logger.hpp"
 
-#include <boost/algorithm/string/classification.hpp>
-
 #include <stdarg.h>
 
 namespace msdp

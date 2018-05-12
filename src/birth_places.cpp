@@ -1,9 +1,6 @@
 // $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
 
-#include <algorithm>
-#include <sstream>
-
 #include "conf.h"
 #include "sysdep.h"
 #include "utils.h"
@@ -11,6 +8,9 @@
 #include "interpreter.h"
 #include "birth_places.hpp"
 #include "pugixml.hpp"
+
+#include <algorithm>
+#include <sstream>
 
 const char *DEFAULT_RENT_HELP = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";
 

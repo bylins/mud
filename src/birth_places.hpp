@@ -18,15 +18,13 @@
 #include "sysdep.h"
 #include "structs.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <pugixml.hpp>
 
 #include <vector>
 
 class BirthPlace;
 
-typedef boost::shared_ptr<BirthPlace> BirthPlacePtr;
+typedef std::shared_ptr<BirthPlace> BirthPlacePtr;
 typedef std::vector<BirthPlacePtr> BirthPlaceListType;
 
 class BirthPlace

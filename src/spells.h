@@ -14,8 +14,6 @@
 #include "skills.h"
 #include "structs.h"	// there was defined type "byte" if it had been missing
 
-#include <boost/tokenizer.hpp>
-
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 #define DEFAULT_STAFF_LVL	12

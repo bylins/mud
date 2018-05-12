@@ -13,9 +13,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/unordered_map.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <array>
 #include <vector>
 #include <string>
@@ -44,7 +41,7 @@ public:
 		POTION_PROTO_VNUM = 6
 	};
 
-	using values_t = boost::unordered_map<EValueKey, int>;
+	using values_t = std::unordered_map<EValueKey, int>;
 	using const_iterator = values_t::const_iterator;
 	const_iterator begin() const { return m_values.begin(); }
 	const_iterator end() const { return m_values.end(); }

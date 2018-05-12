@@ -34,7 +34,7 @@ struct stuff_node
 };
 
 // общий список именного стафа
-typedef boost::shared_ptr<stuff_node> StuffNodePtr;
+typedef std::shared_ptr<stuff_node> StuffNodePtr;
 typedef std::unordered_map<long /* vnum предмета */, StuffNodePtr> StuffListType;
 
 extern StuffListType stuff_list;

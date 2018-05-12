@@ -16,7 +16,6 @@
 #include "structs.h"
 #include "conf.h"
 
-#include <boost/shared_ptr.hpp>
 #include <boost/dynamic_bitset.hpp>
 
 #include <unordered_map>

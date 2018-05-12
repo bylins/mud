@@ -6,6 +6,7 @@
 
 #include <cstdio>
 #include <array>
+#include <functional>
 
 /*
 * Should the game automatically save people?  (i.e., save player data

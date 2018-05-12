@@ -14,7 +14,6 @@
 #include "named_stuff.hpp"
 #include "pk.h"
 
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
