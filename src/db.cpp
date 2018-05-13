@@ -16,6 +16,7 @@
 
 #include "db.h"
 
+#include "global.objects.hpp"
 #include "speedwalks.hpp"
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
@@ -4497,12 +4498,54 @@ void process_celebrates(int vnum)
 // Команда не должна изменить флаг
 #define		FLAG_PERSIST		2
 
-bool handle_zone_Q_command(const mob_rnum rnum)
+class ZoneReset
 {
+public:
+	ZoneReset(const zone_rnum zone) : m_zone_rnum(zone) {}
+
+	void reset();
+
+private:
+	bool handle_zone_Q_command(const mob_rnum rnum);
+
+	// execute the reset command table of a given zone
+	void reset_zone_essential();
+
+	zone_rnum m_zone_rnum;
+};
+
+void ZoneReset::reset()
+{
+	if (GlobalObjects::stats_sender().ready())
+	{
+		utils::CExecutionTimer timer;
+
+		reset_zone_essential();
+
+		const auto execution_time = timer.delta();
+		influxdb::Record record("zone_reset");
+		record.add_tag("pulse", GlobalObjects::heartbeat().pulse_number());
+		record.add_tag("zone", zone_table[m_zone_rnum].number);
+		record.add_field("duration", execution_time.count());
+		GlobalObjects::stats_sender().send(record);
+	}
+	else
+	{
+		reset_zone_essential();
+	}
+}
+
+bool ZoneReset::handle_zone_Q_command(const mob_rnum rnum)
+{
+	utils::CExecutionTimer overall_timer;
 	bool extracted = false;
 
+	utils::CExecutionTimer get_mobs_timer;
 	Characters::list_t mobs;
 	character_list.get_mobs_by_rnum(rnum, mobs);
+	const auto get_mobs_time = get_mobs_timer.delta();
+
+	utils::CExecutionTimer extract_timer;
 	for (const auto& mob : mobs)
 	{
 		if (!MOB_FLAGGED(mob, MOB_RESURRECTED))
@@ -4511,12 +4554,28 @@ bool handle_zone_Q_command(const mob_rnum rnum)
 			extracted = true;
 		}
 	}
+	const auto extract_time = extract_timer.delta();
+
+	const auto execution_time = overall_timer.delta();
+
+	if (GlobalObjects::stats_sender().ready())
+	{
+		influxdb::Record record("Q_command");
+
+		record.add_tag("pulse", GlobalObjects::heartbeat().pulse_number());
+		record.add_tag("zone", zone_table[m_zone_rnum].number);
+		record.add_tag("rnum", rnum);
+
+		record.add_field("duration", execution_time.count());
+		record.add_field("extract", extract_time.count());
+		record.add_field("get_mobs", get_mobs_time.count());
+		GlobalObjects::stats_sender().send(record);
+	}
 
 	return extracted;
 }
 
-// execute the reset command table of a given zone
-void reset_zone(zone_rnum zone)
+void ZoneReset::reset_zone_essential()
 {
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
@@ -4525,13 +4584,14 @@ void reset_zone(zone_rnum zone)
 	int rnum_start, rnum_stop;
 	CHAR_DATA *tmob = NULL;	// for trigger assignment
 	OBJ_DATA *tobj = NULL;	// for trigger assignment
+	const auto zone = m_zone_rnum;	// for ZCMD macro
 
 	int last_state, curr_state;	// статус завершения последней и текущей команды
 
-	log("[Reset] Start zone %s", zone_table[zone].name);
-	repop_decay(zone);	// рассыпание обьектов ITEM_REPOP_DECAY
+	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name);
+	repop_decay(m_zone_rnum);	// рассыпание обьектов ITEM_REPOP_DECAY
 
-	//----------------------------------------------------------------------------
+						//----------------------------------------------------------------------------
 	last_state = 1;		// для первой команды считаем, что все ок
 
 	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
@@ -4555,7 +4615,7 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg3 < FIRST_ROOM)
 				{
 					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
-						mob_index[ZCMD.arg1].vnum, zone_table[zone].number);
+						mob_index[ZCMD.arg1].vnum, zone_table[m_zone_rnum].number);
 					mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 					break;
 				}
@@ -4628,15 +4688,15 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg3 < FIRST_ROOM)
 				{
 					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
-						obj_proto[ZCMD.arg1]->get_vnum(), zone_table[zone].number);
+						obj_proto[ZCMD.arg1]->get_vnum(), zone_table[m_zone_rnum].number);
 					mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 					break;
 				}
 
 				for (cmd_tmp = 0, obj_in_room_max = 0; ZCMD_CMD(cmd_tmp).command != 'S'; cmd_tmp++)
 					if ((ZCMD_CMD(cmd_tmp).command == 'O')
-							&& (ZCMD.arg1 == ZCMD_CMD(cmd_tmp).arg1)
-							&& (ZCMD.arg3 == ZCMD_CMD(cmd_tmp).arg3))
+						&& (ZCMD.arg1 == ZCMD_CMD(cmd_tmp).arg1)
+						&& (ZCMD.arg3 == ZCMD_CMD(cmd_tmp).arg3))
 						obj_in_room_max++;
 				// Теперь считаем склько их на текущей клетке
 				for (obj_room = world[ZCMD.arg3]->contents, obj_in_room = 0; obj_room; obj_room = obj_room->get_next_content())
@@ -4648,8 +4708,8 @@ void reset_zone(zone_rnum zone)
 				}
 				// Теперь грузим обьект если надо
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
+					|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+					|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4)
 					&& (obj_in_room < obj_in_room_max))
@@ -4681,8 +4741,8 @@ void reset_zone(zone_rnum zone)
 				// object to object
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
+					|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+					|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4))
 				{
@@ -4729,8 +4789,8 @@ void reset_zone(zone_rnum zone)
 					break;
 				}
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
+					|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+					|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4))
 				{
@@ -4755,8 +4815,8 @@ void reset_zone(zone_rnum zone)
 					break;
 				}
 				if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->get_max_in_world()
-						|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
-						|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
+					|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
+					|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
 					&& (ZCMD.arg4 <= 0
 						|| number(1, 100) <= ZCMD.arg4))
 				{
@@ -4803,7 +4863,7 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg1 < FIRST_ROOM)
 				{
 					sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
-						obj_proto[ZCMD.arg2]->get_vnum(), zone_table[zone].number);
+						obj_proto[ZCMD.arg2]->get_vnum(), zone_table[m_zone_rnum].number);
 					mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 					break;
 				}
@@ -4825,13 +4885,13 @@ void reset_zone(zone_rnum zone)
 				if (ZCMD.arg1 < FIRST_ROOM)
 				{
 					sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
-						zone_table[zone].number);
+						zone_table[m_zone_rnum].number);
 					mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 					break;
 				}
 
 				if (ZCMD.arg2 < 0 || ZCMD.arg2 >= NUM_OF_DIRS ||
-						(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == NULL))
+					(world[ZCMD.arg1]->dir_option[ZCMD.arg2] == NULL))
 				{
 					ZONE_ERROR("door does not exist, command disabled");
 					ZCMD.command = '*';
@@ -4843,14 +4903,14 @@ void reset_zone(zone_rnum zone)
 					{
 					case 0:
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-								   exit_info, EX_LOCKED);
+							exit_info, EX_LOCKED);
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-								   exit_info, EX_CLOSED);
+							exit_info, EX_CLOSED);
 						break;
 					case 1:
 						SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_CLOSED);
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-								   exit_info, EX_LOCKED);
+							exit_info, EX_LOCKED);
 						break;
 					case 2:
 						SET_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->exit_info, EX_LOCKED);
@@ -4861,7 +4921,7 @@ void reset_zone(zone_rnum zone)
 						break;
 					case 4:
 						REMOVE_BIT(world[ZCMD.arg1]->dir_option[ZCMD.arg2]->
-								   exit_info, EX_HIDDEN);
+							exit_info, EX_HIDDEN);
 						break;
 					}
 					curr_state = 1;
@@ -4966,16 +5026,16 @@ void reset_zone(zone_rnum zone)
 		}
 	}
 
-	if (zone_table[zone].used)
+	if (zone_table[m_zone_rnum].used)
 	{
-		zone_table[zone].count_reset++;
+		zone_table[m_zone_rnum].count_reset++;
 	}
 
-	zone_table[zone].age = 0;
-	zone_table[zone].used = FALSE;
-	process_celebrates(zone_table[zone].number);
+	zone_table[m_zone_rnum].age = 0;
+	zone_table[m_zone_rnum].used = FALSE;
+	process_celebrates(zone_table[m_zone_rnum].number);
 
-	if (get_zone_rooms(zone, &rnum_start, &rnum_stop))
+	if (get_zone_rooms(m_zone_rnum, &rnum_start, &rnum_stop))
 	{
 		ROOM_DATA* room;
 		ROOM_DATA* gate_room;
@@ -4985,7 +5045,7 @@ void reset_zone(zone_rnum zone)
 		{
 			room = world[rnum];
 			reset_wtrigger(room);
-			im_reset_room(room, zone_table[zone].level, zone_table[zone].type);
+			im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			gate_room = OneWayPortal::get_from_room(room);
 			if (gate_room)   // случай врат
 			{
@@ -5006,7 +5066,7 @@ void reset_zone(zone_rnum zone)
 		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
 		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--)
 		{
-			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[zone].number)
+			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[m_zone_rnum].number)
 			{
 				zone_table[rnum_start].typeB_flag[curr_state - 1] = TRUE;
 
@@ -5016,10 +5076,16 @@ void reset_zone(zone_rnum zone)
 	}
 
 	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
-	for (rnum_start = zone_table[zone].typeB_count; rnum_start > 0; rnum_start--)
-		zone_table[zone].typeB_flag[rnum_start - 1] = FALSE;
-	log("[Reset] Stop zone %s", zone_table[zone].name);
-	after_reset_zone(zone);
+	for (rnum_start = zone_table[m_zone_rnum].typeB_count; rnum_start > 0; rnum_start--)
+		zone_table[m_zone_rnum].typeB_flag[rnum_start - 1] = FALSE;
+	log("[Reset] Stop zone %s", zone_table[m_zone_rnum].name);
+	after_reset_zone(m_zone_rnum);
+}
+
+void reset_zone(zone_rnum zone)
+{
+	ZoneReset zreset(zone);
+	zreset.reset();
 }
 
 // Ищет RNUM первой и последней комнаты зоны

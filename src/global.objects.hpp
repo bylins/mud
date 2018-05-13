@@ -8,6 +8,7 @@
 #include "world.objects.hpp"
 #include "world.characters.hpp"
 #include "act.wizard.hpp"
+#include "influxdb.hpp"
 
 class BanList;	// to avoid inclusion of ban.hpp
 
@@ -23,6 +24,7 @@ public:
 	static SetAllInspReqListType& setall_inspect_list();
 	static BanList*& ban();
 	static Heartbeat& heartbeat();
+	static influxdb::Sender& stats_sender();
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__

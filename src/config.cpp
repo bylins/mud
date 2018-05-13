@@ -416,6 +416,8 @@ void StreamConfigLoader::load_umask()
 	}
 }
 
+constexpr unsigned short RuntimeConfiguration::StatisticsConfiguration::DEFAULT_PORT;
+
 void RuntimeConfiguration::load_stream_config(CLogInfo& log, const pugi::xml_node* node)
 {
 	StreamConfigLoader loader(log, node);
@@ -590,6 +592,37 @@ void RuntimeConfiguration::load_external_triggers(const pugi::xml_node* root)
 	}
 }
 
+void RuntimeConfiguration::load_statistics_configuration(const pugi::xml_node* root)
+{
+	const auto statistics = root->child("statistics");
+	if (!statistics)
+	{
+		return;
+	}
+
+	const auto server = statistics.child("server");
+	if (!server)
+	{
+		return;
+	}
+
+	std::string host;
+	const auto host_value = server.child_value("host");
+	if (host_value)
+	{
+		host = host_value;
+	}
+
+	unsigned short port = StatisticsConfiguration::DEFAULT_PORT;
+	const auto port_value = server.child_value("port");
+	if (port_value)
+	{
+		port = static_cast<unsigned short>(std::strtoul(port_value, nullptr, 10));
+	}
+
+	m_statistics = StatisticsConfiguration(host, port);
+}
+
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
 typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t;
 EOutputStream_name_by_value_t EOutputStream_name_by_value;
@@ -752,6 +785,7 @@ void RuntimeConfiguration::load_from_file(const char* filename)
 		load_features_configuration(&root);
 		load_boards_configuration(&root);
 		load_external_triggers(&root);
+		load_statistics_configuration(&root);
 	}
 	catch (const std::exception& e)
 	{

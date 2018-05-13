@@ -18,6 +18,7 @@ namespace
 		InspReqListType inspect_list;
 		BanList* ban;
 		Heartbeat heartbeat;
+		std::shared_ptr<influxdb::Sender> stats_sender;
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -77,6 +78,17 @@ BanList*& GlobalObjects::ban()
 Heartbeat& GlobalObjects::heartbeat()
 {
 	return global_objects().heartbeat;
+}
+
+influxdb::Sender& GlobalObjects::stats_sender()
+{
+	if (!global_objects().stats_sender)
+	{
+		global_objects().stats_sender.reset(new influxdb::Sender(
+			runtime_config.statistics().host(), runtime_config.statistics().port()));
+	}
+
+	return *global_objects().stats_sender;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -489,6 +489,14 @@ void Heartbeat::operator()(const int missed_pulses)
 	}
 
 	m_measurements.add(label, pulse_number(), execution_time.count());
+	
+	if (GlobalObjects::stats_sender().ready())
+	{
+		influxdb::Record record("heartbeat");
+		record.add_tag("pulse", pulse_number());
+		record.add_field("duration", execution_time.count());
+		GlobalObjects::stats_sender().send(record);
+	}
 }
 
 long long Heartbeat::period() const

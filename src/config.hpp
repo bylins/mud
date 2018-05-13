@@ -121,6 +121,21 @@ class RuntimeConfiguration
 public:
 	using logs_t = std::array<CLogInfo, 1 + LAST_LOG>;
 
+	class StatisticsConfiguration
+	{
+	public:
+		static constexpr unsigned short DEFAULT_PORT = 8089;
+
+		StatisticsConfiguration(const std::string& host = "", const unsigned short port = DEFAULT_PORT) : m_host(host), m_port(port) {}
+
+		const auto& host() const { return m_host; }
+		const auto& port() const { return m_port; }
+
+	private:
+		std::string m_host;
+		unsigned short m_port;
+	};
+
 	RuntimeConfiguration();
 
 	void load(const char* filename = CONFIGURATION_FILE_NAME) { load_from_file(filename); }
@@ -143,6 +158,8 @@ public:
 
 	const auto& external_reboot_trigger_file_name() const { return m_external_reboot_trigger_file_name; }
 
+	const auto& statistics() const { return m_statistics; }
+
 private:
 	static const char* CONFIGURATION_FILE_NAME;
 
@@ -159,6 +176,7 @@ private:
 	void load_msdp_configuration(const pugi::xml_node* msdp);
 	void load_boards_configuration(const pugi::xml_node* root);
 	void load_external_triggers(const pugi::xml_node* root);
+	void load_statistics_configuration(const pugi::xml_node* root);
 
 	logs_t m_logs;
 	std::string m_log_stderr;
@@ -169,6 +187,8 @@ private:
 	std::string m_changelog_file_name;
 	std::string m_changelog_format;
 	std::string m_external_reboot_trigger_file_name;
+
+	StatisticsConfiguration m_statistics;
 };
 
 extern RuntimeConfiguration runtime_config;
