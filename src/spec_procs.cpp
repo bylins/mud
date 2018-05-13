@@ -40,7 +40,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "temp_spells.hpp"
-
+#include <cmath>
 #include <boost/algorithm/string.hpp>
 
 #include <string>

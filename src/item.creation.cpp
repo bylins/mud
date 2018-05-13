@@ -31,6 +31,7 @@
 #include "utils.h"
 #include "sysdep.h"
 #include "conf.h"
+#include <cmath>
 
 #define SpINFO   spell_info[spellnum]
 extern int material_value[];

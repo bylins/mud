@@ -20,6 +20,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "features.hpp"
+#include <cmath>
 
 extern void weight_change_object(OBJ_DATA * obj, int weight);
 

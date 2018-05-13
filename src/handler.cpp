@@ -3010,7 +3010,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	log("[Extract char] Start function for char %s", name.c_str());
 	if (!IS_NPC(ch) && !ch->desc)
 	{
-		log("[Extract char] Extract descriptors");
+//		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
 		{
 			if (t_desc->original.get() == ch)
@@ -3021,7 +3021,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 	// Forget snooping, if applicable
-	log("[Extract char] Stop snooping");
+//	log("[Extract char] Stop snooping");
 	if (ch->desc)
 	{
 		if (ch->desc->snooping)
@@ -3039,7 +3039,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 	// transfer equipment to room, if any
-	log("[Extract char] Drop equipment");
+//	log("[Extract char] Drop equipment");
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if (GET_EQ(ch, i))
@@ -3056,7 +3056,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 	// transfer objects to room, if any
-	log("[Extract char] Drop objects");
+//	log("[Extract char] Drop objects");
 	while (ch->carrying)
 	{
 		OBJ_DATA *obj = ch->carrying;
@@ -3075,7 +3075,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		&& ch->followers
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
-		log("[Extract char] Change group leader");
+//		log("[Extract char] Change group leader");
 		change_leader(ch, 0);
 	}
 	else if (IS_NPC(ch)
@@ -3083,11 +3083,11 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		&& !ch->has_master()
 		&& ch->followers)
 	{
-		log("[Extract char] Changing NPC leader");
+//		log("[Extract char] Changing NPC leader");
 		change_npc_leader(ch);
 	}
 
-	log("[Extract char] Die followers");
+//	log("[Extract char] Die followers");
 	if ((ch->followers || ch->has_master())
 		&& die_follower(ch))
 	{
@@ -3095,16 +3095,16 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		return;
 	}
 
-	log("[Extract char] Stop fighting self");
+//	log("[Extract char] Stop fighting self");
 	if (ch->get_fighting())
 	{
 		stop_fighting(ch, TRUE);
 	}
 
-	log("[Extract char] Stop all fight for opponee");
+//	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, TRUE);
 
-	log("[Extract char] Remove char from room");
+//	log("[Extract char] Remove char from room");
 	char_from_room(ch);
 
 	delete_from_tmp_char_list(ch);
@@ -3129,7 +3129,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	const bool is_npc = IS_NPC(ch);
 	if (!is_npc)
 	{
-		log("[Extract char] All save for PC");
+//		log("[Extract char] All save for PC");
 		check_auction(ch, NULL);
 		ch->save_char();
 		//удаляются рент-файлы, если только персонаж не ушел в ренту
@@ -3137,7 +3137,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 	else
 	{
-		log("[Extract char] All clear for NPC");
+//		log("[Extract char] All clear for NPC");
 		if ((GET_MOB_RNUM(ch) > -1)
 			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))	// if mobile и не умертвие
 		{
