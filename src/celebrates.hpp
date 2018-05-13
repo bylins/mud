@@ -1,6 +1,8 @@
 #ifndef CELEBRATES_HPP_INCLUDED
 #define CELEBRATES_HPP_INCLUDED
 
+#include <boost/shared_ptr.hpp>
+
 #include <string>
 #include <vector>
 #include <map>
@@ -16,7 +18,7 @@ const int CLEAN_PERIOD = 10;
 typedef std::vector<int> TrigList;
 struct ToLoad;
 
-typedef std::shared_ptr<ToLoad> LoadPtr;
+typedef boost::shared_ptr<ToLoad> LoadPtr;
 typedef std::vector<LoadPtr> LoadList;
 
 struct ToLoad
@@ -38,7 +40,7 @@ struct CelebrateRoom
 	LoadList objects;
 };
 
-typedef std::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
+typedef boost::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
 typedef std::vector<CelebrateRoomPtr> CelebrateRoomsList;
 typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//номер зоны, список комнат
 
@@ -52,7 +54,7 @@ struct CelebrateData
 	AttachZonList objsToAttach;
 };
 
-typedef std::shared_ptr<CelebrateData> CelebrateDataPtr;
+typedef boost::shared_ptr<CelebrateData> CelebrateDataPtr;
 
 struct CelebrateDay
 {
@@ -63,7 +65,7 @@ struct CelebrateDay
 	CelebrateDataPtr celebrate;
 };
 
-typedef std::shared_ptr<CelebrateDay> CelebrateDayPtr;
+typedef boost::shared_ptr<CelebrateDay> CelebrateDayPtr;
 typedef std::map<int, CelebrateDayPtr> CelebrateList; //номер дня в году, праздник
 
 
