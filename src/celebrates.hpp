@@ -1,11 +1,10 @@
 #ifndef CELEBRATES_HPP_INCLUDED
 #define CELEBRATES_HPP_INCLUDED
 
-#include <boost/shared_ptr.hpp>
-
 #include <string>
 #include <vector>
 #include <map>
+#include <memory>
 
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 class OBJ_DATA;		// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
@@ -18,7 +17,7 @@ const int CLEAN_PERIOD = 10;
 typedef std::vector<int> TrigList;
 struct ToLoad;
 
-typedef boost::shared_ptr<ToLoad> LoadPtr;
+typedef std::shared_ptr<ToLoad> LoadPtr;
 typedef std::vector<LoadPtr> LoadList;
 
 struct ToLoad
@@ -40,7 +39,7 @@ struct CelebrateRoom
 	LoadList objects;
 };
 
-typedef boost::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
+typedef std::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
 typedef std::vector<CelebrateRoomPtr> CelebrateRoomsList;
 typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//номер зоны, список комнат
 
@@ -54,7 +53,7 @@ struct CelebrateData
 	AttachZonList objsToAttach;
 };
 
-typedef boost::shared_ptr<CelebrateData> CelebrateDataPtr;
+typedef std::shared_ptr<CelebrateData> CelebrateDataPtr;
 
 struct CelebrateDay
 {
@@ -65,7 +64,7 @@ struct CelebrateDay
 	CelebrateDataPtr celebrate;
 };
 
-typedef boost::shared_ptr<CelebrateDay> CelebrateDayPtr;
+typedef std::shared_ptr<CelebrateDay> CelebrateDayPtr;
 typedef std::map<int, CelebrateDayPtr> CelebrateList; //номер дня в году, праздник
 
 
