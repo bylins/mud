@@ -1956,8 +1956,6 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	do_sstat_room(rm, ch);
 }
 
-
-
 void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 {
 	int i, found;
@@ -2085,14 +2083,46 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		sprintf(buf2, "%d", room);
 		strcat(buf, buf2);
 	}
-	// NOTE: In order to make it this far, we must already be able to see the
-	//       character holding the object. Therefore, we do not need CAN_SEE().
+
 	strcat(buf, ", В контейнере: ");
-	strcat(buf, (j->get_in_obj() && is_grgod) ? j->get_in_obj()->get_short_description().c_str() : "Нет");
+	if (j->get_in_obj() && is_grgod)
+	{
+		sprintf(buf2, "[%d] %s", GET_OBJ_VNUM(j->get_in_obj()), j->get_in_obj()->get_short_description().c_str());
+		strcat(buf, buf2);
+	}
+	else
+	{
+		strcat(buf, "Нет");
+	}
+
 	strcat(buf, ", В инвентаре: ");
-	strcat(buf, (j->get_carried_by() && is_grgod) ? GET_NAME(j->get_carried_by()) : "Нет");
+	if (j->get_carried_by() && is_grgod)
+	{
+		strcat(buf, GET_NAME(j->get_carried_by()));
+	}
+	else if (j->get_in_obj() && j->get_in_obj()->get_carried_by() && is_grgod)
+	{
+		strcat(buf, GET_NAME(j->get_in_obj()->get_carried_by()));
+	}
+	else
+	{
+		strcat(buf, "Нет");
+	}
+
 	strcat(buf, ", Надет: ");
-	strcat(buf, (j->get_worn_by() && is_grgod) ? GET_NAME(j->get_worn_by()) : "Нет");
+	if (j->get_worn_by() && is_grgod)
+	{
+		strcat(buf, GET_NAME(j->get_worn_by()));
+	}
+	else if (j->get_in_obj() && j->get_in_obj()->get_worn_by() && is_grgod)
+	{
+		strcat(buf, GET_NAME(j->get_in_obj()->get_worn_by()));
+	}
+	else
+	{
+		strcat(buf, "Нет");
+	}
+
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
