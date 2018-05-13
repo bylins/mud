@@ -210,7 +210,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 		// пока там ничего кроме заклов и нет - копируем весь values
 		if (tmp.get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0)
 		{
-			obj->set_values(tmp.get_values());
+			obj->set_values(tmp.get_all_values());
 		}
 	}
 	if (tmp.get_extra_flag(EExtraFlag::ITEM_TICKTIMER))//если у старого объекта запущен таймер

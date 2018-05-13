@@ -10,8 +10,6 @@
 #include "interpreter.h"
 #include "char_player.hpp"
 
-#include <boost/bind.hpp>
-
 #include <string>
 #include <map>
 #include <vector>
@@ -80,7 +78,10 @@ void sum_apply(T &l, const N &r)
 		}
 
 		auto li = std::find_if(l.begin(), l.end(),
-			boost::bind(&obj_affected_type::location, _1) == ri->location);
+			[&](const auto& obj_aff)
+		{
+			return obj_aff.location == ri->location;
+		});
 
 		if (li != l.end())
 		{

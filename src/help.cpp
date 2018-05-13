@@ -430,7 +430,7 @@ std::string print_fullset_stats(const set_info &set)
 		// суммируем родные статы со шмоток
 		activ.native_no_flag += GET_OBJ_NO(obj);
 		activ.native_affects += GET_OBJ_AFFECTS(obj);
-		sum_apply(activ.native_affected, obj->get_affected());
+		sum_apply(activ.native_affected, obj->get_all_affected());
 		sum_skills(activ.native_skills, obj.get());
 
 		// иним профы

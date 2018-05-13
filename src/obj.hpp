@@ -276,7 +276,6 @@ public:
 	bool init_values_from_file(const char* str) { return m_values.init_from_file(str); }
 	const auto& get_action_description() const { return m_action_description; }
 	const auto& get_affect_flags() const { return m_waffect_flags; }
-	const auto& get_affected() const { return m_affected; }
 	const auto& get_affected(const size_t index) const { return m_affected[index]; }
 	const auto& get_aliases() const { return m_aliases; }
 	const auto& get_all_affected() const { return m_affected; }
@@ -288,7 +287,6 @@ public:
 	const auto& get_no_flags() const { return m_no_flags; }
 	const auto& get_proto_script() const { return *m_proto_script; }
 	const auto& get_proto_script_ptr() const { return m_proto_script; }
-	const auto& get_values() const { return m_values; }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
 	const std::string& get_short_description() const { return m_short_description; }
 	void add_affect_flags(const FLAG_DATA& flags) { m_waffect_flags += flags; }
