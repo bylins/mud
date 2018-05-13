@@ -20,6 +20,8 @@ namespace craft
 	/// Contains handlers of craft subcommands
 	namespace cmd
 	{
+		const char* CRAFT_COMMAND = "craft";
+
 		namespace
 		{
 			using namespace commands::utils;
