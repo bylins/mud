@@ -548,11 +548,8 @@ void RuntimeConfiguration::setup_logs()
 
 	setup_converters();
 
-	if (output_thread())
-	{
-		printf("Bylins server will use %schronous output into syslog file.\n",
-			output_thread() ? "asyn" : "syn");
-	}
+	printf("Bylins server will use %schronous output into syslog file.\n",
+		output_thread() ? "asyn" : "syn");
 }
 
 void RuntimeConfiguration::load_msdp_configuration(const pugi::xml_node* msdp)

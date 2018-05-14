@@ -75,7 +75,7 @@ void vlog(const char *format, va_list args)
 	}
 
 	if (!runtime_config.output_thread()
-		&& !runtime_config.log_stderr().empty())
+		&& runtime_config.log_stderr().empty())
 	{
 		const time_t ct = time(0);
 		const char *time_s = asctime(localtime(&ct));
