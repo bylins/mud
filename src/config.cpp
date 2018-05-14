@@ -488,7 +488,7 @@ void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node* root
 	if (separate_thread_node)
 	{
 		m_output_thread = true;
-		const auto queue_size_node = separate_thread_node.child("queueu_size");
+		const auto queue_size_node = separate_thread_node.child("queue_size");
 		const auto queue_size_string = queue_size_node.child_value();
 		const auto queue_size = std::strtoul(queue_size_string, nullptr, 10);
 		if (0 < queue_size)
@@ -547,6 +547,12 @@ void RuntimeConfiguration::setup_logs()
 	}
 
 	setup_converters();
+
+	if (output_thread())
+	{
+		printf("Bylins server will use %schronous output into syslog file.\n",
+			output_thread() ? "asyn" : "syn");
+	}
 }
 
 void RuntimeConfiguration::load_msdp_configuration(const pugi::xml_node* msdp)
