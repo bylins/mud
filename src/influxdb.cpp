@@ -3,6 +3,16 @@
 #include "logger.hpp"
 #include "sysdep.h"
 
+#ifndef WIN32
+#include <netinet/in.h>
+#include <netdb.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+
+constexpr int INVALID_SOCKET = -1;
+constexpr int SOCKET_ERROR = -1;
+#endif
+
 #include <chrono>
 
 namespace influxdb
@@ -20,7 +30,7 @@ namespace influxdb
 		int m_port;
 
 		socket_t m_socket;
-		sockaddr_in m_addr;
+		struct sockaddr_in m_addr;
 	};
 
 	SenderImpl::SenderImpl(const std::string& host, const unsigned short port) :
@@ -48,7 +58,7 @@ namespace influxdb
 		}
 		else
 		{
-			log("SYSERR: failed to resolve server name '%s'. Turning sending statistics off.\n", m_host);
+			log("SYSERR: failed to resolve server name '%s'. Turning sending statistics off.\n", m_host.c_str());
 			m_host.clear();
 		}
 

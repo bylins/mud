@@ -4090,18 +4090,24 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	//Напоминаем о метке, если она есть.
     ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
     if (label_room)
+	{
         sprintf(buf + strlen(buf),
                 "&G&qВы поставили рунную метку в комнате '%s'.&Q&n\r\n",
                 string(label_room->name).c_str());
+	}
 
 	int glory = Glory::get_glory(GET_UNIQUE(ch));
 	if (glory)
+	{
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s славы.\r\n",
 				glory, desc_count(glory, WHAT_POINT));
+	}
 	glory = GloryConst::get_glory(GET_UNIQUE(ch));
 	if (glory)
+	{
 		sprintf(buf + strlen(buf), "Вы заслужили %d %s постоянной славы.\r\n",
 				glory, desc_count(glory, WHAT_POINT));
+	}
 
 	playing_time = *real_time_passed((time(0) - ch->player_data.time.logon) + ch->player_data.time.played, 0);
 	sprintf(buf + strlen(buf), "Вы играете %d %s %d %s реального времени.\r\n",
@@ -4411,8 +4417,10 @@ void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				if (i==18)
 				    continue;
 			    if (GET_EQ(ch, 11))
-				if ((i==17) || (i==18))
-				    continue;
+				{
+					if ((i==17) || (i==18))
+						continue;
+				}
 				send_to_char(where[i], ch);
 				sprintf(buf, "%s[ Ничего ]%s\r\n", CCINRM(ch, C_NRM), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);

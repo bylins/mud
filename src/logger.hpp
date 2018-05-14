@@ -7,6 +7,7 @@
 #include <list>
 #include <string>
 #include <atomic>
+#include <thread>
 
 extern FILE *logfile;
 

@@ -307,9 +307,14 @@ int PlayerRace::CheckRace(int KinNum, char *arg)
     if (!RaceNum || (RaceNum < 1) ||
         (RaceNum > PlayerRace::PlayerKinList[KinNum]->PlayerRaceList.size()) ||
         !PlayerKinList[KinNum]->PlayerRaceList[RaceNum-1]->_Enabled)
+	{
         return RACE_UNDEFINED;
+	}
+
 	if ((KinNum > RACE_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size()))
+	{
         return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum-1]->_RaceNum;
+	}
 
     return RACE_UNDEFINED;
 };

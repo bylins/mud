@@ -870,8 +870,10 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 		if (world[ch->in_room]->portal_time)
 		{
 			if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time)
+			{
 				decay_portal(world[ch->in_room]->portal_room);
-				decay_portal(ch->in_room);
+			}
+			decay_portal(ch->in_room);
 		}
 
 

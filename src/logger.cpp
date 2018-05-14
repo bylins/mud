@@ -20,7 +20,7 @@ void log(const char *format, ...)
 	va_end(args);
 }
 
-std::size_t vlog_buffer(char* buffer, const int buffer_size, const char* format, va_list args)
+std::size_t vlog_buffer(char* buffer, const std::size_t buffer_size, const char* format, va_list args)
 {
 	std::size_t result = ~0u;
 

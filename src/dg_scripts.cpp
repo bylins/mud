@@ -139,7 +139,8 @@ void script_log(const char *msg, const int type)
 	char* pos = tmpbuf;
 	while (*pos != '\0')
 	{
-		*pos++ = uid_replace_table[reinterpret_cast<unsigned char&>(*pos)];
+		*pos = uid_replace_table[static_cast<unsigned char>(*pos)];
+		++pos;
 	}
 
 	log("%s", tmpbuf);
@@ -843,7 +844,7 @@ void script_trigger_check()
 		}
 	});
 
-	for (size_t nr = FIRST_ROOM; nr <= top_of_world; nr++)
+	for (std::size_t nr = FIRST_ROOM; nr <= static_cast<std::size_t>(top_of_world); nr++)
 	{
 		if (SCRIPT(world[nr])->has_triggers())
 		{
@@ -891,7 +892,7 @@ void script_timechange_trigger_check(const int time)
 		}
 	});
 
-	for (size_t nr = FIRST_ROOM; nr <= top_of_world; nr++)
+	for (std::size_t nr = FIRST_ROOM; nr <= static_cast<std::size_t>(top_of_world); nr++)
 	{
 		if (SCRIPT(world[nr])->has_triggers())
 		{
