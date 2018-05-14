@@ -82,6 +82,7 @@ TEST(Utils_Editor_DelegatedStringWriter, Set)
 
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_STRING));
 	EXPECT_EQ(0, strcmp(string, SAMPLE_STRING));
+	free(string);
 }
 
 TEST(Utils_Editor_StdStringWriter, Set)
@@ -100,6 +101,7 @@ TEST(Utils_Editor_DelegatedStringWriter, AppendToEmpty)
 
 	const auto equality = strcmp(writer->get_string(), SAMPLE_STRING);
 	EXPECT_EQ(0, equality);
+	free(string);
 }
 
 TEST(Utils_Editor_StdStringWriter, AppendToEmpty)
@@ -119,6 +121,7 @@ TEST(Utils_Editor_DelegatedStringWriter, Append)
 	writer->append_string(SAMPLE_STRING);
 
 	EXPECT_EQ(0, strcmp(writer->get_string(), DOUBLE_SAMPLE_STRING));
+	free(string);
 }
 
 TEST(Utils_Editor_StdStringWriter, Append)
@@ -137,6 +140,7 @@ TEST(Utils_Editor_DelegatedStringWriter, Length)
 	writer->set_string(SAMPLE_STRING);
 
 	EXPECT_EQ(strlen(SAMPLE_STRING), writer->length());
+	free(string);
 }
 
 TEST(Utils_Editor_StdStringWriter, Length)
@@ -168,6 +172,7 @@ TEST(Utils_Editor_DelegatedStringWriter, ReplaceOne)
 	const auto replace_result4 = replace_str(writer, PIECE_D_OLD, PIECE_D_NEW, 0, MAX_STRING_LENGTH);
 	EXPECT_EQ(1, replace_result4);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_PIECE_R4));
+	free(string);
 }
 
 TEST(Utils_Editor_StdStringWriter, ReplaceOne)
@@ -201,6 +206,7 @@ TEST(Utils_Editor_DelegatedStringWriter, ReplaceMany)
 
 	EXPECT_EQ(SAMPLE_NUMBERS_SUBSTRINGS_COUNT, result);
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_NUMBERS_PIECE_R1));
+	free(string);
 }
 
 TEST(Utils_Editor_StdStringWriter, ReplaceMany)
@@ -224,6 +230,7 @@ TEST(Utils_Editor_DelegatedStringWriter, ReplaceManyOverflow)
 	EXPECT_EQ(-1, result);
 	EXPECT_EQ(expected_result_length, writer->length());
 	EXPECT_EQ(0, strcmp(writer->get_string(), SAMPLE_NUMBERS_PIECE));
+	free(string);
 }
 
 TEST(Utils_Editor_StdStringWriter, ReplaceManyOverflow)

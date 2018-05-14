@@ -630,6 +630,14 @@ void CHAR_DATA::purge()
 	}
 	name_.clear();
 	short_descr_.clear();
+
+	auto follower = followers;
+	while (follower)
+	{
+		const auto next_one = follower->next;
+		free(follower);
+		follower = next_one;
+	}
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
