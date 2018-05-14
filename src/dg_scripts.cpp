@@ -2083,7 +2083,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(var, "random"))
 		{
-			if (!str_cmp(field, "char") || !str_cmp(field, "pc") || !str_cmp(field, "npc"))
+			if (!str_cmp(field, "char") 
+				|| !str_cmp(field, "pc") 
+				|| !str_cmp(field, "npc") 
+				|| !str_cmp(field, "all"))
 			{
 				rndm = NULL;
 				count = 0;
@@ -2092,11 +2095,17 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					ch = (CHAR_DATA *) go;
 					for (const auto c : world[ch->in_room]->people)
 					{
-						if (!GET_INVIS_LEV(c)
-							&& (c != ch)
-							&& CAN_SEE(ch, c)
-							&& ((IS_NPC(c) && *field != 'p')
-								|| (!IS_NPC(c) && *field != 'n')))
+						if (GET_INVIS_LEV(c)
+							|| (c == ch)
+							|| !CAN_SEE(ch, c))
+						{
+							continue;
+						}
+
+						if((*field == 'a')
+							|| (*field == 'p' && !IS_NPC(c))
+							|| (*field == 'n' && IS_NPC(c) && !IS_CHARMED(c))
+							|| (*field == 'c' && (!IS_NPC(c) || IS_CHARMED(c))))
 						{
 							if (!number(0, count))
 							{
@@ -2111,10 +2120,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					for (const auto c : world[obj_room((OBJ_DATA *) go)]->people)
 					{
-						if ((IS_NPC(c) && *field != 'p')
-							|| (!IS_NPC(c)
-								&& *field != 'n'
-								&& !GET_INVIS_LEV(c)))
+						if (!GET_INVIS_LEV(c)
+							|| (*field == 'p' && !IS_NPC(c))
+							|| (*field == 'n' && IS_NPC(c) && !IS_CHARMED(c))
+							|| (*field == 'c' && (!IS_NPC(c) || IS_CHARMED(c))))
 						{
 							if (!number(0, count))
 							{
@@ -2129,10 +2138,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					for (const auto c : ((ROOM_DATA *) go)->people)
 					{
-						if ((IS_NPC(c) && *field != 'p')
-							|| (!IS_NPC(c)
-								&& *field != 'n'
-								&& !GET_INVIS_LEV(c)))
+						if (!GET_INVIS_LEV(c)
+							|| (*field == 'p' && !IS_NPC(c))
+							|| (*field == 'n' && IS_NPC(c) && !IS_CHARMED(c))
+							|| (*field == 'c' && (!IS_NPC(c) || IS_CHARMED(c))))
 						{
 							if (!number(0, count))
 							{
