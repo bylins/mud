@@ -2120,7 +2120,12 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					for (const auto c : world[obj_room((OBJ_DATA *) go)]->people)
 					{
-						if (!GET_INVIS_LEV(c)
+						if (GET_INVIS_LEV(c))
+						{
+							continue;
+						}
+
+						if ((*field == 'a')
 							|| (*field == 'p' && !IS_NPC(c))
 							|| (*field == 'n' && IS_NPC(c) && !IS_CHARMED(c))
 							|| (*field == 'c' && (!IS_NPC(c) || IS_CHARMED(c))))
@@ -2138,7 +2143,12 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					for (const auto c : ((ROOM_DATA *) go)->people)
 					{
-						if (!GET_INVIS_LEV(c)
+						if (GET_INVIS_LEV(c))
+						{
+							continue;
+						}
+
+						if ((*field == 'a')
 							|| (*field == 'p' && !IS_NPC(c))
 							|| (*field == 'n' && IS_NPC(c) && !IS_CHARMED(c))
 							|| (*field == 'c' && (!IS_NPC(c) || IS_CHARMED(c))))
