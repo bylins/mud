@@ -1,6 +1,7 @@
 #ifndef __CONFIG_HPP__
 #define __CONFIG_HPP__
 
+#include "blocking.queue.hpp"
 #include "birth_places.hpp"
 #include "structs.h"
 
@@ -136,6 +137,8 @@ public:
 		unsigned short m_port;
 	};
 
+	static constexpr std::size_t OUTPUT_QUEUE_SIZE = 256;
+
 	RuntimeConfiguration();
 
 	void load(const char* filename = CONFIGURATION_FILE_NAME) { load_from_file(filename); }
@@ -143,6 +146,9 @@ public:
 	const CLogInfo& logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
 	void handle(const EOutputStream stream, FILE * handle);
 	const std::string& log_stderr() { return m_log_stderr; }
+	auto output_thread() const { return m_output_thread; }
+	auto output_queue_size() const { return m_output_queue_size; }
+
 	void setup_logs();
 	const auto syslog_converter() const { return m_syslog_converter; }
 
@@ -180,6 +186,8 @@ private:
 
 	logs_t m_logs;
 	std::string m_log_stderr;
+	bool m_output_thread;
+	std::size_t m_output_queue_size;
 	converter_t m_syslog_converter;
 	bool m_logging_enabled;
 	bool m_msdp_disabled;

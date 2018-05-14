@@ -1,5 +1,6 @@
 #include "celebrates.hpp"
 
+#include "global.objects.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -23,16 +24,15 @@ extern void extract_trigger(TRIG_DATA * trig);
 
 namespace Celebrates
 {
-typedef std::map<long, CHAR_DATA *> CelebrateMobs;
-typedef std::map<long, OBJ_DATA *> CelebrateObjs;
-	
 int tab_day [12]= {31,28,31,30,31,30,31,31,30,31,30,31};//да и хрен с ним, с 29 февраля!
 
-CelebrateList mono_celebrates, poly_celebrates, real_celebrates;
-CelebrateMobs attached_mobs;
-CelebrateMobs loaded_mobs;
-CelebrateObjs attached_objs;
-CelebrateObjs loaded_objs;
+CelebrateList& mono_celebrates = GlobalObjects::mono_celebrates();
+CelebrateList& poly_celebrates = GlobalObjects::poly_celebrates();
+CelebrateList& real_celebrates = GlobalObjects::real_celebrates();
+CelebrateMobs& attached_mobs = GlobalObjects::attached_mobs();
+CelebrateMobs& loaded_mobs = GlobalObjects::loaded_mobs();
+CelebrateObjs& attached_objs = GlobalObjects::attached_objs();
+CelebrateObjs& loaded_objs = GlobalObjects::loaded_objs();
 
 using CelebrateMobs_list = std::list<CelebrateMobs::mapped_type>;
 void make_CelebratedMobs_list_from_CelebrateMobs(const CelebrateMobs& input, CelebrateMobs_list& result)

@@ -1,5 +1,6 @@
 #include "logger.hpp"
 
+#include "global.objects.hpp"
 #include "config.hpp"
 #include "screen.h"
 #include "comm.h"
@@ -19,10 +20,42 @@ void log(const char *format, ...)
 	va_end(args);
 }
 
-/*
-* New variable argument log() function.  Works the same as the old for
-* previously written code but is very nice for new code.
-*/
+std::size_t vlog_buffer(char* buffer, const int buffer_size, const char* format, va_list args)
+{
+	std::size_t result = ~0u;
+
+	const time_t ct = time(0);
+	const char *time_s = asctime(localtime(&ct));
+
+	const int timestamp_length = snprintf(buffer, buffer_size, "%-15.15s :: ", time_s + 4);
+
+	if (0 > timestamp_length)
+	{
+		puts("SYSERR: failed to print timestamp inside log() function.");
+		return result;
+	}
+
+	va_list args_copy;
+	va_copy(args_copy, args);
+	const int length = vsnprintf(buffer + timestamp_length, buffer_size - timestamp_length, format, args_copy);
+	va_end(args_copy);
+
+	if (0 > length)
+	{
+		puts("SYSERR: failed to print message contents inside log() function.");
+		return result;
+	}
+
+	result = timestamp_length + length;
+	if (buffer_size <= result)
+	{
+		const char truncated_suffix[] = "[TRUNCATED]";
+		snprintf(buffer, buffer_size - sizeof(truncated_suffix), "%s", truncated_suffix);
+	}
+
+	return result;
+}
+
 void vlog(const char *format, va_list args)
 {
 	if (!runtime_config.logging_enabled())
@@ -41,45 +74,22 @@ void vlog(const char *format, va_list args)
 		format = "SYSERR: log() received a NULL format.";
 	}
 
-	time_t ct = time(0);
-	char *time_s = asctime(localtime(&ct));
-
-	time_s[strlen(time_s) - 1] = '\0';
-	fprintf(logfile, "%-15.15s :: ", time_s + 4);
-
-	if (!runtime_config.log_stderr().empty())
+	if (!runtime_config.output_thread()
+		&& !runtime_config.log_stderr().empty())
 	{
-		fprintf(stderr, "%-15.15s :: ", time_s + 4);
-		const size_t BUFFER_SIZE = 4096;
-		char buffer[BUFFER_SIZE];
-		char* p = buffer;
+		const time_t ct = time(0);
+		const char *time_s = asctime(localtime(&ct));
 
-		va_list args_copy;
-		va_copy(args_copy, args);
-		const size_t length = vsnprintf(p, BUFFER_SIZE, format, args_copy);
-		va_end(args_copy);
-
-		if (BUFFER_SIZE <= length)
-		{
-			fputs("TRUNCATED: ", stderr);
-			p[BUFFER_SIZE - 1] = '\0';
-		}
-
-		const auto syslog_converter = runtime_config.syslog_converter();
-		if (syslog_converter)
-		{
-			syslog_converter(buffer, static_cast<int>(length));
-		}
-
-		fputs(p, stderr);
+		fprintf(logfile, "%-15.15s :: ", time_s + 4);
+		vfprintf(logfile, format, args);
+		fprintf(logfile, "\n");
 	}
-
-	vfprintf(logfile, format, args);
-	fprintf(logfile, "\n");
-
-	if (!runtime_config.log_stderr().empty())
+	else
 	{
-		fprintf(stderr, "\n");
+		constexpr std::size_t BUFFER_SIZE = 4096;
+		std::shared_ptr<char> buffer(new char[BUFFER_SIZE], [](char* p) { delete[] p; });
+		const std::size_t length = vlog_buffer(buffer.get(), BUFFER_SIZE, format, args);
+		GlobalObjects::output_thread().output(OutputThread::message_t(buffer, length));
 	}
 }
 
@@ -329,7 +339,7 @@ void Logger::operator()(const char* format, ...)
 
 	if (free_space <= length)
 	{
-		const char truncated[] = " ...<TRUNCATED>\n";
+		const char truncated[] = "[TRUNCATED]\n";
 		strncpy(buffer + BUFFER_SIZE - sizeof(truncated), truncated, sizeof(truncated));
 	}
 
@@ -348,6 +358,51 @@ void Logger::operator()(const char* format, ...)
 		}
 
 		std::cerr << buffer;
+	}
+}
+
+OutputThread::OutputThread(const std::size_t queue_size) :
+	m_output_queue(queue_size),
+	m_destroying(false)
+{
+	m_thread.reset(new std::thread(&OutputThread::output_loop, this));
+}
+
+OutputThread::~OutputThread()
+{
+	m_destroying = true;
+	m_output_queue.destroy();
+
+	m_thread->join();
+}
+
+namespace
+{
+	void output_message(const char* message, FILE* file)
+	{
+		fputs(message, file);
+		fputs("\n", file);
+	}
+}
+
+void OutputThread::output_loop()
+{
+	while (!m_destroying)
+	{
+		message_t message;
+		if (m_output_queue.pop(message))
+		{
+			if (!runtime_config.log_stderr().empty())
+			{
+				const auto syslog_converter = runtime_config.syslog_converter();
+				if (syslog_converter)
+				{
+					syslog_converter(message.first.get(), static_cast<int>(message.second));
+				}
+			}
+
+			output_message(message.first.get(), logfile);
+		}
 	}
 }
 

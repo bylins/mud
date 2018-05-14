@@ -1,6 +1,9 @@
 #ifndef __GLOBAL_OBJECTS_HPP__
 #define __GLOBAL_OBJECTS_HPP__
 
+#include "pk.h"
+#include "celebrates.hpp"
+#include "logger.hpp"
 #include "heartbeat.hpp"
 #include "speedwalks.hpp"
 #include "shutdown.parameters.hpp"
@@ -12,6 +15,18 @@
 
 class BanList;	// to avoid inclusion of ban.hpp
 
+/**
+* This class is going to be very large. Probably instead of declaring all global objects as a static functions
+* and include *all* necessary headers we should consider hiding all these functions in .cpp file and declare them
+* where they are needed. For example:
+*
+* > global.objects.cpp:
+* CelebrateList& mono_celebrates_getted() { return global_objects().mono_celebrates; }
+*
+* > file.where.mono_celebrates.is.needed.cpp:
+* extern CelebrateList& mono_celebrates_getted();
+* CelebrateList& mono_celebrates = mono_celebrates_getted();
+*/
 class GlobalObjects
 {
 public:
@@ -25,6 +40,18 @@ public:
 	static BanList*& ban();
 	static Heartbeat& heartbeat();
 	static influxdb::Sender& stats_sender();
+	static OutputThread& output_thread();
+
+	static Celebrates::CelebrateList& mono_celebrates();
+	static Celebrates::CelebrateList& poly_celebrates();
+	static Celebrates::CelebrateList& real_celebrates();
+	static Celebrates::CelebrateMobs& attached_mobs();
+	static Celebrates::CelebrateMobs& loaded_mobs();
+	static Celebrates::CelebrateObjs& attached_objs();
+	static Celebrates::CelebrateObjs& loaded_objs();
+
+	static GlobalTriggersStorage& trigger_list();
+	static BloodyInfoMap& bloody_map();
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__

@@ -13,6 +13,7 @@ if (UNIX)
 endif ()
 
 set(TESTS
+	blocking.queue.cpp
 	boards.changelog.cpp
 	boards.news.cpp
 	msdp.parser.cpp

@@ -483,6 +483,24 @@ void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node* root
 	{
 		load_stream_config(m_logs[MONEY_LOG], &moneylog);
 	}
+
+	const auto separate_thread_node = logging.child("separate_thread");
+	if (separate_thread_node)
+	{
+		m_output_thread = true;
+		const auto queue_size_node = separate_thread_node.child("queueu_size");
+		const auto queue_size_string = queue_size_node.child_value();
+		const auto queue_size = std::strtoul(queue_size_string, nullptr, 10);
+		if (0 < queue_size)
+		{
+			m_output_queue_size = queue_size;
+		}
+		else
+		{
+			std::cerr << "Couldn't set queue size to value '" << queue_size_string
+				<< "'. Leaving default value " << m_output_queue_size << "." << std::endl;
+		}
+	}
 }
 
 void RuntimeConfiguration::load_features_configuration(const pugi::xml_node* root)
@@ -754,8 +772,12 @@ const RuntimeConfiguration::logs_t LOGS({
 	CLogInfo("log/money.txt", "лог обращения денег")
 });
 
+constexpr std::size_t RuntimeConfiguration::OUTPUT_QUEUE_SIZE;
+
 RuntimeConfiguration::RuntimeConfiguration():
 	m_logs(LOGS),
+	m_output_thread(false),
+	m_output_queue_size(OUTPUT_QUEUE_SIZE),
 	m_syslog_converter(nullptr),
 	m_logging_enabled(true),
 	m_msdp_disabled(false),

@@ -126,6 +126,22 @@ namespace bloody
 	bool is_bloody(const OBJ_DATA* obj);
 }
 
+//Структура для хранения информации о кровавом стафе
+//Чтобы не добавлять новых полей в OBJ_DATA, объект просто помечается экстрафлагом ITEM_BLOODY и добавляется запись в bloody_map
+struct BloodyInfo
+{
+	long owner_unique; //С кого сняли шмотку
+	long kill_at; //Когда произошло убийство
+	OBJ_DATA * object; //сама шмотка
+	//какой-либо ID вместо указателя хранить не получается, потому что тогда при апдейте таймера кровавости для каждой записи придется искать шмотку по id по списку шмоток
+	//А это O(n)
+	//По-этому в деструкторе OBJ_DATA нужно удалять запись о шмотке из bloody_map. Такой вот костыль в отсутствие shared_ptr'ов и иже с ними
+	BloodyInfo(const long _owner_unique=0, const long _kill_at=0, OBJ_DATA* _object=0):
+		owner_unique(_owner_unique), kill_at(_kill_at), object(_object) { }
+};
+
+typedef std::map<const OBJ_DATA*, BloodyInfo> BloodyInfoMap;
+
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
