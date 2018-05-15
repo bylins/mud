@@ -795,16 +795,8 @@ void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-/*
- * Remove an affected_type structure from a char (called when duration
- * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
- * affect_location_apply
- */
-
 void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect_i)
 {
-	int change = 0;
-
 	if (room->affected.empty())
 	{
 		log("SYSERR: affect_room_remove when no affects...");
@@ -813,14 +805,7 @@ void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::i
 
 	const auto affect = *affect_i;
 	affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, FALSE);
-	if (change)
-	{
-		affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, TRUE);
-	}
-	else
-	{
-		room->affected.erase(affect_i);
-	}
+	room->affected.erase(affect_i);
 
 	affect_room_total(room);
 }

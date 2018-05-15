@@ -817,13 +817,14 @@ void CharNode::update_offline_item(long uid)
 				depot_log("Что-то не так с объектом : %d", obj_it->vnum);
 				continue;
 			}
-			const auto obj = world_objects.create_from_prototype_by_rnum(rnum);
+			//const auto obj = world_objects.create_from_prototype_by_rnum(rnum);
+			const auto obj = obj_proto[rnum];
 			if (check_unlimited_timer(obj.get()))
 			{
 				obj_it->timer = obj->get_timer();
 				continue;
 			}
-			extract_obj(obj.get());
+			//extract_obj(obj.get());
 			depot_log("update_offline_item %s: zero timer %d %d", name.c_str(), obj_it->vnum, obj_it->uid);
 			add_purged_message(uid, obj_it->vnum, obj_it->uid);
 			// шмотка уходит в лоад			

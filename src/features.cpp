@@ -61,8 +61,6 @@ extern void fix_name_feat(char *name);
 ///
 int find_feat_num(const char *name, bool alias)
 {
-//	char *name = const_cast<char *>(name_);
-//	fix_name_feat(name);
 	for (int index = 1; index < MAX_FEATS; index++)
 	{
 		bool flag = true;
