@@ -3093,7 +3093,6 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	char_from_room(ch);
 
 	delete_from_tmp_char_list(ch);
-	ch->clear_fighing_list();
 
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);

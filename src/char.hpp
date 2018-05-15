@@ -402,7 +402,6 @@ public:
 	CHAR_DATA * get_cast_char() const;
 	OBJ_DATA * get_cast_obj() const;
 
-	void clear_fighing_list();
 	////////////////////////////////////////////////////////////////////////////
 
 	int get_serial_num();
@@ -640,7 +639,6 @@ private:
 
 	std::string clan_for_title();
 	std::string only_title_noclan();
-	void check_fighting_list();
 	void zero_init();
 	void restore_mob();
 
@@ -651,7 +649,6 @@ private:
 	CHAR_DATA *protecting_; // цель для 'прикрыть'
 	CHAR_DATA *touching_;   // цель для 'перехватить'
 	CHAR_DATA *fighting_;   // противник
-	bool in_fighting_list_;  // наличие чара в списке проверки сражающихся
 
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
 	struct cast_attack_type cast_attack_;   // каст заклинания
@@ -937,7 +934,6 @@ inline auto GET_REAL_DEX(const CHAR_DATA* ch)
 }
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
-size_t fighting_list_size();
 
 #endif // CHAR_HPP_INCLUDED
 

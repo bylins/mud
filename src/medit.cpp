@@ -194,7 +194,6 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	//*dst->proto_script = *src->proto_script;
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
-	dst->in_fighting_list_ = tmp.in_fighting_list_;
 	// для name_list
 	dst->set_serial_num(tmp.get_serial_num());
 	//	CharacterAlias::remove(dst);
