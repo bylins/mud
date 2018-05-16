@@ -3555,10 +3555,14 @@ void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
 void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
 {
     if (used_attack(ch))
+	{
         return;
+	}
 
 	if (!pk_agro_action(ch, victim))
+	{
 		return;
+	}
 
 
     if (!ch->get_fighting())
@@ -3575,10 +3579,13 @@ void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
 void SetExtraAttackCutPick(CHAR_DATA *ch, CHAR_DATA *victim)
 {
     if (used_attack(ch))
+	{
         return;
+	}
 	if (!pk_agro_action(ch, victim))
+	{
 		return;
-
+	}
 
     if (!ch->get_fighting())
     {
@@ -3649,7 +3656,9 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 	}
 
     if (used_attack(ch))
+	{
         return;
+	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))

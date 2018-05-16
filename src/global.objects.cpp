@@ -9,6 +9,20 @@ namespace
 	{
 		GlobalObjectsStorage();
 
+		/// This object should be destroyed last because it serves all output operations. So I define it first.
+		std::shared_ptr<OutputThread> output_thread;
+
+		Celebrates::CelebrateList mono_celebrates;
+		Celebrates::CelebrateList poly_celebrates;
+		Celebrates::CelebrateList real_celebrates;
+		Celebrates::CelebrateMobs attached_mobs;
+		Celebrates::CelebrateMobs loaded_mobs;
+		Celebrates::CelebrateObjs attached_objs;
+		Celebrates::CelebrateObjs loaded_objs;
+
+		GlobalTriggersStorage trigger_list;
+		BloodyInfoMap bloody_map;
+
 		WorldObjects world_objects;
 		ShopExt::ShopListType shop_list;
 		Characters characters;
@@ -18,6 +32,7 @@ namespace
 		InspReqListType inspect_list;
 		BanList* ban;
 		Heartbeat heartbeat;
+		std::shared_ptr<influxdb::Sender> stats_sender;
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -77,6 +92,72 @@ BanList*& GlobalObjects::ban()
 Heartbeat& GlobalObjects::heartbeat()
 {
 	return global_objects().heartbeat;
+}
+
+influxdb::Sender& GlobalObjects::stats_sender()
+{
+	if (!global_objects().stats_sender)
+	{
+		global_objects().stats_sender.reset(new influxdb::Sender(
+			runtime_config.statistics().host(), runtime_config.statistics().port()));
+	}
+
+	return *global_objects().stats_sender;
+}
+
+OutputThread& GlobalObjects::output_thread()
+{
+	if (!global_objects().output_thread)
+	{
+		global_objects().output_thread.reset(new OutputThread(runtime_config.output_queue_size()));
+	}
+
+	return *global_objects().output_thread;
+}
+
+Celebrates::CelebrateList& GlobalObjects::mono_celebrates()
+{
+	return global_objects().mono_celebrates;
+}
+
+Celebrates::CelebrateList& GlobalObjects::poly_celebrates()
+{
+	return global_objects().poly_celebrates;
+}
+
+Celebrates::CelebrateList& GlobalObjects::real_celebrates()
+{
+	return global_objects().real_celebrates;
+}
+
+Celebrates::CelebrateMobs& GlobalObjects::attached_mobs()
+{
+	return global_objects().attached_mobs;
+}
+
+Celebrates::CelebrateMobs& GlobalObjects::loaded_mobs()
+{
+	return global_objects().loaded_mobs;
+}
+
+Celebrates::CelebrateObjs& GlobalObjects::attached_objs()
+{
+	return global_objects().attached_objs;
+}
+
+Celebrates::CelebrateObjs& GlobalObjects::loaded_objs()
+{
+	return global_objects().loaded_objs;
+}
+
+GlobalTriggersStorage& GlobalObjects::trigger_list()
+{
+	return global_objects().trigger_list;
+}
+
+BloodyInfoMap& GlobalObjects::bloody_map()
+{
+	return global_objects().bloody_map;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

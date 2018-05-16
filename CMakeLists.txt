@@ -5,6 +5,8 @@ project(bylins CXX)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
+	src/blocking.queue.cpp
+	src/influxdb.cpp
 	src/heartbeat.cpp
 	src/heartbeat.commands.cpp
 	src/act.comm.cpp
@@ -162,6 +164,8 @@ set(SOURCES
 	src/id.cpp)
 
 set(HEADERS
+	src/blocking.queue.hpp
+	src/influxdb.hpp
 	src/heartbeat.commands.hpp
 	src/weather.hpp
 	src/limits.hpp

@@ -416,6 +416,8 @@ void StreamConfigLoader::load_umask()
 	}
 }
 
+constexpr unsigned short RuntimeConfiguration::StatisticsConfiguration::DEFAULT_PORT;
+
 void RuntimeConfiguration::load_stream_config(CLogInfo& log, const pugi::xml_node* node)
 {
 	StreamConfigLoader loader(log, node);
@@ -481,6 +483,24 @@ void RuntimeConfiguration::load_logging_configuration(const pugi::xml_node* root
 	{
 		load_stream_config(m_logs[MONEY_LOG], &moneylog);
 	}
+
+	const auto separate_thread_node = logging.child("separate_thread");
+	if (separate_thread_node)
+	{
+		m_output_thread = true;
+		const auto queue_size_node = separate_thread_node.child("queue_size");
+		const auto queue_size_string = queue_size_node.child_value();
+		const auto queue_size = std::strtoul(queue_size_string, nullptr, 10);
+		if (0 < queue_size)
+		{
+			m_output_queue_size = queue_size;
+		}
+		else
+		{
+			std::cerr << "Couldn't set queue size to value '" << queue_size_string
+				<< "'. Leaving default value " << m_output_queue_size << "." << std::endl;
+		}
+	}
 }
 
 void RuntimeConfiguration::load_features_configuration(const pugi::xml_node* root)
@@ -527,6 +547,9 @@ void RuntimeConfiguration::setup_logs()
 	}
 
 	setup_converters();
+
+	printf("Bylins server will use %schronous output into syslog file.\n",
+		output_thread() ? "asyn" : "syn");
 }
 
 void RuntimeConfiguration::load_msdp_configuration(const pugi::xml_node* msdp)
@@ -588,6 +611,37 @@ void RuntimeConfiguration::load_external_triggers(const pugi::xml_node* root)
 	{
 		m_external_reboot_trigger_file_name = reboot_value;
 	}
+}
+
+void RuntimeConfiguration::load_statistics_configuration(const pugi::xml_node* root)
+{
+	const auto statistics = root->child("statistics");
+	if (!statistics)
+	{
+		return;
+	}
+
+	const auto server = statistics.child("server");
+	if (!server)
+	{
+		return;
+	}
+
+	std::string host;
+	const auto host_value = server.child_value("host");
+	if (host_value)
+	{
+		host = host_value;
+	}
+
+	unsigned short port = StatisticsConfiguration::DEFAULT_PORT;
+	const auto port_value = server.child_value("port");
+	if (port_value)
+	{
+		port = static_cast<unsigned short>(std::strtoul(port_value, nullptr, 10));
+	}
+
+	m_statistics = StatisticsConfiguration(host, port);
 }
 
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
@@ -721,8 +775,12 @@ const RuntimeConfiguration::logs_t LOGS({
 	CLogInfo("log/money.txt", "лог обращения денег")
 });
 
+constexpr std::size_t RuntimeConfiguration::OUTPUT_QUEUE_SIZE;
+
 RuntimeConfiguration::RuntimeConfiguration():
 	m_logs(LOGS),
+	m_output_thread(false),
+	m_output_queue_size(OUTPUT_QUEUE_SIZE),
 	m_syslog_converter(nullptr),
 	m_logging_enabled(true),
 	m_msdp_disabled(false),
@@ -752,6 +810,7 @@ void RuntimeConfiguration::load_from_file(const char* filename)
 		load_features_configuration(&root);
 		load_boards_configuration(&root);
 		load_external_triggers(&root);
+		load_statistics_configuration(&root);
 	}
 	catch (const std::exception& e)
 	{

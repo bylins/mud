@@ -6,6 +6,8 @@
 
 #include <list>
 #include <string>
+#include <atomic>
+#include <thread>
 
 extern FILE *logfile;
 
@@ -84,6 +86,25 @@ inline void Logger::pop_prefix()
 		m_prefix.pop_back();
 	}
 }
+
+class OutputThread
+{
+public:
+	using message_t = std::pair<std::shared_ptr<char>, std::size_t>;
+	using output_queue_t = BlockingQueue<message_t>;
+
+	OutputThread(const std::size_t queue_size);
+	~OutputThread();
+
+	void output(const message_t& message) { m_output_queue.push(message); }
+
+private:
+	void output_loop();
+
+	output_queue_t m_output_queue;
+	std::shared_ptr<std::thread> m_thread;
+	std::atomic_bool m_destroying;
+};
 
 #endif // __LOGGER_HPP__
 

@@ -739,6 +739,7 @@ int main_function(int argc, char **argv)
 	dir = DFLT_DIR;
 
 	runtime_config.load();
+
 	if (runtime_config.msdp_debug())
 	{
 		msdp::debug(true);

@@ -66,7 +66,8 @@ struct CelebrateDay
 
 typedef std::shared_ptr<CelebrateDay> CelebrateDayPtr;
 typedef std::map<int, CelebrateDayPtr> CelebrateList; //номер дня в году, праздник
-
+typedef std::map<long, CHAR_DATA *> CelebrateMobs;
+typedef std::map<long, OBJ_DATA *> CelebrateObjs;
 
 CelebrateDataPtr get_mono_celebrate();
 CelebrateDataPtr get_poly_celebrate();

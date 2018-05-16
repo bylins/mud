@@ -1,6 +1,7 @@
 #ifndef __CONFIG_HPP__
 #define __CONFIG_HPP__
 
+#include "blocking.queue.hpp"
 #include "birth_places.hpp"
 #include "structs.h"
 
@@ -122,6 +123,23 @@ class RuntimeConfiguration
 public:
 	using logs_t = std::array<CLogInfo, 1 + LAST_LOG>;
 
+	class StatisticsConfiguration
+	{
+	public:
+		static constexpr unsigned short DEFAULT_PORT = 8089;
+
+		StatisticsConfiguration(const std::string& host = "", const unsigned short port = DEFAULT_PORT) : m_host(host), m_port(port) {}
+
+		const auto& host() const { return m_host; }
+		const auto& port() const { return m_port; }
+
+	private:
+		std::string m_host;
+		unsigned short m_port;
+	};
+
+	static constexpr std::size_t OUTPUT_QUEUE_SIZE = 256;
+
 	RuntimeConfiguration();
 
 	void load(const char* filename = CONFIGURATION_FILE_NAME) { load_from_file(filename); }
@@ -129,6 +147,9 @@ public:
 	const CLogInfo& logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
 	void handle(const EOutputStream stream, FILE * handle);
 	const std::string& log_stderr() { return m_log_stderr; }
+	auto output_thread() const { return m_output_thread; }
+	auto output_queue_size() const { return m_output_queue_size; }
+
 	void setup_logs();
 	const auto syslog_converter() const { return m_syslog_converter; }
 
@@ -143,6 +164,8 @@ public:
 	const auto& changelog_format() const { return m_changelog_format; }
 
 	const auto& external_reboot_trigger_file_name() const { return m_external_reboot_trigger_file_name; }
+
+	const auto& statistics() const { return m_statistics; }
 
 private:
 	static const char* CONFIGURATION_FILE_NAME;
@@ -160,9 +183,12 @@ private:
 	void load_msdp_configuration(const pugi::xml_node* msdp);
 	void load_boards_configuration(const pugi::xml_node* root);
 	void load_external_triggers(const pugi::xml_node* root);
+	void load_statistics_configuration(const pugi::xml_node* root);
 
 	logs_t m_logs;
 	std::string m_log_stderr;
+	bool m_output_thread;
+	std::size_t m_output_queue_size;
 	converter_t m_syslog_converter;
 	bool m_logging_enabled;
 	bool m_msdp_disabled;
@@ -170,6 +196,8 @@ private:
 	std::string m_changelog_file_name;
 	std::string m_changelog_format;
 	std::string m_external_reboot_trigger_file_name;
+
+	StatisticsConfiguration m_statistics;
 };
 
 extern RuntimeConfiguration runtime_config;

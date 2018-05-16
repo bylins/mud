@@ -1168,11 +1168,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_CHOPOFF:  // подножка
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-		bonus = 3 * dex_bonus(GET_REAL_DEX(ch)) + size_app[GET_POS_SIZE(ch)].ac; //Ради теста помножим бонус на 3
-
+		bonus = dex_bonus(GET_REAL_DEX(ch)) + (dex_bonus(GET_REAL_DEX(ch)) * 2 / 10)  + size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
 		if (equip_in_metall(ch))
 			bonus -= 10;
-
 		if (vict)
 		{
 			if (!CAN_SEE(vict, ch))
