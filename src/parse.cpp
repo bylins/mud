@@ -10,8 +10,6 @@
 #include "utils.h"
 #include "conf.h"
 
-#include <boost/lexical_cast.hpp>
-
 #include <unordered_map>
 #include <array>
 

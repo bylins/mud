@@ -15,8 +15,6 @@
 #include "structs.h"
 #include "sysdep.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <vector>
 #include <map>
 #include <unordered_map>
@@ -140,7 +138,7 @@ struct ClanStuffName
 	std::vector<std::string> PNames;
 };
 
-typedef boost::shared_ptr<ClanPk> ClanPkPtr;
+typedef std::shared_ptr<ClanPk> ClanPkPtr;
 typedef std::map<long, ClanPkPtr> ClanPkList;
 typedef std::vector<std::bitset<ClanSystem::CLAN_PRIVILEGES_NUM> > ClanPrivileges;
 typedef std::map<int, int> ClanPolitics;

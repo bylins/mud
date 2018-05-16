@@ -19,7 +19,6 @@
 #include "glory_misc.hpp"
 
 #include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
 #include <sstream>
@@ -39,10 +38,10 @@ struct glory_time
 	int stat; // в какой стат вложена (номер G_STR ... G_CHA)
 };
 
-typedef boost::shared_ptr<struct glory_time> GloryTimePtr;
+typedef std::shared_ptr<struct glory_time> GloryTimePtr;
 typedef std::list<GloryTimePtr> GloryTimeType;
 class GloryNode;
-typedef boost::shared_ptr<GloryNode> GloryNodePtr;
+typedef std::shared_ptr<GloryNode> GloryNodePtr;
 typedef std::map<long, GloryNodePtr> GloryListType; // first - уид
 
 class GloryNode
@@ -883,7 +882,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	boost::shared_ptr<class spend_glory> temp_glory(new spend_glory);
+	std::shared_ptr<class spend_glory> temp_glory(new spend_glory);
 	temp_glory->olc_str = ch->get_inborn_str();
 	temp_glory->olc_dex = ch->get_inborn_dex();
 	temp_glory->olc_int = ch->get_inborn_int();

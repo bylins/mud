@@ -65,11 +65,6 @@ int normalize_skill(int percent)
 
 	return percent;
 }
-
-// список для быстрого прогона по сражающимся при пурже моба
-// при попадании в список чар остается в нем до своего экстракта
-std::list<CHAR_DATA *> fighting_list;
-
 } // namespace
 
 
@@ -374,7 +369,6 @@ void CHAR_DATA::zero_init()
 	protecting_ = 0;
 	touching_ = 0;
 	fighting_ = 0;
-	in_fighting_list_ = 0;
 	serial_num_ = 0;
 	purged_ = 0;
 	// на плеер-таблицу
@@ -630,6 +624,14 @@ void CHAR_DATA::purge()
 	}
 	name_.clear();
 	short_descr_.clear();
+
+	auto follower = followers;
+	while (follower)
+	{
+		const auto next_one = follower->next;
+		free(follower);
+		follower = next_one;
+	}
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
@@ -779,7 +781,6 @@ void CHAR_DATA::add_obj_slot(int slot_num, int count)
 void CHAR_DATA::set_touching(CHAR_DATA *vict)
 {
 	touching_ = vict;
-	check_fighting_list();
 }
 
 CHAR_DATA * CHAR_DATA::get_touching() const
@@ -790,7 +791,6 @@ CHAR_DATA * CHAR_DATA::get_touching() const
 void CHAR_DATA::set_protecting(CHAR_DATA *vict)
 {
 	protecting_ = vict;
-	check_fighting_list();
 }
 
 CHAR_DATA * CHAR_DATA::get_protecting() const
@@ -801,7 +801,6 @@ CHAR_DATA * CHAR_DATA::get_protecting() const
 void CHAR_DATA::set_fighting(CHAR_DATA *vict)
 {
 	fighting_ = vict;
-	check_fighting_list();
 }
 
 CHAR_DATA * CHAR_DATA::get_fighting() const
@@ -813,7 +812,6 @@ void CHAR_DATA::set_extra_attack(ExtraAttackEnumType Attack, CHAR_DATA *vict)
 {
 	extra_attack_.used_attack = Attack;
 	extra_attack_.victim = vict;
-	check_fighting_list();
 }
 
 ExtraAttackEnumType CHAR_DATA::get_extra_attack_mode() const
@@ -833,7 +831,6 @@ void CHAR_DATA::set_cast(int spellnum, int spell_subst, CHAR_DATA *tch, OBJ_DATA
 	cast_attack_.tch = tch;
 	cast_attack_.tobj = tobj;
 	cast_attack_.troom = troom;
-	check_fighting_list();
 }
 
 int CHAR_DATA::get_cast_spell() const
@@ -854,30 +851,6 @@ CHAR_DATA * CHAR_DATA::get_cast_char() const
 OBJ_DATA * CHAR_DATA::get_cast_obj() const
 {
 	return cast_attack_.tobj;
-}
-
-void CHAR_DATA::check_fighting_list()
-{
-	/*
-	if (!in_fighting_list_)
-	{
-		in_fighting_list_ = true;
-		fighting_list.push_back(this);
-	}
-	*/
-}
-
-void CHAR_DATA::clear_fighing_list()
-{
-	if (in_fighting_list_)
-	{
-		in_fighting_list_ = false;
-		std::list<CHAR_DATA *>::iterator it =  std::find(fighting_list.begin(), fighting_list.end(), this);
-		if (it != fighting_list.end())
-		{
-			fighting_list.erase(it);
-		}
-	}
 }
 
 bool IS_CHARMICE(const CHAR_DATA* ch)
@@ -1039,11 +1012,6 @@ void change_fighting(CHAR_DATA* ch, int need_stop)
 			}
 		}
 	}
-}
-
-size_t fighting_list_size()
-{
-	return fighting_list.size();
 }
 
 int CHAR_DATA::get_serial_num()

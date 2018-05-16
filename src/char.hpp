@@ -16,8 +16,6 @@
 #include "structs.h"
 #include "conf.h"
 
-#include <boost/shared_ptr.hpp>
-#include <boost/array.hpp>
 #include <boost/dynamic_bitset.hpp>
 
 #include <unordered_map>
@@ -44,7 +42,7 @@ struct char_player_data
 	ubyte weight;		// PC / NPC's weight
 	ubyte height;		// PC / NPC's height
 
-	boost::array<char *, 6> PNames;
+	std::array<char *, 6> PNames;
 	ubyte Religion;
 	ubyte Kin;
 	ubyte Race;		// PC / NPC's race
@@ -74,7 +72,7 @@ public:
 	int hitreg;
 	int movereg;
 	int manareg;
-	boost::array<sbyte, MAX_ADD_SLOTS> obj_slot;
+	std::array<sbyte, MAX_ADD_SLOTS> obj_slot;
 	int armour;
 	int ac_add;
 	int hr_add;
@@ -85,8 +83,8 @@ public:
 	int initiative_add;
 	int poison_add;
 	int pray_add;
-	boost::array<sh_int, 4> apply_saving_throw;		// Saving throw (Bonuses)
-	boost::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	// Сопротивление (резисты) к магии, ядам и крит. ударам
+	std::array<sh_int, 4> apply_saving_throw;		// Saving throw (Bonuses)
+	std::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	// Сопротивление (резисты) к магии, ядам и крит. ударам
 	ubyte mresist;
 	ubyte aresist;
 	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
@@ -96,8 +94,8 @@ public:
 // Char's abilities.
 struct char_ability_data
 {
-	boost::array<ubyte, MAX_SPELLS + 1> SplKnw; // array of SPELL_KNOW_TYPE
-	boost::array<ubyte, MAX_SPELLS + 1> SplMem; // array of MEMed SPELLS
+	std::array<ubyte, MAX_SPELLS + 1> SplKnw; // array of SPELL_KNOW_TYPE
+	std::array<ubyte, MAX_SPELLS + 1> SplMem; // array of MEMed SPELLS
 	bitset<MAX_FEATS> Feats;
 	sbyte size;
 	sbyte hitroll;
@@ -153,7 +151,7 @@ struct mob_special_data
 	memory_rec *memory;	// List of attackers to remember
 	byte damnodice;		// The number of damage dice's
 	byte damsizedice;	// The size of the damage dice's
-	boost::array<int, MAX_DEST> dest;
+	std::array<int, MAX_DEST> dest;
 	int dest_dir;
 	int dest_pos;
 	int dest_count;
@@ -205,7 +203,7 @@ struct player_special_data_saved
 	room_vnum load_room;	// Which room to place char in
 	FLAG_DATA pref;		// preference flags for PC's.
 	int bad_pws;		// number of bad password attemps
-	boost::array<int, 3> conditions;		// Drunk, full, thirsty
+	std::array<int, 3> conditions;		// Drunk, full, thirsty
 
 	int DrunkState;
 	int olc_zone;
@@ -404,7 +402,6 @@ public:
 	CHAR_DATA * get_cast_char() const;
 	OBJ_DATA * get_cast_obj() const;
 
-	void clear_fighing_list();
 	////////////////////////////////////////////////////////////////////////////
 
 	int get_serial_num();
@@ -642,7 +639,6 @@ private:
 
 	std::string clan_for_title();
 	std::string only_title_noclan();
-	void check_fighting_list();
 	void zero_init();
 	void restore_mob();
 
@@ -653,7 +649,6 @@ private:
 	CHAR_DATA *protecting_; // цель для 'прикрыть'
 	CHAR_DATA *touching_;   // цель для 'перехватить'
 	CHAR_DATA *fighting_;   // противник
-	bool in_fighting_list_;  // наличие чара в списке проверки сражающихся
 
 	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
 	struct cast_attack_type cast_attack_;   // каст заклинания
@@ -939,7 +934,6 @@ inline auto GET_REAL_DEX(const CHAR_DATA* ch)
 }
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
-size_t fighting_list_size();
 
 #endif // CHAR_HPP_INCLUDED
 

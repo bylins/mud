@@ -15,8 +15,8 @@
 #include "logger.hpp"
 #include "structs.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/replace.hpp>
+
 #include <iostream>
 #include <fstream>
 

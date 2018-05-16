@@ -8,11 +8,6 @@
 #include "sysdep.h"
 #include "utils.h"
 #include "comm.h"
-//#include "db.h"
-//#include "dg_scripts.h"
-//#include "char.hpp"
-//#include "handler.h"
-
 #include "player_races.hpp"
 #include "pugixml.hpp"
 
@@ -307,9 +302,14 @@ int PlayerRace::CheckRace(int KinNum, char *arg)
     if (!RaceNum || (RaceNum < 1) ||
         (RaceNum > PlayerRace::PlayerKinList[KinNum]->PlayerRaceList.size()) ||
         !PlayerKinList[KinNum]->PlayerRaceList[RaceNum-1]->_Enabled)
+	{
         return RACE_UNDEFINED;
+	}
+
 	if ((KinNum > RACE_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size()))
+	{
         return PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum-1]->_RaceNum;
+	}
 
     return RACE_UNDEFINED;
 };

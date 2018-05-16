@@ -48,9 +48,7 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/array.hpp>
 #include <boost/format.hpp>
-#include <boost/bind.hpp>
 
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 

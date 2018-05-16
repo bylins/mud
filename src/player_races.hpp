@@ -16,17 +16,15 @@
 #include "sysdep.h"
 #include "structs.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <string>
 #include <vector>
 
 class PlayerKin;
 class PlayerRace;
 
-typedef boost::shared_ptr<PlayerRace> PlayerRacePtr;
+typedef std::shared_ptr<PlayerRace> PlayerRacePtr;
 typedef std::vector<PlayerRacePtr> PlayerRaceListType;
-typedef boost::shared_ptr<PlayerKin> PlayerKinPtr;
+typedef std::shared_ptr<PlayerKin> PlayerKinPtr;
 typedef std::vector<PlayerKinPtr> PlayerKinListType;
 
 class PlayerKin

@@ -19,10 +19,6 @@
 #include "boards.types.hpp"
 #include "quest.hpp"
 
-#include <boost/shared_ptr.hpp>
-#include <boost/array.hpp>
-#include <boost/cstdint.hpp>
-
 #include <string>
 #include <array>
 #include <vector>
@@ -163,7 +159,7 @@ private:
 	// в данный момент поле нужно для проверки чара на бд при входе на арену любым способом, но может и еще потом пригодиться
 	room_rnum from_room_;
 	// стартовые статы
-	boost::array<int, START_STATS_TOTAL> start_stats_;
+	std::array<int, START_STATS_TOTAL> start_stats_;
 	// вспомнить
 	CharRemember remember_;
 	// внумы выполненных квестов с сохраненными данными
@@ -185,9 +181,9 @@ private:
 	// опции отрисовки режима карты
 	MapSystem::Options map_options_;
 	// доп. валюты (гривны)
-	boost::array<int, ExtMoney::TOTAL_TYPES> ext_money_;
+	std::array<int, ExtMoney::TOTAL_TYPES> ext_money_;
 	// сколько гривн, в пересчете на бронзу, сегодня уже собрано
-	std::pair<boost::uint8_t /* day 1-31 */, int> today_torc_;
+	std::pair<uint8_t /* day 1-31 */, int> today_torc_;
 	// кол-во сбросов характеристик через меню
 	std::array<int, ResetStats::Type::TOTAL_NUM> reset_stats_cnt_;
 	// временнЫе отметки о прочитанных сообщениях на досках

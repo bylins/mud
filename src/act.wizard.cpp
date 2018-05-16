@@ -190,6 +190,9 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
 void do_overstuff(CHAR_DATA *ch, char*, int, int);
+
+void generate_magic_enchant(OBJ_DATA *obj);
+
 void save_zone_count_reset()
 {
 	for (int i = 0; i <= top_of_zone_table; ++i)
@@ -1953,8 +1956,6 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	do_sstat_room(rm, ch);
 }
 
-
-
 void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 {
 	int i, found;
@@ -2082,14 +2083,46 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		sprintf(buf2, "%d", room);
 		strcat(buf, buf2);
 	}
-	// NOTE: In order to make it this far, we must already be able to see the
-	//       character holding the object. Therefore, we do not need CAN_SEE().
+
 	strcat(buf, ", В контейнере: ");
-	strcat(buf, (j->get_in_obj() && is_grgod) ? j->get_in_obj()->get_short_description().c_str() : "Нет");
+	if (j->get_in_obj() && is_grgod)
+	{
+		sprintf(buf2, "[%d] %s", GET_OBJ_VNUM(j->get_in_obj()), j->get_in_obj()->get_short_description().c_str());
+		strcat(buf, buf2);
+	}
+	else
+	{
+		strcat(buf, "Нет");
+	}
+
 	strcat(buf, ", В инвентаре: ");
-	strcat(buf, (j->get_carried_by() && is_grgod) ? GET_NAME(j->get_carried_by()) : "Нет");
+	if (j->get_carried_by() && is_grgod)
+	{
+		strcat(buf, GET_NAME(j->get_carried_by()));
+	}
+	else if (j->get_in_obj() && j->get_in_obj()->get_carried_by() && is_grgod)
+	{
+		strcat(buf, GET_NAME(j->get_in_obj()->get_carried_by()));
+	}
+	else
+	{
+		strcat(buf, "Нет");
+	}
+
 	strcat(buf, ", Надет: ");
-	strcat(buf, (j->get_worn_by() && is_grgod) ? GET_NAME(j->get_worn_by()) : "Нет");
+	if (j->get_worn_by() && is_grgod)
+	{
+		strcat(buf, GET_NAME(j->get_worn_by()));
+	}
+	else if (j->get_in_obj() && j->get_in_obj()->get_worn_by() && is_grgod)
+	{
+		strcat(buf, GET_NAME(j->get_in_obj()->get_worn_by()));
+	}
+	else
+	{
+		strcat(buf, "Нет");
+	}
+
 	strcat(buf, "\r\n");
 	send_to_char(buf, ch);
 
@@ -3245,6 +3278,13 @@ void do_load(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		const auto obj = world_objects.create_from_prototype_by_rnum(r_num);
 		obj->set_crafter_uid(GET_UNIQUE(ch));
+
+		if (number == GlobalDrop::MAGIC1_ENCHANT_VNUM
+			|| number == GlobalDrop::MAGIC2_ENCHANT_VNUM
+			|| number == GlobalDrop::MAGIC3_ENCHANT_VNUM)
+		{
+			generate_magic_enchant(obj.get());
+		}
 
 		if (load_into_inventory)
 		{
@@ -5229,8 +5269,6 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		GloryConst::show_stats(ch);
 		Parcel::show_stats(ch);
 		send_to_char(ch, "  Сообщений на почте: %zu\r\n", mail::get_msg_count());
-		send_to_char(ch, "  Список полей сражающихся: %d\r\n",
-			static_cast<int>(fighting_list_size()));
 		send_to_char(ch, "  Передвижения: %d\r\n", motion);
 		send_to_char(ch, "  Потрачено кун в магазинах2 за ребут: %d\r\n", ShopExt::get_spent_today());
 		mob_stat::show_stats(ch);

@@ -32,7 +32,6 @@
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <sys/stat.h>
@@ -1104,7 +1103,7 @@ void DoHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		CLAN(ch)->HouseRemove(ch, buffer);
 	else if (CompareParam(buffer2, "привилегии") && CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_PRIVILEGES])
 	{
-		boost::shared_ptr<struct ClanOLC> temp_clan_olc(new ClanOLC);
+		std::shared_ptr<struct ClanOLC> temp_clan_olc(new ClanOLC);
 		temp_clan_olc->clan = CLAN(ch);
 		temp_clan_olc->privileges = CLAN(ch)->privileges;
 		ch->desc->clan_olc = temp_clan_olc;
@@ -1187,9 +1186,10 @@ void Clan::HouseInfo(CHAR_DATA * ch)
 	}
 
 	std::sort(temp_list.begin(), temp_list.end(),
-			  boost::bind(std::less<long long>(),
-						  boost::bind(&ClanMember::rank_num, _1),
-						  boost::bind(&ClanMember::rank_num, _2)));
+		[](const ClanMember::shared_ptr lrs, const ClanMember::shared_ptr rhs)
+	{
+		return lrs->rank_num < rhs->rank_num;
+	});
 
 	std::ostringstream buffer;
 	buffer << "К замку приписаны:\r\n";
@@ -1499,7 +1499,7 @@ void Clan::HouseAdd(CHAR_DATA * ch, std::string & buffer)
 		if (CompareParam(buffer2, *it))
 		{
 			// не приписан - втыкаем ему приглашение и курим, пока не согласится
-			boost::shared_ptr<struct ClanInvite> temp_invite(new ClanInvite);
+			std::shared_ptr<struct ClanInvite> temp_invite(new ClanInvite);
 			temp_invite->clan = CLAN(ch);
 			temp_invite->rank = temp_rank;
 			d->clan_invite = temp_invite;
@@ -2409,8 +2409,11 @@ void Clan::hcontrol_title(CHAR_DATA *ch, std::string &text)
 	GetOneParam(text, buffer);
 	int rent = atoi(buffer.c_str());
 	ClanListType::iterator clan = std::find_if(ClanList.begin(), ClanList.end(),
-			boost::bind(std::equal_to<int>(),
-					boost::bind(&Clan::rent, _1), rent));
+		[&](const Clan::shared_ptr clan)
+	{
+		return clan->rent == rent;
+	});
+
 	if (clan == Clan::ClanList.end())
 	{
 		send_to_char(ch, "Дружины с номером %d не существует.\r\n", rent);
@@ -2451,8 +2454,11 @@ void Clan::hcontrol_rank(CHAR_DATA *ch, std::string &text)
 	GetOneParam(text, buffer);
 	int rent = atoi(buffer.c_str());
 	ClanListType::iterator clan = std::find_if(ClanList.begin(), ClanList.end(),
-			boost::bind(std::equal_to<int>(),
-					boost::bind(&Clan::rent, _1), rent));
+		[&](const Clan::shared_ptr& clan)
+	{
+		return clan->rent == rent;
+	});
+
 	if (clan == Clan::ClanList.end())
 	{
 		send_to_char(ch, "Дружины с номером %d не существует.\r\n", rent);
@@ -4664,8 +4670,10 @@ void Clan::hcon_owner(CHAR_DATA *ch, std::string &text)
 	const int vnum = atoi(buffer.c_str());
 
 	ClanListType::iterator clan = std::find_if(ClanList.begin(), ClanList.end(),
-			boost::bind(std::equal_to<int>(),
-					boost::bind(&Clan::rent, _1), vnum));
+		[&](const Clan::shared_ptr& clan)
+	{
+		return clan->rent == vnum;
+	});
 
 	if (clan == Clan::ClanList.end())
 	{

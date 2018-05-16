@@ -396,7 +396,7 @@ private:
 	observers_t m_observers;
 };
 
-extern GlobalTriggersStorage trigger_list;
+extern GlobalTriggersStorage& trigger_list;
 
 void dg_obj_trigger(char *line, OBJ_DATA * obj);
 void assign_triggers(void *i, int type);

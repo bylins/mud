@@ -58,7 +58,6 @@ void do_bash(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rescue(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_kick(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_coddle_out(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_strangle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
@@ -75,7 +74,7 @@ void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room)
 {
 	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))))
 		WAIT_STATE(ch, waittime * PULSE_VIOLENCE);
-};
+}
 
 int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 {
@@ -185,7 +184,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 	return (TRUE);
 };
 
-int onhorse(CHAR_DATA * ch)
+int onhorse(CHAR_DATA* ch)
 {
 	if (on_horse(ch))
 	{
@@ -196,14 +195,14 @@ int onhorse(CHAR_DATA * ch)
 };
 
 // Add by Voropay 8/05/2004
-CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
+CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch)
 {
 	int percent = 0;
 	int prob = 0;
 	bool protect = false;
 
 	//Polud прикрываем только от нападения
-	if (ch->get_fighting()==victim)
+	if (ch->get_fighting() == victim)
 		return victim;
 
 	for (const auto vict : world[IN_ROOM(victim)]->people)
@@ -233,10 +232,10 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch)
 				return victim;
 			}
 
-			if (protect) 
-			{ 
-				send_to_char(vict, "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n", GET_PAD(vict->get_protecting(), 3)); 
-				continue; 
+			if (protect)
+			{
+				send_to_char(vict, "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n", GET_PAD(vict->get_protecting(), 3));
+				continue;
 			}
 
 			protect = true;
@@ -491,8 +490,6 @@ void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 	}
 }
-
-
 
 void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
@@ -3558,10 +3555,14 @@ void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
 void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
 {
     if (used_attack(ch))
+	{
         return;
+	}
 
 	if (!pk_agro_action(ch, victim))
+	{
 		return;
+	}
 
 
     if (!ch->get_fighting())
@@ -3578,10 +3579,13 @@ void SetExtraAttackCutShorts(CHAR_DATA *ch, CHAR_DATA *victim)
 void SetExtraAttackCutPick(CHAR_DATA *ch, CHAR_DATA *victim)
 {
     if (used_attack(ch))
+	{
         return;
+	}
 	if (!pk_agro_action(ch, victim))
+	{
 		return;
-
+	}
 
     if (!ch->get_fighting())
     {
@@ -3652,7 +3656,9 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 	}
 
     if (used_attack(ch))
+	{
         return;
+	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))

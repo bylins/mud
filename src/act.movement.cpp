@@ -2211,7 +2211,9 @@ void do_horsetake(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 	if (*arg)
+	{
 		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	}
 
 	if (horse == NULL)
 	{

@@ -18,8 +18,6 @@
 #include "spells.h"
 #include "utils.h"
 
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <string>
@@ -550,8 +548,7 @@ void sedit::save_olc(CHAR_DATA *ch)
 {
 	if (new_entry)
 	{
-		boost::shared_ptr<set_node> set_ptr =
-			boost::make_shared<set_node>(olc_set);
+		std::shared_ptr<set_node> set_ptr =	std::make_shared<set_node>(olc_set);
 		sets_list.push_back(set_ptr);
 		verify_set(*set_ptr);
 		save();
@@ -1942,7 +1939,7 @@ namespace
 void start_sedit(CHAR_DATA *ch, size_t idx)
 {
 	STATE(ch->desc) = CON_SEDIT;
-	ch->desc->sedit = boost::make_shared<obj_sets_olc::sedit>();
+	ch->desc->sedit = std::make_shared<obj_sets_olc::sedit>();
 	if (idx == static_cast<size_t>(-1))
 	{
 		ch->desc->sedit->new_entry = true;
@@ -2014,7 +2011,7 @@ void do_sedit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		// редактирование глобальных сообщений
 		STATE(ch->desc) = CON_SEDIT;
-		ch->desc->sedit = boost::make_shared<obj_sets_olc::sedit>();
+		ch->desc->sedit = std::make_shared<obj_sets_olc::sedit>();
 		ch->desc->sedit->msg_edit = global_msg;
 		ch->desc->sedit->show_global_msg(ch);
 	}

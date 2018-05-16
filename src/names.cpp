@@ -23,7 +23,6 @@
 #include "char.hpp"
 #include "char_player.hpp"
 
-#include <boost/shared_ptr.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <string>
@@ -190,7 +189,7 @@ struct NewName
 	ESex sex;         // часто не ясно, для какоо пола падежи вообще
 };
 
-typedef boost::shared_ptr<NewName> NewNamePtr;
+typedef std::shared_ptr<NewName> NewNamePtr;
 typedef std::map<std::string, NewNamePtr> NewNameListType;
 
 static NewNameListType NewNameList;

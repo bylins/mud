@@ -764,8 +764,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 {
 	//Зачем здесь было SAVING_REFLEX? Оно же просто число
 	int skill_is, percent = 0, victim_sav = 0, victim_modi = 0; // текущее значение умения(прокачанность) / вычисляемый итоговый процент / савис жертвы,
-                                                                    // который влияет на прохождение скила / другие модификаторы, влияющие на прохождение
-	int morale = 0, max_percent = 200, bonus = 0, size = 0, fail_limit = 950 ;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
+																	// который влияет на прохождение скила / другие модификаторы, влияющие на прохождение
+	int morale = 0, max_percent = 200, bonus = 0, size = 0, fail_limit = 950;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 	bool try_morale = false;
@@ -815,7 +815,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_BACKSTAB:	//заколоть
-        //victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
 		if (awake_others(ch)
@@ -927,16 +927,16 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_PUNCH:	//удар левой рукой
-        //victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
+		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		break;
 	case SKILL_RESCUE:	//спасти
 		bonus = dex_bonus(GET_REAL_DEX(ch));
-//		victim_modi = 100;
+		//		victim_modi = 100;
 		break;
 	case SKILL_SNEAK:	// Подкрасться
 		bonus = dex_bonus(GET_REAL_DEX(ch))
-				  + (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
+			+ (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
 		if (awake_others(ch) || equip_in_metall(ch))
 			bonus -= 50;
@@ -960,7 +960,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 	case SKILL_STEAL:	// Украсть
 		bonus = dex_bonus(GET_REAL_DEX(ch))
-				  + (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
+			+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
 		if (awake_others(ch) || equip_in_metall(ch))
 			bonus -= 50;
@@ -982,57 +982,57 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-    case SKILL_TRACK:       //выследить
-            percent = skill_is + int_app[GET_REAL_INT(ch)].observation
-                                + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+	case SKILL_TRACK:       //выследить
+		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
+			+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
-            if (SECT(ch->in_room) == SECT_FOREST || SECT(ch->in_room) == SECT_FIELD)
-                    percent += 10;
+		if (SECT(ch->in_room) == SECT_FOREST || SECT(ch->in_room) == SECT_FIELD)
+			percent += 10;
 
-            percent = complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
+		percent = complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
 
-            if (SECT(ch->in_room) == SECT_WATER_SWIM ||
-                            SECT(ch->in_room) == SECT_WATER_NOSWIM ||
-                            SECT(ch->in_room) == SECT_FLYING ||
-                            SECT(ch->in_room) == SECT_UNDERWATER ||
-                            SECT(ch->in_room) == SECT_SECRET
-                            || ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK)) percent = 0;
+		if (SECT(ch->in_room) == SECT_WATER_SWIM ||
+			SECT(ch->in_room) == SECT_WATER_NOSWIM ||
+			SECT(ch->in_room) == SECT_FLYING ||
+			SECT(ch->in_room) == SECT_UNDERWATER ||
+			SECT(ch->in_room) == SECT_SECRET
+			|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK)) percent = 0;
 
 
-            if (vict)
-            {
-				victim_modi += GET_REAL_CON(vict) / 2;
-				if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
-					|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
-				{
-					victim_modi = -100;
-				}
-            }
-            break;
-    case SKILL_SENSE: // приглядеться
-            percent = skill_is + int_app[GET_REAL_INT(ch)].observation
-                                + (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+		if (vict)
+		{
+			victim_modi += GET_REAL_CON(vict) / 2;
+			if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
+				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
+			{
+				victim_modi = -100;
+			}
+		}
+		break;
+	case SKILL_SENSE: // приглядеться
+		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
+			+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
-            percent =
-                    complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
+		percent =
+			complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
 
-            if (ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
-                    percent = 0;
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
+			percent = 0;
 
-            if (vict)
-            {
-				victim_modi += GET_REAL_CON(vict) / 2;
-				if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
-					|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
-				{
-					victim_modi = -100;
-				}
-            }
-            break;
+		if (vict)
+		{
+			victim_modi += GET_REAL_CON(vict) / 2;
+			if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
+				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
+			{
+				victim_modi = -100;
+			}
+		}
+		break;
 
 	case SKILL_MULTYPARRY:  // веерная защита
 	case SKILL_PARRY:	//парировать
-        victim_sav = dex_bonus(GET_REAL_DEX(vict));
+		victim_sav = dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
 		{
@@ -1048,16 +1048,16 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_BLOCK:	//закрыться щитом
-{		// по 10 бонусом со щита (21-30) и дексы (21-50)
+	{		// по 10 бонусом со щита (21-30) и дексы (21-50)
 		int shield_mod = GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
-		int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20)/3);
+		int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20) / 3);
 		bonus = dex_mod + shield_mod;
 		break;
-}
+	}
 
 	case SKILL_TOUCH:	//захватить противника
-    victim_sav = dex_bonus(GET_REAL_DEX(vict));
-	bonus = dex_bonus(GET_REAL_DEX(ch)) +
+		victim_sav = dex_bonus(GET_REAL_DEX(vict));
+		bonus = dex_bonus(GET_REAL_DEX(ch)) +
 			size_app[GET_POS_SIZE(vict)].interpolate;
 
 		if (vict)
@@ -1088,7 +1088,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_SATTACK:	//атака второй рукой
-        //victim_sav = GET_SAVE(vict, SAVING_REFLEX);
+		//victim_sav = GET_SAVE(vict, SAVING_REFLEX);
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GET_REAL_DEX(ch)); //equal
 		break;
 
@@ -1140,9 +1140,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (SECT(ch->in_room) == SECT_CITY)
 			bonus -= 15;
 		else if (SECT(ch->in_room) == SECT_FOREST)
-		        bonus += 10;
+			bonus += 10;
 		else if (SECT(ch->in_room) == SECT_HILLS
-				 || SECT(ch->in_room) == SECT_MOUNTAIN) bonus += 5;
+			|| SECT(ch->in_room) == SECT_MOUNTAIN) bonus += 5;
 		if (equip_in_metall(ch))
 			bonus -= 30;
 
@@ -1154,7 +1154,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 
 	case SKILL_DEVIATE:  // уклониться
-		bonus = - size_app[GET_POS_SIZE(ch)].ac +
+		bonus = -size_app[GET_POS_SIZE(ch)].ac +
 			dex_bonus(GET_REAL_DEX(ch));
 
 		if (equip_in_metall(ch))
@@ -1181,10 +1181,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				victim_modi -= 20;
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
-// в пинке режем дамаг
-//			if (GET_AF_BATTLE(vict, EAF_AWAKE))
-//				victim_modi -= calculate_awake_mod(ch, vict);
-//			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
+			// в пинке режем дамаг
+			//			if (GET_AF_BATTLE(vict, EAF_AWAKE))
+			//				victim_modi -= calculate_awake_mod(ch, vict);
+			//			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
 	case SKILL_REPAIR: // починка
@@ -1203,7 +1203,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = size + dex_bonus(GET_REAL_STR(ch));
 
 		if (IS_NPC(vict))
-			victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking)/2;
+			victim_modi -= (size_app[GET_POS_SIZE(vict)].shocking) / 2;
 		else
 			victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
 		break;
@@ -1213,10 +1213,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = dex_bonus(GET_REAL_STR(ch));
 		if (GET_EQ(ch, WEAR_WIELD))
 			bonus +=
-				weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
+			weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))].shocking;
 		else if (GET_EQ(ch, WEAR_BOTHS))
 			bonus +=
-				weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
+			weapon_app[GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))].shocking;
 
 		if (vict)
 		{
@@ -1234,43 +1234,43 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = dex_bonus(GET_REAL_INT(ch));
 		if (GET_EQ(ch, WEAR_WIELD))
 			bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 18
-					   + MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
-					   + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
+			+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 25
+			+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD))) - 30;
 		if (GET_EQ(ch, WEAR_HOLD))
 			bonus += MAX(18, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 18
-					   + MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
-					   + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
+			+ MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 25
+			+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HOLD))) - 30;
 		if (GET_EQ(ch, WEAR_BOTHS))
 			bonus += MAX(25, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 25
-					   + MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
+			+ MAX(30, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS))) - 30;
 		if (vict)
 		{
 			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
 	case SKILL_AWAKE:  // осторожный стиль
+	{
+		const size_t real_dex = static_cast<size_t>(GET_REAL_DEX(ch));
+		if (real_dex < INT_APP_SIZE)
 		{
-			const size_t real_dex = static_cast<size_t>(GET_REAL_DEX(ch));
-			if (real_dex < INT_APP_SIZE)
-			{
-				bonus = int_app[real_dex].observation;
+			bonus = int_app[real_dex].observation;
 
-				if (vict)
-				{
-					victim_modi -= int_app[GET_REAL_INT(vict)].observation;
-				}
-			}
-			else
+			if (vict)
 			{
-				log("SYSERR: Global buffer overflow for SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
-					real_dex, INT_APP_SIZE);
+				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 			}
 		}
-		break;
+		else
+		{
+			log("SYSERR: Global buffer overflow for SKILL_AWAKE. Requested real_dex is %zd, but maximal allowed is %zd.",
+				real_dex, INT_APP_SIZE);
+		}
+	}
+	break;
 
 	case SKILL_IDENTIFY:
 		bonus = int_app[GET_REAL_INT(ch)].observation
-				  + (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
+			+ (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
 		break;
 
 	case SKILL_CREATE_POTION:
@@ -1290,8 +1290,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_ARMORED:
 		break;
 	case SKILL_DRUNKOFF:
-		bonus = - GET_REAL_CON(ch) / 2
-				  + (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
+		bonus = -GET_REAL_CON(ch) / 2
+			+ (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
 		break;
 	case SKILL_AID:    // лечить
 		bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
@@ -1317,15 +1317,15 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		//pass_mod = 1;
 		if (GET_MOB_HOLD(vict))
 		{
-			bonus += (skill_is + bonus)/2;
+			bonus += (skill_is + bonus) / 2;
 		}
 		else
 		{
-			if (!CAN_SEE(ch,vict))
-				bonus += (skill_is + bonus)/5;
+			if (!CAN_SEE(ch, vict))
+				bonus += (skill_is + bonus) / 5;
 			//if (vict->get_fighting() || (MOB_FLAGGED(vict, MOB_AWARE) || AFF_FLAGGED(vict, AFF_AWARNESS) || AWAKE(vict) ))
 				//victim_modi -= 40;
-			if (PRF_FLAGGED (vict, PRF_AWAKE))
+			if (PRF_FLAGGED(vict, PRF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
 		}
 		break;
@@ -1354,29 +1354,29 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 	default:
 		break;
-}
-//        if(IS_NPC(ch))
-//        bonus = 0;
+	}
+	//        if(IS_NPC(ch))
+	//        bonus = 0;
 	if ((skill_no == SKILL_SENSE) || (skill_no == SKILL_TRACK))
 	{
 		return percent;
 	}
 	else
 	{
-		percent = skill_is + bonus + victim_sav + victim_modi/2;   // вычисление процента прохождения скила
+		percent = skill_is + bonus + victim_sav + victim_modi / 2;   // вычисление процента прохождения скила
 	}
 
-		if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill_no == SKILL_BASH))
-			percent /= 2;
+	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill_no == SKILL_BASH))
+		percent /= 2;
 
 	// не все умения надо модифицировать из-за внешних факторов и морали
 	if (!pass_mod)
 	{
-//		percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
+		//		percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
 		morale = ch->calc_morale();
 
-//		if (vict && percent > skill_info[skill_no].max_percent)
-//			victim_modi += percent - skill_info[skill_no].max_percent;
+		//		if (vict && percent > skill_info[skill_no].max_percent)
+		//			victim_modi += percent - skill_info[skill_no].max_percent;
 
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 			morale -= 20;	// у глухого мораль на 20 меньше
@@ -1384,38 +1384,38 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
 			morale -= 10;
 
-const int prob = number(0, 999);
+		const int prob = number(0, 999);
 
-int morale_bonus = morale;
-if (morale < 0) {
-	morale_bonus = morale * 10;
-}
-const int bonus_limit = MIN(150, morale * 10);
-fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
-// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
-// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
-// все решают спас-броски.
-if (morale >= 50)   // от 50 удачи абсолютный фейл не работает
-fail_limit = 999;
-if (prob >= fail_limit)
-{   // Абсолютный фейл 4.9 процента
-	percent = 0;
-	absolute_fail = true;
-}
-else if (prob < bonus_limit)
-{
-	//			percent = skill_info[skill_no].max_percent;
-	percent = max_percent + bonus;
-	try_morale = true;
-}// else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
-//	percent = 0;
-//		}
-// Логирование удачи.
+		int morale_bonus = morale;
+		if (morale < 0) {
+			morale_bonus = morale * 10;
+		}
+		const int bonus_limit = MIN(150, morale * 10);
+		fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
+		// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
+		// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
+		// все решают спас-броски.
+		if (morale >= 50)   // от 50 удачи абсолютный фейл не работает
+			fail_limit = 999;
+		if (prob >= fail_limit)
+		{   // Абсолютный фейл 4.9 процента
+			percent = 0;
+			absolute_fail = true;
+		}
+		else if (prob < bonus_limit)
+		{
+			//			percent = skill_info[skill_no].max_percent;
+			percent = max_percent + bonus;
+			try_morale = true;
+		}// else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
+		//	percent = 0;
+		//		}
+		// Логирование удачи.
 
-		//if ((skill_no == SKILL_CHOPOFF) && !IS_NPC(ch) && !IS_NPC(vict)){
-		//send_to_char(vict, "Вычисление удачи, противник %s: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n", GET_NAME(vict), skill_is, percent, prob, fail_limit, morale_bonus, bonus_limit);
-		//sprintf(buf, "Игрок %s. Противник %s, удача: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n",GET_NAME (ch), GET_NAME(vict), skill_is, percent, prob,fail_limit, morale_bonus, bonus_limit);
-			//log("Игрок %s. Противник %s, удача: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n",GET_NAME (ch), GET_NAME(vict), skill_is, percent, prob,fail_limit, morale_bonus, bonus_limit); }
+				//if ((skill_no == SKILL_CHOPOFF) && !IS_NPC(ch) && !IS_NPC(vict)){
+				//send_to_char(vict, "Вычисление удачи, противник %s: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n", GET_NAME(vict), skill_is, percent, prob, fail_limit, morale_bonus, bonus_limit);
+				//sprintf(buf, "Игрок %s. Противник %s, удача: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n",GET_NAME (ch), GET_NAME(vict), skill_is, percent, prob,fail_limit, morale_bonus, bonus_limit);
+					//log("Игрок %s. Противник %s, удача: Skill == %d, Percent == %d,Prob == %d, fail_limit == %d, Morale == %d, Bonus_limit == %d\r\n",GET_NAME (ch), GET_NAME(vict), skill_is, percent, prob,fail_limit, morale_bonus, bonus_limit); }
 	}
 
 	// иммские флаги и прокла влияют на все
@@ -1442,7 +1442,7 @@ else if (prob < bonus_limit)
 			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2);
 	}
 	if (skill_no == SKILL_PROTECT)
-	log("SKILL_PROTECT: Игрок %s , Percent == %d, fail_limit == %d, Morale == %d, Bonus == %d\r\n",GET_NAME (ch), percent, fail_limit, morale, bonus); 
+		log("SKILL_PROTECT: Игрок %s , Percent == %d, fail_limit == %d, Morale == %d, Bonus == %d\r\n", GET_NAME(ch), percent, fail_limit, morale, bonus);
 
 	return (percent);
 }

@@ -569,7 +569,7 @@ void affect_total(CHAR_DATA * ch)
 		}
 	};
 
-	        // Обработка изворотливости (с) Числобог
+	// Обработка изворотливости (с) Числобог
 	if (can_use_feat(ch, DODGER_FEAT))
 	{
 		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
@@ -599,7 +599,7 @@ void affect_total(CHAR_DATA * ch)
 	// move race and class modifiers
 	if (!IS_NPC(ch))
 	{
-		if ((int) GET_CLASS(ch) >= 0 && (int) GET_CLASS(ch) < NUM_PLAYER_CLASSES)
+		if ((int)GET_CLASS(ch) >= 0 && (int)GET_CLASS(ch) < NUM_PLAYER_CLASSES)
 		{
 			for (auto i : *class_app[(int)GET_CLASS(ch)].extra_affects)
 			{
@@ -613,10 +613,10 @@ void affect_total(CHAR_DATA * ch)
 		{
 			ch->set_dex_add(ch->get_dex_add() - wdex);
 		}
-		GET_DR_ADD(ch) += extra_damroll((int) GET_CLASS(ch), (int) GET_LEVEL(ch));
+		GET_DR_ADD(ch) += extra_damroll((int)GET_CLASS(ch), (int)GET_LEVEL(ch));
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))
 		{
-			GET_HITREG(ch) += ((int) GET_LEVEL(ch) + 4) / 5 * 10;
+			GET_HITREG(ch) += ((int)GET_LEVEL(ch) + 4) / 5 * 10;
 		}
 		if (can_use_feat(ch, DARKREGEN_FEAT))
 		{
@@ -699,14 +699,14 @@ void affect_total(CHAR_DATA * ch)
 			obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
 			return;
 		}
-                if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
-                {
-                    send_to_char("Нету лука, нет и стрел.\r\n", ch);
-                    act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
-                    obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
-                    return;
-                }
-        }
+		if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
+		{
+			send_to_char("Нету лука, нет и стрел.\r\n", ch);
+			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
+			return;
+		}
+	}
 
 	// calculate DAMAGE value
 	GET_DAMAGE(ch) = (str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch)) * 2;
@@ -795,16 +795,8 @@ void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-/*
- * Remove an affected_type structure from a char (called when duration
- * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
- * affect_location_apply
- */
-
 void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect_i)
 {
-	int change = 0;
-
 	if (room->affected.empty())
 	{
 		log("SYSERR: affect_room_remove when no affects...");
@@ -813,14 +805,7 @@ void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::i
 
 	const auto affect = *affect_i;
 	affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, FALSE);
-	if (change)
-	{
-		affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, TRUE);
-	}
-	else
-	{
-		room->affected.erase(affect_i);
-	}
+	room->affected.erase(affect_i);
 
 	affect_room_total(room);
 }
@@ -3010,7 +2995,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	log("[Extract char] Start function for char %s", name.c_str());
 	if (!IS_NPC(ch) && !ch->desc)
 	{
-		log("[Extract char] Extract descriptors");
+//		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
 		{
 			if (t_desc->original.get() == ch)
@@ -3021,7 +3006,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 	// Forget snooping, if applicable
-	log("[Extract char] Stop snooping");
+//	log("[Extract char] Stop snooping");
 	if (ch->desc)
 	{
 		if (ch->desc->snooping)
@@ -3039,7 +3024,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 	// transfer equipment to room, if any
-	log("[Extract char] Drop equipment");
+//	log("[Extract char] Drop equipment");
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if (GET_EQ(ch, i))
@@ -3056,7 +3041,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 	// transfer objects to room, if any
-	log("[Extract char] Drop objects");
+//	log("[Extract char] Drop objects");
 	while (ch->carrying)
 	{
 		OBJ_DATA *obj = ch->carrying;
@@ -3075,7 +3060,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		&& ch->followers
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
-		log("[Extract char] Change group leader");
+//		log("[Extract char] Change group leader");
 		change_leader(ch, 0);
 	}
 	else if (IS_NPC(ch)
@@ -3083,11 +3068,11 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		&& !ch->has_master()
 		&& ch->followers)
 	{
-		log("[Extract char] Changing NPC leader");
+//		log("[Extract char] Changing NPC leader");
 		change_npc_leader(ch);
 	}
 
-	log("[Extract char] Die followers");
+//	log("[Extract char] Die followers");
 	if ((ch->followers || ch->has_master())
 		&& die_follower(ch))
 	{
@@ -3095,20 +3080,19 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		return;
 	}
 
-	log("[Extract char] Stop fighting self");
+//	log("[Extract char] Stop fighting self");
 	if (ch->get_fighting())
 	{
 		stop_fighting(ch, TRUE);
 	}
 
-	log("[Extract char] Stop all fight for opponee");
+//	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, TRUE);
 
-	log("[Extract char] Remove char from room");
+//	log("[Extract char] Remove char from room");
 	char_from_room(ch);
 
 	delete_from_tmp_char_list(ch);
-	ch->clear_fighing_list();
 
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
@@ -3129,7 +3113,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	const bool is_npc = IS_NPC(ch);
 	if (!is_npc)
 	{
-		log("[Extract char] All save for PC");
+//		log("[Extract char] All save for PC");
 		check_auction(ch, NULL);
 		ch->save_char();
 		//удаляются рент-файлы, если только персонаж не ушел в ренту
@@ -3137,7 +3121,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 	else
 	{
-		log("[Extract char] All clear for NPC");
+//		log("[Extract char] All clear for NPC");
 		if ((GET_MOB_RNUM(ch) > -1)
 			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))	// if mobile и не умертвие
 		{

@@ -4,14 +4,6 @@
 * (c) 2006 Krodo                                                              *
 ******************************************************************************/
 
-#include "conf.h"
-#include <functional>
-#include <sstream>
-#include <iomanip>
-#include <boost/bind.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -21,6 +13,14 @@
 #include "top.h"
 #include "glory.hpp"
 #include "char.hpp"
+#include "conf.h"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+
+#include <functional>
+#include <sstream>
+#include <iomanip>
 
 extern const char *class_name[];
 
@@ -34,8 +34,10 @@ void TopPlayer::Remove(CHAR_DATA * short_ch)
 	std::list<TopPlayer> &tmp_list = TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))];
 
 	std::list<TopPlayer>::iterator it = std::find_if(tmp_list.begin(), tmp_list.end(),
-			boost::bind(std::equal_to<long>(),
-			boost::bind(&TopPlayer::unique, _1), GET_UNIQUE(short_ch)));
+		[&](const TopPlayer& p)
+	{
+		return p.unique == GET_UNIQUE(short_ch);
+	});
 
 	if (it != tmp_list.end())
 		tmp_list.erase(it);

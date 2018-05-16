@@ -5,16 +5,17 @@
 #define OBJ_SETS_STUFF_HPP_INCLUDED
 
 #include "conf.h"
-#include <array>
-#include <string>
-#include <vector>
-#include <map>
-#include <boost/shared_ptr.hpp>
 
 #include "sysdep.h"
 #include "structs.h"
 #include "interpreter.h"
 #include "char_player.hpp"
+
+#include <array>
+#include <string>
+#include <vector>
+#include <map>
+#include <memory>
 
 namespace obj_sets
 {
@@ -161,7 +162,7 @@ struct set_node
 	}
 };
 
-extern std::vector<boost::shared_ptr<set_node>> sets_list;
+extern std::vector<std::shared_ptr<set_node>> sets_list;
 extern msg_node global_msg;
 extern const unsigned MIN_ACTIVE_SIZE;
 extern const unsigned MAX_ACTIVE_SIZE;

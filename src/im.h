@@ -13,8 +13,6 @@
 
 #include "structs.h"
 
-#include <boost/array.hpp>
-
 class OBJ_DATA;	// forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
 struct ROOM_DATA;	//
 
@@ -91,11 +89,11 @@ struct _im_recipe_tag
 	int *require;		// массив обязательных компонентов
 	int nAddon;		// количество добавочных компонентов
 	im_addon *addon;	// массив добавочных компонентов
-	boost::array<char *, 3> msg_char;	// сообщения OK,FAIL,DAM
-	boost::array<char *, 3> msg_room;	// сообщения OK,FAIL,DAM
+	std::array<char *, 3> msg_char;	// сообщения OK,FAIL,DAM
+	std::array<char *, 3> msg_room;	// сообщения OK,FAIL,DAM
 	int x, y;		// XdY - повреждения
 // +newbook.patch (Alisher)
-	boost::array<int, NUM_PLAYER_CLASSES> classknow; // владеет ли класс данным рецептом
+	std::array<int, NUM_PLAYER_CLASSES> classknow; // владеет ли класс данным рецептом
 	int level; // на каком уровне можно выучить рецепт
 	int remort; // сколько ремортов необходимо для рецепта
 // -newbook.patch (Alisher)

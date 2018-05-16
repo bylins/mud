@@ -80,7 +80,7 @@ struct item_set
 	std::vector<item_set_node> item_list;
 };
 
-typedef boost::shared_ptr<item_set> ItemSetPtr;
+typedef std::shared_ptr<item_set> ItemSetPtr;
 typedef std::vector<ItemSetPtr> ItemSetListType;
 
 ShopListType& shop_list = GlobalObjects::shop_list();

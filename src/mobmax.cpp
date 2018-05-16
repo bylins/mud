@@ -9,12 +9,9 @@
 #include "utils.h"
 #include "db.h"
 
-#include <boost/array.hpp>
-#include <boost/bind.hpp>
-
 #include <map>
 
-boost::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels = { { 0 } };
+std::array<int, MAX_MOB_LEVEL / 11 + 1> animals_levels = { { 0 } };
 namespace
 {
 
@@ -25,7 +22,7 @@ const int MAX_MOB_IN_MOBKILL = 100;
 // Во сколько раз надо убить мобов меньше, чем их есть в мире, чтобы начать размаксивать
 const int MOBKILL_KOEFF = 3;
 // кол-во мобов каждого уровня
-boost::array<int, MAX_MOB_LEVEL + 1> num_levels = { {0} };
+std::array<int, MAX_MOB_LEVEL + 1> num_levels = { {0} };
 
 // мап соответствий внумов и левелов (для быстрого чтения плеер-файла)
 typedef std::map<int/* внум моба */, int/* левел моба */> VnumToLevelType;
@@ -35,7 +32,7 @@ VnumToLevelType vnum_to_level;
 
 // * Иним массив кол-ва мобов каждого левела и мап соответствий внумов и левелов.
 void MobMax::init()
-{boost::array<int, MAX_MOB_LEVEL + 1> num_animals_levels = { {0} };
+{std::array<int, MAX_MOB_LEVEL + 1> num_animals_levels = { {0} };
 	for (int i = 0; i <= top_of_mobt; ++i)
 	{
 		int level = GET_LEVEL(mob_proto + i);
@@ -108,8 +105,10 @@ void MobMax::add(CHAR_DATA *ch, int vnum, int count, int level)
 	if (IS_NPC(ch) || IS_IMMORTAL(ch) || vnum < 0 || count < 1 || level < 0 || level > MAX_MOB_LEVEL) return;
 
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-			boost::bind(std::equal_to<int>(),
-			boost::bind(&mobmax_data::vnum, _1), vnum));
+		[&](const mobmax_data& data)
+	{
+		return data.vnum == vnum;
+	});
 
 	if (it != mobmax_.end())
 		it->count += count;
@@ -134,8 +133,10 @@ void MobMax::load(CHAR_DATA *ch, int vnum, int count, int level)
 void MobMax::remove(int vnum)
 {
 	MobMaxType::iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-			boost::bind(std::equal_to<int>(),
-			boost::bind(&mobmax_data::vnum, _1), vnum));
+		[&](const mobmax_data& data)
+	{
+		return data.vnum == vnum;
+	});
 
 	if (it != mobmax_.end())
 		mobmax_.erase(it);
@@ -145,8 +146,10 @@ void MobMax::remove(int vnum)
 int MobMax::get_kill_count(int vnum) const
 {
 	MobMaxType::const_iterator it = std::find_if(mobmax_.begin(), mobmax_.end(),
-			boost::bind(std::equal_to<int>(),
-			boost::bind(&mobmax_data::vnum, _1), vnum));
+		[&](const mobmax_data& data)
+	{
+		return data.vnum == vnum;
+	});
 
 	if (it != mobmax_.end())
 		return it->count;

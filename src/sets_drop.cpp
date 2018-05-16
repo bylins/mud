@@ -24,7 +24,6 @@
 #include "utils.h"
 #include "conf.h"
 
-#include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -435,8 +434,10 @@ void add_to_zone_list(std::list<ZoneNode> &cont, MobNode &node)
 {
 	int zone = node.vnum/100;
 	std::list<ZoneNode>::iterator k = std::find_if(cont.begin(), cont.end(),
-		boost::bind(std::equal_to<int>(),
-		boost::bind(&ZoneNode::zone, _1), zone));
+		[&](const ZoneNode& zn)
+	{
+		return zn.zone == zone;
+	});
 
 	if (k != cont.end())
 	{

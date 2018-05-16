@@ -24,7 +24,6 @@
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -92,7 +91,10 @@ namespace Boards
 		auto board_it = std::find_if(
 			Boards::board_list.begin(),
 			Boards::board_list.end(),
-			boost::bind(&Board::get_type, _1) == Boards::GODBUILD_BOARD);
+			[](const Board::shared_ptr p)
+		{
+			return p->get_type() == Boards::GODBUILD_BOARD;
+		});
 
 		if (Boards::board_list.end() == board_it)
 		{
@@ -134,7 +136,10 @@ namespace Boards
 		auto coder_board = std::find_if(
 			Boards::board_list.begin(),
 			Boards::board_list.end(),
-			boost::bind(&Board::get_type, _1) == Boards::CODER_BOARD);
+			[](const Board::shared_ptr p)
+		{
+			return p->get_type() == Boards::CODER_BOARD;
+		});
 
 		if (Boards::board_list.end() == coder_board)
 		{

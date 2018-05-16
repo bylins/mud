@@ -4,8 +4,6 @@
 #include "skills.h"
 #include "comm.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include <list>
 #include <set>
 
@@ -22,8 +20,8 @@ typedef std::list<DescNode> DescListType;
 class IMorph;
 class AnimalMorph;
 
-typedef boost::shared_ptr<IMorph> MorphPtr;
-typedef boost::shared_ptr<AnimalMorph> AnimalMorphPtr;
+typedef std::shared_ptr<IMorph> MorphPtr;
+typedef std::shared_ptr<AnimalMorph> AnimalMorphPtr;
 MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
 typedef std::map<std::string, AnimalMorphPtr> MorphListType;
 

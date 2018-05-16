@@ -7,8 +7,6 @@
 #include "char.hpp"
 #include "utils.h"
 
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include <sstream>

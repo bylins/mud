@@ -627,7 +627,7 @@ namespace craft
 					[&]() { throw std::runtime_error("WARNING: Failed to save " + node_name + " value"); });
 			}
 
-			CHelper::save_pairs_list(*node, "extended_values", "entry", "key", "value", get_values(),
+			CHelper::save_pairs_list(*node, "extended_values", "entry", "key", "value", get_all_values(),
 				[&](const auto& value) -> auto { return TextId::to_str(TextId::OBJ_VALS, static_cast<int>(value.first)); },
 				[&](const auto& value) -> auto { return std::to_string(value.second); },
 				[&]() { throw std::runtime_error("WARNING: Could not save extended values"); });

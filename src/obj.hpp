@@ -13,10 +13,6 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include <boost/array.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/shared_ptr.hpp>
-
 #include <array>
 #include <vector>
 #include <string>
@@ -45,7 +41,13 @@ public:
 		POTION_PROTO_VNUM = 6
 	};
 
-	using values_t = boost::unordered_map<EValueKey, int>;
+	class EValueKeyHash
+	{
+	public:
+		std::size_t operator()(const EValueKey value) const { return static_cast<std::size_t>(value); }
+	};
+
+	using values_t = std::unordered_map<EValueKey, int, EValueKeyHash>;
 	using const_iterator = values_t::const_iterator;
 	const_iterator begin() const { return m_values.begin(); }
 	const_iterator end() const { return m_values.end(); }
@@ -222,7 +224,7 @@ public:
 	using skills_t = std::map<ESkill, int>;
 	using vals_t = std::array<int, VALS_COUNT>;
 	using wear_flags_t = std::underlying_type<EWearFlag>::type;
-	using pnames_t = boost::array<std::string, NUM_PADS>;
+	using pnames_t = std::array<std::string, NUM_PADS>;
 	using triggers_list_t = std::list<obj_vnum>;
 	using triggers_list_ptr = std::shared_ptr<triggers_list_t>;
 	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;
@@ -280,7 +282,6 @@ public:
 	bool init_values_from_file(const char* str) { return m_values.init_from_file(str); }
 	const auto& get_action_description() const { return m_action_description; }
 	const auto& get_affect_flags() const { return m_waffect_flags; }
-	const auto& get_affected() const { return m_affected; }
 	const auto& get_affected(const size_t index) const { return m_affected[index]; }
 	const auto& get_aliases() const { return m_aliases; }
 	const auto& get_all_affected() const { return m_affected; }
@@ -292,7 +293,6 @@ public:
 	const auto& get_no_flags() const { return m_no_flags; }
 	const auto& get_proto_script() const { return *m_proto_script; }
 	const auto& get_proto_script_ptr() const { return m_proto_script; }
-	const auto& get_values() const { return m_values; }
 	const std::string& get_PName(const size_t index) const { return m_pnames[index]; }
 	const std::string& get_short_description() const { return m_short_description; }
 	void add_affect_flags(const FLAG_DATA& flags) { m_waffect_flags += flags; }

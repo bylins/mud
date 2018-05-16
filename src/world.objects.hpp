@@ -6,6 +6,7 @@
 
 #include <map>
 #include <list>
+#include <functional>
 
 class WorldObjects
 {

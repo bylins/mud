@@ -57,26 +57,14 @@ extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
 byte extend_saving_throws(int class_num, int type, int level);
-void weight_change_object(OBJ_DATA * obj, int weight);
-int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void alterate_object(OBJ_DATA * obj, int dam, int chance);
-int has_boat(CHAR_DATA * ch);
-int check_death_trap(CHAR_DATA * ch);
 int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
 int slot_for_char(CHAR_DATA * ch, int slotnum);
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
 
-// Extern functions
-CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
-// local functions
 bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
 bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum);
-int mag_materials(CHAR_DATA * ch, int item0, int item1, int item2, int extract, int verbose);
-void perform_mag_groups(int level, CHAR_DATA * ch, CHAR_DATA * tch, int spellnum, int savetype);
-void affect_update(void);
-void battle_affect_update(CHAR_DATA * ch);
 void pulse_affect_update(CHAR_DATA * ch);
-
 
 CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
 {
@@ -91,43 +79,6 @@ CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
 	}
 
 	return NULL;
-}
-
-CHAR_DATA * random_char_in_room(ROOM_DATA *room)
-{
-	int count = 0, index = 0;
-
-	// посчитаем число перцев  в комнате
-	for (const auto c : room->people)
-	{
-		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-			&& !GET_INVIS_LEV(c))
-		{
-			count++;
-		}
-	}
-
-	count = number(0, count - 1);
-
-	CHAR_DATA* result = nullptr;
-	// А теперь узнаем его указатель.
-	for (const auto c : room->people)
-	{
-		if (!PRF_FLAGGED(c, PRF_NOHASSLE)
-			&& !GET_INVIS_LEV(c))
-		{
-			if (index == count)
-			{
-				result = c;
-
-				break;
-			}
-
-			index++;
-		}
-	}
-
-	return result;
 }
 
 std::vector<CHAR_DATA*> AssignEnemyCrowd(CHAR_DATA *ch)
@@ -856,7 +807,6 @@ int calc_anti_savings(CHAR_DATA * ch)
 	return modi;
 }
 
-
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply)
 {
 	int temp_save_stat = 0, temp_awake_mod = 0;
@@ -950,7 +900,6 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	return (FALSE);
 }
 
-
 int multi_cast_say(CHAR_DATA * ch)
 {
 	if (!IS_NPC(ch))
@@ -966,9 +915,6 @@ int multi_cast_say(CHAR_DATA * ch)
 	}
 	return 0;
 }
-
-
-// affect_update: called from comm.cpp (causes spells to wear off)
 
 void show_spell_off(int aff, CHAR_DATA * ch)
 {
@@ -1185,13 +1131,12 @@ float func_koef_modif(int spellnum, int percent)
 {
 	switch (spellnum)
 	{
-		case SPELL_STRENGTH:
-			if (percent > 100)
-				return 1;
-			return 0;
+	case SPELL_STRENGTH:
+		if (percent > 100)
+			return 1;
+		return 0;
 	default:
 		return 1;
-		//return 1 + percent / 100;
 	}
 }
 
@@ -1717,7 +1662,6 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	}
 	return (TRUE);
 }
-
 
 int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrecipe)
 {
@@ -2576,14 +2520,6 @@ int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min,
 	return (result);
 }
 
-/*
- * Every spell that does an affect comes through here.  This determines
- * the effect, whether it is added or replacement, whether it is legal or
- * not, etc.
- *
- * affect_join(vict, aff, add_dur, avg_dur, add_mod, avg_mod)
-*/
-
 bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum)
 {
 	int vnum = 0;
@@ -2661,7 +2597,6 @@ bool material_component_processing(CHAR_DATA *caster, int /*vnum*/, int spellnum
 	}
 	return (FALSE);
 }
-
 
 int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
 {
@@ -5058,7 +4993,6 @@ int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnu
 
 int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int/* savetype*/)
 {
-	OBJ_DATA *reagobj;
 	const char *to_char = NULL;
 
 	if (obj == NULL)
@@ -5153,10 +5087,12 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		break;
 
 	case SPELL_ENCHANT_WEAPON:
+	{
 		if (ch == NULL || obj == NULL)
 		{
 			return 0;
 		}
+
 		// Either already enchanted or not a weapon.
 		if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_WEAPON)
 		{
@@ -5167,14 +5103,15 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		{
 			to_char = "Вам не под силу зачаровать магическую вещь.";
 			break;
-		};
+		}
+
 		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		{
 			send_to_char(ch, "Сетовый предмет не может быть заколдован.\r\n");
 			break;
 		}
 
-		reagobj = GET_EQ(ch, WEAR_HOLD);
+		auto reagobj = GET_EQ(ch, WEAR_HOLD);
 		if (reagobj
 			&& (get_obj_in_list_vnum(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
 				|| get_obj_in_list_vnum(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
@@ -5201,7 +5138,7 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 			to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
 		}
 		break;
-
+	}
 	case SPELL_REMOVE_POISON:
 		if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1)
 		{

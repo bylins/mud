@@ -8,8 +8,6 @@
 #include "parcel.hpp"
 #include "world.characters.hpp"
 
-#include <boost/bind.hpp>
-
 #include <list>
 #include <vector>
 
@@ -90,7 +88,11 @@ void add_to_list(int uid, int type)
 		// почта одна на всех - отсекаются дубли по совпадению type
 		std::vector<ForceNodeType>::const_iterator i =
 			std::find_if(force_list.begin(), force_list.end(),
-				boost::bind(&ForceNodeType::type, _1) == type);
+				[&](const ForceNodeType& x)
+		{
+			return x.type == type;
+		});
+
 		if (i != force_list.end())
 		{
 			return;
@@ -101,8 +103,11 @@ void add_to_list(int uid, int type)
 		// отсекаются остальные дубли по совпадению и uid, и type
 		std::vector<ForceNodeType>::const_iterator i =
 			std::find_if(force_list.begin(), force_list.end(),
-				boost::bind(&ForceNodeType::uid, _1) == uid &&
-				boost::bind(&ForceNodeType::type, _1) == type);
+				[&](const ForceNodeType& x)
+		{
+			return x.uid == uid && x.type == type;
+		});
+
 		if (i != force_list.end())
 		{
 			return;

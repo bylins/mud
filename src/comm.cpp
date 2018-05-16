@@ -116,8 +116,6 @@
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
 #include <sys/stat.h>
 
 #include <string>
@@ -741,6 +739,7 @@ int main_function(int argc, char **argv)
 	dir = DFLT_DIR;
 
 	runtime_config.load();
+
 	if (runtime_config.msdp_debug())
 	{
 		msdp::debug(true);

@@ -23,10 +23,7 @@
 #include "help.hpp"
 #include "sets_drop.hpp"
 
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <string>
@@ -52,7 +49,7 @@ const unsigned MAX_ACTIVE_SIZE = 10;
 /// сколько предметов может быть в сете
 const unsigned MAX_OBJ_LIST = 20;
 /// основной список сетов
-std::vector<boost::shared_ptr<set_node>> sets_list;
+std::vector<std::shared_ptr<set_node>> sets_list;
 /// дефолтные сообщения всех сетов, инятся в init_global_msg()
 msg_node global_msg;
 
@@ -416,7 +413,7 @@ void load()
 	for (pugi::xml_node xml_set = xml_obj_sets.child("set"); xml_set;
 		xml_set = xml_set.next_sibling("set"))
 	{
-		boost::shared_ptr<set_node> tmp_set = boost::make_shared<set_node>();
+		std::shared_ptr<set_node> tmp_set = std::make_shared<set_node>();
 		// имя, алиас и камент не обязательны
 		tmp_set->name = xml_set.attribute("name").value();
 		tmp_set->alias = xml_set.attribute("alias").value();
@@ -707,7 +704,7 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 	const char *char_off_msg = 0;
 	const char *room_off_msg = 0;
 
-	boost::shared_ptr<set_node> &curr_set = sets_list.at(set_idx);
+	std::shared_ptr<set_node> &curr_set = sets_list.at(set_idx);
 	auto i = curr_set->obj_list.find(GET_OBJ_VNUM(obj));
 	if (i != curr_set->obj_list.end())
 	{
@@ -1273,7 +1270,7 @@ void WornSets::check(CHAR_DATA *ch)
 	{
 		if (i->set_idx >= sets_list.size()) return;
 
-		boost::shared_ptr<set_node> &cur_set = sets_list.at(i->set_idx);
+		std::shared_ptr<set_node> &cur_set = sets_list.at(i->set_idx);
 
 		int max_activ = 0;
 		if (cur_set->enabled)

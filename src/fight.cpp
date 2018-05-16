@@ -360,7 +360,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 			};
 		};
 	};
-
 }
 
 int GET_MAXDAMAGE(CHAR_DATA * ch)

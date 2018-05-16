@@ -12,8 +12,6 @@
 #include "conf.h"
 #include "sysdep.h"
 
-#include <boost/array.hpp>
-
 #include <string>
 #include <vector>
 #include <bitset>

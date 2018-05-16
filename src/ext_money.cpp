@@ -15,7 +15,6 @@
 #include "utils.h"
 
 #include <boost/format.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include <sstream>
@@ -93,7 +92,7 @@ struct type_node
 };
 
 // список типов гривен со всеми их параметрами
-boost::array<type_node, TOTAL_TYPES> type_list;
+std::array<type_node, TOTAL_TYPES> type_list;
 
 struct TorcReq
 {

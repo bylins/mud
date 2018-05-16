@@ -1,17 +1,17 @@
 #ifndef _DICTIONARY_H_
 #define _DICTIONARY_H_
+
 #include <string>
 #include <vector>
 #include <list>
-#include <boost/shared_ptr.hpp>
-
+#include <memory>
 
 const std::string DICTIONARY_RESULT_UNDEFINED = "Не найдено";
 
 enum DictionaryMode {SHOP};
 
 class DictionaryItem;
-typedef boost::shared_ptr<DictionaryItem> DictionaryItemPtr;
+typedef std::shared_ptr<DictionaryItem> DictionaryItemPtr;
 
 class DictionaryItem
 {

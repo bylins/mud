@@ -1731,6 +1731,18 @@ void joinList(const T& list, std::string& result, const std::string& delimiter =
 	joinRange<T>(list.begin(), list.end(), result, delimiter);
 }
 
+template <typename... T>
+constexpr auto make_array(T&&... values) ->
+std::array<
+	typename std::decay<
+	typename std::common_type<T...>::type>::type,
+	sizeof...(T)> {
+	return std::array<
+		typename std::decay<
+		typename std::common_type<T...>::type>::type,
+		sizeof...(T)>{std::forward<T>(values)...};
+}
+
 inline int posi_value(int real, int max)
 {
 	if (real < 0)

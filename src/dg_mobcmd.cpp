@@ -1259,8 +1259,6 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		IS_CARRYING_N(m) = IS_CARRYING_N(&tmpmob);
 		ch->set_fighting(m->get_fighting());
 		m->set_fighting(tmpmob.get_fighting());
-		ch->in_fighting_list_ = m->in_fighting_list_;
-		m->in_fighting_list_ = tmpmob.in_fighting_list_;
 		// для name_list
 		ch->set_serial_num(m->get_serial_num());
 		m->set_serial_num(tmpmob.get_serial_num());

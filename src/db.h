@@ -20,9 +20,9 @@
 #include "structs.h"
 #include "conf.h"	// to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 
-#include <boost/array.hpp>
 #include <map>
 #include <list>
+#include <memory>
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -276,7 +276,7 @@ struct ingredient
 {
 	int imtype;
 	std::string imname;
-	boost::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
+	std::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
 };
 
 class MobRace{
@@ -287,7 +287,7 @@ public:
 	std::vector<ingredient> ingrlist;
 };
 
-typedef boost::shared_ptr<MobRace> MobRacePtr;
+typedef std::shared_ptr<MobRace> MobRacePtr;
 typedef std::map<int, MobRacePtr> MobRaceListType;
 
 //-Polud

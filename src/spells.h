@@ -14,9 +14,6 @@
 #include "skills.h"
 #include "structs.h"	// there was defined type "byte" if it had been missing
 
-#include <boost/tokenizer.hpp>
-#include <boost/array.hpp>
-
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 #define DEFAULT_STAFF_LVL	12
@@ -498,7 +495,7 @@ struct skill_info_type
 
 struct spell_create_item
 {
-	boost::array<int, 3> items;
+	std::array<int, 3> items;
 	int rnumber;
 	int min_caster_level;	// Понятно из названия :)
 };

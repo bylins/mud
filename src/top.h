@@ -11,7 +11,6 @@
 #include <string>
 #include <list>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 // кол-во отображаемых в топе игроков по профессии
 #define MAX_TOP_CLASS 10

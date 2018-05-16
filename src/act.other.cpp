@@ -206,11 +206,16 @@ void do_summon(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *horse = NULL;
 	horse = get_horse(ch);
 	if (!horse)
+	{
 		send_to_char("У вас нет скакуна!\r\n", ch);
 		return;
+	}
+
 	if (ch->in_room == IN_ROOM(horse))
+	{
 		send_to_char("Но ваш какун рядом с вами!\r\n", ch);
 		return;
+	}
 	
 	send_to_char("Ваш скакун появился перед вами.\r\n", ch);
 	act("$n исчез$q в голубом пламени.", TRUE, horse, 0, 0, TO_ROOM);
@@ -223,7 +228,9 @@ void do_summon(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_save(CHAR_DATA *ch, char* /*argument*/, int cmd, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || !ch->desc)
+	{
 		return;
+	}
 
 	// Only tell the char we're saving if they actually typed "save"
 	if (cmd)
@@ -3487,9 +3494,7 @@ void set_obj_aff(OBJ_DATA *itemobj, const EAffectFlag bitv)
 
 extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod)
 {
-	int i;
-
-	for (i = 0; i < MAX_OBJ_AFFECT; i++)
+	for (auto i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
 		if (itemobj->get_affected(i).location == type)
 		{
