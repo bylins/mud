@@ -50,7 +50,7 @@ public:
 	int vnum; // внум
 	int timer; // таймер
 	int rent_cost; // цена ренты в день
-	int uid; // глобальный уид
+	unsigned int uid; // глобальный уид
 };
 
 typedef std::list<OBJ_DATA::shared_ptr> ObjListType; // имя, шмотка
@@ -1445,9 +1445,9 @@ void CharNode::load_online_objs(int file_type, bool reload)
 			// собсна сверимся со списком таймеров и проставим изменившиеся данные
 			TimerListType::iterator obj_it = std::find_if(offline_list.begin(), offline_list.end(),
 				[&](const OfflineNode& x)
-			{
-				return x.uid == GET_OBJ_UID(obj);
-			});
+				{
+					return x.uid == GET_OBJ_UID(obj);
+				});
 
 			if (obj_it != offline_list.end() && obj_it->vnum == obj->get_vnum())
 			{

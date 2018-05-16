@@ -41,7 +41,13 @@ public:
 		POTION_PROTO_VNUM = 6
 	};
 
-	using values_t = std::unordered_map<EValueKey, int>;
+	class EValueKeyHash
+	{
+	public:
+		std::size_t operator()(const EValueKey value) const { return static_cast<std::size_t>(value); }
+	};
+
+	using values_t = std::unordered_map<EValueKey, int, EValueKeyHash>;
 	using const_iterator = values_t::const_iterator;
 	const_iterator begin() const { return m_values.begin(); }
 	const_iterator end() const { return m_values.end(); }

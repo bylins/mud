@@ -654,7 +654,6 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add)
 {
 	int i, j, nr;
-	bool to_sleeping = true;
 	struct message_type *msg;
 
 	// log("[SKILL MESSAGE] Message for skill %d",attacktype);
