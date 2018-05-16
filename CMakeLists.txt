@@ -608,6 +608,7 @@ if (CMAKE_HOST_UNIX)
 		# EPOLL>>> ... if it is not Cygwin ... EPOLL>>>
 		option(HAS_EPOLL "Does system support epoll call?" OFF)
 	endif ()
+	target_link_libraries(circle.library pthread)
 elseif (CMAKE_HOST_WIN32)
 	add_definitions("-D_SCL_SECURE_NO_WARNINGS")
 	set(CMAKE_CXX_FLAGS_RELEASE  "")
