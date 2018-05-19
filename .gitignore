@@ -2,5 +2,6 @@
 src/version.cpp
 build
 buildx64
+build.ubuntu
 bin
 .vscode
