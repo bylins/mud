@@ -1403,6 +1403,18 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 	unsigned int tuid;
 	int inworld;
 
+	if (!world_objects.get_by_raw_ptr(object))
+	{
+		std::stringstream ss;
+		ss << "SYSERR: Object at address 0x" << object
+			<< " is not in the world but we have attempt to put it into character '" << ch->get_name()
+			<< "'. Object won't be placed into character's inventory.";
+		mudlog(ss.str().c_str(), NRM, LVL_IMPL, SYSLOG, TRUE);
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+
+		return;
+	}
+
 	int may_carry = TRUE;
 	if (object && ch)
 	{
@@ -1532,8 +1544,6 @@ void obj_from_char(OBJ_DATA * object)
 	object->set_carried_by(nullptr);
 	object->set_next_content(nullptr);
 }
-
-
 
 // Return the effect of a piece of armor in position eq_pos
 int apply_ac(CHAR_DATA * ch, int eq_pos)
