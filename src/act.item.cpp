@@ -1584,9 +1584,7 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int subcmd)
 		send_to_char("Боги не обратили внимания на этот хлам.\r\n", ch);
 		act("$n принес$q жертву. Но Боги были глухи к н$m!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
-
 }
-
 
 void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 {
@@ -1619,8 +1617,14 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 	act("$n дал$g вам $o3.", FALSE, ch, obj, vict, TO_VICT);
 	act("$n дал$g $o3 $N2.", TRUE, ch, obj, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 
+	if (!world_objects.get_by_raw_ptr(obj))
+	{
+		return;	// object has been removed from world during script execution.
+	}
+
 	obj_from_char(obj);
 	obj_to_char(obj, vict);
+
 	// передача объектов-денег и кошельков
 	get_check_money(vict, obj, 0);
 
