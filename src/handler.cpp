@@ -1405,9 +1405,13 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 	if (!world_objects.get_by_raw_ptr(object))
 	{
-		log("SYSERR: Object at address 0x%p is not in the world but we have attempt to put it into character '%s'. "
-			"Object won't be placed into character's inventory.",
-			object, ch->get_name().c_str());
+		std::stringstream ss;
+		ss << "SYSERR: Object at address 0x" << object
+			<< " is not in the world but we have attempt to put it into character '" << ch->get_name()
+			<< "'. Object won't be placed into character's inventory.";
+		mudlog(ss.str().c_str(), NRM, LVL_IMPL, SYSLOG, TRUE);
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+
 		return;
 	}
 
