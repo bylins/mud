@@ -3112,14 +3112,6 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		do_return(ch, NULL, 0, 0);
 	}
 
-	// нужно обнулить его script_data, иначе
-	// там начнут искать random_triggers
-	if (SCRIPT_MEM(ch))
-	{
-		extract_script_mem(SCRIPT_MEM(ch));
-		SCRIPT_MEM(ch) = NULL;	// Аналогично предыдущему комментарию
-	}
-
 	const bool is_npc = IS_NPC(ch);
 	if (!is_npc)
 	{

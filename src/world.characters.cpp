@@ -145,12 +145,6 @@ void Characters::purge()
 			clearMemory(character.get());
 		}
 
-		if (SCRIPT_MEM(character))
-		{
-			extract_script_mem(SCRIPT_MEM(character));
-			SCRIPT_MEM(character) = NULL;
-		}
-
 		MOB_FLAGS(character).set(MOB_FREE);
 	}
 

@@ -315,10 +315,8 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 	GET_POS(ch) = POS_STANDING;
 	look_at_room(ch, 0);
-	entry_memory_mtrigger(ch);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
-	greet_memory_mtrigger(ch);
 
 	return true;
 }
@@ -350,10 +348,8 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		update_pos(ch);
 		act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
 		look_at_room(ch, 0);
-		entry_memory_mtrigger(ch);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
-		greet_memory_mtrigger(ch);
 //		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
 		return;
 	} 

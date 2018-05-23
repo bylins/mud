@@ -2560,7 +2560,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	read_saved_vars(d->character.get());
 	greet_mtrigger(d->character.get(), -1);
 	greet_otrigger(d->character.get(), -1);
-	greet_memory_mtrigger(d->character.get());
 	STATE(d) = CON_PLAYING;
 // режимы по дефолту у нового чара
 	const bool new_char = GET_LEVEL(d->character) <= 0 ? true : false;

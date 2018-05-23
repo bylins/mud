@@ -761,7 +761,6 @@ public:
 	long id;			// used by DG triggers
 	OBJ_DATA::triggers_list_ptr proto_script;	// list of default triggers
 	SCRIPT_DATA::shared_ptr script;	// script info for the object
-	struct script_memory *memory;	// for mob memory triggers
 
 	CHAR_DATA *next_fighting;	// For fighting list
 

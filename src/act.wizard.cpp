@@ -2792,26 +2792,6 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 				send_to_char(buf, ch);
 			}
 		}
-		if (SCRIPT_MEM(k))
-		{
-			struct script_memory *mem = SCRIPT_MEM(k);
-			send_to_char("Память (скрипт):\r\n  Игрок                Команда\r\n", ch);
-			while (mem)
-			{
-				CHAR_DATA *mc = find_char(mem->id);
-				if (!mc)
-					send_to_char("  ** Разрушено!\r\n", ch);
-				else
-				{
-					if (mem->cmd)
-						sprintf(buf, "  %-20.20s%s\r\n", GET_NAME(mc), mem->cmd);
-					else
-						sprintf(buf, "  %-20.20s <default>\r\n", GET_NAME(mc));
-					send_to_char(buf, ch);
-				}
-				mem = mem->next;
-			}
-		}
 	}
 	else  		// this is a PC, display their global variables
 	{

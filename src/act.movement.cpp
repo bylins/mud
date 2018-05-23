@@ -947,8 +947,6 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		return (FALSE);
 	}
 
-	entry_memory_mtrigger(ch);
-
 	if (!greet_mtrigger(ch, dir) || !greet_otrigger(ch, dir))
 	{
 		char_from_room(ch);
@@ -963,7 +961,6 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 	else
 	{
-		greet_memory_mtrigger(ch);
 		// add track info
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOTRACK)
 			&& (!IS_NPC(ch)
