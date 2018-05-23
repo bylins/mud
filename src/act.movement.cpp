@@ -947,75 +947,63 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		return (FALSE);
 	}
 
-	if (!greet_mtrigger(ch, dir) || !greet_otrigger(ch, dir))
+	greet_mtrigger(ch, dir);
+	greet_otrigger(ch, dir);
+
+	// add track info
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOTRACK)
+		&& (!IS_NPC(ch)
+			|| (mob_rnum = GET_MOB_RNUM(ch)) >= 0))
 	{
-		char_from_room(ch);
-		char_to_room(ch, was_in);
-		if (horse)
+		for (track = world[go_to]->track; track; track = track->next)
 		{
-			char_from_room(horse);
-			char_to_room(horse, was_in);
+			if ((IS_NPC(ch) && IS_SET(track->track_info, TRACK_NPC) && track->who == mob_rnum)
+				|| (!IS_NPC(ch) && !IS_SET(track->track_info, TRACK_NPC) && track->who == GET_IDNUM(ch)))
+			{
+				break;
+			}
 		}
-		look_at_room(ch, 0);
-		return (FALSE);
-	}
-	else
-	{
-		// add track info
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_NOTRACK)
-			&& (!IS_NPC(ch)
-				|| (mob_rnum = GET_MOB_RNUM(ch)) >= 0))
+
+		if (!track && !ROOM_FLAGGED(go_to, ROOM_NOTRACK))
 		{
-			for (track = world[go_to]->track; track; track = track->next)
-			{
-				if ((IS_NPC(ch) && IS_SET(track->track_info, TRACK_NPC) && track->who == mob_rnum)
-					|| (!IS_NPC(ch) && !IS_SET(track->track_info, TRACK_NPC) && track->who == GET_IDNUM(ch)))
-				{
-					break;
-				}
-			}
+			CREATE(track, 1);
+			track->track_info = IS_NPC(ch) ? TRACK_NPC : 0;
+			track->who = IS_NPC(ch) ? mob_rnum : GET_IDNUM(ch);
+			track->next = world[go_to]->track;
+			world[go_to]->track = track;
+		}
 
-			if (!track && !ROOM_FLAGGED(go_to, ROOM_NOTRACK))
-			{
-				CREATE(track, 1);
-				track->track_info = IS_NPC(ch) ? TRACK_NPC : 0;
-				track->who = IS_NPC(ch) ? mob_rnum : GET_IDNUM(ch);
-				track->next = world[go_to]->track;
-				world[go_to]->track = track;
-			}
+		if (track)
+		{
+			SET_BIT(track->time_income[Reverse[dir]], 1);
+			if (affected_by_spell(ch, SPELL_LIGHT_WALK) && !on_horse(ch))
+				if (AFF_FLAGGED(ch, EAffectFlag::AFF_LIGHT_WALK))
+					track->time_income[Reverse[dir]] <<= number(15, 30);
+			REMOVE_BIT(track->track_info, TRACK_HIDE);
+		}
 
-			if (track)
-			{
-				SET_BIT(track->time_income[Reverse[dir]], 1);
-				if (affected_by_spell(ch, SPELL_LIGHT_WALK) && !on_horse(ch))
-					if (AFF_FLAGGED(ch, EAffectFlag::AFF_LIGHT_WALK))
-						track->time_income[Reverse[dir]] <<= number(15, 30);
-				REMOVE_BIT(track->track_info, TRACK_HIDE);
-			}
+		for (track = world[was_in]->track; track; track = track->next)
+			if ((IS_NPC(ch) && IS_SET(track->track_info, TRACK_NPC)
+					&& track->who == mob_rnum) || (!IS_NPC(ch)
+													&& !IS_SET(track->track_info, TRACK_NPC)
+													&& track->who == GET_IDNUM(ch)))
+				break;
 
-			for (track = world[was_in]->track; track; track = track->next)
-				if ((IS_NPC(ch) && IS_SET(track->track_info, TRACK_NPC)
-						&& track->who == mob_rnum) || (!IS_NPC(ch)
-													   && !IS_SET(track->track_info, TRACK_NPC)
-													   && track->who == GET_IDNUM(ch)))
-					break;
-
-			if (!track && !ROOM_FLAGGED(was_in, ROOM_NOTRACK))
-			{
-				CREATE(track, 1);
-				track->track_info = IS_NPC(ch) ? TRACK_NPC : 0;
-				track->who = IS_NPC(ch) ? mob_rnum : GET_IDNUM(ch);
-				track->next = world[was_in]->track;
-				world[was_in]->track = track;
-			}
-			if (track)
-			{
-				SET_BIT(track->time_outgone[dir], 1);
-				if (affected_by_spell(ch, SPELL_LIGHT_WALK) && !on_horse(ch))
-					if (AFF_FLAGGED(ch, EAffectFlag::AFF_LIGHT_WALK))
-						track->time_outgone[dir] <<= number(15, 30);
-				REMOVE_BIT(track->track_info, TRACK_HIDE);
-			}
+		if (!track && !ROOM_FLAGGED(was_in, ROOM_NOTRACK))
+		{
+			CREATE(track, 1);
+			track->track_info = IS_NPC(ch) ? TRACK_NPC : 0;
+			track->who = IS_NPC(ch) ? mob_rnum : GET_IDNUM(ch);
+			track->next = world[was_in]->track;
+			world[was_in]->track = track;
+		}
+		if (track)
+		{
+			SET_BIT(track->time_outgone[dir], 1);
+			if (affected_by_spell(ch, SPELL_LIGHT_WALK) && !on_horse(ch))
+				if (AFF_FLAGGED(ch, EAffectFlag::AFF_LIGHT_WALK))
+					track->time_outgone[dir] <<= number(15, 30);
+			REMOVE_BIT(track->track_info, TRACK_HIDE);
 		}
 	}
 

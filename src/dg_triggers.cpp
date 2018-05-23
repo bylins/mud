@@ -159,10 +159,6 @@ const char *wtrig_types[] = { "Global",
 							  "\n"
 							};
 
-
-// * General functions used by several triggers
-
-
 // * Copy first phrase into first_arg, returns rest of string
 char *one_phrase(char *arg, char *first_arg)
 {
@@ -242,9 +238,13 @@ int word_check(const char *str, const char *wordlist)
 }
 
 // *  mob triggers
-
 void random_mtrigger(CHAR_DATA * ch)
 {
+	if (!ch || ch->purged())
+	{
+		return;
+	}
+
 	if (!SCRIPT_CHECK(ch, MTRIG_RANDOM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
@@ -256,7 +256,6 @@ void random_mtrigger(CHAR_DATA * ch)
 		if (TRIGGER_CHECK(t, MTRIG_RANDOM) && (number(1, 100) <= GET_TRIG_NARG(t)))
 		{
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
-
 			break;
 		}
 	}
@@ -266,8 +265,15 @@ void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
 {
 	char buf[MAX_INPUT_LENGTH];
 
+	if (!ch || ch->purged()
+		|| !actor || actor->purged())
+	{
+		return;
+	}
+
 	if (!SCRIPT_CHECK(ch, MTRIG_BRIBE)
-		|| !CAN_START_MTRIG(ch) || GET_INVIS_LEV(actor))
+		|| !CAN_START_MTRIG(ch)
+		|| GET_INVIS_LEV(actor))
 	{
 		return;
 	}
@@ -287,11 +293,15 @@ void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount)
 	}
 }
 
-int greet_mtrigger(CHAR_DATA * actor, int dir)
+void greet_mtrigger(CHAR_DATA * actor, int dir)
 {
 	char buf[MAX_INPUT_LENGTH];
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
-	int intermediate, final = TRUE;
+
+	if (!actor || actor->purged())
+	{
+		return;
+	}
 
 	const auto people_copy = world[IN_ROOM(actor)]->people;
 	for (const auto ch : people_copy)
@@ -329,24 +339,15 @@ int greet_mtrigger(CHAR_DATA * actor, int dir)
 				}
 
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-				intermediate = script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+				script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 
 				if (ch->purged())
 				{
 					break;
 				}
-
-				if (!intermediate)
-				{
-					final = FALSE;
-				}
-
-				continue;
 			}
 		}
 	}
-
-	return final;
 }
 
 void income_mtrigger(CHAR_DATA * ch, int dir)
@@ -1235,16 +1236,15 @@ int close_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int lock)
 }
 
 
-int greet_otrigger(CHAR_DATA * actor, int dir)
+void greet_otrigger(CHAR_DATA * actor, int dir)
 {
 	char buf[MAX_INPUT_LENGTH];
 	OBJ_DATA *obj;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
-	int intermediate, final = TRUE;
 
 	if (IS_NPC(actor) || GET_INVIS_LEV(actor))
 	{
-		return (TRUE);
+		return;
 	}
 
 	for (obj = world[IN_ROOM(actor)]->contents; obj; obj = obj->get_next_content())
@@ -1265,18 +1265,10 @@ int greet_otrigger(CHAR_DATA * actor, int dir)
 					add_var_cntx(&GET_TRIG_VARS(t), "direction", dirs[rev_dir[dir]], 0);
 				}
 
-				intermediate = script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
-
-				if (!intermediate)
-				{
-					final = FALSE;
-				}
-
-				continue;
+				script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 			}
 		}
 	}
-	return final;
 }
 
 int timechange_otrigger(OBJ_DATA * obj, const int time)

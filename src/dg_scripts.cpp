@@ -821,7 +821,9 @@ void script_trigger_check()
 			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_RANDOM)
 				&& (!is_empty(world[ch->in_room]->zone)
 					|| IS_SET(SCRIPT_TYPES(sc), MTRIG_GLOBAL)))
+			{
 				random_mtrigger(ch.get());
+			}
 		}
 	});
 

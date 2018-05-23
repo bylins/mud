@@ -324,7 +324,7 @@ struct script_memory
 void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * victim, const OBJ_DATA * object, const OBJ_DATA * target, char *arg);
 void speech_mtrigger(CHAR_DATA * actor, char *str);
 void speech_wtrigger(CHAR_DATA * actor, char *str);
-int greet_mtrigger(CHAR_DATA * actor, int dir);
+void greet_mtrigger(CHAR_DATA * actor, int dir);
 int entry_mtrigger(CHAR_DATA * ch);
 void income_mtrigger(CHAR_DATA * actor, int dir);
 int enter_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir);
@@ -333,7 +333,7 @@ void timer_otrigger(OBJ_DATA * obj);
 int get_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 int drop_wtrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 int give_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, CHAR_DATA * victim);
-int greet_otrigger(CHAR_DATA * actor, int dir);
+void greet_otrigger(CHAR_DATA * actor, int dir);
 int receive_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, OBJ_DATA * obj);
 void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount);
 int wear_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int where);
