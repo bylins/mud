@@ -1365,6 +1365,12 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	{
 		percent = skill_is + bonus + victim_sav + victim_modi / 2;   // вычисление процента прохождения скила
 	}
+	if (ch && vict && !IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
+		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
+		|| skill_no == SKILL_PUNCTUAL || skill_no == SKILL_STUN) && PRF_FLAGGED(ch, PRF_TESTER))
+	{
+		sprintf(buf, "&CПротивник %s: скилл == %d, итоговыйрасчетскилла == %d, бонус == %d, сэйвыпротивника == %d, модификаторпротивника == %d&n\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi/2);
+	}
 
 	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill_no == SKILL_BASH))
 		percent /= 2;
@@ -1427,7 +1433,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		percent = MAX(percent, max_percent);
 	else
 		percent = MIN(MAX(0, percent), max_percent);
-
+/*
 	if (ch && vict && !IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
 		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
 		|| skill_no == SKILL_PUNCTUAL || skill_no == SKILL_STUN) && PRF_FLAGGED(ch, PRF_TESTER))
@@ -1443,7 +1449,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	}
 	if (skill_no == SKILL_PROTECT)
 		log("SKILL_PROTECT: Игрок %s , Percent == %d, fail_limit == %d, Morale == %d, Bonus == %d\r\n", GET_NAME(ch), percent, fail_limit, morale, bonus);
-
+*/
 	return (percent);
 }
 
