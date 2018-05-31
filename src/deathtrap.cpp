@@ -160,6 +160,7 @@ void DeathTrap::log_death_trap(CHAR_DATA * ch)
 	}
 	write_time(file);
 	fprintf(file, "%s hit death trap #%d (%s)\n", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name);
+	fflush(file);
 }
 
 // * Попадание в обычное дт.
