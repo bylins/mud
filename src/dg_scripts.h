@@ -342,7 +342,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_otrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor);
-void fight_mtrigger(CHAR_DATA * ch);
+int fight_mtrigger(CHAR_DATA * ch);
 void hitprcnt_mtrigger(CHAR_DATA * ch);
 int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim);
 void random_mtrigger(CHAR_DATA * ch);

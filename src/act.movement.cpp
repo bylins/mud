@@ -1031,7 +1031,6 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		}
 	}
 
-
 	// hide improovment
 	if (IS_NPC(ch))
 	{
@@ -1045,6 +1044,9 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 
 	income_mtrigger(ch, dir);
+
+	if (ch->purged())
+		return FALSE;
 
 	// char income, go mobs action
 	if (!IS_NPC(ch))

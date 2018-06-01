@@ -357,6 +357,9 @@ void income_mtrigger(CHAR_DATA * ch, int dir)
 	int ispcinroom = 0;
 	CHAR_DATA *actor = NULL;
 
+	if (!ch || ch->purged())
+		return;
+
 	if ((!SCRIPT_CHECK(ch, MTRIG_INCOME)
 			&& !SCRIPT_CHECK(ch, MTRIG_INCOME_PC))
 		|| !CAN_START_MTRIG(ch))
@@ -400,6 +403,9 @@ void income_mtrigger(CHAR_DATA * ch, int dir)
 
 int entry_mtrigger(CHAR_DATA * ch)
 {
+	if (!ch || ch->purged())
+		return 1;
+
 	if (!SCRIPT_CHECK(ch, MTRIG_ENTRY)
 		|| !CAN_START_MTRIG(ch))
 	{
@@ -510,6 +516,9 @@ void speech_mtrigger(CHAR_DATA * actor, char *str)
 {
 	char buf[MAX_INPUT_LENGTH];
 
+	if (!actor || actor->purged())
+		return;
+
 	const auto people_copy = world[IN_ROOM(actor)]->people;
 	for (const auto ch : people_copy)
 	{
@@ -551,6 +560,9 @@ void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * vict
 				  const OBJ_DATA * object, const OBJ_DATA * target, char *arg)
 {
 	char buf[MAX_INPUT_LENGTH];
+
+	if (!ch || ch->purged())
+		return;
 
 	if ((SCRIPT_CHECK(ch, MTRIG_ACT) && CAN_START_MTRIG(ch) && (actor != ch)) && !GET_INVIS_LEV(actor))
 		for (auto t : SCRIPT(ch)->trig_list)
@@ -601,28 +613,29 @@ void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * vict
 }
 
 
-void fight_mtrigger(CHAR_DATA * ch)
+int fight_mtrigger(CHAR_DATA * ch)
 {
-	if (!ch || ch->purged())
-	{
-		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
-		return;
-	}
-
 	char buf[MAX_INPUT_LENGTH];
 
+	if (!ch || ch->purged())
+	{
+		return 1;
+	}
+
 	if (!SCRIPT_CHECK(ch, MTRIG_FIGHT) || !ch->get_fighting() || !CAN_START_MTRIG(ch))
-		return;
+		return 1;
 
 	for (auto t : SCRIPT(ch)->trig_list)
 	{
 		if (TRIGGER_CHECK(t, MTRIG_FIGHT) && (number(1, 100) <= GET_TRIG_NARG(t)))
 		{
 			ADD_UID_CHAR_VAR(buf, t, ch->get_fighting(), "actor", 0);
-			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;
 		}
 	}
+
+	return 1;
 }
 
 int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim)
@@ -785,6 +798,7 @@ void start_fight_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 	{
 		return;
 	}
+
 	char buf[MAX_INPUT_LENGTH];
 
 	for (auto t : SCRIPT(ch)->trig_list)
@@ -1336,6 +1350,9 @@ int enter_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir)
 {
 	char buf[MAX_INPUT_LENGTH];
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
+
+	if (!actor || actor->purged())
+		return 1;
 
 	if ((!SCRIPT_CHECK(room, WTRIG_ENTER | WTRIG_ENTER_PC)) || GET_INVIS_LEV(actor))
 		return 1;
