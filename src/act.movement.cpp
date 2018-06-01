@@ -736,8 +736,14 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (!entry_mtrigger(ch))
 		return (FALSE);
 
+	if (ch->purged())
+		return FALSE;
+
 	if (!enter_wtrigger(world[EXIT(ch, dir)->to_room], ch, dir))
 		return (FALSE);
+
+	if (ch->purged())
+		return FALSE;
 
 	// Now we know we're allow to go into the room.
 	if (!IS_IMMORTAL(ch) && !IS_NPC(ch))
