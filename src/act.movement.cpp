@@ -39,6 +39,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "random.hpp"
 
 // external functs
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
@@ -382,10 +383,39 @@ int real_mountains_paths_sect(int sect)
 	return sect;
 }
 
+int calculate_move_cost(CHAR_DATA* ch, int dir)
+{
+	// move points needed is avg. move loss for src and destination sect type
+	auto ch_inroom = real_sector(ch->in_room);
+	auto ch_toroom = real_sector(EXIT(ch, dir)->to_room);
+
+	if (can_use_feat(ch, FOREST_PATHS_FEAT))
+	{
+		ch_inroom = real_forest_paths_sect(ch_inroom);
+		ch_toroom = real_forest_paths_sect(ch_toroom);
+	}
+
+	if (can_use_feat(ch, MOUNTAIN_PATHS_FEAT))
+	{
+		ch_inroom = real_mountains_paths_sect(ch_inroom);
+		ch_toroom = real_mountains_paths_sect(ch_toroom);
+	}
+
+	int need_movement = (IS_FLY(ch) || on_horse(ch)) ? 1 :
+		(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
+
+	if (IS_IMMORTAL(ch))
+		need_movement = 0;
+	else if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
+		need_movement += CAMOUFLAGE_MOVES;
+	else if (affected_by_spell(ch, SPELL_SNEAK))
+		need_movement += SNEAK_MOVES;
+
+	return need_movement;
+}
+
 int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 {
-	int need_movement = 0, ch_inroom, ch_toroom;
-
 	buf2[0] = '\0';
 	if (need_specials_check && special(ch, dir + 1, buf2, 1))
 		return (FALSE);
@@ -423,6 +453,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		{
 			return (TRUE);
 		}
+
 		//  if this room or the one we're going to needs a boat, check for one */
 		if (!MOB_FLAGGED(ch, MOB_SWIMMING)
 			&& !MOB_FLAGGED(ch, MOB_FLYING)
@@ -463,11 +494,6 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			return (FALSE);
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOHORSE) && IS_HORSE(ch))
-			return (FALSE);
-
-		if (!entry_mtrigger(ch))
-			return (FALSE);
-		if (!enter_wtrigger(world[EXIT(ch, dir)->to_room], ch, dir))
 			return (FALSE);
 	}
 	else
@@ -516,32 +542,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		    return (FALSE);
 		}
 
-		// move points needed is avg. move loss for src and destination sect type
-		ch_inroom = real_sector(ch->in_room);
-		ch_toroom = real_sector(EXIT(ch, dir)->to_room);
-
-		if (can_use_feat(ch, FOREST_PATHS_FEAT))
-		{
-			ch_inroom = real_forest_paths_sect(ch_inroom);
-			ch_toroom = real_forest_paths_sect(ch_toroom);
-		}
-
-		if (can_use_feat(ch, MOUNTAIN_PATHS_FEAT))
-		{
-			ch_inroom = real_mountains_paths_sect(ch_inroom);
-			ch_toroom = real_mountains_paths_sect(ch_toroom);
-		}
-
-		need_movement = (IS_FLY(ch) || on_horse(ch)) ? 1 :
-						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
-
-		if (IS_IMMORTAL(ch))
-			need_movement = 0;
-		else if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
-			need_movement += CAMOUFLAGE_MOVES;
-		else if (affected_by_spell(ch, SPELL_SNEAK))
-			need_movement += SNEAK_MOVES;
-
+		auto need_movement = calculate_move_cost(ch, dir);
 		if (GET_MOVE(ch) < need_movement)
 		{
 			if (need_specials_check
@@ -606,9 +607,17 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				|| AFF_FLAGGED(get_horse(ch), EAffectFlag::AFF_SLEEP)))
 		{
 			if (show_msg)
-				act("$Z $N не в состоянии нести вас на себе.\r\n", FALSE, ch, 0, get_horse(ch),
-					TO_CHAR);
+				act("$Z $N не в состоянии нести вас на себе.\r\n", FALSE, ch, 0, get_horse(ch),	TO_CHAR);
 			return (FALSE);
+		}
+
+		if(on_horse(ch)
+			&& (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL)
+				|| ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOHORSE)))
+		{
+			if (show_msg)
+				act("$Z $N не в состоянии пройти туда.\r\n", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+			return FALSE;
 		}
 
 		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_GODROOM) && !IS_GRGOD(ch))
@@ -617,11 +626,6 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return (FALSE);
 		}
-
-		if (!entry_mtrigger(ch))
-			return (FALSE);
-		if (!enter_wtrigger(world[EXIT(ch, dir)->to_room], ch, dir))
-			return (FALSE);
 
 		for (const auto tch : world[ch->in_room]->people)
 		{
@@ -645,7 +649,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		}
 	}
 
-	return (need_movement ? need_movement : 1);
+	return TRUE;
 }
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
@@ -667,65 +671,80 @@ const char *drunk_voice[MAX_DRUNK_VOICE] = { " - затянул$g $n",
 		" - разухабисто протянул$g $n.",
 										   };
 
-
-
-int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA * leader)
+int check_drunk_move(CHAR_DATA* ch, int direction, bool need_specials_check)
 {
-	struct track_data *track;
-	room_rnum was_in, go_to;
-	int need_movement, i, ndir = -1, nm, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
-	int IsFlee = dir & 0x80, mob_rnum = -1;
-	CHAR_DATA *horse = NULL;
-
-	dir = dir & 0x7f;
-
-	// Mortally drunked - it is loss direction
-	if (!IS_NPC(ch) && !leader && GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED && !on_horse(ch) &&
-			GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
+	if (!IS_NPC(ch)
+		&& GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED
+		&& !on_horse(ch)
+		&& GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
 	{
-		for (i = 0; i < NUM_OF_DIRS && ndir < 0; i++)
+		int dirs[NUM_OF_DIRS];
+		int correct_dirs = 0;
+
+		for (auto i = 0; i < NUM_OF_DIRS; ++i)
 		{
-			ndir = number(0, 5);
-			if (!EXIT(ch, ndir) || EXIT(ch, ndir)->to_room == NOWHERE ||
-					EXIT_FLAGGED(EXIT(ch, ndir), EX_CLOSED) ||
-					!(nm = legal_dir(ch, ndir, need_specials_check, TRUE)))
-				ndir = -1;
-			else
+			if (legal_dir(ch, i, need_specials_check, TRUE))
 			{
-				// должно работать...
-				if (!(need_movement = legal_dir(ch, ndir, need_specials_check, TRUE)))
-				    return (FALSE);
-				if (dir != ndir)
-				{
-					sprintf(buf, "Ваши ноги не хотят слушаться вас...\r\n");
-					send_to_char(buf, ch);
-				}
-				if (!ch->get_fighting() && number(10, 24) < GET_COND(ch, DRUNK))
-				{
-					sprintf(buf, "%s", drunk_songs[number(0, MAX_DRUNK_SONG - 1)]);
-					send_to_char(buf, ch);
-					send_to_char("\r\n", ch);
-					strcat(buf, drunk_voice[number(0, MAX_DRUNK_VOICE - 1)]);
-					act(buf, FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
-					affect_from_char(ch, SPELL_SNEAK);
-					affect_from_char(ch, SPELL_CAMOUFLAGE);
-				};
-				dir = ndir;
-				need_movement = nm;
+				dirs[correct_dirs] = i;
+				++correct_dirs;
 			}
+		}
+
+		if (!bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS)))
+		{
+			return dirs[number(0, correct_dirs - 1)];
 		}
 	}
 
+	return direction;
+}
 
-	if (!(need_movement = legal_dir(ch, dir, need_specials_check, TRUE)))
+int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA * leader, bool is_flee)
+{
+	struct track_data *track;
+	room_rnum was_in, go_to;
+	int i, ndir = -1, invis = 0, use_horse = 0, is_horse = 0;
+	int mob_rnum = -1;
+	CHAR_DATA *horse = NULL;
+
+	// Mortally drunked - it is loss direction
+	if (!IS_NPC(ch) && !leader)
+	{
+		const auto drunk_move = check_drunk_move(ch, dir, need_specials_check);
+		if (dir != drunk_move)
+		{
+			sprintf(buf, "Ваши ноги не хотят слушаться вас...\r\n");
+			send_to_char(buf, ch);
+			dir = drunk_move;
+		}
+
+		if (!ch->get_fighting() && number(10, 24) < GET_COND(ch, DRUNK))
+		{
+			sprintf(buf, "%s", drunk_songs[number(0, MAX_DRUNK_SONG - 1)]);
+			send_to_char(buf, ch);
+			send_to_char("\r\n", ch);
+			strcat(buf, drunk_voice[number(0, MAX_DRUNK_VOICE - 1)]);
+			act(buf, FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
+			affect_from_char(ch, SPELL_SNEAK);
+			affect_from_char(ch, SPELL_CAMOUFLAGE);
+		}
+	}
+
+	if (!legal_dir(ch, dir, need_specials_check, TRUE))
 	    return (FALSE);
+
+	if (!entry_mtrigger(ch))
+		return (FALSE);
+
+	if (!enter_wtrigger(world[EXIT(ch, dir)->to_room], ch, dir))
+		return (FALSE);
 
 	// Now we know we're allow to go into the room.
 	if (!IS_IMMORTAL(ch) && !IS_NPC(ch))
-		GET_MOVE(ch) -= need_movement;
+		GET_MOVE(ch) -= calculate_move_cost(ch, dir);
 
 	i = skill_info[SKILL_SNEAK].max_percent;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) && !IsFlee)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK) && !is_flee)
 	{
 		if (IS_NPC(ch))
 			invis = 1;
@@ -739,7 +758,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 
 	i = skill_info[SKILL_CAMOUFLAGE].max_percent;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE) && !IsFlee)
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE) && !is_flee)
 	{
 		if (IS_NPC(ch))
 			invis = 1;
@@ -753,7 +772,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 				invis = 1;
 	}
 
-	if (!IsFlee)
+	if (!is_flee)
 	{
 		sprintf(buf, "Вы поплелись %s%s.", leader ? "следом за $N4 " : "", DirsTo[dir]);
 		act(buf, FALSE, ch, 0, leader, TO_CHAR);
@@ -761,7 +780,6 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room;
-	direction = dir + 1;
 	use_horse = AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
 		&& has_horse(ch, FALSE)
 		&& (IN_ROOM(get_horse(ch)) == was_in
@@ -774,7 +792,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	if (!invis && !is_horse)
 	{
-		if (IsFlee)
+		if (is_flee)
 			strcpy(buf1, "сбежал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN))
 			strcpy(buf1, "убежал$g");
@@ -816,7 +834,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		else
 			strcpy(buf1, "уш$y");
 
-		if (IsFlee && !IS_NPC(ch) && can_use_feat(ch, WRIGGLER_FEAT))
+		if (is_flee && !IS_NPC(ch) && can_use_feat(ch, WRIGGLER_FEAT))
 			sprintf(buf2, "$n %s.", buf1);
 		else
 			sprintf(buf2, "$n %s %s.", buf1, DirsTo[dir]);
@@ -832,7 +850,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		horse = get_horse(ch);
 
 	// Если сбежали, и по противнику никто не бьет, то убираем с него аттаку
-	if (IsFlee)
+	if (is_flee)
 	{
 		stop_fighting(ch, TRUE);
 	}
@@ -870,7 +888,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	if (!invis && !is_horse)
 	{
-		if (IsFlee || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN)))
+		if (is_flee || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN)))
 			strcpy(buf1, "прибежал$g");
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
@@ -1020,7 +1038,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		}
 	}
 
-	income_mtrigger(ch, direction - 1);
+	income_mtrigger(ch, dir);
 
 	// char income, go mobs action
 	if (!IS_NPC(ch))
@@ -1055,14 +1073,13 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	// If flee - go agressive mobs
 	if (!IS_NPC(ch)
-		&& IsFlee)
+		&& is_flee)
 	{
 		do_aggressive_room(ch, FALSE);
 	}
 
-	return (direction);
+	return dir;
 }
-
 
 int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, CHAR_DATA *master)
 {
@@ -1077,7 +1094,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	struct follow_type *k, *next;
 
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
-		return (0);
+		return FALSE;
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
 		send_to_char("Вы не сможете туда пройти...\r\n", ch);
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED))
@@ -1094,17 +1111,15 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	{
 		if (!ch->followers)
 		{
-			if (!do_simple_move(ch, dir, need_specials_check, master))
+			if (!do_simple_move(ch, dir, need_specials_check, master, false))
 				return (FALSE);
 		}
 		else
 		{
 			was_in = ch->in_room;
-			// When leader mortally drunked - he change direction
-			// So returned value set to FALSE or DIR + 1
-			if (!(dir = do_simple_move(ch, dir, need_specials_check, master)))
+			if (!(dir = do_simple_move(ch, dir, need_specials_check, master, false)))
 				return (FALSE);
-			dir--;
+
 			for (k = ch->followers; k && k->follower->get_master(); k = next)
 			{
 				next = k->next;

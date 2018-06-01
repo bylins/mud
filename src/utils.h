@@ -212,7 +212,7 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim);
 void look_at_room(CHAR_DATA * ch, int mode);
 
 // in act.movmement.cpp //
-int do_simple_move(CHAR_DATA * ch, int dir, int following, CHAR_DATA * leader);
+int do_simple_move(CHAR_DATA * ch, int dir, int following, CHAR_DATA * leader, bool is_flee);
 int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA * leader);
 
 // in limits.cpp //

@@ -253,7 +253,8 @@ void random_mtrigger(CHAR_DATA * ch)
 
 	for (auto t : SCRIPT(ch)->trig_list)
 	{
-		if (TRIGGER_CHECK(t, MTRIG_RANDOM) && (number(1, 100) <= GET_TRIG_NARG(t)))
+		if (TRIGGER_CHECK(t, MTRIG_RANDOM)
+			&& (number(1, 100) <= GET_TRIG_NARG(t)))
 		{
 			script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
 			break;

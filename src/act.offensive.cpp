@@ -779,148 +779,122 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-// ********************* FLEE PROCEDURE
-void go_flee(CHAR_DATA * ch)
+void reduce_exp_after_flee(CHAR_DATA* ch, CHAR_DATA* victim, room_rnum room)
 {
-	int i, attempt, loss, scandirs = 0, was_in = ch->in_room;
-	CHAR_DATA *was_fighting;
-
-	if (on_horse(ch) && GET_POS(get_horse(ch)) >= POS_FIGHTING && !GET_MOB_HOLD(get_horse(ch)))
-	{
-		if (!WAITLESS(ch))
-			WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
-		while (scandirs != (1 << NUM_OF_DIRS) - 1)
-		{
-			attempt = number(0, NUM_OF_DIRS - 1);
-			if (IS_SET(scandirs, (1 << attempt)))
-				continue;
-			SET_BIT(scandirs, (1 << attempt));
-			if (!legal_dir(ch, attempt, TRUE, FALSE) ||
-					ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_DEATH))
-				continue;
-			//далее проверка, чтобы не фликать на лошади в ванрумы и в комнаты с флагом !лошадь
-			if (ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_TUNNEL) ||
-					(ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_NOHORSE)))
-				continue;
-			was_fighting = ch->get_fighting();
-			if (do_simple_move(ch, attempt | 0x80, TRUE, 0))
-			{
-				act("Верн$W $N вынес$Q вас из боя.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
-				if (was_fighting && !IS_NPC(ch))
-				{
-					loss = MAX(1, GET_REAL_MAX_HIT(was_fighting) - GET_HIT(was_fighting));
-					loss *= GET_LEVEL(was_fighting);
-					if (!can_use_feat(ch, RETREAT_FEAT)  && !ROOM_FLAGGED(was_in, ROOM_ARENA))
-						gain_exp(ch, -loss);
-				}
-				return;
-			}
-		}
-		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
+	if (can_use_feat(ch, RETREAT_FEAT) || ROOM_FLAGGED(room, ROOM_ARENA))
 		return;
-	}
 
-	if (GET_MOB_HOLD(ch))
+	const auto loss = MAX(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GET_LEVEL(victim);
+	gain_exp(ch, -loss);
+}
+
+// ********************* FLEE PROCEDURE
+void go_flee(CHAR_DATA* ch)
+{
+	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0)
 		return;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) ||AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY) || PRF_FLAGS(ch).get(PRF_IRON_WIND))
+
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY) || PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
-	if (GET_WAIT(ch) > 0)
-		return;
+
 	if (GET_POS(ch) < POS_FIGHTING)
 	{
 		send_to_char("Вы не можете сбежать из этого положения.\r\n", ch);
 		return;
 	}
+
 	if (!WAITLESS(ch))
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
-	for (i = 0; i < 6; i++)
+
+	if (on_horse(ch) && GET_POS(get_horse(ch)) >= POS_FIGHTING && !GET_MOB_HOLD(get_horse(ch)))
 	{
-		attempt = number(0, NUM_OF_DIRS - 1);	// Select a random direction
-		if (legal_dir(ch, attempt, TRUE, FALSE) && !ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_DEATH))
+		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
+		return;
+	}
+
+	int dirs[NUM_OF_DIRS];
+	int correct_dirs = 0;
+
+	for (auto i = 0; i < NUM_OF_DIRS; ++i)
+	{
+		if (!ROOM_FLAGGED(EXIT(ch, i)->to_room, ROOM_DEATH)
+			&& legal_dir(ch, i, TRUE, FALSE))
 		{
-			act("$n запаниковал$g и пытал$u сбежать!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			was_fighting = ch->get_fighting();
-			if ((do_simple_move(ch, attempt | 0x80, TRUE, 0)))
-			{
-				send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
-				if (was_fighting && !IS_NPC(ch))
-				{
-					loss = MAX(1, GET_REAL_MAX_HIT(was_fighting) - GET_HIT(was_fighting));
-					loss *= GET_LEVEL(was_fighting);
-					if (!can_use_feat(ch, RETREAT_FEAT) && !ROOM_FLAGGED(was_in, ROOM_ARENA))
-						gain_exp(ch, -loss);
-				}
-			}
-			else
-			{
-				act("$n запаниковал$g и попытал$u убежать, но не смог$q!", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
-			}
-			return;
+			dirs[correct_dirs] = i;
+			++correct_dirs;
 		}
 	}
-	send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
-}
 
+	if (!bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS)))
+	{
+		const auto direction = dirs[number(0, correct_dirs - 1)];
+		const auto was_fighting = ch->get_fighting();
+		const auto was_in = ch->in_room;
+
+		if ((do_simple_move(ch, direction, TRUE, 0, true)))
+		{
+			act("$n запаниковал$g и пытал$u сбежать!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
+			if (was_fighting && !IS_NPC(ch))
+			{
+				reduce_exp_after_flee(ch, was_fighting, was_in);
+			}
+		}
+		else
+		{
+			act("$n запаниковал$g и попытал$u убежать, но не смог$q!", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
+		}
+	}
+	else
+	{
+		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
+	}
+}
 
 void go_dir_flee(CHAR_DATA * ch, int direction)
 {
-	int attempt, loss, scandirs = 0, was_in = ch->in_room;
-	CHAR_DATA *was_fighting;
-
-	if (GET_MOB_HOLD(ch))
+	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0)
 		return;
+
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) ||AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)|| PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
-	if (GET_WAIT(ch) > 0)
-		return;
+
 	if (GET_POS(ch) < POS_FIGHTING)
 	{
 		send_to_char("Вы не сможете сбежать из этого положения.\r\n", ch);
 		return;
 	}
 
-	if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
-		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
-
-	while (scandirs != (1 << NUM_OF_DIRS) - 1)
+	if (legal_dir(ch, direction, TRUE, FALSE)
+		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room, ROOM_DEATH))
 	{
-		attempt = direction >= 0 ? direction : number(0, NUM_OF_DIRS - 1);
-		direction = -1;
-		if (IS_SET(scandirs, (1 << attempt)))
-			continue;
-		SET_BIT(scandirs, (1 << attempt));
-		if (!legal_dir(ch, attempt, TRUE, FALSE) || ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_DEATH))
-			continue;
-		// далее проверка, чтобы не фликать на лошади в ванрумы и в комнаты с флагом !лошадь
-		if (ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_TUNNEL) ||
-				(ROOM_FLAGGED(EXIT(ch, attempt)->to_room, ROOM_NOHORSE)))
-			if (on_horse(ch))
-				continue;
-		act("$n запаниковал$g и попытал$u убежать.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		was_fighting = ch->get_fighting();
-		if (do_simple_move(ch, attempt | 0x80, TRUE, 0))
+		if (do_simple_move(ch, direction, TRUE, 0, true))
 		{
+			const auto was_in = ch->in_room;
+			const auto was_fighting = ch->get_fighting();
+
+			act("$n запаниковал$g и попытал$u убежать.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
 			if (was_fighting && !IS_NPC(ch))
 			{
-				loss = GET_REAL_MAX_HIT(was_fighting) - GET_HIT(was_fighting);
-				loss *= GET_LEVEL(was_fighting);
-				if (!can_use_feat(ch, RETREAT_FEAT) && !ROOM_FLAGGED(was_in, ROOM_ARENA))
-					gain_exp(ch, -loss);
+				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
+
+			if (!WAITLESS(ch))
+				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
+
 			return;
 		}
-		else
-			send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ! Вы не смогли cбежать.\r\n", ch);
 	}
-	send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ! Вы не смогли cбежать.\r\n", ch);
+
+	go_flee(ch);
 }
 
 
@@ -3264,7 +3238,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 
 		//Урон распределяется нормально. Матожидание линейно привязано к прокачке скилла. Сигма подобрана экспериментально.
 		//урон считается в процентах от максимального числа хитов жертвы.
-		dam = (GET_MAX_HIT(vict)*GaussIntNumber((300+5*ch->get_skill(SKILL_STRANGLE))/70, 7.0, 1, 30))/100;
+		dam = (GET_MAX_HIT(vict)*GaussIntNumber((300 + 5 * ch->get_skill(SKILL_STRANGLE)) / 70, 7.0, 1, 30)) / 100;
 		//Ограничение урона сверху: по чарам максхиты наема*2, по мобам *6
 		dam = (IS_NPC(vict) ? MIN(dam, 6*GET_MAX_HIT(ch)) : MIN(dam, 2*GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, FightSystem::PHYS_DMG);
