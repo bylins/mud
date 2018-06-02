@@ -704,7 +704,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 {
 	struct track_data *track;
 	room_rnum was_in, go_to;
-	int i, invis = 0, use_horse = 0, is_horse = 0;
+	int i, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
 	int mob_rnum = -1;
 	CHAR_DATA *horse = NULL;
 
@@ -787,6 +787,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room;
+	direction = dir + 1;
 	use_horse = AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
 		&& has_horse(ch, FALSE)
 		&& (IN_ROOM(get_horse(ch)) == was_in
@@ -1044,7 +1045,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		}
 	}
 
-	income_mtrigger(ch, dir);
+	income_mtrigger(ch, direction - 1);
 
 	if (ch->purged())
 		return FALSE;
@@ -1087,7 +1088,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		do_aggressive_room(ch, FALSE);
 	}
 
-	return dir;
+	return direction;
 }
 
 int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, CHAR_DATA *master)
@@ -1126,9 +1127,12 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 		else
 		{
 			was_in = ch->in_room;
+			// When leader mortally drunked - he change direction
+			// So returned value set to FALSE or DIR + 1
 			if (!(dir = do_simple_move(ch, dir, need_specials_check, master, false)))
 				return (FALSE);
 
+			--dir;
 			for (k = ch->followers; k && k->follower->get_master(); k = next)
 			{
 				next = k->next;

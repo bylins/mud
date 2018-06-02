@@ -834,7 +834,7 @@ void go_flee(CHAR_DATA* ch)
 		const auto was_fighting = ch->get_fighting();
 		const auto was_in = ch->in_room;
 
-		if ((do_simple_move(ch, direction, TRUE, 0, true)))
+		if (do_simple_move(ch, direction, TRUE, 0, true))
 		{
 			act("$n запаниковал$g и пытал$u сбежать!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
