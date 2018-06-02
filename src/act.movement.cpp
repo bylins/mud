@@ -40,6 +40,7 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "random.hpp"
+#include <cmath>
 
 // external functs
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
@@ -703,7 +704,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 {
 	struct track_data *track;
 	room_rnum was_in, go_to;
-	int i, ndir = -1, invis = 0, use_horse = 0, is_horse = 0;
+	int i, invis = 0, use_horse = 0, is_horse = 0;
 	int mob_rnum = -1;
 	CHAR_DATA *horse = NULL;
 
