@@ -691,7 +691,8 @@ int check_drunk_move(CHAR_DATA* ch, int direction, bool need_specials_check)
 			}
 		}
 
-		if (!bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS)))
+		if (correct_dirs > 0
+			&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS)))
 		{
 			return dirs[number(0, correct_dirs - 1)];
 		}

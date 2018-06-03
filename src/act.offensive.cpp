@@ -828,7 +828,8 @@ void go_flee(CHAR_DATA* ch)
 		}
 	}
 
-	if (!bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS)))
+	if (correct_dirs > 0
+		&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS)))
 	{
 		const auto direction = dirs[number(0, correct_dirs - 1)];
 		const auto was_fighting = ch->get_fighting();
