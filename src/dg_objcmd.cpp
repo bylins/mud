@@ -36,11 +36,14 @@
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA * obj);
+extern int reloc_target;
 
 CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name);
 OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
+void obj_command_interpreter(OBJ_DATA * obj, char *argument);
+
 ROOM_DATA *get_room(char *name);
 
 bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
@@ -138,6 +141,29 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			sub_write(argument, world[room]->first_character(), TRUE, TO_ROOM | TO_CHAR);
 		}
 	}
+}
+void do_oat(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	int location;
+
+	argument = one_argument(argument, arg);
+	if (!*argument || !a_isdigit(*argument) )
+	{
+		obj_log(obj, "oat: bad argument");
+		return;
+	}
+	location =real_room(atoi(argument));
+
+	if (location == NOWHERE)
+	{
+		sprintf(buf, "oat: invalid location '%s'", argument);
+		obj_log(obj, buf);
+		return;
+	}
+	auto tmp_obj = world_objects.create_from_prototype_by_vnum(obj->get_vnum());
+	tmp_obj->set_in_room(location);
+	obj_command_interpreter(tmp_obj, argument);
+	world_objects.remove(tmp_obj);
 }
 
 void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
