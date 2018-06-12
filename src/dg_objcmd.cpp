@@ -144,25 +144,30 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 void do_oat(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int location;
-
-	argument = one_argument(argument, arg);
-	if (!*argument || !a_isdigit(*argument) )
+//	int location;
+	char roomstr[MAX_INPUT_LENGTH];
+	room_rnum location = NOWHERE;
+	if (!*argument)
 	{
 		obj_log(obj, "oat: bad argument");
 		return;
 	}
-	location =real_room(atoi(argument));
-
-	if (location == NOWHERE)
+	one_argument(argument, roomstr);
+	auto tmp = atoi(roomstr);
+	if (tmp > 0)
 	{
-		sprintf(buf, "oat: invalid location '%s'", argument);
+	    location = real_room(tmp);
+	}
+	else
+	{
+		sprintf(buf, "oat: invalid location '%d'", tmp);
 		obj_log(obj, buf);
 		return;
 	}
+	argument = one_argument(argument, roomstr);
 	auto tmp_obj = world_objects.create_from_prototype_by_vnum(obj->get_vnum());
 	tmp_obj->set_in_room(location);
-	obj_command_interpreter(tmp_obj, argument);
+	obj_command_interpreter(tmp_obj.get(), argument);
 	world_objects.remove(tmp_obj);
 }
 
@@ -1135,6 +1140,7 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 const struct obj_command_info obj_cmd_info[] =
 {
 	{"RESERVED", 0, 0},	// this must be first -- for specprocs
+	{"oat", do_oat, 0},
 	{"oecho", do_oecho, 0},
 	{"oechoaround", do_osend, SCMD_OECHOAROUND},
 	{"oexp", do_oexp, 0},
