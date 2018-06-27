@@ -214,14 +214,14 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		trig_log(trig, buf2);
 		return;
 	}
-
+/*
 	if (IS_SET(SINFO.routines, MAG_GROUPS))
 	{
 		sprintf(buf2, "dg_cast: group spells not permitted (%s)", cmd);
 		trig_log(trig, buf2);
 		return;
 	}
-
+*/
 	if (!caster)
 	{
 		caster = read_mobile(DG_CASTER_PROXY, VIRTUAL);
