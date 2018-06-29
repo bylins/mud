@@ -1016,12 +1016,12 @@ void write_one_object(std::stringstream &out, OBJ_DATA * object, int location)
 	auto proto = get_object_prototype(GET_OBJ_VNUM(object));
 	
 	auto obj_ptr = world_objects.get_by_raw_ptr(object);
-	if (!obj_ptr)
+/*	if (!obj_ptr)
 	{
 		log("Object was purged.");
 		//return;
 	}
-
+*/
 //	log("Write one object: %s", object->get_PName(0).c_str());
 
 	if (GET_OBJ_VNUM(object) >= 0 && proto)
