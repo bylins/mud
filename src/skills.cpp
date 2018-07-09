@@ -763,7 +763,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 {
 	//Зачем здесь было SAVING_REFLEX? Оно же просто число
-	int skill_is, percent = 0, victim_sav = 0, victim_modi = 0, moral_limit = 50 ; // текущее значение умения(прокачанность) / вычисляемый итоговый процент / савис жертвы,
+	int skill_is, percent = 0, victim_sav = 0, victim_modi = 0; // текущее значение умения(прокачанность) / вычисляемый итоговый процент / савис жертвы,
 																	// который влияет на прохождение скила / другие модификаторы, влияющие на прохождение
 	int morale = 0, max_percent = 200, bonus = 0, size = 0, fail_limit = 950;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
@@ -1168,10 +1168,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_CHOPOFF:  // подножка
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-                // убрал лишнее обращение
-                //на правах теста увеличил порог удачи но добавил бонус от ловки.
-		bonus = dex_bonus(GET_REAL_DEX(ch)) * 24 / 10 + size_app[GET_POS_SIZE(ch)].ac; 
-                moral_limit = 100;
+		bonus = dex_bonus(GET_REAL_DEX(ch)) + (dex_bonus(GET_REAL_DEX(ch)) * 2 / 10)  + size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
 		if (equip_in_metall(ch))
 			bonus -= 10;
 		if (vict)
@@ -1405,7 +1402,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
 		// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
 		// все решают спас-броски.
-		if (morale >= moral_limit)   // от moral_limit удачи абсолютный фейл не работает
+		if (morale >= 50)   // от 50 удачи абсолютный фейл не работает
 			fail_limit = 999;
 		if (prob >= fail_limit)
 		{   // Абсолютный фейл 4.9 процента
