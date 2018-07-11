@@ -434,6 +434,7 @@ namespace ShopExt
 					}
 
 					// снятие и логирование славы
+					obj->set_owner(GET_UNIQUE(ch));
 					GloryConst::add_total_spent(price);
 					GloryConst::remove_glory(GET_UNIQUE(ch), price);
 					GloryConst::transfer_log("%s bought %s for %d const glory",
