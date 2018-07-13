@@ -3961,6 +3961,9 @@ void print_do_score_all(CHAR_DATA *ch)
 	strcat(buf, " -------------------------------------------------------------------------------------\r\n");
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
+	resist = MIN(GET_RESIST(ch, DARK_RESISTANCE), 500);
+	sprintf(buf, "Резист от тьмы == %d", resist);
+	send_to_char(buf, ch);
 //	test_self_hitroll(ch);
 }
 

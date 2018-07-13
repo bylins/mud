@@ -309,6 +309,9 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 	case APPLY_RESIST_AIR:
 		GET_RESIST(ch, AIR_RESISTANCE) += mod;
 		break;
+	case APPLY_RESIST_DARK:
+		GET_RESIST(ch, DARK_RESISTANCE) += mod;
+		break;
 	case APPLY_SAVING_CRITICAL:
 		GET_SAVE(ch, SAVING_CRITICAL) += mod;
 		break;
