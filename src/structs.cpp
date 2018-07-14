@@ -499,7 +499,6 @@ void init_EWeaponAffectFlag_ITEM_NAMES()
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_DEAFNESS] = "WAFF_DEAFNESS";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_COMMANDER] = "WAFF_COMMANDER";
 	EWeaponAffectFlag_name_by_value[EWeaponAffectFlag::WAFF_EARTHAURA] = "WAFF_EARTHAURA";
-
 	for (const auto& i : EWeaponAffectFlag_name_by_value)
 	{
 		EWeaponAffectFlag_value_by_name[i.second] = i.first;
@@ -756,7 +755,6 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EXPEDIENT] = "AFF_EXPEDIENT";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_COMMANDER] = "AFF_COMMANDER";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_EARTHAURA] = "AFF_EARTHAURA";
-
 	for (const auto& i : EAffectFlag_name_by_value)
 	{
 		EAffectFlag_value_by_name[i.second] = i.first;
