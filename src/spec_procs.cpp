@@ -507,6 +507,51 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 
 	send_to_char(buf2, vict);
 }
+const char *spells_color(int spellnum )
+{
+		switch (spell_info[spellnum].spell_class)
+		{
+		case STYPE_AIR:
+			return "&W";
+			break;
+
+		case STYPE_FIRE:
+			return "&R";
+			break;
+
+	        case STYPE_WATER:
+			return "&C";
+			break;
+
+	        case STYPE_EARTH:
+			return "&y";
+			break;
+
+	        case STYPE_LIGHT:
+			return "&w";
+			break;
+
+	        case STYPE_DARK:
+			return "&k";
+			break;
+
+	        case STYPE_MIND:
+			return "&b";
+			break;
+
+	        case STYPE_LIFE:
+			return "&r";
+			break;
+
+	        case STYPE_NEUTRAL:
+	        	return "&n";
+			break;
+	        default:
+	        	return "&n";
+			break;
+	        }	
+}
+
 
 /* Параметр all_spells введен для того чтобы предметные кастеры
    смогли посмотреть заклинания которые они могут колдовать
@@ -590,10 +635,12 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 				time_str.append(std::to_string(MAX(1, static_cast<int>(std::ceil(static_cast<double>(Temporary_Spells::spell_left_time(ch, i)) / SECS_PER_MUD_HOUR)))));
 				time_str.append("]");
 			}
+
+
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-				"%s|<%c%c%c%c%c%c%c%c> %-30s %-7s|",
-				slots[slot_num] % 106 <
-				10 ? "\r\n" : "  ",
+				"%s%s|<%c%c%c%c%c%c%c%c> %-30s %-7s|", 
+				spells_color(i),
+				slots[slot_num] % 106 < 10 ? "\r\n" : "  ",
 				IS_SET(GET_SPELL_TYPE(ch, i),
 					SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
 				IS_SET(GET_SPELL_TYPE(ch, i),
