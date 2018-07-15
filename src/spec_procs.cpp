@@ -638,8 +638,8 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 
 
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-				"%s%s|<%c%c%c%c%c%c%c%c> %-30s %-7s|", 
-				spells_color(i),
+				"%s|<%c%c%c%c%c%c%c%c>%s %-30s %-7s&n|", 
+
 				slots[slot_num] % 106 < 10 ? "\r\n" : "  ",
 				IS_SET(GET_SPELL_TYPE(ch, i),
 					SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
@@ -656,6 +656,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 				IS_SET(GET_SPELL_TYPE(ch, i),
 					SPELL_RUNES) ? 'R' : '.',
 				'.',
+				spells_color(i),
 				spell_info[i].name,
 				time_str.c_str());
 		}
