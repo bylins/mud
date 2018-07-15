@@ -640,7 +640,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 				"%s|<%c%c%c%c%c%c%c%c>%s %-30s %-7s&n|", 
 
-				slots[slot_num] % 106 < 10 ? "\r\n" : "  ",
+				slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
 				IS_SET(GET_SPELL_TYPE(ch, i),
 					SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
 				IS_SET(GET_SPELL_TYPE(ch, i),
