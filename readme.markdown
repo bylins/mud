@@ -96,6 +96,10 @@
 Для сборки MUD'а в тестовом режиме, нужно добавить опцию `-DCMAKE_BUILD_TYPE=Test`:
 
     $ cmake -DCMAKE_BUILD_TYPE=Test ..
+Для отключения тестов:
+
+    cmake .. -DBUILD_TESTS=NO
+
 
 #### Windows
 
