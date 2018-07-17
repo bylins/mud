@@ -256,7 +256,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		return;
 	}
 	// Check if zone is protected from editing
-	if (zone_table[OLC_ZNUM(d)].locked)
+	if ((zone_table[OLC_ZNUM(d)].locked) && (GET_LEVEL(ch) != 34))
 	{
 		send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
 		delete d->olc;
