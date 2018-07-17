@@ -124,6 +124,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	else
 	{
 		obj->clone_olc_object_from_prototype(vnum);
+		obj->set_rnum(real_num);
 	}
 
 	OLC_OBJ(d) = obj;
@@ -244,7 +245,6 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
 	ObjSystem::init_ilvl(OLC_OBJ(d));
-
 	// * Write object to internal tables.
 	if (robj_num >= 0)
 	{	/*
