@@ -305,8 +305,6 @@ set(HEADERS
 	src/utils.h
 	src/xml_loading_helper.hpp
 	src/debug.utils.hpp)
-SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "D:/RPF/boost_1_67_0")
-SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "D:/RPF/boost_1_67_0/lib/lib64-msvc-14.0")
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 
 # Build types
