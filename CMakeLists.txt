@@ -305,7 +305,8 @@ set(HEADERS
 	src/utils.h
 	src/xml_loading_helper.hpp
 	src/debug.utils.hpp)
-
+SET(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "D:/RPF/boost_1_67_0")
+SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "D:/RPF/boost_1_67_0/lib/lib64-msvc-14.0")
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 
 # Build types
@@ -587,6 +588,8 @@ target_link_libraries(circle.library
 # Prepare options for test build
 set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 
+
+
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
@@ -629,6 +632,8 @@ if (HAS_EPOLL)
 else ()
 	message(STATUS "Turning OFF epoll")
 endif ()
+
+
 
 message(STATUS "CXX compiler ID is ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "System processor is ${CMAKE_SYSTEM_PROCESSOR}")
