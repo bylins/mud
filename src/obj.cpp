@@ -628,6 +628,7 @@ bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
 
 	const auto obj_original = world_objects.create_from_prototype_by_rnum(rnum);
 	const auto old_rnum = get_rnum();
+	//const auto old_rnum = rnum;
 	
 	copy_from(obj_original.get());
 

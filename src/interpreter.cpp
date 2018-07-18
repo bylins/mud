@@ -3811,7 +3811,10 @@ Sventovit
 			SEND_TO_Q("\r\nîÅËÏÒÒÅËÔÎÙÊ E-mail!" "\r\n÷ÁÛ E-mail :  ", d);
 			return;
 		}
-
+		#ifdef TEST_BUILD		
+		DoAfterEmailConfirm(d);
+			break;
+		#endif
 		{
 			int random_number = number(1000000, 9999999);
 			new_char_codes[d->character->get_pc_name()] = random_number;
