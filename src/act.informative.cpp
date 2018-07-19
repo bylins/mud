@@ -3550,7 +3550,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	resist = GET_RESIST(ch, DARK_RESISTANCE);
 	sprintf(buf + strlen(buf),
 			" || %sВозраст: %s%-3d       %s|"
-			" %sТелосложение:  %2d(%2d) %s|-------------------| &kТьме:      %3d&c ||\r\n",
+			" %sТелосложение:  %2d(%2d) %s|-------------------| &KТьме:      %3d&c ||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_AGE(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_con(), GET_REAL_CON(ch), CCCYN(ch, C_NRM),
 			resist);
