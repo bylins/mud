@@ -190,7 +190,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
 void do_overstuff(CHAR_DATA *ch, char*, int, int);
-
+void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 void generate_magic_enchant(OBJ_DATA *obj);
 
 void save_zone_count_reset()
@@ -199,6 +199,30 @@ void save_zone_count_reset()
 	{
 		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
 		log("%s", buf);
+	}
+}
+
+// Отправляет любой текст выбранному чару
+void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
+{
+	CHAR_DATA *vict = NULL;
+	
+	half_chop(argument, buf, buf2);
+
+	if (!*buf || !*buf2)
+	{
+		send_to_char("Кому и какой текст вы хотите отправить?\r\n", ch);
+	}
+	else if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD)))
+	{
+		send_to_char("Такое персонажа нет в игре.\r\n", ch);
+	}
+	else if (IS_NPC(vict))
+		send_to_char("Такое персонажа нет в игре.\r\n", ch);
+	else
+	{
+		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
+		send_to_char(buf1, vict);
 	}
 }
 
