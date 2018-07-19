@@ -215,10 +215,10 @@ void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
 	}
 	else if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD)))
 	{
-		send_to_char("Такое персонажа нет в игре.\r\n", ch);
+		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	}
 	else if (IS_NPC(vict))
-		send_to_char("Такое персонажа нет в игре.\r\n", ch);
+		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	else
 	{
 		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
