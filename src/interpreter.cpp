@@ -414,6 +414,7 @@ void do_stun(CHAR_DATA*, char*, int, int);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
 void do_overstuff(CHAR_DATA *ch, char*, int, int);
 void do_cities(CHAR_DATA *ch, char*, int, int);
+void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -1018,6 +1019,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"imlog", POS_DEAD, do_syslog, LVL_BUILDER, IMLOG, 0},
 	{"take", POS_RESTING, do_get, 0, 0, 500},
 	{"taste", POS_RESTING, do_eat, 0, SCMD_TASTE, 500},
+	{"t2c", POS_RESTING, do_send_text_to_char, 0, 0, -1 },
 	{"teleport", POS_DEAD, do_teleport, LVL_GRGOD, 0, -1},
 	{"tell", POS_RESTING, do_tell, 0, 0, -1},
 	{"time", POS_DEAD, do_time, 0, 0, 0},

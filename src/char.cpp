@@ -467,7 +467,7 @@ void CHAR_DATA::zero_init()
 void CHAR_DATA::purge()
 {
 	caching::character_cache.remove(this);
-
+	
 	if (!get_name().empty())
 	{
 		log("[FREE CHAR] (%s)", GET_NAME(this));
