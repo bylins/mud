@@ -233,7 +233,7 @@ const int effects_l[5][40][2]{
 	{APPLY_SAVING_STABILITY,	-5},
 	{APPLY_SAVING_WILL,	-5},
 	{APPLY_SIZE,	10},
-	{0 , 0},
+	{APPLY_RESIST_DARK , 15},
 	{0 , 0},
 	{0 , 0},
 	{0 , 0},

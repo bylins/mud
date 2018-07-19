@@ -3846,7 +3846,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 					break;
 				}
 			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 4)
-				switch (number(1, 6))
+				switch (number(1, 7))
 				{
 				case 1:
 					set_obj_eff(itemobj, APPLY_SAVING_STABILITY, -10);
@@ -3870,6 +3870,10 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 				case 6:
 					set_obj_eff(itemobj, APPLY_SAVING_CRITICAL, 10);
+					break;
+
+				case 7:
+					set_obj_eff(itemobj, APPLY_RESIST_DARK, 15);
 					break;
 				}
 			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 5)

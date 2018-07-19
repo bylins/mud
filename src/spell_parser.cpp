@@ -5062,7 +5062,7 @@ void mag_assign_spells(void)
 //143
 	spello(SPELL_SHOCK, "шок", "shock", 100, 90, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-		   MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_AIR);
+		   MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_DARK);
 //144
 	spello(SPELL_MAGICGLASS, "зеркало магии", "magic glassie", 120, 110, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 2, STYPE_LIGHT);
@@ -5363,6 +5363,9 @@ void mag_assign_spells(void)
 //226
 	spello(SPELL_EARTH_AURA, "земной поклон", "earth aura", 140, 120, 2,
                    POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+//227
+	spello(SPELL_GROUP_PROT_FROM_EVIL, "групповая защита от тьмы", "group protect evil", 110, 100, 1,
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
        
 	/*
 	 * These spells are currently not used, not implemented, and not castable.

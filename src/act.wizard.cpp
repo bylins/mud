@@ -2615,9 +2615,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			GET_ABSORBE(k), GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k), GET_REAL_SAVING_WILL(k));
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d]\r\n",
+			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d/Тьма:%d]\r\n",
 			GET_RESIST(k, 0), GET_RESIST(k, 1), GET_RESIST(k, 2), GET_RESIST(k, 3),
-			GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6));
+			GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6), GET_RESIST(k, 7));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Защита от маг. аффектов : [%d], Защита от маг. урона : [%d], Защита от физ. урона : [%d]\r\n", GET_AR(k), GET_MR(k), GET_PR(k));

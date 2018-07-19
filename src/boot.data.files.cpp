@@ -1433,7 +1433,7 @@ void MobileFile::parse_espec(char *buf, int i, int nr)
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
 {
 	struct helper_data_type *helper;
-	int k, num_arg, matched = 0, t[7];
+	int k, num_arg, matched = 0, t[8];
 
 	num_arg = atoi(value);
 
