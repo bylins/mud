@@ -3429,7 +3429,8 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL COMMON MEAL!",
 	"!SPELL STONE WALL!",
 	"!SPELL SNAKE EYES!",
-	"Матушка земля забыла про Вас."
+	"Матушка земля забыла про Вас.",
+	"Вы вновь ощущаете страх перед тьмой."
 };
 
 /**
