@@ -532,7 +532,7 @@ const char *spells_color(int spellnum )
 			break;
 
 	        case STYPE_DARK:
-			return "&k";
+			return "&K";
 			break;
 
 	        case STYPE_MIND:
@@ -613,17 +613,17 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			if (can_cast)
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %-38s|",
-										   slots[slot_num] % 106 <
+										   "%s|<...%4d.> %s%-38s&n|",
+										   slots[slot_num] % 114 <
 										   10 ? "\r\n" : "  ",
-										   GET_MANA_COST(ch, i), spell_info[i].name);
+										   GET_MANA_COST(ch, i), spells_color(i), spell_info[i].name);
 			}
 			else
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %-38s|",
-										   slots[slot_num] % 106 <
-										   10 ? "\r\n" : "  ", spell_info[i].name);
+										   "%s|+--------+ %s%-38s&n|",
+										   slots[slot_num] % 114 <
+										   10 ? "\r\n" : "  ", spells_color(i), spell_info[i].name);
 			}
 		}
 		else
