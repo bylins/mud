@@ -528,7 +528,7 @@ const char *spells_color(int spellnum )
 			break;
 
 	        case STYPE_LIGHT:
-			return "&w";
+			return "&Y";
 			break;
 
 	        case STYPE_DARK:
@@ -536,11 +536,11 @@ const char *spells_color(int spellnum )
 			break;
 
 	        case STYPE_MIND:
-			return "&b";
+			return "&M";
 			break;
 
 	        case STYPE_LIFE:
-			return "&r";
+			return "&G";
 			break;
 
 	        case STYPE_NEUTRAL:
