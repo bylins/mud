@@ -914,7 +914,9 @@ void ObjectFile::parse_object(const int nr)
 				}
 				else
 				{
-					sprintf(buf, "SYSERR: Format error in %s (Corrupt extradesc)", m_buffer);
+					const auto written = snprintf(buf, sizeof(buf), "SYSERR: Format error in %s (Corrupt extradesc)", m_buffer);
+					buf[written] = '\0';
+
 					log("%s", buf);
 				}
 			}

@@ -600,15 +600,24 @@ target_link_libraries(circle.library
 set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 
 set(ASAN_FLAGS)
-option(WITH_ASAN "Compile with ASAN" YES)
+if (UNIX AND NOT CYGWIN)
+	set(DEFAULT_WITH_ASAN YES)
+elseif ()
+	set(DEFAULT_WITH_ASAN NO)
+endif ()
+option(WITH_ASAN "Compile with ASAN" ${DEFAULT_WITH_ASAN})
+
 if (WITH_ASAN)
-	set(ASAN_FLAGS "-static-libasan")
+	message(STATUS "Turning compiling with ASAN in debug mode ON")
+	set(ASAN_FLAGS "-fsanitize=address -static-libasan")
+else ()
+	message(STATUS "Turning compiling with ASAN in debug mode OFF")
 endif ()
 
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE "-ggdb3 -O0    -Wall -Wextra")
-		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC -fsanitize=address ${ASAN_FLAGS}")
+		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS}")
 		set(CMAKE_CXX_FLAGS_TEST "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 

@@ -768,8 +768,6 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	int morale = 0, max_percent = 200, bonus = 0, size = 0, fail_limit = 950;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
-	bool try_morale = false;
-	bool absolute_fail = false;
 
 	if (skill_no < SKILL_FIRST
 		|| skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
@@ -1407,13 +1405,11 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (prob >= fail_limit)
 		{   // Абсолютный фейл 4.9 процента
 			percent = 0;
-			absolute_fail = true;
 		}
 		else if (prob < bonus_limit)
 		{
 			//			percent = skill_info[skill_no].max_percent;
 			percent = max_percent + bonus;
-			try_morale = true;
 		}// else if (vict && general_savingthrow(ch, vict, victim_sav, victim_modi)) {
 		//	percent = 0;
 		//		}

@@ -222,7 +222,7 @@ void up_zone(int number_zone)
 {
 	if (!(number_zone >= 0 && number_zone <= top_of_zone_table))
 		return;
-	
+
 }
 
 // Удаляю команду номер pos
@@ -530,7 +530,7 @@ void zedit_save_to_disk(int zone_num)
 			zone_table[zone_num].lifespan,
 			zone_table[zone_num].reset_mode,
 			zone_table[zone_num].reset_idle,
-			zone_table[zone_num].under_construction ? "test" : "*", 
+			zone_table[zone_num].under_construction ? "test" : "*",
 			zone_table[zone_num].locked ? "locked" : "");
 
 #if defined(ZEDIT_HELP_IN_FILE)
@@ -1635,6 +1635,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		// тут break не нужен, иду редактировать
 
+		// fall through
 	case ZEDIT_CHANGE_ENTRY:
 		// Parse the input for which line to edit, and goto next quiz. //
 		if (is_number(arg) && start_change_command(d, atoi(arg)))
