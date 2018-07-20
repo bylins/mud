@@ -5,3 +5,4 @@ buildx64
 build.ubuntu
 bin
 .vscode
+/.vs

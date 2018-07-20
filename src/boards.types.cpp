@@ -148,7 +148,7 @@ namespace Boards
 	{
 		if (!messages.empty())
 		{
-			return (*messages.rbegin())->date;
+				return (*messages.begin())->date;
 		}
 		return 0;
 	}
