@@ -453,8 +453,6 @@ void TitleSystem::set_player_title(CHAR_DATA* ch, const std::string& pre_title, 
 	if (!pre_title.empty())
 		out << ";" << pre_title;
 	out << "/Одобрен Богом: " << god << "/";
-	if (GET_TITLE(ch) != "")
-		GET_TITLE(ch) = "";
 	GET_TITLE(ch) = out.str();
 }
 
