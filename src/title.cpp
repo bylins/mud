@@ -111,13 +111,11 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 				send_to_char("Вы не можете сделать этого.\r\n", ch);
 				return;
 			}
-			if (GET_TITLE(vict))
+			if (GET_TITLE(vict) != "")
 			{
 				sprintf(buf, "&c%s удалил титул игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
 				send_to_gods(buf, true);
-				//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
-                                free(GET_TITLE(vict));
-				GET_TITLE(vict) = 0;
+				GET_TITLE(vict) = "";
 				//send_to_char("Титул удален.\r\n", ch);
 			} else
 				send_to_char("У игрока нет титула.\r\n", ch);
@@ -225,10 +223,9 @@ void TitleSystem::do_title(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* sub
 	}
 	else if (CompareParam(buffer2, "удалить", 1))
 	{
-		if (GET_TITLE(ch))
+		if (GET_TITLE(ch) != "")
 		{
-			free(GET_TITLE(ch));
-			GET_TITLE(ch) = 0;
+			GET_TITLE(ch) = "";
 		}
 		send_to_char("Ваши титул и предтитул удалены.\r\n", ch);
 	}
@@ -456,9 +453,9 @@ void TitleSystem::set_player_title(CHAR_DATA* ch, const std::string& pre_title, 
 	if (!pre_title.empty())
 		out << ";" << pre_title;
 	out << "/Одобрен Богом: " << god << "/";
-	if (GET_TITLE(ch))
-		free(GET_TITLE(ch));
-	GET_TITLE(ch) = str_dup(out.str().c_str());
+	if (GET_TITLE(ch) != "")
+		GET_TITLE(ch) = "";
+	GET_TITLE(ch) = out.str();
 }
 
 // * Для распечатки разных подсказок имму и игроку

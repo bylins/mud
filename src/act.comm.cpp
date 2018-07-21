@@ -271,7 +271,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	else
 	{
 		snprintf(buf, MAX_STRING_LENGTH, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
-				tell_can_see(vict, ch) ? vict->player_data.PNames[2] : "кому-то", arg, CCNRM(ch, C_NRM));
+				tell_can_see(vict, ch) ? vict->player_data.PNames[2].c_str() : "кому-то", arg, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		if (!IS_NPC(ch))
 		{

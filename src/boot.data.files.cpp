@@ -1200,17 +1200,16 @@ void MobileFile::parse_mobile(const int nr)
 	}
 
 	// real name
-	CREATE(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().size() + 1);
-	strcpy(GET_PAD(mob_proto + i, 0), mob_proto[i].get_npc_name().c_str());
+	mob_proto[i].player_data.PNames[0] = mob_proto[i].get_npc_name();
 	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
-		GET_PAD(mob_proto + i, j) = fread_string();
+		mob_proto[i].player_data.PNames[j] = fread_string();
 	}
 	str = fread_string();
 	mob_proto[i].player_data.long_descr = colorCAP(str);
 	mob_proto[i].player_data.description = fread_string();
 	mob_proto[i].mob_specials.Questor = NULL;
-	mob_proto[i].player_data.title = NULL;
+	mob_proto[i].player_data.title = "";
 	mob_proto[i].set_level(1);
 
 	// *** Numeric data ***

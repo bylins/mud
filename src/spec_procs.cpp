@@ -3564,7 +3564,7 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
 			send_to_char(buf, vict);
-			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
+			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", ch->get_name(), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
 			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			return (1);
 
@@ -3585,7 +3585,7 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
-			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
+			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", ch->get_name(), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
 			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			vict->add_bank(amount);
 			Depot::add_offline_money(GET_UNIQUE(vict), amount);

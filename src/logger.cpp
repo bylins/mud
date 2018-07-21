@@ -206,6 +206,14 @@ void ip_log(const char *ip)
 }
 
 /*
+ * Перезагрузка для функции mudlog, которая первым параметром вместо char *, принимает строку
+ */
+void mudlog(std::string str, int type, int level, EOutputStream channel, int file)
+{
+	mudlog(str.c_str(), type, level, channel, file);
+}
+
+/*
 * mudlog -- log mud messages to a file & to online imm's syslogs
 * based on syslog by Fen Jul 3, 1992
 * file - номер файла для вывода (0..NLOG), -1 не выводить в файл

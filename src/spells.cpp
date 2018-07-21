@@ -2999,12 +2999,12 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	{
 		GET_SEX(mob) = ESex::SEX_MALE;
 		mob->set_pc_name("Небесный защитник");
-		GET_PAD(mob, 0) = str_dup("Небесный защитник");
-		GET_PAD(mob, 1) = str_dup("Небесного защитника");
-		GET_PAD(mob, 2) = str_dup("Небесному защитнику");
-		GET_PAD(mob, 3) = str_dup("Небесного защитника");
-		GET_PAD(mob, 4) = str_dup("Небесным защитником");
-		GET_PAD(mob, 5) = str_dup("Небесном защитнике");
+		mob->player_data.PNames[0] = "Небесный защитник";
+		mob->player_data.PNames[1] = "Небесного защитника";
+		mob->player_data.PNames[2] = "Небесному защитнику";
+		mob->player_data.PNames[3] = "Небесного защитника";
+		mob->player_data.PNames[4] = "Небесным защитником";
+		mob->player_data.PNames[5] = "Небесном защитнике";
 		mob->set_npc_name("Небесный защитник");
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
@@ -3013,12 +3013,12 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	{
 		GET_SEX(mob) = ESex::SEX_FEMALE;
 		mob->set_pc_name("Небесная защитница");
-		GET_PAD(mob, 0) = str_dup("Небесная защитница");
-		GET_PAD(mob, 1) = str_dup("Небесной защитницы");
-		GET_PAD(mob, 2) = str_dup("Небесной защитнице");
-		GET_PAD(mob, 3) = str_dup("Небесную защитницу");
-		GET_PAD(mob, 4) = str_dup("Небесной защитницей");
-		GET_PAD(mob, 5) = str_dup("Небесной защитнице");
+		mob->player_data.PNames[0] = "Небесная защитница";
+		mob->player_data.PNames[1] = "Небесной защитницы";
+		mob->player_data.PNames[2] = "Небесной защитнице";
+		mob->player_data.PNames[3] = "Небесную защитницу";
+		mob->player_data.PNames[4] = "Небесной защитницей";
+		mob->player_data.PNames[5] = "Небесной защитнице";
 		mob->set_npc_name("Небесная защитница");
 		mob->player_data.long_descr = str_dup("Небесная защитница летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");

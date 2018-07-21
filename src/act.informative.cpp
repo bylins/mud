@@ -520,6 +520,20 @@ std::string space_before_string(char const *text)
 	return "";
 }
 
+std::string space_before_string(std::string text)
+{
+	if (text != "")
+	{
+		std::string tmp(" ");
+		tmp += text;
+		boost::replace_all(tmp, "\n", "\n ");
+		boost::trim_right_if(tmp, boost::is_any_of(std::string(" ")));
+		return tmp;
+	}
+	return "";
+}
+
+
 namespace
 {
 
@@ -955,7 +969,7 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	if (!ch->desc)
 		return;
 
-	if (i->player_data.description && *i->player_data.description)
+	if (i->player_data.description != "")
 	{
 		if (IS_NPC(i))
 			send_to_char(ch, " * %s", i->player_data.description);
@@ -1284,7 +1298,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	}
 
 	if (IS_NPC(i)
-		&& i->player_data.long_descr
+		&& i->player_data.long_descr != ""
 		&& GET_POS(i) == GET_DEFAULT_POS(i)
 		&& ch->in_room == i->in_room
 		&& !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
@@ -1333,7 +1347,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_HORSE))
 			strcat(buf, "(под седлом) ");
 
-		strcat(buf, i->player_data.long_descr);
+		strcat(buf, i->player_data.long_descr.c_str());
 		send_to_char(buf, ch);
 
 		*aura_txt = '\0';
@@ -3355,7 +3369,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	int ac, max_dam = 0, hr = 0, resist, modi = 0, timer_room_label;
 	ESkill skill = SKILL_BOTHHANDS;
 
-	std::string sum = string("Вы ") + string(GET_PAD(ch, 0)) + string(", ")
+	std::string sum = string("Вы ") + string(ch->get_name()) + string(", ")
 		+ string(class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)]) + string(".");
 
 	sprintf(buf,
@@ -5494,7 +5508,7 @@ void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 		sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
 		sprintf(buf + strlen(buf),
 				"Падежи : &W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n\r\n",
-				GET_PAD(ch, 0), GET_PAD(ch, 1), GET_PAD(ch, 2),
+				ch->get_name().c_str(), GET_PAD(ch, 1), GET_PAD(ch, 2),
 				GET_PAD(ch, 3), GET_PAD(ch, 4), GET_PAD(ch, 5));
 
 		sprintf(buf + strlen(buf), "Ваш e-mail : &S%s&s\r\n", GET_EMAIL(ch));

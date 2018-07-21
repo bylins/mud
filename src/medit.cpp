@@ -168,10 +168,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	dst->set_normal_morph();//вот это копировать не нада
 
 	// Теперь дублирую память
-	GET_LDESC(dst) = str_dup(not_null(GET_LDESC(src), "неопределен"));
-	GET_DDESC(dst) = str_dup(not_null(GET_DDESC(src), "неопределен"));
-	for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
-		GET_PAD(dst, j) = str_dup(not_null(GET_PAD(src, j), "неопределен"));
+	
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 		&& *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
 		: NULL);
@@ -224,22 +221,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 	if (i == -1 || mob == &mob_proto[i])
 	{
 		// Нет прототипа или сам прототип, удалять все подряд
-		if (GET_LDESC(mob))
-		{
-			free(GET_LDESC(mob));
-			GET_LDESC(mob) = 0;
-		}
-		if (GET_DDESC(mob))
-		{
-			free(GET_DDESC(mob));
-			GET_DDESC(mob) = 0;
-		}
-		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
-			if (GET_PAD(mob, j))
-			{
-				free(GET_PAD(mob, j));
-				GET_PAD(mob, j) = 0;
-			}
+		
 		if (mob->mob_specials.Questor)
 		{
 			free(mob->mob_specials.Questor);
@@ -249,22 +231,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 	else
 	{
 		// Есть прототип, удалять несовпадающее
-		if (GET_LDESC(mob) && GET_LDESC(mob) != GET_LDESC(&mob_proto[i]))
-		{
-			free(GET_LDESC(mob));
-			GET_LDESC(mob) = 0;
-		}
-		if (GET_DDESC(mob) && GET_DDESC(mob) != GET_DDESC(&mob_proto[i]))
-		{
-			free(GET_DDESC(mob));
-			GET_DDESC(mob) = 0;
-		}
-		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
-			if (GET_PAD(mob, j) && GET_PAD(mob, j) != GET_PAD(&mob_proto[i], j))
-			{
-				free(GET_PAD(mob, j));
-				GET_PAD(mob, j) = 0;
-			}
+		
 		if (mob->mob_specials.Questor && mob->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
 		{
 			free(mob->mob_specials.Questor);
@@ -310,14 +277,15 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 		mob->set_rnum(NOBODY);
 		mob->set_pc_name("неоконченный моб");
 		mob->set_npc_name("неоконченный моб");
-		GET_LDESC(mob) = str_dup("Неоконченный моб стоит тут.\r\n");
-		GET_DDESC(mob) = str_dup("Выглядит достаточно незавершенно.\r\n");
-		GET_PAD(mob, 0) = str_dup("неоконченный моб");
-		GET_PAD(mob, 1) = str_dup("неоконченного моба");
-		GET_PAD(mob, 2) = str_dup("неоконченному мобу");
-		GET_PAD(mob, 3) = str_dup("неоконченного моба");
-		GET_PAD(mob, 4) = str_dup("неоконченным мобом");
-		GET_PAD(mob, 5) = str_dup("неоконченном мобе");
+		mob->player_data.long_descr = "Неоконченный моб стоит тут.\r\n";
+		mob->player_data.description = "Выглядит достаточно незавершенно.\r\n";
+
+		mob->player_data.PNames[0] = "неоконченный моб";
+		mob->player_data.PNames[1] = "неоконченного моба";
+		mob->player_data.PNames[2] = "неоконченному мобу";
+		mob->player_data.PNames[3] = "неоконченного моба";
+		mob->player_data.PNames[4] = "неоконченным мобом";
+		mob->player_data.PNames[5] = "неоконченном мобе";
 		mob->mob_specials.Questor = NULL;
 		mob->helpers = NULL;
 #if defined(OASIS_MPROG)
@@ -428,7 +396,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
 				for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
 				{
-					GET_PAD(live_mob, j) = GET_PAD(mob_proto + rmob_num, j);
+					live_mob->player_data.PNames[j] = mob_proto[rmob_num].player_data.PNames[j];
 				}
 				live_mob->helpers = (mob_proto + rmob_num)->helpers;
 				live_mob->mob_specials.Questor = (mob_proto + rmob_num)->mob_specials.Questor;
@@ -636,9 +604,13 @@ void medit_save_to_disk(int zone_num)
 			mob->set_normal_morph();
 
 			// * Clean up strings.
-			strcpy(buf1, not_null(GET_LDESC(mob), "неопределен"));
+			if (mob->player_data.long_descr == "")
+				mob->player_data.long_descr = "неопределен";
+			strcpy(buf1, mob->player_data.long_descr.c_str());
 			strip_string(buf1);
-			strcpy(buf2, not_null(GET_DDESC(mob), "неопределен"));
+			if (mob->player_data.description == "")
+				mob->player_data.description = "неопределен";
+			strcpy(buf2, mob->player_data.description.c_str());
 			strip_string(buf2);
 
 			fprintf(mob_file,
@@ -1678,12 +1650,13 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			OLC_MODE(d) = MEDIT_D_DESC;
 			SEND_TO_Q("Введите описание моба: (/s сохранить /h помощь)\r\n\r\n", d);
 			d->backstr = NULL;
-			if (OLC_MOB(d)->player_data.description)
+			if (OLC_MOB(d)->player_data.description != "")
 			{
-				SEND_TO_Q(OLC_MOB(d)->player_data.description, d);
-				d->backstr = str_dup(OLC_MOB(d)->player_data.description);
+				SEND_TO_Q(OLC_MOB(d)->player_data.description.c_str(), d);
+				d->backstr = str_dup(OLC_MOB(d)->player_data.description.c_str());
 			}
-			d->writer.reset(new DelegatedStringWriter(OLC_MOB(d)->player_data.description));
+			// TODO: переписать делегаты
+			//d->writer.reset(new DelegatedStringWriter(OLC_MOB(d)->player_data.description));
 			d->max_str = MAX_MOB_DESC;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
@@ -2134,68 +2107,40 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case MEDIT_PAD0:
-		if (GET_PAD(OLC_MOB(d), 0))
-		{
-			free(GET_PAD(OLC_MOB(d), 0));
-		}
-		GET_PAD(OLC_MOB(d), 0) = str_dup(not_null(arg, "кто-то"));
+		OLC_MOB(d)->player_data.PNames[0] = std::string(not_null(arg, "кто-то"));
 		OLC_MOB(d)->set_npc_name(not_null(arg, "кто-то"));
 		break;
 
 	case MEDIT_PAD1:
-		if (GET_PAD(OLC_MOB(d), 1))
-		{
-			free(GET_PAD(OLC_MOB(d), 1));
-		}
-		GET_PAD(OLC_MOB(d), 1) = str_dup(not_null(arg, "кого-то"));
+		OLC_MOB(d)->player_data.PNames[1] = std::string(not_null(arg, "кого-то"));
 		break;
 
 	case MEDIT_PAD2:
-		if (GET_PAD(OLC_MOB(d), 2))
-		{
-			free(GET_PAD(OLC_MOB(d), 2));
-		}
-		GET_PAD(OLC_MOB(d), 2) = str_dup(not_null(arg, "кому-то"));
+		OLC_MOB(d)->player_data.PNames[2] = std::string(not_null(arg, "кому-то"));
 		break;
 
 	case MEDIT_PAD3:
-		if (GET_PAD(OLC_MOB(d), 3))
-		{
-			free(GET_PAD(OLC_MOB(d), 3));
-		}
-		GET_PAD(OLC_MOB(d), 3) = str_dup(not_null(arg, "кого-то"));
+		OLC_MOB(d)->player_data.PNames[3] = std::string(not_null(arg, "кого-то"));
 		break;
 
 	case MEDIT_PAD4:
-		if (GET_PAD(OLC_MOB(d), 4))
-		{
-			free(GET_PAD(OLC_MOB(d), 4));
-		}
-		GET_PAD(OLC_MOB(d), 4) = str_dup(not_null(arg, "кем-то"));
+		OLC_MOB(d)->player_data.PNames[4] = std::string(not_null(arg, "кем-то"));
 		break;
 
 	case MEDIT_PAD5:
-		if (GET_PAD(OLC_MOB(d), 5))
-		{
-			free(GET_PAD(OLC_MOB(d), 5));
-		}
-		GET_PAD(OLC_MOB(d), 5) = str_dup(not_null(arg, "о ком-то"));
+		OLC_MOB(d)->player_data.PNames[5] = std::string(not_null(arg, "о ком-то"));
 		break;
 		//-------------------------------------------------------------------
 	case MEDIT_L_DESC:
-		if (GET_LDESC(OLC_MOB(d)))
-		{
-			free(GET_LDESC(OLC_MOB(d)));
-		}
 		if (arg && *arg)
 		{
 			strcpy(buf, arg);
 			strcat(buf, "\r\n");
-			GET_LDESC(OLC_MOB(d)) = str_dup(buf);
+			OLC_MOB(d)->player_data.long_descr = std::string(buf);
 		}
 		else
 		{
-			GET_LDESC(OLC_MOB(d)) = str_dup("неопределен\r\n");
+			OLC_MOB(d)->player_data.long_descr = std::string("неопределен\r\n");
 		}
 		break;
 

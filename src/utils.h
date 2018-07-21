@@ -658,7 +658,7 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define GET_RELIGION(ch) ((ch)->player_data.Religion)
 #define GET_RACE(ch) ((ch)->player_data.Race)
-#define GET_PAD(ch,i)    ((ch)->player_data.PNames[i])
+#define GET_PAD(ch,i)    ((ch)->player_data.PNames[i].c_str())
 #define GET_DRUNK_STATE(ch) ((ch)->player_specials->saved.DrunkState)
 
 #define GET_STR_ADD(ch) ((ch)->get_str_add())
