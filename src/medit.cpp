@@ -157,7 +157,6 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 --*/
 {
-	int j;
 	struct helper_data_type **pdhd, *shd;
 
 	// сохраняем старые значения
@@ -209,7 +208,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 	TODO: вообще канеш переделывать все это надо теперь
 --*/
 {
-	int i, j;
+	int i;
 
 	if (!mob)
 	{
@@ -1322,8 +1321,8 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, GET_PAD(mob, 3),
 		grn, GET_PAD(mob, 4),
 		grn, GET_PAD(mob, 5),
-		grn, GET_LDESC(mob),
-		grn, GET_DDESC(mob),
+		grn, GET_LDESC(mob).c_str(),
+		grn, GET_DDESC(mob).c_str(),
 		grn, nrm, cyn, GET_LEVEL(mob), nrm,
 		grn, nrm, cyn, GET_ALIGNMENT(mob), nrm,
 		grn, nrm, cyn, GET_HR(mob), nrm,
