@@ -3932,8 +3932,8 @@ Sventovit
 
 			SEND_TO_Q("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
-			// TODO: поправить делегаты для строк
-			//d->writer.reset(new StdStringWriter(d->character->player_data.description));
+			
+			d->writer.reset(new DelegatedStdStringWriter(d->character->player_data.description));
 			d->max_str = EXDSCR_LENGTH;
 			STATE(d) = CON_EXDESC;
 

@@ -603,11 +603,11 @@ void medit_save_to_disk(int zone_num)
 			mob->set_normal_morph();
 
 			// * Clean up strings.
-			if (mob->player_data.long_descr == "")
+			if (mob->player_data.long_descr.empty())
 				mob->player_data.long_descr = "неопределен";
 			strcpy(buf1, mob->player_data.long_descr.c_str());
 			strip_string(buf1);
-			if (mob->player_data.description == "")
+			if (mob->player_data.description.empty())
 				mob->player_data.description = "неопределен";
 			strcpy(buf2, mob->player_data.description.c_str());
 			strip_string(buf2);
@@ -1654,8 +1654,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 				SEND_TO_Q(OLC_MOB(d)->player_data.description.c_str(), d);
 				d->backstr = str_dup(OLC_MOB(d)->player_data.description.c_str());
 			}
-			// TODO: переписать делегаты
-			//d->writer.reset(new DelegatedStringWriter(OLC_MOB(d)->player_data.description));
+			d->writer.reset(new DelegatedStdStringWriter(OLC_MOB(d)->player_data.description));
 			d->max_str = MAX_MOB_DESC;
 			d->mail_to = 0;
 			OLC_VAL(d) = 1;
