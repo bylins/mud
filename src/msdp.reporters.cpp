@@ -65,7 +65,7 @@ namespace msdp
 
 		room_descriptor->add(std::make_shared<Variable>("EXITS", exits));
 
-		response = std::make_shared<Variable>("ROOM", room_descriptor);
+		response = std::make_shared<Variable>(constants::ROOM, room_descriptor);
 	}
 
 	void GoldReporter::get(Variable::shared_ptr& response)
