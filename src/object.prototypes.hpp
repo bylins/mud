@@ -14,7 +14,7 @@ private:
 	struct SPrototypeIndex
 	{
 		SPrototypeIndex() : number(0), stored(0), func(nullptr), farg(nullptr), proto(nullptr), zone(0), set_idx(-1) {}
-
+		
 		int number;		// number of existing units of this mob/obj //
 		int stored;		// number of things in rent file            //
 		int(*func)(CHAR_DATA*, void*, int, char*);
@@ -25,6 +25,7 @@ private:
 	};
 
 public:
+	~CObjectPrototypes() {};
 	using prototypes_t = std::deque<CObjectPrototype::shared_ptr>;
 	using const_iterator = prototypes_t::const_iterator;
 

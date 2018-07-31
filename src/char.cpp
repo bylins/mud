@@ -427,9 +427,11 @@ void CHAR_DATA::zero_init()
 	ing_list = 0;
 	dl_list = 0;
 	agrobd = false;
+	
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
 	memset(&cast_attack_, 0, sizeof(cast_attack_type));
-	memset(&player_data, 0, sizeof(char_player_data));
+	//memset(&player_data, 0, sizeof(char_player_data));
+	//player_data = new char_player_data();
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
 	memset(&real_abils, 0, sizeof(char_ability_data));
 	memset(&points, 0, sizeof(char_point_data));
