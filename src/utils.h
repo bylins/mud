@@ -504,13 +504,15 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
                              weather_info.moon_day >= FULLMOONSTART && \
                              weather_info.moon_day <= FULLMOONSTOP))
 
-#define IS_TIMEDARK(room)  ((world[room]->gdark > world[room]->glight) || \
+#define IS_TIMEDARK(room) is_darm(room)
+
+/*((world[room]->gdark > world[room]->glight) || \
                             (!(world[room]->light+world[room]->fires+world[room]->glight) && \
                               (ROOM_FLAGGED(room, ROOM_DARK) || \
                               (SECT(room) != SECT_INSIDE && \
                                SECT(room) != SECT_CITY   && \
                                ( weather_info.sunlight == SUN_SET || \
-                                 weather_info.sunlight == SUN_DARK )) ) ) )
+                                 weather_info.sunlight == SUN_DARK )) ) ) )*/
 
 #define IS_DEFAULTDARK(room) (ROOM_FLAGGED(room, ROOM_DARK) || \
                               (SECT(room) != SECT_INSIDE && \

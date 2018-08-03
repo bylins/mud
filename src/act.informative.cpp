@@ -3083,6 +3083,22 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
+		if (PRF_FLAGGED(ch, PRF_CODERINFO))
+		{
+			sprintf(buf,
+				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), ch->in_room,
+				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[ch->in_room]->light,
+				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[ch->in_room]->glight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->fires,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->ices,
+				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[ch->in_room]->gdark,
+				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
+				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+		}
 		skip_hide_on_look(ch);
 
 		send_to_char("Слишком темно...\r\n", ch);
