@@ -130,7 +130,7 @@ class CObjectPrototype
 {
 public:
 	using shared_ptr = std::shared_ptr<CObjectPrototype>;
-
+	~CObjectPrototype() {};
 	enum EObjectType
 	{
 		ITEM_UNDEFINED = 0,
