@@ -724,7 +724,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 						send_to_char("УРА-А-А ! Вы сперли :) 1 (одну) куну :(.\r\n", ch);
 					}
 					ch->add_gold(gold);
-					sprintf(buf, "<%s> {%d} нагло спер %d кун у %s.", ch->get_name(), GET_ROOM_VNUM(ch->in_room),  gold, GET_PAD(vict, 0));
+					sprintf(buf, "<%s> {%d} нагло спер %d кун у %s.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room),  gold, GET_PAD(vict, 0));
 					mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 					split_or_clan_tax(ch, gold);
 					vict->remove_gold(gold);
@@ -3348,7 +3348,7 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		sprintf(textbuf, "Вы насчитали %i монет.\r\n", gold);
 		send_to_char(textbuf, ch);
 		ch->add_gold(gold);
-		sprintf(buf, "<%s> {%d} нарыл %d кун.", ch->get_name(), GET_ROOM_VNUM(ch->in_room), gold);
+		sprintf(buf, "<%s> {%d} нарыл %d кун.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), gold);
 		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		split_or_clan_tax(ch, gold);
 		return;
@@ -3363,9 +3363,9 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			if (GET_LEVEL(mob) <= GET_LEVEL(ch))
 			{
 				MOB_FLAGS(mob).set(MOB_AGGRESSIVE);
-				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3]);
+				sprintf(textbuf, "Вы выкопали %s!\r\n", mob->player_data.PNames[3].c_str());
 				send_to_char(textbuf, ch);
-				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3]);
+				sprintf(textbuf, "$n выкопал$g %s!\r\n", mob->player_data.PNames[3].c_str());
 				act(textbuf, FALSE, ch, 0, 0, TO_ROOM);
 				char_to_room(mob, ch->in_room);
 				return;
