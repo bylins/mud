@@ -1442,28 +1442,15 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	//Added by Adept
 	CASE("Resistances")
 	{
-		if (sscanf(value, "%d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6) != 7)
+		const int number_resistes = sscanf(value, "%d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6);
+		if (number_resistes < 7 || number_resistes > MAX_NUMBER_RESISTANCE)
 		{
-			// если под старый формат не попали, пробуем новый
-			if (sscanf(value, "%d %d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7) != 8)
-			{
-				log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
-				return;
-			} else
-			{
-				for (k = 0; k < MAX_NUMBER_RESISTANCE; k++)
-				{
-					GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
-				}
-			}
+			log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
+			return;
 		}
-		else
-		{
-			for (k = 0; k < MAX_NUMBER_RESISTANCE - 1; k++)
-			{
-				GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
-			}
-		}
+		for (k = 0; k < number_resistes; k++)
+			GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
+		
 		
 //		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
 //		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
