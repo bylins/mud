@@ -650,9 +650,9 @@ void medit_save_to_disk(int zone_num)
 			for (n = 0; n < MAX_NUMBER_RESISTANCE; n++)
 				sum += GET_RESIST(mob, n);
 			if (sum != 0)
-				fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d\n",
+				fprintf(mob_file, "Resistances: %d %d %d %d %d %d %d %d\n",
 					GET_RESIST(mob, 0), GET_RESIST(mob, 1), GET_RESIST(mob, 2), GET_RESIST(mob, 3),
-					GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6));
+					GET_RESIST(mob, 4), GET_RESIST(mob, 5), GET_RESIST(mob, 6), GET_RESIST(mob, 7));
 			if (GET_HITREG(mob) != 0)
 				fprintf(mob_file, "HPreg: %d\n", GET_HITREG(mob));
 			if (GET_ARMOUR(mob) != 0)

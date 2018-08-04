@@ -1432,7 +1432,7 @@ void MobileFile::parse_espec(char *buf, int i, int nr)
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
 {
 	struct helper_data_type *helper;
-	int k, num_arg, matched = 0, t[8];
+	int k, num_arg, matched = 0, t[MAX_NUMBER_RESISTANCE];
 
 	num_arg = atoi(value);
 
@@ -1444,11 +1444,27 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	{
 		if (sscanf(value, "%d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6) != 7)
 		{
-			log("SYSERROR : Excepted format <# # # # # # #> for RESISTANCES in MOB #%d", i);
-			return;
+			// если под старый формат не попали, пробуем новый
+			if (sscanf(value, "%d %d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7) != 8)
+			{
+				log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
+				return;
+			} else
+			{
+				for (k = 0; k < MAX_NUMBER_RESISTANCE; k++)
+				{
+					GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
+				}
+			}
 		}
-		for (k = 0; k < MAX_NUMBER_RESISTANCE; k++)
-			GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
+		else
+		{
+			for (k = 0; k < MAX_NUMBER_RESISTANCE - 1; k++)
+			{
+				GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
+			}
+		}
+		
 //		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
 //		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
 //		{
