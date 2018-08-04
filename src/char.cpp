@@ -409,7 +409,6 @@ void CHAR_DATA::zero_init()
 	carrying = 0;
 	desc = 0;
 	id = 0;
-	memory = 0;
 	next_fighting = 0;
 	followers = 0;
 	m_master = nullptr;

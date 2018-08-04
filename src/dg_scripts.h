@@ -324,18 +324,16 @@ struct script_memory
 void act_mtrigger(CHAR_DATA * ch, char *str, CHAR_DATA * actor, CHAR_DATA * victim, const OBJ_DATA * object, const OBJ_DATA * target, char *arg);
 void speech_mtrigger(CHAR_DATA * actor, char *str);
 void speech_wtrigger(CHAR_DATA * actor, char *str);
-void greet_memory_mtrigger(CHAR_DATA * ch);
-int greet_mtrigger(CHAR_DATA * actor, int dir);
+void greet_mtrigger(CHAR_DATA * actor, int dir);
 int entry_mtrigger(CHAR_DATA * ch);
 void income_mtrigger(CHAR_DATA * actor, int dir);
-void entry_memory_mtrigger(CHAR_DATA * ch);
 int enter_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir);
 int drop_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 void timer_otrigger(OBJ_DATA * obj);
 int get_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 int drop_wtrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 int give_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, CHAR_DATA * victim);
-int greet_otrigger(CHAR_DATA * actor, int dir);
+void greet_otrigger(CHAR_DATA * actor, int dir);
 int receive_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, OBJ_DATA * obj);
 void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount);
 int wear_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int where);
@@ -344,7 +342,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_otrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor);
-void fight_mtrigger(CHAR_DATA * ch);
+int fight_mtrigger(CHAR_DATA * ch);
 void hitprcnt_mtrigger(CHAR_DATA * ch);
 int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim);
 void random_mtrigger(CHAR_DATA * ch);
@@ -434,8 +432,6 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id);
 // player id's: 0 to ROOM_ID_BASE - 1            //
 // room id's: ROOM_ID_BASE to MOBOBJ_ID_BASE - 1 //
 #define ROOM_ID_BASE    150000
-
-#define SCRIPT_MEM(c)             ((c)->memory)
 
 #define SCRIPT_TYPES(s)		  ((s)->types)
 #define TRIGGERS(s)		  ((s)->trig_list)

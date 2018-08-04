@@ -1611,8 +1611,17 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 		act("$E не может нести такой вес.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (!give_otrigger(obj, ch, vict) || !receive_mtrigger(vict, ch, obj))
+	if (!give_otrigger(obj, ch, vict))
+	{
+		act("$E не хочет иметь дело с этой вещью.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
+	}
+
+	if (!receive_mtrigger(vict, ch, obj))
+	{
+		act("$E не хочет иметь дело с этой вещью.", FALSE, ch, 0, vict, TO_CHAR);
+		return;
+	}
 
 	act("Вы дали $o3 $N2.", FALSE, ch, obj, vict, TO_CHAR);
 	act("$n дал$g вам $o3.", FALSE, ch, obj, vict, TO_VICT);

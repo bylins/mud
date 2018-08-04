@@ -364,10 +364,8 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 	check_horse(victim);
 	act("$n появил$u в центре комнаты.", TRUE, victim, 0, 0, TO_ROOM);
 	look_at_room(victim, 0);
-	entry_memory_mtrigger(victim);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
-	greet_memory_mtrigger(victim);
 }
 
 // ПРЫЖОК в рамках зоны
@@ -396,10 +394,8 @@ void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DAT
 	check_horse(ch);
 	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
 	look_at_room(ch, 0);
-	entry_memory_mtrigger(ch);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
-	greet_memory_mtrigger(ch);
 }
 
 // ПЕРЕМЕСТИТЬСЯ
@@ -489,10 +485,8 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /
 	{
 		WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 	}
-	entry_memory_mtrigger(ch);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
-	greet_memory_mtrigger(ch);
 }
 
 inline void decay_portal(const int room_num)
@@ -797,10 +791,8 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 		}
 	}
 
-	entry_memory_mtrigger(victim);
 	greet_mtrigger(victim, -1);	// УЖАС!!! Не стоит в эту функцию передавать -1 :)
 	greet_otrigger(victim, -1);	// УЖАС!!! Не стоит в эту функцию передавать -1 :)
-	greet_memory_mtrigger(victim);
 	return;
 }
 

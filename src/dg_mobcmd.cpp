@@ -1005,141 +1005,6 @@ void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-// place someone into the mob's memory list
-void do_mremember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *victim;
-	struct script_memory *mem;
-	char arg[MAX_INPUT_LENGTH];
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-		return;
-
-	argument = one_argument(argument, arg);
-
-	if (!*arg)
-	{
-		mob_log(ch, "mremember: bad syntax");
-		return;
-	}
-
-	if (*arg == UID_CHAR)
-	{
-		if (!(victim = get_char(arg)))
-		{
-			sprintf(buf, "mremember: victim (%s) does not exist", arg + 1);
-			mob_log(ch, buf);
-			return;
-		}
-	}
-	else if (!(victim = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
-	{
-		sprintf(buf, "mremember: victim (%s) does not exist", arg);
-		mob_log(ch, buf);
-		return;
-	}
-
-	// create a structure and add it to the list
-	CREATE(mem, 1);
-	if (!SCRIPT_MEM(ch))
-		SCRIPT_MEM(ch) = mem;
-	else
-	{
-		struct script_memory *tmpmem = SCRIPT_MEM(ch);
-		while (tmpmem->next)
-			tmpmem = tmpmem->next;
-		tmpmem->next = mem;
-	}
-
-	// fill in the structure
-	mem->id = GET_ID(victim);
-	if (argument && *argument)
-	{
-		mem->cmd = str_dup(argument);	// Косметическое изменение
-	}
-}
-
-// remove someone from the list
-void do_mforget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *victim;
-	struct script_memory *mem, *prev;
-	char arg[MAX_INPUT_LENGTH];
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg)
-	{
-		mob_log(ch, "mforget: bad syntax");
-		return;
-	}
-
-	if (*arg == UID_CHAR)
-	{
-		if (!(victim = get_char(arg)))
-		{
-			sprintf(buf, "mforget: victim (%s) does not exist", arg + 1);
-			mob_log(ch, buf);
-			return;
-		}
-	}
-	else if (!(victim = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
-	{
-		sprintf(buf, "mforget: victim (%s) does not exist", arg);
-		mob_log(ch, buf);
-		return;
-	}
-
-	mem = SCRIPT_MEM(ch);
-	prev = NULL;
-	while (mem)
-	{
-		if (mem->id == GET_ID(victim))
-		{
-			if (mem->cmd)
-				free(mem->cmd);
-			if (prev == NULL)
-			{
-				SCRIPT_MEM(ch) = mem->next;
-				free(mem);
-				mem = SCRIPT_MEM(ch);
-			}
-			else
-			{
-				prev->next = mem->next;
-				free(mem);
-				mem = prev->next;
-			}
-		}
-		else
-		{
-			prev = mem;
-			mem = mem->next;
-		}
-	}
-}
-
 // transform into a different mobile
 void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -1224,8 +1089,6 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		m->carrying = tmpmob.carrying;
 		ch->script = m->script;
 		m->script = tmpmob.script;
-		ch->memory = m->memory;
-		m->memory = tmpmob.memory;
 
 		ch->next_fighting = m->next_fighting;
 		m->next_fighting = tmpmob.next_fighting;
@@ -2048,8 +1911,6 @@ const struct mob_command_info mob_cmd_info[] =
 	{ "mforce", POS_DEAD, do_mforce, -1, false},
 	{ "mexp", POS_DEAD, do_mexp, -1, false},
 	{ "mgold", POS_DEAD, do_mgold, -1, false},
-	{ "mremember", POS_DEAD, do_mremember, -1, false},
-	{ "mforget", POS_DEAD, do_mforget, -1, false},
 	{ "mtransform", POS_DEAD, do_mtransform, -1, false},
 	{ "mfeatturn", POS_DEAD, do_mfeatturn, -1, false},
 	{ "mskillturn", POS_DEAD, do_mskillturn, -1, false},

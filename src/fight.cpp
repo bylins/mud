@@ -1968,7 +1968,8 @@ void process_npc_attack(CHAR_DATA *ch)
 	//    continue;
 
 	// Вызываем триггер перед началом боевых моба (магических или физических)
-	fight_mtrigger(ch);
+	if (!fight_mtrigger(ch))
+		return;
 
 	// переключение
 	if (MAY_LIKES(ch)

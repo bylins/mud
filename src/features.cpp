@@ -1385,10 +1385,8 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	timed_feat_to_char(ch, &timed);
 	look_at_room(ch, 0);
-	entry_memory_mtrigger(ch);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
-	greet_memory_mtrigger(ch);
 }
 
 // * Выставление чару расовых способностей.
