@@ -527,12 +527,17 @@ void OBJ_DATA::set_enchant(int skill)
        set_affected_modifier(0, 1 + number(-4, 3));
        set_affected_modifier(1, 1 + number(-4, 3));
     }
-    else
+    else if (skill <= 200)
     // 16 мортов (скил магия света 160+)
     {
-       set_affected_modifier(0, 1 + number(-5, 4));
-       set_affected_modifier(1, 1 + number(-5, 4));
+       set_affected_modifier(0, 1 + number(-5, 5));
+       set_affected_modifier(1, 1 + number(-5, 5));
     }
+	else
+	{
+		set_affected_modifier(0, 1 + number(-4, 5));
+		set_affected_modifier(1, 1 + number(-4, 5));
+	}
 
 	set_extra_flag(EExtraFlag::ITEM_MAGIC);
 	set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);

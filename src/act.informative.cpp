@@ -520,6 +520,20 @@ std::string space_before_string(char const *text)
 	return "";
 }
 
+std::string space_before_string(std::string text)
+{
+	if (text != "")
+	{
+		std::string tmp(" ");
+		tmp += text;
+		boost::replace_all(tmp, "\n", "\n ");
+		boost::trim_right_if(tmp, boost::is_any_of(std::string(" ")));
+		return tmp;
+	}
+	return "";
+}
+
+
 namespace
 {
 
@@ -955,10 +969,10 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	if (!ch->desc)
 		return;
 
-	if (i->player_data.description && *i->player_data.description)
+	if (i->player_data.description != "")
 	{
 		if (IS_NPC(i))
-			send_to_char(ch, " * %s", i->player_data.description);
+			send_to_char(ch, " * %s", i->player_data.description.c_str());
 		else
 			send_to_char(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
 	}
@@ -1284,7 +1298,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	}
 
 	if (IS_NPC(i)
-		&& i->player_data.long_descr
+		&& i->player_data.long_descr != ""
 		&& GET_POS(i) == GET_DEFAULT_POS(i)
 		&& ch->in_room == i->in_room
 		&& !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
@@ -1333,7 +1347,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_HORSE))
 			strcat(buf, "(под седлом) ");
 
-		strcat(buf, i->player_data.long_descr);
+		strcat(buf, i->player_data.long_descr.c_str());
 		send_to_char(buf, ch);
 
 		*aura_txt = '\0';
@@ -3069,6 +3083,22 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
+		if (GET_LEVEL(ch) > 30)
+		{
+			sprintf(buf,
+				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), ch->in_room,
+				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[ch->in_room]->light,
+				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[ch->in_room]->glight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->fires,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->ices,
+				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[ch->in_room]->gdark,
+				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
+				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+		}
 		skip_hide_on_look(ch);
 
 		send_to_char("Слишком темно...\r\n", ch);
@@ -3355,7 +3385,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	int ac, max_dam = 0, hr = 0, resist, modi = 0, timer_room_label;
 	ESkill skill = SKILL_BOTHHANDS;
 
-	std::string sum = string("Вы ") + string(GET_PAD(ch, 0)) + string(", ")
+	std::string sum = string("Вы ") + string(ch->get_name()) + string(", ")
 		+ string(class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)]) + string(".");
 
 	sprintf(buf,
@@ -5494,7 +5524,7 @@ void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 		sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
 		sprintf(buf + strlen(buf),
 				"Падежи : &W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n\r\n",
-				GET_PAD(ch, 0), GET_PAD(ch, 1), GET_PAD(ch, 2),
+				ch->get_name().c_str(), GET_PAD(ch, 1), GET_PAD(ch, 2),
 				GET_PAD(ch, 3), GET_PAD(ch, 4), GET_PAD(ch, 5));
 
 		sprintf(buf + strlen(buf), "Ваш e-mail : &S%s&s\r\n", GET_EMAIL(ch));

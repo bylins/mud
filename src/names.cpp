@@ -72,7 +72,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 			// We find char ...
 			for (i = 1; i < 6; i++)
 			{
-				GET_PAD(d->character, i) = str_dup(mortname[i]);
+				d->character->player_data.PNames[i] = std::string(mortname[i]);
 			}
 			GET_SEX(d->character) = static_cast<ESex>(sex);
 			// Auto-Agree char ...
@@ -216,7 +216,7 @@ void NewNameAdd(CHAR_DATA * ch, bool save = 1)
 {
 	NewNamePtr name(new NewName);
 
-	name->name0 = GET_PAD(ch, 0);
+	name->name0 = ch->get_name();
 	name->name1 = GET_PAD(ch, 1);
 	name->name2 = GET_PAD(ch, 2);
 	name->name3 = GET_PAD(ch, 3);

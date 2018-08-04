@@ -1650,6 +1650,20 @@ private:
 	std::string m_string;
 };
 
+class DelegatedStdStringWriter : public AbstractStringWriter
+{
+public:
+	DelegatedStdStringWriter(std::string& string) : m_string(string)  {}
+	virtual const char* get_string() const override { return m_string.c_str(); }
+	virtual void set_string(const char* string) override { m_string = string; }
+	virtual void append_string(const char* string) override { m_string += string; }
+	virtual size_t length() const override { return m_string.length(); }
+	virtual void clear() override { m_string.clear(); }
+
+private:
+	std::string& m_string;
+};
+
 struct DESCRIPTOR_DATA
 {
 	DESCRIPTOR_DATA();

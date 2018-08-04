@@ -4270,7 +4270,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj
 				{
 					boost::replace_first(buffer, "ся", GET_CH_SUF_2(ch));
 				}
-				boost::replace_first(buffer, "Кто-то", GET_PAD(ch, 0));
+				boost::replace_first(buffer, "Кто-то", ch->get_name());
 				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
 			}
 			else

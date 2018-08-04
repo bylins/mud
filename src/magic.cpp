@@ -4547,19 +4547,19 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_pc_name(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
 		mob->set_npc_name(buf2);
-		mob->player_data.long_descr = NULL;
+		mob->player_data.long_descr = "";
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 0) = str_dup(buf2);
+		mob->player_data.PNames[0] = std::string(buf2);
 		sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 2) = str_dup(buf2);
+		mob->player_data.PNames[2] = std::string(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 3) = str_dup(buf2);
+		mob->player_data.PNames[3] = std::string(buf2);
 		sprintf(buf2, "умертвием %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 4) = str_dup(buf2);
+		mob->player_data.PNames[4] = std::string(buf2);
 		sprintf(buf2, "умертвии %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 5) = str_dup(buf2);
+		mob->player_data.PNames[5] = std::string(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 1) = str_dup(buf2);
+		mob->player_data.PNames[1] = std::string(buf2);
 		GET_SEX(mob) = ESex::SEX_NEUTRAL;
 		MOB_FLAGS(mob).set(MOB_RESURRECTED);	// added by Pereplut
 		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
@@ -4653,19 +4653,19 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_pc_name(buf2);
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
 		mob->set_npc_name(buf2);
-		mob->player_data.long_descr = NULL;
+		mob->player_data.long_descr = "";
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 0) = str_dup(buf2);
+		mob->player_data.PNames[0] = std::string(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 1) = str_dup(buf2);
+		mob->player_data.PNames[1] = std::string(buf2);
 		sprintf(buf2, "двойнику %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 2) = str_dup(buf2);
+		mob->player_data.PNames[2] = std::string(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 3) = str_dup(buf2);
+		mob->player_data.PNames[3] = std::string(buf2);
 		sprintf(buf2, "двойником %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 4) = str_dup(buf2);
+		mob->player_data.PNames[4] = std::string(buf2);
 		sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 5) = str_dup(buf2);
+		mob->player_data.PNames[5] = std::string(buf2);
 
 		mob->set_str(ch->get_str());
 		mob->set_dex(ch->get_dex());

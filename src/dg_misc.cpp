@@ -237,27 +237,27 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->set_npc_name(buf);
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
-			GET_PAD(caster, 0) = str_dup(buf);
+			caster->player_data.PNames[0] = std::string(buf);
 			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
-			GET_PAD(caster, 1) = str_dup(buf);
+			caster->player_data.PNames[1] = std::string(buf);
 			sprintf(buf, "духу %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
-			GET_PAD(caster, 2) = str_dup(buf);
+			caster->player_data.PNames[2] = std::string(buf);
 			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
-			GET_PAD(caster, 3) = str_dup(buf);
+			caster->player_data.PNames[3] = std::string(buf);
 			sprintf(buf, "духом %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
-			GET_PAD(caster, 4) = str_dup(buf);
+			caster->player_data.PNames[4] = std::string(buf);
 			sprintf(buf, "духе %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
-			GET_PAD(caster, 5) = str_dup(buf);
+			caster->player_data.PNames[5] = std::string(buf);
 		}
 		else if (type == WLD_TRIGGER)
 		{
 			caster->set_npc_name("Боги");
-			GET_PAD(caster, 0) = str_dup("Боги");
-			GET_PAD(caster, 1) = str_dup("Богов");
-			GET_PAD(caster, 2) = str_dup("Богам");
-			GET_PAD(caster, 3) = str_dup("Богов");
-			GET_PAD(caster, 4) = str_dup("Богами");
-			GET_PAD(caster, 5) = str_dup("Богах");
+			caster->player_data.PNames[0] = "Боги";
+			caster->player_data.PNames[1] = "Богов";
+			caster->player_data.PNames[2] = "Богам";
+			caster->player_data.PNames[3] = "Богов";
+			caster->player_data.PNames[4] = "Богами";
+			caster->player_data.PNames[5] = "Богах"; 
 		}
 
 		caster_room->people.push_front(caster);

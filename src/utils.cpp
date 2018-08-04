@@ -1512,7 +1512,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 			{
 			case 'n':
 				if (*(orig + 1) < '0' || *(orig + 1) > '5')
-					i = GET_PAD(ch, 0);
+					i = ch->get_name().c_str();
 				else
 				{
 					padis = *(++orig) - '0';
