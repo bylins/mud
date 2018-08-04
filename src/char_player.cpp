@@ -1416,7 +1416,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		case 'D':
 			if (!strcmp(tag, "Desc"))
 			{
-				this->player_data.description = fbgetstring(fl);
+				const auto ptr = fbgetstring(fl);
+				this->player_data.description = ptr ? ptr : "";
 			}
 			else if (!strcmp(tag, "Disp"))
 			{
@@ -1936,7 +1937,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			if (!strcmp(tag, "Thir"))
 				GET_COND(this, THIRST) = num;
 			else if (!strcmp(tag, "Titl"))
-				GET_TITLE(this) = str_dup(line);
+				GET_TITLE(this) = std::string(str_dup(line));
 			else if (!strcmp(tag, "TrcG"))
 				set_ext_money(ExtMoney::TORC_GOLD, num, false);
 			else if (!strcmp(tag, "TrcS"))
