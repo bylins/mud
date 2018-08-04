@@ -1,3 +1,4 @@
+
 /************************************************************************
 *   File: db.cpp                                        Part of Bylins    *
 *  Usage: Loading/saving chars, booting/resetting world, internal funcs   *

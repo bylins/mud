@@ -654,18 +654,10 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	reloc_target = location;
 	original = ch->in_room;
-	char_from_room(ch);
-	char_to_room(ch, location);
+	ch->in_room = location;
 	mob_command_interpreter(ch, argument);
+	ch->in_room = original;
 	reloc_target = -1;
-
-	 // See if 'ch' still exists before continuing!
-	 // Handles 'at XXXX quit' case.
-	if (ch->in_room == location)
-	{
-		char_from_room(ch);
-		char_to_room(ch, original);
-	}
 }
 
 /*

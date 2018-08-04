@@ -426,9 +426,11 @@ void CHAR_DATA::zero_init()
 	ing_list = 0;
 	dl_list = 0;
 	agrobd = false;
+	
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
 	memset(&cast_attack_, 0, sizeof(cast_attack_type));
-	memset(&player_data, 0, sizeof(char_player_data));
+	//memset(&player_data, 0, sizeof(char_player_data));
+	//player_data char_player_data();
 	memset(&add_abils, 0, sizeof(char_played_ability_data));
 	memset(&real_abils, 0, sizeof(char_ability_data));
 	memset(&points, 0, sizeof(char_point_data));
@@ -466,13 +468,13 @@ void CHAR_DATA::zero_init()
 void CHAR_DATA::purge()
 {
 	caching::character_cache.remove(this);
-
+	
 	if (!get_name().empty())
 	{
 		log("[FREE CHAR] (%s)", GET_NAME(this));
 	}
 
-	int i, j, id = -1;
+	int i, id = -1;
 	struct alias_data *a;
 
 	if (!IS_NPC(this) && !get_name().empty())
@@ -487,20 +489,7 @@ void CHAR_DATA::purge()
 	}
 
 	if (!IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1))
-	{	// if this is a player, or a non-prototyped non-player, free all
-		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
-			if (GET_PAD(this, j))
-				free(GET_PAD(this, j));
-
-		if (this->player_data.title)
-			free(this->player_data.title);
-
-		if (this->player_data.long_descr)
-			free(this->player_data.long_descr);
-
-		if (this->player_data.description)
-			free(this->player_data.description);
-
+	{
 		if (IS_NPC(this) && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
 
@@ -513,20 +502,7 @@ void CHAR_DATA::purge()
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
 	{	// otherwise, free strings only if the string is not pointing at proto
-		for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
-			if (GET_PAD(this, j)
-					&& (this->player_data.PNames[j] != mob_proto[i].player_data.PNames[j]))
-				free(this->player_data.PNames[j]);
-
-		if (this->player_data.title && this->player_data.title != mob_proto[i].player_data.title)
-			free(this->player_data.title);
-
-		if (this->player_data.long_descr && this->player_data.long_descr != mob_proto[i].player_data.long_descr)
-			free(this->player_data.long_descr);
-
-		if (this->player_data.description && this->player_data.description != mob_proto[i].player_data.description)
-			free(this->player_data.description);
-
+		
 		if (this->mob_specials.Questor && this->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
 			free(this->mob_specials.Questor);
 	}
@@ -1082,7 +1058,7 @@ const char* CHAR_DATA::get_pad(unsigned pad) const
 {
 	if (pad < player_data.PNames.size())
 	{
-		return player_data.PNames[pad];
+		return player_data.PNames[pad].c_str();
 	}
 	return 0;
 }
@@ -1094,50 +1070,27 @@ void CHAR_DATA::set_pad(unsigned pad, const char* s)
 		return;
 	}
 
-	int i;
-	if (GET_PAD(this, pad))
-	{
-		 //if this is a player, or a non-prototyped non-player
-		bool f = !IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1);
-		//prototype mob, field modified
-		if (!f) f |= (i = GET_MOB_RNUM(this)) >= 0 && GET_PAD(this, pad) != GET_PAD(&mob_proto[i], pad);
-		if (f) free(GET_PAD(this, pad));
-	}
-	GET_PAD(this, pad) = str_dup(s);
+	this->player_data.PNames[pad] = std::string(s);
 }
 
 const char* CHAR_DATA::get_long_descr() const
 {
-	return player_data.long_descr;
+	return player_data.long_descr.c_str();
 }
 
 void CHAR_DATA::set_long_descr(const char* s)
 {
-	int i;
-	if (player_data.long_descr)
-	{
-		bool f = !IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1); //if this is a player, or a non-prototyped non-player
-		if (!f) f |= (i = GET_MOB_RNUM(this)) >= 0 && player_data.long_descr != mob_proto[i].player_data.long_descr; //prototype mob, field modified
-		if (f) free(player_data.long_descr);
-	}
-	player_data.long_descr = str_dup(s);
+	player_data.long_descr = std::string(s);
 }
 
 const char* CHAR_DATA::get_description() const
 {
-	return player_data.description;
+	return player_data.description.c_str();
 }
 
 void CHAR_DATA::set_description(const char* s)
 {
-	int i;
-	if (player_data.description)
-	{
-		bool f = !IS_NPC(this) || (IS_NPC(this) && GET_MOB_RNUM(this) == -1); //if this is a player, or a non-prototyped non-player
-		if (!f) f |= (i = GET_MOB_RNUM(this)) >= 0 && player_data.description != mob_proto[i].player_data.description; //prototype mob, field modified
-		if (f) free(player_data.description);
-	}
-	player_data.description = str_dup(s);
+	player_data.description = std::string(s);
 }
 
 short CHAR_DATA::get_class() const
@@ -1809,10 +1762,6 @@ const CHAR_DATA::morphs_list_t& CHAR_DATA::get_morphs()
 
 std::string CHAR_DATA::get_title()
 {
-	if (!this->player_data.title)
-	{
-		return std::string();
-	}
 	std::string tmp = std::string(this->player_data.title);
 	size_t pos = tmp.find('/');
 	if (pos == std::string::npos)
@@ -1829,7 +1778,6 @@ std::string CHAR_DATA::get_title()
 
 std::string CHAR_DATA::get_pretitle()
 {
-	if (!this->player_data.title) return std::string();
 	std::string tmp = std::string(this->player_data.title);
 	size_t pos = tmp.find('/');
 	if (pos == std::string::npos)

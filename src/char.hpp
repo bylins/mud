@@ -34,15 +34,15 @@ struct time_data
 // general player-related info, usually PC's and NPC's
 struct char_player_data
 {
-	char *long_descr;	// for 'look'
-	char *description;	// Extra descriptions
-	char *title;		// PC / NPC's title
+	std::string long_descr;	// for 'look'
+	std::string description;	// Extra descriptions
+	std::string title;		// PC / NPC's title
 	ESex sex;		// PC / NPC's sex
 	struct time_data time;			// PC's AGE in days
 	ubyte weight;		// PC / NPC's weight
 	ubyte height;		// PC / NPC's height
 
-	std::array<char *, 6> PNames;
+	std::array<std::string, 6> PNames;
 	ubyte Religion;
 	ubyte Kin;
 	ubyte Race;		// PC / NPC's race
@@ -57,7 +57,7 @@ struct temporary_spell_data
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
 // типы резистов
-enum { FIRE_RESISTANCE = 0, AIR_RESISTANCE, WATER_RESISTANCE, EARTH_RESISTANCE, VITALITY_RESISTANCE, MIND_RESISTANCE, IMMUNITY_RESISTANCE, MAX_NUMBER_RESISTANCE };
+enum { FIRE_RESISTANCE = 0, AIR_RESISTANCE, WATER_RESISTANCE, EARTH_RESISTANCE, VITALITY_RESISTANCE, MIND_RESISTANCE, IMMUNITY_RESISTANCE, DARK_RESISTANCE, MAX_NUMBER_RESISTANCE };
 
 // Char's additional abilities. Used only while work
 struct char_played_ability_data

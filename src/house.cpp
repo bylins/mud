@@ -1927,14 +1927,11 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		std::multimap<long long, Clan::shared_ptr> sort_clan;
 		for (const auto& clan : Clan::ClanList)
 		{
-			if (!clan->test_clan)
-			{
-				sort_clan.insert(std::make_pair(clan->last_exp.get_exp(), clan));
-			}
-			else
-			{
-				sort_clan.insert(std::make_pair(0, clan));
-			}
+			//if (clan->test_clan)
+				//sort_clan.insert(std::make_pair(0, clan));
+			sort_clan.insert(std::make_pair(clan->last_exp.get_exp(), clan));
+			
+
 		}
 
 		std::ostringstream out;

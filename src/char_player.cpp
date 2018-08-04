@@ -517,11 +517,11 @@ void Player::save_char()
 		fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
 	if (!this->get_passwd().empty())
 		fprintf(saved, "Pass: %s\n", this->get_passwd().c_str());
-	if (GET_TITLE(this))
-		fprintf(saved, "Titl: %s\n", GET_TITLE(this));
-	if (this->player_data.description && *this->player_data.description)
+	if (this->get_title() != "")
+		fprintf(saved, "Titl: %s\n", this->player_data.title.c_str());
+	if (this->player_data.description != "")
 	{
-		strcpy(buf, this->player_data.description);
+		strcpy(buf, this->player_data.description.c_str());
 		kill_ems(buf);
 		fprintf(saved, "Desc:\n%s~\n", buf);
 	}
@@ -1148,7 +1148,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// initializations necessary to keep some things straight
 
 	this->set_npc_name(0);
-	this->player_data.long_descr = NULL;
+	this->player_data.long_descr = "";
 
 	this->real_abils.Feats.reset();
 
@@ -1416,7 +1416,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		case 'D':
 			if (!strcmp(tag, "Desc"))
 			{
-				this->player_data.description = fbgetstring(fl);
+				const auto ptr = fbgetstring(fl);
+				this->player_data.description = ptr ? ptr : "";
 			}
 			else if (!strcmp(tag, "Disp"))
 			{
@@ -1632,17 +1633,17 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			break;
 		case 'N':
 			if (!strcmp(tag, "NmI "))
-				GET_PAD(this, 0) = str_dup(line);
+				this->player_data.PNames[0] = std::string(line);
 			else if (!strcmp(tag, "NmR "))
-				GET_PAD(this, 1) = str_dup(line);
+				this->player_data.PNames[1] = std::string(line);
 			else if (!strcmp(tag, "NmD "))
-				GET_PAD(this, 2) = str_dup(line);
+				this->player_data.PNames[2] = std::string(line);
 			else if (!strcmp(tag, "NmV "))
-				GET_PAD(this, 3) = str_dup(line);
+				this->player_data.PNames[3] = std::string(line);
 			else if (!strcmp(tag, "NmT "))
-				GET_PAD(this, 4) = str_dup(line);
+				this->player_data.PNames[4] = std::string(line);
 			else if (!strcmp(tag, "NmP "))
-				GET_PAD(this, 5) = str_dup(line);
+				this->player_data.PNames[5] = std::string(line);
 			else if (!strcmp(tag, "NamD"))
 				NAME_DURATION(this) = lnum;
 			else if (!strcmp(tag, "NamG"))
@@ -1936,7 +1937,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			if (!strcmp(tag, "Thir"))
 				GET_COND(this, THIRST) = num;
 			else if (!strcmp(tag, "Titl"))
-				GET_TITLE(this) = str_dup(line);
+				GET_TITLE(this) = std::string(str_dup(line));
 			else if (!strcmp(tag, "TrcG"))
 				set_ext_money(ExtMoney::TORC_GOLD, num, false);
 			else if (!strcmp(tag, "TrcS"))

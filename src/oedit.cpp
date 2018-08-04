@@ -124,6 +124,7 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	else
 	{
 		obj->clone_olc_object_from_prototype(vnum);
+		obj->set_rnum(real_num);
 	}
 
 	OLC_OBJ(d) = obj;
@@ -244,7 +245,6 @@ void oedit_save_internally(DESCRIPTOR_DATA * d)
 
 	robj_num = GET_OBJ_RNUM(OLC_OBJ(d));
 	ObjSystem::init_ilvl(OLC_OBJ(d));
-
 	// * Write object to internal tables.
 	if (robj_num >= 0)
 	{	/*
@@ -2499,12 +2499,14 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case OEDIT_CLONE_WITH_TRIGGERS:
 	{
 		number = atoi(arg);
-
+		const int rnum_object = real_object((OLC_OBJ(d)->get_vnum()));
 		if (!OLC_OBJ(d)->clone_olc_object_from_prototype(number))
 		{
 			send_to_char("Нет объекта с таким внумом. Повторите ввод : ", d->character.get());
 			return;
 		}
+		if (rnum_object >= 0)
+			OLC_OBJ(d)->set_rnum(rnum_object);
 		break;
 	}
 	case OEDIT_CLONE_WITHOUT_TRIGGERS:
@@ -2512,12 +2514,15 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 
 		auto proto_script_old = OLC_OBJ(d)->get_proto_script();
+		const int rnum_object = real_object((OLC_OBJ(d)->get_vnum()));
+
 		if (!OLC_OBJ(d)->clone_olc_object_from_prototype(number))
 		{
 			send_to_char("Нет объекта с таким внумом. Повторите ввод: :", d->character.get());
 			return;
 		}
-
+		if (rnum_object >= 0)
+			OLC_OBJ(d)->set_rnum(rnum_object);
 		OLC_OBJ(d)->set_proto_script(proto_script_old);
 		break;
 	}

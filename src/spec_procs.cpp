@@ -507,6 +507,51 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 
 	send_to_char(buf2, vict);
 }
+const char *spells_color(int spellnum )
+{
+		switch (spell_info[spellnum].spell_class)
+		{
+		case STYPE_AIR:
+			return "&W";
+			break;
+
+		case STYPE_FIRE:
+			return "&R";
+			break;
+
+	        case STYPE_WATER:
+			return "&C";
+			break;
+
+	        case STYPE_EARTH:
+			return "&y";
+			break;
+
+	        case STYPE_LIGHT:
+			return "&Y";
+			break;
+
+	        case STYPE_DARK:
+			return "&K";
+			break;
+
+	        case STYPE_MIND:
+			return "&M";
+			break;
+
+	        case STYPE_LIFE:
+			return "&G";
+			break;
+
+	        case STYPE_NEUTRAL:
+	        	return "&n";
+			break;
+	        default:
+	        	return "&n";
+			break;
+	        }	
+}
+
 
 /* Параметр all_spells введен для того чтобы предметные кастеры
    смогли посмотреть заклинания которые они могут колдовать
@@ -568,17 +613,17 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 			if (can_cast)
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|<...%4d.> %-38s|",
-										   slots[slot_num] % 106 <
+										   "%s|<...%4d.> %s%-38s&n|",
+										   slots[slot_num] % 114 <
 										   10 ? "\r\n" : "  ",
-										   GET_MANA_COST(ch, i), spell_info[i].name);
+										   GET_MANA_COST(ch, i), spells_color(i), spell_info[i].name);
 			}
 			else
 			{
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-										   "%s|+--------+ %-38s|",
-										   slots[slot_num] % 106 <
-										   10 ? "\r\n" : "  ", spell_info[i].name);
+										   "%s|+--------+ %s%-38s&n|",
+										   slots[slot_num] % 114 <
+										   10 ? "\r\n" : "  ", spells_color(i), spell_info[i].name);
 			}
 		}
 		else
@@ -590,10 +635,12 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 				time_str.append(std::to_string(MAX(1, static_cast<int>(std::ceil(static_cast<double>(Temporary_Spells::spell_left_time(ch, i)) / SECS_PER_MUD_HOUR)))));
 				time_str.append("]");
 			}
+
+
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-				"%s|<%c%c%c%c%c%c%c%c> %-30s %-7s|",
-				slots[slot_num] % 106 <
-				10 ? "\r\n" : "  ",
+				"%s|<%c%c%c%c%c%c%c%c>%s %-30s %-7s&n|", 
+
+				slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
 				IS_SET(GET_SPELL_TYPE(ch, i),
 					SPELL_KNOW) ? ((MIN_CAST_LEV(spell_info[i], ch) > GET_LEVEL(ch)) ? 'N' : 'K') : '.',
 				IS_SET(GET_SPELL_TYPE(ch, i),
@@ -609,6 +656,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 				IS_SET(GET_SPELL_TYPE(ch, i),
 					SPELL_RUNES) ? 'R' : '.',
 				'.',
+				spells_color(i),
 				spell_info[i].name,
 				time_str.c_str());
 		}
@@ -3364,7 +3412,7 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 			sprintf(buf,
 					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
-					pet->player_data.description, pet_name);
+					pet->player_data.description.c_str(), pet_name);
 			// free(pet->player_data.description); don't free the prototype!
 			pet->player_data.description = str_dup(buf);
 		}
@@ -3516,7 +3564,7 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(ch, 1), CCNRM(ch, C_NRM));
 			send_to_char(buf, vict);
-			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
+			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
 			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			return (1);
 
@@ -3537,7 +3585,7 @@ int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", CCWHT(ch, C_NRM), amount,
 					GET_PAD(vict, 2), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
-			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", GET_PAD(ch, 0), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
+			sprintf(buf, "<%s> {%d} перевел %d кун банковским переводом %s.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), amount, GET_PAD(vict, 2));
 			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			vict->add_bank(amount);
 			Depot::add_offline_money(GET_UNIQUE(vict), amount);

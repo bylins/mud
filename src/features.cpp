@@ -177,6 +177,7 @@ void assign_feats(void)
 	feat_app.insert(APPLY_RESIST_AIR, 5);
 	feat_app.insert(APPLY_RESIST_WATER, 5);
 	feat_app.insert(APPLY_RESIST_EARTH, 5);
+	feat_app.insert(APPLY_RESIST_DARK, 5);
 	feato(WOODEN_SKIN_FEAT, "деревянная кожа", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //13
@@ -184,6 +185,7 @@ void assign_feats(void)
 	feat_app.insert(APPLY_RESIST_AIR, 10);
 	feat_app.insert(APPLY_RESIST_WATER, 10);
 	feat_app.insert(APPLY_RESIST_EARTH, 10);
+	feat_app.insert(APPLY_RESIST_DARK, 10);
 	feat_app.insert(APPLY_ABSORBE, 5);
 	feato(IRON_SKIN_FEAT, "железная кожа", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();

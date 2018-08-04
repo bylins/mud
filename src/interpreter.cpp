@@ -414,6 +414,7 @@ void do_stun(CHAR_DATA*, char*, int, int);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
 void do_overstuff(CHAR_DATA *ch, char*, int, int);
 void do_cities(CHAR_DATA *ch, char*, int, int);
+void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 /* This is the Master Command List(tm).
 
  * You can put new commands in, take commands out, change the order
@@ -1018,6 +1019,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"imlog", POS_DEAD, do_syslog, LVL_BUILDER, IMLOG, 0},
 	{"take", POS_RESTING, do_get, 0, 0, 500},
 	{"taste", POS_RESTING, do_eat, 0, SCMD_TASTE, 500},
+	{"t2c", POS_RESTING, do_send_text_to_char, 0, 0, -1 },
 	{"teleport", POS_DEAD, do_teleport, LVL_GRGOD, 0, -1},
 	{"tell", POS_RESTING, do_tell, 0, 0, -1},
 	{"time", POS_DEAD, do_time, 0, 0, 0},
@@ -2816,8 +2818,8 @@ void init_char(CHAR_DATA* ch, player_index_element& element)
 	GET_PORTALS(ch) = NULL;
 	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
 	ch->set_npc_name(0);
-	ch->player_data.long_descr = NULL;
-	ch->player_data.description = NULL;
+	ch->player_data.long_descr = "";
+	ch->player_data.description = "";
 	ch->player_data.time.birth = time(0);
 	ch->player_data.time.played = 0;
 	ch->player_data.time.logon = time(0);
@@ -3171,8 +3173,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 					CreateChar(d);
 					d->character->set_pc_name(CAP(tmp_name));
-					CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
-					strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
+					d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
 					d->character->set_pfilepos(player_i);
 					sprintf(buf, "Вы действительно выбрали имя %s [ Y(Д) / N(Н) ]? ", tmp_name);
 					SEND_TO_Q(buf, d);
@@ -3224,8 +3225,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				}
 
 				d->character->set_pc_name(CAP(tmp_name));
-				CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
-				strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
+				d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
 				SEND_TO_Q(name_rules, d);
 				sprintf(buf, "Вы действительно выбрали имя  %s [ Y(Д) / N(Н) ]? ", tmp_name);
 				SEND_TO_Q(buf, d);
@@ -3345,8 +3345,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 
 		d->character->set_pc_name(CAP(tmp_name));
-		CREATE(GET_PAD(d->character, 0), strlen(tmp_name) + 1);
-		strcpy(GET_PAD(d->character, 0), CAP(tmp_name));
+		d->character->player_data.PNames[0] = std::string(CAP(tmp_name));
 		if (ban->is_banned(d->host) >= BanList::BAN_NEW)
 		{
 			sprintf(buf, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
@@ -3810,7 +3809,10 @@ Sventovit
 			SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 			return;
 		}
-
+		#ifdef TEST_BUILD		
+		DoAfterEmailConfirm(d);
+			break;
+		#endif
 		{
 			int random_number = number(1000000, 9999999);
 			new_char_codes[d->character->get_pc_name()] = random_number;
@@ -3912,10 +3914,10 @@ Sventovit
 			break;
 
 		case '2':
-			if (d->character->player_data.description)
+			if (d->character->player_data.description != "")
 			{
 				SEND_TO_Q("Ваше ТЕКУЩЕЕ описание:\r\n", d);
-				SEND_TO_Q(d->character->player_data.description, d);
+				SEND_TO_Q(d->character->player_data.description.c_str(), d);
 				/*
 				 * Don't free this now... so that the old description gets loaded
 				 * as the current buffer in the editor.  Do setup the ABORT buffer
@@ -3924,12 +3926,13 @@ Sventovit
 				 * free(d->character->player_data.description);
 				 * d->character->player_data.description = NULL;
 				 */
-				d->backstr = str_dup(d->character->player_data.description);
+				d->backstr = str_dup(d->character->player_data.description.c_str());
 			}
 
 			SEND_TO_Q("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
-			d->writer.reset(new DelegatedStringWriter(d->character->player_data.description));
+			
+			d->writer.reset(new DelegatedStdStringWriter(d->character->player_data.description));
 			d->max_str = EXDSCR_LENGTH;
 			STATE(d) = CON_EXDESC;
 
@@ -4088,8 +4091,7 @@ Sventovit
 			&& strlen(tmp_name) <= MAX_NAME_LENGTH
 			&& !strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1)))
 		{
-			CREATE(GET_PAD(d->character, 1), strlen(tmp_name) + 1);
-			strcpy(GET_PAD(d->character, 1), CAP(tmp_name));
+			d->character->player_data.PNames[1] = std::string(CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 2, tmp_name);
 			sprintf(buf, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
@@ -4117,8 +4119,7 @@ Sventovit
 			&& strlen(tmp_name) <= MAX_NAME_LENGTH
 			&& !strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1)))
 		{
-			CREATE(GET_PAD(d->character, 2), strlen(tmp_name) + 1);
-			strcpy(GET_PAD(d->character, 2), CAP(tmp_name));
+			d->character->player_data.PNames[2] = std::string(CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 3, tmp_name);
 			sprintf(buf, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
@@ -4147,8 +4148,7 @@ Sventovit
 			&& strlen(tmp_name) <= MAX_NAME_LENGTH
 			&& !strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1)))
 		{
-			CREATE(GET_PAD(d->character, 3), strlen(tmp_name) + 1);
-			strcpy(GET_PAD(d->character, 3), CAP(tmp_name));
+			d->character->player_data.PNames[3] = std::string(CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 4, tmp_name);
 			sprintf(buf, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
@@ -4173,8 +4173,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 4), strlen(tmp_name) + 1);
-			strcpy(GET_PAD(d->character, 4), CAP(tmp_name));
+			d->character->player_data.PNames[4] = std::string(CAP(tmp_name));
 			GetCase(GET_PC_NAME(d->character), GET_SEX(d->character), 5, tmp_name);
 			sprintf(buf, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 			SEND_TO_Q(buf, d);
@@ -4197,8 +4196,7 @@ Sventovit
 				!strn_cmp(tmp_name, GET_PC_NAME(d->character), std::min<size_t>(MIN_NAME_LENGTH, strlen(GET_PC_NAME(d->character)) - 1))
 		   )
 		{
-			CREATE(GET_PAD(d->character, 5), strlen(tmp_name) + 1);
-			strcpy(GET_PAD(d->character, 5), CAP(tmp_name));
+			d->character->player_data.PNames[5] = std::string(CAP(tmp_name));
 			sprintf(buf,
 					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 					GET_PAD(d->character, 1));

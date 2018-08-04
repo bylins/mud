@@ -39,7 +39,7 @@ namespace ShopExt
 	{
 		if (currency == "слава")
 		{
-			const auto total_glory = Glory::get_glory(GET_UNIQUE(ch)) + GloryConst::get_glory(GET_UNIQUE(ch));
+			const auto total_glory = GloryConst::get_glory(GET_UNIQUE(ch));
 			return total_glory >= price;
 		}
 
@@ -434,21 +434,11 @@ namespace ShopExt
 					}
 
 					// снятие и логирование славы
+					obj->set_owner(GET_UNIQUE(ch));
 					GloryConst::add_total_spent(price);
-
-					int removed = Glory::remove_glory(GET_UNIQUE(ch), price);
-					if (removed > 0)
-					{
-						GloryConst::transfer_log("%s bought %s for %d temp glory",
-							GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), removed);
-					}
-
-					if (removed != price)
-					{
-						GloryConst::remove_glory(GET_UNIQUE(ch), price - removed);
-						GloryConst::transfer_log("%s bought %s for %d const glory",
-							GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price - removed);
-					}
+					GloryConst::remove_glory(GET_UNIQUE(ch), price);
+					GloryConst::transfer_log("%s bought %s for %d const glory",
+							GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price);
 				}
 				else if (currency == "лед")
 				{

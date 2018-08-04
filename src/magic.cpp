@@ -3437,6 +3437,23 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n подавил$g в себе страх к тьме.";
                 break;
 
+	case SPELL_GROUP_PROT_FROM_EVIL:
+		if (!IS_NPC(ch) && !same_group(ch, victim))
+		{
+			send_to_char("Только на себя или одногруппника!\r\n", ch);
+			return 0;
+		}
+		af[0].location = APPLY_RESIST_DARK;
+		af[0].modifier = level;
+		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
+		af[1].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
+		accum_duration = TRUE;
+		to_vict = "Вы подавили в себе страх к тьме.";
+		to_room = "$n подавил$g в себе страх к тьме.";
+                break;
+
 	case SPELL_GROUP_SANCTUARY:
 	case SPELL_SANCTUARY:
 		if (!IS_NPC(ch) && !same_group(ch, victim))
@@ -4530,19 +4547,19 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_pc_name(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
 		mob->set_npc_name(buf2);
-		mob->player_data.long_descr = NULL;
+		mob->player_data.long_descr = "";
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 0) = str_dup(buf2);
+		mob->player_data.PNames[0] = std::string(buf2);
 		sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 2) = str_dup(buf2);
+		mob->player_data.PNames[2] = std::string(buf2);
 		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 3) = str_dup(buf2);
+		mob->player_data.PNames[3] = std::string(buf2);
 		sprintf(buf2, "умертвием %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 4) = str_dup(buf2);
+		mob->player_data.PNames[4] = std::string(buf2);
 		sprintf(buf2, "умертвии %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 5) = str_dup(buf2);
+		mob->player_data.PNames[5] = std::string(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
-		GET_PAD(mob, 1) = str_dup(buf2);
+		mob->player_data.PNames[1] = std::string(buf2);
 		GET_SEX(mob) = ESex::SEX_NEUTRAL;
 		MOB_FLAGS(mob).set(MOB_RESURRECTED);	// added by Pereplut
 		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
@@ -4636,19 +4653,19 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_pc_name(buf2);
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
 		mob->set_npc_name(buf2);
-		mob->player_data.long_descr = NULL;
+		mob->player_data.long_descr = "";
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 0) = str_dup(buf2);
+		mob->player_data.PNames[0] = std::string(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 1) = str_dup(buf2);
+		mob->player_data.PNames[1] = std::string(buf2);
 		sprintf(buf2, "двойнику %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 2) = str_dup(buf2);
+		mob->player_data.PNames[2] = std::string(buf2);
 		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 3) = str_dup(buf2);
+		mob->player_data.PNames[3] = std::string(buf2);
 		sprintf(buf2, "двойником %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 4) = str_dup(buf2);
+		mob->player_data.PNames[4] = std::string(buf2);
 		sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
-		GET_PAD(mob, 5) = str_dup(buf2);
+		mob->player_data.PNames[5] = std::string(buf2);
 
 		mob->set_str(ch->get_str());
 		mob->set_dex(ch->get_dex());
@@ -5968,6 +5985,11 @@ const spl_message groups_messages[] =
 	 NULL,
 	 NULL,
 	 0},
+	{SPELL_GROUP_PROT_FROM_EVIL,
+	 "Сила света подавила в вас страх к тьме.\r\n",
+	 NULL,
+	 NULL,
+	 0},
 // конец групповых спелов         
 	{ -1, 0, 0, 0, 0 }
 };
@@ -6043,6 +6065,10 @@ int get_resist_type(int spellnum)
 	if (SpINFO.spell_class == STYPE_FIRE)
 	{
 		return FIRE_RESISTANCE;
+	}
+	if (SpINFO.spell_class == STYPE_DARK)
+	{
+		return DARK_RESISTANCE;
 	}
 	if (SpINFO.spell_class == STYPE_AIR)
 	{

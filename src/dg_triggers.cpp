@@ -466,7 +466,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 				if (t->get_attach_type() != MOB_TRIGGER)//детачим триги не для мобов
 				{
 					snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: M-Trigger #%d has wrong attach_type %s expected %s char:%s[%d]!",
-						GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[MOB_TRIGGER], GET_PAD(ch, 0), GET_MOB_VNUM(ch));
+						GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[MOB_TRIGGER], ch->get_name().c_str(), GET_MOB_VNUM(ch));
 					mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 					snprintf(buf, MAX_INPUT_LENGTH, "%d", GET_TRIG_VNUM(t));
 					SCRIPT(ch)->remove_trigger(buf);

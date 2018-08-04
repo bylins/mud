@@ -2991,12 +2991,12 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	{
 		GET_SEX(mob) = ESex::SEX_MALE;
 		mob->set_pc_name("Небесный защитник");
-		GET_PAD(mob, 0) = str_dup("Небесный защитник");
-		GET_PAD(mob, 1) = str_dup("Небесного защитника");
-		GET_PAD(mob, 2) = str_dup("Небесному защитнику");
-		GET_PAD(mob, 3) = str_dup("Небесного защитника");
-		GET_PAD(mob, 4) = str_dup("Небесным защитником");
-		GET_PAD(mob, 5) = str_dup("Небесном защитнике");
+		mob->player_data.PNames[0] = "Небесный защитник";
+		mob->player_data.PNames[1] = "Небесного защитника";
+		mob->player_data.PNames[2] = "Небесному защитнику";
+		mob->player_data.PNames[3] = "Небесного защитника";
+		mob->player_data.PNames[4] = "Небесным защитником";
+		mob->player_data.PNames[5] = "Небесном защитнике";
 		mob->set_npc_name("Небесный защитник");
 		mob->player_data.long_descr = str_dup("Небесный защитник летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
@@ -3005,12 +3005,12 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	{
 		GET_SEX(mob) = ESex::SEX_FEMALE;
 		mob->set_pc_name("Небесная защитница");
-		GET_PAD(mob, 0) = str_dup("Небесная защитница");
-		GET_PAD(mob, 1) = str_dup("Небесной защитницы");
-		GET_PAD(mob, 2) = str_dup("Небесной защитнице");
-		GET_PAD(mob, 3) = str_dup("Небесную защитницу");
-		GET_PAD(mob, 4) = str_dup("Небесной защитницей");
-		GET_PAD(mob, 5) = str_dup("Небесной защитнице");
+		mob->player_data.PNames[0] = "Небесная защитница";
+		mob->player_data.PNames[1] = "Небесной защитницы";
+		mob->player_data.PNames[2] = "Небесной защитнице";
+		mob->player_data.PNames[3] = "Небесную защитницу";
+		mob->player_data.PNames[4] = "Небесной защитницей";
+		mob->player_data.PNames[5] = "Небесной защитнице";
 		mob->set_npc_name("Небесная защитница");
 		mob->player_data.long_descr = str_dup("Небесная защитница летает тут.\r\n");
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
@@ -3421,7 +3421,8 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL COMMON MEAL!",
 	"!SPELL STONE WALL!",
 	"!SPELL SNAKE EYES!",
-	"Матушка земля забыла про Вас."
+	"Матушка земля забыла про Вас.",
+	"Вы вновь ощущаете страх перед тьмой."
 };
 
 /**
@@ -3670,6 +3671,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Станем други крепки як николы!", "Укрепим тела наши перед битвой!" }, // SPELL_STONE_WALL
 	cast_phrase_t{ "Что яд, а что мед. Не обманемся!", "...и самый сильный яд станет вам виден." }, // SPELL_SNAKE_EYES
 	cast_phrase_t{ "Велес, даруй защиту.", "... земля благословенна твоя." }, // SPELL_EARTH_AURA
+	cast_phrase_t{ "други, супостат нощи", "други, свет который в тебе, да убоится тьма." }, // SPELL_GROUP_PROT_FROM_EVIL
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3908,6 +3910,7 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_STONE_WALL] = "SPELL_STONE_WALL";
 	ESpell_name_by_value[ESpell::SPELL_SNAKE_EYES] = "SPELL_SNAKE_EYES";
 	ESpell_name_by_value[ESpell::SPELL_EARTH_AURA] = "SPELL_EARTH_AURA";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_PROT_FROM_EVIL] = "SPELL_GROUP_PROT_FROM_EVIL";
 	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
 
 	for (const auto& i : ESpell_name_by_value)

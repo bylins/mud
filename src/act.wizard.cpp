@@ -190,7 +190,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_arena_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_showzonestats(CHAR_DATA*, char*, int, int);
 void do_overstuff(CHAR_DATA *ch, char*, int, int);
-
+void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 void generate_magic_enchant(OBJ_DATA *obj);
 
 void save_zone_count_reset()
@@ -199,6 +199,30 @@ void save_zone_count_reset()
 	{
 		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
 		log("%s", buf);
+	}
+}
+
+// Отправляет любой текст выбранному чару
+void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
+{
+	CHAR_DATA *vict = NULL;
+	
+	half_chop(argument, buf, buf2);
+
+	if (!*buf || !*buf2)
+	{
+		send_to_char("Кому и какой текст вы хотите отправить?\r\n", ch);
+	}
+	else if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD)))
+	{
+		send_to_char("Такого персонажа нет в игре.\r\n", ch);
+	}
+	else if (IS_NPC(vict))
+		send_to_char("Такого персонажа нет в игре.\r\n", ch);
+	else
+	{
+		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
+		send_to_char(buf1, vict);
 	}
 }
 
@@ -2482,12 +2506,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		}
 	}
 
-	sprintf(buf, "Титул: %s\r\n", (k->player_data.title ? k->player_data.title : "<Нет>"));
+	sprintf(buf, "Титул: %s\r\n", (k->player_data.title != "" ? k->player_data.title.c_str() : "<Нет>"));
 	send_to_char(buf, ch);
 	if (IS_NPC(k))
-		sprintf(buf, "L-Des: %s", (k->player_data.long_descr ? k->player_data.long_descr : "<Нет>\r\n"));
+		sprintf(buf, "L-Des: %s", (k->player_data.long_descr != "" ? k->player_data.long_descr.c_str() : "<Нет>\r\n"));
 	else
-		sprintf(buf, "L-Des: %s", (k->player_data.description ? k->player_data.description : "<Нет>\r\n"));
+		sprintf(buf, "L-Des: %s", (k->player_data.description != "" ? k->player_data.description.c_str() : "<Нет>\r\n"));
 	send_to_char(buf, ch);
 
 	if (!IS_NPC(k))
@@ -2615,9 +2639,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			GET_ABSORBE(k), GET_REAL_SAVING_STABILITY(k), GET_REAL_SAVING_REFLEX(k), GET_REAL_SAVING_WILL(k));
 	send_to_char(buf, ch);
 	sprintf(buf,
-			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d]\r\n",
+			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d/Тьма:%d]\r\n",
 			GET_RESIST(k, 0), GET_RESIST(k, 1), GET_RESIST(k, 2), GET_RESIST(k, 3),
-			GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6));
+			GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6), GET_RESIST(k, 7));
 	send_to_char(buf, ch);
 	sprintf(buf,
 			"Защита от маг. аффектов : [%d], Защита от маг. урона : [%d], Защита от физ. урона : [%d]\r\n", GET_AR(k), GET_MR(k), GET_PR(k));
@@ -5181,9 +5205,9 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			sprintf(rem, "Перевоплощений: 3+\r\n");
 		sprintf(buf + strlen(buf), "%s", rem);
 		sprintf(buf + strlen(buf), "Уровень: %s\r\n", (GET_LEVEL(vict) < 25 ? "ниже 25" : "25+"));
-		sprintf(buf + strlen(buf), "Титул: %s\r\n", (vict->player_data.title ? vict->player_data.title : "<Нет>"));
+		sprintf(buf + strlen(buf), "Титул: %s\r\n", (vict->player_data.title != "" ? vict->player_data.title.c_str() : "<Нет>"));
 		sprintf(buf + strlen(buf), "Описание игрока:\r\n");
-		sprintf(buf + strlen(buf), "%s\r\n", (vict->player_data.description ? vict->player_data.description : "<Нет>"));
+		sprintf(buf + strlen(buf), "%s\r\n", (vict->player_data.description != "" ? vict->player_data.description.c_str() : "<Нет>"));
 		send_to_char(buf, ch);
 		// Отображаем карму.
 		if (KARMA(vict))
@@ -6024,10 +6048,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			for (i = 1; i < CObjectPrototype::NUM_PADS; i++)
 				if (!_parse_name(npad[i], npad[i]))
 				{
-					if (GET_PAD(vict, i))
-						free(GET_PAD(vict, i));
-					CREATE<char>(GET_PAD(vict, i), strlen(npad[i]) + 1);
-					strcpy(GET_PAD(vict, i), npad[i]);
+					ch->player_data.PNames[i] = std::string(npad[i]);					
 				}
 			sprintf(buf, "Произведена замена падежей.\r\n");
 			send_to_char(buf, ch);
@@ -6098,10 +6119,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			{
 				if (!_parse_name(npad[i], npad[i]))
 				{
-					if (GET_PAD(vict, i))
-						free(GET_PAD(vict, i));
-					CREATE<char>(GET_PAD(vict, i), strlen(npad[i]) + 1);
-					strcpy(GET_PAD(vict, i), npad[i]);
+					ch->player_data.PNames[i] = std::string(npad[i]);
 				}
 			}
 			sprintf(buf, "Name changed from %s to %s", GET_NAME(vict), npad[0]);

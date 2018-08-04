@@ -1071,7 +1071,8 @@ enum EApplyLocation
 	APPLY_PLAQUE = 60,
 	APPLY_MADNESS = 61,
 	APPLY_PR = 62,
-	NUM_APPLIES = 63
+	APPLY_RESIST_DARK = 63,	
+	NUM_APPLIES = 64
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
@@ -1647,6 +1648,20 @@ public:
 
 private:
 	std::string m_string;
+};
+
+class DelegatedStdStringWriter : public AbstractStringWriter
+{
+public:
+	DelegatedStdStringWriter(std::string& string) : m_string(string)  {}
+	virtual const char* get_string() const override { return m_string.c_str(); }
+	virtual void set_string(const char* string) override { m_string = string; }
+	virtual void append_string(const char* string) override { m_string += string; }
+	virtual size_t length() const override { return m_string.length(); }
+	virtual void clear() override { m_string.clear(); }
+
+private:
+	std::string& m_string;
 };
 
 struct DESCRIPTOR_DATA

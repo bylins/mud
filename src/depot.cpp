@@ -1134,7 +1134,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 	if (IS_NPC(ch)) return 0;
 
 #ifndef TEST_BUILD
-	if (IS_IMMORTAL(ch) && IS_IMPL(ch))
+	if (IS_IMMORTAL(ch) && !IS_IMPL(ch))
 	{
 		send_to_char("И без хранилища обойдешься...\r\n" , ch);
 		return 0;

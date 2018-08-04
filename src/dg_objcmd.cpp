@@ -36,11 +36,14 @@
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA * obj);
+extern int reloc_target;
 
 CHAR_DATA *get_char_by_obj(OBJ_DATA * obj, char *name);
 OBJ_DATA *get_obj_by_obj(OBJ_DATA * obj, char *name);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
+void obj_command_interpreter(OBJ_DATA * obj, char *argument);
+
 ROOM_DATA *get_room(char *name);
 
 bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
@@ -138,6 +141,34 @@ void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			sub_write(argument, world[room]->first_character(), TRUE, TO_ROOM | TO_CHAR);
 		}
 	}
+}
+void do_oat(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+//	int location;
+	char roomstr[MAX_INPUT_LENGTH];
+	room_rnum location = NOWHERE;
+	if (!*argument)
+	{
+		obj_log(obj, "oat: bad argument");
+		return;
+	}
+	one_argument(argument, roomstr);
+	auto tmp = atoi(roomstr);
+	if (tmp > 0)
+	{
+	    location = real_room(tmp);
+	}
+	else
+	{
+		sprintf(buf, "oat: invalid location '%d'", tmp);
+		obj_log(obj, buf);
+		return;
+	}
+	argument = one_argument(argument, roomstr);
+	auto tmp_obj = world_objects.create_from_prototype_by_vnum(obj->get_vnum());
+	tmp_obj->set_in_room(location);
+	obj_command_interpreter(tmp_obj.get(), argument);
+	world_objects.remove(tmp_obj);
 }
 
 void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1109,6 +1140,7 @@ void do_ospellitem(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 const struct obj_command_info obj_cmd_info[] =
 {
 	{"RESERVED", 0, 0},	// this must be first -- for specprocs
+	{"oat", do_oat, 0},
 	{"oecho", do_oecho, 0},
 	{"oechoaround", do_osend, SCMD_OECHOAROUND},
 	{"oexp", do_oexp, 0},

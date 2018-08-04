@@ -520,6 +520,20 @@ std::string space_before_string(char const *text)
 	return "";
 }
 
+std::string space_before_string(std::string text)
+{
+	if (text != "")
+	{
+		std::string tmp(" ");
+		tmp += text;
+		boost::replace_all(tmp, "\n", "\n ");
+		boost::trim_right_if(tmp, boost::is_any_of(std::string(" ")));
+		return tmp;
+	}
+	return "";
+}
+
+
 namespace
 {
 
@@ -955,10 +969,10 @@ void look_at_char(CHAR_DATA * i, CHAR_DATA * ch)
 	if (!ch->desc)
 		return;
 
-	if (i->player_data.description && *i->player_data.description)
+	if (i->player_data.description != "")
 	{
 		if (IS_NPC(i))
-			send_to_char(ch, " * %s", i->player_data.description);
+			send_to_char(ch, " * %s", i->player_data.description.c_str());
 		else
 			send_to_char(ch, "*\r\n%s*\r\n", space_before_string(i->player_data.description).c_str());
 	}
@@ -1284,7 +1298,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	}
 
 	if (IS_NPC(i)
-		&& i->player_data.long_descr
+		&& i->player_data.long_descr != ""
 		&& GET_POS(i) == GET_DEFAULT_POS(i)
 		&& ch->in_room == i->in_room
 		&& !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
@@ -1333,7 +1347,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_HORSE))
 			strcat(buf, "(под седлом) ");
 
-		strcat(buf, i->player_data.long_descr);
+		strcat(buf, i->player_data.long_descr.c_str());
 		send_to_char(buf, ch);
 
 		*aura_txt = '\0';
@@ -3069,6 +3083,22 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
+		if (GET_LEVEL(ch) > 30)
+		{
+			sprintf(buf,
+				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), ch->in_room,
+				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[ch->in_room]->light,
+				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[ch->in_room]->glight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->fires,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[ch->in_room]->ices,
+				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[ch->in_room]->gdark,
+				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
+				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+		}
 		skip_hide_on_look(ch);
 
 		send_to_char("Слишком темно...\r\n", ch);
@@ -3355,7 +3385,7 @@ void print_do_score_all(CHAR_DATA *ch)
 	int ac, max_dam = 0, hr = 0, resist, modi = 0, timer_room_label;
 	ESkill skill = SKILL_BOTHHANDS;
 
-	std::string sum = string("Вы ") + string(GET_PAD(ch, 0)) + string(", ")
+	std::string sum = string("Вы ") + string(ch->get_name()) + string(", ")
 		+ string(class_name[(int) GET_CLASS(ch)+14*GET_KIN(ch)]) + string(".");
 
 	sprintf(buf,
@@ -3547,25 +3577,25 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCIGRN(ch, C_NRM), int (max_dam * (on_horse(ch) ? ((GET_SKILL(ch, SKILL_HORSE) > 100) ? (1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0) : 1 ) : 1)), CCCYN(ch, C_NRM),
 			CCYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
+	resist = GET_RESIST(ch, DARK_RESISTANCE);
 	sprintf(buf + strlen(buf),
 			" || %sВозраст: %s%-3d       %s|"
-			" %sТелосложение:  %2d(%2d) %s|-------------------|----------------||\r\n",
+			" %sТелосложение:  %2d(%2d) %s|-------------------| &KТьме:      %3d&c ||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_AGE(ch), CCCYN(ch, C_NRM),
-			CCICYN(ch, C_NRM), ch->get_con(), GET_REAL_CON(ch), CCCYN(ch, C_NRM));
-
+			CCICYN(ch, C_NRM), ch->get_con(), GET_REAL_CON(ch), CCCYN(ch, C_NRM),
+			resist);
 	resist = MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75);
 	int rcast = GET_CAST_SUCCESS(ch) * ch->get_cond_penalty(P_CAST);
 	sprintf(buf + strlen(buf),
 			" || %sОпыт: %s%-10ld   %s|"
 			" %sМудрость:      %2d(%2d) %s|"
 			" %sКолдовство:   %3d %s|"
-			" %sЖивучесть: %3d %s||\r\n",
+			"&c----------------||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_EXP(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_wis(), GET_REAL_WIS(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), rcast, CCCYN(ch, C_NRM),
-			CCIYEL(ch, C_NRM), (int) resist, CCCYN(ch, C_NRM));
+			CCIGRN(ch, C_NRM), rcast, CCCYN(ch, C_NRM));
 
-	resist = MIN(GET_RESIST(ch, MIND_RESISTANCE), 75);
+	resist = MIN(GET_RESIST(ch, VITALITY_RESISTANCE), 75);
 
 	if (IS_IMMORTAL(ch))
 		sprintf(buf + strlen(buf), " || %sДСУ: %s1%s             |",
@@ -3579,27 +3609,32 @@ void print_do_score_all(CHAR_DATA *ch)
 	sprintf(buf + strlen(buf),
 			" %sУм:            %2d(%2d) %s|"
 			" %sЗапоминание: %4d %s|"
-			" %sРазум:     %3d %s||\r\n",
+			" %sЖивучесть: %3d %s||\r\n",
+
 			CCICYN(ch, C_NRM), ch->get_int(), GET_REAL_INT(ch), CCCYN(ch, C_NRM),
 			CCIGRN(ch, C_NRM), itmp , CCCYN(ch, C_NRM),
 			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
+	resist = MIN(GET_RESIST(ch, MIND_RESISTANCE), 75);
 
-	resist = MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sДенег: %s%-8ld    %s|"
 			" %sОбаяние:       %2d(%2d) %s|-------------------|"
-			" %sИммунитет: %3d %s||\r\n",
+			" %sРазум:     %3d %s||\r\n",
+
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_gold(), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_cha(), GET_REAL_CHA(ch), CCCYN(ch, C_NRM),
 			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
-
+	resist = MIN(GET_RESIST(ch, IMMUNITY_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sНа счету: %s%-8ld %s|"
 			" %sЖизнь:     %4d(%4d) %s|"
-			" %sВоля:         %3d%s |----------------||\r\n",
+			" %sВоля:         %3d%s |"
+			" %sИммунитет: %3d %s||\r\n",
+
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), ch->get_bank(), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), GET_HIT(ch), GET_REAL_MAX_HIT(ch), CCCYN(ch, C_NRM),
-			CCGRN(ch, C_NRM), GET_REAL_SAVING_WILL(ch), CCCYN(ch, C_NRM));
+			CCGRN(ch, C_NRM), GET_REAL_SAVING_WILL(ch), CCCYN(ch, C_NRM),
+			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	if (!on_horse(ch))
 		switch (GET_POS(ch))
@@ -3656,10 +3691,10 @@ void print_do_score_all(CHAR_DATA *ch)
 	sprintf(buf + strlen(buf),
 			" %sВыносл.:     %3d(%3d) %s|"
 			" %sЗдоровье:     %3d %s|"
-			" %sВосст. жизни:  %s||\r\n",
+			"----------------||\r\n",
+
 			CCICYN(ch, C_NRM), GET_MOVE(ch), GET_REAL_MAX_MOVE(ch), CCCYN(ch, C_NRM),
-			CCGRN(ch, C_NRM), GET_REAL_SAVING_CRITICAL(ch), CCCYN(ch, C_NRM),
-			CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
+			CCGRN(ch, C_NRM), GET_REAL_SAVING_CRITICAL(ch), CCCYN(ch, C_NRM));
 
 	if (GET_COND(ch, FULL) > NORM_COND_VALUE)
 		sprintf(buf + strlen(buf), " || %sГолоден: %sугу :(%s    |", CCNRM(ch, C_NRM), CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
@@ -3675,10 +3710,8 @@ void print_do_score_all(CHAR_DATA *ch)
 
 	sprintf(buf + strlen(buf),
 			" %sСтойкость:    %3d %s|"
-			" %s  %+4d%% (%+4d) %s||\r\n",
-			CCGRN(ch, C_NRM), GET_REAL_SAVING_STABILITY(ch), CCCYN(ch, C_NRM),
-			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM)
-		   );
+			" &rВосст. жизни:  &c||\r\n",
+			CCGRN(ch, C_NRM), GET_REAL_SAVING_STABILITY(ch), CCCYN(ch, C_NRM));
 
 	if (GET_COND_M(ch, THIRST))
 		sprintf(buf + strlen(buf),
@@ -3698,9 +3731,9 @@ void print_do_score_all(CHAR_DATA *ch)
 
 	sprintf(buf + strlen(buf),
 			" %sРеакция:      %3d %s|"
-			" %sВосст. сил:    %s||\r\n",
+			" %s  %+4d%% (%+4d) %s||\r\n",
 			CCGRN(ch, C_NRM), GET_REAL_SAVING_REFLEX(ch), CCCYN(ch, C_NRM),
-			CCRED(ch, C_NRM), CCCYN(ch, C_NRM));
+			CCRED(ch, C_NRM), GET_HITREG(ch), hit_gain(ch), CCCYN(ch, C_NRM));
 
 	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
 	{
@@ -3719,9 +3752,8 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	sprintf(buf + strlen(buf),
 			" %sУдача:       %4d %s|"
-			" %s  %+4d%% (%+4d) %s||\r\n",
-			CCGRN(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM),
-			CCRED(ch, C_NRM), GET_MOVEREG(ch), move_gain(ch), CCCYN(ch, C_NRM));
+			" &rВосст. сил:    &c||\r\n",
+			CCGRN(ch, C_NRM), ch->calc_morale(), CCCYN(ch, C_NRM));
 
 	const unsigned wdex = PlayerSystem::weight_dex_penalty(ch);
 	if (wdex == 0)
@@ -3736,9 +3768,11 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCCYN(ch, C_NRM));
 	}
 	sprintf(buf + strlen(buf),
-		" %sИнициатива:  %4d %s|                ||\r\n"
+		" %sИнициатива:  %4d %s|"
+		" %s  %+4d%% (%+4d) %s||\r\n"
 		" -------------------------------------------------------------------------------------\r\n",
-		CCGRN(ch, C_NRM), calc_initiative(ch, false), CCCYN(ch, C_NRM));
+		CCGRN(ch, C_NRM), calc_initiative(ch, false), CCCYN(ch, C_NRM),
+		CCRED(ch, C_NRM), GET_MOVEREG(ch), move_gain(ch), CCCYN(ch, C_NRM));
 
 	if (has_horse(ch, FALSE))
 	{
@@ -5490,7 +5524,7 @@ void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 		sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
 		sprintf(buf + strlen(buf),
 				"Падежи : &W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n\r\n",
-				GET_PAD(ch, 0), GET_PAD(ch, 1), GET_PAD(ch, 2),
+				ch->get_name().c_str(), GET_PAD(ch, 1), GET_PAD(ch, 2),
 				GET_PAD(ch, 3), GET_PAD(ch, 4), GET_PAD(ch, 5));
 
 		sprintf(buf + strlen(buf), "Ваш e-mail : &S%s&s\r\n", GET_EMAIL(ch));
