@@ -3083,7 +3083,7 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
-		if (PRF_FLAGGED(ch, PRF_CODERINFO))
+		if (GET_LEVEL(ch) > 30)
 		{
 			sprintf(buf,
 				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
