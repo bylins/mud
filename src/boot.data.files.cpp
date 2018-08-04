@@ -15,7 +15,7 @@
 #include "utils.h"
 
 #include <boost/algorithm/string/trim.hpp>
-
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 
 extern int scheck;						// TODO: get rid of this line
@@ -1429,6 +1429,13 @@ void MobileFile::parse_espec(char *buf, int i, int nr)
 	interpret_espec(buf, ptr, i, nr);
 }
 
+std::vector<std::string> split_string(const char *str, std::string separator = " ")
+{
+	std::vector<std::string> array_string;
+	boost::split(array_string, std::string(str), boost::is_any_of(separator));
+	return array_string;
+}
+
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
 {
 	struct helper_data_type *helper;
@@ -1442,15 +1449,17 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	//Added by Adept
 	CASE("Resistances")
 	{
-		const int number_resistes = sscanf(value, "%d %d %d %d %d %d %d", t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6);
-		if (number_resistes < 7 || number_resistes > MAX_NUMBER_RESISTANCE)
+		auto array_string = split_string(value);
+		if (array_string.size() < 7 || array_string.size() > MAX_NUMBER_RESISTANCE)
 		{
 			log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
 			return;
 		}
-		for (k = 0; k < number_resistes; k++)
-			GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, t[k]));
-		
+		for (k = 0; k < array_string.size(); k++)
+		{
+			GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, atoi(array_string[k].c_str())));
+		}
+	
 		
 //		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
 //		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
