@@ -1432,7 +1432,8 @@ void MobileFile::parse_espec(char *buf, int i, int nr)
 std::vector<std::string> split_string(const char *str, std::string separator = " ")
 {
 	std::vector<std::string> array_string;
-	boost::split(array_string, std::string(str), boost::is_any_of(separator));
+	const auto temp_string = std::string(str);
+	boost::split(array_string, temp_string, boost::is_any_of(separator));
 	return array_string;
 }
 
@@ -1455,9 +1456,9 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Excepted format <# # # # # # # #> for RESISTANCES in MOB #%d", i);
 			return;
 		}
-		for (k = 0; k < array_string.size(); k++)
+		for (unsigned kk = 0; kk < array_string.size(); kk++)
 		{
-			GET_RESIST(mob_proto + i, k) = MIN(300, MAX(-1000, atoi(array_string[k].c_str())));
+			GET_RESIST(mob_proto + i, kk) = MIN(300, MAX(-1000, atoi(array_string[kk].c_str())));
 		}
 	
 		
