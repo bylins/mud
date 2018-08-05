@@ -517,7 +517,7 @@ void Player::save_char()
 		fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
 	if (!this->get_passwd().empty())
 		fprintf(saved, "Pass: %s\n", this->get_passwd().c_str());
-	if (this->get_title() != "")
+	if (this->player_data.title != "")
 		fprintf(saved, "Titl: %s\n", this->player_data.title.c_str());
 	if (this->player_data.description != "")
 	{
