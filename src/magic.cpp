@@ -3432,6 +3432,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_PROT_FROM_EVIL:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
+		af[1].location = APPLY_RESIST_DARK;
+		af[1].modifier = 5;
+		af[1].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		accum_duration = TRUE;
 		to_vict = "Вы подавили в себе страх к тьме.";
 		to_room = "$n подавил$g в себе страх к тьме.";
