@@ -15,6 +15,7 @@
 #ifndef _DB_H_
 #define _DB_H_
 
+
 #include "obj.hpp"
 #include "boot.constants.hpp"
 #include "structs.h"
@@ -55,7 +56,7 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype* obj);
-
+extern lua_State* L;
 void SaveGlobalUID(void);
 void flush_player_index(void);
 

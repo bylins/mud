@@ -24,6 +24,7 @@
 #include <map>
 
 // These data contain information about a players time data
+
 struct time_data
 {
 	time_t birth;		// This represents the characters age

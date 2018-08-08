@@ -856,6 +856,8 @@ int main_function(int argc, char **argv)
 	return 0;
 }
 
+lua_State* L;
+
 // Init sockets, run game, and cleanup sockets
 void init_game(ush_int port)
 {
@@ -879,7 +881,33 @@ void init_game(ush_int port)
 	scripting::init();
 #endif
 	boot_db();
+	// перенести все это потом в отдельный bind_lua.cpp файл
+	// ----------------------------------------------
+	getGlobalNamespace(L)
+		.beginClass <CHAR_DATA>("CHAR_DATA")
+			.addFunction("crop_skill", &CHAR_DATA::crop_skills)
+		.endClass();
 
+		/*.addStaticData("staticData", &A::staticData)
+		.addStaticProperty("staticProperty", &A::staticProperty)
+		.addStaticFunction("staticFunc", &A::staticFunc)
+		.addStaticCFunction("staticCFunc", &A::staticCFunc)
+		.addData("data", &A::dataMember)
+		.addProperty("prop", &A::getProperty, &A::setProperty)
+		.addFunction("func1", &A::func1)
+		.addFunction("virtualFunc", &A::virtualFunc)
+		.addCFunction("cfunc", &A::cfunc)
+		.endClass()
+		.deriveClass <B, A>("B")
+		.addData("data", &B::dataMember2)
+		.addFunction("func1", &B::func1)
+		.addFunction("func2", &B::func2)
+		.endClass()
+		.endNameSpace();*/
+
+
+
+	// ----------------------------------------------
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 	log("Signal trapping.");
 	signal_setup();
