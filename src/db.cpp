@@ -1147,8 +1147,8 @@ void QuestBodrich::load_rewards()
 			qbr.exp = level_.attribute("exp_value").as_int();
 			tmp_array.push_back(qbr);
 		}
-		//std::map<int, std::map<int, QuestBodrichRewards>> rewards;
-		this->rewards.insert(std::pair<int, QuestBodrichRewards>(class_.attribute("id").as_int(), tmp_array));
+		//std::map<int, QuestBodrichRewards> rewards;
+		this->rewards.insert(std::pair<int, std::vector<QuestBodrichRewards>>(class_.attribute("id").as_int(), tmp_array));
 	}
 }
 

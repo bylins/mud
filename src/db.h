@@ -139,7 +139,7 @@ private:
 	// здесь храним мобов
 	std::map<int, std::vector<int>> mobs;
 	// а здесь награды
-	std::map<int, QuestBodrichRewards> rewards;
+	std::map<int, std::vector<QuestBodrichRewards>> rewards;
 
 };
 
