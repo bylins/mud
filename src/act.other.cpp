@@ -47,7 +47,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "char_obj_utils.inl"
-
+#include "msdp.hpp"
 #include <sys/stat.h>
 
 #include <sstream>
@@ -1309,6 +1309,8 @@ void print_group(CHAR_DATA * ch)
 	struct follow_type *f, *g;
 
 	k = ch->has_master() ? ch->get_master() : ch;
+	ch->desc->msdp_report(msdp::constants::GROUP);
+
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
 		send_to_char("Ваша группа состоит из:\r\n", ch);
