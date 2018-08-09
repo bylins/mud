@@ -4137,145 +4137,134 @@ int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA * sc, 
 	return 0;
 }
 
+const auto FOREACH_LIST_GUID = "{18B3D8D1-240E-4D60-AEAB-6748580CA460}";
+const auto FOREACH_LIST_POS_GUID = "{4CC4E031-7376-4EED-AD4F-2FD0DC8D4E2D}";
 
-// returns 1 if next iteration, else 0
-int process_foreach(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
 /*++
-      cond - строка параметров цикла. Для комнады "foreach i .." cond = "i .."
-      go - уразатель на MOB/OBJ/ROOM (см. type)
-      sc - SCRIPT(go)
-      trig - исполняемый триггер
-      type - тип (MOB_TRIGGER,OBJ_TRIGGER,WLD_TRIGGER)
+cond - строка параметров цикла. Для комнады "foreach i .." cond = "i .."
+go - уразатель на MOB/OBJ/ROOM (см. type)
+sc - SCRIPT(go)
+trig - исполняемый триггер
+type - тип (MOB_TRIGGER,OBJ_TRIGGER,WLD_TRIGGER)
 
 Запись
 foreach i <список>
 работает так:
 
 1. Если список пустой - выйти
-2. Если триггер не имеет переменной i или значение переменной не равно ни
-   одному элементу списка (разделены пробелами), установить i равной первому
-   элементу и выполнить тело
-3. Переменная i равна к-ому элементу списка. Если это последний элемент - выйти
-   Иначе i = след. элемент и выполнить тело
+2. Переменная i равна к-ому элементу списка. Если это последний элемент - выйти
+Иначе i = след. элемент и выполнить тело
 --*/
+// returns 1 if next iteration, else 0
+int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
 {
 	char name[MAX_INPUT_LENGTH];
+	char list_str[MAX_INPUT_LENGTH];
 	char value[MAX_INPUT_LENGTH];
-	char result[MAX_INPUT_LENGTH];
-	char *p;
-	struct trig_var_data *v, *pos;
-	int v_strpos = MAX_INPUT_LENGTH;
-
-
-	*value = '\0';
+	
 	skip_spaces(&cond);
-	auto list = one_argument(cond, name);
-	skip_spaces(&list);
+	auto p = one_argument(cond, name);
+	skip_spaces(&p);
 
 	if (!*name)
 	{
-		trig_log(trig, "foreach w/o an variable");
+		trig_log(trig, "foreach begin w/o an variable");
 		return 0;
 	}
 
-	eval_expr(list, result, go, sc, trig, type);
-	list = result;
+	eval_expr(p, list_str, go, sc, trig, type); 
+	p = list_str;
 
-	v = find_var_cntx(&GET_TRIG_VARS(trig), name, 0);
-	//загружаем позицию в строке со списком во избежание бесконечного цикла
-	sprintf(value, "%s_strpos", name);
-	pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
-	if (v)
+	if (!p || !*p)
 	{
-		const char* ptr = strstr(list, v->value);
-
-		{
-			bool value_corresponds_to_position = false;
-			if (pos
-				&& pos->value)
-			{
-				const auto position = static_cast<unsigned>(atoi(pos->value));
-				const auto list_length = strlen(list);
-				if (position < list_length)
-				{
-					value_corresponds_to_position = 0 == strncmp(list + position, v->value, strlen(v->value));
-				}
-			}
-
-			if (value_corresponds_to_position)
-			{
-				v_strpos = atoi(pos->value);
-				ptr = list + v_strpos;
-			}
-			else
-			{
-				v_strpos = ptr - list;
-			}
-		}
-
-		// Проверяем на наличие пробела перед найденой строкой и после нее
-		while (ptr)
-		{
-			if ((ptr != list)
-				&& !a_isspace(*(ptr - 1)))
-			{
-				while (*ptr
-					&& !a_isspace(*ptr))
-				{
-					++ptr;
-				}
-				list = ptr;
-				ptr = strstr(list, v->value);
-				continue;
-			}
-
-			list = ptr + strlen(v->value);
-			// x5 в x534
-			if (*list && !a_isspace(*(list)))
-			{
-				while (*list && !a_isspace(*list))
-				{
-					++list;
-				}
-				ptr = strstr(list, v->value);
-			}
-			else
-			{
-				break;
-			}
-		}
-	}
-
-	p = value;
-	while (*list && a_isspace(*list))
-	{
-		++list;		// пропуск пробелов
-	}
-
-	v_strpos = list - result;
-
-	while (*list && !a_isspace(*list))
-	{
-		*p++ = *list++;	// копирование слова
-	}
-
-	*p = 0;
-
-	if (!*value)
-	{
-		if (pos)
-		{
-			remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
-			strcat(name, "_strpos");
-			remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
-		}
 		return 0;
+	}
+
+	int v_strpos;
+	auto pos = strchr(p, ' ');
+	if(!pos)
+	{
+		strcpy(value, p);
+		v_strpos = static_cast<int>(strlen(p));
+	}
+	else
+	{
+		strncpy(value, p, pos - p);
+		value[pos - p] = '\0';
+		skip_spaces(&pos);
+		v_strpos = pos - p;
 	}
 
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
-	//сохраняем позицию в строке со списком во избежание бесконечного цикла
-	//правда фиг его знает чо будет если внутри одного foreach другой foreach решит использовать туже переменную
-	strcat(name, "_strpos");
+
+	sprintf(value, "%s%s", name, FOREACH_LIST_GUID);
+	add_var_cntx(&GET_TRIG_VARS(trig), value, list_str, 0);
+
+	strcat(name, FOREACH_LIST_POS_GUID);
+	sprintf(value, "%d", v_strpos);
+	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
+
+	return 1;
+}
+
+int process_foreach_done(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
+{
+	char name[MAX_INPUT_LENGTH];
+	char value[MAX_INPUT_LENGTH];
+
+	skip_spaces(&cond);
+	one_argument(cond, name);
+
+	if (!*name)
+	{
+		trig_log(trig, "foreach done w/o an variable");
+		return 0;
+	}
+
+	sprintf(value, "%s%s", name, FOREACH_LIST_GUID);
+	const auto var_list = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
+
+	sprintf(value, "%s%s", name, FOREACH_LIST_POS_GUID);
+	const auto var_list_pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
+
+	if(!var_list || !var_list_pos)
+	{
+		trig_log(trig, "foreach utility vars not found");
+		return 0;
+	}
+
+	const auto p = var_list->value + static_cast<unsigned int>(atoi(var_list_pos->value));
+	if(!p || !*p)
+	{
+		remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
+
+		sprintf(value, "%s%s", name, FOREACH_LIST_GUID);
+		remove_var_cntx(&GET_TRIG_VARS(trig), value, 0);
+
+		sprintf(value, "%s%s", name, FOREACH_LIST_POS_GUID);
+		remove_var_cntx(&GET_TRIG_VARS(trig), value, 0);
+
+		return 0;
+	}
+
+	int v_strpos;
+	auto pos = strchr(p, ' ');
+	if (!pos)
+	{
+		strcpy(value, p);
+		v_strpos = static_cast<int>(strlen(var_list->value));
+	}
+	else
+	{
+		strncpy(value, p, pos - p);
+		value[pos - p] = '\0';
+		skip_spaces(&pos);
+		v_strpos = pos - var_list->value;
+	}
+
+	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
+
+	strcat(name, FOREACH_LIST_POS_GUID);
 	sprintf(value, "%d", v_strpos);
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
 
@@ -5828,7 +5817,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		else if (!strn_cmp("foreach ", p, 8))
 		{
 			const auto temp = find_done(trig, cl);
-			if (process_foreach(p + 8, go, sc, trig, type))
+			if (process_foreach_begin(p + 8, go, sc, trig, type))
 			{
 				if (temp)
 				{
@@ -5872,7 +5861,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 				}
 
 				if ((*orig_cmd == 'w' && process_if(orig_cmd + 6, go, sc, trig, type))
-					|| (*orig_cmd == 'f' && process_foreach(orig_cmd + 8, go, sc, trig, type)))
+					|| (*orig_cmd == 'f' && process_foreach_done(orig_cmd + 8, go, sc, trig, type)))
 				{
 					cl = cl->original;
 					loops++;
