@@ -229,7 +229,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
 }
 
 
-// добавляет что-нибудь чару (например, ум, игрокам его часто не хватает!)
+// добавляет что-нибудь чару (пока что только стигмы)
 void do_add_wizard(CHAR_DATA *ch, char *argument, int, int)
 {
 	CHAR_DATA *vict = NULL;
@@ -248,6 +248,7 @@ void do_add_wizard(CHAR_DATA *ch, char *argument, int, int)
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	else
 	{
+
 		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
 		send_to_char(buf1, vict);
 	}
