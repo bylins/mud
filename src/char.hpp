@@ -246,6 +246,7 @@ struct player_special_data_saved
 	unsigned int who_mana; // количество энергии для использования команды кто
 };
 
+
 struct player_special_data
 {
 	using shared_ptr = std::shared_ptr<player_special_data>;

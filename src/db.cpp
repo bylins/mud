@@ -66,7 +66,6 @@
 #include "title.hpp"
 #include "top.h"
 #include "class.hpp"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
@@ -331,6 +330,9 @@ bool check_obj_in_system_zone(int vnum)
 	return true;
     return false;
 }
+
+
+
 
 bool check_unlimited_timer(const CObjectPrototype* obj)
 {

@@ -47,7 +47,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "char_obj_utils.inl"
-#include "msdp.hpp"
+#include "msdp.constants.hpp"
 #include <sys/stat.h>
 
 #include <sstream>
