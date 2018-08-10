@@ -3430,24 +3430,25 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_PROT_FROM_EVIL:
-		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
-		af[0].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
-		af[1].location = APPLY_RESIST_DARK;
-		af[1].modifier = 5;
-		af[1].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
-		accum_duration = TRUE;
-		to_vict = "Вы подавили в себе страх к тьме.";
-		to_room = "$n подавил$g в себе страх к тьме.";
-                break;
-
 	case SPELL_GROUP_PROT_FROM_EVIL:
 		if (!IS_NPC(ch) && !same_group(ch, victim))
 		{
 			send_to_char("Только на себя или одногруппника!\r\n", ch);
 			return 0;
 		}
+
+
 		af[0].location = APPLY_RESIST_DARK;
-		af[0].modifier = level;
+		if (spellnum == SPELL_PROT_FROM_EVIL)
+		{
+			affect_from_char(ch, SPELL_GROUP_PROT_FROM_EVIL);
+			af[0].modifier = 5;
+		}
+		else
+		{
+			affect_from_char(ch, SPELL_PROT_FROM_EVIL);
+			af[0].modifier = level;
+		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
 		af[1].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
