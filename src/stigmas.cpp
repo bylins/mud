@@ -24,7 +24,7 @@ void do_touch_stigma(CHAR_DATA *ch, char* argument, int, int)
 	}
 	else
 	{
-		sprintf(buf, "Вы прикоснулись к %s. Ничего не произошло.\r\n", vict->get_name());
+		sprintf(buf, "Вы прикоснулись к %s. Ничего не произошло.\r\n", vict->get_name().c_str());
 		send_to_char(buf, ch);
 	}
 }
@@ -45,7 +45,7 @@ void stigma_fire_dragon(CHAR_DATA *ch)
 void init_stigmas()
 {
 	Stigma tmp;
-	tmp.id = 0;
+	tmp.id = STIGMA_FIRE_DRAGON;
 	tmp.name = "огненный дракон";
 	tmp.activation_stigma = &stigma_fire_dragon;
 	tmp.reload = 10;

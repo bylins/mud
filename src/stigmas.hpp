@@ -5,6 +5,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string.hpp>
 
+#define STIGMA_FIRE_DRAGON 1
+
 struct Stigma
 {
 		// id татуировки
@@ -25,4 +27,6 @@ struct StigmaWear
 		// получить имя
 		std::string get_name() const;
 };
+
+
 

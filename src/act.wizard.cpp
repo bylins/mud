@@ -194,6 +194,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 void generate_magic_enchant(OBJ_DATA *obj);
 void do_add_wizard(CHAR_DATA *ch, char*, int, int);
 
+extern std::vector<Stigma> stigmas;
 
 void save_zone_count_reset()
 {
@@ -235,6 +236,7 @@ void do_add_wizard(CHAR_DATA *ch, char *argument, int, int)
 	CHAR_DATA *vict = NULL;
 
 	half_chop(argument, buf, buf2);
+	one_argument(buf2, buf1);
 
 	if (!*buf || !*buf2)
 	{
@@ -248,9 +250,15 @@ void do_add_wizard(CHAR_DATA *ch, char *argument, int, int)
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	else
 	{
-
-		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
-		send_to_char(buf1, vict);
+		int id_stigma = atoi(buf2);
+		int stigma_wear = atoi(buf1);
+		for (auto stigma : stigmas)
+		{
+			if (stigma.id == id_stigma)
+			{
+				ch->add_stigma(stigma_wear, id_stigma);
+			}
+		}
 	}
 }
 

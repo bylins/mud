@@ -101,6 +101,23 @@ Player::Player()
 	board_date_.fill(now);
 }
 
+extern std::vector<Stigma> stigmas;
+void Player::add_stigma(int wear, int id_stigma)
+{
+	for (auto i : ::stigmas)
+	{
+		if (i.id == id_stigma)
+		{
+			StigmaWear tmp;
+			tmp.stigma = i;
+			tmp.reload = i.reload;
+			this->stigmas.insert(std::pair<int, StigmaWear>(wear, tmp));
+			return;
+		}
+	}
+	
+}
+
 void Player::touch_stigma(char *arg)
 {
 	for (auto stigma : this->stigmas)

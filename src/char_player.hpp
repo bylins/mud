@@ -146,7 +146,8 @@ public:
 	bool check_city(const size_t index);
 	void mark_city(const size_t index);
 	void touch_stigma(char *arg);
-
+	void add_stigma(int wear, int id_stigma);
+	int get_stigma(int wear);
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -205,6 +206,8 @@ private:
 	boost::dynamic_bitset<size_t> cities;
 	// здесь храним инфу о татуировках
 	std::map<unsigned int, StigmaWear> stigmas;
+	// режим !бот
+	bool setmode_dontbot;
 };
 
 
