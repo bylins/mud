@@ -279,6 +279,10 @@ public:
 	// лог клан-храна
 	ClanChestLog chest_log;
 
+	static void SetPk(CHAR_DATA *ch, std::string buffer);
+	bool is_pk();
+	void change_pk_status();
+
 private:
 	std::string abbrev; // аббревиатура клана, ОДНО слово
 	std::string name;   // длинное имя клана
@@ -300,7 +304,7 @@ private:
 	long exp_buf;  // буффер для суммарной топ-экспы в режиме запрета подсчета в ран-тайме (exp_info), синхронизация раз в 6 часов
 	int clan_level; // текущий уровень клана
 	int rent;       // номер центральной комнаты в замке, заодно УИД клана
-
+	bool pk;        // является ли клан пк или нет
 	int chest_room; // комната с сундуком, по дефолту равняется ренте. чтобы не искать постояно руму в циклах
 	ClanPrivileges privileges; // список привилегий для рангов
 	ClanMembersList m_members;    // список членов дружины (уид, имя, номер ранга)

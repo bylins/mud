@@ -131,7 +131,7 @@ void Player::touch_stigma(char *arg)
 			{
 				if (GET_EQ(this, stigma.first))
 				{
-					sprintf(buf, "%s мешает вам прикоснуться к стигме.\r\n", GET_EQ(this, stigma.first)->get_PName(0));
+					sprintf(buf, "%s мешает вам прикоснуться к стигме.\r\n", GET_EQ(this, stigma.first)->get_PName(0).c_str());
 					send_to_char(this, buf);
 				}
 				else

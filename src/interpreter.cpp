@@ -548,7 +548,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"дрновости", POS_DEAD, Boards::DoBoard, 1, Boards::CLANNEWS_BOARD, -1},
 	{"дрвече", POS_DEAD, Boards::DoBoard, 1, Boards::CLAN_BOARD, -1},
 	{"дрлист", POS_DEAD, DoClanPkList, 0, 1, 0},
-	{"добавить", POS_DEAD, do_add_wizard, LVL_IMPL, 0, 0 },
+	//{"добавить", POS_DEAD, do_add_wizard, LVL_IMPL, 0, 0 },
 	{"есть", POS_RESTING, do_eat, 0, SCMD_EAT, 500},
 
 	{"жертвовать", POS_STANDING, do_pray, 1, SCMD_DONATE, -1},
@@ -713,7 +713,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"приглядеться", POS_RESTING, do_looking, 0, 0, 250},
 	{"прикрыть", POS_FIGHTING, do_protect, 0, 0, -1},
 	{"применить", POS_SITTING, do_use, 1, SCMD_USE, 400},
-	{"прикоснуться", POS_STANDING, do_touch_stigma, 0, 0, -1},
+	//{"прикоснуться", POS_STANDING, do_touch_stigma, 0, 0, -1},
 	{"присесть", POS_RESTING, do_sit, 0, 0, -1},
 	{"прислушаться", POS_RESTING, do_hearing, 0, 0, 300},
 	{"присмотреться", POS_RESTING, do_looking, 0, 0, 250},

@@ -54,6 +54,7 @@ extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode,
 extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern char const *class_abbrevs[];
+extern bool char_to_pk_clan(CHAR_DATA *ch);
 
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
 {
@@ -477,6 +478,10 @@ void Clan::ClanLoadSingle(std::string index)
 				log("Clan has 0 in bank, file (%s) возможно будет удален.", filename.c_str());
 			}
 		}
+		else if (buffer == "Bank:")
+		{
+			file >> tempClan->pk;
+		}
 		else if (buffer == "GoldTax:")
 		{
 			file >> tempClan->gold_tax_pct_;
@@ -824,7 +829,8 @@ void Clan::save_clan_file(const std::string &filename) const
 		<< "StoredExp: " << clan_exp << "\n"
 		<< "ClanLevel: " << clan_level << "\n"
 		<< "Bank: " << bank << "\n"
-		<< "GoldTax: " << gold_tax_pct_ << "\n";
+		<< "GoldTax: " << gold_tax_pct_ << "\n"
+		<< "Pk: " << pk << "'n";
 
 	if (!web_url_.empty())
 	{
@@ -1943,8 +1949,12 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (it->second->m_members.size() == 0)
 				continue;
+			if (it->second->is_pk())
 			out << clanTopFormat % count % it->second->abbrev % it->second->name % ExpFormat(it->second->exp)
 				% ExpFormat(it->second->last_exp.get_exp()) % it->second->m_members.size();
+			else
+				out << "&g" << clanTopFormat % count % it->second->abbrev % it->second->name % ExpFormat(it->second->exp)
+				% ExpFormat(it->second->last_exp.get_exp()) % it->second->m_members.size() << "&n";
 			++count;
 		}
 		send_to_char(out.str(), ch);
@@ -2088,6 +2098,43 @@ bool Clan::check_write_board(CHAR_DATA *ch)
 	return false;
 }
 
+bool Clan::is_pk()
+{
+	return this->pk ? true : false;
+}
+
+void Clan::change_pk_status()
+{
+	this->pk = this->pk ? false : true;
+}
+
+void Clan::SetPk(CHAR_DATA *ch, std::string buffer)
+{
+	const int vnum = atoi(buffer.c_str());
+
+	ClanListType::iterator clan = std::find_if(ClanList.begin(), ClanList.end(),
+		[&](const Clan::shared_ptr& clan)
+	{
+		return clan->rent == vnum;
+	});
+
+	if (clan == Clan::ClanList.end())
+	{
+		send_to_char(ch, "Дружины с номером %d не существует.\r\n", vnum);
+		return;
+	}
+
+	clan->get()->change_pk_status();
+	send_to_char(ch, "Статус дружины изменен.\r\n");	
+}
+
+bool char_to_pk_clan(CHAR_DATA *ch)
+{
+	if (CLAN(ch) && CLAN(ch)->is_pk())
+		return true;
+	return false;
+}
+
 //Polud будем показывать всем происходящие войны
 void DoShowWars(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -2097,7 +2144,6 @@ void DoShowWars(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	std::ostringstream buffer3;
 	buffer3 << "Дружины, находящиеся в состоянии войны:\r\n";
-
 	if (!buffer.empty())
 	{
 		Clan::ClanListType::const_iterator clan1;
@@ -2396,7 +2442,9 @@ const char *HCONTROL_FORMAT =
 	"        hcontrol rank <vnum ренты> <старое звание муж рода> <звание для муж рода> <звание для жен рода>\r\n"
 	"        hcontrol owner <vnum ренты> <имя нового воеводы>\r\n"
 	"        hcontrol ingr <vnum ренты> <vnum комнаты для сундука с ингредиентами>\r\n"
-	"        hcontrol exphitory <число месяцев>\r\n";
+	"        hcontrol exphitory <число месяцев>\r\n"
+	"        hcontrol nopk <vnum ренты>\r\n"
+;
 
 // * hcontrol title - изменение аббревиатуры клана в титуле персонажа.
 void Clan::hcontrol_title(CHAR_DATA *ch, std::string &text)
@@ -2653,6 +2701,10 @@ void DoHcontrol(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		Clan::hcon_outcast(ch, buffer);
 	else if (CompareParam(buffer2, "show"))
 		Clan::HconShow(ch);
+	else if (CompareParam(buffer2, "pk") && !buffer.empty())
+	{
+		Clan::SetPk(ch, buffer);
+	}
 	else if (CompareParam(buffer2, "save"))
 	{
 		Clan::ClanSave();
@@ -3383,6 +3435,12 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 		&& obj->get_contains())
 	{
 		act("В $o5 что-то лежит.", FALSE, ch, obj, 0, TO_CHAR);
+	}
+	else if (SetSystem::is_norent_set(ch, obj))
+	{
+		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		send_to_char(CAP(buf), ch);
+		return 0;
 	}
 	else
 	{

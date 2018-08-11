@@ -68,7 +68,7 @@ int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int level_exp(CHAR_DATA * ch, int level);
 byte extend_saving_throws(int class_num, int type, int level);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
-
+extern bool char_to_pk_clan(CHAR_DATA *ch);
 // Names first
 
 const char *class_abbrevs[] = { "Ï≈",
@@ -2276,7 +2276,8 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj)
 	return false;
 }
 
-int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
+
+int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA* obj)
 {
 	if (!IS_CORPSE(obj))
 	{
@@ -2297,6 +2298,11 @@ int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA* obj)
 	{
 		return (FALSE);
 	}
+	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_NOT_FOR_NOPK) && char_to_pk_clan(ch)))
+	{		
+		return (TRUE);
+	}
+
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MONO) && GET_RELIGION(ch) == RELIGION_MONO)
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_POLY) && GET_RELIGION(ch) == RELIGION_POLY)
 		|| (IS_OBJ_ANTI(obj, EAntiFlag::ITEM_AN_MAGIC_USER) && IS_MAGIC_USER(ch))

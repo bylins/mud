@@ -900,7 +900,8 @@ enum class EExtraFlag: uint32_t
 											// на разные слоты, то чар может одеть на себя только одну шмотку
 	ITEM_TRANSFORMED = INT_ONE | (1 << 15),		// Наложено заклинание заколдовать оружие
 	ITEM_NOT_DEPEND_RPOTO = INT_ONE | (1 << 16),	// Не зависит от прототипа
-	ITEM_NOT_UNLIMIT_TIMER = INT_ONE | (1 << 17)	// Не может быть нерушимой
+	ITEM_NOT_UNLIMIT_TIMER = INT_ONE | (1 << 17) // Не может быть нерушимой
+
 
 };
 
@@ -947,7 +948,8 @@ enum class ENoFlag : uint32_t
 	ITEM_NO_NORVEZCI = INT_TWO | 1 << 20,
 	ITEM_NO_RUSICHI = INT_THREE | 1 << 0,
 	ITEM_NO_STEPNYAKI = INT_THREE | 1 << 1,
-	ITEM_NO_VIKINGI = INT_THREE | 1 << 2
+	ITEM_NO_VIKINGI = INT_THREE | 1 << 2,
+	ITEM_NOT_FOR_NOPK = INT_THREE | (1 << 3)      // не может быть взята !пк кланом
 };
 
 template <> const std::string& NAME_BY_ITEM<ENoFlag>(const ENoFlag item);
@@ -999,7 +1001,8 @@ enum class EAntiFlag: uint32_t
     ITEM_AN_NORVEZCI = INT_TWO | 1 << 20,
     ITEM_AN_RUSICHI = INT_THREE | 1 << 0,
     ITEM_AN_STEPNYAKI = INT_THREE | 1 << 1,
-    ITEM_AN_VIKINGI = INT_THREE | 1 << 2
+    ITEM_AN_VIKINGI = INT_THREE | 1 << 2,
+	ITEM_NOT_FOR_NOPK = INT_THREE | (1 << 3)      // не может быть взята !пк кланом
 };
 
 template <> const std::string& NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item);
