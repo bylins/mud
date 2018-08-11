@@ -161,7 +161,8 @@ set(SOURCES
 	src/shops.implementation.cpp
 	src/radix.trie.cpp
 	src/compact.trie.cpp
-	src/id.cpp)
+	src/id.cpp
+	src/stigmas.cpp)
 
 set(HEADERS
 	src/blocking.queue.hpp
@@ -304,7 +305,8 @@ set(HEADERS
 	src/top.h
 	src/utils.h
 	src/xml_loading_helper.hpp
-	src/debug.utils.hpp)
+	src/debug.utils.hpp
+	src/stigmas.hpp)
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 
 # Build types
