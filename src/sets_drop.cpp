@@ -1260,9 +1260,9 @@ void reload(int zone_vnum)
 {
 	group_obj_list.clear();
 	solo_obj_list.clear();
-	mob_name_list.clear();
-	group_mob_list.clear();
-	solo_mob_list.clear();
+	//mob_name_list.clear();
+	//group_mob_list.clear();
+	//solo_mob_list.clear();
 	drop_list.clear();
 	help_list.clear();
 
@@ -1279,6 +1279,8 @@ void reload(int zone_vnum)
 
 	message_for_players();
 }
+
+
 
 /**
  * Инициализация системы дропа сетов при старте мада.

@@ -1201,7 +1201,7 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if ((victim = get_char_vis(ch, targ_name, FIND_CHAR_WORLD)))
 		{
-			//if (IS_NPC(victim))  	// have a valid mob, now get trigger
+			if (IS_NPC(victim))  	// have a valid mob, now get trigger
 			{
 				rn = real_trigger(tn);
 				if ((rn >= 0) && (trig = read_trigger(rn)))
@@ -1219,8 +1219,8 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					send_to_char("That trigger does not exist.\r\n", ch);
 				}
 			}
-			//else //Теперь и игроки могут быть с тригами
-			//	send_to_char("Players can't have scripts.\r\n", ch);
+			else 
+				send_to_char("Players can't have scripts.\r\n", ch);
 		}
 		else
 		{

@@ -15,6 +15,7 @@
 #ifndef _DB_H_
 #define _DB_H_
 
+
 #include "obj.hpp"
 #include "boot.constants.hpp"
 #include "structs.h"
@@ -55,7 +56,6 @@ int vnum_mobile(char *searchname, CHAR_DATA * ch);
 void clear_char_skills(CHAR_DATA * ch);
 int correct_unique(int unique);
 bool check_unlimited_timer(const CObjectPrototype* obj);
-
 void SaveGlobalUID(void);
 void flush_player_index(void);
 
@@ -116,6 +116,32 @@ struct ExtraAffects
 };
 
 
+struct QuestBodrichRewards
+{
+	int level;
+	int vnum;
+	int money;
+	int exp;
+};
+
+class QuestBodrich
+{
+public:
+	QuestBodrich();
+
+private:
+	void load_mobs();
+	void load_objs();
+	void load_rewards();
+
+	// здесь храним предметы для каждого класса
+	std::map<int, std::vector<int>> objs;
+	// здесь храним мобов
+	std::map<int, std::vector<int>> mobs;
+	// а здесь награды
+	std::map<int, std::vector<QuestBodrichRewards>> rewards;
+
+};
 
 struct City
 {

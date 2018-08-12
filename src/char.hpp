@@ -24,6 +24,7 @@
 #include <map>
 
 // These data contain information about a players time data
+
 struct time_data
 {
 	time_t birth;		// This represents the characters age
@@ -244,6 +245,7 @@ struct player_special_data_saved
 	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	unsigned int who_mana; // количество энергии для использования команды кто
 };
+
 
 struct player_special_data
 {

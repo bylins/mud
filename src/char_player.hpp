@@ -18,6 +18,7 @@
 #include "reset_stats.hpp"
 #include "boards.types.hpp"
 #include "quest.hpp"
+#include "stigmas.hpp"
 
 #include <string>
 #include <array>
@@ -34,6 +35,7 @@ enum
 	DIS_EXCHANGE_MESSAGE,
 	DIS_TOTAL_NUM
 };
+
 
 class Player : public CHAR_DATA
 {
@@ -143,7 +145,9 @@ public:
 	std::string cities_to_str();
 	bool check_city(const size_t index);
 	void mark_city(const size_t index);
-
+	void touch_stigma(char *arg);
+	void add_stigma(int wear, int id_stigma);
+	int get_stigma(int wear);
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -200,7 +204,13 @@ private:
 	int count_daily_quest;
 	// Отметка о том, в каких городах был наш чар
 	boost::dynamic_bitset<size_t> cities;
+	// здесь храним инфу о татуировках
+	std::map<unsigned int, StigmaWear> stigmas;
+	// режим !бот
+	bool setmode_dontbot;
 };
+
+
 
 namespace PlayerSystem
 {

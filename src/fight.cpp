@@ -1968,6 +1968,7 @@ void process_npc_attack(CHAR_DATA *ch)
 	//    continue;
 
 	// Вызываем триггер перед началом боевых моба (магических или физических)
+	
 	if (!fight_mtrigger(ch))
 		return;
 
@@ -2353,6 +2354,26 @@ void perform_violence()
 
 	//* обновление аффектов и лагов после раунда
 	update_round_affs();
+
+	std::vector<int> id_masters;
+	for (const auto& ch : msdp_report_chars)
+	{
+		if (!ch->purged())
+		{			
+			if (ch->get_master() && !ch->get_master()->purged())
+				if (std::find(id_masters.begin(), id_masters.end(), ch->get_master()->get_uid()) != id_masters.end())
+				{
+					for (const auto& follower : ch->get_master()->get_followers_list())
+					{
+						if (!follower->purged() && !IS_NPC(follower))
+						{
+							if (follower->in_room == ch->in_room)
+								msdp_report_chars.insert(follower);
+						}
+					}
+				}
+		}
+	}
 
 	// покажем группу по msdp
 	// проверка на поддержку протокола есть в методе msdp_report

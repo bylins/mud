@@ -66,7 +66,6 @@
 #include "title.hpp"
 #include "top.h"
 #include "class.hpp"
-
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
@@ -83,6 +82,7 @@
 #define CLASS_LIMIT_FILE "class_limit.xml"
 #define DAILY_FILE "daily.xml"
 #define CITIES_FILE "cities.xml"
+#define QUESTBODRICH_FILE "quest_bodrich.xml"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -170,6 +170,9 @@ GameLoader::GameLoader()
 }
 
 GameLoader world_loader;
+
+QuestBodrich qb;
+
 
 // local functions
 void LoadGlobalUID(void);
@@ -309,6 +312,7 @@ inline int exp_two(EnumType number)
 	return exp_two_implementation(to_underlying(number));
 }
 
+
 template <> inline int exp_two(int number) { return exp_two_implementation(number); }
 
 bool check_obj_in_system_zone(int vnum)
@@ -326,6 +330,9 @@ bool check_obj_in_system_zone(int vnum)
 	return true;
     return false;
 }
+
+
+
 
 bool check_unlimited_timer(const CObjectPrototype* obj)
 {
@@ -1026,6 +1033,9 @@ void load_cities()
 
 
 
+
+
+
 std::vector<RandomObj> random_objs;
 
 // загрузка параметров для рандомных шмоток
@@ -1078,6 +1088,72 @@ void load_random_obj()
 		random_objs.push_back(tmp_robj);
 	}
 }
+
+
+QuestBodrich::QuestBodrich()
+{
+	this->load_objs();
+	this->load_mobs();
+	this->load_rewards();
+}
+
+void QuestBodrich::load_objs()
+{
+	pugi::xml_document doc_;
+	pugi::xml_node class_, file_, object_;
+	file_ = XMLLoad(LIB_MISC QUESTBODRICH_FILE, "objects", "Error loading obj file: quest_bodrich.xml", doc_);
+	std::vector<int> tmp_array;
+	for (class_ = file_.child("class"); class_; class_ = class_.next_sibling("class"))
+	{
+		tmp_array.clear();
+		for (object_ = object_.child("obj"); object_; object_ = object_.next_sibling("obj"))
+		{
+			tmp_array.push_back(object_.attribute("vnum").as_int());
+		}
+		this->objs.insert(std::pair<int, std::vector<int>>(class_.attribute("id").as_int(), tmp_array));			
+	}	
+}
+
+void QuestBodrich::load_mobs()
+{
+	pugi::xml_document doc_;
+	pugi::xml_node level_, file_, mob_;
+	file_ = XMLLoad(LIB_MISC QUESTBODRICH_FILE, "mobs", "Error loading mobs file: quest_bodrich.xml", doc_);
+	std::vector<int> tmp_array;
+	for (level_ = file_.child("level"); level_; level_ = level_.next_sibling("level"))
+	{
+		tmp_array.clear();
+		for (mob_ = mob_.child("mob"); mob_; mob_ = mob_.next_sibling("mob"))
+		{
+			tmp_array.push_back(mob_.attribute("vnum").as_int());
+		}
+		this->mobs.insert(std::pair<int, std::vector<int>>(level_.attribute("value").as_int(), tmp_array));
+	}
+}
+
+void QuestBodrich::load_rewards()
+{
+	pugi::xml_document doc_;
+	pugi::xml_node class_, file_, object_, level_;
+	file_ = XMLLoad(LIB_MISC QUESTBODRICH_FILE, "rewards", "Error loading rewards file: quest_bodrich.xml", doc_);
+	std::vector<QuestBodrichRewards> tmp_array;
+	for (class_ = file_.child("class"); class_; class_ = class_.next_sibling("class"))
+	{
+		tmp_array.clear();
+		for (level_ = level_.child("level"); level_; level_ = level_.next_sibling("level"))
+		{
+			QuestBodrichRewards qbr;
+			qbr.level = level_.attribute("level").as_int();
+			qbr.vnum = level_.attribute("obj_vnum").as_int();
+			qbr.money = level_.attribute("money_value").as_int();
+			qbr.exp = level_.attribute("exp_value").as_int();
+			tmp_array.push_back(qbr);
+		}
+		//std::map<int, QuestBodrichRewards> rewards;
+		this->rewards.insert(std::pair<int, std::vector<QuestBodrichRewards>>(class_.attribute("id").as_int(), tmp_array));
+	}
+}
+
 
 /*
  * Too bad it doesn't check the return values to let the user

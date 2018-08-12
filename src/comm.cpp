@@ -856,6 +856,7 @@ int main_function(int argc, char **argv)
 	return 0;
 }
 
+
 // Init sockets, run game, and cleanup sockets
 void init_game(ush_int port)
 {
@@ -879,7 +880,6 @@ void init_game(ush_int port)
 	scripting::init();
 #endif
 	boot_db();
-
 #if defined(CIRCLE_UNIX) || defined(CIRCLE_MACINTOSH)
 	log("Signal trapping.");
 	signal_setup();

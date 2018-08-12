@@ -52,6 +52,10 @@ namespace ShopExt
 		{
 			return ch->get_ice_currency() >= price;
 		}
+		if (currency == "гривны")
+		{
+			return ch->get_ext_money(0);
+		}
 
 		return false;
 	}
