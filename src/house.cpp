@@ -478,7 +478,7 @@ void Clan::ClanLoadSingle(std::string index)
 				log("Clan has 0 in bank, file (%s) возможно будет удален.", filename.c_str());
 			}
 		}
-		else if (buffer == "Bank:")
+		else if (buffer == "Pk:")
 		{
 			file >> tempClan->pk;
 		}
@@ -2443,7 +2443,7 @@ const char *HCONTROL_FORMAT =
 	"        hcontrol owner <vnum ренты> <имя нового воеводы>\r\n"
 	"        hcontrol ingr <vnum ренты> <vnum комнаты для сундука с ингредиентами>\r\n"
 	"        hcontrol exphitory <число месяцев>\r\n"
-	"        hcontrol nopk <vnum ренты>\r\n"
+	"        hcontrol pk <vnum ренты>\r\n"
 ;
 
 // * hcontrol title - изменение аббревиатуры клана в титуле персонажа.
