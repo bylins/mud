@@ -116,6 +116,16 @@ struct ExtraAffects
 };
 
 
+struct DailyQuest
+{
+	// id
+	int id;
+	// desk
+	std::string desk;
+	// награда
+	int reward;
+};
+
 struct QuestBodrichRewards
 {
 	int level;

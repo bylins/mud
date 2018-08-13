@@ -61,7 +61,7 @@
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 const char *attach_name[] = { "mob", "obj", "room", "unknown!!!" };
 
-int last_trig_vnum=0;
+int last_trig_vnum = 0;
 
 // other external vars
 
@@ -106,7 +106,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int trgvar_in_room(int vnum);
 
 /*
-йНЯРШКЭ, МН БЯЕФ. 
+йНЯРШКЭ, МН БЯЕФ.
 */
 bool CharacterLinkDrop = false;
 
@@ -411,9 +411,9 @@ inline auto count_obj_vnum(long n)
 		return 0;
 	}
 
-// Чот косячит таймер, решили переделать тригги, хоть и дольше
-//	if (check_unlimited_timer(obj_proto[i]))
-//		return 0;
+	// Чот косячит таймер, решили переделать тригги, хоть и дольше
+	//	if (check_unlimited_timer(obj_proto[i]))
+	//		return 0;
 	return obj_proto.actual_count(i);
 }
 
@@ -421,7 +421,7 @@ inline auto count_obj_vnum(long n)
  * search by number routines
  ************************************************************/
 
-// return object with UID n
+ // return object with UID n
 OBJ_DATA *find_obj_by_id(const object_id_t id)
 {
 	const auto result = world_objects.find_first_by_id(id);
@@ -443,10 +443,10 @@ ROOM_DATA *find_room(long n)
  * search by VNUM routines
  ************************************************************/
 
-/**
-* Возвращает id моба указанного внума.
-* \param num - если есть и больше 0 - возвращает id не первого моба, а указанного порядкового номера.
-*/
+ /**
+ * Возвращает id моба указанного внума.
+ * \param num - если есть и больше 0 - возвращает id не первого моба, а указанного порядкового номера.
+ */
 int find_char_vnum(long n, int num = 0)
 {
 	int count = 0;
@@ -473,21 +473,21 @@ int find_char_vnum(long n, int num = 0)
 // RNUM может быть независимо изменен с помощью OLC
 int find_room_vnum(long n)
 {
-//  return (real_room (n) != NOWHERE) ? ROOM_ID_BASE + n : -1;
+	//  return (real_room (n) != NOWHERE) ? ROOM_ID_BASE + n : -1;
 	return (real_room(n) != NOWHERE) ? n : -1;
 }
 
 int find_room_uid(long n)
 {
 	return (real_room(n) != NOWHERE) ? ROOM_ID_BASE + n : -1;
-//return (real_room (n) != NOWHERE) ? n : -1;
+	//return (real_room (n) != NOWHERE) ? n : -1;
 }
 
 /************************************************************
  * generic searches based only on name
  ************************************************************/
 
-// search the entire world for a char, and return a pointer
+ // search the entire world for a char, and return a pointer
 CHAR_DATA *get_char(char *name, int/* vnum*/)
 {
 	CHAR_DATA *i;
@@ -829,9 +829,9 @@ void script_trigger_check()
 
 	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& obj)
 	{
-		if(OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED))
+		if (OBJ_FLAGGED(obj.get(), EExtraFlag::ITEM_NAMED))
 		{
-			if(obj->get_worn_by() && number(1, 100) <= 5)
+			if (obj->get_worn_by() && number(1, 100) <= 5)
 			{
 				NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
 			}
@@ -940,8 +940,8 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 	}
 
 	sprintf(sb, "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
-			CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
-			CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
+		CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
+		CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
 
 	if (trig->get_attach_type() == MOB_TRIGGER)
 	{
@@ -965,7 +965,7 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 	}
 
 	sprintf(sb, "Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
-			buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
+		buf, GET_TRIG_NARG(trig), !trig->arglist.empty() ? trig->arglist.c_str() : "None");
 
 	strcat(sb, "Commands:\r\n   ");
 
@@ -1033,8 +1033,8 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 	for (auto t : sc->trig_list)
 	{
 		sprintf(buf, "\r\n  Trigger: %s%s%s, VNum: [%s%5d%s], RNum: [%5d]\r\n",
-				CCYEL(ch, C_NRM), GET_TRIG_NAME(t), CCNRM(ch, C_NRM),
-				CCGRN(ch, C_NRM), GET_TRIG_VNUM(t), CCNRM(ch, C_NRM), GET_TRIG_RNUM(t));
+			CCYEL(ch, C_NRM), GET_TRIG_NAME(t), CCNRM(ch, C_NRM),
+			CCGRN(ch, C_NRM), GET_TRIG_VNUM(t), CCNRM(ch, C_NRM), GET_TRIG_RNUM(t));
 		send_to_char(buf, ch);
 
 		if (t->get_attach_type() == MOB_TRIGGER)
@@ -1059,7 +1059,7 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 		}
 
 		sprintf(buf, "  Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
-				buf1, GET_TRIG_NARG(t), !t->arglist.empty() ? t->arglist.c_str() : "None");
+			buf1, GET_TRIG_NARG(t), !t->arglist.empty() ? t->arglist.c_str() : "None");
 		send_to_char(buf, ch);
 
 		if (GET_TRIG_WAIT(t))
@@ -1193,7 +1193,7 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		tn = (is_abbrev(arg, "mtr") ? 0 : is_abbrev(arg, "otr") ? 1 : is_abbrev(arg, "wtr") ? 2 : 3);
 		sprintf(buf, "Trigger %d (%s) has wrong attach_type %s expected %s.\r\n",
-				tn, GET_TRIG_NAME(trig_index[rn]->proto), attach_name[(int)trig_index[rn]->proto->get_attach_type()], attach_name[tn]);
+			tn, GET_TRIG_NAME(trig_index[rn]->proto), attach_name[(int)trig_index[rn]->proto->get_attach_type()], attach_name[tn]);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -1219,7 +1219,7 @@ void do_attach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					send_to_char("That trigger does not exist.\r\n", ch);
 				}
 			}
-			else 
+			else
 				send_to_char("Players can't have scripts.\r\n", ch);
 		}
 		else
@@ -1421,36 +1421,36 @@ void free_var_el(struct trig_var_data *var)
 void add_var_cntx(struct trig_var_data **var_list, const char *name, const char *value, long id)
 /*++
 	Добавление переменной в список с учетом контекста (СТРОГИЙ поиск).
-    При добавлении в список локальных переменных контекст должен быть 0.
+	При добавлении в список локальных переменных контекст должен быть 0.
 
 	var_list	- указатель на первый элемент списка переменных
-    name		- имя переменной
+	name		- имя переменной
 	value		- значение переменной
 	id			- контекст переменной
 --*/
 {
 	struct trig_var_data *vd, *vd_prev;
 
-// Обращаю внимание, что при добавлении необходимо ТОЧНОЕ совпадение контекстов
+	// Обращаю внимание, что при добавлении необходимо ТОЧНОЕ совпадение контекстов
 	for (vd_prev = NULL, vd = *var_list;
-			vd && ((vd->context != id) || str_cmp(vd->name, name)); vd_prev = vd, vd = vd->next);
+		vd && ((vd->context != id) || str_cmp(vd->name, name)); vd_prev = vd, vd = vd->next);
 
 	if (vd)
 	{
-// Переменная существует, заменить значение
+		// Переменная существует, заменить значение
 		free(vd->value);
 	}
 	else
 	{
-// Создать новую переменную
+		// Создать новую переменную
 		CREATE(vd, 1);
 		CREATE(vd->name, strlen(name) + 1);
 		strcpy(vd->name, name);
 
 		vd->context = id;
 
-// Добавление переменной в список
-// Для нулевого контекста в конец списка, для ненулевого - в начало
+		// Добавление переменной в список
+		// Для нулевого контекста в конец списка, для ненулевого - в начало
 		if (id)
 		{
 			vd->next = *var_list;
@@ -1472,19 +1472,19 @@ void add_var_cntx(struct trig_var_data **var_list, const char *name, const char 
 
 
 struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name, long id)
-/*++
-	Поиск переменной с учетом контекста (НЕСТРОГИЙ поиск).
+	/*++
+		Поиск переменной с учетом контекста (НЕСТРОГИЙ поиск).
 
-	Поиск осуществляется по паре ИМЯ:КОНТЕКСТ.
-	1. Имя переменной должно совпадать с параметром name
-    2. Контекст переменной должен совпадать с параметром id, если
-       такой переменной нет, производится попытка найти переменную
-       с контекстом 0.
+		Поиск осуществляется по паре ИМЯ:КОНТЕКСТ.
+		1. Имя переменной должно совпадать с параметром name
+		2. Контекст переменной должен совпадать с параметром id, если
+		   такой переменной нет, производится попытка найти переменную
+		   с контекстом 0.
 
-	var_list	- указатель на первый элемент списка переменных
-    name		- имя переменной
-	id			- контекст переменной
---*/
+		var_list	- указатель на первый элемент списка переменных
+		name		- имя переменной
+		id			- контекст переменной
+	--*/
 {
 	struct trig_var_data *vd;
 
@@ -1501,19 +1501,19 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 	Поиск строгий.
 
 	var_list	- указатель на первый элемент списка переменных
-    name		- имя переменной
+	name		- имя переменной
 	id			- контекст переменной
 
 	Возвращает:
-       1 - переменная найдена и удалена
-       0 - переменная не найдена
+	   1 - переменная найдена и удалена
+	   0 - переменная не найдена
 
 --*/
 {
 	struct trig_var_data *vd, *vd_prev;
 
 	for (vd_prev = NULL, vd = *var_list;
-			vd && ((vd->context != id) || str_cmp(vd->name, name)); vd_prev = vd, vd = vd->next);
+		vd && ((vd->context != id) || str_cmp(vd->name, name)); vd_prev = vd, vd = vd->next);
 
 	if (!vd)
 		return 0;	// Не удалось найти
@@ -1736,17 +1736,17 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				switch (type)
 				{
 				case MOB_TRIGGER:
-					uid = GET_ID((CHAR_DATA *) go);
+					uid = GET_ID((CHAR_DATA *)go);
 					uid_type = UID_CHAR;
 					break;
 
 				case OBJ_TRIGGER:
-					uid = ((OBJ_DATA *) go)->get_id();
+					uid = ((OBJ_DATA *)go)->get_id();
 					uid_type = UID_OBJ;
 					break;
 
 				case WLD_TRIGGER:
-					uid = find_room_uid(((ROOM_DATA *) go)->number);
+					uid = find_room_uid(((ROOM_DATA *)go)->number);
 					uid_type = UID_ROOM;
 					break;
 
@@ -1798,7 +1798,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		switch (type)
 		{
 		case MOB_TRIGGER:
-			ch = (CHAR_DATA *) go;
+			ch = (CHAR_DATA *)go;
 			if (!name)
 			{
 				log("SYSERROR: null name (%s:%d %s)", __FILE__, __LINE__, __func__);
@@ -1820,7 +1820,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 			break;
 		case OBJ_TRIGGER:
-			obj = (OBJ_DATA *) go;
+			obj = (OBJ_DATA *)go;
 			if ((c = get_char_by_obj(obj, name)));
 			else if ((o = get_obj_by_obj(obj, name)));
 			else if ((r = get_room(name)))
@@ -1828,7 +1828,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 			break;
 		case WLD_TRIGGER:
-			room = (ROOM_DATA *) go;
+			room = (ROOM_DATA *)go;
 			if ((c = get_char_by_room(room, name)));
 			else if ((o = get_obj_by_room(room, name)));
 			else if ((r = get_room(name)))
@@ -1844,13 +1844,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			switch (type)
 			{
 			case MOB_TRIGGER:
-				c = (CHAR_DATA *) go;
+				c = (CHAR_DATA *)go;
 				break;
 			case OBJ_TRIGGER:
-				o = (OBJ_DATA *) go;
+				o = (OBJ_DATA *)go;
 				break;
 			case WLD_TRIGGER:
-				r = (ROOM_DATA *) go;
+				r = (ROOM_DATA *)go;
 				break;
 			}
 		}
@@ -1945,8 +1945,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_ROOM, num);
 			}
-//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
-//которое прописано в самом предмете с указанным vnum
+			//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
+			//которое прописано в самом предмете с указанным vnum
 			else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0)
 			{
 				num = real_object(num);
@@ -1954,13 +1954,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					// если у прототипа беск.таймер,
 					// то их оч много в мире
-					if (check_unlimited_timer(obj_proto[num].get()) || (GET_OBJ_MIW(obj_proto[num]) < 0) )
-					    sprintf(str, "9999999");
+					if (check_unlimited_timer(obj_proto[num].get()) || (GET_OBJ_MIW(obj_proto[num]) < 0))
+						sprintf(str, "9999999");
 					else
-					    sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
+						sprintf(str, "%d", GET_OBJ_MIW(obj_proto[num]));
 				}
 			}
-//-Polud
+			//-Polud
 			return;
 		}
 		else if (!str_cmp(var, "weather"))
@@ -2086,16 +2086,16 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(var, "random"))
 		{
-			if (!str_cmp(field, "char") 
-				|| !str_cmp(field, "pc") 
-				|| !str_cmp(field, "npc") 
+			if (!str_cmp(field, "char")
+				|| !str_cmp(field, "pc")
+				|| !str_cmp(field, "npc")
 				|| !str_cmp(field, "all"))
 			{
 				rndm = NULL;
 				count = 0;
 				if (type == MOB_TRIGGER)
 				{
-					ch = (CHAR_DATA *) go;
+					ch = (CHAR_DATA *)go;
 					for (const auto c : world[ch->in_room]->people)
 					{
 						if (GET_INVIS_LEV(c)
@@ -2105,7 +2105,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 							continue;
 						}
 
-						if((*field == 'a')
+						if ((*field == 'a')
 							|| (*field == 'p' && !IS_NPC(c))
 							|| (*field == 'n' && IS_NPC(c) && !IS_CHARMED(c))
 							|| (*field == 'c' && (!IS_NPC(c) || IS_CHARMED(c))))
@@ -2121,7 +2121,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				}
 				else if (type == OBJ_TRIGGER)
 				{
-					for (const auto c : world[obj_room((OBJ_DATA *) go)]->people)
+					for (const auto c : world[obj_room((OBJ_DATA *)go)]->people)
 					{
 						if (GET_INVIS_LEV(c))
 						{
@@ -2144,7 +2144,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				}
 				else if (type == WLD_TRIGGER)
 				{
-					for (const auto c : ((ROOM_DATA *) go)->people)
+					for (const auto c : ((ROOM_DATA *)go)->people)
 					{
 						if (GET_INVIS_LEV(c))
 						{
@@ -2189,40 +2189,42 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if (!str_cmp(var, "array"))
 		{
 			if (!str_cmp(field, "item")) {
-				char *p = strchr(subfield,',');
+				char *p = strchr(subfield, ',');
 				int n = 0;
 				if (!p) {
 					p = subfield;
 					n++;
-				} else {
-					*(p++)='\0';
-					n=atoi(p);
 				}
-				p=subfield;
+				else {
+					*(p++) = '\0';
+					n = atoi(p);
+				}
+				p = subfield;
 				while (n) {
 					char *retval = p;
 					char tmp;
-					for (;n;p++) {
-						if (*p==' '||*p=='\0') {
+					for (; n; p++) {
+						if (*p == ' ' || *p == '\0') {
 							n--;
-							if (n&&*p=='\0') {
-								str[0]='\0';
+							if (n&&*p == '\0') {
+								str[0] = '\0';
 								return;
 							}
 							if (!n) {
-								tmp=*p;
-								*p='\0';
-								sprintf(str,"%s",retval);
-								*p=tmp;
+								tmp = *p;
+								*p = '\0';
+								sprintf(str, "%s", retval);
+								*p = tmp;
 								return;
-							} else {
-								retval=p+1;
+							}
+							else {
+								retval = p + 1;
 							}
 						}
 					}
 				}
 			}
-			/*Вот тут можно наделать вот так еще: 
+			/*Вот тут можно наделать вот так еще:
 			else if (!str_cmp(field, "pop")) {}
 			else if (!str_cmp(field, "shift")) {}
 			else if (!str_cmp(field, "push")) {}
@@ -2282,7 +2284,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "hitp"))
 		{
-			GET_HIT(c) = (int) MAX(1, gm_char_field(c, field, subfield, (long) GET_HIT(c)));
+			GET_HIT(c) = (int)MAX(1, gm_char_field(c, field, subfield, (long)GET_HIT(c)));
 			sprintf(str, "%d", GET_HIT(c));
 		}
 		else if (!str_cmp(field, "arenahp"))
@@ -2292,7 +2294,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			int arena_hp = GET_HIT(c);
 			int can_use = 0;
 
-			if(!IS_NPC(c))
+			if (!IS_NPC(c))
 			{
 				k = (c->has_master() ? c->get_master() : c);
 				if (GET_CLASS(c) == 8)//чернок может дрыниться
@@ -2320,7 +2322,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 								continue;
 							}
 							if ((GET_CLASS(f->follower) == 8
-									|| GET_CLASS(f->follower) == 13) //чернок или волхв может использовать ужи на согруппов
+								|| GET_CLASS(f->follower) == 13) //чернок или волхв может использовать ужи на согруппов
 								&& world[IN_ROOM(f->follower)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
 							{
 								can_use = 1;
@@ -2346,7 +2348,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "hitpadd"))
 		{
-			GET_HIT_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HIT_ADD(c));
+			GET_HIT_ADD(c) = (int)gm_char_field(c, field, subfield, (long)GET_HIT_ADD(c));
 			sprintf(str, "%d", GET_HIT_ADD(c));
 		}
 		else if (!str_cmp(field, "maxhitp"))
@@ -2357,19 +2359,19 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "hitpreg"))
 		{
-			GET_HITREG(c) = (int) gm_char_field(c, field, subfield, (long) GET_HITREG(c));
+			GET_HITREG(c) = (int)gm_char_field(c, field, subfield, (long)GET_HITREG(c));
 			sprintf(str, "%d", GET_HITREG(c));
 		}
 		else if (!str_cmp(field, "mana"))
 		{
 			if (!IS_NPC(c))
 				GET_MANA_STORED(c) =
-					MAX(0, gm_char_field(c, field, subfield, (long) GET_MANA_STORED(c)));
+				MAX(0, gm_char_field(c, field, subfield, (long)GET_MANA_STORED(c)));
 			sprintf(str, "%d", GET_MANA_STORED(c));
 		}
 		else if (!str_cmp(field, "manareg"))
 		{
-			GET_MANAREG(c) = (int) gm_char_field(c, field, subfield, (long) GET_MANAREG(c));
+			GET_MANAREG(c) = (int)gm_char_field(c, field, subfield, (long)GET_MANAREG(c));
 			sprintf(str, "%d", GET_MANAREG(c));
 		}
 		else if (!str_cmp(field, "maxmana"))
@@ -2378,7 +2380,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			if (!IS_NPC(c))
 				GET_MOVE(c) =
-					(sh_int) MAX(0, gm_char_field(c, field, subfield, (long) GET_MOVE(c)));
+				(sh_int)MAX(0, gm_char_field(c, field, subfield, (long)GET_MOVE(c)));
 			sprintf(str, "%d", GET_MOVE(c));
 		}
 		else if (!str_cmp(field, "maxmove"))
@@ -2388,25 +2390,25 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "moveadd"))
 		{
-			GET_MOVE_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_MOVE_ADD(c));
+			GET_MOVE_ADD(c) = (int)gm_char_field(c, field, subfield, (long)GET_MOVE_ADD(c));
 			sprintf(str, "%d", GET_MOVE_ADD(c));
 		}
 		else if (!str_cmp(field, "movereg"))
 		{
-			GET_MOVEREG(c) = (int) gm_char_field(c, field, subfield, (long) GET_MOVEREG(c));
+			GET_MOVEREG(c) = (int)gm_char_field(c, field, subfield, (long)GET_MOVEREG(c));
 			sprintf(str, "%d", GET_MOVEREG(c));
 		}
 		else if (!str_cmp(field, "castsucc"))
 		{
 			GET_CAST_SUCCESS(c) =
-				(int) gm_char_field(c, field, subfield, (long) GET_CAST_SUCCESS(c));
+				(int)gm_char_field(c, field, subfield, (long)GET_CAST_SUCCESS(c));
 			sprintf(str, "%d", GET_CAST_SUCCESS(c));
 		}
 		else if (!str_cmp(field, "ageadd"))
 		{
 			if (!IS_NPC(c))
 			{
-				GET_AGE_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_AGE_ADD(c));
+				GET_AGE_ADD(c) = (int)gm_char_field(c, field, subfield, (long)GET_AGE_ADD(c));
 				sprintf(str, "%d", GET_AGE_ADD(c));
 			}
 		}
@@ -2422,7 +2424,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "hradd"))
 		{
-			GET_HR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_HR(c));
+			GET_HR_ADD(c) = (int)gm_char_field(c, field, subfield, (long)GET_HR(c));
 			sprintf(str, "%d", GET_HR_ADD(c));
 		}
 		else if (!str_cmp(field, "hr"))
@@ -2436,7 +2438,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "dradd"))
 		{
-			GET_DR_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_DR(c));
+			GET_DR_ADD(c) = (int)gm_char_field(c, field, subfield, (long)GET_DR(c));
 			sprintf(str, "%d", GET_DR_ADD(c));
 		}
 		else if (!str_cmp(field, "dr"))
@@ -2450,7 +2452,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "acadd"))
 		{
-			GET_AC_ADD(c) = (int) gm_char_field(c, field, subfield, (long) GET_AC(c));
+			GET_AC_ADD(c) = (int)gm_char_field(c, field, subfield, (long)GET_AC(c));
 			sprintf(str, "%d", GET_AC_ADD(c));
 		}
 		else if (!str_cmp(field, "ac"))
@@ -2464,17 +2466,17 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "moraleadd")) // добавочная мораль
 		{
-			GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
+			GET_MORALE(c) = (int)gm_char_field(c, field, subfield, (long)GET_MORALE(c));
 			sprintf(str, "%d", GET_MORALE(c));
 		}
 		else if (!str_cmp(field, "poison"))
 		{
-			GET_POISON(c) = (int) gm_char_field(c, field, subfield, (long) GET_POISON(c));
+			GET_POISON(c) = (int)gm_char_field(c, field, subfield, (long)GET_POISON(c));
 			sprintf(str, "%d", GET_POISON(c));
 		}
 		else if (!str_cmp(field, "initiative"))
 		{
-			GET_INITIATIVE(c) = (int) gm_char_field(c, field, subfield, (long) GET_INITIATIVE(c));
+			GET_INITIATIVE(c) = (int)gm_char_field(c, field, subfield, (long)GET_INITIATIVE(c));
 			sprintf(str, "%d", GET_INITIATIVE(c));
 		}
 		else if (!str_cmp(field, "align"))
@@ -2498,14 +2500,14 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if ((!str_cmp(field, "restore")) || (!str_cmp(field, "fullrestore")))
 		{
 			/* Так, тупо, но иначе ругается, мол слишком много блоков*/
-			 if (!str_cmp(field, "fullrestore"))
+			if (!str_cmp(field, "fullrestore"))
 			{
-				do_arena_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
+				do_arena_restore(c, (char *)c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_arena_restore!");
 			}
 			else
 			{
-				do_restore(c, (char *) c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
+				do_restore(c, (char *)c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
 				trig_log(trig, "был произведен вызов do_restore!");
 			}
 		}
@@ -2555,33 +2557,43 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					zone_table[world[IN_ROOM(c)]->zone].number, diff);
 			}
 		}
-		else if (!str_cmp(field, "exp"))
+		else if (!str_cmp(field, "exp") || !str_cmp(field, "questbodrich"))
 		{
-			if (*subfield)
+			if (!str_cmp(field, "questbodrich"))
 			{
-				if (*subfield == '-')
+				if (*subfield)
 				{
-					gain_exp(c, -MAX(1, atoi(subfield + 1)));
-					sprintf(buf, "SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
-					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
-				}
-				else if (*subfield == '+')
-				{
-					gain_exp(c, + MAX(1, atoi(subfield + 1)));
-					sprintf(buf, "SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)),  GET_TRIG_VNUM(trig));
-					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
-				}
-				else 
-				{
-					sprintf(buf, "SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d", GET_NAME(c), atoi(subfield + 1), GET_TRIG_VNUM(trig));
-					mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+					c->dquest(atoi(subfield));
 				}
 			}
 			else
-				sprintf(str, "%ld", GET_EXP(c));
+			{
+				if (*subfield)
+				{
+					if (*subfield == '-')
+					{
+						gain_exp(c, -MAX(1, atoi(subfield + 1)));
+						sprintf(buf, "SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
+						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+					}
+					else if (*subfield == '+')
+					{
+						gain_exp(c, +MAX(1, atoi(subfield + 1)));
+						sprintf(buf, "SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
+						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+					}
+					else
+					{
+						sprintf(buf, "SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d", GET_NAME(c), atoi(subfield + 1), GET_TRIG_VNUM(trig));
+						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
+					}
+				}
+				else
+					sprintf(str, "%ld", GET_EXP(c));
+			}			
 		}
 		else if (!str_cmp(field, "sex"))
-			sprintf(str, "%d", (int) GET_SEX(c));
+			sprintf(str, "%d", (int)GET_SEX(c));
 		else if (!str_cmp(field, "clan"))
 		{
 			if (CLAN(c))
@@ -2626,7 +2638,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			sprintf(str, "%d", GET_WEIGHT(c));
 		else if (!str_cmp(field, "canbeseen"))
 		{
-			if ((type == MOB_TRIGGER) && !CAN_SEE(((CHAR_DATA *) go), c))
+			if ((type == MOB_TRIGGER) && !CAN_SEE(((CHAR_DATA *)go), c))
 			{
 				strcpy(str, "0");
 			}
@@ -2802,9 +2814,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if (!str_cmp(field, "sizeadd"))
 		{
 			GET_SIZE_ADD(c) =
-				(sbyte) MAX(1,
-							gm_char_field(c, field, subfield,
-										  (long) GET_SIZE_ADD(c)));
+				(sbyte)MAX(1,
+					gm_char_field(c, field, subfield,
+					(long)GET_SIZE_ADD(c)));
 			sprintf(str, "%d", GET_SIZE_ADD(c));
 		}
 		else if (!str_cmp(field, "room"))
@@ -2972,9 +2984,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				++people_i;
 				people_i = std::find_if(people_i, room->people.end(),
 					[](const CHAR_DATA* ch)
-					{
-						return !GET_INVIS_LEV(ch);
-					});
+				{
+					return !GET_INVIS_LEV(ch);
+				});
 
 				if (people_i != room->people.end())
 				{
@@ -3083,12 +3095,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					continue;
 				}
-				int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(t));
+				int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(t));
 				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
-				} else {
+				}
+				else {
 					break; // too many attackers
 				}
 			}
@@ -3097,11 +3110,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			//const auto first_char = world[IN_ROOM(c)]->first_character();
 			const auto room = world[IN_ROOM(c)]->people;
-			const auto first_char = std::find_if(room.begin(), room.end(), 
+			const auto first_char = std::find_if(room.begin(), room.end(),
 				[](CHAR_DATA* ch)
-				{
-					return !GET_INVIS_LEV(ch);
-				});
+			{
+				return !GET_INVIS_LEV(ch);
+			});
 
 			if (first_char != room.end())
 			{
@@ -3112,23 +3125,24 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				strcpy(str, "");
 			}
 		}
-//Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
+		//Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
 		else if (!str_cmp(field, "objs"))
 		{
 			size_t str_length = strlen(str);
 			for (obj = c->carrying; obj; obj = obj->get_next_content())
 			{
-				int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
+				int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
 				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
-				} else {
+				}
+				else {
 					break; // too many carying objects
 				}
 			}
 		}
-//-Polud
+		//-Polud
 		else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
 			|| !str_cmp(field, "npc")
@@ -3163,7 +3177,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					|| (IS_NPC(rndm)
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n'))
-				   {
+				{
 					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
 					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 					{
@@ -3406,7 +3420,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		else if (!str_cmp(field, "count"))
 			strcpy(str, get_objs_in_world(o));
 		else if (!str_cmp(field, "sex"))
-			sprintf(str, "%d", (int) GET_OBJ_SEX(o));
+			sprintf(str, "%d", (int)GET_OBJ_SEX(o));
 		else if (!str_cmp(field, "room"))
 		{
 			if (o->get_carried_by())
@@ -3426,12 +3440,12 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				strcpy(str, "");
 			}
 		}
-//Polud обработка %obj.put(UID)% - пытается поместить объект в контейнер, комнату или инвентарь чара, в зависимости от UIDа
+		//Polud обработка %obj.put(UID)% - пытается поместить объект в контейнер, комнату или инвентарь чара, в зависимости от UIDа
 		else if (!str_cmp(field, "put"))
 		{
-			OBJ_DATA *obj_to=NULL;
-			CHAR_DATA *char_to=NULL;
-			ROOM_DATA *room_to=NULL;
+			OBJ_DATA *obj_to = NULL;
+			CHAR_DATA *char_to = NULL;
+			ROOM_DATA *room_to = NULL;
 			if (!((*subfield == UID_CHAR) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM)))
 			{
 				trig_log(trig, "object.put: недопустимый аргумент, необходимо указать UID");
@@ -3439,7 +3453,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 			if (*subfield == UID_OBJ)
 			{
-				obj_to = find_obj_by_id(atoi(subfield+1));
+				obj_to = find_obj_by_id(atoi(subfield + 1));
 				if (!(obj_to
 					&& GET_OBJ_TYPE(obj_to) == OBJ_DATA::ITEM_CONTAINER))
 				{
@@ -3449,7 +3463,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 			if (*subfield == UID_CHAR)
 			{
-				char_to = find_char(atoi(subfield+1));
+				char_to = find_char(atoi(subfield + 1));
 				if (!(char_to && can_take_obj(char_to, o)))
 				{
 					trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
@@ -3458,7 +3472,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 			if (*subfield == UID_ROOM)
 			{
-				room_to = find_room(atoi(subfield+1));
+				room_to = find_room(atoi(subfield + 1));
 				if (!(room_to && (room_to->number != NOWHERE)))
 				{
 					trig_log(trig, "object.put: недопустимая комната для размещения объекта");
@@ -3503,9 +3517,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				return;
 			}
 		}
-//-Polud
+		//-Polud
 		else if (!str_cmp(field, "char") ||
-				 !str_cmp(field, "pc") || !str_cmp(field, "npc") || !str_cmp(field, "all"))
+			!str_cmp(field, "pc") || !str_cmp(field, "npc") || !str_cmp(field, "all"))
 		{
 			int inroom;
 
@@ -3533,7 +3547,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n'))
 				{
-					int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
 					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
@@ -3698,9 +3712,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 		}
 		else if (!str_cmp(field, "char")
-				 || !str_cmp(field, "pc")
-				 || !str_cmp(field, "npc")
-				 || !str_cmp(field, "all"))
+			|| !str_cmp(field, "pc")
+			|| !str_cmp(field, "npc")
+			|| !str_cmp(field, "all"))
 		{
 			int inroom;
 
@@ -3728,7 +3742,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 						&& !IS_CHARMED(rndm)
 						&& *field == 'n'))
 				{
-					int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
+					int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_CHAR, GET_ID(rndm));
 					if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
@@ -3758,12 +3772,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			size_t str_length = strlen(str);
 			for (obj = world[inroom]->contents; obj; obj = obj->get_next_content())
 			{
-				int n = snprintf (tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
+				int n = snprintf(tmp, MAX_INPUT_LENGTH, "%c%ld ", UID_OBJ, obj->get_id());
 				if (str_length + n < MAX_INPUT_LENGTH) // not counting the terminating null character
 				{
 					strcpy(str + str_length, tmp);
 					str_length += n;
-				} else {
+				}
+				else {
 					break; // too many objects
 				}
 			}
@@ -4161,7 +4176,7 @@ int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DAT
 	char name[MAX_INPUT_LENGTH];
 	char list_str[MAX_INPUT_LENGTH];
 	char value[MAX_INPUT_LENGTH];
-	
+
 	skip_spaces(&cond);
 	auto p = one_argument(cond, name);
 	skip_spaces(&p);
@@ -4172,7 +4187,7 @@ int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DAT
 		return 0;
 	}
 
-	eval_expr(p, list_str, go, sc, trig, type); 
+	eval_expr(p, list_str, go, sc, trig, type);
 	p = list_str;
 
 	if (!p || !*p)
@@ -4182,7 +4197,7 @@ int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DAT
 
 	int v_strpos;
 	auto pos = strchr(p, ' ');
-	if(!pos)
+	if (!pos)
 	{
 		strcpy(value, p);
 		v_strpos = static_cast<int>(strlen(p));
@@ -4227,14 +4242,14 @@ int process_foreach_done(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DATA
 	sprintf(value, "%s%s", name, FOREACH_LIST_POS_GUID);
 	const auto var_list_pos = find_var_cntx(&GET_TRIG_VARS(trig), value, 0);
 
-	if(!var_list || !var_list_pos)
+	if (!var_list || !var_list_pos)
 	{
 		trig_log(trig, "foreach utility vars not found");
 		return 0;
 	}
 
 	const auto p = var_list->value + static_cast<unsigned int>(atoi(var_list_pos->value));
-	if(!p || !*p)
+	if (!p || !*p)
 	{
 		remove_var_cntx(&GET_TRIG_VARS(trig), name, 0);
 
@@ -4445,7 +4460,7 @@ cmdlist_element::shared_ptr find_case(TRIG_DATA * trig, cmdlist_element::shared_
 		}
 		else if (!strn_cmp("case ", p, 5))
 		{
-			char *tmpbuf = (char *) malloc(MAX_STRING_LENGTH);
+			char *tmpbuf = (char *)malloc(MAX_STRING_LENGTH);
 			eval_op("==", result, p + 5, tmpbuf, go, sc, trig);
 			if (*tmpbuf && *tmpbuf != '0')
 			{
@@ -4489,8 +4504,8 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, const cmdlist
 		&& IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
 	{
 		sprintf(buf,
-				"&YВНИМАНИЕ&G Используется wait в DEATH триггере '%s' (VNUM=%d).",
-				GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
+			"&YВНИМАНИЕ&G Используется wait в DEATH триггере '%s' (VNUM=%d).",
+			GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
 		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 		sprintf(buf, "&GКод триггера после wait выполнен НЕ БУДЕТ!");
 		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
@@ -4637,14 +4652,14 @@ void process_attach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char
 
 	// locate and load the trigger specified
 	trignum = real_trigger(atoi(trignum_s));
-	if (trignum >=0
+	if (trignum >= 0
 		&& (((c) && trig_index[trignum]->proto->get_attach_type() != MOB_TRIGGER)
 			|| ((o) && trig_index[trignum]->proto->get_attach_type() != OBJ_TRIGGER)
 			|| ((r) && trig_index[trignum]->proto->get_attach_type() != WLD_TRIGGER)))
 	{
 		sprintf(buf2, "attach trigger : '%s' invalid attach_type: %s expected %s", trignum_s,
-				attach_name[(int)trig_index[trignum]->proto->get_attach_type()],
-				attach_name[(c?0:(o?1:(r?2:3)))]);
+			attach_name[(int)trig_index[trignum]->proto->get_attach_type()],
+			attach_name[(c ? 0 : (o ? 1 : (r ? 2 : 3)))]);
 		trig_log(trig, buf2);
 		return;
 	}
@@ -4771,14 +4786,14 @@ TRIG_DATA *process_detach(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type
 
 /* script run a trigger for something
    return TRUE   - trigger find and runned
-          FALSE  - trigger not runned
+		  FALSE  - trigger not runned
 */
 int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *cmd, int *retval)
 {
 	char arg[MAX_INPUT_LENGTH], trignum_s[MAX_INPUT_LENGTH], *name, *cname;
 	char result[MAX_INPUT_LENGTH], *id_p;
 	TRIG_DATA *runtrig = NULL;
-//	SCRIPT_DATA *runsc = NULL;
+	//	SCRIPT_DATA *runsc = NULL;
 	struct trig_var_data *vd;
 	CHAR_DATA *c = NULL;
 	OBJ_DATA *o = NULL;
@@ -4892,9 +4907,9 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 
 	runtrig = nullptr;
 	//TODO: How that possible?
-	if (!go || (type == MOB_TRIGGER ? SCRIPT((CHAR_DATA *) go).get() :
-				type == OBJ_TRIGGER ? ((OBJ_DATA *) go)->get_script().get() :
-				type == WLD_TRIGGER ? SCRIPT((ROOM_DATA *) go).get() : nullptr) != *sc)
+	if (!go || (type == MOB_TRIGGER ? SCRIPT((CHAR_DATA *)go).get() :
+		type == OBJ_TRIGGER ? ((OBJ_DATA *)go)->get_script().get() :
+		type == WLD_TRIGGER ? SCRIPT((ROOM_DATA *)go).get() : nullptr) != *sc)
 	{
 		*sc = NULL;
 		*trig = NULL;
@@ -5027,9 +5042,9 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 	{
 		count_num = atoi(count) - 1;	//В dg индексация с 1
 		if (count_num < 0)
-		{	
+		{
 			//Произойдет, если в dg пришел индекс 0 (ошибка)
-			sprintf(buf2, "calcuid invalid count: '%s'",  count);
+			sprintf(buf2, "calcuid invalid count: '%s'", count);
 			trig_log(trig, buf2);
 			return;
 		}
@@ -5118,7 +5133,7 @@ void charuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 
 	if (result <= -1)
 	{
-		sprintf(buf2, "charuid target not found, name: '%s'",who);
+		sprintf(buf2, "charuid target not found, name: '%s'", who);
 		trig_log(trig, buf2);
 		*uid = '\0';
 		return;
@@ -5366,7 +5381,7 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
  */
 void do_vdelete(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-//  struct trig_var_data *vd, *vd_prev=NULL;
+	//  struct trig_var_data *vd, *vd_prev=NULL;
 	SCRIPT_DATA *sc_remote = NULL;
 	char *var, *uid_p;
 	long uid; //, context;
@@ -5438,7 +5453,7 @@ void do_vdelete(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
  */
 void process_rdelete(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 {
-//  struct trig_var_data *vd, *vd_prev=NULL;
+	//  struct trig_var_data *vd, *vd_prev=NULL;
 	SCRIPT_DATA *sc_remote = NULL;
 	char *line, *var, *uid_p;
 	char arg[MAX_INPUT_LENGTH];
@@ -5624,7 +5639,7 @@ int timed_script_driver(void *go, TRIG_DATA* trig, int type, int mode);
 
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
-	struct timeval start, stop, result;	
+	struct timeval start, stop, result;
 	std::string start_string_trig = "First Line";
 	std::string finish_string_trig = "<Last line is undefined because it is dangerous to obtain it>";
 	if (trig->curr_state)
@@ -5654,9 +5669,9 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		snprintf(buf, MAX_STRING_LENGTH, "[TrigVNum: %d] : ", vnum);
 		const auto current_buffer_length = strlen(buf);
 		snprintf(buf + current_buffer_length, MAX_STRING_LENGTH - current_buffer_length,
-				"work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s\r\n",
-				result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
-		
+			"work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s\r\n",
+			result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
+
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
 	// Stop time
@@ -5885,7 +5900,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 						trig_log(trig, "looping 1000 times.", DEF);
 					}
 				}
-			}			
+			}
 		}
 		else if (!strn_cmp("break", p, 5))
 		{
@@ -6105,17 +6120,17 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 	}
 
-	 if (first >= last)
-        {
-                send_to_char("Второе значение должно быть больше первого.\n\r", ch);
-                return;
-        }
+	if (first >= last)
+	{
+		send_to_char("Второе значение должно быть больше первого.\n\r", ch);
+		return;
+	}
 
-        if (first + 200 < last)
-        {
-                send_to_char("Максимальный показываемый промежуток - 200.\n\r", ch);
-                return;
-        }
+	if (first + 200 < last)
+	{
+		send_to_char("Максимальный показываемый промежуток - 200.\n\r", ch);
+		return;
+	}
 
 
 	for (nr = 0; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++)
@@ -6137,7 +6152,7 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				out += "[WLD_TRIG]";
 			}
-			
+
 			sprintf(buf, "%5d. [%5d] %s\r\nПрикрепленные триггеры: ", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
 			out += buf;
 			if (!owner_trig[trig_index[nr]->vnum].empty())
@@ -6147,7 +6162,7 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					out += "[";
 					std::string  out_tmp = "";
 					for (const auto trigger_vnum : it->second)
-					{						
+					{
 						sprintf(buf, " [%d]", trigger_vnum);
 						out_tmp += buf;
 					}
@@ -6157,9 +6172,9 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						out += std::to_string(it->first) + " : ";
 					}
 
-					out += out_tmp + "]";				
+					out += out_tmp + "]";
 				}
-				
+
 				out += "\r\n";
 			}
 			else
@@ -6230,8 +6245,7 @@ int fgetline(FILE * file, char *p)
 			p++;
 			count++;
 		}
-	}
-	while (*p != '\n' && !feof(file));
+	} while (*p != '\n' && !feof(file));
 
 	if (*p == '\n')
 		*p = '\0';
@@ -6280,8 +6294,7 @@ void read_saved_vars(CHAR_DATA * ch)
 			context = atol(context_str);
 			add_var_cntx(&(SCRIPT(ch)->global_vars), varname, p, context);
 		}
-	}
-	while (!feof(file));
+	} while (!feof(file));
 
 	// close the file and return
 	fclose(file);
@@ -6730,7 +6743,7 @@ void SCRIPT_DATA::cleanup()
 
 const char* TRIG_DATA::DEFAULT_TRIGGER_NAME = "no name";
 
-TRIG_DATA::TRIG_DATA():
+TRIG_DATA::TRIG_DATA() :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	depth(0),
@@ -6762,7 +6775,7 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const long trigger_typ
 {
 }
 
-TRIG_DATA::TRIG_DATA(const TRIG_DATA& from):
+TRIG_DATA::TRIG_DATA(const TRIG_DATA& from) :
 	cmdlist(from.cmdlist),
 	narg(from.narg),
 	arglist(from.arglist),

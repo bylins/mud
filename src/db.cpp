@@ -83,6 +83,7 @@
 #define DAILY_FILE "daily.xml"
 #define CITIES_FILE "cities.xml"
 #define QUESTBODRICH_FILE "quest_bodrich.xml"
+#define DQ_FILE "daily_quest.xml"
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -1151,6 +1152,24 @@ void QuestBodrich::load_rewards()
 		}
 		//std::map<int, QuestBodrichRewards> rewards;
 		this->rewards.insert(std::pair<int, std::vector<QuestBodrichRewards>>(class_.attribute("id").as_int(), tmp_array));
+	}
+}
+
+std::vector<DailyQuest> d_quest;
+
+void load_dquest()
+{
+	pugi::xml_document doc_;
+	pugi::xml_node class_, file_, object_, level_;
+	file_ = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
+	std::vector<QuestBodrichRewards> tmp_array;
+	for (object_ = file_.child("quest"); object_; object_ = object_.next_sibling("quest"))
+	{
+		DailyQuest tmp;
+		tmp.id = object_.attribute("id").as_int();
+		tmp.reward = object_.attribute("reward").as_int();
+		tmp.desk = object_.attribute("desk").as_string();
+		d_quest.push_back(tmp);
 	}
 }
 
@@ -2493,7 +2512,7 @@ void boot_db(void)
 	pugi::xml_document doc;
 
 	Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
-	
+	load_dquest();
 	boot_profiler.next_step("Loading criterion");
 	log("Loading Criterion...");
 	pugi::xml_document doc1;

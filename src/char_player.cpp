@@ -278,6 +278,40 @@ void Player::str_to_cities(std::string str)
 	this->cities = tmp_bitset;
 }
 
+int Player::get_hryvn()
+{
+	return this->hryvn;
+}
+
+void Player::set_hryvn(int value)
+{
+	this->hryvn = value;
+}
+
+
+void Player::sub_hryvn(int value)
+{
+	this->hryvn -= value;
+}
+
+void Player::dec_hryvn(int value)
+{
+	this->hryvn += value;
+}
+
+extern std::vector<DailyQuest> d_quest;
+void Player::dquest(int id)
+{
+	for (auto x : d_quest)
+	{
+		if (x.id == id)
+			this->dec_hryvn(x.reward);
+	}
+	return;
+}
+
+
+
 void Player::mark_city(const size_t index)
 {
 	if (index < cities.size())
@@ -609,6 +643,8 @@ void Player::save_char()
 	fprintf(saved, "Dex : %d\n", this->get_inborn_dex());
 	fprintf(saved, "Con : %d\n", this->get_inborn_con());
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
+
+	fprintf(saved, "Hry : %d\n", this->get_hryvn());
 
 	// способности - added by Gorrah
 	if (GET_LEVEL(this) < LVL_IMMORT)
@@ -1582,6 +1618,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_HR(this) = num;
 			else if (!strcmp(tag, "Hung"))
 				GET_COND(this, FULL) = num;
+			else if (!strcmp(tag, "Hry"))
+				this->set_hryvn(num);
 			else if (!strcmp(tag, "Host"))
 				strcpy(GET_LASTIP(this), line);
 			break;

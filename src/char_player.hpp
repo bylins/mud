@@ -148,6 +148,11 @@ public:
 	void touch_stigma(char *arg);
 	void add_stigma(int wear, int id_stigma);
 	int get_stigma(int wear);
+	int get_hryvn();
+	void set_hryvn(int value);
+	void sub_hryvn(int value);
+	void dec_hryvn(int value);
+	void dquest(int id);
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -208,6 +213,9 @@ private:
 	std::map<unsigned int, StigmaWear> stigmas;
 	// режим !бот
 	bool setmode_dontbot;
+	// гривны
+	int hryvn;
+
 };
 
 
