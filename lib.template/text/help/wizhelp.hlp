@@ -565,6 +565,11 @@ RELOAD
 |  titles     (/mud_dir/lib/plrstuff/titles.lst)                           -   |
 |  xhelp      (/mud_dir/lib/text/help/*)                   все файлы справки   |
 |  ztypes     (/mud_dir/lib/misc/ztypes.lst)        ингры по типам местности   |
+|  remort     (/mud_dir/lib/misc/remort.xml)                таблица ремортов   |
+|  noobhelp   (/mud_dir/lib/misc/noob_help.xml)                 помощь нубам   |
+|  resetstats (/mud_dir/lib/misc/reset_stats)                  сбросы статов   |
+|  objsets    (/mud_dir/lib/misc/obj_sets.xml            релоад старых сетов   |
+|  setsdrop   ()                                              переворот мира   |
 +------------------------------------------------------------------------------+
 
 #31

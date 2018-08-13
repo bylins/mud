@@ -1308,6 +1308,7 @@
 | $COLORYпокровительство$COLORn                                                              |
 | $COLORYволшебный щит$COLORn                                                                |
 | $COLORYрунная метка$COLORn                                                                 |
+| $COLORYгрупповая защита от тьмы$COLORn                                                     |
 +------------------------------------------------------------------------------+
 | Магия - и наука, и искусство. Учатся ему годами, и только глубокая мудрость  |
 | и старание помогут достичь вершин.                                           |
@@ -1365,43 +1366,43 @@
 МАГИЯРАЗУМА
 +------------------------------------------------------------------------------+
 | Заклинания:                                                                  |
-| $COLORYобщая искренность$COLORn                                                            |
-| $COLORYмагический взор$COLORn                                                              |
-| $COLORYвсевидящее око$COLORn                                                               |
-| $COLORYглаза змея$COLORn                                                                   |
-| $COLORYгрупповое ускорение$COLORn                                                          |
-| $COLORYгрупповая невидимость$COLORn                                                        |
-| $COLORYгрупповой возврат$COLORn                                                            |
-| $COLORYускорение$COLORn                                                                    |
-| $COLORYопределение наклонностей$COLORn                                                     |
-| $COLORYвидеть невидимое$COLORn                                                             |
-| $COLORYопределение магии$COLORn                                                            |
-| $COLORYвнимательность$COLORn                                                               |
-| $COLORYневидимость$COLORn                                                                  |
-| $COLORYслово возврата$COLORn                                                               |
-| $COLORYразыскать предмет$COLORn                                                            |
-| $COLORYпризвать$COLORn                                                                     |
-| $COLORYмассовое оцепенение$COLORn                                                          |
-| $COLORYмассовая глухота$COLORn                                                             |
-| $COLORYмассовое молчание$COLORn                                                            |
-| $COLORYмассовая медлительность$COLORn                                                      |
-| $COLORYглухота$COLORn                                                                      |
-| $COLORYдлительная глухота$COLORn                                                           |
-| $COLORYсон$COLORn                                                                          |
-| $COLORYоцепенение$COLORn                                                                   |
-| $COLORYдлительное оцепенение$COLORn                                                        |
-| $COLORYприковать противника$COLORn                                                         |
-| $COLORYсеть$COLORn                                                                         |
-| $COLORYбезумие$COLORn                                                                      |
-| $COLORYплач$COLORn                                                                         |
-| $COLORYмедлительность$COLORn                                                               |
-| $COLORYмолчание$COLORn                                                                     |
-| $COLORYдлительное молчание$COLORn                                                          |
-| $COLORYповреждение разума$COLORn                                                           |
-| $COLORYзапечатать комнату$COLORn                                                           |
-| $COLORYподчинить разум$COLORn                                                              |
-| $COLORYразбитые оковы$COLORn                                                               |
-| $COLORYчарующий узор$COLORn                                                                |
+| $COLORMобщая искренность$COLORn                                                            |
+| $COLORMмагический взор$COLORn                                                              |
+| $COLORMвсевидящее око$COLORn                                                               |
+| $COLORMглаза змея$COLORn                                                                   |
+| $COLORMгрупповое ускорение$COLORn                                                          |
+| $COLORMгрупповая невидимость$COLORn                                                        |
+| $COLORMгрупповой возврат$COLORn                                                            |
+| $COLORMускорение$COLORn                                                                    |
+| $COLORMопределение наклонностей$COLORn                                                     |
+| $COLORMвидеть невидимое$COLORn                                                             |
+| $COLORMопределение магии$COLORn                                                            |
+| $COLORMвнимательность$COLORn                                                               |
+| $COLORMневидимость$COLORn                                                                  |
+| $COLORMслово возврата$COLORn                                                               |
+| $COLORMразыскать предмет$COLORn                                                            |
+| $COLORMпризвать$COLORn                                                                     |
+| $COLORMмассовое оцепенение$COLORn                                                          |
+| $COLORMмассовая глухота$COLORn                                                             |
+| $COLORMмассовое молчание$COLORn                                                            |
+| $COLORMмассовая медлительность$COLORn                                                      |
+| $COLORMглухота$COLORn                                                                      |
+| $COLORMдлительная глухота$COLORn                                                           |
+| $COLORMсон$COLORn                                                                          |
+| $COLORMоцепенение$COLORn                                                                   |
+| $COLORMдлительное оцепенение$COLORn                                                        |
+| $COLORMприковать противника$COLORn                                                         |
+| $COLORMсеть$COLORn                                                                         |
+| $COLORMбезумие$COLORn                                                                      |
+| $COLORMплач$COLORn                                                                         |
+| $COLORMмедлительность$COLORn                                                               |
+| $COLORMмолчание$COLORn                                                                     |
+| $COLORMдлительное молчание$COLORn                                                          |
+| $COLORMповреждение разума$COLORn                                                           |
+| $COLORMзапечатать комнату$COLORn                                                           |
+| $COLORMподчинить разум$COLORn                                                              |
+| $COLORMразбитые оковы$COLORn                                                               |
+| $COLORMчарующий узор$COLORn                                                                |
 +------------------------------------------------------------------------------+
 | Магия - и наука, и искусство. Учатся ему годами, и только глубокая мудрость  |
 | и старание помогут достичь вершин.                                           |
