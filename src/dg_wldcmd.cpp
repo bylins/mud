@@ -608,15 +608,15 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
+		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) >= 0
 			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
 				sprintf(buf, "wload: количество больше чем в MIW для #%d, предмет удален.", number);
 				wld_log(room, buf);
-				extract_obj(object.get());
-				return;
+//				extract_obj(object.get());
+//				return;
 			}
 		}
 		log("Load obj #%d by %s (wload)", number, room->name);

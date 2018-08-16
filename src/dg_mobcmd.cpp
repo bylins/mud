@@ -489,15 +489,15 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
+		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) >= 0
 			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
 				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
 				mob_log(ch, buf);
-				extract_obj(object.get());
-				return;
+//				extract_obj(object.get());
+//				return;
 			}
 		}
 

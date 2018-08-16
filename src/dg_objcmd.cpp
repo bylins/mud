@@ -581,15 +581,15 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) > 0
+		if (GET_OBJ_MIW(obj_proto[object->get_rnum()]) >= 0
 			&& obj_proto.actual_count(object->get_rnum()) > GET_OBJ_MIW(obj_proto[object->get_rnum()]))
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
 				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
 				obj_log(obj, buf);
-				extract_obj(object.get());
-				return;
+//				extract_obj(object.get());
+//				return;
 			}
 		}
 		log("Load obj #%d by %s (oload)", number, obj->get_aliases().c_str());
