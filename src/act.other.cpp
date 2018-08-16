@@ -1309,7 +1309,8 @@ void print_group(CHAR_DATA * ch)
 	struct follow_type *f, *g;
 
 	k = ch->has_master() ? ch->get_master() : ch;
-	ch->desc->msdp_report(msdp::constants::GROUP);
+	if (!IS_NPC(ch))
+		ch->desc->msdp_report(msdp::constants::GROUP);
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
