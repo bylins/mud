@@ -179,7 +179,7 @@ Clan::Clan():
 	chest_room(0), storehouse(1), exp_info(1), test_clan(0),
 	ingr_chest_room_rnum_(-1), gold_tax_pct_(0), reputation(10),
 	chest_objcount(0), chest_discount(0), chest_weight(0),
-	ingr_chest_objcount_(0)
+	ingr_chest_objcount_(0), pk(true)
 {
 }
 
@@ -830,7 +830,7 @@ void Clan::save_clan_file(const std::string &filename) const
 		<< "ClanLevel: " << clan_level << "\n"
 		<< "Bank: " << bank << "\n"
 		<< "GoldTax: " << gold_tax_pct_ << "\n"
-		<< "Pk: " << pk << "'n";
+		<< "Pk: " << pk << "\n";
 
 	if (!web_url_.empty())
 	{
