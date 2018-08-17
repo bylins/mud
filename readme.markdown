@@ -15,11 +15,11 @@
 
 Система сборки данного проекта была изменена на CMake, дабы унифицировать сборку под различными платформами.
 
-Сам проект может быть взят по адресу [https://bitbucket.com/bylins/mud](https://bitbucket.com/bylins/mud).
+Сам проект может быть взят по адресу [https://github.com/bylins/mud](https://github.com/bylins/mud).
 
 Из командной строки это делается следующим образом:
 
-    $ hg clone https://bitbucket.com/bylins/mud
+    $ git clone https://github.com/bylins/mud
     $ cd mud
 
 ## Требования
