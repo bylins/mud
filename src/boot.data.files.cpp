@@ -952,7 +952,10 @@ void ObjectFile::parse_object(const int nr)
 			break;
 
 		case 'M':
-			tobj->set_max_in_world(atoi(m_line + 1));
+			if (tobj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY) || tobj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
+				tobj->set_max_in_world(-1);
+			else
+				tobj->set_max_in_world(atoi(m_line + 1));			
 			break;
 
 		case 'R':

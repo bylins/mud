@@ -71,7 +71,8 @@ Player::Player()
 	from_room_(0),
 	answer_id_(NOBODY),
 	motion_(true),
-	ice_currency(0)
+	ice_currency(0),
+	hryvn(0)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
@@ -305,8 +306,15 @@ void Player::dquest(int id)
 	for (auto x : d_quest)
 	{
 		if (x.id == id)
-			this->dec_hryvn(x.reward);
+		{
+			const int value = x.reward + number(0, 3);
+			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
+			this->dec_hryvn(value);
+			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
+			return;
+		}
 	}
+	log("Quest ID: %d - не найден", id);
 	return;
 }
 

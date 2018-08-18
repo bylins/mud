@@ -50,7 +50,7 @@ CHAR_DATA *next_combat_list = NULL;
 extern int r_helled_start_room;
 extern MobRaceListType mobraces_list;
 extern CHAR_DATA *mob_proto;
-
+extern DESCRIPTOR_DATA *descriptor_list;
 // External procedures
 // void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void battle_affect_update(CHAR_DATA * ch);
@@ -2365,7 +2365,7 @@ void perform_violence()
 				{
 					for (const auto& follower : ch->get_master()->get_followers_list())
 					{
-						if (!follower->purged() && !IS_NPC(follower))
+						if (!follower->purged() && !IS_NPC(follower) && !CHECK_WAIT(follower))
 						{
 							if (follower->in_room == ch->in_room)
 								msdp_report_chars.insert(follower);

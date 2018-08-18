@@ -4102,13 +4102,24 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				"  Броня/Поглощение : %4d/%d&n\r\n",
 				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
 	}
-	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, у вас на руках %ld %s",
-			GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT), ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa));
+	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT));
+	if (GET_LEVEL(ch) < LVL_IMMORT)
+		sprintf(buf + strlen(buf),
+			"Вам осталось набрать %ld %s до следующего уровня.\r\n",
+			level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch),
+			desc_count(level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch), WHAT_POINT));
+	else
+		sprintf(buf + strlen(buf), "\r\n");
+
+	sprintf(buf + strlen(buf), "У вас на руках %ld %s и %ld %s",
+		ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa), ch->get_hryvn(), desc_count(ch->get_hryvn(), WHAT_TORCu));
 	if (ch->get_bank() > 0)
 		sprintf(buf + strlen(buf), "(и еще %ld %s припрятано в лежне).\r\n",
-				ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
+			ch->get_bank(), desc_count(ch->get_bank(), WHAT_MONEYa));
 	else
 		strcat(buf, ".\r\n");
+
+
 
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		sprintf(buf + strlen(buf),

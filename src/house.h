@@ -44,7 +44,6 @@ enum Privileges: unsigned
 	/// всего привилегий
 	CLAN_PRIVILEGES_NUM
 };
-
 const unsigned MAX_GOLD_TAX_PCT = 50;
 const int MIN_GOLD_TAX_AMOUNT = 100;
 bool is_alliance(CHAR_DATA *ch, char *clan_abbr);

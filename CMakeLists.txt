@@ -308,7 +308,6 @@ set(HEADERS
 	src/debug.utils.hpp
 	src/stigmas.hpp)
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
-
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
 

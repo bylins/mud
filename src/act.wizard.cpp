@@ -2609,12 +2609,12 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		send_to_char(buf, ch);
 
 		k->add_today_torc(0);
-		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %s",
+		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %ld",
 			GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
 			k->get_ext_money(ExtMoney::TORC_GOLD),
 			k->get_ext_money(ExtMoney::TORC_SILVER),
 			k->get_ext_money(ExtMoney::TORC_BRONZE),
-			ExtMoney::draw_daily_limit(k, true).c_str());
+			k->get_hryvn());
 
 		//. Display OLC zone for immorts .
 		if (GET_LEVEL(ch) >= LVL_IMMORT)

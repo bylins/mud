@@ -21,6 +21,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "conf.h"
+#include "house.h"
 
 #include <cmath>
 #include <sstream>
@@ -1853,12 +1854,33 @@ namespace SetSystem
 		return true;
 	}
 
+	// * Поиск в хране из списка vnum_list.
+	bool house_find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
+	{
+		// храны у нас через задницу сделаны
+		for (OBJ_DATA *chest = world[real_room(CLAN(ch)->get_chest_room())]->contents; chest; chest = chest->get_next_content())
+		{
+			if (Clan::is_clan_chest(chest))
+			{
+				for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content())
+				{
+					if (vnum_list.find(temp->get_vnum()) != vnum_list.end())
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+
 	/**
 	* Экипировка, инвентарь, чармисы, перс. хран.см
 	* Требуется наличие двух и более предметов, если сетина из большого сета.
 	* Перс. хран, рента.
 	*/
-	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj)
+	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj, bool clan_chest)
 	{
 		if (!obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
 		{
@@ -1912,12 +1934,21 @@ namespace SetSystem
 			}
 		}
 
-		// перс. хранилище
-		if (Depot::find_set_item(ch, vnum_list))
+		if (!clan_chest)
 		{
-			return false;
+			// перс. хранилище
+			if (Depot::find_set_item(ch, vnum_list))
+			{
+				return false;
+			}
 		}
-
+		else
+		{			
+			if (house_find_set_item(ch, vnum_list))
+			{
+				return false;
+			}
+		}
 		return true;
 	}
 

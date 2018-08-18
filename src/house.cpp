@@ -55,7 +55,6 @@ extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern char const *class_abbrevs[];
 extern bool char_to_pk_clan(CHAR_DATA *ch);
-
 void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съехала
 {
 	for (const auto& i : Clan::ClanList)
@@ -64,7 +63,6 @@ void fix_ingr_chest_rnum(const int room_rnum)//Нужно чтоб позиция короба не съех
 			i->set_ingr_chest_room_rnum(i->get_ingr_chest_room_rnum() + 1);
 	}
 }
-
 namespace
 {
 
@@ -155,6 +153,7 @@ int Clan::get_chest_room()
 {
 	return this->chest_room;
 }
+
 
 // проверяет находится ли чар в зоне чужого клана
 bool Clan::InEnemyZone(CHAR_DATA * ch)
@@ -3436,7 +3435,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 	{
 		act("В $o5 что-то лежит.", FALSE, ch, obj, 0, TO_CHAR);
 	}
-	else if (SetSystem::is_norent_set(ch, obj))
+	else if (SetSystem::is_norent_set(ch, obj, true))
 	{
 		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);

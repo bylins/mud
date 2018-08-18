@@ -350,7 +350,7 @@ long long ClanExpHistory::calc_exp_history() const
 {
 	long long exp = 0;
 	int count = 1;
-	for (HistoryExpListType::const_reverse_iterator i = list_.rbegin(), iend = list_.rend(); i != iend; ++i, ++count)
+	for (auto i = list_.begin(), iend = list_.end(); i != iend; ++i, ++count)
 	{
 		if (count > 3)
 		{

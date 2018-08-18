@@ -960,7 +960,7 @@ namespace SetSystem
 	void init_vnum_list(int vnum);
 	bool find_set_item(OBJ_DATA *obj);
 	bool is_big_set(const CObjectPrototype *obj, bool is_mini = false);
-	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj);
+	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj, bool clan_chest = false);
 	bool is_norent_set(int vnum, std::vector<int> objs);
 } // namespace SetSystem
 
