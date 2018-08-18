@@ -4120,12 +4120,6 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		strcat(buf, ".\r\n");
 
 
-
-	if (GET_LEVEL(ch) < LVL_IMMORT)
-		sprintf(buf + strlen(buf),
-				"Вам осталось набрать %ld %s до следующего уровня.\r\n",
-				level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch),
-				desc_count(level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch), WHAT_POINT));
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
