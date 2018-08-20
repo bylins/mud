@@ -1733,11 +1733,11 @@ bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end())
-	{
+	{		
 		for (ObjListType::iterator obj_it = it->second.pers_online.begin(),
 			obj_it_end = it->second.pers_online.end(); obj_it != obj_it_end; ++obj_it)
 		{
-			if (vnum_list.find((*obj_it)->get_vnum()) != vnum_list.end())
+			if (vnum_list.find(obj_sets::normalize_vnum((*obj_it)->get_vnum())) != vnum_list.end())
 			{
 				return true;
 			}
