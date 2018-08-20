@@ -1864,7 +1864,7 @@ namespace SetSystem
 			{
 				for (OBJ_DATA *temp = chest->get_contains(); temp; temp = temp->get_next_content())
 				{
-					if (vnum_list.find(temp->get_vnum()) != vnum_list.end())
+					if (vnum_list.find(obj_sets::normalize_vnum(temp->get_vnum())) != vnum_list.end())
 					{
 						return true;
 					}

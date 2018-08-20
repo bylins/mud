@@ -1161,6 +1161,7 @@ void load_dquest()
 {
 	pugi::xml_document doc_;
 	pugi::xml_node class_, file_, object_, level_;
+	log("Loading daily_quest.xml....");
 	file_ = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
 	std::vector<QuestBodrichRewards> tmp_array;
 	for (object_ = file_.child("quest"); object_; object_ = object_.next_sibling("quest"))

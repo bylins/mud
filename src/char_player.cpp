@@ -309,6 +309,7 @@ void Player::dquest(int id)
 		{
 			const int value = x.reward + number(0, 3);
 			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
+			send_to_char(this, buf2);
 			this->dec_hryvn(value);
 			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
 			return;
