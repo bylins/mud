@@ -356,10 +356,7 @@ long long ClanExpHistory::calc_exp_history() const
 		{
 			break;
 		}
-		if (count > 1)
-		{
-			exp += i->second;
-		}
+		exp += i->second;
 	}
 	return exp;
 }
