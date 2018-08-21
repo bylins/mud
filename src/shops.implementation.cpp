@@ -462,6 +462,12 @@ namespace ShopExt
 						obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
 					}
 					ch->sub_hryvn(price);
+					ch->spent_hryvn_sub(price);
+					if (ch->get_spent_hryvn() > 1000)
+					{
+						send_to_char("Мессага о том, что гривны были сброшены.\r\n", ch);
+						ch->reset_daily_quest();
+					}
 				}
 				else
 				{
