@@ -585,7 +585,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 		}
 	}
 
-	fprintf(trig_file, "$~\n");
+	fprintf(trig_file, "$\n$\n");
 	fclose(trig_file);
 
 #ifdef CIRCLE_MAC
