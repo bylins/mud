@@ -4147,6 +4147,9 @@ bool is_dark(room_rnum room)
 	// если на комнате флаг темно
 	if (ROOM_FLAGGED(room, ROOM_DARK))
 		coef -= 1.0;
+
+	if (ROOM_FLAGGED(room, ROOM_LIGHT))
+		coef += 200.0;
 	
 	// проверка на костер
 	if (world[room]->fires)

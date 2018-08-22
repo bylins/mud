@@ -147,6 +147,8 @@ typedef uint32_t bitvector_t;
 #define ROOM_DRUID          (1 << 28)
 #define ROOM_ARENA          (1 << 29)
 
+
+
 #define ROOM_NOSUMMON       (INT_ONE | (1 << 0))
 #define ROOM_NOTELEPORTOUT  (INT_ONE | (1 << 1))	// Из комнаты не выбраться телепортацией //
 #define ROOM_NOHORSE        (INT_ONE | (1 << 2))
@@ -158,6 +160,7 @@ typedef uint32_t bitvector_t;
 #define ROOM_ARENASEND      (INT_ONE | (1 << 8))	// комната из которой отправляются сообщения арены
 #define ROOM_NOBATTLE       (INT_ONE | (1 << 9)) //в клетке нельзя начать бой
 #define ROOM_QUEST	    (INT_ONE | (1 << 10))
+#define ROOM_LIGHT          (INT_ONE | (1 << 11))
 
 #define ROOM_NOITEM         (INT_TWO|(1<<0))	// Передача вещей в комнате запрещена
 #define ROOM_RUSICHI        (INT_TWO|(1<<1))
