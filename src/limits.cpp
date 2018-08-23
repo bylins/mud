@@ -1186,7 +1186,7 @@ void check_idling(CHAR_DATA * ch)
 			if (ch->get_was_in_room() == NOWHERE && ch->in_room != NOWHERE)
 			{
 				// чара в лд уже посейвило при обрыве коннекта
-				if (STATE(ch->desc) == CON_DISCONNECT)
+				if (!ch->desc)
 				{
 					return;
 				}
@@ -1216,7 +1216,7 @@ void check_idling(CHAR_DATA * ch)
 				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
 				extract_char(ch, FALSE);
 				// чара в лд уже посейвило при обрыве коннекта
-				if (STATE(ch->desc) == CON_DISCONNECT)
+				if (!ch->desc)
 				{
 					return;
 				}
