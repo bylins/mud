@@ -137,8 +137,12 @@ public:
 
 	bool is_arena_player();
 
-	int get_percent_daily_quest(int id);
-	bool add_percent_daily_quest(int id, int percent);
+	int get_count_daily_quest(int id);
+	void add_daily_quest(int id, int count);
+	void spent_hryvn_sub(int value);
+	int get_spent_hryvn();
+	void reset_daily_quest();
+
 
 	void add_value_cities(bool v);
 	void str_to_cities(std::string str);
@@ -202,9 +206,7 @@ private:
 	// список зон, где чар умер и в каком количестве
 	std::map<int, int> count_death_zone;
 	// время, когда были выполнены все дейлики
-	time_t time_daily;
-	// id задания и процент их выполения от 0 до 100
-	std::map<int, int> daily_quest;
+	time_t time_daily;	
 	// сколько дней подряд выполнялись дейлики 
 	int count_daily_quest;
 	// Отметка о том, в каких городах был наш чар
@@ -215,6 +217,10 @@ private:
 	bool setmode_dontbot;
 	// гривны
 	int hryvn;
+	// id задания и сколько раз было выполненно задание
+	std::map<int, int> daily_quest;
+	// сколько гривен было потрачено в магазине
+	int spent_hryvn;
 
 };
 

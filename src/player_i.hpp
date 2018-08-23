@@ -121,7 +121,11 @@ public:
 	virtual void sub_hryvn(int /* value */) {};
 	virtual void dec_hryvn(int /* value */) {};
 	virtual void dquest(int /*id */) {};
-
+	int get_count_daily_quest(int /*id*/) { return 0; };
+	void add_daily_quest(int /*id*/, int /*count*/) {};
+	void spent_hryvn_sub(int /*value*/) {};
+	int get_spent_hryvn() { return 0; };
+	void reset_daily_quest() {};
 	virtual void add_value_cities(bool /* value */) {};
 
 	virtual void str_to_cities(std::string /*value*/) {};

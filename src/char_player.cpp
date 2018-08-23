@@ -72,7 +72,8 @@ Player::Player()
 	answer_id_(NOBODY),
 	motion_(true),
 	ice_currency(0),
-	hryvn(0)
+	hryvn(0),
+	spent_hryvn(0)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
@@ -307,11 +308,14 @@ void Player::dquest(int id)
 	{
 		if (x.id == id)
 		{
-			const int value = x.reward + number(0, 3);
+			int value = number(1, 3);
+			if (this->get_count_daily_quest(id) < 2)
+				value += x.reward;				
 			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
 			send_to_char(this, buf2);
 			this->dec_hryvn(value);
 			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
+			this->add_daily_quest(id, 1);
 			return;
 		}
 	}
@@ -653,8 +657,6 @@ void Player::save_char()
 	fprintf(saved, "Con : %d\n", this->get_inborn_con());
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
-	fprintf(saved, "Hry : %d\n", this->get_hryvn());
-
 	// способности - added by Gorrah
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
@@ -769,7 +771,7 @@ void Player::save_char()
 	fprintf(saved, "Hrol: %d\n", GET_HR(this));
 	fprintf(saved, "Drol: %d\n", GET_DR(this));
 	fprintf(saved, "Ac  : %d\n", GET_AC(this));
-
+	fprintf(saved, "Hry : %d\n", this->get_hryvn());
 	fprintf(saved, "Hit : %d/%d\n", GET_HIT(this), GET_MAX_HIT(this));
 	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(this), GET_MEM_TOTAL(this));
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
@@ -887,6 +889,11 @@ void Player::save_char()
 	for (prt = GET_PORTALS(this); prt; prt = prt->next)
 	{
 		fprintf(saved, "Prtl: %d\n", prt->vnum);
+	}
+
+	for (auto x : this->daily_quest)
+	{
+		fprintf(saved, "DaiQ: %d %d\n", x.first, x.second);
 	}
 
 	for (i = 0; i < 1 + LAST_LOG; ++i)
@@ -1530,6 +1537,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_DRUNK_STATE(this) = num;
 			else if (!strcmp(tag, "Drol"))
 				GET_DR(this) = num;
+			else if (!strcmp(tag, "DaiQ"))
+			{
+				sscanf(line, "%d %d", &num, &num2);
+				this->add_daily_quest(num, num2);
+			}
 			break;
 
 		case 'E':
@@ -2300,11 +2312,11 @@ bool Player::is_arena_player()
 }
 
 
-int Player::get_percent_daily_quest(int id)
+int Player::get_count_daily_quest(int id)
 {
 	if (this->daily_quest.count(id))
 		return this->daily_quest[id];
-	return -1;
+	return 0;
 	
 }
 
@@ -2314,17 +2326,32 @@ void Player::add_value_cities(bool v)
 	this->cities.push_back(v);
 }
 
-bool Player::add_percent_daily_quest(int id, int percent)
+void Player::reset_daily_quest()
+{
+	this->daily_quest.clear();
+	log("Персонаж: %s. Были сброшены гривны.", GET_NAME(this));
+}
+
+void Player::add_daily_quest(int id, int count)
 {
 	if (this->daily_quest.count(id))
 	{
-		this->daily_quest[id] += percent;
-		if (this->daily_quest[id] >= 100)
-			return true;
+		this->daily_quest[id] += count;
 	}
+	else
+	{
+		this->daily_quest.insert(std::pair<int, int>(id, count));
+	}
+}
 
-	return false;
+void Player::spent_hryvn_sub(int value)
+{
+	this->spent_hryvn += value;
+}
 
+int Player::get_spent_hryvn()
+{
+	return this->spent_hryvn;
 }
 
 int Player::death_player_count()
