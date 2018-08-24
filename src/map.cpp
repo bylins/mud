@@ -583,10 +583,18 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			}
 			// здесь важна очередность, что первое отрисовалось - то и будет
 			const ROOM_DATA *next_room = world[room->dir_option[i]->to_room];
+			bool view_dt = false;
+			for (const auto aff : ch->affected)
+			{
+				if (aff->location == APPLY_VIEW_DT) // скушал свиток с эксп бонусом
+				{
+					view_dt = true;
+				}
+			}
 			// дт иммам и нубам с 0 мортов
 			if (next_room->get_flag(ROOM_DEATH)
 				&& (GET_REMORT(ch) <= 5
-					|| IS_IMMORTAL(ch)))
+					|| view_dt || IS_IMMORTAL(ch)))
 			{
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}

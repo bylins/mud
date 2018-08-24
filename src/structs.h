@@ -1078,7 +1078,8 @@ enum EApplyLocation
 	APPLY_MADNESS = 61,
 	APPLY_PR = 62,
 	APPLY_RESIST_DARK = 63,	
-	NUM_APPLIES = 64
+	APPLY_VIEW_DT = 64,
+	NUM_APPLIES = 65
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
