@@ -4104,10 +4104,16 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s. ", GET_EXP(ch), desc_count(GET_EXP(ch), WHAT_POINT));
 	if (GET_LEVEL(ch) < LVL_IMMORT)
+	{
+		if (PRF_FLAGGED(ch, PRF_BLIND))
+		{
+			sprintf(buf + strlen(buf), "\r\n");
+		}
 		sprintf(buf + strlen(buf),
 			"Вам осталось набрать %ld %s до следующего уровня.\r\n",
 			level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch),
 			desc_count(level_exp(ch, GET_LEVEL(ch) + 1) - GET_EXP(ch), WHAT_POINT));
+	}
 	else
 		sprintf(buf + strlen(buf), "\r\n");
 
