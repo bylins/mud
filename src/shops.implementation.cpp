@@ -427,7 +427,10 @@ namespace ShopExt
 				{
 					obj->set_zone(world[ch->in_room]->zone);
 				}
-
+				if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE))
+				{
+					obj->set_owner(GET_UNIQUE(ch));
+				}
 				obj_to_char(obj, ch);
 				if (currency == "слава")
 				{

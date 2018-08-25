@@ -903,7 +903,8 @@ enum class EExtraFlag: uint32_t
 											// на разные слоты, то чар может одеть на себя только одну шмотку
 	ITEM_TRANSFORMED = INT_ONE | (1 << 15),		// Наложено заклинание заколдовать оружие
 	ITEM_NOT_DEPEND_RPOTO = INT_ONE | (1 << 16),	// Не зависит от прототипа
-	ITEM_NOT_UNLIMIT_TIMER = INT_ONE | (1 << 17) // Не может быть нерушимой
+	ITEM_NOT_UNLIMIT_TIMER = INT_ONE | (1 << 17), // Не может быть нерушимой
+	ITEM_UNIQUE_WHEN_PURCHASE = INT_ONE | (1 << 18) // станет именной при покупке в магазе
 
 
 };

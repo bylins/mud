@@ -635,6 +635,7 @@ void init_EExtraFlag_ITEM_NAMES()
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_TRANSFORMED] = "ITEM_TRANSFORMED";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_DEPEND_RPOTO] = "ITEM_NOT_DEPEND_RPOTO";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_UNLIMIT_TIMER] = "ITEM_NOT_UNLIMIT_TIMER";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE] = "ITEM_UNIQUE_WHEN_PURCHASE";
 
 	for (const auto& i : EExtraFlag_name_by_value)
 	{
