@@ -1209,36 +1209,28 @@ void check_idling(CHAR_DATA * ch)
 				if (ch->in_room != NOWHERE)
 					char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
-
-				Depot::exit_char(ch);
-				Clan::clan_invoice(ch, false);
-				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
-				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-				extract_char(ch, FALSE);
-
-				
-
-				// чара в лд уже посейвило при обрыве коннекта
-				if (ch->desc)
-				{
-					if (ch->desc)
-					{
-						STATE(ch->desc) = CON_DISCONNECT;
-						/*
-						* For the 'if (d->character)' test in close_socket().
-						* -gg 3/1/98 (Happy anniversary.)
-						*/
-						ch->desc->character = NULL;
-						ch->desc = NULL;
-					}
-				}
-				
 				if (free_rent)
 					Crash_rentsave(ch, 0);
 				else
 					Crash_idlesave(ch);
+				Depot::exit_char(ch);
+				Clan::clan_invoice(ch, false);
+				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
+				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+				extract_char(ch, FALSE);		
 
-
+				// чара в лд уже посейвило при обрыве коннекта
+				if (ch->desc)
+				{
+					STATE(ch->desc) = CON_DISCONNECT;
+					/*
+					* For the 'if (d->character)' test in close_socket().
+					* -gg 3/1/98 (Happy anniversary.)
+					*/
+					ch->desc->character = NULL;
+					ch->desc = NULL;
+				}
+				}
 			}
 		}
 	}
