@@ -194,7 +194,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 void generate_magic_enchant(OBJ_DATA *obj);
 void do_add_wizard(CHAR_DATA *ch, char*, int, int);
 
-extern std::vector<Stigma> stigmas;
+//extern std::vector<Stigma> stigmas;
 
 void save_zone_count_reset()
 {
@@ -233,7 +233,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
 // добавляет что-нибудь чару (пока что только стигмы)
 void do_add_wizard(CHAR_DATA *ch, char *argument, int, int)
 {
-	CHAR_DATA *vict = NULL;
+	/*CHAR_DATA *vict = NULL;
 
 	half_chop(argument, buf, buf2);
 	one_argument(buf2, buf1);
@@ -259,7 +259,7 @@ void do_add_wizard(CHAR_DATA *ch, char *argument, int, int)
 				ch->add_stigma(stigma_wear, id_stigma);
 			}
 		}
-	}
+	}*/
 }
 
 

@@ -2,7 +2,7 @@
 #include "char.hpp"
 
 
-void do_touch_stigma(CHAR_DATA *ch, char*, int, int);
+/*void do_touch_stigma(CHAR_DATA *ch, char*, int, int);
 
 std::vector<Stigma> stigmas;
 
@@ -50,4 +50,4 @@ void init_stigmas()
 	tmp.activation_stigma = &stigma_fire_dragon;
 	tmp.reload = 10;
 	stigmas.push_back(tmp);
-}
+}*/

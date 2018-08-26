@@ -103,7 +103,7 @@ Player::Player()
 	board_date_.fill(now);
 }
 
-extern std::vector<Stigma> stigmas;
+/*extern std::vector<Stigma> stigmas;
 void Player::add_stigma(int wear, int id_stigma)
 {
 	for (auto i : ::stigmas)
@@ -153,7 +153,7 @@ void Player::touch_stigma(char *arg)
 		}
 
 	}
-}
+}*/
 
 int Player::get_pfilepos() const
 {
@@ -308,9 +308,17 @@ void Player::dquest(int id)
 	{
 		if (x.id == id)
 		{
-			int value = number(1, 3);
-			if (this->get_count_daily_quest(id) < 2)
-				value += x.reward;				
+			int value = 0;
+			time_t now = time(0);
+			auto it = this->daily_quest_timed.find(id);
+			if (it != this->daily_quest_timed.end())
+			{
+				if (it->second != 0 && (it->second - now) < 86400)
+					return;
+			}
+			/*if (this->get_count_daily_quest(id) < 2)
+				value += x.reward;		*/		
+			value += x.reward + number(1, 3);
 			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
 			send_to_char(this, buf2);
 			this->dec_hryvn(value);
@@ -322,7 +330,6 @@ void Player::dquest(int id)
 	log("Quest ID: %d - не найден", id);
 	return;
 }
-
 
 
 void Player::mark_city(const size_t index)
@@ -893,7 +900,11 @@ void Player::save_char()
 
 	for (auto x : this->daily_quest)
 	{
-		fprintf(saved, "DaiQ: %d %d\n", x.first, x.second);
+		const auto it = this->daily_quest_timed.find(id);
+		if (it != this->daily_quest_timed.end())
+			fprintf(saved, "DaiQ: %d %d %d\n", x.first, x.second, (int)(it->second));
+		else
+			fprintf(saved, "DaiQ: %d %d 0\n", x.first, x.second);
 	}
 
 	for (i = 0; i < 1 + LAST_LOG; ++i)
@@ -1539,8 +1550,16 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_DR(this) = num;
 			else if (!strcmp(tag, "DaiQ"))
 			{
-				sscanf(line, "%d %d", &num, &num2);
-				this->add_daily_quest(num, num2);
+				if (sscanf(line, "%d %d %d", &num, &num2, &num3) == 2)
+				{
+					this->add_daily_quest(num, num2);
+				}
+				else
+				{
+					this->add_daily_quest(num, num2);
+					this->set_time_daily_quest(num, num3);
+				}
+				
 			}
 			break;
 
@@ -1639,7 +1658,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_HR(this) = num;
 			else if (!strcmp(tag, "Hung"))
 				GET_COND(this, FULL) = num;
-			else if (!strcmp(tag, "Hry"))
+			else if (!strcmp(tag, "Hry "))
 				this->set_hryvn(num);
 			else if (!strcmp(tag, "Host"))
 				strcpy(GET_LASTIP(this), line);
@@ -2320,6 +2339,12 @@ int Player::get_count_daily_quest(int id)
 	
 }
 
+time_t Player::get_time_daily_quest(int id)
+{
+	if (this->daily_quest_timed.count(id))
+		return this->daily_quest_timed[id];
+	return 0;
+}
 
 void Player::add_value_cities(bool v)
 {
@@ -2329,7 +2354,20 @@ void Player::add_value_cities(bool v)
 void Player::reset_daily_quest()
 {
 	this->daily_quest.clear();
+	this->daily_quest_timed.clear();
 	log("Персонаж: %s. Были сброшены гривны.", GET_NAME(this));
+}
+
+void Player::set_time_daily_quest(int id, time_t time)
+{
+	if (this->daily_quest_timed.count(id))
+	{
+		this->daily_quest_timed[id] = time;
+	}
+	else
+	{
+		this->daily_quest_timed.insert(std::pair<int, int>(id, time));
+	}
 }
 
 void Player::add_daily_quest(int id, int count)
@@ -2341,6 +2379,15 @@ void Player::add_daily_quest(int id, int count)
 	else
 	{
 		this->daily_quest.insert(std::pair<int, int>(id, count));
+	}
+	time_t now = time(0);
+	if (this->daily_quest_timed.count(id))
+	{
+		this->daily_quest_timed[id] = now;
+	}
+	else
+	{
+		this->daily_quest_timed.insert(std::pair<int, int>(id, now));
 	}
 }
 

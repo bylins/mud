@@ -26,7 +26,8 @@
 #include "bonus.h"
 #include "backtrace.hpp"
 #include "spell_parser.hpp"
-
+#include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include <algorithm>
 
 // extern
@@ -704,6 +705,19 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 #if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
 #endif
+	}
+	
+	if (!IS_NPC(ch) && GET_REMORT(ch) > 7 && (GET_LEVEL(ch) == 29 || GET_LEVEL(ch) == 30))
+	{
+		// лоадим свиток с экспой
+		const auto rnum = real_object(100);
+		if (rnum >= 0)
+		{
+			const auto o = world_objects.create_from_prototype_by_rnum(rnum);
+			o->set_owner(GET_UNIQUE(ch));
+			obj_to_obj(o.get(), corpse);
+		}
+		
 	}
 
 	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
