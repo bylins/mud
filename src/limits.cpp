@@ -1230,7 +1230,7 @@ void check_idling(CHAR_DATA * ch)
 					ch->desc->character = NULL;
 					ch->desc = NULL;
 				}
-				}
+				
 			}
 		}
 	}

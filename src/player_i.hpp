@@ -132,8 +132,8 @@ public:
 	std::string cities_to_str() { return ""; };
 	virtual bool check_city(const size_t) { return false; };
 	virtual void mark_city(const size_t) {};
-	virtual void touch_stigma(char* buf) {};
-	virtual void add_stigma(int wear, int id_stigma) {}
+	/*virtual void touch_stigma(char* buf) {};
+	virtual void add_stigma(int wear, int id_stigma) {}*/
 	virtual int death_player_count() {
 		return 1;
 	};

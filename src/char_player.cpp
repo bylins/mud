@@ -314,7 +314,10 @@ void Player::dquest(int id)
 			if (it != this->daily_quest_timed.end())
 			{
 				if (it->second != 0 && (it->second - now) < 86400)
+				{
+					send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
 					return;
+				}
 			}
 			/*if (this->get_count_daily_quest(id) < 2)
 				value += x.reward;		*/		
