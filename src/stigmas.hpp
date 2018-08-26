@@ -5,7 +5,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/algorithm/string.hpp>
 
-#define STIGMA_FIRE_DRAGON 1
+/*#define STIGMA_FIRE_DRAGON 1
 
 struct Stigma
 {
@@ -26,7 +26,7 @@ struct StigmaWear
 		unsigned int reload;
 		// получить имя
 		std::string get_name() const;
-};
+};*/
 
 
 

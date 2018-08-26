@@ -125,17 +125,17 @@ void handle_recall_spells(CHAR_DATA* ch)
 	//максимальный доступный чару круг
 	unsigned max_slot = max_slots.get(ch);
 	//обрабатываем только каждые RECALL_SPELLS_INTERVAL секунд
-	int secs_left = (SECS_PER_PLAYER_AFFECT*aff->duration)/SECS_PER_MUD_HOUR -SECS_PER_PLAYER_AFFECT;
+	int secs_left = (SECS_PER_PLAYER_AFFECT*aff->duration) / SECS_PER_MUD_HOUR - SECS_PER_PLAYER_AFFECT;
 	if (secs_left / RECALL_SPELLS_INTERVAL < max_slot - aff->modifier || secs_left <= 2)
 	{
 		int slot_to_restore = aff->modifier++;
 
 		bool found_spells = false;
-		struct spell_mem_queue_item *next = NULL, *prev=NULL, *i = ch->MemQueue.queue;
+		struct spell_mem_queue_item *next = NULL, *prev = NULL, *i = ch->MemQueue.queue;
 		while (i)
 		{
 			next = i->link;
-			if (spell_info[i->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == slot_to_restore)
+			if (spell_info[i->spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] == slot_to_restore)
 			{
 				if (!found_spells)
 				{
@@ -150,11 +150,12 @@ void handle_recall_spells(CHAR_DATA* ch)
 				}
 				GET_MEM_TOTAL(ch) = MAX(0, GET_MEM_TOTAL(ch) - mag_manacost(ch, i->spellnum));
 				sprintf(buf, "Вы вспомнили заклинание \"%s%s%s\".\r\n",
-						CCICYN(ch, C_NRM), spell_info[i->spellnum].name, CCNRM(ch, C_NRM));
+					CCICYN(ch, C_NRM), spell_info[i->spellnum].name, CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				GET_SPELL_MEM(ch, i->spellnum)++;
 				free(i);
-			} else prev = i;
+			}
+			else prev = i;
 			i = next;
 		}
 	}
@@ -170,7 +171,7 @@ void handle_recall_spells(CHAR_DATA::shared_ptr& ch) { handle_recall_spells(ch.g
  * the HMV gain per tick, and _not_ the HMV maximums.
  */
 
-// manapoint gain pr. game hour
+ // manapoint gain pr. game hour
 int mana_gain(const CHAR_DATA * ch)
 {
 	int gain = 0, restore = int_app[GET_REAL_INT(ch)].mana_per_tic, percent = 100;
@@ -246,10 +247,10 @@ int mana_gain(const CHAR_DATA * ch)
 		}
 
 	if (!IS_MANA_CASTER(ch) &&
-			(AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) ||
-			 AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) ||
-			 AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) ||
-			 ((ch->in_room != NOWHERE) && IS_DARK(ch->in_room) && !can_use_feat(ch, DARK_READING_FEAT))))
+		(AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD) ||
+			AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND) ||
+			AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) ||
+			((ch->in_room != NOWHERE) && IS_DARK(ch->in_room) && !can_use_feat(ch, DARK_READING_FEAT))))
 	{
 		stopmem = TRUE;
 		percent = 0;
@@ -260,7 +261,7 @@ int mana_gain(const CHAR_DATA * ch)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
 	if (!IS_NPC(ch))
-		percent*=ch->get_cond_penalty(P_MEM_GAIN);
+		percent *= ch->get_cond_penalty(P_MEM_GAIN);
 	percent = MAX(0, MIN(250, percent));
 	gain = gain * percent / 100;
 	return (stopmem ? 0 : gain);
@@ -352,7 +353,7 @@ int move_gain(CHAR_DATA* ch)
 			return (0);
 		gain =
 			graf(age(ch)->year, 15 + restore, 20 + restore, 25 + restore,
-				 20 + restore, 16 + restore, 12 + restore, 8 + restore);
+				20 + restore, 16 + restore, 12 + restore, 8 + restore);
 		// Room specification    //
 		if (LIKE_ROOM(ch))
 			percent += 25;
@@ -390,7 +391,7 @@ int move_gain(CHAR_DATA* ch)
 	percent += GET_MOVEREG(ch);
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_POISON) && percent > 0)
 		percent /= 4;
-	
+
 	if (!IS_NPC(ch))
 		percent *= ch->get_cond_penalty(P_HIT_GAIN);
 	percent = MAX(0, MIN(250, percent));
@@ -757,13 +758,13 @@ void beat_points_update(int pulse)
 		}
 		beat_punish(i);
 
-// This line is used only to control all situations when someone is
-// dead (POS_DEAD). You can comment it to minimize heartbeat function
-// working time, if you're sure, that you control these situations
-// everywhere. To the time of this code revision I've fix some of them
-// and haven't seen any other.
-//             if (GET_POS(i) == POS_DEAD)
-//                     die(i, NULL);
+		// This line is used only to control all situations when someone is
+		// dead (POS_DEAD). You can comment it to minimize heartbeat function
+		// working time, if you're sure, that you control these situations
+		// everywhere. To the time of this code revision I've fix some of them
+		// and haven't seen any other.
+		//             if (GET_POS(i) == POS_DEAD)
+		//                     die(i, NULL);
 
 		if (GET_POS(i) < POS_STUNNED)
 		{
@@ -809,7 +810,7 @@ void beat_points_update(int pulse)
 			}
 
 			while (GET_MEM_COMPLETED(i) > GET_MEM_CURRENT(i.get())
-					&& !MEMQUEUE_EMPTY(i))
+				&& !MEMQUEUE_EMPTY(i))
 			{
 				int spellnum;
 				spellnum = MemQ_learn(i);
@@ -860,12 +861,12 @@ void beat_points_update(int pulse)
 		restore = move_gain(i);
 		restore = interpolate(restore, pulse);
 
-//MZ.overflow_fix
+		//MZ.overflow_fix
 		if (GET_MOVE(i) < GET_REAL_MAX_MOVE(i))
 		{
 			GET_MOVE(i) = MIN(GET_MOVE(i) + restore, GET_REAL_MAX_MOVE(i));
 		}
-//-MZ.overflow_fix
+		//-MZ.overflow_fix
 	});
 }
 
@@ -947,7 +948,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 		if (is_altered)
 		{
 			sprintf(buf, "%s advanced %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
+				GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 		}
 	}
@@ -960,8 +961,8 @@ void gain_exp(CHAR_DATA * ch, int gain)
 			ch->set_level(ch->get_level() - 1);
 			num_levels++;
 			sprintf(buf,
-					"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
-					CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+				"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
+				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			decrease_level(ch);
 			is_altered = TRUE;
@@ -969,7 +970,7 @@ void gain_exp(CHAR_DATA * ch, int gain)
 		if (is_altered)
 		{
 			sprintf(buf, "%s decreases %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
+				GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 		}
 	}
@@ -1006,7 +1007,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 				ch->set_level(ch->get_level() + 1);
 				num_levels++;
 				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
-						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+					CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 
 				advance_level(ch);
@@ -1016,24 +1017,24 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 			if (is_altered)
 			{
 				sprintf(buf, "%s advanced %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
+					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 			}
 		}
 		else if (gain < 0)
 		{
-// Pereplut: глупый участок кода.
-//			gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
-//			GET_EXP(ch) += gain;
-//			if (GET_EXP(ch) < 0)
-//				GET_EXP(ch) = 0;
+			// Pereplut: глупый участок кода.
+			//			gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
+			//			GET_EXP(ch) += gain;
+			//			if (GET_EXP(ch) < 0)
+			//				GET_EXP(ch) = 0;
 			while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
 			{
 				ch->set_level(ch->get_level() - 1);
 				num_levels++;
 				sprintf(buf,
-						"%sВы потеряли уровень!%s\r\n",
-						CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
+					"%sВы потеряли уровень!%s\r\n",
+					CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 				decrease_level(ch);
 				is_altered = TRUE;
@@ -1041,7 +1042,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 			if (is_altered)
 			{
 				sprintf(buf, "%s decreases %d level%s to level %d.",
-						GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
+					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 			}
 		}
@@ -1051,7 +1052,7 @@ void gain_exp_regardless(CHAR_DATA * ch, int gain)
 
 void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 {
-	int cond_state = GET_COND(ch,condition);
+	int cond_state = GET_COND(ch, condition);
 
 	if (condition >= ch->player_specials->saved.conditions.size())
 	{
@@ -1066,13 +1067,13 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 
 	if (IS_GOD(ch) && condition != DRUNK)
 	{
-		GET_COND(ch, condition)=-1;
+		GET_COND(ch, condition) = -1;
 		return;
 	}
-	
+
 	GET_COND(ch, condition) += value;
 	GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
-	
+
 	// обработка после увеличения
 	switch (condition)
 	{
@@ -1085,7 +1086,7 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		break;
 	}
 
-	if ( cond_state >= CHAR_DRUNKED && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
+	if (cond_state >= CHAR_DRUNKED && GET_COND(ch, DRUNK) < CHAR_DRUNKED)
 	{
 		GET_DRUNK_STATE(ch) = 0;
 	}
@@ -1118,7 +1119,7 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		return;
 
 	case THIRST:
-		if (!GET_COND_M(ch,condition))
+		if (!GET_COND_M(ch, condition))
 		{
 			return;
 		}
@@ -1127,7 +1128,7 @@ void gain_condition(CHAR_DATA * ch, unsigned condition, int value)
 		{
 			send_to_char("Вас мучает жажда.\r\n", ch);
 		}
-		else if ( cond_value < 40 )
+		else if (cond_value < 40)
 		{
 			send_to_char("Вас сильно мучает жажда.\r\n", ch);
 		}
@@ -1169,7 +1170,7 @@ void underwater_check()
 
 			if (dmg.process(d->character.get(), d->character.get()) < 0)
 			{
-				log("%s",buf);
+				log("%s", buf);
 			}
 		}
 	}
@@ -1182,13 +1183,12 @@ void check_idling(CHAR_DATA * ch)
 		if (++(ch->char_specials.timer) > idle_void)
 		{
 			ch->set_motion(false);
-			
+
 			if (ch->get_was_in_room() == NOWHERE && ch->in_room != NOWHERE)
 			{
-				// чара в лд уже посейвило при обрыве коннекта
-				if (!ch->desc)
+				if (ch->desc)
 				{
-					return;
+					ch->save_char();
 				}
 				ch->set_was_in_room(ch->in_room);
 				if (ch->get_fighting())
@@ -1198,7 +1198,7 @@ void check_idling(CHAR_DATA * ch)
 				}
 				act("$n растворил$u в пустоте.", TRUE, ch, 0, 0, TO_ROOM);
 				send_to_char("Вы пропали в пустоте этого мира.\r\n", ch);
-				ch->save_char();
+
 				Crash_crashsave(ch);
 				char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
@@ -1209,34 +1209,28 @@ void check_idling(CHAR_DATA * ch)
 				if (ch->in_room != NOWHERE)
 					char_from_room(ch);
 				char_to_room(ch, STRANGE_ROOM);
-
+				if (free_rent)
+					Crash_rentsave(ch, 0);
+				else
+					Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-				extract_char(ch, FALSE);
+				extract_char(ch, FALSE);		
+
 				// чара в лд уже посейвило при обрыве коннекта
-				if (!ch->desc)
+				if (ch->desc)
 				{
-					return;
+					STATE(ch->desc) = CON_DISCONNECT;
+					/*
+					* For the 'if (d->character)' test in close_socket().
+					* -gg 3/1/98 (Happy anniversary.)
+					*/
+					ch->desc->character = NULL;
+					ch->desc = NULL;
 				}
-				else {
-					if (ch->desc)
-					{
-						STATE(ch->desc) = CON_DISCONNECT;
-						/*
-						* For the 'if (d->character)' test in close_socket().
-						* -gg 3/1/98 (Happy anniversary.)
-						*/
-						ch->desc->character = NULL;
-						ch->desc = NULL;
-					}
 				}
-				
-				if (free_rent)
-					Crash_rentsave(ch, 0);
-				else
-					Crash_idlesave(ch);				
 			}
 		}
 	}
@@ -1448,7 +1442,7 @@ void exchange_point_update()
 			cap[0] = UPPER(cap[0]);
 			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
 				cap.c_str(), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(exch_item)));
-			log("%s",buf);
+			log("%s", buf);
 			extract_exchange_item(exch_item);
 		}
 	}
@@ -1609,8 +1603,8 @@ void obj_point_update()
 				for (int cmd_no = 0; zone_table[zone].cmd[cmd_no].command != 'S'; ++cmd_no)
 				{
 					if (zone_table[zone].cmd[cmd_no].command == 'O'
-							&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->get_in_obj())
-							&& zone_table[zone].cmd[cmd_no].arg3 == j->get_in_obj()->get_in_room())
+						&& zone_table[zone].cmd[cmd_no].arg1 == GET_OBJ_RNUM(j->get_in_obj())
+						&& zone_table[zone].cmd[cmd_no].arg3 == j->get_in_obj()->get_in_room())
 					{
 						find = 1;
 						break;
@@ -1618,7 +1612,7 @@ void obj_point_update()
 				}
 			}
 
-			if (!find && j->get_timer() > 0 )
+			if (!find && j->get_timer() > 0)
 			{
 				j->dec_timer();
 			}
@@ -1700,7 +1694,7 @@ void obj_point_update()
 					return false;
 				}
 			}
-			else if (GET_OBJ_DESTROY(j) > 0 
+			else if (GET_OBJ_DESTROY(j) > 0
 				&& !NO_DESTROY(j.get()))
 			{
 				j->dec_destroyer();
@@ -1903,7 +1897,7 @@ void point_update(void)
 	}
 	std::random_shuffle(real_spell.begin(), real_spell.end());
 
-	for (const auto& character: character_list)
+	for (const auto& character : character_list)
 	{
 		const auto i = character.get();
 

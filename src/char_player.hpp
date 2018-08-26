@@ -139,6 +139,8 @@ public:
 
 	int get_count_daily_quest(int id);
 	void add_daily_quest(int id, int count);
+	void set_time_daily_quest(int id, time_t time);
+	time_t get_time_daily_quest(int id);
 	void spent_hryvn_sub(int value);
 	int get_spent_hryvn();
 	void reset_daily_quest();
@@ -149,9 +151,9 @@ public:
 	std::string cities_to_str();
 	bool check_city(const size_t index);
 	void mark_city(const size_t index);
-	void touch_stigma(char *arg);
+	/*void touch_stigma(char *arg);
 	void add_stigma(int wear, int id_stigma);
-	int get_stigma(int wear);
+	int get_stigma(int wear);*/
 	int get_hryvn();
 	void set_hryvn(int value);
 	void sub_hryvn(int value);
@@ -212,7 +214,7 @@ private:
 	// Отметка о том, в каких городах был наш чар
 	boost::dynamic_bitset<size_t> cities;
 	// здесь храним инфу о татуировках
-	std::map<unsigned int, StigmaWear> stigmas;
+	//std::map<unsigned int, StigmaWear> stigmas;
 	// режим !бот
 	bool setmode_dontbot;
 	// гривны
@@ -221,7 +223,8 @@ private:
 	std::map<int, int> daily_quest;
 	// сколько гривен было потрачено в магазине
 	int spent_hryvn;
-
+	// айдишник + когда последний раз выполняли данный квест
+	std::map<int, time_t> daily_quest_timed;
 };
 
 

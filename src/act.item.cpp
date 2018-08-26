@@ -2554,6 +2554,16 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+std::string readFile1(const std::string& fileName) {
+	std::ifstream f(fileName);
+	f.seekg(0, std::ios::end);
+	size_t size = f.tellg();
+	std::string s(size, ' ');
+	f.seekg(0);
+	f.read(&s[0], size); // по стандарту можно в C++11, по факту работает и на старых компиляторах
+	return s;
+}
+
 void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int where = WEAR_HOLD;
