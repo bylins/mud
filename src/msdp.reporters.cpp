@@ -24,7 +24,7 @@ namespace msdp
 
 		const auto exits = std::make_shared<TableValue>();
 		const auto directions = world[rnum]->dir_option;
-		auto from_direction = -1;
+		std::string from_direction = "-";
 
 		for (int i = 0; i < NUM_OF_DIRS; ++i)
 		{
@@ -35,7 +35,7 @@ namespace msdp
 				const auto to_rnum = directions[i]->to_room;
 				if (to_rnum == from_rnum)
 				{
-					from_direction = i;
+					from_direction = direction_commands[i];
 				}
 				const auto to_vnum = GET_ROOM_VNUM(to_rnum);
 				if (NOWHERE != to_vnum)	// Anton Gorev (2016-05-01): Some rooms has exits that  lead to nowhere. It is a workaround.
@@ -66,9 +66,9 @@ namespace msdp
 		if (from_vnum != NOWHERE)
 			room_descriptor->add(std::make_shared<Variable>("FROM_ROOM",
 				std::make_shared<StringValue>(std::to_string(from_vnum))));
-		if (from_direction != -1)
+		if (from_direction != "-")
 			room_descriptor->add(std::make_shared<Variable>("FROM_DIRECTION",
-				std::make_shared<StringValue>(std::to_string(from_direction))));
+				std::make_shared<StringValue>(from_direction)));
 		
 
 		const auto stype = SECTOR_TYPE_BY_VALUE.find(world[rnum]->sector_type);

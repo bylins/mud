@@ -2355,26 +2355,21 @@ void perform_violence()
 	//* обновление аффектов и лагов после раунда
 	update_round_affs();
 
-	std::vector<int> id_masters;
-	for (const auto& ch : msdp_report_chars)
+	for (auto d = descriptor_list; d; d = d->next)
 	{
-		if (!ch->purged())
-		{			
-			if (ch->get_master() && !ch->get_master()->purged())
-				if (std::find(id_masters.begin(), id_masters.end(), ch->get_master()->get_uid()) != id_masters.end())
+		if (STATE(d) == CON_PLAYING && d->character)
+		{
+			for (const auto& ch : msdp_report_chars)
+			{
+				if (same_group(ch, d->character.get()) && !CHECK_WAIT(d->character) && (ch->in_room == d->character->in_room))
 				{
-					for (const auto& follower : ch->get_master()->get_followers_list())
-					{
-						if (!follower->purged() && !IS_NPC(follower) && !CHECK_WAIT(follower))
-						{
-							if (follower->in_room == ch->in_room)
-								msdp_report_chars.insert(follower);
-						}
-					}
+					msdp_report_chars.insert(d->character.get());
+					break;
 				}
+			}
 		}
 	}
-
+	
 	// покажем группу по msdp
 	// проверка на поддержку протокола есть в методе msdp_report
 	for (const auto& ch: msdp_report_chars)
