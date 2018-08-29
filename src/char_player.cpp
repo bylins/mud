@@ -903,11 +903,13 @@ void Player::save_char()
 
 	for (auto x : this->daily_quest)
 	{
+		std::stringstream buffer;
 		const auto it = this->daily_quest_timed.find(id);
 		if (it != this->daily_quest_timed.end())
-			fprintf(saved, "DaiQ: %d %d %ld\n", x.first, x.second, static_cast<long int>(it->second));
+			buffer << "DaiQ: " << x.first << " " << x.second << " " << it->second << "\n";
 		else
-			fprintf(saved, "DaiQ: %d %d 0\n", x.first, x.second);
+			buffer << "DaiQ: " << x.first << " " << x.second << " 0\n";
+		fprintf(saved, "%s", buffer.str().c_str());
 	}
 
 	for (i = 0; i < 1 + LAST_LOG; ++i)

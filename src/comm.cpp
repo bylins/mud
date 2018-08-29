@@ -2381,6 +2381,15 @@ int new_descriptor(socket_t s)
 	newd->next = descriptor_list;
 	descriptor_list = newd;
 
+	int online_players = 0;
+	for (auto i = descriptor_list; i; i = i->next)
+	{
+		online_players += 1;
+	}
+	sprintf(buf, "Online: %d\r\n", online_players);
+
+	SEND_TO_Q(buf, newd);
+
 #ifdef HAVE_ICONV
 	SEND_TO_Q("Using keytable\r\n"
 		"  0) Koi-8\r\n"
