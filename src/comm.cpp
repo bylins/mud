@@ -2384,7 +2384,7 @@ int new_descriptor(socket_t s)
 	int online_players = 0;
 	for (auto i = descriptor_list; i; i = i->next)
 	{
-		online_players += 1;
+		online_players++;
 	}
 	sprintf(buf, "Online: %d\r\n", online_players);
 
