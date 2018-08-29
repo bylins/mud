@@ -2380,7 +2380,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
 	send_to_char("&Q&n", ch);
-
+	
 	// вход в новую зону
 	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number)
 	{
@@ -3120,7 +3120,13 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			return;
 		}
 		if (!*arg)	// "look" alone, without an argument at all
+		{
+			if (ch->desc)
+			{
+				ch->desc->msdp_report("ROOM");
+			}
 			look_at_room(ch, 1);
+		}
 		else if (is_abbrev(arg, "in") || is_abbrev(arg, "внутрь"))
 			look_in_obj(ch, arg2);
 		// did the char type 'look <direction>?'
