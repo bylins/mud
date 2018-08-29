@@ -2380,7 +2380,10 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
 	send_to_char("&Q&n", ch);
-
+	if (ch->desc)
+	{
+		ch->desc->msdp_report("ROOM");
+	}
 	// вход в новую зону
 	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number)
 	{

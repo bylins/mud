@@ -1201,7 +1201,6 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
-
 	world[room]->people.push_front(ch);
 
 	ch->in_room = room;
@@ -1247,7 +1246,8 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 	// report room changing
 	if (ch->desc)
 	{
-		ch->desc->msdp_report("ROOM");
+		if (!(IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+			ch->desc->msdp_report("ROOM");
 	}
 
 	for (unsigned int i = 0; i < cities.size(); i++)

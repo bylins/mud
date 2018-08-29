@@ -11,8 +11,10 @@ namespace msdp
 {
 	void RoomReporter::get(Variable::shared_ptr& response)
 	{
-		const auto rnum = IN_ROOM(descriptor()->character);
+		const auto rnum = IN_ROOM(descriptor()->character);		
 		const auto vnum = GET_ROOM_VNUM(rnum);
+		const auto from_rnum = descriptor()->character->get_from_room();
+		const auto from_vnum = GET_ROOM_VNUM(from_rnum);
 		if (NOWHERE == vnum)
 		{
 			return;
@@ -22,6 +24,8 @@ namespace msdp
 
 		const auto exits = std::make_shared<TableValue>();
 		const auto directions = world[rnum]->dir_option;
+		auto from_direction = -1;
+
 		for (int i = 0; i < NUM_OF_DIRS; ++i)
 		{
 			if (directions[i]
@@ -29,6 +33,10 @@ namespace msdp
 			{
 				const static std::string direction_commands[NUM_OF_DIRS] = { "n", "e", "s", "w", "u", "d" };
 				const auto to_rnum = directions[i]->to_room;
+				if (to_rnum == from_rnum)
+				{
+					from_direction = i;
+				}
 				const auto to_vnum = GET_ROOM_VNUM(to_rnum);
 				if (NOWHERE != to_vnum)	// Anton Gorev (2016-05-01): Some rooms has exits that  lead to nowhere. It is a workaround.
 				{
@@ -55,6 +63,13 @@ namespace msdp
 			std::make_shared<StringValue>(zone_name.get())));
 		room_descriptor->add(std::make_shared<Variable>("ZONE",
 			std::make_shared<StringValue>(std::to_string(vnum / 100))));
+		if (from_vnum != NOWHERE)
+			room_descriptor->add(std::make_shared<Variable>("FROM_ROOM",
+				std::make_shared<StringValue>(std::to_string(from_vnum))));
+		if (from_direction != -1)
+			room_descriptor->add(std::make_shared<Variable>("FROM_DIRECTION",
+				std::make_shared<StringValue>(std::to_string(from_direction))));
+		
 
 		const auto stype = SECTOR_TYPE_BY_VALUE.find(world[rnum]->sector_type);
 		if (stype != SECTOR_TYPE_BY_VALUE.end())
