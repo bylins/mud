@@ -904,7 +904,7 @@ void Player::save_char()
 	for (auto x : this->daily_quest)
 	{
 		std::stringstream buffer;
-		const auto it = this->daily_quest_timed.find(id);
+		const auto it = this->daily_quest_timed.find(x.first);
 		if (it != this->daily_quest_timed.end())
 			buffer << "DaiQ: " << x.first << " " << x.second << " " << it->second << "\n";
 		else
@@ -2393,7 +2393,7 @@ void Player::add_daily_quest(int id, int count)
 	}
 	else
 	{
-		this->daily_quest_timed.insert(std::pair<int, int>(id, now));
+		this->daily_quest_timed.insert(std::pair<int, time_t>(id, now));
 	}
 }
 
