@@ -213,12 +213,6 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	}
 	if (!sscanf(arg2, "%d", &item_cost))
 		item_cost = 0;
-	if (item_cost > 300000)
-	{
-		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
-		return false;
-	}
-
 	if (!*obj_name)
 	{
 		send_to_char("Не указан предмет.\r\n", ch);
@@ -231,6 +225,11 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	}
 	if (!bloody::handle_transfer(ch, NULL, obj))
 		return false;
+	if (item_cost > 400000 && OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
+	{
+		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
+		return false;
+	}
 	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK)
 	{
 		if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_NORENT)
