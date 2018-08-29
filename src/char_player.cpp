@@ -905,7 +905,7 @@ void Player::save_char()
 	{
 		const auto it = this->daily_quest_timed.find(id);
 		if (it != this->daily_quest_timed.end())
-			fprintf(saved, "DaiQ: %d %d %d\n", x.first, x.second, (int)(it->second));
+			fprintf(saved, "DaiQ: %d %d %ld\n", x.first, x.second, static_cast<long int>(it->second));
 		else
 			fprintf(saved, "DaiQ: %d %d 0\n", x.first, x.second);
 	}
@@ -1553,14 +1553,15 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_DR(this) = num;
 			else if (!strcmp(tag, "DaiQ"))
 			{
-				if (sscanf(line, "%d %d %d", &num, &num2, &num3) == 2)
+
+				if (sscanf(line, "%d %d %ld", &num, &num2, &lnum) == 2)
 				{
 					this->add_daily_quest(num, num2);
 				}
 				else
 				{
 					this->add_daily_quest(num, num2);
-					this->set_time_daily_quest(num, num3);
+					this->set_time_daily_quest(num, lnum);
 				}
 				
 			}
