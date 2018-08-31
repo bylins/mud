@@ -489,7 +489,7 @@ void Heartbeat::operator()(const int missed_pulses)
 	}
 
 	m_measurements.add(label, pulse_number(), execution_time.count());
-	
+	log("%s", pulse_number());
 	if (GlobalObjects::stats_sender().ready())
 	{
 		influxdb::Record record("heartbeat");
