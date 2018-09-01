@@ -487,9 +487,7 @@ void Heartbeat::operator()(const int missed_pulses)
 		log("SYSERR: Long-running tick #%d worked for %.4f seconds (missed pulses argument has value %d)",
 			pulse_number(), execution_time.count(), missed_pulses);
 	}
-
 	m_measurements.add(label, pulse_number(), execution_time.count());
-	
 	if (GlobalObjects::stats_sender().ready())
 	{
 		influxdb::Record record("heartbeat");

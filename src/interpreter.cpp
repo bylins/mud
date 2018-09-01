@@ -72,6 +72,7 @@
 #include "conf.h"
 #include "bonus.h"
 #include "debug.utils.hpp"
+#include "global.objects.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -1206,7 +1207,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 
 	if (!IS_NPC(ch))
 	{
-		log("<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
+		log("<%s, %d> {%5d} [%s]", GET_NAME(ch), GlobalObjects::heartbeat().pulse_number(), GET_ROOM_VNUM(ch->in_room), argument);
 		if (GET_LEVEL(ch) >= LVL_IMMORT || GET_GOD_FLAG(ch, GF_PERSLOG) || GET_GOD_FLAG(ch, GF_DEMIGOD))
 			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
 	}
