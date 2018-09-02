@@ -4205,12 +4205,23 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buf, ch);
 
 	strcpy(buf, CCIGRN(ch, C_NRM));
-	if (GET_COND(ch, DRUNK) >= CHAR_DRUNKED)
+	const auto value_drunked = GET_COND(ch, DRUNK);
+	if (value_drunked >= CHAR_DRUNKED)
 	{
 		if (affected_by_spell(ch, SPELL_ABSTINENT))
 			strcat(buf, "Привет с большого бодуна!\r\n");
 		else
-			strcat(buf, "Вы пьяны.\r\n");
+		{
+			if (value_drunked >= CHAR_MORTALLY_DRUNKED)
+				strcat(buf, "Вы так пьяны, что ваши ноги не хотят слушаться вас...\r\n");
+			else if (value_drunked >= 10)
+				strcat(buf, "Вы так пьяны, что вам хочется петь песни.\r\n");
+			else if (value_drunked >= 5)
+				strcat(buf, "Вы пьяны.\r\n");
+			else
+				strcat(buf, "Вы немного пьяны.\r\n");
+		}
+			
 	}
 	if (GET_COND_M(ch, FULL))
 		strcat(buf, "Вы голодны.\r\n");
