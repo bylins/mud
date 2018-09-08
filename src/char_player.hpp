@@ -159,6 +159,7 @@ public:
 	void sub_hryvn(int value);
 	void dec_hryvn(int value);
 	void dquest(int id);
+	
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -225,6 +226,8 @@ private:
 	int spent_hryvn;
 	// айдишник + когда последний раз выполняли данный квест
 	std::map<int, time_t> daily_quest_timed;
+	// Аккаунт
+	std::shared_ptr<Account> account;
 };
 
 

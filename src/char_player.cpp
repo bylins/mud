@@ -48,6 +48,7 @@
 int level_exp(CHAR_DATA * ch, int level);
 extern std::vector<City> cities;
 extern std::string default_str_cities;
+extern std::vector<std::shared_ptr<Account>> accounts;
 namespace
 {
 
@@ -308,25 +309,39 @@ void Player::dquest(int id)
 	{
 		if (x.id == id)
 		{
-			int value = 0;
+			if (!this->account->quest_is_available(id))
+			{
+				send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
+				return;
+			} 
+			
+			const int value = x.reward + number(1, 3);
+
+			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
+			send_to_char(this, buf2);
+			this->dec_hryvn(value);
+			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
+			this->account->complete_quest(id);
+			//this->add_daily_quest(id, 1);
+
+			/*int value = 0;
 			time_t now = time(0);
 			auto it = this->daily_quest_timed.find(id);
 			if (it != this->daily_quest_timed.end())
 			{
 				if (it->second != 0 && (now - it->second) < 86400)
 				{
-					send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
-					return;
+					
 				}
 			}
 			/*if (this->get_count_daily_quest(id) < 2)
-				value += x.reward;		*/		
+				value += x.reward;			
 			value += x.reward + number(1, 3);
 			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
 			send_to_char(this, buf2);
 			this->dec_hryvn(value);
 			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
-			this->add_daily_quest(id, 1);
+			this->add_daily_quest(id, 1);*/
 			return;
 		}
 	}
@@ -485,7 +500,17 @@ void Player::save_char()
 
 	if (IS_NPC(this) || this->get_pfilepos() < 0)
 		return;
-
+	if (this->account == nullptr)
+	{
+		this->account = Account::get_account(GET_EMAIL(this));
+		if (this->account == nullptr)
+		{
+			std::shared_ptr<Account> temp_account(new Account(GET_EMAIL(this)));
+			accounts.push_back(temp_account);
+			this->account = temp_account;
+		}
+	}
+	this->account->save_to_file();
 	log("Save char %s", GET_NAME(this));
 	save_char_vars(this);
 
@@ -2172,6 +2197,13 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
 
+	this->account = Account::get_account(GET_EMAIL(this));
+	if (this->account == nullptr)
+	{
+		std::shared_ptr<Account> temp_account(new Account(GET_EMAIL(this)));
+		accounts.push_back(temp_account);
+		this->account = temp_account;
+	}
 	return (id);
 }
 

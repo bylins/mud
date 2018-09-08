@@ -2813,7 +2813,7 @@ void init_char(CHAR_DATA* ch, player_index_element& element)
 	int i;
 
 #ifdef TEST_BUILD
-	if (1 == player_table.size())
+	if (0 == player_table.size())
 	{
 		// При собирании через make test первый чар в маде становится иммом 34
 		ch->set_level(LVL_IMPL);
@@ -2928,7 +2928,7 @@ void print_free_names(std::ostream& os, const PlayersIndex& index)
 	index.get_free_names(SUGGESTIONS_COUNT, names);
 	os << JoinRange<PlayersIndex::free_names_list_t>(names);
 }
-
+extern std::vector<std::shared_ptr<Account>> accounts;
 void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 {
 	player_index_element element(-1, GET_PC_NAME(d->character));
@@ -3814,9 +3814,12 @@ Sventovit
 			SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 			return;
 		}
-		#ifdef TEST_BUILD		
+		#ifdef TEST_BUILD			
+		strncpy(GET_EMAIL(d->character), arg, 127);
+		*(GET_EMAIL(d->character) + 127) = '\0';
+		lower_convert(GET_EMAIL(d->character));
 		DoAfterEmailConfirm(d);
-			break;
+		break;
 		#endif
 		{
 			int random_number = number(1000000, 9999999);
