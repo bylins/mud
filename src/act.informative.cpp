@@ -3817,12 +3817,13 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 
 	int glory = Glory::get_glory(GET_UNIQUE(ch));
-	if (glory)
+/*	if (glory)
 		sprintf(buf + strlen(buf),
 				" %s|| %sВы заслужили %5d %-61s%s||\r\n",
 				CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
 				(string(desc_count(glory, WHAT_POINT)) + string(" славы для временного улучшения характеристик.")).substr(0, 61).c_str(),
 				CCCYN(ch, C_NRM));
+*/
 	glory = GloryConst::get_glory(GET_UNIQUE(ch));
 	if (glory)
 		sprintf(buf + strlen(buf),
