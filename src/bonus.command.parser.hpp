@@ -41,7 +41,7 @@ namespace Bonus
 		std::string m_error_message;
 		std::string m_broadcast_message;
 
-		int m_bonus_time;
+		long m_bonus_time;
 		int m_bonus_multiplier;
 		EBonusType m_bonus_type;
 	};

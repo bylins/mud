@@ -5,13 +5,14 @@
 #include <msdp.constants.hpp>
 
 #include <memory>
+#include <utility>
 
 class TestReporter : public ::msdp::AbstractReporter
 {
 public:
-	TestReporter(const ::msdp::Variable::shared_ptr& value): m_value(value) {}
+	TestReporter(::msdp::Variable::shared_ptr value): m_value(std::move(value)) {}
 
-	virtual void get(::msdp::Variable::shared_ptr& response) override { response = m_value;  }
+	void get(::msdp::Variable::shared_ptr& response) override { response = m_value;  }
 
 private:
 	::msdp::Variable::shared_ptr m_value;
@@ -23,7 +24,7 @@ TEST(MSDP_Builder, NullValue)
 	::msdp::StreamSender sender(ss);
 
 	::msdp::Variable::shared_ptr value;
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	EXPECT_TRUE(ss.str().empty());
 }
@@ -35,7 +36,7 @@ TEST(MSDP_Builder, Variable)
 
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("name",
 		std::make_shared<::msdp::StringValue>("value"));
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{
@@ -57,7 +58,7 @@ TEST(MSDP_Builder, EmptyArray)
 
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("array",
 		std::make_shared<::msdp::ArrayValue>());
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{
@@ -83,7 +84,7 @@ TEST(MSDP_Builder, NotEmptyArray_SingleElement)
 	const auto array = std::make_shared<::msdp::ArrayValue>();
 	array->add(string);
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("array", array);
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{
@@ -114,7 +115,7 @@ TEST(MSDP_Builder, NotEmptyArray)
 	array->add(string2);
 
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("array", array);
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{
@@ -140,7 +141,7 @@ TEST(MSDP_Builder, EmptyTable)
 
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("table",
 		std::make_shared<::msdp::TableValue>());
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{
@@ -168,7 +169,7 @@ TEST(MSDP_Builder, NotEmptyTable_SingleElement)
 	table->add(variable);
 
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("table", table);
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{
@@ -201,7 +202,7 @@ TEST(MSDP_Builder, NotEmptyTable)
 	table->add(variable2);
 
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("table", table);
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{
@@ -243,7 +244,7 @@ TEST(MSDP_Builder, ArrayOfArrays)
 	array->add(nested_array2);
 
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("array", array);
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{
@@ -293,7 +294,7 @@ TEST(MSDP_Builder, ArrayOfTables)
 	array->add(nested_table2);
 
 	::msdp::Variable::shared_ptr value = std::make_shared<::msdp::Variable>("array", array);
-	sender.send(std::make_shared<TestReporter>(value));
+	sender.send(std::make_shared<TestReporter>(std::move(value)));
 
 	const char EXPECTED[] =
 	{

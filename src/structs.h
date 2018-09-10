@@ -1636,17 +1636,39 @@ private:
 	char*& m_delegated_string;
 };
 
-class StdStringWriter : public AbstractStringWriter
+class AbstractStdStringWriter : public AbstractStringWriter
 {
 public:
-	virtual const char* get_string() const override { return m_string.c_str(); }
-	virtual void set_string(const char* string) override { m_string = string; }
-	virtual void append_string(const char* string) override { m_string += string; }
-	virtual size_t length() const override { return m_string.length(); }
-	virtual void clear() override { m_string.clear(); }
+	virtual const char* get_string() const override { return string().c_str(); }
+	virtual void set_string(const char* string) override { this->string() = string; }
+	virtual void append_string(const char* string) override { this->string() += string; }
+	virtual size_t length() const override { return string().length(); }
+	virtual void clear() override { string().clear(); }
 
 private:
+	virtual std::string& string() = 0;
+	virtual std::string& string() const = 0;
+};
+
+class StdStringWriter : public AbstractStringWriter
+{
+private:
+	virtual std::string& string() { return m_string; }
+	virtual const std::string& string() const { return m_string; }
+
 	std::string m_string;
+};
+
+class DelegatedStdStringWriter : public AbstractStringWriter
+{
+public:
+	DelegatedStdStringWriter(std::string& delegated_string): m_string(delegated_string) {}
+
+private:
+	virtual std::string& string() { return m_string; }
+	virtual const std::string& string() const { return m_string; }
+
+	std::string& m_string;
 };
 
 struct DESCRIPTOR_DATA
