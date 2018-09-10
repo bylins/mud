@@ -1639,7 +1639,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		case '9':
-			send_to_char(d->character.get(), "&S%s&s\r\nВведите длинное описание :-\r\n| ", GET_LDESC(OLC_MOB(d)));
+			send_to_char(d->character.get(), "&S%s&s\r\nВведите длинное описание :-\r\n| ", GET_LDESC(OLC_MOB(d)).c_str());
 			OLC_MODE(d) = MEDIT_L_DESC;
 			i--;
 			break;

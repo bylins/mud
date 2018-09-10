@@ -4124,7 +4124,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 		sprintf(buf + strlen(buf), "\r\n");
 
-	sprintf(buf + strlen(buf), "У вас на руках %ld %s и %ld %s",
+	sprintf(buf + strlen(buf), "У вас на руках %ld %s и %d %s",
 		ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa), ch->get_hryvn(), desc_count(ch->get_hryvn(), WHAT_TORCu));
 	if (ch->get_bank() > 0)
 		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",

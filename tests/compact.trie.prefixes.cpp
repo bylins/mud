@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
+
 class CompactTriePrefixes : public ::testing::Test
 {
 protected:

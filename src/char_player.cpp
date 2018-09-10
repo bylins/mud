@@ -322,7 +322,7 @@ void Player::dquest(int id)
 			/*if (this->get_count_daily_quest(id) < 2)
 				value += x.reward;		*/		
 			value += x.reward + number(1, 3);
-			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
+			sprintf(buf2, "Вы получили %d %s.\r\n", value, desc_count(value, WHAT_TORCu));
 			send_to_char(this, buf2);
 			this->dec_hryvn(value);
 			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
