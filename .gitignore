@@ -3,8 +3,8 @@ src/version.cpp
 build
 buildx64
 build.ubuntu
+build.clion
 bin
 .vscode
-/.vs
-/project
-
+.idea
+build.clang/*

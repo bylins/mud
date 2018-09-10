@@ -18,22 +18,19 @@ namespace msdp
 	{
 	public:
 		static AbstractReporter::shared_ptr create(const DESCRIPTOR_DATA* descriptor, const std::string& name);
-		static Variable::shared_ptr reportable_variables();
+		const static Variable::shared_ptr& reportable_variables();
 
 	private:
 		using handler_t = std::function<AbstractReporter::shared_ptr(const DESCRIPTOR_DATA*)>;
 		using handlers_t = std::unordered_map<std::string, handler_t>;
 
-		static handlers_t s_handlers;
-		const static ArrayValue::array_t REPORTABLE_VARIABLES_ARRAY;
-		const static Value::shared_ptr REPORTABLE_VARIABLES_VALUE;
-		const static Variable::shared_ptr REPORTABLE_VARIABLES;
+		const static handlers_t& handlers();
 	};
 
 	AbstractReporter::shared_ptr ReporterFactory::create(const DESCRIPTOR_DATA* descriptor, const std::string& name)
 	{
-		const auto reporter = s_handlers.find(name);
-		if (reporter != s_handlers.end())
+		const auto reporter = handlers().find(name);
+		if (reporter != handlers().end())
 		{
 			return reporter->second(descriptor);
 		}
@@ -42,36 +39,42 @@ namespace msdp
 		return nullptr;
 	}
 
-	Variable::shared_ptr ReporterFactory::reportable_variables()
+	const Variable::shared_ptr& ReporterFactory::reportable_variables()
 	{
+		const static ArrayValue::array_t REPORTABLE_VARIABLES_ARRAY = {
+				std::make_shared<StringValue>(constants::ROOM),
+				std::make_shared<StringValue>(constants::EXPERIENCE),
+				std::make_shared<StringValue>(constants::GOLD),
+				std::make_shared<StringValue>(constants::LEVEL),
+				std::make_shared<StringValue>(constants::MAX_HIT),
+				std::make_shared<StringValue>(constants::MAX_MOVE),
+				std::make_shared<StringValue>(constants::STATE),
+				std::make_shared<StringValue>(constants::GROUP)
+		};
+
+		const static Value::shared_ptr REPORTABLE_VARIABLES_VALUE = std::make_shared<ArrayValue>(REPORTABLE_VARIABLES_ARRAY);
+
+		const static Variable::shared_ptr REPORTABLE_VARIABLES = std::make_shared<Variable>("REPORTABLE_VARIABLES",
+				REPORTABLE_VARIABLES_VALUE);
+
 		return REPORTABLE_VARIABLES;
 	}
 
-	ReporterFactory::handlers_t ReporterFactory::s_handlers = {
-		{ constants::ROOM, std::bind(RoomReporter::create, std::placeholders::_1) },
-		{ constants::EXPERIENCE, std::bind(ExperienceReporter::create, std::placeholders::_1) },
-		{ constants::GOLD, std::bind(GoldReporter::create, std::placeholders::_1) },
-		{ constants::LEVEL, std::bind(LevelReporter::create, std::placeholders::_1) },
-		{ constants::MAX_HIT, std::bind(MaxHitReporter::create, std::placeholders::_1) },
-		{ constants::MAX_MOVE, std::bind(MaxMoveReporter::create, std::placeholders::_1) },
-		{ constants::STATE, std::bind(StateReporter::create, std::placeholders::_1) },
-		{ constants::GROUP, std::bind(GroupReporter::create, std::placeholders::_1) }
-	};
-
-	const ArrayValue::array_t ReporterFactory::REPORTABLE_VARIABLES_ARRAY =
+	const ReporterFactory::handlers_t& ReporterFactory::handlers()
 	{
-		std::make_shared<StringValue>(constants::ROOM),
-		std::make_shared<StringValue>(constants::EXPERIENCE),
-		std::make_shared<StringValue>(constants::GOLD),
-		std::make_shared<StringValue>(constants::LEVEL),
-		std::make_shared<StringValue>(constants::MAX_HIT),
-		std::make_shared<StringValue>(constants::MAX_MOVE),
-		std::make_shared<StringValue>(constants::STATE),
-		std::make_shared<StringValue>(constants::GROUP)
-	};
+		static const ReporterFactory::handlers_t s_handlers = {{
+				constants::ROOM, std::bind(RoomReporter::create, std::placeholders::_1)
+		},
+				{constants::EXPERIENCE, std::bind(ExperienceReporter::create, std::placeholders::_1)},
+				{constants::GOLD, std::bind(GoldReporter::create, std::placeholders::_1)},
+				{constants::LEVEL, std::bind(LevelReporter::create, std::placeholders::_1)},
+				{constants::MAX_HIT, std::bind(MaxHitReporter::create, std::placeholders::_1)},
+				{constants::MAX_MOVE, std::bind(MaxMoveReporter::create, std::placeholders::_1)},
+				{constants::STATE, std::bind(StateReporter::create, std::placeholders::_1)},
+				{constants::GROUP, std::bind(GroupReporter::create, std::placeholders::_1)}};
 
-	const Value::shared_ptr ReporterFactory::REPORTABLE_VARIABLES_VALUE = std::make_shared<ArrayValue>(ReporterFactory::REPORTABLE_VARIABLES_ARRAY);
-	const Variable::shared_ptr ReporterFactory::REPORTABLE_VARIABLES = std::make_shared<Variable>("REPORTABLE_VARIABLES", ReporterFactory::REPORTABLE_VARIABLES_VALUE);
+		return s_handlers;
+	}
 
 	class ConversationHandler
 	{

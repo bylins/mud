@@ -8,7 +8,7 @@ void mag_assign_spells(void);	// defined in "spell_parser.cpp"
 class BylinsEnvironment: public ::testing::Environment
 {
 public:
-	virtual void SetUp();
+	void SetUp() override;
 };
 
 void BylinsEnvironment::SetUp()

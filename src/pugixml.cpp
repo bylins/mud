@@ -10032,15 +10032,14 @@ PUGI__NS_BEGIN
 			}
 
 			case ast_variable:
-			{
 				assert(_rettype == _data.variable->type());
 
 				if (_rettype == xpath_type_boolean)
 					return _data.variable->get_boolean();
 
 				// fallthrough to type conversion
-			}
 
+				// fall through
 			default:
 			{
 				switch (_rettype)
@@ -10166,17 +10165,16 @@ PUGI__NS_BEGIN
 
 			case ast_func_round:
 				return round_nearest_nzero(_left->eval_number(c, stack));
-			
+
 			case ast_variable:
-			{
 				assert(_rettype == _data.variable->type());
 
 				if (_rettype == xpath_type_number)
 					return _data.variable->get_number();
 
 				// fallthrough to type conversion
-			}
 
+				// fall through
 			default:
 			{
 				switch (_rettype)
@@ -10452,17 +10450,14 @@ PUGI__NS_BEGIN
 			}
 
 			case ast_variable:
-			{
 				assert(_rettype == _data.variable->type());
 
 				if (_rettype == xpath_type_string)
 					return xpath_string::from_const(_data.variable->get_string());
-
 				// fallthrough to type conversion
-			}
 
+				// fall through
 			default:
-			{
 				switch (_rettype)
 				{
 				case xpath_type_boolean:
@@ -10485,7 +10480,6 @@ PUGI__NS_BEGIN
 					assert(!"Wrong expression for return type string");
 					return xpath_string();
 				}
-			}
 			}
 		}
 
@@ -10593,7 +10587,6 @@ PUGI__NS_BEGIN
 			}
 
 			case ast_variable:
-			{
 				assert(_rettype == _data.variable->type());
 
 				if (_rettype == xpath_type_node_set)
@@ -10607,10 +10600,9 @@ PUGI__NS_BEGIN
 
 					return ns;
 				}
-
 				// fallthrough to type conversion
-			}
 
+				// fall through
 			default:
 				assert(!"Wrong expression for return type node set");
 				return xpath_node_set_raw();

@@ -1270,7 +1270,7 @@ int shutting_down(void)
 #ifdef HAS_EPOLL
 inline void process_io(int epoll, socket_t mother_desc, struct epoll_event *events)
 #else
-inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_set null_set,
+inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_set,
                        socket_t mother_desc, int maxdesc)
 #endif
 {
@@ -3120,6 +3120,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				{
 				default:
 					t->keytable = 0;
+					// fall through
 				case 0:
 				case KT_UTF8:
 					*(write_point++) = *ptr;

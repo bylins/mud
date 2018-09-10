@@ -8,7 +8,7 @@ namespace msdp
 	class AbstractSender
 	{
 	public:
-		virtual ~AbstractSender() {}
+		virtual ~AbstractSender() = default;
 
 		virtual void send(const AbstractReporter::shared_ptr& reporter) = 0;
 
@@ -16,7 +16,8 @@ namespace msdp
 		struct buffer_t
 		{
 			buffer_t() : size(0) {}
-			buffer_t(const std::size_t size) : ptr(new char[size], std::default_delete<char[]>()), size(size) {}
+
+			explicit buffer_t(const std::size_t size) : ptr(new char[size], std::default_delete<char[]>()), size(size) {}
 
 			std::shared_ptr<char> ptr;
 			std::size_t size;
@@ -28,9 +29,9 @@ namespace msdp
 	class ReportSender : public AbstractSender
 	{
 	public:
-		ReportSender(DESCRIPTOR_DATA* descriptor);
+		explicit ReportSender(DESCRIPTOR_DATA* descriptor);
 
-		virtual void send(const AbstractReporter::shared_ptr& reporter) override;
+		void send(const AbstractReporter::shared_ptr& reporter) override;
 
 	private:
 		DESCRIPTOR_DATA* m_descriptor;
@@ -39,9 +40,9 @@ namespace msdp
 	class StreamSender : public AbstractSender
 	{
 	public:
-		StreamSender(std::ostream& stream);
+		explicit StreamSender(std::ostream& stream);
 
-		virtual void send(const AbstractReporter::shared_ptr& reporter) override;
+		void send(const AbstractReporter::shared_ptr& reporter) override;
 
 	private:
 		std::ostream& m_stream;

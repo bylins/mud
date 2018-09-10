@@ -512,6 +512,7 @@ bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 		pk_increment_revenge(agressor, victim);
 		// тут break не нужен, т.к. нужно начать пединок и БД
 
+		// fall through
 	case PK_ACTION_FIGHT:	// обе стороны продолжают участвовать в поединке
 		// обновить время поединка и БД
 		pk_update_revenge(agressor, victim, BATTLE_DURATION, REVENGE_UNRENTABLE);

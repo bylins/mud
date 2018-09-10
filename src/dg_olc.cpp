@@ -685,7 +685,7 @@ void dg_olc_script_copy(DESCRIPTOR_DATA * d)
 	case OBJ_TRIGGER:
 		OLC_SCRIPT(d) = OLC_OBJ(d)->get_proto_script();
 		break;
-	
+
 	default:
 		OLC_SCRIPT(d) = *OLC_ROOM(d)->proto_script;
 	}
@@ -708,7 +708,7 @@ void dg_script_menu(DESCRIPTOR_DATA * d)
 
 	send_to_char(FMT, d->character.get());
 #undef FMT
-	
+
 	for (const auto trigger_vnum : OLC_SCRIPT(d))
 	{
 		sprintf(buf, "     %2d) [%s%d%s] %s%s%s", ++i, cyn,
@@ -761,8 +761,9 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			{
 				OLC_SCRIPT(d).swap(*OLC_ROOM(d)->proto_script);
 			}
-
 			// тут break не нужен
+
+			// fall through
 		case 'q':
 			dg_olc_script_free(d);
 			return 0;

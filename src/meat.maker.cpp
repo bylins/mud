@@ -2,7 +2,7 @@
 
 #include "random.hpp"
 
-constexpr obj_vnum MeatMapping::ARTEFACT_KEY;
+const obj_vnum MeatMapping::ARTEFACT_KEY;
 
 const MeatMapping::raw_mapping_t MeatMapping::RAW_MAPPING = {
 	meat_mapping_t(320, 334),
