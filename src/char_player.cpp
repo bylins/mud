@@ -2182,8 +2182,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	{
 		std::shared_ptr<Account> temp_account(new Account(GET_EMAIL(this)));
 		accounts.push_back(temp_account);
-		this->account = temp_account;
+		this->account = temp_account;		
 	}
+	this->account->add_player(GET_UNIQUE(this));
 	return (id);
 }
 

@@ -21,7 +21,7 @@ extern bool CompareParam(const std::string & buffer, const char *arg, bool full)
 
 std::shared_ptr<Account> Account::get_account(std::string email)
 {
-	for (auto &x : accounts)
+	for (auto x : accounts)
 	{
 		if (x->get_email() == email)
 		{
@@ -141,6 +141,10 @@ std::string Account::get_email()
 
 void Account::add_player(int uid)
 {
+	// если уже есть, то не добавляем
+	for (auto &x : this->players_list)
+		if (x == uid)
+			return;
 	this->players_list.push_back(uid);
 }
 
