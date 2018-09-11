@@ -193,7 +193,7 @@ void Account::add_login(std::string ip_addr)
 /* Показ хистори логинов */
 void Account::show_history_logins(DESCRIPTOR_DATA* d)
 {
-	CHAR temp_buf[256] = "\0";
+	char temp_buf[256] = "\0";
 	for (auto &x : this->history_logins)
 	{
 		sprintf(temp_buf, "IP: %s, count: %d, time: %s\r\n", x.first.c_str(), x.second.count, rustime(localtime(&x.second.last_login)));
