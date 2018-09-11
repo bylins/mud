@@ -19,9 +19,9 @@ extern bool CompareParam(const std::string & buffer, const char *arg, bool full)
 #define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
 
-std::shared_ptr<Account> Account::get_account(std::string email)
+const std::shared_ptr<Account> Account::get_account(const std::string& email)
 {
-	for (auto x : accounts)
+	for (const auto &x : accounts)
 	{
 		if (x->get_email() == email)
 		{

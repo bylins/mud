@@ -1084,7 +1084,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
 	char line1[MAX_RAW_INPUT_LENGTH];
 	struct timed_type timed;
-
 	*filename = '\0';
 	log("Load ascii char %s", name);
 	if (!find_id)
@@ -2176,7 +2175,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
-
+	
 	this->account = Account::get_account(GET_EMAIL(this));
 	if (this->account == nullptr)
 	{
