@@ -56,7 +56,7 @@ void Account::show_list_players(DESCRIPTOR_DATA *d)
 	for (auto &x : this->players_list)
 	{
 		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);
-		SEND_TO_Q(GetNameByUnique(x, true).c_str(), d);
+		SEND_TO_Q(GetNameByUnique(x, false).c_str(), d);
 		SEND_TO_Q("\r\n", d);
 		count++;
 	}
