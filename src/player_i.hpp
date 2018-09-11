@@ -138,7 +138,7 @@ public:
 	virtual int death_player_count() {
 		return 1;
 	};
-	std::shared_ptr<Account> get_account() { return nullptr; };
+	virtual std::shared_ptr<Account> get_account() { return nullptr; };
 	
 protected:
 	PlayerI() {};

@@ -8,6 +8,7 @@
 #include "comm.h"
 #include "password.hpp"
 #include "utils.h"
+//#include "config.h"
 std::vector<std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
 extern bool CompareParam(const std::string & buffer, const char *arg, bool full);
@@ -48,17 +49,18 @@ void Account::complete_quest(int id)
 	this->dquests.push_back(dq_tmp);
 }
 
-/* ѕилим через дескриптор, так как возможно, что список придетс€ показывать там,
- * где чара еще не существует
- */
 void Account::show_list_players(DESCRIPTOR_DATA *d)
 {
-	SEND_TO_Q("ѕерсонажи:\r\n", d);
+	SEND_TO_Q("чЅџ… –≈“”ѕќЅ÷…:\r\n", d);
+	int count = 1;
 	for (auto &x : this->players_list)
 	{
+		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);
 		SEND_TO_Q(GetNameByUnique(x, true).c_str(), d);
 		SEND_TO_Q("\r\n", d);
+		count++;
 	}
+	SEND_TO_Q(MENU, d);
 }
 
 void Account::save_to_file()
@@ -137,13 +139,11 @@ std::string Account::get_email()
 }
 
 
-// функци€ добавл€ет уид чара в аккаунт
 void Account::add_player(int uid)
 {
 	this->players_list.push_back(uid);
 }
 
-// функци€ удал€ет уид чара из аккаунта
 void Account::remove_player(int uid)
 {
 	for (int i = 0; i < this->players_list.size(); i++)
@@ -171,6 +171,8 @@ Account::Account(std::string email)
 {
 	this->email = email;
 	this->read_from_file();
+	this->hash_password = "";
+	this->last_login = 0;
 }
 
 void Account::add_login(std::string ip_addr)
@@ -188,7 +190,7 @@ void Account::add_login(std::string ip_addr)
 }
 
 
-/* показывает хистори логинов дескриптору */
+/* рѕЋЅЏ »…”‘ѕ“… ћѕ«…ќѕ„ */
 void Account::show_history_logins(DESCRIPTOR_DATA* d)
 {
 	CHAR temp_buf[256] = "\0";

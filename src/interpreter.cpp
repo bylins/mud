@@ -2941,9 +2941,9 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 	{
 		d->character->set_pfilepos(create_entry(element));
 	}
+	d->character->save_char();
 	d->character->get_account()->set_last_login();
 	d->character->get_account()->add_player(GetUniqueByName(d->character->get_name()));
-	d->character->save_char();
 
 	// добавляем в список ждущих одобрения
 	if (!(int)NAME_FINE(d->character))
@@ -4017,6 +4017,9 @@ Sventovit
 				STATE(d) = CON_MENU;
 			}
 
+			break;
+		case '8':
+			d->character->get_account()->show_list_players(d);
 			break;
 
 		default:
