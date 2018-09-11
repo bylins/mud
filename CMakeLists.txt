@@ -9,6 +9,7 @@ set(SOURCES
 	src/influxdb.cpp
 	src/heartbeat.cpp
 	src/heartbeat.commands.cpp
+	src/accounts.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -165,6 +166,7 @@ set(SOURCES
 	src/stigmas.cpp)
 
 set(HEADERS
+	src/accounts.hpp
 	src/blocking.queue.hpp
 	src/influxdb.hpp
 	src/heartbeat.commands.hpp
