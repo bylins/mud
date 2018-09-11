@@ -2228,6 +2228,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 {
 	log("Enter logon list");
 	// Добавляем запись в LOG_LIST
+	d->character->get_account()->add_login(std::string(d->host));
 	if (LOGON_LIST(d->character) == 0)
 	{
 		LOGON_LIST(d->character) = new(struct logon_data);
@@ -2940,7 +2941,8 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 	{
 		d->character->set_pfilepos(create_entry(element));
 	}
-
+	d->character->get_account()->set_last_login();
+	d->character->get_account()->add_player(GetUniqueByName(d->character->get_name()));
 	d->character->save_char();
 
 	// добавляем в список ждущих одобрения
@@ -2961,6 +2963,7 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 	STATE(d) = CON_RMOTD;
 	d->character->set_who_mana(0);
 	d->character->set_who_last(time(0));
+
 }
 
 // deal with newcomers and other non-playing sockets
@@ -4077,6 +4080,7 @@ Sventovit
 			SEND_TO_Q(buf, d);
 			sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_LEVEL(d->character));
 			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+			d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
 			STATE(d) = CON_CLOSE;
 			return;
 		}

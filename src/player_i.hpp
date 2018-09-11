@@ -10,8 +10,9 @@
 #include "conf.h"
 #include "sysdep.h"
 
-#include <string>
 
+#include <string>
+extern class Account;
 namespace DpsSystem
 {
 	class Dps;
@@ -137,6 +138,7 @@ public:
 	virtual int death_player_count() {
 		return 1;
 	};
+	std::shared_ptr<Account> get_account();
 	
 protected:
 	PlayerI() {};

@@ -322,26 +322,6 @@ void Player::dquest(int id)
 			this->dec_hryvn(value);
 			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
 			this->account->complete_quest(id);
-			//this->add_daily_quest(id, 1);
-
-			/*int value = 0;
-			time_t now = time(0);
-			auto it = this->daily_quest_timed.find(id);
-			if (it != this->daily_quest_timed.end())
-			{
-				if (it->second != 0 && (now - it->second) < 86400)
-				{
-					
-				}
-			}
-			/*if (this->get_count_daily_quest(id) < 2)
-				value += x.reward;			
-			value += x.reward + number(1, 3);
-			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
-			send_to_char(this, buf2);
-			this->dec_hryvn(value);
-			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
-			this->add_daily_quest(id, 1);*/
 			return;
 		}
 	}
@@ -2395,6 +2375,12 @@ void Player::reset_daily_quest()
 	this->daily_quest_timed.clear();
 	log("Персонаж: %s. Были сброшены гривны.", GET_NAME(this));
 }
+
+std::shared_ptr<Account> Player::get_account()
+{
+	return this->account;
+}
+
 
 void Player::set_time_daily_quest(int id, time_t time)
 {

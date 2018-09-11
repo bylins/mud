@@ -160,35 +160,6 @@ struct City
 		int rent_vnum; // внум ренты города
 };
 
-
-/* TODO: перенести в отдельный файл accounts.hpp */
-
-struct DQuest
-{
-	int id;
-	int count;
-	time_t time;
-};
-
-
-class Account
-{
-private:
-	std::string email;
-	std::vector<std::string> characters;
-	std::vector<DQuest> dquests;
-	std::string karma;
-public:
-	Account(std::string name);
-	void save_to_file();
-	void read_from_file();
-	std::string get_email();
-	bool quest_is_available(int id);
-	void complete_quest(int id);
-	static std::shared_ptr<Account> get_account(std::string email);
-};
-
-
 class RandomObj
 {
 	public:
