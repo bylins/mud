@@ -48,6 +48,7 @@
 int level_exp(CHAR_DATA * ch, int level);
 extern std::vector<City> cities;
 extern std::string default_str_cities;
+extern std::vector<std::shared_ptr<Account>> accounts;
 namespace
 {
 
@@ -479,7 +480,17 @@ void Player::save_char()
 
 	if (IS_NPC(this) || this->get_pfilepos() < 0)
 		return;
-
+	if (this->account == nullptr)
+	{
+		this->account = Account::get_account(GET_EMAIL(this));
+		if (this->account == nullptr)
+		{
+			std::shared_ptr<Account> temp_account(new Account(GET_EMAIL(this)));
+			accounts.push_back(temp_account);
+			this->account = temp_account;
+		}
+	}
+	this->account->save_to_file();
 	log("Save char %s", GET_NAME(this));
 	save_char_vars(this);
 
@@ -1073,7 +1084,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
 	char line1[MAX_RAW_INPUT_LENGTH];
 	struct timed_type timed;
-
 	*filename = '\0';
 	log("Load ascii char %s", name);
 	if (!find_id)
@@ -2165,7 +2175,15 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
-
+	
+	this->account = Account::get_account(GET_EMAIL(this));
+	if (this->account == nullptr)
+	{
+		std::shared_ptr<Account> temp_account(new Account(GET_EMAIL(this)));
+		accounts.push_back(temp_account);
+		this->account = temp_account;		
+	}
+	this->account->add_player(GET_UNIQUE(this));
 	return (id);
 }
 
@@ -2357,6 +2375,12 @@ void Player::reset_daily_quest()
 	this->daily_quest_timed.clear();
 	log("Персонаж: %s. Были сброшены гривны.", GET_NAME(this));
 }
+
+std::shared_ptr<Account> Player::get_account()
+{
+	return this->account;
+}
+
 
 void Player::set_time_daily_quest(int id, time_t time)
 {

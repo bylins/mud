@@ -122,7 +122,7 @@ struct DailyQuest
 	int id;
 	// desk
 	std::string desk;
-	// íàãğàäà
+	// ÎÁÇÒÁÄÁ
 	int reward;
 };
 

@@ -19,6 +19,7 @@
 #include "boards.types.hpp"
 #include "quest.hpp"
 #include "stigmas.hpp"
+#include "accounts.hpp"
 
 #include <string>
 #include <array>
@@ -159,6 +160,9 @@ public:
 	void sub_hryvn(int value);
 	void dec_hryvn(int value);
 	void dquest(int id);
+
+	std::shared_ptr<Account> get_account();
+
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -225,6 +229,8 @@ private:
 	int spent_hryvn;
 	// айдишник + когда последний раз выполняли данный квест
 	std::map<int, time_t> daily_quest_timed;
+	// Аккаунт
+	std::shared_ptr<Account> account;
 };
 
 

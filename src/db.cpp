@@ -85,6 +85,7 @@
 #define QUESTBODRICH_FILE "quest_bodrich.xml"
 #define DQ_FILE "daily_quest.xml"
 
+
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
 **************************************************************************/
@@ -331,9 +332,6 @@ bool check_obj_in_system_zone(int vnum)
 	return true;
     return false;
 }
-
-
-
 
 bool check_unlimited_timer(const CObjectPrototype* obj)
 {

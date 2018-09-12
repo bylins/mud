@@ -63,6 +63,7 @@ enum SetStuffMode
 #define LIB_TEXT      "text/"
 #define LIB_TEXT_HELP "text/help/"
 #define LIB_MISC      "misc/"
+#define LIB_ACCOUNTS  "plrs/accounts/"
 #define LIB_MISC_MOBRACES	"misc/mobraces/"
 #define LIB_MISC_CRAFT		"misc/craft/"
 #define LIB_STAT      "stat/"

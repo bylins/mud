@@ -2228,6 +2228,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 {
 	log("Enter logon list");
 	// Добавляем запись в LOG_LIST
+	d->character->get_account()->add_login(std::string(d->host));
 	if (LOGON_LIST(d->character) == 0)
 	{
 		LOGON_LIST(d->character) = new(struct logon_data);
@@ -2813,7 +2814,7 @@ void init_char(CHAR_DATA* ch, player_index_element& element)
 	int i;
 
 #ifdef TEST_BUILD
-	if (1 == player_table.size())
+	if (0 == player_table.size())
 	{
 		// При собирании через make test первый чар в маде становится иммом 34
 		ch->set_level(LVL_IMPL);
@@ -2928,7 +2929,7 @@ void print_free_names(std::ostream& os, const PlayersIndex& index)
 	index.get_free_names(SUGGESTIONS_COUNT, names);
 	os << JoinRange<PlayersIndex::free_names_list_t>(names);
 }
-
+extern std::vector<std::shared_ptr<Account>> accounts;
 void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 {
 	player_index_element element(-1, GET_PC_NAME(d->character));
@@ -2940,8 +2941,9 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 	{
 		d->character->set_pfilepos(create_entry(element));
 	}
-
 	d->character->save_char();
+	d->character->get_account()->set_last_login();
+	d->character->get_account()->add_player(GetUniqueByName(d->character->get_name()));
 
 	// добавляем в список ждущих одобрения
 	if (!(int)NAME_FINE(d->character))
@@ -2961,6 +2963,7 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 	STATE(d) = CON_RMOTD;
 	d->character->set_who_mana(0);
 	d->character->set_who_last(time(0));
+
 }
 
 // deal with newcomers and other non-playing sockets
@@ -3814,9 +3817,12 @@ Sventovit
 			SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 			return;
 		}
-		#ifdef TEST_BUILD		
+		#ifdef TEST_BUILD			
+		strncpy(GET_EMAIL(d->character), arg, 127);
+		*(GET_EMAIL(d->character) + 127) = '\0';
+		lower_convert(GET_EMAIL(d->character));
 		DoAfterEmailConfirm(d);
-			break;
+		break;
 		#endif
 		{
 			int random_number = number(1000000, 9999999);
@@ -4012,6 +4018,9 @@ Sventovit
 			}
 
 			break;
+		case '8':
+			d->character->get_account()->show_list_players(d);
+			break;
 
 		default:
 			SEND_TO_Q("\r\nЭто не есть правильный ответ!\r\n", d);
@@ -4074,6 +4083,7 @@ Sventovit
 			SEND_TO_Q(buf, d);
 			sprintf(buf, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GET_LEVEL(d->character));
 			mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
+			d->character->get_account()->remove_player(GetUniqueByName(GET_NAME(d->character)));
 			STATE(d) = CON_CLOSE;
 			return;
 		}
