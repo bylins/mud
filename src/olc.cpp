@@ -510,6 +510,8 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			case CLEANUP_ALL:
 				room_free(OLC_ROOM(d));	// удаляет все содержимое
 				// break; - не нужен
+
+				// fall through
 			case CLEANUP_STRUCTS:
 				delete OLC_ROOM(d);	// удаляет только оболочку
 				break;

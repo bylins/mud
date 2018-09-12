@@ -222,7 +222,6 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 		switch (number(1, 5))
 		{
 		case 1:
-		{
 			// аналог баша с лагом
 			if (GET_POS(vict) >= POS_FIGHTING)
 			{
@@ -247,7 +246,8 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 				break;
 			}
 			// если цель нельзя сбить - идем дальше по списку
-		}
+
+			// fall through
 		case 2:
 		{
 			// минус статы (1..5)

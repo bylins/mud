@@ -4218,7 +4218,7 @@ int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DAT
 	return 1;
 }
 
-int process_foreach_done(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
+int process_foreach_done(const char* cond, void *, SCRIPT_DATA *, TRIG_DATA * trig, int)
 {
 	char name[MAX_INPUT_LENGTH];
 	char value[MAX_INPUT_LENGTH];

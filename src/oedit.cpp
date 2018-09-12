@@ -2383,6 +2383,8 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 				}
 			}
 			// * No break - drop into default case.
+
+			// fall through
 		default:
 			oedit_disp_extradesc_menu(d);
 			return;

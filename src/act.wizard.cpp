@@ -231,7 +231,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
 
 
 // добавляет что-нибудь чару (пока что только стигмы)
-void do_add_wizard(CHAR_DATA *ch, char *argument, int, int)
+void do_add_wizard(CHAR_DATA *, char *, int, int)
 {
 	/*CHAR_DATA *vict = NULL;
 
@@ -2609,7 +2609,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		send_to_char(buf, ch);
 
 		k->add_today_torc(0);
-		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %ld",
+		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %d",
 			GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
 			k->get_ext_money(ExtMoney::TORC_GOLD),
 			k->get_ext_money(ExtMoney::TORC_SILVER),

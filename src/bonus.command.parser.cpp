@@ -12,7 +12,7 @@ namespace Bonus
 	class StringStreamFinalizer
 	{
 	public:
-		StringStreamFinalizer(std::string& destination) : m_destination(destination) {}
+		explicit StringStreamFinalizer(std::string& destination) : m_destination(destination) {}
 		~StringStreamFinalizer() { m_destination = m_stream.str(); }
 
 		template <typename Operand>

@@ -3817,12 +3817,13 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 
 	int glory = Glory::get_glory(GET_UNIQUE(ch));
-	if (glory)
+/*	if (glory)
 		sprintf(buf + strlen(buf),
 				" %s|| %sВы заслужили %5d %-61s%s||\r\n",
 				CCCYN(ch, C_NRM), CCWHT(ch, C_NRM), glory,
 				(string(desc_count(glory, WHAT_POINT)) + string(" славы для временного улучшения характеристик.")).substr(0, 61).c_str(),
 				CCCYN(ch, C_NRM));
+*/
 	glory = GloryConst::get_glory(GET_UNIQUE(ch));
 	if (glory)
 		sprintf(buf + strlen(buf),
@@ -4123,7 +4124,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 		sprintf(buf + strlen(buf), "\r\n");
 
-	sprintf(buf + strlen(buf), "У вас на руках %ld %s и %ld %s",
+	sprintf(buf + strlen(buf), "У вас на руках %ld %s и %d %s",
 		ch->get_gold(), desc_count(ch->get_gold(), WHAT_MONEYa), ch->get_hryvn(), desc_count(ch->get_hryvn(), WHAT_TORCu));
 	if (ch->get_bank() > 0)
 		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",

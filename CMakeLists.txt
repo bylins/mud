@@ -496,7 +496,7 @@ set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
-if (UNIX)
+if (UNIX OR CYGWIN)
 	add_definitions("--std=gnu++14")
 else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
@@ -518,18 +518,24 @@ elseif (UNIX)
 	endif()
 endif ()
 
+if (BOOST_NO_SYSTEM_PATHS)
 set(Boost_NO_SYSTEM_PATHS ON)
+endif ()
+
 if (NOT CYGWIN)
 	add_definitions("-DBOOST_PYTHON_STATIC_LIB")
 	set(Boost_USE_STATIC_LIBS ON)
 else ()
 endif ()
+
 if (DEFINED ENV{DEBUG_BOOST_FIND})
 	set(Boost_DEBUG ON)
 endif ()
 
 # In case of you have more than one Visual Studio and want to use specific version, uncomment the following three lines and specify compiler you want
 if (CMAKE_HOST_WIN32)
+	option(BOOST_REQUIRED_COMPILER "Compiler which must be used to compile Boost libraries (for example: -vc140)" "")
+
 	set(Boost_COMPILER "-vc140")
 	target_compile_options(circle.library PUBLIC /MP /MDd)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:Debug>:/Zi /Od>)
@@ -537,7 +543,14 @@ if (CMAKE_HOST_WIN32)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:Test>:/Zi /Od>)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:FastTest>:/O2>)
 endif ()
-find_package(Boost 1.54 REQUIRED COMPONENTS ${BOOST_MODULES})
+
+option(BOOST_REQUIRED_VERSION "Optional version for Boost (for example, 1.54)" OFF)
+set(BOOST_REQUIRED_VERSION_VALUE "")
+if (BOOST_REQUIRED_VERSION)
+	set(BOOST_REQUIRED_VERSION_VALUE "${BOOST_REQUIRED_VERSION}")
+endif ()
+
+find_package(Boost ${BOOST_REQUIRED_VERSION_VALUE} REQUIRED COMPONENTS ${BOOST_MODULES})
 
 # ZLib
 if (CMAKE_HOST_WIN32)
@@ -587,12 +600,25 @@ target_link_libraries(circle.library
 # Prepare options for test build
 set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 
+set(ASAN_FLAGS)
+if (UNIX AND NOT CYGWIN)
+	set(DEFAULT_WITH_ASAN YES)
+elseif ()
+	set(DEFAULT_WITH_ASAN NO)
+endif ()
+option(WITH_ASAN "Compile with ASAN" ${DEFAULT_WITH_ASAN})
 
+if (WITH_ASAN)
+	message(STATUS "Turning compiling with ASAN in debug mode ON")
+	set(ASAN_FLAGS "-fsanitize=address -static-libasan")
+else ()
+	message(STATUS "Turning compiling with ASAN in debug mode OFF")
+endif ()
 
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
-		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC -fsanitize=address -static-libasan")
+		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS}")
 		set(CMAKE_CXX_FLAGS_TEST     "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 
@@ -631,8 +657,6 @@ if (HAS_EPOLL)
 else ()
 	message(STATUS "Turning OFF epoll")
 endif ()
-
-
 
 message(STATUS "CXX compiler ID is ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "System processor is ${CMAKE_SYSTEM_PROCESSOR}")

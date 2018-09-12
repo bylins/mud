@@ -11,7 +11,7 @@ public:
 	using meat_mapping_t = std::pair<obj_vnum, obj_vnum>;
 	using raw_mapping_t = std::vector<meat_mapping_t>;
 
-	constexpr static obj_vnum ARTEFACT_KEY = 324;
+	const static obj_vnum ARTEFACT_KEY = 324;
 	const static raw_mapping_t RAW_MAPPING;
 	
 	MeatMapping();
