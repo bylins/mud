@@ -313,8 +313,8 @@ void Player::dquest(int id)
 			{
 				send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
 				return;
-			} 
-			
+			}
+
 			const int value = x.reward + number(1, 3);
 
 			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
