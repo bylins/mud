@@ -3,14 +3,16 @@
 * 2018 (c) bodrich
 */
 
+#ifndef __ACCOUNTS_HPP__
+#define __ACCOUNTS_HPP__
+
+#include "structs.h"
+
 #include <string>
-#include <array>
 #include <vector>
-#include <bitset>
 #include <ctime>
 #include <memory>  
 #include <unordered_map>
-#include "structs.h"
 
 struct DQuest
 {
@@ -61,3 +63,6 @@ public:
 	void add_login(std::string ip_addr);
 };
 
+#endif	//__ACCOUNTS_HPP__
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
