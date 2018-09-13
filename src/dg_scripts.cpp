@@ -5636,12 +5636,13 @@ int timed_script_driver(void *go, TRIG_DATA* trig, int type, int mode);
 int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 {
 	struct timeval start, stop, result;
-	std::string start_string_trig = "First Line";
+/*	std::string start_string_trig = "First Line";
 	std::string finish_string_trig = "<Last line is undefined because it is dangerous to obtain it>";
 	if (trig->curr_state)
 	{
 		start_string_trig = trig->curr_state->cmd;
 	}
+*/
 	CharacterLinkDrop = false;
 	const auto vnum = GET_TRIG_VNUM(trig);
 	gettimeofday(&start, NULL);
@@ -5664,10 +5665,13 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		*/
 		snprintf(buf, MAX_STRING_LENGTH, "[TrigVNum: %d] : ", vnum);
 		const auto current_buffer_length = strlen(buf);
-		snprintf(buf + current_buffer_length, MAX_STRING_LENGTH - current_buffer_length,
-			"work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s\r\n",
+/*		snprintf(buf + current_buffer_length, MAX_STRING_LENGTH - current_buffer_length,
+			"work time overflow %ld sec. %ld us.\r\n StartString: %s\r\nFinishLine: %s",
 			result.tv_sec, result.tv_usec, start_string_trig.c_str(), finish_string_trig.c_str());
-
+*/
+		snprintf(buf + current_buffer_length, MAX_STRING_LENGTH - current_buffer_length,
+			"work time overflow %ld sec. %ld us.",
+			result.tv_sec, result.tv_usec);
 		mudlog(buf, BRF, -1, ERRLOG, TRUE);
 	};
 	// Stop time
