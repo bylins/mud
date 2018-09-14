@@ -2234,7 +2234,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 			//af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af.location = EApplyLocation::APPLY_PR; // физдамагрезисты
 			af.modifier = 50;
-			af.duration = 2; //два раунда, потому что подножка идет в конце раунда
+			af.duration = pc_duration(ch, 3, 0, 0, 0, 0); 
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 			af.location = EApplyLocation::APPLY_AR; // магорезисты
@@ -3515,14 +3515,14 @@ void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
     AffectImmunPhysic.type = SPELL_EXPEDIENT;
     AffectImmunPhysic.location = EApplyLocation::APPLY_PR;
     AffectImmunPhysic.modifier = 100;
-    AffectImmunPhysic.duration = 2;
+    AffectImmunPhysic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
     AffectImmunPhysic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
     affect_join(ch, AffectImmunPhysic, FALSE, FALSE, FALSE, FALSE);
     AFFECT_DATA<EApplyLocation> AffectImmunMagic;
     AffectImmunMagic.type = SPELL_EXPEDIENT;
     AffectImmunMagic.location = EApplyLocation::APPLY_MR;
     AffectImmunMagic.modifier = 100;
-    AffectImmunMagic.duration = 2;
+    AffectImmunMagic.duration = pc_duration(ch, 3, 0, 0, 0, 0);
     AffectImmunMagic.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
     affect_join(ch, AffectImmunMagic, FALSE, FALSE, FALSE, FALSE);
 
