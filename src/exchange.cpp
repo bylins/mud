@@ -297,7 +297,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		}
 	}
 
-	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR)
+	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REMORT(ch) * 2))
 	{
 		send_to_char("Вы уже выставили на базар максимальное количество предметов!\r\n", ch);
 		return false;
