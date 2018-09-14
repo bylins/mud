@@ -835,7 +835,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		}
 
 		// Is memory found ?
-		if (victim)
+		if (victim && !CHECK_WAIT(ch))
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 			{
