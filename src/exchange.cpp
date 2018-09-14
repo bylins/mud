@@ -279,7 +279,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		return false;
 	}
 	for (j = exchange_item_list, counter = 0, counter_ming = 0;
-			j && (counter + (counter_ming / 20)  <= EXCHANGE_MAX_EXHIBIT_PER_CHAR);
+			j && (counter + (counter_ming / 20)  <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REMORT(ch) * 2));
 			j = next_thing)
 	{
 		next_thing = j->next;
