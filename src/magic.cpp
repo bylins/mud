@@ -2722,7 +2722,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_STR;
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 2, level, 4, 6, 0)) * koef_duration;
-		af[0].modifier = -1;
+		af[0].modifier = -1 - GET_REMORT(ch) / 2;
 		af[0].battleflag = AF_BATTLEDEC;
 		accum_duration = TRUE;
 		to_room = "Боевой пыл $n1 несколько остыл.";
@@ -2773,10 +2773,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_GENERAL_RECOVERY:
 	case SPELL_FAST_REGENERATION:
 		af[0].location = APPLY_HITREG;
-		af[0].modifier = 50;
+		af[0].modifier = 50 + GET_REMORT(ch);
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[1].location = APPLY_MOVEREG;
-		af[1].modifier = 50;
+		af[1].modifier = 50 + GET_REMORT(ch);
 		af[1].duration = af[0].duration;
 		accum_duration = TRUE;
 		to_room = "$n расцвел$g на ваших глазах.";
@@ -2946,11 +2946,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_GROUP_BLESS:
 	case SPELL_BLESS:
 		af[0].location = APPLY_SAVING_STABILITY;
-		af[0].modifier = -5;
+		af[0].modifier = -5 - GET_REMORT(ch); // дополнительный +1 к сейву за реморт
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_BLESS);
 		af[1].location = APPLY_SAVING_WILL;
-		af[1].modifier = -5;
+		af[1].modifier = -5 - GET_REMORT(ch);
 		af[1].duration = af[0].duration;
 		af[1].bitvector = to_underlying(EAffectFlag::AFF_BLESS);
 		to_room = "$n осветил$u на миг неземным светом.";
@@ -2993,6 +2993,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_AWARNESS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_AWARNESS);
+		af[1].location = APPLY_SAVING_REFLEX;
+		af[1].modifier = -1 - GET_REMORT(ch);
+		af[1].duration = af[0].duration;
+		af[1].bitvector = to_underlying(EAffectFlag::AFF_AWARNESS);
 		to_room = "$n начал$g внимательно осматриваться по сторонам.";
 		to_vict = "Вы стали более внимательны к окружающему.";
 		break;
@@ -3028,6 +3032,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_HASTE);
+		af[0].location = APPLY_SAVING_REFLEX;
+		af[1].modifier = -1 - GET_REMORT(ch);
 		to_vict = "Вы начали двигаться быстрее.";
 		to_room = "$n начал$g двигаться заметно быстрее.";
 		spellnum = SPELL_HASTE;
@@ -3036,7 +3042,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SHADOW_CLOAK:
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_SHADOW_CLOAK);
 		af[0].location = APPLY_SAVING_STABILITY;
-		af[0].modifier = - GET_LEVEL(ch) / 3;
+		af[0].modifier = - (GET_LEVEL(ch) + GET_REMORT(ch)) / 3 ;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		accum_duration = TRUE;
 		to_room = "$n скрыл$u в густой тени.";
@@ -3096,6 +3102,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_STONEHAND:
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_STONEHAND);
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		af[1].location = APPLY_SAVING_STABILITY;
+		af[1].modifier = -1 - GET_REMORT(ch) / 5;
 		accum_duration = TRUE;
 		to_room = "Руки $n1 задубели.";
 		to_vict = "Ваши руки задубели.";
@@ -3222,7 +3230,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 
 		af[0].location = APPLY_HITROLL;
-		af[0].modifier = -2;
+		af[0].modifier = -2 - GET_REMORT(ch);
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 3, level, 6, 0, 0)) * koef_duration;
 		af[0].battleflag = AF_BATTLEDEC;
@@ -3258,14 +3266,14 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[1].location = APPLY_HITROLL;
 		af[1].duration = af[0].duration;
-		af[1].modifier = -(level/6 + decline_mod);
+		af[1].modifier = -(level/6 + decline_mod + GET_REMORT(ch) / 3);
 		af[1].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
 
 		if (level >= 20)
 		{
 			af[2].location = APPLY_CAST_SUCCESS;
 			af[2].duration = af[0].duration;
-			af[2].modifier = -1 * (level / 3 + GET_REMORT(ch));
+			af[2].modifier = - (level / 3 + GET_REMORT(ch));
 			if (IS_NPC(ch) && level >= (LVL_IMMORT))
 				af[2].modifier += (LVL_IMMORT - level - 1);	//1 cast per mob level above 30
 			af[2].bitvector = to_underlying(EAffectFlag::AFF_CURSE);
@@ -3396,6 +3404,18 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[3].location = APPLY_PLAQUE;
 		af[3].duration = af[0].duration;
 		af[3].modifier = level;
+		af[4].location = APPLY_WIS;
+		af[4].duration = af[0].duration;
+		af[4].modifier = -GET_REMORT(ch)/2;
+		af[5].location = APPLY_INT;
+		af[5].duration = af[0].duration;
+		af[5].modifier = -GET_REMORT(ch) / 2;
+		af[6].location = APPLY_DEX;
+		af[6].duration = af[0].duration;
+		af[6].modifier = -GET_REMORT(ch) / 2;
+		af[7].location = APPLY_STR;
+		af[7].duration = af[0].duration;
+		af[7].modifier = -GET_REMORT(ch) / 2;
 		to_vict = "Вас скрутило в жестокой лихорадке.";
 		to_room = "$n3 скрутило в жестокой лихорадке.";
 		break;
@@ -3421,7 +3441,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		af[1].location = APPLY_POISON;
 		af[1].duration = af[0].duration;
-		af[1].modifier = level;
+		af[1].modifier = level + GET_REMORT(ch) / 2;
 		af[1].bitvector = to_underlying(EAffectFlag::AFF_POISON);
 		af[1].battleflag = AF_SAME_TIME;
 
@@ -3529,9 +3549,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_STR;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		if (ch == victim)
-			af[0].modifier = (level + 9) / 10 + koef_modifier ;
+			af[0].modifier = (level + 9) / 10 + koef_modifier + GET_REMORT(ch) / 2;
 		else
-			af[0].modifier = (level + 14) / 15 + koef_modifier;
+			af[0].modifier = (level + 14) / 15 + koef_modifier + GET_REMORT(ch) / 4;
 		accum_duration = TRUE;
 		accum_affect = TRUE;
 		to_vict = "Вы почувствовали себя сильнее.";
@@ -3966,7 +3986,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		af[0].location = APPLY_ARMOUR;
 		af[0].duration = pc_duration(victim, 100, level, 1, 0, 0) * koef_duration;
-		af[0].modifier = level + 10;
+		af[0].modifier = level + 10 + GET_REMORT(ch) / 2;
+		af[1].location = APPLY_SAVING_STABILITY;
+		af[1].duration = af[0].duration;
+		af[1].modifier = level + 10 + GET_REMORT(ch) / 2;
 		accum_duration = TRUE;
 		to_vict = " ";
 		to_room = "Кости $n1 обрели твердость кремня.";
