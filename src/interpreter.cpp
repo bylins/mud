@@ -73,6 +73,7 @@
 #include "bonus.h"
 #include "debug.utils.hpp"
 #include "global.objects.hpp"
+#include "accounts.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -2929,7 +2930,7 @@ void print_free_names(std::ostream& os, const PlayersIndex& index)
 	index.get_free_names(SUGGESTIONS_COUNT, names);
 	os << JoinRange<PlayersIndex::free_names_list_t>(names);
 }
-extern std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
+
 void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 {
 	player_index_element element(-1, GET_PC_NAME(d->character));

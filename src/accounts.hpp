@@ -63,6 +63,8 @@ public:
 	void add_login(const std::string& ip_addr);
 };
 
+extern std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
+
 #endif	//__ACCOUNTS_HPP__
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

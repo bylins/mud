@@ -30,6 +30,7 @@
 #include "ext_money.hpp"
 #include "temp_spells.hpp"
 #include "conf.h"
+#include "accounts.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -48,7 +49,6 @@
 int level_exp(CHAR_DATA * ch, int level);
 extern std::vector<City> cities;
 extern std::string default_str_cities;
-extern std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 namespace
 {
 
