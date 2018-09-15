@@ -572,12 +572,12 @@ void do_shops_list(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 {
 	DictionaryPtr dic = DictionaryPtr(new Dictionary(SHOP));
 	size_t n = dic->Size();
-	std::string out;
+	std::ostringstream out;
 	for (size_t i = 0; i < n; i++)
 	{
-		out = out + boost::lexical_cast<std::string>(i + 1) + " " + dic->GetNameByNID(i) + " " + dic->GetTIDByNID(i) + "\r\n";
+		out << std::to_string(i + 1) << " " << dic->GetNameByNID(i) << " " << dic->GetTIDByNID(i) + "\r\n";
 	}
-	send_to_char(out, ch);
+	send_to_char(out.str().c_str(), ch);
 }
 
 void fill_shop_dictionary(DictionaryType &dic)
