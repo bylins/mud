@@ -31,7 +31,7 @@
 #include <algorithm>
 
 // extern
-void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
+void perform_drop_gold(CHAR_DATA * ch, int amount);
 int level_exp(CHAR_DATA * ch, int chlevel);
 int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
@@ -697,7 +697,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		}
 		if (MOB_FLAGGED(ch, MOB_CORPSE))
 		{
-			perform_drop_gold(ch, local_gold, SCMD_DROP, 0);
+			perform_drop_gold(ch, local_gold);
 			ch->set_gold(0);
 		}
 		dl_load_obj(corpse, ch, NULL, DL_ORDINARY);

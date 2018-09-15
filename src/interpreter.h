@@ -247,8 +247,7 @@ struct alias_data
 
 // do_drop
 #define SCMD_DROP 0
-#define SCMD_JUNK 1
-#define SCMD_DONATE  2
+#define SCMD_DONATE 1
 
 // do_pray
 #define SCMD_PRAY   0

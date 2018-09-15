@@ -103,7 +103,7 @@ void update_char_objects(CHAR_DATA * ch);
 bool is_wear_light(CHAR_DATA *ch);
 
 // external functions //
-void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
+void perform_drop_gold(CHAR_DATA * ch, int amount);
 int slot_for_char(CHAR_DATA * ch, int i);
 int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);

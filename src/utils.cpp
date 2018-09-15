@@ -71,7 +71,7 @@ int valid_email(const char *address);
 
 // external functions
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
-void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
+void perform_drop_gold(CHAR_DATA * ch, int amount);
 
 char AltToKoi[] =
 {
@@ -797,7 +797,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			{
 				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
-				perform_drop_gold(ch, ch->get_gold(), SCMD_DROP, 0);
+				perform_drop_gold(ch, ch->get_gold());
 				ch->set_gold(0);
 				extract_char(ch, FALSE);
 				return (TRUE);
