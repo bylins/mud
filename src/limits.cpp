@@ -2161,8 +2161,6 @@ void repop_decay(zone_rnum zone)
 					snprintf(buf, MAX_STRING_LENGTH, "$o рассыпал%U в %s...", j->get_in_obj()->get_PName(5).c_str());
 					act(buf, FALSE, owner, j.get(), 0, TO_CHAR);
 				}
-
-				obj_from_obj(j.get());
 			}
 
 			extract_obj(j.get());
