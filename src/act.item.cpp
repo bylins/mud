@@ -3246,7 +3246,7 @@ const int RemoveSpell[MAX_REMOVE] = { SPELL_SLEEP, SPELL_POISON, SPELL_WEAKNESS,
 
 void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int percent, prob, success = FALSE, need = FALSE, spellnum = 0;
+	int success = FALSE, need = FALSE, spellnum = 0;
 	struct timed_type timed;
 
 	if (!ch->get_skill(SKILL_AID))
@@ -3283,8 +3283,8 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	percent = number(1, skill_info[SKILL_AID].max_percent);
-	prob = calculate_skill(ch, SKILL_AID, vict);
+	int percent = number(1, skill_info[SKILL_AID].max_percent);
+	int prob = calculate_skill(ch, SKILL_AID, vict);
 
 	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) || GET_GOD_FLAG(vict, GF_GODSLIKE))
 	{
@@ -3331,7 +3331,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		count = (GET_SKILL(ch, SKILL_AID) - 20) / 30;
 		send_to_char(ch, "Снимаю %d аффектов\r\n", count);
 
-		auto remove_count = vict->remove_random_affects(count);
+		const auto remove_count = vict->remove_random_affects(count);
 		send_to_char(ch, "Снято %d аффектов\r\n", remove_count);
 
 		//
