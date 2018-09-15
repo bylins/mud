@@ -4,7 +4,6 @@
 #include "id.hpp"
 #include "obj.hpp"
 
-#include <map>
 #include <list>
 #include <functional>
 

@@ -3388,7 +3388,7 @@ const char *ac_text[] =
 
 void print_do_score_all(CHAR_DATA *ch)
 {
-	int ac, max_dam = 0, hr = 0, resist, modi = 0, timer_room_label;
+	int ac, max_dam = 0, hr = 0, modi = 0;
 	ESkill skill = SKILL_BOTHHANDS;
 
 	std::string sum = string("Вы ") + string(ch->get_name()) + string(", ")
@@ -3418,7 +3418,7 @@ void print_do_score_all(CHAR_DATA *ch)
 		int mod = (1 - ch->get_cond_penalty(P_AC))*40;
 		ac = ac + mod>5 ? 5 : ac + mod;
 	}
-	resist = MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75);
+	int resist = MIN(GET_RESIST(ch, FIRE_RESISTANCE), 75);
 	sprintf(buf + strlen(buf),
 			" || %sРод: %-13s %s|"
 			" %sВес:         %3d(%3d) %s|"
@@ -3800,7 +3800,7 @@ void print_do_score_all(CHAR_DATA *ch)
     ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room)
 	{
-		timer_room_label = RoomSpells::timer_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+		int timer_room_label = RoomSpells::timer_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 		sprintf(buf + strlen(buf),
 				" %s|| &G&qВы поставили рунную метку в комнате %s%s||\r\n",
 				CCCYN(ch, C_NRM),
@@ -5658,25 +5658,30 @@ void perform_mortal_where(CHAR_DATA * ch, char *arg)
 	}
 }
 
-void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int recur)
+void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch)
 {
 	if (num > 0)
 	{
-		sprintf(buf, "O%3d. %-25s - ", num, obj->get_short_description().c_str());
+		sprintf(buf, "%2d. ", num);
+		if(IS_GRGOD(ch))
+		{
+			sprintf(buf2, "[%6d] %-25s - ", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
+			strcat(buf, buf2);
+		}
+		else
+		{
+			sprintf(buf2, "%-34s - ", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
+			strcat(buf, buf2);
+		}
 	}
 	else
 	{
-		sprintf(buf, "%34s", " - ");
+		sprintf(buf, "%41s", " - ");
 	}
 
 	if (obj->get_in_room() > NOWHERE)
 	{
 		sprintf(buf + strlen(buf), "[%5d] %s", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
-		if (IS_GRGOD(ch))
-		{
-			sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
-			strcat(buf, buf2);
-		}
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
@@ -5686,11 +5691,6 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 			PERS(obj->get_carried_by(), ch, 4),
 			GET_MOB_VNUM(obj->get_carried_by()),
 			world[obj->get_carried_by()->in_room]->number);
-			if (IS_GRGOD(ch))
-			{
-				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
-				strcat(buf, buf2);
-			}
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
@@ -5700,11 +5700,6 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 			PERS(obj->get_worn_by(), ch, 3),
 			GET_MOB_VNUM(obj->get_worn_by()),
 			world[obj->get_worn_by()->in_room]->number);
-			if (IS_GRGOD(ch))
-			{
-				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
-				strcat(buf, buf2);
-			}
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
@@ -5716,30 +5711,15 @@ void print_object_location(int num, const OBJ_DATA * obj, CHAR_DATA * ch, int re
 		}
 		else
 		{
-			sprintf(buf + strlen(buf), "лежит в %s%s\r\n",
-				obj->get_in_obj()->get_PName(5).c_str(),
-				(recur ? ", который находится " : " "));
-/*			if (IS_GRGOD(ch))
-			{
-				sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
-				strcat(buf, buf2);
-			}
-			strcat(buf, "\r\n");*/
+			sprintf(buf + strlen(buf), "лежит в [%d]%s, который находится \r\n",
+				GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(5).c_str());
 			send_to_char(buf, ch);
-			if (recur)
-			{
-				print_object_location(0, obj->get_in_obj(), ch, recur);
-			}
+			print_object_location(0, obj->get_in_obj(), ch);
 		}
 	}
 	else
 	{
 		sprintf(buf + strlen(buf), "находится где-то там, далеко-далеко.");
-		if (IS_GRGOD(ch))
-		{
-			sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(obj));
-			strcat(buf, buf2);
-		}
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
@@ -5758,7 +5738,7 @@ bool print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 		if (isname(arg, object->get_aliases()))
 		{
 			found = true;
-			print_object_location(num++, object.get(), ch, TRUE);
+			print_object_location(num++, object.get(), ch);
 		}
 	});
 
