@@ -1051,10 +1051,11 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 		return;
 	}
 	for (i = 0; i < zone_types[type].ingr_qty; i++)
-//	3% - 1-17
-//	2% - 18-34
-//	1% - 35-50
-//		if (number(1, 100) <= 3 - 3 * (level - 1) / MAX_ZONE_LEVEL)
+	{
+		//	3% - 1-17
+		//	2% - 18-34
+		//	1% - 35-50
+		//		if (number(1, 100) <= 3 - 3 * (level - 1) / MAX_ZONE_LEVEL)
 		if (number(1, 1000) <= (4 - level / 10) * 10)
 		{
 			indx = im_type_rnum(zone_types[type].ingr_types[i]);
@@ -1085,23 +1086,7 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 			if (o)
 				obj_to_room(o, real_room(room->number));
 		}
-	/*MZ
-		if (!room->ing_list)
-			return;		// загружать нечего
-
-		for (indx = 0; room->ing_list[indx] != -1; indx += 2) {
-			int power;
-			if (number(1, 100) >= (room->ing_list[indx + 1] & 0xFFFF))
-				continue;
-			// Загрузить ингредиент в комнату
-			power = (room->ing_list[indx + 1] >> 16) & 0xFFFF;
-			if (power == 0xFFFF)
-				power = im_calc_power();
-			o = load_ingredient(room->ing_list[indx], power, -1);
-			if (o)
-				obj_to_room(o, real_room(room->number));
-		}
-	-MZ*/
+	}
 }
 //-MZ.load
 
