@@ -1862,28 +1862,12 @@ void obj_point_update()
 		return true;
 	});
 
-	// TODO: This code is GREAT BOTTLE NECK!!!
 	// Тонущие, падающие, и сыпящиеся обьекты.
-	bool repeat = false;
-	do
+	world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j)
 	{
-		repeat = false;
-		world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j) -> bool
-		{
-			const auto contains = j->get_contains();
-
-			if (obj_decay(j.get()))
-			{
-				if (contains)
-				{
-					repeat = true;
-					return false;	// exit from the inner loop and repeat outer loop
-				}
-			}
-
-			return true;
-		});
-	} while (repeat);
+		obj_decay(j.get());
+		return true;
+	});
 }
 
 void point_update(void)
