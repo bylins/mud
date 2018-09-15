@@ -6085,7 +6085,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			for (i = 1; i < CObjectPrototype::NUM_PADS; i++)
 				if (!_parse_name(npad[i], npad[i]))
 				{
-					ch->player_data.PNames[i] = std::string(npad[i]);
+					vict->player_data.PNames[i] = std::string(npad[i]);
 				}
 			sprintf(buf, "Произведена замена падежей.\r\n");
 			send_to_char(buf, ch);
@@ -6102,12 +6102,6 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				}
 			}
 
-			/*if (!IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
-			{
-				send_to_char("Для изменения падежей пользуйтесь форматом 'set имя name *падеж1 падеж2 падеж3 падеж4 падеж5 падеж6'.\r\nРенеймы не разрешаются.\r\n", ch);
-				return 0;
-			}*/
-
 			if (_parse_name(npad[0], npad[0]) ||
 				strlen(npad[0]) < MIN_NAME_LENGTH ||
 				strlen(npad[0]) > MAX_NAME_LENGTH ||
@@ -6123,21 +6117,6 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 					"Для исключения различного рода недоразумений имя отклонено.\r\n", ch);
 				return (0);
 			}
-			/* раз уже при создании чара это давным давно отключили, то тут парить мозг смысла нету
-						if (cmp_ptable_by_name(npad[0], MIN_NAME_LENGTH + 1) >= 0) {
-							send_to_char
-								("Первые  символы указанного имени совпадают с уже существующим персонажем.\r\n"
-								 "Для исключения разных недоразумений следует указать другое имя.\r\n", ch);
-							return (0);
-						}
-					if ((ptnum = cmp_ptable_by_name(npad[0],MIN_NAME_LENGTH)) > 0
-						player_table[ptnum].unique != GET_UNIQUE(vict)
-					   )
-					   {send_to_char("Первые 4 символа этого имени совпадают еще у одного персонажа.\r\n"
-									 "Для исключения различного рода недоразумений имя отклонено.\r\n", ch);
-						return (0);
-					   }
-			*/
 			// выносим из листа неодобренных имен, если есть
 			NewNameRemove(vict);
 
@@ -6156,7 +6135,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			{
 				if (!_parse_name(npad[i], npad[i]))
 				{
-					ch->player_data.PNames[i] = std::string(npad[i]);
+					vict->player_data.PNames[i] = std::string(npad[i]);
 				}
 			}
 			sprintf(buf, "Name changed from %s to %s", GET_NAME(vict), npad[0]);
