@@ -30,6 +30,7 @@
 #include "ext_money.hpp"
 #include "temp_spells.hpp"
 #include "conf.h"
+#include "accounts.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -48,7 +49,6 @@
 int level_exp(CHAR_DATA * ch, int level);
 extern std::vector<City> cities;
 extern std::string default_str_cities;
-extern std::vector<std::shared_ptr<Account>> accounts;
 namespace
 {
 
@@ -485,8 +485,8 @@ void Player::save_char()
 		this->account = Account::get_account(GET_EMAIL(this));
 		if (this->account == nullptr)
 		{
-			std::shared_ptr<Account> temp_account(new Account(GET_EMAIL(this)));
-			accounts.push_back(temp_account);
+			const auto temp_account = std::make_shared<Account>(GET_EMAIL(this));
+			accounts.emplace(GET_EMAIL(this), temp_account);
 			this->account = temp_account;
 		}
 	}
@@ -2179,9 +2179,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	this->account = Account::get_account(GET_EMAIL(this));
 	if (this->account == nullptr)
 	{
-		std::shared_ptr<Account> temp_account(new Account(GET_EMAIL(this)));
-		accounts.push_back(temp_account);
-		this->account = temp_account;		
+		const auto temp_account = std::make_shared<Account>(GET_EMAIL(this));
+		accounts.emplace(GET_EMAIL(this), temp_account);
+		this->account = temp_account;
 	}
 	this->account->add_player(GET_UNIQUE(this));
 	return (id);
