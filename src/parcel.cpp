@@ -472,18 +472,18 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 		{
 			for (std::list<Node>::const_iterator it3 = it2->second.begin(); it3 != it2->second.end(); ++it3)
 			{
-				if (IS_GOD(ch))
+				if (!IS_GOD(ch))
 				{
 					if (number(1, 100) > (40 + MAX((GET_REAL_INT(ch) - 25) * 2, 0)))
 					{
 						continue;
-					}
+					}					
+				}
 
-					if (it3->obj_->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-						&& !IS_GOD(ch))
-					{
-						continue;
-					}
+				if (it3->obj_->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
+					&& !IS_GOD(ch))
+				{
+					continue;
 				}
 
 				if (!isname(name.c_str(), it3->obj_->get_aliases()))

@@ -962,7 +962,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 
 		if (awake_others(ch) || equip_in_metall(ch))
 			bonus -= 50;
-
+		/* работает только для блестящих предметов, так как в темное татям и купцам другое не видно*/
 		if (IS_DARK(ch->in_room))
 			bonus += 20;
 

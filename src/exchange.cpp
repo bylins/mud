@@ -279,7 +279,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		return false;
 	}
 	for (j = exchange_item_list, counter = 0, counter_ming = 0;
-			j && (counter + (counter_ming / 20)  <= EXCHANGE_MAX_EXHIBIT_PER_CHAR);
+			j && (counter + (counter_ming / 20)  <= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REMORT(ch) * 2));
 			j = next_thing)
 	{
 		next_thing = j->next;
@@ -297,7 +297,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		}
 	}
 
-	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR)
+	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REMORT(ch) * 2))
 	{
 		send_to_char("Вы уже выставили на базар максимальное количество предметов!\r\n", ch);
 		return false;
