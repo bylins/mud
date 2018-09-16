@@ -802,7 +802,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if ((subcmd != SCMD_AUCTION) && (!IS_IMMORTAL(ch)) && (!IS_NPC(ch)))
 	{
-		unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
+		const unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
 		// фильтруем верхний регистр
@@ -950,7 +950,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				send_to_char(KNRM, i->character.get());
 			}
 
-			std::string text = Remember::format_gossip(ch, i->character.get(), subcmd, argument);
+			const std::string text = Remember::format_gossip(ch, i->character.get(), subcmd, argument);
 
 			i->character->remember_add(text, Remember::ALL);
 		}
