@@ -1576,13 +1576,13 @@ void obj_point_update()
 {
 	int count;
 
-	world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j) -> bool
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& j)
 	{
 		// смотрим клан-сундуки
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj()))
 		{
 			clan_chest_point_update(j.get());
-			return true;
+			return;
 		}
 
 		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
@@ -1677,8 +1677,6 @@ void obj_point_update()
 				extract_obj(j.get());
 			}
 		}
-		// If the timer is set, count it down and at 0, try the trigger
-		// note to .rej hand-patchers: make this last in your point-update()
 		else
 		{
 			if (SCRIPT_CHECK(j.get(), OTRIG_TIMER))
@@ -1691,7 +1689,7 @@ void obj_point_update()
 				if (!j->get_timer())
 				{
 					timer_otrigger(j.get());
-					return false;
+					return;
 				}
 			}
 			else if (GET_OBJ_DESTROY(j) > 0
@@ -1841,7 +1839,7 @@ void obj_point_update()
 			{
 				if (!j)
 				{
-					return true;
+					return;
 				}
 
 				// decay poison && other affects
@@ -1858,8 +1856,6 @@ void obj_point_update()
 				}
 			}
 		}
-
-		return true;
 	});
 
 	// Тонущие, падающие, и сыпящиеся обьекты.
