@@ -186,7 +186,7 @@ void assign_objects(void);
 void assign_rooms(void);
 void init_spec_procs(void);
 void build_player_index(void);
-int is_empty(zone_rnum zone_nr);
+bool is_empty(zone_rnum zone_nr);
 void reset_zone(zone_rnum zone);
 int file_to_string(const char *name, char *buf);
 int file_to_string_alloc(const char *name, char **buf);
@@ -3916,8 +3916,7 @@ CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type)
 void after_reset_zone(int nr_zone)
 {
 	// пробегаем по дескрипторам, ибо это быстрее и проще, т.к. в зоне может быть и 200 и 300 мобов
-	DESCRIPTOR_DATA *d;
-	for (d = descriptor_list; d; d = d->next)
+	for (auto d = descriptor_list; d; d = d->next)
 	{
 		// Чар должен быть в игре
 		if (STATE(d) == CON_PLAYING)
@@ -5132,16 +5131,14 @@ void ZoneReset::reset_zone_essential()
 
 	if (get_zone_rooms(m_zone_rnum, &rnum_start, &rnum_stop))
 	{
-		ROOM_DATA* room;
-		ROOM_DATA* gate_room;
 		// все внутренние резеты комнат зоны теперь идут за один цикл
 		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
 		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++)
 		{
-			room = world[rnum];
+			ROOM_DATA* room = world[rnum];
 			reset_wtrigger(room);
 			im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
-			gate_room = OneWayPortal::get_from_room(room);
+			ROOM_DATA* gate_room = OneWayPortal::get_from_room(room);
 			if (gate_room)   // случай врат
 			{
 				gate_room->portal_time = 0;
@@ -5187,9 +5184,9 @@ void reset_zone(zone_rnum zone)
 // Еси возвращает 0 - комнат в зоне нету
 int get_zone_rooms(int zone_nr, int *start, int *stop)
 {
-	int first_room_vnum, rnum;
-	first_room_vnum = zone_table[zone_nr].top;
-	rnum = real_room(first_room_vnum);
+	auto first_room_vnum = zone_table[zone_nr].top;
+	auto rnum = real_room(first_room_vnum);
+
 	if (rnum == NOWHERE)
 		return 0;
 	*stop = rnum;
@@ -5210,14 +5207,12 @@ int get_zone_rooms(int zone_nr, int *start, int *stop)
 	return 1;
 }
 
-
 // for use in reset_zone; return TRUE if zone 'nr' is free of PC's
-int is_empty(zone_rnum zone_nr)
+bool is_empty(zone_rnum zone_nr)
 {
-	DESCRIPTOR_DATA *i;
 	int rnum_start, rnum_stop;
 
-	for (i = descriptor_list; i; i = i->next)
+	for (auto i = descriptor_list; i; i = i->next)
 	{
 		if (STATE(i) != CON_PLAYING)
 			continue;
@@ -5227,13 +5222,13 @@ int is_empty(zone_rnum zone_nr)
 			continue;
 		if (world[i->character->in_room]->zone != zone_nr)
 			continue;
-		return (0);
+		return false;
 	}
 
 	// Поиск link-dead игроков в зонах комнаты zone_nr
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop))
 	{
-		return 1;	// в зоне нет комнат :)
+		return true;	// в зоне нет комнат :)
 	}
 
 	for (; rnum_start <= rnum_stop; rnum_start++)
@@ -5243,7 +5238,7 @@ int is_empty(zone_rnum zone_nr)
 		{
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
 			{
-				return 0;
+				return false;
 			}
 		}
 	}
@@ -5260,7 +5255,7 @@ int is_empty(zone_rnum zone_nr)
 			continue;
 		}
 
-		return 0;
+		return false;
 	}
 
 //Проверим, нет ли в зоне метки для врат, чтоб не абузили.
@@ -5270,11 +5265,11 @@ int is_empty(zone_rnum zone_nr)
 			&& find_room_affect(*it, SPELL_RUNE_LABEL) != (*it)->affected.end())
 		{
 			// если в зоне метка
-			return 0;
+			return false;
 		}
 	}
 
-	return 1;
+	return true;
 }
 
 int mobs_in_room(int m_num, int r_num)

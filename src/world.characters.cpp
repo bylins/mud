@@ -1,15 +1,10 @@
 #include "world.characters.hpp"
 
-#include "dg_db_scripts.hpp"
 #include "mobact.hpp"
 #include "config.hpp"
 #include "logger.hpp"
 #include "utils.h"
-#include "dg_scripts.h"
-#include "debug.utils.hpp"
 #include "global.objects.hpp"
-
-#include <iostream>
 
 Characters& character_list = GlobalObjects::characters();	// global container of chars
 

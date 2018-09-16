@@ -2361,7 +2361,7 @@ void perform_violence()
 		{
 			for (const auto& ch : msdp_report_chars)
 			{
-				if (same_group(ch, d->character.get()) && ch->in_room == d->character->in_room))
+				if (same_group(ch, d->character.get()) && ch->in_room == d->character->in_room)
 				{
 					msdp_report_chars.insert(d->character.get());
 					break;
