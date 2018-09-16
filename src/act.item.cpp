@@ -59,8 +59,8 @@ int perform_get_from_room(CHAR_DATA * ch, OBJ_DATA * obj);
 void get_from_room(CHAR_DATA * ch, char *arg, int amount);
 void perform_give_gold(CHAR_DATA * ch, CHAR_DATA * vict, int amount);
 void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj);
-int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, room_rnum RDR);
-void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR);
+void perform_drop(CHAR_DATA * ch, OBJ_DATA * obj);
+void perform_drop_gold(CHAR_DATA * ch, int amount);
 CHAR_DATA *give_find_vict(CHAR_DATA * ch, char *arg);
 void weight_change_object(OBJ_DATA * obj, int weight);
 int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont);
@@ -1308,8 +1308,7 @@ void do_get(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-
-void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
+void perform_drop_gold(CHAR_DATA * ch, int amount)
 {
 	if (amount <= 0)
 	{
@@ -1321,192 +1320,106 @@ void perform_drop_gold(CHAR_DATA * ch, int amount, byte mode, room_rnum RDR)
 	}
 	else
 	{
-		if (mode != SCMD_JUNK)
+		WAIT_STATE(ch, PULSE_VIOLENCE);	// to prevent coin-bombing
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM))
 		{
-			WAIT_STATE(ch, PULSE_VIOLENCE);	// to prevent coin-bombing
-			if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM))
+			act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
+			return;
+		}
+		//Находим сначала кучку в комнате
+		int additional_amount = 0;
+		OBJ_DATA* next_obj;
+		for (OBJ_DATA* existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj)
+		{
+			next_obj = existing_obj->get_next_content();
+			if (GET_OBJ_TYPE(existing_obj) == OBJ_DATA::ITEM_MONEY && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD)
 			{
-				act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
-				return;
-			}
-			//Находим сначала кучку в комнате
-			int additional_amount = 0;
-			OBJ_DATA* next_obj;
-			if (mode != SCMD_DONATE)
-			{
-				for (OBJ_DATA* existing_obj = world[ch->in_room]->contents; existing_obj; existing_obj = next_obj)
-				{
-					next_obj = existing_obj->get_next_content();
-					if (GET_OBJ_TYPE(existing_obj) == OBJ_DATA::ITEM_MONEY && GET_OBJ_VAL(existing_obj, 1) == currency::GOLD)
-					{
-						//Запоминаем стоимость существующей кучки и удаляем ее
-						additional_amount = GET_OBJ_VAL(existing_obj, 0);
-						obj_from_room(existing_obj);
-						extract_obj(existing_obj);
-					}
-				}
-			}
-
-			const auto obj = create_money(amount+additional_amount);
-
-			if (mode == SCMD_DONATE)
-			{
-				sprintf(buf, "Вы выбросили %d %s на ветер.\r\n", amount,
-						desc_count(amount, WHAT_MONEYu));
-				send_to_char(buf, ch);
-				act("$n выбросил$g деньги... На ветер :(", FALSE, ch, 0, 0, TO_ROOM);
-				obj_to_room(obj.get(), RDR);
-				act("$o исчез$Q в клубах дыма!", 0, 0, obj.get(), 0, TO_ROOM);
-			}
-			else
-			{
-				int result = drop_wtrigger(obj.get(), ch);
-
-				if (!result)
-				{
-					extract_obj(obj.get());
-					return;
-				}
-
-				// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-				if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
-				{
-					send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
-						amount, desc_count(amount, WHAT_MONEYu));
-					sprintf(buf, "<%s> {%d} выбросил %d %s на землю.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), amount, desc_count(amount, WHAT_MONEYu));
-					mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
-					sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
-					act(buf, TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				}
-				obj_to_room(obj.get(), ch->in_room);
+				//Запоминаем стоимость существующей кучки и удаляем ее
+				additional_amount = GET_OBJ_VAL(existing_obj, 0);
+				obj_from_room(existing_obj);
+				extract_obj(existing_obj);
 			}
 		}
-		else
+
+		const auto obj = create_money(amount+additional_amount);
+		int result = drop_wtrigger(obj.get(), ch);
+
+		if (!result)
 		{
-			sprintf(buf, "$n пожертвовал$g %s... В подарок Богам!", money_desc(amount, 3));
-			act(buf, FALSE, ch, 0, 0, TO_ROOM);
-			sprintf(buf, "Вы пожертвовали Богам %d %s.\r\n", amount, desc_count(amount, WHAT_MONEYu));
-			send_to_char(buf, ch);
+			extract_obj(obj.get());
+			return;
 		}
+
+		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
+		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
+		{
+			send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
+				amount, desc_count(amount, WHAT_MONEYu));
+			sprintf(buf, "<%s> {%d} выбросил %d %s на землю.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), amount, desc_count(amount, WHAT_MONEYu));
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
+			sprintf(buf, "$n бросил$g %s на землю.", money_desc(amount, 3));
+			act(buf, TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		}
+		obj_to_room(obj.get(), ch->in_room);
+
 		ch->remove_gold(amount);
 	}
 }
 
-
-#define VANISH(mode) ((mode == SCMD_DONATE || mode == SCMD_JUNK) ? \
-            "  It vanishes in a puff of smoke!" : "")
-
-const char *drop_op[3][3] =
+const char *drop_op[3] =
 {
-	{"выбросить", "выбросили", "выбросил"},
-	{"пожертвовать", "пожертвовали", "пожертвовал"},
-	{"бросить", "бросили", "бросил"}
+	"бросить", "бросили", "бросил"
 };
 
-int perform_drop(CHAR_DATA * ch, OBJ_DATA * obj, byte mode, const int sname, room_rnum RDR)
+void perform_drop(CHAR_DATA * ch, OBJ_DATA * obj)
 {
 	int value;
 	if (!drop_otrigger(obj, ch))
-		return 0;
+		return;
 	if (!bloody::handle_transfer(ch, NULL, obj))
-		return 0;
-	if ((mode == SCMD_DROP && !drop_wtrigger(obj, ch)))
-		return 0;
+		return;
+	if (!drop_wtrigger(obj, ch))
+		return;
+
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 	{
-		sprintf(buf, "Вы не можете %s $o3!", drop_op[sname][0]);
+		sprintf(buf, "Вы не можете %s $o3!", drop_op[0]);
 		act(buf, FALSE, ch, obj, 0, TO_CHAR);
-		return (0);
+		return;
 	}
-	sprintf(buf, "Вы %s $o3.%s", drop_op[sname][1], VANISH(mode));
+	sprintf(buf, "Вы %s $o3.", drop_op[1]);
 	act(buf, FALSE, ch, obj, 0, TO_CHAR);
-	sprintf(buf, "$n %s$g $o3.%s", drop_op[sname][2], VANISH(mode));
+	sprintf(buf, "$n %s$g $o3.", drop_op[2]);
 	act(buf, TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 	obj_from_char(obj);
 
-	if ((mode == SCMD_DONATE) && obj->get_extra_flag(EExtraFlag::ITEM_NODONATE))
-		mode = SCMD_JUNK;
-
-	switch (mode)
-	{
-	case SCMD_DROP:
-		obj_to_room(obj, ch->in_room);
-		obj_decay(obj);
-		return (0);
-	case SCMD_DONATE:
-		obj_to_room(obj, RDR);
-		obj_decay(obj);
-		act("$o растворил$U в клубах дыма!", FALSE, 0, obj, 0, TO_ROOM);
-		return (0);
-	case SCMD_JUNK:
-		value = MAX(1, MIN(200, GET_OBJ_COST(obj) / 16));
-		extract_obj(obj);
-		return (value);
-	default:
-		log("SYSERR: Incorrect argument %d passed to perform_drop.", mode);
-		break;
-	}
-
-	return (0);
+	obj_to_room(obj, ch->in_room);
+	obj_decay(obj);
 }
 
-void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int subcmd)
+void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int /*subcmd*/)
 {
 	OBJ_DATA *obj, *next_obj;
-	room_rnum RDR = 0;
-	byte mode = SCMD_DROP;
-	int dotmode, amount = 0, multi;
-	int sname;
-
-	switch (subcmd)
-	{
-	case SCMD_JUNK:
-		sname = 0;
-		mode = SCMD_JUNK;
-		break;
-	case SCMD_DONATE:
-		sname = 1;
-		mode = SCMD_DONATE;
-		switch (number(0, 2))
-		{
-		case 0:
-			mode = SCMD_JUNK;
-			break;
-		case 1:
-		case 2:
-			// тут было donation_room_1
-			break;
-		}
-		if (RDR == NOWHERE)
-		{
-			send_to_char("Вы не можете этого здесь сделать.\r\n", ch);
-			return;
-		}
-		break;
-	default:
-		sname = 2;
-		break;
-	}
 
 	argument = one_argument(argument, arg);
 
 	if (!*arg)
 	{
-		sprintf(buf, "Что вы хотите %s?\r\n", drop_op[sname][0]);
+		sprintf(buf, "Что вы хотите %s?\r\n", drop_op[0]);
 		send_to_char(buf, ch);
 		return;
 	}
 	else if (is_number(arg))
 	{
-		multi = atoi(arg);
+		int multi = atoi(arg);
 		one_argument(argument, arg);
 		if (!str_cmp("coins", arg) || !str_cmp("coin", arg) || !str_cmp("кун", arg) || !str_cmp("денег", arg))
-			perform_drop_gold(ch, multi, mode, RDR);
+			perform_drop_gold(ch, multi);
 		else if (multi <= 0)
 			send_to_char("Не имеет смысла.\r\n", ch);
 		else if (!*arg)
 		{
-			sprintf(buf, "%s %d чего?\r\n", drop_op[sname][0], multi);
+			sprintf(buf, "%s %d чего?\r\n", drop_op[0], multi);
 			send_to_char(buf, ch);
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
@@ -1519,7 +1432,7 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int subcmd)
 			do
 			{
 				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
-				amount += perform_drop(ch, obj, mode, sname, RDR);
+				perform_drop(ch, obj);
 				obj = next_obj;
 			}
 			while (obj && --multi);
@@ -1527,16 +1440,8 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int subcmd)
 	}
 	else
 	{
-		dotmode = find_all_dots(arg);
+		const auto dotmode = find_all_dots(arg);
 		// Can't junk or donate all
-		if ((dotmode == FIND_ALL) && (subcmd == SCMD_JUNK || subcmd == SCMD_DONATE))
-		{
-			if (subcmd == SCMD_JUNK)
-				send_to_char("Вас с нетерпением ждут. У психиатра :)\r\n", ch);
-			else
-				send_to_char("Такую жертву я принять не могу!\r\n", ch);
-			return;
-		}
 		if (dotmode == FIND_ALL)
 		{
 			if (!ch->carrying)
@@ -1545,14 +1450,14 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int subcmd)
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
 					next_obj = obj->get_next_content();
-					amount += perform_drop(ch, obj, mode, sname, RDR);
+					perform_drop(ch, obj);
 				}
 		}
 		else if (dotmode == FIND_ALLDOT)
 		{
 			if (!*arg)
 			{
-				sprintf(buf, "%s \"все\" какого типа предметов?\r\n", drop_op[sname][0]);
+				sprintf(buf, "%s \"все\" какого типа предметов?\r\n", drop_op[0]);
 				send_to_char(buf, ch);
 				return;
 			}
@@ -1564,7 +1469,7 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int subcmd)
 			while (obj)
 			{
 				next_obj = get_obj_in_list_vis(ch, arg, obj->get_next_content());
-				amount += perform_drop(ch, obj, mode, sname, RDR);
+				perform_drop(ch, obj);
 				obj = next_obj;
 			}
 		}
@@ -1576,14 +1481,8 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int subcmd)
 				send_to_char(buf, ch);
 			}
 			else
-				amount += perform_drop(ch, obj, mode, sname, RDR);
+				perform_drop(ch, obj);
 		}
-	}
-
-	if (amount && (subcmd == SCMD_JUNK))
-	{
-		send_to_char("Боги не обратили внимания на этот хлам.\r\n", ch);
-		act("$n принес$q жертву. Но Боги были глухи к н$m!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 }
 

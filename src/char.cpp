@@ -938,6 +938,7 @@ bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 // * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
 void change_fighting(CHAR_DATA* ch, int need_stop)
 {
+	//Loop for all chars is necessary for unprotecting
 	for (const auto& k : character_list)
 	{
 		if (k->get_protecting() == ch)

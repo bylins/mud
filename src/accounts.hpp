@@ -3,14 +3,16 @@
 * 2018 (c) bodrich
 */
 
-#include <string>
-#include <array>
-#include <vector>
-#include <bitset>
-#include <ctime>
-#include <memory>  
-#include <unordered_map>
+#ifndef __ACCOUNTS_HPP__
+#define __ACCOUNTS_HPP__
+
 #include "structs.h"
+
+#include <string>
+#include <vector>
+#include <ctime>
+#include <memory>
+#include <unordered_map>
 
 struct DQuest
 {
@@ -43,7 +45,7 @@ private:
 	// История логинов, ключ - айпи, в структуре количество раз, с которых был произведен заход с данного айпи-адреса + дата, когда последний раз выходили с данного айпишника
 	std::unordered_map<std::string, login_index> history_logins;
 public:
-	Account(std::string name);
+	Account(const std::string& name);
 	void save_to_file();
 	void read_from_file();
 	std::string get_email();
@@ -55,9 +57,14 @@ public:
 	void remove_player(int uid);
 	time_t get_last_login();
 	void set_last_login();
-	void set_password(std::string password);
-	bool compare_password(std::string password);
+	void set_password(const std::string& password);
+	bool compare_password(const std::string& password);
 	void show_history_logins(DESCRIPTOR_DATA *d);
-	void add_login(std::string ip_addr);
+	void add_login(const std::string& ip_addr);
 };
 
+extern std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
+
+#endif	//__ACCOUNTS_HPP__
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

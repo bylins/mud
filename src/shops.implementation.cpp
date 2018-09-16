@@ -516,8 +516,13 @@ namespace ShopExt
 
 			tell_to_char(keeper, ch, buf);
 		}
-
-		const auto suffix = desc_count(total_money, currency == "куны" ? WHAT_MONEYu : (currency == "лед" ? WHAT_ICEu : WHAT_GLORYu));
+		auto suffix = desc_count(total_money, WHAT_MONEYu);
+		if (currency == "лед")
+			suffix = desc_count(total_money, WHAT_ICEu);
+		if (currency == "слава")
+			suffix = desc_count(total_money, WHAT_GLORYu);
+		if (currency == "гривны")
+			suffix = desc_count(total_money, WHAT_TORCu);
 		snprintf(buf, MAX_STRING_LENGTH, "Это будет стоить %d %s.", total_money, suffix);
 		tell_to_char(keeper, ch, buf);
 

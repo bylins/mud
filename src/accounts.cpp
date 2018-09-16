@@ -4,12 +4,13 @@
 */
 #include "accounts.hpp"
 #include "db.h"
-#include <boost/algorithm/string.hpp>
 #include "comm.h"
 #include "password.hpp"
 #include "utils.h"
-//#include "config.h"
-std::vector<std::shared_ptr<Account>> accounts;
+
+#include <boost/algorithm/string.hpp>
+
+std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
 extern bool CompareParam(const std::string & buffer, const char *arg, bool full);
 
@@ -21,13 +22,12 @@ extern bool CompareParam(const std::string & buffer, const char *arg, bool full)
 
 const std::shared_ptr<Account> Account::get_account(const std::string& email)
 {
-	for (const auto &x : accounts)
+	const auto search_element = accounts.find(email);
+	if(search_element != accounts.end())
 	{
-		if (x->get_email() == email)
-		{
-			return x;
-		}
+		return search_element->second;
 	}
+
 	return nullptr;
 }
 
@@ -138,7 +138,6 @@ std::string Account::get_email()
 	return this->email;
 }
 
-
 void Account::add_player(int uid)
 {
 	// если уже есть, то не добавляем
@@ -171,7 +170,7 @@ void Account::set_last_login()
 	this->last_login = time(0);
 }
 
-Account::Account(std::string email)
+Account::Account(const std::string& email)
 {
 	this->email = email;
 	this->read_from_file();
@@ -179,7 +178,7 @@ Account::Account(std::string email)
 	this->last_login = 0;
 }
 
-void Account::add_login(std::string ip_addr)
+void Account::add_login(const std::string& ip_addr)
 {
 	if (this->history_logins.count(ip_addr))
 	{
@@ -193,7 +192,6 @@ void Account::add_login(std::string ip_addr)
 	this->history_logins.insert(std::pair<std::string, login_index>(ip_addr, tmp));
 }
 
-
 /* Показ хистори логинов */
 void Account::show_history_logins(DESCRIPTOR_DATA* d)
 {
@@ -205,15 +203,14 @@ void Account::show_history_logins(DESCRIPTOR_DATA* d)
 	}
 }
 
-
-void Account::set_password(std::string password)
+void Account::set_password(const std::string& password)
 {
 	this->hash_password = Password::generate_md5_hash(password);
 }
 
-bool Account::compare_password(std::string password)
+bool Account::compare_password(const std::string& password)
 {
-	return CompareParam(this->hash_password.c_str(), CRYPT(password.c_str(), this->hash_password.c_str()), 1);
+	return CompareParam(this->hash_password, CRYPT(password.c_str(), this->hash_password.c_str()), true);
 }
 
 bool Account::quest_is_available(int id)

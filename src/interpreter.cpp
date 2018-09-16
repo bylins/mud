@@ -73,6 +73,7 @@
 #include "bonus.h"
 #include "debug.utils.hpp"
 #include "global.objects.hpp"
+#include "accounts.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -861,7 +862,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"dig", POS_STANDING, do_dig, 0, SKILL_DIG, -1},
 	{"disarm", POS_FIGHTING, do_disarm, 0, 0, -1},
 	{"display", POS_DEAD, do_display, 0, 0, 0},
-	{"donate", POS_RESTING, do_drop, 0, 0 /*SCMD_DONATE */ , 500},
 	{"drink", POS_RESTING, do_drink, 0, SCMD_DRINK, 500},
 	{"drop", POS_RESTING, do_drop, 0, SCMD_DROP, 500},
 	{"dumb", POS_DEAD, do_wizutil, LVL_IMMORT, SCMD_DUMB, 0},
@@ -919,7 +919,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"insult", POS_RESTING, do_insult, 0, 0, -1},
 	{"inventory", POS_SLEEPING, do_inventory, 0, 0, 0},
 	{"invis", POS_DEAD, do_invis, LVL_GOD, 0, -1},
-	{"junk", POS_RESTING, do_drop, 0, 0 /*SCMD_JUNK */ , 500},
 	{"kick", POS_FIGHTING, do_kick, 1, 0, -1},
 	{"kill", POS_FIGHTING, do_kill, 0, 0, -1},
 	{"last", POS_DEAD, do_last, LVL_GOD, 0, 0},
@@ -2929,7 +2928,7 @@ void print_free_names(std::ostream& os, const PlayersIndex& index)
 	index.get_free_names(SUGGESTIONS_COUNT, names);
 	os << JoinRange<PlayersIndex::free_names_list_t>(names);
 }
-extern std::vector<std::shared_ptr<Account>> accounts;
+
 void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 {
 	player_index_element element(-1, GET_PC_NAME(d->character));
