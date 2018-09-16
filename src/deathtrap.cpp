@@ -103,7 +103,7 @@ namespace OneWayPortal
 {
 
 // список односторонних порталов <куда указывает, откуда поставлен>
-std::unordered_map<room_vnum /*to*/, room_vnum /*from*/> portal_list;
+std::unordered_map<room_vnum /*to*/, ROOM_DATA* /*from*/> portal_list;
 
 /**
 * Добавление портала в список
@@ -112,7 +112,7 @@ std::unordered_map<room_vnum /*to*/, room_vnum /*from*/> portal_list;
 */
 void add(ROOM_DATA* to_room, ROOM_DATA* from_room)
 {
-	portal_list.emplace(to_room->number, from_room->number);
+	portal_list.emplace(to_room->number, from_room);
 }
 
 /**
@@ -133,9 +133,10 @@ void remove(ROOM_DATA* to_room)
 */
 ROOM_DATA* get_from_room(ROOM_DATA* to_room)
 {
+	
 	const auto it = portal_list.find(to_room->number);
 	if (it != portal_list.end())
-		return GET_ROOM(it->second);
+		return it->second;
 
 	return nullptr;
 }
