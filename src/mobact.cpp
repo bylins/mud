@@ -914,82 +914,79 @@ bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch)
 
 namespace
 {
-OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
-{
-	const auto obj = world_objects.create_blank();
-
-	obj->set_aliases("узелок вещами");
-	const std::string descr = std::string("узелок с вещами ") + ch->get_pad(1);
-	obj->set_short_description(descr);
-	obj->set_description("Туго набитый узел лежит тут.");
-	obj->set_ex_description(descr.c_str(), "Кто-то сильно торопился, когда набивал этот узелок.");
-	obj->set_PName(0, "узелок");
-	obj->set_PName(1, "узелка");
-	obj->set_PName(2, "узелку");
-	obj->set_PName(3, "узелок");
-	obj->set_PName(4, "узелком");
-	obj->set_PName(5, "узелке");
-	obj->set_sex(ESex::SEX_MALE);
-	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
-	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
-	obj->set_weight(1);
-	obj->set_cost(1);
-	obj->set_rent_off(1);
-	obj->set_rent_on(1);
-	obj->set_timer(24 * 60);
-
-	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
-	obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
-	obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
-	obj->set_extra_flag(EExtraFlag::ITEM_SWIMMING);
-	obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
-
-	return obj.get();
-}
-
-void extract_charmice(CHAR_DATA* ch)
-{
-	std::vector<OBJ_DATA*> objects;
-	for (int i = 0; i < NUM_WEARS; ++i)
+	OBJ_DATA* create_charmice_box(CHAR_DATA* ch)
 	{
-		if (GET_EQ(ch, i))
+		const auto obj = world_objects.create_blank();
+
+		obj->set_aliases("узелок вещами");
+		const std::string descr = std::string("узелок с вещами ") + ch->get_pad(1);
+		obj->set_short_description(descr);
+		obj->set_description("Туго набитый узел лежит тут.");
+		obj->set_ex_description(descr.c_str(), "Кто-то сильно торопился, когда набивал этот узелок.");
+		obj->set_PName(0, "узелок");
+		obj->set_PName(1, "узелка");
+		obj->set_PName(2, "узелку");
+		obj->set_PName(3, "узелок");
+		obj->set_PName(4, "узелком");
+		obj->set_PName(5, "узелке");
+		obj->set_sex(ESex::SEX_MALE);
+		obj->set_type(OBJ_DATA::ITEM_CONTAINER);
+		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+		obj->set_weight(1);
+		obj->set_cost(1);
+		obj->set_rent_off(1);
+		obj->set_rent_on(1);
+		obj->set_timer(24 * 60);
+
+		obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+		obj->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);
+		obj->set_extra_flag(EExtraFlag::ITEM_NODECAY);
+		obj->set_extra_flag(EExtraFlag::ITEM_SWIMMING);
+		obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
+
+		return obj.get();
+	}
+
+	void extract_charmice(CHAR_DATA* ch)
+	{
+		std::vector<OBJ_DATA*> objects;
+		for (int i = 0; i < NUM_WEARS; ++i)
 		{
-			OBJ_DATA* obj = unequip_char(ch, i);
-			if (obj)
+			if (GET_EQ(ch, i))
 			{
-				remove_otrigger(obj, ch);
-				objects.push_back(obj);
+				OBJ_DATA* obj = unequip_char(ch, i);
+				if (obj)
+				{
+					remove_otrigger(obj, ch);
+					objects.push_back(obj);
+				}
 			}
 		}
-	}
 
-	while (ch->carrying)
-	{
-		OBJ_DATA *obj = ch->carrying;
-		obj_from_char(obj);
-		objects.push_back(obj);
-	}
-
-	if (!objects.empty())
-	{
-		OBJ_DATA* charmice_box = create_charmice_box(ch);
-		for (std::vector<OBJ_DATA*>::iterator it = objects.begin(); it != objects.end(); ++it) {
-			obj_to_obj(*it, charmice_box);
+		while (ch->carrying)
+		{
+			OBJ_DATA *obj = ch->carrying;
+			obj_from_char(obj);
+			objects.push_back(obj);
 		}
-		drop_obj_on_zreset(ch, charmice_box, 1, false);
+
+		if (!objects.empty())
+		{
+			OBJ_DATA* charmice_box = create_charmice_box(ch);
+			for (std::vector<OBJ_DATA*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+				obj_to_obj(*it, charmice_box);
+			}
+			drop_obj_on_zreset(ch, charmice_box, 1, false);
+		}
+
+		extract_char(ch, FALSE);
 	}
-
-	extract_char(ch, FALSE);
-}
-
 }
 
 void mobile_activity(int activity_level, int missed_pulses)
 {
-	int door, max, was_in = -1, activity_lev, std_lev, i, ch_activity;
-	memory_rec *names;
-
-	std_lev = activity_level % PULSE_MOBILE;
+	int door, max, was_in = -1, activity_lev, i, ch_activity;
+	int std_lev = activity_level % PULSE_MOBILE;
 
 	character_list.foreach_on_copy([&](const CHAR_DATA::shared_ptr& ch)
 	{
@@ -1377,7 +1374,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			&& !ch->get_fighting())
 		{
 			// Find memory in world
-			for (names = MEMORY(ch); names && (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0
+			for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, SPELL_SUMMON) > 0
 				|| GET_SPELL_MEM(ch, SPELL_RELOCATE) > 0); names = names->next)
 			{
 				for (const auto& vict : character_list)

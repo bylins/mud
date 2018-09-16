@@ -1233,7 +1233,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 
 	if (!IS_NPC(ch))
 	{
-		zone_table[world[room]->zone].used = 1;
+		zone_table[world[room]->zone].used = true;
 		zone_table[world[room]->zone].activity++;
 	}
 	else

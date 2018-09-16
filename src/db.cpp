@@ -5276,7 +5276,7 @@ int mobs_in_room(int m_num, int r_num)
 {
 	int count = 0;
 
-	for (const auto ch : world[r_num]->people)
+	for (const auto& ch : world[r_num]->people)
 	{
 		if (m_num == GET_MOB_RNUM(ch)
 			&& !MOB_FLAGGED(ch, MOB_RESURRECTED))
