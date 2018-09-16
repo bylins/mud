@@ -1576,13 +1576,13 @@ void obj_point_update()
 {
 	int count;
 
-	world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j) -> bool
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& j)
 	{
 		// смотрим клан-сундуки
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj()))
 		{
 			clan_chest_point_update(j.get());
-			return true;
+			return;
 		}
 
 		// контейнеры на земле с флагом !дикей, но не загружаемые в этой комнате, а хз кем брошенные
@@ -1677,8 +1677,6 @@ void obj_point_update()
 				extract_obj(j.get());
 			}
 		}
-		// If the timer is set, count it down and at 0, try the trigger
-		// note to .rej hand-patchers: make this last in your point-update()
 		else
 		{
 			if (SCRIPT_CHECK(j.get(), OTRIG_TIMER))
@@ -1691,7 +1689,7 @@ void obj_point_update()
 				if (!j->get_timer())
 				{
 					timer_otrigger(j.get());
-					return false;
+					return;
 				}
 			}
 			else if (GET_OBJ_DESTROY(j) > 0
@@ -1841,7 +1839,7 @@ void obj_point_update()
 			{
 				if (!j)
 				{
-					return true;
+					return;
 				}
 
 				// decay poison && other affects
@@ -1858,32 +1856,13 @@ void obj_point_update()
 				}
 			}
 		}
-
-		return true;
 	});
 
-	// TODO: This code is GREAT BOTTLE NECK!!!
 	// Тонущие, падающие, и сыпящиеся обьекты.
-	bool repeat = false;
-	do
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& j)
 	{
-		repeat = false;
-		world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j) -> bool
-		{
-			const auto contains = j->get_contains();
-
-			if (obj_decay(j.get()))
-			{
-				if (contains)
-				{
-					repeat = true;
-					return false;	// exit from the inner loop and repeat outer loop
-				}
-			}
-
-			return true;
-		});
-	} while (repeat);
+		obj_decay(j.get());
+	});
 }
 
 void point_update(void)
@@ -2130,57 +2109,58 @@ void point_update(void)
 
 void repop_decay(zone_rnum zone)
 {
-	zone_vnum obj_zone_num, zone_num;
+	const zone_vnum zone_num = zone_table[zone].number;
 
-	zone_num = zone_table[zone].number;
-
-	bool repeat = false;
-	do
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& j)
 	{
-		repeat = false;
-		world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j)
+		const zone_vnum obj_zone_num = j->get_vnum() / 100;
+
+		if (obj_zone_num == zone_num
+			&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
 		{
-			const auto contains = j->get_contains();
-
-			obj_zone_num = j->get_vnum() / 100;
-			if (obj_zone_num == zone_num
-				&& j->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
+			if (j->get_worn_by())
 			{
-				/* F@N
-				 * Если мне кто-нибудь объяснит глубинный смысл последующей строчки,
-				 * буду очень признателен
-				*/
-				if (j->get_worn_by())
+				act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
+			}
+			else if (j->get_carried_by())
+			{
+				act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
+					FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
+			}
+			else if (j->get_in_room() != NOWHERE)
+			{
+				if (!world[j->get_in_room()]->people.empty())
 				{
-					act("$o рассыпал$U, вспыхнув ярким светом...", FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
+					act("$o рассыпал$U, вспыхнув ярким светом...",
+						FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
+					act("$o рассыпал$U, вспыхнув ярким светом...",
+						FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
 				}
-				else if (j->get_carried_by())
+			}
+			else if(j->get_in_obj())
+			{
+				CHAR_DATA* owner = nullptr;
+
+				if (j->get_in_obj()->get_carried_by())
 				{
-					act("$o рассыпал$U в ваших руках, вспыхнув ярким светом...",
-						FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
+					owner = j->get_in_obj()->get_carried_by();
 				}
-				else if (j->get_in_room() != NOWHERE)
+				else if (j->get_in_obj()->get_worn_by())
 				{
-					if (!world[j->get_in_room()]->people.empty())
-					{
-						act("$o рассыпал$U, вспыхнув ярким светом...",
-							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_CHAR);
-						act("$o рассыпал$U, вспыхнув ярким светом...",
-							FALSE, world[j->get_in_room()]->first_character(), j.get(), 0, TO_ROOM);
-					}
+					owner = j->get_in_obj()->get_worn_by();
 				}
 
-				extract_obj(j.get());
-				if (contains)
+				if (owner)
 				{
-					repeat = true;
-					return false;
+					char buf[MAX_STRING_LENGTH];
+					snprintf(buf, MAX_STRING_LENGTH, "$o рассыпал%U в %s...", j->get_in_obj()->get_PName(5).c_str());
+					act(buf, FALSE, owner, j.get(), 0, TO_CHAR);
 				}
 			}
 
-			return true;
-		});
-	} while (repeat);
+			extract_obj(j.get());
+		}
+	});
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

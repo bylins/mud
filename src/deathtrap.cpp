@@ -8,7 +8,6 @@
 #include "db.h"
 #include "spells.h"
 #include "handler.h"
-#include "comm.h"
 #include "house.h"
 #include "char.hpp"
 #include "corpse.hpp"
@@ -23,7 +22,6 @@
 #include <algorithm>
 
 extern int has_boat(CHAR_DATA * ch);
-extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
 extern void death_cry(CHAR_DATA * ch, CHAR_DATA * killer);
 extern void reset_affects(CHAR_DATA *ch);
 
@@ -105,7 +103,7 @@ namespace OneWayPortal
 {
 
 // список односторонних порталов <куда указывает, откуда поставлен>
-std::map<ROOM_DATA*, ROOM_DATA*> portal_list;
+std::unordered_map<room_vnum /*to*/, room_vnum /*from*/> portal_list;
 
 /**
 * Добавление портала в список
@@ -114,7 +112,7 @@ std::map<ROOM_DATA*, ROOM_DATA*> portal_list;
 */
 void add(ROOM_DATA* to_room, ROOM_DATA* from_room)
 {
-	portal_list[to_room] = from_room;
+	portal_list.emplace(to_room->number, from_room->number);
 }
 
 /**
@@ -123,7 +121,7 @@ void add(ROOM_DATA* to_room, ROOM_DATA* from_room)
 */
 void remove(ROOM_DATA* to_room)
 {
-	std::map<ROOM_DATA*, ROOM_DATA*>::iterator it = portal_list.find(to_room);
+	const auto it = portal_list.find(to_room->number);
 	if (it != portal_list.end())
 		portal_list.erase(it);
 }
@@ -133,12 +131,13 @@ void remove(ROOM_DATA* to_room)
 * \param to_room - куда указывает пента
 * \return указатель на источник пенты
 */
-ROOM_DATA * get_from_room(ROOM_DATA* to_room)
+ROOM_DATA* get_from_room(ROOM_DATA* to_room)
 {
-	std::map<ROOM_DATA*, ROOM_DATA*>::const_iterator it = portal_list.find(to_room);
+	const auto it = portal_list.find(to_room->number);
 	if (it != portal_list.end())
-		return it->second;
-	return 0;
+		return GET_ROOM(it->second);
+
+	return nullptr;
 }
 
 } // namespace OneWayPortal

@@ -84,7 +84,7 @@ extern void split_or_clan_tax(CHAR_DATA *ch, long amount);
 room_rnum find_target_room(CHAR_DATA * ch, char *rawroomstr, int trig);
 void free_varlist(struct trig_var_data *vd);
 int obj_room(OBJ_DATA * obj);
-int is_empty(int zone_nr);
+bool is_empty(int zone_nr);
 TRIG_DATA *read_trigger(int nr);
 OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
