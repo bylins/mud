@@ -1863,10 +1863,9 @@ void obj_point_update()
 	});
 
 	// Тонущие, падающие, и сыпящиеся обьекты.
-	world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j)
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& j)
 	{
 		obj_decay(j.get());
-		return true;
 	});
 }
 
@@ -2116,7 +2115,7 @@ void repop_decay(zone_rnum zone)
 {
 	const zone_vnum zone_num = zone_table[zone].number;
 
-	world_objects.foreach_on_copy_while([&](const OBJ_DATA::shared_ptr& j)
+	world_objects.foreach_on_copy([&](const OBJ_DATA::shared_ptr& j)
 	{
 		const zone_vnum obj_zone_num = j->get_vnum() / 100;
 
@@ -2165,8 +2164,6 @@ void repop_decay(zone_rnum zone)
 
 			extract_obj(j.get());
 		}
-
-		return true;
 	});
 }
 
