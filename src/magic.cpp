@@ -2946,11 +2946,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_GROUP_BLESS:
 	case SPELL_BLESS:
 		af[0].location = APPLY_SAVING_STABILITY;
-		af[0].modifier = -5 - GET_REMORT(ch); // дополнительный +1 к сейву за реморт
+		af[0].modifier = -5 - GET_REMORT(ch) / 3; 
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_BLESS);
 		af[1].location = APPLY_SAVING_WILL;
-		af[1].modifier = -5 - GET_REMORT(ch);
+		af[1].modifier = -5 - GET_REMORT(ch) / 3;
 		af[1].duration = af[0].duration;
 		af[1].bitvector = to_underlying(EAffectFlag::AFF_BLESS);
 		to_room = "$n осветил$u на миг неземным светом.";
@@ -3549,9 +3549,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].location = APPLY_STR;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		if (ch == victim)
-			af[0].modifier = (level + 9) / 10 + koef_modifier + GET_REMORT(ch) / 2;
+			af[0].modifier = (level + 9) / 10 + koef_modifier + GET_REMORT(ch) / 5;
 		else
-			af[0].modifier = (level + 14) / 15 + koef_modifier + GET_REMORT(ch) / 4;
+			af[0].modifier = (level + 14) / 15 + koef_modifier + GET_REMORT(ch) / 5;
 		accum_duration = TRUE;
 		accum_affect = TRUE;
 		to_vict = "Вы почувствовали себя сильнее.";
