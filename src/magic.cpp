@@ -3033,7 +3033,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_HASTE);
 		af[0].location = APPLY_SAVING_REFLEX;
-		af[1].modifier = -1 - GET_REMORT(ch);
+		af[0].modifier = -1 - GET_REMORT(ch);
 		to_vict = "Вы начали двигаться быстрее.";
 		to_room = "$n начал$g двигаться заметно быстрее.";
 		spellnum = SPELL_HASTE;
