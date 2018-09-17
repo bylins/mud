@@ -149,7 +149,7 @@ void Account::add_player(int uid)
 
 void Account::remove_player(int uid)
 {
-	for (int i = 0; i < this->players_list.size(); i++)
+	for (size_t i = 0; i < this->players_list.size(); i++)
 	{
 		if (this->players_list[i] == uid)
 		{
