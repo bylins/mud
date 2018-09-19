@@ -41,23 +41,42 @@ int outfit(CHAR_DATA *ch, void *me, int cmd, char* argument);
 }
 extern int has_boat(CHAR_DATA *ch);
 
+
+
 namespace MapSystem
 {
 
+
 // размер поля для отрисовка
-const int MAX_LINES = 25;
-const int MAX_LENGHT = 50;
+int MAX_LINES = 25;
+int MAX_LENGHT = 50;
 // глубина рекурсии по комнатам
-const int MAX_DEPTH_ROOMS = 5;
+int MAX_DEPTH_ROOMS = 5;
+
+/*
+#define MAX_LINES ch->map_check_option(MAP_MODE_BIG) ? 50 : 25
+#define MAX_LENGHT ch->map_check_option(MAP_MODE_BIG) ? 100 : 50
+#define MAX_DEPTH_ROOMS ch->map_check_option(MAP_MODE_BIG) ? 10 : 5
+	*/
+
+const int MAX_LINES_STANDART = 50;
+const int MAX_LENGHT_STANDART = 100;
+const int MAX_DEPTJ_ROOM_STANDART = 10;
+
+// Все тоже самое, но для увеличенной карты
+const int MAX_LINES_BIG = 50;
+const int MAX_LENGHT_BIG = 100;
+const int MAX_DEPTJ_ROOM_BIG = 10; 
+
 
 // поле для отрисовки
 //int screen[MAX_LINES][MAX_LENGHT];
-boost::multi_array<int, 2> screen(boost::extents[MAX_LINES][MAX_LENGHT]);
+boost::multi_array<int, 2> screen(boost::extents[MAX_LINES_BIG][MAX_LENGHT_BIG]);
 // копия поля для хранения глубины текущей отрисовки по нужным координатам
 // используется для случаев наезжания комнат друг на друга, в этом случае
 // ближняя затирает более дальнюю и все остальные после нее
 //int depths[MAX_LINES][MAX_LENGHT];
-boost::multi_array<int, 2> depths(boost::extents[MAX_LINES][MAX_LENGHT]);
+boost::multi_array<int, 2> depths(boost::extents[MAX_LINES_BIG][MAX_LENGHT_BIG]);
 
 enum
 {
@@ -709,6 +728,18 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 {
+	if (ch->map_check_option(MAP_MODE_BIG))
+	{
+		MAX_LINES = MAX_LINES_BIG;
+		MAX_LENGHT = MAX_LENGHT_BIG;
+		MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_BIG;
+	}
+	else
+	{
+		MAX_LINES = MAX_LINES_STANDART;
+		MAX_LENGHT = MAX_LENGHT_STANDART;
+		MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_STANDART;
+	}
 	for (int i = 0; i < MAX_LINES; ++i)
 	{
 		for (int k = 0; k < MAX_LENGHT; ++k)
@@ -826,7 +857,10 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 	for (int i = start_line; i < end_line; ++i)
 	{
 		out += ": ";
-		for (int k = 0; k < MAX_LENGHT; ++k)
+		int k = 0;
+		if (ch->map_check_option(MAP_MODE_BIG))
+			k = 10;
+		for (; k < MAX_LENGHT; ++k)
 		{
 			if (screen[i][k] <= -1)
 			{
@@ -976,7 +1010,12 @@ void Options::olc_menu(CHAR_DATA *ch)
 		case MAP_MODE_OBJS_CURR_ROOM:
 			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
 				% (bit_list_[MAP_MODE_OBJS_CURR_ROOM] ? "[x]" : "[ ]")
-				% "объекты (п. 3-6) в комнате с персонажем\r\n\r\n";
+				% "объекты (п. 3-6) в комнате с персонажем\r\n";
+			break;
+		case MAP_MODE_BIG:
+			out << menu1 % CCGRN(ch, C_NRM) % ++cnt % CCNRM(ch, C_NRM)
+				% (bit_list_[MAP_MODE_BIG] ? "[x]" : "[ ]")
+				% "увеличенный размер карты\r\n\r\n";
 			break;
 		}
 	}
