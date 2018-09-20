@@ -1373,7 +1373,6 @@ const char *drop_op[3] =
 
 void perform_drop(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	int value;
 	if (!drop_otrigger(obj, ch))
 		return;
 	if (!bloody::handle_transfer(ch, NULL, obj))

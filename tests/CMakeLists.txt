@@ -86,7 +86,7 @@ source_group("Tests" FILES ${TESTS})
 source_group("Tests helpers" FILES ${UTILITIES})
 add_executable(tests main.cpp ${TESTS} ${UTILITIES} ${ADDITIONAL_FILES})
 
-set_target_properties(tests PROPERTIES CXX_STANDARD 17)
+set_target_properties(tests PROPERTIES CXX_STANDARD 14)
 target_link_libraries(tests circle.library ${GTEST_LIB})
 if (NOT WIN32)
 	target_link_libraries(tests pthread)

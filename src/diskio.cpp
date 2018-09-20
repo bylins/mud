@@ -66,8 +66,6 @@ int find_string_size(char *str)
 				*(p - 1) = '\r';
 				*(p++) = '\n';
 			}
-			else
-				p++;
 			break;
 		case '~':
 			if (*(p - 1) == '\r' || *(p - 1) == '\n' ||
