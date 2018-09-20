@@ -35,6 +35,8 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int torc(CHAR_DATA *ch, void *me, int cmd, char* argument);
+extern std::vector<City> cities;
+
 namespace Noob
 {
 int outfit(CHAR_DATA *ch, void *me, int cmd, char* argument);
@@ -59,9 +61,9 @@ int MAX_DEPTH_ROOMS = 5;
 #define MAX_DEPTH_ROOMS ch->map_check_option(MAP_MODE_BIG) ? 10 : 5
 	*/
 
-const int MAX_LINES_STANDART = 50;
-const int MAX_LENGHT_STANDART = 100;
-const int MAX_DEPTJ_ROOM_STANDART = 10;
+const int MAX_LINES_STANDART = 25;
+const int MAX_LENGHT_STANDART = 50;
+const int MAX_DEPTJ_ROOM_STANDART = 5;
 
 // Все тоже самое, но для увеличенной карты
 const int MAX_LINES_BIG = 50;
@@ -728,17 +730,22 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 {
+	MAX_LINES = MAX_LINES_STANDART;
+	MAX_LENGHT = MAX_LENGHT_STANDART;
+	MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_STANDART;
 	if (ch->map_check_option(MAP_MODE_BIG))
 	{
-		MAX_LINES = MAX_LINES_BIG;
-		MAX_LENGHT = MAX_LENGHT_BIG;
-		MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_BIG;
-	}
-	else
-	{
-		MAX_LINES = MAX_LINES_STANDART;
-		MAX_LENGHT = MAX_LENGHT_STANDART;
-		MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_STANDART;
+		for (unsigned int i = 0; i < cities.size(); i++)
+		{
+			if (zone_table[world[ch->in_room]->zone].number == cities[i].rent_vnum / 100)
+			{
+//				send_to_char(ch, "Номер зоны == %d, номер ренты == %d, зона ренты %d\r\n", zone_table[world[ch->in_room]->zone].number, cities[i].rent_vnum,  cities[i].rent_vnum / 100 );
+				MAX_LINES = MAX_LINES_BIG;
+				MAX_LENGHT = MAX_LENGHT_BIG;
+				MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_BIG;
+				break;
+			}
+		}
 	}
 	for (int i = 0; i < MAX_LINES; ++i)
 	{
