@@ -32,7 +32,7 @@
 #include "room.hpp"
 #include "celebrates.hpp"
 
-extern void script_timechange_trigger_check(const int time);//Эксопрт тригеров смены времени
+extern void script_timechange_trigger_check(const int time);//п╜п╨я│п╬п©я─я┌ я┌я─п╦пЁп╣я─п╬п╡ я│п╪п╣п╫я▀ п╡я─п╣п╪п╣п╫п╦
 extern TIME_INFO_DATA time_info;
 
 void another_hour(int mode);
@@ -56,23 +56,23 @@ void gods_day_now(CHAR_DATA * ch)
 
 	if (IS_IMMORTAL(ch))
 	{
-		sprintf(poly, "Язычники : %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(mono, "Христиане: %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-		sprintf(real, "В реальном мире: %s Нет праздника. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(poly, "п╞п╥я▀я┤п╫п╦п╨п╦ : %s п²п╣я┌ п©я─п╟п╥п╢п╫п╦п╨п╟. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(mono, "п╔я─п╦я│я┌п╦п╟п╫п╣: %s п²п╣я┌ п©я─п╟п╥п╢п╫п╦п╨п╟. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(real, "п▓ я─п╣п╟п╩я▄п╫п╬п╪ п╪п╦я─п╣: %s п²п╣я┌ п©я─п╟п╥п╢п╫п╦п╨п╟. %s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 
 		if (mono_name != "")
 		{
-			sprintf(mono, "Христиане: %s %s. %s\r\n", CCWHT(ch, C_NRM),
+			sprintf(mono, "п╔я─п╦я│я┌п╦п╟п╫п╣: %s %s. %s\r\n", CCWHT(ch, C_NRM),
 				mono_name.c_str(), CCNRM(ch, C_NRM));
 		}
 
 		if (poly_name != "")
 		{
-			sprintf(poly, "Язычники : %s %s. %s\r\n", CCWHT(ch, C_NRM),
+			sprintf(poly, "п╞п╥я▀я┤п╫п╦п╨п╦ : %s %s. %s\r\n", CCWHT(ch, C_NRM),
 							poly_name.c_str(), CCNRM(ch, C_NRM));
 		}
 
-		sprintf(mono + strlen(mono), "Пасха    : %d.%02d\r\n", EasterDay + 1, EasterMonth + 1);
+		sprintf(mono + strlen(mono), "п÷п╟я│я┘п╟    : %d.%02d\r\n", EasterDay + 1, EasterMonth + 1);
 		send_to_char(poly, ch);
 		send_to_char(mono, ch);
 	}
@@ -80,7 +80,7 @@ void gods_day_now(CHAR_DATA * ch)
 	{
 		if (poly_name != "")
 		{
-			sprintf(poly, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
+			sprintf(poly, "%s п║п╣пЁп╬п╢п╫я▐ %s. %s\r\n", CCWHT(ch, C_NRM),
 				poly_name.c_str(), CCNRM(ch, C_NRM));
 			send_to_char(poly, ch);
 		}
@@ -89,14 +89,14 @@ void gods_day_now(CHAR_DATA * ch)
 	{
 		if (mono_name != "")
 		{
-			sprintf(mono, "%s Сегодня %s. %s\r\n", CCWHT(ch, C_NRM),
+			sprintf(mono, "%s п║п╣пЁп╬п╢п╫я▐ %s. %s\r\n", CCWHT(ch, C_NRM),
 						mono_name.c_str(), CCNRM(ch, C_NRM));
 			send_to_char(mono, ch);
 		}
 	}
 	if (real_name != "")
 	{
-		sprintf(real, "В реальном мире : %s %s. %s\r\n", CCWHT(ch, C_NRM),
+		sprintf(real, "п▓ я─п╣п╟п╩я▄п╫п╬п╪ п╪п╦я─п╣ : %s %s. %s\r\n", CCWHT(ch, C_NRM),
 						real_name.c_str(), CCNRM(ch, C_NRM));
 	}
 	send_to_char(real, ch);
@@ -132,30 +132,30 @@ void another_hour(int/* mode*/)
 	if (time_info.hours == sunrise[time_info.month][0])
 	{
 		weather_info.sunlight = SUN_RISE;
-		send_to_outdoor("На востоке показались первые солнечные лучи.\r\n", SUN_CONTROL);
-		// Gorrah: Закомментил вызов тут и далее по коду, пока не будет приведено в нормальный виж.
-		// Вы с дуба рухнули - каждый тик бегать по ~100-150к объектов в мире?
-		// Надо делать через собственный лист объектов с такими тригами в собственном же неймспейсе
-		// См. как сделаны slow DT например.
-		//script_timechange_trigger_check(25);//рассвет
+		send_to_outdoor("п²п╟ п╡п╬я│я┌п╬п╨п╣ п©п╬п╨п╟п╥п╟п╩п╦я│я▄ п©п╣я─п╡я▀п╣ я│п╬п╩п╫п╣я┤п╫я▀п╣ п╩я┐я┤п╦.\r\n", SUN_CONTROL);
+		// Gorrah: п≈п╟п╨п╬п╪п╪п╣п╫я┌п╦п╩ п╡я▀п╥п╬п╡ я┌я┐я┌ п╦ п╢п╟п╩п╣п╣ п©п╬ п╨п╬п╢я┐, п©п╬п╨п╟ п╫п╣ п╠я┐п╢п╣я┌ п©я─п╦п╡п╣п╢п╣п╫п╬ п╡ п╫п╬я─п╪п╟п╩я▄п╫я▀п╧ п╡п╦п╤.
+		// п▓я▀ я│ п╢я┐п╠п╟ я─я┐я┘п╫я┐п╩п╦ - п╨п╟п╤п╢я▀п╧ я┌п╦п╨ п╠п╣пЁп╟я┌я▄ п©п╬ ~100-150п╨ п╬п╠я┼п╣п╨я┌п╬п╡ п╡ п╪п╦я─п╣?
+		// п²п╟п╢п╬ п╢п╣п╩п╟я┌я▄ я┤п╣я─п╣п╥ я│п╬п╠я│я┌п╡п╣п╫п╫я▀п╧ п╩п╦я│я┌ п╬п╠я┼п╣п╨я┌п╬п╡ я│ я┌п╟п╨п╦п╪п╦ я┌я─п╦пЁп╟п╪п╦ п╡ я│п╬п╠я│я┌п╡п╣п╫п╫п╬п╪ п╤п╣ п╫п╣п╧п╪я│п©п╣п╧я│п╣
+		// п║п╪. п╨п╟п╨ я│п╢п╣п╩п╟п╫я▀ slow DT п╫п╟п©я─п╦п╪п╣я─.
+		//script_timechange_trigger_check(25);//я─п╟я│я│п╡п╣я┌
 	}
 	else if (time_info.hours == sunrise[time_info.month][0] + 1)
 	{
 		weather_info.sunlight = SUN_LIGHT;
-		send_to_outdoor("Начался день.\r\n", SUN_CONTROL);
-		//script_timechange_trigger_check(26);//день
+		send_to_outdoor("п²п╟я┤п╟п╩я│я▐ п╢п╣п╫я▄.\r\n", SUN_CONTROL);
+		//script_timechange_trigger_check(26);//п╢п╣п╫я▄
 	}
 	else if (time_info.hours == sunrise[time_info.month][1])
 	{
 		weather_info.sunlight = SUN_SET;
-		send_to_outdoor("Солнце медленно исчезло за горизонтом.\r\n", SUN_CONTROL);
-		//script_timechange_trigger_check(27);//закат
+		send_to_outdoor("п║п╬п╩п╫я├п╣ п╪п╣п╢п╩п╣п╫п╫п╬ п╦я│я┤п╣п╥п╩п╬ п╥п╟ пЁп╬я─п╦п╥п╬п╫я┌п╬п╪.\r\n", SUN_CONTROL);
+		//script_timechange_trigger_check(27);//п╥п╟п╨п╟я┌
 	}
 	else if (time_info.hours == sunrise[time_info.month][1] + 1)
 	{
 		weather_info.sunlight = SUN_DARK;
-		send_to_outdoor("Началась ночь.\r\n", SUN_CONTROL);
-		//script_timechange_trigger_check(28);//ночь
+		send_to_outdoor("п²п╟я┤п╟п╩п╟я│я▄ п╫п╬я┤я▄.\r\n", SUN_CONTROL);
+		//script_timechange_trigger_check(28);//п╫п╬я┤я▄
 	}
 
 	if (time_info.hours >= HOURS_PER_DAY)  	// Changed by HHS due to bug ???
@@ -185,15 +185,15 @@ void another_hour(int/* mode*/)
 			}
 		}
 	}
-	//script_timechange_trigger_check(24);//просто смена часа
-	//script_timechange_trigger_check(time_info.hours);//выполняется для конкретного часа
+	//script_timechange_trigger_check(24);//п©я─п╬я│я┌п╬ я│п╪п╣п╫п╟ я┤п╟я│п╟
+	//script_timechange_trigger_check(time_info.hours);//п╡я▀п©п╬п╩п╫я▐п╣я┌я│я▐ п╢п╩я▐ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ я┤п╟я│п╟
 
 	if ((weather_info.sunlight == SUN_SET ||
 			weather_info.sunlight == SUN_DARK) &&
 			weather_info.sky == SKY_LIGHTNING &&
 			weather_info.moon_day >= FULLMOONSTART && weather_info.moon_day <= FULLMOONSTOP)
 	{
-		send_to_outdoor("Лунный свет заливает равнины тусклым светом.\r\n", SUN_CONTROL);
+		send_to_outdoor("п⌡я┐п╫п╫я▀п╧ я│п╡п╣я┌ п╥п╟п╩п╦п╡п╟п╣я┌ я─п╟п╡п╫п╦п╫я▀ я┌я┐я│п╨п╩я▀п╪ я│п╡п╣я┌п╬п╪.\r\n", SUN_CONTROL);
 	}
 }
 
@@ -662,12 +662,12 @@ void weather_change(void)
 	*buf = '\0';
 	if (weather_info.temperature - temp > 6)
 	{
-		strcat(buf, "Резкое похолодание.\r\n");
+		strcat(buf, "п═п╣п╥п╨п╬п╣ п©п╬я┘п╬п╩п╬п╢п╟п╫п╦п╣.\r\n");
 		SET_BIT(cweather_type, WEATHER_QUICKCOOL);
 	}
 	else if (weather_info.temperature - temp < -6)
 	{
-		strcat(buf, "Резкое потепление.\r\n");
+		strcat(buf, "п═п╣п╥п╨п╬п╣ п©п╬я┌п╣п©п╩п╣п╫п╦п╣.\r\n");
 		SET_BIT(cweather_type, WEATHER_QUICKHOT);
 	}
 	weather_info.temperature = MIN(year_temp[time_info.month].max, MAX(year_temp[time_info.month].min, temp));
@@ -675,22 +675,22 @@ void weather_change(void)
 
 	if (weather_info.change >= 10 || weather_info.change <= -10)
 	{
-		strcat(buf, "Сильный ветер.\r\n");
+		strcat(buf, "п║п╦п╩я▄п╫я▀п╧ п╡п╣я┌п╣я─.\r\n");
 		SET_BIT(cweather_type, WEATHER_BIGWIND);
 	}
 	else if (weather_info.change >= 6 || weather_info.change <= -6)
 	{
-		strcat(buf, "Умеренный ветер.\r\n");
+		strcat(buf, "пёп╪п╣я─п╣п╫п╫я▀п╧ п╡п╣я┌п╣я─.\r\n");
 		SET_BIT(cweather_type, WEATHER_MEDIUMWIND);
 	}
 	else if (weather_info.change >= 2 || weather_info.change <= -2)
 	{
-		strcat(buf, "Слабый ветер.\r\n");
+		strcat(buf, "п║п╩п╟п╠я▀п╧ п╡п╣я┌п╣я─.\r\n");
 		SET_BIT(cweather_type, WEATHER_LIGHTWIND);
 	}
 	else if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND | WEATHER_MEDIUMWIND | WEATHER_LIGHTWIND))
 	{
-		strcat(buf, "Ветер утих.\r\n");
+		strcat(buf, "п▓п╣я┌п╣я─ я┐я┌п╦я┘.\r\n");
 		if (IS_SET(weather_info.weather_type, WEATHER_BIGWIND))
 			SET_BIT(cweather_type, WEATHER_MEDIUMWIND);
 		else if (IS_SET(weather_info.weather_type, WEATHER_MEDIUMWIND))
@@ -700,7 +700,7 @@ void weather_change(void)
 	switch (sky_change)
 	{
 	case 1:		// CLOUDLESS -> CLOUDY
-		strcat(buf, "Небо затянуло тучами.\r\n");
+		strcat(buf, "п²п╣п╠п╬ п╥п╟я┌я▐п╫я┐п╩п╬ я┌я┐я┤п╟п╪п╦.\r\n");
 		weather_info.sky = SKY_CLOUDY;
 		break;
 	case 2:		// CLOUDY -> RAINING
@@ -711,13 +711,13 @@ void weather_change(void)
 		case MONTH_JULY:
 		case MONTH_AUGUST:
 		case MONTH_SEPTEMBER:
-			strcat(buf, "Начался дождь.\r\n");
+			strcat(buf, "п²п╟я┤п╟п╩я│я▐ п╢п╬п╤п╢я▄.\r\n");
 			create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 30, 40, 30);
 			break;
 		case MONTH_DECEMBER:
 		case MONTH_JANUARY:
 		case MONTH_FEBRUARY:
-			strcat(buf, "Пошел снег.\r\n");
+			strcat(buf, "п÷п╬я┬п╣п╩ я│п╫п╣пЁ.\r\n");
 			create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 30, 40, 30);
 			break;
 		case MONTH_OCTOBER:
@@ -725,36 +725,36 @@ void weather_change(void)
 			if (IS_SET(cweather_type, WEATHER_QUICKCOOL)
 					&& weather_info.temperature <= 5)
 			{
-				strcat(buf, "Пошел снег.\r\n");
+				strcat(buf, "п÷п╬я┬п╣п╩ я│п╫п╣пЁ.\r\n");
 				SET_BIT(cweather_type, WEATHER_LIGHTSNOW);
 			}
 			else
 			{
-				strcat(buf, "Начался дождь.\r\n");
+				strcat(buf, "п²п╟я┤п╟п╩я│я▐ п╢п╬п╤п╢я▄.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 40, 60, 0);
 			}
 			break;
 		case MONTH_NOVEMBER:
 			if (avg_day_temp <= 3 || IS_SET(cweather_type, WEATHER_QUICKCOOL))
 			{
-				strcat(buf, "Пошел снег.\r\n");
+				strcat(buf, "п÷п╬я┬п╣п╩ я│п╫п╣пЁ.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 40, 60, 0);
 			}
 			else
 			{
-				strcat(buf, "Начался дождь.\r\n");
+				strcat(buf, "п²п╟я┤п╟п╩я│я▐ п╢п╬п╤п╢я▄.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 40, 60, 0);
 			}
 			break;
 		case MONTH_MART:
 			if (avg_day_temp >= 3 || IS_SET(cweather_type, WEATHER_QUICKHOT))
 			{
-				strcat(buf, "Начался дождь.\r\n");
+				strcat(buf, "п²п╟я┤п╟п╩я│я▐ п╢п╬п╤п╢я▄.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 80, 20, 0);
 			}
 			else
 			{
-				strcat(buf, "Пошел снег.\r\n");
+				strcat(buf, "п÷п╬я┬п╣п╩ я│п╫п╣пЁ.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 60, 30, 10);
 			}
 			break;
@@ -762,20 +762,20 @@ void weather_change(void)
 		weather_info.sky = SKY_RAINING;
 		break;
 	case 3:		// CLOUDY -> CLOUDLESS
-		strcat(buf, "Начало проясняться.\r\n");
+		strcat(buf, "п²п╟я┤п╟п╩п╬ п©я─п╬я▐я│п╫я▐я┌я▄я│я▐.\r\n");
 		weather_info.sky = SKY_CLOUDLESS;
 		break;
 	case 4:		// RAINING -> LIGHTNING
-		strcat(buf, "Налетевший ветер разогнал тучи.\r\n");
+		strcat(buf, "п²п╟п╩п╣я┌п╣п╡я┬п╦п╧ п╡п╣я┌п╣я─ я─п╟п╥п╬пЁп╫п╟п╩ я┌я┐я┤п╦.\r\n");
 		weather_info.sky = SKY_LIGHTNING;
 		break;
 	case 5:		// RAINING -> CLOUDY
 		if (IS_SET(weather_info.weather_type, WEATHER_LIGHTRAIN | WEATHER_MEDIUMRAIN | WEATHER_BIGRAIN))
-			strcat(buf, "Дождь прекратился.\r\n");
+			strcat(buf, "п■п╬п╤п╢я▄ п©я─п╣п╨я─п╟я┌п╦п╩я│я▐.\r\n");
 		else if (IS_SET(weather_info.weather_type, WEATHER_LIGHTSNOW | WEATHER_MEDIUMSNOW | WEATHER_BIGSNOW))
-			strcat(buf, "Снегопад прекратился.\r\n");
+			strcat(buf, "п║п╫п╣пЁп╬п©п╟п╢ п©я─п╣п╨я─п╟я┌п╦п╩я│я▐.\r\n");
 		else if (IS_SET(weather_info.weather_type, WEATHER_GRAD))
-			strcat(buf, "Град прекратился.\r\n");
+			strcat(buf, "п⌠я─п╟п╢ п©я─п╣п╨я─п╟я┌п╦п╩я│я▐.\r\n");
 		weather_info.sky = SKY_CLOUDY;
 		break;
 	case 6:		// LIGHTNING -> RAINING
@@ -788,19 +788,19 @@ void weather_change(void)
 		case MONTH_SEPTEMBER:
 			if (IS_SET(cweather_type, WEATHER_QUICKCOOL))
 			{
-				strcat(buf, "Начался град.\r\n");
+				strcat(buf, "п²п╟я┤п╟п╩я│я▐ пЁя─п╟п╢.\r\n");
 				SET_BIT(cweather_type, WEATHER_GRAD);
 			}
 			else
 			{
-				strcat(buf, "Полил дождь.\r\n");
+				strcat(buf, "п÷п╬п╩п╦п╩ п╢п╬п╤п╢я▄.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 10, 40, 50);
 			}
 			break;
 		case MONTH_DECEMBER:
 		case MONTH_JANUARY:
 		case MONTH_FEBRUARY:
-			strcat(buf, "Повалил снег.\r\n");
+			strcat(buf, "п÷п╬п╡п╟п╩п╦п╩ я│п╫п╣пЁ.\r\n");
 			create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 10, 40, 50);
 			break;
 		case MONTH_OCTOBER:
@@ -808,36 +808,36 @@ void weather_change(void)
 			if (IS_SET(cweather_type, WEATHER_QUICKCOOL)
 					&& weather_info.temperature <= 5)
 			{
-				strcat(buf, "Повалил снег.\r\n");
+				strcat(buf, "п÷п╬п╡п╟п╩п╦п╩ я│п╫п╣пЁ.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 40, 60, 0);
 			}
 			else
 			{
-				strcat(buf, "Начался дождь.\r\n");
+				strcat(buf, "п²п╟я┤п╟п╩я│я▐ п╢п╬п╤п╢я▄.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 40, 60, 0);
 			}
 			break;
 		case MONTH_NOVEMBER:
 			if (avg_day_temp <= 3 || IS_SET(cweather_type, WEATHER_QUICKCOOL))
 			{
-				strcat(buf, "Повалил снег.\r\n");
+				strcat(buf, "п÷п╬п╡п╟п╩п╦п╩ я│п╫п╣пЁ.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 40, 60, 0);
 			}
 			else
 			{
-				strcat(buf, "Начался дождь.\r\n");
+				strcat(buf, "п²п╟я┤п╟п╩я│я▐ п╢п╬п╤п╢я▄.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 40, 60, 0);
 			}
 			break;
 		case MONTH_MART:
 			if (avg_day_temp >= 3 || IS_SET(cweather_type, WEATHER_QUICKHOT))
 			{
-				strcat(buf, "Начался дождь.\r\n");
+				strcat(buf, "п²п╟я┤п╟п╩я│я▐ п╢п╬п╤п╢я▄.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 80, 20, 0);
 			}
 			else
 			{
-				strcat(buf, "Пошел снег.\r\n");
+				strcat(buf, "п÷п╬я┬п╣п╩ я│п╫п╣пЁ.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 60, 30, 10);
 			}
 			break;
@@ -848,14 +848,14 @@ void weather_change(void)
 	default:
 		if (IS_SET(weather_info.weather_type, WEATHER_GRAD))
 		{
-			strcat(buf, "Град прекратился.\r\n");
+			strcat(buf, "п⌠я─п╟п╢ п©я─п╣п╨я─п╟я┌п╦п╩я│я▐.\r\n");
 			create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 10, 40, 50);
 		}
 		else if (IS_SET(weather_info.weather_type, WEATHER_BIGRAIN))
 		{
 			if (weather_info.change >= 5)
 			{
-				strcat(buf, "Дождь утих.\r\n");
+				strcat(buf, "п■п╬п╤п╢я▄ я┐я┌п╦я┘.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 20, 80, 0);
 			}
 			else
@@ -865,12 +865,12 @@ void weather_change(void)
 		{
 			if (weather_info.change <= -5)
 			{
-				strcat(buf, "Дождь усилился.\r\n");
+				strcat(buf, "п■п╬п╤п╢я▄ я┐я│п╦п╩п╦п╩я│я▐.\r\n");
 				SET_BIT(cweather_type, WEATHER_BIGRAIN);
 			}
 			else if (weather_info.change >= 5)
 			{
-				strcat(buf, "Дождь утих.\r\n");
+				strcat(buf, "п■п╬п╤п╢я▄ я┐я┌п╦я┘.\r\n");
 				SET_BIT(cweather_type, WEATHER_LIGHTRAIN);
 			}
 			else
@@ -880,7 +880,7 @@ void weather_change(void)
 		{
 			if (weather_info.change <= -5)
 			{
-				strcat(buf, "Дождь усилился.\r\n");
+				strcat(buf, "п■п╬п╤п╢я▄ я┐я│п╦п╩п╦п╩я│я▐.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTRAIN, 0, 70, 30);
 			}
 			else
@@ -890,7 +890,7 @@ void weather_change(void)
 		{
 			if (weather_info.change >= 5)
 			{
-				strcat(buf, "Снегопад утих.\r\n");
+				strcat(buf, "п║п╫п╣пЁп╬п©п╟п╢ я┐я┌п╦я┘.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 20, 80, 0);
 			}
 			else
@@ -900,12 +900,12 @@ void weather_change(void)
 		{
 			if (weather_info.change <= -5)
 			{
-				strcat(buf, "Снегопад усилился.\r\n");
+				strcat(buf, "п║п╫п╣пЁп╬п©п╟п╢ я┐я│п╦п╩п╦п╩я│я▐.\r\n");
 				SET_BIT(cweather_type, WEATHER_BIGSNOW);
 			}
 			else if (weather_info.change >= 5)
 			{
-				strcat(buf, "Снегопад утих.\r\n");
+				strcat(buf, "п║п╫п╣пЁп╬п©п╟п╢ я┐я┌п╦я┘.\r\n");
 				SET_BIT(cweather_type, WEATHER_LIGHTSNOW);
 			}
 			else
@@ -915,7 +915,7 @@ void weather_change(void)
 		{
 			if (weather_info.change <= -5)
 			{
-				strcat(buf, "Снегопад усилился.\r\n");
+				strcat(buf, "п║п╫п╣пЁп╬п©п╟п╢ я┐я│п╦п╩п╦п╩я│я▐.\r\n");
 				create_rainsnow(&cweather_type, WEATHER_LIGHTSNOW, 0, 70, 30);
 			}
 			else
@@ -936,8 +936,8 @@ void calc_easter(void)
 	TIME_INFO_DATA t = time_info;
 	int moon_day = weather_info.moon_day, week_day = weather_info.week_day_mono;
 
-	log("Сейчас>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
-	// Найдем весеннее солнцестояние - месяц 2 день 20
+	log("п║п╣п╧я┤п╟я│>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
+	// п²п╟п╧п╢п╣п╪ п╡п╣я│п╣п╫п╫п╣п╣ я│п╬п╩п╫я├п╣я│я┌п╬я▐п╫п╦п╣ - п╪п╣я│я▐я├ 2 п╢п╣п╫я▄ 20
 	if (t.month > 2 || (t.month == 2 && t.day > 20))
 	{
 		while (t.month != 2 || t.day != 20)
@@ -968,9 +968,9 @@ void calc_easter(void)
 			}
 		}
 	}
-	log("Равноденствие>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
+	log("п═п╟п╡п╫п╬п╢п╣п╫я│я┌п╡п╦п╣>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
 
-	// Найдем ближайшее полнолуние
+	// п²п╟п╧п╢п╣п╪ п╠п╩п╦п╤п╟п╧я┬п╣п╣ п©п╬п╩п╫п╬п╩я┐п╫п╦п╣
 	while (moon_day != MOON_CYCLE / 2)
 	{
 		if (++moon_day >= MOON_CYCLE)
@@ -983,9 +983,9 @@ void calc_easter(void)
 			t.month++;
 		}
 	}
-	log("Полнолуние>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
+	log("п÷п╬п╩п╫п╬п╩я┐п╫п╦п╣>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
 
-	// Найдем воскресенье
+	// п²п╟п╧п╢п╣п╪ п╡п╬я│п╨я─п╣я│п╣п╫я▄п╣
 	while (week_day != WEEK_CYCLE - 1)
 	{
 		if (++moon_day >= MOON_CYCLE)
@@ -998,7 +998,7 @@ void calc_easter(void)
 			t.month++;
 		}
 	}
-	log("Воскресенье>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
+	log("п▓п╬я│п╨я─п╣я│п╣п╫я▄п╣>%d.%d (%d,%d)", t.day, t.month, moon_day, week_day);
 	EasterDay = t.day;
 	EasterMonth = t.month;
 }
@@ -1042,7 +1042,7 @@ int weather_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
 	{
 	case GAPPLY_SPELL_SUCCESS:
 	case GAPPLY_SPELL_EFFECT:
-		switch (spellnum)  	// Огненные спеллы - лето, день, безоблачно
+		switch (spellnum)  	// п·пЁп╫п╣п╫п╫я▀п╣ я│п©п╣п╩п╩я▀ - п╩п╣я┌п╬, п╢п╣п╫я▄, п╠п╣п╥п╬п╠п╩п╟я┤п╫п╬
 		{
 		case SPELL_BURNING_HANDS:
 		case SPELL_SHOCKING_GRASP:
@@ -1059,7 +1059,7 @@ int weather_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
 					modi += (modi * number(10, 25) / 100);
 			}
 			break;
-			// Молнийные спеллы - облачно или дождливо
+			// п°п╬п╩п╫п╦п╧п╫я▀п╣ я│п©п╣п╩п╩я▀ - п╬п╠п╩п╟я┤п╫п╬ п╦п╩п╦ п╢п╬п╤п╢п╩п╦п╡п╬
 		case SPELL_CALL_LIGHTNING:
 		case SPELL_LIGHTNING_BOLT:
 		case SPELL_CHAIN_LIGHTNING:
@@ -1069,7 +1069,7 @@ int weather_spell_modifier(CHAR_DATA * ch, int spellnum, int type, int value)
 			else if (sky == SKY_CLOUDY)
 				modi += (modi * number(10, 25) / 100);
 			break;
-			// Водно-ледяные спеллы - зима
+			// п▓п╬п╢п╫п╬-п╩п╣п╢я▐п╫я▀п╣ я│п©п╣п╩п╩я▀ - п╥п╦п╪п╟
 		case SPELL_CHILL_TOUCH:
 		case SPELL_ICESTORM:
 		case SPELL_CONE_OF_COLD:

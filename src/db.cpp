@@ -158,7 +158,7 @@ struct reset_q_type reset_q;	// queue of zones to be reset
 
 const FLAG_DATA clear_flags;
 
-struct portals_list_type *portals_list;	// Список проталов для townportal
+struct portals_list_type *portals_list;	// п║п©п╦я│п╬п╨ п©я─п╬я┌п╟п╩п╬п╡ п╢п╩я▐ townportal
 
 extern int number_of_social_messages;
 extern int number_of_social_commands;
@@ -227,7 +227,7 @@ int exchange_database_load(void);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
-extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY
+extern void repop_decay(zone_rnum zone);	// я─п╟я│я│я▀п©п╟п╫п╦п╣ п╬п╠я▄п╣п╨я┌п╬п╡ ITEM_REPOP_DECAY
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
 extern void NewNameRemove(CHAR_DATA * ch);
@@ -267,7 +267,7 @@ int strchrn (const char *s, int c) {
 }
 
 
-// поиск подстроки
+// п©п╬п╦я│п╨ п©п╬п╢я│я┌я─п╬п╨п╦
 int strchrs(const char *s, const char *t) { 
  while (*t) {
   int r=strchrn(s,*t);
@@ -280,16 +280,16 @@ int strchrs(const char *s, const char *t) {
 
 struct Item_struct
 {
-	// для параметров
+	// п╢п╩я▐ п©п╟я─п╟п╪п╣я┌я─п╬п╡
 	std::map<std::string, double> params;
-	// для аффектов
+	// п╢п╩я▐ п╟я└я└п╣п╨я┌п╬п╡
 	std::map<std::string, double> affects;
 };
 
-// массив для критерии, каждый элемент массива это отдельный слот
+// п╪п╟я│я│п╦п╡ п╢п╩я▐ п╨я─п╦я┌п╣я─п╦п╦, п╨п╟п╤п╢я▀п╧ я█п╩п╣п╪п╣п╫я┌ п╪п╟я│я│п╦п╡п╟ я█я┌п╬ п╬я┌п╢п╣п╩я▄п╫я▀п╧ я│п╩п╬я┌
 Item_struct items_struct[17]; // = new Item_struct[16];
 
-// определение степени двойки
+// п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ я│я┌п╣п©п╣п╫п╦ п╢п╡п╬п╧п╨п╦
 int exp_two_implementation(int number)
 {
 	int count = 0;
@@ -319,15 +319,15 @@ template <> inline int exp_two(int number) { return exp_two_implementation(numbe
 
 bool check_obj_in_system_zone(int vnum)
 {
-    // ковка
+    // п╨п╬п╡п╨п╟
     if ((vnum < 400) && (vnum > 299))
 	return true;
-    // сет-шмот
+    // я│п╣я┌-я┬п╪п╬я┌
     if ((vnum >= 1200) && (vnum <= 1299))
 	return true; 
     if ((vnum >= 2300) && (vnum <= 2399))
 	return true;
-    // луки
+    // п╩я┐п╨п╦
     if ((vnum >= 1500) && (vnum <= 1599))
 	return true;
     return false;
@@ -338,7 +338,7 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	char buf_temp[MAX_STRING_LENGTH];
 	char buf_temp1[MAX_STRING_LENGTH];
 	//sleep(15);
-	// куда одевается наш предмет
+	// п╨я┐п╢п╟ п╬п╢п╣п╡п╟п╣я┌я│я▐ п╫п╟я┬ п©я─п╣п╢п╪п╣я┌
 	int item_wear = -1;
 	bool type_item = false;
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR
@@ -348,11 +348,11 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	{
 		type_item = true;
 	}
-	// сумма для статов
+	// я│я┐п╪п╪п╟ п╢п╩я▐ я│я┌п╟я┌п╬п╡
 	double sum = 0;
-	// сумма для аффектов
+	// я│я┐п╪п╪п╟ п╢п╩я▐ п╟я└я└п╣п╨я┌п╬п╡
 	double sum_aff = 0;
-	// по другому чот не получилось
+	// п©п╬ п╢я─я┐пЁп╬п╪я┐ я┤п╬я┌ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄
 	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_FINGER))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_FINGER);
@@ -437,66 +437,66 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	{
 		return false;
 	}
-	// находится ли объект в системной зоне
+	// п╫п╟я┘п╬п╢п╦я┌я│я▐ п╩п╦ п╬п╠я┼п╣п╨я┌ п╡ я│п╦я│я┌п╣п╪п╫п╬п╧ п╥п╬п╫п╣
 	if (check_obj_in_system_zone(obj->get_vnum()))
 	{
 		return false;
 	}
-	// если объект никуда не надевается, то все, облом
+	// п╣я│п╩п╦ п╬п╠я┼п╣п╨я┌ п╫п╦п╨я┐п╢п╟ п╫п╣ п╫п╟п╢п╣п╡п╟п╣я┌я│я▐, я┌п╬ п╡я│п╣, п╬п╠п╩п╬п╪
 	if (item_wear == -1)
 	{
 		return false;
 	}
-	// если шмотка магическая или энчантнута таймер обычный
+	// п╣я│п╩п╦ я┬п╪п╬я┌п╨п╟ п╪п╟пЁп╦я┤п╣я│п╨п╟я▐ п╦п╩п╦ я█п╫я┤п╟п╫я┌п╫я┐я┌п╟ я┌п╟п╧п╪п╣я─ п╬п╠я▀я┤п╫я▀п╧
 	if (obj->get_extra_flag(EExtraFlag::ITEM_MAGIC))
 	{
 		return false;
 	}
-	// если это сетовый предмет
+	// п╣я│п╩п╦ я█я┌п╬ я│п╣я┌п╬п╡я▀п╧ п©я─п╣п╢п╪п╣я┌
 	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
 	{
 		return false;
 	}
-	// !нерушима
+	// !п╫п╣я─я┐я┬п╦п╪п╟
 	if (obj->get_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER))
 	{
 		return false;
 	}
-	// рассыпется вне зоны
+	// я─п╟я│я│я▀п©п╣я┌я│я▐ п╡п╫п╣ п╥п╬п╫я▀
 	if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY))
 	{
 		return false;
 	}
-	// рассыпется на репоп зоны
+	// я─п╟я│я│я▀п©п╣я┌я│я▐ п╫п╟ я─п╣п©п╬п© п╥п╬п╫я▀
 	if (obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY))
 	{
 		return false;
 	}
 
-	// если предмет требует реморты, то он явно овер
+	// п╣я│п╩п╦ п©я─п╣п╢п╪п╣я┌ я┌я─п╣п╠я┐п╣я┌ я─п╣п╪п╬я─я┌я▀, я┌п╬ п╬п╫ я▐п╡п╫п╬ п╬п╡п╣я─
 	if (obj->get_auto_mort_req() > 0)
 		return false;
 	if (obj->get_minimum_remorts() > 0)
 		return false;
-	// проверяем дырки в предмете
+	// п©я─п╬п╡п╣я─я▐п╣п╪ п╢я▀я─п╨п╦ п╡ п©я─п╣п╢п╪п╣я┌п╣
 	 if (obj->get_extra_flag(EExtraFlag::ITEM_WITH1SLOT)
 		 || obj->get_extra_flag(EExtraFlag::ITEM_WITH2SLOTS)
 		 || obj->get_extra_flag(EExtraFlag::ITEM_WITH3SLOTS))
 	 {
 		 return false;
 	 }
-	// если у объекта таймер ноль, то облом. 
+	// п╣я│п╩п╦ я┐ п╬п╠я┼п╣п╨я┌п╟ я┌п╟п╧п╪п╣я─ п╫п╬п╩я▄, я┌п╬ п╬п╠п╩п╬п╪. 
 	if (obj->get_timer() == 0)
 	{
 		return false;
 	}
-	// проходим по всем характеристикам предмета
+	// п©я─п╬я┘п╬п╢п╦п╪ п©п╬ п╡я│п╣п╪ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟п╪ п©я─п╣п╢п╪п╣я┌п╟
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
 		if (obj->get_affected(i).modifier)
 		{
 			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
-			// проходим по нашей таблице с критериями
+			// п©я─п╬я┘п╬п╢п╦п╪ п©п╬ п╫п╟я┬п╣п╧ я┌п╟п╠п╩п╦я├п╣ я│ п╨я─п╦я┌п╣я─п╦я▐п╪п╦
 			for (std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++)
 			{
 				if (strcmp(it->first.c_str(), buf_temp) == 0)
@@ -511,10 +511,10 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	}
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
 	
-	// проходим по всем аффектам в нашей таблице
+	// п©я─п╬я┘п╬п╢п╦п╪ п©п╬ п╡я│п╣п╪ п╟я└я└п╣п╨я┌п╟п╪ п╡ п╫п╟я┬п╣п╧ я┌п╟п╠п╩п╦я├п╣
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
 	{
-		// проверяем, есть ли наш аффект на предмете
+		// п©я─п╬п╡п╣я─я▐п╣п╪, п╣я│я┌я▄ п╩п╦ п╫п╟я┬ п╟я└я└п╣п╨я┌ п╫п╟ п©я─п╣п╢п╪п╣я┌п╣
 		if (strstr(buf_temp1, it->first.c_str()) != NULL)
 		{
 			sum_aff += it->second;
@@ -522,19 +522,19 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		//std::cout << it->first << " " << it->second << std::endl;
 	}
 
-	// если сумма больше или равна единице
+	// п╣я│п╩п╦ я│я┐п╪п╪п╟ п╠п╬п╩я▄я┬п╣ п╦п╩п╦ я─п╟п╡п╫п╟ п╣п╢п╦п╫п╦я├п╣
 	if (sum >= 1)
 	{
 		return false;
 	}
 
-	// тоже самое для аффектов на объекте
+	// я┌п╬п╤п╣ я│п╟п╪п╬п╣ п╢п╩я▐ п╟я└я└п╣п╨я┌п╬п╡ п╫п╟ п╬п╠я┼п╣п╨я┌п╣
 	if (sum_aff >= 1)
 	{
 		return false;
 	}
 
-	// иначе все норм
+	// п╦п╫п╟я┤п╣ п╡я│п╣ п╫п╬я─п╪
 	return true;
 }
 
@@ -545,13 +545,13 @@ float count_koef_obj(const CObjectPrototype *obj,int item_wear)
 	char buf_temp[MAX_STRING_LENGTH];
 	char buf_temp1[MAX_STRING_LENGTH];
 
-	// проходим по всем характеристикам предмета
+	// п©я─п╬я┘п╬п╢п╦п╪ п©п╬ п╡я│п╣п╪ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╟п╪ п©я─п╣п╢п╪п╣я┌п╟
 	for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
 		if (obj->get_affected(i).modifier)
 		{
 			sprinttype(obj->get_affected(i).location, apply_types, buf_temp);
-			// проходим по нашей таблице с критериями
+			// п©я─п╬я┘п╬п╢п╦п╪ п©п╬ п╫п╟я┬п╣п╧ я┌п╟п╠п╩п╦я├п╣ я│ п╨я─п╦я┌п╣я─п╦я▐п╪п╦
 			for (std::map<std::string, double>::iterator it = items_struct[item_wear].params.begin(); it != items_struct[item_wear].params.end(); it++)
 			{
 
@@ -569,10 +569,10 @@ float count_koef_obj(const CObjectPrototype *obj,int item_wear)
 	}
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
 	
-	// проходим по всем аффектам в нашей таблице
+	// п©я─п╬я┘п╬п╢п╦п╪ п©п╬ п╡я│п╣п╪ п╟я└я└п╣п╨я┌п╟п╪ п╡ п╫п╟я┬п╣п╧ я┌п╟п╠п╩п╦я├п╣
 	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
 	{
-		// проверяем, есть ли наш аффект на предмете
+		// п©я─п╬п╡п╣я─я▐п╣п╪, п╣я│я┌я▄ п╩п╦ п╫п╟я┬ п╟я└я└п╣п╨я┌ п╫п╟ п©я─п╣п╢п╪п╣я┌п╣
 		if (strstr(buf_temp1, it->first.c_str()) != NULL)
 		{
 			sum_aff += it->second;
@@ -594,7 +594,7 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 	{
 		type_item = true;
 	}
-	// сумма для статов
+	// я│я┐п╪п╪п╟ п╢п╩я▐ я│я┌п╟я┌п╬п╡
 	
 	result = 0.0;
 	
@@ -704,12 +704,12 @@ float count_mort_requred(const CObjectPrototype *obj)
 
 	float total_weight = 0.0;
 
-	// аффекты APPLY_x
+	// п╟я└я└п╣п╨я┌я▀ APPLY_x
 	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
 	{
 		if (obj->get_affected(k).location == 0) continue;
 
-		// случай, если один аффект прописан в нескольких полях
+		// я│п╩я┐я┤п╟п╧, п╣я│п╩п╦ п╬п╢п╦п╫ п╟я└я└п╣п╨я┌ п©я─п╬п©п╦я│п╟п╫ п╡ п╫п╣я│п╨п╬п╩я▄п╨п╦я┘ п©п╬п╩я▐я┘
 		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
 		{
 			if (obj->get_affected(k).location == obj->get_affected(kk).location
@@ -729,7 +729,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
-		// савесы которые с минусом должны тогда понижать вес если в +
+		// я│п╟п╡п╣я│я▀ п╨п╬я┌п╬я─я▀п╣ я│ п╪п╦п╫я┐я│п╬п╪ п╢п╬п╩п╤п╫я▀ я┌п╬пЁп╢п╟ п©п╬п╫п╦п╤п╟я┌я▄ п╡п╣я│ п╣я│п╩п╦ п╡ +
 		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
 			(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
 			(obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
@@ -739,7 +739,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, 0 - obj->get_affected(k).modifier);
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
-		//Добавленый кусок учет савесов с - значениями
+		//п■п╬п╠п╟п╡п╩п╣п╫я▀п╧ п╨я┐я│п╬п╨ я┐я┤п╣я┌ я│п╟п╡п╣я│п╬п╡ я│ - п╥п╫п╟я┤п╣п╫п╦я▐п╪п╦
 		else if ((obj->get_affected(k).modifier < 0)
 			&& ((obj->get_affected(k).location == APPLY_AC) ||
 			(obj->get_affected(k).location == APPLY_SAVING_WILL) ||
@@ -750,7 +750,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 			float weight = ObjSystem::count_affect_weight(obj, obj->get_affected(k).location, obj->get_affected(k).modifier);
 			total_weight += pow(weight, SQRT_MOD);
 		}
-		//Добавленый кусок учет отрицательного значения но не савесов
+		//п■п╬п╠п╟п╡п╩п╣п╫я▀п╧ п╨я┐я│п╬п╨ я┐я┤п╣я┌ п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫п╬пЁп╬ п╥п╫п╟я┤п╣п╫п╦я▐ п╫п╬ п╫п╣ я│п╟п╡п╣я│п╬п╡
 		else if ((obj->get_affected(k).modifier < 0)
 			&& ((obj->get_affected(k).location != APPLY_AC) &&
 			(obj->get_affected(k).location != APPLY_SAVING_WILL) &&
@@ -762,7 +762,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 			total_weight -= pow(weight, -SQRT_MOD);
 		}
 	}
-	// аффекты AFF_x через weapon_affect
+	// п╟я└я└п╣п╨я┌я▀ AFF_x я┤п╣я─п╣п╥ weapon_affect
 	for (const auto& m : weapon_affect)
 	{
 		if (IS_OBJ_AFF(obj, m.aff_pos))
@@ -805,14 +805,14 @@ void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
 	params = XMLCriterion.child("params");
 	affects = XMLCriterion.child("affects");
 	
-	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
+	// п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╡ п╪п╟я│я│п╦п╡ п╡я│п╣ п©п╟я─п╟п╪п╣я┌я─я▀, я┌п╦п©п╟ я│п╦п╩я▀, п╩п╬п╡п╨п╬я│я┌п╦, п╨п╟я│я┌ п╦ я┌п╢
 	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param"))
 	{
 		items_struct[index].params.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
 		//log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}
 	
-	// добавляем в массив все аффекты
+	// п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╡ п╪п╟я│я│п╦п╡ п╡я│п╣ п╟я└я└п╣п╨я┌я▀
 	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect"))
 	{
 		items_struct[index].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
@@ -959,16 +959,16 @@ void load_sheduled_reboot()
 	log("Setting up reboot_uptime: %i", shutdown_parameters.get_reboot_uptime());
 }
 
-// Базовая функция загрузки XML конфигов
+// п▒п╟п╥п╬п╡п╟я▐ я└я┐п╫п╨я├п╦я▐ п╥п╟пЁя─я┐п╥п╨п╦ XML п╨п╬п╫я└п╦пЁп╬п╡
 pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *ErrorStr, pugi::xml_document& Doc)
 {
 	std::ostringstream buffer;
 	pugi::xml_parse_result Result;
 	pugi::xml_node NodeList;
 
-    // Пробуем прочитать файл
+    // п÷я─п╬п╠я┐п╣п╪ п©я─п╬я┤п╦я┌п╟я┌я▄ я└п╟п╧п╩
 	Result = Doc.load_file(PathToFile);
-	// Oops, файла нет
+	// Oops, я└п╟п╧п╩п╟ п╫п╣я┌
 	if (!Result)
 	{
 		buffer << "..." << Result.description();
@@ -976,9 +976,9 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 		return NodeList;
 	}
 
-    // Ищем в файле указанный тэг
+    // п≤я┴п╣п╪ п╡ я└п╟п╧п╩п╣ я┐п╨п╟п╥п╟п╫п╫я▀п╧ я┌я█пЁ
 	NodeList = Doc.child(MainTag);
-	// Тэга нет - кляузничаем в сислоге
+	// п╒я█пЁп╟ п╫п╣я┌ - п╨п╩я▐я┐п╥п╫п╦я┤п╟п╣п╪ п╡ я│п╦я│п╩п╬пЁп╣
 	if (!NodeList)
 	{
 		mudlog(ErrorStr, CMP, LVL_IMMORT, SYSLOG, TRUE);
@@ -988,7 +988,7 @@ pugi::xml_node XMLLoad(const char *PathToFile, const char *MainTag, const char *
 };
 
 std::vector<_case> cases;
-// Заггрузка сундуков в мире
+// п≈п╟пЁпЁя─я┐п╥п╨п╟ я│я┐п╫п╢я┐п╨п╬п╡ п╡ п╪п╦я─п╣
 void load_cases()
 {
 	pugi::xml_document doc_cases;	
@@ -1009,7 +1009,7 @@ void load_cases()
 
 std::vector<City> cities;
 std::string default_str_cities;
-/* Загрузка городов из xml файлов */
+/* п≈п╟пЁя─я┐п╥п╨п╟ пЁп╬я─п╬п╢п╬п╡ п╦п╥ xml я└п╟п╧п╩п╬п╡ */
 void load_cities()
 {
 	default_str_cities = "";
@@ -1037,7 +1037,7 @@ void load_cities()
 
 std::vector<RandomObj> random_objs;
 
-// загрузка параметров для рандомных шмоток
+// п╥п╟пЁя─я┐п╥п╨п╟ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п╢п╩я▐ я─п╟п╫п╢п╬п╪п╫я▀я┘ я┬п╪п╬я┌п╬п╨
 void load_random_obj()
 {
 	pugi::xml_document doc_robj;
@@ -1279,7 +1279,7 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				CreateFileName(buffer);
 				Clan::ClanReload(buffer);
-				send_to_char("Перезагрузка клана.\r\n", ch);
+				send_to_char("п÷п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╟ п╨п╩п╟п╫п╟.\r\n", ch);
 				break;
 			}
 		}
@@ -1310,13 +1310,13 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 			{
-				send_to_char("Указанный чар не найден\r\n"
-					"Формат команды: reload depot <имя чара>.\r\n", ch);
+				send_to_char("пёп╨п╟п╥п╟п╫п╫я▀п╧ я┤п╟я─ п╫п╣ п╫п╟п╧п╢п╣п╫\r\n"
+					"п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀: reload depot <п╦п╪я▐ я┤п╟я─п╟>.\r\n", ch);
 			}
 		}
 		else
 		{
-			send_to_char("Формат команды: reload depot <имя чара>.\r\n", ch);
+			send_to_char("п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀: reload depot <п╦п╪я▐ я┤п╟я─п╟>.\r\n", ch);
 		}
 	}
 	else if (!str_cmp(arg, "globaldrop"))
@@ -1370,7 +1370,7 @@ void do_reboot(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		send_to_char("Неверный параметр для перезагрузки файлов.\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п©п╟я─п╟п╪п╣я┌я─ п╢п╩я▐ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╦ я└п╟п╧п╩п╬п╡.\r\n", ch);
 		return;
 	}
 
@@ -1388,7 +1388,7 @@ void init_portals(void)
 	int rnm = 0, i, level = 0;
 	struct portals_list_type *curr, *prev;
 
-	// Сначала освобождаем все порталы
+	// п║п╫п╟я┤п╟п╩п╟ п╬я│п╡п╬п╠п╬п╤п╢п╟п╣п╪ п╡я│п╣ п©п╬я─я┌п╟п╩я▀
 	for (curr = portals_list; curr; curr = prev)
 	{
 		prev = curr->next_portal;
@@ -1399,7 +1399,7 @@ void init_portals(void)
 	portals_list = NULL;
 	prev = NULL;
 
-	// читаем файл
+	// я┤п╦я┌п╟п╣п╪ я└п╟п╧п╩
 	if (!(portal_f = fopen(LIB_MISC "portals.lst", "r")))
 	{
 		log("Can not open portals.lst");
@@ -1419,7 +1419,7 @@ void init_portals(void)
 		wrd = nm2;
 		for (i = 0; !(i == 10 || wrd[i] == ' ' || wrd[i] == '\0'); i++);
 		wrd[i] = '\0';
-		// добавляем портал в список - rnm - комната, wrd - слово
+		// п╢п╬п╠п╟п╡п╩я▐п╣п╪ п©п╬я─я┌п╟п╩ п╡ я│п©п╦я│п╬п╨ - rnm - п╨п╬п╪п╫п╟я┌п╟, wrd - я│п╩п╬п╡п╬
 		CREATE(curr, 1);
 		CREATE(curr->wrd, strlen(wrd) + 1);
 		curr->vnum = rnm;
@@ -1439,7 +1439,7 @@ void init_portals(void)
 	fclose(portal_f);
 }
 
-/// конверт поля GET_OBJ_SKILL в емкостях TODO: 12.2013
+/// п╨п╬п╫п╡п╣я─я┌ п©п╬п╩я▐ GET_OBJ_SKILL п╡ п╣п╪п╨п╬я│я┌я▐я┘ TODO: 12.2013
 int convert_drinkcon_skill(CObjectPrototype *obj, bool proto)
 {
 	if (GET_OBJ_SKILL(obj) > 0
@@ -1448,8 +1448,8 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto)
 	{
 		log("obj_skill: %d - %s (%d)", GET_OBJ_SKILL(obj),
 			GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_VNUM(obj));
-		// если емскости уже просетили какие-то заклы, то зелье
-		// из обж-скилл их не перекрывает, а просто удаляется
+		// п╣я│п╩п╦ п╣п╪я│п╨п╬я│я┌п╦ я┐п╤п╣ п©я─п╬я│п╣я┌п╦п╩п╦ п╨п╟п╨п╦п╣-я┌п╬ п╥п╟п╨п╩я▀, я┌п╬ п╥п╣п╩я▄п╣
+		// п╦п╥ п╬п╠п╤-я│п╨п╦п╩п╩ п╦я┘ п╫п╣ п©п╣я─п╣п╨я─я▀п╡п╟п╣я┌, п╟ п©я─п╬я│я┌п╬ я┐п╢п╟п╩я▐п╣я┌я│я▐
 		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) < 0)
 		{
 			const auto potion = world_objects.create_from_prototype_by_vnum(GET_OBJ_SKILL(obj));
@@ -1459,9 +1459,9 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto)
 				drinkcon::copy_potion_values(potion.get(), obj);
 				if (proto)
 				{
-					// copy_potion_values сетит до кучи и внум из пошена,
-					// поэтому уточним здесь, что зелье не перелито
-					// емкости из read_one_object_new идут как перелитые
+					// copy_potion_values я│п╣я┌п╦я┌ п╢п╬ п╨я┐я┤п╦ п╦ п╡п╫я┐п╪ п╦п╥ п©п╬я┬п╣п╫п╟,
+					// п©п╬я█я┌п╬п╪я┐ я┐я┌п╬я┤п╫п╦п╪ п╥п╢п╣я│я▄, я┤я┌п╬ п╥п╣п╩я▄п╣ п╫п╣ п©п╣я─п╣п╩п╦я┌п╬
+					// п╣п╪п╨п╬я│я┌п╦ п╦п╥ read_one_object_new п╦п╢я┐я┌ п╨п╟п╨ п©п╣я─п╣п╩п╦я┌я▀п╣
 					obj->set_value(ObjVal::EValueKey::POTION_PROTO_VNUM, 0);
 				}
 			}
@@ -1473,7 +1473,7 @@ int convert_drinkcon_skill(CObjectPrototype *obj, bool proto)
 	return 0;
 }
 
-/// конверт параметров прототипов ПОСЛЕ лоада всех файлов с прототипами
+/// п╨п╬п╫п╡п╣я─я┌ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п©я─п╬я┌п╬я┌п╦п©п╬п╡ п÷п·п║п⌡п∙ п╩п╬п╟п╢п╟ п╡я│п╣я┘ я└п╟п╧п╩п╬п╡ я│ п©я─п╬я┌п╬я┌п╦п©п╟п╪п╦
 void convert_obj_values()
 {
 	int save = 0;
@@ -1593,7 +1593,7 @@ void init_zone_types()
 
 	while (get_line(zt_file, tmp))
 	{
-		if (!strn_cmp(tmp, "ИМЯ", 3))
+		if (!strn_cmp(tmp, "п≤п°п╞", 3))
 		{
 			if (sscanf(tmp, "%s %s", dummy, name) != 2)
 			{
@@ -1605,7 +1605,7 @@ void init_zone_types()
 				log("Corrupted file : ztypes.lst");
 				return;
 			}
-			if (!strn_cmp(tmp, "ТИПЫ", 4))
+			if (!strn_cmp(tmp, "п╒п≤п÷п╚", 4))
 			{
 				if (tmp[4] != ' ' && tmp[4] != '\0')
 				{
@@ -1653,7 +1653,7 @@ void init_zone_types()
 			if (name[j] == '_')
 				name[j] = ' ';
 		zone_types[i].name = str_dup(name);
-//		if (get_line(zt_file, tmp)); не уверен что тут хотел автор -- Krodo
+//		if (get_line(zt_file, tmp)); п╫п╣ я┐п╡п╣я─п╣п╫ я┤я┌п╬ я┌я┐я┌ я┘п╬я┌п╣п╩ п╟п╡я┌п╬я─ -- Krodo
 		get_line(zt_file, tmp);
 		for (j = 4; tmp[j] != '\0'; j++)
 		{
@@ -1679,7 +1679,7 @@ void init_zone_types()
 	i = 0;
 	while (get_line(zt_file, tmp))
 	{
-//		if (get_line(zt_file, tmp)); аналогично тому, что выше
+//		if (get_line(zt_file, tmp)); п╟п╫п╟п╩п╬пЁп╦я┤п╫п╬ я┌п╬п╪я┐, я┤я┌п╬ п╡я▀я┬п╣
 		get_line(zt_file, tmp);
 		for (j = 4, n = 0; tmp[j] != '\0'; j++)
 		{
@@ -2312,7 +2312,7 @@ void set_zone_town()
 			continue;
 		}
 		bool rent_flag = false, bank_flag = false, post_flag = false;
-		// зона считается городом, если в ней есть рентер, банкир и почтовик
+		// п╥п╬п╫п╟ я│я┤п╦я┌п╟п╣я┌я│я▐ пЁп╬я─п╬п╢п╬п╪, п╣я│п╩п╦ п╡ п╫п╣п╧ п╣я│я┌я▄ я─п╣п╫я┌п╣я─, п╠п╟п╫п╨п╦я─ п╦ п©п╬я┤я┌п╬п╡п╦п╨
 		for (int k = rnum_start; k <= rnum_end; ++k)
 		{
 			for (const auto ch : world[k]->people)
@@ -2345,19 +2345,19 @@ namespace
 
 struct snoop_node
 {
-	// мыло имма
+	// п╪я▀п╩п╬ п╦п╪п╪п╟
 	std::string mail;
-	// список уидов чаров с таким же мылом
+	// я│п©п╦я│п╬п╨ я┐п╦п╢п╬п╡ я┤п╟я─п╬п╡ я│ я┌п╟п╨п╦п╪ п╤п╣ п╪я▀п╩п╬п╪
 	std::vector<long> uid_list;
 };
 
-// номер клан ренты -> список мыл
+// п╫п╬п╪п╣я─ п╨п╩п╟п╫ я─п╣п╫я┌я▀ -> я│п©п╦я│п╬п╨ п╪я▀п╩
 typedef std::map<int, std::set<std::string> > ClanMailType;
 ClanMailType clan_list;
 
 } // namespace
 
-// * Проверка возможности снупа виктима иммом (проверка кланов и их политики).
+// * п÷я─п╬п╡п╣я─п╨п╟ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ я│п╫я┐п©п╟ п╡п╦п╨я┌п╦п╪п╟ п╦п╪п╪п╬п╪ (п©я─п╬п╡п╣я─п╨п╟ п╨п╩п╟п╫п╬п╡ п╦ п╦я┘ п©п╬п╩п╦я┌п╦п╨п╦).
 bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict)
 {
 	if (!CLAN(vict))
@@ -2591,7 +2591,7 @@ void boot_db(void)
 	log("Generating player index.");
 	build_player_index();
 
-	// хэши читать после генерации плеер-таблицы
+	// я┘я█я┬п╦ я┤п╦я┌п╟я┌я▄ п©п╬я│п╩п╣ пЁп╣п╫п╣я─п╟я├п╦п╦ п©п╩п╣п╣я─-я┌п╟п╠п╩п╦я├я▀
 	boot_profiler.next_step("Loading CRC system");
 	log("Loading file crc system.");
 	FileCRC::load();
@@ -2633,7 +2633,7 @@ void boot_db(void)
 		Crash_read_timer(i, FALSE);
 	}
 
-	// последовательность лоада кланов/досок не менять
+	// п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩я▄п╫п╬я│я┌я▄ п╩п╬п╟п╢п╟ п╨п╩п╟п╫п╬п╡/п╢п╬я│п╬п╨ п╫п╣ п╪п╣п╫я▐я┌я▄
 	boot_profiler.next_step("Loading boards");
 	log("Booting boards");
 	Boards::Static::BoardInit();
@@ -2642,7 +2642,7 @@ void boot_db(void)
 	log("Booting clans");
 	Clan::ClanLoad();
 
-	// загрузка списка именных вещей
+	// п╥п╟пЁя─я┐п╥п╨п╟ я│п©п╦я│п╨п╟ п╦п╪п╣п╫п╫я▀я┘ п╡п╣я┴п╣п╧
 	boot_profiler.next_step("Loading named stuff");
 	log("Load named stuff");
 	NamedStuff::load();
@@ -2711,7 +2711,7 @@ void boot_db(void)
 	log("Load privilege and god list.");
 	Privilege::load();
 
-	// должен идти до резета зон
+	// п╢п╬п╩п╤п╣п╫ п╦п╢я┌п╦ п╢п╬ я─п╣п╥п╣я┌п╟ п╥п╬п╫
 	boot_profiler.next_step("Initializing depot system");
 	log("Init Depot system.");
 	Depot::init_depot();
@@ -2721,11 +2721,11 @@ void boot_db(void)
 	Parcel::load();
 
 	boot_profiler.next_step("Loading celebrates");
-	log("Load Celebrates."); //Polud праздники. используются при ресете зон
+	log("Load Celebrates."); //Polud п©я─п╟п╥п╢п╫п╦п╨п╦. п╦я│п©п╬п╩я▄п╥я┐я▌я┌я│я▐ п©я─п╦ я─п╣я│п╣я┌п╣ п╥п╬п╫
 	//Celebrates::load(XMLLoad(LIB_MISC CELEBRATES_FILE, CELEBRATES_MAIN_TAG, CELEBRATES_ERROR_STR));
 	Celebrates::load();
 
-	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
+	// я─п╣п╥п╣я┌ п╢п╬п╩п╤п╣п╫ п╦п╢я┌п╦ п©п╬я│п╩п╣ п╩п╬п╟п╢п╟ п╡я│п╣я┘ я┬п╪п╬я┌п╬п╨ п╡п╫п╣ п╥п╬п╫ (я┘я─п╟п╫п╦п╩п╦я┴п╟ п╦ я┌.п©.)
 	boot_profiler.next_step("Resetting zones");
 	for (int i = 0; i <= top_of_zone_table; i++)
 	{
@@ -2735,7 +2735,7 @@ void boot_db(void)
 	}
 	reset_q.head = reset_q.tail = NULL;
 
-	// делается после резета зон, см камент к функции
+	// п╢п╣п╩п╟п╣я┌я│я▐ п©п╬я│п╩п╣ я─п╣п╥п╣я┌п╟ п╥п╬п╫, я│п╪ п╨п╟п╪п╣п╫я┌ п╨ я└я┐п╫п╨я├п╦п╦
 	boot_profiler.next_step("Loading depot chests");
 	log("Load depot chests.");
 	Depot::load_chests();
@@ -2748,7 +2748,7 @@ void boot_db(void)
 	log("Load glory log.");
 	GloryMisc::load_log();
 
-	//Polud грузим параметры рас мобов
+	//Polud пЁя─я┐п╥п╦п╪ п©п╟я─п╟п╪п╣я┌я─я▀ я─п╟я│ п╪п╬п╠п╬п╡
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
 	load_mobraces();
@@ -2795,7 +2795,7 @@ void boot_db(void)
 	log("Check big sets in rent.");
 	SetSystem::check_rented();
 
-	// сначала сеты, стата мобов, потом дроп сетов
+	// я│п╫п╟я┤п╟п╩п╟ я│п╣я┌я▀, я│я┌п╟я┌п╟ п╪п╬п╠п╬п╡, п©п╬я┌п╬п╪ п╢я─п╬п© я│п╣я┌п╬п╡
 	boot_profiler.next_step("Loading object sets/mob_stat/drop_sets lists");
 	obj_sets::load();
 	log("Load mob_stat.xml");
@@ -2819,11 +2819,11 @@ void boot_db(void)
 	log("Load mail.xml");
 	mail::load();
 	
-	// загрузка кейсов
+	// п╥п╟пЁя─я┐п╥п╨п╟ п╨п╣п╧я│п╬п╡
 	boot_profiler.next_step("Loading cases");
 	load_cases();
 	
-	// справка должна иниться после всего того, что может в нее что-то добавить
+	// я│п©я─п╟п╡п╨п╟ п╢п╬п╩п╤п╫п╟ п╦п╫п╦я┌я▄я│я▐ п©п╬я│п╩п╣ п╡я│п╣пЁп╬ я┌п╬пЁп╬, я┤я┌п╬ п╪п╬п╤п╣я┌ п╡ п╫п╣п╣ я┤я┌п╬-я┌п╬ п╢п╬п╠п╟п╡п╦я┌я▄
 	boot_profiler.next_step("Reloading help system");
 	HelpSystem::reload_all();
 
@@ -2976,7 +2976,7 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 
 	case DB_BOOT_MOB:
 		{
-			mob_proto = new CHAR_DATA[rec_count]; // TODO: переваять на вектор (+в medit)
+			mob_proto = new CHAR_DATA[rec_count]; // TODO: п©п╣я─п╣п╡п╟я▐я┌я▄ п╫п╟ п╡п╣п╨я┌п╬я─ (+п╡ medit)
 			CREATE(mob_index, rec_count);
 			const size_t index_size = sizeof(INDEX_DATA) * rec_count;
 			const size_t characters_size = sizeof(CHAR_DATA) * rec_count;
@@ -3012,12 +3012,12 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 	}
 }
 
-// * Проверки всяких несочетаемых флагов на комнатах.
+// * п÷я─п╬п╡п╣я─п╨п╦ п╡я│я▐п╨п╦я┘ п╫п╣я│п╬я┤п╣я┌п╟п╣п╪я▀я┘ я└п╩п╟пЁп╬п╡ п╫п╟ п╨п╬п╪п╫п╟я┌п╟я┘.
 void check_room_flags(int rnum)
 {
 	if (DeathTrap::is_slow_dt(rnum))
 	{
-		// снятие номагик и прочих флагов, запрещающих чару выбраться из комнаты без выходов при наличии медленного дт
+		// я│п╫я▐я┌п╦п╣ п╫п╬п╪п╟пЁп╦п╨ п╦ п©я─п╬я┤п╦я┘ я└п╩п╟пЁп╬п╡, п╥п╟п©я─п╣я┴п╟я▌я┴п╦я┘ я┤п╟я─я┐ п╡я▀п╠я─п╟я┌я▄я│я▐ п╦п╥ п╨п╬п╪п╫п╟я┌я▀ п╠п╣п╥ п╡я▀я┘п╬п╢п╬п╡ п©я─п╦ п╫п╟п╩п╦я┤п╦п╦ п╪п╣п╢п╩п╣п╫п╫п╬пЁп╬ п╢я┌
 		GET_ROOM(rnum)->unset_flag(ROOM_NOMAGIC);
 		GET_ROOM(rnum)->unset_flag(ROOM_NOTELEPORTOUT);
 		GET_ROOM(rnum)->unset_flag(ROOM_NOSUMMON);
@@ -3025,7 +3025,7 @@ void check_room_flags(int rnum)
 	if (GET_ROOM(rnum)->get_flag(ROOM_HOUSE)
 		&& (SECT(rnum) == SECT_MOUNTAIN || SECT(rnum) == SECT_HILLS))
 	{
-		// шоб в замках умные не копали
+		// я┬п╬п╠ п╡ п╥п╟п╪п╨п╟я┘ я┐п╪п╫я▀п╣ п╫п╣ п╨п╬п©п╟п╩п╦
 		SECT(rnum) = SECT_INSIDE;
 	}
 }
@@ -3083,7 +3083,7 @@ void renum_world(void)
 						real_room(world[room]->dir_option[door]->to_room);
 }
 
-// Установка принадлежности к зоне в прототипах
+// пёя│я┌п╟п╫п╬п╡п╨п╟ п©я─п╦п╫п╟п╢п╩п╣п╤п╫п╬я│я┌п╦ п╨ п╥п╬п╫п╣ п╡ п©я─п╬я┌п╬я┌п╦п©п╟я┘
 void renum_obj_zone(void)
 {
 	for (size_t i = 0; i < obj_proto.size(); ++i)
@@ -3092,7 +3092,7 @@ void renum_obj_zone(void)
 	}
 }
 
-// Установкапринадлежности к зоне в индексе
+// пёя│я┌п╟п╫п╬п╡п╨п╟п©я─п╦п╫п╟п╢п╩п╣п╤п╫п╬я│я┌п╦ п╨ п╥п╬п╫п╣ п╡ п╦п╫п╢п╣п╨я│п╣
 void renum_mob_zone(void)
 {
 	int i;
@@ -3193,7 +3193,7 @@ void renum_zone_table(void)
 // Make own name by process aliases
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 {
-	// ищем метку @p , @p1 ... и заменяем на падежи.
+	// п╦я┴п╣п╪ п╪п╣я┌п╨я┐ @p , @p1 ... п╦ п╥п╟п╪п╣п╫я▐п╣п╪ п╫п╟ п©п╟п╢п╣п╤п╦.
 	int i, k;
 	for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 	{
@@ -3201,20 +3201,20 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 		size_t j = obj_pad.find("@p");
 		if (std::string::npos != j && 0 < j)
 		{
-			// Родитель найден прописываем его.
+			// п═п╬п╢п╦я┌п╣п╩я▄ п╫п╟п╧п╢п╣п╫ п©я─п╬п©п╦я│я▀п╡п╟п╣п╪ п╣пЁп╬.
 			k = atoi(obj_pad.substr(j + 2, j + 3).c_str());
 			obj_pad.replace(j, 3, GET_PAD(ch, k));
 
 			obj->set_PName(i, obj_pad);
-			// Если имя в именительном то дублируем запись
+			// п∙я│п╩п╦ п╦п╪я▐ п╡ п╦п╪п╣п╫п╦я┌п╣п╩я▄п╫п╬п╪ я┌п╬ п╢я┐п╠п╩п╦я─я┐п╣п╪ п╥п╟п©п╦я│я▄
 			if (i == 0)
 			{
 				obj->set_short_description(obj_pad);
-				obj->set_aliases(obj_pad); // ставим алиасы
+				obj->set_aliases(obj_pad); // я│я┌п╟п╡п╦п╪ п╟п╩п╦п╟я│я▀
 			}
 		}
 	};
-	obj->set_is_rename(true); // присвоим флажок что у шмотки заменены падежи
+	obj->set_is_rename(true); // п©я─п╦я│п╡п╬п╦п╪ я└п╩п╟п╤п╬п╨ я┤я┌п╬ я┐ я┬п╪п╬я┌п╨п╦ п╥п╟п╪п╣п╫п╣п╫я▀ п©п╟п╢п╣п╤п╦
 	return (TRUE);
 }
 
@@ -3266,7 +3266,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			load = load && last_load;
 			break;
 		}
-		// Блокируем лоад в зависимости от значения смецпараметра
+		// п▒п╩п╬п╨п╦я─я┐п╣п╪ п╩п╬п╟п╢ п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ п╥п╫п╟я┤п╣п╫п╦я▐ я│п╪п╣я├п©п╟я─п╟п╪п╣я┌я─п╟
 		if ((*p)->spec_param != DL_LOAD_TYPE)
 			load = false;
 		else
@@ -3276,13 +3276,13 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			const auto tobj = world_objects.create_from_prototype_by_vnum((*p)->obj_vnum);
 			if (!tobj)
 			{
-				sprintf(buf, "Попытка загрузки в труп (VNUM:%d) несуществующего объекта (VNUM:%d).",
+				sprintf(buf, "п÷п╬п©я▀я┌п╨п╟ п╥п╟пЁя─я┐п╥п╨п╦ п╡ я┌я─я┐п© (VNUM:%d) п╫п╣я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╣пЁп╬ п╬п╠я┼п╣п╨я┌п╟ (VNUM:%d).",
 					GET_MOB_VNUM(ch), (*p)->obj_vnum);
 				mudlog(buf, NRM, LVL_BUILDER, ERRLOG, TRUE);
 			}
 			else
 			{
-				// Проверяем мах_ин_ворлд и вероятность загрузки, если это необходимо для такого DL_LOAD_TYPE
+				// п÷я─п╬п╡п╣я─я▐п╣п╪ п╪п╟я┘_п╦п╫_п╡п╬я─п╩п╢ п╦ п╡п╣я─п╬я▐я┌п╫п╬я│я┌я▄ п╥п╟пЁя─я┐п╥п╨п╦, п╣я│п╩п╦ я█я┌п╬ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╢п╩я▐ я┌п╟п╨п╬пЁп╬ DL_LOAD_TYPE
 				if (GET_OBJ_MIW(tobj) >= obj_proto.actual_count(tobj->get_rnum())
 					|| GET_OBJ_MIW(tobj) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(tobj.get()))
@@ -3296,21 +3296,21 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 
 				switch (DL_LOAD_TYPE)
 				{
-				case DL_ORDINARY:	//Обычная загрузка - без выкрутасов
+				case DL_ORDINARY:	//п·п╠я▀я┤п╫п╟я▐ п╥п╟пЁя─я┐п╥п╨п╟ - п╠п╣п╥ п╡я▀п╨я─я┐я┌п╟я│п╬п╡
 					if (miw && (number(1, 100) <= (*p)->load_prob))
 						load = true;
 					else
 						load = false;
 					break;
 
-				case DL_PROGRESSION:	//Загрузка с убывающей до 0.01 вероятностью
+				case DL_PROGRESSION:	//п≈п╟пЁя─я┐п╥п╨п╟ я│ я┐п╠я▀п╡п╟я▌я┴п╣п╧ п╢п╬ 0.01 п╡п╣я─п╬я▐я┌п╫п╬я│я┌я▄я▌
 					if ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1))
 						load = true;
 					else
 						load = false;
 					break;
 
-				case DL_SKIN:	//Загрузка по применению "освежевать"
+				case DL_SKIN:	//п≈п╟пЁя─я┐п╥п╨п╟ п©п╬ п©я─п╦п╪п╣п╫п╣п╫п╦я▌ "п╬я│п╡п╣п╤п╣п╡п╟я┌я▄"
 					if ((miw && (number(1, 100) <= (*p)->load_prob)) || (number(1, 100) <= 1))
 						load = true;
 					else
@@ -3327,10 +3327,10 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					{
 						trans_obj_name(tobj.get(), ch);
 					}
-					// Добавлена проверка на отсутствие трупа
+					// п■п╬п╠п╟п╡п╩п╣п╫п╟ п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п╬я┌я│я┐я┌я│я┌п╡п╦п╣ я┌я─я┐п©п╟
 					if (MOB_FLAGGED(ch, MOB_CORPSE))
 					{
-						act("На земле остал$U лежать $o.", FALSE, ch, tobj.get(), 0, TO_ROOM);
+						act("п²п╟ п╥п╣п╪п╩п╣ п╬я│я┌п╟п╩$U п╩п╣п╤п╟я┌я▄ $o.", FALSE, ch, tobj.get(), 0, TO_ROOM);
 						obj_to_room(tobj.get(), ch->in_room);
 					}
 					else
@@ -3362,20 +3362,20 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 // Dead load list object parse
 int dl_parse(load_list ** dl_list, char *line)
 {
-	// Формат парсинга D {номер прототипа} {вероятность загрузки} {спец поле - тип загрузки}
+	// п╓п╬я─п╪п╟я┌ п©п╟я─я│п╦п╫пЁп╟ D {п╫п╬п╪п╣я─ п©я─п╬я┌п╬я┌п╦п©п╟} {п╡п╣я─п╬я▐я┌п╫п╬я│я┌я▄ п╥п╟пЁя─я┐п╥п╨п╦} {я│п©п╣я├ п©п╬п╩п╣ - я┌п╦п© п╥п╟пЁя─я┐п╥п╨п╦}
 	int vnum, prob, type, spec;
 	struct load_data *new_item;
 
 	if (sscanf(line, "%d %d %d %d", &vnum, &prob, &type, &spec) != 4)
 	{
-		// Ошибка чтения.
+		// п·я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐.
 		log("SYSERR: Parse death load list (bad param count).");
 		return FALSE;
 	};
-	// проверяем существование прототипа в мире (предметы уже должны быть загружены)
+	// п©я─п╬п╡п╣я─я▐п╣п╪ я│я┐я┴п╣я│я┌п╡п╬п╡п╟п╫п╦п╣ п©я─п╬я┌п╬я┌п╦п©п╟ п╡ п╪п╦я─п╣ (п©я─п╣п╢п╪п╣я┌я▀ я┐п╤п╣ п╢п╬п╩п╤п╫я▀ п╠я▀я┌я▄ п╥п╟пЁя─я┐п╤п╣п╫я▀)
 	if (*dl_list == NULL)
 	{
-		// Создаем новый список.
+		// п║п╬п╥п╢п╟п╣п╪ п╫п╬п╡я▀п╧ я│п©п╦я│п╬п╨.
 		*dl_list = new load_list;
 	}
 
@@ -3576,13 +3576,13 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 	int found = 0, plane = 0, counter = 0, plane_offset = 0;
 	bool f = FALSE;
 // type:
-// 0 -- неизвестный тип
-// 1 -- объекты
-// 2 -- мобы
-// 4 -- комнаты
-// Ищем для объектов в списках: extra_bits[], apply_types[], weapon_affects[]
-// Ищем для мобов в списках  action_bits[], function_bits[],  affected_bits[], preference_bits[]
-// Ищем для комнат в списках room_bits[]
+// 0 -- п╫п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я┌п╦п©
+// 1 -- п╬п╠я┼п╣п╨я┌я▀
+// 2 -- п╪п╬п╠я▀
+// 4 -- п╨п╬п╪п╫п╟я┌я▀
+// п≤я┴п╣п╪ п╢п╩я▐ п╬п╠я┼п╣п╨я┌п╬п╡ п╡ я│п©п╦я│п╨п╟я┘: extra_bits[], apply_types[], weapon_affects[]
+// п≤я┴п╣п╪ п╢п╩я▐ п╪п╬п╠п╬п╡ п╡ я│п©п╦я│п╨п╟я┘  action_bits[], function_bits[],  affected_bits[], preference_bits[]
+// п≤я┴п╣п╪ п╢п╩я▐ п╨п╬п╪п╫п╟я┌ п╡ я│п©п╦я│п╨п╟я┘ room_bits[]
 	std::string out;
 
 	for (counter = 0, plane = 0, plane_offset = 0; plane < NUM_PLANES; counter++)
@@ -3631,7 +3631,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 			{
 				if (i->get_affected(plane).location == static_cast<EApplyLocation>(counter))
 				{
-					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
+					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  п╥п╫п╟я┤п╣п╫п╦п╣: %d\r\n",
 						++found, i->get_vnum(),
 						i->get_short_description().c_str(),
 						apply_types[counter], i->get_affected(plane).modifier);
@@ -3691,7 +3691,7 @@ int vnum_flag(char *searchname, CHAR_DATA * ch)
 				auto it = i->get_skills().find(static_cast<ESkill>(counter));
 				if (it != i->get_skills().end())
 				{
-					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  значение: %d\r\n",
+					snprintf(buf, MAX_STRING_LENGTH, "%3d. [%5d] %s : %s,  п╥п╫п╟я┤п╣п╫п╦п╣: %d\r\n",
 						++found, i->get_vnum(),
 						i->get_short_description().c_str(),
 						skill_info[counter].name, it->second);
@@ -3814,7 +3814,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 		i = nr;
 	}
 
-	CHAR_DATA *mob = new CHAR_DATA(mob_proto[i]); //чет мне кажется что конструкции типа этой не принесут нам щастья...
+	CHAR_DATA *mob = new CHAR_DATA(mob_proto[i]); //я┤п╣я┌ п╪п╫п╣ п╨п╟п╤п╣я┌я│я▐ я┤я┌п╬ п╨п╬п╫я│я┌я─я┐п╨я├п╦п╦ я┌п╦п©п╟ я█я┌п╬п╧ п╫п╣ п©я─п╦п╫п╣я│я┐я┌ п╫п╟п╪ я┴п╟я│я┌я▄я▐...
 	mob->set_normal_morph();
 	mob->proto_script.reset(new OBJ_DATA::triggers_list_t());
 	mob->script.reset(new SCRIPT_DATA());	//fill it in assign_triggers from proto_script
@@ -3869,11 +3869,11 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	i = mob_index[i].zone;
 	if (i != -1 && zone_table[i].under_construction)
 	{
-		// mobile принадлежит тестовой зоне
+		// mobile п©я─п╦п╫п╟п╢п╩п╣п╤п╦я┌ я┌п╣я│я┌п╬п╡п╬п╧ п╥п╬п╫п╣
 		MOB_FLAGS(mob).set(MOB_NOSUMMON);
 	}
 
-//Polud - поставим флаг стражнику
+//Polud - п©п╬я│я┌п╟п╡п╦п╪ я└п╩п╟пЁ я│я┌я─п╟п╤п╫п╦п╨я┐
 	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(mob));
 	if (it != guardian_list.end())
 	{
@@ -3884,9 +3884,9 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 }
 
 /**
-// никакая это не копия, строковые и остальные поля с выделением памяти остаются общими
-// мы просто отдаем константный указатель на прототип
- * \param type по дефолту VIRTUAL
+// п╫п╦п╨п╟п╨п╟я▐ я█я┌п╬ п╫п╣ п╨п╬п©п╦я▐, я│я┌я─п╬п╨п╬п╡я▀п╣ п╦ п╬я│я┌п╟п╩я▄п╫я▀п╣ п©п╬п╩я▐ я│ п╡я▀п╢п╣п╩п╣п╫п╦п╣п╪ п©п╟п╪я▐я┌п╦ п╬я│я┌п╟я▌я┌я│я▐ п╬п╠я┴п╦п╪п╦
+// п╪я▀ п©я─п╬я│я┌п╬ п╬я┌п╢п╟п╣п╪ п╨п╬п╫я│я┌п╟п╫я┌п╫я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ п©я─п╬я┌п╬я┌п╦п©
+ * \param type п©п╬ п╢п╣я└п╬п╩я┌я┐ VIRTUAL
  */
 CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type)
 {
@@ -3912,13 +3912,13 @@ CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type)
 	return obj_proto[i];
 }
 
-// пробегаем по всем клеткам зоны и находим там чаров/чармисов, если они есть, ставит used на true
+// п©я─п╬п╠п╣пЁп╟п╣п╪ п©п╬ п╡я│п╣п╪ п╨п╩п╣я┌п╨п╟п╪ п╥п╬п╫я▀ п╦ п╫п╟я┘п╬п╢п╦п╪ я┌п╟п╪ я┤п╟я─п╬п╡/я┤п╟я─п╪п╦я│п╬п╡, п╣я│п╩п╦ п╬п╫п╦ п╣я│я┌я▄, я│я┌п╟п╡п╦я┌ used п╫п╟ true
 void after_reset_zone(int nr_zone)
 {
-	// пробегаем по дескрипторам, ибо это быстрее и проще, т.к. в зоне может быть и 200 и 300 мобов
+	// п©я─п╬п╠п╣пЁп╟п╣п╪ п©п╬ п╢п╣я│п╨я─п╦п©я┌п╬я─п╟п╪, п╦п╠п╬ я█я┌п╬ п╠я▀я│я┌я─п╣п╣ п╦ п©я─п╬я┴п╣, я┌.п╨. п╡ п╥п╬п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╦ 200 п╦ 300 п╪п╬п╠п╬п╡
 	for (auto d = descriptor_list; d; d = d->next)
 	{
-		// Чар должен быть в игре
+		// п╖п╟я─ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╡ п╦пЁя─п╣
 		if (STATE(d) == CON_PLAYING)
 		{
 			if (world[d->character->in_room]->zone == nr_zone)
@@ -3996,7 +3996,7 @@ void zone_update(void)
 			{
 				for (i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++)
 				{
-					//Ищем real_zone по vnum
+					//п≤я┴п╣п╪ real_zone п©п╬ vnum
 					for (j = 0; j <= top_of_zone_table; j++)
 					{
 						if (zone_table[j].number ==
@@ -4038,13 +4038,13 @@ bool can_be_reset(zone_rnum zone)
 	int i = 0, j = 0;
 	if (zone_table[zone].reset_mode != 3)
 		return FALSE;
-// проверяем себя
+// п©я─п╬п╡п╣я─я▐п╣п╪ я│п╣п╠я▐
 	if (!is_empty(zone))
 		return FALSE;
-// проверяем список B
+// п©я─п╬п╡п╣я─я▐п╣п╪ я│п©п╦я│п╬п╨ B
 	for (i = 0; i < zone_table[zone].typeB_count; i++)
 	{
-		//Ищем real_zone по vnum
+		//п≤я┴п╣п╪ real_zone п©п╬ vnum
 		for (j = 0; j <= top_of_zone_table; j++)
 		{
 			if (zone_table[j].number == zone_table[zone].typeB_list[i])
@@ -4055,10 +4055,10 @@ bool can_be_reset(zone_rnum zone)
 			}
 		}
 	}
-// проверяем список A
+// п©я─п╬п╡п╣я─я▐п╣п╪ я│п©п╦я│п╬п╨ A
 	for (i = 0; i < zone_table[zone].typeA_count; i++)
 	{
-		//Ищем real_zone по vnum
+		//п≤я┴п╣п╪ real_zone п©п╬ vnum
 		for (j = 0; j <= top_of_zone_table; j++)
 		{
 			if (zone_table[j].number == zone_table[zone].typeA_list[i])
@@ -4512,8 +4512,8 @@ void process_attach_celebrate(Celebrates::CelebrateDataPtr celebrate, int zone_v
 
 	if (celebrate->mobsToAttach.find(zone_vnum) != celebrate->mobsToAttach.end())
 	{
-		//поскольку единственным доступным способом получить всех мобов одного внума является
-		//обход всего списка мобов в мире, то будем хотя бы 1 раз его обходить
+		//п©п╬я│п╨п╬п╩я▄п╨я┐ п╣п╢п╦п╫я│я┌п╡п╣п╫п╫я▀п╪ п╢п╬я│я┌я┐п©п╫я▀п╪ я│п©п╬я│п╬п╠п╬п╪ п©п╬п╩я┐я┤п╦я┌я▄ п╡я│п╣я┘ п╪п╬п╠п╬п╡ п╬п╢п╫п╬пЁп╬ п╡п╫я┐п╪п╟ я▐п╡п╩я▐п╣я┌я│я▐
+		//п╬п╠я┘п╬п╢ п╡я│п╣пЁп╬ я│п©п╦я│п╨п╟ п╪п╬п╠п╬п╡ п╡ п╪п╦я─п╣, я┌п╬ п╠я┐п╢п╣п╪ я┘п╬я┌я▐ п╠я▀ 1 я─п╟п╥ п╣пЁп╬ п╬п╠я┘п╬п╢п╦я┌я▄
 		Celebrates::AttachList list = celebrate->mobsToAttach[zone_vnum];
 		for (const auto ch : character_list)
 		{
@@ -4587,9 +4587,9 @@ void process_celebrates(int vnum)
 #define ZONE_ERROR(message) \
         { log_zone_error(zone, cmd_no, message); }
 
-// Выполить команду, только если предыдущая успешна
+// п▓я▀п©п╬п╩п╦я┌я▄ п╨п╬п╪п╟п╫п╢я┐, я┌п╬п╩я▄п╨п╬ п╣я│п╩п╦ п©я─п╣п╢я▀п╢я┐я┴п╟я▐ я┐я│п©п╣я┬п╫п╟
 #define		CHECK_SUCCESS		1
-// Команда не должна изменить флаг
+// п п╬п╪п╟п╫п╢п╟ п╫п╣ п╢п╬п╩п╤п╫п╟ п╦п╥п╪п╣п╫п╦я┌я▄ я└п╩п╟пЁ
 #define		FLAG_PERSIST		2
 
 class ZoneReset
@@ -4680,26 +4680,26 @@ void ZoneReset::reset_zone_essential()
 	OBJ_DATA *tobj = NULL;	// for trigger assignment
 	const auto zone = m_zone_rnum;	// for ZCMD macro
 
-	int last_state, curr_state;	// статус завершения последней и текущей команды
+	int last_state, curr_state;	// я│я┌п╟я┌я┐я│ п╥п╟п╡п╣я─я┬п╣п╫п╦я▐ п©п╬я│п╩п╣п╢п╫п╣п╧ п╦ я┌п╣п╨я┐я┴п╣п╧ п╨п╬п╪п╟п╫п╢я▀
 
 	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name);
-	repop_decay(m_zone_rnum);	// рассыпание обьектов ITEM_REPOP_DECAY
+	repop_decay(m_zone_rnum);	// я─п╟я│я│я▀п©п╟п╫п╦п╣ п╬п╠я▄п╣п╨я┌п╬п╡ ITEM_REPOP_DECAY
 
 						//----------------------------------------------------------------------------
-	last_state = 1;		// для первой команды считаем, что все ок
+	last_state = 1;		// п╢п╩я▐ п©п╣я─п╡п╬п╧ п╨п╬п╪п╟п╫п╢я▀ я│я┤п╦я┌п╟п╣п╪, я┤я┌п╬ п╡я│п╣ п╬п╨
 
 	for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 	{
 		if (ZCMD.command == '*')
 		{
-			// комментарий - ни на что не влияет
+			// п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ - п╫п╦ п╫п╟ я┤я┌п╬ п╫п╣ п╡п╩п╦я▐п╣я┌
 			continue;
 		}
 
-		curr_state = 0;	// по умолчанию - неудачно
+		curr_state = 0;	// п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ - п╫п╣я┐п╢п╟я┤п╫п╬
 		if (!(ZCMD.if_flag & CHECK_SUCCESS) || last_state)
 		{
-			// Выполняем команду, если предыдущая успешна или не нужно проверять
+			// п▓я▀п©п╬п╩п╫я▐п╣п╪ п╨п╬п╪п╟п╫п╢я┐, п╣я│п╩п╦ п©я─п╣п╢я▀п╢я┐я┴п╟я▐ я┐я│п©п╣я┬п╫п╟ п╦п╩п╦ п╫п╣ п╫я┐п╤п╫п╬ п©я─п╬п╡п╣я─я▐я┌я▄
 			switch (ZCMD.command)
 			{
 			case 'M':
@@ -4708,13 +4708,13 @@ void ZoneReset::reset_zone_essential()
 
 				if (ZCMD.arg3 < FIRST_ROOM)
 				{
-					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
+					sprintf(buf, "&Yп▓п²п≤п°п░п²п≤п∙&G п÷п╬п©я▀я┌п╨п╟ п╥п╟пЁя─я┐п╥п╦я┌я▄ п╪п╬п╠п╟ п╡ 0 п╨п╬п╪п╫п╟я┌я┐. (VNUM = %d, ZONE = %d)",
 						mob_index[ZCMD.arg1].vnum, zone_table[m_zone_rnum].number);
 					mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 					break;
 				}
 
-				mob = NULL;	//Добавлено Ладником
+				mob = NULL;	//п■п╬п╠п╟п╡п╩п╣п╫п╬ п⌡п╟п╢п╫п╦п╨п╬п╪
 				if (mob_index[ZCMD.arg1].number < ZCMD.arg2 &&
 					(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
 				{
@@ -4777,11 +4777,11 @@ void ZoneReset::reset_zone_essential()
 			case 'O':
 				// read an object
 				// 'O' <flag> <obj_vnum> <max_in_world> <room_vnum|-1> <load%|-1>
-				// Проверка  - сколько всего таких же обьектов надо на эту клетку
+				// п÷я─п╬п╡п╣я─п╨п╟  - я│п╨п╬п╩я▄п╨п╬ п╡я│п╣пЁп╬ я┌п╟п╨п╦я┘ п╤п╣ п╬п╠я▄п╣п╨я┌п╬п╡ п╫п╟п╢п╬ п╫п╟ я█я┌я┐ п╨п╩п╣я┌п╨я┐
 
 				if (ZCMD.arg3 < FIRST_ROOM)
 				{
-					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
+					sprintf(buf, "&Yп▓п²п≤п°п░п²п≤п∙&G п÷п╬п©я▀я┌п╨п╟ п╥п╟пЁя─я┐п╥п╦я┌я▄ п╬п╠я┼п╣п╨я┌ п╡ 0 п╨п╬п╪п╫п╟я┌я┐. (VNUM = %d, ZONE = %d)",
 						obj_proto[ZCMD.arg1]->get_vnum(), zone_table[m_zone_rnum].number);
 					mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 					break;
@@ -4792,7 +4792,7 @@ void ZoneReset::reset_zone_essential()
 						&& (ZCMD.arg1 == ZCMD_CMD(cmd_tmp).arg1)
 						&& (ZCMD.arg3 == ZCMD_CMD(cmd_tmp).arg3))
 						obj_in_room_max++;
-				// Теперь считаем склько их на текущей клетке
+				// п╒п╣п©п╣я─я▄ я│я┤п╦я┌п╟п╣п╪ я│п╨п╩я▄п╨п╬ п╦я┘ п╫п╟ я┌п╣п╨я┐я┴п╣п╧ п╨п╩п╣я┌п╨п╣
 				for (obj_room = world[ZCMD.arg3]->contents, obj_in_room = 0; obj_room; obj_room = obj_room->get_next_content())
 				{
 					if (ZCMD.arg1 == GET_OBJ_RNUM(obj_room))
@@ -4800,7 +4800,7 @@ void ZoneReset::reset_zone_essential()
 						obj_in_room++;
 					}
 				}
-				// Теперь грузим обьект если надо
+				// п╒п╣п©п╣я─я▄ пЁя─я┐п╥п╦п╪ п╬п╠я▄п╣п╨я┌ п╣я│п╩п╦ п╫п╟п╢п╬
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 					|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
@@ -4823,7 +4823,7 @@ void ZoneReset::reset_zone_essential()
 
 					if (!obj->get_extra_flag(EExtraFlag::ITEM_NODECAY))
 					{
-						sprintf(buf, "&YВНИМАНИЕ&G На землю загружен объект без флага NODECAY : %s (VNUM=%d)",
+						sprintf(buf, "&Yп▓п²п≤п°п░п²п≤п∙&G п²п╟ п╥п╣п╪п╩я▌ п╥п╟пЁя─я┐п╤п╣п╫ п╬п╠я┼п╣п╨я┌ п╠п╣п╥ я└п╩п╟пЁп╟ NODECAY : %s (VNUM=%d)",
 							GET_OBJ_PNAME(obj, 0).c_str(), obj->get_vnum());
 						mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 					}
@@ -4876,7 +4876,7 @@ void ZoneReset::reset_zone_essential()
 				// obj_to_char
 				// 'G' <flag> <obj_vnum> <max_in_world> <-> <load%|-1>
 				if (!mob)
-					//Изменено Ладником
+					//п≤п╥п╪п╣п╫п╣п╫п╬ п⌡п╟п╢п╫п╦п╨п╬п╪
 				{
 					// ZONE_ERROR("attempt to give obj to non-existant mob, command disabled");
 					// ZCMD.command = '*';
@@ -4901,7 +4901,7 @@ void ZoneReset::reset_zone_essential()
 			case 'E':
 				// object to equipment list
 				// 'E' <flag> <obj_vnum> <max_in_world> <wear_pos> <load%|-1>
-				//Изменено Ладником
+				//п≤п╥п╪п╣п╫п╣п╫п╬ п⌡п╟п╢п╫п╦п╨п╬п╪
 				if (!mob)
 				{
 					//ZONE_ERROR("trying to equip non-existant mob, command disabled");
@@ -4956,7 +4956,7 @@ void ZoneReset::reset_zone_essential()
 
 				if (ZCMD.arg1 < FIRST_ROOM)
 				{
-					sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
+					sprintf(buf, "&Yп▓п²п≤п°п░п²п≤п∙&G п÷п╬п©я▀я┌п╨п╟ я┐п╢п╟п╩п╦я┌я▄ п╬п╠я┼п╣п╨я┌ п╦п╥ 0 п╨п╬п╪п╫п╟я┌я▀. (VNUM = %d, ZONE = %d)",
 						obj_proto[ZCMD.arg2]->get_vnum(), zone_table[m_zone_rnum].number);
 					mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 					break;
@@ -4978,7 +4978,7 @@ void ZoneReset::reset_zone_essential()
 
 				if (ZCMD.arg1 < FIRST_ROOM)
 				{
-					sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
+					sprintf(buf, "&Yп▓п²п≤п°п░п²п≤п∙&G п÷п╬п©я▀я┌п╨п╟ я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п╢п╡п╣я─п╦ п╡ 0 п╨п╬п╪п╫п╟я┌п╣. (ZONE = %d)",
 						zone_table[m_zone_rnum].number);
 					mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 					break;
@@ -5026,7 +5026,7 @@ void ZoneReset::reset_zone_essential()
 
 			case 'T':
 				// trigger command; details to be filled in later
-				// 'T' <flag> <trigger_type> <trigger_vnum> <room_vnum, для WLD_TRIGGER>
+				// 'T' <flag> <trigger_type> <trigger_vnum> <room_vnum, п╢п╩я▐ WLD_TRIGGER>
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
 					auto trig = read_trigger(real_trigger(ZCMD.arg2));
@@ -5115,7 +5115,7 @@ void ZoneReset::reset_zone_essential()
 
 		if (!(ZCMD.if_flag & FLAG_PERSIST))
 		{
-			// команда изменяет флаг
+			// п╨п╬п╪п╟п╫п╢п╟ п╦п╥п╪п╣п╫я▐п╣я┌ я└п╩п╟пЁ
 			last_state = curr_state;
 		}
 	}
@@ -5131,20 +5131,20 @@ void ZoneReset::reset_zone_essential()
 
 	if (get_zone_rooms(m_zone_rnum, &rnum_start, &rnum_stop))
 	{
-		// все внутренние резеты комнат зоны теперь идут за один цикл
-		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
+		// п╡я│п╣ п╡п╫я┐я┌я─п╣п╫п╫п╦п╣ я─п╣п╥п╣я┌я▀ п╨п╬п╪п╫п╟я┌ п╥п╬п╫я▀ я┌п╣п©п╣я─я▄ п╦п╢я┐я┌ п╥п╟ п╬п╢п╦п╫ я├п╦п╨п╩
+		// я─п╣п╥п╣я┌ п©п╬я─я┌п╟п╩п╬п╡ я┌п╣п©п╣я─я▄ я┌я┐я┌ п╤п╣ п╦ п©п╣я─п╣п©п╦я│п╟п╫, я┤я┌п╬п╠я▀ п╫п╣ пЁп╬п╫я▐я┌я▄ п©п╬ п╡я│п╣п╪ я─я┐п╪п╟п╪, п╦п╠п╬ п╤я─п╟п╩ п©п╬п╩п╬п╡п╦п╫я┐ п╡я─п╣п╪п╣п╫п╦ я─п╣п╥п╣я┌п╟ -- Krodo
 		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++)
 		{
 			ROOM_DATA* room = world[rnum];
 			reset_wtrigger(room);
 			im_reset_room(room, zone_table[m_zone_rnum].level, zone_table[m_zone_rnum].type);
 			ROOM_DATA* gate_room = OneWayPortal::get_from_room(room);
-			if (gate_room)   // случай врат
+			if (gate_room)   // я│п╩я┐я┤п╟п╧ п╡я─п╟я┌
 			{
 				gate_room->portal_time = 0;
 				OneWayPortal::remove(room);
 			}
-			else if (room->portal_time > 0)   // случай двусторонней пенты
+			else if (room->portal_time > 0)   // я│п╩я┐я┤п╟п╧ п╢п╡я┐я│я┌п╬я─п╬п╫п╫п╣п╧ п©п╣п╫я┌я▀
 			{
 				world[room->portal_room]->portal_time = 0;
 				room->portal_time = 0;
@@ -5155,7 +5155,7 @@ void ZoneReset::reset_zone_essential()
 
 	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
 	{
-		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
+		// п©я─п╬п╡п╣я─я▐п╣п╪, п╫п╣ я│п╬п╢п╣я─п╤п╦я┌я│я▐ п╩п╦ я┌п╣п╨я┐я┴п╟я▐ п╥п╬п╫п╟ п╡ я┤я▄п╣п╪-п╩п╦п╠п╬ typeB_list
 		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--)
 		{
 			if (zone_table[rnum_start].typeB_list[curr_state - 1] == zone_table[m_zone_rnum].number)
@@ -5167,7 +5167,7 @@ void ZoneReset::reset_zone_essential()
 		}
 	}
 
-	//Если это ведущая зона, то при ее сбросе обнуляем typeB_flag
+	//п∙я│п╩п╦ я█я┌п╬ п╡п╣п╢я┐я┴п╟я▐ п╥п╬п╫п╟, я┌п╬ п©я─п╦ п╣п╣ я│п╠я─п╬я│п╣ п╬п╠п╫я┐п╩я▐п╣п╪ typeB_flag
 	for (rnum_start = zone_table[m_zone_rnum].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[m_zone_rnum].typeB_flag[rnum_start - 1] = FALSE;
 	log("[Reset] Stop zone %s", zone_table[m_zone_rnum].name);
@@ -5180,8 +5180,8 @@ void reset_zone(zone_rnum zone)
 	zreset.reset();
 }
 
-// Ищет RNUM первой и последней комнаты зоны
-// Еси возвращает 0 - комнат в зоне нету
+// п≤я┴п╣я┌ RNUM п©п╣я─п╡п╬п╧ п╦ п©п╬я│п╩п╣п╢п╫п╣п╧ п╨п╬п╪п╫п╟я┌я▀ п╥п╬п╫я▀
+// п∙я│п╦ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ 0 - п╨п╬п╪п╫п╟я┌ п╡ п╥п╬п╫п╣ п╫п╣я┌я┐
 int get_zone_rooms(int zone_nr, int *start, int *stop)
 {
 	auto first_room_vnum = zone_table[zone_nr].top;
@@ -5202,7 +5202,7 @@ int get_zone_rooms(int zone_nr, int *start, int *stop)
 		}
 	}
 	if (rnum == NOWHERE)
-		rnum = 1;	// самая первая зона начинается с 1
+		rnum = 1;	// я│п╟п╪п╟я▐ п©п╣я─п╡п╟я▐ п╥п╬п╫п╟ п╫п╟я┤п╦п╫п╟п╣я┌я│я▐ я│ 1
 	*start = rnum;
 	return 1;
 }
@@ -5225,15 +5225,15 @@ bool is_empty(zone_rnum zone_nr)
 		return false;
 	}
 
-	// Поиск link-dead игроков в зонах комнаты zone_nr
+	// п÷п╬п╦я│п╨ link-dead п╦пЁя─п╬п╨п╬п╡ п╡ п╥п╬п╫п╟я┘ п╨п╬п╪п╫п╟я┌я▀ zone_nr
 	if (!get_zone_rooms(zone_nr, &rnum_start, &rnum_stop))
 	{
-		return true;	// в зоне нет комнат :)
+		return true;	// п╡ п╥п╬п╫п╣ п╫п╣я┌ п╨п╬п╪п╫п╟я┌ :)
 	}
 
 	for (; rnum_start <= rnum_stop; rnum_start++)
 	{
-// num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
+// num_pc_in_room() п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╫п╣п╩я▄п╥я▐, я┌.п╨. я│я┤п╦я┌п╟п╣я┌ п╡п╪п╣я│я┌п╣ я│ п╦п╪п╪п╟п╪п╦.
 		for (const auto c : world[rnum_start]->people)
 		{
 			if (!IS_NPC(c) && (GET_LEVEL(c) < LVL_IMMORT))
@@ -5243,7 +5243,7 @@ bool is_empty(zone_rnum zone_nr)
 		}
 	}
 
-// теперь проверю всех товарищей в void комнате STRANGE_ROOM
+// я┌п╣п©п╣я─я▄ п©я─п╬п╡п╣я─я▌ п╡я│п╣я┘ я┌п╬п╡п╟я─п╦я┴п╣п╧ п╡ void п╨п╬п╪п╫п╟я┌п╣ STRANGE_ROOM
 	for (const auto c : world[STRANGE_ROOM]->people)
 	{
 		const int was = c->get_was_in_room();
@@ -5258,13 +5258,13 @@ bool is_empty(zone_rnum zone_nr)
 		return false;
 	}
 
-//Проверим, нет ли в зоне метки для врат, чтоб не абузили.
+//п÷я─п╬п╡п╣я─п╦п╪, п╫п╣я┌ п╩п╦ п╡ п╥п╬п╫п╣ п╪п╣я┌п╨п╦ п╢п╩я▐ п╡я─п╟я┌, я┤я┌п╬п╠ п╫п╣ п╟п╠я┐п╥п╦п╩п╦.
     for (auto it = RoomSpells::aff_room_list.begin(); it != RoomSpells::aff_room_list.end(); ++it)
 	{
 		if ((*it)->zone == zone_nr
 			&& find_room_affect(*it, SPELL_RUNE_LABEL) != (*it)->affected.end())
 		{
-			// если в зоне метка
+			// п╣я│п╩п╦ п╡ п╥п╬п╫п╣ п╪п╣я┌п╨п╟
 			return false;
 		}
 	}
@@ -5459,8 +5459,8 @@ void recreate_saveinfo(const size_t number)
 }
 
 /**
-* Можно канеш просто в get_skill иммам возвращать 100 или там 200, но тут зато можно
-* потестить че-нить с возможностью покачать скилл во время игры иммом.
+* п°п╬п╤п╫п╬ п╨п╟п╫п╣я┬ п©я─п╬я│я┌п╬ п╡ get_skill п╦п╪п╪п╟п╪ п╡п╬п╥п╡я─п╟я┴п╟я┌я▄ 100 п╦п╩п╦ я┌п╟п╪ 200, п╫п╬ я┌я┐я┌ п╥п╟я┌п╬ п╪п╬п╤п╫п╬
+* п©п╬я┌п╣я│я┌п╦я┌я▄ я┤п╣-п╫п╦я┌я▄ я│ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄я▌ п©п╬п╨п╟я┤п╟я┌я▄ я│п╨п╦п╩п╩ п╡п╬ п╡я─п╣п╪я▐ п╦пЁя─я▀ п╦п╪п╪п╬п╪.
 */
 void set_god_skills(CHAR_DATA *ch)
 {
@@ -5472,7 +5472,7 @@ void set_god_skills(CHAR_DATA *ch)
 
 #define NUM_OF_SAVE_THROWS	5
 
-// по умолчанию reboot = 0 (пользуется только при ребуте)
+// п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ reboot = 0 (п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п©я─п╦ я─п╣п╠я┐я┌п╣)
 int load_char(const char *name, CHAR_DATA * char_element, bool reboot, const bool find_id)
 {
 	const auto player_i = char_element->load_char_ascii(name, reboot, find_id);
@@ -5578,34 +5578,34 @@ void clear_char_skills(CHAR_DATA * ch)
 }
 
 const char *remort_msg =
-	"  Если вы так настойчивы в желании начать все заново -\r\n" "наберите <перевоплотиться> полностью.\r\n";
+	"  п∙я│п╩п╦ п╡я▀ я┌п╟п╨ п╫п╟я│я┌п╬п╧я┤п╦п╡я▀ п╡ п╤п╣п╩п╟п╫п╦п╦ п╫п╟я┤п╟я┌я▄ п╡я│п╣ п╥п╟п╫п╬п╡п╬ -\r\n" "п╫п╟п╠п╣я─п╦я┌п╣ <п©п╣я─п╣п╡п╬п©п╩п╬я┌п╦я┌я▄я│я▐> п©п╬п╩п╫п╬я│я┌я▄я▌.\r\n";
 
 void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	int i, place_of_destination,load_room = NOWHERE;
-	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
+	const char *remort_msg2 = "$n п╡я│п©я▀я┘п╫я┐п╩$g п╬я│п╩п╣п©п╦я┌п╣п╩я▄п╫я▀п╪ п©п╩п╟п╪п╣п╫п╣п╪ п╦ п©я─п╬п©п╟п╩$g!\r\n";
 
 
 	if (IS_NPC(ch) || IS_IMMORTAL(ch))
 	{
-		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
+		send_to_char("п▓п╟п╪ я█я┌п╬, п©п╬я┘п╬п╤п╣, я│п╬п╡я│п╣п╪ п╫п╦ п╨ я┤п╣п╪я┐.\r\n", ch);
 		return;
 	}
 	if (GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
 	{
-		send_to_char("ЧАВО???\r\n", ch);
+		send_to_char("п╖п░п▓п·???\r\n", ch);
 		return;
 	}
 	if (Remort::need_torc(ch) && !PRF_FLAGGED(ch, PRF_CAN_REMORT))
 	{
 		send_to_char(ch,
-			"Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
+			"п▓я▀ п╢п╬п╩п╤п╫я▀ п©п╬п╢я┌п╡п╣я─п╢п╦я┌я▄ я│п╡п╬п╦ п╥п╟я│п╩я┐пЁп╦, п©п╬п╤п╣я─я┌п╡п╬п╡п╟п╡ п▒п╬пЁп╟п╪ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ пЁя─п╦п╡п╣п╫.\r\n"
 			"%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str(), ch);
 		return;
 	}
 	if (RENTABLE(ch))
 	{
-		send_to_char("Вы не можете перевоплотиться в связи с боевыми действиями.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п©п╣я─п╣п╡п╬п©п╩п╬я┌п╦я┌я▄я│я▐ п╡ я│п╡я▐п╥п╦ я│ п╠п╬п╣п╡я▀п╪п╦ п╢п╣п╧я│я┌п╡п╦я▐п╪п╦.\r\n", ch);
 		return;
 	}
 	if (!subcmd)
@@ -5617,20 +5617,20 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
     one_argument(argument, arg);
     if (!*arg)
     {
-        sprintf(buf, "Укажите, где вы хотите заново начать свой путь:\r\n");
+        sprintf(buf, "пёп╨п╟п╤п╦я┌п╣, пЁп╢п╣ п╡я▀ я┘п╬я┌п╦я┌п╣ п╥п╟п╫п╬п╡п╬ п╫п╟я┤п╟я┌я▄ я│п╡п╬п╧ п©я┐я┌я▄:\r\n");
         sprintf(buf+strlen(buf), "%s", string(BirthPlace::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch),GET_RACE(ch)))).c_str());
         send_to_char(buf, ch);
         return;
     } else {
-        // Сначала проверим по словам - может нам текстом сказали?
+        // п║п╫п╟я┤п╟п╩п╟ п©я─п╬п╡п╣я─п╦п╪ п©п╬ я│п╩п╬п╡п╟п╪ - п╪п╬п╤п╣я┌ п╫п╟п╪ я┌п╣п╨я│я┌п╬п╪ я│п╨п╟п╥п╟п╩п╦?
         place_of_destination = BirthPlace::ParseSelect(arg);
         if (place_of_destination == BIRTH_PLACE_UNDEFINED)
         {
-            //Нет, значит или ерунда в аргументе, или цифирь, смотрим
+            //п²п╣я┌, п╥п╫п╟я┤п╦я┌ п╦п╩п╦ п╣я─я┐п╫п╢п╟ п╡ п╟я─пЁя┐п╪п╣п╫я┌п╣, п╦п╩п╦ я├п╦я└п╦я─я▄, я│п╪п╬я┌я─п╦п╪
             place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
             if (!BirthPlace::CheckId(place_of_destination))
             {
-                send_to_char("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
+                send_to_char("п▒п╟пЁп╢п╟п╢ п╢п╟п╩п╣я┤п╣, п╡я▀п╠п╣я─п╦я┌п╣ я│п╣п╠п╣ п╪п╣я│я┌п╣я┤п╨п╬ я│я─п╣п╢п╦ я─п╬п╢п╫я▀я┘ п╬я│п╦п╫.\r\n", ch);
                 return;
             }
         }
@@ -5665,7 +5665,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ch->affect_remove(ch->affected.begin());
 	}
 
-// Снимаем весь стафф
+// п║п╫п╦п╪п╟п╣п╪ п╡п╣я│я▄ я│я┌п╟я└я└
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if (GET_EQ(ch, i))
@@ -5731,7 +5731,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 	PRF_FLAGS(ch).unset(PRF_AWAKE);
 	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
-	// Убираем все заученные порталы
+	// пёп╠п╦я─п╟п╣п╪ п╡я│п╣ п╥п╟я┐я┤п╣п╫п╫я▀п╣ п©п╬я─я┌п╟п╩я▀
 	check_portals(ch);
 	if (ch->get_protecting())
 	{
@@ -5739,7 +5739,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ch->BattleAffects.unset(EAF_PROTECT);
 	}
 	
-	//Обновляем статистику рипов для текущего перевоплощения
+	//п·п╠п╫п╬п╡п╩я▐п╣п╪ я│я┌п╟я┌п╦я│я┌п╦п╨я┐ я─п╦п©п╬п╡ п╢п╩я▐ я┌п╣п╨я┐я┴п╣пЁп╬ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦я▐
 	GET_RIP_DTTHIS(ch) = 0;
 	GET_EXP_DTTHIS(ch) = 0;
 	GET_RIP_MOBTHIS(ch) = 0;
@@ -5776,7 +5776,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	PLR_FLAGS(ch).set(PLR_NODELETE);
 	remove_rune_label(ch);
 
-	// сброс всего, связанного с гривнами (замакс сохраняем)
+	// я│п╠я─п╬я│ п╡я│п╣пЁп╬, я│п╡я▐п╥п╟п╫п╫п╬пЁп╬ я│ пЁя─п╦п╡п╫п╟п╪п╦ (п╥п╟п╪п╟п╨я│ я│п╬я┘я─п╟п╫я▐п╣п╪)
 	PRF_FLAGS(ch).unset(PRF_CAN_REMORT);
 	ch->set_ext_money(ExtMoney::TORC_GOLD, 0);
 	ch->set_ext_money(ExtMoney::TORC_SILVER, 0);
@@ -5787,8 +5787,8 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	snprintf(buf2, sizeof(buf2), "dest=%d", place_of_destination);
 	add_karma(ch, buf, buf2);
 
-	act("$n вступил$g в игру.", TRUE, ch, 0, 0, TO_ROOM);
-	act("Вы перевоплотились! Желаем удачи!", FALSE, ch, 0, 0, TO_CHAR);
+	act("$n п╡я│я┌я┐п©п╦п╩$g п╡ п╦пЁя─я┐.", TRUE, ch, 0, 0, TO_ROOM);
+	act("п▓я▀ п©п╣я─п╣п╡п╬п©п╩п╬я┌п╦п╩п╦я│я▄! п√п╣п╩п╟п╣п╪ я┐п╢п╟я┤п╦!", FALSE, ch, 0, 0, TO_CHAR);
 }
 
 // returns the real number of the room with given virtual number
@@ -5838,8 +5838,8 @@ mob_rnum real_mobile(mob_vnum vnum)
 	}
 }
 
-// данная функция работает с неполностью загруженным персонажем
-// подробности в комментарии к load_char_ascii
+// п╢п╟п╫п╫п╟я▐ я└я┐п╫п╨я├п╦я▐ я─п╟п╠п╬я┌п╟п╣я┌ я│ п╫п╣п©п╬п╩п╫п╬я│я┌я▄я▌ п╥п╟пЁя─я┐п╤п╣п╫п╫я▀п╪ п©п╣я─я│п╬п╫п╟п╤п╣п╪
+// п©п╬п╢я─п╬п╠п╫п╬я│я┌п╦ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ load_char_ascii
 int must_be_deleted(CHAR_DATA * short_ch)
 {
 	int ci, timeout;
@@ -5878,8 +5878,8 @@ int must_be_deleted(CHAR_DATA * short_ch)
 	return (0);
 }
 
-// данная функция работает с неполностью загруженным персонажем
-// подробности в комментарии к load_char_ascii
+// п╢п╟п╫п╫п╟я▐ я└я┐п╫п╨я├п╦я▐ я─п╟п╠п╬я┌п╟п╣я┌ я│ п╫п╣п©п╬п╩п╫п╬я│я┌я▄я▌ п╥п╟пЁя─я┐п╤п╣п╫п╫я▀п╪ п©п╣я─я│п╬п╫п╟п╤п╣п╪
+// п©п╬п╢я─п╬п╠п╫п╬я│я┌п╦ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ load_char_ascii
 void entrycount(char *name, const bool find_id /*= true*/)
 {
 	int deleted;
@@ -5890,17 +5890,17 @@ void entrycount(char *name, const bool find_id /*= true*/)
 		Player t_short_ch;
 		Player *short_ch = &t_short_ch;
 		deleted = 1;
-		// персонаж загружается неполностью
+		// п©п╣я─я│п╬п╫п╟п╤ п╥п╟пЁя─я┐п╤п╟п╣я┌я│я▐ п╫п╣п©п╬п╩п╫п╬я│я┌я▄я▌
 		if (load_char(name, short_ch, 1, find_id) > -1)
 		{
-			// если чар удален или им долго не входили, то не создаем для него запись
+			// п╣я│п╩п╦ я┤п╟я─ я┐п╢п╟п╩п╣п╫ п╦п╩п╦ п╦п╪ п╢п╬п╩пЁп╬ п╫п╣ п╡я┘п╬п╢п╦п╩п╦, я┌п╬ п╫п╣ я│п╬п╥п╢п╟п╣п╪ п╢п╩я▐ п╫п╣пЁп╬ п╥п╟п©п╦я│я▄
 			if (!must_be_deleted(short_ch))
 			{
 				deleted = 0;
 
 				player_index_element element(GET_IDNUM(short_ch), GET_NAME(short_ch));
 
-				//added by WorM 2010.08.27 в индексе чистим мыло и ip
+				//added by WorM 2010.08.27 п╡ п╦п╫п╢п╣п╨я│п╣ я┤п╦я│я┌п╦п╪ п╪я▀п╩п╬ п╦ ip
 				CREATE(element.mail, strlen(GET_EMAIL(short_ch)) + 1);
 				for (int i = 0; (element.mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
 
@@ -5948,7 +5948,7 @@ void entrycount(char *name, const bool find_id /*= true*/)
 			log("SYSERR: Failed to load player %s.", name);
 		}
 
-		// если чар уже удален, то стираем с диска его файл
+		// п╣я│п╩п╦ я┤п╟я─ я┐п╤п╣ я┐п╢п╟п╩п╣п╫, я┌п╬ я│я┌п╦я─п╟п╣п╪ я│ п╢п╦я│п╨п╟ п╣пЁп╬ я└п╟п╧п╩
 		if (deleted)
 		{
 			log("Player %s already deleted - kill player file", name);
@@ -6027,7 +6027,7 @@ void flush_player_index(void)
 		fputs(name, players);
 	}
 	fclose(players);
-	log("Сохранено индексов %zd (считано при загрузке %zd)", saved, player_table.size());
+	log("п║п╬я┘я─п╟п╫п╣п╫п╬ п╦п╫п╢п╣п╨я│п╬п╡ %zd (я│я┤п╦я┌п╟п╫п╬ п©я─п╦ п╥п╟пЁя─я┐п╥п╨п╣ %zd)", saved, player_table.size());
 }
 
 void rename_char(CHAR_DATA * ch, char *oname)
@@ -6059,7 +6059,7 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	get_filename(GET_NAME(ch), filename, SCRIPT_VARS_FILE);
 	rename(ofilename, filename);
 
-	// хранилища
+	// я┘я─п╟п╫п╦п╩п╦я┴п╟
 	Depot::rename_char(ch);
 	get_filename(oname, ofilename, PERS_DEPOT_FILE);
 	get_filename(GET_NAME(ch), filename, PERS_DEPOT_FILE);
@@ -6069,7 +6069,7 @@ void rename_char(CHAR_DATA * ch, char *oname)
 	rename(ofilename, filename);
 }
 
-// * Добровольное удаление персонажа через игровое меню.
+// * п■п╬п╠я─п╬п╡п╬п╩я▄п╫п╬п╣ я┐п╢п╟п╩п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╤п╟ я┤п╣я─п╣п╥ п╦пЁя─п╬п╡п╬п╣ п╪п╣п╫я▌.
 void delete_char(const char *name)
 {
 	Player t_st;
@@ -6100,58 +6100,58 @@ void delete_char(const char *name)
 
 void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 /*++
-   Функция делает создает копию комнаты.
-   После вызова этой функции создается полностью независимая копия комнты src
-   за исключением полей track, contents, people, affected.
-   Все поля имеют те же значения, но занимают свои области памяти.
-      dst - "чистый" указатель на структуру room_data.
-      src - исходная комната
-   Примечание: Неочищенный указатель dst приведет к утечке памяти.
-               Используйте redit_room_free() для очистки содержимого комнаты
+   п╓я┐п╫п╨я├п╦я▐ п╢п╣п╩п╟п╣я┌ я│п╬п╥п╢п╟п╣я┌ п╨п╬п©п╦я▌ п╨п╬п╪п╫п╟я┌я▀.
+   п÷п╬я│п╩п╣ п╡я▀п╥п╬п╡п╟ я█я┌п╬п╧ я└я┐п╫п╨я├п╦п╦ я│п╬п╥п╢п╟п╣я┌я│я▐ п©п╬п╩п╫п╬я│я┌я▄я▌ п╫п╣п╥п╟п╡п╦я│п╦п╪п╟я▐ п╨п╬п©п╦я▐ п╨п╬п╪п╫я┌я▀ src
+   п╥п╟ п╦я│п╨п╩я▌я┤п╣п╫п╦п╣п╪ п©п╬п╩п╣п╧ track, contents, people, affected.
+   п▓я│п╣ п©п╬п╩я▐ п╦п╪п╣я▌я┌ я┌п╣ п╤п╣ п╥п╫п╟я┤п╣п╫п╦я▐, п╫п╬ п╥п╟п╫п╦п╪п╟я▌я┌ я│п╡п╬п╦ п╬п╠п╩п╟я│я┌п╦ п©п╟п╪я▐я┌п╦.
+      dst - "я┤п╦я│я┌я▀п╧" я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ я│я┌я─я┐п╨я┌я┐я─я┐ room_data.
+      src - п╦я│я┘п╬п╢п╫п╟я▐ п╨п╬п╪п╫п╟я┌п╟
+   п÷я─п╦п╪п╣я┤п╟п╫п╦п╣: п²п╣п╬я┤п╦я┴п╣п╫п╫я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄ dst п©я─п╦п╡п╣п╢п╣я┌ п╨ я┐я┌п╣я┤п╨п╣ п©п╟п╪я▐я┌п╦.
+               п≤я│п©п╬п╩я▄п╥я┐п╧я┌п╣ redit_room_free() п╢п╩я▐ п╬я┤п╦я│я┌п╨п╦ я│п╬п╢п╣я─п╤п╦п╪п╬пЁп╬ п╨п╬п╪п╫п╟я┌я▀
 --*/
 {
 	int i;
 
 	{
-		// Сохраняю track, contents, people, аффекты
+		// п║п╬я┘я─п╟п╫я▐я▌ track, contents, people, п╟я└я└п╣п╨я┌я▀
 		struct track_data *track = dst->track;
 		OBJ_DATA *contents = dst->contents;
 		const auto people_backup = dst->people;
 		auto affected = dst->affected;
 
-		// Копирую все поверх
+		// п п╬п©п╦я─я┐я▌ п╡я│п╣ п©п╬п╡п╣я─я┘
 		*dst = *src;
 
-		// Восстанавливаю track, contents, people, аффекты
+		// п▓п╬я│я│я┌п╟п╫п╟п╡п╩п╦п╡п╟я▌ track, contents, people, п╟я└я└п╣п╨я┌я▀
 		dst->track = track;
 		dst->contents = contents;
 		dst->people = std::move(people_backup);
 		dst->affected = affected;
 	}
 
-	// Теперь нужно выделить собственные области памяти
+	// п╒п╣п©п╣я─я▄ п╫я┐п╤п╫п╬ п╡я▀п╢п╣п╩п╦я┌я▄ я│п╬п╠я│я┌п╡п╣п╫п╫я▀п╣ п╬п╠п╩п╟я│я┌п╦ п©п╟п╪я▐я┌п╦
 
-	// Название и описание
-	dst->name = str_dup(src->name ? src->name : "неопределено");
-	dst->temp_description = 0; // так надо
+	// п²п╟п╥п╡п╟п╫п╦п╣ п╦ п╬п©п╦я│п╟п╫п╦п╣
+	dst->name = str_dup(src->name ? src->name : "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫п╬");
+	dst->temp_description = 0; // я┌п╟п╨ п╫п╟п╢п╬
 
-	// Выходы и входы
+	// п▓я▀я┘п╬п╢я▀ п╦ п╡я┘п╬п╢я▀
 	for (i = 0; i < NUM_OF_DIRS; ++i)
 	{
 		const auto& rdd = src->dir_option[i];
 		if (rdd)
 		{
 			dst->dir_option[i].reset(new EXIT_DATA());
-			// Копируем числа
+			// п п╬п©п╦я─я┐п╣п╪ я┤п╦я│п╩п╟
 			*dst->dir_option[i] = *rdd;
-			// Выделяем память
+			// п▓я▀п╢п╣п╩я▐п╣п╪ п©п╟п╪я▐я┌я▄
 			dst->dir_option[i]->general_description = rdd->general_description;
 			dst->dir_option[i]->keyword = (rdd->keyword ? str_dup(rdd->keyword) : NULL);
 			dst->dir_option[i]->vkeyword = (rdd->vkeyword ? str_dup(rdd->vkeyword) : NULL);
 		}
 	}
 
-	// Дополнительные описания, если есть
+	// п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ п╬п©п╦я│п╟п╫п╦я▐, п╣я│п╩п╦ п╣я│я┌я▄
 	EXTRA_DESCR_DATA::shared_ptr* pddd = &dst->ex_description;
 	EXTRA_DESCR_DATA::shared_ptr sdd = src->ex_description;
 	*pddd = nullptr;
@@ -6165,7 +6165,7 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 		sdd = sdd->next;
 	}
 
-	// Копирую скрипт и прототипы
+	// п п╬п©п╦я─я┐я▌ я│п╨я─п╦п©я┌ п╦ п©я─п╬я┌п╬я┌п╦п©я▀
 	SCRIPT(dst).reset(new SCRIPT_DATA());
 
 	dst->proto_script.reset(new OBJ_DATA::triggers_list_t());
@@ -6176,12 +6176,12 @@ void room_copy(ROOM_DATA * dst, ROOM_DATA * src)
 
 void room_free(ROOM_DATA * room)
 /*++
-   Функция полностью освобождает память, занимаемую данными комнаты.
-   ВНИМАНИЕ. Память самой структуры room_data не освобождается.
-             Необходимо дополнительно использовать delete()
+   п╓я┐п╫п╨я├п╦я▐ п©п╬п╩п╫п╬я│я┌я▄я▌ п╬я│п╡п╬п╠п╬п╤п╢п╟п╣я┌ п©п╟п╪я▐я┌я▄, п╥п╟п╫п╦п╪п╟п╣п╪я┐я▌ п╢п╟п╫п╫я▀п╪п╦ п╨п╬п╪п╫п╟я┌я▀.
+   п▓п²п≤п°п░п²п≤п∙. п÷п╟п╪я▐я┌я▄ я│п╟п╪п╬п╧ я│я┌я─я┐п╨я┌я┐я─я▀ room_data п╫п╣ п╬я│п╡п╬п╠п╬п╤п╢п╟п╣я┌я│я▐.
+             п²п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ delete()
 --*/
 {
-	// Название и описание
+	// п²п╟п╥п╡п╟п╫п╦п╣ п╦ п╬п©п╦я│п╟п╫п╦п╣
 	if (room->name)
 	{
 		free(room->name);
@@ -6193,7 +6193,7 @@ void room_free(ROOM_DATA * room)
 		room->temp_description = 0;
 	}
 
-	// Выходы и входы
+	// п▓я▀я┘п╬п╢я▀ п╦ п╡я┘п╬п╢я▀
 	for (int i = 0; i < NUM_OF_DIRS; i++)
 	{
 		if (room->dir_option[i])
@@ -6212,7 +6212,7 @@ void room_free(ROOM_DATA * room)
 		}
 	}
 
-	// Скрипт
+	// п║п╨я─п╦п©я┌
 	room->cleanup_script();
 
 	if (room->ing_list)
@@ -6288,10 +6288,10 @@ void load_guardians()
 
 		if (guard_vnum <= 0)
 		{
-			log("ERROR: Ошибка загрузки файла %s - некорректное значение VNUM: %d", LIB_MISC"guards.xml", guard_vnum);
+			log("ERROR: п·я┬п╦п╠п╨п╟ п╥п╟пЁя─я┐п╥п╨п╦ я└п╟п╧п╩п╟ %s - п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ VNUM: %d", LIB_MISC"guards.xml", guard_vnum);
 			continue;
 		}
-		//значения по умолчанию
+		//п╥п╫п╟я┤п╣п╫п╦я▐ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌
 		tmp_guard.max_wars_allow = num_wars_global;
 		tmp_guard.agro_all_agressors = false;
 		tmp_guard.agro_argressors_in_zones.clear();
@@ -6320,13 +6320,13 @@ void load_guardians()
 
 }
 
-//Polud тестовый класс для хранения параметров различных рас мобов
-//Читает данные из файла
+//Polud я┌п╣я│я┌п╬п╡я▀п╧ п╨п╩п╟я│я│ п╢п╩я▐ я┘я─п╟п╫п╣п╫п╦я▐ п©п╟я─п╟п╪п╣я┌я─п╬п╡ я─п╟п╥п╩п╦я┤п╫я▀я┘ я─п╟я│ п╪п╬п╠п╬п╡
+//п╖п╦я┌п╟п╣я┌ п╢п╟п╫п╫я▀п╣ п╦п╥ я└п╟п╧п╩п╟
 const char *MOBRACE_FILE = LIB_MISC_MOBRACES "mobrace.xml";
 
 MobRaceListType mobraces_list;
 
-//загрузка рас из файла
+//п╥п╟пЁя─я┐п╥п╨п╟ я─п╟я│ п╦п╥ я└п╟п╧п╩п╟
 void load_mobraces()
 {
 	pugi::xml_document doc;
@@ -6373,7 +6373,7 @@ void load_mobraces()
 				}
 				else
 				{
-					log("SYSERROR: Неверный уровень lvl=%d для ингредиента %s расы %s", next_lvl, tmp_ingr.imname.c_str(), tmp_mobrace->race_name.c_str());
+					log("SYSERROR: п²п╣п╡п╣я─п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄ lvl=%d п╢п╩я▐ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟ %s я─п╟я│я▀ %s", next_lvl, tmp_ingr.imname.c_str(), tmp_mobrace->race_name.c_str());
 					return;
 				}
 				prob_value = atoi(prob.child_value());
@@ -6407,7 +6407,7 @@ namespace OfftopSystem
 const char* BLOCK_FILE = LIB_MISC"offtop.lst";
 std::vector<std::string> block_list;
 
-/// Проверка на наличие чара в стоп-списке и сет флага
+/// п÷я─п╬п╡п╣я─п╨п╟ п╫п╟ п╫п╟п╩п╦я┤п╦п╣ я┤п╟я─п╟ п╡ я│я┌п╬п©-я│п©п╦я│п╨п╣ п╦ я│п╣я┌ я└п╩п╟пЁп╟
 void set_flag(CHAR_DATA* ch)
 {
 	std::string mail(GET_EMAIL(ch));
@@ -6423,14 +6423,14 @@ void set_flag(CHAR_DATA* ch)
 	}
 }
 
-/// Лоад/релоад списка нежелательных для оффтопа товарисчей.
+/// п⌡п╬п╟п╢/я─п╣п╩п╬п╟п╢ я│п©п╦я│п╨п╟ п╫п╣п╤п╣п╩п╟я┌п╣п╩я▄п╫я▀я┘ п╢п╩я▐ п╬я└я└я┌п╬п©п╟ я┌п╬п╡п╟я─п╦я│я┤п╣п╧.
 void init()
 {
 	block_list.clear();
 	std::ifstream file(BLOCK_FILE);
 	if (!file.is_open())
 	{
-		log("SYSERROR: не удалось открыть файл на чтение: %s", BLOCK_FILE);
+		log("SYSERROR: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩ п╫п╟ я┤я┌п╣п╫п╦п╣: %s", BLOCK_FILE);
 		return;
 	}
 	std::string buffer;

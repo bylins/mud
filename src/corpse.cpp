@@ -47,19 +47,19 @@ typedef std::map<int /* vnum */, int /* rnum*/> OlistType;
 struct global_drop
 {
 	global_drop() : vnum(0), mob_lvl(0), max_mob_lvl(0), count_mob(0), mobs(0), rnum(-1), day_start(-1), day_end(-1), race_mob(-1), chance(-1) {};
-	int vnum; // внум шмотки, если число отрицательное - есть список внумов
-	int mob_lvl;  // мин левел моба
-	int max_mob_lvl; // макс. левел моба (0 - не учитывается)
-	int count_mob;  // после каждых убитых в сумме мобов, заданного левела, будет падать дроп
-	int mobs; // убито подходящих мобов
-	int rnum; // рнум шмотки, если vnum валидный
-	int day_start; // начиная с какого дня (игрового) шмотка может выпасть с моба и ... 
-	int day_end; // ... кончая тем днем, после которого, шмотка перестанет выпадать из моба
-	int race_mob; // тип моба, с которого падает данная шмотка (-1 все)
-	int chance; // процент выпадения (1..1000)
-	// список внумов с общим дропом (дропается первый возможный)
-	// для внумов из списка учитывается поле максимума в мире
-/*#define NPC_RACE_BASIC			100   - номера рас
+	int vnum; // п╡п╫я┐п╪ я┬п╪п╬я┌п╨п╦, п╣я│п╩п╦ я┤п╦я│п╩п╬ п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫п╬п╣ - п╣я│я┌я▄ я│п©п╦я│п╬п╨ п╡п╫я┐п╪п╬п╡
+	int mob_lvl;  // п╪п╦п╫ п╩п╣п╡п╣п╩ п╪п╬п╠п╟
+	int max_mob_lvl; // п╪п╟п╨я│. п╩п╣п╡п╣п╩ п╪п╬п╠п╟ (0 - п╫п╣ я┐я┤п╦я┌я▀п╡п╟п╣я┌я│я▐)
+	int count_mob;  // п©п╬я│п╩п╣ п╨п╟п╤п╢я▀я┘ я┐п╠п╦я┌я▀я┘ п╡ я│я┐п╪п╪п╣ п╪п╬п╠п╬п╡, п╥п╟п╢п╟п╫п╫п╬пЁп╬ п╩п╣п╡п╣п╩п╟, п╠я┐п╢п╣я┌ п©п╟п╢п╟я┌я▄ п╢я─п╬п©
+	int mobs; // я┐п╠п╦я┌п╬ п©п╬п╢я┘п╬п╢я▐я┴п╦я┘ п╪п╬п╠п╬п╡
+	int rnum; // я─п╫я┐п╪ я┬п╪п╬я┌п╨п╦, п╣я│п╩п╦ vnum п╡п╟п╩п╦п╢п╫я▀п╧
+	int day_start; // п╫п╟я┤п╦п╫п╟я▐ я│ п╨п╟п╨п╬пЁп╬ п╢п╫я▐ (п╦пЁя─п╬п╡п╬пЁп╬) я┬п╪п╬я┌п╨п╟ п╪п╬п╤п╣я┌ п╡я▀п©п╟я│я┌я▄ я│ п╪п╬п╠п╟ п╦ ... 
+	int day_end; // ... п╨п╬п╫я┤п╟я▐ я┌п╣п╪ п╢п╫п╣п╪, п©п╬я│п╩п╣ п╨п╬я┌п╬я─п╬пЁп╬, я┬п╪п╬я┌п╨п╟ п©п╣я─п╣я│я┌п╟п╫п╣я┌ п╡я▀п©п╟п╢п╟я┌я▄ п╦п╥ п╪п╬п╠п╟
+	int race_mob; // я┌п╦п© п╪п╬п╠п╟, я│ п╨п╬я┌п╬я─п╬пЁп╬ п©п╟п╢п╟п╣я┌ п╢п╟п╫п╫п╟я▐ я┬п╪п╬я┌п╨п╟ (-1 п╡я│п╣)
+	int chance; // п©я─п╬я├п╣п╫я┌ п╡я▀п©п╟п╢п╣п╫п╦я▐ (1..1000)
+	// я│п©п╦я│п╬п╨ п╡п╫я┐п╪п╬п╡ я│ п╬п╠я┴п╦п╪ п╢я─п╬п©п╬п╪ (п╢я─п╬п©п╟п╣я┌я│я▐ п©п╣я─п╡я▀п╧ п╡п╬п╥п╪п╬п╤п╫я▀п╧)
+	// п╢п╩я▐ п╡п╫я┐п╪п╬п╡ п╦п╥ я│п©п╦я│п╨п╟ я┐я┤п╦я┌я▀п╡п╟п╣я┌я│я▐ п©п╬п╩п╣ п╪п╟п╨я│п╦п╪я┐п╪п╟ п╡ п╪п╦я─п╣
+/*#define NPC_RACE_BASIC			100   - п╫п╬п╪п╣я─п╟ я─п╟я│
 #define NPC_RACE_HUMAN			101
 #define NPC_RACE_HUMAN_ANIMAL	102
 #define NPC_RACE_BIRD			103
@@ -78,15 +78,15 @@ struct global_drop
 	OlistType olist;
 };
 
-// для вещей
+// п╢п╩я▐ п╡п╣я┴п╣п╧
 struct global_drop_obj
 {
 	global_drop_obj() : vnum(0), chance(0), day_start(0), day_end(0) {};
-	// vnum шмотки
+	// vnum я┬п╪п╬я┌п╨п╦
 	int vnum;
-	// chance шмотки от 0 до 1000
+	// chance я┬п╪п╬я┌п╨п╦ п╬я┌ 0 п╢п╬ 1000
 	int chance;
-	// здесь храним типы рум, в которых может загрузится объект
+	// п╥п╢п╣я│я▄ я┘я─п╟п╫п╦п╪ я┌п╦п©я▀ я─я┐п╪, п╡ п╨п╬я┌п╬я─я▀я┘ п╪п╬п╤п╣я┌ п╥п╟пЁя─я┐п╥п╦я┌я│я▐ п╬п╠я┼п╣п╨я┌
 	std::list<int> sects;
 	int day_start;
 	int day_end;
@@ -110,7 +110,7 @@ void table_drop::reload_table()
 		this->drop_mobs.push_back(this->mobs[mob_number]);
 	}
 }
-// возвратит true, если моб найден в таблице и прошел шанс
+// п╡п╬п╥п╡я─п╟я┌п╦я┌ true, п╣я│п╩п╦ п╪п╬п╠ п╫п╟п╧п╢п╣п╫ п╡ я┌п╟п╠п╩п╦я├п╣ п╦ п©я─п╬я┬п╣п╩ я┬п╟п╫я│
 bool table_drop::check_mob(int vnum)
 {
 	for (size_t i = 0; i < this->drop_mobs.size(); i++)
@@ -146,10 +146,10 @@ const char *STAT_FILE = LIB_PLRSTUFF"global_drop.tmp";
 
 void init()
 {
-	// на случай релоада
+	// п╫п╟ я│п╩я┐я┤п╟п╧ я─п╣п╩п╬п╟п╢п╟
 	drop_list.clear();
 	drop_list_obj.clear();
-	// конфиг
+	// п╨п╬п╫я└п╦пЁ
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CONFIG_FILE);
 	if (!result)
@@ -183,7 +183,7 @@ void init()
 		global_drop_obj tmp;
 		int obj_vnum = Parse::attr_int(node, "obj_vnum");
 		int chance =  Parse::attr_int(node, "chance");
-		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
+		int day_start = Parse::attr_int_t(node, "day_start"); // п╣я│п╩п╦ п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫п╬ п╡ я└п╟п╧п╩п╣ п╡п╬п╥п╡я─п╟я┴п╟п╣п╪ -1
 		int day_end = Parse::attr_int_t(node, "day_end");
 		if (day_start == -1)
 		{
@@ -209,7 +209,7 @@ void init()
 		int mob_lvl = Parse::attr_int(node, "mob_lvl");
 		int max_mob_lvl = Parse::attr_int(node, "max_mob_lvl");
 		int count_mob = Parse::attr_int(node, "count_mob");
-		int day_start = Parse::attr_int_t(node, "day_start"); // если не определено в файле возвращаем -1
+		int day_start = Parse::attr_int_t(node, "day_start"); // п╣я│п╩п╦ п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫п╬ п╡ я└п╟п╧п╩п╣ п╡п╬п╥п╡я─п╟я┴п╟п╣п╪ -1
 		int day_end = Parse::attr_int_t(node, "day_end");
 		int race_mob = Parse::attr_int_t(node, "race_mob"); 
 		int chance = Parse::attr_int_t(node, "chance"); 
@@ -220,7 +220,7 @@ void init()
 		if (day_end == -1)
 			day_end = 360;
 		if (race_mob == -1)
-			race_mob = -1; // -1 для всех рас
+			race_mob = -1; // -1 п╢п╩я▐ п╡я│п╣я┘ я─п╟я│
 	
 		if (obj_vnum == -1 || mob_lvl <= 0 || count_mob <= 0 || max_mob_lvl < 0)
 		{
@@ -258,7 +258,7 @@ void init()
 		}
 		else
 		{
-			// список шмоток с единым дропом
+			// я│п©п╦я│п╬п╨ я┬п╪п╬я┌п╬п╨ я│ п╣п╢п╦п╫я▀п╪ п╢я─п╬п©п╬п╪
 			for (pugi::xml_node item = node.child("obj"); item; item = item.next_sibling("obj"))
 			{
 				int item_vnum = Parse::attr_int(item, "vnum");
@@ -269,7 +269,7 @@ void init()
 					mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 					return;
 				}
-				// проверяем шмотку
+				// п©я─п╬п╡п╣я─я▐п╣п╪ я┬п╪п╬я┌п╨я┐
 				int item_rnum = real_object(item_vnum);
 				if (item_rnum < 0)
 				{
@@ -289,11 +289,11 @@ void init()
 		drop_list.push_back(tmp_node);
 	}
 
-	// сохраненные статы по убитым ранее мобам
+	// я│п╬я┘я─п╟п╫п╣п╫п╫я▀п╣ я│я┌п╟я┌я▀ п©п╬ я┐п╠п╦я┌я▀п╪ я─п╟п╫п╣п╣ п╪п╬п╠п╟п╪
 	std::ifstream file(STAT_FILE);
 	if (!file.is_open())
 	{
-		log("SYSERROR: не удалось открыть файл на чтение: %s", STAT_FILE);
+		log("SYSERROR: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩ п╫п╟ я┤я┌п╣п╫п╦п╣: %s", STAT_FILE);
 		return;
 	}
 	int vnum, mobs;
@@ -314,7 +314,7 @@ void save()
 	std::ofstream file(STAT_FILE);
 	if (!file.is_open())
 	{
-		log("SYSERROR: не удалось открыть файл на запись: %s", STAT_FILE);
+		log("SYSERROR: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩ п╫п╟ п╥п╟п©п╦я│я▄: %s", STAT_FILE);
 		return;
 	}
 	for (DropListType::iterator i = drop_list.begin(); i != drop_list.end(); ++i)
@@ -324,7 +324,7 @@ void save()
 }
 
 /**
- * Поиск шмотки для дропа из списка с учетом макс в мире.
+ * п÷п╬п╦я│п╨ я┬п╪п╬я┌п╨п╦ п╢п╩я▐ п╢я─п╬п©п╟ п╦п╥ я│п©п╦я│п╨п╟ я│ я┐я┤п╣я┌п╬п╪ п╪п╟п╨я│ п╡ п╪п╦я─п╣.
  * \return rnum
  */
 int get_obj_to_drop(DropListType::iterator &i)
@@ -346,8 +346,8 @@ int get_obj_to_drop(DropListType::iterator &i)
 }
 
 /**
- * Глобальный дроп с мобов заданных параметров.
- * Если vnum отрицательный, то поиск идет по списку общего дропа.
+ * п⌠п╩п╬п╠п╟п╩я▄п╫я▀п╧ п╢я─п╬п© я│ п╪п╬п╠п╬п╡ п╥п╟п╢п╟п╫п╫я▀я┘ п©п╟я─п╟п╪п╣я┌я─п╬п╡.
+ * п∙я│п╩п╦ vnum п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫я▀п╧, я┌п╬ п©п╬п╦я│п╨ п╦п╢п╣я┌ п©п╬ я│п©п╦я│п╨я┐ п╬п╠я┴п╣пЁп╬ п╢я─п╬п©п╟.
  */
 bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 {
@@ -360,11 +360,11 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 			int rnum;
 			if ((rnum = real_object(tables_drop[i].get_vnum())) < 0)
 			{
-				log("Ошибка tdrop. Внум: %d", tables_drop[i].get_vnum());
+				log("п·я┬п╦п╠п╨п╟ tdrop. п▓п╫я┐п╪: %d", tables_drop[i].get_vnum());
 				return true;
 			}
-			act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-			log("Фридроп: упал предмет %s с VNUM: %d",
+			act("&Gп⌠п╢п╣-я┌п╬ п╡я▀я│п╬п╨п╬-п╡я▀я│п╬п╨п╬ я─п╟п╥п╢п╟п╩я│я▐ п╪п╣п╩п╬п╢п╦я┤п╫я▀п╧ п╥п╡п╬п╫ п╠я┐п╠п╣п╫я┤п╦п╨п╬п╡.&n", FALSE, mob, 0, 0, TO_ROOM);
+			log("п╓я─п╦п╢я─п╬п©: я┐п©п╟п╩ п©я─п╣п╢п╪п╣я┌ %s я│ VNUM: %d",
 				obj_proto[rnum]->get_short_description().c_str(),
 				obj_proto[rnum]->get_vnum());
 			obj_to_corpse(corpse, mob, rnum, false);
@@ -375,14 +375,14 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 	{ int day = time_info.month * DAYS_PER_MONTH + time_info.day + 1;
 		if (GET_LEVEL(mob) >= i->mob_lvl 				   
 		    &&	(!i->max_mob_lvl
-				|| GET_LEVEL(mob) <= i->max_mob_lvl) 		// моб в диапазоне уровней
+				|| GET_LEVEL(mob) <= i->max_mob_lvl) 		// п╪п╬п╠ п╡ п╢п╦п╟п©п╟п╥п╬п╫п╣ я┐я─п╬п╡п╫п╣п╧
 		    && ((i->race_mob < 0)
 				|| (GET_RACE(mob) == i->race_mob)
-				|| (get_virtual_race(mob) == i->race_mob)) 		// совпадает раса или для всех
-		    && (i->day_start <= day && i->day_end >= day)			// временной промежуток
-		    && (!NPC_FLAGGED(mob, NPC_NOSETSDROP))  //нет флага не падать сетам
+				|| (get_virtual_race(mob) == i->race_mob)) 		// я│п╬п╡п©п╟п╢п╟п╣я┌ я─п╟я│п╟ п╦п╩п╦ п╢п╩я▐ п╡я│п╣я┘
+		    && (i->day_start <= day && i->day_end >= day)			// п╡я─п╣п╪п╣п╫п╫п╬п╧ п©я─п╬п╪п╣п╤я┐я┌п╬п╨
+		    && (!NPC_FLAGGED(mob, NPC_NOSETSDROP))  //п╫п╣я┌ я└п╩п╟пЁп╟ п╫п╣ п©п╟п╢п╟я┌я▄ я│п╣я┌п╟п╪
 		    && (!mob->has_master()
-				|| IS_NPC(mob->get_master()))) // не чармис	
+				|| IS_NPC(mob->get_master()))) // п╫п╣ я┤п╟я─п╪п╦я│	
 
 		{
 			++(i->mobs);
@@ -399,8 +399,8 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 						|| (obj_rnum >= 0
 							&& obj_proto.actual_count(obj_rnum) < GET_OBJ_MIW(obj_proto[obj_rnum]))))
 				{
-					act("&GГде-то высоко-высоко раздался мелодичный звон бубенчиков.&n", FALSE, mob, 0, 0, TO_ROOM);
-					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d",
+					act("&Gп⌠п╢п╣-я┌п╬ п╡я▀я│п╬п╨п╬-п╡я▀я│п╬п╨п╬ я─п╟п╥п╢п╟п╩я│я▐ п╪п╣п╩п╬п╢п╦я┤п╫я▀п╧ п╥п╡п╬п╫ п╠я┐п╠п╣п╫я┤п╦п╨п╬п╡.&n", FALSE, mob, 0, 0, TO_ROOM);
+					sprintf(buf, "п╓я─п╦п╢я─п╬п©: я┐п©п╟п╩ п©я─п╣п╢п╪п╣я┌ %s VNUM %d я│ п╪п╬п╠п╟ %s VNUM %d",
 						obj_proto[obj_rnum]->get_short_description().c_str(),
 						obj_proto[obj_rnum]->get_vnum(),
 						GET_NAME(mob),
@@ -409,7 +409,7 @@ bool check_mob(OBJ_DATA *corpse, CHAR_DATA *mob)
 					obj_to_corpse(corpse, mob, obj_rnum, false);
 				}
 				i->mobs = 0;
-//				return true; пусть после фридропа дроп вещей продолжается
+//				return true; п©я┐я│я┌я▄ п©п╬я│п╩п╣ я└я─п╦п╢я─п╬п©п╟ п╢я─п╬п© п╡п╣я┴п╣п╧ п©я─п╬п╢п╬п╩п╤п╟п╣я┌я│я▐
 			}
 		}
 	}
@@ -423,25 +423,25 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	auto corpse = world_objects.create_blank();
 	corpse->set_sex(ESex::SEX_POLY);
 
-	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
+	sprintf(buf2, "п·я│я┌п╟п╫п╨п╦ %s п╩п╣п╤п╟я┌ п╫п╟ п╥п╣п╪п╩п╣.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
 
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "п╬я│я┌п╟п╫п╨п╦ %s", GET_PAD(ch, 1));
 	corpse->set_short_description(buf2);
 
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "п╬я│я┌п╟п╫п╨п╦ %s", GET_PAD(ch, 1));
 	corpse->set_PName(0, buf2);
 	corpse->set_aliases(buf2);
 
-	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
+	sprintf(buf2, "п╬я│я┌п╟п╫п╨п╬п╡ %s", GET_PAD(ch, 1));
 	corpse->set_PName(1, buf2);
-	sprintf(buf2, "останкам %s", GET_PAD(ch, 1));
+	sprintf(buf2, "п╬я│я┌п╟п╫п╨п╟п╪ %s", GET_PAD(ch, 1));
 	corpse->set_PName(2, buf2);
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "п╬я│я┌п╟п╫п╨п╦ %s", GET_PAD(ch, 1));
 	corpse->set_PName(3, buf2);
-	sprintf(buf2, "останками %s", GET_PAD(ch, 1));
+	sprintf(buf2, "п╬я│я┌п╟п╫п╨п╟п╪п╦ %s", GET_PAD(ch, 1));
 	corpse->set_PName(4, buf2);
-	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
+	sprintf(buf2, "п╬я│я┌п╟п╫п╨п╟я┘ %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
 	corpse->set_type(OBJ_DATA::ITEM_CONTAINER);
@@ -455,16 +455,16 @@ void make_arena_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse->set_rent_off(100000);
 	corpse->set_timer(max_pc_corpse_time * 2);
 	EXTRA_DESCR_DATA::shared_ptr exdesc(new EXTRA_DESCR_DATA());
-	exdesc->keyword = str_dup(corpse->get_PName(0).c_str());	// косметика
+	exdesc->keyword = str_dup(corpse->get_PName(0).c_str());	// п╨п╬я│п╪п╣я┌п╦п╨п╟
 	if (killer)
 	{
-		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
+		sprintf(buf, "пёп╠п╦я┌%s п╫п╟ п╟я─п╣п╫п╣ %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
 	}
 	else
 	{
-		sprintf(buf, "Умер%s на арене.\r\n", GET_CH_SUF_4(ch));
+		sprintf(buf, "пёп╪п╣я─%s п╫п╟ п╟я─п╣п╫п╣.\r\n", GET_CH_SUF_4(ch));
 	}
-	exdesc->description = str_dup(buf);	// косметика
+	exdesc->description = str_dup(buf);	// п╨п╬я│п╪п╣я┌п╦п╨п╟
 	exdesc->next = corpse->get_ex_description();
 	corpse->set_ex_description(exdesc);
 	obj_to_room(corpse.get(), ch->in_room);
@@ -478,28 +478,28 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
 		return NULL;
 
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "я┌я─я┐п© %s", GET_PAD(ch, 1));
 	auto corpse = world_objects.create_blank(buf2);
 
 	corpse->set_sex(ESex::SEX_MALE);
 
-	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
+	sprintf(buf2, "п╒я─я┐п© %s п╩п╣п╤п╦я┌ п╥п╢п╣я│я▄.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
 
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "я┌я─я┐п© %s", GET_PAD(ch, 1));
 	corpse->set_short_description(buf2);
 
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "я┌я─я┐п© %s", GET_PAD(ch, 1));
 	corpse->set_PName(0, buf2);
-	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
+	sprintf(buf2, "я┌я─я┐п©п╟ %s", GET_PAD(ch, 1));
 	corpse->set_PName(1, buf2);
-	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));
+	sprintf(buf2, "я┌я─я┐п©я┐ %s", GET_PAD(ch, 1));
 	corpse->set_PName(2, buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "я┌я─я┐п© %s", GET_PAD(ch, 1));
 	corpse->set_PName(3, buf2);
-	sprintf(buf2, "трупом %s", GET_PAD(ch, 1));
+	sprintf(buf2, "я┌я─я┐п©п╬п╪ %s", GET_PAD(ch, 1));
 	corpse->set_PName(4, buf2);
-	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
+	sprintf(buf2, "я┌я─я┐п©п╣ %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
 
 	corpse->set_type(OBJ_DATA::ITEM_CONTAINER);
@@ -531,7 +531,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 		}
 	}
 
-	// Считаем вес шмоток после того как разденем чара
+	// п║я┤п╦я┌п╟п╣п╪ п╡п╣я│ я┬п╪п╬я┌п╬п╨ п©п╬я│п╩п╣ я┌п╬пЁп╬ п╨п╟п╨ я─п╟п╥п╢п╣п╫п╣п╪ я┤п╟я─п╟
 	corpse->set_weight(GET_WEIGHT(ch) + IS_CARRYING_W(ch));
 
 	// transfer character's inventory to the corpse
@@ -578,7 +578,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	IS_CARRYING_N(ch) = 0;
 	IS_CARRYING_W(ch) = 0;
 
-	//Polud привязываем загрузку ингров к расе (типу) моба
+	//Polud п©я─п╦п╡я▐п╥я▀п╡п╟п╣п╪ п╥п╟пЁя─я┐п╥п╨я┐ п╦п╫пЁя─п╬п╡ п╨ я─п╟я│п╣ (я┌п╦п©я┐) п╪п╬п╠п╟
 	if (IS_NPC(ch) && GET_RACE(ch) > NPC_RACE_BASIC && !NPC_FLAGGED(ch, NPC_NOINGRDROP) && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE))
 	{
 		OBJ_DATA* ingr = try_make_ingr(ch, 1000, 100);
@@ -588,11 +588,11 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 		}
 	}
 
-	// Загружаю шмотки по листу. - перемещено в raw_kill
+	// п≈п╟пЁя─я┐п╤п╟я▌ я┬п╪п╬я┌п╨п╦ п©п╬ п╩п╦я│я┌я┐. - п©п╣я─п╣п╪п╣я┴п╣п╫п╬ п╡ raw_kill
 	//if (IS_NPC (ch))
 	//	dl_load_obj (corpse, ch);
 
-	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
+	// п╣я│п╩п╦ я┤п╟я─п╪п╦я│ я┐п╠п╦я┌ п©п╟п╩п╟я┤п╬п╪ п╦п╩п╦ п╫п╟ п╟я─п╣п╫п╣(п╦ п╡п╩п╟п╢п╣п╩п╣я├ п╫п╣ п╡ п╠п╢) я┌п╬ я┌я─я┐п© п©п╬п©п╟п╢п╟п╣я┌ п╫п╣ п╡ п╨п╩п╣я┌п╨я┐ п╟ п╡ п╦п╫п╡п╣п╫я┌п╟я─я▄ п╨ п╡п╩п╟п╢п╣п╩я▄я├я┐ я┤п╟я─п╪п╦я│п╟
 	if(IS_CHARMICE(ch)
 		&& !MOB_FLAGGED(ch, MOB_CORPSE)
 		&& ch->has_master()

@@ -45,7 +45,7 @@ namespace Boards
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", tm);
 		if (message->date > date())
 		{
-			out() << CCWHT(character(), C_NRM); // ÎÏ×ÙÅ ĞÏÄÓ×ÅÔÉÍ
+			out() << CCWHT(character(), C_NRM); // Ğ½Ğ¾Ğ²Ñ‹Ğµ Ğ¿Ğ¾Ğ´ÑĞ²ĞµÑ‚Ğ¸Ğ¼
 		}
 		out() << timeBuf << CCNRM(character(), C_NRM);
 	}
@@ -104,7 +104,7 @@ namespace Boards
 	{
 		if (message->date > date())
 		{
-			out() << CCWHT(character(), C_NRM); // ÎÏ×ÙÅ ĞÏÄÓ×ÅÔÉÍ
+			out() << CCWHT(character(), C_NRM); // Ğ½Ğ¾Ğ²Ñ‹Ğµ Ğ¿Ğ¾Ğ´ÑĞ²ĞµÑ‚Ğ¸Ğ¼
 		}
 		out() << "[" << message->author << "] " << CCNRM(character(), C_NRM) << message->text;
 
@@ -153,7 +153,7 @@ namespace Boards
 		char timeBuf[17];
 		if (message->date > date())
 		{
-			out() << CCWHT(character(), C_NRM); // ÄÌÑ ×ÙÄÅÌÅÎÉÑ ÎÏ×ÙÈ ÍÅÓÓÁÇ Ó×ÅÔÌÏ-ÂÅÌÙÍ
+			out() << CCWHT(character(), C_NRM); // Ğ´Ğ»Ñ Ğ²Ñ‹Ğ´ĞµĞ»ĞµĞ½Ğ¸Ñ Ğ½Ğ¾Ğ²Ñ‹Ñ… Ğ¼ĞµÑÑĞ°Ğ³ ÑĞ²ĞµÑ‚Ğ»Ğ¾-Ğ±ĞµĞ»Ñ‹Ğ¼
 		}
 
 		strftime(timeBuf, sizeof(timeBuf), "%H:%M %d-%m-%Y", localtime(&message->date));

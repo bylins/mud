@@ -23,11 +23,11 @@
 #include <string>
 
 /*
-Система следующая:
-хотим что-то сделать при касте на шмотку - пишем в mag_alter_objs()
-надо что-то сделать при снятии обкаста - check_spell_remove()
-если надо постоянный обкаст - ставим таймер на -1 в timed_spell.add()
-надо проверить есть ли каст на шмотке - timed_spell.check_spell(spell_num)
+п║п╦я│я┌п╣п╪п╟ я│п╩п╣п╢я┐я▌я┴п╟я▐:
+я┘п╬я┌п╦п╪ я┤я┌п╬-я┌п╬ я│п╢п╣п╩п╟я┌я▄ п©я─п╦ п╨п╟я│я┌п╣ п╫п╟ я┬п╪п╬я┌п╨я┐ - п©п╦я┬п╣п╪ п╡ mag_alter_objs()
+п╫п╟п╢п╬ я┤я┌п╬-я┌п╬ я│п╢п╣п╩п╟я┌я▄ п©я─п╦ я│п╫я▐я┌п╦п╦ п╬п╠п╨п╟я│я┌п╟ - check_spell_remove()
+п╣я│п╩п╦ п╫п╟п╢п╬ п©п╬я│я┌п╬я▐п╫п╫я▀п╧ п╬п╠п╨п╟я│я┌ - я│я┌п╟п╡п╦п╪ я┌п╟п╧п╪п╣я─ п╫п╟ -1 п╡ timed_spell.add()
+п╫п╟п╢п╬ п©я─п╬п╡п╣я─п╦я┌я▄ п╣я│я┌я▄ п╩п╦ п╨п╟я│я┌ п╫п╟ я┬п╪п╬я┌п╨п╣ - timed_spell.check_spell(spell_num)
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ namespace
 {
 
 ///
-/// Удаление временного флага со шмотки obj (с проверкой прототипа).
+/// пёп╢п╟п╩п╣п╫п╦п╣ п╡я─п╣п╪п╣п╫п╫п╬пЁп╬ я└п╩п╟пЁп╟ я│п╬ я┬п╪п╬я┌п╨п╦ obj (я│ п©я─п╬п╡п╣я─п╨п╬п╧ п©я─п╬я┌п╬я┌п╦п©п╟).
 /// \param flag - ITEM_XXX
 ///
 void remove_tmp_extra(OBJ_DATA *obj, EExtraFlag flag)
@@ -48,8 +48,8 @@ void remove_tmp_extra(OBJ_DATA *obj, EExtraFlag flag)
 }
 
 /**
- * Проверка надо ли что-то делать со шмоткой или писать чару
- * при снятии заклинания со шмотки.
+ * п÷я─п╬п╡п╣я─п╨п╟ п╫п╟п╢п╬ п╩п╦ я┤я┌п╬-я┌п╬ п╢п╣п╩п╟я┌я▄ я│п╬ я┬п╪п╬я┌п╨п╬п╧ п╦п╩п╦ п©п╦я│п╟я┌я▄ я┤п╟я─я┐
+ * п©я─п╦ я│п╫я▐я┌п╦п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ я│п╬ я┬п╪п╬я┌п╨п╦.
  */
 void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 {
@@ -59,7 +59,7 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		return;
 	}
 
-	// если что-то надо сделать со шмоткой при снятии обкаста
+	// п╣я│п╩п╦ я┤я┌п╬-я┌п╬ п╫п╟п╢п╬ я│п╢п╣п╩п╟я┌я▄ я│п╬ я┬п╪п╬я┌п╨п╬п╧ п©я─п╦ я│п╫я▐я┌п╦п╦ п╬п╠п╨п╟я│я┌п╟
 	switch (spell)
 	{
 	case SPELL_ACONITUM_POISON:
@@ -77,7 +77,7 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		break;
 	} // switch
 
-	// онлайн уведомление чару
+	// п╬п╫п╩п╟п╧п╫ я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦п╣ я┤п╟я─я┐
 	if (send_message
 		&& (obj->get_carried_by()
 			|| obj->get_worn_by()))
@@ -89,19 +89,19 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 		case SPELL_SCOPOLIA_POISON:
 		case SPELL_BELENA_POISON:
 		case SPELL_DATURA_POISON:
-			send_to_char(ch, "С %s испарились последние капельки яда.\r\n",
+			send_to_char(ch, "п║ %s п╦я│п©п╟я─п╦п╩п╦я│я▄ п©п╬я│п╩п╣п╢п╫п╦п╣ п╨п╟п©п╣п╩я▄п╨п╦ я▐п╢п╟.\r\n",
 				GET_OBJ_PNAME(obj, 1).c_str());
 			break;
 
 		case SPELL_FLY:
-			send_to_char(ch, "Ваш%s %s перестал%s парить в воздухе.\r\n",
+			send_to_char(ch, "п▓п╟я┬%s %s п©п╣я─п╣я│я┌п╟п╩%s п©п╟я─п╦я┌я▄ п╡ п╡п╬п╥п╢я┐я┘п╣.\r\n",
 				GET_OBJ_VIS_SUF_7(obj, ch),
 				GET_OBJ_PNAME(obj, 0).c_str(),
 				GET_OBJ_VIS_SUF_1(obj, ch));
 			break;
 
 		case SPELL_LIGHT:
-			send_to_char(ch, "Ваш%s %s перестал%s светиться.\r\n",
+			send_to_char(ch, "п▓п╟я┬%s %s п©п╣я─п╣я│я┌п╟п╩%s я│п╡п╣я┌п╦я┌я▄я│я▐.\r\n",
 				GET_OBJ_VIS_SUF_7(obj, ch),
 				GET_OBJ_PNAME(obj, 0).c_str(),
 				GET_OBJ_VIS_SUF_1(obj, ch));
@@ -110,7 +110,7 @@ void check_spell_remove(OBJ_DATA *obj, int spell, bool send_message)
 	}
 }
 
-// * Распечатка строки с заклинанием и таймером при осмотре шмотки.
+// * п═п╟я│п©п╣я┤п╟я┌п╨п╟ я│я┌я─п╬п╨п╦ я│ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣п╪ п╦ я┌п╟п╧п╪п╣я─п╬п╪ п©я─п╦ п╬я│п╪п╬я┌я─п╣ я┬п╪п╬я┌п╨п╦.
 std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 {
 	if (spell < 1
@@ -127,7 +127,7 @@ std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 	case SPELL_SCOPOLIA_POISON:
 	case SPELL_BELENA_POISON:
 	case SPELL_DATURA_POISON:
-		out = boost::str(boost::format("%1%Отравлено %2% еще %3% %4%.%5%\r\n")
+		out = boost::str(boost::format("%1%п·я┌я─п╟п╡п╩п╣п╫п╬ %2% п╣я┴п╣ %3% %4%.%5%\r\n")
 			% CCGRN(ch, C_NRM)
 			% get_poison_by_spell(spell)
 			% timer
@@ -138,14 +138,14 @@ std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 	default:
 		if (timer == -1)
 		{
-			out = boost::str(boost::format("%1%Наложено постоянное заклинание '%2%'.%3%\r\n")
+			out = boost::str(boost::format("%1%п²п╟п╩п╬п╤п╣п╫п╬ п©п╬я│я┌п╬я▐п╫п╫п╬п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ '%2%'.%3%\r\n")
 				% CCCYN(ch, C_NRM)
 				% (spell_info[spell].name ? spell_info[spell].name : "<null>")
 				% CCNRM(ch, C_NRM));
 		}
 		else
 		{
-			out = boost::str(boost::format("%1%Наложено заклинание '%2%' (%3%).%4%\r\n")
+			out = boost::str(boost::format("%1%п²п╟п╩п╬п╤п╣п╫п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ '%2%' (%3%).%4%\r\n")
 				% CCCYN(ch, C_NRM)
 				% (spell_info[spell].name ? spell_info[spell].name : "<null>")
 				% time_format(timer, true)
@@ -160,8 +160,8 @@ std::string print_spell_str(CHAR_DATA *ch, int spell, int timer)
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Удаление заклинания со шмотки с проверкой на действия/сообщения
- * при снятии обкаста.
+ * пёп╢п╟п╩п╣п╫п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ я│п╬ я┬п╪п╬я┌п╨п╦ я│ п©я─п╬п╡п╣я─п╨п╬п╧ п╫п╟ п╢п╣п╧я│я┌п╡п╦я▐/я│п╬п╬п╠я┴п╣п╫п╦я▐
+ * п©я─п╦ я│п╫я▐я┌п╦п╦ п╬п╠п╨п╟я│я┌п╟.
  */
 void TimedSpell::del(OBJ_DATA *obj, int spell, bool message)
 {
@@ -174,12 +174,12 @@ void TimedSpell::del(OBJ_DATA *obj, int spell, bool message)
 }
 
 /**
-* Сет доп.спела с таймером на шмотку.
-* \param time = -1 для постоянного обкаста
+* п║п╣я┌ п╢п╬п©.я│п©п╣п╩п╟ я│ я┌п╟п╧п╪п╣я─п╬п╪ п╫п╟ я┬п╪п╬я┌п╨я┐.
+* \param time = -1 п╢п╩я▐ п©п╬я│я┌п╬я▐п╫п╫п╬пЁп╬ п╬п╠п╨п╟я│я┌п╟
 */
 void TimedSpell::add(OBJ_DATA *obj, int spell, int time)
 {
-	// замещение ядов друг другом
+	// п╥п╟п╪п╣я┴п╣п╫п╦п╣ я▐п╢п╬п╡ п╢я─я┐пЁ п╢я─я┐пЁп╬п╪
 	if (spell == SPELL_ACONITUM_POISON
 		|| spell == SPELL_SCOPOLIA_POISON
 		|| spell == SPELL_BELENA_POISON
@@ -194,7 +194,7 @@ void TimedSpell::add(OBJ_DATA *obj, int spell, int time)
 	spell_list_[spell] = time;
 }
 
-// * Вывод оставшегося времени яда на пушке при осмотре.
+// * п▓я▀п╡п╬п╢ п╬я│я┌п╟п╡я┬п╣пЁп╬я│я▐ п╡я─п╣п╪п╣п╫п╦ я▐п╢п╟ п╫п╟ п©я┐я┬п╨п╣ п©я─п╦ п╬я│п╪п╬я┌я─п╣.
 std::string TimedSpell::diag_to_char(CHAR_DATA *ch)
 {
 	if (spell_list_.empty())
@@ -212,8 +212,8 @@ std::string TimedSpell::diag_to_char(CHAR_DATA *ch)
 }
 
 /**
- * Проверка на обкаст шмотки любым видом яда.
- * \return -1 если яда нет, spell_num если есть.
+ * п÷я─п╬п╡п╣я─п╨п╟ п╫п╟ п╬п╠п╨п╟я│я┌ я┬п╪п╬я┌п╨п╦ п╩я▌п╠я▀п╪ п╡п╦п╢п╬п╪ я▐п╢п╟.
+ * \return -1 п╣я│п╩п╦ я▐п╢п╟ п╫п╣я┌, spell_num п╣я│п╩п╦ п╣я│я┌я▄.
  */
 int TimedSpell::is_spell_poisoned() const
 {
@@ -228,13 +228,13 @@ int TimedSpell::is_spell_poisoned() const
 	return -1;
 }
 
-// * Для сейва обкаста.
+// * п■п╩я▐ я│п╣п╧п╡п╟ п╬п╠п╨п╟я│я┌п╟.
 bool TimedSpell::empty() const
 {
 	return spell_list_.empty();
 }
 
-// * Сохранение строки в файл.
+// * п║п╬я┘я─п╟п╫п╣п╫п╦п╣ я│я┌я─п╬п╨п╦ п╡ я└п╟п╧п╩.
 std::string TimedSpell::print() const
 {
 	std::stringstream out;
@@ -250,7 +250,7 @@ std::string TimedSpell::print() const
 	return out.str();
 }
 
-// * Поиск заклинания по spell_num.
+// * п÷п╬п╦я│п╨ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п©п╬ spell_num.
 bool TimedSpell::check_spell(int spell) const
 {
 	std::map<int, int>::const_iterator i = spell_list_.find(spell);
@@ -262,8 +262,8 @@ bool TimedSpell::check_spell(int spell) const
 }
 
 /**
-* Тик доп.спеллов на шмотке (раз в минуту).
-* \param time по дефолту = 1.
+* п╒п╦п╨ п╢п╬п©.я│п©п╣п╩п╩п╬п╡ п╫п╟ я┬п╪п╬я┌п╨п╣ (я─п╟п╥ п╡ п╪п╦п╫я┐я┌я┐).
+* \param time п©п╬ п╢п╣я└п╬п╩я┌я┐ = 1.
 */
 void TimedSpell::dec_timer(OBJ_DATA *obj, int time)
 {

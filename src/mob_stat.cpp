@@ -19,33 +19,33 @@
 namespace char_stat
 {
 
-/// мобов убито - для 'статистика'
+/// п╪п╬п╠п╬п╡ я┐п╠п╦я┌п╬ - п╢п╩я▐ 'я│я┌п╟я┌п╦я│я┌п╦п╨п╟'
 int mkilled = 0;
-/// игроков убито - для 'статистика'
+/// п╦пЁя─п╬п╨п╬п╡ я┐п╠п╦я┌п╬ - п╢п╩я▐ 'я│я┌п╟я┌п╦я│я┌п╦п╨п╟'
 int pkilled = 0;
-/// экспа, номер профы, имя профы для распечатки
+/// я█п╨я│п©п╟, п╫п╬п╪п╣я─ п©я─п╬я└я▀, п╦п╪я▐ п©я─п╬я└я▀ п╢п╩я▐ я─п╟я│п©п╣я┤п╟я┌п╨п╦
 struct class_exp_node
 {
 	unsigned long long exp;
 	std::string class_name;
 };
-/// экспа за ребут с делением по профам - для 'статистика'
+/// я█п╨я│п©п╟ п╥п╟ я─п╣п╠я┐я┌ я│ п╢п╣п╩п╣п╫п╦п╣п╪ п©п╬ п©я─п╬я└п╟п╪ - п╢п╩я▐ 'я│я┌п╟я┌п╦я│я┌п╦п╨п╟'
 std::array<class_exp_node, NUM_PLAYER_CLASSES> class_exp =
 {{
-	{ 0, "Лекари" },
-	{ 0, "Колдуны" },
-	{ 0, "Тати" },
-	{ 0, "Богатыри" },
-	{ 0, "Наемники" },
-	{ 0, "Дружинники" },
-	{ 0, "Кудесники" },
-	{ 0, "Волшебники" },
-	{ 0, "Чернокнижники" },
-	{ 0, "Витязи" },
-	{ 0, "Охотники" },
-	{ 0, "Кузнецы" },
-	{ 0, "Купцы" },
-	{ 0, "Волхвы" }
+	{ 0, "п⌡п╣п╨п╟я─п╦" },
+	{ 0, "п п╬п╩п╢я┐п╫я▀" },
+	{ 0, "п╒п╟я┌п╦" },
+	{ 0, "п▒п╬пЁп╟я┌я▀я─п╦" },
+	{ 0, "п²п╟п╣п╪п╫п╦п╨п╦" },
+	{ 0, "п■я─я┐п╤п╦п╫п╫п╦п╨п╦" },
+	{ 0, "п я┐п╢п╣я│п╫п╦п╨п╦" },
+	{ 0, "п▓п╬п╩я┬п╣п╠п╫п╦п╨п╦" },
+	{ 0, "п╖п╣я─п╫п╬п╨п╫п╦п╤п╫п╦п╨п╦" },
+	{ 0, "п▓п╦я┌я▐п╥п╦" },
+	{ 0, "п·я┘п╬я┌п╫п╦п╨п╦" },
+	{ 0, "п я┐п╥п╫п╣я├я▀" },
+	{ 0, "п я┐п©я├я▀" },
+	{ 0, "п▓п╬п╩я┘п╡я▀" }
 }};
 
 void add_class_exp(unsigned class_num, int exp)
@@ -92,7 +92,7 @@ std::string print_class_exp(CHAR_DATA *ch)
 		return lhs.exp > rhs.exp;
 	});
 
-	std::string out("\r\nСоотношения набранного с перезагрузки опыта:\r\n");
+	std::string out("\r\nп║п╬п╬я┌п╫п╬я┬п╣п╫п╦я▐ п╫п╟п╠я─п╟п╫п╫п╬пЁп╬ я│ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╦ п╬п©я▀я┌п╟:\r\n");
 	const unsigned long long top_exp = tmp_array.at(0).exp;
 	const size_t add = class_exp.size() / 2;
 	size_t cnt = 0;
@@ -101,7 +101,7 @@ std::string print_class_exp(CHAR_DATA *ch)
 		i != tmp_array.cend() && cnt < add; ++i, ++cnt)
 	{
 		out += print_curr_class(ch, *i, top_exp);
-		// второй столбик
+		// п╡я┌п╬я─п╬п╧ я│я┌п╬п╩п╠п╦п╨
 		size_t remaining = std::distance(i, tmp_array.cend());
 		if (remaining > add)
 		{
@@ -146,12 +146,12 @@ namespace mob_stat
 
 const char *MOB_STAT_FILE = LIB_PLRSTUFF"mob_stat.xml";
 const char *MOB_STAT_FILE_NEW = LIB_PLRSTUFF"mob_stat_new.xml";
-/// за сколько месяцев хранится статистика (+ текущий месяц)
+/// п╥п╟ я│п╨п╬п╩я▄п╨п╬ п╪п╣я│я▐я├п╣п╡ я┘я─п╟п╫п╦я┌я│я▐ я│я┌п╟я┌п╦я│я┌п╦п╨п╟ (+ я┌п╣п╨я┐я┴п╦п╧ п╪п╣я│я▐я├)
 const int HISTORY_SIZE = 6;
-/// выборка кол-ва мобов для show stats при старте мада <months, mob-count>
+/// п╡я▀п╠п╬я─п╨п╟ п╨п╬п╩-п╡п╟ п╪п╬п╠п╬п╡ п╢п╩я▐ show stats п©я─п╦ я│я┌п╟я─я┌п╣ п╪п╟п╢п╟ <months, mob-count>
 std::map<int, int> count_stats;
 std::map<int, int> kill_stats;
-/// список мобов по внуму и месяцам
+/// я│п©п╦я│п╬п╨ п╪п╬п╠п╬п╡ п©п╬ п╡п╫я┐п╪я┐ п╦ п╪п╣я│я▐я├п╟п╪
 std::unordered_map<int, std::list<mob_node>> mob_list;
 
 /// month, year
@@ -194,7 +194,7 @@ void load()
 			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
 		}
-		// инит статы конкретного моба по месяцам
+		// п╦п╫п╦я┌ я│я┌п╟я┌я▀ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ п╪п╬п╠п╟ п©п╬ п╪п╣я│я▐я├п╟п╪
 		std::list<mob_node> tmp_time;
 		for (pugi::xml_node xml_time = xml_mob.child("t"); xml_time;
 			xml_time = xml_time.next_sibling("t"))
@@ -249,7 +249,7 @@ void save()
 		pugi::xml_node mob_node = xml_mob_list.append_child();
 		mob_node.set_name("mob");
 		mob_node.append_attribute("vnum") = i->first;
-		// стата по месяцам
+		// я│я┌п╟я┌п╟ п©п╬ п╪п╣я│я▐я├п╟п╪
 		for (auto k = i->second.cbegin(), kend = i->second.cend(); k != kend; ++k)
 		{
 			pugi::xml_node time_node = mob_node.append_child();
@@ -288,14 +288,14 @@ void clear_zone(int zone_vnum)
 void show_stats(CHAR_DATA *ch)
 {
 	std::stringstream out;
-	out << "  Всего уникальных мобов в статистике убийств: " << mob_list.size() << "\r\n"
-		<< "  Количество уникальных мобов по месяцам:";
+	out << "  п▓я│п╣пЁп╬ я┐п╫п╦п╨п╟п╩я▄п╫я▀я┘ п╪п╬п╠п╬п╡ п╡ я│я┌п╟я┌п╦я│я┌п╦п╨п╣ я┐п╠п╦п╧я│я┌п╡: " << mob_list.size() << "\r\n"
+		<< "  п п╬п╩п╦я┤п╣я│я┌п╡п╬ я┐п╫п╦п╨п╟п╩я▄п╫я▀я┘ п╪п╬п╠п╬п╡ п©п╬ п╪п╣я│я▐я├п╟п╪:";
 	for (auto i = count_stats.begin(); i != count_stats.end(); ++i)
 	{
 		out << " " << std::setw(2) << std::setfill('0') << i->first << ":" << i->second;
 	}
 
-	out << "\r\n" << "  Количество убитых мобов по месяцам:";
+	out << "\r\n" << "  п п╬п╩п╦я┤п╣я│я┌п╡п╬ я┐п╠п╦я┌я▀я┘ п╪п╬п╠п╬п╡ п©п╬ п╪п╣я│я▐я├п╟п╪:";
 	for (auto i = kill_stats.begin(); i != kill_stats.end(); ++i)
 	{                                                                            
 		out << " " << std::setw(2) << std::setfill('0') << i->first << ":" << i->second;
@@ -311,7 +311,7 @@ void update_mob_node(std::list<mob_node> &node_list, int members)
 	auto date = get_date();
 	auto k = node_list.rbegin();
 	const int months = k->month + k->year * 12;
-	// сравнение номера месяца с переключением на следующий
+	// я│я─п╟п╡п╫п╣п╫п╦п╣ п╫п╬п╪п╣я─п╟ п╪п╣я│я▐я├п╟ я│ п©п╣я─п╣п╨п╩я▌я┤п╣п╫п╦п╣п╪ п╫п╟ я│п╩п╣п╢я┐я▌я┴п╦п╧
 	if (months == date.first + date.second * 12)
 	{
 		k->kills.at(members) += 1;
@@ -323,7 +323,7 @@ void update_mob_node(std::list<mob_node> &node_list, int members)
 		node.year = date.second;
 		node.kills.at(members) += 1;
 		node_list.push_back(node);
-		// проверка на переполнение кол-ва месяцев
+		// п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п©п╣я─п╣п©п╬п╩п╫п╣п╫п╦п╣ п╨п╬п╩-п╡п╟ п╪п╣я│я▐я├п╣п╡
 		if (node_list.size() > HISTORY_SIZE + 1)
 		{
 			node_list.erase(node_list.begin());
@@ -417,9 +417,9 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months)
 	}
 
 	std::stringstream out;
-	out << "Статистика убийств мобов в зоне номер " << zone_vnum
-		<< ", месяцев: " << months << "\r\n"
-		"   vnum : имя : pk : группа = убийств (n3=100 моба убили 100 раз втроем)\r\n\r\n";
+	out << "п║я┌п╟я┌п╦я│я┌п╦п╨п╟ я┐п╠п╦п╧я│я┌п╡ п╪п╬п╠п╬п╡ п╡ п╥п╬п╫п╣ п╫п╬п╪п╣я─ " << zone_vnum
+		<< ", п╪п╣я│я▐я├п╣п╡: " << months << "\r\n"
+		"   vnum : п╦п╪я▐ : pk : пЁя─я┐п©п©п╟ = я┐п╠п╦п╧я│я┌п╡ (n3=100 п╪п╬п╠п╟ я┐п╠п╦п╩п╦ 100 я─п╟п╥ п╡я┌я─п╬п╣п╪)\r\n\r\n";
 
 	for (auto i = sort_list.begin(); i != sort_list.end(); ++i)
 	{

@@ -25,11 +25,11 @@ class PlayerCRC
 {
 public:
 	PlayerCRC() : player(0), textobjs(0), timeobjs(0) {};
-	std::string name; // имя игрока
+	std::string name; // п╦п╪я▐ п╦пЁя─п╬п╨п╟
 	uint32_t player; // crc .player
 	uint32_t textobjs; // crc .textobjs
 	uint32_t timeobjs; // crc .timeobjs
-	// TODO: мб кланы еще
+	// TODO: п╪п╠ п╨п╩п╟п╫я▀ п╣я┴п╣
 };
 
 typedef std::shared_ptr<PlayerCRC> CRCListPtr;
@@ -37,12 +37,12 @@ typedef std::map<long, CRCListPtr> CRCListType;
 const char CRC_UID = '*';
 
 CRCListType crc_list;
-// лог иммам
+// п╩п╬пЁ п╦п╪п╪п╟п╪
 std::string message;
-// флажок необходимости записи файла чексумм
+// я└п╩п╟п╤п╬п╨ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦ п╥п╟п©п╦я│п╦ я└п╟п╧п╩п╟ я┤п╣п╨я│я┐п╪п╪
 bool need_save = false;
 
-// * Вывод сообщения в сислог, иммлог и лог show crc.
+// * п▓я▀п╡п╬п╢ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╡ я│п╦я│п╩п╬пЁ, п╦п╪п╪п╩п╬пЁ п╦ п╩п╬пЁ show crc.
 void add_message(const char *text, ...)
 {
 	if (!text) return;
@@ -57,7 +57,7 @@ void add_message(const char *text, ...)
 	message += out + std::string("\r\n");
 }
 
-// * Подсчет crc для строки.
+// * п÷п╬п╢я│я┤п╣я┌ crc п╢п╩я▐ я│я┌я─п╬п╨п╦.
 uint32_t calculate_str_crc(const std::string &text)
 {
 	boost::crc_32_type crc;
@@ -65,7 +65,7 @@ uint32_t calculate_str_crc(const std::string &text)
 	return crc();
 }
 
-// * Подсчет crc для файла.
+// * п÷п╬п╢я│я┤п╣я┌ crc п╢п╩я▐ я└п╟п╧п╩п╟.
 uint32_t calculate_file_crc(const char *name)
 {
 	std::ifstream in(name, std::ios::binary);
@@ -77,14 +77,14 @@ uint32_t calculate_file_crc(const char *name)
 	return calculate_str_crc(t_out.str());
 }
 
-// * Загрузка глобального списка crc.
+// * п≈п╟пЁя─я┐п╥п╨п╟ пЁп╩п╬п╠п╟п╩я▄п╫п╬пЁп╬ я│п©п╦я│п╨п╟ crc.
 void load()
 {
 	const char *file_name = LIB_PLRSTUFF"crc.lst";
 	std::ifstream file(file_name);
 	if (!file.is_open())
 	{
-		add_message("SYSERROR: не удалось открыть файл на чтение: %s", file_name);
+		add_message("SYSERROR: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩ п╫п╟ я┤я┌п╣п╫п╦п╣: %s", file_name);
 		return;
 	}
 
@@ -97,14 +97,14 @@ void load()
 	{
 		if (!(stream >> buffer >> textobjs_buf >> timeobjs_buf))
 		{
-			add_message("SYSERROR: не удалось прочитать файл: %s, last uid: %ld", file_name, uid);
+			add_message("SYSERROR: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п©я─п╬я┤п╦я┌п╟я┌я▄ я└п╟п╧п╩: %s, last uid: %ld", file_name, uid);
 			return;
 		}
 
 		std::string name = GetNameByUnique(uid);
 		if (name.empty())
 		{
-			log("FileCRC: UID %ld - персонажа не существует.", uid);
+			log("FileCRC: UID %ld - п©п╣я─я│п╬п╫п╟п╤п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.", uid);
 			continue;
 		}
 		CRCListPtr tmp_crc(new PlayerCRC);
@@ -117,7 +117,7 @@ void load()
 		}
 		catch (const std::invalid_argument &)
 		{
-			add_message("FileCrc: ошибка чтения crc (%s, %s), uid: %ld", buffer.c_str(), textobjs_buf.c_str(), uid);
+			add_message("FileCrc: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ crc (%s, %s), uid: %ld", buffer.c_str(), textobjs_buf.c_str(), uid);
 			break;
 		}
 		crc_list[uid] = tmp_crc;
@@ -133,26 +133,26 @@ void load()
 		}
 		catch (const std::invalid_argument &)
 		{
-			add_message("SYSERROR: ошибка чтения total crc (%s)", buffer.c_str());
+			add_message("SYSERROR: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ total crc (%s)", buffer.c_str());
 			return;
 		}
 		stream.clear();
 		const uint32_t crc = calculate_str_crc(stream.str());
 		if (crc != prev_crc)
 		{
-			add_message("SYSERROR: несовпадение контрольной суммы файла: %s", file_name);
+			add_message("SYSERROR: п╫п╣я│п╬п╡п©п╟п╢п╣п╫п╦п╣ п╨п╬п╫я┌я─п╬п╩я▄п╫п╬п╧ я│я┐п╪п╪я▀ я└п╟п╧п╩п╟: %s", file_name);
 			return;
 		}
 		checked = true;
 	}
 
 	if (!checked)
-		add_message("SYSERROR: не произведена сверка контрольной суммы файла: %s", file_name);
+		add_message("SYSERROR: п╫п╣ п©я─п╬п╦п╥п╡п╣п╢п╣п╫п╟ я│п╡п╣я─п╨п╟ п╨п╬п╫я┌я─п╬п╩я▄п╫п╬п╧ я│я┐п╪п╪я▀ я└п╟п╧п╩п╟: %s", file_name);
 }
 
 /**
-* Запись глобального списка чек-сумм (дергается раз в секунду для проверки необходимости сейва).
-* \param force_save - запись файла в любом случае (при шатдауне мада), по умолчанию false.
+* п≈п╟п©п╦я│я▄ пЁп╩п╬п╠п╟п╩я▄п╫п╬пЁп╬ я│п©п╦я│п╨п╟ я┤п╣п╨-я│я┐п╪п╪ (п╢п╣я─пЁп╟п╣я┌я│я▐ я─п╟п╥ п╡ я│п╣п╨я┐п╫п╢я┐ п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦ я│п╣п╧п╡п╟).
+* \param force_save - п╥п╟п©п╦я│я▄ я└п╟п╧п╩п╟ п╡ п╩я▌п╠п╬п╪ я│п╩я┐я┤п╟п╣ (п©я─п╦ я┬п╟я┌п╢п╟я┐п╫п╣ п╪п╟п╢п╟), п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ false.
 */
 void save(bool force_save)
 {
@@ -169,15 +169,15 @@ void save(bool force_save)
 			<< it->second->timeobjs << "\r\n";
 	}
 
-	// crc32 самого файла пишется ему же в конец
+	// crc32 я│п╟п╪п╬пЁп╬ я└п╟п╧п╩п╟ п©п╦я┬п╣я┌я│я▐ п╣п╪я┐ п╤п╣ п╡ п╨п╬п╫п╣я├
 	const uint32_t crc = calculate_str_crc(out.str());
 
-	// это все в конце, чтобы не завалить на креше файл
+	// я█я┌п╬ п╡я│п╣ п╡ п╨п╬п╫я├п╣, я┤я┌п╬п╠я▀ п╫п╣ п╥п╟п╡п╟п╩п╦я┌я▄ п╫п╟ п╨я─п╣я┬п╣ я└п╟п╧п╩
 	const char *file_name = LIB_PLRSTUFF"crc.lst";
 	std::ofstream file(file_name);
 	if (!file.is_open())
 	{
-		add_message("SYSERROR: не удалось открыть файл на запись: %s", file_name);
+		add_message("SYSERROR: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩ п╫п╟ п╥п╟п©п╦я│я▄: %s", file_name);
 		return;
 	}
 	file << out.rdbuf() << CRC_UID << " " << crc << "\r\n";
@@ -214,13 +214,13 @@ void create_message(std::string &name, int mode, const uint32_t& expected, const
 		break;
 	}
 
-	add_message("%s несовпадение контрольной суммы %s файла: %s (expected: %u; calculated: %u)",
+	add_message("%s п╫п╣я│п╬п╡п©п╟п╢п╣п╫п╦п╣ п╨п╬п╫я┌я─п╬п╩я▄п╫п╬п╧ я│я┐п╪п╪я▀ %s я└п╟п╧п╩п╟: %s (expected: %u; calculated: %u)",
 		time_buf, file_type.c_str(), name.c_str(), static_cast<unsigned>(expected), static_cast<unsigned>(calculated));
 }
 
 /**
-* Проверка crc файлоа плеера.
-* \param mode - PLAYER для просто сверки, UPDATE_PLAYER - для сверки с перезаписью нового crc.
+* п÷я─п╬п╡п╣я─п╨п╟ crc я└п╟п╧п╩п╬п╟ п©п╩п╣п╣я─п╟.
+* \param mode - PLAYER п╢п╩я▐ п©я─п╬я│я┌п╬ я│п╡п╣я─п╨п╦, UPDATE_PLAYER - п╢п╩я▐ я│п╡п╣я─п╨п╦ я│ п©п╣я─п╣п╥п╟п©п╦я│я▄я▌ п╫п╬п╡п╬пЁп╬ crc.
 */
 void check_crc(const char *filename, int mode, long uid)
 {
@@ -275,7 +275,7 @@ void check_crc(const char *filename, int mode, long uid)
 			break;
 
 		default:
-			add_message("SYSERROR: мы не должны были сюда попасть, uid: %ld, mode: %d, func: %s", uid, mode, __func__);
+			add_message("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, uid: %ld, mode: %d, func: %s", uid, mode, __func__);
 			return;
 		}
 	}
@@ -301,7 +301,7 @@ void check_crc(const char *filename, int mode, long uid)
 			break;
 
 		default:
-			add_message("SYSERROR: мы не должны были сюда попасть2, mode: %d, func: %s", mode, __func__);
+			add_message("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄2, mode: %d, func: %s", mode, __func__);
 			break;
 		}
 		crc_list[uid] = tmp_crc;
@@ -311,11 +311,11 @@ void check_crc(const char *filename, int mode, long uid)
 		need_save = true;
 }
 
-// * Вывод лога событий имму по show crc.
+// * п▓я▀п╡п╬п╢ п╩п╬пЁп╟ я│п╬п╠я▀я┌п╦п╧ п╦п╪п╪я┐ п©п╬ show crc.
 void show(CHAR_DATA *ch)
 {
 	if (message.empty())
-		send_to_char("Вроде ничего не происходило...\r\n", ch);
+		send_to_char("п▓я─п╬п╢п╣ п╫п╦я┤п╣пЁп╬ п╫п╣ п©я─п╬п╦я│я┘п╬п╢п╦п╩п╬...\r\n", ch);
 	else
 		send_to_char(message.c_str(), ch);
 }

@@ -100,9 +100,9 @@ int extra_aggressive(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (victim && MOB_FLAGGED(ch, MOB_AGGRPOLY) && !IS_NPC(victim) && GET_RELIGION(victim) == RELIGION_POLY)
 		agro = TRUE;
 
-//Пока что убрал обработку флагов, тем более что персов кроме русичей и нет
-//Поскольку расы и рода убраны из кода то так вот в лоб этот флаг не сделать,
-//надо или по названию расы смотреть или еще что придумывать
+//п÷п╬п╨п╟ я┤я┌п╬ я┐п╠я─п╟п╩ п╬п╠я─п╟п╠п╬я┌п╨я┐ я└п╩п╟пЁп╬п╡, я┌п╣п╪ п╠п╬п╩п╣п╣ я┤я┌п╬ п©п╣я─я│п╬п╡ п╨я─п╬п╪п╣ я─я┐я│п╦я┤п╣п╧ п╦ п╫п╣я┌
+//п÷п╬я│п╨п╬п╩я▄п╨я┐ я─п╟я│я▀ п╦ я─п╬п╢п╟ я┐п╠я─п╟п╫я▀ п╦п╥ п╨п╬п╢п╟ я┌п╬ я┌п╟п╨ п╡п╬я┌ п╡ п╩п╬п╠ я█я┌п╬я┌ я└п╩п╟пЁ п╫п╣ я│п╢п╣п╩п╟я┌я▄,
+//п╫п╟п╢п╬ п╦п╩п╦ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌ я─п╟я│я▀ я│п╪п╬я┌я─п╣я┌я▄ п╦п╩п╦ п╣я┴п╣ я┤я┌п╬ п©я─п╦п╢я┐п╪я▀п╡п╟я┌я▄
 	/*if (victim && MOB_FLAGGED(ch, MOB_AGGR_RUSICHI) && !IS_NPC(victim) && GET_KIN(victim) == KIN_RUSICHI)
 		agro = TRUE;
 
@@ -246,20 +246,20 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 				&& !IS_SET(extmode, CHECK_OPPONENT)
 				&& !IS_CHARMICE(vict))
 			|| (IS_CHARMICE(vict)
-				&& !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
+				&& !vict->get_fighting()) // я┤п╟я─п╪п╦я│п╟ п╟пЁя─п╦п╪ я┌п╬п╩я▄п╨п╬ п╣я│п╩п╦ п╬п╫ я┐п╤п╣ я│ п╨п╣п╪-я┌п╬ я│я─п╟п╤п╟п╣я┌я│я▐
 			|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 			|| !MAY_SEE(ch, ch, vict)
 			|| (IS_SET(extmode, CHECK_OPPONENT)
 				&& ch != vict->get_fighting())
 			|| (!may_kill_here(ch, vict)
-				&& !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+				&& !IS_SET(extmode, GUARD_ATTACK)))//я│я┌п╟я─п╤п╫п╦п╨п╦ п╟пЁя─я▐я┌ п╡ п╪п╦я─п╨п╟я┘
 		{
 			continue;
 		}
 
 		kill_this = FALSE;
 
-		// Mobile too damage //обработка флага ТРУС
+		// Mobile too damage //п╬п╠я─п╟п╠п╬я┌п╨п╟ я└п╩п╟пЁп╟ п╒п═пёп║
 		if (IS_SET(extmode, CHECK_HITS)
 			&& MOB_FLAGGED(ch, MOB_WIMPY)
 			&& AWAKE(vict)
@@ -268,7 +268,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			continue;
 		}
 
-		// Mobile helpers... //ассист
+		// Mobile helpers... //п╟я│я│п╦я│я┌
 		if (IS_SET(extmode, KILL_FIGHTING)
 			&& vict->get_fighting()
 			&& vict->get_fighting() != ch
@@ -393,15 +393,15 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRMONO) &&
 			!IS_NPC(best) && GET_RELIGION(best) == RELIGION_MONO)
 	{
-		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на вас.", FALSE, ch, 0, best, TO_VICT);
-		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
+		act("$n п╥п╟п╨я─п╦я┤п╟п╩$g: 'пёп╪я─п╦, я┘я─п╦я│я┌п╦п╟п╫я│п╨п╟я▐ я│п╬п╠п╟п╨п╟!' п╦ п╫п╟п╠я─п╬я│п╦п╩$u п╫п╟ п╡п╟я│.", FALSE, ch, 0, best, TO_VICT);
+		act("$n п╥п╟п╨я─п╦я┤п╟п╩$g: 'пёп╪я─п╦, я┘я─п╦я│я┌п╦п╟п╫я│п╨п╟я▐ я│п╬п╠п╟п╨п╟!' п╦ п╫п╟п╠я─п╬я│п╦п╩$u п╫п╟ $N3.", FALSE, ch, 0, best, TO_NOTVICT);
 	}
 
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRPOLY) &&
 			!IS_NPC(best) && GET_RELIGION(best) == RELIGION_POLY)
 	{
-		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на вас.", FALSE, ch, 0, best, TO_VICT);
-		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
+		act("$n п╥п╟п╨я─п╦я┤п╟п╩$g: 'пёп╪я─п╦, пЁя─я▐п╥п╫я▀п╧ я▐п╥я▀я┤п╫п╦п╨!' п╦ п╫п╟п╠я─п╬я│п╦п╩$u п╫п╟ п╡п╟я│.", FALSE, ch, 0, best, TO_VICT);
+		act("$n п╥п╟п╨я─п╦я┤п╟п╩$g: 'пёп╪я─п╦, пЁя─я▐п╥п╫я▀п╧ я▐п╥я▀я┤п╫п╦п╨!' п╦ п╫п╟п╠я─п╬я│п╦п╩$u п╫п╟ $N3.", FALSE, ch, 0, best, TO_NOTVICT);
 	}
 
 	return best;
@@ -409,7 +409,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 
 bool find_master_charmice(CHAR_DATA *charmice)
 {
-	// проверяем на спелл чарма, ищем хозяина и сравниваем румы
+	// п©я─п╬п╡п╣я─я▐п╣п╪ п╫п╟ я│п©п╣п╩п╩ я┤п╟я─п╪п╟, п╦я┴п╣п╪ я┘п╬п╥я▐п╦п╫п╟ п╦ я│я─п╟п╡п╫п╦п╡п╟п╣п╪ я─я┐п╪я▀
 	if (!IS_CHARMICE(charmice))
 	{
 		return true;
@@ -423,12 +423,12 @@ bool find_master_charmice(CHAR_DATA *charmice)
 	return false;
 }
 
-// пока тестово
+// п©п╬п╨п╟ я┌п╣я│я┌п╬п╡п╬
 CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 {
-	// интелект моба
+	// п╦п╫я┌п╣п╩п╣п╨я┌ п╪п╬п╠п╟
 	int i = GET_REAL_INT(ch);
-	// если у моба меньше 20 инты, то моб тупой
+	// п╣я│п╩п╦ я┐ п╪п╬п╠п╟ п╪п╣п╫я▄я┬п╣ 20 п╦п╫я┌я▀, я┌п╬ п╪п╬п╠ я┌я┐п©п╬п╧
 	if (i < INT_STUPID_MOD)
 	{
 		return find_best_stupidmob_victim(ch, extmode);
@@ -438,21 +438,21 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	int extra_aggr = 0;
 	bool kill_this;
 	victim = ch->get_fighting();
-	// проходим по всем чарам в комнате
+	// п©я─п╬я┘п╬п╢п╦п╪ п©п╬ п╡я│п╣п╪ я┤п╟я─п╟п╪ п╡ п╨п╬п╪п╫п╟я┌п╣
 	for (const auto vict : world[ch->in_room]->people)
 	{
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
-				|| (IS_CHARMICE(vict) && !vict->get_fighting() && find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+				|| (IS_CHARMICE(vict) && !vict->get_fighting() && find_master_charmice(vict)) // я┤п╟я─п╪п╦я│п╟ п╟пЁя─п╦п╪ я┌п╬п╩я▄п╨п╬ п╣я│п╩п╦ п╫п╣я┌ я┘п╬п╥я▐п╦п╫п╟ п╡ я─я┐п╪п╣.
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
-				|| !MAY_SEE(ch, ch, vict) // если не видим цель,
+				|| !MAY_SEE(ch, ch, vict) // п╣я│п╩п╦ п╫п╣ п╡п╦п╢п╦п╪ я├п╣п╩я▄,
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
-				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//я│я┌п╟я─п╤п╫п╦п╨п╦ п╟пЁя─я▐я┌ п╡ п╪п╦я─п╨п╟я┘
 		{
 			continue;
 		}
 
 		kill_this = FALSE;
-		// Mobile too damage //обработка флага ТРУС
+		// Mobile too damage //п╬п╠я─п╟п╠п╬я┌п╨п╟ я└п╩п╟пЁп╟ п╒п═пёп║
 		if (IS_SET(extmode, CHECK_HITS)
 			&& MOB_FLAGGED(ch, MOB_WIMPY)
 			&& AWAKE(vict) && GET_HIT(ch) * 2 < GET_REAL_MAX_HIT(ch))
@@ -460,7 +460,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			continue;
 		}
 
-		// Mobile helpers... //ассист
+		// Mobile helpers... //п╟я│я│п╦я│я┌
 		if ((vict->get_fighting())
 			&& (vict->get_fighting() != ch)
 			&& (IS_NPC(vict->get_fighting()))
@@ -523,32 +523,32 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 
 		if (!kill_this)
 			continue;
-		// волхв
+		// п╡п╬п╩я┘п╡
 		if (GET_CLASS(vict) == CLASS_DRUID)
 		{
 			druid = vict;
 			caster = vict;
 			continue;
 		}
-		// лекарь
+		// п╩п╣п╨п╟я─я▄
 		if (GET_CLASS(vict) == CLASS_CLERIC)
 		{
 			cler = vict;
 			caster = vict;
 			continue;
 		}
-		// кудес
+		// п╨я┐п╢п╣я│
 		if (GET_CLASS(vict) == CLASS_CHARMMAGE)
 		{
 			charmmage = vict;
 			caster = vict;
 			continue;
 		}
-		// если у чара меньше 100 хп, то переключаемся на него
+		// п╣я│п╩п╦ я┐ я┤п╟я─п╟ п╪п╣п╫я▄я┬п╣ 100 я┘п©, я┌п╬ п©п╣я─п╣п╨п╩я▌я┤п╟п╣п╪я│я▐ п╫п╟ п╫п╣пЁп╬
 		if (GET_HIT(vict) <= MIN_HP_MOBACT)
 		{
 			//continue;
-			//Кто-то сильно очепятался. Теперь тем у кого меньше 100 хп меньше повезет
+			//п я┌п╬-я┌п╬ я│п╦п╩я▄п╫п╬ п╬я┤п╣п©я▐я┌п╟п╩я│я▐. п╒п╣п©п╣я─я▄ я┌п╣п╪ я┐ п╨п╬пЁп╬ п╪п╣п╫я▄я┬п╣ 100 я┘п© п╪п╣п╫я▄я┬п╣ п©п╬п╡п╣п╥п╣я┌
 			return vict;
 		}
 		if (IS_CASTER(vict))
@@ -564,8 +564,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		best = victim;
 	}
 
-	// если цель кастер, то зачем переключаться ?
-	// проверка, а вдруг это существо моб
+	// п╣я│п╩п╦ я├п╣п╩я▄ п╨п╟я│я┌п╣я─, я┌п╬ п╥п╟я┤п╣п╪ п©п╣я─п╣п╨п╩я▌я┤п╟я┌я▄я│я▐ ?
+	// п©я─п╬п╡п╣я─п╨п╟, п╟ п╡п╢я─я┐пЁ я█я┌п╬ я│я┐я┴п╣я│я┌п╡п╬ п╪п╬п╠
 	if (victim && !IS_NPC(victim))
 	{
 		if (IS_CASTER(victim))
@@ -611,7 +611,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		return best;
 	}
 
-	//  и если >= 40 инты
+	//  п╦ п╣я│п╩п╦ >= 40 п╦п╫я┌я▀
 	if (caster)
 		best = caster;
 	if (charmmage)
@@ -642,7 +642,7 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 				 */
 		if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 		{
-			act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n п╡я│п╨п╬я┤п╦п╩$g п╫п╟ п╫п╬пЁп╦.", FALSE, ch, 0, 0, TO_ROOM);
 			GET_POS(ch) = POS_STANDING;
 		}
 
@@ -650,21 +650,21 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 		{
 			if (MOB_FLAGGED(best->get_fighting(), MOB_NOHELPS))
 				return (FALSE);
-			act("$n вступил$g в битву на стороне $N1.", FALSE, ch, 0, best->get_fighting(), TO_ROOM);
+			act("$n п╡я│я┌я┐п©п╦п╩$g п╡ п╠п╦я┌п╡я┐ п╫п╟ я│я┌п╬я─п╬п╫п╣ $N1.", FALSE, ch, 0, best->get_fighting(), TO_ROOM);
 		}
 
 		if (IS_SET(extmode, GUARD_ATTACK))
 		{
-			act("'$N - за грехи свои ты заслуживаешь смерти!', сурово проговорил$g $n.", FALSE, ch, 0, best, TO_ROOM);
-			act("'Как страж этого города, я намерен$g привести приговор в исполнение немедленно. Защищайся!'", FALSE, ch, 0, best, TO_ROOM);
+			act("'$N - п╥п╟ пЁя─п╣я┘п╦ я│п╡п╬п╦ я┌я▀ п╥п╟я│п╩я┐п╤п╦п╡п╟п╣я┬я▄ я│п╪п╣я─я┌п╦!', я│я┐я─п╬п╡п╬ п©я─п╬пЁп╬п╡п╬я─п╦п╩$g $n.", FALSE, ch, 0, best, TO_ROOM);
+			act("'п п╟п╨ я│я┌я─п╟п╤ я█я┌п╬пЁп╬ пЁп╬я─п╬п╢п╟, я▐ п╫п╟п╪п╣я─п╣п╫$g п©я─п╦п╡п╣я│я┌п╦ п©я─п╦пЁп╬п╡п╬я─ п╡ п╦я│п©п╬п╩п╫п╣п╫п╦п╣ п╫п╣п╪п╣п╢п╩п╣п╫п╫п╬. п≈п╟я┴п╦я┴п╟п╧я│я▐!'", FALSE, ch, 0, best, TO_ROOM);
 		}
 
 		if (!IS_NPC(best))
 		{
 			struct follow_type *f;
-			// Обработка клоунов
-			// Теперь работает как обычный mirror image
-// неявно предполагаем, что клоны могут следовать только за своим создателем
+			// п·п╠я─п╟п╠п╬я┌п╨п╟ п╨п╩п╬я┐п╫п╬п╡
+			// п╒п╣п©п╣я─я▄ я─п╟п╠п╬я┌п╟п╣я┌ п╨п╟п╨ п╬п╠я▀я┤п╫я▀п╧ mirror image
+// п╫п╣я▐п╡п╫п╬ п©я─п╣п╢п©п╬п╩п╟пЁп╟п╣п╪, я┤я┌п╬ п╨п╩п╬п╫я▀ п╪п╬пЁя┐я┌ я│п╩п╣п╢п╬п╡п╟я┌я▄ я┌п╬п╩я▄п╨п╬ п╥п╟ я│п╡п╬п╦п╪ я│п╬п╥п╢п╟я┌п╣п╩п╣п╪
 			for (f = best->followers; f; f = f->next)
 				if (MOB_FLAGGED(f->follower, MOB_CLONE))
 					clone_number++;
@@ -708,7 +708,7 @@ int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 			{
-				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n п╡я│п╨п╬я┤п╦п╩$g п╫п╟ п╫п╬пЁп╦.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
 
@@ -735,7 +735,7 @@ int perform_mob_switch(CHAR_DATA * ch)
 	if (best == ch->get_fighting())
 		return FALSE;
 
-	// переключаюсь на best
+	// п©п╣я─п╣п╨п╩я▌я┤п╟я▌я│я▄ п╫п╟ best
 	stop_fighting(ch, FALSE);
 	set_fighting(ch, best);
 	set_wait(ch, 2, FALSE);
@@ -776,7 +776,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
 		return;
 	}
-	//Polud стражники
+	//Polud я│я┌я─п╟п╤п╫п╦п╨п╦
 	if (MOB_FLAGGED(ch, MOB_GUARDIAN))
 	{
 		perform_best_mob_attack(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
@@ -839,16 +839,16 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 			{
-				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n п╡я│п╨п╬я┤п╦п╩$g п╫п╟ п╫п╬пЁп╦.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
 			if (GET_RACE(ch) != NPC_RACE_HUMAN)
 			{
-				act("$n вспомнил$g $N3.", FALSE, ch, 0, victim, TO_ROOM);
+				act("$n п╡я│п©п╬п╪п╫п╦п╩$g $N3.", FALSE, ch, 0, victim, TO_ROOM);
 			}
 			else
 			{
-				act("'$N - ты пытал$U убить меня ! Попал$U ! Умри !!!', воскликнул$g $n.",
+				act("'$N - я┌я▀ п©я▀я┌п╟п╩$U я┐п╠п╦я┌я▄ п╪п╣п╫я▐ ! п÷п╬п©п╟п╩$U ! пёп╪я─п╦ !!!', п╡п╬я│п╨п╩п╦п╨п╫я┐п╩$g $n.",
 					FALSE, ch, 0, victim, TO_ROOM);
 			}
 			if (!attack_best(ch, victim))
@@ -868,9 +868,9 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 }
 
 /**
-* Примечание: сам ch после этой функции уже может быть спуржен
-* в результате агра на себя кого-то в комнате и начале атаки
-* например с глуша.
+* п÷я─п╦п╪п╣я┤п╟п╫п╦п╣: я│п╟п╪ ch п©п╬я│п╩п╣ я█я┌п╬п╧ я└я┐п╫п╨я├п╦п╦ я┐п╤п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я│п©я┐я─п╤п╣п╫
+* п╡ я─п╣п╥я┐п╩я▄я┌п╟я┌п╣ п╟пЁя─п╟ п╫п╟ я│п╣п╠я▐ п╨п╬пЁп╬-я┌п╬ п╡ п╨п╬п╪п╫п╟я┌п╣ п╦ п╫п╟я┤п╟п╩п╣ п╟я┌п╟п╨п╦
+* п╫п╟п©я─п╦п╪п╣я─ я│ пЁп╩я┐я┬п╟.
 */
 void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
 {
@@ -879,19 +879,19 @@ void do_aggressive_room(CHAR_DATA *ch, int check_sneak)
 		return;
 	}
 
-	const auto people = world[ch->in_room]->people;	// сделать копию people, т. к. оно может измениться в теле цикла и итераторы будут испорчены
+	const auto people = world[ch->in_room]->people;	// я│п╢п╣п╩п╟я┌я▄ п╨п╬п©п╦я▌ people, я┌. п╨. п╬п╫п╬ п╪п╬п╤п╣я┌ п╦п╥п╪п╣п╫п╦я┌я▄я│я▐ п╡ я┌п╣п╩п╣ я├п╦п╨п╩п╟ п╦ п╦я┌п╣я─п╟я┌п╬я─я▀ п╠я┐п╢я┐я┌ п╦я│п©п╬я─я┤п╣п╫я▀
 	for (const auto& vict: people)
 	{
-		// здесь не надо преварително запоминать next_in_room, потому что как раз
-		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
+		// п╥п╢п╣я│я▄ п╫п╣ п╫п╟п╢п╬ п©я─п╣п╡п╟я─п╦я┌п╣п╩п╫п╬ п╥п╟п©п╬п╪п╦п╫п╟я┌я▄ next_in_room, п©п╬я┌п╬п╪я┐ я┤я┌п╬ п╨п╟п╨ я─п╟п╥
+		// п╬п╫ я┌п╬ п╦ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я│п©я┐я─п╤п╣п╫ п©п╬ я┘п╬п╢я┐ do_aggressive_mob, п╟ п╡п╬я┌ п╟я┌п╟п╨я┐я▌я┴п╦п╧ п╫п╣я┌
 		do_aggressive_mob(vict, check_sneak);
 	}
 }
 
 /**
- * Проверка на наличие в комнате мобов с таким же спешиалом, что и входящий.
- * \param ch - входящий моб
- * \return true - можно войти, false - нельзя
+ * п÷я─п╬п╡п╣я─п╨п╟ п╫п╟ п╫п╟п╩п╦я┤п╦п╣ п╡ п╨п╬п╪п╫п╟я┌п╣ п╪п╬п╠п╬п╡ я│ я┌п╟п╨п╦п╪ п╤п╣ я│п©п╣я┬п╦п╟п╩п╬п╪, я┤я┌п╬ п╦ п╡я┘п╬п╢я▐я┴п╦п╧.
+ * \param ch - п╡я┘п╬п╢я▐я┴п╦п╧ п╪п╬п╠
+ * \return true - п╪п╬п╤п╫п╬ п╡п╬п╧я┌п╦, false - п╫п╣п╩я▄п╥я▐
  */
 bool allow_enter(ROOM_DATA *room, CHAR_DATA *ch)
 {
@@ -918,17 +918,17 @@ namespace
 	{
 		const auto obj = world_objects.create_blank();
 
-		obj->set_aliases("узелок вещами");
-		const std::string descr = std::string("узелок с вещами ") + ch->get_pad(1);
+		obj->set_aliases("я┐п╥п╣п╩п╬п╨ п╡п╣я┴п╟п╪п╦");
+		const std::string descr = std::string("я┐п╥п╣п╩п╬п╨ я│ п╡п╣я┴п╟п╪п╦ ") + ch->get_pad(1);
 		obj->set_short_description(descr);
-		obj->set_description("Туго набитый узел лежит тут.");
-		obj->set_ex_description(descr.c_str(), "Кто-то сильно торопился, когда набивал этот узелок.");
-		obj->set_PName(0, "узелок");
-		obj->set_PName(1, "узелка");
-		obj->set_PName(2, "узелку");
-		obj->set_PName(3, "узелок");
-		obj->set_PName(4, "узелком");
-		obj->set_PName(5, "узелке");
+		obj->set_description("п╒я┐пЁп╬ п╫п╟п╠п╦я┌я▀п╧ я┐п╥п╣п╩ п╩п╣п╤п╦я┌ я┌я┐я┌.");
+		obj->set_ex_description(descr.c_str(), "п я┌п╬-я┌п╬ я│п╦п╩я▄п╫п╬ я┌п╬я─п╬п©п╦п╩я│я▐, п╨п╬пЁп╢п╟ п╫п╟п╠п╦п╡п╟п╩ я█я┌п╬я┌ я┐п╥п╣п╩п╬п╨.");
+		obj->set_PName(0, "я┐п╥п╣п╩п╬п╨");
+		obj->set_PName(1, "я┐п╥п╣п╩п╨п╟");
+		obj->set_PName(2, "я┐п╥п╣п╩п╨я┐");
+		obj->set_PName(3, "я┐п╥п╣п╩п╬п╨");
+		obj->set_PName(4, "я┐п╥п╣п╩п╨п╬п╪");
+		obj->set_PName(5, "я┐п╥п╣п╩п╨п╣");
 		obj->set_sex(ESex::SEX_MALE);
 		obj->set_type(OBJ_DATA::ITEM_CONTAINER);
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
@@ -1023,8 +1023,8 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		ch_activity = GET_ACTIVITY(ch);
 
-// на случай вызова mobile_activity() не каждый пульс
-		// TODO: by WorM а где-то используется это mob_specials.speed ???
+// п╫п╟ я│п╩я┐я┤п╟п╧ п╡я▀п╥п╬п╡п╟ mobile_activity() п╫п╣ п╨п╟п╤п╢я▀п╧ п©я┐п╩я▄я│
+		// TODO: by WorM п╟ пЁп╢п╣-я┌п╬ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я█я┌п╬ mob_specials.speed ???
 		if (ch_activity - activity_lev < missed_pulses
 			&& ch_activity - activity_lev >= 0)
 		{
@@ -1058,9 +1058,9 @@ void mobile_activity(int activity_level, int missed_pulses)
 		// Extract free horses
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
 			&& MOB_FLAGGED(ch, MOB_MOUNTING)
-			&& !ch->has_master()) // если скакун, под седлом но нет хозяина
+			&& !ch->has_master()) // п╣я│п╩п╦ я│п╨п╟п╨я┐п╫, п©п╬п╢ я│п╣п╢п╩п╬п╪ п╫п╬ п╫п╣я┌ я┘п╬п╥я▐п╦п╫п╟
 		{
-			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
+			act("п▓п╬п╥п╫п╦п╨я┬п╦п╧ п╨п╟п╨ п╦п╥-п©п╬п╢ п╥п╣п╪п╩п╦ я├я▀пЁп╟п╫ п╩п╬п╡п╨п╬ п╡я│п╨п╬я┤п╦п╩ п╫п╟ $n3 п╦ я┐п╫п╣я│я│я▐ п©я─п╬я┤я▄.",
 				FALSE, ch.get(), 0, 0, TO_ROOM);
 			extract_char(ch.get(), FALSE);
 
@@ -1110,7 +1110,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (GET_POS(ch) == POS_SLEEPING && GET_DEFAULT_POS(ch) > POS_SLEEPING)
 		{
 			GET_POS(ch) = GET_DEFAULT_POS(ch);
-			act("$n проснул$u.", FALSE, ch.get(), 0, 0, TO_ROOM);
+			act("$n п©я─п╬я│п╫я┐п╩$u.", FALSE, ch.get(), 0, 0, TO_ROOM);
 		}
 
 		if (!AWAKE(ch))
@@ -1143,7 +1143,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		if (!max && !MOB_FLAGGED(ch, MOB_NOREST) &&
 				GET_HIT(ch) < GET_REAL_MAX_HIT(ch) && !MOB_FLAGGED(ch, MOB_ANGEL) && !MOB_FLAGGED(ch, MOB_GHOST) && GET_POS(ch) > POS_RESTING)
 		{
-			act("$n присел$g отдохнуть.", FALSE, ch.get(), 0, 0, TO_ROOM);
+			act("$n п©я─п╦я│п╣п╩$g п╬я┌п╢п╬я┘п╫я┐я┌я▄.", FALSE, ch.get(), 0, 0, TO_ROOM);
 			GET_POS(ch) = POS_RESTING;
 		}
 
@@ -1157,25 +1157,25 @@ void mobile_activity(int activity_level, int missed_pulses)
 			switch (GET_DEFAULT_POS(ch))
 			{
 			case POS_STANDING:
-				act("$n встал$g на ноги.", FALSE, ch.get(), 0, 0, TO_ROOM);
+				act("$n п╡я│я┌п╟п╩$g п╫п╟ п╫п╬пЁп╦.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 				break;
 			case POS_SITTING:
-				act("$n сел$g.", FALSE, ch.get(), 0, 0, TO_ROOM);
+				act("$n я│п╣п╩$g.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_SITTING;
 				break;
 			case POS_RESTING:
-				act("$n присел$g отдохнуть.", FALSE, ch.get(), 0, 0, TO_ROOM);
+				act("$n п©я─п╦я│п╣п╩$g п╬я┌п╢п╬я┘п╫я┐я┌я▄.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_RESTING;
 				break;
 			case POS_SLEEPING:
-				act("$n уснул$g.", FALSE, ch.get(), 0, 0, TO_ROOM);
+				act("$n я┐я│п╫я┐п╩$g.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_SLEEPING;
 				break;
 			}
 		}
 		// continue, if the mob is an angel
-		// если моб ментальная тень или ангел он не должен проявлять активность
+		// п╣я│п╩п╦ п╪п╬п╠ п╪п╣п╫я┌п╟п╩я▄п╫п╟я▐ я┌п╣п╫я▄ п╦п╩п╦ п╟п╫пЁп╣п╩ п╬п╫ п╫п╣ п╢п╬п╩п╤п╣п╫ п©я─п╬я▐п╡п╩я▐я┌я▄ п╟п╨я┌п╦п╡п╫п╬я│я┌я▄
 		if ((MOB_FLAGGED(ch, MOB_ANGEL))
 			||(MOB_FLAGGED(ch, MOB_GHOST)))
 		{
@@ -1193,7 +1193,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		}
 
 		// Scavenger (picking up objects)
-		// От одного до трех предметов за раз
+		// п·я┌ п╬п╢п╫п╬пЁп╬ п╢п╬ я┌я─п╣я┘ п©я─п╣п╢п╪п╣я┌п╬п╡ п╥п╟ я─п╟п╥
 		i = number(1, 3);
 		while (i)
 		{
@@ -1203,10 +1203,10 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 		if (EXTRACT_TIMER(ch) == 0)
 		{
-			//чармисы, собирающиеся уходить - не лутят! (Купала)
+			//я┤п╟я─п╪п╦я│я▀, я│п╬п╠п╦я─п╟я▌я┴п╦п╣я│я▐ я┐я┘п╬п╢п╦я┌я▄ - п╫п╣ п╩я┐я┌я▐я┌! (п я┐п©п╟п╩п╟)
 			//Niker: LootCR// Start
-			//Не уверен, что рассмотрены все случаи, когда нужно снимать флаги с моба
-			//Реализация для лута и воровства
+			//п²п╣ я┐п╡п╣я─п╣п╫, я┤я┌п╬ я─п╟я│я│п╪п╬я┌я─п╣п╫я▀ п╡я│п╣ я│п╩я┐я┤п╟п╦, п╨п╬пЁп╢п╟ п╫я┐п╤п╫п╬ я│п╫п╦п╪п╟я┌я▄ я└п╩п╟пЁп╦ я│ п╪п╬п╠п╟
+			//п═п╣п╟п╩п╦п╥п╟я├п╦я▐ п╢п╩я▐ п╩я┐я┌п╟ п╦ п╡п╬я─п╬п╡я│я┌п╡п╟
 			int grab_stuff = FALSE;
 			// Looting the corpses
 
@@ -1215,7 +1215,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 			if (grab_stuff)
 			{
-				MOB_FLAGS(ch).unset(MOB_LIKE_DAY);	//Взял из make_horse
+				MOB_FLAGS(ch).unset(MOB_LIKE_DAY);	//п▓п╥я▐п╩ п╦п╥ make_horse
 				MOB_FLAGS(ch).unset(MOB_LIKE_NIGHT);
 				MOB_FLAGS(ch).unset(MOB_LIKE_FULLMOON);
 				MOB_FLAGS(ch).unset(MOB_LIKE_WINTER);
@@ -1350,9 +1350,9 @@ void mobile_activity(int activity_level, int missed_pulses)
 					|| world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)
 				&& allow_enter(world[EXIT(ch, door)->to_room], ch.get()))
 		{
-			// После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
-			// оно не валится на муд.ру, но на цигвине у меня падало стабильно,
-			// т.к. в ch уже местами мусор после фри-чара // Krodo
+			// п÷п╬я│п╩п╣ я┘п╬п╢п╟ п╫п©я├ я┐п╤п╣ п╪п╬п╤п╣я┌ п╫п╣ п╠я▀я┌я▄, я┌.п╨. я┐я┬п╣п╩ п╡ п╢я┌, я▐ п╫п╣ п╥п╫п╟я▌ п©п╬я┤п╣п╪я┐
+			// п╬п╫п╬ п╫п╣ п╡п╟п╩п╦я┌я│я▐ п╫п╟ п╪я┐п╢.я─я┐, п╫п╬ п╫п╟ я├п╦пЁп╡п╦п╫п╣ я┐ п╪п╣п╫я▐ п©п╟п╢п╟п╩п╬ я│я┌п╟п╠п╦п╩я▄п╫п╬,
+			// я┌.п╨. п╡ ch я┐п╤п╣ п╪п╣я│я┌п╟п╪п╦ п╪я┐я│п╬я─ п©п╬я│п╩п╣ я└я─п╦-я┤п╟я─п╟ // Krodo
 			if (npc_move(ch.get(), door, 1))
 			{
 				npc_group(ch.get());
@@ -1409,7 +1409,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 }
 
 // Mob Memory Routines
-// 11.07.2002 - у зачармленных мобов не работает механизм памяти на время чарма
+// 11.07.2002 - я┐ п╥п╟я┤п╟я─п╪п╩п╣п╫п╫я▀я┘ п╪п╬п╠п╬п╡ п╫п╣ я─п╟п╠п╬я┌п╟п╣я┌ п╪п╣я┘п╟п╫п╦п╥п╪ п©п╟п╪я▐я┌п╦ п╫п╟ п╡я─п╣п╪я▐ я┤п╟я─п╪п╟
 
 // make ch remember victim
 void remember(CHAR_DATA * ch, CHAR_DATA * victim)
@@ -1454,7 +1454,7 @@ void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	memory_rec *curr, *prev = NULL;
 
-	// Момент спорный, но думаю, что так правильнее
+	// п°п╬п╪п╣п╫я┌ я│п©п╬я─п╫я▀п╧, п╫п╬ п╢я┐п╪п╟я▌, я┤я┌п╬ я┌п╟п╨ п©я─п╟п╡п╦п╩я▄п╫п╣п╣
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
@@ -1479,8 +1479,8 @@ void forget(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 // erase ch's memory
-// Можно заметить, что функция вызывается только при extract char/mob
-// Удаляется все подряд
+// п°п╬п╤п╫п╬ п╥п╟п╪п╣я┌п╦я┌я▄, я┤я┌п╬ я└я┐п╫п╨я├п╦я▐ п╡я▀п╥я▀п╡п╟п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п©я─п╦ extract char/mob
+// пёп╢п╟п╩я▐п╣я┌я│я▐ п╡я│п╣ п©п╬п╢я─я▐п╢
 void clearMemory(CHAR_DATA * ch)
 {
 	memory_rec *curr, *next;
@@ -1495,8 +1495,8 @@ void clearMemory(CHAR_DATA * ch)
 	}
 	MEMORY(ch) = NULL;
 }
-//Polud Функция проверяет, является ли моб ch стражником (описан в файле guards.xml)
-//и должен ли он сагрить на эту жертву vict
+//Polud п╓я┐п╫п╨я├п╦я▐ п©я─п╬п╡п╣я─я▐п╣я┌, я▐п╡п╩я▐п╣я┌я│я▐ п╩п╦ п╪п╬п╠ ch я│я┌я─п╟п╤п╫п╦п╨п╬п╪ (п╬п©п╦я│п╟п╫ п╡ я└п╟п╧п╩п╣ guards.xml)
+//п╦ п╢п╬п╩п╤п╣п╫ п╩п╦ п╬п╫ я│п╟пЁя─п╦я┌я▄ п╫п╟ я█я┌я┐ п╤п╣я─я┌п╡я┐ vict
 bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
 {
 	struct mob_guardian tmp_guard;
@@ -1504,7 +1504,7 @@ bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
 
 	if (!IS_NPC(ch) || !vict || !MOB_FLAGGED(ch, MOB_GUARDIAN))
 		return false;
-//на всякий случай проверим, а вдруг моб да подевался куда из списка...
+//п╫п╟ п╡я│я▐п╨п╦п╧ я│п╩я┐я┤п╟п╧ п©я─п╬п╡п╣я─п╦п╪, п╟ п╡п╢я─я┐пЁ п╪п╬п╠ п╢п╟ п©п╬п╢п╣п╡п╟п╩я│я▐ п╨я┐п╢п╟ п╦п╥ я│п©п╦я│п╨п╟...
 	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(ch));
 	if (it == guardian_list.end())
 		return false;
@@ -1518,8 +1518,8 @@ bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
 	if (CLAN(vict))
 	{
 		num_wars_vict = Clan::GetClanWars(vict);
-		int clan_town_vnum = CLAN(vict)->GetOutRent()/100; //Polud подскажите мне другой способ определить vnum зоны
-		int mob_town_vnum = GET_MOB_VNUM(ch)/100;          //по vnum комнаты, не перебирая все комнаты и зоны мира
+		int clan_town_vnum = CLAN(vict)->GetOutRent()/100; //Polud п©п╬п╢я│п╨п╟п╤п╦я┌п╣ п╪п╫п╣ п╢я─я┐пЁп╬п╧ я│п©п╬я│п╬п╠ п╬п©я─п╣п╢п╣п╩п╦я┌я▄ vnum п╥п╬п╫я▀
+		int mob_town_vnum = GET_MOB_VNUM(ch)/100;          //п©п╬ vnum п╨п╬п╪п╫п╟я┌я▀, п╫п╣ п©п╣я─п╣п╠п╦я─п╟я▐ п╡я│п╣ п╨п╬п╪п╫п╟я┌я▀ п╦ п╥п╬п╫я▀ п╪п╦я─п╟
 		if (num_wars_vict && num_wars_vict > tmp_guard.max_wars_allow &&  clan_town_vnum != mob_town_vnum)
 			return true;
 	}

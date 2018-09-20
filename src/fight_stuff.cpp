@@ -43,7 +43,7 @@ void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern int material_value[];
 extern int max_exp_gain_npc;
 
-//интервал в секундах между восстановлением кругов после рипа
+//п╦п╫я┌п╣я─п╡п╟п╩ п╡ я│п╣п╨я┐п╫п╢п╟я┘ п╪п╣п╤п╢я┐ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣п╪ п╨я─я┐пЁп╬п╡ п©п╬я│п╩п╣ я─п╦п©п╟
 extern const unsigned RECALL_SPELLS_INTERVAL;
 const unsigned RECALL_SPELLS_INTERVAL = 28;
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
@@ -67,14 +67,14 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 		master = killer;
 	}
 
-	// На этот момент master - PC
+	// п²п╟ я█я┌п╬я┌ п╪п╬п╪п╣п╫я┌ master - PC
 	if (master)
 	{
 		int cnt = 0;
 		if (AFF_FLAGGED(master, EAffectFlag::AFF_GROUP))
 		{
 
-			// master - член группы, переходим на лидера группы
+			// master - я┤п╩п╣п╫ пЁя─я┐п©п©я▀, п©п╣я─п╣я┘п╬п╢п╦п╪ п╫п╟ п╩п╦п╢п╣я─п╟ пЁя─я┐п©п©я▀
 			if (master->has_master())
 			{
 				master = master->get_master();
@@ -82,7 +82,7 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 
 			if (IN_ROOM(master) == IN_ROOM(killer))
 			{
-				// лидер группы в тойже комнате, что и убивец
+				// п╩п╦п╢п╣я─ пЁя─я┐п©п©я▀ п╡ я┌п╬п╧п╤п╣ п╨п╬п╪п╫п╟я┌п╣, я┤я┌п╬ п╦ я┐п╠п╦п╡п╣я├
 				cnt = 1;
 				if (can_use_feat(master, PARTNER_FEAT))
 				{
@@ -109,15 +109,15 @@ void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 			}
 		}
 
-		// обоим замакс, если способность напарник работает
-		// получается замакс идет в 2 раза быстрее, чем без способности в той же группе
+		// п╬п╠п╬п╦п╪ п╥п╟п╪п╟п╨я│, п╣я│п╩п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ п╫п╟п©п╟я─п╫п╦п╨ я─п╟п╠п╬я┌п╟п╣я┌
+		// п©п╬п╩я┐я┤п╟п╣я┌я│я▐ п╥п╟п╪п╟п╨я│ п╦п╢п╣я┌ п╡ 2 я─п╟п╥п╟ п╠я▀я│я┌я─п╣п╣, я┤п╣п╪ п╠п╣п╥ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п╡ я┌п╬п╧ п╤п╣ пЁя─я┐п©п©п╣
 		if (leader_partner
 			&& partner_feat == 1 && total_group_members == 2)
 		{
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 			partner->mobmax_add(partner, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
 		} else {
-			// выберем случайным образом мембера группы для замакса
+			// п╡я▀п╠п╣я─п╣п╪ я│п╩я┐я┤п╟п╧п╫я▀п╪ п╬п╠я─п╟п╥п╬п╪ п╪п╣п╪п╠п╣я─п╟ пЁя─я┐п©п©я▀ п╢п╩я▐ п╥п╟п╪п╟п╨я│п╟
 			auto n = number(0, cnt);
 			int i = 0;
 			for (struct follow_type *f = master->followers; f && i < n; f = f->next)
@@ -138,11 +138,11 @@ void gift_new_year(CHAR_DATA* /*vict*/)
 {
 }
 
-// 29.11.09 Увеличиваем счетчики рипов (с) Василиса
+// 29.11.09 пёп╡п╣п╩п╦я┤п╦п╡п╟п╣п╪ я│я┤п╣я┌я┤п╦п╨п╦ я─п╦п©п╬п╡ (я│) п▓п╟я│п╦п╩п╦я│п╟
 //edited by WorM
 void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 {
-	//настоящий убийца мастер чармиса/коня/ангела
+	//п╫п╟я│я┌п╬я▐я┴п╦п╧ я┐п╠п╦п╧я├п╟ п╪п╟я│я┌п╣я─ я┤п╟я─п╪п╦я│п╟/п╨п╬п╫я▐/п╟п╫пЁп╣п╩п╟
 	CHAR_DATA *rkiller = killer;
 
 	if (rkiller
@@ -170,18 +170,18 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 	{
 		if (rkiller && rkiller != ch)
 		{
-			if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) //Рип на арене
+			if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) //п═п╦п© п╫п╟ п╟я─п╣п╫п╣
 			{
 				GET_RIP_ARENA(ch)= GET_RIP_ARENA(ch)+1;
 				GET_WIN_ARENA(killer)= GET_WIN_ARENA(killer)+1;
 				if (dec_exp)
 				{
-					GET_EXP_ARENA(ch)=GET_EXP_ARENA(ch)+dec_exp; //Если чар в бд
+					GET_EXP_ARENA(ch)=GET_EXP_ARENA(ch)+dec_exp; //п∙я│п╩п╦ я┤п╟я─ п╡ п╠п╢
 				}
 			}
 			else if (IS_NPC(rkiller))
 			{
-				//Рип от моба
+				//п═п╦п© п╬я┌ п╪п╬п╠п╟
 				GET_RIP_MOB(ch)= GET_RIP_MOB(ch)+1;
 				GET_RIP_MOBTHIS(ch)= GET_RIP_MOBTHIS(ch)+1;
 				if (dec_exp)
@@ -192,7 +192,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 			}
 			else if (!IS_NPC(rkiller))
 			{
-				//Рип в ПК
+				//п═п╦п© п╡ п÷п 
 				GET_RIP_PK(ch)= GET_RIP_PK(ch)+1;
 				GET_RIP_PKTHIS(ch)= GET_RIP_PKTHIS(ch)+1;
 				if (dec_exp)
@@ -207,7 +207,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 			ROOM_FLAGGED(ch->in_room, ROOM_SLOWDEATH) ||
 			ROOM_FLAGGED(ch->in_room, ROOM_ICEDEATH)))
 		{
-			//Рип в дт
+			//п═п╦п© п╡ п╢я┌
 			GET_RIP_DT(ch)= GET_RIP_DT(ch)+1;
 			GET_RIP_DTTHIS(ch)= GET_RIP_DTTHIS(ch)+1;
 			if (dec_exp)
@@ -218,7 +218,7 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 		}
 		else// if (!rkiller || (rkiller && rkiller == ch))
 		{
-			//Рип по стечению обстоятельств
+			//п═п╦п© п©п╬ я│я┌п╣я┤п╣п╫п╦я▌ п╬п╠я│я┌п╬я▐я┌п╣п╩я▄я│я┌п╡
 			GET_RIP_OTHER(ch)= GET_RIP_OTHER(ch)+1;
 			GET_RIP_OTHERTHIS(ch)= GET_RIP_OTHERTHIS(ch)+1;
 			if (dec_exp)
@@ -230,14 +230,14 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 	}
 }
 //end by WorM
-//конец правки (с) Василиса
+//п╨п╬п╫п╣я├ п©я─п╟п╡п╨п╦ (я│) п▓п╟я│п╦п╩п╦я│п╟
 
 void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	// train LEADERSHIP
-	if (IS_NPC(ch) && killer) // Убили моба
+	if (IS_NPC(ch) && killer) // пёп╠п╦п╩п╦ п╪п╬п╠п╟
 	{
-		if (!IS_NPC(killer) // Убил загрупленный чар
+		if (!IS_NPC(killer) // пёп╠п╦п╩ п╥п╟пЁя─я┐п©п╩п╣п╫п╫я▀п╧ я┤п╟я─
 			&& AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)
 			&& killer->has_master()
 			&& killer->get_master()->get_skill(SKILL_LEADERSHIP) > 0
@@ -245,12 +245,12 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 		{
 			improove_skill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
 		}
-		else if (IS_NPC(killer) // Убил чармис загрупленного чара
+		else if (IS_NPC(killer) // пёп╠п╦п╩ я┤п╟я─п╪п╦я│ п╥п╟пЁя─я┐п©п╩п╣п╫п╫п╬пЁп╬ я┤п╟я─п╟
 			&& IS_CHARMICE(killer)
 			&& killer->has_master()
 			&& AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP))
 		{
-			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
+			if (killer->get_master()->has_master() // п▓п╩п╟п╢п╣п╩п╣я├ я┤п╟я─п╪п╦я│п╟ п²п∙ п╩п╦п╢п╣я─
 				&& killer->get_master()->get_master()->get_skill(SKILL_LEADERSHIP) > 0
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master()))
@@ -261,7 +261,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 
 	// decrease LEADERSHIP
-	if (!IS_NPC(ch) // Член группы убит мобом
+	if (!IS_NPC(ch) // п╖п╩п╣п╫ пЁя─я┐п©п©я▀ я┐п╠п╦я┌ п╪п╬п╠п╬п╪
 		&& killer
 		&& IS_NPC(killer)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
@@ -286,27 +286,27 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 
 
-	if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && (ch != killer)) // рип в тестовой зоне от моба но не чармиса
+	if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && (ch != killer)) // я─п╦п© п╡ я┌п╣я│я┌п╬п╡п╬п╧ п╥п╬п╫п╣ п╬я┌ п╪п╬п╠п╟ п╫п╬ п╫п╣ я┤п╟я─п╪п╦я│п╟
 	{
 		return false;
 	}
 
-	// Сюда попадают только тестеры на волоске от смерти. Для инх функция должна вернуть true.
-	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
-	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
+	// п║я▌п╢п╟ п©п╬п©п╟п╢п╟я▌я┌ я┌п╬п╩я▄п╨п╬ я┌п╣я│я┌п╣я─я▀ п╫п╟ п╡п╬п╩п╬я│п╨п╣ п╬я┌ я│п╪п╣я─я┌п╦. п■п╩я▐ п╦п╫я┘ я└я┐п╫п╨я├п╦я▐ п╢п╬п╩п╤п╫п╟ п╡п╣я─п╫я┐я┌я▄ true.
+	// п╒п╣п╬я─п╣я┌п╦я┤п╣я│п╨п╦ п╬п╤п╦п╢п╟п╣я┌я│я▐, я┤я┌п╬ п╡я▀п╥я▀п╡п╟я▌я┴п╟я▐ я└я┐п╫п╨я├п╦я▐ п╡ я█я┌п╬п╪ я│п╩я┐я┤п╟п╣ п╫п╣ я┐п╠я┼я▒я┌ п╦пЁя─п╬п╨п╟-я┌п╣я│я┌п╣я─п╟.
+	act("$n п©п╬пЁп╦п╠$q я│п╪п╣я─я┌я▄я▌ я┘я─п╟п╠я─я▀я┘.", FALSE, ch, 0, 0, TO_ROOM);
 	const int rent_room = real_room(GET_LOADROOM(ch));
 	if (rent_room == NOWHERE)
 	{
-		send_to_char("Вам некуда возвращаться!\r\n", ch);
+		send_to_char("п▓п╟п╪ п╫п╣п╨я┐п╢п╟ п╡п╬п╥п╡я─п╟я┴п╟я┌я▄я│я▐!\r\n", ch);
 		return true;
 	}
-	send_to_char("Божественная сила спасла вашу жизнь.!\r\n", ch);
+	send_to_char("п▒п╬п╤п╣я│я┌п╡п╣п╫п╫п╟я▐ я│п╦п╩п╟ я│п©п╟я│п╩п╟ п╡п╟я┬я┐ п╤п╦п╥п╫я▄.!\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, rent_room);
 	check_horse(ch);
 	GET_HIT(ch) = 1;
 	update_pos(ch);
-	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n п╪п╣п╢п╩п╣п╫п╫п╬ п©п╬я▐п╡п╦п╩$u п╬я┌п╨я┐п╢п╟-я┌п╬.", FALSE, ch, 0, 0, TO_ROOM);
 	if (!ch->affected.empty())
 	{
 		while (!ch->affected.empty())
@@ -337,21 +337,21 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		return;
 	}
 
-	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].number == 759) && (GET_LEVEL(ch) <15)) //нуб помер в мадшколе
+	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].number == 759) && (GET_LEVEL(ch) <15)) //п╫я┐п╠ п©п╬п╪п╣я─ п╡ п╪п╟п╢я┬п╨п╬п╩п╣
 	{
-		act("$n глупо погиб$q не закончив обучение.", FALSE, ch, 0, 0, TO_ROOM);
-//		sprintf(buf, "Вы погибли смертью глупых в бою! Боги возродили вас, но вы пока не можете двигаться\r\n");
-//		send_to_char(buf, ch);  // все мессаги писать в грит триггере
+		act("$n пЁп╩я┐п©п╬ п©п╬пЁп╦п╠$q п╫п╣ п╥п╟п╨п╬п╫я┤п╦п╡ п╬п╠я┐я┤п╣п╫п╦п╣.", FALSE, ch, 0, 0, TO_ROOM);
+//		sprintf(buf, "п▓я▀ п©п╬пЁп╦п╠п╩п╦ я│п╪п╣я─я┌я▄я▌ пЁп╩я┐п©я▀я┘ п╡ п╠п╬я▌! п▒п╬пЁп╦ п╡п╬п╥я─п╬п╢п╦п╩п╦ п╡п╟я│, п╫п╬ п╡я▀ п©п╬п╨п╟ п╫п╣ п╪п╬п╤п╣я┌п╣ п╢п╡п╦пЁп╟я┌я▄я│я▐\r\n");
+//		send_to_char(buf, ch);  // п╡я│п╣ п╪п╣я│я│п╟пЁп╦ п©п╦я│п╟я┌я▄ п╡ пЁя─п╦я┌ я┌я─п╦пЁпЁп╣я─п╣
 		char_from_room(ch);
 		char_to_room(ch, real_room(75989));
 		check_horse(ch);
 		GET_HIT(ch) = 1;
 		update_pos(ch);
-		act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+		act("$n п╪п╣п╢п╩п╣п╫п╫п╬ п©п╬я▐п╡п╦п╩$u п╬я┌п╨я┐п╢п╟-я┌п╬.", FALSE, ch, 0, 0, TO_ROOM);
 		look_at_room(ch, 0);
 		greet_mtrigger(ch, -1);
 		greet_otrigger(ch, -1);
-//		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
+//		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); п╩п╟пЁ п╩я┐я┤я┬п╣ я│я┌п╟п╡п╦я┌я▄ я┌я─п╦пЁпЁп╣я─п╟п╪п╦
 		return;
 	} 
 
@@ -362,7 +362,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		if (!(IS_NPC(ch)
 			|| IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
-			|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//если убил не палач
+			|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//п╣я│п╩п╦ я┐п╠п╦п╩ п╫п╣ п©п╟п╩п╟я┤
 		{
 			if (!RENTABLE(ch))
 				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5)) / ch->death_player_count();
@@ -370,14 +370,14 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
 			gain_exp(ch, -dec_exp);
 			dec_exp = e - GET_EXP(ch);
-			sprintf(buf, "Вы потеряли %d %s опыта.\r\n",
+			sprintf(buf, "п▓я▀ п©п╬я┌п╣я─я▐п╩п╦ %d %s п╬п©я▀я┌п╟.\r\n",
 				dec_exp, desc_count(dec_exp, WHAT_POINT));
 			send_to_char(buf, ch);
 		}
 
-		// Вычисляем замакс по мобам
-		// Решил немножко переделать, чтобы короче получилось,
-		// кроме того, исправил ошибку с присутствием лидера в комнате
+		// п▓я▀я┤п╦я│п╩я▐п╣п╪ п╥п╟п╪п╟п╨я│ п©п╬ п╪п╬п╠п╟п╪
+		// п═п╣я┬п╦п╩ п╫п╣п╪п╫п╬п╤п╨п╬ п©п╣я─п╣п╢п╣п╩п╟я┌я▄, я┤я┌п╬п╠я▀ п╨п╬я─п╬я┤п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄,
+		// п╨я─п╬п╪п╣ я┌п╬пЁп╬, п╦я│п©я─п╟п╡п╦п╩ п╬я┬п╦п╠п╨я┐ я│ п©я─п╦я│я┐я┌я│я┌п╡п╦п╣п╪ п╩п╦п╢п╣я─п╟ п╡ п╨п╬п╪п╫п╟я┌п╣
 		if (IS_NPC(ch) && killer)
 		{
 			process_mobmax(ch, killer);
@@ -393,7 +393,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 	raw_kill(ch, killer);
 }
 
-// * Снятие аффектов с чара при смерти/уходе в дт.
+// * п║п╫я▐я┌п╦п╣ п╟я└я└п╣п╨я┌п╬п╡ я│ я┤п╟я─п╟ п©я─п╦ я│п╪п╣я─я┌п╦/я┐я┘п╬п╢п╣ п╡ п╢я┌.
 void reset_affects(CHAR_DATA *ch)
 {
 	auto naf = ch->affected.begin();
@@ -408,7 +408,7 @@ void reset_affects(CHAR_DATA *ch)
 		}
 	}
 
-	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
+	GET_COND(ch, DRUNK) = 0; // п╖я┌п╬п╠я▀ п╫п╣ я┬п╟я┌п╟п╩п╬ п╠п╣п╥ п╟я└я└п╣п╨я┌п╟ "п©п╬п╢ п╪я┐я┘п╬п╧"
 	affect_total(ch);
 }
 
@@ -452,8 +452,8 @@ void forget_all_spells(CHAR_DATA *ch)
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_RECALL_SPELLS;
 		af.location = APPLY_NONE;
-		af.modifier = 1; // номер круга, который восстанавливаем
-		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
+		af.modifier = 1; // п╫п╬п╪п╣я─ п╨я─я┐пЁп╟, п╨п╬я┌п╬я─я▀п╧ п╡п╬я│я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪
+		//п╢п╬п╠п╟п╡п╦п╪ 1 п©я─п╬я┘п╬п╢ п©я─п╬ п╥п╟п©п╟я│, п╦п╫п╟я┤п╣ п╫п╣я┐я│п©п╣п╡п╟п╣я┌ п╬я┌п╪п╣п╪п╦я┌я▄я│я▐ п©п╬я│п╩п╣п╢п╫п╦п╧ п╨я─я┐пЁ -- п╟я└я└п╣п╨я┌ я│п©п╟п╢п╟п╣я┌ я─п╟п╫я▄я┬п╣
 		af.duration = pc_duration(ch, max_slot*RECALL_SPELLS_INTERVAL+SECS_PER_PLAYER_AFFECT, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_RECALL_SPELLS);
 		af.battleflag = AF_PULSEDEC | AF_DEADKEEP;
@@ -461,17 +461,17 @@ void forget_all_spells(CHAR_DATA *ch)
 	}
 }
 
-/* Функция используемая при "автограбеже" и "автолуте",
-   чтобы не было лута под холдом или в слепи             */
+/* п╓я┐п╫п╨я├п╦я▐ п╦я│п©п╬п╩я▄п╥я┐п╣п╪п╟я▐ п©я─п╦ "п╟п╡я┌п╬пЁя─п╟п╠п╣п╤п╣" п╦ "п╟п╡я┌п╬п╩я┐я┌п╣",
+   я┤я┌п╬п╠я▀ п╫п╣ п╠я▀п╩п╬ п╩я┐я┌п╟ п©п╬п╢ я┘п╬п╩п╢п╬п╪ п╦п╩п╦ п╡ я│п╩п╣п©п╦             */
 int can_loot(CHAR_DATA * ch)
 {
 	if (ch != NULL)
 	{
 		if (!IS_NPC(ch)
-			&& GET_MOB_HOLD(ch) == 0 // если под холдом
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) // парализован точкой
-			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)	// слеп
-			&& (GET_POS(ch) >= POS_RESTING)) // мертв, умирает, без сознания, спит
+			&& GET_MOB_HOLD(ch) == 0 // п╣я│п╩п╦ п©п╬п╢ я┘п╬п╩п╢п╬п╪
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) // п©п╟я─п╟п╩п╦п╥п╬п╡п╟п╫ я┌п╬я┤п╨п╬п╧
+			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)	// я│п╩п╣п©
+			&& (GET_POS(ch) >= POS_RESTING)) // п╪п╣я─я┌п╡, я┐п╪п╦я─п╟п╣я┌, п╠п╣п╥ я│п╬п╥п╫п╟п╫п╦я▐, я│п©п╦я┌
 		{
 			return TRUE;
 		}
@@ -486,12 +486,12 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (IS_CHARMICE(killer))
 		{
-			act("Кровушка стынет в жилах от предсмертного крика $N1.",
+			act("п я─п╬п╡я┐я┬п╨п╟ я│я┌я▀п╫п╣я┌ п╡ п╤п╦п╩п╟я┘ п╬я┌ п©я─п╣п╢я│п╪п╣я─я┌п╫п╬пЁп╬ п╨я─п╦п╨п╟ $N1.",
 				FALSE, killer->get_master(), 0, ch, TO_ROOM | CHECK_DEAF);
 		}
 		else
 		{
-			act("Кровушка стынет в жилах от предсмертного крика $N1.",
+			act("п я─п╬п╡я┐я┬п╨п╟ я│я┌я▀п╫п╣я┌ п╡ п╤п╦п╩п╟я┘ п╬я┌ п©я─п╣п╢я│п╪п╣я─я┌п╫п╬пЁп╬ п╨я─п╦п╨п╟ $N1.",
 				FALSE, killer, 0, ch, TO_ROOM | CHECK_DEAF);
 		}
 	}
@@ -504,9 +504,9 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 			const auto room = world[room_number];
 			if (!room->people.empty())
 			{
-				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
+				act("п я─п╬п╡я┐я┬п╨п╟ я│я┌я▀п╫п╣я┌ п╡ п╤п╦п╩п╟я┘ п╬я┌ я┤я▄п╣пЁп╬-я┌п╬ п©я─п╣п╢я│п╪п╣я─я┌п╫п╬пЁп╬ п╨я─п╦п╨п╟.",
 					FALSE, room->first_character(), 0, 0, TO_CHAR | CHECK_DEAF);
-				act("Кровушка стынет в жилах от чьего-то предсмертного крика.",
+				act("п я─п╬п╡я┐я┬п╨п╟ я│я┌я▀п╫п╣я┌ п╡ п╤п╦п╩п╟я┘ п╬я┌ я┤я▄п╣пЁп╬-я┌п╬ п©я─п╣п╢я│п╪п╣я─я┌п╫п╬пЁп╬ п╨я─п╦п╨п╟.",
 					FALSE, room->first_character(), 0, 0, TO_ROOM | CHECK_DEAF);
 			}
 		}
@@ -516,7 +516,7 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	make_arena_corpse(ch, killer);
-	//Если убил палач то все деньги перекачивают к нему
+	//п∙я│п╩п╦ я┐п╠п╦п╩ п©п╟п╩п╟я┤ я┌п╬ п╡я│п╣ п╢п╣п╫я▄пЁп╦ п©п╣я─п╣п╨п╟я┤п╦п╡п╟я▌я┌ п╨ п╫п╣п╪я┐
 	if(killer && PRF_FLAGGED(killer, PRF_EXECUTOR))
 	{
 		killer->set_gold(ch->get_gold() + killer->get_gold());
@@ -527,7 +527,7 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	GET_POS(ch) = POS_SITTING;
 	char_from_room(ch);
 	int to_room = real_room(GET_LOADROOM(ch));
-	// тут придется ручками тащить чара за ворота, если ему в замке не рады
+	// я┌я┐я┌ п©я─п╦п╢п╣я┌я│я▐ я─я┐я┤п╨п╟п╪п╦ я┌п╟я┴п╦я┌я▄ я┤п╟я─п╟ п╥п╟ п╡п╬я─п╬я┌п╟, п╣я│п╩п╦ п╣п╪я┐ п╡ п╥п╟п╪п╨п╣ п╫п╣ я─п╟п╢я▀
 	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
 	{
 		to_room = Clan::CloseRent(to_room);
@@ -540,7 +540,7 @@ void arena_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 	char_to_room(ch, to_room);
 	look_at_room(ch, to_room);
-	act("$n со стонами упал$g с небес...", FALSE, ch, 0, 0, TO_ROOM);
+	act("$n я│п╬ я│я┌п╬п╫п╟п╪п╦ я┐п©п╟п╩$g я│ п╫п╣п╠п╣я│...", FALSE, ch, 0, 0, TO_ROOM);
 }
 
 void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gold)
@@ -617,7 +617,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 		&& affected_by_spell(ch, SPELL_CAPABLE))
 	{
 		affect_from_char(ch, SPELL_CAPABLE);
-		act("Чары, наложенные на $n3, тускло засветились и стали превращаться в нечто опасное.",
+		act("п╖п╟я─я▀, п╫п╟п╩п╬п╤п╣п╫п╫я▀п╣ п╫п╟ $n3, я┌я┐я│п╨п╩п╬ п╥п╟я│п╡п╣я┌п╦п╩п╦я│я▄ п╦ я│я┌п╟п╩п╦ п©я─п╣п╡я─п╟я┴п╟я┌я▄я│я▐ п╡ п╫п╣я┤я┌п╬ п╬п©п╟я│п╫п╬п╣.",
 			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
 		GET_POS(ch) = POS_STANDING;
@@ -640,23 +640,23 @@ void clear_mobs_memory(CHAR_DATA *ch)
 bool change_rep(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	return false;
-	// проверяем, в кланах ли оба игрока
+	// п©я─п╬п╡п╣я─я▐п╣п╪, п╡ п╨п╩п╟п╫п╟я┘ п╩п╦ п╬п╠п╟ п╦пЁя─п╬п╨п╟
 	if ((!CLAN(ch)) || (!CLAN(killer)))
 		return false;
-	// кланы должны быть разные
+	// п╨п╩п╟п╫я▀ п╢п╬п╩п╤п╫я▀ п╠я▀я┌я▄ я─п╟п╥п╫я▀п╣
 	if (CLAN(ch) == CLAN(killer))
 		return false;
 	
-	// 1/10 репутации замка уходит замку киллера
+	// 1/10 я─п╣п©я┐я┌п╟я├п╦п╦ п╥п╟п╪п╨п╟ я┐я┘п╬п╢п╦я┌ п╥п╟п╪п╨я┐ п╨п╦п╩п╩п╣я─п╟
 	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;	
 	CLAN(ch)->set_rep(CLAN(ch)->get_rep() - rep_ch);
 	CLAN(killer)->set_rep(CLAN(killer)->get_rep() + rep_ch);
-	send_to_char("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
-	send_to_char("Вы заработали очко репутации для своего клана! Честь и похвала вам.\r\n", killer);
-	// проверяем репу клана у убитого
+	send_to_char("п▓я▀ п©п╬я┌п╣я─я▐п╩п╦ п╬я┤п╨п╬ я─п╣п©я┐я┌п╟я├п╦п╦ я│п╡п╬п╣пЁп╬ п╨п╩п╟п╫п╟! п║я┌я▀п╢ п╦ п©п╬п╥п╬я─ п╡п╟п╪.\r\n", ch);
+	send_to_char("п▓я▀ п╥п╟я─п╟п╠п╬я┌п╟п╩п╦ п╬я┤п╨п╬ я─п╣п©я┐я┌п╟я├п╦п╦ п╢п╩я▐ я│п╡п╬п╣пЁп╬ п╨п╩п╟п╫п╟! п╖п╣я│я┌я▄ п╦ п©п╬я┘п╡п╟п╩п╟ п╡п╟п╪.\r\n", killer);
+	// п©я─п╬п╡п╣я─я▐п╣п╪ я─п╣п©я┐ п╨п╩п╟п╫п╟ я┐ я┐п╠п╦я┌п╬пЁп╬
 	if (CLAN(ch)->get_rep() < 1)
 	{
-		// сам распустится
+		// я│п╟п╪ я─п╟я│п©я┐я│я┌п╦я┌я│я▐
 		//CLAN(ch)->bank = 0;
 	}
 	return true;
@@ -668,8 +668,8 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	OBJ_DATA *corpse = make_corpse(ch, killer);
 	bloody::handle_corpse(corpse, ch, killer);
 
-	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
-	// трупа месть на убийцу была еще жива
+	// п÷п╣я─п╣п╫п╣я│ п╡я▀п╥п╬п╡ pk_revenge_action п╦п╥ die, я┤я┌п╬п╠я▀ п╫п╟ п╪п╬п╪п╣п╫я┌ я│п╬п╥п╢п╟п╫п╦я▐
+	// я┌я─я┐п©п╟ п╪п╣я│я┌я▄ п╫п╟ я┐п╠п╦п╧я├я┐ п╠я▀п╩п╟ п╣я┴п╣ п╤п╦п╡п╟
 	if (IS_NPC(ch) || !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || RENTABLE(ch))
 	{
 		pk_revenge_action(killer, ch);
@@ -679,7 +679,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	{
 		forget_all_spells(ch);
 		clear_mobs_memory(ch);
-		// Если убит в бою - то может выйти из игры
+		// п∙я│п╩п╦ я┐п╠п╦я┌ п╡ п╠п╬я▌ - я┌п╬ п╪п╬п╤п╣я┌ п╡я▀п╧я┌п╦ п╦п╥ п╦пЁя─я▀
 		RENTABLE(ch) = 0;
 		AGRESSOR(ch) = 0;
 		AGRO(ch) = 0;
@@ -709,7 +709,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	
 	if (!IS_NPC(ch) && GET_REMORT(ch) > 7 && (GET_LEVEL(ch) == 29 || GET_LEVEL(ch) == 30))
 	{
-		// лоадим свиток с экспой
+		// п╩п╬п╟п╢п╦п╪ я│п╡п╦я┌п╬п╨ я│ я█п╨я│п©п╬п╧
 		const auto rnum = real_object(100);
 		if (rnum >= 0)
 		{
@@ -720,9 +720,9 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		
 	}
 
-	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
-	// а здесь, после создания соответствующего трупа. Кроме того,
-	// если убил чармис и хозяин в комнате, то автолут происходит хозяину
+	// п╒п╣п©п╣я─я▄ я─п╣п╟п╩п╦п╥п╟я├п╦я▐ я─п╣п╤п╦п╪п╬п╡ "п╟п╡я┌п╬пЁя─п╟п╠п╣п╤" п╦ "п╠я─п╟я┌я▄ п╨я┐п╫я▀" п©я─п╬п╦я│я┘п╬п╢п╦я┌ п╫п╣ п╡ damage,
+	// п╟ п╥п╢п╣я│я▄, п©п╬я│п╩п╣ я│п╬п╥п╢п╟п╫п╦я▐ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╣пЁп╬ я┌я─я┐п©п╟. п я─п╬п╪п╣ я┌п╬пЁп╬,
+	// п╣я│п╩п╦ я┐п╠п╦п╩ я┤п╟я─п╪п╦я│ п╦ я┘п╬п╥я▐п╦п╫ п╡ п╨п╬п╪п╫п╟я┌п╣, я┌п╬ п╟п╡я┌п╬п╩я┐я┌ п©я─п╬п╦я│я┘п╬п╢п╦я┌ я┘п╬п╥я▐п╦п╫я┐
 	if ((ch != NULL) && (killer != NULL))
 	{
 		auto_loot(ch, killer, corpse, local_gold);
@@ -747,17 +747,17 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	{
 //		debug::coredump();
 		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		mudlog("SYSERR: Опять где-то кто-то спуржился не в то в время, не в том месте. Сброшен текущий стек и кора.", NRM, LVL_GOD, ERRLOG, TRUE);
+		mudlog("SYSERR: п·п©я▐я┌я▄ пЁп╢п╣-я┌п╬ п╨я┌п╬-я┌п╬ я│п©я┐я─п╤п╦п╩я│я▐ п╫п╣ п╡ я┌п╬ п╡ п╡я─п╣п╪я▐, п╫п╣ п╡ я┌п╬п╪ п╪п╣я│я┌п╣. п║п╠я─п╬я┬п╣п╫ я┌п╣п╨я┐я┴п╦п╧ я│я┌п╣п╨ п╦ п╨п╬я─п╟.", NRM, LVL_GOD, ERRLOG, TRUE);
 		return;
 	}
 
 	reset_affects(ch);
-	// для начала проверяем, активны ли евенты
+	// п╢п╩я▐ п╫п╟я┤п╟п╩п╟ п©я─п╬п╡п╣я─я▐п╣п╪, п╟п╨я┌п╦п╡п╫я▀ п╩п╦ п╣п╡п╣п╫я┌я▀
 	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != NOWHERE)
 	{
 		death_cry(ch, killer);
 	}
-	// добавляем одну душу киллеру
+	// п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╬п╢п╫я┐ п╢я┐я┬я┐ п╨п╦п╩п╩п╣я─я┐
 	if (IS_NPC(ch) && killer)
 	{
 		if (can_use_feat(killer, COLLECTORSOULS_FEAT))
@@ -766,8 +766,8 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 			{
 				if (killer->get_souls() < (GET_REMORT(killer) + 1))
 				{
-					act("&GВы забрали душу $N1 себе!&n", FALSE, killer, 0, ch, TO_CHAR);
-					act("$n забрал душу $N1 себе!", FALSE, killer, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+					act("&Gп▓я▀ п╥п╟п╠я─п╟п╩п╦ п╢я┐я┬я┐ $N1 я│п╣п╠п╣!&n", FALSE, killer, 0, ch, TO_CHAR);
+					act("$n п╥п╟п╠я─п╟п╩ п╢я┐я┬я┐ $N1 я│п╣п╠п╣!", FALSE, killer, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 					killer->inc_souls();
 				}
 			}
@@ -779,12 +779,12 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 			&& ((!RENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
 				|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))
 		{
-			//Если убили на арене или палач
+			//п∙я│п╩п╦ я┐п╠п╦п╩п╦ п╫п╟ п╟я─п╣п╫п╣ п╦п╩п╦ п©п╟п╩п╟я┤
 			arena_kill(ch, killer);
 		}
 		else if (change_rep(ch, killer))
 		{
-			// клановые не теряют вещи
+			// п╨п╩п╟п╫п╬п╡я▀п╣ п╫п╣ я┌п╣я─я▐я▌я┌ п╡п╣я┴п╦
 			arena_kill(ch, killer);
 			
 		} else
@@ -815,11 +815,11 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!IS_NPC(victim) || IS_NPC(ch))
 		return (exp);
 
-	// если моб убивается первый раз, то повышаем экспу в несколько раз
-	// стимулируем изучение новых зон!
+	// п╣я│п╩п╦ п╪п╬п╠ я┐п╠п╦п╡п╟п╣я┌я│я▐ п©п╣я─п╡я▀п╧ я─п╟п╥, я┌п╬ п©п╬п╡я▀я┬п╟п╣п╪ я█п╨я│п©я┐ п╡ п╫п╣я│п╨п╬п╩я▄п╨п╬ я─п╟п╥
+	// я│я┌п╦п╪я┐п╩п╦я─я┐п╣п╪ п╦п╥я┐я┤п╣п╫п╦п╣ п╫п╬п╡я▀я┘ п╥п╬п╫!
 	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)
 	{
-		// так чуть-чуть поприятней
+		// я┌п╟п╨ я┤я┐я┌я▄-я┤я┐я┌я▄ п©п╬п©я─п╦я▐я┌п╫п╣п╧
 		exp *= 1.5;
 		exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 		return (exp);
@@ -827,7 +827,7 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 
 	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim));
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
-        // минимальный опыт при замаксе 15% от полного опыта
+        // п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п╬п©я▀я┌ п©я─п╦ п╥п╟п╪п╟п╨я│п╣ 15% п╬я┌ п©п╬п╩п╫п╬пЁп╬ п╬п©я▀я┌п╟
 	exp = exp * MAX(15, koef) / 100;
 	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 
@@ -845,10 +845,10 @@ void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim)
 }
 
 /*++
-   Функция начисления опыта
-      ch - кому опыт начислять
-           Вызов этой функции для NPC смысла не имеет, но все равно
-           какие-то проверки внутри зачем то делаются
+   п╓я┐п╫п╨я├п╦я▐ п╫п╟я┤п╦я│п╩п╣п╫п╦я▐ п╬п©я▀я┌п╟
+      ch - п╨п╬п╪я┐ п╬п©я▀я┌ п╫п╟я┤п╦я│п╩я▐я┌я▄
+           п▓я▀п╥п╬п╡ я█я┌п╬п╧ я└я┐п╫п╨я├п╦п╦ п╢п╩я▐ NPC я│п╪я▀я│п╩п╟ п╫п╣ п╦п╪п╣п╣я┌, п╫п╬ п╡я│п╣ я─п╟п╡п╫п╬
+           п╨п╟п╨п╦п╣-я┌п╬ п©я─п╬п╡п╣я─п╨п╦ п╡п╫я┐я┌я─п╦ п╥п╟я┤п╣п╪ я┌п╬ п╢п╣п╩п╟я▌я┌я│я▐
 --*/
 void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef)
 {
@@ -868,29 +868,29 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		mob_stat::add_mob(ch, 0);
 	}
 
-// Странно, но для NPC эта функция тоже должна работать
+// п║я┌я─п╟п╫п╫п╬, п╫п╬ п╢п╩я▐ NPC я█я┌п╟ я└я┐п╫п╨я├п╦я▐ я┌п╬п╤п╣ п╢п╬п╩п╤п╫п╟ я─п╟п╠п╬я┌п╟я┌я▄
 //  if (IS_NPC(ch) || !OK_GAIN_EXP(ch,victim))
 	if (!OK_GAIN_EXP(ch, victim))
 	{
-		send_to_char("Ваше деяние никто не оценил.\r\n", ch);
+		send_to_char("п▓п╟я┬п╣ п╢п╣я▐п╫п╦п╣ п╫п╦п╨я┌п╬ п╫п╣ п╬я├п╣п╫п╦п╩.\r\n", ch);
 		return;
 	}
 
-	// 1. Опыт делится поровну на всех
+	// 1. п·п©я▀я┌ п╢п╣п╩п╦я┌я│я▐ п©п╬я─п╬п╡п╫я┐ п╫п╟ п╡я│п╣я┘
 	int exp = GET_EXP(victim) / MAX(members, 1);
 
 	if(victim->get_zone_group() > 1 && members < victim->get_zone_group())
 	{
-		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
+		// п╡ я│п╩я┐я┤п╟п╣ пЁя─я┐п©-п╥п╬п╫я▀ я│п╡п╬п╣пЁп╬ я─п╬п╢п╟ п©п╩п╟п╫п╨п╟ п╫п╟ п╪п╦п╫ п╨п╬п╩-п╡п╬ я┤п╣п╩п╬п╡п╣п╨ п╡ пЁя─я┐п©п©п╣
 		exp = GET_EXP(victim) / victim->get_zone_group();
 	}
 
-	// 2. Учитывается коэффициент (лидерство, разность уровней)
-	//    На мой взгляд его правильней использовать тут а не в конце процедуры,
-	//    хотя в большинстве случаев это все равно
+	// 2. пёя┤п╦я┌я▀п╡п╟п╣я┌я│я▐ п╨п╬я█я└я└п╦я├п╦п╣п╫я┌ (п╩п╦п╢п╣я─я│я┌п╡п╬, я─п╟п╥п╫п╬я│я┌я▄ я┐я─п╬п╡п╫п╣п╧)
+	//    п²п╟ п╪п╬п╧ п╡п╥пЁп╩я▐п╢ п╣пЁп╬ п©я─п╟п╡п╦п╩я▄п╫п╣п╧ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я┌я┐я┌ п╟ п╫п╣ п╡ п╨п╬п╫я├п╣ п©я─п╬я├п╣п╢я┐я─я▀,
+	//    я┘п╬я┌я▐ п╡ п╠п╬п╩я▄я┬п╦п╫я│я┌п╡п╣ я│п╩я┐я┤п╟п╣п╡ я█я┌п╬ п╡я│п╣ я─п╟п╡п╫п╬
 	exp = exp * koef / 100;
 
-	// 3. Вычисление опыта для PC и NPC
+	// 3. п▓я▀я┤п╦я│п╩п╣п╫п╦п╣ п╬п©я▀я┌п╟ п╢п╩я▐ PC п╦ NPC
 	if (IS_NPC(ch))
 	{
 		exp = MIN(max_exp_gain_npc, exp);
@@ -898,7 +898,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 	}
 	else
 		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
-	// 4. Последняя проверка
+	// 4. п÷п╬я│п╩п╣п╢п╫я▐я▐ п©я─п╬п╡п╣я─п╨п╟
 	exp = MAX(1, exp);
 	if (exp > 1)
 	{
@@ -911,21 +911,21 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		{ 
 			for (const auto aff : ch->affected)
 			{
-				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
+				if (aff->location == APPLY_BONUS_EXP) // я│п╨я┐я┬п╟п╩ я│п╡п╦я┌п╬п╨ я│ я█п╨я│п© п╠п╬п╫я┐я│п╬п╪
 				{
-					exp *= MIN(3, aff->modifier); // бонус макс тройной
+					exp *= MIN(3, aff->modifier); // п╠п╬п╫я┐я│ п╪п╟п╨я│ я┌я─п╬п╧п╫п╬п╧
 				}
 			}
 		}
 
 		exp = MIN(max_exp_gain_pc(ch), exp);
-		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
+		send_to_char(ch, "п▓п╟я┬ п╬п©я▀я┌ п©п╬п╡я▀я│п╦п╩я│я▐ п╫п╟ %d %s.\r\n",
 		exp, desc_count(exp, WHAT_POINT));
 	}
 	else if (exp == 1)
 	{
 		send_to_char(
-			"Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
+			"п▓п╟я┬ п╬п©я▀я┌ п©п╬п╡я▀я│п╦п╩я│я▐ п╡я│п╣пЁп╬ п╩п╦я┬я▄ п╫п╟ п╪п╟п╩п╣п╫я▄п╨я┐я▌ п╣п╢п╦п╫п╦я┤п╨я┐.\r\n", ch);
 	}
 	gain_exp(ch, exp);
 	change_alignment(ch, victim);
@@ -943,15 +943,15 @@ int grouping_koef(int player_class, int player_remort)
 
 
 /*++
-   Функция расчитывает всякие бонусы для группы при получении опыта,
- после чего вызывает функцию получения опыта для всех членов группы
- Т.к. членом группы может быть только PC, то эта функция раздаст опыт только PC
+   п╓я┐п╫п╨я├п╦я▐ я─п╟я│я┤п╦я┌я▀п╡п╟п╣я┌ п╡я│я▐п╨п╦п╣ п╠п╬п╫я┐я│я▀ п╢п╩я▐ пЁя─я┐п©п©я▀ п©я─п╦ п©п╬п╩я┐я┤п╣п╫п╦п╦ п╬п©я▀я┌п╟,
+ п©п╬я│п╩п╣ я┤п╣пЁп╬ п╡я▀п╥я▀п╡п╟п╣я┌ я└я┐п╫п╨я├п╦я▌ п©п╬п╩я┐я┤п╣п╫п╦я▐ п╬п©я▀я┌п╟ п╢п╩я▐ п╡я│п╣я┘ я┤п╩п╣п╫п╬п╡ пЁя─я┐п©п©я▀
+ п╒.п╨. я┤п╩п╣п╫п╬п╪ пЁя─я┐п©п©я▀ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я┌п╬п╩я▄п╨п╬ PC, я┌п╬ я█я┌п╟ я└я┐п╫п╨я├п╦я▐ я─п╟п╥п╢п╟я│я┌ п╬п©я▀я┌ я┌п╬п╩я▄п╨п╬ PC
 
-   ch - обязательно член группы, из чего следует:
-            1. Это не NPC
-            2. Он находится в группе лидера (или сам лидер)
+   ch - п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫п╬ я┤п╩п╣п╫ пЁя─я┐п©п©я▀, п╦п╥ я┤п╣пЁп╬ я│п╩п╣п╢я┐п╣я┌:
+            1. п╜я┌п╬ п╫п╣ NPC
+            2. п·п╫ п╫п╟я┘п╬п╢п╦я┌я│я▐ п╡ пЁя─я┐п©п©п╣ п╩п╦п╢п╣я─п╟ (п╦п╩п╦ я│п╟п╪ п╩п╦п╢п╣я─)
 
-   Просто для PC-последователей эта функция не вызывается
+   п÷я─п╬я│я┌п╬ п╢п╩я▐ PC-п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩п╣п╧ я█я┌п╟ я└я┐п╫п╨я├п╦я▐ п╫п╣ п╡я▀п╥я▀п╡п╟п╣я┌я│я▐
 
 --*/
 void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
@@ -962,7 +962,7 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 	int total_group_members = 1;
 	bool use_partner_exp = false;
 
-	// если наем лидер, то тоже режем экспу
+	// п╣я│п╩п╦ п╫п╟п╣п╪ п╩п╦п╢п╣я─, я┌п╬ я┌п╬п╤п╣ я─п╣п╤п╣п╪ я█п╨я│п©я┐
 	if (can_use_feat(killer, CYNIC_FEAT))
 	{
 		maxlevel = 300;
@@ -978,11 +978,11 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 		leader = killer;
 	}
 
-	// k - подозрение на лидера группы
+	// k - п©п╬п╢п╬п╥я─п╣п╫п╦п╣ п╫п╟ п╩п╦п╢п╣я─п╟ пЁя─я┐п©п©я▀
 	const bool leader_inroom = AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
 		&& leader->in_room == IN_ROOM(killer);
 
-	// Количество согрупников в комнате
+	// п п╬п╩п╦я┤п╣я│я┌п╡п╬ я│п╬пЁя─я┐п©п╫п╦п╨п╬п╡ п╡ п╨п╬п╪п╫п╟я┌п╣
 	if (leader_inroom)
 	{
 		inroom_members = 1;
@@ -993,22 +993,22 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 		inroom_members = 0;
 	}
 
-	// Вычисляем максимальный уровень в группе
+	// п▓я▀я┤п╦я│п╩я▐п╣п╪ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╡ пЁя─я┐п©п©п╣
 	for (f = leader->followers; f; f = f->next)
 	{
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
 		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
 			&& f->follower->in_room == IN_ROOM(killer))
 		{
-			// если в группе наем, то режим опыт всей группе
-			// дабы наема не выгодно было бы брать в группу
-			// ставим 300, чтобы вообще под ноль резало
+			// п╣я│п╩п╦ п╡ пЁя─я┐п©п©п╣ п╫п╟п╣п╪, я┌п╬ я─п╣п╤п╦п╪ п╬п©я▀я┌ п╡я│п╣п╧ пЁя─я┐п©п©п╣
+			// п╢п╟п╠я▀ п╫п╟п╣п╪п╟ п╫п╣ п╡я▀пЁп╬п╢п╫п╬ п╠я▀п╩п╬ п╠я▀ п╠я─п╟я┌я▄ п╡ пЁя─я┐п©п©я┐
+			// я│я┌п╟п╡п╦п╪ 300, я┤я┌п╬п╠я▀ п╡п╬п╬п╠я┴п╣ п©п╬п╢ п╫п╬п╩я▄ я─п╣п╥п╟п╩п╬
 			if (can_use_feat(f->follower, CYNIC_FEAT))
 			{
 				maxlevel = 300;
 			}
-			// просмотр членов группы в той же комнате
-			// член группы => PC автоматически
+			// п©я─п╬я│п╪п╬я┌я─ я┤п╩п╣п╫п╬п╡ пЁя─я┐п©п©я▀ п╡ я┌п╬п╧ п╤п╣ п╨п╬п╪п╫п╟я┌п╣
+			// я┤п╩п╣п╫ пЁя─я┐п©п©я▀ => PC п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦
 			++inroom_members;
 			maxlevel = MAX(maxlevel, GET_LEVEL(f->follower));
 			if (!IS_NPC(f->follower))
@@ -1023,34 +1023,34 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 
 	koef = MAX(0, koef);
 
-	// Лидерство используется, если в комнате лидер и есть еще хоть кто-то
-	// из группы из PC (последователи типа лошади или чармисов не считаются)
+	// п⌡п╦п╢п╣я─я│я┌п╡п╬ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐, п╣я│п╩п╦ п╡ п╨п╬п╪п╫п╟я┌п╣ п╩п╦п╢п╣я─ п╦ п╣я│я┌я▄ п╣я┴п╣ я┘п╬я┌я▄ п╨я┌п╬-я┌п╬
+	// п╦п╥ пЁя─я┐п©п©я▀ п╦п╥ PC (п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩п╦ я┌п╦п©п╟ п╩п╬я┬п╟п╢п╦ п╦п╩п╦ я┤п╟я─п╪п╦я│п╬п╡ п╫п╣ я│я┤п╦я┌п╟я▌я┌я│я▐)
 	if (koef >= 100 && leader_inroom && (inroom_members > 1) && calc_leadership(leader))
 	{
 		koef += 20;
 	}
 
-	// Раздача опыта
+	// п═п╟п╥п╢п╟я┤п╟ п╬п©я▀я┌п╟
 
-	// если групповой уровень зоны равняется единице
+	// п╣я│п╩п╦ пЁя─я┐п©п©п╬п╡п╬п╧ я┐я─п╬п╡п╣п╫я▄ п╥п╬п╫я▀ я─п╟п╡п╫я▐п╣я┌я│я▐ п╣п╢п╦п╫п╦я├п╣
 	if (zone_table[world[killer->in_room]->zone].group < 2)
 	{
-		// чтобы не абьюзили на суммонах, когда в группе на самом деле больше
-		// двух мемберов, но лишних реколят перед непосредственным рипом
+		// я┤я┌п╬п╠я▀ п╫п╣ п╟п╠я▄я▌п╥п╦п╩п╦ п╫п╟ я│я┐п╪п╪п╬п╫п╟я┘, п╨п╬пЁп╢п╟ п╡ пЁя─я┐п©п©п╣ п╫п╟ я│п╟п╪п╬п╪ п╢п╣п╩п╣ п╠п╬п╩я▄я┬п╣
+		// п╢п╡я┐я┘ п╪п╣п╪п╠п╣я─п╬п╡, п╫п╬ п╩п╦я┬п╫п╦я┘ я─п╣п╨п╬п╩я▐я┌ п©п╣я─п╣п╢ п╫п╣п©п╬я│я─п╣п╢я│я┌п╡п╣п╫п╫я▀п╪ я─п╦п©п╬п╪
 		use_partner_exp = total_group_members == 2;
 	}
 
-	// если лидер группы в комнате
+	// п╣я│п╩п╦ п╩п╦п╢п╣я─ пЁя─я┐п©п©я▀ п╡ п╨п╬п╪п╫п╟я┌п╣
 	if (leader_inroom)
 	{
-		// если у лидера группы есть способность напарник
+		// п╣я│п╩п╦ я┐ п╩п╦п╢п╣я─п╟ пЁя─я┐п©п©я▀ п╣я│я┌я▄ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ п╫п╟п©п╟я─п╫п╦п╨
 		if (can_use_feat(leader, PARTNER_FEAT) && use_partner_exp)
 		{
-			// если в группе всего двое человек
-			// k - лидер, и один последователь
+			// п╣я│п╩п╦ п╡ пЁя─я┐п©п©п╣ п╡я│п╣пЁп╬ п╢п╡п╬п╣ я┤п╣п╩п╬п╡п╣п╨
+			// k - п╩п╦п╢п╣я─, п╦ п╬п╢п╦п╫ п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩я▄
 			if (partner_count == 1)
 			{
-				// и если кожф. больше или равен 100
+				// п╦ п╣я│п╩п╦ п╨п╬п╤я└. п╠п╬п╩я▄я┬п╣ п╦п╩п╦ я─п╟п╡п╣п╫ 100
 				if (koef >= 100)
 				{
 					if (leader->get_zone_group() < 2)
@@ -1118,11 +1118,11 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 		{
 			if (obj->get_worn_by())
 			{
-				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
+				act("$o я─п╟я│я│я▀п©п╟п╩$U, п╫п╣ п╡я▀п╢п╣я─п╤п╟п╡ п©п╬п╡я─п╣п╤п╢п╣п╫п╦п╧.", FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
 			}
 			else if (obj->get_carried_by())
 			{
-				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->get_carried_by(), obj, 0, TO_CHAR);
+				act("$o я─п╟я│я│я▀п©п╟п╩$U, п╫п╣ п╡я▀п╢п╣я─п╤п╟п╡ п©п╬п╡я─п╣п╤п╢п╣п╫п╦п╧.", FALSE, obj->get_carried_by(), obj, 0, TO_CHAR);
 			}
 			extract_obj(obj);
 		}
@@ -1164,7 +1164,7 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance)
 	}
 
 	if (pos <= 0 || pos > WEAR_BOTHS || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
-		return; // Добавил: под "зб" не убивается стаф (Купала)
+		return; // п■п╬п╠п╟п╡п╦п╩: п©п╬п╢ "п╥п╠" п╫п╣ я┐п╠п╦п╡п╟п╣я┌я│я▐ я│я┌п╟я└ (п я┐п©п╟п╩п╟)
 	alterate_object(GET_EQ(ch, pos), dam, chance);
 }
 
@@ -1229,50 +1229,50 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 	{
 	case POS_MORTALLYW:
 		if (IS_POLY(victim))
-			act("$n смертельно ранены и умрут, если им не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n я│п╪п╣я─я┌п╣п╩я▄п╫п╬ я─п╟п╫п╣п╫я▀ п╦ я┐п╪я─я┐я┌, п╣я│п╩п╦ п╦п╪ п╫п╣ п©п╬п╪п╬пЁя┐я┌.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		else
-			act("$n смертельно ранен$a и умрет, если $m не помогут.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		send_to_char("Вы смертельно ранены и умрете, если вам не помогут.\r\n", victim);
+			act("$n я│п╪п╣я─я┌п╣п╩я▄п╫п╬ я─п╟п╫п╣п╫$a п╦ я┐п╪я─п╣я┌, п╣я│п╩п╦ $m п╫п╣ п©п╬п╪п╬пЁя┐я┌.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("п▓я▀ я│п╪п╣я─я┌п╣п╩я▄п╫п╬ я─п╟п╫п╣п╫я▀ п╦ я┐п╪я─п╣я┌п╣, п╣я│п╩п╦ п╡п╟п╪ п╫п╣ п©п╬п╪п╬пЁя┐я┌.\r\n", victim);
 		break;
 	case POS_INCAP:
 		if (IS_POLY(victim))
-			act("$n без сознания и медленно умирают. Помогите же им.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n п╠п╣п╥ я│п╬п╥п╫п╟п╫п╦я▐ п╦ п╪п╣п╢п╩п╣п╫п╫п╬ я┐п╪п╦я─п╟я▌я┌. п÷п╬п╪п╬пЁп╦я┌п╣ п╤п╣ п╦п╪.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		else
-			act("$n без сознания и медленно умирает. Помогите же $m.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		send_to_char("Вы без сознания и медленно умираете, брошенные без помощи.\r\n", victim);
+			act("$n п╠п╣п╥ я│п╬п╥п╫п╟п╫п╦я▐ п╦ п╪п╣п╢п╩п╣п╫п╫п╬ я┐п╪п╦я─п╟п╣я┌. п÷п╬п╪п╬пЁп╦я┌п╣ п╤п╣ $m.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("п▓я▀ п╠п╣п╥ я│п╬п╥п╫п╟п╫п╦я▐ п╦ п╪п╣п╢п╩п╣п╫п╫п╬ я┐п╪п╦я─п╟п╣я┌п╣, п╠я─п╬я┬п╣п╫п╫я▀п╣ п╠п╣п╥ п©п╬п╪п╬я┴п╦.\r\n", victim);
 		break;
 	case POS_STUNNED:
 		if (IS_POLY(victim))
-			act("$n без сознания, но возможно они еще повоюют (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n п╠п╣п╥ я│п╬п╥п╫п╟п╫п╦я▐, п╫п╬ п╡п╬п╥п╪п╬п╤п╫п╬ п╬п╫п╦ п╣я┴п╣ п©п╬п╡п╬я▌я▌я┌ (п©п╬п©п╬п╥п╤п╣ :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		else
-			act("$n без сознания, но возможно $e еще повоюет (попозже :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		send_to_char("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
+			act("$n п╠п╣п╥ я│п╬п╥п╫п╟п╫п╦я▐, п╫п╬ п╡п╬п╥п╪п╬п╤п╫п╬ $e п╣я┴п╣ п©п╬п╡п╬я▌п╣я┌ (п©п╬п©п╬п╥п╤п╣ :).", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("п║п╬п╥п╫п╟п╫п╦п╣ п©п╬п╨п╦п╫я┐п╩п╬ п╡п╟я│. п▓ п╠п╦я┌п╡п╣ п╬я┌ п╡п╟я│ п©п╬п╨п╟ п©я─п╬п╨я┐ п╪п╟п╩п╬.\r\n", victim);
 		break;
 	case POS_DEAD:
 		if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE)))
 		{
-			act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			send_to_char("Похоже вас убили и даже тела не оставили!\r\n", victim);
+			act("$n п╡я│п©я▀я┘п╫я┐п╩$g п╦ я─п╟я│я│я▀п©п╟п╩$u п╡ п©я─п╟я┘.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("п÷п╬я┘п╬п╤п╣ п╡п╟я│ я┐п╠п╦п╩п╦ п╦ п╢п╟п╤п╣ я┌п╣п╩п╟ п╫п╣ п╬я│я┌п╟п╡п╦п╩п╦!\r\n", victim);
 		}
 		else
 		{
 			if (IS_POLY(victim))
-				act("$n мертвы, их души медленно подымаются в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n п╪п╣я─я┌п╡я▀, п╦я┘ п╢я┐я┬п╦ п╪п╣п╢п╩п╣п╫п╫п╬ п©п╬п╢я▀п╪п╟я▌я┌я│я▐ п╡ п╫п╣п╠п╣я│п╟.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			else
-				act("$n мертв$a, $s душа медленно подымается в небеса.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			send_to_char("Вы мертвы! Нам очень жаль...\r\n", victim);
+				act("$n п╪п╣я─я┌п╡$a, $s п╢я┐я┬п╟ п╪п╣п╢п╩п╣п╫п╫п╬ п©п╬п╢я▀п╪п╟п╣я┌я│я▐ п╡ п╫п╣п╠п╣я│п╟.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("п▓я▀ п╪п╣я─я┌п╡я▀! п²п╟п╪ п╬я┤п╣п╫я▄ п╤п╟п╩я▄...\r\n", victim);
 		}
 		break;
 	default:		// >= POSITION SLEEPING
 		if (dam > (GET_REAL_MAX_HIT(victim) / 4))
 		{
-			send_to_char("Это действительно БОЛЬНО!\r\n", victim);
+			send_to_char("п╜я┌п╬ п╢п╣п╧я│я┌п╡п╦я┌п╣п╩я▄п╫п╬ п▒п·п⌡п╛п²п·!\r\n", victim);
 		}
 
 		if (dam > 0
 			&& GET_HIT(victim) < (GET_REAL_MAX_HIT(victim) / 4))
 		{
-			sprintf(buf2, "%s Вы желаете, чтобы ваши раны не кровоточили так сильно! %s\r\n",
+			sprintf(buf2, "%s п▓я▀ п╤п╣п╩п╟п╣я┌п╣, я┤я┌п╬п╠я▀ п╡п╟я┬п╦ я─п╟п╫я▀ п╫п╣ п╨я─п╬п╡п╬я┌п╬я┤п╦п╩п╦ я┌п╟п╨ я│п╦п╩я▄п╫п╬! %s\r\n",
 				CCRED(victim, C_SPR), CCNRM(victim, C_SPR));
 			send_to_char(buf2, victim);
 		}
@@ -1295,7 +1295,7 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 			&& GET_HIT(victim) < GET_WIMP_LEV(victim)
 			&& !noflee)
 		{
-			send_to_char("Вы запаниковали и попытались убежать!\r\n", victim);
+			send_to_char("п▓я▀ п╥п╟п©п╟п╫п╦п╨п╬п╡п╟п╩п╦ п╦ п©п╬п©я▀я┌п╟п╩п╦я│я▄ я┐п╠п╣п╤п╟я┌я▄!\r\n", victim);
 			do_flee(victim, NULL, 0, 0);
 		}
 
@@ -1323,8 +1323,8 @@ void test_self_hitroll(CHAR_DATA *ch)
 }
 
 /**
- * Разный инит щитов у мобов и чаров.
- * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
+ * п═п╟п╥п╫я▀п╧ п╦п╫п╦я┌ я┴п╦я┌п╬п╡ я┐ п╪п╬п╠п╬п╡ п╦ я┤п╟я─п╬п╡.
+ * пё п╪п╬п╠п╬п╡ я─п╟п╠п╬я┌п╟я▌я┌ п╡я│п╣ 3 я┴п╦я┌п╟, я┐ я┤п╟я─п╬п╡ я┌п╬п╩я▄п╨п╬ 1 я─п╟п╫п╢п╬п╪п╫я▀п╧ п╫п╟ я┌п╣п╨я┐я┴п╦п╧ я┐п╢п╟я─.
  */
 void Damage::post_init_shields(CHAR_DATA *victim)
 {

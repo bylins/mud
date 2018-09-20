@@ -70,7 +70,7 @@ namespace ShopExt
 		using shared_ptr = std::shared_ptr<ItemNode>;
 		using uid_t = unsigned;
 		using temporary_ids_t = std::unordered_set<uid_t>;
-		using item_descriptions_t = std::unordered_map<int/*vnum ÐÒÏÄÁ×ÃÁ*/, item_desc_node>;
+		using item_descriptions_t = std::unordered_map<int/*vnum Ð¿Ñ€Ð¾Ð´Ð°Ð²Ñ†Ð°*/, item_desc_node>;
 
 		const static uid_t NO_UID = ~0u;
 

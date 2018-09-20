@@ -44,7 +44,7 @@ MapSystem::Options PlayerI::empty_map_options;
 namespace
 {
 
-// * На перспективу - втыкать во все методы character.
+// * п²п╟ п©п╣я─я│п©п╣п╨я┌п╦п╡я┐ - п╡я┌я▀п╨п╟я┌я▄ п╡п╬ п╡я│п╣ п╪п╣я┌п╬п╢я▀ character.
 void check_purged(const CHAR_DATA *ch, const char *fnc)
 {
 	if (ch->purged())
@@ -151,7 +151,7 @@ bool CHAR_DATA::in_used_zone() const
 	return false;
 }
 
-//вычисление штрафов за голод и жажду
+//п╡я▀я┤п╦я│п╩п╣п╫п╦п╣ я┬я┌я─п╟я└п╬п╡ п╥п╟ пЁп╬п╩п╬п╢ п╦ п╤п╟п╤п╢я┐
 //P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN
 float CHAR_DATA::get_cond_penalty(int type) const
 {
@@ -361,8 +361,8 @@ size_t CHAR_DATA::remove_random_affects(const size_t count)
 }
 
 /**
-* Обнуление всех полей Character (аналог конструктора),
-* вынесено в отдельную функцию, чтобы дергать из purge().
+* п·п╠п╫я┐п╩п╣п╫п╦п╣ п╡я│п╣я┘ п©п╬п╩п╣п╧ Character (п╟п╫п╟п╩п╬пЁ п╨п╬п╫я│я┌я─я┐п╨я┌п╬я─п╟),
+* п╡я▀п╫п╣я│п╣п╫п╬ п╡ п╬я┌п╢п╣п╩я▄п╫я┐я▌ я└я┐п╫п╨я├п╦я▌, я┤я┌п╬п╠я▀ п╢п╣я─пЁп╟я┌я▄ п╦п╥ purge().
 */
 void CHAR_DATA::zero_init()
 {
@@ -371,7 +371,7 @@ void CHAR_DATA::zero_init()
 	fighting_ = 0;
 	serial_num_ = 0;
 	purged_ = 0;
-	// на плеер-таблицу
+	// п╫п╟ п©п╩п╣п╣я─-я┌п╟п╠п╩п╦я├я┐
 	chclass_ = 0;
 	level_ = 0;
 	idnum_ = 0;
@@ -451,19 +451,19 @@ void CHAR_DATA::zero_init()
 }
 
 /**
- * Освобождение выделенной в Character памяти, вынесено из деструктора,
- * т.к. есть необходимость дергать отдельно от delete.
- * \param destructor - true вызов произошел из дестркутора и обнулять/добавлять
- * в purged_list не нужно, по дефолту = false.
+ * п·я│п╡п╬п╠п╬п╤п╢п╣п╫п╦п╣ п╡я▀п╢п╣п╩п╣п╫п╫п╬п╧ п╡ Character п©п╟п╪я▐я┌п╦, п╡я▀п╫п╣я│п╣п╫п╬ п╦п╥ п╢п╣я│я┌я─я┐п╨я┌п╬я─п╟,
+ * я┌.п╨. п╣я│я┌я▄ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌я▄ п╢п╣я─пЁп╟я┌я▄ п╬я┌п╢п╣п╩я▄п╫п╬ п╬я┌ delete.
+ * \param destructor - true п╡я▀п╥п╬п╡ п©я─п╬п╦п╥п╬я┬п╣п╩ п╦п╥ п╢п╣я│я┌я─п╨я┐я┌п╬я─п╟ п╦ п╬п╠п╫я┐п╩я▐я┌я▄/п╢п╬п╠п╟п╡п╩я▐я┌я▄
+ * п╡ purged_list п╫п╣ п╫я┐п╤п╫п╬, п©п╬ п╢п╣я└п╬п╩я┌я┐ = false.
  *
- * Система в целом: там, где уже все обработано и почищено, и предполагается вызов
- * финального delete - вместо него вызывается метод purge(), в котором идет аналог
- * деструктора с полной очисткой объекта, но сама оболочка при этом сохраняется,
- * плюс инится флаг purged_, после чего по коду можно проверять старый указатель на
- * объект через метод purged() и, соответственно, не использовать его, если объект
- * по факту был удален. Таким образом мы не нарываемся на невалидные указатели, если
- * по ходу функции были спуржены чар/моб/шмотка. Гарантии ес-сно только в пределах
- * вызовов до выхода в обработку heartbeat(), где раз в минуту удаляются оболочки.
+ * п║п╦я│я┌п╣п╪п╟ п╡ я├п╣п╩п╬п╪: я┌п╟п╪, пЁп╢п╣ я┐п╤п╣ п╡я│п╣ п╬п╠я─п╟п╠п╬я┌п╟п╫п╬ п╦ п©п╬я┤п╦я┴п╣п╫п╬, п╦ п©я─п╣п╢п©п╬п╩п╟пЁп╟п╣я┌я│я▐ п╡я▀п╥п╬п╡
+ * я└п╦п╫п╟п╩я▄п╫п╬пЁп╬ delete - п╡п╪п╣я│я┌п╬ п╫п╣пЁп╬ п╡я▀п╥я▀п╡п╟п╣я┌я│я▐ п╪п╣я┌п╬п╢ purge(), п╡ п╨п╬я┌п╬я─п╬п╪ п╦п╢п╣я┌ п╟п╫п╟п╩п╬пЁ
+ * п╢п╣я│я┌я─я┐п╨я┌п╬я─п╟ я│ п©п╬п╩п╫п╬п╧ п╬я┤п╦я│я┌п╨п╬п╧ п╬п╠я┼п╣п╨я┌п╟, п╫п╬ я│п╟п╪п╟ п╬п╠п╬п╩п╬я┤п╨п╟ п©я─п╦ я█я┌п╬п╪ я│п╬я┘я─п╟п╫я▐п╣я┌я│я▐,
+ * п©п╩я▌я│ п╦п╫п╦я┌я│я▐ я└п╩п╟пЁ purged_, п©п╬я│п╩п╣ я┤п╣пЁп╬ п©п╬ п╨п╬п╢я┐ п╪п╬п╤п╫п╬ п©я─п╬п╡п╣я─я▐я┌я▄ я│я┌п╟я─я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟
+ * п╬п╠я┼п╣п╨я┌ я┤п╣я─п╣п╥ п╪п╣я┌п╬п╢ purged() п╦, я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬, п╫п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╣пЁп╬, п╣я│п╩п╦ п╬п╠я┼п╣п╨я┌
+ * п©п╬ я└п╟п╨я┌я┐ п╠я▀п╩ я┐п╢п╟п╩п╣п╫. п╒п╟п╨п╦п╪ п╬п╠я─п╟п╥п╬п╪ п╪я▀ п╫п╣ п╫п╟я─я▀п╡п╟п╣п╪я│я▐ п╫п╟ п╫п╣п╡п╟п╩п╦п╢п╫я▀п╣ я┐п╨п╟п╥п╟я┌п╣п╩п╦, п╣я│п╩п╦
+ * п©п╬ я┘п╬п╢я┐ я└я┐п╫п╨я├п╦п╦ п╠я▀п╩п╦ я│п©я┐я─п╤п╣п╫я▀ я┤п╟я─/п╪п╬п╠/я┬п╪п╬я┌п╨п╟. п⌠п╟я─п╟п╫я┌п╦п╦ п╣я│-я│п╫п╬ я┌п╬п╩я▄п╨п╬ п╡ п©я─п╣п╢п╣п╩п╟я┘
+ * п╡я▀п╥п╬п╡п╬п╡ п╢п╬ п╡я▀я┘п╬п╢п╟ п╡ п╬п╠я─п╟п╠п╬я┌п╨я┐ heartbeat(), пЁп╢п╣ я─п╟п╥ п╡ п╪п╦п╫я┐я┌я┐ я┐п╢п╟п╩я▐я▌я┌я│я▐ п╬п╠п╬п╩п╬я┤п╨п╦.
  */
 void CHAR_DATA::purge()
 {
@@ -531,7 +531,7 @@ void CHAR_DATA::purge()
 			free(this->player_specials->poofin);
 		if (this->player_specials->poofout)
 			free(this->player_specials->poofout);
-		// рецепты
+		// я─п╣я├п╣п©я┌я▀
 		while (GET_RSKILL(this) != NULL)
 		{
 			im_rskill *r;
@@ -539,7 +539,7 @@ void CHAR_DATA::purge()
 			free(GET_RSKILL(this));
 			GET_RSKILL(this) = r;
 		}
-		// порталы
+		// п©п╬я─я┌п╟п╩я▀
 		while (GET_PORTALS(this) != NULL)
 		{
 			struct char_portal_type *prt_next;
@@ -564,13 +564,13 @@ void CHAR_DATA::purge()
 			free(KARMA(this));
 
 		free(GET_LOGS(this));
-// shapirus: подчистим за криворукуми кодерами memory leak,
-// вызванный неосвобождением фильтра базара...
+// shapirus: п©п╬п╢я┤п╦я│я┌п╦п╪ п╥п╟ п╨я─п╦п╡п╬я─я┐п╨я┐п╪п╦ п╨п╬п╢п╣я─п╟п╪п╦ memory leak,
+// п╡я▀п╥п╡п╟п╫п╫я▀п╧ п╫п╣п╬я│п╡п╬п╠п╬п╤п╢п╣п╫п╦п╣п╪ я└п╦п╩я▄я┌я─п╟ п╠п╟п╥п╟я─п╟...
 		if (EXCHANGE_FILTER(this))
 		{
 			free(EXCHANGE_FILTER(this));
 		}
-		EXCHANGE_FILTER(this) = NULL;	// на всякий случай
+		EXCHANGE_FILTER(this) = NULL;	// п╫п╟ п╡я│я▐п╨п╦п╧ я│п╩я┐я┤п╟п╧
 
 		clear_ignores();
 
@@ -579,7 +579,7 @@ void CHAR_DATA::purge()
 			free(GET_CLAN_STATUS(this));
 		}
 
-		// Чистим лист логонов
+		// п╖п╦я│я┌п╦п╪ п╩п╦я│я┌ п╩п╬пЁп╬п╫п╬п╡
 		while (LOGON_LIST(this))
 		{
 			struct logon_data *log_next;
@@ -609,7 +609,7 @@ void CHAR_DATA::purge()
 	}
 }
 
-// * Скилл с учетом всех плюсов и минусов от шмоток/яда.
+// * п║п╨п╦п╩п╩ я│ я┐я┤п╣я┌п╬п╪ п╡я│п╣я┘ п©п╩я▌я│п╬п╡ п╦ п╪п╦п╫я┐я│п╬п╡ п╬я┌ я┬п╪п╬я┌п╬п╨/я▐п╢п╟.
 int CHAR_DATA::get_skill(const ESkill skill_num) const
 {
 	int skill = get_trained_skill(skill_num) + get_equipped_skill(skill_num);
@@ -620,14 +620,14 @@ int CHAR_DATA::get_skill(const ESkill skill_num) const
 	return normalize_skill(skill);
 }
 
-// * Скилл со шмоток.
+// * п║п╨п╦п╩п╩ я│п╬ я┬п╪п╬я┌п╬п╨.
 int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 {
 	int skill = 0;
 
-// мобам и тем классам, у которых скилл является родным, учитываем скилл с каждой шмотки полностью,
-// всем остальным -- не более 5% с шмотки
-    // Пока что отменим это дело, народ морально не готов отказаться от автосников.
+// п╪п╬п╠п╟п╪ п╦ я┌п╣п╪ п╨п╩п╟я│я│п╟п╪, я┐ п╨п╬я┌п╬я─я▀я┘ я│п╨п╦п╩п╩ я▐п╡п╩я▐п╣я┌я│я▐ я─п╬п╢п╫я▀п╪, я┐я┤п╦я┌я▀п╡п╟п╣п╪ я│п╨п╦п╩п╩ я│ п╨п╟п╤п╢п╬п╧ я┬п╪п╬я┌п╨п╦ п©п╬п╩п╫п╬я│я┌я▄я▌,
+// п╡я│п╣п╪ п╬я│я┌п╟п╩я▄п╫я▀п╪ -- п╫п╣ п╠п╬п╩п╣п╣ 5% я│ я┬п╪п╬я┌п╨п╦
+    // п÷п╬п╨п╟ я┤я┌п╬ п╬я┌п╪п╣п╫п╦п╪ я█я┌п╬ п╢п╣п╩п╬, п╫п╟я─п╬п╢ п╪п╬я─п╟п╩я▄п╫п╬ п╫п╣ пЁп╬я┌п╬п╡ п╬я┌п╨п╟п╥п╟я┌я▄я│я▐ п╬я┌ п╟п╡я┌п╬я│п╫п╦п╨п╬п╡.
 	int is_native = IS_NPC(this) || skill_info[skill_num].classknow[chclass_][(int) GET_KIN(this)] == KNOW_SKILL;
 	//int is_native = true;
 	for (int i = 0; i < NUM_WEARS; ++i)
@@ -638,7 +638,7 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 			{
 				skill += equipment[i]->get_skill(skill_num);
 			}
-			// На новый год включаем
+			// п²п╟ п╫п╬п╡я▀п╧ пЁп╬п╢ п╡п╨п╩я▌я┤п╟п╣п╪
 			/*else
 			{
 				skill += (MIN(5, equipment[i]->get_skill(skill_num)));
@@ -652,7 +652,7 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 	return skill;
 }
 
-// * Родной тренированный скилл чара.
+// * п═п╬п╢п╫п╬п╧ я┌я─п╣п╫п╦я─п╬п╡п╟п╫п╫я▀п╧ я│п╨п╦п╩п╩ я┤п╟я─п╟.
 int CHAR_DATA::get_inborn_skill(const ESkill skill_num)
 {
 	if (Privilege::check_skills(this))
@@ -675,12 +675,12 @@ int CHAR_DATA::get_trained_skill(const ESkill skill_num) const
 	return 0;
 }
 
-// * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
+// * п²я┐п╩п╣п╡п╬п╧ я│п╨п╦п╩п╩ п╪я▀ п╫п╣ я│п╣я┌п╦п╪, п╟ п©я─п╦ п╬п╠п╫я┐п╩п╣п╫п╦п╦ я┐п╤п╣ п╦п╪п╣я▌я┴п╣пЁп╬я│я▐ я┐п╢п╟п╩п╣п╪ я█я┌я┐ п╥п╟п©п╦я│я▄.
 void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
 {
 	if (skill_num < 0 || skill_num > MAX_SKILL_NUM)
 	{
-		log("SYSERROR: неизвесный номер скилла %d в set_skill.", skill_num);
+		log("SYSERROR: п╫п╣п╦п╥п╡п╣я│п╫я▀п╧ п╫п╬п╪п╣я─ я│п╨п╦п╩п╩п╟ %d п╡ set_skill.", skill_num);
 		return;
 	}
 
@@ -718,7 +718,7 @@ void CHAR_DATA::clear_skills()
 {
 	skills.clear();
 }
-// оберзает все скиллы до максимум на реморт
+// п╬п╠п╣я─п╥п╟п╣я┌ п╡я│п╣ я│п╨п╦п╩п╩я▀ п╢п╬ п╪п╟п╨я│п╦п╪я┐п╪ п╫п╟ я─п╣п╪п╬я─я┌
 void CHAR_DATA::crop_skills()
 {
 	int skill;
@@ -935,7 +935,7 @@ bool CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 			&& IMM_CAN_SEE(sub, obj));
 }
 
-// * Внутри цикла чар нигде не пуржится и сам список соответственно не меняется.
+// * п▓п╫я┐я┌я─п╦ я├п╦п╨п╩п╟ я┤п╟я─ п╫п╦пЁп╢п╣ п╫п╣ п©я┐я─п╤п╦я┌я│я▐ п╦ я│п╟п╪ я│п©п╦я│п╬п╨ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬ п╫п╣ п╪п╣п╫я▐п╣я┌я│я▐.
 void change_fighting(CHAR_DATA* ch, int need_stop)
 {
 	//Loop for all chars is necessary for unprotecting
@@ -972,8 +972,8 @@ void change_fighting(CHAR_DATA* ch, int need_stop)
 			{
 				if (j->get_fighting() == k.get())
 				{
-					act("Вы переключили внимание на $N3.", FALSE, k.get(), 0, j, TO_CHAR);
-					act("$n переключил$u на вас!", FALSE, k.get(), 0, j, TO_VICT);
+					act("п▓я▀ п©п╣я─п╣п╨п╩я▌я┤п╦п╩п╦ п╡п╫п╦п╪п╟п╫п╦п╣ п╫п╟ $N3.", FALSE, k.get(), 0, j, TO_CHAR);
+					act("$n п©п╣я─п╣п╨п╩я▌я┤п╦п╩$u п╫п╟ п╡п╟я│!", FALSE, k.get(), 0, j, TO_VICT);
 					k->set_fighting(j);
 					found = true;
 
@@ -1336,9 +1336,9 @@ long CHAR_DATA::get_total_gold() const
 }
 
 /**
- * Добавление денег на руках, плюсуются только положительные числа.
- * \param need_log здесь и далее - логировать или нет изменения счета (=true)
- * \param clan_tax - проверять и снимать клан-налог или нет (=false)
+ * п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╢п╣п╫п╣пЁ п╫п╟ я─я┐п╨п╟я┘, п©п╩я▌я│я┐я▌я┌я│я▐ я┌п╬п╩я▄п╨п╬ п©п╬п╩п╬п╤п╦я┌п╣п╩я▄п╫я▀п╣ я┤п╦я│п╩п╟.
+ * \param need_log п╥п╢п╣я│я▄ п╦ п╢п╟п╩п╣п╣ - п╩п╬пЁп╦я─п╬п╡п╟я┌я▄ п╦п╩п╦ п╫п╣я┌ п╦п╥п╪п╣п╫п╣п╫п╦я▐ я│я┤п╣я┌п╟ (=true)
+ * \param clan_tax - п©я─п╬п╡п╣я─я▐я┌я▄ п╦ я│п╫п╦п╪п╟я┌я▄ п╨п╩п╟п╫-п╫п╟п╩п╬пЁ п╦п╩п╦ п╫п╣я┌ (=false)
  */
 void CHAR_DATA::add_gold(long num, bool need_log, bool clan_tax)
 {
@@ -1354,7 +1354,7 @@ void CHAR_DATA::add_gold(long num, bool need_log, bool clan_tax)
 	set_gold(get_gold() + num, need_log);
 }
 
-// * см. add_gold()
+// * я│п╪. add_gold()
 void CHAR_DATA::add_bank(long num, bool need_log)
 {
 	if (num < 0)
@@ -1366,14 +1366,14 @@ void CHAR_DATA::add_bank(long num, bool need_log)
 }
 
 /**
- * Сет денег на руках, отрицательные числа просто обнуляют счет с
- * логированием бывшей суммы.
+ * п║п╣я┌ п╢п╣п╫п╣пЁ п╫п╟ я─я┐п╨п╟я┘, п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫я▀п╣ я┤п╦я│п╩п╟ п©я─п╬я│я┌п╬ п╬п╠п╫я┐п╩я▐я▌я┌ я│я┤п╣я┌ я│
+ * п╩п╬пЁп╦я─п╬п╡п╟п╫п╦п╣п╪ п╠я▀п╡я┬п╣п╧ я│я┐п╪п╪я▀.
  */
 void CHAR_DATA::set_gold(long num, bool need_log)
 {
 	if (get_gold() == num)
 	{
-		// чтобы с логированием не заморачиваться
+		// я┤я┌п╬п╠я▀ я│ п╩п╬пЁп╦я─п╬п╡п╟п╫п╦п╣п╪ п╫п╣ п╥п╟п╪п╬я─п╟я┤п╦п╡п╟я┌я▄я│я▐
 		return;
 	}
 	num = MAX(0, MIN(MAX_MONEY_KEPT, num));
@@ -1399,12 +1399,12 @@ void CHAR_DATA::set_gold(long num, bool need_log)
 	msdp_report(msdp::constants::GOLD);
 }
 
-// * см. set_gold()
+// * я│п╪. set_gold()
 void CHAR_DATA::set_bank(long num, bool need_log)
 {
 	if (get_bank() == num)
 	{
-		// чтобы с логированием не заморачиваться
+		// я┤я┌п╬п╠я▀ я│ п╩п╬пЁп╦я─п╬п╡п╟п╫п╦п╣п╪ п╫п╣ п╥п╟п╪п╬я─п╟я┤п╦п╡п╟я┌я▄я│я▐
 		return;
 	}
 	num = MAX(0, MIN(MAX_MONEY_KEPT, num));
@@ -1427,9 +1427,9 @@ void CHAR_DATA::set_bank(long num, bool need_log)
 }
 
 /**
- * Снятие находящихся на руках денег.
- * \param num - положительное число
- * \return - кол-во кун, которое не удалось снять с рук (нехватило денег)
+ * п║п╫я▐я┌п╦п╣ п╫п╟я┘п╬п╢я▐я┴п╦я┘я│я▐ п╫п╟ я─я┐п╨п╟я┘ п╢п╣п╫п╣пЁ.
+ * \param num - п©п╬п╩п╬п╤п╦я┌п╣п╩я▄п╫п╬п╣ я┤п╦я│п╩п╬
+ * \return - п╨п╬п╩-п╡п╬ п╨я┐п╫, п╨п╬я┌п╬я─п╬п╣ п╫п╣ я┐п╢п╟п╩п╬я│я▄ я│п╫я▐я┌я▄ я│ я─я┐п╨ (п╫п╣я┘п╡п╟я┌п╦п╩п╬ п╢п╣п╫п╣пЁ)
  */
 long CHAR_DATA::remove_gold(long num, bool need_log)
 {
@@ -1457,7 +1457,7 @@ long CHAR_DATA::remove_gold(long num, bool need_log)
 	return rest;
 }
 
-// * см. remove_gold()
+// * я│п╪. remove_gold()
 long CHAR_DATA::remove_bank(long num, bool need_log)
 {
 	if (num < 0)
@@ -1485,8 +1485,8 @@ long CHAR_DATA::remove_bank(long num, bool need_log)
 }
 
 /**
- * Попытка снятия денег с банка и, в случае остатка, с рук.
- * \return - кол-во кун, которое не удалось снять (нехватило денег в банке и на руках)
+ * п÷п╬п©я▀я┌п╨п╟ я│п╫я▐я┌п╦я▐ п╢п╣п╫п╣пЁ я│ п╠п╟п╫п╨п╟ п╦, п╡ я│п╩я┐я┤п╟п╣ п╬я│я┌п╟я┌п╨п╟, я│ я─я┐п╨.
+ * \return - п╨п╬п╩-п╡п╬ п╨я┐п╫, п╨п╬я┌п╬я─п╬п╣ п╫п╣ я┐п╢п╟п╩п╬я│я▄ я│п╫я▐я┌я▄ (п╫п╣я┘п╡п╟я┌п╦п╩п╬ п╢п╣п╫п╣пЁ п╡ п╠п╟п╫п╨п╣ п╦ п╫п╟ я─я┐п╨п╟я┘)
  */
 long CHAR_DATA::remove_both_gold(long num, bool need_log)
 {
@@ -1494,7 +1494,7 @@ long CHAR_DATA::remove_both_gold(long num, bool need_log)
 	return remove_gold(rest, need_log);
 }
 
-// * Удача (мораль) для расчетов в скилах и вывода чару по счет все.
+// * пёп╢п╟я┤п╟ (п╪п╬я─п╟п╩я▄) п╢п╩я▐ я─п╟я│я┤п╣я┌п╬п╡ п╡ я│п╨п╦п╩п╟я┘ п╦ п╡я▀п╡п╬п╢п╟ я┤п╟я─я┐ п©п╬ я│я┤п╣я┌ п╡я│п╣.
 int CHAR_DATA::calc_morale() const
 {
 	return GET_REAL_CHA(this) / 2 + GET_MORALE(this);
@@ -1737,7 +1737,7 @@ int CHAR_DATA::get_zone_group() const
 }
 
 //===================================
-//Polud формы и все что с ними связано
+//Polud я└п╬я─п╪я▀ п╦ п╡я│п╣ я┤я┌п╬ я│ п╫п╦п╪п╦ я│п╡я▐п╥п╟п╫п╬
 //===================================
 
 bool CHAR_DATA::know_morph(const std::string& morph_id) const
@@ -1760,8 +1760,8 @@ const CHAR_DATA::morphs_list_t& CHAR_DATA::get_morphs()
 {
 	return morphs_;
 };
-// НАПЕГЮЕР ЯРПНЙС Х БШДЕПЦХБЮЕР ХГ МЕЕ ОПЕДРХРСК
-// РЕЯРНБШИ ЙНЛЛЕМРЮПХИ
+// п²п░п÷п∙п⌠п╝п∙п═ п╞п═п÷п²п≥п║ п╔ п▒п╗п■п∙п÷п╕п╔п▒п╝п∙п═ п╔п⌠ п°п∙п∙ п·п÷п∙п■п═п╔п═п║п 
+// п═п∙п╞п═п²п▒п╗п≤ п≥п²п⌡п⌡п∙п°п═п╝п÷п╔п≤
 std::string CHAR_DATA::get_title()
 {
 	std::string tmp = this->player_data.title;
@@ -1897,8 +1897,8 @@ void CHAR_DATA::set_morph(MorphPtr morph)
 void CHAR_DATA::reset_morph()
 {
 	int value = this->get_trained_skill(SKILL_MORPH);
-	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "человеком") + "\r\n", this);
-	act(str(boost::format(current_morph_->GetMessageToRoom()) % "человеком").c_str(), TRUE, this, 0, 0, TO_ROOM);
+	send_to_char(str(boost::format(current_morph_->GetMessageToChar()) % "я┤п╣п╩п╬п╡п╣п╨п╬п╪") + "\r\n", this);
+	act(str(boost::format(current_morph_->GetMessageToRoom()) % "я┤п╣п╩п╬п╡п╣п╨п╬п╪").c_str(), TRUE, this, 0, 0, TO_ROOM);
 	this->current_morph_ = GetNormalMorphNew(this);
 	this->set_morphed_skill(SKILL_MORPH, (MIN(MAX_EXP_PERCENT + GET_REMORT(this) * 5, value)));
 //	REMOVE_BIT(AFF_FLAGS(this, AFF_MORPH), AFF_MORPH);
@@ -1906,7 +1906,7 @@ void CHAR_DATA::reset_morph()
 
 bool CHAR_DATA::is_morphed() const
 {
-	return current_morph_->Name() != "Обычная" || AFF_FLAGGED(this, EAffectFlag::AFF_MORPH);
+	return current_morph_->Name() != "п·п╠я▀я┤п╫п╟я▐" || AFF_FLAGGED(this, EAffectFlag::AFF_MORPH);
 };
 
 void CHAR_DATA::set_normal_morph()
@@ -1968,9 +1968,9 @@ void CHAR_DATA::add_follower(CHAR_DATA* ch)
 
 	if (!IS_HORSE(ch))
 	{
-		act("Вы начали следовать за $N4.", FALSE, ch, 0, this, TO_CHAR);
-		act("$n начал$g следовать за вами.", TRUE, ch, 0, this, TO_VICT);
-		act("$n начал$g следовать за $N4.", TRUE, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
+		act("п▓я▀ п╫п╟я┤п╟п╩п╦ я│п╩п╣п╢п╬п╡п╟я┌я▄ п╥п╟ $N4.", FALSE, ch, 0, this, TO_CHAR);
+		act("$n п╫п╟я┤п╟п╩$g я│п╩п╣п╢п╬п╡п╟я┌я▄ п╥п╟ п╡п╟п╪п╦.", TRUE, ch, 0, this, TO_VICT);
+		act("$n п╫п╟я┤п╟п╩$g я│п╩п╣п╢п╬п╡п╟я┌я▄ п╥п╟ $N4.", TRUE, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
 
@@ -2038,8 +2038,8 @@ const CHAR_DATA::role_t& CHAR_DATA::get_role_bits() const
 	return role_;
 }
 
-// добавляет указанного ch чара в список атакующих босса с параметром type
-// или обновляет его данные в этом списке
+// п╢п╬п╠п╟п╡п╩я▐п╣я┌ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ ch я┤п╟я─п╟ п╡ я│п©п╦я│п╬п╨ п╟я┌п╟п╨я┐я▌я┴п╦я┘ п╠п╬я│я│п╟ я│ п©п╟я─п╟п╪п╣я┌я─п╬п╪ type
+// п╦п╩п╦ п╬п╠п╫п╬п╡п╩я▐п╣я┌ п╣пЁп╬ п╢п╟п╫п╫я▀п╣ п╡ я█я┌п╬п╪ я│п©п╦я│п╨п╣
 void CHAR_DATA::add_attacker(CHAR_DATA *ch, unsigned type, int num)
 {
 	if (!IS_NPC(this) || IS_NPC(ch) || !get_role(MOB_ROLE_BOSS))
@@ -2082,8 +2082,8 @@ void CHAR_DATA::add_attacker(CHAR_DATA *ch, unsigned type, int num)
 	}
 }
 
-// возвращает количественный параметр по флагу type указанного ch чара
-// из списка атакующих данного босса
+// п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╨п╬п╩п╦я┤п╣я│я┌п╡п╣п╫п╫я▀п╧ п©п╟я─п╟п╪п╣я┌я─ п©п╬ я└п╩п╟пЁя┐ type я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ ch я┤п╟я─п╟
+// п╦п╥ я│п©п╦я│п╨п╟ п╟я┌п╟п╨я┐я▌я┴п╦я┘ п╢п╟п╫п╫п╬пЁп╬ п╠п╬я│я│п╟
 int CHAR_DATA::get_attacker(CHAR_DATA *ch, unsigned type) const
 {
 	if (!IS_NPC(this) || IS_NPC(ch) || !get_role(MOB_ROLE_BOSS))
@@ -2104,8 +2104,8 @@ int CHAR_DATA::get_attacker(CHAR_DATA *ch, unsigned type) const
 	return 0;
 }
 
-// поиск в списке атакующих нанесшего максимальный урон, который при этом
-// находится в данный момент в этой же комнате с боссом и онлайн
+// п©п╬п╦я│п╨ п╡ я│п©п╦я│п╨п╣ п╟я┌п╟п╨я┐я▌я┴п╦я┘ п╫п╟п╫п╣я│я┬п╣пЁп╬ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫я▀п╧ я┐я─п╬п╫, п╨п╬я┌п╬я─я▀п╧ п©я─п╦ я█я┌п╬п╪
+// п╫п╟я┘п╬п╢п╦я┌я│я▐ п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ п╡ я█я┌п╬п╧ п╤п╣ п╨п╬п╪п╫п╟я┌п╣ я│ п╠п╬я│я│п╬п╪ п╦ п╬п╫п╩п╟п╧п╫
 std::pair<int /* uid */, int /* rounds */> CHAR_DATA::get_max_damager_in_room() const
 {
 	std::pair<int, int> damager (-1, 0);
@@ -2136,7 +2136,7 @@ std::pair<int /* uid */, int /* rounds */> CHAR_DATA::get_max_damager_in_room() 
 	return damager;
 }
 
-// обновление босса вне боя по прошествии MOB_RESTORE_TIMER секунд
+// п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ п╠п╬я│я│п╟ п╡п╫п╣ п╠п╬я▐ п©п╬ п©я─п╬я┬п╣я│я┌п╡п╦п╦ MOB_RESTORE_TIMER я│п╣п╨я┐п╫п╢
 void CHAR_DATA::restore_mob()
 {
 	restore_timer_ = 0;
@@ -2156,37 +2156,37 @@ void CHAR_DATA::restore_mob()
 void CHAR_DATA::report_loop_error(const CHAR_DATA::ptr_t master) const
 {
 	std::stringstream ss;
-	ss << "Обнаружена ошибка логики: попытка сделать цикл в цепочке последователей.\nТекущая цепочка лидеров: ";
+	ss << "п·п╠п╫п╟я─я┐п╤п╣п╫п╟ п╬я┬п╦п╠п╨п╟ п╩п╬пЁп╦п╨п╦: п©п╬п©я▀я┌п╨п╟ я│п╢п╣п╩п╟я┌я▄ я├п╦п╨п╩ п╡ я├п╣п©п╬я┤п╨п╣ п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩п╣п╧.\nп╒п╣п╨я┐я┴п╟я▐ я├п╣п©п╬я┤п╨п╟ п╩п╦п╢п╣я─п╬п╡: ";
 	master->print_leaders_chain(ss);
-	ss << "\nПопытка сделать персонажа [" << master->get_name() << "] лидером персонажа [" << get_name() << "]";
+	ss << "\nп÷п╬п©я▀я┌п╨п╟ я│п╢п╣п╩п╟я┌я▄ п©п╣я─я│п╬п╫п╟п╤п╟ [" << master->get_name() << "] п╩п╦п╢п╣я─п╬п╪ п©п╣я─я│п╬п╫п╟п╤п╟ [" << get_name() << "]";
 	mudlog(ss.str().c_str(), DEF, -1, ERRLOG, true);
 
 	std::stringstream additional_info;
-	additional_info << "Потенциальный лидер: name=[" << master->get_name() << "]"
-		<< "; адрес структуры: " << master << "; текущий лидер: ";
+	additional_info << "п÷п╬я┌п╣п╫я├п╦п╟п╩я▄п╫я▀п╧ п╩п╦п╢п╣я─: name=[" << master->get_name() << "]"
+		<< "; п╟п╢я─п╣я│ я│я┌я─я┐п╨я┌я┐я─я▀: " << master << "; я┌п╣п╨я┐я┴п╦п╧ п╩п╦п╢п╣я─: ";
 	if (master->has_master())
 	{
 		additional_info << "name=[" << master->get_master()->get_name() << "]"
-			<< "; адрес структуры: " << master->get_master() << "";
+			<< "; п╟п╢я─п╣я│ я│я┌я─я┐п╨я┌я┐я─я▀: " << master->get_master() << "";
 	}
 	else
 	{
-		additional_info << "<отсутствует>";
+		additional_info << "<п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌>";
 	}
-	additional_info << "\nПоследователь: name=[" << get_name() << "]"
-		<< "; адрес структуры: " << this << "; текущий лидер: ";
+	additional_info << "\nп÷п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩я▄: name=[" << get_name() << "]"
+		<< "; п╟п╢я─п╣я│ я│я┌я─я┐п╨я┌я┐я─я▀: " << this << "; я┌п╣п╨я┐я┴п╦п╧ п╩п╦п╢п╣я─: ";
 	if (has_master())
 	{
 		additional_info << "name=[" << get_master()->get_name() << "]"
-			<< "; адрес структуры: " << get_master() << "";
+			<< "; п╟п╢я─п╣я│ я│я┌я─я┐п╨я┌я┐я─я▀: " << get_master() << "";
 	}
 	else
 	{
-		additional_info << "<отсутствует>";
+		additional_info << "<п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌>";
 	}
 	mudlog(additional_info.str().c_str(), DEF, -1, ERRLOG, true);
 
-	ss << "\nТекущий стек будет распечатан в ERRLOG.";
+	ss << "\nп╒п╣п╨я┐я┴п╦п╧ я│я┌п╣п╨ п╠я┐п╢п╣я┌ я─п╟я│п©п╣я┤п╟я┌п╟п╫ п╡ ERRLOG.";
 	debug::backtrace(runtime_config.logs(ERRLOG).handle());
 	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, false);
 }
@@ -2195,7 +2195,7 @@ void CHAR_DATA::print_leaders_chain(std::ostream& ss) const
 {
 	if (!has_master())
 	{
-		ss << "<пуста>";
+		ss << "<п©я┐я│я┌п╟>";
 		return;
 	}
 
@@ -2231,9 +2231,9 @@ bool CHAR_DATA::makes_loop(CHAR_DATA::ptr_t master) const
 	return false;
 }
 
-// инкремент и проверка таймера на рестор босса,
-// который находится вне боя и до этого был кем-то бит
-// (т.к. имеет не нулевой список атакеров)
+// п╦п╫п╨я─п╣п╪п╣п╫я┌ п╦ п©я─п╬п╡п╣я─п╨п╟ я┌п╟п╧п╪п╣я─п╟ п╫п╟ я─п╣я│я┌п╬я─ п╠п╬я│я│п╟,
+// п╨п╬я┌п╬я─я▀п╧ п╫п╟я┘п╬п╢п╦я┌я│я▐ п╡п╫п╣ п╠п╬я▐ п╦ п╢п╬ я█я┌п╬пЁп╬ п╠я▀п╩ п╨п╣п╪-я┌п╬ п╠п╦я┌
+// (я┌.п╨. п╦п╪п╣п╣я┌ п╫п╣ п╫я┐п╩п╣п╡п╬п╧ я│п©п╦я│п╬п╨ п╟я┌п╟п╨п╣я─п╬п╡)
 void CHAR_DATA::inc_restore_timer(int num)
 {
 	if (get_role(MOB_ROLE_BOSS) && !attackers_.empty() && !get_fighting())

@@ -34,9 +34,9 @@ char *any_one_name(char *argument, char *first_arg)
 
 	// Find length of first word 
 	/*
-	 * Тут нужно что-то делать!!!
-	 * Библиотечная функция ispunct() неправильно работает для русского языка
-	 * (по крайней мере у меня). Пока закоментировал.
+	 * п╒я┐я┌ п╫я┐п╤п╫п╬ я┤я┌п╬-я┌п╬ п╢п╣п╩п╟я┌я▄!!!
+	 * п▒п╦п╠п╩п╦п╬я┌п╣я┤п╫п╟я▐ я└я┐п╫п╨я├п╦я▐ ispunct() п╫п╣п©я─п╟п╡п╦п╩я▄п╫п╬ я─п╟п╠п╬я┌п╟п╣я┌ п╢п╩я▐ я─я┐я│я│п╨п╬пЁп╬ я▐п╥я▀п╨п╟
+	 * (п©п╬ п╨я─п╟п╧п╫п╣п╧ п╪п╣я─п╣ я┐ п╪п╣п╫я▐). п÷п╬п╨п╟ п╥п╟п╨п╬п╪п╣п╫я┌п╦я─п╬п╡п╟п╩.
 	 */
 	for (arg = first_arg; *argument && !a_isspace(*argument)	/*&&
 									   (!ispunct(*argument) || *argument == '#' || *argument == '-') */ ;
@@ -62,18 +62,18 @@ void sub_write_to_char(CHAR_DATA * ch, char *tokens[], void *otokens[], char typ
 		{
 		case '~':
 			if (!otokens[i])
-				strcat(sb, "Кто-то");
+				strcat(sb, "п я┌п╬-я┌п╬");
 			else if ((CHAR_DATA *) otokens[i] == ch)
-				strcat(sb, "Вы");
+				strcat(sb, "п▓я▀");
 			else
 				strcat(sb, PERS((CHAR_DATA *) otokens[i], ch, 0));
 			break;
 
 		case '@':
 			if (!otokens[i])
-				strcat(sb, "чей-то");
+				strcat(sb, "я┤п╣п╧-я┌п╬");
 			else if ((CHAR_DATA *) otokens[i] == ch)
-				strcat(sb, "ваш");
+				strcat(sb, "п╡п╟я┬");
 			else
 			{
 				strcat(sb, PERS((CHAR_DATA *) otokens[i], ch, 1));
@@ -82,34 +82,34 @@ void sub_write_to_char(CHAR_DATA * ch, char *tokens[], void *otokens[], char typ
 
 		case '^':
 			if (!otokens[i] || !CAN_SEE(ch, (CHAR_DATA *) otokens[i]))
-				strcat(sb, "чей-то");
+				strcat(sb, "я┤п╣п╧-я┌п╬");
 			else if (otokens[i] == ch)
-				strcat(sb, "ваш");
+				strcat(sb, "п╡п╟я┬");
 			else
 				strcat(sb, HSHR((CHAR_DATA *) otokens[i]));
 			break;
 
 		case '}':
 			if (!otokens[i] || !CAN_SEE(ch, (CHAR_DATA *) otokens[i]))
-				strcat(sb, "Он");
+				strcat(sb, "п·п╫");
 			else if (otokens[i] == ch)
-				strcat(sb, "Вы");
+				strcat(sb, "п▓я▀");
 			else
 				strcat(sb, HSSH((CHAR_DATA *) otokens[i]));
 			break;
 
 		case '*':
 			if (!otokens[i] || !CAN_SEE(ch, (CHAR_DATA *) otokens[i]))
-				strcat(sb, "ему");
+				strcat(sb, "п╣п╪я┐");
 			else if (otokens[i] == ch)
-				strcat(sb, "вам");
+				strcat(sb, "п╡п╟п╪");
 			else
 				strcat(sb, HMHR((CHAR_DATA *) otokens[i]));
 			break;
 
 		case '`':
 			if (!otokens[i])
-				strcat(sb, "что-то");
+				strcat(sb, "я┤я┌п╬-я┌п╬");
 			else
 				strcat(sb, OBJS(((OBJ_DATA *) otokens[i]), ch));
 			break;
@@ -118,7 +118,7 @@ void sub_write_to_char(CHAR_DATA * ch, char *tokens[], void *otokens[], char typ
 
 	strcat(sb, tokens[i]);
 	strcat(sb, "\n\r");
-	sb[0] = UPPER(sb[0]);	// Библиотечный вызов toupper() глючит для русского
+	sb[0] = UPPER(sb[0]);	// п▒п╦п╠п╩п╦п╬я┌п╣я┤п╫я▀п╧ п╡я▀п╥п╬п╡ toupper() пЁп╩я▌я┤п╦я┌ п╢п╩я▐ я─я┐я│я│п╨п╬пЁп╬
 	send_to_char(sb, ch);
 }
 

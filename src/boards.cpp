@@ -31,7 +31,7 @@
 
 namespace Boards 
 {
-	// общий список досок
+	// п╬п╠я┴п╦п╧ я│п©п╦я│п╬п╨ п╢п╬я│п╬п╨
 	using boards_list_t = std::deque<Board::shared_ptr>;
 	boards_list_t board_list;
 
@@ -59,28 +59,28 @@ namespace Boards
 		if (lvl_no_write(ch))
 		{
 			send_to_char(ch,
-				"Вам нужно достигнуть %d уровня, чтобы писать в этот раздел.\r\n",
+				"п▓п╟п╪ п╫я┐п╤п╫п╬ п╢п╬я│я┌п╦пЁп╫я┐я┌я▄ %d я┐я─п╬п╡п╫я▐, я┤я┌п╬п╠я▀ п©п╦я│п╟я┌я▄ п╡ я█я┌п╬я┌ я─п╟п╥п╢п╣п╩.\r\n",
 				MIN_WRITE_LEVEL);
 		}
 		else
 		{
-			send_to_char("У вас нет возможности писать в этот раздел.\r\n", ch);
+			send_to_char("пё п╡п╟я│ п╫п╣я┌ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ п©п╦я│п╟я┌я▄ п╡ я█я┌п╬я┌ я─п╟п╥п╢п╣п╩.\r\n", ch);
 		}
 	}
 
 	void message_no_read(CHAR_DATA *ch, const Board &board)
 	{
-		std::string out("У вас нет возможности читать этот раздел.\r\n");
+		std::string out("пё п╡п╟я│ п╫п╣я┌ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ я┤п╦я┌п╟я┌я▄ я█я┌п╬я┌ я─п╟п╥п╢п╣п╩.\r\n");
 		if (board.is_special())
 		{
 			std::string name = board.get_name();
 			lower_convert(name);
-			out += "Для сообщения в формате обычной работы с доской используйте: " + name + " писать <заголовок>.\r\n";
+			out += "п■п╩я▐ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╡ я└п╬я─п╪п╟я┌п╣ п╬п╠я▀я┤п╫п╬п╧ я─п╟п╠п╬я┌я▀ я│ п╢п╬я│п╨п╬п╧ п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣: " + name + " п©п╦я│п╟я┌я▄ <п╥п╟пЁп╬п╩п╬п╡п╬п╨>.\r\n";
 			if (!board.get_alias().empty())
 			{
-				out += "Команда для быстрого добавления сообщения: "
+				out += "п п╬п╪п╟п╫п╢п╟ п╢п╩я▐ п╠я▀я│я┌я─п╬пЁп╬ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ я│п╬п╬п╠я┴п╣п╫п╦я▐: "
 					+ board.get_alias()
-					+ " <текст сообщения в одну строку>.\r\n";
+					+ " <я┌п╣п╨я│я┌ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╡ п╬п╢п╫я┐ я│я┌я─п╬п╨я┐>.\r\n";
 			}
 		}
 		send_to_char(out, ch);
@@ -103,11 +103,11 @@ namespace Boards
 		}
 
 		const auto temp_message = std::make_shared<Message>();
-		temp_message->author = "Сервер";
+		temp_message->author = "п║п╣я─п╡п╣я─";
 		temp_message->subject = subj;
 		temp_message->text = text;
 		temp_message->date = time(0);
-		// чтобы при релоаде не убилось
+		// я┤я┌п╬п╠я▀ п©я─п╦ я─п╣п╩п╬п╟п╢п╣ п╫п╣ я┐п╠п╦п╩п╬я│я▄
 		temp_message->unique = 1;
 		temp_message->level = 1;
 
@@ -118,7 +118,7 @@ namespace Boards
 	{
 		if (!dg_script_text.empty())
 		{
-			const std::string subj = "отступы в скриптах";
+			const std::string subj = "п╬я┌я│я┌я┐п©я▀ п╡ я│п╨я─п╦п©я┌п╟я┘";
 			add_server_message(subj, dg_script_text);
 			dg_script_text.clear();
 		}
@@ -185,7 +185,7 @@ namespace Boards
 
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 		{
-			send_to_char("Вы ослеплены!\r\n", ch);
+			send_to_char("п▓я▀ п╬я│п╩п╣п©п╩п╣п╫я▀!\r\n", ch);
 			return;
 		}
 		
@@ -202,7 +202,7 @@ namespace Boards
 
 		if (!board_ptr)
 		{
-			send_to_char("Чаво?\r\n", ch);
+			send_to_char("п╖п╟п╡п╬?\r\n", ch);
 			return;
 		}
 		const Board& board = *board_ptr;
@@ -210,19 +210,19 @@ namespace Boards
 		std::string buffer, buffer2 = argument;
 		GetOneParam(buffer2, buffer);
 		boost::trim_if(buffer2, boost::is_any_of(std::string(" \'")));
-		// первый аргумент в buffer, второй в buffer2
+		// п©п╣я─п╡я▀п╧ п╟я─пЁя┐п╪п╣п╫я┌ п╡ buffer, п╡я┌п╬я─п╬п╧ п╡ buffer2
 
-		if (CompareParam(buffer, "список") || CompareParam(buffer, "list"))
+		if (CompareParam(buffer, "я│п©п╦я│п╬п╨") || CompareParam(buffer, "list"))
 		{
 			Static::do_list(ch, board_ptr);
 		}
 		else if (buffer.empty()
 			|| (buffer2.empty()
-				&& (CompareParam(buffer, "читать")
+				&& (CompareParam(buffer, "я┤п╦я┌п╟я┌я▄")
 					|| CompareParam(buffer, "read"))))
 		{
-			// при пустой команде или 'читать' без цифры - показываем первое
-			// непрочитанное сообщение, если такое есть
+			// п©я─п╦ п©я┐я│я┌п╬п╧ п╨п╬п╪п╟п╫п╢п╣ п╦п╩п╦ 'я┤п╦я┌п╟я┌я▄' п╠п╣п╥ я├п╦я└я─я▀ - п©п╬п╨п╟п╥я▀п╡п╟п╣п╪ п©п╣я─п╡п╬п╣
+			// п╫п╣п©я─п╬я┤п╦я┌п╟п╫п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣, п╣я│п╩п╦ я┌п╟п╨п╬п╣ п╣я│я┌я▄
 			if (!Static::can_read(ch, board_ptr))
 			{
 				message_no_read(ch, board);
@@ -230,7 +230,7 @@ namespace Boards
 			}
 			time_t const date = ch->get_board_date(board.get_type());
 
-			// новости мада в ленточном варианте
+			// п╫п╬п╡п╬я│я┌п╦ п╪п╟п╢п╟ п╡ п╩п╣п╫я┌п╬я┤п╫п╬п╪ п╡п╟я─п╦п╟п╫я┌п╣
 			if ((board.get_type() == NEWS_BOARD
 				|| board.get_type() == GODNEWS_BOARD
 				|| board.get_type() == CODER_BOARD)
@@ -243,7 +243,7 @@ namespace Boards
 				page_string(ch->desc, body.str());
 				return;
 			}
-			// дрновости в ленточном варианте
+			// п╢я─п╫п╬п╡п╬я│я┌п╦ п╡ п╩п╣п╫я┌п╬я┤п╫п╬п╪ п╡п╟я─п╦п╟п╫я┌п╣
 			if (board.get_type() == CLANNEWS_BOARD && !PRF_FLAGGED(ch, PRF_NEWS_MODE))
 			{
 				std::ostringstream body;
@@ -262,22 +262,22 @@ namespace Boards
 			page_string(ch->desc, body.str());
 			if (last_date == date)
 			{
-				send_to_char("У вас нет непрочитанных сообщений.\r\n", ch);
+				send_to_char("пё п╡п╟я│ п╫п╣я┌ п╫п╣п©я─п╬я┤п╦я┌п╟п╫п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧.\r\n", ch);
 			}
 		}
 		else if (is_number(buffer.c_str())
-			|| ((CompareParam(buffer, "читать") || CompareParam(buffer, "read"))
+			|| ((CompareParam(buffer, "я┤п╦я┌п╟я┌я▄") || CompareParam(buffer, "read"))
 				&& is_number(buffer2.c_str())))
 		{
-			// если после команды стоит цифра или 'читать цифра' - пытаемся
-			// показать эту мессагу, два сравнения - чтобы не загребать 'писать число...' как чтение
+			// п╣я│п╩п╦ п©п╬я│п╩п╣ п╨п╬п╪п╟п╫п╢я▀ я│я┌п╬п╦я┌ я├п╦я└я─п╟ п╦п╩п╦ 'я┤п╦я┌п╟я┌я▄ я├п╦я└я─п╟' - п©я▀я┌п╟п╣п╪я│я▐
+			// п©п╬п╨п╟п╥п╟я┌я▄ я█я┌я┐ п╪п╣я│я│п╟пЁя┐, п╢п╡п╟ я│я─п╟п╡п╫п╣п╫п╦я▐ - я┤я┌п╬п╠я▀ п╫п╣ п╥п╟пЁя─п╣п╠п╟я┌я▄ 'п©п╦я│п╟я┌я▄ я┤п╦я│п╩п╬...' п╨п╟п╨ я┤я┌п╣п╫п╦п╣
 			size_t num = 0;
 			if (!Static::can_read(ch, board_ptr))
 			{
 				message_no_read(ch, board);
 				return;
 			}
-			if (CompareParam(buffer, "читать"))
+			if (CompareParam(buffer, "я┤п╦я┌п╟я┌я▄"))
 			{
 				num = atoi(buffer2.c_str());
 			}
@@ -289,7 +289,7 @@ namespace Boards
 			if (num <= 0
 				|| num > board.messages.size())
 			{
-				send_to_char("Это сообщение может вам только присниться.\r\n", ch);
+				send_to_char("п╜я┌п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╪п╬п╤п╣я┌ п╡п╟п╪ я┌п╬п╩я▄п╨п╬ п©я─п╦я│п╫п╦я┌я▄я│я▐.\r\n", ch);
 				return;
 			}
 			std::ostringstream out;
@@ -298,7 +298,7 @@ namespace Boards
 			page_string(ch->desc, out.str());
 			set_last_read(ch, board.get_type(), board.messages[messages_index]->date);
 		}
-		else if (CompareParam(buffer, "писать")
+		else if (CompareParam(buffer, "п©п╦я│п╟я┌я▄")
 			|| CompareParam(buffer, "write"))
 		{
 			if (!Static::can_write(ch, board_ptr))
@@ -308,7 +308,7 @@ namespace Boards
 			}
 			if (is_spamer(ch, board))
 			{
-				send_to_char("Да вы ведь только что писали сюда.\r\n", ch);
+				send_to_char("п■п╟ п╡я▀ п╡п╣п╢я▄ я┌п╬п╩я▄п╨п╬ я┤я┌п╬ п©п╦я│п╟п╩п╦ я│я▌п╢п╟.\r\n", ch);
 				return;
 			}
 
@@ -316,7 +316,7 @@ namespace Boards
 			{
 				if (!CLAN(ch)->check_write_board(ch))
 				{
-					send_to_char("Вам запретили сюда писать!\r\n", ch);
+					send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┌п╦п╩п╦ я│я▌п╢п╟ п©п╦я│п╟я┌я▄!\r\n", ch);
 					return;
 				}
 			}
@@ -326,7 +326,7 @@ namespace Boards
 				send_to_char(constants::OVERFLOW_MESSAGE, ch);
 				return;
 			}
-			/// написание новостей от другого имени
+			/// п╫п╟п©п╦я│п╟п╫п╦п╣ п╫п╬п╡п╬я│я┌п╣п╧ п╬я┌ п╢я─я┐пЁп╬пЁп╬ п╦п╪п╣п╫п╦
 			std::string name = GET_NAME(ch);
 			if (PRF_FLAGGED(ch, PRF_CODERINFO)
 				&& (board.get_type() == NEWS_BOARD
@@ -335,19 +335,19 @@ namespace Boards
 				GetOneParam(buffer2, buffer);
 				if (buffer.empty())
 				{
-					send_to_char("Впишите хотя бы имя, от кого будет опубликовано сообщение.\r\n", ch);
+					send_to_char("п▓п©п╦я┬п╦я┌п╣ я┘п╬я┌я▐ п╠я▀ п╦п╪я▐, п╬я┌ п╨п╬пЁп╬ п╠я┐п╢п╣я┌ п╬п©я┐п╠п╩п╦п╨п╬п╡п╟п╫п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣.\r\n", ch);
 					return;
 				}
 				name = buffer;
 			}
-			/// генерим мессагу
+			/// пЁп╣п╫п╣я─п╦п╪ п╪п╣я│я│п╟пЁя┐
 			const auto tempMessage = std::make_shared<Message>();
 			tempMessage->author = name;
 			tempMessage->unique = GET_UNIQUE(ch);
-			// для досок кроме клановых и персональных пишем левел автора (для возможной очистки кем-то)
+			// п╢п╩я▐ п╢п╬я│п╬п╨ п╨я─п╬п╪п╣ п╨п╩п╟п╫п╬п╡я▀я┘ п╦ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀я┘ п©п╦я┬п╣п╪ п╩п╣п╡п╣п╩ п╟п╡я┌п╬я─п╟ (п╢п╩я▐ п╡п╬п╥п╪п╬п╤п╫п╬п╧ п╬я┤п╦я│я┌п╨п╦ п╨п╣п╪-я┌п╬)
 			PRF_FLAGGED(ch, PRF_CODERINFO) ? tempMessage->level = LVL_IMPL : tempMessage->level = GET_LEVEL(ch);
 
-			// клановым еще ранг
+			// п╨п╩п╟п╫п╬п╡я▀п╪ п╣я┴п╣ я─п╟п╫пЁ
 			if (CLAN(ch))
 			{
 				tempMessage->rank = CLAN_MEMBER(ch)->rank_num;
@@ -357,14 +357,14 @@ namespace Boards
 				tempMessage->rank = 0;
 			}
 
-			// обработка сабжа
+			// п╬п╠я─п╟п╠п╬я┌п╨п╟ я│п╟п╠п╤п╟
 			boost::trim(buffer2);
 			if (buffer2.length() > 40)
 			{
 				buffer2.erase(40, std::string::npos);
-				send_to_char(ch, "Тема сообщения укорочена до '%s'.\r\n", buffer2.c_str());
+				send_to_char(ch, "п╒п╣п╪п╟ я│п╬п╬п╠я┴п╣п╫п╦я▐ я┐п╨п╬я─п╬я┤п╣п╫п╟ п╢п╬ '%s'.\r\n", buffer2.c_str());
 			}
-			// для ошибок опечаток впереди пишем комнату, где стоит отправитель
+			// п╢п╩я▐ п╬я┬п╦п╠п╬п╨ п╬п©п╣я┤п╟я┌п╬п╨ п╡п©п╣я─п╣п╢п╦ п©п╦я┬п╣п╪ п╨п╬п╪п╫п╟я┌я┐, пЁп╢п╣ я│я┌п╬п╦я┌ п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▄
 			std::string subj;
 			if (subcmd == ERROR_BOARD || subcmd == MISPRINT_BOARD)
 			{
@@ -372,36 +372,36 @@ namespace Boards
 			}
 			subj += buffer2;
 			tempMessage->subject = subj;
-			// дату номер и текст пишем уже по факту сохранения
+			// п╢п╟я┌я┐ п╫п╬п╪п╣я─ п╦ я┌п╣п╨я│я┌ п©п╦я┬п╣п╪ я┐п╤п╣ п©п╬ я└п╟п╨я┌я┐ я│п╬я┘я─п╟п╫п╣п╫п╦я▐
 			ch->desc->message = tempMessage;
 			ch->desc->board = board_ptr;
 
-			send_to_char(ch, "Можете писать сообщение.  (/s записать /h помощь)\r\n");
+			send_to_char(ch, "п°п╬п╤п╣я┌п╣ п©п╦я│п╟я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣.  (/s п╥п╟п©п╦я│п╟я┌я▄ /h п©п╬п╪п╬я┴я▄)\r\n");
 			STATE(ch->desc) = CON_WRITEBOARD;
 			AbstractStringWriter::shared_ptr writer(new StdStringWriter());
 			string_write(ch->desc, writer, MAX_MESSAGE_LENGTH, 0, NULL);
 		}
-		else if (CompareParam(buffer, "очистить") || CompareParam(buffer, "remove"))
+		else if (CompareParam(buffer, "п╬я┤п╦я│я┌п╦я┌я▄") || CompareParam(buffer, "remove"))
 		{
 			if (!is_number(buffer2.c_str()))
 			{
-				send_to_char("Укажите корректный номер сообщения.\r\n", ch);
+				send_to_char("пёп╨п╟п╤п╦я┌п╣ п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╫п╬п╪п╣я─ я│п╬п╬п╠я┴п╣п╫п╦я▐.\r\n", ch);
 				return;
 			}
 			const size_t message_number = atoi(buffer2.c_str());
 			const auto messages_index = message_number - 1;
 			if (messages_index >= board.messages.size())
 			{
-				send_to_char("Это сообщение может вам только присниться.\r\n", ch);
+				send_to_char("п╜я┌п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╪п╬п╤п╣я┌ п╡п╟п╪ я┌п╬п╩я▄п╨п╬ п©я─п╦я│п╫п╦я┌я▄я│я▐.\r\n", ch);
 				return;
 			}
 			set_last_read(ch, board.get_type(), board.messages[messages_index]->date);
-			// или он может делетить любые мессаги (по левелу/рангу), или только свои
+			// п╦п╩п╦ п╬п╫ п╪п╬п╤п╣я┌ п╢п╣п╩п╣я┌п╦я┌я▄ п╩я▌п╠я▀п╣ п╪п╣я│я│п╟пЁп╦ (п©п╬ п╩п╣п╡п╣п╩я┐/я─п╟п╫пЁя┐), п╦п╩п╦ я┌п╬п╩я▄п╨п╬ я│п╡п╬п╦
 			if (!Static::full_access(ch, board_ptr))
 			{
 				if (board.messages[messages_index]->unique != GET_UNIQUE(ch))
 				{
-					send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
+					send_to_char("пё п╡п╟я│ п╫п╣я┌ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ я┐п╢п╟п╩п╦я┌я▄ я█я┌п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣.\r\n", ch);
 					return;
 				}
 			}
@@ -411,33 +411,33 @@ namespace Boards
 				&& !PRF_FLAGGED(ch, PRF_CODERINFO)
 				&& GET_LEVEL(ch) < board.messages[messages_index]->level)
 			{
-				// для простых досок сверяем левела (для контроля иммов)
-				// клановые ниже, у персональных смысла нет
-				send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
+				// п╢п╩я▐ п©я─п╬я│я┌я▀я┘ п╢п╬я│п╬п╨ я│п╡п╣я─я▐п╣п╪ п╩п╣п╡п╣п╩п╟ (п╢п╩я▐ п╨п╬п╫я┌я─п╬п╩я▐ п╦п╪п╪п╬п╡)
+				// п╨п╩п╟п╫п╬п╡я▀п╣ п╫п╦п╤п╣, я┐ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀я┘ я│п╪я▀я│п╩п╟ п╫п╣я┌
+				send_to_char("пё п╡п╟я│ п╫п╣я┌ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ я┐п╢п╟п╩п╦я┌я▄ я█я┌п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣.\r\n", ch);
 				return;
 			}
 			else if (board.get_type() == CLAN_BOARD
 				|| board.get_type() == CLANNEWS_BOARD)
 			{
-				// у кого привилегия на новости, те могут удалять везде чужие, если ранк автора такой же или ниже
+				// я┐ п╨п╬пЁп╬ п©я─п╦п╡п╦п╩п╣пЁп╦я▐ п╫п╟ п╫п╬п╡п╬я│я┌п╦, я┌п╣ п╪п╬пЁя┐я┌ я┐п╢п╟п╩я▐я┌я▄ п╡п╣п╥п╢п╣ я┤я┐п╤п╦п╣, п╣я│п╩п╦ я─п╟п╫п╨ п╟п╡я┌п╬я─п╟ я┌п╟п╨п╬п╧ п╤п╣ п╦п╩п╦ п╫п╦п╤п╣
 				if (CLAN_MEMBER(ch)->rank_num > board.messages[messages_index]->rank)
 				{
-					send_to_char("У вас нет возможности удалить это сообщение.\r\n", ch);
+					send_to_char("пё п╡п╟я│ п╫п╣я┌ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ я┐п╢п╟п╩п╦я┌я▄ я█я┌п╬ я│п╬п╬п╠я┴п╣п╫п╦п╣.\r\n", ch);
 					return;
 				}
 			}
-			// собственно делетим и проставляем сдвиг номеров
+			// я│п╬п╠я│я┌п╡п╣п╫п╫п╬ п╢п╣п╩п╣я┌п╦п╪ п╦ п©я─п╬я│я┌п╟п╡п╩я▐п╣п╪ я│п╢п╡п╦пЁ п╫п╬п╪п╣я─п╬п╡
 			board_ptr->erase_message(messages_index);
 			if (board.get_lastwrite() == GET_UNIQUE(ch))
 			{
 				board_ptr->set_lastwrite_uid(0);
 			}
 			board_ptr->Save();
-			send_to_char("Сообщение удалено.\r\n", ch);
+			send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╢п╟п╩п╣п╫п╬.\r\n", ch);
 		}
 		else
 		{
-			send_to_char("Неверный формат команды, ознакомьтесь со 'справка доски'.\r\n", ch);
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ я└п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀, п╬п╥п╫п╟п╨п╬п╪я▄я┌п╣я│я▄ я│п╬ 'я│п©я─п╟п╡п╨п╟ п╢п╬я│п╨п╦'.\r\n", ch);
 		}
 	}
 
@@ -472,24 +472,24 @@ namespace Boards
 		std::string access;
 		if (acess_flags.test(ACCESS_FULL))
 		{
-			access = "полный+";
+			access = "п©п╬п╩п╫я▀п╧+";
 		}
 		else if (acess_flags.test(ACCESS_CAN_READ)
 			&& acess_flags.test(ACCESS_CAN_WRITE))
 		{
-			access = "полный";
+			access = "п©п╬п╩п╫я▀п╧";
 		}
 		else if (acess_flags.test(ACCESS_CAN_READ))
 		{
-			access = "чтение";
+			access = "я┤я┌п╣п╫п╦п╣";
 		}
 		else if (acess_flags.test(ACCESS_CAN_WRITE))
 		{
-			access = "запись";
+			access = "п╥п╟п©п╦я│я▄";
 		}
 		else if (acess_flags.test(ACCESS_CAN_SEE))
 		{
-			access = "нет";
+			access = "п╫п╣я┌";
 		}
 		else
 		{
@@ -497,7 +497,7 @@ namespace Boards
 		}
 		return access;
 	}
-	// чтобы не травмировать народ спешиалы вешаем на старые доски с новым содержимым
+	// я┤я┌п╬п╠я▀ п╫п╣ я┌я─п╟п╡п╪п╦я─п╬п╡п╟я┌я▄ п╫п╟я─п╬п╢ я│п©п╣я┬п╦п╟п╩я▀ п╡п╣я┬п╟п╣п╪ п╫п╟ я│я┌п╟я─я▀п╣ п╢п╬я│п╨п╦ я│ п╫п╬п╡я▀п╪ я│п╬п╢п╣я─п╤п╦п╪я▀п╪
 	int Static::Special(CHAR_DATA* ch, void* me, int cmd, char* argument)
 	{
 		OBJ_DATA *board = (OBJ_DATA *)me;
@@ -505,24 +505,24 @@ namespace Boards
 		{
 			return 0;
 		}
-		// список сообщений
+		// я│п©п╦я│п╬п╨ я│п╬п╬п╠я┴п╣п╫п╦п╧
 		std::string buffer = argument, buffer2;
 		GetOneParam(buffer, buffer2);
 		boost::trim_if(buffer, boost::is_any_of(std::string(" \'")));
 
-		if ((CMD_IS("смотреть") || CMD_IS("осмотреть") || CMD_IS("look") || CMD_IS("examine")
-			|| CMD_IS("читать") || CMD_IS("read")) && (CompareParam(buffer2, "доска") || CompareParam(buffer2, "board")))
+		if ((CMD_IS("я│п╪п╬я┌я─п╣я┌я▄") || CMD_IS("п╬я│п╪п╬я┌я─п╣я┌я▄") || CMD_IS("look") || CMD_IS("examine")
+			|| CMD_IS("я┤п╦я┌п╟я┌я▄") || CMD_IS("read")) && (CompareParam(buffer2, "п╢п╬я│п╨п╟") || CompareParam(buffer2, "board")))
 		{
-			// эта мутная запись для всяких 'см на доску' и подобных написаний в два слова
+			// я█я┌п╟ п╪я┐я┌п╫п╟я▐ п╥п╟п©п╦я│я▄ п╢п╩я▐ п╡я│я▐п╨п╦я┘ 'я│п╪ п╫п╟ п╢п╬я│п╨я┐' п╦ п©п╬п╢п╬п╠п╫я▀я┘ п╫п╟п©п╦я│п╟п╫п╦п╧ п╡ п╢п╡п╟ я│п╩п╬п╡п╟
 			if (buffer2.empty()
-				|| (buffer.empty() && !CompareParam(buffer2, "доска") && !CompareParam(buffer2, "board"))
-				|| (!buffer.empty() && !CompareParam(buffer, "доска") && !CompareParam(buffer2, "board")))
+				|| (buffer.empty() && !CompareParam(buffer2, "п╢п╬я│п╨п╟") && !CompareParam(buffer2, "board"))
+				|| (!buffer.empty() && !CompareParam(buffer, "п╢п╬я│п╨п╟") && !CompareParam(buffer2, "board")))
 			{
 				return 0;
 			}
 
 			char buf_[MAX_INPUT_LENGTH];
-			snprintf(buf_, sizeof(buf_), "%s", "список");
+			snprintf(buf_, sizeof(buf_), "%s", "я│п©п╦я│п╬п╨");
 
 			if (act_board(ch, GET_OBJ_VNUM(board), buf_))
 			{
@@ -534,8 +534,8 @@ namespace Boards
 			}
 		}
 
-		// для писем
-		if ((CMD_IS("читать") || CMD_IS("read")) && !buffer2.empty() && a_isdigit(buffer2[0]))
+		// п╢п╩я▐ п©п╦я│п╣п╪
+		if ((CMD_IS("я┤п╦я┌п╟я┌я▄") || CMD_IS("read")) && !buffer2.empty() && a_isdigit(buffer2[0]))
 		{
 			if (buffer2.find('.') != std::string::npos)
 			{
@@ -543,25 +543,25 @@ namespace Boards
 			}
 		}
 
-		// вывод сообщения написать сообщение очистить сообщение
-		if (((CMD_IS("читать") || CMD_IS("read")) && !buffer2.empty() && a_isdigit(buffer2[0]))
-			|| CMD_IS("писать") || CMD_IS("write") || CMD_IS("очистить") || CMD_IS("remove"))
+		// п╡я▀п╡п╬п╢ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╫п╟п©п╦я│п╟я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╬я┤п╦я│я┌п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣
+		if (((CMD_IS("я┤п╦я┌п╟я┌я▄") || CMD_IS("read")) && !buffer2.empty() && a_isdigit(buffer2[0]))
+			|| CMD_IS("п©п╦я│п╟я┌я▄") || CMD_IS("write") || CMD_IS("п╬я┤п╦я│я┌п╦я┌я▄") || CMD_IS("remove"))
 		{
-			// перехватываем запарки вида 'писать дрв' сидя на ренте с доской от вече
-			if ((CMD_IS("писать") || CMD_IS("write")) && !buffer2.empty())
+			// п©п╣я─п╣я┘п╡п╟я┌я▀п╡п╟п╣п╪ п╥п╟п©п╟я─п╨п╦ п╡п╦п╢п╟ 'п©п╦я│п╟я┌я▄ п╢я─п╡' я│п╦п╢я▐ п╫п╟ я─п╣п╫я┌п╣ я│ п╢п╬я│п╨п╬п╧ п╬я┌ п╡п╣я┤п╣
+			if ((CMD_IS("п©п╦я│п╟я┌я▄") || CMD_IS("write")) && !buffer2.empty())
 			{
 				for (auto i = board_list.begin(); i != board_list.end(); ++i)
 				{
 					if (isname(buffer2, (*i)->get_name()))
 					{
 						send_to_char(ch,
-							"Первое слово вашего заголовка совпадает с названием одной из досок сообщений,\r\n"
-							"Во избежание недоразумений воспользуйтесь форматом '<имя-доски> писать <заголовок>'.\r\n");
+							"п÷п╣я─п╡п╬п╣ я│п╩п╬п╡п╬ п╡п╟я┬п╣пЁп╬ п╥п╟пЁп╬п╩п╬п╡п╨п╟ я│п╬п╡п©п╟п╢п╟п╣я┌ я│ п╫п╟п╥п╡п╟п╫п╦п╣п╪ п╬п╢п╫п╬п╧ п╦п╥ п╢п╬я│п╬п╨ я│п╬п╬п╠я┴п╣п╫п╦п╧,\r\n"
+							"п▓п╬ п╦п╥п╠п╣п╤п╟п╫п╦п╣ п╫п╣п╢п╬я─п╟п╥я┐п╪п╣п╫п╦п╧ п╡п╬я│п©п╬п╩я▄п╥я┐п╧я┌п╣я│я▄ я└п╬я─п╪п╟я┌п╬п╪ '<п╦п╪я▐-п╢п╬я│п╨п╦> п©п╦я│п╟я┌я▄ <п╥п╟пЁп╬п╩п╬п╡п╬п╨>'.\r\n");
 						return 1;
 					}
 				}
 			}
-			// общая доска
+			// п╬п╠я┴п╟я▐ п╢п╬я│п╨п╟
 			char buf_[MAX_INPUT_LENGTH];
 			snprintf(buf_, sizeof(buf_), "%s%s", cmd_info[cmd].command, argument);
 
@@ -578,16 +578,16 @@ namespace Boards
 		return 0;
 	}
 
-	// выводит при заходе в игру инфу о новых сообщениях на досках
+	// п╡я▀п╡п╬п╢п╦я┌ п©я─п╦ п╥п╟я┘п╬п╢п╣ п╡ п╦пЁя─я┐ п╦п╫я└я┐ п╬ п╫п╬п╡я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦я▐я┘ п╫п╟ п╢п╬я│п╨п╟я┘
 	void Static::LoginInfo(CHAR_DATA* ch)
 	{
 		std::ostringstream buffer, news;
 		bool has_message = 0;
-		buffer << "\r\nВас ожидают сообщения:\r\n";
+		buffer << "\r\nп▓п╟я│ п╬п╤п╦п╢п╟я▌я┌ я│п╬п╬п╠я┴п╣п╫п╦я▐:\r\n";
 
 		for (auto board = board_list.begin(); board != board_list.end(); ++board)
 		{
-			// доска не видна или можно только писать, опечатки тож не спамим
+			// п╢п╬я│п╨п╟ п╫п╣ п╡п╦п╢п╫п╟ п╦п╩п╦ п╪п╬п╤п╫п╬ я┌п╬п╩я▄п╨п╬ п©п╦я│п╟я┌я▄, п╬п©п╣я┤п╟я┌п╨п╦ я┌п╬п╤ п╫п╣ я│п©п╟п╪п╦п╪
 			if (!can_read(ch, *board)
 				|| ((*board)->get_type() == MISPRINT_BOARD
 					&& !PRF_FLAGGED(ch, PRF_MISPRINT))
@@ -603,12 +603,12 @@ namespace Boards
 					|| (*board)->get_type() == GODNEWS_BOARD
 					|| (*board)->get_type() == CLANNEWS_BOARD)
 				{
-					news << std::setw(4) << unread << " в разделе '" << (*board)->get_description() << "' "
+					news << std::setw(4) << unread << " п╡ я─п╟п╥п╢п╣п╩п╣ '" << (*board)->get_description() << "' "
 						<< CCWHT(ch, C_NRM) << "(" << (*board)->get_name() << ")" << CCNRM(ch, C_NRM) << ".\r\n";
 				}
 				else
 				{
-					buffer << std::setw(4) << unread << " в разделе '" << (*board)->get_description() << "' "
+					buffer << std::setw(4) << unread << " п╡ я─п╟п╥п╢п╣п╩п╣ '" << (*board)->get_description() << "' "
 						<< CCWHT(ch, C_NRM) << "(" << (*board)->get_name() << ")" << CCNRM(ch, C_NRM) << ".\r\n";
 				}
 			}
@@ -631,15 +631,15 @@ namespace Boards
 
 		if (board->get_type() == ERROR_BOARD)
 		{
-			board->set_alias("ошибка");
+			board->set_alias("п╬я┬п╦п╠п╨п╟");
 		}
 		else if (board->get_type() == MISPRINT_BOARD)
 		{
-			board->set_alias("опечатка");
+			board->set_alias("п╬п©п╣я┤п╟я┌п╨п╟");
 		}
 		else if (board->get_type() == SUGGEST_BOARD)
 		{
-			board->set_alias("мысль");
+			board->set_alias("п╪я▀я│п╩я▄");
 		}
 
 		switch (board->get_type())
@@ -669,17 +669,17 @@ namespace Boards
 		}
 
 		std::ostringstream body;
-		body << "Это доска, на которой всякие разные личности оставили свои IMHO.\r\n"
-			<< "Формат: ЧИТАТЬ/ОЧИСТИТЬ <номер сообщения>, ПИСАТЬ <тема сообщения>.\r\n";
+		body << "п╜я┌п╬ п╢п╬я│п╨п╟, п╫п╟ п╨п╬я┌п╬я─п╬п╧ п╡я│я▐п╨п╦п╣ я─п╟п╥п╫я▀п╣ п╩п╦я┤п╫п╬я│я┌п╦ п╬я│я┌п╟п╡п╦п╩п╦ я│п╡п╬п╦ IMHO.\r\n"
+			<< "п╓п╬я─п╪п╟я┌: п╖п≤п╒п░п╒п╛/п·п╖п≤п║п╒п≤п╒п╛ <п╫п╬п╪п╣я─ я│п╬п╬п╠я┴п╣п╫п╦я▐>, п÷п≤п║п░п╒п╛ <я┌п╣п╪п╟ я│п╬п╬п╠я┴п╣п╫п╦я▐>.\r\n";
 		if (board_ptr->empty())
 		{
-			body << "Никто ниче не накарябал, слава Богам.\r\n";
+			body << "п²п╦п╨я┌п╬ п╫п╦я┤п╣ п╫п╣ п╫п╟п╨п╟я─я▐п╠п╟п╩, я│п╩п╟п╡п╟ п▒п╬пЁп╟п╪.\r\n";
 			send_to_char(body.str(), ch);
 			return;
 		}
 		else
 		{
-			body << "Всего сообщений: " << board_ptr->messages_count() << "\r\n";
+			body << "п▓я│п╣пЁп╬ я│п╬п╬п╠я┴п╣п╫п╦п╧: " << board_ptr->messages_count() << "\r\n";
 		}
 
 		const auto date = ch->get_board_date(board_ptr->get_type());
@@ -714,10 +714,10 @@ namespace Boards
 
 	void Static::clan_delete_message(const std::string &name, int vnum)
 	{
-		const std::string subj = "неактивная дружина";
+		const std::string subj = "п╫п╣п╟п╨я┌п╦п╡п╫п╟я▐ п╢я─я┐п╤п╦п╫п╟";
 		const std::string text = boost::str(boost::format(
-			"Дружина %1% была автоматически удалена.\r\n"
-			"Номер зоны: %2%\r\n") % name % vnum);
+			"п■я─я┐п╤п╦п╫п╟ %1% п╠я▀п╩п╟ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦ я┐п╢п╟п╩п╣п╫п╟.\r\n"
+			"п²п╬п╪п╣я─ п╥п╬п╫я▀: %2%\r\n") % name % vnum);
 		add_server_message(subj, text);
 	}
 
@@ -730,10 +730,10 @@ namespace Boards
 			const Message &msg = *board->get_last_message();
 			char buf_[MAX_INPUT_LENGTH];
 			snprintf(buf_, sizeof(buf_),
-				"Новое сообщение в разделе '%s' от %s, тема: %s\r\n",
+				"п²п╬п╡п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╡ я─п╟п╥п╢п╣п╩п╣ '%s' п╬я┌ %s, я┌п╣п╪п╟: %s\r\n",
 				board->get_name().c_str(), msg.author.c_str(),
 				msg.subject.c_str());
-			// оповещаем весь мад кто с правами чтения
+			// п╬п©п╬п╡п╣я┴п╟п╣п╪ п╡п╣я│я▄ п╪п╟п╢ п╨я┌п╬ я│ п©я─п╟п╡п╟п╪п╦ я┤я┌п╣п╫п╦я▐
 			for (DESCRIPTOR_DATA *f = descriptor_list; f; f = f->next)
 			{
 				if (f->character
@@ -749,29 +749,29 @@ namespace Boards
 		}
 	}
 
-	// создание всех досок, кроме клановых и персональных
+	// я│п╬п╥п╢п╟п╫п╦п╣ п╡я│п╣я┘ п╢п╬я│п╬п╨, п╨я─п╬п╪п╣ п╨п╩п╟п╫п╬п╡я▀я┘ п╦ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀я┘
 	void Static::BoardInit()
 	{
 		board_list.clear();
 
-		create_board(GENERAL_BOARD, "Вече", "Базарная площадь", ETC_BOARD"general.board");
-		create_board(NEWS_BOARD, "Новости", "Анонсы и новости Былин", ETC_BOARD"news.board");
-		create_board(IDEA_BOARD, "Идеи", "Идеи и их обсуждение", ETC_BOARD"idea.board");
-		create_board(ERROR_BOARD, "Баги", "Сообщения об ошибках в мире", ETC_BOARD"error.board");
-		create_board(GODNEWS_BOARD, "GodNews", "Божественные новости", ETC_BOARD"god-news.board");
-		create_board(GODGENERAL_BOARD, "Божества", "Божественная базарная площадь", ETC_BOARD"god-general.board");
-		create_board(GODBUILD_BOARD, "Билдер", "Заметки билдеров", ETC_BOARD"god-build.board");
-		create_board(GODPUNISH_BOARD, "Наказания", "Комментарии к наказаниям", ETC_BOARD"god-punish.board");
-		create_board(NOTICE_BOARD, "Анонсы", "Сообщения от администрации", ETC_BOARD"notice.board");
-		create_board(MISPRINT_BOARD, "Очепятки", "Опечатки в игровых локациях", ETC_BOARD"misprint.board");
-		create_board(SUGGEST_BOARD, "Придумки", "Для идей в приватном режиме", ETC_BOARD"suggest.board");
-		create_board(CODER_BOARD, "Кодер", "Изменения в коде Былин", "");
+		create_board(GENERAL_BOARD, "п▓п╣я┤п╣", "п▒п╟п╥п╟я─п╫п╟я▐ п©п╩п╬я┴п╟п╢я▄", ETC_BOARD"general.board");
+		create_board(NEWS_BOARD, "п²п╬п╡п╬я│я┌п╦", "п░п╫п╬п╫я│я▀ п╦ п╫п╬п╡п╬я│я┌п╦ п▒я▀п╩п╦п╫", ETC_BOARD"news.board");
+		create_board(IDEA_BOARD, "п≤п╢п╣п╦", "п≤п╢п╣п╦ п╦ п╦я┘ п╬п╠я│я┐п╤п╢п╣п╫п╦п╣", ETC_BOARD"idea.board");
+		create_board(ERROR_BOARD, "п▒п╟пЁп╦", "п║п╬п╬п╠я┴п╣п╫п╦я▐ п╬п╠ п╬я┬п╦п╠п╨п╟я┘ п╡ п╪п╦я─п╣", ETC_BOARD"error.board");
+		create_board(GODNEWS_BOARD, "GodNews", "п▒п╬п╤п╣я│я┌п╡п╣п╫п╫я▀п╣ п╫п╬п╡п╬я│я┌п╦", ETC_BOARD"god-news.board");
+		create_board(GODGENERAL_BOARD, "п▒п╬п╤п╣я│я┌п╡п╟", "п▒п╬п╤п╣я│я┌п╡п╣п╫п╫п╟я▐ п╠п╟п╥п╟я─п╫п╟я▐ п©п╩п╬я┴п╟п╢я▄", ETC_BOARD"god-general.board");
+		create_board(GODBUILD_BOARD, "п▒п╦п╩п╢п╣я─", "п≈п╟п╪п╣я┌п╨п╦ п╠п╦п╩п╢п╣я─п╬п╡", ETC_BOARD"god-build.board");
+		create_board(GODPUNISH_BOARD, "п²п╟п╨п╟п╥п╟п╫п╦я▐", "п п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ п╫п╟п╨п╟п╥п╟п╫п╦я▐п╪", ETC_BOARD"god-punish.board");
+		create_board(NOTICE_BOARD, "п░п╫п╬п╫я│я▀", "п║п╬п╬п╠я┴п╣п╫п╦я▐ п╬я┌ п╟п╢п╪п╦п╫п╦я│я┌я─п╟я├п╦п╦", ETC_BOARD"notice.board");
+		create_board(MISPRINT_BOARD, "п·я┤п╣п©я▐я┌п╨п╦", "п·п©п╣я┤п╟я┌п╨п╦ п╡ п╦пЁя─п╬п╡я▀я┘ п╩п╬п╨п╟я├п╦я▐я┘", ETC_BOARD"misprint.board");
+		create_board(SUGGEST_BOARD, "п÷я─п╦п╢я┐п╪п╨п╦", "п■п╩я▐ п╦п╢п╣п╧ п╡ п©я─п╦п╡п╟я┌п╫п╬п╪ я─п╣п╤п╦п╪п╣", ETC_BOARD"suggest.board");
+		create_board(CODER_BOARD, "п п╬п╢п╣я─", "п≤п╥п╪п╣п╫п╣п╫п╦я▐ п╡ п╨п╬п╢п╣ п▒я▀п╩п╦п╫", "");
 
 		dg_script_message();
 		changelog_message();
 	}
 
-	// лоад/релоад клановых досок
+	// п╩п╬п╟п╢/я─п╣п╩п╬п╟п╢ п╨п╩п╟п╫п╬п╡я▀я┘ п╢п╬я│п╬п╨
 	void Static::ClanInit()
 	{
 		const auto erase_predicate = [](const auto& board)
@@ -779,7 +779,7 @@ namespace Boards
 			return board->get_type() == CLAN_BOARD
 				|| board->get_type() == CLANNEWS_BOARD;
 		};
-		// чистим клан-доски для релоада
+		// я┤п╦я│я┌п╦п╪ п╨п╩п╟п╫-п╢п╬я│п╨п╦ п╢п╩я▐ я─п╣п╩п╬п╟п╢п╟
 		board_list.erase(
 			std::remove_if(board_list.begin(), board_list.end(), erase_predicate),
 			board_list.end());
@@ -790,10 +790,10 @@ namespace Boards
 			CreateFileName(name);
 
 			{
-				// делаем клановую доску
+				// п╢п╣п╩п╟п╣п╪ п╨п╩п╟п╫п╬п╡я┐я▌ п╢п╬я│п╨я┐
 				const auto board = std::make_shared<Board>(CLAN_BOARD);
-				board->set_name("ДрВече");
-				std::string description = "Основной раздел Дружины ";
+				board->set_name("п■я─п▓п╣я┤п╣");
+				std::string description = "п·я│п╫п╬п╡п╫п╬п╧ я─п╟п╥п╢п╣п╩ п■я─я┐п╤п╦п╫я▀ ";
 				description += clan->GetAbbrev();
 				board->set_description(description);
 				board->set_clan_rent(clan->GetRent());
@@ -803,10 +803,10 @@ namespace Boards
 			}
 
 			{
-				// делаем клановые новости
+				// п╢п╣п╩п╟п╣п╪ п╨п╩п╟п╫п╬п╡я▀п╣ п╫п╬п╡п╬я│я┌п╦
 				const auto board = std::make_shared<Board>(CLANNEWS_BOARD);
-				board->set_name("ДрНовости");
-				std::string description = "Новости Дружины ";
+				board->set_name("п■я─п²п╬п╡п╬я│я┌п╦");
+				std::string description = "п²п╬п╡п╬я│я┌п╦ п■я─я┐п╤п╦п╫я▀ ";
 				description += clan->GetAbbrev();
 				board->set_description(description);
 				board->set_clan_rent(clan->GetRent());
@@ -817,7 +817,7 @@ namespace Boards
 		}
 	}
 
-	// чистим для релоада
+	// я┤п╦я│я┌п╦п╪ п╢п╩я▐ я─п╣п╩п╬п╟п╢п╟
 	void Static::clear_god_boards()
 	{
 		const auto erase_predicate = [](const auto& board) { return board->get_type() == PERS_BOARD; };
@@ -826,15 +826,15 @@ namespace Boards
 			board_list.end());
 	}
 
-	// втыкаем блокнот имму
+	// п╡я┌я▀п╨п╟п╣п╪ п╠п╩п╬п╨п╫п╬я┌ п╦п╪п╪я┐
 	void Static::init_god_board(long uid, std::string name)
 	{
 		const auto board = std::make_shared<Board>(PERS_BOARD);
-		board->set_name("Блокнот");
-		board->set_description("Ваш раздел для заметок");
+		board->set_name("п▒п╩п╬п╨п╫п╬я┌");
+		board->set_description("п▓п╟я┬ я─п╟п╥п╢п╣п╩ п╢п╩я▐ п╥п╟п╪п╣я┌п╬п╨");
 		board->set_pers_unique(uid);
 		board->set_pers_name(name);
-		// генерим имя и лоадим по возможности
+		// пЁп╣п╫п╣я─п╦п╪ п╦п╪я▐ п╦ п╩п╬п╟п╢п╦п╪ п©п╬ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦
 		std::string tmp_name = name;
 		CreateFileName(tmp_name);
 		board->set_file_name(ETC_BOARD + tmp_name + ".board");
@@ -842,7 +842,7 @@ namespace Boards
 		board_list.push_back(board);
 	}
 
-	// * Релоад всех досок разом.
+	// * п═п╣п╩п╬п╟п╢ п╡я│п╣я┘ п╢п╬я│п╬п╨ я─п╟п╥п╬п╪.
 	void Static::reload_all()
 	{
 		BoardInit();
@@ -890,7 +890,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 	{
 	case GENERAL_BOARD:
 	case IDEA_BOARD:
-		// все читают, пишут с мин.левела, 32 и по привилегии полный
+		// п╡я│п╣ я┤п╦я┌п╟я▌я┌, п©п╦я┬я┐я┌ я│ п╪п╦п╫.п╩п╣п╡п╣п╩п╟, 32 п╦ п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦ п©п╬п╩п╫я▀п╧
 		if (IS_GOD(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 		{
 			access.set();
@@ -904,7 +904,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		break;
 	case ERROR_BOARD:
 	case MISPRINT_BOARD:
-		// все пишут с мин.левела, 34 и по привилегии полный
+		// п╡я│п╣ п©п╦я┬я┐я┌ я│ п╪п╦п╫.п╩п╣п╡п╣п╩п╟, 34 п╦ п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦ п©п╬п╩п╫я▀п╧
 		if (IS_IMPL(ch)
 			|| Privilege::check_flag(ch, Privilege::BOARDS)
 			|| Privilege::check_flag(ch, Privilege::MISPRINT))
@@ -919,7 +919,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		}
 		break;
 	case NEWS_BOARD:
-		// все читают, 34 и по привилегии полный
+		// п╡я│п╣ я┤п╦я┌п╟я▌я┌, 34 п╦ п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦ п©п╬п╩п╫я▀п╧
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 		{
 			access.set();
@@ -931,7 +931,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		}
 		break;
 	case GODNEWS_BOARD:
-		// 32 читают, 34 и по привилегии полный
+		// 32 я┤п╦я┌п╟я▌я┌, 34 п╦ п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦ п©п╬п╩п╫я▀п╧
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 		{
 			access.set();
@@ -944,7 +944,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		break;
 	case GODGENERAL_BOARD:
 	case GODPUNISH_BOARD:
-		// 32 читают/пишут, 34 полный
+		// 32 я┤п╦я┌п╟я▌я┌/п©п╦я┬я┐я┌, 34 п©п╬п╩п╫я▀п╧
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 		{
 			access.set();
@@ -958,7 +958,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		break;
 	case GODBUILD_BOARD:
 	case GODCODE_BOARD:
-		// 33 читают/пишут, 34 и по привилегии полный
+		// 33 я┤п╦я┌п╟я▌я┌/п©п╦я┬я┐я┌, 34 п╦ п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦ п©п╬п╩п╫я▀п╧
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 		{
 			access.set();
@@ -978,10 +978,10 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		}
 		break;
 	case CLAN_BOARD:
-		// от клан-новостей отличается тем, что писать могут все звания
+		// п╬я┌ п╨п╩п╟п╫-п╫п╬п╡п╬я│я┌п╣п╧ п╬я┌п╩п╦я┤п╟п╣я┌я│я▐ я┌п╣п╪, я┤я┌п╬ п©п╦я│п╟я┌я▄ п╪п╬пЁя┐я┌ п╡я│п╣ п╥п╡п╟п╫п╦я▐
 		if (CLAN(ch) && CLAN(ch)->GetRent() == board->get_clan_rent())
 		{
-			// воевода
+			// п╡п╬п╣п╡п╬п╢п╟
 			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, ClanSystem::MAY_CLAN_NEWS))
 			{
 				access.set();
@@ -995,7 +995,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		}
 		break;
 	case CLANNEWS_BOARD:
-		// неклановые не видят, клановые могут читать все, писать могут по привилегии, воевода может стирать чужие
+		// п╫п╣п╨п╩п╟п╫п╬п╡я▀п╣ п╫п╣ п╡п╦п╢я▐я┌, п╨п╩п╟п╫п╬п╡я▀п╣ п╪п╬пЁя┐я┌ я┤п╦я┌п╟я┌я▄ п╡я│п╣, п©п╦я│п╟я┌я▄ п╪п╬пЁя┐я┌ п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦, п╡п╬п╣п╡п╬п╢п╟ п╪п╬п╤п╣я┌ я│я┌п╦я─п╟я┌я▄ я┤я┐п╤п╦п╣
 		if (CLAN(ch) && CLAN(ch)->GetRent() == board->get_clan_rent())
 		{
 			if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, ClanSystem::MAY_CLAN_NEWS))
@@ -1010,7 +1010,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		}
 		break;
 	case NOTICE_BOARD:
-		// 34+ и по привилегии полный, 32+ пишут/читают, остальные только читают
+		// 34+ п╦ п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦ п©п╬п╩п╫я▀п╧, 32+ п©п╦я┬я┐я┌/я┤п╦я┌п╟я▌я┌, п╬я│я┌п╟п╩я▄п╫я▀п╣ я┌п╬п╩я▄п╨п╬ я┤п╦я┌п╟я▌я┌
 		if (IS_IMPL(ch) || Privilege::check_flag(ch, Privilege::BOARDS))
 		{
 			access.set();
@@ -1028,7 +1028,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		}
 		break;
 	case SUGGEST_BOARD:
-		// по привилегии boards/suggest и 34 полный, остальным только запись с мин левела/морта
+		// п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦ boards/suggest п╦ 34 п©п╬п╩п╫я▀п╧, п╬я│я┌п╟п╩я▄п╫я▀п╪ я┌п╬п╩я▄п╨п╬ п╥п╟п©п╦я│я▄ я│ п╪п╦п╫ п╩п╣п╡п╣п╩п╟/п╪п╬я─я┌п╟
 		if (IS_IMPL(ch)
 			|| Privilege::check_flag(ch, Privilege::BOARDS)
 			|| Privilege::check_flag(ch, Privilege::SUGGEST))
@@ -1050,7 +1050,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CHAR_DATA *ch, const Board::shared_pt
 		log("Error board type! (%s %s %d)", __FILE__, __func__, __LINE__);
 	}
 
-	// категории граждан, которые писать могут только на клан-доски
+	// п╨п╟я┌п╣пЁп╬я─п╦п╦ пЁя─п╟п╤п╢п╟п╫, п╨п╬я┌п╬я─я▀п╣ п©п╦я│п╟я┌я▄ п╪п╬пЁя┐я┌ я┌п╬п╩я▄п╨п╬ п╫п╟ п╨п╩п╟п╫-п╢п╬я│п╨п╦
 	if (!IS_IMMORTAL(ch)
 		&& (PLR_FLAGGED(ch, PLR_HELLED)
 			|| PLR_FLAGGED(ch, PLR_NAMED)
@@ -1071,7 +1071,7 @@ void DoBoardList(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 
 	std::string out(
-		" Ном         Имя  Новых|Всего                                  Описание  Доступ\r\n"
+		" п²п╬п╪         п≤п╪я▐  п²п╬п╡я▀я┘|п▓я│п╣пЁп╬                                  п·п©п╦я│п╟п╫п╦п╣  п■п╬я│я┌я┐п©\r\n"
 		" ===  ==========  ===========  ========================================  ======\r\n");
 	int num = 1;
 	for (const auto& board : board_list)
@@ -1081,7 +1081,7 @@ void DoBoardList(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			out += Static::print_stats(ch, board, num++);
 		}
 	}
-	// два цикла для сквозной нумерации без заморочек
+	// п╢п╡п╟ я├п╦п╨п╩п╟ п╢п╩я▐ я│п╨п╡п╬п╥п╫п╬п╧ п╫я┐п╪п╣я─п╟я├п╦п╦ п╠п╣п╥ п╥п╟п╪п╬я─п╬я┤п╣п╨
 	out += " ---  ----------  -----------  ----------------------------------------  ------\r\n";
 	for (const auto& board : board_list)
 	{
@@ -1102,7 +1102,7 @@ void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!*argument)
 	{
-		send_to_char("Пустое сообщение пропущено.\r\n", ch);
+		send_to_char("п÷я┐я│я┌п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ п©я─п╬п©я┐я┴п╣п╫п╬.\r\n", ch);
 		return;
 	}
 
@@ -1111,7 +1111,7 @@ void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (board == board_list.end())
 	{
-		send_to_char("Доска тупо не найдена... :/\r\n", ch);
+		send_to_char("п■п╬я│п╨п╟ я┌я┐п©п╬ п╫п╣ п╫п╟п╧п╢п╣п╫п╟... :/\r\n", ch);
 		return;
 	}
 	if (!Static::can_write(ch, *board))
@@ -1125,11 +1125,11 @@ void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char(constants::OVERFLOW_MESSAGE, ch);
 		return;
 	}
-	// генерим мессагу (TODO: копипаст с написания на доску, надо бы вынести)
+	// пЁп╣п╫п╣я─п╦п╪ п╪п╣я│я│п╟пЁя┐ (TODO: п╨п╬п©п╦п©п╟я│я┌ я│ п╫п╟п©п╦я│п╟п╫п╦я▐ п╫п╟ п╢п╬я│п╨я┐, п╫п╟п╢п╬ п╠я▀ п╡я▀п╫п╣я│я┌п╦)
 	const auto temp_message = std::make_shared<Message>();
-	temp_message->author = GET_NAME(ch) ? GET_NAME(ch) : "неизвестен";
+	temp_message->author = GET_NAME(ch) ? GET_NAME(ch) : "п╫п╣п╦п╥п╡п╣я│я┌п╣п╫";
 	temp_message->unique = GET_UNIQUE(ch);
-	// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
+	// п╢п╩я▐ п╢п╬я│п╬п╨ п╨я─п╬п╪п╣ п╨п╩п╟п╫п╬п╡я▀я┘ п╦ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀я┘ п©п╦я┬п╣я┌ п╩п╣п╡п╣п╩ п╟п╡я┌п╬я─п╟ (п╢п╩я▐ п╡п╬п╥п╪п╬п╤п╫п╬п╧ п╬я┤п╦я│я┌п╨п╦ п╨п╣п╪-я┌п╬)
 	temp_message->level = GET_LEVEL(ch);
 	temp_message->rank = 0;
 	temp_message->subject = "[" + boost::lexical_cast<std::string>(GET_ROOM_VNUM(ch->in_room)) + "]";
@@ -1138,10 +1138,10 @@ void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	(*board)->add_message(temp_message);
 	send_to_char(ch,
-		"Текст сообщения:\r\n"
+		"п╒п╣п╨я│я┌ я│п╬п╬п╠я┴п╣п╫п╦я▐:\r\n"
 		"%s\r\n\r\n"
-		"Записали. Заранее благодарны.\r\n"
-		"                        Боги.\r\n", argument);
+		"п≈п╟п©п╦я│п╟п╩п╦. п≈п╟я─п╟п╫п╣п╣ п╠п╩п╟пЁп╬п╢п╟я─п╫я▀.\r\n"
+		"                        п▒п╬пЁп╦.\r\n", argument);
 }
 
 } // namespace Boards

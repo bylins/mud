@@ -6,7 +6,7 @@
 #include <unordered_map>
 
 // arbitrary constants used by index_boot() (must be unique)
-#define MAX_PROTO_NUMBER 9999999	//Максимально возможный номер комнаты, предмета и т.д.
+#define MAX_PROTO_NUMBER 9999999	//п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╬ п╡п╬п╥п╪п╬п╤п╫я▀п╧ п╫п╬п╪п╣я─ п╨п╬п╪п╫п╟я┌я▀, п©я─п╣п╢п╪п╣я┌п╟ п╦ я┌.п╢.
 
 #define MIN_ZONE_LEVEL	1
 #define MAX_ZONE_LEVEL	50
@@ -140,9 +140,9 @@ enum SetStuffMode
 #define MESS_FILE       LIB_MISC "messages"	// damage messages
 #define SOCMESS_FILE    LIB_MISC "socials"	// messgs for social acts
 #define XNAME_FILE      LIB_MISC "xnames"	// invalid name substrings
-#define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена
-#define DNAME_FILE      LIB_MISC "dis_name" // запрещенные имена
-#define NNAME_FILE      LIB_MISC "new_name" // ждущие одобрения
+#define ANAME_FILE      LIB_MISC "apr_name" // п╬п╢п╬п╠я─п╣п╫п╫я▀п╣ п╦п╪п╣п╫п╟
+#define DNAME_FILE      LIB_MISC "dis_name" // п╥п╟п©я─п╣я┴п╣п╫п╫я▀п╣ п╦п╪п╣п╫п╟
+#define NNAME_FILE      LIB_MISC "new_name" // п╤п╢я┐я┴п╦п╣ п╬п╢п╬п╠я─п╣п╫п╦я▐
 
 #define MAIL_FILE	    LIB_ETC "plrmail"	// for the mudmail system
 #define BAN_FILE	    LIB_ETC "badsites"	// for the siteban system

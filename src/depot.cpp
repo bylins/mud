@@ -38,51 +38,51 @@ extern void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto);
 namespace Depot
 {
 
-// максимальное кол-во шмоток в персональном хранилище (волхвам * 2)
+// п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩-п╡п╬ я┬п╪п╬я┌п╬п╨ п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣ (п╡п╬п╩я┘п╡п╟п╪ * 2)
 const unsigned int MAX_PERS_SLOTS = 25;
 const unsigned int MAX_PERS_INGR_SLOTS = 50;
 
-// * Для оффлайнового списка шмоток в хранилище.
+// * п■п╩я▐ п╬я└я└п╩п╟п╧п╫п╬п╡п╬пЁп╬ я│п©п╦я│п╨п╟ я┬п╪п╬я┌п╬п╨ п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣.
 class OfflineNode
 {
 public:
 	OfflineNode() : vnum(0), timer(0), rent_cost(0), uid(0) {};
-	int vnum; // внум
-	int timer; // таймер
-	int rent_cost; // цена ренты в день
-	unsigned int uid; // глобальный уид
+	int vnum; // п╡п╫я┐п╪
+	int timer; // я┌п╟п╧п╪п╣я─
+	int rent_cost; // я├п╣п╫п╟ я─п╣п╫я┌я▀ п╡ п╢п╣п╫я▄
+	unsigned int uid; // пЁп╩п╬п╠п╟п╩я▄п╫я▀п╧ я┐п╦п╢
 };
 
-typedef std::list<OBJ_DATA::shared_ptr> ObjListType; // имя, шмотка
-typedef std::list<OfflineNode> TimerListType; // список шмота, находящегося в оффлайне
+typedef std::list<OBJ_DATA::shared_ptr> ObjListType; // п╦п╪я▐, я┬п╪п╬я┌п╨п╟
+typedef std::list<OfflineNode> TimerListType; // я│п©п╦я│п╬п╨ я┬п╪п╬я┌п╟, п╫п╟я┘п╬п╢я▐я┴п╣пЁп╬я│я▐ п╡ п╬я└я└п╩п╟п╧п╫п╣
 
 class CharNode
 {
 public:
 	CharNode() : ch(0), money(0), money_spend(0), buffer_cost(0), need_save(0), cost_per_day(0) {};
 
-// онлайн
-	// шмотки в персональном хранилище онлайн
+// п╬п╫п╩п╟п╧п╫
+	// я┬п╪п╬я┌п╨п╦ п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╬п╫п╩п╟п╧п╫
 	ObjListType pers_online;
-	// чар (онлайн бабло и флаг наличия онлайна)
+	// я┤п╟я─ (п╬п╫п╩п╟п╧п╫ п╠п╟п╠п╩п╬ п╦ я└п╩п╟пЁ п╫п╟п╩п╦я┤п╦я▐ п╬п╫п╩п╟п╧п╫п╟)
 	CHAR_DATA *ch;
-// оффлайн
-	// шмотки в хранилищах оффлайн
+// п╬я└я└п╩п╟п╧п╫
+	// я┬п╪п╬я┌п╨п╦ п╡ я┘я─п╟п╫п╦п╩п╦я┴п╟я┘ п╬я└я└п╩п╟п╧п╫
 	TimerListType offline_list;
-	// бабло руки+банк оффлайн (флаг для пуржа шмоток при нуле)
+	// п╠п╟п╠п╩п╬ я─я┐п╨п╦+п╠п╟п╫п╨ п╬я└я└п╩п╟п╧п╫ (я└п╩п╟пЁ п╢п╩я▐ п©я┐я─п╤п╟ я┬п╪п╬я┌п╬п╨ п©я─п╦ п╫я┐п╩п╣)
 	long money;
-	// сколько было потрачено за время чара в ренте
+	// я│п╨п╬п╩я▄п╨п╬ п╠я▀п╩п╬ п©п╬я┌я─п╟я┤п╣п╫п╬ п╥п╟ п╡я─п╣п╪я▐ я┤п╟я─п╟ п╡ я─п╣п╫я┌п╣
 	long money_spend;
-// общие поля
-	// буффер для точного снятия ренты
+// п╬п╠я┴п╦п╣ п©п╬п╩я▐
+	// п╠я┐я└я└п╣я─ п╢п╩я▐ я┌п╬я┤п╫п╬пЁп╬ я│п╫я▐я┌п╦я▐ я─п╣п╫я┌я▀
 	double buffer_cost;
-	// имя чара, чтобы не гонять всех через уиды при обработке
+	// п╦п╪я▐ я┤п╟я─п╟, я┤я┌п╬п╠я▀ п╫п╣ пЁп╬п╫я▐я┌я▄ п╡я│п╣я┘ я┤п╣я─п╣п╥ я┐п╦п╢я▀ п©я─п╦ п╬п╠я─п╟п╠п╬я┌п╨п╣
 	std::string name;
-	// в хранилище изменились шмотки и его нужно сохранить (тикание таймеров не в счет)
-	// взяли/положили шмотку, спуржили по нулевому таймеру, вход чара в игру
+	// п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╦п╥п╪п╣п╫п╦п╩п╦я│я▄ я┬п╪п╬я┌п╨п╦ п╦ п╣пЁп╬ п╫я┐п╤п╫п╬ я│п╬я┘я─п╟п╫п╦я┌я▄ (я┌п╦п╨п╟п╫п╦п╣ я┌п╟п╧п╪п╣я─п╬п╡ п╫п╣ п╡ я│я┤п╣я┌)
+	// п╡п╥я▐п╩п╦/п©п╬п╩п╬п╤п╦п╩п╦ я┬п╪п╬я┌п╨я┐, я│п©я┐я─п╤п╦п╩п╦ п©п╬ п╫я┐п╩п╣п╡п╬п╪я┐ я┌п╟п╧п╪п╣я─я┐, п╡я┘п╬п╢ я┤п╟я─п╟ п╡ п╦пЁя─я┐
 	bool need_save;
-	// общая стоимость ренты шмота в день (исключая персональное хранилище онлайн),
-	// чтобы не иметь проблем с округлением и лишними пересчетами
+	// п╬п╠я┴п╟я▐ я│я┌п╬п╦п╪п╬я│я┌я▄ я─п╣п╫я┌я▀ я┬п╪п╬я┌п╟ п╡ п╢п╣п╫я▄ (п╦я│п╨п╩я▌я┤п╟я▐ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╬п╫п╩п╟п╧п╫),
+	// я┤я┌п╬п╠я▀ п╫п╣ п╦п╪п╣я┌я▄ п©я─п╬п╠п╩п╣п╪ я│ п╬п╨я─я┐пЁп╩п╣п╫п╦п╣п╪ п╦ п╩п╦я┬п╫п╦п╪п╦ п©п╣я─п╣я│я┤п╣я┌п╟п╪п╦
 	int cost_per_day;
 
 	void save_online_objs();
@@ -109,10 +109,10 @@ public:
 	void add_cost_per_day(int amount);
 };
 
-typedef std::map<long, CharNode> DepotListType; // уид чара, инфа
-DepotListType depot_list; // список личных хранилищ
+typedef std::map<long, CharNode> DepotListType; // я┐п╦п╢ я┤п╟я─п╟, п╦п╫я└п╟
+DepotListType depot_list; // я│п©п╦я│п╬п╨ п╩п╦я┤п╫я▀я┘ я┘я─п╟п╫п╦п╩п╦я┴
 
-// * Капитально расширенная версия сислога для хранилищ.
+// * п п╟п©п╦я┌п╟п╩я▄п╫п╬ я─п╟я│я┬п╦я─п╣п╫п╫п╟я▐ п╡п╣я─я│п╦я▐ я│п╦я│п╩п╬пЁп╟ п╢п╩я▐ я┘я─п╟п╫п╦п╩п╦я┴.
 void depot_log(const char *format, ...)
 {
 	const char *filename = "../log/depot.log";
@@ -141,10 +141,10 @@ void depot_log(const char *format, ...)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// список плееров, у которых было че-нить спуржено пока они были оффлайн.
-// хранится просто уид игрока и при надобности лоадится его файл со строками о пурже.
-// дата первой записи пишется для того, чтобы не плодить мертвых файлов (держим только за месяц).
-typedef std::map < long/*уид игрока*/, time_t /*время первой записи в файле*/ > PurgedListType;
+// я│п©п╦я│п╬п╨ п©п╩п╣п╣я─п╬п╡, я┐ п╨п╬я┌п╬я─я▀я┘ п╠я▀п╩п╬ я┤п╣-п╫п╦я┌я▄ я│п©я┐я─п╤п╣п╫п╬ п©п╬п╨п╟ п╬п╫п╦ п╠я▀п╩п╦ п╬я└я└п╩п╟п╧п╫.
+// я┘я─п╟п╫п╦я┌я│я▐ п©я─п╬я│я┌п╬ я┐п╦п╢ п╦пЁя─п╬п╨п╟ п╦ п©я─п╦ п╫п╟п╢п╬п╠п╫п╬я│я┌п╦ п╩п╬п╟п╢п╦я┌я│я▐ п╣пЁп╬ я└п╟п╧п╩ я│п╬ я│я┌я─п╬п╨п╟п╪п╦ п╬ п©я┐я─п╤п╣.
+// п╢п╟я┌п╟ п©п╣я─п╡п╬п╧ п╥п╟п©п╦я│п╦ п©п╦я┬п╣я┌я│я▐ п╢п╩я▐ я┌п╬пЁп╬, я┤я┌п╬п╠я▀ п╫п╣ п©п╩п╬п╢п╦я┌я▄ п╪п╣я─я┌п╡я▀я┘ я└п╟п╧п╩п╬п╡ (п╢п╣я─п╤п╦п╪ я┌п╬п╩я▄п╨п╬ п╥п╟ п╪п╣я│я▐я├).
+typedef std::map < long/*я┐п╦п╢ п╦пЁя─п╬п╨п╟*/, time_t /*п╡я─п╣п╪я▐ п©п╣я─п╡п╬п╧ п╥п╟п©п╦я│п╦ п╡ я└п╟п╧п╩п╣*/ > PurgedListType;
 PurgedListType purged_list;
 
 bool need_save_purged_list = false;
@@ -157,7 +157,7 @@ void save_purged_list()
 	std::ofstream file(filename);
 	if (!file.is_open())
 	{
-		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
 		return;
 	}
 	for (PurgedListType::const_iterator it = purged_list.begin(); it != purged_list.end(); ++it)
@@ -172,7 +172,7 @@ void load_purge_list()
 	std::ifstream file(filename);
 	if (!file.is_open())
 	{
-		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
 		return;
 	}
 
@@ -199,7 +199,7 @@ std::string generate_purged_filename(long uid)
 std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 {
 	std::ostringstream out;
-	out << "Ошибка при удалении предмета: vnum " << obj_vnum << ", uid " << obj_uid << "\r\n";
+	out << "п·я┬п╦п╠п╨п╟ п©я─п╦ я┐п╢п╟п╩п╣п╫п╦п╦ п©я─п╣п╢п╪п╣я┌п╟: vnum " << obj_vnum << ", uid " << obj_uid << "\r\n";
 
 	std::string name = GetNameByUnique(uid);
 	if (name.empty())
@@ -213,7 +213,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 	char filename[MAX_STRING_LENGTH];
 	if (!get_filename(name.c_str(), filename, PERS_DEPOT_FILE))
 	{
-		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╫п╣ я┐п╢п╟п╩п╬я│я▄ я│пЁп╣п╫п╣я─п╦я─п╬п╡п╟я┌я▄ п╦п╪я▐ я└п╟п╧п╩п╟ (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
 		return out.str();
 	}
@@ -226,7 +226,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 	if (!fsize)
 	{
 		fclose(fl);
-		log("Хранилище: пустой файл предметов (%s).", filename);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п©я┐я│я┌п╬п╧ я└п╟п╧п╩ п©я─п╣п╢п╪п╣я┌п╬п╡ (%s).", filename);
 		return out.str();
 	}
 
@@ -238,7 +238,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 		|| ferror(fl))
 	{
 		fclose(fl);
-		log("Хранилище: ошибка чтения файла предметов (%s).", filename);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ я└п╟п╧п╩п╟ п©я─п╣п╢п╪п╣я┌п╬п╡ (%s).", filename);
 		return out.str();
 	}
 	fclose(fl);
@@ -254,7 +254,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 		{
 			if (error)
 			{
-				log("Хранилище: ошибка чтения предмета (%s, error: %d).", filename, error);
+				log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ п©я─п╣п╢п╪п╣я┌п╟ (%s, error: %d).", filename, error);
 			}
 			continue;
 		}
@@ -263,10 +263,10 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid)
 			&& obj->get_vnum() == obj_vnum)
 		{
 			std::ostringstream text;
-			text << "[Персональное хранилище]: " << CCIRED(ch, C_NRM) << "'"
+			text << "[п÷п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣]: " << CCIRED(ch, C_NRM) << "'"
 			<< obj->get_short_description() << char_get_custom_label(obj.get(), ch)
-			<< " рассыпал" << GET_OBJ_SUF_2(obj.get())
-			<<  " в прах'" << CCNRM(ch, C_NRM) << "\r\n";
+			<< " я─п╟я│я│я▀п©п╟п╩" << GET_OBJ_SUF_2(obj.get())
+			<<  " п╡ п©я─п╟я┘'" << CCNRM(ch, C_NRM) << "\r\n";
 			extract_obj(obj.get());
 			return text.str();
 		}
@@ -281,7 +281,7 @@ void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid)
 	std::string name = generate_purged_filename(uid);
 	if (name.empty())
 	{
-		log("Хранилище: add_purge_message пустое имя файла %ld.", uid);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: add_purge_message п©я┐я│я┌п╬п╣ п╦п╪я▐ я└п╟п╧п╩п╟ %ld.", uid);
 		return;
 	}
 
@@ -294,7 +294,7 @@ void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid)
 	std::ofstream file(name.c_str(), std::ios_base::app);
 	if (!file.is_open())
 	{
-		log("Хранилище: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
 		return;
 	}
 	file << generate_purged_text(uid, obj_vnum, obj_uid);
@@ -308,7 +308,7 @@ void delete_purged_entry(long uid)
 		std::string name = generate_purged_filename(uid);
 		if (name.empty())
 		{
-			log("Хранилище: delete_purge_entry пустое имя файла %ld.", uid);
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: delete_purge_entry п©я┐я│я┌п╬п╣ п╦п╪я▐ я└п╟п╧п╩п╟ %ld.", uid);
 			return;
 		}
 		remove(name.c_str());
@@ -322,17 +322,17 @@ void show_purged_message(CHAR_DATA *ch)
 	PurgedListType::iterator it = purged_list.find(GET_UNIQUE(ch));
 	if (it != purged_list.end())
 	{
-		// имя у нас канеш и так есть, но че зря код дублировать
+		// п╦п╪я▐ я┐ п╫п╟я│ п╨п╟п╫п╣я┬ п╦ я┌п╟п╨ п╣я│я┌я▄, п╫п╬ я┤п╣ п╥я─я▐ п╨п╬п╢ п╢я┐п╠п╩п╦я─п╬п╡п╟я┌я▄
 		std::string name = generate_purged_filename(GET_UNIQUE(ch));
 		if (name.empty())
 		{
-			log("Хранилище: show_purged_message пустое имя файла %d.", GET_UNIQUE(ch));
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: show_purged_message п©я┐я│я┌п╬п╣ п╦п╪я▐ я└п╟п╧п╩п╟ %d.", GET_UNIQUE(ch));
 			return;
 		}
 		std::ifstream file(name.c_str(), std::ios::binary);
 		if (!file.is_open())
 		{
-			log("Хранилище: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
 			return;
 		}
 		std::ostringstream out;
@@ -347,10 +347,10 @@ void show_purged_message(CHAR_DATA *ch)
 void clear_old_purged_entry()
 {
 	time_t today = time(0);
-	for (PurgedListType::iterator it = purged_list.begin(); it != purged_list.end(); /* пусто */)
+	for (PurgedListType::iterator it = purged_list.begin(); it != purged_list.end(); /* п©я┐я│я┌п╬ */)
 	{
 		time_t diff = today - it->second;
-		// месяц в секундах
+		// п╪п╣я│я▐я├ п╡ я│п╣п╨я┐п╫п╢п╟я┘
 		if (diff >= 60 * 60 * 24 * 31)
 		{
 			std::string name = generate_purged_filename(it->first);
@@ -374,7 +374,7 @@ void init_purged_list()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// * Удаление файла персонального хранилища (шмотки отдельного чара).
+// * пёп╢п╟п╩п╣п╫п╦п╣ я└п╟п╧п╩п╟ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬пЁп╬ я┘я─п╟п╫п╦п╩п╦я┴п╟ (я┬п╪п╬я┌п╨п╦ п╬я┌п╢п╣п╩я▄п╫п╬пЁп╬ я┤п╟я─п╟).
 void remove_pers_file(const std::string &name)
 {
 	if (name.empty()) return;
@@ -385,13 +385,13 @@ void remove_pers_file(const std::string &name)
 }
 
 /**
-* Удаление шмоток и файлов шмоток, если они были.
-* Делается попытся снятия с чара долга за ренту.
+* пёп╢п╟п╩п╣п╫п╦п╣ я┬п╪п╬я┌п╬п╨ п╦ я└п╟п╧п╩п╬п╡ я┬п╪п╬я┌п╬п╨, п╣я│п╩п╦ п╬п╫п╦ п╠я▀п╩п╦.
+* п■п╣п╩п╟п╣я┌я│я▐ п©п╬п©я▀я┌я│я▐ я│п╫я▐я┌п╦я▐ я│ я┤п╟я─п╟ п╢п╬п╩пЁп╟ п╥п╟ я─п╣п╫я┌я┐.
 */
 void remove_char_entry(long uid, CharNode &node)
 {
 	depot_log("remove_char_entry: %ld", uid);
-	// если чар был что-то должен, надо попытаться с него это снять
+	// п╣я│п╩п╦ я┤п╟я─ п╠я▀п╩ я┤я┌п╬-я┌п╬ п╢п╬п╩п╤п╣п╫, п╫п╟п╢п╬ п©п╬п©я▀я┌п╟я┌я▄я│я▐ я│ п╫п╣пЁп╬ я█я┌п╬ я│п╫я▐я┌я▄
 	if (!node.name.empty() && (node.money_spend || node.buffer_cost))
 	{
 		Player t_victim;
@@ -407,7 +407,7 @@ void remove_char_entry(long uid, CharNode &node)
 	remove_pers_file(node.name);
 }
 
-// * Инициализация рнумов сундуков. Лоад файла с оффлайн информацией по предметам.
+// * п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ я─п╫я┐п╪п╬п╡ я│я┐п╫п╢я┐п╨п╬п╡. п⌡п╬п╟п╢ я└п╟п╧п╩п╟ я│ п╬я└я└п╩п╟п╧п╫ п╦п╫я└п╬я─п╪п╟я├п╦п╣п╧ п©п╬ п©я─п╣п╢п╪п╣я┌п╟п╪.
 void init_depot()
 {
 	depot_log("init_depot start");
@@ -418,7 +418,7 @@ void init_depot()
 	std::ifstream file(depot_file);
 	if (!file.is_open())
 	{
-		log("Хранилище: error open file: %s! (%s %s %d)", depot_file, __FILE__, __func__, __LINE__);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: error open file: %s! (%s %s %d)", depot_file, __FILE__, __func__, __LINE__);
 		return;
 	}
 
@@ -427,23 +427,23 @@ void init_depot()
 	{
 		if (buffer != "<Node>")
 		{
-			log("Хранилище: ошибка чтения <Node>");
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ <Node>");
 			break;
 		}
 		CharNode tmp_node;
 		long uid;
-		// общие поля
+		// п╬п╠я┴п╦п╣ п©п╬п╩я▐
 		if (!(file >> uid >> tmp_node.money >> tmp_node.money_spend >> tmp_node.buffer_cost))
 		{
-			log("Хранилище: ошибка чтения uid(%ld), money(%ld), money_spend(%ld), buffer_cost(%f).",
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ uid(%ld), money(%ld), money_spend(%ld), buffer_cost(%f).",
 				uid, tmp_node.money, tmp_node.money_spend, tmp_node.buffer_cost);
 			break;
 		}
-		// чтение предметов
+		// я┤я┌п╣п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╬п╡
 		file >> buffer;
 		if (buffer != "<Objects>")
 		{
-			log("Хранилище: ошибка чтения <Objects>.");
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ <Objects>.");
 			break;
 		}
 		while (file >> buffer)
@@ -457,16 +457,16 @@ void init_depot()
 			}
 			catch (const std::invalid_argument &)
 			{
-				log("Хранилище: ошибка чтения vnum (%s)", buffer.c_str());
+				log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ vnum (%s)", buffer.c_str());
 				break;
 			}
 			if (!(file >> tmp_obj.timer >> tmp_obj.rent_cost >> tmp_obj.uid))
 			{
-				log("Хранилище: ошибка чтения timer(%d) rent_cost(%d) uid(%d) (obj vnum: %d).",
+				log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ timer(%d) rent_cost(%d) uid(%d) (obj vnum: %d).",
 					tmp_obj.timer, tmp_obj.rent_cost, tmp_obj.uid, tmp_obj.vnum);
 				break;
 			}
-			// проверяем существование прототипа предмета и суем его в маск в мире на постое
+			// п©я─п╬п╡п╣я─я▐п╣п╪ я│я┐я┴п╣я│я┌п╡п╬п╡п╟п╫п╦п╣ п©я─п╬я┌п╬я┌п╦п©п╟ п©я─п╣п╢п╪п╣я┌п╟ п╦ я│я┐п╣п╪ п╣пЁп╬ п╡ п╪п╟я│п╨ п╡ п╪п╦я─п╣ п╫п╟ п©п╬я│я┌п╬п╣
 			int rnum = real_object(tmp_obj.vnum);
 			if (rnum >= 0)
 			{
@@ -477,33 +477,33 @@ void init_depot()
 		}
 		if (buffer != "</Objects>")
 		{
-			log("Хранилище: ошибка чтения </Objects>.");
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ </Objects>.");
 			break;
 		}
-		// проверка корректной дочитанности
+		// п©я─п╬п╡п╣я─п╨п╟ п╨п╬я─я─п╣п╨я┌п╫п╬п╧ п╢п╬я┤п╦я┌п╟п╫п╫п╬я│я┌п╦
 		file >> buffer;
 		if (buffer != "</Node>")
 		{
-			log("Хранилище: ошибка чтения </Node>.");
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ </Node>.");
 			break;
 		}
 
-		// Удаление записи из списка хранилищ делается только здесь и при пурже на нехватке денег,
-		// причем нужно не забывать, что выше при лоаде шмоток они уже попали в список макс в мире
-		// и удаление записи не через remove_char_entry - это будет касяк
+		// пёп╢п╟п╩п╣п╫п╦п╣ п╥п╟п©п╦я│п╦ п╦п╥ я│п©п╦я│п╨п╟ я┘я─п╟п╫п╦п╩п╦я┴ п╢п╣п╩п╟п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╥п╢п╣я│я▄ п╦ п©я─п╦ п©я┐я─п╤п╣ п╫п╟ п╫п╣я┘п╡п╟я┌п╨п╣ п╢п╣п╫п╣пЁ,
+		// п©я─п╦я┤п╣п╪ п╫я┐п╤п╫п╬ п╫п╣ п╥п╟п╠я▀п╡п╟я┌я▄, я┤я┌п╬ п╡я▀я┬п╣ п©я─п╦ п╩п╬п╟п╢п╣ я┬п╪п╬я┌п╬п╨ п╬п╫п╦ я┐п╤п╣ п©п╬п©п╟п╩п╦ п╡ я│п©п╦я│п╬п╨ п╪п╟п╨я│ п╡ п╪п╦я─п╣
+		// п╦ я┐п╢п╟п╩п╣п╫п╦п╣ п╥п╟п©п╦я│п╦ п╫п╣ я┤п╣я─п╣п╥ remove_char_entry - я█я┌п╬ п╠я┐п╢п╣я┌ п╨п╟я│я▐п╨
 
-		// проверяем есть ли еще такой чар вообще
+		// п©я─п╬п╡п╣я─я▐п╣п╪ п╣я│я┌я▄ п╩п╦ п╣я┴п╣ я┌п╟п╨п╬п╧ я┤п╟я─ п╡п╬п╬п╠я┴п╣
 		tmp_node.name = GetNameByUnique(uid);
 		if (tmp_node.name.empty())
 		{
-			log("Хранилище: UID %ld - персонажа не существует.", uid);
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: UID %ld - п©п╣я─я│п╬п╫п╟п╤п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.", uid);
 			remove_char_entry(uid, tmp_node);
 			continue;
 		}
-		// пустые хранилища удаляются только здесь
+		// п©я┐я│я┌я▀п╣ я┘я─п╟п╫п╦п╩п╦я┴п╟ я┐п╢п╟п╩я▐я▌я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╥п╢п╣я│я▄
 		if (tmp_node.offline_list.empty() && tmp_node.pers_online.empty())
 		{
-			log("Хранилище: UID %ld - пустое хранилище.", uid);
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: UID %ld - п©я┐я│я┌п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣.", uid);
 			remove_char_entry(uid, tmp_node);
 			continue;
 		}
@@ -521,7 +521,7 @@ void init_depot()
 	depot_log("init_depot end");
 }
 
-// * Загрузка самих хранилищ в банки делается после инита хранилищ и резета зон, потому как мобов надо.
+// * п≈п╟пЁя─я┐п╥п╨п╟ я│п╟п╪п╦я┘ я┘я─п╟п╫п╦п╩п╦я┴ п╡ п╠п╟п╫п╨п╦ п╢п╣п╩п╟п╣я┌я│я▐ п©п╬я│п╩п╣ п╦п╫п╦я┌п╟ я┘я─п╟п╫п╦п╩п╦я┴ п╦ я─п╣п╥п╣я┌п╟ п╥п╬п╫, п©п╬я┌п╬п╪я┐ п╨п╟п╨ п╪п╬п╠п╬п╡ п╫п╟п╢п╬.
 void load_chests()
 {
 	for (const auto ch : character_list)
@@ -542,12 +542,12 @@ void load_chests()
 	}
 }
 
-// * Добавление цены ренты с порверкой на валидность и переполнение.
+// * п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ я├п╣п╫я▀ я─п╣п╫я┌я▀ я│ п©п╬я─п╡п╣я─п╨п╬п╧ п╫п╟ п╡п╟п╩п╦п╢п╫п╬я│я┌я▄ п╦ п©п╣я─п╣п©п╬п╩п╫п╣п╫п╦п╣.
 void CharNode::add_cost_per_day(int amount)
 {
 	if (amount < 0 || amount > 50000)
 	{
-		log("Хранилище: невалидная стоимость ренты %i", amount);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╫п╣п╡п╟п╩п╦п╢п╫п╟я▐ я│я┌п╬п╦п╪п╬я│я┌я▄ я─п╣п╫я┌я▀ %i", amount);
 		return;
 	}
 	int over = std::numeric_limits<int>::max() - cost_per_day;
@@ -557,13 +557,13 @@ void CharNode::add_cost_per_day(int amount)
 		cost_per_day += amount;
 }
 
-// * Версия add_cost_per_day(int amount) для принятия *OBJ_DATA.
+// * п▓п╣я─я│п╦я▐ add_cost_per_day(int amount) п╢п╩я▐ п©я─п╦п╫я▐я┌п╦я▐ *OBJ_DATA.
 void CharNode::add_cost_per_day(OBJ_DATA *obj)
 {
 	add_cost_per_day(get_object_low_rent(obj));
 }
 
-// * Для удобства в save_timedata(), запись строки с параметрами шмотки.
+// * п■п╩я▐ я┐п╢п╬п╠я│я┌п╡п╟ п╡ save_timedata(), п╥п╟п©п╦я│я▄ я│я┌я─п╬п╨п╦ я│ п©п╟я─п╟п╪п╣я┌я─п╟п╪п╦ я┬п╪п╬я┌п╨п╦.
 void write_objlist_timedata(const ObjListType &cont, std::stringstream &out)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
@@ -573,23 +573,23 @@ void write_objlist_timedata(const ObjListType &cont, std::stringstream &out)
 	}
 }
 
-// * Сохранение всех списков в общий файл с тайм-инфой шмоток (в том числе таймеров из онлайн списка).
+// * п║п╬я┘я─п╟п╫п╣п╫п╦п╣ п╡я│п╣я┘ я│п©п╦я│п╨п╬п╡ п╡ п╬п╠я┴п╦п╧ я└п╟п╧п╩ я│ я┌п╟п╧п╪-п╦п╫я└п╬п╧ я┬п╪п╬я┌п╬п╨ (п╡ я┌п╬п╪ я┤п╦я│п╩п╣ я┌п╟п╧п╪п╣я─п╬п╡ п╦п╥ п╬п╫п╩п╟п╧п╫ я│п©п╦я│п╨п╟).
 void save_timedata()
 {
-	// на случай падения мада во время прохода по списку
+	// п╫п╟ я│п╩я┐я┤п╟п╧ п©п╟п╢п╣п╫п╦я▐ п╪п╟п╢п╟ п╡п╬ п╡я─п╣п╪я▐ п©я─п╬я┘п╬п╢п╟ п©п╬ я│п©п╦я│п╨я┐
 	std::stringstream out;
 
 	for (DepotListType::const_iterator it = depot_list.begin(); it != depot_list.end(); ++it)
 	{
 		out << "<Node>\n" << it->first << " ";
-		// чар онлайн - пишем бабло с его счета, иначе берем из оффлайновых полей инфу
+		// я┤п╟я─ п╬п╫п╩п╟п╧п╫ - п©п╦я┬п╣п╪ п╠п╟п╠п╩п╬ я│ п╣пЁп╬ я│я┤п╣я┌п╟, п╦п╫п╟я┤п╣ п╠п╣я─п╣п╪ п╦п╥ п╬я└я└п╩п╟п╧п╫п╬п╡я▀я┘ п©п╬п╩п╣п╧ п╦п╫я└я┐
 		if (it->second.ch)
 			out << it->second.ch->get_total_gold() << " 0 ";
 		else
 			out << it->second.money << " " << it->second.money_spend << " ";
 		out << it->second.buffer_cost << "\n";
 
-		// собсна какие списки не пустые - те и пишем, особо не мудрствуя
+		// я│п╬п╠я│п╫п╟ п╨п╟п╨п╦п╣ я│п©п╦я│п╨п╦ п╫п╣ п©я┐я│я┌я▀п╣ - я┌п╣ п╦ п©п╦я┬п╣п╪, п╬я│п╬п╠п╬ п╫п╣ п╪я┐п╢я─я│я┌п╡я┐я▐
 		out << "<Objects>\n";
 		write_objlist_timedata(it->second.pers_online, out);
 		for (TimerListType::const_iterator obj_it = it->second.offline_list.begin();
@@ -601,32 +601,32 @@ void save_timedata()
 		out << "</Objects>\n</Node>\n";
 	}
 
-	// канеш тут может файл не открыться и мы зря все считали, но это клиника
+	// п╨п╟п╫п╣я┬ я┌я┐я┌ п╪п╬п╤п╣я┌ я└п╟п╧п╩ п╫п╣ п╬я┌п╨я─я▀я┌я▄я│я▐ п╦ п╪я▀ п╥я─я▐ п╡я│п╣ я│я┤п╦я┌п╟п╩п╦, п╫п╬ я█я┌п╬ п╨п╩п╦п╫п╦п╨п╟
 	const char *depot_file = LIB_DEPOT"depot.db";
 	std::ofstream file(depot_file);
 	if (!file.is_open())
 	{
-		log("Хранилище: error open file: %s! (%s %s %d)", depot_file, __FILE__, __func__, __LINE__);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: error open file: %s! (%s %s %d)", depot_file, __FILE__, __func__, __LINE__);
 		return;
 	}
 	file << out.rdbuf();
 	file.close();
 }
 
-// * Запись файла со шмотом (полная версия записи).
+// * п≈п╟п©п╦я│я▄ я└п╟п╧п╩п╟ я│п╬ я┬п╪п╬я┌п╬п╪ (п©п╬п╩п╫п╟я▐ п╡п╣я─я│п╦я▐ п╥п╟п©п╦я│п╦).
 void write_obj_file(const std::string &name, int file_type, const ObjListType &cont)
 {
-	// генерим имя файла
+	// пЁп╣п╫п╣я─п╦п╪ п╦п╪я▐ я└п╟п╧п╩п╟
 	depot_log("write_obj_file: %s", name.c_str());
 	char filename[MAX_STRING_LENGTH];
 	if (!get_filename(name.c_str(), filename, file_type))
 	{
-		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╫п╣ я┐п╢п╟п╩п╬я│я▄ я│пЁп╣п╫п╣я─п╦я─п╬п╡п╟я┌я▄ п╦п╪я▐ я└п╟п╧п╩п╟ (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
 		return;
 	}
 
-	// при пустом списке просто удаляем файл, чтобы не плодить пустышек в дире
+	// п©я─п╦ п©я┐я│я┌п╬п╪ я│п©п╦я│п╨п╣ п©я─п╬я│я┌п╬ я┐п╢п╟п╩я▐п╣п╪ я└п╟п╧п╩, я┤я┌п╬п╠я▀ п╫п╣ п©п╩п╬п╢п╦я┌я▄ п©я┐я│я┌я▀я┬п╣п╨ п╡ п╢п╦я─п╣
 	if (cont.empty())
 	{
 		depot_log("empty cont");
@@ -634,7 +634,7 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 		return;
 	}
 
-	// пишем в буфер для верности на время цикла
+	// п©п╦я┬п╣п╪ п╡ п╠я┐я└п╣я─ п╢п╩я▐ п╡п╣я─п╫п╬я│я┌п╦ п╫п╟ п╡я─п╣п╪я▐ я├п╦п╨п╩п╟
 	std::stringstream out;
 	out << "* Items file\n";
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
@@ -644,18 +644,18 @@ void write_obj_file(const std::string &name, int file_type, const ObjListType &c
 	}
 	out << "\n$\n$\n";
 
-	// скидываем в файл
+	// я│п╨п╦п╢я▀п╡п╟п╣п╪ п╡ я└п╟п╧п╩
 	std::ofstream file(filename);
 	if (!file.is_open())
 	{
-		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
 		return;
 	}
 	file << out.rdbuf();
 	file.close();
 }
 
-// * Сохранение персонального хранилища конкретного плеера в файл. Обнуление флага сейва.
+// * п║п╬я┘я─п╟п╫п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬пЁп╬ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ п©п╩п╣п╣я─п╟ п╡ я└п╟п╧п╩. п·п╠п╫я┐п╩п╣п╫п╦п╣ я└п╩п╟пЁп╟ я│п╣п╧п╡п╟.
 void CharNode::save_online_objs()
 {
 	if (need_save)
@@ -668,14 +668,14 @@ void CharNode::save_online_objs()
 	}
 }
 
-// * Сохранение всех ждущих этого онлайновых списков предметов в файлы.
+// * п║п╬я┘я─п╟п╫п╣п╫п╦п╣ п╡я│п╣я┘ п╤п╢я┐я┴п╦я┘ я█я┌п╬пЁп╬ п╬п╫п╩п╟п╧п╫п╬п╡я▀я┘ я│п©п╦я│п╨п╬п╡ п©я─п╣п╢п╪п╣я┌п╬п╡ п╡ я└п╟п╧п╩я▀.
 void save_all_online_objs()
 {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
 		it->second.save_online_objs();
 }
 
-// * Сохранение файла хранилища из системы синхронизации.
+// * п║п╬я┘я─п╟п╫п╣п╫п╦п╣ я└п╟п╧п╩п╟ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╦п╥ я│п╦я│я┌п╣п╪я▀ я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦п╦.
 void save_char_by_uid(int uid)
 {
 	DepotListType::iterator it = depot_list.find(uid);
@@ -685,7 +685,7 @@ void save_char_by_uid(int uid)
 	}
 }
 
-// * Апдейт таймеров в онлайн списках с оповещением о пурже, если чар онлайн и расчетом общей ренты.
+// * п░п©п╢п╣п╧я┌ я┌п╟п╧п╪п╣я─п╬п╡ п╡ п╬п╫п╩п╟п╧п╫ я│п©п╦я│п╨п╟я┘ я│ п╬п©п╬п╡п╣я┴п╣п╫п╦п╣п╪ п╬ п©я┐я─п╤п╣, п╣я│п╩п╦ я┤п╟я─ п╬п╫п╩п╟п╧п╫ п╦ я─п╟я│я┤п╣я┌п╬п╪ п╬п╠я┴п╣п╧ я─п╣п╫я┌я▀.
 void CharNode::update_online_item()
 {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();)
@@ -695,11 +695,11 @@ void CharNode::update_online_item()
 		{
 			if (ch)
 			{
-				// если чар в лд или еще чего - лучше записать и выдать это ему при след
-				// входе в игру, чтобы уж точно увидел
+				// п╣я│п╩п╦ я┤п╟я─ п╡ п╩п╢ п╦п╩п╦ п╣я┴п╣ я┤п╣пЁп╬ - п╩я┐я┤я┬п╣ п╥п╟п©п╦я│п╟я┌я▄ п╦ п╡я▀п╢п╟я┌я▄ я█я┌п╬ п╣п╪я┐ п©я─п╦ я│п╩п╣п╢
+				// п╡я┘п╬п╢п╣ п╡ п╦пЁя─я┐, я┤я┌п╬п╠я▀ я┐п╤ я┌п╬я┤п╫п╬ я┐п╡п╦п╢п╣п╩
 				if (ch->desc && STATE(ch->desc) == CON_PLAYING)
 				{
-					send_to_char(ch, "[Персональное хранилище]: %s'%s%s рассыпал%s в прах'%s\r\n",
+					send_to_char(ch, "[п÷п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣]: %s'%s%s я─п╟я│я│я▀п©п╟п╩%s п╡ п©я─п╟я┘'%s\r\n",
 						CCIRED(ch, C_NRM), (*obj_it)->get_short_description().c_str(),
 						char_get_custom_label(obj_it->get(), ch).c_str(),
 						GET_OBJ_SUF_2((*obj_it)), CCNRM(ch, C_NRM));
@@ -710,7 +710,7 @@ void CharNode::update_online_item()
 				}
 			}
 
-			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
+			// п╡я▀я┤п╦я┌п╟я┌я▄ я─п╣п╫я┌я┐ п╦п╥ cost_per_day п╥п╢п╣я│я▄ п╫п╣ п╫п╟п╢п╬, п©п╬я┌п╬п╪я┐ я┤я┌п╬ п╬п╫п╟ я┐п╤п╣ п╬п╠п╫я┐п╩п╣п╫п╟
 			depot_log("zero timer, online extract: %s %d %d",
 				(*obj_it)->get_short_description().c_str(), GET_OBJ_UID(obj_it->get()), GET_OBJ_VNUM(obj_it->get()));
 			extract_obj(obj_it->get());
@@ -758,8 +758,8 @@ int delete_obj(int vnum)
 
 
 /**
-* Снятие ренты за период в оффлайне с удалением шмота при нехватке денег.
-* \return true - нужно удалять запись в списки хранилищ
+* п║п╫я▐я┌п╦п╣ я─п╣п╫я┌я▀ п╥п╟ п©п╣я─п╦п╬п╢ п╡ п╬я└я└п╩п╟п╧п╫п╣ я│ я┐п╢п╟п╩п╣п╫п╦п╣п╪ я┬п╪п╬я┌п╟ п©я─п╦ п╫п╣я┘п╡п╟я┌п╨п╣ п╢п╣п╫п╣пЁ.
+* \return true - п╫я┐п╤п╫п╬ я┐п╢п╟п╩я▐я┌я▄ п╥п╟п©п╦я│я▄ п╡ я│п©п╦я│п╨п╦ я┘я─п╟п╫п╦п╩п╦я┴
 */
 bool CharNode::removal_period_cost()
 {
@@ -776,24 +776,24 @@ bool CharNode::removal_period_cost()
 	return (money < 0) ? true : false;
 }
 
-// * Апдейт таймеров на всех шмотках, удаление при нулевых таймерах (с оповещением).
+// * п░п©п╢п╣п╧я┌ я┌п╟п╧п╪п╣я─п╬п╡ п╫п╟ п╡я│п╣я┘ я┬п╪п╬я┌п╨п╟я┘, я┐п╢п╟п╩п╣п╫п╦п╣ п©я─п╦ п╫я┐п╩п╣п╡я▀я┘ я┌п╟п╧п╪п╣я─п╟я┘ (я│ п╬п©п╬п╡п╣я┴п╣п╫п╦п╣п╪).
 void update_timers()
 {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end();)
 	{
 		class CharNode & node = it->second;
-		// обнуляем ренту и пересчитываем ее по ходу обновления оффлайн таймеров
+		// п╬п╠п╫я┐п╩я▐п╣п╪ я─п╣п╫я┌я┐ п╦ п©п╣я─п╣я│я┤п╦я┌я▀п╡п╟п╣п╪ п╣п╣ п©п╬ я┘п╬п╢я┐ п╬п╠п╫п╬п╡п╩п╣п╫п╦я▐ п╬я└я└п╩п╟п╧п╫ я┌п╟п╧п╪п╣я─п╬п╡
 		node.reset_cost_per_day();
-		// онлайновый/оффлайновый списки
+		// п╬п╫п╩п╟п╧п╫п╬п╡я▀п╧/п╬я└я└п╩п╟п╧п╫п╬п╡я▀п╧ я│п©п╦я│п╨п╦
 		if (node.ch)
 			node.update_online_item();
 		else
 			node.update_offline_item(it->first);
-		// снятие денег и пурж шмота, если денег уже не хватает
+		// я│п╫я▐я┌п╦п╣ п╢п╣п╫п╣пЁ п╦ п©я┐я─п╤ я┬п╪п╬я┌п╟, п╣я│п╩п╦ п╢п╣п╫п╣пЁ я┐п╤п╣ п╫п╣ я┘п╡п╟я┌п╟п╣я┌
 		if (node.get_cost_per_day() && node.removal_period_cost())
 		{
 			depot_log("update_timers: no money %ld %s", it->first, node.name.c_str());
-			log("Хранилище: UID %ld (%s) - запись удалена из-за нехватки денег на ренту.",
+			log("п╔я─п╟п╫п╦п╩п╦я┴п╣: UID %ld (%s) - п╥п╟п©п╦я│я▄ я┐п╢п╟п╩п╣п╫п╟ п╦п╥-п╥п╟ п╫п╣я┘п╡п╟я┌п╨п╦ п╢п╣п╫п╣пЁ п╫п╟ я─п╣п╫я┌я┐.",
 				it->first, node.name.c_str());
 			remove_char_entry(it->first, it->second);
 			depot_list.erase(it++);
@@ -803,7 +803,7 @@ void update_timers()
 	}
 }
 
-// * Апдейт таймеров в оффлайн списках с расчетом общей ренты.
+// * п░п©п╢п╣п╧я┌ я┌п╟п╧п╪п╣я─п╬п╡ п╡ п╬я└я└п╩п╟п╧п╫ я│п©п╦я│п╨п╟я┘ я│ я─п╟я│я┤п╣я┌п╬п╪ п╬п╠я┴п╣п╧ я─п╣п╫я┌я▀.
 void CharNode::update_offline_item(long uid)
 {
 	for (TimerListType::iterator obj_it = offline_list.begin(); obj_it != offline_list.end();)
@@ -814,7 +814,7 @@ void CharNode::update_offline_item(long uid)
 			int rnum = real_object(obj_it->vnum);
 			if (rnum < 0)
 			{
-				depot_log("Что-то не так с объектом : %d", obj_it->vnum);
+				depot_log("п╖я┌п╬-я┌п╬ п╫п╣ я┌п╟п╨ я│ п╬п╠я┼п╣п╨я┌п╬п╪ : %d", obj_it->vnum);
 				continue;
 			}
 			//const auto obj = world_objects.create_from_prototype_by_rnum(rnum);
@@ -827,12 +827,12 @@ void CharNode::update_offline_item(long uid)
 			//extract_obj(obj.get());
 			depot_log("update_offline_item %s: zero timer %d %d", name.c_str(), obj_it->vnum, obj_it->uid);
 			add_purged_message(uid, obj_it->vnum, obj_it->uid);
-			// шмотка уходит в лоад			
+			// я┬п╪п╬я┌п╨п╟ я┐я┘п╬п╢п╦я┌ п╡ п╩п╬п╟п╢			
 			if (rnum >= 0)
 			{
 				obj_proto.dec_stored(rnum);
 			}
-			// вычитать ренту из cost_per_day здесь не надо, потому что она уже обнулена
+			// п╡я▀я┤п╦я┌п╟я┌я▄ я─п╣п╫я┌я┐ п╦п╥ cost_per_day п╥п╢п╣я│я▄ п╫п╣ п╫п╟п╢п╬, п©п╬я┌п╬п╪я┐ я┤я┌п╬ п╬п╫п╟ я┐п╤п╣ п╬п╠п╫я┐п╩п╣п╫п╟
 			offline_list.erase(obj_it++);
 		}
 		else
@@ -845,8 +845,8 @@ void CharNode::update_offline_item(long uid)
 }
 
 /**
-* Очищение всех списков шмота и полей бабла с флагами. Сама запись хранилища не убивается.
-* Флаг для сохранения файла шмоток здесь не включается, потому что не всегда нужен (релоад).
+* п·я┤п╦я┴п╣п╫п╦п╣ п╡я│п╣я┘ я│п©п╦я│п╨п╬п╡ я┬п╪п╬я┌п╟ п╦ п©п╬п╩п╣п╧ п╠п╟п╠п╩п╟ я│ я└п╩п╟пЁп╟п╪п╦. п║п╟п╪п╟ п╥п╟п©п╦я│я▄ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╫п╣ я┐п╠п╦п╡п╟п╣я┌я│я▐.
+* п╓п╩п╟пЁ п╢п╩я▐ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ я└п╟п╧п╩п╟ я┬п╪п╬я┌п╬п╨ п╥п╢п╣я│я▄ п╫п╣ п╡п╨п╩я▌я┤п╟п╣я┌я│я▐, п©п╬я┌п╬п╪я┐ я┤я┌п╬ п╫п╣ п╡я│п╣пЁп╢п╟ п╫я┐п╤п╣п╫ (я─п╣п╩п╬п╟п╢).
 */
 void CharNode::reset()
 {
@@ -857,7 +857,7 @@ void CharNode::reset()
 	}
 	pers_online.clear();
 
-	// тут нужно ручками перекинуть удаляемый шмот в лоад и потом уже грохнуть все разом
+	// я┌я┐я┌ п╫я┐п╤п╫п╬ я─я┐я┤п╨п╟п╪п╦ п©п╣я─п╣п╨п╦п╫я┐я┌я▄ я┐п╢п╟п╩я▐п╣п╪я▀п╧ я┬п╪п╬я┌ п╡ п╩п╬п╟п╢ п╦ п©п╬я┌п╬п╪ я┐п╤п╣ пЁя─п╬я┘п╫я┐я┌я▄ п╡я│п╣ я─п╟п╥п╬п╪
 	for (TimerListType::iterator obj = offline_list.begin(); obj != offline_list.end(); ++obj)
 	{
 		depot_log("reset_%s: offline erase %d %d", name.c_str(), obj->vnum, obj->uid);
@@ -876,8 +876,8 @@ void CharNode::reset()
 }
 
 /**
-* Проверка, является ли obj персональным хранилищем.
-* \return 0 - не является, 1- является.
+* п÷я─п╬п╡п╣я─п╨п╟, я▐п╡п╩я▐п╣я┌я│я▐ п╩п╦ obj п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣п╪.
+* \return 0 - п╫п╣ я▐п╡п╩я▐п╣я┌я│я▐, 1- я▐п╡п╩я▐п╣я┌я│я▐.
 */
 bool is_depot(OBJ_DATA *obj)
 {
@@ -892,7 +892,7 @@ bool is_depot(OBJ_DATA *obj)
 	}
 }
 
-// * Распечатка отдельного предмета при осмотре хранилища.
+// * п═п╟я│п©п╣я┤п╟я┌п╨п╟ п╬я┌п╢п╣п╩я▄п╫п╬пЁп╬ п©я─п╣п╢п╪п╣я┌п╟ п©я─п╦ п╬я│п╪п╬я┌я─п╣ я┘я─п╟п╫п╦п╩п╦я┴п╟.
 void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 	OBJ_DATA *obj, int count, CHAR_DATA *ch)
 {
@@ -910,7 +910,7 @@ void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 	<< desc_count(get_object_low_rent(obj), WHAT_MONEYa) << "]\r\n";
 }
 
-// * Расчет кол-ва слотов под шмотки в персональном хранилище с учетом профы чара.
+// * п═п╟я│я┤п╣я┌ п╨п╬п╩-п╡п╟ я│п╩п╬я┌п╬п╡ п©п╬п╢ я┬п╪п╬я┌п╨п╦ п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣ я│ я┐я┤п╣я┌п╬п╪ п©я─п╬я└я▀ я┤п╟я─п╟.
 unsigned int get_max_pers_slots(CHAR_DATA *ch)
 {
 	if (can_use_feat(ch, THRIFTY_FEAT))
@@ -920,8 +920,8 @@ unsigned int get_max_pers_slots(CHAR_DATA *ch)
 }
 
 /**
-* Для читаемости show_depot - вывод списка предметов персонажу.
-* Сортировка по алиасам и группировка одинаковых предметов.
+* п■п╩я▐ я┤п╦я┌п╟п╣п╪п╬я│я┌п╦ show_depot - п╡я▀п╡п╬п╢ я│п©п╦я│п╨п╟ п©я─п╣п╢п╪п╣я┌п╬п╡ п©п╣я─я│п╬п╫п╟п╤я┐.
+* п║п╬я─я┌п╦я─п╬п╡п╨п╟ п©п╬ п╟п╩п╦п╟я│п╟п╪ п╦ пЁя─я┐п©п©п╦я─п╬п╡п╨п╟ п╬п╢п╦п╫п╟п╨п╬п╡я▀я┘ п©я─п╣п╢п╪п╣я┌п╬п╡.
 */
 std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 {
@@ -930,7 +930,7 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 		return lrs->get_aliases() < rhs->get_aliases();
 	});
 
-	// чтобы сначала вывести шмотки, а потом ингры
+	// я┤я┌п╬п╠я▀ я│п╫п╟я┤п╟п╩п╟ п╡я▀п╡п╣я│я┌п╦ я┬п╪п╬я┌п╨п╦, п╟ п©п╬я┌п╬п╪ п╦п╫пЁя─я▀
 	std::stringstream s_out, i_out;
 	int rent_per_day = 0;
 	int count = 0, s_cnt = 0, i_cnt = 0;
@@ -977,23 +977,23 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 
 	std::stringstream head;
 	head << CCWHT(ch, C_NRM)
-		<< "Ваше персональное хранилище. Рента в день: "
+		<< "п▓п╟я┬п╣ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣. п═п╣п╫я┌п╟ п╡ п╢п╣п╫я▄: "
 		<< rent_per_day << " " << desc_count(rent_per_day, WHAT_MONEYa);
 	if (rent_per_day)
 	{
-		head << ", денег хватит на " << expired
+		head << ", п╢п╣п╫п╣пЁ я┘п╡п╟я┌п╦я┌ п╫п╟ " << expired
 			<< " " << desc_count(expired, WHAT_DAY);
 	}
 	head << ".\r\n"
-		<< "Заполненность отделения для вещей: "
+		<< "п≈п╟п©п╬п╩п╫п╣п╫п╫п╬я│я┌я▄ п╬я┌п╢п╣п╩п╣п╫п╦я▐ п╢п╩я▐ п╡п╣я┴п╣п╧: "
 		<< s_cnt << "/" << get_max_pers_slots(ch)
-		<< ", отделения для ингредиентов: "
+		<< ", п╬я┌п╢п╣п╩п╣п╫п╦я▐ п╢п╩я▐ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡: "
 		<< i_cnt << "/" << MAX_PERS_INGR_SLOTS
 		<< CCNRM(ch, C_NRM) << "\r\n\r\n";
 
 	if (!found)
 	{
-		head << "В данный момент хранилище абсолютно пусто.\r\n";
+		head << "п▓ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╟п╠я│п╬п╩я▌я┌п╫п╬ п©я┐я│я┌п╬.\r\n";
 	}
 	std::string s_str = s_out.str();
 	std::string i_str = i_out.str();
@@ -1006,9 +1006,9 @@ std::string print_obj_list(CHAR_DATA *ch, ObjListType &cont)
 }
 
 /**
-* Поиск итератора хранилища или создание нового, чтобы не париться.
-* Возврат итератора за списком означает, что чара в плеер-таблице мы не нашли (что странно).
-* \param ch - проставляет в зависимости от наличия чара онлайн, иначе будет нулевым.
+* п÷п╬п╦я│п╨ п╦я┌п╣я─п╟я┌п╬я─п╟ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╦п╩п╦ я│п╬п╥п╢п╟п╫п╦п╣ п╫п╬п╡п╬пЁп╬, я┤я┌п╬п╠я▀ п╫п╣ п©п╟я─п╦я┌я▄я│я▐.
+* п▓п╬п╥п╡я─п╟я┌ п╦я┌п╣я─п╟я┌п╬я─п╟ п╥п╟ я│п©п╦я│п╨п╬п╪ п╬п╥п╫п╟я┤п╟п╣я┌, я┤я┌п╬ я┤п╟я─п╟ п╡ п©п╩п╣п╣я─-я┌п╟п╠п╩п╦я├п╣ п╪я▀ п╫п╣ п╫п╟я┬п╩п╦ (я┤я┌п╬ я│я┌я─п╟п╫п╫п╬).
+* \param ch - п©я─п╬я│я┌п╟п╡п╩я▐п╣я┌ п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ п╫п╟п╩п╦я┤п╦я▐ я┤п╟я─п╟ п╬п╫п╩п╟п╧п╫, п╦п╫п╟я┤п╣ п╠я┐п╢п╣я┌ п╫я┐п╩п╣п╡я▀п╪.
 */
 DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 {
@@ -1016,8 +1016,8 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 	if (it == depot_list.end())
 	{
 		CharNode tmp_node;
-		// в случае отсутствия чара (пока только при релоаде) ch останется нулевым,
-		// а имя возьмется через уид
+		// п╡ я│п╩я┐я┤п╟п╣ п╬я┌я│я┐я┌я│я┌п╡п╦я▐ я┤п╟я─п╟ (п©п╬п╨п╟ я┌п╬п╩я▄п╨п╬ п©я─п╦ я─п╣п╩п╬п╟п╢п╣) ch п╬я│я┌п╟п╫п╣я┌я│я▐ п╫я┐п╩п╣п╡я▀п╪,
+		// п╟ п╦п╪я▐ п╡п╬п╥я▄п╪п╣я┌я│я▐ я┤п╣я─п╣п╥ я┐п╦п╢
 		tmp_node.ch = ch;
 		tmp_node.name = GetNameByUnique(uid);
 		if (!tmp_node.name.empty())
@@ -1029,7 +1029,7 @@ DepotListType::iterator create_depot(long uid, CHAR_DATA *ch = 0)
 	return it;
 }
 
-// * Выводим персональное хранилище вместо просмотра контейнера.
+// * п▓я▀п╡п╬п╢п╦п╪ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╡п╪п╣я│я┌п╬ п©я─п╬я│п╪п╬я┌я─п╟ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟.
 void show_depot(CHAR_DATA *ch)
 {
 	if (IS_NPC(ch)) return;
@@ -1037,14 +1037,14 @@ void show_depot(CHAR_DATA *ch)
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch) && !IS_IMPL(ch))
 	{
-		send_to_char("И без хранилища обойдешься...\r\n" , ch);
+		send_to_char("п≤ п╠п╣п╥ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╬п╠п╬п╧п╢п╣я┬я▄я│я▐...\r\n" , ch);
 		return;
 	}
 #endif
 
 	if (RENTABLE(ch))
 	{
-		send_to_char(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
+		send_to_char(ch, "%sп╔я─п╟п╫п╦п╩п╦я┴п╣ п╫п╣п╢п╬я│я┌я┐п©п╫п╬ п╡ я│п╡я▐п╥п╦ я│ п╠п╬п╣п╡я▀п╪п╦ п╢п╣п╧я│я┌п╡п╦я▐п╪п╦.%s\r\n",
 					 CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return;
 	}
@@ -1052,8 +1052,8 @@ void show_depot(CHAR_DATA *ch)
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	if (it == depot_list.end())
 	{
-		send_to_char("Ошибочка, сообщие богам...\r\n" , ch);
-		log("Хранилище: UID %d, name: %s - возвращен некорректный уид персонажа.", GET_UNIQUE(ch), GET_NAME(ch));
+		send_to_char("п·я┬п╦п╠п╬я┤п╨п╟, я│п╬п╬п╠я┴п╦п╣ п╠п╬пЁп╟п╪...\r\n" , ch);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: UID %d, name: %s - п╡п╬п╥п╡я─п╟я┴п╣п╫ п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ я┐п╦п╢ п©п╣я─я│п╬п╫п╟п╤п╟.", GET_UNIQUE(ch), GET_NAME(ch));
 		return;
 	}
 
@@ -1063,8 +1063,8 @@ void show_depot(CHAR_DATA *ch)
 }
 
 /**
-* В случае переполнения денег на счете - кладем сколько можем, остальное возвращаем чару на руки.
-* На руках при возврате переполняться уже некуда, т.к. вложение идет с этих самых рук.
+* п▓ я│п╩я┐я┤п╟п╣ п©п╣я─п╣п©п╬п╩п╫п╣п╫п╦я▐ п╢п╣п╫п╣пЁ п╫п╟ я│я┤п╣я┌п╣ - п╨п╩п╟п╢п╣п╪ я│п╨п╬п╩я▄п╨п╬ п╪п╬п╤п╣п╪, п╬я│я┌п╟п╩я▄п╫п╬п╣ п╡п╬п╥п╡я─п╟я┴п╟п╣п╪ я┤п╟я─я┐ п╫п╟ я─я┐п╨п╦.
+* п²п╟ я─я┐п╨п╟я┘ п©я─п╦ п╡п╬п╥п╡я─п╟я┌п╣ п©п╣я─п╣п©п╬п╩п╫я▐я┌я▄я│я▐ я┐п╤п╣ п╫п╣п╨я┐п╢п╟, я┌.п╨. п╡п╩п╬п╤п╣п╫п╦п╣ п╦п╢п╣я┌ я│ я█я┌п╦я┘ я│п╟п╪я▀я┘ я─я┐п╨.
 */
 void put_gold_chest(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 {
@@ -1076,12 +1076,12 @@ void put_gold_chest(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 	ch->add_bank(gold);
 	obj_from_char(obj.get());
 	extract_obj(obj.get());
-	send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
+	send_to_char(ch, "п▓я▀ п╡п╩п╬п╤п╦п╩п╦ %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 }
 
 /**
-* Проверка возможности положить шмотку в хранилище.
-* FIXME с кланами копипаст.
+* п÷я─п╬п╡п╣я─п╨п╟ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ п©п╬п╩п╬п╤п╦я┌я▄ я┬п╪п╬я┌п╨я┐ п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣.
+* FIXME я│ п╨п╩п╟п╫п╟п╪п╦ п╨п╬п©п╦п©п╟я│я┌.
 */
 bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 {
@@ -1094,20 +1094,20 @@ bool can_put_chest(CHAR_DATA *ch, OBJ_DATA *obj)
 			|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_KEY
 			|| GET_OBJ_RENT(obj) < 0
 			|| GET_OBJ_RNUM(obj) <= NOTHING
-			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))//added by WorM именные вещи нельзя положить в хран
+			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED))//added by WorM п╦п╪п╣п╫п╫я▀п╣ п╡п╣я┴п╦ п╫п╣п╩я▄п╥я▐ п©п╬п╩п╬п╤п╦я┌я▄ п╡ я┘я─п╟п╫
 	{
-		send_to_char(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(3).c_str());
+		send_to_char(ch, "п²п╣п╡п╣п╢п╬п╪п╟я▐ я│п╦п╩п╟ п©п╬п╪п╣я┬п╟п╩п╟ п©п╬п╩п╬п╤п╦я┌я▄ %s п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣.\r\n", obj->get_PName(3).c_str());
 		return 0;
 	}
 	else if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
 		&& obj->get_contains())
 	{
-		send_to_char(ch, "В %s что-то лежит.\r\n", obj->get_PName(5).c_str());
+		send_to_char(ch, "п▓ %s я┤я┌п╬-я┌п╬ п╩п╣п╤п╦я┌.\r\n", obj->get_PName(5).c_str());
 		return 0;
 	}
 	else if (SetSystem::is_norent_set(ch, obj))
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "%s - требуется две и более вещи из набора.\r\n", obj->get_PName(0).c_str());
+		snprintf(buf, MAX_STRING_LENGTH, "%s - я┌я─п╣п╠я┐п╣я┌я│я▐ п╢п╡п╣ п╦ п╠п╬п╩п╣п╣ п╡п╣я┴п╦ п╦п╥ п╫п╟п╠п╬я─п╟.\r\n", obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return 0;
 	}
@@ -1128,7 +1128,7 @@ unsigned count_inrg(const ObjListType &cont)
 	return ingr_cnt;
 }
 
-// * Кладем шмотку в хранилище (мобов посылаем лесом), деньги автоматом на счет в банке.
+// * п п╩п╟п╢п╣п╪ я┬п╪п╬я┌п╨я┐ п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣ (п╪п╬п╠п╬п╡ п©п╬я│я▀п╩п╟п╣п╪ п╩п╣я│п╬п╪), п╢п╣п╫я▄пЁп╦ п╟п╡я┌п╬п╪п╟я┌п╬п╪ п╫п╟ я│я┤п╣я┌ п╡ п╠п╟п╫п╨п╣.
 bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 {
 	if (IS_NPC(ch)) return 0;
@@ -1136,7 +1136,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(ch) && !IS_IMPL(ch))
 	{
-		send_to_char("И без хранилища обойдешься...\r\n" , ch);
+		send_to_char("п≤ п╠п╣п╥ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╬п╠п╬п╧п╢п╣я┬я▄я│я▐...\r\n" , ch);
 		return 0;
 	}
 #endif
@@ -1144,7 +1144,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 	if (RENTABLE(ch))
 	{
 		send_to_char(ch,
-			"%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
+			"%sп╔я─п╟п╫п╦п╩п╦я┴п╣ п╫п╣п╢п╬я│я┌я┐п©п╫п╬ п╡ я│п╡я▐п╥п╦ я│ п╠п╬п╣п╡я▀п╪п╦ п╢п╣п╧я│я┌п╡п╦я▐п╪п╦.%s\r\n",
 			CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
 		return 0;
 	}
@@ -1154,8 +1154,8 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 		put_gold_chest(ch, obj);
 		return 1;
 	}
-	// в данном случае если мы не можем сунуть какую-то
-	// конкретную шмотку - это не стопит процесс
+	// п╡ п╢п╟п╫п╫п╬п╪ я│п╩я┐я┤п╟п╣ п╣я│п╩п╦ п╪я▀ п╫п╣ п╪п╬п╤п╣п╪ я│я┐п╫я┐я┌я▄ п╨п╟п╨я┐я▌-я┌п╬
+	// п╨п╬п╫п╨я─п╣я┌п╫я┐я▌ я┬п╪п╬я┌п╨я┐ - я█я┌п╬ п╫п╣ я│я┌п╬п©п╦я┌ п©я─п╬я├п╣я│я│
 	if (!can_put_chest(ch, obj.get()))
 	{
 		return 1;
@@ -1164,8 +1164,8 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 	DepotListType::iterator it = create_depot(GET_UNIQUE(ch), ch);
 	if (it == depot_list.end())
 	{
-		send_to_char("Ошибочка, сообщие богам...\r\n" , ch);
-		log("Хранилище: UID %d, name: %s - возвращен некорректный уид персонажа.",
+		send_to_char("п·я┬п╦п╠п╬я┤п╨п╟, я│п╬п╬п╠я┴п╦п╣ п╠п╬пЁп╟п╪...\r\n" , ch);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: UID %d, name: %s - п╡п╬п╥п╡я─п╟я┴п╣п╫ п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ я┐п╦п╢ п©п╣я─я│п╬п╫п╟п╤п╟.",
 			GET_UNIQUE(ch), GET_NAME(ch));
 		return 0;
 	}
@@ -1177,18 +1177,18 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 
 	if (is_ingr && ingr_cnt >= MAX_PERS_INGR_SLOTS)
 	{
-		send_to_char("В вашем хранилище совсем не осталось места для ингредиентов :(.\r\n", ch);
+		send_to_char("п▓ п╡п╟я┬п╣п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣ я│п╬п╡я│п╣п╪ п╫п╣ п╬я│я┌п╟п╩п╬я│я▄ п╪п╣я│я┌п╟ п╢п╩я▐ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡ :(.\r\n", ch);
 		return 0;
 	}
 	else if (!is_ingr && staff_cnt >= get_max_pers_slots(ch))
 	{
-		send_to_char("В вашем хранилище совсем не осталось места для вещей :(.\r\n", ch);
+		send_to_char("п▓ п╡п╟я┬п╣п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣ я│п╬п╡я│п╣п╪ п╫п╣ п╬я│я┌п╟п╩п╬я│я▄ п╪п╣я│я┌п╟ п╢п╩я▐ п╡п╣я┴п╣п╧ :(.\r\n", ch);
 		return 0;
 	}
 
 	if (!ch->get_bank() && !ch->get_gold())
 	{
-		send_to_char(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
+		send_to_char(ch, "пё п╡п╟я│ п╡п╣п╢я▄ я│п╬п╡я│п╣п╪ п╫п╣я┌ п╢п╣п╫п╣пЁ, я┤п╣п╪ п╡я▀ я│п╬п╠п╦я─п╟п╣я┌п╣я│я▄ я─п╟я│п©п╩п╟я┤п╦п╡п╟я┌я▄я│я▐ п╥п╟ я┘я─п╟п╫п╣п╫п╦п╣ п╡п╣я┴п╣п╧?\r\n",
 			obj->get_PName(5).c_str());
 		return 0;
 	}
@@ -1199,8 +1199,8 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
 
-	act("Вы положили $o3 в персональное хранилище.", FALSE, ch, obj.get(), 0, TO_CHAR);
-	act("$n положил$g $o3 в персональное хранилище.", TRUE, ch, obj.get(), 0, TO_ROOM);
+	act("п▓я▀ п©п╬п╩п╬п╤п╦п╩п╦ $o3 п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣.", FALSE, ch, obj.get(), 0, TO_CHAR);
+	act("$n п©п╬п╩п╬п╤п╦п╩$g $o3 п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣.", TRUE, ch, obj.get(), 0, TO_ROOM);
 
 	obj_from_char(obj.get());
 	check_auction(NULL, obj.get());
@@ -1210,7 +1210,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 	return 1;
 }
 
-// * Взятие чего-то из персонального хранилища.
+// * п▓п╥я▐я┌п╦п╣ я┤п╣пЁп╬-я┌п╬ п╦п╥ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬пЁп╬ я┘я─п╟п╫п╦п╩п╦я┴п╟.
 void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 {
 	if (IS_NPC(vict)) return;
@@ -1218,14 +1218,14 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 #ifndef TEST_BUILD
 	if (IS_IMMORTAL(vict) && !IS_IMPL(vict))
 	{
-		send_to_char("И без хранилища обойдешься...\r\n" , vict);
+		send_to_char("п≤ п╠п╣п╥ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╬п╠п╬п╧п╢п╣я┬я▄я│я▐...\r\n" , vict);
 		return;
 	}
 #endif
 
 	if (RENTABLE(vict))
 	{
-		send_to_char(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
+		send_to_char(vict, "%sп╔я─п╟п╫п╦п╩п╦я┴п╣ п╫п╣п╢п╬я│я┌я┐п©п╫п╬ п╡ я│п╡я▐п╥п╦ я│ п╠п╬п╣п╡я▀п╪п╦ п╢п╣п╧я│я┌п╡п╦я▐п╪п╦.%s\r\n",
 					 CCIRED(vict, C_NRM), CCNRM(vict, C_NRM));
 		return;
 	}
@@ -1233,27 +1233,27 @@ void take_depot(CHAR_DATA *vict, char *arg, int howmany)
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(vict));
 	if (it == depot_list.end())
 	{
-		send_to_char("В данный момент ваше хранилище абсолютно пусто.\r\n", vict);
+		send_to_char("п▓ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ п╡п╟я┬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╟п╠я│п╬п╩я▌я┌п╫п╬ п©я┐я│я┌п╬.\r\n", vict);
 		return;
 	}
 
 	it->second.take_item(vict, arg, howmany);
 }
 
-// * Берем шмотку из хранилища.
+// * п▒п╣я─п╣п╪ я┬п╪п╬я┌п╨я┐ п╦п╥ я┘я─п╟п╫п╦п╩п╦я┴п╟.
 void CharNode::remove_item(ObjListType::iterator &obj_it, ObjListType &cont, CHAR_DATA *vict)
 {
 	depot_log("remove_item %s: %s %d %d", name.c_str(), (*obj_it)->get_short_description().c_str(), GET_OBJ_UID(obj_it->get()), GET_OBJ_VNUM(obj_it->get()));
 	world_objects.add(*obj_it);
 	obj_to_char(obj_it->get(), vict);
-	act("Вы взяли $o3 из персонального хранилища.", FALSE, vict, obj_it->get(), 0, TO_CHAR);
-	act("$n взял$g $o3 из персонального хранилища.", TRUE, vict, obj_it->get(), 0, TO_ROOM);
+	act("п▓я▀ п╡п╥я▐п╩п╦ $o3 п╦п╥ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬пЁп╬ я┘я─п╟п╫п╦п╩п╦я┴п╟.", FALSE, vict, obj_it->get(), 0, TO_CHAR);
+	act("$n п╡п╥я▐п╩$g $o3 п╦п╥ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬пЁп╬ я┘я─п╟п╫п╦п╩п╦я┴п╟.", TRUE, vict, obj_it->get(), 0, TO_ROOM);
 	cont.erase(obj_it++);
 	need_save = true;
 	ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PERS_CHEST_SAVE);
 }
 
-// * Поиск шмотки в контейнере (со всякими точками), удаляем ее тут же.
+// * п÷п╬п╦я│п╨ я┬п╪п╬я┌п╨п╦ п╡ п╨п╬п╫я┌п╣п╧п╫п╣я─п╣ (я│п╬ п╡я│я▐п╨п╦п╪п╦ я┌п╬я┤п╨п╟п╪п╦), я┐п╢п╟п╩я▐п╣п╪ п╣п╣ я┌я┐я┌ п╤п╣.
 bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict)
 {
 	char tmpname[MAX_INPUT_LENGTH];
@@ -1279,7 +1279,7 @@ bool CharNode::obj_from_obj_list(char *name, CHAR_DATA *vict)
 	return false;
 }
 
-// * Поиск шмотки в хранилище и ее взятие.
+// * п÷п╬п╦я│п╨ я┬п╪п╬я┌п╨п╦ п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╦ п╣п╣ п╡п╥я▐я┌п╦п╣.
 void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 {
 	ObjListType &cont = pers_online;
@@ -1290,7 +1290,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 		bool result = obj_from_obj_list(arg, vict);
 		if (!result)
 		{
-			send_to_char(vict, "Вы не видите '%s' в хранилище.\r\n", arg);
+			send_to_char(vict, "п▓я▀ п╫п╣ п╡п╦п╢п╦я┌п╣ '%s' п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣.\r\n", arg);
 			return;
 		}
 		while (result && --howmany)
@@ -1302,7 +1302,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 	{
 		if (obj_dotmode == FIND_ALLDOT && !*arg)
 		{
-			send_to_char("Взять что \"все\"?\r\n", vict);
+			send_to_char("п▓п╥я▐я┌я▄ я┤я┌п╬ \"п╡я│п╣\"?\r\n", vict);
 			return;
 		}
 		bool found = 0;
@@ -1312,7 +1312,7 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 				|| isname(arg, (*obj_list_it)->get_aliases())
 				|| CHECK_CUSTOM_LABEL(arg, obj_list_it->get(), vict))
 			{
-				// чтобы нельзя было разом собрать со шкафчика неск.тыс шмоток
+				// я┤я┌п╬п╠я▀ п╫п╣п╩я▄п╥я▐ п╠я▀п╩п╬ я─п╟п╥п╬п╪ я│п╬п╠я─п╟я┌я▄ я│п╬ я┬п╨п╟я└я┤п╦п╨п╟ п╫п╣я│п╨.я┌я▀я│ я┬п╪п╬я┌п╬п╨
 				if (!can_take_obj(vict, obj_list_it->get()))
 				{
 					return;
@@ -1328,15 +1328,15 @@ void CharNode::take_item(CHAR_DATA *vict, char *arg, int howmany)
 
 		if (!found)
 		{
-			send_to_char(vict, "Вы не видите ничего похожего на '%s' в хранилище.\r\n", arg);
+			send_to_char(vict, "п▓я▀ п╫п╣ п╡п╦п╢п╦я┌п╣ п╫п╦я┤п╣пЁп╬ п©п╬я┘п╬п╤п╣пЁп╬ п╫п╟ '%s' п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣.\r\n", arg);
 			return;
 		}
 	}
 }
 
 /**
-* Рента за шмот в день, но с учетом персонального хранилища онлайн, для вывода перед рентой.
-* Эта функция зовется ДО того, как поизройдет перекидывание шиота в оффлайн список.
+* п═п╣п╫я┌п╟ п╥п╟ я┬п╪п╬я┌ п╡ п╢п╣п╫я▄, п╫п╬ я│ я┐я┤п╣я┌п╬п╪ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬пЁп╬ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╬п╫п╩п╟п╧п╫, п╢п╩я▐ п╡я▀п╡п╬п╢п╟ п©п╣я─п╣п╢ я─п╣п╫я┌п╬п╧.
+* п╜я┌п╟ я└я┐п╫п╨я├п╦я▐ п╥п╬п╡п╣я┌я│я▐ п■п· я┌п╬пЁп╬, п╨п╟п╨ п©п╬п╦п╥я─п╬п╧п╢п╣я┌ п©п╣я─п╣п╨п╦п╢я▀п╡п╟п╫п╦п╣ я┬п╦п╬я┌п╟ п╡ п╬я└я└п╩п╟п╧п╫ я│п©п╦я│п╬п╨.
 */
 int get_total_cost_per_day(CHAR_DATA *ch)
 {
@@ -1358,8 +1358,8 @@ int get_total_cost_per_day(CHAR_DATA *ch)
 
 
 /**
-* Вывод инфы в show stats.
-* TODO: добавить вывод расходов, может еще процент наполненности персональных хранилищ.
+* п▓я▀п╡п╬п╢ п╦п╫я└я▀ п╡ show stats.
+* TODO: п╢п╬п╠п╟п╡п╦я┌я▄ п╡я▀п╡п╬п╢ я─п╟я│я┘п╬п╢п╬п╡, п╪п╬п╤п╣я┌ п╣я┴п╣ п©я─п╬я├п╣п╫я┌ п╫п╟п©п╬п╩п╫п╣п╫п╫п╬я│я┌п╦ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀я┘ я┘я─п╟п╫п╦п╩п╦я┴.
 */
 void show_stats(CHAR_DATA *ch)
 {
@@ -1372,16 +1372,16 @@ void show_stats(CHAR_DATA *ch)
 		offline_count += it->second.offline_list.size();
 	}
 
-	out << "  Хранилищ: " << depot_list.size() << ", "
-	<< "в персональных: " << pers_count << ", "
-	<< "в оффлайне: " << offline_count << "\r\n";
+	out << "  п╔я─п╟п╫п╦п╩п╦я┴: " << depot_list.size() << ", "
+	<< "п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀я┘: " << pers_count << ", "
+	<< "п╡ п╬я└я└п╩п╟п╧п╫п╣: " << offline_count << "\r\n";
 	send_to_char(out.str().c_str(), ch);
 }
 
 /**
-* Лоад списка шмоток в онлайн список. FIXME: копи-паст чтения предметов с двух мест.
-* \param reload - для рестора шмоток чара, по умолчанию ноль
-* (определяет сверяемся мы с оффлайн списком при лоаде или нет).
+* п⌡п╬п╟п╢ я│п©п╦я│п╨п╟ я┬п╪п╬я┌п╬п╨ п╡ п╬п╫п╩п╟п╧п╫ я│п©п╦я│п╬п╨. FIXME: п╨п╬п©п╦-п©п╟я│я┌ я┤я┌п╣п╫п╦я▐ п©я─п╣п╢п╪п╣я┌п╬п╡ я│ п╢п╡я┐я┘ п╪п╣я│я┌.
+* \param reload - п╢п╩я▐ я─п╣я│я┌п╬я─п╟ я┬п╪п╬я┌п╬п╨ я┤п╟я─п╟, п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ п╫п╬п╩я▄
+* (п╬п©я─п╣п╢п╣п╩я▐п╣я┌ я│п╡п╣я─я▐п╣п╪я│я▐ п╪я▀ я│ п╬я└я└п╩п╟п╧п╫ я│п©п╦я│п╨п╬п╪ п©я─п╦ п╩п╬п╟п╢п╣ п╦п╩п╦ п╫п╣я┌).
 */
 void CharNode::load_online_objs(int file_type, bool reload)
 {
@@ -1395,7 +1395,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	char filename[MAX_STRING_LENGTH];
 	if (!get_filename(name.c_str(), filename, file_type))
 	{
-		log("Хранилище: не удалось сгенерировать имя файла (name: %s, filename: %s) (%s %s %d).",
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╫п╣ я┐п╢п╟п╩п╬я│я▄ я│пЁп╣п╫п╣я─п╦я─п╬п╡п╟я┌я▄ п╦п╪я▐ я└п╟п╧п╩п╟ (name: %s, filename: %s) (%s %s %d).",
 			name.c_str(), filename, __FILE__, __func__, __LINE__);
 		return;
 	}
@@ -1408,7 +1408,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	if (!fsize)
 	{
 		fclose(fl);
-		log("Хранилище: пустой файл предметов (%s).", filename);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п©я┐я│я┌п╬п╧ я└п╟п╧п╩ п©я─п╣п╢п╪п╣я┌п╬п╡ (%s).", filename);
 		return;
 	}
 	char *databuf = new char [fsize + 1];
@@ -1418,7 +1418,7 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	{
 		fclose(fl);
 		delete[] databuf;
-		log("Хранилище: ошибка чтения файла предметов (%s).", filename);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ я└п╟п╧п╩п╟ п©я─п╣п╢п╪п╣я┌п╬п╡ (%s).", filename);
 		return;
 	}
 	fclose(fl);
@@ -1437,12 +1437,12 @@ void CharNode::load_online_objs(int file_type, bool reload)
 		{
 			depot_log("reading object error %d", error);
 			if (error)
-				log("Хранилище: ошибка чтения предмета (%s, error: %d).", filename, error);
+				log("п╔я─п╟п╫п╦п╩п╦я┴п╣: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ п©я─п╣п╢п╪п╣я┌п╟ (%s, error: %d).", filename, error);
 			continue;
 		}
 		if (!reload)
 		{
-			// собсна сверимся со списком таймеров и проставим изменившиеся данные
+			// я│п╬п╠я│п╫п╟ я│п╡п╣я─п╦п╪я│я▐ я│п╬ я│п©п╦я│п╨п╬п╪ я┌п╟п╧п╪п╣я─п╬п╡ п╦ п©я─п╬я│я┌п╟п╡п╦п╪ п╦п╥п╪п╣п╫п╦п╡я┬п╦п╣я│я▐ п╢п╟п╫п╫я▀п╣
 			TimerListType::iterator obj_it = std::find_if(offline_list.begin(), offline_list.end(),
 				[&](const OfflineNode& x)
 				{
@@ -1456,8 +1456,8 @@ void CharNode::load_online_objs(int file_type, bool reload)
                 int temp_timer = obj_proto[obj->get_rnum()]->get_timer();
                 if (obj->get_timer() > temp_timer)
                     obj->set_timer(temp_timer);
-				// надо уменьшать макс в мире на постое, макс в мире шмотки в игре
-				// увеличивается в read_one_object_new через read_object
+				// п╫п╟п╢п╬ я┐п╪п╣п╫я▄я┬п╟я┌я▄ п╪п╟п╨я│ п╡ п╪п╦я─п╣ п╫п╟ п©п╬я│я┌п╬п╣, п╪п╟п╨я│ п╡ п╪п╦я─п╣ я┬п╪п╬я┌п╨п╦ п╡ п╦пЁя─п╣
+				// я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌я│я▐ п╡ read_one_object_new я┤п╣я─п╣п╥ read_object
 				int rnum = real_object(obj->get_vnum());
 				if (rnum >= 0)
 				{
@@ -1471,11 +1471,11 @@ void CharNode::load_online_objs(int file_type, bool reload)
 				continue;
 			}
 		}
-		// при релоаде мы ничего не сверяем, а лоадим все, что есть,
-		// макс в мире и так увеличивается при чтении шмотки, а на постое ее и не было
+		// п©я─п╦ я─п╣п╩п╬п╟п╢п╣ п╪я▀ п╫п╦я┤п╣пЁп╬ п╫п╣ я│п╡п╣я─я▐п╣п╪, п╟ п╩п╬п╟п╢п╦п╪ п╡я│п╣, я┤я┌п╬ п╣я│я┌я▄,
+		// п╪п╟п╨я│ п╡ п╪п╦я─п╣ п╦ я┌п╟п╨ я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌я│я▐ п©я─п╦ я┤я┌п╣п╫п╦п╦ я┬п╪п╬я┌п╨п╦, п╟ п╫п╟ п©п╬я│я┌п╬п╣ п╣п╣ п╦ п╫п╣ п╠я▀п╩п╬
 
 		pers_online.push_front(obj);
-		// убираем ее из глобального листа, в который она добавилась еще на стадии чтения из файла
+		// я┐п╠п╦я─п╟п╣п╪ п╣п╣ п╦п╥ пЁп╩п╬п╠п╟п╩я▄п╫п╬пЁп╬ п╩п╦я│я┌п╟, п╡ п╨п╬я┌п╬я─я▀п╧ п╬п╫п╟ п╢п╬п╠п╟п╡п╦п╩п╟я│я▄ п╣я┴п╣ п╫п╟ я│я┌п╟п╢п╦п╦ я┤я┌п╣п╫п╦я▐ п╦п╥ я└п╟п╧п╩п╟
 		world_objects.remove(obj);
 	}
 	delete [] databuf;
@@ -1483,36 +1483,36 @@ void CharNode::load_online_objs(int file_type, bool reload)
 	reset_cost_per_day();
 }
 
-// * Вход чара в игру - снятие за хранилище, пурж шмоток, оповещение о кол-ве снятых денег, перевод списков в онлайн.
+// * п▓я┘п╬п╢ я┤п╟я─п╟ п╡ п╦пЁя─я┐ - я│п╫я▐я┌п╦п╣ п╥п╟ я┘я─п╟п╫п╦п╩п╦я┴п╣, п©я┐я─п╤ я┬п╪п╬я┌п╬п╨, п╬п©п╬п╡п╣я┴п╣п╫п╦п╣ п╬ п╨п╬п╩-п╡п╣ я│п╫я▐я┌я▀я┘ п╢п╣п╫п╣пЁ, п©п╣я─п╣п╡п╬п╢ я│п©п╦я│п╨п╬п╡ п╡ п╬п╫п╩п╟п╧п╫.
 void enter_char(CHAR_DATA *ch)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end())
 	{
-		// снимаем бабло, если что-то было потрачено на ренту
+		// я│п╫п╦п╪п╟п╣п╪ п╠п╟п╠п╩п╬, п╣я│п╩п╦ я┤я┌п╬-я┌п╬ п╠я▀п╩п╬ п©п╬я┌я─п╟я┤п╣п╫п╬ п╫п╟ я─п╣п╫я┌я┐
 		if (it->second.money_spend > 0)
 		{
-			send_to_char(ch, "%sХранилище: за время вашего отсутствия удержано %d %s.%s\r\n\r\n",
+			send_to_char(ch, "%sп╔я─п╟п╫п╦п╩п╦я┴п╣: п╥п╟ п╡я─п╣п╪я▐ п╡п╟я┬п╣пЁп╬ п╬я┌я│я┐я┌я│я┌п╡п╦я▐ я┐п╢п╣я─п╤п╟п╫п╬ %d %s.%s\r\n\r\n",
 					CCWHT(ch, C_NRM), it->second.money_spend,
 					desc_count(it->second.money_spend, WHAT_MONEYa), CCNRM(ch, C_NRM));
 
 			long rest = ch->remove_both_gold(it->second.money_spend);
 			if (rest > 0)
 			{
-				// есть вариант, что денег не хватит, потому что помимо хранилищ еще капает за
-				// одежду и инвентарь, а учитывать еще и их при расчетах уже как-то мутно
-				// поэтому мы просто готовы, если что, все технично спуржить при входе
+				// п╣я│я┌я▄ п╡п╟я─п╦п╟п╫я┌, я┤я┌п╬ п╢п╣п╫п╣пЁ п╫п╣ я┘п╡п╟я┌п╦я┌, п©п╬я┌п╬п╪я┐ я┤я┌п╬ п©п╬п╪п╦п╪п╬ я┘я─п╟п╫п╦п╩п╦я┴ п╣я┴п╣ п╨п╟п©п╟п╣я┌ п╥п╟
+				// п╬п╢п╣п╤п╢я┐ п╦ п╦п╫п╡п╣п╫я┌п╟я─я▄, п╟ я┐я┤п╦я┌я▀п╡п╟я┌я▄ п╣я┴п╣ п╦ п╦я┘ п©я─п╦ я─п╟я│я┤п╣я┌п╟я┘ я┐п╤п╣ п╨п╟п╨-я┌п╬ п╪я┐я┌п╫п╬
+				// п©п╬я█я┌п╬п╪я┐ п╪я▀ п©я─п╬я│я┌п╬ пЁп╬я┌п╬п╡я▀, п╣я│п╩п╦ я┤я┌п╬, п╡я│п╣ я┌п╣я┘п╫п╦я┤п╫п╬ я│п©я┐я─п╤п╦я┌я▄ п©я─п╦ п╡я┘п╬п╢п╣
 				depot_log("no money %s %ld: reset depot", GET_NAME(ch), GET_UNIQUE(ch));
 				it->second.reset();
-				// файл убьется позже при ребуте на пустом хране,
-				// даже если не будет никаких перезаписей по ходу игры
-				send_to_char(ch, "%sХранилище: у вас нехватило денег на постой.%s\r\n\r\n",
+				// я└п╟п╧п╩ я┐п╠я▄п╣я┌я│я▐ п©п╬п╥п╤п╣ п©я─п╦ я─п╣п╠я┐я┌п╣ п╫п╟ п©я┐я│я┌п╬п╪ я┘я─п╟п╫п╣,
+				// п╢п╟п╤п╣ п╣я│п╩п╦ п╫п╣ п╠я┐п╢п╣я┌ п╫п╦п╨п╟п╨п╦я┘ п©п╣я─п╣п╥п╟п©п╦я│п╣п╧ п©п╬ я┘п╬п╢я┐ п╦пЁя─я▀
+				send_to_char(ch, "%sп╔я─п╟п╫п╦п╩п╦я┴п╣: я┐ п╡п╟я│ п╫п╣я┘п╡п╟я┌п╦п╩п╬ п╢п╣п╫п╣пЁ п╫п╟ п©п╬я│я┌п╬п╧.%s\r\n\r\n",
 						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			}
 		}
-		// грузим хранилище, сохранять его тут вроде как смысла нет
+		// пЁя─я┐п╥п╦п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣, я│п╬я┘я─п╟п╫я▐я┌я▄ п╣пЁп╬ я┌я┐я┌ п╡я─п╬п╢п╣ п╨п╟п╨ я│п╪я▀я│п╩п╟ п╫п╣я┌
 		it->second.load_online_objs(PERS_DEPOT_FILE);
-		// обнуление оффлайновых полей и проставление ch для снятия бабла онлайн
+		// п╬п╠п╫я┐п╩п╣п╫п╦п╣ п╬я└я└п╩п╟п╧п╫п╬п╡я▀я┘ п©п╬п╩п╣п╧ п╦ п©я─п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ ch п╢п╩я▐ я│п╫я▐я┌п╦я▐ п╠п╟п╠п╩п╟ п╬п╫п╩п╟п╧п╫
 		it->second.money = 0;
 		it->second.money_spend = 0;
 		it->second.offline_list.clear();
@@ -1520,7 +1520,7 @@ void enter_char(CHAR_DATA *ch)
 	}
 }
 
-// * Перевод онлайн списка в оффлайн.
+// * п÷п╣я─п╣п╡п╬п╢ п╬п╫п╩п╟п╧п╫ я│п©п╦я│п╨п╟ п╡ п╬я└я└п╩п╟п╧п╫.
 void CharNode::online_to_offline(ObjListType &cont)
 {
 	for (ObjListType::const_iterator obj_it = cont.begin(); obj_it != cont.end(); ++obj_it)
@@ -1534,9 +1534,9 @@ void CharNode::online_to_offline(ObjListType &cont)
 		tmp_obj.uid = GET_OBJ_UID(*obj_it);
 		offline_list.push_back(tmp_obj);
 		extract_obj(obj_it->get());
-		// плюсуем персональное хранилище к общей ренте
+		// п©п╩я▌я│я┐п╣п╪ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╨ п╬п╠я┴п╣п╧ я─п╣п╫я┌п╣
 		add_cost_per_day(tmp_obj.rent_cost);
-		// из макс.в мире в игре она уходит в ренту
+		// п╦п╥ п╪п╟п╨я│.п╡ п╪п╦я─п╣ п╡ п╦пЁя─п╣ п╬п╫п╟ я┐я┘п╬п╢п╦я┌ п╡ я─п╣п╫я┌я┐
 		int rnum = real_object(tmp_obj.vnum);
 		if (rnum >= 0)
 		{
@@ -1547,18 +1547,18 @@ void CharNode::online_to_offline(ObjListType &cont)
 }
 
 /**
-* Выход чара из игры - перевод хранилищ в оффлайн (уход в ренту/дт/смерть и последующий выход через меню,
-* форс-рента при лд, 'конец'). TODO: когда буду втыкать так же ренту чара - надо учитывать, что пока мы
-* не вышли из меню (при ренте/смерти) - в данный момент мы считаем этого чара все еще онлайн.
-* TODO: так же мы сейчас дергаем эту функцию для пустых чаров, у которых уид заведомо нулевой.
+* п▓я▀я┘п╬п╢ я┤п╟я─п╟ п╦п╥ п╦пЁя─я▀ - п©п╣я─п╣п╡п╬п╢ я┘я─п╟п╫п╦п╩п╦я┴ п╡ п╬я└я└п╩п╟п╧п╫ (я┐я┘п╬п╢ п╡ я─п╣п╫я┌я┐/п╢я┌/я│п╪п╣я─я┌я▄ п╦ п©п╬я│п╩п╣п╢я┐я▌я┴п╦п╧ п╡я▀я┘п╬п╢ я┤п╣я─п╣п╥ п╪п╣п╫я▌,
+* я└п╬я─я│-я─п╣п╫я┌п╟ п©я─п╦ п╩п╢, 'п╨п╬п╫п╣я├'). TODO: п╨п╬пЁп╢п╟ п╠я┐п╢я┐ п╡я┌я▀п╨п╟я┌я▄ я┌п╟п╨ п╤п╣ я─п╣п╫я┌я┐ я┤п╟я─п╟ - п╫п╟п╢п╬ я┐я┤п╦я┌я▀п╡п╟я┌я▄, я┤я┌п╬ п©п╬п╨п╟ п╪я▀
+* п╫п╣ п╡я▀я┬п╩п╦ п╦п╥ п╪п╣п╫я▌ (п©я─п╦ я─п╣п╫я┌п╣/я│п╪п╣я─я┌п╦) - п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ п╪я▀ я│я┤п╦я┌п╟п╣п╪ я█я┌п╬пЁп╬ я┤п╟я─п╟ п╡я│п╣ п╣я┴п╣ п╬п╫п╩п╟п╧п╫.
+* TODO: я┌п╟п╨ п╤п╣ п╪я▀ я│п╣п╧я┤п╟я│ п╢п╣я─пЁп╟п╣п╪ я█я┌я┐ я└я┐п╫п╨я├п╦я▌ п╢п╩я▐ п©я┐я│я┌я▀я┘ я┤п╟я─п╬п╡, я┐ п╨п╬я┌п╬я─я▀я┘ я┐п╦п╢ п╥п╟п╡п╣п╢п╬п╪п╬ п╫я┐п╩п╣п╡п╬п╧.
 */
 void exit_char(CHAR_DATA *ch)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
 	if (it != depot_list.end())
 	{
-		// тут лучше дернуть сейв руками до тика, т.к. есть вариант зайти и тут же выйти
-		// в итоге к моменту сейва онлайн список будет пустой и все похерится
+		// я┌я┐я┌ п╩я┐я┤я┬п╣ п╢п╣я─п╫я┐я┌я▄ я│п╣п╧п╡ я─я┐п╨п╟п╪п╦ п╢п╬ я┌п╦п╨п╟, я┌.п╨. п╣я│я┌я▄ п╡п╟я─п╦п╟п╫я┌ п╥п╟п╧я┌п╦ п╦ я┌я┐я┌ п╤п╣ п╡я▀п╧я┌п╦
+		// п╡ п╦я┌п╬пЁп╣ п╨ п╪п╬п╪п╣п╫я┌я┐ я│п╣п╧п╡п╟ п╬п╫п╩п╟п╧п╫ я│п©п╦я│п╬п╨ п╠я┐п╢п╣я┌ п©я┐я│я┌п╬п╧ п╦ п╡я│п╣ п©п╬я┘п╣я─п╦я┌я│я▐
 		it->second.save_online_objs();
 
 		it->second.online_to_offline(it->second.pers_online);
@@ -1568,43 +1568,43 @@ void exit_char(CHAR_DATA *ch)
 	}
 }
 
-// * Релоад шмоток чара на случай отката.
+// * п═п╣п╩п╬п╟п╢ я┬п╪п╬я┌п╬п╨ я┤п╟я─п╟ п╫п╟ я│п╩я┐я┤п╟п╧ п╬я┌п╨п╟я┌п╟.
 void reload_char(long uid, CHAR_DATA *ch)
 {
 	DepotListType::iterator it = create_depot(uid);
 	if (it == depot_list.end())
 	{
-		log("Хранилище: UID %ld - возвращен некорректный уид персонажа.", uid);
+		log("п╔я─п╟п╫п╦п╩п╦я┴п╣: UID %ld - п╡п╬п╥п╡я─п╟я┴п╣п╫ п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ я┐п╦п╢ п©п╣я─я│п╬п╫п╟п╤п╟.", uid);
 		return;
 	}
-	// сначала обнуляем все, что надо
+	// я│п╫п╟я┤п╟п╩п╟ п╬п╠п╫я┐п╩я▐п╣п╪ п╡я│п╣, я┤я┌п╬ п╫п╟п╢п╬
 	it->second.reset();
 
-	// после чего надо записать ему бабла, иначе при входе все спуржится (бабло проставит в exit_char)
+	// п©п╬я│п╩п╣ я┤п╣пЁп╬ п╫п╟п╢п╬ п╥п╟п©п╦я│п╟я┌я▄ п╣п╪я┐ п╠п╟п╠п╩п╟, п╦п╫п╟я┤п╣ п©я─п╦ п╡я┘п╬п╢п╣ п╡я│п╣ я│п©я┐я─п╤п╦я┌я│я▐ (п╠п╟п╠п╩п╬ п©я─п╬я│я┌п╟п╡п╦я┌ п╡ exit_char)
 	CHAR_DATA::shared_ptr vict;
 	DESCRIPTOR_DATA *d = DescByUID(uid);
 	if (d)
 	{
-		vict = d->character; // чар онлайн
+		vict = d->character; // я┤п╟я─ п╬п╫п╩п╟п╧п╫
 	}
 	else
 	{
-		// чар соответственно оффлайн
+		// я┤п╟я─ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬ п╬я└я└п╩п╟п╧п╫
 		const CHAR_DATA::shared_ptr t_vict(new Player);
 		if (load_char(it->second.name.c_str(), t_vict.get()) < 0)
 		{
-			// вообще эт нереальная ситуация после проверки в do_reboot
-			send_to_char(ch, "Некорректное имя персонажа (%s).\r\n", it->second.name.c_str());
+			// п╡п╬п╬п╠я┴п╣ я█я┌ п╫п╣я─п╣п╟п╩я▄п╫п╟я▐ я│п╦я┌я┐п╟я├п╦я▐ п©п╬я│п╩п╣ п©я─п╬п╡п╣я─п╨п╦ п╡ do_reboot
+			send_to_char(ch, "п²п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╦п╪я▐ п©п╣я─я│п╬п╫п╟п╤п╟ (%s).\r\n", it->second.name.c_str());
 		}
 		vict = t_vict;
 	}
 
 	if (vict)
 	{
-		// вобщем тут мысль такая: кодить доп. обработку для релоада оффлайн чара мне стало лень,
-		// поэтому мы штатно грузим ему сначала онлайн список, после чего отправляем его в оффлайн
+		// п╡п╬п╠я┴п╣п╪ я┌я┐я┌ п╪я▀я│п╩я▄ я┌п╟п╨п╟я▐: п╨п╬п╢п╦я┌я▄ п╢п╬п©. п╬п╠я─п╟п╠п╬я┌п╨я┐ п╢п╩я▐ я─п╣п╩п╬п╟п╢п╟ п╬я└я└п╩п╟п╧п╫ я┤п╟я─п╟ п╪п╫п╣ я│я┌п╟п╩п╬ п╩п╣п╫я▄,
+		// п©п╬я█я┌п╬п╪я┐ п╪я▀ я┬я┌п╟я┌п╫п╬ пЁя─я┐п╥п╦п╪ п╣п╪я┐ я│п╫п╟я┤п╟п╩п╟ п╬п╫п╩п╟п╧п╫ я│п©п╦я│п╬п╨, п©п╬я│п╩п╣ я┤п╣пЁп╬ п╬я┌п©я─п╟п╡п╩я▐п╣п╪ п╣пЁп╬ п╡ п╬я└я└п╩п╟п╧п╫
 		it->second.load_online_objs(PERS_DEPOT_FILE, 1);
-		// если чара грузили с оффлайна
+		// п╣я│п╩п╦ я┤п╟я─п╟ пЁя─я┐п╥п╦п╩п╦ я│ п╬я└я└п╩п╟п╧п╫п╟
 		if (!d)
 		{
 			exit_char(vict.get());
@@ -1617,8 +1617,8 @@ void reload_char(long uid, CHAR_DATA *ch)
 }
 
 /**
-* Учет локейт в персональных хранилищах.
-* \param count - оставшееся кол-во возможных показываемых шмоток после прохода по основному обж-списку.
+* пёя┤п╣я┌ п╩п╬п╨п╣п╧я┌ п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀я┘ я┘я─п╟п╫п╦п╩п╦я┴п╟я┘.
+* \param count - п╬я│я┌п╟п╡я┬п╣п╣я│я▐ п╨п╬п╩-п╡п╬ п╡п╬п╥п╪п╬п╤п╫я▀я┘ п©п╬п╨п╟п╥я▀п╡п╟п╣п╪я▀я┘ я┬п╪п╬я┌п╬п╨ п©п╬я│п╩п╣ п©я─п╬я┘п╬п╢п╟ п©п╬ п╬я│п╫п╬п╡п╫п╬п╪я┐ п╬п╠п╤-я│п©п╦я│п╨я┐.
 */
 int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 {
@@ -1644,7 +1644,7 @@ int print_spell_locate_object(CHAR_DATA *ch, int count, std::string name)
 				continue;
 			}
 
-			snprintf(buf, MAX_STRING_LENGTH, "%s наход%sся у кого-то в персональном хранилище.\r\n",
+			snprintf(buf, MAX_STRING_LENGTH, "%s п╫п╟я┘п╬п╢%sя│я▐ я┐ п╨п╬пЁп╬-я┌п╬ п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣.\r\n",
 				(*obj_it)->get_short_description().c_str(), GET_OBJ_POLY_1(ch, (*obj_it)));
 //			CAP(buf); issue #59
 			send_to_char(buf, ch);
@@ -1669,7 +1669,7 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 		{
 			if (isname(arg, (*obj_it)->get_aliases()))
 			{
-				send_to_char(ch, "O%3d. %-25s - наход%sся в персональном хранилище (%s).\r\n",
+				send_to_char(ch, "O%3d. %-25s - п╫п╟я┘п╬п╢%sя│я▐ п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╪ я┘я─п╟п╫п╦п╩п╦я┴п╣ (%s).\r\n",
 					num++, (*obj_it)->get_short_description().c_str(), GET_OBJ_POLY_1(ch, (*obj_it)), it->second.name.c_str());
 			}
 		}
@@ -1677,7 +1677,7 @@ int print_imm_where_obj(CHAR_DATA *ch, char *arg, int num)
 	return num;
 }
 
-// * Обновление полей объектов при изменении их прототипа через олц.
+// * п·п╠п╫п╬п╡п╩п╣п╫п╦п╣ п©п╬п╩п╣п╧ п╬п╠я┼п╣п╨я┌п╬п╡ п©я─п╦ п╦п╥п╪п╣п╫п╣п╫п╦п╦ п╦я┘ п©я─п╬я┌п╬я┌п╦п©п╟ я┤п╣я─п╣п╥ п╬п╩я├.
 void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
 {
 	for (DepotListType::iterator it = depot_list.begin(); it != depot_list.end(); ++it)
@@ -1692,7 +1692,7 @@ void olc_update_from_proto(int robj_num, OBJ_DATA *olc_proto)
 	}
 }
 
-// * Обработка ренейма персонажа.
+// * п·п╠я─п╟п╠п╬я┌п╨п╟ я─п╣п╫п╣п╧п╪п╟ п©п╣я─я│п╬п╫п╟п╤п╟.
 void rename_char(CHAR_DATA *ch)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
@@ -1702,7 +1702,7 @@ void rename_char(CHAR_DATA *ch)
 	}
 }
 
-// * Поиск цели для каста локейта.
+// * п÷п╬п╦я│п╨ я├п╣п╩п╦ п╢п╩я▐ п╨п╟я│я┌п╟ п╩п╬п╨п╣п╧я┌п╟.
 OBJ_DATA * locate_object(const char *str)
 {
 	for (DepotListType::const_iterator i = depot_list.begin(); i != depot_list.end(); ++i)
@@ -1718,7 +1718,7 @@ OBJ_DATA * locate_object(const char *str)
 	return 0;
 }
 
-// * Добавление денег чару, находящемуся оффлайн при переводе кун (типа временное решение).
+// * п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╢п╣п╫п╣пЁ я┤п╟я─я┐, п╫п╟я┘п╬п╢я▐я┴п╣п╪я┐я│я▐ п╬я└я└п╩п╟п╧п╫ п©я─п╦ п©п╣я─п╣п╡п╬п╢п╣ п╨я┐п╫ (я┌п╦п©п╟ п╡я─п╣п╪п╣п╫п╫п╬п╣ я─п╣я┬п╣п╫п╦п╣).
 void add_offline_money(long uid, int money)
 {
 	DepotListType::iterator it = depot_list.find(uid);
@@ -1728,7 +1728,7 @@ void add_offline_money(long uid, int money)
 	}
 }
 
-// * Поиск в хранилище внума из списка vnum_list.
+// * п÷п╬п╦я│п╨ п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╡п╫я┐п╪п╟ п╦п╥ я│п©п╦я│п╨п╟ vnum_list.
 bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
@@ -1746,7 +1746,7 @@ bool find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
 	return false;
 }
 
-// * Запрет на ренту при наличии единственной сетины в хранилище с сообщением от рент-кипера.
+// * п≈п╟п©я─п╣я┌ п╫п╟ я─п╣п╫я┌я┐ п©я─п╦ п╫п╟п╩п╦я┤п╦п╦ п╣п╢п╦п╫я│я┌п╡п╣п╫п╫п╬п╧ я│п╣я┌п╦п╫я▀ п╡ я┘я─п╟п╫п╦п╩п╦я┴п╣ я│ я│п╬п╬п╠я┴п╣п╫п╦п╣п╪ п╬я┌ я─п╣п╫я┌-п╨п╦п©п╣я─п╟.
 int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep)
 {
 	DepotListType::iterator it = depot_list.find(GET_UNIQUE(ch));
@@ -1758,7 +1758,7 @@ int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep)
 			if (SetSystem::is_norent_set(ch, obj_it->get()))
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
-					"$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
+					"$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : \"п╞ п╫п╣ п©я─п╦п╪я┐ п╫п╟ п©п╬я│я┌п╬п╧ %s - я┌я─п╣п╠я┐п╣я┌я│я▐ п╢п╡п╣ п╦ п╠п╬п╩п╣п╣ п╡п╣я┴п╦ п╦п╥ п╫п╟п╠п╬я─п╟.\"",
 					OBJN(obj_it->get(), ch, 3));
 				act(buf, FALSE, recep, 0, ch, TO_VICT);
 				return 1;
@@ -1768,7 +1768,7 @@ int report_unrentables(CHAR_DATA *ch, CHAR_DATA *recep)
 	return 0;
 }
 
-// * Проверка при ребуте на сныканые одинокие фулл-сетины.
+// * п÷я─п╬п╡п╣я─п╨п╟ п©я─п╦ я─п╣п╠я┐я┌п╣ п╫п╟ я│п╫я▀п╨п╟п╫я▀п╣ п╬п╢п╦п╫п╬п╨п╦п╣ я└я┐п╩п╩-я│п╣я┌п╦п╫я▀.
 void check_rented(int uid)
 {
 	DepotListType::iterator it = depot_list.find(uid);
@@ -1783,8 +1783,8 @@ void check_rented(int uid)
 }
 
 /**
- * Обнуление таймера указанной шмотки в оффлайн хранилище (при ребуте).
- * Макс.в.мире учтется при последующем обновлении таймеров хранилища.
+ * п·п╠п╫я┐п╩п╣п╫п╦п╣ я┌п╟п╧п╪п╣я─п╟ я┐п╨п╟п╥п╟п╫п╫п╬п╧ я┬п╪п╬я┌п╨п╦ п╡ п╬я└я└п╩п╟п╧п╫ я┘я─п╟п╫п╦п╩п╦я┴п╣ (п©я─п╦ я─п╣п╠я┐я┌п╣).
+ * п°п╟п╨я│.п╡.п╪п╦я─п╣ я┐я┤я┌п╣я┌я│я▐ п©я─п╦ п©п╬я│п╩п╣п╢я┐я▌я┴п╣п╪ п╬п╠п╫п╬п╡п╩п╣п╫п╦п╦ я┌п╟п╧п╪п╣я─п╬п╡ я┘я─п╟п╫п╦п╩п╦я┴п╟.
  */
 void delete_set_item(int uid, int vnum)
 {

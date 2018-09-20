@@ -35,13 +35,13 @@ public:
 	PlayerKin();
 	//	void ShowMenu(CHAR_DATA *ch);
 
-	int KinNum;					// Номер расы
-    bool Enabled;               // Флаг доступности для создания персонажей
-	std::string KinMenuStr;	    // Название расы в меню выбора
-	std::string KinItName;	    // Название расы в среднем роде
-	std::string KinHeName;      // Название расы в мужском роде
-	std::string KinSheName;     // Название расы в женском роде
-	std::string KinPluralName;  // Название расы в множественном числе
+	int KinNum;					// п²п╬п╪п╣я─ я─п╟я│я▀
+    bool Enabled;               // п╓п╩п╟пЁ п╢п╬я│я┌я┐п©п╫п╬я│я┌п╦ п╢п╩я▐ я│п╬п╥п╢п╟п╫п╦я▐ п©п╣я─я│п╬п╫п╟п╤п╣п╧
+	std::string KinMenuStr;	    // п²п╟п╥п╡п╟п╫п╦п╣ я─п╟я│я▀ п╡ п╪п╣п╫я▌ п╡я▀п╠п╬я─п╟
+	std::string KinItName;	    // п²п╟п╥п╡п╟п╫п╦п╣ я─п╟я│я▀ п╡ я│я─п╣п╢п╫п╣п╪ я─п╬п╢п╣
+	std::string KinHeName;      // п²п╟п╥п╡п╟п╫п╦п╣ я─п╟я│я▀ п╡ п╪я┐п╤я│п╨п╬п╪ я─п╬п╢п╣
+	std::string KinSheName;     // п²п╟п╥п╡п╟п╫п╦п╣ я─п╟я│я▀ п╡ п╤п╣п╫я│п╨п╬п╪ я─п╬п╢п╣
+	std::string KinPluralName;  // п²п╟п╥п╡п╟п╫п╦п╣ я─п╟я│я▀ п╡ п╪п╫п╬п╤п╣я│я┌п╡п╣п╫п╫п╬п╪ я┤п╦я│п╩п╣
 };
 
 class PlayerRace
@@ -108,15 +108,15 @@ public:
     static int CheckBirthPlace(int Kin, int Race, char *arg);
 
 private:
-	int _RaceNum;	            // Номер _рода_
-    bool _Enabled;               // Флаг доступности
-	std::string _RaceMenuStr;   // Название рода в меню
-	std::string _RaceItName;    // Название рода в среднем роде
-	std::string _RaceHeName;    // Название рода в мужском роде
-	std::string _RaceSheName;   // Название рода в женском роде
-	std::string _RacePluralName;// Название рода в множественном числе
-	std::vector<int> _RaceFeatureList; // Список родовых способностей
-    std::vector<int> _RaceBirthPlaceList; // Список "мест рождений" новых персонажей данной расы
+	int _RaceNum;	            // п²п╬п╪п╣я─ _я─п╬п╢п╟_
+    bool _Enabled;               // п╓п╩п╟пЁ п╢п╬я│я┌я┐п©п╫п╬я│я┌п╦
+	std::string _RaceMenuStr;   // п²п╟п╥п╡п╟п╫п╦п╣ я─п╬п╢п╟ п╡ п╪п╣п╫я▌
+	std::string _RaceItName;    // п²п╟п╥п╡п╟п╫п╦п╣ я─п╬п╢п╟ п╡ я│я─п╣п╢п╫п╣п╪ я─п╬п╢п╣
+	std::string _RaceHeName;    // п²п╟п╥п╡п╟п╫п╦п╣ я─п╬п╢п╟ п╡ п╪я┐п╤я│п╨п╬п╪ я─п╬п╢п╣
+	std::string _RaceSheName;   // п²п╟п╥п╡п╟п╫п╦п╣ я─п╬п╢п╟ п╡ п╤п╣п╫я│п╨п╬п╪ я─п╬п╢п╣
+	std::string _RacePluralName;// п²п╟п╥п╡п╟п╫п╦п╣ я─п╬п╢п╟ п╡ п╪п╫п╬п╤п╣я│я┌п╡п╣п╫п╫п╬п╪ я┤п╦я│п╩п╣
+	std::vector<int> _RaceFeatureList; // п║п©п╦я│п╬п╨ я─п╬п╢п╬п╡я▀я┘ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧
+    std::vector<int> _RaceBirthPlaceList; // п║п©п╦я│п╬п╨ "п╪п╣я│я┌ я─п╬п╤п╢п╣п╫п╦п╧" п╫п╬п╡я▀я┘ п©п╣я─я│п╬п╫п╟п╤п╣п╧ п╢п╟п╫п╫п╬п╧ я─п╟я│я▀
 
 };
 

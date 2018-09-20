@@ -155,7 +155,7 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd)
 		if (reloc_target != -1 && reloc_target != ch->in_room)
 		{
 			sprintf(buf,
-					"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
+					"&Yп▓п²п≤п°п░п²п≤п∙&G п²п╣п╡п╣я─п╫п╬п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╟п╫п╢я▀ wat п╡ я┌я─п╦пЁпЁп╣я─п╣ %s (VNUM=%d).",
 					GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
 			mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 		}
@@ -305,7 +305,7 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			else
 				wld_log(room, "wdoor: invalid door target");
 			break;
-		case 6:	// lock - сложность замка         //
+		case 6:	// lock - я│п╩п╬п╤п╫п╬я│я┌я▄ п╥п╟п╪п╨п╟         //
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))
 				exit->lock_complexity = lock;
@@ -345,7 +345,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (target == NOWHERE)
 		wld_log(room, "wteleport target is an invalid room");
-	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
+	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "п╡я│п╣"))
 	{
 		if (nr == room->number)
 		{
@@ -456,7 +456,7 @@ void do_wforce(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
+	if (!str_cmp(arg1, "all") || !str_cmp(arg1, "п╡я│п╣"))
 	{
 		wld_log(room, "ERROR: \'wforce all\' command disabled.");
 		return;
@@ -523,7 +523,7 @@ void do_wexp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	if ((ch = get_char_by_room(room, name)))
 	{
 		gain_exp(ch, atoi(amount));
-		sprintf(buf, "wexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
+		sprintf(buf, "wexp: victim (%s) п©п╬п╩я┐я┤п╦п╩ п╬п©я▀я┌ %d", GET_NAME(ch), atoi(amount));
 		wld_log(room, buf);
 	}
 	else
@@ -613,7 +613,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "wload: количество больше чем в MIW для #%d, предмет удален.", number);
+				sprintf(buf, "wload: п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╠п╬п╩я▄я┬п╣ я┤п╣п╪ п╡ MIW п╢п╩я▐ #%d, п©я─п╣п╢п╪п╣я┌ я┐п╢п╟п╩п╣п╫.", number);
 				wld_log(room, buf);
 //				extract_obj(object.get());
 //				return;
@@ -660,13 +660,13 @@ void do_wdamage(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)
 		{
-			send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
+			send_to_char("п▒я┐п╢я┐я┤п╦ п╠п╣я│я│п╪п╣я─я┌п╫я▀п╪, п╡я▀ п╦п╥п╠п╣п╤п╟п╩п╦ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐...", ch);
 			return;
 		}
 		GET_HIT(ch) -= dam;
 		if (dam < 0)
 		{
-			send_to_char("Вы почувствовали себя лучше.\r\n", ch);
+			send_to_char("п▓я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│п╣п╠я▐ п╩я┐я┤я┬п╣.\r\n", ch);
 			return;
 		}
 
@@ -833,7 +833,7 @@ void do_wskillturn(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
         }
 		else 
 		{
-			sprintf(buf, "wskillturn: несоответсвие устанавливаемого умения классу игрока");
+			sprintf(buf, "wskillturn: п╫п╣я│п╬п╬я┌п╡п╣я┌я│п╡п╦п╣ я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪п╬пЁп╬ я┐п╪п╣п╫п╦я▐ п╨п╩п╟я│я│я┐ п╦пЁя─п╬п╨п╟");
 			wld_log(room, buf);
 		}
 	}
@@ -1080,8 +1080,8 @@ void do_wspellitem(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-/* Команда открывает пентаграмму из текущей комнаты в заданную комнату
-   синтаксис wportal <номер комнаты> <длительность портала>
+/* п п╬п╪п╟п╫п╢п╟ п╬я┌п╨я─я▀п╡п╟п╣я┌ п©п╣п╫я┌п╟пЁя─п╟п╪п╪я┐ п╦п╥ я┌п╣п╨я┐я┴п╣п╧ п╨п╬п╪п╫п╟я┌я▀ п╡ п╥п╟п╢п╟п╫п╫я┐я▌ п╨п╬п╪п╫п╟я┌я┐
+   я│п╦п╫я┌п╟п╨я│п╦я│ wportal <п╫п╬п╪п╣я─ п╨п╬п╪п╫п╟я┌я▀> <п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄ п©п╬я─я┌п╟п╩п╟>
 */
 void do_wportal(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -1107,15 +1107,15 @@ void do_wportal(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	/* Ставим пентаграмму из текущей комнаты в комнату target с
-	   длительностью howlong */
+	/* п║я┌п╟п╡п╦п╪ п©п╣п╫я┌п╟пЁя─п╟п╪п╪я┐ п╦п╥ я┌п╣п╨я┐я┴п╣п╧ п╨п╬п╪п╫п╟я┌я▀ п╡ п╨п╬п╪п╫п╟я┌я┐ target я│
+	   п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄я▌ howlong */
 	curroom = real_room(room->number);
 	world[curroom]->portal_room = target;
 	world[curroom]->portal_time = howlong;
 	world[curroom]->pkPenterUnique = 0;
 	OneWayPortal::add(world[target], world[curroom]);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
-	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
+	act("п⌡п╟п╥я┐я─п╫п╟я▐ п©п╣п╫я┌п╟пЁя─п╟п╪п╪п╟ п╡п╬п╥п╫п╦п╨п╩п╟ п╡ п╡п╬п╥п╢я┐я┘п╣.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("п⌡п╟п╥я┐я─п╫п╟я▐ п©п╣п╫я┌п╟пЁя─п╟п╪п╪п╟ п╡п╬п╥п╫п╦п╨п╩п╟ п╡ п╡п╬п╥п╢я┐я┘п╣.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
 
 const struct wld_command_info wld_cmd_info[] =

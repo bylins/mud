@@ -75,27 +75,27 @@ void perform_drop_gold(CHAR_DATA * ch, int amount);
 
 char AltToKoi[] =
 {
-	"АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмноп░▒▓│┤╡+++╣║╗╝+╛┐└┴┬├─┼╞╟╚╔╩╦╠═╬╧╨++╙╘╒++╪┘┌█▄▌▐▀рстуфхцчшщъыьэюяЁё╫╜╢╓╤╕╥╖·√??■ "
+	"п░п▒п▓п⌠п■п∙п√п≈п≤п≥п п⌡п°п²п·п÷п═п║п╒пёп╓п╔п╕п╖п╗п╘п╙п╚п╛п╜п╝п╞п╟п╠п╡пЁп╢п╣п╤п╥п╦п╧п╨п╩п╪п╫п╬п©Б√▒Б√▓Б√⌠Б■┌Б■╓Б∙║+++Б∙ёБ∙▒Б∙≈Б∙²+Б∙⌡Б■░Б■■Б■╢Б■╛Б■°Б■─Б■╪Б∙·Б∙÷Б∙ Б∙■Б∙╘Б∙╕Б∙═Б∙░Б∙╛Б∙╖Б∙╗++Б∙≥Б∙≤Б∙▓++Б∙╙Б■≤Б■▄Б√┬Б√└Б√▄Б√░Б√─я─я│я┌я┐я└я┘я├я┤я┬я┴я┼я▀я▄я█я▌я▐п│я▒Б∙╚Б∙°Б∙╒Б∙⌠Б∙╓Б∙∙Б∙╔Б∙√б╥Б┬ ??Б√═б═"
 };
 char KoiToAlt[] =
 {
-	"дЁз©юыц╢баеъэшщч╟╠╡+Ч+Ш+++Ъ+++З+м╨уЯУиВЫ╩тсх╬С╪фгл╣ПТ╧ЖЬкопйьРн+Н═║Ф╓╔ДёЕ╗╘╙╚╛╜╝╞ОЮАБЦ╕╒ЛК╖ХМИГЙ·─│√└┘■┐∙┬┴┼▀▄█▌▐÷░▒▓⌠├┌°⌡┤≤²≥≈ "
+	"п╢п│п╥б╘я▌я▀я├Б∙╒п╠п╟п╣я┼я█я┬я┴я┤Б∙÷Б∙═Б∙║+п╖+п╗+++п╙+++п≈+п╪Б∙╗я┐п╞пёп╦п▓п╚Б∙╘я┌я│я┘Б∙╛п║Б∙╙я└пЁп╩Б∙ёп÷п╒Б∙╖п√п╛п╨п╬п©п╧я▄п═п╫+п²Б∙░Б∙▒п╓Б∙⌠Б∙■п■я▒п∙Б∙≈Б∙≤Б∙≥Б∙ Б∙⌡Б∙°Б∙²Б∙·п·п╝п░п▒п╕Б∙∙Б∙▓п⌡п Б∙√п╔п°п≤п⌠п≥б╥Б■─Б■┌Б┬ Б■■Б■≤Б√═Б■░Б┬≥Б■╛Б■╢Б■╪Б√─Б√└Б√┬Б√▄Б√░ц╥Б√▒Б√▓Б√⌠Б▄═Б■°Б■▄б╟Б▄║Б■╓Б┴╓б╡Б┴╔Б┴┬б═"
 };
 char WinToKoi[] =
 {
-	"++++++++++++++++++++++++++++++++ ++++╫++Ё©╢++++╥°+╤╕╜++·ё+╓++++╖АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя"
+	"++++++++++++++++++++++++++++++++б═++++Б∙╚++п│б╘Б∙╒++++Б∙╔б╟+Б∙╓Б∙∙Б∙°++б╥я▒+Б∙⌠++++Б∙√п░п▒п▓п⌠п■п∙п√п≈п≤п≥п п⌡п°п²п·п÷п═п║п╒пёп╓п╔п╕п╖п╗п╘п╙п╚п╛п╜п╝п╞п╟п╠п╡пЁп╢п╣п╤п╥п╦п╧п╨п╩п╪п╫п╬п©я─я│я┌я┐я└я┘я├я┤я┬я┴я┼я▀я▄я█я▌я▐"
 };
 char KoiToWin[] =
 {
-	"++++++++++++++++++++++++++═+╟+╥++++╦╨+Ё©+++++╢+++++╗╙+╡╞+++++╔+╘ЧЮАЖДЕТЦУХИЙКЛМНОЪПЯРСФБЭШГЬЩЫВЗчюаждетцухийклмноъпярсфбэшгьщывз"
+	"++++++++++++++++++++++++++Б∙░+Б∙÷+Б∙╔++++Б∙╕Б∙╗+п│б╘+++++Б∙╒+++++Б∙≈Б∙≥+Б∙║Б∙·+++++Б∙■+Б∙≤п╖п╝п░п√п■п∙п╒п╕пёп╔п≤п≥п п⌡п°п²п·п╙п÷п╞п═п║п╓п▒п╜п╗п⌠п╛п╘п╚п▓п≈я┤я▌п╟п╤п╢п╣я┌я├я┐я┘п╦п╧п╨п╩п╪п╫п╬я┼п©я▐я─я│я└п╠я█я┬пЁя▄я┴я▀п╡п╥"
 };
 char KoiToWin2[] =
 {
-	"++++++++++++++++++++++++++═+╟+╥++++╦╨+Ё©+++++╢+++++╗╙+╡╞+++++╔+╘ЧЮАЖДЕТЦУХИЙКЛМНОzПЯРСФБЭШГЬЩЫВЗчюаждетцухийклмноъпярсфбэшгьщывз"
+	"++++++++++++++++++++++++++Б∙░+Б∙÷+Б∙╔++++Б∙╕Б∙╗+п│б╘+++++Б∙╒+++++Б∙≈Б∙≥+Б∙║Б∙·+++++Б∙■+Б∙≤п╖п╝п░п√п■п∙п╒п╕пёп╔п≤п≥п п⌡п°п²п·zп÷п╞п═п║п╓п▒п╜п╗п⌠п╛п╘п╚п▓п≈я┤я▌п╟п╤п╢п╣я┌я├я┐я┘п╦п╧п╨п╩п╪п╫п╬я┼п©я▐я─я│я└п╠я█я┬пЁя▄я┴я▀п╡п╥"
 };
 char AltToLat[] =
 {
-	"─│┌┐└┘├┤┬┴┼▀▄█▌▐░▒▓⌠■∙√≈≤≥ ⌡°²·÷═║╒ё╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡Ё╢╣╤╥╦╧╨╩╪╫╬©0abcdefghijklmnopqrstY1v23z456780ABCDEFGHIJKLMNOPQRSTY1V23Z45678"
+	"Б■─Б■┌Б■▄Б■░Б■■Б■≤Б■°Б■╓Б■╛Б■╢Б■╪Б√─Б√└Б√┬Б√▄Б√░Б√▒Б√▓Б√⌠Б▄═Б√═Б┬≥Б┬ Б┴┬Б┴╓Б┴╔б═Б▄║б╟б╡б╥ц╥Б∙░Б∙▒Б∙▓я▒Б∙⌠Б∙■Б∙∙Б∙√Б∙≈Б∙≤Б∙≥Б∙ Б∙⌡Б∙°Б∙²Б∙·Б∙÷Б∙═Б∙║п│Б∙╒Б∙ёБ∙╓Б∙╔Б∙╕Б∙╖Б∙╗Б∙╘Б∙╙Б∙╚Б∙╛б╘0abcdefghijklmnopqrstY1v23z456780ABCDEFGHIJKLMNOPQRSTY1V23Z45678"
 };
 
 const char *ACTNULL = "<NULL>";
@@ -143,9 +143,9 @@ char* first_letter(char* txt)
 	{
 		while (*txt && !a_isalpha(*txt))
 		{
-			//Предполагается, что для отправки клиенту используется только управляющий код с цветом
-			//На данный момент в коде присутствует только еще один управляющий код для очистки экрана,
-			//но он не используется (см. CLEAR_SCREEN)
+			//п÷я─п╣п╢п©п╬п╩п╟пЁп╟п╣я┌я│я▐, я┤я┌п╬ п╢п╩я▐ п╬я┌п©я─п╟п╡п╨п╦ п╨п╩п╦п╣п╫я┌я┐ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ я┐п©я─п╟п╡п╩я▐я▌я┴п╦п╧ п╨п╬п╢ я│ я├п╡п╣я┌п╬п╪
+			//п²п╟ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ п╡ п╨п╬п╢п╣ п©я─п╦я│я┐я┌я│я┌п╡я┐п╣я┌ я┌п╬п╩я▄п╨п╬ п╣я┴п╣ п╬п╢п╦п╫ я┐п©я─п╟п╡п╩я▐я▌я┴п╦п╧ п╨п╬п╢ п╢п╩я▐ п╬я┤п╦я│я┌п╨п╦ я█п╨я─п╟п╫п╟,
+			//п╫п╬ п╬п╫ п╫п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ (я│п╪. CLEAR_SCREEN)
 			if ('\x1B' == *txt)
 			{
 				while (*txt && 'm' != *txt)
@@ -239,7 +239,7 @@ void prune_crlf(char *txt)
 
 bool is_head(std::string name)
 {
-	if ((name == "Стрибог") || (name == "стрибог"))
+	if ((name == "п║я┌я─п╦п╠п╬пЁ") || (name == "я│я┌я─п╦п╠п╬пЁ"))
 		return true;
 	return false;
 }
@@ -437,7 +437,7 @@ int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n)
 		return (LOWER(arg1[i]) - LOWER('\0'));
 }
 
-// дескрипторы открытых файлов логов для сброса буфера при креше
+// п╢п╣я│п╨я─п╦п©я┌п╬я─я▀ п╬я┌п╨я─я▀я┌я▀я┘ я└п╟п╧п╩п╬п╡ п╩п╬пЁп╬п╡ п╢п╩я▐ я│п╠я─п╬я│п╟ п╠я┐я└п╣я─п╟ п©я─п╦ п╨я─п╣я┬п╣
 std::list<FILE *> opened_files;
 
 bool no_bad_affects(OBJ_DATA *obj)
@@ -466,8 +466,8 @@ bool no_bad_affects(OBJ_DATA *obj)
 }
 
 /**
-* Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
-* Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).
+* п╓п╟п╧п╩ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬пЁп╬ п╩п╬пЁп╟ я┌п╣я─я▄ п╬я┌п╨я─я▀п╡п╟п╣я┌я│я▐ п╬п╢п╦п╫ я─п╟п╥ п╥п╟ п╨п╟п╤п╢я▀п╧ п╡я┘п╬п╢ п©п╩п╣п╣я─п╟ п╡ п╦пЁя─я┐.
+* п■п╣я│п╨я─п╦п©я┌п╬я─ п╬я┌п╨я─я▀я┌п╬пЁп╬ я└п╟п╧п╩п╟ я┐ п©п╩п╣п╣я─п╟ п╤п╣ п╦ я┘я─п╟п╫п╦я┌я│я▐ (п╥п╟п╨я─я▀п╡п╟п╣я┌ п©я─п╦ con_close).
 */
 void pers_log(CHAR_DATA *ch, const char *format, ...)
 {
@@ -682,7 +682,7 @@ void horse_drop(CHAR_DATA * ch)
 {
 	if (ch->has_master())
 	{
-		act("$N сбросил$G вас со своей спины.", FALSE, ch->get_master(), 0, ch, TO_CHAR);
+		act("$N я│п╠я─п╬я│п╦п╩$G п╡п╟я│ я│п╬ я│п╡п╬п╣п╧ я│п©п╦п╫я▀.", FALSE, ch->get_master(), 0, ch, TO_CHAR);
 		AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_HORSE);
 		WAIT_STATE(ch->get_master(), 3 * PULSE_VIOLENCE);
 
@@ -704,9 +704,9 @@ void check_horse(CHAR_DATA * ch)
 
 // Called when stop following persons, or stopping charm //
 // This will NOT do if a character quits/dies!!          //
-// При возврате 1 использовать ch нельзя, т.к. прошли через extract_char
-// TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
-// при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
+// п÷я─п╦ п╡п╬п╥п╡я─п╟я┌п╣ 1 п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ ch п╫п╣п╩я▄п╥я▐, я┌.п╨. п©я─п╬я┬п╩п╦ я┤п╣я─п╣п╥ extract_char
+// TODO: п©п╬ п╡я│п╣п╪ п╡я▀п╥п╬п╡п╟п╪ п╫п╣ п©я─п╬я┘п╬п╢п╦п╩, п╪п╬п╤п╣я┌ п╣я┴п╣ пЁп╢п╣-я┌п╬ п╨п╬я─я▐п╡п╬ п╡я▀п╥я▀п╡п╟п╣я┌я│я▐, п╨я─п╬п╪п╣ п©п╣я─п╣п╢п╟я┤п╦ я│п╨п╟п╨я┐п╫п╬п╡ -- Krodo
+// п©я─п╦ п©п╣я─я│п╬п╫п╟п╤п╣ п╫п╟ п╡я┘п╬п╢п╣ - п©я┐я─п╤п╦я┌я▄ п╫п╣ п╢п╬п╩п╤п╫п╬ п©п╬п╩я▌п╠п╬п╪я┐, п╣я│п╩п╦ п╫п╟я┤п╫п╣я┌, п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪ п╡ change_leader п╠я┐п╢я┐я┌ пЁп╩я▌п╨п╦
 bool stop_follower(CHAR_DATA * ch, int mode)
 {
 	CHAR_DATA *master;
@@ -722,11 +722,11 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		return (FALSE);
 	}
 
-	// для смены лидера без лишнего спама
+	// п╢п╩я▐ я│п╪п╣п╫я▀ п╩п╦п╢п╣я─п╟ п╠п╣п╥ п╩п╦я┬п╫п╣пЁп╬ я│п©п╟п╪п╟
 	if (!IS_SET(mode, SF_SILENCE))
 	{
-		act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->get_master(), TO_CHAR);
-		act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
+		act("п▓я▀ п©я─п╣п╨я─п╟я┌п╦п╩п╦ я│п╩п╣п╢п╬п╡п╟я┌я▄ п╥п╟ $N4.", FALSE, ch, 0, ch->get_master(), TO_CHAR);
+		act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g я│п╩п╣п╢п╬п╡п╟я┌я▄ п╥п╟ $N4.", TRUE, ch, 0, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 
 	//log("[Stop follower] Stop horse");
@@ -737,7 +737,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	}
 	else
 	{
-		act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->get_master(), TO_VICT);
+		act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g я│п╩п╣п╢п╬п╡п╟я┌я▄ п╥п╟ п╡п╟п╪п╦.", TRUE, ch, 0, ch->get_master(), TO_VICT);
 	}
 
 	//log("[Stop follower] Remove from followers list");
@@ -795,7 +795,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		{
 			if (MOB_FLAGGED(ch, MOB_CORPSE))
 			{
-				act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("п²п╟п╩п╣я┌п╣п╡я┬п╦п╧ п╡п╣я┌п╣я─ я─п╟п╥п╡п╣я▐п╩ $n3, п╫п╣ п╬я│я┌п╟п╡п╦п╡ п╦ я│п╩п╣п╢п╟.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
 				perform_drop_gold(ch, ch->get_gold());
 				ch->set_gold(0);
@@ -812,14 +812,14 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 						!IS_SET(mode, SF_MASTERDIE) &&
 						ch->in_room == IN_ROOM(master) &&
 						CAN_SEE(ch, master) && !ch->get_fighting() &&
-						!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
+						!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))   //Polud - п╫я┐ п╫п╣ п╫п╟п╢п╬ п╟пЁя─п╦я┌я▄ п╡ п╪п╦я─п╨п╟я┘, п╫п╣п╥п╟я┤п╣п╪ я█я┌п╬
 				{
 					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))
 					{
-						act("$n посчитал$g, что вы заслуживаете смерти!",
+						act("$n п©п╬я│я┤п╦я┌п╟п╩$g, я┤я┌п╬ п╡я▀ п╥п╟я│п╩я┐п╤п╦п╡п╟п╣я┌п╣ я│п╪п╣я─я┌п╦!",
 							FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);
-						act("$n заорал$g : \"Ты долго водил$G меня за нос, но дальше так не пойдет!\""
-						    "              \"Теперь только твоя смерть может искупить твой обман!!!\"",
+						act("$n п╥п╟п╬я─п╟п╩$g : \"п╒я▀ п╢п╬п╩пЁп╬ п╡п╬п╢п╦п╩$G п╪п╣п╫я▐ п╥п╟ п╫п╬я│, п╫п╬ п╢п╟п╩я▄я┬п╣ я┌п╟п╨ п╫п╣ п©п╬п╧п╢п╣я┌!\""
+						    "              \"п╒п╣п©п╣я─я▄ я┌п╬п╩я▄п╨п╬ я┌п╡п╬я▐ я│п╪п╣я─я┌я▄ п╪п╬п╤п╣я┌ п╦я│п╨я┐п©п╦я┌я▄ я┌п╡п╬п╧ п╬п╠п╪п╟п╫!!!\"",
 						    TRUE, ch, 0, master, TO_NOTVICT | CHECK_DEAF);
 						set_fighting(ch, master);
 					}
@@ -838,7 +838,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	}
 
 	if (IS_NPC(ch)
-		&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)	//Не ресетим флаги, если моб призван игроком
+		&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)	//п²п╣ я─п╣я│п╣я┌п╦п╪ я└п╩п╟пЁп╦, п╣я│п╩п╦ п╪п╬п╠ п©я─п╦п╥п╡п╟п╫ п╦пЁя─п╬п╨п╬п╪
 		&& (i = GET_MOB_RNUM(ch)) >= 0)
 	{
 		MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
@@ -856,7 +856,7 @@ bool die_follower(CHAR_DATA * ch)
 
 	if (ch->has_master() && stop_follower(ch, SF_FOLLOWERDIE))
 	{
-		//  чармиса спуржили в stop_follower
+		//  я┤п╟я─п╪п╦я│п╟ я│п©я┐я─п╤п╦п╩п╦ п╡ stop_follower
 		return true;
 	}
 
@@ -954,7 +954,7 @@ int get_filename(const char *orig_name, char *filename, int mode)
 	strcpy(name, orig_name);
 	for (ptr = name; *ptr; ptr++)
 	{
-		if (*ptr == 'Ё' || *ptr == 'ё')
+		if (*ptr == 'п│' || *ptr == 'я▒')
 			*ptr = '9';
 		else
 			*ptr = LOWER(AtoL(*ptr));
@@ -1307,9 +1307,9 @@ void format_text(const AbstractStringWriter::shared_ptr& writer, int mode, DESCR
 
 const char *some_pads[3][38] =
 {
-	{"дней", "часов", "лет", "очков", "минут", "минут", "кун", "кун", "штук", "штук", "уровней", "верст", "верст", "единиц", "единиц", "секунд", "градусов", "строк", "предметов", "предметов", "перевоплощений", "недель", "месяцев", "недель", "славы", "славы", "человек", "силы", "глотков", "гривен", "золотых", "серебряных", "бронзовых", "гривен", "золотых", "серебряных", "бронзовых", "искристых снежинок"},
-	{"день", "час", "год", "очко", "минута", "минуту", "куна", "куну", "штука", "штуку", "уровень", "верста", "версту", "единица", "единицу", "секунду", "градус", "строка", "предмет", "предмета", "перевоплощение", "неделя", "месяц", "неделю", "слава", "славу", "человек", "сила", "глоток", "гривна", "золотая", "серебряная", "бронзовая", "гривну", "золотую", "серебряную", "бронзовую", "искристую снежинку"},
-	{"дня", "часа", "года", "очка", "минуты", "минуты", "куны", "куны", "штуки", "штуки", "уровня", "версты", "версты", "единицы", "единицы", "секунды", "градуса", "строки", "предмета", "предметов", "перевоплощения", "недели", "месяца", "недели", "славы", "славы", "человека", "силы", "глотка", "гривны", "золотые", "серебряные", "бронзовые", "гривны", "золотые", "серебряные", "бронзовые", "искристые снежинки"}
+	{"п╢п╫п╣п╧", "я┤п╟я│п╬п╡", "п╩п╣я┌", "п╬я┤п╨п╬п╡", "п╪п╦п╫я┐я┌", "п╪п╦п╫я┐я┌", "п╨я┐п╫", "п╨я┐п╫", "я┬я┌я┐п╨", "я┬я┌я┐п╨", "я┐я─п╬п╡п╫п╣п╧", "п╡п╣я─я│я┌", "п╡п╣я─я│я┌", "п╣п╢п╦п╫п╦я├", "п╣п╢п╦п╫п╦я├", "я│п╣п╨я┐п╫п╢", "пЁя─п╟п╢я┐я│п╬п╡", "я│я┌я─п╬п╨", "п©я─п╣п╢п╪п╣я┌п╬п╡", "п©я─п╣п╢п╪п╣я┌п╬п╡", "п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╧", "п╫п╣п╢п╣п╩я▄", "п╪п╣я│я▐я├п╣п╡", "п╫п╣п╢п╣п╩я▄", "я│п╩п╟п╡я▀", "я│п╩п╟п╡я▀", "я┤п╣п╩п╬п╡п╣п╨", "я│п╦п╩я▀", "пЁп╩п╬я┌п╨п╬п╡", "пЁя─п╦п╡п╣п╫", "п╥п╬п╩п╬я┌я▀я┘", "я│п╣я─п╣п╠я─я▐п╫я▀я┘", "п╠я─п╬п╫п╥п╬п╡я▀я┘", "пЁя─п╦п╡п╣п╫", "п╥п╬п╩п╬я┌я▀я┘", "я│п╣я─п╣п╠я─я▐п╫я▀я┘", "п╠я─п╬п╫п╥п╬п╡я▀я┘", "п╦я│п╨я─п╦я│я┌я▀я┘ я│п╫п╣п╤п╦п╫п╬п╨"},
+	{"п╢п╣п╫я▄", "я┤п╟я│", "пЁп╬п╢", "п╬я┤п╨п╬", "п╪п╦п╫я┐я┌п╟", "п╪п╦п╫я┐я┌я┐", "п╨я┐п╫п╟", "п╨я┐п╫я┐", "я┬я┌я┐п╨п╟", "я┬я┌я┐п╨я┐", "я┐я─п╬п╡п╣п╫я▄", "п╡п╣я─я│я┌п╟", "п╡п╣я─я│я┌я┐", "п╣п╢п╦п╫п╦я├п╟", "п╣п╢п╦п╫п╦я├я┐", "я│п╣п╨я┐п╫п╢я┐", "пЁя─п╟п╢я┐я│", "я│я┌я─п╬п╨п╟", "п©я─п╣п╢п╪п╣я┌", "п©я─п╣п╢п╪п╣я┌п╟", "п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╣", "п╫п╣п╢п╣п╩я▐", "п╪п╣я│я▐я├", "п╫п╣п╢п╣п╩я▌", "я│п╩п╟п╡п╟", "я│п╩п╟п╡я┐", "я┤п╣п╩п╬п╡п╣п╨", "я│п╦п╩п╟", "пЁп╩п╬я┌п╬п╨", "пЁя─п╦п╡п╫п╟", "п╥п╬п╩п╬я┌п╟я▐", "я│п╣я─п╣п╠я─я▐п╫п╟я▐", "п╠я─п╬п╫п╥п╬п╡п╟я▐", "пЁя─п╦п╡п╫я┐", "п╥п╬п╩п╬я┌я┐я▌", "я│п╣я─п╣п╠я─я▐п╫я┐я▌", "п╠я─п╬п╫п╥п╬п╡я┐я▌", "п╦я│п╨я─п╦я│я┌я┐я▌ я│п╫п╣п╤п╦п╫п╨я┐"},
+	{"п╢п╫я▐", "я┤п╟я│п╟", "пЁп╬п╢п╟", "п╬я┤п╨п╟", "п╪п╦п╫я┐я┌я▀", "п╪п╦п╫я┐я┌я▀", "п╨я┐п╫я▀", "п╨я┐п╫я▀", "я┬я┌я┐п╨п╦", "я┬я┌я┐п╨п╦", "я┐я─п╬п╡п╫я▐", "п╡п╣я─я│я┌я▀", "п╡п╣я─я│я┌я▀", "п╣п╢п╦п╫п╦я├я▀", "п╣п╢п╦п╫п╦я├я▀", "я│п╣п╨я┐п╫п╢я▀", "пЁя─п╟п╢я┐я│п╟", "я│я┌я─п╬п╨п╦", "п©я─п╣п╢п╪п╣я┌п╟", "п©я─п╣п╢п╪п╣я┌п╬п╡", "п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦я▐", "п╫п╣п╢п╣п╩п╦", "п╪п╣я│я▐я├п╟", "п╫п╣п╢п╣п╩п╦", "я│п╩п╟п╡я▀", "я│п╩п╟п╡я▀", "я┤п╣п╩п╬п╡п╣п╨п╟", "я│п╦п╩я▀", "пЁп╩п╬я┌п╨п╟", "пЁя─п╦п╡п╫я▀", "п╥п╬п╩п╬я┌я▀п╣", "я│п╣я─п╣п╠я─я▐п╫я▀п╣", "п╠я─п╬п╫п╥п╬п╡я▀п╣", "пЁя─п╦п╡п╫я▀", "п╥п╬п╩п╬я┌я▀п╣", "я│п╣я─п╣п╠я─я▐п╫я▀п╣", "п╠я─п╬п╫п╥п╬п╡я▀п╣", "п╦я│п╨я─п╦я│я┌я▀п╣ я│п╫п╣п╤п╦п╫п╨п╦"}
 };
 
 const char * desc_count(long how_many, int of_what)
@@ -1330,7 +1330,7 @@ int check_moves(CHAR_DATA * ch, int how_moves)
 		return (TRUE);
 	if (GET_MOVE(ch) < how_moves)
 	{
-		send_to_char("Вы слишком устали.\r\n", ch);
+		send_to_char("п▓я▀ я│п╩п╦я┬п╨п╬п╪ я┐я│я┌п╟п╩п╦.\r\n", ch);
 		return (FALSE);
 	}
 	GET_MOVE(ch) -= how_moves;
@@ -1405,7 +1405,7 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 	if (!ch || !tch)
 		return false;
 
-	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
+	// п■п╬п╠п╟п╡п╩п╣п╫я▀ п©я─п╬п╡п╣я─п╨п╦ я┤я┌п╬п╠я▀ п╫п╣ п╩я▌п╠п╬п╧ п╥п╟я│п╩п╣п╢п╬п╡п╟п╡я┬п╦п╧я│я▐ п╪п╬п╠ я│я┤п╦я┌п╟п╩я│я▐ я│п╬пЁя─я┐п©п©п╫п╦п╨п╬п╪ (п я┐п©п╟п╩п╟)
 	if (IS_NPC(ch)
 		&& ch->has_master()
 		&& !IS_NPC(ch->get_master())
@@ -1452,10 +1452,10 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 	return false;
 }
 
-// Проверка является комната рентой.
+// п÷я─п╬п╡п╣я─п╨п╟ я▐п╡п╩я▐п╣я┌я│я▐ п╨п╬п╪п╫п╟я┌п╟ я─п╣п╫я┌п╬п╧.
 bool is_rent(room_rnum room)
 {
-	// комната с флагом замок, но клан мертвый
+	// п╨п╬п╪п╫п╟я┌п╟ я│ я└п╩п╟пЁп╬п╪ п╥п╟п╪п╬п╨, п╫п╬ п╨п╩п╟п╫ п╪п╣я─я┌п╡я▀п╧
 	if (ROOM_FLAGGED(room, ROOM_HOUSE))
 	{
 		const auto clan = Clan::GetClanByRoom(room);
@@ -1464,7 +1464,7 @@ bool is_rent(room_rnum room)
 			return false;
 		}
 	}
-	// комната без рентера в ней
+	// п╨п╬п╪п╫п╟я┌п╟ п╠п╣п╥ я─п╣п╫я┌п╣я─п╟ п╡ п╫п╣п╧
 	for (const auto ch : world[room]->people)
 	{
 		if (IS_NPC(ch)
@@ -1476,7 +1476,7 @@ bool is_rent(room_rnum room)
 	return false;
 }
 
-// Проверка является комната почтой.
+// п÷я─п╬п╡п╣я─п╨п╟ я▐п╡п╩я▐п╣я┌я│я▐ п╨п╬п╪п╫п╟я┌п╟ п©п╬я┤я┌п╬п╧.
 int is_post(room_rnum room)
 {
 	for (const auto ch : world[room]->people)
@@ -1491,7 +1491,7 @@ int is_post(room_rnum room)
 
 }
 
-// Форматирование вывода в соответствии с форматом act-a
+// п╓п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ п╡я▀п╡п╬п╢п╟ п╡ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╦ я│ я└п╬я─п╪п╟я┌п╬п╪ act-a
 // output act format//
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj)
 {
@@ -1669,7 +1669,7 @@ char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *v
 					CHECK_NULL(obj, GET_OBJ_SUF_4(obj));
 				//dg_victim = (CHAR_DATA *) vict_obj;
 				break;
-//Polud Добавил склонение местоимения ваш(е,а,и)
+//Polud п■п╬п╠п╟п╡п╦п╩ я│п╨п╩п╬п╫п╣п╫п╦п╣ п╪п╣я│я┌п╬п╦п╪п╣п╫п╦я▐ п╡п╟я┬(п╣,п╟,п╦)
 			case 'z':
 				if (obj)
 					i = OYOU(obj);
@@ -1722,20 +1722,20 @@ char *rustime(const struct tm *timeptr)
 {
 	static char mon_name[12][10] =
 	{
-		"Января\0", "Февраля\0", "Марта\0", "Апреля\0", "Мая\0", "Июня\0",
-		"Июля\0", "Августа\0", "Сентября\0", "Октября\0", "Ноября\0", "Декабря\0"
+		"п╞п╫п╡п╟я─я▐\0", "п╓п╣п╡я─п╟п╩я▐\0", "п°п╟я─я┌п╟\0", "п░п©я─п╣п╩я▐\0", "п°п╟я▐\0", "п≤я▌п╫я▐\0",
+		"п≤я▌п╩я▐\0", "п░п╡пЁя┐я│я┌п╟\0", "п║п╣п╫я┌я▐п╠я─я▐\0", "п·п╨я┌я▐п╠я─я▐\0", "п²п╬я▐п╠я─я▐\0", "п■п╣п╨п╟п╠я─я▐\0"
 	};
 	static char result[100];
 
 	if (timeptr)
 	{
-		sprintf(result, "%.2d:%.2d:%.2d %2d %s %d года",
+		sprintf(result, "%.2d:%.2d:%.2d %2d %s %d пЁп╬п╢п╟",
 			timeptr->tm_hour,
 			timeptr->tm_min, timeptr->tm_sec, timeptr->tm_mday, mon_name[timeptr->tm_mon], 1900 + timeptr->tm_year);
 	}
 	else
 	{
-		sprintf(result, "Время последнего входа неизвестно");
+		sprintf(result, "п▓я─п╣п╪я▐ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ п╡я┘п╬п╢п╟ п╫п╣п╦п╥п╡п╣я│я┌п╫п╬");
 	}
 
 	return result;
@@ -1749,13 +1749,13 @@ int roundup(float fl)
 		return (int)fl;
 }
 
-// Функция проверяет может ли ch нести предмет obj и загружает предмет
-// в инвентарь игрока или в комнату, где игрок находится
+// п╓я┐п╫п╨я├п╦я▐ п©я─п╬п╡п╣я─я▐п╣я┌ п╪п╬п╤п╣я┌ п╩п╦ ch п╫п╣я│я┌п╦ п©я─п╣п╢п╪п╣я┌ obj п╦ п╥п╟пЁя─я┐п╤п╟п╣я┌ п©я─п╣п╢п╪п╣я┌
+// п╡ п╦п╫п╡п╣п╫я┌п╟я─я▄ п╦пЁя─п╬п╨п╟ п╦п╩п╦ п╡ п╨п╬п╪п╫п╟я┌я┐, пЁп╢п╣ п╦пЁя─п╬п╨ п╫п╟я┘п╬п╢п╦я┌я│я▐
 void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 {
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 	{
-		send_to_char("Вы не можете нести столько предметов.", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╫п╣я│я┌п╦ я│я┌п╬п╩я▄п╨п╬ п©я─п╣п╢п╪п╣я┌п╬п╡.", ch);
 		obj_to_room(obj, ch->in_room);
 		obj_decay(obj);
 	}
@@ -1763,7 +1763,7 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	{
 		if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(ch) > CAN_CARRY_W(ch))
 		{
-			sprintf(buf, "Вам слишком тяжело нести еще и %s.", obj->get_PName(3).c_str());
+			sprintf(buf, "п▓п╟п╪ я│п╩п╦я┬п╨п╬п╪ я┌я▐п╤п╣п╩п╬ п╫п╣я│я┌п╦ п╣я┴п╣ п╦ %s.", obj->get_PName(3).c_str());
 			send_to_char(buf, ch);
 			obj_to_room(obj, ch->in_room);
 			// obj_decay(obj);
@@ -1776,13 +1776,13 @@ void can_carry_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 }
 
 /**
- * Бывшее #define CAN_CARRY_OBJ(ch,obj)  \
+ * п▒я▀п╡я┬п╣п╣ #define CAN_CARRY_OBJ(ch,obj)  \
    (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) &&   \
     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
  */
 bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj)
 {
-	// для анлимного лута мобами из трупов
+	// п╢п╩я▐ п╟п╫п╩п╦п╪п╫п╬пЁп╬ п╩я┐я┌п╟ п╪п╬п╠п╟п╪п╦ п╦п╥ я┌я─я┐п©п╬п╡
 	if (IS_NPC(ch) && !IS_CHARMICE(ch))
 	{
 		return true;
@@ -1797,20 +1797,20 @@ bool CAN_CARRY_OBJ(const CHAR_DATA *ch, const OBJ_DATA *obj)
 	return false;
 }
 
-// shapirus: проверка, игнорирет ли чар who чара whom
+// shapirus: п©я─п╬п╡п╣я─п╨п╟, п╦пЁп╫п╬я─п╦я─п╣я┌ п╩п╦ я┤п╟я─ who я┤п╟я─п╟ whom
 bool ignores(CHAR_DATA* who, CHAR_DATA * whom, unsigned int flag)
 {
 	if (IS_NPC(who)) return false;
 
 	long ign_id;
 
-// имморталов не игнорит никто
+// п╦п╪п╪п╬я─я┌п╟п╩п╬п╡ п╫п╣ п╦пЁп╫п╬я─п╦я┌ п╫п╦п╨я┌п╬
 	if (IS_IMMORTAL(whom))
 	{
 		return FALSE;
 	}
 
-// чармисы игнорируемого хозяина тоже должны быть проигнорированы
+// я┤п╟я─п╪п╦я│я▀ п╦пЁп╫п╬я─п╦я─я┐п╣п╪п╬пЁп╬ я┘п╬п╥я▐п╦п╫п╟ я┌п╬п╤п╣ п╢п╬п╩п╤п╫я▀ п╠я▀я┌я▄ п©я─п╬п╦пЁп╫п╬я─п╦я─п╬п╡п╟п╫я▀
 	if (IS_NPC(whom)
 		&& AFF_FLAGGED(whom, EAffectFlag::AFF_CHARM))
 	{
@@ -1837,7 +1837,7 @@ int valid_email(const char *address)
 	std::string addr = address;
 	std::string::size_type dog_pos = 0, pos = 0;
 
-	// Наличие запрещенных символов или кириллицы //
+	// п²п╟п╩п╦я┤п╦п╣ п╥п╟п©я─п╣я┴п╣п╫п╫я▀я┘ я│п╦п╪п╡п╬п╩п╬п╡ п╦п╩п╦ п╨п╦я─п╦п╩п╩п╦я├я▀ //
 	if (addr.find_first_of(special_symbols) != std::string::npos)
 		return 0;
 	size_t size = addr.size();
@@ -1848,7 +1848,7 @@ int valid_email(const char *address)
 			return 0;
 		}
 	}
-	// Собака должна быть только одна и на второй и далее позиции //
+	// п║п╬п╠п╟п╨п╟ п╢п╬п╩п╤п╫п╟ п╠я▀я┌я▄ я┌п╬п╩я▄п╨п╬ п╬п╢п╫п╟ п╦ п╫п╟ п╡я┌п╬я─п╬п╧ п╦ п╢п╟п╩п╣п╣ п©п╬п╥п╦я├п╦п╦ //
 	while ((pos = addr.find_first_of('@', pos)) != std::string::npos)
 	{
 		dog_pos = pos;
@@ -1857,11 +1857,11 @@ int valid_email(const char *address)
 	}
 	if (count != 1 || dog_pos == 0)
 		return 0;
-	// Проверяем правильность синтаксиса домена //
-	// В доменной части должно быть как минимум 4 символа, считая собаку //
+	// п÷я─п╬п╡п╣я─я▐п╣п╪ п©я─п╟п╡п╦п╩я▄п╫п╬я│я┌я▄ я│п╦п╫я┌п╟п╨я│п╦я│п╟ п╢п╬п╪п╣п╫п╟ //
+	// п▓ п╢п╬п╪п╣п╫п╫п╬п╧ я┤п╟я│я┌п╦ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪ 4 я│п╦п╪п╡п╬п╩п╟, я│я┤п╦я┌п╟я▐ я│п╬п╠п╟п╨я┐ //
 	if (size - dog_pos <= 3)
 		return 0;
-	// Точка отсутствует, расположена сразу после собаки, или на последнем месте //
+	// п╒п╬я┤п╨п╟ п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌, я─п╟я│п©п╬п╩п╬п╤п╣п╫п╟ я│я─п╟п╥я┐ п©п╬я│п╩п╣ я│п╬п╠п╟п╨п╦, п╦п╩п╦ п╫п╟ п©п╬я│п╩п╣п╢п╫п╣п╪ п╪п╣я│я┌п╣ //
 	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == std::string::npos)
 		return 0;
 
@@ -1869,10 +1869,10 @@ int valid_email(const char *address)
 }
 
 /**
-* Вывод времени (минут) в зависимости от их кол-ва с округлением вплоть до месяцев.
-* Для таймеров славы по 'glory имя' и 'слава информация'.
-* \param flag - по дефолту 0 - 1 минута, 1 неделя;
-*                          1 - 1 минуту, 1 неделю.
+* п▓я▀п╡п╬п╢ п╡я─п╣п╪п╣п╫п╦ (п╪п╦п╫я┐я┌) п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ п╦я┘ п╨п╬п╩-п╡п╟ я│ п╬п╨я─я┐пЁп╩п╣п╫п╦п╣п╪ п╡п©п╩п╬я┌я▄ п╢п╬ п╪п╣я│я▐я├п╣п╡.
+* п■п╩я▐ я┌п╟п╧п╪п╣я─п╬п╡ я│п╩п╟п╡я▀ п©п╬ 'glory п╦п╪я▐' п╦ 'я│п╩п╟п╡п╟ п╦п╫я└п╬я─п╪п╟я├п╦я▐'.
+* \param flag - п©п╬ п╢п╣я└п╬п╩я┌я┐ 0 - 1 п╪п╦п╫я┐я┌п╟, 1 п╫п╣п╢п╣п╩я▐;
+*                          1 - 1 п╪п╦п╫я┐я┌я┐, 1 п╫п╣п╢п╣п╩я▌.
 */
 std::string time_format(int in_timer, int flag)
 {
@@ -1927,7 +1927,7 @@ std::string time_format(int in_timer, int flag)
 	return out.str();
 }
 
-// * Для обрезания точек в карме при сете славы.
+// * п■п╩я▐ п╬п╠я─п╣п╥п╟п╫п╦я▐ я┌п╬я┤п╣п╨ п╡ п╨п╟я─п╪п╣ п©я─п╦ я│п╣я┌п╣ я│п╩п╟п╡я▀.
 void skip_dots(char **string)
 {
 	for (; **string && (strchr(" .", **string) != NULL); (*string)++);
@@ -1984,7 +1984,7 @@ void kill_ems(char *str)
 	*ptr2 = '\0';
 }
 
-// * Вырезание и перемещение в word одного слова из str (a_isalnum).
+// * п▓я▀я─п╣п╥п╟п╫п╦п╣ п╦ п©п╣я─п╣п╪п╣я┴п╣п╫п╦п╣ п╡ word п╬п╢п╫п╬пЁп╬ я│п╩п╬п╡п╟ п╦п╥ str (a_isalnum).
 void cut_one_word(std::string &str, std::string &word)
 {
 	if (str.empty())
@@ -2060,7 +2060,7 @@ std::string& format_news_message(std::string &text)
 }
 
 /**
- * взято с http://www.openbsd.org/cgi-bin/cvsweb/src/lib/libc/string/strlcpy.c?rev=1.11&content-type=text/x-cvsweb-markup
+ * п╡п╥я▐я┌п╬ я│ http://www.openbsd.org/cgi-bin/cvsweb/src/lib/libc/string/strlcpy.c?rev=1.11&content-type=text/x-cvsweb-markup
  * Copy src to string dst of size siz.  At most siz-1 characters
  * will be copied.  Always NUL terminates (unless siz == 0).
  * Returns strlen(src); if retval >= siz, truncation occurred.
@@ -2094,18 +2094,18 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 }
 
 /**
-* Аналог старого GET_REAL_DR(ch)
-* для мобов ограничение в 50 дамролов убрано
-* +еще есть рандом дамролы, в данный момент максимум 30d127
+* п░п╫п╟п╩п╬пЁ я│я┌п╟я─п╬пЁп╬ GET_REAL_DR(ch)
+* п╢п╩я▐ п╪п╬п╠п╬п╡ п╬пЁя─п╟п╫п╦я┤п╣п╫п╦п╣ п╡ 50 п╢п╟п╪я─п╬п╩п╬п╡ я┐п╠я─п╟п╫п╬
+* +п╣я┴п╣ п╣я│я┌я▄ я─п╟п╫п╢п╬п╪ п╢п╟п╪я─п╬п╩я▀, п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ п╪п╟п╨я│п╦п╪я┐п╪ 30d127
 */
 int get_real_dr(CHAR_DATA *ch)
 {
 	int dd = 0;
-// Инициализация массива для дальнейшего бонуса попаданий/повреждений от количества перевоплощений	
+// п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╪п╟я│я│п╦п╡п╟ п╢п╩я▐ п╢п╟п╩я▄п╫п╣п╧я┬п╣пЁп╬ п╠п╬п╫я┐я│п╟ п©п╬п©п╟п╢п╟п╫п╦п╧/п©п╬п╡я─п╣п╤п╢п╣п╫п╦п╧ п╬я┌ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╧	
 	int dam[36] = {0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,6,6,6,6,7,7,7,7,7,7,8,8,8,8,8};
-        if (IS_SMITH(ch) || IS_GUARD(ch) || IS_RANGER(ch))  // Бонус имеют только Дружинники, охотники, кузнецы
-           dd = dam[MIN(35, GET_REMORT(ch))]; //кап на 35+ морт
-           GET_HR_ADD(ch) += dd;           // Бонус попаданий от количества перевоплощений
+        if (IS_SMITH(ch) || IS_GUARD(ch) || IS_RANGER(ch))  // п▒п╬п╫я┐я│ п╦п╪п╣я▌я┌ я┌п╬п╩я▄п╨п╬ п■я─я┐п╤п╦п╫п╫п╦п╨п╦, п╬я┘п╬я┌п╫п╦п╨п╦, п╨я┐п╥п╫п╣я├я▀
+           dd = dam[MIN(35, GET_REMORT(ch))]; //п╨п╟п© п╫п╟ 35+ п╪п╬я─я┌
+           GET_HR_ADD(ch) += dd;           // п▒п╬п╫я┐я│ п©п╬п©п╟п╢п╟п╫п╦п╧ п╬я┌ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╧
 
         int level = GET_LEVEL(ch);
 
@@ -2126,7 +2126,7 @@ int get_real_dr(CHAR_DATA *ch)
 	}
 }
 
-// без ограничений
+// п╠п╣п╥ п╬пЁя─п╟п╫п╦я┤п╣п╫п╦п╧
 int get_real_dr_new(CHAR_DATA *ch)
 {
     return MAX(0, GET_DR(ch) + GET_DR_ADD(ch));
@@ -2159,7 +2159,7 @@ void print(CHAR_DATA *ch)
 {
 	if (!IS_GRGOD(ch))
 	{
-		send_to_char(ch, "Только для иммов 33+.\r\n");
+		send_to_char(ch, "п╒п╬п╩я▄п╨п╬ п╢п╩я▐ п╦п╪п╪п╬п╡ 33+.\r\n");
 		return;
 	}
 
@@ -2262,7 +2262,7 @@ void print_gain(CHAR_DATA *ch)
 {
 	if (!PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
-		send_to_char(ch, "Пока в разработке.\r\n");
+		send_to_char(ch, "п÷п╬п╨п╟ п╡ я─п╟п╥я─п╟п╠п╬я┌п╨п╣.\r\n");
 		return;
 	}
 
@@ -2581,7 +2581,7 @@ void message_str_need(CHAR_DATA *ch, OBJ_DATA *obj, int type)
 				__FILE__, __func__, __LINE__);
 		return;
 	}
-	send_to_char(ch, "Для этого требуется %d %s.\r\n",
+	send_to_char(ch, "п■п╩я▐ я█я┌п╬пЁп╬ я┌я─п╣п╠я┐п╣я┌я│я▐ %d %s.\r\n",
 		need_str, desc_count(need_str, WHAT_STR));
 }
 
@@ -2609,8 +2609,8 @@ bool GetAffectNumByName(const std::string& affName, EAffectFlag& result)
 	return false;
 }
 
-/// считает кол-во цветов &R и т.п. в строке
-/// size_t len = 0 - по дефолту считает strlen(str)
+/// я│я┤п╦я┌п╟п╣я┌ п╨п╬п╩-п╡п╬ я├п╡п╣я┌п╬п╡ &R п╦ я┌.п©. п╡ я│я┌я─п╬п╨п╣
+/// size_t len = 0 - п©п╬ п╢п╣я└п╬п╩я┌я┐ я│я┤п╦я┌п╟п╣я┌ strlen(str)
 size_t count_colors(const char * str, size_t len)
 {
 	unsigned int c, cc = 0;
@@ -2624,8 +2624,8 @@ size_t count_colors(const char * str, size_t len)
 	return cc;
 }
 
-//возвращает строку длины len + кол-во цветов*2 для того чтоб в табличке все было ровненько
-//left_align выравнивание строки влево
+//п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ я│я┌я─п╬п╨я┐ п╢п╩п╦п╫я▀ len + п╨п╬п╩-п╡п╬ я├п╡п╣я┌п╬п╡*2 п╢п╩я▐ я┌п╬пЁп╬ я┤я┌п╬п╠ п╡ я┌п╟п╠п╩п╦я┤п╨п╣ п╡я│п╣ п╠я▀п╩п╬ я─п╬п╡п╫п╣п╫я▄п╨п╬
+//left_align п╡я▀я─п╟п╡п╫п╦п╡п╟п╫п╦п╣ я│я┌я─п╬п╨п╦ п╡п╩п╣п╡п╬
 char* colored_name(const char * str, size_t len, const bool left_align)
 {
 	static char cstr[128];
@@ -2645,21 +2645,21 @@ char* colored_name(const char * str, size_t len, const bool left_align)
 	return cstr;
 }
 
-/// длина строки без символов цвета из count_colors()
+/// п╢п╩п╦п╫п╟ я│я┌я─п╬п╨п╦ п╠п╣п╥ я│п╦п╪п╡п╬п╩п╬п╡ я├п╡п╣я┌п╟ п╦п╥ count_colors()
 size_t strlen_no_colors(const char *str)
 {
 	const size_t len = strlen(str);
 	return len - count_colors(str, len) * 2;
 }
 
-// Симуляция телла от моба
+// п║п╦п╪я┐п╩я▐я├п╦я▐ я┌п╣п╩п╩п╟ п╬я┌ п╪п╬п╠п╟
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
 		return;
 	char local_buf[MAX_INPUT_LENGTH];
 	snprintf(local_buf, MAX_INPUT_LENGTH,
-		"%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
+		"%s я│п╨п╟п╥п╟п╩%s п╡п╟п╪ : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
 	send_to_char(ch, "%s%s%s\r\n",
 		CCICYN(ch, C_NRM), CAP(local_buf), CCNRM(ch, C_NRM));
 }
@@ -2684,94 +2684,94 @@ int CAN_CARRY_N(const CHAR_DATA* ch)
 
 bool ParseFilter::init_type(const char *str)
 {
-	if (is_abbrev(str, "свет")
+	if (is_abbrev(str, "я│п╡п╣я┌")
 		|| is_abbrev(str, "light"))
 	{
 		type = OBJ_DATA::ITEM_LIGHT;
 	}
-	else if (is_abbrev(str, "свиток")
+	else if (is_abbrev(str, "я│п╡п╦я┌п╬п╨")
 		|| is_abbrev(str, "scroll"))
 	{
 		type = OBJ_DATA::ITEM_SCROLL;
 	}
-	else if (is_abbrev(str, "палочка")
+	else if (is_abbrev(str, "п©п╟п╩п╬я┤п╨п╟")
 		|| is_abbrev(str, "wand"))
 	{
 		type = OBJ_DATA::ITEM_WAND;
 	}
-	else if (is_abbrev(str, "посох")
+	else if (is_abbrev(str, "п©п╬я│п╬я┘")
 		|| is_abbrev(str, "staff"))
 	{
 		type = OBJ_DATA::ITEM_STAFF;
 	}
-	else if (is_abbrev(str, "оружие")
+	else if (is_abbrev(str, "п╬я─я┐п╤п╦п╣")
 		|| is_abbrev(str, "weapon"))
 	{
 		type = OBJ_DATA::ITEM_WEAPON;
 	}
-	else if (is_abbrev(str, "броня")
+	else if (is_abbrev(str, "п╠я─п╬п╫я▐")
 		|| is_abbrev(str, "armor"))
 	{
 		type = OBJ_DATA::ITEM_ARMOR;
 	}
-	else if (is_abbrev(str, "напиток")
+	else if (is_abbrev(str, "п╫п╟п©п╦я┌п╬п╨")
 		|| is_abbrev(str, "potion"))
 	{
 		type = OBJ_DATA::ITEM_POTION;
 	}
-	else if (is_abbrev(str, "прочее")
-		|| is_abbrev(str, "другое")
+	else if (is_abbrev(str, "п©я─п╬я┤п╣п╣")
+		|| is_abbrev(str, "п╢я─я┐пЁп╬п╣")
 		|| is_abbrev(str, "other"))
 	{
 		type = OBJ_DATA::ITEM_OTHER;
 	}
-	else if (is_abbrev(str, "контейнер")
+	else if (is_abbrev(str, "п╨п╬п╫я┌п╣п╧п╫п╣я─")
 		|| is_abbrev(str, "container"))
 	{
 		type = OBJ_DATA::ITEM_CONTAINER;
 	}
-	else if (is_abbrev(str, "материал")
+	else if (is_abbrev(str, "п╪п╟я┌п╣я─п╦п╟п╩")
 		|| is_abbrev(str, "material"))
 	{
 		type = OBJ_DATA::ITEM_MATERIAL;
 	}
-	else if (is_abbrev(str, "зачарованный")
+	else if (is_abbrev(str, "п╥п╟я┤п╟я─п╬п╡п╟п╫п╫я▀п╧")
 		|| is_abbrev(str, "enchant"))
 	{
 		type = OBJ_DATA::ITEM_ENCHANT;
 	}
-	else if (is_abbrev(str, "емкость")
+	else if (is_abbrev(str, "п╣п╪п╨п╬я│я┌я▄")
 		|| is_abbrev(str, "tank"))
 	{
 		type = OBJ_DATA::ITEM_DRINKCON;
 	}
-	else if (is_abbrev(str, "книга")
+	else if (is_abbrev(str, "п╨п╫п╦пЁп╟")
 		|| is_abbrev(str, "book"))
 	{
 		type = OBJ_DATA::ITEM_BOOK;
 	}
-	else if (is_abbrev(str, "руна")
+	else if (is_abbrev(str, "я─я┐п╫п╟")
 		|| is_abbrev(str, "rune"))
 	{
 		type = OBJ_DATA::ITEM_INGREDIENT;
 	}
-	else if (is_abbrev(str, "ингредиент")
+	else if (is_abbrev(str, "п╦п╫пЁя─п╣п╢п╦п╣п╫я┌")
 		|| is_abbrev(str, "ingradient"))
 	{
 		type = OBJ_DATA::ITEM_MING;
 	}
-	else if (is_abbrev(str, "легкие")
-		|| is_abbrev(str, "легкая"))
+	else if (is_abbrev(str, "п╩п╣пЁп╨п╦п╣")
+		|| is_abbrev(str, "п╩п╣пЁп╨п╟я▐"))
 	{
 		type = OBJ_DATA::ITEM_ARMOR_LIGHT;
 	}
-	else if (is_abbrev(str, "средние")
-		|| is_abbrev(str, "средняя"))
+	else if (is_abbrev(str, "я│я─п╣п╢п╫п╦п╣")
+		|| is_abbrev(str, "я│я─п╣п╢п╫я▐я▐"))
 	{
 		type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
 	}
-	else if (is_abbrev(str, "тяжелые")
-		|| is_abbrev(str, "тяжелая"))
+	else if (is_abbrev(str, "я┌я▐п╤п╣п╩я▀п╣")
+		|| is_abbrev(str, "я┌я▐п╤п╣п╩п╟я▐"))
 	{
 		type = OBJ_DATA::ITEM_ARMOR_HEAVY;
 	}
@@ -2785,17 +2785,17 @@ bool ParseFilter::init_type(const char *str)
 
 bool ParseFilter::init_state(const char *str)
 {
-	if (is_abbrev(str, "ужасно"))
+	if (is_abbrev(str, "я┐п╤п╟я│п╫п╬"))
 		state = 0;
-	else if (is_abbrev(str, "скоро испортится"))
+	else if (is_abbrev(str, "я│п╨п╬я─п╬ п╦я│п©п╬я─я┌п╦я┌я│я▐"))
 		state = 20;
-	else if (is_abbrev(str, "плоховато"))
+	else if (is_abbrev(str, "п©п╩п╬я┘п╬п╡п╟я┌п╬"))
 		state = 40;
-	else if (is_abbrev(str, "средне"))
+	else if (is_abbrev(str, "я│я─п╣п╢п╫п╣"))
 		state = 60;
-	else if (is_abbrev(str, "идеально"))
+	else if (is_abbrev(str, "п╦п╢п╣п╟п╩я▄п╫п╬"))
 		state = 80;
-	else if (is_abbrev(str, "нерушимо"))
+	else if (is_abbrev(str, "п╫п╣я─я┐я┬п╦п╪п╬"))
 		state = 1000;
 	else return false;
 
@@ -2804,82 +2804,82 @@ bool ParseFilter::init_state(const char *str)
 
 bool ParseFilter::init_wear(const char *str)
 {
-	if (is_abbrev(str, "палец"))
+	if (is_abbrev(str, "п©п╟п╩п╣я├"))
 	{
 		wear = EWearFlag::ITEM_WEAR_FINGER;
 		wear_message = 1;
 	}
-	else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь"))
+	else if (is_abbrev(str, "я┬п╣я▐") || is_abbrev(str, "пЁя─я┐п╢я▄"))
 	{
 		wear = EWearFlag::ITEM_WEAR_NECK;
 		wear_message = 2;
 	}
-	else if (is_abbrev(str, "тело"))
+	else if (is_abbrev(str, "я┌п╣п╩п╬"))
 	{
 		wear = EWearFlag::ITEM_WEAR_BODY;
 		wear_message = 3;
 	}
-	else if (is_abbrev(str, "голова"))
+	else if (is_abbrev(str, "пЁп╬п╩п╬п╡п╟"))
 	{
 		wear = EWearFlag::ITEM_WEAR_HEAD;
 		wear_message = 4;
 	}
-	else if (is_abbrev(str, "ноги"))
+	else if (is_abbrev(str, "п╫п╬пЁп╦"))
 	{
 		wear = EWearFlag::ITEM_WEAR_LEGS;
 		wear_message = 5;
 	}
-	else if (is_abbrev(str, "ступни"))
+	else if (is_abbrev(str, "я│я┌я┐п©п╫п╦"))
 	{
 		wear = EWearFlag::ITEM_WEAR_FEET;
 		wear_message = 6;
 	}
-	else if (is_abbrev(str, "кисти"))
+	else if (is_abbrev(str, "п╨п╦я│я┌п╦"))
 	{
 		wear = EWearFlag::ITEM_WEAR_HANDS;
 		wear_message = 7;
 	}
-	else if (is_abbrev(str, "руки"))
+	else if (is_abbrev(str, "я─я┐п╨п╦"))
 	{
 		wear = EWearFlag::ITEM_WEAR_ARMS;
 		wear_message = 8;
 	}
-	else if (is_abbrev(str, "щит"))
+	else if (is_abbrev(str, "я┴п╦я┌"))
 	{
 		wear = EWearFlag::ITEM_WEAR_SHIELD;
 		wear_message = 9;
 	}
-	else if (is_abbrev(str, "плечи"))
+	else if (is_abbrev(str, "п©п╩п╣я┤п╦"))
 	{
 		wear = EWearFlag::ITEM_WEAR_ABOUT;
 		wear_message = 10;
 	}
-	else if (is_abbrev(str, "пояс"))
+	else if (is_abbrev(str, "п©п╬я▐я│"))
 	{
 		wear = EWearFlag::ITEM_WEAR_WAIST;
 		wear_message = 11;
 	}
-	else if (is_abbrev(str, "запястья"))
+	else if (is_abbrev(str, "п╥п╟п©я▐я│я┌я▄я▐"))
 	{
 		wear = EWearFlag::ITEM_WEAR_WRIST;
 		wear_message = 12;
 	}
-	else if (is_abbrev(str, "правая"))
+	else if (is_abbrev(str, "п©я─п╟п╡п╟я▐"))
 	{
 		wear = EWearFlag::ITEM_WEAR_WIELD;
 		wear_message = 13;
 	}
-	else if (is_abbrev(str, "левая"))
+	else if (is_abbrev(str, "п╩п╣п╡п╟я▐"))
 	{
 		wear = EWearFlag::ITEM_WEAR_HOLD;
 		wear_message = 14;
 	}
-	else if (is_abbrev(str, "обе"))
+	else if (is_abbrev(str, "п╬п╠п╣"))
 	{
 		wear = EWearFlag::ITEM_WEAR_BOTHS;
 		wear_message = 15;
 	}
-	else if (is_abbrev(str, "колчан"))
+	else if (is_abbrev(str, "п╨п╬п╩я┤п╟п╫"))
 	{
 		wear = EWearFlag::ITEM_WEAR_QUIVER;
 		wear_message = 16;
@@ -2922,47 +2922,47 @@ bool ParseFilter::init_rent(const char *str)
 
 bool ParseFilter::init_weap_class(const char *str)
 {
-	if (is_abbrev(str, "луки"))
+	if (is_abbrev(str, "п╩я┐п╨п╦"))
 	{
 		weap_class = SKILL_BOWS;
 		weap_message = 0;
 	}
-	else if (is_abbrev(str, "короткие"))
+	else if (is_abbrev(str, "п╨п╬я─п╬я┌п╨п╦п╣"))
 	{
 		weap_class = SKILL_SHORTS;
 		weap_message = 1;
 	}
-	else if (is_abbrev(str, "длинные"))
+	else if (is_abbrev(str, "п╢п╩п╦п╫п╫я▀п╣"))
 	{
 		weap_class = SKILL_LONGS;
 		weap_message = 2;
 	}
-	else if (is_abbrev(str, "секиры"))
+	else if (is_abbrev(str, "я│п╣п╨п╦я─я▀"))
 	{
 		weap_class = SKILL_AXES;
 		weap_message = 3;
 	}
-	else if (is_abbrev(str, "палицы"))
+	else if (is_abbrev(str, "п©п╟п╩п╦я├я▀"))
 	{
 		weap_class = SKILL_CLUBS;
 		weap_message = 4;
 	}
-	else if (is_abbrev(str, "иное"))
+	else if (is_abbrev(str, "п╦п╫п╬п╣"))
 	{
 		weap_class = SKILL_NONSTANDART;
 		weap_message = 5;
 	}
-	else if (is_abbrev(str, "двуручники"))
+	else if (is_abbrev(str, "п╢п╡я┐я─я┐я┤п╫п╦п╨п╦"))
 	{
 		weap_class = SKILL_BOTHHANDS;
 		weap_message = 6;
 	}
-	else if (is_abbrev(str, "проникающее"))
+	else if (is_abbrev(str, "п©я─п╬п╫п╦п╨п╟я▌я┴п╣п╣"))
 	{
 		weap_class = SKILL_PICK;
 		weap_message = 7;
 	}
-	else if (is_abbrev(str, "копья"))
+	else if (is_abbrev(str, "п╨п╬п©я▄я▐"))
 	{
 		weap_class = SKILL_SPADES;
 		weap_message = 8;
@@ -3114,26 +3114,26 @@ size_t ParseFilter::affects_cnt() const
 
 bool ParseFilter::init_affect(char *str, size_t str_len)
 {
-	// Аимя!
+	// п░п╦п╪я▐!
 	bool strong = false;
 	if (str_len > 1 && str[str_len - 1] == '!')
 	{
 		strong = true;
 		str[str_len - 1] = '\0';
 	}
-	// А1, А2, А3
+	// п░1, п░2, п░3
 	if (str_len == 1)
 	{
 		switch (*str)
 		{
 			case '1':
-				sprintf(str, "можно вплавить 1 камень");
+				sprintf(str, "п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 1 п╨п╟п╪п╣п╫я▄");
 			break;
 			case '2':
-				sprintf(str, "можно вплавить 2 камня");
+				sprintf(str, "п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 2 п╨п╟п╪п╫я▐");
 			break;
 			case '3':
-				sprintf(str, "можно вплавить 3 камня");
+				sprintf(str, "п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 3 п╨п╟п╪п╫я▐");
 			break;
 		}
 	}
@@ -3158,7 +3158,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len)
 	int num = 0;
 	for (int flag = 0; flag < 4; ++flag)
 	{
-		for (/* тут ничего не надо */; *weapon_affects[num] != '\n'; ++num)
+		for (/* я┌я┐я┌ п╫п╦я┤п╣пЁп╬ п╫п╣ п╫п╟п╢п╬ */; *weapon_affects[num] != '\n'; ++num)
 		{
 			if (strong && !strcmp(str, weapon_affects[num]))
 			{
@@ -3177,7 +3177,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len)
 	num = 0;
 	for (int flag = 0; flag < 4; ++flag)
 	{
-		for (/* тут ничего не надо */; *extra_bits[num] != '\n'; ++num)
+		for (/* я┌я┐я┌ п╫п╦я┤п╣пЁп╬ п╫п╣ п╫п╟п╢п╬ */; *extra_bits[num] != '\n'; ++num)
 		{
 			if (strong && !strcmp(str, extra_bits[num]))
 			{
@@ -3196,7 +3196,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len)
 	return false;
 }
 
-/// имя, метка для клан-хранов
+/// п╦п╪я▐, п╪п╣я┌п╨п╟ п╢п╩я▐ п╨п╩п╟п╫-я┘я─п╟п╫п╬п╡
 bool ParseFilter::check_name(OBJ_DATA *obj, CHAR_DATA *ch) const
 {
 	bool result = false;
@@ -3256,7 +3256,7 @@ bool ParseFilter::check_state(OBJ_DATA *obj) const
 		else
 		{
 			int tm_pct;
-			if (check_unlimited_timer(obj))  // если шмотка нерушима, физически проставляем текст нерушимо
+			if (check_unlimited_timer(obj))  // п╣я│п╩п╦ я┬п╪п╬я┌п╨п╟ п╫п╣я─я┐я┬п╦п╪п╟, я└п╦п╥п╦я┤п╣я│п╨п╦ п©я─п╬я│я┌п╟п╡п╩я▐п╣п╪ я┌п╣п╨я│я┌ п╫п╣я─я┐я┬п╦п╪п╬
 			{
 				tm_pct = 1000;
 			}
@@ -3337,7 +3337,7 @@ bool ParseFilter::check_rent(int obj_price) const
 	return result;
 }
 
-// заколебали эти флаги... сравниваем num и все поля в flags
+// п╥п╟п╨п╬п╩п╣п╠п╟п╩п╦ я█я┌п╦ я└п╩п╟пЁп╦... я│я─п╟п╡п╫п╦п╡п╟п╣п╪ num п╦ п╡я│п╣ п©п╬п╩я▐ п╡ flags
 bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect)
 {
 	int i;
@@ -3532,18 +3532,18 @@ bool ParseFilter::check(exchange_item_data *exch_obj)
 const char *print_obj_state(int tm_pct)
 {
 	if (tm_pct < 20)
-		return "ужасно";
+		return "я┐п╤п╟я│п╫п╬";
 	else if (tm_pct < 40)
-		return "скоро испортится";
+		return "я│п╨п╬я─п╬ п╦я│п©п╬я─я┌п╦я┌я│я▐";
 	else if (tm_pct < 60)
-		return "плоховато";
+		return "п©п╩п╬я┘п╬п╡п╟я┌п╬";
 	else if (tm_pct < 80)
-		return "средне";
-	//else if (tm_pct <=100) // у только что созданной шмотки значение 100% первый тик, потому <=
-	//	return "идеально";
-	else if (tm_pct <1000) // проблема крафта, на хаймортах таймер больще прототипа
-		return "идеально";
-	else return "нерушимо";
+		return "я│я─п╣п╢п╫п╣";
+	//else if (tm_pct <=100) // я┐ я┌п╬п╩я▄п╨п╬ я┤я┌п╬ я│п╬п╥п╢п╟п╫п╫п╬п╧ я┬п╪п╬я┌п╨п╦ п╥п╫п╟я┤п╣п╫п╦п╣ 100% п©п╣я─п╡я▀п╧ я┌п╦п╨, п©п╬я┌п╬п╪я┐ <=
+	//	return "п╦п╢п╣п╟п╩я▄п╫п╬";
+	else if (tm_pct <1000) // п©я─п╬п╠п╩п╣п╪п╟ п╨я─п╟я└я┌п╟, п╫п╟ я┘п╟п╧п╪п╬я─я┌п╟я┘ я┌п╟п╧п╪п╣я─ п╠п╬п╩я▄я┴п╣ п©я─п╬я┌п╬я┌п╦п©п╟
+		return "п╦п╢п╣п╟п╩я▄п╫п╬";
+	else return "п╫п╣я─я┐я┬п╦п╪п╬";
 }
 
 void sanity_check(void)
@@ -3691,7 +3691,7 @@ const char* one_word(const char* argument, char *first_arg)
 
 std::string ParseFilter::print() const
 {
-	std::string buffer = "Выборка: ";
+	std::string buffer = "п▓я▀п╠п╬я─п╨п╟: ";
 	if (!name.empty())
 	{
 		buffer += name + " ";

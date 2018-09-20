@@ -41,7 +41,7 @@ enum Privileges: unsigned
 	MAY_CLAN_MOD,
 	MAY_CLAN_TAX,
 	MAY_CLAN_BOARD,
-	/// всего привилегий
+	/// п╡я│п╣пЁп╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╧
 	CLAN_PRIVILEGES_NUM
 };
 const unsigned MAX_GOLD_TAX_PCT = 50;
@@ -52,12 +52,12 @@ bool is_ingr_chest(OBJ_DATA *obj);
 void save_ingr_chests();
 bool show_ingr_chest(OBJ_DATA *obj, CHAR_DATA *ch);
 void save_chest_log();
-// управление клан налогом
+// я┐п©я─п╟п╡п╩п╣п╫п╦п╣ п╨п╩п╟п╫ п╫п╟п╩п╬пЁп╬п╪
 void tax_manage(CHAR_DATA *ch, std::string &buffer);
-// первичная генерация справки сайтов дружин
+// п©п╣я─п╡п╦я┤п╫п╟я▐ пЁп╣п╫п╣я─п╟я├п╦я▐ я│п©я─п╟п╡п╨п╦ я│п╟п╧я┌п╬п╡ п╢я─я┐п╤п╦п╫
 void init_xhelp();
-/// высчитывает и снимает клан-налог с gold кун
-/// \return сумму получившегося налога, которую надо снять с чара
+/// п╡я▀я│я┤п╦я┌я▀п╡п╟п╣я┌ п╦ я│п╫п╦п╪п╟п╣я┌ п╨п╩п╟п╫-п╫п╟п╩п╬пЁ я│ gold п╨я┐п╫
+/// \return я│я┐п╪п╪я┐ п©п╬п╩я┐я┤п╦п╡я┬п╣пЁп╬я│я▐ п╫п╟п╩п╬пЁп╟, п╨п╬я┌п╬я─я┐я▌ п╫п╟п╢п╬ я│п╫я▐я┌я▄ я│ я┤п╟я─п╟
 long do_gold_tax(CHAR_DATA *ch, long gold);
 
 } // namespace ClanSystem
@@ -69,26 +69,26 @@ long do_gold_tax(CHAR_DATA *ch, long gold);
 #define HCE_ATRIUM 0
 #define	HCE_PORTAL 1
 
-// период снятия за ренту (минут)
+// п©п╣я─п╦п╬п╢ я│п╫я▐я┌п╦я▐ п╥п╟ я─п╣п╫я┌я┐ (п╪п╦п╫я┐я┌)
 #define CHEST_UPDATE_PERIOD 10
-// период оповещения о скорой кончине денег (минут)
+// п©п╣я─п╦п╬п╢ п╬п©п╬п╡п╣я┴п╣п╫п╦я▐ п╬ я│п╨п╬я─п╬п╧ п╨п╬п╫я┤п╦п╫п╣ п╢п╣п╫п╣пЁ (п╪п╦п╫я┐я┌)
 #define CHEST_INVOICE_PERIOD 60
-// период обновление статов экспы в топе кланов в режиме запрета обновления на лету (минут)
+// п©п╣я─п╦п╬п╢ п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ я│я┌п╟я┌п╬п╡ я█п╨я│п©я▀ п╡ я┌п╬п©п╣ п╨п╩п╟п╫п╬п╡ п╡ я─п╣п╤п╦п╪п╣ п╥п╟п©я─п╣я┌п╟ п╬п╠п╫п╬п╡п╩п╣п╫п╦я▐ п╫п╟ п╩п╣я┌я┐ (п╪п╦п╫я┐я┌)
 #define CLAN_TOP_REFRESH_PERIOD 360
-// клановый налог в день
+// п╨п╩п╟п╫п╬п╡я▀п╧ п╫п╟п╩п╬пЁ п╡ п╢п╣п╫я▄
 #define CLAN_TAX 1000
-// налог на выборку по параметрам из хранилища в день
+// п╫п╟п╩п╬пЁ п╫п╟ п╡я▀п╠п╬я─п╨я┐ п©п╬ п©п╟я─п╟п╪п╣я┌я─п╟п╪ п╦п╥ я┘я─п╟п╫п╦п╩п╦я┴п╟ п╡ п╢п╣п╫я▄
 #define CLAN_STOREHOUSE_TAX 1000
-// процент стоимости ренты шмотки (одетой) для хранилища
+// п©я─п╬я├п╣п╫я┌ я│я┌п╬п╦п╪п╬я│я┌п╦ я─п╣п╫я┌я▀ я┬п╪п╬я┌п╨п╦ (п╬п╢п╣я┌п╬п╧) п╢п╩я▐ я┘я─п╟п╫п╦п╩п╦я┴п╟
 #define CLAN_STOREHOUSE_COEFF 50
 
 #define MAX_CLANLEVEL 5
-// номер зоны с прототипами клан-стафа
+// п╫п╬п╪п╣я─ п╥п╬п╫я▀ я│ п©я─п╬я┌п╬я┌п╦п©п╟п╪п╦ п╨п╩п╟п╫-я│я┌п╟я└п╟
 #define CLAN_STUFF_ZONE 18
 
 #define CHEST_IDENT_PAY 110
 
-void fix_ingr_chest_rnum(const int room_rnum);//Нужно чтоб позиция короба не съехала
+void fix_ingr_chest_rnum(const int room_rnum);//п²я┐п╤п╫п╬ я┤я┌п╬п╠ п©п╬п╥п╦я├п╦я▐ п╨п╬я─п╬п╠п╟ п╫п╣ я│я┼п╣я┘п╟п╩п╟
 
 class ClanMember
 {
@@ -104,28 +104,28 @@ public:
 		remort(false)
 	{};
 
-	std::string name;   // имя игрока
-	int rank_num;       // номер ранга
-	long long money;    // баланс персонажа по отношению к клановой казне
-	long long exp;      // набраная топ-экспа
-	long long clan_exp; // набранная клан-экспа
+	std::string name;   // п╦п╪я▐ п╦пЁя─п╬п╨п╟
+	int rank_num;       // п╫п╬п╪п╣я─ я─п╟п╫пЁп╟
+	long long money;    // п╠п╟п╩п╟п╫я│ п©п╣я─я│п╬п╫п╟п╤п╟ п©п╬ п╬я┌п╫п╬я┬п╣п╫п╦я▌ п╨ п╨п╩п╟п╫п╬п╡п╬п╧ п╨п╟п╥п╫п╣
+	long long exp;      // п╫п╟п╠я─п╟п╫п╟я▐ я┌п╬п©-я█п╨я│п©п╟
+	long long clan_exp; // п╫п╟п╠я─п╟п╫п╫п╟я▐ п╨п╩п╟п╫-я█п╨я│п©п╟
 
-/// не сохраняются в клан-файле
-	// уровень для клан стата (те, кто онлайн)
+/// п╫п╣ я│п╬я┘я─п╟п╫я▐я▌я┌я│я▐ п╡ п╨п╩п╟п╫-я└п╟п╧п╩п╣
+	// я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ п╨п╩п╟п╫ я│я┌п╟я┌п╟ (я┌п╣, п╨я┌п╬ п╬п╫п╩п╟п╧п╫)
 	int level;
-	// краткое название класса для того же
+	// п╨я─п╟я┌п╨п╬п╣ п╫п╟п╥п╡п╟п╫п╦п╣ п╨п╩п╟я│я│п╟ п╢п╩я▐ я┌п╬пЁп╬ п╤п╣
 	std::string class_abbr;
-	// на праве или нет
+	// п╫п╟ п©я─п╟п╡п╣ п╦п╩п╦ п╫п╣я┌
 	bool remort;
 };
 
 struct ClanPk
 {
-	long author;            // уид автора
-	std::string victimName;	// имя жертвы
-	std::string authorName;	// имя автора
-	time_t time;            // время записи
-	std::string text;       // комментарий
+	long author;            // я┐п╦п╢ п╟п╡я┌п╬я─п╟
+	std::string victimName;	// п╦п╪я▐ п╤п╣я─я┌п╡я▀
+	std::string authorName;	// п╦п╪я▐ п╟п╡я┌п╬я─п╟
+	time_t time;            // п╡я─п╣п╪я▐ п╥п╟п©п╦я│п╦
+	std::string text;       // п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧
 };
 
 struct ClanStuffName
@@ -173,7 +173,7 @@ public:
 	Clan();
 	~Clan();
 
-	static ClanListType ClanList; // список кланов
+	static ClanListType ClanList; // я│п©п╦я│п╬п╨ п╨п╩п╟п╫п╬п╡
 	
 	static void ClanLoad();
 	static void ClanLoadSingle(std::string index);
@@ -206,8 +206,8 @@ public:
 	static bool put_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);
 	static bool take_ingr_chest(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *chest);
 
-	bool is_clan_member(int unique);//Возвращает true если чар с данным unique в клане
-	bool is_alli_member(int unique);//Возвращает true если чар с данным unique в альянсе
+	bool is_clan_member(int unique);//п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ true п╣я│п╩п╦ я┤п╟я─ я│ п╢п╟п╫п╫я▀п╪ unique п╡ п╨п╩п╟п╫п╣
+	bool is_alli_member(int unique);//п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ true п╣я│п╩п╦ я┤п╟я─ я│ п╢п╟п╫п╫я▀п╪ unique п╡ п╟п╩я▄я▐п╫я│п╣
 
 	void Manage(DESCRIPTOR_DATA * d, const char * arg);
 	void AddTopExp(CHAR_DATA * ch, int add_exp);
@@ -267,15 +267,15 @@ public:
 	friend void DoShowWars(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	friend void do_show_alliance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 	bool check_write_board(CHAR_DATA *ch);
-	int out_rent;   // номер румы для отписанных, чтобы не тусовались в замке дальше
+	int out_rent;   // п╫п╬п╪п╣я─ я─я┐п╪я▀ п╢п╩я▐ п╬я┌п©п╦я│п╟п╫п╫я▀я┘, я┤я┌п╬п╠я▀ п╫п╣ я┌я┐я│п╬п╡п╟п╩п╦я│я▄ п╡ п╥п╟п╪п╨п╣ п╢п╟п╩я▄я┬п╣
 
-	// клан пк
+	// п╨п╩п╟п╫ п©п╨
 	ClanPkLog pk_log;
-	// набранная за последний месяц экспа
+	// п╫п╟п╠я─п╟п╫п╫п╟я▐ п╥п╟ п©п╬я│п╩п╣п╢п╫п╦п╧ п╪п╣я│я▐я├ я█п╨я│п©п╟
 	ClanExp last_exp;
-	// помесячная история экспы без учета минусов
+	// п©п╬п╪п╣я│я▐я┤п╫п╟я▐ п╦я│я┌п╬я─п╦я▐ я█п╨я│п©я▀ п╠п╣п╥ я┐я┤п╣я┌п╟ п╪п╦п╫я┐я│п╬п╡
 	ClanExpHistory exp_history;
-	// лог клан-храна
+	// п╩п╬пЁ п╨п╩п╟п╫-я┘я─п╟п╫п╟
 	ClanChestLog chest_log;
 
 	static void SetPk(CHAR_DATA *ch, std::string buffer);
@@ -283,49 +283,49 @@ public:
 	void change_pk_status();
 
 private:
-	std::string abbrev; // аббревиатура клана, ОДНО слово
-	std::string name;   // длинное имя клана
-	std::string title;  // что будет видно в титуле членов клана (лучше род.падеж, если это не аббревиатура)
-	std::string title_female; // title для персонажей женского рода
-	std::string owner;  // имя воеводы
-	mob_vnum guard;     // охранник замка
-	time_t builtOn;     // дата создания
-	double bankBuffer;  // буффер для более точного снятия за хранилище
-	bool entranceMode;  // вход в замок для всех/только свои и альянс
-	std::vector <std::string> ranks; // список названий рангов
-	std::vector <std::string> ranks_female; // список названий рангов для женского рода
-	ClanPolitics politics;     // состояние политики
-	ClanPkList pkList;  // пклист
-	ClanPkList frList;  // дрлист
-	long bank;          // состояние счета банка
-	long long exp; // суммарная топ-экспа
-	long long clan_exp; //суммарная клан-экспа
-	long exp_buf;  // буффер для суммарной топ-экспы в режиме запрета подсчета в ран-тайме (exp_info), синхронизация раз в 6 часов
-	int clan_level; // текущий уровень клана
-	int rent;       // номер центральной комнаты в замке, заодно УИД клана
-	bool pk;        // является ли клан пк или нет
-	int chest_room; // комната с сундуком, по дефолту равняется ренте. чтобы не искать постояно руму в циклах
-	ClanPrivileges privileges; // список привилегий для рангов
-	ClanMembersList m_members;    // список членов дружины (уид, имя, номер ранга)
-	ClanStuffList clanstuff;   // клан-стаф
-	bool storehouse;    // опция выборки из хранилища по параметрам шмота
-	bool exp_info;      // показывать или нет набранную экспу
-	bool test_clan;     // тестовый клан (привет рсп)
-	std::string mod_text; // сообщение дружины
-	// рнум комнаты, где стоит хранилище под ингры (-1 если опция выключена)
+	std::string abbrev; // п╟п╠п╠я─п╣п╡п╦п╟я┌я┐я─п╟ п╨п╩п╟п╫п╟, п·п■п²п· я│п╩п╬п╡п╬
+	std::string name;   // п╢п╩п╦п╫п╫п╬п╣ п╦п╪я▐ п╨п╩п╟п╫п╟
+	std::string title;  // я┤я┌п╬ п╠я┐п╢п╣я┌ п╡п╦п╢п╫п╬ п╡ я┌п╦я┌я┐п╩п╣ я┤п╩п╣п╫п╬п╡ п╨п╩п╟п╫п╟ (п╩я┐я┤я┬п╣ я─п╬п╢.п©п╟п╢п╣п╤, п╣я│п╩п╦ я█я┌п╬ п╫п╣ п╟п╠п╠я─п╣п╡п╦п╟я┌я┐я─п╟)
+	std::string title_female; // title п╢п╩я▐ п©п╣я─я│п╬п╫п╟п╤п╣п╧ п╤п╣п╫я│п╨п╬пЁп╬ я─п╬п╢п╟
+	std::string owner;  // п╦п╪я▐ п╡п╬п╣п╡п╬п╢я▀
+	mob_vnum guard;     // п╬я┘я─п╟п╫п╫п╦п╨ п╥п╟п╪п╨п╟
+	time_t builtOn;     // п╢п╟я┌п╟ я│п╬п╥п╢п╟п╫п╦я▐
+	double bankBuffer;  // п╠я┐я└я└п╣я─ п╢п╩я▐ п╠п╬п╩п╣п╣ я┌п╬я┤п╫п╬пЁп╬ я│п╫я▐я┌п╦я▐ п╥п╟ я┘я─п╟п╫п╦п╩п╦я┴п╣
+	bool entranceMode;  // п╡я┘п╬п╢ п╡ п╥п╟п╪п╬п╨ п╢п╩я▐ п╡я│п╣я┘/я┌п╬п╩я▄п╨п╬ я│п╡п╬п╦ п╦ п╟п╩я▄я▐п╫я│
+	std::vector <std::string> ranks; // я│п©п╦я│п╬п╨ п╫п╟п╥п╡п╟п╫п╦п╧ я─п╟п╫пЁп╬п╡
+	std::vector <std::string> ranks_female; // я│п©п╦я│п╬п╨ п╫п╟п╥п╡п╟п╫п╦п╧ я─п╟п╫пЁп╬п╡ п╢п╩я▐ п╤п╣п╫я│п╨п╬пЁп╬ я─п╬п╢п╟
+	ClanPolitics politics;     // я│п╬я│я┌п╬я▐п╫п╦п╣ п©п╬п╩п╦я┌п╦п╨п╦
+	ClanPkList pkList;  // п©п╨п╩п╦я│я┌
+	ClanPkList frList;  // п╢я─п╩п╦я│я┌
+	long bank;          // я│п╬я│я┌п╬я▐п╫п╦п╣ я│я┤п╣я┌п╟ п╠п╟п╫п╨п╟
+	long long exp; // я│я┐п╪п╪п╟я─п╫п╟я▐ я┌п╬п©-я█п╨я│п©п╟
+	long long clan_exp; //я│я┐п╪п╪п╟я─п╫п╟я▐ п╨п╩п╟п╫-я█п╨я│п©п╟
+	long exp_buf;  // п╠я┐я└я└п╣я─ п╢п╩я▐ я│я┐п╪п╪п╟я─п╫п╬п╧ я┌п╬п©-я█п╨я│п©я▀ п╡ я─п╣п╤п╦п╪п╣ п╥п╟п©я─п╣я┌п╟ п©п╬п╢я│я┤п╣я┌п╟ п╡ я─п╟п╫-я┌п╟п╧п╪п╣ (exp_info), я│п╦п╫я┘я─п╬п╫п╦п╥п╟я├п╦я▐ я─п╟п╥ п╡ 6 я┤п╟я│п╬п╡
+	int clan_level; // я┌п╣п╨я┐я┴п╦п╧ я┐я─п╬п╡п╣п╫я▄ п╨п╩п╟п╫п╟
+	int rent;       // п╫п╬п╪п╣я─ я├п╣п╫я┌я─п╟п╩я▄п╫п╬п╧ п╨п╬п╪п╫п╟я┌я▀ п╡ п╥п╟п╪п╨п╣, п╥п╟п╬п╢п╫п╬ пёп≤п■ п╨п╩п╟п╫п╟
+	bool pk;        // я▐п╡п╩я▐п╣я┌я│я▐ п╩п╦ п╨п╩п╟п╫ п©п╨ п╦п╩п╦ п╫п╣я┌
+	int chest_room; // п╨п╬п╪п╫п╟я┌п╟ я│ я│я┐п╫п╢я┐п╨п╬п╪, п©п╬ п╢п╣я└п╬п╩я┌я┐ я─п╟п╡п╫я▐п╣я┌я│я▐ я─п╣п╫я┌п╣. я┤я┌п╬п╠я▀ п╫п╣ п╦я│п╨п╟я┌я▄ п©п╬я│я┌п╬я▐п╫п╬ я─я┐п╪я┐ п╡ я├п╦п╨п╩п╟я┘
+	ClanPrivileges privileges; // я│п©п╦я│п╬п╨ п©я─п╦п╡п╦п╩п╣пЁп╦п╧ п╢п╩я▐ я─п╟п╫пЁп╬п╡
+	ClanMembersList m_members;    // я│п©п╦я│п╬п╨ я┤п╩п╣п╫п╬п╡ п╢я─я┐п╤п╦п╫я▀ (я┐п╦п╢, п╦п╪я▐, п╫п╬п╪п╣я─ я─п╟п╫пЁп╟)
+	ClanStuffList clanstuff;   // п╨п╩п╟п╫-я│я┌п╟я└
+	bool storehouse;    // п╬п©я├п╦я▐ п╡я▀п╠п╬я─п╨п╦ п╦п╥ я┘я─п╟п╫п╦п╩п╦я┴п╟ п©п╬ п©п╟я─п╟п╪п╣я┌я─п╟п╪ я┬п╪п╬я┌п╟
+	bool exp_info;      // п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ п╦п╩п╦ п╫п╣я┌ п╫п╟п╠я─п╟п╫п╫я┐я▌ я█п╨я│п©я┐
+	bool test_clan;     // я┌п╣я│я┌п╬п╡я▀п╧ п╨п╩п╟п╫ (п©я─п╦п╡п╣я┌ я─я│п©)
+	std::string mod_text; // я│п╬п╬п╠я┴п╣п╫п╦п╣ п╢я─я┐п╤п╦п╫я▀
+	// я─п╫я┐п╪ п╨п╬п╪п╫п╟я┌я▀, пЁп╢п╣ я│я┌п╬п╦я┌ я┘я─п╟п╫п╦п╩п╦я┴п╣ п©п╬п╢ п╦п╫пЁя─я▀ (-1 п╣я│п╩п╦ п╬п©я├п╦я▐ п╡я▀п╨п╩я▌я┤п╣п╫п╟)
 	int ingr_chest_room_rnum_;
-	// адрес сайта дружины для 'справка сайтыдружин'
+	// п╟п╢я─п╣я│ я│п╟п╧я┌п╟ п╢я─я┐п╤п╦п╫я▀ п╢п╩я▐ 'я│п©я─п╟п╡п╨п╟ я│п╟п╧я┌я▀п╢я─я┐п╤п╦п╫'
 	std::string web_url_;
-	// пока общий на всех налог на лут кун
+	// п©п╬п╨п╟ п╬п╠я┴п╦п╧ п╫п╟ п╡я│п╣я┘ п╫п╟п╩п╬пЁ п╫п╟ п╩я┐я┌ п╨я┐п╫
 	unsigned gold_tax_pct_;
-	// очки репутации
+	// п╬я┤п╨п╦ я─п╣п©я┐я┌п╟я├п╦п╦
 	int reputation;
 	//no save
 	int chest_objcount;
 	int chest_discount;
 	int chest_weight;
-	Remember::RememberListType remember_; // вспомнить клан
-	Remember::RememberListType remember_ally_; // вспомнить союз
+	Remember::RememberListType remember_; // п╡я│п©п╬п╪п╫п╦я┌я▄ п╨п╩п╟п╫
+	Remember::RememberListType remember_ally_; // п╡я│п©п╬п╪п╫п╦я┌я▄ я│п╬я▌п╥
 	int ingr_chest_objcount_;
 
 	void SetPolitics(int victim, int state);
@@ -341,7 +341,7 @@ private:
 	void save_clan_file(const std::string& filename) const;
 	void house_web_url(CHAR_DATA* ch, const std::string& buffer);
 
-	// house аля олц
+	// house п╟п╩я▐ п╬п╩я├
 	void MainMenu(DESCRIPTOR_DATA * d);
 	void PrivilegeMenu(DESCRIPTOR_DATA * d, unsigned num);
 	void AllMenu(DESCRIPTOR_DATA * d, unsigned flag);
@@ -373,17 +373,17 @@ private:
 
 struct ClanOLC
 {
-	int mode;                  // для контроля состояния олц
-	Clan::shared_ptr clan;              // клан, который правим
-	ClanPrivileges privileges; // свой список привилегий на случай не сохранения при выходе
-	int rank;                  // редактируемый в данный момент ранг
-	std::bitset<ClanSystem::CLAN_PRIVILEGES_NUM> all_ranks; // буфер для удаления/добавления всем рангам
+	int mode;                  // п╢п╩я▐ п╨п╬п╫я┌я─п╬п╩я▐ я│п╬я│я┌п╬я▐п╫п╦я▐ п╬п╩я├
+	Clan::shared_ptr clan;              // п╨п╩п╟п╫, п╨п╬я┌п╬я─я▀п╧ п©я─п╟п╡п╦п╪
+	ClanPrivileges privileges; // я│п╡п╬п╧ я│п©п╦я│п╬п╨ п©я─п╦п╡п╦п╩п╣пЁп╦п╧ п╫п╟ я│п╩я┐я┤п╟п╧ п╫п╣ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п©я─п╦ п╡я▀я┘п╬п╢п╣
+	int rank;                  // я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪я▀п╧ п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ я─п╟п╫пЁ
+	std::bitset<ClanSystem::CLAN_PRIVILEGES_NUM> all_ranks; // п╠я┐я└п╣я─ п╢п╩я▐ я┐п╢п╟п╩п╣п╫п╦я▐/п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ п╡я│п╣п╪ я─п╟п╫пЁп╟п╪
 };
 
 struct ClanInvite
 {
-	Clan::shared_ptr clan; // приглашающий клан
-	int rank;     // номер приписываемого ранга
+	Clan::shared_ptr clan; // п©я─п╦пЁп╩п╟я┬п╟я▌я┴п╦п╧ п╨п╩п╟п╫
+	int rank;     // п╫п╬п╪п╣я─ п©я─п╦п©п╦я│я▀п╡п╟п╣п╪п╬пЁп╬ я─п╟п╫пЁп╟
 };
 
 void SetChestMode(CHAR_DATA *ch, std::string &buffer);
@@ -392,8 +392,8 @@ std::string clan_get_custom_label(OBJ_DATA *obj, Clan::shared_ptr clan);
 
 bool CHECK_CUSTOM_LABEL_CORE(const OBJ_DATA* obj, const CHAR_DATA* ch);
 
-// проверяет arg на совпадение с персональными или клановыми метками
-// чармис автора меток их тоже может использовать
+// п©я─п╬п╡п╣я─я▐п╣я┌ arg п╫п╟ я│п╬п╡п©п╟п╢п╣п╫п╦п╣ я│ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀п╪п╦ п╦п╩п╦ п╨п╩п╟п╫п╬п╡я▀п╪п╦ п╪п╣я┌п╨п╟п╪п╦
+// я┤п╟я─п╪п╦я│ п╟п╡я┌п╬я─п╟ п╪п╣я┌п╬п╨ п╦я┘ я┌п╬п╤п╣ п╪п╬п╤п╣я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄
 bool CHECK_CUSTOM_LABEL(const char* arg, const OBJ_DATA* obj, const CHAR_DATA* ch);
 
 inline bool CHECK_CUSTOM_LABEL(const std::string& arg, const OBJ_DATA* obj, const CHAR_DATA* ch)
@@ -401,7 +401,7 @@ inline bool CHECK_CUSTOM_LABEL(const std::string& arg, const OBJ_DATA* obj, cons
 	return CHECK_CUSTOM_LABEL(arg.c_str(), obj, ch);
 }
 
-// видит ли ch метки obj
+// п╡п╦п╢п╦я┌ п╩п╦ ch п╪п╣я┌п╨п╦ obj
 bool AUTH_CUSTOM_LABEL(const OBJ_DATA* obj, const CHAR_DATA* ch);
 
 #endif

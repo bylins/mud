@@ -69,9 +69,9 @@ void olc_remove_from_save_list(int zone, byte type);
 
 typedef struct t_zcmd
 {
-	struct t_zcmd *next;	// следующий элемент кольцевого буфера
-	struct t_zcmd *prev;	// предыдущий элемент кольцевого буфера
-	struct reset_com cmd;	// команда
+	struct t_zcmd *next;	// я│п╩п╣п╢я┐я▌я┴п╦п╧ я█п╩п╣п╪п╣п╫я┌ п╨п╬п╩я▄я├п╣п╡п╬пЁп╬ п╠я┐я└п╣я─п╟
+	struct t_zcmd *prev;	// п©я─п╣п╢я▀п╢я┐я┴п╦п╧ я█п╩п╣п╪п╣п╫я┌ п╨п╬п╩я▄я├п╣п╡п╬пЁп╬ п╠я┐я└п╣я─п╟
+	struct reset_com cmd;	// п╨п╬п╪п╟п╫п╢п╟
 } zcmd, *pzcmd;
 void zedit_delete_cmdlist(pzcmd head);
 

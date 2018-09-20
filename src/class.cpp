@@ -71,72 +71,72 @@ int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern bool char_to_pk_clan(CHAR_DATA *ch);
 // Names first
 
-const char *class_abbrevs[] = { "Ле",
-								"Ко",
-								"Та",
-								"Бо",
-								"На",
-								"Др",
-								"Ку",
-								"Во",
-								"Че",
-								"Ви",
-								"Ох",
-								"Кз",
-								"Кп",
-								"Вл",
+const char *class_abbrevs[] = { "п⌡п╣",
+								"п п╬",
+								"п╒п╟",
+								"п▒п╬",
+								"п²п╟",
+								"п■я─",
+								"п я┐",
+								"п▓п╬",
+								"п╖п╣",
+								"п▓п╦",
+								"п·я┘",
+								"п п╥",
+								"п п©",
+								"п▓п╩",
 								"\n"
 							  };
 
-const char *kin_abbrevs[] = { "Ру",
-							  "Ви",
-							  "Ст",
+const char *kin_abbrevs[] = { "п═я┐",
+							  "п▓п╦",
+							  "п║я┌",
 							  "\n"
 							};
 
 
-const char *pc_class_types[] = { "Лекарь",
-								 "Колдун",
-								 "Тать",
-								 "Богатырь",
-								 "Наемник",
-								 "Дружинник",
-								 "Кудесник",
-								 "Волшебник",
-								 "Чернокнижник",
-								 "Витязь",
-								 "Охотник",
-								 "Кузнец",
-								 "Купец",
-								 "Волхв",
-								 "Жрец",
-								 "Нойда",
-								 "Тиуве",
-								 "Берсерк",
-								 "Наемник",
-								 "Хирдман",
-								 "Заарин",
-								 "Босоркун",
-								 "Равк",
-								 "Кампе",
-								 "Лучник",
-								 "Аргун",
-								 "Кепмен",
-								 "Скальд",
-								 "Знахарь",
-								 "Бакша",
-								 "Карак",
-								 "Батыр",
-								 "Тургауд",
-								 "Нуке",
-								 "Капнобатай",
-								 "Акшаман",
-								 "Карашаман",
-								 "Чериг",
-								 "Шикорхо",
-								 "Дархан",
-								 "Сатучы",
-								 "Сеид",
+const char *pc_class_types[] = { "п⌡п╣п╨п╟я─я▄",
+								 "п п╬п╩п╢я┐п╫",
+								 "п╒п╟я┌я▄",
+								 "п▒п╬пЁп╟я┌я▀я─я▄",
+								 "п²п╟п╣п╪п╫п╦п╨",
+								 "п■я─я┐п╤п╦п╫п╫п╦п╨",
+								 "п я┐п╢п╣я│п╫п╦п╨",
+								 "п▓п╬п╩я┬п╣п╠п╫п╦п╨",
+								 "п╖п╣я─п╫п╬п╨п╫п╦п╤п╫п╦п╨",
+								 "п▓п╦я┌я▐п╥я▄",
+								 "п·я┘п╬я┌п╫п╦п╨",
+								 "п я┐п╥п╫п╣я├",
+								 "п я┐п©п╣я├",
+								 "п▓п╬п╩я┘п╡",
+								 "п√я─п╣я├",
+								 "п²п╬п╧п╢п╟",
+								 "п╒п╦я┐п╡п╣",
+								 "п▒п╣я─я│п╣я─п╨",
+								 "п²п╟п╣п╪п╫п╦п╨",
+								 "п╔п╦я─п╢п╪п╟п╫",
+								 "п≈п╟п╟я─п╦п╫",
+								 "п▒п╬я│п╬я─п╨я┐п╫",
+								 "п═п╟п╡п╨",
+								 "п п╟п╪п©п╣",
+								 "п⌡я┐я┤п╫п╦п╨",
+								 "п░я─пЁя┐п╫",
+								 "п п╣п©п╪п╣п╫",
+								 "п║п╨п╟п╩я▄п╢",
+								 "п≈п╫п╟я┘п╟я─я▄",
+								 "п▒п╟п╨я┬п╟",
+								 "п п╟я─п╟п╨",
+								 "п▒п╟я┌я▀я─",
+								 "п╒я┐я─пЁп╟я┐п╢",
+								 "п²я┐п╨п╣",
+								 "п п╟п©п╫п╬п╠п╟я┌п╟п╧",
+								 "п░п╨я┬п╟п╪п╟п╫",
+								 "п п╟я─п╟я┬п╟п╪п╟п╫",
+								 "п╖п╣я─п╦пЁ",
+								 "п╗п╦п╨п╬я─я┘п╬",
+								 "п■п╟я─я┘п╟п╫",
+								 "п║п╟я┌я┐я┤я▀",
+								 "п║п╣п╦п╢",
 								 "\n"
 							   };
 
@@ -144,90 +144,90 @@ const char *pc_class_types[] = { "Лекарь",
 // The menu for choosing a class in interpreter.c:
 const char *class_menu =
 	"\r\n"
-	"Выберите профессию :\r\n"
-	"  [Л]екарь\r\n"
-	"  [К]олдун\r\n"
-	"  [Т]ать\r\n"
-	"  [Б]огатырь\r\n"
-	"  [Н]аемник\r\n"
-	"  [Д]ружинник\r\n"
-	"  К[у]десник\r\n"
-	"  [В]олшебник\r\n"
-	"  [Ч]ернокнижник\r\n"
-	"  В[и]тязь\r\n"
-	"  [О]хотник\r\n"
-	"  Ку[з]нец\r\n"
-	"  Ку[п]ец\r\n"
-	"  Вол[x]в\r\n";
+	"п▓я▀п╠п╣я─п╦я┌п╣ п©я─п╬я└п╣я│я│п╦я▌ :\r\n"
+	"  [п⌡]п╣п╨п╟я─я▄\r\n"
+	"  [п ]п╬п╩п╢я┐п╫\r\n"
+	"  [п╒]п╟я┌я▄\r\n"
+	"  [п▒]п╬пЁп╟я┌я▀я─я▄\r\n"
+	"  [п²]п╟п╣п╪п╫п╦п╨\r\n"
+	"  [п■]я─я┐п╤п╦п╫п╫п╦п╨\r\n"
+	"  п [я┐]п╢п╣я│п╫п╦п╨\r\n"
+	"  [п▓]п╬п╩я┬п╣п╠п╫п╦п╨\r\n"
+	"  [п╖]п╣я─п╫п╬п╨п╫п╦п╤п╫п╦п╨\r\n"
+	"  п▓[п╦]я┌я▐п╥я▄\r\n"
+	"  [п·]я┘п╬я┌п╫п╦п╨\r\n"
+	"  п я┐[п╥]п╫п╣я├\r\n"
+	"  п я┐[п©]п╣я├\r\n"
+	"  п▓п╬п╩[x]п╡\r\n";
 
 const char *class_menu_vik =
 	"\r\n"
-	"Выберите профессию :\r\n"
-	"  [Ж]рец\r\n"
-	"  [Н]ойда\r\n"
-	"  [Т]иуве\r\n"
-	"  [Б]ерсерк\r\n"
-	"  Н[а]емник\r\n"
-	"  [Х]ирдман\r\n"
-	"  [З]аарин\r\n"
-	"  Б[о]соркун\r\n"
-	"  [Р]авк\r\n"
-	"  [К]ампе\r\n"
-	"  [Л]учник\r\n"
-	"  Ар[г]ун\r\n"
-	"  Ке[п]мен\r\n"
-	"  [С]кальд\r\n";
+	"п▓я▀п╠п╣я─п╦я┌п╣ п©я─п╬я└п╣я│я│п╦я▌ :\r\n"
+	"  [п√]я─п╣я├\r\n"
+	"  [п²]п╬п╧п╢п╟\r\n"
+	"  [п╒]п╦я┐п╡п╣\r\n"
+	"  [п▒]п╣я─я│п╣я─п╨\r\n"
+	"  п²[п╟]п╣п╪п╫п╦п╨\r\n"
+	"  [п╔]п╦я─п╢п╪п╟п╫\r\n"
+	"  [п≈]п╟п╟я─п╦п╫\r\n"
+	"  п▒[п╬]я│п╬я─п╨я┐п╫\r\n"
+	"  [п═]п╟п╡п╨\r\n"
+	"  [п ]п╟п╪п©п╣\r\n"
+	"  [п⌡]я┐я┤п╫п╦п╨\r\n"
+	"  п░я─[пЁ]я┐п╫\r\n"
+	"  п п╣[п©]п╪п╣п╫\r\n"
+	"  [п║]п╨п╟п╩я▄п╢\r\n";
 
 const char *class_menu_step =
 	"\r\n"
-	"Выберите профессию :\r\n"
-	"  [З]нахарь\r\n"
-	"  [Б]акша\r\n"
-	"  [К]арак\r\n"
-	"  Б[а]тыр\r\n"
-	"  [Т]ургауд\r\n"
-	"  [Н]уке\r\n"
-	"  Ка[п]нобатай\r\n"
-	"  Ак[ш]аман\r\n"
-	"  Ка[р]ашаман\r\n"
-	"  [Ч]ериг\r\n"
-	"  Шик[о]рхо\r\n"
-	"  [Д]архан\r\n"
-	"  [С]атучы\r\n"
-	"  Се[и]д\r\n";
+	"п▓я▀п╠п╣я─п╦я┌п╣ п©я─п╬я└п╣я│я│п╦я▌ :\r\n"
+	"  [п≈]п╫п╟я┘п╟я─я▄\r\n"
+	"  [п▒]п╟п╨я┬п╟\r\n"
+	"  [п ]п╟я─п╟п╨\r\n"
+	"  п▒[п╟]я┌я▀я─\r\n"
+	"  [п╒]я┐я─пЁп╟я┐п╢\r\n"
+	"  [п²]я┐п╨п╣\r\n"
+	"  п п╟[п©]п╫п╬п╠п╟я┌п╟п╧\r\n"
+	"  п░п╨[я┬]п╟п╪п╟п╫\r\n"
+	"  п п╟[я─]п╟я┬п╟п╪п╟п╫\r\n"
+	"  [п╖]п╣я─п╦пЁ\r\n"
+	"  п╗п╦п╨[п╬]я─я┘п╬\r\n"
+	"  [п■]п╟я─я┘п╟п╫\r\n"
+	"  [п║]п╟я┌я┐я┤я▀\r\n"
+	"  п║п╣[п╦]п╢\r\n";
 
 const char *color_menu =
 	"\r\n"
-	"Выберите режим цвета :\r\n"
-	"  [0]Выкл\r\n"
-	"  [1]Простой\r\n"
-	"  [2]Обычный\r\n"
-	"  [3]Полный\r\n";
+	"п▓я▀п╠п╣я─п╦я┌п╣ я─п╣п╤п╦п╪ я├п╡п╣я┌п╟ :\r\n"
+	"  [0]п▓я▀п╨п╩\r\n"
+	"  [1]п÷я─п╬я│я┌п╬п╧\r\n"
+	"  [2]п·п╠я▀я┤п╫я▀п╧\r\n"
+	"  [3]п÷п╬п╩п╫я▀п╧\r\n";
 
 // The menu for choosing a religion in interpreter.c:
 const char *religion_menu =
-	"\r\n" "Какой религии вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
+	"\r\n" "п п╟п╨п╬п╧ я─п╣п╩п╦пЁп╦п╦ п╡я▀ п╬я┌п╢п╟п╣я┌п╣ п©я─п╣п╢п©п╬я┤я┌п╣п╫п╦п╣ :\r\n" "  п╞[п╥]я▀я┤п╣я│я┌п╡п╬\r\n" "  [п╔]я─п╦я│я┌п╦п╟п╫я│я┌п╡п╬\r\n";
 
 #define RELIGION_ANY 100
 
 
-/* Соответствие классов и религий. RELIGION_POLY-класс не может быть христианином
-                                   RELIGION_MONO-класс не может быть язычником  (Кард)
-				   RELIGION_ANY - класс может быть кем угодно */
-const int class_religion[] = { RELIGION_ANY,		//Лекарь
-							   RELIGION_ANY,		//Колдун
-							   RELIGION_ANY,		//Тать
-							   RELIGION_ANY,		//Богатырь
-							   RELIGION_ANY,		//Наемник
-							   RELIGION_ANY,		//Дружинник
-							   RELIGION_ANY,		//Кудесник
-							   RELIGION_ANY,		//Волшебник
-							   RELIGION_ANY,		//Чернокнижник
-							   RELIGION_ANY,		//Витязь
-							   RELIGION_ANY,		//Охотник
-							   RELIGION_ANY,		//Кузнец
-							   RELIGION_ANY,		//Купец
-							   RELIGION_POLY		//Волхв
+/* п║п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╣ п╨п╩п╟я│я│п╬п╡ п╦ я─п╣п╩п╦пЁп╦п╧. RELIGION_POLY-п╨п╩п╟я│я│ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я┘я─п╦я│я┌п╦п╟п╫п╦п╫п╬п╪
+                                   RELIGION_MONO-п╨п╩п╟я│я│ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ я▐п╥я▀я┤п╫п╦п╨п╬п╪  (п п╟я─п╢)
+				   RELIGION_ANY - п╨п╩п╟я│я│ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╨п╣п╪ я┐пЁп╬п╢п╫п╬ */
+const int class_religion[] = { RELIGION_ANY,		//п⌡п╣п╨п╟я─я▄
+							   RELIGION_ANY,		//п п╬п╩п╢я┐п╫
+							   RELIGION_ANY,		//п╒п╟я┌я▄
+							   RELIGION_ANY,		//п▒п╬пЁп╟я┌я▀я─я▄
+							   RELIGION_ANY,		//п²п╟п╣п╪п╫п╦п╨
+							   RELIGION_ANY,		//п■я─я┐п╤п╦п╫п╫п╦п╨
+							   RELIGION_ANY,		//п я┐п╢п╣я│п╫п╦п╨
+							   RELIGION_ANY,		//п▓п╬п╩я┬п╣п╠п╫п╦п╨
+							   RELIGION_ANY,		//п╖п╣я─п╫п╬п╨п╫п╦п╤п╫п╦п╨
+							   RELIGION_ANY,		//п▓п╦я┌я▐п╥я▄
+							   RELIGION_ANY,		//п·я┘п╬я┌п╫п╦п╨
+							   RELIGION_ANY,		//п я┐п╥п╫п╣я├
+							   RELIGION_ANY,		//п я┐п©п╣я├
+							   RELIGION_POLY		//п▓п╬п╩я┘п╡
 							 };
 
 
@@ -246,33 +246,33 @@ int parse_class(char arg)
 
 	switch (arg)
 	{
-	case 'л':
+	case 'п╩':
 		return CLASS_CLERIC;
-	case 'к':
+	case 'п╨':
 		return CLASS_BATTLEMAGE;
-	case 'т':
+	case 'я┌':
 		return CLASS_THIEF;
-	case 'б':
+	case 'п╠':
 		return CLASS_WARRIOR;
-	case 'н':
+	case 'п╫':
 		return CLASS_ASSASINE;
-	case 'д':
+	case 'п╢':
 		return CLASS_GUARD;
-	case 'у':
+	case 'я┐':
 		return CLASS_CHARMMAGE;
-	case 'в':
+	case 'п╡':
 		return CLASS_DEFENDERMAGE;
-	case 'ч':
+	case 'я┤':
 		return CLASS_NECROMANCER;
-	case 'и':
+	case 'п╦':
 		return CLASS_PALADINE;
-	case 'о':
+	case 'п╬':
 		return CLASS_RANGER;
-	case 'з':
+	case 'п╥':
 		return CLASS_SMITH;
-	case 'п':
+	case 'п©':
 		return CLASS_MERCHANT;
-	case 'х':
+	case 'я┘':
 		return CLASS_DRUID;
 	default:
 		return CLASS_UNDEFINED;
@@ -286,33 +286,33 @@ parse_class_vik(char arg)
 
 	switch (arg)
 	{
-	case 'ж':
+	case 'п╤':
 		return CLASS_CLERIC;
-	case 'н':
+	case 'п╫':
 		return CLASS_BATTLEMAGE;
-	case 'т':
+	case 'я┌':
 		return CLASS_THIEF;
-	case 'б':
+	case 'п╠':
 		return CLASS_WARRIOR;
-	case 'а':
+	case 'п╟':
 		return CLASS_ASSASINE;
-	case 'х':
+	case 'я┘':
 		return CLASS_GUARD;
-	case 'з':
+	case 'п╥':
 		return CLASS_CHARMMAGE;
-	case 'о':
+	case 'п╬':
 		return CLASS_DEFENDERMAGE;
-	case 'р':
+	case 'я─':
 		return CLASS_NECROMANCER;
-	case 'к':
+	case 'п╨':
 		return CLASS_PALADINE;
-	case 'л':
+	case 'п╩':
 		return CLASS_RANGER;
-	case 'г':
+	case 'пЁ':
 		return CLASS_SMITH;
-	case 'п':
+	case 'п©':
 		return CLASS_MERCHANT;
-	case 'с':
+	case 'я│':
 		return CLASS_DRUID;
 	default:
 		return CLASS_UNDEFINED;
@@ -327,33 +327,33 @@ parse_class_step(char arg)
 
 	switch (arg)
 	{
-	case 'з':
+	case 'п╥':
 		return CLASS_CLERIC;
-	case 'б':
+	case 'п╠':
 		return CLASS_BATTLEMAGE;
-	case 'к':
+	case 'п╨':
 		return CLASS_THIEF;
-	case 'а':
+	case 'п╟':
 		return CLASS_WARRIOR;
-	case 'т':
+	case 'я┌':
 		return CLASS_ASSASINE;
-	case 'н':
+	case 'п╫':
 		return CLASS_GUARD;
-	case 'п':
+	case 'п©':
 		return CLASS_CHARMMAGE;
-	case 'ш':
+	case 'я┬':
 		return CLASS_DEFENDERMAGE;
-	case 'р':
+	case 'я─':
 		return CLASS_NECROMANCER;
-	case 'ч':
+	case 'я┤':
 		return CLASS_PALADINE;
-	case 'о':
+	case 'п╬':
 		return CLASS_RANGER;
-	case 'д':
+	case 'п╢':
 		return CLASS_SMITH;
-	case 'с':
+	case 'я│':
 		return CLASS_MERCHANT;
-	case 'и':
+	case 'п╦':
 		return CLASS_DRUID;
 	default:
 		return CLASS_UNDEFINED;
@@ -373,33 +373,33 @@ long find_class_bitvector(char arg)
 
 	switch (arg)
 	{
-	case 'л':
+	case 'п╩':
 		return (1 << CLASS_CLERIC);
-	case 'к':
+	case 'п╨':
 		return (1 << CLASS_BATTLEMAGE);
-	case 'т':
+	case 'я┌':
 		return (1 << CLASS_THIEF);
-	case 'б':
+	case 'п╠':
 		return (1 << CLASS_WARRIOR);
-	case 'н':
+	case 'п╫':
 		return (1 << CLASS_ASSASINE);
-	case 'д':
+	case 'п╢':
 		return (1 << CLASS_GUARD);
-	case 'у':
+	case 'я┐':
 		return (1 << CLASS_CHARMMAGE);
-	case 'в':
+	case 'п╡':
 		return (1 << CLASS_DEFENDERMAGE);
-	case 'ч':
+	case 'я┤':
 		return (1 << CLASS_NECROMANCER);
-	case 'и':
+	case 'п╦':
 		return (1 << CLASS_PALADINE);
-	case 'о':
+	case 'п╬':
 		return (1 << CLASS_RANGER);
-	case 'з':
+	case 'п╥':
 		return (1 << CLASS_SMITH);
-	case 'п':
+	case 'п©':
 		return (1 << CLASS_MERCHANT);
-	case 'х':
+	case 'я┘':
 		return (1 << CLASS_DRUID);
 	default:
 		return 0;
@@ -413,33 +413,33 @@ find_class_bitvector_vik(char arg)
 
 	switch (arg)
 	{
-	case 'ж':
+	case 'п╤':
 		return (1 << CLASS_CLERIC);
-	case 'н':
+	case 'п╫':
 		return (1 << CLASS_BATTLEMAGE);
-	case 'т':
+	case 'я┌':
 		return (1 << CLASS_THIEF);
-	case 'б':
+	case 'п╠':
 		return (1 << CLASS_WARRIOR);
-	case 'а':
+	case 'п╟':
 		return (1 << CLASS_ASSASINE);
-	case 'х':
+	case 'я┘':
 		return (1 << CLASS_GUARD);
-	case 'з':
+	case 'п╥':
 		return (1 << CLASS_CHARMMAGE);
-	case 'о':
+	case 'п╬':
 		return (1 << CLASS_DEFENDERMAGE);
-	case 'р':
+	case 'я─':
 		return (1 << CLASS_NECROMANCER);
-	case 'к':
+	case 'п╨':
 		return (1 << CLASS_PALADINE);
-	case 'л':
+	case 'п╩':
 		return (1 << CLASS_RANGER);
-	case 'г':
+	case 'пЁ':
 		return (1 << CLASS_SMITH);
-	case 'п':
+	case 'п©':
 		return (1 << CLASS_MERCHANT);
-	case 'в':
+	case 'п╡':
 		return (1 << CLASS_DRUID);
 	default:
 		return CLASS_UNDEFINED;
@@ -455,33 +455,33 @@ find_class_bitvector_step(char arg)
 
 	switch (arg)
 	{
-	case 'з':
+	case 'п╥':
 		return (1 << CLASS_CLERIC);
-	case 'б':
+	case 'п╠':
 		return (1 << CLASS_BATTLEMAGE);
-	case 'к':
+	case 'п╨':
 		return (1 << CLASS_THIEF);
-	case 'а':
+	case 'п╟':
 		return (1 << CLASS_WARRIOR);
-	case 'т':
+	case 'я┌':
 		return (1 << CLASS_ASSASINE);
-	case 'н':
+	case 'п╫':
 		return (1 << CLASS_GUARD);
-	case 'п':
+	case 'п©':
 		return (1 << CLASS_CHARMMAGE);
-	case 'ш':
+	case 'я┬':
 		return (1 << CLASS_DEFENDERMAGE);
-	case 'р':
+	case 'я─':
 		return (1 << CLASS_NECROMANCER);
-	case 'ч':
+	case 'я┤':
 		return (1 << CLASS_PALADINE);
-	case 'о':
+	case 'п╬':
 		return (1 << CLASS_RANGER);
-	case 'д':
+	case 'п╢':
 		return (1 << CLASS_SMITH);
-	case 'с':
+	case 'я│':
 		return (1 << CLASS_MERCHANT);
-	case 'и':
+	case 'п╦':
 		return (1 << CLASS_DRUID);
 	default:
 		return CLASS_UNDEFINED;
@@ -558,7 +558,7 @@ int guild_info[][3] =
 };
 
 
-// Таблицы бызовых спасбросков
+// п╒п╟п╠п╩п╦я├я▀ п╠я▀п╥п╬п╡я▀я┘ я│п©п╟я│п╠я─п╬я│п╨п╬п╡
 
 const byte sav_01[50] =
 {
@@ -1981,16 +1981,16 @@ int extra_damroll(int class_num, int level)
 }
 
 // Some initializations for characters, including initial skills
-void init_warcry(CHAR_DATA *ch) // проставление кличей в обход античита
+void init_warcry(CHAR_DATA *ch) // п©я─п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ п╨п╩п╦я┤п╣п╧ п╡ п╬п╠я┘п╬п╢ п╟п╫я┌п╦я┤п╦я┌п╟
 {
 	if (GET_CLASS(ch) == CLASS_GUARD)
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // п╨п╩п╦я┤ п©я─п╦п╥я▀п╡ п╨ п╬п╠п╬я─п╬п╫п╣
 	if (GET_CLASS(ch) == CLASS_WARRIOR)
 	{
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_POWER), SPELL_KNOW); // клич призыв мощи
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BLESS), SPELL_KNOW); // клич призывы доблести
-		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_COURAGE), SPELL_KNOW); // клич призыв отваги
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BATTLE), SPELL_KNOW); // п╨п╩п╦я┤ п©я─п╦п╥я▀п╡ п╠п╦я┌п╡я▀
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_POWER), SPELL_KNOW); // п╨п╩п╦я┤ п©я─п╦п╥я▀п╡ п╪п╬я┴п╦
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BLESS), SPELL_KNOW); // п╨п╩п╦я┤ п©я─п╦п╥я▀п╡я▀ п╢п╬п╠п╩п╣я│я┌п╦
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_COURAGE), SPELL_KNOW); // п╨п╩п╦я┤ п©я─п╦п╥я▀п╡ п╬я┌п╡п╟пЁп╦
 	}
 
 }
@@ -2072,7 +2072,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 	GET_COND(ch, THIRST) = 0;
 	GET_COND(ch, FULL) = 0;
 	GET_COND(ch, DRUNK) = 0;
-	// проставим кличи
+	// п©я─п╬я│я┌п╟п╡п╦п╪ п╨п╩п╦я┤п╦
 	init_warcry(ch);
 	if (siteok_everyone)
 	{
@@ -2080,14 +2080,14 @@ void do_start(CHAR_DATA * ch, int newbie)
 	}
 }
 
-// * Перерасчет максимальных родных хп персонажа.
-// * При входе в игру, левеле/делевеле, добавлении/удалении славы.
+// * п÷п╣я─п╣я─п╟я│я┤п╣я┌ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫я▀я┘ я─п╬п╢п╫я▀я┘ я┘п© п©п╣я─я│п╬п╫п╟п╤п╟.
+// * п÷я─п╦ п╡я┘п╬п╢п╣ п╡ п╦пЁя─я┐, п╩п╣п╡п╣п╩п╣/п╢п╣п╩п╣п╡п╣п╩п╣, п╢п╬п╠п╟п╡п╩п╣п╫п╦п╦/я┐п╢п╟п╩п╣п╫п╦п╦ я│п╩п╟п╡я▀.
 void check_max_hp(CHAR_DATA *ch)
 {
 	GET_MAX_HIT(ch) = PlayerSystem::con_natural_hp(ch);
 }
 
-// * Обработка событий при левел-апе.
+// * п·п╠я─п╟п╠п╬я┌п╨п╟ я│п╬п╠я▀я┌п╦п╧ п©я─п╦ п╩п╣п╡п╣п╩-п╟п©п╣.
 void levelup_events(CHAR_DATA *ch)
 {
 	if (SpamSystem::MIN_OFFTOP_LVL == GET_LEVEL(ch)
@@ -2096,17 +2096,17 @@ void levelup_events(CHAR_DATA *ch)
 		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		send_to_char(ch,
-			"%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').\r\n",
+			"%sп╒п╣п©п╣я─я▄ п╡я▀ п╪п╬п╤п╣я┌п╣ п©п╬п╩я▄п╥п╬п╡п╟я┌я▄я│я▐ п╨п╟п╫п╟п╩п╬п╪ п╬я└я└я┌п╬п© ('я│п©я─п╟п╡п╨п╟ п╬я└я└я┌п╬п©').\r\n",
 			CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}
 	if (EXCHANGE_MIN_CHAR_LEV == GET_LEVEL(ch)
 		&& !ch->get_disposable_flag(DIS_EXCHANGE_MESSAGE))
 	{
-		// по умолчанию базар у всех включен, поэтому не спамим даже однократно
+		// п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ п╠п╟п╥п╟я─ я┐ п╡я│п╣я┘ п╡п╨п╩я▌я┤п╣п╫, п©п╬я█я┌п╬п╪я┐ п╫п╣ я│п©п╟п╪п╦п╪ п╢п╟п╤п╣ п╬п╢п╫п╬п╨я─п╟я┌п╫п╬
 		if (GET_REMORT(ch) <= 0)
 		{
 			send_to_char(ch,
-				"%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').\r\n",
+				"%sп╒п╣п©п╣я─я▄ п╡я▀ п╪п╬п╤п╣я┌п╣ п©п╬п╨я┐п©п╟я┌я▄ п╦ п©я─п╬п╢п╟п╡п╟я┌я▄ п╡п╣я┴п╦ п╫п╟ п╠п╟п╥п╟я─п╣ ('я│п©я─п╟п╡п╨п╟ п╠п╟п╥п╟я─!').\r\n",
 				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 		}
 		ch->set_disposable_flag(DIS_EXCHANGE_MESSAGE);
@@ -2482,7 +2482,7 @@ void load_skills_definitions()
 	fclose(magic);
 }
 
-//Polud Читает данные из файла хранения параметров умений
+//Polud п╖п╦я┌п╟п╣я┌ п╢п╟п╫п╫я▀п╣ п╦п╥ я└п╟п╧п╩п╟ я┘я─п╟п╫п╣п╫п╦я▐ п©п╟я─п╟п╪п╣я┌я─п╬п╡ я┐п╪п╣п╫п╦п╧
 void load_skills()
 {
 	const char *CLASS_SKILLS_FILE = LIB_MISC"classskills.xml";
@@ -2526,37 +2526,37 @@ void load_skills()
 				skill_info[sk_num].classknow[PCclass][PCkin] = KNOW_SKILL;
 				if ((level_decrement < 1 && level_decrement != -1) || level_decrement > MAX_REMORT)
 				{
-					log("ERROR: Недопустимый параметр level decrement класса %d.", PCclass);
+					log("ERROR: п²п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╧ п©п╟я─п╟п╪п╣я┌я─ level decrement п╨п╩п╟я│я│п╟ %d.", PCclass);
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = -1;
 				}
 				else
 				{
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
 				}
-				//log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, PCkin, PCclass);
+				//log("пёп╪п╣п╫п╦п╣ '%s' п╢п╩я▐ я─п╟я│я▀ %d п╨п╩п╟я│я│п╟ %d я─п╟п╥я─п╣я┬п╣п╫п╬.", skill_info[sk_num].name, PCkin, PCclass);
 				int value = xNodeSkill.attribute("improve").as_int();
 				skill_info[sk_num].k_improove[PCclass][PCkin] = MAX(1, value);
-				//log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, (int)skill_info[sk_num].k_improove[PCclass][PCkin]);
+				//log("п п╬я█я└я└п╦я├п╦п╣п╫я┌ я┐п╩я┐я┤я┬п╣п╫п╦я▐ я┐п╪п╣п╫п╦я▐ '%s' я─п╟я│я▀ %d п╨п╩п╟я│я│п╟ %d я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╡ %d", skill_info[sk_num].name, PCkin, PCclass, (int)skill_info[sk_num].k_improove[PCclass][PCkin]);
 				value = xNodeSkill.attribute("level").as_int();
 				if (value > 0 && value < LVL_IMMORT)
 				{
 					skill_info[sk_num].min_level[PCclass][PCkin] = value;
-					//log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, value);
+					//log("п°п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╦п╥я┐я┤п╣п╫п╦я▐ я┐п╪п╣п╫п╦я▐ '%s' я─п╟я│я▀ %d п╨п╩п╟я│я│п╟ %d я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╡ %d", skill_info[sk_num].name, PCkin, PCclass, value);
 				}
 				else
 				{
-					log("ERROR: Недопустимый минимальный уровень изучения умения '%s' - %d", skill_info[sk_num].name, value);
+					log("ERROR: п²п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╧ п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╦п╥я┐я┤п╣п╫п╦я▐ я┐п╪п╣п╫п╦я▐ '%s' - %d", skill_info[sk_num].name, value);
 					graceful_exit(1);
 				}
 				value = xNodeSkill.attribute("remort").as_int();
 				if (value >= 0 && value < MAX_REMORT)
 				{
 					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
-					//log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, skill_info[sk_num].min_remort[j][PCkin]);
+					//log("п°п╦п╫п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я─п╣п╪п╬я─я┌п╬п╡ п╢п╩я▐ п╦п╥я┐я┤п╣п╫п╦я▐ я┐п╪п╣п╫п╦я▐ '%s' я─п╟я│я▀ %d п╨п╩п╟я│я│п╟ %d я┐я│я┌п╟п╫п╬п╡п╩п╣п╫ п╡ %d", skill_info[sk_num].name, PCkin, PCclass, skill_info[sk_num].min_remort[j][PCkin]);
 				}
 				else
 				{
-					log("ERROR: Недопустимое минимальное количество ремортов для умения '%s' - %d", skill_info[sk_num].name, value);
+					log("ERROR: п²п╣п╢п╬п©я┐я│я┌п╦п╪п╬п╣ п╪п╦п╫п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я─п╣п╪п╬я─я┌п╬п╡ п╢п╩я▐ я┐п╪п╣п╫п╦я▐ '%s' - %d", skill_info[sk_num].name, value);
 					graceful_exit(1);
 				}
 			}
@@ -2787,7 +2787,7 @@ void init_spell_levels(void)
 	fclose(magic);
 	// End of changed
 
-//	Polud новый файл описания умений Skills.xml, если его нет - читаются старые
+//	Polud п╫п╬п╡я▀п╧ я└п╟п╧п╩ п╬п©п╦я│п╟п╫п╦я▐ я┐п╪п╣п╫п╦п╧ Skills.xml, п╣я│п╩п╦ п╣пЁп╬ п╫п╣я┌ - я┤п╦я┌п╟я▌я┌я│я▐ я│я┌п╟я─я▀п╣
 	load_skills();
 
 	if (!(magic = fopen(LIB_MISC "skillvariables.lst", "r")))
@@ -2796,10 +2796,10 @@ void init_spell_levels(void)
 		graceful_exit(1);
 	}
 
-	// Загружаем переменные скилов из файла
+	// п≈п╟пЁя─я┐п╤п╟п╣п╪ п©п╣я─п╣п╪п╣п╫п╫я▀п╣ я│п╨п╦п╩п╬п╡ п╦п╥ я└п╟п╧п╩п╟
 
-	// ГОРНОЕ ДЕЛО
-	// Предварительно ставим значения по дефолту
+	// п⌠п·п═п²п·п∙ п■п∙п⌡п·
+	// п÷я─п╣п╢п╡п╟я─п╦я┌п╣п╩я▄п╫п╬ я│я┌п╟п╡п╦п╪ п╥п╫п╟я┤п╣п╫п╦я▐ п©п╬ п╢п╣я└п╬п╩я┌я┐
 
 	dig_vars.hole_max_deep = DIG_DFLT_HOLE_MAX_DEEP;
 	dig_vars.instr_crash_chance = DIG_DFLT_INSTR_CRASH_CHANCE;
@@ -2829,8 +2829,8 @@ void init_spell_levels(void)
 	dig_vars.mob_vnum_end = DIG_DFLT_MOB_VNUM_END;
 	dig_vars.pandora_vnum = DIG_DFLT_PANDORA_VNUM;
 
-	// ЮВЕЛИР
-	// Предварительно ставим значения по дефолту
+	// п╝п▓п∙п⌡п≤п═
+	// п÷я─п╣п╢п╡п╟я─п╦я┌п╣п╩я▄п╫п╬ я│я┌п╟п╡п╦п╪ п╥п╫п╟я┤п╣п╫п╦я▐ п©п╬ п╢п╣я└п╬п╩я┌я┐
 
 	insgem_vars.lag = INSGEM_DFLT_LAG;
 	insgem_vars.minus_for_affect = INSGEM_DFLT_MINUS_FOR_AFFECT;
@@ -2908,7 +2908,7 @@ void init_spell_levels(void)
 				graceful_exit(1);
 			}
 
-	// line1 - ограничения для рас еще не реализованы
+	// line1 - п╬пЁя─п╟п╫п╦я┤п╣п╫п╦я▐ п╢п╩я▐ я─п╟я│ п╣я┴п╣ п╫п╣ я─п╣п╟п╩п╦п╥п╬п╡п╟п╫я▀
 
 			for (j = 0; line2[j] && j < NUM_CLASSES; j++) {
 				if (!strchr("1xX!", line2[j]))
@@ -2996,20 +2996,20 @@ void init_basic_values(void)
 }
 
 /*
-	Берет misc/grouping, первый столбик цифр считает номерами мортов,
-	остальные столбики - значение макс. разрыва в уровнях для конкретного
-	класса. На момент написания этого в конфиге присутствует 26 строк, макс.
-	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
+	п▒п╣я─п╣я┌ misc/grouping, п©п╣я─п╡я▀п╧ я│я┌п╬п╩п╠п╦п╨ я├п╦я└я─ я│я┤п╦я┌п╟п╣я┌ п╫п╬п╪п╣я─п╟п╪п╦ п╪п╬я─я┌п╬п╡,
+	п╬я│я┌п╟п╩я▄п╫я▀п╣ я│я┌п╬п╩п╠п╦п╨п╦ - п╥п╫п╟я┤п╣п╫п╦п╣ п╪п╟п╨я│. я─п╟п╥я─я▀п╡п╟ п╡ я┐я─п╬п╡п╫я▐я┘ п╢п╩я▐ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬
+	п╨п╩п╟я│я│п╟. п²п╟ п╪п╬п╪п╣п╫я┌ п╫п╟п©п╦я│п╟п╫п╦я▐ я█я┌п╬пЁп╬ п╡ п╨п╬п╫я└п╦пЁп╣ п©я─п╦я│я┐я┌я│я┌п╡я┐п╣я┌ 26 я│я┌я─п╬п╨, п╪п╟п╨я│.
+	п╪п╬я─я┌ я─п╟п╡п╣п╫ 50 - я│я┌я─п╬п╨п╦ я│ п╪п╬я─я┌п╟п╪п╦ я│ 26 п©п╬ 50 п╨п╬п©п╦я─я┐я▌я┌я│я▐ я│ 25-п╪п╬я─я┌п╬п╡п╬п╧ я│я┌я─п╬п╨п╦.
 */
 int GroupPenalties::init(void)
 {
 	char buf[MAX_INPUT_LENGTH];
 	int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = MAX_REMORT+1;
 
-	// пре-инициализация
-	for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
+	// п©я─п╣-п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐
+	for (remorts = 0; remorts < max_rows; remorts++) //п║я┌я─п╬п╨ п╡ п╪п╟я│я│п╦п╡п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╫п╟ 1 п╠п╬п╩я▄я┬п╣, я┤п╣п╪ п╪п╟п╨я│. п╪п╬я─я┌
 	{
-		for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++) //Столбцов в массиве должно быть ровно столько же, сколько есть классов
+		for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++) //п║я┌п╬п╩п╠я├п╬п╡ п╡ п╪п╟я│я│п╦п╡п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ я─п╬п╡п╫п╬ я│я┌п╬п╩я▄п╨п╬ п╤п╣, я│п╨п╬п╩я▄п╨п╬ п╣я│я┌я▄ п╨п╩п╟я│я│п╬п╡
 		{
 			m_grouping[clss][remorts] = -1;
 		}
@@ -3018,13 +3018,13 @@ int GroupPenalties::init(void)
 	FILE* f = fopen(LIB_MISC "grouping", "r");
 	if (!f)
 	{
-		log("Невозможно открыть файл %s", LIB_MISC "grouping");
+		log("п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩ %s", LIB_MISC "grouping");
 		return 1;
 	}
 
 	while (get_line(f, buf))
 	{
-		if (!buf[0] || buf[0] == ';' || buf[0] == '\n') //Строка пустая или строка-коммент
+		if (!buf[0] || buf[0] == ';' || buf[0] == '\n') //п║я┌я─п╬п╨п╟ п©я┐я│я┌п╟я▐ п╦п╩п╦ я│я┌я─п╬п╨п╟-п╨п╬п╪п╪п╣п╫я┌
 		{
 			continue;
 		}
@@ -3036,37 +3036,37 @@ int GroupPenalties::init(void)
 			{
 				pos++;
 			}
-			if (clss == 0) //Первый проход цикла по строке
+			if (clss == 0) //п÷п╣я─п╡я▀п╧ п©я─п╬я┘п╬п╢ я├п╦п╨п╩п╟ п©п╬ я│я┌я─п╬п╨п╣
 			{
-				remorts = levels; //Номера строк
+				remorts = levels; //п²п╬п╪п╣я─п╟ я│я┌я─п╬п╨
 				if (m_grouping[0][remorts] != -1)
 				{
-					log("Ошибка при чтении файла %s: дублирование параметров для %d ремортов",
+					log("п·я┬п╦п╠п╨п╟ п©я─п╦ я┤я┌п╣п╫п╦п╦ я└п╟п╧п╩п╟ %s: п╢я┐п╠п╩п╦я─п╬п╡п╟п╫п╦п╣ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п╢п╩я▐ %d я─п╣п╪п╬я─я┌п╬п╡",
 						LIB_MISC "grouping", remorts);
 					return 2;
 				}
 				if (remorts > MAX_REMORT || remorts < 0)
 				{
-					log("Ошибка при чтении файла %s: неверное значение количества ремортов: %d, "
-						"должно быть в промежутке от 0 до %d",
+					log("п·я┬п╦п╠п╨п╟ п©я─п╦ я┤я┌п╣п╫п╦п╦ я└п╟п╧п╩п╟ %s: п╫п╣п╡п╣я─п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ я─п╣п╪п╬я─я┌п╬п╡: %d, "
+						"п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╡ п©я─п╬п╪п╣п╤я┐я┌п╨п╣ п╬я┌ 0 п╢п╬ %d",
 						LIB_MISC "grouping", remorts, MAX_REMORT);
 					return 3;
 				}
 			}
 			else
 			{
-				m_grouping[clss - 1][remorts] = levels; // -1 потому что в массиве нет столбца с кол-вом мортов
+				m_grouping[clss - 1][remorts] = levels; // -1 п©п╬я┌п╬п╪я┐ я┤я┌п╬ п╡ п╪п╟я│я│п╦п╡п╣ п╫п╣я┌ я│я┌п╬п╩п╠я├п╟ я│ п╨п╬п╩-п╡п╬п╪ п╪п╬я─я┌п╬п╡
 			}
-			clss++; //+Номер столбца массива
+			clss++; //+п²п╬п╪п╣я─ я│я┌п╬п╩п╠я├п╟ п╪п╟я│я│п╦п╡п╟
 			while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0)
 			{
-				pos++; //Ищем следующее число в строке конфига
+				pos++; //п≤я┴п╣п╪ я│п╩п╣п╢я┐я▌я┴п╣п╣ я┤п╦я│п╩п╬ п╡ я│я┌я─п╬п╨п╣ п╨п╬п╫я└п╦пЁп╟
 			}
 		}
 		if (clss != NUM_PLAYER_CLASSES+1)
 		{
-			log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть %d "
-				"целых чисел, прочитали %d", LIB_MISC "grouping", buf, NUM_PLAYER_CLASSES+1, clss);
+			log("п·я┬п╦п╠п╨п╟ п©я─п╦ я┤я┌п╣п╫п╦п╦ я└п╟п╧п╩п╟ %s: п╫п╣п╡п╣я─п╫я▀п╧ я└п╬я─п╪п╟я┌ я│я┌я─п╬п╨п╦ '%s', п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ %d "
+				"я├п╣п╩я▀я┘ я┤п╦я│п╣п╩, п©я─п╬я┤п╦я┌п╟п╩п╦ %d", LIB_MISC "grouping", buf, NUM_PLAYER_CLASSES+1, clss);
 			return 4;
 		}
 		rows_assigned++;
@@ -3074,11 +3074,11 @@ int GroupPenalties::init(void)
 
 	if (rows_assigned < max_rows)
 	{
-		for (levels = remorts; levels < max_rows; levels++) //Берем свободную переменную
+		for (levels = remorts; levels < max_rows; levels++) //п▒п╣я─п╣п╪ я│п╡п╬п╠п╬п╢п╫я┐я▌ п©п╣я─п╣п╪п╣п╫п╫я┐я▌
 		{
 			for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++)
 			{
-				m_grouping[clss][levels] = m_grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк
+				m_grouping[clss][levels] = m_grouping[clss][remorts]; //п п╬п©п╦я─я┐п╣п╪ п©п╬я│п╩п╣п╢п╫я▌я▌ я│я┌я─п╬п╨я┐ п╫п╟ п╡я│п╣ п╪п╬я─я┌я▀, п╢п╩я▐ п╨п╬я┌п╬я─я▀я┘ п╫п╣я┌ я│я┌я─п╬п╨
 			}
 		}
 	}

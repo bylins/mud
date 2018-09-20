@@ -136,7 +136,7 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -175,7 +175,7 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -249,7 +249,7 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -264,7 +264,7 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
+	if (!str_cmp(arg, "all") || !str_cmp(arg, "п╡я│п╣"))
 		junk_all = 1;
 
 	if ((find_all_dots(arg) == FIND_INDIV) && !junk_all)
@@ -307,7 +307,7 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -342,7 +342,7 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (reloc_target != -1 && reloc_target != IN_ROOM(victim))
 	{
 		sprintf(buf,
-				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
+				"&Yп▓п²п≤п°п░п²п≤п∙&G п²п╣п╡п╣я─п╫п╬п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╟п╫п╢я▀ wat п╡ я┌я─п╦пЁпЁп╣я─п╣ %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
 		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 	}
@@ -359,7 +359,7 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -394,7 +394,7 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (reloc_target != -1 && reloc_target != IN_ROOM(victim))
 	{
 		sprintf(buf,
-				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
+				"&Yп▓п²п≤п°п░п²п≤п∙&G п²п╣п╡п╣я─п╫п╬п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╟п╫п╢я▀ wat п╡ я┌я─п╦пЁпЁп╣я─п╣ %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
 		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 	}
@@ -409,7 +409,7 @@ void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -427,7 +427,7 @@ void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (reloc_target != -1 && reloc_target != ch->in_room)
 	{
 		sprintf(buf,
-				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
+				"&Yп▓п²п≤п°п░п²п≤п∙&G п²п╣п╡п╣я─п╫п╬п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╨п╬п╪п╟п╫п╢я▀ wat п╡ я┌я─п╦пЁпЁп╣я─п╣ %s (VNUM=%d).",
 				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
 		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 	}
@@ -447,7 +447,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -494,7 +494,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
+				sprintf(buf, "mload: п÷п╬п©я▀я┌п╨п╟ п╥п╟пЁя─я┐п╥п╦я┌я▄ п©я─п╣п╢п╪п╣я┌ п╠п╬п╩я▄я┬п╣ я┤п╣п╪ п╡ MIW п╢п╩я▐ #%d, п©я─п╣п╢п╪п╣я┌ я┐п╢п╟п╩п╣п╫.", number);
 				mob_log(ch, buf);
 //				extract_obj(object.get());
 //				return;
@@ -532,7 +532,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -591,7 +591,7 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -630,7 +630,7 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -673,7 +673,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -695,7 +695,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		mob_log(ch, "mteleport target is an invalid room");
 	}
-	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
+	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "п╡я│п╣"))
 	{
 		if (target == ch->in_room)
 		{
@@ -780,7 +780,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			char_to_room(horse, target);
 		}
 
-//Polud реализуем режим followers. за аргументом телепорта перемешаются все последователи-NPC
+//Polud я─п╣п╟п╩п╦п╥я┐п╣п╪ я─п╣п╤п╦п╪ followers. п╥п╟ п╟я─пЁя┐п╪п╣п╫я┌п╬п╪ я┌п╣п╩п╣п©п╬я─я┌п╟ п©п╣я─п╣п╪п╣я┬п╟я▌я┌я│я▐ п╡я│п╣ п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩п╦-NPC
 		if (!str_cmp(argument, "followers") && vict->followers)
 		{
 			follow_type *ft;
@@ -809,7 +809,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -828,14 +828,14 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(arg, "all")
-		|| !str_cmp(arg, "все"))
+		|| !str_cmp(arg, "п╡я│п╣"))
 	{
 		mob_log(ch, "ERROR: \'mforce all\' command disabled.");
 		return;
 		//DESCRIPTOR_DATA *i;
 
-		//// не знаю почему здесь идут только по плеерам, но раз так,
-		//// то LVL_IMMORT+ для мобов здесь исключать пока нет смысла
+		//// п╫п╣ п╥п╫п╟я▌ п©п╬я┤п╣п╪я┐ п╥п╢п╣я│я▄ п╦п╢я┐я┌ я┌п╬п╩я▄п╨п╬ п©п╬ п©п╩п╣п╣я─п╟п╪, п╫п╬ я─п╟п╥ я┌п╟п╨,
+		//// я┌п╬ LVL_IMMORT+ п╢п╩я▐ п╪п╬п╠п╬п╡ п╥п╢п╣я│я▄ п╦я│п╨п╩я▌я┤п╟я┌я▄ п©п╬п╨п╟ п╫п╣я┌ я│п╪я▀я│п╩п╟
 		//for (i = descriptor_list; i; i = i->next)
 		//{
 		//	if ((i->character.get() != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
@@ -908,7 +908,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -941,7 +941,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		mob_log(ch, buf);
 		return;
 	}
-	sprintf(buf, "mexp: victim (%s) получил опыт %d", name, atoi(amount));
+	sprintf(buf, "mexp: victim (%s) п©п╬п╩я┐я┤п╦п╩ п╬п©я▀я┌ %d", name, atoi(amount));
 	mob_log(ch, buf);
 	gain_exp(victim, atoi(amount));
 }
@@ -956,7 +956,7 @@ void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1016,7 +1016,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1049,13 +1049,13 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mob_log(ch, "mtransform: bad mobile vnum");
 			return;
 		}
-// Тактика:
-// 1. Прочитан новый моб (m), увеличено количество в mob_index
-// 2. Чтобы уменьшить кол-во мобов ch, нужно экстрактить ch,
-//    но этого делать НЕЛЬЗЯ, т.к. на него очень много ссылок.
-// 3. Вывод - a) обмениваю содержимое m и ch.
-//            b) в ch (бывший m) копирую игровую информацию из m (бывший ch)
-//            c) удаляю m (на самом деле это данные ch в другой оболочке)
+// п╒п╟п╨я┌п╦п╨п╟:
+// 1. п÷я─п╬я┤п╦я┌п╟п╫ п╫п╬п╡я▀п╧ п╪п╬п╠ (m), я┐п╡п╣п╩п╦я┤п╣п╫п╬ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╡ mob_index
+// 2. п╖я┌п╬п╠я▀ я┐п╪п╣п╫я▄я┬п╦я┌я▄ п╨п╬п╩-п╡п╬ п╪п╬п╠п╬п╡ ch, п╫я┐п╤п╫п╬ я█п╨я│я┌я─п╟п╨я┌п╦я┌я▄ ch,
+//    п╫п╬ я█я┌п╬пЁп╬ п╢п╣п╩п╟я┌я▄ п²п∙п⌡п╛п≈п╞, я┌.п╨. п╫п╟ п╫п╣пЁп╬ п╬я┤п╣п╫я▄ п╪п╫п╬пЁп╬ я│я│я▀п╩п╬п╨.
+// 3. п▓я▀п╡п╬п╢ - a) п╬п╠п╪п╣п╫п╦п╡п╟я▌ я│п╬п╢п╣я─п╤п╦п╪п╬п╣ m п╦ ch.
+//            b) п╡ ch (п╠я▀п╡я┬п╦п╧ m) п╨п╬п©п╦я─я┐я▌ п╦пЁя─п╬п╡я┐я▌ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╦п╥ m (п╠я▀п╡я┬п╦п╧ ch)
+//            c) я┐п╢п╟п╩я▐я▌ m (п╫п╟ я│п╟п╪п╬п╪ п╢п╣п╩п╣ я█я┌п╬ п╢п╟п╫п╫я▀п╣ ch п╡ п╢я─я┐пЁп╬п╧ п╬п╠п╬п╩п╬я┤п╨п╣)
 
 
 		for (pos = 0; pos < NUM_WEARS; pos++)
@@ -1069,18 +1069,18 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// put the mob in the same room as ch so extract will work
 		char_to_room(m, ch->in_room);
 
-// Обмен содержимым
+// п·п╠п╪п╣п╫ я│п╬п╢п╣я─п╤п╦п╪я▀п╪
 		CHAR_DATA tmpmob(*m);
 		*m = *ch;
 		*ch = tmpmob;
 		ch->set_normal_morph();
 
-// Имею:
-//  ch -> старый указатель, новое наполнение из моба m
-//  m -> новый указатель, старое наполнение из моба ch
-//  tmpmob -> врем. переменная, наполнение из оригинального моба m
+// п≤п╪п╣я▌:
+//  ch -> я│я┌п╟я─я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄, п╫п╬п╡п╬п╣ п╫п╟п©п╬п╩п╫п╣п╫п╦п╣ п╦п╥ п╪п╬п╠п╟ m
+//  m -> п╫п╬п╡я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄, я│я┌п╟я─п╬п╣ п╫п╟п©п╬п╩п╫п╣п╫п╦п╣ п╦п╥ п╪п╬п╠п╟ ch
+//  tmpmob -> п╡я─п╣п╪. п©п╣я─п╣п╪п╣п╫п╫п╟я▐, п╫п╟п©п╬п╩п╫п╣п╫п╦п╣ п╦п╥ п╬я─п╦пЁп╦п╫п╟п╩я▄п╫п╬пЁп╬ п╪п╬п╠п╟ m
 
-// Копирование игровой информации (для m сохраняются оригинальные значения)
+// п п╬п©п╦я─п╬п╡п╟п╫п╦п╣ п╦пЁя─п╬п╡п╬п╧ п╦п╫я└п╬я─п╪п╟я├п╦п╦ (п╢п╩я▐ m я│п╬я┘я─п╟п╫я▐я▌я┌я│я▐ п╬я─п╦пЁп╦п╫п╟п╩я▄п╫я▀п╣ п╥п╫п╟я┤п╣п╫п╦я▐)
 		ch->id = m->id;
 		m->id = tmpmob.id;
 		ch->affected = m->affected;
@@ -1094,7 +1094,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		m->next_fighting = tmpmob.next_fighting;
 		ch->followers = m->followers;
 		m->followers = tmpmob.followers;
-		ch->set_wait(m->get_wait());  // а лаг то у нас не копировался
+		ch->set_wait(m->get_wait());  // п╟ п╩п╟пЁ я┌п╬ я┐ п╫п╟я│ п╫п╣ п╨п╬п©п╦я─п╬п╡п╟п╩я│я▐
 		m->set_wait(tmpmob.get_wait());
 		ch->set_master(m->get_master());
 		m->set_master(tmpmob.get_master());
@@ -1114,7 +1114,7 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		IS_CARRYING_N(m) = IS_CARRYING_N(&tmpmob);
 		ch->set_fighting(m->get_fighting());
 		m->set_fighting(tmpmob.get_fighting());
-		// для name_list
+		// п╢п╩я▐ name_list
 		ch->set_serial_num(m->get_serial_num());
 		m->set_serial_num(tmpmob.get_serial_num());
 
@@ -1149,7 +1149,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1247,7 +1247,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			else
 				mob_log(ch, "mdoor: invalid door target");
 			break;
-		case 6:	// lock - сложность замка         
+		case 6:	// lock - я│п╩п╬п╤п╫п╬я│я┌я▄ п╥п╟п╪п╨п╟         
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))
 				exit->lock_complexity = lock;
@@ -1272,7 +1272,7 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1347,7 +1347,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1391,7 +1391,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1429,7 +1429,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         }
 		else 
 		{
-			sprintf(buf, "mskillturn: несоответсвие устанавливаемого умения классу игрока");
+			sprintf(buf, "mskillturn: п╫п╣я│п╬п╬я┌п╡п╣я┌я│п╡п╦п╣ я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪п╬пЁп╬ я┐п╪п╣п╫п╦я▐ п╨п╩п╟я│я│я┐ п╦пЁя─п╬п╨п╟");
 			mob_log(ch, buf);
 		}
 	}
@@ -1450,7 +1450,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1482,7 +1482,7 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1530,7 +1530,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1570,7 +1570,7 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1607,7 +1607,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1641,7 +1641,7 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1678,7 +1678,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1703,7 +1703,7 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1744,7 +1744,7 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1833,7 +1833,7 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!MOB_OR_IMPL(ch))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
@@ -1862,13 +1862,13 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (GET_LEVEL(victim) >= LVL_IMMORT && dam > 0)
 		{
 			send_to_char
-			("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
+			("п▒я┐п╢я┐я┤п╦ п╬я┤п╣п╫я▄ п╨я─я┐я┌я▀п╪, п╡я▀ я│п╢п╣п╩п╟п╩п╦ я┬п╟пЁ п╡ я│я┌п╬я─п╬п╫я┐ п╦ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╦ п©п╬п╡я─п╣п╤п╢п╣п╫п╦п╧...\r\n", victim);
 			return;
 		}
 		GET_HIT(victim) -= dam;
 		if (dam < 0)
 		{
-			send_to_char("Вы почувствовали себя лучше.\r\n", victim);
+			send_to_char("п▓я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│п╣п╠я▐ п╩я┐я┤я┬п╣.\r\n", victim);
 			return;
 		}
 

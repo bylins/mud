@@ -116,7 +116,7 @@ int MobTriggerLookup::lookup()
 	return finder().result();
 }
 
-// * Аналогично find_char_vnum, только для объектов.
+// * п░п╫п╟п╩п╬пЁп╦я┤п╫п╬ find_char_vnum, я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╬п╠я┼п╣п╨я┌п╬п╡.
 bool FindObjIDByVNUM::lookup_world_objects()
 {
 	OBJ_DATA::shared_ptr object = world_objects.find_by_vnum_and_dec_number(m_vnum, m_number, m_seen);

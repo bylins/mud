@@ -37,22 +37,22 @@ namespace ShopExt
 
 	bool check_money(CHAR_DATA *ch, long price, const std::string& currency)
 	{
-		if (currency == "слава")
+		if (currency == "я│п╩п╟п╡п╟")
 		{
 			const auto total_glory = GloryConst::get_glory(GET_UNIQUE(ch));
 			return total_glory >= price;
 		}
 
-		if (currency == "куны")
+		if (currency == "п╨я┐п╫я▀")
 		{
 			return ch->get_gold() >= price;
 		}
 
-		if (currency == "лед")
+		if (currency == "п╩п╣п╢")
 		{
 			return ch->get_ice_currency() >= price;
 		}
-		if (currency == "гривны")
+		if (currency == "пЁя─п╦п╡п╫я▀")
 		{
 			return ch->get_hryvn() >= price;
 		}
@@ -211,12 +211,12 @@ namespace ShopExt
 			obj->attach_triggers(desc.trigs);
 		}
 
-		obj->set_ex_description(nullptr); //Пока в конфиге нельзя указать экстраописания - убираем нафиг
+		obj->set_ex_description(nullptr); //п÷п╬п╨п╟ п╡ п╨п╬п╫я└п╦пЁп╣ п╫п╣п╩я▄п╥я▐ я┐п╨п╟п╥п╟я┌я▄ я█п╨я│я┌я─п╟п╬п©п╦я│п╟п╫п╦я▐ - я┐п╠п╦я─п╟п╣п╪ п╫п╟я└п╦пЁ
 
 		if ((GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
-			&& (GET_OBJ_VAL(obj, 1) > 0)) //Если работаем с непустой емкостью...
+			&& (GET_OBJ_VAL(obj, 1) > 0)) //п∙я│п╩п╦ я─п╟п╠п╬я┌п╟п╣п╪ я│ п╫п╣п©я┐я│я┌п╬п╧ п╣п╪п╨п╬я│я┌я▄я▌...
 		{
-			name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...Следует указать содержимое емкости
+			name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2)); //...п║п╩п╣п╢я┐п╣я┌ я┐п╨п╟п╥п╟я┌я▄ я│п╬п╢п╣я─п╤п╦п╪п╬п╣ п╣п╪п╨п╬я│я┌п╦
 		}
 	}
 
@@ -253,7 +253,7 @@ namespace ShopExt
 
 		if (buffer1.empty())
 		{
-			tell_to_char(keeper, ch, "ЧТО ты хочешь купить?");
+			tell_to_char(keeper, ch, "п╖п╒п· я┌я▀ я┘п╬я┤п╣я┬я▄ п╨я┐п©п╦я┌я▄?");
 			return;
 		}
 
@@ -309,7 +309,7 @@ namespace ShopExt
 		}
 		else
 		{
-			tell_to_char(keeper, ch, "ЧТО ты хочешь купить?");
+			tell_to_char(keeper, ch, "п╖п╒п· я┌я▀ я┘п╬я┤п╣я┬я▄ п╨я┐п©п╦я┌я▄?");
 			return;
 		}
 
@@ -317,13 +317,13 @@ namespace ShopExt
 			|| !item_num
 			|| static_cast<size_t>(item_num) > m_items_list.size())
 		{
-			tell_to_char(keeper, ch, "Протри глаза, у меня нет такой вещи.");
+			tell_to_char(keeper, ch, "п÷я─п╬я┌я─п╦ пЁп╩п╟п╥п╟, я┐ п╪п╣п╫я▐ п╫п╣я┌ я┌п╟п╨п╬п╧ п╡п╣я┴п╦.");
 			return;
 		}
 
 		if (item_count >= 1000)
 		{
-			tell_to_char(keeper, ch, "А морда не треснет?");
+			tell_to_char(keeper, ch, "п░ п╪п╬я─п╢п╟ п╫п╣ я┌я─п╣я│п╫п╣я┌?");
 			return;
 		}
 
@@ -338,8 +338,8 @@ namespace ShopExt
 
 			if (!tmp_obj)
 			{
-				log("SYSERROR : не удалось прочитать предмет (%s:%d)", __FILE__, __LINE__);
-				send_to_char("Ошибочка вышла.\r\n", ch);
+				log("SYSERROR : п╫п╣ я┐п╢п╟п╩п╬я│я▄ п©я─п╬я┤п╦я┌п╟я┌я▄ п©я─п╣п╢п╪п╣я┌ (%s:%d)", __FILE__, __LINE__);
+				send_to_char("п·я┬п╦п╠п╬я┤п╨п╟ п╡я▀я┬п╩п╟.\r\n", ch);
 				return;
 			}
 
@@ -349,8 +349,8 @@ namespace ShopExt
 		auto proto = (tmp_obj ? tmp_obj : get_object_prototype(item->vnum()).get());
 		if (!proto)
 		{
-			log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
-			send_to_char("Ошибочка вышла.\r\n", ch);
+			log("SYSERROR : п╫п╣ я┐п╢п╟п╩п╬я│я▄ п©я─п╬я┤п╦я┌п╟я┌я▄ п©я─п╬я┌п╬я┌п╦п© (%s:%d)", __FILE__, __LINE__);
+			send_to_char("п·я┬п╦п╠п╬я┤п╨п╟ п╡я▀я┬п╩п╟.\r\n", ch);
 			return;
 		}
 
@@ -358,21 +358,21 @@ namespace ShopExt
 		if (!check_money(ch, price, currency))
 		{
 			snprintf(buf, MAX_STRING_LENGTH,
-				"У вас нет столько %s!", ExtMoney::name_currency_plural(currency).c_str());
+				"пё п╡п╟я│ п╫п╣я┌ я│я┌п╬п╩я▄п╨п╬ %s!", ExtMoney::name_currency_plural(currency).c_str());
 			tell_to_char(keeper, ch, buf);
 
 			char local_buf[MAX_INPUT_LENGTH];
 			switch (number(0, 3))
 			{
 			case 0:
-				snprintf(local_buf, MAX_INPUT_LENGTH, "ругать %s!", GET_NAME(ch));
+				snprintf(local_buf, MAX_INPUT_LENGTH, "я─я┐пЁп╟я┌я▄ %s!", GET_NAME(ch));
 				do_social(keeper, local_buf);
 				break;
 
 			case 1:
 				snprintf(local_buf, MAX_INPUT_LENGTH,
-					"отхлебнул$g немелкий глоток %s",
-					IS_MALE(keeper) ? "водки" : "медовухи");
+					"п╬я┌я┘п╩п╣п╠п╫я┐п╩$g п╫п╣п╪п╣п╩п╨п╦п╧ пЁп╩п╬я┌п╬п╨ %s",
+					IS_MALE(keeper) ? "п╡п╬п╢п╨п╦" : "п╪п╣п╢п╬п╡я┐я┘п╦");
 				do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 				break;
 			}
@@ -386,8 +386,8 @@ namespace ShopExt
 				? item->get_item_name(GET_MOB_VNUM(keeper), 3).c_str()
 				: tmp_obj->get_short_description().c_str();
 			snprintf(buf, MAX_STRING_LENGTH,
-				"%s, я понимаю, своя ноша карман не тянет,\r\n"
-				"но %s вам явно некуда положить.\r\n",
+				"%s, я▐ п©п╬п╫п╦п╪п╟я▌, я│п╡п╬я▐ п╫п╬я┬п╟ п╨п╟я─п╪п╟п╫ п╫п╣ я┌я▐п╫п╣я┌,\r\n"
+				"п╫п╬ %s п╡п╟п╪ я▐п╡п╫п╬ п╫п╣п╨я┐п╢п╟ п©п╬п╩п╬п╤п╦я┌я▄.\r\n",
 				GET_NAME(ch), name);
 			send_to_char(buf, ch);
 			return;
@@ -432,24 +432,24 @@ namespace ShopExt
 					obj->set_owner(GET_UNIQUE(ch));
 				}
 				obj_to_char(obj, ch);
-				if (currency == "слава")
+				if (currency == "я│п╩п╟п╡п╟")
 				{
-					// книги за славу не фейлим
+					// п╨п╫п╦пЁп╦ п╥п╟ я│п╩п╟п╡я┐ п╫п╣ я└п╣п╧п╩п╦п╪
 					if (OBJ_DATA::ITEM_BOOK == GET_OBJ_TYPE(obj))
 					{
 						obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
 					}
 
-					// снятие и логирование славы
+					// я│п╫я▐я┌п╦п╣ п╦ п╩п╬пЁп╦я─п╬п╡п╟п╫п╦п╣ я│п╩п╟п╡я▀
 					obj->set_owner(GET_UNIQUE(ch));
 					GloryConst::add_total_spent(price);
 					GloryConst::remove_glory(GET_UNIQUE(ch), price);
 					GloryConst::transfer_log("%s bought %s for %d const glory",
 							GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price);
 				}
-				else if (currency == "лед")
+				else if (currency == "п╩п╣п╢")
 				{
-					// книги за лед, как и за славу, не фейлим
+					// п╨п╫п╦пЁп╦ п╥п╟ п╩п╣п╢, п╨п╟п╨ п╦ п╥п╟ я│п╩п╟п╡я┐, п╫п╣ я└п╣п╧п╩п╦п╪
 					if (OBJ_DATA::ITEM_BOOK == GET_OBJ_TYPE(obj))
 					{
 						obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
@@ -457,9 +457,9 @@ namespace ShopExt
 					ch->sub_ice_currency(price);
 
 				}
-				else if (currency == "гривны")
+				else if (currency == "пЁя─п╦п╡п╫я▀")
 				{
-					// книги за гривны, как и за славу, не фейлим
+					// п╨п╫п╦пЁп╦ п╥п╟ пЁя─п╦п╡п╫я▀, п╨п╟п╨ п╦ п╥п╟ я│п╩п╟п╡я┐, п╫п╣ я└п╣п╧п╩п╦п╪
 					if (OBJ_DATA::ITEM_BOOK == GET_OBJ_TYPE(obj))
 					{
 						obj->set_extra_flag(EExtraFlag::ITEM_NO_FAIL);
@@ -468,7 +468,7 @@ namespace ShopExt
 					ch->spent_hryvn_sub(price);
 					if (ch->get_spent_hryvn() > 1000)
 					{
-						send_to_char("Мессага о том, что гривны были сброшены.\r\n", ch);
+						send_to_char("п°п╣я│я│п╟пЁп╟ п╬ я┌п╬п╪, я┤я┌п╬ пЁя─п╦п╡п╫я▀ п╠я▀п╩п╦ я│п╠я─п╬я┬п╣п╫я▀.\r\n", ch);
 						ch->reset_daily_quest();
 					}
 				}
@@ -483,9 +483,9 @@ namespace ShopExt
 			}
 			else
 			{
-				log("SYSERROR : не удалось загрузить предмет obj_vnum=%d (%s:%d)",
+				log("SYSERROR : п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╥п╟пЁя─я┐п╥п╦я┌я▄ п©я─п╣п╢п╪п╣я┌ obj_vnum=%d (%s:%d)",
 					GET_OBJ_VNUM(proto), __FILE__, __LINE__);
-				send_to_char("Ошибочка вышла.\r\n", ch);
+				send_to_char("п·я┬п╦п╠п╬я┤п╨п╟ п╡я▀я┬п╩п╟.\r\n", ch);
 				return;
 			}
 		}
@@ -494,42 +494,42 @@ namespace ShopExt
 		{
 			if (!check_money(ch, price, currency))
 			{
-				snprintf(buf, MAX_STRING_LENGTH, "Мошенни%s, ты можешь оплатить только %d.",
-					IS_MALE(ch) ? "к" : "ца", bought);
+				snprintf(buf, MAX_STRING_LENGTH, "п°п╬я┬п╣п╫п╫п╦%s, я┌я▀ п╪п╬п╤п╣я┬я▄ п╬п©п╩п╟я┌п╦я┌я▄ я┌п╬п╩я▄п╨п╬ %d.",
+					IS_MALE(ch) ? "п╨" : "я├п╟", bought);
 			}
 			else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
 			{
-				snprintf(buf, MAX_STRING_LENGTH, "Ты сможешь унести только %d.", bought);
+				snprintf(buf, MAX_STRING_LENGTH, "п╒я▀ я│п╪п╬п╤п╣я┬я▄ я┐п╫п╣я│я┌п╦ я┌п╬п╩я▄п╨п╬ %d.", bought);
 			}
 			else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto) > CAN_CARRY_W(ch))
 			{
-				snprintf(buf, MAX_STRING_LENGTH, "Ты сможешь поднять только %d.", bought);
+				snprintf(buf, MAX_STRING_LENGTH, "п╒я▀ я│п╪п╬п╤п╣я┬я▄ п©п╬п╢п╫я▐я┌я▄ я┌п╬п╩я▄п╨п╬ %d.", bought);
 			}
 			else if (bought > 0)
 			{
-				snprintf(buf, MAX_STRING_LENGTH, "Я продам тебе только %d.", bought);
+				snprintf(buf, MAX_STRING_LENGTH, "п╞ п©я─п╬п╢п╟п╪ я┌п╣п╠п╣ я┌п╬п╩я▄п╨п╬ %d.", bought);
 			}
 			else
 			{
-				snprintf(buf, MAX_STRING_LENGTH, "Я не продам тебе ничего.");
+				snprintf(buf, MAX_STRING_LENGTH, "п╞ п╫п╣ п©я─п╬п╢п╟п╪ я┌п╣п╠п╣ п╫п╦я┤п╣пЁп╬.");
 			}
 
 			tell_to_char(keeper, ch, buf);
 		}
 		auto suffix = desc_count(total_money, WHAT_MONEYu);
-		if (currency == "лед")
+		if (currency == "п╩п╣п╢")
 			suffix = desc_count(total_money, WHAT_ICEu);
-		if (currency == "слава")
+		if (currency == "я│п╩п╟п╡п╟")
 			suffix = desc_count(total_money, WHAT_GLORYu);
-		if (currency == "гривны")
+		if (currency == "пЁя─п╦п╡п╫я▀")
 			suffix = desc_count(total_money, WHAT_TORCu);
-		snprintf(buf, MAX_STRING_LENGTH, "Это будет стоить %d %s.", total_money, suffix);
+		snprintf(buf, MAX_STRING_LENGTH, "п╜я┌п╬ п╠я┐п╢п╣я┌ я│я┌п╬п╦я┌я▄ %d %s.", total_money, suffix);
 		tell_to_char(keeper, ch, buf);
 
 		if (obj)
 		{
-			send_to_char(ch, "Теперь вы стали %s %s.\r\n",
-				IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
+			send_to_char(ch, "п╒п╣п©п╣я─я▄ п╡я▀ я│я┌п╟п╩п╦ %s %s.\r\n",
+				IS_MALE(ch) ? "я│я┤п╟я│я┌п╩п╦п╡я▀п╪ п╬п╠п╩п╟п╢п╟я┌п╣п╩п╣п╪" : "я│я┤п╟я│я┌п╩п╦п╡п╬п╧ п╬п╠п╩п╟п╢п╟я┌п╣п╩я▄п╫п╦я├п╣п╧",
 				obj->item_count_message(bought, 1).c_str());
 		}
 	}
@@ -537,7 +537,7 @@ namespace ShopExt
 	void shop_node::print_shop_list(CHAR_DATA *ch, const std::string& arg, int keeper_vnum) const
 	{
 		send_to_char(ch,
-			" ##    Доступно   Предмет                                      Цена (%s)\r\n"
+			" ##    п■п╬я│я┌я┐п©п╫п╬   п÷я─п╣п╢п╪п╣я┌                                      п╕п╣п╫п╟ (%s)\r\n"
 			"---------------------------------------------------------------------------\r\n",
 			currency.c_str());
 		int num = 1;
@@ -554,15 +554,15 @@ namespace ShopExt
 
 			const auto& item = m_items_list.node(k);
 
-			//Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
-			// чтобы не было в списках всяких "гриб @n1"
+			//Polud я┐ п©я─п╬п╢п╟п╫п╫я▀я┘ п╡ п╪п╟пЁп╟п╥ п╬п╠я┼п╣п╨я┌п╬п╡ п╬я┌п╬п╠я─п╟п╤п╟п╣п╪ п╡ я│п©п╦я│п╨п╣ п╫п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟, п╟ я┐п╤п╣, п╡п╬п╥п╪п╬п╤п╫п╬, п╦п╥п╪п╣п╫п╣п╫п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣
+			// я┤я┌п╬п╠я▀ п╫п╣ п╠я▀п╩п╬ п╡ я│п©п╦я│п╨п╟я┘ п╡я│я▐п╨п╦я┘ "пЁя─п╦п╠ @n1"
 			if (item->empty())
 			{
 				print_value = item->get_item_name(keeper_vnum);
 				const auto rnum = obj_proto.rnum(item->vnum());
 				if (GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_DRINKCON)
 				{
-					print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
+					print_value += " я│ " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 				}
 			}
 			else
@@ -576,9 +576,9 @@ namespace ShopExt
 				}
 			}
 
-			std::string numToShow = (count == -1 || count > 100 ? "Навалом" : boost::lexical_cast<std::string>(count));
+			std::string numToShow = (count == -1 || count > 100 ? "п²п╟п╡п╟п╩п╬п╪" : boost::lexical_cast<std::string>(count));
 
-			// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
+			// п╦п╪я┘п╬ п╡п©п╬п╩п╫п╣ п╩п╬пЁп╦я┤п╫п╬ я─п╟п╥ я┐п╤ п╪я▀ п©п╬п╩я┐я┤п╟п╣п╪ я█я┌я┐ п╫п╟п╢п©п╦я│я▄ п╡ п╫п╣п╧ п╦ п╦я│п╨п╟я┌я▄
 			if (arg.empty()
 				|| isname(arg, print_value)
 				|| (!name_value.empty()
@@ -601,97 +601,97 @@ namespace ShopExt
 
 	bool init_type(const std::string& str, int& type)
 	{
-		if (is_abbrev(str, "свет")
+		if (is_abbrev(str, "я│п╡п╣я┌")
 			|| is_abbrev(str, "light"))
 		{
 			type = OBJ_DATA::ITEM_LIGHT;
 		}
-		else if (is_abbrev(str, "свиток")
+		else if (is_abbrev(str, "я│п╡п╦я┌п╬п╨")
 			|| is_abbrev(str, "scroll"))
 		{
 			type = OBJ_DATA::ITEM_SCROLL;
 		}
-		else if (is_abbrev(str, "палочка")
+		else if (is_abbrev(str, "п©п╟п╩п╬я┤п╨п╟")
 			|| is_abbrev(str, "wand"))
 		{
 			type = OBJ_DATA::ITEM_WAND;
 		}
-		else if (is_abbrev(str, "посох")
+		else if (is_abbrev(str, "п©п╬я│п╬я┘")
 			|| is_abbrev(str, "staff"))
 		{
 			type = OBJ_DATA::ITEM_STAFF;
 		}
-		else if (is_abbrev(str, "оружие")
+		else if (is_abbrev(str, "п╬я─я┐п╤п╦п╣")
 			|| is_abbrev(str, "weapon"))
 		{
 			type = OBJ_DATA::ITEM_WEAPON;
 		}
-		else if (is_abbrev(str, "броня")
+		else if (is_abbrev(str, "п╠я─п╬п╫я▐")
 			|| is_abbrev(str, "armor"))
 		{
 			type = OBJ_DATA::ITEM_ARMOR;
 		}
-		else if (is_abbrev(str, "материал")
+		else if (is_abbrev(str, "п╪п╟я┌п╣я─п╦п╟п╩")
 			|| is_abbrev(str, "material"))
 		{
 			type = OBJ_DATA::ITEM_MATERIAL;
 		}
-		else if (is_abbrev(str, "напиток")
+		else if (is_abbrev(str, "п╫п╟п©п╦я┌п╬п╨")
 			|| is_abbrev(str, "potion"))
 		{
 			type = OBJ_DATA::ITEM_POTION;
 		}
-		else if (is_abbrev(str, "прочее")
-			|| is_abbrev(str, "другое")
+		else if (is_abbrev(str, "п©я─п╬я┤п╣п╣")
+			|| is_abbrev(str, "п╢я─я┐пЁп╬п╣")
 			|| is_abbrev(str, "other"))
 		{
 			type = OBJ_DATA::ITEM_OTHER;
 		}
-		else if (is_abbrev(str, "контейнер")
+		else if (is_abbrev(str, "п╨п╬п╫я┌п╣п╧п╫п╣я─")
 			|| is_abbrev(str, "container"))
 		{
 			type = OBJ_DATA::ITEM_CONTAINER;
 		}
-		else if (is_abbrev(str, "емкость")
+		else if (is_abbrev(str, "п╣п╪п╨п╬я│я┌я▄")
 			|| is_abbrev(str, "tank"))
 		{
 			type = OBJ_DATA::ITEM_DRINKCON;
 		}
-		else if (is_abbrev(str, "книга")
+		else if (is_abbrev(str, "п╨п╫п╦пЁп╟")
 			|| is_abbrev(str, "book"))
 		{
 			type = OBJ_DATA::ITEM_BOOK;
 		}
-		else if (is_abbrev(str, "руна")
+		else if (is_abbrev(str, "я─я┐п╫п╟")
 			|| is_abbrev(str, "rune"))
 		{
 			type = OBJ_DATA::ITEM_INGREDIENT;
 		}
-		else if (is_abbrev(str, "ингредиент")
+		else if (is_abbrev(str, "п╦п╫пЁя─п╣п╢п╦п╣п╫я┌")
 			|| is_abbrev(str, "ingradient"))
 		{
 			type = OBJ_DATA::ITEM_MING;
 		}
-		else if (is_abbrev(str, "легкие")
-			|| is_abbrev(str, "легкая"))
+		else if (is_abbrev(str, "п╩п╣пЁп╨п╦п╣")
+			|| is_abbrev(str, "п╩п╣пЁп╨п╟я▐"))
 		{
 			type = OBJ_DATA::ITEM_ARMOR_LIGHT;
 		}
-		else if (is_abbrev(str, "средние")
-			|| is_abbrev(str, "средняя"))
+		else if (is_abbrev(str, "я│я─п╣п╢п╫п╦п╣")
+			|| is_abbrev(str, "я│я─п╣п╢п╫я▐я▐"))
 		{
 			type = OBJ_DATA::ITEM_ARMOR_MEDIAN;
 		}
-		else if (is_abbrev(str, "тяжелые")
-			|| is_abbrev(str, "тяжелая"))
+		else if (is_abbrev(str, "я┌я▐п╤п╣п╩я▀п╣")
+			|| is_abbrev(str, "я┌я▐п╤п╣п╩п╟я▐"))
 		{
 			type = OBJ_DATA::ITEM_ARMOR_HEAVY;
 		}
-		else if (is_abbrev(str, "колчан"))
+		else if (is_abbrev(str, "п╨п╬п╩я┤п╟п╫"))
 		{
 			type = OBJ_DATA::ITEM_MAGIC_CONTAINER;
 		}
-		else if (is_abbrev(str, "стрела"))
+		else if (is_abbrev(str, "я│я┌я─п╣п╩п╟"))
 		{
 			type = OBJ_DATA::ITEM_MAGIC_ARROW;
 		}
@@ -705,67 +705,67 @@ namespace ShopExt
 
 	bool init_wear(const std::string& str, EWearFlag& wear)
 	{
-		if (is_abbrev(str, "палец"))
+		if (is_abbrev(str, "п©п╟п╩п╣я├"))
 		{
 			wear = EWearFlag::ITEM_WEAR_FINGER;
 		}
-		else if (is_abbrev(str, "шея") || is_abbrev(str, "грудь"))
+		else if (is_abbrev(str, "я┬п╣я▐") || is_abbrev(str, "пЁя─я┐п╢я▄"))
 		{
 			wear = EWearFlag::ITEM_WEAR_NECK;
 		}
-		else if (is_abbrev(str, "тело"))
+		else if (is_abbrev(str, "я┌п╣п╩п╬"))
 		{
 			wear = EWearFlag::ITEM_WEAR_BODY;
 		}
-		else if (is_abbrev(str, "голова"))
+		else if (is_abbrev(str, "пЁп╬п╩п╬п╡п╟"))
 		{
 			wear = EWearFlag::ITEM_WEAR_HEAD;
 		}
-		else if (is_abbrev(str, "ноги"))
+		else if (is_abbrev(str, "п╫п╬пЁп╦"))
 		{
 			wear = EWearFlag::ITEM_WEAR_LEGS;
 		}
-		else if (is_abbrev(str, "ступни"))
+		else if (is_abbrev(str, "я│я┌я┐п©п╫п╦"))
 		{
 			wear = EWearFlag::ITEM_WEAR_FEET;
 		}
-		else if (is_abbrev(str, "кисти"))
+		else if (is_abbrev(str, "п╨п╦я│я┌п╦"))
 		{
 			wear = EWearFlag::ITEM_WEAR_HANDS;
 		}
-		else if (is_abbrev(str, "руки"))
+		else if (is_abbrev(str, "я─я┐п╨п╦"))
 		{
 			wear = EWearFlag::ITEM_WEAR_ARMS;
 		}
-		else if (is_abbrev(str, "щит"))
+		else if (is_abbrev(str, "я┴п╦я┌"))
 		{
 			wear = EWearFlag::ITEM_WEAR_SHIELD;
 		}
-		else if (is_abbrev(str, "плечи"))
+		else if (is_abbrev(str, "п©п╩п╣я┤п╦"))
 		{
 			wear = EWearFlag::ITEM_WEAR_ABOUT;
 		}
-		else if (is_abbrev(str, "пояс"))
+		else if (is_abbrev(str, "п©п╬я▐я│"))
 		{
 			wear = EWearFlag::ITEM_WEAR_WAIST;
 		}
-		else if (is_abbrev(str, "колчан"))
+		else if (is_abbrev(str, "п╨п╬п╩я┤п╟п╫"))
 		{
 			wear = EWearFlag::ITEM_WEAR_QUIVER;
 		}
-		else if (is_abbrev(str, "запястья"))
+		else if (is_abbrev(str, "п╥п╟п©я▐я│я┌я▄я▐"))
 		{
 			wear = EWearFlag::ITEM_WEAR_WRIST;
 		}
-		else if (is_abbrev(str, "правая"))
+		else if (is_abbrev(str, "п©я─п╟п╡п╟я▐"))
 		{
 			wear = EWearFlag::ITEM_WEAR_WIELD;
 		}
-		else if (is_abbrev(str, "левая"))
+		else if (is_abbrev(str, "п╩п╣п╡п╟я▐"))
 		{
 			wear = EWearFlag::ITEM_WEAR_HOLD;
 		}
-		else if (is_abbrev(str, "обе"))
+		else if (is_abbrev(str, "п╬п╠п╣"))
 		{
 			wear = EWearFlag::ITEM_WEAR_BOTHS;
 		}
@@ -797,30 +797,30 @@ namespace ShopExt
 
 		switch (first_simvol[0])
 		{
-		case 'Т':
+		case 'п╒':
 			if (!init_type(filtr_value, type))
 			{
-				send_to_char("Неверный тип предмета.\r\n", ch);
+				send_to_char("п²п╣п╡п╣я─п╫я▀п╧ я┌п╦п© п©я─п╣п╢п╪п╣я┌п╟.\r\n", ch);
 				return;
 			}
 			break;
 
-		case 'О':
+		case 'п·':
 			if (!init_wear(filtr_value, wear))
 			{
-				send_to_char("Неверное место одевания предмета.\r\n", ch);
+				send_to_char("п²п╣п╡п╣я─п╫п╬п╣ п╪п╣я│я┌п╬ п╬п╢п╣п╡п╟п╫п╦я▐ п©я─п╣п╢п╪п╣я┌п╟.\r\n", ch);
 				return;
 			}
 			break;
 
 		default:
-			send_to_char("Неверный фильтр. \r\n", ch);
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ я└п╦п╩я▄я┌я─. \r\n", ch);
 			return;;
 			break;
 		};
 
 		send_to_char(ch,
-			" ##    Доступно   Предмет(фильтр)                              Цена (%s)\r\n"
+			" ##    п■п╬я│я┌я┐п©п╫п╬   п÷я─п╣п╢п╪п╣я┌(я└п╦п╩я▄я┌я─)                              п╕п╣п╫п╟ (%s)\r\n"
 			"---------------------------------------------------------------------------\r\n",
 			currency.c_str());
 
@@ -835,15 +835,15 @@ namespace ShopExt
 
 			const auto& item = m_items_list.node(k);
 
-			//Polud у проданных в магаз объектов отображаем в списке не значение из прототипа, а уже, возможно, измененное значение
-			// чтобы не было в списках всяких "гриб @n1"
+			//Polud я┐ п©я─п╬п╢п╟п╫п╫я▀я┘ п╡ п╪п╟пЁп╟п╥ п╬п╠я┼п╣п╨я┌п╬п╡ п╬я┌п╬п╠я─п╟п╤п╟п╣п╪ п╡ я│п©п╦я│п╨п╣ п╫п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟, п╟ я┐п╤п╣, п╡п╬п╥п╪п╬п╤п╫п╬, п╦п╥п╪п╣п╫п╣п╫п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣
+			// я┤я┌п╬п╠я▀ п╫п╣ п╠я▀п╩п╬ п╡ я│п©п╦я│п╨п╟я┘ п╡я│я▐п╨п╦я┘ "пЁя─п╦п╠ @n1"
 			if (item->empty())
 			{
 				print_value = item->get_item_name(keeper_vnum);
 				const auto rnum = obj_proto.rnum(item->vnum());
 				if (GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_DRINKCON)
 				{
-					print_value += " с " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
+					print_value += " я│ " + std::string(drinknames[GET_OBJ_VAL(obj_proto[rnum], 2)]);
 				}
 
 				if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED && obj_proto[rnum]->has_wear_flag(wear))
@@ -876,7 +876,7 @@ namespace ShopExt
 			}
 
 			std::string numToShow = count == -1
-				? "Навалом"
+				? "п²п╟п╡п╟п╩п╬п╪"
 				: boost::lexical_cast<std::string>(count);
 
 			if (show_name)
@@ -901,17 +901,17 @@ namespace ShopExt
 		boost::trim(buffer);
 
 		if (!can_buy
-			&& (cmd == "Продать"
-				|| cmd == "Оценить"))
+			&& (cmd == "п÷я─п╬п╢п╟я┌я▄"
+				|| cmd == "п·я├п╣п╫п╦я┌я▄"))
 		{
-			tell_to_char(keeper, ch, "Извини, у меня свои поставщики...");
+			tell_to_char(keeper, ch, "п≤п╥п╡п╦п╫п╦, я┐ п╪п╣п╫я▐ я│п╡п╬п╦ п©п╬я│я┌п╟п╡я┴п╦п╨п╦...");
 
 			return;
 		}
 
 		if (!*argument)
 		{
-			tell_to_char(keeper, ch, (cmd + " ЧТО?").c_str());
+			tell_to_char(keeper, ch, (cmd + " п╖п╒п·?").c_str());
 			return;
 		}
 
@@ -935,7 +935,7 @@ namespace ShopExt
 
 			if (!obj)
 			{
-				send_to_char("У вас нет " + buffer + "!\r\n", ch);
+				send_to_char("пё п╡п╟я│ п╫п╣я┌ " + buffer + "!\r\n", ch);
 				return;
 			}
 
@@ -960,7 +960,7 @@ namespace ShopExt
 
 					if (!obj)
 					{
-						if (cmd == "Чинить" && is_abbrev(argument, "экипировка"))
+						if (cmd == "п╖п╦п╫п╦я┌я▄" && is_abbrev(argument, "я█п╨п╦п©п╦я─п╬п╡п╨п╟"))
 						{
 							for (i = 0; i < NUM_WEARS; i++)
 							{
@@ -971,7 +971,7 @@ namespace ShopExt
 							}
 							return;
 						}
-						send_to_char("У вас нет " + buffer2 + "!\r\n", ch);
+						send_to_char("пё п╡п╟я│ п╫п╣я┌ " + buffer2 + "!\r\n", ch);
 						return;
 					}
 
@@ -997,7 +997,7 @@ namespace ShopExt
 					auto obj = get_obj_in_list_vis(ch, buffer2, ch->carrying);
 					if (!obj)
 					{
-						send_to_char("У вас нет " + buffer2 + "!\r\n", ch);
+						send_to_char("пё п╡п╟я│ п╫п╣я┌ " + buffer2 + "!\r\n", ch);
 						return;
 					}
 
@@ -1023,14 +1023,14 @@ namespace ShopExt
 
 		if (buffer.empty())
 		{
-			tell_to_char(keeper, ch, "Характеристики ЧЕГО ты хочешь узнать?");
+			tell_to_char(keeper, ch, "п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ п╖п∙п⌠п· я┌я▀ я┘п╬я┤п╣я┬я▄ я┐п╥п╫п╟я┌я▄?");
 			return;
 		}
 
 		unsigned item_num = 0;
 		if (is_number(buffer.c_str()))
 		{
-			// характеристики 5
+			// я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ 5
 			try
 			{
 				item_num = boost::lexical_cast<unsigned>(buffer);
@@ -1041,14 +1041,14 @@ namespace ShopExt
 		}
 		else
 		{
-			// характеристики меч
+			// я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ п╪п╣я┤
 			item_num = get_item_num(buffer, GET_MOB_VNUM(keeper));
 		}
 
 		if (!item_num
 			|| item_num > items_list().size())
 		{
-			tell_to_char(keeper, ch, "Протри глаза, у меня нет такой вещи.");
+			tell_to_char(keeper, ch, "п÷я─п╬я┌я─п╦ пЁп╩п╟п╥п╟, я┐ п╪п╣п╫я▐ п╫п╣я┌ я┌п╟п╨п╬п╧ п╡п╣я┴п╦.");
 			return;
 		}
 
@@ -1080,15 +1080,15 @@ namespace ShopExt
 
 		if (!ident_obj)
 		{
-			log("SYSERROR : не удалось получить объект (%s:%d)", __FILE__, __LINE__);
-			send_to_char("Ошибочка вышла.\r\n", ch);
+			log("SYSERROR : п╫п╣ я┐п╢п╟п╩п╬я│я▄ п©п╬п╩я┐я┤п╦я┌я▄ п╬п╠я┼п╣п╨я┌ (%s:%d)", __FILE__, __LINE__);
+			send_to_char("п·я┬п╦п╠п╬я┤п╨п╟ п╡я▀я┬п╩п╟.\r\n", ch);
 			return;
 		}
 
-		if (cmd == "Рассмотреть")
+		if (cmd == "п═п╟я│я│п╪п╬я┌я─п╣я┌я▄")
 		{
 			std::stringstream tell;
-			tell << "Предмет " << ident_obj->get_short_description() << ": ";
+			tell << "п÷я─п╣п╢п╪п╣я┌ " << ident_obj->get_short_description() << ": ";
 			tell << item_types[GET_OBJ_TYPE(ident_obj)] << "\r\n";
 			tell << diag_weapon_to_char(ident_obj, TRUE);
 			tell << diag_timer_to_char(ident_obj);
@@ -1096,7 +1096,7 @@ namespace ShopExt
 			if (can_use_feat(ch, SKILLED_TRADER_FEAT)
 				|| PRF_FLAGGED(ch, PRF_HOLYLIGHT))
 			{
-				sprintf(buf, "Материал : ");
+				sprintf(buf, "п°п╟я┌п╣я─п╦п╟п╩ : ");
 				sprinttype(ident_obj->get_material(), material_name, buf + strlen(buf));
 				sprintf(buf + strlen(buf), ".\r\n");
 				tell << buf;
@@ -1107,28 +1107,28 @@ namespace ShopExt
 				|| invalid_unique(ch, ident_obj)
 				|| NamedStuff::check_named(ch, ident_obj, 0))
 			{
-				tell.str("Но лучше бы тебе не заглядываться на эту вещь, не унесешь все равно.");
+				tell.str("п²п╬ п╩я┐я┤я┬п╣ п╠я▀ я┌п╣п╠п╣ п╫п╣ п╥п╟пЁп╩я▐п╢я▀п╡п╟я┌я▄я│я▐ п╫п╟ я█я┌я┐ п╡п╣я┴я▄, п╫п╣ я┐п╫п╣я│п╣я┬я▄ п╡я│п╣ я─п╟п╡п╫п╬.");
 				tell_to_char(keeper, ch, tell.str().c_str());
 			}
 		}
 
-		if (cmd == "Характеристики")
+		if (cmd == "п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦")
 		{
 			if (ch->get_gold() < IDENTIFY_COST)
 			{
-				tell_to_char(keeper, ch, "У вас нет столько денег!");
+				tell_to_char(keeper, ch, "пё п╡п╟я│ п╫п╣я┌ я│я┌п╬п╩я▄п╨п╬ п╢п╣п╫п╣пЁ!");
 				char local_buf[MAX_INPUT_LENGTH];
 				switch (number(0, 3))
 				{
 				case 0:
-					snprintf(local_buf, MAX_INPUT_LENGTH, "ругать %s!", GET_NAME(ch));
+					snprintf(local_buf, MAX_INPUT_LENGTH, "я─я┐пЁп╟я┌я▄ %s!", GET_NAME(ch));
 					do_social(keeper, local_buf);
 					break;
 
 				case 1:
 					snprintf(local_buf, MAX_INPUT_LENGTH,
-						"отхлебнул$g немелкий глоток %s",
-						IS_MALE(keeper) ? "водки" : "медовухи");
+						"п╬я┌я┘п╩п╣п╠п╫я┐п╩$g п╫п╣п╪п╣п╩п╨п╦п╧ пЁп╩п╬я┌п╬п╨ %s",
+						IS_MALE(keeper) ? "п╡п╬п╢п╨п╦" : "п╪п╣п╢п╬п╡я┐я┘п╦");
 					do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 					break;
 				}
@@ -1136,11 +1136,11 @@ namespace ShopExt
 			else
 			{
 				snprintf(buf, MAX_STRING_LENGTH,
-					"Эта услуга будет стоить %d %s.", IDENTIFY_COST,
+					"п╜я┌п╟ я┐я│п╩я┐пЁп╟ п╠я┐п╢п╣я┌ я│я┌п╬п╦я┌я▄ %d %s.", IDENTIFY_COST,
 					desc_count(IDENTIFY_COST, WHAT_MONEYu));
 				tell_to_char(keeper, ch, buf);
 
-				send_to_char(ch, "Характеристики предмета: %s\r\n", GET_OBJ_PNAME(ident_obj, 0).c_str());
+				send_to_char(ch, "п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ п©я─п╣п╢п╪п╣я┌п╟: %s\r\n", GET_OBJ_PNAME(ident_obj, 0).c_str());
 				mort_show_obj_values(ident_obj, ch, 200);
 				ch->remove_gold(IDENTIFY_COST);
 			}
@@ -1268,7 +1268,7 @@ namespace ShopExt
 
 			if (numToSell != -1)
 			{
-				numToSell -= MIN(numToSell, obj_proto.actual_count(rnum));	//считаем не только онлайн, но и то что в ренте
+				numToSell -= MIN(numToSell, obj_proto.actual_count(rnum));	//я│я┤п╦я┌п╟п╣п╪ п╫п╣ я┌п╬п╩я▄п╨п╬ п╬п╫п╩п╟п╧п╫, п╫п╬ п╦ я┌п╬ я┤я┌п╬ п╡ я─п╣п╫я┌п╣
 			}
 
 			return numToSell;
@@ -1295,7 +1295,7 @@ namespace ShopExt
 						continue;
 					}
 
-					if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING //а у них всех один рнум
+					if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING //п╟ я┐ п╫п╦я┘ п╡я│п╣я┘ п╬п╢п╦п╫ я─п╫я┐п╪
 						|| obj->get_short_description() == tmp_obj->get_short_description())
 					{
 						item->add_uid(obj->get_uid());
@@ -1321,9 +1321,9 @@ namespace ShopExt
 		{
 			obj->set_timer(timer);
 		}
-		cost = timer <= 0 ? 1 : (long)cost * ((float)obj->get_timer() / (float)timer); //учтем таймер
+		cost = timer <= 0 ? 1 : (long)cost * ((float)obj->get_timer() / (float)timer); //я┐я┤я┌п╣п╪ я┌п╟п╧п╪п╣я─
 
-		// если цена продажи, выше, чем стоймость предмета
+		// п╣я│п╩п╦ я├п╣п╫п╟ п©я─п╬п╢п╟п╤п╦, п╡я▀я┬п╣, я┤п╣п╪ я│я┌п╬п╧п╪п╬я│я┌я▄ п©я─п╣п╢п╪п╣я┌п╟
 		if (cost > cost_obj)
 		{
 			cost = cost_obj;
@@ -1345,7 +1345,7 @@ namespace ShopExt
 			|| obj->get_extra_flag(EExtraFlag::ITEM_SHARPEN)
 			|| obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 		{
-			tell_to_char(keeper, ch, std::string("Я не собираюсь иметь дела с этой вещью.").c_str());
+			tell_to_char(keeper, ch, std::string("п╞ п╫п╣ я│п╬п╠п╦я─п╟я▌я│я▄ п╦п╪п╣я┌я▄ п╢п╣п╩п╟ я│ я█я┌п╬п╧ п╡п╣я┴я▄я▌.").c_str());
 			return;
 		}
 
@@ -1353,16 +1353,16 @@ namespace ShopExt
 			&& (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WAND
 				|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_STAFF))
 		{
-			tell_to_char(keeper, ch, "Я не покупаю использованные вещи!");
+			tell_to_char(keeper, ch, "п╞ п╫п╣ п©п╬п╨я┐п©п╟я▌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╫я▀п╣ п╡п╣я┴п╦!");
 			return;
 		}
 
 		if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER
-			&& cmd != "Чинить")
+			&& cmd != "п╖п╦п╫п╦я┌я▄")
 		{
 			if (obj->get_contains())
 			{
-				tell_to_char(keeper, ch, "Не надо предлагать мне кота в мешке.");
+				tell_to_char(keeper, ch, "п²п╣ п╫п╟п╢п╬ п©я─п╣п╢п╩п╟пЁп╟я┌я▄ п╪п╫п╣ п╨п╬я┌п╟ п╡ п╪п╣я┬п╨п╣.");
 				return;
 			}
 		}
@@ -1373,17 +1373,17 @@ namespace ShopExt
 		int repair = GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj);
 		int repair_price = MAX(1, GET_OBJ_COST(obj) * MAX(0, repair) / MAX(1, GET_OBJ_MAX(obj)));
 
-		// если не купцы, то учитываем прибыль магазина, если купцы, то назначаем цену, при которой объект был куплен
+		// п╣я│п╩п╦ п╫п╣ п╨я┐п©я├я▀, я┌п╬ я┐я┤п╦я┌я▀п╡п╟п╣п╪ п©я─п╦п╠я▀п╩я▄ п╪п╟пЁп╟п╥п╦п╫п╟, п╣я│п╩п╦ п╨я┐п©я├я▀, я┌п╬ п╫п╟п╥п╫п╟я┤п╟п╣п╪ я├п╣п╫я┐, п©я─п╦ п╨п╬я┌п╬я─п╬п╧ п╬п╠я┼п╣п╨я┌ п╠я▀п╩ п╨я┐п©п╩п╣п╫
 		if (!can_use_feat(ch, SKILLED_TRADER_FEAT))
 		{
-			buy_price = MMAX(1, (buy_price * profit) / 100); //учтем прибыль магазина
+			buy_price = MMAX(1, (buy_price * profit) / 100); //я┐я┤я┌п╣п╪ п©я─п╦п╠я▀п╩я▄ п╪п╟пЁп╟п╥п╦п╫п╟
 		}
 		else
 		{
 			buy_price = get_sell_price(obj);
 		}
 
-		// если цена покупки, выше, чем стоймость предмета
+		// п╣я│п╩п╦ я├п╣п╫п╟ п©п╬п╨я┐п©п╨п╦, п╡я▀я┬п╣, я┤п╣п╪ я│я┌п╬п╧п╪п╬я│я┌я▄ п©я─п╣п╢п╪п╣я┌п╟
 		if (buy_price > buy_price_old)
 		{
 			buy_price = buy_price_old;
@@ -1391,11 +1391,11 @@ namespace ShopExt
 
 		std::string price_to_show = boost::lexical_cast<std::string>(buy_price) + " " + std::string(desc_count(buy_price, WHAT_MONEYu));
 
-		if (cmd == "Оценить")
+		if (cmd == "п·я├п╣п╫п╦я┌я▄")
 		{
 			if (bloody::is_bloody(obj))
 			{
-				tell_to_char(keeper, ch, "Иди от крови отмой сначала!");
+				tell_to_char(keeper, ch, "п≤п╢п╦ п╬я┌ п╨я─п╬п╡п╦ п╬я┌п╪п╬п╧ я│п╫п╟я┤п╟п╩п╟!");
 				return;
 			}
 
@@ -1404,16 +1404,16 @@ namespace ShopExt
 				|| obj->get_extra_flag(EExtraFlag::ITEM_REPOP_DECAY)
 				|| obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY))
 			{
-				tell_to_char(keeper, ch, "Такое я не покупаю.");
+				tell_to_char(keeper, ch, "п╒п╟п╨п╬п╣ я▐ п╫п╣ п©п╬п╨я┐п©п╟я▌.");
 				return;
 			}
 			else
 			{
-				tell_to_char(keeper, ch, ("Я, пожалуй, куплю " + std::string(GET_OBJ_PNAME(obj, 3)) + " за " + price_to_show + ".").c_str());
+				tell_to_char(keeper, ch, ("п╞, п©п╬п╤п╟п╩я┐п╧, п╨я┐п©п╩я▌ " + std::string(GET_OBJ_PNAME(obj, 3)) + " п╥п╟ " + price_to_show + ".").c_str());
 			}
 		}
 
-		if (cmd == "Продать")
+		if (cmd == "п÷я─п╬п╢п╟я┌я▄")
 		{
 			if (obj->get_extra_flag(EExtraFlag::ITEM_NOSELL)
 				|| obj->get_extra_flag(EExtraFlag::ITEM_NAMED)
@@ -1424,11 +1424,11 @@ namespace ShopExt
 			{
 				if (bloody::is_bloody(obj))
 				{
-					tell_to_char(keeper, ch, "Пшел вон убивец, и руки от крови отмой!");
+					tell_to_char(keeper, ch, "п÷я┬п╣п╩ п╡п╬п╫ я┐п╠п╦п╡п╣я├, п╦ я─я┐п╨п╦ п╬я┌ п╨я─п╬п╡п╦ п╬я┌п╪п╬п╧!");
 				}
 				else
 				{
-					tell_to_char(keeper, ch, "Такое я не покупаю.");
+					tell_to_char(keeper, ch, "п╒п╟п╨п╬п╣ я▐ п╫п╣ п©п╬п╨я┐п©п╟я▌.");
 				}
 
 				return;
@@ -1436,22 +1436,22 @@ namespace ShopExt
 			else
 			{
 				obj_from_char(obj);
-				tell_to_char(keeper, ch, ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
+				tell_to_char(keeper, ch, ("п÷п╬п╩я┐я┤п╦ п╥п╟ " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 				ch->add_gold(buy_price);
 				put_item_to_shop(obj);
 			}
 		}
-		if (cmd == "Чинить")
+		if (cmd == "п╖п╦п╫п╦я┌я▄")
 		{
 			if (bloody::is_bloody(obj))
 			{
-				tell_to_char(keeper, ch, "Я не буду чинить окровавленные вещи!");
+				tell_to_char(keeper, ch, "п╞ п╫п╣ п╠я┐п╢я┐ я┤п╦п╫п╦я┌я▄ п╬п╨я─п╬п╡п╟п╡п╩п╣п╫п╫я▀п╣ п╡п╣я┴п╦!");
 				return;
 			}
 
 			if (repair <= 0)
 			{
-				tell_to_char(keeper, ch, (std::string(GET_OBJ_PNAME(obj, 3)) + " не нужно чинить.").c_str());
+				tell_to_char(keeper, ch, (std::string(GET_OBJ_PNAME(obj, 3)) + " п╫п╣ п╫я┐п╤п╫п╬ я┤п╦п╫п╦я┌я▄.").c_str());
 				return;
 			}
 
@@ -1491,16 +1491,16 @@ namespace ShopExt
 				|| obj->get_extra_flag(EExtraFlag::ITEM_NOSELL)
 				|| obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
 			{
-				tell_to_char(keeper, ch, ("Я не буду тратить свое драгоценное время на " + GET_OBJ_PNAME(obj, 3) + ".").c_str());
+				tell_to_char(keeper, ch, ("п╞ п╫п╣ п╠я┐п╢я┐ я┌я─п╟я┌п╦я┌я▄ я│п╡п╬п╣ п╢я─п╟пЁп╬я├п╣п╫п╫п╬п╣ п╡я─п╣п╪я▐ п╫п╟ " + GET_OBJ_PNAME(obj, 3) + ".").c_str());
 				return;
 			}
 
-			tell_to_char(keeper, ch, ("Починка " + std::string(GET_OBJ_PNAME(obj, 1)) + " обойдется в "
+			tell_to_char(keeper, ch, ("п÷п╬я┤п╦п╫п╨п╟ " + std::string(GET_OBJ_PNAME(obj, 1)) + " п╬п╠п╬п╧п╢п╣я┌я│я▐ п╡ "
 				+ boost::lexical_cast<std::string>(repair_price) + " " + desc_count(repair_price, WHAT_MONEYu)).c_str());
 
 			if (!IS_GOD(ch) && repair_price > ch->get_gold())
 			{
-				act("А вот их у тебя как-раз то и нет.", FALSE, ch, 0, 0, TO_CHAR);
+				act("п░ п╡п╬я┌ п╦я┘ я┐ я┌п╣п╠я▐ п╨п╟п╨-я─п╟п╥ я┌п╬ п╦ п╫п╣я┌.", FALSE, ch, 0, 0, TO_CHAR);
 				return;
 			}
 
@@ -1509,7 +1509,7 @@ namespace ShopExt
 				ch->remove_gold(repair_price);
 			}
 
-			act("$n сноровисто починил$g $o3.", FALSE, keeper, obj, 0, TO_ROOM);
+			act("$n я│п╫п╬я─п╬п╡п╦я│я┌п╬ п©п╬я┤п╦п╫п╦п╩$g $o3.", FALSE, keeper, obj, 0, TO_ROOM);
 
 			obj->set_current_durability(GET_OBJ_MAX(obj));
 		}

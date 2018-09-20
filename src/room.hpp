@@ -18,10 +18,10 @@ public:
 	std::string general_description;	// When look DIR.         //
 
 	char *keyword;		// for open/close       //
-	char *vkeyword;		// алиас двери в винительном падеже для открывания/закрывания
+	char *vkeyword;		// п╟п╩п╦п╟я│ п╢п╡п╣я─п╦ п╡ п╡п╦п╫п╦я┌п╣п╩я▄п╫п╬п╪ п©п╟п╢п╣п╤п╣ п╢п╩я▐ п╬я┌п╨я─я▀п╡п╟п╫п╦я▐/п╥п╟п╨я─я▀п╡п╟п╫п╦я▐
 
 	byte exit_info;	// Exit info             //
-	ubyte lock_complexity; //Polud сложность замка
+	ubyte lock_complexity; //Polud я│п╩п╬п╤п╫п╬я│я┌я▄ п╥п╟п╪п╨п╟
 	obj_vnum key;		// Key's number (-1 for no key) //
 	room_rnum to_room;	// Where direction leads (NOWHERE) //
 };
@@ -45,10 +45,10 @@ struct weather_control
 	int duration;
 };
 
-// Структура хранит разннобразные характеристики комнат //
+// п║я┌я─я┐п╨я┌я┐я─п╟ я┘я─п╟п╫п╦я┌ я─п╟п╥п╫п╫п╬п╠я─п╟п╥п╫я▀п╣ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ п╨п╬п╪п╫п╟я┌ //
 struct room_property_data
 {
-	int poison; //Пока только степень зараженности для SPELL_POISONED_FOG//
+	int poison; //п÷п╬п╨п╟ я┌п╬п╩я▄п╨п╬ я│я┌п╣п©п╣п╫я▄ п╥п╟я─п╟п╤п╣п╫п╫п╬я│я┌п╦ п╢п╩я▐ SPELL_POISONED_FOG//
 };
 
 struct ROOM_DATA
@@ -65,8 +65,8 @@ struct ROOM_DATA
 	int sector_state;		//*** External, change by weather     //
 
 	char *name;		// Rooms name 'You are ...'           //
-	size_t description_num;    // номер описания в глобальном списке
-	char *temp_description; // для олц, пока редактора не будет нормального
+	size_t description_num;    // п╫п╬п╪п╣я─ п╬п©п╦я│п╟п╫п╦я▐ п╡ пЁп╩п╬п╠п╟п╩я▄п╫п╬п╪ я│п©п╦я│п╨п╣
+	char *temp_description; // п╢п╩я▐ п╬п╩я├, п©п╬п╨п╟ я─п╣п╢п╟п╨я┌п╬я─п╟ п╫п╣ п╠я┐п╢п╣я┌ п╫п╬я─п╪п╟п╩я▄п╫п╬пЁп╬
 	EXTRA_DESCR_DATA::shared_ptr ex_description;	// for examine/look       //
 	std::array<exit_data_ptr, NUM_OF_DIRS> dir_option;	// Directions //
 
@@ -84,26 +84,26 @@ struct ROOM_DATA
 	people_t people;	// List of NPC / PC in room           //
 
 	room_affects_list_t affected;	// affected by what spells       //
-	FLAG_DATA affected_by;	// флаги которые в отличии от room_flags появляются от аффектов
-							//и не могут быть записаны на диск
+	FLAG_DATA affected_by;	// я└п╩п╟пЁп╦ п╨п╬я┌п╬я─я▀п╣ п╡ п╬я┌п╩п╦я┤п╦п╦ п╬я┌ room_flags п©п╬я▐п╡п╩я▐я▌я┌я│я▐ п╬я┌ п╟я└я└п╣п╨я┌п╬п╡
+							//п╦ п╫п╣ п╪п╬пЁя┐я┌ п╠я▀я┌я▄ п╥п╟п©п╦я│п╟п╫я▀ п╫п╟ п╢п╦я│п╨
 
-	// Всякие характеристики комнаты
-	ubyte fires;		// Time when fires - костерок    //
+	// п▓я│я▐п╨п╦п╣ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ п╨п╬п╪п╫п╟я┌я▀
+	ubyte fires;		// Time when fires - п╨п╬я│я┌п╣я─п╬п╨    //
 	ubyte ices;		// Time when ices restore //
 
 	int portal_room;
-	ubyte portal_time; 	// Время жисти пентаграммы//
-	long pkPenterUnique; //Постановщик пенты по мести
+	ubyte portal_time; 	// п▓я─п╣п╪я▐ п╤п╦я│я┌п╦ п©п╣п╫я┌п╟пЁя─п╟п╪п╪я▀//
+	long pkPenterUnique; //п÷п╬я│я┌п╟п╫п╬п╡я┴п╦п╨ п©п╣п╫я┌я▀ п©п╬ п╪п╣я│я┌п╦
 
-	int holes;		// Дырки для камне - копателей //
-	int *ing_list;		// загружаемые ингредиенты //
+	int holes;		// п■я▀я─п╨п╦ п╢п╩я▐ п╨п╟п╪п╫п╣ - п╨п╬п©п╟я┌п╣п╩п╣п╧ //
+	int *ing_list;		// п╥п╟пЁя─я┐п╤п╟п╣п╪я▀п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀ //
 
-	// Параметры которые грузяться из файла (по крайней мере так планируется)
+	// п÷п╟я─п╟п╪п╣я┌я─я▀ п╨п╬я┌п╬я─я▀п╣ пЁя─я┐п╥я▐я┌я▄я│я▐ п╦п╥ я└п╟п╧п╩п╟ (п©п╬ п╨я─п╟п╧п╫п╣п╧ п╪п╣я─п╣ я┌п╟п╨ п©п╩п╟п╫п╦я─я┐п╣я┌я│я▐)
 	struct room_property_data	base_property;
-	// Добавки к параметрам  которые модифицируются аффектами ...
+	// п■п╬п╠п╟п╡п╨п╦ п╨ п©п╟я─п╟п╪п╣я┌я─п╟п╪  п╨п╬я┌п╬я─я▀п╣ п╪п╬п╢п╦я└п╦я├п╦я─я┐я▌я┌я│я▐ п╟я└я└п╣п╨я┌п╟п╪п╦ ...
 	struct room_property_data	add_property;
 
-	int poison;		// Степень заражения территории в SPELL_POISONED_FOG //
+	int poison;		// п║я┌п╣п©п╣п╫я▄ п╥п╟я─п╟п╤п╣п╫п╦я▐ я┌п╣я─я─п╦я┌п╬я─п╦п╦ п╡ SPELL_POISONED_FOG //
 
 	bool get_flag(const uint32_t flag) const { return m_room_flags.get(flag); }
 	void set_flag(const uint32_t flag) { m_room_flags.set(flag); }

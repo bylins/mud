@@ -144,7 +144,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		case SCMD_OLC_TRIGEDIT:
 		case SCMD_OLC_OEDIT:
 		case SCMD_OLC_MEDIT:
-			sprintf(buf, "Укажите %s VNUM для редактирования.\r\n", olc_scmd_info[subcmd].text);
+			sprintf(buf, "пёп╨п╟п╤п╦я┌п╣ %s VNUM п╢п╩я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐.\r\n", olc_scmd_info[subcmd].text);
 			send_to_char(buf, ch);
 			return;
 		}
@@ -164,7 +164,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 				}
 				else
 				{
-					send_to_char("И какую зону писать?\r\n", ch);
+					send_to_char("п≤ п╨п╟п╨я┐я▌ п╥п╬п╫я┐ п©п╦я│п╟я┌я▄?\r\n", ch);
 					return;
 				}
 			}
@@ -176,19 +176,19 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		}
 		else if (subcmd == SCMD_OLC_ZEDIT && (GET_LEVEL(ch) >= LVL_BUILDER || PRF_FLAGGED(ch, PRF_CODERINFO)))
 		{
-			send_to_char("Создание новых зон отключено.\r\n", ch);
+			send_to_char("п║п╬п╥п╢п╟п╫п╦п╣ п╫п╬п╡я▀я┘ п╥п╬п╫ п╬я┌п╨п╩я▌я┤п╣п╫п╬.\r\n", ch);
 			return;
 			/*
 			          if ((strn_cmp("new", buf1, 3) == 0) && *buf2)
 			 	         zedit_new_zone(ch, atoi(buf2));
 			          else
-			 	         send_to_char("Укажите номер новой зоны.\r\n", ch);
+			 	         send_to_char("пёп╨п╟п╤п╦я┌п╣ п╫п╬п╪п╣я─ п╫п╬п╡п╬п╧ п╥п╬п╫я▀.\r\n", ch);
 			          return;
 			*/
 		}
 		else
 		{
-			send_to_char("Уточните, что вы хотите делать!\r\n", ch);
+			send_to_char("пёя┌п╬я┤п╫п╦я┌п╣, я┤я┌п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ п╢п╣п╩п╟я┌я▄!\r\n", ch);
 			return;
 		}
 	}
@@ -205,7 +205,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		{
 			if (d->olc && OLC_NUM(d) == number)
 			{
-				sprintf(buf, "%s в настоящий момент редактируется %s.\r\n",
+				sprintf(buf, "%s п╡ п╫п╟я│я┌п╬я▐я┴п╦п╧ п╪п╬п╪п╣п╫я┌ я─п╣п╢п╟п╨я┌п╦я─я┐п╣я┌я│я▐ %s.\r\n",
 					olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
 				send_to_char(buf, ch);
 				return;
@@ -214,10 +214,10 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	}
 	d = ch->desc;
 
-	// лок/анлок редактирования зон только 34м и по привилегии
+	// п╩п╬п╨/п╟п╫п╩п╬п╨ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ п╥п╬п╫ я┌п╬п╩я▄п╨п╬ 34п╪ п╦ п©п╬ п©я─п╦п╡п╦п╩п╣пЁп╦п╦
 	if ((lock || unlock) && !IS_IMPL(ch) && !Privilege::check_flag(d->character.get(), Privilege::FULLZEDIT))
 	{
-		send_to_char("Вы не можете использовать эту команду.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я█я┌я┐ п╨п╬п╪п╟п╫п╢я┐.\r\n", ch);
 		return;
 	}
 
@@ -227,7 +227,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	// * Find the zone.
 	if ((OLC_ZNUM(d) = real_zone(number)) == -1)
 	{
-		send_to_char("Звыняйтэ, такойи зоны нэмае.\r\n", ch);
+		send_to_char("п≈п╡я▀п╫я▐п╧я┌я█, я┌п╟п╨п╬п╧п╦ п╥п╬п╫я▀ п╫я█п╪п╟п╣.\r\n", ch);
 		delete d->olc;
 		return;
 	}
@@ -235,7 +235,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	if (lock)
 	{
 		zone_table[OLC_ZNUM(d)].locked = TRUE;
-		send_to_char("Защищаю зону от записи.\r\n", ch);
+		send_to_char("п≈п╟я┴п╦я┴п╟я▌ п╥п╬п╫я┐ п╬я┌ п╥п╟п©п╦я│п╦.\r\n", ch);
 		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
 		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
 		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
@@ -247,7 +247,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	if (unlock)
 	{
 		zone_table[OLC_ZNUM(d)].locked = FALSE;
-		send_to_char("Снимаю защиту от записи.\r\n", ch);
+		send_to_char("п║п╫п╦п╪п╟я▌ п╥п╟я┴п╦я┌я┐ п╬я┌ п╥п╟п©п╦я│п╦.\r\n", ch);
 		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
 		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].number);
 		mudlog(buf, LGH, LVL_IMPL, SYSLOG, TRUE);
@@ -258,7 +258,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	// Check if zone is protected from editing
 	if ((zone_table[OLC_ZNUM(d)].locked) && (GET_LEVEL(ch) != 34))
 	{
-		send_to_char("Зона защищена от записи. С вопросами к старшим богам.\r\n", ch);
+		send_to_char("п≈п╬п╫п╟ п╥п╟я┴п╦я┴п╣п╫п╟ п╬я┌ п╥п╟п©п╦я│п╦. п║ п╡п╬п©я─п╬я│п╟п╪п╦ п╨ я│я┌п╟я─я┬п╦п╪ п╠п╬пЁп╟п╪.\r\n", ch);
 		delete d->olc;
 		return;
 	}
@@ -270,7 +270,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		{
 			if (!GET_OLC_ZONE(ch) || (zone_table[OLC_ZNUM(d)].number != GET_OLC_ZONE(ch)))
 			{
-				send_to_char("Вам запрещен доступ к сией зоне.\r\n", ch);
+				send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫ п╢п╬я│я┌я┐п© п╨ я│п╦п╣п╧ п╥п╬п╫п╣.\r\n", ch);
 				delete d->olc;
 				return;
 			}
@@ -297,7 +297,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		}
 		if (!type)
 		{
-			send_to_char("Родной(ая,ое), объясни по людски - что записать.\r\n", ch);
+			send_to_char("п═п╬п╢п╫п╬п╧(п╟я▐,п╬п╣), п╬п╠я┼я▐я│п╫п╦ п©п╬ п╩я▌п╢я│п╨п╦ - я┤я┌п╬ п╥п╟п©п╦я│п╟я┌я▄.\r\n", ch);
 			return;
 		}
 		sprintf(buf, "Saving all %ss in zone %d.\r\n", type, zone_table[OLC_ZNUM(d)].number);
@@ -346,7 +346,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	case SCMD_OLC_ZEDIT:
 		if ((real_num = real_room(number)) == NOWHERE)
 		{
-			send_to_char("Желательно создать комнату прежде, чем начинаете ее редактировать.\r\n", ch);
+			send_to_char("п√п╣п╩п╟я┌п╣п╩я▄п╫п╬ я│п╬п╥п╢п╟я┌я▄ п╨п╬п╪п╫п╟я┌я┐ п©я─п╣п╤п╢п╣, я┤п╣п╪ п╫п╟я┤п╦п╫п╟п╣я┌п╣ п╣п╣ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄.\r\n", ch);
 			delete d->olc;
 			return;
 		}
@@ -373,7 +373,7 @@ void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		STATE(d) = CON_OEDIT;
 		break;
 	}
-	act("$n по локоть запустил$g руки в глубины Мира и начал$g что-то со скрежетом там поворачивать.",
+	act("$n п©п╬ п╩п╬п╨п╬я┌я▄ п╥п╟п©я┐я│я┌п╦п╩$g я─я┐п╨п╦ п╡ пЁп╩я┐п╠п╦п╫я▀ п°п╦я─п╟ п╦ п╫п╟я┤п╟п╩$g я┤я┌п╬-я┌п╬ я│п╬ я│п╨я─п╣п╤п╣я┌п╬п╪ я┌п╟п╪ п©п╬п╡п╬я─п╟я┤п╦п╡п╟я┌я▄.",
 		TRUE, d->character.get(), 0, 0, TO_ROOM);
 	PLR_FLAGS(ch).set(PLR_WRITING);
 }
@@ -484,62 +484,62 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 	if (d->olc)
 	{
 
-		// Освободить редактируемый триггер
+		// п·я│п╡п╬п╠п╬п╢п╦я┌я▄ я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪я▀п╧ я┌я─п╦пЁпЁп╣я─
 		if (OLC_TRIG(d))
 		{
 			delete OLC_TRIG(d);
 		}
 
-		// Освободить массив данных (похоже, только для триггеров)
+		// п·я│п╡п╬п╠п╬п╢п╦я┌я▄ п╪п╟я│я│п╦п╡ п╢п╟п╫п╫я▀я┘ (п©п╬я┘п╬п╤п╣, я┌п╬п╩я▄п╨п╬ п╢п╩я▐ я┌я─п╦пЁпЁп╣я─п╬п╡)
 		if (OLC_STORAGE(d))
 		{
 			free(OLC_STORAGE(d));
 		}
 
-		// Освободить прототип
+		// п·я│п╡п╬п╠п╬п╢п╦я┌я▄ п©я─п╬я┌п╬я┌п╦п©
 		if (!OLC_SCRIPT(d).empty())
 		{
 			dg_olc_script_free(d);
 		}
 
-		// Освободить комнату
+		// п·я│п╡п╬п╠п╬п╢п╦я┌я▄ п╨п╬п╪п╫п╟я┌я┐
 		if (OLC_ROOM(d))
 		{
 			switch (cleanup_type)
 			{
 			case CLEANUP_ALL:
-				room_free(OLC_ROOM(d));	// удаляет все содержимое
-				// break; - не нужен
+				room_free(OLC_ROOM(d));	// я┐п╢п╟п╩я▐п╣я┌ п╡я│п╣ я│п╬п╢п╣я─п╤п╦п╪п╬п╣
+				// break; - п╫п╣ п╫я┐п╤п╣п╫
 
 				// fall through
 			case CLEANUP_STRUCTS:
-				delete OLC_ROOM(d);	// удаляет только оболочку
+				delete OLC_ROOM(d);	// я┐п╢п╟п╩я▐п╣я┌ я┌п╬п╩я▄п╨п╬ п╬п╠п╬п╩п╬я┤п╨я┐
 				break;
 
 			default:	// The caller has screwed up.
 				break;
 			}
 		}
-		// Освободить mob
+		// п·я│п╡п╬п╠п╬п╢п╦я┌я▄ mob
 		if (OLC_MOB(d))
 		{
 			switch (cleanup_type)
 			{
 			case CLEANUP_ALL:
-				medit_mobile_free(OLC_MOB(d));	// удаляет все содержимое
-				delete OLC_MOB(d);	// удаляет только оболочку
+				medit_mobile_free(OLC_MOB(d));	// я┐п╢п╟п╩я▐п╣я┌ п╡я│п╣ я│п╬п╢п╣я─п╤п╦п╪п╬п╣
+				delete OLC_MOB(d);	// я┐п╢п╟п╩я▐п╣я┌ я┌п╬п╩я▄п╨п╬ п╬п╠п╬п╩п╬я┤п╨я┐
 				break;
 			default:	// The caller has screwed up.
 				break;
 			}
 		}
-		// Освободить объект
+		// п·я│п╡п╬п╠п╬п╢п╦я┌я▄ п╬п╠я┼п╣п╨я┌
 		if (OLC_OBJ(d))
 		{
 			switch (cleanup_type)
 			{
 			case CLEANUP_ALL:
-				delete OLC_OBJ(d);	// удаляет только оболочку
+				delete OLC_OBJ(d);	// я┐п╢п╟п╩я▐п╣я┌ я┌п╬п╩я▄п╨п╬ п╬п╠п╬п╩п╬я┤п╨я┐
 				break;
 
 			default:	// The caller has screwed up.
@@ -547,7 +547,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 			}
 		}
 
-		// Освободить зону
+		// п·я│п╡п╬п╠п╬п╢п╦я┌я▄ п╥п╬п╫я┐
 		if (OLC_ZONE(d))
 		{
 			free(OLC_ZONE(d)->name);
@@ -560,7 +560,7 @@ void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type)
 		{
 			PLR_FLAGS(d->character).unset(PLR_WRITING);
 			STATE(d) = CON_PLAYING;
-			act("$n закончил$g работу и удовлетворенно посмотрел$g в развороченные недра Мироздания.",
+			act("$n п╥п╟п╨п╬п╫я┤п╦п╩$g я─п╟п╠п╬я┌я┐ п╦ я┐п╢п╬п╡п╩п╣я┌п╡п╬я─п╣п╫п╫п╬ п©п╬я│п╪п╬я┌я─п╣п╩$g п╡ я─п╟п╥п╡п╬я─п╬я┤п╣п╫п╫я▀п╣ п╫п╣п╢я─п╟ п°п╦я─п╬п╥п╢п╟п╫п╦я▐.",
 				TRUE, d->character.get(), 0, 0, TO_ROOM);
 		}
 		delete d->olc;
@@ -573,7 +573,7 @@ void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping)
 	char str[128];
 	int i = 0;
 
-	send_to_char("Ингредиенты:\r\n", d->character.get());
+	send_to_char("п≤п╫пЁя─п╣п╢п╦п╣п╫я┌я▀:\r\n", d->character.get());
 	for (; im_ing_dump(ping, str + 5); ping += 2)
 	{
 		sprintf(str, "% 4d", i++);
@@ -581,17 +581,17 @@ void xedit_disp_ing(DESCRIPTOR_DATA * d, int *ping)
 		send_to_char(str, d->character.get());
 		send_to_char("\r\n", d->character.get());
 	}
-	send_to_char("у <номер> - [у]далить ингредиент\r\n"
-				 "у *       - [у]далить все ингредиенты\r\n"
-				 "д <ингр>  - [д]обавить ингредиенты\r\n" "в         - [в]ыход\r\n" "Команда> ", d->character.get());
+	send_to_char("я┐ <п╫п╬п╪п╣я─> - [я┐]п╢п╟п╩п╦я┌я▄ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌\r\n"
+				 "я┐ *       - [я┐]п╢п╟п╩п╦я┌я▄ п╡я│п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀\r\n"
+				 "п╢ <п╦п╫пЁя─>  - [п╢]п╬п╠п╟п╡п╦я┌я▄ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀\r\n" "п╡         - [п╡]я▀я┘п╬п╢\r\n" "п п╬п╪п╟п╫п╢п╟> ", d->character.get());
 }
 
 int xparse_ing(DESCRIPTOR_DATA* /*d*/, int **pping, char *arg)
 {
 	switch (*arg)
 	{
-	case 'у':
-	case 'У':
+	case 'я┐':
+	case 'пё':
 		++arg;
 		skip_spaces(&arg);
 		if (arg[0] == '*')
@@ -605,12 +605,12 @@ int xparse_ing(DESCRIPTOR_DATA* /*d*/, int **pping, char *arg)
 			im_extract_ing(pping, atoi(arg));
 		}
 		break;
-	case 'д':
-	case 'Д':
+	case 'п╢':
+	case 'п■':
 		im_parse(pping, arg + 1);
 		break;
-	case 'в':
-	case 'В':
+	case 'п╡':
+	case 'п▓':
 		return 0;
 	}
 	return 1;

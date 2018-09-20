@@ -28,17 +28,17 @@ namespace Noob
 {
 
 const char *CONFIG_FILE = LIB_MISC"noob_help.xml";
-// макс уровень чара, который считается нубом (is_noob в коде и тригах, из CONFIG_FILE)
+// п╪п╟п╨я│ я┐я─п╬п╡п╣п╫я▄ я┤п╟я─п╟, п╨п╬я┌п╬я─я▀п╧ я│я┤п╦я┌п╟п╣я┌я│я▐ п╫я┐п╠п╬п╪ (is_noob п╡ п╨п╬п╢п╣ п╦ я┌я─п╦пЁп╟я┘, п╦п╥ CONFIG_FILE)
 int MAX_LEVEL = 0;
-// список классов (по id) со списками шмоток (vnum) в каждом (из CONFIG_FILE)
+// я│п©п╦я│п╬п╨ п╨п╩п╟я│я│п╬п╡ (п©п╬ id) я│п╬ я│п©п╦я│п╨п╟п╪п╦ я┬п╪п╬я┌п╬п╨ (vnum) п╡ п╨п╟п╤п╢п╬п╪ (п╦п╥ CONFIG_FILE)
 std::array<std::vector<int>, NUM_PLAYER_CLASSES> class_list;
 
 ///
-/// чтение конфига из misc/noob_help.xml (CONFIG_FILE)
+/// я┤я┌п╣п╫п╦п╣ п╨п╬п╫я└п╦пЁп╟ п╦п╥ misc/noob_help.xml (CONFIG_FILE)
 ///
 void init()
 {
-	// для релоада на случай ошибок при чтении
+	// п╢п╩я▐ я─п╣п╩п╬п╟п╢п╟ п╫п╟ я│п╩я┐я┤п╟п╧ п╬я┬п╦п╠п╬п╨ п©я─п╦ я┤я┌п╣п╫п╦п╦
 	std::array<std::vector<int>, NUM_PLAYER_CLASSES> tmp_class_list;
 
 	pugi::xml_document doc;
@@ -107,7 +107,7 @@ void init()
 }
 
 ///
-/// \return true - если ch в коде считается нубом и соотв-но претендует на помощь
+/// \return true - п╣я│п╩п╦ ch п╡ п╨п╬п╢п╣ я│я┤п╦я┌п╟п╣я┌я│я▐ п╫я┐п╠п╬п╪ п╦ я│п╬п╬я┌п╡-п╫п╬ п©я─п╣я┌п╣п╫п╢я┐п╣я┌ п╫п╟ п©п╬п╪п╬я┴я▄
 ///
 bool is_noob(const CHAR_DATA *ch)
 {
@@ -119,7 +119,7 @@ bool is_noob(const CHAR_DATA *ch)
 }
 
 ///
-/// Пустой спешиал, чтобы не морочить голову с перебором тригов в карте
+/// п÷я┐я│я┌п╬п╧ я│п©п╣я┬п╦п╟п╩, я┤я┌п╬п╠я▀ п╫п╣ п╪п╬я─п╬я┤п╦я┌я▄ пЁп╬п╩п╬п╡я┐ я│ п©п╣я─п╣п╠п╬я─п╬п╪ я┌я─п╦пЁп╬п╡ п╡ п╨п╟я─я┌п╣
 ///
 int outfit(CHAR_DATA* /*ch*/, void* /*me*/, int/* cmd*/, char* /*argument*/)
 {
@@ -127,8 +127,8 @@ int outfit(CHAR_DATA* /*ch*/, void* /*me*/, int/* cmd*/, char* /*argument*/)
 }
 
 ///
-/// \return строка с внумами стартовых предметов персонажа
-/// нужно для тригов (%actor.noob_outfit%)
+/// \return я│я┌я─п╬п╨п╟ я│ п╡п╫я┐п╪п╟п╪п╦ я│я┌п╟я─я┌п╬п╡я▀я┘ п©я─п╣п╢п╪п╣я┌п╬п╡ п©п╣я─я│п╬п╫п╟п╤п╟
+/// п╫я┐п╤п╫п╬ п╢п╩я▐ я┌я─п╦пЁп╬п╡ (%actor.noob_outfit%)
 ///
 std::string print_start_outfit(CHAR_DATA *ch)
 {
@@ -142,12 +142,12 @@ std::string print_start_outfit(CHAR_DATA *ch)
 }
 
 ///
-/// \return список внумов стартовых шмоток из noob_help.xml
-/// + шмоток, завясящих от местонахождения чара из birthplaces.xml
+/// \return я│п©п╦я│п╬п╨ п╡п╫я┐п╪п╬п╡ я│я┌п╟я─я┌п╬п╡я▀я┘ я┬п╪п╬я┌п╬п╨ п╦п╥ noob_help.xml
+/// + я┬п╪п╬я┌п╬п╨, п╥п╟п╡я▐я│я▐я┴п╦я┘ п╬я┌ п╪п╣я│я┌п╬п╫п╟я┘п╬п╤п╢п╣п╫п╦я▐ я┤п╟я─п╟ п╦п╥ birthplaces.xml
 ///
 std::vector<int> get_start_outfit(CHAR_DATA *ch)
 {
-	// стаф из noob_help.xml
+	// я│я┌п╟я└ п╦п╥ noob_help.xml
 	std::vector<int> out_list;
 	const int ch_class = ch->get_class();
 	if (ch_class < NUM_PLAYER_CLASSES)
@@ -155,7 +155,7 @@ std::vector<int> get_start_outfit(CHAR_DATA *ch)
 		out_list.insert(out_list.end(),
 			class_list.at(ch_class).begin(), class_list.at(ch_class).end());
 	}
-	// стаф из birthplaces.xml (карты родовых)
+	// я│я┌п╟я└ п╦п╥ birthplaces.xml (п╨п╟я─я┌я▀ я─п╬п╢п╬п╡я▀я┘)
 	int birth_id = BirthPlace::GetIdByRoom(GET_ROOM_VNUM(ch->in_room));
 	if (birth_id >= 0)
 	{
@@ -166,7 +166,7 @@ std::vector<int> get_start_outfit(CHAR_DATA *ch)
 }
 
 ///
-/// \return указатель на моба-рентера в данной комнате или 0
+/// \return я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ п╪п╬п╠п╟-я─п╣п╫я┌п╣я─п╟ п╡ п╢п╟п╫п╫п╬п╧ п╨п╬п╪п╫п╟я┌п╣ п╦п╩п╦ 0
 ///
 CHAR_DATA * find_renter(int room_rnum)
 {
@@ -182,9 +182,9 @@ CHAR_DATA * find_renter(int room_rnum)
 }
 
 ///
-/// Проверка при входе в игру чара на ренте, при необходимости выдача
-/// сообщения о возможности получить стартовую экипу у кладовщика.
-/// Сообщение берется из birthplaces.xml или дефолтное из BirthPlace::GetRentHelp
+/// п÷я─п╬п╡п╣я─п╨п╟ п©я─п╦ п╡я┘п╬п╢п╣ п╡ п╦пЁя─я┐ я┤п╟я─п╟ п╫п╟ я─п╣п╫я┌п╣, п©я─п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦ п╡я▀п╢п╟я┤п╟
+/// я│п╬п╬п╠я┴п╣п╫п╦я▐ п╬ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ п©п╬п╩я┐я┤п╦я┌я▄ я│я┌п╟я─я┌п╬п╡я┐я▌ я█п╨п╦п©я┐ я┐ п╨п╩п╟п╢п╬п╡я┴п╦п╨п╟.
+/// п║п╬п╬п╠я┴п╣п╫п╦п╣ п╠п╣я─п╣я┌я│я▐ п╦п╥ birthplaces.xml п╦п╩п╦ п╢п╣я└п╬п╩я┌п╫п╬п╣ п╦п╥ BirthPlace::GetRentHelp
 ///
 void check_help_message(CHAR_DATA *ch)
 {
@@ -200,8 +200,8 @@ void check_help_message(CHAR_DATA *ch)
 			std::string text = BirthPlace::GetRentHelp(birth_id);
 			if (renter && !text.empty())
 			{
-				act("\n\\u$n оглядел$g вас с головы до пят.", TRUE, renter, 0, ch, TO_VICT);
-				act("$n посмотрел$g на $N3.", TRUE, renter, 0, ch, TO_NOTVICT);
+				act("\n\\u$n п╬пЁп╩я▐п╢п╣п╩$g п╡п╟я│ я│ пЁп╬п╩п╬п╡я▀ п╢п╬ п©я▐я┌.", TRUE, renter, 0, ch, TO_VICT);
+				act("$n п©п╬я│п╪п╬я┌я─п╣п╩$g п╫п╟ $N3.", TRUE, renter, 0, ch, TO_NOTVICT);
 				tell_to_char(renter, ch, text.c_str());
 			}
 		}
@@ -209,9 +209,9 @@ void check_help_message(CHAR_DATA *ch)
 }
 
 ///
-/// Автоматическое надевание и вооружение только что созданного чара при входе
-/// в игру со стартовой экипой. При вооржении пушки чару ставится ее скилл.
-/// Богатырям при надевании перчаток сетится кулачный бой.
+/// п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╣ п╫п╟п╢п╣п╡п╟п╫п╦п╣ п╦ п╡п╬п╬я─я┐п╤п╣п╫п╦п╣ я┌п╬п╩я▄п╨п╬ я┤я┌п╬ я│п╬п╥п╢п╟п╫п╫п╬пЁп╬ я┤п╟я─п╟ п©я─п╦ п╡я┘п╬п╢п╣
+/// п╡ п╦пЁя─я┐ я│п╬ я│я┌п╟я─я┌п╬п╡п╬п╧ я█п╨п╦п©п╬п╧. п÷я─п╦ п╡п╬п╬я─п╤п╣п╫п╦п╦ п©я┐я┬п╨п╦ я┤п╟я─я┐ я│я┌п╟п╡п╦я┌я│я▐ п╣п╣ я│п╨п╦п╩п╩.
+/// п▒п╬пЁп╟я┌я▀я─я▐п╪ п©я─п╦ п╫п╟п╢п╣п╡п╟п╫п╦п╦ п©п╣я─я┤п╟я┌п╬п╨ я│п╣я┌п╦я┌я│я▐ п╨я┐п╩п╟я┤п╫я▀п╧ п╠п╬п╧.
 ///
 void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj)
 {
@@ -221,7 +221,7 @@ void equip_start_outfit(CHAR_DATA *ch, OBJ_DATA *obj)
 		if (where >= 0)
 		{
 			equip_char(ch, obj, where);
-			// богатырям в перчатках сетим кулачный бой вместо пушек
+			// п╠п╬пЁп╟я┌я▀я─я▐п╪ п╡ п©п╣я─я┤п╟я┌п╨п╟я┘ я│п╣я┌п╦п╪ п╨я┐п╩п╟я┤п╫я▀п╧ п╠п╬п╧ п╡п╪п╣я│я┌п╬ п©я┐я┬п╣п╨
 			if (where == WEAR_HANDS && GET_CLASS(ch) == CLASS_WARRIOR)
 			{
 				ch->set_skill(SKILL_PUNCH, 10);

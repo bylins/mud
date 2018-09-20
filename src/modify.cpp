@@ -143,20 +143,20 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 	{
 	case PARSE_HELP:
 		sprintf(buf,
-				"Формат команд редактора: /<letter>\r\n\r\n"
-				"/a         -  прекратить редактирование\r\n"
-				"/c         -  очистить буфер\r\n"
-				"/d#,       -  удалить строку #\r\n"
-				"/e# <text> -  заменить строку # на текст <text>\r\n"
-				"/f         -  форматировать текст\r\n"
+				"п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢ я─п╣п╢п╟п╨я┌п╬я─п╟: /<letter>\r\n\r\n"
+				"/a         -  п©я─п╣п╨я─п╟я┌п╦я┌я▄ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣\r\n"
+				"/c         -  п╬я┤п╦я│я┌п╦я┌я▄ п╠я┐я└п╣я─\r\n"
+				"/d#,       -  я┐п╢п╟п╩п╦я┌я▄ я│я┌я─п╬п╨я┐ #\r\n"
+				"/e# <text> -  п╥п╟п╪п╣п╫п╦я┌я▄ я│я┌я─п╬п╨я┐ # п╫п╟ я┌п╣п╨я│я┌ <text>\r\n"
+				"/f         -  я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟я┌я▄ я┌п╣п╨я│я┌\r\n"
 				"/fi        -  indented formatting of text\r\n"
-				"/h         -  отобразить список команд (помощь)\r\n"
-				"/i# <text> -  вставить <text> после строки #\r\n"
-				"/l         -  пролистать буфер\r\n"
-				"/n         -  пролистать буфер с номерами строк\r\n"
-				"/r 'a' 'b' -  заменить первое вхождение текста <a> в буфере на текст <b>\r\n"
-				"/ra 'a' 'b'-  заменить все вхождения текста <a> в буфере на текст <b>\r\n"
-				"              Формат: /r[a] 'шаблон' 'на_что_меняем'\r\n" "/s         -  сохранить текст\r\n");
+				"/h         -  п╬я┌п╬п╠я─п╟п╥п╦я┌я▄ я│п©п╦я│п╬п╨ п╨п╬п╪п╟п╫п╢ (п©п╬п╪п╬я┴я▄)\r\n"
+				"/i# <text> -  п╡я│я┌п╟п╡п╦я┌я▄ <text> п©п╬я│п╩п╣ я│я┌я─п╬п╨п╦ #\r\n"
+				"/l         -  п©я─п╬п╩п╦я│я┌п╟я┌я▄ п╠я┐я└п╣я─\r\n"
+				"/n         -  п©я─п╬п╩п╦я│я┌п╟я┌я▄ п╠я┐я└п╣я─ я│ п╫п╬п╪п╣я─п╟п╪п╦ я│я┌я─п╬п╨\r\n"
+				"/r 'a' 'b' -  п╥п╟п╪п╣п╫п╦я┌я▄ п©п╣я─п╡п╬п╣ п╡я┘п╬п╤п╢п╣п╫п╦п╣ я┌п╣п╨я│я┌п╟ <a> п╡ п╠я┐я└п╣я─п╣ п╫п╟ я┌п╣п╨я│я┌ <b>\r\n"
+				"/ra 'a' 'b'-  п╥п╟п╪п╣п╫п╦я┌я▄ п╡я│п╣ п╡я┘п╬п╤п╢п╣п╫п╦я▐ я┌п╣п╨я│я┌п╟ <a> п╡ п╠я┐я└п╣я─п╣ п╫п╟ я┌п╣п╨я│я┌ <b>\r\n"
+				"              п╓п╬я─п╪п╟я┌: /r[a] 'я┬п╟п╠п╩п╬п╫' 'п╫п╟_я┤я┌п╬_п╪п╣п╫я▐п╣п╪'\r\n" "/s         -  я│п╬я┘я─п╟п╫п╦я┌я▄ я┌п╣п╨я│я┌\r\n");
 		SEND_TO_Q(buf, d);
 		break;
 
@@ -180,7 +180,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 		format_text(d->writer, flags, d, d->max_str);
 
-		sprintf(buf, "Текст отформатирован %s\r\n", (indent ? "WITH INDENT." : "."));
+		sprintf(buf, "п╒п╣п╨я│я┌ п╬я┌я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫ %s\r\n", (indent ? "WITH INDENT." : "."));
 		SEND_TO_Q(buf, d);
 		break;
 
@@ -200,12 +200,12 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 		if ((s = strtok(string, "'")) == NULL)
 		{
-			SEND_TO_Q("Неверный формат.\r\n", d);
+			SEND_TO_Q("п²п╣п╡п╣я─п╫я▀п╧ я└п╬я─п╪п╟я┌.\r\n", d);
 			return;
 		}
 		else if ((s = strtok(NULL, "'")) == NULL)
 		{
-			SEND_TO_Q("Шаблон должен быть заключен в апострофы.\r\n", d);
+			SEND_TO_Q("п╗п╟п╠п╩п╬п╫ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫ п╡ п╟п©п╬я│я┌я─п╬я└я▀.\r\n", d);
 			return;
 		}
 		else if ((t = strtok(NULL, "'")) == NULL)
@@ -215,7 +215,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		}
 		else if ((t = strtok(NULL, "'")) == NULL)
 		{
-			SEND_TO_Q("Замещающая строка должна быть заключена в апострофы.\r\n", d);
+			SEND_TO_Q("п≈п╟п╪п╣я┴п╟я▌я┴п╟я▐ я│я┌я─п╬п╨п╟ п╢п╬п╩п╤п╫п╟ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╟ п╡ п╟п©п╬я│я┌я─п╬я└я▀.\r\n", d);
 			return;
 		}
 		else
@@ -226,22 +226,22 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				replaced = replace_str(d->writer, s, t, rep_all, static_cast<int>(d->max_str));
 				if (replaced > 0)
 				{
-					sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", s, t, replaced);
+					sprintf(buf, "п≈п╟п╪п╣п╫п╣п╫п╬ п╡я┘п╬п╤п╢п╣п╫п╦п╧ '%s' п╫п╟ '%s' - %d.\r\n", s, t, replaced);
 					SEND_TO_Q(buf, d);
 				}
 				else if (replaced == 0)
 				{
-					sprintf(buf, "Шаблон '%s' не найден.\r\n", s);
+					sprintf(buf, "п╗п╟п╠п╩п╬п╫ '%s' п╫п╣ п╫п╟п╧п╢п╣п╫.\r\n", s);
 					SEND_TO_Q(buf, d);
 				}
 				else
 				{
-					SEND_TO_Q("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);
+					SEND_TO_Q("п·п╗п≤п▒п п░: п÷я─п╦ п©п╬п©я▀я┌п╨п╣ п╥п╟п╪п╣п╫я▀ п╠я┐я└п╣я─ п©п╣я─п╣п©п╬п╩п╫п╣п╫ - п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 				}
 			}
 			else
 			{
-				SEND_TO_Q("Нет свободного места для завершения команды.\r\n", d);
+				SEND_TO_Q("п²п╣я┌ я│п╡п╬п╠п╬п╢п╫п╬пЁп╬ п╪п╣я│я┌п╟ п╢п╩я▐ п╥п╟п╡п╣я─я┬п╣п╫п╦я▐ п╨п╬п╪п╟п╫п╢я▀.\r\n", d);
 			}
 		}
 		break;
@@ -250,7 +250,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		switch (sscanf(string, " %d - %d ", &line_low, &line_high))
 		{
 		case 0:
-			SEND_TO_Q("Вы должны указать номер строки или диапазон для удаления.\r\n", d);
+			SEND_TO_Q("п▓я▀ п╢п╬п╩п╤п╫я▀ я┐п╨п╟п╥п╟я┌я▄ п╫п╬п╪п╣я─ я│я┌я─п╬п╨п╦ п╦п╩п╦ п╢п╦п╟п©п╟п╥п╬п╫ п╢п╩я▐ я┐п╢п╟п╩п╣п╫п╦я▐.\r\n", d);
 			return;
 		case 1:
 			line_high = line_low;
@@ -258,7 +258,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		case 2:
 			if (line_high < line_low)
 			{
-				SEND_TO_Q("Неверный диапазон.\r\n", d);
+				SEND_TO_Q("п²п╣п╡п╣я─п╫я▀п╧ п╢п╦п╟п©п╟п╥п╬п╫.\r\n", d);
 				return;
 			}
 			break;
@@ -271,7 +271,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			s = buffer;
 			if (s == nullptr)
 			{
-				SEND_TO_Q("Буфер пуст.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п©я┐я│я┌.\r\n", d);
 				return;
 			}
 			else if (line_low > 0)
@@ -287,7 +287,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				}
 				if ((i < line_low) || (s == NULL))
 				{
-					SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+					SEND_TO_Q("п║я┌я─п╬п╨п╟(п╦) п╡п╫п╣ п╢п╦п╟п©п╟п╥п╬п╫п╟ - п©я─п╬п╦пЁп╫п╬я─п╦я─п╬п╡п╟п╫п╬.\r\n", d);
 					return;
 				}
 				t = s;
@@ -320,7 +320,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			}
 			else
 			{
-				SEND_TO_Q("Отрицательный или нулевой номер строки для удаления.\r\n", d);
+				SEND_TO_Q("п·я┌я─п╦я├п╟я┌п╣п╩я▄п╫я▀п╧ п╦п╩п╦ п╫я┐п╩п╣п╡п╬п╧ п╫п╬п╪п╣я─ я│я┌я─п╬п╨п╦ п╢п╩я▐ я┐п╢п╟п╩п╣п╫п╦я▐.\r\n", d);
 				return;
 			}
 		}
@@ -349,17 +349,17 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 		if (line_low < 1)
 		{
-			SEND_TO_Q("Начальный номер отрицательный или 0.\r\n", d);
+			SEND_TO_Q("п²п╟я┤п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫я▀п╧ п╦п╩п╦ 0.\r\n", d);
 			return;
 		}
 		else if (line_high < line_low)
 		{
-			SEND_TO_Q("Неверный диапазон.\r\n", d);
+			SEND_TO_Q("п²п╣п╡п╣я─п╫я▀п╧ п╢п╦п╟п©п╟п╥п╬п╫.\r\n", d);
 			return;
 		}
 		*buf = '\0';
 		if ((line_high < 999999) || (line_low > 1))
-			sprintf(buf, "Текущий диапазон [%d - %d]:\r\n", line_low, line_high);
+			sprintf(buf, "п╒п╣п╨я┐я┴п╦п╧ п╢п╦п╟п©п╟п╥п╬п╫ [%d - %d]:\r\n", line_low, line_high);
 		i = 1;
 		{
 			const char* pos = d->writer->get_string();
@@ -376,7 +376,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 			if ((i < line_low) || (pos == NULL))
 			{
-				SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+				SEND_TO_Q("п║я┌я─п╬п╨п╟(п╦) п╡п╫п╣ п╢п╦п╟п©п╟п╥п╬п╫п╟ - п©я─п╬п╦пЁп╫п╬я─п╦я─п╬п╡п╟п╫п╬.\r\n", d);
 				return;
 			}
 
@@ -430,12 +430,12 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 		if (line_low < 1)
 		{
-			SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
+			SEND_TO_Q("п²п╬п╪п╣я─ я│я┌я─п╬п╨п╦ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╠п╬п╩я▄я┬п╣ 0.\r\n", d);
 			return;
 		}
 		if (line_high < line_low)
 		{
-			SEND_TO_Q("Неверный диапазон.\r\n", d);
+			SEND_TO_Q("п²п╣п╡п╣я─п╫я▀п╧ п╢п╦п╟п©п╟п╥п╬п╫.\r\n", d);
 			return;
 		}
 		*buf = '\0';
@@ -455,7 +455,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 
 			if ((i < line_low) || (pos == NULL))
 			{
-				SEND_TO_Q("Строка(и) вне диапазона - проигнорировано.\r\n", d);
+				SEND_TO_Q("п║я┌я─п╬п╨п╟(п╦) п╡п╫п╣ п╢п╦п╟п©п╟п╥п╬п╫п╟ - п©я─п╬п╦пЁп╫п╬я─п╦я─п╬п╡п╟п╫п╬.\r\n", d);
 				return;
 			}
 
@@ -490,7 +490,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		half_chop(string, buf, buf2);
 		if (*buf == '\0')
 		{
-			SEND_TO_Q("Вы должны указать номер строки, после которой вставить текст.\r\n", d);
+			SEND_TO_Q("п▓я▀ п╢п╬п╩п╤п╫я▀ я┐п╨п╟п╥п╟я┌я▄ п╫п╬п╪п╣я─ я│я┌я─п╬п╨п╦, п©п╬я│п╩п╣ п╨п╬я┌п╬я─п╬п╧ п╡я│я┌п╟п╡п╦я┌я▄ я┌п╣п╨я│я┌.\r\n", d);
 			return;
 		}
 		line_low = atoi(buf);
@@ -503,7 +503,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			const char* beginning = pos;
 			if (pos == NULL)
 			{
-				SEND_TO_Q("Буфер пуст - ничего не вставлено.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п©я┐я│я┌ - п╫п╦я┤п╣пЁп╬ п╫п╣ п╡я│я┌п╟п╡п╩п╣п╫п╬.\r\n", d);
 				return;
 			}
 			if (line_low > 0)
@@ -518,12 +518,12 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				}
 				if ((i < line_low) || (pos == NULL))
 				{
-					SEND_TO_Q("Номер строки вне диапазона - прервано.\r\n", d);
+					SEND_TO_Q("п²п╬п╪п╣я─ я│я┌я─п╬п╨п╦ п╡п╫п╣ п╢п╦п╟п©п╟п╥п╬п╫п╟ - п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 					return;
 				}
 				if ((pos - beginning + strlen(buf2) + strlen(pos) + 3) > d->max_str)
 				{
-					SEND_TO_Q("Превышение размеров буфера - прервано.\r\n", d);
+					SEND_TO_Q("п÷я─п╣п╡я▀я┬п╣п╫п╦п╣ я─п╟п╥п╪п╣я─п╬п╡ п╠я┐я└п╣я─п╟ - п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 					return;
 				}
 				if (beginning && (*beginning != '\0'))
@@ -536,11 +536,11 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 					strcat(buf, pos);
 				}
 				d->writer->set_string(buf);
-				SEND_TO_Q("Строка вставлена.\r\n", d);
+				SEND_TO_Q("п║я┌я─п╬п╨п╟ п╡я│я┌п╟п╡п╩п╣п╫п╟.\r\n", d);
 			}
 			else
 			{
-				SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
+				SEND_TO_Q("п²п╬п╪п╣я─ я│я┌я─п╬п╨п╦ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╠п╬п╩я▄я┬п╣ 0.\r\n", d);
 				return;
 			}
 		}
@@ -550,7 +550,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 		half_chop(string, buf, buf2);
 		if (*buf == '\0')
 		{
-			SEND_TO_Q("Вы должны указать номер строки изменяемого текста.\r\n", d);
+			SEND_TO_Q("п▓я▀ п╢п╬п╩п╤п╫я▀ я┐п╨п╟п╥п╟я┌я▄ п╫п╬п╪п╣я─ я│я┌я─п╬п╨п╦ п╦п╥п╪п╣п╫я▐п╣п╪п╬пЁп╬ я┌п╣п╨я│я┌п╟.\r\n", d);
 			return;
 		}
 		line_low = atoi(buf);
@@ -563,7 +563,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 			const char* beginning = s;
 			if (s == nullptr)
 			{
-				SEND_TO_Q("Буфер пуст - изменения не проведены.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п©я┐я│я┌ - п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╫п╣ п©я─п╬п╡п╣п╢п╣п╫я▀.\r\n", d);
 				return;
 			}
 
@@ -581,7 +581,7 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				// * Make sure that there was a THAT line in the text.
 				if ((i < line_low) || (s == NULL))
 				{
-					SEND_TO_Q("Строка вне диапазона - прервано.\r\n", d);
+					SEND_TO_Q("п║я┌я─п╬п╨п╟ п╡п╫п╣ п╢п╦п╟п©п╟п╥п╬п╫п╟ - п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 					return;
 				}
 
@@ -609,24 +609,24 @@ void parse_action(int command, char *string, DESCRIPTOR_DATA * d)
 				// * Check for buffer overflow.
 				if (strlen(buf) > d->max_str)
 				{
-					SEND_TO_Q("Превышение максимального размера буфера - прервано.\r\n", d);
+					SEND_TO_Q("п÷я─п╣п╡я▀я┬п╣п╫п╦п╣ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬пЁп╬ я─п╟п╥п╪п╣я─п╟ п╠я┐я└п╣я─п╟ - п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 					return;
 				}
 
 				// * Change the size of the REAL buffer to fit the new text.
 				d->writer->set_string(buf);
-				SEND_TO_Q("Строка изменена.\r\n", d);
+				SEND_TO_Q("п║я┌я─п╬п╨п╟ п╦п╥п╪п╣п╫п╣п╫п╟.\r\n", d);
 			}
 			else
 			{
-				SEND_TO_Q("Номер строки должен быть больше 0.\r\n", d);
+				SEND_TO_Q("п²п╬п╪п╣я─ я│я┌я─п╬п╨п╦ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╠п╬п╩я▄я┬п╣ 0.\r\n", d);
 				return;
 			}
 		}
 		break;
 
 	default:
-		SEND_TO_Q("Неверная опция.\r\n", d);
+		SEND_TO_Q("п²п╣п╡п╣я─п╫п╟я▐ п╬п©я├п╦я▐.\r\n", d);
 		mudlog("SYSERR: invalid command passed to parse_action", BRF, LVL_IMPL, SYSLOG, TRUE);
 		return;
 	}
@@ -656,7 +656,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		* str = '\0';
 #endif
 
-	// почту логировать как-то не оно
+	// п©п╬я┤я┌я┐ п╩п╬пЁп╦я─п╬п╡п╟я┌я▄ п╨п╟п╨-я┌п╬ п╫п╣ п╬п╫п╬
 	if (d->character && !PLR_FLAGGED(d->character, PLR_MAILING))
 		log("[SA] <%s> adds string '%s'", GET_NAME(d->character), str);
 
@@ -685,10 +685,10 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if (d->writer->get_string())
 			{
 				d->writer->clear();
-				SEND_TO_Q("Буфер очищен.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п╬я┤п╦я┴п╣п╫.\r\n", d);
 			}
 			else
-				SEND_TO_Q("Буфер пуст.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п©я┐я│я┌.\r\n", d);
 			break;
 		case 'd':
 			parse_action(PARSE_DELETE, actions, d);
@@ -703,7 +703,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			}
 			else
 			{
-				SEND_TO_Q("Буфер пуст.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п©я┐я│я┌.\r\n", d);
 			}
 			break;
 		case 'i':
@@ -713,7 +713,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			}
 			else
 			{
-				SEND_TO_Q("Буфер пуст.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п©я┐я│я┌.\r\n", d);
 			}
 			break;
 		case 'h':
@@ -726,7 +726,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			}
 			else
 			{
-				SEND_TO_Q("Буфер пуст.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п©я┐я│я┌.\r\n", d);
 			}
 			break;
 		case 'n':
@@ -736,7 +736,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			}
 			else
 			{
-				SEND_TO_Q("Буфер пуст.\r\n", d);
+				SEND_TO_Q("п▒я┐я└п╣я─ п©я┐я│я┌.\r\n", d);
 			}
 			break;
 		case 'r':
@@ -747,7 +747,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			*str = '\0';
 			break;
 		default:
-			SEND_TO_Q("Интересный выбор. Я о нем подумаю...\r\n", d);
+			SEND_TO_Q("п≤п╫я┌п╣я─п╣я│п╫я▀п╧ п╡я▀п╠п╬я─. п╞ п╬ п╫п╣п╪ п©п╬п╢я┐п╪п╟я▌...\r\n", d);
 			break;
 		}
 	}
@@ -756,13 +756,13 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 	{
 		if (strlen(str) + 3 > d->max_str)
 		{
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
+			send_to_char("п║п╩п╦я┬п╨п╬п╪ п╢п╩п╦п╫п╫п╟я▐ я│я┌я─п╬п╨п╟ - я┐я│п╣я┤п╣п╫п╟.\r\n", d->character.get());
 			strcpy(&str[d->max_str - 3], "\r\n");
 			d->writer->set_string(str);
 		}
 		else if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80)
 		{
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
+			send_to_char("п║п╩п╦я┬п╨п╬п╪ п╢п╩п╦п╫п╫п╟я▐ я│я┌я─п╬п╨п╟ - я┐я│п╣я┤п╣п╫п╟.\r\n", d->character.get());
 			str[80 - 3] = '\0';
 			d->writer->set_string(str);
 		}
@@ -775,13 +775,13 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 	{
 		if (CON_WRITE_MOD == STATE(d) && strlen(str) + 3 > 80)
 		{
-			send_to_char("Слишком длинная строка - усечена.\r\n", d->character.get());
+			send_to_char("п║п╩п╦я┬п╨п╬п╪ п╢п╩п╦п╫п╫п╟я▐ я│я┌я─п╬п╨п╟ - я┐я│п╣я┤п╣п╫п╟.\r\n", d->character.get());
 			str[80 - 3] = '\0';
 		}
 
 		if (strlen(str) + d->writer->length() + 3 > d->max_str)  	// \r\n\0 //
 		{
-			send_to_char(d->character.get(), "Слишком длинное послание > %d симв. Последняя строка проигнорирована.\r\n", d->max_str - 3);
+			send_to_char(d->character.get(), "п║п╩п╦я┬п╨п╬п╪ п╢п╩п╦п╫п╫п╬п╣ п©п╬я│п╩п╟п╫п╦п╣ > %d я│п╦п╪п╡. п÷п╬я│п╩п╣п╢п╫я▐я▐ я│я┌я─п╬п╨п╟ п©я─п╬п╦пЁп╫п╬я─п╦я─п╬п╡п╟п╫п╟.\r\n", d->max_str - 3);
 			action = TRUE;
 		}
 		else
@@ -876,7 +876,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		}
 		else if (STATE(d) == CON_WRITEBOARD)
 		{
-			// добавление сообщения на доску
+			// п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╫п╟ п╢п╬я│п╨я┐
 			if (terminator == 1
 				&& d->writer->get_string()
 				&& !d->board.expired())
@@ -884,7 +884,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				auto board = d->board.lock();
 				d->message->date = time(0);
 				d->message->text = d->writer->get_string();
-				// для новостных отступов ну и вообще мож все так сейвить, посмотрим
+				// п╢п╩я▐ п╫п╬п╡п╬я│я┌п╫я▀я┘ п╬я┌я│я┌я┐п©п╬п╡ п╫я┐ п╦ п╡п╬п╬п╠я┴п╣ п╪п╬п╤ п╡я│п╣ я┌п╟п╨ я│п╣п╧п╡п╦я┌я▄, п©п╬я│п╪п╬я┌я─п╦п╪
 				if (board->get_type() == Boards::NEWS_BOARD
 					|| board->get_type() == Boards::GODNEWS_BOARD)
 				{
@@ -892,11 +892,11 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				}
 				board->write_message(d->message);
 				Boards::Static::new_message_notify(board);
-				SEND_TO_Q("Спасибо за ваши излияния души, послание сохранено.\r\n", d);
+				SEND_TO_Q("п║п©п╟я│п╦п╠п╬ п╥п╟ п╡п╟я┬п╦ п╦п╥п╩п╦я▐п╫п╦я▐ п╢я┐я┬п╦, п©п╬я│п╩п╟п╫п╦п╣ я│п╬я┘я─п╟п╫п╣п╫п╬.\r\n", d);
 			}
 			else
 			{
-				SEND_TO_Q("Редактирование прервано.\r\n", d);
+				SEND_TO_Q("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 			}
 			d->message.reset();
 			d->board.reset();
@@ -909,7 +909,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		}
 		else if (STATE(d) == CON_WRITE_MOD)
 		{
-			// писали клановое сообщение дня
+			// п©п╦я│п╟п╩п╦ п╨п╩п╟п╫п╬п╡п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╢п╫я▐
 			if (terminator == 1
 				&& d->writer->get_string())
 			{
@@ -918,11 +918,11 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				if (body.empty())
 				{
 					CLAN(d->character)->write_mod(body);
-					send_to_char("Сообщение удалено.\r\n", d->character.get());
+					send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ я┐п╢п╟п╩п╣п╫п╬.\r\n", d->character.get());
 				}
 				else
 				{
-					// за время редактирования могли лишиться привилегии/клана
+					// п╥п╟ п╡я─п╣п╪я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ п╪п╬пЁп╩п╦ п╩п╦я┬п╦я┌я▄я│я▐ п©я─п╦п╡п╦п╩п╣пЁп╦п╦/п╨п╩п╟п╫п╟
 					if (d->character
 						&& CLAN(d->character)
 						&& CLAN(d->character)->CheckPrivilege(
@@ -930,24 +930,24 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 							ClanSystem::MAY_CLAN_MOD))
 					{
 						std::string head = boost::str(boost::format
-							("Сообщение дружины (автор %1%):\r\n")
+							("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╢я─я┐п╤п╦п╫я▀ (п╟п╡я┌п╬я─ %1%):\r\n")
 							% GET_NAME(d->character));
-						// отступ (копи-паст из CON_WRITEBOARD выше)
+						// п╬я┌я│я┌я┐п© (п╨п╬п©п╦-п©п╟я│я┌ п╦п╥ CON_WRITEBOARD п╡я▀я┬п╣)
 						format_news_message(body);
 						head += body;
 
 						CLAN(d->character)->write_mod(head);
-						SEND_TO_Q("Сообщение добавлено.\r\n", d);
+						SEND_TO_Q("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╢п╬п╠п╟п╡п╩п╣п╫п╬.\r\n", d);
 					}
 					else
 					{
-						SEND_TO_Q("Ошибочка вышла...\r\n", d);
+						SEND_TO_Q("п·я┬п╦п╠п╬я┤п╨п╟ п╡я▀я┬п╩п╟...\r\n", d);
 					}
 				}
 			}
 			else
 			{
-				SEND_TO_Q("Сообщение прервано.\r\n", d);
+				SEND_TO_Q("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 			}
 
 			if (d->writer)
@@ -962,14 +962,14 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			if ((terminator == 1) && d->writer->get_string())
 			{
 				mail::add(d->mail_to, d->character->get_uid(), d->writer->get_string());
-				SEND_TO_Q("Ближайшей оказией я отправлю ваше письмо адресату!\r\n", d);
+				SEND_TO_Q("п▒п╩п╦п╤п╟п╧я┬п╣п╧ п╬п╨п╟п╥п╦п╣п╧ я▐ п╬я┌п©я─п╟п╡п╩я▌ п╡п╟я┬п╣ п©п╦я│я▄п╪п╬ п╟п╢я─п╣я│п╟я┌я┐!\r\n", d);
 				if (DescByUID(d->mail_to))
 				{
 					mail::add_notice(d->mail_to);
 				}
 			}
 			else
-				SEND_TO_Q("Письмо удалено.\r\n", d);
+				SEND_TO_Q("п÷п╦я│я▄п╪п╬ я┐п╢п╟п╩п╣п╫п╬.\r\n", d);
 			//log("[SA] 5s");
 			d->mail_to = 0;
 			if (d->writer)
@@ -982,7 +982,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		{
 			if (terminator != 1)
 			{
-				SEND_TO_Q("Создание описания прервано.\r\n", d);
+				SEND_TO_Q("п║п╬п╥п╢п╟п╫п╦п╣ п╬п©п╦я│п╟п╫п╦я▐ п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 			}
 			SEND_TO_Q(MENU, d);
 			d->connected = CON_MENU;
@@ -1011,7 +1011,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 					d->writer->clear();
 				}
 				
-				SEND_TO_Q("Сообщение прервано.\r\n", d);
+				SEND_TO_Q("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©я─п╣я─п╡п╟п╫п╬.\r\n", d);
 			}
 		}
 
@@ -1050,8 +1050,8 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*name)  		// no arguments. print an informative text //
 	{
-		send_to_char("Формат: featset <игрок> '<способность>' <значение>\r\n", ch);
-		strcpy(help, "Возможные способности:\r\n");
+		send_to_char("п╓п╬я─п╪п╟я┌: featset <п╦пЁя─п╬п╨> '<я│п©п╬я│п╬п╠п╫п╬я│я┌я▄>' <п╥п╫п╟я┤п╣п╫п╦п╣>\r\n", ch);
+		strcpy(help, "п▓п╬п╥п╪п╬п╤п╫я▀п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦:\r\n");
 		for (qend = 0, i = 1; i < MAX_FEATS; i++)
 		{
 			if (feat_info[i].type == UNUSED_FTYPE)	// This is valid. //
@@ -1080,12 +1080,12 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// If there is no chars in argument //
 	if (!*argument)
 	{
-		send_to_char("Пропущено название способности.\r\n", ch);
+		send_to_char("п÷я─п╬п©я┐я┴п╣п╫п╬ п╫п╟п╥п╡п╟п╫п╦п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦.\r\n", ch);
 		return;
 	}
 	if (*argument != '\'')
 	{
-		send_to_char("Название способности надо заключить в символы : ''\r\n", ch);
+		send_to_char("п²п╟п╥п╡п╟п╫п╦п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п╫п╟п╢п╬ п╥п╟п╨п╩я▌я┤п╦я┌я▄ п╡ я│п╦п╪п╡п╬п╩я▀ : ''\r\n", ch);
 		return;
 	}
 	// Locate the last quote and lowercase the magic words (if any) //
@@ -1095,7 +1095,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (argument[qend] != '\'')
 	{
-		send_to_char("Название способности должно быть заключено в символы : ''\r\n", ch);
+		send_to_char("п²п╟п╥п╡п╟п╫п╦п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╬ п╡ я│п╦п╪п╡п╬п╩я▀ : ''\r\n", ch);
 		return;
 	}
 	strcpy(help, (argument + 1));
@@ -1103,7 +1103,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((feat = find_feat_num(help)) <= 0)
 	{
-		send_to_char("Неизвестная способность.\r\n", ch);
+		send_to_char("п²п╣п╦п╥п╡п╣я│я┌п╫п╟я▐ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄.\r\n", ch);
 		return;
 	}
 
@@ -1112,19 +1112,19 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*buf)
 	{
-		send_to_char("Не указан числовой параметр (0 или 1).\r\n", ch);
+		send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ я┤п╦я│п╩п╬п╡п╬п╧ п©п╟я─п╟п╪п╣я┌я─ (0 п╦п╩п╦ 1).\r\n", ch);
 		return;
 	}
 	value = atoi(buf);
 	if (value < 0 || value > 1)
 	{
-		send_to_char("Допустимые значения: 0 (снять), 1 (установить).\r\n", ch);
+		send_to_char("п■п╬п©я┐я│я┌п╦п╪я▀п╣ п╥п╫п╟я┤п╣п╫п╦я▐: 0 (я│п╫я▐я┌я▄), 1 (я┐я│я┌п╟п╫п╬п╡п╦я┌я▄).\r\n", ch);
 		return;
 	}
 
 	if (IS_NPC(vict))
 	{
-		send_to_char("Вы не можете добавить способность NPC, используйте OLC.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╢п╬п╠п╟п╡п╦я┌я▄ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ NPC, п╦я│п©п╬п╩я▄п╥я┐п╧я┌п╣ OLC.\r\n", ch);
 		return;
 	}
 
@@ -1140,10 +1140,10 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else
 			UNSET_FEAT(vict, feat);
 	}
-	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
-			feat_info[feat].name, value ? "доступно" : "недоступно");
+	sprintf(buf2, "п▓я▀ п╦п╥п╪п╣п╫п╦п╩п╦ п╢п╩я▐ %s '%s' п╫п╟ '%s'.\r\n", GET_PAD(vict, 1),
+			feat_info[feat].name, value ? "п╢п╬я│я┌я┐п©п╫п╬" : "п╫п╣п╢п╬я│я┌я┐п©п╫п╬");
 	if (!can_get_feat(vict, feat) && value == 1)
-		send_to_char("Эта способность не доступна данному персонажу и будет удалена при повторном входе в игру.\r\n", ch);
+		send_to_char("п╜я┌п╟ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ п╫п╣ п╢п╬я│я┌я┐п©п╫п╟ п╢п╟п╫п╫п╬п╪я┐ п©п╣я─я│п╬п╫п╟п╤я┐ п╦ п╠я┐п╢п╣я┌ я┐п╢п╟п╩п╣п╫п╟ п©я─п╦ п©п╬п╡я┌п╬я─п╫п╬п╪ п╡я┘п╬п╢п╣ п╡ п╦пЁя─я┐.\r\n", ch);
 	send_to_char(buf2, ch);
 }
 
@@ -1164,8 +1164,8 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// * No arguments. print an informative text.
 	if (!*name)  		// no arguments. print an informative text
 	{
-		send_to_char("Формат: skillset <игрок> '<умение/заклинание>' <значение>\r\n", ch);
-		strcpy(help, "Возможные умения:\r\n");
+		send_to_char("п╓п╬я─п╪п╟я┌: skillset <п╦пЁя─п╬п╨> '<я┐п╪п╣п╫п╦п╣/п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣>' <п╥п╫п╟я┤п╣п╫п╦п╣>\r\n", ch);
+		strcpy(help, "п▓п╬п╥п╪п╬п╤п╫я▀п╣ я┐п╪п╣п╫п╦я▐:\r\n");
 		for (qend = 0, i = 0; i <= TOP_SPELL_DEFINE; i++)
 		{
 			if (spell_info[i].name == unused_spellname)	// This is valid.
@@ -1194,12 +1194,12 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// If there is no chars in argument
 	if (!*argument)
 	{
-		send_to_char("Пропущено название умения.\r\n", ch);
+		send_to_char("п÷я─п╬п©я┐я┴п╣п╫п╬ п╫п╟п╥п╡п╟п╫п╦п╣ я┐п╪п╣п╫п╦я▐.\r\n", ch);
 		return;
 	}
 	if (*argument != '\'')
 	{
-		send_to_char("Умение надо заключить в символы : ''\r\n", ch);
+		send_to_char("пёп╪п╣п╫п╦п╣ п╫п╟п╢п╬ п╥п╟п╨п╩я▌я┤п╦я┌я▄ п╡ я│п╦п╪п╡п╬п╩я▀ : ''\r\n", ch);
 		return;
 	}
 	// Locate the last quote and lowercase the magic words (if any)
@@ -1211,7 +1211,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (argument[qend] != '\'')
 	{
-		send_to_char("Умение должно быть заключено в символы : ''\r\n", ch);
+		send_to_char("пёп╪п╣п╫п╦п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╬ п╡ я│п╦п╪п╡п╬п╩я▀ : ''\r\n", ch);
 		return;
 	}
 	strcpy(help, (argument + 1));
@@ -1225,7 +1225,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (SKILL_INVALID == skill
         && spell < 0)
 	{
-		send_to_char("Неизвестное умение/заклинание.\r\n", ch);
+		send_to_char("п²п╣п╦п╥п╡п╣я│я┌п╫п╬п╣ я┐п╪п╣п╫п╦п╣/п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣.\r\n", ch);
 		return;
 	}
 	argument += qend + 1;	// skip to next parameter
@@ -1233,23 +1233,23 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*buf)
 	{
-		send_to_char("Пропущен уровень умения.\r\n", ch);
+		send_to_char("п÷я─п╬п©я┐я┴п╣п╫ я┐я─п╬п╡п╣п╫я▄ я┐п╪п╣п╫п╦я▐.\r\n", ch);
 		return;
 	}
 	value = atoi(buf);
 	if (value < 0)
 	{
-		send_to_char("Минимальное значение умения 0.\r\n", ch);
+		send_to_char("п°п╦п╫п╦п╪п╟п╩я▄п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ я┐п╪п╣п╫п╦я▐ 0.\r\n", ch);
 		return;
 	}
 	if (value > 200)
 	{
-		send_to_char("Максимальное значение умения 200.\r\n", ch);
+		send_to_char("п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ я┐п╪п╣п╫п╦я▐ 200.\r\n", ch);
 		return;
 	}
 	if (IS_NPC(vict))
 	{
-		send_to_char("Вы не можете добавить умение для мобов.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╢п╬п╠п╟п╡п╦я┌я▄ я┐п╪п╣п╫п╦п╣ п╢п╩я▐ п╪п╬п╠п╬п╡.\r\n", ch);
 		return;
 	}
 
@@ -1269,7 +1269,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		vict->set_skill(skill, value);
 	}
-	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
+	sprintf(buf2, "п▓я▀ п╦п╥п╪п╣п╫п╦п╩п╦ п╢п╩я▐ %s '%s' п╫п╟ %d.\r\n", GET_PAD(vict, 1),
 		spell >= 0 ? spell_info[spell].name : skill_info[skill].name, value);
 	send_to_char(buf2, ch);
 }
@@ -1448,12 +1448,12 @@ void page_string(DESCRIPTOR_DATA * d, char *str, int keep_internal)
 	show_string(d, buf2);
 }
 
-// TODO типа временно для стрингов
+// TODO я┌п╦п©п╟ п╡я─п╣п╪п╣п╫п╫п╬ п╢п╩я▐ я│я┌я─п╦п╫пЁп╬п╡
 void page_string(DESCRIPTOR_DATA * d, const std::string& buf)
 {
-	// TODO: при keep_internal == true (а в 99% случаев так оно есть)
-	// получаем дальше в page_string повторный str_dup.
-	// как бы собраться с силами и переписать все это :/
+	// TODO: п©я─п╦ keep_internal == true (п╟ п╡ 99% я│п╩я┐я┤п╟п╣п╡ я┌п╟п╨ п╬п╫п╬ п╣я│я┌я▄)
+	// п©п╬п╩я┐я┤п╟п╣п╪ п╢п╟п╩я▄я┬п╣ п╡ page_string п©п╬п╡я┌п╬я─п╫я▀п╧ str_dup.
+	// п╨п╟п╨ п╠я▀ я│п╬п╠я─п╟я┌я▄я│я▐ я│ я│п╦п╩п╟п╪п╦ п╦ п©п╣я─п╣п©п╦я│п╟я┌я▄ п╡я│п╣ я█я┌п╬ :/
 	char *str = str_dup(buf.c_str());
 	page_string(d, str, true);
 	free(str);
@@ -1468,7 +1468,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 	any_one_arg(input, buf);
 
 	//* Q is for quit. :)
-	if (LOWER(*buf) == 'q' || LOWER(*buf) == 'к')
+	if (LOWER(*buf) == 'q' || LOWER(*buf) == 'п╨')
 	{
 		free(d->showstr_vector);
 		d->showstr_count = 0;
@@ -1482,13 +1482,13 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 	}
 	// R is for refresh, so back up one page internally so we can display
 	// it again.
-	else if (LOWER(*buf) == 'r' || LOWER(*buf) == 'п')
+	else if (LOWER(*buf) == 'r' || LOWER(*buf) == 'п©')
 	{
 		d->showstr_page = MAX(0, d->showstr_page - 1);
 	}
 	// B is for back, so back up two pages internally so we can display the
 	// correct page here.
-	else if (LOWER(*buf) == 'b' || LOWER(*buf) == 'н')
+	else if (LOWER(*buf) == 'b' || LOWER(*buf) == 'п╫')
 	{
 		d->showstr_page = MAX(0, d->showstr_page - 2);
 	}
@@ -1501,7 +1501,7 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 
 	else if (*buf)
 	{
-		send_to_char("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character.get());
+		send_to_char("п⌡п╦я│я┌п╟я┌я▄ : <RETURN>, Q<п >п╬п╫п╣я├, R<п÷>п╬п╡я┌п╬я─, B<п²>п╟п╥п╟п╢, п╦п╩п╦ п╫п╬п╪п╣я─ я│я┌я─п╟п╫п╦я├я▀.\r\n", d->character.get());
 		return;
 	}
 	// If we're displaying the last page, just send it to the character, and
@@ -1533,11 +1533,11 @@ void show_string(DESCRIPTOR_DATA * d, char *input)
 }
 
 ///
-/// Печать какого-то адекватного текущему STATE() промпта
-/// Нужен для многостраничной справки при генерации/перегенерации чара, чтобы
-/// 1) не печатать ничего между страницами
-/// 2) после последней страницы не ждать втихую нажатия от игрока, а вывести меню текущего CON_STATE
-/// 3) напечатать тоже самое при выходе из пролистывания через Q/К
+/// п÷п╣я┤п╟я┌я▄ п╨п╟п╨п╬пЁп╬-я┌п╬ п╟п╢п╣п╨п╡п╟я┌п╫п╬пЁп╬ я┌п╣п╨я┐я┴п╣п╪я┐ STATE() п©я─п╬п╪п©я┌п╟
+/// п²я┐п╤п╣п╫ п╢п╩я▐ п╪п╫п╬пЁп╬я│я┌я─п╟п╫п╦я┤п╫п╬п╧ я│п©я─п╟п╡п╨п╦ п©я─п╦ пЁп╣п╫п╣я─п╟я├п╦п╦/п©п╣я─п╣пЁп╣п╫п╣я─п╟я├п╦п╦ я┤п╟я─п╟, я┤я┌п╬п╠я▀
+/// 1) п╫п╣ п©п╣я┤п╟я┌п╟я┌я▄ п╫п╦я┤п╣пЁп╬ п╪п╣п╤п╢я┐ я│я┌я─п╟п╫п╦я├п╟п╪п╦
+/// 2) п©п╬я│п╩п╣ п©п╬я│п╩п╣п╢п╫п╣п╧ я│я┌я─п╟п╫п╦я├я▀ п╫п╣ п╤п╢п╟я┌я▄ п╡я┌п╦я┘я┐я▌ п╫п╟п╤п╟я┌п╦я▐ п╬я┌ п╦пЁя─п╬п╨п╟, п╟ п╡я▀п╡п╣я│я┌п╦ п╪п╣п╫я▌ я┌п╣п╨я┐я┴п╣пЁп╬ CON_STATE
+/// 3) п╫п╟п©п╣я┤п╟я┌п╟я┌я▄ я┌п╬п╤п╣ я│п╟п╪п╬п╣ п©я─п╦ п╡я▀я┘п╬п╢п╣ п╦п╥ п©я─п╬п╩п╦я│я┌я▀п╡п╟п╫п╦я▐ я┤п╣я─п╣п╥ Q/п 
 ///
 void print_con_prompt(DESCRIPTOR_DATA *d)
 {

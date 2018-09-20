@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-//Œ’÷ŒŸ  Handler ◊Ÿ⁄Ÿ◊¡≈‘”— ◊ ⁄¡◊…”…Õœ”‘… œ‘ ‘…–¡ –≈“≈ƒ¡◊¡≈ÕŸ» –¡“¡Õ≈‘“œ◊
+//–Ω—É–∂–Ω—ã–π Handler –≤—ã–∑—ã–≤–∞–µ—Ç—Å—è –≤ –∑–∞–≤–∏—Å–∏–º–æ—Å—Ç–∏ –æ—Ç —Ç–∏–ø–∞ –ø–µ—Ä–µ–¥–∞–≤–∞–µ–º—ã—Ö –ø–∞—Ä–∞–º–µ—Ç—Ä–æ–≤
 void LackyAffectHandler::Handle( DamageActorParameters& params )
 {
 	if (params.damage>0) damFromMe_ = true;
@@ -54,7 +54,7 @@ void LackyAffectHandler::Handle(BattleRoundParameters& params)
 	damToMe_=false;
 	damFromMe_=false;
 }
-// ‘≈”‘
+// —Ç–µ—Å—Ç
 void LackyAffectHandler::Handle(StopFightParameters& params)
 {
 	auto af = find_affect(params.ch, SPELL_LACKY);

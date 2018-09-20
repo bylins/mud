@@ -68,7 +68,7 @@ int VALID_EDGE(room_rnum x, int y, int edge_range, int through_doors)
 	if (world[x]->dir_option[y] == NULL || TOROOM(x, y) == NOWHERE)
 		return 0;
 
-	// Попытка уползти в другую зону
+	// п÷п╬п©я▀я┌п╨п╟ я┐п©п╬п╩п╥я┌п╦ п╡ п╢я─я┐пЁя┐я▌ п╥п╬п╫я┐
 	if (edge_range == EDGE_ZONE && (world[x]->zone != world[TOROOM(x, y)]->zone))
 		return 0;
 
@@ -105,18 +105,18 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 	// clear marks first, some OLC systems will save the mark.
 	if (IS_NPC(ch))
 	{
-		// Запрещаем искать мобам  в другой зоне ...
+		// п≈п╟п©я─п╣я┴п╟п╣п╪ п╦я│п╨п╟я┌я▄ п╪п╬п╠п╟п╪  п╡ п╢я─я┐пЁп╬п╧ п╥п╬п╫п╣ ...
 		if (world[src]->zone != world[target]->zone)
 			return (BFS_ERROR);
 
 		get_zone_rooms(world[src]->zone, &rnum_start, &rnum_stop);
-		// Запрещаем мобам искать через двери ...
+		// п≈п╟п©я─п╣я┴п╟п╣п╪ п╪п╬п╠п╟п╪ п╦я│п╨п╟я┌я▄ я┤п╣я─п╣п╥ п╢п╡п╣я─п╦ ...
 		through_doors = FALSE;
 		edge = EDGE_ZONE;
 	}
 	else
 	{
-		// Игроки полноценно ищут в мире.
+		// п≤пЁя─п╬п╨п╦ п©п╬п╩п╫п╬я├п╣п╫п╫п╬ п╦я┴я┐я┌ п╡ п╪п╦я─п╣.
 		through_doors = TRUE;
 		edge = EDGE_WORLD;
 	}
@@ -126,7 +126,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 
 	MARK(src);
 
-	// переписано на вектор без реального очищения, чтобы не заниматься сотнями аллокаций памяти в секунду зря -- Krodo
+	// п©п╣я─п╣п©п╦я│п╟п╫п╬ п╫п╟ п╡п╣п╨я┌п╬я─ п╠п╣п╥ я─п╣п╟п╩я▄п╫п╬пЁп╬ п╬я┤п╦я┴п╣п╫п╦я▐, я┤я┌п╬п╠я▀ п╫п╣ п╥п╟п╫п╦п╪п╟я┌я▄я│я▐ я│п╬я┌п╫я▐п╪п╦ п╟п╩п╩п╬п╨п╟я├п╦п╧ п©п╟п╪я▐я┌п╦ п╡ я│п╣п╨я┐п╫п╢я┐ п╥я─я▐ -- Krodo
 	static std::vector<bfs_queue_struct> bfs_queue;
 	static struct bfs_queue_struct temp_queue;
 
@@ -183,20 +183,20 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	}
 
 	// 101 is a complete failure, no matter what the proficiency.
-	//Временная затычка. Перевести на резисты
-	//Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
+	//п▓я─п╣п╪п╣п╫п╫п╟я▐ п╥п╟я┌я▀я┤п╨п╟. п÷п╣я─п╣п╡п╣я│я┌п╦ п╫п╟ я─п╣п╥п╦я│я┌я▀
+	//п≤п╥п╪п╣п╫п╦п╩ п╪п╟п╨я│ я│п╨п╦п╩п╩ я│п╬ 100 п╢п╬ 200, я┤я┌п╬п╠я▀ п╫п╣ п╩п╬п╪п╟я┌я▄ п╟п╩пЁп╬я─п╦я┌п╪, п╡ п╢п╟п╫п╫п╬п╪ п╥п╫п╟я┤п╣п╫п╦п╦ п╡п╣я─п╫п╣п╪ я│я┌п╟я─п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣.
 	if_sense = (skill_no == SKILL_SENSE) ? 100 : 0;
 	percent = number(0, skill_info[skill_no].max_percent - if_sense);
 	
 	current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
-	if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //Если цель чар и ищет не бог
+	if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //п∙я│п╩п╦ я├п╣п╩я▄ я┤п╟я─ п╦ п╦я┴п╣я┌ п╫п╣ п╠п╬пЁ
 	{ 
-		if (current_skillpercent < 80) //До 80% до 4х мортов
+		if (current_skillpercent < 80) //п■п╬ 80% п╢п╬ 4я┘ п╪п╬я─я┌п╬п╡
 			num = 4;
 		else
-			num = ((current_skillpercent - 80) / 5) + 4; //Каждые 5% скилла + морт
+			num = ((current_skillpercent - 80) / 5) + 4; //п п╟п╤п╢я▀п╣ 5% я│п╨п╦п╩п╩п╟ + п╪п╬я─я┌
 		if ((GET_REMORT(victim) > num) && (num < 28))
-			return BFS_NO_PATH; //Чувства молчат
+			return BFS_NO_PATH; //п╖я┐п╡я│я┌п╡п╟ п╪п╬п╩я┤п╟я┌
 	}
 
 	if (percent > calculate_skill(ch, skill_no, victim))
@@ -223,13 +223,13 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// The character must have the track skill.
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_SENSE))
 	{
-		send_to_char("Но вы не знаете как.\r\n", ch);
+		send_to_char("п²п╬ п╡я▀ п╫п╣ п╥п╫п╟п╣я┌п╣ п╨п╟п╨.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
-		send_to_char("Вы слепы как крот.\r\n", ch);
+		send_to_char("п▓я▀ я│п╩п╣п©я▀ п╨п╟п╨ п╨я─п╬я┌.\r\n", ch);
 		return;
 	}
 
@@ -240,53 +240,53 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*arg)
 	{
-		send_to_char("Кого вы хотите найти?\r\n", ch);
+		send_to_char("п п╬пЁп╬ п╡я▀ я┘п╬я┌п╦я┌п╣ п╫п╟п╧я┌п╦?\r\n", ch);
 		return;
 	}
 	// The person can't see the victim.
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)))
 	{
-		send_to_char("Ваши чувства молчат.\r\n", ch);
+		send_to_char("п▓п╟я┬п╦ я┤я┐п╡я│я┌п╡п╟ п╪п╬п╩я┤п╟я┌.\r\n", ch);
 		return;
 	}
 
 	// We can't track the victim.
-	//Старый комментарий. Раньше было много !трека, теперь его мало
+	//п║я┌п╟я─я▀п╧ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧. п═п╟п╫я▄я┬п╣ п╠я▀п╩п╬ п╪п╫п╬пЁп╬ !я┌я─п╣п╨п╟, я┌п╣п©п╣я─я▄ п╣пЁп╬ п╪п╟п╩п╬
 	if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK))
 	{
-		send_to_char("Ваши чувства молчат.\r\n", ch);
+		send_to_char("п▓п╟я┬п╦ я┤я┐п╡я│я┌п╡п╟ п╪п╬п╩я┤п╟я┌.\r\n", ch);
 		return;
 	}
-	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
+	act("п÷п╬я┘п╬п╤п╣, $n п╨п╬пЁп╬-я┌п╬ п╦я┴п╣я┌.", FALSE, ch, 0, 0, TO_ROOM);
 
 	dir = go_track(ch, vict, SKILL_SENSE);
 
 	switch (dir)
 	{
 	case BFS_ERROR:
-		strcpy(buf, "Хммм... Ваше чувство подвело вас.");
+		strcpy(buf, "п╔п╪п╪п╪... п▓п╟я┬п╣ я┤я┐п╡я│я┌п╡п╬ п©п╬п╢п╡п╣п╩п╬ п╡п╟я│.");
 		break;
 	case BFS_ALREADY_THERE:
-		strcpy(buf, "Вы же в одной комнате с $N4!");
+		strcpy(buf, "п▓я▀ п╤п╣ п╡ п╬п╢п╫п╬п╧ п╨п╬п╪п╫п╟я┌п╣ я│ $N4!");
 		break;
 	case BFS_NO_PATH:
-		strcpy(buf, "Ваши чувства молчат.");
+		strcpy(buf, "п▓п╟я┬п╦ я┤я┐п╡я│я┌п╡п╟ п╪п╬п╩я┤п╟я┌.");
 		break;
 	default:		// Success!
 		improove_skill(ch, SKILL_SENSE, TRUE, vict);
-		sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
+		sprintf(buf, "п╖я┐п╡я│я┌п╡п╬ п©п╬п╢я│п╨п╟п╥п╟п╩п╬ п╡п╟п╪ : \"п║я┌я┐п©п╟п╧ %s.\"\r\n", DirsTo[dir]);
 		break;
 	}
 	act(buf, FALSE, ch, 0, vict, TO_CHAR);
 }
 
-const char *track_when[] = { "совсем свежие",
-							 "свежие",
-							 "менее полудневной давности",
-							 "примерно полудневной давности",
-							 "почти дневной давности",
-							 "примерно дневной давности",
-							 "совсем старые"
+const char *track_when[] = { "я│п╬п╡я│п╣п╪ я│п╡п╣п╤п╦п╣",
+							 "я│п╡п╣п╤п╦п╣",
+							 "п╪п╣п╫п╣п╣ п©п╬п╩я┐п╢п╫п╣п╡п╫п╬п╧ п╢п╟п╡п╫п╬я│я┌п╦",
+							 "п©я─п╦п╪п╣я─п╫п╬ п©п╬п╩я┐п╢п╫п╣п╡п╫п╬п╧ п╢п╟п╡п╫п╬я│я┌п╦",
+							 "п©п╬я┤я┌п╦ п╢п╫п╣п╡п╫п╬п╧ п╢п╟п╡п╫п╬я│я┌п╦",
+							 "п©я─п╦п╪п╣я─п╫п╬ п╢п╫п╣п╡п╫п╬п╧ п╢п╟п╡п╫п╬я│я┌п╦",
+							 "я│п╬п╡я│п╣п╪ я│я┌п╟я─я▀п╣"
 						   };
 
 #define CALC_TRACK(ch,vict) (calculate_skill(ch,SKILL_TRACK, 0))
@@ -327,13 +327,13 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// The character must have the track skill. 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK))
 	{
-		send_to_char("Но вы не знаете как.\r\n", ch);
+		send_to_char("п²п╬ п╡я▀ п╫п╣ п╥п╫п╟п╣я┌п╣ п╨п╟п╨.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
-		send_to_char("Вы слепы как крот.\r\n", ch);
+		send_to_char("п▓я▀ я│п╩п╣п©я▀ п╨п╟п╨ п╨я─п╬я┌.\r\n", ch);
 		return;
 	}
 
@@ -341,7 +341,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 
 	calc_track = CALC_TRACK(ch, NULL);
-	act("Похоже, $n кого-то выслеживает.", FALSE, ch, 0, 0, TO_ROOM);
+	act("п÷п╬я┘п╬п╤п╣, $n п╨п╬пЁп╬-я┌п╬ п╡я▀я│п╩п╣п╤п╦п╡п╟п╣я┌.", FALSE, ch, 0, 0, TO_ROOM);
 	one_argument(argument, arg);
 
 	// No argument - show all 
@@ -374,20 +374,20 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					track_t |= track->time_outgone[i];
 					track_t |= track->time_income[i];
 				}
-				sprintf(buf, "%s : следы %s.\r\n", name,
+				sprintf(buf, "%s : я│п╩п╣п╢я▀ %s.\r\n", name,
 						track_when[age_track(ch, track_t, calc_track)]);
 				send_to_char(buf, ch);
 				found = TRUE;
 			}
 		}
 		if (!found)
-			send_to_char("Вы не видите ничьих следов.\r\n", ch);
+			send_to_char("п▓я▀ п╫п╣ п╡п╦п╢п╦я┌п╣ п╫п╦я┤я▄п╦я┘ я│п╩п╣п╢п╬п╡.\r\n", ch);
 		return;
 	}
 
 	if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		act("Вы же в одной комнате с $N4!", FALSE, ch, 0, vict, TO_CHAR);
+		act("п▓я▀ п╤п╣ п╡ п╬п╢п╫п╬п╧ п╨п╬п╪п╫п╟я┌п╣ я│ $N4!", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
@@ -419,7 +419,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (calc_track < number(1, 40) || !*name || ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
 	{
-		send_to_char("Вы не видите похожих следов.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╡п╦п╢п╦я┌п╣ п©п╬я┘п╬п╤п╦я┘ я│п╩п╣п╢п╬п╡.\r\n", ch);
 		return;
 	}
 
@@ -434,7 +434,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				|| (!track && calc_track < number(0, skill_info[SKILL_TRACK].max_percent)))
 		{
 			found = TRUE;
-			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
+			sprintf(buf + strlen(buf), "- %s я│п╩п╣п╢я▀ п╡п╣п╢я┐я┌ %s\r\n",
 					track_when[age_track
 							   (ch,
 								track ? track->
@@ -446,7 +446,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			found = TRUE;
 			SET_BIT(ch->track_dirs, 1 << c);
-			sprintf(buf + strlen(buf), "- %s следы ведут %s\r\n",
+			sprintf(buf + strlen(buf), "- %s я│п╩п╣п╢я▀ п╡п╣п╢я┐я┌ %s\r\n",
 					track_when[age_track
 							   (ch,
 								track ? track->
@@ -456,7 +456,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!found)
 	{
-		sprintf(buf, "След неожиданно оборвался.\r\n");
+		sprintf(buf, "п║п╩п╣п╢ п╫п╣п╬п╤п╦п╢п╟п╫п╫п╬ п╬п╠п╬я─п╡п╟п╩я│я▐.\r\n");
 	}
 	send_to_char(buf, ch);
 	return;
@@ -469,7 +469,7 @@ void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDETRACK))
 	{
-		send_to_char("Но вы не знаете как.\r\n", ch);
+		send_to_char("п²п╬ п╡я▀ п╫п╣ п╥п╫п╟п╣я┌п╣ п╨п╟п╨.\r\n", ch);
 		return;
 	}
 
@@ -507,7 +507,7 @@ void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 
 	if (!found)
 	{
-		send_to_char("Вы не видите своих следов.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╡п╦п╢п╦я┌п╣ я│п╡п╬п╦я┘ я│п╩п╣п╢п╬п╡.\r\n", ch);
 		return;
 	}
 	if (!check_moves(ch, can_use_feat(ch, STEALTHY_FEAT) ? HIDETRACK_MOVES / 2 : HIDETRACK_MOVES))
@@ -516,13 +516,13 @@ void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 	prob = calculate_skill(ch, SKILL_HIDETRACK, 0);
 	if (percent > prob)
 	{
-		send_to_char("Вы безуспешно попытались замести свои следы.\r\n", ch);
+		send_to_char("п▓я▀ п╠п╣п╥я┐я│п©п╣я┬п╫п╬ п©п╬п©я▀я┌п╟п╩п╦я│я▄ п╥п╟п╪п╣я│я┌п╦ я│п╡п╬п╦ я│п╩п╣п╢я▀.\r\n", ch);
 		if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))
 			improove_skill(ch, SKILL_HIDETRACK, FALSE, 0);
 	}
 	else
 	{
-		send_to_char("Вы успешно замели свои следы.\r\n", ch);
+		send_to_char("п▓я▀ я┐я│п©п╣я┬п╫п╬ п╥п╟п╪п╣п╩п╦ я│п╡п╬п╦ я│п╩п╣п╢я▀.\r\n", ch);
 		if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))
 			improove_skill(ch, SKILL_HIDETRACK, TRUE, 0);
 		prob -= percent;
@@ -537,7 +537,7 @@ void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 						track[i]->time_income[rdir] <<= MIN(31, prob);
 						track[i]->time_outgone[rdir] <<= MIN(31, prob);
 					}
-				//sprintf(buf,"Заметены следы %d\r\n",i);
+				//sprintf(buf,"п≈п╟п╪п╣я┌п╣п╫я▀ я│п╩п╣п╢я▀ %d\r\n",i);
 				//send_to_char(buf,ch);
 			}
 	}

@@ -40,7 +40,7 @@ namespace commands
 	void Shutdown::reboot() const
 	{
 		const auto timeout = MAX(30, m_timeout);
-		sprintf(buf, "[ПЕРЕЗАГРУЗКА через %d %s]\r\n", timeout, desc_count(timeout, WHAT_SEC));
+		sprintf(buf, "[п÷п∙п═п∙п≈п░п⌠п═пёп≈п п░ я┤п╣я─п╣п╥ %d %s]\r\n", timeout, desc_count(timeout, WHAT_SEC));
 		send_to_all(buf);
 		log("(GC) Reboot by %s.", GET_NAME(m_character));
 		imm_log("Reboot by %s.", GET_NAME(m_character));
@@ -51,7 +51,7 @@ namespace commands
 	void Shutdown::die() const
 	{
 		const auto timeout = MAX(30, m_timeout);
-		sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, desc_count(timeout, WHAT_SEC));
+		sprintf(buf, "[п·п║п╒п░п²п·п▓п п░ я┤п╣я─п╣п╥ %d %s]\r\n", timeout, desc_count(timeout, WHAT_SEC));
 		send_to_all(buf);
 		log("(GC) Shutdown die by %s.", GET_NAME(m_character));
 		imm_log("Shutdown die by %s.", GET_NAME(m_character));
@@ -62,7 +62,7 @@ namespace commands
 	void Shutdown::pause() const
 	{
 		const auto timeout = MAX(30, m_timeout);
-		sprintf(buf, "[ОСТАНОВКА через %d %s]\r\n", timeout, desc_count(timeout, WHAT_SEC));
+		sprintf(buf, "[п·п║п╒п░п²п·п▓п п░ я┤п╣я─п╣п╥ %d %s]\r\n", timeout, desc_count(timeout, WHAT_SEC));
 		send_to_all(buf);
 		log("(GC) Shutdown pause by %s.", GET_NAME(m_character));
 		imm_log("Shutdown pause by %s.", GET_NAME(m_character));
@@ -75,7 +75,7 @@ namespace commands
 		sprintf(buf, "(GC) Shutdown NOW by %s.", GET_NAME(m_character));
 		log("%s", buf);
 		imm_log("Shutdown NOW by %s.", GET_NAME(m_character));
-		send_to_all("ПЕРЕЗАГРУЗКА.. Вернетесь через пару минут.\r\n");
+		send_to_all("п÷п∙п═п∙п≈п░п⌠п═пёп≈п п░.. п▓п╣я─п╫п╣я┌п╣я│я▄ я┤п╣я─п╣п╥ п©п╟я─я┐ п╪п╦п╫я┐я┌.\r\n");
 		m_shutdown_parameters.shutdown_now();
 	}
 
@@ -85,7 +85,7 @@ namespace commands
 		if (m_timeout <= 0)
 		{
 			const auto tmp_time = boot_time + (time_t)(60 * m_shutdown_parameters.get_reboot_uptime());
-			send_to_char(m_character, "Сервер будет автоматически перезагружен в %s\r\n", rustime(localtime(&tmp_time)));
+			send_to_char(m_character, "п║п╣я─п╡п╣я─ п╠я┐п╢п╣я┌ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦ п©п╣я─п╣п╥п╟пЁя─я┐п╤п╣п╫ п╡ %s\r\n", rustime(localtime(&tmp_time)));
 			return;
 		}
 
@@ -94,7 +94,7 @@ namespace commands
 		m_shutdown_parameters.cancel_shutdown();
 
 		const auto tmp_time = boot_time + (time_t)(60 * m_shutdown_parameters.get_reboot_uptime());
-		send_to_char(m_character, "Сервер будет автоматически перезагружен в %s\r\n", rustime(localtime(&tmp_time)));
+		send_to_char(m_character, "п║п╣я─п╡п╣я─ п╠я┐п╢п╣я┌ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦ п©п╣я─п╣п╥п╟пЁя─я┐п╤п╣п╫ п╡ %s\r\n", rustime(localtime(&tmp_time)));
 		log("(GC) Shutdown scheduled by %s.", GET_NAME(m_character));
 		imm_log("Shutdown scheduled by %s.", GET_NAME(m_character));
 	}
@@ -103,7 +103,7 @@ namespace commands
 	{
 		log("(GC) Shutdown canceled by %s.", GET_NAME(m_character));
 		imm_log("Shutdown canceled by %s.", GET_NAME(m_character));
-		send_to_all("ПЕРЕЗАГРУЗКА ОТМЕНЕНА.\r\n");
+		send_to_all("п÷п∙п═п∙п≈п░п⌠п═пёп≈п п░ п·п╒п°п∙п²п∙п²п░.\r\n");
 		m_shutdown_parameters.cancel_shutdown();
 	}
 
@@ -147,8 +147,8 @@ namespace commands
 	}
 
 	char const *Shutdown::HELP_MESSAGE =
-		"Формат команды shutdown [reboot|die|pause] кол-во секунд\r\n"
-		"               shutdown schedule кол-во минут\r\n"
+		"п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀ shutdown [reboot|die|pause] п╨п╬п╩-п╡п╬ я│п╣п╨я┐п╫п╢\r\n"
+		"               shutdown schedule п╨п╬п╩-п╡п╬ п╪п╦п╫я┐я┌\r\n"
 		"               shutdown now|cancel|schedule";
 }
 

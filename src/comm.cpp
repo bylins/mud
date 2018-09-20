@@ -136,17 +136,17 @@
 # endif
 #endif
 
-// Для MXP. Взято вот отсюда http://www.gammon.com.au/mushclient/addingservermxp.htm
+// п■п╩я▐ MXP. п▓п╥я▐я┌п╬ п╡п╬я┌ п╬я┌я│я▌п╢п╟ http://www.gammon.com.au/mushclient/addingservermxp.htm
 /* ----------------------------------------- */
 #define  TELOPT_MXP        '\x5B'
 
-// Строки
+// п║я┌я─п╬п╨п╦
 
 #define MXP_BEG "\x03"    /* becomes < */
 #define MXP_END "\x04"    /* becomes > */
 #define MXP_AMP "\x05"    /* becomes & */
 
-// Символы 
+// п║п╦п╪п╡п╬п╩я▀ 
 
 #define MXP_BEGc '\x03'    /* becomes < */
 #define MXP_ENDc '\x04'    /* becomes > */
@@ -412,8 +412,8 @@ unsigned long cmd_cnt = 0;
 unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
 
-// внумы комнат, где ставятся елки
-// размер массива 57
+// п╡п╫я┐п╪я▀ п╨п╬п╪п╫п╟я┌, пЁп╢п╣ я│я┌п╟п╡я▐я┌я│я▐ п╣п╩п╨п╦
+// я─п╟п╥п╪п╣я─ п╪п╟я│я│п╦п╡п╟ 57
 const int vnum_room_new_year[58] = { 100,
 	4056,
 	5000,
@@ -543,26 +543,26 @@ const int vnum_gifts[len_array_gifts] = { 27113,
 
 void gifts()
 {
-	// выбираем случайную комнату с елкой
+	// п╡я▀п╠п╦я─п╟п╣п╪ я│п╩я┐я┤п╟п╧п╫я┐я▌ п╨п╬п╪п╫п╟я┌я┐ я│ п╣п╩п╨п╬п╧
 	int rand_vnum_r = vnum_room_new_year[number(1, 56)];
-	// выбираем  случайный подарок
+	// п╡я▀п╠п╦я─п╟п╣п╪  я│п╩я┐я┤п╟п╧п╫я▀п╧ п©п╬п╢п╟я─п╬п╨
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
 	if ((rnum = real_object(rand_vnum)) < 0)
 	{
-		log("Ошибка в таблице НГ подарков!");
+		log("п·я┬п╦п╠п╨п╟ п╡ я┌п╟п╠п╩п╦я├п╣ п²п⌠ п©п╬п╢п╟я─п╨п╬п╡!");
 		return;
 	}
 
 	const auto obj_gift = world_objects.create_from_prototype_by_rnum(rnum);
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 	
-	// создаем упаковку для подарка
+	// я│п╬п╥п╢п╟п╣п╪ я┐п©п╟п╨п╬п╡п╨я┐ п╢п╩я▐ п©п╬п╢п╟я─п╨п╟
 	obj_to_room(obj_cont.get(), real_room(rand_vnum_r));
 	obj_to_obj(obj_gift.get(), obj_cont.get());
 	obj_decay(obj_gift.get());
 	obj_decay(obj_cont.get());
-	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
+	log("п≈п╟пЁя─я┐п╤п╣п╫ п©п╬п╢п╟я─п╬п╨ п╡ п╨п╬п╪п╫п╟я┌я┐: %d, п╬п╠я┼п╣п╨я┌: %d", rand_vnum_r, rand_vnum);
 }
 
 // functions in this file
@@ -699,7 +699,7 @@ void gettimeofday(struct timeval *t, void *dummy)
 int main_function(int argc, char **argv)
 {
 #ifdef TEST_BUILD
-	// для нормального вывода русского текста под cygwin 1.7 и выше
+	// п╢п╩я▐ п╫п╬я─п╪п╟п╩я▄п╫п╬пЁп╬ п╡я▀п╡п╬п╢п╟ я─я┐я│я│п╨п╬пЁп╬ я┌п╣п╨я│я┌п╟ п©п╬п╢ cygwin 1.7 п╦ п╡я▀я┬п╣
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
 	
@@ -847,9 +847,9 @@ int main_function(int argc, char **argv)
 	{
 		log("Running game on port %d.", port);
 
-		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
-		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
-		// по эксепшену для удобства отладки и штатного сброса сислога в файл, т.к. в коре будет фиг
+		// я│я┌п╩я▄ п╦ п╠я┐я│я┌ я▌п╥п╟я▌я┌я│я▐ я┐п╤п╣ п╫п╣п╪п╟п╩п╬ пЁп╢п╣, п╟ п©я─п╬ п╦я┘ я█п╨я│п©п╣я┬п╣п╫я▀ п╫п╦п╨я┌п╬ п╫п╣ п╢я┐п╪п╟п╣я┌
+		// п©п╬п╨п╟ я┘п╬я┌я▐ п╠я▀ я│я┌п╩я▄п╫я▀п╣ п╩п╬п╡п╦я┌я▄ п╦ п©я─п╬я│я┌п╬ п╩п╬пЁп╦я─п╬п╡п╟я┌я▄ я└п╟п╨я┌ я┌п╬пЁп╬, я┤я┌п╬ п╪я▀ п╡я▀я┬п╩п╦
+		// п©п╬ я█п╨я│п╣п©я┬п╣п╫я┐ п╢п╩я▐ я┐п╢п╬п╠я│я┌п╡п╟ п╬я┌п╩п╟п╢п╨п╦ п╦ я┬я┌п╟я┌п╫п╬пЁп╬ я│п╠я─п╬я│п╟ я│п╦я│п╩п╬пЁп╟ п╡ я└п╟п╧п╩, я┌.п╨. п╡ п╨п╬я─п╣ п╠я┐п╢п╣я┌ я└п╦пЁ
 		init_game(port);
 	}
 
@@ -899,10 +899,10 @@ void init_game(ush_int port)
 		                  % __func__ % __FILE__ % __LINE__).c_str());
 		return;
 	}
-	// необходимо, т.к. в event.data мы можем хранить либо ptr, либо fd.
-	// а поскольку для клиентских сокетов нам нужны ptr, то и для родительского
-	// дескриптора, где нам наоборот нужен fd, придется создать псевдоструктуру,
-	// в которой инициализируем только поле descriptor
+	// п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬, я┌.п╨. п╡ event.data п╪я▀ п╪п╬п╤п╣п╪ я┘я─п╟п╫п╦я┌я▄ п╩п╦п╠п╬ ptr, п╩п╦п╠п╬ fd.
+	// п╟ п©п╬я│п╨п╬п╩я▄п╨я┐ п╢п╩я▐ п╨п╩п╦п╣п╫я┌я│п╨п╦я┘ я│п╬п╨п╣я┌п╬п╡ п╫п╟п╪ п╫я┐п╤п╫я▀ ptr, я┌п╬ п╦ п╢п╩я▐ я─п╬п╢п╦я┌п╣п╩я▄я│п╨п╬пЁп╬
+	// п╢п╣я│п╨я─п╦п©я┌п╬я─п╟, пЁп╢п╣ п╫п╟п╪ п╫п╟п╬п╠п╬я─п╬я┌ п╫я┐п╤п╣п╫ fd, п©я─п╦п╢п╣я┌я│я▐ я│п╬п╥п╢п╟я┌я▄ п©я│п╣п╡п╢п╬я│я┌я─я┐п╨я┌я┐я─я┐,
+	// п╡ п╨п╬я┌п╬я─п╬п╧ п╦п╫п╦я├п╦п╟п╩п╦п╥п╦я─я┐п╣п╪ я┌п╬п╩я▄п╨п╬ п©п╬п╩п╣ descriptor
 	mother_d = (DESCRIPTOR_DATA *)calloc(1, sizeof(DESCRIPTOR_DATA));
 	mother_d->descriptor = mother_desc;
 	event.data.ptr = mother_d;
@@ -922,8 +922,8 @@ void init_game(ush_int port)
 
 	flush_player_index();
 
-	// храны надо сейвить до Crash_save_all_rent(), иначе будем брать бабло у чара при записи
-	// уже после его экстракта, и что там будет хз...
+	// я┘я─п╟п╫я▀ п╫п╟п╢п╬ я│п╣п╧п╡п╦я┌я▄ п╢п╬ Crash_save_all_rent(), п╦п╫п╟я┤п╣ п╠я┐п╢п╣п╪ п╠я─п╟я┌я▄ п╠п╟п╠п╩п╬ я┐ я┤п╟я─п╟ п©я─п╦ п╥п╟п©п╦я│п╦
+	// я┐п╤п╣ п©п╬я│п╩п╣ п╣пЁп╬ я█п╨я│я┌я─п╟п╨я┌п╟, п╦ я┤я┌п╬ я┌п╟п╪ п╠я┐п╢п╣я┌ я┘п╥...
 	Depot::save_all_online_objs();
 	Depot::save_timedata();
 
@@ -948,7 +948,7 @@ void init_game(ush_int port)
 	Glory::save_glory();
 	GloryConst::save();
 	GloryMisc::save_log();
-	GlobalDrop::save();// сохраняем счетчики глобалдропа
+	GlobalDrop::save();// я│п╬я┘я─п╟п╫я▐п╣п╪ я│я┤п╣я┌я┤п╦п╨п╦ пЁп╩п╬п╠п╟п╩п╢я─п╬п©п╟
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
@@ -968,7 +968,7 @@ void init_game(ush_int port)
 	while (descriptor_list)
 		close_socket(descriptor_list, TRUE);
 #endif
-	// должно идти после дисконекта плееров
+	// п╢п╬п╩п╤п╫п╬ п╦п╢я┌п╦ п©п╬я│п╩п╣ п╢п╦я│п╨п╬п╫п╣п╨я┌п╟ п©п╩п╣п╣я─п╬п╡
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
@@ -1247,12 +1247,12 @@ int shutting_down(void)
 		if (shutdown_parameters.reboot_after_shutdown())
 		{
 			remove("../.crash");
-			sprintf(buf, "ПЕРЕЗАГРУЗКА через ");
+			sprintf(buf, "п÷п∙п═п∙п≈п░п⌠п═пёп≈п п░ я┤п╣я─п╣п╥ ");
 		}
 		else
 		{
 			remove("../.crash");
-			sprintf(buf, "ОСТАНОВКА через ");
+			sprintf(buf, "п·п║п╒п░п²п·п▓п п░ я┤п╣я─п╣п╥ ");
 		}
 		if (wait < 60)
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, desc_count(wait, WHAT_SEC));
@@ -1260,7 +1260,7 @@ int shutting_down(void)
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, desc_count(wait / 60, WHAT_MINu));
 		send_to_all(buf);
 		lastmessage = time(NULL);
-		// на десятой секунде засейвим нужное нам в сислог
+		// п╫п╟ п╢п╣я│я▐я┌п╬п╧ я│п╣п╨я┐п╫п╢п╣ п╥п╟я│п╣п╧п╡п╦п╪ п╫я┐п╤п╫п╬п╣ п╫п╟п╪ п╡ я│п╦я│п╩п╬пЁ
 		if (wait == 10)
 			save_zone_count_reset();
 	}
@@ -1281,7 +1281,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #ifdef HAS_EPOLL
 	int n, i;
 
-	// неблокирующе получаем новые события
+	// п╫п╣п╠п╩п╬п╨п╦я─я┐я▌я┴п╣ п©п╬п╩я┐я┤п╟п╣п╪ п╫п╬п╡я▀п╣ я│п╬п╠я▀я┌п╦я▐
 	n = epoll_wait(epoll, events, MAXEVENTS, 0);
 	if (n == -1)
 	{
@@ -1298,20 +1298,20 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			d = (DESCRIPTOR_DATA *)events[i].data.ptr;
 			if (d == NULL)
 				continue;
-			if (mother_desc == d->descriptor) // событие на mother_desc: принимаем все ждущие соединения
+			if (mother_desc == d->descriptor) // я│п╬п╠я▀я┌п╦п╣ п╫п╟ mother_desc: п©я─п╦п╫п╦п╪п╟п╣п╪ п╡я│п╣ п╤п╢я┐я┴п╦п╣ я│п╬п╣п╢п╦п╫п╣п╫п╦я▐
 			{
 				int desc;
 				do
 					desc = new_descriptor(epoll, mother_desc);
 				while (desc > 0 || desc == -3);
 			}
-			else // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
+			else // я│п╬п╠я▀я┌п╦п╣ п╫п╟ п╨п╩п╦п╣п╫я┌я│п╨п╬п╪ п╢п╣я│п╨я─п╦п©я┌п╬я─п╣: п©п╬п╩я┐я┤п╟п╣п╪ п╢п╟п╫п╫я▀п╣ п╦ п╥п╟п╨я─я▀п╡п╟п╣п╪ я│п╬п╨п╣я┌, п╣я│п╩п╦ EOF
 				if (process_input(d) < 0)
 					close_socket(d, FALSE, epoll, events, n);
 		}
-		else if (events[i].events & !EPOLLOUT &!EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
+		else if (events[i].events & !EPOLLOUT &!EPOLLIN) // я┌я┐я┌ п╩п╬п╡п╦п╪ п╡я│п╣ я│п╬п╠я▀я┌п╦я▐, п╦п╪п╣я▌я┴п╦п╣ я└п╩п╟пЁп╦ п╨я─п╬п╪п╣ in п╦ out
 		{
-			// надо будет помониторить сислог на предмет этих сообщений
+			// п╫п╟п╢п╬ п╠я┐п╢п╣я┌ п©п╬п╪п╬п╫п╦я┌п╬я─п╦я┌я▄ я│п╦я│п╩п╬пЁ п╫п╟ п©я─п╣п╢п╪п╣я┌ я█я┌п╦я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧
 			char tmp[MAX_INPUT_LENGTH];
 			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in %s() at %s:%d",
 				static_cast<unsigned>(events[i].events),
@@ -1382,7 +1382,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				continue;
 			}
 		}
-		// Шоб в меню долго не сидели !
+		// п╗п╬п╠ п╡ п╪п╣п╫я▌ п╢п╬п╩пЁп╬ п╫п╣ я│п╦п╢п╣п╩п╦ !
 		if (!get_from_q(&d->input, comm, &aliased))
 		{
 			if (STATE(d) != CON_PLAYING &&
@@ -1405,7 +1405,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(NOWHERE);
-				act("$n вернул$u.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n п╡п╣я─п╫я┐п╩$u.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				d->character->set_wait(1u);
 			}
 		}
@@ -1441,12 +1441,12 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			continue;
 		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output)))
 		{
-			if (process_output(d) < 0) // сокет умер
+			if (process_output(d) < 0) // я│п╬п╨п╣я┌ я┐п╪п╣я─
 				close_socket(d, FALSE, epoll, events, n);
 			else
-				d->has_prompt = 1;   // признак того, что промпт уже выводил
-				                     // следующий после команды или очередной
-				                     // порции вывода
+				d->has_prompt = 1;   // п©я─п╦п╥п╫п╟п╨ я┌п╬пЁп╬, я┤я┌п╬ п©я─п╬п╪п©я┌ я┐п╤п╣ п╡я▀п╡п╬п╢п╦п╩
+				                     // я│п╩п╣п╢я┐я▌я┴п╦п╧ п©п╬я│п╩п╣ п╨п╬п╪п╟п╫п╢я▀ п╦п╩п╦ п╬я┤п╣я─п╣п╢п╫п╬п╧
+				                     // п©п╬я─я├п╦п╦ п╡я▀п╡п╬п╢п╟
 		}
 	}
 #else
@@ -1456,17 +1456,17 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
 			if (process_output(d) < 0)
-				close_socket(d, FALSE);	// закрыл соединение
+				close_socket(d, FALSE);	// п╥п╟п╨я─я▀п╩ я│п╬п╣п╢п╦п╫п╣п╫п╦п╣
 			else
-				d->has_prompt = 1;	// признак того, что промпт уже выводил
-			// следующий после команды или очередной
-			// порции вывода
+				d->has_prompt = 1;	// п©я─п╦п╥п╫п╟п╨ я┌п╬пЁп╬, я┤я┌п╬ п©я─п╬п╪п©я┌ я┐п╤п╣ п╡я▀п╡п╬п╢п╦п╩
+			// я│п╩п╣п╢я┐я▌я┴п╦п╧ п©п╬я│п╩п╣ п╨п╬п╪п╟п╫п╢я▀ п╦п╩п╦ п╬я┤п╣я─п╣п╢п╫п╬п╧
+			// п©п╬я─я├п╦п╦ п╡я▀п╡п╬п╢п╟
 		}
 	}
 #endif
 
-// тут был кусок старого кода в #if 0 ... #endif. убрал, чтобы меньше хлама было.
-// если понадобится, вернем из истории.
+// я┌я┐я┌ п╠я▀п╩ п╨я┐я│п╬п╨ я│я┌п╟я─п╬пЁп╬ п╨п╬п╢п╟ п╡ #if 0 ... #endif. я┐п╠я─п╟п╩, я┤я┌п╬п╠я▀ п╪п╣п╫я▄я┬п╣ я┘п╩п╟п╪п╟ п╠я▀п╩п╬.
+// п╣я│п╩п╦ п©п╬п╫п╟п╢п╬п╠п╦я┌я│я▐, п╡п╣я─п╫п╣п╪ п╦п╥ п╦я│я┌п╬я─п╦п╦.
 
 	// Kick out folks in the CON_CLOSE or CON_DISCONNECT state
 	for (d = descriptor_list; d; d = next_d)
@@ -1634,8 +1634,8 @@ void game_loop(socket_t mother_desc)
 		}
 
 		// If we missed more than 30 seconds worth of pulses, just do 30 secs
-		// изменили на 4 сек
-		// изменили на 1 сек -- слишком уж опасно лагает :)
+		// п╦п╥п╪п╣п╫п╦п╩п╦ п╫п╟ 4 я│п╣п╨
+		// п╦п╥п╪п╣п╫п╦п╩п╦ п╫п╟ 1 я│п╣п╨ -- я│п╩п╦я┬п╨п╬п╪ я┐п╤ п╬п©п╟я│п╫п╬ п╩п╟пЁп╟п╣я┌ :)
 		if (missed_pulses > (1 * PASSES_PER_SEC))
 		{
 			const auto missed_seconds = missed_pulses / PASSES_PER_SEC;
@@ -1758,18 +1758,18 @@ char *color_value(CHAR_DATA* /*ch*/, int real, int max)
 char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
 { int ch_hp = 11;
   static char *WORD_STATE[12] =
-              {"Умирает",
-               "Ужасное",
-               "О.Плохое",
-               "Плохое",
-               "Плохое",
-               "Среднее",
-               "Среднее",
-               "Хорошее",
-               "Хорошее",
-               "Хорошее",
-               "О.хорошее",
-               "Велиполепное"};
+              {"пёп╪п╦я─п╟п╣я┌",
+               "пёп╤п╟я│п╫п╬п╣",
+               "п·.п÷п╩п╬я┘п╬п╣",
+               "п÷п╩п╬я┘п╬п╣",
+               "п÷п╩п╬я┘п╬п╣",
+               "п║я─п╣п╢п╫п╣п╣",
+               "п║я─п╣п╢п╫п╣п╣",
+               "п╔п╬я─п╬я┬п╣п╣",
+               "п╔п╬я─п╬я┬п╣п╣",
+               "п╔п╬я─п╬я┬п╣п╣",
+               "п·.я┘п╬я─п╬я┬п╣п╣",
+               "п▓п╣п╩п╦п©п╬п╩п╣п©п╫п╬п╣"};
 
   ch_hp = posi_value(GET_HIT(victim),GET_REAL_MAX_HIT(victim)) + 1;
   sprintf(buf, "%s[%s:%s]%s ",
@@ -1783,18 +1783,18 @@ char *show_state(CHAR_DATA *ch, CHAR_DATA *victim)
 
 char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	static const char *WORD_STATE[12] = { "Смертельно ранен",
-										  "О.тяжело ранен",
-										  "О.тяжело ранен",
-										  "Тяжело ранен",
-										  "Тяжело ранен",
-										  "Ранен",
-										  "Ранен",
-										  "Ранен",
-										  "Легко ранен",
-										  "Легко ранен",
-										  "Слегка ранен",
-										  "Невредим"
+	static const char *WORD_STATE[12] = { "п║п╪п╣я─я┌п╣п╩я▄п╫п╬ я─п╟п╫п╣п╫",
+										  "п·.я┌я▐п╤п╣п╩п╬ я─п╟п╫п╣п╫",
+										  "п·.я┌я▐п╤п╣п╩п╬ я─п╟п╫п╣п╫",
+										  "п╒я▐п╤п╣п╩п╬ я─п╟п╫п╣п╫",
+										  "п╒я▐п╤п╣п╩п╬ я─п╟п╫п╣п╫",
+										  "п═п╟п╫п╣п╫",
+										  "п═п╟п╫п╣п╫",
+										  "п═п╟п╫п╣п╫",
+										  "п⌡п╣пЁп╨п╬ я─п╟п╫п╣п╫",
+										  "п⌡п╣пЁп╨п╬ я─п╟п╫п╣п╫",
+										  "п║п╩п╣пЁп╨п╟ я─п╟п╫п╣п╫",
+										  "п²п╣п╡я─п╣п╢п╦п╪"
 										};
 
 	const int ch_hp = posi_value(GET_HIT(victim), GET_REAL_MAX_HIT(victim)) + 1;
@@ -1807,7 +1807,7 @@ char *show_state(CHAR_DATA * ch, CHAR_DATA * victim)
 char *make_prompt(DESCRIPTOR_DATA * d)
 {
 	static char prompt[MAX_PROMPT_LENGTH + 1];
-	static const char *dirs[] = { "С", "В", "Ю", "З", "^", "v" };
+	static const char *dirs[] = { "п║", "п▓", "п╝", "п≈", "^", "v" };
 
 	int ch_hp, sec_hp;
 	int door;
@@ -1816,7 +1816,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 	// Note, prompt is truncated at MAX_PROMPT_LENGTH chars (structs.h )
 	if (d->showstr_count)
 	{
-		sprintf(prompt, "\rЛистать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы (%d/%d).", d->showstr_page, d->showstr_count);
+		sprintf(prompt, "\rп⌡п╦я│я┌п╟я┌я▄ : <RETURN>, Q<п >п╬п╫п╣я├, R<п÷>п╬п╡я┌п╬я─, B<п²>п╟п╥п╟п╢, п╦п╩п╦ п╫п╬п╪п╣я─ я│я┌я─п╟п╫п╦я├я▀ (%d/%d).", d->showstr_page, d->showstr_count);
 	}
 	else if (d->writer)
 	{
@@ -1853,7 +1853,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		{
 			perc = (100 * GET_MANA_STORED(d->character)) / GET_MAX_MANA(d->character);
 			count +=
-				sprintf(prompt + count, "%s%dз%s ",
+				sprintf(prompt + count, "%s%dп╥%s ",
 						CCMANA(d->character, C_NRM, perc),
 						GET_MANA_STORED(d->character), CCNRM(d->character, C_NRM));
 		}
@@ -1865,7 +1865,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			if (IS_IMMORTAL(d->character))
 				count += sprintf(prompt + count, "??? ");
 			else
-				count += sprintf(prompt + count, "%ldо ",
+				count += sprintf(prompt + count, "%ldп╬ ",
 								 level_exp(d->character.get(),
 										   GET_LEVEL(d->character) + 1) - GET_EXP(d->character));
 		}
@@ -1883,40 +1883,40 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 					sec_hp = sec_hp * 60 / door;
 					ch_hp = sec_hp / 60;
 					sec_hp %= 60;
-					count += sprintf(prompt + count, "Зауч:%d:%02d ", ch_hp, sec_hp);
+					count += sprintf(prompt + count, "п≈п╟я┐я┤:%d:%02d ", ch_hp, sec_hp);
 				}
 				else
-					count += sprintf(prompt + count, "Зауч:- ");
+					count += sprintf(prompt + count, "п≈п╟я┐я┤:- ");
 			}
 			else
-				count += sprintf(prompt + count, "Зауч:0 ");
+				count += sprintf(prompt + count, "п≈п╟я┐я┤:0 ");
 		}
-		// Заряды кличей
+		// п≈п╟я─я▐п╢я▀ п╨п╩п╦я┤п╣п╧
 		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED))
 		{
 			if (d->character->get_skill(SKILL_WARCRY))
 			{
 				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_WARCRY)) / HOURS_PER_WARCRY;
-				count += sprintf(prompt + count, "Кл:%d ", wc_count);
+				count += sprintf(prompt + count, "п п╩:%d ", wc_count);
 			}
 			if (d->character->get_skill(SKILL_COURAGE))
-				count += sprintf(prompt + count, "Яр:%d ", timed_by_skill(d->character.get(), SKILL_COURAGE));
+				count += sprintf(prompt + count, "п╞я─:%d ", timed_by_skill(d->character.get(), SKILL_COURAGE));
 			if (d->character->get_skill(SKILL_STRANGLE))
-				count += sprintf(prompt + count, "Уд:%d ", timed_by_skill(d->character.get(), SKILL_STRANGLE));
+				count += sprintf(prompt + count, "пёп╢:%d ", timed_by_skill(d->character.get(), SKILL_STRANGLE));
 			if (d->character->get_skill(SKILL_TOWNPORTAL))
-				count += sprintf(prompt + count, "Вр:%d ", timed_by_skill(d->character.get(), SKILL_TOWNPORTAL));
+				count += sprintf(prompt + count, "п▓я─:%d ", timed_by_skill(d->character.get(), SKILL_TOWNPORTAL));
 			if (d->character->get_skill(SKILL_MANADRAIN))
-				count += sprintf(prompt + count, "Сг:%d ", timed_by_skill(d->character.get(), SKILL_MANADRAIN));
+				count += sprintf(prompt + count, "п║пЁ:%d ", timed_by_skill(d->character.get(), SKILL_MANADRAIN));
 			if (d->character->get_skill(SKILL_CAMOUFLAGE))
-				count += sprintf(prompt + count, "Мс:%d ", timed_by_skill(d->character.get(), SKILL_CAMOUFLAGE));
+				count += sprintf(prompt + count, "п°я│:%d ", timed_by_skill(d->character.get(), SKILL_CAMOUFLAGE));
 			if (d->character->get_skill(SKILL_TURN_UNDEAD))
-				count += sprintf(prompt + count, "Из:%d ", timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD));
+				count += sprintf(prompt + count, "п≤п╥:%d ", timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD));
 			if (d->character->get_skill(SKILL_STUN))
-				count += sprintf(prompt + count, "Ош:%d ", timed_by_skill(d->character.get(), SKILL_STUN));
+				count += sprintf(prompt + count, "п·я┬:%d ", timed_by_skill(d->character.get(), SKILL_STUN));
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
-				count += sprintf(prompt + count, "Пр:%d ", timed_by_feat(d->character.get(), RELOCATE_FEAT));
+				count += sprintf(prompt + count, "п÷я─:%d ", timed_by_feat(d->character.get(), RELOCATE_FEAT));
 			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))
-				count += sprintf(prompt + count, "Зч:%d ", timed_by_feat(d->character.get(), SPELL_CAPABLE_FEAT));
+				count += sprintf(prompt + count, "п≈я┤:%d ", timed_by_feat(d->character.get(), SPELL_CAPABLE_FEAT));
 		}
 
 		if (!d->character->get_fighting()
@@ -1931,7 +1931,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 
 			if (PRF_FLAGGED(d->character, PRF_DISPEXITS))
 			{
-				count += sprintf(prompt + count, "Вых:");
+				count += sprintf(prompt + count, "п▓я▀я┘:");
 				if (!AFF_FLAGGED(d->character, EAffectFlag::AFF_BLIND))
 				{
 					for (door = 0; door < NUM_OF_DIRS; door++)
@@ -2212,10 +2212,10 @@ int set_sendbuf(socket_t s)
 	return (0);
 }
 
-// возвращает неотрицательное целое, если удалось создать сокет
-// возвращает -1, если accept() вернул EINTR, EAGAIN или EWOULDBLOCK
-// возвращает -2 при других ошибках сокета
-// возвращает -3, если в соединении было отказано движком
+// п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╫п╣п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫п╬п╣ я├п╣п╩п╬п╣, п╣я│п╩п╦ я┐п╢п╟п╩п╬я│я▄ я│п╬п╥п╢п╟я┌я▄ я│п╬п╨п╣я┌
+// п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ -1, п╣я│п╩п╦ accept() п╡п╣я─п╫я┐п╩ EINTR, EAGAIN п╦п╩п╦ EWOULDBLOCK
+// п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ -2 п©я─п╦ п╢я─я┐пЁп╦я┘ п╬я┬п╦п╠п╨п╟я┘ я│п╬п╨п╣я┌п╟
+// п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ -3, п╣я│п╩п╦ п╡ я│п╬п╣п╢п╦п╫п╣п╫п╦п╦ п╠я▀п╩п╬ п╬я┌п╨п╟п╥п╟п╫п╬ п╢п╡п╦п╤п╨п╬п╪
 #ifdef HAS_EPOLL
 int new_descriptor(int epoll, socket_t s)
 #else
@@ -2287,7 +2287,7 @@ int new_descriptor(socket_t s)
 		*(newd->host + HOST_LENGTH) = '\0';
 	}
 
-	// ип в виде числа
+	// п╦п© п╡ п╡п╦п╢п╣ я┤п╦я│п╩п╟
 	newd->ip = TxtToIp(newd->host);
 
 	// determine if the site is banned
@@ -2315,30 +2315,30 @@ int new_descriptor(socket_t s)
 
 #ifdef HAS_EPOLL
 	//
-	// Со следующей строкой связаны определенные проблемы.
+	// п║п╬ я│п╩п╣п╢я┐я▌я┴п╣п╧ я│я┌я─п╬п╨п╬п╧ я│п╡я▐п╥п╟п╫я▀ п╬п©я─п╣п╢п╣п╩п╣п╫п╫я▀п╣ п©я─п╬п╠п╩п╣п╪я▀.
 	//
-	// Когда случается очередное событие, то ему в поле data.ptr записывается
-	// то значение, которое мы ему здесь присваиваем. В данном случае это ссылка
-	// на область памяти, выделенную под структуру данного дескриптора.
+	// п п╬пЁп╢п╟ я│п╩я┐я┤п╟п╣я┌я│я▐ п╬я┤п╣я─п╣п╢п╫п╬п╣ я│п╬п╠я▀я┌п╦п╣, я┌п╬ п╣п╪я┐ п╡ п©п╬п╩п╣ data.ptr п╥п╟п©п╦я│я▀п╡п╟п╣я┌я│я▐
+	// я┌п╬ п╥п╫п╟я┤п╣п╫п╦п╣, п╨п╬я┌п╬я─п╬п╣ п╪я▀ п╣п╪я┐ п╥п╢п╣я│я▄ п©я─п╦я│п╡п╟п╦п╡п╟п╣п╪. п▓ п╢п╟п╫п╫п╬п╪ я│п╩я┐я┤п╟п╣ я█я┌п╬ я│я│я▀п╩п╨п╟
+	// п╫п╟ п╬п╠п╩п╟я│я┌я▄ п©п╟п╪я▐я┌п╦, п╡я▀п╢п╣п╩п╣п╫п╫я┐я▌ п©п╬п╢ я│я┌я─я┐п╨я┌я┐я─я┐ п╢п╟п╫п╫п╬пЁп╬ п╢п╣я│п╨я─п╦п©я┌п╬я─п╟.
 	//
-	// Проблема здесь заключается в том, что в процессе выполнения цикла,
-	// обрабатывающего полученные в результате epoll_wait() события, мы
-	// потенциально можем оказаться в ситуации, когда в результате обработки
-	// первого события сокет был закрыт и память под структуру дескриптора
-	// освобождена. В этом случае значение data.ptr во всех последующих
-	// событиях для данного сокета становится уже невалидным, и при попытке
-	// обработки этих событий произойдет чудесный креш.
+	// п÷я─п╬п╠п╩п╣п╪п╟ п╥п╢п╣я│я▄ п╥п╟п╨п╩я▌я┤п╟п╣я┌я│я▐ п╡ я┌п╬п╪, я┤я┌п╬ п╡ п©я─п╬я├п╣я│я│п╣ п╡я▀п©п╬п╩п╫п╣п╫п╦я▐ я├п╦п╨п╩п╟,
+	// п╬п╠я─п╟п╠п╟я┌я▀п╡п╟я▌я┴п╣пЁп╬ п©п╬п╩я┐я┤п╣п╫п╫я▀п╣ п╡ я─п╣п╥я┐п╩я▄я┌п╟я┌п╣ epoll_wait() я│п╬п╠я▀я┌п╦я▐, п╪я▀
+	// п©п╬я┌п╣п╫я├п╦п╟п╩я▄п╫п╬ п╪п╬п╤п╣п╪ п╬п╨п╟п╥п╟я┌я▄я│я▐ п╡ я│п╦я┌я┐п╟я├п╦п╦, п╨п╬пЁп╢п╟ п╡ я─п╣п╥я┐п╩я▄я┌п╟я┌п╣ п╬п╠я─п╟п╠п╬я┌п╨п╦
+	// п©п╣я─п╡п╬пЁп╬ я│п╬п╠я▀я┌п╦я▐ я│п╬п╨п╣я┌ п╠я▀п╩ п╥п╟п╨я─я▀я┌ п╦ п©п╟п╪я▐я┌я▄ п©п╬п╢ я│я┌я─я┐п╨я┌я┐я─я┐ п╢п╣я│п╨я─п╦п©я┌п╬я─п╟
+	// п╬я│п╡п╬п╠п╬п╤п╢п╣п╫п╟. п▓ я█я┌п╬п╪ я│п╩я┐я┤п╟п╣ п╥п╫п╟я┤п╣п╫п╦п╣ data.ptr п╡п╬ п╡я│п╣я┘ п©п╬я│п╩п╣п╢я┐я▌я┴п╦я┘
+	// я│п╬п╠я▀я┌п╦я▐я┘ п╢п╩я▐ п╢п╟п╫п╫п╬пЁп╬ я│п╬п╨п╣я┌п╟ я│я┌п╟п╫п╬п╡п╦я┌я│я▐ я┐п╤п╣ п╫п╣п╡п╟п╩п╦п╢п╫я▀п╪, п╦ п©я─п╦ п©п╬п©я▀я┌п╨п╣
+	// п╬п╠я─п╟п╠п╬я┌п╨п╦ я█я┌п╦я┘ я│п╬п╠я▀я┌п╦п╧ п©я─п╬п╦п╥п╬п╧п╢п╣я┌ я┤я┐п╢п╣я│п╫я▀п╧ п╨я─п╣я┬.
 	//
-	// Предотвращается этот возможный креш принудительной установкой data.ptr в NULL
-	// для всех событий, пришедших от данного сокета. Это делается в close_socket(),
-	// которому для этой цели теперь передается ссылка на массив событий.
-	// Также добавлена проверка аргумента на NULL в close_socket(), process_input()
-	// и process_output().
+	// п÷я─п╣п╢п╬я┌п╡я─п╟я┴п╟п╣я┌я│я▐ я█я┌п╬я┌ п╡п╬п╥п╪п╬п╤п╫я▀п╧ п╨я─п╣я┬ п©я─п╦п╫я┐п╢п╦я┌п╣п╩я▄п╫п╬п╧ я┐я│я┌п╟п╫п╬п╡п╨п╬п╧ data.ptr п╡ NULL
+	// п╢п╩я▐ п╡я│п╣я┘ я│п╬п╠я▀я┌п╦п╧, п©я─п╦я┬п╣п╢я┬п╦я┘ п╬я┌ п╢п╟п╫п╫п╬пЁп╬ я│п╬п╨п╣я┌п╟. п╜я┌п╬ п╢п╣п╩п╟п╣я┌я│я▐ п╡ close_socket(),
+	// п╨п╬я┌п╬я─п╬п╪я┐ п╢п╩я▐ я█я┌п╬п╧ я├п╣п╩п╦ я┌п╣п©п╣я─я▄ п©п╣я─п╣п╢п╟п╣я┌я│я▐ я│я│я▀п╩п╨п╟ п╫п╟ п╪п╟я│я│п╦п╡ я│п╬п╠я▀я┌п╦п╧.
+	// п╒п╟п╨п╤п╣ п╢п╬п╠п╟п╡п╩п╣п╫п╟ п©я─п╬п╡п╣я─п╨п╟ п╟я─пЁя┐п╪п╣п╫я┌п╟ п╫п╟ NULL п╡ close_socket(), process_input()
+	// п╦ process_output().
 	//
-	// Для алгоритма с использованием select() это было неактуально, поскольку
-	// после вызова select() цикл проходил по списку дескрипторов, где они все заведомо
-	// валидны, а с epoll мы проходим по списку событий, валидность сохраненного в
-	// которых дескриптора надо контролировать дополнительно.
+	// п■п╩я▐ п╟п╩пЁп╬я─п╦я┌п╪п╟ я│ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣п╪ select() я█я┌п╬ п╠я▀п╩п╬ п╫п╣п╟п╨я┌я┐п╟п╩я▄п╫п╬, п©п╬я│п╨п╬п╩я▄п╨я┐
+	// п©п╬я│п╩п╣ п╡я▀п╥п╬п╡п╟ select() я├п╦п╨п╩ п©я─п╬я┘п╬п╢п╦п╩ п©п╬ я│п©п╦я│п╨я┐ п╢п╣я│п╨я─п╦п©я┌п╬я─п╬п╡, пЁп╢п╣ п╬п╫п╦ п╡я│п╣ п╥п╟п╡п╣п╢п╬п╪п╬
+	// п╡п╟п╩п╦п╢п╫я▀, п╟ я│ epoll п╪я▀ п©я─п╬я┘п╬п╢п╦п╪ п©п╬ я│п©п╦я│п╨я┐ я│п╬п╠я▀я┌п╦п╧, п╡п╟п╩п╦п╢п╫п╬я│я┌я▄ я│п╬я┘я─п╟п╫п╣п╫п╫п╬пЁп╬ п╡
+	// п╨п╬я┌п╬я─я▀я┘ п╢п╣я│п╨я─п╦п©я┌п╬я─п╟ п╫п╟п╢п╬ п╨п╬п╫я┌я─п╬п╩п╦я─п╬п╡п╟я┌я▄ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬.
 	//
 	event.data.ptr = newd;
 	//
@@ -2490,7 +2490,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	char i[MAX_SOCK_BUF * 2], o[MAX_SOCK_BUF * 2 * 3], *pi, *po;
 	int written = 0, offset, result;
 
-	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
+	// я│ п©п╣я─п╣я┘п╬п╢п╬п╪ п╫п╟ п╦п╡п╣п╫я┌я▀ я█я┌п╬ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╢п╩я▐ п©я─п╣п╢п╬я┌п╡я─п╟я┴п╣п╫п╦я▐ п╫п╣п╨п╬я┌п╬я─я▀я┘ п╪п╟п╩п╬п╡п╣я─п╬я▐я┌п╫я▀я┘ п╨я─п╣я┬п╣п╧
 	if (t == NULL)
 	{
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
@@ -2498,7 +2498,7 @@ int process_output(DESCRIPTOR_DATA * t)
 		return -1;
 	}
 
-	// Отправляю данные снуперам
+	// п·я┌п©я─п╟п╡п╩я▐я▌ п╢п╟п╫п╫я▀п╣ я│п╫я┐п©п╣я─п╟п╪
 	// handle snooping: prepend "% " and send to snooper
 	if (t->output && t->snoop_by)
 	{
@@ -2518,7 +2518,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	// if we're in the overflow state, notify the user
 	if (t->bufptr == ~0ull)
 	{
-		strcat(i, "***ПЕРЕПОЛНЕНИЕ***\r\n");
+		strcat(i, "***п÷п∙п═п∙п÷п·п⌡п²п∙п²п≤п∙***\r\n");
 	}
 
 	// add the extra CRLF if the person isn't in compact mode
@@ -2528,8 +2528,8 @@ int process_output(DESCRIPTOR_DATA * t)
 	}
 	else if (STATE(t) == CON_PLAYING && t->character && !IS_NPC(t->character) && PRF_FLAGGED(t->character, PRF_COMPACT))
 	{
-		// added by WorM (Видолюб)
-		//фикс сжатого режима добавляет в конец строки \r\n если его там нету, чтобы промпт был всегда на след. строке
+		// added by WorM (п▓п╦п╢п╬п╩я▌п╠)
+		//я└п╦п╨я│ я│п╤п╟я┌п╬пЁп╬ я─п╣п╤п╦п╪п╟ п╢п╬п╠п╟п╡п╩я▐п╣я┌ п╡ п╨п╬п╫п╣я├ я│я┌я─п╬п╨п╦ \r\n п╣я│п╩п╦ п╣пЁп╬ я┌п╟п╪ п╫п╣я┌я┐, я┤я┌п╬п╠я▀ п©я─п╬п╪п©я┌ п╠я▀п╩ п╡я│п╣пЁп╢п╟ п╫п╟ я│п╩п╣п╢. я│я┌я─п╬п╨п╣
 		for (size_t c = strlen(i) - 1; c > 0; c--)
 		{
 			if (*(i + c) == '\n' || *(i + c) == '\r')
@@ -2562,7 +2562,7 @@ int process_output(DESCRIPTOR_DATA * t)
 	 * CRLF, otherwise send the straight output sans CRLF.
 	 */
 
-	// WorM: перенес в color.cpp
+	// WorM: п©п╣я─п╣п╫п╣я│ п╡ color.cpp
 	/*for (c = 0; *(pi + c); c++)
 		*(pi + c) = (*(pi + c) == '_') ? ' ' : *(pi + c);*/
 
@@ -2868,7 +2868,7 @@ int process_input(DESCRIPTOR_DATA * t)
 	read_point = t->inbuf + buf_length;
 	space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
 
-	// с переходом на ивенты это необходимо для предотвращения некоторых маловероятных крешей
+	// я│ п©п╣я─п╣я┘п╬п╢п╬п╪ п╫п╟ п╦п╡п╣п╫я┌я▀ я█я┌п╬ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╢п╩я▐ п©я─п╣п╢п╬я┌п╡я─п╟я┴п╣п╫п╦я▐ п╫п╣п╨п╬я┌п╬я─я▀я┘ п╪п╟п╩п╬п╡п╣я─п╬я▐я┌п╫я▀я┘ п╨я─п╣я┬п╣п╧
 	if (t == NULL)
 	{
 		log("%s", boost::str(boost::format("SYSERR: NULL descriptor in %s() at %s:%d")
@@ -2909,10 +2909,10 @@ int process_input(DESCRIPTOR_DATA * t)
 
 			if (ptr[1] == (char) IAC)
 			{
-				// последовательность IAC IAC
-				// следует заменить просто на один IAC, но
-				// для раскладок KT_WIN/KT_WINZ6 это произойдет ниже.
-				// Почему так сделано - не знаю, но заменять не буду.
+				// п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩я▄п╫п╬я│я┌я▄ IAC IAC
+				// я│п╩п╣п╢я┐п╣я┌ п╥п╟п╪п╣п╫п╦я┌я▄ п©я─п╬я│я┌п╬ п╫п╟ п╬п╢п╦п╫ IAC, п╫п╬
+				// п╢п╩я▐ я─п╟я│п╨п╩п╟п╢п╬п╨ KT_WIN/KT_WINZ6 я█я┌п╬ п©я─п╬п╦п╥п╬п╧п╢п╣я┌ п╫п╦п╤п╣.
+				// п÷п╬я┤п╣п╪я┐ я┌п╟п╨ я│п╢п╣п╩п╟п╫п╬ - п╫п╣ п╥п╫п╟я▌, п╫п╬ п╥п╟п╪п╣п╫я▐я┌я▄ п╫п╣ п╠я┐п╢я┐.
 				++ptr;
 			}
 			else if (ptr[1] == (char) DO)
@@ -3053,14 +3053,14 @@ int process_input(DESCRIPTOR_DATA * t)
 
 		for (ptr = read_point; (space_left > 1) && (ptr < nl_pos); ptr++)
 		{
-			// Нафиг точку с запятой - задрали уроды с тригерами (Кард)
+			// п²п╟я└п╦пЁ я┌п╬я┤п╨я┐ я│ п╥п╟п©я▐я┌п╬п╧ - п╥п╟п╢я─п╟п╩п╦ я┐я─п╬п╢я▀ я│ я┌я─п╦пЁп╣я─п╟п╪п╦ (п п╟я─п╢)
 			if (*ptr == ';'
 				&& (STATE(t) == CON_PLAYING
 					|| STATE(t) == CON_EXDESC
 					|| STATE(t) == CON_WRITEBOARD
 					|| STATE(t) == CON_WRITE_MOD))
 			{
-				// Иммам или морталам с GF_DEMIGOD разрешено использовать ";".
+				// п≤п╪п╪п╟п╪ п╦п╩п╦ п╪п╬я─я┌п╟п╩п╟п╪ я│ GF_DEMIGOD я─п╟п╥я─п╣я┬п╣п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ ";".
 				if (GET_LEVEL(t->character) < LVL_IMMORT && !GET_GOD_FLAG(t->character, GF_DEMIGOD))
 					*ptr = ',';
 			}
@@ -3141,14 +3141,14 @@ int process_input(DESCRIPTOR_DATA * t)
 				space_left--;
 			}
 
-			// Для того чтобы работали все триги в змаде - заменяем все вводимые 'z' на 'я'
+			// п■п╩я▐ я┌п╬пЁп╬ я┤я┌п╬п╠я▀ я─п╟п╠п╬я┌п╟п╩п╦ п╡я│п╣ я┌я─п╦пЁп╦ п╡ п╥п╪п╟п╢п╣ - п╥п╟п╪п╣п╫я▐п╣п╪ п╡я│п╣ п╡п╡п╬п╢п╦п╪я▀п╣ 'z' п╫п╟ 'я▐'
 			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC))
 			{
 				if (t->keytable == KT_WINZ6 || t->keytable == KT_WINZ)
 				{
 					if (*(write_point - 1) == 'z')
 					{
-						*(write_point - 1) = 'я';
+						*(write_point - 1) = 'я▐';
 					}
 				}
 			}
@@ -3187,7 +3187,7 @@ int process_input(DESCRIPTOR_DATA * t)
 		if (t->snoop_by)
 		{
 			SEND_TO_Q("<< ", t->snoop_by);
-//			SEND_TO_Q("% ", t->snoop_by); Попытаюсь сделать вменяемый вывод снупаемого трафика в отдельное окно
+//			SEND_TO_Q("% ", t->snoop_by); п÷п╬п©я▀я┌п╟я▌я│я▄ я│п╢п╣п╩п╟я┌я▄ п╡п╪п╣п╫я▐п╣п╪я▀п╧ п╡я▀п╡п╬п╢ я│п╫я┐п©п╟п╣п╪п╬пЁп╬ я┌я─п╟я└п╦п╨п╟ п╡ п╬я┌п╢п╣п╩я▄п╫п╬п╣ п╬п╨п╫п╬
 			SEND_TO_Q(tmp, t->snoop_by);
 			SEND_TO_Q("\r\n", t->snoop_by);
 		}
@@ -3195,11 +3195,11 @@ int process_input(DESCRIPTOR_DATA * t)
 
 		if ((tmp[0] == '~') && (tmp[1] == 0))
 		{
-			// очистка входной очереди
+			// п╬я┤п╦я│я┌п╨п╟ п╡я┘п╬п╢п╫п╬п╧ п╬я┤п╣я─п╣п╢п╦
 			int dummy;
 			tilde = 1;
 			while (get_from_q(&t->input, buf2, &dummy));
-			SEND_TO_Q("Очередь очищена.\r\n", t);
+			SEND_TO_Q("п·я┤п╣я─п╣п╢я▄ п╬я┤п╦я┴п╣п╫п╟.\r\n", t);
 			tmp[0] = 0;
 		}
 		else if (*tmp == '!' && !(*(tmp + 1)))
@@ -3320,10 +3320,10 @@ int perform_subst(DESCRIPTOR_DATA * t, char *orig, char *subst)
 }
 
 /**
-* Ищем копии чара в глобальном чарактер-листе, они могут там появиться например
-* при вводе пароля (релогине). В данном случае это надо для определения, уводить
-* в оффлайн хранилище чара или нет, потому что втыкать это во всех случаях тупо,
-* а менять систему с пасами/дубликатами обламывает.
+* п≤я┴п╣п╪ п╨п╬п©п╦п╦ я┤п╟я─п╟ п╡ пЁп╩п╬п╠п╟п╩я▄п╫п╬п╪ я┤п╟я─п╟п╨я┌п╣я─-п╩п╦я│я┌п╣, п╬п╫п╦ п╪п╬пЁя┐я┌ я┌п╟п╪ п©п╬я▐п╡п╦я┌я▄я│я▐ п╫п╟п©я─п╦п╪п╣я─
+* п©я─п╦ п╡п╡п╬п╢п╣ п©п╟я─п╬п╩я▐ (я─п╣п╩п╬пЁп╦п╫п╣). п▓ п╢п╟п╫п╫п╬п╪ я│п╩я┐я┤п╟п╣ я█я┌п╬ п╫п╟п╢п╬ п╢п╩я▐ п╬п©я─п╣п╢п╣п╩п╣п╫п╦я▐, я┐п╡п╬п╢п╦я┌я▄
+* п╡ п╬я└я└п╩п╟п╧п╫ я┘я─п╟п╫п╦п╩п╦я┴п╣ я┤п╟я─п╟ п╦п╩п╦ п╫п╣я┌, п©п╬я┌п╬п╪я┐ я┤я┌п╬ п╡я┌я▀п╨п╟я┌я▄ я█я┌п╬ п╡п╬ п╡я│п╣я┘ я│п╩я┐я┤п╟я▐я┘ я┌я┐п©п╬,
+* п╟ п╪п╣п╫я▐я┌я▄ я│п╦я│я┌п╣п╪я┐ я│ п©п╟я│п╟п╪п╦/п╢я┐п╠п╩п╦п╨п╟я┌п╟п╪п╦ п╬п╠п╩п╟п╪я▀п╡п╟п╣я┌.
 */
 bool any_other_ch(CHAR_DATA *ch)
 {
@@ -3355,7 +3355,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 	//if (!direct && d->character && RENTABLE(d->character))
 	//	return;
-	// Нельзя делать лд при wait_state
+	// п²п╣п╩я▄п╥я▐ п╢п╣п╩п╟я┌я▄ п╩п╢ п©я─п╦ wait_state
 	if (d->character && !direct)
 	{
 		if (CHECK_WAIT(d->character))
@@ -3366,7 +3366,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 #ifdef HAS_EPOLL
 	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, NULL) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
-	// см. комментарии в new_descriptor()
+	// я│п╪. п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╡ new_descriptor()
 	int i;
 	if (events != NULL)
 		for (i = 0; i < n_ev; i++)
@@ -3382,7 +3382,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 	if (d->snoop_by)
 	{
-		SEND_TO_Q("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
+		SEND_TO_Q("п▓п╟я┬ п©п╬п╢п╬п©п╣я┤п╫я▀п╧ п╡я▀п╨п╩я▌я┤п╦п╩ п╨п╬п╪п©я▄я▌я┌п╣я─.\r\n", d->snoop_by);
 		d->snoop_by->snooping = NULL;
 	}
 	//. Kill any OLC stuff .
@@ -3431,10 +3431,10 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{
-			act("$n потерял$g связь.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n п©п╬я┌п╣я─я▐п╩$g я│п╡я▐п╥я▄.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
 			{
-				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
+				snprintf(buf2, sizeof(buf2), "п╥п╟я┤п╦я┌п╟я┌я▄ я│п╡п╦я┌п╬п╨.п╡п╬п╥п╡я─п╟я┌п╟");
 				command_interpreter(d->character.get(), buf2);
 			}
 			if (!IS_NPC(d->character))
@@ -3488,7 +3488,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	}
 #endif
 
-	// TODO: деструктур не вызывается, пока у нас дескриптор не стал классом
+	// TODO: п╢п╣я│я┌я─я┐п╨я┌я┐я─ п╫п╣ п╡я▀п╥я▀п╡п╟п╣я┌я│я▐, п©п╬п╨п╟ я┐ п╫п╟я│ п╢п╣я│п╨я─п╦п©я┌п╬я─ п╫п╣ я│я┌п╟п╩ п╨п╩п╟я│я│п╬п╪
 	d->board.reset();
 	d->message.reset();
 	d->clan_olc.reset();
@@ -3500,7 +3500,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 	if (d->pers_log)
 	{
 		opened_files.remove(d->pers_log);
-		fclose(d->pers_log); // не забываем закрыть персональный лог
+		fclose(d->pers_log); // п╫п╣ п╥п╟п╠я▀п╡п╟п╣п╪ п╥п╟п╨я─я▀я┌я▄ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀п╧ п╩п╬пЁ
 	}
 
 	delete d;
@@ -3600,7 +3600,7 @@ RETSIGTYPE reap(int/* sig*/)
 RETSIGTYPE crash_handle(int/* sig*/)
 {
 	log("Crash detected !");
-	// Сливаем файловые буферы.
+	// п║п╩п╦п╡п╟п╣п╪ я└п╟п╧п╩п╬п╡я▀п╣ п╠я┐я└п╣я─я▀.
 	fflush(stdout);
 	fflush(stderr);
 
@@ -3745,7 +3745,7 @@ void send_to_char(const CHAR_DATA* ch, const char *messg, ...)
 	}
 }
 
-// а вот те еще одна едишн Ж)
+// п╟ п╡п╬я┌ я┌п╣ п╣я┴п╣ п╬п╢п╫п╟ п╣п╢п╦я┬п╫ п√)
 void send_to_char(const std::string & buffer, const CHAR_DATA* ch)
 {
 	if (ch->desc && !buffer.empty())
@@ -4043,7 +4043,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 					CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
-//WorM Добавил суффикс глуп(ым,ой,ыми)
+//WorM п■п╬п╠п╟п╡п╦п╩ я│я┐я└я└п╦п╨я│ пЁп╩я┐п©(я▀п╪,п╬п╧,я▀п╪п╦)
 			case 'r':
 				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
 				break;
@@ -4054,7 +4054,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 					CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
-//WorM Добавил суффикс как(ое,ой,ая,ие)
+//WorM п■п╬п╠п╟п╡п╦п╩ я│я┐я└я└п╦п╨я│ п╨п╟п╨(п╬п╣,п╬п╧,п╟я▐,п╦п╣)
 			case 'x':
 				i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
 				break;
@@ -4065,7 +4065,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 					CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
 				dg_victim = (CHAR_DATA *) vict_obj;
 				break;
-//Polud Добавил склонение местоимения Ваш(е,а,и)
+//Polud п■п╬п╠п╟п╡п╦п╩ я│п╨п╩п╬п╫п╣п╫п╦п╣ п╪п╣я│я┌п╬п╦п╪п╣п╫п╦я▐ п▓п╟я┬(п╣,п╟,п╦)
 			case 'z':
 				if (obj)
 					i = OYOU(obj);
@@ -4115,7 +4115,7 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 				*(buf++) = '\n';
 				orig += 2;
 			}
-			else if (*(orig + 1) == 'u')//Следующая подстановка $... будет с большой буквы
+			else if (*(orig + 1) == 'u')//п║п╩п╣п╢я┐я▌я┴п╟я▐ п©п╬п╢я│я┌п╟п╫п╬п╡п╨п╟ $... п╠я┐п╢п╣я┌ я│ п╠п╬п╩я▄я┬п╬п╧ п╠я┐п╨п╡я▀
 			{
 				cap = 1;
 				orig += 2;
@@ -4133,8 +4133,8 @@ void perform_act(const char *orig, CHAR_DATA * ch, const OBJ_DATA* obj, const vo
 
 	if (to->desc)
 	{
-		// Делаем первый символ большим, учитывая &X
-		// в связи с нововведениями таких ключей может быть несколько пропустим их все
+		// п■п╣п╩п╟п╣п╪ п©п╣я─п╡я▀п╧ я│п╦п╪п╡п╬п╩ п╠п╬п╩я▄я┬п╦п╪, я┐я┤п╦я┌я▀п╡п╟я▐ &X
+		// п╡ я│п╡я▐п╥п╦ я│ п╫п╬п╡п╬п╡п╡п╣п╢п╣п╫п╦я▐п╪п╦ я┌п╟п╨п╦я┘ п╨п╩я▌я┤п╣п╧ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╫п╣я│п╨п╬п╩я▄п╨п╬ п©я─п╬п©я┐я│я┌п╦п╪ п╦я┘ п╡я│п╣
 		if (lbuf[0] == '&')
 		{
 			char *tmp;
@@ -4245,7 +4245,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj
 		return;
 	}
 
-	// нужно чтоб не выводились сообщения только для арены лишний раз
+	// п╫я┐п╤п╫п╬ я┤я┌п╬п╠ п╫п╣ п╡я▀п╡п╬п╢п╦п╩п╦я│я▄ я│п╬п╬п╠я┴п╣п╫п╦я▐ я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╟я─п╣п╫я▀ п╩п╦я┬п╫п╦п╧ я─п╟п╥
 	if (type == TO_NOTVICT || type == TO_ROOM || type == TO_ROOM_HIDE)
 	{
 		int stop_counter = 0;
@@ -4278,9 +4278,9 @@ void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj
 				std::string buffer = str;
 				if (!IS_MALE(ch))
 				{
-					boost::replace_first(buffer, "ся", GET_CH_SUF_2(ch));
+					boost::replace_first(buffer, "я│я▐", GET_CH_SUF_2(ch));
 				}
-				boost::replace_first(buffer, "Кто-то", ch->get_name());
+				boost::replace_first(buffer, "п я┌п╬-я┌п╬", ch->get_name());
 				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
 			}
 			else
@@ -4289,18 +4289,18 @@ void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj
 			}
 		}
 	}
-	//Реализация флага слышно арену
+	//п═п╣п╟п╩п╦п╥п╟я├п╦я▐ я└п╩п╟пЁп╟ я│п╩я▀я┬п╫п╬ п╟я─п╣п╫я┐
 	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != NOWHERE) && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
 		&& ROOM_FLAGGED(ch->in_room, ROOM_ARENASEND) && !ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		arena_room_rnum = ch->in_room;
-		// находим первую клетку в зоне
+		// п╫п╟я┘п╬п╢п╦п╪ п©п╣я─п╡я┐я▌ п╨п╩п╣я┌п╨я┐ п╡ п╥п╬п╫п╣
 		while((int)world[arena_room_rnum-1]->number / 100 == (int)world[arena_room_rnum]->number / 100)
 			arena_room_rnum--;
-		//пробегаемся по всем клеткам в зоне
+		//п©я─п╬п╠п╣пЁп╟п╣п╪я│я▐ п©п╬ п╡я│п╣п╪ п╨п╩п╣я┌п╨п╟п╪ п╡ п╥п╬п╫п╣
 		while((int)world[arena_room_rnum+1]->number / 100 == (int)world[arena_room_rnum]->number / 100)
 		{
-			// находим клетку в которой слышно арену и всем игрокам в ней передаем сообщение с арены
+			// п╫п╟я┘п╬п╢п╦п╪ п╨п╩п╣я┌п╨я┐ п╡ п╨п╬я┌п╬я─п╬п╧ я│п╩я▀я┬п╫п╬ п╟я─п╣п╫я┐ п╦ п╡я│п╣п╪ п╦пЁя─п╬п╨п╟п╪ п╡ п╫п╣п╧ п©п╣я─п╣п╢п╟п╣п╪ я│п╬п╬п╠я┴п╣п╫п╦п╣ я│ п╟я─п╣п╫я▀
 			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ROOM_ARENARECV))
 			{
 				int stop_count = 0;
@@ -4372,7 +4372,7 @@ int mccp_start(DESCRIPTOR_DATA * t, int ver)
 
 	if (t->deflate)
 	{
-		return 1;	// компрессия уже включена
+		return 1;	// п╨п╬п╪п©я─п╣я│я│п╦я▐ я┐п╤п╣ п╡п╨п╩я▌я┤п╣п╫п╟
 	}
 
 	// Set up zlib structures.
