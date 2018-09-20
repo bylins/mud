@@ -2582,6 +2582,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
 		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
+		d->character->map_set_option(MapSystem::MAP_MODE_BIG);
 		PRF_FLAGS(d->character).set(PRF_ENTER_ZONE);
 		PRF_FLAGS(d->character).set(PRF_BOARD_MODE);
 		d->character->set_last_exchange(time(0)); // когда последний раз базар
