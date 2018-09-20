@@ -1,7 +1,7 @@
 #include "dictionary.hpp"
 #include "shop_ext.hpp"
 
-// комментарий на русском в надежде починить кодировки bitbucket
+// п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╫п╟ я─я┐я│я│п╨п╬п╪ п╡ п╫п╟п╢п╣п╤п╢п╣ п©п╬я┤п╦п╫п╦я┌я▄ п╨п╬п╢п╦я─п╬п╡п╨п╦ bitbucket
 
 Dictionary::Dictionary(DictionaryMode mode)
 {

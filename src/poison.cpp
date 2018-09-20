@@ -24,7 +24,7 @@ extern int interpolate(int min_value, int pulse);
 
 namespace
 {
-// * Наложение ядов с пушек, аффект стакается до трех раз.
+// * п²п╟п╩п╬п╤п╣п╫п╦п╣ я▐п╢п╬п╡ я│ п©я┐я┬п╣п╨, п╟я└я└п╣п╨я┌ я│я┌п╟п╨п╟п╣я┌я│я▐ п╢п╬ я┌я─п╣я┘ я─п╟п╥.
 bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation>& af)
 {
 	bool found = false;
@@ -38,7 +38,7 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation>& af)
 				|| affect->type == SPELL_DATURA_POISON)
 			&& af.type != affect->type)
 		{
-			// если уже есть другой яд - борода
+			// п╣я│п╩п╦ я┐п╤п╣ п╣я│я┌я▄ п╢я─я┐пЁп╬п╧ я▐п╢ - п╠п╬я─п╬п╢п╟
 			return false;
 		}
 
@@ -68,7 +68,7 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation>& af)
 	return true;
 }
 
-// * Отравление с пушек.
+// * п·я┌я─п╟п╡п╩п╣п╫п╦п╣ я│ п©я┐я┬п╣п╨.
 bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 {
 	if (GET_AF_BATTLE(ch, EAF_POISONED))
@@ -76,7 +76,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 
 	if (spell_num == SPELL_ACONITUM_POISON)
 	{
-		// урон 5 + левел/2, от 5 до 20 за стак
+		// я┐я─п╬п╫ 5 + п╩п╣п╡п╣п╩/2, п╬я┌ 5 п╢п╬ 20 п╥п╟ я│я┌п╟п╨
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_ACONITUM_POISON;
 		af.location = APPLY_ACONITUM_POISON;
@@ -93,7 +93,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	}
 	else if (spell_num == SPELL_SCOPOLIA_POISON)
 	{
-		// по +5% дамаги по целе за стак (кроме стаба)
+		// п©п╬ +5% п╢п╟п╪п╟пЁп╦ п©п╬ я├п╣п╩п╣ п╥п╟ я│я┌п╟п╨ (п╨я─п╬п╪п╣ я│я┌п╟п╠п╟)
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_SCOPOLIA_POISON;
 		af.location = APPLY_SCOPOLIA_POISON;
@@ -110,27 +110,27 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	}
 	else if (spell_num == SPELL_BELENA_POISON)
 	{
-		// не переключается (моб)
-		// -хитролы/хп-рег/дамаг-физ.атак/скилы
+		// п╫п╣ п©п╣я─п╣п╨п╩я▌я┤п╟п╣я┌я│я▐ (п╪п╬п╠)
+		// -я┘п╦я┌я─п╬п╩я▀/я┘п©-я─п╣пЁ/п╢п╟п╪п╟пЁ-я└п╦п╥.п╟я┌п╟п╨/я│п╨п╦п╩я▀
 
 		AFFECT_DATA<EApplyLocation> af[3];
-		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
+		// я│п╨п╦п╩п╩ * 0.05 п╫п╟ я┤п╟я─п╬п╡ п╦ + 5 п╫п╟ п╪п╬п╠п╬п╡. 4-10% п╦ 9-15% (80-200 я│п╨п╦п╩п╟)
 		int percent = 0;
 		if (ch->get_skill(SKILL_POISONED) >= 80)
 		{
 			percent = (ch->get_skill(SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
 		}
-		// -дамаг физ.атак и скиллы
+		// -п╢п╟п╪п╟пЁ я└п╦п╥.п╟я┌п╟п╨ п╦ я│п╨п╦п╩п╩я▀
 		af[0].location = APPLY_BELENA_POISON;
 		af[0].modifier = percent;
 
-		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
+		// я│п╨п╦п╩п╩ * 0.05 + 5 п╫п╟ я┤п╟я─п╬п╡ п╦ + 10 п╫п╟ п╪п╬п╠п╬п╡. 5.5-15% п╦ 10.5-20% (10-200 я│п╨п╦п╩п╟)
 		percent = (ch->get_skill(SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 10 : 5);
-		// -хитролы
+		// -я┘п╦я┌я─п╬п╩я▀
 		int remove_hit = GET_REAL_HR(vict) * (percent/100);
 		af[1].location = APPLY_HITROLL;
 		af[1].modifier = -remove_hit;
-		// -хп-рег
+		// -я┘п©-я─п╣пЁ
 		int remove_hp = GET_HITREG(vict) * (percent/100);
 		af[2].location = APPLY_HITREG;
 		af[2].modifier = -remove_hp;
@@ -161,26 +161,26 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	}
 	else if (spell_num == SPELL_DATURA_POISON)
 	{
-		// не переключается (моб)
-		// -каст/мем-рег/дамаг-заклов/скилы
-		// AFF_DATURA_POISON - флаг на снижение дамага с заклов
+		// п╫п╣ п©п╣я─п╣п╨п╩я▌я┤п╟п╣я┌я│я▐ (п╪п╬п╠)
+		// -п╨п╟я│я┌/п╪п╣п╪-я─п╣пЁ/п╢п╟п╪п╟пЁ-п╥п╟п╨п╩п╬п╡/я│п╨п╦п╩я▀
+		// AFF_DATURA_POISON - я└п╩п╟пЁ п╫п╟ я│п╫п╦п╤п╣п╫п╦п╣ п╢п╟п╪п╟пЁп╟ я│ п╥п╟п╨п╩п╬п╡
 
 		AFFECT_DATA<EApplyLocation> af[3];
-		// скилл * 0.05 на чаров и + 5 на мобов. 4-10% и 9-15% (80-200 скила)
+		// я│п╨п╦п╩п╩ * 0.05 п╫п╟ я┤п╟я─п╬п╡ п╦ + 5 п╫п╟ п╪п╬п╠п╬п╡. 4-10% п╦ 9-15% (80-200 я│п╨п╦п╩п╟)
 		int percent = 0;
 		if (ch->get_skill(SKILL_POISONED) >= 80)
 			percent = (ch->get_skill(SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 5 : 0);
-		// -дамаг заклов и скиллы
+		// -п╢п╟п╪п╟пЁ п╥п╟п╨п╩п╬п╡ п╦ я│п╨п╦п╩п╩я▀
 		af[0].location = APPLY_DATURA_POISON;
 		af[0].modifier = percent;
 
-		// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
+		// я│п╨п╦п╩п╩ * 0.05 + 5 п╫п╟ я┤п╟я─п╬п╡ п╦ + 10 п╫п╟ п╪п╬п╠п╬п╡. 5.5-15% п╦ 10.5-20% (10-200 я│п╨п╦п╩п╟)
 		percent = (ch->get_skill(SKILL_POISONED) * 5 / 100) + (IS_NPC(vict) ? 10 : 5);
-		// -каст
+		// -п╨п╟я│я┌
 		int remove_cast = GET_CAST_SUCCESS(vict) * (percent/100);
 		af[1].location = APPLY_CAST_SUCCESS;
 		af[1].modifier = -remove_cast;
-		// -мем
+		// -п╪п╣п╪
 		int remove_mem = GET_MANAREG(vict) * (percent/100);
 		af[2].location = APPLY_MANAREG;
 		af[2].modifier = -remove_mem;
@@ -212,7 +212,7 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	return false;
 }
 
-// * Крит при отравлении с пушек.
+// * п я─п╦я┌ п©я─п╦ п╬я┌я─п╟п╡п╩п╣п╫п╦п╦ я│ п©я┐я┬п╣п╨.
 void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 {
 	int percent = number(1, skill_info[SKILL_POISONED].max_percent * 3);
@@ -222,35 +222,35 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 		switch (number(1, 5))
 		{
 		case 1:
-			// аналог баша с лагом
+			// п╟п╫п╟п╩п╬пЁ п╠п╟я┬п╟ я│ п╩п╟пЁп╬п╪
 			if (GET_POS(vict) >= POS_FIGHTING)
 			{
 				if (on_horse(vict))
 				{
-					send_to_char(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
+					send_to_char(ch, "%sп·я┌ п╢п╣п╧я│я┌п╡п╦я▐ п╡п╟я┬п╣пЁп╬ я▐п╢п╟ я┐ %s п╥п╟п╨я─я┐п╤п╦п╩п╟я│я▄ пЁп╬п╩п╬п╡п╟!%s\r\n",
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
-					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
+					send_to_char(vict, "п▓я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│п╦п╩я▄п╫п╬п╣ пЁп╬п╩п╬п╡п╬п╨я─я┐п╤п╣п╫п╦п╣ п╦ п╫п╣ я│п╪п╬пЁп╩п╦ я┐я│п╦п╢п╣я┌я▄ п╫п╟ %s!\r\n",
 							GET_PAD(get_horse(vict), 5));
-					act("$n0 зашатал$u и не смог$q усидеть на $N5.", true, vict, 0, get_horse(vict), TO_NOTVICT);
+					act("$n0 п╥п╟я┬п╟я┌п╟п╩$u п╦ п╫п╣ я│п╪п╬пЁ$q я┐я│п╦п╢п╣я┌я▄ п╫п╟ $N5.", true, vict, 0, get_horse(vict), TO_NOTVICT);
 				}
 				else
 				{
-					send_to_char(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
+					send_to_char(ch, "%sп·я┌ п╢п╣п╧я│я┌п╡п╦я▐ п╡п╟я┬п╣пЁп╬ я▐п╢п╟ я┐ %s п©п╬п╢п╨п╬я│п╦п╩п╦я│я▄ п╫п╬пЁп╦!%s\r\n",
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
-					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
-					act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
+					send_to_char(vict, "п▓я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│п╦п╩я▄п╫п╬п╣ пЁп╬п╩п╬п╡п╬п╨я─я┐п╤п╣п╫п╦п╣ п╦ п╫п╣ я│п╪п╬пЁп╩п╦ я┐я│я┌п╬я▐я┌я▄ п╫п╟ п╫п╬пЁп╟я┘!\r\n");
+					act("$N0 п╥п╟я┬п╟я┌п╟п╩$U п╦ п╫п╣ я│п╪п╬пЁ$Q я┐я│я┌п╬я▐я┌я▄ п╫п╟ п╫п╬пЁп╟я┘.", true, ch, 0, vict, TO_NOTVICT);
 				}
 				GET_POS(vict) = POS_SITTING;
 				drop_from_horse(vict);
 				set_wait(vict, 3, false);
 				break;
 			}
-			// если цель нельзя сбить - идем дальше по списку
+			// п╣я│п╩п╦ я├п╣п╩я▄ п╫п╣п╩я▄п╥я▐ я│п╠п╦я┌я▄ - п╦п╢п╣п╪ п╢п╟п╩я▄я┬п╣ п©п╬ я│п©п╦я│п╨я┐
 
 			// fall through
 		case 2:
 		{
-			// минус статы (1..5)
+			// п╪п╦п╫я┐я│ я│я┌п╟я┌я▀ (1..5)
 			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_POISON;
 			af.duration = 30;
@@ -264,32 +264,32 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 				affect_join(vict, af, false, false, false, false);
 			}
 
-			send_to_char(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
+			send_to_char(ch, "%sп·я┌ п╢п╣п╧я│я┌п╡п╦я▐ п╡п╟я┬п╣пЁп╬ я▐п╢п╟ %s п©п╬п╠п╩п╣п╢п╫п╣п╩%s!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
-			send_to_char(vict, "Вы почувствовали слабость во всем теле!\r\n");
-			act("$N0 побледнел$G на ваших глазах.", true, ch, 0, vict, TO_NOTVICT);
+			send_to_char(vict, "п▓я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│п╩п╟п╠п╬я│я┌я▄ п╡п╬ п╡я│п╣п╪ я┌п╣п╩п╣!\r\n");
+			act("$N0 п©п╬п╠п╩п╣п╢п╫п╣п╩$G п╫п╟ п╡п╟я┬п╦я┘ пЁп╩п╟п╥п╟я┘.", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		case 3:
 		{
-			// минус реакция (1..5)
+			// п╪п╦п╫я┐я│ я─п╣п╟п╨я├п╦я▐ (1..5)
 			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_POISON;
 			af.duration = 30;
 			af.location = APPLY_SAVING_REFLEX;
-			af.modifier = GET_LEVEL(ch)/6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
+			af.modifier = GET_LEVEL(ch)/6; //Polud я│ п©п╩я▌я│п╬п╪, п©п╬я│п╨п╬п╩я▄п╨я┐ п╥п╢п╣я│я▄ я┤п╣п╪ п╠п╬п╩я▄я┬п╣ - я┌п╣п╪ я┘я┐п╤п╣
 			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 			af.battleflag = AF_SAME_TIME;
 			affect_join(vict, af, false, false, false, false);
-			send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
+			send_to_char(ch, "%sп·я┌ п╢п╣п╧я│я┌п╡п╦я▐ п╡п╟я┬п╣пЁп╬ я▐п╢п╟ %s я│я┌п╟п╩%s я┘я┐п╤п╣ я─п╣п╟пЁп╦я─п╬п╡п╟я┌я▄ п╫п╟ п╢п╡п╦п╤п╣п╫п╦я▐ п©я─п╬я┌п╦п╡п╫п╦п╨п╬п╡!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
-			send_to_char(vict, "Вам стало труднее реагировать на движения противников!\r\n");
-			act("$N0 стал$G хуже реагировать на ваши движения!", true, ch, 0, vict, TO_NOTVICT);
+			send_to_char(vict, "п▓п╟п╪ я│я┌п╟п╩п╬ я┌я─я┐п╢п╫п╣п╣ я─п╣п╟пЁп╦я─п╬п╡п╟я┌я▄ п╫п╟ п╢п╡п╦п╤п╣п╫п╦я▐ п©я─п╬я┌п╦п╡п╫п╦п╨п╬п╡!\r\n");
+			act("$N0 я│я┌п╟п╩$G я┘я┐п╤п╣ я─п╣п╟пЁп╦я─п╬п╡п╟я┌я▄ п╫п╟ п╡п╟я┬п╦ п╢п╡п╦п╤п╣п╫п╦я▐!", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		case 4:
 		{
-			// минус инициатива (1..5)
+			// п╪п╦п╫я┐я│ п╦п╫п╦я├п╦п╟я┌п╦п╡п╟ (1..5)
 			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_POISON;
 			af.duration = 30;
@@ -298,15 +298,15 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 			af.battleflag = AF_SAME_TIME;
 			affect_join(vict, af, false, false, false, false);
-			send_to_char(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
+			send_to_char(ch, "%sп·я┌ п╢п╣п╧я│я┌п╡п╦я▐ п╡п╟я┬п╣пЁп╬ я▐п╢п╟ %s я│я┌п╟п╩%s п╥п╟п╪п╣я┌п╫п╬ п╪п╣п╢п╩п╣п╫п╫п╣п╣ п╢п╡п╦пЁп╟я┌я▄я│я▐!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
-			send_to_char(vict, "Вы стали заметно медленнее двигаться!\r\n");
-			act("$N0 стал$G заметно медленнее двигаться!", true, ch, 0, vict, TO_NOTVICT);
+			send_to_char(vict, "п▓я▀ я│я┌п╟п╩п╦ п╥п╟п╪п╣я┌п╫п╬ п╪п╣п╢п╩п╣п╫п╫п╣п╣ п╢п╡п╦пЁп╟я┌я▄я│я▐!\r\n");
+			act("$N0 я│я┌п╟п╩$G п╥п╟п╪п╣я┌п╫п╬ п╪п╣п╢п╩п╣п╫п╫п╣п╣ п╢п╡п╦пЁп╟я┌я▄я│я▐!", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		case 5:
 		{
-			// минус живучесть (1..5)
+			// п╪п╦п╫я┐я│ п╤п╦п╡я┐я┤п╣я│я┌я▄ (1..5)
 			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_POISON;
 			af.duration = 30;
@@ -315,10 +315,10 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
 			af.battleflag = AF_SAME_TIME;
 			affect_join(vict, af, false, false, false, false);
-			send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
+			send_to_char(ch, "%sп·я┌ п╢п╣п╧я│я┌п╡п╦я▐ п╡п╟я┬п╣пЁп╬ я▐п╢п╟ %s я│я┌п╟п╩%s я┘я┐п╤п╣ п©п╣я─п╣п╫п╬я│п╦я┌я▄ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐!%s\r\n",
 					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
-			send_to_char(vict, "Вы стали хуже переносить повреждения!\r\n");
-			act("$N0 стал$G хуже переносить повреждения!", true, ch, 0, vict, TO_NOTVICT);
+			send_to_char(vict, "п▓я▀ я│я┌п╟п╩п╦ я┘я┐п╤п╣ п©п╣я─п╣п╫п╬я│п╦я┌я▄ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐!\r\n");
+			act("$N0 я│я┌п╟п╩$G я┘я┐п╤п╣ п©п╣я─п╣п╫п╬я│п╦я┌я▄ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐!", true, ch, 0, vict, TO_NOTVICT);
 			break;
 		}
 		} // switch
@@ -328,7 +328,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 
 } // namespace
 
-// * Отравление с заклинания 'яд'.
+// * п·я┌я─п╟п╡п╩п╣п╫п╦п╣ я│ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ 'я▐п╢'.
 void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 {
 	AFFECT_DATA<EApplyLocation> af[4];
@@ -368,13 +368,13 @@ void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier)
 	}
 	vict->Poisoner = GET_ID(ch);
 
-	snprintf(buf, sizeof(buf), "%sВы отравили $N3.%s", CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+	snprintf(buf, sizeof(buf), "%sп▓я▀ п╬я┌я─п╟п╡п╦п╩п╦ $N3.%s", CCIGRN(ch, C_NRM), CCCYN(ch, C_NRM));
 	act(buf, false, ch, 0, vict, TO_CHAR);
-	snprintf(buf, sizeof(buf), "%s$n отравил$g вас.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
+	snprintf(buf, sizeof(buf), "%s$n п╬я┌я─п╟п╡п╦п╩$g п╡п╟я│.%s", CCIRED(ch, C_NRM), CCCYN(ch, C_NRM));
 	act(buf, false, ch, 0, vict, TO_VICT);
 }
 
-// * Попытка травануть с пушки при ударе.
+// * п÷п╬п©я▀я┌п╨п╟ я┌я─п╟п╡п╟п╫я┐я┌я▄ я│ п©я┐я┬п╨п╦ п©я─п╦ я┐п╢п╟я─п╣.
 void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 {
 	if (spell_num < 0)
@@ -390,14 +390,14 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 		{
 			if (spell_num == SPELL_ACONITUM_POISON)
 			{
-				send_to_char(ch, "Кровоточащие язвы покрыли тело %s.\r\n",
+				send_to_char(ch, "п я─п╬п╡п╬я┌п╬я┤п╟я┴п╦п╣ я▐п╥п╡я▀ п©п╬п╨я─я▀п╩п╦ я┌п╣п╩п╬ %s.\r\n",
 					PERS(vict, ch, 1));
 			}
 			else if (spell_num == SPELL_SCOPOLIA_POISON)
 			{
 				strcpy(buf1, PERS(vict, ch, 0));
 				CAP(buf1);
-				send_to_char(ch, "%s скрючил%s от нестерпимой боли.\r\n",
+				send_to_char(ch, "%s я│п╨я─я▌я┤п╦п╩%s п╬я┌ п╫п╣я│я┌п╣я─п©п╦п╪п╬п╧ п╠п╬п╩п╦.\r\n",
 					buf1, GET_CH_VIS_SUF_2(vict, ch));
 				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
 			}
@@ -405,21 +405,21 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			{
 				strcpy(buf1, PERS(vict, ch, 3));
 				CAP(buf1);
-				send_to_char(ch, "%s перестали слушаться руки.\r\n", buf1);
+				send_to_char(ch, "%s п©п╣я─п╣я│я┌п╟п╩п╦ я│п╩я┐я┬п╟я┌я▄я│я▐ я─я┐п╨п╦.\r\n", buf1);
 				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
 			}
 			else if (spell_num == SPELL_DATURA_POISON)
 			{
 				strcpy(buf1, PERS(vict, ch, 2));
 				CAP(buf1);
-				send_to_char(ch, "%s стало труднее плести заклинания.\r\n", buf1);
+				send_to_char(ch, "%s я│я┌п╟п╩п╬ я┌я─я┐п╢п╫п╣п╣ п©п╩п╣я│я┌п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐.\r\n", buf1);
 				SET_AF_BATTLE(vict, EAF_FIRST_POISON);
 			}
 			else
 			{
-				send_to_char(ch, "Вы отравили %s.%s\r\n", PERS(ch, vict, 3));
+				send_to_char(ch, "п▓я▀ п╬я┌я─п╟п╡п╦п╩п╦ %s.%s\r\n", PERS(ch, vict, 3));
 			}
-			send_to_char(vict, "%s%s отравил%s вас.%s\r\n",
+			send_to_char(vict, "%s%s п╬я┌я─п╟п╡п╦п╩%s п╡п╟я│.%s\r\n",
 					CCIRED(ch, C_NRM), PERS(ch, vict, 0),
 					GET_CH_VIS_SUF_1(ch, vict), CCNRM(ch, C_NRM));
 			weap_crit_poison(ch, vict, spell_num);
@@ -427,7 +427,7 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	}
 }
 
-// * Проверка типа жидкости на яд для нанесения на пушку.
+// * п÷я─п╬п╡п╣я─п╨п╟ я┌п╦п©п╟ п╤п╦п╢п╨п╬я│я┌п╦ п╫п╟ я▐п╢ п╢п╩я▐ п╫п╟п╫п╣я│п╣п╫п╦я▐ п╫п╟ п©я┐я┬п╨я┐.
 bool poison_in_vessel(int liquid_num)
 {
 	if (liquid_num == LIQ_POISON_ACONITUM
@@ -440,7 +440,7 @@ bool poison_in_vessel(int liquid_num)
 	return false;
 }
 
-// * Сет яда на пушку в зависимости от типа жидкости.
+// * п║п╣я┌ я▐п╢п╟ п╫п╟ п©я┐я┬п╨я┐ п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ я┌п╦п©п╟ п╤п╦п╢п╨п╬я│я┌п╦.
 void set_weap_poison(OBJ_DATA *weapon, int liquid_num)
 {
 	const int poison_timer = 30;
@@ -456,7 +456,7 @@ void set_weap_poison(OBJ_DATA *weapon, int liquid_num)
 		log("SYSERROR: liquid_num == %d (%s %s %d)", liquid_num, __FILE__, __func__, __LINE__);
 }
 
-// * Вывод имени яда по номеру его заклинания (для осмотра пушек).
+// * п▓я▀п╡п╬п╢ п╦п╪п╣п╫п╦ я▐п╢п╟ п©п╬ п╫п╬п╪п╣я─я┐ п╣пЁп╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ (п╢п╩я▐ п╬я│п╪п╬я┌я─п╟ п©я┐я┬п╣п╨).
 std::string get_poison_by_spell(int spell)
 {
 	switch (spell)
@@ -473,7 +473,7 @@ std::string get_poison_by_spell(int spell)
 	return "";
 }
 
-// * Проверка, является ли заклинание ядом.
+// * п÷я─п╬п╡п╣я─п╨п╟, я▐п╡п╩я▐п╣я┌я│я▐ п╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ я▐п╢п╬п╪.
 bool check_poison(int spell)
 {
 	switch (spell)
@@ -488,9 +488,9 @@ bool check_poison(int spell)
 }
 
 /**
-* Пока с AF_SAME_TIME получилось следующее (в бою/вне боя):
-* APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
-* Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
+* п÷п╬п╨п╟ я│ AF_SAME_TIME п©п╬п╩я┐я┤п╦п╩п╬я│я▄ я│п╩п╣п╢я┐я▌я┴п╣п╣ (п╡ п╠п╬я▌/п╡п╫п╣ п╠п╬я▐):
+* APPLY_POISON - я┐ п©п╩п╣п╣я─п╟ я─п╟п╥ п╡ 2 я│п╣п╨я┐п╫п╢я▀ п╡п╣п╥п╢п╣, я┐ п╪п╬п╠п╟ я─п╟п╥ п╡ п╪п╦п╫я┐я┌я┐ п╡п╣п╥п╢п╣.
+* п·я│я┌п╟п╩я▄п╫я▀п╣ п╟я└я└п╣п╨я┌я▀ - я┐ п©п╩п╣п╣я─п╟ я─п╟п╥ п╡ 2 я│п╣п╨я┐п╫п╢я▀ п╡п╣п╥п╢п╣, я┐ п╪п╬п╠п╟ п╡ п╠п╬я▌ я─п╟п╥ п╡ 2 я│п╣п╨я┐п╫п╢я▀, п╡п╫п╣ п╠п╬я▐ - я─п╟п╥ п╡ п╪п╦п╫я┐я┌я┐.
 */
 int same_time_update(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>::shared_ptr& af)
 {
@@ -498,10 +498,10 @@ int same_time_update(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>::shared_pt
 	if (af->location == APPLY_POISON)
 	{
 		int poison_dmg = GET_POISON(ch) * (IS_NPC(ch) ? 4 : 5);
-		// мобов яд ядит на тике, а чаров каждый батл тик соответсвенно если это не моб надо делить на 30 или тип того
+		// п╪п╬п╠п╬п╡ я▐п╢ я▐п╢п╦я┌ п╫п╟ я┌п╦п╨п╣, п╟ я┤п╟я─п╬п╡ п╨п╟п╤п╢я▀п╧ п╠п╟я┌п╩ я┌п╦п╨ я│п╬п╬я┌п╡п╣я┌я│п╡п╣п╫п╫п╬ п╣я│п╩п╦ я█я┌п╬ п╫п╣ п╪п╬п╠ п╫п╟п╢п╬ п╢п╣п╩п╦я┌я▄ п╫п╟ 30 п╦п╩п╦ я┌п╦п© я┌п╬пЁп╬
 		if(!IS_NPC(ch))
 			poison_dmg = poison_dmg/30;
-		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
+		//poison_dmg = interpolate(poison_dmg, 2); // п≤ п╨п╟п╨ п╬п╫п╬ п╢п╬п╩п╤п╫п╬ я─п╟п╠п╬я┌п╟я┌я▄ я┤п╬я┌п╬ п╫п╦я└п╦пЁп╟ п╫п╣ п©п╬п╫я▐п╩, п©п╬п╫я▐п╩ я┌п╬п╩я▄п╨п╬ я┤я┌п╬ п╬п╫п╬ п╫п╣ я─п╟п╠п╬я┌п╟п╣я┌
 		Damage dmg(SpellDmg(SPELL_POISON), poison_dmg, FightSystem::UNDEF_DMG);
 		dmg.flags.set(FightSystem::NO_FLEE);
 		result = dmg.process(ch, ch);

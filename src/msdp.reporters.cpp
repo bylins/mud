@@ -183,16 +183,16 @@ namespace msdp
 
 		std::string affects;
 		affects += AFF_FLAGGED(character, EAffectFlag::AFF_SANCTUARY)
-			? "ï"
-			: (AFF_FLAGGED(character, EAffectFlag::AFF_PRISMATICAURA) ? "ð" : "");
+			? "Ðž"
+			: (AFF_FLAGGED(character, EAffectFlag::AFF_PRISMATICAURA) ? "ÐŸ" : "");
 		if (AFF_FLAGGED(character, EAffectFlag::AFF_WATERBREATH))
 		{
-			affects += "ä";
+			affects += "Ð”";
 		}
 
 		if (AFF_FLAGGED(character, EAffectFlag::AFF_INVISIBLE))
 		{
-			affects += "î";
+			affects += "Ð";
 		}
 
 		if (AFF_FLAGGED(character, EAffectFlag::AFF_SINGLELIGHT)
@@ -200,24 +200,24 @@ namespace msdp
 			|| (GET_EQ(character, WEAR_LIGHT)
 				&& GET_OBJ_VAL(GET_EQ(character, WEAR_LIGHT), 2)))
 		{
-			affects += "ó";
+			affects += "Ð¡";
 		}
 
 		if (AFF_FLAGGED(character, EAffectFlag::AFF_FLY))
 		{
-			affects += "ì";
+			affects += "Ð›";
 		}
 
 		if (!IS_NPC(character)
 			&& on_horse(character))
 		{
-			affects += "÷";
+			affects += "Ð’";
 		}
 
 		if (IS_NPC(character)
 			&& character->low_charm())
 		{
-			affects += "ô";
+			affects += "Ð¢";
 		}
 
 		descriptor()->string_to_client_encoding(affects.c_str(), buffer);

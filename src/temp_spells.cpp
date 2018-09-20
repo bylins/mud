@@ -68,10 +68,10 @@ namespace Temporary_Spells
 			{
 				REMOVE_BIT(GET_SPELL_TYPE(ch, it->first), SPELL_TEMP);
 
-				//åÓÌÉ ÚÁËÌÉÎÁÎÉÅ ÚÁ ÜÔÏ ×ÒÅÍÑ ÎÅ ÓÔÁÌÏ ÐÏÓÔÏÑÎÎÙÍ, ÔÏ ÕÄÁÌÉÍ ÉÚ ÍÅÍÁ
+				//Ð•ÑÐ»Ð¸ Ð·Ð°ÐºÐ»Ð¸Ð½Ð°Ð½Ð¸Ðµ Ð·Ð° ÑÑ‚Ð¾ Ð²Ñ€ÐµÐ¼Ñ Ð½Ðµ ÑÑ‚Ð°Ð»Ð¾ Ð¿Ð¾ÑÑ‚Ð¾ÑÐ½Ð½Ñ‹Ð¼, Ñ‚Ð¾ ÑƒÐ´Ð°Ð»Ð¸Ð¼ Ð¸Ð· Ð¼ÐµÐ¼Ð°
 				if (!IS_SET(GET_SPELL_TYPE(ch, it->first), SPELL_KNOW))
 				{
-					//õÄÁÌÑÅÍ ÉÚ ÍÅÍÁ
+					//Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ð¸Ð· Ð¼ÐµÐ¼Ð°
 					for (i = &ch->MemQueue.queue; *i;)
 					{
 						if (i[0]->spellnum == it->first)
@@ -89,11 +89,11 @@ namespace Temporary_Spells
 						}
 					}
 
-					//õÄÁÌÑÅÍ ÉÚ ÚÁÕÞÅÎÎÙÈ
+					//Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ð¸Ð· Ð·Ð°ÑƒÑ‡ÐµÐ½Ð½Ñ‹Ñ…
 					GET_SPELL_MEM(ch, it->first) = 0;
 
 					sprintf(buf,
-						"÷Ù ÚÁÂÙÌÉ ÚÁËÌÉÎÁÎÉÅ \"%s%s%s\".\r\n",
+						"Ð’Ñ‹ Ð·Ð°Ð±Ñ‹Ð»Ð¸ Ð·Ð°ÐºÐ»Ð¸Ð½Ð°Ð½Ð¸Ðµ \"%s%s%s\".\r\n",
 						CCIMAG(ch, C_NRM), spell_info[it->first].name, CCNRM(ch, C_NRM));
 					send_to_char(buf, ch);
 				}

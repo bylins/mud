@@ -70,13 +70,13 @@ unsigned long get_ip(const char *addr);
 #define TO_VICT		2
 #define TO_NOTVICT	3
 #define TO_CHAR		4
-#define TO_ROOM_HIDE    5	// В комнату, но только тем, кто чувствует жизнь
-#define CHECK_NODEAF        32   // посылать только глухим
-#define CHECK_DEAF          64   // не посылать глухим
+#define TO_ROOM_HIDE    5	// п▓ п╨п╬п╪п╫п╟я┌я┐, п╫п╬ я┌п╬п╩я▄п╨п╬ я┌п╣п╪, п╨я┌п╬ я┤я┐п╡я│я┌п╡я┐п╣я┌ п╤п╦п╥п╫я▄
+#define CHECK_NODEAF        32   // п©п╬я│я▀п╩п╟я┌я▄ я┌п╬п╩я▄п╨п╬ пЁп╩я┐я┘п╦п╪
+#define CHECK_DEAF          64   // п╫п╣ п©п╬я│я▀п╩п╟я┌я▄ пЁп╩я┐я┘п╦п╪
 #define TO_SLEEP            128  // to char, even if sleeping
-#define TO_ARENA_LISTEN     512  // не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
-#define TO_BRIEF_SHIELDS    1024 // отсылать только тем, у кого включен режим PRF_BRIEF_SHIELDS
-#define TO_NO_BRIEF_SHIELDS 2048 // отсылать только тем, у кого нет режима PRF_BRIEF_SHIELDS
+#define TO_ARENA_LISTEN     512  // п╫п╣ п╬я┌я│я▀п╩п╟я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣ я│ п╟я─п╣п╫я▀ я│п╩я┐я┬п╟я┌п╣п╩я▐п╪, я┤я┌п╬п╠ п╫п╣ я│п©п╟п╪п╦я┌я▄ п©п╣я─п╣п╢п╡п╦п╤п╣п╫п╦я▐п╪п╦ п╦ я┌п©
+#define TO_BRIEF_SHIELDS    1024 // п╬я┌я│я▀п╩п╟я┌я▄ я┌п╬п╩я▄п╨п╬ я┌п╣п╪, я┐ п╨п╬пЁп╬ п╡п╨п╩я▌я┤п╣п╫ я─п╣п╤п╦п╪ PRF_BRIEF_SHIELDS
+#define TO_NO_BRIEF_SHIELDS 2048 // п╬я┌я│я▀п╩п╟я┌я▄ я┌п╬п╩я▄п╨п╬ я┌п╣п╪, я┐ п╨п╬пЁп╬ п╫п╣я┌ я─п╣п╤п╦п╪п╟ PRF_BRIEF_SHIELDS
 
 // I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);
@@ -98,8 +98,8 @@ typedef RETSIGTYPE sigfunc(int);
 
 extern unsigned long cmd_cnt;
 
-#define DEFAULT_REBOOT_UPTIME 60*24*6	//время до ближайшего ребута по умолчанию в минутах
-#define UPTIME_THRESHOLD      120	//минимальный аптайм для ребута в часах
+#define DEFAULT_REBOOT_UPTIME 60*24*6	//п╡я─п╣п╪я▐ п╢п╬ п╠п╩п╦п╤п╟п╧я┬п╣пЁп╬ я─п╣п╠я┐я┌п╟ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ п╡ п╪п╦п╫я┐я┌п╟я┘
+#define UPTIME_THRESHOLD      120	//п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п╟п©я┌п╟п╧п╪ п╢п╩я▐ я─п╣п╠я┐я┌п╟ п╡ я┤п╟я│п╟я┘
 
 void timediff(struct timeval *diff, struct timeval *a, struct timeval *b);
 

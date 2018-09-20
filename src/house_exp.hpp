@@ -16,7 +16,7 @@
 void update_clan_exp();
 void save_clan_exp();
 
-// период обновления и сохранения экспы (в минутах)
+// п©п╣я─п╦п╬п╢ п╬п╠п╫п╬п╡п╩п╣п╫п╦я▐ п╦ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ я█п╨я│п©я▀ (п╡ п╪п╦п╫я┐я┌п╟я┘)
 const int CLAN_EXP_UPDATE_PERIOD = 60;
 
 class ClanExp
@@ -37,7 +37,7 @@ private:
 	ExpListType list_;
 };
 
-// * Список последних пк с участием чаров из данного клана.
+// * п║п©п╦я│п╬п╨ п©п╬я│п╩п╣п╢п╫п╦я┘ п©п╨ я│ я┐я┤п╟я│я┌п╦п╣п╪ я┤п╟я─п╬п╡ п╦п╥ п╢п╟п╫п╫п╬пЁп╬ п╨п╩п╟п╫п╟.
 class ClanPkLog
 {
 public:
@@ -55,7 +55,7 @@ private:
 	std::list<std::string> pk_log;
 };
 
-// * Помесячная история набранной кланом экспы без учета минусов от смертей и прочего.
+// * п÷п╬п╪п╣я│я▐я┤п╫п╟я▐ п╦я│я┌п╬я─п╦я▐ п╫п╟п╠я─п╟п╫п╫п╬п╧ п╨п╩п╟п╫п╬п╪ я█п╨я│п©я▀ п╠п╣п╥ я┐я┤п╣я┌п╟ п╪п╦п╫я┐я│п╬п╡ п╬я┌ я│п╪п╣я─я┌п╣п╧ п╦ п©я─п╬я┤п╣пЁп╬.
 class ClanExpHistory
 {
 public:
@@ -68,7 +68,7 @@ public:
 	void fulldelete();
 
 private:
-	typedef std::map<std::string /* месяц.год */, long long /* экспа*/> HistoryExpListType;
+	typedef std::map<std::string /* п╪п╣я│я▐я├.пЁп╬п╢ */, long long /* я█п╨я│п©п╟*/> HistoryExpListType;
 	HistoryExpListType list_;
 	long long calc_exp_history() const;
 };

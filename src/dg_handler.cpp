@@ -33,7 +33,7 @@ void extract_trigger(TRIG_DATA* trig)
 {
 	if (GET_TRIG_WAIT(trig))
 	{
-		// ÓÍ. ÏÂßÑÓÎÅÎÉÑ × ×ÙÚÏ×Å trig_data_free()
+		// ÑĞ¼. Ğ¾Ğ±ÑŠÑÑĞ½ĞµĞ½Ğ¸Ñ Ğ² Ğ²Ñ‹Ğ·Ğ¾Ğ²Ğµ trig_data_free()
 		free(GET_TRIG_WAIT(trig)->info);
 		remove_event(GET_TRIG_WAIT(trig));
 		GET_TRIG_WAIT(trig) = NULL;
@@ -79,7 +79,7 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 	const ESkill skillnum = fix_name_and_find_skill_num(skill);
 	if (skillnum > 0)
 	{
-		//edited by WorM 2011.05.23 ÔÒÉÇÉ ÄÏÌÖÎÙ ×ÏÚ×ÒÁİÁÔØ ÒÅÁÌØÎÙÊ ÓËÉÌÌ ÂÅÚ ÂÏÎÕÓÏ× ÏÔ ÓÔÁÆÁ
+		//edited by WorM 2011.05.23 Ñ‚Ñ€Ğ¸Ğ³Ğ¸ Ğ´Ğ¾Ğ»Ğ¶Ğ½Ñ‹ Ğ²Ğ¾Ğ·Ğ²Ñ€Ğ°Ñ‰Ğ°Ñ‚ÑŒ Ñ€ĞµĞ°Ğ»ÑŒĞ½Ñ‹Ğ¹ ÑĞºĞ¸Ğ»Ğ» Ğ±ĞµĞ· Ğ±Ğ¾Ğ½ÑƒÑĞ¾Ğ² Ğ¾Ñ‚ ÑÑ‚Ğ°Ñ„Ğ°
 		sprintf(retval, "%d", ch->get_trained_skill(skillnum));
 		return retval;
 	}

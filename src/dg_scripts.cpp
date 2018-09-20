@@ -54,7 +54,7 @@
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
-// Вывод сообщений о неверных управляющих конструкциях DGScript
+// п▓я▀п╡п╬п╢ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╬ п╫п╣п╡п╣я─п╫я▀я┘ я┐п©я─п╟п╡п╩я▐я▌я┴п╦я┘ п╨п╬п╫я│я┌я─я┐п╨я├п╦я▐я┘ DGScript
 #define	DG_CODE_ANALYZE
 
 // external vars from triggers.cpp
@@ -106,7 +106,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int trgvar_in_room(int vnum);
 
 /*
-йНЯРШКЭ, МН БЯЕФ.
+п╧п²п╞п═п╗п п╜, п°п² п▒п╞п∙п╓.
 */
 bool CharacterLinkDrop = false;
 
@@ -165,7 +165,7 @@ cmdlist_element::shared_ptr find_else_end(TRIG_DATA * trig, cmdlist_element::sha
 
 struct trig_var_data *worlds_vars;
 
-// Для отслеживания работы команд "wat" и "mat"
+// п■п╩я▐ п╬я┌я│п╩п╣п╤п╦п╡п╟п╫п╦я▐ я─п╟п╠п╬я┌я▀ п╨п╬п╪п╟п╫п╢ "wat" п╦ "mat"
 int reloc_target = -1;
 TRIG_DATA *cur_trig = NULL;
 
@@ -411,7 +411,7 @@ inline auto count_obj_vnum(long n)
 		return 0;
 	}
 
-	// Чот косячит таймер, решили переделать тригги, хоть и дольше
+	// п╖п╬я┌ п╨п╬я│я▐я┤п╦я┌ я┌п╟п╧п╪п╣я─, я─п╣я┬п╦п╩п╦ п©п╣я─п╣п╢п╣п╩п╟я┌я▄ я┌я─п╦пЁпЁп╦, я┘п╬я┌я▄ п╦ п╢п╬п╩я▄я┬п╣
 	//	if (check_unlimited_timer(obj_proto[i]))
 	//		return 0;
 	return obj_proto.actual_count(i);
@@ -444,8 +444,8 @@ ROOM_DATA *find_room(long n)
  ************************************************************/
 
  /**
- * Возвращает id моба указанного внума.
- * \param num - если есть и больше 0 - возвращает id не первого моба, а указанного порядкового номера.
+ * п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ id п╪п╬п╠п╟ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ п╡п╫я┐п╪п╟.
+ * \param num - п╣я│п╩п╦ п╣я│я┌я▄ п╦ п╠п╬п╩я▄я┬п╣ 0 - п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ id п╫п╣ п©п╣я─п╡п╬пЁп╬ п╪п╬п╠п╟, п╟ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ п©п╬я─я▐п╢п╨п╬п╡п╬пЁп╬ п╫п╬п╪п╣я─п╟.
  */
 int find_char_vnum(long n, int num = 0)
 {
@@ -469,8 +469,8 @@ int find_char_vnum(long n, int num = 0)
 }
 
 // return room with VNUM n
-// Внимание! Для комнаты UID = ROOM_ID_BASE+VNUM, т.к.
-// RNUM может быть независимо изменен с помощью OLC
+// п▓п╫п╦п╪п╟п╫п╦п╣! п■п╩я▐ п╨п╬п╪п╫п╟я┌я▀ UID = ROOM_ID_BASE+VNUM, я┌.п╨.
+// RNUM п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╫п╣п╥п╟п╡п╦я│п╦п╪п╬ п╦п╥п╪п╣п╫п╣п╫ я│ п©п╬п╪п╬я┴я▄я▌ OLC
 int find_room_vnum(long n)
 {
 	//  return (real_room (n) != NOWHERE) ? ROOM_ID_BASE + n : -1;
@@ -492,7 +492,7 @@ CHAR_DATA *get_char(char *name, int/* vnum*/)
 {
 	CHAR_DATA *i;
 
-	// Отсекаем поиск левых UID-ов.
+	// п·я┌я│п╣п╨п╟п╣п╪ п©п╬п╦я│п╨ п╩п╣п╡я▀я┘ UID-п╬п╡.
 	if ((*name == UID_OBJ) || (*name == UID_ROOM))
 		return NULL;
 
@@ -857,14 +857,14 @@ void script_trigger_check()
 				&& (!is_empty(room->zone)
 					|| IS_SET(SCRIPT_TYPES(sc), WTRIG_GLOBAL)))
 			{
-				// Если будет крэш (а он несомненно будет) можно будет посмотреть параметры в стеке
+				// п∙я│п╩п╦ п╠я┐п╢п╣я┌ п╨я─я█я┬ (п╟ п╬п╫ п╫п╣я│п╬п╪п╫п╣п╫п╫п╬ п╠я┐п╢п╣я┌) п╪п╬п╤п╫п╬ п╠я┐п╢п╣я┌ п©п╬я│п╪п╬я┌я─п╣я┌я▄ п©п╟я─п╟п╪п╣я┌я─я▀ п╡ я│я┌п╣п╨п╣
 				random_wtrigger(room, room->number, sc, sc->types, sc->trig_list);
 			}
 		}
 	}
 }
 
-// проверка каждый час на триги изменении времени
+// п©я─п╬п╡п╣я─п╨п╟ п╨п╟п╤п╢я▀п╧ я┤п╟я│ п╫п╟ я┌я─п╦пЁп╦ п╦п╥п╪п╣п╫п╣п╫п╦п╦ п╡я─п╣п╪п╣п╫п╦
 void script_timechange_trigger_check(const int time)
 {
 	character_list.foreach_on_copy([&](const std::shared_ptr<CHAR_DATA>& ch)
@@ -1310,7 +1310,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			send_to_char("This room does not have any triggers.\r\n", ch);
 		}
-		else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
+		else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "п╡я│п╣"))
 		{
 			room->cleanup_script();
 
@@ -1368,7 +1368,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				send_to_char("That mob doesn't have any triggers.\r\n", ch);
 			}
-			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
+			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "п╡я│п╣"))
 			{
 				victim->cleanup_script();
 				sprintf(buf, "All triggers removed from %s.\r\n", GET_SHORT(victim));
@@ -1390,7 +1390,7 @@ void do_detach(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				send_to_char("That object doesn't have any triggers.\r\n", ch);
 			}
-			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все"))
+			else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "п╡я│п╣"))
 			{
 				object->cleanup_script();
 				sprintf(buf, "All triggers removed from %s.\r\n",
@@ -1420,37 +1420,37 @@ void free_var_el(struct trig_var_data *var)
 
 void add_var_cntx(struct trig_var_data **var_list, const char *name, const char *value, long id)
 /*++
-	Добавление переменной в список с учетом контекста (СТРОГИЙ поиск).
-	При добавлении в список локальных переменных контекст должен быть 0.
+	п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ п╡ я│п©п╦я│п╬п╨ я│ я┐я┤п╣я┌п╬п╪ п╨п╬п╫я┌п╣п╨я│я┌п╟ (п║п╒п═п·п⌠п≤п≥ п©п╬п╦я│п╨).
+	п÷я─п╦ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╦ п╡ я│п©п╦я│п╬п╨ п╩п╬п╨п╟п╩я▄п╫я▀я┘ п©п╣я─п╣п╪п╣п╫п╫я▀я┘ п╨п╬п╫я┌п╣п╨я│я┌ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ 0.
 
-	var_list	- указатель на первый элемент списка переменных
-	name		- имя переменной
-	value		- значение переменной
-	id			- контекст переменной
+	var_list	- я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ п©п╣я─п╡я▀п╧ я█п╩п╣п╪п╣п╫я┌ я│п©п╦я│п╨п╟ п©п╣я─п╣п╪п╣п╫п╫я▀я┘
+	name		- п╦п╪я▐ п©п╣я─п╣п╪п╣п╫п╫п╬п╧
+	value		- п╥п╫п╟я┤п╣п╫п╦п╣ п©п╣я─п╣п╪п╣п╫п╫п╬п╧
+	id			- п╨п╬п╫я┌п╣п╨я│я┌ п©п╣я─п╣п╪п╣п╫п╫п╬п╧
 --*/
 {
 	struct trig_var_data *vd, *vd_prev;
 
-	// Обращаю внимание, что при добавлении необходимо ТОЧНОЕ совпадение контекстов
+	// п·п╠я─п╟я┴п╟я▌ п╡п╫п╦п╪п╟п╫п╦п╣, я┤я┌п╬ п©я─п╦ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╒п·п╖п²п·п∙ я│п╬п╡п©п╟п╢п╣п╫п╦п╣ п╨п╬п╫я┌п╣п╨я│я┌п╬п╡
 	for (vd_prev = NULL, vd = *var_list;
 		vd && ((vd->context != id) || str_cmp(vd->name, name)); vd_prev = vd, vd = vd->next);
 
 	if (vd)
 	{
-		// Переменная существует, заменить значение
+		// п÷п╣я─п╣п╪п╣п╫п╫п╟я▐ я│я┐я┴п╣я│я┌п╡я┐п╣я┌, п╥п╟п╪п╣п╫п╦я┌я▄ п╥п╫п╟я┤п╣п╫п╦п╣
 		free(vd->value);
 	}
 	else
 	{
-		// Создать новую переменную
+		// п║п╬п╥п╢п╟я┌я▄ п╫п╬п╡я┐я▌ п©п╣я─п╣п╪п╣п╫п╫я┐я▌
 		CREATE(vd, 1);
 		CREATE(vd->name, strlen(name) + 1);
 		strcpy(vd->name, name);
 
 		vd->context = id;
 
-		// Добавление переменной в список
-		// Для нулевого контекста в конец списка, для ненулевого - в начало
+		// п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ п╡ я│п©п╦я│п╬п╨
+		// п■п╩я▐ п╫я┐п╩п╣п╡п╬пЁп╬ п╨п╬п╫я┌п╣п╨я│я┌п╟ п╡ п╨п╬п╫п╣я├ я│п©п╦я│п╨п╟, п╢п╩я▐ п╫п╣п╫я┐п╩п╣п╡п╬пЁп╬ - п╡ п╫п╟я┤п╟п╩п╬
 		if (id)
 		{
 			vd->next = *var_list;
@@ -1473,17 +1473,17 @@ void add_var_cntx(struct trig_var_data **var_list, const char *name, const char 
 
 struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name, long id)
 	/*++
-		Поиск переменной с учетом контекста (НЕСТРОГИЙ поиск).
+		п÷п╬п╦я│п╨ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ я│ я┐я┤п╣я┌п╬п╪ п╨п╬п╫я┌п╣п╨я│я┌п╟ (п²п∙п║п╒п═п·п⌠п≤п≥ п©п╬п╦я│п╨).
 
-		Поиск осуществляется по паре ИМЯ:КОНТЕКСТ.
-		1. Имя переменной должно совпадать с параметром name
-		2. Контекст переменной должен совпадать с параметром id, если
-		   такой переменной нет, производится попытка найти переменную
-		   с контекстом 0.
+		п÷п╬п╦я│п╨ п╬я│я┐я┴п╣я│я┌п╡п╩я▐п╣я┌я│я▐ п©п╬ п©п╟я─п╣ п≤п°п╞:п п·п²п╒п∙п п║п╒.
+		1. п≤п╪я▐ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ п╢п╬п╩п╤п╫п╬ я│п╬п╡п©п╟п╢п╟я┌я▄ я│ п©п╟я─п╟п╪п╣я┌я─п╬п╪ name
+		2. п п╬п╫я┌п╣п╨я│я┌ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ п╢п╬п╩п╤п╣п╫ я│п╬п╡п©п╟п╢п╟я┌я▄ я│ п©п╟я─п╟п╪п╣я┌я─п╬п╪ id, п╣я│п╩п╦
+		   я┌п╟п╨п╬п╧ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ п╫п╣я┌, п©я─п╬п╦п╥п╡п╬п╢п╦я┌я│я▐ п©п╬п©я▀я┌п╨п╟ п╫п╟п╧я┌п╦ п©п╣я─п╣п╪п╣п╫п╫я┐я▌
+		   я│ п╨п╬п╫я┌п╣п╨я│я┌п╬п╪ 0.
 
-		var_list	- указатель на первый элемент списка переменных
-		name		- имя переменной
-		id			- контекст переменной
+		var_list	- я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ п©п╣я─п╡я▀п╧ я█п╩п╣п╪п╣п╫я┌ я│п©п╦я│п╨п╟ п©п╣я─п╣п╪п╣п╫п╫я▀я┘
+		name		- п╦п╪я▐ п©п╣я─п╣п╪п╣п╫п╫п╬п╧
+		id			- п╨п╬п╫я┌п╣п╨я│я┌ п©п╣я─п╣п╪п╣п╫п╫п╬п╧
 	--*/
 {
 	struct trig_var_data *vd;
@@ -1496,17 +1496,17 @@ struct trig_var_data *find_var_cntx(struct trig_var_data **var_list, char *name,
 
 int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 /*++
-	Удаление переменной из списка с учетом контекста (СТРОГИЙ поиск).
+	пёп╢п╟п╩п╣п╫п╦п╣ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ п╦п╥ я│п©п╦я│п╨п╟ я│ я┐я┤п╣я┌п╬п╪ п╨п╬п╫я┌п╣п╨я│я┌п╟ (п║п╒п═п·п⌠п≤п≥ п©п╬п╦я│п╨).
 
-	Поиск строгий.
+	п÷п╬п╦я│п╨ я│я┌я─п╬пЁп╦п╧.
 
-	var_list	- указатель на первый элемент списка переменных
-	name		- имя переменной
-	id			- контекст переменной
+	var_list	- я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ п©п╣я─п╡я▀п╧ я█п╩п╣п╪п╣п╫я┌ я│п©п╦я│п╨п╟ п©п╣я─п╣п╪п╣п╫п╫я▀я┘
+	name		- п╦п╪я▐ п©п╣я─п╣п╪п╣п╫п╫п╬п╧
+	id			- п╨п╬п╫я┌п╣п╨я│я┌ п©п╣я─п╣п╪п╣п╫п╫п╬п╧
 
-	Возвращает:
-	   1 - переменная найдена и удалена
-	   0 - переменная не найдена
+	п▓п╬п╥п╡я─п╟я┴п╟п╣я┌:
+	   1 - п©п╣я─п╣п╪п╣п╫п╫п╟я▐ п╫п╟п╧п╢п╣п╫п╟ п╦ я┐п╢п╟п╩п╣п╫п╟
+	   0 - п©п╣я─п╣п╪п╣п╫п╫п╟я▐ п╫п╣ п╫п╟п╧п╢п╣п╫п╟
 
 --*/
 {
@@ -1516,7 +1516,7 @@ int remove_var_cntx(struct trig_var_data **var_list, char *name, long id)
 		vd && ((vd->context != id) || str_cmp(vd->name, name)); vd_prev = vd, vd = vd->next);
 
 	if (!vd)
-		return 0;	// Не удалось найти
+		return 0;	// п²п╣ я┐п╢п╟п╩п╬я│я▄ п╫п╟п╧я┌п╦
 
 	if (vd_prev)
 		vd_prev->next = vd->next;
@@ -1543,7 +1543,7 @@ bool SCRIPT_CHECK(const ROOM_DATA* go, const long type)
 	return !SCRIPT(go)->is_purged() && SCRIPT(go)->has_triggers() && IS_SET(SCRIPT_TYPES(go->script), type);
 }
 
-// * Изменение указанной целочисленной константы
+// * п≤п╥п╪п╣п╫п╣п╫п╦п╣ я┐п╨п╟п╥п╟п╫п╫п╬п╧ я├п╣п╩п╬я┤п╦я│п╩п╣п╫п╫п╬п╧ п╨п╬п╫я│я┌п╟п╫я┌я▀
 long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 {
 	int tmpval;
@@ -1623,7 +1623,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	else if (!str_cmp(field, "words"))
 	{
 		int n = 0;
-		// Подсчет количества слов или получение слова
+		// п÷п╬п╢я│я┤п╣я┌ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ я│п╩п╬п╡ п╦п╩п╦ п©п╬п╩я┐я┤п╣п╫п╦п╣ я│п╩п╬п╡п╟
 		char buf1[MAX_INPUT_LENGTH];
 		char buf2[MAX_INPUT_LENGTH];
 		buf1[0] = 0;
@@ -1674,7 +1674,7 @@ int text_processed(char *field, char *subfield, struct trig_var_data *vd, char *
 	return FALSE;
 }
 
-//WorM: добавил для работы can_get_spell
+//WorM: п╢п╬п╠п╟п╡п╦п╩ п╢п╩я▐ я─п╟п╠п╬я┌я▀ can_get_spell
 //extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 //#define SpINFO spell_info[num]
 // sets str to be the value of var.field
@@ -1708,7 +1708,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 
 	if (!subfield)
 	{
-		subfield = NULL;	// Чтобы проверок меньше было
+		subfield = NULL;	// п╖я┌п╬п╠я▀ п©я─п╬п╡п╣я─п╬п╨ п╪п╣п╫я▄я┬п╣ п╠я▀п╩п╬
 	}
 
 	// X.global() will have a NULL trig
@@ -1732,7 +1732,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			if (!str_cmp(var, "self"))
 			{
 				long uid;
-				// заменить на UID
+				// п╥п╟п╪п╣п╫п╦я┌я▄ п╫п╟ UID
 				switch (type)
 				{
 				case MOB_TRIGGER:
@@ -1945,15 +1945,15 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				if (num >= 0)
 					sprintf(str, "%c%d", UID_ROOM, num);
 			}
-			//Polud world.maxobj(vnum) показывает максимальное количество предметов в мире,
-			//которое прописано в самом предмете с указанным vnum
+			//Polud world.maxobj(vnum) п©п╬п╨п╟п╥я▀п╡п╟п╣я┌ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡ п╡ п╪п╦я─п╣,
+			//п╨п╬я┌п╬я─п╬п╣ п©я─п╬п©п╦я│п╟п╫п╬ п╡ я│п╟п╪п╬п╪ п©я─п╣п╢п╪п╣я┌п╣ я│ я┐п╨п╟п╥п╟п╫п╫я▀п╪ vnum
 			else if ((!str_cmp(field, "maxobj") || !str_cmp(field, "maxobjs")) && num > 0)
 			{
 				num = real_object(num);
 				if (num >= 0)
 				{
-					// если у прототипа беск.таймер,
-					// то их оч много в мире
+					// п╣я│п╩п╦ я┐ п©я─п╬я┌п╬я┌п╦п©п╟ п╠п╣я│п╨.я┌п╟п╧п╪п╣я─,
+					// я┌п╬ п╦я┘ п╬я┤ п╪п╫п╬пЁп╬ п╡ п╪п╦я─п╣
 					if (check_unlimited_timer(obj_proto[num].get()) || (GET_OBJ_MIW(obj_proto[num]) < 0))
 						sprintf(str, "9999999");
 					else
@@ -2001,16 +2001,16 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				switch (weather_info.sunlight)
 				{
 				case SUN_DARK:
-					strcpy(str, "ночь");
+					strcpy(str, "п╫п╬я┤я▄");
 					break;
 				case SUN_SET:
-					strcpy(str, "закат");
+					strcpy(str, "п╥п╟п╨п╟я┌");
 					break;
 				case SUN_LIGHT:
-					strcpy(str, "день");
+					strcpy(str, "п╢п╣п╫я▄");
 					break;
 				case SUN_RISE:
-					strcpy(str, "рассвет");
+					strcpy(str, "я─п╟я│я│п╡п╣я┌");
 					break;
 				}
 
@@ -2020,16 +2020,16 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				switch (weather_info.season)
 				{
 				case SEASON_WINTER:
-					strcat(str, "зима");
+					strcat(str, "п╥п╦п╪п╟");
 					break;
 				case SEASON_SPRING:
-					strcat(str, "весна");
+					strcat(str, "п╡п╣я│п╫п╟");
 					break;
 				case SEASON_SUMMER:
-					strcat(str, "лето");
+					strcat(str, "п╩п╣я┌п╬");
 					break;
 				case SEASON_AUTUMN:
-					strcat(str, "осень");
+					strcat(str, "п╬я│п╣п╫я▄");
 					break;
 				}
 			}
@@ -2224,7 +2224,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					}
 				}
 			}
-			/*Вот тут можно наделать вот так еще:
+			/*п▓п╬я┌ я┌я┐я┌ п╪п╬п╤п╫п╬ п╫п╟п╢п╣п╩п╟я┌я▄ п╡п╬я┌ я┌п╟п╨ п╣я┴п╣:
 			else if (!str_cmp(field, "pop")) {}
 			else if (!str_cmp(field, "shift")) {}
 			else if (!str_cmp(field, "push")) {}
@@ -2297,18 +2297,18 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			if (!IS_NPC(c))
 			{
 				k = (c->has_master() ? c->get_master() : c);
-				if (GET_CLASS(c) == 8)//чернок может дрыниться
+				if (GET_CLASS(c) == 8)//я┤п╣я─п╫п╬п╨ п╪п╬п╤п╣я┌ п╢я─я▀п╫п╦я┌я▄я│я▐
 				{
 					can_use = 2;
 				}
-				else if (GET_CLASS(c) == 0 || GET_CLASS(c) == 13)//Клер или волхв может использовать покровительство
+				else if (GET_CLASS(c) == 0 || GET_CLASS(c) == 13)//п п╩п╣я─ п╦п╩п╦ п╡п╬п╩я┘п╡ п╪п╬п╤п╣я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п©п╬п╨я─п╬п╡п╦я┌п╣п╩я▄я│я┌п╡п╬
 				{
 					can_use = 1;
 				}
 				else if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP))
 				{
-					if (!IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
-						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
+					if (!IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13) //я┤п╣я─п╫п╬п╨ п╦п╩п╦ п╡п╬п╩я┘п╡ п╪п╬п╤п╣я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я┐п╤п╦ п╫п╟ я│п╬пЁя─я┐п©п©п╬п╡
+						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //п╫п╬ я┌п╬п╩я▄п╨п╬ п╣я│п╩п╦ п╫п╟я┘п╬п╢п╦я┌я│я▐ п╡ я┌п╬п╧ п╤п╣ п╥п╬п╫п╣
 					{
 						can_use = 1;
 					}
@@ -2322,8 +2322,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 								continue;
 							}
 							if ((GET_CLASS(f->follower) == 8
-								|| GET_CLASS(f->follower) == 13) //чернок или волхв может использовать ужи на согруппов
-								&& world[IN_ROOM(f->follower)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
+								|| GET_CLASS(f->follower) == 13) //я┤п╣я─п╫п╬п╨ п╦п╩п╦ п╡п╬п╩я┘п╡ п╪п╬п╤п╣я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я┐п╤п╦ п╫п╟ я│п╬пЁя─я┐п©п©п╬п╡
+								&& world[IN_ROOM(f->follower)]->zone == world[IN_ROOM(c)]->zone) //п╫п╬ я┌п╬п╩я▄п╨п╬ п╣я│п╩п╦ п╫п╟я┘п╬п╢п╦я┌я│я▐ п╡ я┌п╬п╧ п╤п╣ п╥п╬п╫п╣
 							{
 								can_use = 1;
 								break;
@@ -2331,11 +2331,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 						}
 					}
 				}
-				if (can_use == 2)//дрын
+				if (can_use == 2)//п╢я─я▀п╫
 				{
 					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * GET_LEVEL(c) / 10;
 				}
-				else if (can_use == 1)//ужи и покров
+				else if (can_use == 1)//я┐п╤п╦ п╦ п©п╬п╨я─п╬п╡
 				{
 					arena_hp = GET_REAL_MAX_HIT(c) + GET_REAL_MAX_HIT(c) * 33 / 100;
 				}
@@ -2459,12 +2459,12 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			sprintf(str, "%d", GET_REAL_AC(c));
 		}
-		else if (!str_cmp(field, "morale")) // общая сумма морали
+		else if (!str_cmp(field, "morale")) // п╬п╠я┴п╟я▐ я│я┐п╪п╪п╟ п╪п╬я─п╟п╩п╦
 		{
 			//GET_MORALE(c) = (int) gm_char_field(c, field, subfield, (long) GET_MORALE(c));
 			sprintf(str, "%d", c->calc_morale());
 		}
-		else if (!str_cmp(field, "moraleadd")) // добавочная мораль
+		else if (!str_cmp(field, "moraleadd")) // п╢п╬п╠п╟п╡п╬я┤п╫п╟я▐ п╪п╬я─п╟п╩я▄
 		{
 			GET_MORALE(c) = (int)gm_char_field(c, field, subfield, (long)GET_MORALE(c));
 			sprintf(str, "%d", GET_MORALE(c));
@@ -2499,23 +2499,23 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if ((!str_cmp(field, "restore")) || (!str_cmp(field, "fullrestore")))
 		{
-			/* Так, тупо, но иначе ругается, мол слишком много блоков*/
+			/* п╒п╟п╨, я┌я┐п©п╬, п╫п╬ п╦п╫п╟я┤п╣ я─я┐пЁп╟п╣я┌я│я▐, п╪п╬п╩ я│п╩п╦я┬п╨п╬п╪ п╪п╫п╬пЁп╬ п╠п╩п╬п╨п╬п╡*/
 			if (!str_cmp(field, "fullrestore"))
 			{
 				do_arena_restore(c, (char *)c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
-				trig_log(trig, "был произведен вызов do_arena_restore!");
+				trig_log(trig, "п╠я▀п╩ п©я─п╬п╦п╥п╡п╣п╢п╣п╫ п╡я▀п╥п╬п╡ do_arena_restore!");
 			}
 			else
 			{
 				do_restore(c, (char *)c->get_name().c_str(), 0, SCMD_RESTORE_TRIGGER);
-				trig_log(trig, "был произведен вызов do_restore!");
+				trig_log(trig, "п╠я▀п╩ п©я─п╬п╦п╥п╡п╣п╢п╣п╫ п╡я▀п╥п╬п╡ do_restore!");
 			}
 		}
 		else if (!str_cmp(field, "dispel"))
 		{
 			if (!c->affected.empty())
 			{
-				send_to_char("Вы словно заново родились!\r\n", c);
+				send_to_char("п▓я▀ я│п╩п╬п╡п╫п╬ п╥п╟п╫п╬п╡п╬ я─п╬п╢п╦п╩п╦я│я▄!\r\n", c);
 			}
 
 			while (!c->affected.empty())
@@ -2529,13 +2529,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			int value;
 			c->set_gold(MAX(0, gm_char_field(c, field, subfield, c->get_gold())));
 			value = c->get_gold() - before;
-			sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]", GET_PAD(c, 0), GET_ROOM_VNUM(c->in_room), value, desc_count(value, WHAT_MONEYu), GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
+			sprintf(buf, "<%s> {%d} п©п╬п╩я┐я┤п╦п╩ я┌я─п╦пЁпЁп╣я─п╬п╪ %d %s. [Trigger: %s, Vnum: %d]", GET_PAD(c, 0), GET_ROOM_VNUM(c->in_room), value, desc_count(value, WHAT_MONEYu), GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
 			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			sprintf(str, "%ld", c->get_gold());
-			// клан-налог
+			// п╨п╩п╟п╫-п╫п╟п╩п╬пЁ
 			const long diff = c->get_gold() - before;
 			split_or_clan_tax(c, diff);
-			// стата для show money
+			// я│я┌п╟я┌п╟ п╢п╩я▐ show money
 			if (!IS_NPC(c) && IN_ROOM(c) > 0)
 			{
 				MoneyDropStat::add(
@@ -2547,10 +2547,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			const long before = c->get_bank();
 			c->set_bank(MAX(0, gm_char_field(c, field, subfield, c->get_bank())));
 			sprintf(str, "%ld", c->get_bank());
-			// клан-налог
+			// п╨п╩п╟п╫-п╫п╟п╩п╬пЁ
 			const long diff = c->get_bank() - before;
 			split_or_clan_tax(c, diff);
-			// стата для show money
+			// я│я┌п╟я┌п╟ п╢п╩я▐ show money
 			if (!IS_NPC(c) && IN_ROOM(c) > 0)
 			{
 				MoneyDropStat::add(
@@ -2573,18 +2573,18 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					if (*subfield == '-')
 					{
 						gain_exp(c, -MAX(1, atoi(subfield + 1)));
-						sprintf(buf, "SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
+						sprintf(buf, "SCRIPT_LOG (exp) я┐ %s я┐п╪п╣п╫я▄я┬п╣п╫ п╬п©я▀я┌ п╫п╟ %d п╡ я┌я─п╦пЁпЁп╣я─п╣ %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
 					}
 					else if (*subfield == '+')
 					{
 						gain_exp(c, +MAX(1, atoi(subfield + 1)));
-						sprintf(buf, "SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
+						sprintf(buf, "SCRIPT_LOG (exp) я┐ %s я┐п╡п╣п╩п╦я┤п╣п╫ п╬п©я▀я┌ п╫п╟ %d п╡ я┌я─п╦пЁпЁп╣я─п╣ %d", GET_NAME(c), MAX(1, atoi(subfield + 1)), GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
 					}
 					else
 					{
-						sprintf(buf, "SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d", GET_NAME(c), atoi(subfield + 1), GET_TRIG_VNUM(trig));
+						sprintf(buf, "SCRIPT_LOG (exp) п·п╗п≤п▒п п░! я┐ %s п╫п╟п©я─я▐п╪я┐я▌ я┐п╨п╟п╥п╟п╫ п╬п©я▀я┌ %d п╡ я┌я─п╦пЁпЁп╣я─п╣ %d", GET_NAME(c), atoi(subfield + 1), GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, LVL_GRGOD, ERRLOG, 1);
 					}
 				}
@@ -2838,7 +2838,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					GET_LOADROOM(c) = pos;
 					c->save_char();
-					sprintf(str, "%d", real_room(pos)); // TODO: почему тогда тут рнум?
+					sprintf(str, "%d", real_room(pos)); // TODO: п©п╬я┤п╣п╪я┐ я┌п╬пЁп╢п╟ я┌я┐я┌ я─п╫я┐п╪?
 				}
 			}
 		}
@@ -2892,7 +2892,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				}
 			}
 		}
-		// все эти блоки надо переписать на что-нибудь другое, их слишком много
+		// п╡я│п╣ я█я┌п╦ п╠п╩п╬п╨п╦ п╫п╟п╢п╬ п©п╣я─п╣п©п╦я│п╟я┌я▄ п╫п╟ я┤я┌п╬-п╫п╦п╠я┐п╢я▄ п╢я─я┐пЁп╬п╣, п╦я┘ я│п╩п╦я┬п╨п╬п╪ п╪п╫п╬пЁп╬
 		else if (!str_cmp(field, "unsetquest") || !str_cmp(field, "alliance"))
 		{
 			if (!str_cmp(field, "alliance"))
@@ -3033,9 +3033,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 
 		//added by WorM
-		//собственно подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
-		//тупизм какой-то проверять аффекты обездвижен,летит и т.п.
-		//к тому же они в том списке не все кличи например никак там не отображаются
+		//я│п╬п╠я│я┌п╡п╣п╫п╫п╬ п©п╬п╢п╬п╥я─п╣п╡п╟я▌ я┤я┌п╬ п╫п╦п╨я┌п╬ п╦п╥ п╠п╦п╩п╢п╣я─п╬п╡ п╢п╟п╤п╣ п╫п╣ п╡п╨я┐я─я│п╣ п╫п╟я│я┤п╣я┌ п╡я│п╣пЁп╬ я└я┐п╫п╨я├п╦п╬п╫п╟п╩п╟ я█я┌п╬пЁп╬ affect
+		//я┌я┐п©п╦п╥п╪ п╨п╟п╨п╬п╧-я┌п╬ п©я─п╬п╡п╣я─я▐я┌я▄ п╟я└я└п╣п╨я┌я▀ п╬п╠п╣п╥п╢п╡п╦п╤п╣п╫,п╩п╣я┌п╦я┌ п╦ я┌.п©.
+		//п╨ я┌п╬п╪я┐ п╤п╣ п╬п╫п╦ п╡ я┌п╬п╪ я│п©п╦я│п╨п╣ п╫п╣ п╡я│п╣ п╨п╩п╦я┤п╦ п╫п╟п©я─п╦п╪п╣я─ п╫п╦п╨п╟п╨ я┌п╟п╪ п╫п╣ п╬я┌п╬п╠я─п╟п╤п╟я▌я┌я│я▐
 		else if (!str_cmp(field, "affected_by"))
 		{
 			if ((num = fix_name_and_find_spell_num(subfield)) > 0)
@@ -3070,7 +3070,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			{
 				l = c;
 			}
-			// l - лидер группы
+			// l - п╩п╦п╢п╣я─ пЁя─я┐п©п©я▀
 			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
 			for (f = l->followers; f; f = f->next)
 			{
@@ -3121,7 +3121,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				strcpy(str, "");
 			}
 		}
-		//Polud обработка поля objs у чара, возвращает строку со списком UID предметов в инвентаре
+		//Polud п╬п╠я─п╟п╠п╬я┌п╨п╟ п©п╬п╩я▐ objs я┐ я┤п╟я─п╟, п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ я│я┌я─п╬п╨я┐ я│п╬ я│п©п╦я│п╨п╬п╪ UID п©я─п╣п╢п╪п╣я┌п╬п╡ п╡ п╦п╫п╡п╣п╫я┌п╟я─п╣
 		else if (!str_cmp(field, "objs"))
 		{
 			size_t str_length = strlen(str);
@@ -3146,11 +3146,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			int inroom;
 
-			// Составление списка (для mob)
+			// п║п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я│п©п╦я│п╨п╟ (п╢п╩я▐ mob)
 			inroom = IN_ROOM(c);
 			if (inroom == NOWHERE)
 			{
-				trig_log(trig, "mob-построитель списка в NOWHERE");
+				trig_log(trig, "mob-п©п╬я│я┌я─п╬п╦я┌п╣п╩я▄ я│п©п╦я│п╨п╟ п╡ NOWHERE");
 				return;
 			}
 
@@ -3436,7 +3436,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				strcpy(str, "");
 			}
 		}
-		//Polud обработка %obj.put(UID)% - пытается поместить объект в контейнер, комнату или инвентарь чара, в зависимости от UIDа
+		//Polud п╬п╠я─п╟п╠п╬я┌п╨п╟ %obj.put(UID)% - п©я▀я┌п╟п╣я┌я│я▐ п©п╬п╪п╣я│я┌п╦я┌я▄ п╬п╠я┼п╣п╨я┌ п╡ п╨п╬п╫я┌п╣п╧п╫п╣я─, п╨п╬п╪п╫п╟я┌я┐ п╦п╩п╦ п╦п╫п╡п╣п╫я┌п╟я─я▄ я┤п╟я─п╟, п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ UIDп╟
 		else if (!str_cmp(field, "put"))
 		{
 			OBJ_DATA *obj_to = NULL;
@@ -3444,7 +3444,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			ROOM_DATA *room_to = NULL;
 			if (!((*subfield == UID_CHAR) || (*subfield == UID_OBJ) || (*subfield == UID_ROOM)))
 			{
-				trig_log(trig, "object.put: недопустимый аргумент, необходимо указать UID");
+				trig_log(trig, "object.put: п╫п╣п╢п╬п©я┐я│я┌п╦п╪я▀п╧ п╟я─пЁя┐п╪п╣п╫я┌, п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ я┐п╨п╟п╥п╟я┌я▄ UID");
 				return;
 			}
 			if (*subfield == UID_OBJ)
@@ -3453,7 +3453,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				if (!(obj_to
 					&& GET_OBJ_TYPE(obj_to) == OBJ_DATA::ITEM_CONTAINER))
 				{
-					trig_log(trig, "object.put: объект-приемник не найден или не является контейнером");
+					trig_log(trig, "object.put: п╬п╠я┼п╣п╨я┌-п©я─п╦п╣п╪п╫п╦п╨ п╫п╣ п╫п╟п╧п╢п╣п╫ п╦п╩п╦ п╫п╣ я▐п╡п╩я▐п╣я┌я│я▐ п╨п╬п╫я┌п╣п╧п╫п╣я─п╬п╪");
 					return;
 				}
 			}
@@ -3462,7 +3462,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				char_to = find_char(atoi(subfield + 1));
 				if (!(char_to && can_take_obj(char_to, o)))
 				{
-					trig_log(trig, "object.put: субъект-приемник не найден или не может нести этот объект");
+					trig_log(trig, "object.put: я│я┐п╠я┼п╣п╨я┌-п©я─п╦п╣п╪п╫п╦п╨ п╫п╣ п╫п╟п╧п╢п╣п╫ п╦п╩п╦ п╫п╣ п╪п╬п╤п╣я┌ п╫п╣я│я┌п╦ я█я┌п╬я┌ п╬п╠я┼п╣п╨я┌");
 					return;
 				}
 			}
@@ -3471,7 +3471,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				room_to = find_room(atoi(subfield + 1));
 				if (!(room_to && (room_to->number != NOWHERE)))
 				{
-					trig_log(trig, "object.put: недопустимая комната для размещения объекта");
+					trig_log(trig, "object.put: п╫п╣п╢п╬п©я┐я│я┌п╦п╪п╟я▐ п╨п╬п╪п╫п╟я┌п╟ п╢п╩я▐ я─п╟п╥п╪п╣я┴п╣п╫п╦я▐ п╬п╠я┼п╣п╨я┌п╟");
 					return;
 				}
 			}
@@ -3495,7 +3495,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 			else
 			{
-				trig_log(trig, "object.put: не удалось извлечь объект");
+				trig_log(trig, "object.put: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╦п╥п╡п╩п╣я┤я▄ п╬п╠я┼п╣п╨я┌");
 				return;
 			}
 			//finally, put it to destination
@@ -3507,7 +3507,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				obj_to_room(o, real_room(room_to->number));
 			else
 			{
-				sprintf(buf2, "object.put: ATTENTION! за время подготовки объекта >%s< к передаче перестал существовать адресат. Объект сейчас в NOWHERE",
+				sprintf(buf2, "object.put: ATTENTION! п╥п╟ п╡я─п╣п╪я▐ п©п╬п╢пЁп╬я┌п╬п╡п╨п╦ п╬п╠я┼п╣п╨я┌п╟ >%s< п╨ п©п╣я─п╣п╢п╟я┤п╣ п©п╣я─п╣я│я┌п╟п╩ я│я┐я┴п╣я│я┌п╡п╬п╡п╟я┌я▄ п╟п╢я─п╣я│п╟я┌. п·п╠я┼п╣п╨я┌ я│п╣п╧я┤п╟я│ п╡ NOWHERE",
 					o->get_short_description().c_str());
 				trig_log(trig, buf2);
 				return;
@@ -3519,11 +3519,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			int inroom;
 
-			// Составление списка (для obj)
+			// п║п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я│п©п╦я│п╨п╟ (п╢п╩я▐ obj)
 			inroom = obj_room(o);
 			if (inroom == NOWHERE)
 			{
-				trig_log(trig, "obj-построитель списка в NOWHERE");
+				trig_log(trig, "obj-п©п╬я│я┌я─п╬п╦я┌п╣п╩я▄ я│п©п╦я│п╨п╟ п╡ NOWHERE");
 				return;
 			}
 
@@ -3564,8 +3564,8 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			{
 				skip_spaces(&subfield);
 				int num = atoi(subfield);
-				// Убрал пока проверку. По идее 0 -- отсутствие владельца.
-				// Понадобилась возможность обнулить владельца из трига.
+				// пёп╠я─п╟п╩ п©п╬п╨п╟ п©я─п╬п╡п╣я─п╨я┐. п÷п╬ п╦п╢п╣п╣ 0 -- п╬я┌я│я┐я┌я│я┌п╡п╦п╣ п╡п╩п╟п╢п╣п╩я▄я├п╟.
+				// п÷п╬п╫п╟п╢п╬п╠п╦п╩п╟я│я▄ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄ п╬п╠п╫я┐п╩п╦я┌я▄ п╡п╩п╟п╢п╣п╩я▄я├п╟ п╦п╥ я┌я─п╦пЁп╟.
 				o->set_owner(num);
 			}
 			else
@@ -3687,7 +3687,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			sprintf(str, "%d", r->number);
 		}
-		else if (!str_cmp(field, "sectortype"))//Polud возвращает строку - тип комнаты
+		else if (!str_cmp(field, "sectortype"))//Polud п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ я│я┌я─п╬п╨я┐ - я┌п╦п© п╨п╬п╪п╫п╟я┌я▀
 		{
 			sprinttype(r->sector_type, sector_types, str);
 		}
@@ -3714,11 +3714,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			int inroom;
 
-			// Составление списка (для room)
+			// п║п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я│п©п╦я│п╨п╟ (п╢п╩я▐ room)
 			inroom = real_room(r->number);
 			if (inroom == NOWHERE)
 			{
-				trig_log(trig, "room-построитель списка в NOWHERE");
+				trig_log(trig, "room-п©п╬я│я┌я─п╬п╦я┌п╣п╩я▄ я│п©п╦я│п╨п╟ п╡ NOWHERE");
 				return;
 			}
 
@@ -3755,13 +3755,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "objects"))
 		{
-			//mixaz  Выдаем список объектов в комнате
+			//mixaz  п▓я▀п╢п╟п╣п╪ я│п©п╦я│п╬п╨ п╬п╠я┼п╣п╨я┌п╬п╡ п╡ п╨п╬п╪п╫п╟я┌п╣
 			int inroom;
-			// Составление списка (для room)
+			// п║п╬я│я┌п╟п╡п╩п╣п╫п╦п╣ я│п©п╦я│п╨п╟ (п╢п╩я▐ room)
 			inroom = real_room(r->number);
 			if (inroom == NOWHERE)
 			{
-				trig_log(trig, "room-построитель списка в NOWHERE");
+				trig_log(trig, "room-п©п╬я│я┌я─п╬п╦я┌п╣п╩я▄ я│п©п╦я│п╨п╟ п╡ NOWHERE");
 				return;
 			}
 
@@ -4152,19 +4152,19 @@ const auto FOREACH_LIST_GUID = "{18B3D8D1-240E-4D60-AEAB-6748580CA460}";
 const auto FOREACH_LIST_POS_GUID = "{4CC4E031-7376-4EED-AD4F-2FD0DC8D4E2D}";
 
 /*++
-cond - строка параметров цикла. Для комнады "foreach i .." cond = "i .."
-go - уразатель на MOB/OBJ/ROOM (см. type)
+cond - я│я┌я─п╬п╨п╟ п©п╟я─п╟п╪п╣я┌я─п╬п╡ я├п╦п╨п╩п╟. п■п╩я▐ п╨п╬п╪п╫п╟п╢я▀ "foreach i .." cond = "i .."
+go - я┐я─п╟п╥п╟я┌п╣п╩я▄ п╫п╟ MOB/OBJ/ROOM (я│п╪. type)
 sc - SCRIPT(go)
-trig - исполняемый триггер
-type - тип (MOB_TRIGGER,OBJ_TRIGGER,WLD_TRIGGER)
+trig - п╦я│п©п╬п╩п╫я▐п╣п╪я▀п╧ я┌я─п╦пЁпЁп╣я─
+type - я┌п╦п© (MOB_TRIGGER,OBJ_TRIGGER,WLD_TRIGGER)
 
-Запись
-foreach i <список>
-работает так:
+п≈п╟п©п╦я│я▄
+foreach i <я│п©п╦я│п╬п╨>
+я─п╟п╠п╬я┌п╟п╣я┌ я┌п╟п╨:
 
-1. Если список пустой - выйти
-2. Переменная i равна к-ому элементу списка. Если это последний элемент - выйти
-Иначе i = след. элемент и выполнить тело
+1. п∙я│п╩п╦ я│п©п╦я│п╬п╨ п©я┐я│я┌п╬п╧ - п╡я▀п╧я┌п╦
+2. п÷п╣я─п╣п╪п╣п╫п╫п╟я▐ i я─п╟п╡п╫п╟ п╨-п╬п╪я┐ я█п╩п╣п╪п╣п╫я┌я┐ я│п©п╦я│п╨п╟. п∙я│п╩п╦ я█я┌п╬ п©п╬я│п╩п╣п╢п╫п╦п╧ я█п╩п╣п╪п╣п╫я┌ - п╡я▀п╧я┌п╦
+п≤п╫п╟я┤п╣ i = я│п╩п╣п╢. я█п╩п╣п╪п╣п╫я┌ п╦ п╡я▀п©п╬п╩п╫п╦я┌я▄ я┌п╣п╩п╬
 --*/
 // returns 1 if next iteration, else 0
 int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type)
@@ -4500,10 +4500,10 @@ void process_wait(void *go, TRIG_DATA * trig, int type, char *cmd, const cmdlist
 		&& IS_SET(GET_TRIG_TYPE(trig), MTRIG_DEATH))
 	{
 		sprintf(buf,
-			"&YВНИМАНИЕ&G Используется wait в DEATH триггере '%s' (VNUM=%d).",
+			"&Yп▓п²п≤п°п░п²п≤п∙&G п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ wait п╡ DEATH я┌я─п╦пЁпЁп╣я─п╣ '%s' (VNUM=%d).",
 			GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
 		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
-		sprintf(buf, "&GКод триггера после wait выполнен НЕ БУДЕТ!");
+		sprintf(buf, "&Gп п╬п╢ я┌я─п╦пЁпЁп╣я─п╟ п©п╬я│п╩п╣ wait п╡я▀п©п╬п╩п╫п╣п╫ п²п∙ п▒пёп■п∙п╒!");
 		mudlog(buf, BRF, LVL_BUILDER, ERRLOG, TRUE);
 	}
 
@@ -4998,8 +4998,8 @@ void makeuid_var(void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type, char *c
 /**
 * Added 17/04/2000
 * calculate a UID variable from the VNUM
-* calcuid <переменная куда пишется id> <внум> <room|mob|obj> <порядковый номер от 1 до х>
-* если порядковый не указан - возвращается первое вхождение.
+* calcuid <п©п╣я─п╣п╪п╣п╫п╫п╟я▐ п╨я┐п╢п╟ п©п╦я┬п╣я┌я│я▐ id> <п╡п╫я┐п╪> <room|mob|obj> <п©п╬я─я▐п╢п╨п╬п╡я▀п╧ п╫п╬п╪п╣я─ п╬я┌ 1 п╢п╬ я┘>
+* п╣я│п╩п╦ п©п╬я─я▐п╢п╨п╬п╡я▀п╧ п╫п╣ я┐п╨п╟п╥п╟п╫ - п╡п╬п╥п╡я─п╟я┴п╟п╣я┌я│я▐ п©п╣я─п╡п╬п╣ п╡я┘п╬п╤п╢п╣п╫п╦п╣.
 */
 void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char *cmd)
 {
@@ -5036,10 +5036,10 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 	int count_num = 0;
 	if (*count)
 	{
-		count_num = atoi(count) - 1;	//В dg индексация с 1
+		count_num = atoi(count) - 1;	//п▓ dg п╦п╫п╢п╣п╨я│п╟я├п╦я▐ я│ 1
 		if (count_num < 0)
 		{
-			//Произойдет, если в dg пришел индекс 0 (ошибка)
+			//п÷я─п╬п╦п╥п╬п╧п╢п╣я┌, п╣я│п╩п╦ п╡ dg п©я─п╦я┬п╣п╩ п╦п╫п╢п╣п╨я│ 0 (п╬я┬п╦п╠п╨п╟)
 			sprintf(buf2, "calcuid invalid count: '%s'", count);
 			trig_log(trig, buf2);
 			return;
@@ -5083,9 +5083,9 @@ void calcuid_var(void* go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char
 }
 
 /*
- * Поиск чаров с записью в переменную UID-а в случае онлайна человека
- * Возвращает в указанную переменную UID первого PC, с именем которого
- * совпадает аргумент
+ * п÷п╬п╦я│п╨ я┤п╟я─п╬п╡ я│ п╥п╟п©п╦я│я▄я▌ п╡ п©п╣я─п╣п╪п╣п╫п╫я┐я▌ UID-п╟ п╡ я│п╩я┐я┤п╟п╣ п╬п╫п╩п╟п╧п╫п╟ я┤п╣п╩п╬п╡п╣п╨п╟
+ * п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╡ я┐п╨п╟п╥п╟п╫п╫я┐я▌ п©п╣я─п╣п╪п╣п╫п╫я┐я▌ UID п©п╣я─п╡п╬пЁп╬ PC, я│ п╦п╪п╣п╫п╣п╪ п╨п╬я┌п╬я─п╬пЁп╬
+ * я│п╬п╡п©п╟п╢п╟п╣я┌ п╟я─пЁя┐п╪п╣п╫я┌
  */
 void charuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 {
@@ -5139,7 +5139,7 @@ void charuid_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, char *cmd)
 	add_var_cntx(&GET_TRIG_VARS(trig), varname, uid, 0);
 }
 
-// * Поиск мобов для calcuidall_var.
+// * п÷п╬п╦я│п╨ п╪п╬п╠п╬п╡ п╢п╩я▐ calcuidall_var.
 bool find_all_char_vnum(long n, char *str)
 {
 	int count = 0;
@@ -5155,7 +5155,7 @@ bool find_all_char_vnum(long n, char *str)
 	return count ? true : false;
 }
 
-// * Поиск предметов для calcuidall_var.
+// * п÷п╬п╦я│п╨ п©я─п╣п╢п╪п╣я┌п╬п╡ п╢п╩я▐ calcuidall_var.
 bool find_all_obj_vnum(long n, char *str)
 {
 	int count = 0;
@@ -5173,7 +5173,7 @@ bool find_all_obj_vnum(long n, char *str)
 	return count ? true : false;
 }
 
-// * Копи-паст с calcuid_var для возврата строки со всеми найденными уидами мобов/предметов (до 25ти вхождений).
+// * п п╬п©п╦-п©п╟я│я┌ я│ calcuid_var п╢п╩я▐ п╡п╬п╥п╡я─п╟я┌п╟ я│я┌я─п╬п╨п╦ я│п╬ п╡я│п╣п╪п╦ п╫п╟п╧п╢п╣п╫п╫я▀п╪п╦ я┐п╦п╢п╟п╪п╦ п╪п╬п╠п╬п╡/п©я─п╣п╢п╪п╣я┌п╬п╡ (п╢п╬ 25я┌п╦ п╡я┘п╬п╤п╢п╣п╫п╦п╧).
 void calcuidall_var(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int/* type*/, char *cmd)
 {
 	char arg[MAX_INPUT_LENGTH], varname[MAX_INPUT_LENGTH];
@@ -5331,13 +5331,13 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 	// for all but PC's, context comes from the existing context.
 	// for PC's, context is 0 (global)
 //  context = vd->context;
-// Контекст можно брать как vd->context или sc->context
-// Если брать vd->context, то теряем контекст при переносе локальной переменной
-// Если брать sc->context, то по-моему получится правильней, а именно:
-// Для локальной переменной контекст значения не играет, т.о.
-// если есть желание перенести локальную переменную заранее установите
-// контекст в 0. Для глобальной переменной переменная с контекстом 0
-// "покрывает" отсутствующие контексты
+// п п╬п╫я┌п╣п╨я│я┌ п╪п╬п╤п╫п╬ п╠я─п╟я┌я▄ п╨п╟п╨ vd->context п╦п╩п╦ sc->context
+// п∙я│п╩п╦ п╠я─п╟я┌я▄ vd->context, я┌п╬ я┌п╣я─я▐п╣п╪ п╨п╬п╫я┌п╣п╨я│я┌ п©я─п╦ п©п╣я─п╣п╫п╬я│п╣ п╩п╬п╨п╟п╩я▄п╫п╬п╧ п©п╣я─п╣п╪п╣п╫п╫п╬п╧
+// п∙я│п╩п╦ п╠я─п╟я┌я▄ sc->context, я┌п╬ п©п╬-п╪п╬п╣п╪я┐ п©п╬п╩я┐я┤п╦я┌я│я▐ п©я─п╟п╡п╦п╩я▄п╫п╣п╧, п╟ п╦п╪п╣п╫п╫п╬:
+// п■п╩я▐ п╩п╬п╨п╟п╩я▄п╫п╬п╧ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ п╨п╬п╫я┌п╣п╨я│я┌ п╥п╫п╟я┤п╣п╫п╦я▐ п╫п╣ п╦пЁя─п╟п╣я┌, я┌.п╬.
+// п╣я│п╩п╦ п╣я│я┌я▄ п╤п╣п╩п╟п╫п╦п╣ п©п╣я─п╣п╫п╣я│я┌п╦ п╩п╬п╨п╟п╩я▄п╫я┐я▌ п©п╣я─п╣п╪п╣п╫п╫я┐я▌ п╥п╟я─п╟п╫п╣п╣ я┐я│я┌п╟п╫п╬п╡п╦я┌п╣
+// п╨п╬п╫я┌п╣п╨я│я┌ п╡ 0. п■п╩я▐ пЁп╩п╬п╠п╟п╩я▄п╫п╬п╧ п©п╣я─п╣п╪п╣п╫п╫п╬п╧ п©п╣я─п╣п╪п╣п╫п╫п╟я▐ я│ п╨п╬п╫я┌п╣п╨я│я┌п╬п╪ 0
+// "п©п╬п╨я─я▀п╡п╟п╣я┌" п╬я┌я│я┐я┌я│я┌п╡я┐я▌я┴п╦п╣ п╨п╬п╫я┌п╣п╨я│я┌я▀
 	context = sc->context;
 
 	if ((room = get_room(buf2)))
@@ -6116,19 +6116,19 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((first < 0) || (first > MAX_PROTO_NUMBER) || (last < 0) || (last > MAX_PROTO_NUMBER))
 	{
-		sprintf(buf, "Значения должны быть между 0 и %d.\n\r", MAX_PROTO_NUMBER);
+		sprintf(buf, "п≈п╫п╟я┤п╣п╫п╦я▐ п╢п╬п╩п╤п╫я▀ п╠я▀я┌я▄ п╪п╣п╤п╢я┐ 0 п╦ %d.\n\r", MAX_PROTO_NUMBER);
 		send_to_char(buf, ch);
 	}
 
 	if (first >= last)
 	{
-		send_to_char("Второе значение должно быть больше первого.\n\r", ch);
+		send_to_char("п▓я┌п╬я─п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╠п╬п╩я▄я┬п╣ п©п╣я─п╡п╬пЁп╬.\n\r", ch);
 		return;
 	}
 
 	if (first + 200 < last)
 	{
-		send_to_char("Максимальный показываемый промежуток - 200.\n\r", ch);
+		send_to_char("п°п╟п╨я│п╦п╪п╟п╩я▄п╫я▀п╧ п©п╬п╨п╟п╥я▀п╡п╟п╣п╪я▀п╧ п©я─п╬п╪п╣п╤я┐я┌п╬п╨ - 200.\n\r", ch);
 		return;
 	}
 
@@ -6153,7 +6153,7 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				out += "[WLD_TRIG]";
 			}
 
-			sprintf(buf, "%5d. [%5d] %s\r\nПрикрепленные триггеры: ", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
+			sprintf(buf, "%5d. [%5d] %s\r\nп÷я─п╦п╨я─п╣п©п╩п╣п╫п╫я▀п╣ я┌я─п╦пЁпЁп╣я─я▀: ", ++found, trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
 			out += buf;
 			if (!owner_trig[trig_index[nr]->vnum].empty())
 			{
@@ -6179,7 +6179,7 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 			{
-				out += "Отсутствуют\r\n";
+				out += "п·я┌я│я┐я┌я│я┌п╡я┐я▌я┌\r\n";
 			}
 			strcat(pagebuf, out.c_str());
 		}
@@ -6430,8 +6430,8 @@ bool TriggersList::add(TRIG_DATA* trigger, const bool to_front /*= false*/)
 	{
 		if (trigger->get_rnum() == i->get_rnum())
 		{
-			//Мы не можем здесь заменить имеющийся триггер на новый
-			//т.к. имеющийся триггер может уже использоваться или быть в ожидание (wait command)
+			//п°я▀ п╫п╣ п╪п╬п╤п╣п╪ п╥п╢п╣я│я▄ п╥п╟п╪п╣п╫п╦я┌я▄ п╦п╪п╣я▌я┴п╦п╧я│я▐ я┌я─п╦пЁпЁп╣я─ п╫п╟ п╫п╬п╡я▀п╧
+			//я┌.п╨. п╦п╪п╣я▌я┴п╦п╧я│я▐ я┌я─п╦пЁпЁп╣я─ п╪п╬п╤п╣я┌ я┐п╤п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄я│я▐ п╦п╩п╦ п╠я▀я┌я▄ п╡ п╬п╤п╦п╢п╟п╫п╦п╣ (wait command)
 			return false;
 		}
 	}

@@ -6,7 +6,7 @@
 #include <list>
 #include <memory>
 
-const std::string DICTIONARY_RESULT_UNDEFINED = "Не найдено";
+const std::string DICTIONARY_RESULT_UNDEFINED = "п²п╣ п╫п╟п╧п╢п╣п╫п╬";
 
 enum DictionaryMode {SHOP};
 
@@ -26,7 +26,7 @@ public:
 
 private:
 	std::string DictionaryName;
-	std::string DictionaryTID;//символьный идентификатор
+	std::string DictionaryTID;//я│п╦п╪п╡п╬п╩я▄п╫я▀п╧ п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─
 };
 
 typedef std::vector<DictionaryItemPtr> DictionaryType;

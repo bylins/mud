@@ -8,7 +8,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-// Реализация ингредиентной магии
+// п═п╣п╟п╩п╦п╥п╟я├п╦я▐ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╫п╬п╧ п╪п╟пЁп╦п╦
 
 #include "im.h"
 
@@ -38,7 +38,7 @@
 
 #define imlog(lvl,str)	mudlog(str, lvl, LVL_BUILDER, IMLOG, TRUE)
 
-// из spec_proc.c
+// п╦п╥ spec_proc.c
 char *how_good(CHAR_DATA * ch, int percent);
 
 extern CHAR_DATA *mob_proto;
@@ -49,13 +49,13 @@ void do_recipes(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_cook(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_imlist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-im_type *imtypes = NULL;	// Список зарегестрированных ТИПОВ/МЕТАТИПОВ
-int top_imtypes = -1;		// Последний номер типа ИМ
+im_type *imtypes = NULL;	// п║п©п╦я│п╬п╨ п╥п╟я─п╣пЁп╣я│я┌я─п╦я─п╬п╡п╟п╫п╫я▀я┘ п╒п≤п÷п·п▓/п°п∙п╒п░п╒п≤п÷п·п▓
+int top_imtypes = -1;		// п÷п╬я│п╩п╣п╢п╫п╦п╧ п╫п╬п╪п╣я─ я┌п╦п©п╟ п≤п°
 
-im_recipe *imrecipes = NULL;	// Список зарегестрированных рецептов
-int top_imrecipes = -1;		// Последний номер рецепта ИМ
+im_recipe *imrecipes = NULL;	// п║п©п╦я│п╬п╨ п╥п╟я─п╣пЁп╣я│я┌я─п╦я─п╬п╡п╟п╫п╫я▀я┘ я─п╣я├п╣п©я┌п╬п╡
+int top_imrecipes = -1;		// п÷п╬я│п╩п╣п╢п╫п╦п╧ п╫п╬п╪п╣я─ я─п╣я├п╣п©я┌п╟ п≤п°
 
-// Поиск типа по имени name. mode=0-только элементарные,1-все подряд
+// п÷п╬п╦я│п╨ я┌п╦п©п╟ п©п╬ п╦п╪п╣п╫п╦ name. mode=0-я┌п╬п╩я▄п╨п╬ я█п╩п╣п╪п╣п╫я┌п╟я─п╫я▀п╣,1-п╡я│п╣ п©п╬п╢я─я▐п╢
 int im_get_type_by_name(char *name, int mode)
 {
 	int i;
@@ -68,7 +68,7 @@ int im_get_type_by_name(char *name, int mode)
 	}
 	return -1;
 }
-//Поиск index по номеру ТИПА
+//п÷п╬п╦я│п╨ index п©п╬ п╫п╬п╪п╣я─я┐ п╒п≤п÷п░
 
 int im_get_idx_by_type(int type)
 {
@@ -81,7 +81,7 @@ int im_get_idx_by_type(int type)
 	return -1;
 }
 
-// Поиск rid по id
+// п÷п╬п╦я│п╨ rid п©п╬ id
 int im_get_recipe(int id)
 {
 	int rid;
@@ -91,7 +91,7 @@ int im_get_recipe(int id)
 	return rid;
 }
 
-// Поиск rid по имени
+// п÷п╬п╦я│п╨ rid п©п╬ п╦п╪п╣п╫п╦
 int im_get_recipe_by_name(char *name)
 {
 	int rid;
@@ -140,7 +140,7 @@ int im_get_char_rskill_count(CHAR_DATA * ch)
 	return cnt;
 }
 
-// Расширяет хранилище битов, до указанного размера (в случае необходимости)
+// п═п╟я│я┬п╦я─я▐п╣я┌ я┘я─п╟п╫п╦п╩п╦я┴п╣ п╠п╦я┌п╬п╡, п╢п╬ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ я─п╟п╥п╪п╣я─п╟ (п╡ я│п╩я┐я┤п╟п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦)
 void TypeListAllocate(im_tlist * tl, int size)
 {
 	if (tl->size < size)
@@ -157,14 +157,14 @@ void TypeListAllocate(im_tlist * tl, int size)
 	}
 }
 
-// устанавливает в битовой маске списка типов tl бит номер index
+// я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌ п╡ п╠п╦я┌п╬п╡п╬п╧ п╪п╟я│п╨п╣ я│п©п╦я│п╨п╟ я┌п╦п©п╬п╡ tl п╠п╦я┌ п╫п╬п╪п╣я─ index
 void TypeListSetSingle(im_tlist * tl, int index)
 {
 	TypeListAllocate(tl, (index >> 8) + 1);
 	tl->types[index >> 8] |= (1 << (index & 31));
 }
 
-// устанавливает в битовой маске списка типов tl все биты списка src
+// я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌ п╡ п╠п╦я┌п╬п╡п╬п╧ п╪п╟я│п╨п╣ я│п©п╦я│п╨п╟ я┌п╦п©п╬п╡ tl п╡я│п╣ п╠п╦я┌я▀ я│п©п╦я│п╨п╟ src
 void TypeListSet(im_tlist * tl, im_tlist * src)
 {
 	int i;
@@ -173,7 +173,7 @@ void TypeListSet(im_tlist * tl, im_tlist * src)
 		tl->types[i] |= src->types[i];
 }
 
-// проверяет в битовой маске списка типов tl бит index
+// п©я─п╬п╡п╣я─я▐п╣я┌ п╡ п╠п╦я┌п╬п╡п╬п╧ п╪п╟я│п╨п╣ я│п©п╦я│п╨п╟ я┌п╦п©п╬п╡ tl п╠п╦я┌ index
 int TypeListCheck(im_tlist * tl, int index)
 {
 	TypeListAllocate(tl, (index >> 8) + 1);
@@ -181,7 +181,7 @@ int TypeListCheck(im_tlist * tl, int index)
 }
 
 
-// Рассчет силы ингредиента, при погрузке на землю
+// п═п╟я│я│я┤п╣я┌ я│п╦п╩я▀ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟, п©я─п╦ п©п╬пЁя─я┐п╥п╨п╣ п╫п╟ п╥п╣п╪п╩я▌
 const int def_probs[] =
 {
 	20,			// 20%    - 1
@@ -201,7 +201,7 @@ const int def_probs[] =
 	98,			//  2%    - 15
 	99,			//  1%    - 16
 	100			//  1%    - 17
-	// старше 17 вообще не погрузятся
+	// я│я┌п╟я─я┬п╣ 17 п╡п╬п╬п╠я┴п╣ п╫п╣ п©п╬пЁя─я┐п╥я▐я┌я│я▐
 };
 int im_calc_power(void)
 {
@@ -212,12 +212,12 @@ int im_calc_power(void)
 
 
 /*
-   Загрузка магического ингредиента происходит в два этапа:
-     1. Стандартными способами создается объект из прототипа ТИПА ингредиента
-     2. Созданному объекту нзаначается сила
+   п≈п╟пЁя─я┐п╥п╨п╟ п╪п╟пЁп╦я┤п╣я│п╨п╬пЁп╬ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟ п©я─п╬п╦я│я┘п╬п╢п╦я┌ п╡ п╢п╡п╟ я█я┌п╟п©п╟:
+     1. п║я┌п╟п╫п╢п╟я─я┌п╫я▀п╪п╦ я│п©п╬я│п╬п╠п╟п╪п╦ я│п╬п╥п╢п╟п╣я┌я│я▐ п╬п╠я┼п╣п╨я┌ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟ п╒п≤п÷п░ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟
+     2. п║п╬п╥п╢п╟п╫п╫п╬п╪я┐ п╬п╠я┼п╣п╨я┌я┐ п╫п╥п╟п╫п╟я┤п╟п╣я┌я│я▐ я│п╦п╩п╟
 */
 
-// Поиск алиаса
+// п÷п╬п╦я│п╨ п╟п╩п╦п╟я│п╟
 char * get_im_alias(im_memb * s, const char *name)
 {
 	char **al;
@@ -227,7 +227,7 @@ char * get_im_alias(im_memb * s, const char *name)
 	return al[1];
 }
 
-// Функция заменяет alias в названиях ингредиентов
+// п╓я┐п╫п╨я├п╦я▐ п╥п╟п╪п╣п╫я▐п╣я┌ alias п╡ п╫п╟п╥п╡п╟п╫п╦я▐я┘ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡
 const char* replace_alias(const char *ptr, im_memb * sample, int rnum, const char *std)
 {
 	char *dst, *al;
@@ -236,17 +236,17 @@ const char* replace_alias(const char *ptr, im_memb * sample, int rnum, const cha
 	if (!sample && rnum == -1)
 		return ptr;
 
-	// Строю соответствуюжую строку в buf
+	// п║я┌я─п╬я▌ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌п╤я┐я▌ я│я┌я─п╬п╨я┐ п╡ buf
 	if (sample)
 	{
-		// поиск в образце
+		// п©п╬п╦я│п╨ п╡ п╬п╠я─п╟п╥я├п╣
 		if (std && (al = get_im_alias(sample, std)) != NULL)
 		{
 			ptr = al;
 		}
 		else
 		{
-			// Посимвольный разбор строки
+			// п÷п╬я│п╦п╪п╡п╬п╩я▄п╫я▀п╧ я─п╟п╥п╠п╬я─ я│я┌я─п╬п╨п╦
 			dst = buf;
 			do
 			{
@@ -268,8 +268,8 @@ const char* replace_alias(const char *ptr, im_memb * sample, int rnum, const cha
 	}
 	else
 	{
-		// поиск в мобе (только p0-p5)
-		// Посимвольный разбор строки
+		// п©п╬п╦я│п╨ п╡ п╪п╬п╠п╣ (я┌п╬п╩я▄п╨п╬ p0-p5)
+		// п÷п╬я│п╦п╪п╡п╬п╩я▄п╫я▀п╧ я─п╟п╥п╠п╬я─ я│я┌я─п╬п╨п╦
 		for (dst = buf; (*dst++ = *ptr++) != 0;)
 		{
 			int k;
@@ -300,16 +300,16 @@ int im_type_rnum(int vnum)
 
 const char *def_alias[] = { "n0", "n1", "n2", "n3", "n4", "n5" };
 
-// Указание силы ингредиента
+// пёп╨п╟п╥п╟п╫п╦п╣ я│п╦п╩я▀ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟
 int im_assign_power(OBJ_DATA * obj)
 /*
-   obj - загруженный ингредиент
+   obj - п╥п╟пЁя─я┐п╤п╣п╫п╫я▀п╧ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌
 
-   В случае успеха возвращает 0, иначе ошибка
+   п▓ я│п╩я┐я┤п╟п╣ я┐я│п©п╣я┘п╟ п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ 0, п╦п╫п╟я┤п╣ п╬я┬п╦п╠п╨п╟
 
-   GET_OBJ_VAL(obj,IM_INDEX_SLOT) =        - уровень ингредиента или VNUM моба
-   GET_OBJ_VAL(obj,IM_TYPE_SLOT)  = index  - номер ТИПА ингредиента (из im.lst)
-   GET_OBJ_VAL(obj,IM_POWER_SLOT) = lev    - уровень ингредиента
+   GET_OBJ_VAL(obj,IM_INDEX_SLOT) =        - я┐я─п╬п╡п╣п╫я▄ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟ п╦п╩п╦ VNUM п╪п╬п╠п╟
+   GET_OBJ_VAL(obj,IM_TYPE_SLOT)  = index  - п╫п╬п╪п╣я─ п╒п≤п÷п░ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟ (п╦п╥ im.lst)
+   GET_OBJ_VAL(obj,IM_POWER_SLOT) = lev    - я┐я─п╬п╡п╣п╫я▄ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟
 */
 {
 	int rind, onum;
@@ -317,13 +317,13 @@ int im_assign_power(OBJ_DATA * obj)
 	im_memb *sample, *p;
 	int j;
 
-	// Перевод номера index в rnum
+	// п÷п╣я─п╣п╡п╬п╢ п╫п╬п╪п╣я─п╟ index п╡ rnum
 	rind = im_type_rnum(GET_OBJ_VAL(obj, IM_TYPE_SLOT));
 	if (rind == -1)
-		return 1;	// неверный номер ТИПА ингредиента
+		return 1;	// п╫п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─ п╒п≤п÷п░ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟
 
-// Поиск образца или моба
-// Если используется живь, получить уровень из моба
+// п÷п╬п╦я│п╨ п╬п╠я─п╟п╥я├п╟ п╦п╩п╦ п╪п╬п╠п╟
+// п∙я│п╩п╦ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╤п╦п╡я▄, п©п╬п╩я┐я┤п╦я┌я▄ я┐я─п╬п╡п╣п╫я▄ п╦п╥ п╪п╬п╠п╟
 	onum = real_object(imtypes[rind].proto_vnum);
 	if (onum < 0)
 		return 4;
@@ -333,10 +333,10 @@ int im_assign_power(OBJ_DATA * obj)
 			return 3;
 		rnum = real_mobile(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
 		if (rnum < 0)
-			return 3;	// неверный VNUM базового моба
+			return 3;	// п╫п╣п╡п╣я─п╫я▀п╧ VNUM п╠п╟п╥п╬п╡п╬пЁп╬ п╪п╬п╠п╟
 		obj->set_val(IM_POWER_SLOT, (GET_LEVEL(mob_proto + rnum) + 3) * 3 / 4);
 	}
-	// Попробовать найти описатель ВИДА
+	// п÷п╬п©я─п╬п╠п╬п╡п╟я┌я▄ п╫п╟п╧я┌п╦ п╬п©п╦я│п╟я┌п╣п╩я▄ п▓п≤п■п░
 	for (p = imtypes[rind].head, sample = NULL; p && p->power <= GET_OBJ_VAL(obj, IM_POWER_SLOT); sample = p, p = p->next);
 
 	if (sample)
@@ -344,8 +344,8 @@ int im_assign_power(OBJ_DATA * obj)
 		obj->set_sex(sample->sex);
 	}
 
-	// Замена описаний
-	// Падежи, описание, alias
+	// п≈п╟п╪п╣п╫п╟ п╬п©п╦я│п╟п╫п╦п╧
+	// п÷п╟п╢п╣п╤п╦, п╬п©п╦я│п╟п╫п╦п╣, alias
 	for (j = 0; j < 6; ++j)
 	{
 		const char* ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_PName(j).c_str();
@@ -360,18 +360,18 @@ int im_assign_power(OBJ_DATA * obj)
 	ptr = obj_proto[GET_OBJ_RNUM(obj)]->get_aliases().c_str();
 	obj->set_aliases(replace_alias(ptr, sample, rnum, "m"));
 
-	// Обработка других полей объекта
-	// -- пока не сделано --
+	// п·п╠я─п╟п╠п╬я┌п╨п╟ п╢я─я┐пЁп╦я┘ п©п╬п╩п╣п╧ п╬п╠я┼п╣п╨я┌п╟
+	// -- п©п╬п╨п╟ п╫п╣ я│п╢п╣п╩п╟п╫п╬ --
 
 	return 0;
 }
 
-// Загрузка магического ингредиента
+// п≈п╟пЁя─я┐п╥п╨п╟ п╪п╟пЁп╦я┤п╣я│п╨п╬пЁп╬ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟
 OBJ_DATA *load_ingredient(int index, int power, int rnum)
 /*
-   index - номер магического ингредиента для загрузки (в imtypes[])
-   power - сила ингредиента
-   rnum  - VNUM моба, в который грузится ингредиент
+   index - п╫п╬п╪п╣я─ п╪п╟пЁп╦я┤п╣я│п╨п╬пЁп╬ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟ п╢п╩я▐ п╥п╟пЁя─я┐п╥п╨п╦ (п╡ imtypes[])
+   power - я│п╦п╩п╟ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟
+   rnum  - VNUM п╪п╬п╠п╟, п╡ п╨п╬я┌п╬я─я▀п╧ пЁя─я┐п╥п╦я┌я│я▐ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌
 */
 {
 	int err;
@@ -482,7 +482,7 @@ void im_cleanup_recipe(im_recipe * r)
 	}
 }
 
-// Инициализация подсистемы ингредиентной магии
+// п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п©п╬п╢я│п╦я│я┌п╣п╪я▀ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╫п╬п╧ п╪п╟пЁп╦п╦
 void init_im(void)
 {
 	FILE *im_file;
@@ -497,8 +497,8 @@ void init_im(void)
 		imlog(BRF, "Can not open im.lst");
 		return;
 	}
-	// Очистка всего, что есть, на случай reset
-	// Преобразование rid у игроков
+	// п·я┤п╦я│я┌п╨п╟ п╡я│п╣пЁп╬, я┤я┌п╬ п╣я│я┌я▄, п╫п╟ я│п╩я┐я┤п╟п╧ reset
+	// п÷я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ rid я┐ п╦пЁя─п╬п╨п╬п╡
 	im_translate_rskill_to_id();
 	for (i = 0; i <= top_imtypes; ++i)
 		im_cleanup_type(imtypes + i);
@@ -517,16 +517,16 @@ void init_im(void)
 
 	mbs = mptr = NULL;
 
-	// ПРОХОД 1
-	// Определение количества ТИПОВ/МЕТАТИПОВ
-	// Получение описателей
+	// п÷п═п·п╔п·п■ 1
+	// п·п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ п╒п≤п÷п·п▓/п°п∙п╒п░п╒п≤п÷п·п▓
+	// п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╬п©п╦я│п╟я┌п╣п╩п╣п╧
 	while (get_line(im_file, tmp))
 	{
-		if (!strn_cmp(tmp, "ТИП", 3) || !strn_cmp(tmp, "МЕТАТИП", 7))
+		if (!strn_cmp(tmp, "п╒п≤п÷", 3) || !strn_cmp(tmp, "п°п∙п╒п░п╒п≤п÷", 7))
 			++top_imtypes;
-		if (!strn_cmp(tmp, "РЕЦЕПТ", 6))
+		if (!strn_cmp(tmp, "п═п∙п╕п∙п÷п╒", 6))
 			++top_imrecipes;
-		if (!strn_cmp(tmp, "ВИД", 3))
+		if (!strn_cmp(tmp, "п▓п≤п■", 3))
 		{
 			if (mbs == NULL)
 			{
@@ -538,7 +538,7 @@ void init_im(void)
 				CREATE(mptr->next, 1);
 				mptr = mptr->next;
 			}
-			// Количество пар alias
+			// п п╬п╩п╦я┤п╣я│я┌п╡п╬ п©п╟я─ alias
 			mptr->power = 0;
 			while (get_line(im_file, tmp))
 			{
@@ -549,22 +549,22 @@ void init_im(void)
 		}
 	}
 
-	// Выделение памяти для imtypes и заполнение массива
+	// п▓я▀п╢п╣п╩п╣п╫п╦п╣ п©п╟п╪я▐я┌п╦ п╢п╩я▐ imtypes п╦ п╥п╟п©п╬п╩п╫п╣п╫п╦п╣ п╪п╟я│я│п╦п╡п╟
 	CREATE(imtypes, top_imtypes + 1);
 	top_imtypes = -1;
 
-	// Выделение пямяти для imrecipes и заполнение массива
+	// п▓я▀п╢п╣п╩п╣п╫п╦п╣ п©я▐п╪я▐я┌п╦ п╢п╩я▐ imrecipes п╦ п╥п╟п©п╬п╩п╫п╣п╫п╦п╣ п╪п╟я│я│п╦п╡п╟
 	CREATE(imrecipes, top_imrecipes + 1);
 	top_imrecipes = -1;
 
-	// ПРОХОД 2
+	// п÷п═п·п╔п·п■ 2
 	rewind(im_file);
 	while (get_line(im_file, tmp))
 	{
 		int id, vnum;
 		char dummy[128], name[128], text[1024];
 
-		if (!strn_cmp(tmp, "ТИП", 3))  	// Описание типа
+		if (!strn_cmp(tmp, "п╒п≤п÷", 3))  	// п·п©п╦я│п╟п╫п╦п╣ я┌п╦п©п╟
 		{
 			if (sscanf(tmp, "%s %d %s %d", dummy, &id, name, &vnum) == 4)
 			{
@@ -580,7 +580,7 @@ void init_im(void)
 			sprintf(text, "[IM] Invalid type : '%s'", tmp);
 			imlog(NRM, text);
 		}
-		else if (!strn_cmp(tmp, "МЕТАТИП", 7))
+		else if (!strn_cmp(tmp, "п°п∙п╒п░п╒п≤п÷", 7))
 		{
 			if (sscanf(tmp, "%s %d %s %s", dummy, &id, name, tlist) == 4)
 			{
@@ -593,7 +593,7 @@ void init_im(void)
 				imtypes[top_imtypes].tlst.size = 0;
 				for (p = strtok(tlist, ","); p; p = strtok(NULL, ","))
 				{
-					int i = im_get_type_by_name(p, 1);	// поиск любого типа
+					int i = im_get_type_by_name(p, 1);	// п©п╬п╦я│п╨ п╩я▌п╠п╬пЁп╬ я┌п╦п©п╟
 					if (i == -1)
 					{
 						sprintf(text, "[IM] Invalid type name : '%s'", p);
@@ -607,14 +607,14 @@ void init_im(void)
 			sprintf(text, "[IM] Invalid metatype : %s", tmp);
 			imlog(NRM, text);
 		}
-		else if (!strn_cmp(tmp, "ВИД", 3))
+		else if (!strn_cmp(tmp, "п▓п≤п■", 3))
 		{
 			int power, sex;
 			mptr = mbs;
 			mbs = mbs->next;
 			if (sscanf(tmp, "%s %s %d %d", dummy, name, &power, &sex) == 4)
 			{
-				int i = im_get_type_by_name(name, 0);	// поиск элементарного типа
+				int i = im_get_type_by_name(name, 0);	// п©п╬п╦я│п╨ я█п╩п╣п╪п╣п╫я┌п╟я─п╫п╬пЁп╬ я┌п╦п©п╟
 				if (i != -1)
 				{
 					char **p;
@@ -632,7 +632,7 @@ void init_im(void)
 						*p++ = str_dup(text);
 					}
 					p[0] = p[1] = NULL;
-					// Добавляю в структуру типа согласно силе
+					// п■п╬п╠п╟п╡п╩я▐я▌ п╡ я│я┌я─я┐п╨я┌я┐я─я┐ я┌п╦п©п╟ я│п╬пЁп╩п╟я│п╫п╬ я│п╦п╩п╣
 					ins_after = NULL;
 					ins_before = imtypes[i].head;
 					while (ins_before && ins_before->power < mptr->power)
@@ -660,10 +660,10 @@ void init_im(void)
 				imlog(NRM, text);
 			}
 		}
-		else if (!strn_cmp(tmp, "РЕЦЕПТ", 6))
+		else if (!strn_cmp(tmp, "п═п∙п╕п∙п÷п╒", 6))
 		{
 			char *p;
-			// Описание рецепта
+			// п·п©п╦я│п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟
 			if (sscanf(tmp, "%s %d %s", dummy, &id, name) == 3)
 			{
 				for (p = name; *p; ++p)
@@ -838,7 +838,7 @@ void init_im(void)
 
 	fclose(im_file);
 
-	// Перестройка принадлежности элементарных типов
+	// п÷п╣я─п╣я│я┌я─п╬п╧п╨п╟ п©я─п╦п╫п╟п╢п╩п╣п╤п╫п╬я│я┌п╦ я█п╩п╣п╪п╣п╫я┌п╟я─п╫я▀я┘ я┌п╦п©п╬п╡
 	for (i = 0; i <= top_imtypes; ++i)
 	{
 		if (imtypes[i].proto_vnum == -1)
@@ -847,7 +847,7 @@ void init_im(void)
 			if (i != j && imtypes[j].proto_vnum == -1 && TypeListCheck(&imtypes[j].tlst, i))
 				TypeListSetSingle(&imtypes[i].tlst, j);
 	}
-	// Удаление списков для составных типов
+	// пёп╢п╟п╩п╣п╫п╦п╣ я│п©п╦я│п╨п╬п╡ п╢п╩я▐ я│п╬я│я┌п╟п╡п╫я▀я┘ я┌п╦п©п╬п╡
 	for (i = 0; i <= top_imtypes; ++i)
 	{
 		if (imtypes[i].proto_vnum != -1)
@@ -856,9 +856,9 @@ void init_im(void)
 		free(imtypes[i].tlst.types);
 	}
 
-	// Прописываем для зарегестрированных рецептов всем классам KNOW_SKILL,
-	// но уровни и реморты равные -1, т.о. если файл classrecipe.lst поврежден,
-	// рецепты не будут обнулятся, просто станут недоступны для изучения
+	// п÷я─п╬п©п╦я│я▀п╡п╟п╣п╪ п╢п╩я▐ п╥п╟я─п╣пЁп╣я│я┌я─п╦я─п╬п╡п╟п╫п╫я▀я┘ я─п╣я├п╣п©я┌п╬п╡ п╡я│п╣п╪ п╨п╩п╟я│я│п╟п╪ KNOW_SKILL,
+	// п╫п╬ я┐я─п╬п╡п╫п╦ п╦ я─п╣п╪п╬я─я┌я▀ я─п╟п╡п╫я▀п╣ -1, я┌.п╬. п╣я│п╩п╦ я└п╟п╧п╩ classrecipe.lst п©п╬п╡я─п╣п╤п╢п╣п╫,
+	// я─п╣я├п╣п©я┌я▀ п╫п╣ п╠я┐п╢я┐я┌ п╬п╠п╫я┐п╩я▐я┌я│я▐, п©я─п╬я│я┌п╬ я│я┌п╟п╫я┐я┌ п╫п╣п╢п╬я│я┌я┐п©п╫я▀ п╢п╩я▐ п╦п╥я┐я┤п╣п╫п╦я▐
 	for (i = 0; i <= top_imrecipes; i++)
 	{
 		for (j = 0; j < NUM_PLAYER_CLASSES; j++)
@@ -911,7 +911,7 @@ void init_im(void)
 		imrecipes[rcpt].remort = k[2];
 		log("Set recipe (%d '%s') remort %d", k[0], imrecipes[rcpt].name, k[2]);
 
-// line1 - ограничения для рас еще не реализованы
+// line1 - п╬пЁя─п╟п╫п╦я┤п╣п╫п╦я▐ п╢п╩я▐ я─п╟я│ п╣я┴п╣ п╫п╣ я─п╣п╟п╩п╦п╥п╬п╡п╟п╫я▀
 
 		for (j = 0; line2[j] && j < NUM_PLAYER_CLASSES; j++)
 		{
@@ -949,8 +949,8 @@ void init_im(void)
 
 }
 
-// Просматривает строку line и добавляет загружаемые ингрединенты
-// Формат строки: <номер>:<вер-ть>
+// п÷я─п╬я│п╪п╟я┌я─п╦п╡п╟п╣я┌ я│я┌я─п╬п╨я┐ line п╦ п╢п╬п╠п╟п╡п╩я▐п╣я┌ п╥п╟пЁя─я┐п╤п╟п╣п╪я▀п╣ п╦п╫пЁя─п╣п╢п╦п╫п╣п╫я┌я▀
+// п╓п╬я─п╪п╟я┌ я│я┌я─п╬п╨п╦: <п╫п╬п╪п╣я─>:<п╡п╣я─-я┌я▄>
 void im_parse(int **ing_list, char *line)
 {
 	int local_count = 0;
@@ -1027,8 +1027,8 @@ void im_parse(int **ing_list, char *line)
 }
 
 //MZ.load
-// Перезагрузка комнаты
-// Убрать старые ингредиенты, загрузить новые
+// п÷п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╟ п╨п╬п╪п╫п╟я┌я▀
+// пёп╠я─п╟я┌я▄ я│я┌п╟я─я▀п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀, п╥п╟пЁя─я┐п╥п╦я┌я▄ п╫п╬п╡я▀п╣
 void im_reset_room(ROOM_DATA * room, int level, int type)
 {
 	OBJ_DATA *o, *next;
@@ -1149,19 +1149,19 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 	{
 		if (clr(ch, C_NRM))
 		{
-			sprintf(buf, " Список доступных рецептов.\r\n"
-				" Зеленым цветом выделены уже изученные рецепты.\r\n"
-				" Красным цветом выделены рецепты, недоступные вам в настоящий момент.\r\n"
-				"\r\n     Рецепт                Уровень (реморт)\r\n"
+			sprintf(buf, " п║п©п╦я│п╬п╨ п╢п╬я│я┌я┐п©п╫я▀я┘ я─п╣я├п╣п©я┌п╬п╡.\r\n"
+				" п≈п╣п╩п╣п╫я▀п╪ я├п╡п╣я┌п╬п╪ п╡я▀п╢п╣п╩п╣п╫я▀ я┐п╤п╣ п╦п╥я┐я┤п╣п╫п╫я▀п╣ я─п╣я├п╣п©я┌я▀.\r\n"
+				" п я─п╟я│п╫я▀п╪ я├п╡п╣я┌п╬п╪ п╡я▀п╢п╣п╩п╣п╫я▀ я─п╣я├п╣п©я┌я▀, п╫п╣п╢п╬я│я┌я┐п©п╫я▀п╣ п╡п╟п╪ п╡ п╫п╟я│я┌п╬я▐я┴п╦п╧ п╪п╬п╪п╣п╫я┌.\r\n"
+				"\r\n     п═п╣я├п╣п©я┌                пёя─п╬п╡п╣п╫я▄ (я─п╣п╪п╬я─я┌)\r\n"
 				"------------------------------------------------\r\n");
 		}
 		else
 		{
-			sprintf(buf, " Список доступных рецептов.\r\n"
-				" Пометкой [И] выделены уже изученные рецепты.\r\n"
-				" Пометкой [Д] выделены доступные для изучения рецепты.\r\n"
-				" Пометкой [Н] выделены рецепты, недоступные вам в настоящий момент.\r\n"
-				"\r\n     Рецепт                Уровень (реморт)\r\n"
+			sprintf(buf, " п║п©п╦я│п╬п╨ п╢п╬я│я┌я┐п©п╫я▀я┘ я─п╣я├п╣п©я┌п╬п╡.\r\n"
+				" п÷п╬п╪п╣я┌п╨п╬п╧ [п≤] п╡я▀п╢п╣п╩п╣п╫я▀ я┐п╤п╣ п╦п╥я┐я┤п╣п╫п╫я▀п╣ я─п╣я├п╣п©я┌я▀.\r\n"
+				" п÷п╬п╪п╣я┌п╨п╬п╧ [п■] п╡я▀п╢п╣п╩п╣п╫я▀ п╢п╬я│я┌я┐п©п╫я▀п╣ п╢п╩я▐ п╦п╥я┐я┤п╣п╫п╦я▐ я─п╣я├п╣п©я┌я▀.\r\n"
+				" п÷п╬п╪п╣я┌п╨п╬п╧ [п²] п╡я▀п╢п╣п╩п╣п╫я▀ я─п╣я├п╣п©я┌я▀, п╫п╣п╢п╬я│я┌я┐п©п╫я▀п╣ п╡п╟п╪ п╡ п╫п╟я│я┌п╬я▐я┴п╦п╧ п╪п╬п╪п╣п╫я┌.\r\n"
+				"\r\n     п═п╣я├п╣п©я┌                пёя─п╬п╡п╣п╫я▄ (я─п╣п╪п╬я─я┌)\r\n"
 				"------------------------------------------------\r\n");
 		}
 		strcpy(buf1, buf);
@@ -1174,7 +1174,7 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 
 			if (strlen(buf1) >= MAX_STRING_LENGTH - 60)
 			{
-				strcat(buf1, "***ПЕРЕПОЛНЕНИЕ***\r\n");
+				strcat(buf1, "***п÷п∙п═п∙п÷п·п⌡п²п∙п²п≤п∙***\r\n");
 				break;
 			}
 			rs = im_get_char_rskill(ch, sortpos);
@@ -1188,28 +1188,28 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 				sprintf(buf, " %s %-30s %2d (%2d)\r\n",
 					(imrecipes[sortpos].level < 0 || imrecipes[sortpos].level > GET_LEVEL(ch) ||
 					 imrecipes[sortpos].remort < 0 || imrecipes[sortpos].remort > GET_REMORT(ch)) ?
-					"[Н]" : rs ? "[И]" : "[Д]",	imrecipes[sortpos].name,
+					"[п²]" : rs ? "[п≤]" : "[п■]",	imrecipes[sortpos].name,
 					imrecipes[sortpos].level, imrecipes[sortpos].remort);
 			strcat(buf1, buf);
 			++i;
 		}
 		if (!i)
-			sprintf(buf1 + strlen(buf1), "Нет рецептов.\r\n");
+			sprintf(buf1 + strlen(buf1), "п²п╣я┌ я─п╣я├п╣п©я┌п╬п╡.\r\n");
 		page_string(ch->desc, buf1, 1);
 		return;
 	}
 
-	sprintf(buf, "Вы владеете следующими рецептами :\r\n");
+	sprintf(buf, "п▓я▀ п╡п╩п╟п╢п╣п╣я┌п╣ я│п╩п╣п╢я┐я▌я┴п╦п╪п╦ я─п╣я├п╣п©я┌п╟п╪п╦ :\r\n");
 
 	strcpy(buf2, buf);
 
-// newbook.patch ТУТ БЫЛ БЕСКОНЕЧНЫЙ ЦИКЛ
+// newbook.patch п╒пёп╒ п▒п╚п⌡ п▒п∙п║п п·п²п∙п╖п²п╚п≥ п╕п≤п п⌡
 	for (rs = GET_RSKILL(ch), i = 0; rs; rs = rs->link)
 	{
 // -newbook.patch (Alisher)
 		if (strlen(buf2) >= MAX_STRING_LENGTH - 60)
 		{
-			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
+			strcat(buf2, "***п÷п∙п═п∙п÷п·п⌡п²п∙п²п≤п∙***\r\n");
 			break;
 		}
 		if (rs->perc <= 0)
@@ -1220,7 +1220,7 @@ void list_recipes(CHAR_DATA * ch, bool all_recipes)
 	}
 
 	if (!i)
-		sprintf(buf2 + strlen(buf2), "Нет рецептов.\r\n");
+		sprintf(buf2 + strlen(buf2), "п²п╣я┌ я─п╣я├п╣п©я┌п╬п╡.\r\n");
 
 	page_string(ch->desc, buf2, 1);
 }
@@ -1230,7 +1230,7 @@ void do_recipes(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (IS_NPC(ch))
 		return;
 	skip_spaces(&argument);
-	if (is_abbrev(argument, "все") || is_abbrev(argument, "all"))
+	if (is_abbrev(argument, "п╡я│п╣") || is_abbrev(argument, "all"))
 		list_recipes(ch, TRUE);
 	else
 		list_recipes(ch, FALSE);
@@ -1249,8 +1249,8 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// * No arguments. print an informative text.
 	if (!*name)
 	{
-		send_to_char("Формат: rset <игрок> '<рецепт>' <значение>\r\n", ch);
-		strcpy(help, "Зарегистрированные рецепты:\r\n");
+		send_to_char("п╓п╬я─п╪п╟я┌: rset <п╦пЁя─п╬п╨> '<я─п╣я├п╣п©я┌>' <п╥п╫п╟я┤п╣п╫п╦п╣>\r\n", ch);
+		strcpy(help, "п≈п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╫п╫я▀п╣ я─п╣я├п╣п©я┌я▀:\r\n");
 		for (qend = 0, i = 0; i <= top_imrecipes; i++)
 		{
 			sprintf(help + strlen(help), "%30s", imrecipes[i].name);
@@ -1277,12 +1277,12 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// If there is no chars in argument
 	if (!*argument)
 	{
-		send_to_char("Пропущено название рецепта.\r\n", ch);
+		send_to_char("п÷я─п╬п©я┐я┴п╣п╫п╬ п╫п╟п╥п╡п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟.\r\n", ch);
 		return;
 	}
 	if (*argument != '\'')
 	{
-		send_to_char("Рецепт надо заключить в символы : ''\r\n", ch);
+		send_to_char("п═п╣я├п╣п©я┌ п╫п╟п╢п╬ п╥п╟п╨п╩я▌я┤п╦я┌я▄ п╡ я│п╦п╪п╡п╬п╩я▀ : ''\r\n", ch);
 		return;
 	}
 	// Locate the last quote and lowercase the magic words (if any)
@@ -1292,7 +1292,7 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (argument[qend] != '\'')
 	{
-		send_to_char("Рецепт должен быть заключен в символы : ''\r\n", ch);
+		send_to_char("п═п╣я├п╣п©я┌ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫ п╡ я│п╦п╪п╡п╬п╩я▀ : ''\r\n", ch);
 		return;
 	}
 	strcpy(help, (argument + 1));
@@ -1302,7 +1302,7 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (rcpt < 0)
 	{
-		send_to_char("Неизвестный рецепт.\r\n", ch);
+		send_to_char("п²п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я─п╣я├п╣п©я┌.\r\n", ch);
 		return;
 	}
 	argument += qend + 1;	// skip to next parameter
@@ -1310,26 +1310,26 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*buf)
 	{
-		send_to_char("Пропущен уровень рецепта.\r\n", ch);
+		send_to_char("п÷я─п╬п©я┐я┴п╣п╫ я┐я─п╬п╡п╣п╫я▄ я─п╣я├п╣п©я┌п╟.\r\n", ch);
 		return;
 	}
 	value = atoi(buf);
 	if (value < 0)
 	{
-		send_to_char("Минимальное значение рецепта 0.\r\n", ch);
+		send_to_char("п°п╦п╫п╦п╪п╟п╩я▄п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ я─п╣я├п╣п©я┌п╟ 0.\r\n", ch);
 		return;
 	}
 	if (value > 200)
 	{
-		send_to_char("Максимальное значение рецепта 200.\r\n", ch);
+		send_to_char("п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ я─п╣я├п╣п©я┌п╟ 200.\r\n", ch);
 		return;
 	}
 	if (IS_NPC(vict))
 	{
-		send_to_char("Вы не можете добавить рецепт для мобов.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╢п╬п╠п╟п╡п╦я┌я▄ я─п╣я├п╣п©я┌ п╢п╩я▐ п╪п╬п╠п╬п╡.\r\n", ch);
 		return;
 	}
-	// Задача - найти рецепт rcpt и установить его в value
+	// п≈п╟п╢п╟я┤п╟ - п╫п╟п╧я┌п╦ я─п╣я├п╣п©я┌ rcpt п╦ я┐я│я┌п╟п╫п╬п╡п╦я┌я▄ п╣пЁп╬ п╡ value
 	rs = im_get_char_rskill(vict, rcpt);
 	if (!rs)
 	{
@@ -1374,11 +1374,11 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success)
 		{
 			if (success)
 				sprintf(buf,
-						"%sВы постигли тонкости приготовления рецепта \"%s\".%s\r\n",
+						"%sп▓я▀ п©п╬я│я┌п╦пЁп╩п╦ я┌п╬п╫п╨п╬я│я┌п╦ п©я─п╦пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ я─п╣я├п╣п©я┌п╟ \"%s\".%s\r\n",
 						CCICYN(ch, C_NRM), imrecipes[rs->rid].name, CCNRM(ch, C_NRM));
 			else
 				sprintf(buf,
-						"%sНеудача позволила вам осознать тонкости приготовления рецепта \"%s\".%s\r\n",
+						"%sп²п╣я┐п╢п╟я┤п╟ п©п╬п╥п╡п╬п╩п╦п╩п╟ п╡п╟п╪ п╬я│п╬п╥п╫п╟я┌я▄ я┌п╬п╫п╨п╬я│я┌п╦ п©я─п╦пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ я─п╣я├п╣п©я┌п╟ \"%s\".%s\r\n",
 						CCICYN(ch, C_NRM), imrecipes[rs->rid].name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 			rs->perc += number(1, 2);
@@ -1402,7 +1402,7 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 		{
 			if (!n)
 			{
-				send_to_char("Укажите магические ингредиенты для рецепта.\r\n", ch);
+				send_to_char("пёп╨п╟п╤п╦я┌п╣ п╪п╟пЁп╦я┤п╣я│п╨п╦п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀ п╢п╩я▐ я─п╣я├п╣п©я┌п╟.\r\n", ch);
 			}
 			count[0] = n;
 			return array;
@@ -1410,24 +1410,24 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 		o = get_obj_in_list_vis(ch, name, ch->carrying);
 		if (!o)
 		{
-			sprintf(buf, "У вас нет %s.\r\n", name);
+			sprintf(buf, "пё п╡п╟я│ п╫п╣я┌ %s.\r\n", name);
 			break;
 		}
 		if (GET_OBJ_TYPE(o) != OBJ_DATA::ITEM_MING)
 		{
-			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
+			sprintf(buf, "п▓я▀ п╢п╬п╩п╤п╫я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я┌п╬п╩я▄п╨п╬ п╪п╟пЁп╦я┤п╣я│п╨п╦п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀.\r\n");
 			break;
 		}
 		if (im_type_rnum(GET_OBJ_VAL(o, IM_TYPE_SLOT)) < 0)
 		{
-			sprintf(buf, "Магическая сила %s утеряна, похоже, безвозвратно.\r\n", o->get_PName(1).c_str());
+			sprintf(buf, "п°п╟пЁп╦я┤п╣я│п╨п╟я▐ я│п╦п╩п╟ %s я┐я┌п╣я─я▐п╫п╟, п©п╬я┘п╬п╤п╣, п╠п╣п╥п╡п╬п╥п╡я─п╟я┌п╫п╬.\r\n", o->get_PName(1).c_str());
 			break;
 		}
 		for (i = 0; i < n; ++i)
 		{
 			if (array[i] != o)
 				continue;
-			sprintf(buf, "Один и тот же ингредиент нельзя использовать дважды.\r\n");
+			sprintf(buf, "п·п╢п╦п╫ п╦ я┌п╬я┌ п╤п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌ п╫п╣п╩я▄п╥я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╢п╡п╟п╤п╢я▀.\r\n");
 			break;
 		}
 		if (i != n)
@@ -1453,8 +1453,8 @@ OBJ_DATA **im_obtain_ingredients(CHAR_DATA * ch, char *argument, int *count)
 
 #define		IS_RECIPE_DELIM(c)		(((c)=='\'')||((c)=='*')||((c)=='!'))
 
-// Применение рецепта
-// варить 'рецепт' <ингредиенты>
+// п÷я─п╦п╪п╣п╫п╣п╫п╦п╣ я─п╣я├п╣п©я┌п╟
+// п╡п╟я─п╦я┌я▄ 'я─п╣я├п╣п©я┌' <п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀>
 void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_STRING_LENGTH];
@@ -1469,23 +1469,23 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int val[IM_NPARAM];
 	im_addon *addon;
 
-	// Определяем, что за рецепт пытаемся варить
+	// п·п©я─п╣п╢п╣п╩я▐п╣п╪, я┤я┌п╬ п╥п╟ я─п╣я├п╣п©я┌ п©я▀я┌п╟п╣п╪я│я▐ п╡п╟я─п╦я┌я▄
 	skip_spaces(&argument);
 	if (!*argument)
 	{
-		send_to_char("Пропущено название рецепта.\r\n", ch);
+		send_to_char("п÷я─п╬п©я┐я┴п╣п╫п╬ п╫п╟п╥п╡п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟.\r\n", ch);
 		return;
 	}
 	if (!IS_RECIPE_DELIM(*argument))
 	{
-		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
+		send_to_char("п═п╣я├п╣п©я┌ п╫п╟п╢п╬ п╥п╟п╨п╩я▌я┤п╦я┌я▄ п╡ я│п╦п╪п╡п╬п╩я▀ : ' * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
 		argument[qend] = LOWER(argument[qend]);
 	if (!IS_RECIPE_DELIM(argument[qend]))
 	{
-		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
+		send_to_char("п═п╣я├п╣п©я┌ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫ п╡ я│п╦п╪п╡п╬п╩я▀ : ' * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 	strcpy(name, (argument + 1));
@@ -1494,28 +1494,28 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	rcpt = im_get_recipe_by_name(name);
 	if (rcpt < 0)
 	{
-		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		send_to_char("п▓п╟п╪ я┌п╟п╨п╬п╧ я─п╣я├п╣п©я┌ п╫п╣п╦п╥п╡п╣я│я┌п╣п╫.\r\n", ch);
 		return;
 	}
 	rs = im_get_char_rskill(ch, rcpt);
 	if (!rs)
 	{
-		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		send_to_char("п▓п╟п╪ я┌п╟п╨п╬п╧ я─п╣я├п╣п©я┌ п╫п╣п╦п╥п╡п╣я│я┌п╣п╫.\r\n", ch);
 		return;
 	}
-	// rs - используемый рецепт
-	// argument - список ингредиентов
+	// rs - п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╧ я─п╣я├п╣п©я┌
+	// argument - я│п©п╦я│п╬п╨ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡
 
-	sprintf(name, "%s использует рецепт %s", GET_NAME(ch), imrecipes[rs->rid].name);
+	sprintf(name, "%s п╦я│п©п╬п╩я▄п╥я┐п╣я┌ я─п╣я├п╣п©я┌ %s", GET_NAME(ch), imrecipes[rs->rid].name);
 	imlog(BRF, name);
 
-	// Преобразование строки аргументов в массив объектов
-	// с проверкой повторных и т.д.
+	// п÷я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ я│я┌я─п╬п╨п╦ п╟я─пЁя┐п╪п╣п╫я┌п╬п╡ п╡ п╪п╟я│я│п╦п╡ п╬п╠я┼п╣п╨я┌п╬п╡
+	// я│ п©я─п╬п╡п╣я─п╨п╬п╧ п©п╬п╡я┌п╬я─п╫я▀я┘ п╦ я┌.п╢.
 	objs = im_obtain_ingredients(ch, argument, &num);
 	if (!objs)
 		return;
 
-	imlog(NRM, "Используемые ингредиенты:");
+	imlog(NRM, "п≤я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀:");
 	name[0] = 0;
 	for (i = 0; i < num; ++i)
 	{
@@ -1525,12 +1525,12 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	imlog(NRM, name);
 
-	imlog(NRM, "Цикл обработки базовых компонентов");
+	imlog(NRM, "п╕п╦п╨п╩ п╬п╠я─п╟п╠п╬я┌п╨п╦ п╠п╟п╥п╬п╡я▀я┘ п╨п╬п╪п©п╬п╫п╣п╫я┌п╬п╡");
 
 	W1 = 0;
 	W2 = 0;
 	osr = 0;
-	// Этап 1. Основные компоненты
+	// п╜я┌п╟п© 1. п·я│п╫п╬п╡п╫я▀п╣ п╨п╬п╪п©п╬п╫п╣п╫я┌я▀
 	i = 0;
 	req = imrecipes[rs->rid].require;
 	while (*req != -1)
@@ -1538,22 +1538,22 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		int itype, ktype, osk;
 		if (i == num)
 		{
-			imlog(NRM, "Не хватает основных ингредиентов");
-			send_to_char("Похоже, вам не хватает ингредиентов.\r\n", ch);
+			imlog(NRM, "п²п╣ я┘п╡п╟я┌п╟п╣я┌ п╬я│п╫п╬п╡п╫я▀я┘ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡");
+			send_to_char("п÷п╬я┘п╬п╤п╣, п╡п╟п╪ п╫п╣ я┘п╡п╟я┌п╟п╣я┌ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡.\r\n", ch);
 			free(objs);
 			return;
 		}
 		ktype = *req++;
 		osk = *req++ & 0xFFFF;
 		osr += osk;
-		sprintf(name, "Запрошенный ингредиент: type=%d,osk=%d", ktype, osk);
+		sprintf(name, "п≈п╟п©я─п╬я┬п╣п╫п╫я▀п╧ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌: type=%d,osk=%d", ktype, osk);
 		imlog(CMP, name);
 		itype = im_type_rnum(GET_OBJ_VAL(objs[i], IM_TYPE_SLOT));
-		// ktype - требуемый тип, itype - подставляемый тип
+		// ktype - я┌я─п╣п╠я┐п╣п╪я▀п╧ я┌п╦п©, itype - п©п╬п╢я│я┌п╟п╡п╩я▐п╣п╪я▀п╧ я┌п╦п©
 		if (!TypeListCheck(&imtypes[itype].tlst, ktype))
 		{
-			imlog(NRM, "Ингредиенты перепутаны");
-			send_to_char("Похоже, вы перепутали ингредиенты.\r\n", ch);
+			imlog(NRM, "п≤п╫пЁя─п╣п╢п╦п╣п╫я┌я▀ п©п╣я─п╣п©я┐я┌п╟п╫я▀");
+			send_to_char("п÷п╬я┘п╬п╤п╣, п╡я▀ п©п╣я─п╣п©я┐я┌п╟п╩п╦ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀.\r\n", ch);
 			free(objs);
 			return;
 		}
@@ -1562,12 +1562,12 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			W1 += (itype - osk) * osk;
 		else
 			W2 += osk - itype;
-		// минимальное качество ингров для варки рецепта (REQ рецепта/2)
+		// п╪п╦п╫п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╟я┤п╣я│я┌п╡п╬ п╦п╫пЁя─п╬п╡ п╢п╩я▐ п╡п╟я─п╨п╦ я─п╣я├п╣п©я┌п╟ (REQ я─п╣я├п╣п©я┌п╟/2)
 		int min_osk = osk/2;
 		if (itype < min_osk)
 		{
-			send_to_char(ch, "Качество %s ниже минимально допустимого.\r\n", GET_OBJ_PNAME(objs[i], 1).c_str());
-			sprintf(name, "Качество ингров ниже допустимого: itype=%d, min_osk=%d", itype, min_osk);
+			send_to_char(ch, "п п╟я┤п╣я│я┌п╡п╬ %s п╫п╦п╤п╣ п╪п╦п╫п╦п╪п╟п╩я▄п╫п╬ п╢п╬п©я┐я│я┌п╦п╪п╬пЁп╬.\r\n", GET_OBJ_PNAME(objs[i], 1).c_str());
+			sprintf(name, "п п╟я┤п╣я│я┌п╡п╬ п╦п╫пЁя─п╬п╡ п╫п╦п╤п╣ п╢п╬п©я┐я│я┌п╦п╪п╬пЁп╬: itype=%d, min_osk=%d", itype, min_osk);
 			imlog(NRM, name);
 			free(objs);
 			return;
@@ -1577,14 +1577,14 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	add_start = i;
 	if (osr)
 		W1 /= osr;
-	sprintf(name, "Рассчитанные основные ингредиенты: W1=%f W2=%f", W1, W2);
+	sprintf(name, "п═п╟я│я│я┤п╦я┌п╟п╫п╫я▀п╣ п╬я│п╫п╬п╡п╫я▀п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀: W1=%f W2=%f", W1, W2);
 	imlog(CMP, name);
-	// Преобразование параметров прототипа
+	// п÷я─п╣п╬п╠я─п╟п╥п╬п╡п╟п╫п╦п╣ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п©я─п╬я┌п╬я┌п╦п©п╟
 	tgt = real_object(imrecipes[rs->rid].result);
 	if (tgt < 0)
 	{
-		imlog(NRM, "Прототип утерян");
-		send_to_char("Результат рецепта утерян.\r\n", ch);
+		imlog(NRM, "п÷я─п╬я┌п╬я┌п╦п© я┐я┌п╣я─я▐п╫");
+		send_to_char("п═п╣п╥я┐п╩я▄я┌п╟я┌ я─п╣я├п╣п©я┌п╟ я┐я┌п╣я─я▐п╫.\r\n", ch);
 		free(objs);
 		return;
 	}
@@ -1593,26 +1593,26 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 	case OBJ_DATA::ITEM_SCROLL:
 	case OBJ_DATA::ITEM_POTION:
-		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
-		param[1] = 1;	// количество
-		param[2] = obj_proto[tgt]->get_timer();	// таймер
+		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// я┐я─п╬п╡п╣п╫я▄
+		param[1] = 1;	// п╨п╬п╩п╦я┤п╣я│я┌п╡п╬
+		param[2] = obj_proto[tgt]->get_timer();	// я┌п╟п╧п╪п╣я─
 		break;
 
 	case OBJ_DATA::ITEM_WAND:
 	case OBJ_DATA::ITEM_STAFF:
-		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// уровень
-		param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);	// количество
-		param[2] = obj_proto[tgt]->get_timer();	// таймер
+		param[0] = GET_OBJ_VAL(obj_proto[tgt], 0);	// я┐я─п╬п╡п╣п╫я▄
+		param[1] = GET_OBJ_VAL(obj_proto[tgt], 1);	// п╨п╬п╩п╦я┤п╣я│я┌п╡п╬
+		param[2] = obj_proto[tgt]->get_timer();	// я┌п╟п╧п╪п╣я─
 		break;
 
 	default:
-		imlog(NRM, "Прототип имеет неверный тип");
-		send_to_char("Результат варева непредсказуем.\r\n", ch);
+		imlog(NRM, "п÷я─п╬я┌п╬я┌п╦п© п╦п╪п╣п╣я┌ п╫п╣п╡п╣я─п╫я▀п╧ я┌п╦п©");
+		send_to_char("п═п╣п╥я┐п╩я▄я┌п╟я┌ п╡п╟я─п╣п╡п╟ п╫п╣п©я─п╣п╢я│п╨п╟п╥я┐п╣п╪.\r\n", ch);
 		free(objs);
 		return;
 	}
 
-	sprintf(name, "Базовые параметры и курс перевода в магические Дж: %f,%f %f,%f %f,%f",
+	sprintf(name, "п▒п╟п╥п╬п╡я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀ п╦ п╨я┐я─я│ п©п╣я─п╣п╡п╬п╢п╟ п╡ п╪п╟пЁп╦я┤п╣я│п╨п╦п╣ п■п╤: %f,%f %f,%f %f,%f",
 		param[0], imrecipes[rs->rid].k[0],
 		param[1], imrecipes[rs->rid].k[1], param[2], imrecipes[rs->rid].k[2]);
 	imlog(CMP, name);
@@ -1625,22 +1625,22 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		W1 += param[i];
 	}
 
-	imlog(CMP, "Дамп расчета до поворота направляющей:");
-	sprintf(name, "Вероятность: %f", prob);
+	imlog(CMP, "п■п╟п╪п© я─п╟я│я┤п╣я┌п╟ п╢п╬ п©п╬п╡п╬я─п╬я┌п╟ п╫п╟п©я─п╟п╡п╩я▐я▌я┴п╣п╧:");
+	sprintf(name, "п▓п╣я─п╬я▐я┌п╫п╬я│я┌я▄: %f", prob);
 	imlog(CMP, name);
-	sprintf(name, "Закон сохранения ДжМ: x+y+z=%f", W1);
+	sprintf(name, "п≈п╟п╨п╬п╫ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п■п╤п°: x+y+z=%f", W1);
 	imlog(CMP, name);
-	sprintf(name, "Коэффициенты направления: x0=%f y0=%f z0=%f", param[0], param[1], param[2]);
+	sprintf(name, "п п╬я█я└я└п╦я├п╦п╣п╫я┌я▀ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐: x0=%f y0=%f z0=%f", param[0], param[1], param[2]);
 	imlog(CMP, name);
 
 	if (prob < 0)
 	{
-		send_to_char("С ингредиентами такого качества вам лучше даже не пытаться...\r\n", ch);
+		send_to_char("п║ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╟п╪п╦ я┌п╟п╨п╬пЁп╬ п╨п╟я┤п╣я│я┌п╡п╟ п╡п╟п╪ п╩я┐я┤я┬п╣ п╢п╟п╤п╣ п╫п╣ п©я▀я┌п╟я┌я▄я│я▐...\r\n", ch);
 		free(objs);
 		return;
 	}
 
-	// Этап 2. Дополнительные компоненты
+	// п╜я┌п╟п© 2. п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ п╨п╬п╪п©п╬п╫п╣п╫я┌я▀
 	for (addon = imrecipes[rs->rid].addon; addon; addon = addon->link)
 		addon->obj = NULL;
 	for (i = add_start; i < num; ++i)
@@ -1651,7 +1651,7 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				break;
 		if (addon)
 		{
-			// "белый" список
+			// "п╠п╣п╩я▀п╧" я│п©п╦я│п╬п╨
 			int s = addon->k0 + addon->k1 + addon->k2;
 			addon->obj = objs[i];
 			param[0] += (float) GET_OBJ_VAL(objs[i], IM_POWER_SLOT) * addon->k0 / s;
@@ -1660,17 +1660,17 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			// "черный" список
+			// "я┤п╣я─п╫я▀п╧" я│п©п╦я│п╬п╨
 			W1 -= GET_OBJ_VAL(objs[i], IM_POWER_SLOT);
 		}
 	}
 
-	sprintf(name, "Закон сохранения ДжМ после поворота: x+y+z=%f", W1);
+	sprintf(name, "п≈п╟п╨п╬п╫ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п■п╤п° п©п╬я│п╩п╣ п©п╬п╡п╬я─п╬я┌п╟: x+y+z=%f", W1);
 	imlog(CMP, name);
-	sprintf(name, "Коэффициенты направления после поворота: x0=%f y0=%f z0=%f", param[0], param[1], param[2]);
+	sprintf(name, "п п╬я█я└я└п╦я├п╦п╣п╫я┌я▀ п╫п╟п©я─п╟п╡п╩п╣п╫п╦я▐ п©п╬я│п╩п╣ п©п╬п╡п╬я─п╬я┌п╟: x0=%f y0=%f z0=%f", param[0], param[1], param[2]);
 	imlog(CMP, name);
 
-	// Этап 3. Получение результата
+	// п╜я┌п╟п© 3. п÷п╬п╩я┐я┤п╣п╫п╦п╣ я─п╣п╥я┐п╩я▄я┌п╟я┌п╟
 	for (W2 = 0, i = 0; i < IM_NPARAM; ++i)
 		W2 += param[i];
 	for (i = 0; i < IM_NPARAM; ++i)
@@ -1683,20 +1683,20 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (imrecipes[rs->rid].k[i])
 			val[i] = (int)(0.5 + param[i] / imrecipes[rs->rid].k[i]);
 		else
-			val[i] = -1;	// не изменять
+			val[i] = -1;	// п╫п╣ п╦п╥п╪п╣п╫я▐я┌я▄
 	}
 
-	sprintf(name, "Параметры результата: %d %d %d", val[0], val[1], val[2]);
+	sprintf(name, "п÷п╟я─п╟п╪п╣я┌я─я▀ я─п╣п╥я┐п╩я▄я┌п╟я┌п╟: %d %d %d", val[0], val[1], val[2]);
 	imlog(CMP, name);
 
-	// Удалаяю объекты
+	// пёп╢п╟п╩п╟я▐я▌ п╬п╠я┼п╣п╨я┌я▀
 	for (i = 0; i < num; ++i)
 		extract_obj(objs[i]);
 	free(objs);
 
-	imlog(CMP, "Ингредиенты удалены");
+	imlog(CMP, "п≤п╫пЁя─п╣п╢п╦п╣п╫я┌я▀ я┐п╢п╟п╩п╣п╫я▀");
 
-	// Кидаем кубики на создание
+	// п п╦п╢п╟п╣п╪ п╨я┐п╠п╦п╨п╦ п╫п╟ я│п╬п╥п╢п╟п╫п╦п╣
 	mres = number(1, 100 - (can_use_feat(ch, BREW_POTION_FEAT) ? 5 : 0));
 	if (mres < (int) prob)
 		mres = IM_MSG_OK;
@@ -1709,19 +1709,19 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			mres = IM_MSG_DAM;
 	}
 
-	sprintf(name, "Режим - %d", mres);
+	sprintf(name, "п═п╣п╤п╦п╪ - %d", mres);
 	imlog(CMP, name);
 
 	im_improove_recipe(ch, rs, mres == IM_MSG_OK);
 
-	// Рассылаю сообщения
-	imlog(CMP, "Рассылка сообщений");
+	// п═п╟я│я│я▀п╩п╟я▌ я│п╬п╬п╠я┴п╣п╫п╦я▐
+	imlog(CMP, "п═п╟я│я│я▀п╩п╨п╟ я│п╬п╬п╠я┴п╣п╫п╦п╧");
 	act(imrecipes[rs->rid].msg_char[mres], TRUE, ch, 0, 0, TO_CHAR);
 	act(imrecipes[rs->rid].msg_room[mres], TRUE, ch, 0, 0, TO_ROOM);
 
 	if (mres == IM_MSG_OK)
 	{
-		imlog(CMP, "Создание результата");
+		imlog(CMP, "п║п╬п╥п╢п╟п╫п╦п╣ я─п╣п╥я┐п╩я▄я┌п╟я┌п╟");
 		const auto result = world_objects.create_from_prototype_by_rnum(tgt);
 		if (result)
 		{
@@ -1772,17 +1772,17 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 	int qend, rcpt = -1;
 	im_rskill *rs;
 
-	// Определяем, что за рецепт пытаемся варить
+	// п·п©я─п╣п╢п╣п╩я▐п╣п╪, я┤я┌п╬ п╥п╟ я─п╣я├п╣п©я┌ п©я▀я┌п╟п╣п╪я│я▐ п╡п╟я─п╦я┌я▄
 	skip_spaces(&argument);
 	if (!*argument)
 	{
-		send_to_char("Пропущено название рецепта.\r\n", ch);
+		send_to_char("п÷я─п╬п©я┐я┴п╣п╫п╬ п╫п╟п╥п╡п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟.\r\n", ch);
 		return;
 	}
 
 	if (!IS_RECIPE_DELIM(*argument))
 	{
-		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
+		send_to_char("п═п╣я├п╣п©я┌ п╫п╟п╢п╬ п╥п╟п╨п╩я▌я┤п╦я┌я▄ п╡ я│п╦п╪п╡п╬п╩я▀ : ' * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 
@@ -1793,7 +1793,7 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 
 	if (!IS_RECIPE_DELIM(argument[qend]))
 	{
-		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
+		send_to_char("п═п╣я├п╣п©я┌ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫ п╡ я│п╦п╪п╡п╬п╩я▀ : ' * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 
@@ -1803,35 +1803,35 @@ void compose_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 	rcpt = im_get_recipe_by_name(name);
 	if (rcpt < 0)
 	{
-		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		send_to_char("п▓п╟п╪ я┌п╟п╨п╬п╧ я─п╣я├п╣п©я┌ п╫п╣п╦п╥п╡п╣я│я┌п╣п╫.\r\n", ch);
 		return;
 	}
 
 	rs = im_get_char_rskill(ch, rcpt);
 	if (!rs)
 	{
-		send_to_char("Вам такой рецепт неизвестен.\r\n", ch);
+		send_to_char("п▓п╟п╪ я┌п╟п╨п╬п╧ я─п╣я├п╣п©я┌ п╫п╣п╦п╥п╡п╣я│я┌п╣п╫.\r\n", ch);
 		return;
 	}
 
-	// rs - используемый рецепт
+	// rs - п╦я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╧ я─п╣я├п╣п©я┌
 
-	send_to_char("Вам потребуется :\r\n", ch);
+	send_to_char("п▓п╟п╪ п©п╬я┌я─п╣п╠я┐п╣я┌я│я▐ :\r\n", ch);
 
-	// Этап 1. Основные компоненты
+	// п╜я┌п╟п© 1. п·я│п╫п╬п╡п╫я▀п╣ п╨п╬п╪п©п╬п╫п╣п╫я┌я▀
 	for (int i = 1, *req = imrecipes[rs->rid].require; *req != -1; req += 2, ++i)
 	{
 		sprintf(name, "%s%d%s) %s%s%s\r\n", CCIGRN(ch, C_NRM), i,
 			CCNRM(ch, C_NRM), CCIYEL(ch, C_NRM), imtypes[*req].name, CCNRM(ch, C_NRM));
 		send_to_char(name, ch);
 	}
-	sprintf(name, "для приготовления отвара '%s'\r\n", imrecipes[rs->rid].name);
+	sprintf(name, "п╢п╩я▐ п©я─п╦пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ п╬я┌п╡п╟я─п╟ '%s'\r\n", imrecipes[rs->rid].name);
 	send_to_char(name, ch);
 
-	// Этап 2. Дополнительные компоненты *** НЕ ОБРАБАТЫВАЮТСЯ ***
+	// п╜я┌п╟п© 2. п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ п╨п╬п╪п©п╬п╫п╣п╫я┌я▀ *** п²п∙ п·п▒п═п░п▒п░п╒п╚п▓п░п╝п╒п║п╞ ***
 }
 
-// Поиск rid по имени
+// п÷п╬п╦я│п╨ rid п©п╬ п╦п╪п╣п╫п╦
 void forget_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 {
 	char name[MAX_STRING_LENGTH];
@@ -1843,20 +1843,20 @@ void forget_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 	skip_spaces(&argument);
 	if (!*argument)
 	{
-		send_to_char("Пропущено название рецепта.\r\n", ch);
+		send_to_char("п÷я─п╬п©я┐я┴п╣п╫п╬ п╫п╟п╥п╡п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟.\r\n", ch);
 		return;
 	}
 
 	if (!IS_RECIPE_DELIM(*argument))
 	{
-		send_to_char("Рецепт надо заключить в символы : ' * или !\r\n", ch);
+		send_to_char("п═п╣я├п╣п©я┌ п╫п╟п╢п╬ п╥п╟п╨п╩я▌я┤п╦я┌я▄ п╡ я│п╦п╪п╡п╬п╩я▀ : ' * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 	for (qend = 1; argument[qend] && !IS_RECIPE_DELIM(argument[qend]); qend++)
 		argument[qend] = LOWER(argument[qend]);
 	if (!IS_RECIPE_DELIM(argument[qend]))
 	{
-		send_to_char("Рецепт должен быть заключен в символы : ' * или !\r\n", ch);
+		send_to_char("п═п╣я├п╣п©я┌ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫ п╡ я│п╦п╪п╡п╬п╩я▀ : ' * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 	strcpy(name, (argument + 1));
@@ -1874,18 +1874,18 @@ void forget_recipe(CHAR_DATA * ch, char *argument, int/* subcmd*/)
 
 	if (rcpt < 0)
 	{
-		send_to_char("Неизвестный рецепт, введите название рецепта полностью.\r\n", ch);
+		send_to_char("п²п╣п╦п╥п╡п╣я│я┌п╫я▀п╧ я─п╣я├п╣п©я┌, п╡п╡п╣п╢п╦я┌п╣ п╫п╟п╥п╡п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟ п©п╬п╩п╫п╬я│я┌я▄я▌.\r\n", ch);
 		return;
 	}
 
 	rs = im_get_char_rskill(ch, rcpt);
 	if (!rs || !rs->perc)
 	{
-		send_to_char("Изучите сначала этот рецепт.\r\n", ch);
+		send_to_char("п≤п╥я┐я┤п╦я┌п╣ я│п╫п╟я┤п╟п╩п╟ я█я┌п╬я┌ я─п╣я├п╣п©я┌.\r\n", ch);
 		return;
 	}
 	rs->perc = 0;
-	sprintf(buf, "Вы забыли рецепт отвара '%s'.\r\n", imrecipes[rcpt].name);
+	sprintf(buf, "п▓я▀ п╥п╟п╠я▀п╩п╦ я─п╣я├п╣п©я┌ п╬я┌п╡п╟я─п╟ '%s'.\r\n", imrecipes[rcpt].name);
 	send_to_char(buf, ch);
 }
 
@@ -1958,7 +1958,7 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff)
 	{
 		if (recipediff)
 			return;
-		sprintf(buf, "Вас лишили рецепта '%s'.\r\n", imrecipes[rid].name);
+		sprintf(buf, "п▓п╟я│ п╩п╦я┬п╦п╩п╦ я─п╣я├п╣п©я┌п╟ '%s'.\r\n", imrecipes[rid].name);
 		send_to_char(buf, ch);
 		rs->perc = 0;
 	}
@@ -1976,9 +1976,9 @@ void trg_recipeturn(CHAR_DATA * ch, int rid, int recipediff)
 			rs->perc = 5;
 		}
 // -newbook.patch (Alisher)
-		sprintf(buf, "Вы изучили рецепт '%s'.\r\n", imrecipes[rid].name);
+		sprintf(buf, "п▓я▀ п╦п╥я┐я┤п╦п╩п╦ я─п╣я├п╣п©я┌ '%s'.\r\n", imrecipes[rid].name);
 		send_to_char(buf, ch);
-		sprintf(buf, "RECIPE: игроку %s добавлен рецепт %s", GET_NAME(ch), imrecipes[rid].name);
+		sprintf(buf, "RECIPE: п╦пЁя─п╬п╨я┐ %s п╢п╬п╠п╟п╡п╩п╣п╫ я─п╣я├п╣п©я┌ %s", GET_NAME(ch), imrecipes[rid].name);
 		log("%s", buf);
 	}
 }
@@ -1996,11 +1996,11 @@ void trg_recipeadd(CHAR_DATA * ch, int rid, int recipediff)
 	rs->perc = MAX(1, MIN(skill + recipediff, 200));
 
 	if (skill > rs->perc)
-		sprintf(buf, "Ваше знание рецепта '%s' понизилось.\r\n", imrecipes[rid].name);
+		sprintf(buf, "п▓п╟я┬п╣ п╥п╫п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟ '%s' п©п╬п╫п╦п╥п╦п╩п╬я│я▄.\r\n", imrecipes[rid].name);
 	else if (skill < rs->perc)
-		sprintf(buf, "Вы повысили знание рецепта '%s'.\r\n", imrecipes[rid].name);
+		sprintf(buf, "п▓я▀ п©п╬п╡я▀я│п╦п╩п╦ п╥п╫п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟ '%s'.\r\n", imrecipes[rid].name);
 	else
-		sprintf(buf, "Ваше знание рецепта '%s' осталось неизменным.\r\n", imrecipes[rid].name);
+		sprintf(buf, "п▓п╟я┬п╣ п╥п╫п╟п╫п╦п╣ я─п╣я├п╣п©я┌п╟ '%s' п╬я│я┌п╟п╩п╬я│я▄ п╫п╣п╦п╥п╪п╣п╫п╫я▀п╪.\r\n", imrecipes[rid].name);
 	send_to_char(buf, ch);
 }
 
@@ -2013,7 +2013,7 @@ void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	one_argument(argument, buf);
 	if (!*buf)
 	{
-		send_to_char("Использование: исписок <номер зоны>\r\n", ch);
+		send_to_char("п≤я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣: п╦я│п©п╦я│п╬п╨ <п╫п╬п╪п╣я─ п╥п╬п╫я▀>\r\n", ch);
 		return;
 	}
 
@@ -2021,7 +2021,7 @@ void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((zone < 0) || (zone > 999))
 	{
-		send_to_char("Номер зоны должен быть между 0 и 999.\n\r", ch);
+		send_to_char("п²п╬п╪п╣я─ п╥п╬п╫я▀ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╪п╣п╤п╢я┐ 0 п╦ 999.\n\r", ch);
 		return;
 	}
 
@@ -2039,7 +2039,7 @@ void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		if (buf1[0])
 		{
-			sprintf(buf + strlen(buf), "Комната %d [%s]\r\n%s\r\n",
+			sprintf(buf + strlen(buf), "п п╬п╪п╫п╟я┌п╟ %d [%s]\r\n%s\r\n",
 					world[rnum]->number, world[rnum]->name, buf1);
 		}
 	}
@@ -2061,7 +2061,7 @@ void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (buf1[0])
 		{
 			const auto mob = mob_proto + rnum;
-			sprintf(buf + strlen(buf), "Моб %d [%s,%d]\r\n%s\r\n",
+			sprintf(buf + strlen(buf), "п°п╬п╠ %d [%s,%d]\r\n%s\r\n",
 				GET_MOB_VNUM(mob),
 				GET_NAME(mob),
 				GET_LEVEL(mob),
@@ -2071,7 +2071,7 @@ void do_imlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!buf[0])
 	{
-		send_to_char("В зоне ингредиенты не загружаются", ch);
+		send_to_char("п▓ п╥п╬п╫п╣ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀ п╫п╣ п╥п╟пЁя─я┐п╤п╟я▌я┌я│я▐", ch);
 	}
 	else
 	{

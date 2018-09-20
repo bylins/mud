@@ -133,7 +133,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 		rnum = obj_proto.zone(rnum);
 		if (rnum != -1 && zone_table[rnum].under_construction)
 		{
-			// ÍÏÄÉÆÉËÁÃÉÑ ÏÂßÅËÔÏ× ÔÅÓÔÏ×ÏÊ ÚÏÎÙ
+			// Ð¼Ð¾Ð´Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ñ Ð¾Ð±ÑŠÐµÐºÑ‚Ð¾Ð² Ñ‚ÐµÑÑ‚Ð¾Ð²Ð¾Ð¹ Ð·Ð¾Ð½Ñ‹
 			constexpr int TEST_OBJECT_TIMER = 30;
 			new_object->set_timer(TEST_OBJECT_TIMER);
 			new_object->set_extra_flag(EExtraFlag::ITEM_NOLOCATE);

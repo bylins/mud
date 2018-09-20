@@ -89,10 +89,10 @@ const char *trig_types[] = { "Global",
 							 "Great-All PC",
 							 "Income",
 							 "Income PC",
-							 "Агродействие",
-							 "Раунд боя",
-							 "Каст в моба",
-							 "Смена времени",
+							 "п░пЁя─п╬п╢п╣п╧я│я┌п╡п╦п╣",
+							 "п═п╟я┐п╫п╢ п╠п╬я▐",
+							 "п п╟я│я┌ п╡ п╪п╬п╠п╟",
+							 "п║п╪п╣п╫п╟ п╡я─п╣п╪п╣п╫п╦",
 							 "UNUSED",
 							 "Auto",
 							 "\n"
@@ -117,9 +117,9 @@ const char *otrig_types[] = { "Global",
 							  "Open",
 							  "Lock",
 							  "Close",
-							  "Взломать",
-							  "Вход PC",
-							  "Смена времени",
+							  "п▓п╥п╩п╬п╪п╟я┌я▄",
+							  "п▓я┘п╬п╢ PC",
+							  "п║п╪п╣п╫п╟ п╡я─п╣п╪п╣п╫п╦",
 							  "UNUSED",
 							  "UNUSED",
 							  "UNUSED",
@@ -142,8 +142,8 @@ const char *wtrig_types[] = { "Global",
 							  "Open",
 							  "Lock",
 							  "Close",
-							  "Взломать",
-							  "Смена времени",
+							  "п▓п╥п╩п╬п╪п╟я┌я▄",
+							  "п║п╪п╣п╫п╟ п╡я─п╣п╪п╣п╫п╦",
 							  "UNUSED",
 							  "UNUSED",
 							  "UNUSED",
@@ -463,7 +463,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 		{
 			for (auto t : SCRIPT(ch)->trig_list)
 			{
-				if (t->get_attach_type() != MOB_TRIGGER)//детачим триги не для мобов
+				if (t->get_attach_type() != MOB_TRIGGER)//п╢п╣я┌п╟я┤п╦п╪ я┌я─п╦пЁп╦ п╫п╣ п╢п╩я▐ п╪п╬п╠п╬п╡
 				{
 					snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: M-Trigger #%d has wrong attach_type %s expected %s char:%s[%d]!",
 						GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[MOB_TRIGGER], ch->get_name().c_str(), GET_MOB_VNUM(ch));
@@ -488,9 +488,9 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 
 				if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd))
 				{
-					if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+					if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command я┌я─п╦пЁпЁп╣я─ п╫п╣ п╠я┐п╢п╣я┌ я│я─п╟п╠п╟я┌я▀п╡п╟я┌я▄ п╣я│п╩п╦ п╦пЁя─п╬п╨ я│п©п╦я┌
 					{
-						send_to_char("Сделать это в ваших снах?\r\n", actor);
+						send_to_char("п║п╢п╣п╩п╟я┌я▄ я█я┌п╬ п╡ п╡п╟я┬п╦я┘ я│п╫п╟я┘?\r\n", actor);
 						return 1;
 					}
 
@@ -845,10 +845,10 @@ void round_num_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor)
 }
 
 /**
-* Реакиця на каст в моба.
-* \param ch - моб
-* \param actor - кастер, идет в скрипт как %actor%
-* \param spellnum - номер закла, идет в скрипт как %cast_num% и %castname%
+* п═п╣п╟п╨п╦я├я▐ п╫п╟ п╨п╟я│я┌ п╡ п╪п╬п╠п╟.
+* \param ch - п╪п╬п╠
+* \param actor - п╨п╟я│я┌п╣я─, п╦п╢п╣я┌ п╡ я│п╨я─п╦п©я┌ п╨п╟п╨ %actor%
+* \param spellnum - п╫п╬п╪п╣я─ п╥п╟п╨п╩п╟, п╦п╢п╣я┌ п╡ я│п╨я─п╦п©я┌ п╨п╟п╨ %cast_num% п╦ %castname%
 */
 void cast_mtrigger(CHAR_DATA *ch, CHAR_DATA *actor, int spellnum)
 {
@@ -986,7 +986,7 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, const char *argument
 	{
 		for (auto t : obj->get_script()->trig_list)
 		{
-			if (t->get_attach_type() != OBJ_TRIGGER)//детачим триги не для объектов
+			if (t->get_attach_type() != OBJ_TRIGGER)//п╢п╣я┌п╟я┤п╦п╪ я┌я─п╦пЁп╦ п╫п╣ п╢п╩я▐ п╬п╠я┼п╣п╨я┌п╬п╡
 			{
 				snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: O-Trigger #%d has wrong attach_type %s expected %s Object:%s[%d]!",
 					GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[OBJ_TRIGGER],
@@ -1014,9 +1014,9 @@ int cmd_otrig(OBJ_DATA * obj, CHAR_DATA * actor, char *cmd, const char *argument
 				&& (t->arglist[0] == '*'
 					|| 0 == strn_cmp(t->arglist.c_str(), cmd, t->arglist.size())))
 			{
-				if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+				if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command я┌я─п╦пЁпЁп╣я─ п╫п╣ п╠я┐п╢п╣я┌ я│я─п╟п╠п╟я┌я▀п╡п╟я┌я▄ п╣я│п╩п╦ п╦пЁя─п╬п╨ я│п©п╦я┌
 				{
-					send_to_char("Сделать это в ваших снах?\r\n", actor);
+					send_to_char("п║п╢п╣п╩п╟я┌я▄ я█я┌п╬ п╡ п╡п╟я┬п╦я┘ я│п╫п╟я┘?\r\n", actor);
 					return 1;
 				}
 				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
@@ -1371,7 +1371,7 @@ int enter_wtrigger(ROOM_DATA * room, CHAR_DATA * actor, int dir)
 
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 
-			// триггер может удалить выход, но не вернуть 0 (есть такие билдеры)
+			// я┌я─п╦пЁпЁп╣я─ п╪п╬п╤п╣я┌ я┐п╢п╟п╩п╦я┌я▄ п╡я▀я┘п╬п╢, п╫п╬ п╫п╣ п╡п╣я─п╫я┐я┌я▄ 0 (п╣я│я┌я▄ я┌п╟п╨п╦п╣ п╠п╦п╩п╢п╣я─я▀)
 			return (script_driver(room, t, WLD_TRIGGER, TRIG_NEW) && CAN_GO(actor, dir));
 		}
 	}
@@ -1390,7 +1390,7 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 	room = world[IN_ROOM(actor)];
 	for (auto t : SCRIPT(room)->trig_list)
 	{
-		if (t->get_attach_type() != WLD_TRIGGER)//детачим триги не для комнат
+		if (t->get_attach_type() != WLD_TRIGGER)//п╢п╣я┌п╟я┤п╦п╪ я┌я─п╦пЁп╦ п╫п╣ п╢п╩я▐ п╨п╬п╪п╫п╟я┌
 		{
 			snprintf(buf, MAX_INPUT_LENGTH, "SYSERR: W-Trigger #%d has wrong attach_type %s expected %s room:%s[%d]!",
 				GET_TRIG_VNUM(t), attach_name[(int)t->get_attach_type()], attach_name[WLD_TRIGGER], room->name, room->number);
@@ -1415,15 +1415,15 @@ int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument)
 
 		if (compare_cmd(GET_TRIG_NARG(t), t->arglist.c_str(), cmd))
 		{
-			if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command триггер не будет срабатывать если игрок спит
+			if (!IS_NPC(actor) && (GET_POS(actor) == POS_SLEEPING))   // command я┌я─п╦пЁпЁп╣я─ п╫п╣ п╠я┐п╢п╣я┌ я│я─п╟п╠п╟я┌я▀п╡п╟я┌я▄ п╣я│п╩п╦ п╦пЁя─п╬п╨ я│п©п╦я┌
 			{
-				send_to_char("Сделать это в ваших снах?\r\n", actor);
+				send_to_char("п║п╢п╣п╩п╟я┌я▄ я█я┌п╬ п╡ п╡п╟я┬п╦я┘ я│п╫п╟я┘?\r\n", actor);
 				return 1;
 			}
 
 			if (GET_POS(actor) == POS_FIGHTING)
 			{
-				send_to_char("Вы не можете это сделать в бою.\r\n", actor); //command триггер не будет работать в бою
+				send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ я█я┌п╬ я│п╢п╣п╩п╟я┌я▄ п╡ п╠п╬я▌.\r\n", actor); //command я┌я─п╦пЁпЁп╣я─ п╫п╣ п╠я┐п╢п╣я┌ я─п╟п╠п╬я┌п╟я┌я▄ п╡ п╠п╬я▌
 				return 1;
 			}
 

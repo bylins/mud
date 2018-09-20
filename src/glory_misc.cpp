@@ -27,27 +27,27 @@ class GloryLog
 {
 public:
 	GloryLog() : type(0), num(0) {};
-	// тип записи (1 - плюс слава, 2 - минус слава, 3 - убирание стата, 4 - трансфер, 5 - hide)
+	// я┌п╦п© п╥п╟п©п╦я│п╦ (1 - п©п╩я▌я│ я│п╩п╟п╡п╟, 2 - п╪п╦п╫я┐я│ я│п╩п╟п╡п╟, 3 - я┐п╠п╦я─п╟п╫п╦п╣ я│я┌п╟я┌п╟, 4 - я┌я─п╟п╫я│я└п╣я─, 5 - hide)
 	int type;
-	// кол-во славы при +- славы
+	// п╨п╬п╩-п╡п╬ я│п╩п╟п╡я▀ п©я─п╦ +- я│п╩п╟п╡я▀
 	int num;
-	// что было записано в карму
+	// я┤я┌п╬ п╠я▀п╩п╬ п╥п╟п©п╦я│п╟п╫п╬ п╡ п╨п╟я─п╪я┐
 	std::string karma;
 };
 
 typedef std::shared_ptr<GloryLog> GloryLogPtr;
-typedef std::multimap<time_t /* время */, GloryLogPtr> GloryLogType;
-// лог манипуляций со славой
+typedef std::multimap<time_t /* п╡я─п╣п╪я▐ */, GloryLogPtr> GloryLogType;
+// п╩п╬пЁ п╪п╟п╫п╦п©я┐п╩я▐я├п╦п╧ я│п╬ я│п╩п╟п╡п╬п╧
 GloryLogType glory_log;
 
-// * Загрузка лога славы.
+// * п≈п╟пЁя─я┐п╥п╨п╟ п╩п╬пЁп╟ я│п╩п╟п╡я▀.
 void load_log()
 {
 	const char *glory_file = "../log/glory.log";
 	std::ifstream file(glory_file);
 	if (!file.is_open())
 	{
-		log("GloryLog: не удалось открыть файл на чтение: %s", glory_file);
+		log("GloryLog: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩ п╫п╟ я┤я┌п╣п╫п╦п╣: %s", glory_file);
 		return;
 	}
 
@@ -63,7 +63,7 @@ void load_log()
 		}
 		catch (const std::invalid_argument &)
 		{
-			log("GloryLog: ошибка чтения time, buffer2: %s", buffer2.c_str());
+			log("GloryLog: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ time, buffer2: %s", buffer2.c_str());
 			return;
 		}
 		GetOneParam(buffer, buffer2);
@@ -74,7 +74,7 @@ void load_log()
 		}
 		catch (const std::invalid_argument &)
 		{
-			log("GloryLog: ошибка чтения type, buffer2: %s", buffer2.c_str());
+			log("GloryLog: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ type, buffer2: %s", buffer2.c_str());
 			return;
 		}
 		GetOneParam(buffer, buffer2);
@@ -85,7 +85,7 @@ void load_log()
 		}
 		catch (const std::invalid_argument &)
 		{
-			log("GloryLog: ошибка чтения num, buffer2: %s", buffer2.c_str());
+			log("GloryLog: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ num, buffer2: %s", buffer2.c_str());
 			return;
 		}
 
@@ -98,7 +98,7 @@ void load_log()
 	}
 }
 
-// * Сохранение лога славы.
+// * п║п╬я┘я─п╟п╫п╣п╫п╦п╣ п╩п╬пЁп╟ я│п╩п╟п╡я▀.
 void save_log()
 {
 	std::stringstream out;
@@ -110,14 +110,14 @@ void save_log()
 	std::ofstream file(glory_file);
 	if (!file.is_open())
 	{
-		log("GloryLog: не удалось открыть файл на запись: %s", glory_file);
+		log("GloryLog: п╫п╣ я┐п╢п╟п╩п╬я│я▄ п╬я┌п╨я─я▀я┌я▄ я└п╟п╧п╩ п╫п╟ п╥п╟п©п╦я│я▄: %s", glory_file);
 		return;
 	}
 	file << out.rdbuf();
 	file.close();
 }
 
-// * Добавление записи в лог славы (время, тип, кол-во, строка из кармы).
+// * п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╥п╟п©п╦я│п╦ п╡ п╩п╬пЁ я│п╩п╟п╡я▀ (п╡я─п╣п╪я▐, я┌п╦п©, п╨п╬п╩-п╡п╬, я│я┌я─п╬п╨п╟ п╦п╥ п╨п╟я─п╪я▀).
 void add_log(int type, int num, std::string punish, std::string reason, CHAR_DATA *vict)
 {
 	if (!vict || vict->get_name().empty())
@@ -136,14 +136,14 @@ void add_log(int type, int num, std::string punish, std::string reason, CHAR_DAT
 }
 
 /**
-* Показ лога славы (show glory), отсортированного по убыванию даты, с возможностью фильтрациии.
-* Фильтры: show glory число|transfer|remove|hide
+* п÷п╬п╨п╟п╥ п╩п╬пЁп╟ я│п╩п╟п╡я▀ (show glory), п╬я┌я│п╬я─я┌п╦я─п╬п╡п╟п╫п╫п╬пЁп╬ п©п╬ я┐п╠я▀п╡п╟п╫п╦я▌ п╢п╟я┌я▀, я│ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄я▌ я└п╦п╩я▄я┌я─п╟я├п╦п╦п╦.
+* п╓п╦п╩я▄я┌я─я▀: show glory я┤п╦я│п╩п╬|transfer|remove|hide
 */
 void show_log(CHAR_DATA *ch , char const * const value)
 {
 	if (glory_log.empty())
 	{
-		send_to_char("Пусто, слава те господи!\r\n", ch);
+		send_to_char("п÷я┐я│я┌п╬, я│п╩п╟п╡п╟ я┌п╣ пЁп╬я│п©п╬п╢п╦!\r\n", ch);
 		return;
 	}
 
@@ -183,7 +183,7 @@ void show_log(CHAR_DATA *ch , char const * const value)
 	page_string(ch->desc, out.str());
 }
 
-// * Суммарное кол-во стартовых статов у чара (должно совпадать с SUM_ALL_STATS)
+// * п║я┐п╪п╪п╟я─п╫п╬п╣ п╨п╬п╩-п╡п╬ я│я┌п╟я─я┌п╬п╡я▀я┘ я│я┌п╟я┌п╬п╡ я┐ я┤п╟я─п╟ (п╢п╬п╩п╤п╫п╬ я│п╬п╡п©п╟п╢п╟я┌я▄ я│ SUM_ALL_STATS)
 int start_stats_count(CHAR_DATA *ch)
 {
 	int count = 0;
@@ -195,8 +195,8 @@ int start_stats_count(CHAR_DATA *ch)
 }
 
 /**
-* Стартовые статы при любых условиях должны соответствовать границам ролла.
-* В случае старого ролла тут это всплывет из-за нулевых статов.
+* п║я┌п╟я─я┌п╬п╡я▀п╣ я│я┌п╟я┌я▀ п©я─п╦ п╩я▌п╠я▀я┘ я┐я│п╩п╬п╡п╦я▐я┘ п╢п╬п╩п╤п╫я▀ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╬п╡п╟я┌я▄ пЁя─п╟п╫п╦я├п╟п╪ я─п╬п╩п╩п╟.
+* п▓ я│п╩я┐я┤п╟п╣ я│я┌п╟я─п╬пЁп╬ я─п╬п╩п╩п╟ я┌я┐я┌ я█я┌п╬ п╡я│п©п╩я▀п╡п╣я┌ п╦п╥-п╥п╟ п╫я┐п╩п╣п╡я▀я┘ я│я┌п╟я┌п╬п╡.
 */
 bool bad_start_stats(CHAR_DATA *ch)
 {
@@ -220,27 +220,27 @@ bool bad_start_stats(CHAR_DATA *ch)
 }
 
 /**
-* Считаем реальные статы с учетом мортов и влитой славы.
-* \return 0 - все ок, любое другое число - все плохо
+* п║я┤п╦я┌п╟п╣п╪ я─п╣п╟п╩я▄п╫я▀п╣ я│я┌п╟я┌я▀ я│ я┐я┤п╣я┌п╬п╪ п╪п╬я─я┌п╬п╡ п╦ п╡п╩п╦я┌п╬п╧ я│п╩п╟п╡я▀.
+* \return 0 - п╡я│п╣ п╬п╨, п╩я▌п╠п╬п╣ п╢я─я┐пЁп╬п╣ я┤п╦я│п╩п╬ - п╡я│п╣ п©п╩п╬я┘п╬
 */
 int bad_real_stats(CHAR_DATA *ch, int check)
 {
-	check -= SUM_ALL_STATS; // стартовые статы у всех по 95
-	check -= 6 * GET_REMORT(ch); // реморты
-	// влитая слава
+	check -= SUM_ALL_STATS; // я│я┌п╟я─я┌п╬п╡я▀п╣ я│я┌п╟я┌я▀ я┐ п╡я│п╣я┘ п©п╬ 95
+	check -= 6 * GET_REMORT(ch); // я─п╣п╪п╬я─я┌я▀
+	// п╡п╩п╦я┌п╟я▐ я│п╩п╟п╡п╟
 	check -= Glory::get_spend_glory(ch);
 	check -= GloryConst::main_stats_count(ch);
 	return check;
 }
 
 /**
-* Проверка стартовых и итоговых статов.
-* Если невалидные стартовые статы - чар отправляется на реролл.
-* Если невалидные только итоговые статы - идет перезапись со стартовых с учетом мортов и славы.
+* п÷я─п╬п╡п╣я─п╨п╟ я│я┌п╟я─я┌п╬п╡я▀я┘ п╦ п╦я┌п╬пЁп╬п╡я▀я┘ я│я┌п╟я┌п╬п╡.
+* п∙я│п╩п╦ п╫п╣п╡п╟п╩п╦п╢п╫я▀п╣ я│я┌п╟я─я┌п╬п╡я▀п╣ я│я┌п╟я┌я▀ - я┤п╟я─ п╬я┌п©я─п╟п╡п╩я▐п╣я┌я│я▐ п╫п╟ я─п╣я─п╬п╩п╩.
+* п∙я│п╩п╦ п╫п╣п╡п╟п╩п╦п╢п╫я▀п╣ я┌п╬п╩я▄п╨п╬ п╦я┌п╬пЁп╬п╡я▀п╣ я│я┌п╟я┌я▀ - п╦п╢п╣я┌ п©п╣я─п╣п╥п╟п©п╦я│я▄ я│п╬ я│я┌п╟я─я┌п╬п╡я▀я┘ я│ я┐я┤п╣я┌п╬п╪ п╪п╬я─я┌п╬п╡ п╦ я│п╩п╟п╡я▀.
 */
 bool check_stats(CHAR_DATA *ch)
 {
-	// иммов травмировать не стоит
+	// п╦п╪п╪п╬п╡ я┌я─п╟п╡п╪п╦я─п╬п╡п╟я┌я▄ п╫п╣ я│я┌п╬п╦я┌
 	if (IS_IMMORTAL(ch))
 	{
 		return 1;
@@ -249,12 +249,12 @@ bool check_stats(CHAR_DATA *ch)
 	int have_stats = ch->get_inborn_str() + ch->get_inborn_dex() + ch->get_inborn_int() + ch->get_inborn_wis()
 		+ ch->get_inborn_con() + ch->get_inborn_cha();
 
-	// чар со старым роллом статов или после попыток поправить статы в файле
+	// я┤п╟я─ я│п╬ я│я┌п╟я─я▀п╪ я─п╬п╩п╩п╬п╪ я│я┌п╟я┌п╬п╡ п╦п╩п╦ п©п╬я│п╩п╣ п©п╬п©я▀я┌п╬п╨ п©п╬п©я─п╟п╡п╦я┌я▄ я│я┌п╟я┌я▀ п╡ я└п╟п╧п╩п╣
 	if (bad_start_stats(ch))
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "\r\n%sВаши параметры за вычетом перевоплощений:\r\n"
-			"Сила: %d, Ловкость: %d, Ум: %d, Мудрость: %d, Телосложение: %d, Обаяние: %d\r\n"
-			"Просим вас заново распределить основные параметры персонажа.%s\r\n",
+		snprintf(buf, MAX_STRING_LENGTH, "\r\n%sп▓п╟я┬п╦ п©п╟я─п╟п╪п╣я┌я─я▀ п╥п╟ п╡я▀я┤п╣я┌п╬п╪ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╧:\r\n"
+			"п║п╦п╩п╟: %d, п⌡п╬п╡п╨п╬я│я┌я▄: %d, пёп╪: %d, п°я┐п╢я─п╬я│я┌я▄: %d, п╒п╣п╩п╬я│п╩п╬п╤п╣п╫п╦п╣: %d, п·п╠п╟я▐п╫п╦п╣: %d\r\n"
+			"п÷я─п╬я│п╦п╪ п╡п╟я│ п╥п╟п╫п╬п╡п╬ я─п╟я│п©я─п╣п╢п╣п╩п╦я┌я▄ п╬я│п╫п╬п╡п╫я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀ п©п╣я─я│п╬п╫п╟п╤п╟.%s\r\n",
 			CCIGRN(ch, C_SPR),
 			ch->get_inborn_str() - GET_REMORT(ch),
 			ch->get_inborn_dex() - GET_REMORT(ch),
@@ -265,8 +265,8 @@ bool check_stats(CHAR_DATA *ch)
 			CCNRM(ch, C_SPR));
 		SEND_TO_Q(buf, ch->desc);
 
-		// данную фигню мы делаем для того, чтобы из ролла нельзя было случайно так просто выйти
-		// сразу, не раскидав статы, а то много любителей тригов и просто нажатий не глядя
+		// п╢п╟п╫п╫я┐я▌ я└п╦пЁп╫я▌ п╪я▀ п╢п╣п╩п╟п╣п╪ п╢п╩я▐ я┌п╬пЁп╬, я┤я┌п╬п╠я▀ п╦п╥ я─п╬п╩п╩п╟ п╫п╣п╩я▄п╥я▐ п╠я▀п╩п╬ я│п╩я┐я┤п╟п╧п╫п╬ я┌п╟п╨ п©я─п╬я│я┌п╬ п╡я▀п╧я┌п╦
+		// я│я─п╟п╥я┐, п╫п╣ я─п╟я│п╨п╦п╢п╟п╡ я│я┌п╟я┌я▀, п╟ я┌п╬ п╪п╫п╬пЁп╬ п╩я▌п╠п╦я┌п╣п╩п╣п╧ я┌я─п╦пЁп╬п╡ п╦ п©я─п╬я│я┌п╬ п╫п╟п╤п╟я┌п╦п╧ п╫п╣ пЁп╩я▐п╢я▐
 		ch->set_str(MIN_STR(ch));
 		ch->set_dex(MIN_DEX(ch));
 		ch->set_int(MIN_INT(ch));
@@ -278,7 +278,7 @@ bool check_stats(CHAR_DATA *ch)
 		STATE(ch->desc) = CON_RESET_STATS;
 		return 0;
 	}
-	// стартовые статы в поряде, но слава не сходится (снялась по времени или иммом)
+	// я│я┌п╟я─я┌п╬п╡я▀п╣ я│я┌п╟я┌я▀ п╡ п©п╬я─я▐п╢п╣, п╫п╬ я│п╩п╟п╡п╟ п╫п╣ я│я┘п╬п╢п╦я┌я│я▐ (я│п╫я▐п╩п╟я│я▄ п©п╬ п╡я─п╣п╪п╣п╫п╦ п╦п╩п╦ п╦п╪п╪п╬п╪)
 	if (bad_real_stats(ch, have_stats))
 	{
 		recalculate_stats(ch);
@@ -286,17 +286,17 @@ bool check_stats(CHAR_DATA *ch)
 	return 1;
 }
 
-// * Пересчет статов чара на основании стартовых статов, ремортов и славы.
+// * п÷п╣я─п╣я│я┤п╣я┌ я│я┌п╟я┌п╬п╡ я┤п╟я─п╟ п╫п╟ п╬я│п╫п╬п╡п╟п╫п╦п╦ я│я┌п╟я─я┌п╬п╡я▀я┘ я│я┌п╟я┌п╬п╡, я─п╣п╪п╬я─я┌п╬п╡ п╦ я│п╩п╟п╡я▀.
 void recalculate_stats(CHAR_DATA *ch)
 {
-	// стартовые статы
+	// я│я┌п╟я─я┌п╬п╡я▀п╣ я│я┌п╟я┌я▀
 	ch->set_str(ch->get_start_stat(G_STR));
 	ch->set_dex(ch->get_start_stat(G_DEX));
 	ch->set_con(ch->get_start_stat(G_CON));
 	ch->set_int(ch->get_start_stat(G_INT));
 	ch->set_wis(ch->get_start_stat(G_WIS));
 	ch->set_cha(ch->get_start_stat(G_CHA));
-	// морты
+	// п╪п╬я─я┌я▀
 	if (GET_REMORT(ch))
 	{
 		ch->inc_str(GET_REMORT(ch));
@@ -306,7 +306,7 @@ void recalculate_stats(CHAR_DATA *ch)
 		ch->inc_int(GET_REMORT(ch));
 		ch->inc_cha(GET_REMORT(ch));
 	}
-	// влитая слава
+	// п╡п╩п╦я┌п╟я▐ я│п╩п╟п╡п╟
 	Glory::set_stats(ch);
 	GloryConst::set_stats(ch);
 }

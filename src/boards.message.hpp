@@ -5,21 +5,21 @@
 #include <memory>
 #include <deque>
 
-// отдельное сообщение
+// п╬я┌п╢п╣п╩я▄п╫п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣
 struct Message
 {
 	using shared_ptr = std::shared_ptr<Message>;
 
 	Message() : num(0), unique(0), level(0), rank(0), date(0) {};
 
-	int num;             // номер на доске
-	std::string author;  // имя автора
-	long unique;         // уид автора
-	int level;           // уровень автора (для всех, кроме клановых и персональных досок)
-	int rank;            // для дрн и дрвече
-	time_t date;         // дата поста
-	std::string subject; // тема
-	std::string text;    // текст сообщения
+	int num;             // п╫п╬п╪п╣я─ п╫п╟ п╢п╬я│п╨п╣
+	std::string author;  // п╦п╪я▐ п╟п╡я┌п╬я─п╟
+	long unique;         // я┐п╦п╢ п╟п╡я┌п╬я─п╟
+	int level;           // я┐я─п╬п╡п╣п╫я▄ п╟п╡я┌п╬я─п╟ (п╢п╩я▐ п╡я│п╣я┘, п╨я─п╬п╪п╣ п╨п╩п╟п╫п╬п╡я▀я┘ п╦ п©п╣я─я│п╬п╫п╟п╩я▄п╫я▀я┘ п╢п╬я│п╬п╨)
+	int rank;            // п╢п╩я▐ п╢я─п╫ п╦ п╢я─п╡п╣я┤п╣
+	time_t date;         // п╢п╟я┌п╟ п©п╬я│я┌п╟
+	std::string subject; // я┌п╣п╪п╟
+	std::string text;    // я┌п╣п╨я│я┌ я│п╬п╬п╠я┴п╣п╫п╦я▐
 };
 
 using MessageListType = std::deque<Message::shared_ptr>;

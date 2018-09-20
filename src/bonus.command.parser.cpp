@@ -7,7 +7,7 @@
 
 namespace Bonus
 {
-	const char *USAGE_MESSAGE = "Синтаксис команды:\r\nбонус <двойной|тройной|отменить> [оружейный|опыт|урон] [время]";
+	const char *USAGE_MESSAGE = "п║п╦п╫я┌п╟п╨я│п╦я│ п╨п╬п╪п╟п╫п╢я▀:\r\nп╠п╬п╫я┐я│ <п╢п╡п╬п╧п╫п╬п╧|я┌я─п╬п╧п╫п╬п╧|п╬я┌п╪п╣п╫п╦я┌я▄> [п╬я─я┐п╤п╣п╧п╫я▀п╧|п╬п©я▀я┌|я┐я─п╬п╫] [п╡я─п╣п╪я▐]";
 
 	class StringStreamFinalizer
 	{
@@ -42,19 +42,19 @@ namespace Bonus
 	void ArgumentsParser::parse()
 	{
 		std::stringstream out;
-		out << "*** Объявляется ";
+		out << "*** п·п╠я┼я▐п╡п╩я▐п╣я┌я│я▐ ";
 
 		StringStreamFinalizer error_message(m_error_message);
-		if (!isname(m_first_argument, "двойной тройной отменить"))
+		if (!isname(m_first_argument, "п╢п╡п╬п╧п╫п╬п╧ я┌я─п╬п╧п╫п╬п╧ п╬я┌п╪п╣п╫п╦я┌я▄"))
 		{
 			error_message << USAGE_MESSAGE << "\r\n";
 			return;
 		}
 
 		StringStreamFinalizer broadcast_message(m_broadcast_message);
-		if (is_abbrev(m_first_argument.c_str(), "отменить"))
+		if (is_abbrev(m_first_argument.c_str(), "п╬я┌п╪п╣п╫п╦я┌я▄"))
 		{
-			broadcast_message << "Бонус был отменен.\r\n";
+			broadcast_message << "п▒п╬п╫я┐я│ п╠я▀п╩ п╬я┌п╪п╣п╫п╣п╫.\r\n";
 			m_result = ER_STOP;
 			return;
 		}
@@ -66,9 +66,9 @@ namespace Bonus
 		}
 
 		if (!m_second_argument.empty()
-			&& !isname(m_second_argument, "оружейный опыт урон"))
+			&& !isname(m_second_argument, "п╬я─я┐п╤п╣п╧п╫я▀п╧ п╬п©я▀я┌ я┐я─п╬п╫"))
 		{
-			error_message << "Тип бонуса может быть &Wоружейный&n, &Wопыт&n или &Wурон&n.\r\n";
+			error_message << "п╒п╦п© п╠п╬п╫я┐я│п╟ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ &Wп╬я─я┐п╤п╣п╧п╫я▀п╧&n, &Wп╬п©я▀я┌&n п╦п╩п╦ &Wя┐я─п╬п╫&n.\r\n";
 			return;
 		}
 
@@ -80,18 +80,18 @@ namespace Bonus
 		if (m_bonus_time < 1
 			|| m_bonus_time > 60)
 		{
-			error_message << "Возможный временной интервал: от 1 до 60 игровых часов.\r\n";
+			error_message << "п▓п╬п╥п╪п╬п╤п╫я▀п╧ п╡я─п╣п╪п╣п╫п╫п╬п╧ п╦п╫я┌п╣я─п╡п╟п╩: п╬я┌ 1 п╢п╬ 60 п╦пЁя─п╬п╡я▀я┘ я┤п╟я│п╬п╡.\r\n";
 			return;
 		}
 
-		if (is_abbrev(m_first_argument.c_str(), "двойной"))
+		if (is_abbrev(m_first_argument.c_str(), "п╢п╡п╬п╧п╫п╬п╧"))
 		{
-			out << "двойной бонус";
+			out << "п╢п╡п╬п╧п╫п╬п╧ п╠п╬п╫я┐я│";
 			m_bonus_multiplier = 2;
 		}
-		else if (is_abbrev(m_first_argument.c_str(), "тройной"))
+		else if (is_abbrev(m_first_argument.c_str(), "я┌я─п╬п╧п╫п╬п╧"))
 		{
-			out << "тройной бонус";
+			out << "я┌я─п╬п╧п╫п╬п╧ п╠п╬п╫я┐я│";
 			m_bonus_multiplier = 3;
 		}
 		else
@@ -99,19 +99,19 @@ namespace Bonus
 			// logic error.
 		}
 
-		if (is_abbrev(m_second_argument.c_str(), "оружейный"))
+		if (is_abbrev(m_second_argument.c_str(), "п╬я─я┐п╤п╣п╧п╫я▀п╧"))
 		{
-			out << " оружейного опыта";
+			out << " п╬я─я┐п╤п╣п╧п╫п╬пЁп╬ п╬п©я▀я┌п╟";
 			m_bonus_type = BONUS_WEAPON_EXP;
 		}
-		else if (is_abbrev(m_second_argument.c_str(), "опыт"))
+		else if (is_abbrev(m_second_argument.c_str(), "п╬п©я▀я┌"))
 		{
-			out << " опыта";
+			out << " п╬п©я▀я┌п╟";
 			m_bonus_type = BONUS_EXP;
 		}
-		else if (is_abbrev(m_second_argument.c_str(), "урон"))
+		else if (is_abbrev(m_second_argument.c_str(), "я┐я─п╬п╫"))
 		{
-			out << " увеличенного урона";
+			out << " я┐п╡п╣п╩п╦я┤п╣п╫п╫п╬пЁп╬ я┐я─п╬п╫п╟";
 			m_bonus_type = BONUS_DAMAGE;
 		}
 		else
@@ -119,7 +119,7 @@ namespace Bonus
 			// logic error.
 		}
 
-		out << " на " << m_bonus_time << " часов. ***";
+		out << " п╫п╟ " << m_bonus_time << " я┤п╟я│п╬п╡. ***";
 		m_result = ER_START;
 		broadcast_message << "&W" << out.str() << "&n\r\n";
 	}

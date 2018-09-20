@@ -38,8 +38,8 @@ extern int what_sky;
 extern const char *what_weapon[];
 extern int pc_duration(CHAR_DATA * ch, int cnst, int level, int level_divisor, int min, int max);
 /*
- * Функция осуществляет поиск цели для DG_CAST
- * Облегченная версия find_cast_target
+ * п╓я┐п╫п╨я├п╦я▐ п╬я│я┐я┴п╣я│я┌п╡п╩я▐п╣я┌ п©п╬п╦я│п╨ я├п╣п╩п╦ п╢п╩я▐ DG_CAST
+ * п·п╠п╩п╣пЁя┤п╣п╫п╫п╟я▐ п╡п╣я─я│п╦я▐ find_cast_target
  */
 int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
 {
@@ -51,7 +51,7 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 	{
 		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0)
 		{
-			sprintf(buf2, "dg_cast (Не указан тип погоды)");
+			sprintf(buf2, "dg_cast (п²п╣ я┐п╨п╟п╥п╟п╫ я┌п╦п© п©п╬пЁп╬п╢я▀)");
 			script_log(buf2);
 			return FALSE;
 		}
@@ -62,7 +62,7 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 	{
 		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0)
 		{
-			sprintf(buf2, "dg_cast (Не указан тип оружия)");
+			sprintf(buf2, "dg_cast (п²п╣ я┐п╨п╟п╥п╟п╫ я┌п╦п© п╬я─я┐п╤п╦я▐)");
 			script_log(buf2);
 			return FALSE;
 		}
@@ -234,30 +234,30 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		// take select pieces from char_to_room(); 
 		if (type == OBJ_TRIGGER)
 		{
-			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "п╢я┐я┘ %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->set_npc_name(buf);
-			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "п╢я┐я┘ %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[0] = std::string(buf);
-			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "п╢я┐я┘п╟ %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[1] = std::string(buf);
-			sprintf(buf, "духу %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "п╢я┐я┘я┐ %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[2] = std::string(buf);
-			sprintf(buf, "духа %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "п╢я┐я┘п╟ %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[3] = std::string(buf);
-			sprintf(buf, "духом %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "п╢я┐я┘п╬п╪ %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[4] = std::string(buf);
-			sprintf(buf, "духе %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
+			sprintf(buf, "п╢я┐я┘п╣ %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[5] = std::string(buf);
 		}
 		else if (type == WLD_TRIGGER)
 		{
-			caster->set_npc_name("Боги");
-			caster->player_data.PNames[0] = "Боги";
-			caster->player_data.PNames[1] = "Богов";
-			caster->player_data.PNames[2] = "Богам";
-			caster->player_data.PNames[3] = "Богов";
-			caster->player_data.PNames[4] = "Богами";
-			caster->player_data.PNames[5] = "Богах"; 
+			caster->set_npc_name("п▒п╬пЁп╦");
+			caster->player_data.PNames[0] = "п▒п╬пЁп╦";
+			caster->player_data.PNames[1] = "п▒п╬пЁп╬п╡";
+			caster->player_data.PNames[2] = "п▒п╬пЁп╟п╪";
+			caster->player_data.PNames[3] = "п▒п╬пЁп╬п╡";
+			caster->player_data.PNames[4] = "п▒п╬пЁп╟п╪п╦";
+			caster->player_data.PNames[5] = "п▒п╬пЁп╟я┘"; 
 		}
 
 		caster_room->people.push_front(caster);
@@ -271,7 +271,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	else
 		*arg = '\0';
 
-	// в find_dg_cast_target можем и не попасть для инита нулями и в call_magic пойдет мусор
+	// п╡ find_dg_cast_target п╪п╬п╤п╣п╪ п╦ п╫п╣ п©п╬п©п╟я│я┌я▄ п╢п╩я▐ п╦п╫п╦я┌п╟ п╫я┐п╩я▐п╪п╦ п╦ п╡ call_magic п©п╬п╧п╢п╣я┌ п╪я┐я│п╬я─
 	CHAR_DATA *tch = 0;
 	OBJ_DATA *tobj = 0;
 	ROOM_DATA *troom = 0;
@@ -340,7 +340,7 @@ void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* scri
 		return;
 	}
 
-	// заменяем '_' на ' ' в названии заклинания и аффекта
+	// п╥п╟п╪п╣п╫я▐п╣п╪ '_' п╫п╟ ' ' п╡ п╫п╟п╥п╡п╟п╫п╦п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╦ п╟я└я└п╣п╨я┌п╟
 	for (i = 0; spell[i]; i++)
 		if (spell[i] == '_')
 			spell[i] = ' ';
@@ -351,7 +351,7 @@ void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* scri
 	value = atoi(value_p);
 	duration = atoi(duration_p);
 	battle = atoi(battle_p);
-// Если длительность 0 снимаем аффект ниже
+// п∙я│п╩п╦ п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄ 0 я│п╫п╦п╪п╟п╣п╪ п╟я└я└п╣п╨я┌ п╫п╦п╤п╣
 	if (duration < 0)
 	{
 		sprintf(buf2, "dg_affect: need positive duration!");
@@ -425,14 +425,14 @@ void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* scri
 			af.modifier = value;
 			af.bitvector = 0;
 		}
-		affect_join_fspell(ch, af); // перекастим аффект
+		affect_join_fspell(ch, af); // п©п╣я─п╣п╨п╟я│я┌п╦п╪ п╟я└я└п╣п╨я┌
 	}
 	else
 	{
 		// remove affect
 		affect_from_char(ch, index_s);
 		// trig_log(trig, "dg_affect: affect removed from char");
-		//Вроде не критично уже видеть все снятия аффектов
+		//п▓я─п╬п╢п╣ п╫п╣ п╨я─п╦я┌п╦я┤п╫п╬ я┐п╤п╣ п╡п╦п╢п╣я┌я▄ п╡я│п╣ я│п╫я▐я┌п╦я▐ п╟я└я└п╣п╨я┌п╬п╡
 	}
 }
 

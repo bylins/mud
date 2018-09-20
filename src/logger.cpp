@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-// Файл для вывода
+// п╓п╟п╧п╩ п╢п╩я▐ п╡я▀п╡п╬п╢п╟
 FILE *logfile = nullptr;
 
 void log(const char *format, ...)
@@ -206,7 +206,7 @@ void ip_log(const char *ip)
 }
 
 /*
- * Перезагрузка для функции mudlog, которая первым параметром вместо char *, принимает строку
+ * п÷п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╟ п╢п╩я▐ я└я┐п╫п╨я├п╦п╦ mudlog, п╨п╬я┌п╬я─п╟я▐ п©п╣я─п╡я▀п╪ п©п╟я─п╟п╪п╣я┌я─п╬п╪ п╡п╪п╣я│я┌п╬ char *, п©я─п╦п╫п╦п╪п╟п╣я┌ я│я┌я─п╬п╨я┐
  */
 void mudlog(std::string str, int type, int level, EOutputStream channel, int file)
 {
@@ -216,7 +216,7 @@ void mudlog(std::string str, int type, int level, EOutputStream channel, int fil
 /*
 * mudlog -- log mud messages to a file & to online imm's syslogs
 * based on syslog by Fen Jul 3, 1992
-* file - номер файла для вывода (0..NLOG), -1 не выводить в файл
+* file - п╫п╬п╪п╣я─ я└п╟п╧п╩п╟ п╢п╩я▐ п╡я▀п╡п╬п╢п╟ (0..NLOG), -1 п╫п╣ п╡я▀п╡п╬п╢п╦я┌я▄ п╡ я└п╟п╧п╩
 */
 void mudlog(const char *str, int type, int level, EOutputStream channel, int file)
 {
@@ -313,7 +313,7 @@ void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title/* = n
 	}
 }
 
-// * Чтобы не дублировать создание даты в каждом виде лога.
+// * п╖я┌п╬п╠я▀ п╫п╣ п╢я┐п╠п╩п╦я─п╬п╡п╟я┌я▄ я│п╬п╥п╢п╟п╫п╦п╣ п╢п╟я┌я▀ п╡ п╨п╟п╤п╢п╬п╪ п╡п╦п╢п╣ п╩п╬пЁп╟.
 void write_time(FILE *file)
 {
 	char time_buf[20];

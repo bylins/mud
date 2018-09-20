@@ -102,7 +102,7 @@ const char *medit_get_mprog_type(struct mob_prog_data *mprog);
 #endif
 
 
-//   Инициализация моба по-умолчанию
+//   п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╪п╬п╠п╟ п©п╬-я┐п╪п╬п╩я┤п╟п╫п╦я▌
 void medit_mobile_init(CHAR_DATA * mob)
 {
 	GET_HIT(mob) = GET_MEM_TOTAL(mob) = 1;
@@ -134,39 +134,39 @@ void medit_mobile_init(CHAR_DATA * mob)
 
 void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 /*++
-   Функция делает создает копию ПРОТОТИПА моба.
-   После вызова этой функции создается полностью независимая копия моба src.
-   Все поля имеют те же значения, но занимают свои области памяти.
-	  dst - "чистый" указатель на структуру char_data.
-	  src - исходный моб
-   Примечание: Неочищенный указатель dst приведет к утечке памяти.
-			   Используйте medit_mobile_free() для очистки содержимого моба
+   п╓я┐п╫п╨я├п╦я▐ п╢п╣п╩п╟п╣я┌ я│п╬п╥п╢п╟п╣я┌ п╨п╬п©п╦я▌ п÷п═п·п╒п·п╒п≤п÷п░ п╪п╬п╠п╟.
+   п÷п╬я│п╩п╣ п╡я▀п╥п╬п╡п╟ я█я┌п╬п╧ я└я┐п╫п╨я├п╦п╦ я│п╬п╥п╢п╟п╣я┌я│я▐ п©п╬п╩п╫п╬я│я┌я▄я▌ п╫п╣п╥п╟п╡п╦я│п╦п╪п╟я▐ п╨п╬п©п╦я▐ п╪п╬п╠п╟ src.
+   п▓я│п╣ п©п╬п╩я▐ п╦п╪п╣я▌я┌ я┌п╣ п╤п╣ п╥п╫п╟я┤п╣п╫п╦я▐, п╫п╬ п╥п╟п╫п╦п╪п╟я▌я┌ я│п╡п╬п╦ п╬п╠п╩п╟я│я┌п╦ п©п╟п╪я▐я┌п╦.
+	  dst - "я┤п╦я│я┌я▀п╧" я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ я│я┌я─я┐п╨я┌я┐я─я┐ char_data.
+	  src - п╦я│я┘п╬п╢п╫я▀п╧ п╪п╬п╠
+   п÷я─п╦п╪п╣я┤п╟п╫п╦п╣: п²п╣п╬я┤п╦я┴п╣п╫п╫я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄ dst п©я─п╦п╡п╣п╢п╣я┌ п╨ я┐я┌п╣я┤п╨п╣ п©п╟п╪я▐я┌п╦.
+			   п≤я│п©п╬п╩я▄п╥я┐п╧я┌п╣ medit_mobile_free() п╢п╩я▐ п╬я┤п╦я│я┌п╨п╦ я│п╬п╢п╣я─п╤п╦п╪п╬пЁп╬ п╪п╬п╠п╟
 
-   Т.к. работа идет с прототипом, необходимо отслеживать только следующие поля
-   (остальные будут в безопасном состоянии)
+   п╒.п╨. я─п╟п╠п╬я┌п╟ п╦п╢п╣я┌ я│ п©я─п╬я┌п╬я┌п╦п©п╬п╪, п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╬я┌я│п╩п╣п╤п╦п╡п╟я┌я▄ я┌п╬п╩я▄п╨п╬ я│п╩п╣п╢я┐я▌я┴п╦п╣ п©п╬п╩я▐
+   (п╬я│я┌п╟п╩я▄п╫я▀п╣ п╠я┐п╢я┐я┌ п╡ п╠п╣п╥п╬п©п╟я│п╫п╬п╪ я│п╬я│я┌п╬я▐п╫п╦п╦)
 
    player_data.name
    player_data.short_descr
    player_data.long_descr
    player_data.description
    player_data.PNames[6]
-   mob_specials.Questor - странно, т.к. похоже всегда NULL
-   скрипт=NULL и прототипы
-   помощники
+   mob_specials.Questor - я│я┌я─п╟п╫п╫п╬, я┌.п╨. п©п╬я┘п╬п╤п╣ п╡я│п╣пЁп╢п╟ NULL
+   я│п╨я─п╦п©я┌=NULL п╦ п©я─п╬я┌п╬я┌п╦п©я▀
+   п©п╬п╪п╬я┴п╫п╦п╨п╦
    ing_list
 
 --*/
 {
 	struct helper_data_type **pdhd, *shd;
 
-	// сохраняем старые значения
+	// я│п╬я┘я─п╟п╫я▐п╣п╪ я│я┌п╟я─я▀п╣ п╥п╫п╟я┤п╣п╫п╦я▐
 	CHAR_DATA tmp(*dst);
 
-	// Копирую все поверх
+	// п п╬п©п╦я─я┐я▌ п╡я│п╣ п©п╬п╡п╣я─я┘
 	*dst = *src;
-	dst->set_normal_morph();//вот это копировать не нада
+	dst->set_normal_morph();//п╡п╬я┌ я█я┌п╬ п╨п╬п©п╦я─п╬п╡п╟я┌я▄ п╫п╣ п╫п╟п╢п╟
 
-	// Теперь дублирую память
+	// п╒п╣п©п╣я─я▄ п╢я┐п╠п╩п╦я─я┐я▌ п©п╟п╪я▐я┌я▄
 	
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 		&& *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
@@ -183,14 +183,14 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 		shd = shd->next_helper;
 	}
 
-	// Копирую скрипт и прототипы
+	// п п╬п©п╦я─я┐я▌ я│п╨я─п╦п©я┌ п╦ п©я─п╬я┌п╬я┌п╦п©я▀
 	SCRIPT(dst)->cleanup();
 	auto proto_script_old = new OBJ_DATA::triggers_list_t(*src->proto_script);
 	dst->proto_script.reset(proto_script_old);
 	//*dst->proto_script = *src->proto_script;
 	im_inglist_copy(&dst->ing_list, src->ing_list);
 	dl_list_copy(&dst->dl_list, src->dl_list);
-	// для name_list
+	// п╢п╩я▐ name_list
 	dst->set_serial_num(tmp.get_serial_num());
 	//	CharacterAlias::remove(dst);
 	//	CharacterAlias::add(dst);
@@ -198,14 +198,14 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 
 void medit_mobile_free(CHAR_DATA * mob)
 /*++
-	Функция полностью освобождает память, занимаемую данными моба.
-	ВНИМАНИЕ. Память самой структуры char_data не освобождается.
-			 Необходимо дополнительно использовать free()
+	п╓я┐п╫п╨я├п╦я▐ п©п╬п╩п╫п╬я│я┌я▄я▌ п╬я│п╡п╬п╠п╬п╤п╢п╟п╣я┌ п©п╟п╪я▐я┌я▄, п╥п╟п╫п╦п╪п╟п╣п╪я┐я▌ п╢п╟п╫п╫я▀п╪п╦ п╪п╬п╠п╟.
+	п▓п²п≤п°п░п²п≤п∙. п÷п╟п╪я▐я┌я▄ я│п╟п╪п╬п╧ я│я┌я─я┐п╨я┌я┐я─я▀ char_data п╫п╣ п╬я│п╡п╬п╠п╬п╤п╢п╟п╣я┌я│я▐.
+			 п²п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ free()
 
-	add: вобщем если втыкаете здесь free, то надо обнулять указатель,
-	иначе потом при выходе из олц в деструкторе будет повторная попытка
-	очистить эту память и соответственно все плохо
-	TODO: вообще канеш переделывать все это надо теперь
+	add: п╡п╬п╠я┴п╣п╪ п╣я│п╩п╦ п╡я┌я▀п╨п╟п╣я┌п╣ п╥п╢п╣я│я▄ free, я┌п╬ п╫п╟п╢п╬ п╬п╠п╫я┐п╩я▐я┌я▄ я┐п╨п╟п╥п╟я┌п╣п╩я▄,
+	п╦п╫п╟я┤п╣ п©п╬я┌п╬п╪ п©я─п╦ п╡я▀я┘п╬п╢п╣ п╦п╥ п╬п╩я├ п╡ п╢п╣я│я┌я─я┐п╨я┌п╬я─п╣ п╠я┐п╢п╣я┌ п©п╬п╡я┌п╬я─п╫п╟я▐ п©п╬п©я▀я┌п╨п╟
+	п╬я┤п╦я│я┌п╦я┌я▄ я█я┌я┐ п©п╟п╪я▐я┌я▄ п╦ я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬ п╡я│п╣ п©п╩п╬я┘п╬
+	TODO: п╡п╬п╬п╠я┴п╣ п╨п╟п╫п╣я┬ п©п╣я─п╣п╢п╣п╩я▀п╡п╟я┌я▄ п╡я│п╣ я█я┌п╬ п╫п╟п╢п╬ я┌п╣п©п╣я─я▄
 --*/
 {
 	int i;
@@ -215,11 +215,11 @@ void medit_mobile_free(CHAR_DATA * mob)
 		return;
 	}
 
-	i = GET_MOB_RNUM(mob);	// задается в функции medit_setup
+	i = GET_MOB_RNUM(mob);	// п╥п╟п╢п╟п╣я┌я│я▐ п╡ я└я┐п╫п╨я├п╦п╦ medit_setup
 
 	if (i == -1 || mob == &mob_proto[i])
 	{
-		// Нет прототипа или сам прототип, удалять все подряд
+		// п²п╣я┌ п©я─п╬я┌п╬я┌п╦п©п╟ п╦п╩п╦ я│п╟п╪ п©я─п╬я┌п╬я┌п╦п©, я┐п╢п╟п╩я▐я┌я▄ п╡я│п╣ п©п╬п╢я─я▐п╢
 		
 		if (mob->mob_specials.Questor)
 		{
@@ -229,7 +229,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 	}
 	else
 	{
-		// Есть прототип, удалять несовпадающее
+		// п∙я│я┌я▄ п©я─п╬я┌п╬я┌п╦п©, я┐п╢п╟п╩я▐я┌я▄ п╫п╣я│п╬п╡п©п╟п╢п╟я▌я┴п╣п╣
 		
 		if (mob->mob_specials.Questor && mob->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
 		{
@@ -243,7 +243,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 		REMOVE_FROM_LIST(mob->helpers, mob->helpers, [](auto list) -> auto& { return list->next_helper; });
 	}
 
-	// Скрипт уже NULL
+	// п║п╨я─п╦п©я┌ я┐п╤п╣ NULL
 
 	if (mob->ing_list)
 	{
@@ -262,9 +262,9 @@ void medit_mobile_free(CHAR_DATA * mob)
 
 void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 /*++
-   Подготовка данных для редактирования моба.
-	  d        - OLC дескриптор
-	  real_num - RNUM исходного моба, новый -1
+   п÷п╬п╢пЁп╬я┌п╬п╡п╨п╟ п╢п╟п╫п╫я▀я┘ п╢п╩я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ п╪п╬п╠п╟.
+	  d        - OLC п╢п╣я│п╨я─п╦п©я┌п╬я─
+	  real_num - RNUM п╦я│я┘п╬п╢п╫п╬пЁп╬ п╪п╬п╠п╟, п╫п╬п╡я▀п╧ -1
 --*/
 {
 	CHAR_DATA *mob = new CHAR_DATA;
@@ -274,17 +274,17 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 	if (real_num == -1)
 	{
 		mob->set_rnum(NOBODY);
-		mob->set_pc_name("неоконченный моб");
-		mob->set_npc_name("неоконченный моб");
-		mob->player_data.long_descr = "Неоконченный моб стоит тут.\r\n";
-		mob->player_data.description = "Выглядит достаточно незавершенно.\r\n";
+		mob->set_pc_name("п╫п╣п╬п╨п╬п╫я┤п╣п╫п╫я▀п╧ п╪п╬п╠");
+		mob->set_npc_name("п╫п╣п╬п╨п╬п╫я┤п╣п╫п╫я▀п╧ п╪п╬п╠");
+		mob->player_data.long_descr = "п²п╣п╬п╨п╬п╫я┤п╣п╫п╫я▀п╧ п╪п╬п╠ я│я┌п╬п╦я┌ я┌я┐я┌.\r\n";
+		mob->player_data.description = "п▓я▀пЁп╩я▐п╢п╦я┌ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ п╫п╣п╥п╟п╡п╣я─я┬п╣п╫п╫п╬.\r\n";
 
-		mob->player_data.PNames[0] = "неоконченный моб";
-		mob->player_data.PNames[1] = "неоконченного моба";
-		mob->player_data.PNames[2] = "неоконченному мобу";
-		mob->player_data.PNames[3] = "неоконченного моба";
-		mob->player_data.PNames[4] = "неоконченным мобом";
-		mob->player_data.PNames[5] = "неоконченном мобе";
+		mob->player_data.PNames[0] = "п╫п╣п╬п╨п╬п╫я┤п╣п╫п╫я▀п╧ п╪п╬п╠";
+		mob->player_data.PNames[1] = "п╫п╣п╬п╨п╬п╫я┤п╣п╫п╫п╬пЁп╬ п╪п╬п╠п╟";
+		mob->player_data.PNames[2] = "п╫п╣п╬п╨п╬п╫я┤п╣п╫п╫п╬п╪я┐ п╪п╬п╠я┐";
+		mob->player_data.PNames[3] = "п╫п╣п╬п╨п╬п╫я┤п╣п╫п╫п╬пЁп╬ п╪п╬п╠п╟";
+		mob->player_data.PNames[4] = "п╫п╣п╬п╨п╬п╫я┤п╣п╫п╫я▀п╪ п╪п╬п╠п╬п╪";
+		mob->player_data.PNames[5] = "п╫п╣п╬п╨п╬п╫я┤п╣п╫п╫п╬п╪ п╪п╬п╠п╣";
 		mob->mob_specials.Questor = NULL;
 		mob->helpers = NULL;
 #if defined(OASIS_MPROG)
@@ -340,11 +340,11 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 /*
 * Save new/edited mob to memory.
 *
-* Здесь сейчас нельзя просто копировать через указатель поля из моба, т.к. при выходе
-* они будут чиститься через деструктор, поэтому пока только через medit_mobile_copy
-* add: прямое копирование без переаллокаций при добавлении нового моба работает
-* только потому, что в деструкторе сейчас не очищаются аллокации прототипов.
-* TODO: ес-сно это муть все
+* п≈п╢п╣я│я▄ я│п╣п╧я┤п╟я│ п╫п╣п╩я▄п╥я▐ п©я─п╬я│я┌п╬ п╨п╬п©п╦я─п╬п╡п╟я┌я▄ я┤п╣я─п╣п╥ я┐п╨п╟п╥п╟я┌п╣п╩я▄ п©п╬п╩я▐ п╦п╥ п╪п╬п╠п╟, я┌.п╨. п©я─п╦ п╡я▀я┘п╬п╢п╣
+* п╬п╫п╦ п╠я┐п╢я┐я┌ я┤п╦я│я┌п╦я┌я▄я│я▐ я┤п╣я─п╣п╥ п╢п╣я│я┌я─я┐п╨я┌п╬я─, п©п╬я█я┌п╬п╪я┐ п©п╬п╨п╟ я┌п╬п╩я▄п╨п╬ я┤п╣я─п╣п╥ medit_mobile_copy
+* add: п©я─я▐п╪п╬п╣ п╨п╬п©п╦я─п╬п╡п╟п╫п╦п╣ п╠п╣п╥ п©п╣я─п╣п╟п╩п╩п╬п╨п╟я├п╦п╧ п©я─п╦ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╦ п╫п╬п╡п╬пЁп╬ п╪п╬п╠п╟ я─п╟п╠п╬я┌п╟п╣я┌
+* я┌п╬п╩я▄п╨п╬ п©п╬я┌п╬п╪я┐, я┤я┌п╬ п╡ п╢п╣я│я┌я─я┐п╨я┌п╬я─п╣ я│п╣п╧я┤п╟я│ п╫п╣ п╬я┤п╦я┴п╟я▌я┌я│я▐ п╟п╩п╩п╬п╨п╟я├п╦п╦ п©я─п╬я┌п╬я┌п╦п©п╬п╡.
+* TODO: п╣я│-я│п╫п╬ я█я┌п╬ п╪я┐я┌я▄ п╡я│п╣
 */
 void medit_save_internally(DESCRIPTOR_DATA * d)
 {
@@ -360,37 +360,37 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 	if (rmob_num >= 0)
 	{
 		/* 
-		Собственно полная суть бага:
-		Лоадим моба - его падежи указывают на адрес X в структуре mob_proto. Убиваю его.
-		Дальше, я меняю моба, в прототипе падежи будут указывать уже на другой адрес.
-		Дальше на тике происходит окончательный пурж моба, которого я убил - но так там падежи указывают на старый адрес - то происходит беда
-		поэтому сразу чистим
+		п║п╬п╠я│я┌п╡п╣п╫п╫п╬ п©п╬п╩п╫п╟я▐ я│я┐я┌я▄ п╠п╟пЁп╟:
+		п⌡п╬п╟п╢п╦п╪ п╪п╬п╠п╟ - п╣пЁп╬ п©п╟п╢п╣п╤п╦ я┐п╨п╟п╥я▀п╡п╟я▌я┌ п╫п╟ п╟п╢я─п╣я│ X п╡ я│я┌я─я┐п╨я┌я┐я─п╣ mob_proto. пёп╠п╦п╡п╟я▌ п╣пЁп╬.
+		п■п╟п╩я▄я┬п╣, я▐ п╪п╣п╫я▐я▌ п╪п╬п╠п╟, п╡ п©я─п╬я┌п╬я┌п╦п©п╣ п©п╟п╢п╣п╤п╦ п╠я┐п╢я┐я┌ я┐п╨п╟п╥я▀п╡п╟я┌я▄ я┐п╤п╣ п╫п╟ п╢я─я┐пЁп╬п╧ п╟п╢я─п╣я│.
+		п■п╟п╩я▄я┬п╣ п╫п╟ я┌п╦п╨п╣ п©я─п╬п╦я│я┘п╬п╢п╦я┌ п╬п╨п╬п╫я┤п╟я┌п╣п╩я▄п╫я▀п╧ п©я┐я─п╤ п╪п╬п╠п╟, п╨п╬я┌п╬я─п╬пЁп╬ я▐ я┐п╠п╦п╩ - п╫п╬ я┌п╟п╨ я┌п╟п╪ п©п╟п╢п╣п╤п╦ я┐п╨п╟п╥я▀п╡п╟я▌я┌ п╫п╟ я│я┌п╟я─я▀п╧ п╟п╢я─п╣я│ - я┌п╬ п©я─п╬п╦я│я┘п╬п╢п╦я┌ п╠п╣п╢п╟
+		п©п╬я█я┌п╬п╪я┐ я│я─п╟п╥я┐ я┤п╦я│я┌п╦п╪
 		*/
 		character_list.purge();
-		// Такой моб есть. Обновляю прототип.
+		// п╒п╟п╨п╬п╧ п╪п╬п╠ п╣я│я┌я▄. п·п╠п╫п╬п╡п╩я▐я▌ п©я─п╬я┌п╬я┌п╦п©.
 		log("[MEdit] Save mob to mem %d", rmob_num);
-		// Удаление старого прототипа
+		// пёп╢п╟п╩п╣п╫п╦п╣ я│я┌п╟я─п╬пЁп╬ п©я─п╬я┌п╬я┌п╦п©п╟
 		medit_mobile_free(&mob_proto[rmob_num]);
-		// Обновляю прототип
+		// п·п╠п╫п╬п╡п╩я▐я▌ п©я─п╬я┌п╬я┌п╦п©
 		medit_mobile_copy(&mob_proto[rmob_num], OLC_MOB(d));
-		// Теперь просто удалить OLC_MOB(d) и все будет хорошо
+		// п╒п╣п©п╣я─я▄ п©я─п╬я│я┌п╬ я┐п╢п╟п╩п╦я┌я▄ OLC_MOB(d) п╦ п╡я│п╣ п╠я┐п╢п╣я┌ я┘п╬я─п╬я┬п╬
 		medit_mobile_free(OLC_MOB(d));
-		// Удаление "оболочки" произойдет в olc_cleanup
+		// пёп╢п╟п╩п╣п╫п╦п╣ "п╬п╠п╬п╩п╬я┤п╨п╦" п©я─п╬п╦п╥п╬п╧п╢п╣я┌ п╡ olc_cleanup
 
 		if (mob_index[rmob_num].func == receptionist)
 		{
 			clear_mob_charm(&mob_proto[rmob_num]);
 		}
 
-		// В живых мобах необходимо обновить строки, иначе будут крэши
+		// п▓ п╤п╦п╡я▀я┘ п╪п╬п╠п╟я┘ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╬п╠п╫п╬п╡п╦я┌я▄ я│я┌я─п╬п╨п╦, п╦п╫п╟я┤п╣ п╠я┐п╢я┐я┌ п╨я─я█я┬п╦
 		for (const auto live_mob : character_list)
 		{
 			if (IS_MOB(live_mob) && GET_MOB_RNUM(live_mob) == rmob_num)
 			{
 				live_mob->set_pc_name((mob_proto + rmob_num)->get_pc_name().c_str());
 				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name().c_str());
-				// Только строки. Остальное после ресета/ребута
-				// Возможна небольшая утечка памяти, но иначе очень большая запара
+				// п╒п╬п╩я▄п╨п╬ я│я┌я─п╬п╨п╦. п·я│я┌п╟п╩я▄п╫п╬п╣ п©п╬я│п╩п╣ я─п╣я│п╣я┌п╟/я─п╣п╠я┐я┌п╟
+				// п▓п╬п╥п╪п╬п╤п╫п╟ п╫п╣п╠п╬п╩я▄я┬п╟я▐ я┐я┌п╣я┤п╨п╟ п©п╟п╪я▐я┌п╦, п╫п╬ п╦п╫п╟я┤п╣ п╬я┤п╣п╫я▄ п╠п╬п╩я▄я┬п╟я▐ п╥п╟п©п╟я─п╟
 				GET_LDESC(live_mob) = GET_LDESC(mob_proto + rmob_num);
 				GET_DDESC(live_mob) = GET_DDESC(mob_proto + rmob_num);
 				for (j = 0; j < CObjectPrototype::NUM_PADS; j++)
@@ -399,13 +399,13 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 				}
 				live_mob->helpers = (mob_proto + rmob_num)->helpers;
 				live_mob->mob_specials.Questor = (mob_proto + rmob_num)->mob_specials.Questor;
-				// Скрипты и прототипы остаются от старого моба
+				// п║п╨я─п╦п©я┌я▀ п╦ п©я─п╬я┌п╬я┌п╦п©я▀ п╬я│я┌п╟я▌я┌я│я▐ п╬я┌ я│я┌п╟я─п╬пЁп╬ п╪п╬п╠п╟
 			}
 		}
 	}
 	else
 	{
-		// Совершенно новый моб
+		// п║п╬п╡п╣я─я┬п╣п╫п╫п╬ п╫п╬п╡я▀п╧ п╪п╬п╠
 #if defined(DEBUG)
 		fprintf(stderr, "top_of_mobt: %d, new top_of_mobt: %d\n", top_of_mobt, top_of_mobt + 1);
 #endif
@@ -486,12 +486,12 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		fprintf(stderr, "Free ok.\n");
 #endif
 
-		// Оновная проблема - перенумерация всех существующих RNUM
+		// п·п╫п╬п╡п╫п╟я▐ п©я─п╬п╠п╩п╣п╪п╟ - п©п╣я─п╣п╫я┐п╪п╣я─п╟я├п╦я▐ п╡я│п╣я┘ я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦я┘ RNUM
 
-		// 1. Увеличение RNUM существующих в мире мобов
+		// 1. пёп╡п╣п╩п╦я┤п╣п╫п╦п╣ RNUM я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦я┘ п╡ п╪п╦я─п╣ п╪п╬п╠п╬п╡
 				// Update live mobile rnums. //
-				// new_mob_num - индекс, куда вставлен новый моб //
-				// Для всех существующих мобов с RNUM>=new_mob_num нужно увеличить RNUM //
+				// new_mob_num - п╦п╫п╢п╣п╨я│, п╨я┐п╢п╟ п╡я│я┌п╟п╡п╩п╣п╫ п╫п╬п╡я▀п╧ п╪п╬п╠ //
+				// п■п╩я▐ п╡я│п╣я┘ я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦я┘ п╪п╬п╠п╬п╡ я│ RNUM>=new_mob_num п╫я┐п╤п╫п╬ я┐п╡п╣п╩п╦я┤п╦я┌я▄ RNUM //
 		for (const auto live_mob : character_list)
 		{
 			if (GET_MOB_RNUM(live_mob) >= new_mob_num)
@@ -500,7 +500,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 
-		// 2. Изменение параметров команд zon-файлов
+		// 2. п≤п╥п╪п╣п╫п╣п╫п╦п╣ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п╨п╬п╪п╟п╫п╢ zon-я└п╟п╧п╩п╬п╡
 				// Update zone table. //
 		for (zone = 0; zone <= top_of_zone_table; zone++)
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
@@ -517,7 +517,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 						ZCMD.arg3++;
 				}
 
-		// 4. Другие редактируемые мобы
+		// 4. п■я─я┐пЁп╦п╣ я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪я▀п╣ п╪п╬п╠я▀
 		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next)
 		{
@@ -530,7 +530,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 			}
 		}
 
-		// 5. Информация о выслеживании
+		// 5. п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬ п╡я▀я│п╩п╣п╤п╦п╡п╟п╫п╦п╦
 		for (j = FIRST_ROOM; j <= top_of_world; j++)
 		{
 			struct track_data *track;
@@ -545,7 +545,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 		}
 
 		SetsDrop::renumber_obj_rnum(new_mob_num);
-	}			// совершенно новый моб
+	}			// я│п╬п╡п╣я─я┬п╣п╫п╫п╬ п╫п╬п╡я▀п╧ п╪п╬п╠
 
 #if defined(OASIS_MPROG)
 	GET_MPROG(OLC_MOB(d)) = OLC_MPROGL(d);
@@ -604,23 +604,23 @@ void medit_save_to_disk(int zone_num)
 
 			// * Clean up strings.
 			if (mob->player_data.long_descr.empty())
-				mob->player_data.long_descr = "неопределен";
+				mob->player_data.long_descr = "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫";
 			strcpy(buf1, mob->player_data.long_descr.c_str());
 			strip_string(buf1);
 			if (mob->player_data.description.empty())
-				mob->player_data.description = "неопределен";
+				mob->player_data.description = "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫";
 			strcpy(buf2, mob->player_data.description.c_str());
 			strip_string(buf2);
 
 			fprintf(mob_file,
 				"%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
-				not_null(GET_ALIAS(mob), "неопределен"),
-				not_null(GET_PAD(mob, 0), "кто"),
-				not_null(GET_PAD(mob, 1), "кого"),
-				not_null(GET_PAD(mob, 2), "кому"),
-				not_null(GET_PAD(mob, 3), "кого"),
-				not_null(GET_PAD(mob, 4), "кем"),
-				not_null(GET_PAD(mob, 5), "о ком"), buf1, buf2);
+				not_null(GET_ALIAS(mob), "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫"),
+				not_null(GET_PAD(mob, 0), "п╨я┌п╬"),
+				not_null(GET_PAD(mob, 1), "п╨п╬пЁп╬"),
+				not_null(GET_PAD(mob, 2), "п╨п╬п╪я┐"),
+				not_null(GET_PAD(mob, 3), "п╨п╬пЁп╬"),
+				not_null(GET_PAD(mob, 4), "п╨п╣п╪"),
+				not_null(GET_PAD(mob, 5), "п╬ п╨п╬п╪"), buf1, buf2);
 			if (mob->mob_specials.Questor)
 				strcpy(buf1, mob->mob_specials.Questor);
 			else
@@ -671,7 +671,7 @@ void medit_save_to_disk(int zone_num)
 				fprintf(mob_file, "AResist: %d\n", GET_AR(mob));
 			if (GET_MR(mob) != 0)
 				fprintf(mob_file, "MResist: %d\n", GET_MR(mob));
-			// added by WorM (Видолюб) поглощение физ.урона в %
+			// added by WorM (п▓п╦п╢п╬п╩я▌п╠) п©п╬пЁп╩п╬я┴п╣п╫п╦п╣ я└п╦п╥.я┐я─п╬п╫п╟ п╡ %
 			if (GET_PR(mob) != 0)
 				fprintf(mob_file, "PResist: %d\n", GET_PR(mob));
 			// end by WorM
@@ -756,7 +756,7 @@ void medit_save_to_disk(int zone_num)
 
 			im_inglist_save_to_disk(mob_file, mob->ing_list);
 
-			// Сохраняем список в файл
+			// п║п╬я┘я─п╟п╫я▐п╣п╪ я│п©п╦я│п╬п╨ п╡ я└п╟п╧п╩
 			if (mob->dl_list)
 			{
 				load_list::iterator p = mob->dl_list->begin();
@@ -812,7 +812,7 @@ void medit_disp_positions(DESCRIPTOR_DATA * d)
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, position_types[i]);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Выберите положение : ", d->character.get());
+	send_to_char("п▓я▀п╠п╣я─п╦я┌п╣ п©п╬п╩п╬п╤п╣п╫п╦п╣ : ", d->character.get());
 }
 
 // *  Display add parameters - added by Adept
@@ -824,16 +824,16 @@ void medit_disp_add_parameters(DESCRIPTOR_DATA * d)
 	send_to_char("[H[J", d->character);
 #endif
 	sprintf(buf,
-		"%s1%s ) Регенерация : %s%d%s\r\n"
-		"%s2%s ) Броня : %s%d%s\r\n"
-		"%s3%s ) Запоминание : %s%d%s\r\n"
-		"%s4%s ) Успех колдовства : %s%d%s\r\n"
-		"%s5%s ) Удача : %s%d%s\r\n"
-		"%s6%s ) Инициатива : %s%d%s\r\n"
-		"%s7%s ) Поглощение : %s%d%s\r\n"
-		"%s8%s ) Иммунитет к магическим аффектам : %s%d%s\r\n"
-		"%s9%s ) Иммунитет к магическим повреждениям : %s%d%s\r\n"
-		"%s10%s) Иммунитет к физическим повреждениям : %s%d%s\r\n",
+		"%s1%s ) п═п╣пЁп╣п╫п╣я─п╟я├п╦я▐ : %s%d%s\r\n"
+		"%s2%s ) п▒я─п╬п╫я▐ : %s%d%s\r\n"
+		"%s3%s ) п≈п╟п©п╬п╪п╦п╫п╟п╫п╦п╣ : %s%d%s\r\n"
+		"%s4%s ) пёя│п©п╣я┘ п╨п╬п╩п╢п╬п╡я│я┌п╡п╟ : %s%d%s\r\n"
+		"%s5%s ) пёп╢п╟я┤п╟ : %s%d%s\r\n"
+		"%s6%s ) п≤п╫п╦я├п╦п╟я┌п╦п╡п╟ : %s%d%s\r\n"
+		"%s7%s ) п÷п╬пЁп╩п╬я┴п╣п╫п╦п╣ : %s%d%s\r\n"
+		"%s8%s ) п≤п╪п╪я┐п╫п╦я┌п╣я┌ п╨ п╪п╟пЁп╦я┤п╣я│п╨п╦п╪ п╟я└я└п╣п╨я┌п╟п╪ : %s%d%s\r\n"
+		"%s9%s ) п≤п╪п╪я┐п╫п╦я┌п╣я┌ п╨ п╪п╟пЁп╦я┤п╣я│п╨п╦п╪ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐п╪ : %s%d%s\r\n"
+		"%s10%s) п≤п╪п╪я┐п╫п╦я┌п╣я┌ п╨ я└п╦п╥п╦я┤п╣я│п╨п╦п╪ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐п╪ : %s%d%s\r\n",
 		grn, nrm, cyn, GET_HITREG((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_ARMOUR((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_MANAREG((OLC_MOB(d))), nrm,
@@ -845,7 +845,7 @@ void medit_disp_add_parameters(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, GET_MR((OLC_MOB(d))), nrm,
 		grn, nrm, cyn, GET_PR((OLC_MOB(d))), nrm);
 	send_to_char(buf, d->character.get());
-	send_to_char("Введите номер и величину параметра (0 - конец) : ", d->character.get());
+	send_to_char("п▓п╡п╣п╢п╦я┌п╣ п╫п╬п╪п╣я─ п╦ п╡п╣п╩п╦я┤п╦п╫я┐ п©п╟я─п╟п╪п╣я┌я─п╟ (0 - п╨п╬п╫п╣я├) : ", d->character.get());
 }
 
 // *  Display resistances - added by Adept
@@ -863,7 +863,7 @@ void medit_disp_resistances(DESCRIPTOR_DATA * d)
 			grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Введите номер и величину сопротивления (0 - конец) : ", d->character.get());
+	send_to_char("п▓п╡п╣п╢п╦я┌п╣ п╫п╬п╪п╣я─ п╦ п╡п╣п╩п╦я┤п╦п╫я┐ я│п╬п©я─п╬я┌п╦п╡п╩п╣п╫п╦я▐ (0 - п╨п╬п╫п╣я├) : ", d->character.get());
 }
 
 // *  Display saves - added by Adept
@@ -881,7 +881,7 @@ void medit_disp_saves(DESCRIPTOR_DATA * d)
 			grn, i, nrm, apply_negative[i], cyn, GET_SAVE(OLC_MOB(d), i - 1), nrm);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Введите номер и величину спас-броска (0 - конец) : ", d->character.get());
+	send_to_char("п▓п╡п╣п╢п╦я┌п╣ п╫п╬п╪п╣я─ п╦ п╡п╣п╩п╦я┤п╦п╫я┐ я│п©п╟я│-п╠я─п╬я│п╨п╟ (0 - п╨п╬п╫п╣я├) : ", d->character.get());
 }
 
 #if defined(OASIS_MPROG)
@@ -937,9 +937,9 @@ void medit_disp_mprog(DESCRIPTOR_DATA * d)
 		mprog = mprog->next;
 	}
 	sprintf(buf,
-		"%d) Создать новую Mob Prog\r\n"
-		"%d) Очистить Mob Prog\r\n"
-		"Введите номер для редактирования [0 - выход]:  ", OLC_MTOTAL(d), OLC_MTOTAL(d) + 1);
+		"%d) п║п╬п╥п╢п╟я┌я▄ п╫п╬п╡я┐я▌ Mob Prog\r\n"
+		"%d) п·я┤п╦я│я┌п╦я┌я▄ Mob Prog\r\n"
+		"п▓п╡п╣п╢п╦я┌п╣ п╫п╬п╪п╣я─ п╢п╩я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ [0 - п╡я▀я┘п╬п╢]:  ", OLC_MTOTAL(d), OLC_MTOTAL(d) + 1);
 	send_to_char(buf, d->character);
 	OLC_MODE(d) = MEDIT_MPROG;
 }
@@ -956,7 +956,7 @@ void medit_change_mprog(DESCRIPTOR_DATA * d)
 		"1) Type: %s\r\n"
 		"2) Args: %s\r\n"
 		"3) Commands:\r\n%s\r\n\r\n"
-		"Введите номер для редактирования [0 - выход]: ",
+		"п▓п╡п╣п╢п╦я┌п╣ п╫п╬п╪п╣я─ п╢п╩я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ [0 - п╡я▀я┘п╬п╢]: ",
 		medit_get_mprog_type(OLC_MPROG(d)),
 		(OLC_MPROG(d)->arglist ? OLC_MPROG(d)->arglist : "NONE"),
 		(OLC_MPROG(d)->comlist ? OLC_MPROG(d)->comlist : "NONE"));
@@ -982,7 +982,7 @@ void medit_disp_mprog_types(DESCRIPTOR_DATA * d)
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, mobprog_types[i]);
 		send_to_char(buf, d->character);
 	}
-	send_to_char("Введите тип mob prog : ", d->character);
+	send_to_char("п▓п╡п╣п╢п╦я┌п╣ я┌п╦п© mob prog : ", d->character);
 	OLC_MODE(d) = MEDIT_MPROG_TYPE;
 }
 #endif
@@ -1004,7 +1004,7 @@ void medit_disp_sex(DESCRIPTOR_DATA * d)
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, genders[i]);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Выберите пол : ", d->character.get());
+	send_to_char("п▓я▀п╠п╣я─п╦я┌п╣ п©п╬п╩ : ", d->character.get());
 }
 
 void medit_disp_role(DESCRIPTOR_DATA* d)
@@ -1027,12 +1027,12 @@ void medit_disp_role(DESCRIPTOR_DATA* d)
 		out += tmp;
 	}
 
-	snprintf(tmp, sizeof(tmp), "Текущие флаги : %s", cyn);
+	snprintf(tmp, sizeof(tmp), "п╒п╣п╨я┐я┴п╦п╣ я└п╩п╟пЁп╦ : %s", cyn);
 	out += tmp;
 
 	print_bitset(bits, npc_role_types, ",", out, true);
 
-	snprintf(tmp, sizeof(tmp), "%s\r\nВыберите роли моба (0 - выход) : ", nrm);
+	snprintf(tmp, sizeof(tmp), "%s\r\nп▓я▀п╠п╣я─п╦я┌п╣ я─п╬п╩п╦ п╪п╬п╠п╟ (0 - п╡я▀я┘п╬п╢) : ", nrm);
 	out += tmp;
 
 	send_to_char(out, d->character.get());
@@ -1062,10 +1062,10 @@ void medit_disp_features(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 
-	send_to_char("\r\nУкажите номер способности. (0 - конец) : ", d->character.get());
+	send_to_char("\r\nпёп╨п╟п╤п╦я┌п╣ п╫п╬п╪п╣я─ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦. (0 - п╨п╬п╫п╣я├) : ", d->character.get());
 }
 
-// Конец изменений Gorrah'ом
+// п п╬п╫п╣я├ п╦п╥п╪п╣п╫п╣п╫п╦п╧ Gorrah'п╬п╪
 
 //Polud npc race menu
 void medit_disp_race(DESCRIPTOR_DATA * d)
@@ -1082,7 +1082,7 @@ void medit_disp_race(DESCRIPTOR_DATA * d)
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Выберите расу моба : ", d->character.get());
+	send_to_char("п▓я▀п╠п╣я─п╦я┌п╣ я─п╟я│я┐ п╪п╬п╠п╟ : ", d->character.get());
 }
 //-Polud
 
@@ -1100,7 +1100,7 @@ void medit_disp_attack_types(DESCRIPTOR_DATA * d)
 		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, attack_hit_text[i].singular);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Выберите тип удара : ", d->character.get());
+	send_to_char("п▓я▀п╠п╣я─п╦я┌п╣ я┌п╦п© я┐п╢п╟я─п╟ : ", d->character.get());
 }
 
 //-------------------------------------------------------------------
@@ -1113,7 +1113,7 @@ void medit_disp_helpers(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 	send_to_char("[H[J", d->character);
 #endif
-	send_to_char("Установлены мобы-помощники :\r\n", d->character.get());
+	send_to_char("пёя│я┌п╟п╫п╬п╡п╩п╣п╫я▀ п╪п╬п╠я▀-п©п╬п╪п╬я┴п╫п╦п╨п╦ :\r\n", d->character.get());
 	for (helper = OLC_MOB(d)->helpers; helper; helper = helper->next_helper)
 	{
 		sprintf(buf, "%s%6d%s %s", grn, helper->mob_vnum, nrm, !(++columns % 6) ? "\r\n" : "");
@@ -1121,10 +1121,10 @@ void medit_disp_helpers(DESCRIPTOR_DATA * d)
 	}
 	if (!columns)
 	{
-		sprintf(buf, "%sНЕТ%s\r\n", cyn, nrm);
+		sprintf(buf, "%sп²п∙п╒%s\r\n", cyn, nrm);
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("Укажите vnum моба-помощника (0 - конец) : ", d->character.get());
+	send_to_char("пёп╨п╟п╤п╦я┌п╣ vnum п╪п╬п╠п╟-п©п╬п╪п╬я┴п╫п╦п╨п╟ (0 - п╨п╬п╫п╣я├) : ", d->character.get());
 }
 
 void medit_disp_skills(DESCRIPTOR_DATA * d)
@@ -1156,7 +1156,7 @@ void medit_disp_skills(DESCRIPTOR_DATA * d)
 			skill_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("\r\nУкажите номер и уровень владения умением (0 - конец) : ", d->character.get());
+	send_to_char("\r\nпёп╨п╟п╤п╦я┌п╣ п╫п╬п╪п╣я─ п╦ я┐я─п╬п╡п╣п╫я▄ п╡п╩п╟п╢п╣п╫п╦я▐ я┐п╪п╣п╫п╦п╣п╪ (0 - п╨п╬п╫п╣я├) : ", d->character.get());
 }
 
 void medit_disp_spells(DESCRIPTOR_DATA * d)
@@ -1186,7 +1186,7 @@ void medit_disp_spells(DESCRIPTOR_DATA * d)
 			spell_info[counter].name, buf1, !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
-	send_to_char("\r\nУкажите номер и количество заклинаний (0 - конец) : ", d->character.get());
+	send_to_char("\r\nпёп╨п╟п╤п╦я┌п╣ п╫п╬п╪п╣я─ п╦ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ (0 - п╨п╬п╫п╣я├) : ", d->character.get());
 }
 
 // * Display mob-flags menu.
@@ -1216,7 +1216,7 @@ void medit_disp_mob_flags(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 5);
-	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
+	sprintf(buf, "\r\nп╒п╣п╨я┐я┴п╦п╣ я└п╩п╟пЁп╦ : %s%s%s\r\nп▓я▀п╠п╣я─п╦я┌п╣ я└п╩п╟пЁ (0 - п╡я▀я┘п╬п╢) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1246,7 +1246,7 @@ void medit_disp_npc_flags(DESCRIPTOR_DATA * d)
 		send_to_char(buf, d->character.get());
 	}
 	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",",5);
-	sprintf(buf, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
+	sprintf(buf, "\r\nп╒п╣п╨я┐я┴п╦п╣ я└п╩п╟пЁп╦ : %s%s%s\r\nп▓я▀п╠п╣я─п╦я┌п╣ я└п╩п╟пЁ (0 - п╡я▀я┘п╬п╢) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
 
@@ -1295,22 +1295,22 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-		"-- МОБ:  [%s%d%s]\r\n"
-		"%s1%s) Пол: %s%-7.7s%s\r\n"
-		"%s2%s) Синонимы: %s&S%s&s\r\n"
-		"%s3&n) Именительный (это кто)         : %s&e\r\n"
-		"%s4&n) Родительный (нет кого)         : %s&e\r\n"
-		"%s5&n) Дательный  (дать кому)         : %s&e\r\n"
-		"%s6&n) Винительный (ударить кого)     : %s&e\r\n"
-		"%s7&n) Творительный (сражаться с кем) : %s&e\r\n"
-		"%s8&n) Предложный (ехать на ком)      : %s&e\r\n"
-		"%s9&n) Короткое :-\r\n&R&q%s&e&Q"
-		"%sA&n) Детальное:-\r\n%s&e"
-		"%sB%s) Уровень    : [%s%4d%s],%sC%s) Наклонности:  [%s%4d%s]\r\n"
-		"%sD%s) Хитролы    : [%s%4d%s],%sE%s) Дамролы:      [%s%4d%s]\r\n"
+		"-- п°п·п▒:  [%s%d%s]\r\n"
+		"%s1%s) п÷п╬п╩: %s%-7.7s%s\r\n"
+		"%s2%s) п║п╦п╫п╬п╫п╦п╪я▀: %s&S%s&s\r\n"
+		"%s3&n) п≤п╪п╣п╫п╦я┌п╣п╩я▄п╫я▀п╧ (я█я┌п╬ п╨я┌п╬)         : %s&e\r\n"
+		"%s4&n) п═п╬п╢п╦я┌п╣п╩я▄п╫я▀п╧ (п╫п╣я┌ п╨п╬пЁп╬)         : %s&e\r\n"
+		"%s5&n) п■п╟я┌п╣п╩я▄п╫я▀п╧  (п╢п╟я┌я▄ п╨п╬п╪я┐)         : %s&e\r\n"
+		"%s6&n) п▓п╦п╫п╦я┌п╣п╩я▄п╫я▀п╧ (я┐п╢п╟я─п╦я┌я▄ п╨п╬пЁп╬)     : %s&e\r\n"
+		"%s7&n) п╒п╡п╬я─п╦я┌п╣п╩я▄п╫я▀п╧ (я│я─п╟п╤п╟я┌я▄я│я▐ я│ п╨п╣п╪) : %s&e\r\n"
+		"%s8&n) п÷я─п╣п╢п╩п╬п╤п╫я▀п╧ (п╣я┘п╟я┌я▄ п╫п╟ п╨п╬п╪)      : %s&e\r\n"
+		"%s9&n) п п╬я─п╬я┌п╨п╬п╣ :-\r\n&R&q%s&e&Q"
+		"%sA&n) п■п╣я┌п╟п╩я▄п╫п╬п╣:-\r\n%s&e"
+		"%sB%s) пёя─п╬п╡п╣п╫я▄    : [%s%4d%s],%sC%s) п²п╟п╨п╩п╬п╫п╫п╬я│я┌п╦:  [%s%4d%s]\r\n"
+		"%sD%s) п╔п╦я┌я─п╬п╩я▀    : [%s%4d%s],%sE%s) п■п╟п╪я─п╬п╩я▀:      [%s%4d%s]\r\n"
 		"%sF%s) NumDamDice : [%s%4d%s],%sG%s) SizeDamDice:  [%s%4d%s]\r\n"
 		"%sH%s) Num HP Dice: [%s%4d%s],%sI%s) Size HP Dice: [%s%4d%s],%sJ%s) HP Bonus:    [%s%5d%s]\r\n"
-		"%sK%s) ArmorClass : [%s%4d%s],%sL%s) Опыт:         [%s%9ld%s],\r\n"
+		"%sK%s) ArmorClass : [%s%4d%s],%sL%s) п·п©я▀я┌:         [%s%9ld%s],\r\n"
 		"%sM%s) Gold       : [%s%4ld%s],%sN%s) NumGoldDice:  [%s%4d%s],%sO%s) SizeGoldDice: [%s%4d%s]\r\n",
 		cyn, OLC_NUM(d), nrm,
 		grn, nrm, yel, genders[(int)GET_SEX(mob)], nrm,
@@ -1341,11 +1341,11 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",",4);
 	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",",4);
 	sprintf(buf,
-		"%sP%s) Положение     : %s%s\r\n"
-		"%sR%s) По умолчанию  : %s%s\r\n"
-		"%sT%s) Тип атаки     : %s%s\r\n"
-		"%sU%s) Флаги   (MOB) : %s%s\r\n"
-		"%sV%s) Аффекты (AFF) : %s%s\r\n",
+		"%sP%s) п÷п╬п╩п╬п╤п╣п╫п╦п╣     : %s%s\r\n"
+		"%sR%s) п÷п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌  : %s%s\r\n"
+		"%sT%s) п╒п╦п© п╟я┌п╟п╨п╦     : %s%s\r\n"
+		"%sU%s) п╓п╩п╟пЁп╦   (MOB) : %s%s\r\n"
+		"%sV%s) п░я└я└п╣п╨я┌я▀ (AFF) : %s%s\r\n",
 		grn, nrm, yel, position_types[(int)GET_POS(mob)],
 		grn, nrm, yel, position_types[(int)GET_DEFAULT_POS(mob)],
 		grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
@@ -1373,33 +1373,33 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 	}
 	else
 	{
-		roles_str += "нет";
+		roles_str += "п╫п╣я┌";
 	}
 
-	sprintf(buf, "%sW%s) Флаги   (NPC) : %s%s\r\n"
+	sprintf(buf, "%sW%s) п╓п╩п╟пЁп╦   (NPC) : %s%s\r\n"
 #if defined(OASIS_MPROG)
 		"%sX%s) Mob Progs  : %s%s\r\n"
 #endif
 		"%sY%s) Destination: %s%s\r\n"
-		"%sZ%s) Помогают   : %s%s\r\n"
-		"%sА%s) Умения     : \r\n"
-		"%sБ%s) Заклинания : \r\n"
-		"%sВ%s) Сила : [%s%4d%s],%sГ%s) Ловк : [%s%4d%s],%sД%s) Тело : [%s%4d%s]\r\n"
-		"%sЕ%s) Мудр : [%s%4d%s],%sЖ%s) Ум   : [%s%4d%s],%sЗ%s) Обая : [%s%4d%s]\r\n"
-		"%sИ%s) Рост : [%s%4d%s],%sК%s) Вес  : [%s%4d%s],%sЛ%s) Разм : [%s%4d%s]\r\n"
-		"%sМ%s) ДопА : [%s%4d%s]\n"
-		"%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
-		"%sО%s) Ингредиенты: %s%s\r\n"
-		"%sП%s) Загружаемые объекты: %s%s\r\n"
-		"%sР%s) Роли моба: %s%s\r\n"
-		"%sС%s) Резисты:\r\n"
-		"%sТ%s) Спас-броски:\r\n"
-		"%sУ%s) Дополнительные параметры:\r\n"
-		"%sФ%s) Способности:\r\n"
-		"%sЦ%s) Раса моба: %s%s\r\n"
-		"%sЧ%s) Клонирование%s\r\n"
+		"%sZ%s) п÷п╬п╪п╬пЁп╟я▌я┌   : %s%s\r\n"
+		"%sп░%s) пёп╪п╣п╫п╦я▐     : \r\n"
+		"%sп▒%s) п≈п╟п╨п╩п╦п╫п╟п╫п╦я▐ : \r\n"
+		"%sп▓%s) п║п╦п╩п╟ : [%s%4d%s],%sп⌠%s) п⌡п╬п╡п╨ : [%s%4d%s],%sп■%s) п╒п╣п╩п╬ : [%s%4d%s]\r\n"
+		"%sп∙%s) п°я┐п╢я─ : [%s%4d%s],%sп√%s) пёп╪   : [%s%4d%s],%sп≈%s) п·п╠п╟я▐ : [%s%4d%s]\r\n"
+		"%sп≤%s) п═п╬я│я┌ : [%s%4d%s],%sп %s) п▓п╣я│  : [%s%4d%s],%sп⌡%s) п═п╟п╥п╪ : [%s%4d%s]\r\n"
+		"%sп°%s) п■п╬п©п░ : [%s%4d%s]\n"
+		"%sп²%s) п╗п╟п╫я│я▀ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ я┐п╪п╣п╫п╦п╧: [%s%4d%s]\r\n"
+		"%sп·%s) п≤п╫пЁя─п╣п╢п╦п╣п╫я┌я▀: %s%s\r\n"
+		"%sп÷%s) п≈п╟пЁя─я┐п╤п╟п╣п╪я▀п╣ п╬п╠я┼п╣п╨я┌я▀: %s%s\r\n"
+		"%sп═%s) п═п╬п╩п╦ п╪п╬п╠п╟: %s%s\r\n"
+		"%sп║%s) п═п╣п╥п╦я│я┌я▀:\r\n"
+		"%sп╒%s) п║п©п╟я│-п╠я─п╬я│п╨п╦:\r\n"
+		"%sпё%s) п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀:\r\n"
+		"%sп╓%s) п║п©п╬я│п╬п╠п╫п╬я│я┌п╦:\r\n"
+		"%sп╕%s) п═п╟я│п╟ п╪п╬п╠п╟: %s%s\r\n"
+		"%sп╖%s) п п╩п╬п╫п╦я─п╬п╡п╟п╫п╦п╣%s\r\n"
 		"%sS%s) Script     : %s%s\r\n"
-		"%sQ%s) Quit\r\n" "Ваш выбор : ", grn, nrm, cyn, buf1,
+		"%sQ%s) Quit\r\n" "п▓п╟я┬ п╡я▀п╠п╬я─ : ", grn, nrm, cyn, buf1,
 #if defined(OASIS_MPROG)
 		grn, nrm, cyn, (OLC_MPROGL(d) ? "Set." : "Not Set."),
 #endif
@@ -1418,8 +1418,8 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, GET_SIZE(mob), nrm,
 		grn, nrm, cyn, mob->mob_specials.ExtraAttack, nrm,
 		grn, nrm, cyn, mob->mob_specials.LikeWork, nrm,
-		grn, nrm, cyn, mob->ing_list ? "Есть" : "Нет",
-		grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
+		grn, nrm, cyn, mob->ing_list ? "п∙я│я┌я▄" : "п²п╣я┌",
+		grn, nrm, cyn, mob->dl_list ? "п∙я│я┌я▄" : "п²п╣я┌",
 		grn, nrm, cyn, roles_str.c_str(),
 		grn, nrm,
 		grn, nrm,
@@ -1436,9 +1436,9 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 // Display on_death load object list
 void disp_dl_list(DESCRIPTOR_DATA * d)
 {
-	// Список загружаемых посмертно объектов:
+	// п║п©п╦я│п╬п╨ п╥п╟пЁя─я┐п╤п╟п╣п╪я▀я┘ п©п╬я│п╪п╣я─я┌п╫п╬ п╬п╠я┼п╣п╨я┌п╬п╡:
 	// - VNUM - Prob - SpecParam -
-	// (Объекты не определены)
+	// (п·п╠я┼п╣п╨я┌я▀ п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫я▀)
 	// 1) ...
 	// 2) ...
 	int i;
@@ -1451,8 +1451,8 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-		"\r\n-- Объекты загружаемые посмертно в моба [%s%d%s]\r\n"
-		"-- Предмет (VNUM,Вероятность,Тип загрузки,Спец.параметр) -- \r\n", cyn, OLC_NUM(d), nrm);
+		"\r\n-- п·п╠я┼п╣п╨я┌я▀ п╥п╟пЁя─я┐п╤п╟п╣п╪я▀п╣ п©п╬я│п╪п╣я─я┌п╫п╬ п╡ п╪п╬п╠п╟ [%s%d%s]\r\n"
+		"-- п÷я─п╣п╢п╪п╣я┌ (VNUM,п▓п╣я─п╬я▐я┌п╫п╬я│я┌я▄,п╒п╦п© п╥п╟пЁя─я┐п╥п╨п╦,п║п©п╣я├.п©п╟я─п╟п╪п╣я┌я─) -- \r\n", cyn, OLC_NUM(d), nrm);
 
 	send_to_char(buf, d->character.get());
 
@@ -1472,7 +1472,7 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 			}
 			else
 			{
-				objname = "Нет";
+				objname = "п²п╣я┌";
 			}
 
 			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",
@@ -1484,17 +1484,17 @@ void disp_dl_list(DESCRIPTOR_DATA * d)
 	}
 	else
 	{
-		send_to_char("Предметы не определены\r\n", d->character.get());
+		send_to_char("п÷я─п╣п╢п╪п╣я┌я▀ п╫п╣ п╬п©я─п╣п╢п╣п╩п╣п╫я▀\r\n", d->character.get());
 	}
-	// Выводим
-	// A) Добавить.
-	// B) Удалить.
-	// C) Изменить.
-	// Q) Выход.
+	// п▓я▀п╡п╬п╢п╦п╪
+	// A) п■п╬п╠п╟п╡п╦я┌я▄.
+	// B) пёп╢п╟п╩п╦я┌я▄.
+	// C) п≤п╥п╪п╣п╫п╦я┌я▄.
+	// Q) п▓я▀я┘п╬п╢.
 	sprintf(buf,
 		"\r\n"
-		"%sА%s) Добавить\r\n"
-		"%sБ%s) Удалить\r\n" "%sQ%s) Выход\r\n" "Ваш выбор:", grn, nrm, grn, nrm, grn, nrm);
+		"%sп░%s) п■п╬п╠п╟п╡п╦я┌я▄\r\n"
+		"%sп▒%s) пёп╢п╟п╩п╦я┌я▄\r\n" "%sQ%s) п▓я▀я┘п╬п╢\r\n" "п▓п╟я┬ п╡я▀п╠п╬я─:", grn, nrm, grn, nrm, grn, nrm);
 
 	send_to_char(buf, d->character.get());
 }
@@ -1507,10 +1507,10 @@ void medit_disp_clone_menu(DESCRIPTOR_DATA* d)
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
-		"%s1%s) Заменить триггеры\r\n"
-		"%s2%s) Не заменять триггеры\r\n"
+		"%s1%s) п≈п╟п╪п╣п╫п╦я┌я▄ я┌я─п╦пЁпЁп╣я─я▀\r\n"
+		"%s2%s) п²п╣ п╥п╟п╪п╣п╫я▐я┌я▄ я┌я─п╦пЁпЁп╣я─я▀\r\n"
 		"%s3%s) Quit\r\n"
-		"Ваш выбор : ",
+		"п▓п╟я┬ п╡я▀п╠п╬я─ : ",
 		grn, nrm,
 		grn, nrm,
 		grn, nrm);
@@ -1531,7 +1531,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 	{
 		if (!*arg || (!a_isdigit(arg[0]) && ((*arg == '-') && (!a_isdigit(arg[1])))))
 		{
-			send_to_char("Это числовое поле, повторите ввод : ", d->character.get());
+			send_to_char("п╜я┌п╬ я┤п╦я│п╩п╬п╡п╬п╣ п©п╬п╩п╣, п©п╬п╡я┌п╬я─п╦я┌п╣ п╡п╡п╬п╢ : ", d->character.get());
 			return;
 		}
 	}
@@ -1545,8 +1545,8 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case 'y':
 		case 'Y':
-		case 'д':
-		case 'Д':
+		case 'п╢':
+		case 'п■':
 			// * Save the mob in memory and to disk.
 			send_to_char("Saving mobile to memory.\r\n", d->character.get());
 			medit_save_internally(d);
@@ -1560,14 +1560,14 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case 'n':
 		case 'N':
-		case 'н':
-		case 'Н':
+		case 'п╫':
+		case 'п²':
 			cleanup_olc(d, CLEANUP_ALL);
 			break;
 
 		default:
-			send_to_char("Неверный выбор!\r\n", d->character.get());
-			send_to_char("Вы хотите сохранить моба? : ", d->character.get());
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", d->character.get());
+			send_to_char("п▓я▀ я┘п╬я┌п╦я┌п╣ я│п╬я┘я─п╟п╫п╦я┌я▄ п╪п╬п╠п╟? : ", d->character.get());
 			break;
 		}
 		return;
@@ -1582,7 +1582,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'Q':
 			if (OLC_VAL(d))  	// Anything been changed?
 			{
-				send_to_char("Вы желаете сохранить изменения моба? (y/n): ", d->character.get());
+				send_to_char("п▓я▀ п╤п╣п╩п╟п╣я┌п╣ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╪п╬п╠п╟? (y/n): ", d->character.get());
 				OLC_MODE(d) = MEDIT_CONFIRM_SAVESTRING;
 			}
 			else
@@ -1597,49 +1597,49 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 
 		case '2':
-			send_to_char("Введите синонимы : ", d->character.get());
+			send_to_char("п▓п╡п╣п╢п╦я┌п╣ я│п╦п╫п╬п╫п╦п╪я▀ : ", d->character.get());
 			OLC_MODE(d) = MEDIT_ALIAS;
 			i--;
 			break;
 
 		case '3':
-			send_to_char(d->character.get(), "&S%s&s\r\nИменительный падеж [это КТО]: ", GET_PAD(OLC_MOB(d), 0));
+			send_to_char(d->character.get(), "&S%s&s\r\nп≤п╪п╣п╫п╦я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤ [я█я┌п╬ п п╒п·]: ", GET_PAD(OLC_MOB(d), 0));
 			OLC_MODE(d) = MEDIT_PAD0;
 			i--;
 			break;
 
 		case '4':
-			send_to_char(d->character.get(), "&S%s&s\r\nРодительный падеж [нет КОГО] : ", GET_PAD(OLC_MOB(d), 1));
+			send_to_char(d->character.get(), "&S%s&s\r\nп═п╬п╢п╦я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤ [п╫п╣я┌ п п·п⌠п·] : ", GET_PAD(OLC_MOB(d), 1));
 			OLC_MODE(d) = MEDIT_PAD1;
 			i--;
 			break;
 
 		case '5':
-			send_to_char(d->character.get(), "&S%s&s\r\nДательный падеж [дать КОМУ] : ", GET_PAD(OLC_MOB(d), 2));
+			send_to_char(d->character.get(), "&S%s&s\r\nп■п╟я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤ [п╢п╟я┌я▄ п п·п°пё] : ", GET_PAD(OLC_MOB(d), 2));
 			OLC_MODE(d) = MEDIT_PAD2;
 			i--;
 			break;
 
 		case '6':
-			send_to_char(d->character.get(), "&S%s&s\r\nВинительный падеж [ударить КОГО] : ", GET_PAD(OLC_MOB(d), 3));
+			send_to_char(d->character.get(), "&S%s&s\r\nп▓п╦п╫п╦я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤ [я┐п╢п╟я─п╦я┌я▄ п п·п⌠п·] : ", GET_PAD(OLC_MOB(d), 3));
 			OLC_MODE(d) = MEDIT_PAD3;
 			i--;
 			break;
 
 		case '7':
-			send_to_char(d->character.get(), "&S%s&s\r\nТворительный падеж [следовать за КЕМ] : ", GET_PAD(OLC_MOB(d), 4));
+			send_to_char(d->character.get(), "&S%s&s\r\nп╒п╡п╬я─п╦я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤ [я│п╩п╣п╢п╬п╡п╟я┌я▄ п╥п╟ п п∙п°] : ", GET_PAD(OLC_MOB(d), 4));
 			OLC_MODE(d) = MEDIT_PAD4;
 			i--;
 			break;
 
 		case '8':
-			send_to_char(d->character.get(), "&S%s&s\r\nПредложный падеж [говорить о КОМ] : ", GET_PAD(OLC_MOB(d), 5));
+			send_to_char(d->character.get(), "&S%s&s\r\nп÷я─п╣п╢п╩п╬п╤п╫я▀п╧ п©п╟п╢п╣п╤ [пЁп╬п╡п╬я─п╦я┌я▄ п╬ п п·п°] : ", GET_PAD(OLC_MOB(d), 5));
 			OLC_MODE(d) = MEDIT_PAD5;
 			i--;
 			break;
 
 		case '9':
-			send_to_char(d->character.get(), "&S%s&s\r\nВведите длинное описание :-\r\n| ", GET_LDESC(OLC_MOB(d)).c_str());
+			send_to_char(d->character.get(), "&S%s&s\r\nп▓п╡п╣п╢п╦я┌п╣ п╢п╩п╦п╫п╫п╬п╣ п╬п©п╦я│п╟п╫п╦п╣ :-\r\n| ", GET_LDESC(OLC_MOB(d)).c_str());
 			OLC_MODE(d) = MEDIT_L_DESC;
 			i--;
 			break;
@@ -1647,7 +1647,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'a':
 		case 'A':
 			OLC_MODE(d) = MEDIT_D_DESC;
-			SEND_TO_Q("Введите описание моба: (/s сохранить /h помощь)\r\n\r\n", d);
+			SEND_TO_Q("п▓п╡п╣п╢п╦я┌п╣ п╬п©п╦я│п╟п╫п╦п╣ п╪п╬п╠п╟: (/s я│п╬я┘я─п╟п╫п╦я┌я▄ /h п©п╬п╪п╬я┴я▄)\r\n\r\n", d);
 			d->backstr = NULL;
 			if (OLC_MOB(d)->player_data.description != "")
 			{
@@ -1807,134 +1807,134 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			medit_disp_helpers(d);
 			return;
 
-		case 'а':
-		case 'А':
+		case 'п╟':
+		case 'п░':
 			OLC_MODE(d) = MEDIT_SKILLS;
 			medit_disp_skills(d);
 			return;
 
-		case 'б':
-		case 'Б':
+		case 'п╠':
+		case 'п▒':
 			OLC_MODE(d) = MEDIT_SPELLS;
 			medit_disp_spells(d);
 			return;
 
-		case 'в':
-		case 'В':
+		case 'п╡':
+		case 'п▓':
 			OLC_MODE(d) = MEDIT_STR;
 			i++;
 			break;
 
-		case 'г':
-		case 'Г':
+		case 'пЁ':
+		case 'п⌠':
 			OLC_MODE(d) = MEDIT_DEX;
 			i++;
 			break;
 
-		case 'д':
-		case 'Д':
+		case 'п╢':
+		case 'п■':
 			OLC_MODE(d) = MEDIT_CON;
 			i++;
 			break;
 
-		case 'е':
-		case 'Е':
+		case 'п╣':
+		case 'п∙':
 			OLC_MODE(d) = MEDIT_WIS;
 			i++;
 			break;
 
-		case 'ж':
-		case 'Ж':
+		case 'п╤':
+		case 'п√':
 			OLC_MODE(d) = MEDIT_INT;
 			i++;
 			break;
 
-		case 'з':
-		case 'З':
+		case 'п╥':
+		case 'п≈':
 			OLC_MODE(d) = MEDIT_CHA;
 			i++;
 			break;
 
-		case 'и':
-		case 'И':
+		case 'п╦':
+		case 'п≤':
 			OLC_MODE(d) = MEDIT_HEIGHT;
 			i++;
 			break;
 
-		case 'к':
-		case 'К':
+		case 'п╨':
+		case 'п ':
 			OLC_MODE(d) = MEDIT_WEIGHT;
 			i++;
 			break;
 
-		case 'л':
-		case 'Л':
+		case 'п╩':
+		case 'п⌡':
 			OLC_MODE(d) = MEDIT_SIZE;
 			i++;
 			break;
 
-		case 'м':
-		case 'М':
+		case 'п╪':
+		case 'п°':
 			OLC_MODE(d) = MEDIT_EXTRA;
 			i++;
 			break;
 
-		case 'н':
-		case 'Н':
-			send_to_char(d->character.get(), "\r\nВведите новое значение от 0 до 100%% :");
+		case 'п╫':
+		case 'п²':
+			send_to_char(d->character.get(), "\r\nп▓п╡п╣п╢п╦я┌п╣ п╫п╬п╡п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п╬я┌ 0 п╢п╬ 100%% :");
 			OLC_MODE(d) = MEDIT_LIKE;
 			return;
 
-		case 'о':
-		case 'О':
+		case 'п╬':
+		case 'п·':
 			OLC_MODE(d) = MEDIT_ING;
 			xedit_disp_ing(d, OLC_MOB(d)->ing_list);
 			return;
 
-		case 'п':
-		case 'П':
+		case 'п©':
+		case 'п÷':
 			OLC_MODE(d) = MEDIT_DLIST_MENU;
 			disp_dl_list(d);
 			return;
 
-		case 'р':
-		case 'Р':
+		case 'я─':
+		case 'п═':
 			OLC_MODE(d) = MEDIT_ROLE;
 			medit_disp_role(d);
 			return;
 
-		case 'с':
-		case 'С':
+		case 'я│':
+		case 'п║':
 			OLC_MODE(d) = MEDIT_RESISTANCES;
 			medit_disp_resistances(d);
 			return;
 
-		case 'т':
-		case 'Т':
+		case 'я┌':
+		case 'п╒':
 			OLC_MODE(d) = MEDIT_SAVES;
 			medit_disp_saves(d);
 			return;
 
-		case 'у':
-		case 'У':
+		case 'я┐':
+		case 'пё':
 			OLC_MODE(d) = MEDIT_ADD_PARAMETERS;
 			medit_disp_add_parameters(d);
 			return;
 
-		case 'ф':
-		case 'Ф':
+		case 'я└':
+		case 'п╓':
 			OLC_MODE(d) = MEDIT_FEATURES;
 			medit_disp_features(d);
 			return;
 
-		case 'ц':
-		case 'Ц':
+		case 'я├':
+		case 'п╕':
 			OLC_MODE(d) = MEDIT_RACE;
 			medit_disp_race(d);
 			return;
 
-		case 'ч':
-		case 'Ч':
+		case 'я┤':
+		case 'п╖':
 			OLC_MODE(d) = MEDIT_CLONE;
 			medit_disp_clone_menu(d);
 			return;
@@ -1947,8 +1947,8 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		if (i != 0)
 		{
-			send_to_char(i == 1 ? "\r\nВведите новое значение : " :
-				i == -1 ? "\r\nВведите новый текст :\r\n] " : "\r\nОпаньки...:\r\n", d->character.get());
+			send_to_char(i == 1 ? "\r\nп▓п╡п╣п╢п╦я┌п╣ п╫п╬п╡п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ : " :
+				i == -1 ? "\r\nп▓п╡п╣п╢п╦я┌п╣ п╫п╬п╡я▀п╧ я┌п╣п╨я│я┌ :\r\n] " : "\r\nп·п©п╟п╫я▄п╨п╦...:\r\n", d->character.get());
 			return;
 		}
 		break;
@@ -1985,7 +1985,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			|| !feat_info[number].name
 			|| *feat_info[number].name == '!')
 		{
-			send_to_char("Неверный номер.\r\n", d->character.get());
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─.\r\n", d->character.get());
 		}
 		else if (HAVE_FEAT(OLC_MOB(d), number))
 		{
@@ -2006,11 +2006,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (number > MAX_NUMBER_RESISTANCE || number < 0)
 		{
-			send_to_char("Неверный номер.\r\n", d->character.get());
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─.\r\n", d->character.get());
 		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 		{
-			send_to_char("Не указан уровень сопротивления.\r\n", d->character.get());
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ я┐я─п╬п╡п╣п╫я▄ я│п╬п©я─п╬я┌п╦п╡п╩п╣п╫п╦я▐.\r\n", d->character.get());
 		}
 		else
 		{
@@ -2028,7 +2028,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 		{
-			send_to_char("Не указана величина параметра.\r\n", d->character.get());
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫п╟ п╡п╣п╩п╦я┤п╦п╫п╟ п©п╟я─п╟п╪п╣я┌я─п╟.\r\n", d->character.get());
 		}
 		else switch (number)
 		{
@@ -2073,7 +2073,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			break;
 
 		default:
-			send_to_char("Неверный номер.\r\n", d->character.get());
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─.\r\n", d->character.get());
 		}
 		medit_disp_add_parameters(d);
 		return;
@@ -2087,11 +2087,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		if (number > SAVING_COUNT || number < 0)
 		{
-			send_to_char("Неверный номер.\r\n", d->character.get());
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─.\r\n", d->character.get());
 		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 		{
-			send_to_char("Не указана величина спас-броска.\r\n", d->character.get());
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫п╟ п╡п╣п╩п╦я┤п╦п╫п╟ я│п©п╟я│-п╠я─п╬я│п╨п╟.\r\n", d->character.get());
 		}
 		else
 		{
@@ -2101,32 +2101,32 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case MEDIT_ALIAS:
-		OLC_MOB(d)->set_pc_name(not_null(arg, "неопределен"));
+		OLC_MOB(d)->set_pc_name(not_null(arg, "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫"));
 		break;
 
 	case MEDIT_PAD0:
-		OLC_MOB(d)->player_data.PNames[0] = std::string(not_null(arg, "кто-то"));
-		OLC_MOB(d)->set_npc_name(not_null(arg, "кто-то"));
+		OLC_MOB(d)->player_data.PNames[0] = std::string(not_null(arg, "п╨я┌п╬-я┌п╬"));
+		OLC_MOB(d)->set_npc_name(not_null(arg, "п╨я┌п╬-я┌п╬"));
 		break;
 
 	case MEDIT_PAD1:
-		OLC_MOB(d)->player_data.PNames[1] = std::string(not_null(arg, "кого-то"));
+		OLC_MOB(d)->player_data.PNames[1] = std::string(not_null(arg, "п╨п╬пЁп╬-я┌п╬"));
 		break;
 
 	case MEDIT_PAD2:
-		OLC_MOB(d)->player_data.PNames[2] = std::string(not_null(arg, "кому-то"));
+		OLC_MOB(d)->player_data.PNames[2] = std::string(not_null(arg, "п╨п╬п╪я┐-я┌п╬"));
 		break;
 
 	case MEDIT_PAD3:
-		OLC_MOB(d)->player_data.PNames[3] = std::string(not_null(arg, "кого-то"));
+		OLC_MOB(d)->player_data.PNames[3] = std::string(not_null(arg, "п╨п╬пЁп╬-я┌п╬"));
 		break;
 
 	case MEDIT_PAD4:
-		OLC_MOB(d)->player_data.PNames[4] = std::string(not_null(arg, "кем-то"));
+		OLC_MOB(d)->player_data.PNames[4] = std::string(not_null(arg, "п╨п╣п╪-я┌п╬"));
 		break;
 
 	case MEDIT_PAD5:
-		OLC_MOB(d)->player_data.PNames[5] = std::string(not_null(arg, "о ком-то"));
+		OLC_MOB(d)->player_data.PNames[5] = std::string(not_null(arg, "п╬ п╨п╬п╪-я┌п╬"));
 		break;
 		//-------------------------------------------------------------------
 	case MEDIT_L_DESC:
@@ -2138,7 +2138,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			OLC_MOB(d)->player_data.long_descr = std::string("неопределен\r\n");
+			OLC_MOB(d)->player_data.long_descr = std::string("п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫\r\n");
 		}
 		break;
 
@@ -2146,7 +2146,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		// * We should never get here.
 		cleanup_olc(d, CLEANUP_ALL);
 		mudlog("SYSERR: OLC: medit_parse(): Reached D_DESC case!", BRF, LVL_BUILDER, SYSLOG, TRUE);
-		send_to_char("Опаньки...\r\n", d->character.get());
+		send_to_char("п·п©п╟п╫я▄п╨п╦...\r\n", d->character.get());
 		break;
 
 #if defined(OASIS_MPROG)
@@ -2240,7 +2240,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else if (i == OLC_MTOTAL(d) + 1)
 		{
-			send_to_char("Какого моба Вы хотите очистить? ", d->character);
+			send_to_char("п п╟п╨п╬пЁп╬ п╪п╬п╠п╟ п▓я▀ я┘п╬я┌п╦я┌п╣ п╬я┤п╦я│я┌п╦я┌я▄? ", d->character);
 			OLC_MODE(d) = MEDIT_PURGE_MPROG;
 		}
 		else
@@ -2272,12 +2272,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			medit_disp_mprog_types(d);
 		else if (i == 2)
 		{
-			send_to_char("Введите новый список аргументов: ", d->character);
+			send_to_char("п▓п╡п╣п╢п╦я┌п╣ п╫п╬п╡я▀п╧ я│п©п╦я│п╬п╨ п╟я─пЁя┐п╪п╣п╫я┌п╬п╡: ", d->character);
 			OLC_MODE(d) = MEDIT_MPROG_ARGS;
 		}
 		else if (i == 3)
 		{
-			send_to_char("Введите новую mob prog команду:\r\n", d->character);
+			send_to_char("п▓п╡п╣п╢п╦я┌п╣ п╫п╬п╡я┐я▌ mob prog п╨п╬п╪п╟п╫п╢я┐:\r\n", d->character);
 			// * Pass control to modify.c for typing.
 			OLC_MODE(d) = MEDIT_MPROG_COMLIST;
 			d->backstr = NULL;
@@ -2407,7 +2407,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		number = atoi(arg);
 		if ((plane = real_room(number)) == NOWHERE)
 		{
-			send_to_char("Нет такой комнаты.\r\n", d->character.get());
+			send_to_char("п²п╣я┌ я┌п╟п╨п╬п╧ п╨п╬п╪п╫п╟я┌я▀.\r\n", d->character.get());
 		}
 		else
 		{
@@ -2440,7 +2440,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if ((plane = real_mobile(number)) < 0)
 		{
-			send_to_char("Нет такого моба.", d->character.get());
+			send_to_char("п²п╣я┌ я┌п╟п╨п╬пЁп╬ п╪п╬п╠п╟.", d->character.get());
 		}
 		else
 		{
@@ -2478,7 +2478,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			|| !skill_info[number].name
 			|| *skill_info[number].name == '!')
 		{
-			send_to_char("Неизвестное умение.\r\n", d->character.get());
+			send_to_char("п²п╣п╦п╥п╡п╣я│я┌п╫п╬п╣ я┐п╪п╣п╫п╦п╣.\r\n", d->character.get());
 		}
 		else if (OLC_MOB(d)->get_skill(static_cast<ESkill>(number)))
 		{
@@ -2486,7 +2486,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 		{
-			send_to_char("Не указан уровень владения умением.\r\n", d->character.get());
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ я┐я─п╬п╡п╣п╫я▄ п╡п╩п╟п╢п╣п╫п╦я▐ я┐п╪п╣п╫п╦п╣п╪.\r\n", d->character.get());
 		}
 		else
 		{
@@ -2503,11 +2503,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		if (number < 0 || (number > MAX_SPELLS || !spell_info[number].name || *spell_info[number].name == '!'))
 		{
-			send_to_char("Неизвестное заклинание.\r\n", d->character.get());
+			send_to_char("п²п╣п╦п╥п╡п╣я│я┌п╫п╬п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣.\r\n", d->character.get());
 		}
 		else if (sscanf(arg, "%d %d", &plane, &bit) < 2)
 		{
-			send_to_char("Не указано количество заклинаний.\r\n", d->character.get());
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫п╬ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧.\r\n", d->character.get());
 		}
 		else
 		{
@@ -2573,34 +2573,34 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MEDIT_DLIST_MENU:
 		if (*arg)
 		{
-			// Обрабатываем комнады добавить удалить и.т.п
+			// п·п╠я─п╟п╠п╟я┌я▀п╡п╟п╣п╪ п╨п╬п╪п╫п╟п╢я▀ п╢п╬п╠п╟п╡п╦я┌я▄ я┐п╢п╟п╩п╦я┌я▄ п╦.я┌.п©
 			switch (*arg)
 			{
-			case 'а':
-			case 'А':
-				// Добавляем запись.
+			case 'п╟':
+			case 'п░':
+				// п■п╬п╠п╟п╡п╩я▐п╣п╪ п╥п╟п©п╦я│я▄.
 				OLC_MODE(d) = MEDIT_DLIST_ADD;
-				send_to_char("\r\nVNUM - виртуальный номер прототипа\r\n"
-					"LoadProb - процент загрузки\r\n"
+				send_to_char("\r\nVNUM - п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п©я─п╬я┌п╬я┌п╦п©п╟\r\n"
+					"LoadProb - п©я─п╬я├п╣п╫я┌ п╥п╟пЁя─я┐п╥п╨п╦\r\n"
 					"LoadType - \r\n"
-					"  0 - загружать всегда. \r\n"
-					"  1 - загружать если предыдущий предмет списка был загружен. \r\n"
-					"  2 - загружать всегда, не менять результата предыдущей загрузки. \r\n"
-					"  3 - загружать если был загружен предыдущий, не менять результата.\r\n"
-					"SpecParam - спец.параметр:\r\n"
-					"  0 - загружать всегда. \r\n"
-					"  1 - загружать с убывающей вероятностью. \r\n"
-					"  2 - загружать при освежевании трупа NPC. \r\n"
-					"Введите через пробел \r\n(VNUM LoadProb LoadType SpecParam):",
+					"  0 - п╥п╟пЁя─я┐п╤п╟я┌я▄ п╡я│п╣пЁп╢п╟. \r\n"
+					"  1 - п╥п╟пЁя─я┐п╤п╟я┌я▄ п╣я│п╩п╦ п©я─п╣п╢я▀п╢я┐я┴п╦п╧ п©я─п╣п╢п╪п╣я┌ я│п©п╦я│п╨п╟ п╠я▀п╩ п╥п╟пЁя─я┐п╤п╣п╫. \r\n"
+					"  2 - п╥п╟пЁя─я┐п╤п╟я┌я▄ п╡я│п╣пЁп╢п╟, п╫п╣ п╪п╣п╫я▐я┌я▄ я─п╣п╥я┐п╩я▄я┌п╟я┌п╟ п©я─п╣п╢я▀п╢я┐я┴п╣п╧ п╥п╟пЁя─я┐п╥п╨п╦. \r\n"
+					"  3 - п╥п╟пЁя─я┐п╤п╟я┌я▄ п╣я│п╩п╦ п╠я▀п╩ п╥п╟пЁя─я┐п╤п╣п╫ п©я─п╣п╢я▀п╢я┐я┴п╦п╧, п╫п╣ п╪п╣п╫я▐я┌я▄ я─п╣п╥я┐п╩я▄я┌п╟я┌п╟.\r\n"
+					"SpecParam - я│п©п╣я├.п©п╟я─п╟п╪п╣я┌я─:\r\n"
+					"  0 - п╥п╟пЁя─я┐п╤п╟я┌я▄ п╡я│п╣пЁп╢п╟. \r\n"
+					"  1 - п╥п╟пЁя─я┐п╤п╟я┌я▄ я│ я┐п╠я▀п╡п╟я▌я┴п╣п╧ п╡п╣я─п╬я▐я┌п╫п╬я│я┌я▄я▌. \r\n"
+					"  2 - п╥п╟пЁя─я┐п╤п╟я┌я▄ п©я─п╦ п╬я│п╡п╣п╤п╣п╡п╟п╫п╦п╦ я┌я─я┐п©п╟ NPC. \r\n"
+					"п▓п╡п╣п╢п╦я┌п╣ я┤п╣я─п╣п╥ п©я─п╬п╠п╣п╩ \r\n(VNUM LoadProb LoadType SpecParam):",
 					d->character.get());
 
 				return;
 
-			case 'б':
-			case 'Б':
-				// Удаляем запись.
+			case 'п╠':
+			case 'п▒':
+				// пёп╢п╟п╩я▐п╣п╪ п╥п╟п©п╦я│я▄.
 				OLC_MODE(d) = MEDIT_DLIST_DEL;
-				send_to_char("\r\nВведите номер удаляемой записи:", d->character.get());
+				send_to_char("\r\nп▓п╡п╣п╢п╦я┌п╣ п╫п╬п╪п╣я─ я┐п╢п╟п╩я▐п╣п╪п╬п╧ п╥п╟п©п╦я│п╦:", d->character.get());
 				return;
 
 			case 'q':
@@ -2611,17 +2611,17 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			}
 
 		}
-		send_to_char("\r\nНеверный выбор.\r\n", d->character.get());
+		send_to_char("\r\nп²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─.\r\n", d->character.get());
 		OLC_MODE(d) = MEDIT_DLIST_MENU;
 		disp_dl_list(d);
 		return;
 
 	case MEDIT_DLIST_ADD:
 		if (!dl_parse(&OLC_MOB(d)->dl_list, arg))
-			send_to_char("\r\nНеверный ввод.\r\n", d->character.get());
+			send_to_char("\r\nп²п╣п╡п╣я─п╫я▀п╧ п╡п╡п╬п╢.\r\n", d->character.get());
 		else
 		{
-			send_to_char("\r\nЗапись добавлена.\r\n", d->character.get());
+			send_to_char("\r\nп≈п╟п©п╦я│я▄ п╢п╬п╠п╟п╡п╩п╣п╫п╟.\r\n", d->character.get());
 			OLC_VAL(d) = 1;
 		}
 		OLC_MODE(d) = MEDIT_DLIST_MENU;
@@ -2634,12 +2634,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 			if (OLC_MOB(d)->dl_list == NULL || OLC_MOB(d)->dl_list->empty())
 			{
-				send_to_char("Список пуст!\r\n", d->character.get());
+				send_to_char("п║п©п╦я│п╬п╨ п©я┐я│я┌!\r\n", d->character.get());
 				OLC_MODE(d) = MEDIT_DLIST_MENU;
 				disp_dl_list(d);
 				return;
 			}
-			// Удаляем указаный элемент.
+			// пёп╢п╟п╩я▐п╣п╪ я┐п╨п╟п╥п╟п╫я▀п╧ я█п╩п╣п╪п╣п╫я┌.
 			i = 0;
 			load_list::iterator p = OLC_MOB(d)->dl_list->begin();
 			while (p != OLC_MOB(d)->dl_list->end() && i < number - 1)
@@ -2650,11 +2650,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			if (i == number - 1)
 			{
 				OLC_MOB(d)->dl_list->remove(*p);
-				send_to_char("\r\nЗапись удалена.\r\n", d->character.get());
+				send_to_char("\r\nп≈п╟п©п╦я│я▄ я┐п╢п╟п╩п╣п╫п╟.\r\n", d->character.get());
 				OLC_VAL(d) = 1;
 			}
 			else
-				send_to_char("\r\nЗапись не найдена.\r\n", d->character.get());
+				send_to_char("\r\nп≈п╟п©п╦я│я▄ п╫п╣ п╫п╟п╧п╢п╣п╫п╟.\r\n", d->character.get());
 		}
 		OLC_MODE(d) = MEDIT_DLIST_MENU;
 		disp_dl_list(d);
@@ -2666,11 +2666,11 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case '1':
 			OLC_MODE(d) = MEDIT_CLONE_WITH_TRIGGERS;
-			send_to_char("Введите VNUM моба для клонирования:", d->character.get());
+			send_to_char("п▓п╡п╣п╢п╦я┌п╣ VNUM п╪п╬п╠п╟ п╢п╩я▐ п╨п╩п╬п╫п╦я─п╬п╡п╟п╫п╦я▐:", d->character.get());
 			return;
 		case '2':
 			OLC_MODE(d) = MEDIT_CLONE_WITHOUT_TRIGGERS;
-			send_to_char("Введите VNUM моба для клонирования:", d->character.get());
+			send_to_char("п▓п╡п╣п╢п╦я┌п╣ VNUM п╪п╬п╠п╟ п╢п╩я▐ п╨п╩п╬п╫п╦я─п╬п╡п╟п╫п╦я▐:", d->character.get());
 			return;
 		case '3':
 			break;	//to main menu
@@ -2686,7 +2686,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		if (rnum < 0)
 		{
-			send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character.get());
+			send_to_char("п²п╣я┌ п╪п╬п╠п╟ я│ я┌п╟п╨п╦п╪ п╡п╫я┐п╪п╬п╪. п÷п╬п╡я┌п╬я─п╦я┌п╣ п╡п╡п╬п╢:", d->character.get());
 			return;
 		}
 
@@ -2703,7 +2703,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		if (rnum < 0)
 		{
-			send_to_char("Нет моба с таким внумом. Повторите ввод:", d->character.get());
+			send_to_char("п²п╣я┌ п╪п╬п╠п╟ я│ я┌п╟п╨п╦п╪ п╡п╫я┐п╪п╬п╪. п÷п╬п╡я┌п╬я─п╦я┌п╣ п╡п╡п╬п╢:", d->character.get());
 			return;
 		}
 

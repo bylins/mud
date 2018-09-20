@@ -14,9 +14,9 @@
 #include "interpreter.h"
 #include "char.hpp"
 #include "char_player.hpp"
-// ÄÌÑ ÒÕÞÎÏÇÏ ÏÔËÌÀÞÅÎÉÑ ËÒÉÐÏ×ÁÎÉÑ (ÎÁ ÌÏËÁÌËÅ ÌÕÞÛÅ ÓÏÂÉÒÁÊÔÅ ÞÅÒÅÚ make test É ÎÅ ÐÁÒØÔÅÓØ)
+// Ð´Ð»Ñ Ñ€ÑƒÑ‡Ð½Ð¾Ð³Ð¾ Ð¾Ñ‚ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ ÐºÑ€Ð¸Ð¿Ð¾Ð²Ð°Ð½Ð¸Ñ (Ð½Ð° Ð»Ð¾ÐºÐ°Ð»ÐºÐµ Ð»ÑƒÑ‡ÑˆÐµ ÑÐ¾Ð±Ð¸Ñ€Ð°Ð¹Ñ‚Ðµ Ñ‡ÐµÑ€ÐµÐ· make test Ð¸ Ð½Ðµ Ð¿Ð°Ñ€ÑŒÑ‚ÐµÑÑŒ)
 //#define NOCRYPT
-// × ÓÌÕÞÁÅ ÓÂÏÒËÉ ÂÅÚ ËÒÉÐÔÏ×ÁÎÉÑ ÐÒÏÓÔÏ ÐÉÛÅÍ ÐÁÒÏÌØ × ÏÔËÒÙÔÏÍ ×ÉÄÅ
+// Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ ÑÐ±Ð¾Ñ€ÐºÐ¸ Ð±ÐµÐ· ÐºÑ€Ð¸Ð¿Ñ‚Ð¾Ð²Ð°Ð½Ð¸Ñ Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¿Ð¸ÑˆÐµÐ¼ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ Ð² Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¾Ð¼ Ð²Ð¸Ð´Ðµ
 #if defined(NOCRYPT)
 #define CRYPT(a,b) ((char *) (a))
 #else
@@ -26,11 +26,11 @@
 namespace Password
 {
 
-const char *BAD_PASSWORD = "ðÁÒÏÌØ ÄÏÌÖÅÎ ÂÙÔØ ÏÔ 8 ÄÏ 50 ÓÉÍ×ÏÌÏ× É ÎÅ ÄÏÌÖÅÎ ÂÙÔØ ÉÍÅÎÅÍ ÐÅÒÓÏÎÁÖÁ.";
+const char *BAD_PASSWORD = "ÐŸÐ°Ñ€Ð¾Ð»ÑŒ Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð±Ñ‹Ñ‚ÑŒ Ð¾Ñ‚ 8 Ð´Ð¾ 50 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð² Ð¸ Ð½Ðµ Ð´Ð¾Ð»Ð¶ÐµÐ½ Ð±Ñ‹Ñ‚ÑŒ Ð¸Ð¼ÐµÐ½ÐµÐ¼ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð¶Ð°.";
 const unsigned int MIN_PWD_LENGTH = 8;
 const unsigned int MAX_PWD_LENGTH = 50;
 
-// * çÅÎÅÒÁÃÉÑ ÈÜÛÁ Ó ÂÏÌÅÅ-ÍÅÎÅÅ ÒÁÎÄÏÍÎÙÍ ÓÁÌØÔÏÍ
+// * Ð“ÐµÐ½ÐµÑ€Ð°Ñ†Ð¸Ñ Ñ…ÑÑˆÐ° Ñ Ð±Ð¾Ð»ÐµÐµ-Ð¼ÐµÐ½ÐµÐµ Ñ€Ð°Ð½Ð´Ð¾Ð¼Ð½Ñ‹Ð¼ ÑÐ°Ð»ÑŒÑ‚Ð¾Ð¼
 std::string generate_md5_hash(const std::string &pwd)
 {
 #ifdef NOCRYPT
@@ -59,17 +59,17 @@ std::string generate_md5_hash(const std::string &pwd)
 }
 
 /**
-* çÅÎÅÒÉÒÕÅÍ ÎÏ×ÙÊ ÈÜÛ É ÐÉÛÅÍ ÅÇÏ ÞÁÒÕ
-* TODO: × ÐÒÉÎÃÉÐÅ ÍÏÖÎÏ É ÓÏ×ÍÅÓÔÉÔØ Ó ÍÅÔÏÄÏÍ ÐÌÅÅÒÁ.
+* Ð“ÐµÐ½ÐµÑ€Ð¸Ñ€ÑƒÐµÐ¼ Ð½Ð¾Ð²Ñ‹Ð¹ Ñ…ÑÑˆ Ð¸ Ð¿Ð¸ÑˆÐµÐ¼ ÐµÐ³Ð¾ Ñ‡Ð°Ñ€Ñƒ
+* TODO: Ð² Ð¿Ñ€Ð¸Ð½Ñ†Ð¸Ð¿Ðµ Ð¼Ð¾Ð¶Ð½Ð¾ Ð¸ ÑÐ¾Ð²Ð¼ÐµÑÑ‚Ð¸Ñ‚ÑŒ Ñ Ð¼ÐµÑ‚Ð¾Ð´Ð¾Ð¼ Ð¿Ð»ÐµÐµÑ€Ð°.
 */
 void set_password(CHAR_DATA *ch, const std::string &pwd)
 {
 	ch->set_passwd(generate_md5_hash(pwd));
 }
 
-// ÏÔÐÒÁ×ÌÑÅÔ ÐÁÒÏÌØ ÎÁ ÍÙÌÏ ÞÅÒÅÚ ×ÎÅÛÎÉÊ ÓËÒÉÐÔ
-// ÔÁËÏÅ, ËÏÎÅÞÎÏ ÖÅ, ÐÒÁ×ÉÌØÎÅÅ ÄÅÌÁÔØ ÞÅÒÅÚ ÌÉÂÕ openssl ÐÒÑÍÏ × ÐÌÀÓÁÈ
-// ÎÏ ÔÁÍ ÇÅÍÏÒÁ ÍÎÏÇÏ
+// Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÑÐµÑ‚ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ Ð½Ð° Ð¼Ñ‹Ð»Ð¾ Ñ‡ÐµÑ€ÐµÐ· Ð²Ð½ÐµÑˆÐ½Ð¸Ð¹ ÑÐºÑ€Ð¸Ð¿Ñ‚
+// Ñ‚Ð°ÐºÐ¾Ðµ, ÐºÐ¾Ð½ÐµÑ‡Ð½Ð¾ Ð¶Ðµ, Ð¿Ñ€Ð°Ð²Ð¸Ð»ÑŒÐ½ÐµÐµ Ð´ÐµÐ»Ð°Ñ‚ÑŒ Ñ‡ÐµÑ€ÐµÐ· Ð»Ð¸Ð±Ñƒ openssl Ð¿Ñ€ÑÐ¼Ð¾ Ð² Ð¿Ð»ÑŽÑÐ°Ñ…
+// Ð½Ð¾ Ñ‚Ð°Ð¼ Ð³ÐµÐ¼Ð¾Ñ€Ð° Ð¼Ð½Ð¾Ð³Ð¾
 void send_password(std::string email, std::string password, std::string name)
 {
 	std::string cmd_line = "python3 change_pass.py " + email + " " + password + " " + name + " &";
@@ -85,15 +85,15 @@ void send_password(std::string email, std::string password)
 	UNUSED_ARG(result);
 }
 
-// äÕÂÌÉËÁÔ set_password, ËÏÔÏÒÙÊ ÏÔÐÒÁ×ÌÑÅÔ ÐÁÒÏÌØ ÎÁ ÍÙÌÏ
+// Ð”ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚ set_password, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÑÐµÑ‚ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ Ð½Ð° Ð¼Ñ‹Ð»Ð¾
 void set_password_to_email(CHAR_DATA *ch, const std::string &pwd)
 {
 	ch->set_passwd(generate_md5_hash(pwd));
 	send_password(std::string(GET_EMAIL(ch)), pwd.c_str(), std::string(GET_NAME(ch)));
 }
 
-// ÄÕÂÌÉËÁÔ set_password, ËÏÔÏÒÙÊ ÏÔÐÒÁ×ÌÑÅÔ ÐÁÒÏÌØ ÎÁ ÍÙÌÏ
-// É ÇÏ×ÏÒÉÔ, ÞÔÏ ×ÓÅÍ ÅÇÏ ÐÅÒÓÏÎÁÖÁÍ ÉÚÍÅÎÅÎÙ ÐÁÒÏÌÉ
+// Ð´ÑƒÐ±Ð»Ð¸ÐºÐ°Ñ‚ set_password, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ð¹ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÑÐµÑ‚ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ Ð½Ð° Ð¼Ñ‹Ð»Ð¾
+// Ð¸ Ð³Ð¾Ð²Ð¾Ñ€Ð¸Ñ‚, Ñ‡Ñ‚Ð¾ Ð²ÑÐµÐ¼ ÐµÐ³Ð¾ Ð¿ÐµÑ€ÑÐ¾Ð½Ð°Ð¶Ð°Ð¼ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ñ‹ Ð¿Ð°Ñ€Ð¾Ð»Ð¸
  void set_all_password_to_email(const char* email, const std::string &pwd, const std::string &name)
  {
 	send_password(std::string(email), pwd.c_str(), name.c_str());
@@ -102,7 +102,7 @@ void set_password_to_email(CHAR_DATA *ch, const std::string &pwd)
 
 
 /**
-* ôÉÐ ÈÜÛÁ Õ ÐÌÅÅÒÁ
+* Ð¢Ð¸Ð¿ Ñ…ÑÑˆÐ° Ñƒ Ð¿Ð»ÐµÐµÑ€Ð°
 * \return  0 - des, 1 - md5
 */
 bool get_password_type(const CHAR_DATA *ch)
@@ -111,8 +111,8 @@ bool get_password_type(const CHAR_DATA *ch)
 }
 
 /**
-* óÒÁ×ÎÅÎÉÅ ÈÜÛÅÊ É ËÏÎ×ÅÒÔ ÐÒÉ ÎÅÏÂÈÏÄÉÍÏÓÔÉ × ÍÄ5
-* \return 0 - ÎÅ ÓÏÛÌÏÓØ, 1 - ÓÏÛÌÏÓØ
+* Ð¡Ñ€Ð°Ð²Ð½ÐµÐ½Ð¸Ðµ Ñ…ÑÑˆÐµÐ¹ Ð¸ ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚ Ð¿Ñ€Ð¸ Ð½ÐµÐ¾Ð±Ñ…Ð¾Ð´Ð¸Ð¼Ð¾ÑÑ‚Ð¸ Ð² Ð¼Ð´5
+* \return 0 - Ð½Ðµ ÑÐ¾ÑˆÐ»Ð¾ÑÑŒ, 1 - ÑÐ¾ÑˆÐ»Ð¾ÑÑŒ
 */
 bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 {
@@ -121,7 +121,7 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 		result = CompareParam(ch->get_passwd(), CRYPT(pwd.c_str(), ch->get_passwd().c_str()), 1);
 	else
 	{
-		// ÅÓÌÉ ÐÁÒÏÌØ des ÓÏÛÅÌÓÑ - ËÏÎ×ÅÒÔÉÍ ÓÒÁÚÕ × md5 (10 - ÂÙ×ÛÉÊ MAX_PWD_LENGTH)
+		// ÐµÑÐ»Ð¸ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ des ÑÐ¾ÑˆÐµÐ»ÑÑ - ÐºÐ¾Ð½Ð²ÐµÑ€Ñ‚Ð¸Ð¼ ÑÑ€Ð°Ð·Ñƒ Ð² md5 (10 - Ð±Ñ‹Ð²ÑˆÐ¸Ð¹ MAX_PWD_LENGTH)
 		char* s = (char*) CRYPT(pwd.c_str(), ch->get_passwd().c_str());
 		if (s && !strncmp(s, ch->get_passwd().c_str(), 10))
 		{
@@ -130,7 +130,7 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 		}
 		else if (s == NULL)
 		{
-			send_to_char("÷ÏÚÎÉËÌÉ ÐÒÏÂÌÅÍÙ ÐÒÉ ÐÒÏ×ÅÒËÅ ×ÁÛÅÇÏ ÐÁÒÏÌÑ. ïÂÒÁÔÉÔÅÓØ Ë ÓÔÁÒÛÉÍ ÂÏÇÁÍ ÄÌÑ ÅÇÏ ÓÂÒÏÓÁ.\r\n", ch);
+			send_to_char("Ð’Ð¾Ð·Ð½Ð¸ÐºÐ»Ð¸ Ð¿Ñ€Ð¾Ð±Ð»ÐµÐ¼Ñ‹ Ð¿Ñ€Ð¸ Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐµ Ð²Ð°ÑˆÐµÐ³Ð¾ Ð¿Ð°Ñ€Ð¾Ð»Ñ. ÐžÐ±Ñ€Ð°Ñ‚Ð¸Ñ‚ÐµÑÑŒ Ðº ÑÑ‚Ð°Ñ€ÑˆÐ¸Ð¼ Ð±Ð¾Ð³Ð°Ð¼ Ð´Ð»Ñ ÐµÐ³Ð¾ ÑÐ±Ñ€Ð¾ÑÐ°.\r\n", ch);
 			result = 0;
 		}
 	}
@@ -138,12 +138,12 @@ bool compare_password(CHAR_DATA *ch, const std::string &pwd)
 }
 
 /**
-* ðÒÏ×ÅÒËÁ ÐÁÒÏÌÑ ÎÁ ÄÌÉÎÕ É ÔÕÐÏÓÔØ
-* \return 0 - ÎÅËÏÒÒÅËÔÎÙÊ ÐÁÒÏÌØ, 1 - ËÏÒÒÅËÔÎÙÊ
+* ÐŸÑ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð¿Ð°Ñ€Ð¾Ð»Ñ Ð½Ð° Ð´Ð»Ð¸Ð½Ñƒ Ð¸ Ñ‚ÑƒÐ¿Ð¾ÑÑ‚ÑŒ
+* \return 0 - Ð½ÐµÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ñ‹Ð¹ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ, 1 - ÐºÐ¾Ñ€Ñ€ÐµÐºÑ‚Ð½Ñ‹Ð¹
 */
 bool check_password(const CHAR_DATA *ch, const char *pwd)
 {
-// ÐÒÉ ×ÙÒÕÂÌÅÎÎÏÍ ËÒÉÐÔÏ×ÁÎÉÉ ÎÁ ÌÏËÁÌËÅ ÐÁÒÏÌØ ÍÏÖÎÏ ÓÔÁ×ÉÔØ ÌÀÂÏÊ
+// Ð¿Ñ€Ð¸ Ð²Ñ‹Ñ€ÑƒÐ±Ð»ÐµÐ½Ð½Ð¾Ð¼ ÐºÑ€Ð¸Ð¿Ñ‚Ð¾Ð²Ð°Ð½Ð¸Ð¸ Ð½Ð° Ð»Ð¾ÐºÐ°Ð»ÐºÐµ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ Ð¼Ð¾Ð¶Ð½Ð¾ ÑÑ‚Ð°Ð²Ð¸Ñ‚ÑŒ Ð»ÑŽÐ±Ð¾Ð¹
 #ifndef NOCRYPT
 	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)
 		return 0;
@@ -155,8 +155,8 @@ bool check_password(const CHAR_DATA *ch, const char *pwd)
 }
 
 /**
-* âÏÌÅÅ ÕÎÉ×ÅÒÓÁÌØÎÙÊ ÁÎÁÌÏÇ compare_password.
-* \return 0 - ÎÅ ÓÏÛÌÏÓØ, 1 - ÓÏÛÌÏÓØ
+* Ð‘Ð¾Ð»ÐµÐµ ÑƒÐ½Ð¸Ð²ÐµÑ€ÑÐ°Ð»ÑŒÐ½Ñ‹Ð¹ Ð°Ð½Ð°Ð»Ð¾Ð³ compare_password.
+* \return 0 - Ð½Ðµ ÑÐ¾ÑˆÐ»Ð¾ÑÑŒ, 1 - ÑÐ¾ÑˆÐ»Ð¾ÑÑŒ
 */
 bool compare_password(std::string const &hash, std::string const &pass)
 {

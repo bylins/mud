@@ -81,12 +81,12 @@ Player::Player()
 		start_stats_.at(i) = 0;
 	}
 
-	// на 64 битном центосе с оптимизацией - падает или прямо здесь,
-	// или в деструкторе чар-даты на делете самого класса в недрах шареда
-	// при сборке без оптимизаций - не падает
-	// и я не очень в теме, чем этот инит отличается от инита в чар-дате,
-	// с учетом того, что здесь у нас абсолютно пустой плеер и внутри set_morph
-	// на деле инит ровно тоже самое, может на перспективу это все было
+	// п╫п╟ 64 п╠п╦я┌п╫п╬п╪ я├п╣п╫я┌п╬я│п╣ я│ п╬п©я┌п╦п╪п╦п╥п╟я├п╦п╣п╧ - п©п╟п╢п╟п╣я┌ п╦п╩п╦ п©я─я▐п╪п╬ п╥п╢п╣я│я▄,
+	// п╦п╩п╦ п╡ п╢п╣я│я┌я─я┐п╨я┌п╬я─п╣ я┤п╟я─-п╢п╟я┌я▀ п╫п╟ п╢п╣п╩п╣я┌п╣ я│п╟п╪п╬пЁп╬ п╨п╩п╟я│я│п╟ п╡ п╫п╣п╢я─п╟я┘ я┬п╟я─п╣п╢п╟
+	// п©я─п╦ я│п╠п╬я─п╨п╣ п╠п╣п╥ п╬п©я┌п╦п╪п╦п╥п╟я├п╦п╧ - п╫п╣ п©п╟п╢п╟п╣я┌
+	// п╦ я▐ п╫п╣ п╬я┤п╣п╫я▄ п╡ я┌п╣п╪п╣, я┤п╣п╪ я█я┌п╬я┌ п╦п╫п╦я┌ п╬я┌п╩п╦я┤п╟п╣я┌я│я▐ п╬я┌ п╦п╫п╦я┌п╟ п╡ я┤п╟я─-п╢п╟я┌п╣,
+	// я│ я┐я┤п╣я┌п╬п╪ я┌п╬пЁп╬, я┤я┌п╬ п╥п╢п╣я│я▄ я┐ п╫п╟я│ п╟п╠я│п╬п╩я▌я┌п╫п╬ п©я┐я│я┌п╬п╧ п©п╩п╣п╣я─ п╦ п╡п╫я┐я┌я─п╦ set_morph
+	// п╫п╟ п╢п╣п╩п╣ п╦п╫п╦я┌ я─п╬п╡п╫п╬ я┌п╬п╤п╣ я│п╟п╪п╬п╣, п╪п╬п╤п╣я┌ п╫п╟ п©п╣я─я│п©п╣п╨я┌п╦п╡я┐ я█я┌п╬ п╡я│п╣ п╠я▀п╩п╬
 	//set_morph(NormalMorph::GetNormalMorph(this));
 
 	for (unsigned i = 0; i < ext_money_.size(); ++i)
@@ -99,7 +99,7 @@ Player::Player()
 		reset_stats_cnt_.at(i) = 0;
 	}
 
-	// чтобы не вываливать новому игроку все мессаги на досках как непрочитанные
+	// я┤я┌п╬п╠я▀ п╫п╣ п╡я▀п╡п╟п╩п╦п╡п╟я┌я▄ п╫п╬п╡п╬п╪я┐ п╦пЁя─п╬п╨я┐ п╡я│п╣ п╪п╣я│я│п╟пЁп╦ п╫п╟ п╢п╬я│п╨п╟я┘ п╨п╟п╨ п╫п╣п©я─п╬я┤п╦я┌п╟п╫п╫я▀п╣
 	const time_t now = time(0);
 	board_date_.fill(now);
 }
@@ -134,14 +134,14 @@ void Player::touch_stigma(char *arg)
 			{
 				if (GET_EQ(this, stigma.first))
 				{
-					sprintf(buf, "%s мешает вам прикоснуться к стигме.\r\n", GET_EQ(this, stigma.first)->get_PName(0).c_str());
+					sprintf(buf, "%s п╪п╣я┬п╟п╣я┌ п╡п╟п╪ п©я─п╦п╨п╬я│п╫я┐я┌я▄я│я▐ п╨ я│я┌п╦пЁп╪п╣.\r\n", GET_EQ(this, stigma.first)->get_PName(0).c_str());
 					send_to_char(this, buf);
 				}
 				else
 				{
 					if (stigma.second.reload > 0)
 					{
-						send_to_char(this, "Вам больно прикосаться к этой стигме!\r\n");
+						send_to_char(this, "п▓п╟п╪ п╠п╬п╩я▄п╫п╬ п©я─п╦п╨п╬я│п╟я┌я▄я│я▐ п╨ я█я┌п╬п╧ я│я┌п╦пЁп╪п╣!\r\n");
 					}
 					else
 					{
@@ -311,21 +311,21 @@ void Player::dquest(int id)
 		{
 			if (!this->account->quest_is_available(id))
 			{
-				send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
+				send_to_char(this, "п║п╣пЁп╬п╢п╫я▐ п╡я▀ я┐п╤п╣ п©п╬п╩я┐я┤п╟п╩п╦ пЁя─п╦п╡п╫я▀ п╥п╟ п╡я▀п©п╬п╩п╫п╣п╫п╦п╣ я█я┌п╬пЁп╬ п╥п╟п╢п╟п╫п╦я▐.\r\n");
 				return;
 			}
 
 			const int value = x.reward + number(1, 3);
 
-			sprintf(buf2, "Вы получили %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
+			sprintf(buf2, "п▓я▀ п©п╬п╩я┐я┤п╦п╩п╦ %ld %s.\r\n", value, desc_count(value, WHAT_TORCu));
 			send_to_char(this, buf2);
 			this->dec_hryvn(value);
-			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
+			log("п÷п╣я─я│п╬п╫п╟п╤ %s п©п╬п╩я┐я┤п╦п╩ %d [пЁя─п╦п╡п╫я▀]. Quest ID: %d", GET_NAME(this), value, x.id);
 			this->account->complete_quest(id);
 			return;
 		}
 	}
-	log("Quest ID: %d - не найден", id);
+	log("Quest ID: %d - п╫п╣ п╫п╟п╧п╢п╣п╫", id);
 	return;
 }
 
@@ -435,13 +435,13 @@ void Player::dps_print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 	dps_.print_group_stats(ch, coder);
 }
 
-// * Для dps_copy.
+// * п■п╩я▐ dps_copy.
 void Player::dps_set(DpsSystem::Dps *dps)
 {
 	dps_ = *dps;
 }
 
-// * Нужно только для копирования всего этого дела при передаче лидера.
+// * п²я┐п╤п╫п╬ я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╨п╬п©п╦я─п╬п╡п╟п╫п╦я▐ п╡я│п╣пЁп╬ я█я┌п╬пЁп╬ п╢п╣п╩п╟ п©я─п╦ п©п╣я─п╣п╢п╟я┤п╣ п╩п╦п╢п╣я─п╟.
 void Player::dps_copy(CHAR_DATA *ch)
 {
 	ch->dps_set(&dps_);
@@ -464,7 +464,7 @@ void Player::dps_add_exp(int exp, bool battle)
 	}
 }
 
-// не дергать wear/remove триги при скрытом раздевании/одевании чара во время сейва
+// п╫п╣ п╢п╣я─пЁп╟я┌я▄ wear/remove я┌я─п╦пЁп╦ п©я─п╦ я│п╨я─я▀я┌п╬п╪ я─п╟п╥п╢п╣п╡п╟п╫п╦п╦/п╬п╢п╣п╡п╟п╫п╦п╦ я┤п╟я─п╟ п╡п╬ п╡я─п╣п╪я▐ я│п╣п╧п╡п╟
 #define NO_EXTRANEOUS_TRIGGERS
 
 void Player::save_char()
@@ -494,15 +494,15 @@ void Player::save_char()
 	log("Save char %s", GET_NAME(this));
 	save_char_vars(this);
 
-	// Запись чара в новом формате
+	// п≈п╟п©п╦я│я▄ я┤п╟я─п╟ п╡ п╫п╬п╡п╬п╪ я└п╬я─п╪п╟я┌п╣
 	get_filename(GET_NAME(this), filename, PLAYERS_FILE);
 	if (!(saved = fopen(filename, "w")))
 	{
 		perror("Unable open charfile");
 		return;
 	}
-	// подготовка
-	// снимаем все возможные аффекты
+	// п©п╬п╢пЁп╬я┌п╬п╡п╨п╟
+	// я│п╫п╦п╪п╟п╣п╪ п╡я│п╣ п╡п╬п╥п╪п╬п╤п╫я▀п╣ п╟я└я└п╣п╨я┌я▀
 	for (i = 0; i < NUM_WEARS; i++)
 	{
 		if (GET_EQ(this, i))
@@ -561,7 +561,7 @@ void Player::save_char()
 		}
 	}
 
-	// первыми идут поля, необходимые при ребуте мада, тут без необходимости трогать ничего не надо
+	// п©п╣я─п╡я▀п╪п╦ п╦п╢я┐я┌ п©п╬п╩я▐, п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╣ п©я─п╦ я─п╣п╠я┐я┌п╣ п╪п╟п╢п╟, я┌я┐я┌ п╠п╣п╥ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦ я┌я─п╬пЁп╟я┌я▄ п╫п╦я┤п╣пЁп╬ п╫п╣ п╫п╟п╢п╬
 	if (!get_name().empty())
 	{
 		fprintf(saved, "Name: %s\n", GET_NAME(this));
@@ -570,11 +570,11 @@ void Player::save_char()
 	fprintf(saved, "Clas: %d\n", GET_CLASS(this));
 	fprintf(saved, "UIN : %d\n", GET_UNIQUE(this));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
-	if (this->desc)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+	if (this->desc)//edited WorM 2010.08.27 п©п╣я─п╣п╫п╣я│п╣п╫п╬ я┤я┌п╬п╠ пЁя─я┐п╥п╦п╩п╬я│я▄ п╢п╩я▐ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п╡ п╦п╫п╢п╣п╨я│п╣ п╦пЁя─п╬п╨п╬п╡
 	{
 		strcpy(buf, this->desc->host);
 	}
-	else//по сути так должен норм сохраняцо последний айпи
+	else//п©п╬ я│я┐я┌п╦ я┌п╟п╨ п╢п╬п╩п╤п╣п╫ п╫п╬я─п╪ я│п╬я┘я─п╟п╫я▐я├п╬ п©п╬я│п╩п╣п╢п╫п╦п╧ п╟п╧п©п╦
 	{
 		li = 0;
 		if (LOGON_LIST(this))
@@ -606,17 +606,17 @@ void Player::save_char()
 	{
 		fprintf(saved, "Rmrt: %d\n", GET_REMORT(this));
 	}
-	// флаги
+	// я└п╩п╟пЁп╦
 	*buf = '\0';
 	PLR_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Act : %s\n", buf);
-	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+	if (GET_EMAIL(this))//edited WorM 2010.08.27 п©п╣я─п╣п╫п╣я│п╣п╫п╬ я┤я┌п╬п╠ пЁя─я┐п╥п╦п╩п╬я│я▄ п╢п╩я▐ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п╡ п╦п╫п╢п╣п╨я│п╣ п╦пЁя─п╬п╨п╬п╡
 	{
 		fprintf(saved, "EMal: %s\n", GET_EMAIL(this));
 	}
-	// это пишем обязательно посленим, потому что после него ничего не прочитается
-	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
-	// дальше пишем как хотим и что хотим
+	// я█я┌п╬ п©п╦я┬п╣п╪ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫п╬ п©п╬я│п╩п╣п╫п╦п╪, п©п╬я┌п╬п╪я┐ я┤я┌п╬ п©п╬я│п╩п╣ п╫п╣пЁп╬ п╫п╦я┤п╣пЁп╬ п╫п╣ п©я─п╬я┤п╦я┌п╟п╣я┌я│я▐
+	fprintf(saved, "Rebt: я│п╩п╣п╢я┐я▌я┴п╦п╣ п╢п╟п╩п╣п╣ п©п╬п╩я▐ п©я─п╦ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╣ п╫п╣ п©п╟я─я│я▐я┌я│я▐\n\n");
+	// п╢п╟п╩я▄я┬п╣ п©п╦я┬п╣п╪ п╨п╟п╨ я┘п╬я┌п╦п╪ п╦ я┤я┌п╬ я┘п╬я┌п╦п╪
 
 	if (GET_PAD(this, 0))
 		fprintf(saved, "NmI : %s\n", GET_PAD(this, 0));
@@ -657,14 +657,14 @@ void Player::save_char()
 	fprintf(saved, "Hite: %d\n", GET_HEIGHT(this));
 	fprintf(saved, "Wate: %d\n", GET_WEIGHT(this));
 	fprintf(saved, "Size: %d\n", GET_SIZE(this));
-	// структуры
+	// я│я┌я─я┐п╨я┌я┐я─я▀
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
 	AFF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Aff : %s\n", buf);
 
-	// дальше не по порядку
-	// статсы
+	// п╢п╟п╩я▄я┬п╣ п╫п╣ п©п╬ п©п╬я─я▐п╢п╨я┐
+	// я│я┌п╟я┌я│я▀
 	fprintf(saved, "Str : %d\n", this->get_inborn_str());
 	fprintf(saved, "Int : %d\n", this->get_inborn_int());
 	fprintf(saved, "Wis : %d\n", this->get_inborn_wis());
@@ -672,7 +672,7 @@ void Player::save_char()
 	fprintf(saved, "Con : %d\n", this->get_inborn_con());
 	fprintf(saved, "Cha : %d\n", this->get_inborn_cha());
 
-	// способности - added by Gorrah
+	// я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ - added by Gorrah
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "Feat:\n");
@@ -684,7 +684,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	// Задержки на cпособности
+	// п≈п╟п╢п╣я─п╤п╨п╦ п╫п╟ cп©п╬я│п╬п╠п╫п╬я│я┌п╦
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "FtTm:\n");
@@ -695,7 +695,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	// скилы
+	// я│п╨п╦п╩я▀
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "Skil:\n");
@@ -711,10 +711,10 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	// города
+	// пЁп╬я─п╬п╢п╟
 	fprintf(saved, "Cits: %s\n", this->cities_to_str().c_str());
 
-	// Задержки на скилы
+	// п≈п╟п╢п╣я─п╤п╨п╦ п╫п╟ я│п╨п╦п╩я▀
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "SkTm:\n");
@@ -725,8 +725,8 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	// спелы
-	// волхвам всеравно известны тупо все спеллы, смысла их писать не вижу
+	// я│п©п╣п╩я▀
+	// п╡п╬п╩я┘п╡п╟п╪ п╡я│п╣я─п╟п╡п╫п╬ п╦п╥п╡п╣я│я┌п╫я▀ я┌я┐п©п╬ п╡я│п╣ я│п©п╣п╩п╩я▀, я│п╪я▀я│п╩п╟ п╦я┘ п©п╦я│п╟я┌я▄ п╫п╣ п╡п╦п╤я┐
 	if (GET_LEVEL(this) < LVL_IMMORT && GET_CLASS(this) != CLASS_DRUID)
 	{
 		fprintf(saved, "Spel:\n");
@@ -746,7 +746,7 @@ void Player::save_char()
 		fprintf(saved, "0 0 0\n");
 	}
 
-	// Замемленые спелы
+	// п≈п╟п╪п╣п╪п╩п╣п╫я▀п╣ я│п©п╣п╩я▀
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "SpMe:\n");
@@ -758,7 +758,7 @@ void Player::save_char()
 		fprintf(saved, "0 0\n");
 	}
 
-	// Мемящиеся спелы
+	// п°п╣п╪я▐я┴п╦п╣я│я▐ я│п©п╣п╩я▀
 	if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		fprintf(saved, "SpTM:\n");
@@ -767,7 +767,7 @@ void Player::save_char()
 		fprintf(saved, "0\n");
 	}
 
-	// Рецепты
+	// п═п╣я├п╣п©я┌я▀
 //    if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		im_rskill *rs;
@@ -865,7 +865,7 @@ void Player::save_char()
 	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(this));
 	fprintf(saved, "StrL: %d\n", STRING_LENGTH(this));
 	fprintf(saved, "StrW: %d\n", STRING_WIDTH(this));
-	fprintf(saved, "NtfE: %ld\n", NOTIFY_EXCH_PRICE(this)); //Polud мин. цена для оффлайн-оповещений
+	fprintf(saved, "NtfE: %ld\n", NOTIFY_EXCH_PRICE(this)); //Polud п╪п╦п╫. я├п╣п╫п╟ п╢п╩я▐ п╬я└я└п╩п╟п╧п╫-п╬п©п╬п╡п╣я┴п╣п╫п╦п╧
 
 	if (this->remember_get_num() != Remember::DEF_REMEMBER_NUM)
 	{
@@ -900,7 +900,7 @@ void Player::save_char()
 		fprintf(saved, "0 0 0 0 0 0\n");
 	}
 
-	// порталы
+	// п©п╬я─я┌п╟п╩я▀
 	for (prt = GET_PORTALS(this); prt; prt = prt->next)
 	{
 		fprintf(saved, "Prtl: %d\n", prt->vnum);
@@ -949,12 +949,12 @@ void Player::save_char()
 	fprintf(saved, "Ript: %d\n", GET_RIP_PKTHIS(this)); //Rip_pk_this
 	fprintf(saved, "Expt: %llu\n", GET_EXP_PKTHIS(this));//Exp_pk_this
 
-	// не забываем рестить ману и при сейве
+	// п╫п╣ п╥п╟п╠я▀п╡п╟п╣п╪ я─п╣я│я┌п╦я┌я▄ п╪п╟п╫я┐ п╦ п©я─п╦ я│п╣п╧п╡п╣
 	this->set_who_mana(MIN(WHO_MANA_MAX,
 	                       this->get_who_mana() + (time(0) - this->get_who_last()) * WHO_MANA_REST_PER_SECOND));
 	fprintf(saved, "Wman: %u\n", this->get_who_mana());
 
-	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
+	// added by WorM (п▓п╦п╢п╬п╩я▌п╠) 2010.06.04 п╠п╟п╠п╨п╦ п©п╬я┌я─п╟я┤п╣п╫п╫я▀п╣ п╫п╟ п╫п╟п╧п╪(п╡п╬п╥п╡я─п╟я┴п╟я▌я┌я│я▐ п©я─п╦ п╨я─п╣я┬п╣)
 	i = 0;
 	if (this->followers
 		&& can_use_feat(this, EMPLOYER_FEAT)
@@ -1025,7 +1025,7 @@ void Player::save_char()
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
 
-	// восстанавливаем аффекты
+	// п╡п╬я│я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪ п╟я└я└п╣п╨я┌я▀
 	// add spell and eq affections back in now
 	for (i = 0; i < MAX_AFFECT; i++)
 	{
@@ -1057,7 +1057,7 @@ void Player::save_char()
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GET_LEVEL(this);
 		player_table[i].remorts = get_remort();
-		//added by WorM 2010.08.27 в индексе добавляем мыло
+		//added by WorM 2010.08.27 п╡ п╦п╫п╢п╣п╨я│п╣ п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╪я▀п╩п╬
 		if(player_table[i].mail)
 			free(player_table[i].mail);
 		player_table[i].mail = str_dup(GET_EMAIL(this));
@@ -1068,12 +1068,12 @@ void Player::save_char()
 
 #undef NO_EXTRANEOUS_TRIGGERS
 
-// на счет reboot: используется только при старте мада в вызовах из entrycount
-// при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
-// поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
-// убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
-// * \param reboot - по дефолту = false
+// п╫п╟ я│я┤п╣я┌ reboot: п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п©я─п╦ я│я┌п╟я─я┌п╣ п╪п╟п╢п╟ п╡ п╡я▀п╥п╬п╡п╟я┘ п╦п╥ entrycount
+// п©я─п╦ п╡п╨п╩я▌я┤п╣п╫п╫п╬п╪ я└п╩п╟пЁп╣ я└п╟п╧п╩ я┤п╦я┌п╟п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╢п╬ п©п╬п╩я▐ Rebt, п╡я│п╣ п╬я│я┌п╟п╩я▄п╫я▀п╣ п©п╬п╩я▐ п©я─п╬п©я┐я│п╨п╟я▌я┌я│я▐
+// п©п╬я█я┌п╬п╪я┐ п©я─п╦ п╨п╟п╨п╦я┘-я┌п╬ п╦п╥п╪п╣п╫п╣п╫п╦я▐я┘ п╡ entrycount, must_be_deleted п╦ TopPlayer::Refresh я│п╩п╣п╢я┐п╣я┌
+// я┐п╠п╣п╢п╦я┌я▄я│я▐, я┤я┌п╬ п╦п╥п╪п╣п╫п╫я▀п╧ п╨п╬п╢ я─п╟п╠п╬я┌п╟п╣я┌ я│ п╢п╣п╧я│я┌п╡п╦я┌п╣п╩я▄п╫п╬ п©я─п╬п╦п╫п╦я├п╦п╟п╩п╦п╥п╦я─п╬п╡п╟п╫п╫я▀п╪п╦ п©п╬п╩я▐п╪п╦ п©п╣я─я│п╬п╫п╟п╤п╟
+// п╫п╟ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ я█я┌п╬: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
+// * \param reboot - п©п╬ п╢п╣я└п╬п╩я┌я┐ = false
 int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/)
 {
 	int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
@@ -1108,7 +1108,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 ///////////////////////////////////////////////////////////////////////////////
 
-	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
+	// п©п╣я─п╡я▀п╪п╦ п╦п╫п╦п╪ п╦ п©п╟я─я│п╦п╪ п©п╬п╩я▐ п╢п╩я▐ я─п╣п╠я┐я┌п╟ п╢п╬ п©п╬п╩я▐ "Rebt", п╣я│п╩п╦ reboot п╫п╟ п╡я┘п╬п╢п╣ = 1, я┌п╬ п╫п╟ я█я┌п╬п╪ п©п╟я─я│ п╦ п╨п╬п╫я┤п╟п╣я┌я│я▐
 	if (!this->player_specials)
 	{
 		this->player_specials = std::make_shared<player_special_data>();
@@ -1172,7 +1172,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			{
 				set_exp(lnum);
 			}
-			//added by WorM 2010.08.27 лоадим мыло и айпи даже при ребуте
+			//added by WorM 2010.08.27 п╩п╬п╟п╢п╦п╪ п╪я▀п╩п╬ п╦ п╟п╧п©п╦ п╢п╟п╤п╣ п©я─п╦ я─п╣п╠я┐я┌п╣
 			else if (!strcmp(tag, "EMal"))
 				strcpy(GET_EMAIL(this), line);
 			break;
@@ -1190,9 +1190,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "ICur"))
 			{
-				//Тут контроль льда потом можно сделать
-				//this->set_ice_currency(lnum);//на праздники
-				if (get_ice_currency()>0) //обнуляем если есть лед
+				//п╒я┐я┌ п╨п╬п╫я┌я─п╬п╩я▄ п╩я▄п╢п╟ п©п╬я┌п╬п╪ п╪п╬п╤п╫п╬ я│п╢п╣п╩п╟я┌я▄
+				//this->set_ice_currency(lnum);//п╫п╟ п©я─п╟п╥п╢п╫п╦п╨п╦
+				if (get_ice_currency()>0) //п╬п╠п╫я┐п╩я▐п╣п╪ п╣я│п╩п╦ п╣я│я┌я▄ п╩п╣п╢
 					this->set_ice_currency(0);
 			}
 			break;
@@ -1232,7 +1232,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 	while (!skip_file);
 
-	//added by WorM 2010.08.27 лоадим мыло и последний ip даже при считывании индексов
+	//added by WorM 2010.08.27 п╩п╬п╟п╢п╦п╪ п╪я▀п╩п╬ п╦ п©п╬я│п╩п╣п╢п╫п╦п╧ ip п╢п╟п╤п╣ п©я─п╦ я│я┤п╦я┌я▀п╡п╟п╫п╦п╦ п╦п╫п╢п╣п╨я│п╬п╡
 	while((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this)))
 	{
 		if (!fbgetline(fl, line))
@@ -1250,7 +1250,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	}
 	//end by WorM
 
-	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
+	// п╣я│п╩п╦ я│ п╥п╟пЁя─я┐п╤п╣п╫п╫я▀п╪п╦ п╡я▀я┬п╣ п©п╬п╩я▐п╪п╦ я┤я┌п╬-я┌п╬ я┘п╬я┤п╣я┌я│я▐ п╢п╣п╩п╟я┌я▄ п©п╬я│п╩п╣ п╩п╬п╟п╢п╟ - п╢п╣п╩п╟п╧я┌п╣ я█я┌п╬ п╥п╢п╣я│я▄
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
 	if (GET_EXP(this) < level_exp(this, GET_LEVEL(this)))
@@ -1264,7 +1264,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		return id;
 	}
 	this->str_to_cities(default_str_cities);
-	// если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
+	// п╣я│п╩п╦ п©я─п╬п╦я│я┘п╬п╢п╦я┌ п╬п╠я▀я┤п╫я▀п╧ п╩п╬п╟п╢ п©п╩п╣п╣я─п╟, я┌п╬ я┤п╦я┌п╟п╣п╪ я└п╟п╧п╩ п╢п╟п╩я▄я┬п╣ п╦ п╦п╫п╦п╪ п╡я│п╣ п╬я│я┌п╟п╩я▄п╫я▀п╣ п©п╬п╩я▐
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -1277,7 +1277,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	this->real_abils.Feats.reset();
 
-	// волхвам сетим все спеллы на рунах, остальные инит нулями
+	// п╡п╬п╩я┘п╡п╟п╪ я│п╣я┌п╦п╪ п╡я│п╣ я│п©п╣п╩п╩я▀ п╫п╟ я─я┐п╫п╟я┘, п╬я│я┌п╟п╩я▄п╫я▀п╣ п╦п╫п╦я┌ п╫я┐п╩я▐п╪п╦
 	if (GET_CLASS(this) != CLASS_DRUID)
 		for (i = 1; i <= MAX_SPELLS; i++)
 			GET_SPELL_TYPE(this, i) = 0;
@@ -1290,7 +1290,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	this->char_specials.saved.affected_by = clear_flags;
 	POOFIN(this) = NULL;
 	POOFOUT(this) = NULL;
-	GET_RSKILL(this) = NULL;	// рецептов не знает
+	GET_RSKILL(this) = NULL;	// я─п╣я├п╣п©я┌п╬п╡ п╫п╣ п╥п╫п╟п╣я┌
 	this->char_specials.carry_weight = 0;
 	this->char_specials.carry_items = 0;
 	this->real_abils.armor = 100;
@@ -1517,20 +1517,20 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			else if (!strcmp(tag, "Cits"))
 			{
 				std::string buffer_cities = std::string(line);
-				// это на тот случай, если вдруг количество городов поменялось
+				// я█я┌п╬ п╫п╟ я┌п╬я┌ я│п╩я┐я┤п╟п╧, п╣я│п╩п╦ п╡п╢я─я┐пЁ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ пЁп╬я─п╬п╢п╬п╡ п©п╬п╪п╣п╫я▐п╩п╬я│я▄
 				if (buffer_cities.size() != ::cities.size())
 				{
-					// если меньше
+					// п╣я│п╩п╦ п╪п╣п╫я▄я┬п╣
 					if (buffer_cities.size() < ::cities.size())
 					{
 						const size_t b_size = buffer_cities.size();
-						// то добиваем нулями
+						// я┌п╬ п╢п╬п╠п╦п╡п╟п╣п╪ п╫я┐п╩я▐п╪п╦
 						for (unsigned int i = 0; i < ::cities.size() - b_size; i++)
 							buffer_cities += "0";
 					}
 					else
 					{
-						// режем строку
+						// я─п╣п╤п╣п╪ я│я┌я─п╬п╨я┐
 						buffer_cities.resize(buffer_cities.size() - (buffer_cities.size() - ::cities.size()));
 					}
 				}
@@ -1578,7 +1578,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				EXCHANGE_FILTER(this) = str_dup(line);
 			else if (!strcmp(tag, "EMal"))
 				strcpy(GET_EMAIL(this), line);
-//29.11.09. (c) Василиса
+//29.11.09. (c) п▓п╟я│п╦п╩п╦я│п╟
 //edited by WorM 2011.05.21
 			else if (!strcmp(tag, "Expa"))
 				GET_EXP_ARENA(this) = llnum;
@@ -1599,11 +1599,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			else if (!strcmp(tag, "Exdt"))
 				GET_EXP_DTTHIS(this) = llnum;
 //end by WorM
-//Конец правки (с) Василиса
+//п п╬п╫п╣я├ п©я─п╟п╡п╨п╦ (я│) п▓п╟я│п╦п╩п╦я│п╟
 			break;
 
 		case 'F':
-			// Оставлено для совместимости со старым форматом наказаний
+			// п·я│я┌п╟п╡п╩п╣п╫п╬ п╢п╩я▐ я│п╬п╡п╪п╣я│я┌п╦п╪п╬я│я┌п╦ я│п╬ я│я┌п╟я─я▀п╪ я└п╬я─п╪п╟я┌п╬п╪ п╫п╟п╨п╟п╥п╟п╫п╦п╧
 			if (!strcmp(tag, "Frez"))
 				GET_FREEZE_LEV(this) = num;
 			else if (!strcmp(tag, "Feat"))
@@ -1644,7 +1644,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GCURSE_DURATION(this) = lnum;
 			else if (!strcmp(tag, "GdFl"))
 				this->player_specials->saved.GodsLike = lnum;
-			// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
+			// added by WorM (п▓п╦п╢п╬п╩я▌п╠) 2010.06.04 п╠п╟п╠п╨п╦ п©п╬я┌я─п╟я┤п╣п╫п╫я▀п╣ п╫п╟ п╫п╟п╧п╪(п╡п╬п╥п╡я─п╟я┴п╟я▌я┌я│я▐ п©я─п╦ п╨я─п╣я┬п╣)
 			else if (!strcmp(tag, "GldH"))
 			{
 				if(num != 0 && !IS_IMMORTAL(this) && can_use_feat(this, EMPLOYER_FEAT))
@@ -1713,11 +1713,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 							cur_log->next = new(struct logon_data);
 							cur_log = cur_log->next;
 						}
-						// Добавляем в список.
+						// п■п╬п╠п╟п╡п╩я▐п╣п╪ п╡ я│п©п╦я│п╬п╨.
 						cur_log->ip = str_dup(buf);
 						cur_log->count = lnum;
 						cur_log->lasttime = lnum2;
-						cur_log->next = 0;   // Терминатор списка
+						cur_log->next = 0;   // п╒п╣я─п╪п╦п╫п╟я┌п╬я─ я│п©п╦я│п╨п╟
 						i++;
 					}
 					else break;
@@ -1791,7 +1791,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				NAME_GOD(this) = num;
 			else if (!strcmp(tag, "NaID"))
 				NAME_ID_GOD(this) = lnum;
-			else if (!strcmp(tag, "NtfE"))//Polud мин. цена для оффлайн-оповещений
+			else if (!strcmp(tag, "NtfE"))//Polud п╪п╦п╫. я├п╣п╫п╟ п╢п╩я▐ п╬я└я└п╩п╟п╧п╫-п╬п©п╬п╡п╣я┴п╣п╫п╦п╧
 				NOTIFY_EXCH_PRICE(this) = lnum;
 			break;
 
@@ -1918,7 +1918,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		case 'R':
 			if (!strcmp(tag, "Room"))
 				GET_LOADROOM(this) = num;
-//29.11.09. (c) Василиса
+//29.11.09. (c) п▓п╟я│п╦п╩п╦я│п╟
 			else if (!strcmp(tag, "Ripa"))
 				GET_RIP_ARENA(this) = num;
 			else if (!strcmp(tag, "Ripm"))
@@ -1939,7 +1939,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_RIP_DT(this) = num;
 			else if (!strcmp(tag, "Ridt"))
 				GET_RIP_DTTHIS(this) = num;
-//(с) Василиса
+//(я│) п▓п╟я│п╦п╩п╦я│п╟
 			else if (!strcmp(tag, "Rmbr"))
 				this->remember_set_num(num);
 			else if (!strcmp(tag, "Reli"))
@@ -2112,10 +2112,10 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_WIMP_LEV(this) = num;
 			else if (!strcmp(tag, "Wis "))
 				this->set_wis(num);
-//29.11.09 (c) Василиса
+//29.11.09 (c) п▓п╟я│п╦п╩п╦я│п╟
 			else if (!strcmp(tag, "Wina"))
 				GET_WIN_ARENA(this) = num;
-//конец правки (с) Василиса
+//п╨п╬п╫п╣я├ п©я─п╟п╡п╨п╦ (я│) п▓п╟я│п╦п╩п╦я│п╟
 			else if (!strcmp(tag, "Wman"))
 				this->set_who_mana(num);
 			break;
@@ -2151,8 +2151,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		{
 			if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == MAX_SLOT)
 				REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP);
-// shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
-// если мортов мало
+// shapirus: п╦п╥я┐я┤п╣п╫п╫п╬п╣ п╫п╣ я┐п╠п╦я─п╟п╣п╪ п╫п╟ п╡я│я▐п╨п╦п╧ я│п╩я┐я┤п╟п╧, п╫п╬ п╦п╥ п╪п╣п╪п╟ п╡я▀п╨п╦п╢я▀п╡п╟п╣п╪,
+// п╣я│п╩п╦ п╪п╬я─я┌п╬п╡ п╪п╟п╩п╬
 			if (GET_REMORT(this) < MIN_CAST_REM(spell_info[i], this))
 				GET_SPELL_MEM(this, i) = 0;
 		}
@@ -2171,9 +2171,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		GET_HIT(this) = MIN(GET_HIT(this), GET_REAL_MAX_HIT(this));
 
 	fbclose(fl);
-	// здесь мы закладываемся на то, что при ребуте это все сейчас пропускается и это нормально,
-	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
-	// и в любом случае при ребуте это все пересчитывать не нужно
+	// п╥п╢п╣я│я▄ п╪я▀ п╥п╟п╨п╩п╟п╢я▀п╡п╟п╣п╪я│я▐ п╫п╟ я┌п╬, я┤я┌п╬ п©я─п╦ я─п╣п╠я┐я┌п╣ я█я┌п╬ п╡я│п╣ я│п╣п╧я┤п╟я│ п©я─п╬п©я┐я│п╨п╟п╣я┌я│я▐ п╦ я█я┌п╬ п╫п╬я─п╪п╟п╩я▄п╫п╬,
+	// п╦п╫п╟я┤п╣ п╡ я┌п╟п╠п╩п╦я├п╣ crc п╠я┐п╢я┐я┌ п©я┐я│я┌я▀п╣ п╦п╪п╣п╫п╟, я┌.п╨. я│п╟п╪п╟ п©п╩п╣п╣я─-я┌п╟п╠п╩п╦я├п╟ п╣я┴п╣ п╫п╣ я│я└п╬я─п╪п╦я─п╬п╡п╟п╫п╟
+	// п╦ п╡ п╩я▌п╠п╬п╪ я│п╩я┐я┤п╟п╣ п©я─п╦ я─п╣п╠я┐я┌п╣ я█я┌п╬ п╡я│п╣ п©п╣я─п╣я│я┤п╦я┌я▀п╡п╟я┌я▄ п╫п╣ п╫я┐п╤п╫п╬
 	FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
 	
 	this->account = Account::get_account(GET_EMAIL(this));
@@ -2261,7 +2261,7 @@ void Player::map_print_to_snooper(CHAR_DATA *imm)
 	MapSystem::Options tmp;
 	tmp = map_options_;
 	map_options_ = *(imm->get_map_options());
-	// подменяем флаги карты на снуперские перед распечаткой ему карты
+	// п©п╬п╢п╪п╣п╫я▐п╣п╪ я└п╩п╟пЁп╦ п╨п╟я─я┌я▀ п╫п╟ я│п╫я┐п©п╣я─я│п╨п╦п╣ п©п╣я─п╣п╢ я─п╟я│п©п╣я┤п╟я┌п╨п╬п╧ п╣п╪я┐ п╨п╟я─я┌я▀
 	MapSystem::print_map(this, imm);
 	map_options_ = tmp;
 }
@@ -2373,7 +2373,7 @@ void Player::reset_daily_quest()
 {
 	this->daily_quest.clear();
 	this->daily_quest_timed.clear();
-	log("Персонаж: %s. Были сброшены гривны.", GET_NAME(this));
+	log("п÷п╣я─я│п╬п╫п╟п╤: %s. п▒я▀п╩п╦ я│п╠я─п╬я┬п╣п╫я▀ пЁя─п╦п╡п╫я▀.", GET_NAME(this));
 }
 
 std::shared_ptr<Account> Player::get_account()
@@ -2461,7 +2461,7 @@ namespace PlayerSystem
 {
 
 ///
-/// \return кол-во хп, втыкаемых чару от родного тела
+/// \return п╨п╬п╩-п╡п╬ я┘п©, п╡я┌я▀п╨п╟п╣п╪я▀я┘ я┤п╟я─я┐ п╬я┌ я─п╬п╢п╫п╬пЁп╬ я┌п╣п╩п╟
 ///
 int con_natural_hp(CHAR_DATA *ch)
 {
@@ -2472,7 +2472,7 @@ int con_natural_hp(CHAR_DATA *ch)
 }
 
 ///
-/// \return кол-во хп, втыкаемых чару от добавленного шмотом/аффектами тела
+/// \return п╨п╬п╩-п╡п╬ я┘п©, п╡я┌я▀п╨п╟п╣п╪я▀я┘ я┤п╟я─я┐ п╬я┌ п╢п╬п╠п╟п╡п╩п╣п╫п╫п╬пЁп╬ я┬п╪п╬я┌п╬п╪/п╟я└я└п╣п╨я┌п╟п╪п╦ я┌п╣п╩п╟
 ///
 int con_add_hp(CHAR_DATA *ch)
 {
@@ -2481,7 +2481,7 @@ int con_add_hp(CHAR_DATA *ch)
 }
 
 ///
-/// \return кол-во хп, втыкаемых чару от общего кол-ва тела
+/// \return п╨п╬п╩-п╡п╬ я┘п©, п╡я┌я▀п╨п╟п╣п╪я▀я┘ я┤п╟я─я┐ п╬я┌ п╬п╠я┴п╣пЁп╬ п╨п╬п╩-п╡п╟ я┌п╣п╩п╟
 ///
 int con_total_hp(CHAR_DATA *ch)
 {
@@ -2489,7 +2489,7 @@ int con_total_hp(CHAR_DATA *ch)
 }
 
 ///
-/// \return величина минуса к дексе в случае перегруза (case -> проценты от макс)
+/// \return п╡п╣п╩п╦я┤п╦п╫п╟ п╪п╦п╫я┐я│п╟ п╨ п╢п╣п╨я│п╣ п╡ я│п╩я┐я┤п╟п╣ п©п╣я─п╣пЁя─я┐п╥п╟ (case -> п©я─п╬я├п╣п╫я┌я▀ п╬я┌ п╪п╟п╨я│)
 ///
 unsigned weight_dex_penalty(CHAR_DATA* ch)
 {

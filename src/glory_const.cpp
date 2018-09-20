@@ -36,39 +36,39 @@ namespace GloryConst
 
 enum
 {
-	GLORY_STR = 0, // +статы G_STR..G_CHA
+	GLORY_STR = 0, // +я│я┌п╟я┌я▀ G_STR..G_CHA
 	GLORY_DEX,
 	GLORY_INT,
 	GLORY_WIS,
 	GLORY_CON,
 	GLORY_CHA, // -//-
-	GLORY_HIT, // +хп
-	GLORY_SUCCESS, //каст
-	GLORY_WILL, //воля
-	GLORY_STABILITY, //стойкость
-	GLORY_REFLEX, //реакция
-	GLORY_MIND, //разум
+	GLORY_HIT, // +я┘п©
+	GLORY_SUCCESS, //п╨п╟я│я┌
+	GLORY_WILL, //п╡п╬п╩я▐
+	GLORY_STABILITY, //я│я┌п╬п╧п╨п╬я│я┌я▄
+	GLORY_REFLEX, //я─п╣п╟п╨я├п╦я▐
+	GLORY_MIND, //я─п╟п╥я┐п╪
 	GLORY_TOTAL
 };
 
 struct glory_node
 {
 	glory_node() : free_glory(0) {};
-	// свободная слава
+	// я│п╡п╬п╠п╬п╢п╫п╟я▐ я│п╩п╟п╡п╟
 	int free_glory;
-	// имя чара для топа прославленных
+	// п╦п╪я▐ я┤п╟я─п╟ п╢п╩я▐ я┌п╬п©п╟ п©я─п╬я│п╩п╟п╡п╩п╣п╫п╫я▀я┘
 	std::string name;
-	// список статов с прокинутой славой
-	std::map<int /* номер стат из enum */, int /* сколько этого стата вложено*/> stats;
+	// я│п©п╦я│п╬п╨ я│я┌п╟я┌п╬п╡ я│ п©я─п╬п╨п╦п╫я┐я┌п╬п╧ я│п╩п╟п╡п╬п╧
+	std::map<int /* п╫п╬п╪п╣я─ я│я┌п╟я┌ п╦п╥ enum */, int /* я│п╨п╬п╩я▄п╨п╬ я█я┌п╬пЁп╬ я│я┌п╟я┌п╟ п╡п╩п╬п╤п╣п╫п╬*/> stats;
 };
 
-// общий список свободной и вложенной славы
+// п╬п╠я┴п╦п╧ я│п©п╦я│п╬п╨ я│п╡п╬п╠п╬п╢п╫п╬п╧ п╦ п╡п╩п╬п╤п╣п╫п╫п╬п╧ я│п╩п╟п╡я▀
 typedef std::shared_ptr<glory_node> GloryNodePtr;
-typedef std::map<long /* уид чара */, GloryNodePtr> GloryListType;
+typedef std::map<long /* я┐п╦п╢ я┤п╟я─п╟ */, GloryNodePtr> GloryListType;
 GloryListType glory_list;
-// суммарное списанное в виде комиса кол-во славы
+// я│я┐п╪п╪п╟я─п╫п╬п╣ я│п©п╦я│п╟п╫п╫п╬п╣ п╡ п╡п╦п╢п╣ п╨п╬п╪п╦я│п╟ п╨п╬п╩-п╡п╬ я│п╩п╟п╡я▀
 int total_charge = 0;
-// потраченное в магазинах
+// п©п╬я┌я─п╟я┤п╣п╫п╫п╬п╣ п╡ п╪п╟пЁп╟п╥п╦п╫п╟я┘
 int total_spent = 0;
 
 struct glory_olc
@@ -93,18 +93,18 @@ struct glory_olc
 
 const char *olc_stat_name[] =
 {
-	"Сила",
-	"Ловкость",
-	"Ум",
-	"Мудрость",
-	"Телосложение",
-	"Обаяние",
-	"Макс.жизнь",
-	"Успех.колдовства",
-	"Воля",
-	"Стойкость",
-	"Реакция",
-	"Разум"
+	"п║п╦п╩п╟",
+	"п⌡п╬п╡п╨п╬я│я┌я▄",
+	"пёп╪",
+	"п°я┐п╢я─п╬я│я┌я▄",
+	"п╒п╣п╩п╬я│п╩п╬п╤п╣п╫п╦п╣",
+	"п·п╠п╟я▐п╫п╦п╣",
+	"п°п╟п╨я│.п╤п╦п╥п╫я▄",
+	"пёя│п©п╣я┘.п╨п╬п╩п╢п╬п╡я│я┌п╡п╟",
+	"п▓п╬п╩я▐",
+	"п║я┌п╬п╧п╨п╬я│я┌я▄",
+	"п═п╣п╟п╨я├п╦я▐",
+	"п═п╟п╥я┐п╪"
 };
 
 void transfer_log(const char *format, ...)
@@ -131,7 +131,7 @@ void transfer_log(const char *format, ...)
 	fclose(file);
 }
 
-// * Аналог бывшего макроса GET_GLORY().
+// * п░п╫п╟п╩п╬пЁ п╠я▀п╡я┬п╣пЁп╬ п╪п╟п╨я─п╬я│п╟ GET_GLORY().
 int get_glory(long uid)
 {
 	int glory = 0;
@@ -143,7 +143,7 @@ int get_glory(long uid)
 	return glory;
 }
 
-// * Добавление славы чару, создание новой записи при необходимости, уведомление, если чар онлайн.
+// * п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ я│п╩п╟п╡я▀ я┤п╟я─я┐, я│п╬п╥п╢п╟п╫п╦п╣ п╫п╬п╡п╬п╧ п╥п╟п©п╦я│п╦ п©я─п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦, я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦п╣, п╣я│п╩п╦ я┤п╟я─ п╬п╫п╩п╟п╧п╫.
 void add_glory(long uid, int amount)
 {
 	if (uid <= 0 || amount <= 0)
@@ -166,7 +166,7 @@ void add_glory(long uid, int amount)
 	DESCRIPTOR_DATA *d = DescByUID(uid);
 	if (d)
 	{
-		send_to_char(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
+		send_to_char(d->character.get(), "%sп▓я▀ п╥п╟я│п╩я┐п╤п╦п╩п╦ %d %s п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀!%s\r\n",
 			CCGRN(d->character, C_NRM),
 			amount, desc_count(amount, WHAT_POINT),
 			CCNRM(d->character, C_NRM));
@@ -188,7 +188,7 @@ int stat_multi(int stat)
 	return multi;
 }
 
-// * Распечатка 'слава информация'.
+// * п═п╟я│п©п╣я┤п╟я┌п╨п╟ 'я│п╩п╟п╡п╟ п╦п╫я└п╬я─п╪п╟я├п╦я▐'.
 void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 {
 	*buf = '\0';
@@ -202,25 +202,25 @@ void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
 		}
 		else
 		{
-			log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
+			log("Glory: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╫п╬п╪п╣я─ я│я┌п╟я┌п╟ %d (uid: %ld)", i->first, it->first);
 		}
 	}
-	sprintf(buf+strlen(buf), "Свободных очков : %d\r\n", it->second->free_glory);
+	sprintf(buf+strlen(buf), "п║п╡п╬п╠п╬п╢п╫я▀я┘ п╬я┤п╨п╬п╡ : %d\r\n", it->second->free_glory);
 	send_to_char(buf, ch);
 	return;
 }
 
-// * Показ свободной и вложенной славы у чара (glory имя).
+// * п÷п╬п╨п╟п╥ я│п╡п╬п╠п╬п╢п╫п╬п╧ п╦ п╡п╩п╬п╤п╣п╫п╫п╬п╧ я│п╩п╟п╡я▀ я┐ я┤п╟я─п╟ (glory п╦п╪я▐).
 void print_to_god(CHAR_DATA *ch, CHAR_DATA *god)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
 	if (it == glory_list.end())
 	{
-		send_to_char(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
+		send_to_char(god, "пё %s я│п╬п╡я│п╣п╪ п╫п╣ я│п╩п╟п╡я▀.\r\n", GET_PAD(ch, 1));
 		return;
 	}
 
-	send_to_char(god, "Информация об очках славы %s:\r\n", GET_PAD(ch, 1));
+	send_to_char(god, "п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬п╠ п╬я┤п╨п╟я┘ я│п╩п╟п╡я▀ %s:\r\n", GET_PAD(ch, 1));
 	print_glory(god, it);
 	return;
 }
@@ -259,34 +259,34 @@ int remove_stat_cost(int stat, std::shared_ptr<GloryConst::glory_olc> olc)
 
 const char *olc_del_name[] =
 {
-	"А",
-	"Б",
-	"Г",
-	"Д",
-	"Е",
-	"Ж",
-	"З",
-	"И",
-	"К",
-	"Л",
-	"М",
-	"Н",
+	"п░",
+	"п▒",
+	"п⌠",
+	"п■",
+	"п∙",
+	"п√",
+	"п≈",
+	"п≤",
+	"п ",
+	"п⌡",
+	"п°",
+	"п²",
 };
 
 const char *olc_add_name[] =
 {
-	"О",
-	"П",
-	"Р",
-	"С",
-	"Т",
-	"У",
-	"Ф",
-	"Х",
-	"Ц",
-	"Ч",
-	"Ш",
-	"Щ",
+	"п·",
+	"п÷",
+	"п═",
+	"п║",
+	"п╒",
+	"пё",
+	"п╓",
+	"п╔",
+	"п╕",
+	"п╖",
+	"п╗",
+	"п╘",
 };
 
 std::string olc_print_stat(CHAR_DATA *ch, int stat)
@@ -313,7 +313,7 @@ std::string olc_print_stat(CHAR_DATA *ch, int stat)
 		% CCNRM(ch, C_NRM));
 }
 
-// * Распечатка олц меню.
+// * п═п╟я│п©п╣я┤п╟я┌п╨п╟ п╬п╩я├ п╪п╣п╫я▌.
 void spend_glory_menu(CHAR_DATA *ch)
 {
 	std::ostringstream out;
@@ -332,16 +332,16 @@ void spend_glory_menu(CHAR_DATA *ch)
 		<< olc_print_stat(ch, GLORY_REFLEX)
 		<< olc_print_stat(ch, GLORY_MIND);
 
-	out << "\r\n  Свободной славы: " << ch->desc->glory_const->olc_free_glory << "\r\n\r\n";
+	out << "\r\n  п║п╡п╬п╠п╬п╢п╫п╬п╧ я│п╩п╟п╡я▀: " << ch->desc->glory_const->olc_free_glory << "\r\n\r\n";
 
 	if (ch->desc->glory_const->olc_free_glory != ch->desc->glory_const->olc_was_free_glory)
 	{
-		out << "  " << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR)
-			<< ") Сохранить результаты\r\n";
+		out << "  " << CCIGRN(ch, C_SPR) << "п▓" << CCNRM(ch, C_SPR)
+			<< ") п║п╬я┘я─п╟п╫п╦я┌я▄ я─п╣п╥я┐п╩я▄я┌п╟я┌я▀\r\n";
 	}
-	out << "  " << CCIGRN(ch, C_SPR) << "Я" << CCNRM(ch, C_SPR)
-		<< ") Выйти без сохранения\r\n"
-		<< "  Ваш выбор: ";
+	out << "  " << CCIGRN(ch, C_SPR) << "п╞" << CCNRM(ch, C_SPR)
+		<< ") п▓я▀п╧я┌п╦ п╠п╣п╥ я│п╬я┘я─п╟п╫п╣п╫п╦я▐\r\n"
+		<< "  п▓п╟я┬ п╡я▀п╠п╬я─: ";
 	send_to_char(out.str(), ch);
 }
 
@@ -426,101 +426,101 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 {
 	switch (LOWER(*arg))
 	{
-		case 'а':
+		case 'п╟':
 			olc_del_stat(ch, GLORY_STR);
 			break;
-		case 'б':
+		case 'п╠':
 			olc_del_stat(ch, GLORY_DEX);
 			break;
-		case 'г':
+		case 'пЁ':
 			olc_del_stat(ch, GLORY_INT);
 			break;
-		case 'д':
+		case 'п╢':
 			olc_del_stat(ch, GLORY_WIS);
 			break;
-		case 'е':
+		case 'п╣':
 			olc_del_stat(ch, GLORY_CON);
 			break;
-		case 'ж':
+		case 'п╤':
 			olc_del_stat(ch, GLORY_CHA);
 			break;
-		case 'з':
+		case 'п╥':
 			olc_del_stat(ch, GLORY_HIT);
 			break;
-		case 'и':
+		case 'п╦':
 			olc_del_stat(ch, GLORY_SUCCESS);
 			break;
-		case 'к':
+		case 'п╨':
 			olc_del_stat(ch, GLORY_WILL);
 			break;
-		case 'л':
+		case 'п╩':
 			olc_del_stat(ch, GLORY_STABILITY);
 			break;
-		case 'м':
+		case 'п╪':
 			olc_del_stat(ch, GLORY_REFLEX);
 			break;
-		case 'н':
+		case 'п╫':
 			olc_del_stat(ch, GLORY_MIND);
 			break;
-		case 'о':
+		case 'п╬':
 			olc_add_stat(ch, GLORY_STR);
 			break;
-		case 'п':
+		case 'п©':
 			olc_add_stat(ch, GLORY_DEX);
 			break;
-		case 'р':
+		case 'я─':
 			olc_add_stat(ch, GLORY_INT);
 			break;
-		case 'с':
+		case 'я│':
 			olc_add_stat(ch, GLORY_WIS);
 			break;
-		case 'т':
+		case 'я┌':
 			olc_add_stat(ch, GLORY_CON);
 			break;
-		case 'у':
+		case 'я┐':
 			olc_add_stat(ch, GLORY_CHA);
 			break;
-		case 'ф':
+		case 'я└':
 			olc_add_stat(ch, GLORY_HIT);
 			break;
-		case 'х':
+		case 'я┘':
 			olc_add_stat(ch, GLORY_SUCCESS);
 			break;
-		case 'ц':
+		case 'я├':
 			olc_add_stat(ch, GLORY_WILL);
 			break;
-		case 'ч':
+		case 'я┤':
 			olc_add_stat(ch, GLORY_STABILITY);
 			break;
-		case 'ш':
+		case 'я┬':
 			olc_add_stat(ch, GLORY_REFLEX);
 			break;
-		case 'щ':
+		case 'я┴':
 			olc_add_stat(ch, GLORY_MIND);
 			break;
-		case 'в':
+		case 'п╡':
 		{
-			// получившиеся статы
+			// п©п╬п╩я┐я┤п╦п╡я┬п╦п╣я│я▐ я│я┌п╟я┌я▀
 			ch->set_str(olc_real_stat(ch, GLORY_STR));
 			ch->set_dex(olc_real_stat(ch, GLORY_DEX));
 			ch->set_int(olc_real_stat(ch, GLORY_INT));
 			ch->set_wis(olc_real_stat(ch, GLORY_WIS));
 			ch->set_con(olc_real_stat(ch, GLORY_CON));
 			ch->set_cha(olc_real_stat(ch, GLORY_CHA));
-			// обновление записи в списке славы
+			// п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ п╥п╟п©п╦я│п╦ п╡ я│п©п╦я│п╨п╣ я│п╩п╟п╡я▀
 			GloryListType::const_iterator it = glory_list.find(GET_UNIQUE(ch));
 			if (glory_list.end() == it)
 			{
-				log("SYSERROR : нет записи чара при выходе из олц постоянной славы name=%s (%s:%d)",
+				log("SYSERROR : п╫п╣я┌ п╥п╟п©п╦я│п╦ я┤п╟я─п╟ п©я─п╦ п╡я▀я┘п╬п╢п╣ п╦п╥ п╬п╩я├ п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀ name=%s (%s:%d)",
 					ch->get_name().c_str(), __FILE__, __LINE__);
-				send_to_char("Ошибка сохранения, сообщите Богам!\r\n", ch);
+				send_to_char("п·я┬п╦п╠п╨п╟ я│п╬я┘я─п╟п╫п╣п╫п╦я▐, я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪!\r\n", ch);
 				ch->desc->glory_const.reset();
 				STATE(ch->desc) = CON_PLAYING;
 				return 1;
 			}
-			// слава перед редактированием (для расчета комиса)
+			// я│п╩п╟п╡п╟ п©п╣я─п╣п╢ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣п╪ (п╢п╩я▐ я─п╟я│я┤п╣я┌п╟ п╨п╬п╪п╦я│п╟)
 			int was_glory = it->second->free_glory + calculate_glory_in_stats(it);
-			// обновление вложенных статов
+			// п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ п╡п╩п╬п╤п╣п╫п╫я▀я┘ я│я┌п╟я┌п╬п╡
 			it->second->free_glory = ch->desc->glory_const->olc_free_glory;
 			it->second->stats.clear();
 			for (int i = 0; i < GLORY_TOTAL; ++i)
@@ -530,30 +530,30 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 					it->second->stats[i] = ch->desc->glory_const->stat_add[i];
 				}
 			}
-			// расчет снятого комиса
+			// я─п╟я│я┤п╣я┌ я│п╫я▐я┌п╬пЁп╬ п╨п╬п╪п╦я│п╟
 			int now_glory = it->second->free_glory + calculate_glory_in_stats(it);
 			if (was_glory < now_glory)
 			{
-				log("SYSERROR : прибавка постоянной славы после редактирования в олц (%d -> %d) name=%s (%s:%d)",
+				log("SYSERROR : п©я─п╦п╠п╟п╡п╨п╟ п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀ п©п╬я│п╩п╣ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ п╡ п╬п╩я├ (%d -> %d) name=%s (%s:%d)",
 					was_glory, now_glory, ch->get_name().c_str(), __FILE__, __LINE__);
 			}
 			else
 			{
 				total_charge += was_glory - now_glory;
 			}
-			// выход из олц с обновлением хп
+			// п╡я▀я┘п╬п╢ п╦п╥ п╬п╩я├ я│ п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣п╪ я┘п©
 			ch->desc->glory_const.reset();
 			STATE(ch->desc) = CON_PLAYING;
 			check_max_hp(ch);
-			send_to_char("Ваши изменения сохранены.\r\n", ch);
+			send_to_char("п▓п╟я┬п╦ п╦п╥п╪п╣п╫п╣п╫п╦я▐ я│п╬я┘я─п╟п╫п╣п╫я▀.\r\n", ch);
 			ch->save_char();
 			save();
 			return 1;
 		}
-		case 'я':
+		case 'я▐':
 			ch->desc->glory_const.reset();
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char("Редактирование прервано.\r\n", ch);
+			send_to_char("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╣я─п╡п╟п╫п╬.\r\n", ch);
 			return 1;
 		default:
 			break;
@@ -562,19 +562,19 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 }
 
 const char *GLORY_CONST_FORMAT =
-	"Формат: слава2\r\n"
-	"        слава2 информация\r\n"
-	"        слава2 перевести <имя> <кол-во>\r\n";
+	"п╓п╬я─п╪п╟я┌: я│п╩п╟п╡п╟2\r\n"
+	"        я│п╩п╟п╡п╟2 п╦п╫я└п╬я─п╪п╟я├п╦я▐\r\n"
+	"        я│п╩п╟п╡п╟2 п©п╣я─п╣п╡п╣я│я┌п╦ <п╦п╪я▐> <п╨п╬п╩-п╡п╬>\r\n";
 
 void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
-	// До исправления баги
-	//send_to_char("Временно отключено...\r\n", ch);
+	// п■п╬ п╦я│п©я─п╟п╡п╩п╣п╫п╦я▐ п╠п╟пЁп╦
+	//send_to_char("п▓я─п╣п╪п╣п╫п╫п╬ п╬я┌п╨п╩я▌я┤п╣п╫п╬...\r\n", ch);
 	//return;
 	if (glory_list.end() == it || IS_IMMORTAL(ch))
 	{
-		send_to_char("Вам это не нужно...\r\n", ch);
+		send_to_char("п▓п╟п╪ я█я┌п╬ п╫п╣ п╫я┐п╤п╫п╬...\r\n", ch);
 		return;
 	}
 
@@ -585,7 +585,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (it->second->free_glory < 1000 && it->second->stats.empty())
 		{
-			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
+			send_to_char("пё п╡п╟я│ п╫п╣п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ п╬я┤п╨п╬п╡ я│п╩п╟п╡я▀ п╢п╩я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ я█я┌п╬п╧ п╨п╬п╪п╟п╫п╢я▀.\r\n", ch);
 			return;
 		}
 
@@ -612,7 +612,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 			{
-				log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
+				log("Glory: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╫п╬п╪п╣я─ я│я┌п╟я┌п╟ %d (uid: %ld)", i->first, it->first);
 			}
 		}
 		tmp_glory_olc->olc_free_glory = tmp_glory_olc->olc_was_free_glory = it->second->free_glory;
@@ -621,36 +621,36 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		STATE(ch->desc) = CON_GLORY_CONST;
 		spend_glory_menu(ch);
 	}
-	else if (CompareParam(buffer2, "информация"))
+	else if (CompareParam(buffer2, "п╦п╫я└п╬я─п╪п╟я├п╦я▐"))
 	{
-		send_to_char("Информация о вложенных вами очках славы:\r\n", ch);
+		send_to_char("п≤п╫я└п╬я─п╪п╟я├п╦я▐ п╬ п╡п╩п╬п╤п╣п╫п╫я▀я┘ п╡п╟п╪п╦ п╬я┤п╨п╟я┘ я│п╩п╟п╡я▀:\r\n", ch);
 		print_glory(ch, it);
 	}
-	else if (CompareParam(buffer2, "перевести"))
+	else if (CompareParam(buffer2, "п©п╣я─п╣п╡п╣я│я┌п╦"))
 	{
 		if (it->second->free_glory < MIN_TRANSFER_AMOUNT)
 		{
 			send_to_char(ch,
-				"У вас недостаточно свободных очков постоянной славы (минимум %d).\r\n",
+				"пё п╡п╟я│ п╫п╣п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ я│п╡п╬п╠п╬п╢п╫я▀я┘ п╬я┤п╨п╬п╡ п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀ (п╪п╦п╫п╦п╪я┐п╪ %d).\r\n",
 				MIN_TRANSFER_AMOUNT);
 			return;
 		}
 
 		std::string name;
 		GetOneParam(buffer, name);
-		// buffer = кол-во
+		// buffer = п╨п╬п╩-п╡п╬
 		boost::trim(buffer);
 
 		Player p_vict;
 		CHAR_DATA *vict = &p_vict;
 		if (load_char(name.c_str(), vict) < 0)
 		{
-			send_to_char(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
+			send_to_char(ch, "%s - п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╦п╪я▐ п©п╣я─я│п╬п╫п╟п╤п╟.\r\n", name.c_str());
 			return;
 		}
 		if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict)))
 		{
-			send_to_char(ch, "Персонажи имеют разные email адреса.\r\n");
+			send_to_char(ch, "п÷п╣я─я│п╬п╫п╟п╤п╦ п╦п╪п╣я▌я┌ я─п╟п╥п╫я▀п╣ email п╟п╢я─п╣я│п╟.\r\n");
 			return;
 		}
 
@@ -661,7 +661,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		catch(...)
 		{
-			send_to_char(ch, "%s - некорректное количество для перевода.\r\n", buffer.c_str());
+			send_to_char(ch, "%s - п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╢п╩я▐ п©п╣я─п╣п╡п╬п╢п╟.\r\n", buffer.c_str());
 			send_to_char(GLORY_CONST_FORMAT, ch);
 			return;
 		}
@@ -669,8 +669,8 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (amount < MIN_TRANSFER_AMOUNT || amount > it->second->free_glory)
 		{
 			send_to_char(ch,
-				"%d - некорректное количество для перевода.\r\n"
-				"Вы можете перевести от %d до %d постоянной славы.\r\n",
+				"%d - п╫п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╢п╩я▐ п©п╣я─п╣п╡п╬п╢п╟.\r\n"
+				"п▓я▀ п╪п╬п╤п╣я┌п╣ п©п╣я─п╣п╡п╣я│я┌п╦ п╬я┌ %d п╢п╬ %d п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀.\r\n",
 				amount, MIN_TRANSFER_AMOUNT, it->second->free_glory);
 			return;
 		}
@@ -683,10 +683,10 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		snprintf(buf, MAX_STRING_LENGTH,
 			"Transfer %d const glory from %s", total_amount, GET_NAME(ch));
-		add_karma(vict, buf, "командой");
+		add_karma(vict, buf, "п╨п╬п╪п╟п╫п╢п╬п╧");
 
 		snprintf(buf, MAX_STRING_LENGTH, "Transfer %d const glory to %s", amount, GET_NAME(vict));
-		add_karma(ch, buf, "командой");
+		add_karma(ch, buf, "п╨п╬п╪п╟п╫п╢п╬п╧");
 
 		total_charge += tax;
 		transfer_log("%s -> %s transfered %d (%d tax)", GET_NAME(ch), GET_NAME(vict), total_amount, tax);
@@ -695,12 +695,12 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		vict->save_char();
 		save();
 
-		send_to_char(ch, "%s переведено %d постоянной славы (%d комиссии).\r\n",
+		send_to_char(ch, "%s п©п╣я─п╣п╡п╣п╢п╣п╫п╬ %d п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀ (%d п╨п╬п╪п╦я│я│п╦п╦).\r\n",
 			GET_PAD(vict, 2), total_amount, tax);
 
-		// TODO: ну если в глори-лог или карму, то надо стоимость/налог
-		// на трансфер ставить, чтобы не заспамили.
-		// а без отдельных логов потом фик поймешь откуда на чаре слава
+		// TODO: п╫я┐ п╣я│п╩п╦ п╡ пЁп╩п╬я─п╦-п╩п╬пЁ п╦п╩п╦ п╨п╟я─п╪я┐, я┌п╬ п╫п╟п╢п╬ я│я┌п╬п╦п╪п╬я│я┌я▄/п╫п╟п╩п╬пЁ
+		// п╫п╟ я┌я─п╟п╫я│я└п╣я─ я│я┌п╟п╡п╦я┌я▄, я┤я┌п╬п╠я▀ п╫п╣ п╥п╟я│п©п╟п╪п╦п╩п╦.
+		// п╟ п╠п╣п╥ п╬я┌п╢п╣п╩я▄п╫я▀я┘ п╩п╬пЁп╬п╡ п©п╬я┌п╬п╪ я└п╦п╨ п©п╬п╧п╪п╣я┬я▄ п╬я┌п╨я┐п╢п╟ п╫п╟ я┤п╟я─п╣ я│п╩п╟п╡п╟
 	}
 	else
 	{
@@ -709,8 +709,8 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 /**
-* Удаление славы у чара (свободной), ниже нуля быть не может.
-* \return 0 - ничего не списано, число > 0 - сколько реально списали
+* пёп╢п╟п╩п╣п╫п╦п╣ я│п╩п╟п╡я▀ я┐ я┤п╟я─п╟ (я│п╡п╬п╠п╬п╢п╫п╬п╧), п╫п╦п╤п╣ п╫я┐п╩я▐ п╠я▀я┌я▄ п╫п╣ п╪п╬п╤п╣я┌.
+* \return 0 - п╫п╦я┤п╣пЁп╬ п╫п╣ я│п©п╦я│п╟п╫п╬, я┤п╦я│п╩п╬ > 0 - я│п╨п╬п╩я▄п╨п╬ я─п╣п╟п╩я▄п╫п╬ я│п©п╦я│п╟п╩п╦
 */
 int remove_glory(long uid, int amount)
 {
@@ -724,7 +724,7 @@ int remove_glory(long uid, int amount)
 	GloryListType::iterator i = glory_list.find(uid);
 	if (glory_list.end() != i)
 	{
-		// ниже нуля ес-сно не отнимаем
+		// п╫п╦п╤п╣ п╫я┐п╩я▐ п╣я│-я│п╫п╬ п╫п╣ п╬я┌п╫п╦п╪п╟п╣п╪
 		if (i->second->free_glory >= amount)
 		{
 			i->second->free_glory -= amount;
@@ -734,7 +734,7 @@ int remove_glory(long uid, int amount)
 			real_removed = i->second->free_glory;
 			i->second->free_glory = 0;
 		}
-		// смысла пустую запись оставлять до ребута нет
+		// я│п╪я▀я│п╩п╟ п©я┐я│я┌я┐я▌ п╥п╟п©п╦я│я▄ п╬я│я┌п╟п╡п╩я▐я┌я▄ п╢п╬ я─п╣п╠я┐я┌п╟ п╫п╣я┌
 		if (!i->second->free_glory && i->second->stats.empty())
 		{
 			glory_list.erase(i);
@@ -768,10 +768,10 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (!*argument)
 	{
-		send_to_char("Формат команды : \r\n"
-			"   glory <имя> (информация по указанному персонажу)\r\n"
-			"   glory <имя> +|-<кол-во славы> причина\r\n"
-			"   glory <имя> reset причина (обнуление свободной и вложенной славы)\r\n", ch);
+		send_to_char("п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀ : \r\n"
+			"   glory <п╦п╪я▐> (п╦п╫я└п╬я─п╪п╟я├п╦я▐ п©п╬ я┐п╨п╟п╥п╟п╫п╫п╬п╪я┐ п©п╣я─я│п╬п╫п╟п╤я┐)\r\n"
+			"   glory <п╦п╪я▐> +|-<п╨п╬п╩-п╡п╬ я│п╩п╟п╡я▀> п©я─п╦я┤п╦п╫п╟\r\n"
+			"   glory <п╦п╪я▐> reset п©я─п╦я┤п╦п╫п╟ (п╬п╠п╫я┐п╩п╣п╫п╦п╣ я│п╡п╬п╠п╬п╢п╫п╬п╧ п╦ п╡п╩п╬п╤п╣п╫п╫п╬п╧ я│п╩п╟п╡я▀)\r\n", ch);
 		return;
 	}
 
@@ -799,27 +799,27 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		mode = RESET_GLORY;
 	}
-	// точки убираем, чтобы карма всегда писалась
+	// я┌п╬я┤п╨п╦ я┐п╠п╦я─п╟п╣п╪, я┤я┌п╬п╠я▀ п╨п╟я─п╪п╟ п╡я│п╣пЁп╢п╟ п©п╦я│п╟п╩п╟я│я▄
 	skip_dots(&reason);
 
 	if (mode != SHOW_GLORY && (!reason || !*reason))
 	{
-		send_to_char("Укажите причину изменения славы?\r\n", ch);
+		send_to_char("пёп╨п╟п╤п╦я┌п╣ п©я─п╦я┤п╦п╫я┐ п╦п╥п╪п╣п╫п╣п╫п╦я▐ я│п╩п╟п╡я▀?\r\n", ch);
 		return;
 	}
 
 	CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
 	if (vict && vict->desc && STATE(vict->desc) == CON_GLORY_CONST)
 	{
-		send_to_char("Персонаж в данный момент редактирует свою славу.\r\n", ch);
+		send_to_char("п÷п╣я─я│п╬п╫п╟п╤ п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ я─п╣п╢п╟п╨я┌п╦я─я┐п╣я┌ я│п╡п╬я▌ я│п╩п╟п╡я┐.\r\n", ch);
 		return;
 	}
-	Player t_vict; // TODO: мутно
+	Player t_vict; // TODO: п╪я┐я┌п╫п╬
 	if (!vict)
 	{
 		if (load_char(arg, &t_vict) < 0)
 		{
-			send_to_char("Такого персонажа не существует.\r\n", ch);
+			send_to_char("п╒п╟п╨п╬пЁп╬ п©п╣я─я│п╬п╫п╟п╤п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n", ch);
 			return;
 		}
 		vict = &t_vict;
@@ -831,9 +831,9 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			int amount = atoi((num + 1));
 			add_glory(GET_UNIQUE(vict), amount);
-			send_to_char(ch, "%s добавлено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
+			send_to_char(ch, "%s п╢п╬п╠п╟п╡п╩п╣п╫п╬ %d я┐.п╣. п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀ (п▓я│п╣пЁп╬: %d я┐.п╣.).\r\n",
 				GET_PAD(vict, 2), amount, get_glory(GET_UNIQUE(vict)));
-			// запись в карму, логи
+			// п╥п╟п©п╦я│я▄ п╡ п╨п╟я─п╪я┐, п╩п╬пЁп╦
 			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 			imm_log(buf);
@@ -847,12 +847,12 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			int amount = remove_glory(GET_UNIQUE(vict), atoi((num + 1)));
 			if (amount <= 0)
 			{
-				send_to_char(ch, "У %s нет свободной постоянной славы.\r\n", GET_PAD(vict, 1));
+				send_to_char(ch, "пё %s п╫п╣я┌ я│п╡п╬п╠п╬п╢п╫п╬п╧ п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀.\r\n", GET_PAD(vict, 1));
 				break;
 			}
-			send_to_char(ch, "У %s вычтено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
+			send_to_char(ch, "пё %s п╡я▀я┤я┌п╣п╫п╬ %d я┐.п╣. п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀ (п▓я│п╣пЁп╬: %d я┐.п╣.).\r\n",
 				GET_PAD(vict, 1), amount, get_glory(GET_UNIQUE(vict)));
-			// запись в карму, логи
+			// п╥п╟п©п╦я│я▄ п╡ п╨п╟я─п╪я┐, п╩п╬пЁп╦
 			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 			imm_log(buf);
@@ -865,8 +865,8 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (reset_glory(vict))
 			{
-				send_to_char(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name().c_str());
-				// запись в карму, логи
+				send_to_char(ch, "%s - п╬я┤п╦я┴п╣п╫п╟ п╥п╟п©п╦я│я▄ п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀.\r\n", vict->get_name().c_str());
+				// п╥п╟п©п╦я│я▄ п╡ п╨п╟я─п╪я┐, п╩п╬пЁп╦
 				sprintf(buf, "(GC) %s reset const glory to %s.", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 				imm_log(buf);
@@ -876,7 +876,7 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 			{
-				send_to_char(ch, "%s - запись постоянной славы и так пустая.\r\n", vict->get_name().c_str());
+				send_to_char(ch, "%s - п╥п╟п©п╦я│я▄ п©п╬я│я┌п╬я▐п╫п╫п╬п╧ я│п╩п╟п╡я▀ п╦ я┌п╟п╨ п©я┐я│я┌п╟я▐.\r\n", vict->get_name().c_str());
 			}
 			break;
 		}
@@ -960,20 +960,20 @@ void load()
 		}
 		catch (const std::invalid_argument&)
 		{
-			log("SYSERR: UID [%s] не является верным десятичным числом.", uid_str);
+			log("SYSERR: UID [%s] п╫п╣ я▐п╡п╩я▐п╣я┌я│я▐ п╡п╣я─п╫я▀п╪ п╢п╣я│я▐я┌п╦я┤п╫я▀п╪ я┤п╦я│п╩п╬п╪.", uid_str);
 			continue;
 		}
 
 		std::string name = GetNameByUnique(uid);
 		if (name.empty())
 		{
-			log("GloryConst: UID %ld - персонажа не существует.", uid);
+			log("GloryConst: UID %ld - п©п╣я─я│п╬п╫п╟п╤п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.", uid);
 			continue;
 		}
 
 		if (glory_list.find(uid) != glory_list.end())
 		{
-			log("SYSERROR : дубликат записи uid=%ld, name=%s (%s:%d)",
+			log("SYSERROR : п╢я┐п╠п╩п╦п╨п╟я┌ п╥п╟п©п╦я│п╦ uid=%ld, name=%s (%s:%d)",
 				uid, name.c_str(), __FILE__, __LINE__);
 			continue;
 		}
@@ -1001,13 +1001,13 @@ void load()
 			int stat_amount = std::stoi(stat.attribute("amount").value(), nullptr, 10)/divider;
 			if (stat_num >= GLORY_TOTAL && stat_num < 0)
 			{
-				log("SYSERROR : невалидный номер влитого стата num=%d, name=%s (%s:%d)",
+				log("SYSERROR : п╫п╣п╡п╟п╩п╦п╢п╫я▀п╧ п╫п╬п╪п╣я─ п╡п╩п╦я┌п╬пЁп╬ я│я┌п╟я┌п╟ num=%d, name=%s (%s:%d)",
 					stat_num, name.c_str(), __FILE__, __LINE__);
 				continue;
 			}
 			if (tmp_node->stats.find(stat_num) != tmp_node->stats.end())
 			{
-				log("SYSERROR : дубликат влитого стата num=%d, name=%s (%s:%d)",
+				log("SYSERROR : п╢я┐п╠п╩п╦п╨п╟я┌ п╡п╩п╦я┌п╬пЁп╬ я│я┌п╟я┌п╟ num=%d, name=%s (%s:%d)",
 					stat_num, name.c_str(), __FILE__, __LINE__);
 				continue;
 			}
@@ -1025,7 +1025,7 @@ void load()
     {
 		total_spent = std::stoi(spent_node.attribute("amount").value(), nullptr, 10);
     }
-    if (ver < cur_ver)//автоматом обновляем xml
+    if (ver < cur_ver)//п╟п╡я┌п╬п╪п╟я┌п╬п╪ п╬п╠п╫п╬п╡п╩я▐п╣п╪ xml
     	save();
 }
 
@@ -1061,12 +1061,12 @@ void set_stats(CHAR_DATA *ch)
 				ch->inc_cha(k->second);
 				break;
 			default:
-				log("Glory: некорректный номер стата %d (uid: %d)", k->first, GET_UNIQUE(ch));
+				log("Glory: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╫п╬п╪п╣я─ я│я┌п╟я┌п╟ %d (uid: %d)", k->first, GET_UNIQUE(ch));
 		}
 	}
 }
 
-// * Количество вложенных статов (только из числа 6 основных).
+// * п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╡п╩п╬п╤п╣п╫п╫я▀я┘ я│я┌п╟я┌п╬п╡ (я┌п╬п╩я▄п╨п╬ п╦п╥ я┤п╦я│п╩п╟ 6 п╬я│п╫п╬п╡п╫я▀я┘).
 int main_stats_count(CHAR_DATA *ch)
 {
 	GloryListType::iterator i = glory_list.find(GET_UNIQUE(ch));
@@ -1094,7 +1094,7 @@ int main_stats_count(CHAR_DATA *ch)
 	return count;
 }
 
-// * Вывод инфы в show stats.
+// * п▓я▀п╡п╬п╢ п╦п╫я└я▀ п╡ show stats.
 void show_stats(CHAR_DATA *ch)
 {
 	int free_glory = 0, spend_glory = 0;
@@ -1104,8 +1104,8 @@ void show_stats(CHAR_DATA *ch)
 		spend_glory += calculate_glory_in_stats(i);
 	}
 	send_to_char(ch,
-		"  Слава2: вложено %d, свободно %d, всего %d, комиссии %d\r\n"
-		"  Всего потрачено славы в магазинах: %d\r\n",
+		"  п║п╩п╟п╡п╟2: п╡п╩п╬п╤п╣п╫п╬ %d, я│п╡п╬п╠п╬п╢п╫п╬ %d, п╡я│п╣пЁп╬ %d, п╨п╬п╪п╦я│я│п╦п╦ %d\r\n"
+		"  п▓я│п╣пЁп╬ п©п╬я┌я─п╟я┤п╣п╫п╬ я│п╩п╟п╡я▀ п╡ п╪п╟пЁп╟п╥п╦п╫п╟я┘: %d\r\n",
 		spend_glory, free_glory, free_glory + spend_glory, total_charge, total_spent);
 }
 
@@ -1153,8 +1153,8 @@ void apply_modifiers(CHAR_DATA *ch)
 			default:
 				break;
 		}
-		// TODO: убрать наверно надо эти костыли блин, но аппли у нас не позволяет навесить что либо больше чем влазит в signed byte т.е. +127
-// не совсем понял что тут делается, но тупо увеличил аппли до инта, кто мешал это сделать раньше? А то 10 лет багрепортят что аффекты после 127 глючат.
+		// TODO: я┐п╠я─п╟я┌я▄ п╫п╟п╡п╣я─п╫п╬ п╫п╟п╢п╬ я█я┌п╦ п╨п╬я│я┌я▀п╩п╦ п╠п╩п╦п╫, п╫п╬ п╟п©п©п╩п╦ я┐ п╫п╟я│ п╫п╣ п©п╬п╥п╡п╬п╩я▐п╣я┌ п╫п╟п╡п╣я│п╦я┌я▄ я┤я┌п╬ п╩п╦п╠п╬ п╠п╬п╩я▄я┬п╣ я┤п╣п╪ п╡п╩п╟п╥п╦я┌ п╡ signed byte я┌.п╣. +127
+// п╫п╣ я│п╬п╡я│п╣п╪ п©п╬п╫я▐п╩ я┤я┌п╬ я┌я┐я┌ п╢п╣п╩п╟п╣я┌я│я▐, п╫п╬ я┌я┐п©п╬ я┐п╡п╣п╩п╦я┤п╦п╩ п╟п©п©п╩п╦ п╢п╬ п╦п╫я┌п╟, п╨я┌п╬ п╪п╣я┬п╟п╩ я█я┌п╬ я│п╢п╣п╩п╟я┌я▄ я─п╟п╫я▄я┬п╣? п░ я┌п╬ 10 п╩п╣я┌ п╠п╟пЁя─п╣п©п╬я─я┌я▐я┌ я┤я┌п╬ п╟я└я└п╣п╨я┌я▀ п©п╬я│п╩п╣ 127 пЁп╩я▌я┤п╟я┌.
 		if (location)
 		{
 			const int K = location != APPLY_HIT_GLORY ? stat_multi(i->first) : 1;

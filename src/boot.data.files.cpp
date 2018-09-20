@@ -275,7 +275,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 			const auto trigger_instance = read_trigger(rnum);
 			if (add_trigger(SCRIPT(room).get(), trigger_instance, -1))
 			{
-				// для начала определяем, есть ли такой внум у нас в контейнере
+				// п╢п╩я▐ п╫п╟я┤п╟п╩п╟ п╬п©я─п╣п╢п╣п╩я▐п╣п╪, п╣я│я┌я▄ п╩п╦ я┌п╟п╨п╬п╧ п╡п╫я┐п╪ я┐ п╫п╟я│ п╡ п╨п╬п╫я┌п╣п╧п╫п╣я─п╣
 				if (owner_trig.find(vnum) == owner_trig.end())
 				{
 					owner_to_triggers_map_t tmp_map;
@@ -434,26 +434,26 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 			exit(1);
 		}
 	}
-	// Создаем новую комнату
+	// п║п╬п╥п╢п╟п╣п╪ п╫п╬п╡я┐я▌ п╨п╬п╪п╫п╟я┌я┐
 	world.push_back(new ROOM_DATA);
 
 	world[room_nr]->zone = zone;
 	world[room_nr]->number = virtual_nr;
 	if (virt)
 	{
-		world[room_nr]->name = str_dup("Виртуальная комната");
-		world[room_nr]->description_num = RoomDescription::add_desc("Похоже, здесь вам делать нечего.");
+		world[room_nr]->name = str_dup("п▓п╦я─я┌я┐п╟п╩я▄п╫п╟я▐ п╨п╬п╪п╫п╟я┌п╟");
+		world[room_nr]->description_num = RoomDescription::add_desc("п÷п╬я┘п╬п╤п╣, п╥п╢п╣я│я▄ п╡п╟п╪ п╢п╣п╩п╟я┌я▄ п╫п╣я┤п╣пЁп╬.");
 		world[room_nr]->clear_flags();
 		world[room_nr]->sector_type = SECT_SECRET;
 	}
 	else
 	{
-		// не ставьте тут конструкцию ? : , т.к. gcc >=4.х вызывает в ней fread_string два раза
+		// п╫п╣ я│я┌п╟п╡я▄я┌п╣ я┌я┐я┌ п╨п╬п╫я│я┌я─я┐п╨я├п╦я▌ ? : , я┌.п╨. gcc >=4.я┘ п╡я▀п╥я▀п╡п╟п╣я┌ п╡ п╫п╣п╧ fread_string п╢п╡п╟ я─п╟п╥п╟
 		world[room_nr]->name = fread_string();
 		if (!world[room_nr]->name)
 			world[room_nr]->name = str_dup("");
 
-		// тож временная галиматья
+		// я┌п╬п╤ п╡я─п╣п╪п╣п╫п╫п╟я▐ пЁп╟п╩п╦п╪п╟я┌я▄я▐
 		char * temp_buf = fread_string();
 		if (!temp_buf)
 		{
@@ -462,7 +462,7 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 		else
 		{
 			std::string buffer(temp_buf);
-			boost::trim_right_if(buffer, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
+			boost::trim_right_if(buffer, boost::is_any_of(std::string(" _"))); //я┐п╠п╦я─п╟п╣п╪ п©я─п╬п╠п╣п╩я▀ п╡ п╨п╬п╫я├п╣ я│я┌я─п╬п╨п╦
 			RECREATE(temp_buf, buffer.length() + 1);
 			strcpy(temp_buf, buffer.c_str());
 		}
@@ -487,12 +487,12 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 
 	check_room_flags(room_nr);
 
-	// Обнуляем флаги от аффектов и сами аффекты на комнате.
+	// п·п╠п╫я┐п╩я▐п╣п╪ я└п╩п╟пЁп╦ п╬я┌ п╟я└я└п╣п╨я┌п╬п╡ п╦ я│п╟п╪п╦ п╟я└я└п╣п╨я┌я▀ п╫п╟ п╨п╬п╪п╫п╟я┌п╣.
 	world[room_nr]->affected_by.clear();
-	// Обнуляем базовые параметры (пока нет их загрузки)
+	// п·п╠п╫я┐п╩я▐п╣п╪ п╠п╟п╥п╬п╡я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀ (п©п╬п╨п╟ п╫п╣я┌ п╦я┘ п╥п╟пЁя─я┐п╥п╨п╦)
 	memset(&world[room_nr]->base_property, 0, sizeof(room_property_data));
 
-	// Обнуляем добавочные параметры комнаты
+	// п·п╠п╫я┐п╩я▐п╣п╪ п╢п╬п╠п╟п╡п╬я┤п╫я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀ п╨п╬п╪п╫п╟я┌я▀
 	memset(&world[room_nr]->add_property, 0, sizeof(room_property_data));
 
 
@@ -503,7 +503,7 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 	world[room_nr]->fires = 0;
 	world[room_nr]->gdark = 0;
 	world[room_nr]->glight = 0;
-	world[room_nr]->ing_list = NULL;	// ингредиентов нет
+	world[room_nr]->ing_list = NULL;	// п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡ п╫п╣я┌
 	world[room_nr]->proto_script.reset(new OBJ_DATA::triggers_list_t());
 
 	for (i = 0; i < NUM_OF_DIRS; i++)
@@ -553,7 +553,7 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 
 		case 'S':	// end of room
 					// DG triggers -- script is defined after the end of the room 'T'
-					// Ингредиентная магия -- 'I'
+					// п≤п╫пЁя─п╣п╢п╦п╣п╫я┌п╫п╟я▐ п╪п╟пЁп╦я▐ -- 'I'
 			do
 			{
 				letter = fread_letter(file());
@@ -599,7 +599,7 @@ void WorldFile::setup_dir(int room, unsigned dir)
 	const std::shared_ptr<char> general_description(fread_string(), free);
 	world[room]->dir_option[dir]->general_description = general_description.get();
 
-	// парс строки алиаса двери на имя;вининельный падеж, если он есть
+	// п©п╟я─я│ я│я┌я─п╬п╨п╦ п╟п╩п╦п╟я│п╟ п╢п╡п╣я─п╦ п╫п╟ п╦п╪я▐;п╡п╦п╫п╦п╫п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤, п╣я│п╩п╦ п╬п╫ п╣я│я┌я▄
 	char *alias = fread_string();
 	if (alias && *alias)
 	{
@@ -624,7 +624,7 @@ void WorldFile::setup_dir(int room, unsigned dir)
 		exit(1);
 	}
 	int result = sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3);
-	if (result == 3)//Polud видимо "старый" формат (20.10.2010), прочитаем в старом
+	if (result == 3)//Polud п╡п╦п╢п╦п╪п╬ "я│я┌п╟я─я▀п╧" я└п╬я─п╪п╟я┌ (20.10.2010), п©я─п╬я┤п╦я┌п╟п╣п╪ п╡ я│я┌п╟я─п╬п╪
 	{
 		if (t[0] & 1)
 			world[room]->dir_option[dir]->exit_info = EX_ISDOOR;
@@ -732,7 +732,7 @@ void ObjectFile::parse_object(const int nr)
 	tobj->set_short_description(colorLOW(tmpptr));
 
 	strcpy(buf, tobj->get_short_description().c_str());
-	tobj->set_PName(0, colorLOW(buf)); //именительный падеж равен короткому описанию
+	tobj->set_PName(0, colorLOW(buf)); //п╦п╪п╣п╫п╦я┌п╣п╩я▄п╫я▀п╧ п©п╟п╢п╣п╤ я─п╟п╡п╣п╫ п╨п╬я─п╬я┌п╨п╬п╪я┐ п╬п©п╦я│п╟п╫п╦я▌
 
 	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
@@ -790,8 +790,8 @@ void ObjectFile::parse_object(const int nr)
 	}
 	tobj->set_sex(static_cast<ESex>(t[0]));
 	int timer = t[1] > 0 ? t[1] : OBJ_DATA::SEVEN_DAYS;
-	// шмоток с бесконечным таймером проставленным через olc или текстовый редактор
-	// не должно быть
+	// я┬п╪п╬я┌п╬п╨ я│ п╠п╣я│п╨п╬п╫п╣я┤п╫я▀п╪ я┌п╟п╧п╪п╣я─п╬п╪ п©я─п╬я│я┌п╟п╡п╩п╣п╫п╫я▀п╪ я┤п╣я─п╣п╥ olc п╦п╩п╦ я┌п╣п╨я│я┌п╬п╡я▀п╧ я─п╣п╢п╟п╨я┌п╬я─
+	// п╫п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄
 	if (timer == OBJ_DATA::UNLIMITED_TIMER)
 	{
 		timer--;
@@ -1251,8 +1251,8 @@ void MobileFile::parse_mobile(const int nr)
 
 	// DG triggers -- script info follows mob S/E section
 	// DG triggers -- script is defined after the end of the room 'T'
-	// Ингредиентная магия -- 'I'
-	// Объекты загружаемые по-смертно -- 'D'
+	// п≤п╫пЁя─п╣п╢п╦п╣п╫я┌п╫п╟я▐ п╪п╟пЁп╦я▐ -- 'I'
+	// п·п╠я┼п╣п╨я┌я▀ п╥п╟пЁя─я┐п╤п╟п╣п╪я▀п╣ п©п╬-я│п╪п╣я─я┌п╫п╬ -- 'D'
 
 	do
 	{
@@ -1465,10 +1465,10 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 	
 		
-//		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
-//		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
+//		п╥п╟пЁп╬я┌п╬п╡п╨п╟ п©п╟я─я│п╟ я─п╣п╥п╦я│я┌п╬п╡ я┐ п╪п╬п╠п╟ п©я─п╦ п╥п╟пЁя─я┐п╥п╨п╣ п╪п╟п╢п╟, я┤я┌п╬п╠ п╡ я│п╩п╣п╢ я─п╟п╥ п╫п╣ п©я─п╦п╢я┐п╪я▀п╡п╟я┌я▄
+//		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // п╤п╦п╥п╫я▄ п╦ п╫п╣ п╠п╬я│я│я▀
 //		{
-//			if (zone_table[world[IN_ROOM(&mob_proto[i])]->zone].group < 3) // в зонах 0-2 группы
+//			if (zone_table[world[IN_ROOM(&mob_proto[i])]->zone].group < 3) // п╡ п╥п╬п╫п╟я┘ 0-2 пЁя─я┐п©п©я▀
 //				log("RESIST LIVE num: %d Vnum: %d Level: %d Name: %s", GET_RESIST(mob_proto + i, 4), mob_index[i].vnum, GET_LEVEL(&mob_proto[i]), GET_PAD(&mob_proto[i], 0));
 //		}
 	}
@@ -1536,7 +1536,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		mob_proto[i].add_abils.mresist = num_arg;
 	}
 	//End of changed
-	// added by WorM (Видолюб) поглощение физ.урона в %
+	// added by WorM (п▓п╦п╢п╬п╩я▌п╠) п©п╬пЁп╩п╬я┴п╣п╫п╦п╣ я└п╦п╥.я┐я─п╬п╫п╟ п╡ %
 	CASE("PResist")
 	{
 		RANGE(0, 100);
@@ -1787,7 +1787,7 @@ bool ZoneFile::load_zones()
 	{
 		CREATE(Z.typeB_list, Z.typeB_count);
 		CREATE(Z.typeB_flag, Z.typeB_count);
-		// сбрасываем все флаги
+		// я│п╠я─п╟я│я▀п╡п╟п╣п╪ п╡я│п╣ я└п╩п╟пЁп╦
 		for (b_number = Z.typeB_count; b_number > 0; b_number--)
 			Z.typeB_flag[b_number - 1] = FALSE;
 	}
@@ -1816,7 +1816,7 @@ bool ZoneFile::load_zones()
 		*ptr = '\0';
 	Z.name = str_dup(buf);
 
-	log("Читаем zon файл: %s", full_file_name().c_str());
+	log("п╖п╦я┌п╟п╣п╪ zon я└п╟п╧п╩: %s", full_file_name().c_str());
 	while (*buf !='S' && !feof(file()))
 	{	
 		line_num += get_line(file(), buf);
@@ -1858,11 +1858,11 @@ bool ZoneFile::load_zones()
 	{
 		if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
 		{
-			log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
+			log("SYSERR: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ z.level, z.type, z.group: %s", buf);
 			exit(1);
 		}
 	}
-	Z.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+	Z.group = (group == 0) ? 1 : group; //пЁя─я┐п©п©я▀ п╡ 0 я─я▀п╩ п╫п╣ п╠я▀п╡п╟п╣я┌
 	line_num += get_line(file(), buf);
 
 	*t1 = 0;
@@ -1870,7 +1870,7 @@ bool ZoneFile::load_zones()
 	int tmp_reset_idle = 0;
 	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, &tmp_reset_idle, t1, t2) < 4)
 	{
-		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
+		// п╣я│п╩п╦ п╫п╣я┌ я┤п╣я┌я▀я─п╣я┘ п╨п╬п╫я│я┌п╟п╫я┌, я┌п╬, п╡п╬п╥п╪п╬п╤п╫п╬, я█я┌п╬ я│я┌п╟я─я▀п╧ я└п╬я─п╪п╟я┌ -- п©п╬п©я─п╬п╠я┐п╣п╪ п©я─п╬я┤п╦я┌п╟я┌я▄ я┌я─п╦
 		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3)
 		{
 			log("SYSERR: Format error in 3-constant line of %s", full_file_name().c_str());
@@ -1898,9 +1898,9 @@ bool ZoneFile::load_zones()
 			continue;
 		}
 		ptr++;
-		// Новые параметры формата файла:
-		// A номер_зоны -- зона типа A из списка
-		// B номер_зоны -- зона типа B из списка
+		// п²п╬п╡я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀ я└п╬я─п╪п╟я┌п╟ я└п╟п╧п╩п╟:
+		// A п╫п╬п╪п╣я─_п╥п╬п╫я▀ -- п╥п╬п╫п╟ я┌п╦п©п╟ A п╦п╥ я│п©п╦я│п╨п╟
+		// B п╫п╬п╪п╣я─_п╥п╬п╫я▀ -- п╥п╬п╫п╟ я┌п╦п©п╟ B п╦п╥ я│п©п╦я│п╨п╟
 		if (ZCMD.command == 'A')
 		{
 			sscanf(ptr, " %d", &Z.typeA_list[a_number]);

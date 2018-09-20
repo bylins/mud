@@ -24,8 +24,8 @@ public:
 	void save(FILE *saved) const;
 
 private:
-	// выполненные квесты
-	typedef std::map<int /* внум */, std::string /* текст данных конкретного квеста */> QuestedType;
+	// п╡я▀п©п╬п╩п╫п╣п╫п╫я▀п╣ п╨п╡п╣я│я┌я▀
+	typedef std::map<int /* п╡п╫я┐п╪ */, std::string /* я┌п╣п╨я│я┌ п╢п╟п╫п╫я▀я┘ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ п╨п╡п╣я│я┌п╟ */> QuestedType;
 
 	QuestedType quested_;
 };

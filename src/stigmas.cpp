@@ -14,7 +14,7 @@ void do_touch_stigma(CHAR_DATA *ch, char* argument, int, int)
 
 	if (!*buf)
 	{
-		send_to_char(ch, "Вы прикоснулись к себе. Приятно!\r\n");
+		send_to_char(ch, "п▓я▀ п©я─п╦п╨п╬я│п╫я┐п╩п╦я│я▄ п╨ я│п╣п╠п╣. п÷я─п╦я▐я┌п╫п╬!\r\n");
 		return;
 	}
 
@@ -24,7 +24,7 @@ void do_touch_stigma(CHAR_DATA *ch, char* argument, int, int)
 	}
 	else
 	{
-		sprintf(buf, "Вы прикоснулись к %s. Ничего не произошло.\r\n", vict->get_name().c_str());
+		sprintf(buf, "п▓я▀ п©я─п╦п╨п╬я│п╫я┐п╩п╦я│я▄ п╨ %s. п²п╦я┤п╣пЁп╬ п╫п╣ п©я─п╬п╦п╥п╬я┬п╩п╬.\r\n", vict->get_name().c_str());
 		send_to_char(buf, ch);
 	}
 }
@@ -34,19 +34,19 @@ std::string StigmaWear::get_name() const
 	return this->stigma.name;
 }
 
-// стигма огненный дракон
+// я│я┌п╦пЁп╪п╟ п╬пЁп╫п╣п╫п╫я▀п╧ п╢я─п╟п╨п╬п╫
 void stigma_fire_dragon(CHAR_DATA *ch)
 {
-	send_to_char(ch, "Вы прикоснулись к стигме с изображением огненного дракона.\r\n");
-	send_to_char(ch, "Рисунок вспыхнул и вы почуствовали небольшую боль.");
+	send_to_char(ch, "п▓я▀ п©я─п╦п╨п╬я│п╫я┐п╩п╦я│я▄ п╨ я│я┌п╦пЁп╪п╣ я│ п╦п╥п╬п╠я─п╟п╤п╣п╫п╦п╣п╪ п╬пЁп╫п╣п╫п╫п╬пЁп╬ п╢я─п╟п╨п╬п╫п╟.\r\n");
+	send_to_char(ch, "п═п╦я│я┐п╫п╬п╨ п╡я│п©я▀я┘п╫я┐п╩ п╦ п╡я▀ п©п╬я┤я┐я│я┌п╡п╬п╡п╟п╩п╦ п╫п╣п╠п╬п╩я▄я┬я┐я▌ п╠п╬п╩я▄.");
 }
 
-// инициализация стигм
+// п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ я│я┌п╦пЁп╪
 void init_stigmas()
 {
 	Stigma tmp;
 	tmp.id = STIGMA_FIRE_DRAGON;
-	tmp.name = "огненный дракон";
+	tmp.name = "п╬пЁп╫п╣п╫п╫я▀п╧ п╢я─п╟п╨п╬п╫";
 	tmp.activation_stigma = &stigma_fire_dragon;
 	tmp.reload = 10;
 	stigmas.push_back(tmp);

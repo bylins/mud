@@ -74,7 +74,7 @@ void script_save_to_disk(FILE * fp, const void *item, int type)
 }
 
 /**************************************************************************
- *  Ú≈ƒ¡À‘…“œ◊¡Œ…≈ ÙÚÈÁÁÂÚÔ˜
+ *  –†–µ–¥–∞–∫—Ç–∏—Ä–æ–≤–∞–Ω–∏–µ –¢–†–ò–ì–ì–ï–†–û–í
  *  trigedit
  **************************************************************************/
 
@@ -403,9 +403,9 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 
 	if ((trig_rnum = real_trigger(OLC_NUM(d))) != -1)
 	{
-		// ¸‘œ‘ ‘“…««≈“ ’÷≈ ≈”‘ÿ.
+		// –≠—Ç–æ—Ç —Ç—Ä–∏–≥–≥–µ—Ä —É–∂–µ –µ—Å—Ç—å.
 
-		// Ôﬁ…”‘À¡ –“œ‘œ‘…–¡
+		// –û—á–∏—Å—Ç–∫–∞ –ø—Ä–æ—Ç–æ—Ç–∏–ø–∞
 		proto = trig_index[trig_rnum]->proto;
 		proto->cmdlist.reset();
 
@@ -426,7 +426,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 				trigger->set_name("");
 				if (GET_TRIG_WAIT(trigger))
 				{
-					free(GET_TRIG_WAIT(trigger)->info);	// “…ﬁ…Œ¡ ’÷≈ œ¬”’÷ƒ¡Ã¡”ÿ
+					free(GET_TRIG_WAIT(trigger)->info);	// –ü—Ä–∏—á–∏–Ω–∞ —É–∂–µ –æ–±—Å—É–∂–¥–∞–ª–∞—Å—å
 					remove_event(GET_TRIG_WAIT(trigger));
 				}
 
@@ -458,7 +458,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 					new_index[trig_rnum]->func = NULL;
 					new_index[trig_rnum]->proto = new TRIG_DATA(*trig);
 					--i;
-					continue;	// –œ◊‘œ“…‘ÿ Àœ–…“œ◊¡Œ…≈ ≈›≈ “¡⁄, Œœ ’÷≈ –œ-ƒ“’«œÕ’
+					continue;	// –ø–æ–≤—Ç–æ—Ä–∏—Ç—å –∫–æ–ø–∏—Ä–æ–≤–∞–Ω–∏–µ –µ—â–µ —Ä–∞–∑, –Ω–æ —É–∂–µ –ø–æ-–¥—Ä—É–≥–æ–º—É
 				}
 				else
 				{
@@ -467,7 +467,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 			}
 			else
 			{
-				// ƒœÀœ–…“œ◊¡‘ÿ
+				// –¥–æ–∫–æ–ø–∏—Ä–æ–≤–∞—Ç—å
 				new_index[i + 1] = trig_index[i];
 				proto = trig_index[i]->proto;
 				proto->set_rnum(i + 1);
@@ -571,7 +571,7 @@ void trigedit_save(DESCRIPTOR_DATA * d)
 			else
 			{
 				char *p;
-				// ⁄¡Õ≈Œ¡ œƒ…ŒœﬁŒœ«œ '~' Œ¡ '~~'
+				// –∑–∞–º–µ–Ω–∞ –æ–¥–∏–Ω–æ—á–Ω–æ–≥–æ '~' –Ω–∞ '~~'
 				p = strtok(buf, "~");
 				fprintf(trig_file, "%s", p);
 				while ((p = strtok(NULL, "~")) != NULL)
@@ -662,19 +662,19 @@ void trigedit_create_index(int znum, const char *type)
 
 
 /**************************************************************************
- *  Ú≈ƒ¡À‘…“œ◊¡Œ…≈ ÚÔÙÔÙÈÔ˜ ÛÎÚÈÙÔ˜
+ *  –†–µ–¥–∞–∫—Ç–∏—Ä–æ–≤–∞–Ω–∏–µ –ü–†–û–¢–û–¢–ò–ü–û–í –°–ö–†–ò–ü–¢–û–í
  *  trigedit
  **************************************************************************/
 
 
 void dg_olc_script_free(DESCRIPTOR_DATA * d)
-//   ıƒ¡Ã≈Œ…≈ –“œ‘œ‘…–¡ ◊ OLC_SCRIPT
+//   –£–¥–∞–ª–µ–Ω–∏–µ –ø—Ä–æ—Ç–æ—Ç–∏–ø–∞ –≤ OLC_SCRIPT
 {
 	OLC_SCRIPT(d).clear();
 }
 
 void dg_olc_script_copy(DESCRIPTOR_DATA * d)
-//   Ûœ⁄ƒ¡Œ…≈ Àœ–…… –“œ‘œ‘…–¡ ”À“…–‘¡ ƒÃ— ‘≈À›≈«œ “≈ƒ¡À‘…“’≈Õœ«œ Õœ¬¡/œ¬ﬂ≈À‘¡/ÀœÕŒ¡‘Ÿ
+//   –°–æ–∑–¥–∞–Ω–∏–µ –∫–æ–ø–∏–∏ –ø—Ä–æ—Ç–æ—Ç–∏–ø–∞ —Å–∫—Ä–∏–ø—Ç–∞ –¥–ª—è —Ç–µ–∫—â–µ–≥–æ —Ä–µ–¥–∞–∫—Ç–∏—Ä—É–µ–º–æ–≥–æ –º–æ–±–∞/–æ–±—ä–µ–∫—Ç–∞/–∫–æ–º–Ω–∞—Ç—ã
 {
 	switch (OLC_ITEM_TYPE(d))
 	{
@@ -761,7 +761,7 @@ int dg_script_edit_parse(DESCRIPTOR_DATA * d, char *arg)
 			{
 				OLC_SCRIPT(d).swap(*OLC_ROOM(d)->proto_script);
 			}
-			// ‘’‘ break Œ≈ Œ’÷≈Œ
+			// —Ç—É—Ç break –Ω–µ –Ω—É–∂–µ–Ω
 
 			// fall through
 		case 'q':

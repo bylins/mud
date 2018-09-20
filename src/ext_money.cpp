@@ -46,12 +46,12 @@ bool need_torc(CHAR_DATA *ch);
 namespace ExtMoney
 {
 
-// на все эти переменные смотреть init()
+// п╫п╟ п╡я│п╣ я█я┌п╦ п©п╣я─п╣п╪п╣п╫п╫я▀п╣ я│п╪п╬я┌я─п╣я┌я▄ init()
 int TORC_EXCH_RATE = 999;
 std::map<std::string, std::string> plural_name_currency_map = {
-	{ "куны" , "денег" },
-	{ "слава" , "славы" },
-	{ "лед" , "льда" },
+	{ "п╨я┐п╫я▀" , "п╢п╣п╫п╣пЁ" },
+	{ "я│п╩п╟п╡п╟" , "я│п╩п╟п╡я▀" },
+	{ "п╩п╣п╢" , "п╩я▄п╢п╟" },
 };
 
 std::string name_currency_plural(std::string name)
@@ -61,7 +61,7 @@ std::string name_currency_plural(std::string name)
 	{
 		return (*it).second;
 	}
-	return "неизвестной валюты";
+	return "п╫п╣п╦п╥п╡п╣я│я┌п╫п╬п╧ п╡п╟п╩я▌я┌я▀";
 }
 
 struct type_node
@@ -69,37 +69,37 @@ struct type_node
 	type_node() : MORT_REQ(99), MORT_REQ_ADD_PER_MORT(99), MORT_NUM(99),
 		DROP_LVL(99), DROP_AMOUNT(0), DROP_AMOUNT_ADD_PER_LVL(0), MINIMUM_DAYS(99),
 		DESC_MESSAGE_NUM(0), DESC_MESSAGE_U_NUM(0) {};
-	// сколько гривен требуется на соответствующее право морта
+	// я│п╨п╬п╩я▄п╨п╬ пЁя─п╦п╡п╣п╫ я┌я─п╣п╠я┐п╣я┌я│я▐ п╫п╟ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╣п╣ п©я─п╟п╡п╬ п╪п╬я─я┌п╟
     int MORT_REQ;
-	// сколько добавлять к требованиям за каждый морт сверху
+	// я│п╨п╬п╩я▄п╨п╬ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╨ я┌я─п╣п╠п╬п╡п╟п╫п╦я▐п╪ п╥п╟ п╨п╟п╤п╢я▀п╧ п╪п╬я─я┌ я│п╡п╣я─я┘я┐
     int MORT_REQ_ADD_PER_MORT;
-	// с какого морта требуются какие гривны
+	// я│ п╨п╟п╨п╬пЁп╬ п╪п╬я─я┌п╟ я┌я─п╣п╠я┐я▌я┌я│я▐ п╨п╟п╨п╦п╣ пЁя─п╦п╡п╫я▀
     int MORT_NUM;
-	// с боссов зон какого мин. среднего уровня
+	// я│ п╠п╬я│я│п╬п╡ п╥п╬п╫ п╨п╟п╨п╬пЁп╬ п╪п╦п╫. я│я─п╣п╢п╫п╣пЁп╬ я┐я─п╬п╡п╫я▐
     int DROP_LVL;
-    // сколько дропать с базового ср. уровня
+    // я│п╨п╬п╩я▄п╨п╬ п╢я─п╬п©п╟я┌я▄ я│ п╠п╟п╥п╬п╡п╬пЁп╬ я│я─. я┐я─п╬п╡п╫я▐
     int DROP_AMOUNT;
-	// сколько накидывать за каждый уровень выше базового
+	// я│п╨п╬п╩я▄п╨п╬ п╫п╟п╨п╦п╢я▀п╡п╟я┌я▄ п╥п╟ п╨п╟п╤п╢я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╡я▀я┬п╣ п╠п╟п╥п╬п╡п╬пЁп╬
     int DROP_AMOUNT_ADD_PER_LVL;
-	// делитель требования гривен, определяет сколько дней минимум потребуется
-	// для набора необходимого на морт кол-ва гривен. например если делитель
-	// равен 7, а гривен для след. морта нужно 70 золотых, то за сутки персонажу
-	// дропнется не более 10 золотых гривен или их эквивалента
+	// п╢п╣п╩п╦я┌п╣п╩я▄ я┌я─п╣п╠п╬п╡п╟п╫п╦я▐ пЁя─п╦п╡п╣п╫, п╬п©я─п╣п╢п╣п╩я▐п╣я┌ я│п╨п╬п╩я▄п╨п╬ п╢п╫п╣п╧ п╪п╦п╫п╦п╪я┐п╪ п©п╬я┌я─п╣п╠я┐п╣я┌я│я▐
+	// п╢п╩я▐ п╫п╟п╠п╬я─п╟ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬пЁп╬ п╫п╟ п╪п╬я─я┌ п╨п╬п╩-п╡п╟ пЁя─п╦п╡п╣п╫. п╫п╟п©я─п╦п╪п╣я─ п╣я│п╩п╦ п╢п╣п╩п╦я┌п╣п╩я▄
+	// я─п╟п╡п╣п╫ 7, п╟ пЁя─п╦п╡п╣п╫ п╢п╩я▐ я│п╩п╣п╢. п╪п╬я─я┌п╟ п╫я┐п╤п╫п╬ 70 п╥п╬п╩п╬я┌я▀я┘, я┌п╬ п╥п╟ я│я┐я┌п╨п╦ п©п╣я─я│п╬п╫п╟п╤я┐
+	// п╢я─п╬п©п╫п╣я┌я│я▐ п╫п╣ п╠п╬п╩п╣п╣ 10 п╥п╬п╩п╬я┌я▀я┘ пЁя─п╦п╡п╣п╫ п╦п╩п╦ п╦я┘ я█п╨п╡п╦п╡п╟п╩п╣п╫я┌п╟
     int MINIMUM_DAYS;
-    // для сообщений через desc_count
+    // п╢п╩я▐ я│п╬п╬п╠я┴п╣п╫п╦п╧ я┤п╣я─п╣п╥ desc_count
     int DESC_MESSAGE_NUM;
     int DESC_MESSAGE_U_NUM;
 };
 
-// список типов гривен со всеми их параметрами
+// я│п©п╦я│п╬п╨ я┌п╦п©п╬п╡ пЁя─п╦п╡п╣п╫ я│п╬ п╡я│п╣п╪п╦ п╦я┘ п©п╟я─п╟п╪п╣я┌я─п╟п╪п╦
 std::array<type_node, TOTAL_TYPES> type_list;
 
 struct TorcReq
 {
 	TorcReq(int rmrt);
-	// тип гривн
+	// я┌п╦п© пЁя─п╦п╡п╫
 	unsigned type;
-	// кол-во
+	// п╨п╬п╩-п╡п╬
 	int amount;
 };
 
@@ -134,14 +134,14 @@ TorcReq::TorcReq(int rmrt)
 	}
 }
 
-// обмен гривн
+// п╬п╠п╪п╣п╫ пЁя─п╦п╡п╫
 void torc_exch_menu(CHAR_DATA *ch);
 void parse_inc_exch(CHAR_DATA *ch, int amount, int num);
 void parse_dec_exch(CHAR_DATA *ch, int amount, int num);
 int check_input_amount(CHAR_DATA *ch, int num1, int num2);
 bool check_equal_exch(CHAR_DATA *ch);
 void torc_exch_parse(CHAR_DATA *ch, const char *arg);
-// дроп гривн
+// п╢я─п╬п© пЁя─п╦п╡п╫
 std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze);
 bool has_connected_bosses(CHAR_DATA *ch);
 unsigned calc_type_by_zone_lvl(int zone_lvl);
@@ -155,58 +155,58 @@ void drop_torc(CHAR_DATA *mob);
 namespace ExtMoney
 {
 
-// распечатка меню обмена гривен ('менять' у глашатая)
+// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╪п╣п╫я▌ п╬п╠п╪п╣п╫п╟ пЁя─п╦п╡п╣п╫ ('п╪п╣п╫я▐я┌я▄' я┐ пЁп╩п╟я┬п╟я┌п╟я▐)
 void torc_exch_menu(CHAR_DATA *ch)
 {
 	boost::format menu("   %s%d) %s%-17s%s -> %s%-17s%s [%d -> %d]\r\n");
 	std::stringstream out;
 
 	out << "\r\n"
-		"   Курсы обмена гривен:\r\n"
-		"   " << TORC_EXCH_RATE << "  бронзовых <-> 1 серебряная\r\n"
-		"   " << TORC_EXCH_RATE << " серебряных <-> 1 золотая\r\n\r\n";
+		"   п я┐я─я│я▀ п╬п╠п╪п╣п╫п╟ пЁя─п╦п╡п╣п╫:\r\n"
+		"   " << TORC_EXCH_RATE << "  п╠я─п╬п╫п╥п╬п╡я▀я┘ <-> 1 я│п╣я─п╣п╠я─я▐п╫п╟я▐\r\n"
+		"   " << TORC_EXCH_RATE << " я│п╣я─п╣п╠я─я▐п╫я▀я┘ <-> 1 п╥п╬п╩п╬я┌п╟я▐\r\n\r\n";
 
-	out << "   Текущий баланс: "
-		<< CCIYEL(ch, C_NRM) << ch->desc->ext_money[TORC_GOLD] << "з "
-		<< CCWHT(ch, C_NRM) << ch->desc->ext_money[TORC_SILVER] << "с "
-		<< CCYEL(ch, C_NRM) << ch->desc->ext_money[TORC_BRONZE] << "б\r\n\r\n";
+	out << "   п╒п╣п╨я┐я┴п╦п╧ п╠п╟п╩п╟п╫я│: "
+		<< CCIYEL(ch, C_NRM) << ch->desc->ext_money[TORC_GOLD] << "п╥ "
+		<< CCWHT(ch, C_NRM) << ch->desc->ext_money[TORC_SILVER] << "я│ "
+		<< CCYEL(ch, C_NRM) << ch->desc->ext_money[TORC_BRONZE] << "п╠\r\n\r\n";
 
 	out << menu
 		% CCGRN(ch, C_NRM) % 1
-		% CCYEL(ch, C_NRM) % "Бронзовые гривны" % CCNRM(ch, C_NRM)
-		% CCWHT(ch, C_NRM) % "Серебряные гривны" % CCNRM(ch, C_NRM)
+		% CCYEL(ch, C_NRM) % "п▒я─п╬п╫п╥п╬п╡я▀п╣ пЁя─п╦п╡п╫я▀" % CCNRM(ch, C_NRM)
+		% CCWHT(ch, C_NRM) % "п║п╣я─п╣п╠я─я▐п╫я▀п╣ пЁя─п╦п╡п╫я▀" % CCNRM(ch, C_NRM)
 		% TORC_EXCH_RATE % 1;
 	out << menu
 		% CCGRN(ch, C_NRM) % 2
-		% CCWHT(ch, C_NRM) % "Серебряные гривны" % CCNRM(ch, C_NRM)
-		% CCIYEL(ch, C_NRM) % "Золотые гривны" % CCNRM(ch, C_NRM)
+		% CCWHT(ch, C_NRM) % "п║п╣я─п╣п╠я─я▐п╫я▀п╣ пЁя─п╦п╡п╫я▀" % CCNRM(ch, C_NRM)
+		% CCIYEL(ch, C_NRM) % "п≈п╬п╩п╬я┌я▀п╣ пЁя─п╦п╡п╫я▀" % CCNRM(ch, C_NRM)
 		% TORC_EXCH_RATE % 1;
 	out << "\r\n"
 		<< menu
 		% CCGRN(ch, C_NRM) % 3
-		% CCIYEL(ch, C_NRM) % "Золотые гривны" % CCNRM(ch, C_NRM)
-		% CCWHT(ch, C_NRM) % "Серебряные гривны" % CCNRM(ch, C_NRM)
+		% CCIYEL(ch, C_NRM) % "п≈п╬п╩п╬я┌я▀п╣ пЁя─п╦п╡п╫я▀" % CCNRM(ch, C_NRM)
+		% CCWHT(ch, C_NRM) % "п║п╣я─п╣п╠я─я▐п╫я▀п╣ пЁя─п╦п╡п╫я▀" % CCNRM(ch, C_NRM)
 		% 1 % TORC_EXCH_RATE;
 	out << menu
 		% CCGRN(ch, C_NRM) % 4
-		% CCWHT(ch, C_NRM) % "Серебряные гривны" % CCNRM(ch, C_NRM)
-		% CCYEL(ch, C_NRM) % "Бронзовые гривны" % CCNRM(ch, C_NRM)
+		% CCWHT(ch, C_NRM) % "п║п╣я─п╣п╠я─я▐п╫я▀п╣ пЁя─п╦п╡п╫я▀" % CCNRM(ch, C_NRM)
+		% CCYEL(ch, C_NRM) % "п▒я─п╬п╫п╥п╬п╡я▀п╣ пЁя─п╦п╡п╫я▀" % CCNRM(ch, C_NRM)
 		% 1 % TORC_EXCH_RATE;
 
 	out << "\r\n"
-		"   <номер действия> - один минимальный обмен указанного вида\r\n"
-		"   <номер действия> <число х> - обмен х имеющихся гривен\r\n\r\n";
+		"   <п╫п╬п╪п╣я─ п╢п╣п╧я│я┌п╡п╦я▐> - п╬п╢п╦п╫ п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п╬п╠п╪п╣п╫ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ п╡п╦п╢п╟\r\n"
+		"   <п╫п╬п╪п╣я─ п╢п╣п╧я│я┌п╡п╦я▐> <я┤п╦я│п╩п╬ я┘> - п╬п╠п╪п╣п╫ я┘ п╦п╪п╣я▌я┴п╦я┘я│я▐ пЁя─п╦п╡п╣п╫\r\n\r\n";
 
 	out << CCGRN(ch, C_NRM) << "   5)"
-		<< CCNRM(ch, C_NRM) << " Отменить обмен и выйти\r\n"
+		<< CCNRM(ch, C_NRM) << " п·я┌п╪п╣п╫п╦я┌я▄ п╬п╠п╪п╣п╫ п╦ п╡я▀п╧я┌п╦\r\n"
 		<< CCGRN(ch, C_NRM) << "   6)"
-		<< CCNRM(ch, C_NRM) << " Подтвердить обмен и выйти\r\n\r\n"
-		<< "   Ваш выбор:";
+		<< CCNRM(ch, C_NRM) << " п÷п╬п╢я┌п╡п╣я─п╢п╦я┌я▄ п╬п╠п╪п╣п╫ п╦ п╡я▀п╧я┌п╦\r\n\r\n"
+		<< "   п▓п╟я┬ п╡я▀п╠п╬я─:";
 
 	send_to_char(out.str(), ch);
 }
 
-// обмен в сторону больших гривен
+// п╬п╠п╪п╣п╫ п╡ я│я┌п╬я─п╬п╫я┐ п╠п╬п╩я▄я┬п╦я┘ пЁя─п╦п╡п╣п╫
 void parse_inc_exch(CHAR_DATA *ch, int amount, int num)
 {
 	int torc_from = TORC_BRONZE;
@@ -223,15 +223,15 @@ void parse_inc_exch(CHAR_DATA *ch, int amount, int num)
 	{
 		if (ch->desc->ext_money[torc_from] < torc_rate)
 		{
-			send_to_char("Нет необходимого количества гривен!\r\n", ch);
+			send_to_char("п²п╣я┌ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬пЁп╬ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ пЁя─п╦п╡п╣п╫!\r\n", ch);
 		}
 		else
 		{
 			amount = ch->desc->ext_money[torc_from] / torc_rate * torc_rate;
-			send_to_char(ch, "Количество меняемых гривен уменьшено до %d.\r\n", amount);
+			send_to_char(ch, "п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╪п╣п╫я▐п╣п╪я▀я┘ пЁя─п╦п╡п╣п╫ я┐п╪п╣п╫я▄я┬п╣п╫п╬ п╢п╬ %d.\r\n", amount);
 			ch->desc->ext_money[torc_from] -= amount;
 			ch->desc->ext_money[torc_to] += amount / torc_rate;
-			send_to_char(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount / torc_rate);
+			send_to_char(ch, "п÷я─п╬п╦п╥п╡п╣п╢п╣п╫ п╬п╠п╪п╣п╫: %d -> %d.\r\n", amount, amount / torc_rate);
 		}
 	}
 	else
@@ -239,15 +239,15 @@ void parse_inc_exch(CHAR_DATA *ch, int amount, int num)
 		int real_amount = amount / torc_rate * torc_rate;
 		if (real_amount != amount)
 		{
-			send_to_char(ch, "Количество меняемых гривен уменьшено до %d.\r\n", real_amount);
+			send_to_char(ch, "п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╪п╣п╫я▐п╣п╪я▀я┘ пЁя─п╦п╡п╣п╫ я┐п╪п╣п╫я▄я┬п╣п╫п╬ п╢п╬ %d.\r\n", real_amount);
 		}
 		ch->desc->ext_money[torc_from] -= real_amount;
 		ch->desc->ext_money[torc_to] += real_amount / torc_rate;
-		send_to_char(ch, "Произведен обмен: %d -> %d.\r\n", real_amount, real_amount / torc_rate);
+		send_to_char(ch, "п÷я─п╬п╦п╥п╡п╣п╢п╣п╫ п╬п╠п╪п╣п╫: %d -> %d.\r\n", real_amount, real_amount / torc_rate);
 	}
 }
 
-// обмен в сторону меньших гривен
+// п╬п╠п╪п╣п╫ п╡ я│я┌п╬я─п╬п╫я┐ п╪п╣п╫я▄я┬п╦я┘ пЁя─п╦п╡п╣п╫
 void parse_dec_exch(CHAR_DATA *ch, int amount, int num)
 {
 	int torc_from = TORC_GOLD;
@@ -264,27 +264,27 @@ void parse_dec_exch(CHAR_DATA *ch, int amount, int num)
 	{
 		if (ch->desc->ext_money[torc_from] < 1)
 		{
-			send_to_char("Нет необходимого количества гривен!\r\n", ch);
+			send_to_char("п²п╣я┌ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬пЁп╬ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ пЁя─п╦п╡п╣п╫!\r\n", ch);
 		}
 		else
 		{
 			amount = ch->desc->ext_money[torc_from];
-			send_to_char(ch, "Количество меняемых гривен уменьшено до %d.\r\n", amount);
+			send_to_char(ch, "п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╪п╣п╫я▐п╣п╪я▀я┘ пЁя─п╦п╡п╣п╫ я┐п╪п╣п╫я▄я┬п╣п╫п╬ п╢п╬ %d.\r\n", amount);
 
 			ch->desc->ext_money[torc_from] -= amount;
 			ch->desc->ext_money[torc_to] += amount * torc_rate;
-			send_to_char(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount * torc_rate);
+			send_to_char(ch, "п÷я─п╬п╦п╥п╡п╣п╢п╣п╫ п╬п╠п╪п╣п╫: %d -> %d.\r\n", amount, amount * torc_rate);
 		}
 	}
 	else
 	{
 		ch->desc->ext_money[torc_from] -= amount;
 		ch->desc->ext_money[torc_to] += amount * torc_rate;
-		send_to_char(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount * torc_rate);
+		send_to_char(ch, "п÷я─п╬п╦п╥п╡п╣п╢п╣п╫ п╬п╠п╪п╣п╫: %d -> %d.\r\n", amount, amount * torc_rate);
 	}
 }
 
-// кол-во меняемых гривен
+// п╨п╬п╩-п╡п╬ п╪п╣п╫я▐п╣п╪я▀я┘ пЁя─п╦п╡п╣п╫
 int check_input_amount(CHAR_DATA* /*ch*/, int num1, int num2)
 {
 	if ((num1 == 1 || num1 == 2) && num2 < TORC_EXCH_RATE)
@@ -298,7 +298,7 @@ int check_input_amount(CHAR_DATA* /*ch*/, int num1, int num2)
 	return 0;
 }
 
-// проверка после обмена, что ничего лишнего не сгенерили случайно
+// п©я─п╬п╡п╣я─п╨п╟ п©п╬я│п╩п╣ п╬п╠п╪п╣п╫п╟, я┤я┌п╬ п╫п╦я┤п╣пЁп╬ п╩п╦я┬п╫п╣пЁп╬ п╫п╣ я│пЁп╣п╫п╣я─п╦п╩п╦ я│п╩я┐я┤п╟п╧п╫п╬
 bool check_equal_exch(CHAR_DATA *ch)
 {
 	int before = 0, after = 0;
@@ -330,12 +330,12 @@ bool check_equal_exch(CHAR_DATA *ch)
 	return true;
 }
 
-// парс ввода при обмене гривен
+// п©п╟я─я│ п╡п╡п╬п╢п╟ п©я─п╦ п╬п╠п╪п╣п╫п╣ пЁя─п╦п╡п╣п╫
 void torc_exch_parse(CHAR_DATA *ch, const char *arg)
 {
 	if (!*arg || !a_isdigit(*arg))
 	{
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		torc_exch_menu(ch);
 		return;
 	}
@@ -359,7 +359,7 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg)
 		log("SYSERROR: invalid_argument arg=%s (%s %s %d)",
 			arg, __FILE__, __func__, __LINE__);
 
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		torc_exch_menu(ch);
 		return;
 	}
@@ -367,18 +367,18 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg)
 	int amount = num2;
 	if (!param2.empty())
 	{
-		// ввели два числа - проверка пользовательского ввода кол-ва гривен
+		// п╡п╡п╣п╩п╦ п╢п╡п╟ я┤п╦я│п╩п╟ - п©я─п╬п╡п╣я─п╨п╟ п©п╬п╩я▄п╥п╬п╡п╟я┌п╣п╩я▄я│п╨п╬пЁп╬ п╡п╡п╬п╢п╟ п╨п╬п╩-п╡п╟ пЁя─п╦п╡п╣п╫
 		int min_amount = check_input_amount(ch, num1, amount);
 		if (min_amount > 0)
 		{
-			send_to_char(ch, "Минимальное количество гривен для данного обмена: %d.", min_amount);
+			send_to_char(ch, "п°п╦п╫п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ пЁя─п╦п╡п╣п╫ п╢п╩я▐ п╢п╟п╫п╫п╬пЁп╬ п╬п╠п╪п╣п╫п╟: %d.", min_amount);
 			torc_exch_menu(ch);
 			return;
 		}
 	}
 	else
 	{
-		// ввели одно число - проставляем минимальный обмен
+		// п╡п╡п╣п╩п╦ п╬п╢п╫п╬ я┤п╦я│п╩п╬ - п©я─п╬я│я┌п╟п╡п╩я▐п╣п╪ п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ п╬п╠п╪п╣п╫
 		if (num1 == 1 || num1 == 2)
 		{
 			amount = TORC_EXCH_RATE;
@@ -388,7 +388,7 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg)
 			amount = 1;
 		}
 	}
-	// собсна обмен
+	// я│п╬п╠я│п╫п╟ п╬п╠п╪п╣п╫
 	if (num1 == 1 || num1 == 2)
 	{
 		parse_inc_exch(ch, amount, num1);
@@ -400,14 +400,14 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg)
 	else if (num1 == 5)
 	{
 		STATE(ch->desc) = CON_PLAYING;
-		send_to_char("Обмен отменен.\r\n", ch);
+		send_to_char("п·п╠п╪п╣п╫ п╬я┌п╪п╣п╫п╣п╫.\r\n", ch);
 		return;
 	}
 	else if (num1 == 6)
 	{
 		if (!check_equal_exch(ch))
 		{
-			send_to_char("Обмен отменен по техническим причинам, обратитесь к Богам.\r\n", ch);
+			send_to_char("п·п╠п╪п╣п╫ п╬я┌п╪п╣п╫п╣п╫ п©п╬ я┌п╣я┘п╫п╦я┤п╣я│п╨п╦п╪ п©я─п╦я┤п╦п╫п╟п╪, п╬п╠я─п╟я┌п╦я┌п╣я│я▄ п╨ п▒п╬пЁп╟п╪.\r\n", ch);
 		}
 		else
 		{
@@ -416,19 +416,19 @@ void torc_exch_parse(CHAR_DATA *ch, const char *arg)
 				ch->set_ext_money(i, ch->desc->ext_money[i]);
 			}
 			STATE(ch->desc) = CON_PLAYING;
-			send_to_char("Обмен произведен.\r\n", ch);
+			send_to_char("п·п╠п╪п╣п╫ п©я─п╬п╦п╥п╡п╣п╢п╣п╫.\r\n", ch);
 		}
 		return;
 	}
 	else
 	{
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 	}
 	torc_exch_menu(ch);
 }
 
-// формирование сообщения о награде гривнами при смерти босса
-// пишет в одну строку о нескольких видах гривен, если таковые были
+// я└п╬я─п╪п╦я─п╬п╡п╟п╫п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╬ п╫п╟пЁя─п╟п╢п╣ пЁя─п╦п╡п╫п╟п╪п╦ п©я─п╦ я│п╪п╣я─я┌п╦ п╠п╬я│я│п╟
+// п©п╦я┬п╣я┌ п╡ п╬п╢п╫я┐ я│я┌я─п╬п╨я┐ п╬ п╫п╣я│п╨п╬п╩я▄п╨п╦я┘ п╡п╦п╢п╟я┘ пЁя─п╦п╡п╣п╫, п╣я│п╩п╦ я┌п╟п╨п╬п╡я▀п╣ п╠я▀п╩п╦
 std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze)
 {
 	std::stringstream out;
@@ -453,11 +453,11 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze)
 			{
 				out << ", " << CCWHT(ch, C_NRM) << silver << " "
 					<< desc_count(silver, type_list[TORC_SILVER].DESC_MESSAGE_U_NUM)
-					<< CCNRM(ch, C_NRM) << " и ";
+					<< CCNRM(ch, C_NRM) << " п╦ ";
 			}
 			else
 			{
-				out << " и " << CCWHT(ch, C_NRM) << silver << " "
+				out << " п╦ " << CCWHT(ch, C_NRM) << silver << " "
 					<< desc_count(silver, type_list[TORC_SILVER].DESC_MESSAGE_U_NUM)
 					<< " " << desc_count(silver, WHAT_TORCu)
 					<< CCNRM(ch, C_NRM);
@@ -469,7 +469,7 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze)
 				<< desc_count(silver, type_list[TORC_SILVER].DESC_MESSAGE_U_NUM);
 			if (bronze > 0)
 			{
-				out << CCNRM(ch, C_NRM) << " и ";
+				out << CCNRM(ch, C_NRM) << " п╦ ";
 			}
 			else
 			{
@@ -488,11 +488,11 @@ std::string create_message(CHAR_DATA *ch, int gold, int silver, int bronze)
 	return out.str();
 }
 
-// проверка на случай нескольких физических боссов,
-// которые логически являются одной группой, предотвращающая лишний дроп гривен
+// п©я─п╬п╡п╣я─п╨п╟ п╫п╟ я│п╩я┐я┤п╟п╧ п╫п╣я│п╨п╬п╩я▄п╨п╦я┘ я└п╦п╥п╦я┤п╣я│п╨п╦я┘ п╠п╬я│я│п╬п╡,
+// п╨п╬я┌п╬я─я▀п╣ п╩п╬пЁп╦я┤п╣я│п╨п╦ я▐п╡п╩я▐я▌я┌я│я▐ п╬п╢п╫п╬п╧ пЁя─я┐п©п©п╬п╧, п©я─п╣п╢п╬я┌п╡я─п╟я┴п╟я▌я┴п╟я▐ п╩п╦я┬п╫п╦п╧ п╢я─п╬п© пЁя─п╦п╡п╣п╫
 bool has_connected_bosses(CHAR_DATA *ch)
 {
-	// если в комнате есть другие живые боссы
+	// п╣я│п╩п╦ п╡ п╨п╬п╪п╫п╟я┌п╣ п╣я│я┌я▄ п╢я─я┐пЁп╦п╣ п╤п╦п╡я▀п╣ п╠п╬я│я│я▀
 	for (const auto i : world[ch->in_room]->people)
 	{
 		if (i != ch
@@ -503,7 +503,7 @@ bool has_connected_bosses(CHAR_DATA *ch)
 			return true;
 		}
 	}
-	// если у данного моба есть живые последователи-боссы
+	// п╣я│п╩п╦ я┐ п╢п╟п╫п╫п╬пЁп╬ п╪п╬п╠п╟ п╣я│я┌я▄ п╤п╦п╡я▀п╣ п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩п╦-п╠п╬я│я│я▀
 	for (follow_type *i = ch->followers; i; i = i->next)
 	{
 		if (i->follower != ch
@@ -515,7 +515,7 @@ bool has_connected_bosses(CHAR_DATA *ch)
 			return true;
 		}
 	}
-	// если он сам следует за каким-то боссом
+	// п╣я│п╩п╦ п╬п╫ я│п╟п╪ я│п╩п╣п╢я┐п╣я┌ п╥п╟ п╨п╟п╨п╦п╪-я┌п╬ п╠п╬я│я│п╬п╪
 	if (ch->has_master() && ch->get_master()->get_role(MOB_ROLE_BOSS))
 	{
 		return true;
@@ -524,7 +524,7 @@ bool has_connected_bosses(CHAR_DATA *ch)
 	return false;
 }
 
-// выясняет какой тип гривен дропать с зоны
+// п╡я▀я▐я│п╫я▐п╣я┌ п╨п╟п╨п╬п╧ я┌п╦п© пЁя─п╦п╡п╣п╫ п╢я─п╬п©п╟я┌я▄ я│ п╥п╬п╫я▀
 unsigned calc_type_by_zone_lvl(int zone_lvl)
 {
 	if (zone_lvl >= type_list[TORC_GOLD].DROP_LVL)
@@ -542,8 +542,8 @@ unsigned calc_type_by_zone_lvl(int zone_lvl)
 	return TOTAL_TYPES;
 }
 
-// возвращает кол-во гривен с босса зоны уровня zone_lvl, поделенных
-// с учетом группы members и пересчитанных в бронзу
+// п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ п╨п╬п╩-п╡п╬ пЁя─п╦п╡п╣п╫ я│ п╠п╬я│я│п╟ п╥п╬п╫я▀ я┐я─п╬п╡п╫я▐ zone_lvl, п©п╬п╢п╣п╩п╣п╫п╫я▀я┘
+// я│ я┐я┤п╣я┌п╬п╪ пЁя─я┐п©п©я▀ members п╦ п©п╣я─п╣я│я┤п╦я┌п╟п╫п╫я▀я┘ п╡ п╠я─п╬п╫п╥я┐
 int calc_drop_torc(int zone_lvl, int members)
 {
 	const unsigned type = calc_type_by_zone_lvl(zone_lvl);
@@ -554,7 +554,7 @@ int calc_drop_torc(int zone_lvl, int members)
 	const int add = zone_lvl - type_list[type].DROP_LVL;
 	int drop = type_list[type].DROP_AMOUNT + add * type_list[type].DROP_AMOUNT_ADD_PER_LVL;
 
-	// пересчитываем дроп к минимальному типу
+	// п©п╣я─п╣я│я┤п╦я┌я▀п╡п╟п╣п╪ п╢я─п╬п© п╨ п╪п╦п╫п╦п╪п╟п╩я▄п╫п╬п╪я┐ я┌п╦п©я┐
 	if (type == TORC_GOLD)
 	{
 		drop = drop * TORC_EXCH_RATE * TORC_EXCH_RATE;
@@ -564,13 +564,13 @@ int calc_drop_torc(int zone_lvl, int members)
 		drop = drop * TORC_EXCH_RATE;
 	}
 
-	// есть ли вообще что дропать
+	// п╣я│я┌я▄ п╩п╦ п╡п╬п╬п╠я┴п╣ я┤я┌п╬ п╢я─п╬п©п╟я┌я▄
 	if (drop < members)
 	{
 		return 0;
 	}
 
-	// после этого уже применяем делитель группы
+	// п©п╬я│п╩п╣ я█я┌п╬пЁп╬ я┐п╤п╣ п©я─п╦п╪п╣п╫я▐п╣п╪ п╢п╣п╩п╦я┌п╣п╩я▄ пЁя─я┐п©п©я▀
 	if (members > 1)
 	{
 		drop = drop / members;
@@ -579,8 +579,8 @@ int calc_drop_torc(int zone_lvl, int members)
 	return drop;
 }
 
-// по дефолту отрисовка * за каждую 1/5 от суточного лимита гривен
-// если imm_stat == true, то вместо звездочек конкретные цифры тек/макс
+// п©п╬ п╢п╣я└п╬п╩я┌я┐ п╬я┌я─п╦я│п╬п╡п╨п╟ * п╥п╟ п╨п╟п╤п╢я┐я▌ 1/5 п╬я┌ я│я┐я┌п╬я┤п╫п╬пЁп╬ п╩п╦п╪п╦я┌п╟ пЁя─п╦п╡п╣п╫
+// п╣я│п╩п╦ imm_stat == true, я┌п╬ п╡п╪п╣я│я┌п╬ п╥п╡п╣п╥п╢п╬я┤п╣п╨ п╨п╬п╫п╨я─п╣я┌п╫я▀п╣ я├п╦я└я─я▀ я┌п╣п╨/п╪п╟п╨я│
 std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat)
 {
 	const int today_torc = ch->get_today_torc();
@@ -617,14 +617,14 @@ std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat)
 	return out;
 }
 
-// проверка дропа гривен на суточный замакс
+// п©я─п╬п╡п╣я─п╨п╟ п╢я─п╬п©п╟ пЁя─п╦п╡п╣п╫ п╫п╟ я│я┐я┌п╬я┤п╫я▀п╧ п╥п╟п╪п╟п╨я│
 int check_daily_limit(CHAR_DATA *ch, int drop)
 {
 	const int today_torc = ch->get_today_torc();
 	const int torc_req_daily = calc_torc_daily(GET_REMORT(ch));
 
-	// из calc_torc_daily в любом случае взялось какое-то число бронзы
-	// даже если чар не имеет мортов для требования гривен
+	// п╦п╥ calc_torc_daily п╡ п╩я▌п╠п╬п╪ я│п╩я┐я┤п╟п╣ п╡п╥я▐п╩п╬я│я▄ п╨п╟п╨п╬п╣-я┌п╬ я┤п╦я│п╩п╬ п╠я─п╬п╫п╥я▀
+	// п╢п╟п╤п╣ п╣я│п╩п╦ я┤п╟я─ п╫п╣ п╦п╪п╣п╣я┌ п╪п╬я─я┌п╬п╡ п╢п╩я▐ я┌я─п╣п╠п╬п╡п╟п╫п╦я▐ пЁя─п╦п╡п╣п╫
 	TorcReq torc_req(GET_REMORT(ch));
 	if (torc_req.type >= TOTAL_TYPES)
 	{
@@ -650,17 +650,17 @@ int check_daily_limit(CHAR_DATA *ch, int drop)
 	return drop;
 }
 
-// процесс дропа гривен конкретному чару
+// п©я─п╬я├п╣я│я│ п╢я─п╬п©п╟ пЁя─п╦п╡п╣п╫ п╨п╬п╫п╨я─п╣я┌п╫п╬п╪я┐ я┤п╟я─я┐
 void gain_torc(CHAR_DATA *ch, int drop)
 {
-	// проверка на индивидуальный суточный замакс гривн
+	// п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п╦п╫п╢п╦п╡п╦п╢я┐п╟п╩я▄п╫я▀п╧ я│я┐я┌п╬я┤п╫я▀п╧ п╥п╟п╪п╟п╨я│ пЁя─п╦п╡п╫
 	int bronze = check_daily_limit(ch, drop);
 	if (bronze <= 0)
 	{
 		return;
 	}
 	int gold = 0, silver = 0;
-	// и разносим что осталось обратно по типам
+	// п╦ я─п╟п╥п╫п╬я│п╦п╪ я┤я┌п╬ п╬я│я┌п╟п╩п╬я│я▄ п╬п╠я─п╟я┌п╫п╬ п©п╬ я┌п╦п©п╟п╪
 	if (bronze >= TORC_EXCH_RATE * TORC_EXCH_RATE)
 	{
 		gold += bronze / (TORC_EXCH_RATE * TORC_EXCH_RATE);
@@ -676,14 +676,14 @@ void gain_torc(CHAR_DATA *ch, int drop)
 	ch->set_ext_money(TORC_BRONZE, bronze + ch->get_ext_money(TORC_BRONZE));
 
 	std::string out = create_message(ch, gold, silver, bronze);
-	send_to_char(ch, "В награду за свершенный подвиг вы получили от Богов %s.\r\n", out.c_str());
+	send_to_char(ch, "п▓ п╫п╟пЁя─п╟п╢я┐ п╥п╟ я│п╡п╣я─я┬п╣п╫п╫я▀п╧ п©п╬п╢п╡п╦пЁ п╡я▀ п©п╬п╩я┐я┤п╦п╩п╦ п╬я┌ п▒п╬пЁп╬п╡ %s.\r\n", out.c_str());
 
 }
 
-// дергается из экстракт_чар, у босса берется макс дамагер, находящийся
-// в той же комнате, группе готорого и раскидываются гривны, если есть
-// кому раскидывать (флаг GF_REMORT, проверка на делимость гривен, проверка на
-// то, что чар находился в комнате с мобом не менее половины раундов дамагера)
+// п╢п╣я─пЁп╟п╣я┌я│я▐ п╦п╥ я█п╨я│я┌я─п╟п╨я┌_я┤п╟я─, я┐ п╠п╬я│я│п╟ п╠п╣я─п╣я┌я│я▐ п╪п╟п╨я│ п╢п╟п╪п╟пЁп╣я─, п╫п╟я┘п╬п╢я▐я┴п╦п╧я│я▐
+// п╡ я┌п╬п╧ п╤п╣ п╨п╬п╪п╫п╟я┌п╣, пЁя─я┐п©п©п╣ пЁп╬я┌п╬я─п╬пЁп╬ п╦ я─п╟я│п╨п╦п╢я▀п╡п╟я▌я┌я│я▐ пЁя─п╦п╡п╫я▀, п╣я│п╩п╦ п╣я│я┌я▄
+// п╨п╬п╪я┐ я─п╟я│п╨п╦п╢я▀п╡п╟я┌я▄ (я└п╩п╟пЁ GF_REMORT, п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п╢п╣п╩п╦п╪п╬я│я┌я▄ пЁя─п╦п╡п╣п╫, п©я─п╬п╡п╣я─п╨п╟ п╫п╟
+// я┌п╬, я┤я┌п╬ я┤п╟я─ п╫п╟я┘п╬п╢п╦п╩я│я▐ п╡ п╨п╬п╪п╫п╟я┌п╣ я│ п╪п╬п╠п╬п╪ п╫п╣ п╪п╣п╫п╣п╣ п©п╬п╩п╬п╡п╦п╫я▀ я─п╟я┐п╫п╢п╬п╡ п╢п╟п╪п╟пЁп╣я─п╟)
 void drop_torc(CHAR_DATA *mob)
 {
 	if (!mob->get_role(MOB_ROLE_BOSS)
@@ -767,7 +767,7 @@ void player_drop_log(CHAR_DATA *ch, unsigned type, int diff)
 namespace Remort
 {
 
-// релоадится через 'reload remort.xml'
+// я─п╣п╩п╬п╟п╢п╦я┌я│я▐ я┤п╣я─п╣п╥ 'reload remort.xml'
 void init()
 {
 	pugi::xml_document doc;
@@ -814,7 +814,7 @@ void init()
 	type_list[TORC_BRONZE].DROP_AMOUNT_ADD_PER_LVL = Parse::child_value_int(main_node, "BRONZE_DROP_AMOUNT_ADD_PER_LVL");
 	type_list[TORC_BRONZE].MINIMUM_DAYS = Parse::child_value_int(main_node, "BRONZE_MINIMUM_DAYS");
 
-	// не из конфига, но инится заодно со всеми
+	// п╫п╣ п╦п╥ п╨п╬п╫я└п╦пЁп╟, п╫п╬ п╦п╫п╦я┌я│я▐ п╥п╟п╬п╢п╫п╬ я│п╬ п╡я│п╣п╪п╦
 	type_list[TORC_GOLD].DESC_MESSAGE_NUM = WHAT_TGOLD;
 	type_list[TORC_SILVER].DESC_MESSAGE_NUM = WHAT_TSILVER;
 	type_list[TORC_BRONZE].DESC_MESSAGE_NUM = WHAT_TBRONZE;
@@ -823,7 +823,7 @@ void init()
 	type_list[TORC_BRONZE].DESC_MESSAGE_U_NUM = WHAT_TBRONZEu;
 }
 
-// проверка, мешает ли что-то чару уйти в реморт
+// п©я─п╬п╡п╣я─п╨п╟, п╪п╣я┬п╟п╣я┌ п╩п╦ я┤я┌п╬-я┌п╬ я┤п╟я─я┐ я┐п╧я┌п╦ п╡ я─п╣п╪п╬я─я┌
 bool can_remort_now(CHAR_DATA *ch)
 {
 	if (PRF_FLAGGED(ch, PRF_CAN_REMORT) || !need_torc(ch))
@@ -833,11 +833,11 @@ bool can_remort_now(CHAR_DATA *ch)
 	return false;
 }
 
-// распечатка переменных из конфига
+// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п©п╣я─п╣п╪п╣п╫п╫я▀я┘ п╦п╥ п╨п╬п╫я└п╦пЁп╟
 void show_config(CHAR_DATA *ch)
 {
 	std::stringstream out;
-	out << "&SТекущие значения основных параметров:\r\n"
+	out << "&Sп╒п╣п╨я┐я┴п╦п╣ п╥п╫п╟я┤п╣п╫п╦я▐ п╬я│п╫п╬п╡п╫я▀я┘ п©п╟я─п╟п╪п╣я┌я─п╬п╡:\r\n"
 		<< "WHERE_TO_REMORT_STR = " << WHERE_TO_REMORT_STR << "\r\n"
 		<< "TORC_EXCH_RATE = " << TORC_EXCH_RATE << "\r\n"
 
@@ -868,8 +868,8 @@ void show_config(CHAR_DATA *ch)
 	send_to_char(out.str(), ch);
 }
 
-// возвращает требование гривен на морт в пересчете на бронзу
-// для лоу-мортов берется требование бронзы базового уровня
+// п╡п╬п╥п╡я─п╟я┴п╟п╣я┌ я┌я─п╣п╠п╬п╡п╟п╫п╦п╣ пЁя─п╦п╡п╣п╫ п╫п╟ п╪п╬я─я┌ п╡ п©п╣я─п╣я│я┤п╣я┌п╣ п╫п╟ п╠я─п╬п╫п╥я┐
+// п╢п╩я▐ п╩п╬я┐-п╪п╬я─я┌п╬п╡ п╠п╣я─п╣я┌я│я▐ я┌я─п╣п╠п╬п╡п╟п╫п╦п╣ п╠я─п╬п╫п╥я▀ п╠п╟п╥п╬п╡п╬пЁп╬ я┐я─п╬п╡п╫я▐
 int calc_torc_daily(int rmrt)
 {
 	TorcReq torc_req(rmrt);
@@ -896,7 +896,7 @@ int calc_torc_daily(int rmrt)
 	return num;
 }
 
-// проверка, требуется ли от чара жертвовать для реморта
+// п©я─п╬п╡п╣я─п╨п╟, я┌я─п╣п╠я┐п╣я┌я│я▐ п╩п╦ п╬я┌ я┤п╟я─п╟ п╤п╣я─я┌п╡п╬п╡п╟я┌я▄ п╢п╩я▐ я─п╣п╪п╬я─я┌п╟
 bool need_torc(CHAR_DATA *ch)
 {
 	TorcReq torc_req(GET_REMORT(ch));
@@ -914,14 +914,14 @@ bool need_torc(CHAR_DATA *ch)
 namespace
 {
 
-// жертвование гривен
+// п╤п╣я─я┌п╡п╬п╡п╟п╫п╦п╣ пЁя─п╦п╡п╣п╫
 void donat_torc(CHAR_DATA *ch, const std::string &mob_name, unsigned type, int amount)
 {
 	const int balance = ch->get_ext_money(type) - amount;
 	ch->set_ext_money(type, balance);
 	PRF_FLAGS(ch).set(PRF_CAN_REMORT);
 
-	send_to_char(ch, "Вы пожертвовали %d %s %s.\r\n",
+	send_to_char(ch, "п▓я▀ п©п╬п╤п╣я─я┌п╡п╬п╡п╟п╩п╦ %d %s %s.\r\n",
 		amount, desc_count(amount, type_list[type].DESC_MESSAGE_NUM),
 		desc_count(amount, WHAT_TORC));
 
@@ -929,32 +929,32 @@ void donat_torc(CHAR_DATA *ch, const std::string &mob_name, unsigned type, int a
 	name_convert(name);
 
 	send_to_char(ch,
-		"%s оценил ваши заслуги перед князем и народом земли русской и вознес вам хвалу.\r\n"
-		"Вы почувствовали себя значительно опытней.\r\n", name.c_str());
+		"%s п╬я├п╣п╫п╦п╩ п╡п╟я┬п╦ п╥п╟я│п╩я┐пЁп╦ п©п╣я─п╣п╢ п╨п╫я▐п╥п╣п╪ п╦ п╫п╟я─п╬п╢п╬п╪ п╥п╣п╪п╩п╦ я─я┐я│я│п╨п╬п╧ п╦ п╡п╬п╥п╫п╣я│ п╡п╟п╪ я┘п╡п╟п╩я┐.\r\n"
+		"п▓я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│п╣п╠я▐ п╥п╫п╟я┤п╦я┌п╣п╩я▄п╫п╬ п╬п©я▀я┌п╫п╣п╧.\r\n", name.c_str());
 
 	if (GET_GOD_FLAG(ch, GF_REMORT))
 	{
 		send_to_char(ch,
-			"%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
+			"%sп÷п╬п╥п╢я─п╟п╡п╩я▐п╣п╪, п╡я▀ п©п╬п╩я┐я┤п╦п╩п╦ п©я─п╟п╡п╬ п╫п╟ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╣!%s\r\n",
 			CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 	}
 	else
 	{
 		send_to_char(ch,
-			"Вы подтвердили свое право на следующее перевоплощение,\r\n"
-			"для его совершения вам нужно набрать максимальное количество опыта.\r\n");
+			"п▓я▀ п©п╬п╢я┌п╡п╣я─п╢п╦п╩п╦ я│п╡п╬п╣ п©я─п╟п╡п╬ п╫п╟ я│п╩п╣п╢я┐я▌я┴п╣п╣ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╣,\r\n"
+			"п╢п╩я▐ п╣пЁп╬ я│п╬п╡п╣я─я┬п╣п╫п╦я▐ п╡п╟п╪ п╫я┐п╤п╫п╬ п╫п╟п╠я─п╟я┌я▄ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╬п©я▀я┌п╟.\r\n");
 	}
 }
 
-// дергается как при нехватке гривен, так и при попытке реморта без пожертвований
+// п╢п╣я─пЁп╟п╣я┌я│я▐ п╨п╟п╨ п©я─п╦ п╫п╣я┘п╡п╟я┌п╨п╣ пЁя─п╦п╡п╣п╫, я┌п╟п╨ п╦ п©я─п╦ п©п╬п©я▀я┌п╨п╣ я─п╣п╪п╬я─я┌п╟ п╠п╣п╥ п©п╬п╤п╣я─я┌п╡п╬п╡п╟п╫п╦п╧
 void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_text)
 {
 	if (type < TOTAL_TYPES)
 	{
 		const int money = ch->get_ext_money(type);
 		send_to_char(ch,
-			"Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
-			"У вас в данный момент %d %s %s%s\r\n",
+			"п■п╩я▐ п©п╬п╢я┌п╡п╣я─п╤п╢п╣п╫п╦я▐ п©я─п╟п╡п╟ п╫п╟ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╣ п╡я▀ п╢п╬п╩п╤п╫я▀ п©п╬п╤п╣я─я┌п╡п╬п╡п╟я┌я▄ %d %s %s.\r\n"
+			"пё п╡п╟я│ п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ %d %s %s%s\r\n",
 			amount,
 			desc_count(amount, type_list[type].DESC_MESSAGE_U_NUM),
 			desc_count(amount, WHAT_TORC),
@@ -967,16 +967,16 @@ void message_low_torc(CHAR_DATA *ch, unsigned type, int amount, const char *add_
 
 } // namespace
 
-// глашатаи
+// пЁп╩п╟я┬п╟я┌п╟п╦
 int torc(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 {
 	if (!ch->desc || IS_NPC(ch))
 	{
 		return 0;
 	}
-	if (CMD_IS("менять") || CMD_IS("обмен") || CMD_IS("обменять"))
+	if (CMD_IS("п╪п╣п╫я▐я┌я▄") || CMD_IS("п╬п╠п╪п╣п╫") || CMD_IS("п╬п╠п╪п╣п╫я▐я┌я▄"))
 	{
-		// олц для обмена гривен в обе стороны
+		// п╬п╩я├ п╢п╩я▐ п╬п╠п╪п╣п╫п╟ пЁя─п╦п╡п╣п╫ п╡ п╬п╠п╣ я│я┌п╬я─п╬п╫я▀
 		STATE(ch->desc) = CON_TORC_EXCH;
 		for (unsigned i = 0; i < TOTAL_TYPES; ++i)
 		{
@@ -985,47 +985,47 @@ int torc(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 		torc_exch_menu(ch);
 		return 1;
 	}
-	if (CMD_IS("перевоплотитьс") || CMD_IS("перевоплотиться"))
+	if (CMD_IS("п©п╣я─п╣п╡п╬п©п╩п╬я┌п╦я┌я▄я│") || CMD_IS("п©п╣я─п╣п╡п╬п©п╩п╬я┌п╦я┌я▄я│я▐"))
 	{
 		if (can_remort_now(ch))
 		{
-			// чар уже жертвовал или от него и не требовалось
+			// я┤п╟я─ я┐п╤п╣ п╤п╣я─я┌п╡п╬п╡п╟п╩ п╦п╩п╦ п╬я┌ п╫п╣пЁп╬ п╦ п╫п╣ я┌я─п╣п╠п╬п╡п╟п╩п╬я│я▄
 			return 0;
 		}
 		else if (need_torc(ch))
 		{
 			TorcReq torc_req(GET_REMORT(ch));
-			// чар еще не жертвовал и от него что-то требуется
-			message_low_torc(ch, torc_req.type, torc_req.amount, " (команда 'жертвовать').");
+			// я┤п╟я─ п╣я┴п╣ п╫п╣ п╤п╣я─я┌п╡п╬п╡п╟п╩ п╦ п╬я┌ п╫п╣пЁп╬ я┤я┌п╬-я┌п╬ я┌я─п╣п╠я┐п╣я┌я│я▐
+			message_low_torc(ch, torc_req.type, torc_req.amount, " (п╨п╬п╪п╟п╫п╢п╟ 'п╤п╣я─я┌п╡п╬п╡п╟я┌я▄').");
 			return 1;
 		}
 	}
-	if (CMD_IS("жертвовать"))
+	if (CMD_IS("п╤п╣я─я┌п╡п╬п╡п╟я┌я▄"))
 	{
 		if (!need_torc(ch))
 		{
-			// от чара для реморта ничего не требуется
+			// п╬я┌ я┤п╟я─п╟ п╢п╩я▐ я─п╣п╪п╬я─я┌п╟ п╫п╦я┤п╣пЁп╬ п╫п╣ я┌я─п╣п╠я┐п╣я┌я│я▐
 			send_to_char(
-				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
+				"п▓п╟п╪ п╫п╣ п╫я┐п╤п╫п╬ п©п╬п╢я┌п╡п╣я─п╤п╢п╟я┌я▄ я│п╡п╬п╣ п©я─п╟п╡п╬ п╫п╟ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╣, п©я─п╬я│я┌п╬ п╫п╟п╠п╣я─п╦я┌п╣ 'п©п╣я─п╣п╡п╬п©п╩п╬я┌п╦я┌я▄я│я▐'.\r\n", ch);
 		}
 		else if (PRF_FLAGGED(ch, PRF_CAN_REMORT))
 		{
-			// чар на этом морте уже жертвовал необходимое кол-во гривен
+			// я┤п╟я─ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣ я┐п╤п╣ п╤п╣я─я┌п╡п╬п╡п╟п╩ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬п╣ п╨п╬п╩-п╡п╬ пЁя─п╦п╡п╣п╫
 			if (GET_GOD_FLAG(ch, GF_REMORT))
 			{
 				send_to_char(
-					"Вы уже подтвердили свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
+					"п▓я▀ я┐п╤п╣ п©п╬п╢я┌п╡п╣я─п╢п╦п╩п╦ я│п╡п╬п╣ п©я─п╟п╡п╬ п╫п╟ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╣, п©я─п╬я│я┌п╬ п╫п╟п╠п╣я─п╦я┌п╣ 'п©п╣я─п╣п╡п╬п©п╩п╬я┌п╦я┌я▄я│я▐'.\r\n", ch);
 			}
 			else
 			{
 				send_to_char(
-					"Вы уже пожертвовали достаточное количество гривен.\r\n"
-					"Для совершения перевоплощения вам нужно набрать максимальное количество опыта.\r\n", ch);
+					"п▓я▀ я┐п╤п╣ п©п╬п╤п╣я─я┌п╡п╬п╡п╟п╩п╦ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ пЁя─п╦п╡п╣п╫.\r\n"
+					"п■п╩я▐ я│п╬п╡п╣я─я┬п╣п╫п╦я▐ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦я▐ п╡п╟п╪ п╫я┐п╤п╫п╬ п╫п╟п╠я─п╟я┌я▄ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╬п©я▀я┌п╟.\r\n", ch);
 			}
 		}
 		else
 		{
-			// пробуем пожертвовать
+			// п©я─п╬п╠я┐п╣п╪ п©п╬п╤п╣я─я┌п╡п╬п╡п╟я┌я▄
 			TorcReq torc_req(GET_REMORT(ch));
 			if (ch->get_ext_money(torc_req.type) >= torc_req.amount)
 			{
@@ -1034,7 +1034,7 @@ int torc(CHAR_DATA *ch, void *me, int cmd, char* /*argument*/)
 			}
 			else
 			{
-				message_low_torc(ch, torc_req.type, torc_req.amount, ". Попробуйте позже.");
+				message_low_torc(ch, torc_req.type, torc_req.amount, ". п÷п╬п©я─п╬п╠я┐п╧я┌п╣ п©п╬п╥п╤п╣.");
 			}
 		}
 		return 1;
