@@ -21,23 +21,23 @@
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);
 
-/// Чуть более гибкий, но не менее упоротый аналог GET_OBJ_VAL полей
-/// Если поле нужно сохранять в обж-файл - вписываем в TextId::init_obj_vals()
-/// Соответствие полей и типов предметов смотреть/обновлять в remove_incorrect_keys()
+/// п╖я┐я┌я▄ п╠п╬п╩п╣п╣ пЁп╦п╠п╨п╦п╧, п╫п╬ п╫п╣ п╪п╣п╫п╣п╣ я┐п©п╬я─п╬я┌я▀п╧ п╟п╫п╟п╩п╬пЁ GET_OBJ_VAL п©п╬п╩п╣п╧
+/// п∙я│п╩п╦ п©п╬п╩п╣ п╫я┐п╤п╫п╬ я│п╬я┘я─п╟п╫я▐я┌я▄ п╡ п╬п╠п╤-я└п╟п╧п╩ - п╡п©п╦я│я▀п╡п╟п╣п╪ п╡ TextId::init_obj_vals()
+/// п║п╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╣ п©п╬п╩п╣п╧ п╦ я┌п╦п©п╬п╡ п©я─п╣п╢п╪п╣я┌п╬п╡ я│п╪п╬я┌я─п╣я┌я▄/п╬п╠п╫п╬п╡п╩я▐я┌я▄ п╡ remove_incorrect_keys()
 class ObjVal
 {
 public:
 	enum class EValueKey : uint32_t
 	{
-		// номер и уровень заклинаний в зелье/емкости с зельем
+		// п╫п╬п╪п╣я─ п╦ я┐я─п╬п╡п╣п╫я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ п╡ п╥п╣п╩я▄п╣/п╣п╪п╨п╬я│я┌п╦ я│ п╥п╣п╩я▄п╣п╪
 		POTION_SPELL1_NUM = 0,
 		POTION_SPELL1_LVL = 1,
 		POTION_SPELL2_NUM = 2,
 		POTION_SPELL2_LVL = 3,
 		POTION_SPELL3_NUM = 4,
 		POTION_SPELL3_LVL = 5,
-		// внум прототипа зелья, перелитого в емкость
-		// 0 - если зелье в емкости проставлено через олц
+		// п╡п╫я┐п╪ п©я─п╬я┌п╬я┌п╦п©п╟ п╥п╣п╩я▄я▐, п©п╣я─п╣п╩п╦я┌п╬пЁп╬ п╡ п╣п╪п╨п╬я│я┌я▄
+		// 0 - п╣я│п╩п╦ п╥п╣п╩я▄п╣ п╡ п╣п╪п╨п╬я│я┌п╦ п©я─п╬я│я┌п╟п╡п╩п╣п╫п╬ я┤п╣я─п╣п╥ п╬п╩я├
 		POTION_PROTO_VNUM = 6
 	};
 
@@ -53,21 +53,21 @@ public:
 	const_iterator end() const { return m_values.end(); }
 	bool empty() const { return m_values.empty(); }
 
-	// \return -1 - ключ не был найден
+	// \return -1 - п╨п╩я▌я┤ п╫п╣ п╠я▀п╩ п╫п╟п╧п╢п╣п╫
 	int get(const EValueKey key) const;
-	// сет новой записи/обновление существующей
-	// \param val < 0 - запись (если была) удаляется
+	// я│п╣я┌ п╫п╬п╡п╬п╧ п╥п╟п©п╦я│п╦/п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╣п╧
+	// \param val < 0 - п╥п╟п©п╦я│я▄ (п╣я│п╩п╦ п╠я▀п╩п╟) я┐п╢п╟п╩я▐п╣я┌я│я▐
 	void set(const EValueKey key, int val);
-	// если key не найден, то ничего не сетится
-	// \param val допускается +-
+	// п╣я│п╩п╦ key п╫п╣ п╫п╟п╧п╢п╣п╫, я┌п╬ п╫п╦я┤п╣пЁп╬ п╫п╣ я│п╣я┌п╦я┌я│я▐
+	// \param val п╢п╬п©я┐я│п╨п╟п╣я┌я│я▐ +-
 	void inc(const EValueKey key, int val = 1);
-	// save/load в файлы предметов
+	// save/load п╡ я└п╟п╧п╩я▀ п©я─п╣п╢п╪п╣я┌п╬п╡
 	std::string print_to_file() const;
 	bool init_from_file(const char *str);
-	// тоже самое в файлы зон
+	// я┌п╬п╤п╣ я│п╟п╪п╬п╣ п╡ я└п╟п╧п╩я▀ п╥п╬п╫
 	std::string print_to_zone() const;
 	void init_from_zone(const char *str);
-	// для сравнения с прототипом
+	// п╢п╩я▐ я│я─п╟п╡п╫п╣п╫п╦я▐ я│ п©я─п╬я┌п╬я┌п╦п©п╬п╪
 	bool operator==(const ObjVal &r) const
 	{
 		return m_values == r.m_values;
@@ -76,8 +76,8 @@ public:
 	{
 		return m_values != r.m_values;
 	}
-	// чистка левых параметров (поменяли тип предмета в олц/файле и т.п.)
-	// дергается после редактирований в олц, лоада прототипов и просто шмоток
+	// я┤п╦я│я┌п╨п╟ п╩п╣п╡я▀я┘ п©п╟я─п╟п╪п╣я┌я─п╬п╡ (п©п╬п╪п╣п╫я▐п╩п╦ я┌п╦п© п©я─п╣п╢п╪п╣я┌п╟ п╡ п╬п╩я├/я└п╟п╧п╩п╣ п╦ я┌.п©.)
+	// п╢п╣я─пЁп╟п╣я┌я│я▐ п©п╬я│п╩п╣ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╧ п╡ п╬п╩я├, п╩п╬п╟п╢п╟ п©я─п╬я┌п╬я┌п╦п©п╬п╡ п╦ п©я─п╬я│я┌п╬ я┬п╪п╬я┌п╬п╨
 	void remove_incorrect_keys(int type);
 
 private:
@@ -159,13 +159,13 @@ public:
 		ITEM_FOUNTAIN = 23,		// Item is a fountain      //
 		ITEM_BOOK = 24,			// Item is book //
 		ITEM_INGREDIENT = 25,	// Item is magical ingradient //
-		ITEM_MING = 26,			// Магический ингредиент //
-		ITEM_MATERIAL = 27,		// Материал для крафтовых умений //
-		ITEM_BANDAGE = 28,		// бинты для перевязки
-		ITEM_ARMOR_LIGHT = 29,	// легкий тип брони
-		ITEM_ARMOR_MEDIAN = 30,	// средний тип брони
-		ITEM_ARMOR_HEAVY = 31,	// тяжелый тип брони
-		ITEM_ENCHANT = 32,		// зачарование предмета
+		ITEM_MING = 26,			// п°п╟пЁп╦я┤п╣я│п╨п╦п╧ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌ //
+		ITEM_MATERIAL = 27,		// п°п╟я┌п╣я─п╦п╟п╩ п╢п╩я▐ п╨я─п╟я└я┌п╬п╡я▀я┘ я┐п╪п╣п╫п╦п╧ //
+		ITEM_BANDAGE = 28,		// п╠п╦п╫я┌я▀ п╢п╩я▐ п©п╣я─п╣п╡я▐п╥п╨п╦
+		ITEM_ARMOR_LIGHT = 29,	// п╩п╣пЁп╨п╦п╧ я┌п╦п© п╠я─п╬п╫п╦
+		ITEM_ARMOR_MEDIAN = 30,	// я│я─п╣п╢п╫п╦п╧ я┌п╦п© п╠я─п╬п╫п╦
+		ITEM_ARMOR_HEAVY = 31,	// я┌я▐п╤п╣п╩я▀п╧ я┌п╦п© п╠я─п╬п╫п╦
+		ITEM_ENCHANT = 32,		// п╥п╟я┤п╟я─п╬п╡п╟п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟
 		ITEM_MAGIC_MATERIAL = 33,	// Item is a material related to craft system
 		ITEM_MAGIC_ARROW = 34,	// Item is a material related to craft system
 		ITEM_MAGIC_CONTAINER = 35,	// Item is a material related to craft system
@@ -211,7 +211,7 @@ public:
 	constexpr static int DEFAULT_MAX_IN_WORLD = UNLIMITED_GLOBAL_MAXIMUM;
 	constexpr static int DEFAULT_MINIMUM_REMORTS = 0;
 
-	// бесконечный таймер
+	// п╠п╣я│п╨п╬п╫п╣я┤п╫я▀п╧ я┌п╟п╧п╪п╣я─
 	constexpr static int UNLIMITED_TIMER = 2147483647;
 	constexpr static int ONE_DAY = 24 * 60;
 	constexpr static int SEVEN_DAYS = 7 * ONE_DAY;
@@ -245,7 +245,7 @@ public:
 		m_sex(DEFAULT_SEX),
 		m_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_UNDEFINED)),
 		m_timer(DEFAULT_TIMER),
-		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // для хранения количеста мортов. если отричательное тогда до какого морта
+		m_minimum_remorts(DEFAULT_MINIMUM_REMORTS),  // п╢п╩я▐ я┘я─п╟п╫п╣п╫п╦я▐ п╨п╬п╩п╦я┤п╣я│я┌п╟ п╪п╬я─я┌п╬п╡. п╣я│п╩п╦ п╬я┌я─п╦я┤п╟я┌п╣п╩я▄п╫п╬п╣ я┌п╬пЁп╢п╟ п╢п╬ п╨п╟п╨п╬пЁп╬ п╪п╬я─я┌п╟
 		m_cost(DEFAULT_COST),
 		m_rent_on(DEFAULT_RENT_ON),
 		m_rent_off(DEFAULT_RENT_OFF),
@@ -393,7 +393,7 @@ public:
 	int get_auto_mort_req() const;
 	float show_mort_req();
 	float show_koef_obj();
-	float get_ilevel() const;	///< разные системы расчета привлекательности предмета
+	float get_ilevel() const;	///< я─п╟п╥п╫я▀п╣ я│п╦я│я┌п╣п╪я▀ я─п╟я│я┤п╣я┌п╟ п©я─п╦п╡п╩п╣п╨п╟я┌п╣п╩я▄п╫п╬я│я┌п╦ п©я─п╣п╢п╪п╣я┌п╟
 	void set_ilevel(float ilvl);
 	auto get_rnum() const { return m_rnum; }
 	void set_rnum(const obj_rnum _);
@@ -453,17 +453,17 @@ private:
 
 	wear_flags_t m_wear_flags;		// Where you can wear it     //
 
-	int m_timer;	///< таймер (в минутах рл)
+	int m_timer;	///< я┌п╟п╧п╪п╣я─ (п╡ п╪п╦п╫я┐я┌п╟я┘ я─п╩)
 
-	skills_t m_skills;	///< если этот массив создался, то до выхода из программы уже не удалится. тут это вроде как "нормально"
+	skills_t m_skills;	///< п╣я│п╩п╦ я█я┌п╬я┌ п╪п╟я│я│п╦п╡ я│п╬п╥п╢п╟п╩я│я▐, я┌п╬ п╢п╬ п╡я▀я┘п╬п╢п╟ п╦п╥ п©я─п╬пЁя─п╟п╪п╪я▀ я┐п╤п╣ п╫п╣ я┐п╢п╟п╩п╦я┌я│я▐. я┌я┐я┌ я█я┌п╬ п╡я─п╬п╢п╣ п╨п╟п╨ "п╫п╬я─п╪п╟п╩я▄п╫п╬"
 
-	int m_minimum_remorts;	///< если > 0 - требование по минимальным мортам, проставленное в олц
+	int m_minimum_remorts;	///< п╣я│п╩п╦ > 0 - я┌я─п╣п╠п╬п╡п╟п╫п╦п╣ п©п╬ п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╪ п╪п╬я─я┌п╟п╪, п©я─п╬я│я┌п╟п╡п╩п╣п╫п╫п╬п╣ п╡ п╬п╩я├
 
-	int m_cost;	///< цена шмотки при продаже
-	int m_rent_on;	///< стоимость ренты, если надета
-	int m_rent_off;	///< стоимость ренты, если в инве
+	int m_cost;	///< я├п╣п╫п╟ я┬п╪п╬я┌п╨п╦ п©я─п╦ п©я─п╬п╢п╟п╤п╣
+	int m_rent_on;	///< я│я┌п╬п╦п╪п╬я│я┌я▄ я─п╣п╫я┌я▀, п╣я│п╩п╦ п╫п╟п╢п╣я┌п╟
+	int m_rent_off;	///< я│я┌п╬п╦п╪п╬я│я┌я▄ я─п╣п╫я┌я▀, п╣я│п╩п╦ п╡ п╦п╫п╡п╣
 
-	float m_ilevel;	///< расчетный уровень шмотки, не сохраняется
+	float m_ilevel;	///< я─п╟я│я┤п╣я┌п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄ я┬п╪п╬я┌п╨п╦, п╫п╣ я│п╬я┘я─п╟п╫я▐п╣я┌я│я▐
 	obj_vnum m_rnum;	///< Where in data-base
 
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;
@@ -498,7 +498,7 @@ public:
 		return !skills.empty();
 	}
 
-	// * @warning Предполагается, что __out_skills.empty() == true.
+	// * @warning п÷я─п╣п╢п©п╬п╩п╟пЁп╟п╣я┌я│я▐, я┤я┌п╬ __out_skills.empty() == true.
 	void get_skills(CObjectPrototype::skills_t& __skills) const
 	{
 		__skills.insert(skills.begin(), skills.end());
@@ -686,7 +686,7 @@ public:
 
 typedef std::map< int, set_info > id_to_set_info_map;
 
-// * Временное заклинание на предмете (одно).
+// * п▓я─п╣п╪п╣п╫п╫п╬п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ п╫п╟ п©я─п╣п╢п╪п╣я┌п╣ (п╬п╢п╫п╬).
 class TimedSpell
 {
 public:
@@ -700,20 +700,20 @@ public:
 	std::string diag_to_char(CHAR_DATA *ch);
 
 private:
-	std::map<int /* номер заклинания (SPELL_ХХХ) */, int /* таймер в минутах */> spell_list_;
+	std::map<int /* п╫п╬п╪п╣я─ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ (SPELL_п╔п╔п╔) */, int /* я┌п╟п╧п╪п╣я─ п╡ п╪п╦п╫я┐я┌п╟я┘ */> spell_list_;
 };
 
-// метки для команды "нацарапать"
+// п╪п╣я┌п╨п╦ п╢п╩я▐ п╨п╬п╪п╟п╫п╢я▀ "п╫п╟я├п╟я─п╟п©п╟я┌я▄"
 struct custom_label
 {
 public:
 	custom_label(): label_text(nullptr), clan(nullptr), author(-2), author_mail(nullptr) {}
 	~custom_label();
 
-	char *label_text; // текст
-	char *clan;       // аббревиатура клана, если метка предназначена для клана
-	int author;       // кем нанесена: содержит результат ch->get_idnum(), по умолчанию -2
-	char *author_mail;// будем проверять по емейлу тоже
+	char *label_text; // я┌п╣п╨я│я┌
+	char *clan;       // п╟п╠п╠я─п╣п╡п╦п╟я┌я┐я─п╟ п╨п╩п╟п╫п╟, п╣я│п╩п╦ п╪п╣я┌п╨п╟ п©я─п╣п╢п╫п╟п╥п╫п╟я┤п╣п╫п╟ п╢п╩я▐ п╨п╩п╟п╫п╟
+	int author;       // п╨п╣п╪ п╫п╟п╫п╣я│п╣п╫п╟: я│п╬п╢п╣я─п╤п╦я┌ я─п╣п╥я┐п╩я▄я┌п╟я┌ ch->get_idnum(), п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ -2
+	char *author_mail;// п╠я┐п╢п╣п╪ п©я─п╬п╡п╣я─я▐я┌я▄ п©п╬ п╣п╪п╣п╧п╩я┐ я┌п╬п╤п╣
 };
 
 inline custom_label::~custom_label()
@@ -861,7 +861,7 @@ private:
 	CHAR_DATA *m_worn_by;	// Worn by?              //
 	short int m_worn_on;		// Worn where?          //
 
-	std::shared_ptr<custom_label> m_custom_label;		// наносимая чаром метка //
+	std::shared_ptr<custom_label> m_custom_label;		// п╫п╟п╫п╬я│п╦п╪п╟я▐ я┤п╟я─п╬п╪ п╪п╣я┌п╨п╟ //
 
 	OBJ_DATA *m_in_obj;	// In what object NULL when none    //
 	OBJ_DATA *m_contains;	// Contains objects                 //
@@ -872,16 +872,16 @@ private:
 
 	int m_craft_timer;
 
-	TimedSpell m_timed_spell;    ///< временный обкаст
+	TimedSpell m_timed_spell;    ///< п╡я─п╣п╪п╣п╫п╫я▀п╧ п╬п╠п╨п╟я│я┌
 
 	object_id_t m_id;			// used by DG triggers              //
 	std::shared_ptr<SCRIPT_DATA> m_script;	// script info for the object       //
 	
-	// порядковый номер в списке чаров (для name_list)
+	// п©п╬я─я▐п╢п╨п╬п╡я▀п╧ п╫п╬п╪п╣я─ п╡ я│п©п╦я│п╨п╣ я┤п╟я─п╬п╡ (п╢п╩я▐ name_list)
 	int m_serial_number;
-	// true - объект спуржен и ждет вызова delete для оболочки
+	// true - п╬п╠я┼п╣п╨я┌ я│п©я┐я─п╤п╣п╫ п╦ п╤п╢п╣я┌ п╡я▀п╥п╬п╡п╟ delete п╢п╩я▐ п╬п╠п╬п╩п╬я┤п╨п╦
 	bool m_purged;
-	// для сообщений сетов <активировано или нет, размер активатора>
+	// п╢п╩я▐ я│п╬п╬п╠я┴п╣п╫п╦п╧ я│п╣я┌п╬п╡ <п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫п╬ п╦п╩п╦ п╫п╣я┌, я─п╟п╥п╪п╣я─ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟>
 	std::pair<bool, int> m_activator;
 
 	std::unordered_set<IDChangeObserver::shared_ptr> m_id_change_observers;
@@ -942,9 +942,9 @@ std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch);
 
 namespace system_obj
 {
-/// кошелек для кун с игрока
+/// п╨п╬я┬п╣п╩п╣п╨ п╢п╩я▐ п╨я┐п╫ я│ п╦пЁя─п╬п╨п╟
 extern int PURSE_RNUM;
-/// персональное хранилище
+/// п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣
 extern int PERS_CHEST_RNUM;
 
 void init();

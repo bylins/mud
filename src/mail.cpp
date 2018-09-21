@@ -51,21 +51,21 @@ namespace mail
 
 bool check_poster_cnt(CHAR_DATA* ch);
 
-/// для undelivered_list
+/// п╢п╩я▐ undelivered_list
 struct undelivered_node
 {
 	undelivered_node(const char *name, int to_uid) : total_num(1), names(name)
 	{
 		uids.insert(to_uid);
 	};
-	/// кол-во недоставленных писем
+	/// п╨п╬п╩-п╡п╬ п╫п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╫я▀я┘ п©п╦я│п╣п╪
 	size_t total_num;
-	/// строка с именами адресатов
+	/// я│я┌я─п╬п╨п╟ я│ п╦п╪п╣п╫п╟п╪п╦ п╟п╢я─п╣я│п╟я┌п╬п╡
 	std::string names;
-	/// уиды адресатов для уникальности имен
+	/// я┐п╦п╢я▀ п╟п╢я─п╣я│п╟я┌п╬п╡ п╢п╩я▐ я┐п╫п╦п╨п╟п╩я▄п╫п╬я│я┌п╦ п╦п╪п╣п╫
 	std::unordered_set<int> uids;
 };
-/// уид отправителя, инфа о недоставленных письмах на момент ребута
+/// я┐п╦п╢ п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▐, п╦п╫я└п╟ п╬ п╫п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╫я▀я┘ п©п╦я│я▄п╪п╟я┘ п╫п╟ п╪п╬п╪п╣п╫я┌ я─п╣п╠я┐я┌п╟
 std::unordered_map<int, undelivered_node> undelivered_list;
 
 void add_undelivered(int from_uid, const char *name, int to_uid)
@@ -76,7 +76,7 @@ void add_undelivered(int from_uid, const char *name, int to_uid)
 	if (i != undelivered_list.end())
 	{
 		i->second.total_num += 1;
-		// проверка на уникальность и добавление имени в строку
+		// п©я─п╬п╡п╣я─п╨п╟ п╫п╟ я┐п╫п╦п╨п╟п╩я▄п╫п╬я│я┌я▄ п╦ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╦п╪п╣п╫п╦ п╡ я│я┌я─п╬п╨я┐
 		if (i->second.uids.find(to_uid) == i->second.uids.end())
 		{
 			i->second.names += " ";
@@ -101,10 +101,10 @@ void print_undelivered(CHAR_DATA *ch)
 	if (i != undelivered_list.end())
 	{
 		std::string out(
-			"Информация по недоставленным (на момент перезагрузки) письмам.\r\n"
-			"Количество писем: ");
+			"п≤п╫я└п╬я─п╪п╟я├п╦я▐ п©п╬ п╫п╣п╢п╬я│я┌п╟п╡п╩п╣п╫п╫я▀п╪ (п╫п╟ п╪п╬п╪п╣п╫я┌ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╦) п©п╦я│я▄п╪п╟п╪.\r\n"
+			"п п╬п╩п╦я┤п╣я│я┌п╡п╬ п©п╦я│п╣п╪: ");
 		out += boost::lexical_cast<std::string>(i->second.total_num);
-		out += ", Адресаты:\r\n " + i->second.names + "\r\n";
+		out += ", п░п╢я─п╣я│п╟я┌я▀:\r\n " + i->second.names + "\r\n";
 		send_to_char(out, ch);
 	}
 }
@@ -113,11 +113,11 @@ void print_undelivered(CHAR_DATA *ch)
 
 using namespace mail;
 
-// мин.уровень для отправки почты
+// п╪п╦п╫.я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ п╬я┌п©я─п╟п╡п╨п╦ п©п╬я┤я┌я▀
 const int MIN_MAIL_LEVEL = 2;
-// стоимость отправки письма
+// я│я┌п╬п╦п╪п╬я│я┌я▄ п╬я┌п©я─п╟п╡п╨п╦ п©п╦я│я▄п╪п╟
 const int STAMP_PRICE = 50;
-// макс. размер сообщения
+// п╪п╟п╨я│. я─п╟п╥п╪п╣я─ я│п╬п╬п╠я┴п╣п╫п╦я▐
 const int MAX_MAIL_SIZE = 4096;
 
 //****************************************************************
@@ -130,31 +130,31 @@ int postmaster(CHAR_DATA *ch, void *me, int cmd, char* argument)
 		return (0);	// so mobs don't get caught here
 
 	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")
-			|| CMD_IS("почта") || CMD_IS("получить") || CMD_IS("отправить")
-			|| CMD_IS("return") || CMD_IS("вернуть")))
+			|| CMD_IS("п©п╬я┤я┌п╟") || CMD_IS("п©п╬п╩я┐я┤п╦я┌я▄") || CMD_IS("п╬я┌п©я─п╟п╡п╦я┌я▄")
+			|| CMD_IS("return") || CMD_IS("п╡п╣я─п╫я┐я┌я▄")))
 		return (0);
 
-	if (CMD_IS("mail") || CMD_IS("отправить"))
+	if (CMD_IS("mail") || CMD_IS("п╬я┌п©я─п╟п╡п╦я┌я▄"))
 	{
 		postmaster_send_mail(ch, (CHAR_DATA *) me, cmd, argument);
 		return (1);
 	}
-	else if (CMD_IS("check") || CMD_IS("почта"))
+	else if (CMD_IS("check") || CMD_IS("п©п╬я┤я┌п╟"))
 	{
 		postmaster_check_mail(ch, (CHAR_DATA *) me, cmd, argument);
 		return (1);
 	}
-	else if (CMD_IS("receive") || CMD_IS("получить"))
+	else if (CMD_IS("receive") || CMD_IS("п©п╬п╩я┐я┤п╦я┌я▄"))
 	{
 		one_argument(argument, arg);
-		if(is_abbrev(arg, "вещи")) {
+		if(is_abbrev(arg, "п╡п╣я┴п╦")) {
 			NamedStuff::receive_items(ch, (CHAR_DATA *) me);
 		} else {
 			postmaster_receive_mail(ch, (CHAR_DATA *) me, cmd, argument);
 		}
 		return (1);
 	}
-	else if (CMD_IS("return") || CMD_IS("вернуть"))
+	else if (CMD_IS("return") || CMD_IS("п╡п╣я─п╫я┐я┌я▄"))
 	{
 		Parcel::bring_back(ch, (CHAR_DATA *) me);
 		return (1);
@@ -169,17 +169,17 @@ void postmaster_check_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, cha
 	if (mail::has_mail(ch->get_uid()))
 	{
 		empty = false;
-		act("$n сказал$g вам : 'Вас ожидает почта.'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п▓п╟я│ п╬п╤п╦п╢п╟п╣я┌ п©п╬я┤я┌п╟.'", FALSE, mailman, 0, ch, TO_VICT);
 	}
 	if (Parcel::has_parcel(ch))
 	{
 		empty = false;
-		act("$n сказал$g вам : 'Вас ожидает посылка.'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п▓п╟я│ п╬п╤п╦п╢п╟п╣я┌ п©п╬я│я▀п╩п╨п╟.'", FALSE, mailman, 0, ch, TO_VICT);
 	}
 
 	if (empty)
 	{
-		act("$n сказал$g вам : 'Похоже, сегодня вам ничего нет.'",
+		act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п÷п╬я┘п╬п╤п╣, я│п╣пЁп╬п╢п╫я▐ п╡п╟п╪ п╫п╦я┤п╣пЁп╬ п╫п╣я┌.'",
 			FALSE, mailman, 0, ch, TO_VICT);
 	}
 	Parcel::print_sending_stuff(ch);
@@ -191,7 +191,7 @@ void postmaster_receive_mail(CHAR_DATA* ch, CHAR_DATA* mailman, int/* cmd*/, cha
 {
 	if (!Parcel::has_parcel(ch) && !mail::has_mail(ch->get_uid()))
 	{
-		act("$n удивленно сказал$g вам : 'Но для вас нет писем!?'",
+		act("$n я┐п╢п╦п╡п╩п╣п╫п╫п╬ я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п²п╬ п╢п╩я▐ п╡п╟я│ п╫п╣я┌ п©п╦я│п╣п╪!?'",
 			FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
@@ -210,14 +210,14 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 	if (GET_LEVEL(ch) < MIN_MAIL_LEVEL)
 	{
 		sprintf(buf,
-			"$n сказал$g вам, 'Извините, вы должны достигнуть %d уровня, чтобы отправить письмо!'",
+			"$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п≤п╥п╡п╦п╫п╦я┌п╣, п╡я▀ п╢п╬п╩п╤п╫я▀ п╢п╬я│я┌п╦пЁп╫я┐я┌я▄ %d я┐я─п╬п╡п╫я▐, я┤я┌п╬п╠я▀ п╬я┌п©я─п╟п╡п╦я┌я▄ п©п╦я│я▄п╪п╬!'",
 			MIN_MAIL_LEVEL);
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	if (!mail::check_poster_cnt(ch))
 	{
-		act("$n сказал$g вам, 'Извините, вы уже отправили максимальное кол-во сообщений!'",
+		act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п≤п╥п╡п╦п╫п╦я┌п╣, п╡я▀ я┐п╤п╣ п╬я┌п©я─п╟п╡п╦п╩п╦ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩-п╡п╬ я│п╬п╬п╠я┴п╣п╫п╦п╧!'",
 			FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
@@ -226,12 +226,12 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 
 	if (!*buf)  		// you'll get no argument from me!
 	{
-		act("$n сказал$g вам, 'Вы не указали адресата!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п▓я▀ п╫п╣ я┐п╨п╟п╥п╟п╩п╦ п╟п╢я─п╣я│п╟я┌п╟!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 	if ((recipient = GetUniqueByName(buf)) <= 0)
 	{
-		act("$n сказал$g вам, 'Извините, но такого игрока нет в игре!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п≤п╥п╡п╦п╫п╦я┌п╣, п╫п╬ я┌п╟п╨п╬пЁп╬ п╦пЁя─п╬п╨п╟ п╫п╣я┌ п╡ п╦пЁя─п╣!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
@@ -242,7 +242,7 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 			(ch->in_room == r_named_start_room) ||
 			(ch->in_room == r_unreg_start_room))
 		{
-			act("$n сказал$g вам : 'Посылку? Не положено!'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п÷п╬я│я▀п╩п╨я┐? п²п╣ п©п╬п╩п╬п╤п╣п╫п╬!'", FALSE, mailman, 0, ch, TO_VICT);
 			return;
 		}
 		long vict_uid = GetUniqueByName(buf);
@@ -252,31 +252,31 @@ void postmaster_send_mail(CHAR_DATA * ch, CHAR_DATA * mailman, int/* cmd*/, char
 		}
 		else
 		{
-			act("$n сказал$g вам : 'Ошибочка вышла, сообщите Богам!'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п·я┬п╦п╠п╬я┤п╨п╟ п╡я▀я┬п╩п╟, я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪!'", FALSE, mailman, 0, ch, TO_VICT);
 		}
 		return;
 	}
 
 	if (ch->get_gold() < cost)
 	{
-		sprintf(buf, "$n сказал$g вам, 'Письмо стоит %d %s.'\r\n"
-			"$n сказал$g вам, '...которых у вас просто-напросто нет.'",
+		sprintf(buf, "$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п÷п╦я│я▄п╪п╬ я│я┌п╬п╦я┌ %d %s.'\r\n"
+			"$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, '...п╨п╬я┌п╬я─я▀я┘ я┐ п╡п╟я│ п©я─п╬я│я┌п╬-п╫п╟п©я─п╬я│я┌п╬ п╫п╣я┌.'",
 			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYu));
 		act(buf, FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
-	act("$n начал$g писать письмо.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n п╫п╟я┤п╟п╩$g п©п╦я│п╟я┌я▄ п©п╦я│я▄п╪п╬.", TRUE, ch, 0, 0, TO_ROOM);
 	if (cost == 0)
 	{
-		sprintf(buf, "$n сказал$g вам, 'Со своих - почтовый сбор не берем.'\r\n"
-			"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'");
+		sprintf(buf, "$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п║п╬ я│п╡п╬п╦я┘ - п©п╬я┤я┌п╬п╡я▀п╧ я│п╠п╬я─ п╫п╣ п╠п╣я─п╣п╪.'\r\n"
+			"$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п°п╬п╤п╣я┌п╣ п©п╦я│п╟я┌я▄, (/s saves /h for help)'");
 	}
 	else
 	{
 		sprintf(buf,
-			"$n сказал$g вам, 'Отлично, с вас %d %s почтового сбора.'\r\n"
-			"$n сказал$g вам, 'Можете писать, (/s saves /h for help)'",
+			"$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п·я┌п╩п╦я┤п╫п╬, я│ п╡п╟я│ %d %s п©п╬я┤я┌п╬п╡п╬пЁп╬ я│п╠п╬я─п╟.'\r\n"
+			"$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪, 'п°п╬п╤п╣я┌п╣ п©п╦я│п╟я┌я▄, (/s saves /h for help)'",
 			STAMP_PRICE, desc_count(STAMP_PRICE, WHAT_MONEYa));
 	}
 
@@ -434,33 +434,33 @@ namespace mail
 {
 
 const char* MAIL_XML_FILE = LIB_ETC"plrmail.xml";
-// макс сообщений в доставке от безмортовых чаров до NAME_LEVEL уровня
+// п╪п╟п╨я│ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╡ п╢п╬я│я┌п╟п╡п╨п╣ п╬я┌ п╠п╣п╥п╪п╬я─я┌п╬п╡я▀я┘ я┤п╟я─п╬п╡ п╢п╬ NAME_LEVEL я┐я─п╬п╡п╫я▐
 const int LOW_LVL_MAX_POST = 10;
-// тоже самое для всех остальных
+// я┌п╬п╤п╣ я│п╟п╪п╬п╣ п╢п╩я▐ п╡я│п╣я┘ п╬я│я┌п╟п╩я▄п╫я▀я┘
 const int HIGH_LVL_MAX_POST = 100;
 
 struct mail_node
 {
 	mail_node() : from(-1), date(0) {};
 
-	// уид автора (может быть невалидным)
+	// я┐п╦п╢ п╟п╡я┌п╬я─п╟ (п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╫п╣п╡п╟п╩п╦п╢п╫я▀п╪)
 	int from;
-	// дата написания письма
+	// п╢п╟я┌п╟ п╫п╟п©п╦я│п╟п╫п╦я▐ п©п╦я│я▄п╪п╟
 	time_t date;
-	// текст письма в перемешанном base64
+	// я┌п╣п╨я│я┌ п©п╦я│я▄п╪п╟ п╡ п©п╣я─п╣п╪п╣я┬п╟п╫п╫п╬п╪ base64
 	std::string text;
-	// (дата в iso8601 + автор + получатель) в перемешанном base64
+	// (п╢п╟я┌п╟ п╡ iso8601 + п╟п╡я┌п╬я─ + п©п╬п╩я┐я┤п╟я┌п╣п╩я▄) п╡ п©п╣я─п╣п╪п╣я┬п╟п╫п╫п╬п╪ base64
 	std::string header;
 };
 
-// флаг для избегания пустых автосохранений
+// я└п╩п╟пЁ п╢п╩я▐ п╦п╥п╠п╣пЁп╟п╫п╦я▐ п©я┐я│я┌я▀я┘ п╟п╡я┌п╬я│п╬я┘я─п╟п╫п╣п╫п╦п╧
 bool need_save = false;
-// уид получателя -> письмо
+// я┐п╦п╢ п©п╬п╩я┐я┤п╟я┌п╣п╩я▐ -> п©п╦я│я▄п╪п╬
 std::unordered_multimap<int, mail_node> mail_list;
-// уид -> кол-во отправленных сообщений в бд (спам-контроль)
+// я┐п╦п╢ -> п╨п╬п╩-п╡п╬ п╬я┌п©я─п╟п╡п╩п╣п╫п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╡ п╠п╢ (я│п©п╟п╪-п╨п╬п╫я┌я─п╬п╩я▄)
 std::unordered_map<int, int> poster_list;
-// уид - условный список чаров (с дальнейшей проверкой), которым нужно
-// единоразово вывести уведомление про новую почту (спам-контроль)
+// я┐п╦п╢ - я┐я│п╩п╬п╡п╫я▀п╧ я│п©п╦я│п╬п╨ я┤п╟я─п╬п╡ (я│ п╢п╟п╩я▄п╫п╣п╧я┬п╣п╧ п©я─п╬п╡п╣я─п╨п╬п╧), п╨п╬я┌п╬я─я▀п╪ п╫я┐п╤п╫п╬
+// п╣п╢п╦п╫п╬я─п╟п╥п╬п╡п╬ п╡я▀п╡п╣я│я┌п╦ я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦п╣ п©я─п╬ п╫п╬п╡я┐я▌ п©п╬я┤я┌я┐ (я│п©п╟п╪-п╨п╬п╫я┌я─п╬п╩я▄)
 std::unordered_set<int> notice_list;
 
 void add_notice(int uid)
@@ -480,7 +480,7 @@ void print_notices()
 		if (d)
 		{
 			send_to_char(d->character.get(),
-				"%sВам пришло письмо, зайдите на почту и распишитесь!%s\r\n",
+				"%sп▓п╟п╪ п©я─п╦я┬п╩п╬ п©п╦я│я▄п╪п╬, п╥п╟п╧п╢п╦я┌п╣ п╫п╟ п©п╬я┤я┌я┐ п╦ я─п╟я│п©п╦я┬п╦я┌п╣я│я▄!%s\r\n",
 				CCWHT(d->character, C_NRM), CCNRM(d->character, C_NRM));
 		}
 	}
@@ -576,15 +576,15 @@ std::string get_author_name(int uid)
 	std::string out;
 	if (uid == -1)
 	{
-		out = "Почтовая служба";
+		out = "п÷п╬я┤я┌п╬п╡п╟я▐ я│п╩я┐п╤п╠п╟";
 	}
 	else if (uid == -2)
 	{
-		out = "<персонаж был удален>";
+		out = "<п©п╣я─я│п╬п╫п╟п╤ п╠я▀п╩ я┐п╢п╟п╩п╣п╫>";
 	}
 	else if (uid < 0)
 	{
-		out = "Неизвестно";
+		out = "п²п╣п╦п╥п╡п╣я│я┌п╫п╬";
 	}
 	else
 	{
@@ -596,7 +596,7 @@ std::string get_author_name(int uid)
 		}
 		else
 		{
-			out = "<персонаж был удален>";
+			out = "<п©п╣я─я│п╬п╫п╟п╤ п╠я▀п╩ я┐п╢п╟п╩п╣п╫>";
 		}
 	}
 	return out;
@@ -608,15 +608,15 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 	for(auto i = rng.first; i != rng.second; ++i)
 	{
 		const auto obj = world_objects.create_blank();
-		obj->set_aliases("mail paper letter письмо почта бумага");
-		obj->set_short_description("письмо");
-		obj->set_description("Кто-то забыл здесь свое письмо.");
-		obj->set_PName(0, "письмо");
-		obj->set_PName(1, "письма");
-		obj->set_PName(2, "письма");
-		obj->set_PName(3, "письмо");
-		obj->set_PName(4, "письмом");
-		obj->set_PName(5, "письме");
+		obj->set_aliases("mail paper letter п©п╦я│я▄п╪п╬ п©п╬я┤я┌п╟ п╠я┐п╪п╟пЁп╟");
+		obj->set_short_description("п©п╦я│я▄п╪п╬");
+		obj->set_description("п я┌п╬-я┌п╬ п╥п╟п╠я▀п╩ п╥п╢п╣я│я▄ я│п╡п╬п╣ п©п╦я│я▄п╪п╬.");
+		obj->set_PName(0, "п©п╦я│я▄п╪п╬");
+		obj->set_PName(1, "п©п╦я│я▄п╪п╟");
+		obj->set_PName(2, "п©п╦я│я▄п╪п╟");
+		obj->set_PName(3, "п©п╦я│я▄п╪п╬");
+		obj->set_PName(4, "п©п╦я│я▄п╪п╬п╪");
+		obj->set_PName(5, "п©п╦я│я▄п╪п╣");
 		obj->set_sex(ESex::SEX_NEUTRAL);
 		obj->set_type(OBJ_DATA::ITEM_NOTE);
 		obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE) | to_underlying(EWearFlag::ITEM_WEAR_HOLD));
@@ -632,10 +632,10 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_),
-			" * * * * Княжеская почта * * * *\r\n"
-			"Дата: %s\r\n"
-			"Кому: %s\r\n"
-			"  От: %s\r\n\r\n",
+			" * * * * п п╫я▐п╤п╣я│п╨п╟я▐ п©п╬я┤я┌п╟ * * * *\r\n"
+			"п■п╟я┌п╟: %s\r\n"
+			"п п╬п╪я┐: %s\r\n"
+			"  п·я┌: %s\r\n\r\n",
 			buf_date, ch->get_name().c_str(), get_author_name(i->second.from).c_str());
 
 		std::string text = coder::base64_decode(i->second.text);
@@ -643,8 +643,8 @@ void receive(CHAR_DATA* ch, CHAR_DATA* mailman)
 		obj->set_action_description(buf_ + text + "\r\n\r\n");
 
 		obj_to_char(obj.get(), ch);
-		act("$n дал$g вам письмо.", FALSE, mailman, 0, ch, TO_VICT);
-		act("$N дал$G $n2 письмо.", FALSE, ch, 0, mailman, TO_ROOM);
+		act("$n п╢п╟п╩$g п╡п╟п╪ п©п╦я│я▄п╪п╬.", FALSE, mailman, 0, ch, TO_VICT);
+		act("$N п╢п╟п╩$G $n2 п©п╦я│я▄п╪п╬.", FALSE, ch, 0, mailman, TO_ROOM);
 
 		sub_poster(i->second.from);
 	}
@@ -698,10 +698,10 @@ void load()
 		mail_node message;
 		message.header = Parse::attr_str(msg_n, "h");
 		message.text = Parse::attr_str(msg_n, "t");
-		// раскодируем строку хедера
+		// я─п╟я│п╨п╬п╢п╦я─я┐п╣п╪ я│я┌я─п╬п╨я┐ я┘п╣п╢п╣я─п╟
 		std::string header = coder::base64_decode(message.header);
 		int to_uid = -1;
-		// вытаскиваем дату, отправителя и получателя
+		// п╡я▀я┌п╟я│п╨п╦п╡п╟п╣п╪ п╢п╟я┌я┐, п╬я┌п©я─п╟п╡п╦я┌п╣п╩я▐ п╦ п©п╬п╩я┐я┤п╟я┌п╣п╩я▐
 		std::vector<std::string> param_list;
 		boost::split(param_list, header, boost::is_any_of(" "));
 		if (param_list.size() == 3)
@@ -714,32 +714,32 @@ void load()
 			}
 			catch (const std::invalid_argument &)
 			{
-				log("SYSERROR: ошибка чтения mail header #1 (%s)",
+				log("SYSERROR: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ mail header #1 (%s)",
 					header.c_str());
 				continue;
 			}
 		}
 		else
 		{
-			log("SYSERROR: ошибка чтения mail header #2 (%s)",
+			log("SYSERROR: п╬я┬п╦п╠п╨п╟ я┤я┌п╣п╫п╦я▐ mail header #2 (%s)",
 				header.c_str());
 			continue;
 		}
 		const char *to_name = get_name_by_unique(to_uid);
-		// проверяем, чего распарсили в хедере
+		// п©я─п╬п╡п╣я─я▐п╣п╪, я┤п╣пЁп╬ я─п╟я│п©п╟я─я│п╦п╩п╦ п╡ я┘п╣п╢п╣я─п╣
 		if (!to_name)
 		{
-			// адресата больше нет
+			// п╟п╢я─п╣я│п╟я┌п╟ п╠п╬п╩я▄я┬п╣ п╫п╣я┌
 			continue;
 		}
 		if (message.from == -1 && time(0) - message.date > 60 * 60 * 24 * 365)
 		{
-			// технические сообщения старше года
+			// я┌п╣я┘п╫п╦я┤п╣я│п╨п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐ я│я┌п╟я─я┬п╣ пЁп╬п╢п╟
 			continue;
 		}
 		if (message.from > 0 && !get_name_by_unique(message.from))
 		{
-			// убираем левые уиды, чтобы потом с кем-нить другим не совпало
+			// я┐п╠п╦я─п╟п╣п╪ п╩п╣п╡я▀п╣ я┐п╦п╢я▀, я┤я┌п╬п╠я▀ п©п╬я┌п╬п╪ я│ п╨п╣п╪-п╫п╦я┌я▄ п╢я─я┐пЁп╦п╪ п╫п╣ я│п╬п╡п©п╟п╩п╬
 			message.from = -2;
 		}
 		mail_list.insert(std::make_pair(to_uid, message));

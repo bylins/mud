@@ -36,7 +36,7 @@ extern int planebit(const char *str, int *plane, int *bit);
 
 void LoadRandomObj(OBJ_DATA *obj)
 {
-	// костыли, привет
+	// п╨п╬я│я┌я▀п╩п╦, п©я─п╦п╡п╣я┌
 	int plane, bit;
 	for (auto robj : random_objs)
 	{
@@ -235,16 +235,16 @@ void generate_book_upgrd(OBJ_DATA *obj)
 	obj->set_val(1, skill_list[number(0, static_cast<int>(skill_list.size()) - 1)]);
 	std::string book_name = skill_name(GET_OBJ_VAL(obj, 1));
 
-	obj->set_aliases("книга секретов умения: " + book_name);
-	obj->set_short_description("книга секретов умения: " + book_name);
-	obj->set_description("Книга секретов умения: " + book_name + " лежит здесь.");
+	obj->set_aliases("п╨п╫п╦пЁп╟ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name);
+	obj->set_short_description("п╨п╫п╦пЁп╟ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name);
+	obj->set_description("п п╫п╦пЁп╟ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name + " п╩п╣п╤п╦я┌ п╥п╢п╣я│я▄.");
 
-	obj->set_PName(0, "книга секретов умения: " + book_name);
-	obj->set_PName(1, "книги секретов умения: " + book_name);
-	obj->set_PName(2, "книге секретов умения: " + book_name);
-	obj->set_PName(3, "книгу секретов умения: " + book_name);
-	obj->set_PName(4, "книгой секретов умения: " + book_name);
-	obj->set_PName(5, "книге секретов умения: " + book_name);
+	obj->set_PName(0, "п╨п╫п╦пЁп╟ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name);
+	obj->set_PName(1, "п╨п╫п╦пЁп╦ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name);
+	obj->set_PName(2, "п╨п╫п╦пЁп╣ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name);
+	obj->set_PName(3, "п╨п╫п╦пЁя┐ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name);
+	obj->set_PName(4, "п╨п╫п╦пЁп╬п╧ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name);
+	obj->set_PName(5, "п╨п╫п╦пЁп╣ я│п╣п╨я─п╣я┌п╬п╡ я┐п╪п╣п╫п╦я▐: " + book_name);
 }
 
 void generate_warrior_enchant(OBJ_DATA *obj)
@@ -347,8 +347,8 @@ void generate_magic_enchant(OBJ_DATA *obj)
 }
 
 /**
- * \param setload = true - лоад через систему дропа сетов
- *        setload = false - лоад через глобал дроп
+ * \param setload = true - п╩п╬п╟п╢ я┤п╣я─п╣п╥ я│п╦я│я┌п╣п╪я┐ п╢я─п╬п©п╟ я│п╣я┌п╬п╡
+ *        setload = false - п╩п╬п╟п╢ я┤п╣я─п╣п╥ пЁп╩п╬п╠п╟п╩ п╢я─п╬п©
  */
 void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 {
@@ -388,7 +388,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	{
 		for (const auto tch : world[ch->in_room]->people)
 		{
-			send_to_char(tch, "%sДиво дивное, чудо чудное!%s\r\n", CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
+			send_to_char(tch, "%sп■п╦п╡п╬ п╢п╦п╡п╫п╬п╣, я┤я┐п╢п╬ я┤я┐п╢п╫п╬п╣!%s\r\n", CCGRN(tch, C_NRM), CCNRM(tch, C_NRM));
 		}
 	}
 
@@ -405,7 +405,7 @@ void obj_to_corpse(OBJ_DATA *corpse, CHAR_DATA *ch, int rnum, bool setload)
 	{
 		if (o->get_in_room() != NOWHERE)
 		{
-			act("На земле остал$U лежать $o.", FALSE, ch, o.get(), 0, TO_ROOM);
+			act("п²п╟ п╥п╣п╪п╩п╣ п╬я│я┌п╟п╩$U п╩п╣п╤п╟я┌я▄ $o.", FALSE, ch, o.get(), 0, TO_ROOM);
 		}
 		load_otrigger(o.get());
 	}

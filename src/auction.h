@@ -44,7 +44,7 @@ AUCTION_DATA *free_auction(int *lotnum);
 int obj_on_auction(OBJ_DATA * obj);
 
 #define GET_LOT(value) ((auction_lots+value))
-#define AUCTION_IDENT_PAY 110	//цена за опознание
+#define AUCTION_IDENT_PAY 110	//я├п╣п╫п╟ п╥п╟ п╬п©п╬п╥п╫п╟п╫п╦п╣
 
 #endif
 

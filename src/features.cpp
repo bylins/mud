@@ -55,9 +55,9 @@ void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern void fix_name_feat(char *name);
 
 ///
-/// Поиск номера способности по имени
+/// п÷п╬п╦я│п╨ п╫п╬п╪п╣я─п╟ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п©п╬ п╦п╪п╣п╫п╦
 /// \param alias = false
-/// true для поиска при вводе имени способности игроком у учителей
+/// true п╢п╩я▐ п©п╬п╦я│п╨п╟ п©я─п╦ п╡п╡п╬п╢п╣ п╦п╪п╣п╫п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п╦пЁя─п╬п╨п╬п╪ я┐ я┐я┤п╦я┌п╣п╩п╣п╧
 ///
 int find_feat_num(const char *name, bool alias)
 {
@@ -84,7 +84,7 @@ int find_feat_num(const char *name, bool alias)
 	return (-1);
 }
 
-// Инициализация способности заданными значениями
+// п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п╥п╟п╢п╟п╫п╫я▀п╪п╦ п╥п╫п╟я┤п╣п╫п╦я▐п╪п╦
 void feato(int feat, const char *name, int type, bool can_up_slot, CFeatArray app)
 {
 	int i, j;
@@ -111,7 +111,7 @@ void feato(int feat, const char *name, int type, bool can_up_slot, CFeatArray ap
 	}
 }
 
-// Инициализация для unused features
+// п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╢п╩я▐ unused features
 void unused_feat(int feat)
 {
 	int i, j;
@@ -136,7 +136,7 @@ void unused_feat(int feat)
 	}
 }
 
-// Инициализация массива структур способностей
+// п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╪п╟я│я│п╦п╡п╟ я│я┌я─я┐п╨я┌я┐я─ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧
 void assign_feats(void)
 {
 	int i;
@@ -147,38 +147,38 @@ void assign_feats(void)
 	}
 
 //1
-	feato(BERSERK_FEAT, "предсмертная ярость", NORMAL_FTYPE, TRUE, feat_app);
+	feato(BERSERK_FEAT, "п©я─п╣п╢я│п╪п╣я─я┌п╫п╟я▐ я▐я─п╬я│я┌я▄", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //2
-	feato(PARRY_ARROW_FEAT, "отбить стрелу", NORMAL_FTYPE, TRUE, feat_app);
+	feato(PARRY_ARROW_FEAT, "п╬я┌п╠п╦я┌я▄ я│я┌я─п╣п╩я┐", NORMAL_FTYPE, TRUE, feat_app);
 //3
-	feato(BLIND_FIGHT_FEAT, "слепой бой", NORMAL_FTYPE, TRUE, feat_app);
+	feato(BLIND_FIGHT_FEAT, "я│п╩п╣п©п╬п╧ п╠п╬п╧", NORMAL_FTYPE, TRUE, feat_app);
 //4
 	feat_app.insert(APPLY_MR, 1);
 	feat_app.insert(APPLY_AR, 1);
-	feato(IMPREGNABLE_FEAT, "непробиваемый", AFFECT_FTYPE, TRUE, feat_app);
+	feato(IMPREGNABLE_FEAT, "п╫п╣п©я─п╬п╠п╦п╡п╟п╣п╪я▀п╧", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //5-*
-	feato(APPROACHING_ATTACK_FEAT, "встречная атака", NORMAL_FTYPE, TRUE, feat_app);
+	feato(APPROACHING_ATTACK_FEAT, "п╡я│я┌я─п╣я┤п╫п╟я▐ п╟я┌п╟п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //6
-	feato(DEFENDER_FEAT, "щитоносец", NORMAL_FTYPE, TRUE, feat_app);
+	feato(DEFENDER_FEAT, "я┴п╦я┌п╬п╫п╬я│п╣я├", NORMAL_FTYPE, TRUE, feat_app);
 //7
-	feato(DODGER_FEAT, "изворотливость", AFFECT_FTYPE, TRUE, feat_app);
+	feato(DODGER_FEAT, "п╦п╥п╡п╬я─п╬я┌п╩п╦п╡п╬я│я┌я▄", AFFECT_FTYPE, TRUE, feat_app);
 //8
-	feato(LIGHT_WALK_FEAT, "легкая поступь", NORMAL_FTYPE, TRUE, feat_app);
+	feato(LIGHT_WALK_FEAT, "п╩п╣пЁп╨п╟я▐ п©п╬я│я┌я┐п©я▄", NORMAL_FTYPE, TRUE, feat_app);
 //9
-	feato(WRIGGLER_FEAT, "проныра", NORMAL_FTYPE, TRUE, feat_app);
+	feato(WRIGGLER_FEAT, "п©я─п╬п╫я▀я─п╟", NORMAL_FTYPE, TRUE, feat_app);
 //10
-	feato(SPELL_SUBSTITUTE_FEAT, "подмена заклинания", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SPELL_SUBSTITUTE_FEAT, "п©п╬п╢п╪п╣п╫п╟ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐", NORMAL_FTYPE, TRUE, feat_app);
 //11
-	feato(POWER_ATTACK_FEAT, "мощная атака", NORMAL_FTYPE, TRUE, feat_app);
+	feato(POWER_ATTACK_FEAT, "п╪п╬я┴п╫п╟я▐ п╟я┌п╟п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //12
 	feat_app.insert(APPLY_RESIST_FIRE, 5);
 	feat_app.insert(APPLY_RESIST_AIR, 5);
 	feat_app.insert(APPLY_RESIST_WATER, 5);
 	feat_app.insert(APPLY_RESIST_EARTH, 5);
 	feat_app.insert(APPLY_RESIST_DARK, 5);
-	feato(WOODEN_SKIN_FEAT, "деревянная кожа", AFFECT_FTYPE, TRUE, feat_app);
+	feato(WOODEN_SKIN_FEAT, "п╢п╣я─п╣п╡я▐п╫п╫п╟я▐ п╨п╬п╤п╟", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //13
 	feat_app.insert(APPLY_RESIST_FIRE, 10);
@@ -187,420 +187,420 @@ void assign_feats(void)
 	feat_app.insert(APPLY_RESIST_EARTH, 10);
 	feat_app.insert(APPLY_RESIST_DARK, 10);
 	feat_app.insert(APPLY_ABSORBE, 5);
-	feato(IRON_SKIN_FEAT, "железная кожа", AFFECT_FTYPE, TRUE, feat_app);
+	feato(IRON_SKIN_FEAT, "п╤п╣п╩п╣п╥п╫п╟я▐ п╨п╬п╤п╟", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //14
 	feat_app.insert(FEAT_TIMER, 8);
-	feato(CONNOISEUR_FEAT, "знаток", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(CONNOISEUR_FEAT, "п╥п╫п╟я┌п╬п╨", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //15
-	feato(EXORCIST_FEAT, "изгоняющий нежить", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(EXORCIST_FEAT, "п╦п╥пЁп╬п╫я▐я▌я┴п╦п╧ п╫п╣п╤п╦я┌я▄", SKILL_MOD_FTYPE, TRUE, feat_app);
 //16
-	feato(HEALER_FEAT, "целитель", NORMAL_FTYPE, TRUE, feat_app);
+	feato(HEALER_FEAT, "я├п╣п╩п╦я┌п╣п╩я▄", NORMAL_FTYPE, TRUE, feat_app);
 //17
 	feat_app.insert(APPLY_SAVING_REFLEX, -10);
-	feato(LIGHTING_REFLEX_FEAT, "мгновенная реакция", AFFECT_FTYPE, TRUE, feat_app);
+	feato(LIGHTING_REFLEX_FEAT, "п╪пЁп╫п╬п╡п╣п╫п╫п╟я▐ я─п╣п╟п╨я├п╦я▐", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //18
 	feat_app.insert(FEAT_TIMER, 8);
-	feato(DRUNKARD_FEAT, "пьяница", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(DRUNKARD_FEAT, "п©я▄я▐п╫п╦я├п╟", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //19
-	feato(POWER_MAGIC_FEAT, "мощь колдовства", NORMAL_FTYPE, TRUE, feat_app);
+	feato(POWER_MAGIC_FEAT, "п╪п╬я┴я▄ п╨п╬п╩п╢п╬п╡я│я┌п╡п╟", NORMAL_FTYPE, TRUE, feat_app);
 //20
 	feat_app.insert(APPLY_MOVEREG, 40);
-	feato(ENDURANCE_FEAT, "выносливость", AFFECT_FTYPE, TRUE, feat_app);
+	feato(ENDURANCE_FEAT, "п╡я▀п╫п╬я│п╩п╦п╡п╬я│я┌я▄", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //21
 	feat_app.insert(APPLY_SAVING_WILL, -10);
 	feat_app.insert(APPLY_SAVING_STABILITY, -10);
-	feato(GREAT_FORTITUDE_FEAT, "сила духа", AFFECT_FTYPE, TRUE, feat_app);
+	feato(GREAT_FORTITUDE_FEAT, "я│п╦п╩п╟ п╢я┐я┘п╟", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //22
 	feat_app.insert(APPLY_HITREG, 35);
-	feato(FAST_REGENERATION_FEAT, "быстрое заживление", NORMAL_FTYPE, TRUE, feat_app);
+	feato(FAST_REGENERATION_FEAT, "п╠я▀я│я┌я─п╬п╣ п╥п╟п╤п╦п╡п╩п╣п╫п╦п╣", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //23
-	feato(STEALTHY_FEAT, "незаметность", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(STEALTHY_FEAT, "п╫п╣п╥п╟п╪п╣я┌п╫п╬я│я┌я▄", SKILL_MOD_FTYPE, TRUE, feat_app);
 //24
 	feat_app.insert(APPLY_CAST_SUCCESS, 80);
-	feato(RELATED_TO_MAGIC_FEAT, "магическое родство", AFFECT_FTYPE, TRUE, feat_app);
+	feato(RELATED_TO_MAGIC_FEAT, "п╪п╟пЁп╦я┤п╣я│п╨п╬п╣ я─п╬п╢я│я┌п╡п╬", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //25 -*
 	feat_app.insert(APPLY_HITREG, 10);
 	feat_app.insert(APPLY_SAVING_CRITICAL, -4);
-	feato(SPLENDID_HEALTH_FEAT, "богатырское здоровье", AFFECT_FTYPE, TRUE, feat_app);
+	feato(SPLENDID_HEALTH_FEAT, "п╠п╬пЁп╟я┌я▀я─я│п╨п╬п╣ п╥п╢п╬я─п╬п╡я▄п╣", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //26
-	feato(TRACKER_FEAT, "следопыт", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(TRACKER_FEAT, "я│п╩п╣п╢п╬п©я▀я┌", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //27
-	feato(WEAPON_FINESSE_FEAT, "ловкий удар", NORMAL_FTYPE, TRUE, feat_app);
+	feato(WEAPON_FINESSE_FEAT, "п╩п╬п╡п╨п╦п╧ я┐п╢п╟я─", NORMAL_FTYPE, TRUE, feat_app);
 //28
-	feato(COMBAT_CASTING_FEAT, "боевое колдовство", NORMAL_FTYPE, TRUE, feat_app);
+	feato(COMBAT_CASTING_FEAT, "п╠п╬п╣п╡п╬п╣ п╨п╬п╩п╢п╬п╡я│я┌п╡п╬", NORMAL_FTYPE, TRUE, feat_app);
 //29
 	feat_app.insert(SKILL_PUNCH, APPLY_NONE);
 	feat_app.insert(PUNCH_FOCUS_FEAT, APPLY_NONE);
-	feato(PUNCH_MASTER_FEAT, "мастер кулачного боя", NORMAL_FTYPE, TRUE, feat_app);
+	feato(PUNCH_MASTER_FEAT, "п╪п╟я│я┌п╣я─ п╨я┐п╩п╟я┤п╫п╬пЁп╬ п╠п╬я▐", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //30
 	feat_app.insert(SKILL_CLUBS, APPLY_NONE);
 	feat_app.insert(CLUB_FOCUS_FEAT, APPLY_NONE);
-	feato(CLUBS_MASTER_FEAT, "мастер палицы", NORMAL_FTYPE, TRUE, feat_app);
+	feato(CLUBS_MASTER_FEAT, "п╪п╟я│я┌п╣я─ п©п╟п╩п╦я├я▀", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //31
 	feat_app.insert(SKILL_AXES, APPLY_NONE);
 	feat_app.insert(AXES_FOCUS_FEAT, APPLY_NONE);
-	feato(AXES_MASTER_FEAT, "мастер секиры", NORMAL_FTYPE, TRUE, feat_app);
+	feato(AXES_MASTER_FEAT, "п╪п╟я│я┌п╣я─ я│п╣п╨п╦я─я▀", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //32
 	feat_app.insert(SKILL_LONGS, APPLY_NONE);
 	feat_app.insert(LONGS_FOCUS_FEAT, APPLY_NONE);
-	feato(LONGS_MASTER_FEAT, "мастер меча", NORMAL_FTYPE, TRUE, feat_app);
+	feato(LONGS_MASTER_FEAT, "п╪п╟я│я┌п╣я─ п╪п╣я┤п╟", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //33
 	feat_app.insert(SKILL_SHORTS, APPLY_NONE);
 	feat_app.insert(SHORTS_FOCUS_FEAT, APPLY_NONE);
-	feato(SHORTS_MASTER_FEAT, "мастер ножа", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SHORTS_MASTER_FEAT, "п╪п╟я│я┌п╣я─ п╫п╬п╤п╟", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //34
 	feat_app.insert(SKILL_NONSTANDART, APPLY_NONE);
 	feat_app.insert(NONSTANDART_FOCUS_FEAT, APPLY_NONE);
-	feato(NONSTANDART_MASTER_FEAT, "мастер необычного оружия", NORMAL_FTYPE, TRUE, feat_app);
+	feato(NONSTANDART_MASTER_FEAT, "п╪п╟я│я┌п╣я─ п╫п╣п╬п╠я▀я┤п╫п╬пЁп╬ п╬я─я┐п╤п╦я▐", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //35
 	feat_app.insert(SKILL_BOTHHANDS, APPLY_NONE);
 	feat_app.insert(BOTHHANDS_FOCUS_FEAT, APPLY_NONE);
-	feato(BOTHHANDS_MASTER_FEAT, "мастер двуручника", NORMAL_FTYPE, TRUE, feat_app);
+	feato(BOTHHANDS_MASTER_FEAT, "п╪п╟я│я┌п╣я─ п╢п╡я┐я─я┐я┤п╫п╦п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //36
 	feat_app.insert(SKILL_PICK, APPLY_NONE);
 	feat_app.insert(PICK_FOCUS_FEAT, APPLY_NONE);
-	feato(PICK_MASTER_FEAT, "мастер кинжала", NORMAL_FTYPE, TRUE, feat_app);
+	feato(PICK_MASTER_FEAT, "п╪п╟я│я┌п╣я─ п╨п╦п╫п╤п╟п╩п╟", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //37
 	feat_app.insert(SKILL_SPADES, APPLY_NONE);
 	feat_app.insert(SPADES_FOCUS_FEAT, APPLY_NONE);
-	feato(SPADES_MASTER_FEAT, "мастер копья", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SPADES_MASTER_FEAT, "п╪п╟я│я┌п╣я─ п╨п╬п©я▄я▐", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //38
 	feat_app.insert(SKILL_BOWS, APPLY_NONE);
 	feat_app.insert(BOWS_FOCUS_FEAT, APPLY_NONE);
-	feato(BOWS_MASTER_FEAT, "мастер-лучник", NORMAL_FTYPE, TRUE, feat_app);
+	feato(BOWS_MASTER_FEAT, "п╪п╟я│я┌п╣я─-п╩я┐я┤п╫п╦п╨", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //39
-	feato(FOREST_PATHS_FEAT, "лесные тропы", NORMAL_FTYPE, TRUE, feat_app);
+	feato(FOREST_PATHS_FEAT, "п╩п╣я│п╫я▀п╣ я┌я─п╬п©я▀", NORMAL_FTYPE, TRUE, feat_app);
 //40
-	feato(MOUNTAIN_PATHS_FEAT, "горные тропы", NORMAL_FTYPE, TRUE, feat_app);
+	feato(MOUNTAIN_PATHS_FEAT, "пЁп╬я─п╫я▀п╣ я┌я─п╬п©я▀", NORMAL_FTYPE, TRUE, feat_app);
 //41
 	feat_app.insert(APPLY_MORALE, 5);
-	feato(LUCKY_FEAT, "счастливчик", AFFECT_FTYPE, TRUE, feat_app);
+	feato(LUCKY_FEAT, "я│я┤п╟я│я┌п╩п╦п╡я┤п╦п╨", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //42
-	feato(SPIRIT_WARRIOR_FEAT, "боевой дух", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SPIRIT_WARRIOR_FEAT, "п╠п╬п╣п╡п╬п╧ п╢я┐я┘", NORMAL_FTYPE, TRUE, feat_app);
 //43
  	feat_app.insert(APPLY_HITREG, 50);
-	feato(RELIABLE_HEALTH_FEAT, "крепкое здоровье", AFFECT_FTYPE, TRUE, feat_app);
+	feato(RELIABLE_HEALTH_FEAT, "п╨я─п╣п©п╨п╬п╣ п╥п╢п╬я─п╬п╡я▄п╣", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //44
 	feat_app.insert(APPLY_MANAREG, 100);
-	feato(EXCELLENT_MEMORY_FEAT, "превосходная память", AFFECT_FTYPE, TRUE, feat_app);
+	feato(EXCELLENT_MEMORY_FEAT, "п©я─п╣п╡п╬я│я┘п╬п╢п╫п╟я▐ п©п╟п╪я▐я┌я▄", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //45
 	feat_app.insert(APPLY_DEX, 1);
-	feato(ANIMAL_DEXTERY_FEAT, "звериная прыть", AFFECT_FTYPE, TRUE, feat_app);
+	feato(ANIMAL_DEXTERY_FEAT, "п╥п╡п╣я─п╦п╫п╟я▐ п©я─я▀я┌я▄", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //46
 	feat_app.insert(APPLY_MANAREG, 25);
-	feato(LEGIBLE_WRITTING_FEAT, "чёткий почерк", AFFECT_FTYPE, TRUE, feat_app);
+	feato(LEGIBLE_WRITTING_FEAT, "я┤я▒я┌п╨п╦п╧ п©п╬я┤п╣я─п╨", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //47
 	feat_app.insert(APPLY_DAMROLL, 2);
-	feato(IRON_MUSCLES_FEAT, "стальные мышцы", AFFECT_FTYPE, TRUE, feat_app);
+	feato(IRON_MUSCLES_FEAT, "я│я┌п╟п╩я▄п╫я▀п╣ п╪я▀я┬я├я▀", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //48
 	feat_app.insert(APPLY_CAST_SUCCESS, 5);
-	feato(MAGIC_SIGN_FEAT, "знак чародея", AFFECT_FTYPE, TRUE, feat_app);
+	feato(MAGIC_SIGN_FEAT, "п╥п╫п╟п╨ я┤п╟я─п╬п╢п╣я▐", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //49
 	feat_app.insert(APPLY_MOVEREG, 75);
-	feato(GREAT_ENDURANCE_FEAT, "двужильность", AFFECT_FTYPE, TRUE, feat_app);
+	feato(GREAT_ENDURANCE_FEAT, "п╢п╡я┐п╤п╦п╩я▄п╫п╬я│я┌я▄", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //50
 	feat_app.insert(APPLY_MORALE, 5);
-	feato(BEST_DESTINY_FEAT, "лучшая доля", AFFECT_FTYPE, TRUE, feat_app);
+	feato(BEST_DESTINY_FEAT, "п╩я┐я┤я┬п╟я▐ п╢п╬п╩я▐", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //51
-	feato(BREW_POTION_FEAT, "травник", NORMAL_FTYPE, TRUE, feat_app);
+	feato(BREW_POTION_FEAT, "я┌я─п╟п╡п╫п╦п╨", NORMAL_FTYPE, TRUE, feat_app);
 //52
-	feato(JUGGLER_FEAT, "жонглер", NORMAL_FTYPE, TRUE, feat_app);
+	feato(JUGGLER_FEAT, "п╤п╬п╫пЁп╩п╣я─", NORMAL_FTYPE, TRUE, feat_app);
 //53
-	feato(NIMBLE_FINGERS_FEAT, "ловкач", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(NIMBLE_FINGERS_FEAT, "п╩п╬п╡п╨п╟я┤", SKILL_MOD_FTYPE, TRUE, feat_app);
 //54
-	feato(GREAT_POWER_ATTACK_FEAT, "улучшенная мощная атака", NORMAL_FTYPE, TRUE, feat_app);
+	feato(GREAT_POWER_ATTACK_FEAT, "я┐п╩я┐я┤я┬п╣п╫п╫п╟я▐ п╪п╬я┴п╫п╟я▐ п╟я┌п╟п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //55
 	feat_app.insert(APPLY_RESIST_IMMUNITY, 15);
-	feato(IMMUNITY_FEAT, "привычка к яду", AFFECT_FTYPE, TRUE, feat_app);
+	feato(IMMUNITY_FEAT, "п©я─п╦п╡я▀я┤п╨п╟ п╨ я▐п╢я┐", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //56
 	feat_app.insert(APPLY_AC, -40);
-	feato(MOBILITY_FEAT, "подвижность", AFFECT_FTYPE, TRUE, feat_app);
+	feato(MOBILITY_FEAT, "п©п╬п╢п╡п╦п╤п╫п╬я│я┌я▄", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //57
 	feat_app.insert(APPLY_STR, 1);
-	feato(NATURAL_STRENGTH_FEAT, "силач", AFFECT_FTYPE, TRUE, feat_app);
+	feato(NATURAL_STRENGTH_FEAT, "я│п╦п╩п╟я┤", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //58
 	feat_app.insert(APPLY_DEX, 1);
-	feato(NATURAL_DEXTERY_FEAT, "проворство", AFFECT_FTYPE, TRUE, feat_app);
+	feato(NATURAL_DEXTERY_FEAT, "п©я─п╬п╡п╬я─я│я┌п╡п╬", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //59
 	feat_app.insert(APPLY_INT, 1);
-	feato(NATURAL_INTELLECT_FEAT, "природный ум", AFFECT_FTYPE, TRUE, feat_app);
+	feato(NATURAL_INTELLECT_FEAT, "п©я─п╦я─п╬п╢п╫я▀п╧ я┐п╪", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //60
 	feat_app.insert(APPLY_WIS, 1);
-	feato(NATURAL_WISDOM_FEAT, "мудрец", AFFECT_FTYPE, TRUE, feat_app);
+	feato(NATURAL_WISDOM_FEAT, "п╪я┐п╢я─п╣я├", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //61
 	feat_app.insert(APPLY_CON, 1);
-	feato(NATURAL_CONSTITUTION_FEAT, "здоровяк", AFFECT_FTYPE, TRUE, feat_app);
+	feato(NATURAL_CONSTITUTION_FEAT, "п╥п╢п╬я─п╬п╡я▐п╨", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //62
 	feat_app.insert(APPLY_CHA, 1);
-	feato(NATURAL_CHARISMA_FEAT, "природное обаяние", AFFECT_FTYPE, TRUE, feat_app);
+	feato(NATURAL_CHARISMA_FEAT, "п©я─п╦я─п╬п╢п╫п╬п╣ п╬п╠п╟я▐п╫п╦п╣", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //63
 	feat_app.insert(APPLY_MANAREG, 25);
-	feato(MNEMONIC_ENHANCER_FEAT, "отличная память", AFFECT_FTYPE, TRUE, feat_app);
+	feato(MNEMONIC_ENHANCER_FEAT, "п╬я┌п╩п╦я┤п╫п╟я▐ п©п╟п╪я▐я┌я▄", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //64 -*
 	feat_app.insert(SKILL_LEADERSHIP, 5);
-	feato(MAGNETIC_PERSONALITY_FEAT, "предводитель", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(MAGNETIC_PERSONALITY_FEAT, "п©я─п╣п╢п╡п╬п╢п╦я┌п╣п╩я▄", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //65
 	feat_app.insert(APPLY_DAMROLL, 2);
-	feato(DAMROLL_BONUS_FEAT, "тяжел на руку", AFFECT_FTYPE, TRUE, feat_app);
+	feato(DAMROLL_BONUS_FEAT, "я┌я▐п╤п╣п╩ п╫п╟ я─я┐п╨я┐", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //66
 	feat_app.insert(APPLY_HITROLL, 1);
-	feato(HITROLL_BONUS_FEAT, "твердая рука", AFFECT_FTYPE, TRUE, feat_app);
+	feato(HITROLL_BONUS_FEAT, "я┌п╡п╣я─п╢п╟я▐ я─я┐п╨п╟", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //67
 	feat_app.insert(APPLY_CAST_SUCCESS, 30);
-	feato(MAGICAL_INSTINCT_FEAT, "магическое чутье", AFFECT_FTYPE, TRUE, feat_app);
+	feato(MAGICAL_INSTINCT_FEAT, "п╪п╟пЁп╦я┤п╣я│п╨п╬п╣ я┤я┐я┌я▄п╣", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //68
 	feat_app.insert(SKILL_PUNCH, APPLY_NONE);
-	feato(PUNCH_FOCUS_FEAT, "любимое_оружие: голые руки", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(PUNCH_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: пЁп╬п╩я▀п╣ я─я┐п╨п╦", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //69
 	feat_app.insert(SKILL_CLUBS, APPLY_NONE);
-	feato(CLUB_FOCUS_FEAT, "любимое_оружие: палица", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(CLUB_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: п©п╟п╩п╦я├п╟", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //70
 	feat_app.insert(SKILL_AXES, APPLY_NONE);
-	feato(AXES_FOCUS_FEAT, "любимое_оружие: секира", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(AXES_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: я│п╣п╨п╦я─п╟", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //71
 	feat_app.insert(SKILL_LONGS, APPLY_NONE);
-	feato(LONGS_FOCUS_FEAT, "любимое_оружие: меч", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(LONGS_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: п╪п╣я┤", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //72
 	feat_app.insert(SKILL_SHORTS, APPLY_NONE);
-	feato(SHORTS_FOCUS_FEAT, "любимое_оружие: нож", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(SHORTS_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: п╫п╬п╤", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //73
 	feat_app.insert(SKILL_NONSTANDART, APPLY_NONE);
-	feato(NONSTANDART_FOCUS_FEAT, "любимое_оружие: необычное", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(NONSTANDART_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: п╫п╣п╬п╠я▀я┤п╫п╬п╣", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //74
 	feat_app.insert(SKILL_BOTHHANDS, APPLY_NONE);
-	feato(BOTHHANDS_FOCUS_FEAT, "любимое_оружие: двуручник", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(BOTHHANDS_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: п╢п╡я┐я─я┐я┤п╫п╦п╨", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //75
 	feat_app.insert(SKILL_PICK, APPLY_NONE);
-	feato(PICK_FOCUS_FEAT, "любимое_оружие: кинжал", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(PICK_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: п╨п╦п╫п╤п╟п╩", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //76
 	feat_app.insert(SKILL_SPADES, APPLY_NONE);
-	feato(SPADES_FOCUS_FEAT, "любимое_оружие: копье", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(SPADES_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: п╨п╬п©я▄п╣", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //77
 	feat_app.insert(SKILL_BOWS, APPLY_NONE);
-	feato(BOWS_FOCUS_FEAT, "любимое_оружие: лук", SKILL_MOD_FTYPE, TRUE, feat_app);
+	feato(BOWS_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╬п╣_п╬я─я┐п╤п╦п╣: п╩я┐п╨", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //78
-	feato(AIMING_ATTACK_FEAT, "прицельная атака", NORMAL_FTYPE, TRUE, feat_app);
+	feato(AIMING_ATTACK_FEAT, "п©я─п╦я├п╣п╩я▄п╫п╟я▐ п╟я┌п╟п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //79
-	feato(GREAT_AIMING_ATTACK_FEAT, "улучшенная прицельная атака", NORMAL_FTYPE, TRUE, feat_app);
+	feato(GREAT_AIMING_ATTACK_FEAT, "я┐п╩я┐я┤я┬п╣п╫п╫п╟я▐ п©я─п╦я├п╣п╩я▄п╫п╟я▐ п╟я┌п╟п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //80
-	feato(DOUBLESHOT_FEAT, "двойной выстрел", NORMAL_FTYPE, TRUE, feat_app);
+	feato(DOUBLESHOT_FEAT, "п╢п╡п╬п╧п╫п╬п╧ п╡я▀я│я┌я─п╣п╩", NORMAL_FTYPE, TRUE, feat_app);
 //81
-	feato(PORTER_FEAT, "тяжеловоз", NORMAL_FTYPE, TRUE, feat_app);
+	feato(PORTER_FEAT, "я┌я▐п╤п╣п╩п╬п╡п╬п╥", NORMAL_FTYPE, TRUE, feat_app);
 //82
-	feato(RUNE_NEWBIE_FEAT, "толкователь рун", NORMAL_FTYPE, TRUE, feat_app);
+	feato(RUNE_NEWBIE_FEAT, "я┌п╬п╩п╨п╬п╡п╟я┌п╣п╩я▄ я─я┐п╫", NORMAL_FTYPE, TRUE, feat_app);
 //83
-	feato(RUNE_USER_FEAT, "тайные руны", NORMAL_FTYPE, TRUE, feat_app);
+	feato(RUNE_USER_FEAT, "я┌п╟п╧п╫я▀п╣ я─я┐п╫я▀", NORMAL_FTYPE, TRUE, feat_app);
 //84
-	feato(RUNE_MASTER_FEAT, "заветные руны", NORMAL_FTYPE, TRUE, feat_app);
+	feato(RUNE_MASTER_FEAT, "п╥п╟п╡п╣я┌п╫я▀п╣ я─я┐п╫я▀", NORMAL_FTYPE, TRUE, feat_app);
 //85
-	feato(RUNE_ULTIMATE_FEAT, "руны богов", NORMAL_FTYPE, TRUE, feat_app);
+	feato(RUNE_ULTIMATE_FEAT, "я─я┐п╫я▀ п╠п╬пЁп╬п╡", NORMAL_FTYPE, TRUE, feat_app);
 //86
-	feato(TO_FIT_ITEM_FEAT, "переделать", NORMAL_FTYPE, TRUE, feat_app);
+	feato(TO_FIT_ITEM_FEAT, "п©п╣я─п╣п╢п╣п╩п╟я┌я▄", NORMAL_FTYPE, TRUE, feat_app);
 //87
-	feato(TO_FIT_CLOTHCES_FEAT, "перешить", NORMAL_FTYPE, TRUE, feat_app);
+	feato(TO_FIT_CLOTHCES_FEAT, "п©п╣я─п╣я┬п╦я┌я▄", NORMAL_FTYPE, TRUE, feat_app);
 //88
-	feato(STRENGTH_CONCETRATION_FEAT, "концентрация силы", NORMAL_FTYPE, TRUE, feat_app);
+	feato(STRENGTH_CONCETRATION_FEAT, "п╨п╬п╫я├п╣п╫я┌я─п╟я├п╦я▐ я│п╦п╩я▀", NORMAL_FTYPE, TRUE, feat_app);
 //89
-	feato(DARK_READING_FEAT, "кошачий глаз", NORMAL_FTYPE, TRUE, feat_app);
+	feato(DARK_READING_FEAT, "п╨п╬я┬п╟я┤п╦п╧ пЁп╩п╟п╥", NORMAL_FTYPE, TRUE, feat_app);
 //90
-	feato(SPELL_CAPABLE_FEAT, "зачаровать", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SPELL_CAPABLE_FEAT, "п╥п╟я┤п╟я─п╬п╡п╟я┌я▄", NORMAL_FTYPE, TRUE, feat_app);
 //91
-	feato(ARMOR_LIGHT_FEAT, "легкие доспехи", NORMAL_FTYPE, TRUE, feat_app);
+	feato(ARMOR_LIGHT_FEAT, "п╩п╣пЁп╨п╦п╣ п╢п╬я│п©п╣я┘п╦", NORMAL_FTYPE, TRUE, feat_app);
 //92
-	feato(ARMOR_MEDIAN_FEAT, "средние доспехи", NORMAL_FTYPE, TRUE, feat_app);
+	feato(ARMOR_MEDIAN_FEAT, "я│я─п╣п╢п╫п╦п╣ п╢п╬я│п©п╣я┘п╦", NORMAL_FTYPE, TRUE, feat_app);
 //93
-	feato(ARMOR_HEAVY_FEAT, "тяжелые доспехи", NORMAL_FTYPE, TRUE, feat_app);
+	feato(ARMOR_HEAVY_FEAT, "я┌я▐п╤п╣п╩я▀п╣ п╢п╬я│п©п╣я┘п╦", NORMAL_FTYPE, TRUE, feat_app);
 //94
-	feato(GEMS_INLAY_FEAT, "инкрустация", NORMAL_FTYPE, TRUE, feat_app);
+	feato(GEMS_INLAY_FEAT, "п╦п╫п╨я─я┐я│я┌п╟я├п╦я▐", NORMAL_FTYPE, TRUE, feat_app);
 //95
-	feato(WARRIOR_STR_FEAT, "богатырская сила", NORMAL_FTYPE, TRUE, feat_app);
+	feato(WARRIOR_STR_FEAT, "п╠п╬пЁп╟я┌я▀я─я│п╨п╟я▐ я│п╦п╩п╟", NORMAL_FTYPE, TRUE, feat_app);
 //96
-	feato(RELOCATE_FEAT, "переместиться", NORMAL_FTYPE, TRUE, feat_app);
+	feato(RELOCATE_FEAT, "п©п╣я─п╣п╪п╣я│я┌п╦я┌я▄я│я▐", NORMAL_FTYPE, TRUE, feat_app);
 //97
-	feato(SILVER_TONGUED_FEAT, "сладкоречие", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SILVER_TONGUED_FEAT, "я│п╩п╟п╢п╨п╬я─п╣я┤п╦п╣", NORMAL_FTYPE, TRUE, feat_app);
 //98
-	feato(BULLY_FEAT, "забияка", NORMAL_FTYPE, TRUE, feat_app);
+	feato(BULLY_FEAT, "п╥п╟п╠п╦я▐п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //99
-	feato(THIEVES_STRIKE_FEAT, "воровской удар", NORMAL_FTYPE, TRUE, feat_app);
+	feato(THIEVES_STRIKE_FEAT, "п╡п╬я─п╬п╡я│п╨п╬п╧ я┐п╢п╟я─", NORMAL_FTYPE, TRUE, feat_app);
 //100
-	feato(MASTER_JEWELER_FEAT, "искусный ювелир", NORMAL_FTYPE, TRUE, feat_app);
+	feato(MASTER_JEWELER_FEAT, "п╦я│п╨я┐я│п╫я▀п╧ я▌п╡п╣п╩п╦я─", NORMAL_FTYPE, TRUE, feat_app);
 //101
-	feato(SKILLED_TRADER_FEAT, "торговая сметка", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SKILLED_TRADER_FEAT, "я┌п╬я─пЁп╬п╡п╟я▐ я│п╪п╣я┌п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //102
-	feato(ZOMBIE_DROVER_FEAT, "погонщик умертвий", NORMAL_FTYPE, TRUE, feat_app);
+	feato(ZOMBIE_DROVER_FEAT, "п©п╬пЁп╬п╫я┴п╦п╨ я┐п╪п╣я─я┌п╡п╦п╧", NORMAL_FTYPE, TRUE, feat_app);
 //103
-	feato(EMPLOYER_FEAT, "навык найма", NORMAL_FTYPE, TRUE, feat_app);
+	feato(EMPLOYER_FEAT, "п╫п╟п╡я▀п╨ п╫п╟п╧п╪п╟", NORMAL_FTYPE, TRUE, feat_app);
 //104
-	feato(MAGIC_USER_FEAT, "использование амулетов", NORMAL_FTYPE, TRUE, feat_app);
+	feato(MAGIC_USER_FEAT, "п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ п╟п╪я┐п╩п╣я┌п╬п╡", NORMAL_FTYPE, TRUE, feat_app);
 //105
-	feato(GOLD_TONGUE_FEAT, "златоуст", NORMAL_FTYPE, TRUE, feat_app);
+	feato(GOLD_TONGUE_FEAT, "п╥п╩п╟я┌п╬я┐я│я┌", NORMAL_FTYPE, TRUE, feat_app);
 //106
-	feato(CALMNESS_FEAT, "хладнокровие", NORMAL_FTYPE, TRUE, feat_app);
+	feato(CALMNESS_FEAT, "я┘п╩п╟п╢п╫п╬п╨я─п╬п╡п╦п╣", NORMAL_FTYPE, TRUE, feat_app);
 //107
-	feato(RETREAT_FEAT, "отступление", NORMAL_FTYPE, TRUE, feat_app);
+	feato(RETREAT_FEAT, "п╬я┌я│я┌я┐п©п╩п╣п╫п╦п╣", NORMAL_FTYPE, TRUE, feat_app);
 //108
-	feato(SHADOW_STRIKE_FEAT, "танцующая тень", NORMAL_FTYPE, TRUE, feat_app);
+	feato(SHADOW_STRIKE_FEAT, "я┌п╟п╫я├я┐я▌я┴п╟я▐ я┌п╣п╫я▄", NORMAL_FTYPE, TRUE, feat_app);
 //109
-	feato(THRIFTY_FEAT, "запасливость", NORMAL_FTYPE, TRUE, feat_app);
+	feato(THRIFTY_FEAT, "п╥п╟п©п╟я│п╩п╦п╡п╬я│я┌я▄", NORMAL_FTYPE, TRUE, feat_app);
 //110
-	// Циничность: Вы настолько циничны, что люди не хотят общаться с Вами
-	// -25% опыта за зонинг в группе
-	feato(CYNIC_FEAT, "циничность", NORMAL_FTYPE, TRUE, feat_app);
+	// п╕п╦п╫п╦я┤п╫п╬я│я┌я▄: п▓я▀ п╫п╟я│я┌п╬п╩я▄п╨п╬ я├п╦п╫п╦я┤п╫я▀, я┤я┌п╬ п╩я▌п╢п╦ п╫п╣ я┘п╬я┌я▐я┌ п╬п╠я┴п╟я┌я▄я│я▐ я│ п▓п╟п╪п╦
+	// -25% п╬п©я▀я┌п╟ п╥п╟ п╥п╬п╫п╦п╫пЁ п╡ пЁя─я┐п©п©п╣
+	feato(CYNIC_FEAT, "я├п╦п╫п╦я┤п╫п╬я│я┌я▄", NORMAL_FTYPE, TRUE, feat_app);
 //111
-	// если у лидера группы есть данная способность и в группе,
-	// двое человек, то экспа не режется.
-	feato(PARTNER_FEAT, "напарник", NORMAL_FTYPE, TRUE, feat_app);
+	// п╣я│п╩п╦ я┐ п╩п╦п╢п╣я─п╟ пЁя─я┐п©п©я▀ п╣я│я┌я▄ п╢п╟п╫п╫п╟я▐ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ п╦ п╡ пЁя─я┐п©п©п╣,
+	// п╢п╡п╬п╣ я┤п╣п╩п╬п╡п╣п╨, я┌п╬ я█п╨я│п©п╟ п╫п╣ я─п╣п╤п╣я┌я│я▐.
+	feato(PARTNER_FEAT, "п╫п╟п©п╟я─п╫п╦п╨", NORMAL_FTYPE, TRUE, feat_app);
 //112
-	// уменьшается процент фейла для закла Оживить Труп
-	feato(HELPDARK_FEAT, "помощь тьмы", NORMAL_FTYPE, TRUE, feat_app);
+	// я┐п╪п╣п╫я▄я┬п╟п╣я┌я│я▐ п©я─п╬я├п╣п╫я┌ я└п╣п╧п╩п╟ п╢п╩я▐ п╥п╟п╨п╩п╟ п·п╤п╦п╡п╦я┌я▄ п╒я─я┐п©
+	feato(HELPDARK_FEAT, "п©п╬п╪п╬я┴я▄ я┌я▄п╪я▀", NORMAL_FTYPE, TRUE, feat_app);
 //113
-	// увеличивает характеристики умок
-	feato(FURYDARK_FEAT, "ярость тьмы", NORMAL_FTYPE, TRUE, feat_app);
+	// я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ я┐п╪п╬п╨
+	feato(FURYDARK_FEAT, "я▐я─п╬я│я┌я▄ я┌я▄п╪я▀", NORMAL_FTYPE, TRUE, feat_app);
 //114
-	// темное восстановление - увеличивает реген хп
-	feato(DARKREGEN_FEAT, "темное восстановление", NORMAL_FTYPE, TRUE, feat_app);
+	// я┌п╣п╪п╫п╬п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣ - я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌ я─п╣пЁп╣п╫ я┘п©
+	feato(DARKREGEN_FEAT, "я┌п╣п╪п╫п╬п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣", NORMAL_FTYPE, TRUE, feat_app);
 //115
-	// если на умертвии есть аффект вампиризм, то чару идет +5% от урона умки
-	feato(SOULLINK_FEAT, "родство душ", NORMAL_FTYPE, TRUE, feat_app);
+	// п╣я│п╩п╦ п╫п╟ я┐п╪п╣я─я┌п╡п╦п╦ п╣я│я┌я▄ п╟я└я└п╣п╨я┌ п╡п╟п╪п©п╦я─п╦п╥п╪, я┌п╬ я┤п╟я─я┐ п╦п╢п╣я┌ +5% п╬я┌ я┐я─п╬п╫п╟ я┐п╪п╨п╦
+	feato(SOULLINK_FEAT, "я─п╬п╢я│я┌п╡п╬ п╢я┐я┬", NORMAL_FTYPE, TRUE, feat_app);
 //116
-	// при наличии этого умения невозможно сдизармить оружие
-	feato(STRONGCLUTCH_FEAT, "сильная хватка", NORMAL_FTYPE, TRUE, feat_app);
+	// п©я─п╦ п╫п╟п╩п╦я┤п╦п╦ я█я┌п╬пЁп╬ я┐п╪п╣п╫п╦я▐ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬ я│п╢п╦п╥п╟я─п╪п╦я┌я▄ п╬я─я┐п╤п╦п╣
+	feato(STRONGCLUTCH_FEAT, "я│п╦п╩я▄п╫п╟я▐ я┘п╡п╟я┌п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //117
-	// до 6 стрел одновременно
-	feato(MAGICARROWS_FEAT, "магические стрелы", NORMAL_FTYPE, TRUE, feat_app);
+	// п╢п╬ 6 я│я┌я─п╣п╩ п╬п╢п╫п╬п╡я─п╣п╪п╣п╫п╫п╬
+	feato(MAGICARROWS_FEAT, "п╪п╟пЁп╦я┤п╣я│п╨п╦п╣ я│я┌я─п╣п╩я▀", NORMAL_FTYPE, TRUE, feat_app);
 //118
-	// позволяет производить действия с душами
-	feato(COLLECTORSOULS_FEAT, "колекционер душ", NORMAL_FTYPE, TRUE, feat_app);
+	// п©п╬п╥п╡п╬п╩я▐п╣я┌ п©я─п╬п╦п╥п╡п╬п╢п╦я┌я▄ п╢п╣п╧я│я┌п╡п╦я▐ я│ п╢я┐я┬п╟п╪п╦
+	feato(COLLECTORSOULS_FEAT, "п╨п╬п╩п╣п╨я├п╦п╬п╫п╣я─ п╢я┐я┬", NORMAL_FTYPE, TRUE, feat_app);
 //119
-	// увеличивает шанс прохождения кам проклы.
-	feato(DARKDEAL_FEAT, "темная сделка", NORMAL_FTYPE, TRUE, feat_app);
+	// я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌ я┬п╟п╫я│ п©я─п╬я┘п╬п╤п╢п╣п╫п╦я▐ п╨п╟п╪ п©я─п╬п╨п╩я▀.
+	feato(DARKDEAL_FEAT, "я┌п╣п╪п╫п╟я▐ я│п╢п╣п╩п╨п╟", NORMAL_FTYPE, TRUE, feat_app);
 //120
-	// Очень сильно увеличивает вред от проклятия
-	feato(DECLINE_FEAT, "порча", NORMAL_FTYPE, TRUE, feat_app);
+	// п·я┤п╣п╫я▄ я│п╦п╩я▄п╫п╬ я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌ п╡я─п╣п╢ п╬я┌ п©я─п╬п╨п╩я▐я┌п╦я▐
+	feato(DECLINE_FEAT, "п©п╬я─я┤п╟", NORMAL_FTYPE, TRUE, feat_app);
 //121
-	// если у чернока есть больше 9 душ, то перед смертью он немного исцеляется взамен на души
-	feato(HARVESTLIFE_FEAT, "жатва жизни", NORMAL_FTYPE, TRUE, feat_app);
+	// п╣я│п╩п╦ я┐ я┤п╣я─п╫п╬п╨п╟ п╣я│я┌я▄ п╠п╬п╩я▄я┬п╣ 9 п╢я┐я┬, я┌п╬ п©п╣я─п╣п╢ я│п╪п╣я─я┌я▄я▌ п╬п╫ п╫п╣п╪п╫п╬пЁп╬ п╦я│я├п╣п╩я▐п╣я┌я│я▐ п╡п╥п╟п╪п╣п╫ п╫п╟ п╢я┐я┬п╦
+	feato(HARVESTLIFE_FEAT, "п╤п╟я┌п╡п╟ п╤п╦п╥п╫п╦", NORMAL_FTYPE, TRUE, feat_app);
 //122
-	// у скелета появляется умение спасти
-	feato(LOYALASSIST_FEAT, "верный помощник", NORMAL_FTYPE, TRUE, feat_app);
+	// я┐ я│п╨п╣п╩п╣я┌п╟ п©п╬я▐п╡п╩я▐п╣я┌я│я▐ я┐п╪п╣п╫п╦п╣ я│п©п╟я│я┌п╦
+	feato(LOYALASSIST_FEAT, "п╡п╣я─п╫я▀п╧ п©п╬п╪п╬я┴п╫п╦п╨", NORMAL_FTYPE, TRUE, feat_app);
 //123
-	// у костяного духа появляется умение спасти
-	feato(HAUNTINGSPIRIT_FEAT, "блуждающий дух", NORMAL_FTYPE, TRUE, feat_app);
+	// я┐ п╨п╬я│я┌я▐п╫п╬пЁп╬ п╢я┐я┘п╟ п©п╬я▐п╡п╩я▐п╣я┌я│я▐ я┐п╪п╣п╫п╦п╣ я│п©п╟я│я┌п╦
+	feato(HAUNTINGSPIRIT_FEAT, "п╠п╩я┐п╤п╢п╟я▌я┴п╦п╧ п╢я┐я┘", NORMAL_FTYPE, TRUE, feat_app);
 //124
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(SNEAKRAGE_FEAT, "ярость змеи", NORMAL_FTYPE, TRUE, feat_app);
-// для чернокнижника способности по веткам
+	// п╫п╟п╣п╪ п╫п╟п╫п╬я│п╦я┌ я│п╣я─п╦я▌ я│п╦п╩я▄п╫я▀я┘ я┐п╢п╟я─п╬п╡, п╫п╬ п╠я▀я│я┌я─п╬ я┐я│я┌п╟п╣я┌
+	feato(SNEAKRAGE_FEAT, "я▐я─п╬я│я┌я▄ п╥п╪п╣п╦", NORMAL_FTYPE, TRUE, feat_app);
+// п╢п╩я▐ я┤п╣я─п╫п╬п╨п╫п╦п╤п╫п╦п╨п╟ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п©п╬ п╡п╣я┌п╨п╟п╪
 //125
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
+	// п╫п╟п╣п╪ п╫п╟п╫п╬я│п╦я┌ я│п╣я─п╦я▌ я│п╦п╩я▄п╫я▀я┘ я┐п╢п╟я─п╬п╡, п╫п╬ п╠я▀я│я┌я─п╬ я┐я│я┌п╟п╣я┌
+	feato(TEAMSTER_UNDEAD_FEAT, "п©п╬пЁп╬п╫я┴п╦п╨ п╫п╣п╤п╦я┌п╦", NORMAL_FTYPE, TRUE, feat_app);
 //126
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(ELDER_TASKMASTER_FEAT, "старший надсмотрщик", NORMAL_FTYPE, TRUE, feat_app);
+	// п╫п╟п╣п╪ п╫п╟п╫п╬я│п╦я┌ я│п╣я─п╦я▌ я│п╦п╩я▄п╫я▀я┘ я┐п╢п╟я─п╬п╡, п╫п╬ п╠я▀я│я┌я─п╬ я┐я│я┌п╟п╣я┌
+	feato(ELDER_TASKMASTER_FEAT, "я│я┌п╟я─я┬п╦п╧ п╫п╟п╢я│п╪п╬я┌я─я┴п╦п╨", NORMAL_FTYPE, TRUE, feat_app);
 //127
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(LORD_UNDEAD_FEAT, "повелитель нежити", NORMAL_FTYPE, TRUE, feat_app);
+	// п╫п╟п╣п╪ п╫п╟п╫п╬я│п╦я┌ я│п╣я─п╦я▌ я│п╦п╩я▄п╫я▀я┘ я┐п╢п╟я─п╬п╡, п╫п╬ п╠я▀я│я┌я─п╬ я┐я│я┌п╟п╣я┌
+	feato(LORD_UNDEAD_FEAT, "п©п╬п╡п╣п╩п╦я┌п╣п╩я▄ п╫п╣п╤п╦я┌п╦", NORMAL_FTYPE, TRUE, feat_app);
 //128
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(DARK_WIZARD_FEAT, "темный маг", NORMAL_FTYPE, TRUE, feat_app);
+	// п╫п╟п╣п╪ п╫п╟п╫п╬я│п╦я┌ я│п╣я─п╦я▌ я│п╦п╩я▄п╫я▀я┘ я┐п╢п╟я─п╬п╡, п╫п╬ п╠я▀я│я┌я─п╬ я┐я│я┌п╟п╣я┌
+	feato(DARK_WIZARD_FEAT, "я┌п╣п╪п╫я▀п╧ п╪п╟пЁ", NORMAL_FTYPE, TRUE, feat_app);
 //129
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(ELDER_PRIEST_FEAT, "старший жрец", NORMAL_FTYPE, TRUE, feat_app);
+	// п╫п╟п╣п╪ п╫п╟п╫п╬я│п╦я┌ я│п╣я─п╦я▌ я│п╦п╩я▄п╫я▀я┘ я┐п╢п╟я─п╬п╡, п╫п╬ п╠я▀я│я┌я─п╬ я┐я│я┌п╟п╣я┌
+	feato(ELDER_PRIEST_FEAT, "я│я┌п╟я─я┬п╦п╧ п╤я─п╣я├", NORMAL_FTYPE, TRUE, feat_app);
 //130
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(HIGH_LICH_FEAT, "верховный лич", NORMAL_FTYPE, TRUE, feat_app);
+	// п╫п╟п╣п╪ п╫п╟п╫п╬я│п╦я┌ я│п╣я─п╦я▌ я│п╦п╩я▄п╫я▀я┘ я┐п╢п╟я─п╬п╡, п╫п╬ п╠я▀я│я┌я─п╬ я┐я│я┌п╟п╣я┌
+	feato(HIGH_LICH_FEAT, "п╡п╣я─я┘п╬п╡п╫я▀п╧ п╩п╦я┤", NORMAL_FTYPE, TRUE, feat_app);
 //131
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
+	// п╫п╟п╣п╪ п╫п╟п╫п╬я│п╦я┌ я│п╣я─п╦я▌ я│п╦п╩я▄п╫я▀я┘ я┐п╢п╟я─п╬п╡, п╫п╬ п╠я▀я│я┌я─п╬ я┐я│я┌п╟п╣я┌
+	feato(BLACK_RITUAL_FEAT, "я┌п╣п╪п╫я▀п╧ я─п╦я┌я┐п╟п╩", NORMAL_FTYPE, TRUE, feat_app);
 	/**
-        Тут промежуток, потому что кто-то зарезервировал номера "под татей"
+        п╒я┐я┌ п©я─п╬п╪п╣п╤я┐я┌п╬п╨, п©п╬я┌п╬п╪я┐ я┤я┌п╬ п╨я┌п╬-я┌п╬ п╥п╟я─п╣п╥п╣я─п╡п╦я─п╬п╡п╟п╩ п╫п╬п╪п╣я─п╟ "п©п╬п╢ я┌п╟я┌п╣п╧"
 	*/
 //138
-    feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
+    feato(EVASION_FEAT, "я│п╨п╬п╩я▄п╥п╨п╦п╧ я┌п╦п©", NORMAL_FTYPE, TRUE, feat_app);
 //139
-    feato(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
+    feato(EXPEDIENT_CUT_FEAT, "п╠п╬п╣п╡п╬п╧_п©я─п╦п╣п╪: п©п╬я─п╣п╥", NORMAL_FTYPE, TRUE, feat_app);
 	/*
 	//
-		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feato(AIR_MAGIC_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╟я▐_п╪п╟пЁп╦я▐: п╡п╬п╥п╢я┐я┘", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	//
-		feato(FIRE_MAGIC_FOCUS_FEAT, "любимая_магия: огонь", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feato(FIRE_MAGIC_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╟я▐_п╪п╟пЁп╦я▐: п╬пЁп╬п╫я▄", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	//
-		feato(WATER_MAGIC_FOCUS_FEAT, "любимая_магия: вода", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feato(WATER_MAGIC_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╟я▐_п╪п╟пЁп╦я▐: п╡п╬п╢п╟", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	//
-		feato(EARTH_MAGIC_FOCUS_FEAT, "любимая_магия: земля", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feato(EARTH_MAGIC_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╟я▐_п╪п╟пЁп╦я▐: п╥п╣п╪п╩я▐", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	//
-		feato(LIGHT_MAGIC_FOCUS_FEAT, "любимая_магия: свет", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feato(LIGHT_MAGIC_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╟я▐_п╪п╟пЁп╦я▐: я│п╡п╣я┌", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	//
-		feato(DARK_MAGIC_FOCUS_FEAT, "любимая_магия: тьма", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feato(DARK_MAGIC_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╟я▐_п╪п╟пЁп╦я▐: я┌я▄п╪п╟", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	//
-		feato(MIND_MAGIC_FOCUS_FEAT, "любимая_магия: разум", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feato(MIND_MAGIC_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╟я▐_п╪п╟пЁп╦я▐: я─п╟п╥я┐п╪", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	//
-		feato(LIFE_MAGIC_FOCUS_FEAT, "любимая_магия: жизнь", SKILL_MOD_FTYPE, TRUE, feat_app);
+		feato(LIFE_MAGIC_FOCUS_FEAT, "п╩я▌п╠п╦п╪п╟я▐_п╪п╟пЁп╦я▐: п╤п╦п╥п╫я▄", SKILL_MOD_FTYPE, TRUE, feat_app);
 		feat_app.clear();
 	*/
 //140
-    feato(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
+    feato(SHOT_FINESSE_FEAT, "п╩п╬п╡п╨п╦п╧ п╡я▀я│я┌я─п╣п╩", NORMAL_FTYPE, TRUE, feat_app);
 }
 
-// Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям.
+// п°п╬п╤п╣я┌ п╩п╦ п©п╣я─я│п╬п╫п╟п╤ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄? п÷я─п╬п╡п╣я─п╨п╟ п©п╬ я┐я─п╬п╡п╫я▌, я─п╣п╪п╬я─я┌п╟п╪, п©п╟я─п╟п╪п╣я┌я─п╟п╪ п©п╣я─я│п╬п╫п╟п╤п╟, я┌я─п╣п╠п╬п╡п╟п╫п╦я▐п╪.
 bool can_use_feat(const CHAR_DATA *ch, int feat)
 {
 	if (!HAVE_FEAT(ch, feat))
@@ -659,27 +659,27 @@ bool can_use_feat(const CHAR_DATA *ch, int feat)
 	return TRUE;
 }
 
-// Может ли персонаж изучить эту способность?
+// п°п╬п╤п╣я┌ п╩п╦ п©п╣я─я│п╬п╫п╟п╤ п╦п╥я┐я┤п╦я┌я▄ я█я┌я┐ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄?
 bool can_get_feat(CHAR_DATA *ch, int feat)
 {
 	int i, count = 0;
 	if (feat <= 0 || feat >= MAX_FEATS)
 	{
-		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
+		sprintf(buf, "п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ (feat=%d, ch=%s) п©п╣я─п╣п╢п╟п╫ п╡ features::can_get_feat!",
 			feat, ch->get_name().c_str());
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
-	// Доступность по классу, реморту.
+	// п■п╬я│я┌я┐п©п╫п╬я│я┌я▄ п©п╬ п╨п╩п╟я│я│я┐, я─п╣п╪п╬я─я┌я┐.
 	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat)) ||
 			(GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))
 		return FALSE;
 
-	// Наличие свободных слотов
+	// п²п╟п╩п╦я┤п╦п╣ я│п╡п╬п╠п╬п╢п╫я▀я┘ я│п╩п╬я┌п╬п╡
 	if (!have_feat_slot(ch, feat))
 		return FALSE;
 
-	// Специальные требования для изучения
+	// п║п©п╣я├п╦п╟п╩я▄п╫я▀п╣ я┌я─п╣п╠п╬п╡п╟п╫п╦я▐ п╢п╩я▐ п╦п╥я┐я┤п╣п╫п╦я▐
 	switch (feat)
 	{
 	case PARRY_ARROW_FEAT:
@@ -820,20 +820,20 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	return TRUE;
 }
 
-//Ищем свободный слот под способность (кроме врожденных).
+//п≤я┴п╣п╪ я│п╡п╬п╠п╬п╢п╫я▀п╧ я│п╩п╬я┌ п©п╬п╢ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ (п╨я─п╬п╪п╣ п╡я─п╬п╤п╢п╣п╫п╫я▀я┘).
 bool have_feat_slot(CHAR_DATA *ch, int feat)
 {
 	int i, lowfeat, hifeat;
-	//если способность врожденная - ее всегда можно получить
+	//п╣я│п╩п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ п╡я─п╬п╤п╢п╣п╫п╫п╟я▐ - п╣п╣ п╡я│п╣пЁп╢п╟ п╪п╬п╤п╫п╬ п©п╬п╩я┐я┤п╦я┌я▄
 	if (feat_info[feat].natural_classfeat[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat))
 		return TRUE;
 
-	//сколько у нас вообще способностей, у которых слот меньше требуемого, и сколько - тех, у которых больше или равно?
+	//я│п╨п╬п╩я▄п╨п╬ я┐ п╫п╟я│ п╡п╬п╬п╠я┴п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧, я┐ п╨п╬я┌п╬я─я▀я┘ я│п╩п╬я┌ п╪п╣п╫я▄я┬п╣ я┌я─п╣п╠я┐п╣п╪п╬пЁп╬, п╦ я│п╨п╬п╩я▄п╨п╬ - я┌п╣я┘, я┐ п╨п╬я┌п╬я─я▀я┘ п╠п╬п╩я▄я┬п╣ п╦п╩п╦ я─п╟п╡п╫п╬?
 	lowfeat = 0;
 	hifeat = 0;
 
-	//Мы не можем просто учесть кол-во способностей меньше требуемого и больше требуемого,
-	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
+	//п°я▀ п╫п╣ п╪п╬п╤п╣п╪ п©я─п╬я│я┌п╬ я┐я┤п╣я│я┌я▄ п╨п╬п╩-п╡п╬ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧ п╪п╣п╫я▄я┬п╣ я┌я─п╣п╠я┐п╣п╪п╬пЁп╬ п╦ п╠п╬п╩я▄я┬п╣ я┌я─п╣п╠я┐п╣п╪п╬пЁп╬,
+	//я┌.п╨. п╡п╬п╥п╪п╬п╤п╫я▀ я│п╡п╬п╠п╬п╢п╫я▀п╣ я│п╩п╬я┌я▀ п╪п╣п╫я▄я┬п╣ я┌я─п╣п╠я┐п╣п╪п╬пЁп╬, п╦ п©я─п╦ я█я┌п╬п╪ п╡п╣я─я┘п╫п╦п╣ п╥п╟п╫я▐я┌я▀ п╡я│п╣
 	auto slot_list = std::vector<int>();
 	for (i = 1; i < MAX_FEATS; ++i)
 	{
@@ -855,7 +855,7 @@ bool have_feat_slot(CHAR_DATA *ch, int feat)
 	  
 	std::sort(slot_list.begin(), slot_list.end());
 
-	//Посчитаем сколько действительно нижние способности занимают слотов (с учетом пропусков)
+	//п÷п╬я│я┤п╦я┌п╟п╣п╪ я│п╨п╬п╩я▄п╨п╬ п╢п╣п╧я│я┌п╡п╦я┌п╣п╩я▄п╫п╬ п╫п╦п╤п╫п╦п╣ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п╥п╟п╫п╦п╪п╟я▌я┌ я│п╩п╬я┌п╬п╡ (я│ я┐я┤п╣я┌п╬п╪ п©я─п╬п©я┐я│п╨п╬п╡)
 	for (const auto& slot : slot_list)
 	{
 		if (lowfeat < slot)
@@ -868,18 +868,18 @@ bool have_feat_slot(CHAR_DATA *ch, int feat)
 		}
 	}
 
-	//из имеющегося количества слотов нужно вычесть:
-	//число высоких слотов, занятых низкоуровневыми способностями,
-	//с учетом, что низкоуровневые могут и не занимать слотов выше им положенных,
-	//а также собственно число слотов, занятых высокоуровневыми способностями
+	//п╦п╥ п╦п╪п╣я▌я┴п╣пЁп╬я│я▐ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ я│п╩п╬я┌п╬п╡ п╫я┐п╤п╫п╬ п╡я▀я┤п╣я│я┌я▄:
+	//я┤п╦я│п╩п╬ п╡я▀я│п╬п╨п╦я┘ я│п╩п╬я┌п╬п╡, п╥п╟п╫я▐я┌я▀я┘ п╫п╦п╥п╨п╬я┐я─п╬п╡п╫п╣п╡я▀п╪п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▐п╪п╦,
+	//я│ я┐я┤п╣я┌п╬п╪, я┤я┌п╬ п╫п╦п╥п╨п╬я┐я─п╬п╡п╫п╣п╡я▀п╣ п╪п╬пЁя┐я┌ п╦ п╫п╣ п╥п╟п╫п╦п╪п╟я┌я▄ я│п╩п╬я┌п╬п╡ п╡я▀я┬п╣ п╦п╪ п©п╬п╩п╬п╤п╣п╫п╫я▀я┘,
+	//п╟ я┌п╟п╨п╤п╣ я│п╬п╠я│я┌п╡п╣п╫п╫п╬ я┤п╦я│п╩п╬ я│п╩п╬я┌п╬п╡, п╥п╟п╫я▐я┌я▀я┘ п╡я▀я│п╬п╨п╬я┐я─п╬п╡п╫п╣п╡я▀п╪п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▐п╪п╦
 	if (NUM_LEV_FEAT(ch) - FEAT_SLOT(ch, feat) - hifeat - MAX(0, lowfeat - FEAT_SLOT(ch, feat)) > 0)
 		return TRUE;
 
-	//oops.. слотов нет
+	//oops.. я│п╩п╬я┌п╬п╡ п╫п╣я┌
 	return FALSE;
 }
 
-// Возвращает значение значение модификатора из поля location структуры affected
+// п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╥п╫п╟я┤п╣п╫п╦п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─п╟ п╦п╥ п©п╬п╩я▐ location я│я┌я─я┐п╨я┌я┐я─я▀ affected
 int feature_mod(int feat, int location)
 {
 	int i;
@@ -898,13 +898,13 @@ void check_berserk(CHAR_DATA * ch)
 			(GET_HIT(ch) > GET_REAL_MAX_HIT(ch) / 2))
 	{
 		affect_from_char(ch, SPELL_BERSERK);
-		send_to_char("Предсмертное исступление оставило вас.\r\n", ch);
+		send_to_char("п÷я─п╣п╢я│п╪п╣я─я┌п╫п╬п╣ п╦я│я│я┌я┐п©п╩п╣п╫п╦п╣ п╬я│я┌п╟п╡п╦п╩п╬ п╡п╟я│.\r\n", ch);
 	}
 
 	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
 		!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) && (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
 	{
-//Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
+//Gorrah: п╡я─п╬п╢п╣ п╠я▀ я┐ п╪п╬п╠п╬п╡ я│п╨п╦п╩п╩я▀ я┌п╦п╨п╟я▌я┌ я┌п╟п╨ п╤п╣, я┌п╟п╨ я┤я┌п╬ пЁп╩я▌п╨п╬п╡ п╠я▀я┌я▄ п╫п╣ п╢п╬п╩п╤п╫п╬
 		timed.skill = BERSERK_FEAT;
 		timed.time = 4;
 		timed_feat_to_char(ch, &timed);
@@ -920,44 +920,44 @@ void check_berserk(CHAR_DATA * ch)
 		if (number(1, 1000) <  prob)
 		{
 			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
-			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n0 исступленно взвыл$g и бросил$u на противника!", FALSE, ch, 0, 0, TO_ROOM);
+			act("п▓п╟я│ п╬п╠я┐я▐п╩п╟ п©я─п╣п╢я│п╪п╣я─я┌п╫п╟я▐ я▐я─п╬я│я┌я▄!", FALSE, ch, 0, 0, TO_CHAR);
+			act("$n0 п╦я│я│я┌я┐п©п╩п╣п╫п╫п╬ п╡п╥п╡я▀п╩$g п╦ п╠я─п╬я│п╦п╩$u п╫п╟ п©я─п╬я┌п╦п╡п╫п╦п╨п╟!", FALSE, ch, 0, 0, TO_ROOM);
 		}
 		else
 		{
 			af.bitvector = 0;
-			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
+			act("п▓я▀ п╦я│я┌п╬я┬п╫п╬ п╥п╟п╡п╬п©п╦п╩п╦, п©я▀я┌п╟я▐я│я▄ п╫п╟п©я┐пЁп╟я┌я▄ п©я─п╬я┌п╦п╡п╫п╦п╨п╟. п▒п╣п╥ я┌п╬п╩п╨я┐.", FALSE, ch, 0, 0, TO_CHAR);
+			act("$n0 п╦я│я┌п╬я┬п╫п╬ п╥п╟п╡п╬п©п╦п╩$g, п©я▀я┌п╟я▐я│я▄ п╫п╟п©я┐пЁп╟я┌я▄ п©я─п╬я┌п╦п╡п╫п╦п╨п╟. п≈п╟п╠п╟п╡п╫п╬...", FALSE, ch, 0, 0, TO_ROOM);
 		}
 		affect_join(ch, af, TRUE, FALSE, TRUE, FALSE);
 	}
 }
 
-// Легкая поступь
+// п⌡п╣пЁп╨п╟я▐ п©п╬я│я┌я┐п©я▄
 void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	struct timed_type timed;
 
 	if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT))
 	{
-		send_to_char("Вы не можете этого.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ я█я┌п╬пЁп╬.\r\n", ch);
 		return;
 	}
 
 	if (on_horse(ch))
 	{
-		act("Позаботьтесь сперва о мягких тапочках для $N3...", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("п÷п╬п╥п╟п╠п╬я┌я▄я┌п╣я│я▄ я│п©п╣я─п╡п╟ п╬ п╪я▐пЁп╨п╦я┘ я┌п╟п©п╬я┤п╨п╟я┘ п╢п╩я▐ $N3...", FALSE, ch, 0, get_horse(ch), TO_CHAR);
 		return;
 	}
 
 	if (affected_by_spell(ch, SPELL_LIGHT_WALK))
 	{
-		send_to_char("Вы уже двигаетесь легким шагом.\r\n", ch);
+		send_to_char("п▓я▀ я┐п╤п╣ п╢п╡п╦пЁп╟п╣я┌п╣я│я▄ п╩п╣пЁп╨п╦п╪ я┬п╟пЁп╬п╪.\r\n", ch);
 		return;
 	}
 	if (timed_by_feat(ch, LIGHT_WALK_FEAT))
 	{
-		send_to_char("Вы слишком утомлены для этого.\r\n", ch);
+		send_to_char("п▓я▀ я│п╩п╦я┬п╨п╬п╪ я┐я┌п╬п╪п╩п╣п╫я▀ п╢п╩я▐ я█я┌п╬пЁп╬.\r\n", ch);
 		return;
 	}
 
@@ -967,7 +967,7 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 	timed.time = 24;
 	timed_feat_to_char(ch, &timed);
 
-	send_to_char("Хорошо, вы попытаетесь идти, не оставляя лишних следов.\r\n", ch);
+	send_to_char("п╔п╬я─п╬я┬п╬, п╡я▀ п©п╬п©я▀я┌п╟п╣я┌п╣я│я▄ п╦п╢я┌п╦, п╫п╣ п╬я│я┌п╟п╡п╩я▐я▐ п╩п╦я┬п╫п╦я┘ я│п╩п╣п╢п╬п╡.\r\n", ch);
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_LIGHT_WALK;
 	af.duration = pc_duration(ch, 2, GET_LEVEL(ch), 5, 2, 8);
@@ -977,17 +977,17 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 	if (number(1, 1000) > number(1, GET_REAL_DEX(ch) * 50))
 	{
 		af.bitvector = 0;
-		send_to_char("Вам не хватает ловкости...\r\n", ch);
+		send_to_char("п▓п╟п╪ п╫п╣ я┘п╡п╟я┌п╟п╣я┌ п╩п╬п╡п╨п╬я│я┌п╦...\r\n", ch);
 	}
 	else
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_LIGHT_WALK);
-		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
+		send_to_char("п▓п╟я┬п╦ я┬п╟пЁп╦ я│я┌п╟п╩п╦ п╩п╣пЁя┤п╣ п©п╣я─я▀я┬п╨п╟.\r\n", ch);
 	}
 	affect_to_char(ch, af);
 }
 
-//подгонка и перешивание
+//п©п╬п╢пЁп╬п╫п╨п╟ п╦ п©п╣я─п╣я┬п╦п╡п╟п╫п╦п╣
 void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *obj;
@@ -995,74 +995,74 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	char arg1[MAX_INPUT_LENGTH];
 	char arg2[MAX_INPUT_LENGTH];
 
-	//отключено пока для не-иммов
+	//п╬я┌п╨п╩я▌я┤п╣п╫п╬ п©п╬п╨п╟ п╢п╩я▐ п╫п╣-п╦п╪п╪п╬п╡
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 	{
-		send_to_char("Вы не можете этого.", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ я█я┌п╬пЁп╬.", ch);
 		return;
 	};
 
-	//Может ли игрок использовать эту способность?
+	//п°п╬п╤п╣я┌ п╩п╦ п╦пЁя─п╬п╨ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я█я┌я┐ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄?
 	if ((subcmd == SCMD_DO_ADAPT) && !can_use_feat(ch, TO_FIT_ITEM_FEAT))
 	{
-		send_to_char("Вы не умеете этого.", ch);
+		send_to_char("п▓я▀ п╫п╣ я┐п╪п╣п╣я┌п╣ я█я┌п╬пЁп╬.", ch);
 		return;
 	};
 	if ((subcmd == SCMD_MAKE_OVER) && !can_use_feat(ch, TO_FIT_CLOTHCES_FEAT))
 	{
-		send_to_char("Вы не умеете этого.", ch);
+		send_to_char("п▓я▀ п╫п╣ я┐п╪п╣п╣я┌п╣ я█я┌п╬пЁп╬.", ch);
 		return;
 	};
 
-	//Есть у нас предмет, который хотят переделать?
+	//п∙я│я┌я▄ я┐ п╫п╟я│ п©я─п╣п╢п╪п╣я┌, п╨п╬я┌п╬я─я▀п╧ я┘п╬я┌я▐я┌ п©п╣я─п╣п╢п╣п╩п╟я┌я▄?
 	argument = one_argument(argument, arg1);
 
 	if (!*arg1)
 	{
-		send_to_char("Что вы хотите переделать?\r\n", ch);
+		send_to_char("п╖я┌п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ п©п╣я─п╣п╢п╣п╩п╟я┌я▄?\r\n", ch);
 		return;
 	};
 
 	if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)))
 	{
-		sprintf(buf, "У вас нет \'%s\'.\r\n", arg1);
+		sprintf(buf, "пё п╡п╟я│ п╫п╣я┌ \'%s\'.\r\n", arg1);
 		send_to_char(buf, ch);
 		return;
 	};
 
-	//На кого переделываем?
+	//п²п╟ п╨п╬пЁп╬ п©п╣я─п╣п╢п╣п╩я▀п╡п╟п╣п╪?
 	argument = one_argument(argument, arg2);
 	if (!(vict = get_char_vis(ch, arg2, FIND_CHAR_ROOM)))
 	{
-		send_to_char("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
+		send_to_char("п÷п╬п╢ п╨п╬пЁп╬ п╡я▀ я┘п╬я┌п╦я┌п╣ п©п╣я─п╣п╢п╣п╩п╟я┌я▄ я█я┌я┐ п╡п╣я┴я▄?\r\n п²п╣я┌ я┌п╟п╨п╬пЁп╬ я│п╬п╥п╢п╟п╫п╦я▐ п╡ п╬п╨я─я┐пЁп╣!\r\n", ch);
 		return;
 	};
 
-	//Предмет уже имеет владельца
+	//п÷я─п╣п╢п╪п╣я┌ я┐п╤п╣ п╦п╪п╣п╣я┌ п╡п╩п╟п╢п╣п╩я▄я├п╟
 	if (GET_OBJ_OWNER(obj) != 0)
 	{
-		send_to_char("У этой вещи уже есть владелец.\r\n", ch);
+		send_to_char("пё я█я┌п╬п╧ п╡п╣я┴п╦ я┐п╤п╣ п╣я│я┌я▄ п╡п╩п╟п╢п╣п╩п╣я├.\r\n", ch);
 		return;
 
 	};
 
-	//предмет никуда не надевается, соответственно его не надо подгонять
-	//в принципе без этой проверки можно обойтись, но пусть будет ролеплея ради
-	//кроме того тут же сделаем проверку на сетстафф
+	//п©я─п╣п╢п╪п╣я┌ п╫п╦п╨я┐п╢п╟ п╫п╣ п╫п╟п╢п╣п╡п╟п╣я┌я│я▐, я│п╬п╬я┌п╡п╣я┌я│я┌п╡п╣п╫п╫п╬ п╣пЁп╬ п╫п╣ п╫п╟п╢п╬ п©п╬п╢пЁп╬п╫я▐я┌я▄
+	//п╡ п©я─п╦п╫я├п╦п©п╣ п╠п╣п╥ я█я┌п╬п╧ п©я─п╬п╡п╣я─п╨п╦ п╪п╬п╤п╫п╬ п╬п╠п╬п╧я┌п╦я│я▄, п╫п╬ п©я┐я│я┌я▄ п╠я┐п╢п╣я┌ я─п╬п╩п╣п©п╩п╣я▐ я─п╟п╢п╦
+	//п╨я─п╬п╪п╣ я┌п╬пЁп╬ я┌я┐я┌ п╤п╣ я│п╢п╣п╩п╟п╣п╪ п©я─п╬п╡п╣я─п╨я┐ п╫п╟ я│п╣я┌я│я┌п╟я└я└
 	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 	{
-		send_to_char("Этот предмет невозможно переделать.\r\n", ch);
+		send_to_char("п╜я┌п╬я┌ п©я─п╣п╢п╪п╣я┌ п╫п╣п╡п╬п╥п╪п╬п╤п╫п╬ п©п╣я─п╣п╢п╣п╩п╟я┌я▄.\r\n", ch);
 		return;
 	}
 
-// не подгоняются предметы из
-//(GET_OBJ_MATER(obj) != MAT_CRYSTALL) кристалла
-// (GET_OBJ_MATER(obj) != MAT_FARFOR) керамики
-//(GET_OBJ_MATER(obj) != MAT_ROCK) камня
-// (GET_OBJ_MATER(obj) != MAT_PAPER) бумаги
-//(GET_OBJ_MATER(obj) != MAT_DIAMOND) драгоценного камня
+// п╫п╣ п©п╬п╢пЁп╬п╫я▐я▌я┌я│я▐ п©я─п╣п╢п╪п╣я┌я▀ п╦п╥
+//(GET_OBJ_MATER(obj) != MAT_CRYSTALL) п╨я─п╦я│я┌п╟п╩п╩п╟
+// (GET_OBJ_MATER(obj) != MAT_FARFOR) п╨п╣я─п╟п╪п╦п╨п╦
+//(GET_OBJ_MATER(obj) != MAT_ROCK) п╨п╟п╪п╫я▐
+// (GET_OBJ_MATER(obj) != MAT_PAPER) п╠я┐п╪п╟пЁп╦
+//(GET_OBJ_MATER(obj) != MAT_DIAMOND) п╢я─п╟пЁп╬я├п╣п╫п╫п╬пЁп╬ п╨п╟п╪п╫я▐
 
-	//Подходит ли материал?
+	//п÷п╬п╢я┘п╬п╢п╦я┌ п╩п╦ п╪п╟я┌п╣я─п╦п╟п╩?
 	switch (subcmd)
 	{
 	case SCMD_DO_ADAPT:
@@ -1077,7 +1077,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_SUPERWOOD
 			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_GLASS)
 		{
-			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
+			sprintf(buf, "п  я│п╬п╤п╟п╩п╣п╫п╦я▌ %s я│п╢п╣п╩п╟п╫%s п╦п╥ п╫п╣п©п╬п╢я┘п╬п╢я▐я┴п╣пЁп╬ п╪п╟я┌п╣я─п╦п╟п╩п╟.\r\n",
 				GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
@@ -1089,7 +1089,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_SKIN
 			&& GET_OBJ_MATER(obj) != OBJ_DATA::MAT_ORGANIC)
 		{
-			sprintf(buf, "К сожалению %s сделан%s из неподходящего материала.\r\n",
+			sprintf(buf, "п  я│п╬п╤п╟п╩п╣п╫п╦я▌ %s я│п╢п╣п╩п╟п╫%s п╦п╥ п╫п╣п©п╬п╢я┘п╬п╢я▐я┴п╣пЁп╬ п╪п╟я┌п╣я─п╦п╟п╩п╟.\r\n",
 					GET_OBJ_PNAME(obj, 0).c_str(), GET_OBJ_SUF_6(obj));
 			send_to_char(buf, ch);
 			return;
@@ -1097,9 +1097,9 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		break;
 	};
 	obj->set_owner(GET_UNIQUE(vict));
-	sprintf(buf, "Вы долго пыхтели и сопели, переделывая работу по десять раз.\r\n");
-	sprintf(buf + strlen(buf), "Вы извели кучу времени и 10000 кун золотом.\r\n");
-	sprintf(buf + strlen(buf), "В конце-концов подогнали %s точно по мерке %s.\r\n",
+	sprintf(buf, "п▓я▀ п╢п╬п╩пЁп╬ п©я▀я┘я┌п╣п╩п╦ п╦ я│п╬п©п╣п╩п╦, п©п╣я─п╣п╢п╣п╩я▀п╡п╟я▐ я─п╟п╠п╬я┌я┐ п©п╬ п╢п╣я│я▐я┌я▄ я─п╟п╥.\r\n");
+	sprintf(buf + strlen(buf), "п▓я▀ п╦п╥п╡п╣п╩п╦ п╨я┐я┤я┐ п╡я─п╣п╪п╣п╫п╦ п╦ 10000 п╨я┐п╫ п╥п╬п╩п╬я┌п╬п╪.\r\n");
+	sprintf(buf + strlen(buf), "п▓ п╨п╬п╫я├п╣-п╨п╬п╫я├п╬п╡ п©п╬п╢п╬пЁп╫п╟п╩п╦ %s я┌п╬я┤п╫п╬ п©п╬ п╪п╣я─п╨п╣ %s.\r\n",
 		GET_OBJ_PNAME(obj, 3).c_str(), GET_PAD(vict, 1));
 
 	send_to_char(buf, ch);
@@ -1108,20 +1108,20 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 int slot_for_char(CHAR_DATA * ch, int i);
 #define SpINFO spell_info[spellnum]
-// Вложить закл в клона
+// п▓п╩п╬п╤п╦я┌я▄ п╥п╟п╨п╩ п╡ п╨п╩п╬п╫п╟
 void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	struct timed_type timed;
 
 	if (!IS_IMPL(ch) && (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT)))
 	{
-		send_to_char("Вы не столь могущественны.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ я│я┌п╬п╩я▄ п╪п╬пЁя┐я┴п╣я│я┌п╡п╣п╫п╫я▀.\r\n", ch);
 		return;
 	}
 
 	if (timed_by_feat(ch, SPELL_CAPABLE_FEAT) && !IS_IMPL(ch))
 	{
-		send_to_char("Невозможно использовать это так часто.\r\n", ch);
+		send_to_char("п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я█я┌п╬ я┌п╟п╨ я┤п╟я│я┌п╬.\r\n", ch);
 		return;
 	}
 
@@ -1133,27 +1133,27 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
-		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ п╡я▀п╪п╬п╩п╡п╦я┌я▄ п╦ я│п╩п╬п╡п╟.\r\n", ch);
 		return;
 	}
 
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
+		send_to_char("п╖п╒п· п╡я▀ я┘п╬я┌п╦я┌п╣ п╨п╬п╩п╢п╬п╡п╟я┌я▄?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		send_to_char("п²п╟п╥п╡п╟п╫п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╬ п╡ я│п╦п╪п╡п╬п╩я▀ : ' п╦п╩п╦ * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 
 	spellnum = fix_name_and_find_spell_num(s);
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
+		send_to_char("п≤ п╬я┌п╨я┐п╢п╟ п╡я▀ п╫п╟п╠я─п╟п╩п╦я│я▄ я┌п╟п╨п╦я┘ п╡я▀я─п╟п╤п╣п╫п╦п╧?\r\n", ch);
 		return;
 	}
 
@@ -1165,19 +1165,19 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 				|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 		{
-			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
+			send_to_char("п═п╟п╫п╬ п╣я┴п╣ п╡п╟п╪ п╠я─п╬я│п╟я┌я▄я│я▐ я┌п╟п╨п╦п╪п╦ я│п╩п╬п╡п╟п╪п╦!\r\n", ch);
 			return;
 		}
 		else
 		{
-			send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
+			send_to_char("п▒я▀п╩п╬ п╠я▀ п╫п╣п©п╩п╬я┘п╬ п╦п╥я┐я┤п╦я┌я▄, п╢п╩я▐ п╫п╟я┤п╟п╩п╟, я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣...\r\n", ch);
 			return;
 		}
 	}
 
 	if (!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch))
 	{
-		send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
+		send_to_char("п▓я▀ я│п╬п╡п╣я─я┬п╣п╫п╫п╬ п╫п╣ п©п╬п╪п╫п╦я┌п╣, п╨п╟п╨ п©я─п╬п╦п╥п╫п╬я│п╦я┌я│я▐ я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣...\r\n", ch);
 		return;
 	}
 
@@ -1197,18 +1197,18 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 	if(!GET_SPELL_MEM(ch, spellnum) && !IS_IMMORTAL(ch))
 	{
-		send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
+		send_to_char("п▓я▀ я│п╬п╡п╣я─я┬п╣п╫п╫п╬ п╫п╣ п©п╬п╪п╫п╦я┌п╣, п╨п╟п╨ п©я─п╬п╦п╥п╫п╬я│п╦я┌я│я▐ я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣...\r\n", ch);
 		return;
 	}
 
 	if (!follower)
 	{
-		send_to_char("Хорошо бы найти подходящую цель для этого.\r\n", ch);
+		send_to_char("п╔п╬я─п╬я┬п╬ п╠я▀ п╫п╟п╧я┌п╦ п©п╬п╢я┘п╬п╢я▐я┴я┐я▌ я├п╣п╩я▄ п╢п╩я▐ я█я┌п╬пЁп╬.\r\n", ch);
 		return;
 	}
 
-	act("Вы принялись зачаровывать $N3.", FALSE, ch, 0, follower, TO_CHAR);
-	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", FALSE, ch, 0, follower, TO_ROOM);
+	act("п▓я▀ п©я─п╦п╫я▐п╩п╦я│я▄ п╥п╟я┤п╟я─п╬п╡я▀п╡п╟я┌я▄ $N3.", FALSE, ch, 0, follower, TO_CHAR);
+	act("$n п©я─п╦п╫я▐п╩$u п╢п╣п╩п╟я┌я▄ п╨п╟п╨п╦п╣-я┌п╬ п©п╟я│я│я▀ п╦ я┤я┌п╬-я┌п╬ п╠п╬я─п╪п╬я┌п╟я┌я▄ п╡ я│я┌п╬я─п╬п╫я┐ $N3.", FALSE, ch, 0, follower, TO_ROOM);
 
 	GET_SPELL_MEM(ch, spellnum)--;
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
@@ -1218,7 +1218,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS) ||
 		IS_SET(SpINFO.routines, MAG_AREAS))
 	{
-		send_to_char("Вы конечно мастер, но не такой магии.\r\n", ch);
+		send_to_char("п▓я▀ п╨п╬п╫п╣я┤п╫п╬ п╪п╟я│я┌п╣я─, п╫п╬ п╫п╣ я┌п╟п╨п╬п╧ п╪п╟пЁп╦п╦.\r\n", ch);
 		return;
 	}
 	affect_from_char(ch, SPELL_CAPABLE_FEAT);
@@ -1231,20 +1231,20 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		case 2:
 		case 3:
 		case 4:
-		case 5://1-5 слоты кд 4 тика
+		case 5://1-5 я│п╩п╬я┌я▀ п╨п╢ 4 я┌п╦п╨п╟
 			timed.time = 4;
 		break;
 		case 6:
-		case 7://6-7 слоты кд 6 тиков
+		case 7://6-7 я│п╩п╬я┌я▀ п╨п╢ 6 я┌п╦п╨п╬п╡
 			timed.time = 6;
 		break;
-		case 8://8 слот кд 10 тиков
+		case 8://8 я│п╩п╬я┌ п╨п╢ 10 я┌п╦п╨п╬п╡
 			timed.time = 10;
 		break;
-		case 9://9 слот кд 12 тиков
+		case 9://9 я│п╩п╬я┌ п╨п╢ 12 я┌п╦п╨п╬п╡
 			timed.time = 12;
 		break;
-		default://10 слот или тп
+		default://10 я│п╩п╬я┌ п╦п╩п╦ я┌п©
 			timed.time = 24;
 	}
 	timed_feat_to_char(ch, &timed);
@@ -1254,7 +1254,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	af.type = SPELL_CAPABLE;
 	af.duration = 48;
 	if(GET_REMORT(ch)>0) {
-		af.modifier = GET_REMORT(ch)*4;//вешаецо аффект который дает +морт*4 касту
+		af.modifier = GET_REMORT(ch)*4;//п╡п╣я┬п╟п╣я├п╬ п╟я└я└п╣п╨я┌ п╨п╬я┌п╬я─я▀п╧ п╢п╟п╣я┌ +п╪п╬я─я┌*4 п╨п╟я│я┌я┐
 		af.location = APPLY_CAST_SUCCESS;
 	} else {
 		af.modifier = 0;
@@ -1272,7 +1272,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!can_use_feat(ch, RELOCATE_FEAT))
 	{
-		send_to_char("Вам это недоступно.\r\n", ch);
+		send_to_char("п▓п╟п╪ я█я┌п╬ п╫п╣п╢п╬я│я┌я┐п©п╫п╬.\r\n", ch);
 		return;
 	}
 
@@ -1282,7 +1282,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 #endif
 	  )
 	{
-		send_to_char("Невозможно использовать это так часто.\r\n", ch);
+		send_to_char("п²п╣п╡п╬п╥п╪п╬п╤п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ я█я┌п╬ я┌п╟п╨ я┤п╟я│я┌п╬.\r\n", ch);
 		return;
 	}
 
@@ -1290,7 +1290,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	one_argument(argument, arg);
 	if (!*arg)
 	{
-		send_to_char("Переместиться на кого?", ch);
+		send_to_char("п÷п╣я─п╣п╪п╣я│я┌п╦я┌я▄я│я▐ п╫п╟ п╨п╬пЁп╬?", ch);
 		return;
 	}
 
@@ -1301,26 +1301,26 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	// Если левел жертвы больше чем перемещяющегося - фейл
+	// п∙я│п╩п╦ п╩п╣п╡п╣п╩ п╤п╣я─я┌п╡я▀ п╠п╬п╩я▄я┬п╣ я┤п╣п╪ п©п╣я─п╣п╪п╣я┴я▐я▌я┴п╣пЁп╬я│я▐ - я└п╣п╧п╩
 	if (IS_NPC(victim) || (GET_LEVEL(victim) > GET_LEVEL(ch)) || IS_IMMORTAL(victim))
 	{
-		send_to_char("Попытка перемещения не удалась.\r\n", ch);
+		send_to_char("п÷п╬п©я▀я┌п╨п╟ п©п╣я─п╣п╪п╣я┴п╣п╫п╦я▐ п╫п╣ я┐п╢п╟п╩п╟я│я▄.\r\n", ch);
 		return;
 	}
 
-	// Для иммов обязательные для перемещения условия не существенны
+	// п■п╩я▐ п╦п╪п╪п╬п╡ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫я▀п╣ п╢п╩я▐ п©п╣я─п╣п╪п╣я┴п╣п╫п╦я▐ я┐я│п╩п╬п╡п╦я▐ п╫п╣ я│я┐я┴п╣я│я┌п╡п╣п╫п╫я▀
 	if (!IS_GOD(ch))
 	{
-		// Нельзя перемещаться из клетки ROOM_NOTELEPORTOUT
+		// п²п╣п╩я▄п╥я▐ п©п╣я─п╣п╪п╣я┴п╟я┌я▄я│я▐ п╦п╥ п╨п╩п╣я┌п╨п╦ ROOM_NOTELEPORTOUT
 		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTOUT))
 		{
-			send_to_char("Попытка перемещения не удалась.\r\n", ch);
+			send_to_char("п÷п╬п©я▀я┌п╨п╟ п©п╣я─п╣п╪п╣я┴п╣п╫п╦я▐ п╫п╣ я┐п╢п╟п╩п╟я│я▄.\r\n", ch);
 			return;
 		}
-		// Нельзя перемещаться после того, как попал под заклинание "приковать противника".
+		// п²п╣п╩я▄п╥я▐ п©п╣я─п╣п╪п╣я┴п╟я┌я▄я│я▐ п©п╬я│п╩п╣ я┌п╬пЁп╬, п╨п╟п╨ п©п╬п©п╟п╩ п©п╬п╢ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ "п©я─п╦п╨п╬п╡п╟я┌я▄ п©я─п╬я┌п╦п╡п╫п╦п╨п╟".
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT))
 		{
-			send_to_char("Попытка перемещения не удалась.\r\n", ch);
+			send_to_char("п÷п╬п©я▀я┌п╨п╟ п©п╣я─п╣п╪п╣я┴п╣п╫п╦я▐ п╫п╣ я┐п╢п╟п╩п╟я│я▄.\r\n", ch);
 			return;
 		}
 	}
@@ -1329,11 +1329,11 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (to_room == NOWHERE)
 	{
-		send_to_char("Попытка перемещения не удалась.\r\n", ch);
+		send_to_char("п÷п╬п©я▀я┌п╨п╟ п©п╣я─п╣п╪п╣я┴п╣п╫п╦я▐ п╫п╣ я┐п╢п╟п╩п╟я│я▄.\r\n", ch);
 		return;
 	}
-	// в случае, если жертва не может зайти в замок (по любой причине)
-	// прыжок в зону ближайшей ренты
+	// п╡ я│п╩я┐я┤п╟п╣, п╣я│п╩п╦ п╤п╣я─я┌п╡п╟ п╫п╣ п╪п╬п╤п╣я┌ п╥п╟п╧я┌п╦ п╡ п╥п╟п╪п╬п╨ (п©п╬ п╩я▌п╠п╬п╧ п©я─п╦я┤п╦п╫п╣)
+	// п©я─я▀п╤п╬п╨ п╡ п╥п╬п╫я┐ п╠п╩п╦п╤п╟п╧я┬п╣п╧ я─п╣п╫я┌я▀
 	if (!Clan::MayEnter(ch, to_room, HCE_PORTAL))
 		fnd_room = Clan::CloseRent(to_room);
 	else
@@ -1341,7 +1341,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (fnd_room != to_room && !IS_GOD(ch))
 	{
-		send_to_char("Попытка перемещения не удалась.\r\n", ch);
+		send_to_char("п÷п╬п©я▀я┌п╨п╟ п©п╣я─п╣п╪п╣я┴п╣п╫п╦я▐ п╫п╣ я┐п╢п╟п╩п╟я│я▄.\r\n", ch);
 		return;
 	}
 
@@ -1353,25 +1353,25 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			 ROOM_FLAGGED(fnd_room, ROOM_NORELOCATEIN) ||
 			 ROOM_FLAGGED(fnd_room, ROOM_ICEDEATH) || (ROOM_FLAGGED(fnd_room, ROOM_GODROOM) && !IS_IMMORTAL(ch))))
 	{
-		send_to_char("Попытка перемещения не удалась.\r\n", ch);
+		send_to_char("п÷п╬п©я▀я┌п╨п╟ п©п╣я─п╣п╪п╣я┴п╣п╫п╦я▐ п╫п╣ я┐п╢п╟п╩п╟я│я▄.\r\n", ch);
 		return;
 	}
 
 	timed.skill = RELOCATE_FEAT;
-	act("$n медленно исчез$q из виду.", TRUE, ch, 0, 0, TO_ROOM);
-	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
+	act("$n п╪п╣п╢п╩п╣п╫п╫п╬ п╦я│я┤п╣п╥$q п╦п╥ п╡п╦п╢я┐.", TRUE, ch, 0, 0, TO_ROOM);
+	send_to_char("п⌡п╟п╥я┐я─п╫я▀п╣ я│п©п╬п╩п╬я┘п╦ п©я─п╬п╫п╣я│п╩п╦я│я▄ п©п╣я─п╣п╢ п╡п╟я┬п╦п╪п╦ пЁп╩п╟п╥п╟п╪п╦.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
 	check_horse(ch);
-	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
+	act("$n п╪п╣п╢п╩п╣п╫п╫п╬ п©п╬я▐п╡п╦п╩$u п╬я┌п╨я┐п╢п╟-я┌п╬.", TRUE, ch, 0, 0, TO_ROOM);
 	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch) || ROOM_FLAGGED(fnd_room, ROOM_ARENA)))
 	{
-		send_to_char(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
+		send_to_char(ch, "%sп▓п╟я┬ п©п╬я│я┌я┐п©п╬п╨ п╠я▀п╩ я─п╟я│я├п╣п╫п╣п╫ п╨п╟п╨ п©п╬я┌п╣п╫я├п╦п╟п╩я▄п╫п╬ п╟пЁя─п╣я│я│п╦п╡п╫я▀п╧.%s\r\n",
 			CCIRED(ch, C_NRM), CCINRM(ch, C_NRM));
 		pkPortal(ch);
 		timed.time = 18 - MIN(GET_REMORT(ch),15);
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
-		//На время лага на чара нельзя ставить пенту
+		//п²п╟ п╡я─п╣п╪я▐ п╩п╟пЁп╟ п╫п╟ я┤п╟я─п╟ п╫п╣п╩я▄п╥я▐ я│я┌п╟п╡п╦я┌я▄ п©п╣п╫я┌я┐
 		AFFECT_DATA<EApplyLocation> af;
 		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
@@ -1389,8 +1389,8 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	greet_otrigger(ch, -1);
 }
 
-// * Выставление чару расовых способностей.
-/// \param flag по дефолту true
+// * п▓я▀я│я┌п╟п╡п╩п╣п╫п╦п╣ я┤п╟я─я┐ я─п╟я│п╬п╡я▀я┘ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧.
+/// \param flag п©п╬ п╢п╣я└п╬п╩я┌я┐ true
 void set_race_feats(CHAR_DATA *ch, bool flag)
 {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
@@ -1420,7 +1420,7 @@ void set_class_feats(CHAR_DATA *ch)
 }
 
 ///
-/// Сет чару всех доступных врожденных способностей.
+/// п║п╣я┌ я┤п╟я─я┐ п╡я│п╣я┘ п╢п╬я│я┌я┐п©п╫я▀я┘ п╡я─п╬п╤п╢п╣п╫п╫я▀я┘ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧.
 ///
 void set_natural_feats(CHAR_DATA *ch)
 {

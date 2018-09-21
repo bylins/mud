@@ -21,7 +21,7 @@ PlayerKin::PlayerKin()
 //Create kin
 };
 
-//Создаем новый _род_ и распихиваем по его полям значения из файла
+//п║п╬п╥п╢п╟п╣п╪ п╫п╬п╡я▀п╧ _я─п╬п╢_ п╦ я─п╟я│п©п╦я┘п╦п╡п╟п╣п╪ п©п╬ п╣пЁп╬ п©п╬п╩я▐п╪ п╥п╫п╟я┤п╣п╫п╦я▐ п╦п╥ я└п╟п╧п╩п╟
 void LoadRace(pugi::xml_node RaceNode, PlayerKinPtr KinPtr)
 {
 	pugi::xml_node CurNode;
@@ -40,7 +40,7 @@ void LoadRace(pugi::xml_node RaceNode, PlayerKinPtr KinPtr)
 	{
 		TmpRace->AddRaceFeature(CurNode.attribute("featnum").as_int());
 	}
-    //Добавляем родовые места "появления на свет" новых персонажей
+    //п■п╬п╠п╟п╡п╩я▐п╣п╪ я─п╬п╢п╬п╡я▀п╣ п╪п╣я│я┌п╟ "п©п╬я▐п╡п╩п╣п╫п╦я▐ п╫п╟ я│п╡п╣я┌" п╫п╬п╡я▀я┘ п©п╣я─я│п╬п╫п╟п╤п╣п╧
 	for (CurNode = RaceNode.child("birthplace"); CurNode; CurNode = CurNode.next_sibling("birthplace"))
 	{
 		TmpRace->AddRaceBirthPlace(CurNode.attribute("id").as_int());
@@ -49,7 +49,7 @@ void LoadRace(pugi::xml_node RaceNode, PlayerKinPtr KinPtr)
 	KinPtr->PlayerRaceList.push_back(TmpRace);
 }
 
-//Создаем новую расу и заполняем ее поля значениями из файлда
+//п║п╬п╥п╢п╟п╣п╪ п╫п╬п╡я┐я▌ я─п╟я│я┐ п╦ п╥п╟п©п╬п╩п╫я▐п╣п╪ п╣п╣ п©п╬п╩я▐ п╥п╫п╟я┤п╣п╫п╦я▐п╪п╦ п╦п╥ я└п╟п╧п╩п╢п╟
 void LoadKin(pugi::xml_node KinNode)
 {
 	pugi::xml_node CurNode;
@@ -76,7 +76,7 @@ void LoadKin(pugi::xml_node KinNode)
 	PlayerRace::PlayerKinList.push_back(TmpKin);
 }
 
-//Загрузка параметров родов и рас
+//п≈п╟пЁя─я┐п╥п╨п╟ п©п╟я─п╟п╪п╣я┌я─п╬п╡ я─п╬п╢п╬п╡ п╦ я─п╟я│
 void PlayerRace::Load(pugi::xml_node XMLSRaceList)
 {
     pugi::xml_node CurNode;
@@ -87,7 +87,7 @@ void PlayerRace::Load(pugi::xml_node XMLSRaceList)
 	}
 }
 
-// Добавление новой родовой способности в список
+// п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╫п╬п╡п╬п╧ я─п╬п╢п╬п╡п╬п╧ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ п╡ я│п©п╦я│п╬п╨
 void PlayerRace::AddRaceFeature(int feat)
 {
 	std::vector<int>::iterator RaceFeature = find(_RaceFeatureList.begin(), _RaceFeatureList.end(), feat);
@@ -95,7 +95,7 @@ void PlayerRace::AddRaceFeature(int feat)
 		_RaceFeatureList.push_back(feat);
 };
 
-// Добавление нового места рождения персонажей
+// п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╫п╬п╡п╬пЁп╬ п╪п╣я│я┌п╟ я─п╬п╤п╢п╣п╫п╦я▐ п©п╣я─я│п╬п╫п╟п╤п╣п╧
 void PlayerRace::AddRaceBirthPlace(int id)
 {
 	std::vector<int>::iterator BirthPlace = find(_RaceBirthPlaceList.begin(), _RaceBirthPlaceList.end(), id);
@@ -103,7 +103,7 @@ void PlayerRace::AddRaceBirthPlace(int id)
 		_RaceBirthPlaceList.push_back(id);
 };
 
-//Получение указателя на расу PC
+//п÷п╬п╩я┐я┤п╣п╫п╦п╣ я┐п╨п╟п╥п╟я┌п╣п╩я▐ п╫п╟ я─п╟я│я┐ PC
 PlayerKinPtr PlayerRace::GetPlayerKin(int Kin)
 {
 	PlayerKinPtr KinPtr;
@@ -113,7 +113,7 @@ PlayerKinPtr PlayerRace::GetPlayerKin(int Kin)
 	return KinPtr;
 };
 
-//Получение указателя на род PC
+//п÷п╬п╩я┐я┤п╣п╫п╦п╣ я┐п╨п╟п╥п╟я┌п╣п╩я▐ п╫п╟ я─п╬п╢ PC
 PlayerRacePtr PlayerRace::GetPlayerRace(int Kin,int Race)
 {
 	PlayerRacePtr RacePtr;
@@ -126,7 +126,7 @@ PlayerRacePtr PlayerRace::GetPlayerRace(int Kin,int Race)
 	return RacePtr;
 };
 
-//Проверка наличия у данного рода+расы способности с указанным номером
+//п÷я─п╬п╡п╣я─п╨п╟ п╫п╟п╩п╦я┤п╦я▐ я┐ п╢п╟п╫п╫п╬пЁп╬ я─п╬п╢п╟+я─п╟я│я▀ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ я│ я┐п╨п╟п╥п╟п╫п╫я▀п╪ п╫п╬п╪п╣я─п╬п╪
 bool PlayerRace::FeatureCheck(int Kin,int Race,int Feat)
 {
 	PlayerRacePtr RacePtr = PlayerRace::GetPlayerRace(Kin, Race);
@@ -155,7 +155,7 @@ void PlayerRace::GetKinNamesList(CHAR_DATA* /*ch*/)
 	//mudlog(buf33, CMP, LVL_IMMORT, SYSLOG, TRUE);
 }
 
-//Получение всего списка способностей для указанного рода+расы
+//п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╡я│п╣пЁп╬ я│п©п╦я│п╨п╟ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧ п╢п╩я▐ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ я─п╬п╢п╟+я─п╟я│я▀
 std::vector<int> PlayerRace::GetRaceFeatures(int Kin,int Race)
 {
 	std::vector<int> RaceFeatures;
@@ -167,7 +167,7 @@ std::vector<int> PlayerRace::GetRaceFeatures(int Kin,int Race)
 	return RaceFeatures;
 }
 
-//Получение номера расы по названию
+//п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╫п╬п╪п╣я─п╟ я─п╟я│я▀ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌
 int PlayerRace::GetKinNumByName(const std::string& KinName)
 {
 	for (PlayerKinListType::const_iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it)
@@ -181,7 +181,7 @@ int PlayerRace::GetKinNumByName(const std::string& KinName)
 	return RACE_UNDEFINED;
 };
 
-//Получение номера рода по названию
+//п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╫п╬п╪п╣я─п╟ я─п╬п╢п╟ п©п╬ п╫п╟п╥п╡п╟п╫п╦я▌
 int PlayerRace::GetRaceNumByName(int Kin, const std::string& RaceName)
 {
 	PlayerKinPtr KinPtr = PlayerRace::GetPlayerKin(Kin);
@@ -199,7 +199,7 @@ int PlayerRace::GetRaceNumByName(int Kin, const std::string& RaceName)
 	return RACE_UNDEFINED;
 };
 
-//Получение названия расы по номеру и полу
+//п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╫п╟п╥п╡п╟п╫п╦я▐ я─п╟я│я▀ п©п╬ п╫п╬п╪п╣я─я┐ п╦ п©п╬п╩я┐
 std::string PlayerRace::GetKinNameByNum(int KinNum, const ESex Sex)
 {
 	for (PlayerKinListType::iterator it = PlayerKinList.begin(); it != PlayerKinList.end(); ++it)
@@ -233,12 +233,12 @@ std::string PlayerRace::GetKinNameByNum(int KinNum, const ESex Sex)
 	return KIN_NAME_UNDEFINED;
 };
 
-//Получение названия рода по номеру и полу
+//п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╫п╟п╥п╡п╟п╫п╦я▐ я─п╬п╢п╟ п©п╬ п╫п╬п╪п╣я─я┐ п╦ п©п╬п╩я┐
 std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, const ESex Sex)
 {
     //static char out_str[MAX_STRING_LENGTH];
     //*out_str = '\0';
-    //sprintf(out_str, "Число рас %d %d", KinNum, RaceNum);
+    //sprintf(out_str, "п╖п╦я│п╩п╬ я─п╟я│ %d %d", KinNum, RaceNum);
     //return out_str; //PlayerRace::PlayerKinList[KinNum]->PlayerRaceList[RaceNum]->_RaceHeName;
     PlayerKinPtr KinPtr;
 	if ((KinNum > KIN_UNDEFINED) && (static_cast<unsigned>(KinNum) < PlayerRace::PlayerKinList.size()))
@@ -276,7 +276,7 @@ std::string PlayerRace::GetRaceNameByNum(int KinNum, int RaceNum, const ESex Sex
 	return RACE_NAME_UNDEFINED;
 };
 
-//Вывод списка родов в виде меню
+//п▓я▀п╡п╬п╢ я│п©п╦я│п╨п╟ я─п╬п╢п╬п╡ п╡ п╡п╦п╢п╣ п╪п╣п╫я▌
 std::string PlayerRace::ShowRacesMenu(int KinNum)
 {
     std::ostringstream buffer;
@@ -289,16 +289,16 @@ std::string PlayerRace::ShowRacesMenu(int KinNum)
     return buffer.str();
 };
 
-//Проверяем наличие рода с введнным номером
-//Возвращаем номер рода или "неопределено"
+//п÷я─п╬п╡п╣я─я▐п╣п╪ п╫п╟п╩п╦я┤п╦п╣ я─п╬п╢п╟ я│ п╡п╡п╣п╢п╫п╫я▀п╪ п╫п╬п╪п╣я─п╬п╪
+//п▓п╬п╥п╡я─п╟я┴п╟п╣п╪ п╫п╬п╪п╣я─ я─п╬п╢п╟ п╦п╩п╦ "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫п╬"
 int PlayerRace::CheckRace(int KinNum, char *arg)
 {
     unsigned RaceNum = atoi(arg);
-    //Поскольку меню формируется в этом же модуле функцией ShowRacesMenu
-    //То для доступа к конкретному _роду_ можно использовать просто само введенное число
-    //как индекс массива (с поправкой на единицу). Нужно только убедиться, что введено вменяемое значение.
-    //То есть от единицы до максимального индекса+1 (ибо в меню нумерация с 1)
-    //Но вот возвращать надо номер _рода_ а не индекс, ибо теоретически они могут и не совпадать
+    //п÷п╬я│п╨п╬п╩я▄п╨я┐ п╪п╣п╫я▌ я└п╬я─п╪п╦я─я┐п╣я┌я│я▐ п╡ я█я┌п╬п╪ п╤п╣ п╪п╬п╢я┐п╩п╣ я└я┐п╫п╨я├п╦п╣п╧ ShowRacesMenu
+    //п╒п╬ п╢п╩я▐ п╢п╬я│я┌я┐п©п╟ п╨ п╨п╬п╫п╨я─п╣я┌п╫п╬п╪я┐ _я─п╬п╢я┐_ п╪п╬п╤п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п©я─п╬я│я┌п╬ я│п╟п╪п╬ п╡п╡п╣п╢п╣п╫п╫п╬п╣ я┤п╦я│п╩п╬
+    //п╨п╟п╨ п╦п╫п╢п╣п╨я│ п╪п╟я│я│п╦п╡п╟ (я│ п©п╬п©я─п╟п╡п╨п╬п╧ п╫п╟ п╣п╢п╦п╫п╦я├я┐). п²я┐п╤п╫п╬ я┌п╬п╩я▄п╨п╬ я┐п╠п╣п╢п╦я┌я▄я│я▐, я┤я┌п╬ п╡п╡п╣п╢п╣п╫п╬ п╡п╪п╣п╫я▐п╣п╪п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣.
+    //п╒п╬ п╣я│я┌я▄ п╬я┌ п╣п╢п╦п╫п╦я├я▀ п╢п╬ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬пЁп╬ п╦п╫п╢п╣п╨я│п╟+1 (п╦п╠п╬ п╡ п╪п╣п╫я▌ п╫я┐п╪п╣я─п╟я├п╦я▐ я│ 1)
+    //п²п╬ п╡п╬я┌ п╡п╬п╥п╡я─п╟я┴п╟я┌я▄ п╫п╟п╢п╬ п╫п╬п╪п╣я─ _я─п╬п╢п╟_ п╟ п╫п╣ п╦п╫п╢п╣п╨я│, п╦п╠п╬ я┌п╣п╬я─п╣я┌п╦я┤п╣я│п╨п╦ п╬п╫п╦ п╪п╬пЁя┐я┌ п╦ п╫п╣ я│п╬п╡п©п╟п╢п╟я┌я▄
     if (!RaceNum || (RaceNum < 1) ||
         (RaceNum > PlayerRace::PlayerKinList[KinNum]->PlayerRaceList.size()) ||
         !PlayerKinList[KinNum]->PlayerRaceList[RaceNum-1]->_Enabled)
@@ -314,7 +314,7 @@ int PlayerRace::CheckRace(int KinNum, char *arg)
     return RACE_UNDEFINED;
 };
 
-//Вывод списка рас в виде меню
+//п▓я▀п╡п╬п╢ я│п©п╦я│п╨п╟ я─п╟я│ п╡ п╡п╦п╢п╣ п╪п╣п╫я▌
 std::string PlayerRace::ShowKinsMenu()
 {
     std::ostringstream buffer;
@@ -324,7 +324,7 @@ std::string PlayerRace::ShowKinsMenu()
     return buffer.str();
 };
 
-//Проверяем наличие расы с введенным номером
+//п÷я─п╬п╡п╣я─я▐п╣п╪ п╫п╟п╩п╦я┤п╦п╣ я─п╟я│я▀ я│ п╡п╡п╣п╢п╣п╫п╫я▀п╪ п╫п╬п╪п╣я─п╬п╪
 int PlayerRace::CheckKin(char *arg)
 {
     int KinNum = atoi(arg);

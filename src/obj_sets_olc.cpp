@@ -35,21 +35,21 @@ using namespace obj_sets;
 namespace obj_sets_olc
 {
 
-/// класс для редактирования сета в олц, содержит состояние редактирования
-/// (наружу торчит только CON_SEDIT) и всю временную инфу под это дело
+/// п╨п╩п╟я│я│ п╢п╩я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ я│п╣я┌п╟ п╡ п╬п╩я├, я│п╬п╢п╣я─п╤п╦я┌ я│п╬я│я┌п╬я▐п╫п╦п╣ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐
+/// (п╫п╟я─я┐п╤я┐ я┌п╬я─я┤п╦я┌ я┌п╬п╩я▄п╨п╬ CON_SEDIT) п╦ п╡я│я▌ п╡я─п╣п╪п╣п╫п╫я┐я▌ п╦п╫я└я┐ п©п╬п╢ я█я┌п╬ п╢п╣п╩п╬
 class sedit
 {
 public:
 	sedit() : state(-1), new_entry(false),
 		obj_edit(-1), activ_edit(-1), apply_edit(-1) {};
 
-	// стадия редактирования (в какой менюшке)
+	// я│я┌п╟п╢п╦я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐ (п╡ п╨п╟п╨п╬п╧ п╪п╣п╫я▌я┬п╨п╣)
 	int state;
-	// правка глобальных сообщений
+	// п©я─п╟п╡п╨п╟ пЁп╩п╬п╠п╟п╩я▄п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧
 	obj_sets::msg_node msg_edit;
-	// редактируемый сет
+	// я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪я▀п╧ я│п╣я┌
 	obj_sets::set_node olc_set;
-	// идет создание нового сета
+	// п╦п╢п╣я┌ я│п╬п╥п╢п╟п╫п╦п╣ п╫п╬п╡п╬пЁп╬ я│п╣я┌п╟
 	bool new_entry;
 
 	void parse_global_msg(CHAR_DATA *ch, const char *arg);
@@ -83,11 +83,11 @@ public:
 	void show_global_msg(CHAR_DATA *ch);
 
 private:
-	// если правится предмет - его внум
+	// п╣я│п╩п╦ п©я─п╟п╡п╦я┌я│я▐ п©я─п╣п╢п╪п╣я┌ - п╣пЁп╬ п╡п╫я┐п╪
 	int obj_edit;
-	// если правится активатор - его размер
+	// п╣я│п╩п╦ п©я─п╟п╡п╦я┌я│я▐ п╟п╨я┌п╦п╡п╟я┌п╬я─ - п╣пЁп╬ я─п╟п╥п╪п╣я─
 	int activ_edit;
-	// если правится аффект - его индекс в списке
+	// п╣я│п╩п╦ п©я─п╟п╡п╦я┌я│я▐ п╟я└я└п╣п╨я┌ - п╣пЁп╬ п╦п╫п╢п╣п╨я│ п╡ я│п©п╦я│п╨п╣
 	size_t apply_edit;
 
 	void show_activ_ench_vnum(CHAR_DATA *ch);
@@ -97,10 +97,10 @@ private:
 	void show_activ_affects(CHAR_DATA *ch);
 	void show_activ_edit(CHAR_DATA *ch);
 	void show_obj_edit(CHAR_DATA *ch);
-	// проверка поменялось ли что-то в сете,
-	// чтобы не спамить про сохранения при выходе
+	// п©я─п╬п╡п╣я─п╨п╟ п©п╬п╪п╣п╫я▐п╩п╬я│я▄ п╩п╦ я┤я┌п╬-я┌п╬ п╡ я│п╣я┌п╣,
+	// я┤я┌п╬п╠я▀ п╫п╣ я│п©п╟п╪п╦я┌я▄ п©я─п╬ я│п╬я┘я─п╟п╫п╣п╫п╦я▐ п©я─п╦ п╡я▀я┘п╬п╢п╣
 	bool changed();
-	// для сравнения в changed()
+	// п╢п╩я▐ я│я─п╟п╡п╫п╣п╫п╦я▐ п╡ changed()
 	bool operator!=(const sedit &r) const
 	{
 		return olc_set != r.olc_set;
@@ -155,7 +155,7 @@ enum
 	STATE_GLBMSG_ROOM_OFF
 };
 
-// распечатка главного меню + смещение для следующих пунктов через MAIN_TOTAL
+// я─п╟я│п©п╣я┤п╟я┌п╨п╟ пЁп╩п╟п╡п╫п╬пЁп╬ п╪п╣п╫я▌ + я│п╪п╣я┴п╣п╫п╦п╣ п╢п╩я▐ я│п╩п╣п╢я┐я▌я┴п╦я┘ п©я┐п╫п╨я┌п╬п╡ я┤п╣я─п╣п╥ MAIN_TOTAL
 enum
 {
 	MAIN_SET_REMOVE = 1,
@@ -170,8 +170,8 @@ enum
 	MAIN_TOTAL
 };
 
-/// распечатка форматированного списка шмоток сета, форматирование идет как
-/// как по столбцам, так и по длине имени и внума шмоток, вобщем чтоб красиво
+/// я─п╟я│п©п╣я┤п╟я┌п╨п╟ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╫п╬пЁп╬ я│п©п╦я│п╨п╟ я┬п╪п╬я┌п╬п╨ я│п╣я┌п╟, я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ п╦п╢п╣я┌ п╨п╟п╨
+/// п╨п╟п╨ п©п╬ я│я┌п╬п╩п╠я├п╟п╪, я┌п╟п╨ п╦ п©п╬ п╢п╩п╦п╫п╣ п╦п╪п╣п╫п╦ п╦ п╡п╫я┐п╪п╟ я┬п╪п╬я┌п╬п╨, п╡п╬п╠я┴п╣п╪ я┤я┌п╬п╠ п╨я─п╟я│п╦п╡п╬
 std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 {
 	std::string out;
@@ -241,37 +241,37 @@ const char * main_menu_str(CHAR_DATA *ch, set_node &olc_set, int num)
 	switch (num)
 	{
 	case MAIN_SET_REMOVE:
-		return "Удалить набор";
+		return "пёп╢п╟п╩п╦я┌я▄ п╫п╟п╠п╬я─";
 	case MAIN_ENABLED:
-		snprintf(buf_, sizeof(buf_), "Статус : %s%s%s", CCCYN(ch, C_NRM),
-			olc_set.enabled ? "активен" : "неактивен", CCNRM(ch, C_NRM));
+		snprintf(buf_, sizeof(buf_), "п║я┌п╟я┌я┐я│ : %s%s%s", CCCYN(ch, C_NRM),
+			olc_set.enabled ? "п╟п╨я┌п╦п╡п╣п╫" : "п╫п╣п╟п╨я┌п╦п╡п╣п╫", CCNRM(ch, C_NRM));
 		break;
 	case MAIN_NAME:
-		snprintf(buf_, sizeof(buf_), "Имя    : %s",
+		snprintf(buf_, sizeof(buf_), "п≤п╪я▐    : %s",
 			olc_set.name.c_str());
 		break;
 	case MAIN_ALIAS:
-		snprintf(buf_, sizeof(buf_), "Алиасы : %s",
+		snprintf(buf_, sizeof(buf_), "п░п╩п╦п╟я│я▀ : %s",
 			olc_set.alias.c_str());
 		break;
 	case MAIN_COMMENT:
-		snprintf(buf_, sizeof(buf_), "Комментарий : %s",
+		snprintf(buf_, sizeof(buf_), "п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ : %s",
 			olc_set.comment.c_str());
 		break;
 	case MAIN_MSG_CHAR_ON:
-		snprintf(buf_, sizeof(buf_), "Активатор персонажу   : %s",
+		snprintf(buf_, sizeof(buf_), "п░п╨я┌п╦п╡п╟я┌п╬я─ п©п╣я─я│п╬п╫п╟п╤я┐   : %s",
 			olc_set.messages.char_on_msg.c_str());
 		break;
 	case MAIN_MSG_CHAR_OFF:
-		snprintf(buf_, sizeof(buf_), "Деактиватор персонажу : %s",
+		snprintf(buf_, sizeof(buf_), "п■п╣п╟п╨я┌п╦п╡п╟я┌п╬я─ п©п╣я─я│п╬п╫п╟п╤я┐ : %s",
 			olc_set.messages.char_off_msg.c_str());
 		break;
 	case MAIN_MSG_ROOM_ON:
-		snprintf(buf_, sizeof(buf_), "Активатор в комнату   : %s",
+		snprintf(buf_, sizeof(buf_), "п░п╨я┌п╦п╡п╟я┌п╬я─ п╡ п╨п╬п╪п╫п╟я┌я┐   : %s",
 			olc_set.messages.room_on_msg.c_str());
 		break;
 	case MAIN_MSG_ROOM_OFF:
-		snprintf(buf_, sizeof(buf_), "Деактиватор в комнату : %s",
+		snprintf(buf_, sizeof(buf_), "п■п╣п╟п╨я┌п╦п╡п╟я┌п╬я─ п╡ п╨п╬п╪п╫п╟я┌я┐ : %s",
 			olc_set.messages.room_off_msg.c_str());
 		break;
 	default:
@@ -289,20 +289,20 @@ void sedit::show_main(CHAR_DATA *ch)
 
 	if (new_entry)
 	{
-		out += "Создание нового набора предметов\r\n";
+		out += "п║п╬п╥п╢п╟п╫п╦п╣ п╫п╬п╡п╬пЁп╬ п╫п╟п╠п╬я─п╟ п©я─п╣п╢п╪п╣я┌п╬п╡\r\n";
 	}
 	else
 	{
 		size_t idx = setidx_by_uid(olc_set.uid);
 		if (idx >= sets_list.size())
 		{
-			send_to_char("Редактирование прервано: набор был удален.\r\n", ch);
+			send_to_char("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╣я─п╡п╟п╫п╬: п╫п╟п╠п╬я─ п╠я▀п╩ я┐п╢п╟п╩п╣п╫.\r\n", ch);
 			ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
 			return;
 		}
 		snprintf(buf_, sizeof(buf_),
-			"Редактирование набора предметов #%zu\r\n", idx + 1);
+			"п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╫п╟п╠п╬я─п╟ п©я─п╣п╢п╪п╣я┌п╬п╡ #%zu\r\n", idx + 1);
 		out += buf_;
 	}
 	int i = 1;
@@ -313,18 +313,18 @@ void sedit::show_main(CHAR_DATA *ch)
 			main_menu_str(ch, olc_set, i));
 		out += buf_;
 	}
-	// предметы
-	snprintf(buf_, sizeof(buf_), "\r\n%s%2d%s) Добавить предмет(ы)\r\n",
+	// п©я─п╣п╢п╪п╣я┌я▀
+	snprintf(buf_, sizeof(buf_), "\r\n%s%2d%s) п■п╬п╠п╟п╡п╦я┌я▄ п©я─п╣п╢п╪п╣я┌(я▀)\r\n",
 		CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
 	out += buf_;
 	out += main_menu_objlist(ch, olc_set, i);
 	i += static_cast<int>(olc_set.obj_list.size());
-	// активаторы
+	// п╟п╨я┌п╦п╡п╟я┌п╬я─я▀
 	snprintf(buf_, sizeof(buf_),
-		"\r\n%s%2d%s) Распечатать сумму активаторов\r\n",
+		"\r\n%s%2d%s) п═п╟я│п©п╣я┤п╟я┌п╟я┌я▄ я│я┐п╪п╪я┐ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡\r\n",
 		CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
 	out += buf_;
-	snprintf(buf_, sizeof(buf_), "%s%2d%s) Добавить активатор\r\n",
+	snprintf(buf_, sizeof(buf_), "%s%2d%s) п■п╬п╠п╟п╡п╦я┌я▄ п╟п╨я┌п╦п╡п╟я┌п╬я─\r\n",
 		CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
 	out += buf_;
 	for (auto k = olc_set.activ_list.begin(); k != olc_set.activ_list.end(); ++k)
@@ -334,7 +334,7 @@ void sedit::show_main(CHAR_DATA *ch)
 			std::string prof;
 			print_bitset(k->second.prof, pc_class_name, ",", prof);
 			snprintf(buf_, sizeof(buf_),
-				"%s%2d%s) Редактировать активатор: %s%d (%s)%s\r\n",
+				"%s%2d%s) п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п╟п╨я┌п╦п╡п╟я┌п╬я─: %s%d (%s)%s\r\n",
 				CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
 				CCCYN(ch, C_NRM), k->first, prof.c_str(),
 				CCNRM(ch, C_NRM));
@@ -342,7 +342,7 @@ void sedit::show_main(CHAR_DATA *ch)
 		else
 		{
 			snprintf(buf_, sizeof(buf_),
-				"%s%2d%s) Редактировать активатор: %s%d%s\r\n",
+				"%s%2d%s) п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟я┌я▄ п╟п╨я┌п╦п╡п╟я┌п╬я─: %s%d%s\r\n",
 				CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM),
 				CCCYN(ch, C_NRM), k->first,  CCNRM(ch, C_NRM));
 		}
@@ -350,8 +350,8 @@ void sedit::show_main(CHAR_DATA *ch)
 	}
 
 	snprintf(buf_, sizeof(buf_),
-		"\r\n%s%2d%s) Выйти Q(В)\r\n"
-		"Ваш выбор : ",
+		"\r\n%s%2d%s) п▓я▀п╧я┌п╦ Q(п▓)\r\n"
+		"п▓п╟я┬ п╡я▀п╠п╬я─ : ",
 		CCGRN(ch, C_NRM), i++, CCNRM(ch, C_NRM));
 	out += buf_;
 
@@ -366,7 +366,7 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 	if (rnum < 0)
 	{
 		send_to_char(ch,
-			"Ошибка: не найден прототип предмета %s:%d (%s).\r\n",
+			"п·я┬п╦п╠п╨п╟: п╫п╣ п╫п╟п╧п╢п╣п╫ п©я─п╬я┌п╬я┌п╦п© п©я─п╣п╢п╪п╣я┌п╟ %s:%d (%s).\r\n",
 			__FILE__, __LINE__, __func__);
 		obj_edit = -1;
 		show_main(ch);
@@ -376,7 +376,7 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 	if (obj == olc_set.obj_list.end())
 	{
 		send_to_char(ch,
-			"Ошибка: предмет не в наборе %s:%d (%s).\r\n",
+			"п·я┬п╦п╠п╨п╟: п©я─п╣п╢п╪п╣я┌ п╫п╣ п╡ п╫п╟п╠п╬я─п╣ %s:%d (%s).\r\n",
 			__FILE__, __LINE__, __func__);
 		show_main(ch);
 		return;
@@ -385,15 +385,15 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 
 	char buf_[2048];
 	snprintf(buf_, sizeof(buf_),
-		"\r\nРедактирование предмета '%s'\r\n"
-		"%s 1%s) Удалить из набора\r\n"
-		"%s 2%s) Виртуальный номер (vnum) : %s%d%s\r\n"
-		"%s 3%s) Активатор персонажу   : %s\r\n"
-		"%s 4%s) Деактиватор персонажу : %s\r\n"
-		"%s 5%s) Активатор в комнату   : %s\r\n"
-		"%s 6%s) Деактиватор в комнату : %s\r\n"
-		"%s 7%s) В главное меню Q(В)\r\n"
-		"Ваш выбор : ",
+		"\r\nп═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟ '%s'\r\n"
+		"%s 1%s) пёп╢п╟п╩п╦я┌я▄ п╦п╥ п╫п╟п╠п╬я─п╟\r\n"
+		"%s 2%s) п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ (vnum) : %s%d%s\r\n"
+		"%s 3%s) п░п╨я┌п╦п╡п╟я┌п╬я─ п©п╣я─я│п╬п╫п╟п╤я┐   : %s\r\n"
+		"%s 4%s) п■п╣п╟п╨я┌п╦п╡п╟я┌п╬я─ п©п╣я─я│п╬п╫п╟п╤я┐ : %s\r\n"
+		"%s 5%s) п░п╨я┌п╦п╡п╟я┌п╬я─ п╡ п╨п╬п╪п╫п╟я┌я┐   : %s\r\n"
+		"%s 6%s) п■п╣п╟п╨я┌п╦п╡п╟я┌п╬я─ п╡ п╨п╬п╪п╫п╟я┌я┐ : %s\r\n"
+		"%s 7%s) п▓ пЁп╩п╟п╡п╫п╬п╣ п╪п╣п╫я▌ Q(п▓)\r\n"
+		"п▓п╟я┬ п╡я▀п╠п╬я─ : ",
 		obj_proto[rnum]->get_short_description().c_str(),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -413,7 +413,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	auto i = olc_set.activ_list.find(activ_edit);
 	if (i == olc_set.activ_list.end())
 	{
-		send_to_char(ch, "Ошибка: активатор не найден %s:%d (%s).\r\n", __FILE__, __LINE__, __func__);
+		send_to_char(ch, "п·я┬п╦п╠п╨п╟: п╟п╨я┌п╦п╡п╟я┌п╬я─ п╫п╣ п╫п╟п╧п╢п╣п╫ %s:%d (%s).\r\n", __FILE__, __LINE__, __func__);
 		show_main(ch);
 		return;
 	}
@@ -429,17 +429,17 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	}
 	else
 	{
-		prof_str = "все";
+		prof_str = "п╡я│п╣";
 	}
 
 	std::string out;
 	char buf_[2048];
 	snprintf(buf_, sizeof(buf_),
-		"\r\nРедактирование активатора\r\n"
-		"%s 1%s) Удалить из набора\r\n"
-		"%s 2%s) Количество предметов : %s%d%s\r\n"
-		"%s 3%s) Профессии : %s%s%s\r\n"
-		"%s 4%s) Аффекты : %s%s%s\r\n",
+		"\r\nп═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟\r\n"
+		"%s 1%s) пёп╢п╟п╩п╦я┌я▄ п╦п╥ п╫п╟п╠п╬я─п╟\r\n"
+		"%s 2%s) п п╬п╩п╦я┤п╣я│я┌п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡ : %s%d%s\r\n"
+		"%s 3%s) п÷я─п╬я└п╣я│я│п╦п╦ : %s%s%s\r\n"
+		"%s 4%s) п░я└я└п╣п╨я┌я▀ : %s%s%s\r\n",
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM), activ_edit, CCNRM(ch, C_NRM),
@@ -454,16 +454,16 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	{
 		if (i->location > 0)
 		{
-			snprintf(buf_, sizeof(buf_), "%s%2d%s) Наводимый аффект : %s",
+			snprintf(buf_, sizeof(buf_), "%s%2d%s) п²п╟п╡п╬п╢п╦п╪я▀п╧ п╟я└я└п╣п╨я┌ : %s",
 				CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
 				print_obj_affects(*i).c_str());
 		}
 		else
 		{
 			snprintf(buf_, sizeof(buf_),
-				"%s%2d%s) Наводимый аффект : %s%s%s\r\n",
+				"%s%2d%s) п²п╟п╡п╬п╢п╦п╪я▀п╧ п╟я└я└п╣п╨я┌ : %s%s%s\r\n",
 				CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
-				CCCYN(ch, C_NRM), "ничего", CCNRM(ch, C_NRM));
+				CCCYN(ch, C_NRM), "п╫п╦я┤п╣пЁп╬", CCNRM(ch, C_NRM));
 		}
 		out += buf_;
 	}
@@ -471,14 +471,14 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	if (activ.skill.first > 0 && activ.skill.first <= MAX_SKILL_NUM)
 	{
 		snprintf(buf_, sizeof(buf_),
-			"%s%2d%s) Изменяемое умение : %s%+d to %s%s\r\n",
+			"%s%2d%s) п≤п╥п╪п╣п╫я▐п╣п╪п╬п╣ я┐п╪п╣п╫п╦п╣ : %s%+d to %s%s\r\n",
 			CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 			activ.skill.second, skill_info[activ.skill.first].name,
 			CCNRM(ch, C_NRM));
 	}
 	else
 	{
-		snprintf(buf_, sizeof(buf_), "%s%2d%s) Изменяемое умение : нет\r\n",
+		snprintf(buf_, sizeof(buf_), "%s%2d%s) п≤п╥п╪п╣п╫я▐п╣п╪п╬п╣ я┐п╪п╣п╫п╦п╣ : п╫п╣я┌\r\n",
 			CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
 	}
 	out += buf_;
@@ -491,7 +491,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 		if (GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_WEAPON)
 		{
 			snprintf(buf_, sizeof(buf_),
-				"%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d, кубики %+dD%+d%s\r\n",
+				"%s%2d%s) п≈п╟я┤п╟я─п╬п╡п╟п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟ : %s[%d] %s п╡п╣я│ %+d, п╨я┐п╠п╦п╨п╦ %+dD%+d%s\r\n",
 				CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 				activ.enchant.first, name, activ.enchant.second.weight,
 				activ.enchant.second.ndice, activ.enchant.second.sdice,
@@ -500,7 +500,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 		else
 		{
 			snprintf(buf_, sizeof(buf_),
-				"%s%2d%s) Зачарование предмета : %s[%d] %s вес %+d%s\r\n",
+				"%s%2d%s) п≈п╟я┤п╟я─п╬п╡п╟п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟ : %s[%d] %s п╡п╣я│ %+d%s\r\n",
 				CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
 				activ.enchant.first, name, activ.enchant.second.weight,
 				CCNRM(ch, C_NRM));
@@ -508,26 +508,26 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	}
 	else
 	{
-		snprintf(buf_, sizeof(buf_), "%s%2d%s) Зачарование предмета: нет\r\n",
+		snprintf(buf_, sizeof(buf_), "%s%2d%s) п≈п╟я┤п╟я─п╬п╡п╟п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟: п╫п╣я┌\r\n",
 			CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
 	}
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
-		"%s%2d%s) Увеличение физ. урона : %s%+d%%%s\r\n",
+		"%s%2d%s) пёп╡п╣п╩п╦я┤п╣п╫п╦п╣ я└п╦п╥. я┐я─п╬п╫п╟ : %s%+d%%%s\r\n",
 		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM), activ.bonus.phys_dmg, CCNRM(ch, C_NRM));
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
-		"%s%2d%s) Увеличение маг. урона : %s%+d%%%s\r\n",
+		"%s%2d%s) пёп╡п╣п╩п╦я┤п╣п╫п╦п╣ п╪п╟пЁ. я┐я─п╬п╫п╟ : %s%+d%%%s\r\n",
 		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM), activ.bonus.mage_dmg, CCNRM(ch, C_NRM));
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
-		"%s%2d%s) В главное меню Q(В)\r\n"
-		"Ваш выбор : ",
+		"%s%2d%s) п▓ пЁп╩п╟п╡п╫п╬п╣ п╪п╣п╫я▌ Q(п▓)\r\n"
+		"п▓п╟я┬ п╡я▀п╠п╬я─ : ",
 		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
 	out += buf_;
 
@@ -566,7 +566,7 @@ void sedit::save_olc(CHAR_DATA *ch)
 	}
 	else
 	{
-		send_to_char("Ошибка сохранения: набор был удален.", ch);
+		send_to_char("п·я┬п╦п╠п╨п╟ я│п╬я┘я─п╟п╫п╣п╫п╦я▐: п╫п╟п╠п╬я─ п╠я▀п╩ я┐п╢п╟п╩п╣п╫.", ch);
 	}
 }
 
@@ -577,25 +577,25 @@ void parse_main_exit(CHAR_DATA *ch, const char *arg)
 	{
 	case 'y':
 	case 'Y':
-	case 'д':
-	case 'Д':
+	case 'п╢':
+	case 'п■':
 		STATE(ch->desc) = CON_PLAYING;
 		ch->desc->sedit->save_olc(ch);
 		ch->desc->sedit.reset();
-		send_to_char("Изменения сохранены.\r\n", ch);
+		send_to_char("п≤п╥п╪п╣п╫п╣п╫п╦я▐ я│п╬я┘я─п╟п╫п╣п╫я▀.\r\n", ch);
 		break;
 	case 'n':
 	case 'N':
-	case 'н':
-	case 'Н':
+	case 'п╫':
+	case 'п²':
 		ch->desc->sedit.reset();
 		STATE(ch->desc) = CON_PLAYING;
-		send_to_char("Редактирование отменено.\r\n", ch);
+		send_to_char("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 		break;
 	default:
 		send_to_char(
-			"Неверный выбор!\r\n"
-			"Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+			"п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n"
+			"п▓я▀ я┘п╬я┌п╦я┌п╣ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐? Y(п■)/N(п²) : ", ch);
 		break;
 	}
 }
@@ -607,8 +607,8 @@ void parse_set_remove(CHAR_DATA *ch, const char *arg)
 	{
 	case 'y':
 	case 'Y':
-	case 'д':
-	case 'Д':
+	case 'п╢':
+	case 'п■':
 	{
 		for (auto i = sets_list.begin(); i != sets_list.end(); ++i)
 		{
@@ -617,7 +617,7 @@ void parse_set_remove(CHAR_DATA *ch, const char *arg)
 				sets_list.erase(i);
 				save();
 				init_obj_index();
-				send_to_char("Набор удален.\r\n", ch);
+				send_to_char("п²п╟п╠п╬я─ я┐п╢п╟п╩п╣п╫.\r\n", ch);
 				break;
 			}
 		}
@@ -627,15 +627,15 @@ void parse_set_remove(CHAR_DATA *ch, const char *arg)
 	}
 	case 'n':
 	case 'N':
-	case 'н':
-	case 'Н':
-		send_to_char("Удаление отменено.\r\n", ch);
+	case 'п╫':
+	case 'п²':
+		send_to_char("пёп╢п╟п╩п╣п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 		ch->desc->sedit->show_main(ch);
 		break;
 	default:
 		send_to_char(
-			"Неверный выбор!\r\n"
-			"Подтвердите удаление набора Y(Д)/N(Н) : ", ch);
+			"п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n"
+			"п÷п╬п╢я┌п╡п╣я─п╢п╦я┌п╣ я┐п╢п╟п╩п╣п╫п╦п╣ п╫п╟п╠п╬я─п╟ Y(п■)/N(п²) : ", ch);
 		break;
 	}
 }
@@ -647,14 +647,14 @@ void sedit::parse_obj_remove(CHAR_DATA *ch, const char *arg)
 	{
 	case 'y':
 	case 'Y':
-	case 'д':
-	case 'Д':
+	case 'п╢':
+	case 'п■':
 	{
 		auto i = olc_set.obj_list.find(obj_edit);
 		if (i != olc_set.obj_list.end())
 		{
 			olc_set.obj_list.erase(i);
-			send_to_char("Предмет удален из набора.\r\n", ch);
+			send_to_char("п÷я─п╣п╢п╪п╣я┌ я┐п╢п╟п╩п╣п╫ п╦п╥ п╫п╟п╠п╬я─п╟.\r\n", ch);
 		}
 		obj_edit = -1;
 		show_main(ch);
@@ -662,14 +662,14 @@ void sedit::parse_obj_remove(CHAR_DATA *ch, const char *arg)
 	}
 	case 'n':
 	case 'N':
-	case 'н':
-	case 'Н':
-		send_to_char("Удаление отменено.\r\n", ch);
+	case 'п╫':
+	case 'п²':
+		send_to_char("пёп╢п╟п╩п╣п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 		show_obj_edit(ch);
 		break;
 	default:
-		send_to_char("Неверный выбор!\r\n", ch);
-		send_to_char("Подтвердите удаление предмета Y(Д)/N(Н) :", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
+		send_to_char("п÷п╬п╢я┌п╡п╣я─п╢п╦я┌п╣ я┐п╢п╟п╩п╣п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟ Y(п■)/N(п²) :", ch);
 		break;
 	}
 }
@@ -681,14 +681,14 @@ void sedit::parse_activ_remove(CHAR_DATA *ch, const char *arg)
 	{
 	case 'y':
 	case 'Y':
-	case 'д':
-	case 'Д':
+	case 'п╢':
+	case 'п■':
 	{
 		auto i = olc_set.activ_list.find(activ_edit);
 		if (i != olc_set.activ_list.end())
 		{
 			olc_set.activ_list.erase(i);
-			send_to_char("Активатор удален из набора.\r\n", ch);
+			send_to_char("п░п╨я┌п╦п╡п╟я┌п╬я─ я┐п╢п╟п╩п╣п╫ п╦п╥ п╫п╟п╠п╬я─п╟.\r\n", ch);
 		}
 		activ_edit = -1;
 		show_main(ch);
@@ -696,14 +696,14 @@ void sedit::parse_activ_remove(CHAR_DATA *ch, const char *arg)
 	}
 	case 'n':
 	case 'N':
-	case 'н':
-	case 'Н':
-		send_to_char("Удаление отменено.\r\n", ch);
+	case 'п╫':
+	case 'п²':
+		send_to_char("пёп╢п╟п╩п╣п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 		show_activ_edit(ch);
 		break;
 	default:
-		send_to_char("Неверный выбор!\r\n", ch);
-		send_to_char("Подтвердите удаление активатора Y(Д)/N(Н) :", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
+		send_to_char("п÷п╬п╢я┌п╡п╣я─п╢п╦я┌п╣ я┐п╢п╟п╩п╣п╫п╦п╣ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ Y(п■)/N(п²) :", ch);
 		break;
 	}
 }
@@ -714,13 +714,13 @@ void sedit::show_global_msg(CHAR_DATA *ch)
 
 	char buf_[1024];
 	snprintf(buf_, sizeof(buf_),
-		"\r\nРедактирование глобальных сообщений\r\n"
-		"%s 1%s) Активатор персонажу   : %s\r\n"
-		"%s 2%s) Деактиватор персонажу : %s\r\n"
-		"%s 3%s) Активатор в комнату   : %s\r\n"
-		"%s 4%s) Деактиватор в комнату : %s\r\n"
-		"%s 5%s) Выйти Q(В)\r\n"
-		"Ваш выбор : ",
+		"\r\nп═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ пЁп╩п╬п╠п╟п╩я▄п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧\r\n"
+		"%s 1%s) п░п╨я┌п╦п╡п╟я┌п╬я─ п©п╣я─я│п╬п╫п╟п╤я┐   : %s\r\n"
+		"%s 2%s) п■п╣п╟п╨я┌п╦п╡п╟я┌п╬я─ п©п╣я─я│п╬п╫п╟п╤я┐ : %s\r\n"
+		"%s 3%s) п░п╨я┌п╦п╡п╟я┌п╬я─ п╡ п╨п╬п╪п╫п╟я┌я┐   : %s\r\n"
+		"%s 4%s) п■п╣п╟п╨я┌п╦п╡п╟я┌п╬я─ п╡ п╨п╬п╪п╫п╟я┌я┐ : %s\r\n"
+		"%s 5%s) п▓я▀п╧я┌п╦ Q(п▓)\r\n"
+		"п▓п╟я┬ п╡я▀п╠п╬я─ : ",
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.char_on_msg.c_str(),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.char_off_msg.c_str(),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg_edit.room_on_msg.c_str(),
@@ -734,7 +734,7 @@ void sedit::parse_global_msg(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg)
 	{
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		show_global_msg(ch);
 		return;
 	}
@@ -744,22 +744,22 @@ void sedit::parse_global_msg(CHAR_DATA *ch, const char *arg)
 		{
 		case 'Q':
 		case 'q':
-		case 'В':
-		case 'в':
+		case 'п▓':
+		case 'п╡':
 			if (msg_edit != global_msg)
 			{
-				send_to_char("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+				send_to_char("п▓я▀ я┘п╬я┌п╦я┌п╣ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐? Y(п■)/N(п²) : ", ch);
 				state = STATE_GLOBAL_MSG_EXIT;
 			}
 			else
 			{
-				send_to_char("Редактирование отменено.\r\n", ch);
+				send_to_char("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 				ch->desc->sedit.reset();
 				STATE(ch->desc) = CON_PLAYING;
 			}
 			break;
 		default:
-			send_to_char("Неверный выбор!\r\n", ch);
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 			show_global_msg(ch);
 			break;
 		}
@@ -771,36 +771,36 @@ void sedit::parse_global_msg(CHAR_DATA *ch, const char *arg)
 	switch (num)
 	{
 	case 1:
-		send_to_char("Сообщение персонажу при активации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╤я┐ п©я─п╦ п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_GLBMSG_CHAR_ON;
 		break;
 	case 2:
-		send_to_char("Сообщение персонажу при деактивации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╤я┐ п©я─п╦ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_GLBMSG_CHAR_OFF;
 		break;
 	case 3:
-		send_to_char("Сообщение в комнату при активации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╡ п╨п╬п╪п╫п╟я┌я┐ п©я─п╦ п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_GLBMSG_ROOM_ON;
 		break;
 	case 4:
-		send_to_char("Сообщение в комнату при деактивации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╡ п╨п╬п╪п╫п╟я┌я┐ п©я─п╦ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_GLBMSG_ROOM_OFF;
 		break;
 	case 5:
 		if (msg_edit != global_msg)
 		{
-			send_to_char("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+			send_to_char("п▓я▀ я┘п╬я┌п╦я┌п╣ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐? Y(п■)/N(п²) : ", ch);
 			state = STATE_GLOBAL_MSG_EXIT;
 		}
 		else
 		{
-			send_to_char("Редактирование отменено.\r\n", ch);
+			send_to_char("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 			ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
 		}
 		break;
 	default:
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		show_global_msg(ch);
 		break;
 	}
@@ -813,26 +813,26 @@ void parse_global_msg_exit(CHAR_DATA *ch, const char *arg)
 	{
 	case 'y':
 	case 'Y':
-	case 'д':
-	case 'Д':
+	case 'п╢':
+	case 'п■':
 		STATE(ch->desc) = CON_PLAYING;
 		global_msg = ch->desc->sedit->msg_edit;
 		save();
 		ch->desc->sedit.reset();
-		send_to_char("Изменения сохранены.\r\n", ch);
+		send_to_char("п≤п╥п╪п╣п╫п╣п╫п╦я▐ я│п╬я┘я─п╟п╫п╣п╫я▀.\r\n", ch);
 		break;
 	case 'n':
 	case 'N':
-	case 'н':
-	case 'Н':
+	case 'п╫':
+	case 'п²':
 		ch->desc->sedit.reset();
 		STATE(ch->desc) = CON_PLAYING;
-		send_to_char("Редактирование отменено.\r\n", ch);
+		send_to_char("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 		break;
 	default:
 		send_to_char(
-			"Неверный выбор!\r\n"
-			"Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+			"п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n"
+			"п▓я▀ я┘п╬я┌п╦я┌п╣ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐? Y(п■)/N(п²) : ", ch);
 		break;
 	}
 }
@@ -842,7 +842,7 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg)
 	{
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		show_main(ch);
 		return;
 	}
@@ -852,22 +852,22 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		{
 		case 'Q':
 		case 'q':
-		case 'В':
-		case 'в':
+		case 'п▓':
+		case 'п╡':
 			if (new_entry || changed())
 			{
-				send_to_char("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+				send_to_char("п▓я▀ я┘п╬я┌п╦я┌п╣ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐? Y(п■)/N(п²) : ", ch);
 				state = STATE_MAIN_EXIT;
 			}
 			else
 			{
-				send_to_char("Редактирование отменено.\r\n", ch);
+				send_to_char("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 				ch->desc->sedit.reset();
 				STATE(ch->desc) = CON_PLAYING;
 			}
 			break;
 		default:
-			send_to_char("Неверный выбор!\r\n", ch);
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 			show_main(ch);
 			break;
 		}
@@ -879,7 +879,7 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 	switch (num)
 	{
 	case MAIN_SET_REMOVE:
-		send_to_char("Подтвердите удаление набора Y(Д)/N(Н) : ", ch);
+		send_to_char("п÷п╬п╢я┌п╡п╣я─п╢п╦я┌п╣ я┐п╢п╟п╩п╣п╫п╦п╣ п╫п╟п╠п╬я─п╟ Y(п■)/N(п²) : ", ch);
 		state = STATE_SET_REMOVE;
 		return;
 	case MAIN_ENABLED:
@@ -887,32 +887,32 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		show_main(ch);
 		return;
 	case MAIN_NAME:
-		send_to_char("Имя набора (опознание, справка сеты) : ", ch);
+		send_to_char("п≤п╪я▐ п╫п╟п╠п╬я─п╟ (п╬п©п╬п╥п╫п╟п╫п╦п╣, я│п©я─п╟п╡п╨п╟ я│п╣я┌я▀) : ", ch);
 		state = STATE_NAME;
 		return;
 	case MAIN_ALIAS:
 		send_to_char(
-			"Алиасы набора для справки (через запятую и/или пробел) : ", ch);
+			"п░п╩п╦п╟я│я▀ п╫п╟п╠п╬я─п╟ п╢п╩я▐ я│п©я─п╟п╡п╨п╦ (я┤п╣я─п╣п╥ п╥п╟п©я▐я┌я┐я▌ п╦/п╦п╩п╦ п©я─п╬п╠п╣п╩) : ", ch);
 		state = STATE_ALIAS;
 		return;
 	case MAIN_COMMENT:
-		send_to_char("Ваш комментарий до 40 символов (виден по slist) : ", ch);
+		send_to_char("п▓п╟я┬ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╢п╬ 40 я│п╦п╪п╡п╬п╩п╬п╡ (п╡п╦п╢п╣п╫ п©п╬ slist) : ", ch);
 		state = STATE_COMMENT;
 		return;
 	case MAIN_MSG_CHAR_ON:
-		send_to_char("Сообщение персонажу при активации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╤я┐ п©я─п╦ п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_SETMSG_CHAR_ON;
 		return;
 	case MAIN_MSG_CHAR_OFF:
-		send_to_char("Сообщение персонажу при деактивации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╤я┐ п©я─п╦ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_SETMSG_CHAR_OFF;
 		return;
 	case MAIN_MSG_ROOM_ON:
-		send_to_char("Сообщение в комнату при активации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╡ п╨п╬п╪п╫п╟я┌я┐ п©я─п╦ п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_SETMSG_ROOM_ON;
 		return;
 	case MAIN_MSG_ROOM_OFF:
-		send_to_char("Сообщение в комнату при деактивации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╡ п╨п╬п╪п╫п╟я┌я┐ п©я─п╦ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_SETMSG_ROOM_OFF;
 		return;
 	default:
@@ -924,18 +924,18 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 	const unsigned NUM_ADD_ACTIV = NUM_TOTAL_ACTIV + 1;
 	const unsigned NUM_QUIT = NUM_ADD_ACTIV + static_cast<unsigned>(olc_set.activ_list.size()) + 1;
 
-	// после статичного меню идут предметы, за ними активаторы
+	// п©п╬я│п╩п╣ я│я┌п╟я┌п╦я┤п╫п╬пЁп╬ п╪п╣п╫я▌ п╦п╢я┐я┌ п©я─п╣п╢п╪п╣я┌я▀, п╥п╟ п╫п╦п╪п╦ п╟п╨я┌п╦п╡п╟я┌п╬я─я▀
 	if (num == NUM_ADD_OBJ)
 	{
 		send_to_char(
-			"Vnum добавляемого предмета (несколько через пробел) : ", ch);
+			"Vnum п╢п╬п╠п╟п╡п╩я▐п╣п╪п╬пЁп╬ п©я─п╣п╢п╪п╣я┌п╟ (п╫п╣я│п╨п╬п╩я▄п╨п╬ я┤п╣я─п╣п╥ п©я─п╬п╠п╣п╩) : ", ch);
 		state = STATE_OBJ_ADD;
 	}
 	else if (!olc_set.obj_list.empty()
 		&& num > NUM_ADD_OBJ
 		&& num <= NUM_ADD_OBJ + olc_set.obj_list.size())
 	{
-		// редактирование предмета
+		// я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟
 		const unsigned offset = NUM_ADD_OBJ + 1;
 		auto i = olc_set.obj_list.begin();
 		if (num > offset)
@@ -949,12 +949,12 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 	{
 		state = STATE_TOTAL_ACTIV;
 		send_to_char(print_total_activ(olc_set), ch);
-		send_to_char("Введите любую команду для продолжения : ", ch);
+		send_to_char("п▓п╡п╣п╢п╦я┌п╣ п╩я▌п╠я┐я▌ п╨п╬п╪п╟п╫п╢я┐ п╢п╩я▐ п©я─п╬п╢п╬п╩п╤п╣п╫п╦я▐ : ", ch);
 	}
 	else if (num == NUM_ADD_ACTIV)
 	{
 		send_to_char(ch,
-			"Укажите кол-во предметов для активации (%u-%u) : ",
+			"пёп╨п╟п╤п╦я┌п╣ п╨п╬п╩-п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡ п╢п╩я▐ п╟п╨я┌п╦п╡п╟я├п╦п╦ (%u-%u) : ",
 			MIN_ACTIVE_SIZE, MAX_ACTIVE_SIZE);
 		state = STATE_ACTIV_ADD;
 	}
@@ -962,7 +962,7 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 		&& num > NUM_ADD_ACTIV
 		&& num <= NUM_ADD_ACTIV + olc_set.activ_list.size())
 	{
-		// редактирование активатора
+		// я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟
 		const unsigned offset = NUM_ADD_ACTIV + 1;
 		auto i = olc_set.activ_list.begin();
 		if (num > offset)
@@ -976,19 +976,19 @@ void sedit::parse_main(CHAR_DATA *ch, const char *arg)
 	{
 		if (new_entry || changed())
 		{
-			send_to_char("Вы хотите сохранить изменения? Y(Д)/N(Н) : ", ch);
+			send_to_char("п▓я▀ я┘п╬я┌п╦я┌п╣ я│п╬я┘я─п╟п╫п╦я┌я▄ п╦п╥п╪п╣п╫п╣п╫п╦я▐? Y(п■)/N(п²) : ", ch);
 			state = STATE_MAIN_EXIT;
 		}
 		else
 		{
-			send_to_char("Редактирование отменено.\r\n", ch);
+			send_to_char("п═п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", ch);
 			ch->desc->sedit.reset();
 			STATE(ch->desc) = CON_PLAYING;
 		}
 	}
 	else
 	{
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		show_main(ch);
 	}
 }
@@ -998,7 +998,7 @@ void sedit::parse_setname(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg)
 	{
-		send_to_char("Имя набора удалено.\r\n", ch);
+		send_to_char("п≤п╪я▐ п╫п╟п╠п╬я─п╟ я┐п╢п╟п╩п╣п╫п╬.\r\n", ch);
 		olc_set.name.clear();
 	}
 	else
@@ -1013,7 +1013,7 @@ void sedit::parse_setalias(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg)
 	{
-		send_to_char("Алиас набора удален.\r\n", ch);
+		send_to_char("п░п╩п╦п╟я│ п╫п╟п╠п╬я─п╟ я┐п╢п╟п╩п╣п╫.\r\n", ch);
 		olc_set.alias.clear();
 	}
 	else
@@ -1028,7 +1028,7 @@ void sedit::parse_setcomment(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg)
 	{
-		send_to_char("Комментарий набора удален.\r\n", ch);
+		send_to_char("п п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╫п╟п╠п╬я─п╟ я┐п╢п╟п╩п╣п╫.\r\n", ch);
 		olc_set.comment.clear();
 	}
 	else
@@ -1039,7 +1039,7 @@ void sedit::parse_setcomment(CHAR_DATA *ch, const char *arg)
 	show_main(ch);
 }
 
-/// чтобы в одном месте срау обработать все три вида сообщений
+/// я┤я┌п╬п╠я▀ п╡ п╬п╢п╫п╬п╪ п╪п╣я│я┌п╣ я│я─п╟я┐ п╬п╠я─п╟п╠п╬я┌п╟я┌я▄ п╡я│п╣ я┌я─п╦ п╡п╦п╢п╟ я│п╬п╬п╠я┴п╣п╫п╦п╧
 enum { PARSE_GLB_MSG, PARSE_SET_MSG, PARSE_OBJ_MSG };
 
 void sedit::parse_setmsg(CHAR_DATA *ch, const char *arg)
@@ -1075,25 +1075,25 @@ void sedit::parse_setmsg(CHAR_DATA *ch, const char *arg)
 	case STATE_OBJMSG_CHAR_ON:
 	case STATE_GLBMSG_CHAR_ON:
 		if ((msg.char_on_msg = arg).empty())
-			send_to_char("Сообщение активатора персонажу удалено.\r\n", ch);
+			send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ п©п╣я─я│п╬п╫п╟п╤я┐ я┐п╢п╟п╩п╣п╫п╬.\r\n", ch);
 		break;
 	case STATE_SETMSG_CHAR_OFF:
 	case STATE_OBJMSG_CHAR_OFF:
 	case STATE_GLBMSG_CHAR_OFF:
 		if ((msg.char_off_msg = arg).empty())
-			send_to_char("Сообщение деактиватора персонажу удалено.\r\n", ch);
+			send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╢п╣п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ п©п╣я─я│п╬п╫п╟п╤я┐ я┐п╢п╟п╩п╣п╫п╬.\r\n", ch);
 		break;
 	case STATE_SETMSG_ROOM_ON:
 	case STATE_OBJMSG_ROOM_ON:
 	case STATE_GLBMSG_ROOM_ON:
 		if ((msg.room_on_msg = arg).empty())
-			send_to_char("Сообщение активатора в комнату удалено.\r\n", ch);
+			send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ п╡ п╨п╬п╪п╫п╟я┌я┐ я┐п╢п╟п╩п╣п╫п╬.\r\n", ch);
 		break;
 	case STATE_SETMSG_ROOM_OFF:
 	case STATE_OBJMSG_ROOM_OFF:
 	case STATE_GLBMSG_ROOM_OFF:
 		if ((msg.room_off_msg = arg).empty())
-			send_to_char("Сообщение деактиватора в комнату удалено.\r\n", ch);
+			send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╢п╣п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ п╡ п╨п╬п╪п╫п╟я┌я┐ я┐п╢п╟п╩п╣п╫п╬.\r\n", ch);
 		break;
 	default:
 		break;
@@ -1121,19 +1121,19 @@ void sedit::parse_activ_add(CHAR_DATA *ch, const char *arg)
 		|| (num = atoi(arg)) < MIN_ACTIVE_SIZE
 		|| num > MAX_ACTIVE_SIZE)
 	{
-		send_to_char("Некорректное кол-во предметов для активации.\r\n", ch);
+		send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╨п╬п╩-п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡ п╢п╩я▐ п╟п╨я┌п╦п╡п╟я├п╦п╦.\r\n", ch);
 		show_main(ch);
 		return;
 	}
 	auto i = olc_set.activ_list.find(num);
 	if (i != olc_set.activ_list.end())
 	{
-		send_to_char(ch, "В наборе уже есть активатор на %d %s.\r\n",
+		send_to_char(ch, "п▓ п╫п╟п╠п╬я─п╣ я┐п╤п╣ п╣я│я┌я▄ п╟п╨я┌п╦п╡п╟я┌п╬я─ п╫п╟ %d %s.\r\n",
 			num, desc_count(num, WHAT_OBJECT));
 	}
 	else
 	{
-		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
+		send_to_char(ch, "п░п╨я┌п╦п╡п╟я┌п╬я─ п╫п╟ %d %s п╢п╬п╠п╟п╡п╩п╣п╫ п╡ п╫п╟п╠п╬я─.\r\n",
 			num, desc_count(num, WHAT_OBJECT));
 		activ_node node;
 		// GCC 4.4
@@ -1147,7 +1147,7 @@ void sedit::show_activ_ench_vnum(CHAR_DATA *ch)
 {
 	state = STATE_ACTIV_ENCH_VNUM;
 	std::string out = main_menu_objlist(ch, olc_set, 1);
-	out += "Укажите vnum предмета (0 - удалить и выйти, пустой ввод - выход) :";
+	out += "пёп╨п╟п╤п╦я┌п╣ vnum п©я─п╣п╢п╪п╣я┌п╟ (0 - я┐п╢п╟п╩п╦я┌я▄ п╦ п╡я▀п╧я┌п╦, п©я┐я│я┌п╬п╧ п╡п╡п╬п╢ - п╡я▀я┘п╬п╢) :";
 	send_to_char(out, ch);
 }
 
@@ -1191,14 +1191,14 @@ void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg)
 		rnum = real_object(vnum);
 		if (rnum < 0)
 		{
-			send_to_char(ch, "Предметов с vnum %d не существует.\r\n", vnum);
+			send_to_char(ch, "п÷я─п╣п╢п╪п╣я┌п╬п╡ я│ vnum %d п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n", vnum);
 			show_activ_ench_vnum(ch);
 			return;
 		}
 		else if (olc_set.obj_list.find(vnum) == olc_set.obj_list.end())
 		{
 			send_to_char(ch,
-				"В данном наборе нет предмета с vnum %d.\r\n", vnum);
+				"п▓ п╢п╟п╫п╫п╬п╪ п╫п╟п╠п╬я─п╣ п╫п╣я┌ п©я─п╣п╢п╪п╣я┌п╟ я│ vnum %d.\r\n", vnum);
 			show_activ_ench_vnum(ch);
 			return;
 		}
@@ -1210,14 +1210,14 @@ void sedit::parse_activ_ench_vnum(CHAR_DATA *ch, const char *arg)
 		&& GET_OBJ_TYPE(obj_proto[rnum]) == OBJ_DATA::ITEM_WEAPON)
 	{
 		state = STATE_ACTIV_ENCH_NDICE;
-		send_to_char("Укажите изменение бросков кубика (0 - без изменений) :", ch);
+		send_to_char("пёп╨п╟п╤п╦я┌п╣ п╦п╥п╪п╣п╫п╣п╫п╦п╣ п╠я─п╬я│п╨п╬п╡ п╨я┐п╠п╦п╨п╟ (0 - п╠п╣п╥ п╦п╥п╪п╣п╫п╣п╫п╦п╧) :", ch);
 	}
 	else
 	{
 		olc_set.activ_list.at(activ_edit).enchant.second.ndice = 0;
 		olc_set.activ_list.at(activ_edit).enchant.second.sdice = 0;
 		state = STATE_ACTIV_ENCH_WEIGHT;
-		send_to_char("Укажите прибавляемый вес (0 - без изменений) :", ch);
+		send_to_char("пёп╨п╟п╤п╦я┌п╣ п©я─п╦п╠п╟п╡п╩я▐п╣п╪я▀п╧ п╡п╣я│ (0 - п╠п╣п╥ п╦п╥п╪п╣п╫п╣п╫п╦п╧) :", ch);
 	}
 }
 
@@ -1241,7 +1241,7 @@ void sedit::parse_activ_ench_ndice(CHAR_DATA *ch, const char *arg)
 		std::max(std::min(ndice, 100), -100);
 
 	state = STATE_ACTIV_ENCH_SDICE;
-	send_to_char("Укажите изменение граней кубиков (0 - без изменений) :", ch);
+	send_to_char("пёп╨п╟п╤п╦я┌п╣ п╦п╥п╪п╣п╫п╣п╫п╦п╣ пЁя─п╟п╫п╣п╧ п╨я┐п╠п╦п╨п╬п╡ (0 - п╠п╣п╥ п╦п╥п╪п╣п╫п╣п╫п╦п╧) :", ch);
 }
 
 void sedit::parse_activ_ench_sdice(CHAR_DATA *ch, const char *arg)
@@ -1253,7 +1253,7 @@ void sedit::parse_activ_ench_sdice(CHAR_DATA *ch, const char *arg)
 		std::max(std::min(sdice, 100), -100);
 
 	state = STATE_ACTIV_ENCH_WEIGHT;
-	send_to_char("Укажите прибавляемый вес (0 - без изменений) :", ch);
+	send_to_char("пёп╨п╟п╤п╦я┌п╣ п©я─п╦п╠п╟п╡п╩я▐п╣п╪я▀п╧ п╡п╣я│ (0 - п╠п╣п╥ п╦п╥п╪п╣п╫п╣п╫п╦п╧) :", ch);
 }
 
 void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
@@ -1262,7 +1262,7 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 
 	if (!*arg || !a_isdigit(*arg))
 	{
-		send_to_char("Некорректный виртуальный номер предмета.\r\n", ch);
+		send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п©я─п╣п╢п╪п╣я┌п╟.\r\n", ch);
 		show_main(ch);
 		return;
 	}
@@ -1277,22 +1277,22 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 		if (olc_set.obj_list.size() >= MAX_OBJ_LIST)
 		{
 			send_to_char(
-				"Набор уже содержит максимальное кол-во предметов.\r\n", ch);
+				"п²п╟п╠п╬я─ я┐п╤п╣ я│п╬п╢п╣я─п╤п╦я┌ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩-п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡.\r\n", ch);
 		}
 		else if (rnum < 0)
 		{
-			send_to_char(ch, "Предметов с vnum %d не существует.\r\n", vnum);
+			send_to_char(ch, "п÷я─п╣п╢п╪п╣я┌п╬п╡ я│ vnum %d п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n", vnum);
 		}
 		else if (is_duplicate(olc_set.uid, vnum))
 		{
 			send_to_char(ch,
-				"Предмет '%s' уже является частью другого набора.\r\n",
+				"п÷я─п╣п╢п╪п╣я┌ '%s' я┐п╤п╣ я▐п╡п╩я▐п╣я┌я│я▐ я┤п╟я│я┌я▄я▌ п╢я─я┐пЁп╬пЁп╬ п╫п╟п╠п╬я─п╟.\r\n",
 				obj_proto[rnum]->get_short_description().c_str());
 		}
 		else if (!verify_wear_flag(obj_proto[rnum]))
 		{
 			send_to_char(ch,
-				"Предмет '%s' имеет запрещенный слот для надевания.\r\n",
+				"п÷я─п╣п╢п╪п╣я┌ '%s' п╦п╪п╣п╣я┌ п╥п╟п©я─п╣я┴п╣п╫п╫я▀п╧ я│п╩п╬я┌ п╢п╩я▐ п╫п╟п╢п╣п╡п╟п╫п╦я▐.\r\n",
 				obj_proto[rnum]->get_short_description().c_str());
 		}
 		else
@@ -1302,7 +1302,7 @@ void sedit::parse_obj_add(CHAR_DATA *ch, const char *arg)
 			//olc_set.obj_list.emplace(vnum, empty_msg);
 			olc_set.obj_list.insert(std::make_pair(vnum, empty_msg));
 			send_to_char(ch,
-				"Предмет '%s' добавлен в набор.\r\n",
+				"п÷я─п╣п╢п╪п╣я┌ '%s' п╢п╬п╠п╟п╡п╩п╣п╫ п╡ п╫п╟п╠п╬я─.\r\n",
 				obj_proto[rnum]->get_short_description().c_str());
 		}
 	}
@@ -1315,7 +1315,7 @@ void sedit::parse_obj_edit(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg)
 	{
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		show_obj_edit(ch);
 		return;
 	}
@@ -1325,12 +1325,12 @@ void sedit::parse_obj_edit(CHAR_DATA *ch, const char *arg)
 		{
 		case 'Q':
 		case 'q':
-		case 'В':
-		case 'в':
+		case 'п▓':
+		case 'п╡':
 			show_main(ch);
 			break;
 		default:
-			send_to_char("Неверный выбор!\r\n", ch);
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 			show_obj_edit(ch);
 			break;
 		}
@@ -1341,34 +1341,34 @@ void sedit::parse_obj_edit(CHAR_DATA *ch, const char *arg)
 	switch (num)
 	{
 	case 1:
-		send_to_char("Подтвердите удаление предмета Y(Д)/N(Н) :", ch);
+		send_to_char("п÷п╬п╢я┌п╡п╣я─п╢п╦я┌п╣ я┐п╢п╟п╩п╣п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟ Y(п■)/N(п²) :", ch);
 		state = STATE_OBJ_REMOVE;
 		break;
 	case 2:
-		send_to_char("Виртуальный номер нового предмета : ", ch);
+		send_to_char("п▓п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п╫п╬п╡п╬пЁп╬ п©я─п╣п╢п╪п╣я┌п╟ : ", ch);
 		state = STATE_OBJ_CHANGE;
 		break;
 	case 3:
-		send_to_char("Сообщение персонажу при активации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╤я┐ п©я─п╦ п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_OBJMSG_CHAR_ON;
 		break;
 	case 4:
-		send_to_char("Сообщение персонажу при деактивации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п©п╣я─я│п╬п╫п╟п╤я┐ п©я─п╦ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_OBJMSG_CHAR_OFF;
 		break;
 	case 5:
-		send_to_char("Сообщение в комнату при активации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╡ п╨п╬п╪п╫п╟я┌я┐ п©я─п╦ п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_OBJMSG_ROOM_ON;
 		break;
 	case 6:
-		send_to_char("Сообщение в комнату при деактивации : ", ch);
+		send_to_char("п║п╬п╬п╠я┴п╣п╫п╦п╣ п╡ п╨п╬п╪п╫п╟я┌я┐ п©я─п╦ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦п╦ : ", ch);
 		state = STATE_OBJMSG_ROOM_OFF;
 		break;
 	case 7:
 		show_main(ch);
 		break;
 	default:
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		show_obj_edit(ch);
 		break;
 	}
@@ -1408,7 +1408,7 @@ void sedit::show_activ_skill(CHAR_DATA *ch)
 	}
 	send_to_char(out, ch);
 	send_to_char(
-		"\r\nУкажите номер и уровень владения умением (0 - конец) : ", ch);
+		"\r\nпёп╨п╟п╤п╦я┌п╣ п╫п╬п╪п╣я─ п╦ я┐я─п╬п╡п╣п╫я▄ п╡п╩п╟п╢п╣п╫п╦я▐ я┐п╪п╣п╫п╦п╣п╪ (0 - п╨п╬п╫п╣я├) : ", ch);
 }
 
 void sedit::show_activ_prof(CHAR_DATA *ch)
@@ -1427,17 +1427,17 @@ void sedit::show_activ_prof(CHAR_DATA *ch)
 	}
 
 	snprintf(buf_, sizeof(buf_),
-		"%s%2zu%s) Сбросить все\r\n"
-		"%s%2zu%s) Установить все\r\n",
+		"%s%2zu%s) п║п╠я─п╬я│п╦я┌я▄ п╡я│п╣\r\n"
+		"%s%2zu%s) пёя│я┌п╟п╫п╬п╡п╦я┌я▄ п╡я│п╣\r\n",
 		CCGRN(ch, C_NRM), bits.size() + 1, CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), bits.size() + 2, CCNRM(ch, C_NRM));
 	out += buf_;
 
-	snprintf(buf_, sizeof(buf_), "Текущие профессии : %s", CCCYN(ch, C_NRM));
+	snprintf(buf_, sizeof(buf_), "п╒п╣п╨я┐я┴п╦п╣ п©я─п╬я└п╣я│я│п╦п╦ : %s", CCCYN(ch, C_NRM));
 	out += buf_;
 	print_bitset(bits, pc_class_name, ",", out, true);
 	out += CCNRM(ch, C_NRM);
-	out += "\r\nВыберите профессии для данного активатора (0 - выход) : ";
+	out += "\r\nп▓я▀п╠п╣я─п╦я┌п╣ п©я─п╬я└п╣я│я│п╦п╦ п╢п╩я▐ п╢п╟п╫п╫п╬пЁп╬ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ (0 - п╡я▀я┘п╬п╢) : ";
 
 	send_to_char(out, ch);
 }
@@ -1447,7 +1447,7 @@ void sedit::parse_activ_prof(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg))
 	{
-		send_to_char("Некорректный ввод.\r\n", ch);
+		send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╡п╡п╬п╢.\r\n", ch);
 		show_activ_prof(ch);
 		return;
 	}
@@ -1474,7 +1474,7 @@ void sedit::parse_activ_prof(CHAR_DATA *ch, const char *arg)
 	}
 	else
 	{
-		send_to_char("Некорректный ввод.\r\n", ch);
+		send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╡п╡п╬п╢.\r\n", ch);
 	}
 	show_activ_prof(ch);
 }
@@ -1495,14 +1495,14 @@ void sedit::parse_activ_skill(CHAR_DATA *ch, const char *arg)
 
 	if (sscanf(arg, "%d %d", &ssnum, &ssval) < 2)
 	{
-		send_to_char("Не указан уровень владения умением.\r\n", ch);
+		send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ я┐я─п╬п╡п╣п╫я▄ п╡п╩п╟п╢п╣п╫п╦я▐ я┐п╪п╣п╫п╦п╣п╪.\r\n", ch);
 		show_activ_skill(ch);
 	}
 	else if (ssnum > MAX_SKILL_NUM || ssnum < 0
 		|| !skill_info[ssnum].name
 		|| *skill_info[ssnum].name == '!')
 	{
-		send_to_char("Неизвестное умение.\r\n", ch);
+		send_to_char("п²п╣п╦п╥п╡п╣я│я┌п╫п╬п╣ я┐п╪п╣п╫п╦п╣.\r\n", ch);
 		show_activ_skill(ch);
 	}
 	else if (ssval == 0)
@@ -1559,7 +1559,7 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 	if (i == olc_set.activ_list.end())
 	{
 		send_to_char(ch,
-			"Ошибка: активатор не найден %s:%d (%s).\r\n",
+			"п·я┬п╦п╠п╨п╟: п╟п╨я┌п╦п╡п╟я┌п╬я─ п╫п╣ п╫п╟п╧п╢п╣п╫ %s:%d (%s).\r\n",
 			__FILE__, __LINE__, __func__);
 		show_main(ch);
 		return;
@@ -1569,7 +1569,7 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg)
 	{
-		send_to_char("Неверный выбор!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 		show_activ_edit(ch);
 		return;
 	}
@@ -1579,12 +1579,12 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 		{
 		case 'Q':
 		case 'q':
-		case 'В':
-		case 'в':
+		case 'п▓':
+		case 'п╡':
 			show_main(ch);
 			break;
 		default:
-			send_to_char("Неверный выбор!\r\n", ch);
+			send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╡я▀п╠п╬я─!\r\n", ch);
 			show_activ_edit(ch);
 			break;
 		}
@@ -1596,11 +1596,11 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 	{
 	case 1:
 		state = STATE_ACTIV_REMOVE;
-		send_to_char("Подтвердите удаление активатора Y(Д)/N(Н) :", ch);
+		send_to_char("п÷п╬п╢я┌п╡п╣я─п╢п╦я┌п╣ я┐п╢п╟п╩п╣п╫п╦п╣ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ Y(п■)/N(п²) :", ch);
 		return;
 	case 2:
 		state = STATE_ACTIV_CHANGE;
-		send_to_char("Введите новое кол-во предметов для активации :", ch);
+		send_to_char("п▓п╡п╣п╢п╦я┌п╣ п╫п╬п╡п╬п╣ п╨п╬п╩-п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡ п╢п╩я▐ п╟п╨я┌п╦п╡п╟я├п╦п╦ :", ch);
 		return;
 	case 3:
 		show_activ_prof(ch);
@@ -1629,12 +1629,12 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 	else if (num == offset + activ.apply.size() + 3)
 	{
 		state = STATE_ACTIV_PHYS_DMG;
-		send_to_char("Укажите процент прибавляемого физ. урона :", ch);
+		send_to_char("пёп╨п╟п╤п╦я┌п╣ п©я─п╬я├п╣п╫я┌ п©я─п╦п╠п╟п╡п╩я▐п╣п╪п╬пЁп╬ я└п╦п╥. я┐я─п╬п╫п╟ :", ch);
 	}
 	else if (num == offset + activ.apply.size() + 4)
 	{
 		state = STATE_ACTIV_MAGE_DMG;
-		send_to_char("Укажите процент прибавляемого маг. урона :", ch);
+		send_to_char("пёп╨п╟п╤п╦я┌п╣ п©я─п╬я├п╣п╫я┌ п©я─п╦п╠п╟п╡п╩я▐п╣п╪п╬пЁп╬ п╪п╟пЁ. я┐я─п╬п╫п╟ :", ch);
 	}
 	else if (num == offset + activ.apply.size() + 5)
 	{
@@ -1642,7 +1642,7 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 	}
 	else
 	{
-		send_to_char("Некорректный ввод.\r\n", ch);
+		send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╡п╡п╬п╢.\r\n", ch);
 		show_activ_edit(ch);
 	}
 }
@@ -1685,14 +1685,14 @@ void sedit::parse_activ_apply_loc(CHAR_DATA *ch, const char *arg)
 	}
 	else if (num < 0 || num >= NUM_APPLIES)
 	{
-		send_to_char("Некорректный ввод.\r\n", ch);
+		send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╡п╡п╬п╢.\r\n", ch);
 		show_apply_olc(ch->desc);
 	}
 	else
 	{
 		apply.location = static_cast<EApplyLocation>(num);
 		state = STATE_ACTIV_APPLY_MOD;
-		send_to_char("Введите модификатор : ", ch);
+		send_to_char("п▓п╡п╣п╢п╦я┌п╣ п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─ : ", ch);
 	}
 }
 
@@ -1722,7 +1722,7 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg))
 	{
-		send_to_char("Некорректный виртуальный номер предмета.\r\n", ch);
+		send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ п©я─п╣п╢п╪п╣я┌п╟.\r\n", ch);
 		show_obj_edit(ch);
 		return;
 	}
@@ -1730,7 +1730,7 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 	const int vnum = atoi(arg);
 	if (vnum == obj_edit)
 	{
-		send_to_char("Вы и так редактируете данный предмет.\r\n", ch);
+		send_to_char("п▓я▀ п╦ я┌п╟п╨ я─п╣п╢п╟п╨я┌п╦я─я┐п╣я┌п╣ п╢п╟п╫п╫я▀п╧ п©я─п╣п╢п╪п╣я┌.\r\n", ch);
 		show_obj_edit(ch);
 		return;
 	}
@@ -1738,18 +1738,18 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 	const int rnum = real_object(vnum);
 	if (rnum < 0)
 	{
-		send_to_char(ch, "Предметов с vnum %d не существует.\r\n", vnum);
+		send_to_char(ch, "п÷я─п╣п╢п╪п╣я┌п╬п╡ я│ vnum %d п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n", vnum);
 	}
 	else if (is_duplicate(olc_set.uid, vnum))
 	{
 		send_to_char(ch,
-			"Предмет '%s' уже является частью другого набора.\r\n",
+			"п÷я─п╣п╢п╪п╣я┌ '%s' я┐п╤п╣ я▐п╡п╩я▐п╣я┌я│я▐ я┤п╟я│я┌я▄я▌ п╢я─я┐пЁп╬пЁп╬ п╫п╟п╠п╬я─п╟.\r\n",
 			obj_proto[rnum]->get_short_description().c_str());
 	}
 	else if (olc_set.obj_list.find(vnum) != olc_set.obj_list.end())
 	{
 		send_to_char(ch,
-			"Предмет '%s' уже является частью данного набора.\r\n",
+			"п÷я─п╣п╢п╪п╣я┌ '%s' я┐п╤п╣ я▐п╡п╩я▐п╣я┌я│я▐ я┤п╟я│я┌я▄я▌ п╢п╟п╫п╫п╬пЁп╬ п╫п╟п╠п╬я─п╟.\r\n",
 			obj_proto[rnum]->get_short_description().c_str());
 	}
 	else
@@ -1766,7 +1766,7 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 		//olc_set.obj_list.emplace(vnum, msg);
 		olc_set.obj_list.insert(std::make_pair(vnum, msg));
 		send_to_char(ch,
-			"Предмет '%s' добавлен в набор.\r\n",
+			"п÷я─п╣п╢п╪п╣я┌ '%s' п╢п╬п╠п╟п╡п╩п╣п╫ п╡ п╫п╟п╠п╬я─.\r\n",
 			obj_proto[rnum]->get_short_description().c_str());
 	}
 	show_obj_edit(ch);
@@ -1777,7 +1777,7 @@ void sedit::parse_activ_change(CHAR_DATA *ch, const char *arg)
 	skip_spaces(&arg);
 	if (!*arg || !a_isdigit(*arg))
 	{
-		send_to_char("Некорректное кол-во предметов для активации.\r\n", ch);
+		send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫п╬п╣ п╨п╬п╩-п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡ п╢п╩я▐ п╟п╨я┌п╦п╡п╟я├п╦п╦.\r\n", ch);
 		show_activ_edit(ch);
 		return;
 	}
@@ -1785,12 +1785,12 @@ void sedit::parse_activ_change(CHAR_DATA *ch, const char *arg)
 	const int num = atoi(arg);
 	if (num == activ_edit)
 	{
-		send_to_char("Кол-во предметов активации не изменилось.\r\n", ch);
+		send_to_char("п п╬п╩-п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡ п╟п╨я┌п╦п╡п╟я├п╦п╦ п╫п╣ п╦п╥п╪п╣п╫п╦п╩п╬я│я▄.\r\n", ch);
 	}
 	else if (olc_set.activ_list.find(num) != olc_set.activ_list.end())
 	{
 		send_to_char(ch,
-			"Набор уже содержит активатор на %d %s.\r\n",
+			"п²п╟п╠п╬я─ я┐п╤п╣ я│п╬п╢п╣я─п╤п╦я┌ п╟п╨я┌п╦п╡п╟я┌п╬я─ п╫п╟ %d %s.\r\n",
 			num, desc_count(num, WHAT_OBJECT));
 	}
 	else
@@ -1806,15 +1806,15 @@ void sedit::parse_activ_change(CHAR_DATA *ch, const char *arg)
 		// GCC 4.4
 		//olc_set.activ_list.emplace(num, activ);
 		olc_set.activ_list.insert(std::make_pair(num, activ));
-		send_to_char(ch, "Активатор на %d %s добавлен в набор.\r\n",
+		send_to_char(ch, "п░п╨я┌п╦п╡п╟я┌п╬я─ п╫п╟ %d %s п╢п╬п╠п╟п╡п╩п╣п╫ п╡ п╫п╟п╠п╬я─.\r\n",
 			num, desc_count(num, WHAT_OBJECT));
 	}
 	show_activ_edit(ch);
 }
 
-/// наружу при обработке команд в олц торчит только эта функция
-/// плюс она обернута в try/catch для ловли возможных out_of_range, т.к. внутри
-/// все через .at и местами код на это закладывается вместо ручных сравнений
+/// п╫п╟я─я┐п╤я┐ п©я─п╦ п╬п╠я─п╟п╠п╬я┌п╨п╣ п╨п╬п╪п╟п╫п╢ п╡ п╬п╩я├ я┌п╬я─я┤п╦я┌ я┌п╬п╩я▄п╨п╬ я█я┌п╟ я└я┐п╫п╨я├п╦я▐
+/// п©п╩я▌я│ п╬п╫п╟ п╬п╠п╣я─п╫я┐я┌п╟ п╡ try/catch п╢п╩я▐ п╩п╬п╡п╩п╦ п╡п╬п╥п╪п╬п╤п╫я▀я┘ out_of_range, я┌.п╨. п╡п╫я┐я┌я─п╦
+/// п╡я│п╣ я┤п╣я─п╣п╥ .at п╦ п╪п╣я│я┌п╟п╪п╦ п╨п╬п╢ п╫п╟ я█я┌п╬ п╥п╟п╨п╩п╟п╢я▀п╡п╟п╣я┌я│я▐ п╡п╪п╣я│я┌п╬ я─я┐я┤п╫я▀я┘ я│я─п╟п╡п╫п╣п╫п╦п╧
 void parse_input(CHAR_DATA *ch, const char *arg)
 {
 	sedit &olc = *(ch->desc->sedit);
@@ -1923,7 +1923,7 @@ void parse_input(CHAR_DATA *ch, const char *arg)
 		ch->desc->sedit.reset();
 		STATE(ch->desc) = CON_PLAYING;
 		send_to_char(ch,
-			"Ошибка: не найден STATE, редактирование отменено %s:%d (%s).\r\n",
+			"п·я┬п╦п╠п╨п╟: п╫п╣ п╫п╟п╧п╢п╣п╫ STATE, я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬я┌п╪п╣п╫п╣п╫п╬ %s:%d (%s).\r\n",
 			__FILE__, __LINE__, __func__);
 		break;
 	} // switch
@@ -1952,15 +1952,15 @@ void start_sedit(CHAR_DATA *ch, size_t idx)
 }
 
 const char *SEDIT_HELP =
-	"Формат команды:\r\n"
-	"   sedit - создание нового сета\r\n"
-	"   sedit <прядковый номер сета из slist> - редактирование существующего сета\r\n"
-	"   sedit <vnum любого предмета из сета> - редактирование существующего сета\r\n"
-	"   sedit <msg|messages> - редактирование глобальных сообщений сетов\r\n";
+	"п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀:\r\n"
+	"   sedit - я│п╬п╥п╢п╟п╫п╦п╣ п╫п╬п╡п╬пЁп╬ я│п╣я┌п╟\r\n"
+	"   sedit <п©я─я▐п╢п╨п╬п╡я▀п╧ п╫п╬п╪п╣я─ я│п╣я┌п╟ п╦п╥ slist> - я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╣пЁп╬ я│п╣я┌п╟\r\n"
+	"   sedit <vnum п╩я▌п╠п╬пЁп╬ п©я─п╣п╢п╪п╣я┌п╟ п╦п╥ я│п╣я┌п╟> - я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╣пЁп╬ я│п╣я┌п╟\r\n"
+	"   sedit <msg|messages> - я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ пЁп╩п╬п╠п╟п╩я▄п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧ я│п╣я┌п╬п╡\r\n";
 
 } // namespace
 
-/// иммский sedit, см. SEDIT_HELP
+/// п╦п╪п╪я│п╨п╦п╧ sedit, я│п╪. SEDIT_HELP
 void do_sedit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
@@ -1971,26 +1971,26 @@ void do_sedit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	skip_spaces(&argument);
 	if (!argument || !*argument)
 	{
-		// создание нового сета
+		// я│п╬п╥п╢п╟п╫п╦п╣ п╫п╬п╡п╬пЁп╬ я│п╣я┌п╟
 		start_sedit(ch, -1);
 	}
 	else if (a_isdigit(*argument))
 	{
-		// редактирование существующего
+		// я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╣пЁп╬
 		unsigned num = atoi(argument);
 		if (num > 0 && num <= sets_list.size())
 		{
-			// по номеру сета из slist
+			// п©п╬ п╫п╬п╪п╣я─я┐ я│п╣я┌п╟ п╦п╥ slist
 			--num;
 			start_sedit(ch, num);
 		}
 		else
 		{
-			// по внуму предмета
+			// п©п╬ п╡п╫я┐п╪я┐ п©я─п╣п╢п╪п╣я┌п╟
 			if (real_object(num) < 0)
 			{
 				send_to_char(SEDIT_HELP, ch);
-				send_to_char(ch, "Предметов с vnum %s не существует.\r\n",
+				send_to_char(ch, "п÷я─п╣п╢п╪п╣я┌п╬п╡ я│ vnum %s п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n",
 					argument);
 				return;
 			}
@@ -2003,13 +2003,13 @@ void do_sedit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				send_to_char(SEDIT_HELP, ch);
 				send_to_char(ch,
-					"В сетах предметов с vnum %s не найдено.\r\n", argument);
+					"п▓ я│п╣я┌п╟я┘ п©я─п╣п╢п╪п╣я┌п╬п╡ я│ vnum %s п╫п╣ п╫п╟п╧п╢п╣п╫п╬.\r\n", argument);
 			}
 		}
 	}
 	else if (!str_cmp(argument, "msg") || !str_cmp(argument, "messages"))
 	{
-		// редактирование глобальных сообщений
+		// я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ пЁп╩п╬п╠п╟п╩я▄п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧
 		STATE(ch->desc) = CON_SEDIT;
 		ch->desc->sedit = std::make_shared<obj_sets_olc::sedit>();
 		ch->desc->sedit->msg_edit = global_msg;

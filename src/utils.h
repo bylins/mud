@@ -232,7 +232,7 @@ void update_pos(CHAR_DATA * victim);
 
 // various constants ****************************************************
 
-// проверяет, висит ли заданный спелл на чаре
+// п©я─п╬п╡п╣я─я▐п╣я┌, п╡п╦я│п╦я┌ п╩п╦ п╥п╟п╢п╟п╫п╫я▀п╧ я│п©п╣п╩п╩ п╫п╟ я┤п╟я─п╣
 bool check_spell_on_player(CHAR_DATA *ch, int spell_num);
 
 
@@ -602,7 +602,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define GET_UNIQUE(ch)         ((ch)->get_uid())
 #define LAST_LOGON(ch)         ((ch)->get_last_logon())
 #define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
-//структуры для подсчета количества рипов на морте (с) Василиса
+//я│я┌я─я┐п╨я┌я┐я─я▀ п╢п╩я▐ п©п╬п╢я│я┤п╣я┌п╟ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ я─п╦п©п╬п╡ п╫п╟ п╪п╬я─я┌п╣ (я│) п▓п╟я│п╦п╩п╦я│п╟
 #define GET_RIP_ARENA(ch)      ((ch)->player_specials->saved.Rip_arena)
 #define GET_RIP_PK(ch)         ((ch)->player_specials->saved.Rip_pk)
 #define GET_RIP_MOB(ch)        ((ch)->player_specials->saved.Rip_mob)
@@ -622,7 +622,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define GET_EXP_MOBTHIS(ch)    ((ch)->player_specials->saved.Exp_mob_this)
 #define GET_EXP_OTHERTHIS(ch)  ((ch)->player_specials->saved.Exp_other_this)
 #define GET_EXP_DTTHIS(ch)     ((ch)->player_specials->saved.Exp_dt_this)
-//конец правки (с) Василиса
+//п╨п╬п╫п╣я├ п©я─п╟п╡п╨п╦ (я│) п▓п╟я│п╦п╩п╦я│п╟
 
 #define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
 #define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
@@ -645,7 +645,7 @@ inline T VPOSI(const T val, const T min, const T max)
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
 
-// С ВЮПНБ ПЕФЕР ДН 50, С ЛНАНБ ДН ЯРЮ
+// п║ п▓п╝п÷п²п▒ п÷п∙п╓п∙п═ п■п² 50, п║ п⌡п²п░п²п▒ п■п² п╞п═п╝
 //#define VPOSI_MOB(ch, stat_id, val)	IS_NPC(ch) ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
 
 #define GET_CLASS(ch)   ((ch)->get_class())
@@ -712,7 +712,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_RESIST(ch,i)  ((ch)->add_abils.apply_resistance_throw[i])
 #define GET_AR(ch)        ((ch)->add_abils.aresist)
 #define GET_MR(ch)        ((ch)->add_abils.mresist)
-#define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (Видолюб) поглощение физ.урона в %
+#define GET_PR(ch)        ((ch)->add_abils.presist) // added by WorM (п▓п╦п╢п╬п╩я▌п╠) п©п╬пЁп╩п╬я┴п╣п╫п╦п╣ я└п╦п╥.я┐я─п╬п╫п╟ п╡ %
 #define GET_CASTER(ch)    ((ch)->CasterLevel)
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
@@ -728,12 +728,12 @@ inline T VPOSI(const T val, const T min, const T max)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
 #define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 
-// Макросы доступа к полям параметров комнат
+// п°п╟п╨я─п╬я│я▀ п╢п╬я│я┌я┐п©п╟ п╨ п©п╬п╩я▐п╪ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п╨п╬п╪п╫п╟я┌
 #define GET_ROOM_BASE_POISON(room) ((room)->base_property.poison)
 #define GET_ROOM_ADD_POISON(room) ((room)->add_property.poison)
 #define GET_ROOM_POISON(room) (GET_ROOM_BASE_POISON(room)+GET_ROOM_ADD_POISON(room))
 
-// Получение кубиков урона - работает только для мобов!
+// п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╨я┐п╠п╦п╨п╬п╡ я┐я─п╬п╫п╟ - я─п╟п╠п╬я┌п╟п╣я┌ я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╪п╬п╠п╬п╡!
 #define GET_NDD(ch) ((ch)->mob_specials.damnodice)
 #define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
@@ -860,63 +860,63 @@ inline T VPOSI(const T val, const T min, const T max)
                               (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\
                               (GET_ALIGNMENT(vict)-GET_ALIGNMENT(ch))<=ALIGN_DELTA\
                              )
-#define GET_CH_SUF_1(ch) (IS_NOSEXY(ch) ? "о" :\
+#define GET_CH_SUF_1(ch) (IS_NOSEXY(ch) ? "п╬" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_SUF_2(ch) (IS_NOSEXY(ch) ? "ось" :\
-                          IS_MALE(ch) ? "ся"  :\
-                          IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_SUF_3(ch) (IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ый"  :\
-                          IS_FEMALE(ch) ? "ая" : "ые")
-#define GET_CH_SUF_4(ch) (IS_NOSEXY(ch) ? "ло" :\
+                          IS_FEMALE(ch) ? "п╟" : "п╦")
+#define GET_CH_SUF_2(ch) (IS_NOSEXY(ch) ? "п╬я│я▄" :\
+                          IS_MALE(ch) ? "я│я▐"  :\
+                          IS_FEMALE(ch) ? "п╟я│я▄" : "п╦я│я▄")
+#define GET_CH_SUF_3(ch) (IS_NOSEXY(ch) ? "п╬п╣" :\
+                          IS_MALE(ch) ? "я▀п╧"  :\
+                          IS_FEMALE(ch) ? "п╟я▐" : "я▀п╣")
+#define GET_CH_SUF_4(ch) (IS_NOSEXY(ch) ? "п╩п╬" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_SUF_5(ch) (IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? "ел"  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_SUF_6(ch) (IS_NOSEXY(ch) ? "о" :\
+                          IS_FEMALE(ch) ? "п╩п╟" : "п╩п╦")
+#define GET_CH_SUF_5(ch) (IS_NOSEXY(ch) ? "п╩п╬" :\
+                          IS_MALE(ch) ? "п╣п╩"  :\
+                          IS_FEMALE(ch) ? "п╩п╟" : "п╩п╦")
+#define GET_CH_SUF_6(ch) (IS_NOSEXY(ch) ? "п╬" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_SUF_7(ch) (IS_NOSEXY(ch) ? "ым" :\
-                          IS_MALE(ch) ? "ым"  :\
-                          IS_FEMALE(ch) ? "ой" : "ыми")
-#define GET_CH_SUF_8(ch) (IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ая" : "ие")
+                          IS_FEMALE(ch) ? "п╟" : "я▀")
+#define GET_CH_SUF_7(ch) (IS_NOSEXY(ch) ? "я▀п╪" :\
+                          IS_MALE(ch) ? "я▀п╪"  :\
+                          IS_FEMALE(ch) ? "п╬п╧" : "я▀п╪п╦")
+#define GET_CH_SUF_8(ch) (IS_NOSEXY(ch) ? "п╬п╣" :\
+                          IS_MALE(ch) ? "п╬п╧"  :\
+                          IS_FEMALE(ch) ? "п╟я▐" : "п╦п╣")
 
 #define GET_CH_VIS_SUF_1(ch,och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "о" :\
+                          IS_NOSEXY(ch) ? "п╬" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_VIS_SUF_2(ch,och) (!CAN_SEE(och,ch) ? "ся" :\
-                          IS_NOSEXY(ch) ? "ось" :\
-                          IS_MALE(ch) ? "ся"  :\
-                          IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_VIS_SUF_3(ch,och) (!CAN_SEE(och,ch) ? "ый" :\
-                          IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ый"  :\
-                          IS_FEMALE(ch) ? "ая" : "ые")
+                          IS_FEMALE(ch) ? "п╟" : "п╦")
+#define GET_CH_VIS_SUF_2(ch,och) (!CAN_SEE(och,ch) ? "я│я▐" :\
+                          IS_NOSEXY(ch) ? "п╬я│я▄" :\
+                          IS_MALE(ch) ? "я│я▐"  :\
+                          IS_FEMALE(ch) ? "п╟я│я▄" : "п╦я│я▄")
+#define GET_CH_VIS_SUF_3(ch,och) (!CAN_SEE(och,ch) ? "я▀п╧" :\
+                          IS_NOSEXY(ch) ? "п╬п╣" :\
+                          IS_MALE(ch) ? "я▀п╧"  :\
+                          IS_FEMALE(ch) ? "п╟я▐" : "я▀п╣")
 #define GET_CH_VIS_SUF_4(ch,och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "ло" :\
+                          IS_NOSEXY(ch) ? "п╩п╬" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_VIS_SUF_5(ch,och) (!CAN_SEE(och,ch) ? "ел" :\
-                          IS_NOSEXY(ch) ? "ло" :\
-                          IS_MALE(ch) ? "ел"  :\
-                          IS_FEMALE(ch) ? "ла" : "ли")
+                          IS_FEMALE(ch) ? "п╩п╟" : "п╩п╦")
+#define GET_CH_VIS_SUF_5(ch,och) (!CAN_SEE(och,ch) ? "п╣п╩" :\
+                          IS_NOSEXY(ch) ? "п╩п╬" :\
+                          IS_MALE(ch) ? "п╣п╩"  :\
+                          IS_FEMALE(ch) ? "п╩п╟" : "п╩п╦")
 #define GET_CH_VIS_SUF_6(ch,och) (!CAN_SEE(och,ch) ? "" :\
-                          IS_NOSEXY(ch) ? "о" :\
+                          IS_NOSEXY(ch) ? "п╬" :\
                           IS_MALE(ch) ? ""  :\
-                          IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_VIS_SUF_7(ch,och) (!CAN_SEE(och,ch) ? "ым" :\
-                          IS_NOSEXY(ch) ? "ым" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ым" : "ыми")
-#define GET_CH_VIS_SUF_8(ch,och) (!CAN_SEE(och,ch) ? "ой" :\
-                          IS_NOSEXY(ch) ? "ое" :\
-                          IS_MALE(ch) ? "ой"  :\
-                          IS_FEMALE(ch) ? "ая" : "ие")
+                          IS_FEMALE(ch) ? "п╟" : "я▀")
+#define GET_CH_VIS_SUF_7(ch,och) (!CAN_SEE(och,ch) ? "я▀п╪" :\
+                          IS_NOSEXY(ch) ? "я▀п╪" :\
+                          IS_MALE(ch) ? "п╬п╧"  :\
+                          IS_FEMALE(ch) ? "я▀п╪" : "я▀п╪п╦")
+#define GET_CH_VIS_SUF_8(ch,och) (!CAN_SEE(och,ch) ? "п╬п╧" :\
+                          IS_NOSEXY(ch) ? "п╬п╣" :\
+                          IS_MALE(ch) ? "п╬п╧"  :\
+                          IS_FEMALE(ch) ? "п╟я▐" : "п╦п╣")
 
 
 #define GET_OBJ_SEX(obj) ((obj)->get_sex())
@@ -926,72 +926,72 @@ inline T VPOSI(const T val, const T min, const T max)
 
 #define GET_OBJ_MIW(obj) ((obj)->get_max_in_world())
 
-#define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
+#define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "п╬" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_SUF_2(obj) (IS_OBJ_NOSEXY(obj) ? "ось" :\
-                            IS_OBJ_MALE(obj) ? "ся"  :\
-                            IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_SUF_3(obj) (IS_OBJ_NOSEXY(obj) ? "ое" :\
-                            IS_OBJ_MALE(obj) ? "ый"  :\
-                            IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_SUF_4(obj) (IS_OBJ_NOSEXY(obj) ? "ло" :\
+                            IS_OBJ_FEMALE(obj) ? "п╟" : "п╦")
+#define GET_OBJ_SUF_2(obj) (IS_OBJ_NOSEXY(obj) ? "п╬я│я▄" :\
+                            IS_OBJ_MALE(obj) ? "я│я▐"  :\
+                            IS_OBJ_FEMALE(obj) ? "п╟я│я▄" : "п╦я│я▄")
+#define GET_OBJ_SUF_3(obj) (IS_OBJ_NOSEXY(obj) ? "п╬п╣" :\
+                            IS_OBJ_MALE(obj) ? "я▀п╧"  :\
+                            IS_OBJ_FEMALE(obj) ? "п╟я▐" : "я▀п╣")
+#define GET_OBJ_SUF_4(obj) (IS_OBJ_NOSEXY(obj) ? "п╩п╬" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_SUF_5(obj) (IS_OBJ_NOSEXY(obj) ? "ло" :\
+                            IS_OBJ_FEMALE(obj) ? "п╩п╟" : "п╩п╦")
+#define GET_OBJ_SUF_5(obj) (IS_OBJ_NOSEXY(obj) ? "п╩п╬" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_SUF_6(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
+                            IS_OBJ_FEMALE(obj) ? "п╩п╟" : "п╩п╦")
+#define GET_OBJ_SUF_6(obj) (IS_OBJ_NOSEXY(obj) ? "п╬" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_SUF_7(obj) (IS_OBJ_NOSEXY(obj) ? "е" :\
+                            IS_OBJ_FEMALE(obj) ? "п╟" : "я▀")
+#define GET_OBJ_SUF_7(obj) (IS_OBJ_NOSEXY(obj) ? "п╣" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_SUF_8(ch) (IS_OBJ_NOSEXY(obj) ? "ое" :\
-                          IS_OBJ_MALE(obj) ? "ой"  :\
-                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
+                            IS_OBJ_FEMALE(obj) ? "п╟" : "п╦")
+#define GET_OBJ_SUF_8(ch) (IS_OBJ_NOSEXY(obj) ? "п╬п╣" :\
+                          IS_OBJ_MALE(obj) ? "п╬п╧"  :\
+                          IS_OBJ_FEMALE(obj) ? "п╟я▐" : "п╦п╣")
 
 
-#define GET_OBJ_VIS_SUF_1(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
-                            IS_OBJ_NOSEXY(obj) ? "о" :\
+#define GET_OBJ_VIS_SUF_1(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "п╬" :\
+                            IS_OBJ_NOSEXY(obj) ? "п╬" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_2(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ось" :\
-                            IS_OBJ_NOSEXY(obj) ? "ось" :\
-                            IS_OBJ_MALE(obj) ? "ся"  :\
-                            IS_OBJ_FEMALE(obj) ? "ась" : "ись")
-#define GET_OBJ_VIS_SUF_3(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ый" :\
-                            IS_OBJ_NOSEXY(obj) ? "ое" :\
-                            IS_OBJ_MALE(obj) ? "ый"  :\
-                            IS_OBJ_FEMALE(obj) ? "ая" : "ые")
-#define GET_OBJ_VIS_SUF_4(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ло" :\
-                            IS_OBJ_NOSEXY(obj) ? "ло" :\
+                            IS_OBJ_FEMALE(obj) ? "п╟" : "п╦")
+#define GET_OBJ_VIS_SUF_2(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "п╬я│я▄" :\
+                            IS_OBJ_NOSEXY(obj) ? "п╬я│я▄" :\
+                            IS_OBJ_MALE(obj) ? "я│я▐"  :\
+                            IS_OBJ_FEMALE(obj) ? "п╟я│я▄" : "п╦я│я▄")
+#define GET_OBJ_VIS_SUF_3(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "я▀п╧" :\
+                            IS_OBJ_NOSEXY(obj) ? "п╬п╣" :\
+                            IS_OBJ_MALE(obj) ? "я▀п╧"  :\
+                            IS_OBJ_FEMALE(obj) ? "п╟я▐" : "я▀п╣")
+#define GET_OBJ_VIS_SUF_4(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "п╩п╬" :\
+                            IS_OBJ_NOSEXY(obj) ? "п╩п╬" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_5(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ло" :\
-                            IS_OBJ_NOSEXY(obj) ? "ло" :\
+                            IS_OBJ_FEMALE(obj) ? "п╩п╟" : "п╩п╦")
+#define GET_OBJ_VIS_SUF_5(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "п╩п╬" :\
+                            IS_OBJ_NOSEXY(obj) ? "п╩п╬" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "ла" : "ли")
-#define GET_OBJ_VIS_SUF_6(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "о" :\
-                            IS_OBJ_NOSEXY(obj) ? "о" :\
+                            IS_OBJ_FEMALE(obj) ? "п╩п╟" : "п╩п╦")
+#define GET_OBJ_VIS_SUF_6(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "п╬" :\
+                            IS_OBJ_NOSEXY(obj) ? "п╬" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "ы")
-#define GET_OBJ_VIS_SUF_7(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "е" :\
-                            IS_OBJ_NOSEXY(obj) ? "е" :\
+                            IS_OBJ_FEMALE(obj) ? "п╟" : "я▀")
+#define GET_OBJ_VIS_SUF_7(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "п╣" :\
+                            IS_OBJ_NOSEXY(obj) ? "п╣" :\
                             IS_OBJ_MALE(obj) ? ""  :\
-                            IS_OBJ_FEMALE(obj) ? "а" : "и")
-#define GET_OBJ_VIS_SUF_8(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "ой" :\
-                          IS_OBJ_NOSEXY(obj) ? "ое" :\
-                          IS_OBJ_MALE(obj) ? "ой"  :\
-                          IS_OBJ_FEMALE(obj) ? "ая" : "ие")
+                            IS_OBJ_FEMALE(obj) ? "п╟" : "п╦")
+#define GET_OBJ_VIS_SUF_8(obj,ch) (!CAN_SEE_OBJ(ch,obj) ? "п╬п╧" :\
+                          IS_OBJ_NOSEXY(obj) ? "п╬п╣" :\
+                          IS_OBJ_MALE(obj) ? "п╬п╧"  :\
+                          IS_OBJ_FEMALE(obj) ? "п╟я▐" : "п╦п╣")
 
-#define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "им" :\
-                            IS_MALE(ch) ? "им"  :\
-                            IS_FEMALE(ch) ? "ей" : "ими")
-#define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
+#define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "п╦п╪" :\
+                            IS_MALE(ch) ? "п╦п╪"  :\
+                            IS_FEMALE(ch) ? "п╣п╧" : "п╦п╪п╦")
+#define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "я┌п╣" : "")
 
-#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
-#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "ит" : (GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "ят" : "ит")
+#define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "я▐я┌" : "п╦я┌")
+#define GET_OBJ_VIS_POLY_1(ch, obj) (!CAN_SEE_OBJ(ch,obj) ? "п╦я┌" : (GET_OBJ_SEX(obj) == ESex::SEX_POLY) ? "я▐я┌" : "п╦я┌")
 
 #define PUNCTUAL_WAIT_STATE(ch, cycle) do { GET_PUNCTUAL_WAIT_STATE(ch) = (cycle); } while(0)
 #define CHECK_WAIT(ch)        ((ch)->get_wait() > 0)
@@ -1061,15 +1061,15 @@ inline T VPOSI(const T val, const T min, const T max)
 #define CIRCLEMUD_VERSION(major, minor, patchlevel) \
    (((major) << 16) + ((minor) << 8) + (patchlevel))
 
-#define HSHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "его": (IS_FEMALE(ch) ? "ее" : "их")) :"его")
-#define HSSH(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "он": (IS_FEMALE(ch) ? "она" : "они")) :"оно")
-#define HMHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ему": (IS_FEMALE(ch) ? "ей" : "им")) :"ему")
-#define HYOU(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "ваш": (IS_FEMALE(ch) ? "ваша" : (IS_NOSEXY(ch) ? "ваше": "ваши"))) :"ваш")
+#define HSHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "п╣пЁп╬": (IS_FEMALE(ch) ? "п╣п╣" : "п╦я┘")) :"п╣пЁп╬")
+#define HSSH(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "п╬п╫": (IS_FEMALE(ch) ? "п╬п╫п╟" : "п╬п╫п╦")) :"п╬п╫п╬")
+#define HMHR(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "п╣п╪я┐": (IS_FEMALE(ch) ? "п╣п╧" : "п╦п╪")) :"п╣п╪я┐")
+#define HYOU(ch) (ESex::SEX_NEUTRAL != GET_SEX(ch) ? (IS_MALE(ch) ? "п╡п╟я┬": (IS_FEMALE(ch) ? "п╡п╟я┬п╟" : (IS_NOSEXY(ch) ? "п╡п╟я┬п╣": "п╡п╟я┬п╦"))) :"п╡п╟я┬")
 
-#define OSHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "его": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ее" : "их")) :"его")
-#define OSSH(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "он": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "она" : "они")) :"оно")
-#define OMHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ему": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ей" : "им")) :"ему")
-#define OYOU(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "ваш": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "ваша" : "ваши")) :"ваше")
+#define OSHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "п╣пЁп╬": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "п╣п╣" : "п╦я┘")) :"п╣пЁп╬")
+#define OSSH(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "п╬п╫": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "п╬п╫п╟" : "п╬п╫п╦")) :"п╬п╫п╬")
+#define OMHR(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "п╣п╪я┐": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "п╣п╧" : "п╦п╪")) :"п╣п╪я┐")
+#define OYOU(ch) (ESex::SEX_NEUTRAL != GET_OBJ_SEX(ch) ? (GET_OBJ_SEX(ch) == ESex::SEX_MALE ? "п╡п╟я┬": (GET_OBJ_SEX(ch) == ESex::SEX_FEMALE ? "п╡п╟я┬п╟" : "п╡п╟я┬п╦")) :"п╡п╟я┬п╣")
 
 #define HERE(ch)  ((IS_NPC(ch) || (ch)->desc || RENTABLE(ch)))
 
@@ -1091,27 +1091,27 @@ inline T VPOSI(const T val, const T min, const T max)
   ((!obj->carried_by || CAN_SEE(sub, obj->carried_by)) && \
    (!obj->worn_by    || CAN_SEE(sub, obj->worn_by)))
 
-#define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
-                           (pad) == 4 ? "кем-то" :\
-                           (pad) == 3 ? "кого-то" :\
-                           (pad) == 2 ? "кому-то" :\
-                           (pad) == 1 ? "кого-то" : "кто-то")
+#define GET_PAD_PERS(pad) ((pad) == 5 ? "п╨п╬п╪-я┌п╬" :\
+                           (pad) == 4 ? "п╨п╣п╪-я┌п╬" :\
+                           (pad) == 3 ? "п╨п╬пЁп╬-я┌п╬" :\
+                           (pad) == 2 ? "п╨п╬п╪я┐-я┌п╬" :\
+                           (pad) == 1 ? "п╨п╬пЁп╬-я┌п╬" : "п╨я┌п╬-я┌п╬")
 
 #define PERS(ch,vict,pad) (CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
-//для арены
+//п╢п╩я▐ п╟я─п╣п╫я▀
 #define APERS(ch,vict,pad,arena) ((arena) || CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 
-//для арены
+//п╢п╩я▐ п╟я─п╣п╫я▀
 #define AOBJS(obj,vict,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
-                      (obj)->get_short_description().c_str() : "что-то")
+                      (obj)->get_short_description().c_str() : "я┤я┌п╬-я┌п╬")
 
-#define GET_PAD_OBJ(pad)  ((pad) == 5 ? "чем-то" :\
-                           (pad) == 4 ? "чем-то" :\
-                           (pad) == 3 ? "что-то" :\
-                           (pad) == 2 ? "чему-то" :\
-                           (pad) == 1 ? "чего-то" : "что-то")
+#define GET_PAD_OBJ(pad)  ((pad) == 5 ? "я┤п╣п╪-я┌п╬" :\
+                           (pad) == 4 ? "я┤п╣п╪-я┌п╬" :\
+                           (pad) == 3 ? "я┤я┌п╬-я┌п╬" :\
+                           (pad) == 2 ? "я┤п╣п╪я┐-я┌п╬" :\
+                           (pad) == 1 ? "я┤п╣пЁп╬-я┌п╬" : "я┤я┌п╬-я┌п╬")
 
-//для арены
+//п╢п╩я▐ п╟я─п╣п╫я▀
 #define AOBJN(obj,vict,pad,arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                            (!(obj)->get_PName(pad).empty()) ? (obj)->get_PName(pad).c_str() : (obj)->get_short_description().c_str() \
                            : GET_PAD_OBJ(pad))
@@ -1245,7 +1245,7 @@ const char * desc_count(long how_many, int of_what);
 #define WHAT_TBRONZEu	36
 #define WHAT_ICEu		37
 
-#undef AW_HIDE // конфликтует с winuser.h
+#undef AW_HIDE // п╨п╬п╫я└п╩п╦п╨я┌я┐п╣я┌ я│ winuser.h
 // some awaking cases
 #define AW_HIDE       (1 << 0)
 #define AW_INVIS      (1 << 1)
@@ -1304,7 +1304,7 @@ inline bool a_isspace(unsigned char c)
 	return (strchr(" \f\n\r\t\v", c) != NULL);
 }
 
-// Далеко не все из следующих функций используются в коде, но пусть будут (переписано с асма AL'ом)
+// п■п╟п╩п╣п╨п╬ п╫п╣ п╡я│п╣ п╦п╥ я│п╩п╣п╢я┐я▌я┴п╦я┘ я└я┐п╫п╨я├п╦п╧ п╦я│п©п╬п╩я▄п╥я┐я▌я┌я│я▐ п╡ п╨п╬п╢п╣, п╫п╬ п©я┐я│я┌я▄ п╠я┐п╢я┐я┌ (п©п╣я─п╣п©п╦я│п╟п╫п╬ я│ п╟я│п╪п╟ AL'п╬п╪)
 inline bool a_isascii(unsigned char c)
 {
 	return c >= 32;
@@ -1493,13 +1493,13 @@ int CAN_CARRY_N(const CHAR_DATA* ch);
 #define OK_SHIELD(ch,obj)  (GET_OBJ_WEIGHT(obj) <= \
                           (2 * str_bonus(GET_REAL_STR(ch), STR_HOLD_W)))
 
-/// аналог sprintbitwd и производных
+/// п╟п╫п╟п╩п╬пЁ sprintbitwd п╦ п©я─п╬п╦п╥п╡п╬п╢п╫я▀я┘
 /// \param bits - bitset|boost::dynamic_bitset
-/// \param names - vector|array<string|const char*> список названий битов
-/// div - разделитель между битами при распечатке
-/// str - строка, куда печаются имена битов (добавлением в конец)
-/// print_num - печать номер бита рядом с его именем
-/// 	(для олц, счет битов начинается с 1), по дефолту = false
+/// \param names - vector|array<string|const char*> я│п©п╦я│п╬п╨ п╫п╟п╥п╡п╟п╫п╦п╧ п╠п╦я┌п╬п╡
+/// div - я─п╟п╥п╢п╣п╩п╦я┌п╣п╩я▄ п╪п╣п╤п╢я┐ п╠п╦я┌п╟п╪п╦ п©я─п╦ я─п╟я│п©п╣я┤п╟я┌п╨п╣
+/// str - я│я┌я─п╬п╨п╟, п╨я┐п╢п╟ п©п╣я┤п╟я▌я┌я│я▐ п╦п╪п╣п╫п╟ п╠п╦я┌п╬п╡ (п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣п╪ п╡ п╨п╬п╫п╣я├)
+/// print_num - п©п╣я┤п╟я┌я▄ п╫п╬п╪п╣я─ п╠п╦я┌п╟ я─я▐п╢п╬п╪ я│ п╣пЁп╬ п╦п╪п╣п╫п╣п╪
+/// 	(п╢п╩я▐ п╬п╩я├, я│я┤п╣я┌ п╠п╦я┌п╬п╡ п╫п╟я┤п╦п╫п╟п╣я┌я│я▐ я│ 1), п©п╬ п╢п╣я└п╬п╩я┌я┐ = false
 template <class T, class N>
 void print_bitset(const N& bits, const T& names,
 	const char* div, std::string& str, bool print_num = false)
@@ -1543,7 +1543,7 @@ const char *print_obj_state(int tm_pct);
 bool no_bad_affects(OBJ_DATA *obj);
 
 struct exchange_item_data;
-// для парса строки с фильтрами в клан-хранах и базаре
+// п╢п╩я▐ п©п╟я─я│п╟ я│я┌я─п╬п╨п╦ я│ я└п╦п╩я▄я┌я─п╟п╪п╦ п╡ п╨п╩п╟п╫-я┘я─п╟п╫п╟я┘ п╦ п╠п╟п╥п╟я─п╣
 struct ParseFilter
 {
 	enum { CLAN, EXCHANGE };
@@ -1566,26 +1566,26 @@ struct ParseFilter
 	bool check(exchange_item_data *exch_obj);
 	std::string print() const;
 
-	std::string name;      // имя предмета
-	std::string owner;     // имя продавца (базар)
-	int type;              // тип оружия
-	int state;             // состояние
-	EWearFlag wear;              // куда одевается
-	int wear_message;      // для названия куда одеть
-	int weap_class;        // класс оружие
-	int weap_message;      // для названия оружия
-	int cost;              // для цены
-	char cost_sign;        // знак цены +/-
-	int  rent;             // для стоимости ренты
-	char rent_sign;        // знак ренты +/-
-	char new_timesign;	   // знак времени < > =
-	time_t new_timedown;   // нижняя граница времени
-	time_t new_timeup;	   // верхняя граница времени
+	std::string name;      // п╦п╪я▐ п©я─п╣п╢п╪п╣я┌п╟
+	std::string owner;     // п╦п╪я▐ п©я─п╬п╢п╟п╡я├п╟ (п╠п╟п╥п╟я─)
+	int type;              // я┌п╦п© п╬я─я┐п╤п╦я▐
+	int state;             // я│п╬я│я┌п╬я▐п╫п╦п╣
+	EWearFlag wear;              // п╨я┐п╢п╟ п╬п╢п╣п╡п╟п╣я┌я│я▐
+	int wear_message;      // п╢п╩я▐ п╫п╟п╥п╡п╟п╫п╦я▐ п╨я┐п╢п╟ п╬п╢п╣я┌я▄
+	int weap_class;        // п╨п╩п╟я│я│ п╬я─я┐п╤п╦п╣
+	int weap_message;      // п╢п╩я▐ п╫п╟п╥п╡п╟п╫п╦я▐ п╬я─я┐п╤п╦я▐
+	int cost;              // п╢п╩я▐ я├п╣п╫я▀
+	char cost_sign;        // п╥п╫п╟п╨ я├п╣п╫я▀ +/-
+	int  rent;             // п╢п╩я▐ я│я┌п╬п╦п╪п╬я│я┌п╦ я─п╣п╫я┌я▀
+	char rent_sign;        // п╥п╫п╟п╨ я─п╣п╫я┌я▀ +/-
+	char new_timesign;	   // п╥п╫п╟п╨ п╡я─п╣п╪п╣п╫п╦ < > =
+	time_t new_timedown;   // п╫п╦п╤п╫я▐я▐ пЁя─п╟п╫п╦я├п╟ п╡я─п╣п╪п╣п╫п╦
+	time_t new_timeup;	   // п╡п╣я─я┘п╫я▐я▐ пЁя─п╟п╫п╦я├п╟ п╡я─п╣п╪п╣п╫п╦
 	int filter_type;       // CLAN/EXCHANGE	
 	
-	std::vector<int> affect_apply; // аффекты apply_types
-	std::vector<int> affect_weap;  // аффекты weapon_affects
-	std::vector<int> affect_extra; // аффекты extra_bits
+	std::vector<int> affect_apply; // п╟я└я└п╣п╨я┌я▀ apply_types
+	std::vector<int> affect_weap;  // п╟я└я└п╣п╨я┌я▀ weapon_affects
+	std::vector<int> affect_extra; // п╟я└я└п╣п╨я┌я▀ extra_bits
 	
 	std::string show_obj_aff(OBJ_DATA *obj);
 
@@ -1666,7 +1666,7 @@ inline bool isname(const std::string &str, const std::string& namelist) { return
 const char* one_word(const char* argument, char *first_arg);
 
 void ReadEndString(std::ifstream &file);
-// замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
+// п╥п╟п╪п╣п╫п╟ я│п╦п╪п╡п╬п╩п╟ (п╡ п╢п╟п╫п╫п╬п╪ я│п╩я┐я┤п╟п╣ п╨п╬п╫я├п╟ я│я┌я─п╬п╨п╦) п╫п╟ я│п╡п╬я▌ я│я┌я─п╬п╨я┐, п╢п╩я▐ п╬я│я┌п╟п╩я▄п╫п╬пЁп╬ я└я┐п╫п╨я├п╦п╧ я┘п╡п╟я┌п╟п╣я┌
 void StringReplace(std::string& buffer, char s, const std::string& d);
 std::string& format_news_message(std::string &text);
 

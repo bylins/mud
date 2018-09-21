@@ -29,17 +29,17 @@ namespace ResetStats
 
 const char *CONFIG_FILE = LIB_MISC"reset_stats.xml";
 
-// для списка reset_prices
+// п╢п╩я▐ я│п©п╦я│п╨п╟ reset_prices
 struct price_node
 {
 	int base_price;
 	int add_price;
 	int max_price;
-	// название сбрасываемой характеристики для сислога/кармы
+	// п╫п╟п╥п╡п╟п╫п╦п╣ я│п╠я─п╟я│я▀п╡п╟п╣п╪п╬п╧ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ п╢п╩я▐ я│п╦я│п╩п╬пЁп╟/п╨п╟я─п╪я▀
 	std::string log_text;
 };
 
-// список цен для разных типов резета характеристик чара (из CONFIG_FILE)
+// я│п©п╦я│п╬п╨ я├п╣п╫ п╢п╩я▐ я─п╟п╥п╫я▀я┘ я┌п╦п©п╬п╡ я─п╣п╥п╣я┌п╟ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨ я┤п╟я─п╟ (п╦п╥ CONFIG_FILE)
 std::array<price_node, Type::TOTAL_NUM> reset_prices =
 {{
 	{ 100000000, 1000000, 1000000000, "main stats" },
@@ -49,7 +49,7 @@ std::array<price_node, Type::TOTAL_NUM> reset_prices =
 }};
 
 ///
-/// Парс отдельной записи в CONFIG_FILE из init()
+/// п÷п╟я─я│ п╬я┌п╢п╣п╩я▄п╫п╬п╧ п╥п╟п©п╦я│п╦ п╡ CONFIG_FILE п╦п╥ init()
 ///
 void parse_prices(const pugi::xml_node &cur_node, Type type)
 {
@@ -62,7 +62,7 @@ void parse_prices(const pugi::xml_node &cur_node, Type type)
 }
 
 ///
-/// Лоад/релоад CONFIG_FILE, релоадится через 'reload <имя файла>'
+/// п⌡п╬п╟п╢/я─п╣п╩п╬п╟п╢ CONFIG_FILE, я─п╣п╩п╬п╟п╢п╦я┌я│я▐ я┤п╣я─п╣п╥ 'reload <п╦п╪я▐ я└п╟п╧п╩п╟>'
 ///
 void init()
 {
@@ -96,7 +96,7 @@ void init()
 }
 
 ///
-/// \return стоимость очередного сброса характеристик type через меню
+/// \return я│я┌п╬п╦п╪п╬я│я┌я▄ п╬я┤п╣я─п╣п╢п╫п╬пЁп╬ я│п╠я─п╬я│п╟ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨ type я┤п╣я─п╣п╥ п╪п╣п╫я▌
 ///
 int calc_price(CHAR_DATA *ch, Type type)
 {
@@ -106,8 +106,8 @@ int calc_price(CHAR_DATA *ch, Type type)
 }
 
 ///
-/// Подготовка чара на резет характеристик type:
-/// снятие денег, логирование, запись в карму
+/// п÷п╬п╢пЁп╬я┌п╬п╡п╨п╟ я┤п╟я─п╟ п╫п╟ я─п╣п╥п╣я┌ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨ type:
+/// я│п╫я▐я┌п╦п╣ п╢п╣п╫п╣пЁ, п╩п╬пЁп╦я─п╬п╡п╟п╫п╦п╣, п╥п╟п©п╦я│я▄ п╡ п╨п╟я─п╪я┐
 ///
 void reset_stats(CHAR_DATA *ch, Type type)
 {
@@ -117,9 +117,9 @@ void reset_stats(CHAR_DATA *ch, Type type)
 		ch->set_start_stat(G_STR, 0);
 		break;
 	case Type::RACE:
-		// убираем способности текущего рода
+		// я┐п╠п╦я─п╟п╣п╪ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ я┌п╣п╨я┐я┴п╣пЁп╬ я─п╬п╢п╟
 		set_race_feats(ch, false);
-		// и потом уже выводим на ValidateStats
+		// п╦ п©п╬я┌п╬п╪ я┐п╤п╣ п╡я▀п╡п╬п╢п╦п╪ п╫п╟ ValidateStats
 		ch->set_race(99);
 		break;
 	case Type::FEATS:
@@ -139,7 +139,7 @@ void reset_stats(CHAR_DATA *ch, Type type)
 }
 
 ///
-/// Распечатка меню сброса характеристик
+/// п═п╟я│п©п╣я┤п╟я┌п╨п╟ п╪п╣п╫я▌ я│п╠я─п╬я│п╟ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨
 ///
 void print_menu(DESCRIPTOR_DATA *d)
 {
@@ -149,13 +149,13 @@ void print_menu(DESCRIPTOR_DATA *d)
 	const int religion_price = calc_price(d->character.get(), Type::RELIGION);
 
 	std::string str = boost::str(boost::format(
-		"%sВ случае потери связи процедуру можно будет продолжить при следующем входе в игру.%s\r\n\r\n"
-		"1) оплатить %d %s и начать перераспределение стартовых характеристик.\r\n"
-		"2) оплатить %d %s и перейти к выбору рода.\r\n"
-		"3) оплатить %d %s и сбросить способности (кроме врожденных).\r\n"
-		"4) оплатить %d %s и перейти к выбору вероисповедания.\r\n"
-		"5) отменить и вернуться в главное меню\r\n"
-		"\r\nВаш выбор:")
+		"%sп▓ я│п╩я┐я┤п╟п╣ п©п╬я┌п╣я─п╦ я│п╡я▐п╥п╦ п©я─п╬я├п╣п╢я┐я─я┐ п╪п╬п╤п╫п╬ п╠я┐п╢п╣я┌ п©я─п╬п╢п╬п╩п╤п╦я┌я▄ п©я─п╦ я│п╩п╣п╢я┐я▌я┴п╣п╪ п╡я┘п╬п╢п╣ п╡ п╦пЁя─я┐.%s\r\n\r\n"
+		"1) п╬п©п╩п╟я┌п╦я┌я▄ %d %s п╦ п╫п╟я┤п╟я┌я▄ п©п╣я─п╣я─п╟я│п©я─п╣п╢п╣п╩п╣п╫п╦п╣ я│я┌п╟я─я┌п╬п╡я▀я┘ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨.\r\n"
+		"2) п╬п©п╩п╟я┌п╦я┌я▄ %d %s п╦ п©п╣я─п╣п╧я┌п╦ п╨ п╡я▀п╠п╬я─я┐ я─п╬п╢п╟.\r\n"
+		"3) п╬п©п╩п╟я┌п╦я┌я▄ %d %s п╦ я│п╠я─п╬я│п╦я┌я▄ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ (п╨я─п╬п╪п╣ п╡я─п╬п╤п╢п╣п╫п╫я▀я┘).\r\n"
+		"4) п╬п©п╩п╟я┌п╦я┌я▄ %d %s п╦ п©п╣я─п╣п╧я┌п╦ п╨ п╡я▀п╠п╬я─я┐ п╡п╣я─п╬п╦я│п©п╬п╡п╣п╢п╟п╫п╦я▐.\r\n"
+		"5) п╬я┌п╪п╣п╫п╦я┌я▄ п╦ п╡п╣я─п╫я┐я┌я▄я│я▐ п╡ пЁп╩п╟п╡п╫п╬п╣ п╪п╣п╫я▌\r\n"
+		"\r\nп▓п╟я┬ п╡я▀п╠п╬я─:")
 		% CCIGRN(d->character, C_SPR) % CCNRM(d->character, C_SPR)
 		% stats_price % desc_count(stats_price, WHAT_MONEYa)
 		% race_price % desc_count(race_price, WHAT_MONEYa)
@@ -165,7 +165,7 @@ void print_menu(DESCRIPTOR_DATA *d)
 }
 
 ///
-/// Обработка конкретного типа сброса характеристик из меню
+/// п·п╠я─п╟п╠п╬я┌п╨п╟ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ я┌п╦п©п╟ я│п╠я─п╬я│п╟ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨ п╦п╥ п╪п╣п╫я▌
 ///
 void process(DESCRIPTOR_DATA *d, Type type)
 {
@@ -174,7 +174,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 
 	if (ch->get_total_gold() < price)
 	{
-		SEND_TO_Q("\r\nУ вас нет такой суммы!\r\n", d);
+		SEND_TO_Q("\r\nпё п╡п╟я│ п╫п╣я┌ я┌п╟п╨п╬п╧ я│я┐п╪п╪я▀!\r\n", d);
 		SEND_TO_Q(MENU, d);
 		STATE(d) = CON_MENU;
 	}
@@ -186,9 +186,9 @@ void process(DESCRIPTOR_DATA *d, Type type)
 		if ((type == Type::MAIN_STATS || type == Type::RACE || type == Type::RELIGION)
 			&& ValidateStats(d))
 		{
-			// если мы попали сюда, значит чара не вывело на переброс статов
-			// после проверки в ValidateStats()
-			SEND_TO_Q("Произошла какая-то ошибка, сообщите богам!\r\n", d);
+			// п╣я│п╩п╦ п╪я▀ п©п╬п©п╟п╩п╦ я│я▌п╢п╟, п╥п╫п╟я┤п╦я┌ я┤п╟я─п╟ п╫п╣ п╡я▀п╡п╣п╩п╬ п╫п╟ п©п╣я─п╣п╠я─п╬я│ я│я┌п╟я┌п╬п╡
+			// п©п╬я│п╩п╣ п©я─п╬п╡п╣я─п╨п╦ п╡ ValidateStats()
+			SEND_TO_Q("п÷я─п╬п╦п╥п╬я┬п╩п╟ п╨п╟п╨п╟я▐-я┌п╬ п╬я┬п╦п╠п╨п╟, я│п╬п╬п╠я┴п╦я┌п╣ п╠п╬пЁп╟п╪!\r\n", d);
 			SEND_TO_Q(MENU, d);
 			STATE(d) = CON_MENU;
 			snprintf(buf_, sizeof(buf_), "%s failed to change %s",
@@ -197,7 +197,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 		}
 		else
 		{
-			// в любом другом случае изменения можно считать состояшимися
+			// п╡ п╩я▌п╠п╬п╪ п╢я─я┐пЁп╬п╪ я│п╩я┐я┤п╟п╣ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╪п╬п╤п╫п╬ я│я┤п╦я┌п╟я┌я▄ я│п╬я│я┌п╬я▐я┬п╦п╪п╦я│я▐
 			snprintf(buf_, sizeof(buf_), "changed %s, price=%d",
 				reset_prices.at(type).log_text.c_str(), price);
 			add_karma(ch.get(), buf_, "auto");
@@ -210,10 +210,10 @@ void process(DESCRIPTOR_DATA *d, Type type)
 			mudlog(buf_, NRM, LVL_BUILDER, SYSLOG, TRUE);
 		}
 
-		// при сбросе не через ValidateStats нужно отправлять чара дальше в игру
+		// п©я─п╦ я│п╠я─п╬я│п╣ п╫п╣ я┤п╣я─п╣п╥ ValidateStats п╫я┐п╤п╫п╬ п╬я┌п©я─п╟п╡п╩я▐я┌я▄ я┤п╟я─п╟ п╢п╟п╩я▄я┬п╣ п╡ п╦пЁя─я┐
 		if (type == Type::FEATS)
 		{
-			const char *message = "\r\nИзменение характеристик выполнено!\r\n";
+			const char *message = "\r\nп≤п╥п╪п╣п╫п╣п╫п╦п╣ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨ п╡я▀п©п╬п╩п╫п╣п╫п╬!\r\n";
 			if (!check_dupes_email(d))
 			{
 				SEND_TO_Q(message, d);
@@ -227,7 +227,7 @@ void process(DESCRIPTOR_DATA *d, Type type)
 }
 
 ///
-/// Обработка нажатий в меню сброса характеристик для выбора типа
+/// п·п╠я─п╟п╠п╬я┌п╨п╟ п╫п╟п╤п╟я┌п╦п╧ п╡ п╪п╣п╫я▌ я│п╠я─п╬я│п╟ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨ п╢п╩я▐ п╡я▀п╠п╬я─п╟ я┌п╦п©п╟
 ///
 void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
 {
@@ -260,7 +260,7 @@ void parse_menu(DESCRIPTOR_DATA *d, const char *arg)
 
 	if (!result)
 	{
-		SEND_TO_Q("Изменение параметров персонажа было отменено.\r\n", d);
+		SEND_TO_Q("п≤п╥п╪п╣п╫п╣п╫п╦п╣ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п©п╣я─я│п╬п╫п╟п╤п╟ п╠я▀п╩п╬ п╬я┌п╪п╣п╫п╣п╫п╬.\r\n", d);
 		SEND_TO_Q(MENU, d);
 		STATE(d) = CON_MENU;
 	}

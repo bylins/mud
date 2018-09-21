@@ -15,31 +15,31 @@
 #include <vector>
 #include <array>
 
-/// STATIC справка:
-/// 	вся обычная справка
-/// 	активаторы сетов (старые и новые)
-/// 	груп-зоны
-/// DYNAMIC справка:
-/// 	клан-сайты
-/// 	справка по дропу сетов
+/// STATIC я│п©я─п╟п╡п╨п╟:
+/// 	п╡я│я▐ п╬п╠я▀я┤п╫п╟я▐ я│п©я─п╟п╡п╨п╟
+/// 	п╟п╨я┌п╦п╡п╟я┌п╬я─я▀ я│п╣я┌п╬п╡ (я│я┌п╟я─я▀п╣ п╦ п╫п╬п╡я▀п╣)
+/// 	пЁя─я┐п©-п╥п╬п╫я▀
+/// DYNAMIC я│п©я─п╟п╡п╨п╟:
+/// 	п╨п╩п╟п╫-я│п╟п╧я┌я▀
+/// 	я│п©я─п╟п╡п╨п╟ п©п╬ п╢я─п╬п©я┐ я│п╣я┌п╬п╡
 namespace HelpSystem
 {
 
 extern bool need_update;
 enum Flags { STATIC, DYNAMIC, TOTAL_NUM };
 
-// добавление статической справки, которая обновляется максимально редко
+// п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ я│я┌п╟я┌п╦я┤п╣я│п╨п╬п╧ я│п©я─п╟п╡п╨п╦, п╨п╬я┌п╬я─п╟я▐ п╬п╠п╫п╬п╡п╩я▐п╣я┌я│я▐ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬ я─п╣п╢п╨п╬
 void add_static(const std::string &key, const std::string &entry,
 	int min_level = 0, bool no_immlog = false);
-// в динамической справке все с включенным no_immlog и 0 min_level
+// п╡ п╢п╦п╫п╟п╪п╦я┤п╣я│п╨п╬п╧ я│п©я─п╟п╡п╨п╣ п╡я│п╣ я│ п╡п╨п╩я▌я┤п╣п╫п╫я▀п╪ no_immlog п╦ 0 min_level
 void add_dynamic(const std::string &key, const std::string &entry);
-// добавление сетов, идет в DYNAMIC массив с включенным sets_drop_page
+// п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ я│п╣я┌п╬п╡, п╦п╢п╣я┌ п╡ DYNAMIC п╪п╟я│я│п╦п╡ я│ п╡п╨п╩я▌я┤п╣п╫п╫я▀п╪ sets_drop_page
 void add_sets_drop(const std::string key_str, const std::string entry_str);
-// лоад/релоад конкретного массива справки
+// п╩п╬п╟п╢/я─п╣п╩п╬п╟п╢ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ п╪п╟я│я│п╦п╡п╟ я│п©я─п╟п╡п╨п╦
 void reload(HelpSystem::Flags sort_flag);
-// лоад/релоад всей справки
+// п╩п╬п╟п╢/я─п╣п╩п╬п╟п╢ п╡я│п╣п╧ я│п©я─п╟п╡п╨п╦
 void reload_all();
-// проверка раз в минуту нужно ли обновить динамическую справку (клан-сайты, групп-зоны)
+// п©я─п╬п╡п╣я─п╨п╟ я─п╟п╥ п╡ п╪п╦п╫я┐я┌я┐ п╫я┐п╤п╫п╬ п╩п╦ п╬п╠п╫п╬п╡п╦я┌я▄ п╢п╦п╫п╟п╪п╦я┤п╣я│п╨я┐я▌ я│п©я─п╟п╡п╨я┐ (п╨п╩п╟п╫-я│п╟п╧я┌я▀, пЁя─я┐п©п©-п╥п╬п╫я▀)
 void check_update_dynamic();
 
 } // namespace HelpSystem
@@ -47,16 +47,16 @@ void check_update_dynamic();
 namespace PrintActivators
 {
 
-// суммарные активы для одной профы
+// я│я┐п╪п╪п╟я─п╫я▀п╣ п╟п╨я┌п╦п╡я▀ п╢п╩я▐ п╬п╢п╫п╬п╧ п©я─п╬я└я▀
 struct clss_activ_node
 {
 	clss_activ_node() { total_affects = clear_flags; };
 
-	// аффекты
+	// п╟я└я└п╣п╨я┌я▀
 	FLAG_DATA total_affects;
-	// свойства
+	// я│п╡п╬п╧я│я┌п╡п╟
 	std::vector<obj_affected_type> affected;
-	// скилы
+	// я│п╨п╦п╩я▀
 	CObjectPrototype::skills_t skills;
 };
 
@@ -65,8 +65,8 @@ std::string print_skills(const CObjectPrototype::skills_t &skills, bool activ, b
 void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t::value_type &add);
 void sum_skills(CObjectPrototype::skills_t &target, const CObjectPrototype::skills_t &add);
 
-/// l - список <obj_affected_type> куда добавляем,
-/// r - список того же, который добавляем в l
+/// l - я│п©п╦я│п╬п╨ <obj_affected_type> п╨я┐п╢п╟ п╢п╬п╠п╟п╡п╩я▐п╣п╪,
+/// r - я│п©п╦я│п╬п╨ я┌п╬пЁп╬ п╤п╣, п╨п╬я┌п╬я─я▀п╧ п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╡ l
 template <class T, class N>
 void sum_apply(T &l, const N &r)
 {

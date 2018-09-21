@@ -128,7 +128,7 @@ enum ESkill: int
 	SKILL_STUN = 190,
 	SKILL_MAKE_AMULET = 191,
 
-	// не забываем указывать максимальный номер скилла
+	// п╫п╣ п╥п╟п╠я▀п╡п╟п╣п╪ я┐п╨п╟п╥я▀п╡п╟я┌я▄ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫я▀п╧ п╫п╬п╪п╣я─ я│п╨п╦п╩п╩п╟
 	MAX_SKILL_NUM = SKILL_MAKE_AMULET
 };
 
@@ -150,7 +150,7 @@ bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 int find_weapon_focus_by_skill(ESkill skill);
 int find_weapon_master_by_skill(ESkill skill);
 
-// ГОРНОЕ ДЕЛО
+// п⌠п·п═п²п·п∙ п■п∙п⌡п·
 
 #define DIG_DFLT_HOLE_MAX_DEEP		10
 #define DIG_DFLT_INSTR_CRASH_CHANCE	2
@@ -179,7 +179,7 @@ int find_weapon_master_by_skill(ESkill skill);
 #define DIG_DFLT_MOB_VNUM_START		100
 #define DIG_DFLT_MOB_VNUM_END		103
 #define DIG_DFLT_PANDORA_VNUM		919
-// предмет с названием 'стекло' для продажи в магазине
+// п©я─п╣п╢п╪п╣я┌ я│ п╫п╟п╥п╡п╟п╫п╦п╣п╪ 'я│я┌п╣п╨п╩п╬' п╢п╩я▐ п©я─п╬п╢п╟п╤п╦ п╡ п╪п╟пЁп╟п╥п╦п╫п╣
 const int DIG_GLASS_VNUM = 1919;
 
 struct skillvariables_dig
@@ -213,7 +213,7 @@ struct skillvariables_dig
 	int pandora_vnum;
 };
 
-// ЮВЕЛИР
+// п╝п▓п∙п⌡п≤п═
 
 #define INSGEM_DFLT_LAG			4
 #define INSGEM_DFLT_MINUS_FOR_AFFECT	15
@@ -235,12 +235,12 @@ struct skillvariables_insgem
 int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim);
 
 /*
-    В перспективе описанный далее класс должен будет содержать
-    всю информацию по скиллам и использоваться вместо скилл_инфо
-    и прочего.
-    Пока что тут только распарс файла и перевод идентификатора
-    в номер скилла.
-    Это все нужно для совместимости со старой системой.
+    п▓ п©п╣я─я│п©п╣п╨я┌п╦п╡п╣ п╬п©п╦я│п╟п╫п╫я▀п╧ п╢п╟п╩п╣п╣ п╨п╩п╟я│я│ п╢п╬п╩п╤п╣п╫ п╠я┐п╢п╣я┌ я│п╬п╢п╣я─п╤п╟я┌я▄
+    п╡я│я▌ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п©п╬ я│п╨п╦п╩п╩п╟п╪ п╦ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄я│я▐ п╡п╪п╣я│я┌п╬ я│п╨п╦п╩п╩_п╦п╫я└п╬
+    п╦ п©я─п╬я┤п╣пЁп╬.
+    п÷п╬п╨п╟ я┤я┌п╬ я┌я┐я┌ я┌п╬п╩я▄п╨п╬ я─п╟я│п©п╟я─я│ я└п╟п╧п╩п╟ п╦ п©п╣я─п╣п╡п╬п╢ п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─п╟
+    п╡ п╫п╬п╪п╣я─ я│п╨п╦п╩п╩п╟.
+    п╜я┌п╬ п╡я│п╣ п╫я┐п╤п╫п╬ п╢п╩я▐ я│п╬п╡п╪п╣я│я┌п╦п╪п╬я│я┌п╦ я│п╬ я│я┌п╟я─п╬п╧ я│п╦я│я┌п╣п╪п╬п╧.
 */
 
 #define SKILL_UNDEFINED -1
@@ -259,21 +259,21 @@ class Skill
 public:
     Skill();
 
-    static int GetNumByID(const std::string& ID);   // Получение номера скилла по ИД
-    static void Load(const pugi::xml_node& XMLSkillList);  // Парсинг конфига скиллов
-    static SkillListType SkillList;                 // Глобальный скилллист
+    static int GetNumByID(const std::string& ID);   // п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╫п╬п╪п╣я─п╟ я│п╨п╦п╩п╩п╟ п©п╬ п≤п■
+    static void Load(const pugi::xml_node& XMLSkillList);  // п÷п╟я─я│п╦п╫пЁ п╨п╬п╫я└п╦пЁп╟ я│п╨п╦п╩п╩п╬п╡
+    static SkillListType SkillList;                 // п⌠п╩п╬п╠п╟п╩я▄п╫я▀п╧ я│п╨п╦п╩п╩п╩п╦я│я┌
 
-    // Доступ к полям
+    // п■п╬я│я┌я┐п© п╨ п©п╬п╩я▐п╪
     std::string Name() {return this->_Name;}
     int Number() {return this->_Number;}
     int MaxPercent() {return this->_MaxPercent;}
 
 private:
-    std::string _Name;  // Имя скилла на русском
-    int _Number;        // Номер скилла
-    int _MaxPercent;    // Максимальная процент
+    std::string _Name;  // п≤п╪я▐ я│п╨п╦п╩п╩п╟ п╫п╟ я─я┐я│я│п╨п╬п╪
+    int _Number;        // п²п╬п╪п╣я─ я│п╨п╦п╩п╩п╟
+    int _MaxPercent;    // п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╟я▐ п©я─п╬я├п╣п╫я┌
 
-    static void ParseSkill(pugi::xml_node SkillNode);   // Парсинг описания одного скилла
+    static void ParseSkill(pugi::xml_node SkillNode);   // п÷п╟я─я│п╦п╫пЁ п╬п©п╦я│п╟п╫п╦я▐ п╬п╢п╫п╬пЁп╬ я│п╨п╦п╩п╩п╟
 };
 
 #endif

@@ -21,7 +21,7 @@ private:
 		char *farg;		// string argument for special function     //
 		TRIG_DATA *proto;	// for triggers... the trigger     //
 		int zone;			// mob/obj zone rnum //
-		size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
+		size_t set_idx; // п╦п╫п╢п╣п╨я│ я│п╣я┌п╟ п╡ obj_sets::set_list, п╣я│п╩п╦ != -1
 	};
 
 public:

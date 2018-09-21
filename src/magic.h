@@ -20,7 +20,7 @@ class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any d
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
 // These mobiles do not exist.
-#define MOB_DOUBLE        3000 //внум прототипа для клона
+#define MOB_DOUBLE        3000 //п╡п╫я┐п╪ п©я─п╬я┌п╬я┌п╦п©п╟ п╢п╩я▐ п╨п╩п╬п╫п╟
 #define MOB_SKELETON      3001
 #define MOB_ZOMBIE        3002
 #define MOB_BONEDOG       3003
@@ -36,7 +36,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 
 #define MAX_SPELL_AFFECTS 16	// change if more needed
 
-//таймеры для спеллов, которые должны тикать, только если кастер помер или вышел
+//я┌п╟п╧п╪п╣я─я▀ п╢п╩я▐ я│п©п╣п╩п╩п╬п╡, п╨п╬я┌п╬я─я▀п╣ п╢п╬п╩п╤п╫я▀ я┌п╦п╨п╟я┌я▄, я┌п╬п╩я▄п╨п╬ п╣я│п╩п╦ п╨п╟я│я┌п╣я─ п©п╬п╪п╣я─ п╦п╩п╦ п╡я▀я┬п╣п╩
 #define TIME_SPELL_RUNE_LABEL 300
 
 #define SpINFO spell_info[spellnum]

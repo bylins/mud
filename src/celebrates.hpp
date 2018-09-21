@@ -28,8 +28,8 @@ struct ToLoad
 	LoadList objects;
 };
 
-typedef std::map<int, TrigList> AttachList; //mob vnum, списк триггеров
-typedef std::map<int, AttachList> AttachZonList; //zone_num, список для аттача
+typedef std::map<int, TrigList> AttachList; //mob vnum, я│п©п╦я│п╨ я┌я─п╦пЁпЁп╣я─п╬п╡
+typedef std::map<int, AttachList> AttachZonList; //zone_num, я│п©п╦я│п╬п╨ п╢п╩я▐ п╟я┌я┌п╟я┤п╟
 
 struct CelebrateRoom
 {
@@ -41,7 +41,7 @@ struct CelebrateRoom
 
 typedef std::shared_ptr<CelebrateRoom> CelebrateRoomPtr;
 typedef std::vector<CelebrateRoomPtr> CelebrateRoomsList;
-typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//номер зоны, список комнат
+typedef std::map<int, CelebrateRoomsList> CelebrateZonList;//п╫п╬п╪п╣я─ п╥п╬п╫я▀, я│п©п╦я│п╬п╨ п╨п╬п╪п╫п╟я┌
 
 struct CelebrateData
 {
@@ -65,7 +65,7 @@ struct CelebrateDay
 };
 
 typedef std::shared_ptr<CelebrateDay> CelebrateDayPtr;
-typedef std::map<int, CelebrateDayPtr> CelebrateList; //номер дня в году, праздник
+typedef std::map<int, CelebrateDayPtr> CelebrateList; //п╫п╬п╪п╣я─ п╢п╫я▐ п╡ пЁп╬п╢я┐, п©я─п╟п╥п╢п╫п╦п╨
 typedef std::map<long, CHAR_DATA *> CelebrateMobs;
 typedef std::map<long, OBJ_DATA *> CelebrateObjs;
 

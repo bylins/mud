@@ -4,7 +4,7 @@ namespace Boards
 {
 	namespace constants
 	{
-		const char *OVERFLOW_MESSAGE = "Да, набросали всего столько, что файл переполнен. Напомните об этом богам!\r\n";
+		const char *OVERFLOW_MESSAGE = "п■п╟, п╫п╟п╠я─п╬я│п╟п╩п╦ п╡я│п╣пЁп╬ я│я┌п╬п╩я▄п╨п╬, я┤я┌п╬ я└п╟п╧п╩ п©п╣я─п╣п©п╬п╩п╫п╣п╫. п²п╟п©п╬п╪п╫п╦я┌п╣ п╬п╠ я█я┌п╬п╪ п╠п╬пЁп╟п╪!\r\n";
 		const char* CHANGELOG_FILE_NAME = "../bin/changelog";
 
 		namespace loader_formats

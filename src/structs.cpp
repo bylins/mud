@@ -55,7 +55,7 @@ int ext_search_block(const char *arg, const char * const * const list, int exact
 
 	if (exact)
 	{
-		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш
+		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: п©п╬п©я▀я┌п╨п╟ п╡ п╩п╬п╠ я┐п╠я─п╟я┌я▄ п╨я─п╣я┬
 		{
 			if (**(list + i) == '\n')
 			{
@@ -96,7 +96,7 @@ int ext_search_block(const char *arg, const char * const * const list, int exact
 		{
 			l = 1;	// Avoid "" to match the first available string
 		}
-		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: попытка в лоб убрать креш
+		for (i = j = 0, o = 1; j != 1 && **(list + i); i++)	// shapirus: п©п╬п©я▀я┌п╨п╟ п╡ п╩п╬п╠ я┐п╠я─п╟я┌я▄ п╨я─п╣я┬
 		{
 			if (**(list + i) == '\n')
 			{
@@ -212,7 +212,7 @@ void tascii(const uint32_t* pointer, int num_planes, char* ascii)
 	strcat(ascii, found ? " " : "0 ");
 }
 
-const char* nothing_string = "ничего";
+const char* nothing_string = "п╫п╦я┤п╣пЁп╬";
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag)
 {
@@ -370,8 +370,8 @@ void FLAG_DATA::gm_flag(const char *subfield, const char * const * const list, c
 
 const religion_names_t religion_name =
 {
-	religion_genders_t{ "Язычник", "Язычник", "Язычница", "Язычники" },
-	religion_genders_t{ "Христианин", "Христианин", "Христианка", "Христиане" },
+	religion_genders_t{ "п╞п╥я▀я┤п╫п╦п╨", "п╞п╥я▀я┤п╫п╦п╨", "п╞п╥я▀я┤п╫п╦я├п╟", "п╞п╥я▀я┤п╫п╦п╨п╦" },
+	religion_genders_t{ "п╔я─п╦я│я┌п╦п╟п╫п╦п╫", "п╔я─п╦я│я┌п╦п╟п╫п╦п╫", "п╔я─п╦я│я┌п╦п╟п╫п╨п╟", "п╔я─п╦я│я┌п╦п╟п╫п╣" },
 	religion_genders_t{ "", "", "", "" }		// for undefined religion
 };
 
@@ -1172,7 +1172,7 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 	case KT_WIN:
 		for (; *input; *output = KtoW(*input), input++, output++)
 		{
-			if (*input == 'я')
+			if (*input == 'я▐')
 			{
 				*reinterpret_cast<unsigned char*>(output++) = 255u;
 			}

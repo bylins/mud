@@ -43,7 +43,7 @@ inline int is_abbrev(const std::string& arg1, const char *arg2) { return is_abbr
 
 int is_number(const char *str);
 int find_command(const char *command);
-// блок подобной же фигни для стрингов
+// п╠п╩п╬п╨ п©п╬п╢п╬п╠п╫п╬п╧ п╤п╣ я└п╦пЁп╫п╦ п╢п╩я▐ я│я┌я─п╦п╫пЁп╬п╡
 void GetOneParam(std::string & buffer, std::string & buffer2);
 bool CompareParam(const std::string & buffer, const char *arg, bool full = 0);
 bool CompareParam(const std::string & buffer, const std::string & buffer2, bool full = 0);
@@ -64,7 +64,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent);
 void do_aggressive_room(CHAR_DATA *ch, int check_sneak);
 
 char *delete_doubledollar(char *string);
-// Cоответствие классов и религий (Кард)
+// Cп╬п╬я┌п╡п╣я┌я│я┌п╡п╦п╣ п╨п╩п╟я│я│п╬п╡ п╦ я─п╣п╩п╦пЁп╦п╧ (п п╟я─п╢)
 extern const int class_religion[];
 
 // for compatibility with 2.20:
@@ -334,7 +334,7 @@ const char* one_argument(const char* argument, char *first_arg);
 
 ///
 /// same as one_argument except that it doesn't ignore fill words
-/// как бы декларируем, что first_arg должен быть не менее MAX_INPUT_LENGTH
+/// п╨п╟п╨ п╠я▀ п╢п╣п╨п╩п╟я─п╦я─я┐п╣п╪, я┤я┌п╬ first_arg п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╫п╣ п╪п╣п╫п╣п╣ MAX_INPUT_LENGTH
 ///
 char* any_one_arg(char* argument, char* first_arg);
 const char* any_one_arg(const char* argument, char* first_arg);
@@ -355,20 +355,20 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));
 }
 
-// константы для спам-контроля команды кто
-// если кто захочет и сможет вынести их во внешний конфиг, то почет ему и слава
+// п╨п╬п╫я│я┌п╟п╫я┌я▀ п╢п╩я▐ я│п©п╟п╪-п╨п╬п╫я┌я─п╬п╩я▐ п╨п╬п╪п╟п╫п╢я▀ п╨я┌п╬
+// п╣я│п╩п╦ п╨я┌п╬ п╥п╟я┘п╬я┤п╣я┌ п╦ я│п╪п╬п╤п╣я┌ п╡я▀п╫п╣я│я┌п╦ п╦я┘ п╡п╬ п╡п╫п╣я┬п╫п╦п╧ п╨п╬п╫я└п╦пЁ, я┌п╬ п©п╬я┤п╣я┌ п╣п╪я┐ п╦ я│п╩п╟п╡п╟
 
-// максимум маны
+// п╪п╟п╨я│п╦п╪я┐п╪ п╪п╟п╫я▀
 #define WHO_MANA_MAX  6000
-// расход на одно выполнение с выводом полного списка
+// я─п╟я│я┘п╬п╢ п╫п╟ п╬п╢п╫п╬ п╡я▀п©п╬п╩п╫п╣п╫п╦п╣ я│ п╡я▀п╡п╬п╢п╬п╪ п©п╬п╩п╫п╬пЁп╬ я│п©п╦я│п╨п╟
 #define WHO_COST  180
-// расход на одно выполнение с поиском по имени
+// я─п╟я│я┘п╬п╢ п╫п╟ п╬п╢п╫п╬ п╡я▀п©п╬п╩п╫п╣п╫п╦п╣ я│ п©п╬п╦я│п╨п╬п╪ п©п╬ п╦п╪п╣п╫п╦
 #define WHO_COST_NAME  30
-// расход на вывод списка по кланам
+// я─п╟я│я┘п╬п╢ п╫п╟ п╡я▀п╡п╬п╢ я│п©п╦я│п╨п╟ п©п╬ п╨п╩п╟п╫п╟п╪
 #define WHO_COST_CLAN  120
-// скорость восстановления
+// я│п╨п╬я─п╬я│я┌я▄ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦я▐
 #define WHO_MANA_REST_PER_SECOND  9
-// режимы выполнения
+// я─п╣п╤п╦п╪я▀ п╡я▀п©п╬п╩п╫п╣п╫п╦я▐
 #define WHO_LISTALL 0
 #define WHO_LISTNAME 1
 #define WHO_LISTCLAN 2

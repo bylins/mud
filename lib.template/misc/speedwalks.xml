@@ -1,59 +1,59 @@
-<!-- áÎÁÌÏÇ destination ÄÌÑ ÍÏÂÏ×. 
-òÁÂÏÔÁÅÔ ÔÏÌØËÏ ÄÌÑ ÍÏÂÏ×, ËÏÔÏÒÙÅ ÂÙÌÉ ÚÁÇÒÕÖÅÎÙ ÓÒÁÚÕ ÐÏÓÌÅ ÚÁÐÕÓËÁ ÍÁÄÁ(Ô.Å. ÐÒÏÓÔÁ×ÌÅÎÁ ÚÁÇÒÕÚËÁ ÍÏÂÏ× × zedit)
+<!-- ÐÐ½Ð°Ð»Ð¾Ð³ destination Ð´Ð»Ñ Ð¼Ð¾Ð±Ð¾Ð². 
+Ð Ð°Ð±Ð¾Ñ‚Ð°ÐµÑ‚ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð´Ð»Ñ Ð¼Ð¾Ð±Ð¾Ð², ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ð±Ñ‹Ð»Ð¸ Ð·Ð°Ð³Ñ€ÑƒÐ¶ÐµÐ½Ñ‹ ÑÑ€Ð°Ð·Ñƒ Ð¿Ð¾ÑÐ»Ðµ Ð·Ð°Ð¿ÑƒÑÐºÐ° Ð¼Ð°Ð´Ð°(Ñ‚.Ðµ. Ð¿Ñ€Ð¾ÑÑ‚Ð°Ð²Ð»ÐµÐ½Ð° Ð·Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ð¼Ð¾Ð±Ð¾Ð² Ð² zedit)
 !-->
 <speedwalks>
-	<!-- default_wait ÐÏËÁ ÞÔÏ ÎÅ ÉÓÐÏÌØÚÕÅÔÓÑ -->
+	<!-- default_wait Ð¿Ð¾ÐºÐ° Ñ‡Ñ‚Ð¾ Ð½Ðµ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÑ‚ÑÑ -->
 	<speedwalk default_wait="1">
-		<!-- ×ÎÕÍÙ ÍÏÂÏ×, ÍÏÂÏ× ÍÏÖÅÔ ÂÙÔØ ÎÅÓËÏÌØËÏ -->
+		<!-- Ð²Ð½ÑƒÐ¼Ñ‹ Ð¼Ð¾Ð±Ð¾Ð², Ð¼Ð¾Ð±Ð¾Ð² Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ð½ÐµÑÐºÐ¾Ð»ÑŒÐºÐ¾ -->
 		<mob vnum="100"/>
-		<!-- ÎÁÐÒÁ×ÌÅÎÉÅ É ÚÁÄÅÒÖËÁ ÍÅÖÄÕ ÛÁÇÁÍÉ, ÄÌÉÔÅÌØÎÏÓÔØ × ÓÅËÕÎÄÁÈ, ÍÉÎÉÍÁÌØÎÏÅ ÚÎÁÞÅÎÉÅ 1 -->
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
-		<route direction="ÓÅ×ÅÒ" wait="1"/>
-		<route direction="ÀÇ" wait="2"/>
+		<!-- Ð½Ð°Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¸ Ð·Ð°Ð´ÐµÑ€Ð¶ÐºÐ° Ð¼ÐµÐ¶Ð´Ñƒ ÑˆÐ°Ð³Ð°Ð¼Ð¸, Ð´Ð»Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ÑÑ‚ÑŒ Ð² ÑÐµÐºÑƒÐ½Ð´Ð°Ñ…, Ð¼Ð¸Ð½Ð¸Ð¼Ð°Ð»ÑŒÐ½Ð¾Ðµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ 1 -->
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
+		<route direction="ÑÐµÐ²ÐµÑ€" wait="1"/>
+		<route direction="ÑŽÐ³" wait="2"/>
 	</speedwalk>
 </speedwalks>

@@ -34,7 +34,7 @@ namespace Boards
 	void ChangeLogLoaderImplementation::add_message(const std::string &author, const std::string &desc, time_t parsed_time)
 	{
 		const auto message = std::make_shared<Message>();
-		// имя автора
+		// п╦п╪я▐ п╟п╡я┌п╬я─п╟
 		std::string author_copy = author;
 		const std::size_t e_pos = author_copy.find('<');
 		const std::size_t s_pos = author_copy.find(' ');
@@ -50,7 +50,7 @@ namespace Boards
 		boost::trim(desc_copy);
 		message->text = desc_copy;
 
-		// из текста первая строка в заголовок
+		// п╦п╥ я┌п╣п╨я│я┌п╟ п©п╣я─п╡п╟я▐ я│я┌я─п╬п╨п╟ п╡ п╥п╟пЁп╬п╩п╬п╡п╬п╨
 		std::string subj(message->text.begin(), std::find(message->text.begin(), message->text.end(), '\n'));
 /*		if (subj.size() > 40)
 		{

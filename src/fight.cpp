@@ -83,7 +83,7 @@ void go_autoassist(CHAR_DATA * ch)
 	}
 	else
 	{
-		ch_lider = ch;	// Создаем ссылку на лидера
+		ch_lider = ch;	// п║п╬п╥п╢п╟п╣п╪ я│я│я▀п╩п╨я┐ п╫п╟ п╩п╦п╢п╣я─п╟
 	}
 
 	buf2[0] = '\0';
@@ -93,10 +93,10 @@ void go_autoassist(CHAR_DATA * ch)
 			(IN_ROOM(k->follower) == IN_ROOM(ch)) && !k->follower->get_fighting() &&
 			(GET_POS(k->follower) == POS_STANDING) && !CHECK_WAIT(k->follower))
 		{
-			// Здесь проверяем на кастеров
+			// п≈п╢п╣я│я▄ п©я─п╬п╡п╣я─я▐п╣п╪ п╫п╟ п╨п╟я│я┌п╣я─п╬п╡
 			if (IS_CASTER(k->follower))
 			{
-				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
+				// п╥п╢п╣я│я▄ п©я─п╬я┘п╬п╢п╦п╪ п©п╬ я┤п╟я─п╪п╦я│п╟п╪ п╨п╟я│я┌п╣я─п╟, п╦ п╣я│п╩п╦ п╫п╟я┘п╬п╢п╦п╪ п╦я┘, я┌п╬ п╡п©п╦я│я▀п╡п╟п╣п╪ п╡ п╢я─п╟п╨я┐
 				for (d = k->follower->followers; d; d = d->next)
 					if ((IN_ROOM(d->follower) == IN_ROOM(ch)) && !d->follower->get_fighting() &&
 						(GET_POS(d->follower) == POS_STANDING) && !CHECK_WAIT(d->follower))
@@ -113,8 +113,8 @@ void go_autoassist(CHAR_DATA * ch)
 
 // The Fight related routines
 
-// Добавил проверку на лаг, чтобы правильно работали Каменное проклятье и
-// Круг пустоты, ибо позицию делают меньше чем поз_станнед.
+// п■п╬п╠п╟п╡п╦п╩ п©я─п╬п╡п╣я─п╨я┐ п╫п╟ п╩п╟пЁ, я┤я┌п╬п╠я▀ п©я─п╟п╡п╦п╩я▄п╫п╬ я─п╟п╠п╬я┌п╟п╩п╦ п п╟п╪п╣п╫п╫п╬п╣ п©я─п╬п╨п╩я▐я┌я▄п╣ п╦
+// п я─я┐пЁ п©я┐я│я┌п╬я┌я▀, п╦п╠п╬ п©п╬п╥п╦я├п╦я▌ п╢п╣п╩п╟я▌я┌ п╪п╣п╫я▄я┬п╣ я┤п╣п╪ п©п╬п╥_я│я┌п╟п╫п╫п╣п╢.
 void update_pos(CHAR_DATA * victim)
 {
 	if ((GET_HIT(victim) > 0) && (GET_POS(victim) > POS_STUNNED))
@@ -159,19 +159,19 @@ void set_battle_pos(CHAR_DATA * ch)
 		{
 			if (IS_NPC(ch))
 			{
-				act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n п╡я│я┌п╟п╩$g п╫п╟ п╫п╬пЁп╦.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_FIGHTING;
 			}
 			else if (GET_POS(ch) == POS_SLEEPING)
 			{
-				act("Вы проснулись и сели.", FALSE, ch, 0, 0, TO_CHAR);
-				act("$n проснул$u и сел$g.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("п▓я▀ п©я─п╬я│п╫я┐п╩п╦я│я▄ п╦ я│п╣п╩п╦.", FALSE, ch, 0, 0, TO_CHAR);
+				act("$n п©я─п╬я│п╫я┐п╩$u п╦ я│п╣п╩$g.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_SITTING;
 			}
 			else if (GET_POS(ch) == POS_RESTING)
 			{
-				act("Вы прекратили отдых и сели.", FALSE, ch, 0, 0, TO_CHAR);
-				act("$n прекратил$g отдых и сел$g.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("п▓я▀ п©я─п╣п╨я─п╟я┌п╦п╩п╦ п╬я┌п╢я▀я┘ п╦ я│п╣п╩п╦.", FALSE, ch, 0, 0, TO_CHAR);
+				act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╬я┌п╢я▀я┘ п╦ я│п╣п╩$g.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_SITTING;
 			}
 		}
@@ -193,7 +193,7 @@ void restore_battle_pos(CHAR_DATA * ch)
 				GET_WAIT(ch) <= 0 &&
 				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		{
-			act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n п╡я│я┌п╟п╩$g п╫п╟ п╫п╬пЁп╦.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			GET_POS(ch) = POS_STANDING;
 		}
 		break;
@@ -224,12 +224,12 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BANDAGE))
 	{
-		send_to_char("Перевязка была прервана!\r\n", ch);
+		send_to_char("п÷п╣я─п╣п╡я▐п╥п╨п╟ п╠я▀п╩п╟ п©я─п╣я─п╡п╟п╫п╟!\r\n", ch);
 		affect_from_char(ch, SPELL_BANDAGE);
 	}
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_RECALL_SPELLS))
 	{
-		send_to_char("Вы забыли о концентрации и ринулись в бой!\r\n", ch);
+		send_to_char("п▓я▀ п╥п╟п╠я▀п╩п╦ п╬ п╨п╬п╫я├п╣п╫я┌я─п╟я├п╦п╦ п╦ я─п╦п╫я┐п╩п╦я│я▄ п╡ п╠п╬п╧!\r\n", ch);
 		affect_from_char(ch, SPELL_RECALL_SPELLS);
 	}
 
@@ -242,7 +242,7 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	ch->set_fighting(vict);
 
 	NUL_AF_BATTLE(ch);
-	//Polud вступление в битву не мешает прикрывать
+	//Polud п╡я│я┌я┐п©п╩п╣п╫п╦п╣ п╡ п╠п╦я┌п╡я┐ п╫п╣ п╪п╣я┬п╟п╣я┌ п©я─п╦п╨я─я▀п╡п╟я┌я▄
 	if (ch->get_protecting())
 		SET_AF_BATTLE(ch, EAF_PROTECT);
 	ch->set_touching(0);
@@ -252,9 +252,9 @@ void set_fighting(CHAR_DATA * ch, CHAR_DATA * vict)
 	ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
 	set_battle_pos(ch);
 
-	// если до начала боя на мобе есть лаг, то мы его выравниваем до целых
-	// раундов в большую сторону (для подножки, должно давать чару зазор в две
-	// секунды после подножки, чтобы моб всеравно встал только на 3й раунд)
+	// п╣я│п╩п╦ п╢п╬ п╫п╟я┤п╟п╩п╟ п╠п╬я▐ п╫п╟ п╪п╬п╠п╣ п╣я│я┌я▄ п╩п╟пЁ, я┌п╬ п╪я▀ п╣пЁп╬ п╡я▀я─п╟п╡п╫п╦п╡п╟п╣п╪ п╢п╬ я├п╣п╩я▀я┘
+	// я─п╟я┐п╫п╢п╬п╡ п╡ п╠п╬п╩я▄я┬я┐я▌ я│я┌п╬я─п╬п╫я┐ (п╢п╩я▐ п©п╬п╢п╫п╬п╤п╨п╦, п╢п╬п╩п╤п╫п╬ п╢п╟п╡п╟я┌я▄ я┤п╟я─я┐ п╥п╟п╥п╬я─ п╡ п╢п╡п╣
+	// я│п╣п╨я┐п╫п╢я▀ п©п╬я│п╩п╣ п©п╬п╢п╫п╬п╤п╨п╦, я┤я┌п╬п╠я▀ п╪п╬п╠ п╡я│п╣я─п╟п╡п╫п╬ п╡я│я┌п╟п╩ я┌п╬п╩я▄п╨п╬ п╫п╟ 3п╧ я─п╟я┐п╫п╢)
 	if (IS_NPC(ch) && GET_WAIT(ch) > 0)
 	{
 		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(PULSE_VIOLENCE));
@@ -300,7 +300,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 		next_combat_list = ch->next_fighting;
 
 	REMOVE_FROM_LIST(ch, combat_list, [](auto list) -> auto& { return list->next_fighting; });
-	//Попробуем сперва очистить ссылку у врага, потом уже у самой цели
+	//п÷п╬п©я─п╬п╠я┐п╣п╪ я│п©п╣я─п╡п╟ п╬я┤п╦я│я┌п╦я┌я▄ я│я│я▀п╩п╨я┐ я┐ п╡я─п╟пЁп╟, п©п╬я┌п╬п╪ я┐п╤п╣ я┐ я│п╟п╪п╬п╧ я├п╣п╩п╦
 	ch->next_fighting = NULL;
 	if (ch->last_comm != NULL)
 		free(ch->last_comm);
@@ -315,7 +315,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	restore_battle_pos(ch);
 	NUL_AF_BATTLE(ch);
 	DpsSystem::check_round(ch);
-	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
+	StopFightParameters params(ch); //пЁп╬я┌п╬п╡п╦п╪ п©п╟я─п╟п╪п╣я┌я─я▀ п╫я┐п╤п╫п╬пЁп╬ я┌п╦п©п╟ п╦ п╡я▀п╥я▀п╡п╟п╣п╪ я┬п╟п╠п╩п╬п╫п╫я┐я▌ я└я┐п╫п╨я├п╦я▌
 	handle_affects(params);
 
 	if (switch_others != 2)
@@ -337,7 +337,7 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 				for (found = combat_list; found; found = found->next_fighting)
 					if (found != ch && found->get_fighting() == temp)
 					{
-						act("Вы переключили свое внимание на $N3.", FALSE, temp, 0, found, TO_CHAR);
+						act("п▓я▀ п©п╣я─п╣п╨п╩я▌я┤п╦п╩п╦ я│п╡п╬п╣ п╡п╫п╦п╪п╟п╫п╦п╣ п╫п╟ $N3.", FALSE, temp, 0, found, TO_CHAR);
 						temp->set_fighting(found);
 						break;
 					}
@@ -349,14 +349,14 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 		}
 
 		update_pos(ch);
-		// проверка скилла "железный ветер" - снимаем флаг по окончанию боя
+		// п©я─п╬п╡п╣я─п╨п╟ я│п╨п╦п╩п╩п╟ "п╤п╣п╩п╣п╥п╫я▀п╧ п╡п╣я┌п╣я─" - я│п╫п╦п╪п╟п╣п╪ я└п╩п╟пЁ п©п╬ п╬п╨п╬п╫я┤п╟п╫п╦я▌ п╠п╬я▐
 		if ((ch->get_fighting() == NULL) && PRF_FLAGS(ch).get(PRF_IRON_WIND))
 		{
 			PRF_FLAGS(ch).unset(PRF_IRON_WIND);
 			if (GET_POS(ch) > POS_INCAP)
 			{
-				send_to_char("Безумие боя отпустило вас, и враз навалилась усталость...\r\n", ch);
-				act("$n шумно выдохнул$g и остановил$u, переводя дух после боя.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				send_to_char("п▒п╣п╥я┐п╪п╦п╣ п╠п╬я▐ п╬я┌п©я┐я│я┌п╦п╩п╬ п╡п╟я│, п╦ п╡я─п╟п╥ п╫п╟п╡п╟п╩п╦п╩п╟я│я▄ я┐я│я┌п╟п╩п╬я│я┌я▄...\r\n", ch);
+				act("$n я┬я┐п╪п╫п╬ п╡я▀п╢п╬я┘п╫я┐п╩$g п╦ п╬я│я┌п╟п╫п╬п╡п╦п╩$u, п©п╣я─п╣п╡п╬п╢я▐ п╢я┐я┘ п©п╬я│п╩п╣ п╠п╬я▐.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			};
 		};
 	};
@@ -939,25 +939,25 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	victim = ch->get_fighting();
 
-	// интелект моба
+	// п╦п╫я┌п╣п╩п╣п╨я┌ п╪п╬п╠п╟
 	int i = GET_REAL_INT(ch);
-	// если у моба меньше 20 инты, то моб тупой
+	// п╣я│п╩п╦ я┐ п╪п╬п╠п╟ п╪п╣п╫я▄я┬п╣ 20 п╦п╫я┌я▀, я┌п╬ п╪п╬п╠ я┌я┐п©п╬п╧
 	if (i < INT_STUPID_MOD)
 	{
 		return find_damagee(ch);
 	}
 
-	// если нет цели
+	// п╣я│п╩п╦ п╫п╣я┌ я├п╣п╩п╦
 	if (!victim)
 	{
 		return NULL;
 	}
 
-	// проходим по всем чарам в комнате
+	// п©я─п╬я┘п╬п╢п╦п╪ п©п╬ п╡я│п╣п╪ я┤п╟я─п╟п╪ п╡ п╨п╬п╪п╫п╟я┌п╣
 	for (const auto vict : world[ch->in_room]->people)
 	{
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
-				|| (IS_CHARMICE(vict) && !vict->get_fighting() && !find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+				|| (IS_CHARMICE(vict) && !vict->get_fighting() && !find_master_charmice(vict)) // я┤п╟я─п╪п╦я│п╟ п╟пЁя─п╦п╪ я┌п╬п╩я▄п╨п╬ п╣я│п╩п╦ п╫п╣я┌ я┘п╬п╥я▐п╦п╫п╟ п╡ я─я┐п╪п╣.
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 				|| !MAY_SEE(ch, ch, vict))
 		{
@@ -969,7 +969,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// волхв
+		// п╡п╬п╩я┘п╡
 		if (GET_CLASS(vict) == CLASS_DRUID)
 		{
 			druid = vict;
@@ -977,7 +977,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// лекарь
+		// п╩п╣п╨п╟я─я▄
 		if (GET_CLASS(vict) == CLASS_CLERIC)
 		{
 			cler = vict;
@@ -985,7 +985,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// кудес
+		// п╨я┐п╢п╣я│
 		if (GET_CLASS(vict) == CLASS_CHARMMAGE)
 		{
 			charmmage = vict;
@@ -993,7 +993,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// если у чара меньше 100 хп, то переключаемся на него
+		// п╣я│п╩п╦ я┐ я┤п╟я─п╟ п╪п╣п╫я▄я┬п╣ 100 я┘п©, я┌п╬ п©п╣я─п╣п╨п╩я▌я┤п╟п╣п╪я│я▐ п╫п╟ п╫п╣пЁп╬
 		if (GET_HIT(vict) <= MIN_HP_MOBACT)
 		{
 			continue;
@@ -1010,7 +1010,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 	if (!best)
 		best = victim;
 
-	// если цель кастер, то зачем переключаться ?
+	// п╣я│п╩п╦ я├п╣п╩я▄ п╨п╟я│я┌п╣я─, я┌п╬ п╥п╟я┤п╣п╪ п©п╣я─п╣п╨п╩я▌я┤п╟я┌я▄я│я▐ ?
 	if (IS_CASTER(victim))
 	{
 		return victim;
@@ -1046,7 +1046,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 		return best;
 	}
 
-	//  и если >= 40 инты
+	//  п╦ п╣я│п╩п╦ >= 40 п╦п╫я┌я▀
 	if (caster)
 		best = caster;
 	if (charmmage)
@@ -1163,7 +1163,7 @@ void mob_casting(CHAR_DATA * ch)
 		case OBJ_DATA::ITEM_STAFF:
 			if (GET_OBJ_VAL(item, 3) < 0 || GET_OBJ_VAL(item, 3) > TOP_SPELL_DEFINE)
 			{
-				log("SYSERR: Не верно указано значение спела в стафе vnum: %d %s, позиция: 3, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), GET_OBJ_VAL(item, 3));
+				log("SYSERR: п²п╣ п╡п╣я─п╫п╬ я┐п╨п╟п╥п╟п╫п╬ п╥п╫п╟я┤п╣п╫п╦п╣ я│п©п╣п╩п╟ п╡ я│я┌п╟я└п╣ vnum: %d %s, п©п╬п╥п╦я├п╦я▐: 3, п╥п╫п╟я┤п╣п╫п╦п╣: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), GET_OBJ_VAL(item, 3));
 				break;
 			}
 
@@ -1179,7 +1179,7 @@ void mob_casting(CHAR_DATA * ch)
 			{
 				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
 				{
-					log("SYSERR: Не верно указано значение спела в напитке vnum %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
+					log("SYSERR: п²п╣ п╡п╣я─п╫п╬ я┐п╨п╟п╥п╟п╫п╬ п╥п╫п╟я┤п╣п╫п╦п╣ я│п©п╣п╩п╟ п╡ п╫п╟п©п╦я┌п╨п╣ vnum %d %s, п©п╬п╥п╦я├п╦я▐: %d, п╥п╫п╟я┤п╣п╫п╦п╣: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
 				if (IS_SET(spell_info[GET_OBJ_VAL(item, i)].routines, NPC_AFFECT_NPC | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER))
@@ -1194,7 +1194,7 @@ void mob_casting(CHAR_DATA * ch)
 			{
 				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
 				{	
-					log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
+					log("SYSERR: п²п╣ п╡п╣я─п╫п╬ я┐п╨п╟п╥п╟п╫п╬ п╥п╫п╟я┤п╣п╫п╦п╣ я│п©п╣п╩п╟ п╡ я│п╡п╦я┌п╨п╣ %d %s, п©п╬п╥п╦я├п╦я▐: %d, п╥п╫п╟я┤п╣п╫п╦п╣: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
 
@@ -1212,10 +1212,10 @@ void mob_casting(CHAR_DATA * ch)
 		item = item->get_next_content();
 	}
 
-	// перво-наперво  -  лечим себя
+	// п©п╣я─п╡п╬-п╫п╟п©п╣я─п╡п╬  -  п╩п╣я┤п╦п╪ я│п╣п╠я▐
 	spellnum = 0;
 	victim = find_cure(ch, ch, &spellnum);
-	// Ищем рандомную заклинашку и цель для нее
+	// п≤я┴п╣п╪ я─п╟п╫п╢п╬п╪п╫я┐я▌ п╥п╟п╨п╩п╦п╫п╟я┬п╨я┐ п╦ я├п╣п╩я▄ п╢п╩я▐ п╫п╣п╣
 	for (int i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++)
 	{
 		if (!spellnum && (spellnum = battle_spells[(sp_num = number(0, spells - 1))])
@@ -1284,7 +1284,7 @@ void mob_casting(CHAR_DATA * ch)
 						if (ch != victim)
 						{
 							obj_from_char(item);
-							act("$n передал$g $o3 $N2.", FALSE, ch, item, victim, TO_ROOM | TO_ARENA_LISTEN);
+							act("$n п©п╣я─п╣п╢п╟п╩$g $o3 $N2.", FALSE, ch, item, victim, TO_ROOM | TO_ARENA_LISTEN);
 							obj_to_char(item, victim);
 						}
 						else
@@ -1348,19 +1348,19 @@ void summon_mob_helpers(CHAR_DATA *ch)
 			}
 			if (GET_RACE(ch) == NPC_RACE_HUMAN)
 			{
-				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
+				act("$n п╡п╬п╥п╥п╡п╟п╩$g : \"п²п╟ п©п╬п╪п╬я┴я▄, п╪п╬п╦ п╡п╣я─п╫я▀п╣ я│п╬я─п╟я┌п╫п╦п╨п╦!\"",
 					FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			if (IN_ROOM(vict) != ch->in_room)
 			{
 				char_from_room(vict);
 				char_to_room(vict, ch->in_room);
-				act("$n прибыл$g на зов и вступил$g в битву на стороне $N1.",
+				act("$n п©я─п╦п╠я▀п╩$g п╫п╟ п╥п╬п╡ п╦ п╡я│я┌я┐п©п╦п╩$g п╡ п╠п╦я┌п╡я┐ п╫п╟ я│я┌п╬я─п╬п╫п╣ $N1.",
 					FALSE, vict.get(), 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			else
 			{
-				act("$n вступил$g в битву на стороне $N1.",
+				act("$n п╡я│я┌я┐п©п╦п╩$g п╡ п╠п╦я┌п╡я┐ п╫п╟ я│я┌п╬я─п╬п╫п╣ $N1.",
 					FALSE, vict.get(), 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			}
 			if (MAY_ATTACK(vict))
@@ -1439,19 +1439,19 @@ void stand_up_or_sit(CHAR_DATA *ch)
 {
 	if (IS_NPC(ch))
 	{
-		act("$n встал$g на ноги.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("$n п╡я│я┌п╟п╩$g п╫п╟ п╫п╬пЁп╦.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_FIGHTING;
 	}
 	else if (GET_POS(ch) == POS_SLEEPING)
 	{
-		act("Вы проснулись и сели.", TRUE, ch, 0, 0, TO_CHAR);
-		act("$n проснул$u и сел$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("п▓я▀ п©я─п╬я│п╫я┐п╩п╦я│я▄ п╦ я│п╣п╩п╦.", TRUE, ch, 0, 0, TO_CHAR);
+		act("$n п©я─п╬я│п╫я┐п╩$u п╦ я│п╣п╩$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SITTING;
 	}
 	else if (GET_POS(ch) == POS_RESTING)
 	{
-		act("Вы прекратили отдых и сели.", TRUE, ch, 0, 0, TO_CHAR);
-		act("$n прекратил$g отдых и сел$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("п▓я▀ п©я─п╣п╨я─п╟я┌п╦п╩п╦ п╬я┌п╢я▀я┘ п╦ я│п╣п╩п╦.", TRUE, ch, 0, 0, TO_CHAR);
+		act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╬я┌п╢я▀я┘ п╦ я│п╣п╩$g.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_SITTING;
 	}
 }
@@ -1526,7 +1526,7 @@ void set_mob_skills_flags(CHAR_DATA *ch)
 int calc_initiative(CHAR_DATA *ch, bool mode)
 {
 	int initiative = size_app[GET_POS_SIZE(ch)].initiative;
-	if (mode) //Добавим булевую переменную, чтобы счет все выдавал постоянное значение, а не каждый раз рандом
+	if (mode) //п■п╬п╠п╟п╡п╦п╪ п╠я┐п╩п╣п╡я┐я▌ п©п╣я─п╣п╪п╣п╫п╫я┐я▌, я┤я┌п╬п╠я▀ я│я┤п╣я┌ п╡я│п╣ п╡я▀п╢п╟п╡п╟п╩ п©п╬я│я┌п╬я▐п╫п╫п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣, п╟ п╫п╣ п╨п╟п╤п╢я▀п╧ я─п╟п╥ я─п╟п╫п╢п╬п╪
 	{
 		int i = number(1, 10);
 		if (i == 10)
@@ -1569,7 +1569,7 @@ int calc_initiative(CHAR_DATA *ch, bool mode)
 	if (GET_AF_BATTLE(ch, EAF_SLOW))
 		initiative = 1;
 
-	//initiative = MAX(initiative, 1); //Почему инициатива не может быть отрицательной?
+	//initiative = MAX(initiative, 1); //п÷п╬я┤п╣п╪я┐ п╦п╫п╦я├п╦п╟я┌п╦п╡п╟ п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╬я┌я─п╦я├п╟я┌п╣п╩я▄п╫п╬п╧?
 	return initiative;
 }
 
@@ -1639,7 +1639,7 @@ void using_mob_skills(CHAR_DATA *ch)
 		{
 			sk_use = 0;
 			int i = 0;
-			// Цель выбираем по рандому
+			// п╕п╣п╩я▄ п╡я▀п╠п╦я─п╟п╣п╪ п©п╬ я─п╟п╫п╢п╬п╪я┐
 			for (const auto vict : world[ch->in_room]->people)
 			{
 				if (!IS_NPC(vict))
@@ -1662,7 +1662,7 @@ void using_mob_skills(CHAR_DATA *ch)
 				}
 			}
 
-			// Метаем
+			// п°п╣я┌п╟п╣п╪
 			if (caster)
 			{
 				go_throw(ch, caster);
@@ -1670,8 +1670,8 @@ void using_mob_skills(CHAR_DATA *ch)
 		}
 
 		////////////////////////////////////////////////////////////////////////
-		// проверим на всякий случай, является ли моб ангелом,
-		// хотя вроде бы этого делать не надо
+		// п©я─п╬п╡п╣я─п╦п╪ п╫п╟ п╡я│я▐п╨п╦п╧ я│п╩я┐я┤п╟п╧, я▐п╡п╩я▐п╣я┌я│я▐ п╩п╦ п╪п╬п╠ п╟п╫пЁп╣п╩п╬п╪,
+		// я┘п╬я┌я▐ п╡я─п╬п╢п╣ п╠я▀ я█я┌п╬пЁп╬ п╢п╣п╩п╟я┌я▄ п╫п╣ п╫п╟п╢п╬
 		if (!(MOB_FLAGGED(ch, MOB_ANGEL) || MOB_FLAGGED(ch, MOB_GHOST))
 			&& ch->has_master()
 			&& (sk_num == SKILL_RESCUE || sk_num == SKILL_PROTECT))
@@ -1681,9 +1681,9 @@ void using_mob_skills(CHAR_DATA *ch)
 
 			for (const auto attacker : world[ch->in_room]->people)
 			{
-				CHAR_DATA *vict = attacker->get_fighting();	// выяснение жертвы
-				if (!vict	// жертвы нет
-					|| (!IS_NPC(vict) // жертва - не моб
+				CHAR_DATA *vict = attacker->get_fighting();	// п╡я▀я▐я│п╫п╣п╫п╦п╣ п╤п╣я─я┌п╡я▀
+				if (!vict	// п╤п╣я─я┌п╡я▀ п╫п╣я┌
+					|| (!IS_NPC(vict) // п╤п╣я─я┌п╡п╟ - п╫п╣ п╪п╬п╠
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 						|| AFF_FLAGGED(vict, EAffectFlag::AFF_HELPER))
 					|| (IS_NPC(attacker)
@@ -1696,21 +1696,21 @@ void using_mob_skills(CHAR_DATA *ch)
 						&& !(MOB_FLAGGED(attacker, MOB_ANGEL)
 							&& attacker->has_master()
 							&& !IS_NPC(attacker->get_master())))
-					|| !CAN_SEE(ch, vict) // не видно, кого нужно спасать
-					|| ch == vict) // себя спасать не нужно
+					|| !CAN_SEE(ch, vict) // п╫п╣ п╡п╦п╢п╫п╬, п╨п╬пЁп╬ п╫я┐п╤п╫п╬ я│п©п╟я│п╟я┌я▄
+					|| ch == vict) // я│п╣п╠я▐ я│п©п╟я│п╟я┌я▄ п╫п╣ п╫я┐п╤п╫п╬
 				{
 					continue;
 				}
 
-				// Буду спасать vict от attacker
-				if (!caster	// еще пока никого не спасаю
-					|| (GET_HIT(vict) < GET_HIT(caster)))	// этому мобу хуже
+				// п▒я┐п╢я┐ я│п©п╟я│п╟я┌я▄ vict п╬я┌ attacker
+				if (!caster	// п╣я┴п╣ п©п╬п╨п╟ п╫п╦п╨п╬пЁп╬ п╫п╣ я│п©п╟я│п╟я▌
+					|| (GET_HIT(vict) < GET_HIT(caster)))	// я█я┌п╬п╪я┐ п╪п╬п╠я┐ я┘я┐п╤п╣
 				{
 					caster = vict;
 					damager = attacker;
 					if (dumb_mob)
 					{
-						break;	// тупой моб спасает первого
+						break;	// я┌я┐п©п╬п╧ п╪п╬п╠ я│п©п╟я│п╟п╣я┌ п©п╣я─п╡п╬пЁп╬
 					}
 				}
 			}
@@ -1780,8 +1780,8 @@ void using_mob_skills(CHAR_DATA *ch)
 			{
 				if (sk_num == SKILL_BASH)
 				{
-//send_to_char(caster, "Баш предфункция\r\n");
-//sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
+//send_to_char(caster, "п▒п╟я┬ п©я─п╣п╢я└я┐п╫п╨я├п╦я▐\r\n");
+//sprintf(buf, "%s п╠п╟я┬п╟я┌ п©я─п╣п╢я└я┐п╫п╨я├п╦я▐\r\n",GET_NAME(caster));
 //mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 					if (GET_POS(caster) >= POS_FIGHTING
 						|| calculate_skill(ch, SKILL_BASH, caster) > number(50, 80))
@@ -1792,8 +1792,8 @@ void using_mob_skills(CHAR_DATA *ch)
 				}
 				else
 				{ 
-//send_to_char(caster, "Подножка предфункция\r\n");
-//sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
+//send_to_char(caster, "п÷п╬п╢п╫п╬п╤п╨п╟ п©я─п╣п╢я└я┐п╫п╨я├п╦я▐\r\n");
+//sprintf(buf, "%s п©п╬п╢я│п╣п╨п╟я▌я┌ п©я─п╣п╢я└я┐п╫п╨я├п╦я▐\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 
 					if (GET_POS(caster) >= POS_FIGHTING
@@ -1815,7 +1815,7 @@ void using_mob_skills(CHAR_DATA *ch)
 
 					if (on_horse(damager))
 					{
-						// Карачун. Правка бага. Лошадь не должна башить себя, если дерется с наездником.
+						// п п╟я─п╟я┤я┐п╫. п÷я─п╟п╡п╨п╟ п╠п╟пЁп╟. п⌡п╬я┬п╟п╢я▄ п╫п╣ п╢п╬п╩п╤п╫п╟ п╠п╟я┬п╦я┌я▄ я│п╣п╠я▐, п╣я│п╩п╦ п╢п╣я─п╣я┌я│я▐ я│ п╫п╟п╣п╥п╢п╫п╦п╨п╬п╪.
 						if (get_horse(damager) == ch)
 						{
 							horse_drop(ch);
@@ -1967,12 +1967,12 @@ void process_npc_attack(CHAR_DATA *ch)
 	// if (GET_AF_BATTLE(ch,EAF_MULTYPARRY))
 	//    continue;
 
-	// Вызываем триггер перед началом боевых моба (магических или физических)
+	// п▓я▀п╥я▀п╡п╟п╣п╪ я┌я─п╦пЁпЁп╣я─ п©п╣я─п╣п╢ п╫п╟я┤п╟п╩п╬п╪ п╠п╬п╣п╡я▀я┘ п╪п╬п╠п╟ (п╪п╟пЁп╦я┤п╣я│п╨п╦я┘ п╦п╩п╦ я└п╦п╥п╦я┤п╣я│п╨п╦я┘)
 	
 	if (!fight_mtrigger(ch))
 		return;
 
-	// переключение
+	// п©п╣я─п╣п╨п╩я▌я┤п╣п╫п╦п╣
 	if (MAY_LIKES(ch)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_NOT_SWITCH)
@@ -1988,7 +1988,7 @@ void process_npc_attack(CHAR_DATA *ch)
 	if (!ch->get_fighting()
 		|| ch->in_room != IN_ROOM(ch->get_fighting())
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
-			// mob_casting мог от зеркала отразиться
+			// mob_casting п╪п╬пЁ п╬я┌ п╥п╣я─п╨п╟п╩п╟ п╬я┌я─п╟п╥п╦я┌я▄я│я▐
 		||	AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 		|| !AWAKE(ch)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
@@ -2027,7 +2027,7 @@ void process_npc_attack(CHAR_DATA *ch)
 	}
 	else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
-		//* применение скилов
+		//* п©я─п╦п╪п╣п╫п╣п╫п╦п╣ я│п╨п╦п╩п╬п╡
 		using_mob_skills(ch);
 	}
 
@@ -2037,13 +2037,13 @@ void process_npc_attack(CHAR_DATA *ch)
 		return;
 	}
 
-	//**** удар основным оружием или рукой
+	//**** я┐п╢п╟я─ п╬я│п╫п╬п╡п╫я▀п╪ п╬я─я┐п╤п╦п╣п╪ п╦п╩п╦ я─я┐п╨п╬п╧
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT))
 	{
 		exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
 	}
 
-	//**** экстраатаки
+	//**** я█п╨я│я┌я─п╟п╟я┌п╟п╨п╦
 	for (int i = 1; i <= ch->mob_specials.ExtraAttack; i++)
 	{
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
@@ -2062,18 +2062,18 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		&& GET_POS(ch) < POS_FIGHTING
 		&& GET_AF_BATTLE(ch, EAF_STAND))
 	{
-		sprintf(buf, "%sВам лучше встать на ноги!%s\r\n",
+		sprintf(buf, "%sп▓п╟п╪ п╩я┐я┤я┬п╣ п╡я│я┌п╟я┌я▄ п╫п╟ п╫п╬пЁп╦!%s\r\n",
 				CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		CLR_AF_BATTLE(ch, EAF_STAND);
 	}
 
-	//* каст заклинания
+	//* п╨п╟я│я┌ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐
 	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0)
 	{
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
-			send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+			send_to_char("п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ п╡я▀п╪п╬п╩п╡п╦я┌я▄ п╦ я│п╩п╬п╡п╟.\r\n", ch);
 			ch->set_cast(0, 0, 0, 0, 0);
 		}
 		else
@@ -2099,7 +2099,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	if (GET_AF_BATTLE(ch, EAF_MULTYPARRY))
 		return;
 
-	//* применение экстра атаки
+	//* п©я─п╦п╪п╣п╫п╣п╫п╦п╣ я█п╨я│я┌я─п╟ п╟я┌п╟п╨п╦
 	if (ch->get_extra_victim()
 		&& GET_WAIT(ch) <= 0
 		&& using_extra_attack(ch))
@@ -2118,7 +2118,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		return;
 	}
 
-	//**** удар основным оружием или рукой
+	//**** я┐п╢п╟я─ п╬я│п╫п╬п╡п╫я▀п╪ п╬я─я┐п╤п╦п╣п╪ п╦п╩п╦ я─я┐п╨п╬п╧
 	if (GET_AF_BATTLE(ch, EAF_FIRST))
 	{
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT)
@@ -2126,14 +2126,14 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 				|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 				|| !GET_AF_BATTLE(ch, EAF_USEDRIGHT)))
 		{
-			//Знаю, выглядит страшно, но зато в hit()
-			//можно будет узнать применялось ли оглушить
-			//или молотить, по баттл-аффекту узнать получиться
-			//не во всех частях процедуры, а параметр type
-			//хранит значение до её конца.
+			//п≈п╫п╟я▌, п╡я▀пЁп╩я▐п╢п╦я┌ я│я┌я─п╟я┬п╫п╬, п╫п╬ п╥п╟я┌п╬ п╡ hit()
+			//п╪п╬п╤п╫п╬ п╠я┐п╢п╣я┌ я┐п╥п╫п╟я┌я▄ п©я─п╦п╪п╣п╫я▐п╩п╬я│я▄ п╩п╦ п╬пЁп╩я┐я┬п╦я┌я▄
+			//п╦п╩п╦ п╪п╬п╩п╬я┌п╦я┌я▄, п©п╬ п╠п╟я┌я┌п╩-п╟я└я└п╣п╨я┌я┐ я┐п╥п╫п╟я┌я▄ п©п╬п╩я┐я┤п╦я┌я▄я│я▐
+			//п╫п╣ п╡п╬ п╡я│п╣я┘ я┤п╟я│я┌я▐я┘ п©я─п╬я├п╣п╢я┐я─я▀, п╟ п©п╟я─п╟п╪п╣я┌я─ type
+			//я┘я─п╟п╫п╦я┌ п╥п╫п╟я┤п╣п╫п╦п╣ п╢п╬ п╣я▒ п╨п╬п╫я├п╟.
 			exthit(ch, GET_AF_BATTLE(ch, EAF_STUPOR) ? SKILL_STUPOR : GET_AF_BATTLE(ch, EAF_MIGHTHIT) ? SKILL_MIGHTHIT : TYPE_UNDEFINED, RIGHT_WEAPON);
 		}
-// двуруч при скиллкапе 160 и перке любимоедвуруч дает допатаку 20%
+// п╢п╡я┐я─я┐я┤ п©я─п╦ я│п╨п╦п╩п╩п╨п╟п©п╣ 160 п╦ п©п╣я─п╨п╣ п╩я▌п╠п╦п╪п╬п╣п╢п╡я┐я─я┐я┤ п╢п╟п╣я┌ п╢п╬п©п╟я┌п╟п╨я┐ 20%
 		if (GET_EQ(ch,WEAR_BOTHS)&& can_use_feat(ch, BOTHHANDS_FOCUS_FEAT) && (GET_OBJ_SKILL(GET_EQ(ch,WEAR_BOTHS)) == SKILL_BOTHHANDS))
 		{
 			if (ch->get_skill(SKILL_BOTHHANDS) > (number(1,800)))
@@ -2148,7 +2148,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		}
 	}
 
-	//**** удар вторым оружием если оно есть и умение позволяет
+	//**** я┐п╢п╟я─ п╡я┌п╬я─я▀п╪ п╬я─я┐п╤п╦п╣п╪ п╣я│п╩п╦ п╬п╫п╬ п╣я│я┌я▄ п╦ я┐п╪п╣п╫п╦п╣ п©п╬п╥п╡п╬п╩я▐п╣я┌
 	if (GET_EQ(ch, WEAR_HOLD)
 		&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON
 		&& GET_AF_BATTLE(ch, EAF_SECOND)
@@ -2165,7 +2165,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
-	//**** удар второй рукой если она свободна и умение позволяет
+	//**** я┐п╢п╟я─ п╡я┌п╬я─п╬п╧ я─я┐п╨п╬п╧ п╣я│п╩п╦ п╬п╫п╟ я│п╡п╬п╠п╬п╢п╫п╟ п╦ я┐п╪п╣п╫п╦п╣ п©п╬п╥п╡п╬п╩я▐п╣я┌
 	else if (!GET_EQ(ch, WEAR_HOLD)
 		&& !GET_EQ(ch, WEAR_LIGHT)
 		&& !GET_EQ(ch, WEAR_SHIELD)
@@ -2181,12 +2181,12 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
 
-	// немного коряво, т.к. зависит от инициативы кастера
+	// п╫п╣п╪п╫п╬пЁп╬ п╨п╬я─я▐п╡п╬, я┌.п╨. п╥п╟п╡п╦я│п╦я┌ п╬я┌ п╦п╫п╦я├п╦п╟я┌п╦п╡я▀ п╨п╟я│я┌п╣я─п╟
 	// check if angel is in fight, and go_rescue if it is not
 	try_angel_rescue(ch);
 }
 
-// * \return false - чар не участвует в расчете инициативы
+// * \return false - я┤п╟я─ п╫п╣ я┐я┤п╟я│я┌п╡я┐п╣я┌ п╡ я─п╟я│я┤п╣я┌п╣ п╦п╫п╦я├п╦п╟я┌п╦п╡я▀
 bool stuff_before_round(CHAR_DATA *ch)
 {
 	// Initialize initiative
@@ -2225,21 +2225,21 @@ bool stuff_before_round(CHAR_DATA *ch)
 	// For NPC without lags and charms make it likes
 	if (IS_NPC(ch) && MAY_LIKES(ch))  	// Get weapon from room
 	{
-		//edited by WorM 2010.09.03 добавил немного логики мобам в бою если
-		// у моба есть что-то в инве то он может
-		//переодется в это что-то если посчитает что это что-то ему лучше подходит
+		//edited by WorM 2010.09.03 п╢п╬п╠п╟п╡п╦п╩ п╫п╣п╪п╫п╬пЁп╬ п╩п╬пЁп╦п╨п╦ п╪п╬п╠п╟п╪ п╡ п╠п╬я▌ п╣я│п╩п╦
+		// я┐ п╪п╬п╠п╟ п╣я│я┌я▄ я┤я┌п╬-я┌п╬ п╡ п╦п╫п╡п╣ я┌п╬ п╬п╫ п╪п╬п╤п╣я┌
+		//п©п╣я─п╣п╬п╢п╣я┌я│я▐ п╡ я█я┌п╬ я┤я┌п╬-я┌п╬ п╣я│п╩п╦ п©п╬я│я┤п╦я┌п╟п╣я┌ я┤я┌п╬ я█я┌п╬ я┤я┌п╬-я┌п╬ п╣п╪я┐ п╩я┐я┤я┬п╣ п©п╬п╢я┘п╬п╢п╦я┌
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		{
-			//Чото бред какой-то был, одевались мобы только сразу после того как слутили
-			npc_battle_scavenge(ch);//лутим стаф
-			if(ch->carrying)//и если есть что-то в инве то вооружаемся, одеваемся
+			//п╖п╬я┌п╬ п╠я─п╣п╢ п╨п╟п╨п╬п╧-я┌п╬ п╠я▀п╩, п╬п╢п╣п╡п╟п╩п╦я│я▄ п╪п╬п╠я▀ я┌п╬п╩я▄п╨п╬ я│я─п╟п╥я┐ п©п╬я│п╩п╣ я┌п╬пЁп╬ п╨п╟п╨ я│п╩я┐я┌п╦п╩п╦
+			npc_battle_scavenge(ch);//п╩я┐я┌п╦п╪ я│я┌п╟я└
+			if(ch->carrying)//п╦ п╣я│п╩п╦ п╣я│я┌я▄ я┤я┌п╬-я┌п╬ п╡ п╦п╫п╡п╣ я┌п╬ п╡п╬п╬я─я┐п╤п╟п╣п╪я│я▐, п╬п╢п╣п╡п╟п╣п╪я│я▐
 			{
 				npc_wield(ch);
 				npc_armor(ch);
 			}
 		}
 		//end by WorM
-		//dzMUDiST. Выполнение последнего переданого в бою за время лага приказа
+		//dzMUDiST. п▓я▀п©п╬п╩п╫п╣п╫п╦п╣ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ п©п╣я─п╣п╢п╟п╫п╬пЁп╬ п╡ п╠п╬я▌ п╥п╟ п╡я─п╣п╪я▐ п╩п╟пЁп╟ п©я─п╦п╨п╟п╥п╟
 		if (ch->last_comm != NULL)
 		{
 			command_interpreter(ch, ch->last_comm);
@@ -2253,18 +2253,18 @@ bool stuff_before_round(CHAR_DATA *ch)
 	return true;
 }
 
-// * Обработка текущих боев, дергается каждые 2 секунды.
+// * п·п╠я─п╟п╠п╬я┌п╨п╟ я┌п╣п╨я┐я┴п╦я┘ п╠п╬п╣п╡, п╢п╣я─пЁп╟п╣я┌я│я▐ п╨п╟п╤п╢я▀п╣ 2 я│п╣п╨я┐п╫п╢я▀.
 void perform_violence()
 {
 	int max_init = -100, min_init = 100;
 
-	//* суммон хелперов
+	//* я│я┐п╪п╪п╬п╫ я┘п╣п╩п©п╣я─п╬п╡
 	check_mob_helpers();
 
-	// храним список писей, которым надо показать состояние группы по msdp 
+	// я┘я─п╟п╫п╦п╪ я│п©п╦я│п╬п╨ п©п╦я│п╣п╧, п╨п╬я┌п╬я─я▀п╪ п╫п╟п╢п╬ п©п╬п╨п╟п╥п╟я┌я▄ я│п╬я│я┌п╬я▐п╫п╦п╣ пЁя─я┐п©п©я▀ п©п╬ msdp 
 	std::unordered_set<CHAR_DATA *> msdp_report_chars;
 
-	//* действия до раунда и расчет инициативы
+	//* п╢п╣п╧я│я┌п╡п╦я▐ п╢п╬ я─п╟я┐п╫п╢п╟ п╦ я─п╟я│я┤п╣я┌ п╦п╫п╦я├п╦п╟я┌п╦п╡я▀
 	for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list)
 	{
 		next_combat_list = ch->next_fighting;
@@ -2295,7 +2295,7 @@ void perform_violence()
 		const int initiative = calc_initiative(ch, true);
 		if (initiative == 0)
 		{
-			INITIATIVE(ch) = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
+			INITIATIVE(ch) = -100; //п∙я│п╩п╦ п╨я┐п╠п╦п╨ п╡я▀п©п╟п╩ п╡ 0 - п╠п╣п╧ п©п╬я│п╩п╣п╢п╫п╦п╪ я┬п╟п╫я│ 1 п╦п╥ 201
 			min_init = MIN(min_init, -100);
 		}
 		else
@@ -2308,7 +2308,7 @@ void perform_violence()
 		min_init = MIN(min_init, initiative);
 	}
 
-	//* обработка раунда по очередности инициативы
+	//* п╬п╠я─п╟п╠п╬я┌п╨п╟ я─п╟я┐п╫п╢п╟ п©п╬ п╬я┤п╣я─п╣п╢п╫п╬я│я┌п╦ п╦п╫п╦я├п╦п╟я┌п╦п╡я▀
 	for (int initiative = max_init; initiative >= min_init; initiative--)
 	{
 		for (CHAR_DATA *ch = combat_list; ch; ch = next_combat_list)
@@ -2335,12 +2335,12 @@ void perform_violence()
 				continue;
 			}
 
-			if (initiative == 0) //везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
+			if (initiative == 0) //п╡п╣п╥п╢п╣ п╡ я│я┌п╬п©-я└п╟п╧я┌п╟я┘ я│я┌п╟п╡п╦я┌я│я▐ п╦п╫п╦я├п╦п╟я┌п╦п╡п╟ я─п╟п╡п╫п╟я▐ 0, я┐п╠п╦я─п╟п╣п╪ п╢п╡п╬п╧п╫я┐я▌ п╟я┌п╟п╨я┐
 			{
 				continue;
 			}
 
-			//* выполнение атак в раунде
+			//* п╡я▀п©п╬п╩п╫п╣п╫п╦п╣ п╟я┌п╟п╨ п╡ я─п╟я┐п╫п╢п╣
 			if (IS_NPC(ch))
 			{
 				process_npc_attack(ch);
@@ -2352,7 +2352,7 @@ void perform_violence()
 		}
 	}
 
-	//* обновление аффектов и лагов после раунда
+	//* п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ п╟я└я└п╣п╨я┌п╬п╡ п╦ п╩п╟пЁп╬п╡ п©п╬я│п╩п╣ я─п╟я┐п╫п╢п╟
 	update_round_affs();
 
 	for (auto d = descriptor_list; d; d = d->next)
@@ -2370,8 +2370,8 @@ void perform_violence()
 		}
 	}
 	
-	// покажем группу по msdp
-	// проверка на поддержку протокола есть в методе msdp_report
+	// п©п╬п╨п╟п╤п╣п╪ пЁя─я┐п©п©я┐ п©п╬ msdp
+	// п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п©п╬п╢п╢п╣я─п╤п╨я┐ п©я─п╬я┌п╬п╨п╬п╩п╟ п╣я│я┌я▄ п╡ п╪п╣я┌п╬п╢п╣ msdp_report
 	for (const auto& ch: msdp_report_chars)
 	{
 		if (!ch->purged())

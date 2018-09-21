@@ -19,12 +19,12 @@
 namespace DpsSystem
 {
 
-// кол-во учитываемых чармисов с каждого чара
+// п╨п╬п╩-п╡п╬ я┐я┤п╦я┌я▀п╡п╟п╣п╪я▀я┘ я┤п╟я─п╪п╦я│п╬п╡ я│ п╨п╟п╤п╢п╬пЁп╬ я┤п╟я─п╟
 const unsigned MAX_DPS_CHARMICE = 5;
 boost::format dps_stat_format(" %25s |  %15d | %5d |  %5d | %11d |\r\n");
 boost::format dps_group_stat_format(" %25s |  %8d | %5.1f%% | %5d |  %5d | %11d |\r\n");
 
-// * Добавление эффективной дамаги и овер-дамаги.
+// * п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ я█я└я└п╣п╨я┌п╦п╡п╫п╬п╧ п╢п╟п╪п╟пЁп╦ п╦ п╬п╡п╣я─-п╢п╟п╪п╟пЁп╦.
 void DpsNode::add_dmg(int dmg, int over_dmg)
 {
 	if (dmg >= 0 && over_dmg >= 0)
@@ -36,8 +36,8 @@ void DpsNode::add_dmg(int dmg, int over_dmg)
 }
 
 /**
-* Имя для вывода в статистике при отсутствии онлайн.
-* Пока осталось актуальным только для чармисов.
+* п≤п╪я▐ п╢п╩я▐ п╡я▀п╡п╬п╢п╟ п╡ я│я┌п╟я┌п╦я│я┌п╦п╨п╣ п©я─п╦ п╬я┌я│я┐я┌я│я┌п╡п╦п╦ п╬п╫п╩п╟п╧п╫.
+* п÷п╬п╨п╟ п╬я│я┌п╟п╩п╬я│я▄ п╟п╨я┌я┐п╟п╩я▄п╫я▀п╪ я┌п╬п╩я▄п╨п╬ п╢п╩я▐ я┤п╟я─п╪п╦я│п╬п╡.
 */
 void DpsNode::set_name(const char *name)
 {
@@ -51,7 +51,7 @@ void DpsNode::set_name(const char *name)
 	}
 }
 
-// * Расчет дамаги в раунд.
+// * п═п╟я│я┤п╣я┌ п╢п╟п╪п╟пЁп╦ п╡ я─п╟я┐п╫п╢.
 int DpsNode::get_stat() const
 {
 	if (rounds_)
@@ -76,7 +76,7 @@ const std::string & DpsNode::get_name() const
 	return name_;
 }
 
-// * Используется для идентификации в списках как чармисов, так и чаров.
+// * п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╢п╩я▐ п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я├п╦п╦ п╡ я│п©п╦я│п╨п╟я┘ п╨п╟п╨ я┤п╟я─п╪п╦я│п╬п╡, я┌п╟п╨ п╦ я┤п╟я─п╬п╡.
 long DpsNode::get_id() const
 {
 	return id_;
@@ -120,7 +120,7 @@ void Dps::add_dmg(int type, CHAR_DATA *ch, int dmg, int over_dmg)
 		}
 		break;
 	default:
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		log("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, func: %s", __func__);
 		return;
 	}
 }
@@ -142,12 +142,12 @@ void Dps::end_round(int type, CHAR_DATA *ch)
 		end_group_charm_round(ch);
 		break;
 	default:
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		log("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, func: %s", __func__);
 		return;
 	}
 }
 
-// * Очистка себя или группы.
+// * п·я┤п╦я│я┌п╨п╟ я│п╣п╠я▐ п╦п╩п╦ пЁя─я┐п©п©я▀.
 void Dps::clear(int type)
 {
 	switch (type)
@@ -169,12 +169,12 @@ void Dps::clear(int type)
 	case GROUP_CHARM_DPS:
 		break;
 	default:
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		log("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, func: %s", __func__);
 		return;
 	}
 }
 
-// * Для сортировки вывода по нанесенной дамаге.
+// * п■п╩я▐ я│п╬я─я┌п╦я─п╬п╡п╨п╦ п╡я▀п╡п╬п╢п╟ п©п╬ п╫п╟п╫п╣я│п╣п╫п╫п╬п╧ п╢п╟п╪п╟пЁп╣.
 struct sort_node
 {
 	sort_node(const std::string& in_name, int in_dps, unsigned in_round_dmg, unsigned in_over_dmg)
@@ -191,7 +191,7 @@ struct sort_node
 
 typedef std::multimap<unsigned /* dmg */, sort_node> SortGroupType;
 SortGroupType tmp_group_list;
-// суммарный дамаг группы при распечатке статистики
+// я│я┐п╪п╪п╟я─п╫я▀п╧ п╢п╟п╪п╟пЁ пЁя─я┐п©п©я▀ п©я─п╦ я─п╟я│п©п╣я┤п╟я┌п╨п╣ я│я┌п╟я┌п╦я│я┌п╦п╨п╦
 unsigned tmp_total_dmg = 0;
 
 void Dps::add_tmp_group_list(CHAR_DATA *ch)
@@ -208,9 +208,9 @@ void Dps::add_tmp_group_list(CHAR_DATA *ch)
 }
 
 /**
-* Распечатка персональной статистики игрока и его чармисов.
-* \param ch - игрок, которому идет распечатка.
-* \param coder - случай вывода статистики другому персонажу, по умолчанию = 0
+* п═п╟я│п©п╣я┤п╟я┌п╨п╟ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ п╦пЁя─п╬п╨п╟ п╦ п╣пЁп╬ я┤п╟я─п╪п╦я│п╬п╡.
+* \param ch - п╦пЁя─п╬п╨, п╨п╬я┌п╬я─п╬п╪я┐ п╦п╢п╣я┌ я─п╟я│п©п╣я┤п╟я┌п╨п╟.
+* \param coder - я│п╩я┐я┤п╟п╧ п╡я▀п╡п╬п╢п╟ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ п╢я─я┐пЁп╬п╪я┐ п©п╣я─я│п╬п╫п╟п╤я┐, п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ = 0
 */
 void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 {
@@ -219,8 +219,8 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 		coder = ch;
 	}
 
-	send_to_char("Персональная статистика:\r\n"
-			"                       Имя |   Нанесено урона | В раунд (макс) | Лишний урон |\r\n"
+	send_to_char("п÷п╣я─я│п╬п╫п╟п╩я▄п╫п╟я▐ я│я┌п╟я┌п╦я│я┌п╦п╨п╟:\r\n"
+			"                       п≤п╪я▐ |   п²п╟п╫п╣я│п╣п╫п╬ я┐я─п╬п╫п╟ | п▓ я─п╟я┐п╫п╢ (п╪п╟п╨я│) | п⌡п╦я┬п╫п╦п╧ я┐я─п╬п╫ |\r\n"
 			"---------------------------|------------------|----------------|-------------|\r\n", coder);
 	send_to_char(str(dps_stat_format
 			% GET_NAME(ch) % pers_dps_.get_dmg()
@@ -231,8 +231,8 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 	double percent = exp_ ? battle_exp_ * 100.0 / exp_ : 0.0;
 	int balance = exp_ + lost_exp_;
 
-	send_to_char(coder, "\r\nВсего получено опыта: %s, за удары: %s (%.2f%%)\r\n"
-			"Потеряно опыта: %s, баланс: %s %s\r\n",
+	send_to_char(coder, "\r\nп▓я│п╣пЁп╬ п©п╬п╩я┐я┤п╣п╫п╬ п╬п©я▀я┌п╟: %s, п╥п╟ я┐п╢п╟я─я▀: %s (%.2f%%)\r\n"
+			"п÷п╬я┌п╣я─я▐п╫п╬ п╬п©я▀я┌п╟: %s, п╠п╟п╩п╟п╫я│: %s %s\r\n",
 			thousands_sep(exp_).c_str(), thousands_sep(battle_exp_).c_str(), percent,
 			thousands_sep(abs(lost_exp_)).c_str(), balance >= 0 ? "+" : "-",
 			thousands_sep(abs(balance)).c_str());
@@ -246,9 +246,9 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 }
 
 /**
-* Распечатка групповой статистики, находящейся у лидера группы.
-* \param ch - игрок, которому идет распечатка.
-* \param coder - случай вывода статистики другому персонажу, по умолчанию = 0
+* п═п╟я│п©п╣я┤п╟я┌п╨п╟ пЁя─я┐п©п©п╬п╡п╬п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦, п╫п╟я┘п╬п╢я▐я┴п╣п╧я│я▐ я┐ п╩п╦п╢п╣я─п╟ пЁя─я┐п©п©я▀.
+* \param ch - п╦пЁя─п╬п╨, п╨п╬я┌п╬я─п╬п╪я┐ п╦п╢п╣я┌ я─п╟я│п©п╣я┤п╟я┌п╨п╟.
+* \param coder - я│п╩я┐я┤п╟п╧ п╡я▀п╡п╬п╢п╟ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ п╢я─я┐пЁп╬п╪я┐ п©п╣я─я│п╬п╫п╟п╤я┐, п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌ = 0
 */
 void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 {
@@ -257,7 +257,7 @@ void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 		coder = ch;
 	}
 
-	send_to_char("\r\nСтатистика вашей группы:\r\n"
+	send_to_char("\r\nп║я┌п╟я┌п╦я│я┌п╦п╨п╟ п╡п╟я┬п╣п╧ пЁя─я┐п©п©я▀:\r\n"
 			"---------------------------|--------------------|----------------|-------------|\r\n", coder);
 
 	CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
@@ -347,7 +347,7 @@ void Dps::end_group_charm_round(CHAR_DATA *ch)
 	}
 }
 
-// * Чтобы не морочить голову в dps_copy, заменяем только груп.статистику.
+// * п╖я┌п╬п╠я▀ п╫п╣ п╪п╬я─п╬я┤п╦я┌я▄ пЁп╬п╩п╬п╡я┐ п╡ dps_copy, п╥п╟п╪п╣п╫я▐п╣п╪ я┌п╬п╩я▄п╨п╬ пЁя─я┐п©.я│я┌п╟я┌п╦я│я┌п╦п╨я┐.
 Dps & Dps::operator= (const Dps &copy)
 {
 	if (this != &copy)
@@ -411,7 +411,7 @@ void PlayerDpsNode::add_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 	}
 	else
 	{
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		log("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, func: %s", __func__);
 	}
 }
 
@@ -424,11 +424,11 @@ void PlayerDpsNode::end_charm_round(CHAR_DATA *ch)
 	}
 	else
 	{
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		log("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, func: %s", __func__);
 	}
 }
 
-// * Чармисы в персональной статистике выводятся без сортировки.
+// * п╖п╟я─п╪п╦я│я▀ п╡ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╣ п╡я▀п╡п╬п╢я▐я┌я│я▐ п╠п╣п╥ я│п╬я─я┌п╦я─п╬п╡п╨п╦.
 std::string PlayerDpsNode::print_charm_stats() const
 {
 	std::ostringstream text;
@@ -443,7 +443,7 @@ std::string PlayerDpsNode::print_charm_stats() const
 	return text.str();
 }
 
-// * Распечатка групповой статистики живых чармисов по данному игроку.
+// * п═п╟я│п©п╣я┤п╟я┌п╨п╟ пЁя─я┐п©п©п╬п╡п╬п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ п╤п╦п╡я▀я┘ я┤п╟я─п╪п╦я│п╬п╡ п©п╬ п╢п╟п╫п╫п╬п╪я┐ п╦пЁя─п╬п╨я┐.
 void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 {
 	for (follow_type *f = ch->followers; f; f = f->next)
@@ -470,7 +470,7 @@ void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 // PlayerDpsNode
 ////////////////////////////////////////////////////////////////////////////////
 
-// * Подсчет дамаги за предыдущий раунд, дергается в начале раунда и по окончанию боя.
+// * п÷п╬п╢я│я┤п╣я┌ п╢п╟п╪п╟пЁп╦ п╥п╟ п©я─п╣п╢я▀п╢я┐я┴п╦п╧ я─п╟я┐п╫п╢, п╢п╣я─пЁп╟п╣я┌я│я▐ п╡ п╫п╟я┤п╟п╩п╣ я─п╟я┐п╫п╢п╟ п╦ п©п╬ п╬п╨п╬п╫я┤п╟п╫п╦я▌ п╠п╬я▐.
 void check_round(CHAR_DATA *ch)
 {
 	if (!IS_NPC(ch))
@@ -499,17 +499,17 @@ namespace
 {
 
 const char *DMETR_FORMAT =
-"Формат команды:\r\n"
-"дметр - вывод всей статистики\r\n"
-"дметр очистить - очистка персональной статистики\r\n"
-"дметр очистить группа - очистка групповой статистики (только лидер)\r\n";
+"п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀:\r\n"
+"п╢п╪п╣я┌я─ - п╡я▀п╡п╬п╢ п╡я│п╣п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦\r\n"
+"п╢п╪п╣я┌я─ п╬я┤п╦я│я┌п╦я┌я▄ - п╬я┤п╦я│я┌п╨п╟ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦\r\n"
+"п╢п╪п╣я┌я─ п╬я┤п╦я│я┌п╦я┌я▄ пЁя─я┐п©п©п╟ - п╬я┤п╦я│я┌п╨п╟ пЁя─я┐п©п©п╬п╡п╬п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ (я┌п╬п╩я▄п╨п╬ п╩п╦п╢п╣я─)\r\n";
 
 } // namespace
 
 /**
-* 'дметр' - вывод своей статистики и групповой, если в группе.
-* 'дметр очистить' - очистка своей статистики.
-* 'дметр очистить группа' - очистка групповой статистики (только лидер).
+* 'п╢п╪п╣я┌я─' - п╡я▀п╡п╬п╢ я│п╡п╬п╣п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ п╦ пЁя─я┐п©п©п╬п╡п╬п╧, п╣я│п╩п╦ п╡ пЁя─я┐п©п©п╣.
+* 'п╢п╪п╣я┌я─ п╬я┤п╦я│я┌п╦я┌я▄' - п╬я┤п╦я│я┌п╨п╟ я│п╡п╬п╣п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦.
+* 'п╢п╪п╣я┌я─ п╬я┤п╦я│я┌п╦я┌я▄ пЁя─я┐п©п©п╟' - п╬я┤п╦я│я┌п╨п╟ пЁя─я┐п©п©п╬п╡п╬п╧ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ (я┌п╬п╩я▄п╨п╬ п╩п╦п╢п╣я─).
 */
 void do_dmeter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -525,23 +525,23 @@ void do_dmeter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		ch->dps_print_stats();
 	}
-	else if (isname(arg, "очистить"))
+	else if (isname(arg, "п╬я┤п╦я│я┌п╦я┌я▄"))
 	{
 		if (!*name)
 		{
 			ch->dps_clear(DpsSystem::PERS_DPS);
-			send_to_char("Персональная статистика очищена.\r\n", ch);
+			send_to_char("п÷п╣я─я│п╬п╫п╟п╩я▄п╫п╟я▐ я│я┌п╟я┌п╦я│я┌п╦п╨п╟ п╬я┤п╦я┴п╣п╫п╟.\r\n", ch);
 		}
-		else if (isname(name, "группа"))
+		else if (isname(name, "пЁя─я┐п©п©п╟"))
 		{
 			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 			{
-				send_to_char("Вы не состоите в группе.\r\n", ch);
+				send_to_char("п▓я▀ п╫п╣ я│п╬я│я┌п╬п╦я┌п╣ п╡ пЁя─я┐п©п©п╣.\r\n", ch);
 				return;
 			}
 			if (ch->has_master())
 			{
-				send_to_char("Вы не являетесь лидером группы.\r\n", ch);
+				send_to_char("п▓я▀ п╫п╣ я▐п╡п╩я▐п╣я┌п╣я│я▄ п╩п╦п╢п╣я─п╬п╪ пЁя─я┐п©п©я▀.\r\n", ch);
 				return;
 			}
 			ch->dps_clear(DpsSystem::GROUP_DPS);
@@ -549,7 +549,7 @@ void do_dmeter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
-		// распечатка статистики указанного персонажа
+		// я─п╟я│п©п╣я┤п╟я┌п╨п╟ я│я┌п╟я┌п╦я│я┌п╦п╨п╦ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ п©п╣я─я│п╬п╫п╟п╤п╟
 		CHAR_DATA *vict = get_player_vis(ch, arg, FIND_CHAR_WORLD);
 		if (vict)
 		{
@@ -557,7 +557,7 @@ void do_dmeter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			send_to_char("Нет такого персонажа.\r\n", ch);
+			send_to_char("п²п╣я┌ я┌п╟п╨п╬пЁп╬ п©п╣я─я│п╬п╫п╟п╤п╟.\r\n", ch);
 		}
 	}
 	else

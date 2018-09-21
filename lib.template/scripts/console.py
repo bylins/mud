@@ -1,6 +1,6 @@
 # -*- coding: koi8-r -*-
 
-"""Реализация интерактивной консоли для иммов."""
+"""п═п╣п╟п╩п╦п╥п╟я├п╦я▐ п╦п╫я┌п╣я─п╟п╨я┌п╦п╡п╫п╬п╧ п╨п╬п╫я│п╬п╩п╦ п╢п╩я▐ п╦п╪п╪п╬п╡."""
 
 import sys
 import code
@@ -14,7 +14,7 @@ class HelpCommand(object):
 
 	def __repr__(self):
 		#return "Type help(object) to get help about object."
-		return "Наберите help(object) чтобы получить справку по object."
+		return "п²п╟п╠п╣я─п╦я┌п╣ help(object) я┤я┌п╬п╠я▀ п©п╬п╩я┐я┤п╦я┌я▄ я│п©я─п╟п╡п╨я┐ п©п╬ object."
 
 	def __call__(self,*args,**kwargs):
 		return pydoc.help(*args,**kwargs)
@@ -29,7 +29,7 @@ class ExitConsoleCommand(object):
 
 	def __repr__(self):
 		#return "Type exit() to exit the console"
-		return "Наберите exit() чтобы выйти из консоли."
+		return "п²п╟п╠п╣я─п╦я┌п╣ exit() я┤я┌п╬п╠я▀ п╡я▀п╧я┌п╦ п╦п╥ п╨п╬п╫я│п╬п╩п╦."
 
 	def __call__(self):
 		self.ch.close_console()

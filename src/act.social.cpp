@@ -73,7 +73,7 @@ int find_action(char *cmd)
 }
 
 
-const char *deaf_social = "&K$n попытал$u очень эмоционально выразить свою мысль.&n";
+const char *deaf_social = "&K$n п©п╬п©я▀я┌п╟п╩$u п╬я┤п╣п╫я▄ я█п╪п╬я├п╦п╬п╫п╟п╩я▄п╫п╬ п╡я▀я─п╟п╥п╦я┌я▄ я│п╡п╬я▌ п╪я▀я│п╩я▄.&n";
 
 int do_social(CHAR_DATA * ch, char *argument)
 {
@@ -87,7 +87,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
+		send_to_char("п▒п╬пЁп╦ п╫п╟п╨п╟п╥п╟п╩п╦ п╡п╟я│ п╦ п╡я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╡я▀я─п╟п╤п╟я┌я▄ я█п╪п╬я├п╦п╦!\r\n", ch);
 		return (FALSE);
 	}
 
@@ -99,7 +99,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 	action = &soc_mess_list[act_nr];
 	if (GET_POS(ch) < action->ch_min_pos || GET_POS(ch) > action->ch_max_pos)
 	{
-		send_to_char("Вам крайне неудобно это сделать.\r\n", ch);
+		send_to_char("п▓п╟п╪ п╨я─п╟п╧п╫п╣ п╫п╣я┐п╢п╬п╠п╫п╬ я█я┌п╬ я│п╢п╣п╩п╟я┌я▄.\r\n", ch);
 		return (TRUE);
 	}
 
@@ -129,7 +129,7 @@ int do_social(CHAR_DATA * ch, char *argument)
 	{
 		const auto message = action->not_found
 			? action->not_found
-			: "Поищите кого-нибудь более доступного для этих целей.\r\n";
+			: "п÷п╬п╦я┴п╦я┌п╣ п╨п╬пЁп╬-п╫п╦п╠я┐п╢я▄ п╠п╬п╩п╣п╣ п╢п╬я│я┌я┐п©п╫п╬пЁп╬ п╢п╩я▐ я█я┌п╦я┘ я├п╣п╩п╣п╧.\r\n";
 		send_to_char(message, ch);
 		send_to_char("\r\n", ch);
 	}
@@ -152,17 +152,17 @@ int do_social(CHAR_DATA * ch, char *argument)
 	else
 	{
 		if (GET_POS(vict) < action->vict_min_pos || GET_POS(vict) > action->vict_max_pos)
-			act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+			act("$N2 я│п╣п╧я┤п╟я│, п©п╬я┘п╬п╤п╣, п╫п╣ п╢п╬ п╡п╟я│.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		else
 		{
 			act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
-// здесь зарылся баг, связанный с тем, что я не знаю,
-// как без грязных хаков сделать так, чтобы
-// можно было этот вызов делать в цикле для каждого чара в клетке и при этом
-// строка посылалась произвольному чару, но действие осуществлялось над vict.
-// в итоге даже если чар в клетке игнорирует чара ch, то все равно он
-// будет видеть его действия, имеющие цель, если при этом цель -- не он сам.
-// для глухих -- то же самое.
+// п╥п╢п╣я│я▄ п╥п╟я─я▀п╩я│я▐ п╠п╟пЁ, я│п╡я▐п╥п╟п╫п╫я▀п╧ я│ я┌п╣п╪, я┤я┌п╬ я▐ п╫п╣ п╥п╫п╟я▌,
+// п╨п╟п╨ п╠п╣п╥ пЁя─я▐п╥п╫я▀я┘ я┘п╟п╨п╬п╡ я│п╢п╣п╩п╟я┌я▄ я┌п╟п╨, я┤я┌п╬п╠я▀
+// п╪п╬п╤п╫п╬ п╠я▀п╩п╬ я█я┌п╬я┌ п╡я▀п╥п╬п╡ п╢п╣п╩п╟я┌я▄ п╡ я├п╦п╨п╩п╣ п╢п╩я▐ п╨п╟п╤п╢п╬пЁп╬ я┤п╟я─п╟ п╡ п╨п╩п╣я┌п╨п╣ п╦ п©я─п╦ я█я┌п╬п╪
+// я│я┌я─п╬п╨п╟ п©п╬я│я▀п╩п╟п╩п╟я│я▄ п©я─п╬п╦п╥п╡п╬п╩я▄п╫п╬п╪я┐ я┤п╟я─я┐, п╫п╬ п╢п╣п╧я│я┌п╡п╦п╣ п╬я│я┐я┴п╣я│я┌п╡п╩я▐п╩п╬я│я▄ п╫п╟п╢ vict.
+// п╡ п╦я┌п╬пЁп╣ п╢п╟п╤п╣ п╣я│п╩п╦ я┤п╟я─ п╡ п╨п╩п╣я┌п╨п╣ п╦пЁп╫п╬я─п╦я─я┐п╣я┌ я┤п╟я─п╟ ch, я┌п╬ п╡я│п╣ я─п╟п╡п╫п╬ п╬п╫
+// п╠я┐п╢п╣я┌ п╡п╦п╢п╣я┌я▄ п╣пЁп╬ п╢п╣п╧я│я┌п╡п╦я▐, п╦п╪п╣я▌я┴п╦п╣ я├п╣п╩я▄, п╣я│п╩п╦ п©я─п╦ я█я┌п╬п╪ я├п╣п╩я▄ -- п╫п╣ п╬п╫ я│п╟п╪.
+// п╢п╩я▐ пЁп╩я┐я┘п╦я┘ -- я┌п╬ п╤п╣ я│п╟п╪п╬п╣.
 			act(action->others_found, FALSE, ch, 0, vict, TO_NOTVICT | CHECK_DEAF);
 			act(deaf_social, FALSE, ch, 0, 0, TO_ROOM | CHECK_NODEAF);
 			if (!ignores(vict, ch, IGNORE_EMOTE))
@@ -180,18 +180,18 @@ void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Боги наказали вас и вы не можете выражать эмоции!\r\n", ch);
+		send_to_char("п▒п╬пЁп╦ п╫п╟п╨п╟п╥п╟п╩п╦ п╡п╟я│ п╦ п╡я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╡я▀я─п╟п╤п╟я┌я▄ я█п╪п╬я├п╦п╦!\r\n", ch);
 		return;
 	}
 	if (*arg)
 	{
 		if (!(victim = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-			send_to_char("&KА он вас и не услышит :(&n\r\n", ch);
+			send_to_char("&Kп░ п╬п╫ п╡п╟я│ п╦ п╫п╣ я┐я│п╩я▀я┬п╦я┌ :(&n\r\n", ch);
 		else
 		{
 			if (victim != ch)
 			{
-				sprintf(buf, "&KВы оскорбили %s.&n\r\n", GET_PAD(victim, 1));
+				sprintf(buf, "&Kп▓я▀ п╬я│п╨п╬я─п╠п╦п╩п╦ %s.&n\r\n", GET_PAD(victim, 1));
 				send_to_char(buf, ch);
 
 				switch (number(0, 2))
@@ -200,40 +200,40 @@ void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					if (IS_MALE(ch))
 					{
 						if (IS_MALE(victim))
-							act("&K$n высмеял$g вашу манеру держать меч !&n",
+							act("&K$n п╡я▀я│п╪п╣я▐п╩$g п╡п╟я┬я┐ п╪п╟п╫п╣я─я┐ п╢п╣я─п╤п╟я┌я▄ п╪п╣я┤ !&n",
 								FALSE, ch, 0, victim, TO_VICT);
 						else
-							act("&K$n заявил$g, что удел любой женщины - дети, кухня и церковь.&n", FALSE, ch, 0, victim, TO_VICT);
+							act("&K$n п╥п╟я▐п╡п╦п╩$g, я┤я┌п╬ я┐п╢п╣п╩ п╩я▌п╠п╬п╧ п╤п╣п╫я┴п╦п╫я▀ - п╢п╣я┌п╦, п╨я┐я┘п╫я▐ п╦ я├п╣я─п╨п╬п╡я▄.&n", FALSE, ch, 0, victim, TO_VICT);
 					}
 					else  	// Ch == Woman
 					{
 						if (IS_MALE(victim))
-							act("&K$n заявил$g вам, что у н$s больше... (что $e имел$g в виду?)&n", FALSE, ch, 0, victim, TO_VICT);
+							act("&K$n п╥п╟я▐п╡п╦п╩$g п╡п╟п╪, я┤я┌п╬ я┐ п╫$s п╠п╬п╩я▄я┬п╣... (я┤я┌п╬ $e п╦п╪п╣п╩$g п╡ п╡п╦п╢я┐?)&n", FALSE, ch, 0, victim, TO_VICT);
 						else
-							act("&K$n обьявил$g всем о вашем близком родстве с Бабой-Ягой.&n", FALSE, ch, 0, victim, TO_VICT);
+							act("&K$n п╬п╠я▄я▐п╡п╦п╩$g п╡я│п╣п╪ п╬ п╡п╟я┬п╣п╪ п╠п╩п╦п╥п╨п╬п╪ я─п╬п╢я│я┌п╡п╣ я│ п▒п╟п╠п╬п╧-п╞пЁп╬п╧.&n", FALSE, ch, 0, victim, TO_VICT);
 					}
 					break;
 				case 1:
-					act("&K$n1 чем-то не удовлетворила ваша мама!&n", FALSE,
+					act("&K$n1 я┤п╣п╪-я┌п╬ п╫п╣ я┐п╢п╬п╡п╩п╣я┌п╡п╬я─п╦п╩п╟ п╡п╟я┬п╟ п╪п╟п╪п╟!&n", FALSE,
 						ch, 0, victim, TO_VICT);
 					break;
 				default:
-					act("&K$n предложил$g вам посетить ближайший хутор!\r\n"
-						"$e заявил$g, что там обитают на редкость крупные бабочки.&n",
+					act("&K$n п©я─п╣п╢п╩п╬п╤п╦п╩$g п╡п╟п╪ п©п╬я│п╣я┌п╦я┌я▄ п╠п╩п╦п╤п╟п╧я┬п╦п╧ я┘я┐я┌п╬я─!\r\n"
+						"$e п╥п╟я▐п╡п╦п╩$g, я┤я┌п╬ я┌п╟п╪ п╬п╠п╦я┌п╟я▌я┌ п╫п╟ я─п╣п╢п╨п╬я│я┌я▄ п╨я─я┐п©п╫я▀п╣ п╠п╟п╠п╬я┤п╨п╦.&n",
 						FALSE, ch, 0, victim, TO_VICT);
 					break;
 				}	// end switch
 
-				act("&K$n оскорбил$g $N1. СМЕРТЕЛЬНО.&n", TRUE, ch, 0, victim, TO_NOTVICT);
+				act("&K$n п╬я│п╨п╬я─п╠п╦п╩$g $N1. п║п°п∙п═п╒п∙п⌡п╛п²п·.&n", TRUE, ch, 0, victim, TO_NOTVICT);
 			}
 			else  	// ch == victim
 			{
-				send_to_char("&KВы почувствовали себя оскорбленным.&n\r\n", ch);
+				send_to_char("&Kп▓я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│п╣п╠я▐ п╬я│п╨п╬я─п╠п╩п╣п╫п╫я▀п╪.&n\r\n", ch);
 			}
 		}
 	}
 	else
-		send_to_char("&KВы уверены, что стоит оскорблять такими словами всех?&n\r\n", ch);
+		send_to_char("&Kп▓я▀ я┐п╡п╣я─п╣п╫я▀, я┤я┌п╬ я│я┌п╬п╦я┌ п╬я│п╨п╬я─п╠п╩я▐я┌я▄ я┌п╟п╨п╦п╪п╦ я│п╩п╬п╡п╟п╪п╦ п╡я│п╣я┘?&n\r\n", ch);
 }
 
 char *fread_action(FILE * fl, int nr)

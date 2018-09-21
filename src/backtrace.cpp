@@ -9,7 +9,7 @@
 #include <DbgHelp.h>
 #pragma warning(pop)
 #elif __CYGWIN__
-// если цигвин ничего не делаем
+// п╣я│п╩п╦ я├п╦пЁп╡п╦п╫ п╫п╦я┤п╣пЁп╬ п╫п╣ п╢п╣п╩п╟п╣п╪
 #else
 #include <execinfo.h>
 #endif
@@ -36,7 +36,7 @@ namespace debug
 		free(symbol);
 	}
 #elif __CYGWIN__
-// если цигвин ничего не делаем
+// п╣я│п╩п╦ я├п╦пЁп╡п╦п╫ п╫п╦я┤п╣пЁп╬ п╫п╣ п╢п╣п╩п╟п╣п╪
 #else
 	void linux_backtrace(FILE* file)
 	{
@@ -54,7 +54,7 @@ namespace debug
 #ifdef _WIN32
 		win32_backtrace(file);
 #elif __CYGWIN__
-// если цигвин ничего не делаем
+// п╣я│п╩п╦ я├п╦пЁп╡п╦п╫ п╫п╦я┤п╣пЁп╬ п╫п╣ п╢п╣п╩п╟п╣п╪
 #else
 		linux_backtrace(file);
 #endif

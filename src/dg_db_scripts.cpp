@@ -44,7 +44,7 @@
 //External functions
 extern void extract_trigger(TRIG_DATA * trig);
 
-//внум_триггера : [внум_триггера_который_прикрепил_данный тригер : [перечисление к чему прикрепленно (внумы объектов/мобов/комнат)]]
+//п╡п╫я┐п╪_я┌я─п╦пЁпЁп╣я─п╟ : [п╡п╫я┐п╪_я┌я─п╦пЁпЁп╣я─п╟_п╨п╬я┌п╬я─я▀п╧_п©я─п╦п╨я─п╣п©п╦п╩_п╢п╟п╫п╫я▀п╧ я┌я─п╦пЁп╣я─ : [п©п╣я─п╣я┤п╦я│п╩п╣п╫п╦п╣ п╨ я┤п╣п╪я┐ п©я─п╦п╨я─п╣п©п╩п╣п╫п╫п╬ (п╡п╫я┐п╪я▀ п╬п╠я┼п╣п╨я┌п╬п╡/п╪п╬п╠п╬п╡/п╨п╬п╪п╫п╟я┌)]]
 trigger_to_owners_map_t owner_trig;
 
 extern int top_of_trigt;
@@ -65,7 +65,7 @@ char* dirty_indent_trigger(char* cmd , int* level)
 		indent_stack.swap(empty_stack);
 	}
 
-	// уровни вложения
+	// я┐я─п╬п╡п╫п╦ п╡п╩п╬п╤п╣п╫п╦я▐
 	int currlev, nextlev;
 	currlev = nextlev = *level;
 
@@ -74,14 +74,14 @@ char* dirty_indent_trigger(char* cmd , int* level)
 		return cmd;
 	}
 
-	// Удаляем впереди идущие пробелы.
+	// пёп╢п╟п╩я▐п╣п╪ п╡п©п╣я─п╣п╢п╦ п╦п╢я┐я┴п╦п╣ п©я─п╬п╠п╣п╩я▀.
 	char* ptr = cmd;
 	skip_spaces(&ptr);
 
-	// ptr содержит строку без первых пробелов.
+	// ptr я│п╬п╢п╣я─п╤п╦я┌ я│я┌я─п╬п╨я┐ п╠п╣п╥ п©п╣я─п╡я▀я┘ п©я─п╬п╠п╣п╩п╬п╡.
 	if (!strn_cmp("case ", ptr , 5) || !strn_cmp("default", ptr , 7))
 	{
-		// последовательные case (или default после case) без break
+		// п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩я▄п╫я▀п╣ case (п╦п╩п╦ default п©п╬я│п╩п╣ case) п╠п╣п╥ break
 		if (!indent_stack.empty()
 			&& !strn_cmp("case ", indent_stack.top().c_str(), 5))
 		{
@@ -106,7 +106,7 @@ char* dirty_indent_trigger(char* cmd , int* level)
 	else if (!strn_cmp("break", ptr, 5) || !strn_cmp("end", ptr, 3)
 		|| !strn_cmp("done", ptr, 4))
 	{
-		// в switch завершающий break можно опускать и сразу писать done|end
+		// п╡ switch п╥п╟п╡п╣я─я┬п╟я▌я┴п╦п╧ break п╪п╬п╤п╫п╬ п╬п©я┐я│п╨п╟я┌я▄ п╦ я│я─п╟п╥я┐ п©п╦я│п╟я┌я▄ done|end
 		if ((!strn_cmp("done", ptr, 4) || !strn_cmp("end", ptr, 3))
 			&& !indent_stack.empty()
 			&& (!strn_cmp("case ", indent_stack.top().c_str(), 5)
@@ -127,7 +127,7 @@ char* dirty_indent_trigger(char* cmd , int* level)
 	if (nextlev < 0) nextlev = 0;
 	if (currlev < 0) currlev = 0;
 
-	// Вставляем дополнительные пробелы
+	// п▓я│я┌п╟п╡п╩я▐п╣п╪ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ п©я─п╬п╠п╣п╩я▀
 
 	char* tmp = (char *) malloc(currlev * 2 + 1);
 	memset(tmp, 0x20, currlev*2);
@@ -174,9 +174,9 @@ TRIG_DATA *read_trigger(int nr)
 	return trig;
 }
 
-// vnum_owner - триг, который приаттачил данный триг
-// vnum_trig - внум приатаченного трига
-// vnum - к кому приатачился триг
+// vnum_owner - я┌я─п╦пЁ, п╨п╬я┌п╬я─я▀п╧ п©я─п╦п╟я┌я┌п╟я┤п╦п╩ п╢п╟п╫п╫я▀п╧ я┌я─п╦пЁ
+// vnum_trig - п╡п╫я┐п╪ п©я─п╦п╟я┌п╟я┤п╣п╫п╫п╬пЁп╬ я┌я─п╦пЁп╟
+// vnum - п╨ п╨п╬п╪я┐ п©я─п╦п╟я┌п╟я┤п╦п╩я│я▐ я┌я─п╦пЁ
 void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum)
 {
 	if (owner_trig[vnum_trig].find(vnum_owner) != owner_trig[vnum_trig].end())
@@ -217,7 +217,7 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 		return;
 	}
 
-	// для начала определяем, есть ли такой внум у нас в контейнере
+	// п╢п╩я▐ п╫п╟я┤п╟п╩п╟ п╬п©я─п╣п╢п╣п╩я▐п╣п╪, п╣я│я┌я▄ п╩п╦ я┌п╟п╨п╬п╧ п╡п╫я┐п╪ я┐ п╫п╟я│ п╡ п╨п╬п╫я┌п╣п╧п╫п╣я─п╣
 	if (owner_trig.find(vnum) == owner_trig.end())
 	{
 		owner_to_triggers_map_t tmp_map;
@@ -381,7 +381,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff, int vnum)
 			return;
 		else
 		{
-			sprintf(buf, "Вы утратили способность '%s'.\r\n", feat_info[featnum].name);
+			sprintf(buf, "п▓я▀ я┐я┌я─п╟я┌п╦п╩п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ '%s'.\r\n", feat_info[featnum].name);
 			send_to_char(buf, ch);
 			log("Remove %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);
 			UNSET_FEAT(ch, featnum);
@@ -393,7 +393,7 @@ void trg_featturn(CHAR_DATA * ch, int featnum, int featdiff, int vnum)
 		{
 			if (feat_info[featnum].classknow[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])
 			{
-				sprintf(buf, "Вы обрели способность '%s'.\r\n", feat_info[featnum].name);
+				sprintf(buf, "п▓я▀ п╬п╠я─п╣п╩п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ '%s'.\r\n", feat_info[featnum].name);
 				send_to_char(buf, ch);
 				log("Add %s to %s (trigfeatturn) trigvnum %d", feat_info[featnum].name, GET_NAME(ch), vnum);
 				SET_FEAT(ch, featnum);
@@ -415,14 +415,14 @@ void trg_skillturn(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnu
 		}
 
 		ch->set_skill(skillnum, 0);
-		send_to_char(ch, "Вас лишили умения '%s'.\r\n", skill_name(skillnum));
+		send_to_char(ch, "п▓п╟я│ п╩п╦я┬п╦п╩п╦ я┐п╪п╣п╫п╦я▐ '%s'.\r\n", skill_name(skillnum));
 		log("Remove %s from %s (trigskillturn)", skill_name(skillnum), GET_NAME(ch));
 	}
 	else if (skilldiff
 		&& skill_info[skillnum].classknow[ch_class][ch_kin] == KNOW_SKILL)
 	{
 		ch->set_skill(skillnum, 5);
-		send_to_char(ch, "Вы изучили умение '%s'.\r\n", skill_name(skillnum));
+		send_to_char(ch, "п▓я▀ п╦п╥я┐я┤п╦п╩п╦ я┐п╪п╣п╫п╦п╣ '%s'.\r\n", skill_name(skillnum));
 		log("Add %s to %s (trigskillturn)trigvnum %d", skill_name(skillnum), GET_NAME(ch), vnum);
 	}
 }
@@ -434,17 +434,17 @@ void trg_skilladd(CHAR_DATA * ch, const ESkill skillnum, int skilldiff, int vnum
 
 	if (skill > ch->get_trained_skill(skillnum))
 	{
-		send_to_char(ch, "Ваше умение '%s' понизилось.\r\n", skill_name(skillnum));
+		send_to_char(ch, "п▓п╟я┬п╣ я┐п╪п╣п╫п╦п╣ '%s' п©п╬п╫п╦п╥п╦п╩п╬я│я▄.\r\n", skill_name(skillnum));
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 	else if (skill < ch->get_trained_skill(skillnum))
 	{
-		send_to_char(ch, "Вы повысили свое умение '%s'.\r\n", skill_name(skillnum));
+		send_to_char(ch, "п▓я▀ п©п╬п╡я▀я│п╦п╩п╦ я│п╡п╬п╣ я┐п╪п╣п╫п╦п╣ '%s'.\r\n", skill_name(skillnum));
 		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 	else
 	{
-		send_to_char(ch, "Ваше умение осталось неизменным '%s '.\r\n", skill_name(skillnum));
+		send_to_char(ch, "п▓п╟я┬п╣ я┐п╪п╣п╫п╦п╣ п╬я│я┌п╟п╩п╬я│я▄ п╫п╣п╦п╥п╪п╣п╫п╫я▀п╪ '%s '.\r\n", skill_name(skillnum));
 		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d", skill_name(skillnum), GET_NAME(ch), skill, ch->get_trained_skill(skillnum), skilldiff, vnum);
 	}
 }
@@ -466,13 +466,13 @@ void trg_spellturn(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
 		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP))
 			GET_SPELL_MEM(ch, spellnum) = 0;
-		send_to_char(ch, "Вы начисто забыли заклинание '%s'.\r\n", spell_name(spellnum));
+		send_to_char(ch, "п▓я▀ п╫п╟я┤п╦я│я┌п╬ п╥п╟п╠я▀п╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ '%s'.\r\n", spell_name(spellnum));
 		log("Remove %s from %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 	}
 	else if (spelldiff)
 	{
 		SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW);
-		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
+		send_to_char(ch, "п▓я▀ п©п╬я│я┌п╦пЁп╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ '%s'.\r\n", spell_name(spellnum));
 		log("Add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 	}
 }
@@ -488,7 +488,7 @@ void trg_spellturntemp(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 	{
 		Temporary_Spells::add_spell(ch, spellnum, time(0), spelldiff);
-		send_to_char(ch, "Вы постигли заклинание '%s'.\r\n", spell_name(spellnum));
+		send_to_char(ch, "п▓я▀ п©п╬я│я┌п╦пЁп╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ '%s'.\r\n", spell_name(spellnum));
 		log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d", spell_name(spellnum), spelldiff, GET_NAME(ch), vnum);
 	}
 }
@@ -503,11 +503,11 @@ void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 		if (GET_SPELL_MEM(ch, spellnum))
 		{
 			log("Remove custom spell %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
-			sprintf(buf, "Вы забыли часть заклинаний '%s'.\r\n", spell_name(spellnum));
+			sprintf(buf, "п▓я▀ п╥п╟п╠я▀п╩п╦ я┤п╟я│я┌я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ '%s'.\r\n", spell_name(spellnum));
 		}
 		else
 		{
-			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", spell_name(spellnum));
+			sprintf(buf, "п▓я▀ п╥п╟п╠я▀п╩п╦ п╡я│п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ '%s'.\r\n", spell_name(spellnum));
 			//REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);
 			log("Remove all spells %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 		}
@@ -517,7 +517,7 @@ void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 	{
 		/*if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW))
 			SET_BIT(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP);*/
-		send_to_char(ch, "Вы выучили несколько заклинаний '%s'.\r\n", spell_name(spellnum));
+		send_to_char(ch, "п▓я▀ п╡я▀я┐я┤п╦п╩п╦ п╫п╣я│п╨п╬п╩я▄п╨п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ '%s'.\r\n", spell_name(spellnum));
 		log("Add %s to %s (trigspell) trigvnum %d", spell_name(spellnum), GET_NAME(ch), vnum);
 	}
 }
@@ -535,22 +535,22 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
 		switch (spell)
 		{
 		case SPELL_SCROLL:
-			strcpy(type, "создания свитка");
+			strcpy(type, "я│п╬п╥п╢п╟п╫п╦я▐ я│п╡п╦я┌п╨п╟");
 			break;
 		case SPELL_POTION:
-			strcpy(type, "приготовления напитка");
+			strcpy(type, "п©я─п╦пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ п╫п╟п©п╦я┌п╨п╟");
 			break;
 		case SPELL_WAND:
-			strcpy(type, "изготовления посоха");
+			strcpy(type, "п╦п╥пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ п©п╬я│п╬я┘п╟");
 			break;
 		case SPELL_ITEMS:
-			strcpy(type, "предметной магии");
+			strcpy(type, "п©я─п╣п╢п╪п╣я┌п╫п╬п╧ п╪п╟пЁп╦п╦");
 			break;
 		case SPELL_RUNES:
-			strcpy(type, "использования рун");
+			strcpy(type, "п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ я─я┐п╫");
 			break;
 		};
-		sprintf(buf, "Вы утратили умение %s '%s'", type, spell_name(spellnum));
+		sprintf(buf, "п▓я▀ я┐я┌я─п╟я┌п╦п╩п╦ я┐п╪п╣п╫п╦п╣ %s '%s'", type, spell_name(spellnum));
 	}
 	else
 	{
@@ -560,26 +560,26 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
 		case SPELL_SCROLL:
 			if (!ch->get_skill(SKILL_CREATE_SCROLL))
 				ch->set_skill(SKILL_CREATE_SCROLL, 5);
-			strcpy(type, "создания свитка");
+			strcpy(type, "я│п╬п╥п╢п╟п╫п╦я▐ я│п╡п╦я┌п╨п╟");
 			break;
 		case SPELL_POTION:
 			if (!ch->get_skill(SKILL_CREATE_POTION))
 				ch->set_skill(SKILL_CREATE_POTION, 5);
-			strcpy(type, "приготовления напитка");
+			strcpy(type, "п©я─п╦пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ п╫п╟п©п╦я┌п╨п╟");
 			break;
 		case SPELL_WAND:
 			if (!ch->get_skill(SKILL_CREATE_WAND))
 				ch->set_skill(SKILL_CREATE_WAND, 5);
-			strcpy(type, "изготовления посоха");
+			strcpy(type, "п╦п╥пЁп╬я┌п╬п╡п╩п╣п╫п╦я▐ п©п╬я│п╬я┘п╟");
 			break;
 		case SPELL_ITEMS:
-			strcpy(type, "предметной магии");
+			strcpy(type, "п©я─п╣п╢п╪п╣я┌п╫п╬п╧ п╪п╟пЁп╦п╦");
 			break;
 		case SPELL_RUNES:
-			strcpy(type, "использования рун");
+			strcpy(type, "п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ я─я┐п╫");
 			break;
 		};
-		sprintf(buf, "Вы приобрели умение %s '%s'", type, spell_name(spellnum));
+		sprintf(buf, "п▓я▀ п©я─п╦п╬п╠я─п╣п╩п╦ я┐п╪п╣п╫п╦п╣ %s '%s'", type, spell_name(spellnum));
 		send_to_char(buf, ch);
 		check_recipe_items(ch, spellnum, spell, TRUE);
 	}

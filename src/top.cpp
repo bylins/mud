@@ -1,6 +1,6 @@
 /* ****************************************************************************
 * File: top.cpp                                                Part of Bylins *
-* Usage: Топ игроков пошустрее                                                *
+* Usage: п╒п╬п© п╦пЁя─п╬п╨п╬п╡ п©п╬я┬я┐я│я┌я─п╣п╣                                                *
 * (c) 2006 Krodo                                                              *
 ******************************************************************************/
 
@@ -26,9 +26,9 @@ extern const char *class_name[];
 
 TopListType TopPlayer::TopList(NUM_PLAYER_CLASSES);
 
-// отдельное удаление из списка (для ренеймов, делетов и т.п.)
-// данная функция работает в том числе и с неполностью загруженным персонажем
-// подробности в комментарии к load_char_ascii
+// п╬я┌п╢п╣п╩я▄п╫п╬п╣ я┐п╢п╟п╩п╣п╫п╦п╣ п╦п╥ я│п©п╦я│п╨п╟ (п╢п╩я▐ я─п╣п╫п╣п╧п╪п╬п╡, п╢п╣п╩п╣я┌п╬п╡ п╦ я┌.п©.)
+// п╢п╟п╫п╫п╟я▐ я└я┐п╫п╨я├п╦я▐ я─п╟п╠п╬я┌п╟п╣я┌ п╡ я┌п╬п╪ я┤п╦я│п╩п╣ п╦ я│ п╫п╣п©п╬п╩п╫п╬я│я┌я▄я▌ п╥п╟пЁя─я┐п╤п╣п╫п╫я▀п╪ п©п╣я─я│п╬п╫п╟п╤п╣п╪
+// п©п╬п╢я─п╬п╠п╫п╬я│я┌п╦ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ load_char_ascii
 void TopPlayer::Remove(CHAR_DATA * short_ch)
 {
 	std::list<TopPlayer> &tmp_list = TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))];
@@ -43,9 +43,9 @@ void TopPlayer::Remove(CHAR_DATA * short_ch)
 		tmp_list.erase(it);
 }
 
-// проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
-// данная функция работает в том числе и с неполностью загруженным персонажем
-// подробности в комментарии к load_char_ascii
+// п©я─п╬п╡п╣я─я▐п╣п╪ п╫п╟п╢п╬-п╩п╦ п╢п╬п╠п╟п╡п╩я▐я┌я▄ п╡ я┌п╬п© п╦ п╢п╬п╠п╟п╡п╩я▐п╣п╪/п╬п╠п╫п╬п╡п╩я▐п╣п╪ п©я─п╦ я│п╩я┐я┤п╟п╣. reboot п©п╬ п╢п╣я└п╬п╩я┌я┐ 0 (1 п╢п╩я▐ я─п╣п╠я┐я┌п╟)
+// п╢п╟п╫п╫п╟я▐ я└я┐п╫п╨я├п╦я▐ я─п╟п╠п╬я┌п╟п╣я┌ п╡ я┌п╬п╪ я┤п╦я│п╩п╣ п╦ я│ п╫п╣п©п╬п╩п╫п╬я│я┌я▄я▌ п╥п╟пЁя─я┐п╤п╣п╫п╫я▀п╪ п©п╣я─я│п╬п╫п╟п╤п╣п╪
+// п©п╬п╢я─п╬п╠п╫п╬я│я┌п╦ п╡ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╦ п╨ load_char_ascii
 void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 {
 	if (IS_NPC(short_ch)
@@ -59,7 +59,7 @@ void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 	if (!reboot)
 		TopPlayer::Remove(short_ch);
 
-	// шерстим список по ремортам и экспе и смотрим куда воткнуться
+	// я┬п╣я─я│я┌п╦п╪ я│п©п╦я│п╬п╨ п©п╬ я─п╣п╪п╬я─я┌п╟п╪ п╦ я█п╨я│п©п╣ п╦ я│п╪п╬я┌я─п╦п╪ п╨я┐п╢п╟ п╡п╬я┌п╨п╫я┐я┌я▄я│я▐
 	std::list<TopPlayer>::iterator it_exp;
 	for (it_exp = TopPlayer::TopList[GET_CLASS(short_ch)].begin(); it_exp != TopPlayer::TopList[GET_CLASS(short_ch)].end(); ++it_exp)
 		if (it_exp->remort < GET_REMORT(short_ch) || (it_exp->remort == GET_REMORT(short_ch) && it_exp->exp < GET_EXP(short_ch)))
@@ -67,7 +67,7 @@ void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 
 	if (short_ch->get_name().empty())
 	{
-		return; // у нас все может быть
+		return; // я┐ п╫п╟я│ п╡я│п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄
 	}
 	TopPlayer temp_player(GET_UNIQUE(short_ch), GET_NAME(short_ch), GET_EXP(short_ch), GET_REMORT(short_ch));
 
@@ -79,24 +79,24 @@ void TopPlayer::Refresh(CHAR_DATA * short_ch, bool reboot)
 
 const char * TopPlayer::TopFormat[NUM_PLAYER_CLASSES + 1] =
 {
-	"лекари",
-	"колдуны",
-	"тати",
-	"богатыри",
-	"наемники",
-	"дружинники",
-	"кудесники",
-	"волшебники",
-	"чернокнижники",
-	"витязи",
-	"охотники",
-	"кузнецы",
-	"купцы",
-	"волхвы",
-	"игроки"
+	"п╩п╣п╨п╟я─п╦",
+	"п╨п╬п╩п╢я┐п╫я▀",
+	"я┌п╟я┌п╦",
+	"п╠п╬пЁп╟я┌я▀я─п╦",
+	"п╫п╟п╣п╪п╫п╦п╨п╦",
+	"п╢я─я┐п╤п╦п╫п╫п╦п╨п╦",
+	"п╨я┐п╢п╣я│п╫п╦п╨п╦",
+	"п╡п╬п╩я┬п╣п╠п╫п╦п╨п╦",
+	"я┤п╣я─п╫п╬п╨п╫п╦п╤п╫п╦п╨п╦",
+	"п╡п╦я┌я▐п╥п╦",
+	"п╬я┘п╬я┌п╫п╦п╨п╦",
+	"п╨я┐п╥п╫п╣я├я▀",
+	"п╨я┐п©я├я▀",
+	"п╡п╬п╩я┘п╡я▀",
+	"п╦пЁя─п╬п╨п╦"
 };
 
-// команда 'лучшие'
+// п╨п╬п╪п╟п╫п╢п╟ 'п╩я┐я┤я┬п╦п╣'
 void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
@@ -107,7 +107,7 @@ void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	bool find = 0;
 	int class_num = 0;
-	// тут и далее <= для учета 'игроки' после классов
+	// я┌я┐я┌ п╦ п╢п╟п╩п╣п╣ <= п╢п╩я▐ я┐я┤п╣я┌п╟ 'п╦пЁя─п╬п╨п╦' п©п╬я│п╩п╣ п╨п╩п╟я│я│п╬п╡
 	for (; class_num <= NUM_PLAYER_CLASSES; ++class_num)
 	{
 		if (CompareParam(buffer, TopPlayer::TopFormat[class_num]))
@@ -120,27 +120,27 @@ void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (find)
 	{
 		std::ostringstream out;
-		out << CCWHT(ch, C_NRM) << "Лучшие " << TopPlayer::TopFormat[class_num] << ":" << CCNRM(ch, C_NRM) << "\r\n";
+		out << CCWHT(ch, C_NRM) << "п⌡я┐я┤я┬п╦п╣ " << TopPlayer::TopFormat[class_num] << ":" << CCNRM(ch, C_NRM) << "\r\n";
 
-		if (class_num < NUM_PLAYER_CLASSES)   // конкретная профа
+		if (class_num < NUM_PLAYER_CLASSES)   // п╨п╬п╫п╨я─п╣я┌п╫п╟я▐ п©я─п╬я└п╟
 		{
 			boost::format class_format("\t%-20s %-2d %s\r\n");
 			int i = 0;
 			for (std::list<TopPlayer>::const_iterator it = TopPlayer::TopList[class_num].begin(); it != TopPlayer::TopList[class_num].end() && i < MAX_TOP_CLASS; ++it, ++i)
 				out << class_format % it->name % it->remort % desc_count(it->remort, WHAT_REMORT);
 
-			// если игрок участвует в данном топе - покажем ему, какой он неудачник
+			// п╣я│п╩п╦ п╦пЁя─п╬п╨ я┐я┤п╟я│я┌п╡я┐п╣я┌ п╡ п╢п╟п╫п╫п╬п╪ я┌п╬п©п╣ - п©п╬п╨п╟п╤п╣п╪ п╣п╪я┐, п╨п╟п╨п╬п╧ п╬п╫ п╫п╣я┐п╢п╟я┤п╫п╦п╨
 			int count = 1;
 			std::list<TopPlayer>::iterator find_me = TopPlayer::TopList[class_num].begin();
 			for (; find_me != TopPlayer::TopList[class_num].end(); ++find_me, ++count)
 				if (find_me->unique == GET_UNIQUE(ch))
 					break;
 			if (find_me != TopPlayer::TopList[class_num].end())
-				out << "Ваш текущий рейтинг: " << count << "\r\n";
+				out << "п▓п╟я┬ я┌п╣п╨я┐я┴п╦п╧ я─п╣п╧я┌п╦п╫пЁ: " << count << "\r\n";
 
 			send_to_char(ch, out.str().c_str());
 		}
-		else   // все профы
+		else   // п╡я│п╣ п©я─п╬я└я▀
 		{
 			int i = 0;
 			boost::format all_format("\t%-20s %-2d %-17s %s\r\n");
@@ -152,8 +152,8 @@ void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		// топ славы
-		if (CompareParam(buffer, "прославленные"))
+		// я┌п╬п© я│п╩п╟п╡я▀
+		if (CompareParam(buffer, "п©я─п╬я│п╩п╟п╡п╩п╣п╫п╫я▀п╣"))
 		{
 			Glory::print_glory_top(ch);
 			return;
@@ -161,11 +161,11 @@ void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		std::ostringstream out;
 		out.setf(std::ios_base::left, std::ios_base::adjustfield);
-		out << "Лучшими могут быть:\r\n";
+		out << "п⌡я┐я┤я┬п╦п╪п╦ п╪п╬пЁя┐я┌ п╠я▀я┌я▄:\r\n";
 		for (int i = 0, j = 1; i <= NUM_PLAYER_CLASSES; ++i, ++j)
 			out << std::setw(15) << TopPlayer::TopFormat[i] << (j % 4 ? "" : "\r\n");
 
-		out << std::setw(15) << "прославленные\r\n";
+		out << std::setw(15) << "п©я─п╬я│п╩п╟п╡п╩п╣п╫п╫я▀п╣\r\n";
 		out << "\r\n";
 		send_to_char(ch, out.str().c_str());
 		return;

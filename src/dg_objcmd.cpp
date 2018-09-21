@@ -186,7 +186,7 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (!str_cmp(arg1, "all")
-		|| !str_cmp(arg1, "все"))
+		|| !str_cmp(arg1, "п╡я│п╣"))
 	{
 		obj_log(obj, "ERROR: \'oforce all\' command disabled.");
 		return;
@@ -212,7 +212,7 @@ void do_oforce(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if ((ch = get_char_by_obj(obj, arg1)))
 		{
-			// если чар в ЛД
+			// п╣я│п╩п╦ я┤п╟я─ п╡ п⌡п■
 			if (!IS_NPC(ch))
 			{
 				if (!ch->desc)
@@ -291,7 +291,7 @@ void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	if ((ch = get_char_by_obj(obj, name)))
 	{
 		gain_exp(ch, atoi(amount));
-		sprintf(buf, "oexp: victim (%s) получил опыт %d", GET_NAME(ch) , atoi(amount));
+		sprintf(buf, "oexp: victim (%s) п©п╬п╩я┐я┤п╦п╩ п╬п©я▀я┌ %d", GET_NAME(ch) , atoi(amount));
 		obj_log(obj, buf);
 	}
 	else
@@ -345,7 +345,7 @@ void do_otransform(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			obj_log(obj, "otransform: bad object vnum");
 			return;
 		}
-		// Описание работы функции см. в mtransform()
+		// п·п©п╦я│п╟п╫п╦п╣ я─п╟п╠п╬я┌я▀ я└я┐п╫п╨я├п╦п╦ я│п╪. п╡ mtransform()
 
 		if (obj->get_worn_by())
 		{
@@ -427,7 +427,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (target == NOWHERE)
 		obj_log(obj, "oteleport target is an invalid room");
-	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "все"))
+	else if (!str_cmp(arg1, "all") || !str_cmp(arg1, "п╡я│п╣"))
 	{
 		rm = obj_room(obj);
 		if (rm == NOWHERE)
@@ -586,7 +586,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
+				sprintf(buf, "oload: п÷п╬п©я▀я┌п╨п╟ п╥п╟пЁя─я┐п╥п╦я┌я▄ п©я─п╣п╢п╪п╣я┌ п╠п╬п╩я▄я┬п╣ я┤п╣п╪ п╡ MIW п╢п╩я▐ #%d, п©я─п╣п╢п╪п╣я┌ я┐п╢п╟п╩п╣п╫.", number);
 				obj_log(obj, buf);
 //				extract_obj(object.get());
 //				return;
@@ -757,7 +757,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			else
 				obj_log(obj, "odoor: invalid door target");
 			break;
-		case 6:	// lock - сложность замка         
+		case 6:	// lock - я│п╩п╬п╤п╫п╬я│я┌я▄ п╥п╟п╪п╨п╟         
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))
 				exit->lock_complexity = lock;
@@ -897,7 +897,7 @@ void do_oskillturn(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			sprintf(buf, "oskillturn: несоответсвие устанавливаемого умения классу игрока");
+			sprintf(buf, "oskillturn: п╫п╣я│п╬п╬я┌п╡п╣я┌я│п╡п╦п╣ я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣п╪п╬пЁп╬ я┐п╪п╣п╫п╦я▐ п╨п╩п╟я│я│я┐ п╦пЁя─п╬п╨п╟");
 			obj_log(obj, buf);
 		}
 	}

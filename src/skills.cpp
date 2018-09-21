@@ -40,7 +40,7 @@
 #define DUMMY_SHIELD 391
 #define DUMMY_WEAPON 392
 
-// Хз откуда :(
+// п╔п╥ п╬я┌п╨я┐п╢п╟ :(
 
 extern struct message_list fight_messages[MAX_MESSAGES];
 
@@ -229,22 +229,22 @@ WeapForAct& WeapForAct::operator=(const CObjectPrototype::shared_ptr& prototype_
 }
 
 const WeapForAct::kick_type_t WeapForAct::s_kick_type =
-// силы пинка. полностью соответствуют наносимым поврждениям обычного удара
+// я│п╦п╩я▀ п©п╦п╫п╨п╟. п©п╬п╩п╫п╬я│я┌я▄я▌ я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┌ п╫п╟п╫п╬я│п╦п╪я▀п╪ п©п╬п╡я─п╤п╢п╣п╫п╦я▐п╪ п╬п╠я▀я┤п╫п╬пЁп╬ я┐п╢п╟я─п╟
 {
-	"легонько ",		//  1..5
-	"слегка ",		// 6..11
+	"п╩п╣пЁп╬п╫я▄п╨п╬ ",		//  1..5
+	"я│п╩п╣пЁп╨п╟ ",		// 6..11
 	"",			// 12..26
-	"сильно ",		// 27..35
-	"очень сильно ",	// 36..45
-	"чрезвычайно сильно ",	// 46..55
-	"БОЛЬНО ",		// 56..96
-	"ОЧЕНЬ БОЛЬНО ",	// 97..136
-	"ЧРЕЗВЫЧАЙНО БОЛЬНО ",	// 137..176
-	"НЕВЫНОСИМО БОЛЬНО ",	// 177..216
-	"ЖЕСТОКО ",	// 217..256
-	"УЖАСНО ",// 257..296
-	"УБИЙСТВЕННО ",	 // 297..400
-	"СМЕРТЕЛЬНО " // 400+
+	"я│п╦п╩я▄п╫п╬ ",		// 27..35
+	"п╬я┤п╣п╫я▄ я│п╦п╩я▄п╫п╬ ",	// 36..45
+	"я┤я─п╣п╥п╡я▀я┤п╟п╧п╫п╬ я│п╦п╩я▄п╫п╬ ",	// 46..55
+	"п▒п·п⌡п╛п²п· ",		// 56..96
+	"п·п╖п∙п²п╛ п▒п·п⌡п╛п²п· ",	// 97..136
+	"п╖п═п∙п≈п▓п╚п╖п░п≥п²п· п▒п·п⌡п╛п²п· ",	// 137..176
+	"п²п∙п▓п╚п²п·п║п≤п°п· п▒п·п⌡п╛п²п· ",	// 177..216
+	"п√п∙п║п╒п·п п· ",	// 217..256
+	"пёп√п░п║п²п· ",// 257..296
+	"пёп▒п≤п≥п║п╒п▓п∙п²п²п· ",	 // 297..400
+	"п║п°п∙п═п╒п∙п⌡п╛п²п· " // 400+
 };
 
 struct brief_shields
@@ -261,7 +261,7 @@ struct brief_shields
 	CHAR_DATA* vict;
 	WeapForAct weap;
 	std::string add;
-	// флаг отражаемого дамага, который надо глушить в режиме PRF_BRIEF_SHIELDS
+	// я└п╩п╟пЁ п╬я┌я─п╟п╤п╟п╣п╪п╬пЁп╬ п╢п╟п╪п╟пЁп╟, п╨п╬я┌п╬я─я▀п╧ п╫п╟п╢п╬ пЁп╩я┐я┬п╦я┌я▄ п╡ я─п╣п╤п╦п╪п╣ PRF_BRIEF_SHIELDS
 	bool reflect;
 
 private:
@@ -372,7 +372,7 @@ void brief_shields::act_add(const char *msg, int type)
 
 const WeapForAct init_weap(CHAR_DATA *ch, int dam, int attacktype)
 {
-	// Нижеследующий код повергает в ужас
+	// п²п╦п╤п╣я│п╩п╣п╢я┐я▌я┴п╦п╧ п╨п╬п╢ п©п╬п╡п╣я─пЁп╟п╣я┌ п╡ я┐п╤п╟я│
 	WeapForAct weap;
 	int weap_i = 0;
 
@@ -415,7 +415,7 @@ const WeapForAct init_weap(CHAR_DATA *ch, int dam, int attacktype)
 		break;
 
 	case SKILL_KICK + TYPE_HIT:
-		// weap - текст силы удара
+		// weap - я┌п╣п╨я│я┌ я│п╦п╩я▀ я┐п╢п╟я─п╟
 		weap.set_damage_string(dam);
 		break;
 
@@ -649,7 +649,7 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 };
 
 ///
-/// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
+/// \param add = "", я│я┌я─п╬п╨п╟ п╢п╩я▐ п╢п╬п╠п╟п╡п╩п╣п╫п╦я▐ п©п╬я│п╩п╣ п╬я│п╫п╬п╡п╫п╬пЁп╬ я│п╬п╬п╠я┴п╣п╫п╦я▐ (п╨я─п╟я┌п╨п╦п╧ я─п╣п╤п╦п╪ я┴п╦я┌п╬п╡)
 ///
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add)
 {
@@ -762,12 +762,12 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 // *** This function return chance of skill
 int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 {
-	//Зачем здесь было SAVING_REFLEX? Оно же просто число
-	int skill_is, percent = 0, victim_sav = 0, victim_modi = 0; // текущее значение умения(прокачанность) / вычисляемый итоговый процент / савис жертвы,
-																	// который влияет на прохождение скила / другие модификаторы, влияющие на прохождение
-	int morale = 0, max_percent = 200, bonus = 0, size = 0, fail_limit = 950;  // удача пациента, максимально возможный процент скила, бонус от дополнительных параметров.
-	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
-	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
+	//п≈п╟я┤п╣п╪ п╥п╢п╣я│я▄ п╠я▀п╩п╬ SAVING_REFLEX? п·п╫п╬ п╤п╣ п©я─п╬я│я┌п╬ я┤п╦я│п╩п╬
+	int skill_is, percent = 0, victim_sav = 0, victim_modi = 0; // я┌п╣п╨я┐я┴п╣п╣ п╥п╫п╟я┤п╣п╫п╦п╣ я┐п╪п╣п╫п╦я▐(п©я─п╬п╨п╟я┤п╟п╫п╫п╬я│я┌я▄) / п╡я▀я┤п╦я│п╩я▐п╣п╪я▀п╧ п╦я┌п╬пЁп╬п╡я▀п╧ п©я─п╬я├п╣п╫я┌ / я│п╟п╡п╦я│ п╤п╣я─я┌п╡я▀,
+																	// п╨п╬я┌п╬я─я▀п╧ п╡п╩п╦я▐п╣я┌ п╫п╟ п©я─п╬я┘п╬п╤п╢п╣п╫п╦п╣ я│п╨п╦п╩п╟ / п╢я─я┐пЁп╦п╣ п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─я▀, п╡п╩п╦я▐я▌я┴п╦п╣ п╫п╟ п©я─п╬я┘п╬п╤п╢п╣п╫п╦п╣
+	int morale = 0, max_percent = 200, bonus = 0, size = 0, fail_limit = 950;  // я┐п╢п╟я┤п╟ п©п╟я├п╦п╣п╫я┌п╟, п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬ п╡п╬п╥п╪п╬п╤п╫я▀п╧ п©я─п╬я├п╣п╫я┌ я│п╨п╦п╩п╟, п╠п╬п╫я┐я│ п╬я┌ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀я┘ п©п╟я─п╟п╪п╣я┌я─п╬п╡.
+	bool pass_mod = 0; // п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ п╢п╩я▐ п╢п╬п©.п╡я▀я│я┌я─п╣п╩п╟, я┤я┌п╬п╠я▀ п╬я│я┌п╟п╡п╦я┌я▄ п╣пЁп╬ п╨п╟п╨ я│п╨п╦п╩п╩,
+	// п╫п╬ п╫п╣ п©я─п╦п╪п╣п╫я▐я┌я▄ п╨ п╫п╣п╪я┐ п╩п╣п╡я▀я┘ я┬я┌я─п╟я└п╬п╡ п╦ п©п╩я▌я│п╬п╡, п©п╩я▌я│я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╬я┌ п╦п╫я┌я▀ п╫п╣п╪п╫п╬пЁп╬
 
 	if (skill_no < SKILL_FIRST
 		|| skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
@@ -777,21 +777,21 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 
 	if ((skill_is = ch->get_skill(skill_no)) <= 0)
 	{
-		return 0;                                         // если скила нет возвращаем 0.
+		return 0;                                         // п╣я│п╩п╦ я│п╨п╦п╩п╟ п╫п╣я┌ п╡п╬п╥п╡я─п╟я┴п╟п╣п╪ 0.
 	}
 
 	if (!IS_NPC(ch) && !ch->affected.empty())
 	{
 		for (const auto& aff : ch->affected)
 		{
-			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с эксп умелкой
+			if (aff->location == APPLY_BONUS_SKILLS) // я│п╨я┐я┬п╟п╩ я│п╡п╦я┌п╬п╨ я│ я█п╨я│п© я┐п╪п╣п╩п╨п╬п╧
 			{
 				skill_is += aff->modifier;
 			}
 
 			if (aff->location == APPLY_PLAQUE)
 			{
-				skill_is -= number(ch->get_skill(skill_no) * 0.4, ch->get_skill(skill_no) * 0.05); // при лихорадке умелки ухудшаются на 5-30% рандом
+				skill_is -= number(ch->get_skill(skill_no) * 0.4, ch->get_skill(skill_no) * 0.05); // п©я─п╦ п╩п╦я┘п╬я─п╟п╢п╨п╣ я┐п╪п╣п╩п╨п╦ я┐я┘я┐п╢я┬п╟я▌я┌я│я▐ п╫п╟ 5-30% я─п╟п╫п╢п╬п╪
 			}
 		}
 	}
@@ -808,11 +808,11 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 
 	switch (skill_no)
 	{
-	case SKILL_HIDETRACK:          // замести следы
+	case SKILL_HIDETRACK:          // п╥п╟п╪п╣я│я┌п╦ я│п╩п╣п╢я▀
 		bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 		break;
 
-	case SKILL_BACKSTAB:	//заколоть
+	case SKILL_BACKSTAB:	//п╥п╟п╨п╬п╩п╬я┌я▄
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
@@ -842,7 +842,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 
-	case SKILL_BASH:	//сбить
+	case SKILL_BASH:	//я│п╠п╦я┌я▄
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = size
 			+ dex_bonus(GET_REAL_DEX(ch))
@@ -862,7 +862,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 
-	case SKILL_HIDE:	//спрятаться
+	case SKILL_HIDE:	//я│п©я─я▐я┌п╟я┌я▄я│я▐
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 			- size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
@@ -904,7 +904,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 
-	case SKILL_KICK:	//пнуть
+	case SKILL_KICK:	//п©п╫я┐я┌я▄
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
@@ -919,20 +919,20 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 
-	case SKILL_PICK_LOCK:	// взлом
+	case SKILL_PICK_LOCK:	// п╡п╥п╩п╬п╪
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 			+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 		break;
 
-	case SKILL_PUNCH:	//удар левой рукой
+	case SKILL_PUNCH:	//я┐п╢п╟я─ п╩п╣п╡п╬п╧ я─я┐п╨п╬п╧
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		break;
-	case SKILL_RESCUE:	//спасти
+	case SKILL_RESCUE:	//я│п©п╟я│я┌п╦
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		//		victim_modi = 100;
 		break;
-	case SKILL_SNEAK:	// Подкрасться
+	case SKILL_SNEAK:	// п÷п╬п╢п╨я─п╟я│я┌я▄я│я▐
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
@@ -956,13 +956,13 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-	case SKILL_STEAL:	// Украсть
+	case SKILL_STEAL:	// пёп╨я─п╟я│я┌я▄
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 			+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
 		if (awake_others(ch) || equip_in_metall(ch))
 			bonus -= 50;
-		/* работает только для блестящих предметов, так как в темное татям и купцам другое не видно*/
+		/* я─п╟п╠п╬я┌п╟п╣я┌ я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╠п╩п╣я│я┌я▐я┴п╦я┘ п©я─п╣п╢п╪п╣я┌п╬п╡, я┌п╟п╨ п╨п╟п╨ п╡ я┌п╣п╪п╫п╬п╣ я┌п╟я┌я▐п╪ п╦ п╨я┐п©я├п╟п╪ п╢я─я┐пЁп╬п╣ п╫п╣ п╡п╦п╢п╫п╬*/
 		if (IS_DARK(ch->in_room))
 			bonus += 20;
 
@@ -980,7 +980,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-	case SKILL_TRACK:       //выследить
+	case SKILL_TRACK:       //п╡я▀я│п╩п╣п╢п╦я┌я▄
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
 			+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
@@ -1007,7 +1007,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-	case SKILL_SENSE: // приглядеться
+	case SKILL_SENSE: // п©я─п╦пЁп╩я▐п╢п╣я┌я▄я│я▐
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
 			+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
@@ -1028,8 +1028,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 
-	case SKILL_MULTYPARRY:  // веерная защита
-	case SKILL_PARRY:	//парировать
+	case SKILL_MULTYPARRY:  // п╡п╣п╣я─п╫п╟я▐ п╥п╟я┴п╦я┌п╟
+	case SKILL_PARRY:	//п©п╟я─п╦я─п╬п╡п╟я┌я▄
 		victim_sav = dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
@@ -1045,15 +1045,15 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		victim_modi = 100;
 		break;
 
-	case SKILL_BLOCK:	//закрыться щитом
-	{		// по 10 бонусом со щита (21-30) и дексы (21-50)
+	case SKILL_BLOCK:	//п╥п╟п╨я─я▀я┌я▄я│я▐ я┴п╦я┌п╬п╪
+	{		// п©п╬ 10 п╠п╬п╫я┐я│п╬п╪ я│п╬ я┴п╦я┌п╟ (21-30) п╦ п╢п╣п╨я│я▀ (21-50)
 		int shield_mod = GET_EQ(ch, WEAR_SHIELD) ? MIN(10, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD)) - 20)) : 0;
 		int dex_mod = MAX(0, (GET_REAL_DEX(ch) - 20) / 3);
 		bonus = dex_mod + shield_mod;
 		break;
 	}
 
-	case SKILL_TOUCH:	//захватить противника
+	case SKILL_TOUCH:	//п╥п╟я┘п╡п╟я┌п╦я┌я▄ п©я─п╬я┌п╦п╡п╫п╦п╨п╟
 		victim_sav = dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch)) +
 			size_app[GET_POS_SIZE(vict)].interpolate;
@@ -1065,36 +1065,36 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 
-	case SKILL_PROTECT:	//прикрыть грудью
+	case SKILL_PROTECT:	//п©я─п╦п╨я─я▀я┌я▄ пЁя─я┐п╢я▄я▌
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + size;
 		victim_modi = 50;
 		break;
 
-	case SKILL_BOWS:	//луки
+	case SKILL_BOWS:	//п╩я┐п╨п╦
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		break;
 
-	case SKILL_BOTHHANDS:	//двуручники
-	case SKILL_LONGS:	//длинные лезвия
-	case SKILL_SPADES:	//копья и пики
-	case SKILL_SHORTS:	//короткие лезвия
-	case SKILL_CLUBS:	//палицы и дубины
-	case SKILL_PICK:	//проникающее
-	case SKILL_NONSTANDART:	//разнообразное оружие
-	case SKILL_AXES:	//секиры
+	case SKILL_BOTHHANDS:	//п╢п╡я┐я─я┐я┤п╫п╦п╨п╦
+	case SKILL_LONGS:	//п╢п╩п╦п╫п╫я▀п╣ п╩п╣п╥п╡п╦я▐
+	case SKILL_SPADES:	//п╨п╬п©я▄я▐ п╦ п©п╦п╨п╦
+	case SKILL_SHORTS:	//п╨п╬я─п╬я┌п╨п╦п╣ п╩п╣п╥п╡п╦я▐
+	case SKILL_CLUBS:	//п©п╟п╩п╦я├я▀ п╦ п╢я┐п╠п╦п╫я▀
+	case SKILL_PICK:	//п©я─п╬п╫п╦п╨п╟я▌я┴п╣п╣
+	case SKILL_NONSTANDART:	//я─п╟п╥п╫п╬п╬п╠я─п╟п╥п╫п╬п╣ п╬я─я┐п╤п╦п╣
+	case SKILL_AXES:	//я│п╣п╨п╦я─я▀
 //        victim_sav = GET_SAVE(vict, SAVING_REFLEX);
 		break;
 
-	case SKILL_SATTACK:	//атака второй рукой
+	case SKILL_SATTACK:	//п╟я┌п╟п╨п╟ п╡я┌п╬я─п╬п╧ я─я┐п╨п╬п╧
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX);
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GET_REAL_DEX(ch)); //equal
 		break;
 
-	case SKILL_LOOKING:	//приглядеться
+	case SKILL_LOOKING:	//п©я─п╦пЁп╩я▐п╢п╣я┌я▄я│я▐
 		bonus = int_app[GET_REAL_INT(ch)].observation;
 		break;
 
-	case SKILL_HEARING:	//прислушаться
+	case SKILL_HEARING:	//п©я─п╦я│п╩я┐я┬п╟я┌я▄я│я▐
 		bonus = int_app[GET_REAL_INT(ch)].observation;
 		break;
 
@@ -1112,10 +1112,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 
-	case SKILL_HEAL:   // лечить
+	case SKILL_HEAL:   // п╩п╣я┤п╦я┌я▄
 		break;
 
-	case SKILL_ADDSHOT:   // дополнительный выстрел
+	case SKILL_ADDSHOT:   // п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╧ п╡я▀я│я┌я─п╣п╩
 		if (equip_in_metall(ch))
 			bonus -= 5;
 		pass_mod = 1;
@@ -1125,7 +1125,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		break;
 
-	case SKILL_CAMOUFLAGE: // маскировка
+	case SKILL_CAMOUFLAGE: // п╪п╟я│п╨п╦я─п╬п╡п╨п╟
 		bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
@@ -1151,7 +1151,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 
-	case SKILL_DEVIATE:  // уклониться
+	case SKILL_DEVIATE:  // я┐п╨п╩п╬п╫п╦я┌я▄я│я▐
 		bonus = -size_app[GET_POS_SIZE(ch)].ac +
 			dex_bonus(GET_REAL_DEX(ch));
 
@@ -1163,10 +1163,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 		}
 		break;
-	case SKILL_CHOPOFF:  // подножка
+	case SKILL_CHOPOFF:  // п©п╬п╢п╫п╬п╤п╨п╟
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
-		bonus = dex_bonus(GET_REAL_DEX(ch)) + ((dex_bonus(GET_REAL_DEX(ch)) * 5) / 10)  + size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
+		bonus = dex_bonus(GET_REAL_DEX(ch)) + ((dex_bonus(GET_REAL_DEX(ch)) * 5) / 10)  + size_app[GET_POS_SIZE(ch)].ac; // я┌п╣я│я┌ я┘3 п©я─п╦п╥п╫п╟п╫ п╡я─п╣п╢п╦я┌п╣п╩я▄я│п╨п╦п╪
 		if (equip_in_metall(ch))
 			bonus -= 10;
 		if (vict)
@@ -1179,13 +1179,13 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				victim_modi -= 20;
 			if (PRF_FLAGGED(vict, PRF_AWAKE))
 				victim_modi -= calculate_awake_mod(ch, vict);
-			// в пинке режем дамаг
+			// п╡ п©п╦п╫п╨п╣ я─п╣п╤п╣п╪ п╢п╟п╪п╟пЁ
 			//			if (GET_AF_BATTLE(vict, EAF_AWAKE))
 			//				victim_modi -= calculate_awake_mod(ch, vict);
 			//			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
-	case SKILL_REPAIR: // починка
+	case SKILL_REPAIR: // п©п╬я┤п╦п╫п╨п╟
 		break;
 	case SKILL_UPGRADE:
 	case SKILL_WARCRY:
@@ -1194,7 +1194,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 	case SKILL_SHIT:
 		break;
-	case SKILL_MIGHTHIT: // богатырский молот
+	case SKILL_MIGHTHIT: // п╠п╬пЁп╟я┌я▀я─я│п╨п╦п╧ п╪п╬п╩п╬я┌
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		//bonus = size + dex_bonus(GET_REAL_STR(ch));
@@ -1205,7 +1205,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		else
 			victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
 		break;
-	case SKILL_STUPOR:  // оглушить
+	case SKILL_STUPOR:  // п╬пЁп╩я┐я┬п╦я┌я▄
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		bonus = dex_bonus(GET_REAL_STR(ch));
@@ -1221,12 +1221,12 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= GET_REAL_CON(vict);
 		}
 		break;
-	case SKILL_POISONED:  // отравление
+	case SKILL_POISONED:  // п╬я┌я─п╟п╡п╩п╣п╫п╦п╣
 		break;
-	case SKILL_LEADERSHIP: //лидерство
+	case SKILL_LEADERSHIP: //п╩п╦п╢п╣я─я│я┌п╡п╬
 		bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
-	case SKILL_PUNCTUAL:  // точный стиль
+	case SKILL_PUNCTUAL:  // я┌п╬я┤п╫я▀п╧ я│я┌п╦п╩я▄
 		//victim_sav = GET_SAVE(vict, SAVING_CRITICAL) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
 		bonus = dex_bonus(GET_REAL_INT(ch));
@@ -1246,7 +1246,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
-	case SKILL_AWAKE:  // осторожный стиль
+	case SKILL_AWAKE:  // п╬я│я┌п╬я─п╬п╤п╫я▀п╧ я│я┌п╦п╩я▄
 	{
 		const size_t real_dex = static_cast<size_t>(GET_REAL_DEX(ch));
 		if (real_dex < INT_APP_SIZE)
@@ -1291,7 +1291,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = -GET_REAL_CON(ch) / 2
 			+ (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
 		break;
-	case SKILL_AID:    // лечить
+	case SKILL_AID:    // п╩п╣я┤п╦я┌я▄
 		bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
 		break;
 	case SKILL_FIRE:
@@ -1300,15 +1300,15 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
 			bonus -= number(10, 25);
 		break;
-	case SKILL_HORSE: // верховая езда
+	case SKILL_HORSE: // п╡п╣я─я┘п╬п╡п╟я▐ п╣п╥п╢п╟
 		bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
-	case SKILL_TURN_UNDEAD:  // изгнать нежить
+	case SKILL_TURN_UNDEAD:  // п╦п╥пЁп╫п╟я┌я▄ п╫п╣п╤п╦я┌я▄
 		bonus = (can_use_feat(ch, EXORCIST_FEAT) ? 20 : 0);
 		break;
 	case SKILL_MORPH:
 		break;
-	case SKILL_STRANGLE: // удавить
+	case SKILL_STRANGLE: // я┐п╢п╟п╡п╦я┌я▄
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch));
@@ -1327,7 +1327,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				victim_modi -= calculate_awake_mod(ch, vict);
 		}
 		break;
-	case SKILL_STUN: //ошеломить
+	case SKILL_STUN: //п╬я┬п╣п╩п╬п╪п╦я┌я▄
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 
@@ -1347,7 +1347,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (PRF_FLAGGED(vict, PRF_AWAKE))
 			victim_modi -= calculate_awake_mod(ch, vict);
 
-		pass_mod = 1; //Убираем учет удачи
+		pass_mod = 1; //пёп╠п╦я─п╟п╣п╪ я┐я┤п╣я┌ я┐п╢п╟я┤п╦
 
 		break;
 	default:
@@ -1361,20 +1361,20 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	}
 	else
 	{
-		percent = skill_is + bonus + victim_sav + victim_modi / 2;   // вычисление процента прохождения скила
+		percent = skill_is + bonus + victim_sav + victim_modi / 2;   // п╡я▀я┤п╦я│п╩п╣п╫п╦п╣ п©я─п╬я├п╣п╫я┌п╟ п©я─п╬я┘п╬п╤п╢п╣п╫п╦я▐ я│п╨п╦п╩п╟
 	}
 	if (ch && vict && !IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
 		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
 		|| skill_no == SKILL_PUNCTUAL || skill_no == SKILL_STUN) && PRF_FLAGGED(ch, PRF_TESTER))
 	{
-		sprintf(buf, "&CПротивник %s: скилл == %d, итоговыйрасчетскилла == %d, бонус == %d, сэйвыпротивника == %d, модификаторпротивника == %d&n\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi/2);
+		sprintf(buf, "&Cп÷я─п╬я┌п╦п╡п╫п╦п╨ %s: я│п╨п╦п╩п╩ == %d, п╦я┌п╬пЁп╬п╡я▀п╧я─п╟я│я┤п╣я┌я│п╨п╦п╩п╩п╟ == %d, п╠п╬п╫я┐я│ == %d, я│я█п╧п╡я▀п©я─п╬я┌п╦п╡п╫п╦п╨п╟ == %d, п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─п©я─п╬я┌п╦п╡п╫п╦п╨п╟ == %d&n\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi/2);
 		send_to_char(buf, ch);
 	}
 
 	if (PRF_FLAGGED(ch, PRF_AWAKE) && (skill_no == SKILL_BASH))
 		percent /= 2;
 
-	// не все умения надо модифицировать из-за внешних факторов и морали
+	// п╫п╣ п╡я│п╣ я┐п╪п╣п╫п╦я▐ п╫п╟п╢п╬ п╪п╬п╢п╦я└п╦я├п╦я─п╬п╡п╟я┌я▄ п╦п╥-п╥п╟ п╡п╫п╣я┬п╫п╦я┘ я└п╟п╨я┌п╬я─п╬п╡ п╦ п╪п╬я─п╟п╩п╦
 	if (!pass_mod)
 	{
 		//		percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
@@ -1384,8 +1384,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		//			victim_modi += percent - skill_info[skill_no].max_percent;
 
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
-			morale -= 20;	// у глухого мораль на 20 меньше
-		// Обработка способности "боевой дух"
+			morale -= 20;	// я┐ пЁп╩я┐я┘п╬пЁп╬ п╪п╬я─п╟п╩я▄ п╫п╟ 20 п╪п╣п╫я▄я┬п╣
+		// п·п╠я─п╟п╠п╬я┌п╨п╟ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ "п╠п╬п╣п╡п╬п╧ п╢я┐я┘"
 		if (vict && can_use_feat(vict, SPIRIT_WARRIOR_FEAT))
 			morale -= 10;
 
@@ -1397,13 +1397,13 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		const int bonus_limit = MIN(150, morale * 10);
 		fail_limit = MIN(990, 950 + morale_bonus * 10 / 6);
-		// Если prob попадает в полуинтервал [0, bonus_limit) - бонус в виде макс. процента и
-		// игнора спас-бросков, если в отрезок [fail_limit, 999] - способность фэйлится. Иначе
-		// все решают спас-броски.
-		if (morale >= 50)   // от 50 удачи абсолютный фейл не работает
+		// п∙я│п╩п╦ prob п©п╬п©п╟п╢п╟п╣я┌ п╡ п©п╬п╩я┐п╦п╫я┌п╣я─п╡п╟п╩ [0, bonus_limit) - п╠п╬п╫я┐я│ п╡ п╡п╦п╢п╣ п╪п╟п╨я│. п©я─п╬я├п╣п╫я┌п╟ п╦
+		// п╦пЁп╫п╬я─п╟ я│п©п╟я│-п╠я─п╬я│п╨п╬п╡, п╣я│п╩п╦ п╡ п╬я┌я─п╣п╥п╬п╨ [fail_limit, 999] - я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ я└я█п╧п╩п╦я┌я│я▐. п≤п╫п╟я┤п╣
+		// п╡я│п╣ я─п╣я┬п╟я▌я┌ я│п©п╟я│-п╠я─п╬я│п╨п╦.
+		if (morale >= 50)   // п╬я┌ 50 я┐п╢п╟я┤п╦ п╟п╠я│п╬п╩я▌я┌п╫я▀п╧ я└п╣п╧п╩ п╫п╣ я─п╟п╠п╬я┌п╟п╣я┌
 			fail_limit = 999;
 		if (prob >= fail_limit)
-		{   // Абсолютный фейл 4.9 процента
+		{   // п░п╠я│п╬п╩я▌я┌п╫я▀п╧ я└п╣п╧п╩ 4.9 п©я─п╬я├п╣п╫я┌п╟
 			percent = 0;
 		}
 		else if (prob < bonus_limit)
@@ -1412,7 +1412,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 	}
 
-	// иммские флаги и прокла влияют на все
+	// п╦п╪п╪я│п╨п╦п╣ я└п╩п╟пЁп╦ п╦ п©я─п╬п╨п╩п╟ п╡п╩п╦я▐я▌я┌ п╫п╟ п╡я│п╣
 	if (IS_IMMORTAL(ch))
 		percent = MAX(percent, skill_info[skill_no].max_percent);
 	else if (GET_GOD_FLAG(ch, GF_GODSCURSE))
@@ -1426,17 +1426,17 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
 		|| skill_no == SKILL_PUNCTUAL || skill_no == SKILL_STUN) && PRF_FLAGGED(ch, PRF_TESTER))
 	{
-		//sprintf(buf, "Противник %s: скилл == %d, итоговый == %d,бонус == %d, сэйвы == %d, сэйвы/2 == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
+		//sprintf(buf, "п÷я─п╬я┌п╦п╡п╫п╦п╨ %s: я│п╨п╦п╩п╩ == %d, п╦я┌п╬пЁп╬п╡я▀п╧ == %d,п╠п╬п╫я┐я│ == %d, я│я█п╧п╡я▀ == %d, я│я█п╧п╡я▀/2 == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
 		//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		if (absolute_fail)
-			send_to_char(ch, "попали в Абсолютный фейл\r\n");
+			send_to_char(ch, "п©п╬п©п╟п╩п╦ п╡ п░п╠я│п╬п╩я▌я┌п╫я▀п╧ я└п╣п╧п╩\r\n");
 		else if (try_morale)
-			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2, morale);
+			send_to_char(ch, "&Cп©п╬п©п╟п╩п╦ п╡ я┐п╢п╟я┤я┐. п╦я┌п╬пЁп╬п╡я▀п╧ prob = %d, я│п╨п╦п╩п╩ = %d, п╠п╬п╫я┐я│ = %d, я│я█п╧п╡я▀ = %d, я│я█п╧п╡я▀/2 = %d, п╪п╬я─п╟п╩я▄ = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2, morale);
 		else
-			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2);
+			send_to_char(ch, "&Cп╦я┌п╬пЁп╬п╡я▀п╧ prob = %d, я│п╨п╦п╩п╩ = %d, п╠п╬п╫я┐я│ = %d, я│я█п╧п╡я▀ = %d, я│я█п╧п╡я▀/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2);
 	}
 	if (skill_no == SKILL_PROTECT)
-		log("SKILL_PROTECT: Игрок %s , Percent == %d, fail_limit == %d, Morale == %d, Bonus == %d\r\n", GET_NAME(ch), percent, fail_limit, morale, bonus);
+		log("SKILL_PROTECT: п≤пЁя─п╬п╨ %s , Percent == %d, fail_limit == %d, Morale == %d, Bonus == %d\r\n", GET_NAME(ch), percent, fail_limit, morale, bonus);
 */
 	return (percent);
 }
@@ -1446,7 +1446,7 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 	const int trained_skill = ch->get_trained_skill(skill_no);
 	if (trained_skill == 0 || trained_skill == 200)
 	{
-		// скила может и не быть, если получен только со шмоток
+		// я│п╨п╦п╩п╟ п╪п╬п╤п╣я┌ п╦ п╫п╣ п╠я▀я┌я▄, п╣я│п╩п╦ п©п╬п╩я┐я┤п╣п╫ я┌п╬п╩я▄п╨п╬ я│п╬ я┬п╪п╬я┌п╬п╨
 		return;
 	}
 
@@ -1467,9 +1467,9 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 		|| ((!victim || OK_GAIN_EXP(ch, victim))
 			&& ch->in_room != NOWHERE
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-			// Стрибог
+			// п║я┌я─п╦п╠п╬пЁ
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-			//Свентовит
+			//п║п╡п╣п╫я┌п╬п╡п╦я┌
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)
 			&& (diff = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20 - trained_skill) > 0
@@ -1479,7 +1479,7 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 		prob = success ? 20000 : 15000;
 
 
-	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
+	// п∙я│п╩п╦ я┤п╟я─ п╫я┐п╠, я┌п╬ п╢п╬ 50% я│п╨п╦п╩п╩я▀ п╨п╟я┤п╟я▌я┌я│я▐ пЁп╬я─п╟п╥п╢п╬ п╠я▀я│я┌я─п╣п╣
 	int INT_PLAYER = (ch->get_trained_skill(skill_no) < 51 && (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);
 	div = int_app[INT_PLAYER].improove /* + diff */;
 
@@ -1489,7 +1489,7 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 		}
 
 		prob /= (MAX(1, div));
-		// вариант бонуса мудрости без штрафов за кол-во умений
+		// п╡п╟я─п╦п╟п╫я┌ п╠п╬п╫я┐я│п╟ п╪я┐п╢я─п╬я│я┌п╦ п╠п╣п╥ я┬я┌я─п╟я└п╬п╡ п╥п╟ п╨п╬п╩-п╡п╬ я┐п╪п╣п╫п╦п╧
 		prob -= 5 * wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS);
 		prob += number(1, trained_skill * 5);
 
@@ -1507,12 +1507,12 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 		{
 			if (success)
 			{
-				sprintf(buf, "%sВы повысили уровень умения \"%s\".%s\r\n",
+				sprintf(buf, "%sп▓я▀ п©п╬п╡я▀я│п╦п╩п╦ я┐я─п╬п╡п╣п╫я▄ я┐п╪п╣п╫п╦я▐ \"%s\".%s\r\n",
 					CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 			}
 			else
 			{
-				sprintf(buf, "%sПоняв свои ошибки, вы повысили уровень умения \"%s\".%s\r\n",
+				sprintf(buf, "%sп÷п╬п╫я▐п╡ я│п╡п╬п╦ п╬я┬п╦п╠п╨п╦, п╡я▀ п©п╬п╡я▀я│п╦п╩п╦ я┐я─п╬п╡п╣п╫я▄ я┐п╪п╣п╫п╦я▐ \"%s\".%s\r\n",
 					CCICYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 			}
 			send_to_char(buf, ch);
@@ -1521,7 +1521,7 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 			{
 				ch->set_morphed_skill(skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, ch->get_trained_skill(skill_no))));
 			}
-// скилл прокачался, помечаю моба (если он есть)
+// я│п╨п╦п╩п╩ п©я─п╬п╨п╟я┤п╟п╩я│я▐, п©п╬п╪п╣я┤п╟я▌ п╪п╬п╠п╟ (п╣я│п╩п╦ п╬п╫ п╣я│я┌я▄)
 			if (victim && IS_NPC(victim))
 			{
 				MOB_FLAGS(victim).set(MOB_NOTRAIN);
@@ -1563,8 +1563,8 @@ int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA 
 }
 
 /**
-* Расчет влияния осторожки у victim против умений killer.
-* В данный момент учитывается случай 'игрок против игрока', где осторожка считается как скилл/2
+* п═п╟я│я┤п╣я┌ п╡п╩п╦я▐п╫п╦я▐ п╬я│я┌п╬я─п╬п╤п╨п╦ я┐ victim п©я─п╬я┌п╦п╡ я┐п╪п╣п╫п╦п╧ killer.
+* п▓ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ я┐я┤п╦я┌я▀п╡п╟п╣я┌я│я▐ я│п╩я┐я┤п╟п╧ 'п╦пЁя─п╬п╨ п©я─п╬я┌п╦п╡ п╦пЁя─п╬п╨п╟', пЁп╢п╣ п╬я│я┌п╬я─п╬п╤п╨п╟ я│я┤п╦я┌п╟п╣я┌я│я▐ п╨п╟п╨ я│п╨п╦п╩п╩/2
 */
 int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 {
@@ -1662,8 +1662,8 @@ int find_weapon_master_by_skill(ESkill skill)
     }
 }
 
-//Определим мин уровень для изучения скилла из книги
-//req_lvl - требуемый уровень из книги
+//п·п©я─п╣п╢п╣п╩п╦п╪ п╪п╦п╫ я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ п╦п╥я┐я┤п╣п╫п╦я▐ я│п╨п╦п╩п╩п╟ п╦п╥ п╨п╫п╦пЁп╦
+//req_lvl - я┌я─п╣п╠я┐п╣п╪я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╦п╥ п╨п╫п╦пЁп╦
 int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl)
 {
 	int min_lvl = MAX(req_lvl, skill_info[skill].min_level[ch->get_class()][ch->get_kin()])
@@ -1673,8 +1673,8 @@ int min_skill_level_with_req(CHAR_DATA *ch, int skill, int req_lvl)
 };
 
 /*
- * функция определяет, может ли персонаж илучить скилл
- * впоследствии ее нужно будет перенести в класс "инфа о классе персонажа"
+ * я└я┐п╫п╨я├п╦я▐ п╬п©я─п╣п╢п╣п╩я▐п╣я┌, п╪п╬п╤п╣я┌ п╩п╦ п©п╣я─я│п╬п╫п╟п╤ п╦п╩я┐я┤п╦я┌я▄ я│п╨п╦п╩п╩
+ * п╡п©п╬я│п╩п╣п╢я│я┌п╡п╦п╦ п╣п╣ п╫я┐п╤п╫п╬ п╠я┐п╢п╣я┌ п©п╣я─п╣п╫п╣я│я┌п╦ п╡ п╨п╩п╟я│я│ "п╦п╫я└п╟ п╬ п╨п╩п╟я│я│п╣ п©п╣я─я│п╬п╫п╟п╤п╟"
  */
 int min_skill_level(CHAR_DATA *ch, int skill)
 {
@@ -1714,25 +1714,25 @@ bool can_get_skill(CHAR_DATA *ch, int skill)
 	return TRUE;
 }
 
-//  Реализация класса Skill
+//  п═п╣п╟п╩п╦п╥п╟я├п╦я▐ п╨п╩п╟я│я│п╟ Skill
 
-//Объявляем глобальный скиллист
+//п·п╠я┼я▐п╡п╩я▐п╣п╪ пЁп╩п╬п╠п╟п╩я▄п╫я▀п╧ я│п╨п╦п╩п╩п╦я│я┌
 SkillListType Skill::SkillList;
 
-// Конструктор
+// п п╬п╫я│я┌я─я┐п╨я┌п╬я─
 Skill::Skill() : _Name(SKILL_NAME_UNDEFINED), _Number(SKILL_UNDEFINED), _MaxPercent(0)
 {
-// Инициализация от греха подальше
+// п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ п╬я┌ пЁя─п╣я┘п╟ п©п╬п╢п╟п╩я▄я┬п╣
 };
 
-// Парсим блок описания скилла
+// п÷п╟я─я│п╦п╪ п╠п╩п╬п╨ п╬п©п╦я│п╟п╫п╦я▐ я│п╨п╦п╩п╩п╟
 void Skill::ParseSkill(pugi::xml_node SkillNode)
 {
 	std::string SkillID;
 	pugi::xml_node CurNode;
 	SkillPtr TmpSkill(new Skill);
 
-	// Базовые параметры скилла (а пока боле ничего и нет)
+	// п▒п╟п╥п╬п╡я▀п╣ п©п╟я─п╟п╪п╣я┌я─я▀ я│п╨п╦п╩п╩п╟ (п╟ п©п╬п╨п╟ п╠п╬п╩п╣ п╫п╦я┤п╣пЁп╬ п╦ п╫п╣я┌)
 	SkillID = SkillNode.attribute("id").value();
 
 	CurNode = SkillNode.child("number");
@@ -1742,12 +1742,12 @@ void Skill::ParseSkill(pugi::xml_node SkillNode)
 	CurNode = SkillNode.child("max_percent");
 	TmpSkill->_MaxPercent = CurNode.attribute("val").as_int();
 
-	// Добавляем новый скилл в лист
+	// п■п╬п╠п╟п╡п╩я▐п╣п╪ п╫п╬п╡я▀п╧ я│п╨п╦п╩п╩ п╡ п╩п╦я│я┌
 	Skill::SkillList.insert(make_pair(SkillID, TmpSkill));
 };
 
-// Парсинг скиллов
-// Вынесено в отдельную функцию, чтобы, если нам передали кривой XML лист, не создавался кривой скилл
+// п÷п╟я─я│п╦п╫пЁ я│п╨п╦п╩п╩п╬п╡
+// п▓я▀п╫п╣я│п╣п╫п╬ п╡ п╬я┌п╢п╣п╩я▄п╫я┐я▌ я└я┐п╫п╨я├п╦я▌, я┤я┌п╬п╠я▀, п╣я│п╩п╦ п╫п╟п╪ п©п╣я─п╣п╢п╟п╩п╦ п╨я─п╦п╡п╬п╧ XML п╩п╦я│я┌, п╫п╣ я│п╬п╥п╢п╟п╡п╟п╩я│я▐ п╨я─п╦п╡п╬п╧ я│п╨п╦п╩п╩
 void Skill::Load(const pugi::xml_node& XMLSkillList)
 {
     pugi::xml_node CurNode;
@@ -1758,8 +1758,8 @@ void Skill::Load(const pugi::xml_node& XMLSkillList)
 	}
 };
 
-// Получаем номер скилла по его иду
-// Отрыжка совместимости со старым кодом
+// п÷п╬п╩я┐я┤п╟п╣п╪ п╫п╬п╪п╣я─ я│п╨п╦п╩п╩п╟ п©п╬ п╣пЁп╬ п╦п╢я┐
+// п·я┌я─я▀п╤п╨п╟ я│п╬п╡п╪п╣я│я┌п╦п╪п╬я│я┌п╦ я│п╬ я│я┌п╟я─я▀п╪ п╨п╬п╢п╬п╪
 int Skill::GetNumByID(const std::string& ID)
 {
     SkillPtr TmpSkill = Skill::SkillList[ID];
@@ -1772,6 +1772,6 @@ int Skill::GetNumByID(const std::string& ID)
     return SKILL_UNDEFINED;
 };
 
-// Конец (увы) реализации класса Skill
+// п п╬п╫п╣я├ (я┐п╡я▀) я─п╣п╟п╩п╦п╥п╟я├п╦п╦ п╨п╩п╟я│я│п╟ Skill
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

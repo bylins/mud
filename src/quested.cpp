@@ -13,7 +13,7 @@
 
 void smash_tilde(char *str);
 
-// * Добавление выполненного квеста номер/строка данных (128 символов).
+// * п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п╡я▀п©п╬п╩п╫п╣п╫п╫п╬пЁп╬ п╨п╡п╣я│я┌п╟ п╫п╬п╪п╣я─/я│я┌я─п╬п╨п╟ п╢п╟п╫п╫я▀я┘ (128 я│п╦п╪п╡п╬п╩п╬п╡).
 void Quested::add(CHAR_DATA *ch, int vnum, char *text)
 {
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch))
@@ -51,7 +51,7 @@ bool Quested::get(int vnum) const
 	return false;
 }
 
-// * Возвращает строку данных для заданного внума квеста или пустую строку.
+// * п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ я│я┌я─п╬п╨я┐ п╢п╟п╫п╫я▀я┘ п╢п╩я▐ п╥п╟п╢п╟п╫п╫п╬пЁп╬ п╡п╫я┐п╪п╟ п╨п╡п╣я│я┌п╟ п╦п╩п╦ п©я┐я│я┌я┐я▌ я│я┌я─п╬п╨я┐.
 std::string Quested::get_text(int vnum) const
 {
 	QuestedType::const_iterator it = quested_.find(vnum);

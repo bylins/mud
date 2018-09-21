@@ -47,10 +47,10 @@ extern const char *attach_name[];
 #define MTRIG_GREET_PC_ALL     (1 << 17)
 #define MTRIG_INCOME           (1 << 18)	// mob income to room //
 #define MTRIG_INCOME_PC        (1 << 19)	// mob income to room if PC there //
-#define MTRIG_START_FIGHT      (1 << 20) // начало боя с мобом
-#define MTRIG_ROUND_NUM        (1 << 21) // на х раунде боя
-#define MTRIG_CAST             (1 << 22) // каст в моба
-#define MTRIG_TIMECHANGE       (1 << 23) // смена времени
+#define MTRIG_START_FIGHT      (1 << 20) // п╫п╟я┤п╟п╩п╬ п╠п╬я▐ я│ п╪п╬п╠п╬п╪
+#define MTRIG_ROUND_NUM        (1 << 21) // п╫п╟ я┘ я─п╟я┐п╫п╢п╣ п╠п╬я▐
+#define MTRIG_CAST             (1 << 22) // п╨п╟я│я┌ п╡ п╪п╬п╠п╟
+#define MTRIG_TIMECHANGE       (1 << 23) // я│п╪п╣п╫п╟ п╡я─п╣п╪п╣п╫п╦
 
 // obj trigger types //
 #define OTRIG_GLOBAL           (1 << 0)	// unused                     //
@@ -71,8 +71,8 @@ extern const char *attach_name[];
 #define OTRIG_LOCK             (1 << 16)
 #define OTRIG_CLOSE            (1 << 17)
 #define OTRIG_PICK             (1 << 18)
-#define OTRIG_GREET_ALL_PC     (1 << 19)	// любой персонаж вошел в комнату //
-#define OTRIG_TIMECHANGE       (1 << 20) // смена времени
+#define OTRIG_GREET_ALL_PC     (1 << 19)	// п╩я▌п╠п╬п╧ п©п╣я─я│п╬п╫п╟п╤ п╡п╬я┬п╣п╩ п╡ п╨п╬п╪п╫п╟я┌я┐ //
+#define OTRIG_TIMECHANGE       (1 << 20) // я│п╪п╣п╫п╟ п╡я─п╣п╪п╣п╫п╦
 
 // wld trigger types //
 #define WTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //
@@ -278,7 +278,7 @@ class SCRIPT_DATA
 public:
 	using shared_ptr = std::shared_ptr<SCRIPT_DATA>;
 
-	// привет костыли
+	// п©я─п╦п╡п╣я┌ п╨п╬я│я┌я▀п╩п╦
 	SCRIPT_DATA();
 	SCRIPT_DATA(const SCRIPT_DATA& script);
 	~SCRIPT_DATA();
@@ -366,7 +366,7 @@ void do_sstat_room(CHAR_DATA * ch);
 void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j);
 void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);
 
-void script_log(const char *msg, const int type = 0);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
+void script_log(const char *msg, const int type = 0);//type п╫я┐п╤п╣п╫ я┤я┌п╬п╠ п╫п╣ я│п©п╟п╪п╦я┌я▄ п╪п╣я│я│п╟пЁп╦ я┌п╣п╪ я┐ п╨п╬пЁп╬ errlog п╫п╣ п©п╬п╩п╫я▀п╧ п╟ п╨я─п╟я┌п╨п╦п╧ п╫п╟п©я─п╦п╪п╣я─
 void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);
 
 class GlobalTriggersStorage
@@ -471,7 +471,7 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell);
 
 // external vars from db.cpp //
 extern int top_of_trigt;
-extern int last_trig_vnum;//последний триг в котором произошла ошибка
+extern int last_trig_vnum;//п©п╬я│п╩п╣п╢п╫п╦п╧ я┌я─п╦пЁ п╡ п╨п╬я┌п╬я─п╬п╪ п©я─п╬п╦п╥п╬я┬п╩п╟ п╬я┬п╦п╠п╨п╟
 
 const int MAX_TRIG_USEC = 30000;
 

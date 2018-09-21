@@ -42,20 +42,20 @@ int set_node::uid_cnt = 0;
 std::set<int> list_vnum;
 
 const char *OBJ_SETS_FILE = LIB_MISC"obj_sets.xml";
-/// мин/макс кол-во активаторов для валидного сета
+/// п╪п╦п╫/п╪п╟п╨я│ п╨п╬п╩-п╡п╬ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡ п╢п╩я▐ п╡п╟п╩п╦п╢п╫п╬пЁп╬ я│п╣я┌п╟
 const unsigned MIN_ACTIVE_SIZE = 2;
-/// вобщем-то равняется кол-ву допустимых для сетов слотов
+/// п╡п╬п╠я┴п╣п╪-я┌п╬ я─п╟п╡п╫я▐п╣я┌я│я▐ п╨п╬п╩-п╡я┐ п╢п╬п©я┐я│я┌п╦п╪я▀я┘ п╢п╩я▐ я│п╣я┌п╬п╡ я│п╩п╬я┌п╬п╡
 const unsigned MAX_ACTIVE_SIZE = 10;
-/// сколько предметов может быть в сете
+/// я│п╨п╬п╩я▄п╨п╬ п©я─п╣п╢п╪п╣я┌п╬п╡ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╡ я│п╣я┌п╣
 const unsigned MAX_OBJ_LIST = 20;
-/// основной список сетов
+/// п╬я│п╫п╬п╡п╫п╬п╧ я│п©п╦я│п╬п╨ я│п╣я┌п╬п╡
 std::vector<std::shared_ptr<set_node>> sets_list;
-/// дефолтные сообщения всех сетов, инятся в init_global_msg()
+/// п╢п╣я└п╬п╩я┌п╫я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╡я│п╣я┘ я│п╣я┌п╬п╡, п╦п╫я▐я┌я│я▐ п╡ init_global_msg()
 msg_node global_msg;
 
-/// форматирование строки с разбиением на строки не длиннее \param len,
-/// строка разбивается полными словами по разделителю \param sep
-/// \param base_offset = 0 - смещение первой строки
+/// я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ я│я┌я─п╬п╨п╦ я│ я─п╟п╥п╠п╦п╣п╫п╦п╣п╪ п╫п╟ я│я┌я─п╬п╨п╦ п╫п╣ п╢п╩п╦п╫п╫п╣п╣ \param len,
+/// я│я┌я─п╬п╨п╟ я─п╟п╥п╠п╦п╡п╟п╣я┌я│я▐ п©п╬п╩п╫я▀п╪п╦ я│п╩п╬п╡п╟п╪п╦ п©п╬ я─п╟п╥п╢п╣п╩п╦я┌п╣п╩я▌ \param sep
+/// \param base_offset = 0 - я│п╪п╣я┴п╣п╫п╦п╣ п©п╣я─п╡п╬п╧ я│я┌я─п╬п╨п╦
 std::string line_split_str(const std::string &str, const std::string &sep,
 	size_t len, size_t base_offset)
 {
@@ -82,7 +82,7 @@ std::string line_split_str(const std::string &str, const std::string &sep,
 	return out;
 }
 
-// приводит внум из дублированных миников к оригинальному внуму
+// п©я─п╦п╡п╬п╢п╦я┌ п╡п╫я┐п╪ п╦п╥ п╢я┐п╠п╩п╦я─п╬п╡п╟п╫п╫я▀я┘ п╪п╦п╫п╦п╨п╬п╡ п╨ п╬я─п╦пЁп╦п╫п╟п╩я▄п╫п╬п╪я┐ п╡п╫я┐п╪я┐
 int normalize_vnum(int vnum)
 {
 	if (vnum >= DUPLICATE_MINI_SET_VNUM)
@@ -90,7 +90,7 @@ int normalize_vnum(int vnum)
 	return vnum;
 }
 
-/// \return индекс сета через внум любого его предмета
+/// \return п╦п╫п╢п╣п╨я│ я│п╣я┌п╟ я┤п╣я─п╣п╥ п╡п╫я┐п╪ п╩я▌п╠п╬пЁп╬ п╣пЁп╬ п©я─п╣п╢п╪п╣я┌п╟
 size_t setidx_by_objvnum(int vnum)
 {
 	vnum = normalize_vnum(vnum);
@@ -105,7 +105,7 @@ size_t setidx_by_objvnum(int vnum)
 	return -1;
 }
 
-/// \return индекс сета через его уид (олц)
+/// \return п╦п╫п╢п╣п╨я│ я│п╣я┌п╟ я┤п╣я─п╣п╥ п╣пЁп╬ я┐п╦п╢ (п╬п╩я├)
 size_t setidx_by_uid(int uid)
 {
 	for (size_t i = 0; i < sets_list.size(); ++i)
@@ -118,8 +118,8 @@ size_t setidx_by_uid(int uid)
 	return -1;
 }
 
-/// проверка предмета на наличие в других сетах
-/// \param set_uid - чтобы не считать свой же сет за дубль
+/// п©я─п╬п╡п╣я─п╨п╟ п©я─п╣п╢п╪п╣я┌п╟ п╫п╟ п╫п╟п╩п╦я┤п╦п╣ п╡ п╢я─я┐пЁп╦я┘ я│п╣я┌п╟я┘
+/// \param set_uid - я┤я┌п╬п╠я▀ п╫п╣ я│я┤п╦я┌п╟я┌я▄ я│п╡п╬п╧ п╤п╣ я│п╣я┌ п╥п╟ п╢я┐п╠п╩я▄
 bool is_duplicate(int set_uid, int vnum)
 {
 	for (size_t i = 0; i < sets_list.size(); ++i)
@@ -146,8 +146,8 @@ void update_char_sets()
 	}
 }
 
-/// запись индексов сетов в список индексов предметов (не в OBJ_DATA)
-/// здесь же обновляется справка по активаторам сетов
+/// п╥п╟п©п╦я│я▄ п╦п╫п╢п╣п╨я│п╬п╡ я│п╣я┌п╬п╡ п╡ я│п©п╦я│п╬п╨ п╦п╫п╢п╣п╨я│п╬п╡ п©я─п╣п╢п╪п╣я┌п╬п╡ (п╫п╣ п╡ OBJ_DATA)
+/// п╥п╢п╣я│я▄ п╤п╣ п╬п╠п╫п╬п╡п╩я▐п╣я┌я│я▐ я│п©я─п╟п╡п╨п╟ п©п╬ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟п╪ я│п╣я┌п╬п╡
 void init_obj_index()
 {
 	std::unordered_map<obj_vnum, size_t> tmp;
@@ -178,7 +178,7 @@ void init_obj_index()
 	update_char_sets();
 }
 
-/// сеты не вешаются на: кольца, ожерелья, браслеты, свет
+/// я│п╣я┌я▀ п╫п╣ п╡п╣я┬п╟я▌я┌я│я▐ п╫п╟: п╨п╬п╩я▄я├п╟, п╬п╤п╣я─п╣п╩я▄я▐, п╠я─п╟я│п╩п╣я┌я▀, я│п╡п╣я┌
 bool verify_wear_flag(const CObjectPrototype::shared_ptr& /*obj*/)
 {
 /*	if (CAN_WEAR(obj, ITEM_WEAR_FINGER)
@@ -191,21 +191,21 @@ bool verify_wear_flag(const CObjectPrototype::shared_ptr& /*obj*/)
 */	return true;
 }
 
-/// проверка сета после олц или лоада из конфига, при необходимости
-/// помечает сет как неактивный (сам сет или другие его поля не трогаются)
+/// п©я─п╬п╡п╣я─п╨п╟ я│п╣я┌п╟ п©п╬я│п╩п╣ п╬п╩я├ п╦п╩п╦ п╩п╬п╟п╢п╟ п╦п╥ п╨п╬п╫я└п╦пЁп╟, п©я─п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦
+/// п©п╬п╪п╣я┤п╟п╣я┌ я│п╣я┌ п╨п╟п╨ п╫п╣п╟п╨я┌п╦п╡п╫я▀п╧ (я│п╟п╪ я│п╣я┌ п╦п╩п╦ п╢я─я┐пЁп╦п╣ п╣пЁп╬ п©п╬п╩я▐ п╫п╣ я┌я─п╬пЁп╟я▌я┌я│я▐)
 void verify_set(set_node &set)
 {
 	const size_t num = setidx_by_uid(set.uid) + 1;
 
 	if (set.obj_list.size() < 2 || set.activ_list.size() < 1)
 	{
-		err_log("сет #%zu: incomplete (objs=%zu, activs=%zu)",
+		err_log("я│п╣я┌ #%zu: incomplete (objs=%zu, activs=%zu)",
 			num, set.obj_list.size(), set.activ_list.size());
 		set.enabled = false;
 	}
 	if (set.obj_list.size() > MAX_OBJ_LIST)
 	{
-		err_log("сет #%zu: too many objects (size=%zu)",
+		err_log("я│п╣я┌ #%zu: too many objects (size=%zu)",
 			num, set.obj_list.size());
 		set.enabled = false;
 	}
@@ -215,24 +215,24 @@ void verify_set(set_node &set)
 		const int rnum = real_object(i->first);
 		if (rnum < 0)
 		{
-			err_log("сет #%zu: empty obj proto (vnum=%d)", num, i->first);
+			err_log("я│п╣я┌ #%zu: empty obj proto (vnum=%d)", num, i->first);
 			set.enabled = false;
 		}/*
 		else if (OBJ_FLAGGED(obj_proto[rnum], ITEM_SETSTUFF))
 		{
-			err_log("сет #%zu: obj have ITEM_SETSTUFF flag (vnum=%d)",
+			err_log("я│п╣я┌ #%zu: obj have ITEM_SETSTUFF flag (vnum=%d)",
 				num, i->first);
 			set.enabled = false;
 		}*/
 		else if (!verify_wear_flag(obj_proto[rnum]))
 		{
-			err_log("сет #%zu: obj have invalid wear flag (vnum=%d)",
+			err_log("я│п╣я┌ #%zu: obj have invalid wear flag (vnum=%d)",
 				num, i->first);
 			set.enabled = false;
 		}
 		if (is_duplicate(set.uid, i->first))
 		{
-			err_log("сет #%zu: dublicate obj (vnum=%d)", num, i->first);
+			err_log("я│п╣я┌ #%zu: dublicate obj (vnum=%d)", num, i->first);
 			set.enabled = false;
 		}
 	}
@@ -243,13 +243,13 @@ void verify_set(set_node &set)
 	{
 		if (i->first < MIN_ACTIVE_SIZE || i->first > MAX_ACTIVE_SIZE)
 		{
-			err_log("сет #%zu: некорректный размер активатора (activ=%d)",
+			err_log("я│п╣я┌ #%zu: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ я─п╟п╥п╪п╣я─ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ (activ=%d)",
 				num, i->first);
 			set.enabled = false;
 		}
 		if (i->first > set.obj_list.size())
 		{
-			err_log("сет #%zu: активатор больше списка предметов (activ=%d)",
+			err_log("я│п╣я┌ #%zu: п╟п╨я┌п╦п╡п╟я┌п╬я─ п╠п╬п╩я▄я┬п╣ я│п©п╦я│п╨п╟ п©я─п╣п╢п╪п╣я┌п╬п╡ (activ=%d)",
 				num, i->first);
 			set.enabled = false;
 		}
@@ -258,31 +258,31 @@ void verify_set(set_node &set)
 			if (k->location < 0 || k->location >= NUM_APPLIES)
 			{
 				err_log(
-					"сет #%zu: некорректный номер apply аффекта (loc=%d, mod=%d, activ=%d)",
+					"я│п╣я┌ #%zu: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╫п╬п╪п╣я─ apply п╟я└я└п╣п╨я┌п╟ (loc=%d, mod=%d, activ=%d)",
 					num, k->location, k->modifier, i->first);
 				set.enabled = false;
 			}
 		}
-		// можно просетить скилл в минус
+		// п╪п╬п╤п╫п╬ п©я─п╬я│п╣я┌п╦я┌я▄ я│п╨п╦п╩п╩ п╡ п╪п╦п╫я┐я│
 		if (i->second.skill.first > MAX_SKILL_NUM
 			|| i->second.skill.first < 0
 			|| i->second.skill.second > 200
 			|| i->second.skill.second < -200)
 		{
 			err_log(
-				"сет #%zu: некорректные номер или значение умения (num=%d, val=%d, activ=%d)",
+				"я│п╣я┌ #%zu: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╣ п╫п╬п╪п╣я─ п╦п╩п╦ п╥п╫п╟я┤п╣п╫п╦п╣ я┐п╪п╣п╫п╦я▐ (num=%d, val=%d, activ=%d)",
 				num, i->second.skill.first, i->first);
 			set.enabled = false;
 		}
 		if (i->second.prof.none())
 		{
-			err_log("сет #%zu: пустой список профессий активатора (activ=%d)",
+			err_log("я│п╣я┌ #%zu: п©я┐я│я┌п╬п╧ я│п©п╦я│п╬п╨ п©я─п╬я└п╣я│я│п╦п╧ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ (activ=%d)",
 				num, i->first);
 			set.enabled = false;
 		}
 		if (i->second.empty())
 		{
-			err_log("сет #%zu: пустой активатор (activ=%d)", num, i->first);
+			err_log("я│п╣я┌ #%zu: п©я┐я│я┌п╬п╧ п╟п╨я┌п╦п╡п╟я┌п╬я─ (activ=%d)", num, i->first);
 			set.enabled = false;
 		}
 		if (i->second.prof.count() != i->second.prof.size())
@@ -295,47 +295,47 @@ void verify_set(set_node &set)
 			else if (i->second.prof != prof_bits)
 			{
 				err_log(
-					"сет #%zu: несовпадение ограниченного списка профессий активатора (activ=%d)",
+					"я│п╣я┌ #%zu: п╫п╣я│п╬п╡п©п╟п╢п╣п╫п╦п╣ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬пЁп╬ я│п©п╦я│п╨п╟ п©я─п╬я└п╣я│я│п╦п╧ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ (activ=%d)",
 					num, i->first);
 				set.enabled = false;
 			}
 		}
 		if (i->second.bonus.phys_dmg < 0 || i->second.bonus.phys_dmg > 1000)
 		{
-			err_log("сет #%zu: некорректный бонус физ. урона (activ=%d)",
+			err_log("я│п╣я┌ #%zu: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╠п╬п╫я┐я│ я└п╦п╥. я┐я─п╬п╫п╟ (activ=%d)",
 				num, i->first);
 			set.enabled = false;
 		}
 		if (i->second.bonus.mage_dmg < 0 || i->second.bonus.mage_dmg > 1000)
 		{
-			err_log("сет #%zu: некорректный бонус маг. урона (activ=%d)",
+			err_log("я│п╣я┌ #%zu: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╠п╬п╫я┐я│ п╪п╟пЁ. я┐я─п╬п╫п╟ (activ=%d)",
 				num, i->first);
 			set.enabled = false;
 		}
 
 		if (i->second.enchant.first < 0)
 		{
-			err_log("сет #%zu: некорректный vnum предмета для энчанта (vnum=%d, activ=%d)",
+			err_log("я│п╣я┌ #%zu: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ vnum п©я─п╣п╢п╪п╣я┌п╟ п╢п╩я▐ я█п╫я┤п╟п╫я┌п╟ (vnum=%d, activ=%d)",
 				num, i->second.enchant.first, i->first);
 			set.enabled = false;
 		}
 		if (i->second.enchant.first > 0 &&
 			set.obj_list.find(i->second.enchant.first) == set.obj_list.end())
 		{
-			err_log("сет #%zu: энчант для предмета, не являющегося частью набора (vnum=%d, activ=%d)",
+			err_log("я│п╣я┌ #%zu: я█п╫я┤п╟п╫я┌ п╢п╩я▐ п©я─п╣п╢п╪п╣я┌п╟, п╫п╣ я▐п╡п╩я▐я▌я┴п╣пЁп╬я│я▐ я┤п╟я│я┌я▄я▌ п╫п╟п╠п╬я─п╟ (vnum=%d, activ=%d)",
 				num, i->second.enchant.first, i->first);
 			set.enabled = false;
 		}
 		if (i->second.enchant.first > 0 && i->second.enchant.second.empty())
 		{
-			err_log("сет #%zu: пустой энчант для предмета (vnum=%d, activ=%d)",
+			err_log("я│п╣я┌ #%zu: п©я┐я│я┌п╬п╧ я█п╫я┤п╟п╫я┌ п╢п╩я▐ п©я─п╣п╢п╪п╣я┌п╟ (vnum=%d, activ=%d)",
 				num, i->second.enchant.first, i->first);
 			set.enabled = false;
 		}
 		if (i->second.enchant.second.weight < -100
 			|| i->second.enchant.second.weight > 100)
 		{
-			err_log("сет #%zu: некорректный вес для энчанта (weight=%d, activ=%d)",
+			err_log("я│п╣я┌ #%zu: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╧ п╡п╣я│ п╢п╩я▐ я█п╫я┤п╟п╫я┌п╟ (weight=%d, activ=%d)",
 				num, i->second.enchant.second.weight, i->first);
 			set.enabled = false;
 		}
@@ -344,7 +344,7 @@ void verify_set(set_node &set)
 			|| i->second.enchant.second.sdice < -100
 			|| i->second.enchant.second.sdice > 100)
 		{
-			err_log("сет #%zu: некорректные кубики для энчанта (%dD%d, activ=%d)",
+			err_log("я│п╣я┌ #%zu: п╫п╣п╨п╬я─я─п╣п╨я┌п╫я▀п╣ п╨я┐п╠п╦п╨п╦ п╢п╩я▐ я█п╫я┤п╟п╫я┌п╟ (%dD%d, activ=%d)",
 				num, i->second.enchant.second.ndice,
 				i->second.enchant.second.sdice, i->first);
 			set.enabled = false;
@@ -352,29 +352,29 @@ void verify_set(set_node &set)
 	}
 }
 
-/// помимо уровня глобальных сообщений из конфига - есть вариант хардкодом
+/// п©п╬п╪п╦п╪п╬ я┐я─п╬п╡п╫я▐ пЁп╩п╬п╠п╟п╩я▄п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╦п╥ п╨п╬п╫я└п╦пЁп╟ - п╣я│я┌я▄ п╡п╟я─п╦п╟п╫я┌ я┘п╟я─п╢п╨п╬п╢п╬п╪
 void init_global_msg()
 {
 	if (global_msg.char_on_msg.empty())
 	{
-		global_msg.char_on_msg = "&W$o0 засветил$U мягким сиянием.&n";
+		global_msg.char_on_msg = "&W$o0 п╥п╟я│п╡п╣я┌п╦п╩$U п╪я▐пЁп╨п╦п╪ я│п╦я▐п╫п╦п╣п╪.&n";
 	}
 	if (global_msg.char_off_msg.empty())
 	{
-		global_msg.char_off_msg = "&WСияние $o1 медленно угасло.&n";
+		global_msg.char_off_msg = "&Wп║п╦я▐п╫п╦п╣ $o1 п╪п╣п╢п╩п╣п╫п╫п╬ я┐пЁп╟я│п╩п╬.&n";
 	}
 	if (global_msg.room_on_msg.empty())
 	{
-		global_msg.room_on_msg = "&W$o0 $n1 засветил$U мягким сиянием.&n";
+		global_msg.room_on_msg = "&W$o0 $n1 п╥п╟я│п╡п╣я┌п╦п╩$U п╪я▐пЁп╨п╦п╪ я│п╦я▐п╫п╦п╣п╪.&n";
 	}
 	if (global_msg.room_off_msg.empty())
 	{
-		global_msg.room_off_msg = "&WСияние $o1 $n1 медленно угасло.&n";
+		global_msg.room_off_msg = "&Wп║п╦я▐п╫п╦п╣ $o1 $n1 п╪п╣п╢п╩п╣п╫п╫п╬ я┐пЁп╟я│п╩п╬.&n";
 	}
 }
 
-/// инит структуры сообщений из конфига
-/// отсутствие какой-то из строк (всех) не является ошибкой
+/// п╦п╫п╦я┌ я│я┌я─я┐п╨я┌я┐я─я▀ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╦п╥ п╨п╬п╫я└п╦пЁп╟
+/// п╬я┌я│я┐я┌я│я┌п╡п╦п╣ п╨п╟п╨п╬п╧-я┌п╬ п╦п╥ я│я┌я─п╬п╨ (п╡я│п╣я┘) п╫п╣ я▐п╡п╩я▐п╣я┌я│я▐ п╬я┬п╦п╠п╨п╬п╧
 void init_msg_node(msg_node &node, const pugi::xml_node &xml_msg)
 {
 	node.char_on_msg = xml_msg.child_value("char_on_msg");
@@ -383,7 +383,7 @@ void init_msg_node(msg_node &node, const pugi::xml_node &xml_msg)
 	node.room_off_msg = xml_msg.child_value("room_off_msg");
 }
 
-/// лоад при старте мада, релоад через 'reload obj_sets.xml'
+/// п╩п╬п╟п╢ п©я─п╦ я│я┌п╟я─я┌п╣ п╪п╟п╢п╟, я─п╣п╩п╬п╟п╢ я┤п╣я─п╣п╥ 'reload obj_sets.xml'
 void load()
 {
 	log("Loadind %s: start", OBJ_SETS_FILE);
@@ -414,11 +414,11 @@ void load()
 		xml_set = xml_set.next_sibling("set"))
 	{
 		std::shared_ptr<set_node> tmp_set = std::make_shared<set_node>();
-		// имя, алиас и камент не обязательны
+		// п╦п╪я▐, п╟п╩п╦п╟я│ п╦ п╨п╟п╪п╣п╫я┌ п╫п╣ п╬п╠я▐п╥п╟я┌п╣п╩я▄п╫я▀
 		tmp_set->name = xml_set.attribute("name").value();
 		tmp_set->alias = xml_set.attribute("alias").value();
 		tmp_set->comment = xml_set.attribute("comment").value();
-		// enabled не обязателен, по дефолту сет включен
+		// enabled п╫п╣ п╬п╠я▐п╥п╟я┌п╣п╩п╣п╫, п©п╬ п╢п╣я└п╬п╩я┌я┐ я│п╣я┌ п╡п╨п╩я▌я┤п╣п╫
 		tmp_set->enabled =
 			(xml_set.attribute("enabled").as_int(1) == 1 ? true : false);
 		// <obj>
@@ -447,7 +447,7 @@ void load()
 			for (pugi::xml_node xml_apply = xml_activ.child("apply"); xml_apply;
 				xml_apply = xml_apply.next_sibling("apply"))
 			{
-				// заполняются только первые MAX_OBJ_AFFECT
+				// п╥п╟п©п╬п╩п╫я▐я▌я┌я│я▐ я┌п╬п╩я▄п╨п╬ п©п╣я─п╡я▀п╣ MAX_OBJ_AFFECT
 				for (auto i = tmp_activ.apply.begin();
 					i != tmp_activ.apply.end(); ++i)
 				{
@@ -490,7 +490,7 @@ void load()
 			{
 				tmp_activ.bonus.mage_dmg = Parse::attr_int(xml_cur, "pct");
 			}
-			// если нет атрибута prof - значит актив на все профы
+			// п╣я│п╩п╦ п╫п╣я┌ п╟я┌я─п╦п╠я┐я┌п╟ prof - п╥п╫п╟я┤п╦я┌ п╟п╨я┌п╦п╡ п╫п╟ п╡я│п╣ п©я─п╬я└я▀
 			pugi::xml_attribute xml_prof = xml_activ.attribute("prof");
 			if (xml_prof)
 			{
@@ -514,7 +514,7 @@ void load()
 	save();
 }
 
-/// сохранения структуры сообщений в конфиг
+/// я│п╬я┘я─п╟п╫п╣п╫п╦я▐ я│я┌я─я┐п╨я┌я┐я─я▀ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╡ п╨п╬п╫я└п╦пЁ
 void save_messages(pugi::xml_node &xml, msg_node &msg)
 {
 	if (!msg.char_on_msg.empty()
@@ -552,7 +552,7 @@ void save_messages(pugi::xml_node &xml, msg_node &msg)
 	}
 }
 
-/// сохранение конфига, пишутся и выключенные, и пустые сеты
+/// я│п╬я┘я─п╟п╫п╣п╫п╦п╣ п╨п╬п╫я└п╦пЁп╟, п©п╦я┬я┐я┌я│я▐ п╦ п╡я▀п╨п╩я▌я┤п╣п╫п╫я▀п╣, п╦ п©я┐я│я┌я▀п╣ я│п╣я┌я▀
 void save()
 {
 	log("Saving %s: start", OBJ_SETS_FILE);
@@ -668,7 +668,7 @@ void save()
 	doc.save_file(OBJ_SETS_FILE);
 	log("Saving %s: done", OBJ_SETS_FILE);
 }
-///Создание и заполнение списка сетового набора по 1 вещи из набора
+///п║п╬п╥п╢п╟п╫п╦п╣ п╦ п╥п╟п©п╬п╩п╫п╣п╫п╦п╣ я│п©п╦я│п╨п╟ я│п╣я┌п╬п╡п╬пЁп╬ п╫п╟п╠п╬я─п╟ п©п╬ 1 п╡п╣я┴п╦ п╦п╥ п╫п╟п╠п╬я─п╟
 std::set<int> vnum_list_add(int vnum)
 {
 	list_vnum.clear();
@@ -691,10 +691,10 @@ std::set<int> vnum_list_add(int vnum)
 	return list_vnum;
 }
 
-/// распечатка сообщения чару и в комнату
-/// \param activated - печатать активатор или деактиватор
-/// сообщение берется по первому найденному в цепочке:
-/// предмет -> набор -> глобальные сообщения
+/// я─п╟я│п©п╣я┤п╟я┌п╨п╟ я│п╬п╬п╠я┴п╣п╫п╦я▐ я┤п╟я─я┐ п╦ п╡ п╨п╬п╪п╫п╟я┌я┐
+/// \param activated - п©п╣я┤п╟я┌п╟я┌я▄ п╟п╨я┌п╦п╡п╟я┌п╬я─ п╦п╩п╦ п╢п╣п╟п╨я┌п╦п╡п╟я┌п╬я─
+/// я│п╬п╬п╠я┴п╣п╫п╦п╣ п╠п╣я─п╣я┌я│я▐ п©п╬ п©п╣я─п╡п╬п╪я┐ п╫п╟п╧п╢п╣п╫п╫п╬п╪я┐ п╡ я├п╣п©п╬я┤п╨п╣:
+/// п©я─п╣п╢п╪п╣я┌ -> п╫п╟п╠п╬я─ -> пЁп╩п╬п╠п╟п╩я▄п╫я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐
 void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 {
 	if (set_idx >= sets_list.size()) return;
@@ -708,7 +708,7 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 	auto i = curr_set->obj_list.find(GET_OBJ_VNUM(obj));
 	if (i != curr_set->obj_list.end())
 	{
-		// сообщения у предмета
+		// я│п╬п╬п╠я┴п╣п╫п╦я▐ я┐ п©я─п╣п╢п╪п╣я┌п╟
 		if (!i->second.char_on_msg.empty())
 			char_on_msg = i->second.char_on_msg.c_str();
 		if (!i->second.room_on_msg.empty())
@@ -718,7 +718,7 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 		if (!i->second.room_off_msg.empty())
 			room_off_msg = i->second.room_off_msg.c_str();
 	}
-	// сообщения у сета
+	// я│п╬п╬п╠я┴п╣п╫п╦я▐ я┐ я│п╣я┌п╟
 	if (!char_on_msg && !curr_set->messages.char_on_msg.empty())
 		char_on_msg = curr_set->messages.char_on_msg.c_str();
 	if (!room_on_msg && !curr_set->messages.room_on_msg.empty())
@@ -727,7 +727,7 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 		char_off_msg = curr_set->messages.char_off_msg.c_str();
 	if (!room_off_msg && !curr_set->messages.room_off_msg.empty())
 		room_off_msg = curr_set->messages.room_off_msg.c_str();
-	// глобальные сообщения
+	// пЁп╩п╬п╠п╟п╩я▄п╫я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐
 	if (!char_on_msg)
 		char_on_msg = global_msg.char_on_msg.c_str();
 	if (!room_on_msg)
@@ -736,7 +736,7 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 		char_off_msg = global_msg.char_off_msg.c_str();
 	if (!room_off_msg)
 		room_off_msg = global_msg.room_off_msg.c_str();
-	// что-то в любом случае распечатаем
+	// я┤я┌п╬-я┌п╬ п╡ п╩я▌п╠п╬п╪ я│п╩я┐я┤п╟п╣ я─п╟я│п©п╣я┤п╟я┌п╟п╣п╪
 	if (activated)
 	{
 		act(char_on_msg, FALSE, ch, obj, 0, TO_CHAR);
@@ -749,7 +749,7 @@ void print_msg(CHAR_DATA *ch, OBJ_DATA *obj, size_t set_idx, bool activated)
 	}
 }
 
-/// сообщение деактивации предмета
+/// я│п╬п╬п╠я┴п╣п╫п╦п╣ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦п╦ п©я─п╣п╢п╪п╣я┌п╟
 void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	const auto set_idx = GET_OBJ_RNUM(obj) >= 0
@@ -761,14 +761,14 @@ void print_off_msg(CHAR_DATA *ch, OBJ_DATA *obj)
 	}
 }
 
-/// предмет может быть не активирован, но на чаре висит активатор
-/// уже работающий от других предметов данного сета, т.е. например надето
-/// 5 предметов, а работает сетовый активатор от 4 предметов, один остается
-/// про запас, чтобы в случае снятия одного предмета не спамить активом
-/// подменившего его предмета, а просто тихо продолжить учитывать активатор
-/// т.е. после прохода в affect_total() у всех сетовых шмоток в get_activator()
-/// содержится не только инфа о том, в активе она или нет, но и размер
-/// максимального работающего в данный момент активатора с ее сета
+/// п©я─п╣п╢п╪п╣я┌ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╫п╣ п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫, п╫п╬ п╫п╟ я┤п╟я─п╣ п╡п╦я│п╦я┌ п╟п╨я┌п╦п╡п╟я┌п╬я─
+/// я┐п╤п╣ я─п╟п╠п╬я┌п╟я▌я┴п╦п╧ п╬я┌ п╢я─я┐пЁп╦я┘ п©я─п╣п╢п╪п╣я┌п╬п╡ п╢п╟п╫п╫п╬пЁп╬ я│п╣я┌п╟, я┌.п╣. п╫п╟п©я─п╦п╪п╣я─ п╫п╟п╢п╣я┌п╬
+/// 5 п©я─п╣п╢п╪п╣я┌п╬п╡, п╟ я─п╟п╠п╬я┌п╟п╣я┌ я│п╣я┌п╬п╡я▀п╧ п╟п╨я┌п╦п╡п╟я┌п╬я─ п╬я┌ 4 п©я─п╣п╢п╪п╣я┌п╬п╡, п╬п╢п╦п╫ п╬я│я┌п╟п╣я┌я│я▐
+/// п©я─п╬ п╥п╟п©п╟я│, я┤я┌п╬п╠я▀ п╡ я│п╩я┐я┤п╟п╣ я│п╫я▐я┌п╦я▐ п╬п╢п╫п╬пЁп╬ п©я─п╣п╢п╪п╣я┌п╟ п╫п╣ я│п©п╟п╪п╦я┌я▄ п╟п╨я┌п╦п╡п╬п╪
+/// п©п╬п╢п╪п╣п╫п╦п╡я┬п╣пЁп╬ п╣пЁп╬ п©я─п╣п╢п╪п╣я┌п╟, п╟ п©я─п╬я│я┌п╬ я┌п╦я┘п╬ п©я─п╬п╢п╬п╩п╤п╦я┌я▄ я┐я┤п╦я┌я▀п╡п╟я┌я▄ п╟п╨я┌п╦п╡п╟я┌п╬я─
+/// я┌.п╣. п©п╬я│п╩п╣ п©я─п╬я┘п╬п╢п╟ п╡ affect_total() я┐ п╡я│п╣я┘ я│п╣я┌п╬п╡я▀я┘ я┬п╪п╬я┌п╬п╨ п╡ get_activator()
+/// я│п╬п╢п╣я─п╤п╦я┌я│я▐ п╫п╣ я┌п╬п╩я▄п╨п╬ п╦п╫я└п╟ п╬ я┌п╬п╪, п╡ п╟п╨я┌п╦п╡п╣ п╬п╫п╟ п╦п╩п╦ п╫п╣я┌, п╫п╬ п╦ я─п╟п╥п╪п╣я─
+/// п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬пЁп╬ я─п╟п╠п╬я┌п╟я▌я┴п╣пЁп╬ п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ я│ п╣п╣ я│п╣я┌п╟
 void check_activated(CHAR_DATA *ch, int activ, idx_node &node)
 {
 	int need_msg = activ - node.activated_cnt;
@@ -793,8 +793,8 @@ void check_activated(CHAR_DATA *ch, int activ, idx_node &node)
 	}
 }
 
-/// дергается после проверок активаторов сета, чтобы учесть шмотки, которые
-/// перестали работать и распечатать их сообщения о деактивации
+/// п╢п╣я─пЁп╟п╣я┌я│я▐ п©п╬я│п╩п╣ п©я─п╬п╡п╣я─п╬п╨ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡ я│п╣я┌п╟, я┤я┌п╬п╠я▀ я┐я┤п╣я│я┌я▄ я┬п╪п╬я┌п╨п╦, п╨п╬я┌п╬я─я▀п╣
+/// п©п╣я─п╣я│я┌п╟п╩п╦ я─п╟п╠п╬я┌п╟я┌я▄ п╦ я─п╟я│п©п╣я┤п╟я┌п╟я┌я▄ п╦я┘ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╬ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦п╦
 void check_deactivated(CHAR_DATA *ch, int max_activ, idx_node &node)
 {
 	int need_msg = node.activated_cnt - max_activ;
@@ -815,8 +815,8 @@ void check_deactivated(CHAR_DATA *ch, int max_activ, idx_node &node)
 	}
 }
 
-/// распечатка предметов набора в два столбца со своим форматирование в
-/// каждом из них, для экономии места на экране при опознании
+/// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п©я─п╣п╢п╪п╣я┌п╬п╡ п╫п╟п╠п╬я─п╟ п╡ п╢п╡п╟ я│я┌п╬п╩п╠я├п╟ я│п╬ я│п╡п╬п╦п╪ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ п╡
+/// п╨п╟п╤п╢п╬п╪ п╦п╥ п╫п╦я┘, п╢п╩я▐ я█п╨п╬п╫п╬п╪п╦п╦ п╪п╣я│я┌п╟ п╫п╟ я█п╨я─п╟п╫п╣ п©я─п╦ п╬п©п╬п╥п╫п╟п╫п╦п╦
 std::string print_obj_list(const set_node &set)
 {
 	char buf_[128];
@@ -865,7 +865,7 @@ std::string print_obj_list(const set_node &set)
 	return out + "\r\n";
 }
 
-/// опознание сетового предмета
+/// п╬п©п╬п╥п╫п╟п╫п╦п╣ я│п╣я┌п╬п╡п╬пЁп╬ п©я─п╣п╢п╪п╣я┌п╟
 void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 {
 	const size_t set_idx = GET_OBJ_RNUM(obj) >= 0
@@ -882,7 +882,7 @@ void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 		std::string out;
 		char buf_[256], buf_2[128];
 
-		snprintf(buf_, sizeof(buf_), "%sЧасть набора предметов: %s%s%s\r\n",
+		snprintf(buf_, sizeof(buf_), "%sп╖п╟я│я┌я▄ п╫п╟п╠п╬я─п╟ п©я─п╣п╢п╪п╣я┌п╬п╡: %s%s%s\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM),
 			cur_set.name.c_str(), CCNRM(ch, C_NRM));
 		out += buf_;
@@ -891,11 +891,11 @@ void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 		auto i = obj->get_activator();
 		if (i.second > 0)
 		{
-			snprintf(buf_2, sizeof(buf_2), " (активно %d %s)",
+			snprintf(buf_2, sizeof(buf_2), " (п╟п╨я┌п╦п╡п╫п╬ %d %s)",
 				i.second, desc_count(i.second, WHAT_OBJECT));
 		}
 
-		snprintf(buf_, sizeof(buf_), "Свойства набора%s: %sсправка %s%s\r\n",
+		snprintf(buf_, sizeof(buf_), "п║п╡п╬п╧я│я┌п╡п╟ п╫п╟п╠п╬я─п╟%s: %sя│п©я─п╟п╡п╨п╟ %s%s\r\n",
 			(i.second > 0 ? buf_2 : ""),
 			CCWHT(ch, C_NRM), cur_set.help.c_str(), CCNRM(ch, C_NRM));
 		out += buf_;
@@ -904,10 +904,10 @@ void print_identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 	}
 }
 
-/// список сетов имму с распечаткой номеров, по которым дергается sed и справка
+/// я│п©п╦я│п╬п╨ я│п╣я┌п╬п╡ п╦п╪п╪я┐ я│ я─п╟я│п©п╣я┤п╟я┌п╨п╬п╧ п╫п╬п╪п╣я─п╬п╡, п©п╬ п╨п╬я┌п╬я─я▀п╪ п╢п╣я─пЁп╟п╣я┌я│я▐ sed п╦ я│п©я─п╟п╡п╨п╟
 void do_slist(CHAR_DATA *ch)
 {
-	std::string out("Зарегистрированные наборы предметов:\r\n");
+	std::string out("п≈п╟я─п╣пЁп╦я│я┌я─п╦я─п╬п╡п╟п╫п╫я▀п╣ п╫п╟п╠п╬я─я▀ п©я─п╣п╢п╪п╣я┌п╬п╡:\r\n");
 	char buf_[256];
 
 	int idx = 1;
@@ -916,13 +916,13 @@ void do_slist(CHAR_DATA *ch)
 		char comment[128];
 		snprintf(comment, sizeof(comment), " (%s)", (*i)->comment.c_str());
 		char status[64];
-		snprintf(status, sizeof(status), "Статус: %sотключен%s, ",
+		snprintf(status, sizeof(status), "п║я┌п╟я┌я┐я│: %sп╬я┌п╨п╩я▌я┤п╣п╫%s, ",
 			CCICYN(ch, C_NRM), CCNRM(ch, C_NRM));
 
 		snprintf(buf_, sizeof(buf_),
 			"%3d) %s%s\r\n"
-			"     %sПредметы: ", idx++,
-			((*i)->name.empty() ? "Безымянный набор" : (*i)->name.c_str()),
+			"     %sп÷я─п╣п╢п╪п╣я┌я▀: ", idx++,
+			((*i)->name.empty() ? "п▒п╣п╥я▀п╪я▐п╫п╫я▀п╧ п╫п╟п╠п╬я─" : (*i)->name.c_str()),
 			((*i)->comment.empty() ? "" : comment),
 			((*i)->enabled ? "" : status));
 		out += buf_;
@@ -935,16 +935,16 @@ void do_slist(CHAR_DATA *ch)
 	page_string(ch->desc, out);
 }
 
-/// распечатка аффектов активатора для справки с форматирование по 80 символов
+/// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╟я└я└п╣п╨я┌п╬п╡ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ п╢п╩я▐ я│п©я─п╟п╡п╨п╦ я│ я└п╬я─п╪п╟я┌п╦я─п╬п╡п╟п╫п╦п╣ п©п╬ 80 я│п╦п╪п╡п╬п╩п╬п╡
 std::string print_activ_affects(const FLAG_DATA &aff)
 {
 	char buf_[2048];
 	if (aff.sprintbits(weapon_affects, buf_, ","))
 	{
-		// весь этот изврат, чтобы вывести аффекты с разбивкой на строки
-		// по 80 символов (не разбивая слова), при этом подписать впереди
-		// каждой строки " + " и выделить сами аффекты цветом
-		std::string aff_str(" + Аффекты :\r\n");
+		// п╡п╣я│я▄ я█я┌п╬я┌ п╦п╥п╡я─п╟я┌, я┤я┌п╬п╠я▀ п╡я▀п╡п╣я│я┌п╦ п╟я└я└п╣п╨я┌я▀ я│ я─п╟п╥п╠п╦п╡п╨п╬п╧ п╫п╟ я│я┌я─п╬п╨п╦
+		// п©п╬ 80 я│п╦п╪п╡п╬п╩п╬п╡ (п╫п╣ я─п╟п╥п╠п╦п╡п╟я▐ я│п╩п╬п╡п╟), п©я─п╦ я█я┌п╬п╪ п©п╬п╢п©п╦я│п╟я┌я▄ п╡п©п╣я─п╣п╢п╦
+		// п╨п╟п╤п╢п╬п╧ я│я┌я─п╬п╨п╦ " + " п╦ п╡я▀п╢п╣п╩п╦я┌я▄ я│п╟п╪п╦ п╟я└я└п╣п╨я┌я▀ я├п╡п╣я┌п╬п╪
+		std::string aff_str(" + п░я└я└п╣п╨я┌я▀ :\r\n");
 		aff_str += line_split_str(buf_, ",", 74, 0);
 		boost::trim_right(aff_str);
 		char filler[64];
@@ -958,8 +958,8 @@ std::string print_activ_affects(const FLAG_DATA &aff)
 	return "";
 }
 
-/// для распечатки apply аффектов, которые могут быть как в std::array, так и
-/// в std::vector, хотя внутри там абсолютно одно и тоже
+/// п╢п╩я▐ я─п╟я│п©п╣я┤п╟я┌п╨п╦ apply п╟я└я└п╣п╨я┌п╬п╡, п╨п╬я┌п╬я─я▀п╣ п╪п╬пЁя┐я┌ п╠я▀я┌я▄ п╨п╟п╨ п╡ std::array, я┌п╟п╨ п╦
+/// п╡ std::vector, я┘п╬я┌я▐ п╡п╫я┐я┌я─п╦ я┌п╟п╪ п╟п╠я│п╬п╩я▌я┌п╫п╬ п╬п╢п╫п╬ п╦ я┌п╬п╤п╣
 template <class T>
 std::string print_activ_apply(const T &list)
 {
@@ -974,7 +974,7 @@ std::string print_activ_apply(const T &list)
 	return out;
 }
 
-/// распечатка уникальных сетовых бонусов у активатора или суммы активаторов
+/// я─п╟я│п©п╣я┤п╟я┌п╨п╟ я┐п╫п╦п╨п╟п╩я▄п╫я▀я┘ я│п╣я┌п╬п╡я▀я┘ п╠п╬п╫я┐я│п╬п╡ я┐ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ п╦п╩п╦ я│я┐п╪п╪я▀ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡
 std::string print_activ_bonus(const bonus_type &bonus)
 {
 	std::string out;
@@ -983,14 +983,14 @@ std::string print_activ_bonus(const bonus_type &bonus)
 	if (bonus.phys_dmg > 0)
 	{
 		snprintf(buf_, sizeof(buf_),
-			" +    %sувеличивает физ. урон на %d%%%s\r\n",
+			" +    %sя┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌ я└п╦п╥. я┐я─п╬п╫ п╫п╟ %d%%%s\r\n",
 			KCYN, bonus.phys_dmg, KNRM);
 		out += buf_;
 	}
 	if (bonus.mage_dmg > 0)
 	{
 		snprintf(buf_, sizeof(buf_),
-			" +    %sувеличивает маг. урон на %d%%%s\r\n",
+			" +    %sя┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌ п╪п╟пЁ. я┐я─п╬п╫ п╫п╟ %d%%%s\r\n",
 			KCYN, bonus.mage_dmg, KNRM);
 		out += buf_;
 	}
@@ -1011,8 +1011,8 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench)
 		if (ench.second.weight != 0)
 		{
 			snprintf(buf_, sizeof(buf_),
-				" +    %s%s вес %s на %d%s\r\n",
-				KCYN, ench.second.weight > 0 ? "увеличивает" : "уменьшает",
+				" +    %s%s п╡п╣я│ %s п╫п╟ %d%s\r\n",
+				KCYN, ench.second.weight > 0 ? "я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌" : "я┐п╪п╣п╫я▄я┬п╟п╣я┌",
 				GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 				abs(ench.second.weight), KNRM);
 			out += buf_;
@@ -1022,21 +1022,21 @@ std::string print_activ_enchant(const std::pair<int, ench_type> &ench)
 			if (ench.second.ndice >= 0 && ench.second.sdice >= 0)
 			{
 				snprintf(buf_, sizeof(buf_),
-					" +    %sувеличивает урон %s на %dD%d%s\r\n",
+					" +    %sя┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌ я┐я─п╬п╫ %s п╫п╟ %dD%d%s\r\n",
 					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
 			}
 			else if (ench.second.ndice <= 0 && ench.second.sdice <= 0)
 			{
 				snprintf(buf_, sizeof(buf_),
-					" +    %sуменьшает урон %s на %dD%d%s\r\n",
+					" +    %sя┐п╪п╣п╫я▄я┬п╟п╣я┌ я┐я─п╬п╫ %s п╫п╟ %dD%d%s\r\n",
 					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					abs(ench.second.ndice), abs(ench.second.sdice), KNRM);
 			}
 			else
 			{
 				snprintf(buf_, sizeof(buf_),
-					" +    %sизменяет урон %s на %+dD%+d%s\r\n",
+					" +    %sп╦п╥п╪п╣п╫я▐п╣я┌ я┐я─п╬п╫ %s п╫п╟ %+dD%+d%s\r\n",
 					KCYN, GET_OBJ_PNAME(obj_proto[rnum], 1).c_str(),
 					ench.second.ndice, ench.second.sdice, KNRM);
 			}
@@ -1056,7 +1056,7 @@ std::string print_activ_enchants(const std::map<int, ench_type> &enchants)
 	return out;
 }
 
-/// распечатка всего, что подпадает под раздел 'свойства' в активаторе
+/// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╡я│п╣пЁп╬, я┤я┌п╬ п©п╬п╢п©п╟п╢п╟п╣я┌ п©п╬п╢ я─п╟п╥п╢п╣п╩ 'я│п╡п╬п╧я│я┌п╡п╟' п╡ п╟п╨я┌п╦п╡п╟я┌п╬я─п╣
 std::string print_activ_properties(const activ_node &activ)
 {
 	std::string out;
@@ -1072,13 +1072,13 @@ std::string print_activ_properties(const activ_node &activ)
 
 	if (!out.empty())
 	{
-		return " + Свойства :\r\n" + out;
+		return " + п║п╡п╬п╧я│я┌п╡п╟ :\r\n" + out;
 	}
 	return out;
 }
 
-/// распечатка справки по активатору с суммированием аффектов, если активаторов
-/// больше одного - вывод суммы аффектов
+/// я─п╟я│п©п╣я┤п╟я┌п╨п╟ я│п©я─п╟п╡п╨п╦ п©п╬ п╟п╨я┌п╦п╡п╟я┌п╬я─я┐ я│ я│я┐п╪п╪п╦я─п╬п╡п╟п╫п╦п╣п╪ п╟я└я└п╣п╨я┌п╬п╡, п╣я│п╩п╦ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡
+/// п╠п╬п╩я▄я┬п╣ п╬п╢п╫п╬пЁп╬ - п╡я▀п╡п╬п╢ я│я┐п╪п╪я▀ п╟я└я└п╣п╨я┌п╬п╡
 std::string print_activ_help(const set_node &set)
 {
 	std::string out, prof_list;
@@ -1086,9 +1086,9 @@ std::string print_activ_help(const set_node &set)
 
 	snprintf(buf_, sizeof(buf_),
 		"--------------------------------------------------------------------------------\r\n"
-		"%sНабор предметов: %s%s%s%s\r\n",
+		"%sп²п╟п╠п╬я─ п©я─п╣п╢п╪п╣я┌п╬п╡: %s%s%s%s\r\n",
 		KNRM, KWHT, set.name.c_str(), KNRM,
-		set.enabled ? "" : " (в данный момент отключен)");
+		set.enabled ? "" : " (п╡ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ п╬я┌п╨п╩я▌я┤п╣п╫)");
 	out += buf_ + print_obj_list(set) +
 		"--------------------------------------------------------------------------------\r\n";
 
@@ -1096,8 +1096,8 @@ std::string print_activ_help(const set_node &set)
 	{
 		if (i->second.prof.count() != i->second.prof.size())
 		{
-			// активатор на ограниченный список проф (распечатка закладывается
-			// на то, что у валидных сетов списки проф должны быть одинаковые)
+			// п╟п╨я┌п╦п╡п╟я┌п╬я─ п╫п╟ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫я▀п╧ я│п©п╦я│п╬п╨ п©я─п╬я└ (я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╥п╟п╨п╩п╟п╢я▀п╡п╟п╣я┌я│я▐
+			// п╫п╟ я┌п╬, я┤я┌п╬ я┐ п╡п╟п╩п╦п╢п╫я▀я┘ я│п╣я┌п╬п╡ я│п©п╦я│п╨п╦ п©я─п╬я└ п╢п╬п╩п╤п╫я▀ п╠я▀я┌я▄ п╬п╢п╦п╫п╟п╨п╬п╡я▀п╣)
 			if (prof_list.empty())
 			{
 				print_bitset(i->second.prof, pc_class_name, ",", prof_list);
@@ -1111,9 +1111,9 @@ std::string print_activ_help(const set_node &set)
 				i->first, desc_count(i->first, WHAT_OBJECT));
 		}
 		out += buf_;
-		// аффекты
+		// п╟я└я└п╣п╨я┌я▀
 		out += print_activ_affects(i->second.affects);
-		// свойства
+		// я│п╡п╬п╧я│я┌п╡п╟
 		out += print_activ_properties(i->second);
 	}
 
@@ -1125,7 +1125,7 @@ std::string print_activ_help(const set_node &set)
 	return out;
 }
 
-/// выриант print_activ_help только для суммы активаторов (олц)
+/// п╡я▀я─п╦п╟п╫я┌ print_activ_help я┌п╬п╩я▄п╨п╬ п╢п╩я▐ я│я┐п╪п╪я▀ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡ (п╬п╩я├)
 std::string print_total_activ(const set_node &set)
 {
 	std::string out, prof_list, properties;
@@ -1135,8 +1135,8 @@ std::string print_total_activ(const set_node &set)
 	{
 		if (i->second.prof.count() != i->second.prof.size())
 		{
-			// активатор на ограниченный список проф (распечатка закладывается
-			// на то, что у валидных сетов списки проф должны быть одинаковые)
+			// п╟п╨я┌п╦п╡п╟я┌п╬я─ п╫п╟ п╬пЁя─п╟п╫п╦я┤п╣п╫п╫я▀п╧ я│п©п╦я│п╬п╨ п©я─п╬я└ (я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╥п╟п╨п╩п╟п╢я▀п╡п╟п╣я┌я│я▐
+			// п╫п╟ я┌п╬, я┤я┌п╬ я┐ п╡п╟п╩п╦п╢п╫я▀я┘ я│п╣я┌п╬п╡ я│п©п╦я│п╨п╦ п©я─п╬я└ п╢п╬п╩п╤п╫я▀ п╠я▀я┌я▄ п╬п╢п╦п╫п╟п╨п╬п╡я▀п╣)
 			if (prof_list.empty())
 			{
 				print_bitset(i->second.prof, pc_class_name, ",", prof_list);
@@ -1150,7 +1150,7 @@ std::string print_total_activ(const set_node &set)
 	}
 
 	out += "--------------------------------------------------------------------------------\r\n";
-	out += "Суммарный бонус:\r\n";
+	out += "п║я┐п╪п╪п╟я─п╫я▀п╧ п╠п╬п╫я┐я│:\r\n";
 	out += print_activ_affects(summ.affects);
 	properties += print_activ_apply(summ.apply);
 	properties += PrintActivators::print_skills(summ.skills, true, false);
@@ -1158,13 +1158,13 @@ std::string print_total_activ(const set_node &set)
 	properties += print_activ_enchants(summ.enchants);
 	if (!properties.empty())
 	{
-		out += " + Свойства :\r\n" + properties;
+		out += " + п║п╡п╬п╧я│я┌п╡п╟ :\r\n" + properties;
 	}
 
 	if (!prof_list.empty())
 	{
 		properties.clear();
-		out += "Профессии: " + prof_list + "\r\n";
+		out += "п÷я─п╬я└п╣я│я│п╦п╦: " + prof_list + "\r\n";
 		out += print_activ_affects(prof_summ.affects);
 		properties += print_activ_apply(prof_summ.apply);
 		properties += PrintActivators::print_skills(prof_summ.skills, true, false);
@@ -1172,7 +1172,7 @@ std::string print_total_activ(const set_node &set)
 		properties += print_activ_enchants(prof_summ.enchants);
 		if (!properties.empty())
 		{
-			out += " + Свойства :\r\n" + properties;
+			out += " + п║п╡п╬п╧я│я┌п╡п╟ :\r\n" + properties;
 		}
 	}
 	out += "--------------------------------------------------------------------------------\r\n";
@@ -1180,8 +1180,8 @@ std::string print_total_activ(const set_node &set)
 	return out;
 }
 
-/// генерация справки по активаторам через индексы сетов, которые потом видны
-/// через опознание любой сетины
+/// пЁп╣п╫п╣я─п╟я├п╦я▐ я│п©я─п╟п╡п╨п╦ п©п╬ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟п╪ я┤п╣я─п╣п╥ п╦п╫п╢п╣п╨я│я▀ я│п╣я┌п╬п╡, п╨п╬я┌п╬я─я▀п╣ п©п╬я┌п╬п╪ п╡п╦п╢п╫я▀
+/// я┤п╣я─п╣п╥ п╬п©п╬п╥п╫п╟п╫п╦п╣ п╩я▌п╠п╬п╧ я│п╣я┌п╦п╫я▀
 void init_xhelp()
 {
 	char buf_[128];
@@ -1190,7 +1190,7 @@ void init_xhelp()
 		const int lvl = (sets_list.at(i)->enabled ? 0 : LVL_IMMORT);
 		if (sets_list.at(i)->alias.empty())
 		{
-			snprintf(buf_, sizeof(buf_), "актив%02d", static_cast<int>(i + 1));
+			snprintf(buf_, sizeof(buf_), "п╟п╨я┌п╦п╡%02d", static_cast<int>(i + 1));
 			HelpSystem::add_static(buf_,
 				print_activ_help(*(sets_list.at(i))), lvl, true);
 			sets_list.at(i)->help = buf_;
@@ -1198,7 +1198,7 @@ void init_xhelp()
 		else
 		{
 			bool first = true;
-			std::string name = "актив";
+			std::string name = "п╟п╨я┌п╦п╡";
 			std::vector<std::string> str_list;
 			boost::split(str_list, sets_list.at(i)->alias,
 				boost::is_any_of(", "), boost::token_compress_on);
@@ -1216,7 +1216,7 @@ void init_xhelp()
 	}
 }
 
-/// временная фигня для глобал-дропа сетов - имя сета через индекс
+/// п╡я─п╣п╪п╣п╫п╫п╟я▐ я└п╦пЁп╫я▐ п╢п╩я▐ пЁп╩п╬п╠п╟п╩-п╢я─п╬п©п╟ я│п╣я┌п╬п╡ - п╦п╪я▐ я│п╣я┌п╟ я┤п╣я─п╣п╥ п╦п╫п╢п╣п╨я│
 std::string get_name(size_t idx)
 {
 	if (idx < sets_list.size())
@@ -1226,7 +1226,7 @@ std::string get_name(size_t idx)
 	return "";
 }
 
-/// очистка списка сетин на чаре перед очередным заполнением
+/// п╬я┤п╦я│я┌п╨п╟ я│п©п╦я│п╨п╟ я│п╣я┌п╦п╫ п╫п╟ я┤п╟я─п╣ п©п╣я─п╣п╢ п╬я┤п╣я─п╣п╢п╫я▀п╪ п╥п╟п©п╬п╩п╫п╣п╫п╦п╣п╪
 void WornSets::clear()
 {
 	for (auto i = idx_list_.begin(); i != idx_list_.end(); ++i)
@@ -1237,8 +1237,8 @@ void WornSets::clear()
 	}
 }
 
-/// добавление сетины (для игроков и чармисов) на последующую обработку
-/// одновременно сразу же считается кол-во активированных шмоток в каждом сете
+/// п╢п╬п╠п╟п╡п╩п╣п╫п╦п╣ я│п╣я┌п╦п╫я▀ (п╢п╩я▐ п╦пЁя─п╬п╨п╬п╡ п╦ я┤п╟я─п╪п╦я│п╬п╡) п╫п╟ п©п╬я│п╩п╣п╢я┐я▌я┴я┐я▌ п╬п╠я─п╟п╠п╬я┌п╨я┐
+/// п╬п╢п╫п╬п╡я─п╣п╪п╣п╫п╫п╬ я│я─п╟п╥я┐ п╤п╣ я│я┤п╦я┌п╟п╣я┌я│я▐ п╨п╬п╩-п╡п╬ п╟п╨я┌п╦п╡п╦я─п╬п╡п╟п╫п╫я▀я┘ я┬п╪п╬я┌п╬п╨ п╡ п╨п╟п╤п╢п╬п╪ я│п╣я┌п╣
 void WornSets::add(OBJ_DATA *obj)
 {
 	if (obj && is_set_item(obj))
@@ -1263,7 +1263,7 @@ void WornSets::add(OBJ_DATA *obj)
 	}
 }
 
-/// проверка списка сетов на чаре и применение их активаторов
+/// п©я─п╬п╡п╣я─п╨п╟ я│п©п╦я│п╨п╟ я│п╣я┌п╬п╡ п╫п╟ я┤п╟я─п╣ п╦ п©я─п╦п╪п╣п╫п╣п╫п╦п╣ п╦я┘ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡
 void WornSets::check(CHAR_DATA *ch)
 {
     for (auto i = idx_list_.begin(); i != idx_list_.end(); ++i)
@@ -1279,8 +1279,8 @@ void WornSets::check(CHAR_DATA *ch)
 				k != cur_set->activ_list.cend(); ++k)
 			{
 				const size_t prof_bit = GET_CLASS(ch);
-				// k->first - кол-во для активации,
-				// i->obj_list.size() - одето на чаре
+				// k->first - п╨п╬п╩-п╡п╬ п╢п╩я▐ п╟п╨я┌п╦п╡п╟я├п╦п╦,
+				// i->obj_list.size() - п╬п╢п╣я┌п╬ п╫п╟ я┤п╟я─п╣
 				if (k->first > i->obj_list.size())
 				{
 						continue;
@@ -1296,13 +1296,13 @@ void WornSets::check(CHAR_DATA *ch)
 				{
 					continue;
 				}
-				// суммируем все на чаре, потом кому надо - сами дернут
+				// я│я┐п╪п╪п╦я─я┐п╣п╪ п╡я│п╣ п╫п╟ я┤п╟я─п╣, п©п╬я┌п╬п╪ п╨п╬п╪я┐ п╫п╟п╢п╬ - я│п╟п╪п╦ п╢п╣я─п╫я┐я┌
 				ch->obj_bonus() += &(k->second);
 				max_activ = k->first;
 				check_activated(ch, k->first, *i);
 			}
 		}
-		// на деактивацию проверять надо даже выключенные сеты
+		// п╫п╟ п╢п╣п╟п╨я┌п╦п╡п╟я├п╦я▌ п©я─п╬п╡п╣я─я▐я┌я▄ п╫п╟п╢п╬ п╢п╟п╤п╣ п╡я▀п╨п╩я▌я┤п╣п╫п╫я▀п╣ я│п╣я┌я▀
 		check_deactivated(ch, max_activ, *i);
 	}
 }
@@ -1510,7 +1510,7 @@ bool is_set_item(OBJ_DATA *obj)
 
 } // namespace obj_sets
 
-/// иммский slist
+/// п╦п╪п╪я│п╨п╦п╧ slist
 void do_slist(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))

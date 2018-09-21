@@ -38,7 +38,7 @@
 #include <stdexcept>
 #include <sstream>
 
-//Используемые внешние ф-ии.
+//п≤я│п©п╬п╩я▄п╥я┐п╣п╪я▀п╣ п╡п╫п╣я┬п╫п╦п╣ я└-п╦п╦.
 extern int get_buf_line(char **source, char *target);
 extern int get_buf_lines(char **source, char *target);
 
@@ -54,7 +54,7 @@ extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fulln
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern bool is_dig_stone(OBJ_DATA *obj);
 
-//свои ф-ии
+//я│п╡п╬п╦ я└-п╦п╦
 int exchange_exhibit(CHAR_DATA * ch, char *arg);
 int exchange_change_cost(CHAR_DATA * ch, char *arg);
 int exchange_withdraw(CHAR_DATA * ch, char *arg);
@@ -86,80 +86,80 @@ std::vector<bool> lot_usage;
 
 char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
-char info_message[] = ("базар выставить <предмет> <цена>        - выставить предмет на продажу\r\n"
-					   "базар цена <#лот> <цена>                - изменить цену на свой лот\r\n"
-					   "базар снять <#лот>                      - снять с продажи свой лот\r\n"
-					   "базар информация <#лот>                 - информация о лоте\r\n"
-					   "базар характеристики <#лот>             - характеристики лота (цена услуги 110 кун)\r\n"
-					   "базар купить <#лот>                     - купить лот\r\n"
-					   "базар предложения все <предмет>         - все предложения\r\n"
-					   "базар предложения последние             - последние\r\n"
-					   "базар предложения мои <предмет>         - мои предложения\r\n"
-					   "базар предложения руны <предмет>        - предложения рун\r\n"
-					   "базар предложения броня <предмет>       - предложения одежды и брони\r\n"
-//					   "базар предложения легкие <предмет>      - предложения легких доспехов\r\n"
-//					   "базар предложения средние <предмет>     - предложения средних доспехов\r\n"
-//					   "базар предложения тяжелые <предмет>     - предложения тяжелых доспехов\r\n"
-					   "базар предложения оружие <предмет>      - предложения оружия\r\n"
-					   "базар предложения книги <предмет>       - предложения книг\r\n"
-					   "базар предложения ингредиенты <предмет> - предложения ингредиентов\r\n"
-					   "базар предложения прочие <предмет>      - прочие предложения\r\n"
-					   "базар предложения аффект имя.аффекта    - поиск по аффекту (цена услуги 55 кун)\r\n"
-					   "базар фильтрация <фильтр>               - фильтрация товара на базаре\r\n");
+char info_message[] = ("п╠п╟п╥п╟я─ п╡я▀я│я┌п╟п╡п╦я┌я▄ <п©я─п╣п╢п╪п╣я┌> <я├п╣п╫п╟>        - п╡я▀я│я┌п╟п╡п╦я┌я▄ п©я─п╣п╢п╪п╣я┌ п╫п╟ п©я─п╬п╢п╟п╤я┐\r\n"
+					   "п╠п╟п╥п╟я─ я├п╣п╫п╟ <#п╩п╬я┌> <я├п╣п╫п╟>                - п╦п╥п╪п╣п╫п╦я┌я▄ я├п╣п╫я┐ п╫п╟ я│п╡п╬п╧ п╩п╬я┌\r\n"
+					   "п╠п╟п╥п╟я─ я│п╫я▐я┌я▄ <#п╩п╬я┌>                      - я│п╫я▐я┌я▄ я│ п©я─п╬п╢п╟п╤п╦ я│п╡п╬п╧ п╩п╬я┌\r\n"
+					   "п╠п╟п╥п╟я─ п╦п╫я└п╬я─п╪п╟я├п╦я▐ <#п╩п╬я┌>                 - п╦п╫я└п╬я─п╪п╟я├п╦я▐ п╬ п╩п╬я┌п╣\r\n"
+					   "п╠п╟п╥п╟я─ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ <#п╩п╬я┌>             - я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦ п╩п╬я┌п╟ (я├п╣п╫п╟ я┐я│п╩я┐пЁп╦ 110 п╨я┐п╫)\r\n"
+					   "п╠п╟п╥п╟я─ п╨я┐п©п╦я┌я▄ <#п╩п╬я┌>                     - п╨я┐п©п╦я┌я▄ п╩п╬я┌\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╡я│п╣ <п©я─п╣п╢п╪п╣я┌>         - п╡я│п╣ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п©п╬я│п╩п╣п╢п╫п╦п╣             - п©п╬я│п╩п╣п╢п╫п╦п╣\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╪п╬п╦ <п©я─п╣п╢п╪п╣я┌>         - п╪п╬п╦ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ я─я┐п╫я▀ <п©я─п╣п╢п╪п╣я┌>        - п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ я─я┐п╫\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╠я─п╬п╫я▐ <п©я─п╣п╢п╪п╣я┌>       - п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╬п╢п╣п╤п╢я▀ п╦ п╠я─п╬п╫п╦\r\n"
+//					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╩п╣пЁп╨п╦п╣ <п©я─п╣п╢п╪п╣я┌>      - п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╩п╣пЁп╨п╦я┘ п╢п╬я│п©п╣я┘п╬п╡\r\n"
+//					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ я│я─п╣п╢п╫п╦п╣ <п©я─п╣п╢п╪п╣я┌>     - п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ я│я─п╣п╢п╫п╦я┘ п╢п╬я│п©п╣я┘п╬п╡\r\n"
+//					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ я┌я▐п╤п╣п╩я▀п╣ <п©я─п╣п╢п╪п╣я┌>     - п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ я┌я▐п╤п╣п╩я▀я┘ п╢п╬я│п©п╣я┘п╬п╡\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╬я─я┐п╤п╦п╣ <п©я─п╣п╢п╪п╣я┌>      - п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╬я─я┐п╤п╦я▐\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╨п╫п╦пЁп╦ <п©я─п╣п╢п╪п╣я┌>       - п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╨п╫п╦пЁ\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀ <п©я─п╣п╢п╪п╣я┌> - п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п©я─п╬я┤п╦п╣ <п©я─п╣п╢п╪п╣я┌>      - п©я─п╬я┤п╦п╣ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐\r\n"
+					   "п╠п╟п╥п╟я─ п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐ п╟я└я└п╣п╨я┌ п╦п╪я▐.п╟я└я└п╣п╨я┌п╟    - п©п╬п╦я│п╨ п©п╬ п╟я└я└п╣п╨я┌я┐ (я├п╣п╫п╟ я┐я│п╩я┐пЁп╦ 55 п╨я┐п╫)\r\n"
+					   "п╠п╟п╥п╟я─ я└п╦п╩я▄я┌я─п╟я├п╦я▐ <я└п╦п╩я▄я┌я─>               - я└п╦п╩я▄я┌я─п╟я├п╦я▐ я┌п╬п╡п╟я─п╟ п╫п╟ п╠п╟п╥п╟я─п╣\r\n");
 
 int exchange(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 {
-	if (CMD_IS("exchange") || CMD_IS("базар"))
+	if (CMD_IS("exchange") || CMD_IS("п╠п╟п╥п╟я─"))
 	{
 		if (IS_NPC(ch))
 			return 0;
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
-			send_to_char("Вы немы, как рыба об лед.\r\n", ch);
+			send_to_char("п▓я▀ п╫п╣п╪я▀, п╨п╟п╨ я─я▀п╠п╟ п╬п╠ п╩п╣п╢.\r\n", ch);
 			return 1;
 		}
 		if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 		{
-			send_to_char("Вам запрещено общаться с торговцами!\r\n", ch);
+			send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я┴п╟я┌я▄я│я▐ я│ я┌п╬я─пЁп╬п╡я├п╟п╪п╦!\r\n", ch);
 			return 1;
 		}
 		/*
 				if (PLR_FLAGGED(ch, PLR_MUTE)) {
-					send_to_char("Вам не к лицу торговаться.\r\n", ch);
+					send_to_char("п▓п╟п╪ п╫п╣ п╨ п╩п╦я├я┐ я┌п╬я─пЁп╬п╡п╟я┌я▄я│я▐.\r\n", ch);
 					return 1;
 				}
 		*/
 		if (GET_LEVEL(ch) < EXCHANGE_MIN_CHAR_LEV && !GET_REMORT(ch))
 		{
 			sprintf(buf1,
-					"Вам стоит достичь хотя бы %d уровня, чтобы пользоваться базаром.\r\n",
+					"п▓п╟п╪ я│я┌п╬п╦я┌ п╢п╬я│я┌п╦я┤я▄ я┘п╬я┌я▐ п╠я▀ %d я┐я─п╬п╡п╫я▐, я┤я┌п╬п╠я▀ п©п╬п╩я▄п╥п╬п╡п╟я┌я▄я│я▐ п╠п╟п╥п╟я─п╬п╪.\r\n",
 					EXCHANGE_MIN_CHAR_LEV);
 			send_to_char(buf1, ch);
 			return 1;
 		}
 		if (RENTABLE(ch))
 		{
-			send_to_char("Завершите сначала боевые действия.\r\n", ch);
+			send_to_char("п≈п╟п╡п╣я─я┬п╦я┌п╣ я│п╫п╟я┤п╟п╩п╟ п╠п╬п╣п╡я▀п╣ п╢п╣п╧я│я┌п╡п╦я▐.\r\n", ch);
 			return 1;
 		}
 
 		argument = one_argument(argument, arg1);
 
-		if (is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit"))
+		if (is_abbrev(arg1, "п╡я▀я│я┌п╟п╡п╦я┌я▄") || is_abbrev(arg1, "exhibit"))
 			exchange_exhibit(ch, argument);
-		else if (is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost"))
+		else if (is_abbrev(arg1, "я├п╣п╫п╟") || is_abbrev(arg1, "cost"))
 			exchange_change_cost(ch, argument);
-		else if (is_abbrev(arg1, "снять") || is_abbrev(arg1, "withdraw"))
+		else if (is_abbrev(arg1, "я│п╫я▐я┌я▄") || is_abbrev(arg1, "withdraw"))
 			exchange_withdraw(ch, argument);
-		else if (is_abbrev(arg1, "информация") || is_abbrev(arg1, "information"))
+		else if (is_abbrev(arg1, "п╦п╫я└п╬я─п╪п╟я├п╦я▐") || is_abbrev(arg1, "information"))
 			exchange_information(ch, argument);
-		else if (is_abbrev(arg1, "характеристики") || is_abbrev(arg1, "identify"))
+		else if (is_abbrev(arg1, "я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦") || is_abbrev(arg1, "identify"))
 			exchange_identify(ch, argument);
-		else if (is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase"))
+		else if (is_abbrev(arg1, "п╨я┐п©п╦я┌я▄") || is_abbrev(arg1, "purchase"))
 			exchange_purchase(ch, argument);
-		else if (is_abbrev(arg1, "предложения") || is_abbrev(arg1, "offers"))
+		else if (is_abbrev(arg1, "п©я─п╣п╢п╩п╬п╤п╣п╫п╦я▐") || is_abbrev(arg1, "offers"))
 			exchange_offers(ch, argument);
-		else if (is_abbrev(arg1, "фильтрация") || is_abbrev(arg1, "filter"))
+		else if (is_abbrev(arg1, "я└п╦п╩я▄я┌я─п╟я├п╦я▐") || is_abbrev(arg1, "filter"))
 			exchange_setfilter(ch, argument);
 		else if (is_abbrev(arg1, "save") && (GET_LEVEL(ch) >= LVL_IMPL))
 			exchange_database_save();
@@ -189,8 +189,8 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	EXCHANGE_ITEM_DATA *item = NULL;
 	EXCHANGE_ITEM_DATA *j, *next_thing = NULL;
 	int counter;
-	int counter_ming; //количиство ингридиентов
-	int tax;	//налог
+	int counter_ming; //п╨п╬п╩п╦я┤п╦я│я┌п╡п╬ п╦п╫пЁя─п╦п╢п╦п╣п╫я┌п╬п╡
+	int tax;	//п╫п╟п╩п╬пЁ
 
 	if (!*arg)
 	{
@@ -199,7 +199,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
+		send_to_char("п▒п╬п╤п╣, п╫п╣ п╩п╣п╥я▄я┌п╣ п╡ я█п╨п╬п╫п╬п╪п╦п╨я┐ я│п╪п╣я─я┌п╫я▀я┘, п╡п╟п╪ я█я┌п╬ п╫п╣ п╨ я┤п╣п╪я┐.\r\n", ch);
 		return false;
 	}
 
@@ -208,26 +208,26 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	arg = one_argument(arg, arg2);
 	if (!*obj_name)
 	{
-		send_to_char("Формат: базар выставить предмет цена комментарий\r\n", ch);
+		send_to_char("п╓п╬я─п╪п╟я┌: п╠п╟п╥п╟я─ п╡я▀я│я┌п╟п╡п╦я┌я▄ п©я─п╣п╢п╪п╣я┌ я├п╣п╫п╟ п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧\r\n", ch);
 		return false;
 	}
 	if (!sscanf(arg2, "%d", &item_cost))
 		item_cost = 0;
 	if (!*obj_name)
 	{
-		send_to_char("Не указан предмет.\r\n", ch);
+		send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ п©я─п╣п╢п╪п╣я┌.\r\n", ch);
 		return false;
 	}
 	if (!(obj = get_obj_in_list_vis(ch, obj_name, ch->carrying)))
 	{
-		send_to_char("У вас этого нет.\r\n", ch);
+		send_to_char("пё п╡п╟я│ я█я┌п╬пЁп╬ п╫п╣я┌.\r\n", ch);
 		return false;
 	}
 	if (!bloody::handle_transfer(ch, NULL, obj))
 		return false;
 	if (item_cost > 400000 && OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 	{
-		send_to_char("Никто не купит ЭТО за такую сумму.\r\n", ch);
+		send_to_char("п²п╦п╨я┌п╬ п╫п╣ п╨я┐п©п╦я┌ п╜п╒п· п╥п╟ я┌п╟п╨я┐я▌ я│я┐п╪п╪я┐.\r\n", ch);
 		return false;
 	}
 	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK)
@@ -238,7 +238,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_REPOP_DECAY)
 			|| GET_OBJ_RNUM(obj) < 0)
 		{
-			send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
+			send_to_char("п╜я┌п╬я┌ п©я─п╣п╢п╪п╣я┌ п╫п╣ п©я─п╣п╢п╫п╟п╥п╫п╟я┤п╣п╫ п╢п╩я▐ п╠п╟п╥п╟я─п╟.\r\n", ch);
 			return false;
 		}
 	}
@@ -247,18 +247,18 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 		|| GET_OBJ_COST(obj) <= 0
 		|| obj->get_owner() > 0)
 	{
-		send_to_char("Этот предмет не предназначен для базара.\r\n", ch);
+		send_to_char("п╜я┌п╬я┌ п©я─п╣п╢п╪п╣я┌ п╫п╣ п©я─п╣п╢п╫п╟п╥п╫п╟я┤п╣п╫ п╢п╩я▐ п╠п╟п╥п╟я─п╟.\r\n", ch);
 		return false;
 	}
 	if (obj->get_contains())
 	{
-		sprintf(tmpbuf, "Опустошите %s перед продажей.\r\n", obj->get_PName(3).c_str());
+		sprintf(tmpbuf, "п·п©я┐я│я┌п╬я┬п╦я┌п╣ %s п©п╣я─п╣п╢ п©я─п╬п╢п╟п╤п╣п╧.\r\n", obj->get_PName(3).c_str());
 		send_to_char(tmpbuf, ch);
 		return false;
 	}
 	else if (SetSystem::is_big_set(obj, true))
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "%s является частью большого набора предметов.\r\n",
+		snprintf(buf, MAX_STRING_LENGTH, "%s я▐п╡п╩я▐п╣я┌я│я▐ я┤п╟я│я┌я▄я▌ п╠п╬п╩я▄я┬п╬пЁп╬ п╫п╟п╠п╬я─п╟ п©я─п╣п╢п╪п╣я┌п╬п╡.\r\n",
 			obj->get_PName(0).c_str());
 		send_to_char(CAP(buf), ch);
 		return false;
@@ -275,7 +275,7 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	if ((ch->get_total_gold() < tax)
 		&& (GET_LEVEL(ch) < LVL_IMPL))
 	{
-		send_to_char("У вас не хватит денег на налоги!\r\n", ch);
+		send_to_char("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╦я┌ п╢п╣п╫п╣пЁ п╫п╟ п╫п╟п╩п╬пЁп╦!\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list, counter = 0, counter_ming = 0;
@@ -299,13 +299,13 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 
 	if (counter + (counter_ming / 20)  >= EXCHANGE_MAX_EXHIBIT_PER_CHAR + (GET_REMORT(ch) * 2))
 	{
-		send_to_char("Вы уже выставили на базар максимальное количество предметов!\r\n", ch);
+		send_to_char("п▓я▀ я┐п╤п╣ п╡я▀я│я┌п╟п╡п╦п╩п╦ п╫п╟ п╠п╟п╥п╟я─ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п©я─п╣п╢п╪п╣я┌п╬п╡!\r\n", ch);
 		return false;
 	}
 
 	if ((lot = get_unique_lot()) <= 0)
 	{
-		send_to_char("Базар переполнен!\r\n", ch);
+		send_to_char("п▒п╟п╥п╟я─ п©п╣я─п╣п©п╬п╩п╫п╣п╫!\r\n", ch);
 		return false;
 	}
 	item = create_exchange_item();
@@ -319,15 +319,15 @@ int exchange_exhibit(CHAR_DATA * ch, char *arg)
 	else
 		GET_EXCHANGE_ITEM_COMMENT(item) = NULL;
 
-	if  (check_unlimited_timer(obj)) // если нерушима таймер 1 неделя
+	if  (check_unlimited_timer(obj)) // п╣я│п╩п╦ п╫п╣я─я┐я┬п╦п╪п╟ я┌п╟п╧п╪п╣я─ 1 п╫п╣п╢п╣п╩я▐
 		obj->set_timer(10080);
 	GET_EXCHANGE_ITEM(item) = obj;
 	obj_from_char(obj);
 
-	sprintf(tmpbuf, "Вы выставили на базар $O3 (лот %d) за %d %s.\r\n",
+	sprintf(tmpbuf, "п▓я▀ п╡я▀я│я┌п╟п╡п╦п╩п╦ п╫п╟ п╠п╟п╥п╟я─ $O3 (п╩п╬я┌ %d) п╥п╟ %d %s.\r\n",
 			GET_EXCHANGE_ITEM_LOT(item), item_cost, desc_count(item_cost, WHAT_MONEYu));
 	act(tmpbuf, FALSE, ch, 0, obj, TO_CHAR);
-	sprintf(tmpbuf, "Базар : новый лот (%d) - %s - цена %d %s. \r\n",
+	sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╫п╬п╡я▀п╧ п╩п╬я┌ (%d) - %s - я├п╣п╫п╟ %d %s. \r\n",
 		GET_EXCHANGE_ITEM_LOT(item), obj->get_PName(0).c_str(), item_cost, desc_count(item_cost, WHAT_MONEYa));
 	message_exchange(tmpbuf, ch, item);
 
@@ -356,12 +356,12 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
+		send_to_char("п▒п╬п╤п╣, п╫п╣ п╩п╣п╥я▄я┌п╣ п╡ я█п╨п╬п╫п╬п╪п╦п╨я┐ я│п╪п╣я─я┌п╫я▀я┘, п╡п╟п╪ я█я┌п╬ п╫п╣ п╨ я┤п╣п╪я┐.\r\n", ch);
 		return false;
 	}
 	if (sscanf(arg, "%d %d", &lot, &newcost) != 2)
 	{
-		send_to_char("Формат команды: базар цена <лот> <новая цена>.\r\n", ch);
+		send_to_char("п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀: п╠п╟п╥п╟я─ я├п╣п╫п╟ <п╩п╬я┌> <п╫п╬п╡п╟я▐ я├п╣п╫п╟>.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing)
@@ -372,29 +372,29 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 	}
 	if ((lot < 0) || (!item))
 	{
-		send_to_char("Неверный номер лота.\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_LEVEL(ch) < LVL_IMPL))
 	{
-		send_to_char("Это не ваш лот.\r\n", ch);
+		send_to_char("п╜я┌п╬ п╫п╣ п╡п╟я┬ п╩п╬я┌.\r\n", ch);
 		return false;
 	}
 	if (newcost == GET_EXCHANGE_ITEM_COST(item))
 	{
-		send_to_char("Ваша новая цена совпадает с текущей.\r\n", ch);
+		send_to_char("п▓п╟я┬п╟ п╫п╬п╡п╟я▐ я├п╣п╫п╟ я│п╬п╡п©п╟п╢п╟п╣я┌ я│ я┌п╣п╨я┐я┴п╣п╧.\r\n", ch);
 		return false;
 	}
 	if (newcost <= 0)
 	{
-		send_to_char("Вы указали неправильную цену.\r\n", ch);
+		send_to_char("п▓я▀ я┐п╨п╟п╥п╟п╩п╦ п╫п╣п©я─п╟п╡п╦п╩я▄п╫я┐я▌ я├п╣п╫я┐.\r\n", ch);
 		return false;
 	}
 	pay = newcost - GET_EXCHANGE_ITEM_COST(item);
 	if (pay > 0)
 		if ((ch->get_total_gold() < (pay * EXCHANGE_EXHIBIT_PAY_COEFF)) && (GET_LEVEL(ch) < LVL_IMPL))
 		{
-			send_to_char("У вас не хватит денег на налоги!\r\n", ch);
+			send_to_char("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╦я┌ п╢п╣п╫п╣пЁ п╫п╟ п╫п╟п╩п╬пЁп╦!\r\n", ch);
 			return false;
 		}
 
@@ -405,10 +405,10 @@ int exchange_change_cost(CHAR_DATA * ch, char *arg)
 		ch->remove_both_gold(static_cast<long>(pay * EXCHANGE_EXHIBIT_PAY_COEFF));
 	}
 
-	sprintf(tmpbuf, "Вы назначили цену %d %s за %s (лот %d).\r\n",
+	sprintf(tmpbuf, "п▓я▀ п╫п╟п╥п╫п╟я┤п╦п╩п╦ я├п╣п╫я┐ %d %s п╥п╟ %s (п╩п╬я┌ %d).\r\n",
 		newcost, desc_count(newcost, WHAT_MONEYu), GET_EXCHANGE_ITEM(item)->get_PName(3).c_str(), GET_EXCHANGE_ITEM_LOT(item));
 	send_to_char(tmpbuf, ch);
-	sprintf(tmpbuf, "Базар : лот (%d) - %s - выставлен за новую цену %d %s.\r\n",
+	sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╩п╬я┌ (%d) - %s - п╡я▀я│я┌п╟п╡п╩п╣п╫ п╥п╟ п╫п╬п╡я┐я▌ я├п╣п╫я┐ %d %s.\r\n",
 		GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), newcost, desc_count(newcost, WHAT_MONEYa));
 	message_exchange(tmpbuf, ch, item);
 	set_wait(ch, 2, FALSE);
@@ -430,13 +430,13 @@ int exchange_withdraw(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
+		send_to_char("п▒п╬п╤п╣, п╫п╣ п╩п╣п╥я▄я┌п╣ п╡ я█п╨п╬п╫п╬п╪п╦п╨я┐ я│п╪п╣я─я┌п╫я▀я┘, п╡п╟п╪ я█я┌п╬ п╫п╣ п╨ я┤п╣п╪я┐.\r\n", ch);
 		return false;
 	}
 
 	if (!sscanf(arg, "%d", &lot))
 	{
-		send_to_char("Не указан номер лота.\r\n", ch);
+		send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing)
@@ -447,27 +447,27 @@ int exchange_withdraw(CHAR_DATA * ch, char *arg)
 	}
 	if ((lot < 0) || (!item))
 	{
-		send_to_char("Неверный номер лота.\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 	if ((GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch)) && (GET_LEVEL(ch) < LVL_IMPL))
 	{
-		send_to_char("Это не ваш лот.\r\n", ch);
+		send_to_char("п╜я┌п╬ п╫п╣ п╡п╟я┬ п╩п╬я┌.\r\n", ch);
 		return false;
 	}
-	act("Вы сняли $O3 с базара.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+	act("п▓я▀ я│п╫я▐п╩п╦ $O3 я│ п╠п╟п╥п╟я─п╟.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
 	if (GET_EXCHANGE_ITEM_SELLERID(item) != GET_IDNUM(ch))
 	{
-		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара Богами.\r\n", lot,
+		sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╩п╬я┌ %d(%s) я│п╫я▐я┌%s я│ п╠п╟п╥п╟я─п╟ п▒п╬пЁп╟п╪п╦.\r\n", lot,
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	}
 	else
 	{
-		sprintf(tmpbuf, "Базар : лот %d(%s) снят%s с базара владельцем.\r\n", lot,
+		sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╩п╬я┌ %d(%s) я│п╫я▐я┌%s я│ п╠п╟п╥п╟я─п╟ п╡п╩п╟п╢п╣п╩я▄я├п╣п╪.\r\n", lot,
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)));
 	}
 	message_exchange(tmpbuf, ch, item);
-	if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+	if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // п╣я│п╩п╦ п╫п╣я─я┐я┬п╦п╪п╟ я└я─п╣я┬п╦п╪ я┌п╟п╧п╪п╣я─ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟
 		GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 	obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 	clear_exchange_lot(item);
@@ -497,7 +497,7 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 	}
 	if (!sscanf(arg, "%d", &lot))
 	{
-		send_to_char("Не указан номер лота.\r\n", ch);
+		send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing)
@@ -508,22 +508,22 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 	}
 	if ((lot < 0) || (!item))
 	{
-		send_to_char("Неверный номер лота.\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 
-	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
+	sprintf(buf, "п⌡п╬я┌ %d. п╕п╣п╫п╟ %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
 
-	sprintf(buf + strlen(buf), "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
+	sprintf(buf + strlen(buf), "п÷я─п╣п╢п╪п╣я┌ \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
 	if (GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == OBJ_DATA::ITEM_WAND
 		|| GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)) == OBJ_DATA::ITEM_STAFF)
 	{
 		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1))
 		{
-			strcat(buf, "(б/у), ");
+			strcat(buf, "(п╠/я┐), ");
 		}
 	}
-	strcat(buf, " тип ");
+	strcat(buf, " я┌п╦п© ");
 	sprinttype(GET_OBJ_TYPE(GET_EXCHANGE_ITEM(item)), item_types, buf2);
 	if (*buf2)
 	{
@@ -536,13 +536,13 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 	strcat(buf, "\n");
 	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item)) || invalid_unique(ch, GET_EXCHANGE_ITEM(item)) || NamedStuff::check_named(ch, GET_EXCHANGE_ITEM(item), 0))
 	{
-		sprintf(buf2, "Эта вещь вам недоступна!");
+		sprintf(buf2, "п╜я┌п╟ п╡п╣я┴я▄ п╡п╟п╪ п╫п╣п╢п╬я│я┌я┐п©п╫п╟!");
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}
 	if (invalid_align(ch, GET_EXCHANGE_ITEM(item)) || invalid_no_class(ch, GET_EXCHANGE_ITEM(item)))
 	{
-		sprintf(buf2, "Вы не сможете пользоваться этой вещью.");
+		sprintf(buf2, "п▓я▀ п╫п╣ я│п╪п╬п╤п╣я┌п╣ п©п╬п╩я▄п╥п╬п╡п╟я┌я▄я│я▐ я█я┌п╬п╧ п╡п╣я┴я▄я▌.");
 		strcat(buf, buf2);
 		strcat(buf, "\n");
 	}
@@ -550,13 +550,13 @@ int exchange_information(CHAR_DATA * ch, char *arg)
 			get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item)) ?
 			get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item)) : "(null)");
 	*buf2 = UPPER(*buf2);
-	strcat(buf, "Продавец ");
+	strcat(buf, "п÷я─п╬п╢п╟п╡п╣я├ ");
 	strcat(buf, buf2);
 	strcat(buf, "\n");
 
 	if (GET_EXCHANGE_ITEM_COMMENT(item))
 	{
-		strcat(buf, "Берестовая наклейка на лоте гласит: ");
+		strcat(buf, "п▒п╣я─п╣я│я┌п╬п╡п╟я▐ п╫п╟п╨п╩п╣п╧п╨п╟ п╫п╟ п╩п╬я┌п╣ пЁп╩п╟я│п╦я┌: ");
 		sprintf(buf2, "'%s'.", GET_EXCHANGE_ITEM_COMMENT(item));
 		strcat(buf, buf2);
 		strcat(buf, "\n");
@@ -576,7 +576,7 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 	}
 	if (!sscanf(arg, "%d", &lot))
 	{
-		send_to_char("Не указан номер лота.\r\n", ch);
+		send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing)
@@ -587,27 +587,27 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 	}
 	if ((lot < 0) || (!item))
 	{
-		send_to_char("Неверный номер лота.\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Господи, а ведь смертные за это деньги платят.\r\n", ch);
+		send_to_char("п⌠п╬я│п©п╬п╢п╦, п╟ п╡п╣п╢я▄ я│п╪п╣я─я┌п╫я▀п╣ п╥п╟ я█я┌п╬ п╢п╣п╫я▄пЁп╦ п©п╩п╟я┌я▐я┌.\r\n", ch);
 		return false;
 	}
 	if ((ch->get_total_gold() < (EXCHANGE_IDENT_PAY)) && (GET_LEVEL(ch) < LVL_IMPL))
 	{
-		send_to_char("У вас не хватит на это денег!\r\n", ch);
+		send_to_char("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╦я┌ п╫п╟ я█я┌п╬ п╢п╣п╫п╣пЁ!\r\n", ch);
 		return false;
 	}
 	if (GET_LEVEL(ch) < LVL_IMPL)
-		mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200);	//200 - полное опознание
+		mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200);	//200 - п©п╬п╩п╫п╬п╣ п╬п©п╬п╥п╫п╟п╫п╦п╣
 	else
 		imm_show_obj_values(GET_EXCHANGE_ITEM(item), ch);
 
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
-	send_to_char(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
+	send_to_char(ch, "\r\n%sп≈п╟ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╬ п©я─п╣п╢п╪п╣я┌п╣ я│ п╡п╟я┬п╣пЁп╬ п╠п╟п╫п╨п╬п╡я│п╨п╬пЁп╬ я│я┤п╣я┌п╟ я│п╫я▐п╩п╦ %d %s%s\r\n",
 		CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY, desc_count(EXCHANGE_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
 
 	return true;
@@ -639,13 +639,13 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	}
 	if (GET_LEVEL(ch) >= LVL_IMMORT && GET_LEVEL(ch) < LVL_IMPL)
 	{
-		send_to_char("Боже, не лезьте в экономику смертных, вам это не к чему.\r\n", ch);
+		send_to_char("п▒п╬п╤п╣, п╫п╣ п╩п╣п╥я▄я┌п╣ п╡ я█п╨п╬п╫п╬п╪п╦п╨я┐ я│п╪п╣я─я┌п╫я▀я┘, п╡п╟п╪ я█я┌п╬ п╫п╣ п╨ я┤п╣п╪я┐.\r\n", ch);
 		return false;
 	}
 
 	if (!sscanf(arg, "%d", &lot))
 	{
-		send_to_char("Не указан номер лота.\r\n", ch);
+		send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 	for (j = exchange_item_list; j && (!item); j = next_thing)
@@ -656,17 +656,17 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 	}
 	if ((lot < 0) || (!item))
 	{
-		send_to_char("Неверный номер лота.\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ п╫п╬п╪п╣я─ п╩п╬я┌п╟.\r\n", ch);
 		return false;
 	}
 	if (GET_EXCHANGE_ITEM_SELLERID(item) == GET_IDNUM(ch))
 	{
-		send_to_char("Это же ваш лот. Воспользуйтесь командой 'базар снять <лот>'\r\n", ch);
+		send_to_char("п╜я┌п╬ п╤п╣ п╡п╟я┬ п╩п╬я┌. п▓п╬я│п©п╬п╩я▄п╥я┐п╧я┌п╣я│я▄ п╨п╬п╪п╟п╫п╢п╬п╧ 'п╠п╟п╥п╟я─ я│п╫я▐я┌я▄ <п╩п╬я┌>'\r\n", ch);
 		return false;
 	}
 	if ((ch->get_total_gold() < (GET_EXCHANGE_ITEM_COST(item))) && (GET_LEVEL(ch) < LVL_IMPL))
 	{
-		send_to_char("У вас в банке не хватает денег на этот лот!\r\n", ch);
+		send_to_char("пё п╡п╟я│ п╡ п╠п╟п╫п╨п╣ п╫п╣ я┘п╡п╟я┌п╟п╣я┌ п╢п╣п╫п╣пЁ п╫п╟ я█я┌п╬я┌ п╩п╬я┌!\r\n", ch);
 		return false;
 	}
 
@@ -679,21 +679,21 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		const char *seller_name = get_name_by_id(GET_EXCHANGE_ITEM_SELLERID(item));
 
 		auto seller_ptr = std::make_unique<Player>();
-		seller = seller_ptr.get(); // TODO: переделать на стек
+		seller = seller_ptr.get(); // TODO: п©п╣я─п╣п╢п╣п╩п╟я┌я▄ п╫п╟ я│я┌п╣п╨
 		if (seller_name == NULL
 			|| load_char(seller_name, seller) < 0)
 		{
 			ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
 			//edited by WorM 2011.05.21
-			act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
-			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
+			act("п▓я▀ п╨я┐п©п╦п╩п╦ $O3 п╫п╟ п╠п╟п╥п╟я─п╣.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+			sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╩п╬я┌ %d(%s) п©я─п╬п╢п╟п╫%s п╥п╟ %d %s.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
 			//end by WorM
 
 			message_exchange(tmpbuf, ch, item);
-			if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+			if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // п╣я│п╩п╦ п╫п╣я─я┐я┬п╦п╪п╟ я└я─п╣я┬п╦п╪ я┌п╟п╧п╪п╣я─ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟
 				GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 			obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 			clear_exchange_lot(item);
@@ -709,10 +709,10 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 
 		seller->add_bank(GET_EXCHANGE_ITEM_COST(item));
 		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
-//Polud напишем письмецо чару, раз уж его нету онлайн
+//Polud п╫п╟п©п╦я┬п╣п╪ п©п╦я│я▄п╪п╣я├п╬ я┤п╟я─я┐, я─п╟п╥ я┐п╤ п╣пЁп╬ п╫п╣я┌я┐ п╬п╫п╩п╟п╧п╫
 		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller))
 		{
-			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
+			sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╩п╬я┌ %d(%s) п©я─п╬п╢п╟п╫%s. %d %s п©п╣я─п╣п╡п╣п╢п╣п╫п╬ п╫п╟ п╡п╟я┬ я│я┤п╣я┌.\r\n", lot,
 				GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 				GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
 			mail::add_by_id(GET_EXCHANGE_ITEM_SELLERID(item), -1, tmpbuf);
@@ -720,12 +720,12 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 //-Polud
 		seller->save_char();
 
-		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
-		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
+		act("п▓я▀ п╨я┐п©п╦п╩п╦ $O3 п╫п╟ п╠п╟п╥п╟я─п╣.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+		sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╩п╬я┌ %d(%s) п©я─п╬п╢п╟п╫%s п╥п╟ %d %s.\r\n", lot,
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 			GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
 		message_exchange(tmpbuf, ch, item);
-		if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // если нерушима фрешим таймер из прототипа
+		if  (check_unlimited_timer(GET_EXCHANGE_ITEM(item))) // п╣я│п╩п╦ п╫п╣я─я┐я┬п╦п╪п╟ я└я─п╣я┬п╦п╪ я┌п╟п╧п╪п╣я─ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟
 			GET_EXCHANGE_ITEM(item)->set_timer(obj_proto.at(GET_OBJ_RNUM(GET_EXCHANGE_ITEM(item)))->get_timer());
 		obj_to_char(GET_EXCHANGE_ITEM(item), ch);
 		clear_exchange_lot(item);
@@ -743,12 +743,12 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 		seller->add_bank(GET_EXCHANGE_ITEM_COST(item));
 		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item));
 
-		act("Вы купили $O3 на базаре.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
-		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s за %d %s.\r\n", lot,
+		act("п▓я▀ п╨я┐п©п╦п╩п╦ $O3 п╫п╟ п╠п╟п╥п╟я─п╣.\r\n", FALSE, ch, 0, GET_EXCHANGE_ITEM(item), TO_CHAR);
+		sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╩п╬я┌ %d(%s) п©я─п╬п╢п╟п╫%s п╥п╟ %d %s.\r\n", lot,
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 			GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYu));
 		message_exchange(tmpbuf, seller, item);
-		sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
+		sprintf(tmpbuf, "п▒п╟п╥п╟я─ : п╩п╬я┌ %d(%s) п©я─п╬п╢п╟п╫%s. %d %s п©п╣я─п╣п╡п╣п╢п╣п╫п╬ п╫п╟ п╡п╟я┬ я│я┤п╣я┌.\r\n", lot,
 			GET_EXCHANGE_ITEM(item)->get_PName(0).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 			GET_EXCHANGE_ITEM_COST(item), desc_count(GET_EXCHANGE_ITEM_COST(item), WHAT_MONEYa));
 		act(tmpbuf, FALSE, seller, 0, NULL, TO_CHAR);
@@ -769,15 +769,15 @@ int exchange_purchase(CHAR_DATA * ch, char *arg)
 }
 
 /**
-* Проверка длины фильтра.
-* \return false - перебор
-*         true - корректный
+* п÷я─п╬п╡п╣я─п╨п╟ п╢п╩п╦п╫я▀ я└п╦п╩я▄я┌я─п╟.
+* \return false - п©п╣я─п╣п╠п╬я─
+*         true - п╨п╬я─я─п╣п╨я┌п╫я▀п╧
 */
 bool correct_filter_length(CHAR_DATA *ch, const char *str)
 {
 	if (strlen(str) >= FILTER_LENGTH)
 	{
-		send_to_char(ch, "Слишком длинный фильтр, максимальная длина: %d символа.\r\n", FILTER_LENGTH - 1);
+		send_to_char(ch, "п║п╩п╦я┬п╨п╬п╪ п╢п╩п╦п╫п╫я▀п╧ я└п╦п╩я▄я┌я─, п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╟я▐ п╢п╩п╦п╫п╟: %d я│п╦п╪п╡п╬п╩п╟.\r\n", FILTER_LENGTH - 1);
 		return false;
 	}
 	return true;
@@ -785,7 +785,7 @@ bool correct_filter_length(CHAR_DATA *ch, const char *str)
 
 int exchange_offers(CHAR_DATA * ch, char *arg)
 {
-//влом байты считать. Если кто хочет оптимизировать, посчитайте точно.
+//п╡п╩п╬п╪ п╠п╟п╧я┌я▀ я│я┤п╦я┌п╟я┌я▄. п∙я│п╩п╦ п╨я┌п╬ я┘п╬я┤п╣я┌ п╬п©я┌п╦п╪п╦п╥п╦я─п╬п╡п╟я┌я▄, п©п╬я│я┤п╦я┌п╟п╧я┌п╣ я┌п╬я┤п╫п╬.
 	char filter[MAX_STRING_LENGTH];
 	char multifilter[MAX_STRING_LENGTH];
 	short int show_type;
@@ -794,15 +794,15 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 
 	/*
 	show_type
-	0 - все
-	1 - мои
-	2 - руны
-	3 - одежда
-	4 - оружие
-	5 - книги
-	6 - ингры
-	7 - прочее
-	8 - последние
+	0 - п╡я│п╣
+	1 - п╪п╬п╦
+	2 - я─я┐п╫я▀
+	3 - п╬п╢п╣п╤п╢п╟
+	4 - п╬я─я┐п╤п╦п╣
+	5 - п╨п╫п╦пЁп╦
+	6 - п╦п╫пЁя─я▀
+	7 - п©я─п╬я┤п╣п╣
+	8 - п©п╬я│п╩п╣п╢п╫п╦п╣
 	*/
 
 	memset(filter, 0, FILTER_LENGTH);
@@ -828,142 +828,142 @@ int exchange_offers(CHAR_DATA * ch, char *arg)
 		strcpy(multifilter, arg4 + 1);
 	}
 
-	if (is_abbrev(arg1, "все") || is_abbrev(arg1, "all"))
+	if (is_abbrev(arg1, "п╡я│п╣") || is_abbrev(arg1, "all"))
 	{
 		show_type = 0;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "И%s", arg2);
+			sprintf(filter, "п≤%s", arg2);
 		}
 		if (*multifilter)
 		{
-			strcat(filter, " О");
+			strcat(filter, " п·");
 			strcat(filter, multifilter);
 		}
 	}
-	else if (is_abbrev(arg1, "мои") || is_abbrev(arg1, "mine"))
+	else if (is_abbrev(arg1, "п╪п╬п╦") || is_abbrev(arg1, "mine"))
 	{
 		show_type = 1;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 		if (*multifilter)
 		{
-			strcat(filter, " О");
+			strcat(filter, " п·");
 			strcat(filter, multifilter);
 		}
 	}
-	else if (is_abbrev(arg1, "руны") || is_abbrev(arg1, "runes"))
+	else if (is_abbrev(arg1, "я─я┐п╫я▀") || is_abbrev(arg1, "runes"))
 	{
 		show_type = 2;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 		if (*multifilter)
 		{
-			strcat(filter, " С");
+			strcat(filter, " п║");
 			strcat(filter, multifilter);
 		}
 	}
-	else if (is_abbrev(arg1, "броня") || is_abbrev(arg1, "armor"))
+	else if (is_abbrev(arg1, "п╠я─п╬п╫я▐") || is_abbrev(arg1, "armor"))
 	{
 		show_type = 3;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 		if (*multifilter)
 		{
-			strcat(filter, " О");
+			strcat(filter, " п·");
 			strcat(filter, multifilter);
 		}
 	}
-	else if (is_abbrev(arg1, "оружие") || is_abbrev(arg1, "weapons"))
+	else if (is_abbrev(arg1, "п╬я─я┐п╤п╦п╣") || is_abbrev(arg1, "weapons"))
 	{
 		show_type = 4;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 		if (*multifilter)
 		{
-			strcat(filter, " К");
+			strcat(filter, " п ");
 			strcat(filter, multifilter);
 		}
 	}
-	else if (is_abbrev(arg1, "книги") || is_abbrev(arg1, "books"))
+	else if (is_abbrev(arg1, "п╨п╫п╦пЁп╦") || is_abbrev(arg1, "books"))
 	{
 		show_type = 5;
 		if ((*arg2) && (*arg2 != '*'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 	}
-	else if (is_abbrev(arg1, "ингредиенты") || is_abbrev(arg1, "ingradients"))
+	else if (is_abbrev(arg1, "п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀") || is_abbrev(arg1, "ingradients"))
 	{
 		show_type = 6;
 		if ((*arg2) && (*arg2 != '*'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 	}
-	else if (is_abbrev(arg1, "прочие") || is_abbrev(arg1, "other"))
+	else if (is_abbrev(arg1, "п©я─п╬я┤п╦п╣") || is_abbrev(arg1, "other"))
 	{
 		show_type = 7;
 		if ((*arg2) && (*arg2 != '*'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 	}
-	else if (is_abbrev(arg1, "последние") || is_abbrev(arg1, "last"))
+	else if (is_abbrev(arg1, "п©п╬я│п╩п╣п╢п╫п╦п╣") || is_abbrev(arg1, "last"))
 	{
 		show_type = 8;
-		// я х3 как тут писать сравнение времен
+		// я▐ я┘3 п╨п╟п╨ я┌я┐я┌ п©п╦я│п╟я┌я▄ я│я─п╟п╡п╫п╣п╫п╦п╣ п╡я─п╣п╪п╣п╫
 	}
-/*	else if (is_abbrev(arg1, "средние") || is_abbrev(arg1, "средняя"))
+/*	else if (is_abbrev(arg1, "я│я─п╣п╢п╫п╦п╣") || is_abbrev(arg1, "я│я─п╣п╢п╫я▐я▐"))
 	{
 		show_type = 9;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 		if (*multifilter)
 		{
-			strcat(filter, " О");
+			strcat(filter, " п·");
 			strcat(filter, multifilter);
 		}
 	}
-	else if (is_abbrev(arg1, "тяжелые") || is_abbrev(arg1, "тяжелая"))
+	else if (is_abbrev(arg1, "я┌я▐п╤п╣п╩я▀п╣") || is_abbrev(arg1, "я┌я▐п╤п╣п╩п╟я▐"))
 	{
 		show_type = 10;
 		if ((*arg2) && (*arg2 != '*') && (*arg2 != '!'))
 		{
-			sprintf(filter, "%s И%s", filter, arg2);
+			sprintf(filter, "%s п≤%s", filter, arg2);
 		}
 		if (*multifilter)
 		{
-			strcat(filter, " О");
+			strcat(filter, " п·");
 			strcat(filter, multifilter);
 		}
 	}
 */
-	else if (is_abbrev(arg1, "аффект") || is_abbrev(arg1, "affect"))
+	else if (is_abbrev(arg1, "п╟я└я└п╣п╨я┌") || is_abbrev(arg1, "affect"))
 	{
 		if (ch->get_total_gold() < EXCHANGE_IDENT_PAY / 2
 			&& GET_LEVEL(ch) < LVL_IMPL)
 		{
-			send_to_char("У вас не хватит на это денег!\r\n", ch);
+			send_to_char("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╦я┌ п╫п╟ я█я┌п╬ п╢п╣п╫п╣пЁ!\r\n", ch);
 			return 0;
 		}
 		if (*arg2 == '\0')
 		{
-			send_to_char("Пустое имя аффекта!\r\n", ch);
+			send_to_char("п÷я┐я│я┌п╬п╣ п╦п╪я▐ п╟я└я└п╣п╨я┌п╟!\r\n", ch);
 			return 0;
 		}
 		show_type = 11;
-		sprintf(filter, "%s А%s", filter, arg2);
+		sprintf(filter, "%s п░%s", filter, arg2);
 	}
 	else
 	{
@@ -991,7 +991,7 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 	{
 		if (!EXCHANGE_FILTER(ch))
 		{
-			send_to_char("Ваш фильтр базара пуст.\r\n", ch);
+			send_to_char("п▓п╟я┬ я└п╦п╩я▄я┌я─ п╠п╟п╥п╟я─п╟ п©я┐я│я┌.\r\n", ch);
 			return true;
 		}
 		ParseFilter params(ParseFilter::EXCHANGE);
@@ -999,11 +999,11 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 		{
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = NULL;
-			send_to_char("Ваш фильтр базара пуст\r\n", ch);
+			send_to_char("п▓п╟я┬ я└п╦п╩я▄я┌я─ п╠п╟п╥п╟я─п╟ п©я┐я│я┌\r\n", ch);
 		}
 		else
 		{
-			send_to_char(ch, "Ваш текущий фильтр базара: %s.\r\n",
+			send_to_char(ch, "п▓п╟я┬ я┌п╣п╨я┐я┴п╦п╧ я└п╦п╩я▄я┌я─ п╠п╟п╥п╟я─п╟: %s.\r\n",
 				EXCHANGE_FILTER(ch));
 		}
 		return true;
@@ -1018,19 +1018,19 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 	{
 		return false;
 	}
-	if (!strncmp(filter, "нет", 3))
+	if (!strncmp(filter, "п╫п╣я┌", 3))
 	{
 		if (EXCHANGE_FILTER(ch))
 		{
 			snprintf(tmpbuf, sizeof(tmpbuf),
-				"Ваш старый фильтр: %s. Новый фильтр пуст.\r\n",
+				"п▓п╟я┬ я│я┌п╟я─я▀п╧ я└п╦п╩я▄я┌я─: %s. п²п╬п╡я▀п╧ я└п╦п╩я▄я┌я─ п©я┐я│я┌.\r\n",
 				EXCHANGE_FILTER(ch));
 			free(EXCHANGE_FILTER(ch));
 			EXCHANGE_FILTER(ch) = NULL;
 		}
 		else
 		{
-			sprintf(tmpbuf, "Новый фильтр пуст.\r\n");
+			sprintf(tmpbuf, "п²п╬п╡я▀п╧ я└п╦п╩я▄я┌я─ п©я┐я│я┌.\r\n");
 		}
 		send_to_char(tmpbuf, ch);
 		return true;
@@ -1039,7 +1039,7 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 	ParseFilter params(ParseFilter::EXCHANGE);
 	if (!parse_exch_filter(params, filter, false))
 	{
-		send_to_char("Неверный формат фильтра. Прочтите справку.\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫я▀п╧ я└п╬я─п╪п╟я┌ я└п╦п╩я▄я┌я─п╟. п÷я─п╬я┤я┌п╦я┌п╣ я│п©я─п╟п╡п╨я┐.\r\n", ch);
 		free(EXCHANGE_FILTER(ch));
 		EXCHANGE_FILTER(ch) = NULL;
 		return false;
@@ -1047,12 +1047,12 @@ int exchange_setfilter(CHAR_DATA * ch, char *arg)
 
 	if (EXCHANGE_FILTER(ch))
 	{
-		sprintf(tmpbuf, "Ваш старый фильтр: %s. Новый фильтр: %s.\r\n",
+		sprintf(tmpbuf, "п▓п╟я┬ я│я┌п╟я─я▀п╧ я└п╦п╩я▄я┌я─: %s. п²п╬п╡я▀п╧ я└п╦п╩я▄я┌я─: %s.\r\n",
 			EXCHANGE_FILTER(ch), filter);
 	}
 	else
 	{
-		sprintf(tmpbuf, "Ваш новый фильтр: %s.\r\n", filter);
+		sprintf(tmpbuf, "п▓п╟я┬ п╫п╬п╡я▀п╧ я└п╦п╩я▄я┌я─: %s.\r\n", filter);
 	}
 	send_to_char(tmpbuf, ch);
 
@@ -1123,17 +1123,17 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 	//char *d;
 
 	*error = 1;
-	// Станем на начало предмета
+	// п║я┌п╟п╫п╣п╪ п╫п╟ п╫п╟я┤п╟п╩п╬ п©я─п╣п╢п╪п╣я┌п╟
 	for (; **data != EX_NEW_ITEM_CHAR; (*data)++)
 		if (!**data || **data == EX_END_CHAR)
 			return (item);
 
 	*error = 2;
 
-	// Пропустим #
+	// п÷я─п╬п©я┐я│я┌п╦п╪ #
 	(*data)++;
 
-	// Считаем lot предмета
+	// п║я┤п╦я┌п╟п╣п╪ lot п©я─п╣п╢п╪п╣я┌п╟
 	if (!get_buf_line(data, buffer))
 		return (item);
 
@@ -1143,14 +1143,14 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 		return (item);
 
 	*error = 4;
-	// Считаем seler_id предмета
+	// п║я┤п╦я┌п╟п╣п╪ seler_id п©я─п╣п╢п╪п╣я┌п╟
 	if (!get_buf_line(data, buffer))
 		return (item);
 	*error = 5;
 	if (!(GET_EXCHANGE_ITEM_SELLERID(item) = atoi(buffer)))
 		return (item);
 	*error = 6;
-	// Считаем цену предмета
+	// п║я┤п╦я┌п╟п╣п╪ я├п╣п╫я┐ п©я─п╣п╢п╪п╣я┌п╟
 	if (!get_buf_line(data, buffer))
 		return (item);
 
@@ -1164,7 +1164,7 @@ EXCHANGE_ITEM_DATA *exchange_read_one_object_new(char **data, int *error)
 	if (!(GET_EXCHANGE_ITEM_TIME(item) = atoi(buffer)))
 		return (item);
 	*error = 9;
-	// Считаем comment предмета
+	// п║я┤п╦я┌п╟п╣п╪ comment п©я─п╣п╢п╪п╣я┌п╟
 	char *str_last_symb = strchr(*data, '\n');
 	strncpy(buffer, *data, str_last_symb - *data);
 	buffer[str_last_symb - *data] = '\0';
@@ -1231,7 +1231,7 @@ int exchange_database_load()
 	data = readdata;
 	*(data + actual_size) = '\0';
 
-	// Новая база или старая?
+	// п²п╬п╡п╟я▐ п╠п╟п╥п╟ п╦п╩п╦ я│я┌п╟я─п╟я▐?
 	get_buf_line(&data, buffer);
 	if (strstr(buffer, "!NEW!") == NULL)
 	{
@@ -1256,12 +1256,12 @@ int exchange_database_load()
 			continue;
 		}
 
-		// Предмет разваливается от старости
+		// п÷я─п╣п╢п╪п╣я┌ я─п╟п╥п╡п╟п╩п╦п╡п╟п╣я┌я│я▐ п╬я┌ я│я┌п╟я─п╬я│я┌п╦
 		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0)
 		{
 			std::string cap = GET_EXCHANGE_ITEM(item)->get_PName(0);
 			cap[0] = UPPER(cap[0]);
-			log("Exchange: - %s рассыпал%s от длительного использования.\r\n",
+			log("Exchange: - %s я─п╟я│я│я▀п©п╟п╩%s п╬я┌ п╢п╩п╦я┌п╣п╩я▄п╫п╬пЁп╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐.\r\n",
 				cap.c_str(), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(item)));
 			extract_exchange_item(item);
 			continue;
@@ -1334,7 +1334,7 @@ int exchange_database_reload(bool loadbackup)
 	data = readdata;
 	*(data + actual_size) = '\0';
 
-	// Новая база или старая?
+	// п²п╬п╡п╟я▐ п╠п╟п╥п╟ п╦п╩п╦ я│я┌п╟я─п╟я▐?
 	get_buf_line(&data, buffer);
 	if (strstr(buffer, "!NEW!") == NULL)
 	{
@@ -1365,12 +1365,12 @@ int exchange_database_reload(bool loadbackup)
 			continue;
 		}
 
-		// Предмет разваливается от старости
+		// п÷я─п╣п╢п╪п╣я┌ я─п╟п╥п╡п╟п╩п╦п╡п╟п╣я┌я│я▐ п╬я┌ я│я┌п╟я─п╬я│я┌п╦
 		if (GET_EXCHANGE_ITEM(item)->get_timer() <= 0)
 		{
 			std::string cap = GET_EXCHANGE_ITEM(item)->get_PName(0);
 			cap[0] = UPPER(cap[0]);
-			log("Exchange: - %s рассыпал%s от длительного использования.\r\n",
+			log("Exchange: - %s я─п╟я│я│я▀п©п╟п╩%s п╬я┌ п╢п╩п╦я┌п╣п╩я▄п╫п╬пЁп╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐.\r\n",
 				cap.c_str(), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(item)));
 			extract_exchange_item(item);
 			continue;
@@ -1393,8 +1393,8 @@ int exchange_database_reload(bool loadbackup)
 }
 
 /**
-* \param backup - false (дефолт) обычное сохранение
-*               - true сохранение в бэкап, вместо основного файла
+* \param backup - false (п╢п╣я└п╬п╩я┌) п╬п╠я▀я┤п╫п╬п╣ я│п╬я┘я─п╟п╫п╣п╫п╦п╣
+*               - true я│п╬я┘я─п╟п╫п╣п╫п╦п╣ п╡ п╠я█п╨п╟п©, п╡п╪п╣я│я┌п╬ п╬я│п╫п╬п╡п╫п╬пЁп╬ я└п╟п╧п╩п╟
 */
 void exchange_database_save(bool backup)
 {
@@ -1488,18 +1488,18 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 {
 	/*
 	show_type
-	0 - все
-	1 - мои
-	2 - руны
-	3 - одежда
-	4 - оружие
-	5 - книги
-	6 - ингры
-	7 - прочие
-	8 - легкие доспехи
-	9 - средние доспехи
-	10 - тяжелые доспехи
-	11 - аффект
+	0 - п╡я│п╣
+	1 - п╪п╬п╦
+	2 - я─я┐п╫я▀
+	3 - п╬п╢п╣п╤п╢п╟
+	4 - п╬я─я┐п╤п╦п╣
+	5 - п╨п╫п╦пЁп╦
+	6 - п╦п╫пЁя─я▀
+	7 - п©я─п╬я┤п╦п╣
+	8 - п╩п╣пЁп╨п╦п╣ п╢п╬я│п©п╣я┘п╦
+	9 - я│я─п╣п╢п╫п╦п╣ п╢п╬я│п©п╣я┘п╦
+	10 - я┌я▐п╤п╣п╩я▀п╣ п╢п╬я│п©п╣я┘п╦
+	11 - п╟я└я└п╣п╨я┌
 	*/
 	char tmpbuf[MAX_INPUT_LENGTH];
 	bool any_item = 0;
@@ -1507,7 +1507,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 	ParseFilter params(ParseFilter::EXCHANGE);
 	if (!parse_exch_filter(params, filter, true))
 	{
-		send_to_char("Неверная строка фильтрации!\r\n", ch);
+		send_to_char("п²п╣п╡п╣я─п╫п╟я▐ я│я┌я─п╬п╨п╟ я└п╦п╩я▄я┌я─п╟я├п╦п╦!\r\n", ch);
 		log("Exchange: Player uses wrong filter '%s'", filter);
 		return;
 	}
@@ -1518,7 +1518,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		buffer += params.print();
 	}
 	buffer +=
-		" Лот     Предмет                                                     Цена  Состояние\r\n"
+		" п⌡п╬я┌     п÷я─п╣п╢п╪п╣я┌                                                     п╕п╣п╫п╟  п║п╬я│я┌п╬я▐п╫п╦п╣\r\n"
 		"--------------------------------------------------------------------------------------------\r\n";
 
 	for (EXCHANGE_ITEM_DATA* j = exchange_item_list; j; j = j->next)
@@ -1559,14 +1559,14 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		{
 			continue;
 		}
-		// ну идиотизм сидеть статить 5-10 страниц резных
-		if (is_abbrev("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
-			|| is_abbrev("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
-			|| is_abbrev("медное запястье", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str()))
+		// п╫я┐ п╦п╢п╦п╬я┌п╦п╥п╪ я│п╦п╢п╣я┌я▄ я│я┌п╟я┌п╦я┌я▄ 5-10 я│я┌я─п╟п╫п╦я├ я─п╣п╥п╫я▀я┘
+		if (is_abbrev("я─п╣п╥п╫п╬п╣ п╥п╟п©я▐я│я┌я▄п╣", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
+			|| is_abbrev("я┬п╦я─п╬п╨п╬п╣ я│п╣я─п╣п╠я─я▐п╫п╬п╣ п╬п╠я─я┐я┤я▄п╣", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str())
+			|| is_abbrev("п╪п╣п╢п╫п╬п╣ п╥п╟п©я▐я│я┌я▄п╣", GET_EXCHANGE_ITEM(j)->get_PName(0).c_str()))
 		{
 			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(weapon_affects, buf, ",");
-			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
-			if (!strcmp(buf, "ничего"))  // added by WorM (Видолюб) отображение не только аффектов, но и доп.свойств запястий
+			// п╫п╣п╠п╬п╩я▄я┬п╬п╣ п╢я┐п╠п╩п╦я─п╬п╡п╟п╫п╦п╣ п╨п╬п╢п╟, я┤я┌п╬п╠я▀ п╥я─я▐ п╫п╣ пЁп╬п╫я▐я┌я▄ п©п╬ п╟я└я└п╣п╨я┌п╟п╪ п╡я│п╣я┘ я┬п╪п╬я┌п╬п╨
+			if (!strcmp(buf, "п╫п╦я┤п╣пЁп╬"))  // added by WorM (п▓п╦п╢п╬п╩я▌п╠) п╬я┌п╬п╠я─п╟п╤п╣п╫п╦п╣ п╫п╣ я┌п╬п╩я▄п╨п╬ п╟я└я└п╣п╨я┌п╬п╡, п╫п╬ п╦ п╢п╬п©.я│п╡п╬п╧я│я┌п╡ п╥п╟п©я▐я│я┌п╦п╧
 			{
 				bool found = false;
 				int drndice = 0, drsdice = 0;
@@ -1612,7 +1612,7 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		else if (is_dig_stone(GET_EXCHANGE_ITEM(j))
 			&& GET_OBJ_MATER(GET_EXCHANGE_ITEM(j)) == OBJ_DATA::MAT_GLASS)
 		{
-			sprintf(tmpbuf, "[%4d]   %s (стекло)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str());
+			sprintf(tmpbuf, "[%4d]   %s (я│я┌п╣п╨п╩п╬)", GET_EXCHANGE_ITEM_LOT(j), GET_OBJ_PNAME(GET_EXCHANGE_ITEM(j), 0).c_str());
 		}
 		else
 		{
@@ -1620,24 +1620,24 @@ void show_lots(char *filter, short int show_type, CHAR_DATA * ch)
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&GET_EXCHANGE_ITEM_TIME(j)));
-		if (IS_GOD(ch)) //asctime добавляет перевод строки лишний
+		if (IS_GOD(ch)) //asctime п╢п╬п╠п╟п╡п╩я▐п╣я┌ п©п╣я─п╣п╡п╬п╢ я│я┌я─п╬п╨п╦ п╩п╦я┬п╫п╦п╧
 			sprintf(tmpbuf, "%s %9d  %-s %s", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)), tmstr);
 		else
 			sprintf(tmpbuf, "%s %9d  %-s\r\n", colored_name(tmpbuf, 63, true), GET_EXCHANGE_ITEM_COST(j), diag_obj_timer(GET_EXCHANGE_ITEM(j)));
-		// Такое вот кино, на выделения для каждой строчки тут уходило до 0.6 секунды при выводе всего базара. стринги рулят -- Krodo
+		// п╒п╟п╨п╬п╣ п╡п╬я┌ п╨п╦п╫п╬, п╫п╟ п╡я▀п╢п╣п╩п╣п╫п╦я▐ п╢п╩я▐ п╨п╟п╤п╢п╬п╧ я│я┌я─п╬я┤п╨п╦ я┌я┐я┌ я┐я┘п╬п╢п╦п╩п╬ п╢п╬ 0.6 я│п╣п╨я┐п╫п╢я▀ п©я─п╦ п╡я▀п╡п╬п╢п╣ п╡я│п╣пЁп╬ п╠п╟п╥п╟я─п╟. я│я┌я─п╦п╫пЁп╦ я─я┐п╩я▐я┌ -- Krodo
 		buffer += tmpbuf;
 		any_item = 1;
 	}
 
 	if (!any_item)
 	{
-		buffer = "Базар пуст!\r\n";
+		buffer = "п▒п╟п╥п╟я─ п©я┐я│я┌!\r\n";
 	}
 	else if (show_type == 11)
 	{
 		const int price = EXCHANGE_IDENT_PAY / 2;
 		ch->remove_both_gold(price);
-		send_to_char(ch, "\r\n%sЗа информацию об аффектах с вашего банковского счета сняли %d %s%s\r\n",
+		send_to_char(ch, "\r\n%sп≈п╟ п╦п╫я└п╬я─п╪п╟я├п╦я▌ п╬п╠ п╟я└я└п╣п╨я┌п╟я┘ я│ п╡п╟я┬п╣пЁп╬ п╠п╟п╫п╨п╬п╡я│п╨п╬пЁп╬ я│я┤п╣я┌п╟ я│п╫я▐п╩п╦ %d %s%s\r\n",
 			CCIGRN(ch, C_NRM), price, desc_count(price, WHAT_MONEYu), CCNRM(ch, C_NRM));
 	}
 	page_string(ch->desc, buffer);
@@ -1654,41 +1654,41 @@ int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects)
 		case ' ':
 			buf++;
 			break;
-		case 'И':
+		case 'п≤':
 			buf = one_argument(++buf, tmpbuf);
 			filter.name = tmpbuf;
 			break;
-		case 'В':
+		case 'п▓':
 			buf = one_argument(++buf, tmpbuf);
 			filter.owner = tmpbuf;
 			//filter.owner_id = get_id_by_name(tmpbuf);
 			break;
-		case 'Т':
+		case 'п╒':
 			buf = one_argument(++buf, tmpbuf);
 			if (!filter.init_type(tmpbuf))
 				return 0;
 			break;
-		case 'Ц':
+		case 'п╕':
 			buf = one_argument(++buf, tmpbuf);
 			if (!filter.init_cost(tmpbuf))
 				return 0;
 			break;
-		case 'С':
+		case 'п║':
 			buf = one_argument(++buf, tmpbuf);
 			if (!filter.init_state(tmpbuf))
 				return 0;
 			break;
-		case 'О':
+		case 'п·':
 			buf = one_argument(++buf, tmpbuf);
 			if (!filter.init_wear(tmpbuf))
 				return 0;
 			break;
-		case 'К':
+		case 'п ':
 			buf = one_argument(++buf, tmpbuf);
 			if (!filter.init_weap_class(tmpbuf))
 				return 0;
 			break;
-		case 'А':
+		case 'п░':
 			if (!parse_affects)
 				return 0;
 			buf = one_argument(++buf, tmpbuf);
@@ -1697,7 +1697,7 @@ int parse_exch_filter(ParseFilter &filter, char *buf, bool parse_affects)
 			else if (!filter.init_affect(tmpbuf, strlen(tmpbuf)))
 				return 0;
 			break;
-		case 'Р':
+		case 'п═':
 			buf = one_argument(++buf, tmpbuf);
 			if (!filter.init_realtime(tmpbuf))
 				return 0;
@@ -1727,20 +1727,20 @@ void clear_exchange_lot(EXCHANGE_ITEM_DATA * lot)
 	free(lot);
 }
 
-//Polud дублируем кучку кода, чтобы можно было часть команд базара выполнять в любой комнате
+//Polud п╢я┐п╠п╩п╦я─я┐п╣п╪ п╨я┐я┤п╨я┐ п╨п╬п╢п╟, я┤я┌п╬п╠я▀ п╪п╬п╤п╫п╬ п╠я▀п╩п╬ я┤п╟я│я┌я▄ п╨п╬п╪п╟п╫п╢ п╠п╟п╥п╟я─п╟ п╡я▀п©п╬п╩п╫я▐я┌я▄ п╡ п╩я▌п╠п╬п╧ п╨п╬п╪п╫п╟я┌п╣
 void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/)
 {
 		char* arg = str_dup(argument);
 		argument = one_argument(argument, arg1);
 
 		if (IS_NPC(ch)) {
-			send_to_char("Торговать?! Да вы же не человек!\r\n", ch);
-		} else if ((is_abbrev(arg1, "выставить") || is_abbrev(arg1, "exhibit")
-		|| is_abbrev(arg1, "цена") || is_abbrev(arg1, "cost")
-		|| is_abbrev(arg1, "снять") || is_abbrev(arg1, "withdraw")
-		|| is_abbrev(arg1, "купить") || is_abbrev(arg1, "purchase")) && !IS_IMPL(ch))
+			send_to_char("п╒п╬я─пЁп╬п╡п╟я┌я▄?! п■п╟ п╡я▀ п╤п╣ п╫п╣ я┤п╣п╩п╬п╡п╣п╨!\r\n", ch);
+		} else if ((is_abbrev(arg1, "п╡я▀я│я┌п╟п╡п╦я┌я▄") || is_abbrev(arg1, "exhibit")
+		|| is_abbrev(arg1, "я├п╣п╫п╟") || is_abbrev(arg1, "cost")
+		|| is_abbrev(arg1, "я│п╫я▐я┌я▄") || is_abbrev(arg1, "withdraw")
+		|| is_abbrev(arg1, "п╨я┐п©п╦я┌я▄") || is_abbrev(arg1, "purchase")) && !IS_IMPL(ch))
 		{
-			send_to_char("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n", ch);
+			send_to_char("п▓п╟п╪ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п╫п╟я┘п╬п╢п╦я┌я▄я│я▐ п╡п╬п╥п╩п╣ п╠п╟п╥п╟я─п╫п╬пЁп╬ я┌п╬я─пЁп╬п╡я├п╟, я┤я┌п╬п╠я▀ п╡п╬я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄я│я▐ я█я┌п╬п╧ п╨п╬п╪п╟п╫п╢п╬п╧.\r\n", ch);
 		} else
 			exchange(ch,NULL,cmd,arg);
 		free(arg);

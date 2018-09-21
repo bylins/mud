@@ -1,16 +1,16 @@
 //  $RCSfile$     $Date$     $Revision$
 //  Part of Bylins http://www.mud.ru
-// Модуль содержит все необходимое для загрузки и работы со списком точек входа в игру
+// п°п╬п╢я┐п╩я▄ я│п╬п╢п╣я─п╤п╦я┌ п╡я│п╣ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬п╣ п╢п╩я▐ п╥п╟пЁя─я┐п╥п╨п╦ п╦ я─п╟п╠п╬я┌я▀ я│п╬ я│п©п╦я│п╨п╬п╪ я┌п╬я┤п╣п╨ п╡я┘п╬п╢п╟ п╡ п╦пЁя─я┐
 
 #ifndef BIRTH_PLACES_HPP_INCLUDED
 #define BIRTH_PLACES_HPP_INCLUDED
 
-//Для тех, у кого нет нормального файла рас, и нет зон.
-//Хотя по-хорошему внумам в коде делать вообще нефик
+//п■п╩я▐ я┌п╣я┘, я┐ п╨п╬пЁп╬ п╫п╣я┌ п╫п╬я─п╪п╟п╩я▄п╫п╬пЁп╬ я└п╟п╧п╩п╟ я─п╟я│, п╦ п╫п╣я┌ п╥п╬п╫.
+//п╔п╬я┌я▐ п©п╬-я┘п╬я─п╬я┬п╣п╪я┐ п╡п╫я┐п╪п╟п╪ п╡ п╨п╬п╢п╣ п╢п╣п╩п╟я┌я▄ п╡п╬п╬п╠я┴п╣ п╫п╣я└п╦п╨
 #define DEFAULT_LOADROOM 4056
 #define BIRTH_PLACES_FILE "birthplaces.xml"
 #define BIRTH_PLACE_UNDEFINED    -1
-#define BIRTH_PLACE_NAME_UNDEFINED "Undefined: у кодера какие-то проблемы"
+#define BIRTH_PLACE_NAME_UNDEFINED "Undefined: я┐ п╨п╬п╢п╣я─п╟ п╨п╟п╨п╦п╣-я┌п╬ п©я─п╬п╠п╩п╣п╪я▀"
 #define BIRTH_PLACE_MAIN_TAG "birthplaces"
 #define BIRTH_PLACE_ERROR_STR "...birth places reading fail"
 
@@ -30,19 +30,19 @@ typedef std::vector<BirthPlacePtr> BirthPlaceListType;
 class BirthPlace
 {
 public:
-    //static void Load(const char *PathToFile);               // Загрузка файла настроек
+    //static void Load(const char *PathToFile);               // п≈п╟пЁя─я┐п╥п╨п╟ я└п╟п╧п╩п╟ п╫п╟я│я┌я─п╬п╣п╨
     static void Load(pugi::xml_node XMLBirthPlaceList);
-    static int GetLoadRoom(short Id);                       // Получение внума загрузочной комнаты по ID
-    static std::string GetMenuStr(short Id);                // Получение строчки для меню по ID
-    static std::vector<int> GetItemList(short Id);          // Получение списка выдаваемых итемов по ID
-    static std::string ShowMenu(std::vector<int> BPList);   // Получение меню выбора точек одной строкой
-    static short ParseSelect(char *arg);                    // Поиск точки по текстовому вводу и описанию (description)
-    static bool CheckId(short Id);                          // Проверка наличия точки с указанным ID
-    static int GetIdByRoom(int room_vnum);                  // Выяснение ID через текущую комнату
-    static std::string GetRentHelp(short Id);               // Фраза рентера нубу после смерти по ID
+    static int GetLoadRoom(short Id);                       // п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╡п╫я┐п╪п╟ п╥п╟пЁя─я┐п╥п╬я┤п╫п╬п╧ п╨п╬п╪п╫п╟я┌я▀ п©п╬ ID
+    static std::string GetMenuStr(short Id);                // п÷п╬п╩я┐я┤п╣п╫п╦п╣ я│я┌я─п╬я┤п╨п╦ п╢п╩я▐ п╪п╣п╫я▌ п©п╬ ID
+    static std::vector<int> GetItemList(short Id);          // п÷п╬п╩я┐я┤п╣п╫п╦п╣ я│п©п╦я│п╨п╟ п╡я▀п╢п╟п╡п╟п╣п╪я▀я┘ п╦я┌п╣п╪п╬п╡ п©п╬ ID
+    static std::string ShowMenu(std::vector<int> BPList);   // п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╪п╣п╫я▌ п╡я▀п╠п╬я─п╟ я┌п╬я┤п╣п╨ п╬п╢п╫п╬п╧ я│я┌я─п╬п╨п╬п╧
+    static short ParseSelect(char *arg);                    // п÷п╬п╦я│п╨ я┌п╬я┤п╨п╦ п©п╬ я┌п╣п╨я│я┌п╬п╡п╬п╪я┐ п╡п╡п╬п╢я┐ п╦ п╬п©п╦я│п╟п╫п╦я▌ (description)
+    static bool CheckId(short Id);                          // п÷я─п╬п╡п╣я─п╨п╟ п╫п╟п╩п╦я┤п╦я▐ я┌п╬я┤п╨п╦ я│ я┐п╨п╟п╥п╟п╫п╫я▀п╪ ID
+    static int GetIdByRoom(int room_vnum);                  // п▓я▀я▐я│п╫п╣п╫п╦п╣ ID я┤п╣я─п╣п╥ я┌п╣п╨я┐я┴я┐я▌ п╨п╬п╪п╫п╟я┌я┐
+    static std::string GetRentHelp(short Id);               // п╓я─п╟п╥п╟ я─п╣п╫я┌п╣я─п╟ п╫я┐п╠я┐ п©п╬я│п╩п╣ я│п╪п╣я─я┌п╦ п©п╬ ID
 
-    // Доступ к свойствам класса.
-    // Не особенно нужно, но пусть будет
+    // п■п╬я│я┌я┐п© п╨ я│п╡п╬п╧я│я┌п╡п╟п╪ п╨п╩п╟я│я│п╟.
+    // п²п╣ п╬я│п╬п╠п╣п╫п╫п╬ п╫я┐п╤п╫п╬, п╫п╬ п©я┐я│я┌я▄ п╠я┐п╢п╣я┌
     short Id() const {return this->_Id;}
     std::string Name() {return this->_Name;}
     std::string Description() {return this->_Description;}
@@ -52,17 +52,17 @@ public:
     std::string RentHelp() {return this->_RentHelp;}
 
 private:
-    short _Id;                                  // Идентификатор - целое число
-    std::string _Name;                          // Название точки
-    std::string _Description;                   // Короткое описание для парсинга
-    std::string _MenuStr;                       // Название в меню
-    int _LoadRoom;                              // Номер комнаты входа
-    std::vector<int> _ItemsList;                // Список предметов, которые дополнительно выдаются на руки в этой точке
-    std::string _RentHelp;                      // Фраза, выдаваемая нубу мобом-рентером при выходе на ренту после смерти
+    short _Id;                                  // п≤п╢п╣п╫я┌п╦я└п╦п╨п╟я┌п╬я─ - я├п╣п╩п╬п╣ я┤п╦я│п╩п╬
+    std::string _Name;                          // п²п╟п╥п╡п╟п╫п╦п╣ я┌п╬я┤п╨п╦
+    std::string _Description;                   // п п╬я─п╬я┌п╨п╬п╣ п╬п©п╦я│п╟п╫п╦п╣ п╢п╩я▐ п©п╟я─я│п╦п╫пЁп╟
+    std::string _MenuStr;                       // п²п╟п╥п╡п╟п╫п╦п╣ п╡ п╪п╣п╫я▌
+    int _LoadRoom;                              // п²п╬п╪п╣я─ п╨п╬п╪п╫п╟я┌я▀ п╡я┘п╬п╢п╟
+    std::vector<int> _ItemsList;                // п║п©п╦я│п╬п╨ п©я─п╣п╢п╪п╣я┌п╬п╡, п╨п╬я┌п╬я─я▀п╣ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬ п╡я▀п╢п╟я▌я┌я│я▐ п╫п╟ я─я┐п╨п╦ п╡ я█я┌п╬п╧ я┌п╬я┤п╨п╣
+    std::string _RentHelp;                      // п╓я─п╟п╥п╟, п╡я▀п╢п╟п╡п╟п╣п╪п╟я▐ п╫я┐п╠я┐ п╪п╬п╠п╬п╪-я─п╣п╫я┌п╣я─п╬п╪ п©я─п╦ п╡я▀я┘п╬п╢п╣ п╫п╟ я─п╣п╫я┌я┐ п©п╬я│п╩п╣ я│п╪п╣я─я┌п╦
 
-    static BirthPlaceListType BirthPlaceList;   // Список точек входа в игру новых персонажей
-    static void LoadBirthPlace(pugi::xml_node BirthPlaceNode);  // Парсинг описания одной точки входа
-    static BirthPlacePtr GetBirthPlaceById(short Id);           // Получение ссылки на точку хода по ее ID
+    static BirthPlaceListType BirthPlaceList;   // п║п©п╦я│п╬п╨ я┌п╬я┤п╣п╨ п╡я┘п╬п╢п╟ п╡ п╦пЁя─я┐ п╫п╬п╡я▀я┘ п©п╣я─я│п╬п╫п╟п╤п╣п╧
+    static void LoadBirthPlace(pugi::xml_node BirthPlaceNode);  // п÷п╟я─я│п╦п╫пЁ п╬п©п╦я│п╟п╫п╦я▐ п╬п╢п╫п╬п╧ я┌п╬я┤п╨п╦ п╡я┘п╬п╢п╟
+    static BirthPlacePtr GetBirthPlaceById(short Id);           // п÷п╬п╩я┐я┤п╣п╫п╦п╣ я│я│я▀п╩п╨п╦ п╫п╟ я┌п╬я┤п╨я┐ я┘п╬п╢п╟ п©п╬ п╣п╣ ID
 };
 
 #endif // BIRTH_PLACES_HPP_INCLUDED

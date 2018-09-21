@@ -31,13 +31,13 @@
 
 namespace ExtMoney
 {
-// золотые гривны
+// п╥п╬п╩п╬я┌я▀п╣ пЁя─п╦п╡п╫я▀
 const unsigned TORC_GOLD = 0;
-// серебряные гривны
+// я│п╣я─п╣п╠я─я▐п╫я▀п╣ пЁя─п╦п╡п╫я▀
 const unsigned TORC_SILVER = 1;
-// бронзовые гривны
+// п╠я─п╬п╫п╥п╬п╡я▀п╣ пЁя─п╦п╡п╫я▀
 const unsigned TORC_BRONZE = 2;
-// терминатор всегда в конце
+// я┌п╣я─п╪п╦п╫п╟я┌п╬я─ п╡я│п╣пЁп╢п╟ п╡ п╨п╬п╫я├п╣
 const unsigned TOTAL_TYPES = 3;
 } // namespace ExtMoney
 
@@ -125,7 +125,7 @@ typedef uint32_t bitvector_t;
 #define ROOM_NOTRACK    (1 << 6)	// Track won't go through   //
 #define ROOM_NOMAGIC    (1 << 7)	// Magic not allowed     //
 #define ROOM_TUNNEL         (1 << 8)	// room for only 1 pers //
-#define ROOM_NOTELEPORTIN   (1 << 9)	// В комнату не попасть телепортацией //
+#define ROOM_NOTELEPORTIN   (1 << 9)	// п▓ п╨п╬п╪п╫п╟я┌я┐ п╫п╣ п©п╬п©п╟я│я┌я▄ я┌п╣п╩п╣п©п╬я─я┌п╟я├п╦п╣п╧ //
 #define ROOM_GODROOM    (1 << 10)	// LVL_GOD+ only allowed //
 #define ROOM_HOUSE          (1 << 11)	// (R) Room is a house  //
 #define ROOM_HOUSE_CRASH   (1 << 12)	// (R) House needs saving   //
@@ -150,31 +150,31 @@ typedef uint32_t bitvector_t;
 
 
 #define ROOM_NOSUMMON       (INT_ONE | (1 << 0))
-#define ROOM_NOTELEPORTOUT  (INT_ONE | (1 << 1))	// Из комнаты не выбраться телепортацией //
+#define ROOM_NOTELEPORTOUT  (INT_ONE | (1 << 1))	// п≤п╥ п╨п╬п╪п╫п╟я┌я▀ п╫п╣ п╡я▀п╠я─п╟я┌я▄я│я▐ я┌п╣п╩п╣п©п╬я─я┌п╟я├п╦п╣п╧ //
 #define ROOM_NOHORSE        (INT_ONE | (1 << 2))
 #define ROOM_NOWEATHER      (INT_ONE | (1 << 3))
 #define ROOM_SLOWDEATH      (INT_ONE | (1 << 4))
 #define ROOM_ICEDEATH       (INT_ONE | (1 << 5))
 #define ROOM_NORELOCATEIN   (INT_ONE | (1 << 6))
-#define ROOM_ARENARECV      (INT_ONE | (1 << 7))	// комната в которой слышно сообщения арены
-#define ROOM_ARENASEND      (INT_ONE | (1 << 8))	// комната из которой отправляются сообщения арены
-#define ROOM_NOBATTLE       (INT_ONE | (1 << 9)) //в клетке нельзя начать бой
+#define ROOM_ARENARECV      (INT_ONE | (1 << 7))	// п╨п╬п╪п╫п╟я┌п╟ п╡ п╨п╬я┌п╬я─п╬п╧ я│п╩я▀я┬п╫п╬ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╟я─п╣п╫я▀
+#define ROOM_ARENASEND      (INT_ONE | (1 << 8))	// п╨п╬п╪п╫п╟я┌п╟ п╦п╥ п╨п╬я┌п╬я─п╬п╧ п╬я┌п©я─п╟п╡п╩я▐я▌я┌я│я▐ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╟я─п╣п╫я▀
+#define ROOM_NOBATTLE       (INT_ONE | (1 << 9)) //п╡ п╨п╩п╣я┌п╨п╣ п╫п╣п╩я▄п╥я▐ п╫п╟я┤п╟я┌я▄ п╠п╬п╧
 #define ROOM_QUEST	    (INT_ONE | (1 << 10))
 #define ROOM_LIGHT          (INT_ONE | (1 << 11))
 
-#define ROOM_NOITEM         (INT_TWO|(1<<0))	// Передача вещей в комнате запрещена
+#define ROOM_NOITEM         (INT_TWO|(1<<0))	// п÷п╣я─п╣п╢п╟я┤п╟ п╡п╣я┴п╣п╧ п╡ п╨п╬п╪п╫п╟я┌п╣ п╥п╟п©я─п╣я┴п╣п╫п╟
 #define ROOM_RUSICHI        (INT_TWO|(1<<1))
 #define ROOM_VIKINGI        (INT_TWO|(1<<2))
 #define ROOM_STEPNYAKI      (INT_TWO|(1<<3))
 
-// Флаги комнатных аффектов НЕ сохраняются в файлах и возникают только от заклов //
-#define AFF_ROOM_LIGHT				(1 << 0) // Аффект освещения комнаты  - SPELL_ROOM_LIGHT //
-#define AFF_ROOM_FOG				(1 << 1) // Комната затуманена для SPELL_POISONED_FOG //
-#define AFF_ROOM_RUNE_LABEL			(1 << 2) // Комната помечена SPELL_MAGIC_LABEL //
-#define AFF_ROOM_FORBIDDEN			(1 << 3) // Комната помечена SPELL_FORBIDDEN //
-#define AFF_ROOM_HYPNOTIC_PATTERN	(1 << 4) // Комната под SPELL_HYPNOTIC_PATTERN //
-#define AFF_ROOM_EVARDS_BLACK_TENTACLES	(1 << 5) // Комната под SPELL_EVARDS_BLACK_TENTACLES //
-#define AFF_ROOM_METEORSTORM	(1 << 6) // Комната под SPELL_METEORSTORM //
+// п╓п╩п╟пЁп╦ п╨п╬п╪п╫п╟я┌п╫я▀я┘ п╟я└я└п╣п╨я┌п╬п╡ п²п∙ я│п╬я┘я─п╟п╫я▐я▌я┌я│я▐ п╡ я└п╟п╧п╩п╟я┘ п╦ п╡п╬п╥п╫п╦п╨п╟я▌я┌ я┌п╬п╩я▄п╨п╬ п╬я┌ п╥п╟п╨п╩п╬п╡ //
+#define AFF_ROOM_LIGHT				(1 << 0) // п░я└я└п╣п╨я┌ п╬я│п╡п╣я┴п╣п╫п╦я▐ п╨п╬п╪п╫п╟я┌я▀  - SPELL_ROOM_LIGHT //
+#define AFF_ROOM_FOG				(1 << 1) // п п╬п╪п╫п╟я┌п╟ п╥п╟я┌я┐п╪п╟п╫п╣п╫п╟ п╢п╩я▐ SPELL_POISONED_FOG //
+#define AFF_ROOM_RUNE_LABEL			(1 << 2) // п п╬п╪п╫п╟я┌п╟ п©п╬п╪п╣я┤п╣п╫п╟ SPELL_MAGIC_LABEL //
+#define AFF_ROOM_FORBIDDEN			(1 << 3) // п п╬п╪п╫п╟я┌п╟ п©п╬п╪п╣я┤п╣п╫п╟ SPELL_FORBIDDEN //
+#define AFF_ROOM_HYPNOTIC_PATTERN	(1 << 4) // п п╬п╪п╫п╟я┌п╟ п©п╬п╢ SPELL_HYPNOTIC_PATTERN //
+#define AFF_ROOM_EVARDS_BLACK_TENTACLES	(1 << 5) // п п╬п╪п╫п╟я┌п╟ п©п╬п╢ SPELL_EVARDS_BLACK_TENTACLES //
+#define AFF_ROOM_METEORSTORM	(1 << 6) // п п╬п╪п╫п╟я┌п╟ п©п╬п╢ SPELL_METEORSTORM //
 #define AFF_ROOM_THUNDERSTORM   (1 << 7) // SPELL_THUNDERSTORM
 
 // Exit info: used in room_data.dir_option.exit_info //
@@ -183,12 +183,12 @@ typedef uint32_t bitvector_t;
 #define EX_LOCKED    (1 << 2)	// The door is locked //
 #define EX_PICKPROOF    (1 << 3)	// Lock can't be picked  //
 #define EX_HIDDEN       (1 << 4)
-#define EX_BROKEN       (1 << 5) //Polud замок двери сломан
+#define EX_BROKEN       (1 << 5) //Polud п╥п╟п╪п╬п╨ п╢п╡п╣я─п╦ я│п╩п╬п╪п╟п╫
 
 #define AF_BATTLEDEC (1 << 0)
 #define AF_DEADKEEP  (1 << 1)
 #define AF_PULSEDEC  (1 << 2)
-#define AF_SAME_TIME (1 << 3) // тикает раз в две секунды или во время раунда в бою (чтобы не между раундами)
+#define AF_SAME_TIME (1 << 3) // я┌п╦п╨п╟п╣я┌ я─п╟п╥ п╡ п╢п╡п╣ я│п╣п╨я┐п╫п╢я▀ п╦п╩п╦ п╡п╬ п╡я─п╣п╪я▐ я─п╟я┐п╫п╢п╟ п╡ п╠п╬я▌ (я┤я┌п╬п╠я▀ п╫п╣ п╪п╣п╤п╢я┐ я─п╟я┐п╫п╢п╟п╪п╦)
 
 // Sector types: used in room_data.sector_type //
 #define SECT_INSIDE          0	// Indoors        //
@@ -205,7 +205,7 @@ typedef uint32_t bitvector_t;
 #define SECT_STONEROAD       11
 #define SECT_ROAD            12
 #define SECT_WILDROAD        13
-// надо не забывать менять NUM_ROOM_SECTORS в olc.h
+// п╫п╟п╢п╬ п╫п╣ п╥п╟п╠я▀п╡п╟я┌я▄ п╪п╣п╫я▐я┌я▄ NUM_ROOM_SECTORS п╡ olc.h
 
 // Added values for weather changes //
 #define SECT_FIELD_SNOW      20
@@ -341,7 +341,7 @@ extern const religion_names_t religion_name;
 #define MASK_RELIGION_MONO        (1 << RELIGION_MONO)
 
 // PC races //
-// * Все расы персонажей-игроков теперь описываются в playerraces.xml
+// * п▓я│п╣ я─п╟я│я▀ п©п╣я─я│п╬п╫п╟п╤п╣п╧-п╦пЁя─п╬п╨п╬п╡ я┌п╣п©п╣я─я▄ п╬п©п╦я│я▀п╡п╟я▌я┌я│я▐ п╡ playerraces.xml
 
 // PC Kin
 #define NUM_KIN            3
@@ -378,9 +378,9 @@ extern const religion_names_t religion_name;
 #define GF_GODSCURSE  (1 << 1)
 #define GF_HIGHGOD    (1 << 2)
 #define GF_REMORT     (1 << 3)
-#define GF_DEMIGOD    (1 << 4)	// Морталы с привилегиями богов //
-#define GF_PERSLOG    (1 << 5)	// Ведением отдельного лога команд персонажа //
-#define GF_TESTER     (1 << 6)	// тестер //
+#define GF_DEMIGOD    (1 << 4)	// п°п╬я─я┌п╟п╩я▀ я│ п©я─п╦п╡п╦п╩п╣пЁп╦я▐п╪п╦ п╠п╬пЁп╬п╡ //
+#define GF_PERSLOG    (1 << 5)	// п▓п╣п╢п╣п╫п╦п╣п╪ п╬я┌п╢п╣п╩я▄п╫п╬пЁп╬ п╩п╬пЁп╟ п╨п╬п╪п╟п╫п╢ п©п╣я─я│п╬п╫п╟п╤п╟ //
+#define GF_TESTER     (1 << 6)	// я┌п╣я│я┌п╣я─ //
 
 // Positions
 #define POS_DEAD       0	// dead        //
@@ -406,8 +406,8 @@ extern const religion_names_t religion_name;
 #define PLR_MUTE         (1 << 8)	// Player not allowed to shout/goss/auct  //
 #define PLR_NOTITLE      (1 << 9)	// Player not allowed to set title  //
 #define PLR_DELETED      (1 << 10)	// Player deleted - space reusable  //
-#define PLR_LOADROOM     (1 << 11)	// Player uses nonstandard loadroom  (не используется) //
-// свободно
+#define PLR_LOADROOM     (1 << 11)	// Player uses nonstandard loadroom  (п╫п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐) //
+// я│п╡п╬п╠п╬п╢п╫п╬
 #define PLR_NODELETE     (1 << 13)	// Player shouldn't be deleted //
 #define PLR_INVSTART     (1 << 14)	// Player should enter game wizinvis //
 #define PLR_CRYO         (1 << 15)	// Player is cryo-saved (purge prog)   //
@@ -415,7 +415,7 @@ extern const religion_names_t religion_name;
 #define PLR_NAMED        (1 << 17)	// Player is in Names Room //
 #define PLR_REGISTERED   (1 << 18)
 #define PLR_DUMB         (1 << 19)	// Player is not allowed to tell/emote/social //
-// свободно
+// я│п╡п╬п╠п╬п╢п╫п╬
 #define PLR_DELETE       (1 << 28)	// RESERVED - ONLY INTERNALLY (MOB_DELETE) //
 #define PLR_FREE         (1 << 29)	// RESERVED - ONLY INTERBALLY (MOB_FREE)//
 
@@ -473,12 +473,12 @@ extern const religion_names_t religion_name;
 #define MOB_NOTKILLPUNCTUAL  (INT_ONE | (1 << 18))
 #define MOB_NOTRIP           (INT_ONE | (1 << 19))
 #define MOB_ANGEL            (INT_ONE | (1 << 20))
-#define MOB_GUARDIAN         (INT_ONE | (1 << 21)) //Polud моб-стражник, ставится программно, берется из файла guards.xml
-#define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22)) // игнорирует печать
-#define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // не дает экспу за удары
-#define MOB_NOHAMER          (INT_ONE | (1 << 24)) // нельзя оглушить богатырским молотом
-#define MOB_GHOST            (INT_ONE | (1 << 25)) // Используется для ментальной тени
-#define MOB_PLAYER_SUMMON    (INT_ONE | (1 << 26)) // Моб является суммоном игрока (ангел, тень, храны, трупы, умки)
+#define MOB_GUARDIAN         (INT_ONE | (1 << 21)) //Polud п╪п╬п╠-я│я┌я─п╟п╤п╫п╦п╨, я│я┌п╟п╡п╦я┌я│я▐ п©я─п╬пЁя─п╟п╪п╪п╫п╬, п╠п╣я─п╣я┌я│я▐ п╦п╥ я└п╟п╧п╩п╟ guards.xml
+#define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22)) // п╦пЁп╫п╬я─п╦я─я┐п╣я┌ п©п╣я┤п╟я┌я▄
+#define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // п╫п╣ п╢п╟п╣я┌ я█п╨я│п©я┐ п╥п╟ я┐п╢п╟я─я▀
+#define MOB_NOHAMER          (INT_ONE | (1 << 24)) // п╫п╣п╩я▄п╥я▐ п╬пЁп╩я┐я┬п╦я┌я▄ п╠п╬пЁп╟я┌я▀я─я│п╨п╦п╪ п╪п╬п╩п╬я┌п╬п╪
+#define MOB_GHOST            (INT_ONE | (1 << 25)) // п≤я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╢п╩я▐ п╪п╣п╫я┌п╟п╩я▄п╫п╬п╧ я┌п╣п╫п╦
+#define MOB_PLAYER_SUMMON    (INT_ONE | (1 << 26)) // п°п╬п╠ я▐п╡п╩я▐п╣я┌я│я▐ я│я┐п╪п╪п╬п╫п╬п╪ п╦пЁя─п╬п╨п╟ (п╟п╫пЁп╣п╩, я┌п╣п╫я▄, я┘я─п╟п╫я▀, я┌я─я┐п©я▀, я┐п╪п╨п╦)
 
 #define MOB_FIREBREATH    (INT_TWO | (1 << 0))
 #define MOB_GASBREATH     (INT_TWO | (1 << 1))
@@ -493,7 +493,7 @@ extern const religion_names_t religion_name;
 #define MOB_OPENDOOR      (INT_TWO | (1 << 10))
 #define MOB_IGNORNOMOB    (INT_TWO | (1 << 11))
 #define MOB_IGNORPEACE    (INT_TWO | (1 << 12))
-#define MOB_RESURRECTED   (INT_TWO | (1 << 13))	// поднят через !поднять труп! или !оживить труп! Ставится только програмно//
+#define MOB_RESURRECTED   (INT_TWO | (1 << 13))	// п©п╬п╢п╫я▐я┌ я┤п╣я─п╣п╥ !п©п╬п╢п╫я▐я┌я▄ я┌я─я┐п©! п╦п╩п╦ !п╬п╤п╦п╡п╦я┌я▄ я┌я─я┐п©! п║я┌п╟п╡п╦я┌я│я▐ я┌п╬п╩я▄п╨п╬ п©я─п╬пЁя─п╟п╪п╫п╬//
 #define MOB_RUSICH         (INT_TWO | (1 << 14))
 #define MOB_VIKING         (INT_TWO | (1 << 15))
 #define MOB_STEPNYAK       (INT_TWO | (1 << 16))
@@ -538,8 +538,8 @@ extern const religion_names_t religion_name;
 // Preference flags: used by char_data.player_specials.pref //
 #define PRF_BRIEF       (1 << 0)	// Room descs won't normally be shown //
 #define PRF_COMPACT     (1 << 1)	// No extra CRLF pair before prompts  //
-#define PRF_NOHOLLER     (1 << 2)	// Не слышит команду "орать"   //
-#define PRF_NOTELL       (1 << 3)	// Не слышит команду "сказать" //
+#define PRF_NOHOLLER     (1 << 2)	// п²п╣ я│п╩я▀я┬п╦я┌ п╨п╬п╪п╟п╫п╢я┐ "п╬я─п╟я┌я▄"   //
+#define PRF_NOTELL       (1 << 3)	// п²п╣ я│п╩я▀я┬п╦я┌ п╨п╬п╪п╟п╫п╢я┐ "я│п╨п╟п╥п╟я┌я▄" //
 #define PRF_DISPHP       (1 << 4)	// Display hit points in prompt   //
 #define PRF_DISPMANA (1 << 5)	// Display mana points in prompt   //
 #define PRF_DISPMOVE (1 << 6)	// Display move points in prompt   //
@@ -555,8 +555,8 @@ extern const religion_names_t religion_name;
 #define PRF_LOG1      (1 << 16)	// On-line System Log (low bit)   //
 #define PRF_LOG2      (1 << 17)	// On-line System Log (high bit)  //
 #define PRF_NOAUCT       (1 << 18)	// Can't hear auction channel     //
-#define PRF_NOGOSS       (1 << 19)	// Не слышит команду "болтать" //
-#define PRF_DISPFIGHT   (1 << 20)	// Видит свое состояние в бою      //
+#define PRF_NOGOSS       (1 << 19)	// п²п╣ я│п╩я▀я┬п╦я┌ п╨п╬п╪п╟п╫п╢я┐ "п╠п╬п╩я┌п╟я┌я▄" //
+#define PRF_DISPFIGHT   (1 << 20)	// п▓п╦п╢п╦я┌ я│п╡п╬п╣ я│п╬я│я┌п╬я▐п╫п╦п╣ п╡ п╠п╬я▌      //
 #define PRF_ROOMFLAGS   (1 << 21)	// Can see room flags (ROOM_x)  //
 #define PRF_DISPEXP     (1 << 22)
 #define PRF_DISPEXITS   (1 << 23)
@@ -568,50 +568,50 @@ extern const religion_names_t religion_name;
 #define PRF_CODERINFO   (1 << 29)
 
 #define PRF_AUTOMEM     (INT_ONE | 1 << 0)
-#define PRF_NOSHOUT     (INT_ONE | 1 << 1)	// Не слышит команду "кричать"  //
-#define PRF_GOAHEAD     (INT_ONE | 1 << 2)	// Добавление IAC GA после промпта //
-#define PRF_SHOWGROUP   (INT_ONE | 1 << 3)	// Показ полного состава группы //
-#define PRF_AUTOASSIST  (INT_ONE | 1 << 4)	// Автоматическое вступление в бой //
+#define PRF_NOSHOUT     (INT_ONE | 1 << 1)	// п²п╣ я│п╩я▀я┬п╦я┌ п╨п╬п╪п╟п╫п╢я┐ "п╨я─п╦я┤п╟я┌я▄"  //
+#define PRF_GOAHEAD     (INT_ONE | 1 << 2)	// п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ IAC GA п©п╬я│п╩п╣ п©я─п╬п╪п©я┌п╟ //
+#define PRF_SHOWGROUP   (INT_ONE | 1 << 3)	// п÷п╬п╨п╟п╥ п©п╬п╩п╫п╬пЁп╬ я│п╬я│я┌п╟п╡п╟ пЁя─я┐п©п©я▀ //
+#define PRF_AUTOASSIST  (INT_ONE | 1 << 4)	// п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╣ п╡я│я┌я┐п©п╩п╣п╫п╦п╣ п╡ п╠п╬п╧ //
 #define PRF_AUTOLOOT    (INT_ONE | 1 << 5)	// Autoloot //
 #define PRF_AUTOSPLIT   (INT_ONE | 1 << 6)	// Autosplit //
 #define PRF_AUTOMONEY   (INT_ONE | 1 << 7)	// Automoney //
-#define PRF_NOARENA     (INT_ONE | 1 << 8)	// Не слышит арену //
-#define PRF_NOEXCHANGE  (INT_ONE | 1 << 9)	// Не слышит базар //
-#define PRF_NOCLONES	(INT_ONE | 1 << 10)	// Не видит в группе чужих клонов //
-#define PRF_NOINVISTELL	(INT_ONE | 1 << 11)	// Не хочет, чтобы телял "кто-то" //
-#define PRF_POWERATTACK	(INT_ONE | 1 << 12)	// мощная атака //
-#define PRF_GREATPOWERATTACK  (INT_ONE | 1 << 13) // улучшеная мощная атака //
-#define PRF_AIMINGATTACK      (INT_ONE | 1 << 14) // прицельная атака //
-#define PRF_GREATAIMINGATTACK (INT_ONE | 1 << 15) // улучшеная прицельная атака //
-#define PRF_NEWS_MODE   (INT_ONE | 1 << 16) // вариант чтения новостей мада и дружины
-#define PRF_BOARD_MODE  (INT_ONE | 1 << 17) // уведомления о новых мессагах на досках
-#define PRF_DECAY_MODE  (INT_ONE | 1 << 18) // канал хранилища, рассыпание шмота
-#define PRF_TAKE_MODE   (INT_ONE | 1 << 19) // канал хранилища, положили/взяли
-#define PRF_PKL_MODE    (INT_ONE | 1 << 20) // уведомления о добавлении/убирании в пкл
-#define PRF_POLIT_MODE  (INT_ONE | 1 << 21) // уведомления об изменении политики, своей и чужой
-#define PRF_IRON_WIND   (INT_ONE | 1 << 22) // включен скилл "железный ветер"
-#define PRF_PKFORMAT_MODE (INT_ONE | 1 << 23) // формат пкл/дрл
-#define PRF_WORKMATE_MODE (INT_ONE | 1 << 24) // показ входов/выходов соклановцев
-#define PRF_OFFTOP_MODE (INT_ONE | 1 << 25) // вкл/выкл канала оффтопа
-#define PRF_ANTIDC_MODE (INT_ONE | 1 << 26) // режим защиты от дисконекта в бою
-#define PRF_NOINGR_MODE (INT_ONE | 1 << 27) // не показывать продажу/покупку ингров в канале базара
-#define PRF_NOINGR_LOOT (INT_ONE | 1 << 28) // не лутить ингры в режиме автограбежа
-#define PRF_DISP_TIMED     (INT_ONE | 1 << 29) // показ задержек для характерных профам умений и способностей
+#define PRF_NOARENA     (INT_ONE | 1 << 8)	// п²п╣ я│п╩я▀я┬п╦я┌ п╟я─п╣п╫я┐ //
+#define PRF_NOEXCHANGE  (INT_ONE | 1 << 9)	// п²п╣ я│п╩я▀я┬п╦я┌ п╠п╟п╥п╟я─ //
+#define PRF_NOCLONES	(INT_ONE | 1 << 10)	// п²п╣ п╡п╦п╢п╦я┌ п╡ пЁя─я┐п©п©п╣ я┤я┐п╤п╦я┘ п╨п╩п╬п╫п╬п╡ //
+#define PRF_NOINVISTELL	(INT_ONE | 1 << 11)	// п²п╣ я┘п╬я┤п╣я┌, я┤я┌п╬п╠я▀ я┌п╣п╩я▐п╩ "п╨я┌п╬-я┌п╬" //
+#define PRF_POWERATTACK	(INT_ONE | 1 << 12)	// п╪п╬я┴п╫п╟я▐ п╟я┌п╟п╨п╟ //
+#define PRF_GREATPOWERATTACK  (INT_ONE | 1 << 13) // я┐п╩я┐я┤я┬п╣п╫п╟я▐ п╪п╬я┴п╫п╟я▐ п╟я┌п╟п╨п╟ //
+#define PRF_AIMINGATTACK      (INT_ONE | 1 << 14) // п©я─п╦я├п╣п╩я▄п╫п╟я▐ п╟я┌п╟п╨п╟ //
+#define PRF_GREATAIMINGATTACK (INT_ONE | 1 << 15) // я┐п╩я┐я┤я┬п╣п╫п╟я▐ п©я─п╦я├п╣п╩я▄п╫п╟я▐ п╟я┌п╟п╨п╟ //
+#define PRF_NEWS_MODE   (INT_ONE | 1 << 16) // п╡п╟я─п╦п╟п╫я┌ я┤я┌п╣п╫п╦я▐ п╫п╬п╡п╬я│я┌п╣п╧ п╪п╟п╢п╟ п╦ п╢я─я┐п╤п╦п╫я▀
+#define PRF_BOARD_MODE  (INT_ONE | 1 << 17) // я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦я▐ п╬ п╫п╬п╡я▀я┘ п╪п╣я│я│п╟пЁп╟я┘ п╫п╟ п╢п╬я│п╨п╟я┘
+#define PRF_DECAY_MODE  (INT_ONE | 1 << 18) // п╨п╟п╫п╟п╩ я┘я─п╟п╫п╦п╩п╦я┴п╟, я─п╟я│я│я▀п©п╟п╫п╦п╣ я┬п╪п╬я┌п╟
+#define PRF_TAKE_MODE   (INT_ONE | 1 << 19) // п╨п╟п╫п╟п╩ я┘я─п╟п╫п╦п╩п╦я┴п╟, п©п╬п╩п╬п╤п╦п╩п╦/п╡п╥я▐п╩п╦
+#define PRF_PKL_MODE    (INT_ONE | 1 << 20) // я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦я▐ п╬ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╦/я┐п╠п╦я─п╟п╫п╦п╦ п╡ п©п╨п╩
+#define PRF_POLIT_MODE  (INT_ONE | 1 << 21) // я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦я▐ п╬п╠ п╦п╥п╪п╣п╫п╣п╫п╦п╦ п©п╬п╩п╦я┌п╦п╨п╦, я│п╡п╬п╣п╧ п╦ я┤я┐п╤п╬п╧
+#define PRF_IRON_WIND   (INT_ONE | 1 << 22) // п╡п╨п╩я▌я┤п╣п╫ я│п╨п╦п╩п╩ "п╤п╣п╩п╣п╥п╫я▀п╧ п╡п╣я┌п╣я─"
+#define PRF_PKFORMAT_MODE (INT_ONE | 1 << 23) // я└п╬я─п╪п╟я┌ п©п╨п╩/п╢я─п╩
+#define PRF_WORKMATE_MODE (INT_ONE | 1 << 24) // п©п╬п╨п╟п╥ п╡я┘п╬п╢п╬п╡/п╡я▀я┘п╬п╢п╬п╡ я│п╬п╨п╩п╟п╫п╬п╡я├п╣п╡
+#define PRF_OFFTOP_MODE (INT_ONE | 1 << 25) // п╡п╨п╩/п╡я▀п╨п╩ п╨п╟п╫п╟п╩п╟ п╬я└я└я┌п╬п©п╟
+#define PRF_ANTIDC_MODE (INT_ONE | 1 << 26) // я─п╣п╤п╦п╪ п╥п╟я┴п╦я┌я▀ п╬я┌ п╢п╦я│п╨п╬п╫п╣п╨я┌п╟ п╡ п╠п╬я▌
+#define PRF_NOINGR_MODE (INT_ONE | 1 << 27) // п╫п╣ п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ п©я─п╬п╢п╟п╤я┐/п©п╬п╨я┐п©п╨я┐ п╦п╫пЁя─п╬п╡ п╡ п╨п╟п╫п╟п╩п╣ п╠п╟п╥п╟я─п╟
+#define PRF_NOINGR_LOOT (INT_ONE | 1 << 28) // п╫п╣ п╩я┐я┌п╦я┌я▄ п╦п╫пЁя─я▀ п╡ я─п╣п╤п╦п╪п╣ п╟п╡я┌п╬пЁя─п╟п╠п╣п╤п╟
+#define PRF_DISP_TIMED     (INT_ONE | 1 << 29) // п©п╬п╨п╟п╥ п╥п╟п╢п╣я─п╤п╣п╨ п╢п╩я▐ я┘п╟я─п╟п╨я┌п╣я─п╫я▀я┘ п©я─п╬я└п╟п╪ я┐п╪п╣п╫п╦п╧ п╦ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧
 
-#define PRF_IGVA_PRONA    (INT_TWO | 1 << 0)  // для стоп-списка оффтоп
-#define PRF_EXECUTOR      (INT_TWO | 1 << 1)  // палач
-#define PRF_DRAW_MAP      (INT_TWO | 1 << 2)  // отрисовка карты при осмотре клетки
-#define PRF_CAN_REMORT    (INT_TWO | 1 << 3)  // разрешение на реморт через жертвование гривн
-#define PRF_ENTER_ZONE    (INT_TWO | 1 << 4)  // вывод названия/среднего уровня при входе в зону
-#define PRF_MISPRINT      (INT_TWO | 1 << 5)  // показ непрочитанных сообщений на доске опечаток при входе
-#define PRF_BRIEF_SHIELDS (INT_TWO | 1 << 6)  // краткий режим сообщений при срабатывании маг.щитов
-#define PRF_AUTO_NOSUMMON (INT_TWO | 1 << 7)  // автоматическое включение режима защиты от призыва ('реж призыв') после удачного суммона/пенты
-#define PRF_SDEMIGOD      (INT_TWO | 1 << 8) // Для канала демигодов
-#define PRF_BLIND         (INT_TWO | 1 << 9)  // примочки для слепых
-#define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
-#define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
-#define PRF_IPCONTROL (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
-// при добавлении не забываем про preference_bits[]
+#define PRF_IGVA_PRONA    (INT_TWO | 1 << 0)  // п╢п╩я▐ я│я┌п╬п©-я│п©п╦я│п╨п╟ п╬я└я└я┌п╬п©
+#define PRF_EXECUTOR      (INT_TWO | 1 << 1)  // п©п╟п╩п╟я┤
+#define PRF_DRAW_MAP      (INT_TWO | 1 << 2)  // п╬я┌я─п╦я│п╬п╡п╨п╟ п╨п╟я─я┌я▀ п©я─п╦ п╬я│п╪п╬я┌я─п╣ п╨п╩п╣я┌п╨п╦
+#define PRF_CAN_REMORT    (INT_TWO | 1 << 3)  // я─п╟п╥я─п╣я┬п╣п╫п╦п╣ п╫п╟ я─п╣п╪п╬я─я┌ я┤п╣я─п╣п╥ п╤п╣я─я┌п╡п╬п╡п╟п╫п╦п╣ пЁя─п╦п╡п╫
+#define PRF_ENTER_ZONE    (INT_TWO | 1 << 4)  // п╡я▀п╡п╬п╢ п╫п╟п╥п╡п╟п╫п╦я▐/я│я─п╣п╢п╫п╣пЁп╬ я┐я─п╬п╡п╫я▐ п©я─п╦ п╡я┘п╬п╢п╣ п╡ п╥п╬п╫я┐
+#define PRF_MISPRINT      (INT_TWO | 1 << 5)  // п©п╬п╨п╟п╥ п╫п╣п©я─п╬я┤п╦я┌п╟п╫п╫я▀я┘ я│п╬п╬п╠я┴п╣п╫п╦п╧ п╫п╟ п╢п╬я│п╨п╣ п╬п©п╣я┤п╟я┌п╬п╨ п©я─п╦ п╡я┘п╬п╢п╣
+#define PRF_BRIEF_SHIELDS (INT_TWO | 1 << 6)  // п╨я─п╟я┌п╨п╦п╧ я─п╣п╤п╦п╪ я│п╬п╬п╠я┴п╣п╫п╦п╧ п©я─п╦ я│я─п╟п╠п╟я┌я▀п╡п╟п╫п╦п╦ п╪п╟пЁ.я┴п╦я┌п╬п╡
+#define PRF_AUTO_NOSUMMON (INT_TWO | 1 << 7)  // п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╣ п╡п╨п╩я▌я┤п╣п╫п╦п╣ я─п╣п╤п╦п╪п╟ п╥п╟я┴п╦я┌я▀ п╬я┌ п©я─п╦п╥я▀п╡п╟ ('я─п╣п╤ п©я─п╦п╥я▀п╡') п©п╬я│п╩п╣ я┐п╢п╟я┤п╫п╬пЁп╬ я│я┐п╪п╪п╬п╫п╟/п©п╣п╫я┌я▀
+#define PRF_SDEMIGOD      (INT_TWO | 1 << 8) // п■п╩я▐ п╨п╟п╫п╟п╩п╟ п╢п╣п╪п╦пЁп╬п╢п╬п╡
+#define PRF_BLIND         (INT_TWO | 1 << 9)  // п©я─п╦п╪п╬я┤п╨п╦ п╢п╩я▐ я│п╩п╣п©я▀я┘
+#define PRF_MAPPER	  (INT_TWO | 1 << 10) // п÷п╬п╨п╟п╥я▀п╡п╟п╣я┌ я┘п╣я┬п╦ я─я▐п╢п╬п╪ я│ п╫п╟п╥п╡п╟п╫п╦п╣п╪ п╨п╬п╪п╫п╟я┌я▀
+#define PRF_TESTER	  (INT_TWO | 1 << 11) // п╬я┌п╬п╠я─п╟п╤п╟я┌я▄ п╢п╬п©п╦п╫я└я┐ п©я─п╦ пЁп╬п╢я│я└п╩п╟пЁп╣ я┌п╣я│я┌п╣я─
+#define PRF_IPCONTROL (INT_TWO | 1 << 12) // п╬я┌п©я─п╟п╡п╩я▐я┌я▄ п╨п╬п╢ п╫п╟ п╪я▀п╩п╬ п©я─п╦ п╥п╟я┘п╬п╢п╣ п╦п╥ п╫п╬п╡п╬п╧ п©п╬п╢я│п╣я┌п╦
+// п©я─п╦ п╢п╬п╠п╟п╡п╩п╣п╫п╦п╦ п╫п╣ п╥п╟п╠я▀п╡п╟п╣п╪ п©я─п╬ preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
 // WARNING: In the world files, NEVER set the bits marked "R" ("Reserved") //
@@ -723,7 +723,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define IGNORE_OFFTOP	(1 << 11)
 
 // Modes of connectedness: used by descriptor_data.state //
-//ОБЕЗАТЕЛЬНО ДОБАВИТЬ В connected_types[]!!!!//
+//п·п▒п∙п≈п░п╒п∙п⌡п╛п²п· п■п·п▒п░п▓п≤п╒п╛ п▓ connected_types[]!!!!//
 #define CON_PLAYING       0 // Playing - Nominal state //
 #define CON_CLOSE         1 // Disconnecting     //
 #define CON_GET_NAME      2 // By what name ..?     //
@@ -764,24 +764,24 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_QCLASSS      37
 #define CON_MAP_MENU     38
 #define CON_COLOR        39
-#define CON_WRITEBOARD   40 // написание на доску
-#define CON_CLANEDIT     41 // команда house
+#define CON_WRITEBOARD   40 // п╫п╟п©п╦я│п╟п╫п╦п╣ п╫п╟ п╢п╬я│п╨я┐
+#define CON_CLANEDIT     41 // п╨п╬п╪п╟п╫п╢п╟ house
 #define CON_NEW_CHAR     42
-#define CON_SPEND_GLORY  43 // вливание славы через команду у чара
-#define CON_RESET_STATS  44 // реролл статов при входе в игру
-#define CON_BIRTHPLACE   45 // выбираем где начать игру
-#define CON_WRITE_MOD    46 // пишет клановое сообщение дня
-#define CON_GLORY_CONST  47 // вливает славу2
-#define CON_NAMED_STUFF  48 // редактирует именной стаф
-#define CON_RESET_KIN    49 // выбор расы после смены/удаления оной (или иного способа испоганивания значения)
-#define CON_RESET_RACE   50 // выбор РОДА посла смены/сброса оного
-#define CON_CONSOLE      51 // Интерактивная скриптовая консоль
-#define CON_TORC_EXCH    52 // обмен гривен
-#define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
-#define CON_SEDIT        54 // sedit - редактирование сетов
-#define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
+#define CON_SPEND_GLORY  43 // п╡п╩п╦п╡п╟п╫п╦п╣ я│п╩п╟п╡я▀ я┤п╣я─п╣п╥ п╨п╬п╪п╟п╫п╢я┐ я┐ я┤п╟я─п╟
+#define CON_RESET_STATS  44 // я─п╣я─п╬п╩п╩ я│я┌п╟я┌п╬п╡ п©я─п╦ п╡я┘п╬п╢п╣ п╡ п╦пЁя─я┐
+#define CON_BIRTHPLACE   45 // п╡я▀п╠п╦я─п╟п╣п╪ пЁп╢п╣ п╫п╟я┤п╟я┌я▄ п╦пЁя─я┐
+#define CON_WRITE_MOD    46 // п©п╦я┬п╣я┌ п╨п╩п╟п╫п╬п╡п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣ п╢п╫я▐
+#define CON_GLORY_CONST  47 // п╡п╩п╦п╡п╟п╣я┌ я│п╩п╟п╡я┐2
+#define CON_NAMED_STUFF  48 // я─п╣п╢п╟п╨я┌п╦я─я┐п╣я┌ п╦п╪п╣п╫п╫п╬п╧ я│я┌п╟я└
+#define CON_RESET_KIN    49 // п╡я▀п╠п╬я─ я─п╟я│я▀ п©п╬я│п╩п╣ я│п╪п╣п╫я▀/я┐п╢п╟п╩п╣п╫п╦я▐ п╬п╫п╬п╧ (п╦п╩п╦ п╦п╫п╬пЁп╬ я│п©п╬я│п╬п╠п╟ п╦я│п©п╬пЁп╟п╫п╦п╡п╟п╫п╦я▐ п╥п╫п╟я┤п╣п╫п╦я▐)
+#define CON_RESET_RACE   50 // п╡я▀п╠п╬я─ п═п·п■п░ п©п╬я│п╩п╟ я│п╪п╣п╫я▀/я│п╠я─п╬я│п╟ п╬п╫п╬пЁп╬
+#define CON_CONSOLE      51 // п≤п╫я┌п╣я─п╟п╨я┌п╦п╡п╫п╟я▐ я│п╨я─п╦п©я┌п╬п╡п╟я▐ п╨п╬п╫я│п╬п╩я▄
+#define CON_TORC_EXCH    52 // п╬п╠п╪п╣п╫ пЁя─п╦п╡п╣п╫
+#define CON_MENU_STATS   53 // п╬п©п╩п╟я┌п╟ я│п╠я─п╬я│п╟ я│я┌п╟я─я┌п╬п╡я▀я┘ я│я┌п╟я┌п╬п╡ п╦п╥ пЁп╩п╟п╡п╫п╬пЁп╬ п╪п╣п╫я▌
+#define CON_SEDIT        54 // sedit - я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ я│п╣я┌п╬п╡
+#define CON_RESET_RELIGION   55 // я│п╠я─п╬я│ я─п╣п╩п╦пЁп╦п╦ п╦п╥ п╪п╣п╫я▌ я│п╠я─п╬я│п╟ я│я┌п╟я┌п╬п╡
 #define CON_RANDOM_NUMBER	 56 // where player enter in the game from new location
-// не забываем отражать новые состояния в connected_types -- Krodo
+// п╫п╣ п╥п╟п╠я▀п╡п╟п╣п╪ п╬я┌я─п╟п╤п╟я┌я▄ п╫п╬п╡я▀п╣ я│п╬я│я┌п╬я▐п╫п╦я▐ п╡ connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
 // NOTE: Don't confuse these constants with the ITEM_ bitvectors
@@ -802,22 +802,22 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define WEAR_WAIST     13
 #define WEAR_WRIST_R   14
 #define WEAR_WRIST_L   15
-#define WEAR_WIELD     16      // правая рука 
-#define WEAR_HOLD      17      // левая рука
-#define WEAR_BOTHS     18      // обе руки
-#define WEAR_QUIVER    19      // под лук (колчан)
+#define WEAR_WIELD     16      // п©я─п╟п╡п╟я▐ я─я┐п╨п╟ 
+#define WEAR_HOLD      17      // п╩п╣п╡п╟я▐ я─я┐п╨п╟
+#define WEAR_BOTHS     18      // п╬п╠п╣ я─я┐п╨п╦
+#define WEAR_QUIVER    19      // п©п╬п╢ п╩я┐п╨ (п╨п╬п╩я┤п╟п╫)
 #define NUM_WEARS      20	// This must be the # of eq positions!! //
 
 
 // object-related defines ******************************************* //
 
 // +newbook.patch (Alisher)
-// Типы магических книг //
-#define BOOK_SPELL		0	// Книга заклинания //
-#define BOOK_SKILL		1	// Книга умения //
-#define BOOK_UPGRD		2	// Увеличение умения //
-#define BOOK_RECPT		3	// Книга рецепта //
-#define BOOK_FEAT			4	// Книга способности (feats) //
+// п╒п╦п©я▀ п╪п╟пЁп╦я┤п╣я│п╨п╦я┘ п╨п╫п╦пЁ //
+#define BOOK_SPELL		0	// п п╫п╦пЁп╟ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ //
+#define BOOK_SKILL		1	// п п╫п╦пЁп╟ я┐п╪п╣п╫п╦я▐ //
+#define BOOK_UPGRD		2	// пёп╡п╣п╩п╦я┤п╣п╫п╦п╣ я┐п╪п╣п╫п╦я▐ //
+#define BOOK_RECPT		3	// п п╫п╦пЁп╟ я─п╣я├п╣п©я┌п╟ //
+#define BOOK_FEAT			4	// п п╫п╦пЁп╟ я│п©п╬я│п╬п╠п╫п╬я│я┌п╦ (feats) //
 // -newbook.patch (Alisher)
 
 template <typename E>
@@ -846,7 +846,7 @@ enum class EWearFlag: uint32_t
 	ITEM_WEAR_WIELD = 1 << 13,	// Can be wielded      //
 	ITEM_WEAR_HOLD = 1 << 14,	// Can be held      //
 	ITEM_WEAR_BOTHS = 1 << 15,
-	ITEM_WEAR_QUIVER = 1 << 16      // колчан
+	ITEM_WEAR_QUIVER = 1 << 16      // п╨п╬п╩я┤п╟п╫
 };
 
 template <> const std::string& NAME_BY_ITEM<EWearFlag>(const EWearFlag item);
@@ -883,29 +883,29 @@ enum class EExtraFlag: uint32_t
 	ITEM_FLYING = 1 << 25,
 	ITEM_THROWING = 1 << 26,
 	ITEM_TICKTIMER = 1 << 27,
-	ITEM_FIRE = 1 << 28,					///< ...горит
-	ITEM_REPOP_DECAY = 1 << 29,				///< рассыпется при репопе зоны
-	ITEM_NOLOCATE = INT_ONE | (1 << 0),		///< нельзя отлокейтить
-	ITEM_TIMEDLVL = INT_ONE | (1 << 1),		///< для маг.предметов уровень уменьшается со временем
-	ITEM_NOALTER = INT_ONE | (1 << 2),		///< свойства предмета не могут быть изменены магией
-	ITEM_WITH1SLOT = INT_ONE | (1 << 3),	///< в предмет можно вплавить 1 камень
-	ITEM_WITH2SLOTS = INT_ONE | (1 << 4),	///< в предмет можно вплавить 2 камня
-	ITEM_WITH3SLOTS = INT_ONE | (1 << 5),	///< в предмет можно вплавить 3 камня (овер)
+	ITEM_FIRE = 1 << 28,					///< ...пЁп╬я─п╦я┌
+	ITEM_REPOP_DECAY = 1 << 29,				///< я─п╟я│я│я▀п©п╣я┌я│я▐ п©я─п╦ я─п╣п©п╬п©п╣ п╥п╬п╫я▀
+	ITEM_NOLOCATE = INT_ONE | (1 << 0),		///< п╫п╣п╩я▄п╥я▐ п╬я┌п╩п╬п╨п╣п╧я┌п╦я┌я▄
+	ITEM_TIMEDLVL = INT_ONE | (1 << 1),		///< п╢п╩я▐ п╪п╟пЁ.п©я─п╣п╢п╪п╣я┌п╬п╡ я┐я─п╬п╡п╣п╫я▄ я┐п╪п╣п╫я▄я┬п╟п╣я┌я│я▐ я│п╬ п╡я─п╣п╪п╣п╫п╣п╪
+	ITEM_NOALTER = INT_ONE | (1 << 2),		///< я│п╡п╬п╧я│я┌п╡п╟ п©я─п╣п╢п╪п╣я┌п╟ п╫п╣ п╪п╬пЁя┐я┌ п╠я▀я┌я▄ п╦п╥п╪п╣п╫п╣п╫я▀ п╪п╟пЁп╦п╣п╧
+	ITEM_WITH1SLOT = INT_ONE | (1 << 3),	///< п╡ п©я─п╣п╢п╪п╣я┌ п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 1 п╨п╟п╪п╣п╫я▄
+	ITEM_WITH2SLOTS = INT_ONE | (1 << 4),	///< п╡ п©я─п╣п╢п╪п╣я┌ п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 2 п╨п╟п╪п╫я▐
+	ITEM_WITH3SLOTS = INT_ONE | (1 << 5),	///< п╡ п©я─п╣п╢п╪п╣я┌ п╪п╬п╤п╫п╬ п╡п©п╩п╟п╡п╦я┌я▄ 3 п╨п╟п╪п╫я▐ (п╬п╡п╣я─)
 	ITEM_SETSTUFF = INT_ONE | (1 << 6),		///< Item is set object
-	ITEM_NO_FAIL = INT_ONE | (1 << 7),		///< не фейлится при изучении (в случае книги)
-	ITEM_NAMED = INT_ONE | (1 << 8),		///< именной предмет
-	ITEM_BLOODY = INT_ONE | (1 << 9),		///< окровавленная вещь (снятая с трупа)
-	ITEM_1INLAID = INT_ONE | (1 << 10),		///< TODO: не используется, см convert_obj_values()
+	ITEM_NO_FAIL = INT_ONE | (1 << 7),		///< п╫п╣ я└п╣п╧п╩п╦я┌я│я▐ п©я─п╦ п╦п╥я┐я┤п╣п╫п╦п╦ (п╡ я│п╩я┐я┤п╟п╣ п╨п╫п╦пЁп╦)
+	ITEM_NAMED = INT_ONE | (1 << 8),		///< п╦п╪п╣п╫п╫п╬п╧ п©я─п╣п╢п╪п╣я┌
+	ITEM_BLOODY = INT_ONE | (1 << 9),		///< п╬п╨я─п╬п╡п╟п╡п╩п╣п╫п╫п╟я▐ п╡п╣я┴я▄ (я│п╫я▐я┌п╟я▐ я│ я┌я─я┐п©п╟)
+	ITEM_1INLAID = INT_ONE | (1 << 10),		///< TODO: п╫п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐, я│п╪ convert_obj_values()
 	ITEM_2INLAID = INT_ONE | (1 << 11),
 	ITEM_3INLAID = INT_ONE | (1 << 12),
-	ITEM_NOPOUR = INT_ONE | (1 << 13),		///< нельзя перелить
-	ITEM_UNIQUE = INT_ONE | (1 << 14),		// объект уникальный, т.е. если у чара есть несколько шмоток с одним внумом, которые одеваются
-											// на разные слоты, то чар может одеть на себя только одну шмотку
-	ITEM_TRANSFORMED = INT_ONE | (1 << 15),		// Наложено заклинание заколдовать оружие
-	ITEM_NOT_DEPEND_RPOTO = INT_ONE | (1 << 16),	// Не зависит от прототипа
-	ITEM_NOT_UNLIMIT_TIMER = INT_ONE | (1 << 17), // Не может быть нерушимой
-	ITEM_UNIQUE_WHEN_PURCHASE = INT_ONE | (1 << 18), // станет именной при покупке в магазе
-	ITEM_NOT_ONE_CLANCHEST = INT_ONE | (1 << 19) //1 штука из набора не лезет в хран
+	ITEM_NOPOUR = INT_ONE | (1 << 13),		///< п╫п╣п╩я▄п╥я▐ п©п╣я─п╣п╩п╦я┌я▄
+	ITEM_UNIQUE = INT_ONE | (1 << 14),		// п╬п╠я┼п╣п╨я┌ я┐п╫п╦п╨п╟п╩я▄п╫я▀п╧, я┌.п╣. п╣я│п╩п╦ я┐ я┤п╟я─п╟ п╣я│я┌я▄ п╫п╣я│п╨п╬п╩я▄п╨п╬ я┬п╪п╬я┌п╬п╨ я│ п╬п╢п╫п╦п╪ п╡п╫я┐п╪п╬п╪, п╨п╬я┌п╬я─я▀п╣ п╬п╢п╣п╡п╟я▌я┌я│я▐
+											// п╫п╟ я─п╟п╥п╫я▀п╣ я│п╩п╬я┌я▀, я┌п╬ я┤п╟я─ п╪п╬п╤п╣я┌ п╬п╢п╣я┌я▄ п╫п╟ я│п╣п╠я▐ я┌п╬п╩я▄п╨п╬ п╬п╢п╫я┐ я┬п╪п╬я┌п╨я┐
+	ITEM_TRANSFORMED = INT_ONE | (1 << 15),		// п²п╟п╩п╬п╤п╣п╫п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ п╥п╟п╨п╬п╩п╢п╬п╡п╟я┌я▄ п╬я─я┐п╤п╦п╣
+	ITEM_NOT_DEPEND_RPOTO = INT_ONE | (1 << 16),	// п²п╣ п╥п╟п╡п╦я│п╦я┌ п╬я┌ п©я─п╬я┌п╬я┌п╦п©п╟
+	ITEM_NOT_UNLIMIT_TIMER = INT_ONE | (1 << 17), // п²п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╫п╣я─я┐я┬п╦п╪п╬п╧
+	ITEM_UNIQUE_WHEN_PURCHASE = INT_ONE | (1 << 18), // я│я┌п╟п╫п╣я┌ п╦п╪п╣п╫п╫п╬п╧ п©я─п╦ п©п╬п╨я┐п©п╨п╣ п╡ п╪п╟пЁп╟п╥п╣
+	ITEM_NOT_ONE_CLANCHEST = INT_ONE | (1 << 19) //1 я┬я┌я┐п╨п╟ п╦п╥ п╫п╟п╠п╬я─п╟ п╫п╣ п╩п╣п╥п╣я┌ п╡ я┘я─п╟п╫
 
 
 };
@@ -934,7 +934,7 @@ enum class ENoFlag : uint32_t
 	ITEM_NO_DEFENDERMAGE = 1 << 16,
 	ITEM_NO_NECROMANCER = 1 << 17,
 	ITEM_NO_KILLER = INT_ONE | 1 << 0,
-	ITEM_NO_COLORED = INT_ONE | 1 << 1,	// нельзя цветным //
+	ITEM_NO_COLORED = INT_ONE | 1 << 1,	// п╫п╣п╩я▄п╥я▐ я├п╡п╣я┌п╫я▀п╪ //
 	ITEM_NO_BD = INT_ONE | 1 << 2,
 	ITEM_NO_MALE = INT_TWO | 1 << 6,
 	ITEM_NO_FEMALE = INT_TWO | 1 << 7,
@@ -954,7 +954,7 @@ enum class ENoFlag : uint32_t
 	ITEM_NO_RUSICHI = INT_THREE | 1 << 0,
 	ITEM_NO_STEPNYAKI = INT_THREE | 1 << 1,
 	ITEM_NO_VIKINGI = INT_THREE | 1 << 2,
-	ITEM_NOT_FOR_NOPK = INT_THREE | (1 << 3)      // не может быть взята !пк кланом
+	ITEM_NOT_FOR_NOPK = INT_THREE | (1 << 3)      // п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╡п╥я▐я┌п╟ !п©п╨ п╨п╩п╟п╫п╬п╪
 };
 
 template <> const std::string& NAME_BY_ITEM<ENoFlag>(const ENoFlag item);
@@ -981,9 +981,9 @@ enum class EAntiFlag: uint32_t
     ITEM_AN_DEFENDERMAGE = 1 << 16,
     ITEM_AN_NECROMANCER = 1 << 17,
     ITEM_AN_KILLER = INT_ONE | (1 << 0),
-    ITEM_AN_COLORED = INT_ONE | (1 << 1),	// нельзя цветным //
+    ITEM_AN_COLORED = INT_ONE | (1 << 1),	// п╫п╣п╩я▄п╥я▐ я├п╡п╣я┌п╫я▀п╪ //
     ITEM_AN_BD = INT_ONE | (1 << 2),
-    ITEM_AN_SEVERANE = INT_TWO | 1 << 0,  // недоступность по родам
+    ITEM_AN_SEVERANE = INT_TWO | 1 << 0,  // п╫п╣п╢п╬я│я┌я┐п©п╫п╬я│я┌я▄ п©п╬ я─п╬п╢п╟п╪
     ITEM_AN_POLANE = INT_TWO | 1 << 1,
     ITEM_AN_KRIVICHI = INT_TWO | 1 << 2,
     ITEM_AN_VATICHI = INT_TWO | 1 << 3,
@@ -1007,7 +1007,7 @@ enum class EAntiFlag: uint32_t
     ITEM_AN_RUSICHI = INT_THREE | 1 << 0,
     ITEM_AN_STEPNYAKI = INT_THREE | 1 << 1,
     ITEM_AN_VIKINGI = INT_THREE | 1 << 2,
-	ITEM_NOT_FOR_NOPK = INT_THREE | (1 << 3)      // не может быть взята !пк кланом
+	ITEM_NOT_FOR_NOPK = INT_THREE | (1 << 3)      // п╫п╣ п╪п╬п╤п╣я┌ п╠я▀я┌я▄ п╡п╥я▐я┌п╟ !п©п╨ п╨п╩п╟п╫п╬п╪
 };
 
 template <> const std::string& NAME_BY_ITEM<EAntiFlag>(const EAntiFlag item);
@@ -1087,12 +1087,12 @@ enum EApplyLocation
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
 template <> EApplyLocation ITEM_BY_NAME<EApplyLocation>(const std::string& name);
 
-// APPLY - эффекты для комнат //
+// APPLY - я█я└я└п╣п╨я┌я▀ п╢п╩я▐ п╨п╬п╪п╫п╟я┌ //
 enum ERoomApplyLocation
 {
 	APPLY_ROOM_NONE = 0,
-	APPLY_ROOM_POISON = 1,	// Изменяет в комнате уровень ядности //
-	APPLY_ROOM_FLAME = 2,	// Изменяет в комнате уровень огня (для потомков) //
+	APPLY_ROOM_POISON = 1,	// п≤п╥п╪п╣п╫я▐п╣я┌ п╡ п╨п╬п╪п╫п╟я┌п╣ я┐я─п╬п╡п╣п╫я▄ я▐п╢п╫п╬я│я┌п╦ //
+	APPLY_ROOM_FLAME = 2,	// п≤п╥п╪п╣п╫я▐п╣я┌ п╡ п╨п╬п╪п╫п╟я┌п╣ я┐я─п╬п╡п╣п╫я▄ п╬пЁп╫я▐ (п╢п╩я▐ п©п╬я┌п╬п╪п╨п╬п╡) //
 	NUM_ROOM_APPLIES = 3
 };
 
@@ -1106,7 +1106,7 @@ struct obj_affected_type
 	obj_affected_type(EApplyLocation __location, int __modifier)
 		: location(__location), modifier(__modifier) {}
 
-	// для сравнения в sedit
+	// п╢п╩я▐ я│я─п╟п╡п╫п╣п╫п╦я▐ п╡ sedit
 	bool operator!=(const obj_affected_type &r) const
 	{
 		return (location != r.location || modifier != r.modifier);
@@ -1131,7 +1131,7 @@ struct obj_affected_type
 
 enum { DRUNK, FULL, THIRST};
 // pernalty types
-//     Хитрол,    Дамрол,    Каст,   Мем,        Восст. эн., Восст. жиз. 
+//     п╔п╦я┌я─п╬п╩,    п■п╟п╪я─п╬п╩,    п п╟я│я┌,   п°п╣п╪,        п▓п╬я│я│я┌. я█п╫., п▓п╬я│я│я┌. п╤п╦п╥. 
 enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
 // Sun state for weather_data //
@@ -1153,7 +1153,7 @@ enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC }
 #define EXTRA_FAILHIDE       (1 << 0)
 #define EXTRA_FAILSNEAK      (1 << 1)
 #define EXTRA_FAILCAMOUFLAGE (1 << 2)
-// для избежания повторных записей моба в списки SetsDrop
+// п╢п╩я▐ п╦п╥п╠п╣п╤п╟п╫п╦я▐ п©п╬п╡я┌п╬я─п╫я▀я┘ п╥п╟п©п╦я│п╣п╧ п╪п╬п╠п╟ п╡ я│п©п╦я│п╨п╦ SetsDrop
 #define EXTRA_GRP_KILL_COUNT (1 << 3)
 
 // other #defined constants ********************************************* //
@@ -1213,14 +1213,14 @@ const int HISTORY_SIZE = 5;
 #define MAX_AFFECT            32
 #define MAX_OBJ_AFFECT        6
 #define MAX_TIMED_SKILLS      16
-#define MAX_FEATS             256 // Максимальное количество фитов //
-#define MAX_TIMED_FEATS       16 // Макс. количество фитов с таймером //
-#define MAX_HITS              32000 // Максимальное количество хитов и дамага //
-// Количество запомненных предложений для воззваний //
+#define MAX_FEATS             256 // п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я└п╦я┌п╬п╡ //
+#define MAX_TIMED_FEATS       16 // п°п╟п╨я│. п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я└п╦я┌п╬п╡ я│ я┌п╟п╧п╪п╣я─п╬п╪ //
+#define MAX_HITS              32000 // п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я┘п╦я┌п╬п╡ п╦ п╢п╟п╪п╟пЁп╟ //
+// п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╥п╟п©п╬п╪п╫п╣п╫п╫я▀я┘ п©я─п╣п╢п╩п╬п╤п╣п╫п╦п╧ п╢п╩я▐ п╡п╬п╥п╥п╡п╟п╫п╦п╧ //
 #define MAX_REMEMBER_PRAY     20
-// Количество запомненных предложений для эфира //
+// п п╬п╩п╦я┤п╣я│я┌п╡п╬ п╥п╟п©п╬п╪п╫п╣п╫п╫я▀я┘ п©я─п╣п╢п╩п╬п╤п╣п╫п╦п╧ п╢п╩я▐ я█я└п╦я─п╟ //
 #define MAX_REMEMBER_GOSSIP   15
-// планка на кол-во денег у чара на руках и в банке (раздельно)
+// п©п╩п╟п╫п╨п╟ п╫п╟ п╨п╬п╩-п╡п╬ п╢п╣п╫п╣пЁ я┐ я┤п╟я─п╟ п╫п╟ я─я┐п╨п╟я┘ п╦ п╡ п╠п╟п╫п╨п╣ (я─п╟п╥п╢п╣п╩я▄п╫п╬)
 const long MAX_MONEY_KEPT = 1000000000;
 
 #define INT_STUPID_MOD 10
@@ -1300,7 +1300,7 @@ public:
 	bool sprintbits(const char *names[], char *result, const char *div, const int print_flag) const;
 	bool sprintbits(const char *names[], char *result, const char *div) const { return sprintbits(names, result, div, 0); };
 
-	/// Изменение указанного флага
+	/// п≤п╥п╪п╣п╫п╣п╫п╦п╣ я┐п╨п╟п╥п╟п╫п╫п╬пЁп╬ я└п╩п╟пЁп╟
 	void gm_flag(const char *subfield, const char * const * const list, char *res);
 
 protected:
@@ -1495,9 +1495,9 @@ public:
 	FLAG_DATA aff;
 	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
 	long caster_id; //Unique caster ID //
-	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
-	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
-	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
+	bool must_handled; // пёп╨п╟п╥я▀п╡п╟п╣я┌ п╪я┐п╢я┐ я┤я┌п╬ п╢п╩я▐ п╟я└я└п╣п╨я┌п╟ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ п╡я▀п╥п╡п╟п╫ п╬п╠я─п╟п╠п╬я┌я┤п╦п╨ (п©п╬п╨п╟ я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╨п╬п╪п╫п╟я┌) //
+	sh_int apply_time; // пёп╨п╟п╥я▀п╡п╟п╣я┌ я│п╨п╬п╩я▄п╨п╬ п╟я└я└п╣п╨я┌ п╡п╦я│п╦я┌ (п©п╬п╨п╟ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╡ п╨п╬п╪п╫п╟я┌п╟я┘) //
+	std::shared_ptr<IAffectHandler> handler; //п╬п╠я─п╟п╠п╬я┌я┤п╦п╨ п╟я└я└п╣п╨я┌п╬п╡
 };
 
 template <> bool AFFECT_DATA<EApplyLocation>::removable() const;
@@ -1736,26 +1736,26 @@ struct DESCRIPTOR_DATA
 	int options;		// descriptor flags       //
 	z_stream *deflate;	// compression engine        //
 	int mccp_version;
-	unsigned long ip; // ип адрес в виде числа для внутреннего пользования
-	std::weak_ptr<Boards::Board> board; // редактируемая доска
-	Message::shared_ptr message; // редактируемое сообщение
-	std::shared_ptr<struct ClanOLC> clan_olc; // редактирование привилегий клана
-	std::shared_ptr<struct ClanInvite> clan_invite; // приглашение в дружину
-	bool registered_email; // чтобы не шарить каждую секунду по списку мыл
-	FILE *pers_log; // чтобы не открывать файл на каждую команду чара при персональном логе
-	std::shared_ptr<class Glory::spend_glory> glory; // вливание славы
-	std::shared_ptr<GloryConst::glory_olc> glory_const; // вливание славы2
-	std::shared_ptr<NamedStuff::stuff_node> named_obj;	// редактируемая именная шмотка
+	unsigned long ip; // п╦п© п╟п╢я─п╣я│ п╡ п╡п╦п╢п╣ я┤п╦я│п╩п╟ п╢п╩я▐ п╡п╫я┐я┌я─п╣п╫п╫п╣пЁп╬ п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐
+	std::weak_ptr<Boards::Board> board; // я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪п╟я▐ п╢п╬я│п╨п╟
+	Message::shared_ptr message; // я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪п╬п╣ я│п╬п╬п╠я┴п╣п╫п╦п╣
+	std::shared_ptr<struct ClanOLC> clan_olc; // я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п©я─п╦п╡п╦п╩п╣пЁп╦п╧ п╨п╩п╟п╫п╟
+	std::shared_ptr<struct ClanInvite> clan_invite; // п©я─п╦пЁп╩п╟я┬п╣п╫п╦п╣ п╡ п╢я─я┐п╤п╦п╫я┐
+	bool registered_email; // я┤я┌п╬п╠я▀ п╫п╣ я┬п╟я─п╦я┌я▄ п╨п╟п╤п╢я┐я▌ я│п╣п╨я┐п╫п╢я┐ п©п╬ я│п©п╦я│п╨я┐ п╪я▀п╩
+	FILE *pers_log; // я┤я┌п╬п╠я▀ п╫п╣ п╬я┌п╨я─я▀п╡п╟я┌я▄ я└п╟п╧п╩ п╫п╟ п╨п╟п╤п╢я┐я▌ п╨п╬п╪п╟п╫п╢я┐ я┤п╟я─п╟ п©я─п╦ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╪ п╩п╬пЁп╣
+	std::shared_ptr<class Glory::spend_glory> glory; // п╡п╩п╦п╡п╟п╫п╦п╣ я│п╩п╟п╡я▀
+	std::shared_ptr<GloryConst::glory_olc> glory_const; // п╡п╩п╦п╡п╟п╫п╦п╣ я│п╩п╟п╡я▀2
+	std::shared_ptr<NamedStuff::stuff_node> named_obj;	// я─п╣п╢п╟п╨я┌п╦я─я┐п╣п╪п╟я▐ п╦п╪п╣п╫п╫п╟я▐ я┬п╪п╬я┌п╨п╟
 #if defined WITH_SCRIPTING
-	//std::shared_ptr<scripting::Console> console;	// Скриптовая консоль
+	//std::shared_ptr<scripting::Console> console;	// п║п╨я─п╦п©я┌п╬п╡п╟я▐ п╨п╬п╫я│п╬п╩я▄
 #endif
-	unsigned long cur_vnum;					// текущий внум именной шмотки
-	unsigned long old_vnum;					// старый внум именной шмотки
-    std::shared_ptr<MapSystem::Options> map_options; // редактирование опций режима карты
-    bool snoop_with_map; // показывать снуперу карту цели с опциями самого снупера
-    std::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
-    std::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
-	bool mxp; // Для MXP
+	unsigned long cur_vnum;					// я┌п╣п╨я┐я┴п╦п╧ п╡п╫я┐п╪ п╦п╪п╣п╫п╫п╬п╧ я┬п╪п╬я┌п╨п╦
+	unsigned long old_vnum;					// я│я┌п╟я─я▀п╧ п╡п╫я┐п╪ п╦п╪п╣п╫п╫п╬п╧ я┬п╪п╬я┌п╨п╦
+    std::shared_ptr<MapSystem::Options> map_options; // я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ п╬п©я├п╦п╧ я─п╣п╤п╦п╪п╟ п╨п╟я─я┌я▀
+    bool snoop_with_map; // п©п╬п╨п╟п╥я▀п╡п╟я┌я▄ я│п╫я┐п©п╣я─я┐ п╨п╟я─я┌я┐ я├п╣п╩п╦ я│ п╬п©я├п╦я▐п╪п╦ я│п╟п╪п╬пЁп╬ я│п╫я┐п©п╣я─п╟
+    std::array<int, ExtMoney::TOTAL_TYPES> ext_money; // п╬п╠п╪п╣п╫ п╢п╬п©.п╢п╣п╫п╣пЁ
+    std::shared_ptr<obj_sets_olc::sedit> sedit; // я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦п╣ я│п╣я┌п╬п╡
+	bool mxp; // п■п╩я▐ MXP
 
 private:
 	bool m_msdp_support;
@@ -1967,7 +1967,7 @@ struct index_data
 	char *farg;		// string argument for special function     //
 	TRIG_DATA *proto;	// for triggers... the trigger     //
 	int zone;			// mob/obj zone rnum //
-	size_t set_idx; // индекс сета в obj_sets::set_list, если != -1
+	size_t set_idx; // п╦п╫п╢п╣п╨я│ я│п╣я┌п╟ п╡ obj_sets::set_list, п╣я│п╩п╦ != -1
 };
 
 struct social_messg  		// No argument was supplied //
@@ -2017,31 +2017,31 @@ struct pray_affect_type
 #define         GAPPLY_MODIFIER             4
 #define         GAPPLY_AFFECT               5
 
-/* pclean_criteria_data структура которая определяет через какой время
-   неактивности будет удален чар
+/* pclean_criteria_data я│я┌я─я┐п╨я┌я┐я─п╟ п╨п╬я┌п╬я─п╟я▐ п╬п©я─п╣п╢п╣п╩я▐п╣я┌ я┤п╣я─п╣п╥ п╨п╟п╨п╬п╧ п╡я─п╣п╪я▐
+   п╫п╣п╟п╨я┌п╦п╡п╫п╬я│я┌п╦ п╠я┐п╢п╣я┌ я┐п╢п╟п╩п╣п╫ я┤п╟я─
 */
 struct pclean_criteria_data
 {
-	int level;			// max уровень для этого временного лимита //
-	int days;			// временной лимит в днях        //
+	int level;			// max я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ я█я┌п╬пЁп╬ п╡я─п╣п╪п╣п╫п╫п╬пЁп╬ п╩п╦п╪п╦я┌п╟ //
+	int days;			// п╡я─п╣п╪п╣п╫п╫п╬п╧ п╩п╦п╪п╦я┌ п╡ п╢п╫я▐я┘        //
 };
 
-// Структрура для описания проталов для спела townportal //
+// п║я┌я─я┐п╨я┌я─я┐я─п╟ п╢п╩я▐ п╬п©п╦я│п╟п╫п╦я▐ п©я─п╬я┌п╟п╩п╬п╡ п╢п╩я▐ я│п©п╣п╩п╟ townportal //
 struct portals_list_type
 {
-	char *wrd;		// кодовое слово //
-	int vnum;			// vnum комнаты для портала (раньше был rnum, но зачем тут rnum?) //
-	int level;			// минимальный уровень для запоминания портала //
+	char *wrd;		// п╨п╬п╢п╬п╡п╬п╣ я│п╩п╬п╡п╬ //
+	int vnum;			// vnum п╨п╬п╪п╫п╟я┌я▀ п╢п╩я▐ п©п╬я─я┌п╟п╩п╟ (я─п╟п╫я▄я┬п╣ п╠я▀п╩ rnum, п╫п╬ п╥п╟я┤п╣п╪ я┌я┐я┌ rnum?) //
+	int level;			// п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ п╥п╟п©п╬п╪п╦п╫п╟п╫п╦я▐ п©п╬я─я┌п╟п╩п╟ //
 	struct portals_list_type *next_portal;
 };
 
 struct char_portal_type
 {
-	int vnum;			// vnum комнаты для портала //
+	int vnum;			// vnum п╨п╬п╪п╫п╟я┌я▀ п╢п╩я▐ п©п╬я─я┌п╟п╩п╟ //
 	struct char_portal_type *next;
 };
 
-// Структуры для act.wizard.cpp //
+// п║я┌я─я┐п╨я┌я┐я─я▀ п╢п╩я▐ act.wizard.cpp //
 
 struct show_struct
 {

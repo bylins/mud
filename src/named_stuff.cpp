@@ -70,41 +70,41 @@ bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 {
 	if (!obj->get_extra_flag(EExtraFlag::ITEM_NAMED))
 	{
-		return false; // если шмотка не именная - остальное и проверять не нужно
+		return false; // п╣я│п╩п╦ я┬п╪п╬я┌п╨п╟ п╫п╣ п╦п╪п╣п╫п╫п╟я▐ - п╬я│я┌п╟п╩я▄п╫п╬п╣ п╦ п©я─п╬п╡п╣я─я▐я┌я▄ п╫п╣ п╫я┐п╤п╫п╬
 	}
 	StuffListType::iterator it = stuff_list.find(GET_OBJ_VNUM(obj));
 	if (it != stuff_list.end())
 	{
-		if (!ch)// если нету персонажа то вещь недоступна, это чтобы чистились клан храны
+		if (!ch)// п╣я│п╩п╦ п╫п╣я┌я┐ п©п╣я─я│п╬п╫п╟п╤п╟ я┌п╬ п╡п╣я┴я▄ п╫п╣п╢п╬я│я┌я┐п©п╫п╟, я█я┌п╬ я┤я┌п╬п╠я▀ я┤п╦я│я┌п╦п╩п╦я│я▄ п╨п╩п╟п╫ я┘я─п╟п╫я▀
 		{
 			return true;
 		}
 
-		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
+		if (IS_CHARMICE(ch)) // п╖п╟я─п╪п╦я│я▀ я┌п╬п╤п╣ п╪п╬пЁя┐я┌ я─п╟п╠п╬я┌п╟я┌я▄ я│ п╦п╪п╣п╫п╫я▀п╪п╦ п╡п╣я┴п╟п╪п╦
 		{
 			CHAR_DATA *master = ch->get_master();
-			if (WAITLESS(master)) // Чармис имма
+			if (WAITLESS(master)) // п╖п╟я─п╪п╦я│ п╦п╪п╪п╟
 			{
 				return false;
 			}
 
-			if (it->second->uid == GET_UNIQUE(master)) // Чармис владельца предмета
+			if (it->second->uid == GET_UNIQUE(master)) // п╖п╟я─п╪п╦я│ п╡п╩п╟п╢п╣п╩я▄я├п╟ п©я─п╣п╢п╪п╣я┌п╟
 			{
 				return false;
 			}
-			else if (!strcmp(GET_EMAIL(master), it->second->mail.c_str()))  // Чармис владельца предмета судя по мылу
+			else if (!strcmp(GET_EMAIL(master), it->second->mail.c_str()))  // п╖п╟я─п╪п╦я│ п╡п╩п╟п╢п╣п╩я▄я├п╟ п©я─п╣п╢п╪п╣я┌п╟ я│я┐п╢я▐ п©п╬ п╪я▀п╩я┐
 			{
 				return false;
 			}
 
 			if(!simple && CLAN(master))
 			{
-				if ((it->second->can_clan) && (CLAN(master)->is_clan_member(it->second->uid)))//Это чармис соклановца и предмет доступен соклановцам
+				if ((it->second->can_clan) && (CLAN(master)->is_clan_member(it->second->uid)))//п╜я┌п╬ я┤п╟я─п╪п╦я│ я│п╬п╨п╩п╟п╫п╬п╡я├п╟ п╦ п©я─п╣п╢п╪п╣я┌ п╢п╬я│я┌я┐п©п╣п╫ я│п╬п╨п╩п╟п╫п╬п╡я├п╟п╪
 				{
 					return false;
 				}
 
-				if ((it->second->can_alli) && (CLAN(master)->is_alli_member(it->second->uid)))//Предмет доступен альянсу и это чармис чара из альянса
+				if ((it->second->can_alli) && (CLAN(master)->is_alli_member(it->second->uid)))//п÷я─п╣п╢п╪п╣я┌ п╢п╬я│я┌я┐п©п╣п╫ п╟п╩я▄я▐п╫я│я┐ п╦ я█я┌п╬ я┤п╟я─п╪п╦я│ я┤п╟я─п╟ п╦п╥ п╟п╩я▄я▐п╫я│п╟
 				{
 					return false;
 				}
@@ -112,17 +112,17 @@ bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple)
 		}
 		if(IS_NPC(ch))
 			return true;
-		if(WAITLESS(ch)) // Имм
+		if(WAITLESS(ch)) // п≤п╪п╪
 			return false;
-		if(it->second->uid==GET_UNIQUE(ch))//Это владелец предмета
+		if(it->second->uid==GET_UNIQUE(ch))//п╜я┌п╬ п╡п╩п╟п╢п╣п╩п╣я├ п©я─п╣п╢п╪п╣я┌п╟
 			return false;
-		else if(!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))//Это владелец предмета судя по мылу
+		else if(!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))//п╜я┌п╬ п╡п╩п╟п╢п╣п╩п╣я├ п©я─п╣п╢п╪п╣я┌п╟ я│я┐п╢я▐ п©п╬ п╪я▀п╩я┐
 			return false;
-		if(!simple && CLAN(ch))//Предмет доступен сокланам или альянсу
+		if(!simple && CLAN(ch))//п÷я─п╣п╢п╪п╣я┌ п╢п╬я│я┌я┐п©п╣п╫ я│п╬п╨п╩п╟п╫п╟п╪ п╦п╩п╦ п╟п╩я▄я▐п╫я│я┐
 		{
-			if((it->second->can_clan) && (CLAN(ch)->is_clan_member(it->second->uid)))//Это соклановец и предмет доступен соклановцам
+			if((it->second->can_clan) && (CLAN(ch)->is_clan_member(it->second->uid)))//п╜я┌п╬ я│п╬п╨п╩п╟п╫п╬п╡п╣я├ п╦ п©я─п╣п╢п╪п╣я┌ п╢п╬я│я┌я┐п©п╣п╫ я│п╬п╨п╩п╟п╫п╬п╡я├п╟п╪
 				return false;
-			if((it->second->can_alli) && (CLAN(ch)->is_alli_member(it->second->uid)))//Предмет доступен альянсу и это чар из альянса
+			if((it->second->can_alli) && (CLAN(ch)->is_alli_member(it->second->uid)))//п÷я─п╣п╢п╪п╣я┌ п╢п╬я│я┌я┐п©п╣п╫ п╟п╩я▄я▐п╫я│я┐ п╦ я█я┌п╬ я┤п╟я─ п╦п╥ п╟п╩я▄я▐п╫я│п╟
 				return false;
 		}
 		return true;
@@ -177,16 +177,16 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 	{
 		return false;
 	}
-	if ((*buf1<'1' || *buf1>'8') && (LOWER(*buf1)!='в' && LOWER(*buf1)!='х' && LOWER(*buf1)!='у'))
+	if ((*buf1<'1' || *buf1>'8') && (LOWER(*buf1)!='п╡' && LOWER(*buf1)!='я┘' && LOWER(*buf1)!='я┐'))
 	{
-		send_to_char(ch, "Неверный параметр %c!\r\n", *buf1);
+		send_to_char(ch, "п²п╣п╡п╣я─п╫я▀п╧ п©п╟я─п╟п╪п╣я┌я─ %c!\r\n", *buf1);
 		return false;
 	}
-	if(!*buf2 && LOWER(*buf1)!='в' && LOWER(*buf1)!='х' && LOWER(*buf1)!='у')
+	if(!*buf2 && LOWER(*buf1)!='п╡' && LOWER(*buf1)!='я┘' && LOWER(*buf1)!='я┐')
 	{
 		if (*buf1<'5' || *buf1>'8')
 		{
-			send_to_char("Не указан второй параметр!\r\n", ch);
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ п╡я┌п╬я─п╬п╧ п©п╟я─п╟п╪п╣я┌я─!\r\n", ch);
 		}
 		else
 		{
@@ -205,7 +205,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 					snprintf(i, 256, "&S%s&s\r\n", ch->desc->named_obj->cant_msg_a.c_str());
 					break;
 				default:
-					snprintf(i, 256, "&RОшибка.&n\r\n");
+					snprintf(i, 256, "&Rп·я┬п╦п╠п╨п╟.&n\r\n");
 					break;
 			}
 			send_to_char(i, ch);
@@ -220,7 +220,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			{
 				if (real_object(num) < 0)
 				{
-					send_to_char(ch, "Такого объекта не существует.\r\n");
+					send_to_char(ch, "п╒п╟п╨п╬пЁп╬ п╬п╠я┼п╣п╨я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n");
 					return false;
 				}
 				ch->desc->cur_vnum = num;
@@ -231,7 +231,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			num = GetUniqueByName(buf2);
 			if (0 >= num)
 			{
-				send_to_char(ch, "Такого персонажа не существует.\r\n");
+				send_to_char(ch, "п╒п╟п╨п╬пЁп╬ п©п╣я─я│п╬п╫п╟п╤п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n");
 				return false;
 			}
 			ch->desc->named_obj->uid = num;
@@ -296,7 +296,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			}
 			break;
 
-		case 'у':
+		case 'я┐':
 			if(!ch->desc->old_vnum)
 				return false;
 			stuff_list.erase(ch->desc->old_vnum);
@@ -305,7 +305,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			save();
 			return true;
 
-		case 'в':
+		case 'п╡':
 			tmp_node->uid = ch->desc->named_obj->uid;
 			tmp_node->can_clan = ch->desc->named_obj->can_clan;
 			tmp_node->can_alli = ch->desc->named_obj->can_alli;
@@ -322,7 +322,7 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg)
 			save();
 			return true;
 
-		case 'х':
+		case 'я┘':
 			STATE(ch->desc) = CON_PLAYING;
 			send_to_char(OK, ch);
 			return true;
@@ -337,20 +337,20 @@ void nedit_menu(CHAR_DATA * ch)
 {
 	std::ostringstream out;
 	
-	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " Название: " << (real_object(ch->desc->cur_vnum) ? obj_proto[real_object(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rнеизвестно&n") << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") Владелец: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
-	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") Доступно клану: " << (0 == ch->desc->named_obj->can_clan ? 0 : 1) << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") Доступно альянсу: " << (0 == ch->desc->named_obj->can_alli ? 0 : 1) << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "5" << CCNRM(ch, C_SPR) << ") Сообщение при одевании персу: " << ch->desc->named_obj->wear_msg_v << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "6" << CCNRM(ch, C_SPR) << ") Сообщение при одевании вокруг перса: " << ch->desc->named_obj->wear_msg_a << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "7" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна персу: " << ch->desc->named_obj->cant_msg_v << "\r\n";
-	out << CCIGRN(ch, C_SPR) << "8" << CCNRM(ch, C_SPR) << ") Сообщение если вещь недоступна вокруг перса: " << ch->desc->named_obj->cant_msg_a << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "1" << CCNRM(ch, C_SPR) << ") Vnum: " << ch->desc->cur_vnum << " п²п╟п╥п╡п╟п╫п╦п╣: " << (real_object(ch->desc->cur_vnum) ? obj_proto[real_object(ch->desc->cur_vnum)]->get_short_description().c_str() : "&Rп╫п╣п╦п╥п╡п╣я│я┌п╫п╬&n") << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "2" << CCNRM(ch, C_SPR) << ") п▓п╩п╟п╢п╣п╩п╣я├: " << GetNameByUnique(ch->desc->named_obj->uid,0) << " e-mail: &S" << ch->desc->named_obj->mail << "&s\r\n";
+	out << CCIGRN(ch, C_SPR) << "3" << CCNRM(ch, C_SPR) << ") п■п╬я│я┌я┐п©п╫п╬ п╨п╩п╟п╫я┐: " << (0 == ch->desc->named_obj->can_clan ? 0 : 1) << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "4" << CCNRM(ch, C_SPR) << ") п■п╬я│я┌я┐п©п╫п╬ п╟п╩я▄я▐п╫я│я┐: " << (0 == ch->desc->named_obj->can_alli ? 0 : 1) << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "5" << CCNRM(ch, C_SPR) << ") п║п╬п╬п╠я┴п╣п╫п╦п╣ п©я─п╦ п╬п╢п╣п╡п╟п╫п╦п╦ п©п╣я─я│я┐: " << ch->desc->named_obj->wear_msg_v << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "6" << CCNRM(ch, C_SPR) << ") п║п╬п╬п╠я┴п╣п╫п╦п╣ п©я─п╦ п╬п╢п╣п╡п╟п╫п╦п╦ п╡п╬п╨я─я┐пЁ п©п╣я─я│п╟: " << ch->desc->named_obj->wear_msg_a << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "7" << CCNRM(ch, C_SPR) << ") п║п╬п╬п╠я┴п╣п╫п╦п╣ п╣я│п╩п╦ п╡п╣я┴я▄ п╫п╣п╢п╬я│я┌я┐п©п╫п╟ п©п╣я─я│я┐: " << ch->desc->named_obj->cant_msg_v << "\r\n";
+	out << CCIGRN(ch, C_SPR) << "8" << CCNRM(ch, C_SPR) << ") п║п╬п╬п╠я┴п╣п╫п╦п╣ п╣я│п╩п╦ п╡п╣я┴я▄ п╫п╣п╢п╬я│я┌я┐п©п╫п╟ п╡п╬п╨я─я┐пЁ п©п╣я─я│п╟: " << ch->desc->named_obj->cant_msg_a << "\r\n";
 	if (ch->desc->old_vnum)
 	{
-		out << CCIGRN(ch, C_SPR) << "У" << CCNRM(ch, C_SPR) << ") Удалить\r\n";
+		out << CCIGRN(ch, C_SPR) << "пё" << CCNRM(ch, C_SPR) << ") пёп╢п╟п╩п╦я┌я▄\r\n";
 	}
-	out << CCIGRN(ch, C_SPR) << "В" << CCNRM(ch, C_SPR) << ") Выйти и сохранить\r\n";
-	out << CCIGRN(ch, C_SPR) << "Х" << CCNRM(ch, C_SPR) << ") Выйти без сохранения\r\n";
+	out << CCIGRN(ch, C_SPR) << "п▓" << CCNRM(ch, C_SPR) << ") п▓я▀п╧я┌п╦ п╦ я│п╬я┘я─п╟п╫п╦я┌я▄\r\n";
+	out << CCIGRN(ch, C_SPR) << "п╔" << CCNRM(ch, C_SPR) << ") п▓я▀п╧я┌п╦ п╠п╣п╥ я│п╬я┘я─п╟п╫п╣п╫п╦я▐\r\n";
 	send_to_char(out.str().c_str(), ch);
 }
 
@@ -390,11 +390,11 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	switch (subcmd)
 	{
 		case SCMD_NAMED_LIST:
-			sprintf(buf1, "Список именных предметов:\r\n");
+			sprintf(buf1, "п║п©п╦я│п╬п╨ п╦п╪п╣п╫п╫я▀я┘ п©я─п╣п╢п╪п╣я┌п╬п╡:\r\n");
 			if(stuff_list.size() == 0)
 			{
 				out += buf1;
-				out += " Пока что пусто.\r\n";
+				out += " п÷п╬п╨п╟ я┤я┌п╬ п©я┐я│я┌п╬.\r\n";
 			}
 			else
 			{
@@ -414,9 +414,9 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 								out += buf1;
 							}
 							found++;
-							sprintf(buf2, "%6ld) &R*&n%-31s Владелец:%-16s e-mail:&S%s&s\r\n",
+							sprintf(buf2, "%6ld) &R*&n%-31s п▓п╩п╟п╢п╣п╩п╣я├:%-16s e-mail:&S%s&s\r\n",
 								it->first+1,
-								"Несуществующий предмет",
+								"п²п╣я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦п╧ п©я─п╣п╢п╪п╣я┌",
 								GetNameByUnique(it->second->uid, false).c_str(),
 								str_dup(it->second->mail.c_str())
 							);
@@ -437,7 +437,7 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 								colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
 							if (IS_GRGOD(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 							{
-								sprintf(buf2, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf2,
+								sprintf(buf2, "%s п≤пЁя─п╟:%d п÷п╬я│я┌:%d п▓п╩п╟п╢п╣п╩п╣я├:%-16s e-mail:&S%s&s\r\n", buf2,
 									obj_proto.number(r_num), obj_proto.stored(r_num),
 									GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
 							}
@@ -457,7 +457,7 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			}
 			if (!found)
 			{
-				sprintf(buf, "Нет таких именных вещей.\r\nСинтаксис %s [vnum [vnum] | имя | email]\r\n", CMD_NAME);
+				sprintf(buf, "п²п╣я┌ я┌п╟п╨п╦я┘ п╦п╪п╣п╫п╫я▀я┘ п╡п╣я┴п╣п╧.\r\nп║п╦п╫я┌п╟п╨я│п╦я│ %s [vnum [vnum] | п╦п╪я▐ | email]\r\n", CMD_NAME);
 				out += buf;
 			}
 			send_to_char(out.c_str(), ch);
@@ -468,7 +468,7 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			{
 				if(first > 0 && first < 0x7fffffff && real_object(first) < 0)
 				{
-					send_to_char(ch, "Такого объекта не существует.\r\n");
+					send_to_char(ch, "п╒п╟п╨п╬пЁп╬ п╬п╠я┼п╣п╨я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n");
 					return;
 				}
 
@@ -482,7 +482,7 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 					{
 						if (real_object(it->first)<0) {
 							if (!have_missed_items) {
-								out+="&RВнимание!!!&n\r\nНесуществующие объекты в списке именых вещей:\r\n";
+								out+="&Rп▓п╫п╦п╪п╟п╫п╦п╣!!!&n\r\nп²п╣я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦п╣ п╬п╠я┼п╣п╨я┌я▀ п╡ я│п©п╦я│п╨п╣ п╦п╪п╣п╫я▀я┘ п╡п╣я┴п╣п╧:\r\n";
 								have_missed_items = true;
 							}
 							sprintf(buf2, "vnum:%9ld uid:%9d mail:%s\r\n",
@@ -536,8 +536,8 @@ void do_named(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 				else
 					tmp_node.reset();
 			}
-			send_to_char(ch, "Нет таких именных вещей.\r\nСинтаксис %s [vnum | имя | email]\r\n", CMD_NAME);
-			//send_to_char("Укажите VNUM для редактирования.\r\n", ch);
+			send_to_char(ch, "п²п╣я┌ я┌п╟п╨п╦я┘ п╦п╪п╣п╫п╫я▀я┘ п╡п╣я┴п╣п╧.\r\nп║п╦п╫я┌п╟п╨я│п╦я│ %s [vnum | п╦п╪я▐ | email]\r\n", CMD_NAME);
+			//send_to_char("пёп╨п╟п╤п╦я┌п╣ VNUM п╢п╩я▐ я─п╣п╢п╟п╨я┌п╦я─п╬п╡п╟п╫п╦я▐.\r\n", ch);
 			break;
 	}
 }
@@ -548,29 +548,29 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 		(ch->in_room == r_named_start_room) ||
 		(ch->in_room == r_unreg_start_room))
 	{
-		act("$n сказал$g вам : 'Вот выйдешь - тогда и получишь!'", FALSE, mailman, 0, ch, TO_VICT);
+		act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п▓п╬я┌ п╡я▀п╧п╢п╣я┬я▄ - я┌п╬пЁп╢п╟ п╦ п©п╬п╩я┐я┤п╦я┬я▄!'", FALSE, mailman, 0, ch, TO_VICT);
 		return;
 	}
 
 	mob_rnum r_num;
 	int found = 0;
 	int in_world = 0;
-	snprintf(buf1, MAX_STRING_LENGTH, "не найден именной предмет");
+	snprintf(buf1, MAX_STRING_LENGTH, "п╫п╣ п╫п╟п╧п╢п╣п╫ п╦п╪п╣п╫п╫п╬п╧ п©я─п╣п╢п╪п╣я┌");
 	for (StuffListType::const_iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it)
 	{
 		if((it->second->uid==GET_UNIQUE(ch)) || (!strcmp(GET_EMAIL(ch), it->second->mail.c_str())))
 		{
 			if ((r_num = real_object(it->first)) < 0)
 			{
-				send_to_char("Странно, но такого объекта не существует.\r\n", ch);
-				snprintf(buf1, MAX_STRING_LENGTH, "объект не существует!!!");
+				send_to_char("п║я┌я─п╟п╫п╫п╬, п╫п╬ я┌п╟п╨п╬пЁп╬ п╬п╠я┼п╣п╨я┌п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.\r\n", ch);
+				snprintf(buf1, MAX_STRING_LENGTH, "п╬п╠я┼п╣п╨я┌ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌!!!");
 				continue;
 			}
-			if ((GET_OBJ_MIW(obj_proto[r_num]) > obj_proto.actual_count(r_num))	//Проверка на макс в мире
-				|| (obj_proto.actual_count(r_num) < 1))//Пока что если в мире нету то тоже загрузить
+			if ((GET_OBJ_MIW(obj_proto[r_num]) > obj_proto.actual_count(r_num))	//п÷я─п╬п╡п╣я─п╨п╟ п╫п╟ п╪п╟п╨я│ п╡ п╪п╦я─п╣
+				|| (obj_proto.actual_count(r_num) < 1))//п÷п╬п╨п╟ я┤я┌п╬ п╣я│п╩п╦ п╡ п╪п╦я─п╣ п╫п╣я┌я┐ я┌п╬ я┌п╬п╤п╣ п╥п╟пЁя─я┐п╥п╦я┌я▄
 			{
 				found++;
-				snprintf(buf1, MAX_STRING_LENGTH, "выдаем именной предмет %s Max:%d > Current:%d",
+				snprintf(buf1, MAX_STRING_LENGTH, "п╡я▀п╢п╟п╣п╪ п╦п╪п╣п╫п╫п╬п╧ п©я─п╣п╢п╪п╣я┌ %s Max:%d > Current:%d",
 					obj_proto[r_num]->get_short_description().c_str(),
 					GET_OBJ_MIW(obj_proto[r_num]),
 					obj_proto.actual_count(r_num));
@@ -580,12 +580,12 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 				obj->cleanup_script();
 				obj_decay(obj.get());
 
-				act("$n дал$g вам $o3.", FALSE, mailman, obj.get(), ch, TO_VICT);
-				act("$N дал$G $n2 $o3.", FALSE, ch, obj.get(), mailman, TO_ROOM);
+				act("$n п╢п╟п╩$g п╡п╟п╪ $o3.", FALSE, mailman, obj.get(), ch, TO_VICT);
+				act("$N п╢п╟п╩$G $n2 $o3.", FALSE, ch, obj.get(), mailman, TO_ROOM);
 			}
 			else
 			{
-				snprintf(buf1, MAX_STRING_LENGTH, "не выдаем именной предмет %s Max:%d <= Current:%d",
+				snprintf(buf1, MAX_STRING_LENGTH, "п╫п╣ п╡я▀п╢п╟п╣п╪ п╦п╪п╣п╫п╫п╬п╧ п©я─п╣п╢п╪п╣я┌ %s Max:%d <= Current:%d",
 					obj_proto[r_num]->get_short_description().c_str(),
 					GET_OBJ_MIW(obj_proto[r_num]),
 					obj_proto.actual_count(r_num));
@@ -600,11 +600,11 @@ void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman)
 	{
 		if(!in_world)
 		{
-			act("$n сказал$g вам : 'Кажется для тебя ничего нет'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п п╟п╤п╣я┌я│я▐ п╢п╩я▐ я┌п╣п╠я▐ п╫п╦я┤п╣пЁп╬ п╫п╣я┌'", FALSE, mailman, 0, ch, TO_VICT);
 		}
 		else
 		{
-			act("$n сказал$g вам : 'Забрал кто-то твои вещи'", FALSE, mailman, 0, ch, TO_VICT);
+			act("$n я│п╨п╟п╥п╟п╩$g п╡п╟п╪ : 'п≈п╟п╠я─п╟п╩ п╨я┌п╬-я┌п╬ я┌п╡п╬п╦ п╡п╣я┴п╦'", FALSE, mailman, 0, ch, TO_VICT);
 		}
 	}
 
@@ -628,23 +628,23 @@ void load()
 			std::string name;
 			if (stuff_list.find(vnum) != stuff_list.end())
 			{
-				snprintf(buf, MAX_STRING_LENGTH, "NamedStuff: дубликат записи vnum=%ld пропущен", vnum);
+				snprintf(buf, MAX_STRING_LENGTH, "NamedStuff: п╢я┐п╠п╩п╦п╨п╟я┌ п╥п╟п©п╦я│п╦ vnum=%ld п©я─п╬п©я┐я┴п╣п╫", vnum);
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 				continue;
 			}
 
 			if(real_object(vnum)<0) {
 				snprintf(buf, MAX_STRING_LENGTH,
-					"NamedStuff: предмет vnum=%ld не существует.", vnum);
+					"NamedStuff: п©я─п╣п╢п╪п╣я┌ vnum=%ld п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌.", vnum);
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			if(node.attribute("uid")) {
 				tmp_node->uid = std::stol(node.attribute("uid").value(), nullptr, 10);
-				name = GetNameByUnique(tmp_node->uid, false);// Ищем персонажа с указанным уид(богов игнорируем)
+				name = GetNameByUnique(tmp_node->uid, false);// п≤я┴п╣п╪ п©п╣я─я│п╬п╫п╟п╤п╟ я│ я┐п╨п╟п╥п╟п╫п╫я▀п╪ я┐п╦п╢(п╠п╬пЁп╬п╡ п╦пЁп╫п╬я─п╦я─я┐п╣п╪)
 				if (name.empty())
 				{
 					snprintf(buf, MAX_STRING_LENGTH,
-						"NamedStuff: Unique=%d - персонажа не существует(владелец предмета vnum=%ld).", tmp_node->uid, vnum);
+						"NamedStuff: Unique=%d - п©п╣я─я│п╬п╫п╟п╤п╟ п╫п╣ я│я┐я┴п╣я│я┌п╡я┐п╣я┌(п╡п╩п╟п╢п╣п╩п╣я├ п©я─п╣п╢п╪п╣я┌п╟ vnum=%ld).", tmp_node->uid, vnum);
 					mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 				}
 			}
@@ -673,7 +673,7 @@ void load()
 			{
 				std::string name = GetNameByUnique(tmp_node->uid, false);
 				snprintf(buf, MAX_STRING_LENGTH,
-					"NamedStuff: указан не корректный e-mail=&S%s&s для предмета vnum=%ld (владелец=%s).", tmp_node->mail.c_str(), vnum, (name.empty()?"неизвестен":name.c_str()));
+					"NamedStuff: я┐п╨п╟п╥п╟п╫ п╫п╣ п╨п╬я─я─п╣п╨я┌п╫я▀п╧ e-mail=&S%s&s п╢п╩я▐ п©я─п╣п╢п╪п╣я┌п╟ vnum=%ld (п╡п╩п╟п╢п╣п╩п╣я├=%s).", tmp_node->mail.c_str(), vnum, (name.empty()?"п╫п╣п╦п╥п╡п╣я│я┌п╣п╫":name.c_str()));
 				mudlog(buf, NRM, LVL_BUILDER, SYSLOG, TRUE);
 			}
 			if(node.attribute("can_clan"))
@@ -692,7 +692,7 @@ void load()
 		}
 	}
 	snprintf(buf, MAX_STRING_LENGTH,
-		"NamedStuff: список именных вещей загружен, всего объектов: %lu.",
+		"NamedStuff: я│п©п╦я│п╬п╨ п╦п╪п╣п╫п╫я▀я┘ п╡п╣я┴п╣п╧ п╥п╟пЁя─я┐п╤п╣п╫, п╡я│п╣пЁп╬ п╬п╠я┼п╣п╨я┌п╬п╡: %lu.",
 		static_cast<unsigned long>(stuff_list.size()));
 	mudlog(buf, CMP, LVL_BUILDER, SYSLOG, TRUE);
 }

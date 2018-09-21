@@ -24,19 +24,19 @@ typedef struct exchange_item_data EXCHANGE_ITEM_DATA;
 extern EXCHANGE_ITEM_DATA *exchange_item_list;
 extern std::vector<bool> lot_usage;
 
-#define EXCHANGE_AUTOSAVETIME 300	//Кол-во секунд между автосохранениями Базара (0 для отключения)
-#define EXCHANGE_AUTOSAVEBACKUPTIME 750	//Кол-во секунд между автосохранениями Базара (0 для отключения)
-#define EXCHANGE_SAVEONEVERYOPERATION FALSE	//Сохранять базар после каждой операции
+#define EXCHANGE_AUTOSAVETIME 300	//п п╬п╩-п╡п╬ я│п╣п╨я┐п╫п╢ п╪п╣п╤п╢я┐ п╟п╡я┌п╬я│п╬я┘я─п╟п╫п╣п╫п╦я▐п╪п╦ п▒п╟п╥п╟я─п╟ (0 п╢п╩я▐ п╬я┌п╨п╩я▌я┤п╣п╫п╦я▐)
+#define EXCHANGE_AUTOSAVEBACKUPTIME 750	//п п╬п╩-п╡п╬ я│п╣п╨я┐п╫п╢ п╪п╣п╤п╢я┐ п╟п╡я┌п╬я│п╬я┘я─п╟п╫п╣п╫п╦я▐п╪п╦ п▒п╟п╥п╟я─п╟ (0 п╢п╩я▐ п╬я┌п╨п╩я▌я┤п╣п╫п╦я▐)
+#define EXCHANGE_SAVEONEVERYOPERATION FALSE	//п║п╬я┘я─п╟п╫я▐я┌я▄ п╠п╟п╥п╟я─ п©п╬я│п╩п╣ п╨п╟п╤п╢п╬п╧ п╬п©п╣я─п╟я├п╦п╦
 #define EXCHANGE_DATABASE_FILE LIB_PLRSTUFF"exchange.db"
 #define EXCHANGE_DATABASE_BACKUPFILE LIB_PLRSTUFF"exchange.backup"
 #define EX_NEW_ITEM_CHAR '#'
 #define EX_END_CHAR '$'
 #define FILTER_LENGTH 25
-#define EXCHANGE_EXHIBIT_PAY 100	// Плата за выставление на базар
-#define EXCHANGE_EXHIBIT_PAY_COEFF 0.05	// Коэффициент оплаты в зависимости от цены товара
-#define EXCHANGE_IDENT_PAY 110	//куны за опознание
-#define EXCHANGE_MAX_EXHIBIT_PER_CHAR 20	//максимальное кол-во выставляемых объектов одним чаром
-//минимальный уровень для доступа к базару
+#define EXCHANGE_EXHIBIT_PAY 100	// п÷п╩п╟я┌п╟ п╥п╟ п╡я▀я│я┌п╟п╡п╩п╣п╫п╦п╣ п╫п╟ п╠п╟п╥п╟я─
+#define EXCHANGE_EXHIBIT_PAY_COEFF 0.05	// п п╬я█я└я└п╦я├п╦п╣п╫я┌ п╬п©п╩п╟я┌я▀ п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ я├п╣п╫я▀ я┌п╬п╡п╟я─п╟
+#define EXCHANGE_IDENT_PAY 110	//п╨я┐п╫я▀ п╥п╟ п╬п©п╬п╥п╫п╟п╫п╦п╣
+#define EXCHANGE_MAX_EXHIBIT_PER_CHAR 20	//п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩-п╡п╬ п╡я▀я│я┌п╟п╡п╩я▐п╣п╪я▀я┘ п╬п╠я┼п╣п╨я┌п╬п╡ п╬п╢п╫п╦п╪ я┤п╟я─п╬п╪
+//п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ п╢п╬я│я┌я┐п©п╟ п╨ п╠п╟п╥п╟я─я┐
 const int EXCHANGE_MIN_CHAR_LEV = 8;
 
 #define GET_EXCHANGE_ITEM_LOT(item)  ((item)->lot_id)
@@ -52,13 +52,13 @@ void check_exchange(OBJ_DATA * obj);
 
 struct exchange_item_data
 {
-	int lot_id;		//Номер лота
-	int seller_id;		//Номер продавца
-	int obj_cost;		//цена лота
-	time_t time; // время
-	char *comment;		//коментарий
-	OBJ_DATA *obj;		//собственно предмет
-	EXCHANGE_ITEM_DATA *next;	//для списка объектов базара
+	int lot_id;		//п²п╬п╪п╣я─ п╩п╬я┌п╟
+	int seller_id;		//п²п╬п╪п╣я─ п©я─п╬п╢п╟п╡я├п╟
+	int obj_cost;		//я├п╣п╫п╟ п╩п╬я┌п╟
+	time_t time; // п╡я─п╣п╪я▐
+	char *comment;		//п╨п╬п╪п╣п╫я┌п╟я─п╦п╧
+	OBJ_DATA *obj;		//я│п╬п╠я│я┌п╡п╣п╫п╫п╬ п©я─п╣п╢п╪п╣я┌
+	EXCHANGE_ITEM_DATA *next;	//п╢п╩я▐ я│п©п╦я│п╨п╟ п╬п╠я┼п╣п╨я┌п╬п╡ п╠п╟п╥п╟я─п╟
 };
 
 void exchange_database_save(bool backup = false);

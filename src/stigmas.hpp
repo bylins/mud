@@ -9,22 +9,22 @@
 
 struct Stigma
 {
-		// id татуировки
+		// id я┌п╟я┌я┐п╦я─п╬п╡п╨п╦
 		unsigned int id;
-		// имя 
+		// п╦п╪я▐ 
 		std::string name;
-		// функция активации татуировки
+		// я└я┐п╫п╨я├п╦я▐ п╟п╨я┌п╦п╡п╟я├п╦п╦ я┌п╟я┌я┐п╦я─п╬п╡п╨п╦
 		void(*activation_stigma)(CHAR_DATA*);
-		// время релоада
+		// п╡я─п╣п╪я▐ я─п╣п╩п╬п╟п╢п╟
 		unsigned reload;
 	};
 
 struct StigmaWear
 {
 		Stigma stigma;
-		// время до релоада
+		// п╡я─п╣п╪я▐ п╢п╬ я─п╣п╩п╬п╟п╢п╟
 		unsigned int reload;
-		// получить имя
+		// п©п╬п╩я┐я┤п╦я┌я▄ п╦п╪я▐
 		std::string get_name() const;
 };*/
 

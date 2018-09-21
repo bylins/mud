@@ -49,7 +49,7 @@ enchant::enchant(OBJ_DATA *obj)
 
 void enchant::print(CHAR_DATA *ch) const
 {
-	send_to_char(ch, "Зачаровано %s :%s\r\n", name_.c_str(), CCCYN(ch, C_NRM));
+	send_to_char(ch, "п≈п╟я┤п╟я─п╬п╡п╟п╫п╬ %s :%s\r\n", name_.c_str(), CCCYN(ch, C_NRM));
 
 	for (std::vector<obj_affected_type>::const_iterator i = affected_.begin(),
 		iend = affected_.end(); i != iend; ++i)
@@ -59,26 +59,26 @@ void enchant::print(CHAR_DATA *ch) const
 
 	if (affects_flags_.sprintbits(weapon_affects, buf2, ","))
 	{
-		send_to_char(ch, "%s   аффекты: %s%s\r\n",
+		send_to_char(ch, "%s   п╟я└я└п╣п╨я┌я▀: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	}
 
 	if (extra_flags_.sprintbits(extra_bits, buf2, ","))
 	{
-		send_to_char(ch, "%s   экстрафлаги: %s%s\r\n",
+		send_to_char(ch, "%s   я█п╨я│я┌я─п╟я└п╩п╟пЁп╦: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	}
 
 	if (no_flags_.sprintbits(no_bits, buf2, ","))
 	{
-		send_to_char(ch, "%s   неудобен: %s%s\r\n",
+		send_to_char(ch, "%s   п╫п╣я┐п╢п╬п╠п╣п╫: %s%s\r\n",
 			CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	}
 
 	if (weight_ != 0)
 	{
-		send_to_char(ch, "%s   %s вес на %d%s\r\n", CCCYN(ch, C_NRM),
-			weight_ > 0 ? "увеличивает" : "уменьшает",
+		send_to_char(ch, "%s   %s п╡п╣я│ п╫п╟ %d%s\r\n", CCCYN(ch, C_NRM),
+			weight_ > 0 ? "я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌" : "я┐п╪п╣п╫я▄я┬п╟п╣я┌",
 			abs(weight_), CCNRM(ch, C_NRM));
 	}
 
@@ -86,17 +86,17 @@ void enchant::print(CHAR_DATA *ch) const
 	{
 		if (ndice_ >= 0 && sdice_ >= 0)
 		{
-			send_to_char(ch, "%s   увеличивает урон на %dD%d%s\r\n",
+			send_to_char(ch, "%s   я┐п╡п╣п╩п╦я┤п╦п╡п╟п╣я┌ я┐я─п╬п╫ п╫п╟ %dD%d%s\r\n",
 				CCCYN(ch, C_NRM), abs(ndice_), abs(sdice_), CCNRM(ch, C_NRM));
 		}
 		else if (ndice_ <= 0 && sdice_ <= 0)
 		{
-			send_to_char(ch, "%s   уменьшает урон на %dD%d%s\r\n",
+			send_to_char(ch, "%s   я┐п╪п╣п╫я▄я┬п╟п╣я┌ я┐я─п╬п╫ п╫п╟ %dD%d%s\r\n",
 				CCCYN(ch, C_NRM), abs(ndice_),  abs(sdice_), CCNRM(ch, C_NRM));
 		}
 		else
 		{
-			send_to_char(ch, "%s   изменяет урон на %+dD%+d%s\r\n",
+			send_to_char(ch, "%s   п╦п╥п╪п╣п╫я▐п╣я┌ я┐я─п╬п╫ п╫п╟ %+dD%+d%s\r\n",
 				CCCYN(ch, C_NRM), ndice_, sdice_, CCNRM(ch, C_NRM));
 		}
 	}
@@ -224,9 +224,9 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type& set_en
 				|| i->ndice_ != set_ench.ndice
 				|| i->sdice_ != set_ench.sdice)
 			{
-				// вес
+				// п╡п╣я│
 				obj->add_weight(set_ench.weight - i->weight_);
-				// дайсы пушек
+				// п╢п╟п╧я│я▀ п©я┐я┬п╣п╨
 				if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 				{
 					obj->add_val(1, set_ench.ndice - i->ndice_);
@@ -243,7 +243,7 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type& set_en
 
 	obj::enchant tmp;
 	tmp.type_ = obj::ENCHANT_FROM_SET;
-	tmp.name_ = "набором предметов";
+	tmp.name_ = "п╫п╟п╠п╬я─п╬п╪ п©я─п╣п╢п╪п╣я┌п╬п╡";
 	tmp.weight_ = set_ench.weight;
 	tmp.ndice_ = set_ench.ndice;
 	tmp.sdice_ = set_ench.sdice;

@@ -10,36 +10,36 @@
 
 namespace Boards
 {
-	// возможные типы доступа к доскам
+	// п╡п╬п╥п╪п╬п╤п╫я▀п╣ я┌п╦п©я▀ п╢п╬я│я┌я┐п©п╟ п╨ п╢п╬я│п╨п╟п╪
 	enum Access
 	{
-		ACCESS_CAN_SEE,    // видно в списке по 'доски' и попытках обратиться к доске
-		ACCESS_CAN_READ,   // можно листать и читать сообщения
-		ACCESS_CAN_WRITE,  // можно писать сообщения
-		ACCESS_FULL,       // можно удалять чужие сообщения
-		ACCESS_NUM         // кол-во флагов
+		ACCESS_CAN_SEE,    // п╡п╦п╢п╫п╬ п╡ я│п©п╦я│п╨п╣ п©п╬ 'п╢п╬я│п╨п╦' п╦ п©п╬п©я▀я┌п╨п╟я┘ п╬п╠я─п╟я┌п╦я┌я▄я│я▐ п╨ п╢п╬я│п╨п╣
+		ACCESS_CAN_READ,   // п╪п╬п╤п╫п╬ п╩п╦я│я┌п╟я┌я▄ п╦ я┤п╦я┌п╟я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦я▐
+		ACCESS_CAN_WRITE,  // п╪п╬п╤п╫п╬ п©п╦я│п╟я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦я▐
+		ACCESS_FULL,       // п╪п╬п╤п╫п╬ я┐п╢п╟п╩я▐я┌я▄ я┤я┐п╤п╦п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐
+		ACCESS_NUM         // п╨п╬п╩-п╡п╬ я└п╩п╟пЁп╬п╡
 	};
 
-	// типы досок
+	// я┌п╦п©я▀ п╢п╬я│п╬п╨
 	enum BoardTypes : int
 	{
-		GENERAL_BOARD,    // общая
-		NEWS_BOARD,       // новости
-		IDEA_BOARD,       // идеи
-		ERROR_BOARD,      // баги (ошибка)
-		GODNEWS_BOARD,    // новости (только для иммов)
-		GODGENERAL_BOARD, // общая (только для иммов)
-		GODBUILD_BOARD,   // билдеры (только для иммов)
-		GODCODE_BOARD,    // кодеры (только для иммов)
-		GODPUNISH_BOARD,  // наказания (только для иммов)
-		PERS_BOARD,       // персональная (только для иммов)
-		CLAN_BOARD,       // клановая
-		CLANNEWS_BOARD,   // клановые новости
-		NOTICE_BOARD,     // анонсы
-		MISPRINT_BOARD,   // очепятки (опечатка)
-		SUGGEST_BOARD,    // придумки (мысль)
-		CODER_BOARD,      // выборка из ченж-лога, затрагивающая игроков
-		TYPES_NUM         // кол-во досок
+		GENERAL_BOARD,    // п╬п╠я┴п╟я▐
+		NEWS_BOARD,       // п╫п╬п╡п╬я│я┌п╦
+		IDEA_BOARD,       // п╦п╢п╣п╦
+		ERROR_BOARD,      // п╠п╟пЁп╦ (п╬я┬п╦п╠п╨п╟)
+		GODNEWS_BOARD,    // п╫п╬п╡п╬я│я┌п╦ (я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╦п╪п╪п╬п╡)
+		GODGENERAL_BOARD, // п╬п╠я┴п╟я▐ (я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╦п╪п╪п╬п╡)
+		GODBUILD_BOARD,   // п╠п╦п╩п╢п╣я─я▀ (я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╦п╪п╪п╬п╡)
+		GODCODE_BOARD,    // п╨п╬п╢п╣я─я▀ (я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╦п╪п╪п╬п╡)
+		GODPUNISH_BOARD,  // п╫п╟п╨п╟п╥п╟п╫п╦я▐ (я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╦п╪п╪п╬п╡)
+		PERS_BOARD,       // п©п╣я─я│п╬п╫п╟п╩я▄п╫п╟я▐ (я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╦п╪п╪п╬п╡)
+		CLAN_BOARD,       // п╨п╩п╟п╫п╬п╡п╟я▐
+		CLANNEWS_BOARD,   // п╨п╩п╟п╫п╬п╡я▀п╣ п╫п╬п╡п╬я│я┌п╦
+		NOTICE_BOARD,     // п╟п╫п╬п╫я│я▀
+		MISPRINT_BOARD,   // п╬я┤п╣п©я▐я┌п╨п╦ (п╬п©п╣я┤п╟я┌п╨п╟)
+		SUGGEST_BOARD,    // п©я─п╦п╢я┐п╪п╨п╦ (п╪я▀я│п╩я▄)
+		CODER_BOARD,      // п╡я▀п╠п╬я─п╨п╟ п╦п╥ я┤п╣п╫п╤-п╩п╬пЁп╟, п╥п╟я┌я─п╟пЁп╦п╡п╟я▌я┴п╟я▐ п╦пЁя─п╬п╨п╬п╡
+		TYPES_NUM         // п╨п╬п╩-п╡п╬ п╢п╬я│п╬п╨
 	};
 
 	class Board
@@ -59,7 +59,7 @@ namespace Boards
 
 		Board(BoardTypes in_type);
 
-		MessageListType messages; // список сообщений
+		MessageListType messages; // я│п©п╦я│п╬п╨ я│п╬п╬п╠я┴п╣п╫п╦п╧
 
 		const auto get_type() const { return type_; }
 
@@ -113,16 +113,16 @@ namespace Boards
 		template <typename ForwardIterator>
 		void format_board_implementation(Formatter::shared_ptr formatter, ForwardIterator begin, const ForwardIterator& end) const;
 
-		BoardTypes type_;  // тип доски
-		std::string name_;         // имя доски
-		std::string desc_;         // описание доски
-		long last_write_;          // уид последнего писавшего (до ребута)
-		int clan_rent_;            // номер ренты клана (для клановых досок)
-		int pers_unique_;          // уид (для персональной доски)
-		std::string pers_name_;    // имя (для персональной доски)
-		std::string file_;         // имя файла для сейва/лоада
-		std::string alias_;        // однострочные алиасы для спец.досок
-		bool blind_;               // игроки не видят счетчики сообщений
+		BoardTypes type_;  // я┌п╦п© п╢п╬я│п╨п╦
+		std::string name_;         // п╦п╪я▐ п╢п╬я│п╨п╦
+		std::string desc_;         // п╬п©п╦я│п╟п╫п╦п╣ п╢п╬я│п╨п╦
+		long last_write_;          // я┐п╦п╢ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ п©п╦я│п╟п╡я┬п╣пЁп╬ (п╢п╬ я─п╣п╠я┐я┌п╟)
+		int clan_rent_;            // п╫п╬п╪п╣я─ я─п╣п╫я┌я▀ п╨п╩п╟п╫п╟ (п╢п╩я▐ п╨п╩п╟п╫п╬п╡я▀я┘ п╢п╬я│п╬п╨)
+		int pers_unique_;          // я┐п╦п╢ (п╢п╩я▐ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╧ п╢п╬я│п╨п╦)
+		std::string pers_name_;    // п╦п╪я▐ (п╢п╩я▐ п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╧ п╢п╬я│п╨п╦)
+		std::string file_;         // п╦п╪я▐ я└п╟п╧п╩п╟ п╢п╩я▐ я│п╣п╧п╡п╟/п╩п╬п╟п╢п╟
+		std::string alias_;        // п╬п╢п╫п╬я│я┌я─п╬я┤п╫я▀п╣ п╟п╩п╦п╟я│я▀ п╢п╩я▐ я│п©п╣я├.п╢п╬я│п╬п╨
+		bool blind_;               // п╦пЁя─п╬п╨п╦ п╫п╣ п╡п╦п╢я▐я┌ я│я┤п╣я┌я┤п╦п╨п╦ я│п╬п╬п╠я┴п╣п╫п╦п╧
 	};
 
 	template <typename ForwardIterator>

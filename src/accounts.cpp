@@ -51,7 +51,7 @@ void Account::complete_quest(int id)
 
 void Account::show_list_players(DESCRIPTOR_DATA *d)
 {
-	SEND_TO_Q("Ваши персонажи:\r\n", d);
+	SEND_TO_Q("п▓п╟я┬п╦ п©п╣я─я│п╬п╫п╟п╤п╦:\r\n", d);
 	int count = 1;
 	for (auto &x : this->players_list)
 	{
@@ -140,7 +140,7 @@ std::string Account::get_email()
 
 void Account::add_player(int uid)
 {
-	// если уже есть, то не добавляем
+	// п╣я│п╩п╦ я┐п╤п╣ п╣я│я┌я▄, я┌п╬ п╫п╣ п╢п╬п╠п╟п╡п╩я▐п╣п╪
 	for (auto &x : this->players_list)
 		if (x == uid)
 			return;
@@ -157,7 +157,7 @@ void Account::remove_player(int uid)
 			return;
 		}
 	}
-	//mudlog("тСМЙЖХЪ Account::remove_player, uid  %d МЕ АШК МЮИДЕМ", uid);
+	//mudlog("я┌п║п°п≥п√п╔п╙ Account::remove_player, uid  %d п°п∙ п░п╗п  п°п╝п≤п■п∙п°", uid);
 }
 
 time_t Account::get_last_login()
@@ -192,7 +192,7 @@ void Account::add_login(const std::string& ip_addr)
 	this->history_logins.insert(std::pair<std::string, login_index>(ip_addr, tmp));
 }
 
-/* Показ хистори логинов */
+/* п÷п╬п╨п╟п╥ я┘п╦я│я┌п╬я─п╦ п╩п╬пЁп╦п╫п╬п╡ */
 void Account::show_history_logins(DESCRIPTOR_DATA* d)
 {
 	char temp_buf[256] = "\0";

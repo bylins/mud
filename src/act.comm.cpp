@@ -63,8 +63,8 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // shapirus
 void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-#define SIELENCE ("Вы немы, как рыба об лед.\r\n")
-#define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
+#define SIELENCE ("п▓я▀ п╫п╣п╪я▀, п╨п╟п╨ я─я▀п╠п╟ п╬п╠ п╩п╣п╢.\r\n")
+#define SOUNDPROOF ("п║я┌п╣п╫я▀ п╥п╟пЁп╩я┐я┬п╦п╩п╦ п╡п╟я┬п╦ я│п╩п╬п╡п╟.\r\n")
 
 void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -79,11 +79,11 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);  
+		send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я─п╟я┴п╟я┌я▄я│я▐ п╨ п╢я─я┐пЁп╦п╪ п╦пЁя─п╬п╨п╟п╪!\r\n", ch);  
 		return;
 	}
 
-	/* Непонятно нафига! Если захотят спамить - спамить все равно будут!
+	/* п²п╣п©п╬п╫я▐я┌п╫п╬ п╫п╟я└п╦пЁп╟! п∙я│п╩п╦ п╥п╟я┘п╬я┌я▐я┌ я│п©п╟п╪п╦я┌я▄ - я│п©п╟п╪п╦я┌я▄ п╡я│п╣ я─п╟п╡п╫п╬ п╠я┐п╢я┐я┌!
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		send_to_char(SOUNDPROOF, ch);
@@ -92,14 +92,14 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	*/
 
 	if (!*argument)
-		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
+		send_to_char("п▓я▀ п╥п╟п╢я┐п╪п╟п╩п╦я│я▄: \"п╖п╣пЁп╬ п╠я▀ я┌п╟п╨п╬пЁп╬ я│п╨п╟п╥п╟я┌я▄?\"\r\n", ch);
 	else
 	{
-		sprintf(buf, "$n сказал$g : '%s'", argument);
+		sprintf(buf, "$n я│п╨п╟п╥п╟п╩$g : '%s'", argument);
 
 //      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);
-// shapirus; для возможности игнорирования теллов в клетку
-// пришлось изменить act в клетку на проход по клетке
+// shapirus; п╢п╩я▐ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ п╦пЁп╫п╬я─п╦я─п╬п╡п╟п╫п╦я▐ я┌п╣п╩п╩п╬п╡ п╡ п╨п╩п╣я┌п╨я┐
+// п©я─п╦я┬п╩п╬я│я▄ п╦п╥п╪п╣п╫п╦я┌я▄ act п╡ п╨п╩п╣я┌п╨я┐ п╫п╟ п©я─п╬я┘п╬п╢ п©п╬ п╨п╩п╣я┌п╨п╣
 		for (const auto to : world[ch->in_room]->people)
 		{
 			if (ch == to || ignores(to, ch, IGNORE_SAY))
@@ -117,7 +117,7 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else
 		{
 			delete_doubledollar(argument);
-			sprintf(buf, "Вы сказали : '%s'\r\n", argument);
+			sprintf(buf, "п▓я▀ я│п╨п╟п╥п╟п╩п╦ : '%s'\r\n", argument);
 			send_to_char(buf, ch);
 		}
 		speech_mtrigger(ch, argument);
@@ -139,7 +139,7 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я─п╟я┴п╟я┌я▄я│я▐ п╨ п╢я─я┐пЁп╦п╪ п╦пЁя─п╬п╨п╟п╪!\r\n", ch);
 		return;
 	}
 
@@ -147,13 +147,13 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 	{
-		send_to_char("Вы не являетесь членом группы!\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ я▐п╡п╩я▐п╣я┌п╣я│я▄ я┤п╩п╣п╫п╬п╪ пЁя─я┐п©п©я▀!\r\n", ch);
 		return;
 	}
 
 	if (!*argument)
 	{
-		send_to_char("О чем вы хотите сообщить своей группе?\r\n", ch);
+		send_to_char("п· я┤п╣п╪ п╡я▀ я┘п╬я┌п╦я┌п╣ я│п╬п╬п╠я┴п╦я┌я▄ я│п╡п╬п╣п╧ пЁя─я┐п©п©п╣?\r\n", ch);
 	}
 	else
 	{
@@ -166,18 +166,18 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			k = ch;
 		}
 
-		sprintf(buf, "$n сообщил$g группе : '%s'", argument);
+		sprintf(buf, "$n я│п╬п╬п╠я┴п╦п╩$g пЁя─я┐п©п©п╣ : '%s'", argument);
 
 		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
 			&& k != ch
 			&& !ignores(k, ch, IGNORE_GROUP))
 		{
 			act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
-			// added by WorM  групптелы 2010.10.13
+			// added by WorM  пЁя─я┐п©п©я┌п╣п╩я▀ 2010.10.13
 			if(!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
 				&& GET_POS(k) > POS_DEAD)
 			{
-				sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, k), argument);
+				sprintf(buf1, "%s я│п╬п╬п╠я┴п╦п╩%s пЁя─я┐п©п©п╣ : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "п я┌п╬-я┌п╬", GET_CH_VIS_SUF_1(ch, k), argument);
 				k->remember_add(buf1, Remember::ALL);
 				k->remember_add(buf1, Remember::GROUP);
 			}
@@ -190,11 +190,11 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				&& !ignores(f->follower, ch, IGNORE_GROUP))
 			{
 				act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
-				// added by WorM  групптелы 2010.10.13
+				// added by WorM  пЁя─я┐п©п©я┌п╣п╩я▀ 2010.10.13
 				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_DEAFNESS)
 					&& GET_POS(f->follower) > POS_DEAD)
 				{
-					sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, f->follower), argument);
+					sprintf(buf1, "%s я│п╬п╬п╠я┴п╦п╩%s пЁя─я┐п©п©п╣ : '%s'\r\n", tell_can_see(ch, f->follower) ? GET_NAME(ch) : "п я┌п╬-я┌п╬", GET_CH_VIS_SUF_1(ch, f->follower), argument);
 					f->follower->remember_add(buf1, Remember::ALL);
 					f->follower->remember_add(buf1, Remember::GROUP);
 				}
@@ -206,9 +206,9 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char(OK, ch);
 		else
 		{
-			sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
+			sprintf(buf, "п▓я▀ я│п╬п╬п╠я┴п╦п╩п╦ пЁя─я┐п©п©п╣ : '%s'\r\n", argument);
 			send_to_char(buf, ch);
-			// added by WorM  групптелы 2010.10.13
+			// added by WorM  пЁя─я┐п©п©я┌п╣п╩я▀ 2010.10.13
 			ch->remember_add(buf, Remember::ALL);
 			ch->remember_add(buf, Remember::GROUP);
 			//end by WorM
@@ -230,25 +230,25 @@ bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict)
 
 void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 {
-// shapirus: не позволим телять, если жертва не видит и включила
-// соответствующий режим; имморталы могут телять всегда
+// shapirus: п╫п╣ п©п╬п╥п╡п╬п╩п╦п╪ я┌п╣п╩я▐я┌я▄, п╣я│п╩п╦ п╤п╣я─я┌п╡п╟ п╫п╣ п╡п╦п╢п╦я┌ п╦ п╡п╨п╩я▌я┤п╦п╩п╟
+// я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐я▌я┴п╦п╧ я─п╣п╤п╦п╪; п╦п╪п╪п╬я─я┌п╟п╩я▀ п╪п╬пЁя┐я┌ я┌п╣п╩я▐я┌я▄ п╡я│п╣пЁп╢п╟
 	if (PRF_FLAGGED(vict, PRF_NOINVISTELL)
 			&& !CAN_SEE(vict, ch)
 			&& GET_LEVEL(ch) < LVL_IMMORT
 			&& !PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
-		act("$N не любит разговаривать с теми, кого не видит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N п╫п╣ п╩я▌п╠п╦я┌ я─п╟п╥пЁп╬п╡п╟я─п╦п╡п╟я┌я▄ я│ я┌п╣п╪п╦, п╨п╬пЁп╬ п╫п╣ п╡п╦п╢п╦я┌.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return;
 	}
 
-	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
+	// TODO: п╣я│п╩п╦ п╡ act() п╬я│я┌п╟п╫п╣я┌я│я▐ п©п╬п╨п╟п╥ п╦п╪п╪п╬п╡, я┌п╬ я█я┌п╬ п╦ я█я┘п╬ п╫п╦п╤п╣ п©п╣я─п╣п╢п╣п╩п╟я┌я▄ п╫п╟ act()
 	if (tell_can_see(ch, vict))
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
+		snprintf(buf, MAX_STRING_LENGTH, "%s я│п╨п╟п╥п╟п╩%s п╡п╟п╪ : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
 	}
 	else
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "Кто-то сказал вам : '%s'", arg);
+		snprintf(buf, MAX_STRING_LENGTH, "п я┌п╬-я┌п╬ я│п╨п╟п╥п╟п╩ п╡п╟п╪ : '%s'", arg);
 	}
 	snprintf(buf1, MAX_STRING_LENGTH, "%s%s%s\r\n", CCICYN(vict, C_NRM), CAP(buf), CCNRM(vict, C_NRM));
 	send_to_char(buf1, vict);
@@ -260,7 +260,7 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	if (!IS_NPC(vict) && !IS_NPC(ch))
 	{
 		snprintf(buf, MAX_STRING_LENGTH, "%s%s : '%s'%s\r\n", CCICYN(vict, C_NRM),
-				tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, CCNRM(vict, C_NRM));
+				tell_can_see(ch, vict) ? GET_NAME(ch) : "п я┌п╬-я┌п╬", arg, CCNRM(vict, C_NRM));
 		vict->remember_add(buf, Remember::PERSONAL);
 	}
 
@@ -270,8 +270,8 @@ void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 	}
 	else
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "%sВы сказали %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
-				tell_can_see(vict, ch) ? vict->player_data.PNames[2].c_str() : "кому-то", arg, CCNRM(ch, C_NRM));
+		snprintf(buf, MAX_STRING_LENGTH, "%sп▓я▀ я│п╨п╟п╥п╟п╩п╦ %s : '%s'%s\r\n", CCICYN(ch, C_NRM),
+				tell_can_see(vict, ch) ? vict->player_data.PNames[2].c_str() : "п╨п╬п╪я┐-я┌п╬", arg, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		if (!IS_NPC(ch))
 		{
@@ -289,22 +289,22 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	if (ch == vict)
 	{
-		send_to_char("Вы начали потихоньку разговаривать с самим собой.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╟я┤п╟п╩п╦ п©п╬я┌п╦я┘п╬п╫я▄п╨я┐ я─п╟п╥пЁп╬п╡п╟я─п╦п╡п╟я┌я▄ я│ я│п╟п╪п╦п╪ я│п╬п╠п╬п╧.\r\n", ch);
 		return (FALSE);
 	}
 	else if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам.\r\n", ch);
+		send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я─п╟я┴п╟я┌я▄я│я▐ п╨ п╢я─я┐пЁп╦п╪ п╦пЁя─п╬п╨п╟п╪.\r\n", ch);
 		return (FALSE);
 	}
 	else if (!IS_NPC(vict) && !vict->desc)  	// linkless
 	{
-		act("$N потерял$G связь в этот момент.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N п©п╬я┌п╣я─я▐п╩$G я│п╡я▐п╥я▄ п╡ я█я┌п╬я┌ п╪п╬п╪п╣п╫я┌.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return (FALSE);
 	}
 	else if (PLR_FLAGGED(vict, PLR_WRITING))
 	{
-		act("$N пишет сообщение - повторите попозже.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N п©п╦я┬п╣я┌ я│п╬п╬п╠я┴п╣п╫п╦п╣ - п©п╬п╡я┌п╬я─п╦я┌п╣ п©п╬п©п╬п╥п╤п╣.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 		return (FALSE);
 	}
 
@@ -316,9 +316,9 @@ int is_tell_ok(CHAR_DATA * ch, CHAR_DATA * vict)
 	else if ((!IS_NPC(vict) &&
 			  (PRF_FLAGGED(vict, PRF_NOTELL) || ignores(vict, ch, IGNORE_TELL))) ||
 			 ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF))
-		act("$N не сможет вас услышать.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N п╫п╣ я│п╪п╬п╤п╣я┌ п╡п╟я│ я┐я│п╩я▀я┬п╟я┌я▄.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else if (GET_POS(vict) < POS_RESTING || AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
-		act("$N вас не услышит.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
+		act("$N п╡п╟я│ п╫п╣ я┐я│п╩я▀я┬п╦я┌.", FALSE, ch, 0, vict, TO_CHAR | TO_SLEEP);
 	else
 		return (TRUE);
 
@@ -342,7 +342,7 @@ void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	/* Непонятно нафига нужно
+	/* п²п╣п©п╬п╫я▐я┌п╫п╬ п╫п╟я└п╦пЁп╟ п╫я┐п╤п╫п╬
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
 		send_to_char(SOUNDPROOF, ch);
@@ -354,7 +354,7 @@ void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*buf || !*buf2)
 	{
-		send_to_char("Что и кому вы хотите сказать?\r\n", ch);
+		send_to_char("п╖я┌п╬ п╦ п╨п╬п╪я┐ п╡я▀ я┘п╬я┌п╦я┌п╣ я│п╨п╟п╥п╟я┌я▄?\r\n", ch);
 	}
 	else if (!(vict = get_player_vis(ch, buf, FIND_CHAR_WORLD)))
 	{
@@ -365,7 +365,7 @@ void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else if (is_tell_ok(ch, vict))
 	{
 		if (PRF_FLAGGED(ch, PRF_NOTELL))
-			send_to_char("Ответить вам не смогут!\r\n", ch);
+			send_to_char("п·я┌п╡п╣я┌п╦я┌я▄ п╡п╟п╪ п╫п╣ я│п╪п╬пЁя┐я┌!\r\n", ch);
 		perform_tell(ch, vict, buf2);
 	}
 }
@@ -383,16 +383,16 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я─п╟я┴п╟я┌я▄я│я▐ п╨ п╢я─я┐пЁп╦п╪ п╦пЁя─п╬п╨п╟п╪!\r\n", ch);
 		return;
 	}
 
 	skip_spaces(&argument);
 
 	if (ch->get_answer_id() == NOBODY)
-		send_to_char("Вам некому ответить!\r\n", ch);
+		send_to_char("п▓п╟п╪ п╫п╣п╨п╬п╪я┐ п╬я┌п╡п╣я┌п╦я┌я▄!\r\n", ch);
 	else if (!*argument)
-		send_to_char("Что вы собираетесь ответить?\r\n", ch);
+		send_to_char("п╖я┌п╬ п╡я▀ я│п╬п╠п╦я─п╟п╣я┌п╣я│я▄ п╬я┌п╡п╣я┌п╦я┌я▄?\r\n", ch);
 	else
 	{
 		/*
@@ -426,7 +426,7 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		if (!found)
 		{
-			send_to_char("Этого игрока уже нет в игре.\r\n", ch);
+			send_to_char("п╜я┌п╬пЁп╬ п╦пЁя─п╬п╨п╟ я┐п╤п╣ п╫п╣я┌ п╡ п╦пЁя─п╣.\r\n", ch);
 		}
 	}
 }
@@ -445,41 +445,41 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я─п╟я┴п╟я┌я▄я│я▐ п╨ п╢я─я┐пЁп╦п╪ п╦пЁя─п╬п╨п╟п╪!\r\n", ch);
 		return;
 	}
 
 	if (subcmd == SCMD_WHISPER)
 	{
-		action_sing = "шепнуть";
-		vict1 = "кому";
-		vict2 = "вам";
-		action_plur = "прошептал";
-		action_others = "$n что-то прошептал$g $N2.";
+		action_sing = "я┬п╣п©п╫я┐я┌я▄";
+		vict1 = "п╨п╬п╪я┐";
+		vict2 = "п╡п╟п╪";
+		action_plur = "п©я─п╬я┬п╣п©я┌п╟п╩";
+		action_others = "$n я┤я┌п╬-я┌п╬ п©я─п╬я┬п╣п©я┌п╟п╩$g $N2.";
 	}
 	else
 	{
-		action_sing = "спросить";
-		vict1 = "у кого";
-		vict2 = "у вас";
-		action_plur = "спросил";
-		action_others = "$n задал$g $N2 вопрос.";
+		action_sing = "я│п©я─п╬я│п╦я┌я▄";
+		vict1 = "я┐ п╨п╬пЁп╬";
+		vict2 = "я┐ п╡п╟я│";
+		action_plur = "я│п©я─п╬я│п╦п╩";
+		action_others = "$n п╥п╟п╢п╟п╩$g $N2 п╡п╬п©я─п╬я│.";
 	}
 
 	half_chop(argument, buf, buf2);
 
 	if (!*buf || !*buf2)
 	{
-		sprintf(buf, "Что вы хотите %s.. и %s?\r\n", action_sing, vict1);
+		sprintf(buf, "п╖я┌п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ %s.. п╦ %s?\r\n", action_sing, vict1);
 		send_to_char(buf, ch);
 	}
 	else if (!(vict = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
 		send_to_char(NOPERSON, ch);
 	else if (vict == ch)
-		send_to_char("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
+		send_to_char("п·я┌ п╡п╟я┬п╦я┘ я┐я│я┌ п╢п╬ я┐я┬п╣п╧ - п╡я│п╣пЁп╬ п╬п╢п╫п╟ п╩п╟п╢п╬п╫я▄...\r\n", ch);
 	else if (ignores(vict, ch, subcmd == SCMD_WHISPER ? IGNORE_WHISPER : IGNORE_ASK))
 	{
-		sprintf(buf, "%s не желает вас слышать.\r\n", GET_NAME(vict));
+		sprintf(buf, "%s п╫п╣ п╤п╣п╩п╟п╣я┌ п╡п╟я│ я│п╩я▀я┬п╟я┌я▄.\r\n", GET_NAME(vict));
 		send_to_char(buf, ch);
 	}
 	else
@@ -487,7 +487,7 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		if (subcmd == SCMD_WHISPER)
 			sprintf(vict3, "%s", GET_PAD(vict, 2));
 		else
-			sprintf(vict3, "у %s", GET_PAD(vict, 1));
+			sprintf(vict3, "я┐ %s", GET_PAD(vict, 1));
 
 		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
 		act(buf, FALSE, ch, 0, vict, TO_VICT | CHECK_DEAF);
@@ -496,7 +496,7 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			send_to_char(OK, ch);
 		else
 		{
-			sprintf(buf, "Вы %sи %s : '%s'\r\n", action_plur, vict3, buf2);
+			sprintf(buf, "п▓я▀ %sп╦ %s : '%s'\r\n", action_plur, vict3, buf2);
 			send_to_char(buf, ch);
 		}
 
@@ -521,20 +521,20 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*papername)  	// nothing was delivered
 	{
-		send_to_char("Написать?  Чем?  И на чем?\r\n", ch);
+		send_to_char("п²п╟п©п╦я│п╟я┌я▄?  п╖п╣п╪?  п≤ п╫п╟ я┤п╣п╪?\r\n", ch);
 		return;
 	}
 	if (*penname)  		// there were two arguments
 	{
 		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying)))
 		{
-			sprintf(buf, "У вас нет %s.\r\n", papername);
+			sprintf(buf, "пё п╡п╟я│ п╫п╣я┌ %s.\r\n", papername);
 			send_to_char(buf, ch);
 			return;
 		}
 		if (!(pen = get_obj_in_list_vis(ch, penname, ch->carrying)))
 		{
-			sprintf(buf, "У вас нет %s.\r\n", penname);
+			sprintf(buf, "пё п╡п╟я│ п╫п╣я┌ %s.\r\n", penname);
 			send_to_char(buf, ch);
 			return;
 		}
@@ -543,7 +543,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying)))
 		{
-			sprintf(buf, "Вы не видите %s в инвентаре.\r\n", papername);
+			sprintf(buf, "п▓я▀ п╫п╣ п╡п╦п╢п╦я┌п╣ %s п╡ п╦п╫п╡п╣п╫я┌п╟я─п╣.\r\n", papername);
 			send_to_char(buf, ch);
 			return;
 		}
@@ -554,19 +554,19 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else if (GET_OBJ_TYPE(paper) != OBJ_DATA::ITEM_NOTE)
 		{
-			send_to_char("Вы не можете на ЭТОМ писать.\r\n", ch);
+			send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╫п╟ п╜п╒п·п° п©п╦я│п╟я┌я▄.\r\n", ch);
 			return;
 		}
 		// One object was found.. now for the other one.
 		if (!GET_EQ(ch, WEAR_HOLD))
 		{
-			sprintf(buf, "Вы нечем писать!\r\n");
+			sprintf(buf, "п▓я▀ п╫п╣я┤п╣п╪ п©п╦я│п╟я┌я▄!\r\n");
 			send_to_char(buf, ch);
 			return;
 		}
 		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, WEAR_HOLD)))
 		{
-			send_to_char("Вы держите что-то невидимое!  Жаль, но писать этим трудно!!\r\n", ch);
+			send_to_char("п▓я▀ п╢п╣я─п╤п╦я┌п╣ я┤я┌п╬-я┌п╬ п╫п╣п╡п╦п╢п╦п╪п╬п╣!  п√п╟п╩я▄, п╫п╬ п©п╦я│п╟я┌я▄ я█я┌п╦п╪ я┌я─я┐п╢п╫п╬!!\r\n", ch);
 			return;
 		}
 		if (pen)
@@ -579,15 +579,15 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// ok.. now let's see what kind of stuff we've found
 	if (GET_OBJ_TYPE(pen) != OBJ_DATA::ITEM_PEN)
 	{
-		act("Вы не умеете писать $o4.", FALSE, ch, pen, 0, TO_CHAR);
+		act("п▓я▀ п╫п╣ я┐п╪п╣п╣я┌п╣ п©п╦я│п╟я┌я▄ $o4.", FALSE, ch, pen, 0, TO_CHAR);
 	}
 	else if (GET_OBJ_TYPE(paper) != OBJ_DATA::ITEM_NOTE)
 	{
-		act("Вы не можете писать на $o5.", FALSE, ch, paper, 0, TO_CHAR);
+		act("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п©п╦я│п╟я┌я▄ п╫п╟ $o5.", FALSE, ch, paper, 0, TO_CHAR);
 	}
 	else if (!paper->get_action_description().empty())
 	{
-		send_to_char("Там уже что-то записано.\r\n", ch);
+		send_to_char("п╒п╟п╪ я┐п╤п╣ я┤я┌п╬-я┌п╬ п╥п╟п©п╦я│п╟п╫п╬.\r\n", ch);
 	}
 	else  			// we can write - hooray!
 	{
@@ -596,7 +596,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		 * b) the abort buffer if the player aborts the message
 		 */
 		ch->desc->backstr = NULL;
-		send_to_char("Можете писать.  (/s СОХРАНИТЬ ЗАПИСЬ  /h ПОМОЩЬ)\r\n", ch);
+		send_to_char("п°п╬п╤п╣я┌п╣ п©п╦я│п╟я┌я▄.  (/s п║п·п╔п═п░п²п≤п╒п╛ п≈п░п÷п≤п║п╛  /h п÷п·п°п·п╘п╛)\r\n", ch);
 		// ok, here we check for a message ALREADY on the paper
 		if (!paper->get_action_description().empty())  	// we str_dup the original text to the descriptors->backstr
 		{
@@ -605,7 +605,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			// loaded into the editor)
 			send_to_char(paper->get_action_description().c_str(), ch);
 		}
-		act("$n начал$g писать.", TRUE, ch, 0, 0, TO_ROOM);
+		act("$n п╫п╟я┤п╟п╩$g п©п╦я│п╟я┌я▄.", TRUE, ch, 0, 0, TO_ROOM);
 		// assign the descriptor's->str the value of the pointer to the text
 		// pointer so that we can reallocate as needed (hopefully that made
 		// sense :>)
@@ -622,13 +622,13 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	half_chop(argument, arg, buf2);
 
 	if (IS_NPC(ch))
-		send_to_char("Создания-не-персонажи этого не могут.. ступайте.\r\n", ch);
+		send_to_char("п║п╬п╥п╢п╟п╫п╦я▐-п╫п╣-п©п╣я─я│п╬п╫п╟п╤п╦ я█я┌п╬пЁп╬ п╫п╣ п╪п╬пЁя┐я┌.. я│я┌я┐п©п╟п╧я┌п╣.\r\n", ch);
 	else if (!*arg)
 		send_to_char("Whom do you wish to page?\r\n", ch);
 	else
 	{
 		sprintf(buf, "\007\007*$n* %s", buf2);
-		if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
+		if (!str_cmp(arg, "all") || !str_cmp(arg, "п╡я│п╣"))
 		{
 			if (IS_GRGOD(ch))
 			{
@@ -642,7 +642,7 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 			{
-				send_to_char("Это доступно только БОГАМ!\r\n", ch);
+				send_to_char("п╜я┌п╬ п╢п╬я│я┌я┐п©п╫п╬ я┌п╬п╩я▄п╨п╬ п▒п·п⌠п░п°!\r\n", ch);
 			}
 			return;
 		}
@@ -655,7 +655,7 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				act(buf, FALSE, ch, 0, vict, TO_CHAR);
 		}
 		else
-			send_to_char("Такой игрок отсутствует!\r\n", ch);
+			send_to_char("п╒п╟п╨п╬п╧ п╦пЁя─п╬п╨ п╬я┌я│я┐я┌я│я┌п╡я┐п╣я┌!\r\n", ch);
 	}
 }
 
@@ -687,50 +687,50 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	 *           name of the action
 	 *           message if you're not on the channel
 	 *           a color string.
-	 *           Вы ....
-	 *           Он(а) ....
+	 *           п▓я▀ ....
+	 *           п·п╫(п╟) ....
 	 *           min access level.
 	 *           mov cost.
 	 */
 
 	struct communication_type com_msgs[] =
 	{
-		{"Вы не можете орать.\r\n",	// holler
-		 "орать",
-		 "Вы вне видимости канала.",
+		{"п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╬я─п╟я┌я▄.\r\n",	// holler
+		 "п╬я─п╟я┌я▄",
+		 "п▓я▀ п╡п╫п╣ п╡п╦п╢п╦п╪п╬я│я┌п╦ п╨п╟п╫п╟п╩п╟.",
 		 KIYEL,
-		 "заорали",
-		 "заорал$g",
+		 "п╥п╟п╬я─п╟п╩п╦",
+		 "п╥п╟п╬я─п╟п╩$g",
 		 4,
 		 25,
 		 PRF_NOHOLLER},
 
-		{"Вам запрещено кричать.\r\n",	// shout
-		 "кричать",
-		 "Вы вне видимости канала.\r\n",
+		{"п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╨я─п╦я┤п╟я┌я▄.\r\n",	// shout
+		 "п╨я─п╦я┤п╟я┌я▄",
+		 "п▓я▀ п╡п╫п╣ п╡п╦п╢п╦п╪п╬я│я┌п╦ п╨п╟п╫п╟п╩п╟.\r\n",
 		 KIYEL,
-		 "закричали",
-		 "закричал$g",
+		 "п╥п╟п╨я─п╦я┤п╟п╩п╦",
+		 "п╥п╟п╨я─п╦я┤п╟п╩$g",
 		 2,
 		 10,
 		 PRF_NOSHOUT},
 
-		{"Вам недозволено болтать.\r\n",	// gossip
-		 "болтать",
-		 "Вы вне видимости канала.\r\n",
+		{"п▓п╟п╪ п╫п╣п╢п╬п╥п╡п╬п╩п╣п╫п╬ п╠п╬п╩я┌п╟я┌я▄.\r\n",	// gossip
+		 "п╠п╬п╩я┌п╟я┌я▄",
+		 "п▓я▀ п╡п╫п╣ п╡п╦п╢п╦п╪п╬я│я┌п╦ п╨п╟п╫п╟п╩п╟.\r\n",
 		 KYEL,
-		 "заметили",
-		 "заметил$g",
+		 "п╥п╟п╪п╣я┌п╦п╩п╦",
+		 "п╥п╟п╪п╣я┌п╦п╩$g",
 		 3,
 		 15,
 		 PRF_NOGOSS},
 
-		{"Вам не к лицу торговаться.\r\n",	// auction
-		 "торговать",
-		 "Вы вне видимости канала.\r\n",
+		{"п▓п╟п╪ п╫п╣ п╨ п╩п╦я├я┐ я┌п╬я─пЁп╬п╡п╟я┌я▄я│я▐.\r\n",	// auction
+		 "я┌п╬я─пЁп╬п╡п╟я┌я▄",
+		 "п▓я▀ п╡п╫п╣ п╡п╦п╢п╦п╪п╬я│я┌п╦ п╨п╟п╫п╟п╩п╟.\r\n",
 		 KIYEL,
-		 "попробовали поторговаться",
-		 "вступил$g в торг",
+		 "п©п╬п©я─п╬п╠п╬п╡п╟п╩п╦ п©п╬я┌п╬я─пЁп╬п╡п╟я┌я▄я│я▐",
+		 "п╡я│я┌я┐п©п╦п╩$g п╡ я┌п╬я─пЁ",
 		 2,
 		 0,
 		 PRF_NOAUCT},
@@ -749,7 +749,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я─п╟я┴п╟я┌я▄я│я▐ п╨ п╢я─я┐пЁп╦п╪ п╦пЁя─п╬п╨п╟п╪!\r\n", ch);
 		return;
 	}
 
@@ -768,7 +768,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (GET_LEVEL(ch) < com_msgs[subcmd].min_lev && !GET_REMORT(ch))
 	{
 		sprintf(buf1,
-				"Вам стоит достичь хотя бы %d уровня, чтобы вы могли %s.\r\n",
+				"п▓п╟п╪ я│я┌п╬п╦я┌ п╢п╬я│я┌п╦я┤я▄ я┘п╬я┌я▐ п╠я▀ %d я┐я─п╬п╡п╫я▐, я┤я┌п╬п╠я▀ п╡я▀ п╪п╬пЁп╩п╦ %s.\r\n",
 				com_msgs[subcmd].min_lev, com_msgs[subcmd].action);
 		send_to_char(buf1, ch);
 		return;
@@ -787,7 +787,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// make sure that there is something there to say!
 	if (!*argument && subcmd != SCMD_AUCTION)
 	{
-		sprintf(buf1, "ЛЕГКО! Но, Ярило вас побери, ЧТО %s???\r\n", com_msgs[subcmd].action);
+		sprintf(buf1, "п⌡п∙п⌠п п·! п²п╬, п╞я─п╦п╩п╬ п╡п╟я│ п©п╬п╠п╣я─п╦, п╖п╒п· %s???\r\n", com_msgs[subcmd].action);
 		send_to_char(buf1, ch);
 		return;
 	}
@@ -795,7 +795,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// set up the color on code
 	strcpy(color_on, com_msgs[subcmd].color);
 
-	// Анти-БУКОВКИ :coded by Делан
+	// п░п╫я┌п╦-п▒пёп п·п▓п п≤ :coded by п■п╣п╩п╟п╫
 
 #define MAX_UPPERS_CHAR_PRC 30
 #define MAX_UPPERS_SEQ_CHAR 3
@@ -805,7 +805,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		const unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
-		// фильтруем верхний регистр
+		// я└п╦п╩я▄я┌я─я┐п╣п╪ п╡п╣я─я┘п╫п╦п╧ я─п╣пЁп╦я│я┌я─
 		for (int k = 0; argument[k] != '\0'; k++)
 		{
 			if (a_isupper(argument[k]))
@@ -821,16 +821,16 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 					 (bad_seq_cnt > MAX_UPPERS_SEQ_CHAR)))
 				argument[k] = a_lcc(argument[k]);
 		}
-		// фильтруем одинаковые сообщения в эфире
+		// я└п╦п╩я▄я┌я─я┐п╣п╪ п╬п╢п╦п╫п╟п╨п╬п╡я▀п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐ п╡ я█я└п╦я─п╣
 		if (!str_cmp(ch->get_last_tell().c_str(), argument))
 		{
-			send_to_char("Но вы же недавно говорили тоже самое?!\r\n", ch);
+			send_to_char("п²п╬ п╡я▀ п╤п╣ п╫п╣п╢п╟п╡п╫п╬ пЁп╬п╡п╬я─п╦п╩п╦ я┌п╬п╤п╣ я│п╟п╪п╬п╣?!\r\n", ch);
 			return;
 		}
 		ch->set_last_tell(argument);
 	}
 
-	// в этой проверке заодно списываются мувы за крики, поэтому она должна идти последней
+	// п╡ я█я┌п╬п╧ п©я─п╬п╡п╣я─п╨п╣ п╥п╟п╬п╢п╫п╬ я│п©п╦я│я▀п╡п╟я▌я┌я│я▐ п╪я┐п╡я▀ п╥п╟ п╨я─п╦п╨п╦, п©п╬я█я┌п╬п╪я┐ п╬п╫п╟ п╢п╬п╩п╤п╫п╟ п╦п╢я┌п╦ п©п╬я│п╩п╣п╢п╫п╣п╧
 	if (!check_moves(ch, com_msgs[subcmd].move_cost))
 		return;
 
@@ -845,7 +845,7 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	else
 	{
-		/* Непонятный запрет
+		/* п²п╣п©п╬п╫я▐я┌п╫я▀п╧ п╥п╟п©я─п╣я┌
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 		{
 			send_to_char(SOUNDPROOF, ch);
@@ -858,12 +858,12 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			if (COLOR_LEV(ch) >= C_CMP)
 			{
-				snprintf(buf1, MAX_STRING_LENGTH, "%sВы %s : '%s'%s", color_on,
+				snprintf(buf1, MAX_STRING_LENGTH, "%sп▓я▀ %s : '%s'%s", color_on,
 						com_msgs[subcmd].you_action, argument, KNRM);
 			}
 			else
 			{
-				snprintf(buf1, MAX_STRING_LENGTH, "Вы %s : '%s'",
+				snprintf(buf1, MAX_STRING_LENGTH, "п▓я▀ %s : '%s'",
 						com_msgs[subcmd].you_action, argument);
 			}
 			act(buf1, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
@@ -879,12 +879,12 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
                 if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP))
 		 {
-			snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметила :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+			snprintf(buf1, MAX_STRING_LENGTH, "%s%s п╥п╟п╪п╣я┌п╦п╩п╟ :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
 			ch->remember_add(buf1, Remember::GOSSIP);
 		 }
                 if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER))
                  {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорала :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s п╥п╟п╬я─п╟п╩п╟ :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
                         ch->remember_add(buf1, Remember::GOSSIP);
                  }
                 }
@@ -892,12 +892,12 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
                 {
                 if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP))
                  {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметил :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s п╥п╟п╪п╣я┌п╦п╩ :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
                         ch->remember_add(buf1, Remember::GOSSIP);
                  }
                 if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER))
                  {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорал :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s п╥п╟п╬я─п╟п╩ :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
                         ch->remember_add(buf1, Remember::GOSSIP);
                  }
                 }
@@ -967,8 +967,8 @@ void do_mobshout(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	skip_spaces(&argument); //убираем пробел в начале сообщения
-	sprintf(buf, "$n заорал$g : '%s'", argument);
+	skip_spaces(&argument); //я┐п╠п╦я─п╟п╣п╪ п©я─п╬п╠п╣п╩ п╡ п╫п╟я┤п╟п╩п╣ я│п╬п╬п╠я┴п╣п╫п╦я▐
+	sprintf(buf, "$n п╥п╟п╬я─п╟п╩$g : '%s'", argument);
 
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next)
@@ -1003,31 +1003,31 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE)))
 	{
-		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучали...\r\n", ch);
+		send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я─п╟я┴п╟я┌я▄я│я▐ п╨ п▒п╬пЁп╟п╪, п╡п╣я─п╬я▐я┌п╫п╬, п╡я▀ п╦я┘ п╥п╟п╪я┐я┤п╟п╩п╦...\r\n", ch);
 		return;
 	}
 
 	if (IS_IMMORTAL(ch))
 	{
-		// Выделяем чара кому отвечают иммы
+		// п▓я▀п╢п╣п╩я▐п╣п╪ я┤п╟я─п╟ п╨п╬п╪я┐ п╬я┌п╡п╣я┤п╟я▌я┌ п╦п╪п╪я▀
 		argument = one_argument(argument, arg1);
 		skip_spaces(&argument);
 		if (!*arg1)
 		{
-			send_to_char("Какому смертному вы собираетесь ответить?\r\n", ch);
+			send_to_char("п п╟п╨п╬п╪я┐ я│п╪п╣я─я┌п╫п╬п╪я┐ п╡я▀ я│п╬п╠п╦я─п╟п╣я┌п╣я│я▄ п╬я┌п╡п╣я┌п╦я┌я▄?\r\n", ch);
 			return;
 		}
 		victim = get_player_vis(ch, arg1, FIND_CHAR_WORLD);
 		if (victim == NULL)
 		{
-			send_to_char("Такого нет в игре!\r\n", ch);
+			send_to_char("п╒п╟п╨п╬пЁп╬ п╫п╣я┌ п╡ п╦пЁя─п╣!\r\n", ch);
 			return;
 		}
 	}
 
 	if (!*argument)
 	{
-		sprintf(buf, "С чем вы хотите обратиться к Богам?\r\n");
+		sprintf(buf, "п║ я┤п╣п╪ п╡я▀ я┘п╬я┌п╦я┌п╣ п╬п╠я─п╟я┌п╦я┌я▄я│я▐ п╨ п▒п╬пЁп╟п╪?\r\n");
 		send_to_char(buf, ch);
 		return;
 	}
@@ -1039,11 +1039,11 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		if (IS_IMMORTAL(ch))
 		{
-			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
+			sprintf(buf, "&Rп▓я▀ п╬п╢п╟я─п╦п╩п╦ п║п⌡п·п▓п·п° %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
 		}
 		else
 		{
-			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
+			sprintf(buf, "&Rп▓я▀ п╡п╬п╥п╥п╡п╟п╩п╦ п╨ п▒п╬пЁп╟п╪ я│ я│п╬п╬п╠я┴п╣п╫п╦п╣п╪ : '%s'&n\r\n", argument);
 			set_wait(ch, 3, FALSE);
 		}
 		send_to_char(ch, buf);
@@ -1052,24 +1052,24 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (IS_IMMORTAL(ch))
 	{
-		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+		sprintf(buf, "&R%s п╬я┌п╡п╣я┌п╦п╩%s п╡п╟п╪ : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		send_to_char(buf, victim);
 		victim->remember_add(buf, Remember::PRAY_PERSONAL);
 
-		snprintf(buf1, MAX_STRING_LENGTH, "&R%s ответил%s %s : '%s&n\r\n",
+		snprintf(buf1, MAX_STRING_LENGTH, "&R%s п╬я┌п╡п╣я┌п╦п╩%s %s : '%s&n\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
-		snprintf(buf, MAX_STRING_LENGTH, "&R%s ответил%s на воззвание %s : '%s'&n\r\n",
+		snprintf(buf, MAX_STRING_LENGTH, "&R%s п╬я┌п╡п╣я┌п╦п╩%s п╫п╟ п╡п╬п╥п╥п╡п╟п╫п╦п╣ %s : '%s'&n\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
 	}
 	else
 	{
-		snprintf(buf1, MAX_STRING_LENGTH, "&R%s воззвал%s к богам : '%s&n\r\n",
+		snprintf(buf1, MAX_STRING_LENGTH, "&R%s п╡п╬п╥п╥п╡п╟п╩%s п╨ п╠п╬пЁп╟п╪ : '%s&n\r\n",
 				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
-		snprintf(buf, MAX_STRING_LENGTH, "&R%s воззвал%s к богам с сообщением : '%s'&n\r\n",
+		snprintf(buf, MAX_STRING_LENGTH, "&R%s п╡п╬п╥п╥п╡п╟п╩%s п╨ п╠п╬пЁп╟п╪ я│ я│п╬п╬п╠я┴п╣п╫п╦п╣п╪ : '%s'&n\r\n",
 				GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 	}
 
@@ -1090,19 +1090,19 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 /**
-* Канал оффтоп. Не виден иммам, всегда видно кто говорит, вкл/выкл режим оффтоп.
+* п п╟п╫п╟п╩ п╬я└я└я┌п╬п©. п²п╣ п╡п╦п╢п╣п╫ п╦п╪п╪п╟п╪, п╡я│п╣пЁп╢п╟ п╡п╦п╢п╫п╬ п╨я┌п╬ пЁп╬п╡п╬я─п╦я┌, п╡п╨п╩/п╡я▀п╨п╩ я─п╣п╤п╦п╪ п╬я└я└я┌п╬п©.
 */
 void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_IGVA_PRONA))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		send_to_char("п╖п╟п╡п╬?\r\n", ch);
 		return;
 	}
 
 	if (PLR_FLAGGED(ch, PLR_DUMB))
 	{
-		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+		send_to_char("п▓п╟п╪ п╥п╟п©я─п╣я┴п╣п╫п╬ п╬п╠я─п╟я┴п╟я┌я▄я│я▐ п╨ п╢я─я┐пЁп╦п╪ п╦пЁя─п╬п╨п╟п╪!\r\n", ch);
 		return;
 	}
 	//if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) || ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
@@ -1113,41 +1113,41 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (GET_LEVEL(ch) < SpamSystem::MIN_OFFTOP_LVL && !GET_REMORT(ch))
 	{
-		send_to_char(ch, "Вам стоит достичь хотя бы %d уровня, чтобы вы могли оффтопить.\r\n",
+		send_to_char(ch, "п▓п╟п╪ я│я┌п╬п╦я┌ п╢п╬я│я┌п╦я┤я▄ я┘п╬я┌я▐ п╠я▀ %d я┐я─п╬п╡п╫я▐, я┤я┌п╬п╠я▀ п╡я▀ п╪п╬пЁп╩п╦ п╬я└я└я┌п╬п©п╦я┌я▄.\r\n",
 				SpamSystem::MIN_OFFTOP_LVL);
 		return;
 	}
 	if (!PRF_FLAGGED(ch, PRF_OFFTOP_MODE))
 	{
-		send_to_char("Вы вне видимости канала.\r\n", ch);
+		send_to_char("п▓я▀ п╡п╫п╣ п╡п╦п╢п╦п╪п╬я│я┌п╦ п╨п╟п╫п╟п╩п╟.\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
 	if (!*argument)
 	{
-		send_to_char(ch, "Раз нечего сказать, то лучше уж помолчать.");
+		send_to_char(ch, "п═п╟п╥ п╫п╣я┤п╣пЁп╬ я│п╨п╟п╥п╟я┌я▄, я┌п╬ п╩я┐я┤я┬п╣ я┐п╤ п©п╬п╪п╬п╩я┤п╟я┌я▄.");
 		return;
 	}
 	lower_convert(argument);
 	if (!strcmp(ch->get_last_tell().c_str(), argument))
 	{
-		send_to_char("Но вы же недавно говорили тоже самое!?!\r\n", ch);
+		send_to_char("п²п╬ п╡я▀ п╤п╣ п╫п╣п╢п╟п╡п╫п╬ пЁп╬п╡п╬я─п╦п╩п╦ я┌п╬п╤п╣ я│п╟п╪п╬п╣!?!\r\n", ch);
 		return;
 	}
-	// эта проверка должна идти последней и послее нее мессага полюбому идет в эфир
+	// я█я┌п╟ п©я─п╬п╡п╣я─п╨п╟ п╢п╬п╩п╤п╫п╟ п╦п╢я┌п╦ п©п╬я│п╩п╣п╢п╫п╣п╧ п╦ п©п╬я│п╩п╣п╣ п╫п╣п╣ п╪п╣я│я│п╟пЁп╟ п©п╬п╩я▌п╠п╬п╪я┐ п╦п╢п╣я┌ п╡ я█я└п╦я─
 	if (!SpamSystem::check(ch, SpamSystem::OFFTOP_MODE))
 	{
 		return;
 	}
 	ch->set_last_tell(argument);
 
-	snprintf(buf, MAX_STRING_LENGTH, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
+	snprintf(buf, MAX_STRING_LENGTH, "[п╬я└я└я┌п╬п©] %s : '%s'\r\n", GET_NAME(ch), argument);
 	snprintf(buf1, MAX_STRING_LENGTH, "&c%s&n", buf);
 
 	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
 	{
-		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
-		// а мы шо, не люди? даешь оффтоп 34-ым! кому не нравится - реж оффтоп...
+		// п©п╣я─п╣п©п╩я┐я┌ п╨п╟п╨ п╩я▌п╠п╦я┌п╣п╩я▄ п©п╬я┤п╦я┌я▀п╡п╟я┌я▄ п╩п╬пЁп╦ п╥п╟ п╫п╬я┤я▄ п╬я┤п╣п╫я▄ я┘п╬я┌п╣п╩ я█я┌п╬я┌ п╨п╟п╫п╟п╩...
+		// п╟ п╪я▀ я┬п╬, п╫п╣ п╩я▌п╢п╦? п╢п╟п╣я┬я▄ п╬я└я└я┌п╬п© 34-я▀п╪! п╨п╬п╪я┐ п╫п╣ п╫я─п╟п╡п╦я┌я│я▐ - я─п╣п╤ п╬я└я└я┌п╬п©...
 		if (STATE(i) == CON_PLAYING
 			&& i->character
 			&& (GET_LEVEL(i->character) < LVL_IMMORT || IS_IMPL(i->character))
@@ -1165,10 +1165,10 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // shapirus
 void ignore_usage(CHAR_DATA * ch)
 {
-	send_to_char("Формат команды: игнорировать <имя|все> <режим|все> <добавить|убрать>\r\n"
-				 "Доступные режимы:\r\n"
-				 "  сказать говорить шептать спросить эмоция кричать\r\n"
-				 "  болтать орать группа дружина союзники\r\n", ch);
+	send_to_char("п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀: п╦пЁп╫п╬я─п╦я─п╬п╡п╟я┌я▄ <п╦п╪я▐|п╡я│п╣> <я─п╣п╤п╦п╪|п╡я│п╣> <п╢п╬п╠п╟п╡п╦я┌я▄|я┐п╠я─п╟я┌я▄>\r\n"
+				 "п■п╬я│я┌я┐п©п╫я▀п╣ я─п╣п╤п╦п╪я▀:\r\n"
+				 "  я│п╨п╟п╥п╟я┌я▄ пЁп╬п╡п╬я─п╦я┌я▄ я┬п╣п©я┌п╟я┌я▄ я│п©я─п╬я│п╦я┌я▄ я█п╪п╬я├п╦я▐ п╨я─п╦я┤п╟я┌я▄\r\n"
+				 "  п╠п╬п╩я┌п╟я┌я▄ п╬я─п╟я┌я▄ пЁя─я┐п©п©п╟ п╢я─я┐п╤п╦п╫п╟ я│п╬я▌п╥п╫п╦п╨п╦\r\n", ch);
 }
 
 int ign_find_id(char *name, long *id)
@@ -1199,7 +1199,7 @@ const char * ign_find_name(long id)
 		}
 	}
 
-	return "кто-то";
+	return "п╨я┌п╬-я┌п╬";
 }
 
 char *text_ignore_modes(unsigned long mode, char *buf)
@@ -1207,29 +1207,29 @@ char *text_ignore_modes(unsigned long mode, char *buf)
 	buf[0] = 0;
 
 	if (IS_SET(mode, IGNORE_TELL))
-		strcat(buf, " сказать");
+		strcat(buf, " я│п╨п╟п╥п╟я┌я▄");
 	if (IS_SET(mode, IGNORE_SAY))
-		strcat(buf, " говорить");
+		strcat(buf, " пЁп╬п╡п╬я─п╦я┌я▄");
 	if (IS_SET(mode, IGNORE_WHISPER))
-		strcat(buf, " шептать");
+		strcat(buf, " я┬п╣п©я┌п╟я┌я▄");
 	if (IS_SET(mode, IGNORE_ASK))
-		strcat(buf, " спросить");
+		strcat(buf, " я│п©я─п╬я│п╦я┌я▄");
 	if (IS_SET(mode, IGNORE_EMOTE))
-		strcat(buf, " эмоция");
+		strcat(buf, " я█п╪п╬я├п╦я▐");
 	if (IS_SET(mode, IGNORE_SHOUT))
-		strcat(buf, " кричать");
+		strcat(buf, " п╨я─п╦я┤п╟я┌я▄");
 	if (IS_SET(mode, IGNORE_GOSSIP))
-		strcat(buf, " болтать");
+		strcat(buf, " п╠п╬п╩я┌п╟я┌я▄");
 	if (IS_SET(mode, IGNORE_HOLLER))
-		strcat(buf, " орать");
+		strcat(buf, " п╬я─п╟я┌я▄");
 	if (IS_SET(mode, IGNORE_GROUP))
-		strcat(buf, " группа");
+		strcat(buf, " пЁя─я┐п©п©п╟");
 	if (IS_SET(mode, IGNORE_CLAN))
-		strcat(buf, " дружина");
+		strcat(buf, " п╢я─я┐п╤п╦п╫п╟");
 	if (IS_SET(mode, IGNORE_ALLIANCE))
-		strcat(buf, " союзники");
+		strcat(buf, " я│п╬я▌п╥п╫п╦п╨п╦");
 	if (IS_SET(mode, IGNORE_OFFTOP))
-		strcat(buf, " оффтопик");
+		strcat(buf, " п╬я└я└я┌п╬п©п╦п╨");
 	return buf;
 }
 
@@ -1246,16 +1246,16 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	argument = one_argument(argument, arg2);
 	argument = one_argument(argument, arg3);
 
-// криво попросили -- выведем справку
+// п╨я─п╦п╡п╬ п©п╬п©я─п╬я│п╦п╩п╦ -- п╡я▀п╡п╣п╢п╣п╪ я│п©я─п╟п╡п╨я┐
 	if (arg1[0] && (!arg2[0] || !arg3[0]))
 	{
 		ignore_usage(ch);
 		return;
 	}
-// при вызове без параметров выведем весь список
+// п©я─п╦ п╡я▀п╥п╬п╡п╣ п╠п╣п╥ п©п╟я─п╟п╪п╣я┌я─п╬п╡ п╡я▀п╡п╣п╢п╣п╪ п╡п╣я│я▄ я│п©п╦я│п╬п╨
 	if (!arg1[0] && !arg2[0] && !arg3[0])
 	{
-		sprintf(buf, "%sВы игнорируете следующих персонажей:%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
+		sprintf(buf, "%sп▓я▀ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣ я│п╩п╣п╢я┐я▌я┴п╦я┘ п©п╣я─я│п╬п╫п╟п╤п╣п╧:%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		for (const auto ignore : ch->get_ignores())
 		{
@@ -1263,7 +1263,7 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				continue;
 			if (ignore->id == -1)
 			{
-				strcpy(name, "Все");
+				strcpy(name, "п▓я│п╣");
 			}
 			else
 			{
@@ -1280,36 +1280,36 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		if (list_empty)
 		{
-			send_to_char("  список пуст.\r\n", ch);
+			send_to_char("  я│п©п╦я│п╬п╨ п©я┐я│я┌.\r\n", ch);
 		}
 		return;
 	}
 
-	if (is_abbrev(arg2, "все"))
+	if (is_abbrev(arg2, "п╡я│п╣"))
 		all = 1;
-	else if (is_abbrev(arg2, "сказать"))
+	else if (is_abbrev(arg2, "я│п╨п╟п╥п╟я┌я▄"))
 		flag = IGNORE_TELL;
-	else if (is_abbrev(arg2, "говорить"))
+	else if (is_abbrev(arg2, "пЁп╬п╡п╬я─п╦я┌я▄"))
 		flag = IGNORE_SAY;
-	else if (is_abbrev(arg2, "шептать"))
+	else if (is_abbrev(arg2, "я┬п╣п©я┌п╟я┌я▄"))
 		flag = IGNORE_WHISPER;
-	else if (is_abbrev(arg2, "спросить"))
+	else if (is_abbrev(arg2, "я│п©я─п╬я│п╦я┌я▄"))
 		flag = IGNORE_ASK;
-	else if (is_abbrev(arg2, "эмоция"))
+	else if (is_abbrev(arg2, "я█п╪п╬я├п╦я▐"))
 		flag = IGNORE_EMOTE;
-	else if (is_abbrev(arg2, "кричать"))
+	else if (is_abbrev(arg2, "п╨я─п╦я┤п╟я┌я▄"))
 		flag = IGNORE_SHOUT;
-	else if (is_abbrev(arg2, "болтать"))
+	else if (is_abbrev(arg2, "п╠п╬п╩я┌п╟я┌я▄"))
 		flag = IGNORE_GOSSIP;
-	else if (is_abbrev(arg2, "орать"))
+	else if (is_abbrev(arg2, "п╬я─п╟я┌я▄"))
 		flag = IGNORE_HOLLER;
-	else if (is_abbrev(arg2, "группа"))
+	else if (is_abbrev(arg2, "пЁя─я┐п©п©п╟"))
 		flag = IGNORE_GROUP;
-	else if (is_abbrev(arg2, "дружина"))
+	else if (is_abbrev(arg2, "п╢я─я┐п╤п╦п╫п╟"))
 		flag = IGNORE_CLAN;
-	else if (is_abbrev(arg2, "союзники"))
+	else if (is_abbrev(arg2, "я│п╬я▌п╥п╫п╦п╨п╦"))
 		flag = IGNORE_ALLIANCE;
-	else if (is_abbrev(arg2, "оффтоп"))
+	else if (is_abbrev(arg2, "п╬я└я└я┌п╬п©"))
 		flag = IGNORE_OFFTOP;
 	else
 	{
@@ -1317,27 +1317,27 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-// имени "все" соответствует id -1
-	if (is_abbrev(arg1, "все"))
+// п╦п╪п╣п╫п╦ "п╡я│п╣" я│п╬п╬я┌п╡п╣я┌я│я┌п╡я┐п╣я┌ id -1
+	if (is_abbrev(arg1, "п╡я│п╣"))
 	{
 		vict_id = -1;
 	}
 	else
 	{
-		// убедимся, что добавляемый чар на данный момент существует
-		// и он не имм, а заодно получим его id
+		// я┐п╠п╣п╢п╦п╪я│я▐, я┤я┌п╬ п╢п╬п╠п╟п╡п╩я▐п╣п╪я▀п╧ я┤п╟я─ п╫п╟ п╢п╟п╫п╫я▀п╧ п╪п╬п╪п╣п╫я┌ я│я┐я┴п╣я│я┌п╡я┐п╣я┌
+		// п╦ п╬п╫ п╫п╣ п╦п╪п╪, п╟ п╥п╟п╬п╢п╫п╬ п©п╬п╩я┐я┤п╦п╪ п╣пЁп╬ id
 		switch (ign_find_id(arg1, &vict_id))
 		{
 		case 0:
-			send_to_char("Нельзя игнорировать Богов, это плохо кончится.\r\n", ch);
+			send_to_char("п²п╣п╩я▄п╥я▐ п╦пЁп╫п╬я─п╦я─п╬п╡п╟я┌я▄ п▒п╬пЁп╬п╡, я█я┌п╬ п©п╩п╬я┘п╬ п╨п╬п╫я┤п╦я┌я│я▐.\r\n", ch);
 			return;
 		case -1:
-			send_to_char("Нет такого персонажа, уточните имя.\r\n", ch);
+			send_to_char("п²п╣я┌ я┌п╟п╨п╬пЁп╬ п©п╣я─я│п╬п╫п╟п╤п╟, я┐я┌п╬я┤п╫п╦я┌п╣ п╦п╪я▐.\r\n", ch);
 			return;
 		}
 	}
 
-// ищем жертву в списке
+// п╦я┴п╣п╪ п╤п╣я─я┌п╡я┐ п╡ я│п©п╦я│п╨п╣
 	ignore_data::shared_ptr ignore = nullptr;
 	for (const auto ignore_i : ch->get_ignores())
 	{
@@ -1348,9 +1348,9 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 
-	if (is_abbrev(arg3, "добавить"))
+	if (is_abbrev(arg3, "п╢п╬п╠п╟п╡п╦я┌я▄"))
 	{
-// создаем новый элемент списка в хвосте, если не нашли
+// я│п╬п╥п╢п╟п╣п╪ п╫п╬п╡я▀п╧ я█п╩п╣п╪п╣п╫я┌ я│п©п╦я│п╨п╟ п╡ я┘п╡п╬я│я┌п╣, п╣я│п╩п╦ п╫п╣ п╫п╟я┬п╩п╦
 		if (!ignore)
 		{
 			const auto cur = std::make_shared<ignore_data>();
@@ -1381,21 +1381,21 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		ignore->mode = mode;
 	}
-	else if (is_abbrev(arg3, "убрать"))
+	else if (is_abbrev(arg3, "я┐п╠я─п╟я┌я▄"))
 	{
 		if (!ignore || ignore->id != vict_id)
 		{
 			if (vict_id == -1)
 			{
-				send_to_char("Вы и так не игнорируете всех сразу.\r\n", ch);
+				send_to_char("п▓я▀ п╦ я┌п╟п╨ п╫п╣ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣ п╡я│п╣я┘ я│я─п╟п╥я┐.\r\n", ch);
 			}
 			else
 			{
 				strcpy(name, ign_find_name(vict_id));
 				name[0] = UPPER(name[0]);
 				sprintf(buf,
-						"Вы и так не игнорируете "
-						"персонажа %s%s%s.\r\n", CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
+						"п▓я▀ п╦ я┌п╟п╨ п╫п╣ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣ "
+						"п©п╣я─я│п╬п╫п╟п╤п╟ %s%s%s.\r\n", CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
 				send_to_char(buf, ch);
 			}
 			return;
@@ -1422,14 +1422,14 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (ignore->id == -1)
 		{
-			sprintf(buf, "Для всех сразу вы игнорируете:%s.\r\n", text_ignore_modes(ignore->mode, buf1));
+			sprintf(buf, "п■п╩я▐ п╡я│п╣я┘ я│я─п╟п╥я┐ п╡я▀ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣:%s.\r\n", text_ignore_modes(ignore->mode, buf1));
 			send_to_char(buf, ch);
 		}
 		else
 		{
 			strcpy(name, ign_find_name(ignore->id));
 			name[0] = UPPER(name[0]);
-			sprintf(buf, "Для персонажа %s%s%s вы игнорируете:%s.\r\n",
+			sprintf(buf, "п■п╩я▐ п©п╣я─я│п╬п╫п╟п╤п╟ %s%s%s п╡я▀ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣:%s.\r\n",
 					CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM), text_ignore_modes(ignore->mode, buf1));
 			send_to_char(buf, ch);
 		}
@@ -1438,13 +1438,13 @@ void do_ignore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (vict_id == -1)
 		{
-			send_to_char("Вы больше не игнорируете всех сразу.\r\n", ch);
+			send_to_char("п▓я▀ п╠п╬п╩я▄я┬п╣ п╫п╣ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣ п╡я│п╣я┘ я│я─п╟п╥я┐.\r\n", ch);
 		}
 		else
 		{
 			strcpy(name, ign_find_name(vict_id));
 			name[0] = UPPER(name[0]);
-			sprintf(buf, "Вы больше не игнорируете персонажа %s%s%s.\r\n",
+			sprintf(buf, "п▓я▀ п╠п╬п╩я▄я┬п╣ п╫п╣ п╦пЁп╫п╬я─п╦я─я┐п╣я┌п╣ п©п╣я─я│п╬п╫п╟п╤п╟ %s%s%s.\r\n",
 					CCWHT(ch, C_NRM), name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
