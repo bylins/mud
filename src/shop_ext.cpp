@@ -20,7 +20,7 @@
 #include <boost/algorithm/string.hpp>
 
 /*
-Пример конфига (sample configuration) (plrstuff/shop/test.xml):
+п÷я─п╦п╪п╣я─ п╨п╬п╫я└п╦пЁп╟ (sample configuration) (plrstuff/shop/test.xml):
 <?xml version="1.0"?>
 <shop_item_sets>
 	<shop_item_set id="GEMS">
@@ -37,13 +37,13 @@
 </shop_item_sets>
 
 <shop_list>
-    <shop currency="куны" id="GEMS_SHOP" profit="40" waste_time_min="0">
+    <shop currency="п╨я┐п╫я▀" id="GEMS_SHOP" profit="40" waste_time_min="0">
 	<mob mob_vnum="4010" />
 	<mob mob_vnum="4015" />
 	<item_set>GEMS</item_set>
         <item vnum="4001" price="500" />
     </shop>
-    <shop currency="куны" id="BANDAGE_SHOP" profit="60" waste_time_min="15">
+    <shop currency="п╨я┐п╫я▀" id="BANDAGE_SHOP" profit="60" waste_time_min="15">
 	<mob mob_vnum="4018"/>
 	<mob mob_vnum="4019"/>
         <item vnum="1913" price="500" />
@@ -61,10 +61,10 @@ extern int do_social(CHAR_DATA * ch, char *argument);	// implemented in the act.
 
 namespace ShopExt
 {
-const char *MSG_NO_STEAL_HERE = "$n, грязн$w воришка, чеши отседова!";
+const char *MSG_NO_STEAL_HERE = "$n, пЁя─я▐п╥п╫$w п╡п╬я─п╦я┬п╨п╟, я┤п╣я┬п╦ п╬я┌я│п╣п╢п╬п╡п╟!";
 
-typedef std::map<int/*vnum предмета*/, item_desc_node> ObjDescType;
-std::map<std::string/*id шаблона*/, ObjDescType> item_descriptions;
+typedef std::map<int/*vnum п©я─п╣п╢п╪п╣я┌п╟*/, item_desc_node> ObjDescType;
+std::map<std::string/*id я┬п╟п╠п╩п╬п╫п╟*/, ObjDescType> item_descriptions;
 
 struct item_set_node
 {
@@ -161,7 +161,7 @@ void load_item_desc()
 			child = item.child("sex");
 			desc_node.sex = static_cast<ESex>(atoi(child.child_value()));
 
-			// парсим список триггеров
+			// п©п╟я─я│п╦п╪ я│п©п╦я│п╬п╨ я┌я─п╦пЁпЁп╣я─п╬п╡
 			pugi::xml_node trig_list = item.child("triggers");
 			CObjectPrototype::triggers_list_t trig_vnums;
 			for (pugi::xml_node trig = trig_list.child("trig"); trig; trig = trig.next_sibling("trig"))
@@ -231,7 +231,7 @@ void load(bool reload)
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
-	//наборы предметов - "заготовки" для реальных предметов в магазинах. живут только на время лоада
+	//п╫п╟п╠п╬я─я▀ п©я─п╣п╢п╪п╣я┌п╬п╡ - "п╥п╟пЁп╬я┌п╬п╡п╨п╦" п╢п╩я▐ я─п╣п╟п╩я▄п╫я▀я┘ п©я─п╣п╢п╪п╣я┌п╬п╡ п╡ п╪п╟пЁп╟п╥п╦п╫п╟я┘. п╤п╦п╡я┐я┌ я┌п╬п╩я▄п╨п╬ п╫п╟ п╡я─п╣п╪я▐ п╩п╬п╟п╢п╟
 	ItemSetListType itemSetList;
 	pugi::xml_node itemSets = doc.child("shop_item_sets");
 	for (pugi::xml_node itemSet = itemSets.child("shop_item_set"); itemSet; itemSet = itemSet.next_sibling("shop_item_set"))
@@ -268,15 +268,15 @@ void load(bool reload)
 		bool shop_can_buy = can_buy_value != "false";
 		int store_time_min = (node.attribute("waste_time_min").value() ? node.attribute("waste_time_min").as_int() : 180);
 
-		// иним сам магазин
+		// п╦п╫п╦п╪ я│п╟п╪ п╪п╟пЁп╟п╥п╦п╫
 		const auto tmp_shop = std::make_shared<shop_node>();
 		tmp_shop->id = shop_id;
 		tmp_shop->currency = currency;
 		tmp_shop->profit = profit;
 		tmp_shop->can_buy = shop_can_buy;
 		tmp_shop->waste_time_min = store_time_min;
-		//словарные данные
-		tmp_shop->SetDictionaryName(shop_id);//а нету у магазинов названия
+		//я│п╩п╬п╡п╟я─п╫я▀п╣ п╢п╟п╫п╫я▀п╣
+		tmp_shop->SetDictionaryName(shop_id);//п╟ п╫п╣я┌я┐ я┐ п╪п╟пЁп╟п╥п╦п╫п╬п╡ п╫п╟п╥п╡п╟п╫п╦я▐
 		tmp_shop->SetDictionaryTID(shop_id);
 
 		std::map<int, std::string> mob_to_template;
@@ -299,8 +299,8 @@ void load(bool reload)
 			}
 
 			tmp_shop->add_mob_vnum(mob_vnum);
-			// проверяем и сетим мобу спешиал
-			// даже если дальше магаз не залоадится - моб будет выдавать ошибку на магазинные спешиалы
+			// п©я─п╬п╡п╣я─я▐п╣п╪ п╦ я│п╣я┌п╦п╪ п╪п╬п╠я┐ я│п©п╣я┬п╦п╟п╩
+			// п╢п╟п╤п╣ п╣я│п╩п╦ п╢п╟п╩я▄я┬п╣ п╪п╟пЁп╟п╥ п╫п╣ п╥п╟п╩п╬п╟п╢п╦я┌я│я▐ - п╪п╬п╠ п╠я┐п╢п╣я┌ п╡я▀п╢п╟п╡п╟я┌я▄ п╬я┬п╦п╠п╨я┐ п╫п╟ п╪п╟пЁп╟п╥п╦п╫п╫я▀п╣ я│п©п╣я┬п╦п╟п╩я▀
 			int mob_rnum = real_mobile(mob_vnum);
 			if (mob_rnum >= 0)
 			{
@@ -323,7 +323,7 @@ void load(bool reload)
 			}
 		}
 
-		// и список его продукции
+		// п╦ я│п©п╦я│п╬п╨ п╣пЁп╬ п©я─п╬п╢я┐п╨я├п╦п╦
 		for (pugi::xml_node item = node.child("item"); item; item = item.next_sibling("item"))
 		{
 			int item_vnum = Parse::attr_int(item, "vnum");
@@ -337,7 +337,7 @@ void load(bool reload)
 				return;
 			}
 
-			// проверяем шмотку
+			// п©я─п╬п╡п╣я─я▐п╣п╪ я┬п╪п╬я┌п╨я┐
 			int item_rnum = real_object(item_vnum);
 			if (item_rnum < 0)
 			{
@@ -346,12 +346,12 @@ void load(bool reload)
 				return;
 			}
 
-			// иним ее в магазе
-			const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price; //если не указана цена - берем цену из прототипа
+			// п╦п╫п╦п╪ п╣п╣ п╡ п╪п╟пЁп╟п╥п╣
+			const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price; //п╣я│п╩п╦ п╫п╣ я┐п╨п╟п╥п╟п╫п╟ я├п╣п╫п╟ - п╠п╣я─п╣п╪ я├п╣п╫я┐ п╦п╥ п©я─п╬я┌п╬я┌п╦п©п╟
 			tmp_shop->add_item(item_vnum, item_price);
 		}
 
-		//и еще добавим наборы
+		//п╦ п╣я┴п╣ п╢п╬п╠п╟п╡п╦п╪ п╫п╟п╠п╬я─я▀
 		for (pugi::xml_node itemSet = node.child("item_set"); itemSet; itemSet = itemSet.next_sibling("item_set"))
 		{
 			std::string itemSetId = itemSet.child_value();
@@ -361,7 +361,7 @@ void load(bool reload)
 				{
 					for (unsigned i = 0; i < (*it)->item_list.size(); i++)
 					{
-						// проверяем шмотку
+						// п©я─п╬п╡п╣я─я▐п╣п╪ я┬п╪п╬я┌п╨я┐
 						int item_rnum = real_object((*it)->item_list[i].item_vnum);
 						if (item_rnum < 0)
 						{
@@ -369,7 +369,7 @@ void load(bool reload)
 							mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 							return;
 						}
-						// иним ее в магазе
+						// п╦п╫п╦п╪ п╣п╣ п╡ п╪п╟пЁп╟п╥п╣
 						const auto item_vnum = (*it)->item_list[i].item_vnum;
 						const int price = (*it)->item_list[i].item_price;
 						const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price;
@@ -430,23 +430,23 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 		return 0;
 	}
 
-	if (!(CMD_IS("список")
+	if (!(CMD_IS("я│п©п╦я│п╬п╨")
 		|| CMD_IS("list")
-		|| CMD_IS("купить")
+		|| CMD_IS("п╨я┐п©п╦я┌я▄")
 		|| CMD_IS("buy")
-		|| CMD_IS("продать")
+		|| CMD_IS("п©я─п╬п╢п╟я┌я▄")
 		|| CMD_IS("sell")
-		|| CMD_IS("оценить")
+		|| CMD_IS("п╬я├п╣п╫п╦я┌я▄")
 		|| CMD_IS("value")
-		|| CMD_IS("чинить")
+		|| CMD_IS("я┤п╦п╫п╦я┌я▄")
 		|| CMD_IS("repair")
-		|| CMD_IS("украсть")
+		|| CMD_IS("я┐п╨я─п╟я│я┌я▄")
 		|| CMD_IS("steal")
-		|| CMD_IS("фильтровать")
+		|| CMD_IS("я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄")
 		|| CMD_IS("filter")
-		|| CMD_IS("рассмотреть")
+		|| CMD_IS("я─п╟я│я│п╪п╬я┌я─п╣я┌я▄")
 		|| CMD_IS("examine")
-		|| CMD_IS("характеристики")
+		|| CMD_IS("я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦")
 		|| CMD_IS("identify")))
 	{
 		return 0;
@@ -467,24 +467,24 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 	if (!shop)
 	{
-		log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
-		send_to_char("Ошибочка вышла.\r\n", ch);
+		log("SYSERROR : п╪п╟пЁп╟п╥п╦п╫ п╫п╣ п╫п╟п╧п╢п╣п╫ mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
+		send_to_char("п·я┬п╦п╠п╬я┤п╨п╟ п╡я▀я┬п╩п╟.\r\n", ch);
 
 		return 1;
 	}
 
 
 	if (CMD_IS("steal")
-		|| CMD_IS("украсть"))
+		|| CMD_IS("я┐п╨я─п╟я│я┌я▄"))
 	{
-		sprintf(argm, "$N вскричал$G '%s'", MSG_NO_STEAL_HERE);
-		sprintf(buf, "ругать %s", GET_NAME(ch));
+		sprintf(argm, "$N п╡я│п╨я─п╦я┤п╟п╩$G '%s'", MSG_NO_STEAL_HERE);
+		sprintf(buf, "я─я┐пЁп╟я┌я▄ %s", GET_NAME(ch));
 		do_social(keeper, buf);
 		act(argm, FALSE, ch, 0, keeper, TO_CHAR);
 		return 1;
 	}
 
-	if (CMD_IS("список")
+	if (CMD_IS("я│п©п╦я│п╬п╨")
 		|| CMD_IS("list"))
 	{
 		std::string buffer = argument, buffer2;
@@ -493,7 +493,7 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 		return 1;
 	}
 
-	if (CMD_IS("фильтровать")
+	if (CMD_IS("я└п╦п╩я▄я┌я─п╬п╡п╟я┌я▄")
 		|| CMD_IS("filter"))
 	{
 		std::string buffer = argument, buffer2;
@@ -502,47 +502,47 @@ int shop_ext(CHAR_DATA *ch, void *me, int cmd, char* argument)
 		return 1;
 	}
 
-	if (CMD_IS("купить")
+	if (CMD_IS("п╨я┐п©п╦я┌я▄")
 		|| CMD_IS("buy"))
 	{
 		shop->process_buy(ch, keeper, argument);
 		return 1;
 	}
-	if (CMD_IS("характеристики") || CMD_IS("identify"))
+	if (CMD_IS("я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦") || CMD_IS("identify"))
 	{
-		shop->process_ident(ch, keeper, argument, "Характеристики");
+		shop->process_ident(ch, keeper, argument, "п╔п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦");
 		return 1;
 	}
 
 
-	if (CMD_IS("value") || CMD_IS("оценить"))
+	if (CMD_IS("value") || CMD_IS("п╬я├п╣п╫п╦я┌я▄"))
 	{
-		shop->process_cmd(ch, keeper, argument, "Оценить");
+		shop->process_cmd(ch, keeper, argument, "п·я├п╣п╫п╦я┌я▄");
 		return 1;
 	}
-	if (CMD_IS("продать") || CMD_IS("sell"))
+	if (CMD_IS("п©я─п╬п╢п╟я┌я▄") || CMD_IS("sell"))
 	{
-		shop->process_cmd(ch, keeper, argument, "Продать");
+		shop->process_cmd(ch, keeper, argument, "п÷я─п╬п╢п╟я┌я▄");
 		return 1;
 	}
-	if (CMD_IS("чинить") || CMD_IS("repair"))
+	if (CMD_IS("я┤п╦п╫п╦я┌я▄") || CMD_IS("repair"))
 	{
-		shop->process_cmd(ch, keeper, argument, "Чинить");
+		shop->process_cmd(ch, keeper, argument, "п╖п╦п╫п╦я┌я▄");
 		return 1;
 	}
-	if (CMD_IS("рассмотреть") || CMD_IS("examine"))
+	if (CMD_IS("я─п╟я│я│п╪п╬я┌я─п╣я┌я▄") || CMD_IS("examine"))
 	{
-		shop->process_ident(ch, keeper, argument, "Рассмотреть");
+		shop->process_ident(ch, keeper, argument, "п═п╟я│я│п╪п╬я┌я─п╣я┌я▄");
 		return 1;
 	}
 
 	return 0;
 }
 
-// * Лоад странствующих продавцов в каждой ренте.
+// * п⌡п╬п╟п╢ я│я┌я─п╟п╫я│я┌п╡я┐я▌я┴п╦я┘ п©я─п╬п╢п╟п╡я├п╬п╡ п╡ п╨п╟п╤п╢п╬п╧ я─п╣п╫я┌п╣.
 void town_shop_keepers()
 {
-	// список уже оработанных зон, чтобы не грузить двух и более торгашей в одну
+	// я│п©п╦я│п╬п╨ я┐п╤п╣ п╬я─п╟п╠п╬я┌п╟п╫п╫я▀я┘ п╥п╬п╫, я┤я┌п╬п╠я▀ п╫п╣ пЁя─я┐п╥п╦я┌я▄ п╢п╡я┐я┘ п╦ п╠п╬п╩п╣п╣ я┌п╬я─пЁп╟я┬п╣п╧ п╡ п╬п╢п╫я┐
 	std::set<int> zone_list;
 
 	for (const auto& ch : character_list)

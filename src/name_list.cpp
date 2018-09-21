@@ -19,14 +19,14 @@ namespace
 {
 
 typedef std::map<int /* serial_num */, CHAR_DATA *> CharNodeListType;
-typedef std::map<std::string /* имя */, CharNodeListType> CharListType;
+typedef std::map<std::string /* п╦п╪я▐ */, CharNodeListType> CharListType;
 CharListType char_list;
 
 typedef std::map<int /* serial_num */, OBJ_DATA *> ObjNodeListType;
-typedef std::map<std::string /* имя */, ObjNodeListType> ObjListType;
+typedef std::map<std::string /* п╦п╪я▐ */, ObjNodeListType> ObjListType;
 ObjListType obj_list;
 
-// счетчик чаров/предметов для name_list
+// я│я┤п╣я┌я┤п╦п╨ я┤п╟я─п╬п╡/п©я─п╣п╢п╪п╣я┌п╬п╡ п╢п╩я▐ name_list
 int char_serial_num = 0;
 int obj_serial_num = 0;
 
@@ -37,7 +37,7 @@ int obj_serial_num = 0;
 namespace CharacterAlias
 {
 
-// * См ObjectAlias::add()
+// * п║п╪ ObjectAlias::add()
 void add(CHAR_DATA *ch)
 {
 	if (!GET_NAME(ch)) return;
@@ -67,7 +67,7 @@ void add(CHAR_DATA *ch)
 	}
 }
 
-// * См ObjectAlias::remove()
+// * п║п╪ ObjectAlias::remove()
 void remove(CHAR_DATA *ch)
 {
 	for (CharListType::iterator it = char_list.begin(); it != char_list.end(); /* empty */)
@@ -77,7 +77,7 @@ void remove(CHAR_DATA *ch)
 		{
 			it->second.erase(tmp_it);
 		}
-		// алиасы, оставшиеся пустыми
+		// п╟п╩п╦п╟я│я▀, п╬я│я┌п╟п╡я┬п╦п╣я│я▐ п©я┐я│я┌я▀п╪п╦
 		if (it->second.empty())
 		{
 			char_list.erase(it++);
@@ -89,7 +89,7 @@ void remove(CHAR_DATA *ch)
 	}
 }
 
-// * См ObjectAlias::search_by_word()
+// * п║п╪ ObjectAlias::search_by_word()
 CHAR_DATA * search_by_word(const char *name, const std::string &search_word)
 {
 	CHAR_DATA *ch = 0;
@@ -121,7 +121,7 @@ CHAR_DATA * search_by_word(const char *name, const std::string &search_word)
 	return ch;
 }
 
-// * См ObjectAlias::get_by_name()
+// * п║п╪ ObjectAlias::get_by_name()
 CHAR_DATA * get_by_name(const char *str)
 {
 	if (!str || !*str)
@@ -146,8 +146,8 @@ namespace ObjectAlias
 {
 
 /**
-* Добавление предмета в мап с разделением по каждому из его алиасов
-* и сортировкой по порядковому номеру, который тут же и инится.
+* п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟ п╡ п╪п╟п© я│ я─п╟п╥п╢п╣п╩п╣п╫п╦п╣п╪ п©п╬ п╨п╟п╤п╢п╬п╪я┐ п╦п╥ п╣пЁп╬ п╟п╩п╦п╟я│п╬п╡
+* п╦ я│п╬я─я┌п╦я─п╬п╡п╨п╬п╧ п©п╬ п©п╬я─я▐п╢п╨п╬п╡п╬п╪я┐ п╫п╬п╪п╣я─я┐, п╨п╬я┌п╬я─я▀п╧ я┌я┐я┌ п╤п╣ п╦ п╦п╫п╦я┌я│я▐.
 */
 void add(OBJ_DATA *obj)
 {
@@ -183,7 +183,7 @@ void add(OBJ_DATA *obj)
 	}
 }
 
-// * Удаление предмета из всех полей мапа.
+// * пёп╢п╟п╩п╣п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟ п╦п╥ п╡я│п╣я┘ п©п╬п╩п╣п╧ п╪п╟п©п╟.
 void remove(OBJ_DATA *obj)
 {
 	for (ObjListType::iterator it = obj_list.begin(); it != obj_list.end(); /* empty */)
@@ -193,7 +193,7 @@ void remove(OBJ_DATA *obj)
 		{
 			it->second.erase(tmp_it);
 		}
-		// алиасы, оставшиеся пустыми
+		// п╟п╩п╦п╟я│я▀, п╬я│я┌п╟п╡я┬п╦п╣я│я▐ п©я┐я│я┌я▀п╪п╦
 		if (it->second.empty())
 		{
 			obj_list.erase(it++);
@@ -206,10 +206,10 @@ void remove(OBJ_DATA *obj)
 }
 
 /**
-* Система поиска такая: список предметов сортированы по номеру, поэтому
-* всегда достаточно взять последний подходящий по алиасу и он для данного
-* поискового слова будет последним добавленным в глобальный список предметом,
-* в процессе прохода по словам просто выделяется предмет с наибольшим номером.
+* п║п╦я│я┌п╣п╪п╟ п©п╬п╦я│п╨п╟ я┌п╟п╨п╟я▐: я│п©п╦я│п╬п╨ п©я─п╣п╢п╪п╣я┌п╬п╡ я│п╬я─я┌п╦я─п╬п╡п╟п╫я▀ п©п╬ п╫п╬п╪п╣я─я┐, п©п╬я█я┌п╬п╪я┐
+* п╡я│п╣пЁп╢п╟ п╢п╬я│я┌п╟я┌п╬я┤п╫п╬ п╡п╥я▐я┌я▄ п©п╬я│п╩п╣п╢п╫п╦п╧ п©п╬п╢я┘п╬п╢я▐я┴п╦п╧ п©п╬ п╟п╩п╦п╟я│я┐ п╦ п╬п╫ п╢п╩я▐ п╢п╟п╫п╫п╬пЁп╬
+* п©п╬п╦я│п╨п╬п╡п╬пЁп╬ я│п╩п╬п╡п╟ п╠я┐п╢п╣я┌ п©п╬я│п╩п╣п╢п╫п╦п╪ п╢п╬п╠п╟п╡п╩п╣п╫п╫я▀п╪ п╡ пЁп╩п╬п╠п╟п╩я▄п╫я▀п╧ я│п©п╦я│п╬п╨ п©я─п╣п╢п╪п╣я┌п╬п╪,
+* п╡ п©я─п╬я├п╣я│я│п╣ п©я─п╬я┘п╬п╢п╟ п©п╬ я│п╩п╬п╡п╟п╪ п©я─п╬я│я┌п╬ п╡я▀п╢п╣п╩я▐п╣я┌я│я▐ п©я─п╣п╢п╪п╣я┌ я│ п╫п╟п╦п╠п╬п╩я▄я┬п╦п╪ п╫п╬п╪п╣я─п╬п╪.
 */
 OBJ_DATA * search_by_word(const char *name, const std::string &search_word)
 {
@@ -242,7 +242,7 @@ OBJ_DATA * search_by_word(const char *name, const std::string &search_word)
 	return obj;
 }
 
-// * \return последний (технически первый в object_list) предмет или 0 по его алиасу.
+// * \return п©п╬я│п╩п╣п╢п╫п╦п╧ (я┌п╣я┘п╫п╦я┤п╣я│п╨п╦ п©п╣я─п╡я▀п╧ п╡ object_list) п©я─п╣п╢п╪п╣я┌ п╦п╩п╦ 0 п©п╬ п╣пЁп╬ п╟п╩п╦п╟я│я┐.
 OBJ_DATA * get_by_name(const char *str)
 {
 	if (!str || !*str)
@@ -260,8 +260,8 @@ OBJ_DATA * get_by_name(const char *str)
 }
 
 /**
-* Поиск цели для каста локейта, в данном случае нам не важен порядковый номер,
-* а просто нужен любой предмет с данным алиасом.
+* п÷п╬п╦я│п╨ я├п╣п╩п╦ п╢п╩я▐ п╨п╟я│я┌п╟ п╩п╬п╨п╣п╧я┌п╟, п╡ п╢п╟п╫п╫п╬п╪ я│п╩я┐я┤п╟п╣ п╫п╟п╪ п╫п╣ п╡п╟п╤п╣п╫ п©п╬я─я▐п╢п╨п╬п╡я▀п╧ п╫п╬п╪п╣я─,
+* п╟ п©я─п╬я│я┌п╬ п╫я┐п╤п╣п╫ п╩я▌п╠п╬п╧ п©я─п╣п╢п╪п╣я┌ я│ п╢п╟п╫п╫я▀п╪ п╟п╩п╦п╟я│п╬п╪.
 */
 OBJ_DATA * locate_object(const char *str)
 {

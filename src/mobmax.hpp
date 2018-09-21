@@ -31,11 +31,11 @@ private:
 		mobmax_data(int in_vnum, int in_count, int in_level)
 			: vnum(in_vnum), count(in_count), level(in_level)
 		{};
-		// внум моба
+		// п╡п╫я┐п╪ п╪п╬п╠п╟
 		int vnum;
-		// кол-во мобов
+		// п╨п╬п╩-п╡п╬ п╪п╬п╠п╬п╡
 		int count;
-		// их уровень
+		// п╦я┘ я┐я─п╬п╡п╣п╫я▄
 		int level;
 	};
 

@@ -103,7 +103,7 @@ OBJ_DATA::~OBJ_DATA()
 	this->purge();
 }
 
-// * См. Character::zero_init()
+// * п║п╪. Character::zero_init()
 void OBJ_DATA::zero_init()
 {
 	CObjectPrototype::zero_init();
@@ -141,13 +141,13 @@ void OBJ_DATA::detach_ex_description()
 	set_ex_description(new_description);
 }
 
-// * См. Character::purge()
+// * п║п╪. Character::purge()
 void OBJ_DATA::purge()
 {
 	caching::obj_cache.remove(this);
-	//см. комментарий в структуре BloodyInfo из pk.cpp
+	//я│п╪. п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╡ я│я┌я─я┐п╨я┌я┐я─п╣ BloodyInfo п╦п╥ pk.cpp
 	bloody::remove_obj(this);
-	//weak_ptr тут бы был какраз в тему
+	//weak_ptr я┌я┐я┌ п╠я▀ п╠я▀п╩ п╨п╟п╨я─п╟п╥ п╡ я┌п╣п╪я┐
 	Celebrates::remove_from_obj_lists(this->get_uid());
 }
 
@@ -181,7 +181,7 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 		{
 			int nsides, ndices;
 			__act.get_dices(ndices, nsides);
-			// Типа такая проверка на то, устанавливались ли эти параметры.
+			// п╒п╦п©п╟ я┌п╟п╨п╟я▐ п©я─п╬п╡п╣я─п╨п╟ п╫п╟ я┌п╬, я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╩п╦я│я▄ п╩п╦ я█я┌п╦ п©п╟я─п╟п╪п╣я┌я─я▀.
 			if (ndices > 0 && nsides > 0)
 			{
 				set_val(1, ndices);
@@ -189,13 +189,13 @@ const std::string OBJ_DATA::activate_obj(const activation& __act)
 			}
 		}
 
-		// Активируем умения.
+		// п░п╨я┌п╦п╡п╦я─я┐п╣п╪ я┐п╪п╣п╫п╦я▐.
 		if (__act.has_skills())
 		{
-			// У всех объектов с умениями skills указывает на один и тот же
-			// массив. И у прототипов. Поэтому тут надо создавать новый,
-			// если нет желания "активировать" сразу все такие объекты.
-			// Умения, проставленные в сете, заменяют родные умения предмета.
+			// пё п╡я│п╣я┘ п╬п╠я┼п╣п╨я┌п╬п╡ я│ я┐п╪п╣п╫п╦я▐п╪п╦ skills я┐п╨п╟п╥я▀п╡п╟п╣я┌ п╫п╟ п╬п╢п╦п╫ п╦ я┌п╬я┌ п╤п╣
+			// п╪п╟я│я│п╦п╡. п≤ я┐ п©я─п╬я┌п╬я┌п╦п©п╬п╡. п÷п╬я█я┌п╬п╪я┐ я┌я┐я┌ п╫п╟п╢п╬ я│п╬п╥п╢п╟п╡п╟я┌я▄ п╫п╬п╡я▀п╧,
+			// п╣я│п╩п╦ п╫п╣я┌ п╤п╣п╩п╟п╫п╦я▐ "п╟п╨я┌п╦п╡п╦я─п╬п╡п╟я┌я▄" я│я─п╟п╥я┐ п╡я│п╣ я┌п╟п╨п╦п╣ п╬п╠я┼п╣п╨я┌я▀.
+			// пёп╪п╣п╫п╦я▐, п©я─п╬я│я┌п╟п╡п╩п╣п╫п╫я▀п╣ п╡ я│п╣я┌п╣, п╥п╟п╪п╣п╫я▐я▌я┌ я─п╬п╢п╫я▀п╣ я┐п╪п╣п╫п╦я▐ п©я─п╣п╢п╪п╣я┌п╟.
 			skills_t skills;
 			__act.get_skills(skills);
 			set_skills(skills);
@@ -227,11 +227,11 @@ const std::string OBJ_DATA::deactivate_obj(const activation& __act)
 			set_val(2, obj_proto[get_rnum()]->get_val(2));
 		}
 
-		// Деактивируем умения.
+		// п■п╣п╟п╨я┌п╦п╡п╦я─я┐п╣п╪ я┐п╪п╣п╫п╦я▐.
 		if (__act.has_skills())
 		{
-			// При активации мы создавали новый массив с умениями. Его
-			// можно смело удалять.
+			// п÷я─п╦ п╟п╨я┌п╦п╡п╟я├п╦п╦ п╪я▀ я│п╬п╥п╢п╟п╡п╟п╩п╦ п╫п╬п╡я▀п╧ п╪п╟я│я│п╦п╡ я│ я┐п╪п╣п╫п╦я▐п╪п╦. п∙пЁп╬
+			// п╪п╬п╤п╫п╬ я│п╪п╣п╩п╬ я┐п╢п╟п╩я▐я┌я▄.
 			set_skills(obj_proto[get_rnum()]->get_skills());
 		}
 
@@ -470,7 +470,7 @@ bool CObjectPrototype::get_wear_mask(const wear_flags_t part) const
 	return IS_SET(m_wear_flags, part);
 }
 
-// * @warning Предполагается, что __out_skills.empty() == true.
+// * @warning п÷я─п╣п╢п©п╬п╩п╟пЁп╟п╣я┌я│я▐, я┤я┌п╬ __out_skills.empty() == true.
 void CObjectPrototype::get_skills(skills_t& out_skills) const
 {
 	if (!m_skills.empty())
@@ -494,7 +494,7 @@ int CObjectPrototype::get_timer() const
 	return m_timer;
 }
 
-//заколдование предмета
+//п╥п╟п╨п╬п╩п╢п╬п╡п╟п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟
 void OBJ_DATA::set_enchant(int skill)
 {
     int i = 0;
@@ -511,25 +511,25 @@ void OBJ_DATA::set_enchant(int skill)
 	set_affected_location(1, APPLY_DAMROLL);
 
     if (skill <= 100)
-    // 4 мортов (скил магия света 100)
+    // 4 п╪п╬я─я┌п╬п╡ (я│п╨п╦п╩ п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟ 100)
     {
        set_affected_modifier(0, 1 + number(0, 1));
 	   set_affected_modifier(1, 1 + number(0, 1));
     }
     else if (skill <= 125)
-    // 8 мортов (скил магия света 125)
+    // 8 п╪п╬я─я┌п╬п╡ (я│п╨п╦п╩ п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟ 125)
     {
 	   set_affected_modifier(0, 1 + number(-3, 2));
 	   set_affected_modifier(1, 1 + number(-3, 2));
     }
     else if (skill <= 160)
-    // 12 мортов (скил магия света 160)
+    // 12 п╪п╬я─я┌п╬п╡ (я│п╨п╦п╩ п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟ 160)
     {
        set_affected_modifier(0, 1 + number(-4, 3));
        set_affected_modifier(1, 1 + number(-4, 3));
     }
     else if (skill <= 200)
-    // 16 мортов (скил магия света 160+)
+    // 16 п╪п╬я─я┌п╬п╡ (я│п╨п╦п╩ п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟ 160+)
     {
        set_affected_modifier(0, 1 + number(-5, 5));
        set_affected_modifier(1, 1 + number(-5, 5));
@@ -551,22 +551,22 @@ void OBJ_DATA::set_enchant(int skill, OBJ_DATA *obj)
 		EAffectFlag::AFF_SILENCE, EAffectFlag::AFF_CRYING, EAffectFlag::AFF_BLIND,
 		EAffectFlag::AFF_SLOW);
 
-	//накидываем хитрол и дамрол
+	//п╫п╟п╨п╦п╢я▀п╡п╟п╣п╪ я┘п╦я┌я─п╬п╩ п╦ п╢п╟п╪я─п╬п╩
     set_enchant(skill);
 
 	int enchant_count = 0;
 
-    // 8 мортов (скил магия света 125)
+    // 8 п╪п╬я─я┌п╬п╡ (я│п╨п╦п╩ п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟ 125)
     if (skill > 100 && skill <= 125) 
 	{
 		enchant_count = 1;
 	}
-    // 12 мортов (скил магия света 160)
+    // 12 п╪п╬я─я┌п╬п╡ (я│п╨п╦п╩ п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟ 160)
 	else if (skill <= 160) 
 	{
 		enchant_count = 2;
 	}
-    // 16 мортов (скил магия света 160+)
+    // 16 п╪п╬я─я┌п╬п╡ (я│п╨п╦п╩ п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟ 160+)
 	else
 	{
 		enchant_count = 3;
@@ -604,9 +604,9 @@ void OBJ_DATA::unset_enchant()
 			set_affected_location(i, APPLY_NONE);
 		}
 	}
-		// Возврат эфектов
+		// п▓п╬п╥п╡я─п╟я┌ я█я└п╣п╨я┌п╬п╡
 	set_affect_flags(obj_proto[get_rnum()]->get_affect_flags());
-	// поскольку все обнулилось можно втыкать слоты для ковки
+	// п©п╬я│п╨п╬п╩я▄п╨я┐ п╡я│п╣ п╬п╠п╫я┐п╩п╦п╩п╬я│я▄ п╪п╬п╤п╫п╬ п╡я┌я▀п╨п╟я┌я▄ я│п╩п╬я┌я▀ п╢п╩я▐ п╨п╬п╡п╨п╦
 	if (OBJ_FLAGGED(obj_proto.at(get_rnum()).get(), EExtraFlag::ITEM_WITH3SLOTS))
 	{
 		set_extra_flag(EExtraFlag::ITEM_WITH3SLOTS);
@@ -648,16 +648,16 @@ bool OBJ_DATA::clone_olc_object_from_prototype(const obj_vnum vnum)
 	return true;
 }
 
-//копирование имени
+//п╨п╬п©п╦я─п╬п╡п╟п╫п╦п╣ п╦п╪п╣п╫п╦
 void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
 	int i;
 
-	//Копируем псевдонимы и дескрипшены
-	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
-	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
-	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+	//п п╬п©п╦я─я┐п╣п╪ п©я│п╣п╡п╢п╬п╫п╦п╪я▀ п╦ п╢п╣я│п╨я─п╦п©я┬п╣п╫я▀
+	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "п╫п╣я┌");
+	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫п╬");
+	set_description(!src->get_description().empty() ? src->get_description().c_str() : "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫п╬");
 	
-	//Копируем имя по падежам
+	//п п╬п©п╦я─я┐п╣п╪ п╦п╪я▐ п©п╬ п©п╟п╢п╣п╤п╟п╪
 	for (i = 0; i < NUM_PADS; i++)
 		set_PName(i, src->get_PName(i));
 }
@@ -665,17 +665,17 @@ void OBJ_DATA::copy_name_from(const CObjectPrototype* src) {
 
 void OBJ_DATA::copy_from(const CObjectPrototype* src)
 {
-	// Копирую все поверх
+	// п п╬п©п╦я─я┐я▌ п╡я│п╣ п©п╬п╡п╣я─я┘
 	*this = *src;
 
-	// Теперь нужно выделить собственные области памяти
+	// п╒п╣п©п╣я─я▄ п╫я┐п╤п╫п╬ п╡я▀п╢п╣п╩п╦я┌я▄ я│п╬п╠я│я┌п╡п╣п╫п╫я▀п╣ п╬п╠п╩п╟я│я┌п╦ п©п╟п╪я▐я┌п╦
 
-	// Имена и названия
-	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "нет");
-	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "неопределено");
-	set_description(!src->get_description().empty() ? src->get_description().c_str() : "неопределено");
+	// п≤п╪п╣п╫п╟ п╦ п╫п╟п╥п╡п╟п╫п╦я▐
+	set_aliases(!src->get_aliases().empty() ? src->get_aliases().c_str() : "п╫п╣я┌");
+	set_short_description(!src->get_short_description().empty() ? src->get_short_description().c_str() : "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫п╬");
+	set_description(!src->get_description().empty() ? src->get_description().c_str() : "п╫п╣п╬п©я─п╣п╢п╣п╩п╣п╫п╬");
 
-	// Дополнительные описания, если есть
+	// п■п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╣ п╬п©п╦я│п╟п╫п╦я▐, п╣я│п╩п╦ п╣я│я┌я▄
 	{
 		EXTRA_DESCR_DATA::shared_ptr nd;
 		auto* pddd = &nd;
@@ -734,10 +734,10 @@ void OBJ_DATA::swap(OBJ_DATA& object)
 	object.set_next_content(tmpobj.get_next_content());
 	set_next(object.get_next());
 	object.set_next(tmpobj.get_next());
-	// для name_list
+	// п╢п╩я▐ name_list
 	set_serial_num(object.get_serial_num());
 	object.set_serial_num(tmpobj.get_serial_num());
-	//копируем также инфу о зоне, вообще мне не совсем понятна замута с этой инфой об оригинальной зоне
+	//п╨п╬п©п╦я─я┐п╣п╪ я┌п╟п╨п╤п╣ п╦п╫я└я┐ п╬ п╥п╬п╫п╣, п╡п╬п╬п╠я┴п╣ п╪п╫п╣ п╫п╣ я│п╬п╡я│п╣п╪ п©п╬п╫я▐я┌п╫п╟ п╥п╟п╪я┐я┌п╟ я│ я█я┌п╬п╧ п╦п╫я└п╬п╧ п╬п╠ п╬я─п╦пЁп╦п╫п╟п╩я▄п╫п╬п╧ п╥п╬п╫п╣
 	set_zone(GET_OBJ_ZONE(&object));
 	object.set_zone(GET_OBJ_ZONE(&tmpobj));
 }
@@ -750,7 +750,7 @@ void OBJ_DATA::set_tag(const char* tag)
 	}
 	else
 	{
-		// По уму тут надо бы стереть старое описапние если оно не с прототипа
+		// п÷п╬ я┐п╪я┐ я┌я┐я┌ п╫п╟п╢п╬ п╠я▀ я│я┌п╣я─п╣я┌я▄ я│я┌п╟я─п╬п╣ п╬п©п╦я│п╟п©п╫п╦п╣ п╣я│п╩п╦ п╬п╫п╬ п╫п╣ я│ п©я─п╬я┌п╬я┌п╦п©п╟
 		detach_ex_description();
 		tag_ex_description(tag);
 	}
@@ -776,9 +776,9 @@ float count_mort_requred(const CObjectPrototype* obj);
 float count_unlimited_timer(const CObjectPrototype* obj);
 
 /**
-* Реальное старение шмотки (без всяких технических сетов таймера по коду).
-* Помимо таймера самой шмотки снимается таймер ее временного обкаста.
-* \param time по дефолту 1.
+* п═п╣п╟п╩я▄п╫п╬п╣ я│я┌п╟я─п╣п╫п╦п╣ я┬п╪п╬я┌п╨п╦ (п╠п╣п╥ п╡я│я▐п╨п╦я┘ я┌п╣я┘п╫п╦я┤п╣я│п╨п╦я┘ я│п╣я┌п╬п╡ я┌п╟п╧п╪п╣я─п╟ п©п╬ п╨п╬п╢я┐).
+* п÷п╬п╪п╦п╪п╬ я┌п╟п╧п╪п╣я─п╟ я│п╟п╪п╬п╧ я┬п╪п╬я┌п╨п╦ я│п╫п╦п╪п╟п╣я┌я│я▐ я┌п╟п╧п╪п╣я─ п╣п╣ п╡я─п╣п╪п╣п╫п╫п╬пЁп╬ п╬п╠п╨п╟я│я┌п╟.
+* \param time п©п╬ п╢п╣я└п╬п╩я┌я┐ 1.
 */
 void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 {
@@ -801,7 +801,7 @@ void OBJ_DATA::dec_timer(int time, bool ignore_utimer, bool exchange)
 	{
 		if (((GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_DRINKCON)
 				|| (GET_OBJ_TYPE(this) == CObjectPrototype::ITEM_FOOD))
-			&& GET_OBJ_VAL(this, 3) > 1) //таймер у жижек и еды
+			&& GET_OBJ_VAL(this, 3) > 1) //я┌п╟п╧п╪п╣я─ я┐ п╤п╦п╤п╣п╨ п╦ п╣п╢я▀
 		{
 			dec_val(3);
 		}
@@ -1178,14 +1178,14 @@ void init_item_levels()
 namespace system_obj
 {
 
-/// кошелек для кун с игрока
+/// п╨п╬я┬п╣п╩п╣п╨ п╢п╩я▐ п╨я┐п╫ я│ п╦пЁя─п╬п╨п╟
 const int PURSE_VNUM = 1924;
 int PURSE_RNUM = -1;
-/// персональное хранилище
+/// п©п╣я─я│п╬п╫п╟п╩я▄п╫п╬п╣ я┘я─п╟п╫п╦п╩п╦я┴п╣
 const int PERS_CHEST_VNUM = 331;
 int PERS_CHEST_RNUM = -1;
 
-/// при старте сразу после лоада зон
+/// п©я─п╦ я│я┌п╟я─я┌п╣ я│я─п╟п╥я┐ п©п╬я│п╩п╣ п╩п╬п╟п╢п╟ п╥п╬п╫
 void init()
 {
 	PURSE_RNUM = real_object(PURSE_VNUM);
@@ -1200,21 +1200,21 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 		return obj.get();
 	}
 
-	obj->set_aliases("тугой кошелек");
-	obj->set_short_description("тугой кошелек");
-	obj->set_description("Кем-то оброненный тугой кошелек лежит здесь.");
-	obj->set_PName(0, "тугой кошелек");
-	obj->set_PName(1, "тугого кошелька");
-	obj->set_PName(2, "тугому кошельку");
-	obj->set_PName(3, "тугой кошелек");
-	obj->set_PName(4, "тугим кошельком");
-	obj->set_PName(5, "тугом кошельке");
+	obj->set_aliases("я┌я┐пЁп╬п╧ п╨п╬я┬п╣п╩п╣п╨");
+	obj->set_short_description("я┌я┐пЁп╬п╧ п╨п╬я┬п╣п╩п╣п╨");
+	obj->set_description("п п╣п╪-я┌п╬ п╬п╠я─п╬п╫п╣п╫п╫я▀п╧ я┌я┐пЁп╬п╧ п╨п╬я┬п╣п╩п╣п╨ п╩п╣п╤п╦я┌ п╥п╢п╣я│я▄.");
+	obj->set_PName(0, "я┌я┐пЁп╬п╧ п╨п╬я┬п╣п╩п╣п╨");
+	obj->set_PName(1, "я┌я┐пЁп╬пЁп╬ п╨п╬я┬п╣п╩я▄п╨п╟");
+	obj->set_PName(2, "я┌я┐пЁп╬п╪я┐ п╨п╬я┬п╣п╩я▄п╨я┐");
+	obj->set_PName(3, "я┌я┐пЁп╬п╧ п╨п╬я┬п╣п╩п╣п╨");
+	obj->set_PName(4, "я┌я┐пЁп╦п╪ п╨п╬я┬п╣п╩я▄п╨п╬п╪");
+	obj->set_PName(5, "я┌я┐пЁп╬п╪ п╨п╬я┬п╣п╩я▄п╨п╣");
 
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_),
 		"--------------------------------------------------\r\n"
-		"Владелец: %s\r\n"
-		"В случае потери просьба вернуть за вознаграждение.\r\n"
+		"п▓п╩п╟п╢п╣п╩п╣я├: %s\r\n"
+		"п▓ я│п╩я┐я┤п╟п╣ п©п╬я┌п╣я─п╦ п©я─п╬я│я▄п╠п╟ п╡п╣я─п╫я┐я┌я▄ п╥п╟ п╡п╬п╥п╫п╟пЁя─п╟п╤п╢п╣п╫п╦п╣.\r\n"
 		"--------------------------------------------------\r\n"
 		, ch->get_name().c_str());
 	obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
@@ -1230,7 +1230,7 @@ OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
 
 	obj->set_rent_off(0);
 	obj->set_rent_on(0);
-	// чтобы скавенж мобов не трогать
+	// я┤я┌п╬п╠я▀ я│п╨п╟п╡п╣п╫п╤ п╪п╬п╠п╬п╡ п╫п╣ я┌я─п╬пЁп╟я┌я▄
 	obj->set_cost(2);
 	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
 	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
@@ -1243,7 +1243,7 @@ bool is_purse(OBJ_DATA *obj)
 	return obj->get_rnum() == PURSE_RNUM;
 }
 
-/// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
+/// п╡я▀п╡п╟п╩п╦п╡п╟п╣п╪ п╦ п©я┐я─п╤п╦п╪ п╨п╬я┬п╣п╩п╣п╨ п©я─п╦ п©п╬п©я▀я┌п╨п╣ п╬я┌п╨я─я▀я┌я▄ п╦п╩п╦ п©я─п╦ п╡п╥я▐я┌п╦п╦ я┘п╬п╥я▐п╦п╫п╬п╪
 void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	auto value = obj->get_val(1);
@@ -1253,7 +1253,7 @@ void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
 	char buf_[MAX_INPUT_LENGTH];
 	snprintf(buf_, sizeof(buf_), "all");
 	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
-	act("$o рассыпал$U в ваших руках...", FALSE, ch, obj, 0, TO_CHAR);
+	act("$o я─п╟я│я│я▀п©п╟п╩$U п╡ п╡п╟я┬п╦я┘ я─я┐п╨п╟я┘...", FALSE, ch, obj, 0, TO_CHAR);
 	extract_obj(obj);
 }
 
@@ -1470,7 +1470,7 @@ std::string print_obj_affects(const obj_affected_type &affect)
 
 	sprintf(buf, "%s%s%s%s%s%d%s\r\n",
 		KCYN, buf2, KNRM,
-		KCYN, (negative ? " ухудшает на " : " улучшает на "),
+		KCYN, (negative ? " я┐я┘я┐п╢я┬п╟п╣я┌ п╫п╟ " : " я┐п╩я┐я┤я┬п╟п╣я┌ п╫п╟ "),
 		abs(affect.modifier), KNRM);
 
 	return std::string(buf);
@@ -1499,7 +1499,7 @@ void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect)
 	sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
 		CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM),
-		negative ? " ухудшает на " : " улучшает на ", abs(affect.modifier), CCNRM(ch, C_NRM));
+		negative ? " я┐я┘я┐п╢я┬п╟п╣я┌ п╫п╟ " : " я┐п╩я┐я┤я┬п╟п╣я┌ п╫п╟ ", abs(affect.modifier), CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 }
 
@@ -1634,12 +1634,12 @@ namespace SetSystem
 {
 	struct SetNode
 	{
-		// список шмоток по конкретному сету для сверки
-		// инится один раз при ребуте и больше не меняется
+		// я│п©п╦я│п╬п╨ я┬п╪п╬я┌п╬п╨ п©п╬ п╨п╬п╫п╨я─п╣я┌п╫п╬п╪я┐ я│п╣я┌я┐ п╢п╩я▐ я│п╡п╣я─п╨п╦
+		// п╦п╫п╦я┌я│я▐ п╬п╢п╦п╫ я─п╟п╥ п©я─п╦ я─п╣п╠я┐я┌п╣ п╦ п╠п╬п╩я▄я┬п╣ п╫п╣ п╪п╣п╫я▐п╣я┌я│я▐
 		std::set<int> set_vnum;
-		// список шмоток из данного сета у текущего чара
-		// если после заполнения в списке только 1 предмет
-		// значит удаляем его как единственный у чара
+		// я│п©п╦я│п╬п╨ я┬п╪п╬я┌п╬п╨ п╦п╥ п╢п╟п╫п╫п╬пЁп╬ я│п╣я┌п╟ я┐ я┌п╣п╨я┐я┴п╣пЁп╬ я┤п╟я─п╟
+		// п╣я│п╩п╦ п©п╬я│п╩п╣ п╥п╟п©п╬п╩п╫п╣п╫п╦я▐ п╡ я│п©п╦я│п╨п╣ я┌п╬п╩я▄п╨п╬ 1 п©я─п╣п╢п╪п╣я┌
+		// п╥п╫п╟я┤п╦я┌ я┐п╢п╟п╩я▐п╣п╪ п╣пЁп╬ п╨п╟п╨ п╣п╢п╦п╫я│я┌п╡п╣п╫п╫я▀п╧ я┐ я┤п╟я─п╟
 		std::vector<int> obj_vnum;
 	};
 
@@ -1648,10 +1648,10 @@ namespace SetSystem
 	constexpr unsigned BIG_SET_ITEMS = 9;
 	constexpr unsigned MINI_SET_ITEMS = 3;
 
-	// для проверок при попытке ренты
+	// п╢п╩я▐ п©я─п╬п╡п╣я─п╬п╨ п©я─п╦ п©п╬п©я▀я┌п╨п╣ я─п╣п╫я┌я▀
 	std::set<int> vnum_list;
 
-	// * Заполнение списка фулл-сетов для последующих сверок.
+	// * п≈п╟п©п╬п╩п╫п╣п╫п╦п╣ я│п©п╦я│п╨п╟ я└я┐п╩п╩-я│п╣я┌п╬п╡ п╢п╩я▐ п©п╬я│п╩п╣п╢я┐я▌я┴п╦я┘ я│п╡п╣я─п╬п╨.
 	void init_set_list()
 	{
 		for (id_to_set_info_map::const_iterator i = OBJ_DATA::set_table.begin(),
@@ -1670,7 +1670,7 @@ namespace SetSystem
 		}
 	}
 
-	// * Удаление инфы от последнего сверявшегося чара.
+	// * пёп╢п╟п╩п╣п╫п╦п╣ п╦п╫я└я▀ п╬я┌ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ я│п╡п╣я─я▐п╡я┬п╣пЁп╬я│я▐ я┤п╟я─п╟.
 	void reset_set_list()
 	{
 		for (std::vector<SetNode>::iterator i = set_list.begin(),
@@ -1680,7 +1680,7 @@ namespace SetSystem
 		}
 	}
 
-	// * Проверка шмотки на принадлежность к сетам из set_list.
+	// * п÷я─п╬п╡п╣я─п╨п╟ я┬п╪п╬я┌п╨п╦ п╫п╟ п©я─п╦п╫п╟п╢п╩п╣п╤п╫п╬я│я┌я▄ п╨ я│п╣я┌п╟п╪ п╦п╥ set_list.
 	void check_item(int vnum)
 	{
 		for (std::vector<SetNode>::iterator i = set_list.begin(),
@@ -1694,11 +1694,11 @@ namespace SetSystem
 		}
 	}
 
-	// * Обнуление таймера шмотки в ренте или перс.хране.
+	// * п·п╠п╫я┐п╩п╣п╫п╦п╣ я┌п╟п╧п╪п╣я─п╟ я┬п╪п╬я┌п╨п╦ п╡ я─п╣п╫я┌п╣ п╦п╩п╦ п©п╣я─я│.я┘я─п╟п╫п╣.
 	void delete_item(const std::size_t pt_num, int vnum)
 	{
 		bool need_save = false;
-		// рента
+		// я─п╣п╫я┌п╟
 		if (player_table[pt_num].timer)
 		{
 			for (std::vector<save_time_info>::iterator i = player_table[pt_num].timer->time.begin(),
@@ -1725,11 +1725,11 @@ namespace SetSystem
 			}
 			return;
 		}
-		// перс.хран
+		// п©п╣я─я│.я┘я─п╟п╫
 		Depot::delete_set_item(player_table[pt_num].unique, vnum);
 	}
 
-	// * Проверка при ребуте всех рент и перс.хранилищ чаров.
+	// * п÷я─п╬п╡п╣я─п╨п╟ п©я─п╦ я─п╣п╠я┐я┌п╣ п╡я│п╣я┘ я─п╣п╫я┌ п╦ п©п╣я─я│.я┘я─п╟п╫п╦п╩п╦я┴ я┤п╟я─п╬п╡.
 	void check_rented()
 	{
 		init_set_list();
@@ -1737,7 +1737,7 @@ namespace SetSystem
 		for (std::size_t i = 0; i < player_table.size(); i++)
 		{
 			reset_set_list();
-			// рента
+			// я─п╣п╫я┌п╟
 			if (player_table[i].timer)
 			{
 				for (std::vector<save_time_info>::iterator it = player_table[i].timer->time.begin(),
@@ -1749,9 +1749,9 @@ namespace SetSystem
 					}
 				}
 			}
-			// перс.хран
+			// п©п╣я─я│.я┘я─п╟п╫
 			Depot::check_rented(player_table[i].unique);
-			// проверка итогового списка
+			// п©я─п╬п╡п╣я─п╨п╟ п╦я┌п╬пЁп╬п╡п╬пЁп╬ я│п©п╦я│п╨п╟
 			for (std::vector<SetNode>::iterator it = set_list.begin(),
 				iend = set_list.end(); it != iend; ++it)
 			{
@@ -1764,8 +1764,8 @@ namespace SetSystem
 	}
 
 	/**
-	* Почта, базар.
-	* Предметы сетов из BIG_SET_ITEMS и более предметов не принимаются.
+	* п÷п╬я┤я┌п╟, п╠п╟п╥п╟я─.
+	* п÷я─п╣п╢п╪п╣я┌я▀ я│п╣я┌п╬п╡ п╦п╥ BIG_SET_ITEMS п╦ п╠п╬п╩п╣п╣ п©я─п╣п╢п╪п╣я┌п╬п╡ п╫п╣ п©я─п╦п╫п╦п╪п╟я▌я┌я│я▐.
 	*/
 	bool is_big_set(const CObjectPrototype *obj, bool is_mini)
 	{
@@ -1805,7 +1805,7 @@ namespace SetSystem
 		return false;
 	}
 
-	// * Генерация списка сетин из того же набора, что и vnum (исключая ее саму).
+	// * п⌠п╣п╫п╣я─п╟я├п╦я▐ я│п©п╦я│п╨п╟ я│п╣я┌п╦п╫ п╦п╥ я┌п╬пЁп╬ п╤п╣ п╫п╟п╠п╬я─п╟, я┤я┌п╬ п╦ vnum (п╦я│п╨п╩я▌я┤п╟я▐ п╣п╣ я│п╟п╪я┐).
 	void init_vnum_list(int vnum)
 	{
 		vnum_list.clear();
@@ -1833,12 +1833,12 @@ namespace SetSystem
 	}
 
 
-	/* проверяем сетину в массиве внумоB*/
+	/* п©я─п╬п╡п╣я─я▐п╣п╪ я│п╣я┌п╦п╫я┐ п╡ п╪п╟я│я│п╦п╡п╣ п╡п╫я┐п╪п╬B*/
 	bool is_norent_set(int vnum, std::vector<int> objs)
 	{
 		if (objs.empty())
 			return true;
-		// нормализуем внумы
+		// п╫п╬я─п╪п╟п╩п╦п╥я┐п╣п╪ п╡п╫я┐п╪я▀
 		vnum = obj_sets::normalize_vnum(vnum);
 		for (unsigned int i = 0; i < objs.size(); i++)
 		{
@@ -1854,10 +1854,10 @@ namespace SetSystem
 		return true;
 	}
 
-	// * Поиск в хране из списка vnum_list.
+	// * п÷п╬п╦я│п╨ п╡ я┘я─п╟п╫п╣ п╦п╥ я│п©п╦я│п╨п╟ vnum_list.
 	bool house_find_set_item(CHAR_DATA *ch, const std::set<int> &vnum_list)
 	{
-		// храны у нас через задницу сделаны
+		// я┘я─п╟п╫я▀ я┐ п╫п╟я│ я┤п╣я─п╣п╥ п╥п╟п╢п╫п╦я├я┐ я│п╢п╣п╩п╟п╫я▀
 		for (OBJ_DATA *chest = world[real_room(CLAN(ch)->get_chest_room())]->contents; chest; chest = chest->get_next_content())
 		{
 			if (Clan::is_clan_chest(chest))
@@ -1876,9 +1876,9 @@ namespace SetSystem
 
 
 	/**
-	* Экипировка, инвентарь, чармисы, перс. хран.см
-	* Требуется наличие двух и более предметов, если сетина из большого сета.
-	* Перс. хран, рента.
+	* п╜п╨п╦п©п╦я─п╬п╡п╨п╟, п╦п╫п╡п╣п╫я┌п╟я─я▄, я┤п╟я─п╪п╦я│я▀, п©п╣я─я│. я┘я─п╟п╫.я│п╪
+	* п╒я─п╣п╠я┐п╣я┌я│я▐ п╫п╟п╩п╦я┤п╦п╣ п╢п╡я┐я┘ п╦ п╠п╬п╩п╣п╣ п©я─п╣п╢п╪п╣я┌п╬п╡, п╣я│п╩п╦ я│п╣я┌п╦п╫п╟ п╦п╥ п╠п╬п╩я▄я┬п╬пЁп╬ я│п╣я┌п╟.
+	* п÷п╣я─я│. я┘я─п╟п╫, я─п╣п╫я┌п╟.
 	*/
 	bool is_norent_set(CHAR_DATA *ch, OBJ_DATA *obj, bool clan_chest)
 	{
@@ -1894,7 +1894,7 @@ namespace SetSystem
 			return false;
 		}
 
-		// экипировка
+		// я█п╨п╦п©п╦я─п╬п╡п╨п╟
 		for (int i = 0; i < NUM_WEARS; ++i)
 		{
 			if (find_set_item(GET_EQ(ch, i)))
@@ -1902,13 +1902,13 @@ namespace SetSystem
 				return false;
 			}
 		}
-		// инвентарь
+		// п╦п╫п╡п╣п╫я┌п╟я─я▄
 		if (find_set_item(ch->carrying))
 		{
 			return false;
 		}
 
-		// чармисы
+		// я┤п╟я─п╪п╦я│я▀
 		if (ch->followers)
 		{
 			for (struct follow_type *k = ch->followers; k; k = k->next)
@@ -1936,7 +1936,7 @@ namespace SetSystem
 
 		if (!clan_chest)
 		{
-			// перс. хранилище
+			// п©п╣я─я│. я┘я─п╟п╫п╦п╩п╦я┴п╣
 			if (Depot::find_set_item(ch, vnum_list))
 			{
 				return false;

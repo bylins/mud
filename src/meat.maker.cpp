@@ -25,7 +25,7 @@ MeatMapping::MeatMapping()
 MeatMapping::MeatMapping::key_type MeatMapping::random_key() const
 {
 	const auto index = number(0, static_cast<int>(m_randomly_returnable_keys.size() - 1));
-	//	sprintf(buf, "Размер мясного массива %d выпал предмет под номером %d с vnum %d", static_cast<int>(size()), index, m_index_mapping[index]);
+	//	sprintf(buf, "п═п╟п╥п╪п╣я─ п╪я▐я│п╫п╬пЁп╬ п╪п╟я│я│п╦п╡п╟ %d п╡я▀п©п╟п╩ п©я─п╣п╢п╪п╣я┌ п©п╬п╢ п╫п╬п╪п╣я─п╬п╪ %d я│ vnum %d", static_cast<int>(size()), index, m_index_mapping[index]);
 	//	mudlog(buf, NRM, LVL_IMMORT, SYSLOG, TRUE);
 	return m_randomly_returnable_keys[index];
 }

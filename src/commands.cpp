@@ -230,7 +230,7 @@ namespace commands
 			std::string suggestions_string;
 			joinList(suggestions, suggestions_string);
 			std::stringstream ss;
-			ss << "ðÏÄËÏÍÁÎÄÁ [" << wrong_subcommand << "] ÎÅ ÓÕÝÅÓÔ×ÕÅÔ. ÷ÏÚÍÏÖÎÏ, ×Ù ÉÍÅÌÉ ××ÉÄÕ ÏÄÎÕ ÉÚ ÓÌÅÄÕÀÝÉÈ: "
+			ss << "ÐŸÐ¾Ð´ÐºÐ¾Ð¼Ð°Ð½Ð´Ð° [" << wrong_subcommand << "] Ð½Ðµ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚. Ð’Ð¾Ð·Ð¼Ð¾Ð¶Ð½Ð¾, Ð²Ñ‹ Ð¸Ð¼ÐµÐ»Ð¸ Ð²Ð²Ð¸Ð´Ñƒ Ð¾Ð´Ð½Ñƒ Ð¸Ð· ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ñ…: "
 				<< suggestions_string << "?";
 
 			reply(context, ss.str());
@@ -271,7 +271,7 @@ namespace commands
 			return result;
 		}
 
-		ParentalHelp::ParentalHelp(const shared_ptr& parent) : CommandWithHelp("ðÏËÁÚÁÔØ ÓÐÒÁ×ËÕ."), m_parent(parent)
+		ParentalHelp::ParentalHelp(const shared_ptr& parent) : CommandWithHelp("ÐŸÐ¾ÐºÐ°Ð·Ð°Ñ‚ÑŒ ÑÐ¿Ñ€Ð°Ð²ÐºÑƒ."), m_parent(parent)
 		{
 		}
 

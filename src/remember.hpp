@@ -15,9 +15,9 @@ namespace Remember
 {
 
 enum { ALL, PERSONAL, CLAN, ALLY, GROUP, GOSSIP, OFFTOP, PRAY, PRAY_PERSONAL, WIZNET };
-// кол-во запоминаемых строк в каждом списке
+// п╨п╬п╩-п╡п╬ п╥п╟п©п╬п╪п╦п╫п╟п╣п╪я▀я┘ я│я┌я─п╬п╨ п╡ п╨п╟п╤п╢п╬п╪ я│п©п╦я│п╨п╣
 const unsigned int MAX_REMEMBER_NUM = 100;
-// кол-во выводимых стсрок по умолчанию
+// п╨п╬п╩-п╡п╬ п╡я▀п╡п╬п╢п╦п╪я▀я┘ я│я┌я│я─п╬п╨ п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌
 const unsigned int DEF_REMEMBER_NUM = 15;
 
 struct RememberMsg
@@ -50,11 +50,11 @@ public:
 	unsigned int get_num_str() const;
 
 private:
-	unsigned int num_str_; // кол-во выводимых строк (режим вспомнить)
-	Remember::RememberListType all_; // все запоминаемые каналы + воззвания (TODO: теллы в клетку и крики?), включая собственные
-	Remember::RememberListType personal_; // теллы
-	Remember::RememberListType pray_; // воззвания для мортала
-	Remember::RememberListType group_; // added by WorM  групптелы 2010.10.13
+	unsigned int num_str_; // п╨п╬п╩-п╡п╬ п╡я▀п╡п╬п╢п╦п╪я▀я┘ я│я┌я─п╬п╨ (я─п╣п╤п╦п╪ п╡я│п©п╬п╪п╫п╦я┌я▄)
+	Remember::RememberListType all_; // п╡я│п╣ п╥п╟п©п╬п╪п╦п╫п╟п╣п╪я▀п╣ п╨п╟п╫п╟п╩я▀ + п╡п╬п╥п╥п╡п╟п╫п╦я▐ (TODO: я┌п╣п╩п╩я▀ п╡ п╨п╩п╣я┌п╨я┐ п╦ п╨я─п╦п╨п╦?), п╡п╨п╩я▌я┤п╟я▐ я│п╬п╠я│я┌п╡п╣п╫п╫я▀п╣
+	Remember::RememberListType personal_; // я┌п╣п╩п╩я▀
+	Remember::RememberListType pray_; // п╡п╬п╥п╥п╡п╟п╫п╦я▐ п╢п╩я▐ п╪п╬я─я┌п╟п╩п╟
+	Remember::RememberListType group_; // added by WorM  пЁя─я┐п©п©я┌п╣п╩я▀ 2010.10.13
 };
 
 #endif // REMEMBER_HPP_INCLUDED

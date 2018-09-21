@@ -46,7 +46,7 @@ inline const char* OBJN(const OBJ_DATA* obj, const CHAR_DATA* vict, const size_t
 
 inline const char* OBJS(const OBJ_DATA* obj, const CHAR_DATA* vict)
 {
-	return CAN_SEE_OBJ(vict, obj) ? obj->get_short_description().c_str() : "что-то";
+	return CAN_SEE_OBJ(vict, obj) ? obj->get_short_description().c_str() : "я┤я┌п╬-я┌п╬";
 }
 
 inline bool CAN_GET_OBJ(const CHAR_DATA* ch, const OBJ_DATA* obj)

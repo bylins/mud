@@ -1,25 +1,25 @@
 <!--
-    ˜ –≈“”–≈À‘…◊≈ ◊ ‹‘œÕ ∆¡ Ã≈ ƒœÃ÷ŒŸ œ–…”Ÿ◊¡‘ÿ”— ◊”≈ –¡“¡Õ≈‘“Ÿ ”À…ÃÃœ◊.
-    ¸‘œ Õœ÷Œœ “≈¡Ã…⁄œ◊¡‘ÿ ”Ã≈ƒ’¿›…Õ œ¬“¡⁄œÕ:
-    1. ˜ Àœƒ≈ œ–“≈ƒ≈Ã—≈Õ œ¬“¡¬œ‘ﬁ…À… _Œ≈ –“…◊—⁄¡ŒŒŸ≈_ À ”À…ÃÃ’.
-    2. ˜ ”¡ÕœÕ ”À…ÃÃ≈ ’À¡⁄Ÿ◊¡≈Õ, À¡Àœ  œ¬“¡¬œ‘ﬁ…À œŒ ƒœÃ÷≈Œ ◊Ÿ⁄◊¡‘ÿ … –¡“¡Õ≈‘“Ÿ ƒÃ— œ¬“¡¬œ‘ﬁ…À¡.
-    3. ÂÃ”… –“…Õ≈Œ≈Œ…≈ ”À…ÃÃ¡ Œ¡ÀÃ¡ƒŸ◊¡≈‘ ¡∆∆≈À‘Ÿ … ∆Ã¡«… Œ¡ –≈“”œŒ¡÷¡ …Ã… √≈Ãÿ - ‘œ÷≈ œ–…”Ÿ◊¡≈Õ ﬁ≈“≈⁄ ∆¡ Ã.
-    3.2. Ûœ¬”‘◊≈ŒŒœ ◊”—À…≈ ∆Ã¡«… ¡Ã— ”‘œ–∆¡ ‘ ‘œ÷≈ Õœ÷Œœ … ƒ¡÷≈ Ãœ«…ﬁŒœ –“≈ƒ”‘¡◊…‘ÿ ◊ ◊…ƒ≈ ¡∆∆≈À‘œ◊.
-    Ù¡À ﬁ‘œ ◊ ‘≈œ“…… Œœ◊Ÿ  ”À…ÃÃ Õœ÷Œœ ƒ¡÷≈ ”ƒ≈Ã¡‘ÿ, –“œ”‘œ ƒœ–…”¡◊ ‘’‘ ”≈À√…¿.
-    ÎœŒ≈ﬁŒœ, ◊”—À…≈ "“’ﬁŒŸ≈" ”À…ÃÃŸ ‘…–¡ ◊⁄ÃœÕ¡ ◊”≈ “¡◊Œœ –“…ƒ≈‘”— Àœƒ…‘ÿ, Œœ
-    Œ¡–“…Õ≈“ œ∆∆≈Œ”…◊Ÿ ◊…ƒ¡ "’ƒ¡“…Ã Œ¡ NbM+K ’“œŒ¡ ” % €¡Œ”œÕ Œ¡Ãœ÷…‘ÿ ¡∆∆≈À‘ N"
-    ƒœ¬¡◊Ã—¿‘”— ﬁ≈“≈⁄ ∆¡ Ã Œ¡ ”ﬁ≈‘ "“¡⁄". · ≈Ã”… … ¡∆∆≈À‘Ÿ …⁄ Àœƒ¡ …⁄◊Ã≈ﬁÿ...
+    –í –ø–µ—Ä—Å–ø–µ–∫—Ç–∏–≤–µ –≤ —ç—Ç–æ–º —Ñ–∞–π–ª–µ –¥–æ–ª–∂–Ω—ã –æ–ø–∏—Å—ã–≤–∞—Ç—å—Å—è –≤—Å–µ –ø–∞—Ä–∞–º–µ—Ç—Ä—ã —Å–∫–∏–ª–ª–æ–≤.
+    –≠—Ç–æ –º–æ–∂–Ω–æ —Ä–µ–∞–ª–∏–∑–æ–≤–∞—Ç—å —Å–ª–µ–¥—É—é—â–∏–º –æ–±—Ä–∞–∑–æ–º:
+    1. –í –∫–æ–¥–µ –æ–ø—Ä–µ–¥–µ–ª—è–µ–º –æ–±—Ä–∞–±–æ—Ç—á–∏–∫–∏ _–Ω–µ –ø—Ä–∏–≤—è–∑–∞–Ω–Ω—ã–µ_ –∫ —Å–∫–∏–ª–ª—É.
+    2. –í —Å–∞–º–æ–º —Å–∫–∏–ª–ª–µ —É–∫–∞–∑—ã–≤–∞–µ–º, –∫–∞–∫–æ–π –æ–±—Ä–∞–±–æ—Ç—á–∏–∫ –æ–Ω –¥–æ–ª–∂–µ–Ω –≤—ã–∑–≤–∞—Ç—å –∏ –ø–∞—Ä–∞–º–µ—Ç—Ä—ã –¥–ª—è –æ–±—Ä–∞–±–æ—Ç—á–∏–∫–∞.
+    3. –ï–ª—Å–∏ –ø—Ä–∏–º–µ–Ω–µ–Ω–∏–µ —Å–∫–∏–ª–ª–∞ –Ω–∞–∫–ª–∞–¥—ã–≤–∞–µ—Ç –∞—Ñ—Ñ–µ–∫—Ç—ã –∏ —Ñ–ª–∞–≥–∏ –Ω–∞ –ø–µ—Ä—Å–æ–Ω–∞–∂–∞ –∏–ª–∏ —Ü–µ–ª—å - —Ç–æ–∂–µ –æ–ø–∏—Å—ã–≤–∞–µ–º —á–µ—Ä–µ–∑ —Ñ–∞–π–ª.
+    3.2. –°–æ–±—Å—Ç–≤–µ–Ω–Ω–æ –≤—Å—è–∫–∏–µ —Ñ–ª–∞–≥–∏ –∞–ª—è —Å—Ç–æ–ø—Ñ–∞–π—Ç —Ç–æ–∂–µ –º–æ–∂–Ω–æ –∏ –¥–∞–∂–µ –ª–æ–≥–∏—á–Ω–æ –ø—Ä–µ–¥—Å—Ç–∞–≤–∏—Ç—å –≤ –≤–∏–¥–µ –∞—Ñ—Ñ–µ–∫—Ç–æ–≤.
+    –¢–∞–∫ —á—Ç–æ –≤ —Ç–µ–æ—Ä–∏–∏ –Ω–æ–≤—ã–π —Å–∫–∏–ª–ª –º–æ–∂–Ω–æ –¥–∞–∂–µ —Å–¥–µ–ª–∞—Ç—å, –ø—Ä–æ—Å—Ç–æ –¥–æ–ø–∏—Å–∞–≤ —Ç—É—Ç —Å–µ–∫—Ü–∏—é.
+    –ö–æ–Ω–µ—á–Ω–æ, –≤—Å—è–∫–∏–µ "—Ä—É—á–Ω—ã–µ" —Å–∫–∏–ª–ª—ã —Ç–∏–ø–∞ –≤–∑–ª–æ–º–∞ –≤—Å–µ —Ä–∞–≤–Ω–æ –ø—Ä–∏–¥–µ—Ç—Å—è –∫–æ–¥–∏—Ç—å, –Ω–æ
+    –Ω–∞–ø—Ä–∏–º–µ—Ä –æ—Ñ—Ñ–µ–Ω—Å–∏–≤—ã –≤–∏–¥–∞ "—É–¥–∞—Ä–∏–ª –Ω–∞ NbM+K —É—Ä–æ–Ω–∞ —Å % —à–∞–Ω—Å–æ–º –Ω–∞–ª–æ–∂–∏—Ç—å –∞—Ñ—Ñ–µ–∫—Ç N"
+    –¥–æ–±–∞–≤–ª—è—é—Ç—Å—è —á–µ—Ä–µ–∑ —Ñ–∞–π–ª –Ω–∞ —Å—á–µ—Ç "—Ä–∞–∑". –ê –µ–ª—Å–∏ –∏ –∞—Ñ—Ñ–µ–∫—Ç—ã –∏–∑ –∫–æ–¥–∞ –∏–∑–≤–ª–µ—á—å...
 
-    Óœ –œÀ¡ ﬁ‘œ ”À…ÃÃŸ ’ Œ¡” ◊ Àœƒ≈ … …Õ≈¿‘ ∆…À”…“œ◊¡ŒŒŸ  ŒœÕ≈“ … ⁄ƒ≈”ÿ –“œ”‘œ
-    ’”‘¡Œ¡◊Ã…◊¡≈‘”— ”œœ‘◊≈‘”‘◊…≈ Õ≈÷ƒ’ …ƒ≈Œ‘…∆À¡‘œ“¡Õ… ”À…ÃÃœ◊ ◊ ÀœŒ∆…«¡»
-    … ŒœÕ≈“œÕ ”À…ÃÃ¡ ◊ Àœƒ≈.
+    –ù–æ –ø–æ–∫–∞ —á—Ç–æ —Å–∫–∏–ª–ª—ã —É –Ω–∞—Å –≤ –∫–æ–¥–µ –∏ –∏–º–µ—é—Ç —Ñ–∏–∫—Å–∏—Ä–æ–≤–∞–Ω–Ω—ã–π –Ω–æ–º–µ—Ä –∏ –∑–¥–µ—Å—å –ø—Ä–æ—Å—Ç–æ
+    —É—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞–µ—Ç—Å—è —Å–æ–æ—Ç–≤–µ—Ç—Å—Ç–≤–∏–µ –º–µ–∂–¥—É –∏–¥–µ–Ω—Ç–∏—Ñ–∫–∞—Ç–æ—Ä–∞–º–∏ —Å–∫–∏–ª–ª–æ–≤ –≤ –∫–æ–Ω—Ñ–∏–≥–∞—Ö
+    –∏ –Ω–æ–º–µ—Ä–æ–º —Å–∫–∏–ª–ª–∞ –≤ –∫–æ–¥–µ.
 
-    Ô–…”¡Œ…≈ ∆œ“Õ¡‘¡:
-    Ó¡ﬁ¡Ãœ ¬ÃœÀ¡ œ–…”¡Œ…— ”À…ÃÃ¡.
-    <skill id="’Œ…À¡ÃÿŒŸ  …ƒ≈Œ‘…∆…À¡‘œ“ ”À…ÃÃ¡">
-        <number val="’Œ…À¡ÃÿŒŸ  ŒœÕ≈“ ”À…ÃÃ¡" />
-        <name text="Œ¡⁄◊¡Œ…≈ ”À…ÃÃ¡ Œ¡ “’””ÀœÕ —⁄ŸÀ≈ ”œ ”‘“œﬁŒœ  ¬’À◊Ÿ" />
-        <max_perxent val="Õ¡À”…Õ¡ÃÿŒŸ  –“œ√≈Œ‘ (…”–œÃÿ⁄’≈‘”— ◊ ∆œ“Õ’Ã≈ –“œÀ¡ﬁÀ…" />
+    –û–ø–∏—Å–∞–Ω–∏–µ —Ñ–æ—Ä–º–∞—Ç–∞:
+    –ù–∞—á–∞–ª–æ –±–ª–æ–∫–∞ –æ–ø–∏—Å–∞–Ω–∏—è —Å–∫–∏–ª–ª–∞.
+    <skill id="—É–Ω–∏–∫–∞–ª—å–Ω—ã–π –∏–¥–µ–Ω—Ç–∏—Ñ–∏–∫–∞—Ç–æ—Ä —Å–∫–∏–ª–ª–∞">
+        <number val="—É–Ω–∏–∫–∞–ª—å–Ω—ã–π –Ω–æ–º–µ—Ä —Å–∫–∏–ª–ª–∞" />
+        <name text="–Ω–∞–∑–≤–∞–Ω–∏–µ —Å–∫–∏–ª–ª–∞ –Ω–∞ —Ä—É—Å—Å–∫–æ–º —è–∑—ã–∫–µ —Å–æ —Å—Ç—Ä–æ—á–Ω–æ–π –±—É–∫–≤—ã" />
+        <max_perxent val="–º–∞–∫—Å–∏–º–∞–ª—å–Ω—ã–π –ø—Ä–æ—Ü–µ–Ω—Ç (–∏—Å–ø–æ–ª—å–∑—É–µ—Ç—Å—è –≤ —Ñ–æ—Ä–º—É–ª–µ –ø—Ä–æ–∫–∞—á–∫–∏" />
     </skill>
 
 -->
@@ -27,253 +27,253 @@
 <skills>
 	<skill id="SKILL_PROTECT">
         <number val="1" />
-        <name text="–“…À“Ÿ‘ÿ" />
+        <name text="–ø—Ä–∏–∫—Ä—ã—Ç—å" />
         <max_percent val="120" />
     </skill>
 	<skill id="SKILL_TOUCH">
         <number val="2" />
-        <name text="–≈“≈»◊¡‘…‘ÿ ¡‘¡À’" />
+        <name text="–ø–µ—Ä–µ—Ö–≤–∞—Ç–∏—Ç—å –∞—Ç–∞–∫—É" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_SHIT">
 	    <number val="3" />
-        <name text="’ƒ¡“ Ã≈◊œ  “’Àœ " />
+        <name text="—É–¥–∞—Ä –ª–µ–≤–æ–π —Ä—É–∫–æ–π" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_MIGHTHIT">
 	    <number val="4" />
-        <name text="¬œ«¡‘Ÿ“”À…  ÕœÃœ‘" />
+        <name text="–±–æ–≥–∞—Ç—ã—Ä—Å–∫–∏–π –º–æ–ª–æ—Ç" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_STUPOR">
 	    <number val="5" />
-        <name text="œ«Ã’€…‘ÿ" />
+        <name text="–æ–≥–ª—É—à–∏—Ç—å" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_POISONED">
 	    <number val="6" />
-        <name text="œ‘“¡◊…‘ÿ" />
+        <name text="–æ—Ç—Ä–∞–≤–∏—Ç—å" />
         <max_percent val="200" />
     </skill>
     <skill id="SKILL_SENSE">
 	    <number val="7" />
-        <name text="Œ¡ ‘…" />
+        <name text="–Ω–∞–π—Ç–∏" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_HORSE">
 	    <number val="8" />
-        <name text="”“¡÷≈Œ…≈ ◊≈“»œÕ" />
+        <name text="—Å—Ä–∞–∂–µ–Ω–∏–µ –≤–µ—Ä—Ö–æ–º" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_HIDETRACK">
 	    <number val="9" />
-        <name text="⁄¡Õ≈”‘… ”Ã≈ƒŸ" />
+        <name text="–∑–∞–º–µ—Å—Ç–∏ —Å–ª–µ–¥—ã" />
         <max_percent val="120" />
     </skill>
-    <!-- È ›…‘œ ‹‘œ ‘’‘ ƒ≈Ã¡≈‘? ÎÃ≈◊¡— “≈¡Ã…⁄¡√…—... -->
+    <!-- –ò —â–∏—Ç–æ —ç—Ç–æ —Ç—É—Ç –¥–µ–ª–∞–µ—Ç? –ö–ª–µ–≤–∞—è —Ä–µ–∞–ª–∏–∑–∞—Ü–∏—è... -->
     <skill id="SKILL_RELIGION">
 	    <number val="10" />
-        <name text="!ÕœÃ…‘◊¡ …Ã… ÷≈“‘◊¡!" />
+        <name text="!–º–æ–ª–∏—Ç–≤–∞ –∏–ª–∏ –∂–µ—Ä—Ç–≤–∞!" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_MAKEFOOD">
 	    <number val="11" />
-        <name text="œ”◊≈÷≈◊¡‘ÿ" />
+        <name text="–æ—Å–≤–µ–∂–µ–≤–∞—Ç—å" />
         <max_percent val="120" />
     </skill>
 	<skill id="SKILL_MULTYPARRY">
 	    <number val="12" />
-        <name text="◊≈≈“Œ¡— ⁄¡›…‘¡" />
+        <name text="–≤–µ–µ—Ä–Ω–∞—è –∑–∞—â–∏—Ç–∞" />
         <max_percent val="140" />
     </skill>
 	<skill id="SKILL_TRANSFORMWEAPON">
 	    <number val="13" />
-        <name text="–≈“≈Àœ◊¡‘ÿ" />
+        <name text="–ø–µ—Ä–µ–∫–æ–≤–∞—Ç—å" />
         <max_percent val="140" />
     </skill>
-    <!-- Ù’‘ –œﬁ≈Õ’ ‘œ …ƒ≈‘ –“œ”ÀœÀ ŒœÕ≈“œ◊ -->
+    <!-- –¢—É—Ç –ø–æ—á–µ–º—É —Ç–æ –∏–¥–µ—Ç –ø—Ä–æ—Å–∫–æ–∫ –Ω–æ–º–µ—Ä–æ–≤ -->
     <skill id="SKILL_LEADERSHIP">
 	    <number val="20" />
-        <name text="Ã…ƒ≈“”‘◊œ" />
+        <name text="–ª–∏–¥–µ—Ä—Å—Ç–≤–æ" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_PUNCTUAL">
 	    <number val="21" />
-        <name text="‘œﬁŒŸ  ”‘…Ãÿ" />
+        <name text="—Ç–æ—á–Ω—ã–π —Å—Ç–∏–ª—å" />
         <max_percent val="110" />
     </skill>
 	<skill id="SKILL_AWAKE">
 	    <number val="22" />
-        <name text="œ”‘œ“œ÷ŒŸ  ”‘…Ãÿ" />
+        <name text="–æ—Å—Ç–æ—Ä–æ–∂–Ω—ã–π —Å—Ç–∏–ª—å" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_IDENTIFY">
 	    <number val="23" />
-        <name text="œ–œ⁄Œ¡Œ…≈" />
+        <name text="–æ–ø–æ–∑–Ω–∞–Ω–∏–µ" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_HEARING">
 	    <number val="24" />
-        <name text="–“…”Ã’€¡‘ÿ”—" />
+        <name text="–ø—Ä–∏—Å–ª—É—à–∞—Ç—å—Å—è" />
         <max_percent val="100" />
     </skill>
-    <!-- ÛÃ≈ƒ’¿›…≈ ‘“… ”À…ÃÃ¡ Œ¡ ƒ≈Ã≈ Œ≈ “≈¡Ã…⁄œ◊¡ŒŸ, ◊…ƒ…Õœ œ”‘¡‘À… ﬁÿ…»-‘œ –“œ÷≈À‘œ◊ -->
+    <!-- –°–ª–µ–¥—É—é—â–∏–µ —Ç—Ä–∏ —Å–∫–∏–ª–ª–∞ –Ω–∞ –¥–µ–ª–µ –Ω–µ —Ä–µ–∞–ª–∏–∑–æ–≤–∞–Ω—ã, –≤–∏–¥–∏–º–æ –æ—Å—Ç–∞—Ç–∫–∏ —á—å–∏—Ö-—Ç–æ –ø—Ä–æ–∂–µ–∫—Ç–æ–≤ -->
     <skill id="SKILL_CREATE_POTION">
 	    <number val="25" />
-        <name text="”œ⁄ƒ¡‘ÿ ⁄≈Ãÿ≈" />
+        <name text="—Å–æ–∑–¥–∞—Ç—å –∑–µ–ª—å–µ" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_CREATE_SCROLL">
 	    <number val="26" />
-        <name text="”œ⁄ƒ¡‘ÿ ”◊…‘œÀ" />
+        <name text="—Å–æ–∑–¥–∞—Ç—å —Å–≤–∏—Ç–æ–∫" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_CREATE_WAND">
 	    <number val="27" />
-        <name text="”œ⁄ƒ¡‘ÿ ◊œÃ€≈¬Œ’¿ –¡ÃœﬁÀ’" />
+        <name text="—Å–æ–∑–¥–∞—Ç—å –≤–æ–ª—à–µ–±–Ω—É—é –ø–∞–ª–æ—á–∫—É" />
         <max_percent val="100" />
     </skill>
-    <!--  ÎœŒ≈√ –“œ÷≈À‘œ◊ -->
+    <!--  –ö–æ–Ω–µ—Ü –ø—Ä–æ–∂–µ–∫—Ç–æ–≤ -->
     <skill id="SKILL_LOOK_HIDE">
 	    <number val="28" />
-        <name text="–œƒ”Õœ‘“≈‘ÿ" />
+        <name text="–ø–æ–¥—Å–º–æ—Ç—Ä–µ—Ç—å" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_ARMORED">
 	    <number val="29" />
-        <name text="’À“≈–…‘ÿ" />
+        <name text="—É–∫—Ä–µ–ø–∏—Ç—å" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_DRUNKOFF">
 	    <number val="30" />
-        <name text="œ–œ»Õ≈Ã…‘ÿ”—" />
+        <name text="–æ–ø–æ—Ö–º–µ–ª–∏—Ç—å—Å—è" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_AID">
 	    <number val="31" />
-        <name text="Ã≈ﬁ…‘ÿ" />
+        <name text="–ª–µ—á–∏—Ç—å" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_FIRE">
 	    <number val="32" />
-        <name text="“¡⁄÷≈ﬁÿ Àœ”‘≈“" />
+        <name text="—Ä–∞–∑–∂–µ—á—å –∫–æ—Å—Ç–µ—Ä" />
         <max_percent val="100" />
     </skill>
-    <!-- Ùœ÷≈ Œ≈ “≈¡Ã…⁄œ◊¡Œ, Œœ …⁄ Àœƒ¡ Œ≈ƒœ◊Ÿƒ“¡Œ -->
+    <!-- –¢–æ–∂–µ –Ω–µ —Ä–µ–∞–ª–∏–∑–æ–≤–∞–Ω, –Ω–æ –∏–∑ –∫–æ–¥–∞ –Ω–µ–¥–æ–≤—ã–¥—Ä–∞–Ω -->
 	<skill id="SKILL_CREATEBOW">
         <number val="33" />
         <name text="create bow" />
         <max_percent val="140" />
     </skill>
-    <!-- Ù’‘ ”Œœ◊¡ ⁄ƒœ“œ◊≈ŒŒŸ  –“œ”ÀœÀ –œ Œ’Õ≈“¡√…… Œ≈–œŒ—‘Œœ –œﬁ≈Õ’ -->
+    <!-- –¢—É—Ç —Å–Ω–æ–≤–∞ –∑–¥–æ—Ä–æ–≤–µ–Ω–Ω—ã–π –ø—Ä–æ—Å–∫–æ–∫ –ø–æ –Ω—É–º–µ—Ä–∞—Ü–∏–∏ –Ω–µ–ø–æ–Ω—è—Ç–Ω–æ –ø–æ—á–µ–º—É -->
     <skill id="SKILL_THROW">
 	    <number val="130" />
-        <name text="Õ≈‘Œ’‘ÿ" />
+        <name text="–º–µ—Ç–Ω—É—Ç—å" />
         <max_percent val="150" />
     </skill>
 	<skill id="SKILL_BACKSTAB">
         <number val="131" />
-        <name text="⁄¡ÀœÃœ‘ÿ" />
+        <name text="–∑–∞–∫–æ–ª–æ—Ç—å" />
         <max_percent val="140" />
     </skill>
 	<skill id="SKILL_BASH">
         <number val="132" />
-        <name text="”¬…‘ÿ" />
+        <name text="—Å–±–∏—Ç—å" />
         <max_percent val="140" />
     </skill>
 	<skill id="SKILL_HIDE">
         <number val="133" />
-        <name text="”–“—‘¡‘ÿ”—" />
+        <name text="—Å–ø—Ä—è—Ç–∞—Ç—å—Å—è" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_KICK">
         <number val="134" />
-        <name text="–Œ’‘ÿ" />
+        <name text="–ø–Ω—É—Ç—å" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_PICK_LOCK">
         <number val="135" />
-        <name text="◊⁄ÃœÕ¡‘ÿ" />
+        <name text="–≤–∑–ª–æ–º–∞—Ç—å" />
         <max_percent val="120" />
     </skill>
 	<skill id="SKILL_PUNCH">
         <number val="136" />
-        <name text="À’Ã¡ﬁŒŸ  ¬œ " />
+        <name text="–∫—É–ª–∞—á–Ω—ã–π –±–æ–π" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_RESCUE">
         <number val="137" />
-        <name text="”–¡”‘…" />
+        <name text="—Å–ø–∞—Å—Ç–∏" />
         <max_percent val="130" />
     </skill>
 	<skill id="SKILL_SNEAK">
         <number val="138" />
-        <name text="–œƒÀ“¡”‘ÿ”—" />
+        <name text="–ø–æ–¥–∫—Ä–∞—Å—Ç—å—Å—è" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_STEAL">
         <number val="139" />
-        <name text="’À“¡”‘ÿ" />
+        <name text="—É–∫—Ä–∞—Å—Ç—å" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_TRACK">
         <number val="140" />
-        <name text="◊Ÿ”Ã≈ƒ…‘ÿ" />
+        <name text="–≤—ã—Å–ª–µ–¥–∏—Ç—å" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_CLUBS">
 	    <number val="141" />
-        <name text="–¡Ã…√Ÿ … ƒ’¬…ŒŸ" />
+        <name text="–ø–∞–ª–∏—Ü—ã –∏ –¥—É–±–∏–Ω—ã" />
         <max_percent val="160" />
     </skill>
     <skill id="SKILL_AXES">
 	    <number val="142" />
-        <name text="”≈À…“Ÿ" />
+        <name text="—Å–µ–∫–∏—Ä—ã" />
         <max_percent val="160" />
     </skill>
 	<skill id="SKILL_LONGS">
 	    <number val="143" />
-        <name text="ƒÃ…ŒŒŸ≈ Ã≈⁄◊…—" />
+        <name text="–¥–ª–∏–Ω–Ω—ã–µ –ª–µ–∑–≤–∏—è" />
         <max_percent val="160" />
     </skill>
 	<skill id="SKILL_SHORTS">
 	    <number val="144" />
-        <name text="Àœ“œ‘À…≈ Ã≈⁄◊…—" />
+        <name text="–∫–æ—Ä–æ—Ç–∫–∏–µ –ª–µ–∑–≤–∏—è" />
         <max_percent val="160" />
     </skill>
     <skill id="SKILL_NONSTANDART">
 	    <number val="145" />
-        <name text="…Œœ≈ œ“’÷…≈" />
+        <name text="–∏–Ω–æ–µ –æ—Ä—É–∂–∏–µ" />
         <max_percent val="160" />
     </skill>
     <skill id="SKILL_BOTHHANDS">
 	    <number val="146" />
-        <name text="ƒ◊’“’ﬁŒ…À…" />
+        <name text="–¥–≤—É—Ä—É—á–Ω–∏–∫–∏" />
         <max_percent val="160" />
     </skill>
     <skill id="SKILL_PICK">
 	    <number val="147" />
-        <name text="–“œŒ…À¡¿›≈≈ œ“’÷…≈" />
+        <name text="–ø—Ä–æ–Ω–∏–∫–∞—é—â–µ–µ –æ—Ä—É–∂–∏–µ" />
         <max_percent val="160" />
     </skill>
     <skill id="SKILL_SPADES">
 	    <number val="148" />
-        <name text="Àœ–ÿ— … “œ«¡‘…ŒŸ" />
+        <name text="–∫–æ–ø—å—è –∏ —Ä–æ–≥–∞—Ç–∏–Ω—ã" />
         <max_percent val="160" />
     </skill>
     <skill id="SKILL_SATTACK">
 	    <number val="149" />
-        <name text="¡‘¡À¡ Ã≈◊œ  “’Àœ " />
+        <name text="–∞—Ç–∞–∫–∞ –ª–µ–≤–æ–π —Ä—É–∫–æ–π" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_DISARM">
 	    <number val="150" />
-        <name text="œ¬≈⁄œ“’÷…‘ÿ" />
+        <name text="–æ–±–µ–∑–æ—Ä—É–∂–∏—Ç—å" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_PARRY">
         <number val="151" />
-        <name text="–¡“…“œ◊¡‘ÿ" />
+        <name text="–ø–∞—Ä–∏—Ä–æ–≤–∞—Ç—å" />
         <max_percent val="120" />
     </skill>
 	<skill id="SKILL_HEAL">
@@ -288,175 +288,175 @@
     </skill>
 	<skill id="SKILL_BOWS">
 	    <number val="154" />
-        <name text="Ã’À…" />
+        <name text="–ª—É–∫–∏" />
         <max_percent val="160" />
     </skill>
     <skill id="SKILL_ADDSHOT">
 	    <number val="155" />
-        <name text="ƒœ–œÃŒ…‘≈ÃÿŒŸ  ◊Ÿ”‘“≈Ã" />
+        <name text="–¥–æ–ø–æ–ª–Ω–∏—Ç–µ–ª—å–Ω—ã–π –≤—ã—Å—Ç—Ä–µ–ª" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_CAMOUFLAGE">
 	    <number val="156" />
-        <name text="Õ¡”À…“œ◊À¡" />
+        <name text="–º–∞—Å–∫–∏—Ä–æ–≤–∫–∞" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_DEVIATE">
 	    <number val="157" />
-        <name text="’ÀÃœŒ…‘ÿ”—" />
+        <name text="—É–∫–ª–æ–Ω–∏—Ç—å—Å—è" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_BLOCK">
         <number val="158" />
-        <name text="¬ÃœÀ…“œ◊¡‘ÿ ›…‘œÕ" />
+        <name text="–±–ª–æ–∫–∏—Ä–æ–≤–∞—Ç—å —â–∏—Ç–æ–º" />
         <max_percent val="200" />
     </skill>
     <skill id="SKILL_LOOKING">
 	    <number val="159" />
-        <name text="–“…«Ã—ƒ≈‘ÿ”—" />
+        <name text="–ø—Ä–∏–≥–ª—è–¥–µ—Ç—å—Å—è" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_CHOPOFF">
 	    <number val="160" />
-        <name text="–œƒŒœ÷À¡" />
+        <name text="–ø–æ–¥–Ω–æ–∂–∫–∞" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_REPAIR">
 	    <number val="161" />
-        <name text="“≈ÕœŒ‘" />
+        <name text="—Ä–µ–º–æ–Ω—Ç" />
         <max_percent val="100" />
     </skill>
-    <!-- È ”Œœ◊¡ –“œ”ÀœÀ Œ¡ ƒ◊¡ ŒœÕ≈“¡ -->
+    <!-- –ò —Å–Ω–æ–≤–∞ –ø—Ä–æ—Å–∫–æ–∫ –Ω–∞ –¥–≤–∞ –Ω–æ–º–µ—Ä–∞ -->
     <skill id="SKILL_UPGRADE">
 	    <number val="164" />
-        <name text="⁄¡‘œﬁ…‘ÿ" />
+        <name text="–∑–∞—Ç–æ—á–∏—Ç—å" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_COURAGE">
 	    <number val="165" />
-        <name text="—“œ”‘ÿ" />
+        <name text="—è—Ä–æ—Å—Ç—å" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_MANADRAIN">
 	    <number val="166" />
-        <name text="”«Ã¡⁄…‘ÿ" />
+        <name text="—Å–≥–ª–∞–∑–∏—Ç—å" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_NOPARRYHIT">
 	    <number val="167" />
-        <name text="”À“Ÿ‘Ÿ  ’ƒ¡“" />
+        <name text="—Å–∫—Ä—ã—Ç—ã–π —É–¥–∞—Ä" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_TOWNPORTAL">
 	    <number val="168" />
-        <name text="◊“¡‘¡" />
+        <name text="–≤—Ä–∞—Ç–∞" />
         <max_percent val="100" />
     </skill>
-    <!-- Î“¡∆‘œ◊Ÿ≈ ”À…ÃÃŸ, Œœ “≈¡ÃÿŒœ …⁄ Œ…» “≈¡Ã…⁄œ◊¡Œ ‘œÃÿÀœ À“¡∆‘ Ã’Àœ◊ -->
+    <!-- –ö—Ä–∞—Ñ—Ç–æ–≤—ã–µ —Å–∫–∏–ª–ª—ã, –Ω–æ —Ä–µ–∞–ª—å–Ω–æ –∏–∑ –Ω–∏—Ö —Ä–µ–∞–ª–∏–∑–æ–≤–∞–Ω —Ç–æ–ª—å–∫–æ –∫—Ä–∞—Ñ—Ç –ª—É–∫–æ–≤ -->
     <skill id="SKILL_MAKE_STAFF">
 	    <number val="169" />
-        <name text="…⁄«œ‘œ◊…‘ÿ –œ”œ»" />
+        <name text="–∏–∑–≥–æ—Ç–æ–≤–∏—Ç—å –ø–æ—Å–æ—Ö" />
         <max_percent val="140" />
     </skill>
     <skill id="SKILL_MAKE_BOW">
 	    <number val="170" />
-        <name text="”Õ¡”‘≈“…‘ÿ Ã’À" />
+        <name text="—Å–º–∞—Å—Ç–µ—Ä–∏—Ç—å –ª—É–∫" />
         <max_percent val="140" />
     </skill>
 	<skill id="SKILL_MAKE_WEAPON">
 	    <number val="171" />
-        <name text="◊ŸÀœ◊¡‘ÿ œ“’÷…≈" />
+        <name text="–≤—ã–∫–æ–≤–∞—Ç—å –æ—Ä—É–∂–∏–µ" />
         <max_percent val="140" />
     </skill>
 	<skill id="SKILL_MAKE_ARMOR">
 	    <number val="172" />
-        <name text="◊ŸÀœ◊¡‘ÿ ƒœ”–≈»" />
+        <name text="–≤—ã–∫–æ–≤–∞—Ç—å –¥–æ—Å–ø–µ—Ö" />
         <max_percent val="140" />
     </skill>
 	<skill id="SKILL_MAKE_WEAR">
 	    <number val="173" />
-        <name text="”€…‘ÿ œƒ≈÷ƒ’" />
+        <name text="—Å—à–∏—Ç—å –æ–¥–µ–∂–¥—É" />
         <max_percent val="140" />
     </skill>
 	<skill id="SKILL_MAKE_JEWEL">
 	    <number val="174" />
-        <name text="”Õ¡”‘≈“…‘ÿ ƒ…Àœ◊…ŒÀ’" />
+        <name text="—Å–º–∞—Å—Ç–µ—Ä–∏—Ç—å –¥–∏–∫–æ–≤–∏–Ω–∫—É" />
         <max_percent val="140" />
     </skill>
     <skill id="SKILL_MAKE_POTION">
 	    <number val="175" />
-        <name text="”Õ¡”‘≈“…‘ÿ ƒ…Àœ◊…ŒÀ’" />
+        <name text="—Å–º–∞—Å—Ç–µ—Ä–∏—Ç—å –¥–∏–∫–æ–≤–∏–Ω–∫—É" />
         <max_percent val="140" />
     </skill>
-    <!-- ‰¡Ãÿ€≈ ”Œœ◊¡ “¡¬œﬁ…≈ ”À…ÃÃŸ  -->
+    <!-- –î–∞–ª—å—à–µ —Å–Ω–æ–≤–∞ —Ä–∞–±–æ—á–∏–µ —Å–∫–∏–ª–ª—ã  -->
     <skill id="SKILL_DIG">
 	    <number val="176" />
-        <name text="«œ“Œœ≈ ƒ≈Ãœ" />
+        <name text="–≥–æ—Ä–Ω–æ–µ –¥–µ–ª–æ" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_INSERTGEM">
 	    <number val="177" />
-        <name text="¿◊≈Ã…“" />
+        <name text="—é–≤–µ–ª–∏—Ä" />
         <max_percent val="100" />
     </skill>
     <skill id="SKILL_WARCRY">
 	    <number val="178" />
-        <name text="¬œ≈◊œ  ÀÃ…ﬁ" />
+        <name text="–±–æ–µ–≤–æ–π –∫–ª–∏—á" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_TURN_UNDEAD">
 	    <number val="179" />
-        <name text="…⁄«Œ¡‘ÿ Œ≈÷…‘ÿ" />
+        <name text="–∏–∑–≥–Ω–∞—Ç—å –Ω–µ–∂–∏—Ç—å" />
         <max_percent val="100" />
     </skill>
 	<skill id="SKILL_IRON_WIND">
 	    <number val="180" />
-        <name text="÷≈Ã≈⁄ŒŸ  ◊≈‘≈“" />
+        <name text="–∂–µ–ª–µ–∑–Ω—ã–π –≤–µ—Ç–µ—Ä" />
         <max_percent val="150" />
     </skill>
 	<skill id="SKILL_STRANGLE">
 	    <number val="181" />
-        <name text="’ƒ¡◊…‘ÿ" />
+        <name text="—É–¥–∞–≤–∏—Ç—å" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_AIR_MAGIC">
 	    <number val="182" />
-        <name text="Õ¡«…— ◊œ⁄ƒ’»¡" />
+        <name text="–º–∞–≥–∏—è –≤–æ–∑–¥—É—Ö–∞" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_FIRE_MAGIC">
 	    <number val="183" />
-        <name text="Õ¡«…— œ«Œ—" />
+        <name text="–º–∞–≥–∏—è –æ–≥–Ω—è" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_WATER_MAGIC">
 	    <number val="184" />
-        <name text="Õ¡«…— ◊œƒŸ" />
+        <name text="–º–∞–≥–∏—è –≤–æ–¥—ã" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_EARTH_MAGIC">
 	    <number val="185" />
-        <name text="Õ¡«…— ⁄≈ÕÃ…" />
+        <name text="–º–∞–≥–∏—è –∑–µ–º–ª–∏" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_LIGHT_MAGIC">
 	    <number val="186" />
-        <name text="Õ¡«…— ”◊≈‘¡" />
+        <name text="–º–∞–≥–∏—è —Å–≤–µ—Ç–∞" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_DARK_MAGIC">
 	    <number val="187" />
-        <name text="Õ¡«…— ‘ÿÕŸ" />
+        <name text="–º–∞–≥–∏—è —Ç—å–º—ã" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_MIND_MAGIC">
 	    <number val="188" />
-        <name text="Õ¡«…— “¡⁄’Õ¡" />
+        <name text="–º–∞–≥–∏—è —Ä–∞–∑—É–º–∞" />
         <max_percent val="200" />
     </skill>
 	<skill id="SKILL_LIFE_MAGIC">
 	    <number val="189" />
-        <name text="Õ¡«…— ÷…⁄Œ…" />
+        <name text="–º–∞–≥–∏—è –∂–∏–∑–Ω–∏" />
         <max_percent val="200" />
     </skill>
 </skills>

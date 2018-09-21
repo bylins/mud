@@ -12,17 +12,17 @@
 #include <algorithm>
 #include <sstream>
 
-const char *DEFAULT_RENT_HELP = "Попроси нашего кладовщика помочь тебе с экипировкой и припасами.";
+const char *DEFAULT_RENT_HELP = "п÷п╬п©я─п╬я│п╦ п╫п╟я┬п╣пЁп╬ п╨п╩п╟п╢п╬п╡я┴п╦п╨п╟ п©п╬п╪п╬я┤я▄ я┌п╣п╠п╣ я│ я█п╨п╦п©п╦я─п╬п╡п╨п╬п╧ п╦ п©я─п╦п©п╟я│п╟п╪п╦.";
 
 BirthPlaceListType BirthPlace::BirthPlaceList;
 
-//Создаем новую точку входа и заполняем ее поля значениями из файлда
+//п║п╬п╥п╢п╟п╣п╪ п╫п╬п╡я┐я▌ я┌п╬я┤п╨я┐ п╡я┘п╬п╢п╟ п╦ п╥п╟п©п╬п╩п╫я▐п╣п╪ п╣п╣ п©п╬п╩я▐ п╥п╫п╟я┤п╣п╫п╦я▐п╪п╦ п╦п╥ я└п╟п╧п╩п╢п╟
 void BirthPlace::LoadBirthPlace(pugi::xml_node BirthPlaceNode)
 {
 	pugi::xml_node CurNode;
 	BirthPlacePtr TmpBirthPlace(new BirthPlace);
 
-	//Парсим параметры точки создания
+	//п÷п╟я─я│п╦п╪ п©п╟я─п╟п╪п╣я┌я─я▀ я┌п╬я┤п╨п╦ я│п╬п╥п╢п╟п╫п╦я▐
     TmpBirthPlace->_Id = BirthPlaceNode.attribute("id").as_int();
 	TmpBirthPlace->_Name = BirthPlaceNode.child("name").child_value();
     TmpBirthPlace->_Description = BirthPlaceNode.child("shortdesc").child_value();
@@ -31,17 +31,17 @@ void BirthPlace::LoadBirthPlace(pugi::xml_node BirthPlaceNode)
     TmpBirthPlace->_LoadRoom = CurNode.attribute("vnum").as_int();
     TmpBirthPlace->_RentHelp = BirthPlaceNode.child("renthelp").child_value();
 
-	//Парсим список предметов
+	//п÷п╟я─я│п╦п╪ я│п©п╦я│п╬п╨ п©я─п╣п╢п╪п╣я┌п╬п╡
 	CurNode = BirthPlaceNode.child("items");
 	for (CurNode = CurNode.child("item"); CurNode; CurNode = CurNode.next_sibling("item"))
 	{
 		TmpBirthPlace->_ItemsList.push_back(CurNode.attribute("vnum").as_int());
 	}
-	//Добавляем новую точку в список
+	//п■п╬п╠п╟п╡п╩я▐п╣п╪ п╫п╬п╡я┐я▌ я┌п╬я┤п╨я┐ п╡ я│п©п╦я│п╬п╨
 	BirthPlace::BirthPlaceList.push_back(TmpBirthPlace);
 }
 
-//Загрузка параметров точек создания персонажей
+//п≈п╟пЁя─я┐п╥п╨п╟ п©п╟я─п╟п╪п╣я┌я─п╬п╡ я┌п╬я┤п╣п╨ я│п╬п╥п╢п╟п╫п╦я▐ п©п╣я─я│п╬п╫п╟п╤п╣п╧
 void BirthPlace::Load(pugi::xml_node XMLBirthPlaceList)
 {
     pugi::xml_node CurNode;
@@ -52,10 +52,10 @@ void BirthPlace::Load(pugi::xml_node XMLBirthPlaceList)
 	}
 }
 
-// Надо было map использовать. %) Поздно сообразил
-// Если руки дойдут - потом переделаю.
+// п²п╟п╢п╬ п╠я▀п╩п╬ map п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄. %) п÷п╬п╥п╢п╫п╬ я│п╬п╬п╠я─п╟п╥п╦п╩
+// п∙я│п╩п╦ я─я┐п╨п╦ п╢п╬п╧п╢я┐я┌ - п©п╬я┌п╬п╪ п©п╣я─п╣п╢п╣п╩п╟я▌.
 
-// Получение ссылки на точку входа по ее ID
+// п÷п╬п╩я┐я┤п╣п╫п╦п╣ я│я│я▀п╩п╨п╦ п╫п╟ я┌п╬я┤п╨я┐ п╡я┘п╬п╢п╟ п©п╬ п╣п╣ ID
 BirthPlacePtr BirthPlace::GetBirthPlaceById(short Id)
 {
     BirthPlacePtr BPPtr;
@@ -66,7 +66,7 @@ BirthPlacePtr BirthPlace::GetBirthPlaceById(short Id)
     return BPPtr;
 };
 
-// Получение внума комнаты по ID точки входа
+// п÷п╬п╩я┐я┤п╣п╫п╦п╣ п╡п╫я┐п╪п╟ п╨п╬п╪п╫п╟я┌я▀ п©п╬ ID я┌п╬я┤п╨п╦ п╡я┘п╬п╢п╟
 int BirthPlace::GetLoadRoom(short Id)
 {
     BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
@@ -76,7 +76,7 @@ int BirthPlace::GetLoadRoom(short Id)
     return DEFAULT_LOADROOM;
 };
 
-// Получение списка предметов, которые выдаются в этой точке при первом входе в игру
+// п÷п╬п╩я┐я┤п╣п╫п╦п╣ я│п©п╦я│п╨п╟ п©я─п╣п╢п╪п╣я┌п╬п╡, п╨п╬я┌п╬я─я▀п╣ п╡я▀п╢п╟я▌я┌я│я▐ п╡ я█я┌п╬п╧ я┌п╬я┤п╨п╣ п©я─п╦ п©п╣я─п╡п╬п╪ п╡я┘п╬п╢п╣ п╡ п╦пЁя─я┐
 std::vector<int> BirthPlace::GetItemList(short Id)
 {
     std::vector<int> BirthPlaceItemList;
@@ -87,7 +87,7 @@ std::vector<int> BirthPlace::GetItemList(short Id)
     return BirthPlaceItemList;
 };
 
-// Получение строчки меню для точки входа по ID
+// п÷п╬п╩я┐я┤п╣п╫п╦п╣ я│я┌я─п╬я┤п╨п╦ п╪п╣п╫я▌ п╢п╩я▐ я┌п╬я┤п╨п╦ п╡я┘п╬п╢п╟ п©п╬ ID
 std::string BirthPlace::GetMenuStr(short Id)
 {
     BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);
@@ -97,7 +97,7 @@ std::string BirthPlace::GetMenuStr(short Id)
     return BIRTH_PLACE_NAME_UNDEFINED;
 };
 
-// Генерация меню по списку точек входа
+// п⌠п╣п╫п╣я─п╟я├п╦я▐ п╪п╣п╫я▌ п©п╬ я│п©п╦я│п╨я┐ я┌п╬я┤п╣п╨ п╡я┘п╬п╢п╟
 std::string BirthPlace::ShowMenu(std::vector<int> BPList)
 {
     int i;
@@ -117,8 +117,8 @@ std::string BirthPlace::ShowMenu(std::vector<int> BPList)
      return buffer.str();
 };
 
-// Сравнение текстового ввода с описанием точек
-// Добавлено, чтоб не травмировать нежную психику мортящихся
+// п║я─п╟п╡п╫п╣п╫п╦п╣ я┌п╣п╨я│я┌п╬п╡п╬пЁп╬ п╡п╡п╬п╢п╟ я│ п╬п©п╦я│п╟п╫п╦п╣п╪ я┌п╬я┤п╣п╨
+// п■п╬п╠п╟п╡п╩п╣п╫п╬, я┤я┌п╬п╠ п╫п╣ я┌я─п╟п╡п╪п╦я─п╬п╡п╟я┌я▄ п╫п╣п╤п╫я┐я▌ п©я│п╦я┘п╦п╨я┐ п╪п╬я─я┌я▐я┴п╦я┘я│я▐
 short BirthPlace::ParseSelect(char *arg)
 {
     std::string select = arg;
@@ -131,7 +131,7 @@ short BirthPlace::ParseSelect(char *arg)
     return BIRTH_PLACE_UNDEFINED;
 };
 
-// Проверка наличия точки входа с указанным ID
+// п÷я─п╬п╡п╣я─п╨п╟ п╫п╟п╩п╦я┤п╦я▐ я┌п╬я┤п╨п╦ п╡я┘п╬п╢п╟ я│ я┐п╨п╟п╥п╟п╫п╫я▀п╪ ID
 bool BirthPlace::CheckId(short Id)
 {
     BirthPlacePtr BPPtr = BirthPlace::GetBirthPlaceById(Id);

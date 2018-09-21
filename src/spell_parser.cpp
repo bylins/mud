@@ -54,7 +54,7 @@ char cast_argument[MAX_STRING_LENGTH];
 
 #define SpINFO spell_info[spellnum]
 #define SkINFO skill_info[skillnum]
-// Во сколько раз манакост манакастеров меньше манакоста НЕманакастеров
+// п▓п╬ я│п╨п╬п╩я▄п╨п╬ я─п╟п╥ п╪п╟п╫п╟п╨п╬я│я┌ п╪п╟п╫п╟п╨п╟я│я┌п╣я─п╬п╡ п╪п╣п╫я▄я┬п╣ п╪п╟п╫п╟п╨п╬я│я┌п╟ п²п∙п╪п╟п╫п╟п╨п╟я│я┌п╣я─п╬п╡
 #define DRUID_MANA_COST_MODIFIER 0.5
 
 extern int what_sky;
@@ -1535,7 +1535,7 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 inline int spell_create_level(const CHAR_DATA* ch, int spellnum)
 {
 	int required_level = spell_create[spellnum].runes.min_caster_level;
-	// дабы у простых игроков не отображлись иммовские заклы
+	// п╢п╟п╠я▀ я┐ п©я─п╬я│я┌я▀я┘ п╦пЁя─п╬п╨п╬п╡ п╫п╣ п╬я┌п╬п╠я─п╟п╤п╩п╦я│я▄ п╦п╪п╪п╬п╡я│п╨п╦п╣ п╥п╟п╨п╩я▀
 	if (required_level >= LVL_GOD)
 	    return required_level;
 	if (can_use_feat(ch, RUNE_ULTIMATE_FEAT))
@@ -1549,10 +1549,10 @@ inline int spell_create_level(const CHAR_DATA* ch, int spellnum)
 	return required_level;
 }
 
-//	Коэффициент изменения мема относительно скилла магии.
+//	п п╬я█я└я└п╦я├п╦п╣п╫я┌ п╦п╥п╪п╣п╫п╣п╫п╦я▐ п╪п╣п╪п╟ п╬я┌п╫п╬я│п╦я┌п╣п╩я▄п╫п╬ я│п╨п╦п╩п╩п╟ п╪п╟пЁп╦п╦.
 int koef_skill_magic(int percent_skill)
 {
-//	Выделяем процент на который меняется мем
+//	п▓я▀п╢п╣п╩я▐п╣п╪ п©я─п╬я├п╣п╫я┌ п╫п╟ п╨п╬я┌п╬я─я▀п╧ п╪п╣п╫я▐п╣я┌я│я▐ п╪п╣п╪
 	return ((800 - percent_skill) / 8);
 
 //	return 0;
@@ -1567,7 +1567,7 @@ int mag_manacost(const CHAR_DATA* ch, int spellnum)
 		return 1;
 	}
 
-//	Мем рунных профессий(на сегодня только волхвы)
+//	п°п╣п╪ я─я┐п╫п╫я▀я┘ п©я─п╬я└п╣я│я│п╦п╧(п╫п╟ я│п╣пЁп╬п╢п╫я▐ я┌п╬п╩я▄п╨п╬ п╡п╬п╩я┘п╡я▀)
 	if (IS_MANA_CASTER(ch) && GET_LEVEL(ch) >= spell_create_level(ch, spellnum))
 	{
 		const auto result = static_cast<int>(DRUID_MANA_COST_MODIFIER
@@ -1580,11 +1580,11 @@ int mag_manacost(const CHAR_DATA* ch, int spellnum)
 						- spell_create[spellnum].runes.min_caster_level)),
 				SpINFO.mana_min));
 
-		//Зависимости в таблице несколько корявые, поэтому изменение пустим в обратную сторону
+		//п≈п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╡ я┌п╟п╠п╩п╦я├п╣ п╫п╣я│п╨п╬п╩я▄п╨п╬ п╨п╬я─я▐п╡я▀п╣, п©п╬я█я┌п╬п╪я┐ п╦п╥п╪п╣п╫п╣п╫п╦п╣ п©я┐я│я┌п╦п╪ п╡ п╬п╠я─п╟я┌п╫я┐я▌ я│я┌п╬я─п╬п╫я┐
 		return result;
 	};
 
-//	Мем всех остальных
+//	п°п╣п╪ п╡я│п╣я┘ п╬я│я┌п╟п╩я▄п╫я▀я┘
 	if (!IS_MANA_CASTER(ch)
 		&& GET_LEVEL(ch) >= MIN_CAST_LEV(SpINFO, ch)
 		&& GET_REMORT(ch) >= MIN_CAST_REM(SpINFO, ch))
@@ -1603,14 +1603,14 @@ int mag_manacost(const CHAR_DATA* ch, int spellnum)
 			mana_cost = mana_cost * 100 / (100 - MIN(99, abs(SpINFO.class_change[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])));
 		}
 
-//		Меняем мем на коэффициент скилла магии
+//		п°п╣п╫я▐п╣п╪ п╪п╣п╪ п╫п╟ п╨п╬я█я└я└п╦я├п╦п╣п╫я┌ я│п╨п╦п╩п╩п╟ п╪п╟пЁп╦п╦
 		if ((GET_CLASS(ch) == CLASS_DRUID)
 			|| (GET_CLASS(ch) == CLASS_PALADINE)
 			|| (GET_CLASS(ch) == CLASS_MERCHANT))
 		{
 			return mana_cost;
 		}
-		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
+		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // п©я─п╦ я│п╨п╦п╩п╩п╣ 200 + 25%
 	};
 
 	return 9999;
@@ -1623,39 +1623,39 @@ void spell_prefix(int spellnum, const char** /*say_to_self*/, const char **say_t
 	switch (spellnum)
 	{
 	case SPELL_WC_OF_CHALLENGE:
-		*say_to_other = "$n гнусным голосом заорал$g : '%s'.";
-		*damagee_vict = "$n гнусным голосом заорал$g : '%s'.";
+		*say_to_other = "$n пЁп╫я┐я│п╫я▀п╪ пЁп╬п╩п╬я│п╬п╪ п╥п╟п╬я─п╟п╩$g : '%s'.";
+		*damagee_vict = "$n пЁп╫я┐я│п╫я▀п╪ пЁп╬п╩п╬я│п╬п╪ п╥п╟п╬я─п╟п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_MENACE:
-		*say_to_other = "$n оскалил$u и взревел$g : '%s'.";
-		*damagee_vict = "$n оскалил$u и взревел$g : '%s'.";
+		*say_to_other = "$n п╬я│п╨п╟п╩п╦п╩$u п╦ п╡п╥я─п╣п╡п╣п╩$g : '%s'.";
+		*damagee_vict = "$n п╬я│п╨п╟п╩п╦п╩$u п╦ п╡п╥я─п╣п╡п╣п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_RAGE:
-		*say_to_other = "$n ударил$g себя в грудь и неистово завопил$g : '%s'.";
-		*damagee_vict = "$n ударил$g себя в грудь и неистово завопил$g : '%s'.";
+		*say_to_other = "$n я┐п╢п╟я─п╦п╩$g я│п╣п╠я▐ п╡ пЁя─я┐п╢я▄ п╦ п╫п╣п╦я│я┌п╬п╡п╬ п╥п╟п╡п╬п©п╦п╩$g : '%s'.";
+		*damagee_vict = "$n я┐п╢п╟я─п╦п╩$g я│п╣п╠я▐ п╡ пЁя─я┐п╢я▄ п╦ п╫п╣п╦я│я┌п╬п╡п╬ п╥п╟п╡п╬п©п╦п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_MADNESS:
-		*say_to_other = "$n устрашающе зыркнул$g и зарычал$g : '%s'.";
-		*damagee_vict = "$n устрашающе зыркнул$g и зарычал$g : '%s'.";
+		*say_to_other = "$n я┐я│я┌я─п╟я┬п╟я▌я┴п╣ п╥я▀я─п╨п╫я┐п╩$g п╦ п╥п╟я─я▀я┤п╟п╩$g : '%s'.";
+		*damagee_vict = "$n я┐я│я┌я─п╟я┬п╟я▌я┴п╣ п╥я▀я─п╨п╫я┐п╩$g п╦ п╥п╟я─я▀я┤п╟п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_THUNDER:
-		*say_to_other = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
-		*damagee_vict = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
+		*say_to_other = "$n п╡п╬п╥п╢п╣п╩$g я─я┐п╨п╦ п╨ п╫п╣п╠я┐ п╦ п╬пЁп╩я┐я┬п╟я▌я┴п╣ п╥п╟я─п╣п╡п╣п╩$g : '%s'.";
+		*damagee_vict = "$n п╡п╬п╥п╢п╣п╩$g я─я┐п╨п╦ п╨ п╫п╣п╠я┐ п╦ п╬пЁп╩я┐я┬п╟я▌я┴п╣ п╥п╟я─п╣п╡п╣п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_DEFENSE:
-		*say_to_something = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
+		*say_to_something = "$n п©п╬п╢п╫я▐п╩$g п╬я─я┐п╤п╦п╣ п╡п╡п╣я─я┘ п╫п╟п╢ пЁп╬п╩п╬п╡п╬п╧ п╦ п╨п╬п╪п╟п╫п╢п╫я▀п╪ пЁп╬п╩п╬я│п╬п╪ я│п╬п╬п╠я┴п╦п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_BATTLE:
-		*say_to_something = "$n смело выкрикнул$g : '%s'.";
+		*say_to_something = "$n я│п╪п╣п╩п╬ п╡я▀п╨я─п╦п╨п╫я┐п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_POWER:
-		*say_to_something = "$n богатырским гласом загремел$g : '%s'.";
+		*say_to_something = "$n п╠п╬пЁп╟я┌я▀я─я│п╨п╦п╪ пЁп╩п╟я│п╬п╪ п╥п╟пЁя─п╣п╪п╣п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_BLESS:
-		*say_to_something = "$n рявкнул$g : '%s'.";
+		*say_to_something = "$n я─я▐п╡п╨п╫я┐п╩$g : '%s'.";
 		break;
 	case SPELL_WC_OF_COURAGE:
-		*say_to_something = "$n надсаживаясь заорал$g : '%s'.";
+		*say_to_something = "$n п╫п╟п╢я│п╟п╤п╦п╡п╟я▐я│я▄ п╥п╟п╬я─п╟п╩$g : '%s'.";
 		break;
 	}
 }
@@ -1683,46 +1683,46 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
             religion = number(RELIGION_POLY, RELIGION_MONO);
             if (*cast_phrase[spellnum][religion] != '\n')
                 strcpy(buf, cast_phrase[spellnum][religion]);
-            say_to_self = "$n пробормотал$g : '%s'.";
-            say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
-            say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
-            say_to_something = "$n произнес$q : '%s'.";
-            damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
-            helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
+            say_to_self = "$n п©я─п╬п╠п╬я─п╪п╬я┌п╟п╩$g : '%s'.";
+            say_to_other = "$n п╡п╥пЁп╩я▐п╫я┐п╩$g п╫п╟ $N3 п╦ п╠я─п╬я│п╦п╩$g : '%s'.";
+            say_to_obj_vis = "$n пЁп╩я▐п╫я┐п╩$g п╫п╟ $o3 п╦ п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
+            say_to_something = "$n п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
+            damagee_vict = "$n п╥я▀я─п╨п╫я┐п╩$g п╫п╟ п╡п╟я│ п╦ п©я─п╬я─п╣п╡п╣п╩$g : '%s'.";
+            helpee_vict = "$n я┐п╩я▀п╠п╫я┐п╩$u п╡п╟п╪ п╦ п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
             spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
             break;
 
         default:
-            say_to_self = "$n издал$g непонятный звук.";
-            say_to_other = "$n издал$g непонятный звук.";
-            say_to_obj_vis = "$n издал$g непонятный звук.";
-            say_to_something = "$n издал$g непонятный звук.";
-            damagee_vict = "$n издал$g непонятный звук.";
-            helpee_vict = "$n издал$g непонятный звук.";
+            say_to_self = "$n п╦п╥п╢п╟п╩$g п╫п╣п©п╬п╫я▐я┌п╫я▀п╧ п╥п╡я┐п╨.";
+            say_to_other = "$n п╦п╥п╢п╟п╩$g п╫п╣п©п╬п╫я▐я┌п╫я▀п╧ п╥п╡я┐п╨.";
+            say_to_obj_vis = "$n п╦п╥п╢п╟п╩$g п╫п╣п©п╬п╫я▐я┌п╫я▀п╧ п╥п╡я┐п╨.";
+            say_to_something = "$n п╦п╥п╢п╟п╩$g п╫п╣п©п╬п╫я▐я┌п╫я▀п╧ п╥п╡я┐п╨.";
+            damagee_vict = "$n п╦п╥п╢п╟п╩$g п╫п╣п©п╬п╫я▐я┌п╫я▀п╧ п╥п╡я┐п╨.";
+            helpee_vict = "$n п╦п╥п╢п╟п╩$g п╫п╣п©п╬п╫я▐я┌п╫я▀п╧ п╥п╡я┐п╨.";
 
-            // say_to_self      = "$n рявкнул$g : '%s'.";
-            // say_to_other     = "$n взглянул$g на $N3 и глухо просипел$q : '%s'.";
-            // say_to_obj_vis   = "$n посмотрел$g на $o3 и произнес$q : '%s'.";
-            // say_to_something = "$n молвил$g : '%s'.";
-            // damagee_vict     = "$n злобно рыкнул$g на вас : '%s'.";
-            // helpee_vict      = "$n тихо пробормотал$g вам : '%s'.";
+            // say_to_self      = "$n я─я▐п╡п╨п╫я┐п╩$g : '%s'.";
+            // say_to_other     = "$n п╡п╥пЁп╩я▐п╫я┐п╩$g п╫п╟ $N3 п╦ пЁп╩я┐я┘п╬ п©я─п╬я│п╦п©п╣п╩$q : '%s'.";
+            // say_to_obj_vis   = "$n п©п╬я│п╪п╬я┌я─п╣п╩$g п╫п╟ $o3 п╦ п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
+            // say_to_something = "$n п╪п╬п╩п╡п╦п╩$g : '%s'.";
+            // damagee_vict     = "$n п╥п╩п╬п╠п╫п╬ я─я▀п╨п╫я┐п╩$g п╫п╟ п╡п╟я│ : '%s'.";
+            // helpee_vict      = "$n я┌п╦я┘п╬ п©я─п╬п╠п╬я─п╪п╬я┌п╟п╩$g п╡п╟п╪ : '%s'.";
 	}
     }
     else {
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
-		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
-		say_to_other = "$n взглянул$g на $N3 и произнес$q : '%s'.";
-		say_to_obj_vis = "$n посмотрел$g на $o3 и произнес$q : '%s'.";
-		say_to_something = "$n произнес$q : '%s'.";
-		damagee_vict = "$n зыркнул$g на вас и произнес$q : '%s'.";
-		helpee_vict = "$n подмигнул$g вам и произнес$q : '%s'.";
+		say_to_self = "$n п©я─п╦п╨я─я▀п╩$g пЁп╩п╟п╥п╟ п╦ п©я─п╬я┬п╣п©я┌п╟п╩$g : '%s'.";
+		say_to_other = "$n п╡п╥пЁп╩я▐п╫я┐п╩$g п╫п╟ $N3 п╦ п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
+		say_to_obj_vis = "$n п©п╬я│п╪п╬я┌я─п╣п╩$g п╫п╟ $o3 п╦ п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
+		say_to_something = "$n п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
+		damagee_vict = "$n п╥я▀я─п╨п╫я┐п╩$g п╫п╟ п╡п╟я│ п╦ п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
+		helpee_vict = "$n п©п╬п╢п╪п╦пЁп╫я┐п╩$g п╡п╟п╪ п╦ п©я─п╬п╦п╥п╫п╣я│$q : '%s'.";
 		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
     }
 
 	if (!*buf)
 	{
-            // не понимаю
+            // п╫п╣ п©п╬п╫п╦п╪п╟я▌
             /*
             size_t ofs = 0;
 		while (lbuf[ofs])
@@ -1737,7 +1737,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 					break;
 				}
 			}
-                    //походу это условие должно быть здесь. в противном случае цикл вечный
+                    //п©п╬я┘п╬п╢я┐ я█я┌п╬ я┐я│п╩п╬п╡п╦п╣ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╢п╣я│я▄. п╡ п©я─п╬я┌п╦п╡п╫п╬п╪ я│п╩я┐я┤п╟п╣ я├п╦п╨п╩ п╡п╣я┤п╫я▀п╧
                     // i.e., we didn't find a match in syls[]
                     if (!*syls[j].org)
                     {
@@ -1976,7 +1976,7 @@ int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA* /*victim*/, int spellnum)
 }
 
 
-// может-ли кастер зачитать заклинание?
+// п╪п╬п╤п╣я┌-п╩п╦ п╨п╟я│я┌п╣я─ п╥п╟я┤п╦я┌п╟я┌я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣?
 int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 {
 	int ignore;
@@ -1992,18 +1992,18 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		return FALSE;
 	}
 
-	// не в мирке можно кастовать все что угодно
+	// п╫п╣ п╡ п╪п╦я─п╨п╣ п╪п╬п╤п╫п╬ п╨п╟я│я┌п╬п╡п╟я┌я▄ п╡я│п╣ я┤я┌п╬ я┐пЁп╬п╢п╫п╬
 	if (!ROOM_FLAGGED(IN_ROOM(caster), ROOM_PEACEFUL))
 	{
 		return TRUE;
 	}
 
-	// Проверяю, что закл имеет одну из допустимых комбинаций параметров
+	// п÷я─п╬п╡п╣я─я▐я▌, я┤я┌п╬ п╥п╟п╨п╩ п╦п╪п╣п╣я┌ п╬п╢п╫я┐ п╦п╥ п╢п╬п©я┐я│я┌п╦п╪я▀я┘ п╨п╬п╪п╠п╦п╫п╟я├п╦п╧ п©п╟я─п╟п╪п╣я┌я─п╬п╡
 	ignore = IS_SET(SpINFO.targets, TAR_IGNORE)
 		|| IS_SET(SpINFO.routines, MAG_MASSES)
 		|| IS_SET(SpINFO.routines, MAG_GROUPS);
 
-	// цели нет
+	// я├п╣п╩п╦ п╫п╣я┌
 	if (!ignore && !victim)
 	{
 		return TRUE;
@@ -2013,34 +2013,34 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 	{
 		if (SpINFO.violent)
 		{
-			return FALSE;	// нельзя злые кастовать
+			return FALSE;	// п╫п╣п╩я▄п╥я▐ п╥п╩я▀п╣ п╨п╟я│я┌п╬п╡п╟я┌я▄
 		}
-		// если игнорируется цель, то должен быть GROUP или MASS
-		// в противном случае на цель кастовать нельзя
+		// п╣я│п╩п╦ п╦пЁп╫п╬я─п╦я─я┐п╣я┌я│я▐ я├п╣п╩я▄, я┌п╬ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ GROUP п╦п╩п╦ MASS
+		// п╡ п©я─п╬я┌п╦п╡п╫п╬п╪ я│п╩я┐я┤п╟п╣ п╫п╟ я├п╣п╩я▄ п╨п╟я│я┌п╬п╡п╟я┌я▄ п╫п╣п╩я▄п╥я▐
 		return victim == 0 ? TRUE : FALSE;
 	}
-	// остальные комбинации не проверяю
+	// п╬я│я┌п╟п╩я▄п╫я▀п╣ п╨п╬п╪п╠п╦п╫п╟я├п╦п╦ п╫п╣ п©я─п╬п╡п╣я─я▐я▌
 
-	// индивидуальная цель
+	// п╦п╫п╢п╦п╡п╦п╢я┐п╟п╩я▄п╫п╟я▐ я├п╣п╩я▄
 	ignore = victim
 		&& (IS_SET(SpINFO.targets, TAR_CHAR_ROOM)
 			|| IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
 		&& !IS_SET(SpINFO.routines, MAG_AREAS);
 
-	// начинаю проверять условия каста
-	// Для добрых заклинаний - проверка на противника цели
-	// Для злых заклинаний - проверка на цель
+	// п╫п╟я┤п╦п╫п╟я▌ п©я─п╬п╡п╣я─я▐я┌я▄ я┐я│п╩п╬п╡п╦я▐ п╨п╟я│я┌п╟
+	// п■п╩я▐ п╢п╬п╠я─я▀я┘ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ - п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п©я─п╬я┌п╦п╡п╫п╦п╨п╟ я├п╣п╩п╦
+	// п■п╩я▐ п╥п╩я▀я┘ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ - п©я─п╬п╡п╣я─п╨п╟ п╫п╟ я├п╣п╩я▄
 	for (const auto ch_vict : world[caster->in_room]->people)
 	{
 		if (IS_IMMORTAL(ch_vict))
-			continue;	// имморталы на этот процесс не влияют
+			continue;	// п╦п╪п╪п╬я─я┌п╟п╩я▀ п╫п╟ я█я┌п╬я┌ п©я─п╬я├п╣я│я│ п╫п╣ п╡п╩п╦я▐я▌я┌
 		if (!HERE(ch_vict))
-			continue;	// лд не участвуют
+			continue;	// п╩п╢ п╫п╣ я┐я┤п╟я│я┌п╡я┐я▌я┌
 		if (SpINFO.violent && same_group(caster, ch_vict))
-			continue;	// на согрупника кастовться не будет
+			continue;	// п╫п╟ я│п╬пЁя─я┐п©п╫п╦п╨п╟ п╨п╟я│я┌п╬п╡я┌я▄я│я▐ п╫п╣ п╠я┐п╢п╣я┌
 		if (ignore && ch_vict != victim)
-			continue;	// только по 1 чару, и не текущему
-		// ch_vict может стать потунциальной жертвой
+			continue;	// я┌п╬п╩я▄п╨п╬ п©п╬ 1 я┤п╟я─я┐, п╦ п╫п╣ я┌п╣п╨я┐я┴п╣п╪я┐
+		// ch_vict п╪п╬п╤п╣я┌ я│я┌п╟я┌я▄ п©п╬я┌я┐п╫я├п╦п╟п╩я▄п╫п╬п╧ п╤п╣я─я┌п╡п╬п╧
 		if (SpINFO.violent)
 		{
 			if (!may_kill_here(caster, ch_vict))
@@ -2057,9 +2057,9 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		}
 	}
 
-	// check_pkill вызвать не могу, т.к. имя жертвы безвозвратно утеряно
+	// check_pkill п╡я▀п╥п╡п╟я┌я▄ п╫п╣ п╪п╬пЁя┐, я┌.п╨. п╦п╪я▐ п╤п╣я─я┌п╡я▀ п╠п╣п╥п╡п╬п╥п╡я─п╟я┌п╫п╬ я┐я┌п╣я─я▐п╫п╬
 
-	// Ура! Можно
+	// пёя─п╟! п°п╬п╤п╫п╬
 	return (TRUE);
 }
 
@@ -2076,10 +2076,10 @@ int check_mobile_list(CHAR_DATA * ch)
 	return (FALSE);
 }
 
-// Реакция на каст
+// п═п╣п╟п╨я├п╦я▐ п╫п╟ п╨п╟я│я┌
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 {
-	// Если оказались под своим заклом то не реагируем на него.
+	// п∙я│п╩п╦ п╬п╨п╟п╥п╟п╩п╦я│я▄ п©п╬п╢ я│п╡п╬п╦п╪ п╥п╟п╨п╩п╬п╪ я┌п╬ п╫п╣ я─п╣п╟пЁп╦я─я┐п╣п╪ п╫п╟ п╫п╣пЁп╬.
 	if (caster == victim)
 		return;
 
@@ -2147,12 +2147,12 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		cast_mtrigger(cvict, caster, spellnum);
 	}
 
-	// Определяю возможность чтения заклинания
+	// п·п©я─п╣п╢п╣п╩я▐я▌ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄ я┤я┌п╣п╫п╦я▐ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐
 	//******************************************
 	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !may_cast_in_nomagic(caster, cvict, spellnum))
 	{
-		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
-		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("п▓п╟я┬п╟ п╪п╟пЁп╦я▐ п©п╬я┌п╣я─п©п╣п╩п╟ п╫п╣я┐п╢п╟я┤я┐ п╦ я─п╟п╥п╡п╣я▐п╩п╟я│я▄ п©п╬ п╡п╬п╥п╢я┐я┘я┐.\r\n", caster);
+		act("п°п╟пЁп╦я▐ $n1 п©п╬я┌п╣я─п©п╣п╩п╟ п╫п╣я┐п╢п╟я┤я┐ п╦ я─п╟п╥п╡п╣я▐п╩п╟я│я▄ п©п╬ п╡п╬п╥п╢я┐я┘я┐.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return 0;
 	}
 
@@ -2160,13 +2160,13 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	{
 		if (IS_SET(SpINFO.routines, MAG_WARCRY))
 		{
-			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
-			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("п▓п╟я┬ пЁя─п╬п╪п╬п╡п╬п╧ пЁп╩п╟я│ я│п╬я┌я─я▐я│ п╡п╬п╥п╢я┐я┘, п╫п╬ п╫п╦я┤п╣пЁп╬ п╫п╣ п©я─п╬п╦п╥п╬я┬п╩п╬!\r\n", caster);
+			act("п▓я▀ п╡п╥п╢я─п╬пЁп╫я┐п╩п╦ п╬я┌ п╫п╣п╬п╤п╦п╢п╟п╫п╫п╬пЁп╬ п╨я─п╦п╨п╟, п╫п╬ п╫п╦я┤п╣пЁп╬ п╫п╣ п©я─п╬п╦п╥п╬я┬п╩п╬.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
-			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
-			act("Яркая вспышка на миг осветила комнату, и тут же погасла.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("п▓п╟я┬п╟ п╪п╟пЁп╦я▐ п╬п╠я─п╟я┌п╦п╩п╟я│я▄ п╡я│п╣пЁп╬ п╩п╦я┬я▄ п╡ я▐я─п╨я┐я▌ п╡я│п©я▀я┬п╨я┐!\r\n", caster);
+			act("п╞я─п╨п╟я▐ п╡я│п©я▀я┬п╨п╟ п╫п╟ п╪п╦пЁ п╬я│п╡п╣я┌п╦п╩п╟ п╨п╬п╪п╫п╟я┌я┐, п╦ я┌я┐я┌ п╤п╣ п©п╬пЁп╟я│п╩п╟.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		return 0;
 	}
@@ -2191,10 +2191,10 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 	if (SpellUsage::isActive)
 		SpellUsage::AddSpellStat(GET_CLASS(caster), spellnum);
 
-	// Обработка заклинания
+	// п·п╠я─п╟п╠п╬я┌п╨п╟ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐
 	//******************************************
 
-	// Проверка модификаторов целеуказаний
+	// п÷я─п╬п╡п╣я─п╨п╟ п╪п╬п╢п╦я└п╦п╨п╟я┌п╬я─п╬п╡ я├п╣п╩п╣я┐п╨п╟п╥п╟п╫п╦п╧
 
 	if (IS_SET(SpINFO.routines, MAG_MASSES))
 		return mag_masses(level, caster, rvict, spellnum, savetype);
@@ -2220,7 +2220,7 @@ void do_ident(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (IS_NPC(ch) || ch->get_skill(SKILL_IDENTIFY) <= 0)
 	{
-		send_to_char("Вам стоит сначала этому научиться.\r\n", ch);
+		send_to_char("п▓п╟п╪ я│я┌п╬п╦я┌ я│п╫п╟я┤п╟п╩п╟ я█я┌п╬п╪я┐ п╫п╟я┐я┤п╦я┌я▄я│я▐.\r\n", ch);
 		return;
 	}
 
@@ -2228,14 +2228,14 @@ void do_ident(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (timed_by_skill(ch, SKILL_IDENTIFY))
 	{
-		send_to_char("Вы же недавно опознавали - подождите чуток.\r\n", ch);
+		send_to_char("п▓я▀ п╤п╣ п╫п╣п╢п╟п╡п╫п╬ п╬п©п╬п╥п╫п╟п╡п╟п╩п╦ - п©п╬п╢п╬п╤п╢п╦я┌п╣ я┤я┐я┌п╬п╨.\r\n", ch);
 		return;
 	}
 
 	k = generic_find(arg, FIND_CHAR_ROOM | FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP, caster, &cvict, &ovict);
 	if (!k)
 	{
-		send_to_char("Похоже, здесь этого нет.\r\n", ch);
+		send_to_char("п÷п╬я┘п╬п╤п╣, п╥п╢п╣я│я▄ я█я┌п╬пЁп╬ п╫п╣я┌.\r\n", ch);
 		return;
 	}
 	if (!IS_IMMORTAL(ch))
@@ -2263,27 +2263,27 @@ void do_ident(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
  * files (this is a CircleMUD enhancement).
  */
 
-const char *what_sky_type[] = { "пасмурно",
+const char *what_sky_type[] = { "п©п╟я│п╪я┐я─п╫п╬",
 								"cloudless",
-								"облачно",
+								"п╬п╠п╩п╟я┤п╫п╬",
 								"cloudy",
-								"дождь",
+								"п╢п╬п╤п╢я▄",
 								"raining",
-								"ясно",
+								"я▐я│п╫п╬",
 								"lightning",
 								"\n"
 							  };
 
-const char *what_weapon[] = { "плеть",
+const char *what_weapon[] = { "п©п╩п╣я┌я▄",
 							  "whip",
-							  "дубина",
+							  "п╢я┐п╠п╦п╫п╟",
 							  "club",
 							  "\n"
 							};
 
 /**
-* Поиск предмета для каста локейта (без учета видимости для чара и с поиском
-* как в основном списке, так и в личных хранилищах с почтой).
+* п÷п╬п╦я│п╨ п©я─п╣п╢п╪п╣я┌п╟ п╢п╩я▐ п╨п╟я│я┌п╟ п╩п╬п╨п╣п╧я┌п╟ (п╠п╣п╥ я┐я┤п╣я┌п╟ п╡п╦п╢п╦п╪п╬я│я┌п╦ п╢п╩я▐ я┤п╟я─п╟ п╦ я│ п©п╬п╦я│п╨п╬п╪
+* п╨п╟п╨ п╡ п╬я│п╫п╬п╡п╫п╬п╪ я│п©п╦я│п╨п╣, я┌п╟п╨ п╦ п╡ п╩п╦я┤п╫я▀я┘ я┘я─п╟п╫п╦п╩п╦я┴п╟я┘ я│ п©п╬я┤я┌п╬п╧).
 */
 OBJ_DATA *find_obj_for_locate(CHAR_DATA *ch, const char *name)
 {
@@ -2309,7 +2309,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 	{
 		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0)
 		{
-			send_to_char("Не указан тип погоды.\r\n", ch);
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ я┌п╦п© п©п╬пЁп╬п╢я▀.\r\n", ch);
 			return FALSE;
 		}
 		else
@@ -2320,7 +2320,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 	{
 		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0)
 		{
-			send_to_char("Не указан тип оружия.\r\n", ch);
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ я┌п╦п© п╬я─я┐п╤п╦я▐.\r\n", ch);
 			return FALSE;
 		}
 		else
@@ -2349,7 +2349,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 		{
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL)
 			{
-				// чтобы мобов не чекали
+				// я┤я┌п╬п╠я▀ п╪п╬п╠п╬п╡ п╫п╣ я┤п╣п╨п╟п╩п╦
 				if (IS_NPC(ch) || !IS_NPC(*tch))
 				{
 					if (SpINFO.violent && !check_pkill(ch, *tch, t))
@@ -2412,15 +2412,15 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 			return TRUE;
 		}
 	}
-	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
+	// TODO: п╢п╬п╠п╟п╡п╦я┌я▄ п╬п╠я─п╟п╠п╬я┌п╨я┐ TAR_ROOM_DIR п╦ TAR_ROOM_WORLD
 	if (IS_SET(SpINFO.routines, MAG_WARCRY))
-		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
+		sprintf(buf, "п≤ п╫п╟ %s п╤п╣ п╡я▀ я┘п╬я┌п╦я┌п╣ я┌п╟п╨ пЁя─п╬п╪п╨п╬ п╨я─п╦п╨п╫я┐я┌я▄?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
-				? "ЧТО" : "КОГО");
+				? "п╖п╒п·" : "п п·п⌠п·");
 	else
-		sprintf(buf, "На %s Вы хотите ЭТО колдовать?\r\n",
+		sprintf(buf, "п²п╟ %s п▓я▀ я┘п╬я┌п╦я┌п╣ п╜п╒п· п╨п╬п╩п╢п╬п╡п╟я┌я▄?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
-				? "ЧТО" : "КОГО");
+				? "п╖п╒п·" : "п п·п⌠п·");
 	send_to_char(buf, ch);
 	return FALSE;
 }
@@ -2435,7 +2435,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 	{
 		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0)
 		{
-			send_to_char("Не указан тип погоды.\r\n", ch);
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ я┌п╦п© п©п╬пЁп╬п╢я▀.\r\n", ch);
 			return FALSE;
 		}
 		else
@@ -2446,7 +2446,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 	{
 		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0)
 		{
-			send_to_char("Не указан тип оружия.\r\n", ch);
+			send_to_char("п²п╣ я┐п╨п╟п╥п╟п╫ я┌п╦п© п╬я─я┐п╤п╦я▐.\r\n", ch);
 			return FALSE;
 		}
 		else
@@ -2475,7 +2475,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 		{
 			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL)
 			{
-				// чтобы мобов не чекали
+				// я┤я┌п╬п╠я▀ п╪п╬п╠п╬п╡ п╫п╣ я┤п╣п╨п╟п╩п╦
 				if (IS_NPC(ch) || !IS_NPC(*tch))
 				{
 					if (SpINFO.violent && !check_pkill(ch, *tch, t))
@@ -2528,15 +2528,15 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 			return TRUE;
 		}
 	}
-	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
+	// TODO: п╢п╬п╠п╟п╡п╦я┌я▄ п╬п╠я─п╟п╠п╬я┌п╨я┐ TAR_ROOM_DIR п╦ TAR_ROOM_WORLD
 	if (IS_SET(SpINFO.routines, MAG_WARCRY))
-		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
+		sprintf(buf, "п≤ п╫п╟ %s п╤п╣ п╡я▀ я┘п╬я┌п╦я┌п╣ я┌п╟п╨ пЁя─п╬п╪п╨п╬ п╨я─п╦п╨п╫я┐я┌я▄?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
-				? "ЧТО" : "КОГО");
+				? "п╖п╒п·" : "п п·п⌠п·");
 	else
-		sprintf(buf, "На %s вы хотите ЭТО колдовать?\r\n",
+		sprintf(buf, "п²п╟ %s п╡я▀ я┘п╬я┌п╦я┌п╣ п╜п╒п· п╨п╬п╩п╢п╬п╡п╟я┌я▄?\r\n",
 				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
-				? "ЧТО" : "КОГО");
+				? "п╖п╒п·" : "п п·п⌠п·");
 	send_to_char(buf, ch);
 	return FALSE;
 }
@@ -2581,7 +2581,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 		else
 		{
-			act("Вы ударили $o4 о землю.", FALSE, ch, obj, 0, TO_CHAR);
+			act("п▓я▀ я┐п╢п╟я─п╦п╩п╦ $o4 п╬ п╥п╣п╪п╩я▌.", FALSE, ch, obj, 0, TO_CHAR);
 		}
 
 		if (!obj->get_action_description().empty())
@@ -2590,13 +2590,13 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 		else
 		{
-			act("$n ударил$g $o4 о землю.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n я┐п╢п╟я─п╦п╩$g $o4 п╬ п╥п╣п╪п╩я▌.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
 		{
-			send_to_char("Похоже, кончились заряды :)\r\n", ch);
-			act("И ничего не случилось.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("п÷п╬я┘п╬п╤п╣, п╨п╬п╫я┤п╦п╩п╦я│я▄ п╥п╟я─я▐п╢я▀ :)\r\n", ch);
+			act("п≤ п╫п╦я┤п╣пЁп╬ п╫п╣ я│п╩я┐я┤п╦п╩п╬я│я▄.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
@@ -2633,9 +2633,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 		if (GET_OBJ_VAL(obj, 2) <= 0)
 		{
-			send_to_char("Похоже, магия кончилась.\r\n", ch);
-			//act("И ничего не произошло.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-			//перемещено чтобы не было возможности читерно использовать пустую палку с локейтом
+			send_to_char("п÷п╬я┘п╬п╤п╣, п╪п╟пЁп╦я▐ п╨п╬п╫я┤п╦п╩п╟я│я▄.\r\n", ch);
+			//act("п≤ п╫п╦я┤п╣пЁп╬ п╫п╣ п©я─п╬п╦п╥п╬я┬п╩п╬.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+			//п©п╣я─п╣п╪п╣я┴п╣п╫п╬ я┤я┌п╬п╠я▀ п╫п╣ п╠я▀п╩п╬ п╡п╬п╥п╪п╬п╤п╫п╬я│я┌п╦ я┤п╦я┌п╣я─п╫п╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п©я┐я│я┌я┐я▌ п©п╟п╩п╨я┐ я│ п╩п╬п╨п╣п╧я┌п╬п╪
 			return;
 		}
 
@@ -2658,7 +2658,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				}
 				else
 				{
-					act("Вы обвели $o4 вокруг комнаты.", FALSE, ch, obj, NULL, TO_CHAR);
+					act("п▓я▀ п╬п╠п╡п╣п╩п╦ $o4 п╡п╬п╨я─я┐пЁ п╨п╬п╪п╫п╟я┌я▀.", FALSE, ch, obj, NULL, TO_CHAR);
 				}
 
 				if (!obj->get_action_description().empty())
@@ -2667,7 +2667,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				}
 				else
 				{
-					act("$n обвел$g $o4 вокруг комнаты.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n п╬п╠п╡п╣п╩$g $o4 п╡п╬п╨я─я┐пЁ п╨п╬п╪п╫п╟я┌я▀.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 				}
 			}
 			else if (tch == ch)
@@ -2678,7 +2678,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				}
 				else
 				{
-					act("Вы указали $o4 на себя.", FALSE, ch, obj, 0, TO_CHAR);
+					act("п▓я▀ я┐п╨п╟п╥п╟п╩п╦ $o4 п╫п╟ я│п╣п╠я▐.", FALSE, ch, obj, 0, TO_CHAR);
 				}
 
 				if (!obj->get_action_description().empty())
@@ -2687,7 +2687,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				}
 				else
 				{
-					act("$n указал$g $o4 на себя.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n я┐п╨п╟п╥п╟п╩$g $o4 п╫п╟ я│п╣п╠я▐.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 				}
 			}
 			else
@@ -2698,7 +2698,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				}
 				else
 				{
-					act("Вы ткнули $o4 в $N3.", FALSE, ch, obj, tch, TO_CHAR);
+					act("п▓я▀ я┌п╨п╫я┐п╩п╦ $o4 п╡ $N3.", FALSE, ch, obj, tch, TO_CHAR);
 				}
 
 				if (!obj->get_action_description().empty())
@@ -2707,7 +2707,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				}
 				else
 				{
-					act("$n ткнул$g $o4 в $N3.", TRUE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+					act("$n я┌п╨п╫я┐п╩$g $o4 п╡ $N3.", TRUE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
 				}
 			}
 		}
@@ -2719,7 +2719,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			}
 			else
 			{
-				act("Вы прикоснулись $o4 к $O2.", FALSE, ch, obj, tobj, TO_CHAR);
+				act("п▓я▀ п©я─п╦п╨п╬я│п╫я┐п╩п╦я│я▄ $o4 п╨ $O2.", FALSE, ch, obj, tobj, TO_CHAR);
 			}
 
 			if (!obj->get_action_description().empty())
@@ -2728,7 +2728,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			}
 			else
 			{
-				act("$n прикоснул$u $o4 к $O2.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n п©я─п╦п╨п╬я│п╫я┐п╩$u $o4 п╨ $O2.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
 			}
 		}
 
@@ -2740,12 +2740,12 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	case OBJ_DATA::ITEM_SCROLL:
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
-			send_to_char("Вы немы, как рыба.\r\n", ch);
+			send_to_char("п▓я▀ п╫п╣п╪я▀, п╨п╟п╨ я─я▀п╠п╟.\r\n", ch);
 			return;
 		}
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 		{
-			send_to_char("Вы ослеплены.\r\n", ch);
+			send_to_char("п▓я▀ п╬я│п╩п╣п©п╩п╣п╫я▀.\r\n", ch);
 			return;
 		}
 
@@ -2761,7 +2761,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 		else
 		{
-			act("Вы зачитали $o3, котор$W рассыпался в прах.", TRUE, ch, obj, 0, TO_CHAR);
+			act("п▓я▀ п╥п╟я┤п╦я┌п╟п╩п╦ $o3, п╨п╬я┌п╬я─$W я─п╟я│я│я▀п©п╟п╩я│я▐ п╡ п©я─п╟я┘.", TRUE, ch, obj, 0, TO_CHAR);
 		}
 
 		if (!obj->get_action_description().empty())
@@ -2770,7 +2770,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		}
 		else
 		{
-			act("$n зачитал$g $o3.", FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n п╥п╟я┤п╦я┌п╟п╩$g $o3.", FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -2791,18 +2791,18 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	case OBJ_DATA::ITEM_POTION:
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 		{
-			send_to_char("Да вам сейчас и глоток воздуха не проглотить!\r\n", ch);
+			send_to_char("п■п╟ п╡п╟п╪ я│п╣п╧я┤п╟я│ п╦ пЁп╩п╬я┌п╬п╨ п╡п╬п╥п╢я┐я┘п╟ п╫п╣ п©я─п╬пЁп╩п╬я┌п╦я┌я▄!\r\n", ch);
 			return;
 		}
 		tch = ch;
-		act("Вы осушили $o3.", FALSE, ch, obj, NULL, TO_CHAR);
+		act("п▓я▀ п╬я│я┐я┬п╦п╩п╦ $o3.", FALSE, ch, obj, NULL, TO_CHAR);
 		if (!obj->get_action_description().empty())
 		{
 			act(obj->get_action_description().c_str(), FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
-			act("$n осушил$g $o3.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n п╬я│я┐я┬п╦п╩$g $o3.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -2844,7 +2844,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		log("SYSERR: cast_spell trying to call spellnum %d/%d.\n", spellnum, TOP_SPELL_DEFINE);
 		return (0);
 	}
-//проверка на алайнмент мобов
+//п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п╟п╩п╟п╧п╫п╪п╣п╫я┌ п╪п╬п╠п╬п╡
 
 	if (tch && ch)
 	{
@@ -2856,7 +2856,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 
 	if (!troom)
 	{
-		// Вызвали с пустой комнатой значит будем кастить тут
+		// п▓я▀п╥п╡п╟п╩п╦ я│ п©я┐я│я┌п╬п╧ п╨п╬п╪п╫п╟я┌п╬п╧ п╥п╫п╟я┤п╦я┌ п╠я┐п╢п╣п╪ п╨п╟я│я┌п╦я┌я▄ я┌я┐я┌
 		troom = world[ch->in_room];
 	}
 
@@ -2865,19 +2865,19 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		switch (GET_POS(ch))
 		{
 		case POS_SLEEPING:
-			send_to_char("Вы спите и не могете думать больше ни о чем.\r\n", ch);
+			send_to_char("п▓я▀ я│п©п╦я┌п╣ п╦ п╫п╣ п╪п╬пЁп╣я┌п╣ п╢я┐п╪п╟я┌я▄ п╠п╬п╩я▄я┬п╣ п╫п╦ п╬ я┤п╣п╪.\r\n", ch);
 			break;
 		case POS_RESTING:
-			send_to_char("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
+			send_to_char("п▓я▀ я─п╟я│я│п╩п╟п╠п╩п╣п╫я▀ п╦ п╬я┌п╢я▀я┘п╟п╣я┌п╣. п≤ п╢п╟п╩п╟я│я▄ п╡п╟п╪ я█я┌п╟ п╪п╟пЁп╦я▐?\r\n", ch);
 			break;
 		case POS_SITTING:
-			send_to_char("Похоже, в этой позе Вы много не наколдуете.\r\n", ch);
+			send_to_char("п÷п╬я┘п╬п╤п╣, п╡ я█я┌п╬п╧ п©п╬п╥п╣ п▓я▀ п╪п╫п╬пЁп╬ п╫п╣ п╫п╟п╨п╬п╩п╢я┐п╣я┌п╣.\r\n", ch);
 			break;
 		case POS_FIGHTING:
-			send_to_char("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
+			send_to_char("п²п╣п╡п╬п╥п╪п╬п╤п╫п╬! п▓я▀ я│я─п╟п╤п╟п╣я┌п╣я│я▄! п╜я┌п╬ п╡п╟п╪ п╫п╣ я┬я┐я┘я─я▀-п╪я┐я┘я─я▀.\r\n", ch);
 			break;
 		default:
-			send_to_char("Вам вряд ли это удастся.\r\n", ch);
+			send_to_char("п▓п╟п╪ п╡я─я▐п╢ п╩п╦ я█я┌п╬ я┐п╢п╟я│я┌я│я▐.\r\n", ch);
 			break;
 		}
 		return (0);
@@ -2886,7 +2886,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& ch->get_master() == tch)
 	{
-		send_to_char("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п©п╬я│п╪п╣п╣я┌п╣ п©п╬п╢п╫я▐я┌я▄ я─я┐п╨я┐ п╫п╟ п╡п╟я┬п╣пЁп╬ п©п╬п╡п╣п╩п╦я┌п╣п╩я▐!\r\n", ch);
 		return (0);
 	}
 
@@ -2894,13 +2894,13 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		&& !IS_IMMORTAL(ch)
 		&& IS_SET(SpINFO.targets, TAR_SELF_ONLY))
 	{
-		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
+		send_to_char("п▓я▀ п╪п╬п╤п╣я┌п╣ п╨п╬п╩п╢п╬п╡п╟я┌я▄ я█я┌п╬ я┌п╬п╩я▄п╨п╬ п╫п╟ я│п╣п╠я▐!\r\n", ch);
 		return (0);
 	}
 
 	if (tch == ch && IS_SET(SpINFO.targets, TAR_NOT_SELF))
 	{
-		send_to_char("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
+		send_to_char("п п╬п╩п╢п╬п╡п╟я┌я▄? п╜п╒п·? п²п╟ я│п╣п╠я▐?! п■п╟ п╡я▀ я│ я┐п╪п╟ я│п╬я┬п╩п╦!\r\n", ch);
 		return (0);
 	}
 
@@ -2910,29 +2910,29 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 				   | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_WORLD | TAR_OBJ_EQUIP | TAR_ROOM_THIS
 				   | TAR_ROOM_DIR))
 	{
-		send_to_char("Цель заклинания не доступна.\r\n", ch);
+		send_to_char("п╕п╣п╩я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╫п╣ п╢п╬я│я┌я┐п©п╫п╟.\r\n", ch);
 		return (0);
 	}
 
-	// add by Pereplut: если цель уйдет из клетки в случае кастинга в бою (с лагом) - то
-	// не будет кастоваться на соседние клетки, в случае если закл не глобальный
+	// add by Pereplut: п╣я│п╩п╦ я├п╣п╩я▄ я┐п╧п╢п╣я┌ п╦п╥ п╨п╩п╣я┌п╨п╦ п╡ я│п╩я┐я┤п╟п╣ п╨п╟я│я┌п╦п╫пЁп╟ п╡ п╠п╬я▌ (я│ п╩п╟пЁп╬п╪) - я┌п╬
+	// п╫п╣ п╠я┐п╢п╣я┌ п╨п╟я│я┌п╬п╡п╟я┌я▄я│я▐ п╫п╟ я│п╬я│п╣п╢п╫п╦п╣ п╨п╩п╣я┌п╨п╦, п╡ я│п╩я┐я┤п╟п╣ п╣я│п╩п╦ п╥п╟п╨п╩ п╫п╣ пЁп╩п╬п╠п╟п╩я▄п╫я▀п╧
 	if (tch && ch && IN_ROOM(tch) != ch->in_room)
 	{
 		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
 		{
-			send_to_char("Цель заклинания не доступна.\r\n", ch);
+			send_to_char("п╕п╣п╩я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╫п╣ п╢п╬я│я┌я┐п©п╫п╟.\r\n", ch);
 			return (0);
 		}
 	}
 
-	// Начало изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
+	// п²п╟я┤п╟п╩п╬ п╦п╥п╪п╣п╫п╣п╫п╦п╧. (я│) п■п╪п╦я┌я─п╦п╧ п╟п╨п╟ dzMUDiST п╟п╨п╟ п я┐п╢п╬я▐я─
 
-// Может-ли кастер зачитать заклинание если на нем эфект !смирение!?
-// Далее идет код _аналогичный_ коду функции may_cast_here()
+// п°п╬п╤п╣я┌-п╩п╦ п╨п╟я│я┌п╣я─ п╥п╟я┤п╦я┌п╟я┌я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ п╣я│п╩п╦ п╫п╟ п╫п╣п╪ я█я└п╣п╨я┌ !я│п╪п╦я─п╣п╫п╦п╣!?
+// п■п╟п╩п╣п╣ п╦п╢п╣я┌ п╨п╬п╢ _п╟п╫п╟п╩п╬пЁп╦я┤п╫я▀п╧_ п╨п╬п╢я┐ я└я┐п╫п╨я├п╦п╦ may_cast_here()
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL))
-		// Проверяю, что закл имеет одну из допустимых комбинаций параметров
-		// если игнорируется цель, то должен быть GROUP или MASS
-		// в противном случае на цель кастовать нельзя
+		// п÷я─п╬п╡п╣я─я▐я▌, я┤я┌п╬ п╥п╟п╨п╩ п╦п╪п╣п╣я┌ п╬п╢п╫я┐ п╦п╥ п╢п╬п©я┐я│я┌п╦п╪я▀я┘ п╨п╬п╪п╠п╦п╫п╟я├п╦п╧ п©п╟я─п╟п╪п╣я┌я─п╬п╡
+		// п╣я│п╩п╦ п╦пЁп╫п╬я─п╦я─я┐п╣я┌я│я▐ я├п╣п╩я▄, я┌п╬ п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ GROUP п╦п╩п╦ MASS
+		// п╡ п©я─п╬я┌п╦п╡п╫п╬п╪ я│п╩я┐я┤п╟п╣ п╫п╟ я├п╣п╩я▄ п╨п╟я│я┌п╬п╡п╟я┌я▄ п╫п╣п╩я▄п╥я▐
 	{
 		ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
 				 IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS);
@@ -2941,22 +2941,22 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		{
 			if (SpINFO.violent)
 			{
-				send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
-				return FALSE;	// нельзя злые кастовать
+				send_to_char("п▓п╟я┬п╟ п╢я┐я┬п╟ п©п╬п╩п╫п╟ я│п╪п╦я─п╣п╫п╦я▐, п╦ п╡я▀ п╫п╣ п╤п╣п╩п╟п╣я┌п╣ я┌п╡п╬я─п╦я┌я▄ п╥п╩п╬.\r\n", ch);
+				return FALSE;	// п╫п╣п╩я▄п╥я▐ п╥п╩я▀п╣ п╨п╟я│я┌п╬п╡п╟я┌я▄
 			}
 		}
-		// индивидуальная цель
+		// п╦п╫п╢п╦п╡п╦п╢я┐п╟п╩я▄п╫п╟я▐ я├п╣п╩я▄
 
-		// начинаю проверять условия каста
-		// Для добрых заклинаний - проверка на противника цели
-		// Для злых заклинаний - проверка на цель
+		// п╫п╟я┤п╦п╫п╟я▌ п©я─п╬п╡п╣я─я▐я┌я▄ я┐я│п╩п╬п╡п╦я▐ п╨п╟я│я┌п╟
+		// п■п╩я▐ п╢п╬п╠я─я▀я┘ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ - п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п©я─п╬я┌п╦п╡п╫п╦п╨п╟ я├п╣п╩п╦
+		// п■п╩я▐ п╥п╩я▀я┘ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ - п©я─п╬п╡п╣я─п╨п╟ п╫п╟ я├п╣п╩я▄
 		for (const auto ch_vict : world[ch->in_room]->people)
 		{
 			if (SpINFO.violent)
 			{
 				if (ch_vict == tch)
 				{
-					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
+					send_to_char("п▓п╟я┬п╟ п╢я┐я┬п╟ п©п╬п╩п╫п╟ я│п╪п╦я─п╣п╫п╦я▐, п╦ п╡я▀ п╫п╣ п╤п╣п╩п╟п╣я┌п╣ я┌п╡п╬я─п╦я┌я▄ п╥п╩п╬.\r\n", ch);
 					return FALSE;
 				}
 			}
@@ -2965,35 +2965,35 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 				if (ch_vict == tch
 					&& !same_group(ch, ch_vict))
 				{
-					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
+					send_to_char("п▓п╟я┬п╟ п╢я┐я┬п╟ п©п╬п╩п╫п╟ я│п╪п╦я─п╣п╫п╦я▐, п╦ п╡я▀ п╫п╣ п╤п╣п╩п╟п╣я┌п╣ я┌п╡п╬я─п╦я┌я▄ п╥п╩п╬.\r\n", ch);
 					return FALSE;
 				}
 			}
 		}
 	}
-	// Конец изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
+	// п п╬п╫п╣я├ п╦п╥п╪п╣п╫п╣п╫п╦п╧. (я│) п■п╪п╦я┌я─п╦п╧ п╟п╨п╟ dzMUDiST п╟п╨п╟ п я┐п╢п╬я▐я─
 	if (!IS_NPC(ch))
 	{
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) //если включен режим без повторов (подавление ехо) не показываем
+		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) //п╣я│п╩п╦ п╡п╨п╩я▌я┤п╣п╫ я─п╣п╤п╦п╪ п╠п╣п╥ п©п╬п╡я┌п╬я─п╬п╡ (п©п╬п╢п╟п╡п╩п╣п╫п╦п╣ п╣я┘п╬) п╫п╣ п©п╬п╨п╟п╥я▀п╡п╟п╣п╪
 		{
-			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
+			if (!ch->get_fighting()) //п╣я│п╩п╦ п©п╣я─я│п╬п╫п╟п╤ п╫п╣ п╡ п╠п╬я▌, я┬п╩п╣п╪ я│я┌я─п╬я┤п╨я┐, п╣я│п╩п╦ п╡ п╠п╬я▌ п╫п╦я┤п╣пЁп╬ п╫п╣ я┬п╩п╣п╪
 				send_to_char(OK, ch);
 		}
 		else
 		{
-			//если режима нет, ехо включено, выводим сообщение
-			sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
+			//п╣я│п╩п╦ я─п╣п╤п╦п╪п╟ п╫п╣я┌, п╣я┘п╬ п╡п╨п╩я▌я┤п╣п╫п╬, п╡я▀п╡п╬п╢п╦п╪ я│п╬п╬п╠я┴п╣п╫п╦п╣
+			sprintf(buf, "п▓я▀ п©я─п╬п╦п╥п╫п╣я│п╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ \"%s%s%s\".\r\n",
 					CCICYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}
-	//тренируем магические компетенции
+	//я┌я─п╣п╫п╦я─я┐п╣п╪ п╪п╟пЁп╦я┤п╣я│п╨п╦п╣ п╨п╬п╪п©п╣я┌п╣п╫я├п╦п╦
 	skillnum = get_magic_skill_number_by_spell(spellnum);
 	if (skillnum > 0)
 	{
 		train_skill(ch, skillnum, skill_info[skillnum].max_percent, tch);
 	}
-	// Комнату тут в say_spell не обрабатываем - будет сказал "что-то"
+	// п п╬п╪п╫п╟я┌я┐ я┌я┐я┌ п╡ say_spell п╫п╣ п╬п╠я─п╟п╠п╟я┌я▀п╡п╟п╣п╪ - п╠я┐п╢п╣я┌ я│п╨п╟п╥п╟п╩ "я┤я┌п╬-я┌п╬"
 	say_spell(ch, spellnum, tch, tobj);
 	if (GET_SPELL_MEM(ch, spell_subst) > 0)
 		GET_SPELL_MEM(ch, spell_subst)--;
@@ -3081,7 +3081,7 @@ int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int 
 		prob += skill;
 	}
 	//prob*=ch->get_cond_penalty(P_CAST);
-	// умения магии дают + к успеху колдовства
+	// я┐п╪п╣п╫п╦я▐ п╪п╟пЁп╦п╦ п╢п╟я▌я┌ + п╨ я┐я│п©п╣я┘я┐ п╨п╬п╩п╢п╬п╡я│я┌п╡п╟
 	return (prob > number(0, 100));
 }
 
@@ -3105,7 +3105,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
-		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ п╡я▀п╪п╬п╩п╡п╦я┌я▄ п╦ я│п╩п╬п╡п╟.\r\n", ch);
 		return;
 	}
 
@@ -3114,16 +3114,16 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		for (const auto& aff : ch->affected)
 		{
 			if (aff->location == APPLY_PLAQUE
-				&& number(1, 100) < 10) // лихорадка 10% фэйл закла
+				&& number(1, 100) < 10) // п╩п╦я┘п╬я─п╟п╢п╨п╟ 10% я└я█п╧п╩ п╥п╟п╨п╩п╟
 			{
-				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n", ch);
+				send_to_char("п▓п╟я│ я┌я─я▐я│п╣я┌ п╩п╦я┘п╬я─п╟п╢п╨п╟, п╡я▀ п╫п╣ я│п╪п╬пЁп╩п╦ я│п╨п╬п╫я├п╣п╫я┌я─п╦я─п╬п╡п╟я┌я▄я│я▐ п╫п╟ п©я─п╬п╦п╥п╫п╣я│п╣п╫п╦п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐.\r\n", ch);
 				return;
 			}
 
 			if (aff->location == APPLY_MADNESS
-				&& number(1, 100) < 20) // безумие 20% фэйл закла
+				&& number(1, 100) < 20) // п╠п╣п╥я┐п╪п╦п╣ 20% я└я█п╧п╩ п╥п╟п╨п╩п╟
 			{
-				send_to_char("Начав безумно кричать, вы забыли, что хотели произнести.\r\n", ch);
+				send_to_char("п²п╟я┤п╟п╡ п╠п╣п╥я┐п╪п╫п╬ п╨я─п╦я┤п╟я┌я▄, п╡я▀ п╥п╟п╠я▀п╩п╦, я┤я┌п╬ я┘п╬я┌п╣п╩п╦ п©я─п╬п╦п╥п╫п╣я│я┌п╦.\r\n", ch);
 				return;
 			}
 		}
@@ -3132,7 +3132,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (ch->is_morphed())
 	{
-		send_to_char("Вы не можете произносить заклинания в звериной форме.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п©я─п╬п╦п╥п╫п╬я│п╦я┌я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╡ п╥п╡п╣я─п╦п╫п╬п╧ я└п╬я─п╪п╣.\r\n", ch);
 		return;
 	}
 
@@ -3140,13 +3140,13 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
+		send_to_char("п╖п╒п· п╡я▀ я┘п╬я┌п╦я┌п╣ п╨п╬п╩п╢п╬п╡п╟я┌я▄?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		send_to_char("п²п╟п╥п╡п╟п╫п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╬ п╡ я│п╦п╪п╡п╬п╩я▀ : ' п╦п╩п╦ * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 	t = strtok(NULL, "\0");
@@ -3156,14 +3156,14 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 /*	if (!Privilege::check_spells(ch, spellnum))
 	{
-		send_to_char("Не положено...\r\n", ch);
+		send_to_char("п²п╣ п©п╬п╩п╬п╤п╣п╫п╬...\r\n", ch);
 		return;
 	}
 */
 	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
+		send_to_char("п≤ п╬я┌п╨я┐п╢п╟ п╡я▀ п╫п╟п╠я─п╟п╩п╦я│я▄ я┌п╟п╨п╦я┘ п╡я▀я─п╟п╤п╣п╫п╦п╧?\r\n", ch);
 		return;
 	}
 
@@ -3176,12 +3176,12 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 		{
-			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
+			send_to_char("п═п╟п╫п╬ п╣я┴п╣ п╡п╟п╪ п╠я─п╬я│п╟я┌я▄я│я▐ я┌п╟п╨п╦п╪п╦ я│п╩п╬п╡п╟п╪п╦!\r\n", ch);
 			return;
 		}
 		else
 		{
-			send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
+			send_to_char("п▒я▀п╩п╬ п╠я▀ п╫п╣п©п╩п╬я┘п╬ п╦п╥я┐я┤п╦я┌я▄, п╢п╩я▐ п╫п╟я┤п╟п╩п╟, я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣...\r\n", ch);
 			return;
 		}
 	}
@@ -3206,7 +3206,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			}
 			if (i > SPELLS_COUNT)
 			{
-				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
+				send_to_char("пё п╡п╟я│ п╫п╣я┌ п╥п╟я┐я┤п╣п╫п╫я▀я┘ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧ я█я┌п╬пЁп╬ п╨я─я┐пЁп╟.\r\n", ch);
 				return;
 			}
 
@@ -3214,7 +3214,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		}
 		else
 		{
-			send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
+			send_to_char("п▓я▀ я│п╬п╡п╣я─я┬п╣п╫п╫п╬ п╫п╣ п©п╬п╪п╫п╦я┌п╣, п╨п╟п╨ п©я─п╬п╦п╥п╫п╬я│п╦я┌я│я▐ я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣...\r\n", ch);
 			return;
 		}
 	}
@@ -3229,18 +3229,18 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (target && (tch == ch) && SpINFO.violent)
 	{
-		send_to_char("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
+		send_to_char("п⌡п╣п╨п╟я─п╦ п╫п╣ я─п╣п╨п╬п╪п╣п╫п╢я┐я▌я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╜п╒п· п╫п╟ я│п╣п╠я▐!\r\n", ch);
 		return;
 	}
 
 	if (!target)
 	{
-		send_to_char("Тяжеловато найти цель вашего заклинания!\r\n", ch);
+		send_to_char("п╒я▐п╤п╣п╩п╬п╡п╟я┌п╬ п╫п╟п╧я┌п╦ я├п╣п╩я▄ п╡п╟я┬п╣пЁп╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐!\r\n", ch);
 		return;
 	}
 
 	// You throws the dice and you takes your chances.. 101% is total failure
-	// Чтобы в бой не вступал с уже взведенной заклинашкой !!!
+	// п╖я┌п╬п╠я▀ п╡ п╠п╬п╧ п╫п╣ п╡я│я┌я┐п©п╟п╩ я│ я┐п╤п╣ п╡п╥п╡п╣п╢п╣п╫п╫п╬п╧ п╥п╟п╨п╩п╦п╫п╟я┬п╨п╬п╧ !!!
 	ch->set_cast(0, 0, 0, 0, 0);
 
 	if (!spell_use_success(ch, tch, SAVING_STABILITY, spellnum))
@@ -3257,7 +3257,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		affect_total(ch);
 		//log("[DO_CAST->AFFECT_TOTAL] Stop");
 		if (!tch || !skill_message(0, ch, tch, spellnum))
-			send_to_char("Вы не смогли сосредоточиться!\r\n", ch);
+			send_to_char("п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ я│п╬я│я─п╣п╢п╬я┌п╬я┤п╦я┌я▄я│я▐!\r\n", ch);
 	}
 	else  		// cast spell returns 1 on success; subtract mana & set waitstate
 	{
@@ -3265,9 +3265,9 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		{
 			ch->set_cast(spellnum, spell_subst, tch, tobj, troom);
 			sprintf(buf,
-					"Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
+					"п▓я▀ п©я─п╦пЁп╬я┌п╬п╡п╦п╩п╦я│я▄ п©я─п╦п╪п╣п╫п╦я┌я▄ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ %s'%s'%s%s.\r\n",
 					CCCYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM),
-					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
+					tch == ch ? " п╫п╟ я│п╣п╠я▐" : tch ? " п╫п╟ $N3" : tobj ? " п╫п╟ $o3" : troom ? " п╫п╟ п╡я│п╣я┘" : "");
 			act(buf, FALSE, ch, tobj, tch, TO_CHAR);
 		}
 		else if (cast_spell(ch, tch, tobj, troom, spellnum, spell_subst) >= 0)
@@ -3287,13 +3287,13 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!ch->get_skill(SKILL_WARCRY))
 	{
-		send_to_char("Но вы не знаете как.\r\n", ch);
+		send_to_char("п²п╬ п╡я▀ п╫п╣ п╥п╫п╟п╣я┌п╣ п╨п╟п╨.\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
 	{
-		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ п╡я▀п╪п╬п╩п╡п╦я┌я▄ п╦ я│п╩п╬п╡п╟.\r\n", ch);
 		return;
 	}
 
@@ -3305,7 +3305,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (tok_iter == tok.end())
 	{
-		sprintf(buf, "Вам доступны :\r\n");
+		sprintf(buf, "п▓п╟п╪ п╢п╬я│я┌я┐п©п╫я▀ :\r\n");
 		for (cnt = spellnum = 1; spellnum <= SPELLS_COUNT; spellnum++)
 		{
 			const char *realname = SpINFO.name && *SpINFO.name ? SpINFO.name : SpINFO.syn && *SpINFO.syn ? SpINFO.syn : NULL;
@@ -3331,21 +3331,21 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (tok_iter == tok.end())
 		{
-			send_to_char("Какой клич вы хотите использовать?\r\n", ch);
+			send_to_char("п п╟п╨п╬п╧ п╨п╩п╦я┤ п╡я▀ я┘п╬я┌п╦я┌п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄?\r\n", ch);
 			return;
 		}
 		else
 			wc_name = "warcry of " + *(tok_iter++);
 	}
 	else
-		wc_name = "клич " + wc_name;
+		wc_name = "п╨п╩п╦я┤ " + wc_name;
 
 	spellnum = fix_name_and_find_spell_num(wc_name);
 
 	// Unknown warcry
 	if (spellnum < 1 || spellnum > MAX_SPELLS || (ch->get_skill(SKILL_WARCRY) < SpINFO.mana_change) || !IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
 	{
-		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
+		send_to_char("п≤ п╬я┌п╨я┐п╢п╟ п╡я▀ п╫п╟п╠я─п╟п╩п╦я│я▄ я┌п╟п╨п╦я┘ п╡я▀я─п╟п╤п╣п╫п╦п╧?\r\n", ch);
 		return;
 	}
 
@@ -3357,13 +3357,13 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!target)
 	{
-		send_to_char("Тяжеловато найти цель!\r\n", ch);
+		send_to_char("п╒я▐п╤п╣п╩п╬п╡п╟я┌п╬ п╫п╟п╧я┌п╦ я├п╣п╩я▄!\r\n", ch);
 		return;
 	}
 
 	if (tch == ch && SpINFO.violent)
 	{
-		send_to_char("Не накликайте беды!\r\n", ch);
+		send_to_char("п²п╣ п╫п╟п╨п╩п╦п╨п╟п╧я┌п╣ п╠п╣п╢я▀!\r\n", ch);
 		return;
 	}
 
@@ -3372,13 +3372,13 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, TAR_SELF_ONLY))
 	{
-		send_to_char("Этот клич предназначен только для вас!\r\n", ch);
+		send_to_char("п╜я┌п╬я┌ п╨п╩п╦я┤ п©я─п╣п╢п╫п╟п╥п╫п╟я┤п╣п╫ я┌п╬п╩я▄п╨п╬ п╢п╩я▐ п╡п╟я│!\r\n", ch);
 		return;
 	}
 
 	if (tch == ch && IS_SET(SpINFO.targets, TAR_NOT_SELF))
 	{
-		send_to_char("Да вы с ума сошли!\r\n", ch);
+		send_to_char("п■п╟ п╡я▀ я│ я┐п╪п╟ я│п╬я┬п╩п╦!\r\n", ch);
 		return;
 	}
 
@@ -3388,17 +3388,17 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (timed.time > HOURS_PER_DAY)
 	{
-		send_to_char("Вы охрипли и не можете кричать.\r\n", ch);
+		send_to_char("п▓я▀ п╬я┘я─п╦п©п╩п╦ п╦ п╫п╣ п╪п╬п╤п╣я┌п╣ п╨я─п╦я┤п╟я┌я▄.\r\n", ch);
 		return;
 	}
 
 	if (GET_MOVE(ch) < SpINFO.mana_max)
 	{
-		send_to_char("У вас не хватит сил для этого.\r\n", ch);
+		send_to_char("пё п╡п╟я│ п╫п╣ я┘п╡п╟я┌п╦я┌ я│п╦п╩ п╢п╩я▐ я█я┌п╬пЁп╬.\r\n", ch);
 		return;
 	}
 
-	sprintf(buf, "Вы выкрикнули %s%s%s.\r\n", SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
+	sprintf(buf, "п▓я▀ п╡я▀п╨я─п╦п╨п╫я┐п╩п╦ %s%s%s.\r\n", SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 	say_spell(ch, spellnum, tch, tobj);
 
@@ -3421,7 +3421,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	if (IS_IMMORTAL(ch) && !Privilege::check_flag(ch, Privilege::USE_SKILLS))
 	{
-		send_to_char("Не положено...\r\n", ch);
+		send_to_char("п²п╣ п©п╬п╩п╬п╤п╣п╫п╬...\r\n", ch);
 		return;
 	}
 
@@ -3436,15 +3436,15 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (!s)
 	{
 		if (subcmd == SCMD_RUNES)
-			send_to_char("Что вы хотите сложить?\r\n", ch);
+			send_to_char("п╖я┌п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ я│п╩п╬п╤п╦я┌я▄?\r\n", ch);
 		else if (subcmd == SCMD_ITEMS)
-			send_to_char("Что вы хотите смешать?\r\n", ch);
+			send_to_char("п╖я┌п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ я│п╪п╣я┬п╟я┌я▄?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
 	if (!s)
 	{
-		send_to_char("Название вызываемой магии смеси должно быть заключено в символы : ' или * или !\r\n", ch);
+		send_to_char("п²п╟п╥п╡п╟п╫п╦п╣ п╡я▀п╥я▀п╡п╟п╣п╪п╬п╧ п╪п╟пЁп╦п╦ я│п╪п╣я│п╦ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╬ п╡ я│п╦п╪п╡п╬п╩я▀ : ' п╦п╩п╦ * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 	t = strtok(NULL, "\0");
@@ -3454,7 +3454,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
+		send_to_char("п≤ п╬я┌п╨я┐п╢п╟ п╡я▀ п╫п╟п╠я─п╟п╩п╦я│я▄ я─п╣я├п╣п©я┌п╬п╡?\r\n", ch);
 		return;
 	}
 
@@ -3464,7 +3464,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			|| (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_RUNES)
 				&& subcmd == SCMD_RUNES)) && !IS_GOD(ch))
 	{
-		send_to_char("Это блюдо вам явно не понравится.\r\n" "Научитесь его правильно готовить.\r\n", ch);
+		send_to_char("п╜я┌п╬ п╠п╩я▌п╢п╬ п╡п╟п╪ я▐п╡п╫п╬ п╫п╣ п©п╬п╫я─п╟п╡п╦я┌я│я▐.\r\n" "п²п╟я┐я┤п╦я┌п╣я│я▄ п╣пЁп╬ п©я─п╟п╡п╦п╩я▄п╫п╬ пЁп╬я┌п╬п╡п╦я┌я▄.\r\n", ch);
 		return;
 	}
 
@@ -3474,9 +3474,9 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (!check_recipe_items(ch, spellnum, subcmd == SCMD_ITEMS ? SPELL_ITEMS : SPELL_RUNES, FALSE))
 	{
 		if (subcmd == SCMD_ITEMS)
-			send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
+			send_to_char("пё п╡п╟я│ п╫п╣я┌ п╫я┐п╤п╫я▀я┘ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌п╬п╡!\r\n", ch);
 		else if (subcmd == SCMD_RUNES)
-			send_to_char("У вас нет нужных рун!\r\n", ch);
+			send_to_char("пё п╡п╟я│ п╫п╣я┌ п╫я┐п╤п╫я▀я┘ я─я┐п╫!\r\n", ch);
 		return;
 	}
 
@@ -3490,39 +3490,39 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (target && (tch == ch) && SpINFO.violent)
 	{
-		send_to_char("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
+		send_to_char("п⌡п╣п╨п╟я─п╦ п╫п╣ я─п╣п╨п╬п╪п╣п╫п╢я┐я▌я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╜п╒п· п╫п╟ я│п╣п╠я▐!\r\n", ch);
 		return;
 	}
 
 	if (!target)
 	{
-		send_to_char("Тяжеловато найти цель для вашей магии!\r\n", ch);
+		send_to_char("п╒я▐п╤п╣п╩п╬п╡п╟я┌п╬ п╫п╟п╧я┌п╦ я├п╣п╩я▄ п╢п╩я▐ п╡п╟я┬п╣п╧ п╪п╟пЁп╦п╦!\r\n", ch);
 		return;
 	}
 
 	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, TAR_SELF_ONLY))
 	{
-		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
+		send_to_char("п▓я▀ п╪п╬п╤п╣я┌п╣ п╨п╬п╩п╢п╬п╡п╟я┌я▄ я█я┌п╬ я┌п╬п╩я▄п╨п╬ п╫п╟ я│п╣п╠я▐!\r\n", ch);
 		return;
 	}
 
 	if (IS_MANA_CASTER(ch))
 	{
-// shapirus: проверку на достаточный левел делаем здесь, потому что
-// раньше она делалась в функции расчета стоимости заклинания -- там просто
-// возвращалось 9999, если левел мал. Йожику понятно, что это
-// полная фигня по всем соображениям :).
-// Теперь в этом месте мы будем проверять может ли волхв скастить этот спел
+// shapirus: п©я─п╬п╡п╣я─п╨я┐ п╫п╟ п╢п╬я│я┌п╟я┌п╬я┤п╫я▀п╧ п╩п╣п╡п╣п╩ п╢п╣п╩п╟п╣п╪ п╥п╢п╣я│я▄, п©п╬я┌п╬п╪я┐ я┤я┌п╬
+// я─п╟п╫я▄я┬п╣ п╬п╫п╟ п╢п╣п╩п╟п╩п╟я│я▄ п╡ я└я┐п╫п╨я├п╦п╦ я─п╟я│я┤п╣я┌п╟ я│я┌п╬п╦п╪п╬я│я┌п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ -- я┌п╟п╪ п©я─п╬я│я┌п╬
+// п╡п╬п╥п╡я─п╟я┴п╟п╩п╬я│я▄ 9999, п╣я│п╩п╦ п╩п╣п╡п╣п╩ п╪п╟п╩. п≥п╬п╤п╦п╨я┐ п©п╬п╫я▐я┌п╫п╬, я┤я┌п╬ я█я┌п╬
+// п©п╬п╩п╫п╟я▐ я└п╦пЁп╫я▐ п©п╬ п╡я│п╣п╪ я│п╬п╬п╠я─п╟п╤п╣п╫п╦я▐п╪ :).
+// п╒п╣п©п╣я─я▄ п╡ я█я┌п╬п╪ п╪п╣я│я┌п╣ п╪я▀ п╠я┐п╢п╣п╪ п©я─п╬п╡п╣я─я▐я┌я▄ п╪п╬п╤п╣я┌ п╩п╦ п╡п╬п╩я┘п╡ я│п╨п╟я│я┌п╦я┌я▄ я█я┌п╬я┌ я│п©п╣п╩
 
 		if (GET_LEVEL(ch) < spell_create_level(ch, spellnum))
 		{
-			send_to_char("Вы еще слишком малы, чтобы колдовать такое.\r\n", ch);
+			send_to_char("п▓я▀ п╣я┴п╣ я│п╩п╦я┬п╨п╬п╪ п╪п╟п╩я▀, я┤я┌п╬п╠я▀ п╨п╬п╩п╢п╬п╡п╟я┌я▄ я┌п╟п╨п╬п╣.\r\n", ch);
 			return;
 		}
 
 		if (GET_MANA_STORED(ch) < GET_MANA_COST(ch, spellnum))
 		{
-			send_to_char("У вас маловато магической энергии!\r\n", ch);
+			send_to_char("пё п╡п╟я│ п╪п╟п╩п╬п╡п╟я┌п╬ п╪п╟пЁп╦я┤п╣я│п╨п╬п╧ я█п╫п╣я─пЁп╦п╦!\r\n", ch);
 			return;
 		}
 		else
@@ -3541,9 +3541,9 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			if (!tch || !skill_message(0, ch, tch, spellnum))
 			{
 				if (subcmd == SCMD_ITEMS)
-					send_to_char("Вы неправильно смешали ингредиенты!\r\n", ch);
+					send_to_char("п▓я▀ п╫п╣п©я─п╟п╡п╦п╩я▄п╫п╬ я│п╪п╣я┬п╟п╩п╦ п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀!\r\n", ch);
 				else if (subcmd == SCMD_RUNES)
-					send_to_char("Вы не смогли правильно истолковать значение рун!\r\n", ch);
+					send_to_char("п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ п©я─п╟п╡п╦п╩я▄п╫п╬ п╦я│я┌п╬п╩п╨п╬п╡п╟я┌я▄ п╥п╫п╟я┤п╣п╫п╦п╣ я─я┐п╫!\r\n", ch);
 			}
 
 		}
@@ -3573,36 +3573,36 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (!*arg)
 	{
 		if (subcmd == SCMD_RECIPE)
-			send_to_char("Состав ЧЕГО вы хотите узнать?\r\n", ch);
+			send_to_char("п║п╬я│я┌п╟п╡ п╖п∙п⌠п· п╡я▀ я┘п╬я┌п╦я┌п╣ я┐п╥п╫п╟я┌я▄?\r\n", ch);
 		else
-			send_to_char("ЧТО вы хотите создать?\r\n", ch);
+			send_to_char("п╖п╒п· п╡я▀ я┘п╬я┌п╦я┌п╣ я│п╬п╥п╢п╟я┌я▄?\r\n", ch);
 		return;
 	}
 
 	size_t i = strlen(arg);
-	if (!strn_cmp(arg, "potion", i) || !strn_cmp(arg, "напиток", i))
+	if (!strn_cmp(arg, "potion", i) || !strn_cmp(arg, "п╫п╟п©п╦я┌п╬п╨", i))
 		itemnum = SPELL_POTION;
-	else if (!strn_cmp(arg, "wand", i) || !strn_cmp(arg, "палочка", i))
+	else if (!strn_cmp(arg, "wand", i) || !strn_cmp(arg, "п©п╟п╩п╬я┤п╨п╟", i))
 		itemnum = SPELL_WAND;
-	else if (!strn_cmp(arg, "scroll", i) || !strn_cmp(arg, "свиток", i))
+	else if (!strn_cmp(arg, "scroll", i) || !strn_cmp(arg, "я│п╡п╦я┌п╬п╨", i))
 		itemnum = SPELL_SCROLL;
-	else if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
-			 !strn_cmp(arg, "отвар", i))
+	else if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "я─п╣я├п╣п©я┌", i) ||
+			 !strn_cmp(arg, "п╬я┌п╡п╟я─", i))
 	{
 		if (subcmd != SCMD_RECIPE)
 		{
-			send_to_char("Магическую смесь необходимо СМЕШАТЬ.\r\n", ch);
+			send_to_char("п°п╟пЁп╦я┤п╣я│п╨я┐я▌ я│п╪п╣я│я▄ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬ п║п°п∙п╗п░п╒п╛.\r\n", ch);
 			return;
 		}
 //		itemnum = SPELL_ITEMS;
 		compose_recipe(ch, argument, 0);
 		return;
 	}
-	else if (!strn_cmp(arg, "runes", i) || !strn_cmp(arg, "руны", i))
+	else if (!strn_cmp(arg, "runes", i) || !strn_cmp(arg, "я─я┐п╫я▀", i))
 	{
 		if (subcmd != SCMD_RECIPE)
 		{
-			send_to_char("Руны требуется сложить.\r\n", ch);
+			send_to_char("п═я┐п╫я▀ я┌я─п╣п╠я┐п╣я┌я│я▐ я│п╩п╬п╤п╦я┌я▄.\r\n", ch);
 			return;
 		}
 		itemnum = SPELL_RUNES;
@@ -3610,9 +3610,9 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	else
 	{
 		if (subcmd == SCMD_RECIPE)
-			sprintf(buf, "Состав '%s' уже давно утерян.\r\n", arg);
+			sprintf(buf, "п║п╬я│я┌п╟п╡ '%s' я┐п╤п╣ п╢п╟п╡п╫п╬ я┐я┌п╣я─я▐п╫.\r\n", arg);
 		else
-			sprintf(buf, "Создание '%s' доступно только Великим Богам.\r\n", arg);
+			sprintf(buf, "п║п╬п╥п╢п╟п╫п╦п╣ '%s' п╢п╬я│я┌я┐п©п╫п╬ я┌п╬п╩я▄п╨п╬ п▓п╣п╩п╦п╨п╦п╪ п▒п╬пЁп╟п╪.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -3620,14 +3620,14 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		sprintf(buf, "Уточните тип состава!\r\n");
+		sprintf(buf, "пёя┌п╬я┤п╫п╦я┌п╣ я┌п╦п© я│п╬я│я┌п╟п╡п╟!\r\n");
 		send_to_char(buf, ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Название состава должно быть заключено в символы : ' или * или !\r\n", ch);
+		send_to_char("п²п╟п╥п╡п╟п╫п╦п╣ я│п╬я│я┌п╟п╡п╟ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╬ п╡ я│п╦п╪п╡п╬п╩я▀ : ' п╦п╩п╦ * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 
@@ -3636,14 +3636,14 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда вы набрались рецептов?\r\n", ch);
+		send_to_char("п≤ п╬я┌п╨я┐п╢п╟ п╡я▀ п╫п╟п╠я─п╟п╩п╦я│я▄ я─п╣я├п╣п©я┌п╬п╡?\r\n", ch);
 		return;
 	}
 
 	// Caster is don't know this recipe
 	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), itemnum) && !IS_IMMORTAL(ch))
 	{
-		send_to_char("Было бы неплохо прежде всего выучить этот состав.\r\n", ch);
+		send_to_char("п▒я▀п╩п╬ п╠я▀ п╫п╣п©п╩п╬я┘п╬ п©я─п╣п╤п╢п╣ п╡я│п╣пЁп╬ п╡я▀я┐я┤п╦я┌я▄ я█я┌п╬я┌ я│п╬я│я┌п╟п╡.\r\n", ch);
 		return;
 	}
 
@@ -3655,23 +3655,23 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!check_recipe_values(ch, spellnum, itemnum, FALSE))
 	{
-		send_to_char("Боги хранят в тайне этот состав.\r\n", ch);
+		send_to_char("п▒п╬пЁп╦ я┘я─п╟п╫я▐я┌ п╡ я┌п╟п╧п╫п╣ я█я┌п╬я┌ я│п╬я│я┌п╟п╡.\r\n", ch);
 		return;
 	}
 
 	if (!check_recipe_items(ch, spellnum, itemnum, TRUE))
 	{
-		send_to_char("У вас нет нужных инградиентов!\r\n", ch);
+		send_to_char("пё п╡п╟я│ п╫п╣я┌ п╫я┐п╤п╫я▀я┘ п╦п╫пЁя─п╟п╢п╦п╣п╫я┌п╬п╡!\r\n", ch);
 		return;
 	}
 }
 
 void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj)
 {
-	send_to_char(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
+	send_to_char(ch, "п≤п╥я┐я┤п╦п╡ %s п╬я┌ п╨п╬я─п╨п╦ п╢п╬ п╨п╬я─п╨п╦ п╡я▀ я┌п╟п╨ п╦ п╫п╣ я┐п╥п╫п╟п╩п╦ п╫п╦я┤п╣пЁп╬ п╫п╬п╡п╬пЁп╬.\r\n",
 		obj->get_PName(3).c_str());
-	act("$n с интересом принял$g читать $o3.\r\n"
-		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
+	act("$n я│ п╦п╫я┌п╣я─п╣я│п╬п╪ п©я─п╦п╫я▐п╩$g я┤п╦я┌п╟я┌я▄ $o3.\r\n"
+		"п÷п╬я│я┌п╣п©п╣п╫п╫п╬ $s п╦п╫я┌п╣я─п╣я│ п╫п╟я┤п╟п╩ я┐пЁп╟я│п╟я┌я▄, п╦ $e, п©п╩я▌я▐я│я▄, я│я┐п╫я┐п╩$g $o3 п╬п╠я─п╟я┌п╫п╬.",
 		FALSE, ch, obj, 0, TO_ROOM);
 }
 
@@ -3684,28 +3684,28 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	const char *stype0[] =
 	{
-		"секрет",
-		"еще несколько секретов"
+		"я│п╣п╨я─п╣я┌",
+		"п╣я┴п╣ п╫п╣я│п╨п╬п╩я▄п╨п╬ я│п╣п╨я─п╣я┌п╬п╡"
 	};
 
 	const char *stype1[] =
 	{
-		"заклинание",
-		"умение",
-		"умение",
-		"рецепт",
-		"рецепт",
-		"способность"
+		"п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣",
+		"я┐п╪п╣п╫п╦п╣",
+		"я┐п╪п╣п╫п╦п╣",
+		"я─п╣я├п╣п©я┌",
+		"я─п╣я├п╣п©я┌",
+		"я│п©п╬я│п╬п╠п╫п╬я│я┌я▄"
 	};
 
 	const char *stype2[] =
 	{
-		"заклинания",
-		"умения",
-		"умения",
-		"рецепта",
-		"рецепта",
-		"способности"
+		"п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐",
+		"я┐п╪п╣п╫п╦я▐",
+		"я┐п╪п╣п╫п╦я▐",
+		"я─п╣я├п╣п©я┌п╟",
+		"я─п╣я├п╣п©я┌п╟",
+		"я│п©п╬я│п╬п╠п╫п╬я│я┌п╦"
 	};
 
 	if (IS_NPC(ch))
@@ -3716,21 +3716,21 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (!*arg)
 	{
-		send_to_char("Вы принялись внимательно изучать свои ногти. Да, пора бы и подстричь.\r\n", ch);
-		act("$n удивленно уставил$u на свои ногти. Подстриг бы их кто-нибудь $m.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		send_to_char("п▓я▀ п©я─п╦п╫я▐п╩п╦я│я▄ п╡п╫п╦п╪п╟я┌п╣п╩я▄п╫п╬ п╦п╥я┐я┤п╟я┌я▄ я│п╡п╬п╦ п╫п╬пЁя┌п╦. п■п╟, п©п╬я─п╟ п╠я▀ п╦ п©п╬п╢я│я┌я─п╦я┤я▄.\r\n", ch);
+		act("$n я┐п╢п╦п╡п╩п╣п╫п╫п╬ я┐я│я┌п╟п╡п╦п╩$u п╫п╟ я│п╡п╬п╦ п╫п╬пЁя┌п╦. п÷п╬п╢я│я┌я─п╦пЁ п╠я▀ п╦я┘ п╨я┌п╬-п╫п╦п╠я┐п╢я▄ $m.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return;
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		send_to_char("А у вас этого нет.\r\n", ch);
+		send_to_char("п░ я┐ п╡п╟я│ я█я┌п╬пЁп╬ п╫п╣я┌.\r\n", ch);
 		return;
 	}
 
 	if (GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_BOOK)
 	{
-		act("Вы уставились на $o3, как баран на новые ворота.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n начал$g внимательно изучать устройство $o1.", FALSE, ch, obj, 0, TO_ROOM);
+		act("п▓я▀ я┐я│я┌п╟п╡п╦п╩п╦я│я▄ п╫п╟ $o3, п╨п╟п╨ п╠п╟я─п╟п╫ п╫п╟ п╫п╬п╡я▀п╣ п╡п╬я─п╬я┌п╟.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n п╫п╟я┤п╟п╩$g п╡п╫п╦п╪п╟я┌п╣п╩я▄п╫п╬ п╦п╥я┐я┤п╟я┌я▄ я┐я│я┌я─п╬п╧я│я┌п╡п╬ $o1.", FALSE, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
@@ -3738,14 +3738,14 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			GET_OBJ_VAL(obj, 0) != BOOK_UPGRD && GET_OBJ_VAL(obj, 0) != BOOK_RECPT &&
 			GET_OBJ_VAL(obj, 0) != BOOK_FEAT)
 	{
-		act("НЕВЕРНЫЙ ТИП КНИГИ - сообщите Богам!", FALSE, ch, obj, 0, TO_CHAR);
+		act("п²п∙п▓п∙п═п²п╚п≥ п╒п≤п÷ п п²п≤п⌠п≤ - я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪!", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
 
 	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
 		&& slot_for_char(ch, 1) <= 0)
 	{
-		send_to_char("Далась вам эта магия! Пошли-бы, водочки выпили...\r\n", ch);
+		send_to_char("п■п╟п╩п╟я│я▄ п╡п╟п╪ я█я┌п╟ п╪п╟пЁп╦я▐! п÷п╬я┬п╩п╦-п╠я▀, п╡п╬п╢п╬я┤п╨п╦ п╡я▀п©п╦п╩п╦...\r\n", ch);
 		return;
 	}
 
@@ -3755,7 +3755,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		&& GET_OBJ_VAL(obj, 0) != BOOK_FEAT
 		&& GET_OBJ_VAL(obj, 0) != BOOK_RECPT)
 	{
-		send_to_char("НЕКОРРЕКТНЫЙ УРОВЕНЬ - сообщите Богам!\r\n", ch);
+		send_to_char("п²п∙п п·п═п═п∙п п╒п²п╚п≥ пёп═п·п▓п∙п²п╛ - я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪!\r\n", ch);
 		return;
 	}
 
@@ -3769,27 +3769,27 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		&& GET_OBJ_VAL(obj, 1) < 1
 		&& GET_OBJ_VAL(obj, 1) > MAX_SKILL_NUM)
 	{
-		send_to_char("УМЕНИЕ НЕ ОПРЕДЕЛЕНО - сообщите Богам!\r\n", ch);
+		send_to_char("пёп°п∙п²п≤п∙ п²п∙ п·п÷п═п∙п■п∙п⌡п∙п²п· - я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪!\r\n", ch);
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 0) == BOOK_RECPT
 		&& rcpt < 0)
 	{
-		send_to_char("РЕЦЕПТ НЕ ОПРЕДЕЛЕН - сообщите Богам!\r\n", ch);
+		send_to_char("п═п∙п╕п∙п÷п╒ п²п∙ п·п÷п═п∙п■п∙п⌡п∙п² - я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪!\r\n", ch);
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 0) == BOOK_SPELL
 		&& (GET_OBJ_VAL(obj, 1) < 1
 			|| GET_OBJ_VAL(obj, 1) > SPELLS_COUNT))
 	{
-		send_to_char("МАГИЯ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
+		send_to_char("п°п░п⌠п≤п╞ п²п∙ п·п÷п═п∙п■п∙п⌡п∙п²п░ - я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪!\r\n", ch);
 		return;
 	}
 	if (GET_OBJ_VAL(obj, 0) == BOOK_FEAT
 		&& (GET_OBJ_VAL(obj, 1) < 1
 			|| GET_OBJ_VAL(obj, 1) >= MAX_FEATS))
 	{
-		send_to_char("СПОСОБНОСТЬ НЕ ОПРЕДЕЛЕНА - сообщите Богам!\r\n", ch);
+		send_to_char("п║п÷п·п║п·п▒п²п·п║п╒п╛ п²п∙ п·п÷п═п∙п■п∙п⌡п∙п²п░ - я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪!\r\n", ch);
 		return;
 	}
 
@@ -3818,7 +3818,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		spellname = imrecipes[spellnum].name;
 		if (imrecipes[spellnum].level == -1 || imrecipes[spellnum].remort == -1)
 		{
-			send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
+			send_to_char("п²п╣п╨п╬я─я─п╣п╨я┌п╫п╟я▐ п╥п╟п©п╦я│я▄ я─п╣я├п╣п©я┌п╟ п╢п╩я▐ п╡п╟я┬п╣пЁп╬ п╨п╩п╟я│я│п╟ - я│п╬п╬п╠я┴п╦я┌п╣ п▒п╬пЁп╟п╪.\r\n", ch);
 			return;
 		}
 	}
@@ -3833,24 +3833,24 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_FEAT && HAVE_FEAT(ch, spellnum))
 		|| (GET_OBJ_VAL(obj, 0) == BOOK_RECPT && rs))
 	{
-		sprintf(buf, "Вы открыли %s и принялись с интересом\r\n"
-			"изучать. Каким же было разочарование, когда прочитав %s,\r\n"
-			"Вы поняли, что это %s \"%s\".\r\n",
+		sprintf(buf, "п▓я▀ п╬я┌п╨я─я▀п╩п╦ %s п╦ п©я─п╦п╫я▐п╩п╦я│я▄ я│ п╦п╫я┌п╣я─п╣я│п╬п╪\r\n"
+			"п╦п╥я┐я┤п╟я┌я▄. п п╟п╨п╦п╪ п╤п╣ п╠я▀п╩п╬ я─п╟п╥п╬я┤п╟я─п╬п╡п╟п╫п╦п╣, п╨п╬пЁп╢п╟ п©я─п╬я┤п╦я┌п╟п╡ %s,\r\n"
+			"п▓я▀ п©п╬п╫я▐п╩п╦, я┤я┌п╬ я█я┌п╬ %s \"%s\".\r\n",
 			obj->get_PName(3).c_str(),
-			number(0, 1) ? "несколько абзацев" :
-			number(0, 1) ? "пару строк" : "почти до конца",
+			number(0, 1) ? "п╫п╣я│п╨п╬п╩я▄п╨п╬ п╟п╠п╥п╟я├п╣п╡" :
+			number(0, 1) ? "п©п╟я─я┐ я│я┌я─п╬п╨" : "п©п╬я┤я┌п╦ п╢п╬ п╨п╬п╫я├п╟",
 			stype1[GET_OBJ_VAL(obj, 0)],
 			spellname);
 		send_to_char(buf, ch);
-		act("$n с интересом принял$g читать $o3.\r\n"
-			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
+		act("$n я│ п╦п╫я┌п╣я─п╣я│п╬п╪ п©я─п╦п╫я▐п╩$g я┤п╦я┌п╟я┌я▄ $o3.\r\n"
+			"п÷п╬я│я┌п╣п©п╣п╫п╫п╬ $s п╦п╫я┌п╣я─п╣я│ п╫п╟я┤п╟п╩ я┐пЁп╟я│п╟я┌я▄, п╦ $e, п©п╩я▌я▐я│я▄, я│я┐п╫я┐п╩$g $o3 п╬п╠я─п╟я┌п╫п╬.",
 			FALSE, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
 	if (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD)
 	{
-		// апгрейд скилла без учета макс.скилла плеера (до макс в книге)
+		// п╟п©пЁя─п╣п╧п╢ я│п╨п╦п╩п╩п╟ п╠п╣п╥ я┐я┤п╣я┌п╟ п╪п╟п╨я│.я│п╨п╦п╩п╩п╟ п©п╩п╣п╣я─п╟ (п╢п╬ п╪п╟п╨я│ п╡ п╨п╫п╦пЁп╣)
 		if (GET_OBJ_VAL(obj, 3) > 0
 			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= GET_OBJ_VAL(obj, 3))
 		{
@@ -3858,7 +3858,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			return;
 		}
 
-		// апгрейд скилла до макс.скилла плеера (без макса в книге)
+		// п╟п©пЁя─п╣п╧п╢ я│п╨п╦п╩п╩п╟ п╢п╬ п╪п╟п╨я│.я│п╨п╦п╩п╩п╟ п©п╩п╣п╣я─п╟ (п╠п╣п╥ п╪п╟п╨я│п╟ п╡ п╨п╫п╦пЁп╣)
 		if (GET_OBJ_VAL(obj, 3) <= 0
 			&& ch->get_trained_skill(static_cast<ESkill>(spellnum)) >= MAX_EXP_PERCENT + GET_REMORT(ch) * 5)
 		{
@@ -3869,16 +3869,16 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (!spellnum)
 	{
-		const char* where = number(0, 1) ? "вон та" : (number(0, 1) ? "вот эта" : "пятая справа");
-		const char* what = number(0, 1) ? "жука" : (number(0, 1) ? "бабочку" : "русалку");
-		const char* whom = obj->get_sex() == ESex::SEX_FEMALE ? "нее" : (obj->get_sex() == ESex::SEX_POLY ? "них" : "него");
+		const char* where = number(0, 1) ? "п╡п╬п╫ я┌п╟" : (number(0, 1) ? "п╡п╬я┌ я█я┌п╟" : "п©я▐я┌п╟я▐ я│п©я─п╟п╡п╟");
+		const char* what = number(0, 1) ? "п╤я┐п╨п╟" : (number(0, 1) ? "п╠п╟п╠п╬я┤п╨я┐" : "я─я┐я│п╟п╩п╨я┐");
+		const char* whom = obj->get_sex() == ESex::SEX_FEMALE ? "п╫п╣п╣" : (obj->get_sex() == ESex::SEX_POLY ? "п╫п╦я┘" : "п╫п╣пЁп╬");
 		sprintf(buf,
-			"- \"Какие интересные буковки ! Особенно %s, похожая на %s\".\r\n"
-			"Полюбовавшись еще несколько минут на сию красоту, вы с чувством выполненного\r\n"
-			"долга закрыли %s. До %s вы еще не доросли.\r\n",
+			"- \"п п╟п╨п╦п╣ п╦п╫я┌п╣я─п╣я│п╫я▀п╣ п╠я┐п╨п╬п╡п╨п╦ ! п·я│п╬п╠п╣п╫п╫п╬ %s, п©п╬я┘п╬п╤п╟я▐ п╫п╟ %s\".\r\n"
+			"п÷п╬п╩я▌п╠п╬п╡п╟п╡я┬п╦я│я▄ п╣я┴п╣ п╫п╣я│п╨п╬п╩я▄п╨п╬ п╪п╦п╫я┐я┌ п╫п╟ я│п╦я▌ п╨я─п╟я│п╬я┌я┐, п╡я▀ я│ я┤я┐п╡я│я┌п╡п╬п╪ п╡я▀п©п╬п╩п╫п╣п╫п╫п╬пЁп╬\r\n"
+			"п╢п╬п╩пЁп╟ п╥п╟п╨я─я▀п╩п╦ %s. п■п╬ %s п╡я▀ п╣я┴п╣ п╫п╣ п╢п╬я─п╬я│п╩п╦.\r\n",
 			where, what, obj->get_PName(3).c_str(), whom);
 		send_to_char(buf, ch);
-		act("$n с интересом осмотрел$g $o3, крякнул$g от досады и положил$g обратно.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$n я│ п╦п╫я┌п╣я─п╣я│п╬п╪ п╬я│п╪п╬я┌я─п╣п╩$g $o3, п╨я─я▐п╨п╫я┐п╩$g п╬я┌ п╢п╬я│п╟п╢я▀ п╦ п©п╬п╩п╬п╤п╦п╩$g п╬п╠я─п╟я┌п╫п╬.", FALSE, ch, obj, 0, TO_ROOM);
 		return;
 	}
 
@@ -3898,23 +3898,23 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	if (!obj->get_extra_flag(EExtraFlag::ITEM_NO_FAIL)
 		&& number(1, 100) > int_app[POSI(GET_REAL_INT(ch))].spell_aknowlege + addchance)
 	{
-		sprintf(buf, "Вы взяли в руки %s и начали изучать. Непослушные\r\n"
-			"буквы никак не хотели выстраиваться в понятные и доступные фразы.\r\n"
-			"Промучившись несколько минут, вы бросили это унылое занятие,\r\n"
-			"с удивлением отметив исчезновение %s.\r\n", obj->get_PName(3).c_str(), obj->get_PName(1).c_str());
+		sprintf(buf, "п▓я▀ п╡п╥я▐п╩п╦ п╡ я─я┐п╨п╦ %s п╦ п╫п╟я┤п╟п╩п╦ п╦п╥я┐я┤п╟я┌я▄. п²п╣п©п╬я│п╩я┐я┬п╫я▀п╣\r\n"
+			"п╠я┐п╨п╡я▀ п╫п╦п╨п╟п╨ п╫п╣ я┘п╬я┌п╣п╩п╦ п╡я▀я│я┌я─п╟п╦п╡п╟я┌я▄я│я▐ п╡ п©п╬п╫я▐я┌п╫я▀п╣ п╦ п╢п╬я│я┌я┐п©п╫я▀п╣ я└я─п╟п╥я▀.\r\n"
+			"п÷я─п╬п╪я┐я┤п╦п╡я┬п╦я│я▄ п╫п╣я│п╨п╬п╩я▄п╨п╬ п╪п╦п╫я┐я┌, п╡я▀ п╠я─п╬я│п╦п╩п╦ я█я┌п╬ я┐п╫я▀п╩п╬п╣ п╥п╟п╫я▐я┌п╦п╣,\r\n"
+			"я│ я┐п╢п╦п╡п╩п╣п╫п╦п╣п╪ п╬я┌п╪п╣я┌п╦п╡ п╦я│я┤п╣п╥п╫п╬п╡п╣п╫п╦п╣ %s.\r\n", obj->get_PName(3).c_str(), obj->get_PName(1).c_str());
 		send_to_char(buf, ch);
 	}
 	else
 	{
-		sprintf(buf, "Вы взяли в руки %s и начали изучать. Постепенно,\r\n"
-			"незнакомые доселе, буквы стали складываться в понятные слова и фразы.\r\n"
-			"Буквально через несколько минут вы узнали %s %s \"%s\".\r\n",
+		sprintf(buf, "п▓я▀ п╡п╥я▐п╩п╦ п╡ я─я┐п╨п╦ %s п╦ п╫п╟я┤п╟п╩п╦ п╦п╥я┐я┤п╟я┌я▄. п÷п╬я│я┌п╣п©п╣п╫п╫п╬,\r\n"
+			"п╫п╣п╥п╫п╟п╨п╬п╪я▀п╣ п╢п╬я│п╣п╩п╣, п╠я┐п╨п╡я▀ я│я┌п╟п╩п╦ я│п╨п╩п╟п╢я▀п╡п╟я┌я▄я│я▐ п╡ п©п╬п╫я▐я┌п╫я▀п╣ я│п╩п╬п╡п╟ п╦ я└я─п╟п╥я▀.\r\n"
+			"п▒я┐п╨п╡п╟п╩я▄п╫п╬ я┤п╣я─п╣п╥ п╫п╣я│п╨п╬п╩я▄п╨п╬ п╪п╦п╫я┐я┌ п╡я▀ я┐п╥п╫п╟п╩п╦ %s %s \"%s\".\r\n",
 			obj->get_PName(3).c_str(),
 			(GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0],
 			stype2[GET_OBJ_VAL(obj, 0)],
 			spellname);
 		send_to_char(buf, ch);
-		sprintf(buf, "LEARN: Игрок %s выучил %s %s \"%s\"", GET_NAME(ch), (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0], stype2[GET_OBJ_VAL(obj, 0)], spellname);
+		sprintf(buf, "LEARN: п≤пЁя─п╬п╨ %s п╡я▀я┐я┤п╦п╩ %s %s \"%s\"", GET_NAME(ch), (GET_OBJ_VAL(obj, 0) == BOOK_UPGRD) ? stype0[1] : stype0[0], stype2[GET_OBJ_VAL(obj, 0)], spellname);
 		log("%s", buf);
 		switch (GET_OBJ_VAL(obj, 0))
 		{
@@ -3995,7 +3995,7 @@ void show_wizdom(CHAR_DATA * ch, int bitset)
 		};
 
 		gcount +=
-			sprintf(buf2 + gcount, "  %sВы знаете следующие заклинания :%s",
+			sprintf(buf2 + gcount, "  %sп▓я▀ п╥п╫п╟п╣я┌п╣ я│п╩п╣п╢я┐я▌я┴п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ :%s",
 					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 		if (is_full)
 		{
@@ -4003,14 +4003,14 @@ void show_wizdom(CHAR_DATA * ch, int bitset)
 			{
 				if (slots[i])
 				{
-					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
+					gcount += sprintf(buf2 + gcount, "\r\nп я─я┐пЁ %d", i + 1);
 					gcount += sprintf(buf2 + gcount, "%s", names[i]);
 				}
 			}
 		}
 		else
 		{
-			gcount += sprintf(buf2 + gcount, "\r\nСейчас у вас нет заученных заклинаний.");
+			gcount += sprintf(buf2 + gcount, "\r\nп║п╣п╧я┤п╟я│ я┐ п╡п╟я│ п╫п╣я┌ п╥п╟я┐я┤п╣п╫п╫я▀я┘ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧.");
 		}
 		gcount += sprintf(buf2 + gcount, "\r\n");
 	}
@@ -4036,8 +4036,8 @@ void show_wizdom(CHAR_DATA * ch, int bitset)
 				div = mana_gain(ch);
 				if (div > 0)
 				{
-					sec = MAX(0, 1 + GET_MEM_CURRENT(ch) - GET_MEM_COMPLETED(ch));	// sec/div -- время мема в мин
-					sec = sec * 60 / div;	// время мема в сек
+					sec = MAX(0, 1 + GET_MEM_CURRENT(ch) - GET_MEM_COMPLETED(ch));	// sec/div -- п╡я─п╣п╪я▐ п╪п╣п╪п╟ п╡ п╪п╦п╫
+					sec = sec * 60 / div;	// п╡я─п╣п╪я▐ п╪п╣п╪п╟ п╡ я│п╣п╨
 					min = sec / 60;
 					sec %= 60;
 					if (min > 99)
@@ -4072,25 +4072,25 @@ void show_wizdom(CHAR_DATA * ch, int bitset)
 
 			gcount +=
 				sprintf(buf2 + gcount,
-						"  %sВы запоминаете следующие заклинания :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+						"  %sп▓я▀ п╥п╟п©п╬п╪п╦п╫п╟п╣я┌п╣ я│п╩п╣п╢я┐я▌я┴п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ :%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			for (i = 0; i < imax_slot; i++)
 			{
 				if (slots[i])
 				{
-					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
+					gcount += sprintf(buf2 + gcount, "\r\nп я─я┐пЁ %d", i + 1);
 					gcount += sprintf(buf2 + gcount, "%s", names[i]);
 				}
 			}
 		}
 		else
-			gcount += sprintf(buf2 + gcount, "\r\nВы ничего не запоминаете.");
+			gcount += sprintf(buf2 + gcount, "\r\nп▓я▀ п╫п╦я┤п╣пЁп╬ п╫п╣ п╥п╟п©п╬п╪п╦п╫п╟п╣я┌п╣.");
 		gcount += sprintf(buf2 + gcount, "\r\n");
 	}
 
 	if ((bitset & 0x04) && imax_slot)
 	{
 		int *s = MemQ_slots(ch);
-		gcount += sprintf(buf2 + gcount, "  %sСвободно :%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+		gcount += sprintf(buf2 + gcount, "  %sп║п╡п╬п╠п╬п╢п╫п╬ :%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 		for (i = 0; i < imax_slot; i++)
 		{
 			slot_num = MAX(0, slot_for_char(ch, i + 1) - s[i]);
@@ -4117,26 +4117,26 @@ void do_remember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (IS_IMMORTAL(ch))
 	{
-		send_to_char("Господи, хоть ты не подкалывай!\r\n", ch);
+		send_to_char("п⌠п╬я│п©п╬п╢п╦, я┘п╬я┌я▄ я┌я▀ п╫п╣ п©п╬п╢п╨п╟п╩я▀п╡п╟п╧!\r\n", ch);
 		return;
 	}
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Какое заклинание вы хотите заучить?\r\n", ch);
+		send_to_char("п п╟п╨п╬п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ п╡я▀ я┘п╬я┌п╦я┌п╣ п╥п╟я┐я┤п╦я┌я▄?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		send_to_char("п²п╟п╥п╡п╟п╫п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╬ п╡ я│п╦п╪п╡п╬п╩я▀ : ' п╦п╩п╦ * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 	spellnum = fix_name_and_find_spell_num(s);
 
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
+		send_to_char("п≤ п╬я┌п╨я┐п╢п╟ п╡я▀ п╫п╟п╠я─п╟п╩п╦я│я▄ я┌п╟п╨п╦я┘ п╡я▀я─п╟п╤п╣п╫п╦п╧?\r\n", ch);
 		return;
 	}
 	// Caster is lower than spell level
@@ -4144,12 +4144,12 @@ void do_remember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			||  GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
 			||    slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 	{
-		send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
+		send_to_char("п═п╟п╫п╬ п╣я┴п╣ п╡п╟п╪ п╠я─п╬я│п╟я┌я▄я│я▐ я┌п╟п╨п╦п╪п╦ я│п╩п╬п╡п╟п╪п╦!\r\n", ch);
 		return;
 	};
 	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
 	{
-		send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
+		send_to_char("п▒я▀п╩п╬ п╠я▀ п╫п╣п©п╩п╬я┘п╬ п╦п╥я┐я┤п╦я┌я▄, п╢п╩я▐ п╫п╟я┤п╟п╩п╟, я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣...\r\n", ch);
 		return;
 	}
 	MemQ_remember(ch, spellnum);
@@ -4159,8 +4159,8 @@ void do_remember(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 inline bool in_mem(char* arg)
 {
 	return (strlen(arg) != 0) &&
-		 (!strn_cmp("часослов", arg, strlen(arg)) ||
-		  !strn_cmp("резы", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
+		 (!strn_cmp("я┤п╟я│п╬я│п╩п╬п╡", arg, strlen(arg)) ||
+		  !strn_cmp("я─п╣п╥я▀", arg, strlen(arg)) || !strn_cmp("book", arg, strlen(arg)));
 }
 
 void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -4168,31 +4168,31 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char *s=0, *t=0;
 	int spellnum, is_in_mem;
 
-	// проверка на аргумент рецепт|отвар
+	// п©я─п╬п╡п╣я─п╨п╟ п╫п╟ п╟я─пЁя┐п╪п╣п╫я┌ я─п╣я├п╣п©я┌|п╬я┌п╡п╟я─
 	one_argument(argument, arg);
 
 	if (!*arg)
 	{
-		send_to_char("Что вы хотите забыть?\r\n", ch);
+		send_to_char("п╖я┌п╬ п╡я▀ я┘п╬я┌п╦я┌п╣ п╥п╟п╠я▀я┌я▄?\r\n", ch);
 		return;
 	}
 
 	size_t i = strlen(arg);
-	if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "рецепт", i) ||
-			!strn_cmp(arg, "отвар", i))
+	if (!strn_cmp(arg, "recipe", i) || !strn_cmp(arg, "я─п╣я├п╣п©я┌", i) ||
+			!strn_cmp(arg, "п╬я┌п╡п╟я─", i))
 	{
 		forget_recipe(ch, argument, 0);
 		return;
 	}
 
-	if (!strn_cmp(arg, "все", i) || !strn_cmp(arg, "all", i))
+	if (!strn_cmp(arg, "п╡я│п╣", i) || !strn_cmp(arg, "all", i))
 	{
 		char arg2[MAX_INPUT_LENGTH];
 		two_arguments(argument, arg, arg2);
 		if (in_mem(arg2))
 		{
 			MemQ_flush(ch);
-			send_to_char("Вы вычеркнули все заклинания из своего списка для запоминания.\r\n", ch);
+			send_to_char("п▓я▀ п╡я▀я┤п╣я─п╨п╫я┐п╩п╦ п╡я│п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╦п╥ я│п╡п╬п╣пЁп╬ я│п©п╦я│п╨п╟ п╢п╩я▐ п╥п╟п©п╬п╪п╦п╫п╟п╫п╦я▐.\r\n", ch);
 		}
 		else
 		{
@@ -4200,7 +4200,7 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				GET_SPELL_MEM(ch, i) = 0;
 			}
-			sprintf(buf, "Вы удалили все заклинания из %s.\r\n", GET_RELIGION(ch) == RELIGION_MONO ? "своего часослова" : "своих рез");
+			sprintf(buf, "п▓я▀ я┐п╢п╟п╩п╦п╩п╦ п╡я│п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╦п╥ %s.\r\n", GET_RELIGION(ch) == RELIGION_MONO ? "я│п╡п╬п╣пЁп╬ я┤п╟я│п╬я│п╩п╬п╡п╟" : "я│п╡п╬п╦я┘ я─п╣п╥");
 			send_to_char(buf, ch);
 		}
 		return;
@@ -4208,31 +4208,31 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// get: blank, spell name, target name
 	if (IS_IMMORTAL(ch))
 	{
-		send_to_char("Господи, тебе лень набрать skillset?\r\n", ch);
+		send_to_char("п⌠п╬я│п©п╬п╢п╦, я┌п╣п╠п╣ п╩п╣п╫я▄ п╫п╟п╠я─п╟я┌я▄ skillset?\r\n", ch);
 		return;
 	}
 	s = strtok(argument, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Какое заклинание вы хотите забыть?\r\n", ch);
+		send_to_char("п п╟п╨п╬п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ п╡я▀ я┘п╬я┌п╦я┌п╣ п╥п╟п╠я▀я┌я▄?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
 	if (s == NULL)
 	{
-		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
+		send_to_char("п²п╟п╥п╡п╟п╫п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╢п╬п╩п╤п╫п╬ п╠я▀я┌я▄ п╥п╟п╨п╩я▌я┤п╣п╫п╬ п╡ я│п╦п╪п╡п╬п╩я▀ : ' п╦п╩п╦ * п╦п╩п╦ !\r\n", ch);
 		return;
 	}
 	spellnum = fix_name_and_find_spell_num(s);
 	// Unknown spell
 	if (spellnum < 1 || spellnum > MAX_SPELLS)
 	{
-		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
+		send_to_char("п≤ п╬я┌п╨я┐п╢п╟ п╡я▀ п╫п╟п╠я─п╟п╩п╦я│я▄ я┌п╟п╨п╦я┘ п╡я▀я─п╟п╤п╣п╫п╦п╧?\r\n", ch);
 		return;
 	}
 	if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_KNOW | SPELL_TEMP))
 	{
-		send_to_char("Трудно забыть то, чего не знаешь...\r\n", ch);
+		send_to_char("п╒я─я┐п╢п╫п╬ п╥п╟п╠я▀я┌я▄ я┌п╬, я┤п╣пЁп╬ п╫п╣ п╥п╫п╟п╣я┬я▄...\r\n", ch);
 		return;
 	}
 	t = strtok(NULL, "\0");
@@ -4245,17 +4245,17 @@ void do_forget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!is_in_mem)
 		if (!GET_SPELL_MEM(ch, spellnum))
 		{
-			send_to_char("Прежде чем забыть что-то ненужное, следует заучить что-то ненужное...\r\n", ch);
+			send_to_char("п÷я─п╣п╤п╢п╣ я┤п╣п╪ п╥п╟п╠я▀я┌я▄ я┤я┌п╬-я┌п╬ п╫п╣п╫я┐п╤п╫п╬п╣, я│п╩п╣п╢я┐п╣я┌ п╥п╟я┐я┤п╦я┌я▄ я┤я┌п╬-я┌п╬ п╫п╣п╫я┐п╤п╫п╬п╣...\r\n", ch);
 			return;
 		}
 		else
 		{
 			GET_SPELL_MEM(ch, spellnum)--;
 			GET_CASTER(ch) -= spell_info[spellnum].danger;
-			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
+			sprintf(buf, "п▓я▀ я┐п╢п╟п╩п╦п╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ '%s%s%s' п╦п╥ %s.\r\n",
 					CCICYN(ch, C_NRM),
 					SpINFO.name,
-					CCNRM(ch, C_NRM), GET_RELIGION(ch) == RELIGION_MONO ? "своего часослова" : "своих рез");
+					CCNRM(ch, C_NRM), GET_RELIGION(ch) == RELIGION_MONO ? "я│п╡п╬п╣пЁп╬ я┤п╟я│п╬я│п╩п╬п╡п╟" : "я│п╡п╬п╦я┘ я─п╣п╥");
 			send_to_char(buf, ch);
 		}
 	else
@@ -4567,804 +4567,804 @@ void mag_assign_spells(void)
 	// Do not change the loop above.
 
 //1
-	spello(SPELL_ARMOR, "защита", "armor", 40, 30, 1,
+	spello(SPELL_ARMOR, "п╥п╟я┴п╦я┌п╟", "armor", 40, 30, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
 //2
-	spello(SPELL_TELEPORT, "прыжок", "teleport",
+	spello(SPELL_TELEPORT, "п©я─я▀п╤п╬п╨", "teleport",
 		   140, 120, 2, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_MANUAL | NPC_DAMAGE_PC, 1, STYPE_AIR);
 //3
-	spello(SPELL_BLESS, "доблесть", "bless", 55, 40, 1, POS_FIGHTING,
+	spello(SPELL_BLESS, "п╢п╬п╠п╩п╣я│я┌я▄", "bless", 55, 40, 1, POS_FIGHTING,
 		TAR_CHAR_ROOM | TAR_FIGHT_SELF | TAR_OBJ_INV | TAR_OBJ_EQUIP,
 		FALSE, MAG_AFFECTS | MAG_ALTER_OBJS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
 //4
-	spello(SPELL_BLINDNESS, "слепота", "blind",
+	spello(SPELL_BLINDNESS, "я│п╩п╣п©п╬я┌п╟", "blind",
 		   70, 40, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_DARK);
 //5
-	spello(SPELL_BURNING_HANDS, "горящие руки", "burning hands", 40, 30, 1,
+	spello(SPELL_BURNING_HANDS, "пЁп╬я─я▐я┴п╦п╣ я─я┐п╨п╦", "burning hands", 40, 30, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_FIRE);
 //6
-	spello(SPELL_CALL_LIGHTNING, "шаровая молния", "call lightning", 85, 70, 1,
+	spello(SPELL_CALL_LIGHTNING, "я┬п╟я─п╬п╡п╟я▐ п╪п╬п╩п╫п╦я▐", "call lightning", 85, 70, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, NPC_AFFECT_PC | MAG_AFFECTS | MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_AIR);
 //7
-	spello(SPELL_CHARM, "подчинить разум", "mind control", 55, 40, 1,
+	spello(SPELL_CHARM, "п©п╬п╢я┤п╦п╫п╦я┌я▄ я─п╟п╥я┐п╪", "mind control", 55, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_MIND);
 //8
-	spello(SPELL_CHILL_TOUCH, "ледяное прикосновение", "chill touch",
+	spello(SPELL_CHILL_TOUCH, "п╩п╣п╢я▐п╫п╬п╣ п©я─п╦п╨п╬я│п╫п╬п╡п╣п╫п╦п╣", "chill touch",
 		   55, 45, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 1, STYPE_WATER);
 //9
-	spello(SPELL_CLONE, "клонирование", "clone",
+	spello(SPELL_CLONE, "п╨п╩п╬п╫п╦я─п╬п╡п╟п╫п╦п╣", "clone",
 		   150, 130, 5, POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_SUMMONS, 0, STYPE_DARK);
 //10
-	spello(SPELL_COLOR_SPRAY, "ледяные стрелы", "ice bolts", 90, 75, 1, POS_FIGHTING,
+	spello(SPELL_COLOR_SPRAY, "п╩п╣п╢я▐п╫я▀п╣ я│я┌я─п╣п╩я▀", "ice bolts", 90, 75, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
 		   3, STYPE_WATER);
 //11
-	spello(SPELL_CONTROL_WEATHER, "контроль погоды", "weather control",
+	spello(SPELL_CONTROL_WEATHER, "п╨п╬п╫я┌я─п╬п╩я▄ п©п╬пЁп╬п╢я▀", "weather control",
 		   100, 90, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 0, STYPE_AIR);
 //12
-	spello(SPELL_CREATE_FOOD, "создать пищу", "create food",
+	spello(SPELL_CREATE_FOOD, "я│п╬п╥п╢п╟я┌я▄ п©п╦я┴я┐", "create food",
 		   40, 30, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_CREATIONS, 0, STYPE_LIFE);
 //13
-	spello(SPELL_CREATE_WATER, "создать воду", "create water", 40, 30, 1,
+	spello(SPELL_CREATE_WATER, "я│п╬п╥п╢п╟я┌я▄ п╡п╬п╢я┐", "create water", 40, 30, 1,
 		   POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP | TAR_CHAR_ROOM, FALSE, MAG_MANUAL, 0, STYPE_WATER);
 //14
-	spello(SPELL_CURE_BLIND, "вылечить слепоту", "cure blind", 110, 90, 2,
+	spello(SPELL_CURE_BLIND, "п╡я▀п╩п╣я┤п╦я┌я▄ я│п╩п╣п©п╬я┌я┐", "cure blind", 110, 90, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS | NPC_UNAFFECT_NPC, 0, STYPE_LIGHT);
 //15
-	spello(SPELL_CURE_CRITIC, "критическое исцеление", "critical cure",
+	spello(SPELL_CURE_CRITIC, "п╨я─п╦я┌п╦я┤п╣я│п╨п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣", "critical cure",
 		   100, 90, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_POINTS | NPC_DUMMY, 3, STYPE_LIFE);
 //16
-	spello(SPELL_CURE_LIGHT, "легкое исцеление", "light cure",
+	spello(SPELL_CURE_LIGHT, "п╩п╣пЁп╨п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣", "light cure",
 		   40, 30, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
 //17
-	spello(SPELL_CURSE, "проклятье", "curse", 55, 40, 1, POS_FIGHTING,
+	spello(SPELL_CURSE, "п©я─п╬п╨п╩я▐я┌я▄п╣", "curse", 55, 40, 1, POS_FIGHTING,
 		TAR_CHAR_ROOM | TAR_FIGHT_VICT | TAR_OBJ_INV, MTYPE_NEUTRAL,
 		MAG_AFFECTS | MAG_ALTER_OBJS | NPC_AFFECT_PC, 1, STYPE_DARK);
 //18
-	spello(SPELL_DETECT_ALIGN, "определение наклонностей", "detect alignment",
+	spello(SPELL_DETECT_ALIGN, "п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п╫п╟п╨п╩п╬п╫п╫п╬я│я┌п╣п╧", "detect alignment",
 		   40, 30, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
 //19
-	spello(SPELL_DETECT_INVIS, "видеть невидимое", "detect invisible",
+	spello(SPELL_DETECT_INVIS, "п╡п╦п╢п╣я┌я▄ п╫п╣п╡п╦п╢п╦п╪п╬п╣", "detect invisible",
 		   100, 55, 3, POS_FIGHTING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
 //20
-	spello(SPELL_DETECT_MAGIC, "определение магии", "detect magic",
+	spello(SPELL_DETECT_MAGIC, "п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п╪п╟пЁп╦п╦", "detect magic",
 		   100, 55, 3, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
 //21
-	spello(SPELL_DETECT_POISON, "определение яда", "detect poison",
+	spello(SPELL_DETECT_POISON, "п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ я▐п╢п╟", "detect poison",
 		   40, 30, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
 //22
-	spello(SPELL_DISPEL_EVIL, "изгнать зло", "dispel evil",
+	spello(SPELL_DISPEL_EVIL, "п╦п╥пЁп╫п╟я┌я▄ п╥п╩п╬", "dispel evil",
 		   100, 90, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE, 1, STYPE_LIGHT);
 //23
-	spello(SPELL_EARTHQUAKE, "землетрясение", "earthquake", 110, 90, 2,
+	spello(SPELL_EARTHQUAKE, "п╥п╣п╪п╩п╣я┌я─я▐я│п╣п╫п╦п╣", "earthquake", 110, 90, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_EARTH);
 //24
-	spello(SPELL_ENCHANT_WEAPON, "заколдовать оружие", "enchant weapon",
+	spello(SPELL_ENCHANT_WEAPON, "п╥п╟п╨п╬п╩п╢п╬п╡п╟я┌я▄ п╬я─я┐п╤п╦п╣", "enchant weapon",
 		   140, 110, 2, POS_STANDING, TAR_OBJ_INV, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 //25
-	spello(SPELL_ENERGY_DRAIN, "истощить энергию", "energy drain",
+	spello(SPELL_ENERGY_DRAIN, "п╦я│я┌п╬я┴п╦я┌я▄ я█п╫п╣я─пЁп╦я▌", "energy drain",
 		   150, 140, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_MANUAL | MAG_AFFECTS | NPC_DAMAGE_PC, 1, STYPE_DARK);
 //26
-	spello(SPELL_FIREBALL, "огненный шар", "fireball",
+	spello(SPELL_FIREBALL, "п╬пЁп╫п╣п╫п╫я▀п╧ я┬п╟я─", "fireball",
 		   110, 100, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
 		   2, STYPE_FIRE);
 //27
-	spello(SPELL_HARM, "вред", "harm",
+	spello(SPELL_HARM, "п╡я─п╣п╢", "harm",
 		   110, 100, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_DARK);
 //28
-	spello(SPELL_HEAL, "исцеление", "heal", 110, 100, 2,
+	spello(SPELL_HEAL, "п╦я│я├п╣п╩п╣п╫п╦п╣", "heal", 110, 100, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_POINTS | NPC_DUMMY, 10, STYPE_LIFE);
 //29
-	spello(SPELL_INVISIBLE, "невидимость", "invisible",
+	spello(SPELL_INVISIBLE, "п╫п╣п╡п╦п╢п╦п╪п╬я│я┌я▄", "invisible",
 		   50, 40, 3, POS_STANDING, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM,
 		   FALSE, MAG_AFFECTS | MAG_ALTER_OBJS, 0,  STYPE_MIND);
 //30
-	spello(SPELL_LIGHTNING_BOLT, "молния", "lightning bolt", 55, 40, 1,
+	spello(SPELL_LIGHTNING_BOLT, "п╪п╬п╩п╫п╦я▐", "lightning bolt", 55, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_AIR);
 //31
-	spello(SPELL_LOCATE_OBJECT, "разыскать предмет", "locate object",
+	spello(SPELL_LOCATE_OBJECT, "я─п╟п╥я▀я│п╨п╟я┌я▄ п©я─п╣п╢п╪п╣я┌", "locate object",
 		   140, 110, 2, POS_STANDING, TAR_OBJ_WORLD, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 //32
-	spello(SPELL_MAGIC_MISSILE, "магическая стрела", "magic missle",
+	spello(SPELL_MAGIC_MISSILE, "п╪п╟пЁп╦я┤п╣я│п╨п╟я▐ я│я┌я─п╣п╩п╟", "magic missle",
 		   40, 30, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_FIRE);
 //33
-	spello(SPELL_POISON, "яд", "poison", 70, 55, 1, POS_FIGHTING,
+	spello(SPELL_POISON, "я▐п╢", "poison", 70, 55, 1, POS_FIGHTING,
 		TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_OBJ_INV | TAR_FIGHT_VICT,
 		MTYPE_NEUTRAL, MAG_AFFECTS | MAG_ALTER_OBJS | NPC_AFFECT_PC, 2, STYPE_LIFE);
 //34
-	spello(SPELL_PROT_FROM_EVIL, "защита от тьмы", "protect evil", 60, 45, 1,
+	spello(SPELL_PROT_FROM_EVIL, "п╥п╟я┴п╦я┌п╟ п╬я┌ я┌я▄п╪я▀", "protect evil", 60, 45, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
 //35
-	spello(SPELL_REMOVE_CURSE, "снять проклятье", "remove curse",
+	spello(SPELL_REMOVE_CURSE, "я│п╫я▐я┌я▄ п©я─п╬п╨п╩я▐я┌я▄п╣", "remove curse",
 		   50, 40, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_SELF | TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE,
 		   MAG_UNAFFECTS | MAG_ALTER_OBJS | NPC_UNAFFECT_NPC, 0, STYPE_LIGHT);
 //36
-	spello(SPELL_SANCTUARY, "освящение", "sanctuary", 85, 70, 2,
+	spello(SPELL_SANCTUARY, "п╬я│п╡я▐я┴п╣п╫п╦п╣", "sanctuary", 85, 70, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //37
-	spello(SPELL_SHOCKING_GRASP, "обжигающая хватка", "shocking grasp", 50, 40, 1,
+	spello(SPELL_SHOCKING_GRASP, "п╬п╠п╤п╦пЁп╟я▌я┴п╟я▐ я┘п╡п╟я┌п╨п╟", "shocking grasp", 50, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_FIRE);
 //38
-	spello(SPELL_SLEEP, "сон", "sleep",
+	spello(SPELL_SLEEP, "я│п╬п╫", "sleep",
 		   70, 55, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_MIND);
 //39
-	spello(SPELL_STRENGTH, "сила", "strength", 40, 30, 1,
+	spello(SPELL_STRENGTH, "я│п╦п╩п╟", "strength", 40, 30, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //40
-	spello(SPELL_SUMMON, "призвать", "summon",
+	spello(SPELL_SUMMON, "п©я─п╦п╥п╡п╟я┌я▄", "summon",
 		   110, 100, 2, POS_STANDING, TAR_CHAR_WORLD | TAR_NOT_SELF, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 //41
-	spello(SPELL_PATRONAGE, "покровительство", "patronage", 85, 70, 2,
+	spello(SPELL_PATRONAGE, "п©п╬п╨я─п╬п╡п╦я┌п╣п╩я▄я│я┌п╡п╬", "patronage", 85, 70, 2,
 		   POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_POINTS | MAG_AFFECTS, 1, STYPE_LIGHT);
 //42
-	spello(SPELL_WORD_OF_RECALL, "слово возврата", "recall", 140, 100, 4,
+	spello(SPELL_WORD_OF_RECALL, "я│п╩п╬п╡п╬ п╡п╬п╥п╡я─п╟я┌п╟", "recall", 140, 100, 4,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_MANUAL | NPC_DAMAGE_PC, 0, STYPE_MIND);
 //43
-	spello(SPELL_REMOVE_POISON, "удалить яд", "remove poison",
+	spello(SPELL_REMOVE_POISON, "я┐п╢п╟п╩п╦я┌я▄ я▐п╢", "remove poison",
 		60, 45, 2, POS_FIGHTING,
 		TAR_CHAR_ROOM | TAR_FIGHT_SELF | TAR_OBJ_INV | TAR_OBJ_ROOM, FALSE,
 		MAG_UNAFFECTS | MAG_ALTER_OBJS | NPC_UNAFFECT_NPC, 0, STYPE_LIFE);
 //44
-	spello(SPELL_SENSE_LIFE, "определение жизни", "sense life",
+	spello(SPELL_SENSE_LIFE, "п╬п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п╤п╦п╥п╫п╦", "sense life",
 		   85, 70, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_LIFE);
 //45
-	spello(SPELL_ANIMATE_DEAD, "поднять труп", "animate dead",
+	spello(SPELL_ANIMATE_DEAD, "п©п╬п╢п╫я▐я┌я▄ я┌я─я┐п©", "animate dead",
 		   50, 35, 3, POS_STANDING, TAR_OBJ_ROOM, FALSE, MAG_SUMMONS, 0, STYPE_DARK);
 //46
-	spello(SPELL_DISPEL_GOOD, "рассеять свет", "dispel good", 100, 90, 1,
+	spello(SPELL_DISPEL_GOOD, "я─п╟я│я│п╣я▐я┌я▄ я│п╡п╣я┌", "dispel good", 100, 90, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE, 1, STYPE_DARK);
 //47
-	spello(SPELL_GROUP_ARMOR, "групповая защита", "group armor", 110, 100, 2,
+	spello(SPELL_GROUP_ARMOR, "пЁя─я┐п©п©п╬п╡п╟я▐ п╥п╟я┴п╦я┌п╟", "group armor", 110, 100, 2,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
 //48
-	spello(SPELL_GROUP_HEAL, "групповое исцеление", "group heal",
+	spello(SPELL_GROUP_HEAL, "пЁя─я┐п©п©п╬п╡п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣", "group heal",
 		   110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 30, STYPE_LIFE);
 //49
-	spello(SPELL_GROUP_RECALL, "групповой возврат", "group recall",
+	spello(SPELL_GROUP_RECALL, "пЁя─я┐п©п©п╬п╡п╬п╧ п╡п╬п╥п╡я─п╟я┌", "group recall",
 		   125, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_MANUAL, 0, STYPE_MIND);
 //50
-	spello(SPELL_INFRAVISION, "видение ночью", "infravision",
+	spello(SPELL_INFRAVISION, "п╡п╦п╢п╣п╫п╦п╣ п╫п╬я┤я▄я▌", "infravision",
 		   50, 40, 2, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_LIGHT);
 //51
-	spello(SPELL_WATERWALK, "водохождение", "waterwalk",
+	spello(SPELL_WATERWALK, "п╡п╬п╢п╬я┘п╬п╤п╢п╣п╫п╦п╣", "waterwalk",
 		   70, 55, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_WATER);
 //52
-	spello(SPELL_CURE_SERIOUS, "серьезное исцеление", "serious cure", 85, 70, 4,
+	spello(SPELL_CURE_SERIOUS, "я│п╣я─я▄п╣п╥п╫п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣", "serious cure", 85, 70, 4,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_POINTS | NPC_DUMMY, 2, STYPE_LIFE);
 //53
-	spello(SPELL_GROUP_STRENGTH, "групповая сила", "group strength", 140, 120, 2,
+	spello(SPELL_GROUP_STRENGTH, "пЁя─я┐п©п©п╬п╡п╟я▐ я│п╦п╩п╟", "group strength", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //54
-	spello(SPELL_HOLD, "оцепенение", "hold",
+	spello(SPELL_HOLD, "п╬я├п╣п©п╣п╫п╣п╫п╦п╣", "hold",
 		   100, 40, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 3, STYPE_MIND);
 //55
-	spello(SPELL_POWER_HOLD, "длительное оцепенение", "power hold",
+	spello(SPELL_POWER_HOLD, "п╢п╩п╦я┌п╣п╩я▄п╫п╬п╣ п╬я├п╣п©п╣п╫п╣п╫п╦п╣", "power hold",
 		   140, 90, 4, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_MIND);
 //56
-	spello(SPELL_MASS_HOLD, "массовое оцепенение", "mass hold",
+	spello(SPELL_MASS_HOLD, "п╪п╟я│я│п╬п╡п╬п╣ п╬я├п╣п©п╣п╫п╣п╫п╦п╣", "mass hold",
 		   150, 130, 5, POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC,
 		   5, STYPE_MIND);
 //57
-	spello(SPELL_FLY, "полет", "fly", 50, 35, 1, POS_STANDING,
+	spello(SPELL_FLY, "п©п╬п╩п╣я┌", "fly", 50, 35, 1, POS_STANDING,
 		TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_EQUIP,
 		FALSE, MAG_AFFECTS | MAG_ALTER_OBJS, 0, STYPE_AIR);
 //58
-	spello(SPELL_BROKEN_CHAINS, "разбитые оковы", "broken chains", 125, 110, 2,
+	spello(SPELL_BROKEN_CHAINS, "я─п╟п╥п╠п╦я┌я▀п╣ п╬п╨п╬п╡я▀", "broken chains", 125, 110, 2,
 		   POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 5, STYPE_MIND);
 
 //59
-	spello(SPELL_NOFLEE, "приковать противника", "noflee",
+	spello(SPELL_NOFLEE, "п©я─п╦п╨п╬п╡п╟я┌я▄ п©я─п╬я┌п╦п╡п╫п╦п╨п╟", "noflee",
 		   100, 90, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_MIND);
 //60
-	spello(SPELL_CREATE_LIGHT, "создать свет", "create light",
+	spello(SPELL_CREATE_LIGHT, "я│п╬п╥п╢п╟я┌я▄ я│п╡п╣я┌", "create light",
 		   40, 30, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_CREATIONS, 0, STYPE_LIGHT);
 //61
-	spello(SPELL_DARKNESS, "тьма", "darkness", 100, 70, 2, POS_STANDING,
+	spello(SPELL_DARKNESS, "я┌я▄п╪п╟", "darkness", 100, 70, 2, POS_STANDING,
 		TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_EQUIP,
 		FALSE, MAG_AFFECTS | MAG_ALTER_OBJS, 0, STYPE_DARK);
 //62
-	spello(SPELL_STONESKIN, "каменная кожа", "stoneskin", 55, 40, 1,
+	spello(SPELL_STONESKIN, "п╨п╟п╪п╣п╫п╫п╟я▐ п╨п╬п╤п╟", "stoneskin", 55, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
 //63
-	spello(SPELL_CLOUDLY, "затуманивание", "cloudly", 55, 40, 1,
+	spello(SPELL_CLOUDLY, "п╥п╟я┌я┐п╪п╟п╫п╦п╡п╟п╫п╦п╣", "cloudly", 55, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_WATER);
 //64
-	spello(SPELL_SILENCE, "молчание", "sielence",
+	spello(SPELL_SILENCE, "п╪п╬п╩я┤п╟п╫п╦п╣", "sielence",
 		   100, 40, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
 		   MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 1, STYPE_MIND);
 //65
-	spello(SPELL_LIGHT, "свет", "sun shine", 100, 70, 2, POS_FIGHTING,
+	spello(SPELL_LIGHT, "я│п╡п╣я┌", "sun shine", 100, 70, 2, POS_FIGHTING,
 		TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_EQUIP,
 		FALSE, MAG_AFFECTS | MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 //66
-	spello(SPELL_CHAIN_LIGHTNING, "цепь молний", "chain lightning",
+	spello(SPELL_CHAIN_LIGHTNING, "я├п╣п©я▄ п╪п╬п╩п╫п╦п╧", "chain lightning",
 		   120, 110, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_AIR);
 //67
-	spello(SPELL_FIREBLAST, "огненный поток", "fireblast",
+	spello(SPELL_FIREBLAST, "п╬пЁп╫п╣п╫п╫я▀п╧ п©п╬я┌п╬п╨", "fireblast",
 		   110, 90, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC,
 		   5, STYPE_FIRE);
 //68
-	spello(SPELL_IMPLOSION, "гнев богов", "implosion",
+	spello(SPELL_IMPLOSION, "пЁп╫п╣п╡ п╠п╬пЁп╬п╡", "implosion",
 		   140, 120, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
 		   15, STYPE_FIRE);
 //69
-	spello(SPELL_WEAKNESS, "слабость", "weakness",
+	spello(SPELL_WEAKNESS, "я│п╩п╟п╠п╬я│я┌я▄", "weakness",
 		   70, 55, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_LIFE);
 //70
-	spello(SPELL_GROUP_INVISIBLE, "групповая невидимость", "group invisible",
+	spello(SPELL_GROUP_INVISIBLE, "пЁя─я┐п©п©п╬п╡п╟я▐ п╫п╣п╡п╦п╢п╦п╪п╬я│я┌я▄", "group invisible",
 		   150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS, 0, STYPE_MIND);
 //71
-	spello(SPELL_SHADOW_CLOAK, "мантия теней", "shadow cloak", 100, 70, 3,
+	spello(SPELL_SHADOW_CLOAK, "п╪п╟п╫я┌п╦я▐ я┌п╣п╫п╣п╧", "shadow cloak", 100, 70, 3,
 		   POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
 //72
-	spello(SPELL_ACID, "кислота", "acid",
+	spello(SPELL_ACID, "п╨п╦я│п╩п╬я┌п╟", "acid",
 		   90, 65, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | MAG_ALTER_OBJS | NPC_DAMAGE_PC, 2, STYPE_WATER);
 //73
-	spello(SPELL_REPAIR, "починка", "repair",
+	spello(SPELL_REPAIR, "п©п╬я┤п╦п╫п╨п╟", "repair",
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 //74
-	spello(SPELL_ENLARGE, "увеличение", "enlarge",
+	spello(SPELL_ENLARGE, "я┐п╡п╣п╩п╦я┤п╣п╫п╦п╣", "enlarge",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC,
 		   0, STYPE_LIFE);
 //75
-	spello(SPELL_FEAR, "страх", "fear",
+	spello(SPELL_FEAR, "я│я┌я─п╟я┘", "fear",
 		   70, 55, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_MANUAL | NPC_DAMAGE_PC, 1, STYPE_DARK);
 //76
-	spello(SPELL_SACRIFICE, "высосать жизнь", "sacrifice",
+	spello(SPELL_SACRIFICE, "п╡я▀я│п╬я│п╟я┌я▄ п╤п╦п╥п╫я▄", "sacrifice",
 		   140, 125, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_MANUAL | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
 		   10, STYPE_DARK);
 //77
-	spello(SPELL_WEB, "сеть", "web",
+	spello(SPELL_WEB, "я│п╣я┌я▄", "web",
 		   70, 55, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
 //78
-	spello(SPELL_BLINK, "мигание", "blink", 70, 55, 2,
+	spello(SPELL_BLINK, "п╪п╦пЁп╟п╫п╦п╣", "blink", 70, 55, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
 //79
-	spello(SPELL_REMOVE_HOLD, "снять оцепенение", "remove hold", 110, 90, 2,
+	spello(SPELL_REMOVE_HOLD, "я│п╫я▐я┌я▄ п╬я├п╣п©п╣п╫п╣п╫п╦п╣", "remove hold", 110, 90, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS | NPC_UNAFFECT_NPC, 1, STYPE_LIGHT);
 //80
-	spello(SPELL_CAMOUFLAGE, "!маскировка!", "!set by skill!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+	spello(SPELL_CAMOUFLAGE, "!п╪п╟я│п╨п╦я─п╬п╡п╨п╟!", "!set by skill!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 //81
-	spello(SPELL_POWER_BLINDNESS, "полная слепота", "power blind",
+	spello(SPELL_POWER_BLINDNESS, "п©п╬п╩п╫п╟я▐ я│п╩п╣п©п╬я┌п╟", "power blind",
 		   110, 100, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
 //82
-	spello(SPELL_MASS_BLINDNESS, "массовая слепота", "mass blind", 140, 120, 2,
+	spello(SPELL_MASS_BLINDNESS, "п╪п╟я│я│п╬п╡п╟я▐ я│п╩п╣п©п╬я┌п╟", "mass blind", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_DARK);
 //83
-	spello(SPELL_POWER_SILENCE, "длительное молчание", "power sielence",
+	spello(SPELL_POWER_SILENCE, "п╢п╩п╦я┌п╣п╩я▄п╫п╬п╣ п╪п╬п╩я┤п╟п╫п╦п╣", "power sielence",
 		   120, 90, 4, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
 		   MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 2, STYPE_MIND);
 //84
-	spello(SPELL_EXTRA_HITS, "увеличить жизнь", "extra hits",
+	spello(SPELL_EXTRA_HITS, "я┐п╡п╣п╩п╦я┤п╦я┌я▄ п╤п╦п╥п╫я▄", "extra hits",
 		   100, 85, 2, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
 //85
-	spello(SPELL_RESSURECTION, "оживить труп", "ressurection",
+	spello(SPELL_RESSURECTION, "п╬п╤п╦п╡п╦я┌я▄ я┌я─я┐п©", "ressurection",
 		   120, 100, 2, POS_STANDING, TAR_OBJ_ROOM, FALSE, MAG_SUMMONS, 0, STYPE_DARK);
 //86
-	spello(SPELL_MAGICSHIELD, "волшебный щит", "magic shield", 50, 30, 2,
+	spello(SPELL_MAGICSHIELD, "п╡п╬п╩я┬п╣п╠п╫я▀п╧ я┴п╦я┌", "magic shield", 50, 30, 2,
 		   POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIGHT);
 
 //87
-	spello(SPELL_FORBIDDEN, "запечатать комнату", "forbidden",
+	spello(SPELL_FORBIDDEN, "п╥п╟п©п╣я┤п╟я┌п╟я┌я▄ п╨п╬п╪п╫п╟я┌я┐", "forbidden",
 		125, 110, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_ROOM, 0, STYPE_MIND);
 //88
-	spello(SPELL_MASS_SILENCE, "массовое молчание", "mass sielence", 140, 120, 2,
+	spello(SPELL_MASS_SILENCE, "п╪п╟я│я│п╬п╡п╬п╣ п╪п╬п╩я┤п╟п╫п╦п╣", "mass sielence", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 3, STYPE_MIND);
 //89
-	spello(SPELL_REMOVE_SILENCE, "снять молчание", "remove sielence",
+	spello(SPELL_REMOVE_SILENCE, "я│п╫я▐я┌я▄ п╪п╬п╩я┤п╟п╫п╦п╣", "remove sielence",
 		   70, 55, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER,
 		   1, STYPE_LIGHT);
 //90
-	spello(SPELL_DAMAGE_LIGHT, "легкий вред", "light damage",
+	spello(SPELL_DAMAGE_LIGHT, "п╩п╣пЁп╨п╦п╧ п╡я─п╣п╢", "light damage",
 		   40, 30, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 1, STYPE_DARK);
 //91
-	spello(SPELL_DAMAGE_SERIOUS, "серьезный вред", "serious damage",
+	spello(SPELL_DAMAGE_SERIOUS, "я│п╣я─я▄п╣п╥п╫я▀п╧ п╡я─п╣п╢", "serious damage",
 		   85, 55, 4, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 2, STYPE_DARK);
 //92
-	spello(SPELL_DAMAGE_CRITIC, "критический вред", "critical damage",
+	spello(SPELL_DAMAGE_CRITIC, "п╨я─п╦я┌п╦я┤п╣я│п╨п╦п╧ п╡я─п╣п╢", "critical damage",
 		   100, 90, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 3, STYPE_DARK);
 //93
-	spello(SPELL_MASS_CURSE, "массовое проклятье", "mass curse", 140, 120, 2,
+	spello(SPELL_MASS_CURSE, "п╪п╟я│я│п╬п╡п╬п╣ п©я─п╬п╨п╩я▐я┌я▄п╣", "mass curse", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
 //94
-	spello(SPELL_ARMAGEDDON, "суд богов", "armageddon", 150, 130, 5,
+	spello(SPELL_ARMAGEDDON, "я│я┐п╢ п╠п╬пЁп╬п╡", "armageddon", 150, 130, 5,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 10, STYPE_AIR);
 //95
-	spello(SPELL_GROUP_FLY, "групповой полет", "group fly",
+	spello(SPELL_GROUP_FLY, "пЁя─я┐п©п©п╬п╡п╬п╧ п©п╬п╩п╣я┌", "group fly",
 		   140, 120, 2, POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS, 0, STYPE_AIR);
 //96
-	spello(SPELL_GROUP_BLESS, "групповая доблесть", "group bless", 110, 100, 1,
+	spello(SPELL_GROUP_BLESS, "пЁя─я┐п©п©п╬п╡п╟я▐ п╢п╬п╠п╩п╣я│я┌я▄", "group bless", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //97
-	spello(SPELL_REFRESH, "восстановление", "refresh",
+	spello(SPELL_REFRESH, "п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣", "refresh",
 		   80, 60, 1, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_POINTS, 0,  STYPE_LIFE);
 //98
-	spello(SPELL_STUNNING, "каменное проклятье", "stunning", 150, 140, 1,
+	spello(SPELL_STUNNING, "п╨п╟п╪п╣п╫п╫п╬п╣ п©я─п╬п╨п╩я▐я┌я▄п╣", "stunning", 150, 140, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE, 15, STYPE_EARTH);
 
 //99
-	spello(SPELL_HIDE, "!спрятался!", "!set by skill!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
+	spello(SPELL_HIDE, "!я│п©я─я▐я┌п╟п╩я│я▐!", "!set by skill!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
 
 //100
-	spello(SPELL_SNEAK, "!крадется!", "!set by skill!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
+	spello(SPELL_SNEAK, "!п╨я─п╟п╢п╣я┌я│я▐!", "!set by skill!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
 
 //101
-	spello(SPELL_DRUNKED, "!опьянение!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+	spello(SPELL_DRUNKED, "!п╬п©я▄я▐п╫п╣п╫п╦п╣!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 //102
-	spello(SPELL_ABSTINENT, "!абстиненция!", "!set by programm!",
+	spello(SPELL_ABSTINENT, "!п╟п╠я│я┌п╦п╫п╣п╫я├п╦я▐!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
 
 //103
-	spello(SPELL_FULL, "насыщение", "full", 70, 55, 1,
+	spello(SPELL_FULL, "п╫п╟я│я▀я┴п╣п╫п╦п╣", "full", 70, 55, 1,
 		   POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_POINTS, 10,  STYPE_LIFE);
 //104
-	spello(SPELL_CONE_OF_COLD, "ледяной ветер", "cold wind",
+	spello(SPELL_CONE_OF_COLD, "п╩п╣п╢я▐п╫п╬п╧ п╡п╣я┌п╣я─", "cold wind",
 		   100, 90, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AFFECTS | MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP,
 		   15, STYPE_WATER);
 //105
-	spello(SPELL_BATTLE, "!получил в бою!", "!set by programm!",
+	spello(SPELL_BATTLE, "!п©п╬п╩я┐я┤п╦п╩ п╡ п╠п╬я▌!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 //106
-	spello(SPELL_HAEMORRAGIA, "!кровотечение!", "!set by programm!",
+	spello(SPELL_HAEMORRAGIA, "!п╨я─п╬п╡п╬я┌п╣я┤п╣п╫п╦п╣!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 //107
-	spello(SPELL_COURAGE, "!ярость!", "!set by programm!",
+	spello(SPELL_COURAGE, "!я▐я─п╬я│я┌я▄!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 //108
-	spello(SPELL_WATERBREATH, "дышать водой", "waterbreath",
+	spello(SPELL_WATERBREATH, "п╢я▀я┬п╟я┌я▄ п╡п╬п╢п╬п╧", "waterbreath",
 		   85, 70, 4, POS_STANDING, TAR_CHAR_ROOM, FALSE, MAG_AFFECTS, 0, STYPE_WATER);
 //109
-	spello(SPELL_SLOW, "медлительность", "slow",
+	spello(SPELL_SLOW, "п╪п╣п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄", "slow",
 		   55, 40, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
 //110
-	spello(SPELL_HASTE, "ускорение", "haste", 55, 40, 1,
+	spello(SPELL_HASTE, "я┐я│п╨п╬я─п╣п╫п╦п╣", "haste", 55, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //111
-	spello(SPELL_MASS_SLOW, "массовая медлительность", "mass slow", 140, 120, 2,
+	spello(SPELL_MASS_SLOW, "п╪п╟я│я│п╬п╡п╟я▐ п╪п╣п╢п╩п╦я┌п╣п╩я▄п╫п╬я│я┌я▄", "mass slow", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
 //112
-	spello(SPELL_GROUP_HASTE, "групповое ускорение", "group haste", 110, 100, 1,
+	spello(SPELL_GROUP_HASTE, "пЁя─я┐п©п©п╬п╡п╬п╣ я┐я│п╨п╬я─п╣п╫п╦п╣", "group haste", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //113
-	spello(SPELL_SHIELD, "защита богов", "gods shield", 150, 140, 1,
+	spello(SPELL_SHIELD, "п╥п╟я┴п╦я┌п╟ п╠п╬пЁп╬п╡", "gods shield", 150, 140, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 2, STYPE_LIGHT);
 //114
-	spello(SPELL_PLAQUE, "лихорадка", "plaque",
+	spello(SPELL_PLAQUE, "п╩п╦я┘п╬я─п╟п╢п╨п╟", "plaque",
 		   70, 55, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_LIFE);
 //115
-	spello(SPELL_CURE_PLAQUE, "вылечить лихорадку", "cure plaque", 85, 70, 4,
+	spello(SPELL_CURE_PLAQUE, "п╡я▀п╩п╣я┤п╦я┌я▄ п╩п╦я┘п╬я─п╟п╢п╨я┐", "cure plaque", 85, 70, 4,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS | NPC_UNAFFECT_NPC, 0, STYPE_LIFE);
 //116
-	spello(SPELL_AWARNESS, "внимательность", "awarness", 100, 90, 1,
+	spello(SPELL_AWARNESS, "п╡п╫п╦п╪п╟я┌п╣п╩я▄п╫п╬я│я┌я▄", "awarness", 100, 90, 1,
 		   POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
 //117
-	spello(SPELL_RELIGION, "!молитва или жертва!", "!pray or donate!",
+	spello(SPELL_RELIGION, "!п╪п╬п╩п╦я┌п╡п╟ п╦п╩п╦ п╤п╣я─я┌п╡п╟!", "!pray or donate!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
 //118
-	spello(SPELL_AIR_SHIELD, "воздушный щит", "air shield", 140, 120, 2,
+	spello(SPELL_AIR_SHIELD, "п╡п╬п╥п╢я┐я┬п╫я▀п╧ я┴п╦я┌", "air shield", 140, 120, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_AIR);
 //119
-	spello(SPELL_PORTAL, "переход", "portal", 200, 180, 4,
+	spello(SPELL_PORTAL, "п©п╣я─п╣я┘п╬п╢", "portal", 200, 180, 4,
 		   POS_STANDING, TAR_CHAR_WORLD, FALSE, MAG_MANUAL, 0, STYPE_LIGHT);
 //120
-	spello(SPELL_DISPELL_MAGIC, "развеять магию", "dispel magic",
+	spello(SPELL_DISPELL_MAGIC, "я─п╟п╥п╡п╣я▐я┌я▄ п╪п╟пЁп╦я▌", "dispel magic",
 		   85, 70, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS, 0, STYPE_LIGHT);
 //121
-	spello(SPELL_SUMMON_KEEPER, "защитник", "keeper",
+	spello(SPELL_SUMMON_KEEPER, "п╥п╟я┴п╦я┌п╫п╦п╨", "keeper",
 		   100, 80, 2, POS_STANDING, TAR_IGNORE, FALSE, MAG_SUMMONS, 0, STYPE_LIGHT);
 //122
-	spello(SPELL_FAST_REGENERATION, "быстрое восстановление",
+	spello(SPELL_FAST_REGENERATION, "п╠я▀я│я┌я─п╬п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣",
 		   "fast regeneration", 100, 90, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //123
-	spello(SPELL_CREATE_WEAPON, "создать оружие", "create weapon",
+	spello(SPELL_CREATE_WEAPON, "я│п╬п╥п╢п╟я┌я▄ п╬я─я┐п╤п╦п╣", "create weapon",
 		   130, 110, 2, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 0, STYPE_LIGHT);
 //124
-	spello(SPELL_FIRE_SHIELD, "огненный щит", "fire shield", 140, 120, 2,
+	spello(SPELL_FIRE_SHIELD, "п╬пЁп╫п╣п╫п╫я▀п╧ я┴п╦я┌", "fire shield", 140, 120, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_FIRE);
 //125
-	spello(SPELL_RELOCATE, "переместиться", "relocate",
+	spello(SPELL_RELOCATE, "п©п╣я─п╣п╪п╣я│я┌п╦я┌я▄я│я▐", "relocate",
 		   140, 120, 2, POS_STANDING, TAR_CHAR_WORLD, FALSE, MAG_MANUAL, 0, STYPE_AIR);
 //126
-	spello(SPELL_SUMMON_FIREKEEPER, "огненный защитник", "fire keeper",
+	spello(SPELL_SUMMON_FIREKEEPER, "п╬пЁп╫п╣п╫п╫я▀п╧ п╥п╟я┴п╦я┌п╫п╦п╨", "fire keeper",
 		   150, 140, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_SUMMONS, 0, STYPE_FIRE);
 //127
-	spello(SPELL_ICE_SHIELD, "ледяной щит", "ice protect", 140, 120, 2,
+	spello(SPELL_ICE_SHIELD, "п╩п╣п╢я▐п╫п╬п╧ я┴п╦я┌", "ice protect", 140, 120, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_WATER);
 //128
-	spello(SPELL_ICESTORM, "ледяной шторм", "ice storm",
+	spello(SPELL_ICESTORM, "п╩п╣п╢я▐п╫п╬п╧ я┬я┌п╬я─п╪", "ice storm",
 		   125, 110, 2, POS_FIGHTING,
 		   TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 5, STYPE_WATER);
 //129
-	spello(SPELL_ENLESS, "уменьшение", "enless",
+	spello(SPELL_ENLESS, "я┐п╪п╣п╫я▄я┬п╣п╫п╦п╣", "enless",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS, 0, STYPE_LIFE);
 //130
-	spello(SPELL_SHINEFLASH, "яркий блик", "shine flash",
+	spello(SPELL_SHINEFLASH, "я▐я─п╨п╦п╧ п╠п╩п╦п╨", "shine flash",
 		   60, 45, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_FIRE);
 //131
-	spello(SPELL_MADNESS, "безумие", "madness",
+	spello(SPELL_MADNESS, "п╠п╣п╥я┐п╪п╦п╣", "madness",
 		   130, 110, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
 //132
-	spello(SPELL_GROUP_MAGICGLASS, "магическое зеркало", "group magicglass",
+	spello(SPELL_GROUP_MAGICGLASS, "п╪п╟пЁп╦я┤п╣я│п╨п╬п╣ п╥п╣я─п╨п╟п╩п╬", "group magicglass",
 		   140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 4, STYPE_AIR);
 //133
-	spello(SPELL_CLOUD_OF_ARROWS, "облако стрел", "cloud of arrous", 95, 80, 2,
+	spello(SPELL_CLOUD_OF_ARROWS, "п╬п╠п╩п╟п╨п╬ я│я┌я─п╣п╩", "cloud of arrous", 95, 80, 2,
 		   POS_FIGHTING, TAR_SELF_ONLY | TAR_CHAR_ROOM, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 4, STYPE_FIRE);
 //134
-	spello(SPELL_VACUUM, "круг пустоты", "vacuum sphere",
+	spello(SPELL_VACUUM, "п╨я─я┐пЁ п©я┐я│я┌п╬я┌я▀", "vacuum sphere",
 		   150, 140, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 15, STYPE_DARK);
 //135
-//	spello(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm", 125, 110, 2,
+//	spello(SPELL_METEORSTORM, "п╪п╣я┌п╣п╬я─п╦я┌п╫я▀п╧ п╢п╬п╤п╢я▄", "meteor storm", 125, 110, 2,
 //		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_EARTH);
-	spello(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm", 125, 110, 2,
+	spello(SPELL_METEORSTORM, "п╪п╣я┌п╣п╬я─п╦я┌п╫я▀п╧ п╢п╬п╤п╢я▄", "meteor storm", 125, 110, 2,
 		   POS_FIGHTING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_EARTH);
 //136
-	spello(SPELL_STONEHAND, "каменные руки", "stonehand", 40, 30, 1,
+	spello(SPELL_STONEHAND, "п╨п╟п╪п╣п╫п╫я▀п╣ я─я┐п╨п╦", "stonehand", 40, 30, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
 //137
-	spello(SPELL_MINDLESS, "повреждение разума", "mindness",
+	spello(SPELL_MINDLESS, "п©п╬п╡я─п╣п╤п╢п╣п╫п╦п╣ я─п╟п╥я┐п╪п╟", "mindness",
 		   120, 110, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER,
 		   0, STYPE_MIND);
 //138
-	spello(SPELL_PRISMATICAURA, "призматическая аура", "prismatic aura", 85, 70, 4,
+	spello(SPELL_PRISMATICAURA, "п©я─п╦п╥п╪п╟я┌п╦я┤п╣я│п╨п╟я▐ п╟я┐я─п╟", "prismatic aura", 85, 70, 4,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //139
-	spello(SPELL_EVILESS, "силы зла", "eviless", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
+	spello(SPELL_EVILESS, "я│п╦п╩я▀ п╥п╩п╟", "eviless", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
 		   3, STYPE_DARK);
 //140
-	spello(SPELL_AIR_AURA, "воздушная аура", "air aura",
+	spello(SPELL_AIR_AURA, "п╡п╬п╥п╢я┐я┬п╫п╟я▐ п╟я┐я─п╟", "air aura",
 		   140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_AIR);
 //141
-	spello(SPELL_FIRE_AURA, "огненная аура", "fire aura",
+	spello(SPELL_FIRE_AURA, "п╬пЁп╫п╣п╫п╫п╟я▐ п╟я┐я─п╟", "fire aura",
 		   140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_FIRE);
 //142
-	spello(SPELL_ICE_AURA, "ледяная аура", "ice aura",
+	spello(SPELL_ICE_AURA, "п╩п╣п╢я▐п╫п╟я▐ п╟я┐я─п╟", "ice aura",
 		   140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_WATER);
 //143
-	spello(SPELL_SHOCK, "шок", "shock", 100, 90, 2, POS_FIGHTING,
+	spello(SPELL_SHOCK, "я┬п╬п╨", "shock", 100, 90, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_DARK);
 //144
-	spello(SPELL_MAGICGLASS, "зеркало магии", "magic glassie", 120, 110, 1,
+	spello(SPELL_MAGICGLASS, "п╥п╣я─п╨п╟п╩п╬ п╪п╟пЁп╦п╦", "magic glassie", 120, 110, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 2, STYPE_LIGHT);
 
 //145
-	spello(SPELL_GROUP_SANCTUARY, "групповое освящение", "group sanctuary", 110, 100, 1,
+	spello(SPELL_GROUP_SANCTUARY, "пЁя─я┐п©п©п╬п╡п╬п╣ п╬я│п╡я▐я┴п╣п╫п╦п╣", "group sanctuary", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 
 //146
-	spello(SPELL_GROUP_PRISMATICAURA, "групповая призматическая аура",
+	spello(SPELL_GROUP_PRISMATICAURA, "пЁя─я┐п©п©п╬п╡п╟я▐ п©я─п╦п╥п╪п╟я┌п╦я┤п╣я│п╨п╟я▐ п╟я┐я─п╟",
 		   "group prismatic aura", 110, 100, 1, POS_FIGHTING, TAR_IGNORE,
 		   FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 
 //147
-	spello(SPELL_DEAFNESS, "глухота", "deafness",
+	spello(SPELL_DEAFNESS, "пЁп╩я┐я┘п╬я┌п╟", "deafness",
 		   100, 40, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
 		   MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 1, STYPE_MIND);
 
 //148
-	spello(SPELL_POWER_DEAFNESS, "длительная глухота", "power deafness",
+	spello(SPELL_POWER_DEAFNESS, "п╢п╩п╦я┌п╣п╩я▄п╫п╟я▐ пЁп╩я┐я┘п╬я┌п╟", "power deafness",
 		   120, 90, 4, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL,
 		   MAG_AFFECTS | NPC_AFFECT_PC | NPC_AFFECT_PC_CASTER, 2, STYPE_MIND);
 
 //149
-	spello(SPELL_REMOVE_DEAFNESS, "снять глухоту", "remove deafness",
+	spello(SPELL_REMOVE_DEAFNESS, "я│п╫я▐я┌я▄ пЁп╩я┐я┘п╬я┌я┐", "remove deafness",
 		   90, 80, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_UNAFFECTS | NPC_UNAFFECT_NPC | NPC_UNAFFECT_NPC_CASTER,
 		   1, STYPE_LIFE);
 
 //150
-	spello(SPELL_MASS_DEAFNESS, "массовая глухота", "mass deafness", 140, 120, 2,
+	spello(SPELL_MASS_DEAFNESS, "п╪п╟я│я│п╬п╡п╟я▐ пЁп╩я┐я┘п╬я┌п╟", "mass deafness", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
 
 //151
-	spello(SPELL_DUSTSTORM, "пылевая буря", "dust storm",
+	spello(SPELL_DUSTSTORM, "п©я▀п╩п╣п╡п╟я▐ п╠я┐я─я▐", "dust storm",
 		   125, 110, 2, POS_FIGHTING,
 		   TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 5, STYPE_EARTH);
 
 //152
-	spello(SPELL_EARTHFALL, "камнепад", "earth fall",
+	spello(SPELL_EARTHFALL, "п╨п╟п╪п╫п╣п©п╟п╢", "earth fall",
 		   120, 110, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_EARTH);
 
 //153
-	spello(SPELL_SONICWAVE, "звуковая волна", "sonic wave",
+	spello(SPELL_SONICWAVE, "п╥п╡я┐п╨п╬п╡п╟я▐ п╡п╬п╩п╫п╟", "sonic wave",
 		    120, 110, 2, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE,
 		    MAG_MASSES | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 1, STYPE_AIR);
 
 //154
-	spello(SPELL_HOLYSTRIKE, "силы света", "holystrike",
+	spello(SPELL_HOLYSTRIKE, "я│п╦п╩я▀ я│п╡п╣я┌п╟", "holystrike",
 		   150, 130, 5, POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MANUAL | NPC_DAMAGE_PC, 10, STYPE_LIGHT);
 
 //155
-	spello(SPELL_ANGEL, "ангел-хранитель", "angel", 150, 130, 5,
+	spello(SPELL_ANGEL, "п╟п╫пЁп╣п╩-я┘я─п╟п╫п╦я┌п╣п╩я▄", "angel", 150, 130, 5,
 		   POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 1, STYPE_LIGHT);
 //156
-	spello(SPELL_MASS_FEAR, "массовый страх", "mass fear", 140, 120, 2,
+	spello(SPELL_MASS_FEAR, "п╪п╟я│я│п╬п╡я▀п╧ я│я┌я─п╟я┘", "mass fear", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_MANUAL | NPC_AFFECT_PC, 4, STYPE_DARK);
 //157
-	spello(SPELL_FASCINATION, "обаяние", "fascination", 480, 440, 20,
+	spello(SPELL_FASCINATION, "п╬п╠п╟я▐п╫п╦п╣", "fascination", 480, 440, 20,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 2, STYPE_MIND);
 //158
-	spello(SPELL_CRYING, "плач", "crying",
+	spello(SPELL_CRYING, "п©п╩п╟я┤", "crying",
 		   120, 55, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
 //159
-	spello(SPELL_OBLIVION, "забвение", "oblivion",
+	spello(SPELL_OBLIVION, "п╥п╟п╠п╡п╣п╫п╦п╣", "oblivion",
 		   70, 55, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_DARK);
 //160
-	spello(SPELL_BURDEN_OF_TIME, "бремя времени", "burden time", 140, 120, 2,
+	spello(SPELL_BURDEN_OF_TIME, "п╠я─п╣п╪я▐ п╡я─п╣п╪п╣п╫п╦", "burden time", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_DARK);
 //161
-	spello(SPELL_GROUP_REFRESH, "групповое восстановление", "group refresh",	//Added by Adept
+	spello(SPELL_GROUP_REFRESH, "пЁя─я┐п©п©п╬п╡п╬п╣ п╡п╬я│я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣", "group refresh",	//Added by Adept
 		   160, 140, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 30, STYPE_LIFE);
 
 //162
-	spello(SPELL_PEACEFUL, "смирение", "peaceful",
+	spello(SPELL_PEACEFUL, "я│п╪п╦я─п╣п╫п╦п╣", "peaceful",
 		   55, 40, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_NOT_SELF | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 1, STYPE_MIND);
 //163
-	spello(SPELL_MAGICBATTLE, "!получил в бою!", "!set by programm!", 0, 0, 0, 255, 0,
+	spello(SPELL_MAGICBATTLE, "!п©п╬п╩я┐я┤п╦п╩ п╡ п╠п╬я▌!", "!set by programm!", 0, 0, 0, 255, 0,
 		   FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 //164
-	spello(SPELL_BERSERK, "!предсмертная ярость!", "!set by programm!", 0, 0, 0, 255, 0,
+	spello(SPELL_BERSERK, "!п©я─п╣п╢я│п╪п╣я─я┌п╫п╟я▐ я▐я─п╬я│я┌я▄!", "!set by programm!", 0, 0, 0, 255, 0,
 		   FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //165
-	spello(SPELL_STONEBONES, "каменные кости", "stone bones", 80, 40, 1,
+	spello(SPELL_STONEBONES, "п╨п╟п╪п╣п╫п╫я▀п╣ п╨п╬я│я┌п╦", "stone bones", 80, 40, 1,
 		   POS_STANDING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
 
 //166 - SPELL_ROOM_LIGHT
-	spello(SPELL_ROOM_LIGHT, "осветить комнату", "room light", 10, 10, 1,
+	spello(SPELL_ROOM_LIGHT, "п╬я│п╡п╣я┌п╦я┌я▄ п╨п╬п╪п╫п╟я┌я┐", "room light", 10, 10, 1,
 		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM , 0, STYPE_LIGHT);
 
 //167 - SPELL_POISONED_FOG
-	spello(SPELL_POISONED_FOG, "ядовитый туман", "poisoned fog", 10, 10, 1,
+	spello(SPELL_POISONED_FOG, "я▐п╢п╬п╡п╦я┌я▀п╧ я┌я┐п╪п╟п╫", "poisoned fog", 10, 10, 1,
 		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_LIFE);
 
 //168 - SPELL_THUNDERSTORM
-	spello(SPELL_THUNDERSTORM, "буря отмщения", "storm of vengeance", 10, 10, 1,
+	spello(SPELL_THUNDERSTORM, "п╠я┐я─я▐ п╬я┌п╪я┴п╣п╫п╦я▐", "storm of vengeance", 10, 10, 1,
 		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_AIR);
 //169
-	spello(SPELL_LIGHT_WALK, "!легкая поступь!", "!set by programm!", 0, 0, 0, 255, 0,
+	spello(SPELL_LIGHT_WALK, "!п╩п╣пЁп╨п╟я▐ п©п╬я│я┌я┐п©я▄!", "!set by programm!", 0, 0, 0, 255, 0,
 		   FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //170
-	spello(SPELL_FAILURE, "недоля", "failure", 100, 85, 2, POS_FIGHTING,
+	spello(SPELL_FAILURE, "п╫п╣п╢п╬п╩я▐", "failure", 100, 85, 2, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_DARK);
 
 //171
-	spello(SPELL_CLANPRAY, "!клановые чары!", "!clan affect!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
+	spello(SPELL_CLANPRAY, "!п╨п╩п╟п╫п╬п╡я▀п╣ я┤п╟я─я▀!", "!clan affect!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
 //172
-	spello(SPELL_GLITTERDUST, "блестящая пыль", "glitterdust", 120, 100, 3,
+	spello(SPELL_GLITTERDUST, "п╠п╩п╣я│я┌я▐я┴п╟я▐ п©я▀п╩я▄", "glitterdust", 120, 100, 3,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_EARTH);
 //173
-	spello(SPELL_SCREAM, "вопль", "scream", 100, 85, 3, POS_FIGHTING,
+	spello(SPELL_SCREAM, "п╡п╬п©п╩я▄", "scream", 100, 85, 3, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
 //174
-	spello(SPELL_CATS_GRACE, "кошачья ловкость", "cats grace", 50, 40, 1,
+	spello(SPELL_CATS_GRACE, "п╨п╬я┬п╟я┤я▄я▐ п╩п╬п╡п╨п╬я│я┌я▄", "cats grace", 50, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //175
-	spello(SPELL_BULL_BODY, "бычье тело", "bull body", 50, 40, 1,
+	spello(SPELL_BULL_BODY, "п╠я▀я┤я▄п╣ я┌п╣п╩п╬", "bull body", 50, 40, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //176
-	spello(SPELL_SNAKE_WISDOM, "мудрость змеи", "snake wisdom", 60, 50, 1,
+	spello(SPELL_SNAKE_WISDOM, "п╪я┐п╢я─п╬я│я┌я▄ п╥п╪п╣п╦", "snake wisdom", 60, 50, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //177
-	spello(SPELL_GIMMICKRY, "хитроумие", "gimmickry", 60, 50, 1,
+	spello(SPELL_GIMMICKRY, "я┘п╦я┌я─п╬я┐п╪п╦п╣", "gimmickry", 60, 50, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
-// ДЛЯ КЛИЧЕЙ ПОЛЕ mana_change ИСПОЛЬЗУЕТСЯ
-// ДЛЯ УКАЗАНИЯ МИНИМАЛЬНОГО ПРОЦЕНТА СКИЛЛА,
-// С КОТОРОГО ДОСТУПЕН УКАЗАННЫЙ КЛИЧ
+// п■п⌡п╞ п п⌡п≤п╖п∙п≥ п÷п·п⌡п∙ mana_change п≤п║п÷п·п⌡п╛п≈пёп∙п╒п║п╞
+// п■п⌡п╞ пёп п░п≈п░п²п≤п╞ п°п≤п²п≤п°п░п⌡п╛п²п·п⌠п· п÷п═п·п╕п∙п²п╒п░ п║п п≤п⌡п⌡п░,
+// п║ п п·п╒п·п═п·п⌠п· п■п·п║п╒пёп÷п∙п² пёп п░п≈п░п²п²п╚п≥ п п⌡п≤п╖
 //178
 /*
-	spello(SPELL_WC_OF_CHALLENGE, "клич вызова", "warcry of challenge", 10, 10, 1,
+	spello(SPELL_WC_OF_CHALLENGE, "п╨п╩п╦я┤ п╡я▀п╥п╬п╡п╟", "warcry of challenge", 10, 10, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | NPC_DAMAGE_PC, 0, STYPE_MIND);
 //179
-	spello(SPELL_WC_OF_MENACE, "клич угрозы", "warcry of menace", 30, 30, 40,
+	spello(SPELL_WC_OF_MENACE, "п╨п╩п╦я┤ я┐пЁя─п╬п╥я▀", "warcry of menace", 30, 30, 40,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_MIND);
 //180
-	spello(SPELL_WC_OF_RAGE, "клич ярости", "warcry of rage", 30, 30, 50,
+	spello(SPELL_WC_OF_RAGE, "п╨п╩п╦я┤ я▐я─п╬я│я┌п╦", "warcry of rage", 30, 30, 50,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 0, STYPE_MIND);
 //181
-	spello(SPELL_WC_OF_MADNESS, "клич безумия", "warcry of madness", 50, 50, 91,
+	spello(SPELL_WC_OF_MADNESS, "п╨п╩п╦я┤ п╠п╣п╥я┐п╪п╦я▐", "warcry of madness", 50, 50, 91,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 0, STYPE_MIND);
 //182
-	spello(SPELL_WC_OF_THUNDER, "клич грома", "warcry of thunder", 140, 140, 141,
+	spello(SPELL_WC_OF_THUNDER, "п╨п╩п╦я┤ пЁя─п╬п╪п╟", "warcry of thunder", 140, 140, 141,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_WARCRY | MAG_AREAS | MAG_DAMAGE | MAG_AFFECTS | NPC_DAMAGE_PC, 0, STYPE_MIND);
 */
 //183
-	spello(SPELL_WC_OF_DEFENSE, "клич обороны", "warcry of defense", 10, 10, 10,
+	spello(SPELL_WC_OF_DEFENSE, "п╨п╩п╦я┤ п╬п╠п╬я─п╬п╫я▀", "warcry of defense", 10, 10, 10,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //184
-	spello(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle", 20, 20, 50,
+	spello(SPELL_WC_OF_BATTLE, "п╨п╩п╦я┤ п╠п╦я┌п╡я▀", "warcry of battle", 20, 20, 50,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //185
-	spello(SPELL_WC_OF_POWER, "клич мощи", "warcry of power", 25, 25, 70,
+	spello(SPELL_WC_OF_POWER, "п╨п╩п╦я┤ п╪п╬я┴п╦", "warcry of power", 25, 25, 70,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_POINTS | MAG_AFFECTS | NPC_DUMMY | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //186
-	spello(SPELL_WC_OF_BLESS, "клич доблести", "warcry of bless", 15, 15, 30,
+	spello(SPELL_WC_OF_BLESS, "п╨п╩п╦я┤ п╢п╬п╠п╩п╣я│я┌п╦", "warcry of bless", 15, 15, 30,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //187
-	spello(SPELL_WC_OF_COURAGE, "клич отваги", "warcry of courage", 10, 10, 10,
+	spello(SPELL_WC_OF_COURAGE, "п╨п╩п╦я┤ п╬я┌п╡п╟пЁп╦", "warcry of courage", 10, 10, 10,
 		   POS_FIGHTING, TAR_IGNORE, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //188
-	spello(SPELL_RUNE_LABEL, "рунная метка", "rune label", 50, 35, 1,
+	spello(SPELL_RUNE_LABEL, "я─я┐п╫п╫п╟я▐ п╪п╣я┌п╨п╟", "rune label", 50, 35, 1,
 		POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INWORLD_DELAY, 0, STYPE_LIGHT);
 
 
 	// NON-castable spells should appear below here.
 
 // 189
-	spello(SPELL_ACONITUM_POISON, "яд аконита", "aconitum poison",
+	spello(SPELL_ACONITUM_POISON, "я▐п╢ п╟п╨п╬п╫п╦я┌п╟", "aconitum poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 // 190
-	spello(SPELL_SCOPOLIA_POISON, "яд скополии", "scopolia poison",
+	spello(SPELL_SCOPOLIA_POISON, "я▐п╢ я│п╨п╬п©п╬п╩п╦п╦", "scopolia poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 // 191
-	spello(SPELL_BELENA_POISON, "яд белены", "belena poison",
+	spello(SPELL_BELENA_POISON, "я▐п╢ п╠п╣п╩п╣п╫я▀", "belena poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 // 192
-	spello(SPELL_DATURA_POISON, "яд дурмана", "datura poison",
+	spello(SPELL_DATURA_POISON, "я▐п╢ п╢я┐я─п╪п╟п╫п╟", "datura poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 
-	spello(SPELL_IDENTIFY, "идентификация", "identify",
+	spello(SPELL_IDENTIFY, "п╦п╢п╣п╫я┌п╦я└п╦п╨п╟я├п╦я▐", "identify",
 		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 // 193
-	spello(SPELL_TIMER_REPAIR, "обновление таймера", " timer repair",
+	spello(SPELL_TIMER_REPAIR, "п╬п╠п╫п╬п╡п╩п╣п╫п╦п╣ я┌п╟п╧п╪п╣я─п╟", " timer repair",
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 
 //194
-	spello(SPELL_LACKY, "боевое везение", "lacky", 100, 90, 1,
+	spello(SPELL_LACKY, "п╠п╬п╣п╡п╬п╣ п╡п╣п╥п╣п╫п╦п╣", "lacky", 100, 90, 1,
 		POS_STANDING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_AFFECTS, 0, STYPE_MIND);
 //195
-	spello(SPELL_BANDAGE, "перевязка", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+	spello(SPELL_BANDAGE, "п©п╣я─п╣п╡я▐п╥п╨п╟", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //196
-	spello(SPELL_NO_BANDAGE, "!нельзя перевязываться!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+	spello(SPELL_NO_BANDAGE, "!п╫п╣п╩я▄п╥я▐ п©п╣я─п╣п╡я▐п╥я▀п╡п╟я┌я▄я│я▐!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //197
-	spello(SPELL_CAPABLE, "!зачарован!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+	spello(SPELL_CAPABLE, "!п╥п╟я┤п╟я─п╬п╡п╟п╫!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //198
-	spello(SPELL_STRANGLE, "!удушье!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+	spello(SPELL_STRANGLE, "!я┐п╢я┐я┬я▄п╣!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //199
-	spello(SPELL_RECALL_SPELLS, "!вспоминает заклинания!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+	spello(SPELL_RECALL_SPELLS, "!п╡я│п©п╬п╪п╦п╫п╟п╣я┌ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐!", "!set by programm!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //200
-	spello(SPELL_HYPNOTIC_PATTERN, "чарующий узор", "hypnotic pattern", 120, 100, 2,
+	spello(SPELL_HYPNOTIC_PATTERN, "я┤п╟я─я┐я▌я┴п╦п╧ я┐п╥п╬я─", "hypnotic pattern", 120, 100, 2,
 			POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_MIND);
 //202
-	spello(SPELL_VAMPIRE, "вампиризм", "vampire", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
+	spello(SPELL_VAMPIRE, "п╡п╟п╪п©п╦я─п╦п╥п╪", "vampire", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
 		   3, STYPE_DARK);
 //203
-	spello(SPELLS_RESTORATION, "реконструкция", "reconstruction",
+	spello(SPELLS_RESTORATION, "я─п╣п╨п╬п╫я│я┌я─я┐п╨я├п╦я▐", "reconstruction",
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 //204
-	spello(SPELL_AURA_DEATH, "аура смерти", "aura death",
+	spello(SPELL_AURA_DEATH, "п╟я┐я─п╟ я│п╪п╣я─я┌п╦", "aura death",
 		   140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
 //205
-	spello(SPELL_RECOVERY, "темное прикосновение", "recovery",
+	spello(SPELL_RECOVERY, "я┌п╣п╪п╫п╬п╣ п©я─п╦п╨п╬я│п╫п╬п╡п╣п╫п╦п╣", "recovery",
 		   110, 100, 1, POS_STANDING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_DARK);
 //206
-	spello(SPELL_MASS_RECOVERY, "прикосновение смерти", "mass recovery",
+	spello(SPELL_MASS_RECOVERY, "п©я─п╦п╨п╬я│п╫п╬п╡п╣п╫п╦п╣ я│п╪п╣я─я┌п╦", "mass recovery",
 		   110, 100, 1, POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 0, STYPE_DARK);
 //207
-	spello(SPELL_AURA_EVIL, "аура зла", "aura evil",
+	spello(SPELL_AURA_EVIL, "п╟я┐я─п╟ п╥п╩п╟", "aura evil",
 		   150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,  3, STYPE_DARK);
 //208
-	spello(SPELL_MENTAL_SHADOW, "ментальная тень", "mental shadow", 150, 130, 5,
+	spello(SPELL_MENTAL_SHADOW, "п╪п╣п╫я┌п╟п╩я▄п╫п╟я▐ я┌п╣п╫я▄", "mental shadow", 150, 130, 5,
 		   POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 1, STYPE_MIND);
 //209
-	spello(SPELL_EVARDS_BLACK_TENTACLES, "навьи руки", "evards black tentacles", 120, 110, 2,
+	spello(SPELL_EVARDS_BLACK_TENTACLES, "п╫п╟п╡я▄п╦ я─я┐п╨п╦", "evards black tentacles", 120, 110, 2,
 		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_DARK);
 //210
-	spello(SPELL_WHIRLWIND, "вихрь", "whirlwind", 110, 100, 1,
+	spello(SPELL_WHIRLWIND, "п╡п╦я┘я─я▄", "whirlwind", 110, 100, 1,
             POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
             MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
 //211
-	spello(SPELL_INDRIKS_TEETH, "зубы индрика", "indriks teeth", 60, 45, 1, POS_FIGHTING,
+	spello(SPELL_INDRIKS_TEETH, "п╥я┐п╠я▀ п╦п╫п╢я─п╦п╨п╟", "indriks teeth", 60, 45, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //212
-	spello(SPELL_MELFS_ACID_ARROW, "кислотная стрела", "acid arrow", 110, 100, 1,
+	spello(SPELL_MELFS_ACID_ARROW, "п╨п╦я│п╩п╬я┌п╫п╟я▐ я│я┌я─п╣п╩п╟", "acid arrow", 110, 100, 1,
             POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
             MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_WATER);
 //213
-	spello(SPELL_THUNDERSTONE, "громовой камень", "thunderstone", 110, 100, 2,
+	spello(SPELL_THUNDERSTONE, "пЁя─п╬п╪п╬п╡п╬п╧ п╨п╟п╪п╣п╫я▄", "thunderstone", 110, 100, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //214
-	spello(SPELL_CLOD, "глыба", "clod", 110, 100, 1,
+	spello(SPELL_CLOD, "пЁп╩я▀п╠п╟", "clod", 110, 100, 1,
             POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
             MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //215
-	spello(SPELL_EXPEDIENT, "!боевой прием!", "!set by programm!",
+	spello(SPELL_EXPEDIENT, "!п╠п╬п╣п╡п╬п╧ п©я─п╦п╣п╪!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //216
-	spello(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness", 110, 100, 1,
+	spello(SPELL_SIGHT_OF_DARKNESS, "п╥я─п╣п╫п╦п╣ я┌я▄п╪я▀", "sight darkness", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //217        
-	spello(SPELL_GENERAL_SINCERITY, "общая искренность", "general sincerity", 110, 100, 1,
+	spello(SPELL_GENERAL_SINCERITY, "п╬п╠я┴п╟я▐ п╦я│п╨я─п╣п╫п╫п╬я│я┌я▄", "general sincerity", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //218        
-	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
+	spello(SPELL_MAGICAL_GAZE, "п╪п╟пЁп╦я┤п╣я│п╨п╦п╧ п╡п╥п╬я─", "magical gaze", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //219        
-	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "allseeing eye", 110, 100, 1,
+	spello(SPELL_ALL_SEEING_EYE, "п╡я│п╣п╡п╦п╢я▐я┴п╣п╣ п╬п╨п╬", "allseeing eye", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //220        
-	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
+	spello(SPELL_EYE_OF_GODS, "п╬п╨п╬ п╠п╬пЁп╬п╡", "eye gods", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
 //221        
-	spello(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth", 110, 100, 1,
+	spello(SPELL_BREATHING_AT_DEPTH, "п╢я▀я┘п╟п╫п╦п╣ пЁп╩я┐п╠п╦п╫", "breathing at depth", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
 //222        
-	spello(SPELL_GENERAL_RECOVERY, "общее востановление", "general recovery", 110, 100, 1,
+	spello(SPELL_GENERAL_RECOVERY, "п╬п╠я┴п╣п╣ п╡п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣", "general recovery", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
 //223        
-	spello(SPELL_COMMON_MEAL, "общая трапеза", "common meal", 110, 100, 1,
+	spello(SPELL_COMMON_MEAL, "п╬п╠я┴п╟я▐ я┌я─п╟п©п╣п╥п╟", "common meal", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
 //224        
-	spello(SPELL_STONE_WALL, "каменная стена", "stone wall", 110, 100, 1,
+	spello(SPELL_STONE_WALL, "п╨п╟п╪п╣п╫п╫п╟я▐ я│я┌п╣п╫п╟", "stone wall", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_EARTH);
 //225        
-	spello(SPELL_SNAKE_EYES, "глаза змея", "snake eyes", 110, 100, 1,
+	spello(SPELL_SNAKE_EYES, "пЁп╩п╟п╥п╟ п╥п╪п╣я▐", "snake eyes", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //226
-	spello(SPELL_EARTH_AURA, "земной поклон", "earth aura", 140, 120, 2,
+	spello(SPELL_EARTH_AURA, "п╥п╣п╪п╫п╬п╧ п©п╬п╨п╩п╬п╫", "earth aura", 140, 120, 2,
                    POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
 //227
-	spello(SPELL_GROUP_PROT_FROM_EVIL, "групповая защита от тьмы", "group protect evil", 110, 100, 1,
+	spello(SPELL_GROUP_PROT_FROM_EVIL, "пЁя─я┐п©п©п╬п╡п╟я▐ п╥п╟я┴п╦я┌п╟ п╬я┌ я┌я▄п╪я▀", "group protect evil", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
        
 	/*
@@ -5372,24 +5372,24 @@ void mag_assign_spells(void)
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
 	 */
 
-	spello(SPELL_FIRE_BREATH, "огненное дыхание", "fire breath", 0, 0, 0,
+	spello(SPELL_FIRE_BREATH, "п╬пЁп╫п╣п╫п╫п╬п╣ п╢я▀я┘п╟п╫п╦п╣", "fire breath", 0, 0, 0,
 		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_FIRE);
 
-	spello(SPELL_GAS_BREATH, "зловонное дыхание", "gas breath", 0, 0, 0,
+	spello(SPELL_GAS_BREATH, "п╥п╩п╬п╡п╬п╫п╫п╬п╣ п╢я▀я┘п╟п╫п╦п╣", "gas breath", 0, 0, 0,
 		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_EARTH);
 
-	spello(SPELL_FROST_BREATH, "ледяное дыхание", "frost breath", 0, 0, 0,
+	spello(SPELL_FROST_BREATH, "п╩п╣п╢я▐п╫п╬п╣ п╢я▀я┘п╟п╫п╦п╣", "frost breath", 0, 0, 0,
 		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_AIR);
 
-	spello(SPELL_ACID_BREATH, "кислотное дыхание", "acid breath", 0, 0, 0,
+	spello(SPELL_ACID_BREATH, "п╨п╦я│п╩п╬я┌п╫п╬п╣ п╢я▀я┘п╟п╫п╦п╣", "acid breath", 0, 0, 0,
 		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_WATER);
 
-	spello(SPELL_LIGHTNING_BREATH, "опаляющее дыхание", "lightning breath",
+	spello(SPELL_LIGHTNING_BREATH, "п╬п©п╟п╩я▐я▌я┴п╣п╣ п╢я▀я┘п╟п╫п╦п╣", "lightning breath",
 		   0, 0, 0, POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_DARK);
 
-	spello(SPELL_QUEST, "чары", "quest spell",
+	spello(SPELL_QUEST, "я┤п╟я─я▀", "quest spell",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
-	spello(SPELL_SOLOBONUS, "награда", "bonus",
+	spello(SPELL_SOLOBONUS, "п╫п╟пЁя─п╟п╢п╟", "bonus",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
 
 	/*
@@ -5398,89 +5398,89 @@ void mag_assign_spells(void)
 	 * min level to use the skill for other classes is set up in class.c.
 	 */
 
-	skillo(SKILL_BACKSTAB, "заколоть", 140);
-	skillo(SKILL_BASH, "сбить", 200);
-	skillo(SKILL_HIDE, "спрятаться", 100);
-	skillo(SKILL_KICK, "пнуть", 100);
-	skillo(SKILL_PICK_LOCK, "взломать", 120);
-	skillo(SKILL_PUNCH, "кулачный бой", 100);
-	skillo(SKILL_RESCUE, "спасти", 130);
-	skillo(SKILL_SNEAK, "подкрасться", 100);
-	skillo(SKILL_STEAL, "украсть", 100);
-	skillo(SKILL_TRACK, "выследить", 100);
-	skillo(SKILL_PARRY, "парировать", 120);
-	skillo(SKILL_BLOCK, "блокировать щитом", 200);
-	skillo(SKILL_TOUCH, "перехватить атаку", 100);
-	skillo(SKILL_PROTECT, "прикрыть", 120);
-	skillo(SKILL_BOTHHANDS, "двуручники", 160);
-	skillo(SKILL_LONGS, "длинные лезвия", 160);
-	skillo(SKILL_SPADES, "копья и рогатины", 160);
-	skillo(SKILL_SHORTS, "короткие лезвия", 160);
-	skillo(SKILL_BOWS, "луки", 160);
-	skillo(SKILL_CLUBS, "палицы и дубины", 160);
-	skillo(SKILL_PICK, "проникающее оружие", 160);
-	skillo(SKILL_NONSTANDART, "иное оружие", 160);
-	skillo(SKILL_AXES, "секиры", 160);
-	skillo(SKILL_SATTACK, "атака левой рукой", 100);
-	skillo(SKILL_LOOKING, "приглядеться", 100);
-	skillo(SKILL_HEARING, "прислушаться", 100);
+	skillo(SKILL_BACKSTAB, "п╥п╟п╨п╬п╩п╬я┌я▄", 140);
+	skillo(SKILL_BASH, "я│п╠п╦я┌я▄", 200);
+	skillo(SKILL_HIDE, "я│п©я─я▐я┌п╟я┌я▄я│я▐", 100);
+	skillo(SKILL_KICK, "п©п╫я┐я┌я▄", 100);
+	skillo(SKILL_PICK_LOCK, "п╡п╥п╩п╬п╪п╟я┌я▄", 120);
+	skillo(SKILL_PUNCH, "п╨я┐п╩п╟я┤п╫я▀п╧ п╠п╬п╧", 100);
+	skillo(SKILL_RESCUE, "я│п©п╟я│я┌п╦", 130);
+	skillo(SKILL_SNEAK, "п©п╬п╢п╨я─п╟я│я┌я▄я│я▐", 100);
+	skillo(SKILL_STEAL, "я┐п╨я─п╟я│я┌я▄", 100);
+	skillo(SKILL_TRACK, "п╡я▀я│п╩п╣п╢п╦я┌я▄", 100);
+	skillo(SKILL_PARRY, "п©п╟я─п╦я─п╬п╡п╟я┌я▄", 120);
+	skillo(SKILL_BLOCK, "п╠п╩п╬п╨п╦я─п╬п╡п╟я┌я▄ я┴п╦я┌п╬п╪", 200);
+	skillo(SKILL_TOUCH, "п©п╣я─п╣я┘п╡п╟я┌п╦я┌я▄ п╟я┌п╟п╨я┐", 100);
+	skillo(SKILL_PROTECT, "п©я─п╦п╨я─я▀я┌я▄", 120);
+	skillo(SKILL_BOTHHANDS, "п╢п╡я┐я─я┐я┤п╫п╦п╨п╦", 160);
+	skillo(SKILL_LONGS, "п╢п╩п╦п╫п╫я▀п╣ п╩п╣п╥п╡п╦я▐", 160);
+	skillo(SKILL_SPADES, "п╨п╬п©я▄я▐ п╦ я─п╬пЁп╟я┌п╦п╫я▀", 160);
+	skillo(SKILL_SHORTS, "п╨п╬я─п╬я┌п╨п╦п╣ п╩п╣п╥п╡п╦я▐", 160);
+	skillo(SKILL_BOWS, "п╩я┐п╨п╦", 160);
+	skillo(SKILL_CLUBS, "п©п╟п╩п╦я├я▀ п╦ п╢я┐п╠п╦п╫я▀", 160);
+	skillo(SKILL_PICK, "п©я─п╬п╫п╦п╨п╟я▌я┴п╣п╣ п╬я─я┐п╤п╦п╣", 160);
+	skillo(SKILL_NONSTANDART, "п╦п╫п╬п╣ п╬я─я┐п╤п╦п╣", 160);
+	skillo(SKILL_AXES, "я│п╣п╨п╦я─я▀", 160);
+	skillo(SKILL_SATTACK, "п╟я┌п╟п╨п╟ п╩п╣п╡п╬п╧ я─я┐п╨п╬п╧", 100);
+	skillo(SKILL_LOOKING, "п©я─п╦пЁп╩я▐п╢п╣я┌я▄я│я▐", 100);
+	skillo(SKILL_HEARING, "п©я─п╦я│п╩я┐я┬п╟я┌я▄я│я▐", 100);
 
-	skillo(SKILL_DISARM, "обезоружить", 100);
+	skillo(SKILL_DISARM, "п╬п╠п╣п╥п╬я─я┐п╤п╦я┌я▄", 100);
 	skillo(SKILL_HEAL, "!heal!", 100);
-	skillo(SKILL_MORPH, "оборотничество", 150);
-	skillo(SKILL_ADDSHOT, "дополнительный выстрел", 200);
-	skillo(SKILL_CAMOUFLAGE, "маскировка", 100);
-	skillo(SKILL_DEVIATE, "уклониться", 100);
-	skillo(SKILL_CHOPOFF, "подножка", 200);
-	skillo(SKILL_REPAIR, "ремонт", 100);
-	skillo(SKILL_COURAGE, "ярость", 100);
-	skillo(SKILL_IDENTIFY, "опознание", 100);
-	skillo(SKILL_LOOK_HIDE, "подсмотреть", 100);
-	skillo(SKILL_UPGRADE, "заточить", 100);
-	skillo(SKILL_ARMORED, "укрепить", 100);
-	skillo(SKILL_DRUNKOFF, "опохмелиться", 100);
-	skillo(SKILL_AID, "лечить", 100);
-	skillo(SKILL_FIRE, "разжечь костер", 160);
-	skillo(SKILL_SHIT, "удар левой рукой", 100);
-	skillo(SKILL_MIGHTHIT, "богатырский молот", 200);
-	skillo(SKILL_STUPOR, "оглушить", 160);
-	skillo(SKILL_POISONED, "отравить", 200);
-	skillo(SKILL_LEADERSHIP, "лидерство", 100);
-	skillo(SKILL_PUNCTUAL, "точный стиль", 110);
-	skillo(SKILL_AWAKE, "осторожный стиль", 100);
-	skillo(SKILL_SENSE, "найти", 200);
-	skillo(SKILL_HORSE, "сражение верхом", 100);
-	skillo(SKILL_HIDETRACK, "замести следы", 120);
-	skillo(SKILL_RELIGION, "!молитва или жертва!", 100);
-	skillo(SKILL_MAKEFOOD, "освежевать", 120);
-	skillo(SKILL_MULTYPARRY, "веерная защита", 140);
-	skillo(SKILL_TRANSFORMWEAPON, "перековать", 140);
-	skillo(SKILL_THROW, "метнуть", 150);
-//  skillo(SKILL_CREATEBOW,    "смастерить лук", 140);
-	skillo(SKILL_MAKE_BOW, "смастерить лук", 140);
-	skillo(SKILL_MAKE_WEAPON, "выковать оружие", 140);
-	skillo(SKILL_MAKE_ARMOR, "выковать доспех", 140);
-	skillo(SKILL_MAKE_WEAR, "сшить одежду", 140);
-	skillo(SKILL_MAKE_JEWEL, "смастерить диковинку", 140);
-	skillo(SKILL_MANADRAIN, "сглазить", 100);
-	skillo(SKILL_NOPARRYHIT, "скрытый удар", 100);
-	skillo(SKILL_TOWNPORTAL, "врата", 100);
-	skillo(SKILL_DIG, "горное дело", 100);
-	skillo(SKILL_INSERTGEM, "ювелир", 100);
-	skillo(SKILL_WARCRY, "боевой клич", 100);
-	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
-	skillo(SKILL_IRON_WIND, "железный ветер", 150);
-	skillo(SKILL_STRANGLE, "удавить", 200);
-	skillo(SKILL_AIR_MAGIC, "магия воздуха", 200);
-	skillo(SKILL_FIRE_MAGIC, "магия огня", 200);
-	skillo(SKILL_WATER_MAGIC, "магия воды", 200);
-	skillo(SKILL_EARTH_MAGIC, "магия земли", 200);
-	skillo(SKILL_LIGHT_MAGIC, "магия света", 200);
-	skillo(SKILL_DARK_MAGIC, "магия тьмы", 200);
-	skillo(SKILL_MIND_MAGIC, "магия разума", 200);
-	skillo(SKILL_LIFE_MAGIC, "магия жизни", 200);
-	skillo(SKILL_STUN, "ошеломить", 200);
-	skillo(SKILL_MAKE_AMULET, "смастерить оберег", 200);
+	skillo(SKILL_MORPH, "п╬п╠п╬я─п╬я┌п╫п╦я┤п╣я│я┌п╡п╬", 150);
+	skillo(SKILL_ADDSHOT, "п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫я▀п╧ п╡я▀я│я┌я─п╣п╩", 200);
+	skillo(SKILL_CAMOUFLAGE, "п╪п╟я│п╨п╦я─п╬п╡п╨п╟", 100);
+	skillo(SKILL_DEVIATE, "я┐п╨п╩п╬п╫п╦я┌я▄я│я▐", 100);
+	skillo(SKILL_CHOPOFF, "п©п╬п╢п╫п╬п╤п╨п╟", 200);
+	skillo(SKILL_REPAIR, "я─п╣п╪п╬п╫я┌", 100);
+	skillo(SKILL_COURAGE, "я▐я─п╬я│я┌я▄", 100);
+	skillo(SKILL_IDENTIFY, "п╬п©п╬п╥п╫п╟п╫п╦п╣", 100);
+	skillo(SKILL_LOOK_HIDE, "п©п╬п╢я│п╪п╬я┌я─п╣я┌я▄", 100);
+	skillo(SKILL_UPGRADE, "п╥п╟я┌п╬я┤п╦я┌я▄", 100);
+	skillo(SKILL_ARMORED, "я┐п╨я─п╣п©п╦я┌я▄", 100);
+	skillo(SKILL_DRUNKOFF, "п╬п©п╬я┘п╪п╣п╩п╦я┌я▄я│я▐", 100);
+	skillo(SKILL_AID, "п╩п╣я┤п╦я┌я▄", 100);
+	skillo(SKILL_FIRE, "я─п╟п╥п╤п╣я┤я▄ п╨п╬я│я┌п╣я─", 160);
+	skillo(SKILL_SHIT, "я┐п╢п╟я─ п╩п╣п╡п╬п╧ я─я┐п╨п╬п╧", 100);
+	skillo(SKILL_MIGHTHIT, "п╠п╬пЁп╟я┌я▀я─я│п╨п╦п╧ п╪п╬п╩п╬я┌", 200);
+	skillo(SKILL_STUPOR, "п╬пЁп╩я┐я┬п╦я┌я▄", 160);
+	skillo(SKILL_POISONED, "п╬я┌я─п╟п╡п╦я┌я▄", 200);
+	skillo(SKILL_LEADERSHIP, "п╩п╦п╢п╣я─я│я┌п╡п╬", 100);
+	skillo(SKILL_PUNCTUAL, "я┌п╬я┤п╫я▀п╧ я│я┌п╦п╩я▄", 110);
+	skillo(SKILL_AWAKE, "п╬я│я┌п╬я─п╬п╤п╫я▀п╧ я│я┌п╦п╩я▄", 100);
+	skillo(SKILL_SENSE, "п╫п╟п╧я┌п╦", 200);
+	skillo(SKILL_HORSE, "я│я─п╟п╤п╣п╫п╦п╣ п╡п╣я─я┘п╬п╪", 100);
+	skillo(SKILL_HIDETRACK, "п╥п╟п╪п╣я│я┌п╦ я│п╩п╣п╢я▀", 120);
+	skillo(SKILL_RELIGION, "!п╪п╬п╩п╦я┌п╡п╟ п╦п╩п╦ п╤п╣я─я┌п╡п╟!", 100);
+	skillo(SKILL_MAKEFOOD, "п╬я│п╡п╣п╤п╣п╡п╟я┌я▄", 120);
+	skillo(SKILL_MULTYPARRY, "п╡п╣п╣я─п╫п╟я▐ п╥п╟я┴п╦я┌п╟", 140);
+	skillo(SKILL_TRANSFORMWEAPON, "п©п╣я─п╣п╨п╬п╡п╟я┌я▄", 140);
+	skillo(SKILL_THROW, "п╪п╣я┌п╫я┐я┌я▄", 150);
+//  skillo(SKILL_CREATEBOW,    "я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╩я┐п╨", 140);
+	skillo(SKILL_MAKE_BOW, "я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╩я┐п╨", 140);
+	skillo(SKILL_MAKE_WEAPON, "п╡я▀п╨п╬п╡п╟я┌я▄ п╬я─я┐п╤п╦п╣", 140);
+	skillo(SKILL_MAKE_ARMOR, "п╡я▀п╨п╬п╡п╟я┌я▄ п╢п╬я│п©п╣я┘", 140);
+	skillo(SKILL_MAKE_WEAR, "я│я┬п╦я┌я▄ п╬п╢п╣п╤п╢я┐", 140);
+	skillo(SKILL_MAKE_JEWEL, "я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╢п╦п╨п╬п╡п╦п╫п╨я┐", 140);
+	skillo(SKILL_MANADRAIN, "я│пЁп╩п╟п╥п╦я┌я▄", 100);
+	skillo(SKILL_NOPARRYHIT, "я│п╨я─я▀я┌я▀п╧ я┐п╢п╟я─", 100);
+	skillo(SKILL_TOWNPORTAL, "п╡я─п╟я┌п╟", 100);
+	skillo(SKILL_DIG, "пЁп╬я─п╫п╬п╣ п╢п╣п╩п╬", 100);
+	skillo(SKILL_INSERTGEM, "я▌п╡п╣п╩п╦я─", 100);
+	skillo(SKILL_WARCRY, "п╠п╬п╣п╡п╬п╧ п╨п╩п╦я┤", 100);
+	skillo(SKILL_TURN_UNDEAD, "п╦п╥пЁп╫п╟я┌я▄ п╫п╣п╤п╦я┌я▄", 100);
+	skillo(SKILL_IRON_WIND, "п╤п╣п╩п╣п╥п╫я▀п╧ п╡п╣я┌п╣я─", 150);
+	skillo(SKILL_STRANGLE, "я┐п╢п╟п╡п╦я┌я▄", 200);
+	skillo(SKILL_AIR_MAGIC, "п╪п╟пЁп╦я▐ п╡п╬п╥п╢я┐я┘п╟", 200);
+	skillo(SKILL_FIRE_MAGIC, "п╪п╟пЁп╦я▐ п╬пЁп╫я▐", 200);
+	skillo(SKILL_WATER_MAGIC, "п╪п╟пЁп╦я▐ п╡п╬п╢я▀", 200);
+	skillo(SKILL_EARTH_MAGIC, "п╪п╟пЁп╦я▐ п╥п╣п╪п╩п╦", 200);
+	skillo(SKILL_LIGHT_MAGIC, "п╪п╟пЁп╦я▐ я│п╡п╣я┌п╟", 200);
+	skillo(SKILL_DARK_MAGIC, "п╪п╟пЁп╦я▐ я┌я▄п╪я▀", 200);
+	skillo(SKILL_MIND_MAGIC, "п╪п╟пЁп╦я▐ я─п╟п╥я┐п╪п╟", 200);
+	skillo(SKILL_LIFE_MAGIC, "п╪п╟пЁп╦я▐ п╤п╦п╥п╫п╦", 200);
+	skillo(SKILL_STUN, "п╬я┬п╣п╩п╬п╪п╦я┌я▄", 200);
+	skillo(SKILL_MAKE_AMULET, "я│п╪п╟я│я┌п╣я─п╦я┌я▄ п╬п╠п╣я─п╣пЁ", 200);
 }
 
 MaxClassSlot::MaxClassSlot()

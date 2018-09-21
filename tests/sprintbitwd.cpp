@@ -142,7 +142,7 @@ TEST(sprintbitwd, PrintZero_SimpleBitNames_NoPrintFlags)
 	char result[BUFFER_SIZE];
 	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
 
-	EXPECT_EQ(0, strcmp(result, "ничего"));
+	EXPECT_EQ(0, strcmp(result, "п╫п╦я┤п╣пЁп╬"));
 }
 
 TEST(sprintbitwd, SingleBit_SimpleBitNames_NoPrintFlags)

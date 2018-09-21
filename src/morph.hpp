@@ -76,8 +76,8 @@ public:
 
 	std::string GetMorphDesc() const;
 	std::string GetMorphTitle() const;
-	std::string Name() const { return "Обычная"; }
-	std::string PadName() const { return "Человеком"; }
+	std::string Name() const { return "п·п╠я▀я┤п╫п╟я▐"; }
+	std::string PadName() const { return "п╖п╣п╩п╬п╡п╣п╨п╬п╪"; }
 	void SetChar(CHAR_DATA *ch) {ch_=ch;};
 
 	void set_skill(const ESkill skill_num, int percent);

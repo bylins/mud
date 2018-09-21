@@ -21,13 +21,13 @@
 namespace Remember
 {
 
-// болтать/орать
+// п╠п╬п╩я┌п╟я┌я▄/п╬я─п╟я┌я▄
 RememberListType gossip;
-// оффтоп
+// п╬я└я└я┌п╬п©
 RememberListType offtop;
-// воззвания (иммам)
+// п╡п╬п╥п╥п╡п╟п╫п╦я▐ (п╦п╪п╪п╟п╪)
 RememberListType imm_pray;
-// гбогам/wiznet
+// пЁп╠п╬пЁп╟п╪/wiznet
 RememberWiznetListType wiznet_;
 
 std::string time_format()
@@ -39,14 +39,14 @@ std::string time_format()
 }
 
 /**
-* Формирование имени болтающего/орущего при записе во 'вспом все' в обход act().
-* Иммы видны всегда, кто-ты с большой буквы.
+* п╓п╬я─п╪п╦я─п╬п╡п╟п╫п╦п╣ п╦п╪п╣п╫п╦ п╠п╬п╩я┌п╟я▌я┴п╣пЁп╬/п╬я─я┐я┴п╣пЁп╬ п©я─п╦ п╥п╟п©п╦я│п╣ п╡п╬ 'п╡я│п©п╬п╪ п╡я│п╣' п╡ п╬п╠я┘п╬п╢ act().
+* п≤п╪п╪я▀ п╡п╦п╢п╫я▀ п╡я│п╣пЁп╢п╟, п╨я┌п╬-я┌я▀ я│ п╠п╬п╩я▄я┬п╬п╧ п╠я┐п╨п╡я▀.
 */
 std::string format_gossip_name(CHAR_DATA *ch, CHAR_DATA *vict)
 {
 	if (ch->get_name().empty())
 	{
-		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
+		log("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, func: %s", __func__);
 		return "";
 	}
 	std::string name = IS_IMMORTAL(ch) ? GET_NAME(ch) : PERS(ch, vict, 0);
@@ -55,21 +55,21 @@ std::string format_gossip_name(CHAR_DATA *ch, CHAR_DATA *vict)
 }
 
 /**
-* Болтовня ch, пишущаяся во вспом все к vict'иму. Изврат конечно, но переделывать
-* систему в do_gen_comm чет облом пока, а возвращать сформированную строку из act() не хочется.
+* п▒п╬п╩я┌п╬п╡п╫я▐ ch, п©п╦я┬я┐я┴п╟я▐я│я▐ п╡п╬ п╡я│п©п╬п╪ п╡я│п╣ п╨ vict'п╦п╪я┐. п≤п╥п╡я─п╟я┌ п╨п╬п╫п╣я┤п╫п╬, п╫п╬ п©п╣я─п╣п╢п╣п╩я▀п╡п╟я┌я▄
+* я│п╦я│я┌п╣п╪я┐ п╡ do_gen_comm я┤п╣я┌ п╬п╠п╩п╬п╪ п©п╬п╨п╟, п╟ п╡п╬п╥п╡я─п╟я┴п╟я┌я▄ я│я└п╬я─п╪п╦я─п╬п╡п╟п╫п╫я┐я▌ я│я┌я─п╬п╨я┐ п╦п╥ act() п╫п╣ я┘п╬я┤п╣я┌я│я▐.
 */
 std::string format_gossip(CHAR_DATA *ch, CHAR_DATA *vict, int cmd, const char *argument)
 {
 	return str(boost::format("%1%%2% %3%%4% : '%5%'%6%\r\n")
 			% (cmd == SCMD_GOSSIP ? CCYEL(vict, C_NRM) : CCIYEL(vict, C_NRM))
 			% format_gossip_name(ch, vict).c_str()
-			% (cmd == SCMD_GOSSIP ? "заметил" : "заорал")
+			% (cmd == SCMD_GOSSIP ? "п╥п╟п╪п╣я┌п╦п╩" : "п╥п╟п╬я─п╟п╩")
 			% GET_CH_VIS_SUF_1(ch, vict)
 			% argument
 			% CCNRM(vict, C_NRM));
 }
 
-// * Анти-копипаст для CharRemember::add_str.
+// * п░п╫я┌п╦-п╨п╬п©п╦п©п╟я│я┌ п╢п╩я▐ CharRemember::add_str.
 void add_to_cont(RememberListType &cont, const std::string &text)
 {
 	cont.push_back(text);
@@ -79,7 +79,7 @@ void add_to_cont(RememberListType &cont, const std::string &text)
 	}
 }
 
-// * Анти-копипаст для CharRemember::get_text.
+// * п░п╫я┌п╦-п╨п╬п©п╦п©п╟я│я┌ п╢п╩я▐ CharRemember::get_text.
 std::string get_from_cont(const RememberListType &cont, unsigned int num_str)
 {
 	std::string text;
@@ -122,7 +122,7 @@ std::string get_from_flaged_cont(const RememberWiznetListType &cont, unsigned in
 	}
 	if (text.empty())
 	{
-		text = "Вам нечего вспомнить.\r\n";
+		text = "п▓п╟п╪ п╫п╣я┤п╣пЁп╬ п╡я│п©п╬п╪п╫п╦я┌я▄.\r\n";
 	}
 	return text;
 }
@@ -131,7 +131,7 @@ std::string get_from_flaged_cont(const RememberWiznetListType &cont, unsigned in
 
 using namespace Remember;
 
-// * Добавление строки в список (flag).
+// * п■п╬п╠п╟п╡п╩п╣п╫п╦п╣ я│я┌я─п╬п╨п╦ п╡ я│п©п╦я│п╬п╨ (flag).
 void CharRemember::add_str(std::string text, int flag)
 {
 	std::string buffer = time_format();
@@ -145,7 +145,7 @@ void CharRemember::add_str(std::string text, int flag)
 	case PERSONAL:
 		add_to_cont(personal_, buffer);
 		break;
-	case GROUP:// added by WorM  групптелы 2010.10.13
+	case GROUP:// added by WorM  пЁя─я┐п©п©я┌п╣п╩я▀ 2010.10.13
 		add_to_cont(group_, buffer);
 		break;
 	case GOSSIP:
@@ -162,13 +162,13 @@ void CharRemember::add_str(std::string text, int flag)
 		add_to_cont(all_, buffer);
 		break;
 	default:
-		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
+		log("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, flag: %d, func: %s",
 				flag, __func__);
 		return;
 	}
 }
 
-// * Вывод списка (flag), ограниченного числом из режима вспомнить.
+// * п▓я▀п╡п╬п╢ я│п©п╦я│п╨п╟ (flag), п╬пЁя─п╟п╫п╦я┤п╣п╫п╫п╬пЁп╬ я┤п╦я│п╩п╬п╪ п╦п╥ я─п╣п╤п╦п╪п╟ п╡я│п©п╬п╪п╫п╦я┌я▄.
 std::string CharRemember::get_text(int flag) const
 {
 	std::string buffer;
@@ -181,7 +181,7 @@ std::string CharRemember::get_text(int flag) const
 	case PERSONAL:
 		buffer = get_from_cont(personal_, num_str_);
 		break;
-	case GROUP:// added by WorM  групптелы 2010.10.13
+	case GROUP:// added by WorM  пЁя─я┐п©п©я┌п╣п╩я▀ 2010.10.13
 		buffer = get_from_cont(group_, num_str_);
 		break;
 	case GOSSIP:
@@ -197,13 +197,13 @@ std::string CharRemember::get_text(int flag) const
 		buffer = get_from_cont(pray_, num_str_);
 		break;
 	default:
-		log("SYSERROR: мы не должны были сюда попасть, flag: %d, func: %s",
+		log("SYSERROR: п╪я▀ п╫п╣ п╢п╬п╩п╤п╫я▀ п╠я▀п╩п╦ я│я▌п╢п╟ п©п╬п©п╟я│я┌я▄, flag: %d, func: %s",
 				flag, __func__);
 		break;
 	}
 	if (buffer.empty())
 	{
-		buffer = "Вам нечего вспомнить.\r\n";
+		buffer = "п▓п╟п╪ п╫п╣я┤п╣пЁп╬ п╡я│п©п╬п╪п╫п╦я┌я▄.\r\n";
 	}
 	return buffer;
 }
@@ -213,7 +213,7 @@ void CharRemember::reset()
 	all_.clear();
 	personal_.clear();
 	pray_.clear();
-	group_.clear();// added by WorM  групптелы 2010.10.13
+	group_.clear();// added by WorM  пЁя─я┐п©п©я┌п╣п╩я▀ 2010.10.13
 }
 
 bool CharRemember::set_num_str(unsigned int num)
@@ -238,7 +238,7 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	if (IS_NPC(ch))
 		return;
 
-	// Если без аргумента - выдает личные теллы
+	// п∙я│п╩п╦ п╠п╣п╥ п╟я─пЁя┐п╪п╣п╫я┌п╟ - п╡я▀п╢п╟п╣я┌ п╩п╦я┤п╫я▀п╣ я┌п╣п╩п╩я▀
 	if (!*argument)
 	{
 		send_to_char(ch->remember_get(Remember::PERSONAL), ch);
@@ -247,7 +247,7 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 
 	argument = one_argument(argument, arg);
 
-	if (is_abbrev(arg, "воззвать"))
+	if (is_abbrev(arg, "п╡п╬п╥п╥п╡п╟я┌я▄"))
 	{
 		if (IS_IMMORTAL(ch) || PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
@@ -258,7 +258,7 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			send_to_char(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
 	}
-	else if ((GET_LEVEL(ch) < LVL_IMMORT || IS_IMPL(ch)) && is_abbrev(arg, "оффтоп"))
+	else if ((GET_LEVEL(ch) < LVL_IMMORT || IS_IMPL(ch)) && is_abbrev(arg, "п╬я└я└я┌п╬п©"))
 	{
 		if (!PRF_FLAGGED(ch, PRF_IGVA_PRONA))
 		{
@@ -266,18 +266,18 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		}
 		else
 		{
-			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+			send_to_char(ch, "п▓п╟п╪ п╫п╣я┤п╣пЁп╬ п╡я│п©п╬п╪п╫п╦я┌я▄.\r\n");
 		}
 	}
-	else if (is_abbrev(arg, "болтать") || is_abbrev(arg, "орать"))
+	else if (is_abbrev(arg, "п╠п╬п╩я┌п╟я┌я▄") || is_abbrev(arg, "п╬я─п╟я┌я▄"))
 	{
 		send_to_char(ch->remember_get(Remember::GOSSIP), ch);
 	}
-	else if (is_abbrev(arg, "группа") || is_abbrev(arg, "ггруппа"))// added by WorM  групптелы 2010.10.13
+	else if (is_abbrev(arg, "пЁя─я┐п©п©п╟") || is_abbrev(arg, "пЁпЁя─я┐п©п©п╟"))// added by WorM  пЁя─я┐п©п©я┌п╣п╩я▀ 2010.10.13
 	{
 		send_to_char(ch->remember_get(Remember::GROUP), ch);
 	}
-	else if (is_abbrev(arg, "клан") || is_abbrev(arg, "гдругам"))
+	else if (is_abbrev(arg, "п╨п╩п╟п╫") || is_abbrev(arg, "пЁп╢я─я┐пЁп╟п╪"))
 	{
 		if (CLAN(ch))
 		{
@@ -285,11 +285,11 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		}
 		else
 		{
-			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+			send_to_char(ch, "п▓п╟п╪ п╫п╣я┤п╣пЁп╬ п╡я│п©п╬п╪п╫п╦я┌я▄.\r\n");
 		}
 		return;
 	}
-	else if (is_abbrev(arg, "союзники") || is_abbrev(arg, "альянс") || is_abbrev(arg, "гсоюзникам"))
+	else if (is_abbrev(arg, "я│п╬я▌п╥п╫п╦п╨п╦") || is_abbrev(arg, "п╟п╩я▄я▐п╫я│") || is_abbrev(arg, "пЁя│п╬я▌п╥п╫п╦п╨п╟п╪"))
 	{
 		if (CLAN(ch))
 		{
@@ -297,16 +297,16 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 		}
 		else
 		{
-			send_to_char(ch, "Вам нечего вспомнить.\r\n");
+			send_to_char(ch, "п▓п╟п╪ п╫п╣я┤п╣пЁп╬ п╡я│п©п╬п╪п╫п╦я┌я▄.\r\n");
 		}
 		return;
 	}
-	else if (is_abbrev(arg, "гбогам") && IS_IMMORTAL(ch))
+	else if (is_abbrev(arg, "пЁп╠п╬пЁп╟п╪") && IS_IMMORTAL(ch))
 	{
 		send_to_char(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GET_LEVEL(ch)), ch);
 		return;
 	}
-	else if (is_abbrev(arg, "все"))
+	else if (is_abbrev(arg, "п╡я│п╣"))
 	{
 		send_to_char(ch->remember_get(Remember::ALL), ch);
 		return;
@@ -314,9 +314,9 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	else
 	{
 		if (IS_IMMORTAL(ch) && !IS_IMPL(ch))
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|воззвать|гг|гд|гс|гб|все]\r\n", ch);
+			send_to_char("п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀: п╡я│п©п╬п╪п╫п╦я┌я▄ [п╠п╣п╥ п©п╟я─п╟п╪п╣я┌я─п╬п╡|п╠п╬п╩я┌п╟я┌я▄|п╡п╬п╥п╥п╡п╟я┌я▄|пЁпЁ|пЁп╢|пЁя│|пЁп╠|п╡я│п╣]\r\n", ch);
 		else
-			send_to_char("Формат команды: вспомнить [без параметров|болтать|оффтоп|гг|гд|гс|все]\r\n", ch);
+			send_to_char("п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀: п╡я│п©п╬п╪п╫п╦я┌я▄ [п╠п╣п╥ п©п╟я─п╟п╪п╣я┌я─п╬п╡|п╠п╬п╩я┌п╟я┌я▄|п╬я└я└я┌п╬п©|пЁпЁ|пЁп╢|пЁя│|п╡я│п╣]\r\n", ch);
 	}
 }
 

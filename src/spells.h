@@ -64,8 +64,8 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define MAG_CREATIONS		(1 << 9)
 #define MAG_MANUAL	    	(1 << 10)
 #define MAG_WARCRY		(1 << 11)
-#define MAG_NEED_CONTROL    (1 << 12) //Маг должен "контролировать" это заклинание
-// А чего это тут дырка Ж)
+#define MAG_NEED_CONTROL    (1 << 12) //п°п╟пЁ п╢п╬п╩п╤п╣п╫ "п╨п╬п╫я┌я─п╬п╩п╦я─п╬п╡п╟я┌я▄" я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣
+// п░ я┤п╣пЁп╬ я█я┌п╬ я┌я┐я┌ п╢я▀я─п╨п╟ п√)
 #define NPC_DAMAGE_PC           (1 << 16)
 #define NPC_DAMAGE_PC_MINHP     (1 << 17)
 #define NPC_AFFECT_PC           (1 << 18)
@@ -75,12 +75,12 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define NPC_UNAFFECT_NPC_CASTER (1 << 22)
 #define NPC_DUMMY               (1 << 23)
 #define MAG_ROOM	        (1 << 24)
-// Данный флаг используется для указания где
-// чар может находиться чтобы аффекты от закла продолжали действовать
-#define MAG_CASTER_INROOM       (1 << 25) // Аффект от этого спелла действует пока кастер в комнате //
-#define MAG_CASTER_INWORLD      (1 << 26) // висит пока кастер в мире //
-#define MAG_CASTER_ANYWHERE     (1 << 27) // висит пока не упадет сам //
-#define MAG_CASTER_INWORLD_DELAY     (1 << 28) // висит пока кастер в мире, плюс таймер после ухода кастера//
+// п■п╟п╫п╫я▀п╧ я└п╩п╟пЁ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐ п╢п╩я▐ я┐п╨п╟п╥п╟п╫п╦я▐ пЁп╢п╣
+// я┤п╟я─ п╪п╬п╤п╣я┌ п╫п╟я┘п╬п╢п╦я┌я▄я│я▐ я┤я┌п╬п╠я▀ п╟я└я└п╣п╨я┌я▀ п╬я┌ п╥п╟п╨п╩п╟ п©я─п╬п╢п╬п╩п╤п╟п╩п╦ п╢п╣п╧я│я┌п╡п╬п╡п╟я┌я▄
+#define MAG_CASTER_INROOM       (1 << 25) // п░я└я└п╣п╨я┌ п╬я┌ я█я┌п╬пЁп╬ я│п©п╣п╩п╩п╟ п╢п╣п╧я│я┌п╡я┐п╣я┌ п©п╬п╨п╟ п╨п╟я│я┌п╣я─ п╡ п╨п╬п╪п╫п╟я┌п╣ //
+#define MAG_CASTER_INWORLD      (1 << 26) // п╡п╦я│п╦я┌ п©п╬п╨п╟ п╨п╟я│я┌п╣я─ п╡ п╪п╦я─п╣ //
+#define MAG_CASTER_ANYWHERE     (1 << 27) // п╡п╦я│п╦я┌ п©п╬п╨п╟ п╫п╣ я┐п©п╟п╢п╣я┌ я│п╟п╪ //
+#define MAG_CASTER_INWORLD_DELAY     (1 << 28) // п╡п╦я│п╦я┌ п©п╬п╨п╟ п╨п╟я│я┌п╣я─ п╡ п╪п╦я─п╣, п©п╩я▌я│ я┌п╟п╧п╪п╣я─ п©п╬я│п╩п╣ я┐я┘п╬п╢п╟ п╨п╟я│я┌п╣я─п╟//
 #define NPC_CALCULATE           (0xff << 16)
 // *** Extra attack bit flags //
 #define EAF_PARRY       (1 << 0)
@@ -101,9 +101,9 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define EAF_MULTYPARRY  (1 << 16)
 #define EAF_SLEEP       (1 << 17)
 #define EAF_IRON_WIND   (1 << 18)
-#define EAF_AUTOBLOCK   (1 << 19) // автоматический блок щитом в осторожном стиле
-#define EAF_POISONED    (1 << 20) // отравление с пушек раз в раунд
-#define EAF_FIRST_POISON (1 << 21) // отравление цели первый раз за бой
+#define EAF_AUTOBLOCK   (1 << 19) // п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦п╧ п╠п╩п╬п╨ я┴п╦я┌п╬п╪ п╡ п╬я│я┌п╬я─п╬п╤п╫п╬п╪ я│я┌п╦п╩п╣
+#define EAF_POISONED    (1 << 20) // п╬я┌я─п╟п╡п╩п╣п╫п╦п╣ я│ п©я┐я┬п╣п╨ я─п╟п╥ п╡ я─п╟я┐п╫п╢
+#define EAF_FIRST_POISON (1 << 21) // п╬я┌я─п╟п╡п╩п╣п╫п╦п╣ я├п╣п╩п╦ п©п╣я─п╡я▀п╧ я─п╟п╥ п╥п╟ п╠п╬п╧
 
 #define TYPE_UNDEFINED              -1
 #define SPELL_RESERVED_DBC          0	// SKILL NUMBER ZERO -- RESERVED //
@@ -308,16 +308,16 @@ enum ESpell
 	SPELL_MASS_FEAR = 156,	// Added by Niker //
 	SPELL_FASCINATION = 157,
 	SPELL_CRYING = 158,
-	SPELL_OBLIVION = 159,	// Забвение. Dalim //
-	SPELL_BURDEN_OF_TIME = 160,	// Бремя времени. Dalim //
+	SPELL_OBLIVION = 159,	// п≈п╟п╠п╡п╣п╫п╦п╣. Dalim //
+	SPELL_BURDEN_OF_TIME = 160,	// п▒я─п╣п╪я▐ п╡я─п╣п╪п╣п╫п╦. Dalim //
 	SPELL_GROUP_REFRESH = 161,
-	SPELL_PEACEFUL = 162,	// Усмирение. dzMUDiST //
+	SPELL_PEACEFUL = 162,	// пёя│п╪п╦я─п╣п╫п╦п╣. dzMUDiST //
 	SPELL_MAGICBATTLE = 163,
 	SPELL_BERSERK = 164,
 	SPELL_STONEBONES = 165,
-	SPELL_ROOM_LIGHT = 166,	// Закл освящения комнаты //
-	SPELL_POISONED_FOG = 167,	// Закл отравленного тумана //
-	SPELL_THUNDERSTORM = 168,	// Закл отравленного тумана //
+	SPELL_ROOM_LIGHT = 166,	// п≈п╟п╨п╩ п╬я│п╡я▐я┴п╣п╫п╦я▐ п╨п╬п╪п╫п╟я┌я▀ //
+	SPELL_POISONED_FOG = 167,	// п≈п╟п╨п╩ п╬я┌я─п╟п╡п╩п╣п╫п╫п╬пЁп╬ я┌я┐п╪п╟п╫п╟ //
+	SPELL_THUNDERSTORM = 168,	// п≈п╟п╨п╩ п╬я┌я─п╟п╡п╩п╣п╫п╫п╬пЁп╬ я┌я┐п╪п╟п╫п╟ //
 	SPELL_LIGHT_WALK = 169,
 	SPELL_FAILURE = 170,
 	SPELL_CLANPRAY = 171,
@@ -352,31 +352,31 @@ enum ESpell
 	SPELL_HYPNOTIC_PATTERN = 200,
 	SPELL_SOLOBONUS = 201,
 	SPELL_VAMPIRE = 202,
-	SPELLS_RESTORATION = 203,	//очистка магических афектов
-	SPELL_AURA_DEATH = 204,	// аура смерти верховного лича
-	SPELL_RECOVERY = 205,	// исцеление нежити
-	SPELL_MASS_RECOVERY = 206,	// масовое исцеление нежити
-	SPELL_AURA_EVIL = 207,	// аура зла для всей нежити в группе
-	SPELL_MENTAL_SHADOW = 208,	// ментальная тень
-	SPELL_EVARDS_BLACK_TENTACLES = 209, //навьи руки
-	SPELL_WHIRLWIND = 210, //вихрь
-	SPELL_INDRIKS_TEETH = 211, //зубы индрика
-	SPELL_MELFS_ACID_ARROW = 212, //кислотная стрела
-	SPELL_THUNDERSTONE = 213, //громовой камень
-	SPELL_CLOD = 214,  // глыба
-	SPELL_EXPEDIENT = 215, //боевой приъем
-	SPELL_SIGHT_OF_DARKNESS = 216, // зрение тьмы
-	SPELL_GENERAL_SINCERITY = 217, // общая искреность
-	SPELL_MAGICAL_GAZE = 218, // магический взор
-	SPELL_ALL_SEEING_EYE = 219, // всевидящее око
-	SPELL_EYE_OF_GODS = 220, // око богов
-	SPELL_BREATHING_AT_DEPTH = 221, // дыхание на глыбине
-	SPELL_GENERAL_RECOVERY = 222, // общее востановление
-	SPELL_COMMON_MEAL = 223, // общая трапеза
-	SPELL_STONE_WALL = 224, // каменная стена
-	SPELL_SNAKE_EYES = 225, // глаза змея
-	SPELL_EARTH_AURA = 226, // земной поклон
-	SPELL_GROUP_PROT_FROM_EVIL = 227, // групповая защита от тьмы
+	SPELLS_RESTORATION = 203,	//п╬я┤п╦я│я┌п╨п╟ п╪п╟пЁп╦я┤п╣я│п╨п╦я┘ п╟я└п╣п╨я┌п╬п╡
+	SPELL_AURA_DEATH = 204,	// п╟я┐я─п╟ я│п╪п╣я─я┌п╦ п╡п╣я─я┘п╬п╡п╫п╬пЁп╬ п╩п╦я┤п╟
+	SPELL_RECOVERY = 205,	// п╦я│я├п╣п╩п╣п╫п╦п╣ п╫п╣п╤п╦я┌п╦
+	SPELL_MASS_RECOVERY = 206,	// п╪п╟я│п╬п╡п╬п╣ п╦я│я├п╣п╩п╣п╫п╦п╣ п╫п╣п╤п╦я┌п╦
+	SPELL_AURA_EVIL = 207,	// п╟я┐я─п╟ п╥п╩п╟ п╢п╩я▐ п╡я│п╣п╧ п╫п╣п╤п╦я┌п╦ п╡ пЁя─я┐п©п©п╣
+	SPELL_MENTAL_SHADOW = 208,	// п╪п╣п╫я┌п╟п╩я▄п╫п╟я▐ я┌п╣п╫я▄
+	SPELL_EVARDS_BLACK_TENTACLES = 209, //п╫п╟п╡я▄п╦ я─я┐п╨п╦
+	SPELL_WHIRLWIND = 210, //п╡п╦я┘я─я▄
+	SPELL_INDRIKS_TEETH = 211, //п╥я┐п╠я▀ п╦п╫п╢я─п╦п╨п╟
+	SPELL_MELFS_ACID_ARROW = 212, //п╨п╦я│п╩п╬я┌п╫п╟я▐ я│я┌я─п╣п╩п╟
+	SPELL_THUNDERSTONE = 213, //пЁя─п╬п╪п╬п╡п╬п╧ п╨п╟п╪п╣п╫я▄
+	SPELL_CLOD = 214,  // пЁп╩я▀п╠п╟
+	SPELL_EXPEDIENT = 215, //п╠п╬п╣п╡п╬п╧ п©я─п╦я┼п╣п╪
+	SPELL_SIGHT_OF_DARKNESS = 216, // п╥я─п╣п╫п╦п╣ я┌я▄п╪я▀
+	SPELL_GENERAL_SINCERITY = 217, // п╬п╠я┴п╟я▐ п╦я│п╨я─п╣п╫п╬я│я┌я▄
+	SPELL_MAGICAL_GAZE = 218, // п╪п╟пЁп╦я┤п╣я│п╨п╦п╧ п╡п╥п╬я─
+	SPELL_ALL_SEEING_EYE = 219, // п╡я│п╣п╡п╦п╢я▐я┴п╣п╣ п╬п╨п╬
+	SPELL_EYE_OF_GODS = 220, // п╬п╨п╬ п╠п╬пЁп╬п╡
+	SPELL_BREATHING_AT_DEPTH = 221, // п╢я▀я┘п╟п╫п╦п╣ п╫п╟ пЁп╩я▀п╠п╦п╫п╣
+	SPELL_GENERAL_RECOVERY = 222, // п╬п╠я┴п╣п╣ п╡п╬я│я┌п╟п╫п╬п╡п╩п╣п╫п╦п╣
+	SPELL_COMMON_MEAL = 223, // п╬п╠я┴п╟я▐ я┌я─п╟п©п╣п╥п╟
+	SPELL_STONE_WALL = 224, // п╨п╟п╪п╣п╫п╫п╟я▐ я│я┌п╣п╫п╟
+	SPELL_SNAKE_EYES = 225, // пЁп╩п╟п╥п╟ п╥п╪п╣я▐
+	SPELL_EARTH_AURA = 226, // п╥п╣п╪п╫п╬п╧ п©п╬п╨п╩п╬п╫
+	SPELL_GROUP_PROT_FROM_EVIL = 227, // пЁя─я┐п©п©п╬п╡п╟я▐ п╥п╟я┴п╦я┌п╟ п╬я┌ я┌я▄п╪я▀
 	SPELLS_COUNT = SPELL_GROUP_PROT_FROM_EVIL   // Counter corresponds to the last value because we count spells from 1.
 };
 
@@ -444,11 +444,11 @@ template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
 #define SAVING_STABILITY  2
 #define SAVING_REFLEX     3
 #define SAVING_COUNT      4
-#define SAVING_NONE	5 //Внимание! Элемента массива с этим номером НЕТ! Исп. в кач-ве заглушки для нефейлящихся спеллов.
+#define SAVING_NONE	5 //п▓п╫п╦п╪п╟п╫п╦п╣! п╜п╩п╣п╪п╣п╫я┌п╟ п╪п╟я│я│п╦п╡п╟ я│ я█я┌п╦п╪ п╫п╬п╪п╣я─п╬п╪ п²п∙п╒! п≤я│п©. п╡ п╨п╟я┤-п╡п╣ п╥п╟пЁп╩я┐я┬п╨п╦ п╢п╩я▐ п╫п╣я└п╣п╧п╩я▐я┴п╦я┘я│я▐ я│п©п╣п╩п╩п╬п╡.
 
 #define TAR_IGNORE      (1 << 0)
 #define TAR_CHAR_ROOM   (1 << 1)
-#define TAR_CHAR_WORLD  (1 << 2) // не ищет мобов при касте чарами (призвать/переместиться/переход)
+#define TAR_CHAR_WORLD  (1 << 2) // п╫п╣ п╦я┴п╣я┌ п╪п╬п╠п╬п╡ п©я─п╦ п╨п╟я│я┌п╣ я┤п╟я─п╟п╪п╦ (п©я─п╦п╥п╡п╟я┌я▄/п©п╣я─п╣п╪п╣я│я┌п╦я┌я▄я│я▐/п©п╣я─п╣я┘п╬п╢)
 #define TAR_FIGHT_SELF  (1 << 3)
 #define TAR_FIGHT_VICT  (1 << 4)
 #define TAR_SELF_ONLY   (1 << 5)	// Only a check, use with i.e. TAR_CHAR_ROOM //
@@ -457,9 +457,9 @@ template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
 #define TAR_OBJ_ROOM    (1 << 8)
 #define TAR_OBJ_WORLD   (1 << 9)
 #define TAR_OBJ_EQUIP	(1 << 10)
-#define TAR_ROOM_THIS	(1 << 11) // Цель комната в которой сидит чар//
-#define TAR_ROOM_DIR	(1 << 12) // Цель комната в каком-то направлении от чара//
-#define TAR_ROOM_WORLD	(1 << 13) // Цель какая-то комната в мире//
+#define TAR_ROOM_THIS	(1 << 11) // п╕п╣п╩я▄ п╨п╬п╪п╫п╟я┌п╟ п╡ п╨п╬я┌п╬я─п╬п╧ я│п╦п╢п╦я┌ я┤п╟я─//
+#define TAR_ROOM_DIR	(1 << 12) // п╕п╣п╩я▄ п╨п╬п╪п╫п╟я┌п╟ п╡ п╨п╟п╨п╬п╪-я┌п╬ п╫п╟п©я─п╟п╡п╩п╣п╫п╦п╦ п╬я┌ я┤п╟я─п╟//
+#define TAR_ROOM_WORLD	(1 << 13) // п╕п╣п╩я▄ п╨п╟п╨п╟я▐-я┌п╬ п╨п╬п╪п╫п╟я┌п╟ п╡ п╪п╦я─п╣//
 
 struct spell_info_type
 {
@@ -498,7 +498,7 @@ struct spell_create_item
 {
 	std::array<int, 3> items;
 	int rnumber;
-	int min_caster_level;	// Понятно из названия :)
+	int min_caster_level;	// п÷п╬п╫я▐я┌п╫п╬ п╦п╥ п╫п╟п╥п╡п╟п╫п╦я▐ :)
 };
 
 struct spell_create_type
@@ -609,15 +609,15 @@ bool catch_bloody_corpse(OBJ_DATA * l);
 
 namespace RoomSpells {
 
-// список всех обкстованных комнат //
+// я│п©п╦я│п╬п╨ п╡я│п╣я┘ п╬п╠п╨я│я┌п╬п╡п╟п╫п╫я▀я┘ п╨п╬п╪п╫п╟я┌ //
 extern std::list<ROOM_DATA*> aff_room_list;
-// Показываем комнаты под аффектами //
+// п÷п╬п╨п╟п╥я▀п╡п╟п╣п╪ п╨п╬п╪п╫п╟я┌я▀ п©п╬п╢ п╟я└я└п╣п╨я┌п╟п╪п╦ //
 void ShowRooms(CHAR_DATA *ch);
-// Применение заклинания к комнате //
+// п÷я─п╦п╪п╣п╫п╣п╫п╦п╣ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╨ п╨п╬п╪п╫п╟я┌п╣ //
 int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
-// Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //
+// п÷п╬п╦я│п╨ п©п╣я─п╡п╬п╧ п╨п╬п╪п╫п╟я┌я▀ я│ п╟я└я└п╣п╨я┌п╬п╪ п╬я┌ spellnum п╦ п╨п╟я│я┌п╣я─п╬п╪ я│ п╦п╢п╬п╪ Id //
 ROOM_DATA * find_affected_roomt(long id, int spellnum);
-// Время существования заклинания в комнате //
+// п▓я─п╣п╪я▐ я│я┐я┴п╣я│я┌п╡п╬п╡п╟п╫п╦я▐ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐ п╡ п╨п╬п╪п╫п╟я┌п╣ //
 int timer_affected_roomt(long id, int spellnum);
 
 } // RoomSpells
@@ -637,7 +637,7 @@ int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 ESkill get_magic_skill_number_by_spell(int spellnum);
 
-//Polud статистика использования заклинаний
+//Polud я│я┌п╟я┌п╦я│я┌п╦п╨п╟ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧
 typedef std::map<int, int> SpellCountType;
 
 namespace SpellUsage

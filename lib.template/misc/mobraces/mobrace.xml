@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <mobraces>
-  <mobrace key="100" name ="Обычный">
+  <mobrace key="100" name ="п·п╠я▀я┤п╫я▀п╧">
   </mobrace>
-  <mobrace key="101" name ="Человек">
+  <mobrace key="101" name ="п╖п╣п╩п╬п╡п╣п╨">
   </mobrace>
-  <mobrace key="102" name ="Человек-зверь">
+  <mobrace key="102" name ="п╖п╣п╩п╬п╡п╣п╨-п╥п╡п╣я─я▄">
   </mobrace>
-  <mobrace key="103" name ="Птица">
+  <mobrace key="103" name ="п÷я┌п╦я├п╟">
   </mobrace>
-  <mobrace key="104" name ="Животное">
+  <mobrace key="104" name ="п√п╦п╡п╬я┌п╫п╬п╣">
   </mobrace>
-  <mobrace key="105" name ="Пресмыкающееся">
+  <mobrace key="105" name ="п÷я─п╣я│п╪я▀п╨п╟я▌я┴п╣п╣я│я▐">
   </mobrace>
-  <mobrace key="106" name ="Рыба">
+  <mobrace key="106" name ="п═я▀п╠п╟">
   </mobrace>
-  <mobrace key="107" name ="Насекомое">
+  <mobrace key="107" name ="п²п╟я│п╣п╨п╬п╪п╬п╣">
   </mobrace>
-  <mobrace key="108" name ="Растение">
+  <mobrace key="108" name ="п═п╟я│я┌п╣п╫п╦п╣">
   </mobrace>
-  <mobrace key="109" name ="Предмет">
+  <mobrace key="109" name ="п÷я─п╣п╢п╪п╣я┌">
   </mobrace>
-  <mobrace key="110" name ="Живой труп">
+  <mobrace key="110" name ="п√п╦п╡п╬п╧ я┌я─я┐п©">
   </mobrace>
-  <mobrace key="111" name ="Призрак">
+  <mobrace key="111" name ="п÷я─п╦п╥я─п╟п╨">
   </mobrace>
-  <mobrace key="112" name ="Нечисть">
+  <mobrace key="112" name ="п²п╣я┤п╦я│я┌я▄">
   </mobrace>
-  <mobrace key="113" name ="Нематериальный дух">
+  <mobrace key="113" name ="п²п╣п╪п╟я┌п╣я─п╦п╟п╩я▄п╫я▀п╧ п╢я┐я┘">
   </mobrace>
-  <mobrace key="114" name ="Магическое создание">
+  <mobrace key="114" name ="п°п╟пЁп╦я┤п╣я│п╨п╬п╣ я│п╬п╥п╢п╟п╫п╦п╣">
   </mobrace>
 </mobraces>

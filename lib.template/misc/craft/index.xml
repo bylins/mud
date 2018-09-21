@@ -23,7 +23,7 @@
 			<name>Craft 1</name>	<!-- craft based of craft from file craft1.xml but with overridden name -->
 		</craft>
 		<craft id="CRAFT_TAILOR">
-			<name>Портной</name>
+			<name>п÷п╬я─я┌п╫п╬п╧</name>
 			<sockets required="4" additional="4" />
 
 			<skills>
@@ -46,59 +46,59 @@
 		<material id="MT_SOFT_LEATHER" filename="soft_leather.xml" />
 		<material id="MT_INWROUGHT_FLAX" filename="inwrought_flax.xml" />
 		<material id="MT_THIN_SILK">
-			<name>тонкая шёлковая ткань</name>
+			<name>я┌п╬п╫п╨п╟я▐ я┬я▒п╩п╨п╬п╡п╟я▐ я┌п╨п╟п╫я▄</name>
 			<class id="MC_WISSON" vnum="200040">
 				<description>
-					<short>Отрез тончайшей ткани лежит тут.</short>
-					<long>Это тончайшая шёлковая ткань, кажется, немалый её отрез войдёт в крошечный напёрсток.</long>
+					<short>п·я┌я─п╣п╥ я┌п╬п╫я┤п╟п╧я┬п╣п╧ я┌п╨п╟п╫п╦ п╩п╣п╤п╦я┌ я┌я┐я┌.</short>
+					<long>п╜я┌п╬ я┌п╬п╫я┤п╟п╧я┬п╟я▐ я┬я▒п╩п╨п╬п╡п╟я▐ я┌п╨п╟п╫я▄, п╨п╟п╤п╣я┌я│я▐, п╫п╣п╪п╟п╩я▀п╧ п╣я▒ п╬я┌я─п╣п╥ п╡п╬п╧п╢я▒я┌ п╡ п╨я─п╬я┬п╣я┤п╫я▀п╧ п╫п╟п©я▒я─я│я┌п╬п╨.</long>
 				</description>
 				<item>
-					<case1>отрез виссона</case1>
-					<case2>отреза виссона</case2>
-					<case3>отрезу висона</case3>
-					<case4>отрез виссона</case4>
-					<case5>отрезом виссона</case5>
-					<case6>отрезе виссона</case6>
+					<case1>п╬я┌я─п╣п╥ п╡п╦я│я│п╬п╫п╟</case1>
+					<case2>п╬я┌я─п╣п╥п╟ п╡п╦я│я│п╬п╫п╟</case2>
+					<case3>п╬я┌я─п╣п╥я┐ п╡п╦я│п╬п╫п╟</case3>
+					<case4>п╬я┌я─п╣п╥ п╡п╦я│я│п╬п╫п╟</case4>
+					<case5>п╬я┌я─п╣п╥п╬п╪ п╡п╦я│я│п╬п╫п╟</case5>
+					<case6>п╬я┌я─п╣п╥п╣ п╡п╦я│я│п╬п╫п╟</case6>
 					<aliases> <!-- ??? what is this? how is this will be used -->
-						<alias>отрез</alias>
-						<alias>виссон</alias>
+						<alias>п╬я┌я─п╣п╥</alias>
+						<alias>п╡п╦я│я│п╬п╫</alias>
 					</aliases>
 				</item>
 				<names>
-					<case1>виссон</case1>
-					<case2>виссона</case2>
-					<case3>виссону</case3>
-					<case4>виссон</case4>
-					<case5>виссоном</case5>
-					<case6>виссоне</case6>
+					<case1>п╡п╦я│я│п╬п╫</case1>
+					<case2>п╡п╦я│я│п╬п╫п╟</case2>
+					<case3>п╡п╦я│я│п╬п╫я┐</case3>
+					<case4>п╡п╦я│я│п╬п╫</case4>
+					<case5>п╡п╦я│я│п╬п╫п╬п╪</case5>
+					<case6>п╡п╦я│я│п╬п╫п╣</case6>
 					<aliases>
-						<alias>виссон</alias>	<!-- ??? what is this? -->
+						<alias>п╡п╦я│я│п╬п╫</alias>	<!-- ??? what is this? -->
 					</aliases>
 				</names>
 				<adjectives>
 					<male>
-						<case1>виссоновый</case1>
-						<case2>виссонового</case2>
-						<case3>виссоновому</case3>
-						<case4>виссоновый</case4>
-						<case5>виссоновым</case5>
-						<case6>воссоновом</case6>
+						<case1>п╡п╦я│я│п╬п╫п╬п╡я▀п╧</case1>
+						<case2>п╡п╦я│я│п╬п╫п╬п╡п╬пЁп╬</case2>
+						<case3>п╡п╦я│я│п╬п╫п╬п╡п╬п╪я┐</case3>
+						<case4>п╡п╦я│я│п╬п╫п╬п╡я▀п╧</case4>
+						<case5>п╡п╦я│я│п╬п╫п╬п╡я▀п╪</case5>
+						<case6>п╡п╬я│я│п╬п╫п╬п╡п╬п╪</case6>
 					</male>
 					<female>
-						<case1>виссоновая</case1>
-						<case2>виссоновой</case2>
-						<case3>виссоновой</case3>
-						<case4>виссоновую</case4>
-						<case5>виссоновой</case5>
-						<case6>виссоновой</case6>
+						<case1>п╡п╦я│я│п╬п╫п╬п╡п╟я▐</case1>
+						<case2>п╡п╦я│я│п╬п╫п╬п╡п╬п╧</case2>
+						<case3>п╡п╦я│я│п╬п╫п╬п╡п╬п╧</case3>
+						<case4>п╡п╦я│я│п╬п╫п╬п╡я┐я▌</case4>
+						<case5>п╡п╦я│я│п╬п╫п╬п╡п╬п╧</case5>
+						<case6>п╡п╦я│я│п╬п╫п╬п╡п╬п╧</case6>
 					</female>
 					<neuter>
-						<case1>виссоновое</case1>
-						<case2>виссонового</case2>
-						<case3>виссоновому</case3>
-						<case4>виссоновое</case4>
-						<case5>виссоновым</case5>
-						<case6>виссоновом</case6>
+						<case1>п╡п╦я│я│п╬п╫п╬п╡п╬п╣</case1>
+						<case2>п╡п╦я│я│п╬п╫п╬п╡п╬пЁп╬</case2>
+						<case3>п╡п╦я│я│п╬п╫п╬п╡п╬п╪я┐</case3>
+						<case4>п╡п╦я│я│п╬п╫п╬п╡п╬п╣</case4>
+						<case5>п╡п╦я│я│п╬п╫п╬п╡я▀п╪</case5>
+						<case6>п╡п╦я│я│п╬п╫п╬п╡п╬п╪</case6>
 					</neuter>
 				</adjectives>
 				<bonuses>
@@ -160,56 +160,56 @@
 			</class>
 			<class id="MC_ORGANDY" vnum="200041">
 				<description>
-					<short>Отрез прозрачной ткани лежит тут.</short>
-					<long>Это очень тонкая и прозрачная жёсткая ткань.</long>
+					<short>п·я┌я─п╣п╥ п©я─п╬п╥я─п╟я┤п╫п╬п╧ я┌п╨п╟п╫п╦ п╩п╣п╤п╦я┌ я┌я┐я┌.</short>
+					<long>п╜я┌п╬ п╬я┤п╣п╫я▄ я┌п╬п╫п╨п╟я▐ п╦ п©я─п╬п╥я─п╟я┤п╫п╟я▐ п╤я▒я│я┌п╨п╟я▐ я┌п╨п╟п╫я▄.</long>
 				</description>
 				<item>
-					<case1>отрез органди</case1>
-					<case2>отреза органди</case2>
-					<case3>отрезу органди</case3>
-					<case4>отрез органди</case4>
-					<case5>отрезом органди</case5>
-					<case6>отрезе органди</case6>
+					<case1>п╬я┌я─п╣п╥ п╬я─пЁп╟п╫п╢п╦</case1>
+					<case2>п╬я┌я─п╣п╥п╟ п╬я─пЁп╟п╫п╢п╦</case2>
+					<case3>п╬я┌я─п╣п╥я┐ п╬я─пЁп╟п╫п╢п╦</case3>
+					<case4>п╬я┌я─п╣п╥ п╬я─пЁп╟п╫п╢п╦</case4>
+					<case5>п╬я┌я─п╣п╥п╬п╪ п╬я─пЁп╟п╫п╢п╦</case5>
+					<case6>п╬я┌я─п╣п╥п╣ п╬я─пЁп╟п╫п╢п╦</case6>
 					<aliases> <!-- ??? what is this? how is this will be used -->
-						<alias>отрез</alias>
-						<alias>органди</alias>
+						<alias>п╬я┌я─п╣п╥</alias>
+						<alias>п╬я─пЁп╟п╫п╢п╦</alias>
 					</aliases>
 				</item>
 				<names>
-					<case1>органди</case1>
-					<case2>органди</case2>
-					<case3>органди</case3>
-					<case4>органди</case4>
-					<case5>органди</case5>
-					<case6>органди</case6>
+					<case1>п╬я─пЁп╟п╫п╢п╦</case1>
+					<case2>п╬я─пЁп╟п╫п╢п╦</case2>
+					<case3>п╬я─пЁп╟п╫п╢п╦</case3>
+					<case4>п╬я─пЁп╟п╫п╢п╦</case4>
+					<case5>п╬я─пЁп╟п╫п╢п╦</case5>
+					<case6>п╬я─пЁп╟п╫п╢п╦</case6>
 					<aliases>
-						<alias>органди</alias>	<!-- ??? what is this? -->
+						<alias>п╬я─пЁп╟п╫п╢п╦</alias>	<!-- ??? what is this? -->
 					</aliases>
 				</names>
 				<adjectives>
 					<male>
-						<case1>органдиевый</case1>
-						<case2>органдиевого</case2>
-						<case3>органдиевому</case3>
-						<case4>органдиевый</case4>
-						<case5>органдиевым</case5>
-						<case6>органдиевом</case6>
+						<case1>п╬я─пЁп╟п╫п╢п╦п╣п╡я▀п╧</case1>
+						<case2>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬пЁп╬</case2>
+						<case3>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╪я┐</case3>
+						<case4>п╬я─пЁп╟п╫п╢п╦п╣п╡я▀п╧</case4>
+						<case5>п╬я─пЁп╟п╫п╢п╦п╣п╡я▀п╪</case5>
+						<case6>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╪</case6>
 					</male>
 					<female>
-						<case1>органдиевая</case1>
-						<case2>органдиевой</case2>
-						<case3>органдиевой</case3>
-						<case4>оргундиевую</case4>
-						<case5>органдиевой</case5>
-						<case6>органдиевой</case6>
+						<case1>п╬я─пЁп╟п╫п╢п╦п╣п╡п╟я▐</case1>
+						<case2>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╧</case2>
+						<case3>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╧</case3>
+						<case4>п╬я─пЁя┐п╫п╢п╦п╣п╡я┐я▌</case4>
+						<case5>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╧</case5>
+						<case6>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╧</case6>
 					</female>
 					<neuter>
-						<case1>органдиевое</case1>
-						<case2>органдиевого</case2>
-						<case3>органдиевому</case3>
-						<case4>органдиевое</case4>
-						<case5>органдиевым</case5>
-						<case6>органдиевом</case6>
+						<case1>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╣</case1>
+						<case2>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬пЁп╬</case2>
+						<case3>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╪я┐</case3>
+						<case4>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╣</case4>
+						<case5>п╬я─пЁп╟п╫п╢п╦п╣п╡я▀п╪</case5>
+						<case6>п╬я─пЁп╟п╫п╢п╦п╣п╡п╬п╪</case6>
 					</neuter>
 				</adjectives>
 				<extraflags>
@@ -268,20 +268,20 @@
 	<prototypes>
 		<prototype vnum="200000">
 			<description>
-				<short>Палка-выручалка</short>
-				<long>Палка-выручалка лежит, никому не нужная.</long>
+				<short>п÷п╟п╩п╨п╟-п╡я▀я─я┐я┤п╟п╩п╨п╟</short>
+				<long>п÷п╟п╩п╨п╟-п╡я▀я─я┐я┤п╟п╩п╨п╟ п╩п╣п╤п╦я┌, п╫п╦п╨п╬п╪я┐ п╫п╣ п╫я┐п╤п╫п╟я▐.</long>
 			</description>
 
 			<item>
-				<case1>палка-выручалка</case1>
-				<case2>палки-выручалки</case2>
-				<case3>палке-выручалке</case3>
-				<case4>палку-выручалку</case4>
-				<case5>палкой-выручалкой</case5>
-				<case6>палке-выручалке</case6>
+				<case1>п©п╟п╩п╨п╟-п╡я▀я─я┐я┤п╟п╩п╨п╟</case1>
+				<case2>п©п╟п╩п╨п╦-п╡я▀я─я┐я┤п╟п╩п╨п╦</case2>
+				<case3>п©п╟п╩п╨п╣-п╡я▀я─я┐я┤п╟п╩п╨п╣</case3>
+				<case4>п©п╟п╩п╨я┐-п╡я▀я─я┐я┤п╟п╩п╨я┐</case4>
+				<case5>п©п╟п╩п╨п╬п╧-п╡я▀я─я┐я┤п╟п╩п╨п╬п╧</case5>
+				<case6>п©п╟п╩п╨п╣-п╡я▀я─я┐я┤п╟п╩п╨п╣</case6>
 				<aliases>
-					<alias>палка</alias>
-					<alias>выручалка</alias>
+					<alias>п©п╟п╩п╨п╟</alias>
+					<alias>п╡я▀я─я┐я┤п╟п╩п╨п╟</alias>
 				</aliases>
 			</item>
 

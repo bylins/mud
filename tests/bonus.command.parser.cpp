@@ -18,7 +18,7 @@ TEST(Bonus_Command_Parser_Negative, NoArguments)
 
 TEST(Bonus_Command_Parser_Negative, OnlyType_Weapon)
 {
-	Bonus::ArgumentsParser parser("оружейный", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╬я─я┐п╤п╣п╧п╫я▀п╧", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -29,7 +29,7 @@ TEST(Bonus_Command_Parser_Negative, OnlyType_Weapon)
 
 TEST(Bonus_Command_Parser_Negative, OnlyType_Experience)
 {
-	Bonus::ArgumentsParser parser("опыт", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╬п©я▀я┌", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -40,7 +40,7 @@ TEST(Bonus_Command_Parser_Negative, OnlyType_Experience)
 
 TEST(Bonus_Command_Parser_Negative, OnlyType_Damage)
 {
-	Bonus::ArgumentsParser parser("урон", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("я┐я─п╬п╫", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -73,7 +73,7 @@ TEST(Bonus_Command_Parser_Negative, OnlyDuration_InRange)
 
 TEST(Bonus_Command_Parser_Negative, DurationOutOfRange_Negative)
 {
-	Bonus::ArgumentsParser parser("двойной оружейный -1", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╢п╡п╬п╧п╫п╬п╧ п╬я─я┐п╤п╣п╧п╫я▀п╧ -1", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -84,7 +84,7 @@ TEST(Bonus_Command_Parser_Negative, DurationOutOfRange_Negative)
 
 TEST(Bonus_Command_Parser_Negative, DurationOutOfRange_Big)
 {
-	Bonus::ArgumentsParser parser("тройной оружейный 100500", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("я┌я─п╬п╧п╫п╬п╧ п╬я─я┐п╤п╣п╧п╫я▀п╧ 100500", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -95,7 +95,7 @@ TEST(Bonus_Command_Parser_Negative, DurationOutOfRange_Big)
 
 TEST(Bonus_Command_Parser_Negative, DurationOutOfRange_LowerBound)
 {
-	Bonus::ArgumentsParser parser("двойной оружейный 0", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╢п╡п╬п╧п╫п╬п╧ п╬я─я┐п╤п╣п╧п╫я▀п╧ 0", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -106,7 +106,7 @@ TEST(Bonus_Command_Parser_Negative, DurationOutOfRange_LowerBound)
 
 TEST(Bonus_Command_Parser_Negative, DurationOutOfRange_UpperBound)
 {
-	Bonus::ArgumentsParser parser("двойной оружейный 61", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╢п╡п╬п╧п╫п╬п╧ п╬я─я┐п╤п╣п╧п╫я▀п╧ 61", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -117,7 +117,7 @@ TEST(Bonus_Command_Parser_Negative, DurationOutOfRange_UpperBound)
 
 TEST(Bonus_Command_Parser, OnlyMultiplier_Double)
 {
-	Bonus::ArgumentsParser parser("двойной", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╢п╡п╬п╧п╫п╬п╧", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -131,7 +131,7 @@ TEST(Bonus_Command_Parser, OnlyMultiplier_Double)
 
 TEST(Bonus_Command_Parser, OnlyMultiplier_Triple)
 {
-	Bonus::ArgumentsParser parser("тройной", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("я┌я─п╬п╧п╫п╬п╧", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -145,7 +145,7 @@ TEST(Bonus_Command_Parser, OnlyMultiplier_Triple)
 
 TEST(Bonus_Command_Parser, OnlyMultiplier_DoubleWeapon)
 {
-	Bonus::ArgumentsParser parser("двойной оружейный", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╢п╡п╬п╧п╫п╬п╧ п╬я─я┐п╤п╣п╧п╫я▀п╧", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -159,7 +159,7 @@ TEST(Bonus_Command_Parser, OnlyMultiplier_DoubleWeapon)
 
 TEST(Bonus_Command_Parser, OnlyMultiplier_TripleExperience)
 {
-	Bonus::ArgumentsParser parser("тройной опыт", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("я┌я─п╬п╧п╫п╬п╧ п╬п©я▀я┌", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -173,7 +173,7 @@ TEST(Bonus_Command_Parser, OnlyMultiplier_TripleExperience)
 
 TEST(Bonus_Command_Parser, OnlyMultiplier_TripleDamage)
 {
-	Bonus::ArgumentsParser parser("тройной урон", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("я┌я─п╬п╧п╫п╬п╧ я┐я─п╬п╫", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -187,7 +187,7 @@ TEST(Bonus_Command_Parser, OnlyMultiplier_TripleDamage)
 
 TEST(Bonus_Command_Parser, Double_Weapon_1)
 {
-	Bonus::ArgumentsParser parser("двойной оружейный 1", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╢п╡п╬п╧п╫п╬п╧ п╬я─я┐п╤п╣п╧п╫я▀п╧ 1", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -201,7 +201,7 @@ TEST(Bonus_Command_Parser, Double_Weapon_1)
 
 TEST(Bonus_Command_Parser, Double_Experience_5)
 {
-	Bonus::ArgumentsParser parser("двойной опыт 5", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╢п╡п╬п╧п╫п╬п╧ п╬п©я▀я┌ 5", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -215,7 +215,7 @@ TEST(Bonus_Command_Parser, Double_Experience_5)
 
 TEST(Bonus_Command_Parser, Triple_Damage_60)
 {
-	Bonus::ArgumentsParser parser("тройной урон 60", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("я┌я─п╬п╧п╫п╬п╧ я┐я─п╬п╫ 60", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 
@@ -229,7 +229,7 @@ TEST(Bonus_Command_Parser, Triple_Damage_60)
 
 TEST(Bonus_Command_Parser, Cancel)
 {
-	Bonus::ArgumentsParser parser("отменить", DEFAULT_TYPE, DEFAULT_DURATION);
+	Bonus::ArgumentsParser parser("п╬я┌п╪п╣п╫п╦я┌я▄", DEFAULT_TYPE, DEFAULT_DURATION);
 
 	parser.parse();
 

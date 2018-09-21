@@ -12,7 +12,7 @@
 namespace FileCRC
 {
 
-// UPDATE_х идут после обычных флагов
+// UPDATE_я┘ п╦п╢я┐я┌ п©п╬я│п╩п╣ п╬п╠я▀я┤п╫я▀я┘ я└п╩п╟пЁп╬п╡
 enum { PLAYER, TEXTOBJS, TIMEOBJS, UPDATE_PLAYER, UPDATE_TEXTOBJS, UPDATE_TIMEOBJS };
 
 void load();

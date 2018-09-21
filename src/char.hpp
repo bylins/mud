@@ -55,9 +55,9 @@ struct temporary_spell_data
 	time_t set_time;
 	time_t duration;
 };
-// кол-во +слотов со шмоток
+// п╨п╬п╩-п╡п╬ +я│п╩п╬я┌п╬п╡ я│п╬ я┬п╪п╬я┌п╬п╨
 const int MAX_ADD_SLOTS = 10;
-// типы резистов
+// я┌п╦п©я▀ я─п╣п╥п╦я│я┌п╬п╡
 enum { FIRE_RESISTANCE = 0, AIR_RESISTANCE, WATER_RESISTANCE, EARTH_RESISTANCE, VITALITY_RESISTANCE, MIND_RESISTANCE, IMMUNITY_RESISTANCE, DARK_RESISTANCE, MAX_NUMBER_RESISTANCE };
 
 // Char's additional abilities. Used only while work
@@ -85,10 +85,10 @@ public:
 	int poison_add;
 	int pray_add;
 	std::array<sh_int, 4> apply_saving_throw;		// Saving throw (Bonuses)
-	std::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	// Сопротивление (резисты) к магии, ядам и крит. ударам
+	std::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	// п║п╬п©я─п╬я┌п╦п╡п╩п╣п╫п╦п╣ (я─п╣п╥п╦я│я┌я▀) п╨ п╪п╟пЁп╦п╦, я▐п╢п╟п╪ п╦ п╨я─п╦я┌. я┐п╢п╟я─п╟п╪
 	ubyte mresist;
 	ubyte aresist;
-	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
+	ubyte presist;	// added by WorM(п▓п╦п╢п╬п╩я▌п╠) п©п╬ п©я─п╬я│я▄п╠п╣ <я│я┐п╪п╟я│я┬п╣п╢я┬п╣пЁп╬> (п╥п╟я┤п╣я─п╨п╫я┐я┌п╬) п╠п╣п╥п╠п╟я┬п╣п╫п╫п╬пЁп╬ п╠п╦п╩п╢п╣я─п╟ п©п╬пЁп╩п╬я┴п╣п╫п╦п╣ я└п╦п╥.я┐я─п╬п╫п╟ п╡ %
 	
 };
 
@@ -138,7 +138,7 @@ struct char_special_data
 	int carry_weight;		// Carried weight
 	int carry_items;		// Number of items carried
 	int timer;			// Timer for update
-	time_t who_last; // таймстамп последнего использования команды кто
+	time_t who_last; // я┌п╟п╧п╪я│я┌п╟п╪п© п©п╬я│п╩п╣п╢п╫п╣пЁп╬ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ п╨п╬п╪п╟п╫п╢я▀ п╨я┌п╬
 
 	struct char_special_data_saved saved;			// constants saved in plrfile
 };
@@ -167,16 +167,16 @@ struct mob_special_data
 	int LastRoom;
 	char *Questor;
 	int speed;
-	int hire_price;// added by WorM (Видолюб) 2010.06.04 Цена найма чармиса
-	int capable_spell;// added by WorM (Видолюб) Закл в мобе
+	int hire_price;// added by WorM (п▓п╦п╢п╬п╩я▌п╠) 2010.06.04 п╕п╣п╫п╟ п╫п╟п╧п╪п╟ я┤п╟я─п╪п╦я│п╟
+	int capable_spell;// added by WorM (п▓п╦п╢п╬п╩я▌п╠) п≈п╟п╨п╩ п╡ п╪п╬п╠п╣
 };
 
-// очередь запоминания заклинаний
+// п╬я┤п╣я─п╣п╢я▄ п╥п╟п©п╬п╪п╦п╫п╟п╫п╦я▐ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧
 struct spell_mem_queue
 {
 	struct spell_mem_queue_item *queue;
-	int stored;		// накоплено манны
-	int total;			// полное время мема всей очереди
+	int stored;		// п╫п╟п╨п╬п©п╩п╣п╫п╬ п╪п╟п╫п╫я▀
+	int total;			// п©п╬п╩п╫п╬п╣ п╡я─п╣п╪я▐ п╪п╣п╪п╟ п╡я│п╣п╧ п╬я┤п╣я─п╣п╢п╦
 };
 
 // Structure used for extra_attack - bash, kick, diasrm, chopoff, etc
@@ -218,32 +218,32 @@ struct player_special_data_saved
 	int stringLength;
 	int stringWidth;
 
-	// 29.11.09 переменные для подсчета количества рипов (с) Василиса
-	int Rip_arena; //рипы на арене
-	int Rip_mob; // рипы от мобов всего
-	int Rip_pk; // рипы от чаров всего
-	int Rip_dt; // дт всего
-	int Rip_other; // рипы от триггеров и прочее всего
-	int Win_arena; //убито игроком на арене
-	int Rip_mob_this; // рипы от мобов на этом морте
-	int Rip_pk_this; // рипы от чаров на этом морте
-	int Rip_dt_this; // дт на этом морте
-	int Rip_other_this; // рипы от триггеров и прочее на этом морте
-	//edited by WorM переделал на unsigned long long чтоб экспа в минуса не уходила
-	unsigned long long Exp_arena; //потеряно экспы за рипы на арене
-	unsigned long long Exp_mob; //потеряно экспы  рипы от мобов всего
-	unsigned long long Exp_pk; //потеряно экспы  рипы от чаров всего
-	unsigned long long Exp_dt; //потеряно экспы  дт всего
-	unsigned long long Exp_other; //потеряно экспы  рипы от триггеров и прочее всего
-	unsigned long long Exp_mob_this; //потеряно экспы  рипы от мобов на этом морте
-	unsigned long long Exp_pk_this; //потеряно экспы  рипы от чаров на этом морте
-	unsigned long long Exp_dt_this; //потеряно экспы  дт на этом морте
-	unsigned long long Exp_other_this; //потеряно экспы  рипы от триггеров и прочее на этом морте
-	//конец правки (с) Василиса
-	//Polud храним цену, начиная с которой нужно присылать оффлайн-уведомления с базара
+	// 29.11.09 п©п╣я─п╣п╪п╣п╫п╫я▀п╣ п╢п╩я▐ п©п╬п╢я│я┤п╣я┌п╟ п╨п╬п╩п╦я┤п╣я│я┌п╡п╟ я─п╦п©п╬п╡ (я│) п▓п╟я│п╦п╩п╦я│п╟
+	int Rip_arena; //я─п╦п©я▀ п╫п╟ п╟я─п╣п╫п╣
+	int Rip_mob; // я─п╦п©я▀ п╬я┌ п╪п╬п╠п╬п╡ п╡я│п╣пЁп╬
+	int Rip_pk; // я─п╦п©я▀ п╬я┌ я┤п╟я─п╬п╡ п╡я│п╣пЁп╬
+	int Rip_dt; // п╢я┌ п╡я│п╣пЁп╬
+	int Rip_other; // я─п╦п©я▀ п╬я┌ я┌я─п╦пЁпЁп╣я─п╬п╡ п╦ п©я─п╬я┤п╣п╣ п╡я│п╣пЁп╬
+	int Win_arena; //я┐п╠п╦я┌п╬ п╦пЁя─п╬п╨п╬п╪ п╫п╟ п╟я─п╣п╫п╣
+	int Rip_mob_this; // я─п╦п©я▀ п╬я┌ п╪п╬п╠п╬п╡ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣
+	int Rip_pk_this; // я─п╦п©я▀ п╬я┌ я┤п╟я─п╬п╡ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣
+	int Rip_dt_this; // п╢я┌ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣
+	int Rip_other_this; // я─п╦п©я▀ п╬я┌ я┌я─п╦пЁпЁп╣я─п╬п╡ п╦ п©я─п╬я┤п╣п╣ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣
+	//edited by WorM п©п╣я─п╣п╢п╣п╩п╟п╩ п╫п╟ unsigned long long я┤я┌п╬п╠ я█п╨я│п©п╟ п╡ п╪п╦п╫я┐я│п╟ п╫п╣ я┐я┘п╬п╢п╦п╩п╟
+	unsigned long long Exp_arena; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀ п╥п╟ я─п╦п©я▀ п╫п╟ п╟я─п╣п╫п╣
+	unsigned long long Exp_mob; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀  я─п╦п©я▀ п╬я┌ п╪п╬п╠п╬п╡ п╡я│п╣пЁп╬
+	unsigned long long Exp_pk; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀  я─п╦п©я▀ п╬я┌ я┤п╟я─п╬п╡ п╡я│п╣пЁп╬
+	unsigned long long Exp_dt; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀  п╢я┌ п╡я│п╣пЁп╬
+	unsigned long long Exp_other; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀  я─п╦п©я▀ п╬я┌ я┌я─п╦пЁпЁп╣я─п╬п╡ п╦ п©я─п╬я┤п╣п╣ п╡я│п╣пЁп╬
+	unsigned long long Exp_mob_this; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀  я─п╦п©я▀ п╬я┌ п╪п╬п╠п╬п╡ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣
+	unsigned long long Exp_pk_this; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀  я─п╦п©я▀ п╬я┌ я┤п╟я─п╬п╡ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣
+	unsigned long long Exp_dt_this; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀  п╢я┌ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣
+	unsigned long long Exp_other_this; //п©п╬я┌п╣я─я▐п╫п╬ я█п╨я│п©я▀  я─п╦п©я▀ п╬я┌ я┌я─п╦пЁпЁп╣я─п╬п╡ п╦ п©я─п╬я┤п╣п╣ п╫п╟ я█я┌п╬п╪ п╪п╬я─я┌п╣
+	//п╨п╬п╫п╣я├ п©я─п╟п╡п╨п╦ (я│) п▓п╟я│п╦п╩п╦я│п╟
+	//Polud я┘я─п╟п╫п╦п╪ я├п╣п╫я┐, п╫п╟я┤п╦п╫п╟я▐ я│ п╨п╬я┌п╬я─п╬п╧ п╫я┐п╤п╫п╬ п©я─п╦я│я▀п╩п╟я┌я▄ п╬я└я└п╩п╟п╧п╫-я┐п╡п╣п╢п╬п╪п╩п╣п╫п╦я▐ я│ п╠п╟п╥п╟я─п╟
 	long ntfyExchangePrice;
-	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
-	unsigned int who_mana; // количество энергии для использования команды кто
+	int HiredCost;// added by WorM (п▓п╦п╢п╬п╩я▌п╠) 2010.06.04 я│я┐п╪п╪п╟ п©п╬я┌я─п╟я┤п╣п╫п╫п╟я▐ п╫п╟ п╫п╟п╧п╪(п╡п╬п╥п╡я─п╟я┴п╟п╣я┌я│я▐ п©я─п╦ п╨я─п╣я┬п╣)
+	unsigned int who_mana; // п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я█п╫п╣я─пЁп╦п╦ п╢п╩я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ п╨п╬п╪п╟п╫п╢я▀ п╨я┌п╬
 };
 
 
@@ -262,15 +262,15 @@ struct player_special_data
 	time_t may_rent;		// PK control
 	int agressor;		// Agression room(it is also a flag)
 	time_t agro_time;		// Last agression time (it is also a flag)
-	im_rskill *rskill;	// Известные рецепты
-	struct char_portal_type *portals;	// порталы теперь живут тут
-	int *logs;		// уровни подробности каналов log
+	im_rskill *rskill;	// п≤п╥п╡п╣я│я┌п╫я▀п╣ я─п╣я├п╣п©я┌я▀
+	struct char_portal_type *portals;	// п©п╬я─я┌п╟п╩я▀ я┌п╣п©п╣я─я▄ п╤п╦п╡я┐я┌ я┌я┐я┌
+	int *logs;		// я┐я─п╬п╡п╫п╦ п©п╬п╢я─п╬п╠п╫п╬я│я┌п╦ п╨п╟п╫п╟п╩п╬п╡ log
 
 	char *Exchange_filter;
 	ignores_t ignores;
-	char *Karma; // Записи о поощрениях, наказаниях персонажа
+	char *Karma; // п≈п╟п©п╦я│п╦ п╬ п©п╬п╬я┴я─п╣п╫п╦я▐я┘, п╫п╟п╨п╟п╥п╟п╫п╦я▐я┘ п©п╣я─я│п╬п╫п╟п╤п╟
 
-	struct logon_data * logons; //Записи о входах чара
+	struct logon_data * logons; //п≈п╟п©п╦я│п╦ п╬ п╡я┘п╬п╢п╟я┘ я┤п╟я─п╟
 
 // Punishments structs
 	punish_data pmute;
@@ -281,10 +281,10 @@ struct player_special_data
 	punish_data pgcurse;
 	punish_data punreg;
 
-	char *clanStatus; // строка для отображения приписки по кто
-	// TODO: однозначно переписать
-	std::shared_ptr<class Clan> clan; // собсна клан, если он есть
-	std::shared_ptr<class ClanMember> clan_member; // поле мембера в клане
+	char *clanStatus; // я│я┌я─п╬п╨п╟ п╢п╩я▐ п╬я┌п╬п╠я─п╟п╤п╣п╫п╦я▐ п©я─п╦п©п╦я│п╨п╦ п©п╬ п╨я┌п╬
+	// TODO: п╬п╢п╫п╬п╥п╫п╟я┤п╫п╬ п©п╣я─п╣п©п╦я│п╟я┌я▄
+	std::shared_ptr<class Clan> clan; // я│п╬п╠я│п╫п╟ п╨п╩п╟п╫, п╣я│п╩п╦ п╬п╫ п╣я│я┌я▄
+	std::shared_ptr<class ClanMember> clan_member; // п©п╬п╩п╣ п╪п╣п╪п╠п╣я─п╟ п╡ п╨п╩п╟п╫п╣
 
 	static player_special_data::shared_ptr s_for_mobiles;
 };
@@ -306,9 +306,9 @@ enum
 struct attacker_node
 {
 	attacker_node() : damage(0), rounds(0) {};
-	// влитый дамаг
+	// п╡п╩п╦я┌я▀п╧ п╢п╟п╪п╟пЁ
 	int damage;
-	// кол-во раундов в бою
+	// п╨п╬п╩-п╡п╬ я─п╟я┐п╫п╢п╬п╡ п╡ п╠п╬я▌
 	int rounds;
 };
 
@@ -318,8 +318,8 @@ enum
 	ATTACKER_ROUNDS
 };
 
-typedef std::map<ESkill/* номер скилла */, int/* значение скилла */> CharSkillsType;
-//typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
+typedef std::map<ESkill/* п╫п╬п╪п╣я─ я│п╨п╦п╩п╩п╟ */, int/* п╥п╫п╟я┤п╣п╫п╦п╣ я│п╨п╦п╩п╩п╟ */> CharSkillsType;
+//typedef __gnu_cxx::hash_map < int/* п╫п╬п╪п╣я─ я│п╨п╦п╩п╩п╟ */, int/* п╥п╫п╟я┤п╣п╫п╦п╣ я│п╨п╦п╩п╩п╟ */ > CharSkillsType;
 
 class ProtectedCharacterData;	// to break up cyclic dependencies
 
@@ -353,10 +353,10 @@ private:
 	std::unordered_set<CharacterRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
 };
 
-// * Общий класс для игроков/мобов.
+// * п·п╠я┴п╦п╧ п╨п╩п╟я│я│ п╢п╩я▐ п╦пЁя─п╬п╨п╬п╡/п╪п╬п╠п╬п╡.
 class CHAR_DATA : public ProtectedCharacterData
 {
-// новое
+// п╫п╬п╡п╬п╣
 public:
 	using ptr_t = CHAR_DATA*;
 	using shared_ptr = std::shared_ptr<CHAR_DATA>;
@@ -397,7 +397,7 @@ public:
 	CHAR_DATA * get_fighting() const;
 	void set_fighting(CHAR_DATA *vict);
 
-	// TODO: касты можно сделать и красивее (+ troom не используется, cast_spell/cast_subst/cast_obj только по разу)
+	// TODO: п╨п╟я│я┌я▀ п╪п╬п╤п╫п╬ я│п╢п╣п╩п╟я┌я▄ п╦ п╨я─п╟я│п╦п╡п╣п╣ (+ troom п╫п╣ п╦я│п©п╬п╩я▄п╥я┐п╣я┌я│я▐, cast_spell/cast_subst/cast_obj я┌п╬п╩я▄п╨п╬ п©п╬ я─п╟п╥я┐)
 	void set_cast(int spellnum, int spell_subst, CHAR_DATA *tch, OBJ_DATA *tobj, ROOM_DATA *troom);
 	int get_cast_spell() const;
 	int get_cast_subst() const;
@@ -531,8 +531,8 @@ public:
 	////////////////////////////////////////////////////////////////////////////
 
 	/**
-	 * \return поле group из зон файла данного моба
-	 * <= 1 - обычная зона (соло), >= 2 - групповая зона на указанное кол-во человек
+	 * \return п©п╬п╩п╣ group п╦п╥ п╥п╬п╫ я└п╟п╧п╩п╟ п╢п╟п╫п╫п╬пЁп╬ п╪п╬п╠п╟
+	 * <= 1 - п╬п╠я▀я┤п╫п╟я▐ п╥п╬п╫п╟ (я│п╬п╩п╬), >= 2 - пЁя─я┐п©п©п╬п╡п╟я▐ п╥п╬п╫п╟ п╫п╟ я┐п╨п╟п╥п╟п╫п╫п╬п╣ п╨п╬п╩-п╡п╬ я┤п╣п╩п╬п╡п╣п╨
 	 */
 	int get_zone_group() const;
 
@@ -542,7 +542,7 @@ public:
 	bool in_used_zone() const;
 	
 	/**
-	 * Возвращает коэффициент штрафа за состояние
+	 * п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╨п╬я█я└я└п╦я├п╦п╣п╫я┌ я┬я┌я─п╟я└п╟ п╥п╟ я│п╬я│я┌п╬я▐п╫п╦п╣
 	**/
 	float get_cond_penalty(int type) const;
 
@@ -576,7 +576,7 @@ public:
 	unsigned int get_who_mana();
 	time_t get_who_last();
 
-	/// роли (mob only)
+	/// я─п╬п╩п╦ (mob only)
 	bool get_role(unsigned num) const;
 	void set_role(unsigned num, bool flag);
 	const CHAR_DATA::role_t& get_role_bits() const;
@@ -615,7 +615,7 @@ public:
 	void add_follower(CHAR_DATA* ch);
 	/** Do NOT call this before having checked if a circle of followers
 	* will arise. CH will follow leader
-	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
+	* \param silent - п╢п╩я▐ я│п╪п╣п╫я▀ п╩п╦п╢п╣я─п╟ пЁя─я┐п©п©я▀ п╠п╣п╥ п╩п╦я┬п╫п╣пЁп╬ я│п©п╟п╪п╟ (п©п╬ п╢п╣я└п╬п╩я┌я┐ 0)
 	*/
 	void add_follower_silently(CHAR_DATA* ch);
 	followers_list_t get_followers_list() const;
@@ -646,88 +646,88 @@ private:
 
 	void purge();
 
-	CharSkillsType skills;  // список изученных скиллов
+	CharSkillsType skills;  // я│п©п╦я│п╬п╨ п╦п╥я┐я┤п╣п╫п╫я▀я┘ я│п╨п╦п╩п╩п╬п╡
 	////////////////////////////////////////////////////////////////////////////
-	CHAR_DATA *protecting_; // цель для 'прикрыть'
-	CHAR_DATA *touching_;   // цель для 'перехватить'
-	CHAR_DATA *fighting_;   // противник
+	CHAR_DATA *protecting_; // я├п╣п╩я▄ п╢п╩я▐ 'п©я─п╦п╨я─я▀я┌я▄'
+	CHAR_DATA *touching_;   // я├п╣п╩я▄ п╢п╩я▐ 'п©п╣я─п╣я┘п╡п╟я┌п╦я┌я▄'
+	CHAR_DATA *fighting_;   // п©я─п╬я┌п╦п╡п╫п╦п╨
 
-	struct extra_attack_type extra_attack_; // атаки типа баша, пинка и т.п.
-	struct cast_attack_type cast_attack_;   // каст заклинания
+	struct extra_attack_type extra_attack_; // п╟я┌п╟п╨п╦ я┌п╦п©п╟ п╠п╟я┬п╟, п©п╦п╫п╨п╟ п╦ я┌.п©.
+	struct cast_attack_type cast_attack_;   // п╨п╟я│я┌ п╥п╟п╨п╩п╦п╫п╟п╫п╦я▐
 	////////////////////////////////////////////////////////////////////////////
-	int serial_num_; // порядковый номер в списке чаров (для name_list)
-	// true - чар очищен и ждет вызова delete для оболочки
+	int serial_num_; // п©п╬я─я▐п╢п╨п╬п╡я▀п╧ п╫п╬п╪п╣я─ п╡ я│п©п╦я│п╨п╣ я┤п╟я─п╬п╡ (п╢п╩я▐ name_list)
+	// true - я┤п╟я─ п╬я┤п╦я┴п╣п╫ п╦ п╤п╢п╣я┌ п╡я▀п╥п╬п╡п╟ delete п╢п╩я▐ п╬п╠п╬п╩п╬я┤п╨п╦
 	bool purged_;
 
-// * TODO: пока сюда скидывается, чтобы поля private были
-	// имя чара или алиасы моба
+// * TODO: п©п╬п╨п╟ я│я▌п╢п╟ я│п╨п╦п╢я▀п╡п╟п╣я┌я│я▐, я┤я┌п╬п╠я▀ п©п╬п╩я▐ private п╠я▀п╩п╦
+	// п╦п╪я▐ я┤п╟я─п╟ п╦п╩п╦ п╟п╩п╦п╟я│я▀ п╪п╬п╠п╟
 	std::string name_;
-	// имя моба (им.падеж)
+	// п╦п╪я▐ п╪п╬п╠п╟ (п╦п╪.п©п╟п╢п╣п╤)
 	std::string short_descr_;
-	// профессия чара/класс моба
+	// п©я─п╬я└п╣я│я│п╦я▐ я┤п╟я─п╟/п╨п╩п╟я│я│ п╪п╬п╠п╟
 	short chclass_;
-	// уровень
+	// я┐я─п╬п╡п╣п╫я▄
 	short level_;
-	// id чара (не тот, что для тригов), у мобов -1
+	// id я┤п╟я─п╟ (п╫п╣ я┌п╬я┌, я┤я┌п╬ п╢п╩я▐ я┌я─п╦пЁп╬п╡), я┐ п╪п╬п╠п╬п╡ -1
 	long idnum_;
-	// uid (бывший unique) чара
+	// uid (п╠я▀п╡я┬п╦п╧ unique) я┤п╟я─п╟
 	int uid_;
 	//#
-	// экспа
+	// я█п╨я│п©п╟
 	long exp_;
-	// реморты
+	// я─п╣п╪п╬я─я┌я▀
 	short remorts_;
-	// время последнего входа в игру //by kilnik
+	// п╡я─п╣п╪я▐ п©п╬я│п╩п╣п╢п╫п╣пЁп╬ п╡я┘п╬п╢п╟ п╡ п╦пЁя─я┐ //by kilnik
 	time_t last_logon_;
-	// последний вызов базара
+	// п©п╬я│п╩п╣п╢п╫п╦п╧ п╡я▀п╥п╬п╡ п╠п╟п╥п╟я─п╟
 	time_t last_exchange_;
-	// деньги на руках
+	// п╢п╣п╫я▄пЁп╦ п╫п╟ я─я┐п╨п╟я┘
 	long gold_;
-	// деньги в банке
+	// п╢п╣п╫я▄пЁп╦ п╡ п╠п╟п╫п╨п╣
 	long bank_gold_;
-	// рубли
+	// я─я┐п╠п╩п╦
 	long ruble;
-	// родная сила
+	// я─п╬п╢п╫п╟я▐ я│п╦п╩п╟
 	int str_;
-	// плюсы на силу
+	// п©п╩я▌я│я▀ п╫п╟ я│п╦п╩я┐
 	int str_add_;
-	// родная ловкость
+	// я─п╬п╢п╫п╟я▐ п╩п╬п╡п╨п╬я│я┌я▄
 	int dex_;
-	// плюсы на ловкость
+	// п©п╩я▌я│я▀ п╫п╟ п╩п╬п╡п╨п╬я│я┌я▄
 	int dex_add_;
-	// родное тело
+	// я─п╬п╢п╫п╬п╣ я┌п╣п╩п╬
 	int con_;
-	// плюсы на тело
+	// п©п╩я▌я│я▀ п╫п╟ я┌п╣п╩п╬
 	int con_add_;
-	// родная мудра
+	// я─п╬п╢п╫п╟я▐ п╪я┐п╢я─п╟
 	int wis_;
-	// плюсы на мудру
+	// п©п╩я▌я│я▀ п╫п╟ п╪я┐п╢я─я┐
 	int wis_add_;
-	// родная инта
+	// я─п╬п╢п╫п╟я▐ п╦п╫я┌п╟
 	int int_;
-	// плюсы на инту
+	// п©п╩я▌я│я▀ п╫п╟ п╦п╫я┌я┐
 	int int_add_;
-	// родная харизма
+	// я─п╬п╢п╫п╟я▐ я┘п╟я─п╦п╥п╪п╟
 	int cha_;
-	// плюсы на харизму
+	// п©п╩я▌я│я▀ п╫п╟ я┘п╟я─п╦п╥п╪я┐
 	int cha_add_;
-	//изученные формы
+	//п╦п╥я┐я┤п╣п╫п╫я▀п╣ я└п╬я─п╪я▀
 	morphs_list_t morphs_;
-	//текущая форма
+	//я┌п╣п╨я┐я┴п╟я▐ я└п╬я─п╪п╟
 	MorphPtr current_morph_;
-	// аналог класса у моба
+	// п╟п╫п╟п╩п╬пЁ п╨п╩п╟я│я│п╟ я┐ п╪п╬п╠п╟
 	role_t role_;
-	// для боссов: список атакующих (и им сочувствующих), uid->atacker
+	// п╢п╩я▐ п╠п╬я│я│п╬п╡: я│п©п╦я│п╬п╨ п╟я┌п╟п╨я┐я▌я┴п╦я┘ (п╦ п╦п╪ я│п╬я┤я┐п╡я│я┌п╡я┐я▌я┴п╦я┘), uid->atacker
 	std::unordered_map<int, attacker_node> attackers_;
-	// для боссов: таймер (в секундах), включающийся по окончанию боя
-	// через который происходит сброс списка атакующих и рефреш моба
+	// п╢п╩я▐ п╠п╬я│я│п╬п╡: я┌п╟п╧п╪п╣я─ (п╡ я│п╣п╨я┐п╫п╢п╟я┘), п╡п╨п╩я▌я┤п╟я▌я┴п╦п╧я│я▐ п©п╬ п╬п╨п╬п╫я┤п╟п╫п╦я▌ п╠п╬я▐
+	// я┤п╣я─п╣п╥ п╨п╬я┌п╬я─я▀п╧ п©я─п╬п╦я│я┘п╬п╢п╦я┌ я│п╠я─п╬я│ я│п©п╦я│п╨п╟ п╟я┌п╟п╨я┐я▌я┴п╦я┘ п╦ я─п╣я└я─п╣я┬ п╪п╬п╠п╟
 	int restore_timer_;
-	// всякие хитрые бонусы с сетов (здесь, чтобы чармисов не обделить)
+	// п╡я│я▐п╨п╦п╣ я┘п╦я┌я─я▀п╣ п╠п╬п╫я┐я│я▀ я│ я│п╣я┌п╬п╡ (п╥п╢п╣я│я▄, я┤я┌п╬п╠я▀ я┤п╟я─п╪п╦я│п╬п╡ п╫п╣ п╬п╠п╢п╣п╩п╦я┌я▄)
 	obj_sets::activ_sum obj_bonus_;
-	// для режимов
-	// количество набранных очков
+	// п╢п╩я▐ я─п╣п╤п╦п╪п╬п╡
+	// п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п╫п╟п╠я─п╟п╫п╫я▀я┘ п╬я┤п╨п╬п╡
 	int count_score;
-	// души, онли чернок
+	// п╢я┐я┬п╦, п╬п╫п╩п╦ я┤п╣я─п╫п╬п╨
 	int souls;
 
 public:
@@ -742,7 +742,7 @@ private:
 
 public:
 	int punctual_wait;		// wait for how many loops (punctual style)
-	char *last_comm;		// последний приказ чармису перед окончанием лага
+	char *last_comm;		// п©п╬я│п╩п╣п╢п╫п╦п╧ п©я─п╦п╨п╟п╥ я┤п╟я─п╪п╦я│я┐ п©п╣я─п╣п╢ п╬п╨п╬п╫я┤п╟п╫п╦п╣п╪ п╩п╟пЁп╟
 
 	struct char_player_data player_data;		// Normal data
 	struct char_played_ability_data add_abils;		// Abilities that add to main
@@ -773,7 +773,7 @@ public:
 	bool has_master() const { return nullptr != m_master; }
 	bool makes_loop(const CHAR_DATA::ptr_t master) const;
 
-	struct spell_mem_queue MemQueue;		// очередь изучаемых заклинаний
+	struct spell_mem_queue MemQueue;		// п╬я┤п╣я─п╣п╢я▄ п╦п╥я┐я┤п╟п╣п╪я▀я┘ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╧
 
 	int CasterLevel;
 	int DamageLevel;
@@ -793,9 +793,9 @@ public:
 
 	int Poisoner;
 
-	int *ing_list;		//загружаемые в труп ингредиенты
-	load_list *dl_list;	// загружаемые в труп предметы
-	bool agrobd;		// показывает, агробд или нет
+	int *ing_list;		//п╥п╟пЁя─я┐п╤п╟п╣п╪я▀п╣ п╡ я┌я─я┐п© п╦п╫пЁя─п╣п╢п╦п╣п╫я┌я▀
+	load_list *dl_list;	// п╥п╟пЁя─я┐п╤п╟п╣п╪я▀п╣ п╡ я┌я─я┐п© п©я─п╣п╢п╪п╣я┌я▀
+	bool agrobd;		// п©п╬п╨п╟п╥я▀п╡п╟п╣я┌, п╟пЁя─п╬п╠п╢ п╦п╩п╦ п╫п╣я┌
 
 	std::map<int, temporary_spell_data> temp_spells;
 };
@@ -902,8 +902,8 @@ inline bool GET_MOB_HOLD(const CHAR_DATA* ch)
 bool AWAKE(const CHAR_DATA* ch);
 inline bool AWAKE(const CHAR_DATA::shared_ptr& ch) { return AWAKE(ch.get()); }
 
-// Polud условие для проверки перед запуском всех mob-триггеров КРОМЕ death, random и global
-//пока здесь только чарм, как и было раньше
+// Polud я┐я│п╩п╬п╡п╦п╣ п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦ п©п╣я─п╣п╢ п╥п╟п©я┐я│п╨п╬п╪ п╡я│п╣я┘ mob-я┌я─п╦пЁпЁп╣я─п╬п╡ п п═п·п°п∙ death, random п╦ global
+//п©п╬п╨п╟ п╥п╢п╣я│я▄ я┌п╬п╩я▄п╨п╬ я┤п╟я─п╪, п╨п╟п╨ п╦ п╠я▀п╩п╬ я─п╟п╫я▄я┬п╣
 inline bool CAN_START_MTRIG(const CHAR_DATA *ch)
 {
 	return !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM);

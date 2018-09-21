@@ -23,29 +23,29 @@ bool parse_nedit_menu(CHAR_DATA *ch, char *arg);
 
 struct stuff_node
 {
-	int uid;		// uid персонажа
-	std::string mail;	// e-mail персонажей которым можно подбирать
-	int can_clan;		// может ли клан подбирать
-	int can_alli;		// может ли альянс подбирать
-	std::string wear_msg_v;	// сообщение при одевании предмета персу
-	std::string wear_msg_a;	// --//-- вокруг перса
-	std::string cant_msg_v;	// сообщение если нельзя взять/одеть предмет персу
-	std::string cant_msg_a;	// --//-- вокруг перса
+	int uid;		// uid п©п╣я─я│п╬п╫п╟п╤п╟
+	std::string mail;	// e-mail п©п╣я─я│п╬п╫п╟п╤п╣п╧ п╨п╬я┌п╬я─я▀п╪ п╪п╬п╤п╫п╬ п©п╬п╢п╠п╦я─п╟я┌я▄
+	int can_clan;		// п╪п╬п╤п╣я┌ п╩п╦ п╨п╩п╟п╫ п©п╬п╢п╠п╦я─п╟я┌я▄
+	int can_alli;		// п╪п╬п╤п╣я┌ п╩п╦ п╟п╩я▄я▐п╫я│ п©п╬п╢п╠п╦я─п╟я┌я▄
+	std::string wear_msg_v;	// я│п╬п╬п╠я┴п╣п╫п╦п╣ п©я─п╦ п╬п╢п╣п╡п╟п╫п╦п╦ п©я─п╣п╢п╪п╣я┌п╟ п©п╣я─я│я┐
+	std::string wear_msg_a;	// --//-- п╡п╬п╨я─я┐пЁ п©п╣я─я│п╟
+	std::string cant_msg_v;	// я│п╬п╬п╠я┴п╣п╫п╦п╣ п╣я│п╩п╦ п╫п╣п╩я▄п╥я▐ п╡п╥я▐я┌я▄/п╬п╢п╣я┌я▄ п©я─п╣п╢п╪п╣я┌ п©п╣я─я│я┐
+	std::string cant_msg_a;	// --//-- п╡п╬п╨я─я┐пЁ п©п╣я─я│п╟
 };
 
-// общий список именного стафа
+// п╬п╠я┴п╦п╧ я│п©п╦я│п╬п╨ п╦п╪п╣п╫п╫п╬пЁп╬ я│я┌п╟я└п╟
 typedef std::shared_ptr<stuff_node> StuffNodePtr;
-typedef std::unordered_map<long /* vnum предмета */, StuffNodePtr> StuffListType;
+typedef std::unordered_map<long /* vnum п©я─п╣п╢п╪п╣я┌п╟ */, StuffNodePtr> StuffListType;
 
 extern StuffListType stuff_list;
 
 void save();
 void load();
-//Проверка доступен ли именной предмет чару, simple без проверки клана и союзов
-//Возвращаемое значение по аналогии с check_anti_classes false-доступен true-недоступен
+//п÷я─п╬п╡п╣я─п╨п╟ п╢п╬я│я┌я┐п©п╣п╫ п╩п╦ п╦п╪п╣п╫п╫п╬п╧ п©я─п╣п╢п╪п╣я┌ я┤п╟я─я┐, simple п╠п╣п╥ п©я─п╬п╡п╣я─п╨п╦ п╨п╩п╟п╫п╟ п╦ я│п╬я▌п╥п╬п╡
+//п▓п╬п╥п╡я─п╟я┴п╟п╣п╪п╬п╣ п╥п╫п╟я┤п╣п╫п╦п╣ п©п╬ п╟п╫п╟п╩п╬пЁп╦п╦ я│ check_anti_classes false-п╢п╬я│я┌я┐п©п╣п╫ true-п╫п╣п╢п╬я│я┌я┐п©п╣п╫
 bool check_named(CHAR_DATA * ch, const OBJ_DATA * obj, const bool simple=false);
 bool wear_msg(CHAR_DATA * ch, OBJ_DATA * obj);
-//Процедура получения именного стафа у ямщика
+//п÷я─п╬я├п╣п╢я┐я─п╟ п©п╬п╩я┐я┤п╣п╫п╦я▐ п╦п╪п╣п╫п╫п╬пЁп╬ я│я┌п╟я└п╟ я┐ я▐п╪я┴п╦п╨п╟
 void receive_items(CHAR_DATA * ch, CHAR_DATA * mailman);
 
 } // namespace NamedStuff

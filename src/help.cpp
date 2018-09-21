@@ -36,12 +36,12 @@ extern const char *class_name[];
 namespace PrintActivators
 {
 
-// распечатка активов
+// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╟п╨я┌п╦п╡п╬п╡
 struct dup_node
 {
-	// строка профессий
+	// я│я┌я─п╬п╨п╟ п©я─п╬я└п╣я│я│п╦п╧
 	std::string clss;
-	// все аффекты
+	// п╡я│п╣ п╟я└я└п╣п╨я┌я▀
 	std::string afct;
 };
 
@@ -95,7 +95,7 @@ inline bool bit_is_set(const uint32_t flags, const int bit)
 	return 0 != (flags & (1 << bit));
 }
 
-// проверка обратная flag_data_by_num()
+// п©я─п╬п╡п╣я─п╨п╟ п╬п╠я─п╟я┌п╫п╟я▐ flag_data_by_num()
 bool check_num_in_unique_bit_flag_data(const unique_bit_flag_data &data, const int num)
 {
 	return (0 <= num && num < 120) ? data.get_flag(num / 30, 1 << num) : false;
@@ -109,14 +109,14 @@ std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, boo
 		out += boost::str(boost::format("%s%s%s%s%s%s%d%%%s\r\n")
 			% (activ ? " +    " : "   ") % KCYN
 			% skill_info[skill.first].name % KNRM
-			% KCYN % (skill.second < 0 ? " ухудшает на " : " улучшает на ")
+			% KCYN % (skill.second < 0 ? " я┐я┘я┐п╢я┬п╟п╣я┌ п╫п╟ " : " я┐п╩я┐я┤я┬п╟п╣я┌ п╫п╟ ")
 			% abs(skill.second) % KNRM);
 	}
 	return out;
 }
 
-/// распечатка массива скилов с " + " перед активаторами
-/// \param header = true (печатать или нет заголовок 'Меняет умения')
+/// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╪п╟я│я│п╦п╡п╟ я│п╨п╦п╩п╬п╡ я│ " + " п©п╣я─п╣п╢ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟п╪п╦
+/// \param header = true (п©п╣я┤п╟я┌п╟я┌я▄ п╦п╩п╦ п╫п╣я┌ п╥п╟пЁп╬п╩п╬п╡п╬п╨ 'п°п╣п╫я▐п╣я┌ я┐п╪п╣п╫п╦я▐')
 std::string print_skills(const CObjectPrototype::skills_t &skills, bool activ, bool header)
 {
 	std::string out;
@@ -128,13 +128,13 @@ std::string print_skills(const CObjectPrototype::skills_t &skills, bool activ, b
 	if (!out.empty() && header)
 	{
 		std::string head = activ ? " + " : "   ";
-		return head + "Меняет умения :\r\n" + out;
+		return head + "п°п╣п╫я▐п╣я┌ я┐п╪п╣п╫п╦я▐ :\r\n" + out;
 	}
 
 	return out;
 }
 
-// распечатка важных в контексте сетов родных стат предмета
+// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╡п╟п╤п╫я▀я┘ п╡ п╨п╬п╫я┌п╣п╨я│я┌п╣ я│п╣я┌п╬п╡ я─п╬п╢п╫я▀я┘ я│я┌п╟я┌ п©я─п╣п╢п╪п╣я┌п╟
 std::string print_obj_affects(const CObjectPrototype* const obj)
 {
 	std::stringstream out;
@@ -143,14 +143,14 @@ std::string print_obj_affects(const CObjectPrototype* const obj)
 
 	if (obj->get_no_flags().sprintbits(no_bits, buf2, ","))
 	{
-		out << "Неудобства : " << buf2 << "\r\n";
+		out << "п²п╣я┐п╢п╬п╠я│я┌п╡п╟ : " << buf2 << "\r\n";
 	}
 
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
 		const int drndice = GET_OBJ_VAL(obj, 1);
 		const int drsdice = GET_OBJ_VAL(obj, 2);
-		out << boost::format("Наносимые повреждения '%dD%d' среднее %.1f\r\n")
+		out << boost::format("п²п╟п╫п╬я│п╦п╪я▀п╣ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐ '%dD%d' я│я─п╣п╢п╫п╣п╣ %.1f\r\n")
 			% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 	}
 
@@ -158,12 +158,12 @@ std::string print_obj_affects(const CObjectPrototype* const obj)
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD)
 		|| CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
 	{
-		out << "Вес : " << GET_OBJ_WEIGHT(obj) << "\r\n";
+		out << "п▓п╣я│ : " << GET_OBJ_WEIGHT(obj) << "\r\n";
 	}
 
 	if (GET_OBJ_AFFECTS(obj).sprintbits(weapon_affects, buf2, ","))
 	{
-		out << "Аффекты : " << buf2 << "\r\n";
+		out << "п░я└я└п╣п╨я┌я▀ : " << buf2 << "\r\n";
 	}
 
 	std::string tmp_str;
@@ -177,7 +177,7 @@ std::string print_obj_affects(const CObjectPrototype* const obj)
 
 	if (!tmp_str.empty())
 	{
-		out << "Свойства :\r\n" << tmp_str;
+		out << "п║п╡п╬п╧я│я┌п╡п╟ :\r\n" << tmp_str;
 	}
 
 	if (obj->has_skills())
@@ -190,12 +190,12 @@ std::string print_obj_affects(const CObjectPrototype* const obj)
 	return out.str();
 }
 
-// распечатка конкретного активатора предмета
+// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟ п©я─п╣п╢п╪п╣я┌п╟
 std::string print_activator(class_to_act_map::const_iterator &activ, const CObjectPrototype* const obj)
 {
 	std::stringstream out;
 
-	out << " + Профессии :";
+	out << " + п÷я─п╬я└п╣я│я│п╦п╦ :";
 	for (int i = 0; i <= NUM_PLAYER_CLASSES * NUM_KIN; ++i)
 	{
 		if (check_num_in_unique_bit_flag_data(activ->first, i))
@@ -206,7 +206,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 			}
 			else
 			{
-				out << " чармисы";
+				out << " я┤п╟я─п╪п╦я│я▀";
 			}
 		}
 	}
@@ -215,7 +215,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	FLAG_DATA affects = activ->second.get_affects();
 	if (affects.sprintbits(weapon_affects, buf2, ","))
 	{
-		out << " + Аффекты : " << buf2 << "\r\n";
+		out << " + п░я└я└п╣п╨я┌я▀ : " << buf2 << "\r\n";
 	}
 
 	std::array<obj_affected_type, MAX_OBJ_AFFECT> affected = activ->second.get_affected();
@@ -229,7 +229,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	}
 	if (!tmp_str.empty())
 	{
-		out << " + Свойства :\r\n" << tmp_str;
+		out << " + п║п╡п╬п╧я│я┌п╡п╟ :\r\n" << tmp_str;
 	}
 
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
@@ -238,7 +238,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 		activ->second.get_dices(drsdice, drndice);
 		if (drsdice > 0 && drndice > 0)
 		{
-			out << boost::format(" + Устанавливает наносимые повреждения '%dD%d' среднее %.1f\r\n")
+			out << boost::format(" + пёя│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌ п╫п╟п╫п╬я│п╦п╪я▀п╣ п©п╬п╡я─п╣п╤п╢п╣п╫п╦я▐ '%dD%d' я│я─п╣п╢п╫п╣п╣ %.1f\r\n")
 					% drndice % drsdice % ((drsdice + 1) * drndice / 2.0);
 		}
 	}
@@ -246,7 +246,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	const int weight = activ->second.get_weight();
 	if (weight > 0)
 	{
-		out << " + Устанавливает вес: " << weight << "\r\n";
+		out << " + пёя│я┌п╟п╫п╟п╡п╩п╦п╡п╟п╣я┌ п╡п╣я│: " << weight << "\r\n";
 	}
 
 	if (activ->second.has_skills())
@@ -268,19 +268,19 @@ struct activators_obj
 		native_affects = clear_flags;
 	};
 
-	// номер профы и ее суммарные активы
+	// п╫п╬п╪п╣я─ п©я─п╬я└я▀ п╦ п╣п╣ я│я┐п╪п╪п╟я─п╫я▀п╣ п╟п╨я┌п╦п╡я▀
 	std::map<int, clss_activ_node> clss_list;
-	// суммарные статы шмоток
+	// я│я┐п╪п╪п╟я─п╫я▀п╣ я│я┌п╟я┌я▀ я┬п╪п╬я┌п╬п╨
 	FLAG_DATA native_no_flag;
 	FLAG_DATA native_affects;
 	std::vector<obj_affected_type> native_affected;
 	CObjectPrototype::skills_t native_skills;
 
-	// заполнение массива clss_list номерами проф
+	// п╥п╟п©п╬п╩п╫п╣п╫п╦п╣ п╪п╟я│я│п╦п╡п╟ clss_list п╫п╬п╪п╣я─п╟п╪п╦ п©я─п╬я└
 	void fill_class(set_info::const_iterator k);
-	// проход по активаторам всех предметов с поиском проф из clss_list
+	// п©я─п╬я┘п╬п╢ п©п╬ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟п╪ п╡я│п╣я┘ п©я─п╣п╢п╪п╣я┌п╬п╡ я│ п©п╬п╦я│п╨п╬п╪ п©я─п╬я└ п╦п╥ clss_list
 	void fill_node(const set_info &set);
-	// распечатка clss_list со слиянием идентичных текстов активаторов у разных проф
+	// я─п╟я│п©п╣я┤п╟я┌п╨п╟ clss_list я│п╬ я│п╩п╦я▐п╫п╦п╣п╪ п╦п╢п╣п╫я┌п╦я┤п╫я▀я┘ я┌п╣п╨я│я┌п╬п╡ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡ я┐ я─п╟п╥п╫я▀я┘ п©я─п╬я└
 	std::string print();
 };
 
@@ -309,25 +309,25 @@ void activators_obj::fill_node(const set_info &set)
 	for (set_info::const_iterator k = set.begin(),
 		kend = set.end(); k != kend; ++k)
 	{
-		// перебираем полученные ранее профы
+		// п©п╣я─п╣п╠п╦я─п╟п╣п╪ п©п╬п╩я┐я┤п╣п╫п╫я▀п╣ я─п╟п╫п╣п╣ п©я─п╬я└я▀
 		for (std::map<int, clss_activ_node>::iterator w = clss_list.begin(),
 			wend = clss_list.end(); w != wend; ++w)
 		{
-			// идем по кол-ву активаторов с конца от максимального
+			// п╦п╢п╣п╪ п©п╬ п╨п╬п╩-п╡я┐ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡ я│ п╨п╬п╫я├п╟ п╬я┌ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬пЁп╬
 			for (qty_to_camap_map::const_reverse_iterator m = k->second.rbegin(),
 				mend = k->second.rend(); m != mend; ++m)
 			{
 				bool found = false;
-				// до первого совпадения по профе
+				// п╢п╬ п©п╣я─п╡п╬пЁп╬ я│п╬п╡п©п╟п╢п╣п╫п╦я▐ п©п╬ п©я─п╬я└п╣
 				for (class_to_act_map::const_iterator q = m->second.begin(),
 					qend = m->second.end(); q != qend; ++q)
 				{
 					if (check_num_in_unique_bit_flag_data(q->first, w->first))
 					{
-						// суммирование активаторов для данной профы
+						// я│я┐п╪п╪п╦я─п╬п╡п╟п╫п╦п╣ п╟п╨я┌п╦п╡п╟я┌п╬я─п╬п╡ п╢п╩я▐ п╢п╟п╫п╫п╬п╧ п©я─п╬я└я▀
 						w->second.total_affects += q->second.get_affects();
 						sum_apply(w->second.affected, q->second.get_affected());
-						// скилы
+						// я│п╨п╦п╩я▀
 						CObjectPrototype::skills_t tmp_skills;
 						q->second.get_skills(tmp_skills);
 						sum_skills(w->second.skills, tmp_skills);
@@ -351,18 +351,18 @@ std::string activators_obj::print()
 	for (std::map<int, clss_activ_node>::iterator cls_it = clss_list.begin(),
 		cls_it_end = clss_list.end(); cls_it != cls_it_end;  ++cls_it)
 	{
-		// распечатка аффектов каждой профы
+		// я─п╟я│п©п╣я┤п╟я┌п╨п╟ п╟я└я└п╣п╨я┌п╬п╡ п╨п╟п╤п╢п╬п╧ п©я─п╬я└я▀
 		dup_node node;
-		node.clss += cls_it->first < NUM_PLAYER_CLASSES * NUM_KIN ? class_name[cls_it->first] : "чармисы";
+		node.clss += cls_it->first < NUM_PLAYER_CLASSES * NUM_KIN ? class_name[cls_it->first] : "я┤п╟я─п╪п╦я│я▀";
 		// affects
 		cls_it->second.total_affects += native_affects;
 		if (cls_it->second.total_affects.sprintbits(weapon_affects, buf2, ","))
 		{
-			node.afct += " + Аффекты : " + std::string(buf2) + "\r\n";
+			node.afct += " + п░я└я└п╣п╨я┌я▀ : " + std::string(buf2) + "\r\n";
 		}
 		// affected
 		sum_apply(cls_it->second.affected, native_affected);
-		// сортировка для более удобного сравнения статов по распечатке
+		// я│п╬я─я┌п╦я─п╬п╡п╨п╟ п╢п╩я▐ п╠п╬п╩п╣п╣ я┐п╢п╬п╠п╫п╬пЁп╬ я│я─п╟п╡п╫п╣п╫п╦я▐ я│я┌п╟я┌п╬п╡ п©п╬ я─п╟я│п©п╣я┤п╟я┌п╨п╣
 		std::sort(cls_it->second.affected.begin(), cls_it->second.affected.end(),
 			[](const obj_affected_type& lrs, const obj_affected_type& rhs)
 		{
@@ -377,13 +377,13 @@ std::string activators_obj::print()
 		}
 		if (!tmp_str.empty())
 		{
-			node.afct += " + Свойства :\r\n" + tmp_str;
+			node.afct += " + п║п╡п╬п╧я│я┌п╡п╟ :\r\n" + tmp_str;
 		}
-		// скилы
+		// я│п╨п╦п╩я▀
 		sum_skills(cls_it->second.skills, native_skills);
 		node.afct += print_skills(cls_it->second.skills, true);
 
-		// слияние одинаковых по аффектам проф
+		// я│п╩п╦я▐п╫п╦п╣ п╬п╢п╦п╫п╟п╨п╬п╡я▀я┘ п©п╬ п╟я└я└п╣п╨я┌п╟п╪ п©я─п╬я└
 		std::vector<dup_node>::iterator i =	std::find_if(dup_list.begin(), dup_list.end(),
 			[&](const dup_node& x)
 		{
@@ -404,7 +404,7 @@ std::string activators_obj::print()
 	for (std::vector<dup_node>::const_iterator i = dup_list.begin(),
 		iend = dup_list.end(); i != iend; ++i)
 	{
-		out_str += "Профессии : " + i->clss + "\r\n" + i->afct;
+		out_str += "п÷я─п╬я└п╣я│я│п╦п╦ : " + i->clss + "\r\n" + i->afct;
 	}
 	return out_str;
 }
@@ -416,7 +416,7 @@ std::string print_fullset_stats(const set_info &set)
 	std::stringstream out;
 	activators_obj activ;
 
-	// первый проход - родные статы предметов + инит проф в clss_list
+	// п©п╣я─п╡я▀п╧ п©я─п╬я┘п╬п╢ - я─п╬п╢п╫я▀п╣ я│я┌п╟я┌я▀ п©я─п╣п╢п╪п╣я┌п╬п╡ + п╦п╫п╦я┌ п©я─п╬я└ п╡ clss_list
 	for (set_info::const_iterator k = set.begin(),
 		kend = set.end(); k != kend; ++k)
 	{
@@ -427,25 +427,25 @@ std::string print_fullset_stats(const set_info &set)
 		}
 		const auto& obj = obj_proto[rnum];
 
-		// суммируем родные статы со шмоток
+		// я│я┐п╪п╪п╦я─я┐п╣п╪ я─п╬п╢п╫я▀п╣ я│я┌п╟я┌я▀ я│п╬ я┬п╪п╬я┌п╬п╨
 		activ.native_no_flag += GET_OBJ_NO(obj);
 		activ.native_affects += GET_OBJ_AFFECTS(obj);
 		sum_apply(activ.native_affected, obj->get_all_affected());
 		sum_skills(activ.native_skills, obj.get());
 
-		// иним профы
+		// п╦п╫п╦п╪ п©я─п╬я└я▀
 		activ.fill_class(k);
 	}
 
-	// иним активаторы по профам
+	// п╦п╫п╦п╪ п╟п╨я┌п╦п╡п╟я┌п╬я─я▀ п©п╬ п©я─п╬я└п╟п╪
 	activ.fill_node(set);
 
-	// печатаем все, что получилось
-	out << "Суммарные свойства набора: \r\n";
+	// п©п╣я┤п╟я┌п╟п╣п╪ п╡я│п╣, я┤я┌п╬ п©п╬п╩я┐я┤п╦п╩п╬я│я▄
+	out << "п║я┐п╪п╪п╟я─п╫я▀п╣ я│п╡п╬п╧я│я┌п╡п╟ п╫п╟п╠п╬я─п╟: \r\n";
 
 	if (activ.native_no_flag.sprintbits(no_bits, buf2, ","))
 	{
-		out << "Неудобства : " << buf2 << "\r\n";
+		out << "п²п╣я┐п╢п╬п╠я│я┌п╡п╟ : " << buf2 << "\r\n";
 	}
 
 	out << activ.print();
@@ -453,7 +453,7 @@ std::string print_fullset_stats(const set_info &set)
 	return out.str();
 }
 
-// инициация распечатки справки по активаторам
+// п╦п╫п╦я├п╦п╟я├п╦я▐ я─п╟я│п©п╣я┤п╟я┌п╨п╦ я│п©я─п╟п╡п╨п╦ п©п╬ п╟п╨я┌п╦п╡п╟я┌п╬я─п╟п╪
 void process()
 {
 	for (id_to_set_info_map::const_iterator it = OBJ_DATA::set_table.begin(),
@@ -484,13 +484,13 @@ void process()
 				// m->first = num_activators, m->second = class_to_act_map
 				for (class_to_act_map::const_iterator q = m->second.begin(); q != m->second.end(); ++q)
 				{
-					out << "Предметов для активации: " << m->first << "\r\n";
+					out << "п÷я─п╣п╢п╪п╣я┌п╬п╡ п╢п╩я▐ п╟п╨я┌п╦п╡п╟я├п╦п╦: " << m->first << "\r\n";
 					out << print_activator(q, obj.get());
 				}
 			}
 		}
-		// генерация алиасов для справки
-		std::string set_name = "актив";
+		// пЁп╣п╫п╣я─п╟я├п╦я▐ п╟п╩п╦п╟я│п╬п╡ п╢п╩я▐ я│п©я─п╟п╡п╨п╦
+		std::string set_name = "п╟п╨я┌п╦п╡";
 		if (it->second.get_alias().empty())
 		{
 			set_name += it->second.get_name();
@@ -506,7 +506,7 @@ void process()
 				kend = str_list.end(); k != kend; ++k)
 			{
 				k->erase(boost::remove_if(*k, boost::is_any_of(" ,.")), k->end());
-				HelpSystem::add_static(set_name + "сет" + *k, out.str(), 0, true);
+				HelpSystem::add_static(set_name + "я│п╣я┌" + *k, out.str(), 0, true);
 			}
 		}
 	}
@@ -529,35 +529,35 @@ struct help_node
 		lower_convert(keyword);
 	};
 
-	// ключ для поиска
+	// п╨п╩я▌я┤ п╢п╩я▐ п©п╬п╦я│п╨п╟
 	std::string keyword;
-	// текст справки
+	// я┌п╣п╨я│я┌ я│п©я─п╟п╡п╨п╦
 	std::string entry;
-	// требуемый уровень для чтения (демигоды могут читать LVL_IMMORT)
+	// я┌я─п╣п╠я┐п╣п╪я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ я┤я┌п╣п╫п╦я▐ (п╢п╣п╪п╦пЁп╬п╢я▀ п╪п╬пЁя┐я┌ я┤п╦я┌п╟я┌я▄ LVL_IMMORT)
 	int min_level;
-	// для сгенерированных страниц дропа сетов
-	// не спамят в иммлог при чтении, выводят перед страницей таймер
+	// п╢п╩я▐ я│пЁп╣п╫п╣я─п╦я─п╬п╡п╟п╫п╫я▀я┘ я│я┌я─п╟п╫п╦я├ п╢я─п╬п©п╟ я│п╣я┌п╬п╡
+	// п╫п╣ я│п©п╟п╪я▐я┌ п╡ п╦п╪п╪п╩п╬пЁ п©я─п╦ я┤я┌п╣п╫п╦п╦, п╡я▀п╡п╬п╢я▐я┌ п©п╣я─п╣п╢ я│я┌я─п╟п╫п╦я├п╣п╧ я┌п╟п╧п╪п╣я─
 	bool sets_drop_page;
-	// не спамить иммам использование справки
+	// п╫п╣ я│п©п╟п╪п╦я┌я▄ п╦п╪п╪п╟п╪ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦п╣ я│п©я─п╟п╡п╨п╦
 	bool no_immlog;
 };
 
-// справка, подгружаемая из файлов на старте (STATIC)
+// я│п©я─п╟п╡п╨п╟, п©п╬п╢пЁя─я┐п╤п╟п╣п╪п╟я▐ п╦п╥ я└п╟п╧п╩п╬п╡ п╫п╟ я│я┌п╟я─я┌п╣ (STATIC)
 std::vector<help_node> static_help;
-// справка для всего, что нужно часто релоадить
-// сеты, сайты дружин, групповые зоны (DYNAMIC)
+// я│п©я─п╟п╡п╨п╟ п╢п╩я▐ п╡я│п╣пЁп╬, я┤я┌п╬ п╫я┐п╤п╫п╬ я┤п╟я│я┌п╬ я─п╣п╩п╬п╟п╢п╦я┌я▄
+// я│п╣я┌я▀, я│п╟п╧я┌я▀ п╢я─я┐п╤п╦п╫, пЁя─я┐п©п©п╬п╡я▀п╣ п╥п╬п╫я▀ (DYNAMIC)
 std::vector<help_node> dynamic_help;
-// флаг для проверки необходимости обновления dynamic_help по таймеру раз в минуту
+// я└п╩п╟пЁ п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦ п╫п╣п╬п╠я┘п╬п╢п╦п╪п╬я│я┌п╦ п╬п╠п╫п╬п╡п╩п╣п╫п╦я▐ dynamic_help п©п╬ я┌п╟п╧п╪п╣я─я┐ я─п╟п╥ п╡ п╪п╦п╫я┐я┌я┐
 bool need_update = false;
 
 const char *HELP_USE_EXMAPLES =
-	"&cПримеры:&n\r\n"
-	"\t\"справка 3.защита\"\r\n"
-	"\t\"справка 4.защита\"\r\n"
-	"\t\"справка защитаоттьмы\"\r\n"
-	"\t\"справка защита!\"\r\n"
-	"\t\"справка 3.защита!\"\r\n"
-	"\r\nСм. также: &CИСПОЛЬЗОВАНИЕСПРАВКИ&n\r\n";
+	"&cп÷я─п╦п╪п╣я─я▀:&n\r\n"
+	"\t\"я│п©я─п╟п╡п╨п╟ 3.п╥п╟я┴п╦я┌п╟\"\r\n"
+	"\t\"я│п©я─п╟п╡п╨п╟ 4.п╥п╟я┴п╦я┌п╟\"\r\n"
+	"\t\"я│п©я─п╟п╡п╨п╟ п╥п╟я┴п╦я┌п╟п╬я┌я┌я▄п╪я▀\"\r\n"
+	"\t\"я│п©я─п╟п╡п╨п╟ п╥п╟я┴п╦я┌п╟!\"\r\n"
+	"\t\"я│п©я─п╟п╡п╨п╟ 3.п╥п╟я┴п╦я┌п╟!\"\r\n"
+	"\r\nп║п╪. я┌п╟п╨п╤п╣: &Cп≤п║п÷п·п⌡п╛п≈п·п▓п░п²п≤п∙п║п÷п═п░п▓п п≤&n\r\n";
 
 class UserSearch
 {
@@ -566,37 +566,37 @@ public:
 		: strong(false), stop(false), diff_keys(false), level(0), topic_num(0), curr_topic_num(0)
 	{ ch = in_ch; };
 
-	// ищущий чар
+	// п╦я┴я┐я┴п╦п╧ я┤п╟я─
 	CHAR_DATA *ch;
-	// строгий поиск (! на конце)
+	// я│я┌я─п╬пЁп╦п╧ п©п╬п╦я│п╨ (! п╫п╟ п╨п╬п╫я├п╣)
     bool strong;
-    // флаг остановки прохода по спискам справок
+    // я└п╩п╟пЁ п╬я│я┌п╟п╫п╬п╡п╨п╦ п©я─п╬я┘п╬п╢п╟ п©п╬ я│п©п╦я│п╨п╟п╪ я│п©я─п╟п╡п╬п╨
     bool stop;
-    // флаг наличия двух и более разных топиков в key_list
-    // если топик 1 с несколькими дублями ключей - печатается просто этот топик
-    // если топиков два и более - печатается список всех ключей
+    // я└п╩п╟пЁ п╫п╟п╩п╦я┤п╦я▐ п╢п╡я┐я┘ п╦ п╠п╬п╩п╣п╣ я─п╟п╥п╫я▀я┘ я┌п╬п©п╦п╨п╬п╡ п╡ key_list
+    // п╣я│п╩п╦ я┌п╬п©п╦п╨ 1 я│ п╫п╣я│п╨п╬п╩я▄п╨п╦п╪п╦ п╢я┐п╠п╩я▐п╪п╦ п╨п╩я▌я┤п╣п╧ - п©п╣я┤п╟я┌п╟п╣я┌я│я▐ п©я─п╬я│я┌п╬ я█я┌п╬я┌ я┌п╬п©п╦п╨
+    // п╣я│п╩п╦ я┌п╬п©п╦п╨п╬п╡ п╢п╡п╟ п╦ п╠п╬п╩п╣п╣ - п©п╣я┤п╟я┌п╟п╣я┌я│я▐ я│п©п╦я│п╬п╨ п╡я│п╣я┘ п╨п╩я▌я┤п╣п╧
     bool diff_keys;
-    // уровень справки для просмотра данным чаром
+    // я┐я─п╬п╡п╣п╫я▄ я│п©я─п╟п╡п╨п╦ п╢п╩я▐ п©я─п╬я│п╪п╬я┌я─п╟ п╢п╟п╫п╫я▀п╪ я┤п╟я─п╬п╪
     int level;
-    // номер из х.поисковая_фраза
+    // п╫п╬п╪п╣я─ п╦п╥ я┘.п©п╬п╦я│п╨п╬п╡п╟я▐_я└я─п╟п╥п╟
     int topic_num;
-    // счетчик поиска при topic_num != 0
+    // я│я┤п╣я┌я┤п╦п╨ п©п╬п╦я│п╨п╟ п©я─п╦ topic_num != 0
     int curr_topic_num;
-    // поисковая фраза
+    // п©п╬п╦я│п╨п╬п╡п╟я▐ я└я─п╟п╥п╟
     std::string arg_str;
-    // формирующийся список подходящих топиков
+    // я└п╬я─п╪п╦я─я┐я▌я┴п╦п╧я│я▐ я│п©п╦я│п╬п╨ п©п╬п╢я┘п╬п╢я▐я┴п╦я┘ я┌п╬п©п╦п╨п╬п╡
     std::vector<std::vector<help_node>::const_iterator> key_list;
 
-	// инициация поиска через search в нужном массиве
+	// п╦п╫п╦я├п╦п╟я├п╦я▐ п©п╬п╦я│п╨п╟ я┤п╣я─п╣п╥ search п╡ п╫я┐п╤п╫п╬п╪ п╪п╟я│я│п╦п╡п╣
     void process(int flag);
-    // собственно сам поиск справки в конкретном массиве
+    // я│п╬п╠я│я┌п╡п╣п╫п╫п╬ я│п╟п╪ п©п╬п╦я│п╨ я│п©я─п╟п╡п╨п╦ п╡ п╨п╬п╫п╨я─п╣я┌п╫п╬п╪ п╪п╟я│я│п╦п╡п╣
     void search(const std::vector<help_node> &cont);
-    // распечатка чару когда ничего не нашлось
+    // я─п╟я│п©п╣я┤п╟я┌п╨п╟ я┤п╟я─я┐ п╨п╬пЁп╢п╟ п╫п╦я┤п╣пЁп╬ п╫п╣ п╫п╟я┬п╩п╬я│я▄
     void print_not_found() const;
-    // распечатка чару конкретного топика справки
+    // я─п╟я│п©п╣я┤п╟я┌п╨п╟ я┤п╟я─я┐ п╨п╬п╫п╨я─п╣я┌п╫п╬пЁп╬ я┌п╬п©п╦п╨п╟ я│п©я─п╟п╡п╨п╦
     void print_curr_topic(const help_node &node) const;
-    // распечатка чару топика или списка кеев
-    // в зависимости от состояния key_list и diff_keys
+    // я─п╟я│п©п╣я┤п╟я┌п╨п╟ я┤п╟я─я┐ я┌п╬п©п╦п╨п╟ п╦п╩п╦ я│п©п╦я│п╨п╟ п╨п╣п╣п╡
+    // п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ я│п╬я│я┌п╬я▐п╫п╦я▐ key_list п╦ diff_keys
     void print_key_list() const;
 };
 
@@ -654,11 +654,11 @@ void init_zone_all()
 	{
 		if (zone_table[rnum].location)
 		{
-			out << boost::format("  %2d - %s. Расположена: %s. Группа: %d. Примерный уровень: %d.\r\n") % i % zone_table[rnum].name % zone_table[rnum].location % zone_table[rnum].group % zone_table[rnum].level;
+			out << boost::format("  %2d - %s. п═п╟я│п©п╬п╩п╬п╤п╣п╫п╟: %s. п⌠я─я┐п©п©п╟: %d. п÷я─п╦п╪п╣я─п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄: %d.\r\n") % i % zone_table[rnum].name % zone_table[rnum].location % zone_table[rnum].group % zone_table[rnum].level;
 			++i;
 		}
 	}
-	add_static("зоны", out.str(), 0, true);
+	add_static("п╥п╬п╫я▀", out.str(), 0, true);
 }
 
 void init_group_zones()
@@ -669,13 +669,13 @@ void init_group_zones()
 		const int group = zone_table[rnum].group;
 		if (group > 1)
 		{
-			out << boost::format("  %2d - %s (гр. %d+).\r\n") % i % zone_table[rnum].name % group;
+			out << boost::format("  %2d - %s (пЁя─. %d+).\r\n") % i % zone_table[rnum].name % group;
 			++i;
 		}
 	}
-	add_static("групповыезоны", out.str(), 0, true);
+	add_static("пЁя─я┐п©п©п╬п╡я▀п╣п╥п╬п╫я▀", out.str(), 0, true);
 }
-/*// листинг
+/*// п╩п╦я│я┌п╦п╫пЁ
 void init_list_zones()
 {
 	std::stringstream out;
@@ -686,7 +686,7 @@ void init_list_zones()
 		++i;
 
 	}
-	add_static("листзон", out.str(), 0, true);
+	add_static("п╩п╦я│я┌п╥п╬п╫", out.str(), 0, true);
 
 }
 */
@@ -710,7 +710,7 @@ void reload(Flags flag)
 		init_zone_all();
 		PrintActivators::process();
 		obj_sets::init_xhelp();
-		// итоговая сортировка массива через дефолтное < для строковых ключей
+		// п╦я┌п╬пЁп╬п╡п╟я▐ я│п╬я─я┌п╦я─п╬п╡п╨п╟ п╪п╟я│я│п╦п╡п╟ я┤п╣я─п╣п╥ п╢п╣я└п╬п╩я┌п╫п╬п╣ < п╢п╩я▐ я│я┌я─п╬п╨п╬п╡я▀я┘ п╨п╩я▌я┤п╣п╧
 		std::sort(static_help.begin(), static_help.end(),
 			[](const help_node& lrs, const help_node& rhs)
 		{
@@ -770,11 +770,11 @@ void UserSearch::print_not_found() const
 	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (not found)", GET_NAME(ch), arg_str.c_str());
 	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, TRUE);
 	snprintf(buf, sizeof(buf),
-			"&WПо вашему запросу '&w%s&W' ничего не было найдено.&n\r\n"
-			"\r\n&cИнформация:&n\r\n"
-			"Если применять команду \"справка\" без параметров, будут отображены основные команды,\r\n"
-			"особенно необходимые новичкам. Кроме того полезно ознакомиться с разделом &CНОВИЧОК&n.\r\n\r\n"
-			"Справочная система позволяет использовать в запросе индексацию разделов и строгий поиск.\r\n\r\n"
+			"&Wп÷п╬ п╡п╟я┬п╣п╪я┐ п╥п╟п©я─п╬я│я┐ '&w%s&W' п╫п╦я┤п╣пЁп╬ п╫п╣ п╠я▀п╩п╬ п╫п╟п╧п╢п╣п╫п╬.&n\r\n"
+			"\r\n&cп≤п╫я└п╬я─п╪п╟я├п╦я▐:&n\r\n"
+			"п∙я│п╩п╦ п©я─п╦п╪п╣п╫я▐я┌я▄ п╨п╬п╪п╟п╫п╢я┐ \"я│п©я─п╟п╡п╨п╟\" п╠п╣п╥ п©п╟я─п╟п╪п╣я┌я─п╬п╡, п╠я┐п╢я┐я┌ п╬я┌п╬п╠я─п╟п╤п╣п╫я▀ п╬я│п╫п╬п╡п╫я▀п╣ п╨п╬п╪п╟п╫п╢я▀,\r\n"
+			"п╬я│п╬п╠п╣п╫п╫п╬ п╫п╣п╬п╠я┘п╬п╢п╦п╪я▀п╣ п╫п╬п╡п╦я┤п╨п╟п╪. п я─п╬п╪п╣ я┌п╬пЁп╬ п©п╬п╩п╣п╥п╫п╬ п╬п╥п╫п╟п╨п╬п╪п╦я┌я▄я│я▐ я│ я─п╟п╥п╢п╣п╩п╬п╪ &Cп²п·п▓п≤п╖п·п &n.\r\n\r\n"
+			"п║п©я─п╟п╡п╬я┤п╫п╟я▐ я│п╦я│я┌п╣п╪п╟ п©п╬п╥п╡п╬п╩я▐п╣я┌ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ п╡ п╥п╟п©я─п╬я│п╣ п╦п╫п╢п╣п╨я│п╟я├п╦я▌ я─п╟п╥п╢п╣п╩п╬п╡ п╦ я│я┌я─п╬пЁп╦п╧ п©п╬п╦я│п╨.\r\n\r\n"
 			"%s",
 			arg_str.c_str(),
 			HELP_USE_EXMAPLES);
@@ -785,7 +785,7 @@ void UserSearch::print_curr_topic(const help_node &node) const
 {
 	if (node.sets_drop_page)
 	{
-		// распечатка таймера до следующего релоада таблицы дропа сетов
+		// я─п╟я│п©п╣я┤п╟я┌п╨п╟ я┌п╟п╧п╪п╣я─п╟ п╢п╬ я│п╩п╣п╢я┐я▌я┴п╣пЁп╬ я─п╣п╩п╬п╟п╢п╟ я┌п╟п╠п╩п╦я├я▀ п╢я─п╬п©п╟ я│п╣я┌п╬п╡
 		SetsDrop::print_timer_str(ch);
 	}
 	if (!node.no_immlog)
@@ -799,17 +799,17 @@ void UserSearch::print_curr_topic(const help_node &node) const
 
 void UserSearch::print_key_list() const
 {
-	// конкретный раздел справки
-	// печатается если нашлось всего одно вхождение
-	// или все вхождения были дублями одного топика с разными ключами
+	// п╨п╬п╫п╨я─п╣я┌п╫я▀п╧ я─п╟п╥п╢п╣п╩ я│п©я─п╟п╡п╨п╦
+	// п©п╣я┤п╟я┌п╟п╣я┌я│я▐ п╣я│п╩п╦ п╫п╟я┬п╩п╬я│я▄ п╡я│п╣пЁп╬ п╬п╢п╫п╬ п╡я┘п╬п╤п╢п╣п╫п╦п╣
+	// п╦п╩п╦ п╡я│п╣ п╡я┘п╬п╤п╢п╣п╫п╦я▐ п╠я▀п╩п╦ п╢я┐п╠п╩я▐п╪п╦ п╬п╢п╫п╬пЁп╬ я┌п╬п©п╦п╨п╟ я│ я─п╟п╥п╫я▀п╪п╦ п╨п╩я▌я┤п╟п╪п╦
 	if (key_list.size() > 0 && (!diff_keys || key_list.size() == 1))
 	{
 		print_curr_topic(*(key_list[0]));
 		return;
 	}
-	// список найденных топиков
+	// я│п©п╦я│п╬п╨ п╫п╟п╧п╢п╣п╫п╫я▀я┘ я┌п╬п©п╦п╨п╬п╡
 	std::stringstream out;
-	out << "&WПо вашему запросу '&w" << arg_str << "&W' найдены следующие разделы справки:&n\r\n\r\n";
+	out << "&Wп÷п╬ п╡п╟я┬п╣п╪я┐ п╥п╟п©я─п╬я│я┐ '&w" << arg_str << "&W' п╫п╟п╧п╢п╣п╫я▀ я│п╩п╣п╢я┐я▌я┴п╦п╣ я─п╟п╥п╢п╣п╩я▀ я│п©я─п╟п╡п╨п╦:&n\r\n\r\n";
 	for (unsigned i = 0, count = 1; i < key_list.size(); ++i, ++count)
 	{
 		out << boost::format("|&C %-23.23s &n|") % key_list[i]->keyword;
@@ -820,8 +820,8 @@ void UserSearch::print_key_list() const
 	}
 
 	out << "\r\n\r\n"
-		"Для получения справки по интересующему разделу, введите его название полностью,\r\n"
-		"либо воспользуйтесь индексацией или строгим поиском.\r\n\r\n"
+		"п■п╩я▐ п©п╬п╩я┐я┤п╣п╫п╦я▐ я│п©я─п╟п╡п╨п╦ п©п╬ п╦п╫я┌п╣я─п╣я│я┐я▌я┴п╣п╪я┐ я─п╟п╥п╢п╣п╩я┐, п╡п╡п╣п╢п╦я┌п╣ п╣пЁп╬ п╫п╟п╥п╡п╟п╫п╦п╣ п©п╬п╩п╫п╬я│я┌я▄я▌,\r\n"
+		"п╩п╦п╠п╬ п╡п╬я│п©п╬п╩я▄п╥я┐п╧я┌п╣я│я▄ п╦п╫п╢п╣п╨я│п╟я├п╦п╣п╧ п╦п╩п╦ я│я┌я─п╬пЁп╦п╪ п©п╬п╦я│п╨п╬п╪.\r\n\r\n"
 		<< HELP_USE_EXMAPLES;
 
 	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (list)", GET_NAME(ch), arg_str.c_str());
@@ -831,7 +831,7 @@ void UserSearch::print_key_list() const
 
 void UserSearch::search(const std::vector<help_node> &cont)
 {
-	// поиск в сортированном по ключам массиве через lower_bound
+	// п©п╬п╦я│п╨ п╡ я│п╬я─я┌п╦я─п╬п╡п╟п╫п╫п╬п╪ п©п╬ п╨п╩я▌я┤п╟п╪ п╪п╟я│я│п╦п╡п╣ я┤п╣я─п╣п╥ lower_bound
 	std::vector<help_node>::const_iterator i =
 		std::lower_bound(cont.begin(), cont.end(), arg_str,
 			[](const help_node& h, const std::string arg)
@@ -841,20 +841,20 @@ void UserSearch::search(const std::vector<help_node> &cont)
 
 	while (i != cont.end())
 	{
-		// проверка текущего кея с учетом флага строгости
+		// п©я─п╬п╡п╣я─п╨п╟ я┌п╣п╨я┐я┴п╣пЁп╬ п╨п╣я▐ я│ я┐я┤п╣я┌п╬п╪ я└п╩п╟пЁп╟ я│я┌я─п╬пЁп╬я│я┌п╦
 		if (!help_compare(arg_str, i->keyword, strong))
 		{
 			return;
 		}
-		// уровень топика (актуально для статик справки)
+		// я┐я─п╬п╡п╣п╫я▄ я┌п╬п©п╦п╨п╟ (п╟п╨я┌я┐п╟п╩я▄п╫п╬ п╢п╩я▐ я│я┌п╟я┌п╦п╨ я│п©я─п╟п╡п╨п╦)
 		if (level < i->min_level)
 		{
 			++i;
 			continue;
 		}
-		// key_list заполняется в любом случае, если поиск
-		// идет без индекса topic_num, уникальность содержимого
-		// для последующих проверок отражается через diff_keys
+		// key_list п╥п╟п©п╬п╩п╫я▐п╣я┌я│я▐ п╡ п╩я▌п╠п╬п╪ я│п╩я┐я┤п╟п╣, п╣я│п╩п╦ п©п╬п╦я│п╨
+		// п╦п╢п╣я┌ п╠п╣п╥ п╦п╫п╢п╣п╨я│п╟ topic_num, я┐п╫п╦п╨п╟п╩я▄п╫п╬я│я┌я▄ я│п╬п╢п╣я─п╤п╦п╪п╬пЁп╬
+		// п╢п╩я▐ п©п╬я│п╩п╣п╢я┐я▌я┴п╦я┘ п©я─п╬п╡п╣я─п╬п╨ п╬я┌я─п╟п╤п╟п╣я┌я│я▐ я┤п╣я─п╣п╥ diff_keys
 		for (unsigned k = 0; k < key_list.size(); ++k)
 		{
 			if (key_list[k]->entry != i->entry)
@@ -871,7 +871,7 @@ void UserSearch::search(const std::vector<help_node> &cont)
 		else
 		{
 			++curr_topic_num;
-			// нашли запрос вида х.строка
+			// п╫п╟я┬п╩п╦ п╥п╟п©я─п╬я│ п╡п╦п╢п╟ я┘.я│я┌я─п╬п╨п╟
 			if (curr_topic_num == topic_num)
 			{
 				print_curr_topic(*i);
@@ -897,7 +897,7 @@ void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	skip_spaces(&argument);
 
-	// печатаем экран справки если нет аргументов
+	// п©п╣я┤п╟я┌п╟п╣п╪ я█п╨я─п╟п╫ я│п©я─п╟п╡п╨п╦ п╣я│п╩п╦ п╫п╣я┌ п╟я─пЁя┐п╪п╣п╫я┌п╬п╡
 	if (!*argument)
 	{
 		page_string(ch->desc, help, 0);
@@ -905,13 +905,13 @@ void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	UserSearch user_search(ch);
-	// trust_level справки для демигодов - LVL_IMMORT
+	// trust_level я│п©я─п╟п╡п╨п╦ п╢п╩я▐ п╢п╣п╪п╦пЁп╬п╢п╬п╡ - LVL_IMMORT
 	user_search.level = GET_GOD_FLAG(ch, GF_DEMIGOD) ? LVL_IMMORT : GET_LEVEL(ch);
-	// первый аргумент без пробелов, заодно в нижний регистр
+	// п©п╣я─п╡я▀п╧ п╟я─пЁя┐п╪п╣п╫я┌ п╠п╣п╥ п©я─п╬п╠п╣п╩п╬п╡, п╥п╟п╬п╢п╫п╬ п╡ п╫п╦п╤п╫п╦п╧ я─п╣пЁп╦я│я┌я─
 	one_argument(argument, arg);
-	// Получаем topic_num для индексации топика
+	// п÷п╬п╩я┐я┤п╟п╣п╪ topic_num п╢п╩я▐ п╦п╫п╢п╣п╨я│п╟я├п╦п╦ я┌п╬п©п╦п╨п╟
 	sscanf(arg, "%d.%s", &user_search.topic_num, arg);
-	// если последний символ аргумента '!' -- включаем строгий поиск
+	// п╣я│п╩п╦ п©п╬я│п╩п╣п╢п╫п╦п╧ я│п╦п╪п╡п╬п╩ п╟я─пЁя┐п╪п╣п╫я┌п╟ '!' -- п╡п╨п╩я▌я┤п╟п╣п╪ я│я┌я─п╬пЁп╦п╧ п©п╬п╦я│п╨
 	if (strlen(arg) > 1 && *(arg + strlen(arg) - 1) == '!')
 	{
 		user_search.strong = true;
@@ -919,13 +919,13 @@ void do_help(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	user_search.arg_str = arg;
 
-	// поиск по всем массивам или до стопа по флагу
+	// п©п╬п╦я│п╨ п©п╬ п╡я│п╣п╪ п╪п╟я│я│п╦п╡п╟п╪ п╦п╩п╦ п╢п╬ я│я┌п╬п©п╟ п©п╬ я└п╩п╟пЁя┐
 	for (int i = STATIC; i < TOTAL_NUM && !user_search.stop; ++i)
 	{
 		user_search.process(i);
 	}
-	// если вышли по флагу, то чару уже был распечатан найденный топик вида х.строка
-	// иначе распечатываем чару что-то в зависимости от состояния key_list
+	// п╣я│п╩п╦ п╡я▀я┬п╩п╦ п©п╬ я└п╩п╟пЁя┐, я┌п╬ я┤п╟я─я┐ я┐п╤п╣ п╠я▀п╩ я─п╟я│п©п╣я┤п╟я┌п╟п╫ п╫п╟п╧п╢п╣п╫п╫я▀п╧ я┌п╬п©п╦п╨ п╡п╦п╢п╟ я┘.я│я┌я─п╬п╨п╟
+	// п╦п╫п╟я┤п╣ я─п╟я│п©п╣я┤п╟я┌я▀п╡п╟п╣п╪ я┤п╟я─я┐ я┤я┌п╬-я┌п╬ п╡ п╥п╟п╡п╦я│п╦п╪п╬я│я┌п╦ п╬я┌ я│п╬я│я┌п╬я▐п╫п╦я▐ key_list
 	if (!user_search.stop)
 	{
 		if (user_search.key_list.empty())

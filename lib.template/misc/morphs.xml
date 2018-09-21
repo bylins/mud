@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <animalMorphs minWis="12">
  <morph id="MORPH_WOLF">
-  <name>Волк</name>
-  <padName>Волком</padName>
+  <name>п▓п╬п╩п╨</name>
+  <padName>п▓п╬п╩п╨п╬п╪</padName>
 
-  <cover>густой шерстью</cover>
+  <cover>пЁя┐я│я┌п╬п╧ я┬п╣я─я│я┌я▄я▌</cover>
 
-  <speech>Грррр!</speech>
+  <speech>п⌠я─я─я─я─!</speech>
 
   <toStr>50</toStr>
   <toDex>30</toDex>
@@ -14,41 +14,41 @@
   <toInt>0</toInt>
   <toCha>0</toCha>
 
-  <description lvl="1">Молодой волк</description>
-  <description lvl="25">Волк</description>
-  <description lvl="32">Огромный волк</description>
-  <description lvl="36">Матерый волк</description>
-  <description lvl="39">Белый волк</description>
-  <description lvl="42">Матерый белый волк</description>
-  <description lvl="44">Исполинский белый волк</description>
+  <description lvl="1">п°п╬п╩п╬п╢п╬п╧ п╡п╬п╩п╨</description>
+  <description lvl="25">п▓п╬п╩п╨</description>
+  <description lvl="32">п·пЁя─п╬п╪п╫я▀п╧ п╡п╬п╩п╨</description>
+  <description lvl="36">п°п╟я┌п╣я─я▀п╧ п╡п╬п╩п╨</description>
+  <description lvl="39">п▒п╣п╩я▀п╧ п╡п╬п╩п╨</description>
+  <description lvl="42">п°п╟я┌п╣я─я▀п╧ п╠п╣п╩я▀п╧ п╡п╬п╩п╨</description>
+  <description lvl="44">п≤я│п©п╬п╩п╦п╫я│п╨п╦п╧ п╠п╣п╩я▀п╧ п╡п╬п╩п╨</description>
 
   <messages>
-    <message destination="room">$n обернул$u, повернул$u - %1% обернул$u.</message>
-    <message destination="char">Обернулись Вы, повернулись, и %1% обернулись.</message>
+    <message destination="room">$n п╬п╠п╣я─п╫я┐п╩$u, п©п╬п╡п╣я─п╫я┐п╩$u - %1% п╬п╠п╣я─п╫я┐п╩$u.</message>
+    <message destination="char">п·п╠п╣я─п╫я┐п╩п╦я│я▄ п▓я▀, п©п╬п╡п╣я─п╫я┐п╩п╦я│я▄, п╦ %1% п╬п╠п╣я─п╫я┐п╩п╦я│я▄.</message>
   </messages>
 
   <skills>
-   <skill>удар левой рукой</skill>
-   <skill>выследить</skill>
-   <skill>кулачный бой</skill>
-   <skill>спасти</skill>
-   <skill>уклониться</skill>
+   <skill>я┐п╢п╟я─ п╩п╣п╡п╬п╧ я─я┐п╨п╬п╧</skill>
+   <skill>п╡я▀я│п╩п╣п╢п╦я┌я▄</skill>
+   <skill>п╨я┐п╩п╟я┤п╫я▀п╧ п╠п╬п╧</skill>
+   <skill>я│п©п╟я│я┌п╦</skill>
+   <skill>я┐п╨п╩п╬п╫п╦я┌я▄я│я▐</skill>
   </skills>
 
   <affects>
-	<affect>освящение</affect>
-	<affect>доблесть</affect>
-	<affect>чувствовать жизнь</affect>
+	<affect>п╬я│п╡я▐я┴п╣п╫п╦п╣</affect>
+	<affect>п╢п╬п╠п╩п╣я│я┌я▄</affect>
+	<affect>я┤я┐п╡я│я┌п╡п╬п╡п╟я┌я▄ п╤п╦п╥п╫я▄</affect>
   </affects>
 
  </morph>
  <morph id="MORPH_LYNX">
-  <name>Рысь</name>
-  <padName>Рысью</padName>
+  <name>п═я▀я│я▄</name>
+  <padName>п═я▀я│я▄я▌</padName>
 
-  <cover>шелковистой шерстью</cover>
+  <cover>я┬п╣п╩п╨п╬п╡п╦я│я┌п╬п╧ я┬п╣я─я│я┌я▄я▌</cover>
 
-  <speech>Аагррррххх!</speech>
+  <speech>п░п╟пЁя─я─я─я─я┘я┘я┘!</speech>
 
   <toStr>20</toStr>
   <toDex>70</toDex>
@@ -56,40 +56,40 @@
   <toInt>0</toInt>
   <toCha>0</toCha>
 
-  <description lvl="1">Молодая рысь</description>
-  <description lvl="25">Рысь</description>
-  <description lvl="32">Огромная рысь</description>
-  <description lvl="36">Матерая рысь</description>
-  <description lvl="39">Снежный барс</description>
-  <description lvl="42">Матерый снежный барс</description>
-  <description lvl="44">Исполинский снежный барс</description>
+  <description lvl="1">п°п╬п╩п╬п╢п╟я▐ я─я▀я│я▄</description>
+  <description lvl="25">п═я▀я│я▄</description>
+  <description lvl="32">п·пЁя─п╬п╪п╫п╟я▐ я─я▀я│я▄</description>
+  <description lvl="36">п°п╟я┌п╣я─п╟я▐ я─я▀я│я▄</description>
+  <description lvl="39">п║п╫п╣п╤п╫я▀п╧ п╠п╟я─я│</description>
+  <description lvl="42">п°п╟я┌п╣я─я▀п╧ я│п╫п╣п╤п╫я▀п╧ п╠п╟я─я│</description>
+  <description lvl="44">п≤я│п©п╬п╩п╦п╫я│п╨п╦п╧ я│п╫п╣п╤п╫я▀п╧ п╠п╟я─я│</description>
 
   <messages>
-    <message destination="room">Плюнул$g $n через плечо, прыгнул$g задом наперед и обернул$u %1%.</message>
-    <message destination="char">Плюнули Вы через плечо, прыгнули задом наперед и обернулись %1%.</message>
+    <message destination="room">п÷п╩я▌п╫я┐п╩$g $n я┤п╣я─п╣п╥ п©п╩п╣я┤п╬, п©я─я▀пЁп╫я┐п╩$g п╥п╟п╢п╬п╪ п╫п╟п©п╣я─п╣п╢ п╦ п╬п╠п╣я─п╫я┐п╩$u %1%.</message>
+    <message destination="char">п÷п╩я▌п╫я┐п╩п╦ п▓я▀ я┤п╣я─п╣п╥ п©п╩п╣я┤п╬, п©я─я▀пЁп╫я┐п╩п╦ п╥п╟п╢п╬п╪ п╫п╟п©п╣я─п╣п╢ п╦ п╬п╠п╣я─п╫я┐п╩п╦я│я▄ %1%.</message>
   </messages>
 
   <skills>
-   <skill>выследить</skill>
-   <skill>удар левой рукой</skill>
-   <skill>кулачный бой</skill>
-   <skill>спасти</skill>
-   <skill>подножка</skill>
-   <skill>спрятаться</skill>
+   <skill>п╡я▀я│п╩п╣п╢п╦я┌я▄</skill>
+   <skill>я┐п╢п╟я─ п╩п╣п╡п╬п╧ я─я┐п╨п╬п╧</skill>
+   <skill>п╨я┐п╩п╟я┤п╫я▀п╧ п╠п╬п╧</skill>
+   <skill>я│п©п╟я│я┌п╦</skill>
+   <skill>п©п╬п╢п╫п╬п╤п╨п╟</skill>
+   <skill>я│п©я─я▐я┌п╟я┌я▄я│я▐</skill>
   </skills>
 
   <affects>
-	<affect>доблесть</affect>
-	<affect>чувствовать жизнь</affect>
+	<affect>п╢п╬п╠п╩п╣я│я┌я▄</affect>
+	<affect>я┤я┐п╡я│я┌п╡п╬п╡п╟я┌я▄ п╤п╦п╥п╫я▄</affect>
   </affects>
 
  </morph>
  <morph id="MORPH_FALCON">
-  <name>Сокол</name>
-  <padName>Соколом</padName>
+  <name>п║п╬п╨п╬п╩</name>
+  <padName>п║п╬п╨п╬п╩п╬п╪</padName>
 
-  <cover>перьями</cover>
-  <speech>Кьяк-кьяк-кьяк!</speech>
+  <cover>п©п╣я─я▄я▐п╪п╦</cover>
+  <speech>п я▄я▐п╨-п╨я▄я▐п╨-п╨я▄я▐п╨!</speech>
 
 
   <toStr>0</toStr>
@@ -99,29 +99,29 @@
   <toCha>0</toCha>
 
   <messages>
-    <message destination="room">Ударил$u $n о сыру землю, %1% предстал.</message>
-    <message destination="char">Ударились Вы о сыру землю, %1% предстали.</message>
+    <message destination="room">пёп╢п╟я─п╦п╩$u $n п╬ я│я▀я─я┐ п╥п╣п╪п╩я▌, %1% п©я─п╣п╢я│я┌п╟п╩.</message>
+    <message destination="char">пёп╢п╟я─п╦п╩п╦я│я▄ п▓я▀ п╬ я│я▀я─я┐ п╥п╣п╪п╩я▌, %1% п©я─п╣п╢я│я┌п╟п╩п╦.</message>
   </messages>
 
-  <description lvl="1">Сокол</description>
+  <description lvl="1">п║п╬п╨п╬п╩</description>
 
   <skills>
-   <skill>кулачный бой</skill>
+   <skill>п╨я┐п╩п╟я┤п╫я▀п╧ п╠п╬п╧</skill>
   </skills>
 
   <affects>
-	<affect>летит</affect>
-	<affect>чувствовать жизнь</affect>
+	<affect>п╩п╣я┌п╦я┌</affect>
+	<affect>я┤я┐п╡я│я┌п╡п╬п╡п╟я┌я▄ п╤п╦п╥п╫я▄</affect>
   </affects>
 
  </morph>
 
  <morph id="MORPH_PIKE">
-  <name>Щука</name>
-  <padName>Щукой</padName>
+  <name>п╘я┐п╨п╟</name>
+  <padName>п╘я┐п╨п╬п╧</padName>
 
-  <cover>мелкой чешуей</cover>
-  <speech>Блурп...</speech>
+  <cover>п╪п╣п╩п╨п╬п╧ я┤п╣я┬я┐п╣п╧</cover>
+  <speech>п▒п╩я┐я─п©...</speech>
 
   <toStr>10</toStr>
   <toDex>10</toDex>
@@ -129,28 +129,28 @@
   <toInt>10</toInt>
   <toCha>10</toCha>
 
-  <description lvl="1">Щуренок</description>
-  <description lvl="25">Молодая щука</description>
-  <description lvl="32">Большая щука</description>
-  <description lvl="36">Огромная щука</description>
-  <description lvl="39">Старая щука</description>
-  <description lvl="42">Пудовая щука</description>
-  <description lvl="44">Зубастая щука</description>
+  <description lvl="1">п╘я┐я─п╣п╫п╬п╨</description>
+  <description lvl="25">п°п╬п╩п╬п╢п╟я▐ я┴я┐п╨п╟</description>
+  <description lvl="32">п▒п╬п╩я▄я┬п╟я▐ я┴я┐п╨п╟</description>
+  <description lvl="36">п·пЁя─п╬п╪п╫п╟я▐ я┴я┐п╨п╟</description>
+  <description lvl="39">п║я┌п╟я─п╟я▐ я┴я┐п╨п╟</description>
+  <description lvl="42">п÷я┐п╢п╬п╡п╟я▐ я┴я┐п╨п╟</description>
+  <description lvl="44">п≈я┐п╠п╟я│я┌п╟я▐ я┴я┐п╨п╟</description>
 
 
   <messages>
-    <message destination="room">$n гикнул$g-свистнул$g да и обернул$u %1%.</message>
-    <message destination="char">Вы гикнули-свистнули да и обернулись %1%.</message>
+    <message destination="room">$n пЁп╦п╨п╫я┐п╩$g-я│п╡п╦я│я┌п╫я┐п╩$g п╢п╟ п╦ п╬п╠п╣я─п╫я┐п╩$u %1%.</message>
+    <message destination="char">п▓я▀ пЁп╦п╨п╫я┐п╩п╦-я│п╡п╦я│я┌п╫я┐п╩п╦ п╢п╟ п╦ п╬п╠п╣я─п╫я┐п╩п╦я│я▄ %1%.</message>
   </messages>
 
   <skills>
-   <skill>кулачный бой</skill>
-   <skill>уклониться</skill>
+   <skill>п╨я┐п╩п╟я┤п╫я▀п╧ п╠п╬п╧</skill>
+   <skill>я┐п╨п╩п╬п╫п╦я┌я▄я│я▐</skill>
   </skills>
 
   <affects>
-	<affect>дышать водой</affect>
-	<affect>чувствовать жизнь</affect>
+	<affect>п╢я▀я┬п╟я┌я▄ п╡п╬п╢п╬п╧</affect>
+	<affect>я┤я┐п╡я│я┌п╡п╬п╡п╟я┌я▄ п╤п╦п╥п╫я▄</affect>
   </affects>
 
  </morph>

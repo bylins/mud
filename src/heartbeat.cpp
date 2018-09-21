@@ -105,17 +105,17 @@ namespace
 					{
 						std::string direction = sw.route[sw.cur_state].direction;
 						int dir = 1;
-						if (boost::starts_with(direction, "север"))
+						if (boost::starts_with(direction, "я│п╣п╡п╣я─"))
 							dir = SCMD_NORTH;
-						if (boost::starts_with(direction, "восток"))
+						if (boost::starts_with(direction, "п╡п╬я│я┌п╬п╨"))
 							dir = SCMD_EAST;
-						if (boost::starts_with(direction, "юг"))
+						if (boost::starts_with(direction, "я▌пЁ"))
 							dir = SCMD_SOUTH;
-						if (boost::starts_with(direction, "запад"))
+						if (boost::starts_with(direction, "п╥п╟п©п╟п╢"))
 							dir = SCMD_WEST;
-						if (boost::starts_with(direction, "вверх"))
+						if (boost::starts_with(direction, "п╡п╡п╣я─я┘"))
 							dir = SCMD_UP;
-						if (boost::starts_with(direction, "вниз"))
+						if (boost::starts_with(direction, "п╡п╫п╦п╥"))
 							dir = SCMD_DOWN;
 						perform_move(ch, dir - 1, 0, TRUE, 0);
 					}
@@ -194,7 +194,7 @@ namespace
 			&& shutdown_parameters.get_shutdown_timeout() == 0)
 		{
 			//reboot after 30 minutes minimum. Auto reboot cannot run earlier.
-			send_to_all("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 30 МИНУТ.\r\n");
+			send_to_all("п░п▓п╒п·п°п░п╒п≤п╖п∙п║п п░п╞ п÷п∙п═п∙п≈п░п⌠п═пёп≈п п░ п╖п∙п═п∙п≈ 30 п°п≤п²пёп╒.\r\n");
 			shutdown_parameters.reboot(1800);
 		}
 	}
@@ -218,7 +218,7 @@ namespace
 		if (m_external_trigger_checker
 			&& m_external_trigger_checker->check())
 		{
-			mudlog("Сработал внешний триггер перезагрузки.", DEF, LVL_IMPL, SYSLOG, true);
+			mudlog("п║я─п╟п╠п╬я┌п╟п╩ п╡п╫п╣я┬п╫п╦п╧ я┌я─п╦пЁпЁп╣я─ п©п╣я─п╣п╥п╟пЁя─я┐п╥п╨п╦.", DEF, LVL_IMPL, SYSLOG, true);
 			shutdown_parameters.reboot();
 		}
 	}

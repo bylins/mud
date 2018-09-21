@@ -16,11 +16,11 @@ volatile const char* BUILD_DATE = "$ Build date: " __DATE__ " " __TIME__ " $";
 
 const char* build_datetime = __DATE__ " " __TIME__;
 
-// * Весь файл - исключительно как попытка автоматической вставки в код нормальной даты сборки.
+// * п▓п╣я│я▄ я└п╟п╧п╩ - п╦я│п╨п╩я▌я┤п╦я┌п╣п╩я▄п╫п╬ п╨п╟п╨ п©п╬п©я▀я┌п╨п╟ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬п╧ п╡я│я┌п╟п╡п╨п╦ п╡ п╨п╬п╢ п╫п╬я─п╪п╟п╩я▄п╫п╬п╧ п╢п╟я┌я▀ я│п╠п╬я─п╨п╦.
 
 void show_code_date(CHAR_DATA *ch)
 {
-	send_to_char(ch, "МПМ Былины, версия от %s, ревизия: %s\n", build_datetime, revision);
+	send_to_char(ch, "п°п÷п° п▒я▀п╩п╦п╫я▀, п╡п╣я─я│п╦я▐ п╬я┌ %s, я─п╣п╡п╦п╥п╦я▐: %s\n", build_datetime, revision);
 }
 
 void log_code_date()

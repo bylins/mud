@@ -23,7 +23,7 @@ extern void extract_trigger(TRIG_DATA * trig);
 
 namespace Celebrates
 {
-int tab_day [12]= {31,28,31,30,31,30,31,31,30,31,30,31};//да и хрен с ним, с 29 февраля!
+int tab_day [12]= {31,28,31,30,31,30,31,31,30,31,30,31};//п╢п╟ п╦ я┘я─п╣п╫ я│ п╫п╦п╪, я│ 29 я└п╣п╡я─п╟п╩я▐!
 
 CelebrateList& mono_celebrates = GlobalObjects::mono_celebrates();
 CelebrateList& poly_celebrates = GlobalObjects::poly_celebrates();
@@ -107,8 +107,8 @@ std::string add_rest(CelebrateList::iterator it, CelebrateDataPtr celebrate)
 			--days_count;
 			hours = 24 + hours;
 		}
-		return ". До окончания - дней: " + boost::lexical_cast<std::string>(days_count) + 
-				", часов: " +boost::lexical_cast<std::string>(hours);
+		return ". п■п╬ п╬п╨п╬п╫я┤п╟п╫п╦я▐ - п╢п╫п╣п╧: " + boost::lexical_cast<std::string>(days_count) + 
+				", я┤п╟я│п╬п╡: " +boost::lexical_cast<std::string>(hours);
 }
 
 std::string get_name_real(int day)
@@ -329,11 +329,11 @@ void load()
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-	pugi::xml_node mono_node_list = node_list.child("celebratesMono");//православные праздники
+	pugi::xml_node mono_node_list = node_list.child("celebratesMono");//п©я─п╟п╡п╬я│п╩п╟п╡п╫я▀п╣ п©я─п╟п╥п╢п╫п╦п╨п╦
 	load_celebrates(mono_node_list, mono_celebrates, false);
-	pugi::xml_node poly_node_list = node_list.child("celebratesPoly");//языческие праздники
+	pugi::xml_node poly_node_list = node_list.child("celebratesPoly");//я▐п╥я▀я┤п╣я│п╨п╦п╣ п©я─п╟п╥п╢п╫п╦п╨п╦
 	load_celebrates(poly_node_list, poly_celebrates, false);
-	pugi::xml_node real_node_list = node_list.child("celebratesReal");//Российские праздники
+	pugi::xml_node real_node_list = node_list.child("celebratesReal");//п═п╬я│я│п╦п╧я│п╨п╦п╣ п©я─п╟п╥п╢п╫п╦п╨п╦
 	load_celebrates(real_node_list, real_celebrates, true);
 }
 
@@ -448,14 +448,14 @@ void sc_Checker::report_null_sc() const
 	joinList(triggers_list(), joined_triggers_list);
 
 	std::stringstream ss;
-	ss << "Перехвачен кордамп. Список триггеров, переданных в функцию remove_triggers(...): ["
+	ss << "п÷п╣я─п╣я┘п╡п╟я┤п╣п╫ п╨п╬я─п╢п╟п╪п©. п║п©п╦я│п╬п╨ я┌я─п╦пЁпЁп╣я─п╬п╡, п©п╣я─п╣п╢п╟п╫п╫я▀я┘ п╡ я└я┐п╫п╨я├п╦я▌ remove_triggers(...): ["
 		<< joined_triggers_list << "].";
 	if (get_inside_loop())
 	{
-		ss << " Обратите внимание, что кордамп перехвачен ВНУТРИ цикла на триггере " << get_current_trigger();
+		ss << " п·п╠я─п╟я┌п╦я┌п╣ п╡п╫п╦п╪п╟п╫п╦п╣, я┤я┌п╬ п╨п╬я─п╢п╟п╪п© п©п╣я─п╣я┘п╡п╟я┤п╣п╫ п▓п²пёп╒п═п≤ я├п╦п╨п╩п╟ п╫п╟ я┌я─п╦пЁпЁп╣я─п╣ " << get_current_trigger();
 	}
 	mudlog(ss.str().c_str(), DEF, -1, ERRLOG, true);
-	ss << "\nТекущий стек будет распечатан в ERRLOG, выполнение функции будет прервано.";
+	ss << "\nп╒п╣п╨я┐я┴п╦п╧ я│я┌п╣п╨ п╠я┐п╢п╣я┌ я─п╟я│п©п╣я┤п╟я┌п╟п╫ п╡ ERRLOG, п╡я▀п©п╬п╩п╫п╣п╫п╦п╣ я└я┐п╫п╨я├п╦п╦ п╠я┐п╢п╣я┌ п©я─п╣я─п╡п╟п╫п╬.";
 	debug::backtrace(runtime_config.logs(ERRLOG).handle());
 	mudlog(ss.str().c_str(), DEF, LVL_IMPL, ERRLOG, false);
 }
@@ -615,7 +615,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 		}
 	}
 
-	return true;//пока не знаю зачем
+	return true;//п©п╬п╨п╟ п╫п╣ п╥п╫п╟я▌ п╥п╟я┤п╣п╪
 }
 
 void clear_real_celebrates(CelebrateList celebrates)

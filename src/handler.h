@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-// комментарий на русском в надежде починить кодировки bitbucket
+// п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╫п╟ я─я┐я│я│п╨п╬п╪ п╡ п╫п╟п╢п╣п╤п╢п╣ п©п╬я┤п╦п╫п╦я┌я▄ п╨п╬п╢п╦я─п╬п╡п╨п╦ bitbucket
 
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
@@ -50,7 +50,7 @@ void timed_to_char(CHAR_DATA * ch, struct timed_type *timed);
 void timed_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_skill(CHAR_DATA * ch, int skill);
 
-// Обработка аффектов комнат//
+// п·п╠я─п╟п╠п╬я┌п╨п╟ п╟я└я└п╣п╨я┌п╬п╡ п╨п╬п╪п╫п╟я┌//
 void affect_room_total(ROOM_DATA * room);
 void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add);
 void affect_to_room(ROOM_DATA * room, const AFFECT_DATA<ERoomApplyLocation>& af);

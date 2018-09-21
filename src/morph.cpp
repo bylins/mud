@@ -25,7 +25,7 @@ void perform_remove(CHAR_DATA * ch, int pos);
 
 std::string AnimalMorph::GetMorphDesc() const
 {
-	std::string desc = "Неведома зверушка";
+	std::string desc = "п²п╣п╡п╣п╢п╬п╪п╟ п╥п╡п╣я─я┐я┬п╨п╟";
 	for (DescListType::const_iterator it = descList_.begin(); it != descList_.end(); ++it)
 	{
 		if (it->fromLevel <= ch_->get_level() + ch_->get_remort())
@@ -77,10 +77,10 @@ void AnimalMorph::set_skill(const ESkill skill_num, int percent)
 	CharSkillsType::iterator it = skills_.find(skill_num);
 	if (it != skills_.end())
 	{
-		int diff = percent - it->second;//Polud	пока все снижения уровня скилов в звериной форме уходят в /dev/null
-		if (diff > 0 && number(1,2)==2)//Polud в звериной форме вся прокачка идет в оборотничество
+		int diff = percent - it->second;//Polud	п©п╬п╨п╟ п╡я│п╣ я│п╫п╦п╤п╣п╫п╦я▐ я┐я─п╬п╡п╫я▐ я│п╨п╦п╩п╬п╡ п╡ п╥п╡п╣я─п╦п╫п╬п╧ я└п╬я─п╪п╣ я┐я┘п╬п╢я▐я┌ п╡ /dev/null
+		if (diff > 0 && number(1,2)==2)//Polud п╡ п╥п╡п╣я─п╦п╫п╬п╧ я└п╬я─п╪п╣ п╡я│я▐ п©я─п╬п╨п╟я┤п╨п╟ п╦п╢п╣я┌ п╡ п╬п╠п╬я─п╬я┌п╫п╦я┤п╣я│я┌п╡п╬
 		{
-			sprintf(buf, "%sВаши успехи сделали вас опытнее в оборотничестве.%s\r\n", CCICYN(ch_, C_NRM), CCINRM(ch_, C_NRM));
+			sprintf(buf, "%sп▓п╟я┬п╦ я┐я│п©п╣я┘п╦ я│п╢п╣п╩п╟п╩п╦ п╡п╟я│ п╬п©я▀я┌п╫п╣п╣ п╡ п╬п╠п╬я─п╬я┌п╫п╦я┤п╣я│я┌п╡п╣.%s\r\n", CCICYN(ch_, C_NRM), CCINRM(ch_, C_NRM));
 			send_to_char(buf, ch_);
 			skills_[SKILL_MORPH]+= diff;
 		}
@@ -104,17 +104,17 @@ void ShowKnownMorphs(CHAR_DATA *ch)
 {
 	if (ch->is_morphed())
 	{
-		send_to_char("Чтобы вернуть себе человеческий облик - нужно 'обернуться назад'\r\n", ch);
+		send_to_char("п╖я┌п╬п╠я▀ п╡п╣я─п╫я┐я┌я▄ я│п╣п╠п╣ я┤п╣п╩п╬п╡п╣я┤п╣я│п╨п╦п╧ п╬п╠п╩п╦п╨ - п╫я┐п╤п╫п╬ 'п╬п╠п╣я─п╫я┐я┌я▄я│я▐ п╫п╟п╥п╟п╢'\r\n", ch);
 		return;
 	}
 	const CHAR_DATA::morphs_list_t& knownMorphs = ch->get_morphs();
 	if (knownMorphs.empty())
 	{
-		send_to_char("На сей момент никакие формы вам неизвестны...\r\n", ch);
+		send_to_char("п²п╟ я│п╣п╧ п╪п╬п╪п╣п╫я┌ п╫п╦п╨п╟п╨п╦п╣ я└п╬я─п╪я▀ п╡п╟п╪ п╫п╣п╦п╥п╡п╣я│я┌п╫я▀...\r\n", ch);
 	}
 	else
 	{
-		send_to_char("Вы можете обернуться:\r\n", ch);
+		send_to_char("п▓я▀ п╪п╬п╤п╣я┌п╣ п╬п╠п╣я─п╫я┐я┌я▄я│я▐:\r\n", ch);
 
 		for (const auto& it : knownMorphs)
 		{
@@ -220,7 +220,7 @@ void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	if (!ch->get_skill(SKILL_MORPH))
 	{
-		send_to_char("Вы не знаете как.\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╥п╫п╟п╣я┌п╣ п╨п╟п╨.\r\n", ch);
 		return;
 	}
 
@@ -236,20 +236,20 @@ void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (ch->is_morphed())
 	{
-		if (is_abbrev(arg, "назад"))
+		if (is_abbrev(arg, "п╫п╟п╥п╟п╢"))
 		{
 			ch->reset_morph();
 			WAIT_STATE(ch, PULSE_VIOLENCE);
 			return;
 		}
-		send_to_char("Когти подстригите сначала...\r\n", ch);
+		send_to_char("п п╬пЁя┌п╦ п©п╬п╢я│я┌я─п╦пЁп╦я┌п╣ я│п╫п╟я┤п╟п╩п╟...\r\n", ch);
 		return;
 	}
 
 	std::string morphId = FindMorphId(ch, arg);
 	if (morphId.empty())
 	{
-		send_to_char("Обернуться в ЭТО вы не можете!\r\n", ch);
+		send_to_char("п·п╠п╣я─п╫я┐я┌я▄я│я▐ п╡ п╜п╒п· п╡я▀ п╫п╣ п╪п╬п╤п╣я┌п╣!\r\n", ch);
 		return;
 	}
 
@@ -261,17 +261,17 @@ void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	ch->set_morph(newMorph);
 	if (ch->equipment[WEAR_BOTHS])
 	{
-		send_to_char("Вы не можете держать в лапах " + ch->equipment[WEAR_BOTHS]->get_PName(3) + ".\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п╢п╣я─п╤п╟я┌я▄ п╡ п╩п╟п©п╟я┘ " + ch->equipment[WEAR_BOTHS]->get_PName(3) + ".\r\n", ch);
 		perform_remove(ch, WEAR_BOTHS);
 	}
 	if (ch->equipment[WEAR_WIELD])
 	{
-		send_to_char("Ваша правая лапа бессильно опустила " + ch->equipment[WEAR_WIELD]->get_PName(3) + ".\r\n", ch);
+		send_to_char("п▓п╟я┬п╟ п©я─п╟п╡п╟я▐ п╩п╟п©п╟ п╠п╣я│я│п╦п╩я▄п╫п╬ п╬п©я┐я│я┌п╦п╩п╟ " + ch->equipment[WEAR_WIELD]->get_PName(3) + ".\r\n", ch);
 		perform_remove(ch, WEAR_WIELD);
 	}
 	if (ch->equipment[WEAR_HOLD])
 	{
-		send_to_char("Ваша левая лапа не удержала " + ch->equipment[WEAR_HOLD]->get_PName(3) + ".\r\n", ch);
+		send_to_char("п▓п╟я┬п╟ п╩п╣п╡п╟я▐ п╩п╟п©п╟ п╫п╣ я┐п╢п╣я─п╤п╟п╩п╟ " + ch->equipment[WEAR_HOLD]->get_PName(3) + ".\r\n", ch);
 		perform_remove(ch, WEAR_HOLD);
 	}
 	WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
@@ -279,7 +279,7 @@ void do_morph(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 void PrintAllMorphsList(CHAR_DATA *ch)
 {
-	send_to_char("Существующие формы: \r\n", ch);
+	send_to_char("п║я┐я┴п╣я│я┌п╡я┐я▌я┴п╦п╣ я└п╬я─п╪я▀: \r\n", ch);
 	for (MorphListType::const_iterator it = IdToMorphMap.begin();it != IdToMorphMap.end();++it)
 	{
 		send_to_char("   " + it->second->Name() + "\r\n", ch);
@@ -294,7 +294,7 @@ void do_morphset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*arg)
 	{
-		send_to_char("Формат команды: morphset <имя игрока (только онлайн)> <название формы> \r\n", ch);
+		send_to_char("п╓п╬я─п╪п╟я┌ п╨п╬п╪п╟п╫п╢я▀: morphset <п╦п╪я▐ п╦пЁя─п╬п╨п╟ (я┌п╬п╩я▄п╨п╬ п╬п╫п╩п╟п╧п╫)> <п╫п╟п╥п╡п╟п╫п╦п╣ я└п╬я─п╪я▀> \r\n", ch);
 		PrintAllMorphsList(ch);
 		return;
 	}
@@ -311,14 +311,14 @@ void do_morphset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (morphId.empty())
 	{
-		send_to_char("Форма '"+ std::string(argument)+"' не найдена. \r\n", ch);
+		send_to_char("п╓п╬я─п╪п╟ '"+ std::string(argument)+"' п╫п╣ п╫п╟п╧п╢п╣п╫п╟. \r\n", ch);
 		PrintAllMorphsList(ch);
 		return;
 	}
 
 	if (vict->know_morph(morphId))
 	{
-		send_to_char(vict->get_name() + " уже знает эту форму. \r\n", ch);
+		send_to_char(vict->get_name() + " я┐п╤п╣ п╥п╫п╟п╣я┌ я█я┌я┐ я└п╬я─п╪я┐. \r\n", ch);
 		return;
 	}
 
@@ -328,7 +328,7 @@ void do_morphset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
 	imm_log("%s add morph %s to %s.", GET_NAME(ch), IdToMorphMap[morphId]->Name().c_str(), GET_NAME(vict));
 
-	send_to_char(std::string("Вы добавили форму '") + IdToMorphMap[morphId]->Name() + "' персонажу " + vict->get_name()+" \r\n", ch);
+	send_to_char(std::string("п▓я▀ п╢п╬п╠п╟п╡п╦п╩п╦ я└п╬я─п╪я┐ '") + IdToMorphMap[morphId]->Name() + "' п©п╣я─я│п╬п╫п╟п╤я┐ " + vict->get_name()+" \r\n", ch);
 }
 
 void load_morphs()
@@ -396,7 +396,7 @@ void load_morphs()
 			const ESkill skillNum = fix_name_and_find_skill_num(strt);
 			if (skillNum != -SKILL_INVALID)
 			{
-				skills[skillNum] = 0;//init-им скилы нулями, потом проставим при превращении
+				skills[skillNum] = 0;//init-п╦п╪ я│п╨п╦п╩я▀ п╫я┐п╩я▐п╪п╦, п©п╬я┌п╬п╪ п©я─п╬я│я┌п╟п╡п╦п╪ п©я─п╦ п©я─п╣п╡я─п╟я┴п╣п╫п╦п╦
 			}
 			else
 			{

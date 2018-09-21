@@ -2,7 +2,7 @@
 // Copyright (c) 2009 Krodo
 // Part of Bylins http://www.mud.ru
 
-// комментарий на русском в надежде починить кодировки bitbucket
+// п╨п╬п╪п╪п╣п╫я┌п╟я─п╦п╧ п╫п╟ я─я┐я│я│п╨п╬п╪ п╡ п╫п╟п╢п╣п╤п╢п╣ п©п╬я┤п╦п╫п╦я┌я▄ п╨п╬п╢п╦я─п╬п╡п╨п╦ bitbucket
 
 #ifndef OBJSAVE_HPP_INCLUDED
 #define OBJSAVE_HPP_INCLUDED

@@ -61,38 +61,38 @@
 
 int max_stats2[][6] =
 	// Str Dex Int Wis Con Cha //
-{ {14, 13, 24, 25, 15, 10},	// Лекарь //
-	{14, 12, 25, 23, 13, 16},	// Колдун //
-	{19, 25, 12, 12, 17, 16},	// Вор //
-	{25, 11, 15, 15, 25, 10},	// Богатырь //
-	{22, 24, 14, 14, 17, 12},	// Наемник //
-	{23, 17, 14, 14, 23, 12},	// Дружинник //
-	{14, 12, 25, 23, 13, 16},	// Кудесник //
-	{14, 12, 25, 23, 13, 16},	// Волшебник //
-	{15, 13, 25, 23, 14, 12},	// Чернокнижник //
-	{22, 13, 16, 19, 18, 17},	// Витязь //
-	{25, 21, 16, 16, 18, 16},	// Охотник //
-	{25, 17, 13, 15, 20, 16},	// Кузнец //
-	{21, 17, 14, 13, 20, 17},	// Купец //
-	{18, 12, 24, 18, 15, 12}	// Волхв //
+{ {14, 13, 24, 25, 15, 10},	// п⌡п╣п╨п╟я─я▄ //
+	{14, 12, 25, 23, 13, 16},	// п п╬п╩п╢я┐п╫ //
+	{19, 25, 12, 12, 17, 16},	// п▓п╬я─ //
+	{25, 11, 15, 15, 25, 10},	// п▒п╬пЁп╟я┌я▀я─я▄ //
+	{22, 24, 14, 14, 17, 12},	// п²п╟п╣п╪п╫п╦п╨ //
+	{23, 17, 14, 14, 23, 12},	// п■я─я┐п╤п╦п╫п╫п╦п╨ //
+	{14, 12, 25, 23, 13, 16},	// п я┐п╢п╣я│п╫п╦п╨ //
+	{14, 12, 25, 23, 13, 16},	// п▓п╬п╩я┬п╣п╠п╫п╦п╨ //
+	{15, 13, 25, 23, 14, 12},	// п╖п╣я─п╫п╬п╨п╫п╦п╤п╫п╦п╨ //
+	{22, 13, 16, 19, 18, 17},	// п▓п╦я┌я▐п╥я▄ //
+	{25, 21, 16, 16, 18, 16},	// п·я┘п╬я┌п╫п╦п╨ //
+	{25, 17, 13, 15, 20, 16},	// п я┐п╥п╫п╣я├ //
+	{21, 17, 14, 13, 20, 17},	// п я┐п©п╣я├ //
+	{18, 12, 24, 18, 15, 12}	// п▓п╬п╩я┘п╡ //
 };
 
 int min_stats2[][6] =
 	// Str Dex Int Wis Con Cha //
-{ {11, 10, 19, 20, 12, 10},	// Лекарь //
-	{10,  9, 20, 18, 10, 13},	// Колдун //
-	{16, 22,  9,  9, 14, 13},	// Вор //
-	{21,  8, 11, 11, 22, 10},	// Богатырь //
-	{17, 19, 11, 11, 14, 12},	// Наемник //
-	{20, 14, 10, 10, 17, 12},	// Дружинник //
-	{10,  9, 20, 18, 10, 13},	// Кудесник //
-	{10,  9, 20, 18, 10, 13},	// Волшебник //
-	{ 9,  9, 20, 20, 11, 10},	// Чернокнижник //
-	{19, 10, 12, 15, 14, 13},	// Витязь //
-	{19, 15, 11, 11, 14, 11},	// Охотник //
-	{20, 14, 10, 11, 14, 12},	// Кузнец //
-	{18, 14, 10, 10, 14, 13},	// Купец //
-	{15, 10, 19, 15, 12, 12}	// Волхв //
+{ {11, 10, 19, 20, 12, 10},	// п⌡п╣п╨п╟я─я▄ //
+	{10,  9, 20, 18, 10, 13},	// п п╬п╩п╢я┐п╫ //
+	{16, 22,  9,  9, 14, 13},	// п▓п╬я─ //
+	{21,  8, 11, 11, 22, 10},	// п▒п╬пЁп╟я┌я▀я─я▄ //
+	{17, 19, 11, 11, 14, 12},	// п²п╟п╣п╪п╫п╦п╨ //
+	{20, 14, 10, 10, 17, 12},	// п■я─я┐п╤п╦п╫п╫п╦п╨ //
+	{10,  9, 20, 18, 10, 13},	// п я┐п╢п╣я│п╫п╦п╨ //
+	{10,  9, 20, 18, 10, 13},	// п▓п╬п╩я┬п╣п╠п╫п╦п╨ //
+	{ 9,  9, 20, 20, 11, 10},	// п╖п╣я─п╫п╬п╨п╫п╦п╤п╫п╦п╨ //
+	{19, 10, 12, 15, 14, 13},	// п▓п╦я┌я▐п╥я▄ //
+	{19, 15, 11, 11, 14, 11},	// п·я┘п╬я┌п╫п╦п╨ //
+	{20, 14, 10, 11, 14, 12},	// п я┐п╥п╫п╣я├ //
+	{18, 14, 10, 10, 14, 13},	// п я┐п©п╣я├ //
+	{15, 10, 19, 15, 12, 12}	// п▓п╬п╩я┘п╡ //
 };
 
 // local functions //
@@ -401,10 +401,10 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 	case APPLY_DATURA_POISON:
 		GET_POISON(ch) += mod;
 		break;
-	case APPLY_HIT_GLORY: //вкачка +хп за славу
+	case APPLY_HIT_GLORY: //п╡п╨п╟я┤п╨п╟ +я┘п© п╥п╟ я│п╩п╟п╡я┐
 		GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
 	case APPLY_PR:
-		GET_PR(ch) += mod; //скиллрезист
+		GET_PR(ch) += mod; //я│п╨п╦п╩п╩я─п╣п╥п╦я│я┌
 		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
@@ -429,8 +429,8 @@ void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv,
 	case APPLY_ROOM_NONE:
 		break;
 	case APPLY_ROOM_POISON:
-		// Увеличиваем загаженность от аффекта вызываемого SPELL_POISONED_FOG
-		// Хотя это сделанно скорее для примера пока не обрабатывается вообще
+		// пёп╡п╣п╩п╦я┤п╦п╡п╟п╣п╪ п╥п╟пЁп╟п╤п╣п╫п╫п╬я│я┌я▄ п╬я┌ п╟я└я└п╣п╨я┌п╟ п╡я▀п╥я▀п╡п╟п╣п╪п╬пЁп╬ SPELL_POISONED_FOG
+		// п╔п╬я┌я▐ я█я┌п╬ я│п╢п╣п╩п╟п╫п╫п╬ я│п╨п╬я─п╣п╣ п╢п╩я▐ п©я─п╦п╪п╣я─п╟ п©п╬п╨п╟ п╫п╣ п╬п╠я─п╟п╠п╟я┌я▀п╡п╟п╣я┌я│я▐ п╡п╬п╬п╠я┴п╣
 		GET_ROOM_ADD_POISON(room) += mod;
 		break;
 	default:
@@ -440,20 +440,20 @@ void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv,
 	}			// switch
 }
 
-// Тут осуществляется апдейт аффектов влияющих на комнату
+// п╒я┐я┌ п╬я│я┐я┴п╣я│я┌п╡п╩я▐п╣я┌я│я▐ п╟п©п╢п╣п╧я┌ п╟я└я└п╣п╨я┌п╬п╡ п╡п╩п╦я▐я▌я┴п╦я┘ п╫п╟ п╨п╬п╪п╫п╟я┌я┐
 void affect_room_total(ROOM_DATA * room)
 {
-	// А че тут надо делать пересуммирование аффектов от заклов.
-	/* Вобщем все комнаты имеют (вроде как базовую и
-	   добавочную характеристику) если скажем ввести
-	   возможность устанавливать степень зараженности комнтаы
-	   в OLC , то дополнительное загаживание только будет вносить
-	   + но не обнулять это значение. */
+	// п░ я┤п╣ я┌я┐я┌ п╫п╟п╢п╬ п╢п╣п╩п╟я┌я▄ п©п╣я─п╣я│я┐п╪п╪п╦я─п╬п╡п╟п╫п╦п╣ п╟я└я└п╣п╨я┌п╬п╡ п╬я┌ п╥п╟п╨п╩п╬п╡.
+	/* п▓п╬п╠я┴п╣п╪ п╡я│п╣ п╨п╬п╪п╫п╟я┌я▀ п╦п╪п╣я▌я┌ (п╡я─п╬п╢п╣ п╨п╟п╨ п╠п╟п╥п╬п╡я┐я▌ п╦
+	   п╢п╬п╠п╟п╡п╬я┤п╫я┐я▌ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨я┐) п╣я│п╩п╦ я│п╨п╟п╤п╣п╪ п╡п╡п╣я│я┌п╦
+	   п╡п╬п╥п╪п╬п╤п╫п╬я│я┌я▄ я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟я┌я▄ я│я┌п╣п©п╣п╫я▄ п╥п╟я─п╟п╤п╣п╫п╫п╬я│я┌п╦ п╨п╬п╪п╫я┌п╟я▀
+	   п╡ OLC , я┌п╬ п╢п╬п©п╬п╩п╫п╦я┌п╣п╩я▄п╫п╬п╣ п╥п╟пЁп╟п╤п╦п╡п╟п╫п╦п╣ я┌п╬п╩я▄п╨п╬ п╠я┐п╢п╣я┌ п╡п╫п╬я│п╦я┌я▄
+	   + п╫п╬ п╫п╣ п╬п╠п╫я┐п╩я▐я┌я▄ я█я┌п╬ п╥п╫п╟я┤п╣п╫п╦п╣. */
 
-	// обнуляем все добавочные характеристики
+	// п╬п╠п╫я┐п╩я▐п╣п╪ п╡я│п╣ п╢п╬п╠п╟п╡п╬я┤п╫я▀п╣ я┘п╟я─п╟п╨я┌п╣я─п╦я│я┌п╦п╨п╦
 	memset(&room->add_property, 0 , sizeof(room_property_data));
 
-	// перенакладываем аффекты
+	// п©п╣я─п╣п╫п╟п╨п╩п╟п╢я▀п╡п╟п╣п╪ п╟я└я└п╣п╨я┌я▀
 	for (const auto& af : room->affected)
 	{
 		affect_room_modify(room, af->location, af->modifier, af->bitvector, TRUE);
@@ -474,10 +474,10 @@ std::array<EAffectFlag, 3> char_stealth_aff =
 };
 
 ///
-/// Сет чару аффектов, которые должны висеть постоянно (через affect_total)
+/// п║п╣я┌ я┤п╟я─я┐ п╟я└я└п╣п╨я┌п╬п╡, п╨п╬я┌п╬я─я▀п╣ п╢п╬п╩п╤п╫я▀ п╡п╦я│п╣я┌я▄ п©п╬я│я┌п╬я▐п╫п╫п╬ (я┤п╣я─п╣п╥ affect_total)
 ///
-// Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
-// Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
+// п▒я▀п╩п╟ п╬я┬п╦п╠п╨п╟, я┐ п╫я┐п╠п╬п╡ я─п╣пЁп╣п╫ я┘п╦я┌п╬п╡ п╠я▀п╩ п╡я│п╣пЁп╢п╟ 50, я┘п╬я┌я▐ я│ 26 п©п╬ 30, п╢п╬п╩п╤п╣п╫ п╠я▀я┌я▄ 60.
+// п╒п╣п©п╣я─я▄ п╟я└я└п╣п╨я┌ я─п╣пЁп╣п╫п╣я─п╟я├п╦я▐ п╫п╬п╡п╦я┤п╨п╟ п╢п╣я─п╤п╦я┌я│я▐ 3 я─п╣п╪п╬я─я┌п╟, я│ п╨п╟п╤п╢я▀п╦ я─п╣п╪п╬я─я┌п╬п╪ п╡я│п╣ я│п╩п╟п╠п╣п╣ п╦ я│п╩п╟п╠п╣п╣
 void apply_natural_affects(CHAR_DATA *ch)
 {
 	if (GET_REMORT(ch) <= 3 && !IS_IMMORTAL(ch))
@@ -539,7 +539,7 @@ void affect_total(CHAR_DATA * ch)
 			// Update weapon bitvectors
 			for (const auto& j : weapon_affect)
 			{
-				// То же самое, но переформулировал
+				// п╒п╬ п╤п╣ я│п╟п╪п╬п╣, п╫п╬ п©п╣я─п╣я└п╬я─п╪я┐п╩п╦я─п╬п╡п╟п╩
 				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos))
 				{
 					continue;
@@ -562,7 +562,7 @@ void affect_total(CHAR_DATA * ch)
 		}
 	}
 
-	// IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
+	// IMPREGNABLE_FEAT я┐я┤п╦я┌я▀п╡п╟п╣я┌я│я▐ п╢п╡п╟п╤п╢я▀: п╡я▀я┬п╣ п╫п╟я┤п╦я│п╩я▐п╣п╪ п╣п╢п╦п╫п╦я┤п╨я┐ п╥п╟ 0 п╪п╬я─я┌п╬п╡, п╟ я┌п╣п©п╣я─я▄ п©п╬ 1 п╥п╟ п╨п╟п╤п╢я▀п╧ п╪п╬я─я┌
 	if (can_use_feat(ch, IMPREGNABLE_FEAT))
 	{
 		for (int j = 0; j < MAX_FEAT_AFFECT; j++)
@@ -572,7 +572,7 @@ void affect_total(CHAR_DATA * ch)
 		}
 	};
 
-	// Обработка изворотливости (с) Числобог
+	// п·п╠я─п╟п╠п╬я┌п╨п╟ п╦п╥п╡п╬я─п╬я┌п╩п╦п╡п╬я│я┌п╦ (я│) п╖п╦я│п╩п╬п╠п╬пЁ
 	if (can_use_feat(ch, DODGER_FEAT))
 	{
 		affect_modify(ch, APPLY_SAVING_REFLEX, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
@@ -581,8 +581,8 @@ void affect_total(CHAR_DATA * ch)
 		affect_modify(ch, APPLY_SAVING_CRITICAL, -(GET_REMORT(ch) + GET_LEVEL(ch)), static_cast<EAffectFlag>(0), TRUE);
 	}
 
-	// Обработка "выносливости" и "богатырского здоровья
-	// Знаю, что кривовато, придумаете, как лучше - делайте
+	// п·п╠я─п╟п╠п╬я┌п╨п╟ "п╡я▀п╫п╬я│п╩п╦п╡п╬я│я┌п╦" п╦ "п╠п╬пЁп╟я┌я▀я─я│п╨п╬пЁп╬ п╥п╢п╬я─п╬п╡я▄я▐
+	// п≈п╫п╟я▌, я┤я┌п╬ п╨я─п╦п╡п╬п╡п╟я┌п╬, п©я─п╦п╢я┐п╪п╟п╣я┌п╣, п╨п╟п╨ п╩я┐я┤я┬п╣ - п╢п╣п╩п╟п╧я┌п╣
 	if (!IS_NPC(ch))
 	{
 		if (can_use_feat(ch, ENDURANCE_FEAT))
@@ -651,10 +651,10 @@ void affect_total(CHAR_DATA * ch)
 		{
 			if (!IS_NPC(ch))
 			{
-				act("Вам слишком тяжело держать $o3 в обоих руках!", FALSE, ch, obj, 0, TO_CHAR);
+				act("п▓п╟п╪ я│п╩п╦я┬п╨п╬п╪ я┌я▐п╤п╣п╩п╬ п╢п╣я─п╤п╟я┌я▄ $o3 п╡ п╬п╠п╬п╦я┘ я─я┐п╨п╟я┘!", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_BOTHS), ch);
 			return;
 		}
@@ -662,12 +662,12 @@ void affect_total(CHAR_DATA * ch)
 		{
 			if (!IS_NPC(ch))
 			{
-				act("Вам слишком тяжело держать $o3 в правой руке!", FALSE, ch, obj, 0, TO_CHAR);
+				act("п▓п╟п╪ я│п╩п╦я┬п╨п╬п╪ я┌я▐п╤п╣п╩п╬ п╢п╣я─п╤п╟я┌я▄ $o3 п╡ п©я─п╟п╡п╬п╧ я─я┐п╨п╣!", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_WIELD), ch);
-			// если пушку можно вооружить в обе руки и эти руки свободны
+			// п╣я│п╩п╦ п©я┐я┬п╨я┐ п╪п╬п╤п╫п╬ п╡п╬п╬я─я┐п╤п╦я┌я▄ п╡ п╬п╠п╣ я─я┐п╨п╦ п╦ я█я┌п╦ я─я┐п╨п╦ я│п╡п╬п╠п╬п╢п╫я▀
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
 				&& OK_BOTH(ch, obj)
 				&& !GET_EQ(ch, WEAR_HOLD)
@@ -684,10 +684,10 @@ void affect_total(CHAR_DATA * ch)
 		{
 			if (!IS_NPC(ch))
 			{
-				act("Вам слишком тяжело держать $o3 в левой руке!", FALSE, ch, obj, 0, TO_CHAR);
+				act("п▓п╟п╪ я│п╩п╦я┬п╨п╬п╪ я┌я▐п╤п╣п╩п╬ п╢п╣я─п╤п╟я┌я▄ $o3 п╡ п╩п╣п╡п╬п╧ я─я┐п╨п╣!", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_HOLD), ch);
 			return;
 		}
@@ -695,17 +695,17 @@ void affect_total(CHAR_DATA * ch)
 		{
 			if (!IS_NPC(ch))
 			{
-				act("Вам слишком тяжело держать $o3 на левой руке!", FALSE, ch, obj, 0, TO_CHAR);
+				act("п▓п╟п╪ я│п╩п╦я┬п╨п╬п╪ я┌я▐п╤п╣п╩п╬ п╢п╣я─п╤п╟я┌я▄ $o3 п╫п╟ п╩п╣п╡п╬п╧ я─я┐п╨п╣!", FALSE, ch, obj, 0, TO_CHAR);
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_SHIELD), ch);
 			return;
 		}
 		if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
 		{
-			send_to_char("Нету лука, нет и стрел.\r\n", ch);
-			act("$n прекратил$g использовать $o3.", FALSE, ch, obj, 0, TO_ROOM);
+			send_to_char("п²п╣я┌я┐ п╩я┐п╨п╟, п╫п╣я┌ п╦ я│я┌я─п╣п╩.\r\n", ch);
+			act("$n п©я─п╣п╨я─п╟я┌п╦п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, obj, 0, TO_ROOM);
 			obj_to_char(unequip_char(ch, WEAR_QUIVER), ch);
 			return;
 		}
@@ -716,7 +716,7 @@ void affect_total(CHAR_DATA * ch)
 	if ((obj = GET_EQ(ch, WEAR_BOTHS))
 		&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
-		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1; // правильный расчет среднего у оружия
+		GET_DAMAGE(ch) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1; // п©я─п╟п╡п╦п╩я▄п╫я▀п╧ я─п╟я│я┤п╣я┌ я│я─п╣п╢п╫п╣пЁп╬ я┐ п╬я─я┐п╤п╦я▐
 	}
 	else
 	{
@@ -766,8 +766,8 @@ void affect_total(CHAR_DATA * ch)
 	}
 }
 
-/* Намазываем аффект на комнату.
-  Автоматически ставим нузные флаги */
+/* п²п╟п╪п╟п╥я▀п╡п╟п╣п╪ п╟я└я└п╣п╨я┌ п╫п╟ п╨п╬п╪п╫п╟я┌я┐.
+  п░п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╦ я│я┌п╟п╡п╦п╪ п╫я┐п╥п╫я▀п╣ я└п╩п╟пЁп╦ */
 void affect_to_room(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af)
 {
 	AFFECT_DATA<ERoomApplyLocation>::shared_ptr new_affect(new AFFECT_DATA<ERoomApplyLocation>(af));
@@ -830,7 +830,7 @@ void affect_from_char(CHAR_DATA * ch, int type)
 	if (IS_NPC(ch) && type == SPELL_CHARM)
 	{
 		EXTRACT_TIMER(ch) = 5;
-		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
+		ch->mob_specials.hire_price = 0;// added by WorM (п▓п╦п╢п╬п╩я▌п╠) 2010.06.04 п║п╠я─п╟я│я▀п╡п╟п╣п╪ я├п╣п╫я┐ п╫п╟п╧п╪п╟
 	}
 }
 
@@ -863,7 +863,7 @@ bool affected_by_spell(CHAR_DATA* ch, int type)
 
 	return (FALSE);
 }
-// Проверяем а не висит ли на комнате закла ужо
+// п÷я─п╬п╡п╣я─я▐п╣п╪ п╟ п╫п╣ п╡п╦я│п╦я┌ п╩п╦ п╫п╟ п╨п╬п╪п╫п╟я┌п╣ п╥п╟п╨п╩п╟ я┐п╤п╬
 //bool room_affected_by_spell(ROOM_DATA * room, int type)
 ROOM_DATA::room_affects_list_t::iterator find_room_affect(ROOM_DATA* room, int type)
 {
@@ -1034,12 +1034,12 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, 
 	}
 }
 
-// Обработка тикающих способностей - added by Gorrah
+// п·п╠я─п╟п╠п╬я┌п╨п╟ я┌п╦п╨п╟я▌я┴п╦я┘ я│п©п╬я│п╬п╠п╫п╬я│я┌п╣п╧ - added by Gorrah
 void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 {
 	struct timed_type *timed_alloc, *skj;
 
-	// Карачун. Правка бага. Если такой фит уже есть в списке, просто меняем таймер.
+	// п п╟я─п╟я┤я┐п╫. п÷я─п╟п╡п╨п╟ п╠п╟пЁп╟. п∙я│п╩п╦ я┌п╟п╨п╬п╧ я└п╦я┌ я┐п╤п╣ п╣я│я┌я▄ п╡ я│п©п╦я│п╨п╣, п©я─п╬я│я┌п╬ п╪п╣п╫я▐п╣п╪ я┌п╟п╧п╪п╣я─.
 	for (skj = ch->timed_feat; skj; skj = skj->next)
 	{
 		if (skj->skill == timed->skill)
@@ -1085,7 +1085,7 @@ void timed_to_char(CHAR_DATA * ch, struct timed_type *timed)
 {
 	struct timed_type *timed_alloc, *skj;
 
-	// Карачун. Правка бага. Если такой скилл уже есть в списке, просто меняем таймер.
+	// п п╟я─п╟я┤я┐п╫. п÷я─п╟п╡п╨п╟ п╠п╟пЁп╟. п∙я│п╩п╦ я┌п╟п╨п╬п╧ я│п╨п╦п╩п╩ я┐п╤п╣ п╣я│я┌я▄ п╡ я│п©п╦я│п╨п╣, п©я─п╬я│я┌п╬ п╪п╣п╫я▐п╣п╪ я┌п╟п╧п╪п╣я─.
 	for (skj = ch->timed; skj; skj = skj->next)
 	{
 		if (skj->skill == timed->skill)
@@ -1165,7 +1165,7 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 		CHAR_DATA *caster = find_char((*affect_on_room)->caster_id);
 		if (!same_group(ch, caster)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)
-			&& (number(1,100) <= 30)) // 30% шанс что враг уснет
+			&& (number(1,100) <= 30)) // 30% я┬п╟п╫я│ я┤я┌п╬ п╡я─п╟пЁ я┐я│п╫п╣я┌
 		{
 			if (ch->has_master()
 				&& !IS_NPC(ch->get_master())
@@ -1174,8 +1174,8 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 				return;
 			}
 
-			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
-			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
+			send_to_char("п▓я▀ я┐я│я┌п╟п╡п╦п╩п╦я│я▄ п╫п╟ п╬пЁп╫п╣п╫п╫я▀п╧ я┐п╥п╬я─, п╨п╟п╨ п╠п╟я─п╟п╫ п╫п╟ п╫п╬п╡я▀п╣ п╡п╬я─п╬я┌п╟.",ch);
+			act("$n0 я┐я│я┌п╟п╡п╦п╩$u п╫п╟ п╬пЁп╫п╣п╫п╫я▀п╧ я┐п╥п╬я─, п╨п╟п╨ п╠п╟я─п╟п╫ п╫п╟ п╫п╬п╡я▀п╣ п╡п╬я─п╬я┌п╟.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
 			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
 		}
 	}
@@ -1198,7 +1198,7 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 
 	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
 	{
-		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		send_to_char("п▓я▀ п╫п╣ п╪п╬п╤п╣я┌п╣ п©п╬п©п╟я│я┌я▄ п╫п╟ п╟я─п╣п╫я┐ п╡ я│п╬я│я┌п╬я▐п╫п╦п╦ п╠п╬п╣п╡я▀я┘ п╢п╣п╧я│я┌п╡п╦п╧!\r\n", ch);
 		room = ch->get_from_room();
 	}
 	world[room]->people.push_front(ch);
@@ -1211,8 +1211,8 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 	if (PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
 		sprintf(buf,
-				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
-				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+				"%sп п╬п╪п╫п╟я┌п╟=%s%d %sп║п╡п╣я┌=%s%d %sп·я│п╡п╣я┴=%s%d %sп п╬я│я┌п╣я─=%s%d %sп⌡п╣п╢=%s%d "
+				"%sп╒я▄п╪п╟=%s%d %sп║п╬п╩п╫я├п╣=%s%d %sп²п╣п╠п╬=%s%d %sп⌡я┐п╫п╟=%s%d%s.\r\n",
 				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
 				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
 				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
@@ -1238,8 +1238,8 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 	}
 	else
 	{
-		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
-		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
+		//sventovit: п╥п╢п╣я│я▄ п╬п╠я─п╟п╠п╟я┌я▀п╡п╟я▌я┌я│я▐ я┌п╬п╩я▄п╨п╬ п╫п╣п©п╦я│п╦, я┤я┌п╬п╠я▀ п╦пЁя─п╬п╨ я┐я│п©п╣п╩ я┐п╡п╦п╢п╣я┌я▄ п╨п╬п╪п╫п╟я┌я┐
+		//п╨п╟п╨ я│п╢п╣п╩п╟я┌я▄ п╨я─п╟я│п╦п╡п╣п╧ я▐ п╫п╣ п©я─п╦п╢я┐п╪п╟п╩, я┌.п╨. look_at_room п╡я▀п╥я▀п╡п╟п╣я┌я│я▐ п╡ act.movement п╟ п╫п╣ я┌я┐я┌
 		room_affect_process_on_entry(ch, ch->in_room);
 	}
 
@@ -1273,28 +1273,28 @@ void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 		&& ch
 		&& GET_UNIQUE(ch) != GET_OBJ_OWNER(obj))
 	{
-		sprintf(buf, "Зашли в проверку restore_object, Игрок %s, Объект %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
+		sprintf(buf, "п≈п╟я┬п╩п╦ п╡ п©я─п╬п╡п╣я─п╨я┐ restore_object, п≤пЁя─п╬п╨ %s, п·п╠я┼п╣п╨я┌ %d", GET_NAME(ch), GET_OBJ_VNUM(obj));
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 	}
 }
 
-// выясняет, стокаются ли объекты с метками
+// п╡я▀я▐я│п╫я▐п╣я┌, я│я┌п╬п╨п╟я▌я┌я│я▐ п╩п╦ п╬п╠я┼п╣п╨я┌я▀ я│ п╪п╣я┌п╨п╟п╪п╦
 bool stockable_custom_labels(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 {
-	// без меток стокаются
+	// п╠п╣п╥ п╪п╣я┌п╬п╨ я│я┌п╬п╨п╟я▌я┌я│я▐
 	if (!obj_one->get_custom_label() && !obj_two->get_custom_label())
 		return 1;
 
 	if (obj_one->get_custom_label() && obj_two->get_custom_label())
 	{
-		// с разными типами меток не стокаются
+		// я│ я─п╟п╥п╫я▀п╪п╦ я┌п╦п©п╟п╪п╦ п╪п╣я┌п╬п╨ п╫п╣ я│я┌п╬п╨п╟я▌я┌я│я▐
 		if (!obj_one->get_custom_label()->clan != !obj_two->get_custom_label()->clan)
 		{
 			return 0;
 		}
 		else
 		{
-			// обе метки клановые один клан, текст совпадает -- стокается
+			// п╬п╠п╣ п╪п╣я┌п╨п╦ п╨п╩п╟п╫п╬п╡я▀п╣ п╬п╢п╦п╫ п╨п╩п╟п╫, я┌п╣п╨я│я┌ я│п╬п╡п©п╟п╢п╟п╣я┌ -- я│я┌п╬п╨п╟п╣я┌я│я▐
 			if (obj_one->get_custom_label()->clan && obj_two->get_custom_label()->clan
 				&& !strcmp(obj_one->get_custom_label()->clan, obj_two->get_custom_label()->clan)
 				&& obj_one->get_custom_label()->label_text && obj_two->get_custom_label()->label_text
@@ -1303,7 +1303,7 @@ bool stockable_custom_labels(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 				return 1;
 			}
 
-			// обе метки личные, один автор, текст совпадает -- стокается
+			// п╬п╠п╣ п╪п╣я┌п╨п╦ п╩п╦я┤п╫я▀п╣, п╬п╢п╦п╫ п╟п╡я┌п╬я─, я┌п╣п╨я│я┌ я│п╬п╡п©п╟п╢п╟п╣я┌ -- я│я┌п╬п╨п╟п╣я┌я│я▐
 			if (obj_one->get_custom_label()->author == obj_two->get_custom_label()->author
 				&& obj_one->get_custom_label()->label_text && obj_two->get_custom_label()->label_text
 				&& !strcmp(obj_one->get_custom_label()->label_text, obj_two->get_custom_label()->label_text))
@@ -1316,7 +1316,7 @@ bool stockable_custom_labels(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 	return 0;
 }
 
-// выяснение стокаются ли предметы
+// п╡я▀я▐я│п╫п╣п╫п╦п╣ я│я┌п╬п╨п╟я▌я┌я│я▐ п╩п╦ п©я─п╣п╢п╪п╣я┌я▀
 bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 {
 	if (GET_OBJ_VNUM(obj_one) != GET_OBJ_VNUM(obj_two)
@@ -1339,21 +1339,21 @@ bool equal_obj(OBJ_DATA *obj_one, OBJ_DATA *obj_two)
 namespace
 {
 
-// перемещаем стокающиеся предметы вверх контейнера и сверху кладем obj
+// п©п╣я─п╣п╪п╣я┴п╟п╣п╪ я│я┌п╬п╨п╟я▌я┴п╦п╣я│я▐ п©я─п╣п╢п╪п╣я┌я▀ п╡п╡п╣я─я┘ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟ п╦ я│п╡п╣я─я┘я┐ п╨п╩п╟п╢п╣п╪ obj
 void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 {
-	// AL: пофиксил Ж)
-	// Krodo: пофиксили третий раз, не сортируем у мобов в инве Ж)
+	// AL: п©п╬я└п╦п╨я│п╦п╩ п√)
+	// Krodo: п©п╬я└п╦п╨я│п╦п╩п╦ я┌я─п╣я┌п╦п╧ я─п╟п╥, п╫п╣ я│п╬я─я┌п╦я─я┐п╣п╪ я┐ п╪п╬п╠п╬п╡ п╡ п╦п╫п╡п╣ п√)
 
-	// begin - первый предмет в исходном списке
-	// end - последний предмет в перемещаемом интервале
-	// before - последний предмет перед началом интервала
+	// begin - п©п╣я─п╡я▀п╧ п©я─п╣п╢п╪п╣я┌ п╡ п╦я│я┘п╬п╢п╫п╬п╪ я│п©п╦я│п╨п╣
+	// end - п©п╬я│п╩п╣п╢п╫п╦п╧ п©я─п╣п╢п╪п╣я┌ п╡ п©п╣я─п╣п╪п╣я┴п╟п╣п╪п╬п╪ п╦п╫я┌п╣я─п╡п╟п╩п╣
+	// before - п©п╬я│п╩п╣п╢п╫п╦п╧ п©я─п╣п╢п╪п╣я┌ п©п╣я─п╣п╢ п╫п╟я┤п╟п╩п╬п╪ п╦п╫я┌п╣я─п╡п╟п╩п╟
 	OBJ_DATA *p, *begin, *end, *before;
 
 	obj->set_next_content(begin = *list_start);
 	*list_start = obj;
 
-	// похожий предмет уже первый в списке или список пустой
+	// п©п╬я┘п╬п╤п╦п╧ п©я─п╣п╢п╪п╣я┌ я┐п╤п╣ п©п╣я─п╡я▀п╧ п╡ я│п©п╦я│п╨п╣ п╦п╩п╦ я│п©п╦я│п╬п╨ п©я┐я│я┌п╬п╧
 	if (!begin || equal_obj(begin, obj))
 	{
 		return;
@@ -1367,7 +1367,7 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 		p = p->get_next_content();
 	}
 
-	// нет похожих предметов
+	// п╫п╣я┌ п©п╬я┘п╬п╤п╦я┘ п©я─п╣п╢п╪п╣я┌п╬п╡
 	if (!p)
 	{
 		return;
@@ -1383,20 +1383,20 @@ void insert_obj_and_group(OBJ_DATA *obj, OBJ_DATA **list_start)
 
 	end->set_next_content(begin);
 	obj->set_next_content(before->get_next_content());
-	before->set_next_content(p); // будет 0 если после перемещаемых ничего не лежало
+	before->set_next_content(p); // п╠я┐п╢п╣я┌ 0 п╣я│п╩п╦ п©п╬я│п╩п╣ п©п╣я─п╣п╪п╣я┴п╟п╣п╪я▀я┘ п╫п╦я┤п╣пЁп╬ п╫п╣ п╩п╣п╤п╟п╩п╬
 }
 
 } // no-name namespace
 
-// * Инициализация уида для нового объекта.
+// * п≤п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐ я┐п╦п╢п╟ п╢п╩я▐ п╫п╬п╡п╬пЁп╬ п╬п╠я┼п╣п╨я┌п╟.
 void set_uid(OBJ_DATA *object)
 {
-	if (GET_OBJ_VNUM(object) > 0 && // Объект не виртуальный
-		GET_OBJ_UID(object) == 0)   // У объекта точно нет уида
+	if (GET_OBJ_VNUM(object) > 0 && // п·п╠я┼п╣п╨я┌ п╫п╣ п╡п╦я─я┌я┐п╟п╩я▄п╫я▀п╧
+		GET_OBJ_UID(object) == 0)   // пё п╬п╠я┼п╣п╨я┌п╟ я┌п╬я┤п╫п╬ п╫п╣я┌ я┐п╦п╢п╟
 	{
-		global_uid++; // Увеличиваем глобальный счетчик уидов
-		global_uid = global_uid == 0 ? 1 : global_uid; // Если произошло переполнение инта
-		object->set_uid(global_uid); // Назначаем уид
+		global_uid++; // пёп╡п╣п╩п╦я┤п╦п╡п╟п╣п╪ пЁп╩п╬п╠п╟п╩я▄п╫я▀п╧ я│я┤п╣я┌я┤п╦п╨ я┐п╦п╢п╬п╡
+		global_uid = global_uid == 0 ? 1 : global_uid; // п∙я│п╩п╦ п©я─п╬п╦п╥п╬я┬п╩п╬ п©п╣я─п╣п©п╬п╩п╫п╣п╫п╦п╣ п╦п╫я┌п╟
+		object->set_uid(global_uid); // п²п╟п╥п╫п╟я┤п╟п╣п╪ я┐п╦п╢
 	}
 }
 
@@ -1445,8 +1445,8 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 
 		if (!may_carry)
 		{
-			act("Вас обожгло при попытке взять $o3.", FALSE, ch, object, 0, TO_CHAR);
-			act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, object, 0, TO_ROOM);
+			act("п▓п╟я│ п╬п╠п╬п╤пЁп╩п╬ п©я─п╦ п©п╬п©я▀я┌п╨п╣ п╡п╥я▐я┌я▄ $o3.", FALSE, ch, object, 0, TO_CHAR);
+			act("$n п©п╬п©я▀я┌п╟п╩$u п╡п╥я▐я┌я▄ $o3 - п╦ я┤я┐п╢п╬п╪ п╫п╣ я│пЁп╬я─п╣п╩$g.", FALSE, ch, object, 0, TO_ROOM);
 			obj_to_room(object, ch->in_room);
 			return;
 		}
@@ -1455,35 +1455,35 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			|| (ch->has_master()
 				&& !IS_NPC(ch->get_master())))
 		{
-			// Контроль уникальности предметов
-			if (object && // Объект существует
-					GET_OBJ_UID(object) != 0 && // Есть UID
-					object->get_timer() > 0) // Целенький
+			// п п╬п╫я┌я─п╬п╩я▄ я┐п╫п╦п╨п╟п╩я▄п╫п╬я│я┌п╦ п©я─п╣п╢п╪п╣я┌п╬п╡
+			if (object && // п·п╠я┼п╣п╨я┌ я│я┐я┴п╣я│я┌п╡я┐п╣я┌
+					GET_OBJ_UID(object) != 0 && // п∙я│я┌я▄ UID
+					object->get_timer() > 0) // п╕п╣п╩п╣п╫я▄п╨п╦п╧
 			{
 				tuid = GET_OBJ_UID(object);
 				inworld = 1;
-				// Объект готов для проверки. Ищем в мире такой же.
+				// п·п╠я┼п╣п╨я┌ пЁп╬я┌п╬п╡ п╢п╩я▐ п©я─п╬п╡п╣я─п╨п╦. п≤я┴п╣п╪ п╡ п╪п╦я─п╣ я┌п╟п╨п╬п╧ п╤п╣.
 				world_objects.foreach_with_vnum(GET_OBJ_VNUM(object), [&](const OBJ_DATA::shared_ptr& i)
 				{
-					if (GET_OBJ_UID(i) == tuid // UID совпадает
-						&& i->get_timer() > 0  // Целенький
-						&& object != i.get()) // Не оно же
+					if (GET_OBJ_UID(i) == tuid // UID я│п╬п╡п©п╟п╢п╟п╣я┌
+						&& i->get_timer() > 0  // п╕п╣п╩п╣п╫я▄п╨п╦п╧
+						&& object != i.get()) // п²п╣ п╬п╫п╬ п╤п╣
 					{
 						inworld++;
 					}
 				});
 
-				if (inworld > 1) // У объекта есть как минимум одна копия
+				if (inworld > 1) // пё п╬п╠я┼п╣п╨я┌п╟ п╣я│я┌я▄ п╨п╟п╨ п╪п╦п╫п╦п╪я┐п╪ п╬п╢п╫п╟ п╨п╬п©п╦я▐
 				{
 					sprintf(buf, "Copy detected and prepared to extract! Object %s (UID=%u, VNUM=%d), holder %s. In world %d.",
 							object->get_PName(0).c_str(), GET_OBJ_UID(object), GET_OBJ_VNUM(object), GET_NAME(ch), inworld);
 					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-					// Удаление предмета
-					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
-					object->set_timer(0); // Хана предмету
-					object->set_extra_flag(EExtraFlag::ITEM_NOSELL); // Ибо нефиг
+					// пёп╢п╟п╩п╣п╫п╦п╣ п©я─п╣п╢п╪п╣я┌п╟
+					act("$o0 п╥п╟п╪п╦пЁп╟п╩$Q п╦ п╡я▀ я┐п╡п╦п╢п╣п╩п╦ п╪п╣п╢п╩п╣п╫п╫п╬ п©я─п╬я│я┌я┐п©п╦п╡я┬п╦п╣ я─я┐п╫я▀ 'DUPE'.", FALSE, ch, object, 0, TO_CHAR);
+					object->set_timer(0); // п╔п╟п╫п╟ п©я─п╣п╢п╪п╣я┌я┐
+					object->set_extra_flag(EExtraFlag::ITEM_NOSELL); // п≤п╠п╬ п╫п╣я└п╦пЁ
 				}
-			} // Назначаем UID
+			} // п²п╟п╥п╫п╟я┤п╟п╣п╪ UID
 			else
 			{
 				set_uid(object);
@@ -1500,7 +1500,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 		}
 		else
 		{
-			// Вот эта муть, чтобы временно обойти завязку магазинов на порядке предметов в инве моба // Krodo
+			// п▓п╬я┌ я█я┌п╟ п╪я┐я┌я▄, я┤я┌п╬п╠я▀ п╡я─п╣п╪п╣п╫п╫п╬ п╬п╠п╬п╧я┌п╦ п╥п╟п╡я▐п╥п╨я┐ п╪п╟пЁп╟п╥п╦п╫п╬п╡ п╫п╟ п©п╬я─я▐п╢п╨п╣ п©я─п╣п╢п╪п╣я┌п╬п╡ п╡ п╦п╫п╡п╣ п╪п╬п╠п╟ // Krodo
 			object->set_next_content(ch->carrying);
 			ch->carrying = object;
 		}
@@ -1621,7 +1621,7 @@ int apply_armour(CHAR_DATA * ch, int eq_pos)
 	if (IS_NPC(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		factor *= MOB_ARMOUR_MULT;
 
-	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
+	// я┤я┌п╬п╠я▀ п╫п╣ п©п╩я▌я│п╬п╡п╟я┌я▄ п╩п╣п╡я┐я▌ п╠я─п╬п╫я▌ п╫п╟ я│я┌п╟я└п╣ я│ я┌п╣п╨я┐я┴п╣п╧ п©я─п╬я┤п╫п╬я│я┌я▄я▌ п╡я▀я┬п╣ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╧
 	int cur_dur = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj));
 	return (factor * GET_OBJ_VAL(obj, 1) * cur_dur / MAX(1, GET_OBJ_MAX(obj)));
 }
@@ -1647,65 +1647,65 @@ void wear_message(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 {
 	const char *wear_messages[][2] =
 	{
-		{"$n засветил$g $o3 и взял$g во вторую руку.",
-			"Вы зажгли $o3 и взяли во вторую руку."},
+		{"$n п╥п╟я│п╡п╣я┌п╦п╩$g $o3 п╦ п╡п╥я▐п╩$g п╡п╬ п╡я┌п╬я─я┐я▌ я─я┐п╨я┐.",
+			"п▓я▀ п╥п╟п╤пЁп╩п╦ $o3 п╦ п╡п╥я▐п╩п╦ п╡п╬ п╡я┌п╬я─я┐я▌ я─я┐п╨я┐."},
 
-		{"$n0 надел$g $o3 на правый указательный палец.",
-		 "Вы надели $o3 на правый указательный палец."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╫п╟ п©я─п╟п╡я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄п╫я▀п╧ п©п╟п╩п╣я├.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╫п╟ п©я─п╟п╡я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄п╫я▀п╧ п©п╟п╩п╣я├."},
 
-		{"$n0 надел$g $o3 на левый указательный палец.",
-		 "Вы надели $o3 на левый указательный палец."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╫п╟ п╩п╣п╡я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄п╫я▀п╧ п©п╟п╩п╣я├.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╫п╟ п╩п╣п╡я▀п╧ я┐п╨п╟п╥п╟я┌п╣п╩я▄п╫я▀п╧ п©п╟п╩п╣я├."},
 
-		{"$n0 надел$g $o3 вокруг шеи.",
-		 "Вы надели $o3 вокруг шеи."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╡п╬п╨я─я┐пЁ я┬п╣п╦.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╡п╬п╨я─я┐пЁ я┬п╣п╦."},
 
-		{"$n0 надел$g $o3 на грудь.",
-		 "Вы надели $o3 на грудь."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╫п╟ пЁя─я┐п╢я▄.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╫п╟ пЁя─я┐п╢я▄."},
 
-		{"$n0 надел$g $o3 на туловище.",
-		 "Вы надели $o3 на туловище.", },
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╫п╟ я┌я┐п╩п╬п╡п╦я┴п╣.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╫п╟ я┌я┐п╩п╬п╡п╦я┴п╣.", },
 
-		{"$n0 водрузил$g $o3 на голову.",
-		 "Вы водрузили $o3 себе на голову."},
+		{"$n0 п╡п╬п╢я─я┐п╥п╦п╩$g $o3 п╫п╟ пЁп╬п╩п╬п╡я┐.",
+		 "п▓я▀ п╡п╬п╢я─я┐п╥п╦п╩п╦ $o3 я│п╣п╠п╣ п╫п╟ пЁп╬п╩п╬п╡я┐."},
 
-		{"$n0 надел$g $o3 на ноги.",
-		 "Вы надели $o3 на ноги."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╫п╟ п╫п╬пЁп╦.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╫п╟ п╫п╬пЁп╦."},
 
-		{"$n0 обул$g $o3.",
-		 "Вы обули $o3."},
+		{"$n0 п╬п╠я┐п╩$g $o3.",
+		 "п▓я▀ п╬п╠я┐п╩п╦ $o3."},
 
-		{"$n0 надел$g $o3 на кисти.",
-		 "Вы надели $o3 на кисти."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╫п╟ п╨п╦я│я┌п╦.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╫п╟ п╨п╦я│я┌п╦."},
 
-		{"$n0 надел$g $o3 на руки.",
-		 "Вы надели $o3 на руки."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╫п╟ я─я┐п╨п╦.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╫п╟ я─я┐п╨п╦."},
 
-		{"$n0 начал$g использовать $o3 как щит.",
-		 "Вы начали использовать $o3 как щит."},
+		{"$n0 п╫п╟я┤п╟п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3 п╨п╟п╨ я┴п╦я┌.",
+		 "п▓я▀ п╫п╟я┤п╟п╩п╦ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3 п╨п╟п╨ я┴п╦я┌."},
 
-		{"$n0 облачил$u в $o3.",
-		 "Вы облачились в $o3."},
+		{"$n0 п╬п╠п╩п╟я┤п╦п╩$u п╡ $o3.",
+		 "п▓я▀ п╬п╠п╩п╟я┤п╦п╩п╦я│я▄ п╡ $o3."},
 
-		{"$n0 надел$g $o3 вокруг пояса.",
-		 "Вы надели $o3 вокруг пояса."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╡п╬п╨я─я┐пЁ п©п╬я▐я│п╟.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╡п╬п╨я─я┐пЁ п©п╬я▐я│п╟."},
 
-		{"$n0 надел$g $o3 вокруг правого запястья.",
-		 "Вы надели $o3 вокруг правого запястья."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╡п╬п╨я─я┐пЁ п©я─п╟п╡п╬пЁп╬ п╥п╟п©я▐я│я┌я▄я▐.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╡п╬п╨я─я┐пЁ п©я─п╟п╡п╬пЁп╬ п╥п╟п©я▐я│я┌я▄я▐."},
 
-		{"$n0 надел$g $o3 вокруг левого запястья.",
-		 "Вы надели $o3 вокруг левого запястья."},
+		{"$n0 п╫п╟п╢п╣п╩$g $o3 п╡п╬п╨я─я┐пЁ п╩п╣п╡п╬пЁп╬ п╥п╟п©я▐я│я┌я▄я▐.",
+		 "п▓я▀ п╫п╟п╢п╣п╩п╦ $o3 п╡п╬п╨я─я┐пЁ п╩п╣п╡п╬пЁп╬ п╥п╟п©я▐я│я┌я▄я▐."},
 
-		{"$n0 взял$g в правую руку $o3.",
-		 "Вы вооружились $o4."},
+		{"$n0 п╡п╥я▐п╩$g п╡ п©я─п╟п╡я┐я▌ я─я┐п╨я┐ $o3.",
+		 "п▓я▀ п╡п╬п╬я─я┐п╤п╦п╩п╦я│я▄ $o4."},
 
-		{"$n0 взял$g $o3 в левую руку.",
-		 "Вы взяли $o3 в левую руку."},
+		{"$n0 п╡п╥я▐п╩$g $o3 п╡ п╩п╣п╡я┐я▌ я─я┐п╨я┐.",
+		 "п▓я▀ п╡п╥я▐п╩п╦ $o3 п╡ п╩п╣п╡я┐я▌ я─я┐п╨я┐."},
 
-		{"$n0 взял$g $o3 в обе руки.",
-		 "Вы взяли $o3 в обе руки."},
+		{"$n0 п╡п╥я▐п╩$g $o3 п╡ п╬п╠п╣ я─я┐п╨п╦.",
+		 "п▓я▀ п╡п╥я▐п╩п╦ $o3 п╡ п╬п╠п╣ я─я┐п╨п╦."},
 
-		{"$n0 начал$g использовать $o3 как колчан.",
-		 "Вы начали использовать $o3 как колчан."}
+		{"$n0 п╫п╟я┤п╟п╩$g п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3 п╨п╟п╨ п╨п╬п╩я┤п╟п╫.",
+		 "п▓я▀ п╫п╟я┤п╟п╩п╦ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3 п╨п╟п╨ п╨п╬п╩я┤п╟п╫."}
 	};
 
 	act(wear_messages[where][1], FALSE, ch, obj, 0, TO_CHAR);
@@ -1803,9 +1803,9 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 							{
 								if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
 								{
-									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+									act("п°п╟пЁп╦я▐ $o1 п©п╬я┌п╣я─п©п╣п╩п╟ п╫п╣я┐п╢п╟я┤я┐ п╦ я─п╟п╥п╡п╣я▐п╩п╟я│я▄ п©п╬ п╡п╬п╥п╢я┐я┘я┐.",
 										FALSE, ch, GET_EQ(ch, pos), 0, TO_ROOM);
-									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+									act("п°п╟пЁп╦я▐ $o1 п©п╬я┌п╣я─п©п╣п╩п╟ п╫п╣я┐п╢п╟я┤я┐ п╦ я─п╟п╥п╡п╣я▐п╩п╟я│я▄ п©п╬ п╡п╬п╥п╢я┐я┘я┐.",
 										FALSE, ch, GET_EQ(ch, pos), 0, TO_CHAR);
 								}
 								else
@@ -1840,9 +1840,9 @@ unsigned int activate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 						{
 							if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
 							{
-								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+								act("п°п╟пЁп╦я▐ $o1 п©п╬я┌п╣я─п©п╣п╩п╟ п╫п╣я┐п╢п╟я┤я┐ п╦ я─п╟п╥п╡п╣я▐п╩п╟я│я▄ п©п╬ п╡п╬п╥п╢я┐я┘я┐.",
 									FALSE, ch, obj, 0, TO_ROOM);
-								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+								act("п°п╟пЁп╦я▐ $o1 п©п╬я┌п╣я─п©п╣п╩п╟ п╫п╣я┐п╢п╟я┤я┐ п╦ я─п╟п╥п╡п╣я▐п╩п╟я│я▄ п©п╬ п╡п╬п╥п╢я┐я┘я┐.",
 									FALSE, ch, obj, 0, TO_CHAR);
 							}
 							else
@@ -1868,7 +1868,7 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_LIGHT
 		&& !can_use_feat(ch, ARMOR_LIGHT_FEAT))
 	{
-		act("Для использования $o1 требуется способность 'легкие доспехи'.",
+		act("п■п╩я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ $o1 я┌я─п╣п╠я┐п╣я┌я│я▐ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ 'п╩п╣пЁп╨п╦п╣ п╢п╬я│п©п╣я┘п╦'.",
 			FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
@@ -1876,7 +1876,7 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_MEDIAN
 		&& !can_use_feat(ch, ARMOR_MEDIAN_FEAT))
 	{
-		act("Для использования $o1 требуется способность 'средние доспехи'.",
+		act("п■п╩я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ $o1 я┌я─п╣п╠я┐п╣я┌я│я▐ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ 'я│я─п╣п╢п╫п╦п╣ п╢п╬я│п©п╣я┘п╦'.",
 			FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
@@ -1884,7 +1884,7 @@ bool check_armor_type(CHAR_DATA *ch, OBJ_DATA *obj)
 	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ARMOR_HEAVY
 		&& !can_use_feat(ch, ARMOR_HEAVY_FEAT))
 	{
-		act("Для использования $o1 требуется способность 'тяжелые доспехи'.",
+		act("п■п╩я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ $o1 я┌я─п╣п╠я┐п╣я┌я│я▐ я│п©п╬я│п╬п╠п╫п╬я│я┌я▄ 'я┌я▐п╤п╣п╩я▀п╣ п╢п╬я│п©п╣я┘п╦'.",
 			FALSE, ch, obj, 0, TO_CHAR);
 		return false;
 	}
@@ -1929,8 +1929,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	if (invalid_anti_class(ch, obj))
 	{
-		act("Вас обожгло при попытке использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
+		act("п▓п╟я│ п╬п╠п╬п╤пЁп╩п╬ п©я─п╦ п©п╬п©я▀я┌п╨п╣ п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n п©п╬п©я▀я┌п╟п╩$u п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3 - п╦ я┤я┐п╢п╬п╪ п╫п╣ п╬п╠пЁп╬я─п╣п╩$g.", FALSE, ch, obj, 0, TO_ROOM);
 		if (obj->get_carried_by())
 		{
 			obj_from_char(obj);
@@ -1941,7 +1941,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	}
 	else if((!IS_NPC(ch) || IS_CHARMICE(ch)) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_NAMED) && NamedStuff::check_named(ch, obj, true)) {
 		if(!NamedStuff::wear_msg(ch, obj))
-			send_to_char("Просьба не трогать! Частная собственность!\r\n", ch);
+			send_to_char("п÷я─п╬я│я▄п╠п╟ п╫п╣ я┌я─п╬пЁп╟я┌я▄! п╖п╟я│я┌п╫п╟я▐ я│п╬п╠я│я┌п╡п╣п╫п╫п╬я│я┌я▄!\r\n", ch);
 		if (!obj->get_carried_by())
 		{
 			obj_to_char(obj, ch);
@@ -1955,8 +1955,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			&& (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SHARPEN)
 				|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_ARMORED))))
 	{
-		act("$o0 явно не предназначен$A для вас.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u использовать $o3, но у н$s ничего не получилось.", FALSE, ch, obj, 0, TO_ROOM);
+		act("$o0 я▐п╡п╫п╬ п╫п╣ п©я─п╣п╢п╫п╟п╥п╫п╟я┤п╣п╫$A п╢п╩я▐ п╡п╟я│.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n п©п╬п©я▀я┌п╟п╩$u п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3, п╫п╬ я┐ п╫$s п╫п╦я┤п╣пЁп╬ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄.", FALSE, ch, obj, 0, TO_ROOM);
 		if (!obj->get_carried_by())
 		{
 			obj_to_char(obj, ch);
@@ -1969,11 +1969,11 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		CHAR_DATA *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
-			send_to_char(master, "Для использования %s требуется %d %s.\r\n",
+			send_to_char(master, "п■п╩я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ %s я┌я─п╣п╠я┐п╣я┌я│я▐ %d %s.\r\n",
 				GET_OBJ_PNAME(obj, 1).c_str(),
 				obj->get_auto_mort_req(),
 				desc_count(obj->get_auto_mort_req(), WHAT_REMORT));
-			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
+			act("$n п©п╬п©я▀я┌п╟п╩$u п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3, п╫п╬ я┐ п╫$s п╫п╦я┤п╣пЁп╬ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄.",
 				FALSE, ch, obj, 0, TO_ROOM);
 			if (!obj->get_carried_by())
 			{
@@ -1983,10 +1983,10 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		}
 		else if ((obj->get_auto_mort_req() < -1)  && (abs(obj->get_auto_mort_req()) < GET_REMORT(master)) && !IS_IMMORTAL(master))
 		{
-			send_to_char(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
+			send_to_char(master, "п°п╟п╨я│п╦п╪п╟п╩я▄п╫п╬ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п©п╣я─п╣п╡п╬п©п╩п╬я┴п╣п╫п╦п╧ п╢п╩я▐ п╦я│п©п╬п╩я▄п╥п╬п╡п╟п╫п╦я▐ %s я─п╟п╡п╫п╬ %d.\r\n",
 				GET_OBJ_PNAME(obj, 1).c_str(),
 				abs(obj->get_auto_mort_req()));
-			act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
+			act("$n п©п╬п©я▀я┌п╟п╩$u п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3, п╫п╬ я┐ п╫$s п╫п╦я┤п╣пЁп╬ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄.",
 				FALSE, ch, obj, 0, TO_ROOM);
 			if (!obj->get_carried_by())
 			{
@@ -1999,12 +1999,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	//if (!IS_NPC(ch) && !check_armor_type(ch, obj))
 	//{
-	//	act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
+	//	act("$n п©п╬п©я▀я┌п╟п╩$u п╦я│п©п╬п╩я▄п╥п╬п╡п╟я┌я▄ $o3, п╫п╬ я┐ п╫$s п╫п╦я┤п╣пЁп╬ п╫п╣ п©п╬п╩я┐я┤п╦п╩п╬я│я▄.",
 	//			FALSE, ch, obj, 0, TO_ROOM);
 	//	if (!obj->carried_by)
 	//		obj_to_char(obj, ch);
 	//	return;
-	//} Нафиг недоделки (Купала)
+	//} п²п╟я└п╦пЁ п╫п╣п╢п╬п╢п╣п╩п╨п╦ (п я┐п©п╟п╩п╟)
 
 	if (obj->get_carried_by())
 	{
@@ -2014,7 +2014,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 	//if (GET_EQ(ch, WEAR_LIGHT) &&
 	//  GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
 	//  was_lamp = TRUE;
-	//Polud светить должно не только то что надето для освещения, а любой источник света
+	//Polud я│п╡п╣я┌п╦я┌я▄ п╢п╬п╩п╤п╫п╬ п╫п╣ я┌п╬п╩я▄п╨п╬ я┌п╬ я┤я┌п╬ п╫п╟п╢п╣я┌п╬ п╢п╩я▐ п╬я│п╡п╣я┴п╣п╫п╦я▐, п╟ п╩я▌п╠п╬п╧ п╦я│я┌п╬я┤п╫п╦п╨ я│п╡п╣я┌п╟
 	was_lamp = is_wear_light(ch);
 	//-Polud
 
@@ -2073,9 +2073,9 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 				{
 					if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
 					{
-						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+						act("п°п╟пЁп╦я▐ $o1 п©п╬я┌п╣я─п©п╣п╩п╟ п╫п╣я┐п╢п╟я┤я┐ п╦ я─п╟п╥п╡п╣я▐п╩п╟я│я▄ п©п╬ п╡п╬п╥п╢я┐я┘я┐.",
 							FALSE, ch, obj, 0, TO_ROOM);
-						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
+						act("п°п╟пЁп╦я▐ $o1 п©п╬я┌п╣я─п©п╣п╩п╟ п╫п╣я┐п╢п╟я┤я┐ п╦ я─п╟п╥п╡п╣я▐п╩п╟я│я▄ п©п╬ п╡п╬п╥п╢я┐я┘я┐.",
 							FALSE, ch, obj, 0, TO_CHAR);
 					}
 					else
@@ -2310,7 +2310,7 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 //	if (GET_EQ(ch, WEAR_LIGHT) &&
 //	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
 //		was_lamp = TRUE;
-	//Polud светить должно не только то что надето для освещения, а любой источник света
+	//Polud я│п╡п╣я┌п╦я┌я▄ п╢п╬п╩п╤п╫п╬ п╫п╣ я┌п╬п╩я▄п╨п╬ я┌п╬ я┤я┌п╬ п╫п╟п╢п╣я┌п╬ п╢п╩я▐ п╬я│п╡п╣я┴п╣п╫п╦я▐, п╟ п╩я▌п╠п╬п╧ п╦я│я┌п╬я┤п╫п╦п╨ я│п╡п╣я┌п╟
 	was_lamp = is_wear_light(ch);
 	//-Polud
 
@@ -2514,9 +2514,9 @@ const int script_destroy_timer = 1; // * !!! Never set less than ONE * //
 
 /**
 * put an object in a room
-* Ахтунг, не надо тут экстрактить шмотку, если очень хочется - проверяйте и правьте 50 вызовов
-* по коду, т.к. нигде оно нифига не проверяется на валидность после этой функции.
-* \return 0 - невалидный объект или комната, 1 - все ок
+* п░я┘я┌я┐п╫пЁ, п╫п╣ п╫п╟п╢п╬ я┌я┐я┌ я█п╨я│я┌я─п╟п╨я┌п╦я┌я▄ я┬п╪п╬я┌п╨я┐, п╣я│п╩п╦ п╬я┤п╣п╫я▄ я┘п╬я┤п╣я┌я│я▐ - п©я─п╬п╡п╣я─я▐п╧я┌п╣ п╦ п©я─п╟п╡я▄я┌п╣ 50 п╡я▀п╥п╬п╡п╬п╡
+* п©п╬ п╨п╬п╢я┐, я┌.п╨. п╫п╦пЁп╢п╣ п╬п╫п╬ п╫п╦я└п╦пЁп╟ п╫п╣ п©я─п╬п╡п╣я─я▐п╣я┌я│я▐ п╫п╟ п╡п╟п╩п╦п╢п╫п╬я│я┌я▄ п©п╬я│п╩п╣ я█я┌п╬п╧ я└я┐п╫п╨я├п╦п╦.
+* \return 0 - п╫п╣п╡п╟п╩п╦п╢п╫я▀п╧ п╬п╠я┼п╣п╨я┌ п╦п╩п╦ п╨п╬п╪п╫п╟я┌п╟, 1 - п╡я│п╣ п╬п╨
 */
 bool obj_to_room(OBJ_DATA * object, room_rnum room)
 {
@@ -2564,8 +2564,8 @@ bool obj_to_room(OBJ_DATA * object, room_rnum room)
 	return 1;
 }
 
-/* Функция для удаления обьектов после лоада в комнату
-   результат работы - 1 если посыпался, 0 - если остался */
+/* п╓я┐п╫п╨я├п╦я▐ п╢п╩я▐ я┐п╢п╟п╩п╣п╫п╦я▐ п╬п╠я▄п╣п╨я┌п╬п╡ п©п╬я│п╩п╣ п╩п╬п╟п╢п╟ п╡ п╨п╬п╪п╫п╟я┌я┐
+   я─п╣п╥я┐п╩я▄я┌п╟я┌ я─п╟п╠п╬я┌я▀ - 1 п╣я│п╩п╦ п©п╬я│я▀п©п╟п╩я│я▐, 0 - п╣я│п╩п╦ п╬я│я┌п╟п╩я│я▐ */
 int obj_decay(OBJ_DATA * object)
 {
 	int room, sect;
@@ -2582,8 +2582,8 @@ int obj_decay(OBJ_DATA * object)
 			!IS_CORPSE(object)))
 	{
 
-		act("$o0 медленно утонул$G.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
-		act("$o0 медленно утонул$G.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
+		act("$o0 п╪п╣п╢п╩п╣п╫п╫п╬ я┐я┌п╬п╫я┐п╩$G.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
+		act("$o0 п╪п╣п╢п╩п╣п╫п╫п╬ я┐я┌п╬п╫я┐п╩$G.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
 		extract_obj(object);
 		return (1);
 	}
@@ -2591,8 +2591,8 @@ int obj_decay(OBJ_DATA * object)
 	if (((sect == SECT_FLYING) && !IS_CORPSE(object) && !OBJ_FLAGGED(object, EExtraFlag::ITEM_FLYING)))
 	{
 
-		act("$o0 упал$G вниз.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
-		act("$o0 упал$G вниз.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
+		act("$o0 я┐п©п╟п╩$G п╡п╫п╦п╥.", FALSE, world[room]->first_character(), object, 0, TO_ROOM);
+		act("$o0 я┐п©п╟п╩$G п╡п╫п╦п╥.", FALSE, world[room]->first_character(), object, 0, TO_CHAR);
 		extract_obj(object);
 		return (1);
 	}
@@ -2602,9 +2602,9 @@ int obj_decay(OBJ_DATA * object)
 			 GET_OBJ_ZONE(object) != NOWHERE && GET_OBJ_ZONE(object) != world[room]->zone))
 	{
 
-		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
+		act("$o0 я─п╟я│я│я▀п©п╟п╩$U п╡ п╪п╣п╩п╨я┐я▌ п©я▀п╩я▄, п╨п╬я┌п╬я─я┐я▌ я─п╟п╥п╡п╣я▐п╩ п╡п╣я┌п╣я─.", FALSE,
 			world[room]->first_character(), object, 0, TO_ROOM);
-		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", FALSE,
+		act("$o0 я─п╟я│я│я▀п©п╟п╩$U п╡ п╪п╣п╩п╨я┐я▌ п©я▀п╩я▄, п╨п╬я┌п╬я─я┐я▌ я─п╟п╥п╡п╣я▐п╩ п╡п╣я┌п╣я─.", FALSE,
 			world[room]->first_character(), object, 0, TO_CHAR);
 		extract_obj(object);
 		return (1);
@@ -2736,10 +2736,10 @@ void extract_obj(OBJ_DATA * obj)
 
 	strcpy(name, obj->get_PName(0).c_str());
 	log("Extracting obj %s vnum == %d room = %d timer == %d", name, GET_OBJ_VNUM(obj), get_room_where_obj(obj, false), obj->get_timer());
-// TODO: в дебаг log("Start extract obj %s", name);
+// TODO: п╡ п╢п╣п╠п╟пЁ log("Start extract obj %s", name);
 
 	// Get rid of the contents of the object, as well.
-	// Обработка содержимого контейнера при его уничтожении
+	// п·п╠я─п╟п╠п╬я┌п╨п╟ я│п╬п╢п╣я─п╤п╦п╪п╬пЁп╬ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟ п©я─п╦ п╣пЁп╬ я┐п╫п╦я┤я┌п╬п╤п╣п╫п╦п╦
 	while (obj->get_contains())
 	{
 		temp = obj->get_contains();
@@ -2785,7 +2785,7 @@ void extract_obj(OBJ_DATA * obj)
 			extract_obj(temp);
 		}
 	}
-	// Содержимое контейнера удалено
+	// п║п╬п╢п╣я─п╤п╦п╪п╬п╣ п╨п╬п╫я┌п╣п╧п╫п╣я─п╟ я┐п╢п╟п╩п╣п╫п╬
 
 	if (obj->get_worn_by() != NULL)
 	{
@@ -2847,7 +2847,7 @@ void update_object(OBJ_DATA * obj, int use)
 
 void update_char_objects(CHAR_DATA * ch)
 {
-//Polud раз уж светит любой источник света, то и гаснуть тоже должны все
+//Polud я─п╟п╥ я┐п╤ я│п╡п╣я┌п╦я┌ п╩я▌п╠п╬п╧ п╦я│я┌п╬я┤п╫п╦п╨ я│п╡п╣я┌п╟, я┌п╬ п╦ пЁп╟я│п╫я┐я┌я▄ я┌п╬п╤п╣ п╢п╬п╩п╤п╫я▀ п╡я│п╣
 	for (int wear_pos = 0; wear_pos < NUM_WEARS; wear_pos++)
 	{
 		if (GET_EQ(ch, wear_pos) != NULL)
@@ -2859,15 +2859,15 @@ void update_char_objects(CHAR_DATA * ch)
 					const int i = GET_EQ(ch, wear_pos)->dec_val(2);
 					if (i == 1)
 					{
-						act("$z $o замерцал$G и начал$G угасать.\r\n",
+						act("$z $o п╥п╟п╪п╣я─я├п╟п╩$G п╦ п╫п╟я┤п╟п╩$G я┐пЁп╟я│п╟я┌я▄.\r\n",
 							FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
-						act("$o $n1 замерцал$G и начал$G угасать.",
+						act("$o $n1 п╥п╟п╪п╣я─я├п╟п╩$G п╦ п╫п╟я┤п╟п╩$G я┐пЁп╟я│п╟я┌я▄.",
 							FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
 					}
 					else if (i == 0)
 					{
-						act("$z $o погас$Q.\r\n", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
-						act("$o $n1 погас$Q.", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
+						act("$z $o п©п╬пЁп╟я│$Q.\r\n", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_CHAR);
+						act("$o $n1 п©п╬пЁп╟я│$Q.", FALSE, ch, GET_EQ(ch, wear_pos), 0, TO_ROOM);
 						if (ch->in_room != NOWHERE)
 						{
 							if (world[ch->in_room]->light > 0)
@@ -2900,12 +2900,12 @@ void update_char_objects(CHAR_DATA * ch)
 }
 
 /**
-* Если на мобе шмотки, одетые во время резета зоны, то при резете в случае пуржа моба - они уничтожаются с ним же.
-* Если на мобе шмотки, поднятые и бывшие у игрока (таймер уже тикал), то он их при резете выкинет на землю, как обычно.
-* А то при резетах например той же мавки умудрялись лутить шмот с земли, упавший с нее до того, как она сама поднимет,
-* плюс этот лоад накапливался и можно было заиметь несколько шмоток сразу с нескольких резетов. -- Krodo
-* \param inv - 1 сообщение о выкидывании из инвентаря, 0 - о снятии с себя
-* \param zone_reset - 1 - пуржим стаф без включенных таймеров, 0 - не пуржим ничего
+* п∙я│п╩п╦ п╫п╟ п╪п╬п╠п╣ я┬п╪п╬я┌п╨п╦, п╬п╢п╣я┌я▀п╣ п╡п╬ п╡я─п╣п╪я▐ я─п╣п╥п╣я┌п╟ п╥п╬п╫я▀, я┌п╬ п©я─п╦ я─п╣п╥п╣я┌п╣ п╡ я│п╩я┐я┤п╟п╣ п©я┐я─п╤п╟ п╪п╬п╠п╟ - п╬п╫п╦ я┐п╫п╦я┤я┌п╬п╤п╟я▌я┌я│я▐ я│ п╫п╦п╪ п╤п╣.
+* п∙я│п╩п╦ п╫п╟ п╪п╬п╠п╣ я┬п╪п╬я┌п╨п╦, п©п╬п╢п╫я▐я┌я▀п╣ п╦ п╠я▀п╡я┬п╦п╣ я┐ п╦пЁя─п╬п╨п╟ (я┌п╟п╧п╪п╣я─ я┐п╤п╣ я┌п╦п╨п╟п╩), я┌п╬ п╬п╫ п╦я┘ п©я─п╦ я─п╣п╥п╣я┌п╣ п╡я▀п╨п╦п╫п╣я┌ п╫п╟ п╥п╣п╪п╩я▌, п╨п╟п╨ п╬п╠я▀я┤п╫п╬.
+* п░ я┌п╬ п©я─п╦ я─п╣п╥п╣я┌п╟я┘ п╫п╟п©я─п╦п╪п╣я─ я┌п╬п╧ п╤п╣ п╪п╟п╡п╨п╦ я┐п╪я┐п╢я─я▐п╩п╦я│я▄ п╩я┐я┌п╦я┌я▄ я┬п╪п╬я┌ я│ п╥п╣п╪п╩п╦, я┐п©п╟п╡я┬п╦п╧ я│ п╫п╣п╣ п╢п╬ я┌п╬пЁп╬, п╨п╟п╨ п╬п╫п╟ я│п╟п╪п╟ п©п╬п╢п╫п╦п╪п╣я┌,
+* п©п╩я▌я│ я█я┌п╬я┌ п╩п╬п╟п╢ п╫п╟п╨п╟п©п╩п╦п╡п╟п╩я│я▐ п╦ п╪п╬п╤п╫п╬ п╠я▀п╩п╬ п╥п╟п╦п╪п╣я┌я▄ п╫п╣я│п╨п╬п╩я▄п╨п╬ я┬п╪п╬я┌п╬п╨ я│я─п╟п╥я┐ я│ п╫п╣я│п╨п╬п╩я▄п╨п╦я┘ я─п╣п╥п╣я┌п╬п╡. -- Krodo
+* \param inv - 1 я│п╬п╬п╠я┴п╣п╫п╦п╣ п╬ п╡я▀п╨п╦п╢я▀п╡п╟п╫п╦п╦ п╦п╥ п╦п╫п╡п╣п╫я┌п╟я─я▐, 0 - п╬ я│п╫я▐я┌п╦п╦ я│ я│п╣п╠я▐
+* \param zone_reset - 1 - п©я┐я─п╤п╦п╪ я│я┌п╟я└ п╠п╣п╥ п╡п╨п╩я▌я┤п╣п╫п╫я▀я┘ я┌п╟п╧п╪п╣я─п╬п╡, 0 - п╫п╣ п©я┐я─п╤п╦п╪ п╫п╦я┤п╣пЁп╬
 */
 void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 {
@@ -2914,18 +2914,18 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 	else
 	{
 		if (inv)
-			act("Вы выбросили $o3 на землю.", FALSE, ch, obj, 0, TO_CHAR);
+			act("п▓я▀ п╡я▀п╠я─п╬я│п╦п╩п╦ $o3 п╫п╟ п╥п╣п╪п╩я▌.", FALSE, ch, obj, 0, TO_CHAR);
 		else
-			act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
-		// Если этот моб трупа не оставит, то не выводить сообщение
-		// иначе ужасно коряво смотрится в бою и в тригах
+			act("п▓я▀ я│п╫я▐п╩п╦ $o3 п╦ п╡я▀п╠я─п╬я│п╦п╩п╦ п╫п╟ п╥п╣п╪п╩я▌.", FALSE, ch, obj, 0, TO_CHAR);
+		// п∙я│п╩п╦ я█я┌п╬я┌ п╪п╬п╠ я┌я─я┐п©п╟ п╫п╣ п╬я│я┌п╟п╡п╦я┌, я┌п╬ п╫п╣ п╡я▀п╡п╬п╢п╦я┌я▄ я│п╬п╬п╠я┴п╣п╫п╦п╣
+		// п╦п╫п╟я┤п╣ я┐п╤п╟я│п╫п╬ п╨п╬я─я▐п╡п╬ я│п╪п╬я┌я─п╦я┌я│я▐ п╡ п╠п╬я▌ п╦ п╡ я┌я─п╦пЁп╟я┘
 		bool msgShown = false;
 		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
 		{
 			if (inv)
-				act("$n бросил$g $o3 на землю.", FALSE, ch, obj, 0, TO_ROOM);
+				act("$n п╠я─п╬я│п╦п╩$g $o3 п╫п╟ п╥п╣п╪п╩я▌.", FALSE, ch, obj, 0, TO_ROOM);
 			else
-				act("$n снял$g $o3 и бросил$g на землю.", FALSE, ch, obj, 0, TO_ROOM);
+				act("$n я│п╫я▐п╩$g $o3 п╦ п╠я─п╬я│п╦п╩$g п╫п╟ п╥п╣п╪п╩я▌.", FALSE, ch, obj, 0, TO_ROOM);
 			msgShown = true;
 		}
 
@@ -2936,7 +2936,7 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 		obj_to_room(obj, ch->in_room);
 		if (!obj_decay(obj) && !msgShown)
 		{
-			act("На земле остал$U лежать $o.", FALSE, ch, obj, 0, TO_ROOM);
+			act("п²п╟ п╥п╣п╪п╩п╣ п╬я│я┌п╟п╩$U п╩п╣п╤п╟я┌я▄ $o.", FALSE, ch, obj, 0, TO_ROOM);
 		}
 	}
 }
@@ -2985,7 +2985,7 @@ void change_npc_leader(CHAR_DATA *ch)
 
 /**
 * Extract a ch completely from the world, and leave his stuff behind
-* \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
+* \param zone_reset - 0 п╬п╠я▀я┤п╫я▀п╧ п©я┐я─п╤ п╨п╬пЁп╢п╟ я┐пЁп╬п╢п╫п╬ (п©п╬ я┐п╪п╬п╩я┤п╟п╫п╦я▌), 1 - п©я┐я─п╤ п©я─п╦ я─п╣п╥п╣я┌п╣ п╥п╬п╫я▀
 */
 void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 {
@@ -3030,7 +3030,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 
 		if (ch->desc->snoop_by)
 		{
-			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
+			SEND_TO_Q("п▓п╟я┬п╟ п╤п╣я─я┌п╡п╟ я┌п╣п©п╣я─я▄ п╫п╣п╢п╬я│я┌я┐п©п╫п╟.\r\n", ch->desc->snoop_by);
 			ch->desc->snoop_by->snooping = NULL;
 			ch->desc->snoop_by = NULL;
 		}
@@ -3064,7 +3064,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 
 	if(IS_NPC(ch))
 	{
-		// дроп гривен до изменений последователей за мобом
+		// п╢я─п╬п© пЁя─п╦п╡п╣п╫ п╢п╬ п╦п╥п╪п╣п╫п╣п╫п╦п╧ п©п╬я│п╩п╣п╢п╬п╡п╟я┌п╣п╩п╣п╧ п╥п╟ п╪п╬п╠п╬п╪
 		ExtMoney::drop_torc(ch);
 	}
 
@@ -3089,7 +3089,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	if ((ch->followers || ch->has_master())
 		&& die_follower(ch))
 	{
-		// TODO: странно все это с пуржем в stop_follower
+		// TODO: я│я┌я─п╟п╫п╫п╬ п╡я│п╣ я█я┌п╬ я│ п©я┐я─п╤п╣п╪ п╡ stop_follower
 		return;
 	}
 
@@ -3121,14 +3121,14 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 //		log("[Extract char] All save for PC");
 		check_auction(ch, NULL);
 		ch->save_char();
-		//удаляются рент-файлы, если только персонаж не ушел в ренту
+		//я┐п╢п╟п╩я▐я▌я┌я│я▐ я─п╣п╫я┌-я└п╟п╧п╩я▀, п╣я│п╩п╦ я┌п╬п╩я▄п╨п╬ п©п╣я─я│п╬п╫п╟п╤ п╫п╣ я┐я┬п╣п╩ п╡ я─п╣п╫я┌я┐
 		Crash_delete_crashfile(ch);
 	}
 	else
 	{
 //		log("[Extract char] All clear for NPC");
 		if ((GET_MOB_RNUM(ch) > -1)
-			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))	// if mobile и не умертвие
+			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))	// if mobile п╦ п╫п╣ я┐п╪п╣я─я┌п╡п╦п╣
 		{
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		}
@@ -3208,9 +3208,9 @@ CHAR_DATA *get_char_room_vis(CHAR_DATA * ch, const char *name)
 	// JE 7/18/94 :-) :-)
 	if (!str_cmp(name, "self")
 		|| !str_cmp(name, "me")
-		|| !str_cmp(name, "я")
-		|| !str_cmp(name, "меня")
-		|| !str_cmp(name, "себя"))
+		|| !str_cmp(name, "я▐")
+		|| !str_cmp(name, "п╪п╣п╫я▐")
+		|| !str_cmp(name, "я│п╣п╠я▐"))
 	{
 		return (ch);
 	}
@@ -3293,7 +3293,7 @@ OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list,
 	if (!(number = get_number(&tmp)))
 		return (NULL);
 
-	//Запретим локейт 2. 3. n. стафин
+	//п≈п╟п©я─п╣я┌п╦п╪ п╩п╬п╨п╣п╧я┌ 2. 3. n. я│я┌п╟я└п╦п╫
 	if (number > 1 && locate_item)
 		return (NULL);
 
@@ -3485,17 +3485,17 @@ OBJ_DATA *get_obj_vis_for_locate(CHAR_DATA * ch, const char *name)
 
 bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 {
-	if (IS_CORPSE(i) || IS_GOD(ch)) //имм может локейтить и можно локейтить трупы
+	if (IS_CORPSE(i) || IS_GOD(ch)) //п╦п╪п╪ п╪п╬п╤п╣я┌ п╩п╬п╨п╣п╧я┌п╦я┌я▄ п╦ п╪п╬п╤п╫п╬ п╩п╬п╨п╣п╧я┌п╦я┌я▄ я┌я─я┐п©я▀
 	{
 		return true;
 	}
-	else if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
+	else if (OBJ_FLAGGED(i, EExtraFlag::ITEM_NOLOCATE)) //п╣я│п╩п╦ я└п╩п╟пЁ !п╩п╬п╨п╣п╧я┌ п╦ п╣п╣ п╫п╣я┌ п╡ п╨п╬п╪п╫п╟я┌п╣/п╦п╫п╡п╣п╫я┌п╟я─п╣ - п©я─п╬п©я┐я│я┌п╦п╪ п╣п╣
 	{
 		return false;
 	}
 	else if (i->get_carried_by() && IS_NPC(i->get_carried_by()))
 	{
-		if (world[IN_ROOM(i->get_carried_by())]->zone == world[ch->in_room]->zone) //шмотки у моба можно локейтить только в одной зоне
+		if (world[IN_ROOM(i->get_carried_by())]->zone == world[ch->in_room]->zone) //я┬п╪п╬я┌п╨п╦ я┐ п╪п╬п╠п╟ п╪п╬п╤п╫п╬ п╩п╬п╨п╣п╧я┌п╦я┌я▄ я┌п╬п╩я▄п╨п╬ п╡ п╬п╢п╫п╬п╧ п╥п╬п╫п╣
 		{
 			return true;
 		}
@@ -3506,7 +3506,7 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i)
 	}
 	else if (i->get_in_room() != NOWHERE && i->get_in_room())
 	{
-		if (world[i->get_in_room()]->zone == world[ch->in_room]->zone) //шмотки в клетке можно локейтить только в одной зоне
+		if (world[i->get_in_room()]->zone == world[ch->in_room]->zone) //я┬п╪п╬я┌п╨п╦ п╡ п╨п╩п╣я┌п╨п╣ п╪п╬п╤п╫п╬ п╩п╬п╨п╣п╧я┌п╦я┌я▄ я┌п╬п╩я▄п╨п╬ п╡ п╬п╢п╫п╬п╧ п╥п╬п╫п╣
 		{
 			return true;
 		}
@@ -3629,21 +3629,21 @@ OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * eq
 char *money_desc(int amount, int padis)
 {
 	static char buf[128];
-	const char *single[6][2] = { {"а", "а"},
-		{"ой", "ы"},
-		{"ой", "е"},
-		{"у", "у"},
-		{"ой", "ой"},
-		{"ой", "е"}
+	const char *single[6][2] = { {"п╟", "п╟"},
+		{"п╬п╧", "я▀"},
+		{"п╬п╧", "п╣"},
+		{"я┐", "я┐"},
+		{"п╬п╧", "п╬п╧"},
+		{"п╬п╧", "п╣"}
 	}, *plural[6][3] =
 	{
 		{
-			"ая", "а", "а"}, {
-			"ой", "и", "ы"}, {
-			"ой", "е", "е"}, {
-			"ую", "у", "у"}, {
-			"ой", "ой", "ой"}, {
-			"ой", "е", "е"}
+			"п╟я▐", "п╟", "п╟"}, {
+			"п╬п╧", "п╦", "я▀"}, {
+			"п╬п╧", "п╣", "п╣"}, {
+			"я┐я▌", "я┐", "я┐"}, {
+			"п╬п╧", "п╬п╧", "п╬п╧"}, {
+			"п╬п╧", "п╣", "п╣"}
 	};
 
 	if (amount <= 0)
@@ -3653,32 +3653,32 @@ char *money_desc(int amount, int padis)
 	}
 	if (amount == 1)
 	{
-		sprintf(buf, "одн%s кун%s", single[padis][0], single[padis][1]);
+		sprintf(buf, "п╬п╢п╫%s п╨я┐п╫%s", single[padis][0], single[padis][1]);
 	}
 	else if (amount <= 10)
-		sprintf(buf, "малюсеньк%s горстк%s кун", plural[padis][0], plural[padis][1]);
+		sprintf(buf, "п╪п╟п╩я▌я│п╣п╫я▄п╨%s пЁп╬я─я│я┌п╨%s п╨я┐п╫", plural[padis][0], plural[padis][1]);
 	else if (amount <= 20)
-		sprintf(buf, "маленьк%s горстк%s кун", plural[padis][0], plural[padis][1]);
+		sprintf(buf, "п╪п╟п╩п╣п╫я▄п╨%s пЁп╬я─я│я┌п╨%s п╨я┐п╫", plural[padis][0], plural[padis][1]);
 	else if (amount <= 75)
-		sprintf(buf, "небольш%s горстк%s кун", plural[padis][0], plural[padis][1]);
+		sprintf(buf, "п╫п╣п╠п╬п╩я▄я┬%s пЁп╬я─я│я┌п╨%s п╨я┐п╫", plural[padis][0], plural[padis][1]);
 	else if (amount <= 200)
-		sprintf(buf, "маленьк%s кучк%s кун", plural[padis][0], plural[padis][1]);
+		sprintf(buf, "п╪п╟п╩п╣п╫я▄п╨%s п╨я┐я┤п╨%s п╨я┐п╫", plural[padis][0], plural[padis][1]);
 	else if (amount <= 1000)
-		sprintf(buf, "небольш%s кучк%s кун", plural[padis][0], plural[padis][1]);
+		sprintf(buf, "п╫п╣п╠п╬п╩я▄я┬%s п╨я┐я┤п╨%s п╨я┐п╫", plural[padis][0], plural[padis][1]);
 	else if (amount <= 5000)
-		sprintf(buf, "кучк%s кун", plural[padis][1]);
+		sprintf(buf, "п╨я┐я┤п╨%s п╨я┐п╫", plural[padis][1]);
 	else if (amount <= 10000)
-		sprintf(buf, "больш%s кучк%s кун", plural[padis][0], plural[padis][1]);
+		sprintf(buf, "п╠п╬п╩я▄я┬%s п╨я┐я┤п╨%s п╨я┐п╫", plural[padis][0], plural[padis][1]);
 	else if (amount <= 20000)
-		sprintf(buf, "груд%s кун", plural[padis][2]);
+		sprintf(buf, "пЁя─я┐п╢%s п╨я┐п╫", plural[padis][2]);
 	else if (amount <= 75000)
-		sprintf(buf, "больш%s груд%s кун", plural[padis][0], plural[padis][2]);
+		sprintf(buf, "п╠п╬п╩я▄я┬%s пЁя─я┐п╢%s п╨я┐п╫", plural[padis][0], plural[padis][2]);
 	else if (amount <= 150000)
-		sprintf(buf, "горк%s кун", plural[padis][1]);
+		sprintf(buf, "пЁп╬я─п╨%s п╨я┐п╫", plural[padis][1]);
 	else if (amount <= 250000)
-		sprintf(buf, "гор%s кун", plural[padis][2]);
+		sprintf(buf, "пЁп╬я─%s п╨я┐п╫", plural[padis][2]);
 	else
-		sprintf(buf, "огромн%s гор%s кун", plural[padis][0], plural[padis][2]);
+		sprintf(buf, "п╬пЁя─п╬п╪п╫%s пЁп╬я─%s п╨я┐п╫", plural[padis][0], plural[padis][2]);
 
 	return (buf);
 }
@@ -3698,12 +3698,12 @@ OBJ_DATA::shared_ptr create_money(int amount)
 
 	if (amount == 1)
 	{
-		sprintf(buf, "coin gold кун деньги денег монет %s", money_desc(amount, 0));
+		sprintf(buf, "coin gold п╨я┐п╫ п╢п╣п╫я▄пЁп╦ п╢п╣п╫п╣пЁ п╪п╬п╫п╣я┌ %s", money_desc(amount, 0));
 		obj->set_aliases(buf);
-		obj->set_short_description("куна");
-		obj->set_description("Одна куна лежит здесь.");
-		new_descr->keyword = str_dup("coin gold монет кун денег");
-		new_descr->description = str_dup("Всего лишь одна куна.");
+		obj->set_short_description("п╨я┐п╫п╟");
+		obj->set_description("п·п╢п╫п╟ п╨я┐п╫п╟ п╩п╣п╤п╦я┌ п╥п╢п╣я│я▄.");
+		new_descr->keyword = str_dup("coin gold п╪п╬п╫п╣я┌ п╨я┐п╫ п╢п╣п╫п╣пЁ");
+		new_descr->description = str_dup("п▓я│п╣пЁп╬ п╩п╦я┬я▄ п╬п╢п╫п╟ п╨я┐п╫п╟.");
 		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 		{
 			obj->set_PName(i, money_desc(amount, i));
@@ -3711,7 +3711,7 @@ OBJ_DATA::shared_ptr create_money(int amount)
 	}
 	else
 	{
-		sprintf(buf, "coins gold кун денег %s", money_desc(amount, 0));
+		sprintf(buf, "coins gold п╨я┐п╫ п╢п╣п╫п╣пЁ %s", money_desc(amount, 0));
 		obj->set_aliases(buf);
 		obj->set_short_description(money_desc(amount, 0));
 		for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
@@ -3719,10 +3719,10 @@ OBJ_DATA::shared_ptr create_money(int amount)
 			obj->set_PName(i, money_desc(amount, i));
 		}
 
-		sprintf(buf, "Здесь лежит %s.", money_desc(amount, 0));
+		sprintf(buf, "п≈п╢п╣я│я▄ п╩п╣п╤п╦я┌ %s.", money_desc(amount, 0));
 		obj->set_description(CAP(buf));
 
-		new_descr->keyword = str_dup("coins gold кун денег");
+		new_descr->keyword = str_dup("coins gold п╨я┐п╫ п╢п╣п╫п╣пЁ");
 	}
 
 	new_descr->next = NULL;
@@ -3792,12 +3792,12 @@ int generic_find(char *arg, bitvector_t bitvector, CHAR_DATA * ch, CHAR_DATA ** 
 			return (FIND_OBJ_WORLD);
 	}
 
-	// Начало изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
+	// п²п╟я┤п╟п╩п╬ п╦п╥п╪п╣п╫п╣п╫п╦п╧. (я│) п■п╪п╦я┌я─п╦п╧ п╟п╨п╟ dzMUDiST п╟п╨п╟ п я┐п╢п╬я▐я─
 
-// Переписан код, обрабатывающий параметры FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM
-// В итоге поиск объекта просиходит в "экипировке - инветаре - комнате" согласно
-// общему количеству имеющихся "созвучных" предметов.
-// Старый код закомментирован и подан в конце изменений.
+// п÷п╣я─п╣п©п╦я│п╟п╫ п╨п╬п╢, п╬п╠я─п╟п╠п╟я┌я▀п╡п╟я▌я┴п╦п╧ п©п╟я─п╟п╪п╣я┌я─я▀ FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM
+// п▓ п╦я┌п╬пЁп╣ п©п╬п╦я│п╨ п╬п╠я┼п╣п╨я┌п╟ п©я─п╬я│п╦я┘п╬п╢п╦я┌ п╡ "я█п╨п╦п©п╦я─п╬п╡п╨п╣ - п╦п╫п╡п╣я┌п╟я─п╣ - п╨п╬п╪п╫п╟я┌п╣" я│п╬пЁп╩п╟я│п╫п╬
+// п╬п╠я┴п╣п╪я┐ п╨п╬п╩п╦я┤п╣я│я┌п╡я┐ п╦п╪п╣я▌я┴п╦я┘я│я▐ "я│п╬п╥п╡я┐я┤п╫я▀я┘" п©я─п╣п╢п╪п╣я┌п╬п╡.
+// п║я┌п╟я─я▀п╧ п╨п╬п╢ п╥п╟п╨п╬п╪п╪п╣п╫я┌п╦я─п╬п╡п╟п╫ п╦ п©п╬п╢п╟п╫ п╡ п╨п╬п╫я├п╣ п╦п╥п╪п╣п╫п╣п╫п╦п╧.
 
 	strcpy(tmp, name);
 	if (!(number = get_number(&tmp)))
@@ -3875,11 +3875,11 @@ int find_all_dots(char *arg)
 {
 	char tmpname[MAX_INPUT_LENGTH];
 
-	if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
+	if (!str_cmp(arg, "all") || !str_cmp(arg, "п╡я│п╣"))
 	{
 		return (FIND_ALL);
 	}
-	else if (!strn_cmp(arg, "all.", 4) || !strn_cmp(arg, "все.", 4))
+	else if (!strn_cmp(arg, "all.", 4) || !strn_cmp(arg, "п╡я│п╣.", 4))
 	{
 		strl_cpy(tmpname, arg + 4, MAX_INPUT_LENGTH);
 		strl_cpy(arg, tmpname, MAX_INPUT_LENGTH);
@@ -3891,8 +3891,8 @@ int find_all_dots(char *arg)
 	}
 }
 
-// Функции для работы с порталами для "townportal"
-// Возвращает указатель на слово по vnum комнаты или NULL если не найдено
+// п╓я┐п╫п╨я├п╦п╦ п╢п╩я▐ я─п╟п╠п╬я┌я▀ я│ п©п╬я─я┌п╟п╩п╟п╪п╦ п╢п╩я▐ "townportal"
+// п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ я┐п╨п╟п╥п╟я┌п╣п╩я▄ п╫п╟ я│п╩п╬п╡п╬ п©п╬ vnum п╨п╬п╪п╫п╟я┌я▀ п╦п╩п╦ NULL п╣я│п╩п╦ п╫п╣ п╫п╟п╧п╢п╣п╫п╬
 char *find_portal_by_vnum(int vnum)
 {
 	struct portals_list_type *i;
@@ -3904,7 +3904,7 @@ char *find_portal_by_vnum(int vnum)
 	return (NULL);
 }
 
-// Возвращает минимальный уровень для изучения портала
+// п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ п╪п╦п╫п╦п╪п╟п╩я▄п╫я▀п╧ я┐я─п╬п╡п╣п╫я▄ п╢п╩я▐ п╦п╥я┐я┤п╣п╫п╦я▐ п©п╬я─я┌п╟п╩п╟
 int level_portal_by_vnum(int vnum)
 {
 	struct portals_list_type *i;
@@ -3916,7 +3916,7 @@ int level_portal_by_vnum(int vnum)
 	return (0);
 }
 
-// Возвращает vnum портала по ключевому слову или NOWHERE если не найдено
+// п▓п╬п╥п╡я─п╟я┴п╟п╣я┌ vnum п©п╬я─я┌п╟п╩п╟ п©п╬ п╨п╩я▌я┤п╣п╡п╬п╪я┐ я│п╩п╬п╡я┐ п╦п╩п╦ NOWHERE п╣я│п╩п╦ п╫п╣ п╫п╟п╧п╢п╣п╫п╬
 int find_portal_by_word(char *wrd)
 {
 	struct portals_list_type *i;
@@ -3939,13 +3939,13 @@ struct portals_list_type *get_portal(int vnum, char *wrd)
 	return i;
 }
 
-/* Добавляет в список чару портал в комнату vnum - с проверкой целостности
-   и если есть уже такой - то добавляем его 1м в список */
+/* п■п╬п╠п╟п╡п╩я▐п╣я┌ п╡ я│п©п╦я│п╬п╨ я┤п╟я─я┐ п©п╬я─я┌п╟п╩ п╡ п╨п╬п╪п╫п╟я┌я┐ vnum - я│ п©я─п╬п╡п╣я─п╨п╬п╧ я├п╣п╩п╬я│я┌п╫п╬я│я┌п╦
+   п╦ п╣я│п╩п╦ п╣я│я┌я▄ я┐п╤п╣ я┌п╟п╨п╬п╧ - я┌п╬ п╢п╬п╠п╟п╡п╩я▐п╣п╪ п╣пЁп╬ 1п╪ п╡ я│п©п╦я│п╬п╨ */
 void add_portal_to_char(CHAR_DATA * ch, int vnum)
 {
 	struct char_portal_type *tmp, *dlt = NULL;
 
-	// Проверка на то что уже есть портал в списке, если есть, удаляем
+	// п÷я─п╬п╡п╣я─п╨п╟ п╫п╟ я┌п╬ я┤я┌п╬ я┐п╤п╣ п╣я│я┌я▄ п©п╬я─я┌п╟п╩ п╡ я│п©п╦я│п╨п╣, п╣я│п╩п╦ п╣я│я┌я▄, я┐п╢п╟п╩я▐п╣п╪
 	for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next)
 	{
 		if (tmp->vnum == vnum)
@@ -3970,7 +3970,7 @@ void add_portal_to_char(CHAR_DATA * ch, int vnum)
 	GET_PORTALS(ch) = tmp;
 }
 
-// Проверка на то, знает ли чар портал в комнате vnum
+// п÷я─п╬п╡п╣я─п╨п╟ п╫п╟ я┌п╬, п╥п╫п╟п╣я┌ п╩п╦ я┤п╟я─ п©п╬я─я┌п╟п╩ п╡ п╨п╬п╪п╫п╟я┌п╣ vnum
 int has_char_portal(CHAR_DATA * ch, int vnum)
 {
 	struct char_portal_type *tmp;
@@ -3983,18 +3983,18 @@ int has_char_portal(CHAR_DATA * ch, int vnum)
 	return (0);
 }
 
-// Убирает лишние и несуществующие порталы у чара
+// пёп╠п╦я─п╟п╣я┌ п╩п╦я┬п╫п╦п╣ п╦ п╫п╣я│я┐я┴п╣я│я┌п╡я┐я▌я┴п╦п╣ п©п╬я─я┌п╟п╩я▀ я┐ я┤п╟я─п╟
 void check_portals(CHAR_DATA * ch)
 {
 	int max_p, portals;
 	struct char_portal_type *tmp, *dlt = NULL;
 	struct portals_list_type *port;
 
-	// Вычисляем максимальное количество порталов, которое может запомнить чар
+	// п▓я▀я┤п╦я│п╩я▐п╣п╪ п╪п╟п╨я│п╦п╪п╟п╩я▄п╫п╬п╣ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ п©п╬я─я┌п╟п╩п╬п╡, п╨п╬я┌п╬я─п╬п╣ п╪п╬п╤п╣я┌ п╥п╟п©п╬п╪п╫п╦я┌я▄ я┤п╟я─
 	max_p = MAX_PORTALS(ch);
 	portals = 0;
 
-	// Пробегаем max_p порталы
+	// п÷я─п╬п╠п╣пЁп╟п╣п╪ max_p п©п╬я─я┌п╟п╩я▀
 	for (tmp = GET_PORTALS(ch); tmp;)
 	{
 		port = get_portal(tmp->vnum, NULL);
@@ -4027,7 +4027,7 @@ void check_portals(CHAR_DATA * ch)
 	}
 }
 
-//Функции для модифицированного чарма
+//п╓я┐п╫п╨я├п╦п╦ п╢п╩я▐ п╪п╬п╢п╦я└п╦я├п╦я─п╬п╡п╟п╫п╫п╬пЁп╬ я┤п╟я─п╪п╟
 float get_damage_per_round(CHAR_DATA * victim)
 {
 	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
@@ -4038,7 +4038,7 @@ float get_damage_per_round(CHAR_DATA * victim)
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
-	//Если дыхание - то дамаг умножается на 1.1
+	//п∙я│п╩п╦ п╢я▀я┘п╟п╫п╦п╣ - я┌п╬ п╢п╟п╪п╟пЁ я┐п╪п╫п╬п╤п╟п╣я┌я│я▐ п╫п╟ 1.1
  	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))
  	{
  		dam_per_round *= 1.1f;
@@ -4087,7 +4087,7 @@ float get_effective_wis(CHAR_DATA * ch, int spellnum)
 	}
 	else
 	{
-		//если гдето вылезет косяком
+		//п╣я│п╩п╦ пЁп╢п╣я┌п╬ п╡я▀п╩п╣п╥п╣я┌ п╨п╬я│я▐п╨п╬п╪
 		key_value = 0;
 		key_value_add = 0;
 	}
@@ -4201,7 +4201,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 
 	if (spellnum != SPELL_CHARM)
 	{
-		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+		eff_cha = MMIN(max_cha, eff_cha + 2); // п▓я│п╣ п╨я─п╬п╪п╣ я┤п╟я─п╪п╟ п╨п╟я│я┌п╦я┌я│я▐ я│ п╠п╬п╫я┐я│п╬п╪ п╡ 2
 	}
 
 	if (eff_cha < max_cha)
@@ -4236,10 +4236,10 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 
 	if (spellnum != SPELL_CHARM)
 	{
-		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+		eff_cha = MMIN(max_cha, eff_cha + 2); // п▓я│п╣ п╨я─п╬п╪п╣ я┤п╟я─п╪п╟ п╨п╟я│я┌п╦я┌я│я▐ я│ п╠п╬п╫я┐я│п╬п╪ п╡ 2
 	}
 
-	// Интерполяция между значениями для целых значений обаяния
+	// п≤п╫я┌п╣я─п©п╬п╩я▐я├п╦я▐ п╪п╣п╤п╢я┐ п╥п╫п╟я┤п╣п╫п╦я▐п╪п╦ п╢п╩я▐ я├п╣п╩я▀я┘ п╥п╫п╟я┤п╣п╫п╦п╧ п╬п╠п╟я▐п╫п╦я▐
 	if (eff_cha < max_cha)
 	{
 		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
@@ -4256,7 +4256,7 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 }
 
 //********************************************************************
-// Работа с очередью мема
+// п═п╟п╠п╬я┌п╟ я│ п╬я┤п╣я─п╣п╢я▄я▌ п╪п╣п╪п╟
 
 void MemQ_init(CHAR_DATA * ch)
 {
@@ -4290,7 +4290,7 @@ int MemQ_learn(CHAR_DATA * ch)
 	i = ch->MemQueue.queue;
 	ch->MemQueue.queue = i->link;
 	free(i);
-	sprintf(buf, "Вы выучили заклинание \"%s%s%s\".\r\n",
+	sprintf(buf, "п▓я▀ п╡я▀я┐я┤п╦п╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ \"%s%s%s\".\r\n",
 			CCICYN(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 	return num;
@@ -4302,23 +4302,23 @@ void MemQ_remember(CHAR_DATA * ch, int num)
 	int slotcnt, slotn;
 	struct spell_mem_queue_item *i, **pi = &ch->MemQueue.queue;
 
-	// проверить количество слотов
+	// п©я─п╬п╡п╣я─п╦я┌я▄ п╨п╬п╩п╦я┤п╣я│я┌п╡п╬ я│п╩п╬я┌п╬п╡
 	slots = MemQ_slots(ch);
 	slotn = spell_info[num].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
 	slotcnt = slot_for_char(ch, slotn + 1);
-	slotcnt -= slots[slotn];	// кол-во свободных слотов
+	slotcnt -= slots[slotn];	// п╨п╬п╩-п╡п╬ я│п╡п╬п╠п╬п╢п╫я▀я┘ я│п╩п╬я┌п╬п╡
 
 	if (slotcnt <= 0)
 	{
-		send_to_char("У вас нет свободных ячеек этого круга.", ch);
+		send_to_char("пё п╡п╟я│ п╫п╣я┌ я│п╡п╬п╠п╬п╢п╫я▀я┘ я▐я┤п╣п╣п╨ я█я┌п╬пЁп╬ п╨я─я┐пЁп╟.", ch);
 		return;
 	}
 
 	if (GET_RELIGION(ch) == RELIGION_MONO)
-		sprintf(buf, "Вы дописали заклинание \"%s%s%s\" в свой часослов.\r\n",
+		sprintf(buf, "п▓я▀ п╢п╬п©п╦я│п╟п╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ \"%s%s%s\" п╡ я│п╡п╬п╧ я┤п╟я│п╬я│п╩п╬п╡.\r\n",
 				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
 	else
-		sprintf(buf, "Вы занесли заклинание \"%s%s%s\" в свои резы.\r\n",
+		sprintf(buf, "п▓я▀ п╥п╟п╫п╣я│п╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ \"%s%s%s\" п╡ я│п╡п╬п╦ я─п╣п╥я▀.\r\n",
 				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
@@ -4343,7 +4343,7 @@ void MemQ_forget(CHAR_DATA * ch, int num)
 
 	if (q == NULL)
 	{
-		send_to_char("Вы и не собирались заучить это заклинание.\r\n", ch);
+		send_to_char("п▓я▀ п╦ п╫п╣ я│п╬п╠п╦я─п╟п╩п╦я│я▄ п╥п╟я┐я┤п╦я┌я▄ я█я┌п╬ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣.\r\n", ch);
 	}
 	else
 	{
@@ -4355,7 +4355,7 @@ void MemQ_forget(CHAR_DATA * ch, int num)
 		q[0] = q[0]->link;
 		free(ptr);
 		sprintf(buf,
-				"Вы вычеркнули заклинание \"%s%s%s\" из списка для запоминания.\r\n",
+				"п▓я▀ п╡я▀я┤п╣я─п╨п╫я┐п╩п╦ п╥п╟п╨п╩п╦п╫п╟п╫п╦п╣ \"%s%s%s\" п╦п╥ я│п©п╦я│п╨п╟ п╢п╩я▐ п╥п╟п©п╬п╪п╦п╫п╟п╫п╦я▐.\r\n",
 				CCIMAG(ch, C_NRM), spell_info[num].name, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 	}
@@ -4367,7 +4367,7 @@ int *MemQ_slots(CHAR_DATA * ch)
 	static int slots[MAX_SLOT];
 	int i, n, sloti;
 
-	// инициализация
+	// п╦п╫п╦я├п╦п╟п╩п╦п╥п╟я├п╦я▐
 	for (i = 0; i < MAX_SLOT; ++i)
 		slots[i] = slot_for_char(ch, i + 1);
 
@@ -4464,7 +4464,7 @@ int awake_others(CHAR_DATA * ch)
 	return (FALSE);
 }
 
-// Учет резиста - возвращается эффект от спелл или умения с учетом резиста
+// пёя┤п╣я┌ я─п╣п╥п╦я│я┌п╟ - п╡п╬п╥п╡я─п╟я┴п╟п╣я┌я│я▐ я█я└я└п╣п╨я┌ п╬я┌ я│п©п╣п╩п╩ п╦п╩п╦ я┐п╪п╣п╫п╦я▐ я│ я┐я┤п╣я┌п╬п╪ я─п╣п╥п╦я│я┌п╟
 
 int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 {
@@ -4489,14 +4489,14 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	return result;
 }
 
-// * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
+// * п▒п╣я─п╣я┌я│я▐ п╪п╦п╫п╦п╪п╟п╩я▄п╫п╟я▐ я├п╣п╫п╟ я─п╣п╫я┌я▀ я┬п╪п╬я┌п╨п╦, п╫п╣ п╡п╟п╤п╫п╬, п╬п╢п╣я┌п╟я▐ п╬п╫п╟ п╠я┐п╢п╣я┌ п╦п╩п╦ я│п╫я▐я┌п╟я▐.
 int get_object_low_rent(OBJ_DATA *obj)
 {
 	int rent = GET_OBJ_RENT(obj) > GET_OBJ_RENTEQ(obj) ? GET_OBJ_RENTEQ(obj) : GET_OBJ_RENT(obj);
 	return rent;
 }
 
-// * Удаление рунной метки (при пропадании в пустоте и реморте).
+// * пёп╢п╟п╩п╣п╫п╦п╣ я─я┐п╫п╫п╬п╧ п╪п╣я┌п╨п╦ (п©я─п╦ п©я─п╬п©п╟п╢п╟п╫п╦п╦ п╡ п©я┐я│я┌п╬я┌п╣ п╦ я─п╣п╪п╬я─я┌п╣).
 void remove_rune_label(CHAR_DATA *ch)
 {
 	ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
@@ -4506,7 +4506,7 @@ void remove_rune_label(CHAR_DATA *ch)
 		if (aff != label_room->affected.end())
 		{
 			affect_room_remove(label_room, aff);
-			send_to_char("Ваша рунная метка удалена.\r\n", ch);
+			send_to_char("п▓п╟я┬п╟ я─я┐п╫п╫п╟я▐ п╪п╣я┌п╨п╟ я┐п╢п╟п╩п╣п╫п╟.\r\n", ch);
 		}
 	}
 }
