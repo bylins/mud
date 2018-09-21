@@ -1161,11 +1161,7 @@ void check_hiding_cmd(CHAR_DATA * ch, int percent)
 
 bool check_frozen_cmd(CHAR_DATA* /*ch*/, int cmd)
 {
-	if (!strcmp(cmd_info[cmd].command, "коне")
-		|| !strcmp(cmd_info[cmd].command, "конец")
-		|| !strcmp(cmd_info[cmd].command, "qui")
-		|| !strcmp(cmd_info[cmd].command, "quit")
-		|| !strcmp(cmd_info[cmd].command, "предложение")
+	if (!strcmp(cmd_info[cmd].command, "предложение")
 		|| !strcmp(cmd_info[cmd].command, "offer")
 		|| !strcmp(cmd_info[cmd].command, "постой")
 		|| !strcmp(cmd_info[cmd].command, "rent")
