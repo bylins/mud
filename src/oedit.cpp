@@ -1977,13 +1977,13 @@ void oedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case OEDIT_MIWVALUE:
-		if ((number = atoi(arg)) >= -1 && number <= 10000)
+		if ((number = atoi(arg)) >= -1 && number <= 10000 && number != 0)
 		{
 			OLC_OBJ(d)->set_max_in_world(number);
 		}
 		else
 		{
-			send_to_char("Максимальное число предметов в мире (0-10000 или -1) : ", d->character.get());
+			send_to_char("Максимальное число предметов в мире (1-100000 или -1) : ", d->character.get());
 			return;
 		}
 		break;
