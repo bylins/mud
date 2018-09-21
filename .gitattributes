@@ -1,4 +1,4 @@
-/src/*           working-tree-encoding=KOI8-R
-/tests/*         working-tree-encoding=KOI8-R
-/lib.template/*  working-tree-encoding=KOI8-R
-/bin.win/*       working-tree-encoding=windows-1251
+/src/**           working-tree-encoding=KOI8-R
+/tests/**         working-tree-encoding=KOI8-R
+/lib.template/**  working-tree-encoding=KOI8-R
+/bin.win/**       working-tree-encoding=windows-1251
