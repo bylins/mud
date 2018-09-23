@@ -297,7 +297,7 @@ void Player::sub_hryvn(int value)
 	this->hryvn -= value;
 }
 
-void Player::dec_hryvn(int value)
+void Player::add_hryvn(int value)
 {
 	this->hryvn += value;
 }
@@ -314,12 +314,19 @@ void Player::dquest(int id)
 				send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
 				return;
 			}
-
-			const int value = x.reward + number(1, 3);
-
+			int value = x.reward + number(1, 3);
+			if ((zone_table[world[this->in_room]->zone].mob_level > 24) 
+				|| (zone_table[world[this->in_room]->zone].mob_level > (GET_LEVEL(this) + GET_REMORT(this)/5)))
+			{
+				value = value;
+			}
+			else
+			{
+				value /= 2;
+			}
 			sprintf(buf2, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
 			send_to_char(this, buf2);
-			this->dec_hryvn(value);
+			this->add_hryvn(value);
 			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
 			this->account->complete_quest(id);
 			return;

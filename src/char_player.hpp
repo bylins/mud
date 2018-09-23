@@ -156,7 +156,7 @@ public:
 	int get_hryvn();
 	void set_hryvn(int value);
 	void sub_hryvn(int value);
-	void dec_hryvn(int value);
+	void add_hryvn(int value);
 	void dquest(int id);
 
 	std::shared_ptr<Account> get_account();
