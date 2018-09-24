@@ -638,7 +638,8 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				&& CAN_SEE(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 				&& !AFF_FLAGGED(tch, EAffectFlag::AFF_HOLD)
-				&& !IS_GRGOD(ch))
+				&& !IS_GRGOD(ch)
+				&& !on_horse(ch))
 			{
 				if (show_msg)
 				{

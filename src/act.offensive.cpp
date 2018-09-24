@@ -809,7 +809,7 @@ void go_flee(CHAR_DATA* ch)
 	if (!WAITLESS(ch))
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 
-	if (on_horse(ch) && GET_POS(get_horse(ch)) >= POS_FIGHTING && !GET_MOB_HOLD(get_horse(ch)))
+	if (on_horse(ch) && (GET_POS(get_horse(ch)) < POS_FIGHTING || GET_MOB_HOLD(get_horse(ch))))
 	{
 		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 		return;
@@ -839,6 +839,11 @@ void go_flee(CHAR_DATA* ch)
 		{
 			act("$n запаниковал$g и пытал$u сбежать!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
+			if (on_horse(ch))
+			{
+				act("Верн$W $N вынес$Q вас из боя.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+			}
+
 			if (was_fighting && !IS_NPC(ch))
 			{
 				reduce_exp_after_flee(ch, was_fighting, was_in);
@@ -852,6 +857,7 @@ void go_flee(CHAR_DATA* ch)
 	}
 	else
 	{
+		act("$n запаниковал$g и попытал$u убежать, но не смог$q!", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 	}
 }
