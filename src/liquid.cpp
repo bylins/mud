@@ -1410,15 +1410,17 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 {
 	std::string out;
 	char buf_[MAX_INPUT_LENGTH];
+	int volume = GET_OBJ_VAL(obj, 0);
+	int amount = GET_OBJ_VAL(obj, 1);
 
 	snprintf(buf_, sizeof(buf_), "Может вместить зелья: %s%d %s%s\r\n",
 		CCCYN(ch, C_NRM),
-		GET_OBJ_VAL(obj, 0), desc_count(GET_OBJ_VAL(obj, 0), WHAT_GULP),
+		volume, desc_count(volume, WHAT_GULP),
 		CCNRM(ch, C_NRM));
 	out += buf_;
 
 	// емкость не пуста
-	if (GET_OBJ_VAL(obj, 1) > 0)
+	if (amount > 0)
 	{
 		// есть какие-то заклы
 		if (obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0)
@@ -1426,16 +1428,16 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 			if (IS_IMMORTAL(ch))
 			{
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
-					GET_OBJ_VAL(obj, 1),
-					desc_count(GET_OBJ_VAL(obj, 1), WHAT_GULP),
+					amount,
+					desc_count(amount, WHAT_GULP),
 					drinks[GET_OBJ_VAL(obj, 2)],
 					obj->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM));
 			}
 			else
 			{
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s.\r\n",
-					GET_OBJ_VAL(obj, 1),
-					desc_count(GET_OBJ_VAL(obj, 1), WHAT_GULP),
+					amount,
+					desc_count(amount, WHAT_GULP),
 					drinks[GET_OBJ_VAL(obj, 2)]);
 			}
 			out += buf_;
@@ -1443,9 +1445,10 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 		}
 		else
 		{
-			snprintf(buf_, sizeof(buf_), "Заполнен %s на %d%%\r\n",
+			snprintf(buf_, sizeof(buf_), "Заполнен%s %s на %d%%\r\n",
+				GET_OBJ_SUF_6(obj),
 				drinknames[GET_OBJ_VAL(obj, 2)],
-				GET_OBJ_VAL(obj, 1)*100/(GET_OBJ_VAL(obj, 0) + 1));
+				amount*100/(volume ? volume : 1));
 			out += buf_;
 			// чтобы выдать варнинг на тему зелья без заклов
 			if (is_potion(obj))
@@ -1454,7 +1457,7 @@ void identify(CHAR_DATA *ch, const OBJ_DATA *obj)
 			}
 		}
 	}
-	if (GET_OBJ_VAL(obj, 1) >0) //если что-то плескается
+	if (amount > 0) //если что-то плескается
 	{
 		sprintf(buf1, "Качество: %s \r\n", diag_liquid_timer(obj)); // состояние жижки
 		out += buf1;
