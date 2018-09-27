@@ -2000,12 +2000,14 @@ void show_extend_room(const char * const description, CHAR_DATA * ch)
 	found = found || paste_description(string, TAG_DAY,
 									   (weather_info.sunlight == SUN_RISE || weather_info.sunlight == SUN_LIGHT));
 
-	for (size_t i = strlen(buf); i > 0 && *(buf + i) == '\n'; i--)
+	// Trim any LF/CRLF at the end of description
+	pos = buf + strlen(buf);
+	while (pos > buf && *--pos == '\n')
 	{
-		*(buf + i) = '\0';
-		if (i > 0 && *(buf + i) == '\r')
-			*(buf + --i) = '\0';
-	}
+		*pos = '\0';
+		if (pos > buf && *(pos - 1) == '\r')
+			*--pos = '\0';
+	}	
 
 	send_to_char(buf, ch);
 	send_to_char("\r\n", ch);
