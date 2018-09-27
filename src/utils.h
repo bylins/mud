@@ -645,7 +645,7 @@ inline T VPOSI(const T val, const T min, const T max)
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
 
-// С ВЮПНБ ПЕФЕР ДН 50, С ЛНАНБ ДН ЯРЮ
+// у чаров режет до 50, у мобов до ста
 //#define VPOSI_MOB(ch, stat_id, val)	IS_NPC(ch) ? val : VPOSI(val, 1, class_stats_limit[(int)GET_CLASS(ch)][stat_id])
 
 #define GET_CLASS(ch)   ((ch)->get_class())
