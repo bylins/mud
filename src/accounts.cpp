@@ -157,7 +157,7 @@ void Account::remove_player(int uid)
 			return;
 		}
 	}
-	//mudlog("тСМЙЖХЪ Account::remove_player, uid  %d МЕ АШК МЮИДЕМ", uid);
+	//mudlog("Функция Account::remove_player, uid  %d не был найден", uid);
 }
 
 time_t Account::get_last_login()

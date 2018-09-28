@@ -106,7 +106,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode);
 int trgvar_in_room(int vnum);
 
 /*
-йНЯРШКЭ, МН БЯЕФ.
+Костыль, но всеж.
 */
 bool CharacterLinkDrop = false;
 
