@@ -191,7 +191,7 @@ void do_insult(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (victim != ch)
 			{
-				sprintf(buf, "&KВы оскорбили %s.&n\r\n", GET_PAD(victim, 1));
+				sprintf(buf, "&KВы оскорбили %s.&n\r\n", GET_PAD(victim, 3));
 				send_to_char(buf, ch);
 
 				switch (number(0, 2))
