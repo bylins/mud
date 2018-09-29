@@ -1974,11 +1974,11 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	{
 		if (rm->dir_option[i])
 		{
-			if (rm->dir_option[i]->to_room == NOWHERE)
+			if (rm->dir_option[i]->to_room() == NOWHERE)
 				sprintf(buf1, " %sNONE%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			else
 				sprintf(buf1, "%s%5d%s", CCCYN(ch, C_NRM),
-					GET_ROOM_VNUM(rm->dir_option[i]->to_room), CCNRM(ch, C_NRM));
+					GET_ROOM_VNUM(rm->dir_option[i]->to_room()), CCNRM(ch, C_NRM));
 			sprintbit(rm->dir_option[i]->exit_info, exit_bits, buf2);
 			sprintf(buf,
 				"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n ",
@@ -4932,13 +4932,13 @@ std::string print_zone_exits(zone_rnum zone)
 			for (int dir = 0; dir < NUM_OF_DIRS; dir++)
 			{
 				if (world[n]->dir_option[dir]
-					&& world[world[n]->dir_option[dir]->to_room]->zone != zone
-					&& world[world[n]->dir_option[dir]->to_room]->number > 0)
+					&& world[world[n]->dir_option[dir]->to_room()]->zone != zone
+					&& world[world[n]->dir_option[dir]->to_room()]->number > 0)
 				{
 					snprintf(tmp, sizeof(tmp),
 						"  Номер комнаты:%5d Направление:%6s Выход в комнату:%5d\r\n",
 						world[n]->number, Dirs[dir],
-						world[world[n]->dir_option[dir]->to_room]->number);
+						world[world[n]->dir_option[dir]->to_room()]->number);
 					out += tmp;
 					found = true;
 				}
@@ -4968,13 +4968,13 @@ std::string print_zone_enters(zone_rnum zone)
 			for (int dir = 0; dir < NUM_OF_DIRS; dir++)
 			{
 				if (world[n]->dir_option[dir]
-					&& world[world[n]->dir_option[dir]->to_room]->zone == zone
-					&& world[world[n]->dir_option[dir]->to_room]->number > 0)
+					&& world[world[n]->dir_option[dir]->to_room()]->zone == zone
+					&& world[world[n]->dir_option[dir]->to_room()]->number > 0)
 				{
 					snprintf(tmp, sizeof(tmp),
 						"  Номер комнаты:%5d Направление:%6s Вход в комнату:%5d\r\n",
 						world[n]->number, Dirs[dir],
-						world[world[n]->dir_option[dir]->to_room]->number);
+						world[world[n]->dir_option[dir]->to_room()]->number);
 					out += tmp;
 					found = true;
 				}
@@ -5324,7 +5324,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			for (j = 0; j < NUM_OF_DIRS; j++)
 			{
 				if (world[i]->dir_option[j]
-					&& world[i]->dir_option[j]->to_room == 0)
+					&& world[i]->dir_option[j]->to_room() == 0)
 				{
 					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,
 						GET_ROOM_VNUM(i), world[i]->name);

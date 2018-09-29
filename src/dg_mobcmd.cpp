@@ -156,10 +156,10 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		const auto& exit = world[temp_in_room]->dir_option[door];
 		if (exit
-			&& exit->to_room != NOWHERE
-			&& exit->to_room != temp_in_room)
+			&& exit->to_room() != NOWHERE
+			&& exit->to_room() != temp_in_room)
 		{
-			ch->in_room = exit->to_room;
+			ch->in_room = exit->to_room();
 			sub_write(argument, ch, TRUE, TO_ROOM);
 		}
 	}
@@ -1241,12 +1241,18 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				exit->vkeyword = str_dup(buffer.c_str());
 			}
 			break;
+
 		case 5:	// room        
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
-				exit->to_room = to_room;
+			{
+				exit->to_room(to_room);
+			}
 			else
+			{
 				mob_log(ch, "mdoor: invalid door target");
+			}
 			break;
+
 		case 6:	// lock - сложность замка         
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))

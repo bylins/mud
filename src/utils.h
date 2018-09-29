@@ -1122,7 +1122,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])
 
 #define CAN_GO(ch, door) (ch?((EXIT(ch,door) && \
-          (EXIT(ch,door)->to_room != NOWHERE) && \
+          (EXIT(ch,door)->to_room() != NOWHERE) && \
           !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
 
 

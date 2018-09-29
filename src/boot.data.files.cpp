@@ -649,7 +649,7 @@ void WorldFile::setup_dir(int room, unsigned dir)
 	}
 
 	world[room]->dir_option[dir]->key = t[1];
-	world[room]->dir_option[dir]->to_room = t[2];
+	world[room]->dir_option[dir]->to_room(t[2]);
 }
 
 bool WorldFile::load()

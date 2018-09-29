@@ -60,7 +60,7 @@ struct bfs_queue_struct
 #define MARK(room)	(GET_ROOM(room)->set_flag(ROOM_BFS_MARK))
 #define UNMARK(room)	(GET_ROOM(room)->unset_flag(ROOM_BFS_MARK))
 #define IS_MARKED(room)	(ROOM_FLAGGED(room, ROOM_BFS_MARK))
-#define TOROOM(x, y)	(world[(x)]->dir_option[(y)]->to_room)
+#define TOROOM(x, y)	(world[(x)]->dir_option[(y)]->to_room())
 #define IS_CLOSED(x, y)	(EXIT_FLAGGED(world[(x)]->dir_option[(y)], EX_CLOSED))
 
 int VALID_EDGE(room_rnum x, int y, int edge_range, int through_doors)
@@ -480,10 +480,10 @@ void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		track[dir] = NULL;
 		rdir = Reverse[dir];
 		if (EXITDATA(croom, dir) &&
-				EXITDATA(EXITDATA(croom, dir)->to_room, rdir) &&
-				EXITDATA(EXITDATA(croom, dir)->to_room, rdir)->to_room == croom)
+				EXITDATA(EXITDATA(croom, dir)->to_room(), rdir) &&
+				EXITDATA(EXITDATA(croom, dir)->to_room(), rdir)->to_room() == croom)
 		{
-			for (temp = world[EXITDATA(croom, dir)->to_room]->track; temp; temp = temp->next)
+			for (temp = world[EXITDATA(croom, dir)->to_room()]->track; temp; temp = temp->next)
 				if (!IS_SET(temp->track_info, TRACK_NPC)
 						&& GET_IDNUM(ch) == temp->who && !IS_SET(temp->track_info, TRACK_HIDE)
 						&& IS_SET(temp->time_outgone[rdir], 3))

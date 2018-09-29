@@ -111,10 +111,10 @@ void do_wasound(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		const auto& exit = room->dir_option[door];
 
 		if (exit
-			&& (exit->to_room != NOWHERE)
-			&& room != world[exit->to_room])
+			&& (exit->to_room() != NOWHERE)
+			&& room != world[exit->to_room()])
 		{
-			act_to_room(argument, world[exit->to_room]);
+			act_to_room(argument, world[exit->to_room()]);
 		}
 	}
 }
@@ -299,12 +299,18 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				exit->vkeyword = str_dup(buffer.c_str());
 			}
 			break;
+
 		case 5:	// room        //
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
-				exit->to_room = to_room;
+			{
+				exit->to_room(to_room);
+			}
 			else
+			{
 				wld_log(room, "wdoor: invalid door target");
+			}
 			break;
+
 		case 6:	// lock - сложность замка         //
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))

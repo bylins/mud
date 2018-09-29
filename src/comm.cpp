@@ -1937,7 +1937,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 					for (door = 0; door < NUM_OF_DIRS; door++)
 					{
 						if (EXIT(d->character, door)
-							&& EXIT(d->character, door)->to_room != NOWHERE
+							&& EXIT(d->character, door)->to_room() != NOWHERE
 							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
 						{
 							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)

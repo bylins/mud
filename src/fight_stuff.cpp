@@ -500,7 +500,7 @@ void death_cry(CHAR_DATA * ch, CHAR_DATA * killer)
 	{
 		if (CAN_GO(ch, door))
 		{
-			const auto room_number = world[ch->in_room]->dir_option[door]->to_room;
+			const auto room_number = world[ch->in_room]->dir_option[door]->to_room();
 			const auto room = world[room_number];
 			if (!room->people.empty())
 			{

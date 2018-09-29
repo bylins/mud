@@ -3645,42 +3645,42 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			if (r->dir_option[NORTH])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[NORTH]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[NORTH]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "east"))
 		{
 			if (r->dir_option[EAST])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EAST]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EAST]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "south"))
 		{
 			if (r->dir_option[SOUTH])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[SOUTH]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[SOUTH]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "west"))
 		{
 			if (r->dir_option[WEST])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[WEST]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[WEST]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "up"))
 		{
 			if (r->dir_option[UP])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[UP]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[UP]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "down"))
 		{
 			if (r->dir_option[DOWN])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[DOWN]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[DOWN]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "vnum"))

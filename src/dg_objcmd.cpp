@@ -751,12 +751,18 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				exit->vkeyword = str_dup(buffer.c_str());
 			}
 			break;
+
 		case 5:	// room        
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
-				exit->to_room = to_room;
+			{
+				exit->to_room(to_room);
+			}
 			else
+			{
 				obj_log(obj, "odoor: invalid door target");
+			}
 			break;
+
 		case 6:	// lock - сложность замка         
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))

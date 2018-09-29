@@ -3076,11 +3076,20 @@ void renum_world(void)
 	int room, door;
 
 	for (room = FIRST_ROOM; room <= top_of_world; room++)
+	{
 		for (door = 0; door < NUM_OF_DIRS; door++)
+		{
 			if (world[room]->dir_option[door])
-				if (world[room]->dir_option[door]->to_room != NOWHERE)
-					world[room]->dir_option[door]->to_room =
-						real_room(world[room]->dir_option[door]->to_room);
+			{
+				if (world[room]->dir_option[door]->to_room() != NOWHERE)
+				{
+					const auto to_room = real_room(world[room]->dir_option[door]->to_room());
+
+					world[room]->dir_option[door]->to_room(to_room);
+				}
+			}
+		}
+	}
 }
 
 // Установка принадлежности к зоне в прототипах
