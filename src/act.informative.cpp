@@ -55,6 +55,7 @@
 #include "mob_stat.hpp"
 #include "char_obj_utils.inl"
 #include "class.hpp"
+#include "zone.table.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "bonus.h"
@@ -2028,7 +2029,7 @@ bool put_delim(std::stringstream &out, bool delim)
 
 void print_zone_info(CHAR_DATA *ch)
 {
-	zone_data *zone = &zone_table[world[ch->in_room]->zone];
+	ZoneData *zone = &zone_table[world[ch->in_room]->zone];
 	std::stringstream out;
 	out << "\r\n" << zone->name;
 
@@ -5816,7 +5817,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 				&& i->in_room != NOWHERE
 				&& isname(arg, i->get_pc_name()))
 			{
-			    zone_data *zone = &zone_table[world[i->in_room]->zone];
+			    ZoneData *zone = &zone_table[world[i->in_room]->zone];
 				found = 1;
 				sprintf(buf, "%s%3d. %-25s - [%5d] %s. Название зоны: '%s'\r\n", IS_NPC(i)? "Моб:  ":"Игрок:", num++, GET_NAME(i),
 						GET_ROOM_VNUM(IN_ROOM(i)), world[IN_ROOM(i)]->name, zone->name);

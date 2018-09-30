@@ -45,7 +45,7 @@
 #include "conf.h"
 #include "dg_db_scripts.hpp"
 #include "bonus.h"
-
+#include "zone.table.hpp"
 #include "debug.utils.hpp"
 #include "backtrace.hpp"
 #include "coredump.hpp"
@@ -74,7 +74,6 @@ extern const char *pc_class_types[];
 extern const char *exit_bits[];
 extern INDEX_DATA *mob_index;
 extern TIME_INFO_DATA time_info;
-extern struct zone_data *zone_table;
 const char *spell_name(int num);
 
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -1918,7 +1917,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			else if (!str_cmp(field, "zreset") && num > 0)
 			{
 				int i;
-				for (i = 0; i <= top_of_zone_table; i++)
+				for (i = 0; i < zone_table.size(); i++)
 				{
 					if (zone_table[i].number == num)
 					{

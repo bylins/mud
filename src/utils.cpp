@@ -883,22 +883,25 @@ bool die_follower(CHAR_DATA * ch)
 int get_line(FILE * fl, char *buf)
 {
 	char temp[256];
-	int lines = 0;
+	auto lines = 0;
 
 	do
 	{
-		const char* dummy = fgets(temp, 256, fl);
-		UNUSED_ARG(dummy);
+		fgets(temp, 256, fl);
 
 		if (feof(fl))
-			return (0);
+		{
+			return 0;
+		}
+
 		lines++;
 	}
 	while (*temp == '*' || *temp == '\n');
 
 	temp[strlen(temp) - 1] = '\0';
 	strcpy(buf, temp);
-	return (lines);
+
+	return lines;
 }
 
 

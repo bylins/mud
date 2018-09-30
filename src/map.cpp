@@ -9,13 +9,12 @@
 #include "room.hpp"
 #include "db.h"
 #include "char_player.hpp"
-#include "handler.h"
 #include "shop_ext.hpp"
 #include "noob.hpp"
 #include "char_obj_utils.inl"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "conf.h"
-
 
 #include <boost/algorithm/string.hpp>
 #include "boost/multi_array.hpp"
@@ -739,7 +738,6 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 		{
 			if (zone_table[world[ch->in_room]->zone].number == cities[i].rent_vnum / 100)
 			{
-//				send_to_char(ch, "Номер зоны == %d, номер ренты == %d, зона ренты %d\r\n", zone_table[world[ch->in_room]->zone].number, cities[i].rent_vnum,  cities[i].rent_vnum / 100 );
 				MAX_LINES = MAX_LINES_BIG;
 				MAX_LENGHT = MAX_LENGHT_BIG;
 				MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_BIG;

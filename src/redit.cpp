@@ -22,6 +22,7 @@
 #include "room.hpp"
 #include "house.h"
 #include "world.characters.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -35,7 +36,6 @@ extern CHAR_DATA *mob_proto;
 extern const char *room_bits[];
 extern const char *sector_types[];
 extern const char *exit_bits[];
-extern struct zone_data *zone_table;
 extern room_rnum r_frozen_start_room;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_mortal_start_room;
@@ -176,7 +176,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 // ПЕРЕИНДЕКСАЦИЯ
 
 		// Update zone table.
-		for (zone = 0; zone <= top_of_zone_table; zone++)
+		for (zone = 0; zone < zone_table.size(); zone++)
 		{
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 			{
@@ -304,7 +304,7 @@ void redit_save_to_disk(int zone_num)
 	FILE *fp;
 	ROOM_DATA *room;
 
-	if (zone_num < 0 || zone_num > top_of_zone_table)
+	if (zone_num < 0 || zone_num >= zone_table.size())
 	{
 		log("SYSERR: redit_save_to_disk: Invalid real zone passed!");
 		return;

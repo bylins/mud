@@ -10,7 +10,6 @@
 #include "constants.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
 
 class EXIT_DATA
 {

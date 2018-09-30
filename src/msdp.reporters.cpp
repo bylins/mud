@@ -6,6 +6,7 @@
 #include "char.hpp"
 #include "magic.h"
 #include "msdp.constants.hpp"
+#include "zone.table.hpp"
 
 namespace msdp
 {

@@ -28,6 +28,8 @@
 #include "spell_parser.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
+#include "zone.table.hpp"
+
 #include <algorithm>
 
 // extern

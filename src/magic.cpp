@@ -44,12 +44,12 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "char_obj_utils.inl"
+#include "zone.table.hpp"
 
 #include <boost/format.hpp>
 
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
-extern struct zone_data *zone_table;
 extern struct spell_create_type spell_create[];
 extern bool check_agr_in_house(CHAR_DATA *agressor);
 FLAG_DATA  EMPTY_FLAG_DATA;

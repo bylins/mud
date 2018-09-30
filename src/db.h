@@ -181,60 +181,6 @@ public:
 	std::vector<ExtraAffects> extraffect;
 };
 
-// zone definition structure. for the 'zone-table'
-struct zone_data
-{
-	char *name;		// назвение зоны
-	char *comment;
-	char *autor;
-	int traffic;
-	int level;	// level of this zone (is used in ingredient loading)
-	int type;	// the surface type of this zone (is used in ingredient loading)
-
-	int lifespan;		// how long between resets (minutes)
-	int age;		// current age of this zone (minutes)
-	room_vnum top;		// upper limit for rooms in this zone
-
-	/**
-	 * Conditions for reset.
-	 *
-	 * Values:
-	 *   0: Don't reset, and don't update age.
-	 *   1: Reset if no PC's are located in zone.
-	 *   2: Just reset.
-	 *   3: Multi reset.
-	 */
-	int reset_mode;
-
-	zone_vnum number;	// virtual number of this zone
-	// Местоположение зоны
-	char *location;
-	// Описание зоны
-	char *description;
-	struct reset_com *cmd;	// command table for reset
-
-	int typeA_count;
-	int *typeA_list;	// список номеров зон, которые сбрасываются одновременно с этой
-	int typeB_count;
-	int *typeB_list;	// список номеров зон, которые сбрасываются независимо, но они должны быть сброшены до сброса зон типа А
-	bool *typeB_flag;	// флаги, были ли сброшены зоны типа В
-	int under_construction;	// зона в процессе тестирования
-	bool locked;
-	bool reset_idle;	// очищать ли зону, в которой никто не бывал
-	bool used;		// был ли кто-то в зоне после очистки
-	unsigned long long activity;	// параметр активности игроков в зоне
-	// <= 1 - обычная зона (соло), >= 2 - зона для группы из указанного кол-ва человек
-	int group;
-	// средний уровень мобов в зоне
-	int mob_level;
-	// является ли зона городом
-	bool is_town;
-	// показывает количество репопов зоны, при условии, что в зону ходят
-	int count_reset;
-};
-
-extern zone_data *zone_table;
-
 // for queueing zones for update
 struct reset_q_element
 {
@@ -463,7 +409,6 @@ void delete_char(const char *name);
 
 void set_test_data(CHAR_DATA *mob);
 
-extern zone_rnum top_of_zone_table;
 void set_zone_mob_level();
 
 bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);

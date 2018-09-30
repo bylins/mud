@@ -28,6 +28,7 @@
 #include "magic.h"
 #include "fight.h"
 #include "features.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -35,7 +36,6 @@
 #include "conf.h"
 
 extern const char *dirs[];
-extern struct zone_data *zone_table;
 
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
@@ -172,7 +172,7 @@ int real_zone(int number)
 {
 	int counter;
 
-	for (counter = 0; counter <= top_of_zone_table; counter++)
+	for (counter = 0; counter < zone_table.size(); counter++)
 		if ((number >= (zone_table[counter].number * 100)) && (number <= (zone_table[counter].top)))
 			return counter;
 

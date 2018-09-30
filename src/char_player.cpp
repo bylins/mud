@@ -31,6 +31,7 @@
 #include "temp_spells.hpp"
 #include "conf.h"
 #include "accounts.hpp"
+#include "zone.table.hpp"
 
 #include <boost/lexical_cast.hpp>
 
