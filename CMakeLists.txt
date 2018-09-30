@@ -574,7 +574,7 @@ else ()
 endif ()
 
 # Iconv
-option(HAVE_ICONV "Allows to explicitly disable iconv. Otherwise it turns off only if it wasn't found" OFF)
+option(HAVE_ICONV "Allows to enable search of iconv." OFF)
 if (HAVE_ICONV)
 	find_path(ICONV_INCLUDE_DIR iconv.h)
 	find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
