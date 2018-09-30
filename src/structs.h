@@ -86,11 +86,7 @@ class TRIG_DATA;
 #define KT_WINZ       3
 #define KT_WINZ6      4
 #define KT_UTF8       5
-#ifdef HAVE_ICONV
-	#define KT_LAST       6
-#else
-	#define KT_LAST       5
-#endif
+#define KT_LAST       6
 
 #define KT_SELECTMENU 255
 
