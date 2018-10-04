@@ -371,7 +371,7 @@ enum ESpell
 	SPELL_ALL_SEEING_EYE = 219, // всевидящее око
 	SPELL_EYE_OF_GODS = 220, // око богов
 	SPELL_BREATHING_AT_DEPTH = 221, // дыхание на глыбине
-	SPELL_GENERAL_RECOVERY = 222, // общее востановление
+	SPELL_GENERAL_RECOVERY = 222, // общее восстановление
 	SPELL_COMMON_MEAL = 223, // общая трапеза
 	SPELL_STONE_WALL = 224, // каменная стена
 	SPELL_SNAKE_EYES = 225, // глаза змея
