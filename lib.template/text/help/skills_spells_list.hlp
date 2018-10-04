@@ -791,7 +791,7 @@ $COLORwУникальные для вашего класса, но доступ�
 	$COLORGПризматическая аура$COLORn      	$COLORGСерьезное исцеление$COLORn
 	$COLORGСерьезный вред$COLORn           	$COLORGСнять проклятье$COLORn
 	$COLORGСоздать воду$COLORn             	$COLORGСоздать пищу$COLORn
-	$COLORGШок$COLORn                      	$COLORGОбщее востановление$COLORn
+	$COLORGШок$COLORn                      	$COLORGОбщее восстановление$COLORn
 
 $COLORwОбычные заклинания:$COLORn
 
@@ -1140,7 +1140,7 @@ $COLORGСвет$COLORn                     $COLORGСерьезное исцел�
 $COLORGСнять проклятье$COLORn          $COLORGСоздать воду$COLORn             $COLORGСоздать пищу$COLORn
 $COLORGСон$COLORn                      $COLORGСуд богов$COLORn                $COLORGУвеличить жизнь$COLORn
 $COLORGЦепь молний$COLORn              $COLORGШок$COLORn                      $COLORGЯркий блик$COLORn
-$COLORGОбщее востановление$COLORn      $COLORGГлыба$COLORn                    $COLORGВихрь$COLORn
+$COLORGОбщее восстановление$COLORn     $COLORGГлыба$COLORn                    $COLORGВихрь$COLORn
 
 $COLORwОбычные заклинания:$COLORn
 
