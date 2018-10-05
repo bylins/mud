@@ -182,7 +182,6 @@ char* DiscreteFile::fread_string()
 	bool isEscaped = false;
 	bool done = false;
 
-	*to = 0;
 	while (!done
 		&& fgets(bufferIn, sizeof(bufferIn), file())
 		&& to < end)
@@ -202,17 +201,21 @@ char* DiscreteFile::fread_string()
 			else
 			{
 				if (isEscaped)
-					done = true; // not escape sequence ~~
+					done = true; // '~' followed by something else - terminate
 				else
 				{
-					if ((c == '\n') && (*to != '\r')) // NL without preceding CR
+					if ((c == '\n') && (to == bufferOut || *(to - 1) != '\r')) // NL without preceding CR
 					{
-						if ((to+1) < end)
+						if ((to + 1) < end)
+						{
 							*to++ = '\r';
+							*to++ = c;
+						}
 						else
-							done = true; // not enough space for \r\n. Don't put \r without \n - terminate
+							done = true; // not enough space for \r\n. Don't put \r or \n alone, terminate
 					}
-					*to++ = c;
+					else
+						*to++ = c;
 				}
 			}
 		}
