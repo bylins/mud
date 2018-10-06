@@ -2523,6 +2523,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				c->affect_remove(c->affected.begin());
 			}
 		}
+		else if (!str_cmp(field, "hryvn"))
+		{
+			c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+			sprintf(str, "%d", c->get_hryvn());
+		}
 		else if (!str_cmp(field, "gold"))
 		{
 			const long before = c->get_gold();
