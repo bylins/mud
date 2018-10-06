@@ -272,7 +272,15 @@ void Player::dquest(int id)
 			{
 				value /= 2;
 			}
-			sprintf(buf2, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
+			if ((this->get_hryvn() + value) > 1200)
+			{
+				value = 1200 - this->get_hryvn();
+				sprintf(buf2, "Вы получили только %ld %s так как в вашу копилку больше не лезет...\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
+			}
+			else
+			{
+				sprintf(buf2, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
+			}
 			send_to_char(this, buf2);
 			this->add_hryvn(value);
 			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
@@ -1624,7 +1632,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			else if (!strcmp(tag, "Hung"))
 				GET_COND(this, FULL) = num;
 			else if (!strcmp(tag, "Hry "))
+			{
+				if (num > 1200)
+					num = 1200;
 				this->set_hryvn(num);
+			}
 			else if (!strcmp(tag, "Host"))
 				strcpy(GET_LASTIP(this), line);
 			break;

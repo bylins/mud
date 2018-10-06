@@ -2390,24 +2390,14 @@ int new_descriptor(socket_t s)
 
 	SEND_TO_Q(buf, newd);
 
-#ifdef HAVE_ICONV
 	SEND_TO_Q("Using keytable\r\n"
 		"  0) Koi-8\r\n"
 		"  1) Alt\r\n"
 		"  2) Windows(JMC,MMC)\r\n"
 		"  3) Windows(zMUD)\r\n"
 		"  4) Windows(zMUD ver. 6+)\r\n"
-		  "  5) UTF-8\r\n"
-		  "Select one : ", newd);
-#else
-	SEND_TO_Q("Using keytable\r\n"
-		  "  0) Koi-8\r\n"
-		  "  1) Alt\r\n"
-		  "  2) Windows(JMC,MMC)\r\n"
-		  "  3) Windows(zMUD)\r\n"
-		  "  4) Windows(zMUD ver. 6+)\r\n"
-		  "Select one : ", newd);
-#endif
+		"  5) UTF-8\r\n"
+		"Select one : ", newd);
 
 	// trying to turn on MSDP
 	write_to_descriptor(newd->descriptor, will_msdp, sizeof(will_msdp));
@@ -2913,6 +2903,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				// следует заменить просто на один IAC, но
 				// для раскладок KT_WIN/KT_WINZ6 это произойдет ниже.
 				// Почему так сделано - не знаю, но заменять не буду.
+				// II: потому что второй IAC может прочитаться в другом socket_read
 				++ptr;
 			}
 			else if (ptr[1] == (char) DO)
@@ -3157,7 +3148,6 @@ int process_input(DESCRIPTOR_DATA * t)
 
 		*write_point = '\0';
 
-#ifdef HAVE_ICONV
 		if (t->keytable == KT_UTF8)
 		{
 			int i;
@@ -3175,7 +3165,6 @@ int process_input(DESCRIPTOR_DATA * t)
 			strncpy(tmp, utf8_tmp, MAX_INPUT_LENGTH - 1);
 			space_left = space_left + len_i - len_o;
 		}
-#endif
 
 		if ((space_left <= 0) && (ptr < nl_pos))
 		{

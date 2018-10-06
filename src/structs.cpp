@@ -1187,13 +1187,12 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 		for (; *input; *output = KtoW2(*input), input++, output++);
 		break;
 
-#ifdef HAVE_ICONV
 	case KT_UTF8:
 		// Anton Gorev (2016-04-25): we have to be careful. String in UTF-8 encoding may
 		// contain character with code 0xff which telnet interprets as IAC.
+		// II:  FE and FF were never defined for any purpose in UTF-8, we are safe
 		koi_to_utf8(const_cast<char *>(input), output);
 		break;
-#endif
 
 	default:
 		for (; *input; *output = *input, input++, output++);
