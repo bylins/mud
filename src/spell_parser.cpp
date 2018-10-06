@@ -4848,7 +4848,7 @@ void mag_assign_spells(void)
 //81
 	spello(SPELL_POWER_BLINDNESS, "полная слепота", "power blind",
 		   110, 100, 1, POS_FIGHTING,
-		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
+		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
 //82
 	spello(SPELL_MASS_BLINDNESS, "массовая слепота", "mass blind", 140, 120, 2,
 		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 4, STYPE_DARK);
@@ -5349,7 +5349,7 @@ void mag_assign_spells(void)
 	spello(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
 //222        
-	spello(SPELL_GENERAL_RECOVERY, "общее востановление", "general recovery", 110, 100, 1,
+	spello(SPELL_GENERAL_RECOVERY, "общее восстановление", "general recovery", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
 //223        
 	spello(SPELL_COMMON_MEAL, "общая трапеза", "common meal", 110, 100, 1,
