@@ -175,7 +175,6 @@ enum
 std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 {
 	std::string out;
-	std::vector<int> rnum_list;
 	char buf_[128];
 	char format[128];
 	char buf_vnum[128];
@@ -183,10 +182,15 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	size_t l_max_name = 0, l_max_vnum = 0;
 	bool left = true;
 
+	std::list<std::pair<int, const char*>> rnum_list;
 	for (const auto i : set.obj_list)
 	{
-		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->get_short_description().c_str());
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto[rnum]->get_vnum());
+		const auto rnum = real_object(i.first);
+		const auto name = rnum < 0
+			? "<объект с таким VNUM не существует>"
+			: obj_proto[rnum]->get_short_description().c_str();
+		const size_t curr_name = strlen_no_colors(name);
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", i.first);
 		const size_t curr_vnum = strlen(buf_vnum);
 
 		if (left)
@@ -199,17 +203,17 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 			r_max_name = std::max(r_max_name, curr_name);
 			r_max_vnum = std::max(r_max_vnum, curr_vnum);
 		}
-		rnum_list.push_back(rnum);
+		rnum_list.emplace_back(i.first, name);
 		left = !left;
 	}
 
 	left = true;
 	for (const auto i : rnum_list)
 	{
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto[i]->get_vnum());
+		snprintf(buf_vnum, sizeof(buf_vnum), "%d", i.first);
 		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%zus%s   ",
 			CCGRN(ch, C_NRM), menu++, CCNRM(ch, C_NRM),
-			colored_name(obj_proto[i]->get_short_description().c_str(), left ? l_max_name : r_max_name, true),
+			colored_name(i.second, left ? l_max_name : r_max_name, true),
 			CCCYN(ch, C_NRM), (left ? l_max_vnum : r_max_vnum), CCNRM(ch, C_NRM));
 		snprintf(buf_, sizeof(buf_), format, buf_vnum);
 		out += buf_;
@@ -366,6 +370,10 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 	}
 	const msg_node &msg = obj->second;
 
+	const auto rnum = real_object(obj_edit);
+	const auto name = rnum < 0
+		? "<объект с таким VNUM не существует>"
+		: obj_proto[rnum]->get_short_description().c_str();
 	char buf_[2048];
 	snprintf(buf_, sizeof(buf_),
 		"\r\nРедактирование предмета '%s'\r\n"
@@ -377,7 +385,7 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 		"%s 6%s) Деактиватор в комнату : %s\r\n"
 		"%s 7%s) В главное меню Q(В)\r\n"
 		"Ваш выбор : ",
-		obj_proto[rnum]->get_short_description().c_str(),
+		name,
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM), obj_edit, CCNRM(ch, C_NRM),
