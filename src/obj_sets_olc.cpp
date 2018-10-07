@@ -170,6 +170,11 @@ enum
 	MAIN_TOTAL
 };
 
+namespace
+{
+	const auto MISSING_OBJECT_NAME = "&R<объект с таким VNUM не существует>&n";
+}
+
 /// распечатка форматированного списка шмоток сета, форматирование идет как
 /// как по столбцам, так и по длине имени и внума шмоток, вобщем чтоб красиво
 std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
@@ -187,7 +192,7 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	{
 		const auto rnum = real_object(i.first);
 		const auto name = rnum < 0
-			? "<объект с таким VNUM не существует>"
+			? MISSING_OBJECT_NAME
 			: obj_proto[rnum]->get_short_description().c_str();
 		const size_t curr_name = strlen_no_colors(name);
 		snprintf(buf_vnum, sizeof(buf_vnum), "%d", i.first);
@@ -210,7 +215,15 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 	left = true;
 	for (const auto i : rnum_list)
 	{
-		snprintf(buf_vnum, sizeof(buf_vnum), "%d", i.first);
+		if (MISSING_OBJECT_NAME == i.second)
+		{
+			snprintf(buf_vnum, sizeof(buf_vnum), "&Y%d&n", i.first);
+		}
+		else
+		{
+			snprintf(buf_vnum, sizeof(buf_vnum), "%d", i.first);
+		}
+
 		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%zus%s   ",
 			CCGRN(ch, C_NRM), menu++, CCNRM(ch, C_NRM),
 			colored_name(i.second, left ? l_max_name : r_max_name, true),
@@ -372,7 +385,7 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 
 	const auto rnum = real_object(obj_edit);
 	const auto name = rnum < 0
-		? "<объект с таким VNUM не существует>"
+		? MISSING_OBJECT_NAME
 		: obj_proto[rnum]->get_short_description().c_str();
 	char buf_[2048];
 	snprintf(buf_, sizeof(buf_),
@@ -388,7 +401,7 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 		name,
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-		CCCYN(ch, C_NRM), obj_edit, CCNRM(ch, C_NRM),
+		(rnum < 0 ? CCYEL(ch, C_NRM) : CCCYN(ch, C_NRM)), obj_edit, CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.char_on_msg.c_str(),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.char_off_msg.c_str(),
 		CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), msg.room_on_msg.c_str(),
@@ -1726,22 +1739,17 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 		return;
 	}
 
-	const int rnum = real_object(vnum);
-	if (rnum < 0)
+	const auto rnum = real_object(vnum);
+	const auto name = rnum < 0
+		? MISSING_OBJECT_NAME
+		: obj_proto[rnum]->get_short_description().c_str();
+	if (is_duplicate(olc_set.uid, vnum))
 	{
-		send_to_char(ch, "Предметов с vnum %d не существует.\r\n", vnum);
-	}
-	else if (is_duplicate(olc_set.uid, vnum))
-	{
-		send_to_char(ch,
-			"Предмет '%s' уже является частью другого набора.\r\n",
-			obj_proto[rnum]->get_short_description().c_str());
+		send_to_char(ch, "Предмет '%s' уже является частью другого набора.\r\n", name);
 	}
 	else if (olc_set.obj_list.find(vnum) != olc_set.obj_list.end())
 	{
-		send_to_char(ch,
-			"Предмет '%s' уже является частью данного набора.\r\n",
-			obj_proto[rnum]->get_short_description().c_str());
+		send_to_char(ch, "Предмет '%s' уже является частью данного набора.\r\n", name);
 	}
 	else
 	{
@@ -1753,13 +1761,11 @@ void sedit::parse_obj_change(CHAR_DATA *ch, const char *arg)
 			olc_set.obj_list.erase(i);
 		}
 		obj_edit = vnum;
-		// GCC 4.4
-		//olc_set.obj_list.emplace(vnum, msg);
+
 		olc_set.obj_list.insert(std::make_pair(vnum, msg));
-		send_to_char(ch,
-			"Предмет '%s' добавлен в набор.\r\n",
-			obj_proto[rnum]->get_short_description().c_str());
+		send_to_char(ch, "Предмет '%s' добавлен в набор.\r\n", name);
 	}
+
 	show_obj_edit(ch);
 }
 
