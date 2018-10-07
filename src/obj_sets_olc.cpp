@@ -185,13 +185,6 @@ std::string main_menu_objlist(CHAR_DATA *ch, const set_node &set, int menu)
 
 	for (const auto i : set.obj_list)
 	{
-		const int rnum = real_object(i.first);
-		if (rnum < 0
-			|| obj_proto[rnum]->get_short_description().empty())
-		{
-			continue;
-		}
-
 		const size_t curr_name = strlen_no_colors(obj_proto[rnum]->get_short_description().c_str());
 		snprintf(buf_vnum, sizeof(buf_vnum), "%d", obj_proto[rnum]->get_vnum());
 		const size_t curr_vnum = strlen(buf_vnum);
@@ -362,16 +355,6 @@ void sedit::show_obj_edit(CHAR_DATA *ch)
 {
 	state = STATE_OBJ_EDIT;
 
-	int rnum = real_object(obj_edit);
-	if (rnum < 0)
-	{
-		send_to_char(ch,
-			"Ошибка: не найден прототип предмета %s:%d (%s).\r\n",
-			__FILE__, __LINE__, __func__);
-		obj_edit = -1;
-		show_main(ch);
-		return;
-	}
 	auto obj = olc_set.obj_list.find(obj_edit);
 	if (obj == olc_set.obj_list.end())
 	{
