@@ -3854,7 +3854,6 @@ void print_do_score_all(CHAR_DATA *ch)
 	if (Bonus::is_bonus(0))
 		sprintf(buf + strlen(buf),
 			" || %-79s ||\r\n || %-79s ||\r\n", Bonus::str_type_bonus().c_str(), Bonus::bonus_end().c_str());
-
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{
 		sprintf(buf + strlen(buf),
@@ -3867,7 +3866,6 @@ void print_do_score_all(CHAR_DATA *ch)
 		sprintf(buf + strlen(buf),
 				" || &RВНИМАНИЕ!&n ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.   &c||\r\n");
 	}
-
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		sprintf(buf + strlen(buf),
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
