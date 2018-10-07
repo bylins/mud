@@ -71,7 +71,6 @@ int find_action(char *cmd)
 			top = mid - 1;
 	}
 }
-
 const char *deaf_social = "&K$n попытал$u очень эмоционально выразить свою мысль.&n";
 
 int do_social(CHAR_DATA * ch, char *argument)
