@@ -821,7 +821,7 @@ void go_flee(CHAR_DATA* ch)
 	for (auto i = 0; i < NUM_OF_DIRS; ++i)
 	{
 		if (legal_dir(ch, i, TRUE, FALSE)
-			&& !ROOM_FLAGGED(EXIT(ch, i)->to_room, ROOM_DEATH))
+			&& !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ROOM_DEATH))
 		{
 			dirs[correct_dirs] = i;
 			++correct_dirs;
@@ -880,7 +880,7 @@ void go_dir_flee(CHAR_DATA * ch, int direction)
 	}
 
 	if (legal_dir(ch, direction, TRUE, FALSE)
-		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room, ROOM_DEATH))
+		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ROOM_DEATH))
 	{
 		if (do_simple_move(ch, direction, TRUE, 0, true))
 		{

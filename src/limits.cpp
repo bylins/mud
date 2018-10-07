@@ -42,6 +42,7 @@
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
 #include "spell_parser.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -57,7 +58,6 @@ extern room_rnum r_unreg_start_room;
 extern CHAR_DATA *mob_proto;
 
 extern DESCRIPTOR_DATA *descriptor_list;
-extern struct zone_data *zone_table;
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;

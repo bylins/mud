@@ -180,6 +180,7 @@ typedef uint32_t bitvector_t;
 #define EX_PICKPROOF    (1 << 3)	// Lock can't be picked  //
 #define EX_HIDDEN       (1 << 4)
 #define EX_BROKEN       (1 << 5) //Polud замок двери сломан
+#define EX_DUNGEON_ENTRY (1 << 6)	// When character goes through this door then he will get into a copy of the zone behind the door.
 
 #define AF_BATTLEDEC (1 << 0)
 #define AF_DEADKEEP  (1 << 1)

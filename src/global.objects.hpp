@@ -12,6 +12,7 @@
 #include "world.characters.hpp"
 #include "act.wizard.hpp"
 #include "influxdb.hpp"
+#include "zone.table.hpp"
 
 class BanList;	// to avoid inclusion of ban.hpp
 
@@ -41,6 +42,7 @@ public:
 	static Heartbeat& heartbeat();
 	static influxdb::Sender& stats_sender();
 	static OutputThread& output_thread();
+	static zone_table_t& zone_table();
 
 	static Celebrates::CelebrateList& mono_celebrates();
 	static Celebrates::CelebrateList& poly_celebrates();

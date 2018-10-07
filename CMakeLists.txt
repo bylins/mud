@@ -163,7 +163,8 @@ set(SOURCES
 	src/radix.trie.cpp
 	src/compact.trie.cpp
 	src/id.cpp
-	src/stigmas.cpp)
+	src/stigmas.cpp
+	src/zone.table.cpp)
 
 set(HEADERS
 	src/accounts.hpp
@@ -308,7 +309,9 @@ set(HEADERS
 	src/utils.h
 	src/xml_loading_helper.hpp
 	src/debug.utils.hpp
-	src/stigmas.hpp)
+	src/stigmas.hpp
+	src/zone.table.hpp)
+
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)

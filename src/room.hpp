@@ -10,11 +10,15 @@
 #include "constants.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
 
 class EXIT_DATA
 {
 public:
+	EXIT_DATA();
+
+	room_rnum to_room() const;
+	void to_room(const room_rnum _);
+
 	std::string general_description;	// When look DIR.         //
 
 	char *keyword;		// for open/close       //
@@ -23,7 +27,9 @@ public:
 	byte exit_info;	// Exit info             //
 	ubyte lock_complexity; //Polud сложность замка
 	obj_vnum key;		// Key's number (-1 for no key) //
-	room_rnum to_room;	// Where direction leads (NOWHERE) //
+
+private:
+	room_rnum m_to_room;	// Where direction leads (NOWHERE) //
 };
 
 struct track_data

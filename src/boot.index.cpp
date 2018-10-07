@@ -92,9 +92,6 @@ int IndexFileImplementation::load()
 		exit(1);
 	}
 
-	// Any idea why you put this here Jeremy?
-	rec_count++;
-
 	return rec_count;
 }
 

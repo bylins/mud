@@ -31,6 +31,7 @@
 #include "temp_spells.hpp"
 #include "conf.h"
 #include "accounts.hpp"
+#include "zone.table.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -65,8 +66,7 @@ uint8_t get_day_today()
 
 } // namespace
 
-Player::Player()
-	:
+Player::Player():
 	pfilepos_(-1),
 	was_in_room_(NOWHERE),
 	from_room_(0),
@@ -103,58 +103,6 @@ Player::Player()
 	const time_t now = time(0);
 	board_date_.fill(now);
 }
-
-/*extern std::vector<Stigma> stigmas;
-void Player::add_stigma(int wear, int id_stigma)
-{
-	for (auto i : ::stigmas)
-	{
-		if (i.id == id_stigma)
-		{
-			StigmaWear tmp;
-			tmp.stigma = i;
-			tmp.reload = i.reload;
-			this->stigmas.insert(std::pair<int, StigmaWear>(wear, tmp));
-			return;
-		}
-	}
-	
-}
-
-void Player::touch_stigma(char *arg)
-{
-	for (auto stigma : this->stigmas)
-	{
-		std::vector<std::string> array_str;
-		std::string temp_string = std::string(buf);
-		boost::split(array_str, temp_string, boost::is_any_of(" ."));
-		for (auto word : array_str)
-		{
-			if (boost::starts_with(stigma.second.get_name(), word))
-			{
-				if (GET_EQ(this, stigma.first))
-				{
-					sprintf(buf, "%s мешает вам прикоснуться к стигме.\r\n", GET_EQ(this, stigma.first)->get_PName(0).c_str());
-					send_to_char(this, buf);
-				}
-				else
-				{
-					if (stigma.second.reload > 0)
-					{
-						send_to_char(this, "Вам больно прикосаться к этой стигме!\r\n");
-					}
-					else
-					{
-						stigma.second.stigma.reload = stigma.second.reload;
-						stigma.second.stigma.activation_stigma(this);
-					}
-				}	
-				return;
-			}
-		}
-
-	}
-}*/
 
 int Player::get_pfilepos() const
 {

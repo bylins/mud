@@ -60,6 +60,7 @@
 #include "msdp.hpp"
 #include "msdp.constants.hpp"
 #include "heartbeat.hpp"
+#include "zone.table.hpp"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -389,7 +390,6 @@ extern const char *LOGNAME;
 extern int max_playing;
 extern int nameserver_is_slow;	// see config.cpp
 extern int mana[];
-extern struct zone_data *zone_table;
 extern const char *save_info_msg[];	// In olc.cpp
 extern CHAR_DATA *combat_list;
 extern int proc_color(char *inbuf, int color);
@@ -994,7 +994,7 @@ void init_game(ush_int port)
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
 				log("%s", buf);
 			}
-			else if (rznum < 0 || rznum > top_of_zone_table)
+			else if (rznum < 0 || rznum >= zone_table.size())
 			{
 				sprintf(buf, "OLC: Invalid real zone number %d!", rznum);
 				log("%s", buf);
@@ -1937,7 +1937,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 					for (door = 0; door < NUM_OF_DIRS; door++)
 					{
 						if (EXIT(d->character, door)
-							&& EXIT(d->character, door)->to_room != NOWHERE
+							&& EXIT(d->character, door)->to_room() != NOWHERE
 							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
 						{
 							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)

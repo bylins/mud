@@ -34,13 +34,13 @@
 #include "constants.h"
 #include "sets_drop.hpp"
 #include "obj.hpp"
+#include "zone.table.hpp"
 
 #include <array>
 #include <vector>
 #include <stack>
 
 // * External variable declarations.
-extern struct zone_data *zone_table;
 extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];

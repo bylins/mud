@@ -14,7 +14,6 @@
 #include "db.h"
 #include "structs.h"
 
-
 // * If you don't want a short explanation of each field in your zone files,
 // * change the number below to a 0 instead of a 1.
 #if 0
@@ -56,8 +55,6 @@
 // * Define this to how many MobProg scripts you have.
 #define NUM_PROGS		12
 
-//#define LVL_BUILDER           LVL_GOD
-
 // * Utilities exported from olc.c.
 void strip_string(char *);
 void cleanup_olc(DESCRIPTOR_DATA * d, byte cleanup_type);
@@ -73,11 +70,13 @@ typedef struct t_zcmd
 	struct t_zcmd *prev;	// предыдущий элемент кольцевого буфера
 	struct reset_com cmd;	// команда
 } zcmd, *pzcmd;
+
 void zedit_delete_cmdlist(pzcmd head);
 
 #define		OLC_BM_SHOWALLCMD		(1<<31)
 
 class MakeRecept;
+class ZoneData;	// to avoid inclusion of "zone.table.hpp"
 
 struct olc_data
 {
@@ -92,7 +91,7 @@ struct olc_data
 	CHAR_DATA *mob;
 	ROOM_DATA *room;
 	OBJ_DATA *obj;
-	struct zone_data *zone;
+	ZoneData *zone;
 	EXTRA_DESCR_DATA::shared_ptr desc;
 
 	MakeRecept *mrec;

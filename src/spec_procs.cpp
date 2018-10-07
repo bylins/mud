@@ -2243,7 +2243,7 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 	{
 		return (FALSE);
 	}
-	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
+	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == NOWHERE)
 	{
 		return (FALSE);
 	}

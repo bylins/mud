@@ -6,6 +6,7 @@
 #include "char.hpp"
 #include "magic.h"
 #include "msdp.constants.hpp"
+#include "zone.table.hpp"
 
 namespace msdp
 {
@@ -32,7 +33,7 @@ namespace msdp
 				&& !EXIT_FLAGGED(directions[i], EX_HIDDEN))
 			{
 				const static std::string direction_commands[NUM_OF_DIRS] = { "n", "e", "s", "w", "u", "d" };
-				const auto to_rnum = directions[i]->to_room;
+				const auto to_rnum = directions[i]->to_room();
 				if (to_rnum == from_rnum)
 				{
 					from_direction = direction_commands[i];

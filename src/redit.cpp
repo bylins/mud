@@ -22,6 +22,7 @@
 #include "room.hpp"
 #include "house.h"
 #include "world.characters.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -35,7 +36,6 @@ extern CHAR_DATA *mob_proto;
 extern const char *room_bits[];
 extern const char *sector_types[];
 extern const char *exit_bits[];
-extern struct zone_data *zone_table;
 extern room_rnum r_frozen_start_room;
 extern room_rnum r_helled_start_room;
 extern room_rnum r_mortal_start_room;
@@ -102,7 +102,6 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 {
 	int j, room_num, zone, cmd_no;
 	OBJ_DATA *temp_obj;
-	DESCRIPTOR_DATA *dsc;
 
 	room_num = real_room(OLC_ROOM(d)->number);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число
@@ -177,7 +176,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 // ПЕРЕИНДЕКСАЦИЯ
 
 		// Update zone table.
-		for (zone = 0; zone <= top_of_zone_table; zone++)
+		for (zone = 0; zone < zone_table.size(); zone++)
 		{
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 			{
@@ -238,29 +237,58 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 		for (i = FIRST_ROOM; i < top_of_world + 1; i++)
 		{
 			if (world[i]->portal_room >= room_num)
+			{
 				world[i]->portal_room++;
+			}
+
 			for (j = 0; j < NUM_OF_DIRS; j++)
+			{
 				if (W_EXIT(i, j))
-					if (W_EXIT(i, j)->to_room >= room_num)
-						W_EXIT(i, j)->to_room++;
+				{
+					const auto to_room = W_EXIT(i, j)->to_room();
+
+					if (to_room >= room_num)
+					{
+						W_EXIT(i, j)->to_room(1 + to_room);
+					}
+				}
+			}
 		}
 
 		// * Update any rooms being edited.
-		for (dsc = descriptor_list; dsc; dsc = dsc->next)
+		for (auto dsc = descriptor_list; dsc; dsc = dsc->next)
+		{
 			if (dsc->connected == CON_REDIT)
+			{
 				for (j = 0; j < NUM_OF_DIRS; j++)
+				{
 					if (OLC_ROOM(dsc)->dir_option[j])
-						if (OLC_ROOM(dsc)->dir_option[j]->to_room >= room_num)
-							OLC_ROOM(dsc)->dir_option[j]->to_room++;
+					{
+						const auto to_room = OLC_ROOM(dsc)->dir_option[j]->to_room();
+
+						if (to_room >= room_num)
+						{
+							OLC_ROOM(dsc)->dir_option[j]->to_room(1 + to_room);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	check_room_flags(room_num);
+
 	// пока мы не удаляем комнаты через олц - проблем нету
 	// а вот в случае удаления надо будет обновлять указатели для списка слоу-дт и врат
-	if (ROOM_FLAGGED(room_num, ROOM_SLOWDEATH) || ROOM_FLAGGED(room_num, ROOM_ICEDEATH))
+	if (ROOM_FLAGGED(room_num, ROOM_SLOWDEATH)
+		|| ROOM_FLAGGED(room_num, ROOM_ICEDEATH))
+	{
 		DeathTrap::add(world[room_num]);
+	}
 	else
+	{
 		DeathTrap::remove(world[room_num]);
+	}
 
 	// Настало время добавить триггеры
 	SCRIPT(world[room_num])->cleanup();
@@ -276,7 +304,7 @@ void redit_save_to_disk(int zone_num)
 	FILE *fp;
 	ROOM_DATA *room;
 
-	if (zone_num < 0 || zone_num > top_of_zone_table)
+	if (zone_num < 0 || zone_num >= zone_table.size())
 	{
 		log("SYSERR: redit_save_to_disk: Invalid real zone passed!");
 		return;
@@ -355,8 +383,8 @@ void redit_save_to_disk(int zone_num)
 					fprintf(fp, "D%d\n%s~\n%s~\n%d %d %d %d\n",
 						counter2, buf1, buf2,
 						room->dir_option[counter2]->exit_info, room->dir_option[counter2]->key,
-						room->dir_option[counter2]->to_room != NOWHERE ?
-						world[room->dir_option[counter2]->to_room]->number : NOWHERE,
+						room->dir_option[counter2]->to_room() != NOWHERE ?
+						world[room->dir_option[counter2]->to_room()]->number : NOWHERE,
 						room->dir_option[counter2]->lock_complexity);
 
 					//Восстановим флаги направления в памяти
@@ -423,7 +451,7 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	if (!OLC_EXIT(d))
 	{
 		OLC_EXIT(d).reset(new EXIT_DATA());
-		OLC_EXIT(d)->to_room = NOWHERE;
+		OLC_EXIT(d)->to_room(NOWHERE);
 	}
 
 	// * Weird door handling!
@@ -431,7 +459,9 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 	{
 		strcpy(buf2, "Дверь ");
 		if (IS_SET(OLC_EXIT(d)->exit_info, EX_PICKPROOF))
+		{
 			strcat(buf2, "Невзламываемая ");
+		}
 		sprintf(buf2+strlen(buf2), " (Сложность замка [%d])", OLC_EXIT(d)->lock_complexity);
 	}
 	else
@@ -457,8 +487,8 @@ void redit_disp_exit_menu(DESCRIPTOR_DATA * d)
 		"%s6%s) Очистить выход.\r\n"
 		"Ваш выбор (0 - конец) : ",
 		grn, nrm, cyn,
-		OLC_EXIT(d)->to_room !=
-		NOWHERE ? world[OLC_EXIT(d)->to_room]->number : NOWHERE, grn, nrm,
+		OLC_EXIT(d)->to_room() != NOWHERE ? world[OLC_EXIT(d)->to_room()]->number : NOWHERE,
+		grn, nrm,
 		yel,
 		!OLC_EXIT(d)->general_description.empty() ? OLC_EXIT(d)->general_description.c_str() : "<NONE>",
 		grn, nrm, yel,
@@ -552,46 +582,45 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 	sprinttype(room->sector_type, sector_types, buf2);
 	sprintf(buf,
 #if defined(CLEAR_SCREEN)
-			"[H[J"
+		"[H[J"
 #endif
-			"-- Комната : [%s%d%s]  	Зона: [%s%d%s]\r\n"
-			"%s1%s) Название    : &C&q%s&e&Q\r\n"
-			"%s2&n) Описание    :\r\n%s&e"
-			"%s3%s) Флаги       : %s%s\r\n"
-			"%s4%s) Поверхность : %s%s\r\n"
-			"%s5%s) На севере   : %s%d\r\n"
-			"%s6%s) На востоке  : %s%d\r\n"
-			"%s7%s) На юге      : %s%d\r\n"
-			"%s8%s) На западе   : %s%d\r\n"
-			"%s9%s) Вверху      : %s%d\r\n"
-			"%sA%s) Внизу       : %s%d\r\n"
-			"%sB%s) Меню экстраописаний\r\n"
-			"%sН%s) Ингредиенты : %s%s\r\n"
-			"%sS%s) Скрипты     : %s%s\r\n"
-			"%sQ%s) Quit\r\n"
-			"Ваш выбор : ",
-			cyn, OLC_NUM(d), nrm,
-			cyn, zone_table[OLC_ZNUM(d)].number, nrm,
-			grn, nrm, room->name,
-			grn, room->temp_description,
-			grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn, room->dir_option[NORTH]
-			&& room->dir_option[NORTH]->to_room !=
-			NOWHERE ? world[room->dir_option[NORTH]->to_room]->
-			number : NOWHERE, grn, nrm, cyn, room->dir_option[EAST]
-			&& room->dir_option[EAST]->to_room !=
-			NOWHERE ? world[room->dir_option[EAST]->to_room]->
-			number : NOWHERE, grn, nrm, cyn, room->dir_option[SOUTH]
-			&& room->dir_option[SOUTH]->to_room !=
-			NOWHERE ? world[room->dir_option[SOUTH]->to_room]->
-			number : NOWHERE, grn, nrm, cyn, room->dir_option[WEST]
-			&& room->dir_option[WEST]->to_room !=
-			NOWHERE ? world[room->dir_option[WEST]->to_room]->number : NOWHERE, grn, nrm, cyn, room->dir_option[UP]
-			&& room->dir_option[UP]->to_room !=
-			NOWHERE ? world[room->dir_option[UP]->to_room]->number : NOWHERE, grn, nrm, cyn, room->dir_option[DOWN]
-			&& room->dir_option[DOWN]->to_room !=
-			NOWHERE ? world[room->dir_option[DOWN]->to_room]->
-			number : NOWHERE, grn, nrm, grn, nrm, cyn,
-			room->ing_list ? "Есть" : "Нет", grn, nrm, cyn, !room->proto_script->empty() ? "Set." : "Not Set.", grn, nrm);
+		"-- Комната : [%s%d%s]  	Зона: [%s%d%s]\r\n"
+		"%s1%s) Название    : &C&q%s&e&Q\r\n"
+		"%s2&n) Описание    :\r\n%s&e"
+		"%s3%s) Флаги       : %s%s\r\n"
+		"%s4%s) Поверхность : %s%s\r\n"
+		"%s5%s) На севере   : %s%d\r\n"
+		"%s6%s) На востоке  : %s%d\r\n"
+		"%s7%s) На юге      : %s%d\r\n"
+		"%s8%s) На западе   : %s%d\r\n"
+		"%s9%s) Вверху      : %s%d\r\n"
+		"%sA%s) Внизу       : %s%d\r\n"
+		"%sB%s) Меню экстраописаний\r\n"
+		"%sН%s) Ингредиенты : %s%s\r\n"
+		"%sS%s) Скрипты     : %s%s\r\n"
+		"%sQ%s) Quit\r\n"
+		"Ваш выбор : ",
+		cyn, OLC_NUM(d), nrm,
+		cyn, zone_table[OLC_ZNUM(d)].number, nrm,
+		grn, nrm, room->name,
+		grn, room->temp_description,
+		grn, nrm, cyn, buf1, grn, nrm, cyn, buf2, grn, nrm, cyn,
+		room->dir_option[NORTH] && room->dir_option[NORTH]->to_room() != NOWHERE ? world[room->dir_option[NORTH]->to_room()]->number : NOWHERE,
+		grn, nrm, cyn,
+		room->dir_option[EAST] && room->dir_option[EAST]->to_room() != NOWHERE ? world[room->dir_option[EAST]->to_room()]-> number : NOWHERE,
+		grn, nrm, cyn,
+		room->dir_option[SOUTH] && room->dir_option[SOUTH]->to_room() != NOWHERE ? world[room->dir_option[SOUTH]->to_room()]-> number : NOWHERE,
+		grn, nrm, cyn,
+		room->dir_option[WEST] && room->dir_option[WEST]->to_room() != NOWHERE ? world[room->dir_option[WEST]->to_room()]->number : NOWHERE,
+		grn, nrm, cyn,
+		room->dir_option[UP] && room->dir_option[UP]->to_room() != NOWHERE ? world[room->dir_option[UP]->to_room()]->number : NOWHERE,
+		grn, nrm, cyn,
+		room->dir_option[DOWN] && room->dir_option[DOWN]->to_room() != NOWHERE ? world[room->dir_option[DOWN]->to_room()]-> number : NOWHERE,
+		grn, nrm, grn, nrm, cyn,
+		room->ing_list ? "Есть" : "Нет",
+		grn, nrm, cyn,
+		!room->proto_script->empty() ? "Set." : "Not Set.",
+		grn, nrm);
 	send_to_char(buf, d->character.get());
 
 	OLC_MODE(d) = REDIT_MAIN_MENU;
@@ -600,7 +629,6 @@ void redit_disp_menu(DESCRIPTOR_DATA * d)
 // *************************************************************************
 // *  The main loop                                                        *
 // *************************************************************************
-
 void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 {
 	int number, plane, bit;
@@ -835,13 +863,18 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case REDIT_EXIT_NUMBER:
-		if ((number = atoi(arg)) != NOWHERE)
-			if ((number = real_room(number)) == NOWHERE)
+		number = atoi(arg);
+		if (number != NOWHERE)
+		{
+			number = real_room(number);
+			if (number == NOWHERE)
 			{
 				send_to_char("Нет такой комнаты - повторите ввод : ", d->character.get());
+
 				return;
 			}
-		OLC_EXIT(d)->to_room = number;
+		}
+		OLC_EXIT(d)->to_room(number);
 		redit_disp_exit_menu(d);
 		return;
 
