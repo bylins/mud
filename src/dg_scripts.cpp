@@ -2240,6 +2240,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			CharacterLinkDrop = true;
 		}
 
+		auto done = true;
 		if (text_processed(field, subfield, vd, str))
 		{
 			return;
@@ -2521,6 +2522,14 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			{
 				c->affect_remove(c->affected.begin());
 			}
+		}
+		else
+		{
+			done = false;
+		}
+
+		if (done)
+		{
 		}
 		else if (!str_cmp(field, "hryvn"))
 		{
