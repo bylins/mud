@@ -176,46 +176,54 @@ void DiscreteFile::read_next_line(const int nr)
 
 char* DiscreteFile::fread_string()
 {
-	char buffer[1 + MAX_STRING_LENGTH];
-	char* to = buffer;
-
+	char bufferIn[MAX_RAW_INPUT_LENGTH];
+	char bufferOut[MAX_STRING_LENGTH];
+	char* to = bufferOut;
+	const char* end = bufferOut + sizeof(bufferOut) - 1;
+	bool isEscaped = false;
 	bool done = false;
-	int remained = MAX_STRING_LENGTH;
-	const char* end = buffer + MAX_STRING_LENGTH;
+
 	while (!done
-		&& fgets(to, remained, file()))
+		&& fgets(bufferIn, sizeof(bufferIn), file())
+		&& to < end)
 	{
-		const char* chunk_beginning = to;
-		const char* from = to;
-		while (end != from)
+		const char* from = bufferIn;
+		char c;
+
+		while ((c = *from++) && (to < end))
 		{
-			if ('~' == from[0])
+			if (c == '~')
 			{
-				if (1 + from != end
-					&& '~' == from[1])
-				{
-					++from;	//	skip escaped '~'
-				}
+				if (isEscaped)
+					*to++ = c; // escape sequence ~~ replaced with single ~
+				else
+					isEscaped = 1;
+			}
+			else
+			{
+				if (isEscaped)
+					done = true; // '~' followed by something else - terminate
 				else
 				{
-					done = true;
-					break;
+					if ((c == '\n') && (to == bufferOut || *(to - 1) != '\r')) // NL without preceding CR
+					{
+						if ((to + 1) < end)
+						{
+							*to++ = '\r';
+							*to++ = c;
+						}
+						else
+							done = true; // not enough space for \r\n. Don't put \r or \n alone, terminate
+					}
+					else
+						*to++ = c;
 				}
 			}
-
-			const char c = *(from++);
-			if ('\0' == c)
-			{
-				break;
-			}
-			*(to++) = c;
 		}
-
-		remained -= to - chunk_beginning;
 	}
 	*to = '\0';
 
-	return strdup(buffer);
+	return strdup(bufferOut);
 }
 
 char DiscreteFile::fread_letter(FILE * fp)
