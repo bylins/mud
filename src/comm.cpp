@@ -994,7 +994,7 @@ void init_game(ush_int port)
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
 				log("%s", buf);
 			}
-			else if (rznum < 0 || rznum >= zone_table.size())
+			else if (rznum < 0 || rznum >= static_cast<int>(zone_table.size()))
 			{
 				sprintf(buf, "OLC: Invalid real zone number %d!", rznum);
 				log("%s", buf);

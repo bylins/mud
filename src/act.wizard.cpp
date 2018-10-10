@@ -198,7 +198,7 @@ void do_add_wizard(CHAR_DATA *ch, char*, int, int);
 
 void save_zone_count_reset()
 {
-	for (int i = 0; i < zone_table.size(); ++i)
+	for (auto i = 0u; i < zone_table.size(); ++i)
 	{
 		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
 		log("%s", buf);
@@ -370,7 +370,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_showzonestats(CHAR_DATA* ch, char*, int, int)
 {
 	std::string buffer = "";
-	for (int i = 0; i < zone_table.size(); ++i)
+	for (auto i = 0u; i < zone_table.size(); ++i)
 	{
 		sprintf(buf, "Zone: %d, count_reset: %d, посещено с ребута: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
 		buffer += std::string(buf) + "\r\n";
@@ -1048,7 +1048,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 	}
 
 	// что-то по другому не нашел, как проверить существует такая зона или нет
-	for (zrn = 0; zrn < zone_table.size(); zrn++)
+	for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 	{
 		if (zone_table[zrn].number == number)
 		{
@@ -4756,7 +4756,7 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (*arg == '*')
 	{
-		for (i = 0; i < zone_table.size(); i++)
+		for (i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++)
 		{
 			reset_zone(i);
 		}
@@ -4774,7 +4774,7 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	else
 	{
 		j = atoi(arg);
-		for (i = 0; i < zone_table.size(); i++)
+		for (i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++)
 		{
 			if (zone_table[i].number == j)
 			{
@@ -4783,7 +4783,7 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 	}
 
-	if (i >= 0 && i < zone_table.size())
+	if (i >= 0 && i < static_cast<zone_rnum>(zone_table.size()))
 	{
 		reset_zone(i);
 		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].number, zone_table[i].name);
@@ -5140,7 +5140,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			int zstart = atoi(value);
 			int zend = atoi(value1);
 
-			for (zrn = 0; zrn < zone_table.size(); zrn++)
+			for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 			{
 				if (zone_table[zrn].number >= zstart
 					&& zone_table[zrn].number <= zend)
@@ -5159,13 +5159,13 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else if (*value && is_number(value))
 		{
 			for (zvn = atoi(value), zrn = 0;
-				zone_table[zrn].number != zvn && zrn < zone_table.size();
+				zone_table[zrn].number != zvn && zrn < static_cast<zone_rnum>(zone_table.size());
 				zrn++)
 			{
 				/* empty loop */
 			}
 
-			if (zrn < zone_table.size())
+			if (zrn < static_cast<zone_rnum>(zone_table.size()))
 			{
 				print_zone_to_buf(&bf, zrn);
 			}
@@ -5177,7 +5177,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else if (*value && !strcmp(value, "-g"))
 		{
-			for (zrn = 0; zrn < zone_table.size(); zrn++)
+			for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 			{
 				if (zone_table[zrn].group > 1)
 				{
@@ -5191,7 +5191,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (*value && is_number(value))
 			{
 				// show zones -l x y
-				for (zrn = 0; zrn < zone_table.size(); zrn++)
+				for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 				{
 					if (zone_table[zrn].mob_level >= atoi(value1)
 						&& zone_table[zrn].mob_level <= atoi(value))
@@ -5203,7 +5203,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			else
 			{
 				// show zones -l x
-				for (zrn = 0; zrn < zone_table.size(); zrn++)
+				for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 				{
 					if (zone_table[zrn].mob_level == atoi(value1))
 					{
@@ -5214,7 +5214,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			for (zrn = 0; zrn < zone_table.size(); zrn++)
+			for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 			{
 				print_zone_to_buf(&bf, zrn);
 			}
@@ -5470,13 +5470,13 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else if (*value && is_number(value))
 		{
 			for (zvn = atoi(value), zrn = 0;
-				zone_table[zrn].number != zvn && zrn < zone_table.size();
+				zone_table[zrn].number != zvn && zrn < static_cast<zone_rnum>(zone_table.size());
 				zrn++)
 			{
 				// empty
 			}
 
-			if (zrn < zone_table.size())
+			if (zrn < static_cast<zone_rnum>(zone_table.size()))
 			{
 				auto out = print_zone_exits(zrn);
 				out += print_zone_enters(zrn);
@@ -6924,7 +6924,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			first, last);
 		out += buf_;
 
-		for (nr = 0; nr < zone_table.size() && (zone_table[nr].number <= last); nr++)
+		for (nr = 0; nr < static_cast<zone_rnum>(zone_table.size()) && (zone_table[nr].number <= last); nr++)
 		{
 			if (zone_table[nr].number >= first)
 			{
@@ -7597,7 +7597,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (find)
 		{
 			const auto vnum = i->get_vnum() / 100;
-			for (auto nr = 0; nr < zone_table.size(); nr++)
+			for (auto nr = 0; nr < static_cast<zone_rnum>(zone_table.size()); nr++)
 			{
 				if (vnum == zone_table[nr].number)
 				{

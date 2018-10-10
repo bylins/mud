@@ -170,9 +170,7 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd)
 
 int real_zone(int number)
 {
-	int counter;
-
-	for (counter = 0; counter < zone_table.size(); counter++)
+	for (int counter = 0; counter < static_cast<int>(zone_table.size()); counter++)
 		if ((number >= (zone_table[counter].number * 100)) && (number <= (zone_table[counter].top)))
 			return counter;
 

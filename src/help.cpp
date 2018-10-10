@@ -651,7 +651,7 @@ void add_sets_drop(const std::string key, const std::string entry)
 void init_zone_all()
 {
 	std::stringstream out;
-	for (int rnum = 0, i = 1; rnum < zone_table.size(); ++rnum)
+	for (std::size_t rnum = 0, i = 1; rnum < zone_table.size(); ++rnum)
 	{
 		if (zone_table[rnum].location)
 		{
@@ -665,13 +665,12 @@ void init_zone_all()
 void init_group_zones()
 {
 	std::stringstream out;
-	for (int rnum = 0, i = 1; rnum < zone_table.size(); ++rnum)
+	for (std::size_t rnum = 0; rnum < zone_table.size(); ++rnum)
 	{
 		const auto group = zone_table[rnum].group;
 		if (group > 1)
 		{
-			out << boost::format("  %2d - %s (гр. %d+).\r\n") % i % zone_table[rnum].name % group;
-			++i;
+			out << boost::format("  %2d - %s (гр. %d+).\r\n") % (1 + rnum) % zone_table[rnum].name % group;
 		}
 	}
 	add_static("групповыезоны", out.str(), 0, true);

@@ -2112,7 +2112,7 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case ZEDIT_ZONE_TOP:
 		// * Parse and add new top room in zone and return to main menu.
-		if (OLC_ZNUM(d) == zone_table.size() - 1)
+		if (OLC_ZNUM(d) == static_cast<zone_rnum>(zone_table.size()) - 1)
 		{
 			OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(99900, atoi(arg)));
 		}

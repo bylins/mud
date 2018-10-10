@@ -418,7 +418,9 @@ void WorldFile::read_entry(const int nr)
 
 void WorldFile::parse_room(int virtual_nr, const int virt)
 {
-	static int room_nr = FIRST_ROOM, zone = 0;
+	static int room_nr = FIRST_ROOM;
+	static zone_rnum zone = 0;
+
 	int t[10], i;
 	char line[256], flags[128];
 	char letter;
@@ -437,7 +439,7 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 	}
 	while (virtual_nr > zone_table[zone].top)
 	{
-		if (++zone >= zone_table.size())
+		if (++zone >= static_cast<zone_rnum>(zone_table.size()))
 		{
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
@@ -1784,7 +1786,6 @@ bool ZoneFile::load_zone()
 
 	auto result = false;
 	{
-		const auto length = strlen(buf);
 		char type[BUFFER_SIZE];
 		const auto count = sscanf(buf, "#%d %s", &zone.number, type);
 		if (count < 1)

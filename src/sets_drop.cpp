@@ -236,7 +236,7 @@ void create_clone_miniset(int vnum)
 	const int new_vnum = DUPLICATE_MINI_SET_VNUM + vnum;
 
 	// если такой зоны нет, то делаем ретурн
-	if ((new_vnum % 100) >= zone_table.size())
+	if ((new_vnum % 100) >= static_cast<int>(zone_table.size()))
 	{
 		return;
 	}
@@ -510,7 +510,7 @@ void init_mob_name_list()
 	}
 
 	// тестовые зоны
-	for (int nr = 0; nr < zone_table.size(); nr++)
+	for (std::size_t nr = 0; nr < zone_table.size(); nr++)
 	{
 		if (zone_table[nr].under_construction)
 		{
@@ -607,7 +607,7 @@ void init_mob_type()
 int calc_max_in_world(int mob_rnum)
 {
 	int max_in_world = 0;
-	for (int i = 0; i < zone_table.size(); ++i)
+	for (std::size_t i = 0; i < zone_table.size(); ++i)
 	{
 		for (int cmd_no = 0; zone_table[i].cmd[cmd_no].command != 'S'; ++cmd_no)
 		{

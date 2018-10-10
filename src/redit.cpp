@@ -100,7 +100,7 @@ void redit_setup(DESCRIPTOR_DATA * d, int real_num)
 // * Сохранить новую комнату в памяти
 void redit_save_internally(DESCRIPTOR_DATA * d)
 {
-	int j, room_num, zone, cmd_no;
+	int j, room_num, cmd_no;
 	OBJ_DATA *temp_obj;
 
 	room_num = real_room(OLC_ROOM(d)->number);
@@ -176,7 +176,7 @@ void redit_save_internally(DESCRIPTOR_DATA * d)
 // ПЕРЕИНДЕКСАЦИЯ
 
 		// Update zone table.
-		for (zone = 0; zone < zone_table.size(); zone++)
+		for (std::size_t zone = 0; zone < zone_table.size(); zone++)
 		{
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 			{
@@ -304,7 +304,7 @@ void redit_save_to_disk(int zone_num)
 	FILE *fp;
 	ROOM_DATA *room;
 
-	if (zone_num < 0 || zone_num >= zone_table.size())
+	if (zone_num < 0 || zone_num >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: redit_save_to_disk: Invalid real zone passed!");
 		return;

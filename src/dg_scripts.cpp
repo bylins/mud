@@ -1916,8 +1916,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 			else if (!str_cmp(field, "zreset") && num > 0)
 			{
-				int i;
-				for (i = 0; i < zone_table.size(); i++)
+				for (zone_rnum i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++)
 				{
 					if (zone_table[i].number == num)
 					{
