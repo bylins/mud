@@ -31,6 +31,7 @@
 #include "temp_spells.hpp"
 #include "conf.h"
 #include "accounts.hpp"
+#include "zone.table.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -65,8 +66,7 @@ uint8_t get_day_today()
 
 } // namespace
 
-Player::Player()
-	:
+Player::Player():
 	pfilepos_(-1),
 	was_in_room_(NOWHERE),
 	from_room_(0),
@@ -103,58 +103,6 @@ Player::Player()
 	const time_t now = time(0);
 	board_date_.fill(now);
 }
-
-/*extern std::vector<Stigma> stigmas;
-void Player::add_stigma(int wear, int id_stigma)
-{
-	for (auto i : ::stigmas)
-	{
-		if (i.id == id_stigma)
-		{
-			StigmaWear tmp;
-			tmp.stigma = i;
-			tmp.reload = i.reload;
-			this->stigmas.insert(std::pair<int, StigmaWear>(wear, tmp));
-			return;
-		}
-	}
-	
-}
-
-void Player::touch_stigma(char *arg)
-{
-	for (auto stigma : this->stigmas)
-	{
-		std::vector<std::string> array_str;
-		std::string temp_string = std::string(buf);
-		boost::split(array_str, temp_string, boost::is_any_of(" ."));
-		for (auto word : array_str)
-		{
-			if (boost::starts_with(stigma.second.get_name(), word))
-			{
-				if (GET_EQ(this, stigma.first))
-				{
-					sprintf(buf, "%s мешает вам прикоснуться к стигме.\r\n", GET_EQ(this, stigma.first)->get_PName(0).c_str());
-					send_to_char(this, buf);
-				}
-				else
-				{
-					if (stigma.second.reload > 0)
-					{
-						send_to_char(this, "Вам больно прикосаться к этой стигме!\r\n");
-					}
-					else
-					{
-						stigma.second.stigma.reload = stigma.second.reload;
-						stigma.second.stigma.activation_stigma(this);
-					}
-				}	
-				return;
-			}
-		}
-
-	}
-}*/
 
 int Player::get_pfilepos() const
 {
@@ -288,6 +236,8 @@ int Player::get_hryvn()
 
 void Player::set_hryvn(int value)
 {
+	if (this->get_hryvn() + value > 1200)
+		value = 1200;
 	this->hryvn = value;
 }
 
@@ -299,6 +249,17 @@ void Player::sub_hryvn(int value)
 
 void Player::add_hryvn(int value)
 {
+	if ((this->get_hryvn() + value) > 1200)
+	{
+		value = 1200 - this->get_hryvn();
+		sprintf(buf2, "Вы получили только %ld %s так как в вашу копилку больше не лезет...\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
+	}
+	else
+	{
+		sprintf(buf2, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
+	}
+	send_to_char(this, buf2);
+	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
 	this->hryvn += value;
 }
 
@@ -324,10 +285,8 @@ void Player::dquest(int id)
 			{
 				value /= 2;
 			}
-			sprintf(buf2, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
-			send_to_char(this, buf2);
 			this->add_hryvn(value);
-			log("Персонаж %s получил %d [гривны]. Quest ID: %d", GET_NAME(this), value, x.id);
+
 			this->account->complete_quest(id);
 			return;
 		}
@@ -1676,7 +1635,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			else if (!strcmp(tag, "Hung"))
 				GET_COND(this, FULL) = num;
 			else if (!strcmp(tag, "Hry "))
+			{
+				if (num > 1200)
+					num = 1200;
 				this->set_hryvn(num);
+			}
 			else if (!strcmp(tag, "Host"))
 				strcpy(GET_LASTIP(this), line);
 			break;

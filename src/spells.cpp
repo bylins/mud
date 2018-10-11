@@ -47,13 +47,13 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "world.characters.hpp"
+#include "zone.table.hpp"
 
 #include <vector>
 
 extern room_rnum r_mortal_start_room;
 
 extern DESCRIPTOR_DATA *descriptor_list;
-extern struct zone_data *zone_table;
 extern const char *material_name[];
 extern const char *weapon_affects[];
 extern TIME_INFO_DATA time_info;

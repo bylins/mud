@@ -60,6 +60,7 @@
 #include "msdp.hpp"
 #include "msdp.constants.hpp"
 #include "heartbeat.hpp"
+#include "zone.table.hpp"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -389,7 +390,6 @@ extern const char *LOGNAME;
 extern int max_playing;
 extern int nameserver_is_slow;	// see config.cpp
 extern int mana[];
-extern struct zone_data *zone_table;
 extern const char *save_info_msg[];	// In olc.cpp
 extern CHAR_DATA *combat_list;
 extern int proc_color(char *inbuf, int color);
@@ -994,7 +994,7 @@ void init_game(ush_int port)
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
 				log("%s", buf);
 			}
-			else if (rznum < 0 || rznum > top_of_zone_table)
+			else if (rznum < 0 || rznum >= static_cast<int>(zone_table.size()))
 			{
 				sprintf(buf, "OLC: Invalid real zone number %d!", rznum);
 				log("%s", buf);
@@ -1937,7 +1937,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 					for (door = 0; door < NUM_OF_DIRS; door++)
 					{
 						if (EXIT(d->character, door)
-							&& EXIT(d->character, door)->to_room != NOWHERE
+							&& EXIT(d->character, door)->to_room() != NOWHERE
 							&& !EXIT_FLAGGED(EXIT(d->character, door), EX_HIDDEN))
 						{
 							count += EXIT_FLAGGED(EXIT(d->character, door), EX_CLOSED)
@@ -2390,24 +2390,14 @@ int new_descriptor(socket_t s)
 
 	SEND_TO_Q(buf, newd);
 
-#ifdef HAVE_ICONV
 	SEND_TO_Q("Using keytable\r\n"
 		"  0) Koi-8\r\n"
 		"  1) Alt\r\n"
 		"  2) Windows(JMC,MMC)\r\n"
 		"  3) Windows(zMUD)\r\n"
 		"  4) Windows(zMUD ver. 6+)\r\n"
-		  "  5) UTF-8\r\n"
-		  "Select one : ", newd);
-#else
-	SEND_TO_Q("Using keytable\r\n"
-		  "  0) Koi-8\r\n"
-		  "  1) Alt\r\n"
-		  "  2) Windows(JMC,MMC)\r\n"
-		  "  3) Windows(zMUD)\r\n"
-		  "  4) Windows(zMUD ver. 6+)\r\n"
-		  "Select one : ", newd);
-#endif
+		"  5) UTF-8\r\n"
+		"Select one : ", newd);
 
 	// trying to turn on MSDP
 	write_to_descriptor(newd->descriptor, will_msdp, sizeof(will_msdp));
@@ -2913,6 +2903,7 @@ int process_input(DESCRIPTOR_DATA * t)
 				// следует заменить просто на один IAC, но
 				// для раскладок KT_WIN/KT_WINZ6 это произойдет ниже.
 				// Почему так сделано - не знаю, но заменять не буду.
+				// II: потому что второй IAC может прочитаться в другом socket_read
 				++ptr;
 			}
 			else if (ptr[1] == (char) DO)
@@ -3157,7 +3148,6 @@ int process_input(DESCRIPTOR_DATA * t)
 
 		*write_point = '\0';
 
-#ifdef HAVE_ICONV
 		if (t->keytable == KT_UTF8)
 		{
 			int i;
@@ -3175,7 +3165,6 @@ int process_input(DESCRIPTOR_DATA * t)
 			strncpy(tmp, utf8_tmp, MAX_INPUT_LENGTH - 1);
 			space_left = space_left + len_i - len_o;
 		}
-#endif
 
 		if ((space_left <= 0) && (ptr < nl_pos))
 		{

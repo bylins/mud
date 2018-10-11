@@ -14,6 +14,7 @@
 #include "screen.h"
 #include "spells.h"
 #include "obj_sets.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -650,7 +651,7 @@ void add_sets_drop(const std::string key, const std::string entry)
 void init_zone_all()
 {
 	std::stringstream out;
-	for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
+	for (std::size_t rnum = 0, i = 1; rnum < zone_table.size(); ++rnum)
 	{
 		if (zone_table[rnum].location)
 		{
@@ -664,32 +665,17 @@ void init_zone_all()
 void init_group_zones()
 {
 	std::stringstream out;
-	for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
+	for (std::size_t rnum = 0; rnum < zone_table.size(); ++rnum)
 	{
-		const int group = zone_table[rnum].group;
+		const auto group = zone_table[rnum].group;
 		if (group > 1)
 		{
-			out << boost::format("  %2d - %s (гр. %d+).\r\n") % i % zone_table[rnum].name % group;
-			++i;
+			out << boost::format("  %2d - %s (гр. %d+).\r\n") % (1 + rnum) % zone_table[rnum].name % group;
 		}
 	}
 	add_static("групповыезоны", out.str(), 0, true);
 }
-/*// листинг
-void init_list_zones()
-{
-	std::stringstream out;
-	
-	for (int rnum = 0, i = 1; rnum <= top_of_zone_table; ++rnum)
-	{
-		out << boost::format("  %2d	 %s	 %d	%s	%s ).\r\n") % i % zone_table[rnum].name % zone_table[rnum].level % zone_table[rnum].location % zone_table[rnum].description;
-		++i;
 
-	}
-	add_static("листзон", out.str(), 0, true);
-
-}
-*/
 void check_update_dynamic()
 {
 	if (need_update)

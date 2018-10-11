@@ -72,6 +72,7 @@
 #include "time_utils.hpp"
 #include "global.objects.hpp"
 #include "heartbeat.hpp"
+#include "zone.table.hpp"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -91,7 +92,6 @@ extern FILE *player_fl;
 
 extern DESCRIPTOR_DATA *descriptor_list;
 extern INDEX_DATA *mob_index;
-extern struct zone_data *zone_table;
 extern char const *class_abbrevs[];
 extern char const *kin_abbrevs[];
 extern const char *weapon_affects[];
@@ -198,7 +198,7 @@ void do_add_wizard(CHAR_DATA *ch, char*, int, int);
 
 void save_zone_count_reset()
 {
-	for (int i = 0; i <= top_of_zone_table; ++i)
+	for (auto i = 0u; i < zone_table.size(); ++i)
 	{
 		sprintf(buf, "Zone: %d, count_reset: %d", zone_table[i].number, zone_table[i].count_reset);
 		log("%s", buf);
@@ -370,7 +370,7 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_showzonestats(CHAR_DATA* ch, char*, int, int)
 {
 	std::string buffer = "";
-	for (int i = 0; i <= top_of_zone_table; ++i)
+	for (auto i = 0u; i < zone_table.size(); ++i)
 	{
 		sprintf(buf, "Zone: %d, count_reset: %d, посещено с ребута: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
 		buffer += std::string(buf) + "\r\n";
@@ -1048,7 +1048,7 @@ void do_check_occupation(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcm
 	}
 
 	// что-то по другому не нашел, как проверить существует такая зона или нет
-	for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+	for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 	{
 		if (zone_table[zrn].number == number)
 		{
@@ -1974,11 +1974,11 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 	{
 		if (rm->dir_option[i])
 		{
-			if (rm->dir_option[i]->to_room == NOWHERE)
+			if (rm->dir_option[i]->to_room() == NOWHERE)
 				sprintf(buf1, " %sNONE%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 			else
 				sprintf(buf1, "%s%5d%s", CCCYN(ch, C_NRM),
-					GET_ROOM_VNUM(rm->dir_option[i]->to_room), CCNRM(ch, C_NRM));
+					GET_ROOM_VNUM(rm->dir_option[i]->to_room()), CCNRM(ch, C_NRM));
 			sprintbit(rm->dir_option[i]->exit_info, exit_bits, buf2);
 			sprintf(buf,
 				"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n ",
@@ -4756,8 +4756,11 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (*arg == '*')
 	{
-		for (i = 0; i <= top_of_zone_table; i++)
+		for (i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++)
+		{
 			reset_zone(i);
+		}
+
 		send_to_char("Перезагружаю мир.\r\n", ch);
 		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
 		mudlog(buf, NRM, MAX(LVL_GRGOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -4765,15 +4768,22 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	else if (*arg == '.')
+	{
 		i = world[ch->in_room]->zone;
+	}
 	else
 	{
 		j = atoi(arg);
-		for (i = 0; i <= top_of_zone_table; i++)
+		for (i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++)
+		{
 			if (zone_table[i].number == j)
+			{
 				break;
+			}
+		}
 	}
-	if (i >= 0 && i <= top_of_zone_table)
+
+	if (i >= 0 && i < static_cast<zone_rnum>(zone_table.size()))
 	{
 		reset_zone(i);
 		sprintf(buf, "Перегружаю зону %d (#%d): %s.\r\n", i, zone_table[i].number, zone_table[i].name);
@@ -4783,7 +4793,9 @@ void do_zreset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name);
 	}
 	else
+	{
 		send_to_char("Нет такой зоны.\r\n", ch);
+	}
 }
 
 // Функции установки разных наказаний.
@@ -4912,7 +4924,7 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 		(double)zone_table[zone].activity / 1000,
 		zone_table[zone].group,
 		zone_table[zone].mob_level,
-		zone_table[zone].autor ? zone_table[zone].autor : "Не известен.");
+		zone_table[zone].author ? zone_table[zone].author : "Не известен.");
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
@@ -4932,13 +4944,13 @@ std::string print_zone_exits(zone_rnum zone)
 			for (int dir = 0; dir < NUM_OF_DIRS; dir++)
 			{
 				if (world[n]->dir_option[dir]
-					&& world[world[n]->dir_option[dir]->to_room]->zone != zone
-					&& world[world[n]->dir_option[dir]->to_room]->number > 0)
+					&& world[world[n]->dir_option[dir]->to_room()]->zone != zone
+					&& world[world[n]->dir_option[dir]->to_room()]->number > 0)
 				{
 					snprintf(tmp, sizeof(tmp),
 						"  Номер комнаты:%5d Направление:%6s Выход в комнату:%5d\r\n",
 						world[n]->number, Dirs[dir],
-						world[world[n]->dir_option[dir]->to_room]->number);
+						world[world[n]->dir_option[dir]->to_room()]->number);
 					out += tmp;
 					found = true;
 				}
@@ -4968,13 +4980,13 @@ std::string print_zone_enters(zone_rnum zone)
 			for (int dir = 0; dir < NUM_OF_DIRS; dir++)
 			{
 				if (world[n]->dir_option[dir]
-					&& world[world[n]->dir_option[dir]->to_room]->zone == zone
-					&& world[world[n]->dir_option[dir]->to_room]->number > 0)
+					&& world[world[n]->dir_option[dir]->to_room()]->zone == zone
+					&& world[world[n]->dir_option[dir]->to_room()]->number > 0)
 				{
 					snprintf(tmp, sizeof(tmp),
 						"  Номер комнаты:%5d Направление:%6s Вход в комнату:%5d\r\n",
 						world[n]->number, Dirs[dir],
-						world[world[n]->dir_option[dir]->to_room]->number);
+						world[world[n]->dir_option[dir]->to_room()]->number);
 					out += tmp;
 					found = true;
 				}
@@ -5128,7 +5140,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			int zstart = atoi(value);
 			int zend = atoi(value1);
 
-			for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+			for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 			{
 				if (zone_table[zrn].number >= zstart
 					&& zone_table[zrn].number <= zend)
@@ -5147,9 +5159,16 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		else if (*value && is_number(value))
 		{
 			for (zvn = atoi(value), zrn = 0;
-				zone_table[zrn].number != zvn && zrn <= top_of_zone_table; zrn++);
-			if (zrn <= top_of_zone_table)
+				zone_table[zrn].number != zvn && zrn < static_cast<zone_rnum>(zone_table.size());
+				zrn++)
+			{
+				/* empty loop */
+			}
+
+			if (zrn < static_cast<zone_rnum>(zone_table.size()))
+			{
 				print_zone_to_buf(&bf, zrn);
+			}
 			else
 			{
 				send_to_char("Нет такой зоны.\r\n", ch);
@@ -5158,7 +5177,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else if (*value && !strcmp(value, "-g"))
 		{
-			for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+			for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 			{
 				if (zone_table[zrn].group > 1)
 				{
@@ -5172,7 +5191,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (*value && is_number(value))
 			{
 				// show zones -l x y
-				for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+				for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 				{
 					if (zone_table[zrn].mob_level >= atoi(value1)
 						&& zone_table[zrn].mob_level <= atoi(value))
@@ -5184,7 +5203,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			else
 			{
 				// show zones -l x
-				for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+				for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 				{
 					if (zone_table[zrn].mob_level == atoi(value1))
 					{
@@ -5195,14 +5214,16 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else
 		{
-			for (zrn = 0; zrn <= top_of_zone_table; zrn++)
+			for (zrn = 0; zrn < static_cast<zone_rnum>(zone_table.size()); zrn++)
 			{
 				print_zone_to_buf(&bf, zrn);
 			}
 		}
+
 		page_string(ch->desc, bf, TRUE);
 		free(bf);
 		break;
+
 	case 2:		// player
 		if (!*value)
 		{
@@ -5296,7 +5317,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf + strlen(buf), "  Мобов - %5d,  прообразов мобов - %5d\r\n", j, top_of_mobt + 1);
 		sprintf(buf + strlen(buf), "  Предметов - %5zd, прообразов предметов - %5zd\r\n",
 			world_objects.size(), obj_proto.size());
-		sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5d\r\n", top_of_world + 1, top_of_zone_table + 1);
+		sprintf(buf + strlen(buf), "  Комнат - %5d, зон - %5zd\r\n", top_of_world + 1, zone_table.size());
 		sprintf(buf + strlen(buf), "  Больших буферов - %5d\r\n", buf_largecount);
 		sprintf(buf + strlen(buf), "  Переключенных буферов - %5d, переполненных - %5d\r\n", buf_switches, buf_overflows);
 		sprintf(buf + strlen(buf), "  Послано байт - %lu\r\n", number_of_bytes_written);
@@ -5324,7 +5345,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			for (j = 0; j < NUM_OF_DIRS; j++)
 			{
 				if (world[i]->dir_option[j]
-					&& world[i]->dir_option[j]->to_room == 0)
+					&& world[i]->dir_option[j]->to_room() == 0)
 				{
 					sprintf(buf + strlen(buf), "%2d: [%5d] %s\r\n", ++k,
 						GET_ROOM_VNUM(i), world[i]->name);
@@ -5448,14 +5469,16 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else if (*value && is_number(value))
 		{
-			for (zvn = atoi(value), zrn = 0; zone_table[zrn].number != zvn
-				&& zrn <= top_of_zone_table; zrn++)
+			for (zvn = atoi(value), zrn = 0;
+				zone_table[zrn].number != zvn && zrn < static_cast<zone_rnum>(zone_table.size());
+				zrn++)
 			{
 				// empty
 			}
-			if (zrn <= top_of_zone_table)
+
+			if (zrn < static_cast<zone_rnum>(zone_table.size()))
 			{
-				std::string out = print_zone_exits(zrn);
+				auto out = print_zone_exits(zrn);
 				out += print_zone_enters(zrn);
 				page_string(ch->desc, out);
 			}
@@ -5471,8 +5494,10 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 		break;
+
 	case 12:		// show loadrooms
 		break;
+
 	case 13:		// show skills
 		if (!*value)
 		{
@@ -6898,7 +6923,8 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			"(флаги, номер, резет, уровень/средний уровень мобов, группа, имя)\r\n",
 			first, last);
 		out += buf_;
-		for (nr = 0; nr <= top_of_zone_table && (zone_table[nr].number <= last); nr++)
+
+		for (nr = 0; nr < static_cast<zone_rnum>(zone_table.size()) && (zone_table[nr].number <= last); nr++)
 		{
 			if (zone_table[nr].number >= first)
 			{
@@ -6917,9 +6943,11 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			}
 		}
 		break;
+
 	case SCMD_CLIST:
 		out = "Заглушка. Возможно, будет использоваться в будущем\r\n";
 		break;
+
 	default:
 		sprintf(buf, "SYSERR:: invalid SCMD passed to ACMDdo_build_list!");
 		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
@@ -7565,10 +7593,11 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				continue;
 			}
 		}
+
 		if (find)
 		{
-			int vnum = i->get_vnum() / 100;
-			for (int nr = 0; nr <= top_of_zone_table; nr++)
+			const auto vnum = i->get_vnum() / 100;
+			for (auto nr = 0; nr < static_cast<zone_rnum>(zone_table.size()); nr++)
 			{
 				if (vnum == zone_table[nr].number)
 				{
@@ -7577,6 +7606,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 	}
+
 	std::ostringstream out;
 	for (std::multimap<int, int>::const_reverse_iterator i = tmp_list.rbegin(), iend = tmp_list.rend(); i != iend; ++i)
 	{

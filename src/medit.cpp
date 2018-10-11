@@ -25,6 +25,7 @@
 #include "corpse.hpp"
 #include "sets_drop.hpp"
 #include "fight.h"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -47,7 +48,6 @@
 extern INDEX_DATA *mob_index;
 extern CHAR_DATA *mob_proto;
 extern mob_rnum top_of_mobt;
-extern struct zone_data *zone_table;
 extern DESCRIPTOR_DATA *descriptor_list;
 #if defined(OASIS_MPROG)
 extern const char *mobprog_types[];
@@ -348,7 +348,7 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 */
 void medit_save_internally(DESCRIPTOR_DATA * d)
 {
-	int rmob_num, found = 0, new_mob_num = 0, zone, cmd_no, j;
+	int rmob_num, found = 0, new_mob_num = 0, cmd_no, j;
 	CHAR_DATA *new_proto;
 	INDEX_DATA *new_index;
 	DESCRIPTOR_DATA *dsc;
@@ -502,7 +502,7 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 
 		// 2. Изменение параметров команд zon-файлов
 				// Update zone table. //
-		for (zone = 0; zone <= top_of_zone_table; zone++)
+		for (auto zone = 0u; zone < zone_table.size(); zone++)
 			for (cmd_no = 0; ZCMD.command != 'S'; cmd_no++)
 				if (ZCMD.command == 'M' || ZCMD.command == 'Q')
 				{

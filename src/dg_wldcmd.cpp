@@ -28,6 +28,7 @@
 #include "magic.h"
 #include "fight.h"
 #include "features.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -35,7 +36,6 @@
 #include "conf.h"
 
 extern const char *dirs[];
-extern struct zone_data *zone_table;
 
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
@@ -111,10 +111,10 @@ void do_wasound(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		const auto& exit = room->dir_option[door];
 
 		if (exit
-			&& (exit->to_room != NOWHERE)
-			&& room != world[exit->to_room])
+			&& (exit->to_room() != NOWHERE)
+			&& room != world[exit->to_room()])
 		{
-			act_to_room(argument, world[exit->to_room]);
+			act_to_room(argument, world[exit->to_room()]);
 		}
 	}
 }
@@ -170,9 +170,7 @@ void do_wsend(ROOM_DATA *room, char *argument, int/* cmd*/, int subcmd)
 
 int real_zone(int number)
 {
-	int counter;
-
-	for (counter = 0; counter <= top_of_zone_table; counter++)
+	for (int counter = 0; counter < static_cast<int>(zone_table.size()); counter++)
 		if ((number >= (zone_table[counter].number * 100)) && (number <= (zone_table[counter].top)))
 			return counter;
 
@@ -299,12 +297,18 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				exit->vkeyword = str_dup(buffer.c_str());
 			}
 			break;
+
 		case 5:	// room        //
 			if ((to_room = real_room(atoi(value))) != NOWHERE)
-				exit->to_room = to_room;
+			{
+				exit->to_room(to_room);
+			}
 			else
+			{
 				wld_log(room, "wdoor: invalid door target");
+			}
 			break;
+
 		case 6:	// lock - сложность замка         //
 			lock = atoi(value);
 			if (!(lock < 0 || lock >255))

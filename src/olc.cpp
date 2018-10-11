@@ -27,13 +27,13 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "zone.table.hpp"
 
 #include <vector>
 
 // * External data structures.
 extern CHAR_DATA *mob_proto;
 
-extern struct zone_data *zone_table;
 extern DESCRIPTOR_DATA *descriptor_list;
 
 // * External functions.

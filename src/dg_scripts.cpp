@@ -45,7 +45,7 @@
 #include "conf.h"
 #include "dg_db_scripts.hpp"
 #include "bonus.h"
-
+#include "zone.table.hpp"
 #include "debug.utils.hpp"
 #include "backtrace.hpp"
 #include "coredump.hpp"
@@ -74,7 +74,6 @@ extern const char *pc_class_types[];
 extern const char *exit_bits[];
 extern INDEX_DATA *mob_index;
 extern TIME_INFO_DATA time_info;
-extern struct zone_data *zone_table;
 const char *spell_name(int num);
 
 extern int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj);
@@ -1917,8 +1916,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			}
 			else if (!str_cmp(field, "zreset") && num > 0)
 			{
-				int i;
-				for (i = 0; i <= top_of_zone_table; i++)
+				for (zone_rnum i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++)
 				{
 					if (zone_table[i].number == num)
 					{
@@ -2241,6 +2239,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			CharacterLinkDrop = true;
 		}
 
+		auto done = true;
 		if (text_processed(field, subfield, vd, str))
 		{
 			return;
@@ -2522,6 +2521,19 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			{
 				c->affect_remove(c->affected.begin());
 			}
+		}
+		else
+		{
+			done = false;
+		}
+
+		if (done)
+		{
+		}
+		else if (!str_cmp(field, "hryvn"))
+		{
+			c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+			sprintf(str, "%d", c->get_hryvn());
 		}
 		else if (!str_cmp(field, "gold"))
 		{
@@ -3645,42 +3657,42 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			if (r->dir_option[NORTH])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[NORTH]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[NORTH]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "east"))
 		{
 			if (r->dir_option[EAST])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EAST]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[EAST]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "south"))
 		{
 			if (r->dir_option[SOUTH])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[SOUTH]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[SOUTH]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "west"))
 		{
 			if (r->dir_option[WEST])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[WEST]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[WEST]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "up"))
 		{
 			if (r->dir_option[UP])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[UP]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[UP]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "down"))
 		{
 			if (r->dir_option[DOWN])
 			{
-				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[DOWN]->to_room)));
+				sprintf(str, "%d", find_room_vnum(GET_ROOM_VNUM(r->dir_option[DOWN]->to_room())));
 			}
 		}
 		else if (!str_cmp(field, "vnum"))

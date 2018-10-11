@@ -131,10 +131,8 @@ void koi_to_alt(char *str, int len);
 std::string koi_to_alt(const std::string& input);
 void koi_to_win(char *str, int len);
 void koi_to_winz(char *str, int len);
-#ifdef HAVE_ICONV
 void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
-#endif
 int real_sector(int room);
 char *format_act(const char *orig, CHAR_DATA * ch, OBJ_DATA * obj, const void *vict_obj);
 int roundup(float fl);
@@ -1122,7 +1120,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define EXIT(ch, door)  (world[(ch)->in_room]->dir_option[door])
 
 #define CAN_GO(ch, door) (ch?((EXIT(ch,door) && \
-          (EXIT(ch,door)->to_room != NOWHERE) && \
+          (EXIT(ch,door)->to_room() != NOWHERE) && \
           !IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED))):0)
 
 

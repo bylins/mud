@@ -23,6 +23,7 @@
 #include "dg_event.h"
 #include "char.hpp"
 #include "room.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -32,7 +33,6 @@
 extern const char *trig_types[], *otrig_types[], *wtrig_types[];
 extern DESCRIPTOR_DATA *descriptor_list;
 extern int top_of_trigt;
-extern struct zone_data *zone_table;
 
 // prototype externally defined functions
 void free_varlist(struct trig_var_data *vd);

@@ -52,7 +52,8 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include <backtrace.hpp>
+#include "zone.table.hpp"
+#include "backtrace.hpp"
 
 #include <math.h>
 
@@ -115,7 +116,6 @@ extern void check_auction(CHAR_DATA * ch, OBJ_DATA * obj);
 extern void check_exchange(OBJ_DATA * obj);
 int get_player_charms(CHAR_DATA * ch, int spellnum);
 extern std::vector<City> cities;
-extern struct zone_data *zone_table;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);

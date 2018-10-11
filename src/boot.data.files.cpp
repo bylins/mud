@@ -12,6 +12,7 @@
 #include "char.hpp"
 #include "help.hpp"
 #include "dg_db_scripts.hpp"
+#include "zone.table.hpp"
 #include "utils.h"
 
 #include <boost/algorithm/string/trim.hpp>
@@ -175,46 +176,54 @@ void DiscreteFile::read_next_line(const int nr)
 
 char* DiscreteFile::fread_string()
 {
-	char buffer[1 + MAX_STRING_LENGTH];
-	char* to = buffer;
-
+	char bufferIn[MAX_RAW_INPUT_LENGTH];
+	char bufferOut[MAX_STRING_LENGTH];
+	char* to = bufferOut;
+	const char* end = bufferOut + sizeof(bufferOut) - 1;
+	bool isEscaped = false;
 	bool done = false;
-	int remained = MAX_STRING_LENGTH;
-	const char* end = buffer + MAX_STRING_LENGTH;
+
 	while (!done
-		&& fgets(to, remained, file()))
+		&& fgets(bufferIn, sizeof(bufferIn), file())
+		&& to < end)
 	{
-		const char* chunk_beginning = to;
-		const char* from = to;
-		while (end != from)
+		const char* from = bufferIn;
+		char c;
+
+		while ((c = *from++) && (to < end))
 		{
-			if ('~' == from[0])
+			if (c == '~')
 			{
-				if (1 + from != end
-					&& '~' == from[1])
-				{
-					++from;	//	skip escaped '~'
-				}
+				if (isEscaped)
+					*to++ = c; // escape sequence ~~ replaced with single ~
+				else
+					isEscaped = 1;
+			}
+			else
+			{
+				if (isEscaped)
+					done = true; // '~' followed by something else - terminate
 				else
 				{
-					done = true;
-					break;
+					if ((c == '\n') && (to == bufferOut || *(to - 1) != '\r')) // NL without preceding CR
+					{
+						if ((to + 1) < end)
+						{
+							*to++ = '\r';
+							*to++ = c;
+						}
+						else
+							done = true; // not enough space for \r\n. Don't put \r or \n alone, terminate
+					}
+					else
+						*to++ = c;
 				}
 			}
-
-			const char c = *(from++);
-			if ('\0' == c)
-			{
-				break;
-			}
-			*(to++) = c;
 		}
-
-		remained -= to - chunk_beginning;
 	}
 	*to = '\0';
 
-	return strdup(buffer);
+	return strdup(bufferOut);
 }
 
 char DiscreteFile::fread_letter(FILE * fp)
@@ -409,7 +418,9 @@ void WorldFile::read_entry(const int nr)
 
 void WorldFile::parse_room(int virtual_nr, const int virt)
 {
-	static int room_nr = FIRST_ROOM, zone = 0;
+	static int room_nr = FIRST_ROOM;
+	static zone_rnum zone = 0;
+
 	int t[10], i;
 	char line[256], flags[128];
 	char letter;
@@ -428,7 +439,7 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 	}
 	while (virtual_nr > zone_table[zone].top)
 	{
-		if (++zone > top_of_zone_table)
+		if (++zone >= static_cast<zone_rnum>(zone_table.size()))
 		{
 			log("SYSERR: Room %d is outside of any zone.", virtual_nr);
 			exit(1);
@@ -649,7 +660,7 @@ void WorldFile::setup_dir(int room, unsigned dir)
 	}
 
 	world[room]->dir_option[dir]->key = t[1];
-	world[room]->dir_option[dir]->to_room = t[2];
+	world[room]->dir_option[dir]->to_room(t[2]);
 }
 
 bool WorldFile::load()
@@ -1732,64 +1743,122 @@ class ZoneFile : public DataFile
 public:
 	ZoneFile(const std::string& file_name) : DataFile(file_name) {}
 
-	virtual bool load() override { return load_zones(); }
+	virtual bool load() override { return load_zone(); }
 	virtual std::string full_file_name() const override { return prefixes(DB_BOOT_ZON) + file_name(); }
 
 	static shared_ptr create(const std::string& file_name) { return shared_ptr(new ZoneFile(file_name)); }
 
-protected:
-	bool load_zones();
+private:
+	bool load_zone();
+	bool load_regular_zone();
+	bool load_generated_zone() const;
+
+	static int s_zone_number;
 };
 
-bool ZoneFile::load_zones()
+int ZoneFile::s_zone_number = 0;
+
+bool ZoneFile::load_zone()
 {
-#define ZCMD zone_table[zone].cmd[cmd_no]
-#define Z zone_table[zone]
+	auto& zone = zone_table[s_zone_number];
 
-	static zone_rnum zone = 0;
-	int cmd_no, num_of_cmds = 0, line_num = 0, tmp, error, a_number = 0, b_number = 0;
-	char *ptr, buf[256];
-	char t1[80], t2[80];
-	//MZ.load
-	Z.level = 1;
-	Z.type = 0;
-	//-MZ.load
-	Z.typeA_count = 0;
-	Z.typeB_count = 0;
-	Z.locked = FALSE;
-	Z.reset_idle = FALSE;
-	Z.used = FALSE;
-	Z.activity = 0;
-	Z.comment = 0;
-	Z.location = 0;
-	Z.description = 0;
-	Z.autor = 0;
-	Z.group = false;
-	Z.count_reset = 0;
-	Z.traffic = 0;
+	constexpr std::size_t BUFFER_SIZE = 256;
+	char buf[BUFFER_SIZE];
 
+	zone.level = 1;
+	zone.type = 0;
+
+	zone.typeA_count = 0;
+	zone.typeB_count = 0;
+	zone.locked = FALSE;
+	zone.reset_idle = FALSE;
+	zone.used = FALSE;
+	zone.activity = 0;
+	zone.comment = nullptr;
+	zone.location = nullptr;
+	zone.description = nullptr;
+	zone.author = nullptr;
+	zone.group = false;
+	zone.count_reset = 0;
+	zone.traffic = 0;
+
+	get_line(file(), buf);
+
+	auto result = false;
+	{
+		char type[BUFFER_SIZE];
+		const auto count = sscanf(buf, "#%d %s", &zone.number, type);
+		if (count < 1)
+		{
+			log("SYSERR: Format error in %s, line 1", full_file_name().c_str());
+			exit(1);
+		}
+
+		if (2 == count)
+		{
+			if (0 == strcmp(type, "static"))
+			{
+				result = load_regular_zone();
+			}
+			else if (0 == strcmp(type, "generated"))
+			{
+				result = load_generated_zone();
+			}
+		}
+		else
+		{
+			result = load_regular_zone();
+		}
+	}
+
+	s_zone_number++;
+
+	return result;
+}
+
+bool ZoneFile::load_regular_zone()
+{
+	auto& zone = zone_table[s_zone_number];
+
+	sprintf(buf2, "beginning of zone #%d", zone.number);
+
+	rewind(file());
+	char *ptr;
+	auto num_of_cmds = 0;
 	while (get_line(file(), buf))
 	{
 		ptr = buf;
 		skip_spaces(&ptr);
+
 		if (*ptr == 'A')
-			Z.typeA_count++;
+		{
+			zone.typeA_count++;
+		}
+
 		if (*ptr == 'B')
-			Z.typeB_count++;
+		{
+			zone.typeB_count++;
+		}
+
 		num_of_cmds++;	// this should be correct within 3 or so
 	}
+
 	rewind(file());
-	if (Z.typeA_count)
+	if (zone.typeA_count)
 	{
-		CREATE(Z.typeA_list, Z.typeA_count);
+		CREATE(zone.typeA_list, zone.typeA_count);
 	}
-	if (Z.typeB_count)
+
+	auto b_number = 0;
+	if (zone.typeB_count)
 	{
-		CREATE(Z.typeB_list, Z.typeB_count);
-		CREATE(Z.typeB_flag, Z.typeB_count);
+		CREATE(zone.typeB_list, zone.typeB_count);
+		CREATE(zone.typeB_flag, zone.typeB_count);
 		// сбрасываем все флаги
-		for (b_number = Z.typeB_count; b_number > 0; b_number--)
-			Z.typeB_flag[b_number - 1] = FALSE;
+		for (b_number = zone.typeB_count; b_number > 0; b_number--)
+		{
+			zone.typeB_flag[b_number - 1] = FALSE;
+		}
 	}
 
 	if (num_of_cmds == 0)
@@ -1799,169 +1868,223 @@ bool ZoneFile::load_zones()
 	}
 	else
 	{
-		CREATE(Z.cmd, num_of_cmds);
+		CREATE(zone.cmd, num_of_cmds);
 	}
 
-	line_num += get_line(file(), buf);
+	auto line_num = get_line(file(), buf);	// skip already processed "#<zone number> [<zone type>]" line
 
-	if (sscanf(buf, "#%d", &Z.number) != 1)
+	line_num += get_line(file(), buf);
+	if ((ptr = strchr(buf, '~')) != nullptr)	// take off the '~' if it's there
 	{
-		log("SYSERR: Format error in %s, line %d", full_file_name().c_str(), line_num);
-		exit(1);
-	}
-	sprintf(buf2, "beginning of zone #%d", Z.number);
-
-	line_num += get_line(file(), buf);
-	if ((ptr = strchr(buf, '~')) != NULL)	// take off the '~' if it's there
 		*ptr = '\0';
-	Z.name = str_dup(buf);
+	}
+	zone.name = str_dup(buf);
 
 	log("Читаем zon файл: %s", full_file_name().c_str());
-	while (*buf !='S' && !feof(file()))
-	{	
+	while (*buf != 'S' && !feof(file()))
+	{
 		line_num += get_line(file(), buf);
+
 		if (*buf == '#')
+		{
 			break;
+		}
+
 		if (*buf == '^')
 		{
 			std::string comment(buf);
 			boost::trim_if(comment, boost::is_any_of(std::string("^~")));
-			Z.comment = str_dup(comment.c_str());
+			zone.comment = str_dup(comment.c_str());
 		}
+
 		if (*buf == '&')
 		{
 			std::string location(buf);
 			boost::trim_if(location, boost::is_any_of(std::string("&~")));
-			Z.location = str_dup(location.c_str());
+			zone.location = str_dup(location.c_str());
 		}
+
 		if (*buf == '!')
 		{
 			std::string autor(buf);
 			boost::trim_if(autor, boost::is_any_of(std::string("!~")));
-			Z.autor = str_dup(autor.c_str());
+			zone.author = str_dup(autor.c_str());
 		}
+
 		if (*buf == '$')
 		{
 			std::string description(buf);
 			boost::trim_if(description, boost::is_any_of(std::string("$~")));
-			Z.description = str_dup(description.c_str());
+			zone.description = str_dup(description.c_str());
 		}
 	}
+
 	if (*buf != '#')
 	{
 		log("SYSERR: ERROR!!! not # in file %s", full_file_name().c_str());
 		exit(1);
 	}
-	
-	int group = 0;
-	if (sscanf(buf, "#%d %d %d", &Z.level, &Z.type, &group) < 3)
+
 	{
-		if (sscanf(buf, "#%d %d", &Z.level, &Z.type) < 2)
+		auto group = 0;
+		const auto count = sscanf(buf, "#%d %d %d", &zone.level, &zone.type, &group);
+		if (count < 2)
 		{
 			log("SYSERR: ошибка чтения z.level, z.type, z.group: %s", buf);
 			exit(1);
 		}
+		zone.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
 	}
-	Z.group = (group == 0) ? 1 : group; //группы в 0 рыл не бывает
+
 	line_num += get_line(file(), buf);
 
+	char t1[80];
+	char t2[80];
 	*t1 = 0;
 	*t2 = 0;
-	int tmp_reset_idle = 0;
-	if (sscanf(buf, " %d %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, &tmp_reset_idle, t1, t2) < 4)
+	auto tmp_reset_idle = 0;
+	if (sscanf(buf, " %d %d %d %d %s %s", &zone.top, &zone.lifespan, &zone.reset_mode, &tmp_reset_idle, t1, t2) < 4)
 	{
 		// если нет четырех констант, то, возможно, это старый формат -- попробуем прочитать три
-		if (sscanf(buf, " %d %d %d %s %s", &Z.top, &Z.lifespan, &Z.reset_mode, t1, t2) < 3)
+		const auto count = sscanf(buf, " %d %d %d %s %s",
+			&zone.top,
+			&zone.lifespan,
+			&zone.reset_mode,
+			t1,
+			t2);
+		if (count < 3)
 		{
 			log("SYSERR: Format error in 3-constant line of %s", full_file_name().c_str());
 			exit(1);
 		}
 	}
-	Z.reset_idle = 0 != tmp_reset_idle;
-	Z.under_construction = !str_cmp(t1, "test");
-	Z.locked = !str_cmp(t2, "locked");
-	cmd_no = 0;
+	zone.reset_idle = 0 != tmp_reset_idle;
+	zone.under_construction = !str_cmp(t1, "test");
+	zone.locked = !str_cmp(t2, "locked");
 
+	auto a_number = 0;
+	auto cmd_no = 0;
 	for (;;)
 	{
-		if ((tmp = get_line(file(), buf)) == 0)
+		const auto lines_read = get_line(file(), buf);
+
+		if (lines_read == 0)
 		{
 			log("SYSERR: Format error in %s - premature end of file", full_file_name().c_str());
 			exit(1);
 		}
-		line_num += tmp;
+
+		line_num += lines_read;
 		ptr = buf;
 		skip_spaces(&ptr);
 
-		if ((ZCMD.command = *ptr) == '*')
+		if ((zone.cmd[cmd_no].command = *ptr) == '*')
 		{
 			continue;
 		}
 		ptr++;
+
 		// Новые параметры формата файла:
 		// A номер_зоны -- зона типа A из списка
 		// B номер_зоны -- зона типа B из списка
-		if (ZCMD.command == 'A')
+		if (zone.cmd[cmd_no].command == 'A')
 		{
-			sscanf(ptr, " %d", &Z.typeA_list[a_number]);
+			sscanf(ptr, " %d", &zone.typeA_list[a_number]);
 			a_number++;
 			continue;
 		}
-		if (ZCMD.command == 'B')
+
+		if (zone.cmd[cmd_no].command == 'B')
 		{
-			sscanf(ptr, " %d", &Z.typeB_list[b_number]);
+			sscanf(ptr, " %d", &zone.typeB_list[b_number]);
 			b_number++;
 			continue;
 		}
 
-		if (ZCMD.command == 'S' || ZCMD.command == '$')
+		if (zone.cmd[cmd_no].command == 'S' || zone.cmd[cmd_no].command == '$')
 		{
-			ZCMD.command = 'S';
+			zone.cmd[cmd_no].command = 'S';
 			break;
 		}
-		error = 0;
-		ZCMD.arg4 = -1;
-		if (strchr("MOEGPDTVQF", ZCMD.command) == NULL)  	// a 3-arg command
+
+		auto if_flag = 0;
+		auto error = 0;
+		zone.cmd[cmd_no].arg4 = -1;
+		if (strchr("MOEGPDTVQF", zone.cmd[cmd_no].command) == NULL)  	// a 3-arg command
 		{
-			if (sscanf(ptr, " %d %d %d ", &tmp, &ZCMD.arg1, &ZCMD.arg2) != 3)
-				error = 1;
-		}
-		else if (ZCMD.command == 'V')  	// a string-arg command
-		{
-			if (sscanf(ptr, " %d %d %d %d %s %s", &tmp, &ZCMD.arg1, &ZCMD.arg2, &ZCMD.arg3, t1, t2) != 6)
-				error = 1;
-			else
+			const auto count = sscanf(ptr, " %d %d %d ",
+				&if_flag,
+				&zone.cmd[cmd_no].arg1,
+				&zone.cmd[cmd_no].arg2);
+			if (count != 3)
 			{
-				ZCMD.sarg1 = str_dup(t1);
-				ZCMD.sarg2 = str_dup(t2);
+				error = 1;
 			}
 		}
-		else if (ZCMD.command == 'Q')  	// a number command
+		else if (zone.cmd[cmd_no].command == 'V')  	// a string-arg command
 		{
-			if (sscanf(ptr, " %d %d", &tmp, &ZCMD.arg1) != 2)
+			const auto count = sscanf(ptr, " %d %d %d %d %s %s",
+				&if_flag,
+				&zone.cmd[cmd_no].arg1,
+				&zone.cmd[cmd_no].arg2,
+				&zone.cmd[cmd_no].arg3,
+				t1,
+				t2);
+			if (count != 6)
+			{
 				error = 1;
+			}
 			else
-				tmp = 0;
+			{
+				zone.cmd[cmd_no].sarg1 = str_dup(t1);
+				zone.cmd[cmd_no].sarg2 = str_dup(t2);
+			}
+		}
+		else if (zone.cmd[cmd_no].command == 'Q')  	// a number command
+		{
+			const auto count = sscanf(ptr, " %d %d",
+				&if_flag,
+				&zone.cmd[cmd_no].arg1);
+			if (count != 2)
+			{
+				error = 1;
+			}
+			else
+			{
+				if_flag = 0;
+			}
 		}
 		else
 		{
-			if (sscanf(ptr, " %d %d %d %d %d", &tmp, &ZCMD.arg1, &ZCMD.arg2, &ZCMD.arg3, &ZCMD.arg4) < 4)
+			const auto count = sscanf(ptr, " %d %d %d %d %d", &if_flag,
+				&zone.cmd[cmd_no].arg1,
+				&zone.cmd[cmd_no].arg2,
+				&zone.cmd[cmd_no].arg3,
+				&zone.cmd[cmd_no].arg4);
+			if (count < 4)
+			{
 				error = 1;
+			}
 		}
-
-		ZCMD.if_flag = tmp;
+		zone.cmd[cmd_no].if_flag = if_flag;
 
 		if (error)
 		{
 			log("SYSERR: Format error in %s, line %d: '%s'", full_file_name().c_str(), line_num, buf);
 			exit(1);
 		}
-		ZCMD.line = line_num;
+		zone.cmd[cmd_no].line = line_num;
 		cmd_no++;
 	}
-	top_of_zone_table = zone++;
-#undef Z
-#undef ZCMD
+
+	return true;
+}
+
+bool ZoneFile::load_generated_zone() const
+{
+	auto& zone = zone_table[s_zone_number];
+
+	sprintf(buf2, "beginning of generated zone #%d", zone.number);
 
 	return true;
 }

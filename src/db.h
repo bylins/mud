@@ -15,7 +15,6 @@
 #ifndef _DB_H_
 #define _DB_H_
 
-
 #include "obj.hpp"
 #include "boot.constants.hpp"
 #include "structs.h"
@@ -72,6 +71,17 @@ int vnum_room(char *searchname, CHAR_DATA * ch);
 // structure for the reset commands
 struct reset_com
 {
+	/**
+	 *  Commands:
+	 *  'M': Read a mobile
+	 *  'O': Read an object
+	 *  'G': Give obj to mob
+	 *  'P': Put obj in obj
+	 *  'G': Obj to char
+	 *  'E': Obj to char equip
+	 *  'D': Set state of door
+	 *  'T': Trigger command
+	 */
 	char command;		// current command
 
 	int if_flag;		// 4 modes of command execution
@@ -82,18 +92,6 @@ struct reset_com
 	int line;		// line number this command appears on
 	char *sarg1;		// string argument
 	char *sarg2;		// string argument
-
-	/*
-	 *  Commands:              *
-	 *  'M': Read a mobile     *
-	 *  'O': Read an object    *
-	 *  'G': Give obj to mob   *
-	 *  'P': Put obj in obj    *
-	 *  'G': Obj to char       *
-	 *  'E': Obj to char equip *
-	 *  'D': Set state of door *
-	 *  'T': Trigger command   *
-	 */
 };
 
 struct _case
@@ -114,7 +112,6 @@ struct ExtraAffects
 	int max_val; // максимальное значение
 	int chance; // вероятность того, что данный экстраффект будет на шмотке
 };
-
 
 struct DailyQuest
 {
@@ -150,91 +147,39 @@ private:
 	std::map<int, std::vector<int>> mobs;
 	// а здесь награды
 	std::map<int, std::vector<QuestBodrichRewards>> rewards;
-
 };
 
 struct City
 {
-		std::string name; // имя города
-		std::vector<int> vnums; // номера зон, которые принадлежат городу
-		int rent_vnum; // внум ренты города
+	std::string name; // имя города
+	std::vector<int> vnums; // номера зон, которые принадлежат городу
+	int rent_vnum; // внум ренты города
 };
 
 class RandomObj
 {
-	public:
-		// внум объекта
-		int vnum;
-		// массив, в котором показывается, кому шмотка недоступна + шанс, что эта "недоступность" при выпадении предмета будет на нем
-		std::map<std::string, int> not_wear;
-		// минимальный и максимальный вес
-		int min_weight;
-		int max_weight;
-		// минимальная и максимальная цена за предмет
-		int min_price;
-		int max_price;
-		// прочность
-		int min_stability;
-		int max_stability;
-		// value0, value1, value2, value3
-		int value0_min, value1_min, value2_min, value3_min;
-		int value0_max, value1_max, value2_max, value3_max;
-		// список аффектов и их шанс упасть на шмотку
-		std::map<std::string, int> affects;
-		// список экстраффектов и их шанс упасть на шмотку
-		std::vector<ExtraAffects> extraffect;
+public:
+	// внум объекта
+	int vnum;
+	// массив, в котором показывается, кому шмотка недоступна + шанс, что эта "недоступность" при выпадении предмета будет на нем
+	std::map<std::string, int> not_wear;
+	// минимальный и максимальный вес
+	int min_weight;
+	int max_weight;
+	// минимальная и максимальная цена за предмет
+	int min_price;
+	int max_price;
+	// прочность
+	int min_stability;
+	int max_stability;
+	// value0, value1, value2, value3
+	int value0_min, value1_min, value2_min, value3_min;
+	int value0_max, value1_max, value2_max, value3_max;
+	// список аффектов и их шанс упасть на шмотку
+	std::map<std::string, int> affects;
+	// список экстраффектов и их шанс упасть на шмотку
+	std::vector<ExtraAffects> extraffect;
 };
-
-// zone definition structure. for the 'zone-table'
-struct zone_data
-{
-	char *name;		// назвение зоны
-	char *comment;
-	char *autor;
-	int traffic;
-	int level;	// level of this zone (is used in ingredient loading)
-	int type;	// the surface type of this zone (is used in ingredient loading)
-
-	int lifespan;		// how long between resets (minutes)
-	int age;		// current age of this zone (minutes)
-	room_vnum top;		// upper limit for rooms in this zone
-
-	int reset_mode;		// conditions for reset (see below)
-	zone_vnum number;	// virtual number of this zone
-	// Местоположение зоны
-	char *location;
-	// Описание зоны
-	char *description;
-	struct reset_com *cmd;	// command table for reset
-
-	/*
-	 * Reset mode:
-	 *   0: Don't reset, and don't update age.
-	 *   1: Reset if no PC's are located in zone.
-	 *   2: Just reset.
-	 *   3: Multi reset.
-	 */
-	int typeA_count;
-	int *typeA_list;	// список номеров зон, которые сбрасываются одновременно с этой
-	int typeB_count;
-	int *typeB_list;	// список номеров зон, которые сбрасываются независимо, но они должны быть сброшены до сброса зон типа А
-	bool *typeB_flag;	// флаги, были ли сброшены зоны типа В
-	int under_construction;	// зона в процессе тестирования
-	bool locked;
-	bool reset_idle;	// очищать ли зону, в которой никто не бывал
-	bool used;		// был ли кто-то в зоне после очистки
-	unsigned long long activity;	// параметр активности игроков в зоне
-	// <= 1 - обычная зона (соло), >= 2 - зона для группы из указанного кол-ва человек
-	int group;
-	// средний уровень мобов в зоне
-	int mob_level;
-	// является ли зона городом
-	bool is_town;
-	// показывает количество репопов зоны, при условии, что в зону ходят
-	int count_reset;
-};
-
-extern zone_data *zone_table;
 
 // for queueing zones for update
 struct reset_q_element
@@ -315,7 +260,8 @@ struct ingredient
 	std::array<int, MAX_MOB_LEVEL + 1> prob; // вероятность загрузки для каждого уровня моба
 };
 
-class MobRace{
+class MobRace
+{
 public:
 	MobRace();
 	~MobRace();
@@ -404,7 +350,7 @@ public:
 	void set_name(const std::size_t index, const char* name);
 
 	void add_free(const std::string& name) { m_free_names.push_back(name); }
-	const auto free_names_count() const { return m_free_names.size(); }
+	auto free_names_count() const { return m_free_names.size(); }
 	void get_free_names(const int count, free_names_list_t& names) const;
 
 private:
@@ -463,7 +409,6 @@ void delete_char(const char *name);
 
 void set_test_data(CHAR_DATA *mob);
 
-extern zone_rnum top_of_zone_table;
 void set_zone_mob_level();
 
 bool can_snoop(CHAR_DATA *imm, CHAR_DATA *vict);

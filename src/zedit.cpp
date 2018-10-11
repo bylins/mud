@@ -13,6 +13,7 @@
 #include "char.hpp"
 #include "room.hpp"
 #include "help.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -22,7 +23,6 @@
 #include <vector>
 
 // * External data structures.
-extern struct zone_data *zone_table;
 extern CHAR_DATA *mob_proto;
 extern INDEX_DATA *mob_index;
 extern char const *equipment_types[];
@@ -217,14 +217,6 @@ pzcmd zedit_seek_cmd(pzcmd head, int pos)
 	return n == pos ? item : NULL;
 }
 
-// увеличиваем сложность зоны
-void up_zone(int number_zone)
-{
-	if (!(number_zone >= 0 && number_zone <= top_of_zone_table))
-		return;
-
-}
-
 // Удаляю команду номер pos
 int delete_command(DESCRIPTOR_DATA * d, int pos)
 {
@@ -337,7 +329,7 @@ void zedit_scroll_list(DESCRIPTOR_DATA * d, char *arg)
 
 void zedit_setup(DESCRIPTOR_DATA * d, int/* room_num*/)
 {
-	struct zone_data *zone;
+	ZoneData *zone;
 	int i;
 
 	// Allocate one scratch zone structure. //
@@ -355,7 +347,7 @@ void zedit_setup(DESCRIPTOR_DATA * d, int/* room_num*/)
 	zone->name = str_dup(zone_table[OLC_ZNUM(d)].name);
 	zone->comment = str_dup(zone_table[OLC_ZNUM(d)].comment);
 	zone->location = zone_table[OLC_ZNUM(d)].location;
-	zone->autor = zone_table[OLC_ZNUM(d)].autor;
+	zone->author = zone_table[OLC_ZNUM(d)].author;
 	zone->description = zone_table[OLC_ZNUM(d)].description;
 //MZ.load
 	zone->level = zone_table[OLC_ZNUM(d)].level;
@@ -433,7 +425,7 @@ void zedit_save_internally(DESCRIPTOR_DATA * d)
 		}
 		zone_table[OLC_ZNUM(d)].comment = str_dup(OLC_ZONE(d)->comment);
 		zone_table[OLC_ZNUM(d)].location = OLC_ZONE(d)->location;
-		zone_table[OLC_ZNUM(d)].autor = OLC_ZONE(d)->autor;
+		zone_table[OLC_ZNUM(d)].author = OLC_ZONE(d)->author;
 		zone_table[OLC_ZNUM(d)].description = OLC_ZONE(d)->description;
 
 //MZ.load
@@ -513,9 +505,9 @@ void zedit_save_to_disk(int zone_num)
 	{
 		fprintf(zfile, "&%s~\n", zone_table[zone_num].location);
 	}
-	if (zone_table[zone_num].autor && *zone_table[zone_num].autor)
+	if (zone_table[zone_num].author && *zone_table[zone_num].author)
 	{
-		fprintf(zfile, "!%s~\n", zone_table[zone_num].autor);
+		fprintf(zfile, "!%s~\n", zone_table[zone_num].author);
 	}
 	if (zone_table[zone_num].description && *zone_table[zone_num].description)
 	{
@@ -974,7 +966,7 @@ void zedit_disp_menu(DESCRIPTOR_DATA * d)
 			grn, nrm, yel, OLC_ZONE(d)->comment ? OLC_ZONE(d)->comment : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->location ? OLC_ZONE(d)->location : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->description ? OLC_ZONE(d)->description : "<NONE!>",
-	grn, nrm, yel, OLC_ZONE(d)->autor ? OLC_ZONE(d)->autor : "<NONE!>",
+	grn, nrm, yel, OLC_ZONE(d)->author ? OLC_ZONE(d)->author : "<NONE!>",
 			grn, nrm, yel, OLC_ZONE(d)->level,
 			grn, nrm, yel, zone_types[OLC_ZONE(d)->type].name,
 			grn, nrm, yel, OLC_ZONE(d)->lifespan,
@@ -2120,11 +2112,15 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 	case ZEDIT_ZONE_TOP:
 		// * Parse and add new top room in zone and return to main menu.
-		if (OLC_ZNUM(d) == top_of_zone_table)
+		if (OLC_ZNUM(d) == static_cast<zone_rnum>(zone_table.size()) - 1)
+		{
 			OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(99900, atoi(arg)));
+		}
 		else
-			OLC_ZONE(d)->top =
-				MAX(OLC_ZNUM(d) * 100, MIN(zone_table[OLC_ZNUM(d) + 1].number * 100, atoi(arg)));
+		{
+			OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(zone_table[OLC_ZNUM(d) + 1].number * 100, atoi(arg)));
+		}
+
 		OLC_ZONE(d)->top = (OLC_ZONE(d)->top / 100) * 100 + 99;
 		zedit_disp_menu(d);
 		break;
@@ -2154,14 +2150,14 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case ZEDIT_ZONE_AUTOR:
-		if (OLC_ZONE(d)->autor)
+		if (OLC_ZONE(d)->author)
 		{
-		    free(OLC_ZONE(d)->autor);
-		    OLC_ZONE(d)->autor = NULL;
+		    free(OLC_ZONE(d)->author);
+		    OLC_ZONE(d)->author = NULL;
 		}
 		if (arg && *arg)
 		{
-		    OLC_ZONE(d)->autor = str_dup(arg);
+		    OLC_ZONE(d)->author = str_dup(arg);
 		}
 		OLC_ZONE(d)->number = 1;
 		zedit_disp_menu(d);

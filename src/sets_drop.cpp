@@ -20,6 +20,7 @@
 #include "parse.hpp"
 #include "mob_stat.hpp"
 #include "obj_sets.hpp"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "conf.h"
@@ -233,18 +234,23 @@ int Linked::drop_count() const
 void create_clone_miniset(int vnum)
 {
 	const int new_vnum = DUPLICATE_MINI_SET_VNUM + vnum;
+
 	// если такой зоны нет, то делаем ретурн
-	if ((new_vnum % 100) > top_of_zone_table)
+	if ((new_vnum % 100) >= static_cast<int>(zone_table.size()))
 	{
 		return;
 	}
+
 	const int rnum = real_object(vnum);
+
 	// проверяем, есть ли у нашей сетины клон в системной зоне
 	const int rnum_nobj = real_object(new_vnum);
+
 	if (rnum_nobj < 0)
 	{
 		return;
 	}
+
 	// здесь сохраняем рнум нашего нового объекта
 	obj_proto.set_idx(rnum_nobj, obj_proto.set_idx(rnum));
 }
@@ -504,7 +510,7 @@ void init_mob_name_list()
 	}
 
 	// тестовые зоны
-	for (int nr = 0; nr <= top_of_zone_table; nr++)
+	for (std::size_t nr = 0; nr < zone_table.size(); nr++)
 	{
 		if (zone_table[nr].under_construction)
 		{
@@ -601,7 +607,7 @@ void init_mob_type()
 int calc_max_in_world(int mob_rnum)
 {
 	int max_in_world = 0;
-	for (int i = 0; i <= top_of_zone_table; ++i)
+	for (std::size_t i = 0; i < zone_table.size(); ++i)
 	{
 		for (int cmd_no = 0; zone_table[i].cmd[cmd_no].command != 'S'; ++cmd_no)
 		{

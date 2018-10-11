@@ -12,6 +12,7 @@
 #include "pugixml.hpp"
 #include "room.hpp"
 #include "parse.hpp"
+#include "zone.table.hpp"
 #include "utils.h"
 
 #include <boost/format.hpp>

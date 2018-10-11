@@ -30,6 +30,7 @@
 #include "msdp.constants.hpp"
 #include "backtrace.hpp"
 #include "dg_scripts.h"
+#include "zone.table.hpp"
 
 #include <boost/format.hpp>
 

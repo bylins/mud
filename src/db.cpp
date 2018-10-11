@@ -121,8 +121,6 @@ void load_speedwalk();
 void load_class_limit();
 int global_uid = 0;
 
-struct zone_data *zone_table;	// zone table
-zone_rnum top_of_zone_table = 0;	// top element of zone tab
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 extern int slot_for_char(CHAR_DATA * ch, int slot_num);
 PlayersIndex player_table;	// index to plr file
@@ -1650,10 +1648,14 @@ void init_zone_types()
 	{
 		sscanf(tmp, "%s %s", dummy, name);
 		for (j = 0; name[j] != '\0'; j++)
+		{
 			if (name[j] == '_')
+			{
 				name[j] = ' ';
+			}
+		}
 		zone_types[i].name = str_dup(name);
-//		if (get_line(zt_file, tmp)); не уверен что тут хотел автор -- Krodo
+
 		get_line(zt_file, tmp);
 		for (j = 4; tmp[j] != '\0'; j++)
 		{
@@ -1679,7 +1681,6 @@ void init_zone_types()
 	i = 0;
 	while (get_line(zt_file, tmp))
 	{
-//		if (get_line(zt_file, tmp)); аналогично тому, что выше
 		get_line(zt_file, tmp);
 		for (j = 4, n = 0; tmp[j] != '\0'; j++)
 		{
@@ -2285,9 +2286,11 @@ void OBJ_DATA::init_set_table()
 
 void set_zone_mob_level()
 {
-	for (int i = 0; i <= top_of_zone_table; ++i)
+	for (std::size_t i = 0; i < zone_table.size(); ++i)
 	{
-		int level = 0, count = 0;
+		int level = 0;
+		int count = 0;
+
 		for (int nr = 0; nr <= top_of_mobt; ++nr)
 		{
 			if (mob_index[nr].vnum >= zone_table[i].number * 100
@@ -2297,13 +2300,14 @@ void set_zone_mob_level()
 				++count;
 			}
 		}
+
 		zone_table[i].mob_level = count ? level/count : 0;
 	}
 }
 
 void set_zone_town()
 {
-	for (int i = 0; i <= top_of_zone_table; ++i)
+	for (zone_rnum i = 0; i < static_cast<zone_rnum>(zone_table.size()); ++i)
 	{
 		zone_table[i].is_town = false;
 		int rnum_start = 0, rnum_end = 0;
@@ -2311,6 +2315,7 @@ void set_zone_town()
 		{
 			continue;
 		}
+
 		bool rent_flag = false, bank_flag = false, post_flag = false;
 		// зона считается городом, если в ней есть рентер, банкир и почтовик
 		for (int k = rnum_start; k <= rnum_end; ++k)
@@ -2727,7 +2732,7 @@ void boot_db(void)
 
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
-	for (int i = 0; i <= top_of_zone_table; i++)
+	for (zone_rnum i = 0; i < static_cast<zone_rnum>(zone_table.size()); i++)
 	{
 		log("Resetting %s (rooms %d-%d).", zone_table[i].name,
 			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
@@ -2990,8 +2995,8 @@ void GameLoader::prepare_global_structures(const EBootType mode, const int rec_c
 
 	case DB_BOOT_ZON:
 		{
-			CREATE(zone_table, rec_count);
-			const size_t zones_size = sizeof(struct zone_data) * rec_count;
+			zone_table.resize(rec_count);
+			const size_t zones_size = sizeof(ZoneData) * rec_count;
 			log("   %d zones, %zd bytes.", rec_count, zones_size);
 		}
 		break;
@@ -3076,11 +3081,20 @@ void renum_world(void)
 	int room, door;
 
 	for (room = FIRST_ROOM; room <= top_of_world; room++)
+	{
 		for (door = 0; door < NUM_OF_DIRS; door++)
+		{
 			if (world[room]->dir_option[door])
-				if (world[room]->dir_option[door]->to_room != NOWHERE)
-					world[room]->dir_option[door]->to_room =
-						real_room(world[room]->dir_option[door]->to_room);
+			{
+				if (world[room]->dir_option[door]->to_room() != NOWHERE)
+				{
+					const auto to_room = real_room(world[room]->dir_option[door]->to_room());
+
+					world[room]->dir_option[door]->to_room(to_room);
+				}
+			}
+		}
+	}
 }
 
 // Установка принадлежности к зоне в прототипах
@@ -3176,8 +3190,7 @@ void renum_single_table(int zone)
 // resove vnums into rnums in the zone reset tables
 void renum_zone_table(void)
 {
-	zone_rnum zone;
-	for (zone = 0; zone <= top_of_zone_table; zone++)
+	for (zone_rnum zone = 0; zone < static_cast<zone_rnum>(zone_table.size()); zone++)
 	{
 		renum_single_table(zone);
 	}
@@ -3935,7 +3948,7 @@ void after_reset_zone(int nr_zone)
 // update zone ages, queue for reset if necessary, and dequeue when possible
 void zone_update(void)
 {
-	int i, j, k = 0;
+	int k = 0;
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
 
@@ -3950,7 +3963,7 @@ void zone_update(void)
 		timer = 0;
 
 		// since one minute has passed, increment zone ages
-		for (i = 0; i <= top_of_zone_table; i++)
+		for (std::size_t i = 0; i < zone_table.size(); i++)
 		{
 			if (zone_table[i].age < zone_table[i].lifespan && zone_table[i].reset_mode &&
 					(zone_table[i].reset_idle || zone_table[i].used))
@@ -3994,10 +4007,10 @@ void zone_update(void)
 			std::string out(tmp);
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3)
 			{
-				for (i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++)
+				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++)
 				{
 					//Ищем real_zone по vnum
-					for (j = 0; j <= top_of_zone_table; j++)
+					for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++)
 					{
 						if (zone_table[j].number ==
 							zone_table[update_u->zone_to_reset].typeA_list[i])
@@ -4035,17 +4048,16 @@ void zone_update(void)
 
 bool can_be_reset(zone_rnum zone)
 {
-	int i = 0, j = 0;
 	if (zone_table[zone].reset_mode != 3)
 		return FALSE;
 // проверяем себя
 	if (!is_empty(zone))
 		return FALSE;
 // проверяем список B
-	for (i = 0; i < zone_table[zone].typeB_count; i++)
+	for (auto i = 0; i < zone_table[zone].typeB_count; i++)
 	{
 		//Ищем real_zone по vnum
-		for (j = 0; j <= top_of_zone_table; j++)
+		for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++)
 		{
 			if (zone_table[j].number == zone_table[zone].typeB_list[i])
 			{
@@ -4056,10 +4068,10 @@ bool can_be_reset(zone_rnum zone)
 		}
 	}
 // проверяем список A
-	for (i = 0; i < zone_table[zone].typeA_count; i++)
+	for (auto i = 0; i < zone_table[zone].typeA_count; i++)
 	{
 		//Ищем real_zone по vnum
-		for (j = 0; j <= top_of_zone_table; j++)
+		for (zone_rnum j = 0; j < static_cast<zone_rnum>(zone_table.size()); j++)
 		{
 			if (zone_table[j].number == zone_table[zone].typeA_list[i])
 			{
@@ -4675,7 +4687,6 @@ void ZoneReset::reset_zone_essential()
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
 	CHAR_DATA *mob = NULL, *leader = NULL;
 	OBJ_DATA *obj_to, *obj_room;
-	int rnum_start, rnum_stop;
 	CHAR_DATA *tmob = NULL;	// for trigger assignment
 	OBJ_DATA *tobj = NULL;	// for trigger assignment
 	const auto zone = m_zone_rnum;	// for ZCMD macro
@@ -5129,6 +5140,8 @@ void ZoneReset::reset_zone_essential()
 	zone_table[m_zone_rnum].used = FALSE;
 	process_celebrates(zone_table[m_zone_rnum].number);
 
+	int rnum_start = 0;
+	int rnum_stop = 0;
 	if (get_zone_rooms(m_zone_rnum, &rnum_start, &rnum_stop))
 	{
 		// все внутренние резеты комнат зоны теперь идут за один цикл
@@ -5153,7 +5166,7 @@ void ZoneReset::reset_zone_essential()
 		}
 	}
 
-	for (rnum_start = 0; rnum_start <= top_of_zone_table; rnum_start++)
+	for (rnum_start = 0; rnum_start < static_cast<int>(zone_table.size()); rnum_start++)
 	{
 		// проверяем, не содержится ли текущая зона в чьем-либо typeB_list
 		for (curr_state = zone_table[rnum_start].typeB_count; curr_state > 0; curr_state--)

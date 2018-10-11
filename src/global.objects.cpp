@@ -33,6 +33,7 @@ namespace
 		BanList* ban;
 		Heartbeat heartbeat;
 		std::shared_ptr<influxdb::Sender> stats_sender;
+		zone_table_t zone_table;
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -113,6 +114,11 @@ OutputThread& GlobalObjects::output_thread()
 	}
 
 	return *global_objects().output_thread;
+}
+
+zone_table_t& GlobalObjects::zone_table()
+{
+	return global_objects().zone_table;
 }
 
 Celebrates::CelebrateList& GlobalObjects::mono_celebrates()

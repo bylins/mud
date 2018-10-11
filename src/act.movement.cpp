@@ -388,7 +388,7 @@ int calculate_move_cost(CHAR_DATA* ch, int dir)
 {
 	// move points needed is avg. move loss for src and destination sect type
 	auto ch_inroom = real_sector(ch->in_room);
-	auto ch_toroom = real_sector(EXIT(ch, dir)->to_room);
+	auto ch_toroom = real_sector(EXIT(ch, dir)->to_room());
 
 	if (can_use_feat(ch, FOREST_PATHS_FEAT))
 	{
@@ -425,7 +425,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		return (FALSE);
 
 	// не пускать в ванрумы после пк, если его там прибьет сразу
-	if (DeathTrap::check_tunnel_death(ch, EXIT(ch, dir)->to_room))
+	if (DeathTrap::check_tunnel_death(ch, EXIT(ch, dir)->to_room()))
 	{
 		if (show_msg)
 		{
@@ -460,7 +460,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			&& !MOB_FLAGGED(ch, MOB_FLYING)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY)
 			&& (real_sector(ch->in_room) == SECT_WATER_NOSWIM
-				|| real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM))
+				|| real_sector(EXIT(ch, dir)->to_room()) == SECT_WATER_NOSWIM))
 		{
 			if (!has_boat(ch))
 			{
@@ -474,27 +474,27 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			return (FALSE);
 
 		if (!MOB_FLAGGED(ch, MOB_FLYING) &&
-				!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) && SECT(EXIT(ch, dir)->to_room) == SECT_FLYING)
+				!AFF_FLAGGED(ch, EAffectFlag::AFF_FLY) && SECT(EXIT(ch, dir)->to_room()) == SECT_FLYING)
 			return (FALSE);
 
 		if (MOB_FLAGGED(ch, MOB_ONLYSWIMMING) &&
-				!(real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_SWIM ||
-				  real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM ||
-				  real_sector(EXIT(ch, dir)->to_room) == SECT_UNDERWATER))
+				!(real_sector(EXIT(ch, dir)->to_room()) == SECT_WATER_SWIM ||
+				  real_sector(EXIT(ch, dir)->to_room()) == SECT_WATER_NOSWIM ||
+				  real_sector(EXIT(ch, dir)->to_room()) == SECT_UNDERWATER))
 			return (FALSE);
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOMOB) &&
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_NOMOB) &&
 				!IS_HORSE(ch) &&
 				!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !(MOB_FLAGGED(ch, MOB_ANGEL)||MOB_FLAGGED(ch, MOB_GHOST)) && !MOB_FLAGGED(ch, MOB_IGNORNOMOB))
 			return (FALSE);
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_DEATH) && !IS_HORSE(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_DEATH) && !IS_HORSE(ch))
 			return (FALSE);
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_GODROOM))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_GODROOM))
 			return (FALSE);
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOHORSE) && IS_HORSE(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_NOHORSE) && IS_HORSE(ch))
 			return (FALSE);
 	}
 	else
@@ -502,7 +502,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		//Вход в замок
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM))
 		{
-			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM))
+			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), HCE_ATRIUM))
 			{
 				if (show_msg)
 					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
@@ -511,7 +511,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		}
 
 		if (real_sector(ch->in_room) == SECT_WATER_NOSWIM ||
-				real_sector(EXIT(ch, dir)->to_room) == SECT_WATER_NOSWIM)
+				real_sector(EXIT(ch, dir)->to_room()) == SECT_WATER_NOSWIM)
 		{
 			if (!has_boat(ch))
 			{
@@ -520,7 +520,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				return (FALSE);
 			}
 		}
-		if (real_sector(EXIT(ch, dir)->to_room) == SECT_FLYING
+		if (real_sector(EXIT(ch, dir)->to_room()) == SECT_FLYING
 			&& !IS_GOD(ch)
 			&& !AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 		{
@@ -532,7 +532,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		}
 
 		// если там ДТ и чар верхом на пони
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room , ROOM_DEATH) && on_horse(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_DEATH) && on_horse(ch))
 		{
 		    if (show_msg)
 		    {
@@ -543,7 +543,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		    return (FALSE);
 		}
 
-		auto need_movement = calculate_move_cost(ch, dir);
+		const auto need_movement = calculate_move_cost(ch, dir);
 		if (GET_MOVE(ch) < need_movement)
 		{
 			if (need_specials_check
@@ -566,7 +566,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		//Вход в замок
 		if (ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM))
 		{
-			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room, HCE_ATRIUM))
+			if (!Clan::MayEnter(ch, EXIT(ch, dir)->to_room(), HCE_ATRIUM))
 			{
 				if (show_msg)
 					send_to_char("Частная собственность! Вход воспрещен!\r\n", ch);
@@ -587,8 +587,8 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			}
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL) &&
-				(num_pc_in_room((world[EXIT(ch, dir)->to_room])) > 0))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_TUNNEL) &&
+				(num_pc_in_room((world[EXIT(ch, dir)->to_room()])) > 0))
 		{
 			if (show_msg)
 				send_to_char("Слишком мало места.\r\n", ch);
@@ -613,15 +613,15 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 		}
 
 		if(on_horse(ch)
-			&& (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_TUNNEL)
-				|| ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_NOHORSE)))
+			&& (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_TUNNEL)
+				|| ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_NOHORSE)))
 		{
 			if (show_msg)
 				act("$Z $N не в состоянии пройти туда.\r\n", FALSE, ch, 0, get_horse(ch), TO_CHAR);
 			return FALSE;
 		}
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room, ROOM_GODROOM) && !IS_GRGOD(ch))
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_GODROOM) && !IS_GRGOD(ch))
 		{
 			if (show_msg)
 				send_to_char("Вы не столь Божественны, как вам кажется!\r\n", ch);
@@ -742,7 +742,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (ch->purged())
 		return FALSE;
 
-	if (!enter_wtrigger(world[EXIT(ch, dir)->to_room], ch, dir))
+	if (!enter_wtrigger(world[EXIT(ch, dir)->to_room()], ch, dir))
 		return (FALSE);
 
 	if (ch->purged())
@@ -788,7 +788,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 
 	was_in = ch->in_room;
-	go_to = world[was_in]->dir_option[dir]->to_room;
+	go_to = world[was_in]->dir_option[dir]->to_room();
 	direction = dir + 1;
 	use_horse = AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
 		&& has_horse(ch, FALSE)
@@ -885,10 +885,12 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	{
 		for (int i = 0; i < NUM_OF_DIRS; i++)
 		{
-			if (CAN_GO(ch, i) || (EXIT(ch, i) && EXIT(ch, i)->to_room != NOWHERE))
+			if (CAN_GO(ch, i)
+				|| (EXIT(ch, i)
+					&& EXIT(ch, i)->to_room() != NOWHERE))
 			{
 				const auto& rdata = EXIT(ch, i);
-				if (ROOM_FLAGGED(rdata->to_room, ROOM_DEATH))
+				if (ROOM_FLAGGED(rdata->to_room(), ROOM_DEATH))
 				{
 					send_to_char("\007", ch);
 				}
@@ -898,8 +900,12 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 
 	if (!invis && !is_horse)
 	{
-		if (is_flee || (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN)))
+		if (is_flee
+			|| (IS_NPC(ch)
+				&& NPC_FLAGGED(ch, NPC_MOVERUN)))
+		{
 			strcpy(buf1, "прибежал$g");
+		}
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
 		{
@@ -1107,7 +1113,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 
 	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
 		return FALSE;
-	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room == NOWHERE)
+	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == NOWHERE)
 		send_to_char("Вы не сможете туда пройти...\r\n", ch);
 	else if (EXIT_FLAGGED(EXIT(ch, dir), EX_CLOSED))
 	{
@@ -1425,12 +1431,12 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 //     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(ch->in_room));
 
 	ROOM_DATA::exit_data_ptr back;
-	if (!obj && ((other_room = EXIT(ch, door)->to_room) != NOWHERE))
+	if (!obj && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE))
 	{
 		back = world[other_room]->dir_option[rev_dir[door]];
 		if (back)
 		{
-			if ((back->to_room != ch->in_room) ||
+			if ((back->to_room() != ch->in_room) ||
 				((EXITDATA(ch->in_room, door)->exit_info
 					^ EXITDATA(other_room, rev_dir[door])->exit_info)
 					& (EX_ISDOOR | EX_CLOSED | EX_LOCKED)))
@@ -1565,7 +1571,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	// Notify the other room
 	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back)
 	{
-		const auto& people = world[EXIT(ch, door)->to_room]->people;
+		const auto& people = world[EXIT(ch, door)->to_room()]->people;
 		if (!people.empty())
 		{
 			sprintf(local_buf + strlen(local_buf) - 1, " с той стороны.");
@@ -1882,9 +1888,9 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		for (door = 0; door < NUM_OF_DIRS; door++)
 			if (EXIT(ch, door))
-				if (EXIT(ch, door)->to_room != NOWHERE)
+				if (EXIT(ch, door)->to_room() != NOWHERE)
 					if (!EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED) &&
-							ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_INDOORS))
+							ROOM_FLAGGED(EXIT(ch, door)->to_room(), ROOM_INDOORS))
 					{
 						perform_move(ch, door, 1, TRUE, 0);
 						return;

@@ -55,6 +55,7 @@
 #include "mob_stat.hpp"
 #include "char_obj_utils.inl"
 #include "class.hpp"
+#include "zone.table.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "bonus.h"
@@ -1782,7 +1783,7 @@ void do_auto_exits(CHAR_DATA * ch)
 	for (door = 0; door < NUM_OF_DIRS; door++)
 	{
 		// Наконец-то добавлена отрисовка в автовыходах закрытых дверей
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room != NOWHERE)
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE)
 		{
 			if (EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
 			{
@@ -1790,7 +1791,7 @@ void do_auto_exits(CHAR_DATA * ch)
 			}
 			else if (!EXIT_FLAGGED(EXIT(ch, door), EX_HIDDEN))
 			{
-				if (world[EXIT(ch, door)->to_room]->zone == world[ch->in_room]->zone)
+				if (world[EXIT(ch, door)->to_room()]->zone == world[ch->in_room]->zone)
 				{
 					slen += sprintf(buf + slen, "%c ", LOWER(*dirs[door]));
 				}
@@ -1823,19 +1824,19 @@ void do_exits(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	for (door = 0; door < NUM_OF_DIRS; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
 		{
 			if (IS_GOD(ch))
 				sprintf(buf2, "%-5s - [%5d] %s\r\n", Dirs[door],
-						GET_ROOM_VNUM(EXIT(ch, door)->to_room), world[EXIT(ch, door)->to_room]->name);
+						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else
 			{
 				sprintf(buf2, "%-5s - ", Dirs[door]);
-				if (IS_DARK(EXIT(ch, door)->to_room) && !CAN_SEE_IN_DARK(ch))
+				if (IS_DARK(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
 					strcat(buf2, "слишком темно\r\n");
 				else
 				{
-					strcat(buf2, world[EXIT(ch, door)->to_room]->name);
+					strcat(buf2, world[EXIT(ch, door)->to_room()]->name);
 					strcat(buf2, "\r\n");
 				}
 			}
@@ -1859,19 +1860,19 @@ void do_blind_exits(CHAR_DATA *ch)
 		return;
 	}
 	for (door = 0; door < NUM_OF_DIRS; door++)
-		if (EXIT(ch, door) && EXIT(ch, door)->to_room != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
+		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
 		{
 			if (IS_GOD(ch))
 				sprintf(buf2, "&W%-5s - [%5d] %s ", Dirs[door],
-						GET_ROOM_VNUM(EXIT(ch, door)->to_room), world[EXIT(ch, door)->to_room]->name);
+						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else
 			{
 				sprintf(buf2, "&W%-5s - ", Dirs[door]);
-				if (IS_DARK(EXIT(ch, door)->to_room) && !CAN_SEE_IN_DARK(ch))
+				if (IS_DARK(EXIT(ch, door)->to_room()) && !CAN_SEE_IN_DARK(ch))
 					strcat(buf2, "слишком темно");
 				else
 				{
-					strcat(buf2, world[EXIT(ch, door)->to_room]->name);
+					strcat(buf2, world[EXIT(ch, door)->to_room()]->name);
 					strcat(buf2, "");
 				}
 			}
@@ -2028,7 +2029,7 @@ bool put_delim(std::stringstream &out, bool delim)
 
 void print_zone_info(CHAR_DATA *ch)
 {
-	zone_data *zone = &zone_table[world[ch->in_room]->zone];
+	ZoneData *zone = &zone_table[world[ch->in_room]->zone];
 	std::stringstream out;
 	out << "\r\n" << zone->name;
 
@@ -2405,7 +2406,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
-			&& EXIT(ch, dir)->to_room != NOWHERE))
+			&& EXIT(ch, dir)->to_room() != NOWHERE))
 	{
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
@@ -2456,7 +2457,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			return;
 		}
 
-		if (IS_TIMEDARK(rdata->to_room))
+		if (IS_TIMEDARK(rdata->to_room()))
 		{
 			count += sprintf(buf + count, " слишком темно.\r\n");
 			send_to_char(buf, ch);
@@ -2464,7 +2465,7 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			{
 				send_to_char("&R&q", ch);
 				count = 0;
-				for (const auto tch : world[rdata->to_room]->people)
+				for (const auto tch : world[rdata->to_room()]->people)
 				{
 					percent = number(1, skill_info[SKILL_LOOKING].max_percent);
 					probe =
@@ -2495,11 +2496,11 @@ void look_in_direction(CHAR_DATA * ch, int dir, int info_is)
 			}
 			else
 			{
-				count += sprintf(buf + count, "%s\r\n", world[rdata->to_room]->name);
+				count += sprintf(buf + count, "%s\r\n", world[rdata->to_room()]->name);
 			}
 			send_to_char(buf, ch);
 			send_to_char("&R&q", ch);
-			list_char_to_char(world[rdata->to_room]->people, ch);
+			list_char_to_char(world[rdata->to_room()]->people, ch);
 			send_to_char("&Q&n", ch);
 		}
 	}
@@ -2521,14 +2522,14 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 	}
 	if (CAN_GO(ch, dir)
 		|| (EXIT(ch, dir)
-		&& EXIT(ch, dir)->to_room != NOWHERE))
+		&& EXIT(ch, dir)->to_room() != NOWHERE))
 	{
 		rdata = EXIT(ch, dir);
 		count += sprintf(buf, "%s%s:%s ", CCYEL(ch, C_NRM), Dirs[dir], CCNRM(ch, C_NRM));
 		count += sprintf(buf + count, "\r\n%s", CCGRN(ch, C_NRM));
 		send_to_char(buf, ch);
 		count = 0;
-		for (const auto tch : world[rdata->to_room]->people)
+		for (const auto tch : world[rdata->to_room()]->people)
 		{
 			percent = number(1, skill_info[SKILL_HEARING].max_percent);
 			probe = train_skill(ch, SKILL_HEARING, skill_info[SKILL_HEARING].max_percent, tch);
@@ -3853,7 +3854,6 @@ void print_do_score_all(CHAR_DATA *ch)
 	if (Bonus::is_bonus(0))
 		sprintf(buf + strlen(buf),
 			" || %-79s ||\r\n || %-79s ||\r\n", Bonus::str_type_bonus().c_str(), Bonus::bonus_end().c_str());
-
 	if (!NAME_GOD(ch) && GET_LEVEL(ch) <= NAME_LEVEL)
 	{
 		sprintf(buf + strlen(buf),
@@ -3866,7 +3866,6 @@ void print_do_score_all(CHAR_DATA *ch)
 		sprintf(buf + strlen(buf),
 				" || &RВНИМАНИЕ!&n ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.   &c||\r\n");
 	}
-
 	if (GET_LEVEL(ch) < LVL_IMMORT)
 		sprintf(buf + strlen(buf),
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
@@ -5816,7 +5815,7 @@ void perform_immort_where(CHAR_DATA * ch, char *arg)
 				&& i->in_room != NOWHERE
 				&& isname(arg, i->get_pc_name()))
 			{
-			    zone_data *zone = &zone_table[world[i->in_room]->zone];
+			    ZoneData *zone = &zone_table[world[i->in_room]->zone];
 				found = 1;
 				sprintf(buf, "%s%3d. %-25s - [%5d] %s. Название зоны: '%s'\r\n", IS_NPC(i)? "Моб:  ":"Игрок:", num++, GET_NAME(i),
 						GET_ROOM_VNUM(IN_ROOM(i)), world[IN_ROOM(i)]->name, zone->name);

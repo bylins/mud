@@ -9,13 +9,12 @@
 #include "room.hpp"
 #include "db.h"
 #include "char_player.hpp"
-#include "handler.h"
 #include "shop_ext.hpp"
 #include "noob.hpp"
 #include "char_obj_utils.inl"
+#include "zone.table.hpp"
 #include "logger.hpp"
 #include "conf.h"
-
 
 #include <boost/algorithm/string.hpp>
 #include "boost/multi_array.hpp"
@@ -581,7 +580,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 		}
 
 		if (room->dir_option[i]
-			&& room->dir_option[i]->to_room != NOWHERE
+			&& room->dir_option[i]->to_room() != NOWHERE
 			&& (!EXIT_FLAGGED(room->dir_option[i], EX_HIDDEN) || IS_IMMORTAL(ch)))
 		{
 			// отрисовка выхода
@@ -603,7 +602,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 				continue;
 			}
 			// здесь важна очередность, что первое отрисовалось - то и будет
-			const ROOM_DATA *next_room = world[room->dir_option[i]->to_room];
+			const ROOM_DATA *next_room = world[room->dir_option[i]->to_room()];
 			bool view_dt = false;
 			for (const auto aff : ch->affected)
 			{
@@ -664,7 +663,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 					put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
 				}
 				// моб со спешиалом
-				drow_spec_mobs(ch, room->dir_option[i]->to_room, next_y, next_x, cur_depth);
+				drow_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
 			}
 			// существа
 			if (cur_depth == 1
@@ -676,17 +675,17 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 				// внутри draw_mobs происходит еще одно смещение на x-1
 				if (cur_sign == SCREEN_UP_OPEN)
 				{
-					draw_mobs(ch, room->dir_option[i]->to_room, next_y - 1, next_x + 3);
+					draw_mobs(ch, room->dir_option[i]->to_room(), next_y - 1, next_x + 3);
 				}
 				else if (cur_sign == SCREEN_DOWN_OPEN)
 				{
-					draw_mobs(ch, room->dir_option[i]->to_room, next_y + 1, next_x - 1);
+					draw_mobs(ch, room->dir_option[i]->to_room(), next_y + 1, next_x - 1);
 				}
 				else
 				{
 					// остальные выходы вокруг пишутся как обычно, со смещением
 					// относительно центра следующей за выходом клетки
-					draw_mobs(ch, room->dir_option[i]->to_room, next_y, next_x);
+					draw_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x);
 				}
 			}
 			// предметы
@@ -699,15 +698,15 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 			{
 				if (cur_sign == SCREEN_UP_OPEN)
 				{
-					draw_objs(ch, room->dir_option[i]->to_room, next_y - 1, next_x);
+					draw_objs(ch, room->dir_option[i]->to_room(), next_y - 1, next_x);
 				}
 				else if (cur_sign == SCREEN_DOWN_OPEN)
 				{
-					draw_objs(ch, room->dir_option[i]->to_room, next_y + 1, next_x - 2);
+					draw_objs(ch, room->dir_option[i]->to_room(), next_y + 1, next_x - 2);
 				}
 				else
 				{
-					draw_objs(ch, room->dir_option[i]->to_room, next_y, next_x);
+					draw_objs(ch, room->dir_option[i]->to_room(), next_y, next_x);
 				}
 			}
 			// проход по следующей в глубину комнате
@@ -739,7 +738,6 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 		{
 			if (zone_table[world[ch->in_room]->zone].number == cities[i].rent_vnum / 100)
 			{
-//				send_to_char(ch, "Номер зоны == %d, номер ренты == %d, зона ренты %d\r\n", zone_table[world[ch->in_room]->zone].number, cities[i].rent_vnum,  cities[i].rent_vnum / 100 );
 				MAX_LINES = MAX_LINES_BIG;
 				MAX_LENGHT = MAX_LENGHT_BIG;
 				MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_BIG;

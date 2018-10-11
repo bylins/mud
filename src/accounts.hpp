@@ -44,6 +44,7 @@ private:
 	time_t last_login;
 	// История логинов, ключ - айпи, в структуре количество раз, с которых был произведен заход с данного айпи-адреса + дата, когда последний раз выходили с данного айпишника
 	std::unordered_map<std::string, login_index> history_logins;
+
 public:
 	Account(const std::string& name);
 	void save_to_file();
