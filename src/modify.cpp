@@ -1379,7 +1379,7 @@ char *next_page(char *str, CHAR_DATA * ch)
 
 			// * We need to check here and see if we are over the page width,
 			// * and if so, compensate by going to the begining of the next line.
-			else if (STRING_LENGTH(ch) && col++ > STRING_LENGTH(ch))
+			else if (STRING_LENGTH(ch) && ++col > STRING_LENGTH(ch))
 			{
 				col = 1;
 				line++;
