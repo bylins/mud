@@ -50,7 +50,7 @@ namespace MapSystem
 
 // размер поля для отрисовка
 int MAX_LINES = 25;
-int MAX_LENGHT = 50;
+int MAX_LENGTH = 50;
 // глубина рекурсии по комнатам
 int MAX_DEPTH_ROOMS = 5;
 
@@ -60,24 +60,24 @@ int MAX_DEPTH_ROOMS = 5;
 #define MAX_DEPTH_ROOMS ch->map_check_option(MAP_MODE_BIG) ? 10 : 5
 	*/
 
-const int MAX_LINES_STANDART = 25;
-const int MAX_LENGHT_STANDART = 50;
-const int MAX_DEPTJ_ROOM_STANDART = 5;
+const int MAX_DEPTH_ROOM_STANDART = 5;
+const int MAX_LINES_STANDART = 3 + (MAX_DEPTH_ROOM_STANDART - 1) * 2 * 2;
+const int MAX_LENGTH_STANDART = 5 + (MAX_DEPTH_ROOM_STANDART - 1) * 4 * 2;
 
 // Все тоже самое, но для увеличенной карты
-const int MAX_LINES_BIG = 50;
-const int MAX_LENGHT_BIG = 100;
-const int MAX_DEPTJ_ROOM_BIG = 10; 
+const int MAX_DEPTH_ROOM_BIG = 10; 
+const int MAX_LINES_BIG = 3 + (MAX_DEPTH_ROOM_BIG - 1) * 2 * 2;
+const int MAX_LENGTH_BIG = 5 + (MAX_DEPTH_ROOM_BIG - 1) * 4 * 2;
 
 
 // поле для отрисовки
 //int screen[MAX_LINES][MAX_LENGHT];
-boost::multi_array<int, 2> screen(boost::extents[MAX_LINES_BIG][MAX_LENGHT_BIG]);
+boost::multi_array<int, 2> screen(boost::extents[MAX_LINES_BIG][MAX_LENGTH_BIG]);
 // копия поля для хранения глубины текущей отрисовки по нужным координатам
 // используется для случаев наезжания комнат друг на друга, в этом случае
 // ближняя затирает более дальнюю и все остальные после нее
 //int depths[MAX_LINES][MAX_LENGHT];
-boost::multi_array<int, 2> depths(boost::extents[MAX_LINES_BIG][MAX_LENGHT_BIG]);
+boost::multi_array<int, 2> depths(boost::extents[MAX_LINES_BIG][MAX_LENGTH_BIG]);
 
 enum
 {
@@ -248,7 +248,7 @@ std::map<int /* room vnum */, int /* min depth */> check_dupe;
 // отрисовка символа на поле по координатам
 void put_on_screen(int y, int x, int num, int depth)
 {
-	if (y >= MAX_LINES || x >= MAX_LENGHT)
+	if (y >= MAX_LINES || x >= MAX_LENGTH)
 	{
 		log("SYSERROR: %d;%d (%s %s %d)", y, x, __FILE__, __func__, __LINE__);
 		return;
@@ -276,7 +276,7 @@ void put_on_screen(int y, int x, int num, int depth)
 			const int hide_num = depths[y][x];
 			for (int i = 0; i < MAX_LINES; ++i)
 			{
-				for (int k = 0; k < MAX_LENGHT; ++k)
+				for (int k = 0; k < MAX_LENGTH; ++k)
 				{
 					if (depths[i][k] >= hide_num)
 					{
@@ -428,7 +428,7 @@ void draw_objs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x)
 	}
 }
 
-void drow_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, int cur_depth)
+void draw_spec_mobs(const CHAR_DATA *ch, int room_rnum, int next_y, int next_x, int cur_depth)
 {
 	bool all = ch->map_check_option(MAP_MODE_MOB_SPEC_ALL) ? true : false;
 
@@ -663,7 +663,7 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 					put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
 				}
 				// моб со спешиалом
-				drow_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
+				draw_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
 			}
 			// существа
 			if (cur_depth == 1
@@ -730,8 +730,8 @@ void draw_room(CHAR_DATA *ch, const ROOM_DATA *room, int cur_depth, int y, int x
 void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 {
 	MAX_LINES = MAX_LINES_STANDART;
-	MAX_LENGHT = MAX_LENGHT_STANDART;
-	MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_STANDART;
+	MAX_LENGTH = MAX_LENGTH_STANDART;
+	MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_STANDART;
 	if (ch->map_check_option(MAP_MODE_BIG))
 	{
 		for (unsigned int i = 0; i < cities.size(); i++)
@@ -739,15 +739,15 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 			if (zone_table[world[ch->in_room]->zone].number == cities[i].rent_vnum / 100)
 			{
 				MAX_LINES = MAX_LINES_BIG;
-				MAX_LENGHT = MAX_LENGHT_BIG;
-				MAX_DEPTH_ROOMS = MAX_DEPTJ_ROOM_BIG;
+				MAX_LENGTH = MAX_LENGTH_BIG;
+				MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_BIG;
 				break;
 			}
 		}
 	}
 	for (int i = 0; i < MAX_LINES; ++i)
 	{
-		for (int k = 0; k < MAX_LENGHT; ++k)
+		for (int k = 0; k < MAX_LENGTH; ++k)
 		{
 			screen[i][k] = -1;
 			depths[i][k] = -1;
@@ -755,7 +755,7 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 	}
 	check_dupe.clear();
 
-	draw_room(ch, world[ch->in_room], 1, MAX_LINES/2, MAX_LENGHT/2);
+	draw_room(ch, world[ch->in_room], 1, MAX_LINES/2, MAX_LENGTH/2);
 
 	int start_line = -1, end_line = MAX_LINES, char_line = -1;
 	// для облегчения кода - делаем проход по экрану
@@ -767,7 +767,7 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 	{
 		bool found = false;
 
-		for (int k = 0; k < MAX_LENGHT; ++k)
+		for (int k = 0; k < MAX_LENGTH; ++k)
 		{
 			if (screen[i][k] > -1 && screen[i][k] < SCREEN_TOTAL)
 			{
@@ -780,7 +780,7 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 
 				if (screen[i][k] >= SCREEN_Y_OPEN
 					&& screen[i][k] <= SCREEN_Y_WALL
-					&& k + 1 < MAX_LENGHT && k >= 1)
+					&& k + 1 < MAX_LENGTH && k >= 1)
 				{
 					if (screen[i][k + 1] > -1
 						&& screen[i][k + 1] != SCREEN_UP_WALL)
@@ -863,9 +863,9 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 	{
 		out += ": ";
 		int k = 0;
-		if (ch->map_check_option(MAP_MODE_BIG))
-			k = 10;
-		for (; k < MAX_LENGHT; ++k)
+		//if (ch->map_check_option(MAP_MODE_BIG))
+		//	k = 10;
+		for (; k < MAX_LENGTH; ++k)
 		{
 			if (screen[i][k] <= -1)
 			{
