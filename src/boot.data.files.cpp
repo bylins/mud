@@ -97,12 +97,7 @@ protected:
 private:
 	virtual EBootType mode() const = 0;
 	virtual void read_entry(const int nr) = 0;
-
-	/// modes positions correspond to DB_BOOT_xxx in db.h
-	static const char *s_modes[];
 };
-
-const char *DiscreteFile::s_modes[] = { "world", "mob", "obj", "ZON", "SHP", "HLP", "trg" };
 
 bool DiscreteFile::discrete_load(const EBootType mode)
 {
@@ -127,7 +122,7 @@ bool DiscreteFile::discrete_load(const EBootType mode)
 			last = nr;
 			if (sscanf(m_line, "#%d", &nr) != 1)
 			{
-				log("SYSERR: Format error after %s #%d", s_modes[mode], last);
+				log("SYSERR: Format error after %s #%d", boot_mode_name(mode), last);
 				exit(1);
 			}
 
@@ -146,7 +141,7 @@ bool DiscreteFile::discrete_load(const EBootType mode)
 		}
 		else
 		{
-			log("SYSERR: Format error in %s file %s near %s #%d", s_modes[mode], file_name().c_str(), s_modes[mode], nr);
+			log("SYSERR: Format error in %s file %s near %s #%d", boot_mode_name(mode), file_name().c_str(), boot_mode_name(mode), nr);
 			log("SYSERR: ... offending line: '%s'", m_line);
 			exit(1);
 		}
@@ -161,14 +156,14 @@ void DiscreteFile::read_next_line(const int nr)
 	{
 		if (nr == -1)
 		{
-			log("SYSERR: %s file %s is empty!", s_modes[mode()], file_name().c_str());
+			log("SYSERR: %s file %s is empty!", boot_mode_name(mode()), file_name().c_str());
 		}
 		else
 		{
 			log("SYSERR: Format error in %s after %s #%d\n"
 				"...expecting a new %s, but file ended!\n"
 				"(maybe the file is not terminated with '$'?)", file_name().c_str(),
-				s_modes[mode()], nr, s_modes[mode()]);
+				boot_mode_name(mode()), nr, boot_mode_name(mode()));
 		}
 		exit(1);
 	}

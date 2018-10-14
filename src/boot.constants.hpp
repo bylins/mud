@@ -178,6 +178,8 @@ private:
 
 extern FilesPrefixes prefixes;
 
+const char *boot_mode_name(EBootType mode);
+
 #define READ_SIZE 256
 
 #endif // __BOOT_CONSTANTS_HPP__
