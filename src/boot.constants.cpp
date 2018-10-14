@@ -12,7 +12,7 @@ const char *boot_mode_name(EBootType mode)
 		case DB_BOOT_HLP:    return "HLP";
 		case DB_BOOT_TRG:    return "trg";
 		case DB_BOOT_SOCIAL: return "soc";
-		default: return "";
+		default: return "unknown";
 	}
 }
 
