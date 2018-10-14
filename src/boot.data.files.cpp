@@ -195,8 +195,7 @@ char* DiscreteFile::fread_string()
 			{
 				if (isEscaped)
 					*to++ = c; // escape sequence ~~ replaced with single ~
-				else
-					isEscaped = 1;
+				isEscaped = !isEscaped;
 			}
 			else
 			{
