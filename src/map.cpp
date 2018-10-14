@@ -49,8 +49,8 @@ namespace MapSystem
 
 
 // размер поля для отрисовка
-int MAX_LINES = 25;
-int MAX_LENGTH = 50;
+size_t MAX_LINES = 25;
+size_t MAX_LENGTH = 50;
 // глубина рекурсии по комнатам
 int MAX_DEPTH_ROOMS = 5;
 
@@ -61,13 +61,13 @@ int MAX_DEPTH_ROOMS = 5;
 	*/
 
 const int MAX_DEPTH_ROOM_STANDART = 5;
-const int MAX_LINES_STANDART = 3 + (MAX_DEPTH_ROOM_STANDART - 1) * 2 * 2;
-const int MAX_LENGTH_STANDART = 5 + (MAX_DEPTH_ROOM_STANDART - 1) * 4 * 2;
+const size_t MAX_LINES_STANDART = MAX_DEPTH_ROOM_STANDART * 4 + 1;
+const size_t MAX_LENGTH_STANDART = MAX_DEPTH_ROOM_STANDART * 8 + 1;
 
 // Все тоже самое, но для увеличенной карты
 const int MAX_DEPTH_ROOM_BIG = 10; 
-const int MAX_LINES_BIG = 3 + (MAX_DEPTH_ROOM_BIG - 1) * 2 * 2;
-const int MAX_LENGTH_BIG = 5 + (MAX_DEPTH_ROOM_BIG - 1) * 4 * 2;
+const size_t MAX_LINES_BIG = MAX_DEPTH_ROOM_BIG * 4 + 1;
+const size_t MAX_LENGTH_BIG = MAX_DEPTH_ROOM_BIG * 8 + 1;
 
 
 // поле для отрисовки
@@ -246,7 +246,7 @@ const char *signs[] =
 std::map<int /* room vnum */, int /* min depth */> check_dupe;
 
 // отрисовка символа на поле по координатам
-void put_on_screen(int y, int x, int num, int depth)
+void put_on_screen(unsigned y, unsigned x, int num, int depth)
 {
 	if (y >= MAX_LINES || x >= MAX_LENGTH)
 	{
@@ -274,9 +274,9 @@ void put_on_screen(int y, int x, int num, int depth)
 			// затираем все символы этой и далее глубины
 			// и поверх рисуем текущий символ
 			const int hide_num = depths[y][x];
-			for (int i = 0; i < MAX_LINES; ++i)
+			for (unsigned i = 0; i < MAX_LINES; ++i)
 			{
-				for (int k = 0; k < MAX_LENGTH; ++k)
+				for (unsigned k = 0; k < MAX_LENGTH; ++k)
 				{
 					if (depths[i][k] >= hide_num)
 					{
@@ -745,9 +745,9 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 			}
 		}
 	}
-	for (int i = 0; i < MAX_LINES; ++i)
+	for (unsigned i = 0; i < MAX_LINES; ++i)
 	{
-		for (int k = 0; k < MAX_LENGTH; ++k)
+		for (unsigned k = 0; k < MAX_LENGTH; ++k)
 		{
 			screen[i][k] = -1;
 			depths[i][k] = -1;
@@ -763,11 +763,11 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 	// или отсутствия выходов вверх/вниз
 	// заодно убираем пустые строки экрана, чтобы не делать
 	// потом аллокации на каждую печатаемую строку
-	for (int i = 0; i < MAX_LINES; ++i)
+	for (unsigned i = 0; i < MAX_LINES; ++i)
 	{
 		bool found = false;
 
-		for (int k = 0; k < MAX_LENGTH; ++k)
+		for (unsigned k = 0; k < MAX_LENGTH; ++k)
 		{
 			if (screen[i][k] > -1 && screen[i][k] < SCREEN_TOTAL)
 			{
@@ -862,10 +862,9 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 	for (int i = start_line; i < end_line; ++i)
 	{
 		out += ": ";
-		int k = 0;
 		//if (ch->map_check_option(MAP_MODE_BIG))
 		//	k = 10;
-		for (; k < MAX_LENGTH; ++k)
+		for (unsigned k = 0; k < MAX_LENGTH; ++k)
 		{
 			if (screen[i][k] <= -1)
 			{
