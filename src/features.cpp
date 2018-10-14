@@ -904,7 +904,8 @@ void check_berserk(CHAR_DATA * ch)
 	if (can_use_feat(ch, BERSERK_FEAT) && ch->get_fighting() &&
 		!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) && (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
 	{
-//Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
+		CHAR_DATA *vict = ch->get_fighting();
+		//Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
 		timed.skill = BERSERK_FEAT;
 		timed.time = 4;
 		timed_feat_to_char(ch, &timed);
@@ -921,13 +922,15 @@ void check_berserk(CHAR_DATA * ch)
 		{
 			af.bitvector = to_underlying(EAffectFlag::AFF_BERSERK);
 			act("Вас обуяла предсмертная ярость!", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n0 исступленно взвыл$g и бросил$u на противника!", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n0 исступленно взвыл$g и бросил$u на противника!", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$n0 исступленно взвыл$g и бросил$u на вас!", FALSE, ch, 0, vict, TO_VICT);
 		}
 		else
 		{
 			af.bitvector = 0;
 			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", FALSE, ch, 0, 0, TO_CHAR);
-			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", FALSE, ch, 0, vict, TO_NOTVICT);
+			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", FALSE, ch, 0, vict, TO_VICT);
 		}
 		affect_join(ch, af, TRUE, FALSE, TRUE, FALSE);
 	}
