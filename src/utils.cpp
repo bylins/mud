@@ -1060,43 +1060,9 @@ void core_dump_real(const char *who, int line)
 #endif
 }
 
-void to_koi(char *str, int from)
-{
-	switch (from)
-	{
-	case KT_ALT:
-		for (; *str; *str = AtoK(*str), str++);
-		break;
-	case KT_WINZ:
-	case KT_WIN:
-		for (; *str; *str = WtoK(*str), str++);
-		break;
-	}
-}
-
-void from_koi(char *str, int to)
-{
-	switch (to)
-	{
-	case KT_ALT:
-		for (; *str; *str = KtoA(*str), str++);
-		break;
-	case KT_WIN:
-		for (; *str; *str = KtoW(*str), str++);
-	case KT_WINZ:
-		for (; *str; *str = KtoW2(*str), str++);
-		break;
-	}
-}
-
 void koi_to_win(char *str, int size)
 {
 	for (; size > 0; *str = KtoW(*str), size--, str++);
-}
-
-void koi_to_winz(char *str, int size)
-{
-	for (; size > 0; *str = KtoW2(*str), size--, str++);
 }
 
 void koi_to_alt(char *str, int size)

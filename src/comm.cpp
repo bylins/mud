@@ -2365,7 +2365,7 @@ int new_descriptor(socket_t s)
 	newd->mxp = false;
 	newd->has_prompt = 1;	// prompt is part of greetings
 	newd->keytable = KT_SELECTMENU;
-	STATE(newd) = CON_GET_KEYTABLE;
+	STATE(newd) = CON_INIT;
 	/*
 	 * This isn't exactly optimal but allows us to make a design choice.
 	 * Do we embed the history in descriptor_data or keep it dynamically
@@ -2381,23 +2381,9 @@ int new_descriptor(socket_t s)
 	newd->next = descriptor_list;
 	descriptor_list = newd;
 
-	int online_players = 0;
-	for (auto i = descriptor_list; i; i = i->next)
-	{
-		online_players++;
-	}
-	sprintf(buf, "Online: %d\r\n", online_players);
-
-	SEND_TO_Q(buf, newd);
-
-	SEND_TO_Q("Using keytable\r\n"
-		"  0) Koi-8\r\n"
-		"  1) Alt\r\n"
-		"  2) Windows(JMC,MMC)\r\n"
-		"  3) Windows(zMUD)\r\n"
-		"  4) Windows(zMUD ver. 6+)\r\n"
-		"  5) UTF-8\r\n"
-		"Select one : ", newd);
+	// let interpreter to set the ball rolling
+	char dummyArg[] = {""};
+	nanny(newd, dummyArg);
 
 	// trying to turn on MSDP
 	write_to_descriptor(newd->descriptor, will_msdp, sizeof(will_msdp));
@@ -2901,7 +2887,7 @@ int process_input(DESCRIPTOR_DATA * t)
 			{
 				// последовательность IAC IAC
 				// следует заменить просто на один IAC, но
-				// для раскладок KT_WIN/KT_WINZ6 это произойдет ниже.
+				// для раскладок KT_WIN/KT_WINZ это произойдет ниже.
 				// Почему так сделано - не знаю, но заменять не буду.
 				// II: потому что второй IAC может прочитаться в другом socket_read
 				++ptr;
@@ -3120,22 +3106,24 @@ int process_input(DESCRIPTOR_DATA * t)
 					*(write_point++) = AtoK(*ptr);
 					break;
 				case KT_WIN:
-				case KT_WINZ6:
+				case KT_WINZ:
+				case KT_WINZ_Z:
 					*(write_point++) = WtoK(*ptr);
 					if (*ptr == (char) 255 && *(ptr + 1) == (char) 255 && ptr + 1 < nl_pos)
 						ptr++;
 					break;
-				case KT_WINZ:
+				case KT_WINZ_OLD:
 					*(write_point++) = WtoK(*ptr);
 					break;
 				}
 				space_left--;
 			}
 
-			// Для того чтобы работали все триги в змаде - заменяем все вводимые 'z' на 'я'
+			// Для того чтобы работали все триги в старом zMUD, заменяем все вводимые 'z' на 'я'
+			// Увы, это кое-что ломает, напр. wizhelp, или "г я использую zMUD"
 			if (STATE(t) == CON_PLAYING || (STATE(t) == CON_EXDESC))
 			{
-				if (t->keytable == KT_WINZ6 || t->keytable == KT_WINZ)
+				if (t->keytable == KT_WINZ_Z || t->keytable == KT_WINZ_OLD)
 				{
 					if (*(write_point - 1) == 'z')
 					{
