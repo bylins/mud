@@ -53,6 +53,7 @@ std::map<std::string, std::string> plural_name_currency_map = {
 	{ "куны" , "денег" },
 	{ "слава" , "славы" },
 	{ "лед" , "льда" },
+	{ "гривны", "гривен" }
 };
 
 std::string name_currency_plural(std::string name)
