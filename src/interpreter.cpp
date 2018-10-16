@@ -2962,6 +2962,55 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 
 }
 
+// Фраза 'Русская азбука: "абв...эюя".' в разных кодировках и для разных клиентов
+#define ENC_HINT_KOI8R          "\xf2\xd5\xd3\xd3\xcb\xc1\xd1 \xc1\xda\xc2\xd5\xcb\xc1: \"\xc1\xc2\xd7...\xdc\xc0\xd1\"."
+#define ENC_HINT_ALT            "\x90\xe3\xe1\xe1\xaa\xa0\xef \xa0\xa7\xa1\xe3\xaa\xa0: \"\xa0\xa1\xa2...\xed\xee\xef\"."
+#define ENC_HINT_WIN   		    "\xd0\xf3\xf1\xf1\xea\xe0\xff\xff \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfe\xff\xff\"."
+// обход ошибки с 'я' в zMUD после ver. 6.39+ и CMUD без замены 'я' на 'z'
+#define ENC_HINT_WIN_ZMUD       "\xd0\xf3\xf1\xf1\xea\xe0\xff\xff? \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfe\xff\xff?\"."
+// замена 'я' на 'z' в zMUD до ver. 6.39a для обхода ошибки,
+// а также в zMUD после ver. 6.39a для совместимости
+#define ENC_HINT_WIN_ZMUD_z     "\xd0\xf3\xf1\xf1\xea\xe0z \xe0\xe7\xe1\xf3\xea\xe0: \"\xe0\xe1\xe2...\xfd\xfez\"."
+#define ENC_HINT_WIN_ZMUD_old   ENC_HINT_WIN_ZMUD_z
+#define ENC_HINT_UTF8           "\xd0\xa0\xd1\x83\xd1\x81\xd1\x81\xd0\xba\xd0\xb0\xd1\x8f "\
+                                "\xd0\xb0\xd0\xb7\xd0\xb1\xd1\x83\xd0\xba\xd0\xb0: "\
+                                "\"\xd0\xb0\xd0\xb1\xd0\xb2...\xd1\x8d\xd1\x8e\xd1\x8f\"."
+
+static void ShowEncodingPrompt(DESCRIPTOR_DATA *d, bool withHints = false)
+{
+	if (withHints)
+	{
+		SEND_TO_Q(
+			"\r\n"
+			"Using keytable           TECT. CTPOKA\r\n"
+			"  0) Koi-8               " ENC_HINT_KOI8R        "\r\n"
+			"  1) Alt                 " ENC_HINT_ALT          "\r\n"
+			"  2) Windows(JMC,MMC)    " ENC_HINT_WIN          "\r\n"
+			"  3) Windows(zMUD)       " ENC_HINT_WIN_ZMUD     "\r\n"
+			"  4) Windows(zMUD 'z')   " ENC_HINT_WIN_ZMUD_z   "\r\n"
+			"  5) UTF-8               " ENC_HINT_UTF8         "\r\n"
+			"  6) Windows(zMUD <6.39) " ENC_HINT_WIN_ZMUD_old "\r\n"
+//			"Select one : ", d);
+			"\r\n"
+			"KAKOE HAnuCAHuE ECTb BEPHOE, PA3yMEEMOE HA PyCCKOM? BBEguTE HOMEP : ", d);
+	}
+	else
+	{
+		SEND_TO_Q(
+			"\r\n"
+			"Using keytable\r\n"
+			"  0) Koi-8\r\n"
+			"  1) Alt\r\n"
+			"  2) Windows(JMC,MMC)\r\n"
+			"  3) Windows(zMUD)\r\n"
+			"  4) Windows(zMUD 'z')\r\n"
+			"  5) UTF-8\r\n"
+			"  6) Windows(zMUD <6.39)\r\n"
+			"  9) TECT...\r\n"
+			"Select one : ", d);
+	}
+}
+
 // deal with newcomers and other non-playing sockets
 void nanny(DESCRIPTOR_DATA * d, char *arg)
 {
@@ -2973,6 +3022,22 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 	switch (STATE(d))
 	{
+	case CON_INIT:
+		// just connected
+		{
+			int online_players = 0;
+			for (auto i = descriptor_list; i; i = i->next)
+			{
+				online_players++;
+			}
+			sprintf(buf, "Online: %d\r\n", online_players);
+		}
+	
+		SEND_TO_Q(buf, d);
+		ShowEncodingPrompt(d, false);
+		STATE(d) = CON_GET_KEYTABLE;
+		break;
+
 		//. OLC states .
 	case CON_OEDIT:
 		oedit_parse(d, arg);
@@ -3050,6 +3115,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	case CON_GET_KEYTABLE:
 		if (strlen(arg) > 0)
 			arg[0] = arg[strlen(arg) - 1];
+		if (*arg == '9')
+		{
+			ShowEncodingPrompt(d, true);
+			return;
+		};
 		if (!*arg || *arg < '0' || *arg >= '0' + KT_LAST)
 		{
 			SEND_TO_Q("\r\nUnknown key table. Retry, please : ", d);
@@ -3545,18 +3615,18 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		}
 
 		GET_KIN(d->character) = load_result;
-/*
-Ахтунг-партизанен!
-Пока что убраны все вызовы парсилок _классов_ для отличных от русичей _рас_.
-Сами парсилки и списки классов оставлены для потомков.
-Проверка тоже убрана, так что при создании перса другой расы ему предложат выбрать "русские" классы.
-Теоретически это конечно неправильно, но я сомневаюсь, что в ближайшем будущем кто-то станет доделывать расы.
-Если же такой садомазо найдется, то для него это всеи пишется.
-В таком варианте надо в описания _рас_ в файле playerraces.xml
-Ввести список доступных расе классов. И уже от этого списка плясать с названиями и парсом, а не городить все в 3 экземплярах
-Сами классы при этом из кода можно и не выносить ж)
-Sventovit
- */
+		/*
+		Ахтунг-партизанен!
+		Пока что убраны все вызовы парсилок _классов_ для отличных от русичей _рас_.
+		Сами парсилки и списки классов оставлены для потомков.
+		Проверка тоже убрана, так что при создании перса другой расы ему предложат выбрать "русские" классы.
+		Теоретически это конечно неправильно, но я сомневаюсь, что в ближайшем будущем кто-то станет доделывать расы.
+		Если же такой садомазо найдется, то для него это всеи пишется.
+		В таком варианте надо в описания _рас_ в файле playerraces.xml
+		Ввести список доступных расе классов. И уже от этого списка плясать с названиями и парсом, а не городить все в 3 экземплярах
+		Сами классы при этом из кода можно и не выносить ж)
+		Sventovit
+		 */
         SEND_TO_Q(class_menu, d);
 		SEND_TO_Q("\r\nВаша профессия (Для более полной информации вы можете набрать"
 				  " \r\nсправка <интересующая профессия>): ", d);

@@ -84,9 +84,10 @@ class TRIG_DATA;
 #define KT_ALT        1
 #define KT_WIN        2
 #define KT_WINZ       3
-#define KT_WINZ6      4
+#define KT_WINZ_Z     4
 #define KT_UTF8       5
-#define KT_LAST       6
+#define KT_WINZ_OLD   6
+#define KT_LAST       7
 
 #define KT_SELECTMENU 255
 
@@ -777,7 +778,8 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_MENU_STATS   53 // оплата сброса стартовых статов из главного меню
 #define CON_SEDIT        54 // sedit - редактирование сетов
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
-#define CON_RANDOM_NUMBER	 56 // where player enter in the game from new location
+#define CON_RANDOM_NUMBER	 56 // Verification code entry: where player enter in the game from new location
+#define CON_INIT		 57 // just connected
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //

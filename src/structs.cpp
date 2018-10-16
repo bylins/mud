@@ -1170,21 +1170,39 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 		break;
 
 	case KT_WIN:
-		for (; *input; *output = KtoW(*input), input++, output++)
+		for (; *input; input++, output++)
 		{
-			if (*input == 'я')
+			*output = KtoW(*input);
+
+			// 0xFF is cp1251 'я' and Telnet IAC, so escape it with another IAC
+			if (*output == '\xFF')
 			{
-				*reinterpret_cast<unsigned char*>(output++) = 255u;
+				*++output = '\xFF';
 			}
 		}
 		break;
 
-	case KT_WINZ:
+	case KT_WINZ_OLD:
+	case KT_WINZ_Z:
+		// zMUD before 6.39 or after for backward compatibility  - replace я with z
 		for (; *input; *output = KtoW2(*input), input++, output++);
 		break;
 
-	case KT_WINZ6:
-		for (; *input; *output = KtoW2(*input), input++, output++);
+	case KT_WINZ:
+		// zMUD after 6.39 and CMUD support 'я' but with some issues
+		for (; *input; input++, output++)
+		{
+			*output = KtoW(*input);
+
+			// 0xFF is cp1251 'я' and Telnet IAC, so escape it with antother IAC
+			// also there is a bug in zMUD, meaning we need to add an extra byte
+			if (*output == '\xFF')
+			{
+				*++output = '\xFF';
+				// make it obvious for other clients something is wrong
+				*++output = '?';
+			}
+		}
 		break;
 
 	case KT_UTF8:
