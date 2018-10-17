@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 
 project(bylins CXX)
 
+cmake_policy(SET CMP0074 NEW)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
@@ -539,9 +541,14 @@ endif ()
 
 # In case of you have more than one Visual Studio and want to use specific version, uncomment the following three lines and specify compiler you want
 if (CMAKE_HOST_WIN32)
-	option(BOOST_REQUIRED_COMPILER "Compiler which must be used to compile Boost libraries (for example: -vc140)" "")
+	set(BOOST_REQUIRED_COMPILER "" CACHE STRING "Compiler which must be used to compile Boost libraries (for example: -vc141 for Visual Studio 15 (2017))")
 
-	set(Boost_COMPILER "-vc140")
+	if (BOOST_REQUIRED_COMPILER)
+		set(Boost_COMPILER "${BOOST_REQUIRED_COMPILER}")
+	else ()
+		set(Boost_COMPILER "-vc140")
+	endif ()
+
 	target_compile_options(circle.library PUBLIC /MP /MDd)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:Debug>:/Zi /Od>)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:Release>:/O2>)
@@ -549,7 +556,7 @@ if (CMAKE_HOST_WIN32)
 	target_compile_options(circle.library PUBLIC $<$<CONFIG:FastTest>:/O2>)
 endif ()
 
-option(BOOST_REQUIRED_VERSION "Optional version for Boost (for example, 1.54)" OFF)
+set(BOOST_REQUIRED_VERSION OFF CACHE STRING "Optional version for Boost (for example, 1.54)")
 set(BOOST_REQUIRED_VERSION_VALUE "")
 if (BOOST_REQUIRED_VERSION)
 	set(BOOST_REQUIRED_VERSION_VALUE "${BOOST_REQUIRED_VERSION}")
