@@ -8,8 +8,7 @@
 
 #include "dg_scripts.h"
 
-EXIT_DATA::EXIT_DATA(): general_description("undefined"),
-	keyword(nullptr),
+EXIT_DATA::EXIT_DATA(): keyword(nullptr),
 	vkeyword(nullptr),
 	exit_info(0),
 	lock_complexity(0),
