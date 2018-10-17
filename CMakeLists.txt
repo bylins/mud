@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.0)
 
 project(bylins CXX)
 
-cmake_policy(SET CMP0074 NEW)
+if (NOT ${CMAKE_VERSION} VERSION_LESS "3.12.0")
+	cmake_policy(SET CMP0074 NEW)
+endif ()
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
