@@ -3975,7 +3975,7 @@ void zone_update(void)
 			{
 
 				CREATE(update_u, 1);
-				update_u->zone_to_reset = i;
+				update_u->zone_to_reset = static_cast<zone_rnum>(i);
 				update_u->next = 0;
 
 				if (!reset_q.head)

@@ -3970,20 +3970,38 @@ void utf8_to_koi(char *str_i, char *str_o)
 						};
 						*str_o = (char)Utf8ToKoiAlpha[c1 - 0x10];
 					}
-					else if (c1 == 0x01) *str_o = 0xB3; // koi8-r Ё
-					else if (c1 == 0x51) *str_o = 0xA3; // koi8-r ё
+					else if (c1 == 0x01)
+					{
+						*str_o = static_cast<unsigned char>(0xB3); // koi8-r Ё
+					}
+					else if (c1 == 0x51)
+					{
+						*str_o = static_cast<unsigned char>(0xA3); // koi8-r ё
+					}
 				}
 				else if (c == 0xC2) // 0x0080 - 0x00BF
 				{
 					// 0x00B0, 0x00B2, 0x00B7, 0x00F7
-					if (c1 == 0xA9) *str_o = 0xBF;
-					else if (c1 == 0xB0) *str_o = 0x9C;
-					else if (c1 == 0xB2) *str_o = 0x9D;
-					else if (c1 == 0xB7) *str_o = 0x9E;
+					if (c1 == 0xA9)
+					{
+						*str_o = static_cast<unsigned char>(0xBF);
+					}
+					else if (c1 == 0xB0)
+					{
+						*str_o = static_cast<unsigned char>(0x9C);
+					}
+					else if (c1 == 0xB2)
+					{
+						*str_o = static_cast<unsigned char>(0x9D);
+					}
+					else if (c1 == 0xB7)
+					{
+						*str_o = static_cast<unsigned char>(0x9E);
+					}
 				}
 				else if ((c == 0xC3) && (c1 == 0xB7)) // 0x00F7
 				{
-					*str_o = 0x9F;
+					*str_o = static_cast<unsigned char>(0x9F);
 				}
 				str_o++;
 				str_i++;
@@ -4015,34 +4033,34 @@ void utf8_to_koi(char *str_i, char *str_o)
 				{
 					switch (u)
 					{
-						case 0x2500: *str_o = 0x80; break;
-						case 0x2502: *str_o = 0x81; break;
-						case 0x250C: *str_o = 0x82; break;
-						case 0x2510: *str_o = 0x83; break;
-						case 0x2514: *str_o = 0x84; break;
-						case 0x2518: *str_o = 0x85; break;
-						case 0x251C: *str_o = 0x86; break;
-						case 0x2524: *str_o = 0x87; break;
-						case 0x252C: *str_o = 0x88; break;
-						case 0x2534: *str_o = 0x89; break;
-						case 0x253C: *str_o = 0x8A; break;
-						case 0x2580: *str_o = 0x8B; break;
-						case 0x2584: *str_o = 0x8C; break;
-						case 0x2588: *str_o = 0x8D; break;
-						case 0x258C: *str_o = 0x8E; break;
-						case 0x2590: *str_o = 0x8F; break;
-						case 0x2591: *str_o = 0x90; break;
-						case 0x2592: *str_o = 0x91; break;
-						case 0x2593: *str_o = 0x92; break;
-						case 0x2320: *str_o = 0x93; break;
-						case 0x25A0: *str_o = 0x94; break;
-						case 0x2219: *str_o = 0x95; break;
-						case 0x221A: *str_o = 0x96; break;
-						case 0x2248: *str_o = 0x97; break;
-						case 0x2264: *str_o = 0x98; break;
-						case 0x2265: *str_o = 0x99; break;
+						case 0x2500: *str_o = static_cast<unsigned char>(0x80); break;
+						case 0x2502: *str_o = static_cast<unsigned char>(0x81); break;
+						case 0x250C: *str_o = static_cast<unsigned char>(0x82); break;
+						case 0x2510: *str_o = static_cast<unsigned char>(0x83); break;
+						case 0x2514: *str_o = static_cast<unsigned char>(0x84); break;
+						case 0x2518: *str_o = static_cast<unsigned char>(0x85); break;
+						case 0x251C: *str_o = static_cast<unsigned char>(0x86); break;
+						case 0x2524: *str_o = static_cast<unsigned char>(0x87); break;
+						case 0x252C: *str_o = static_cast<unsigned char>(0x88); break;
+						case 0x2534: *str_o = static_cast<unsigned char>(0x89); break;
+						case 0x253C: *str_o = static_cast<unsigned char>(0x8A); break;
+						case 0x2580: *str_o = static_cast<unsigned char>(0x8B); break;
+						case 0x2584: *str_o = static_cast<unsigned char>(0x8C); break;
+						case 0x2588: *str_o = static_cast<unsigned char>(0x8D); break;
+						case 0x258C: *str_o = static_cast<unsigned char>(0x8E); break;
+						case 0x2590: *str_o = static_cast<unsigned char>(0x8F); break;
+						case 0x2591: *str_o = static_cast<unsigned char>(0x90); break;
+						case 0x2592: *str_o = static_cast<unsigned char>(0x91); break;
+						case 0x2593: *str_o = static_cast<unsigned char>(0x92); break;
+						case 0x2320: *str_o = static_cast<unsigned char>(0x93); break;
+						case 0x25A0: *str_o = static_cast<unsigned char>(0x94); break;
+						case 0x2219: *str_o = static_cast<unsigned char>(0x95); break;
+						case 0x221A: *str_o = static_cast<unsigned char>(0x96); break;
+						case 0x2248: *str_o = static_cast<unsigned char>(0x97); break;
+						case 0x2264: *str_o = static_cast<unsigned char>(0x98); break;
+						case 0x2265: *str_o = static_cast<unsigned char>(0x99); break;
 						//   0x00A0        to 0x9A decoded elsewhere
-						case 0x2321: *str_o = 0x9B; break;
+						case 0x2321: *str_o = static_cast<unsigned char>(0x9B); break;
 					}
 				}
 

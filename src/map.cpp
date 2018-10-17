@@ -755,9 +755,9 @@ void print_map(CHAR_DATA *ch, CHAR_DATA *imm)
 	}
 	check_dupe.clear();
 
-	draw_room(ch, world[ch->in_room], 1, MAX_LINES/2, MAX_LENGTH/2);
+	draw_room(ch, world[ch->in_room], 1, static_cast<int>(MAX_LINES/2), static_cast<int>(MAX_LENGTH/2));
 
-	int start_line = -1, end_line = MAX_LINES, char_line = -1;
+	int start_line = -1, end_line = static_cast<int>(MAX_LINES), char_line = -1;
 	// для облегчения кода - делаем проход по экрану
 	// для расставления Y символов в зависимости от наличия
 	// или отсутствия выходов вверх/вниз
