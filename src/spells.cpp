@@ -1317,7 +1317,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		act("$M сейчас, похоже, не до вас.", FALSE, ch, 0, victim, TO_CHAR);
 	else if (circle_follow(victim, ch))
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
-	else if (!IS_IMMORTAL(ch) && general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 3 + GET_REMORT(ch) * 2))
+	else if (!IS_IMMORTAL(ch) && general_savingthrow(ch, victim, SAVING_WILL, (GET_REAL_CHA(ch) - 10) * 4 + GET_REMORT(ch) * 3))
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else
 	{
