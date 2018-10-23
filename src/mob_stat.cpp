@@ -152,7 +152,15 @@ const int HISTORY_SIZE = 6;
 std::map<int, int> count_stats;
 std::map<int, int> kill_stats;
 /// список мобов по внуму и месяцам
-std::unordered_map<int, std::list<mob_node>> mob_list;
+
+struct MobNode
+{
+  MobNode(): date(0) {}
+  time_t date;
+  std::list<mob_node> vnum;
+};
+
+std::unordered_map<int, MobNode> mob_list_stat;
 
 /// month, year
 std::pair<int, int> get_date()
@@ -164,7 +172,7 @@ std::pair<int, int> get_date()
 
 void load()
 {
-	mob_list.clear();
+	mob_list_stat.clear();
 
 	char buf_[MAX_INPUT_LENGTH];
 
@@ -176,10 +184,10 @@ void load()
 		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-    pugi::xml_node node_list = doc.child("mob_list");
+    pugi::xml_node node_list = doc.child("mob_list_stat");
     if (!node_list)
     {
-		snprintf(buf_, sizeof(buf_), "...<mob_list> read fail");
+		snprintf(buf_, sizeof(buf_), "...<mob_list_stat> read fail");
 		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
@@ -233,20 +241,20 @@ void load()
 			}
 			tmp_time.push_back(tmp_mob);
 		}
-		mob_list.insert(std::make_pair(mob_vnum, tmp_time));
+		mob_list_stat.insert(std::make_pair(mob_vnum, tmp_time));
 	}
 }
 
 void save()
 {
 	pugi::xml_document doc;
-	doc.append_child().set_name("mob_list");
-	pugi::xml_node xml_mob_list = doc.child("mob_list");
+	doc.append_child().set_name("mob_list_stat");
+	pugi::xml_node xml_mob_list_stat = doc.child("mob_list_stat");
 	char buf_[MAX_INPUT_LENGTH];
 
-	for (auto i = mob_list.cbegin(), iend = mob_list.cend(); i != iend; ++i)
+	for (auto i = mob_list_stat.cbegin(), iend = mob_list_stat.cend(); i != iend; ++i)
 	{
-		pugi::xml_node mob_node = xml_mob_list.append_child();
+		pugi::xml_node mob_node = xml_mob_list_stat.append_child();
 		mob_node.set_name("mob");
 		mob_node.append_attribute("vnum") = i->first;
 		// стата по месяцам
@@ -271,11 +279,11 @@ void save()
 
 void clear_zone(int zone_vnum)
 {
-	for (auto i = mob_list.begin(), iend = mob_list.end(); i != iend; /**/)
+	for (auto i = mob_list_stat.begin(), iend = mob_list_stat.end(); i != iend; /**/)
 	{
 		if (i->first/100 == zone_vnum)
 		{
-			mob_list.erase(i++);
+			mob_list_stat.erase(i++);
 		}
 		else
 		{
@@ -288,7 +296,7 @@ void clear_zone(int zone_vnum)
 void show_stats(CHAR_DATA *ch)
 {
 	std::stringstream out;
-	out << "  Всего уникальных мобов в статистике убийств: " << mob_list.size() << "\r\n"
+	out << "  Всего уникальных мобов в статистике убийств: " << mob_list_stat.size() << "\r\n"
 		<< "  Количество уникальных мобов по месяцам:";
 	for (auto i = count_stats.begin(); i != count_stats.end(); ++i)
 	{
@@ -342,8 +350,8 @@ void add_mob(CHAR_DATA *mob, int members)
 		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-	auto i = mob_list.find(GET_MOB_VNUM(mob));
-	if (i != mob_list.end() && !i->second.empty())
+	auto i = mob_list_stat.find(GET_MOB_VNUM(mob));
+	if (i != mob_list_stat.end() && !i->second.empty())
 	{
 		update_mob_node(i->second, members);
 	}
@@ -358,7 +366,7 @@ void add_mob(CHAR_DATA *mob, int members)
 		std::list<mob_node> list_node;
 		list_node.push_back(node);
 
-		mob_list.insert(std::make_pair(GET_MOB_VNUM(mob), list_node));
+		mob_list_stat.insert(std::make_pair(GET_MOB_VNUM(mob), list_node));
 	}
 	if (members == 0)
 	{
@@ -407,7 +415,7 @@ mob_node sum_stat(const std::list<mob_node> &mob_stat, int months)
 void show_zone(CHAR_DATA *ch, int zone_vnum, int months)
 {
 	std::map<int, mob_node> sort_list;
-	for (auto i = mob_list.begin(), iend = mob_list.end(); i != iend; ++i)
+	for (auto i = mob_list_stat.begin(), iend = mob_list_stat.end(); i != iend; ++i)
 	{
 		if (i->first/100 == zone_vnum)
 		{
