@@ -20,9 +20,11 @@ namespace mob_stat
 /// макс. кол-во участников в группе учитываемое в статистике
 const int MAX_GROUP_SIZE = 12;
 /// период сохранения mob_stat.xml (минуты)
-const int SAVE_PERIOD = 27;
+const int SAVE_PERIOD = 1;
 /// 0 - убиства мобом игроков, 1..MAX_GROUP_SIZE - убиства моба игроками
 typedef std::array<int, MAX_GROUP_SIZE + 1> KillStatType;
+
+
 
 struct mob_node
 {
@@ -38,8 +40,14 @@ struct mob_node
 	KillStatType kills;
 };
 
+struct MobNode
+{
+  MobNode(): date(0) {}
+  time_t date;
+  std::list<mob_node> stats;
+};
 /// список мобов по внуму и месяцам
-extern std::unordered_map<int, std::list<mob_node>> mob_list;
+extern std::unordered_map<int, MobNode> mob_list;
 
 /// лоад mob_stat.xml
 void load();
