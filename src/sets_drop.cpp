@@ -536,7 +536,7 @@ void init_mob_name_list()
 		node.vnum = i->first;
 		node.rnum = rnum;
 		node.name = mob_proto[rnum].get_name();
-		auto stat = mob_stat::sum_stat(i->second, 4);
+		auto stat = mob_stat::sum_stat(i->second.stats, 4);
 		node.kill_stat = stat.kills;
 
 		add_to_zone_list(mob_name_list, node);
