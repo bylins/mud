@@ -157,7 +157,7 @@ struct MobNode
 {
   MobNode(): date(0) {}
   time_t date;
-  std::list<mob_node> vnum;
+  std::list<mob_node> stats;
 };
 
 std::unordered_map<int, MobNode> mob_list_stat;
@@ -184,10 +184,10 @@ void load()
 		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-    pugi::xml_node node_list = doc.child("mob_list_stat");
+    pugi::xml_node node_list = doc.child("mob_list");
     if (!node_list)
     {
-		snprintf(buf_, sizeof(buf_), "...<mob_list_stat> read fail");
+		snprintf(buf_, sizeof(buf_), "...<mob_stat_new> read fail");
 		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
@@ -203,7 +203,7 @@ void load()
 			continue;
 		}
 		// инит статы конкретного моба по месяцам
-		std::list<mob_node> tmp_time;
+		MobNode tmp_time;
 		for (pugi::xml_node xml_time = xml_mob.child("t"); xml_time;
 			xml_time = xml_time.next_sibling("t"))
 		{
@@ -241,15 +241,15 @@ void load()
 			}
 			tmp_time.push_back(tmp_mob);
 		}
-		mob_list_stat.insert(std::make_pair(mob_vnum, tmp_time));
+		mob_list_stat.emplace(mob_vnum, tmp_time);
 	}
 }
 
 void save()
 {
 	pugi::xml_document doc;
-	doc.append_child().set_name("mob_list_stat");
-	pugi::xml_node xml_mob_list_stat = doc.child("mob_list_stat");
+	doc.append_child().set_name("mob_list");
+	pugi::xml_node xml_mob_list_stat = doc.child("mob_list");
 	char buf_[MAX_INPUT_LENGTH];
 
 	for (auto i = mob_list_stat.cbegin(), iend = mob_list_stat.cend(); i != iend; ++i)
@@ -258,7 +258,7 @@ void save()
 		mob_node.set_name("mob");
 		mob_node.append_attribute("vnum") = i->first;
 		// стата по месяцам
-		for (auto k = i->second.cbegin(), kend = i->second.cend(); k != kend; ++k)
+		for (auto k = i->second.stats.cbegin(), kend = i->second.stats.cend(); k != kend; ++k)
 		{
 			pugi::xml_node time_node = mob_node.append_child();
 			time_node.set_name("t");
@@ -351,9 +351,9 @@ void add_mob(CHAR_DATA *mob, int members)
 		return;
 	}
 	auto i = mob_list_stat.find(GET_MOB_VNUM(mob));
-	if (i != mob_list_stat.end() && !i->second.empty())
+	if (i != mob_list_stat.end() && !i->second.stats.empty())
 	{
-		update_mob_node(i->second, members);
+		update_mob_node(i->second.stats, members);
 	}
 	else
 	{
@@ -362,8 +362,7 @@ void add_mob(CHAR_DATA *mob, int members)
 		node.month = date.first;
 		node.year = date.second;
 		node.kills.at(members) += 1;
-
-		std::list<mob_node> list_node;
+		MobNode list_node;
 		list_node.push_back(node);
 
 		mob_list_stat.insert(std::make_pair(GET_MOB_VNUM(mob), list_node));
@@ -419,7 +418,7 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months)
 	{
 		if (i->first/100 == zone_vnum)
 		{
-			mob_node sum = sum_stat(i->second, months);
+			mob_node sum = sum_stat(i->second.stats, months);
 			sort_list.insert(std::make_pair(i->first, sum));
 		}
 	}
