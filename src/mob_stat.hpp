@@ -42,9 +42,11 @@ struct mob_node
 
 struct MobNode
 {
-  MobNode(): date(0) {}
-  time_t date;
-  std::list<mob_node> stats;
+	MobNode(): date(0) {}
+	MobNode(const time_t d) date(d) {}
+
+	time_t date;
+	std::list<mob_node> stats;
 };
 
 using mob_list_t = std::unordered_map<int, MobNode>;

@@ -197,7 +197,7 @@ void load()
 		}
 
 		// инит статы конкретного моба по месяцам
-		MobNode tmp_time;
+		MobNode tmp_time(kill_date);
 		for (pugi::xml_node xml_time = xml_mob.child("t"); xml_time;
 			xml_time = xml_time.next_sibling("t"))
 		{
