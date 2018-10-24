@@ -590,7 +590,7 @@ void GetCase(const char *name, const ESex sex, int caseNum, char *result)
 		else if (caseNum == 4)
 			strcat(result, "ем"); // Дрегвием
 		else if (caseNum == 5)
-			strcat(result, "е"); // Дрегвие
+			strcat(result, "и"); // Дрегвии
 		else
 			strcat(result, "й"); // Дрегвий
 	}
