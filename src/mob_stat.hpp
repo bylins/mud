@@ -39,14 +39,17 @@ struct mob_node
 	// стата по убийствам за данный месяц
 	KillStatType kills;
 };
-/// список мобов по внуму и месяцам
+
 struct MobNode
 {
   MobNode(): date(0) {}
   time_t date;
   std::list<mob_node> stats;
 };
-extern std::unordered_map<int, MobNode> mob_list;
+
+using mob_list_t = std::unordered_map<int, MobNode>;
+
+extern mob_list_t mob_list;
 
 /// лоад mob_stat.xml
 void load();

@@ -153,6 +153,8 @@ std::map<int, int> count_stats;
 std::map<int, int> kill_stats;
 /// список мобов по внуму и месяцам
 
+mob_list_t mob_list;
+
 /// month, year
 std::pair<int, int> get_date()
 {
@@ -186,7 +188,6 @@ void load()
 		xml_mob = xml_mob.next_sibling("mob"))
 	{
 		const int mob_vnum = Parse::attr_int(xml_mob, "vnum");
-		time_t kill_date;
 		if (real_mobile(mob_vnum) < 0)
 		{
 			snprintf(buf_, sizeof(buf_),
@@ -194,12 +195,7 @@ void load()
 			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
 		}
-		pugi::xml_attribute xml_date = xml_mob.attribute("date");
-/*		if (xml_date)
-		{
-			kill_date = static_cast<time_t>(xml_date.as_ullong(xml_date));
-		}
-*/
+
 		// инит статы конкретного моба по месяцам
 		MobNode tmp_time;
 		for (pugi::xml_node xml_time = xml_mob.child("t"); xml_time;
