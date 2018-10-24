@@ -153,6 +153,8 @@ std::map<int, int> count_stats;
 std::map<int, int> kill_stats;
 /// список мобов по внуму и месяцам
 
+const time_t MobNode::DEFAULT_DATE = 0;
+
 mob_list_t mob_list;
 
 /// month, year
@@ -194,6 +196,13 @@ void load()
 				"...bad mob attributes (vnum=%d)", mob_vnum);
 			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
+		}
+
+		time_t kill_date = MobNode::DEFAULT_DATE;
+		pugi::xml_attribute xml_date = xml_mob.attribute("date");
+		if (xml_date)
+		{
+			  kill_date = static_cast<time_t>(xml_date.as_ullong(kill_date));
 		}
 
 		// инит статы конкретного моба по месяцам

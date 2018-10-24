@@ -42,8 +42,10 @@ struct mob_node
 
 struct MobNode
 {
+	static const time_t DEFAULT_DATE;
+
 	MobNode(): date(0) {}
-	MobNode(const time_t d) date(d) {}
+	MobNode(const time_t d): date(d) {}
 
 	time_t date;
 	std::list<mob_node> stats;
