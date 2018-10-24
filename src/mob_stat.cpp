@@ -195,12 +195,18 @@ void load()
 		xml_mob = xml_mob.next_sibling("mob"))
 	{
 		const int mob_vnum = Parse::attr_int(xml_mob, "vnum");
+		time_t kill_date;
 		if (real_mobile(mob_vnum) < 0)
 		{
 			snprintf(buf_, sizeof(buf_),
 				"...bad mob attributes (vnum=%d)", mob_vnum);
 			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
+		}
+		pugi::xml_attribute xml_date = xml_mob.attribute("date");
+		if (xml_date)
+		{
+			kill_date = static_cast<time_t>(xml_date.as_ullong(xml_date));
 		}
 		// инит статы конкретного моба по месяцам
 		MobNode tmp_time;
@@ -257,6 +263,7 @@ void save()
 		pugi::xml_node mob_node = xml_mob_list_stat.append_child();
 		mob_node.set_name("mob");
 		mob_node.append_attribute("vnum") = i->first;
+		mob_node.append_attribute("date") = static_cast<unsigned long long>(i->second.date);
 		// стата по месяцам
 		for (auto k = i->second.stats.cbegin(), kend = i->second.stats.cend(); k != kend; ++k)
 		{
