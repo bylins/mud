@@ -5844,21 +5844,29 @@ void do_where(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_levels(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	int i;
+	char *ptr = &buf[0];
 
 	if (IS_NPC(ch))
 	{
 		send_to_char("Боги уже придумали ваш уровень.\r\n", ch);
 		return;
 	}
-	*buf = '\0';
+	*ptr = '\0';
 
-	sprintf(buf, "Уровень          Опыт            Макс на урв.\r\n");
+	*ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
 	for (i = 1; i < LVL_IMMORT; i++)
-		sprintf(buf + strlen(buf), "[%2d] %13s-%-13s %-13s\r\n", i, thousands_sep(level_exp(ch, i)).c_str(),
+	{	
+		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (ch->get_level() == i) ? CCICYN(ch, C_NRM) : "", i,
+			thousands_sep(level_exp(ch, i)).c_str(),
 			thousands_sep(level_exp(ch, i + 1) - 1).c_str(),
-			thousands_sep((int) (level_exp(ch, i + 1) - level_exp(ch, i)) / (10 + GET_REMORT(ch))).c_str());
+			thousands_sep((int) (level_exp(ch, i + 1) - level_exp(ch, i)) / (10 + GET_REMORT(ch))).c_str(),
+			(ch->get_level() == i) ? CCNRM(ch, C_NRM) : "");
+	}
 
-	sprintf(buf + strlen(buf), "[%2d] %13s               (БЕССМЕРТИЕ)\r\n", LVL_IMMORT, thousands_sep(level_exp(ch, LVL_IMMORT)).c_str());
+	ptr += sprintf(ptr, "%s[%2d] %13s               (БЕССМЕРТИЕ)%s\r\n",
+		(ch->get_level() >= LVL_IMMORT) ? CCICYN(ch, C_NRM) : "", LVL_IMMORT,
+		thousands_sep(level_exp(ch, LVL_IMMORT)).c_str(),
+		(ch->get_level() >= LVL_IMMORT) ? CCNRM(ch, C_NRM) : "");
 	page_string(ch->desc, buf, 1);
 }
 
