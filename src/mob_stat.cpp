@@ -152,7 +152,10 @@ const int HISTORY_SIZE = 6;
 std::map<int, int> count_stats;
 std::map<int, int> kill_stats;
 /// список мобов по внуму и месяцам
-std::unordered_map<int, std::list<mob_node>> mob_list;
+
+const time_t MobNode::DEFAULT_DATE = 0;
+
+mob_list_t mob_list;
 
 /// month, year
 std::pair<int, int> get_date()
@@ -179,7 +182,7 @@ void load()
     pugi::xml_node node_list = doc.child("mob_list");
     if (!node_list)
     {
-		snprintf(buf_, sizeof(buf_), "...<mob_list> read fail");
+		snprintf(buf_, sizeof(buf_), "...<mob_stat_new> read fail");
 		mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
     }
@@ -194,8 +197,16 @@ void load()
 			mudlog(buf_, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			continue;
 		}
+
+		time_t kill_date = MobNode::DEFAULT_DATE;
+		pugi::xml_attribute xml_date = xml_mob.attribute("date");
+		if (xml_date)
+		{
+			  kill_date = static_cast<time_t>(xml_date.as_ullong(kill_date));
+		}
+
 		// инит статы конкретного моба по месяцам
-		std::list<mob_node> tmp_time;
+		MobNode tmp_time(kill_date);
 		for (pugi::xml_node xml_time = xml_mob.child("t"); xml_time;
 			xml_time = xml_time.next_sibling("t"))
 		{
@@ -231,9 +242,9 @@ void load()
 					}
 				}
 			}
-			tmp_time.push_back(tmp_mob);
+			tmp_time.stats.push_back(tmp_mob);
 		}
-		mob_list.insert(std::make_pair(mob_vnum, tmp_time));
+		mob_list.emplace(mob_vnum, tmp_time);
 	}
 }
 
@@ -249,8 +260,9 @@ void save()
 		pugi::xml_node mob_node = xml_mob_list.append_child();
 		mob_node.set_name("mob");
 		mob_node.append_attribute("vnum") = i->first;
+		mob_node.append_attribute("date") = static_cast<unsigned long long>(i->second.date);
 		// стата по месяцам
-		for (auto k = i->second.cbegin(), kend = i->second.cend(); k != kend; ++k)
+		for (auto k = i->second.stats.cbegin(), kend = i->second.stats.cend(); k != kend; ++k)
 		{
 			pugi::xml_node time_node = mob_node.append_child();
 			time_node.set_name("t");
@@ -330,7 +342,20 @@ void update_mob_node(std::list<mob_node> &node_list, int members)
 		}
 	}
 }
+void last_kill_mob(CHAR_DATA *mob, std::string& result)
+{
+	auto i = mob_list.find(GET_MOB_VNUM(mob));
+	if (i != mob_list.end() && i->second.date != 0)
+	{
+		const auto killtime = i->second.date;
+		result = asctime(localtime(&killtime));
+	}
+	else
+	{
+		result = "";
+	}
 
+}
 void add_mob(CHAR_DATA *mob, int members)
 {
 	if (members < 0 || members > MAX_GROUP_SIZE)
@@ -343,9 +368,10 @@ void add_mob(CHAR_DATA *mob, int members)
 		return;
 	}
 	auto i = mob_list.find(GET_MOB_VNUM(mob));
-	if (i != mob_list.end() && !i->second.empty())
+	if (i != mob_list.end() && !i->second.stats.empty())
 	{
-		update_mob_node(i->second, members);
+		i->second.date = time(nullptr);
+		update_mob_node(i->second.stats, members);
 	}
 	else
 	{
@@ -354,9 +380,9 @@ void add_mob(CHAR_DATA *mob, int members)
 		node.month = date.first;
 		node.year = date.second;
 		node.kills.at(members) += 1;
-
-		std::list<mob_node> list_node;
-		list_node.push_back(node);
+		MobNode list_node;
+		list_node.stats.push_back(node);
+		list_node.date = time(nullptr);
 
 		mob_list.insert(std::make_pair(GET_MOB_VNUM(mob), list_node));
 	}
@@ -385,13 +411,13 @@ std::string print_mob_name(int mob_vnum)
 	return name;
 }
 
-mob_node sum_stat(const std::list<mob_node> &mob_stat, int months)
+mob_node sum_stat(const std::list<mob_node> &mob_list, int months)
 {
 	auto date = get_date();
 	const int min_month = (date.first + date.second * 12) - months;
 	struct mob_node tmp_stat;
 
-	for (auto i = mob_stat.rbegin(), iend = mob_stat.rend(); i != iend; ++i)
+	for (auto i = mob_list.rbegin(), iend = mob_list.rend(); i != iend; ++i)
 	{
 		if (months == 0 || min_month < (i->month + i->year * 12))
 		{
@@ -411,7 +437,7 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months)
 	{
 		if (i->first/100 == zone_vnum)
 		{
-			mob_node sum = sum_stat(i->second, months);
+			mob_node sum = sum_stat(i->second.stats, months);
 			sort_list.insert(std::make_pair(i->first, sum));
 		}
 	}
@@ -439,6 +465,6 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months)
 	send_to_char(out.str().c_str(), ch);
 }
 
-} // namespace mob_stat
+} // namespace mob_list
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

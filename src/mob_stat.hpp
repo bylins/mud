@@ -20,9 +20,11 @@ namespace mob_stat
 /// макс. кол-во участников в группе учитываемое в статистике
 const int MAX_GROUP_SIZE = 12;
 /// период сохранения mob_stat.xml (минуты)
-const int SAVE_PERIOD = 27;
+const int SAVE_PERIOD = 1;
 /// 0 - убиства мобом игроков, 1..MAX_GROUP_SIZE - убиства моба игроками
 typedef std::array<int, MAX_GROUP_SIZE + 1> KillStatType;
+
+
 
 struct mob_node
 {
@@ -38,8 +40,20 @@ struct mob_node
 	KillStatType kills;
 };
 
-/// список мобов по внуму и месяцам
-extern std::unordered_map<int, std::list<mob_node>> mob_list;
+struct MobNode
+{
+	static const time_t DEFAULT_DATE;
+
+	MobNode(): date(0) {}
+	MobNode(const time_t d): date(d) {}
+
+	time_t date;
+	std::list<mob_node> stats;
+};
+
+using mob_list_t = std::unordered_map<int, MobNode>;
+
+extern mob_list_t mob_list;
 
 /// лоад mob_stat.xml
 void load();
@@ -50,6 +64,8 @@ void show_stats(CHAR_DATA *ch);
 /// добавление статы по мобу
 /// \param members если = 0 - см. KillStatType
 void add_mob(CHAR_DATA *mob, int members);
+// когда последний раз убили моба
+void last_kill_mob(CHAR_DATA *mob, std::string& result);
 /// печать статистики имму по конкретной зоне (show mobstat zone_vnum)
 void show_zone(CHAR_DATA *ch, int zone_vnum, int months);
 /// очистка статы по всем мобам из зоны zone_vnum

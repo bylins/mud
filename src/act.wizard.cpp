@@ -2627,7 +2627,14 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	}
 	else
 	{
-		sprintf(buf, "Сейчас в мире : %d. \r\n", GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].number - (virt ? 1 : 0) : -1);
+		sprintf(buf, "Сейчас в мире : %d. ", GET_MOB_RNUM(k) >= 0 ? mob_index[GET_MOB_RNUM(k)].number - (virt ? 1 : 0) : -1);
+		send_to_char(buf, ch);
+		std::string stats;
+		mob_stat::last_kill_mob(k, stats);
+		if (stats.size() > 0)
+				sprintf(buf, "Последний раз убит: %s", stats.c_str());
+		else
+				sprintf(buf, "Последний раз убит: никогда\r\n");
 		send_to_char(buf, ch);
 	}
 	sprintf(buf,
