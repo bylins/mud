@@ -5853,7 +5853,7 @@ void do_levels(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 	*ptr = '\0';
 
-	*ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
+	ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
 	for (i = 1; i < LVL_IMMORT; i++)
 	{	
 		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (ch->get_level() == i) ? CCICYN(ch, C_NRM) : "", i,
