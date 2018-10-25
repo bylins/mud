@@ -352,7 +352,7 @@ void last_kill_mob(CHAR_DATA *mob, std::string& result)
 	}
 	else
 	{
-		result = "";
+		result = "никогда!\r\n";
 	}
 
 }

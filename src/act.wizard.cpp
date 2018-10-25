@@ -2631,10 +2631,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		send_to_char(buf, ch);
 		std::string stats;
 		mob_stat::last_kill_mob(k, stats);
-		if (stats.size() > 0)
-				sprintf(buf, "Последний раз убит: %s", stats.c_str());
-		else
-				sprintf(buf, "Последний раз убит: никогда\r\n");
+		sprintf(buf, "Последний раз убит: %s", stats.c_str());
 		send_to_char(buf, ch);
 	}
 	sprintf(buf,
