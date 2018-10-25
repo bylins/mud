@@ -342,7 +342,20 @@ void update_mob_node(std::list<mob_node> &node_list, int members)
 		}
 	}
 }
+void last_kill_mob(CHAR_DATA *mob, std::string& result)
+{
+	auto i = mob_list.find(GET_MOB_VNUM(mob));
+	if (i != mob_list.end() && i->second.date != 0)
+	{
+		const auto killtime = i->second.date;
+		result = asctime(localtime(&killtime));
+	}
+	else
+	{
+		result = "";
+	}
 
+}
 void add_mob(CHAR_DATA *mob, int members)
 {
 	if (members < 0 || members > MAX_GROUP_SIZE)
@@ -357,6 +370,7 @@ void add_mob(CHAR_DATA *mob, int members)
 	auto i = mob_list.find(GET_MOB_VNUM(mob));
 	if (i != mob_list.end() && !i->second.stats.empty())
 	{
+		i->second.date = time(nullptr);
 		update_mob_node(i->second.stats, members);
 	}
 	else
@@ -368,6 +382,7 @@ void add_mob(CHAR_DATA *mob, int members)
 		node.kills.at(members) += 1;
 		MobNode list_node;
 		list_node.stats.push_back(node);
+		list_node.date = time(nullptr);
 
 		mob_list.insert(std::make_pair(GET_MOB_VNUM(mob), list_node));
 	}
