@@ -1647,27 +1647,28 @@ int rev_dir[] =
 	3,
 	0,
 	1,
+	5,
+	4
+};
 
 #if defined(OASIS_MPROG)
-	// * Definitions necessary for MobProg support in OasisOLC
-	const char *mobprog_types[] = { "INFILE",
-		"ACT",
-		"SPEECH",
-		"RAND",
-		"FIGHT",
-		"DEATH",
-		"HITPRCNT",
-		"ENTRY",
-		"GREET",
-		"ALL_GREET",
-		"GIVE",
-		"BRIBE",
-		"\n"
-	};
-#endif
-
-	5, 4
+// * Definitions necessary for MobProg support in OasisOLC
+const char *mobprog_types[] = {
+	"INFILE",
+	"ACT",
+	"SPEECH",
+	"RAND",
+	"FIGHT",
+	"DEATH",
+	"HITPRCNT",
+	"ENTRY",
+	"GREET",
+	"ALL_GREET",
+	"GIVE",
+	"BRIBE",
+	"\n"
 };
+#endif
 
 
 int movement_loss[] =
