@@ -233,12 +233,12 @@ char *diag_obj_to_char(CHAR_DATA* i, OBJ_DATA* obj, int mode)
 	else if (percent >= 15)
 	{
 		percent = 2;
-		color = CCRED(i, C_NRM);
+		color = CCIRED(i, C_NRM);
 	}
 	else if (percent > 0)
 	{
 		percent = 1;
-		color = CCNRM(i, C_NRM);
+		color = CCRED(i, C_NRM);
 	}
 	else
 	{
