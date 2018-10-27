@@ -2096,7 +2096,7 @@ void levelup_events(CHAR_DATA *ch)
 		PRF_FLAGS(ch).set(PRF_OFFTOP_MODE);
 		ch->set_disposable_flag(DIS_OFFTOP_MESSAGE);
 		send_to_char(ch,
-			"%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').\r\n",
+			"%sТеперь вы можете пользоваться каналом оффтоп ('справка оффтоп').%s\r\n",
 			CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 	}
 	if (EXCHANGE_MIN_CHAR_LEV == GET_LEVEL(ch)
@@ -2106,7 +2106,7 @@ void levelup_events(CHAR_DATA *ch)
 		if (GET_REMORT(ch) <= 0)
 		{
 			send_to_char(ch,
-				"%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').\r\n",
+				"%sТеперь вы можете покупать и продавать вещи на базаре ('справка базар!').%s\r\n",
 				CCIGRN(ch, C_SPR), CCNRM(ch, C_SPR));
 		}
 		ch->set_disposable_flag(DIS_EXCHANGE_MESSAGE);
