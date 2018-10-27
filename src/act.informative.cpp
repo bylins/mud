@@ -102,7 +102,6 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show);
 char *diag_obj_to_char(CHAR_DATA * i, OBJ_DATA * obj, int mode);
 const char *diag_obj_timer(const OBJ_DATA * obj);
 char *diag_timer_to_char(const OBJ_DATA* obj);
-const char * print_god_or_player(int level);
 int get_pick_chance(int skill_pick, int lock_complexity);
 int thaco(int class_num, int level);
 
@@ -5576,10 +5575,15 @@ void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 			const int god_level = NAME_GOD(ch) > 1000 ? NAME_GOD(ch) - 1000 : NAME_GOD(ch);
 			sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(ch)));
 			*buf1 = UPPER(*buf1);
+
+			static const char *by_rank_god = "Богом";
+			static const char *by_rank_privileged = "привилегированным игроком";
+			const char * by_rank = god_level < LVL_IMMORT ?  by_rank_privileged : by_rank_god;
+
 			if (NAME_GOD(ch) < 1000)
-				sprintf(buf, "&RИмя запрещено %s %s&n\r\n", print_god_or_player(god_level), buf1);
+				sprintf(buf, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
 			else
-				sprintf(buf, "&WИмя одобрено %s %s&n\r\n", print_god_or_player(god_level), buf1);
+				sprintf(buf, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
 			send_to_char(buf, ch);
 		}
 		sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(ch));
