@@ -30,16 +30,15 @@
 #include <fstream>
 #include <sstream>
 
+#include "names.hpp"
+
+namespace NewNames {
+	static void save();
+	static void cache_add(CHAR_DATA * ch);
+}
+
 extern const char *genders[];
 extern void send_to_gods(char *text, bool demigod);
-
-static const char *god_text = "Богом";
-static const char *player_text = "привилегированным игроком";
-
-const char * print_god_or_player(int level)
-{
-	return level < LVL_IMMORT ? player_text : god_text;
-}
 
 // Check if name agree (name must be parsed)
 int was_agree_name(DESCRIPTOR_DATA * d)
@@ -195,7 +194,7 @@ typedef std::map<std::string, NewNamePtr> NewNameListType;
 static NewNameListType NewNameList;
 
 // сохранение списка в файл
-void NewNameSave()
+static void NewNames::save()
 {
 	std::ofstream file(NNAME_FILE);
 	if (!file.is_open())
@@ -210,9 +209,8 @@ void NewNameSave()
 	file.close();
 }
 
-// добавление имени в список неодобренных для показа иммам
-// флажок для более удобного лоада без перезаписи файла
-void NewNameAdd(CHAR_DATA * ch, bool save = 1)
+// добавить в список без сохранения на диск
+static void NewNames::cache_add(CHAR_DATA * ch)
 {
 	NewNamePtr name(new NewName);
 
@@ -226,24 +224,27 @@ void NewNameAdd(CHAR_DATA * ch, bool save = 1)
 	name->sex = GET_SEX(ch);
 
 	NewNameList[GET_NAME(ch)] = name;
-	if (save)
-	{
-		NewNameSave();
-	}
+}
+
+// добавление имени в список неодобренных для показа иммам
+void NewNames::add(CHAR_DATA * ch)
+{
+	cache_add(ch);
+	save();
 }
 
 // поиск/удаление персонажа из списка неодобренных имен
-void NewNameRemove(CHAR_DATA * ch)
+void NewNames::remove(CHAR_DATA * ch)
 {
 	NewNameListType::iterator it;
 	it = NewNameList.find(GET_NAME(ch));
 	if (it != NewNameList.end())
 		NewNameList.erase(it);
-	NewNameSave();
+	save();
 }
 
-// для удаление через команду имма
-void NewNameRemove(const std::string& name, CHAR_DATA * ch)
+// для удаления через команду имма
+void NewNames::remove(const std::string& name, CHAR_DATA * ch)
 {
 	NewNameListType::iterator it = NewNameList.find(name);
 	if (it != NewNameList.end())
@@ -254,11 +255,11 @@ void NewNameRemove(const std::string& name, CHAR_DATA * ch)
 	else
 		send_to_char("В списке нет такого имени.\r\n", ch);
 
-	NewNameSave();
+	save();
 }
 
 // лоад списка неодобренных имен
-void NewNameLoad()
+void NewNames::load()
 {
 	std::ifstream file(NNAME_FILE);
 	if (!file.is_open())
@@ -276,15 +277,15 @@ void NewNameLoad()
 		if (load_char(buffer.c_str(), tch) < 0)
 			continue;
 		// не сделетился...
-		NewNameAdd(tch, 0);
+		cache_add(tch);
 	}
 
 	file.close();
-	NewNameSave();
+	save();
 }
 
 // вывод списка неодобренных имму
-void NewNameShow(CHAR_DATA * ch)
+void NewNames::show(CHAR_DATA * ch)
 {
 	if (NewNameList.empty()) return;
 
@@ -302,18 +303,20 @@ void NewNameShow(CHAR_DATA * ch)
 	send_to_char(buffer.str(), ch);
 }
 
-int process_auto_agreement(DESCRIPTOR_DATA * d)
+// Name auto-agreement
+int NewNames::auto_authorize(DESCRIPTOR_DATA * d)
 {
 	// Check for name ...
 	if (!was_agree_name(d))
-		return 0;
-	else if (!was_disagree_name(d))
-		return 1;
+		return AUTO_ALLOW;
+	
+	if (!was_disagree_name(d))
+		return AUTO_BAN;
 
-	return 2;
+	return NO_DECISION;
 }
 
-void rm_disagree_name(CHAR_DATA * d)
+static void rm_disagree_name(CHAR_DATA * d)
 {
 	FILE *fin;
 	FILE *fout;
@@ -351,7 +354,7 @@ void rm_disagree_name(CHAR_DATA * d)
 
 }
 
-void add_agree_name(CHAR_DATA * d, const char *immname, int immlev)
+static void add_agree_name(CHAR_DATA * d, const char *immname, int immlev)
 {
 	FILE *fl;
 	if (!(fl = fopen(ANAME_FILE, "a")))
@@ -366,7 +369,7 @@ void add_agree_name(CHAR_DATA * d, const char *immname, int immlev)
 	return;
 }
 
-void add_disagree_name(CHAR_DATA * d, const char *immname, int immlev)
+static void add_disagree_name(CHAR_DATA * d, const char *immname, int immlev)
 {
 	FILE *fl;
 	if (!(fl = fopen(DNAME_FILE, "a")))
@@ -380,12 +383,12 @@ void add_disagree_name(CHAR_DATA * d, const char *immname, int immlev)
 	return;
 }
 
-void disagree_name(CHAR_DATA * d, const char *immname, int immlev)
+static void disagree_name(CHAR_DATA * d, const char *immname, int immlev)
 {
 	// Clean record from agreed if present ...
 	rm_agree_name(d);
 	rm_disagree_name(d);
-	NewNameRemove(d);
+	NewNames::remove(d);
 	// Add record to disagreed if not present ...
 	add_disagree_name(d, immname, immlev);
 }
@@ -395,14 +398,14 @@ void agree_name(CHAR_DATA * d, const char *immname, int immlev)
 	// Clean record from disgreed if present ...
 	rm_agree_name(d);
 	rm_disagree_name(d);
-	NewNameRemove(d);
+	NewNames::remove(d);
 	// Add record to agreed if not present ...
 	add_agree_name(d, immname, immlev);
 }
 
 enum { NAME_AGREE, NAME_DISAGREE, NAME_DELETE };
 
-void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
+static void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 {
 	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
 
@@ -433,25 +436,7 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		//send_to_char("Имя одобрено!\r\n", ch);
 		send_to_char(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
-		switch (GET_SEX(ch))
-		{
-		case ESex::SEX_NEUTRAL:
-			sprintf(buf, "&c%s одобрило имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-			break;
-
-		case ESex::SEX_MALE:
-			sprintf(buf, "&c%s одобрил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-			break;
-
-		case ESex::SEX_FEMALE:
-			sprintf(buf, "&c%s одобрила имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-			break;
-
-		case ESex::SEX_POLY:
-			sprintf(buf, "&c%s одобрили имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-			break;
-		}
-
+		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
 		// В этом теперь нет смысла
 		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
@@ -464,26 +449,7 @@ void go_name(CHAR_DATA* ch, CHAR_DATA* vict, int action)
 		//send_to_char("Имя запрещено!\r\n", ch);
 		send_to_char(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);
-
-		switch (GET_SEX(ch))
-		{
-		case ESex::SEX_NEUTRAL:
-			sprintf(buf, "&c%s запретило имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-			break;
-
-		case ESex::SEX_MALE:
-			sprintf(buf, "&c%s запретил имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-			break;
-
-		case ESex::SEX_FEMALE:
-			sprintf(buf, "&c%s запретила имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-			break;
-
-		case ESex::SEX_POLY:
-			sprintf(buf, "&c%s запретили имя игрока %s.&n\r\n", GET_NAME(ch), GET_NAME(vict));
-			break;
-		}
-
+		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
 		send_to_gods(buf, true);
 		//mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 
@@ -505,7 +471,7 @@ void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (name.empty())
 	{
 		if (!NewNameList.empty())
-			NewNameShow(ch);
+			NewNames::show(ch);
 		else
 			send_to_char(MORTAL_DO_TITLE_FORMAT, ch);
 		return;
@@ -529,7 +495,7 @@ void do_name(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	name_convert(name);
 	if (action == NAME_DELETE)
 	{
-		NewNameRemove(name, ch);
+		NewNames::remove(name, ch);
 		return;
 	}
 

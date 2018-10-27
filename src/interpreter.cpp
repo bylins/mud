@@ -40,6 +40,7 @@
 #include "boards.h"
 #include "top.h"
 #include "title.hpp"
+#include "names.hpp"
 #include "password.hpp"
 #include "privilege.hpp"
 #include "depot.hpp"
@@ -142,10 +143,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg);
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
 int find_social(char *name);
 void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
-extern int process_auto_agreement(DESCRIPTOR_DATA * d);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
-extern void NewNameShow(CHAR_DATA * ch);
-extern void NewNameAdd(CHAR_DATA * ch, bool save = 1);
 extern void check_max_hp(CHAR_DATA *ch);
 // local functions
 int perform_dupe_check(DESCRIPTOR_DATA * d);
@@ -247,7 +245,6 @@ void do_last(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mode(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mark(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_makefood(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_name(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_disarm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_chopoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_deviate(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -2951,7 +2948,7 @@ void DoAfterEmailConfirm(DESCRIPTOR_DATA *d)
 				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
 				GET_PAD(d->character, 5), GET_EMAIL(d->character),
 				genders[(int)GET_SEX(d->character)], GET_NAME(d->character));
-		NewNameAdd(d->character.get());
+		NewNames::add(d->character.get());
 	}
 
 	SEND_TO_Q(motd, d);
@@ -3261,17 +3258,16 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 				return;
 			}
 
-			// Name auto-agreement by Alez see names.cpp //
-			switch (process_auto_agreement(d))
+			switch (NewNames::auto_authorize(d))
 			{
-			case 0:	// Auto - agree
+			case NewNames::AUTO_ALLOW:
 				sprintf(buf, "Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 						GET_PAD(d->character, 1));
 				SEND_TO_Q(buf, d);
 				STATE(d) = CON_NEWPASSWD;
 				return;
 
-			case 1:	// Auto -disagree
+			case NewNames::AUTO_BAN:
 				STATE(d) = CON_CLOSE;
 				return;
 
@@ -3371,9 +3367,9 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 
-		switch (process_auto_agreement(d))
+		switch (NewNames::auto_authorize(d))
 		{
-		case 0:	// Auto - agree
+		case NewNames::AUTO_ALLOW:
 			sprintf(buf,
 					"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
 					GET_PAD(d->character, 1));
@@ -3381,7 +3377,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			STATE(d) = CON_NEWPASSWD;
 			return;
 
-		case 1:	// Auto -disagree
+		case NewNames::AUTO_BAN:
 			d->character.reset();
 			SEND_TO_Q("Выберите другое имя : ", d);
 			return;
@@ -4619,7 +4615,7 @@ void name_convert(std::string& text)
 void single_god_invoice(CHAR_DATA* ch)
 {
 	TitleSystem::show_title_list(ch);
-	NewNameShow(ch);
+	NewNames::show(ch);
 }
 
 // * Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут

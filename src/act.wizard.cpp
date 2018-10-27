@@ -37,6 +37,7 @@
 #include "ban.hpp"
 #include "description.h"
 #include "title.hpp"
+#include "names.hpp"
 #include "password.hpp"
 #include "privilege.hpp"
 #include "depot.hpp"
@@ -107,9 +108,6 @@ extern unsigned long int number_of_bytes_written;
 // for chars
 extern const char *pc_class_types[];
 extern struct spell_info_type spell_info[];
-// for name auto-agree
-extern void agree_name(CHAR_DATA * d, const char *immname, int immlev);
-extern void disagree_name(CHAR_DATA * d, const char *immname, int immlev);
 extern int check_dupes_host(DESCRIPTOR_DATA * d, bool autocheck = 0);
 extern bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect);	// to avoid inclusion of utils.h
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -130,9 +128,6 @@ extern bool is_empty(zone_rnum zone_nr);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);
 void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter = NULL);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
-extern void NewNameShow(CHAR_DATA * ch);
-extern void NewNameRemove(CHAR_DATA * ch);
-extern void NewNameRemove(const std::string& name, CHAR_DATA * ch);
 extern void print_rune_stats(CHAR_DATA *ch);
 extern int real_zone(int number);
 extern void reset_affects(CHAR_DATA *ch);
@@ -179,7 +174,6 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone);
 void do_show(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_set(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_name(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 //
 void do_godtest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_sdemigod(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -6143,7 +6137,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 				return (0);
 			}
 			// выносим из листа неодобренных имен, если есть
-			NewNameRemove(vict);
+			NewNames::remove(vict);
 
 			ptnum = get_ptable_by_name(GET_NAME(vict));
 			if (ptnum < 0)

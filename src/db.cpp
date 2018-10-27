@@ -64,6 +64,7 @@
 #include "stuff.hpp"
 #include "time_utils.hpp"
 #include "title.hpp"
+#include "names.hpp"
 #include "top.h"
 #include "class.hpp"
 #include <boost/algorithm/string.hpp>
@@ -228,8 +229,6 @@ void do_start(CHAR_DATA * ch, int newbie);
 extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
-extern void NewNameRemove(CHAR_DATA * ch);
-extern void NewNameLoad();
 extern char *fread_action(FILE * fl, int nr);
 
 //polud
@@ -2694,7 +2693,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading new_name list");
 	log("Load new_name list");
-	NewNameLoad();
+	NewNames::load();
 
 	boot_profiler.next_step("Loading global UID timer");
 	log("Load global uid counter");
@@ -6092,7 +6091,7 @@ void delete_char(const char *name)
 	if (id >= 0)
 	{
 		PLR_FLAGS(st).set(PLR_DELETED);
-		NewNameRemove(st);
+		NewNames::remove(st);
 		Clan::remove_from_clan(GET_UNIQUE(st));
 		st->save_char();
 
