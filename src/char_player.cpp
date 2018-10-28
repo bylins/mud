@@ -252,13 +252,14 @@ void Player::add_hryvn(int value)
 	if ((this->get_hryvn() + value) > 1200)
 	{
 		value = 1200 - this->get_hryvn();
-		sprintf(buf2, "Вы получили только %ld %s так как в вашу копилку больше не лезет...\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
+		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
+			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
 	else
 	{
-		sprintf(buf2, "Вы получили %ld %s.\r\n", static_cast<long>(value), desc_count(value, WHAT_TORCu));
+		send_to_char(this, "Вы получили %ld %s.\r\n", 
+			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
-	send_to_char(this, buf2);
 	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
 	this->hryvn += value;
 }

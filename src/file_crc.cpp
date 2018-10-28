@@ -20,6 +20,7 @@
 bool need_warn = true;
 namespace FileCRC
 {
+void add_message(const char *text, ...) __attribute__((format(printf,1,2)));
 
 class PlayerCRC
 {

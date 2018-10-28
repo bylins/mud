@@ -39,6 +39,7 @@ extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
 namespace Parcel
 {
+void parcel_log(const char *format, ...) __attribute__((format(printf,1,2)));
 
 const int KEEP_TIMER = 60 * 24 * 3; // 3 суток ждет на почте (в минутах)
 const int SEND_COST = 100; // в любом случае снимается за посылку шмотки
@@ -425,7 +426,7 @@ void send(CHAR_DATA *ch, CHAR_DATA *mailman, long vict_uid, char *arg)
 			send_cost_buffer, desc_count(send_cost_buffer, WHAT_MONEYa),
 			send_reserved_buffer, desc_count(send_reserved_buffer, WHAT_MONEYa));
 		send_buffer += buf;
-		send_to_char(ch, send_buffer.c_str());
+		send_to_char(send_buffer.c_str(), ch);
 
 		send_buffer = "";
 		send_cost_buffer = 0;

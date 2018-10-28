@@ -781,7 +781,9 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 
 		if (strlen(str) + d->writer->length() + 3 > d->max_str)  	// \r\n\0 //
 		{
-			send_to_char(d->character.get(), "Слишком длинное послание > %d симв. Последняя строка проигнорирована.\r\n", d->max_str - 3);
+			send_to_char(d->character.get(),
+				"Слишком длинное послание > %lu симв. Последняя строка проигнорирована.\r\n",
+				d->max_str - 3);
 			action = TRUE;
 		}
 		else
@@ -1132,7 +1134,7 @@ void do_featset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
 			feat_info[feat].name, value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, TRUE);
-	imm_log(buf2);
+	imm_log("%s", buf2);
 	if (feat >= 0 && feat < MAX_FEATS)
 	{
 		if (value)

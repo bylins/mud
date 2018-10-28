@@ -1046,7 +1046,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
 			set_wait(ch, 3, FALSE);
 		}
-		send_to_char(ch, buf);
+		send_to_char(buf, ch);
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);
 	}
 

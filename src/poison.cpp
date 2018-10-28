@@ -417,7 +417,7 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 			}
 			else
 			{
-				send_to_char(ch, "Вы отравили %s.%s\r\n", PERS(ch, vict, 3));
+				send_to_char(ch, "Вы отравили %s.\r\n", PERS(ch, vict, 3));
 			}
 			send_to_char(vict, "%s%s отравил%s вас.%s\r\n",
 					CCIRED(ch, C_NRM), PERS(ch, vict, 0),

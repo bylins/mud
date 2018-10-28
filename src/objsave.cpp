@@ -2963,10 +2963,11 @@ void Crash_rent_deadline(CHAR_DATA * ch, CHAR_DATA * recep, long cost)
 
 	act("$n сказал$g вам :\r\n", FALSE, recep, 0, ch, TO_VICT);
 
-	int depot_cost = Depot::get_total_cost_per_day(ch);
+	long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 	if (depot_cost)
 	{
-		send_to_char(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n", depot_cost, desc_count(depot_cost, WHAT_MONEYu));
+		send_to_char(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n",
+			depot_cost, desc_count(depot_cost, WHAT_MONEYu));
 		cost += depot_cost;
 	}
 

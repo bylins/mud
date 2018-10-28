@@ -113,7 +113,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 int touch(const char *path);
-void pers_log(CHAR_DATA *ch, const char *format, ...);
+void pers_log(CHAR_DATA *ch, const char *format, ...) __attribute__((format(printf,2,3)));
 int number(int from, int to);
 int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);

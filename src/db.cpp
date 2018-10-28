@@ -5612,7 +5612,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		send_to_char(ch,
 			"Вы должны подтвердить свои заслуги, пожертвовав Богам достаточное количество гривен.\r\n"
-			"%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str(), ch);
+			"%s\r\n", Remort::WHERE_TO_REMORT_STR.c_str());
 		return;
 	}
 	if (RENTABLE(ch))

@@ -9,8 +9,6 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-// комментарий на русском в надежде починить кодировки bitbucket
-
 #ifndef _DISKIO_H_
 #define _DISKIO_H_
 
@@ -35,6 +33,7 @@
 
 #include <stdio.h>
 #include <string>
+#include "sysdep.h"
 
 namespace DiskIo
 {
@@ -54,7 +53,7 @@ void tag_argument(char *argument, char *tag);
 int fbgetline(FBFILE * fbfl, char *line);
 FBFILE *fbopen(char *fname, int mode);
 size_t fbclose(FBFILE * fbfl);
-int fbprintf(FBFILE * fbfl, const char *format, ...);
+int fbprintf(FBFILE * fbfl, const char *format, ...) __attribute__((format(printf,2,3)));
 void fbrewind(FBFILE * fbfl);
 int fbcat(char *fromfilename, FBFILE * tofile);
 char *fbgetstring(FBFILE * fl);

@@ -836,7 +836,7 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 			sprintf(buf, "Change const glory +%d by %s", amount, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
@@ -855,7 +855,7 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
 			mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 			sprintf(buf, "Change const glory -%d by %s", amount, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
@@ -869,7 +869,7 @@ void do_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				// запись в карму, логи
 				sprintf(buf, "(GC) %s reset const glory to %s.", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-				imm_log(buf);
+				imm_log("%s", buf);
 				sprintf(buf, "Reset stats and const glory by %s", GET_NAME(ch));
 				add_karma(vict, buf, reason);
 				GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);

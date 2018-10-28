@@ -730,7 +730,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 void spend_glory_menu(CHAR_DATA *ch)
 {
 	std::ostringstream out;
-	out << "\r\n              -      +\r\n"
+	out << "\r\n                      -        +\r\n"
 	<< "  Сила     : ("
 	<< CCIGRN(ch, C_SPR) << "А" << CCNRM(ch, C_SPR)
 	<< ") " << ch->desc->glory->olc_str << " ("
@@ -1169,7 +1169,7 @@ void transfer_stats(CHAR_DATA *ch, CHAR_DATA *god, std::string name, char *reaso
 			"%s: перекинуто (%s -> %s) славы: %d, статов: %d",
 			GET_NAME(god), GET_NAME(ch), GET_NAME(vict), it->second->free_glory,
 			vict_it->second->spend_glory - was_stats);
-	imm_log(buf);
+	imm_log("%s", buf);
 	mudlog(buf, DEF, LVL_IMMORT, SYSLOG, TRUE);
 	add_karma(ch, buf, reason);
 	GloryMisc::add_log(GloryMisc::TRANSFER_GLORY, 0, buf, std::string(reason), vict.get());
@@ -1286,12 +1286,12 @@ void print_glory_top(CHAR_DATA *ch)
 		t_it->second->name[0] = UPPER(t_it->second->name[0]);
 		out << class_format % t_it->second->name % (t_it->second->free_glory + t_it->second->spend_glory * 1000);
 	}
-	send_to_char(ch, out.str().c_str());
+	send_to_char(out.str().c_str(), ch);
 
 	if (print_hide)
 	{
 		hide << "\r\n";
-		send_to_char(ch, hide.str().c_str());
+		send_to_char(hide.str().c_str(), ch);
 	}
 }
 
