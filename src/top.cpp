@@ -138,7 +138,7 @@ void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (find_me != TopPlayer::TopList[class_num].end())
 				out << "Ваш текущий рейтинг: " << count << "\r\n";
 
-			send_to_char(ch, out.str().c_str());
+			send_to_char(out.str().c_str(), ch);
 		}
 		else   // все профы
 		{
@@ -147,7 +147,7 @@ void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			for (TopListType::const_iterator it = TopPlayer::TopList.begin(); it != TopPlayer::TopList.end(); ++it, ++i)
 				if (!it->empty())
 					out << all_format % it->begin()->name % it->begin()->remort % desc_count(it->begin()->remort, WHAT_REMORT) % class_name[i];
-			send_to_char(ch, out.str().c_str());
+			send_to_char(out.str().c_str(), ch);
 		}
 	}
 	else
@@ -167,7 +167,7 @@ void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		out << std::setw(15) << "прославленные\r\n";
 		out << "\r\n";
-		send_to_char(ch, out.str().c_str());
+		send_to_char(out.str().c_str(), ch);
 		return;
 	}
 }

@@ -526,7 +526,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "Mute OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Mute OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -547,7 +547,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -593,7 +593,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "Dumb OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Dumb OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -615,7 +615,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "%s removed FROM hell by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Removed FROM hell by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -658,7 +658,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "%s removed FROM name room by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Removed FROM name room by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -699,7 +699,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "%s registered by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Registered by %s", GET_NAME(ch));
 			RegisterSystem::add(vict, buf, reason);
@@ -740,7 +740,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "%s unregistered by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Unregistered by %s", GET_NAME(ch));
 			RegisterSystem::remove(vict);
@@ -799,7 +799,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "Mute ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Mute ON (%ldh) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -818,7 +818,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "Freeze ON for %s by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 			sprintf(buf, "Freeze ON (%ldh) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
@@ -842,7 +842,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "Dumb ON for %s by %s(%ldm).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 
 			sprintf(buf, "Dumb ON (%ldm) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
@@ -869,7 +869,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "%s moved TO hell by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 			sprintf(buf, "Moved TO hell (%ldh) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
@@ -894,7 +894,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "%s removed to nameroom by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 			sprintf(buf, "Removed TO nameroom (%ldh) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
@@ -921,7 +921,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 
 			sprintf(buf, "%s unregistred by %s(%ldh).", GET_NAME(vict), GET_NAME(ch), times);
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-			imm_log(buf);
+			imm_log("%s", buf);
 			sprintf(buf, "Unregistered (%ldh) by %s", times, GET_NAME(ch));
 			add_karma(vict, buf, reason);
 
@@ -1301,7 +1301,7 @@ void do_setall(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// На всякий случай разрешаем только одну команду такого типа - либо setall, либо inspect
 	if (it_inspect != inspect_list.end() && it != setall_inspect_list.end())
 	{
-		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n", argument);
+		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n");
 		return;
 	}
 
@@ -2050,7 +2050,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		strcpy(buf2, "None");
 	}
 
-	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], ID: [%d]\r\n",
+	send_to_char(ch, "VNum: [%s%5d%s], RNum: [%5d], UID: [%d], ID: [%ld]\r\n",
 		CCGRN(ch, C_NRM), vnum, CCNRM(ch, C_NRM), GET_OBJ_RNUM(j), GET_OBJ_UID(j), j->get_id());
 
 	send_to_char(ch, "Расчет критерия: %f, мортов: (%f) \r\n", j->show_koef_obj(), j->show_mort_req());
@@ -3796,7 +3796,7 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	// Навсякий случай разрешаем только одну команду такого типа, либо сетол, либо инспект
 	if (it != inspect_list.end() && it_setall != setall_inspect_list.end())
 	{
-		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n", argument);
+		send_to_char(ch, "Обрабатывается другой запрос, подождите...\r\n");
 		return;
 	}
 	argument = two_arguments(argument, buf, buf2);
@@ -7648,7 +7648,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (!out.str().empty())
 	{
-		send_to_char(ch, "Всего найдено предметов: %d\r\n\r\n", tmp_list.size());
+		send_to_char(ch, "Всего найдено предметов: %lu\r\n\r\n", tmp_list.size());
 		page_string(ch->desc, out.str());
 	}
 	else

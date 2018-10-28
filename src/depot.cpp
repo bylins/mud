@@ -1188,8 +1188,7 @@ bool put_depot(CHAR_DATA *ch, const OBJ_DATA::shared_ptr& obj)
 
 	if (!ch->get_bank() && !ch->get_gold())
 	{
-		send_to_char(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n",
-			obj->get_PName(5).c_str());
+		send_to_char(ch, "У вас ведь совсем нет денег, чем вы собираетесь расплачиваться за хранение вещей?\r\n");
 		return 0;
 	}
 
@@ -1492,7 +1491,7 @@ void enter_char(CHAR_DATA *ch)
 		// снимаем бабло, если что-то было потрачено на ренту
 		if (it->second.money_spend > 0)
 		{
-			send_to_char(ch, "%sХранилище: за время вашего отсутствия удержано %d %s.%s\r\n\r\n",
+			send_to_char(ch, "%sХранилище: за время вашего отсутствия удержано %ld %s.%s\r\n\r\n",
 					CCWHT(ch, C_NRM), it->second.money_spend,
 					desc_count(it->second.money_spend, WHAT_MONEYa), CCNRM(ch, C_NRM));
 
@@ -1506,7 +1505,7 @@ void enter_char(CHAR_DATA *ch)
 				it->second.reset();
 				// файл убьется позже при ребуте на пустом хране,
 				// даже если не будет никаких перезаписей по ходу игры
-				send_to_char(ch, "%sХранилище: у вас нехватило денег на постой.%s\r\n\r\n",
+				send_to_char(ch, "%sХранилище: у вас не хватило денег на постой.%s\r\n\r\n",
 						CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 			}
 		}
@@ -1613,7 +1612,7 @@ void reload_char(long uid, CHAR_DATA *ch)
 
 	snprintf(buf, MAX_STRING_LENGTH, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
 	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-	imm_log(buf);
+	imm_log("%s", buf);
 }
 
 /**

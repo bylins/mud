@@ -694,9 +694,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
             int SplFound = find_and_remove_controlled_room_affect(ch);
             if (SplFound)
             {
-               buf1[0] = '\0';
-               sprintf(buf1, "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n", spell_info[SplFound].name, SpINFO.name);
-               send_to_char(ch, buf1);
+               send_to_char(ch, "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n", spell_info[SplFound].name, SpINFO.name);
             }
         }
 		else

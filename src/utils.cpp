@@ -2179,7 +2179,7 @@ void print(CHAR_DATA *ch)
 	{
 		send_to_char(ch,
 				"Money drop stats:\r\n"
-				"Total zones: %d\r\n"
+				"Total zones: %lu\r\n"
 				"  vnum - money\r\n"
 				"================\r\n", tmp_list.size());
 	}
@@ -2282,7 +2282,7 @@ void print_gain(CHAR_DATA *ch)
 	{
 		send_to_char(ch,
 				"Gain exp stats:\r\n"
-				"Total zones: %d\r\n"
+				"Total zones: %lu\r\n"
 				"  vnum - exp\r\n"
 				"================\r\n", tmp_list.size());
 	}

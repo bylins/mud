@@ -797,7 +797,7 @@ void Clan::HconShow(CHAR_DATA * ch)
 	}
 
 	buffer << "Total day tax: " << total_day_tax << "\r\n";
-	send_to_char(ch, buffer.str().c_str());
+	send_to_char(buffer.str().c_str(), ch);
 }
 
 void Clan::save_clan_file(const std::string &filename) const
@@ -3395,7 +3395,7 @@ bool Clan::PutChest(CHAR_DATA * ch, OBJ_DATA * obj, OBJ_DATA * chest)
 			obj_from_char(obj);
 			extract_obj(obj);
 			ch->add_gold(gold);
-			send_to_char(ch, "Вам это не положено! Вы вновь обрели %d %s.\r\n",
+			send_to_char(ch, "Вам это не положено! Вы вновь обрели %ld %s.\r\n",
 				gold, desc_count(gold, WHAT_MONEYu));
 			return 1;
 		}
@@ -6297,19 +6297,19 @@ long do_gold_tax(CHAR_DATA *ch, long gold)
 			|| tax % 10 == 0)
 		{
 			send_to_char(ch,
-				"%d %s было немедленно отправлено в казну вашей дружины.\r\n",
+				"%ld %s было немедленно отправлено в казну вашей дружины.\r\n",
 				tax, desc_count(tax, WHAT_MONEYa));
 		}
 		else if (tax % 10 == 1)
 		{
 			send_to_char(ch,
-				"%d %s была немедленно отправлена в казну вашей дружины.\r\n",
+				"%ld %s была немедленно отправлена в казну вашей дружины.\r\n",
 				tax, desc_count(tax, WHAT_MONEYa));
 		}
 		else
 		{
 			send_to_char(ch,
-				"%d %s были немедленно отправлены в казну вашей дружины.\r\n",
+				"%ld %s были немедленно отправлены в казну вашей дружины.\r\n",
 				tax, desc_count(tax, WHAT_MONEYa));
 		}
 		// 1 куну за транзакцию, если сумма налога позволяет

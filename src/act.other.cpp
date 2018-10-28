@@ -169,11 +169,11 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 		send_to_char("До свидания, странник... Мы ждем тебя снова!\r\n", ch);
 
-		int depot_cost = Depot::get_total_cost_per_day(ch);
+		long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 		if (depot_cost)
 		{
 			send_to_char(ch, "За вещи в хранилище придется заплатить %ld %s в день.\r\n", depot_cost, desc_count(depot_cost, WHAT_MONEYu));
-			int deadline = ((ch->get_gold() + ch->get_bank()) / depot_cost);
+			long deadline = ((ch->get_gold() + ch->get_bank()) / depot_cost);
 			send_to_char(ch, "Твоих денег хватит на %ld %s.\r\n", deadline, desc_count(deadline, WHAT_DAY));
 		}
 		Depot::exit_char(ch);
@@ -1880,7 +1880,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		}
 		else
 		{
-			send_to_char(ch, "Некорретное зачарование, не проставлены слоты надевания.\r\n", buf2);
+			send_to_char(ch, "Некорретное зачарование, не проставлены слоты надевания.\r\n");
 		}
 	}
 }
@@ -2428,7 +2428,7 @@ void setNotifyEchange(CHAR_DATA* ch, char *argument)
 	skip_spaces(&argument);
 	if (!*argument)
 	{
-		send_to_char(ch, "Формат команды: режим уведомления <минимальная цена, число от 0 до %ld>.\r\n", 0x7fffffff);
+		send_to_char(ch, "Формат команды: режим уведомления <минимальная цена, число от 0 до %d>.\r\n", 0x7fffffff);
 		return;
 	}
 	long size = atol(argument);
@@ -2447,7 +2447,7 @@ void setNotifyEchange(CHAR_DATA* ch, char *argument)
 	}
 	else
 	{
-		send_to_char(ch, "Укажите стоимость лота от 0 до %ld\r\n", 0x7fffffff);
+		send_to_char(ch, "Укажите стоимость лота от 0 до %d\r\n", 0x7fffffff);
 	}
 
 }

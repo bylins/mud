@@ -3230,7 +3230,7 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(ch, "Снимаю %d аффектов\r\n", count);
 
 		const auto remove_count = vict->remove_random_affects(count);
-		send_to_char(ch, "Снято %d аффектов\r\n", remove_count);
+		send_to_char(ch, "Снято %ld аффектов\r\n", remove_count);
 
 		//
 		need = TRUE;
