@@ -14,10 +14,10 @@ extern FILE *logfile;
 void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void vlog(const char* format, va_list args) __attribute__((format(printf, 1, 0)));
 void vlog(const EOutputStream steam, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
-void shop_log(const char *format, ...);
-void olc_log(const char *format, ...);
-void imm_log(const char *format, ...);
-void err_log(const char *format, ...);
+void shop_log(const char *format, ...) __attribute__((format(printf,1,2)));
+void olc_log(const char *format, ...) __attribute__((format(printf,1,2)));
+void imm_log(const char *format, ...) __attribute__((format(printf,1,2)));
+void err_log(const char *format, ...) __attribute__((format(printf,1,2)));
 void ip_log(const char *ip);
 
 // defines for mudlog() //

@@ -52,7 +52,7 @@ int main_stats_count(CHAR_DATA *ch);
 
 void show_stats(CHAR_DATA *ch);
 
-void transfer_log(const char *format, ...);
+void transfer_log(const char *format, ...) __attribute__((format(printf,1,2)));
 void add_total_spent(int amount);
 void apply_modifiers(CHAR_DATA *ch);
 

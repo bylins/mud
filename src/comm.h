@@ -29,7 +29,7 @@ extern DESCRIPTOR_DATA *descriptor_list;
 // comm.cpp
 void send_to_all(const char *messg);
 void send_to_char(const char *messg, const CHAR_DATA* ch);
-void send_to_char(const CHAR_DATA* ch, const char *messg, ...);
+void send_to_char(const CHAR_DATA* ch, const char *messg, ...) __attribute__((format(printf,2,3)));
 void send_to_char(const std::string & buffer, const CHAR_DATA* ch);
 void send_stat_char(const CHAR_DATA* ch);
 void send_to_room(const char *messg, room_rnum room, int to_awake);
