@@ -465,6 +465,6 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months)
 	send_to_char(out.str().c_str(), ch);
 }
 
-} // namespace mob_list
+} // namespace mob_stat
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
