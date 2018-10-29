@@ -271,7 +271,7 @@ void verify_set(set_node &set)
 		{
 			err_log(
 				"сет #%zu: некорректные номер или значение умения (num=%d, val=%d, activ=%d)",
-				num, i->second.skill.first, i->first);
+				num, i->second.skill.first, i->second.skill.second, i->first);
 			set.enabled = false;
 		}
 		if (i->second.prof.none())
