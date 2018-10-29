@@ -317,7 +317,7 @@ void delete_purged_entry(long uid)
 	}
 }
 
-void show_purged_message(CHAR_DATA *ch)
+bool show_purged_message(CHAR_DATA *ch)
 {
 	PurgedListType::iterator it = purged_list.find(GET_UNIQUE(ch));
 	if (it != purged_list.end())
@@ -327,13 +327,13 @@ void show_purged_message(CHAR_DATA *ch)
 		if (name.empty())
 		{
 			log("Хранилище: show_purged_message пустое имя файла %d.", GET_UNIQUE(ch));
-			return;
+			return true;
 		}
 		std::ifstream file(name.c_str(), std::ios::binary);
 		if (!file.is_open())
 		{
 			log("Хранилище: error open file: %s! (%s %s %d)", name.c_str(), __FILE__, __func__, __LINE__);
-			return;
+			return true;
 		}
 		std::ostringstream out;
 		out << "\r\n" << file.rdbuf();
@@ -341,7 +341,10 @@ void show_purged_message(CHAR_DATA *ch)
 		remove(name.c_str());
 		purged_list.erase(it);
 		need_save_purged_list = true;
+		return true;
 	}
+	
+	return false;
 }
 
 void clear_old_purged_entry()

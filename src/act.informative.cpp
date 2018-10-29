@@ -88,7 +88,6 @@ extern im_type *imtypes;
 extern int top_imtypes;
 extern void show_code_date(CHAR_DATA *ch);
 extern int nameserver_is_slow; //config.cpp
-extern void login_change_invoice(CHAR_DATA *ch);
 extern std::vector<City> cities;
 // extern functions
 long find_class_bitvector(char arg);
@@ -190,7 +189,8 @@ const char *Locks[4][2] =
 
 void do_check(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-    login_change_invoice(ch);
+    if (!login_change_invoice(ch))
+		send_to_char("Проверка показала: новых сообщений нет.\r\n", ch);
 }
 
 char *diag_obj_to_char(CHAR_DATA* i, OBJ_DATA* obj, int mode)

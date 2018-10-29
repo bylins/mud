@@ -228,7 +228,7 @@ public:
 	std::string get_remember(unsigned int num, int flag) const;
 
 	void write_mod(const std::string &arg);
-	void print_mod(CHAR_DATA *ch) const;
+	bool print_mod(CHAR_DATA *ch) const;
 	void load_mod();
 	int get_rep();
 	void set_rep(int rep);

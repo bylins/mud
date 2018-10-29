@@ -18,7 +18,7 @@ namespace NewNames
 	void remove(CHAR_DATA * ch);
 	void remove(const std::string& name, CHAR_DATA * actor);
 	void load();
-	void show(CHAR_DATA * actor);
+	bool show(CHAR_DATA * actor);
 	int auto_authorize(DESCRIPTOR_DATA * d);
 } // namespace NewNames
 

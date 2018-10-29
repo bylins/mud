@@ -373,6 +373,7 @@ T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg
 #define WHO_LISTNAME 1
 #define WHO_LISTCLAN 2
 
+bool login_change_invoice(CHAR_DATA* ch);
 bool who_spamcontrol(CHAR_DATA *, unsigned short int);
 
 #endif // _INTERPRETER_H_
