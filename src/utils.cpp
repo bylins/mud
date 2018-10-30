@@ -3934,7 +3934,7 @@ void utf8_to_koi(char *str_i, char *str_o)
 {
 	unsigned char c;
 
-	while ((c = (unsigned char)(*str_i++)))
+	while ((c = static_cast<unsigned char>(*str_i++)))
 	{
 		if (c < 0x80)
 		{
@@ -3947,7 +3947,7 @@ void utf8_to_koi(char *str_i, char *str_o)
 		else if (c < 0xE0)
 		{ 
 			// one more byte to follow, must be b10xxxxxx
-			unsigned char c1 = (unsigned char)(*str_i);
+			unsigned char c1 = static_cast<unsigned char>(*str_i);
 			if ((c1 & 0xC0) ==  0x80)
 			{
 				// valid utf-8, but we are only interested in characters from
@@ -3968,15 +3968,15 @@ void utf8_to_koi(char *str_i, char *str_o)
 							0xC1, 0xC2, 0xD7, 0xC7, 0xC4, 0xC5, 0xD6, 0xDA, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF, 0xD0, // koi8-r абвгдежзийклмноп
 							0xD2, 0xD3, 0xD4, 0xD5, 0xC6, 0xC8, 0xC3, 0xDE, 0xDB, 0xDD, 0xDF, 0xD9, 0xD8, 0xDC, 0xC0, 0xD1  // koi8-r рстуфхцчшщъыьэюя
 						};
-						*str_o = (char)Utf8ToKoiAlpha[c1 - 0x10];
+						*str_o = static_cast<char>(Utf8ToKoiAlpha[c1 - 0x10]);
 					}
 					else if (c1 == 0x01)
 					{
-						*str_o = static_cast<unsigned char>(0xB3); // koi8-r Ё
+						*str_o = '\xB3'; // koi8-r Ё
 					}
 					else if (c1 == 0x51)
 					{
-						*str_o = static_cast<unsigned char>(0xA3); // koi8-r ё
+						*str_o = '\xA3'; // koi8-r ё
 					}
 				}
 				else if (c == 0xC2) // 0x0080 - 0x00BF
@@ -3984,24 +3984,24 @@ void utf8_to_koi(char *str_i, char *str_o)
 					// 0x00B0, 0x00B2, 0x00B7, 0x00F7
 					if (c1 == 0xA9)
 					{
-						*str_o = static_cast<unsigned char>(0xBF);
+						*str_o = '\xBF';
 					}
 					else if (c1 == 0xB0)
 					{
-						*str_o = static_cast<unsigned char>(0x9C);
+						*str_o = '\x9C';
 					}
 					else if (c1 == 0xB2)
 					{
-						*str_o = static_cast<unsigned char>(0x9D);
+						*str_o = '\x9D';
 					}
 					else if (c1 == 0xB7)
 					{
-						*str_o = static_cast<unsigned char>(0x9E);
+						*str_o = '\x9E';
 					}
 				}
 				else if ((c == 0xC3) && (c1 == 0xB7)) // 0x00F7
 				{
-					*str_o = static_cast<unsigned char>(0x9F);
+					*str_o = '\x9F';
 				}
 				str_o++;
 				str_i++;
@@ -4016,7 +4016,7 @@ void utf8_to_koi(char *str_i, char *str_o)
 			{
 				// valid utf-8
 				// calculate unicode codepoint
-				unsigned short u = (unsigned short)c & 0x0F;
+				unsigned short u = static_cast<unsigned short>(c) & 0x0F;
 				u = (u << 6) | (str_i[0] & 0x3F);
 				u = (u << 6) | (str_i[1] & 0x3F);
 				*str_o = KOI8_UNKNOWN_CHAR;
@@ -4027,40 +4027,40 @@ void utf8_to_koi(char *str_i, char *str_o)
 						0xA0, 0xA1, 0xA2, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF, // koi8-r ═║╒╓╔╕╖╗╘╙╚╛╜╝╞
 						0xB0, 0xB1, 0xB2, 0xB4, 0xB5, 0xB6, 0xB7, 0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE        // koi8-r ╟╠╡╢╣╤╥╦╧╨╩╪╫╬
 					};
-					*str_o = (char) Utf8ToKoiPg[u - 0x2500];
+					*str_o = static_cast<char>(Utf8ToKoiPg[u - 0x2500]);
 				}
 				else // random non-sequencitial bits and pieces (other pseudographics and some math symbols)
 				{
 					switch (u)
 					{
-						case 0x2500: *str_o = static_cast<unsigned char>(0x80); break;
-						case 0x2502: *str_o = static_cast<unsigned char>(0x81); break;
-						case 0x250C: *str_o = static_cast<unsigned char>(0x82); break;
-						case 0x2510: *str_o = static_cast<unsigned char>(0x83); break;
-						case 0x2514: *str_o = static_cast<unsigned char>(0x84); break;
-						case 0x2518: *str_o = static_cast<unsigned char>(0x85); break;
-						case 0x251C: *str_o = static_cast<unsigned char>(0x86); break;
-						case 0x2524: *str_o = static_cast<unsigned char>(0x87); break;
-						case 0x252C: *str_o = static_cast<unsigned char>(0x88); break;
-						case 0x2534: *str_o = static_cast<unsigned char>(0x89); break;
-						case 0x253C: *str_o = static_cast<unsigned char>(0x8A); break;
-						case 0x2580: *str_o = static_cast<unsigned char>(0x8B); break;
-						case 0x2584: *str_o = static_cast<unsigned char>(0x8C); break;
-						case 0x2588: *str_o = static_cast<unsigned char>(0x8D); break;
-						case 0x258C: *str_o = static_cast<unsigned char>(0x8E); break;
-						case 0x2590: *str_o = static_cast<unsigned char>(0x8F); break;
-						case 0x2591: *str_o = static_cast<unsigned char>(0x90); break;
-						case 0x2592: *str_o = static_cast<unsigned char>(0x91); break;
-						case 0x2593: *str_o = static_cast<unsigned char>(0x92); break;
-						case 0x2320: *str_o = static_cast<unsigned char>(0x93); break;
-						case 0x25A0: *str_o = static_cast<unsigned char>(0x94); break;
-						case 0x2219: *str_o = static_cast<unsigned char>(0x95); break;
-						case 0x221A: *str_o = static_cast<unsigned char>(0x96); break;
-						case 0x2248: *str_o = static_cast<unsigned char>(0x97); break;
-						case 0x2264: *str_o = static_cast<unsigned char>(0x98); break;
-						case 0x2265: *str_o = static_cast<unsigned char>(0x99); break;
+						case 0x2500: *str_o = '\x80'; break;
+						case 0x2502: *str_o = '\x81'; break;
+						case 0x250C: *str_o = '\x82'; break;
+						case 0x2510: *str_o = '\x83'; break;
+						case 0x2514: *str_o = '\x84'; break;
+						case 0x2518: *str_o = '\x85'; break;
+						case 0x251C: *str_o = '\x86'; break;
+						case 0x2524: *str_o = '\x87'; break;
+						case 0x252C: *str_o = '\x88'; break;
+						case 0x2534: *str_o = '\x89'; break;
+						case 0x253C: *str_o = '\x8A'; break;
+						case 0x2580: *str_o = '\x8B'; break;
+						case 0x2584: *str_o = '\x8C'; break;
+						case 0x2588: *str_o = '\x8D'; break;
+						case 0x258C: *str_o = '\x8E'; break;
+						case 0x2590: *str_o = '\x8F'; break;
+						case 0x2591: *str_o = '\x90'; break;
+						case 0x2592: *str_o = '\x91'; break;
+						case 0x2593: *str_o = '\x92'; break;
+						case 0x2320: *str_o = '\x93'; break;
+						case 0x25A0: *str_o = '\x94'; break;
+						case 0x2219: *str_o = '\x95'; break;
+						case 0x221A: *str_o = '\x96'; break;
+						case 0x2248: *str_o = '\x97'; break;
+						case 0x2264: *str_o = '\x98'; break;
+						case 0x2265: *str_o = '\x99'; break;
 						//   0x00A0        to 0x9A decoded elsewhere
-						case 0x2321: *str_o = static_cast<unsigned char>(0x9B); break;
+						case 0x2321: *str_o = '\x9B'; break;
 					}
 				}
 
@@ -4105,7 +4105,7 @@ void koi_to_utf8(char *str_i, char *str_o)
 	};
 	unsigned int c;
 
-	while ((c = (unsigned char)(*str_i++)))
+	while ((c = static_cast<unsigned char>(*str_i++)))
 	{
 		if (c < 0x80)
 		{
