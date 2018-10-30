@@ -244,16 +244,16 @@ void NewNames::remove(CHAR_DATA * ch)
 }
 
 // для удаления через команду имма
-void NewNames::remove(const std::string& name, CHAR_DATA * ch)
+void NewNames::remove(const std::string& name, CHAR_DATA * actor)
 {
 	NewNameListType::iterator it = NewNameList.find(name);
 	if (it != NewNameList.end())
 	{
 		NewNameList.erase(it);
-		send_to_char("Запись удалена.\r\n", ch);
+		send_to_char("Запись удалена.\r\n", actor);
 	}
 	else
-		send_to_char("В списке нет такого имени.\r\n", ch);
+		send_to_char("В списке нет такого имени.\r\n", actor);
 
 	save();
 }
@@ -285,22 +285,24 @@ void NewNames::load()
 }
 
 // вывод списка неодобренных имму
-void NewNames::show(CHAR_DATA * ch)
+bool NewNames::show(CHAR_DATA * actor)
 {
-	if (NewNameList.empty()) return;
+	if (NewNameList.empty())
+		return false;
 
 	std::ostringstream buffer;
-	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << CCWHT(ch, C_NRM);
+	buffer << "\r\nИгроки, ждущие одобрения имени (имя <игрок> одобрить/запретить/удалить):\r\n" << CCWHT(actor, C_NRM);
 	for (NewNameListType::const_iterator it = NewNameList.begin(); it != NewNameList.end(); ++it)
 	{
 		const size_t sex = static_cast<size_t>(to_underlying(it->second->sex));
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 		<< "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
-		<< "/" << it->second->name5 << " Email: &S" << (GET_GOD_FLAG(ch, GF_DEMIGOD) ? "неопределен" : it->second->email) 
+		<< "/" << it->second->name5 << " Email: &S" << (GET_GOD_FLAG(actor, GF_DEMIGOD) ? "неопределен" : it->second->email) 
 		<< "&s Пол: " << genders[sex] << "\r\n";
 	}
-	buffer << CCNRM(ch, C_NRM);
-	send_to_char(buffer.str(), ch);
+	buffer << CCNRM(actor, C_NRM);
+	send_to_char(buffer.str(), actor);
+	return true;
 }
 
 // Name auto-agreement

@@ -579,7 +579,8 @@ namespace Boards
 	}
 
 	// выводит при заходе в игру инфу о новых сообщениях на досках
-	void Static::LoginInfo(CHAR_DATA* ch)
+	// возвращает false если ничего не было показано
+	bool Static::LoginInfo(CHAR_DATA* ch)
 	{
 		std::ostringstream buffer, news;
 		bool has_message = 0;
@@ -618,7 +619,9 @@ namespace Boards
 		{
 			buffer << news.str();
 			send_to_char(buffer.str(), ch);
+			return true;
 		}
+		return false;
 	}
 
 	Boards::Board::shared_ptr Static::create_board(BoardTypes type, const std::string &name, const std::string &desc, const std::string &file)

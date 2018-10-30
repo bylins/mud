@@ -3758,13 +3758,16 @@ void Clan::write_mod(const std::string &arg)
 }
 
 // * Распечатка сообщения дружины чару при входе.
-void Clan::print_mod(CHAR_DATA *ch) const
+bool Clan::print_mod(CHAR_DATA *ch) const
 {
 	if (!mod_text.empty())
 	{
 		send_to_char(ch, "\r\n%s%s%s\r\n",
 				CCWHT(ch, C_NRM), mod_text.c_str(), CCNRM(ch, C_NRM));
+		return true;
 	}
+
+	return false;
 }
 
 // * Загрузка сообщения дружины.

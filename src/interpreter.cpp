@@ -157,8 +157,6 @@ void add_logon_record(DESCRIPTOR_DATA * d);
 // prototypes for all do_x functions.
 int find_action(char *cmd);
 int do_social(CHAR_DATA * ch, char *argument);
-void single_god_invoice(CHAR_DATA* ch);
-void login_change_invoice(CHAR_DATA* ch);
 void init_warcry(CHAR_DATA *ch);
 
 void do_advance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -4682,10 +4680,12 @@ void name_convert(std::string& text)
 }
 
 // * Генерация списка неодобренных титулов и имен и вывод их имму
-void single_god_invoice(CHAR_DATA* ch)
+bool single_god_invoice(CHAR_DATA* ch)
 {
-	TitleSystem::show_title_list(ch);
-	NewNames::show(ch);
+	bool hasMessages = false;
+	hasMessages |= TitleSystem::show_title_list(ch);
+	hasMessages |= NewNames::show(ch);
+	return hasMessages;
 }
 
 // * Поиск незанятых иммов онлайн для вывода им неодобренных титулов и имен раз в 5 минут
@@ -4705,27 +4705,32 @@ void god_work_invoice()
 }
 
 // * Вывод оповещений о новых сообщениях на досках, письмах, (неодобренных имен и титулов для иммов) при логине и релогине
-void login_change_invoice(CHAR_DATA* ch)
+bool login_change_invoice(CHAR_DATA* ch)
 {
-	Boards::Static::LoginInfo(ch);
+	bool hasMessages = false;
+
+	hasMessages |= Boards::Static::LoginInfo(ch);
 
 	if (IS_IMMORTAL(ch))
-	{
-		single_god_invoice(ch);
-	}
+		hasMessages |= single_god_invoice(ch);
+
 	if (mail::has_mail(ch->get_uid()))
 	{
+		hasMessages = true;
 		send_to_char("&RВас ожидает письмо. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
 	if (Parcel::has_parcel(ch))
 	{
+		hasMessages = true;
 		send_to_char("&RВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
-	Depot::show_purged_message(ch);
+	hasMessages |= Depot::show_purged_message(ch);
 	if (CLAN(ch))
 	{
-		CLAN(ch)->print_mod(ch);
+		hasMessages |= CLAN(ch)->print_mod(ch);
 	}
+
+	return hasMessages;
 }
 
 // спам-контроль для команды кто и списка по дружинам

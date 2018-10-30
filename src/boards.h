@@ -23,7 +23,7 @@ extern std::string dg_script_text;
 class Static
 {
 public:
-	static void LoginInfo(CHAR_DATA * ch);
+	static bool LoginInfo(CHAR_DATA * ch);
 	static void BoardInit();
 	static void ClanInit();
 	static int Special(CHAR_DATA*, void*, int, char*);

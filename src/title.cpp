@@ -1,9 +1,11 @@
 // title.cpp
 // Copyright (c) 2006 Krodo
-// Part of Bylins http://www.mud.ru
+// Part of Bylins http://www.bylins.su
 
 #include "title.hpp"
 
+#include "structs.h"
+#include "interpreter.h"
 #include "conf.h"
 #include "logger.hpp"
 #include "utils.h"
@@ -402,9 +404,10 @@ bool TitleSystem::manage_title_list(std::string &name, bool action, CHAR_DATA *c
 }
 
 // * Вывод иммам титулов, ждущих одобрения
-void TitleSystem::show_title_list(CHAR_DATA* ch)
+bool TitleSystem::show_title_list(CHAR_DATA* ch)
 {
-	if (title_list.empty()) return;
+	if (title_list.empty())
+		return false;
 
 	std::stringstream out;
 	out << "\r\nДанные персонажи ждут одобрения титула (титул <игрок> одобрить/запретить):\r\n" << CCWHT(ch, C_NRM);
@@ -412,6 +415,7 @@ void TitleSystem::show_title_list(CHAR_DATA* ch)
 		out << print_title_string(it->first, it->second->pre_title, it->second->title);
 	out << CCNRM(ch, C_NRM);
 	send_to_char(out.str(), ch);
+	return true;
 }
 
 // * Распечатка титула игрока имму для одобрения (без цветовой раскраски)
