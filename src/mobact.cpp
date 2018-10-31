@@ -406,11 +406,11 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 
 	return best;
 }
-
+// TODO invert and rename for clarity: -> isStrayCharmice(), to return true if a charmice, and master is absent =II
 bool find_master_charmice(CHAR_DATA *charmice)
 {
 	// проверяем на спелл чарма, ищем хозяина и сравниваем румы
-	if (!IS_CHARMICE(charmice))
+	if (!IS_CHARMICE(charmice) || !charmice->has_master())
 	{
 		return true;
 	}
