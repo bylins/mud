@@ -957,7 +957,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 	for (const auto vict : world[ch->in_room]->people)
 	{
 		if ((IS_NPC(vict) && !IS_CHARMICE(vict))
-				|| (IS_CHARMICE(vict) && !vict->get_fighting() && !find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
+				|| (IS_CHARMICE(vict) && !vict->get_fighting() && find_master_charmice(vict)) // чармиса агрим только если нет хозяина в руме.
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 				|| !MAY_SEE(ch, ch, vict))
 		{
@@ -996,7 +996,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 		// если у чара меньше 100 хп, то переключаемся на него
 		if (GET_HIT(vict) <= MIN_HP_MOBACT)
 		{
-			continue;
+			return vict;
 		}
 
 		if (IS_CASTER(vict))
@@ -1011,7 +1011,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 		best = victim;
 
 	// если цель кастер, то зачем переключаться ?
-	if (IS_CASTER(victim))
+	if (IS_CASTER(victim) && !IS_NPC(victim))
 	{
 		return victim;
 	}
