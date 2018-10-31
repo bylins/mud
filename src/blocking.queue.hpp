@@ -25,7 +25,7 @@ private:
 
 	std::size_t m_max_size;
 
-	std::mutex m_messages_mutex;
+	mutable std::mutex m_messages_mutex;
 	std::condition_variable m_new_message;
 	std::condition_variable m_message_processed;
 	messages_t m_messages;
