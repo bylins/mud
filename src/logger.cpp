@@ -395,7 +395,7 @@ namespace
 
 void OutputThread::output_loop()
 {
-	while (!m_destroying && !m_output_queue.empty())
+	while (!m_destroying || !m_output_queue.empty())
 	{
 		message_t message;
 		if (m_output_queue.pop(message))
