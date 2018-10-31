@@ -20,7 +20,7 @@ namespace mob_stat
 /// макс. кол-во участников в группе учитываемое в статистике
 const int MAX_GROUP_SIZE = 12;
 /// период сохранения mob_stat.xml (минуты)
-const int SAVE_PERIOD = 1;
+const int SAVE_PERIOD = 27;
 /// 0 - убиства мобом игроков, 1..MAX_GROUP_SIZE - убиства моба игроками
 typedef std::array<int, MAX_GROUP_SIZE + 1> KillStatType;
 
