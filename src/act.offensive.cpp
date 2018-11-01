@@ -553,8 +553,9 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	//printf("probsssss: %d, skillinfo: %d\n", prob, skill_info[SKILL_BACKSTAB].max_percent);
 	// в функции hit уже есть проверка на попал/не попал.
 	// из-за этого шанс стабануть о маломорченных наемов очень маленький
+
 	if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
-		prob = percent;
+		prob = prob + prob * 20 / 100; // у наема больше ДСУ чем у татя, поэтому дадим небольшой бонус
 
 	if (vict->get_fighting())
 		prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
