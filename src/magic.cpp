@@ -3574,7 +3574,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_EYE_OF_GODS:
 	case SPELL_SENSE_LIFE:
 		to_vict = "Вы способны разглядеть даже микроба.";
-		to_room = "$n1 начал$g замечать любые движения.";
+		to_room = "$n0 начал$g замечать любые движения.";
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_SENSE_LIFE);
 		accum_duration = TRUE;
