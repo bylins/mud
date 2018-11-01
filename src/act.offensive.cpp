@@ -2076,10 +2076,13 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		send_to_char(buf, ch);
 		// act("Вы ловко выбили $o3 из рук $N1.",FALSE,ch,wielded,vict,TO_CHAR);
 		// act("$n ловко выбил$g $o3 из ваших рук.", FALSE, ch, wielded, vict, TO_VICT);
+		std::string name = ch->get_name();
+		name[0] = toupper(name[0]);
 		sprintf(buf, "%s ловко выбил%s %s%s из ваших рук.\r\n",
-			ch->get_name().c_str(), GET_CH_VIS_SUF_1(ch, vict),
+			name.c_str(), GET_CH_VIS_SUF_1(ch, vict),
 			wielded->get_PName(3).c_str(), char_get_custom_label(wielded, vict).c_str());
-		buf[0] = UPPER(buf[0]);
+		// не работает
+		//buf[0] = UPPER(buf[0]);
 		send_to_char(buf, vict);
 		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		unequip_char(vict, pos);
