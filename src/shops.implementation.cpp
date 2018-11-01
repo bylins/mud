@@ -28,7 +28,7 @@ extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);	// implemen
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);	// implemented in class.cpp
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);	// implemented in class.cpp
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);	// implemented in spells.cpp
-
+extern std::map<int, int> items_list_for_checks;
 namespace ShopExt
 {
 	const int IDENTIFY_COST = 110;
@@ -1439,6 +1439,15 @@ namespace ShopExt
 				tell_to_char(keeper, ch, ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 				ch->add_gold(buy_price);
 				put_item_to_shop(obj);
+				const auto item_temp = items_list_for_checks.find(GET_OBJ_VNUM(obj));
+				if (item_temp != items_list_for_checks.end())
+				{
+					if (buy_price > item_temp->second)
+					{
+						snprintf(buf, MAX_STRING_LENGTH, "Персонаж %s продал предмет %s за %d при его стоимости %d.", ch->get_name().c_str(), GET_OBJ_PNAME(obj, 0), buy_price, item_temp->second);
+						mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+					}
+				}
 			}
 		}
 		if (cmd == "Чинить")
