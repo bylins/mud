@@ -189,14 +189,17 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	percent = number(0, skill_info[skill_no].max_percent - if_sense);
 	
 	current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
-	if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //Если цель чар и ищет не бог
+	if (!IS_NPC(victim) && !IS_GOD(ch)) //Если цель чар и ищет не бог
 	{ 
-		if (current_skillpercent < 80) //До 80% до 4х мортов
+		if (abs(GET_REMORT(ch) - GET_REMORT(victim)) > 15 || abs(GET_LEVEL(ch) - GET_REMORT(ch)) > 10)
+			return BFS_NO_PATH; //Чувства молчат*/
+
+		/*if (current_skillpercent < 80) //До 80% до 4х мортов
 			num = 4;
 		else
 			num = ((current_skillpercent - 80) / 5) + 4; //Каждые 5% скилла + морт
 		if ((GET_REMORT(victim) > num) && (num < 28))
-			return BFS_NO_PATH; //Чувства молчат
+			return BFS_NO_PATH; //Чувства молчат*/
 	}
 
 	if (percent > calculate_skill(ch, skill_no, victim))
