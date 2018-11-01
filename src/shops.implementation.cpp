@@ -528,6 +528,11 @@ namespace ShopExt
 
 		if (obj)
 		{
+			if (GET_OBJ_COST(obj) > total_money)			{
+				
+				snprintf(buf, MAX_STRING_LENGTH, "Персонаж %s купил предмет %d за %d при его стоимости %d.", ch->get_name().c_str(), GET_OBJ_VNUM(obj), total_money, GET_OBJ_COST(obj));
+				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			}
 			send_to_char(ch, "Теперь вы стали %s %s.\r\n",
 				IS_MALE(ch) ? "счастливым обладателем" : "счастливой обладательницей",
 				obj->item_count_message(bought, 1).c_str());
@@ -1438,16 +1443,7 @@ namespace ShopExt
 				obj_from_char(obj);
 				tell_to_char(keeper, ch, ("Получи за " + std::string(GET_OBJ_PNAME(obj, 3)) + " " + price_to_show + ".").c_str());
 				ch->add_gold(buy_price);
-				put_item_to_shop(obj);
-				const auto item_temp = items_list_for_checks.find(GET_OBJ_VNUM(obj));
-				if (item_temp != items_list_for_checks.end())
-				{
-					if (buy_price > item_temp->second)
-					{
-						snprintf(buf, MAX_STRING_LENGTH, "Персонаж %s продал предмет %s за %d при его стоимости %d.", ch->get_name().c_str(), GET_OBJ_PNAME(obj, 0), buy_price, item_temp->second);
-						mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-					}
-				}
+				put_item_to_shop(obj);				
 			}
 		}
 		if (cmd == "Чинить")
