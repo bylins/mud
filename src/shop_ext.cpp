@@ -58,6 +58,7 @@
 */
 
 extern int do_social(CHAR_DATA * ch, char *argument);	// implemented in the act.social.cpp
+// здесь хранятся все предметы из магазинов вида внум_предмета, цена
 std::map<int, int> items_list_for_checks;
 namespace ShopExt
 {
