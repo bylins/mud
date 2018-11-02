@@ -191,7 +191,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
 	if (!IS_NPC(victim) && !IS_GOD(ch)) //Если цель чар и ищет не бог
 	{ 
-		if (abs(GET_REMORT(ch) - GET_REMORT(victim)) > 15 || abs(GET_LEVEL(ch) - GET_REMORT(ch)) > 10)
+		if (abs(GET_REMORT(ch) - GET_REMORT(victim)) > 15 || abs(GET_LEVEL(ch) - GET_LEVEL(victim)) > 10)
 			return BFS_NO_PATH; //Чувства молчат*/
 
 		/*if (current_skillpercent < 80) //До 80% до 4х мортов
