@@ -721,9 +721,6 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 {
-	if (!IS_NPC(ch) && CLAN(ch))
-		sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
-
 	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)
 		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MONEY)
 	{
@@ -752,7 +749,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 			act("$p: Эта вещь не предназначена для вас!", FALSE, ch, obj, 0, TO_CHAR);
 		return (0);
 	}
-	else if (invalid_unique(ch, obj) || (strstr(obj->get_aliases().c_str(), "clan") && (IS_NPC(ch) || !CLAN(ch) || !strstr(obj->get_aliases().c_str(), buf))))
+	else if (invalid_unique(ch, obj))
 	{
 		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);

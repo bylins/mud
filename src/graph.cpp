@@ -175,25 +175,21 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
 	int percent, dir;
-	int num, current_skillpercent, if_sense;
+	int if_sense;
 
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != SKILL_SENSE))
 	{
 		return BFS_ERROR;
 	}
-
 	// 101 is a complete failure, no matter what the proficiency.
 	//Временная затычка. Перевести на резисты
 	//Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
 	if_sense = (skill_no == SKILL_SENSE) ? 100 : 0;
 	percent = number(0, skill_info[skill_no].max_percent - if_sense);
-	
-	current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
 	if (!IS_NPC(victim) && !IS_GOD(ch)) //Если цель чар и ищет не бог
 	{ 
 		if (abs(GET_REMORT(ch) - GET_REMORT(victim)) > 15 || abs(GET_LEVEL(ch) - GET_LEVEL(victim)) > 10)
 			return BFS_NO_PATH; //Чувства молчат*/
-
 		/*if (current_skillpercent < 80) //До 80% до 4х мортов
 			num = 4;
 		else
@@ -201,7 +197,6 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 		if ((GET_REMORT(victim) > num) && (num < 28))
 			return BFS_NO_PATH; //Чувства молчат*/
 	}
-
 	if (percent > calculate_skill(ch, skill_no, victim))
 	{
 		int tries = 10;

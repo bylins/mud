@@ -1422,27 +1422,8 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 	if (object && ch)
 	{
 		restore_object(object, ch);
-
 		if (invalid_anti_class(ch, object) || invalid_unique(ch, object) || NamedStuff::check_named(ch, object, 0))
 			may_carry = FALSE;
-
-		if (strstr(object->get_aliases().c_str(), "clan"))
-		{
-			if (!CLAN(ch))
-			{
-				may_carry = FALSE;
-			}
-			else
-			{
-				char buf[128];
-				sprintf(buf, "clan%d!", CLAN(ch)->GetRent());
-				if (!strstr(object->get_aliases().c_str(), buf))
-				{
-					may_carry = FALSE;
-				}
-			}
-		}
-
 		if (!may_carry)
 		{
 			act("Вас обожгло при попытке взять $o3.", FALSE, ch, object, 0, TO_CHAR);
@@ -1450,7 +1431,6 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			obj_to_room(object, ch->in_room);
 			return;
 		}
-
 		if (!IS_NPC(ch)
 			|| (ch->has_master()
 				&& !IS_NPC(ch->get_master())))
