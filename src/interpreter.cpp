@@ -936,6 +936,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"news", POS_DEAD, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
 	{"nlist", POS_RESTING, NamedStuff::do_named, LVL_BUILDER, SCMD_NAMED_LIST, 0}, //Именной стаф список
 	{"notitle", POS_DEAD, do_wizutil, LVL_GRGOD, SCMD_NOTITLE, 0},
+	{"odelete", POS_STANDING, do_delete_obj, LVL_IMPL, 0, 0 },
 	{"oedit", POS_DEAD, do_olc, 0, SCMD_OLC_OEDIT, 0},
 	{"offer", POS_STANDING, do_not_here, 1, 0, 0},
 	{"olc", POS_DEAD, do_olc, LVL_GOD, SCMD_OLC_SAVEINFO, 0},
