@@ -708,7 +708,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		//scripting::on_npc_dead(ch, killer, corpse);
 #endif
 	}
-	
+/*	до будущих времен
 	if (!IS_NPC(ch) && GET_REMORT(ch) > 7 && (GET_LEVEL(ch) == 29 || GET_LEVEL(ch) == 30))
 	{
 		// лоадим свиток с экспой
@@ -721,7 +721,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		}
 		
 	}
-
+*/
 	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
 	// а здесь, после создания соответствующего трупа. Кроме того,
 	// если убил чармис и хозяин в комнате, то автолут происходит хозяину
