@@ -28,7 +28,6 @@ extern int invalid_anti_class(CHAR_DATA * ch, const OBJ_DATA * obj);	// implemen
 extern int invalid_unique(CHAR_DATA * ch, const OBJ_DATA * obj);	// implemented in class.cpp
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);	// implemented in class.cpp
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);	// implemented in spells.cpp
-extern std::map<int, int> items_list_for_checks;
 namespace ShopExt
 {
 	const int IDENTIFY_COST = 110;
