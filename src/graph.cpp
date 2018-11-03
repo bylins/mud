@@ -186,7 +186,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	//Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
 	if_sense = (skill_no == SKILL_SENSE) ? 100 : 0;
 	percent = number(0, skill_info[skill_no].max_percent - if_sense);
-	if (!IS_NPC(victim) && !IS_GOD(ch)) //Если цель чар и ищет не бог
+	if (!IS_NPC(victim) && !IS_GOD(ch) && !IS_NPC(ch)) // Если игрок (не бог) ищет другого игрока
 	{ 
 		if (abs(GET_REMORT(ch) - GET_REMORT(victim)) > 15 || abs(GET_LEVEL(ch) - GET_LEVEL(victim)) > 10)
 			return BFS_NO_PATH; //Чувства молчат*/
