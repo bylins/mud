@@ -59,7 +59,7 @@
 
 extern int do_social(CHAR_DATA * ch, char *argument);	// implemented in the act.social.cpp
 // здесь хранятся все предметы из магазинов вида внум_предмета, цена
-std::map<int, int> items_list_for_checks;
+//std::map<int, int> items_list_for_checks;
 namespace ShopExt
 {
 const char *MSG_NO_STEAL_HERE = "$n, грязн$w воришка, чеши отседова!";
@@ -375,6 +375,8 @@ void load(bool reload)
 						const int price = (*it)->item_list[i].item_price;
 						const auto item_price = price == 0 ? GET_OBJ_COST(obj_proto[item_rnum]) : price;
 						tmp_shop->add_item(item_vnum, item_price);
+						/*
+						Список инится но нигде не используется. к удалению
 						if (items_list_for_checks.count(item_vnum) != 1)
 						{
 							items_list_for_checks.insert(std::pair<int, int>(item_vnum, item_price));
@@ -384,6 +386,7 @@ void load(bool reload)
 							if (items_list_for_checks[item_vnum] > item_price)
 								items_list_for_checks[item_vnum] = item_price;
 						}
+						*/
 					}
 				}
 			}
