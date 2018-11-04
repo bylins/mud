@@ -2148,6 +2148,9 @@ int npc_loot(CHAR_DATA * ch)
 						{
 							continue;
 						}
+						auto value = loot_obj->get_val(1); //откроем контейнер
+						REMOVE_BIT(value, CONT_CLOSED);
+						loot_obj->set_val(1, value);
 						for (cobj = loot_obj->get_contains(); cobj; cobj = cnext_obj)
 						{
 							cnext_obj = cobj->get_next_content();
