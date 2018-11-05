@@ -1077,14 +1077,26 @@ void im_reset_room(ROOM_DATA * room, int level, int type)
 				continue;
 			}
 			else if (after == NULL)
+			{
 				pow = before->power;
+				log("IM_TEST: Index %d, Power %d, Level %d, before %d", indx, pow, lev, before->power);
+
+			}				
 			else if (before == NULL)
+			{
 				pow = after->power;
+				log("IM_TEST: Index %d, Power %d, Level %d, after %d", indx, pow, lev, after->power);
+
+			}				
 			else
+			{
 				pow = lev - after->power < before->power - lev ? after->power : before->power;
+				log("IM_TEST: Index %d, Power %d, Level %d, after %d, before %d", indx, pow, lev, after->power, before->power);
+
+			}
+				
 			o = load_ingredient(indx, pow, -1);
-			log("IM_TEST: Index %d, Power %d, Level %d, after %d, before %d", indx, pow, lev, after->power, before->power);
-			if (o)
+						if (o)
 				obj_to_room(o, real_room(room->number));
 		}
 	}
