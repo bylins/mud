@@ -514,6 +514,7 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 	}
+	
 
 	// Restore values for NPC - added by Adept
 	if (IS_NPC(ch))
