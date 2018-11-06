@@ -530,6 +530,12 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
+		"%s%2d%s) Актив на мобах : %s%s%s\r\n",
+		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM), (activ.npc ? "Да" : "Нет"), CCNRM(ch, C_NRM));
+	out += buf_;
+
+	snprintf(buf_, sizeof(buf_),
 		"%s%2d%s) В главное меню Q(В)\r\n"
 		"Ваш выбор : ",
 		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM));
@@ -1641,6 +1647,20 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 		send_to_char("Укажите процент прибавляемого маг. урона :", ch);
 	}
 	else if (num == offset + activ.apply.size() + 5)
+	{
+		if (activ.npc)
+		{
+			send_to_char("Теперь НЕ активится на мобах.", ch);
+			i->second.npc = false;
+		}
+		else
+		{
+			send_to_char("Теперь активится на мобах.", ch);
+			i->second.npc = true;
+		}
+		show_activ_edit(ch);
+	}
+	else if (num == offset + activ.apply.size() + 6)
 	{
 		show_main(ch);
 	}
