@@ -1044,7 +1044,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define IS_OBJ_AFF(obj,stat) (obj->get_affect(stat))
 
 #define IS_CORPSE(obj)     (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_CONTAINER && \
-               GET_OBJ_VAL((obj), 3) == 1)
+               GET_OBJ_VAL((obj), 3) == OBJ_DATA::CORPSE_INDICATOR)
 #define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 // compound utilities and other macros *********************************
