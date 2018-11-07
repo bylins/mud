@@ -285,7 +285,7 @@ void verify_set(set_node &set)
 			err_log("сет #%zu: пустой активатор (activ=%d)", num, i->first);
 			set.enabled = false;
 		}
-		if (i->second.prof.count() != i->second.prof.size())
+		if (!i->second.prof.all())
 		{
 			if (!prof_restrict)
 			{
@@ -602,7 +602,7 @@ void save()
 		{
 			pugi::xml_node xml_activ = xml_set.append_child("activ");
 			xml_activ.append_attribute("size") = k->first;
-			if (k->second.prof.count() != k->second.prof.size()) // !all()
+			if (!k->second.prof.all())
 			{
 				xml_activ.append_attribute("prof")
 					= k->second.prof.to_string().c_str();
@@ -1104,7 +1104,7 @@ std::string print_activ_help(const set_node &set)
 
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
-		if (i->second.prof.count() != i->second.prof.size())
+		if (!i->second.prof.all())
 		{
 			// активатор на ограниченный список проф (распечатка закладывается
 			// на то, что у валидных сетов списки проф должны быть одинаковые)
@@ -1143,7 +1143,7 @@ std::string print_total_activ(const set_node &set)
 	activ_sum summ, prof_summ;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
-		if (i->second.prof.count() != i->second.prof.size())
+		if (!i->second.prof.all())
 		{
 			// активатор на ограниченный список проф (распечатка закладывается
 			// на то, что у валидных сетов списки проф должны быть одинаковые)
@@ -1302,7 +1302,7 @@ void WornSets::check(CHAR_DATA *ch)
 						continue;
 				}
 				else if (IS_NPC(ch)
-					&& (k->second.prof.count() != k->second.prof.size() && !k->second.npc))
+					&& (!k->second.prof.all() && !k->second.npc))
 				{
 					continue;
 				}
