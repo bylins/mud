@@ -155,6 +155,8 @@ const char *exit_bits[] =
 	"заперта",
 	"не взломать",
 	"скрыто",
+	"замок сломан",
+	"в копию",
 	"\n"
 };
 
@@ -1092,12 +1094,15 @@ int material_value[] = { 100,
 
 
 // CONT_x
-const char *container_bits[] = { "CLOSEABLE",
-								 "PICKPROOF",
-								 "CLOSED",
-								 "LOCKED",
-								 "\n",
-							   };
+const char *container_bits[] =
+{
+	"CLOSEABLE",
+	"PICKPROOF",
+	"CLOSED",
+	"LOCKED",
+	"LOCK_BROKEN",
+	"\n",
+};
 
 
 /*

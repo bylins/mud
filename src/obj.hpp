@@ -220,6 +220,7 @@ virtual	~CObjectPrototype() {};
 	constexpr static int DEFAULT_DESTROYER = 60;
 	constexpr static int DEFAULT_RNUM = NOTHING;
 	constexpr static int VALS_COUNT = 4;
+	constexpr static int CORPSE_INDICATOR = 1; // container with value 3 set to 1 is a corpse
 
 	using skills_t = std::map<ESkill, int>;
 	using vals_t = std::array<int, VALS_COUNT>;
