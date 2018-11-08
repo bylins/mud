@@ -172,11 +172,59 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 }
 
 // * Functions and Commands which use the above functions. *
+int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
+{
+	int percent = 0;
+        int dir;
+        ESkill skill_no = SKILL_SENSE;
+        int skill = calculate_skill(ch, skill_no, victim) ;
+
+        if (IS_GOD(ch)) // Если ищет бог
+        {
+            return find_first_step(ch->in_room, victim->in_room, ch);
+        }
+	else if ((!IS_NPC(ch))&& (!IS_NPC(victim)) ) //Если цель чар 
+	{ 
+		percent = number(0, skill_info[skill_no].max_percent);
+	}
+	else if (IS_NPC(ch)) //Если ищет моб (читаем чармис) 
+	{ 
+            return BFS_ERROR;
+	}
+        
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK))
+	{
+		return BFS_ERROR;
+	}
+
+	if (percent > skill)
+	{
+                //куда бог пошлет : )
+		int tries = 10;
+		do
+		{
+                    dir = number(0, NUM_OF_DIRS - 1);
+		}
+		while (!CAN_GO(ch, dir) && --tries);
+		return dir;
+	}
+
+	// They passed the skill check.
+	return find_first_step(ch->in_room, victim->in_room, ch);
+}
+
+// * Functions and Commands which use the above functions. *
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
 	int percent, dir;
 	int num, if_sense;
 
+	if (skill_no == SKILL_SENSE)
+	{
+		return go_sense(ch,victim);
+	}
+        
+        
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != SKILL_SENSE))
 	{
 		return BFS_ERROR;
@@ -249,6 +297,16 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Ваши чувства молчат.\r\n", ch);
 		return;
 	}
+        
+        /*
+         * //если сделать !нюх в клетках !трек получим проблему
+         * //вся вода !трек
+         * if (ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
+         * {
+         *      send_to_char("Ваши чувства молчат.\r\n", ch);
+         * 	return;
+         * }
+        */
 	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
 
 	dir = go_track(ch, vict, SKILL_SENSE);
