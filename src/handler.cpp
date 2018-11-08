@@ -1470,7 +1470,10 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 			else
 			{
 				set_uid(object);
-				log("%s obj_to_char %s #%d|%u", GET_NAME(ch), object->get_PName(0).c_str(), GET_OBJ_VNUM(object), object->get_uid());
+				sprintf(buf, "%s obj_to_char %s #%d|%u",
+					GET_NAME(ch), object->get_PName(0).c_str(), GET_OBJ_VNUM(object), object->get_uid());
+					mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				//log("%s obj_to_char %s #%d|%u", GET_NAME(ch), object->get_PName(0).c_str(), GET_OBJ_VNUM(object), object->get_uid());
 			}
 		}
 
