@@ -56,7 +56,7 @@ std::size_t vlog_buffer(char* buffer, const std::size_t buffer_size, const char*
 	return result;
 }
 
-void vlog(const char *format, va_list args)
+void vlog(const char *format, va_list args, FILE* logfile)
 {
 	if (!runtime_config.logging_enabled())
 	{
@@ -93,15 +93,18 @@ void vlog(const char *format, va_list args)
 	}
 }
 
+void vlog(const char *format, va_list args)
+{
+	vlog(format, args, logfile);
+}
+
 void vlog(const EOutputStream steam, const char* format, va_list rargs)
 {
 	va_list args;
 	va_copy(args, rargs);
 
-	const auto prev = logfile;
-	logfile = runtime_config.logs(steam).handle();
-	vlog(format, args);
-	logfile = prev;
+	const auto logfile = runtime_config.logs(steam).handle();
+	vlog(format, args, logfile);
 
 	va_end(args);
 }
