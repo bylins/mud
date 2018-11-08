@@ -207,6 +207,27 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
+int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
+{
+	int percent, dir, skill = calculate_skill(ch, skill_no, skill_info[skill_no].max_percent, victim)
+	
+	skill = skill - MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5) // разница в ремортах *5 вычитается из текущего умения
+	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEl(ch)) * 5)
+	skill = MAX(0, skill)
+	percent = number(0, skill_info[skill_no].max_percent);
+	if (percent > skill)
+	{
+		int tries = 10;
+		do
+		{
+			dir = number(0, NUM_OF_DIRS - 1);
+		}
+		while (!CAN_GO(ch, dir) && --tries);
+		return dir;
+	}
+	return find_first_step(ch->in_room, victim->in_room, ch);
+}
+
 void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
@@ -251,7 +272,7 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
 
-	dir = go_track(ch, vict, SKILL_SENSE);
+	dir = go_sense(ch, vict);
 
 	switch (dir)
 	{
