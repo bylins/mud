@@ -175,7 +175,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
 	int percent, dir;
-	int num, if_sense;
+	int if_sense;
 
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != SKILL_SENSE))
 	{
@@ -209,12 +209,12 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 
 int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	int percent, dir, skill = calculate_skill(ch, skill_no, skill_info[skill_no].max_percent, victim)
+	int percent, dir, skill = calculate_skill(ch, SKILL_SENSE, victim);
 	
-	skill = skill - MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5) // разница в ремортах *5 вычитается из текущего умения
-	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEl(ch)) * 5)
-	skill = MAX(0, skill)
-	percent = number(0, skill_info[skill_no].max_percent);
+	skill = skill - MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
+	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEL(ch)) * 5);
+	skill = MAX(0, skill);
+	percent = number(0, skill_info[SKILL_SENSE].max_percent);
 	if (percent > skill)
 	{
 		int tries = 10;
