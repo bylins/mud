@@ -1037,7 +1037,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_SENSE:      // найти
         {
 		
-            bonus   = int_app[GET_REAL_INT(ch)].observation	+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0)
+            bonus   = int_app[GET_REAL_INT(ch)].observation	+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
             bonus  += complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, skill_is) - skill_is ; 
 
             if (ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
