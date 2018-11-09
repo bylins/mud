@@ -12,14 +12,6 @@
 // Файл для вывода
 FILE *logfile = nullptr;
 
-void log(const char *format, ...)
-{
-	va_list args;
-	va_start(args, format);
-	vlog(format, args);
-	va_end(args);
-}
-
 std::size_t vlog_buffer(char* buffer, const std::size_t buffer_size, const char* format, va_list args)
 {
 	std::size_t result = ~0u;
@@ -56,7 +48,7 @@ std::size_t vlog_buffer(char* buffer, const std::size_t buffer_size, const char*
 	return result;
 }
 
-void vlog(const char *format, va_list args)
+void vlog(const char *format, va_list args, FILE* logfile)
 {
 	if (!runtime_config.logging_enabled())
 	{
@@ -93,16 +85,35 @@ void vlog(const char *format, va_list args)
 	}
 }
 
+void vlog(const char *format, va_list args)
+{
+	vlog(format, args, ::logfile);
+}
+
 void vlog(const EOutputStream steam, const char* format, va_list rargs)
 {
 	va_list args;
 	va_copy(args, rargs);
 
-	const auto prev = logfile;
-	logfile = runtime_config.logs(steam).handle();
-	vlog(format, args);
-	logfile = prev;
+	const auto log = runtime_config.logs(steam).handle();
+	vlog(format, args, log);
 
+	va_end(args);
+}
+
+void log(FILE* log, const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	vlog(format, args, log);
+	va_end(args);
+}
+
+void log(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	vlog(format, args, ::logfile);
 	va_end(args);
 }
 
@@ -235,9 +246,8 @@ void mudlog(const char *str, int type, int level, EOutputStream channel, int fil
 
 	if (file)
 	{
-		logfile = runtime_config.logs(channel).handle();
-		log("%s", str);
-		logfile = runtime_config.logs(SYSLOG).handle();
+		const auto log = runtime_config.logs(channel).handle();
+		::log(log, "%s", str);
 	}
 
 	if (level < 0)
