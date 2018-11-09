@@ -81,7 +81,7 @@ void vlog(const char *format, va_list args, FILE* logfile)
 		constexpr std::size_t BUFFER_SIZE = 4096;
 		std::shared_ptr<char> buffer(new char[BUFFER_SIZE], [](char* p) { delete[] p; });
 		const std::size_t length = vlog_buffer(buffer.get(), BUFFER_SIZE, format, args);
-		GlobalObjects::output_thread().output(OutputThread::message_t(buffer, length));
+		GlobalObjects::output_thread().output(OutputThread::message_t{ buffer, length, logfile });
 	}
 }
 
@@ -415,11 +415,11 @@ void OutputThread::output_loop()
 				const auto syslog_converter = runtime_config.syslog_converter();
 				if (syslog_converter)
 				{
-					syslog_converter(message.first.get(), static_cast<int>(message.second));
+					syslog_converter(message.text.get(), static_cast<int>(message.size));
 				}
 			}
 
-			output_message(message.first.get(), logfile);
+			output_message(message.text.get(), message.channel);
 		}
 	}
 }
