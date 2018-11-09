@@ -1231,10 +1231,12 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 		*(argument + length - 1) = ' ';
 	}
 
-	if (!IS_NPC(ch)
-		&& !GET_MOB_HOLD(ch)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-		&& !AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
+        if (!IS_NPC(ch)
+                && !GET_INVIS_LEV(ch)
+                && !GET_MOB_HOLD(ch)
+                && !AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+                && !AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
+                && !(IS_GOD(ch) && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
 	{
 		int cont;	// continue the command checks
 		cont = command_wtrigger(ch, arg, line);
