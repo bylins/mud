@@ -15,7 +15,7 @@ https://github.com/bylins/mud/wiki/%D0%A1%D1%82%D0%B0%D1%80%D1%8B%D0%B9-README
 
 [Git](https://git-scm.com/downloads) - Нужна версия начиная с 2.19 (учтите, что у гита версия 2.19 новее версии 2.6/2.7)
 
-[Microsoft Visual Studio 2017 Community](https://visualstudio.microsoft.com/ru/downloads/) - Jна полностью бесплатная
+[Microsoft Visual Studio 2017 Community](https://visualstudio.microsoft.com/ru/downloads/) - Она полностью бесплатная
 
 ## Установка
 
