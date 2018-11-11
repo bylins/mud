@@ -1,4 +1,4 @@
-﻿# BYLIND MUD README
+﻿# BYLINS MUD README
 
 ## Введение
 
