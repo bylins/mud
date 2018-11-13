@@ -90,7 +90,11 @@ inline void Logger::pop_prefix()
 class OutputThread
 {
 public:
-	using message_t = std::pair<std::shared_ptr<char>, std::size_t>;
+	using message_t = struct {
+		std::shared_ptr<char> text;
+		std::size_t size;
+		FILE* channel;
+	};
 	using output_queue_t = BlockingQueue<message_t>;
 
 	OutputThread(const std::size_t queue_size);

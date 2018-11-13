@@ -175,7 +175,7 @@ int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch)
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 {
 	int percent, dir;
-	int num, current_skillpercent, if_sense;
+	int if_sense;
 
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_NOTRACK) && (skill_no != SKILL_SENSE))
 	{
@@ -186,15 +186,10 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	//Изменил макс скилл со 100 до 200, чтобы не ломать алгоритм, в данном значении вернем старое значение.
 	if_sense = (skill_no == SKILL_SENSE) ? 100 : 0;
 	percent = number(0, skill_info[skill_no].max_percent - if_sense);
-	current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
+	//current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
 	if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //Если цель чар и ищет не бог
 	{ 
-		if (current_skillpercent < 80) //До 80% до 4х мортов
-			num = 4;
-		else
-			num = ((current_skillpercent - 80) / 5) + 4; //Каждые 5% скилла + морт
-		if ((GET_REMORT(victim) > num) && (num < 28))
-			return BFS_NO_PATH; //Чувства молчат
+		percent = MIN(99, number(0, GET_REMORT(victim)) + percent);
 	}
 	if (percent > calculate_skill(ch, skill_no, victim))
 	{
@@ -209,6 +204,27 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	}
 
 	// They passed the skill check.
+	return find_first_step(ch->in_room, victim->in_room, ch);
+}
+
+int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
+{
+	int percent, dir, skill = calculate_skill(ch, SKILL_SENSE, victim);
+	
+	skill = skill - MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
+	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEL(ch)) * 5);
+	skill = MAX(0, skill);
+	percent = number(0, skill_info[SKILL_SENSE].max_percent);
+	if (percent > skill)
+	{
+		int tries = 10;
+		do
+		{
+			dir = number(0, NUM_OF_DIRS - 1);
+		}
+		while (!CAN_GO(ch, dir) && --tries);
+		return dir;
+	}
 	return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
@@ -256,7 +272,7 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	act("Похоже, $n кого-то ищет.", FALSE, ch, 0, 0, TO_ROOM);
 
-	dir = go_track(ch, vict, SKILL_SENSE);
+	dir = go_sense(ch, vict);
 
 	switch (dir)
 	{

@@ -502,10 +502,12 @@ void affect_total(CHAR_DATA * ch)
 	ch->clear_add_affects();
 
 	// PC's clear all affects, because recalc one
-	if (!IS_NPC(ch))
 	{
 		saved = ch->char_specials.saved.affected_by;
-		ch->char_specials.saved.affected_by = clear_flags;
+		if (IS_NPC(ch))
+			ch->char_specials.saved.affected_by = mob_proto[GET_MOB_RNUM(ch)].char_specials.saved.affected_by;
+		else
+			ch->char_specials.saved.affected_by = clear_flags;
 		for (const auto& i : char_saved_aff)
 		{
 			if (saved.get(i))
@@ -514,6 +516,7 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 	}
+	
 
 	// Restore values for NPC - added by Adept
 	if (IS_NPC(ch))

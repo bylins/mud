@@ -2232,8 +2232,18 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	case OBJ_DATA::ITEM_CONTAINER:
 		sprintbit(GET_OBJ_VAL(j, 1), container_bits, buf2);
-		sprintf(buf, "Объем: %d, Тип ключа: %s, Номер ключа: %d, Труп: %s",
-			GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), YESNO(GET_OBJ_VAL(j, 3)));
+		//sprintf(buf, "Объем: %d, Тип ключа: %s, Номер ключа: %d, Труп: %s",
+		//	GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), YESNO(GET_OBJ_VAL(j, 3)));
+		if (IS_CORPSE(j))
+		{
+			sprintf(buf, "Объем: %d, Тип ключа: %s, VNUM моба: %d, Труп: да",
+				GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2));
+		}
+		else
+		{
+			sprintf(buf, "Объем: %d, Тип ключа: %s, Номер ключа: %d, Сложность замка: %d",
+				GET_OBJ_VAL(j, 0), buf2, GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
+		}
 		break;
 
 	case OBJ_DATA::ITEM_DRINKCON:

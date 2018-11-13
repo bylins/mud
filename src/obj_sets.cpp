@@ -274,18 +274,18 @@ void verify_set(set_node &set)
 				num, i->second.skill.first, i->second.skill.second, i->first);
 			set.enabled = false;
 		}
-		if (i->second.prof.none())
+		/*if (i->second.prof.none())
 		{
 			err_log("сет #%zu: пустой список профессий активатора (activ=%d)",
 				num, i->first);
 			set.enabled = false;
-		}
+		}*/
 		if (i->second.empty())
 		{
 			err_log("сет #%zu: пустой активатор (activ=%d)", num, i->first);
 			set.enabled = false;
 		}
-		if (i->second.prof.count() != i->second.prof.size())
+		if (!i->second.prof.all())
 		{
 			if (!prof_restrict)
 			{
@@ -497,6 +497,12 @@ void load()
 				std::bitset<NUM_PLAYER_CLASSES> tmp_p(std::string(xml_prof.value()));
 				tmp_activ.prof = tmp_p;
 			}
+			// активится ли сет на мобах
+			pugi::xml_attribute xml_npc = xml_activ.attribute("npc");
+			if (xml_npc)
+			{
+				tmp_activ.npc = xml_npc.as_bool();
+			}
 			tmp_set->activ_list[Parse::attr_int(xml_activ, "size")] = tmp_activ;
 		}
 		// <messages>
@@ -596,10 +602,14 @@ void save()
 		{
 			pugi::xml_node xml_activ = xml_set.append_child("activ");
 			xml_activ.append_attribute("size") = k->first;
-			if (k->second.prof.count() != k->second.prof.size()) // !all()
+			if (!k->second.prof.all())
 			{
 				xml_activ.append_attribute("prof")
 					= k->second.prof.to_string().c_str();
+			}
+			if (k->second.npc)
+			{
+				xml_activ.append_attribute("npc") = k->second.npc;
 			}
 			// set/activ/affects
 			if (!k->second.affects.empty())
@@ -1094,7 +1104,7 @@ std::string print_activ_help(const set_node &set)
 
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
-		if (i->second.prof.count() != i->second.prof.size())
+		if (!i->second.prof.all())
 		{
 			// активатор на ограниченный список проф (распечатка закладывается
 			// на то, что у валидных сетов списки проф должны быть одинаковые)
@@ -1133,7 +1143,7 @@ std::string print_total_activ(const set_node &set)
 	activ_sum summ, prof_summ;
 	for (auto i = set.activ_list.begin(); i != set.activ_list.end(); ++i)
 	{
-		if (i->second.prof.count() != i->second.prof.size())
+		if (!i->second.prof.all())
 		{
 			// активатор на ограниченный список проф (распечатка закладывается
 			// на то, что у валидных сетов списки проф должны быть одинаковые)
@@ -1292,7 +1302,7 @@ void WornSets::check(CHAR_DATA *ch)
 						continue;
 				}
 				else if (IS_NPC(ch)
-					&& k->second.prof.count() != k->second.prof.size())
+					&& (!k->second.prof.all() && !k->second.npc))
 				{
 					continue;
 				}
@@ -1447,11 +1457,6 @@ void check_enchants(CHAR_DATA *ch)
 
 void activ_sum::update(CHAR_DATA *ch)
 {
-	if (IS_NPC(ch))
-	{
-		return;
-	}
-
 	this->clear();
 	worn_sets.clear();
 	for (int i = 0; i < NUM_WEARS; i++)

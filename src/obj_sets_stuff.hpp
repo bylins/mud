@@ -57,8 +57,10 @@ struct activ_node
 		affects = clear_flags;
 		prof.set();
 		enchant.first = 0;
+		npc = false;
 	};
-
+	// активится ли миник на мобах
+	bool npc;
 	// аффекты (obj_flags.affects)
 	FLAG_DATA affects;
 	// APPLY_XXX аффекты (affected[MAX_OBJ_AFFECT])

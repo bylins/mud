@@ -548,7 +548,7 @@ if (CMAKE_HOST_WIN32)
 	if (BOOST_REQUIRED_COMPILER)
 		set(Boost_COMPILER "${BOOST_REQUIRED_COMPILER}")
 	else ()
-		set(Boost_COMPILER "-vc140")
+		set(Boost_COMPILER "-vc141")
 	endif ()
 
 	target_compile_options(circle.library PUBLIC /MP /MDd)

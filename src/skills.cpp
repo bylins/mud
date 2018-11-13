@@ -1007,26 +1007,11 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-	case SKILL_SENSE: // приглядеться
+	case SKILL_SENSE: // найти
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
-			+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
+			+ (can_use_feat(ch, TRACKER_FEAT) ? 20 : 0);
 
-		percent =
-			complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
-
-		if (ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
-			percent = 0;
-
-		if (vict)
-		{
-			victim_modi += GET_REAL_CON(vict) / 2;
-			if (AFF_FLAGGED(vict, EAffectFlag::AFF_NOTRACK)
-				|| ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK))
-			{
-				victim_modi = -100;
-			}
-		}
-		break;
+	break;
 
 	case SKILL_MULTYPARRY:  // веерная защита
 	case SKILL_PARRY:	//парировать
@@ -1355,7 +1340,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	}
 	//        if(IS_NPC(ch))
 	//        bonus = 0;
-	if ((skill_no == SKILL_SENSE) || (skill_no == SKILL_TRACK))
+	if (skill_no == SKILL_TRACK)
 	{
 		return percent;
 	}

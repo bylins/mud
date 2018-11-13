@@ -339,7 +339,7 @@ void sedit::show_main(CHAR_DATA *ch)
 	out += buf_;
 	for (auto k = olc_set.activ_list.begin(); k != olc_set.activ_list.end(); ++k)
 	{
-		if (k->second.prof.count() != k->second.prof.size())
+		if (!k->second.prof.all())
 		{
 			std::string prof;
 			print_bitset(k->second.prof, pc_class_name, ",", prof);
@@ -427,7 +427,7 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 	activ.affects.sprintbits(weapon_affects, buf_aff, ",");
 	std::string aff_str = line_split_str(buf_aff, ",", 80, 14);
 	std::string prof_str;
-	if (activ.prof.count() != activ.prof.size())
+	if (!activ.prof.all())
 	{
 		print_bitset(activ.prof, pc_class_name, ",", prof_str);
 	}
@@ -527,6 +527,12 @@ void sedit::show_activ_edit(CHAR_DATA *ch)
 		"%s%2d%s) Увеличение маг. урона : %s%+d%%%s\r\n",
 		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
 		CCCYN(ch, C_NRM), activ.bonus.mage_dmg, CCNRM(ch, C_NRM));
+	out += buf_;
+
+	snprintf(buf_, sizeof(buf_),
+		"%s%2d%s) Актив на мобах : %s%s%s\r\n",
+		CCGRN(ch, C_NRM), cnt++, CCNRM(ch, C_NRM),
+		CCCYN(ch, C_NRM), (activ.npc ? "Да" : "Нет"), CCNRM(ch, C_NRM));
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_),
@@ -1641,6 +1647,20 @@ void sedit::parse_activ_edit(CHAR_DATA *ch, const char *arg)
 		send_to_char("Укажите процент прибавляемого маг. урона :", ch);
 	}
 	else if (num == offset + activ.apply.size() + 5)
+	{
+		if (activ.npc)
+		{
+			send_to_char("Теперь НЕ активится на мобах.", ch);
+			i->second.npc = false;
+		}
+		else
+		{
+			send_to_char("Теперь активится на мобах.", ch);
+			i->second.npc = true;
+		}
+		show_activ_edit(ch);
+	}
+	else if (num == offset + activ.apply.size() + 6)
 	{
 		show_main(ch);
 	}
