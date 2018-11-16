@@ -405,7 +405,7 @@ extern const religion_names_t religion_name;
 #define PLR_NOTITLE      (1 << 9)	// Player not allowed to set title  //
 #define PLR_DELETED      (1 << 10)	// Player deleted - space reusable  //
 #define PLR_LOADROOM     (1 << 11)	// Player uses nonstandard loadroom  (не используется) //
-// свободно
+#define PLR_AUTOBOT      (1 << 12)	// Player автоматический игрок //
 #define PLR_NODELETE     (1 << 13)	// Player shouldn't be deleted //
 #define PLR_INVSTART     (1 << 14)	// Player should enter game wizinvis //
 #define PLR_CRYO         (1 << 15)	// Player is cryo-saved (purge prog)   //
@@ -609,7 +609,6 @@ extern const religion_names_t religion_name;
 #define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
 #define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
 #define PRF_IPCONTROL     (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
-#define PRF_AUTOBOT       (INT_TWO | 1 << 13) // игрок является автоматическим (ботом)
 
 // при добавлении не забываем про preference_bits[]
 

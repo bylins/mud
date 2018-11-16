@@ -6390,20 +6390,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			//			send_to_gods(buf);
 		}
 		break;
-	case 61: // флаг автобота
-		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл"))
-		{
-			PRF_FLAGS(vict).unset(PRF_AUTOBOT); // обнулим реж бота
-			sprintf(buf, "%s убрал флаг бота для игрока %s", GET_NAME(ch), GET_NAME(vict));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-		}
-		else
-		{
-			PRF_FLAGS(vict).set(PRF_AUTOBOT); // установим флаг бота
-			sprintf(buf, "%s установил флаг бота для игрока %s", GET_NAME(ch), GET_NAME(vict));
-			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-		}
-		break;
+        case 61: // флаг автобота
+        {
+            SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_AUTOBOT);
+            break;
+        }
 
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
