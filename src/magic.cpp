@@ -2366,6 +2366,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		break;
 
 	case SPELL_WC_OF_THUNDER:
+        {
 		ndice = GET_REMORT(ch) + (level + 2) / 3;
 		sdice = 5;
 		if (GET_POS(victim) > POS_SITTING &&
@@ -2379,6 +2380,22 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 		}
 		break;
+        }
+        
+	case SPELL_ARROWS_FIRE:
+	case SPELL_ARROWS_WATER:
+	case SPELL_ARROWS_EARTH:
+	case SPELL_ARROWS_AIR:
+	case SPELL_ARROWS_DEATH:
+        {
+            act("Ваша магическая стрела поразила $N1.", FALSE, ch, 0, victim, TO_CHAR);
+            act("Магическая стрела $n1 поразила $N1.", FALSE, ch, 0, victim, TO_NOTVICT);
+            act("Магическая стрела настигла вас.", FALSE, ch, 0, victim, TO_VICT);
+            ndice = 3+ch->get_remort();
+            sdice = 4;
+            adice = level + ch->get_remort() + 1;
+       }    break;      
+                
 
 	}			// switch(spellnum)
 
@@ -3810,6 +3827,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_ICESTORM:
 	case SPELL_EARTHFALL:
 	case SPELL_SHOCK:
+        {
 		switch (spellnum)
 		{
 		case SPELL_WC_OF_THUNDER:
@@ -3824,10 +3842,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			savetype = SAVING_REFLEX;
 			modi = CALC_SUCCESS(modi, 95);
 			break;
-        case SPELL_SHOCK:
+                case SPELL_SHOCK:
 			savetype = SAVING_REFLEX;
 			if (GET_CLASS(ch) == CLASS_CLERIC) {
-                modi = CALC_SUCCESS(modi, 75);
+                            modi = CALC_SUCCESS(modi, 75);
 			} else {
 			    modi = CALC_SUCCESS(modi, 25);
 			}
@@ -3878,6 +3896,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			spellnum = SPELL_MAGICBATTLE;
 			break;
         case SPELL_SHOCK:
+            
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 							 pc_duration(victim, 2, 0, 0, 0, 0)) * koef_duration;
@@ -3890,9 +3909,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
             break;
 		}
 		break;
+        }
 
 //Заклинание плач. Далим.
 	case SPELL_CRYING:
+        {
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_CRYING) || (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3932,9 +3953,11 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n0 издал$g протяжный стон.";
 		to_vict = "Вы впали в уныние.";
 		break;
-//Заклинания Забвение, Бремя времени. Далим.
+        }
+        //Заклинания Забвение, Бремя времени. Далим.
 	case SPELL_OBLIVION:
 	case SPELL_BURDEN_OF_TIME:
+        {
 		if (WAITLESS(victim)
 				|| general_savingthrow(ch, victim, SAVING_REFLEX,
 									   CALC_SUCCESS(modi, (spellnum == SPELL_OBLIVION ? 40 : 90))))
@@ -3952,8 +3975,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Ваш разум помутился.";
 		spellnum = SPELL_OBLIVION;
 		break;
+        }
 
 	case SPELL_PEACEFUL:
+        {
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_PEACEFUL) || (IS_NPC(victim) && !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)) ||
 				(ch != victim && general_savingthrow(ch, victim, savetype, modi)))
 		{
@@ -3973,8 +3998,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Взгляд $n1 потускнел, а сам он успокоился.";
 		to_vict = "Ваша душа очистилась от зла и странно успокоилась.";
 		break;
+        }
 
 	case SPELL_STONEBONES:
+        {
 		if (GET_MOB_VNUM(victim) < MOB_SKELETON || GET_MOB_VNUM(victim) > LAST_NECR_MOB)
 		{
 			send_to_char(NOEFFECT, ch);
@@ -3990,8 +4017,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = " ";
 		to_room = "Кости $n1 обрели твердость кремня.";
 		break;
+        }
 
 	case SPELL_FAILURE:
+        {
 		savetype = SAVING_WILL;
 		if (ch != victim && general_savingthrow(ch, victim, savetype, modi))
 		{
@@ -4009,8 +4038,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Тяжелое бурое облако сгустилось над $n4.";
 		to_vict = "Тяжелые тучи сгустились над вами, и вы почувствовали, что удача покинула вас.";
 		break;
+        }
 
 	case SPELL_GLITTERDUST:
+        {
 		savetype = SAVING_REFLEX;
 		if (ch != victim && general_savingthrow(ch, victim, savetype, modi + 50))
 		{
@@ -4041,8 +4072,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Облако ярко блестящей пыли накрыло $n3.";
 		to_vict = "Липкая блестящая пыль покрыла вас с головы до пят.";
 		break;
+        }
 
 	case SPELL_SCREAM:
+        {
 		savetype = SAVING_STABILITY;
 		if (ch != victim && general_savingthrow(ch, victim, savetype, modi))
 		{
@@ -4064,8 +4097,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n0 побледнел$g и задрожал$g от страха.";
 		to_vict = "Страх сжал ваше сердце ледяными когтями.";
 		break;
+        }
 
 	case SPELL_CATS_GRACE:
+        {
 		af[0].location = APPLY_DEX;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		if (ch == victim)
@@ -4077,8 +4112,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Ваши движения обрели невиданную ловкость.";
 		to_room = "Движения $n1 обрели невиданную ловкость.";
 		break;
+        }
 
 	case SPELL_BULL_BODY:
+        {
 		af[0].location = APPLY_CON;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0);
 		if (ch == victim)
@@ -4090,8 +4127,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Ваше тело налилось звериной мощью.";
 		to_room = "Плечи $n1 раздались вширь, а тело налилось звериной мощью.";
 		break;
+        }
 
 	case SPELL_SNAKE_WISDOM:
+        {
 		af[0].location = APPLY_WIS;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].modifier = (level + 6) / 15;
@@ -4100,8 +4139,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Шелест змеиной чешуи коснулся вашего сознания, и вы стали мудрее.";
 		to_room = "$n спокойно и мудро посмотрел$g вокруг.";
 		break;
+        }
 
 	case SPELL_GIMMICKRY:
+        {
 		af[0].location = APPLY_INT;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].modifier = (level + 6) / 15;
@@ -4110,8 +4151,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы почувствовали, что для вашего ума более нет преград.";
 		to_room = "$n хитро прищурил$u и поглядел$g по сторонам.";
 		break;
+        }
 
 	case SPELL_WC_OF_MENACE:
+        {
 		savetype = SAVING_WILL;
 		modi = GET_REAL_CON(ch);
 		if (ch != victim && general_savingthrow(ch, victim, savetype, modi))
@@ -4127,8 +4170,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Похоже, сегодня не ваш день.";
 		to_room = "Удача покинула $n3.";
 		break;
+        }
 
 	case SPELL_WC_OF_MADNESS:
+        {
 		savetype = SAVING_STABILITY;
 		modi = GET_REAL_CON(ch) * 3 / 2;
 		if (ch == victim || !general_savingthrow(ch, victim, savetype, modi))
@@ -4180,15 +4225,19 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 		update_spell = TRUE;
 		break;
+        }
 
 	case SPELL_WC_OF_BATTLE:
+        {
 		af[0].location = APPLY_AC;
 		af[0].modifier = - (10 + MIN(20, 2 * GET_REMORT(ch)));
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
 		to_room = NULL;
 		break;
+        }
 
 	case SPELL_WC_OF_DEFENSE:
+        {
 		af[0].location = APPLY_SAVING_CRITICAL;
 		af[0].modifier -= ch->get_skill(SKILL_WARCRY) / 10;
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
@@ -4204,16 +4253,20 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 //		to_vict = NULL;
 		to_room = NULL;
 		break;
+        }
 
 	case SPELL_WC_OF_POWER:
+        {
 		af[0].location = APPLY_HIT;
 		af[0].modifier = MIN(200, (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2);
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
 		to_vict = NULL;
 		to_room = NULL;
 		break;
+        }
 
 	case SPELL_WC_OF_BLESS:
+        {
 		af[0].location = APPLY_SAVING_STABILITY;
 		af[0].modifier = -(4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 24;
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
@@ -4223,8 +4276,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = NULL;
 		to_room = NULL;
 		break;
+        }
 
 	case SPELL_WC_OF_COURAGE:
+        {
 		af[0].location = APPLY_HITROLL;
 		af[0].modifier = (44 + ch->get_skill(SKILL_WARCRY)) / 45;
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
@@ -4234,6 +4289,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = NULL;
 		to_room = NULL;
 		break;
+        }
 
 	case SPELL_ACONITUM_POISON:
 		af[0].location = APPLY_ACONITUM_POISON;
@@ -4276,6 +4332,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_LACKY:
+        {
 		af[0].duration = pc_duration(victim, 6, 0, 0, 0, 0);
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_LACKY);
 //Polud пробный обработчик аффектов
@@ -4286,6 +4343,19 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n вдохновенно выпятил$g грудь.";
 		to_vict = "Вы почувствовали вдохновение.";
 		break;
+        }
+        
+        case SPELL_ARROWS_FIRE:
+	case SPELL_ARROWS_WATER:
+	case SPELL_ARROWS_EARTH:
+	case SPELL_ARROWS_AIR:
+	case SPELL_ARROWS_DEATH:
+        {
+            //Додати обработчик
+            break;
+        }
+
+                
 	}
 
 	/*

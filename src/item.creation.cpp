@@ -78,7 +78,7 @@ const char *create_item_name[] = { "шелепуга",
 								 };
 const struct make_skill_type make_skills[] =
 {
-//  { "смастерить посох","посохи", SKILL_MAKE_STAFF },
+	{"смастерить предмет","предметы", SKILL_MAKE_STAFF },
 	{"смастерить лук", "луки", SKILL_MAKE_BOW},
 	{"выковать оружие", "оружие", SKILL_MAKE_WEAPON},
 	{"выковать доспех", "доспех", SKILL_MAKE_ARMOR},
@@ -1450,31 +1450,10 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 	{
 		return (FALSE);
 	}
-	// Делаем проверку может ли чар сделать посох такого типа
+	// Делаем проверку может ли чар сделать предмет такого типа
 	if (skill == SKILL_MAKE_STAFF)
 	{
-		auto tobj = get_object_prototype(obj_proto);
-		if (!tobj)
-		{
-			return 0;
-		}
-		spellnum = GET_OBJ_VAL(tobj, 3);
-//   if (!((GET_OBJ_TYPE(tobj) == ITEM_WAND )||(GET_OBJ_TYPE(tobj) == ITEM_WAND )))
-		// Хотим делать посох проверяем есть ли заряжаемый закл у игрока.
-		if (!IS_SET(GET_SPELL_TYPE(ch, spellnum), SPELL_TEMP | SPELL_KNOW) && !IS_IMMORTAL(ch))
-		{
-			if (GET_LEVEL(ch) < SpINFO.min_level[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]
-				|| slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
-			{
-				//send_to_char("Рано еще Вам бросаться такими словами!\r\n", ch);
-				return (FALSE);
-			}
-			else
-			{
-				// send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
-				return (FALSE);
-			}
-		}
+            return 0;
 	}
 	for (i = 0; i < MAX_PARTS; i++)
 	{
@@ -1918,8 +1897,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 	{
 		return 0;
 	}
-	// Проверяем замемлены ли заклы у чара на посох
-	if (!IS_IMMORTAL(ch) && (skill == SKILL_MAKE_STAFF) && (GET_SPELL_MEM(ch, GET_OBJ_VAL(tobj, 3)) == 0))
+	// Проверяем возможность создания предмета
+	if (!IS_IMMORTAL(ch) && (skill == SKILL_MAKE_STAFF))
 	{
 		const OBJ_DATA obj(*tobj);
 		act("Вы не готовы к тому чтобы сделать $o3.", FALSE, ch, &obj, 0, TO_CHAR);
@@ -2036,7 +2015,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		break;
 	case SKILL_MAKE_STAFF:
 		charwork = "Вы начали мастерить $o3.";
-		roomwork = "$n начал мастерить что-то нашептывая при этом странные слова.";
+		roomwork = "$n начал мастерить что-то, посылая всех к чертям.";
 		charfail = "$o3 осветил комнату магическим светом и истаял.";
 		roomfail = "Предмет в руках $n1 вспыхнул, озарив комнату магическим светом и истаял.";
 		charsucc =
@@ -2130,13 +2109,15 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// При разнице со средним уровнем до 0 никаких штрафов.
 	// При разнице большей чем 1 уровней замедление в 2 раза.
 	// При разнице большей чем в 2 уровней замедление в 3 раза.
-	if (skill == SKILL_MAKE_STAFF)
+	/*
+        if (skill == SKILL_MAKE_STAFF)
 	{
 		if (number(0, GET_LEVEL(ch) - created_lev) < GET_SPELL_MEM(ch, GET_OBJ_VAL(tobj, 3)))
 		{
 			train_skill(ch, skill, skill_info[skill].max_percent, 0);
 		}
 	}
+        */ 
 	train_skill(ch, skill, skill_info[skill].max_percent, 0);
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
