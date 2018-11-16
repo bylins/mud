@@ -4940,6 +4940,8 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER) || PRF_FLAGGED(tch, PRF_TESTER)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
+			if (IS_GOD(ch) && PRF_FLAGGED(tch, PRF_AUTOBOT))
+				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));
 		}		// endif shortlist
