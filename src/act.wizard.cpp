@@ -5704,6 +5704,7 @@ struct set_struct		/*
 	{"killer", LVL_IMPL, PC, BINARY}, // 58
 	{"remort", LVL_IMPL, PC, BINARY}, // 59
 	{"tester", LVL_IMPL, PC, BINARY}, // 60
+	{"autobot",LVL_IMPL, PC, BINARY}, // 61
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6389,6 +6390,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			//			send_to_gods(buf);
 		}
 		break;
+        case 61: // флаг автобота
+        {
+            SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_AUTOBOT);
+            break;
+        }
 
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);

@@ -377,7 +377,12 @@ enum ESpell
 	SPELL_SNAKE_EYES = 225, // глаза змея
 	SPELL_EARTH_AURA = 226, // земной поклон
 	SPELL_GROUP_PROT_FROM_EVIL = 227, // групповая защита от тьмы
-	SPELLS_COUNT = SPELL_GROUP_PROT_FROM_EVIL   // Counter corresponds to the last value because we count spells from 1.
+	SPELL_ARROWS_FIRE = 228,  // стрелы охотника
+	SPELL_ARROWS_WATER = 229, // стрелы охотника
+	SPELL_ARROWS_EARTH = 230, // стрелы охотника
+	SPELL_ARROWS_AIR = 231,   // стрелы охотника
+	SPELL_ARROWS_DEATH = 232, // стрелы охотника
+	SPELLS_COUNT = SPELL_ARROWS_DEATH   // Counter corresponds to the last value because we count spells from 1.
 };
 
 typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;

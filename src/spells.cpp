@@ -3678,6 +3678,11 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Что яд, а что мед. Не обманемся!", "...и самый сильный яд станет вам виден." }, // SPELL_SNAKE_EYES
 	cast_phrase_t{ "Велес, даруй защиту.", "... земля благословенна твоя." }, // SPELL_EARTH_AURA
 	cast_phrase_t{ "други, супостат нощи", "други, свет который в тебе, да убоится тьма." }, // SPELL_GROUP_PROT_FROM_EVIL
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_FIRE (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_DEATH (set by program)
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3917,7 +3922,12 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_SNAKE_EYES] = "SPELL_SNAKE_EYES";
 	ESpell_name_by_value[ESpell::SPELL_EARTH_AURA] = "SPELL_EARTH_AURA";
 	ESpell_name_by_value[ESpell::SPELL_GROUP_PROT_FROM_EVIL] = "SPELL_GROUP_PROT_FROM_EVIL";
-	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_FIRE] = "SPELL_ARROWS_FIRE";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_WATER] = "SPELL_ARROWS_WATER";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_EARTH] = "SPELL_ARROWS_EARTH";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_AIR] = "SPELL_ARROWS_AIR";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_DEATH] = "SPELL_ARROWS_DEATH";
+        ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
 
 	for (const auto& i : ESpell_name_by_value)
 	{
