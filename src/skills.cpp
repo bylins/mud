@@ -809,13 +809,13 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	switch (skill_no)
 	{
 	case SKILL_HIDETRACK:          // замести следы
-        {
+		{
 		bonus = (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 		break;
-        }
+		}
 
 	case SKILL_BACKSTAB:	//заколоть
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) * 2;
@@ -844,10 +844,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 		}
 		break;
-        }
+		}
 
 	case SKILL_BASH:	//сбить
-        {
+		{
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = size
 			+ dex_bonus(GET_REAL_DEX(ch))
@@ -866,10 +866,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-        }
+		}
 
 	case SKILL_HIDE:	//спрятаться
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 			- size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
@@ -910,10 +910,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-        }
+		}
 
 	case SKILL_KICK:	//пнуть
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
@@ -927,31 +927,31 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-        }
+		}
 
 	case SKILL_PICK_LOCK:	// взлом
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 			+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 		break;
-        }
+		}
 
 	case SKILL_PUNCH:	//удар левой рукой
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		break;
-        }
-        
+		}
+
 	case SKILL_RESCUE:	//спасти
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		//		victim_modi = 100;
 		break;
-        }
-        
+		}
+		
 	case SKILL_SNEAK:	// Подкрасться
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 10 : 0);
 
@@ -975,10 +975,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-        }
-        
+		}
+
 	case SKILL_STEAL:	// Украсть
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch))
 			+ (can_use_feat(ch, NIMBLE_FINGERS_FEAT) ? 5 : 0);
 
@@ -1002,10 +1002,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-        }
-        
+		}
+
 	case SKILL_TRACK:       //выследить
-        {
+		{
 		percent = skill_is + int_app[GET_REAL_INT(ch)].observation
 			+ (can_use_feat(ch, TRACKER_FEAT) ? 10 : 0);
 
@@ -1032,18 +1032,18 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			}
 		}
 		break;
-        }
-        
+		}
+
 	case SKILL_SENSE: // найти
-        {
+		{
 		bonus = int_app[GET_REAL_INT(ch)].observation
 			+ (can_use_feat(ch, TRACKER_FEAT) ? 20 : 0);
 		break;
-        }
+		}
 
 	case SKILL_MULTYPARRY:  // веерная защита
 	case SKILL_PARRY:	//парировать
-        {
+		{
 		victim_sav = dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		if (GET_AF_BATTLE(ch, EAF_AWAKE))
@@ -1058,7 +1058,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		victim_modi = 100;
 		break;
-        }
+		}
 
 	case SKILL_BLOCK:	//закрыться щитом
 	{		// по 10 бонусом со щита (21-30) и дексы (21-50)
@@ -1069,7 +1069,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	}
 
 	case SKILL_TOUCH:	//захватить противника
-        {
+		{
 		victim_sav = dex_bonus(GET_REAL_DEX(vict));
 		bonus = dex_bonus(GET_REAL_DEX(ch)) +
 			size_app[GET_POS_SIZE(vict)].interpolate;
@@ -1080,20 +1080,20 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= size_app[GET_POS_SIZE(vict)].interpolate;
 		}
 		break;
-        }
+		}
 
 	case SKILL_PROTECT:	//прикрыть грудью
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + size;
 		victim_modi = 50;
 		break;
-        }
+		}
 
 	case SKILL_BOWS:	//луки
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		break;
-        }
+		}
 
 	case SKILL_BOTHHANDS:	//двуручники
 	case SKILL_LONGS:	//длинные лезвия
@@ -1103,30 +1103,30 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_PICK:	//проникающее
 	case SKILL_NONSTANDART:	//разнообразное оружие
 	case SKILL_AXES:	//секиры
-//        victim_sav = GET_SAVE(vict, SAVING_REFLEX);
+		//victim_sav = GET_SAVE(vict, SAVING_REFLEX);
 		break;
 
 	case SKILL_SATTACK:	//атака второй рукой
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX);
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict) + dex_bonus(GET_REAL_DEX(ch)); //equal
 		break;
-        }
+		}
 
 	case SKILL_LOOKING:	//приглядеться
-        {
+		{
 		bonus = int_app[GET_REAL_INT(ch)].observation;
 		break;
-        }
+		}
 
 	case SKILL_HEARING:	//прислушаться
-        {
+		{
 		bonus = int_app[GET_REAL_INT(ch)].observation;
 		break;
-        }
+		}
 
 	case SKILL_DISARM:
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + dex_bonus(GET_REAL_STR(ch));
@@ -1139,28 +1139,28 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				victim_modi -= calculate_awake_mod(ch, vict);
 		}
 		break;
-        }
+		}
 
-        //насколько я понимаю не используемое умение
+		//насколько я понимаю не используемое умение
 	case SKILL_HEAL:   // лечить
 		break;
 
 	case SKILL_ADDSHOT:   // дополнительный выстрел
-        {
+		{
 		if (equip_in_metall(ch))
 			bonus -= 5;
 		pass_mod = 1;
 		break;
-        }
+		}
 
 	case SKILL_NOPARRYHIT:
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch));
 		break;
-        }
+		}
 
 	case SKILL_CAMOUFLAGE: // маскировка
-        {
+		{
 		bonus = dex_bonus(GET_REAL_DEX(ch)) - size_app[GET_POS_SIZE(ch)].ac
 			+ (can_use_feat(ch, STEALTHY_FEAT) ? 5 : 0);
 
@@ -1185,10 +1185,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
-        }
+		}
 
 	case SKILL_DEVIATE:  // уклониться
-        {
+		{
 		bonus = -size_app[GET_POS_SIZE(ch)].ac +
 			dex_bonus(GET_REAL_DEX(ch));
 
@@ -1200,10 +1200,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= dex_bonus(GET_REAL_DEX(vict));
 		}
 		break;
-        }
-        
+		}
+
 	case SKILL_CHOPOFF:  // подножка
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch)) + ((dex_bonus(GET_REAL_DEX(ch)) * 5) / 10)  + size_app[GET_POS_SIZE(ch)].ac; // тест х3 признан вредительским
@@ -1225,8 +1225,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			//			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
-        }
-        
+		}
+
 	case SKILL_REPAIR: // починка
 		break;
 	case SKILL_UPGRADE:  //заточить
@@ -1237,7 +1237,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	case SKILL_SHIT:
 		break;
 	case SKILL_MIGHTHIT: // богатырский молот
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		//bonus = size + dex_bonus(GET_REAL_STR(ch));
@@ -1248,10 +1248,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		else
 			victim_modi -= size_app[GET_POS_SIZE(vict)].shocking;
 		break;
-        }
-        
+		}
+
 	case SKILL_STUPOR:  // оглушить
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 		bonus = dex_bonus(GET_REAL_STR(ch));
@@ -1267,18 +1267,18 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= GET_REAL_CON(vict);
 		}
 		break;
-        }
-        
+		}
+
 	case SKILL_POISONED:  // отравление
 		break;
 	case SKILL_LEADERSHIP: //лидерство
-        {
+		{
 		bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
-        }
-        
+		}
+
 	case SKILL_PUNCTUAL:  // точный стиль
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_CRITICAL) - dex_bonus(GET_REAL_CON(vict));
 		victim_sav = -GET_REAL_SAVING_CRITICAL(vict);
 		bonus = dex_bonus(GET_REAL_INT(ch));
@@ -1298,8 +1298,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= int_app[GET_REAL_INT(vict)].observation;
 		}
 		break;
-        }
-        
+		}
+
 	case SKILL_AWAKE:  // осторожный стиль
 	{
 		const size_t real_dex = static_cast<size_t>(GET_REAL_DEX(ch));
@@ -1321,19 +1321,19 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	break;
 
 	case SKILL_IDENTIFY:
-        {
+		{
 		bonus = int_app[GET_REAL_INT(ch)].observation
 			+ (can_use_feat(ch, CONNOISEUR_FEAT) ? 20 : 0);
 		break;
-        }
+		}
 
 	case SKILL_CREATE_POTION:
 	case SKILL_CREATE_SCROLL:
 	case SKILL_CREATE_WAND:
 		break;
-                
+
 	case SKILL_LOOK_HIDE:
-        {
+		{
 		bonus = cha_app[GET_REAL_CHA(ch)].illusive;
 		if (vict)
 		{
@@ -1343,49 +1343,49 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				victim_modi -= int_app[GET_REAL_INT(ch)].observation;
 		}
 		break;
-        }
-        
+		}
+
 	case SKILL_ARMORED:
 		break;
-                
+
 	case SKILL_DRUNKOFF:
-        {
+		{
 		bonus = -GET_REAL_CON(ch) / 2
 			+ (can_use_feat(ch, DRUNKARD_FEAT) ? 20 : 0);
 		break;
-        }
-        
+		}
+
 	case SKILL_AID:    // лечить
-        {
+		{
 		bonus = (can_use_feat(ch, HEALER_FEAT) ? 10 : 0);
 		break;
-        }
-        
+		}
+
 	case SKILL_FIRE:
-        {
+		{
 		if (get_room_sky(ch->in_room) == SKY_RAINING)
 			bonus -= 50;
 		else if (get_room_sky(ch->in_room) != SKY_LIGHTNING)
 			bonus -= number(10, 25);
 		break;
-        }
-        
+		}
+
 	case SKILL_HORSE: // верховая езда
-        {
+		{
 		bonus = cha_app[GET_REAL_CHA(ch)].leadership;
 		break;
-        }
-        
+		}
+
 	case SKILL_TURN_UNDEAD:  // изгнать нежить
-        {
+		{
 		bonus = (can_use_feat(ch, EXORCIST_FEAT) ? 20 : 0);
 		break;
-        }
-        
+		}
+		
 	case SKILL_MORPH:
 		break;
 	case SKILL_STRANGLE: // удавить
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) -dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
 		bonus = dex_bonus(GET_REAL_DEX(ch));
@@ -1404,10 +1404,10 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 				victim_modi -= calculate_awake_mod(ch, vict);
 		}
 		break;
-        }
-        
+		}
+		
 	case SKILL_STUN: //ошеломить
-        {
+		{
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
 		victim_sav = -GET_REAL_SAVING_STABILITY(vict);
 
@@ -1428,14 +1428,14 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= calculate_awake_mod(ch, vict);
 
 		// Полель не убираем учет удачи
-                //pass_mod = 1; //Убираем учет удачи  
-
+		//pass_mod = 1; //Убираем учет удачи  
 		break;
-        }
-        
+	}
+
 	default:
 		break;
 	}
+
 	//        if(IS_NPC(ch))
 	//        bonus = 0;
 	if (skill_no == SKILL_TRACK)
@@ -1578,10 +1578,10 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 
 		skill_is = number(1, MAX(1, prob));
 
-		// if (!IS_NPC(ch))
-//        log("Player %s skill '%d' - need to improove %d(%d-%d)",
-//            GET_NAME(ch), skill_no, skill_is, div, prob);
-                if ((skill_no == SKILL_STEAL) && (!IS_NPC(victim)))
+		//if (!IS_NPC(ch))
+		//log("Player %s skill '%d' - need to improove %d(%d-%d)",
+		//GET_NAME(ch), skill_no, skill_is, div, prob);
+		if ((skill_no == SKILL_STEAL) && (!IS_NPC(victim)))
 		{
 			return;
 		}
@@ -1604,7 +1604,7 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 			{
 				ch->set_morphed_skill(skill_no, (MIN(MAX_EXP_PERCENT + GET_REMORT(ch) * 5, ch->get_trained_skill(skill_no))));
 			}
-// скилл прокачался, помечаю моба (если он есть)
+			// скилл прокачался, помечаю моба (если он есть)
 			if (victim && IS_NPC(victim))
 			{
 				MOB_FLAGS(victim).set(MOB_NOTRAIN);
@@ -1669,80 +1669,80 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim)
 
 int find_weapon_focus_by_skill(ESkill skill)
 {
-    switch (skill)
-    {
+	switch (skill)
+	{
 	case SKILL_PUNCH:
-        return PUNCH_FOCUS_FEAT;
+		return PUNCH_FOCUS_FEAT;
 	break;
 	case SKILL_CLUBS:
-        return CLUB_FOCUS_FEAT;
+		return CLUB_FOCUS_FEAT;
 	break;
 	case SKILL_AXES:
-        return AXES_FOCUS_FEAT;
+		return AXES_FOCUS_FEAT;
 	break;
 	case SKILL_LONGS:
-        return LONGS_FOCUS_FEAT;
+		return LONGS_FOCUS_FEAT;
 	break;
 	case SKILL_SHORTS:
-        return SHORTS_FOCUS_FEAT;
+		return SHORTS_FOCUS_FEAT;
 	break;
 	case SKILL_NONSTANDART:
-        return NONSTANDART_FOCUS_FEAT;
+		return NONSTANDART_FOCUS_FEAT;
 	break;
 	case SKILL_BOTHHANDS:
-        return BOTHHANDS_FOCUS_FEAT;
+		return BOTHHANDS_FOCUS_FEAT;
 	break;
 	case SKILL_PICK:
-        return PICK_FOCUS_FEAT;
+		return PICK_FOCUS_FEAT;
 	break;
 	case SKILL_SPADES:
-        return SPADES_FOCUS_FEAT;
+		return SPADES_FOCUS_FEAT;
 	break;
 	case SKILL_BOWS:
-        return BOWS_FOCUS_FEAT;
+		return BOWS_FOCUS_FEAT;
 	break;
 	default:
-        return THAC0_FEAT;
-    }
+		return THAC0_FEAT;
+	}
 }
 
 int find_weapon_master_by_skill(ESkill skill)
 {
-    switch (skill)
-    {
+	switch (skill)
+	{
 	case SKILL_PUNCH:
-        return PUNCH_MASTER_FEAT;
+		return PUNCH_MASTER_FEAT;
 	break;
 	case SKILL_CLUBS:
-        return CLUBS_MASTER_FEAT;
+		return CLUBS_MASTER_FEAT;
 	break;
 	case SKILL_AXES:
-        return AXES_MASTER_FEAT;
+		return AXES_MASTER_FEAT;
 	break;
 	case SKILL_LONGS:
-        return LONGS_MASTER_FEAT;
+		return LONGS_MASTER_FEAT;
 	break;
 	case SKILL_SHORTS:
-        return SHORTS_MASTER_FEAT;
+		return SHORTS_MASTER_FEAT;
 	break;
 	case SKILL_NONSTANDART:
-        return NONSTANDART_MASTER_FEAT;
+		return NONSTANDART_MASTER_FEAT;
 	break;
 	case SKILL_BOTHHANDS:
-        return BOTHHANDS_MASTER_FEAT;
+		return BOTHHANDS_MASTER_FEAT;
 	break;
 	case SKILL_PICK:
-        return PICK_MASTER_FEAT;
+		return PICK_MASTER_FEAT;
 	break;
 	case SKILL_SPADES:
-        return SPADES_MASTER_FEAT;
+		return SPADES_MASTER_FEAT;
 	break;
 	case SKILL_BOWS:
-        return BOWS_MASTER_FEAT;
+		return BOWS_MASTER_FEAT;
 	break;
 	default:
-        return THAC0_FEAT;
-    }
+		return THAC0_FEAT;
+	}
 }
 
 //Определим мин уровень для изучения скилла из книги
@@ -1833,7 +1833,7 @@ void Skill::ParseSkill(pugi::xml_node SkillNode)
 // Вынесено в отдельную функцию, чтобы, если нам передали кривой XML лист, не создавался кривой скилл
 void Skill::Load(const pugi::xml_node& XMLSkillList)
 {
-    pugi::xml_node CurNode;
+	pugi::xml_node CurNode;
 
 	for (CurNode = XMLSkillList.child("skill"); CurNode; CurNode = CurNode.next_sibling("skill"))
 	{
@@ -1845,14 +1845,14 @@ void Skill::Load(const pugi::xml_node& XMLSkillList)
 // Отрыжка совместимости со старым кодом
 int Skill::GetNumByID(const std::string& ID)
 {
-    SkillPtr TmpSkill = Skill::SkillList[ID];
+	SkillPtr TmpSkill = Skill::SkillList[ID];
 
 	if (TmpSkill)
 	{
 		return TmpSkill->_Number;
 	}
 
-    return SKILL_UNDEFINED;
+	return SKILL_UNDEFINED;
 };
 
 // Конец (увы) реализации класса Skill

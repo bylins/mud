@@ -6390,11 +6390,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			//			send_to_gods(buf);
 		}
 		break;
-        case 61: // флаг автобота
-        {
-            SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_AUTOBOT);
-            break;
-        }
+	case 61: // флаг автобота
+		{
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_AUTOBOT);
+			break;
+		}
 
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);

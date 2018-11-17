@@ -1407,7 +1407,7 @@ MakeReceptList *MakeReceptList::can_make(CHAR_DATA * ch, MakeReceptList * canlis
 }
 OBJ_DATA *get_obj_in_list_ingr(int num, OBJ_DATA * list) //Ингридиентом является или сам прототип с VNUM или альтернатива с VALUE 1 равным внум прототипа
 {
-    OBJ_DATA *i;
+	OBJ_DATA *i;
 	for (i = list; i; i = i->get_next_content())
 	{
 		if (GET_OBJ_VNUM(i) == num)
@@ -1422,7 +1422,7 @@ OBJ_DATA *get_obj_in_list_ingr(int num, OBJ_DATA * list) //Ингридиент�
 			return i;
 		}
 	}
-    return NULL;
+	return NULL;
 }
 MakeRecept::MakeRecept(): skill(SKILL_INVALID)
 {
@@ -1453,7 +1453,7 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 	// Делаем проверку может ли чар сделать предмет такого типа
 	if (skill == SKILL_MAKE_STAFF)
 	{
-            return 0;
+		return 0;
 	}
 	for (i = 0; i < MAX_PARTS; i++)
 	{
@@ -1463,18 +1463,18 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 		}
 		if (real_object(parts[i].proto) < 0)
 			return (FALSE);
-//      send_to_char("Образец был невозвратимо утерян.\r\n",ch); //леший знает чего тут надо писать
+		//send_to_char("Образец был невозвратимо утерян.\r\n",ch); //леший знает чего тут надо писать
 		if (!(ingrobj = get_obj_in_list_ingr(parts[i].proto, ch->carrying)))
 		{
-//       sprintf(tmpbuf,"Для '%d' у вас нет '%d'.\r\n",obj_proto,parts[i].proto);
-//       send_to_char(tmpbuf,ch);
+			//sprintf(tmpbuf,"Для '%d' у вас нет '%d'.\r\n",obj_proto,parts[i].proto);
+			//send_to_char(tmpbuf,ch);
 			return (FALSE);
 		}
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
 		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch))))
-    		{
+		{
 			send_to_char("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (FALSE);
 		}
@@ -1586,7 +1586,6 @@ void MakeRecept::make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[M
 }
 float MakeRecept::count_mort_requred(OBJ_DATA * obj)
 {
-    
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;
 	const int AFF_SHIELD_MOD = 30;
@@ -1613,49 +1612,49 @@ float MakeRecept::count_mort_requred(OBJ_DATA * obj)
 				return 1000000;
 			}
 		}
-		if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location != APPLY_AC)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != APPLY_AC) &&
+			    (obj->get_affected(k).location != APPLY_SAVING_WILL) &&
+			    (obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
+			    (obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
+			    (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
 		{
-                    float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
-        	    log("SYSERROR: negative weight=%f, obj_vnum=%d",
-					weight, GET_OBJ_VNUM(obj));
-                    total_weight += pow(weight, SQRT_MOD);
+			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
+			log("SYSERROR: negative weight=%f, obj_vnum=%d",
+				weight, GET_OBJ_VNUM(obj));
+			total_weight += pow(weight, SQRT_MOD);
 		}
-                // савесы которые с минусом должны тогда понижать вес если в +
- 		else if ((obj->get_affected(k).modifier > 0)&&((obj->get_affected(k).location == APPLY_AC)||
-                        (obj->get_affected(k).location == APPLY_SAVING_WILL)||
-                        (obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
-                        (obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
-                        (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		// савесы которые с минусом должны тогда понижать вес если в +
+		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
+			    (obj->get_affected(k).location == APPLY_SAVING_WILL) ||
+			    (obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
+			    (obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
+			    (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
 		{
-                    float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
-                    total_weight -= pow(weight, -SQRT_MOD);
+			float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
 		}
-               //Добавленый кусок учет савесов с - значениями
-                else if ((obj->get_affected(k).modifier < 0)
-                        &&((obj->get_affected(k).location == APPLY_AC)||
-                        (obj->get_affected(k).location == APPLY_SAVING_WILL)||
-                        (obj->get_affected(k).location == APPLY_SAVING_CRITICAL)||
-                        (obj->get_affected(k).location == APPLY_SAVING_STABILITY)||
-                        (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
-                {
-                    float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
-                    total_weight += pow(weight, SQRT_MOD);
-                }
-               //Добавленый кусок учет отрицательного значения но не савесов
-                else if ((obj->get_affected(k).modifier < 0)
-                        &&((obj->get_affected(k).location != APPLY_AC)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_WILL)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_CRITICAL)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_STABILITY)&&
-                        (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
-                {
-                    float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
-                    total_weight -= pow(weight, -SQRT_MOD);
-                }
+		//Добавленый кусок учет савесов с - значениями
+		else if ((obj->get_affected(k).modifier < 0)
+				 && ((obj->get_affected(k).location == APPLY_AC) ||
+				      (obj->get_affected(k).location == APPLY_SAVING_WILL) ||
+				      (obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
+				      (obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
+				      (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		{
+			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
+			total_weight += pow(weight, SQRT_MOD);
+		}
+		//Добавленый кусок учет отрицательного значения но не савесов
+		else if ((obj->get_affected(k).modifier < 0)
+				 && ((obj->get_affected(k).location != APPLY_AC) &&
+				     (obj->get_affected(k).location != APPLY_SAVING_WILL) &&
+				     (obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
+				     (obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
+				     (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+		{
+			float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
+		}
 	}
 	// аффекты AFF_x через weapon_affect
 	for (const auto& m : weapon_affect)
@@ -1684,12 +1683,11 @@ float MakeRecept::count_mort_requred(OBJ_DATA * obj)
 			}
 		}
 	}
-        if (total_weight < 1) return result;
+	if (total_weight < 1) return result;
 	
-        result = ceil(pow(total_weight, 1/SQRT_MOD));
+		result = ceil(pow(total_weight, 1/SQRT_MOD));
 
 	return result;
-    
 }
 
 float MakeRecept::count_affect_weight(int num, int mod)
@@ -2110,14 +2108,14 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// При разнице большей чем 1 уровней замедление в 2 раза.
 	// При разнице большей чем в 2 уровней замедление в 3 раза.
 	/*
-        if (skill == SKILL_MAKE_STAFF)
+	if (skill == SKILL_MAKE_STAFF)
 	{
 		if (number(0, GET_LEVEL(ch) - created_lev) < GET_SPELL_MEM(ch, GET_OBJ_VAL(tobj, 3)))
 		{
 			train_skill(ch, skill, skill_info[skill].max_percent, 0);
 		}
 	}
-        */ 
+	*/ 
 	train_skill(ch, skill, skill_info[skill].max_percent, 0);
 	// 4. Считаем сколько материала треба.
 	if (!make_fail)
@@ -2394,9 +2392,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 		obj->set_tag(tagchar);
 		free(tagchar);
 	};
-        // простановка мортов при шитье
+	// простановка мортов при шитье
 	float total_weight = count_mort_requred(obj.get()) * 7 / 10;
-      
+
 	if (total_weight > 35)
 	{
 		obj->set_minimum_remorts(12);
@@ -2636,7 +2634,7 @@ int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OB
 						break;
 					base[j].location = add[i].location;
 					base[j].modifier += add[i].modifier;
-//    cout << "add affect " << int(base[j].location) <<" - " << int(base[j].modifier) << endl;
+					//cout << "add affect " << int(base[j].location) <<" - " << int(base[j].modifier) << endl;
 					break;
 				}
 			}
