@@ -299,7 +299,7 @@ void assign_feats(void)
 //42
 	feato(SPIRIT_WARRIOR_FEAT, "боевой дух", NORMAL_FTYPE, TRUE, feat_app);
 //43
- 	feat_app.insert(APPLY_HITREG, 50);
+	feat_app.insert(APPLY_HITREG, 50);
 	feato(RELIABLE_HEALTH_FEAT, "крепкое здоровье", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //44
@@ -563,13 +563,11 @@ void assign_feats(void)
 //131
 	// наем наносит серию сильных ударов, но быстро устает
 	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
-	/**
-        Тут промежуток, потому что кто-то зарезервировал номера "под татей"
-	*/
+//Тут промежуток, потому что кто-то зарезервировал номера "под татей"
 //138
-    feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
+	feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
 //139
-    feato(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
+	feato(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
 	/*
 	//
 		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
@@ -813,16 +811,16 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 		}
 		break;
-    case EXPEDIENT_CUT_FEAT:
+	case EXPEDIENT_CUT_FEAT:
 		if (!HAVE_FEAT(ch, SHORTS_MASTER_FEAT)
-            && !HAVE_FEAT(ch, PICK_MASTER_FEAT)
-            && !HAVE_FEAT(ch, LONGS_MASTER_FEAT)
-            && !HAVE_FEAT(ch, SPADES_MASTER_FEAT)
-            && !HAVE_FEAT(ch, BOTHHANDS_MASTER_FEAT))
-        {
-            return FALSE;
-        }
-        break;
+			&& !HAVE_FEAT(ch, PICK_MASTER_FEAT)
+			&& !HAVE_FEAT(ch, LONGS_MASTER_FEAT)
+			&& !HAVE_FEAT(ch, SPADES_MASTER_FEAT)
+			&& !HAVE_FEAT(ch, BOTHHANDS_MASTER_FEAT))
+		{
+			return FALSE;
+		}
+		break;
 	}
 	return TRUE;
 }
@@ -859,7 +857,7 @@ bool have_feat_slot(CHAR_DATA *ch, int feat)
 			}
 		}
 	}
-	  
+
 	std::sort(slot_list.begin(), slot_list.end());
 
 	//Посчитаем сколько действительно нижние способности занимают слотов (с учетом пропусков)
