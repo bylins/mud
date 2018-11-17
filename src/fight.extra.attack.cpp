@@ -1,4 +1,4 @@
-#include "fight.extra.atack.hpp"
+#include "fight.extra.attack.hpp"
 
 #include "char.hpp"
 #include "spells.h"
@@ -6,9 +6,9 @@
 
 #include <boost/algorithm/string.hpp>
 
-WeaponMagicalAtack::WeaponMagicalAtack(CHAR_DATA * ch) {ch_=ch;}
+WeaponMagicalAttack::WeaponMagicalAttack(CHAR_DATA * ch) {ch_=ch;}
 
-void WeaponMagicalAtack::set_atack(CHAR_DATA * ch, CHAR_DATA * victim) 
+void WeaponMagicalAttack::set_attack(CHAR_DATA * ch, CHAR_DATA * victim) 
 {
     OBJ_DATA *mag_cont;
 
@@ -24,7 +24,7 @@ void WeaponMagicalAtack::set_atack(CHAR_DATA * ch, CHAR_DATA * victim)
     mag_single_target(GET_LEVEL(ch), ch, victim, NULL, GET_OBJ_VAL(mag_cont, 0), SAVING_REFLEX);
 }
 
-bool WeaponMagicalAtack::set_count_atack(CHAR_DATA * ch)
+bool WeaponMagicalAttack::set_count_attack(CHAR_DATA * ch)
 {
     OBJ_DATA *mag_cont;
     mag_cont = GET_EQ(ch, WEAR_QUIVER);
