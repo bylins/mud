@@ -1437,7 +1437,7 @@ MakeRecept::MakeRecept(): skill(SKILL_INVALID)
 }
 int MakeRecept::can_make(CHAR_DATA * ch)
 {
-	int i, spellnum;
+	int i;
 	OBJ_DATA *ingrobj = NULL;
 	// char tmpbuf[MAX_INPUT_LENGTH];
 	// Сделать проверку на поле locked
