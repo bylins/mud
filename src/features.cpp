@@ -597,7 +597,7 @@ void assign_feats(void)
 //140
     feato(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //141
-    feato(SKILL_CAPABLE_FEAT, "наложение чар", NORMAL_FTYPE, TRUE, feat_app);
+    feato(ABILITY_OVERLAY_FEAT, "наложение чар", NORMAL_FTYPE, TRUE, feat_app);  
 //142
     // ускороный выстрел зачарованными стрелами
     feato(DEFT_SHOOTER_FEAT, "ловкий стрелок", NORMAL_FTYPE, TRUE, feat_app);
