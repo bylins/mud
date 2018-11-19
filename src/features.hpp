@@ -167,7 +167,7 @@ using std::bitset;
 #define EVASION_FEAT            138 //скользский тип
 #define EXPEDIENT_CUT_FEAT      139 //порез
 #define SHOT_FINESSE_FEAT		140  //ловкий выстрел
-#define SKILL_CAPABLE_FEAT		141 //зачаровывание предметов
+#define ABILITY_OVERLAY_FEAT	141 //зачаровывание предметов
 								    // нужно более подходящее имя, префикс SKILL используется для скиллов,
 								    // да и смысла на английском это имя не имеет
 #define DEFT_SHOOTER_FEAT		142 //ловкий стрелок
