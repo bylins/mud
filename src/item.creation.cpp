@@ -724,7 +724,6 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			tmpstr += string(tmpbuf);
 		};
 		send_to_char(tmpstr.c_str(), ch);
-		delete canlist;
 		return;
 	}
 	// Адресуемся по списку либо по номеру, либо по названию с номером.
