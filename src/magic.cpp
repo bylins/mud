@@ -799,7 +799,10 @@ int calc_anti_savings(CHAR_DATA * ch)
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int)((GET_REAL_WIS(ch) - 23) * 3 / 2)));
-	if (!IS_NPC(ch)) modi *= ch->get_cond_penalty(P_CAST);
+	if (!IS_NPC(ch)) 
+	{
+		modi *= ch->get_cond_penalty(P_CAST);
+	}
 //  log("[EXT_APPLY] Name==%s modi==%d",GET_NAME(ch), modi);
 	return modi;
 }
@@ -2388,6 +2391,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	case SPELL_ARROWS_EARTH:
 	case SPELL_ARROWS_AIR:
 	case SPELL_ARROWS_DEATH:
+		if (!(IS_NPC(ch)))
 		{
 			act("Ваша магическая стрела поразила $N1.", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магическая стрела $n1 поразила $N1.", FALSE, ch, 0, victim, TO_NOTVICT);
@@ -2395,8 +2399,15 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			ndice = 3+ch->get_remort();
 			sdice = 4;
 			adice = level + ch->get_remort() + 1;
-			break;      
 		}
+		else
+		{
+			ndice = 20;
+			sdice = 4;
+			adice = level * 3;
+		}
+			
+		break;      
 
 	}			// switch(spellnum)
 
