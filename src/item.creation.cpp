@@ -674,39 +674,38 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	}
 	string tmpstr;
-	MakeReceptList *canlist;
+	MakeReceptList canlist;
 	MakeRecept *trec;
 	char tmpbuf[MAX_INPUT_LENGTH];
 	//int used_skill = subcmd;
 	argument = one_argument(argument, tmpbuf);
-	canlist = new MakeReceptList;
 	// Разбираем в зависимости от того что набрали ... список объектов
 	switch (subcmd)
 	{
 	case(MAKE_POTION):
 		// Варим отвар.
 		tmpstr = "Вы можете сварить:\r\n";
-		make_recepts.can_make(ch, canlist, SKILL_MAKE_POTION);
+		make_recepts.can_make(ch, &canlist, SKILL_MAKE_POTION);
 		break;
 	case(MAKE_WEAR):
 		// Шьем одежку.
 		tmpstr = "Вы можете сшить:\r\n";
-		make_recepts.can_make(ch, canlist, SKILL_MAKE_WEAR);
+		make_recepts.can_make(ch, &canlist, SKILL_MAKE_WEAR);
 		break;
 	case(MAKE_METALL):
 		tmpstr = "Вы можете выковать:\r\n";
-		make_recepts.can_make(ch, canlist, SKILL_MAKE_WEAPON);
-		make_recepts.can_make(ch, canlist, SKILL_MAKE_ARMOR);
+		make_recepts.can_make(ch, &canlist, SKILL_MAKE_WEAPON);
+		make_recepts.can_make(ch, &canlist, SKILL_MAKE_ARMOR);
 		break;
 	case(MAKE_CRAFT):
 		tmpstr = "Вы можете смастерить:\r\n";
-		make_recepts.can_make(ch, canlist, SKILL_MAKE_STAFF);
-		make_recepts.can_make(ch, canlist, SKILL_MAKE_BOW);
-		make_recepts.can_make(ch, canlist, SKILL_MAKE_JEWEL);
-		make_recepts.can_make(ch, canlist, SKILL_MAKE_AMULET);
+		make_recepts.can_make(ch, &canlist, SKILL_MAKE_STAFF);
+		make_recepts.can_make(ch, &canlist, SKILL_MAKE_BOW);
+		make_recepts.can_make(ch, &canlist, SKILL_MAKE_JEWEL);
+		make_recepts.can_make(ch, &canlist, SKILL_MAKE_AMULET);
 		break;
 	}
-	if (canlist->size() == 0)
+	if (canlist.size() == 0)
 	{
 		// Чар не может сделать ничего.
 		send_to_char("Вы ничего не можете сделать.\r\n", ch);
@@ -715,9 +714,9 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (!*tmpbuf)
 	{
 		// Выводим тут список предметов которые можем сделать.
-		for (size_t i = 0; i < canlist->size(); i++)
+		for (size_t i = 0; i < canlist.size(); i++)
 		{
-			auto tobj = get_object_prototype((*canlist)[i]->obj_proto);
+			auto tobj = get_object_prototype(canlist[i]->obj_proto);
 			if (!tobj)
 				return;
 			sprintf(tmpbuf, "%zd) %s\r\n", i + 1, tobj->get_PName(0).c_str());
@@ -729,24 +728,22 @@ void do_make_item(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// Адресуемся по списку либо по номеру, либо по названию с номером.
 	tmpstr = string(tmpbuf);
 	size_t i = atoi(tmpbuf);
-	if ((i > 0) && (i <= canlist->size())
+	if ((i > 0) && (i <= canlist.size())
 			&& (tmpstr.find(".") > tmpstr.size()))
 	{
-		trec = (*canlist)[i - 1];
+		trec = canlist[i - 1];
 	}
 	else
 	{
-		trec = canlist->get_by_name(tmpstr);
+		trec = canlist.get_by_name(tmpstr);
 		if (trec == NULL)
 		{
-			tmpstr = "Похоже у вас творческий кризис.\r\n";
+			tmpstr = "Похоже, у вас творческий кризис.\r\n";
 			send_to_char(tmpstr.c_str(), ch);
-			delete canlist;
 			return;
 		}
 	};
 	trec->make(ch);
-	delete canlist;
 	return;
 }
 void go_create_weapon(CHAR_DATA * ch, OBJ_DATA * obj, int obj_type, ESkill skill)
