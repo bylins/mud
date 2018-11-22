@@ -135,7 +135,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
 	}
 }
-void inspiration(CHAR_DATA *ch, bool type);
+void inspiration(CHAR_DATA *ch, int time)
 {
 }
 
@@ -715,32 +715,6 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 		break;
 	}
-
-	for (int i = 0; i < 4; i++)
-	{
-		if (af[i].type)
-		{
-			if (victim->get_role(MOB_ROLE_BOSS)
-				&& (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
-					|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
-					|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT)))
-			{
-				af[i].duration /= 5;
-				// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
-				sh_int extra_duration = 0;
-				OBJ_DATA* both = GET_EQ(ch, WEAR_BOTHS);
-				OBJ_DATA* wield = GET_EQ(ch, WEAR_WIELD);
-				if (both) {
-					extra_duration = GET_OBJ_WEIGHT(both) / 5;
-				} else if (wield) {
-					extra_duration = GET_OBJ_WEIGHT(wield) / 5;
-				}
-				af[i].duration += pc_duration(victim, GET_REMORT(ch)/2 + extra_duration, 0, 0, 0, 0);
-			}
-			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
-		}
-	}
-
 	if (to_char)
 	{
 		sprintf(buf, "&G&qВаше точное попадание %s.&Q&n", to_char);
@@ -803,6 +777,47 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		dam /= 5;
 	}
 	dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
+	for (int i = 0; i < 4; i++)
+	{
+		bool affect_found = false;
+		if (af[i].type)
+		{
+			if (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
+				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
+				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT))
+			{
+				affect_found = true;
+				if (victim->get_role(MOB_ROLE_BOSS))
+				{
+					af[i].duration /= 5;
+					// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
+					sh_int extra_duration = 0;
+					OBJ_DATA* both = GET_EQ(ch, WEAR_BOTHS);
+					OBJ_DATA* wield = GET_EQ(ch, WEAR_WIELD);
+					if (both)
+					{
+						extra_duration = GET_OBJ_WEIGHT(both) / 5;
+					}
+					else if (wield)
+					{
+						extra_duration = GET_OBJ_WEIGHT(wield) / 5;
+					}
+					af[i].duration += pc_duration(victim, GET_REMORT(ch)/2 + extra_duration, 0, 0, 0, 0);
+				}
+				if (!affect_found)
+				{
+					inspiration(ch, 2);
+					affect_found = true;
+				}
+			}
+			else if (!affect_found)
+			{
+				inspiration(ch, 1);
+				affect_found = true;
+			}
+			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
+		}
+	}
 }
 
 /**
