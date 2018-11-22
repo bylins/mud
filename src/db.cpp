@@ -3846,7 +3846,6 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	int test_hp = get_test_hp(GET_LEVEL(mob));
 	if (GET_EXP(mob) > 0 && mob->points.max_hit < test_hp)
 	{
-//		log("hp: (%s) %d -> %d", GET_NAME(mob), mob->points.max_hit, test_hp);
 		mob->points.max_hit = test_hp;
 	}
 
@@ -3891,6 +3890,8 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	{
 		MOB_FLAGS(mob).set(MOB_GUARDIAN);
 	}
+
+	mob->update_active_affects();
 
 	return (mob);
 }
