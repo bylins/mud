@@ -17,7 +17,6 @@
 #include "reset_stats.hpp"
 #include "boards.types.hpp"
 #include "quest.hpp"
-#include "stigmas.hpp"
 
 #include <string>
 #include <array>

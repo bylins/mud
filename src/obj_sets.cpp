@@ -1474,12 +1474,13 @@ void activ_sum::apply_affects(CHAR_DATA *ch) const
 		if (j.aff_bitvector != 0
 			&& affects.get(j.aff_pos))
 		{
-			affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
+			ch->affect_modify(APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
 		}
 	}
+
 	for (auto&& i : apply)
 	{
-		affect_modify(ch, i.location, i.modifier, static_cast<EAffectFlag>(0), TRUE);
+		ch->affect_modify(i.location, i.modifier, static_cast<EAffectFlag>(0), TRUE);
 	}
 }
 

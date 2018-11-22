@@ -5674,7 +5674,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	while (!ch->affected.empty())
 	{
-		ch->affect_remove(ch->affected.begin());
+		ch->remove_pulse_affect(ch->affected.begin());
 	}
 
 // Снимаем весь стафф

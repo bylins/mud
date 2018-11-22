@@ -524,7 +524,7 @@ void Player::save_char()
 		 */
 		while (!affected.empty())
 		{
-			affect_remove(affected.begin());
+			remove_pulse_affect(affected.begin());
 		}
 	}
 
@@ -627,7 +627,7 @@ void Player::save_char()
 	// структуры
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
-	AFF_FLAGS(this).tascii(4, buf);
+	permanent_affects().tascii(4, buf);	// save affects of the old mechanism
 	fprintf(saved, "Aff : %s\n", buf);
 
 	// дальше не по порядку
@@ -734,8 +734,6 @@ void Player::save_char()
 		fprintf(saved, "0\n");
 	}
 
-	// Рецепты
-//    if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		im_rskill *rs;
 		im_recipe *r;
@@ -765,8 +763,6 @@ void Player::save_char()
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(this));
 	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(this));
 	fprintf(saved, "Room: %d\n", GET_LOADROOM(this));
-//	li = this->player_data.time.birth;
-//	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	fprintf(saved, "Lexc: %ld\n", static_cast<long>(LAST_EXCHANGE(this)));
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(this));
 
@@ -998,7 +994,7 @@ void Player::save_char()
 	{
 		if (tmp_aff[i].type)
 		{
-			affect_to_char(this, tmp_aff[i]);
+			affect_to_char(tmp_aff[i]);
 		}
 	}
 
@@ -1016,7 +1012,7 @@ void Player::save_char()
 #endif
 		}
 	}
-	affect_total(this);
+	update_active_affects();
 
 	i = get_ptable_by_name(GET_NAME(this));
 	if (i >= 0)
@@ -1073,9 +1069,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		return -1;
 	}
 
-///////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////
 
-	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
+		// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
 	if (!this->player_specials)
 	{
 		this->player_specials = std::make_shared<player_special_data>();
@@ -1114,8 +1110,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		{
 			llnum = boost::lexical_cast<unsigned long long>(line1);
 		}
-		catch(boost::bad_lexical_cast &)
-        {
+		catch (boost::bad_lexical_cast &)
+		{
 			llnum = 0;
 		}
 
@@ -1149,7 +1145,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				strcpy(GET_LASTIP(this), line);
 			}
 			//end by WorM
-		  break;
+			break;
 		case 'I':
 			if (!strcmp(tag, "Id  "))
 			{
@@ -1159,7 +1155,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			{
 				//Тут контроль льда потом можно сделать
 				//this->set_ice_currency(lnum);//на праздники
-				if (get_ice_currency()>0) //обнуляем если есть лед
+				if (get_ice_currency() > 0) //обнуляем если есть лед
 					this->set_ice_currency(0);
 			}
 			break;
@@ -1196,11 +1192,10 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		default:
 			sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
-	}
-	while (!skip_file);
+	} while (!skip_file);
 
 	//added by WorM 2010.08.27 лоадим мыло и последний ip даже при считывании индексов
-	while((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this)))
+	while ((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this)))
 	{
 		if (!fbgetline(fl, line))
 		{
@@ -1254,7 +1249,16 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	for (i = 1; i <= MAX_SPELLS; i++)
 		GET_SPELL_MEM(this, i) = 0;
-	this->char_specials.saved.affected_by = clear_flags;
+
+	char_specials.saved.active_affects.clear();
+	for (auto a = 0; a != MAX_AFFECT; ++a)
+	{
+		if (clear_flags.get(a))
+		{
+			set_affect(static_cast<EAffectFlag>(i));
+		}
+	}
+
 	POOFIN(this) = NULL;
 	POOFOUT(this) = NULL;
 	GET_RSKILL(this) = NULL;	// рецептов не знает
@@ -1350,7 +1354,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
 	PRF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
-	AFF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
 	clear_ignores();
@@ -1391,7 +1394,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "Aff "))
 			{
-				AFF_FLAGS(this).from_string(line);
+				FLAG_DATA affects;
+				affects.from_string(line);
+				reset_permanent_affects(affects);
 			}
 			else if (!strcmp(tag, "Affs"))
 			{
@@ -1413,7 +1418,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						{
 							af.handler.reset(new LackyAffectHandler());
 						}
-						affect_to_char(this, af);
+						affect_to_char(af);
 						i++;
 					}
 				} while (num != 0);

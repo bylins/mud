@@ -313,9 +313,10 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
 	{
 		while (!ch->affected.empty())
 		{
-			ch->affect_remove(ch->affected.begin());
+			ch->remove_pulse_affect(ch->affected.begin());
 		}
 	}
+
 	GET_POS(ch) = POS_STANDING;
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
@@ -396,7 +397,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 }
 
 // * Снятие аффектов с чара при смерти/уходе в дт.
-void reset_affects(CHAR_DATA *ch)
+void reset_apply_affects(CHAR_DATA *ch)
 {
 	auto naf = ch->affected.begin();
 
@@ -406,12 +407,11 @@ void reset_affects(CHAR_DATA *ch)
 		const auto& affect = *af;
 		if (!IS_SET(affect->battleflag, AF_DEADKEEP))
 		{
-			ch->affect_remove(af);
+			ch->remove_pulse_affect(af);
 		}
 	}
 
 	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
-	affect_total(ch);
 }
 
 void forget_all_spells(CHAR_DATA *ch)
@@ -430,20 +430,19 @@ void forget_all_spells(CHAR_DATA *ch)
 		--slots[spell_info[(*(qi))->spellnum].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1];
 		qi = &((*qi)->link);
 	}
-	int slotn;
 
 	for (int i = 0; i < MAX_SPELLS + 1; i++)
 	{
 		if (PRF_FLAGGED(ch, PRF_AUTOMEM) && ch->real_abils.SplMem[i])
 		{
-			slotn = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
-			for (unsigned j=0; (slots[slotn]>0 && j<ch->real_abils.SplMem[i]); ++j, --slots[slotn])
+			const auto slot_n = spell_info[i].slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] - 1;
+			for (unsigned j=0; (slots[slot_n]>0 && j<ch->real_abils.SplMem[i]); ++j, --slots[slot_n])
 			{
 				ch->MemQueue.total += mag_manacost(ch, i);
 				CREATE(qi_cur, 1);
 				*qi = qi_cur;
 				qi_cur->spellnum = i;
-				qi_cur->link = NULL;
+				qi_cur->link = nullptr;
 				qi = &qi_cur->link;
 			}
 		}
@@ -753,7 +752,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		return;
 	}
 
-	reset_affects(ch);
+	reset_apply_affects(ch);
 	// для начала проверяем, активны ли евенты
 	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != NOWHERE)
 	{

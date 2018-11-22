@@ -130,7 +130,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter = NULL);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void print_rune_stats(CHAR_DATA *ch);
 extern int real_zone(int number);
-extern void reset_affects(CHAR_DATA *ch);
+extern void reset_apply_affects(CHAR_DATA *ch);
 // local functions
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
 void perform_immort_invis(CHAR_DATA * ch, int level);
@@ -419,7 +419,7 @@ void do_arena_restore(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			timed_from_char(vict, vict->timed);
 		while (vict->timed_feat)
 			timed_feat_from_char(vict, vict->timed_feat);
-		reset_affects(vict);
+		reset_apply_affects(vict);
 		for (int i = 0; i < NUM_WEARS; i++)
 		{
 			if (GET_EQ(vict, i))
@@ -2811,7 +2811,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			send_to_char(strcat(buf, "\r\n"), ch);
 	}
 	// Showing the bitvector
-	k->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",", 4);
+	k->active_affects().sprintbits(affected_bits, buf2, ",", 4);
 	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
@@ -4888,7 +4888,7 @@ void do_wizutil(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			{
 				while (!vict->affected.empty())
 				{
-					vict->affect_remove(vict->affected.begin());
+					vict->remove_pulse_affect(vict->affected.begin());
 				}
 				send_to_char("Яркая вспышка осветила вас!\r\n"
 					"Вы почувствовали себя немного иначе.\r\n", vict);
@@ -5798,17 +5798,17 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 3:
 		vict->points.max_hit = RANGE(1, 5000);
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 	case 4:
 		break;
 	case 5:
 		vict->points.max_move = RANGE(1, 5000);
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 	case 6:
 		vict->points.hit = RANGE(-9, vict->points.max_hit);
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 	case 7:
 		break;
@@ -5826,17 +5826,16 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		else
 		{
 			GET_RACE(vict) = rod;
-			affect_total(vict);
-
+			vict->update_active_affects();
 		}
 		break;
 	case 10:
 		vict->real_abils.size = RANGE(1, 100);
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 	case 11:
 		vict->real_abils.armor = RANGE(-100, 100);
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 	case 12:
 		vict->set_gold(value);
@@ -5851,11 +5850,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 15:
 		vict->real_abils.hitroll = RANGE(-20, 20);
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 	case 16:
 		vict->real_abils.damroll = RANGE(-20, 20);
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 	case 17:
 		if (!IS_IMPL(ch) && ch != vict && !PRF_FLAGGED(ch, PRF_CODERINFO))
@@ -6059,12 +6058,12 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 40:		// Blame/Thank Rick Glover. :)
 		GET_HEIGHT(vict) = value;
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 
 	case 41:
 		GET_WEIGHT(vict) = value;
-		affect_total(vict);
+		vict->update_active_affects();
 		break;
 
 	case 42:

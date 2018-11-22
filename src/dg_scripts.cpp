@@ -2519,7 +2519,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 
 			while (!c->affected.empty())
 			{
-				c->affect_remove(c->affected.begin());
+				c->remove_pulse_affect(c->affected.begin());
 			}
 		}
 		else
@@ -3015,13 +3015,16 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			int pos;
 
-			if (!*subfield || (pos = atoi(subfield)) <= POS_DEAD)
+			if (!*subfield
+				|| (pos = atoi(subfield)) <= POS_DEAD)
+			{
 				sprintf(str, "%d", GET_POS(c));
+			}
 			else if (!WAITLESS(c))
 			{
 				if (on_horse(c))
 				{
-					AFF_FLAGS(c).unset(EAffectFlag::AFF_HORSE);
+					c->remove_affect(EAffectFlag::AFF_HORSE);
 				}
 				GET_POS(c) = pos;
 			}
@@ -3041,7 +3044,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "affect"))
 		{
-			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
+			auto affects = c->permanent_affects();
+			affects.gm_flag(subfield, affected_bits, str);
+			c->reset_permanent_affects(affects);
 		}
 
 		//added by WorM

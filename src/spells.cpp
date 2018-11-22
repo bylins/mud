@@ -1352,7 +1352,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
-		affect_to_char(victim, af);
+		victim->affect_to_char(af);
 
 		if (GET_HELPER(victim))
 		{
@@ -1613,14 +1613,15 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
-		affect_to_char(helpee, af);
-//		AFF_FLAGS(helpee).set(EAffectFlag::AFF_HELPER); 
+		helpee->affect_to_char(af);
+
 		af.type = SPELL_CHARM;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 		af.battleflag = 0;
-		affect_to_char(helpee, af);
+		helpee->affect_to_char(af);
+
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 		if (IS_NPC(helpee))
@@ -2563,7 +2564,7 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCICYN(ch, C_NRM), ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
+	victim->active_affects().sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
 	sprintf(buf, "%s\r\n", buf2);
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
@@ -2648,7 +2649,7 @@ void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
 
 	send_to_char("Аффекты :\r\n", ch);
 	send_to_char(CCIBLU(ch, C_NRM), ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
+	victim->active_affects().sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
 	sprintf(buf, "%s\r\n", buf2);
 
 	if (victim->followers)
@@ -2981,8 +2982,9 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
-	//reset_char(mob);
+
 	clear_char_skills(mob);
+
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
 	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((eff_cha - 16.0) / 2, 0, 50), 0, 0, 0, 0);
@@ -2990,7 +2992,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	af.location = EApplyLocation::APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
-	affect_to_char(mob, af);
+	mob->affect_to_char(af);
 
 	if (IS_FEMALE(ch))
 	{
@@ -3076,8 +3078,8 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
-	AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
-	AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
+	mob->set_affect(EAffectFlag::AFF_FLY);
+	mob->set_affect(EAffectFlag::AFF_INFRAVISION);
 	mob->set_level(ch->get_level());
 //----------------------------------------------------------------------
 // добавляем зависимости от уровня и от обаяния
@@ -3123,12 +3125,12 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 
 	if (eff_cha >= 22)
 	{
-		AFF_FLAGS(mob).set(EAffectFlag::AFF_SANCTUARY);
+		mob->set_affect(EAffectFlag::AFF_SANCTUARY);
 	}
 
 	if (eff_cha >= 30)
 	{
-		AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
+		mob->set_affect(EAffectFlag::AFF_AIRSHIELD);
 	}
 
 	char_to_room(mob, ch->in_room);
@@ -3179,13 +3181,12 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	}
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
-	af.duration =
-		pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
-	affect_to_char(mob, af);
+	mob->affect_to_char(af);
 
 	char_to_room(mob, IN_ROOM(ch));
 	mob->set_protecting(ch);
@@ -3195,6 +3196,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 	ch->add_follower(mob);
+
 	return;
 }
 
