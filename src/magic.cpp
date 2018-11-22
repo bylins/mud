@@ -3481,8 +3481,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			send_to_char("Только на себя или одногруппника!\r\n", ch);
 			return 0;
 		}
-
-
 		af[0].location = APPLY_RESIST_DARK;
 		if (spellnum == SPELL_PROT_FROM_EVIL)
 		{
@@ -3495,9 +3493,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			af[0].modifier = level;
 		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
-		af[0].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
-		af[1].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
-		af[1].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
 		accum_duration = TRUE;
 		to_vict = "Вы подавили в себе страх к тьме.";
 		to_room = "$n подавил$g в себе страх к тьме.";
