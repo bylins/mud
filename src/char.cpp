@@ -2366,7 +2366,6 @@ void CHAR_DATA::affect_modify(byte loc, int mod, const EAffectFlag affect, bool 
 	case APPLY_HIT_GLORY: //вкачка +хп за славу
 		GET_HIT_ADD(this) += mod * GloryConst::HP_FACTOR;
 
-		// fall through
 	case APPLY_PR:
 		GET_PR(this) += mod; //скиллрезист
 		break;
