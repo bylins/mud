@@ -135,6 +135,9 @@ void haemorragia(CHAR_DATA * ch, int percent)
 		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
 	}
 }
+void inspiration(CHAR_DATA *ch, bool type);
+{
+}
 
 void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 {
