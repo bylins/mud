@@ -1205,7 +1205,7 @@ void battle_affect_update(CHAR_DATA * ch)
 // This file update pulse affects only
 void pulse_affect_update(CHAR_DATA * ch)
 {
-	bool pulse_aff = FALSE;
+	bool pulse_aff = false;
 
 	if (ch->get_fighting())
 	{
@@ -1223,7 +1223,7 @@ void pulse_affect_update(CHAR_DATA * ch)
 			continue;
 		}
 
-		pulse_aff = TRUE;
+		pulse_aff = true;
 		if (affect->duration >= 1)
 		{
 			if (IS_NPC(ch))
@@ -1258,6 +1258,11 @@ void pulse_affect_update(CHAR_DATA * ch)
 
 			ch->remove_pulse_affect(affect_i);
 		}
+	}
+
+	if (pulse_aff)
+	{
+		ch->update_active_affects();
 	}
 }
 
