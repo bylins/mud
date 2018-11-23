@@ -54,6 +54,8 @@ public:
 
 	static GlobalTriggersStorage& trigger_list();
 	static BloodyInfoMap& bloody_map();
+	static Rooms& world();
+	static PlayersIndex& player_table();
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__

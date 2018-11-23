@@ -96,7 +96,7 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
-Rooms world;
+Rooms& world = GlobalObjects::world();
 
 room_rnum top_of_world = 0;	// ref to top element of world
 
@@ -124,7 +124,7 @@ int global_uid = 0;
 
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-PlayersIndex player_table;	// index to plr file
+PlayersIndex& player_table = GlobalObjects::player_table();	// index to plr file
 
 bool player_exists(const long id) { return player_table.player_exists(id); }
 
@@ -6581,6 +6581,12 @@ void load_class_limit()
 		if (val > 0)
 			class_stats_limit[id][5] = val;
 	}
+}
+
+Rooms::~Rooms()
+{
+	for (auto i = this->begin(); i != this->end(); ++i)
+		delete *i;
 }
 
 const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);
