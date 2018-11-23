@@ -300,9 +300,10 @@ class Rooms: public std::vector<ROOM_DATA *>
 {
 public:
 	static constexpr int UNDEFINED_ROOM_VNUM = -1;
+	~Rooms();
 };
 
-extern Rooms world;
+extern Rooms& world;
 
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
@@ -377,7 +378,7 @@ private:
 	free_names_t m_free_names;
 };
 
-extern PlayersIndex player_table;
+extern PlayersIndex& player_table;
 
 extern long top_idnum;
 
