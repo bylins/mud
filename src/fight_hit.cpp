@@ -137,6 +137,14 @@ void haemorragia(CHAR_DATA * ch, int percent)
 }
 void inspiration(CHAR_DATA *ch, int time)
 {
+	AFFECT_DATA<EApplyLocation> af[MAX_SPELL_AFFECTS];
+	af[0].type = 0;
+	af[0].location = APPLY_NONE;
+	af[0].bitvector = 0;
+	af[0].modifier = 0;
+	af[0].battleflag = 0;
+	af[0].duration = pc_duration(victim, 2, 0, 0, 0, 0);
+	affect_join(victim, af[0], TRUE, FALSE, TRUE, FALSE);
 }
 
 void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
