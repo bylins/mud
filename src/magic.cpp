@@ -1031,6 +1031,8 @@ void mobile_affect_update(void)
 				stop_follower(i.get(), SF_CHARMLOST);
 			}
 		}
+
+		i->update_active_affects();
 	});
 }
 
@@ -1104,6 +1106,8 @@ void player_affect_update(void)
 		if (!was_purged)
 		{
 			MemQ_slots(i.get());	// сколько каких слотов занято (с коррекцией)
+
+			i->update_active_affects();
 		}
 	});
 }
