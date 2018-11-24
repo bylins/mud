@@ -137,14 +137,20 @@ void haemorragia(CHAR_DATA * ch, int percent)
 }
 void inspiration(CHAR_DATA *ch, int time)
 {
-	AFFECT_DATA<EApplyLocation> af[MAX_SPELL_AFFECTS];
-	af[0].type = 0;
-	af[0].location = APPLY_NONE;
-	af[0].bitvector = 0;
-	af[0].modifier = 0;
-	af[0].battleflag = 0;
-	af[0].duration = pc_duration(victim, 2, 0, 0, 0, 0);
-	affect_join(victim, af[0], TRUE, FALSE, TRUE, FALSE);
+	AFFECT_DATA<EApplyLocation> af;
+	af.location = APPLY_DAMROLL;
+	af.bitvector = SPELL_BATTLE;
+	af.modifier = GET_REMORT(ch) / 5 * 2;
+	af.battleflag = AF_BATTLEDEC;
+	af.duration = pc_duration(ch, time, 0, 0, 0, 0);
+	affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+	af.location = APPLY_CAST_SUCCESS;
+	af.bitvector = SPELL_BATTLE;
+	af.modifier = GET_REMORT(ch) / 5 * 3;
+	af.battleflag = AF_BATTLEDEC;
+	af.duration = pc_duration(ch, time, 0, 0, 0, 0);
+	affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+	send_to_char(ch, "&RВаш точный удар воодушевил вас, придав новых сил!  time == %d&n\r\n", time);
 }
 
 void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
@@ -785,15 +791,17 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		dam /= 5;
 	}
 	dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
+	bool affect_found = false;
 	for (int i = 0; i < 4; i++)
 	{
-		bool affect_found = false;
+		send_to_char(ch, "зашли в аффекты\r\n");
 		if (af[i].type)
 		{
 			if (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
 				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
 				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT))
 			{
+		send_to_char(ch, "вывел из строя\r\n");
 				affect_found = true;
 				if (victim->get_role(MOB_ROLE_BOSS))
 				{
@@ -814,17 +822,18 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				}
 				if (!affect_found)
 				{
-					inspiration(ch, 2);
+					inspiration(ch, 20);
 					affect_found = true;
 				}
 			}
-			else if (!affect_found)
-			{
-				inspiration(ch, 1);
-				affect_found = true;
-			}
 			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
 		}
+		if (!affect_found)
+			{
+		send_to_char(ch, "простая точка\r\n");
+				inspiration(ch, 10);
+				affect_found = true;
+			}
 	}
 }
 
