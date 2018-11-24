@@ -1830,12 +1830,6 @@ std::string CHAR_DATA::only_title_noclan()
 	return result;
 }
 
-void CHAR_DATA::update_active_affects()
-{
-	m_affected_by = char_specials.saved.active_affects;
-	affect_total();
-}
-
 int CHAR_DATA::apply_ac(int eq_pos)
 {
 	auto factor = 1;
@@ -2408,8 +2402,12 @@ void CHAR_DATA::affect_to_char(const AFFECT_DATA<EApplyLocation>& af)
 	check_light(this, LIGHT_UNDEF, was_light, was_holy_light, was_holy_dark, 1);
 }
 
-void CHAR_DATA::affect_total()
+void CHAR_DATA::update_active_affects()
 {
+	const auto saved = m_affected_by;
+
+	m_affected_by = char_specials.saved.active_affects;
+
 	clear_add_affects();
 
 	{
@@ -2690,10 +2688,11 @@ void CHAR_DATA::affect_total()
 	}
 
 	{
-		// Check steal affects
+		// Check if any stealth affect has been turned off
 		for (const auto& i : char_stealth_aff)
 		{
-			if (!active_affects().get(i))
+			if (saved.get(i)
+				&& !active_affects().get(i))
 			{
 				CHECK_AGRO(this) = TRUE;
 			}
