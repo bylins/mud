@@ -1003,7 +1003,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE)))
 	{
-		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучали...\r\n", ch);
+		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучили...\r\n", ch);
 		return;
 	}
 
@@ -1100,7 +1100,7 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (PLR_FLAGGED(ch, PLR_DUMB))
+	if (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE))
 	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;

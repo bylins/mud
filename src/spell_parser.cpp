@@ -5383,6 +5383,9 @@ void mag_assign_spells(void)
 	spello(SPELL_ARROWS_DEATH, "стрелы смерти", "arrows of death", 0, 0, 0,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_DARK);
+//233
+	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
+		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
@@ -5408,6 +5411,7 @@ void mag_assign_spells(void)
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
 	spello(SPELL_SOLOBONUS, "награда", "bonus",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
+
 
 	/*
 	 * Declaration of skills - this actually doesn't do anything except
