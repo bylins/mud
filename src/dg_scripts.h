@@ -148,6 +148,7 @@ public:
 	TRIG_DATA& operator=(const TRIG_DATA& right);
 	TRIG_DATA(const sh_int rnum, const char* name, const long trigger_type);
 	TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type, const long trigger_type);
+	TRIG_DATA(const sh_int rnum, std::string&& name, const byte attach_type, const long trigger_type);
 
 	virtual ~TRIG_DATA() {}	// make constructor virtual to be able to create a mock for this class
 

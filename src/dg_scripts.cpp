@@ -6783,6 +6783,20 @@ TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type
 {
 }
 
+TRIG_DATA::TRIG_DATA(const sh_int rnum, std::string&& name, const byte attach_type, const long trigger_type) :
+	cmdlist(new cmdlist_element::shared_ptr()),
+	narg(0),
+	depth(0),
+	loops(-1),
+	wait_event(nullptr),
+	var_list(nullptr),
+	nr(rnum),
+	attach_type(attach_type),
+	name(name),
+	trigger_type(trigger_type)
+{
+}
+
 TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const long trigger_type) : TRIG_DATA(rnum, name, 0, trigger_type)
 {
 }

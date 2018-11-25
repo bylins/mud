@@ -190,7 +190,11 @@ int MIN(int a, int b);
 #define MMAX(a,b) ((a<b)?b:a)
 
 char *colorLOW(char *txt);
+std::string& colorLOW(std::string& txt);
+std::string& colorLOW(std::string&& txt);
 char * colorCAP(char *txt);
+std::string& colorCAP(std::string& txt);
+std::string& colorCAP(std::string&& txt);
 char * CAP(char *txt);
 
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])

@@ -6192,13 +6192,16 @@ void room_free(ROOM_DATA * room)
    ВНИМАНИЕ. Память самой структуры room_data не освобождается.
              Необходимо дополнительно использовать delete()
 --*/
+// TODO: move to ROOM_DATA destructor
 {
 	// Название и описание
+	/*
+	this is now freed in ROOM_DATA destructor
 	if (room->name)
 	{
 		free(room->name);
 	}
-
+	*/
 	if (room->temp_description)
 	{
 		free(room->temp_description);
@@ -6210,6 +6213,8 @@ void room_free(ROOM_DATA * room)
 	{
 		if (room->dir_option[i])
 		{
+			/*
+			this is now freed in ROOM_DATA destructor
 			if (room->dir_option[i]->keyword)
 			{
 				free(room->dir_option[i]->keyword);
@@ -6219,6 +6224,7 @@ void room_free(ROOM_DATA * room)
 			{
 				free(room->dir_option[i]->vkeyword);
 			}
+			*/
 
 			room->dir_option[i].reset();
 		}
