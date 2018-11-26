@@ -6240,26 +6240,18 @@ std::array<EAffectFlag, 3> hiding = { EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_H
 
 void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	FLAG_DATA saved;
 	char sp_name[MAX_STRING_LENGTH];
 
 	// Showing the bitvector
-	saved = ch->char_specials.saved.affected_by;
-	for (EAffectFlag j : hiding)
+	auto saved = ch->active_affects();
+	for (auto j : hiding)
 	{
-		AFF_FLAGS(ch).unset(j);
+		saved.unset(j);
 	}
-	ch->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
-	sprintf(buf, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+
+	saved.sprintbits(affected_bits, buf2, ",");
+	snprintf(buf, MAX_STRING_LENGTH, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-	for (EAffectFlag j : hiding)
-	{
-		const uint32_t i = to_underlying(j);
-		if (saved.get(i))
-		{
-			AFF_FLAGS(ch).set(j);
-		}
-	}
 
 	// Routine to show what spells a char is affected by
 	if (!ch->affected.empty())
@@ -6275,6 +6267,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
+
 			int mod = 0;
 			if (aff->battleflag == AF_PULSEDEC)
 			{
@@ -6284,6 +6277,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			{
 				mod = aff->duration;
 			}
+
 			(mod + 1) / SECS_PER_MUD_HOUR
 				? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
 				: sprintf(buf2, "(менее часа)");
@@ -6291,10 +6285,12 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 					*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
 			*buf2 = '\0';
+
 			if (!IS_IMMORTAL(ch))
 			{
 				auto next_affect_i = affect_i;
 				++next_affect_i;
+
 				if (next_affect_i != ch->affected.end())
 				{
 					const auto& next_affect = *next_affect_i;
@@ -6311,6 +6307,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					strcat(buf, buf2);
 				}
+
 				if (aff->bitvector)
 				{
 					if (*buf2)
@@ -6321,6 +6318,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 					{
 						strcat(buf, "устанавливает ");
 					}
+
 					strcat(buf, CCIRED(ch, C_NRM));
 					sprintbit(aff->bitvector, affected_bits, buf2);
 					strcat(buf, buf2);
@@ -6329,6 +6327,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			}
 			send_to_char(strcat(buf, "\r\n"), ch);
 		}
+
 // отображение наград
 		for (const auto& aff : ch->affected)
 		{

@@ -167,7 +167,6 @@ set(SOURCES
 	src/radix.trie.cpp
 	src/compact.trie.cpp
 	src/id.cpp
-	src/stigmas.cpp
 	src/zone.table.cpp)
 
 set(HEADERS
@@ -313,7 +312,6 @@ set(HEADERS
 	src/utils.h
 	src/xml_loading_helper.hpp
 	src/debug.utils.hpp
-	src/stigmas.hpp
 	src/zone.table.hpp)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
