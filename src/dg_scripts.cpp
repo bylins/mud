@@ -941,6 +941,7 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 	sprintf(sb, "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
 		CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
+	send_to_char(sb, ch);
 
 	if (trig->get_attach_type() == MOB_TRIGGER)
 	{
