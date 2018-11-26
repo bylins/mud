@@ -152,7 +152,9 @@ void inspiration(CHAR_DATA *ch, int time)
 		}
 		for (f = k->followers; f; f = f->next)
 		{
-			if (f->follower->in_room == k->in_room)
+			if (f->follower == ch)
+				continue;
+			if (f->follower->in_room == ch->in_room)
 			{
 				af.location = APPLY_DAMROLL;
 				af.type = SPELL_PALADINE_INSPIRATION;
@@ -166,7 +168,7 @@ void inspiration(CHAR_DATA *ch, int time)
 				af.battleflag = AF_BATTLEDEC;
 				af.duration = pc_duration(ch, time, 0, 0, 0, 0);
 				affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-				send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(k,1));
+				send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
 			}
 		}
 		
@@ -833,7 +835,6 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
 				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT))
 			{
-				send_to_char(ch, "вывел из строя\r\n");
 				affect_found = true;
 				if (victim->get_role(MOB_ROLE_BOSS))
 				{
