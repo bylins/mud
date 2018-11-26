@@ -1383,6 +1383,8 @@ struct EXTRA_DESCR_DATA
 	using shared_ptr = std::shared_ptr<EXTRA_DESCR_DATA>;
 	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
 	~EXTRA_DESCR_DATA();
+	void set_keyword(std::string const& keyword);
+	void set_description(std::string const& description);
 
 	char *keyword;		// Keyword in look/examine          //
 	char *description;	// What to see                      //

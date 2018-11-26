@@ -6197,12 +6197,13 @@ void room_free(ROOM_DATA * room)
 	if (room->name)
 	{
 		free(room->name);
+		room->name = nullptr;
 	}
 
 	if (room->temp_description)
 	{
 		free(room->temp_description);
-		room->temp_description = 0;
+		room->temp_description = nullptr;
 	}
 
 	// Выходы и входы
@@ -6213,11 +6214,13 @@ void room_free(ROOM_DATA * room)
 			if (room->dir_option[i]->keyword)
 			{
 				free(room->dir_option[i]->keyword);
+				room->dir_option[i]->keyword = nullptr;
 			}
 
 			if (room->dir_option[i]->vkeyword)
 			{
 				free(room->dir_option[i]->vkeyword);
+				room->dir_option[i]->vkeyword = nullptr;
 			}
 
 			room->dir_option[i].reset();

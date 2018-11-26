@@ -415,8 +415,12 @@ public:
 	void set_name(const char *name);
 	const std::string& get_pc_name() const { return name_; }
 	void set_pc_name(const char *name);
+	void set_pc_name(const std::string& name) {name_ = name; }
+	void set_pc_name(std::string&& name) {name_ = name; }
 	const std::string& get_npc_name() const { return short_descr_; }
 	void set_npc_name(const char *name);
+	void set_npc_name(const std::string& name) {short_descr_ = name; }
+	void set_npc_name(std::string&& name) {short_descr_ = name; }
 	const std::string & get_name_str() const;
 	const char* get_pad(unsigned pad) const;
 	void set_pad(unsigned pad, const char* s);

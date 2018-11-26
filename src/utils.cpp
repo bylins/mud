@@ -137,7 +137,7 @@ int MAX(int a, int b)
 	return (a > b ? a : b);
 }
 
-char* first_letter(char* txt)
+const char* first_letter(const char* txt)
 {
 	if (txt)
 	{
@@ -173,7 +173,7 @@ char* first_letter(char* txt)
 
 char *colorCAP(char *txt) 
 {
-	char* letter = first_letter(txt);
+	char* letter = const_cast<char *>(first_letter(txt));
 	if (letter && *letter)
 	{
 		*letter = UPPER(*letter);
@@ -181,14 +181,40 @@ char *colorCAP(char *txt)
 	return txt;
 }
 
+std::string& colorCAP(std::string& txt)
+{
+	size_t pos = first_letter(txt.c_str()) - txt.c_str();
+	txt[pos] = UPPER(txt[pos]);
+	return txt;
+}
+
+// rvalue variant
+std::string& colorCAP(std::string&& txt)
+{
+	return colorCAP(txt);
+}
+
 char *colorLOW(char *txt)
 {
-	char* letter = first_letter(txt);
+	char* letter = const_cast<char *>(first_letter(txt));
 	if (letter && *letter)
 	{
 		*letter = LOWER(*letter);
 	}
 	return txt;
+}
+
+std::string& colorLOW(std::string& txt)
+{
+	size_t pos = first_letter(txt.c_str()) - txt.c_str();
+	txt[pos] = LOWER(txt[pos]);
+	return txt;
+}
+
+// rvalue variant
+std::string& colorLOW(std::string&& txt)
+{
+	return colorLOW(txt);
 }
 
 char * CAP(char *txt)

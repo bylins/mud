@@ -1223,6 +1223,20 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 	}
 }
 
+void EXTRA_DESCR_DATA::set_keyword(std::string const& value)
+{
+	if (keyword != nullptr)
+		free(keyword);
+	keyword = str_dup(value.c_str());
+}
+
+void EXTRA_DESCR_DATA::set_description(std::string const& value)
+{
+	if (description != nullptr)
+		free(description);
+	description = str_dup(value.c_str());
+}
+
 EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()
 {
 	if (nullptr != keyword)

@@ -17,6 +17,28 @@ EXIT_DATA::EXIT_DATA(): keyword(nullptr),
 {
 }
 
+EXIT_DATA::~EXIT_DATA()
+{
+	if (keyword != nullptr)
+		free(keyword);
+	if (vkeyword != nullptr)
+		free(vkeyword);
+}
+
+void EXIT_DATA::set_keyword(std::string const& value)
+{
+	if (keyword != nullptr)
+		free(keyword);
+	keyword = strdup(value.c_str());
+}
+
+void EXIT_DATA::set_vkeyword(std::string const& value)
+{
+	if (vkeyword != nullptr)
+		free(vkeyword);
+	vkeyword = strdup(value.c_str());
+}
+
 room_rnum EXIT_DATA::to_room() const
 {
 	return m_to_room;
@@ -64,6 +86,12 @@ ROOM_DATA::ROOM_DATA(): number(0),
 	memset(&add_property, 0, sizeof(room_property_data));
 }
 
+ROOM_DATA::~ROOM_DATA()
+{
+	if (name != nullptr)
+		free(name);
+}
+
 CHAR_DATA* ROOM_DATA::first_character() const
 {
 	CHAR_DATA* first = people.empty() ? nullptr : *people.begin();
@@ -74,6 +102,13 @@ CHAR_DATA* ROOM_DATA::first_character() const
 void ROOM_DATA::cleanup_script()
 {
 	script->cleanup();
+}
+
+void ROOM_DATA::set_name(std::string const& value)
+{
+	if (name != nullptr)
+		free(name);
+	name = strdup(value.c_str());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
