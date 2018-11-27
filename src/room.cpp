@@ -29,14 +29,44 @@ void EXIT_DATA::set_keyword(std::string const& value)
 {
 	if (keyword != nullptr)
 		free(keyword);
-	keyword = strdup(value.c_str());
+	keyword = nullptr;
+	if (!value.empty())
+		keyword = strdup(value.c_str());
 }
 
 void EXIT_DATA::set_vkeyword(std::string const& value)
 {
 	if (vkeyword != nullptr)
 		free(vkeyword);
-	vkeyword = strdup(value.c_str());
+	vkeyword = nullptr;
+	if (!value.empty())
+		vkeyword = strdup(value.c_str());
+}
+
+void EXIT_DATA::set_keywords(std::string const& value)
+{
+	if (value.empty())
+	{
+		if (keyword != nullptr)
+			free(keyword);
+		keyword = nullptr;
+		if (vkeyword != nullptr)
+			free(vkeyword);
+		vkeyword = nullptr;
+		return;
+	}
+
+	std::size_t i = value.find('|');
+	if (i != std::string::npos)
+	{
+		set_keyword(value.substr(0, i));
+		set_vkeyword(value.substr(++i));
+	}
+	else
+	{
+		set_keyword(value);
+		set_vkeyword(value);
+	}
 }
 
 room_rnum EXIT_DATA::to_room() const

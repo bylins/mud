@@ -19,6 +19,8 @@ public:
 
 	void set_keyword(std::string const& value);
 	void set_vkeyword(std::string const& value);
+	// установить оба падежа - именительный и винительный, разделённые "|"
+	void set_keywords(std::string const& value);
 	room_rnum to_room() const;
 	void to_room(const room_rnum _);
 

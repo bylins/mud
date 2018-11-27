@@ -588,20 +588,7 @@ void WorldFile::setup_dir(int room, unsigned dir)
 	world[room]->dir_option[dir]->general_description = fread_string();
 
 	// парс строки алиаса двери на имя; вининельный падеж, если он есть
-	std::string alias(fread_string());
-	if (!alias.empty())
-	{
-		std::string::size_type i = alias.find('|');
-		world[room]->dir_option[dir]->set_keyword(alias.substr(0, i));
-		if (i != std::string::npos)
-		{
-			world[room]->dir_option[dir]->set_vkeyword(alias.substr(++i));
-		}
-		else
-		{
-			world[room]->dir_option[dir]->set_vkeyword(alias);
-		}
-	}
+	world[room]->dir_option[dir]->set_keywords(fread_string());
 
 	if (!get_line(file(), line))
 	{

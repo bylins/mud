@@ -6212,18 +6212,6 @@ void room_free(ROOM_DATA * room)
 	{
 		if (room->dir_option[i])
 		{
-			if (room->dir_option[i]->keyword)
-			{
-				free(room->dir_option[i]->keyword);
-				room->dir_option[i]->keyword = nullptr;
-			}
-
-			if (room->dir_option[i]->vkeyword)
-			{
-				free(room->dir_option[i]->vkeyword);
-				room->dir_option[i]->vkeyword = nullptr;
-			}
-
 			room->dir_option[i].reset();
 		}
 	}

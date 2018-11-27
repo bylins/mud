@@ -850,10 +850,6 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		case '6':
 			// * Delete an exit.
-			if (OLC_EXIT(d)->keyword)
-				free(OLC_EXIT(d)->keyword);
-			if (OLC_EXIT(d)->vkeyword)
-				free(OLC_EXIT(d)->vkeyword);
 			OLC_EXIT(d).reset();
 			break;
 		default:
@@ -884,31 +880,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 		return;
 
 	case REDIT_EXIT_KEYWORD:
-		if (OLC_EXIT(d)->keyword)
-			free(OLC_EXIT(d)->keyword);
-		if (OLC_EXIT(d)->vkeyword)
-			free(OLC_EXIT(d)->vkeyword);
-
-		if (arg && *arg)
-		{
-			std::string buffer(arg);
-			std::string::size_type i = buffer.find('|');
-			if (i != std::string::npos)
-			{
-				OLC_EXIT(d)->keyword = str_dup(buffer.substr(0, i).c_str());
-				OLC_EXIT(d)->vkeyword = str_dup(buffer.substr(++i).c_str());
-			}
-			else
-			{
-				OLC_EXIT(d)->keyword = str_dup(buffer.c_str());
-				OLC_EXIT(d)->vkeyword = str_dup(buffer.c_str());
-			}
-		}
-		else
-		{
-			OLC_EXIT(d)->keyword = NULL;
-			OLC_EXIT(d)->vkeyword = NULL;
-		}
+		OLC_EXIT(d)->set_keywords(arg);
 		redit_disp_exit_menu(d);
 		return;
 
