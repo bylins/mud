@@ -776,6 +776,9 @@ void init_guilds(void)
 				 || !strn_cmp(line, "многоклассовая", strlen(line)))
 		{
 			type = 2;
+			// free if we still own it from previous iteration due to some error
+			if (poly_guild)
+				free(poly_guild);
 			poly_guild = NULL;
 			pgcount = 0;
 		}
@@ -841,6 +844,7 @@ void init_guilds(void)
 					(poly_guild + pgcount)->spell_no = -1;
 					(poly_guild + pgcount)->level = -1;
 					guild_poly_info[GUILDS_POLY_USED] = poly_guild;
+					poly_guild = NULL; // null it to release ownership
 					GUILDS_POLY_USED++;
 				}
 				else
@@ -965,6 +969,9 @@ void init_guilds(void)
 		}
 	}
 	fclose(magic);
+	// free if we still own it
+	if (poly_guild)
+		free(poly_guild);
 	return;
 }
 
