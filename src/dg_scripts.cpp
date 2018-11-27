@@ -941,6 +941,7 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 	sprintf(sb, "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
 		CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
+	send_to_char(sb, ch);
 
 	if (trig->get_attach_type() == MOB_TRIGGER)
 	{
@@ -2519,7 +2520,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 
 			while (!c->affected.empty())
 			{
-				c->affect_remove(c->affected.begin());
+				c->remove_pulse_affect(c->affected.begin());
 			}
 		}
 		else
@@ -3015,13 +3016,16 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		{
 			int pos;
 
-			if (!*subfield || (pos = atoi(subfield)) <= POS_DEAD)
+			if (!*subfield
+				|| (pos = atoi(subfield)) <= POS_DEAD)
+			{
 				sprintf(str, "%d", GET_POS(c));
+			}
 			else if (!WAITLESS(c))
 			{
 				if (on_horse(c))
 				{
-					AFF_FLAGS(c).unset(EAffectFlag::AFF_HORSE);
+					c->remove_affect(EAffectFlag::AFF_HORSE);
 				}
 				GET_POS(c) = pos;
 			}
@@ -3041,7 +3045,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "affect"))
 		{
-			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
+			auto affects = c->permanent_affects();
+			affects.gm_flag(subfield, affected_bits, str);
+			c->reset_permanent_affects(affects);
 		}
 
 		//added by WorM
@@ -6770,6 +6776,20 @@ TRIG_DATA::TRIG_DATA() :
 }
 
 TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type, const long trigger_type) :
+	cmdlist(new cmdlist_element::shared_ptr()),
+	narg(0),
+	depth(0),
+	loops(-1),
+	wait_event(nullptr),
+	var_list(nullptr),
+	nr(rnum),
+	attach_type(attach_type),
+	name(name),
+	trigger_type(trigger_type)
+{
+}
+
+TRIG_DATA::TRIG_DATA(const sh_int rnum, std::string&& name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	depth(0),

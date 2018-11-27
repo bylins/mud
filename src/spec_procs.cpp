@@ -776,6 +776,9 @@ void init_guilds(void)
 				 || !strn_cmp(line, "многоклассовая", strlen(line)))
 		{
 			type = 2;
+			// free if we still own it from previous iteration due to some error
+			if (poly_guild)
+				free(poly_guild);
 			poly_guild = NULL;
 			pgcount = 0;
 		}
@@ -841,6 +844,7 @@ void init_guilds(void)
 					(poly_guild + pgcount)->spell_no = -1;
 					(poly_guild + pgcount)->level = -1;
 					guild_poly_info[GUILDS_POLY_USED] = poly_guild;
+					poly_guild = NULL; // null it to release ownership
 					GUILDS_POLY_USED++;
 				}
 				else
@@ -965,6 +969,9 @@ void init_guilds(void)
 		}
 	}
 	fclose(magic);
+	// free if we still own it
+	if (poly_guild)
+		free(poly_guild);
 	return;
 }
 
@@ -2892,7 +2899,7 @@ void npc_group(CHAR_DATA * ch)
 
 		if (vict == leader)
 		{
-			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
+			vict->set_affect(EAffectFlag::AFF_GROUP);
 			continue;
 		}
 
@@ -2905,7 +2912,7 @@ void npc_group(CHAR_DATA * ch)
 			stop_follower(vict, SF_EMPTY);
 			leader->add_follower(vict);
 		}
-		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
+		vict->set_affect(EAffectFlag::AFF_GROUP);
 	}
 }
 
@@ -3405,18 +3412,18 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
 		pet->set_exp(0);
-		AFF_FLAGS(pet).set(EAffectFlag::AFF_CHARM);
+		pet->set_affect(EAffectFlag::AFF_CHARM);
 
 		if (*pet_name)
 		{
 			sprintf(buf, "%s %s", pet->get_pc_name().c_str(), pet_name);
-			// free(pet->get_pc_name()); don't free the prototype!
+
 			pet->set_pc_name(buf);
 
 			sprintf(buf,
 					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
 					pet->player_data.description.c_str(), pet_name);
-			// free(pet->player_data.description); don't free the prototype!
+
 			pet->player_data.description = str_dup(buf);
 		}
 		char_to_room(pet, ch->in_room);

@@ -96,7 +96,7 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
-Rooms world;
+Rooms& world = GlobalObjects::world();
 
 room_rnum top_of_world = 0;	// ref to top element of world
 
@@ -124,7 +124,7 @@ int global_uid = 0;
 
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-PlayersIndex player_table;	// index to plr file
+PlayersIndex& player_table = GlobalObjects::player_table();	// index to plr file
 
 bool player_exists(const long id) { return player_table.player_exists(id); }
 
@@ -3846,7 +3846,6 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	int test_hp = get_test_hp(GET_LEVEL(mob));
 	if (GET_EXP(mob) > 0 && mob->points.max_hit < test_hp)
 	{
-//		log("hp: (%s) %d -> %d", GET_NAME(mob), mob->points.max_hit, test_hp);
 		mob->points.max_hit = test_hp;
 	}
 
@@ -3891,6 +3890,8 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	{
 		MOB_FLAGS(mob).set(MOB_GUARDIAN);
 	}
+
+	mob->update_active_affects();
 
 	return (mob);
 }
@@ -5674,7 +5675,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	while (!ch->affected.empty())
 	{
-		ch->affect_remove(ch->affected.begin());
+		ch->remove_pulse_affect(ch->affected.begin());
 	}
 
 // Снимаем весь стафф
@@ -6197,12 +6198,13 @@ void room_free(ROOM_DATA * room)
 	if (room->name)
 	{
 		free(room->name);
+		room->name = nullptr;
 	}
 
 	if (room->temp_description)
 	{
 		free(room->temp_description);
-		room->temp_description = 0;
+		room->temp_description = nullptr;
 	}
 
 	// Выходы и входы
@@ -6213,11 +6215,13 @@ void room_free(ROOM_DATA * room)
 			if (room->dir_option[i]->keyword)
 			{
 				free(room->dir_option[i]->keyword);
+				room->dir_option[i]->keyword = nullptr;
 			}
 
 			if (room->dir_option[i]->vkeyword)
 			{
 				free(room->dir_option[i]->vkeyword);
+				room->dir_option[i]->vkeyword = nullptr;
 			}
 
 			room->dir_option[i].reset();
@@ -6581,6 +6585,12 @@ void load_class_limit()
 		if (val > 0)
 			class_stats_limit[id][5] = val;
 	}
+}
+
+Rooms::~Rooms()
+{
+	for (auto i = this->begin(); i != this->end(); ++i)
+		delete *i;
 }
 
 const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);

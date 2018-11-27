@@ -15,7 +15,10 @@ class EXIT_DATA
 {
 public:
 	EXIT_DATA();
+	~EXIT_DATA();
 
+	void set_keyword(std::string const& value);
+	void set_vkeyword(std::string const& value);
 	room_rnum to_room() const;
 	void to_room(const room_rnum _);
 
@@ -64,6 +67,7 @@ struct ROOM_DATA
 	using people_t = std::list<CHAR_DATA*>;
 
 	ROOM_DATA();
+	~ROOM_DATA();
 
 	room_vnum number;	// Rooms number  (vnum)                //
 	zone_rnum zone;		// Room zone (for resetting)          //
@@ -126,6 +130,7 @@ struct ROOM_DATA
 	CHAR_DATA* first_character() const;
 
 	void cleanup_script();
+	void set_name(std::string const& name);
 
 private:
 	FLAG_DATA m_room_flags;	// DEATH,DARK ... etc //

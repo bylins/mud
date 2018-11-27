@@ -17,7 +17,7 @@ public:
 	ZoneData& operator=(const ZoneData&) = delete;
 	ZoneData& operator=(ZoneData&&) = default;
 
-	~ZoneData() = default;
+	~ZoneData();
 
 	char *name;		// назвение зоны
 	char *comment;
