@@ -701,10 +701,6 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (exit)
 		{
-			if (exit->keyword)
-				free(exit->keyword);
-			if (exit->vkeyword)
-				free(exit->vkeyword);
 			rm->dir_option[dir].reset();
 		}
 	}
@@ -734,22 +730,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			break;
 
 		case 4:	// name        
-			if (exit->keyword)
-				free(exit->keyword);
-			if (exit->vkeyword)
-				free(exit->vkeyword);
-			buffer = value;
-			i = buffer.find('|');
-			if (i != std::string::npos)
-			{
-				exit->keyword = str_dup(buffer.substr(0, i).c_str());
-				exit->vkeyword = str_dup(buffer.substr(++i).c_str());
-			}
-			else
-			{
-				exit->keyword = str_dup(buffer.c_str());
-				exit->vkeyword = str_dup(buffer.c_str());
-			}
+			exit->set_keywords(value);
 			break;
 
 		case 5:	// room        
