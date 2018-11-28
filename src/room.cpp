@@ -120,6 +120,8 @@ ROOM_DATA::~ROOM_DATA()
 {
 	if (name != nullptr)
 		free(name);
+	if (ing_list != nullptr)
+		free(ing_list);
 }
 
 CHAR_DATA* ROOM_DATA::first_character() const
