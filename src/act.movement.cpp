@@ -2123,7 +2123,7 @@ void do_horseoff(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	act("Вы слезли со спины $N1.", FALSE, ch, 0, horse, TO_CHAR);
 	act("$n соскочил$g с $N1.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-	ch->set_affect(EAffectFlag::AFF_HORSE);
+	ch->remove_affect(EAffectFlag::AFF_HORSE);
 }
 
 void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
