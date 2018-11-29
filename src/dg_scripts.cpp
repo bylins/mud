@@ -3045,7 +3045,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "affect"))
 		{
-			auto affects = c->permanent_affects();
+			auto affects = c->active_affects();
 			affects.gm_flag(subfield, affected_bits, str);
 			c->reset_permanent_affects(affects);
 		}
