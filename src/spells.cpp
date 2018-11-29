@@ -3412,7 +3412,7 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"Аура зла больше не помогает вам.",
 	"!SPELL_MENTAL_SHADOW!",                 // 208
 	"Жуткие черные руки побледнели и расплылись зловонной дымкой.", //209 SPELL_EVARDS_BLACK_TENTACLES
-	"!SPELL_WHIRLWIND!",
+	"!SPELL_WHIRLWIND!", //210
 	"Каменные зубы исчезли, возвратив способность двигаться.",
 	"!SPELL_MELFS_ACID_ARROW!",
 	"!SPELL_THUNDERSTONE!",
@@ -3422,14 +3422,20 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL GENERAL SINCERITY!",
 	"!SPELL MAGICAL GAZE!",
 	"!SPELL ALL SEEING EYE!",
-	"!SPELL EYE OF GODS!",
+	"!SPELL EYE OF GODS!", //220
 	"!SPELL BREATHING AT DEPTH!",
 	"!SPELL GENERAL RECOVERY!",
 	"!SPELL COMMON MEAL!",
 	"!SPELL STONE WALL!",
 	"!SPELL SNAKE EYES!",
 	"Матушка земля забыла про Вас.",
-	"Вы вновь ощущаете страх перед тьмой."
+	"Вы вновь ощущаете страх перед тьмой.",
+	"!NONE",
+	"!NONE",
+	"!NONE", //230
+	"!NONE",
+	"!NONE",
+	"Ваш дух ослаб."
 };
 
 /**
@@ -3684,6 +3690,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_DEATH (set by program)
+	cast_phrase_t{ "Воодушевление", "!set by programm!" }, // воодушевление
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
