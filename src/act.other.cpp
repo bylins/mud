@@ -411,7 +411,7 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	struct timed_type timed;
-	ubyte prob, percent;
+	int prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_CAMOUFLAGE))
 	{
@@ -481,7 +481,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 
 void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	ubyte prob, percent;
+	int prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDE))
 	{
