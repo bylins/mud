@@ -791,8 +791,8 @@ void init_guilds(void)
 				continue;
 			}
 
-			if (!((type == 1 || type == 11) && mono_guild.learn_info) &&
-					!((type == 2 || type == 12) && poly_guild))
+			if (!((type == 1 && mono_guild.learn_info) || type == 11) &&
+					!((type == 2 && poly_guild) || type == 12)
 			{
 				log("WARNING: Can't define guild info for master %s. Skipped.", line1);
 				continue;
