@@ -1400,28 +1400,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "Affs"))
 			{
-				i = 0;
-				do
-				{
-					fbgetline(fl, line);
-					sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
-					if (num > 0)
-					{
-						AFFECT_DATA<EApplyLocation> af;
-						af.type = num;
-						af.duration = num2;
-						af.modifier = num3;
-						af.location = static_cast<EApplyLocation>(num4);
-						af.bitvector = num5;
-						af.battleflag = num6;
-						if (af.type == SPELL_LACKY)
-						{
-							af.handler.reset(new LackyAffectHandler());
-						}
-						affect_to_char(af);
-						i++;
-					}
-				} while (num != 0);
+				/* do not load affects */
 			}
 			else if (!strcmp(tag, "Alin"))
 			{
