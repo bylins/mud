@@ -100,7 +100,7 @@ bool BlockingQueue<MessageType>::pop(MessageType& result)
 		m_new_message.wait(lock);
 	}
 
-	if (m_destroying)
+	if (m_messages.empty())
 	{
 		return false;
 	}
