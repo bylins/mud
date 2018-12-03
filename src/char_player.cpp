@@ -1394,9 +1394,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "Aff "))
 			{
-				FLAG_DATA affects;
-				affects.from_string(line);
-				reset_permanent_affects(affects);
+//				FLAG_DATA affects;
+//				affects.from_string(line);
+//				reset_permanent_affects(affects);
 			}
 			else if (!strcmp(tag, "Affs"))
 			{
@@ -1422,6 +1422,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						i++;
 					}
 				} while (num != 0);
+				/* do not load affects */
 			}
 			else if (!strcmp(tag, "Alin"))
 			{

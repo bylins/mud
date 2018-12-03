@@ -835,7 +835,6 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
 				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT))
 			{
-				affect_found = true;
 				if (victim->get_role(MOB_ROLE_BOSS))
 				{
 					af[i].duration /= 5;
