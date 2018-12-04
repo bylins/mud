@@ -794,7 +794,6 @@ void OBJ_DATA::set_craft(CHAR_DATA* ch)
 	{
 		return;
 	}
-	send_to_char("Вы шаге 8а.\r\n", ch);
 	CreateObjectType->CreateObject(ch);
 }
 

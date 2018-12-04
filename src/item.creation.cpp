@@ -203,13 +203,14 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		{
 			tmpstr = "\r\nСписок профессий:\r\n";
 			sprintf(tmpbuf, "%s%d%s) %s.\r\n", grn, -1, nrm, "Без ограничения");
+			tmpstr += string(tmpbuf);
 			i = 0;
 			for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 			{
 				sprintf(tmpbuf, "%s%d%s) %s.\r\n", grn, i, nrm, pc_class_types[i]);
 				tmpstr += string(tmpbuf);
-				i++;
 			}
+			send_to_char(tmpstr.c_str(), d->character.get());
 			send_to_char("Введите номер профессии: ", d->character.get());
 			OLC_MODE(d) = MREDIT_SELECT_PROF;
 			return;
@@ -293,9 +294,14 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case MREDIT_SELECT_PROF:
 	{
 		i = atoi(sagr.c_str());
-		if ((CLASS_UNDEFINED < i )&&(i < NUM_PLAYER_CLASSES))
+		if ((CLASS_UNDEFINED > i )&&(i < NUM_PLAYER_CLASSES))
 		{
 			trec->ch_class = i;
+			OLC_VAL(d) = 1;
+		}
+		else if (i < 0 )
+		{
+			trec->ch_class = -1;
 			OLC_VAL(d) = 1;
 		}
 		else
@@ -2621,9 +2627,6 @@ CreateWear::CreateWear()
 		tagging = "Вы пришили к $o2 бирку со своим именем.";
 		itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
 		dam = 30;
-		
-		
-		
 }
 
 bool CreateWear::check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts)
