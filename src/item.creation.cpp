@@ -173,6 +173,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 	switch (OLC_MODE(d))
 	{
 	case MREDIT_MAIN_MENU:
+	{
 		// Ввод главного меню.
 		if (sagr == "1")
 		{
@@ -223,7 +224,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		for (i = 0; i < MAX_PARTS; i++)
 		{
-			if (atoi(sagr.c_str()) - 4 == i)
+			if (atoi(sagr.c_str()) - 5 == i)
 			{
 				OLC_NUM(d) = i;
 				mredit_disp_ingr_menu(d);
@@ -271,8 +272,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		send_to_char("Неверный ввод.\r\n", d->character.get());
 		mredit_disp_menu(d);
 		break;
-
+	}
+	
 	case MREDIT_OBJ_PROTO:
+	{
 		i = atoi(sagr.c_str());
 		if (real_object(i) < 0)
 		{
@@ -285,8 +288,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 
 	case MREDIT_SELECT_PROF:
+	{
 		i = atoi(sagr.c_str());
 		if ((CLASS_UNDEFINED < i )&&(i < NUM_PLAYER_CLASSES))
 		{
@@ -299,8 +304,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 		
 	case MREDIT_SKILL:
+	{
 		int skill_num;
 		skill_num = atoi(sagr.c_str());
 		i = 0;
@@ -318,8 +325,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		send_to_char("Выбрано некорректное умение.\r\n", d->character.get());
 		mredit_disp_menu(d);
 		break;
+	}
 
 	case MREDIT_DEL:
+	{
 		if (sagr == "Y" || sagr == "y")
 		{
 			send_to_char("Рецепт удален. Рецепты сохранены.\r\n", d->character.get());
@@ -340,8 +349,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 
 	case MREDIT_LOCK:
+	{
 		if (sagr == "Y" || sagr == "y")
 		{
 			send_to_char("Рецепт заблокирован от использования.\r\n", d->character.get());
@@ -360,8 +371,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 
 	case MREDIT_INGR_MENU:
+	{
 		// Ввод меню ингридиентов.
 		if (sagr == "1")
 		{
@@ -393,8 +406,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		send_to_char("Неверный ввод.\r\n", d->character.get());
 		mredit_disp_ingr_menu(d);
 		break;
+	}
 
 	case MREDIT_INGR_PROTO:
+	{
 		i = atoi(sagr.c_str());
 		if (i == 0)
 		{
@@ -415,22 +430,28 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_ingr_menu(d);
 		break;
+	}
 
 	case MREDIT_INGR_WEIGHT:
+	{
 		i = atoi(sagr.c_str());
 		trec->parts[OLC_NUM(d)].min_weight = i;
 		OLC_VAL(d) = 1;
 		mredit_disp_ingr_menu(d);
 		break;
+	}
 
 	case MREDIT_INGR_POWER:
+	{
 		i = atoi(sagr.c_str());
 		trec->parts[OLC_NUM(d)].min_power = i;
 		OLC_VAL(d) = 1;
 		mredit_disp_ingr_menu(d);
 		break;
+	}
 
 	case MREDIT_CONFIRM_SAVE:
+	{
 		if (sagr == "Y" || sagr == "y")
 		{
 			send_to_char("Рецепты сохранены.\r\n", d->character.get());
@@ -452,6 +473,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 	}
 }
 
@@ -617,7 +639,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 			objname = "Нет";
 		}
 		sprintf(tmpbuf, "%s%d%s) Компонент %d: %s%s (%d)\r\n",
-			grn, i + 4, nrm, i + 1, yel, objname.c_str(), trec->parts[i].proto);
+			grn, i + 5, nrm, i + 1, yel, objname.c_str(), trec->parts[i].proto);
 		tmpstr += string(tmpbuf);
 	};
 	tmpstr += string(grn) + "d" + string(nrm) + ") Удалить\r\n";

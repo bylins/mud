@@ -1169,6 +1169,36 @@ void load_dquest()
 	}
 }
 
+OBJ_DATA *create_material(CHAR_DATA *mob)
+{
+	int vnum = 0;
+	if ((GET_RACE(mob) == NPC_RACE_ANIMAL)) 
+	{
+		vnum = 3047;
+	}
+	if ((GET_RACE(mob) == NPC_RACE_PLANT)) 
+	{
+		vnum = 3043;
+	}
+	if ((GET_RACE(mob) == NPC_RACE_BIRD)) 
+	{
+		vnum = 3044;
+	}
+	if ((GET_RACE(mob) == NPC_RACE_FISH)) 
+	{
+		vnum = 3045;
+	}
+    
+	if (vnum)
+	{
+		const auto material = world_objects.create_from_prototype_by_vnum(vnum);
+		//act("$n нашел$g что-то среди остатков $o3.", FALSE, ch, material.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
+		//act("Вы нашли что-то среди остатков $o3.", FALSE, ch, material.get(), 0, TO_CHAR);
+		return material.get();
+    }
+	return 0;    
+}
+
 
 /*
  * Too bad it doesn't check the return values to let the user
@@ -3207,6 +3237,7 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 {
 	// ищем метку @p , @p1 ... и заменяем на падежи.
 	int i, k;
+	char buf[200];	
 	for (i = 0; i < CObjectPrototype::NUM_PADS; i++)
 	{
 		std::string obj_pad = GET_OBJ_PNAME(obj_proto[GET_OBJ_RNUM(obj)], i);
@@ -3222,7 +3253,8 @@ int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 			if (i == 0)
 			{
 				obj->set_short_description(obj_pad);
-				obj->set_aliases(obj_pad); // ставим алиасы
+				sprintf(buf, "%s материал",obj_pad.c_str() );
+				obj->set_aliases(buf); // ставим алиасы
 			}
 		}
 	};
