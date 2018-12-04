@@ -5,6 +5,71 @@
 Эта инструкция предназначается для сборки мада под Windows, под линукс вы можете посмотреть немного устаревшую статью вот здесь:
 https://github.com/bylins/mud/wiki/%D0%A1%D1%82%D0%B0%D1%80%D1%8B%D0%B9-README
 
+## Необходимые действия дл работы в Ubuntu
+
+Для начала нам необходимо установить последний Git или как минимум версию 2.18 (в комплекте идет 2.17 и он не подходит)
+
+    sudo sudo add-apt-repository ppa:git-core/ppa
+    sudo apt update
+    sudo apt install git
+
+После этого необходимо добавить пакеты необходимые для работы с исходниками Былин
+
+    sudo apt-get install libz-dev cmake g++ clang python-dev libboost-python-dev libboost-system-dev mercurial libboost-dev libboost-filesystem-dev
+
+Если я правильно помню mercurial мы не используем но на будущее если вернемся на него пусть будет : ). В целом все готово для работы с исходниками поэтому делаем:
+
+    git clone https://github.com/bylins/mud
+    
+Теперь на вашем копьютере/ноутбуке есть копия былин, нам необходимо собрать бинарник для запуска игры
+
+    cd mud
+    mkdir build
+    cd build
+    cmake -DBUILD_TESTS=NO .. 
+
+после этого у нас должно появится сообщение 
+
+-- Configuring done
+-- Generating done
+
+Ну чтож запускаем сборку
+
+    cmake --build .
+    
+получаем
+
+    [100%] Linking CXX executable circle
+    [100%] Built target circle
+
+все, код собран осталось несколько манипуляций для запуска игры. Сначала скопируем полученный бинарник circle в корень игры. Дальше необходимо создать папку lib и скопировать в нее содержимое папки lib.template. Теперь мы готовы к игре полностью : )
+
+    ./circle
+
+Урааа :
+
+    Using log file 'syslog' with LINE buffering. Opening in APPEND mode.
+    Using log file 'log/errlog.txt' with NO buffering. Opening in REWRITE mode.
+    Using log file 'log/imlog.txt' with FULL buffering. Opening in REWRITE mode.
+    Using log file 'log/msdp.txt' with LINE buffering. Opening in REWRITE mode.
+    Using log file 'log/money.txt' with LINE buffering. Opening in REWRITE mode.
+    Bylins server will use asynchronous output into syslog file.
+    Game started.
+
+игра запущенна.
+
+Теперь поговорим о правках. Если вы не хотите каждый раз копировать полный код Былин, а забирать только правки необходимо в каталоге с локальной версией игры выполнить команду:
+    
+    git remote add upstream https://github.com/bylins/mud
+    
+После этого вы сможете отслеживать изменения в исходниках на серевере
+
+    git fetch upstream
+    git merge upstream/master
+
+Насчет внесения изменения в сам код вам необходимо связатся с руководством проэкта.
+
+
 ## Необходимое окружение для сборки проекта под Windows
 
 ВНИМАНИЕ! АХТУНГ! АЛЯРМ! Если у вас что-то уже стояло из нижеперчисленного, то установка всего свежего может привести к весьма странным багам при сборке Былин. Прошу это учитывать.
