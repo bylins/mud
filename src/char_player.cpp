@@ -1251,6 +1251,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		GET_SPELL_MEM(this, i) = 0;
 
 	char_specials.saved.active_affects.clear();
+	//надо убрать чтение аффектов из пфайла 
+	/*
 	for (auto a = 0; a != MAX_AFFECT; ++a)
 	{
 		if (clear_flags.get(a))
@@ -1258,7 +1260,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			set_affect(static_cast<EAffectFlag>(i));
 		}
 	}
-
+	*/
 	POOFIN(this) = NULL;
 	POOFOUT(this) = NULL;
 	GET_RSKILL(this) = NULL;	// рецептов не знает
@@ -1394,9 +1396,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "Aff "))
 			{
-//				FLAG_DATA affects;
-//				affects.from_string(line);
-//				reset_permanent_affects(affects);
+				FLAG_DATA affects;
+				affects.from_string(line);
+				reset_permanent_affects(affects);
 			}
 			else if (!strcmp(tag, "Affs"))
 			{
@@ -1422,7 +1424,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						i++;
 					}
 				} while (num != 0);
-				/* do not load affects */
 			}
 			else if (!strcmp(tag, "Alin"))
 			{
