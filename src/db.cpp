@@ -3195,13 +3195,6 @@ void renum_zone_table(void)
 	}
 }
 
-/*
- * interpret_espec is the function that takes espec keywords and values
- * and assigns the correct value to the mob as appropriate.  Adding new
- * e-specs is absurdly easy -- just add a new CASE statement to this
- * function!  No other changes need to be made anywhere in the code.
- */
-
 // Make own name by process aliases
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 {
