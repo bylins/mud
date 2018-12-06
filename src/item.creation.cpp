@@ -1283,48 +1283,6 @@ void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 		break;
 	}
 }
-
-int get_ingr_lev(OBJ_DATA * ingrobj)
-{
-	// Получаем уровень ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_INGREDIENT)
-	{
-		// Получаем уровень игредиента до 128
-		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
-	}
-	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MING)
-	{
-		// У ингров типа 26 совпадает уровень и сила.
-		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-	}
-	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MATERIAL)
-	{
-		return GET_OBJ_VAL(ingrobj, 0);
-	}
-	else
-	{
-		return -1;
-	}
-}
-
-int get_ingr_pow(OBJ_DATA * ingrobj)
-{
-	// Получаем силу ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_INGREDIENT
-		|| GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MATERIAL)
-	{
-		return GET_OBJ_VAL(ingrobj, 2);
-	}
-	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MING)
-	{
-		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-	}
-	else
-	{
-		return -1;
-	}
-}
-
 // *****************************
 MakeReceptList::MakeReceptList()
 {
@@ -1601,6 +1559,387 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 	return (TRUE);
 }
 
+int get_ingr_lev(OBJ_DATA * ingrobj)
+{
+	// Получаем уровень ингредиента ...
+	if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_INGREDIENT)
+	{
+		// Получаем уровень игредиента до 128
+		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
+	}
+	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MING)
+	{
+		// У ингров типа 26 совпадает уровень и сила.
+		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
+	}
+	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MATERIAL)
+	{
+		return GET_OBJ_VAL(ingrobj, 0);
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+int get_ingr_pow(OBJ_DATA * ingrobj)
+{
+	// Получаем силу ингредиента ...
+	if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_INGREDIENT
+		|| GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MATERIAL)
+	{
+		return GET_OBJ_VAL(ingrobj, 2);
+	}
+	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MING)
+	{
+		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
+	}
+	else
+	{
+		return -1;
+	}
+}
+float AbstractCreateObjectType::count_mort_requred()
+{
+	float result = 0.0;
+	const float SQRT_MOD = 1.7095f;
+	const int AFF_SHIELD_MOD = 30;
+	const int AFF_MAGICGLASS_MOD = 10;
+	const int AFF_BLINK_MOD = 10;
+
+	result = 0.0;
+	
+	float total_weight = 0.0;
+
+	// аффекты APPLY_x
+	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
+	{
+		if (obj->get_affected(k).location == 0) continue;
+
+		// случай, если один аффект прописан в нескольких полях
+		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
+		{
+			if (obj->get_affected(k).location == obj->get_affected(kk).location
+				&& k != kk)
+			{
+				log("SYSERROR: double affect=%d, obj_vnum=%d",
+					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
+				return 1000000;
+			}
+		}
+		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != APPLY_AC) &&
+			    (obj->get_affected(k).location != APPLY_SAVING_WILL) &&
+			    (obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
+			    (obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
+			    (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+		{
+			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
+			log("SYSERROR: negative weight=%f, obj_vnum=%d",
+				weight, GET_OBJ_VNUM(obj));
+			total_weight += pow(weight, SQRT_MOD);
+		}
+		// савесы которые с минусом должны тогда понижать вес если в +
+		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
+			    (obj->get_affected(k).location == APPLY_SAVING_WILL) ||
+			    (obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
+			    (obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
+			    (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		{
+			float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
+		}
+		//Добавленый кусок учет савесов с - значениями
+		else if ((obj->get_affected(k).modifier < 0)
+				 && ((obj->get_affected(k).location == APPLY_AC) ||
+				      (obj->get_affected(k).location == APPLY_SAVING_WILL) ||
+				      (obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
+				      (obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
+				      (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
+		{
+			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
+			total_weight += pow(weight, SQRT_MOD);
+		}
+		//Добавленый кусок учет отрицательного значения но не савесов
+		else if ((obj->get_affected(k).modifier < 0)
+				 && ((obj->get_affected(k).location != APPLY_AC) &&
+				     (obj->get_affected(k).location != APPLY_SAVING_WILL) &&
+				     (obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
+				     (obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
+				     (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
+		{
+			float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
+			total_weight -= pow(weight, -SQRT_MOD);
+		}
+	}
+	// аффекты AFF_x через weapon_affect
+	for (const auto& m : weapon_affect)
+	{
+		if (IS_OBJ_AFF(obj, m.aff_pos))
+		{
+			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
+			{
+				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS)
+			{
+				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
+			}
+			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
+			{
+				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
+			}
+		}
+	}
+	if (total_weight < 1) return result;
+	
+		result = ceil(pow(total_weight, 1/SQRT_MOD));
+
+	return result;
+}
+
+float AbstractCreateObjectType::count_affect_weight(int num, int mod)
+{
+	float weight = 0;
+
+	switch(num)
+	{
+	case APPLY_STR:
+		weight = mod * 7.5;
+		break;
+	case APPLY_DEX:
+		weight = mod * 10.0;
+		break;
+	case APPLY_INT:
+		weight = mod * 10.0;
+		break;
+	case APPLY_WIS:
+		weight = mod * 10.0;
+		break;
+	case APPLY_CON:
+		weight = mod * 10.0;
+		break;
+	case APPLY_CHA:
+		weight = mod * 10.0;
+		break;
+	case APPLY_HIT:
+		weight = mod * 0.3;
+		break;
+	case APPLY_AC:
+		weight = mod * -0.5;
+		break;
+	case APPLY_HITROLL:
+		weight = mod * 2.3;
+		break;
+	case APPLY_DAMROLL:
+		weight = mod * 3.3;
+		break;
+	case APPLY_SAVING_WILL:
+		weight = mod * -0.5;
+		break;
+	case APPLY_SAVING_CRITICAL:
+		weight = mod * -0.5;
+		break;
+	case APPLY_SAVING_STABILITY:
+		weight = mod * -0.5;
+		break;
+	case APPLY_SAVING_REFLEX:
+		weight = mod * -0.5;
+		break;
+	case APPLY_CAST_SUCCESS:
+		weight = mod * 1.5;
+		break;
+	case APPLY_MANAREG:
+		weight = mod * 0.2;
+		break;
+	case APPLY_MORALE:
+		weight = mod * 1.0;
+		break;
+	case APPLY_INITIATIVE:
+		weight = mod * 2.0;
+		break;
+	case APPLY_ABSORBE:
+		weight = mod * 1.0;
+		break;
+	case APPLY_AR:
+		weight = mod * 1.5;
+		break;
+	case APPLY_MR:
+		weight = mod * 1.5;
+		break;
+	}
+
+	return weight;
+}
+void CreateWear::CreateObject(CHAR_DATA* ch)
+{
+	int i, j;
+	//ставим именительные именительные падежи в алиасы 
+	sprintf(buf, "%s %s %s %s",
+		GET_OBJ_PNAME(obj, 0).c_str(),
+		GET_OBJ_PNAME(ingrs[0], 1).c_str(),
+		GET_OBJ_PNAME(ingrs[1], 4).c_str(),
+		GET_OBJ_PNAME(ingrs[2], 4).c_str());
+	obj->set_aliases(buf);
+	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+	{
+		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i).c_str());
+		strcat(buf, " из ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[0], 1).c_str());
+		strcat(buf, " с ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[1], 4).c_str());
+		strcat(buf, " и ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[2], 4).c_str());
+		obj->set_PName(i, buf);
+		if (i == 0) // именительный падеж
+		{
+			obj->set_short_description(buf);
+			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
+			{
+				sprintf(buf2, "Брошенный %s лежит тут.", buf);
+			}
+			else if (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
+			{
+				sprintf(buf2, "Брошенная %s лежит тут.", buf);
+			}
+			else if (GET_OBJ_SEX(obj) == ESex::SEX_POLY)
+			{
+				sprintf(buf2, "Брошенные %s лежат тут.", buf);
+			}
+			obj->set_description(buf2); // описание на земле
+		}
+	}
+	obj->set_is_rename(true); // ставим флаг что объект переименован
+
+	auto temp_flags = obj->get_affect_flags();
+	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
+	obj->set_affect_flags(temp_flags);
+	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
+	temp_flags = obj->get_extra_flags();
+	add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[0]), get_ingr_pow(ingrs[0]));
+	obj->set_extra_flags(temp_flags);
+	auto temp_affected = obj->get_all_affected();
+	add_affects(ch,temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
+	obj->set_all_affected(temp_affected);
+	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
+	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
+	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(skillnum) * number(180, 220)); // таймер зависит в основном от умелки
+	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
+	for (j = 1; j < ingr_cnt; j++)
+	{
+		int i, raffect = 0;
+		for (i = 0; i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
+		{
+			if (ingrs[j]->get_affected(i).location == APPLY_NONE)
+			{
+				break;
+			}
+		}
+		if (i > 0) // если > 0 переносим случайный
+		{
+			raffect = number(0, i - 1);
+			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+			{
+				const auto& ra = ingrs[j]->get_affected(raffect);
+				if (obj->get_affected(i).location == ra.location) // если аффект такой уже висит и он меньше, переставим значение
+				{
+					if (obj->get_affected(i).modifier < ra.modifier)
+					{
+						obj->set_affected(i, obj->get_affected(i).location, ra.modifier);
+					}
+					break;
+				}
+				if (obj->get_affected(i).location == APPLY_NONE) // добавляем афф на свободное место
+				{
+					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // проверим фейл на силу ингра
+					{
+						break;
+					}
+					obj->set_affected(i, ra);
+					break;
+				}
+			}
+		}
+		// переносим аффекты ... c ингров на прототип.
+		auto temp_flags = obj->get_affect_flags();
+		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
+		obj->set_affect_flags(temp_flags);
+		// перносим эффекты ... с ингров на прототип.
+		temp_flags = obj->get_extra_flags();
+		add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), get_ingr_pow(ingrs[j]));
+		obj->set_extra_flags(temp_flags);
+		// переносим 1 рандом аффект
+		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
+	}
+
+	int wearkoeff = 50;
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) // 1.1
+	{
+		wearkoeff = 110;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.8
+	{
+		wearkoeff = 80;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.6
+	{
+		wearkoeff = 60;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.9
+	{
+		wearkoeff = 90;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.45
+	{
+		wearkoeff = 45;
+	}
+	obj->set_val(0, ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(skillnum)) / 100 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
+	{
+		wearkoeff = 90;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.7
+	{
+		wearkoeff = 70;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.4
+	{
+		wearkoeff = 40;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.4
+	{
+		wearkoeff = 40;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.8
+	{
+		wearkoeff = 80;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.31
+	{
+		wearkoeff = 31;
+	}
+	obj->set_val(1, (ch->get_skill(skillnum) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
+
+}
 // создать предмет по рецепту
 int MakeRecept::make(CHAR_DATA * ch)
 {
@@ -1862,6 +2201,9 @@ int MakeRecept::make(CHAR_DATA * ch)
 	// если от 25 до 50 то переноситься 1/3
 	// больше переноситься 0
 	// переносим доп аффекты ...+мудра +ловка и т.п.
+
+	// перенесено в CreateStuff::CreateObject()
+
 	// 8. Проверяем мах. инворлд.
 	// Считаем по формуле (31 - ср. уровень предмета) * 5 -
 	// овер шмота в мире не 30 лева не больше 5 штук
@@ -2138,186 +2480,6 @@ int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OB
 		}
 	}
 	return (TRUE);
-}
-
-float AbstractCreateObjectType::count_mort_requred()
-{
-	float result = 0.0;
-	const float SQRT_MOD = 1.7095f;
-	const int AFF_SHIELD_MOD = 30;
-	const int AFF_MAGICGLASS_MOD = 10;
-	const int AFF_BLINK_MOD = 10;
-
-	result = 0.0;
-	
-	float total_weight = 0.0;
-
-	// аффекты APPLY_x
-	for (int k = 0; k < MAX_OBJ_AFFECT; k++)
-	{
-		if (obj->get_affected(k).location == 0) continue;
-
-		// случай, если один аффект прописан в нескольких полях
-		for (int kk = 0; kk < MAX_OBJ_AFFECT; kk++)
-		{
-			if (obj->get_affected(k).location == obj->get_affected(kk).location
-				&& k != kk)
-			{
-				log("SYSERROR: double affect=%d, obj_vnum=%d",
-					obj->get_affected(k).location, GET_OBJ_VNUM(obj));
-				return 1000000;
-			}
-		}
-		if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location != APPLY_AC) &&
-			    (obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-			    (obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-			    (obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-			    (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
-		{
-			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
-			log("SYSERROR: negative weight=%f, obj_vnum=%d",
-				weight, GET_OBJ_VNUM(obj));
-			total_weight += pow(weight, SQRT_MOD);
-		}
-		// савесы которые с минусом должны тогда понижать вес если в +
-		else if ((obj->get_affected(k).modifier > 0) && ((obj->get_affected(k).location == APPLY_AC) ||
-			    (obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-			    (obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-			    (obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-			    (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
-		{
-			float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
-			total_weight -= pow(weight, -SQRT_MOD);
-		}
-		//Добавленый кусок учет савесов с - значениями
-		else if ((obj->get_affected(k).modifier < 0)
-				 && ((obj->get_affected(k).location == APPLY_AC) ||
-				      (obj->get_affected(k).location == APPLY_SAVING_WILL) ||
-				      (obj->get_affected(k).location == APPLY_SAVING_CRITICAL) ||
-				      (obj->get_affected(k).location == APPLY_SAVING_STABILITY) ||
-				      (obj->get_affected(k).location == APPLY_SAVING_REFLEX)))
-		{
-			float weight = count_affect_weight(obj->get_affected(k).location, obj->get_affected(k).modifier);
-			total_weight += pow(weight, SQRT_MOD);
-		}
-		//Добавленый кусок учет отрицательного значения но не савесов
-		else if ((obj->get_affected(k).modifier < 0)
-				 && ((obj->get_affected(k).location != APPLY_AC) &&
-				     (obj->get_affected(k).location != APPLY_SAVING_WILL) &&
-				     (obj->get_affected(k).location != APPLY_SAVING_CRITICAL) &&
-				     (obj->get_affected(k).location != APPLY_SAVING_STABILITY) &&
-				     (obj->get_affected(k).location != APPLY_SAVING_REFLEX)))
-		{
-			float weight = count_affect_weight(obj->get_affected(k).location, 0-obj->get_affected(k).modifier);
-			total_weight -= pow(weight, -SQRT_MOD);
-		}
-	}
-	// аффекты AFF_x через weapon_affect
-	for (const auto& m : weapon_affect)
-	{
-		if (IS_OBJ_AFF(obj, m.aff_pos))
-		{
-			if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_AIRSHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_FIRESHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_ICESHIELD)
-			{
-				total_weight += pow(AFF_SHIELD_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_MAGICGLASS)
-			{
-				total_weight += pow(AFF_MAGICGLASS_MOD, SQRT_MOD);
-			}
-			else if (static_cast<EAffectFlag>(m.aff_bitvector) == EAffectFlag::AFF_BLINK)
-			{
-				total_weight += pow(AFF_BLINK_MOD, SQRT_MOD);
-			}
-		}
-	}
-	if (total_weight < 1) return result;
-	
-		result = ceil(pow(total_weight, 1/SQRT_MOD));
-
-	return result;
-}
-
-float AbstractCreateObjectType::count_affect_weight(int num, int mod)
-{
-	float weight = 0;
-
-	switch(num)
-	{
-	case APPLY_STR:
-		weight = mod * 7.5;
-		break;
-	case APPLY_DEX:
-		weight = mod * 10.0;
-		break;
-	case APPLY_INT:
-		weight = mod * 10.0;
-		break;
-	case APPLY_WIS:
-		weight = mod * 10.0;
-		break;
-	case APPLY_CON:
-		weight = mod * 10.0;
-		break;
-	case APPLY_CHA:
-		weight = mod * 10.0;
-		break;
-	case APPLY_HIT:
-		weight = mod * 0.3;
-		break;
-	case APPLY_AC:
-		weight = mod * -0.5;
-		break;
-	case APPLY_HITROLL:
-		weight = mod * 2.3;
-		break;
-	case APPLY_DAMROLL:
-		weight = mod * 3.3;
-		break;
-	case APPLY_SAVING_WILL:
-		weight = mod * -0.5;
-		break;
-	case APPLY_SAVING_CRITICAL:
-		weight = mod * -0.5;
-		break;
-	case APPLY_SAVING_STABILITY:
-		weight = mod * -0.5;
-		break;
-	case APPLY_SAVING_REFLEX:
-		weight = mod * -0.5;
-		break;
-	case APPLY_CAST_SUCCESS:
-		weight = mod * 1.5;
-		break;
-	case APPLY_MANAREG:
-		weight = mod * 0.2;
-		break;
-	case APPLY_MORALE:
-		weight = mod * 1.0;
-		break;
-	case APPLY_INITIATIVE:
-		weight = mod * 2.0;
-		break;
-	case APPLY_ABSORBE:
-		weight = mod * 1.0;
-		break;
-	case APPLY_AR:
-		weight = mod * 1.5;
-		break;
-	case APPLY_MR:
-		weight = mod * 1.5;
-		break;
-	}
-
-	return weight;
 }
 
 int AbstractCreateObjectType::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag ,int /*delta*/)
@@ -2714,170 +2876,6 @@ bool CreateWear::check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_
 	
 	return make_fail;
 	
-}
-
-void CreateWear::CreateObject(CHAR_DATA* ch)
-{
-	int i, j;
-	//ставим именительные именительные падежи в алиасы 
-	sprintf(buf, "%s %s %s %s",
-		GET_OBJ_PNAME(obj, 0).c_str(),
-		GET_OBJ_PNAME(ingrs[0], 1).c_str(),
-		GET_OBJ_PNAME(ingrs[1], 4).c_str(),
-		GET_OBJ_PNAME(ingrs[2], 4).c_str());
-	obj->set_aliases(buf);
-	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
-	{
-		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i).c_str());
-		strcat(buf, " из ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[0], 1).c_str());
-		strcat(buf, " с ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[1], 4).c_str());
-		strcat(buf, " и ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[2], 4).c_str());
-		obj->set_PName(i, buf);
-		if (i == 0) // именительный падеж
-		{
-			obj->set_short_description(buf);
-			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
-			{
-				sprintf(buf2, "Брошенный %s лежит тут.", buf);
-			}
-			else if (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
-			{
-				sprintf(buf2, "Брошенная %s лежит тут.", buf);
-			}
-			else if (GET_OBJ_SEX(obj) == ESex::SEX_POLY)
-			{
-				sprintf(buf2, "Брошенные %s лежат тут.", buf);
-			}
-			obj->set_description(buf2); // описание на земле
-		}
-	}
-	obj->set_is_rename(true); // ставим флаг что объект переименован
-
-	auto temp_flags = obj->get_affect_flags();
-	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
-	obj->set_affect_flags(temp_flags);
-	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
-	temp_flags = obj->get_extra_flags();
-	add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[0]), get_ingr_pow(ingrs[0]));
-	obj->set_extra_flags(temp_flags);
-	auto temp_affected = obj->get_all_affected();
-	add_affects(ch,temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
-	obj->set_all_affected(temp_affected);
-	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
-	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
-	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(skillnum) * number(180, 220)); // таймер зависит в основном от умелки
-	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
-	for (j = 1; j < ingr_cnt; j++)
-	{
-		int i, raffect = 0;
-		for (i = 0; i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
-		{
-			if (ingrs[j]->get_affected(i).location == APPLY_NONE)
-			{
-				break;
-			}
-		}
-		if (i > 0) // если > 0 переносим случайный
-		{
-			raffect = number(0, i - 1);
-			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
-			{
-				const auto& ra = ingrs[j]->get_affected(raffect);
-				if (obj->get_affected(i).location == ra.location) // если аффект такой уже висит и он меньше, переставим значение
-				{
-					if (obj->get_affected(i).modifier < ra.modifier)
-					{
-						obj->set_affected(i, obj->get_affected(i).location, ra.modifier);
-					}
-					break;
-				}
-				if (obj->get_affected(i).location == APPLY_NONE) // добавляем афф на свободное место
-				{
-					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // проверим фейл на силу ингра
-					{
-						break;
-					}
-					obj->set_affected(i, ra);
-					break;
-				}
-			}
-		}
-		// переносим аффекты ... c ингров на прототип.
-		auto temp_flags = obj->get_affect_flags();
-		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
-		obj->set_affect_flags(temp_flags);
-		// перносим эффекты ... с ингров на прототип.
-		temp_flags = obj->get_extra_flags();
-		add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), get_ingr_pow(ingrs[j]));
-		obj->set_extra_flags(temp_flags);
-		// переносим 1 рандом аффект
-		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
-	}
-
-	int wearkoeff = 50;
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) // 1.1
-	{
-		wearkoeff = 110;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.8
-	{
-		wearkoeff = 80;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.5
-	{
-		wearkoeff = 50;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.6
-	{
-		wearkoeff = 60;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.5
-	{
-		wearkoeff = 50;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.9
-	{
-		wearkoeff = 90;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.45
-	{
-		wearkoeff = 45;
-	}
-	obj->set_val(0, ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(skillnum)) / 100 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
-	{
-		wearkoeff = 90;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.7
-	{
-		wearkoeff = 70;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.4
-	{
-		wearkoeff = 40;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.5
-	{
-		wearkoeff = 50;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.4
-	{
-		wearkoeff = 40;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.8
-	{
-		wearkoeff = 80;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.31
-	{
-		wearkoeff = 31;
-	}
-	obj->set_val(1, (ch->get_skill(skillnum) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
-
-
 }
 
 CreateAmulet::CreateAmulet() 
