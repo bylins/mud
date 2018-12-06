@@ -2406,28 +2406,27 @@ void CHAR_DATA::update_active_affects()
 {
 	const auto saved = m_affected_by;
 
-	m_affected_by = char_specials.saved.active_affects;
-
+	m_affected_by.clear();
 	clear_add_affects();
 
+	if (is_npc())
 	{
-		if (is_npc())
-		{
-			// PC's clear all affects, because recalc one
-			const auto& mob_prototype = mob_proto[GET_MOB_RNUM(this)];
-			m_affected_by += mob_prototype.char_specials.saved.active_affects;
+		// NPCs get permanent flags and modifiers from prototype
+		const auto& mob_prototype = mob_proto[GET_MOB_RNUM(this)];
+		m_affected_by = mob_prototype.char_specials.saved.active_affects;
+		add_abils = mob_prototype.add_abils;
+	}
 
-			// Restore values for NPC - added by Adept
-			add_abils = (&mob_proto[GET_MOB_RNUM(this)])->add_abils;
-		}
-		else
+	// restore some of the affect flags (AFF_GROUP, AFF_HORSE, ...?)
+	for (const auto& i : char_saved_aff)
+	{
+		if (saved.get(i))
 		{
-			// PC's clear all affects, because recalc one
-			m_affected_by = clear_flags;
+			m_affected_by.set(i);
 		}
 	}
 
-	// move object modifiers
+	// re-apply modifiers from equipment
 	for (auto i = 0; i < NUM_WEARS; i++)
 	{
 		const auto obj = equipment[i];
@@ -2459,9 +2458,10 @@ void CHAR_DATA::update_active_affects()
 		}
 	}
 
+	// re-apply bonuses from active sets
 	obj_bonus().apply_affects(this);
 
-	// move features modifiers - added by Gorrah
+	// apply feature modifiers - added by Gorrah
 	for (auto i = 1; i < MAX_FEATS; i++)
 	{
 		if (can_use_feat(this, i) && (feat_info[i].type == AFFECT_FTYPE))
@@ -2675,27 +2675,22 @@ void CHAR_DATA::update_active_affects()
 		}
 	}
 
+	// Calculate CASTER value
+	GET_CASTER(this) = 0;
+	for (auto i = 1; !is_npc() && i <= MAX_SPELLS; i++)
 	{
-		// Calculate CASTER value
-		auto i = 1;
-		for (GET_CASTER(this) = 0; !is_npc() && i <= MAX_SPELLS; i++)
+		if (IS_SET(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP))
 		{
-			if (IS_SET(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP))
-			{
-				GET_CASTER(this) += (spell_info[i].danger * GET_SPELL_MEM(this, i));
-			}
+			GET_CASTER(this) += (spell_info[i].danger * GET_SPELL_MEM(this, i));
 		}
 	}
 
+	// Check if any stealth affect flag has been turned off
+	for (const auto& i : char_stealth_aff)
 	{
-		// Check if any stealth affect has been turned off
-		for (const auto& i : char_stealth_aff)
+		if (saved.get(i) && !m_affected_by.get(i))
 		{
-			if (saved.get(i)
-				&& !active_affects().get(i))
-			{
-				CHECK_AGRO(this) = TRUE;
-			}
+			CHECK_AGRO(this) = TRUE;
 		}
 	}
 
