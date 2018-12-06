@@ -496,6 +496,8 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
 				mob_log(ch, buf);
+//				extract_obj(object.get());
+//				return;
 			}
 		}
 

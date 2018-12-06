@@ -294,7 +294,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			skip_sneaking(vict, ch);
 			if ((EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK)))
 			{
-				vict->remove_affect(EAffectFlag::AFF_SNEAK);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
 			}
 			if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
 				continue;
@@ -305,7 +305,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
 			{
-				vict->remove_affect(EAffectFlag::AFF_HIDE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
 			}
 		}
 
@@ -314,7 +314,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
 			{
-				vict->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
 			}
 		}
 
@@ -482,7 +482,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			skip_sneaking(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
 			{
-				vict->remove_affect(EAffectFlag::AFF_SNEAK);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
 			}
 
 			if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
@@ -496,7 +496,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			skip_hiding(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
 			{
-				vict->remove_affect(EAffectFlag::AFF_HIDE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
 			}
 		}
 
@@ -505,7 +505,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			skip_camouflage(vict, ch);
 			if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
 			{
-				vict->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
 			}
 		}
 		if (!CAN_SEE(ch, vict))
@@ -811,7 +811,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 						skip_sneaking(vict, ch);
 						if (EXTRA_FLAGGED(vict, EXTRA_FAILSNEAK))
 						{
-							vict->remove_affect(EAffectFlag::AFF_SNEAK);
+							AFF_FLAGS(vict).unset(EAffectFlag::AFF_SNEAK);
 						}
 						if (AFF_FLAGGED(vict, EAffectFlag::AFF_SNEAK))
 								continue;
@@ -819,12 +819,12 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 					skip_hiding(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILHIDE))
 					{
-						vict->remove_affect(EAffectFlag::AFF_HIDE);
+						AFF_FLAGS(vict).unset(EAffectFlag::AFF_HIDE);
 					}
 					skip_camouflage(vict, ch);
 					if (EXTRA_FLAGGED(vict, EXTRA_FAILCAMOUFLAGE))
 					{
-						vict->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
+						AFF_FLAGS(vict).unset(EAffectFlag::AFF_CAMOUFLAGE);
 					}
 					if (CAN_SEE(ch, vict))
 					{
@@ -1248,6 +1248,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			{
 				ch->remove_affect(EAffectFlag::AFF_SNEAK);
 			}
+			affect_total(ch.get());
 		}
 
 		if (GET_POS(ch) == POS_STANDING && NPC_FLAGGED(ch, NPC_CAMOUFLAGE))
@@ -1260,6 +1261,8 @@ void mobile_activity(int activity_level, int missed_pulses)
 			{
 				ch->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
 			}
+
+			affect_total(ch.get());
 		}
 
 		door = BFS_ERROR;

@@ -2901,7 +2901,7 @@ void npc_group(CHAR_DATA * ch)
 
 		if (vict == leader)
 		{
-			vict->set_affect(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 			continue;
 		}
 
@@ -2914,7 +2914,7 @@ void npc_group(CHAR_DATA * ch)
 			stop_follower(vict, SF_EMPTY);
 			leader->add_follower(vict);
 		}
-		vict->set_affect(EAffectFlag::AFF_GROUP);
+		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 	}
 }
 
@@ -3414,18 +3414,18 @@ int pet_shops(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 
 		pet = read_mobile(GET_MOB_RNUM(pet), REAL);
 		pet->set_exp(0);
-		pet->set_affect(EAffectFlag::AFF_CHARM);
+		AFF_FLAGS(pet).set(EAffectFlag::AFF_CHARM);
 
 		if (*pet_name)
 		{
 			sprintf(buf, "%s %s", pet->get_pc_name().c_str(), pet_name);
-
+			// free(pet->get_pc_name()); don't free the prototype!
 			pet->set_pc_name(buf);
 
 			sprintf(buf,
 					"%sA small sign on a chain around the neck says 'My name is %s'\r\n",
 					pet->player_data.description.c_str(), pet_name);
-
+			// free(pet->player_data.description); don't free the prototype!
 			pet->player_data.description = str_dup(buf);
 		}
 		char_to_room(pet, ch->in_room);

@@ -2865,7 +2865,7 @@ void init_char(CHAR_DATA* ch, player_index_element& element)
 			GET_SPELL_TYPE(ch, i) = SPELL_KNOW;
 	}
 
-	ch->reset_permanent_affects(clear_flags);
+	ch->char_specials.saved.affected_by = clear_flags;
 	for (i = 0; i < SAVING_COUNT; i++)
 		GET_SAVE(ch, i) = 0;
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
