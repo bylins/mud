@@ -1422,7 +1422,10 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						i++;
 					}
 				} while (num != 0);
+<<<<<<< HEAD
 				/* do not load affects */
+=======
+>>>>>>> parent of cd167c69... Merge pull request #361 from bylins/issue.322.part.3
 			}
 			else if (!strcmp(tag, "Alin"))
 			{
