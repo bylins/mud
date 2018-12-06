@@ -2423,7 +2423,7 @@ void CHAR_DATA::update_active_affects()
 		else
 		{
 			// PC's clear all affects, because recalc one
-			m_affected_by += clear_flags;
+			m_affected_by = clear_flags;
 		}
 	}
 

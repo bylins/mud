@@ -1388,6 +1388,12 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
 	return array_string;
 }
 
+/*
+ * interpret_espec is the function that takes espec keywords and values
+ * and assigns the correct value to the mob as appropriate.  Adding new
+ * e-specs is absurdly easy -- just add a new CASE statement to this
+ * function!  No other changes need to be made anywhere in the code.
+ */
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
 {
 	struct helper_data_type *helper;
