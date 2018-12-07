@@ -647,14 +647,14 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 
 void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
 {
-	horse->set_affect(EAffectFlag::AFF_HORSE);
+	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
 	ch->add_follower(horse);
 	MOB_FLAGS(horse).unset(MOB_WIMPY);
 	MOB_FLAGS(horse).unset(MOB_SENTINEL);
 	MOB_FLAGS(horse).unset(MOB_HELPER);
 	MOB_FLAGS(horse).unset(MOB_AGGRESSIVE);
 	MOB_FLAGS(horse).unset(MOB_MOUNTING);
-	horse->remove_affect(EAffectFlag::AFF_TETHERED);
+	AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
 }
 
 int on_horse(const CHAR_DATA * ch)
@@ -709,7 +709,7 @@ void horse_drop(CHAR_DATA * ch)
 	if (ch->has_master())
 	{
 		act("$N сбросил$G вас со своей спины.", FALSE, ch->get_master(), 0, ch, TO_CHAR);
-		ch->get_master()->remove_affect(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_HORSE);
 		WAIT_STATE(ch->get_master(), 3 * PULSE_VIOLENCE);
 
 		if (GET_POS(ch->get_master()) > POS_SITTING)
@@ -724,7 +724,7 @@ void check_horse(CHAR_DATA * ch)
 	if (!IS_NPC(ch)
 		&& !has_horse(ch, TRUE))
 	{
-		ch->remove_affect(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 	}
 }
 
@@ -778,7 +778,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		if (!ch->get_master()->followers
 			&& !ch->get_master()->has_master())
 		{
-			ch->get_master()->remove_affect(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
 		}
 		free(k);
 	}
@@ -799,7 +799,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	master = ch->get_master();
 	ch->set_master(nullptr);
 
-	ch->remove_affect(EAffectFlag::AFF_GROUP);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
@@ -810,7 +810,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			affect_from_char(ch, SPELL_CHARM);
 		}
 		EXTRACT_TIMER(ch) = 5;
-		ch->remove_affect(EAffectFlag::AFF_CHARM);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_CHARM);
 
 		if (ch->get_fighting())
 		{
@@ -830,7 +830,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			}
 			else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
 			{
-				ch->remove_affect(EAffectFlag::AFF_HELPER);
+				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
 			}
 			else
 			{
@@ -888,7 +888,7 @@ bool die_follower(CHAR_DATA * ch)
 
 	if (on_horse(ch))
 	{
-		ch->remove_affect(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 	}
 
 	for (k = ch->followers; k; k = j)
@@ -896,7 +896,6 @@ bool die_follower(CHAR_DATA * ch)
 		j = k->next;
 		stop_follower(k->follower, SF_MASTERDIE);
 	}
-
 	return false;
 }
 

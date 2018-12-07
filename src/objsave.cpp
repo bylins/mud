@@ -2503,9 +2503,10 @@ int Crash_load(CHAR_DATA * ch)
 		free(tank);
 	}
 
-	ch->update_active_affects();
+	affect_total(ch);
 	clear_saveinfo(index);
-
+	//???
+	//Crash_crashsave();
 	return 0;
 }
 
@@ -3434,8 +3435,8 @@ void Crash_save_all_rent(void)
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(PLR_CRASH);
-			ch->remove_affect(EAffectFlag::AFF_GROUP);
-			ch->remove_affect(EAffectFlag::AFF_HORSE);
+			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
 			extract_char(ch.get(), FALSE);
 		}
 	});

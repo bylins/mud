@@ -1883,10 +1883,10 @@ void appear(CHAR_DATA * ch)
 	if (affected_by_spell(ch, SPELL_CAMOUFLAGE))
 		affect_from_char(ch, SPELL_CAMOUFLAGE);
 
-	ch->remove_affect(EAffectFlag::AFF_INVISIBLE);
-	ch->remove_affect(EAffectFlag::AFF_HIDE);
-	ch->remove_affect(EAffectFlag::AFF_SNEAK);
-	ch->remove_affect(EAffectFlag::AFF_CAMOUFLAGE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_INVISIBLE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_CAMOUFLAGE);
 
 	if (appear_msg)
 	{

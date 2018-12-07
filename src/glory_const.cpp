@@ -1158,7 +1158,7 @@ void apply_modifiers(CHAR_DATA *ch)
 		if (location)
 		{
 			const int K = location != APPLY_HIT_GLORY ? stat_multi(i->first) : 1;
-			ch->affect_modify(location, i->second * K, static_cast<EAffectFlag>(0), add);
+			affect_modify(ch, location, i->second * K, static_cast<EAffectFlag>(0), add);
 		}
 	}
 }

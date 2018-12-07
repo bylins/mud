@@ -53,8 +53,8 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation>& af)
 				af.modifier = affect->modifier;
 			}
 
-			ch->remove_pulse_affect(affect_i);
-			ch->affect_to_char(*affect);
+			ch->affect_remove(affect_i);
+			affect_to_char(ch, *affect);
 			found = true;
 			break;
 		}
@@ -62,7 +62,7 @@ bool poison_affect_join(CHAR_DATA *ch, AFFECT_DATA<EApplyLocation>& af)
 
 	if (!found)
 	{
-		ch->affect_to_char(af);
+		affect_to_char(ch, af);
 	}
 
 	return true;
