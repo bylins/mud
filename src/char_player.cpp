@@ -585,23 +585,17 @@ void Player::save_char()
 	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
 	// дальше пишем как хотим и что хотим
 
-	if (GET_PAD(this, 0))
-		fprintf(saved, "NmI : %s\n", GET_PAD(this, 0));
-	if (GET_PAD(this, 1))
-		fprintf(saved, "NmR : %s\n", GET_PAD(this, 1));
-	if (GET_PAD(this, 2))
-		fprintf(saved, "NmD : %s\n", GET_PAD(this, 2));
-	if (GET_PAD(this, 3))
-		fprintf(saved, "NmV : %s\n", GET_PAD(this, 3));
-	if (GET_PAD(this, 4))
-		fprintf(saved, "NmT : %s\n", GET_PAD(this, 4));
-	if (GET_PAD(this, 5))
-		fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
+	fprintf(saved, "NmI : %s\n", GET_PAD(this, 0));
+	fprintf(saved, "NmR : %s\n", GET_PAD(this, 1));
+	fprintf(saved, "NmD : %s\n", GET_PAD(this, 2));
+	fprintf(saved, "NmV : %s\n", GET_PAD(this, 3));
+	fprintf(saved, "NmT : %s\n", GET_PAD(this, 4));
+	fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
 	if (!this->get_passwd().empty())
 		fprintf(saved, "Pass: %s\n", this->get_passwd().c_str());
-	if (this->player_data.title != "")
+	if (!this->player_data.title.empty())
 		fprintf(saved, "Titl: %s\n", this->player_data.title.c_str());
-	if (this->player_data.description != "")
+	if (!this->player_data.description.empty())
 	{
 		strcpy(buf, this->player_data.description.c_str());
 		kill_ems(buf);
