@@ -122,7 +122,6 @@ void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void sort_commands(void);
 void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -5945,42 +5944,6 @@ void do_diagnose(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 const char *ctypes[] = { "выключен", "простой", "обычный", "полный", "\n" };
-
-void do_color(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	int tp;
-
-	if (IS_NPC(ch))
-		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg)
-	{
-		sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[COLOR_LEV(ch)], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
-		send_to_char(CAP(buf), ch);
-		return;
-	}
-	if ((tp = search_block(arg, ctypes, FALSE)) == -1)
-	{
-		send_to_char("Формат: [режим] цвет { выкл | простой | обычный | полный }\r\n", ch);
-		return;
-	}
-	PRF_FLAGS(ch).unset(PRF_COLOR_1);
-	PRF_FLAGS(ch).unset(PRF_COLOR_2);
-
-	if (0 != (1 & tp))	// 1 or 3 (simple/full)
-	{
-		PRF_FLAGS(ch).set(PRF_COLOR_1);
-	}
-	if (0 != (2 & tp))	// 2 or 3 (normal/full)
-	{
-		PRF_FLAGS(ch).set(PRF_COLOR_2);
-	}
-
-	sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[tp], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
-	send_to_char(CAP(buf), ch);
-}
 
 void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {

@@ -2255,7 +2255,6 @@ struct gen_tog_param_type
 		0, SCMD_AUTOEXIT, false}, {
 		0, SCMD_BRIEF, false}, {
 		0, SCMD_COMPACT, false}, {
-		0, SCMD_COLOR, false}, {
 		0, SCMD_NOREPEAT, false}, {
 		0, SCMD_NOTELL, false}, {
 		0, SCMD_NOINVISTELL, false}, {
@@ -2631,10 +2630,6 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		break;
 	case SCMD_AUTOMEM:
 		result = PRF_TOG_CHK(ch, PRF_AUTOMEM);
-		break;
-	case SCMD_COLOR:
-		do_color(ch, argument, 0, 0);
-		return;
 		break;
 	case SCMD_SDEMIGOD:
 		result = PRF_TOG_CHK(ch, PRF_SDEMIGOD);
