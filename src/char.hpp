@@ -270,7 +270,7 @@ struct player_special_data
 	ignores_t ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
-	struct logon_data * logons; //Записи о входах чара
+	std::vector<logon_data> logons; //Записи о входах чара
 
 // Punishments structs
 	punish_data pmute;

@@ -580,16 +580,7 @@ void CHAR_DATA::purge()
 			free(GET_CLAN_STATUS(this));
 		}
 
-		// Чистим лист логонов
-		while (LOGON_LIST(this))
-		{
-			struct logon_data *log_next;
-			log_next = LOGON_LIST(this)->next;
-			free(this->player_specials->logons->ip);
-			delete LOGON_LIST(this);
-			LOGON_LIST(this) = log_next;
-		}
-		LOGON_LIST(this) = NULL;
+		LOGON_LIST(this).clear();
 
 		this->player_specials.reset();
 
@@ -2263,7 +2254,6 @@ player_special_data::player_special_data() :
 	logs(nullptr),
 	Exchange_filter(nullptr),
 	Karma(nullptr),
-	logons(nullptr),
 	clanStatus(nullptr)
 {
 }
