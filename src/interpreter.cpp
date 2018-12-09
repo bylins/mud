@@ -2222,44 +2222,23 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	log("Enter logon list");
 	// Добавляем запись в LOG_LIST
 	d->character->get_account()->add_login(std::string(d->host));
-	if (LOGON_LIST(d->character) == 0)
+
+	const auto logon = std::find_if(LOGON_LIST(d->character).begin(), LOGON_LIST(d->character).end(),
+		[&](const logon_data& l) -> bool
+		{
+			return !strcmp(l.ip, d->host);
+		});
+
+	if (logon == LOGON_LIST(d->character).end())
 	{
-		LOGON_LIST(d->character) = new(struct logon_data);
-		LOGON_LIST(d->character)->ip = str_dup(d->host);
-		LOGON_LIST(d->character)->count = 1;
-		LOGON_LIST(d->character)->lasttime = time(0);
-		LOGON_LIST(d->character)->next = 0;
+		const logon_data cur_log = { str_dup(d->host), 1, time(0), false };
+		LOGON_LIST(d->character).push_back(cur_log);			
 	}
 	else
 	{
-		// Ищем есть ли запись в logon-е
-		struct logon_data * cur_log = LOGON_LIST(d->character);
-		struct logon_data * last_log = cur_log;
-		bool ipfound = false;
-		while (cur_log)
-		{
-			if (!strcmp(cur_log->ip, d->host))
-			{
-				// Совпало
-				cur_log->count++;
-				cur_log->lasttime = time(0);
-				ipfound = true;
-				break;
-			}
-			last_log = cur_log;
-			cur_log = cur_log->next;
-		};
-		if (!ipfound)
-		{
-			last_log->next = new(struct logon_data);
-			last_log = last_log->next;
-			last_log->ip = str_dup(d->host);
-			last_log->count = 1;
-			last_log->lasttime = time(0);
-			last_log->next = 0;
-		}
-		//
+		++logon->count;
 	}
+
 	int pos = get_ptable_by_unique(GET_UNIQUE(d->character));
 	if (pos >= 0) {
 		if (player_table[pos].last_ip)
@@ -2714,17 +2693,14 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	// нам нужен массив сетей с маской /24
 	std::set<uint32_t> subnets;
 
-	struct logon_data * log_info = LOGON_LIST(d->character);
-
-	// маска сети /24, можно покрутить в большую сторону, если есть желание
-	uint32_t MASK = 16777215;
-	while (log_info)
+	const uint32_t MASK = 16777215;
+	for(const auto& logon : LOGON_LIST(d->character))
 	{
-		uint32_t current_subnet = inet_addr(log_info->ip) & MASK;
+		uint32_t current_subnet = inet_addr(logon.ip) & MASK;
 		subnets.insert(current_subnet);
-		log_info = log_info->next;
 	}
-	if (subnets.size() != 0)
+
+	if (!subnets.empty())
 	{
 		if (subnets.count(inet_addr(d->host) & MASK) == 0)
 		{

@@ -543,20 +543,17 @@ void Player::save_char()
 	}
 	else//по сути так должен норм сохраняцо последний айпи
 	{
-		li = 0;
-		if (LOGON_LIST(this))
+		if (!LOGON_LIST(this).empty())
 		{
-			struct logon_data * cur_log = LOGON_LIST(this);
-			while (cur_log)
+			logon_data* last_logon = &LOGON_LIST(this).at(0);
+			for(auto& cur_log : LOGON_LIST(this))
 			{
-				if ((cur_log)->lasttime > li)
+				if (cur_log.lasttime > last_logon->lasttime)
 				{
-					strcpy(buf, cur_log->ip);
-					li = cur_log->lasttime;
-//					log("%s\r\n", buf);
+					last_logon = &cur_log;
 				}
-				cur_log = cur_log->next;
 			}
+			strcpy(buf, last_logon->ip);
 		}
 		else
 		{
@@ -809,15 +806,13 @@ void Player::save_char()
 		kill_ems(buf);
 		fprintf(saved, "Karm:\n%s~\n", buf);
 	}
-	if (LOGON_LIST(this))
+	if (!LOGON_LIST(this).empty())
 	{
 		log("Saving logon list.");
-		struct logon_data * next_log = LOGON_LIST(this);
-		std::stringstream buffer;
-		while (next_log)
+		std::ostringstream buffer;
+		for(const auto& logon : LOGON_LIST(this))
 		{
-			buffer << next_log->ip << " " << next_log->count << " " << next_log->lasttime << "\n";
-			next_log = next_log->next;
+			buffer << logon.ip << " " << logon.count << " " << logon.lasttime << "\n";
 		}
 		fprintf(saved, "LogL:\n%s~\n", buffer.str().c_str());
 	}
@@ -1329,7 +1324,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_MOVE(this) = 44;
 	GET_MAX_MOVE(this) = 44;
 	KARMA(this) = 0;
-	LOGON_LIST(this) = 0;
+	LOGON_LIST(this).clear();
 	NAME_GOD(this) = 0;
 	STRING_LENGTH(this) = 80;
 	STRING_WIDTH(this) = 30;
@@ -1663,8 +1658,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		case 'L':
 			if (!strcmp(tag, "LogL"))
 			{
-				i = 0;
-				struct logon_data * cur_log = 0;
 				long  lnum, lnum2;
 				do
 				{
@@ -1672,23 +1665,22 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
 					if (buf[0] != '~')
 					{
-						if (i == 0)
-							cur_log = LOGON_LIST(this) = new(struct logon_data);
-						else
-						{
-							cur_log->next = new(struct logon_data);
-							cur_log = cur_log->next;
-						}
-						// Добавляем в список.
-						cur_log->ip = str_dup(buf);
-						cur_log->count = lnum;
-						cur_log->lasttime = lnum2;
-						cur_log->next = 0;   // Терминатор списка
-						i++;
+						const logon_data cur_log = { str_dup(buf), lnum, lnum2, false };
+						LOGON_LIST(this).push_back(cur_log);
 					}
 					else break;
 				}
 				while (true);
+
+				if (!LOGON_LIST(this).empty())
+				{
+					LOGON_LIST(this).at(0).is_first = true;
+					std::sort(LOGON_LIST(this).begin(), LOGON_LIST(this).end(),
+						[](const logon_data& a, const logon_data& b)
+					{
+						return a.lasttime < b.lasttime;
+					});
+				}
 			}
 // Gunner
 			else if (!strcmp(tag, "Logs"))

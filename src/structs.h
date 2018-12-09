@@ -1461,7 +1461,7 @@ struct logon_data
 	char * ip;
 	long count;
 	time_t lasttime; //by kilnik
-	logon_data * next;
+	bool is_first;
 };
 
 class punish_data
