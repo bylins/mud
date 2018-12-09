@@ -1150,22 +1150,20 @@ void QuestBodrich::load_rewards()
 	}
 }
 
-std::vector<DailyQuest> d_quest;
-
 void load_dquest()
 {
 	pugi::xml_document doc_;
-	pugi::xml_node class_, file_, object_, level_;
+
 	log("Loading daily_quest.xml....");
-	file_ = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
-	std::vector<QuestBodrichRewards> tmp_array;
-	for (object_ = file_.child("quest"); object_; object_ = object_.next_sibling("quest"))
+
+	const auto file = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
+	for (auto object = file.child("quest"); object; object = object.next_sibling("quest"))
 	{
 		DailyQuest tmp;
-		tmp.id = object_.attribute("id").as_int();
-		tmp.reward = object_.attribute("reward").as_int();
-		tmp.desk = object_.attribute("desk").as_string();
-		d_quest.push_back(tmp);
+		tmp.id = object.attribute("id").as_int();
+		tmp.reward = object.attribute("reward").as_int();
+		tmp.desk = object.attribute("desk").as_string();
+		d_quest.emplace(tmp.id, tmp);
 	}
 }
 

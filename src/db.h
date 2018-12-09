@@ -113,16 +113,6 @@ struct ExtraAffects
 	int chance; // вероятность того, что данный экстраффект будет на шмотке
 };
 
-struct DailyQuest
-{
-	// id
-	int id;
-	// desk
-	std::string desk;
-	// награда
-	int reward;
-};
-
 struct QuestBodrichRewards
 {
 	int level;

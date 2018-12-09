@@ -36,6 +36,7 @@ namespace
 		Heartbeat heartbeat;
 		std::shared_ptr<influxdb::Sender> stats_sender;
 		zone_table_t zone_table;
+		DailyQuestMap daily_quests;
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -177,5 +178,11 @@ PlayersIndex& GlobalObjects::player_table()
 {
 	return global_objects().player_table;
 }
+
+DailyQuestMap& GlobalObjects::daily_quests()
+{
+	return global_objects().daily_quests;
+}
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
