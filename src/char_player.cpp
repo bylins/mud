@@ -32,6 +32,7 @@
 #include "conf.h"
 #include "accounts.hpp"
 #include "zone.table.hpp"
+#include "daily_quest.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -264,38 +265,33 @@ void Player::add_hryvn(int value)
 	this->hryvn += value;
 }
 
-extern std::vector<DailyQuest> d_quest;
-void Player::dquest(int id)
+void Player::dquest(const int id)
 {
-	for (auto x : d_quest)
+	const auto quest = d_quest.find(id);
+
+	if(quest == d_quest.end())
 	{
-		if (x.id == id)
-		{
-			if (!this->account->quest_is_available(id))
-			{
-				send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
-				return;
-			}
-			int value = x.reward + number(1, 3);
-			if ((zone_table[world[this->in_room]->zone].mob_level > 24) 
-				|| (zone_table[world[this->in_room]->zone].mob_level > (GET_LEVEL(this) + GET_REMORT(this)/5)))
-			{
-				value = value;
-			}
-			else
-			{
-				value /= 2;
-			}
-			this->add_hryvn(value);
-
-			this->account->complete_quest(id);
-			return;
-		}
+		log("Quest ID: %d - не найден", id);
+		return;
 	}
-	log("Quest ID: %d - не найден", id);
-	return;
-}
 
+	if (!this->account->quest_is_available(id))
+	{
+		send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
+		return;
+	}
+	int value = quest->second.reward + number(1, 3);
+	const int zone_lvl = zone_table[world[this->in_room]->zone].mob_level;
+	if (zone_lvl < 25
+		&& zone_lvl <= (GET_LEVEL(this) + GET_REMORT(this) / 5))
+	{
+		value /= 2;
+	}
+
+	this->add_hryvn(value);
+
+	this->account->complete_quest(id);
+}
 
 void Player::mark_city(const size_t index)
 {
