@@ -196,14 +196,6 @@ const char *class_menu_step =
 	"  [С]атучы\r\n"
 	"  Се[и]д\r\n";
 
-const char *color_menu =
-	"\r\n"
-	"Выберите режим цвета :\r\n"
-	"  [0]Выкл\r\n"
-	"  [1]Простой\r\n"
-	"  [2]Обычный\r\n"
-	"  [3]Полный\r\n";
-
 // The menu for choosing a religion in interpreter.c:
 const char *religion_menu =
 	"\r\n" "Какой религии вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
