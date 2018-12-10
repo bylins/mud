@@ -17,6 +17,6 @@ struct DailyQuest
 using DailyQuestMap = std::unordered_map<int, DailyQuest>;
 extern DailyQuestMap& d_quest;
 
-#endif __DAILY_QUEST_HPP__
+#endif // __DAILY_QUEST_HPP__
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
