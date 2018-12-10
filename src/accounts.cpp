@@ -219,7 +219,7 @@ bool Account::quest_is_available(int id)
 	{
 		if (x.id == id)
 		{
-			if (x.time != 0 && (time(0) - x.time) < 86400)
+			if (x.time != 0 && (time(0) - x.time) < 82800)
 			{
 				return false;
 			}

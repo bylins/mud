@@ -192,7 +192,7 @@ void make_visible(CHAR_DATA * ch, const EAffectFlag affect)
 	default:
 		break;
 	}
-	ch->remove_affect(affect);
+	AFF_FLAGS(ch).unset(affect);
 	CHECK_AGRO(ch) = TRUE;
 	if (*to_char)
 		send_to_char(to_char, ch);
@@ -583,7 +583,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					FALSE, ch, 0, get_horse(ch), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-				ch->remove_affect(EAffectFlag::AFF_HORSE);
+				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 			}
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
@@ -1771,7 +1771,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						FALSE, ch, 0, get_horse(ch), TO_CHAR);
 					act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-					ch->remove_affect(EAffectFlag::AFF_HORSE);
+					AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 				}
 				//проверка на ванрум и лошадь
 				if (ROOM_FLAGGED(door, ROOM_TUNNEL) &&
@@ -1787,7 +1787,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 							FALSE, ch, 0, get_horse(ch), TO_CHAR);
 						act("$n соскочил$g с $N1.", FALSE, ch, 0, get_horse(ch), TO_ROOM | TO_ARENA_LISTEN);
-						ch->remove_affect(EAffectFlag::AFF_HORSE);
+						AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
@@ -2099,7 +2099,7 @@ void do_horseon(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			affect_from_char(ch, SPELL_CAMOUFLAGE);
 		act("Вы взобрались на спину $N1.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n вскочил$g на $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		ch->set_affect(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(ch).set(EAffectFlag::AFF_HORSE);
 	}
 }
 
@@ -2123,7 +2123,7 @@ void do_horseoff(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	act("Вы слезли со спины $N1.", FALSE, ch, 0, horse, TO_CHAR);
 	act("$n соскочил$g с $N1.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-	ch->remove_affect(EAffectFlag::AFF_HORSE);
+	AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 }
 
 void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2165,7 +2165,7 @@ void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		act("Вы отвязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n отвязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		horse->remove_affect(EAffectFlag::AFF_TETHERED);
+		AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
 	}
 }
 
@@ -2192,7 +2192,6 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		horse = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 	else
 		horse = get_horse(ch);
-
 	if (horse == NULL)
 		send_to_char(NOPERSON, ch);
 	else if (IN_ROOM(horse) != ch->in_room)
@@ -2207,7 +2206,7 @@ void do_horseput(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		act("Вы привязали $N3.", FALSE, ch, 0, horse, TO_CHAR);
 		act("$n привязал$g $N3.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-		horse->set_affect(EAffectFlag::AFF_TETHERED);
+		AFF_FLAGS(horse).set(EAffectFlag::AFF_TETHERED);
 	}
 }
 
@@ -2434,6 +2433,7 @@ void do_wake(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *leader;
+	struct follow_type *f;
 	one_argument(argument, buf);
 
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_fighting())
@@ -2498,11 +2498,11 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				stop_follower(ch, SF_EMPTY);
 			}
-			ch->remove_affect(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			//also removing AFF_GROUP flag from all followers
-			for (auto f = ch->followers; f; f = f->next)
+			for (f = ch->followers; f; f = f->next)
 			{
-				f->follower->remove_affect(EAffectFlag::AFF_GROUP);
+				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
 			}
 
 			leader->add_follower(ch);

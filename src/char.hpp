@@ -89,6 +89,7 @@ public:
 	ubyte mresist;
 	ubyte aresist;
 	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
+	
 };
 
 // Char's abilities.
@@ -125,7 +126,8 @@ struct char_special_data_saved
 {
 	int alignment;		// +-1000 for alignments
 	FLAG_DATA act;		// act flag for NPC's; player flag for PC's
-	FLAG_DATA active_affects;	// bit-vector for spells/skills affected by
+	FLAG_DATA affected_by;
+	// Bitvector for spells/skills affected by
 };
 
 // Special playing constants shared by PCs and NPCs which aren't in pfile
@@ -268,7 +270,7 @@ struct player_special_data
 	ignores_t ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
-	struct logon_data * logons; //Записи о входах чара
+	std::vector<logon_data> logons; //Записи о входах чара
 
 // Punishments structs
 	punish_data pmute;
@@ -606,7 +608,7 @@ public:
 	virtual void reset();
 
 	void set_abstinent();
-	void remove_pulse_affect(const char_affects_list_t::iterator& affect_i);
+	void affect_remove(const char_affects_list_t::iterator& affect_i);
 	bool has_any_affect(const affects_list_t& affects);
 	size_t remove_random_affects(const size_t count);
 
@@ -625,14 +627,10 @@ public:
 	void add_ignore(const ignore_data::shared_ptr ignore);
 	void clear_ignores();
 
-	void set_affect(EAffectFlag affect);
-	void remove_affect(EAffectFlag affect);
-	const FLAG_DATA& permanent_affects() const { return char_specials.saved.active_affects; }
-	void reset_permanent_affects(const FLAG_DATA& new_affects);
-
-	bool affected_by(const EAffectFlag flag) const;
-	const FLAG_DATA& active_affects() const { return m_affected_by; }
-
+	template <typename T>
+	void set_affect(T affect) { char_specials.saved.affected_by.set(affect); }
+	template <typename T>
+	void remove_affect(T affect) { char_specials.saved.affected_by.unset(affect); }
 	bool low_charm() const;
 
 	void set_purged(const bool _ = true) { purged_ = _; script->set_purged(_); }
@@ -641,33 +639,11 @@ public:
 
 	bool is_npc() const { return char_specials.saved.act.get(MOB_ISNPC); }
 
-	void affect_modify(byte loc, int mod, const EAffectFlag affect, bool add);
-
-	/* Insert an affect_type in a char_data structure
-	   Automatically sets appropriate bits and apply's */
-	void affect_to_char(const AFFECT_DATA<EApplyLocation>& af);
-
-	void update_active_affects();
-
 private:
-	// This updates a character by subtracting everything he is affected by
-	// restoring original abilities, and then affecting all again
-	void affect_total();
-
 	const auto& get_player_specials() const { return player_specials; }
 	auto& get_player_specials() { return player_specials; }
 
-	// Return the effect of a piece of armor in position eq_pos
-	int apply_ac(int eq_pos);
-	int apply_armour(int eq_pos);
-
-	/// Сет чару аффектов, которые должны висеть постоянно (через affect_total)
-	///
-	// Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
-	// Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
-	void apply_natural_affects();
-
-	std::string clan_for_title() const;
+	std::string clan_for_title();
 	std::string only_title_noclan();
 	void zero_init();
 	void restore_mob();
@@ -758,8 +734,6 @@ private:
 	// души, онли чернок
 	int souls;
 
-	FLAG_DATA m_affected_by;	// calculated field
-	
 public:
 	room_rnum in_room;	// Location (real room number)
 
@@ -867,15 +841,19 @@ inline void WAIT_STATE(CHAR_DATA* ch, const unsigned cycle)
 	}
 }
 
+inline FLAG_DATA& AFF_FLAGS(CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA* ch) { return ch->char_specials.saved.affected_by; }
+inline const FLAG_DATA& AFF_FLAGS(const CHAR_DATA::shared_ptr& ch) { return ch->char_specials.saved.affected_by; }
+
 inline bool AFF_FLAGGED(const CHAR_DATA* ch, const EAffectFlag flag)
 {
-	return ch->affected_by(flag)
+	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
 }
 
 inline bool AFF_FLAGGED(const CHAR_DATA::shared_ptr& ch, const EAffectFlag flag)
 {
-	return ch->affected_by(flag)
+	return AFF_FLAGS(ch).get(flag)
 		|| ch->isAffected(flag);
 }
 

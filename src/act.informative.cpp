@@ -122,7 +122,6 @@ void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void sort_commands(void);
 void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -5948,42 +5947,6 @@ void do_diagnose(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 const char *ctypes[] = { "выключен", "простой", "обычный", "полный", "\n" };
 
-void do_color(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	int tp;
-
-	if (IS_NPC(ch))
-		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg)
-	{
-		sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[COLOR_LEV(ch)], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
-		send_to_char(CAP(buf), ch);
-		return;
-	}
-	if ((tp = search_block(arg, ctypes, FALSE)) == -1)
-	{
-		send_to_char("Формат: [режим] цвет { выкл | простой | обычный | полный }\r\n", ch);
-		return;
-	}
-	PRF_FLAGS(ch).unset(PRF_COLOR_1);
-	PRF_FLAGS(ch).unset(PRF_COLOR_2);
-
-	if (0 != (1 & tp))	// 1 or 3 (simple/full)
-	{
-		PRF_FLAGS(ch).set(PRF_COLOR_1);
-	}
-	if (0 != (2 & tp))	// 2 or 3 (normal/full)
-	{
-		PRF_FLAGS(ch).set(PRF_COLOR_2);
-	}
-
-	sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[tp], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
-	send_to_char(CAP(buf), ch);
-}
-
 void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
@@ -6242,14 +6205,14 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	char sp_name[MAX_STRING_LENGTH];
 
-	// Showing the bitvector
-	auto saved = ch->active_affects();
+	// Show the bitset without "hiding" etc.
+	auto aff_copy = ch->char_specials.saved.affected_by;
 	for (auto j : hiding)
 	{
-		saved.unset(j);
+		aff_copy.unset(j);
 	}
 
-	saved.sprintbits(affected_bits, buf2, ",");
+	aff_copy.sprintbits(affected_bits, buf2, ",");
 	snprintf(buf, MAX_STRING_LENGTH, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
@@ -6267,7 +6230,6 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 			*buf2 = '\0';
 			strcpy(sp_name, spell_name(aff->type));
-
 			int mod = 0;
 			if (aff->battleflag == AF_PULSEDEC)
 			{
@@ -6277,7 +6239,6 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			{
 				mod = aff->duration;
 			}
-
 			(mod + 1) / SECS_PER_MUD_HOUR
 				? sprintf(buf2, "(%d %s)", (mod + 1) / SECS_PER_MUD_HOUR + 1, desc_count((mod + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR))
 				: sprintf(buf2, "(менее часа)");
@@ -6285,12 +6246,10 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 					*sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					CCICYN(ch, C_NRM), sp_name, buf2, CCNRM(ch, C_NRM));
 			*buf2 = '\0';
-
 			if (!IS_IMMORTAL(ch))
 			{
 				auto next_affect_i = affect_i;
 				++next_affect_i;
-
 				if (next_affect_i != ch->affected.end())
 				{
 					const auto& next_affect = *next_affect_i;
@@ -6307,7 +6266,6 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					strcat(buf, buf2);
 				}
-
 				if (aff->bitvector)
 				{
 					if (*buf2)
@@ -6318,7 +6276,6 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 					{
 						strcat(buf, "устанавливает ");
 					}
-
 					strcat(buf, CCIRED(ch, C_NRM));
 					sprintbit(aff->bitvector, affected_bits, buf2);
 					strcat(buf, buf2);
@@ -6327,7 +6284,6 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			}
 			send_to_char(strcat(buf, "\r\n"), ch);
 		}
-
 // отображение наград
 		for (const auto& aff : ch->affected)
 		{

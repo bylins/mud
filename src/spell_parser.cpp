@@ -3003,7 +3003,15 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		MemQ_remember(ch, spell_subst);
 	if (!IS_NPC(ch))
 	{
-		ch->update_active_affects();
+		/*log("[CAST_SPELL->AFFECT_TOTAL] Start <%s(%d)> <%s(%d)> <%s> <%d>",
+		   GET_NAME(ch),
+		   ch->in_room,
+		   tch  ? GET_NAME(tch)   : "-",
+		   tch  ? IN_ROOM(tch)    : -2,
+		   tobj ? tobj->PNames[0] : "-",
+		   spellnum); */
+		affect_total(ch);
+		//log("[CAST_SPELL->AFFECT_TOTAL] Stop");
 	}
 	else
 	{
@@ -3245,9 +3253,9 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		}
 		if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
 			MemQ_remember(ch, spell_subst);
-
-		ch->update_active_affects();
-
+		//log("[DO_CAST->AFFECT_TOTAL] Start");
+		affect_total(ch);
+		//log("[DO_CAST->AFFECT_TOTAL] Stop");
 		if (!tch || !skill_message(0, ch, tch, spellnum))
 			send_to_char("Вы не смогли сосредоточиться!\r\n", ch);
 	}

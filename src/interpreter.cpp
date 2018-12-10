@@ -98,7 +98,6 @@ extern const char *class_menu;
 extern const char *class_menu_vik;
 extern const char *class_menu_step;
 extern const char *religion_menu;
-extern const char *color_menu;
 extern char *motd;
 extern char *rules;
 extern char *background;
@@ -175,7 +174,6 @@ void do_clanstuff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_courage(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -777,10 +775,8 @@ cpp_extern const struct command_info cmd_info[] =
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
 	{"счет", POS_DEAD, do_score, 0, 0, 0},
-
 	{"титул", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
 	{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
-
 	{"убить", POS_FIGHTING, do_kill, 0, 0, -1},
 	{"убрать", POS_RESTING, do_remove, 0, 0, 400},
 	{"ударить", POS_FIGHTING, do_hit, 0, SCMD_HIT, -1},
@@ -793,23 +789,15 @@ cpp_extern const struct command_info cmd_info[] =
 	{"уровень", POS_DEAD, do_score, 0, 0, 0},
 	{"уровни", POS_DEAD, do_levels, 0, 0, 0},
 	{"учить", POS_STANDING, do_not_here, 0, 0, -1},
-
 	{"хранилище", POS_DEAD, DoStoreHouse, 0, 0, 0},
 	{"характеристики", POS_STANDING, do_not_here, 0, 0, -1},
-
-	{"цвет", POS_DEAD, do_color, 0, 0, 0},
-
 	{"кланстаф", POS_STANDING, do_clanstuff, 0, 0, 0},
-
 	{"чинить", POS_STANDING, do_not_here, 0, 0, -1},
 	{"читать", POS_RESTING, do_look, 0, SCMD_READ, 200},
-
 	{"шептать", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
-
 	{"экипировка", POS_SLEEPING, do_equipment, 0, 0, 0},
 	{"эмоция", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
 	{"эхо", POS_SLEEPING, do_echo, LVL_IMMORT, SCMD_ECHO, -1},
-
 	{"ярость", POS_RESTING, do_courage, 0, 0, -1},
 
 	// God commands for listing
@@ -845,7 +833,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"clear", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
 	{"close", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
 	{"cls", POS_DEAD, do_gen_ps, 0, SCMD_CLEAR, 0},
-	{"color", POS_DEAD, do_color, 0, 0, 0},
 	{"commands", POS_DEAD, do_commands, 0, SCMD_COMMANDS, 0},
 	{"consider", POS_RESTING, do_consider, 0, 0, 500},
 	{"credits", POS_DEAD, do_gen_ps, 0, SCMD_CREDITS, 0},
@@ -2222,44 +2209,23 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	log("Enter logon list");
 	// Добавляем запись в LOG_LIST
 	d->character->get_account()->add_login(std::string(d->host));
-	if (LOGON_LIST(d->character) == 0)
+
+	const auto logon = std::find_if(LOGON_LIST(d->character).begin(), LOGON_LIST(d->character).end(),
+		[&](const logon_data& l) -> bool
+		{
+			return !strcmp(l.ip, d->host);
+		});
+
+	if (logon == LOGON_LIST(d->character).end())
 	{
-		LOGON_LIST(d->character) = new(struct logon_data);
-		LOGON_LIST(d->character)->ip = str_dup(d->host);
-		LOGON_LIST(d->character)->count = 1;
-		LOGON_LIST(d->character)->lasttime = time(0);
-		LOGON_LIST(d->character)->next = 0;
+		const logon_data cur_log = { str_dup(d->host), 1, time(0), false };
+		LOGON_LIST(d->character).push_back(cur_log);			
 	}
 	else
 	{
-		// Ищем есть ли запись в logon-е
-		struct logon_data * cur_log = LOGON_LIST(d->character);
-		struct logon_data * last_log = cur_log;
-		bool ipfound = false;
-		while (cur_log)
-		{
-			if (!strcmp(cur_log->ip, d->host))
-			{
-				// Совпало
-				cur_log->count++;
-				cur_log->lasttime = time(0);
-				ipfound = true;
-				break;
-			}
-			last_log = cur_log;
-			cur_log = cur_log->next;
-		};
-		if (!ipfound)
-		{
-			last_log->next = new(struct logon_data);
-			last_log = last_log->next;
-			last_log->ip = str_dup(d->host);
-			last_log->count = 1;
-			last_log->lasttime = time(0);
-			last_log->next = 0;
-		}
-		//
+		++logon->count;
 	}
+
 	int pos = get_ptable_by_unique(GET_UNIQUE(d->character));
 	if (pos >= 0) {
 		if (player_table[pos].last_ip)
@@ -2714,17 +2680,14 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	// нам нужен массив сетей с маской /24
 	std::set<uint32_t> subnets;
 
-	struct logon_data * log_info = LOGON_LIST(d->character);
-
-	// маска сети /24, можно покрутить в большую сторону, если есть желание
-	uint32_t MASK = 16777215;
-	while (log_info)
+	const uint32_t MASK = 16777215;
+	for(const auto& logon : LOGON_LIST(d->character))
 	{
-		uint32_t current_subnet = inet_addr(log_info->ip) & MASK;
+		uint32_t current_subnet = inet_addr(logon.ip) & MASK;
 		subnets.insert(current_subnet);
-		log_info = log_info->next;
 	}
-	if (subnets.size() != 0)
+
+	if (!subnets.empty())
 	{
 		if (subnets.count(inet_addr(d->host) & MASK) == 0)
 		{
@@ -2865,7 +2828,7 @@ void init_char(CHAR_DATA* ch, player_index_element& element)
 			GET_SPELL_TYPE(ch, i) = SPELL_KNOW;
 	}
 
-	ch->reset_permanent_affects(clear_flags);
+	ch->char_specials.saved.affected_by = clear_flags;
 	for (i = 0; i < SAVING_COUNT; i++)
 		GET_SAVE(ch, i) = 0;
 	for (i = 0; i < MAX_NUMBER_RESISTANCE; i++)
@@ -2895,6 +2858,7 @@ void init_char(CHAR_DATA* ch, player_index_element& element)
 	PRF_FLAGS(ch).set(PRF_DISPEXP);
 	PRF_FLAGS(ch).set(PRF_DISPFIGHT);
 	PRF_FLAGS(ch).unset(PRF_SUMMONABLE);
+	PRF_FLAGS(ch).set(PRF_COLOR_2);
 	STRING_LENGTH(ch) = 80;
 	STRING_WIDTH(ch) = 30;
 	NOTIFY_EXCH_PRICE(ch) = 0;
@@ -3815,7 +3779,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		if (pre_help(d->character.get(), arg))
 		{
 			genchar_disp_menu(d->character.get());
-			STATE(d) = CON_ROLL_STATS;
+				STATE(d) = CON_ROLL_STATS;
 			return;
 		}
 
@@ -3824,49 +3788,13 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		case GENCHAR_CONTINUE:
 			genchar_disp_menu(d->character.get());
 			break;
-
-		default:
-			// Все. Генерация закончена
-			SEND_TO_Q(color_menu, d);
-			SEND_TO_Q("\r\nРежим :", d);
-			STATE(d) = CON_COLOR;
+			default:
+				SEND_TO_Q("\r\nВведите ваш E-mail"
+				"\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
+				"\r\nНа этот адрес вам будет отправлен код для подтверждения: ", d);
+				STATE(d) = CON_GET_EMAIL;
+			break;
 		}
-
-		break;
-
-	case CON_COLOR:
-		if (pre_help(d->character.get(), arg))
-		{
-			SEND_TO_Q(color_menu, d);
-			SEND_TO_Q("\n\rРежим :", d);
-			STATE(d) = CON_COLOR;
-			return;
-		}
-
-		switch (UPPER(*arg))
-		{
-		case '0':
-			snprintf(buf2, MAX_STRING_LENGTH, "выкл");
-			break;
-		case '1':
-			snprintf(buf2, MAX_STRING_LENGTH, "простой");
-			break;
-		case '2':
-			snprintf(buf2, MAX_STRING_LENGTH, "обычный");
-			break;
-		case '3':
-			snprintf(buf2, MAX_STRING_LENGTH, "полный");
-			break;
-		default:
-			SEND_TO_Q("Таких режимов нет, выберите из присутствующих!", d);
-			return;
-		}
-
-		do_color(d->character.get(), buf2, 0, 0);
-		SEND_TO_Q("\r\nВведите ваш E-mail"
-				  "\r\n(ВСЕ ВАШИ ПЕРСОНАЖИ ДОЛЖНЫ ИМЕТЬ ОДИНАКОВЫЙ E-mail)."
-				  "\r\nНа этот адрес вам будет отправлен код для подтверждения: ", d);
-		STATE(d) = CON_GET_EMAIL;
 		break;
 
 	case CON_GET_EMAIL:
@@ -3876,7 +3804,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			return;
 		}
 		else if (!valid_email(arg))
-		{
+			{
 			SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 			return;
 		}

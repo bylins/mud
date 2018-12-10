@@ -1150,22 +1150,20 @@ void QuestBodrich::load_rewards()
 	}
 }
 
-std::vector<DailyQuest> d_quest;
-
 void load_dquest()
 {
 	pugi::xml_document doc_;
-	pugi::xml_node class_, file_, object_, level_;
+
 	log("Loading daily_quest.xml....");
-	file_ = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
-	std::vector<QuestBodrichRewards> tmp_array;
-	for (object_ = file_.child("quest"); object_; object_ = object_.next_sibling("quest"))
+
+	const auto file = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
+	for (auto object = file.child("quest"); object; object = object.next_sibling("quest"))
 	{
 		DailyQuest tmp;
-		tmp.id = object_.attribute("id").as_int();
-		tmp.reward = object_.attribute("reward").as_int();
-		tmp.desk = object_.attribute("desk").as_string();
-		d_quest.push_back(tmp);
+		tmp.id = object.attribute("id").as_int();
+		tmp.reward = object.attribute("reward").as_int();
+		tmp.desk = object.attribute("desk").as_string();
+		d_quest.emplace(tmp.id, tmp);
 	}
 }
 
@@ -3225,13 +3223,6 @@ void renum_zone_table(void)
 	}
 }
 
-/*
- * interpret_espec is the function that takes espec keywords and values
- * and assigns the correct value to the mob as appropriate.  Adding new
- * e-specs is absurdly easy -- just add a new CASE statement to this
- * function!  No other changes need to be made anywhere in the code.
- */
-
 // Make own name by process aliases
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 {
@@ -3878,6 +3869,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	int test_hp = get_test_hp(GET_LEVEL(mob));
 	if (GET_EXP(mob) > 0 && mob->points.max_hit < test_hp)
 	{
+//		log("hp: (%s) %d -> %d", GET_NAME(mob), mob->points.max_hit, test_hp);
 		mob->points.max_hit = test_hp;
 	}
 
@@ -3922,8 +3914,6 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	{
 		MOB_FLAGS(mob).set(MOB_GUARDIAN);
 	}
-
-	mob->update_active_affects();
 
 	return (mob);
 }
@@ -5707,7 +5697,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	while (!ch->affected.empty())
 	{
-		ch->remove_pulse_affect(ch->affected.begin());
+		ch->affect_remove(ch->affected.begin());
 	}
 
 // Снимаем весь стафф

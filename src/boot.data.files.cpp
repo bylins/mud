@@ -1179,7 +1179,7 @@ void MobileFile::parse_mobile(const int nr)
 	}
 	MOB_FLAGS(&mob_proto[i]).from_string(f1);
 	MOB_FLAGS(&mob_proto[i]).set(MOB_ISNPC);
-	mob_proto[i].char_specials.saved.active_affects.from_string(f2);
+	AFF_FLAGS(&mob_proto[i]).from_string(f2);
 	GET_ALIGNMENT(mob_proto + i) = t[2];
 	switch (UPPER(letter))
 	{
@@ -1388,6 +1388,12 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
 	return array_string;
 }
 
+/*
+ * interpret_espec is the function that takes espec keywords and values
+ * and assigns the correct value to the mob as appropriate.  Adding new
+ * e-specs is absurdly easy -- just add a new CASE statement to this
+ * function!  No other changes need to be made anywhere in the code.
+ */
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
 {
 	struct helper_data_type *helper;

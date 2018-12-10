@@ -25,13 +25,12 @@
 #include "cache.hpp"
 #include "fight.h"
 #include "house.h"
+#include "help.hpp"
 #include "utils.h"
 #include "msdp.constants.hpp"
 #include "backtrace.hpp"
 #include "dg_scripts.h"
 #include "zone.table.hpp"
-#include "glory_const.hpp"
-#include "class.hpp"
 
 #include <boost/format.hpp>
 
@@ -288,7 +287,7 @@ void CHAR_DATA::set_abstinent()
 	affect_join(this, af, 0, 0, 0, 0);
 }
 
-void CHAR_DATA::remove_pulse_affect(const char_affects_list_t::iterator& affect_i)
+void CHAR_DATA::affect_remove(const char_affects_list_t::iterator& affect_i)
 {
 	int was_lgt = AFF_FLAGGED(this, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
 	long was_hlgt = AFF_FLAGGED(this, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
@@ -296,12 +295,12 @@ void CHAR_DATA::remove_pulse_affect(const char_affects_list_t::iterator& affect_
 
 	if (affected.empty())
 	{
-		log("SYSERR: remove_pulse_affect(%s) when no affects...", GET_NAME(this));
+		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
 		return;
 	}
 
 	const auto af = *affect_i;
-	affect_modify(af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
+	affect_modify(this, af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), FALSE);
 	if (af->type == SPELL_ABSTINENT)
 	{
 		if (player_specials)
@@ -319,8 +318,7 @@ void CHAR_DATA::remove_pulse_affect(const char_affects_list_t::iterator& affect_
 
 	affected.erase(affect_i);
 
-	update_active_affects();
-
+	affect_total(this);
 	check_light(this, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
@@ -512,7 +510,7 @@ void CHAR_DATA::purge()
 
 	while (!this->affected.empty())
 	{
-		remove_pulse_affect(affected.begin());
+		affect_remove(affected.begin());
 	}
 
 	while (this->timed)
@@ -582,16 +580,7 @@ void CHAR_DATA::purge()
 			free(GET_CLAN_STATUS(this));
 		}
 
-		// Чистим лист логонов
-		while (LOGON_LIST(this))
-		{
-			struct logon_data *log_next;
-			log_next = LOGON_LIST(this)->next;
-			free(this->player_specials->logons->ip);
-			delete LOGON_LIST(this);
-			LOGON_LIST(this) = log_next;
-		}
-		LOGON_LIST(this) = NULL;
+		LOGON_LIST(this).clear();
 
 		this->player_specials.reset();
 
@@ -1830,107 +1819,7 @@ std::string CHAR_DATA::only_title_noclan()
 	return result;
 }
 
-int CHAR_DATA::apply_ac(int eq_pos)
-{
-	auto factor = 1;
-
-	const auto obj = equipment[eq_pos];
-	if (obj == nullptr)
-	{
-		log("SYSERR: apply_ac(%s,%d) when no equip...", GET_NAME(this), eq_pos);
-		return (0);
-	}
-
-	if (!ObjSystem::is_armor_type(obj))
-	{
-		return (0);
-	}
-
-	switch (eq_pos)
-	{
-	case WEAR_BODY:
-		factor = 3;
-		break;		// 30% //
-
-	case WEAR_HEAD:
-		factor = 2;
-		break;		// 20% //
-
-	case WEAR_LEGS:
-		factor = 2;
-		break;		// 20% //
-
-	default:
-		factor = 1;
-		break;		// all others 10% //
-	}
-
-	if (is_npc() && !AFF_FLAGGED(this, EAffectFlag::AFF_CHARM))
-	{
-		factor *= MOB_AC_MULT;
-	}
-
-	return factor * GET_OBJ_VAL(obj, 0);
-}
-
-int CHAR_DATA::apply_armour(int eq_pos)
-{
-	auto factor = 1;
-	auto obj = equipment[eq_pos];
-
-	if (!obj)
-	{
-		log("SYSERR: apply_armor(%s,%d) when no equip...", GET_NAME(this), eq_pos);
-
-		return 0;
-	}
-
-	if (!ObjSystem::is_armor_type(obj))
-	{
-		return 0;
-	}
-
-	switch (eq_pos)
-	{
-	case WEAR_BODY:
-		factor = 3;
-		break;		// 30% //
-
-	case WEAR_HEAD:
-		factor = 2;
-		break;		// 20% //
-
-	case WEAR_LEGS:
-		factor = 2;
-		break;		// 20% //
-
-	default:
-		factor = 1;
-		break;		// all others 10% //
-	}
-
-	if (is_npc()
-		&& !AFF_FLAGGED(this, EAffectFlag::AFF_CHARM))
-	{
-		factor *= MOB_ARMOUR_MULT;
-	}
-
-	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
-	const int cur_dur = MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj));
-	return factor * GET_OBJ_VAL(obj, 1) * cur_dur / MAX(1, GET_OBJ_MAX(obj));
-}
-
-void CHAR_DATA::apply_natural_affects()
-{
-	if (get_remort() <= 3 && !IS_IMMORTAL(this))
-	{
-		affect_modify(APPLY_HITREG, 60 - 10*get_remort(), EAffectFlag::AFF_NOOB_REGEN, TRUE);
-		affect_modify(APPLY_MOVEREG, 100, EAffectFlag::AFF_NOOB_REGEN, TRUE);
-		affect_modify(APPLY_MANAREG, 100 - 20*get_remort(), EAffectFlag::AFF_NOOB_REGEN, TRUE);
-	}
-}
-
-std::string CHAR_DATA::clan_for_title() const
+std::string CHAR_DATA::clan_for_title()
 {
 	std::string result = std::string();
 
@@ -2091,29 +1980,6 @@ CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const
 	return result;
 }
 
-void CHAR_DATA::set_affect(EAffectFlag affect)
-{
-	char_specials.saved.active_affects.set(affect);
-	m_affected_by.set(affect);
-}
-
-void CHAR_DATA::remove_affect(EAffectFlag affect)
-{
-	char_specials.saved.active_affects.unset(affect);
-	update_active_affects();
-}
-
-void CHAR_DATA::reset_permanent_affects(const FLAG_DATA& new_affects)
-{
-	char_specials.saved.active_affects = new_affects;
-	update_active_affects();
-}
-
-bool CHAR_DATA::affected_by(const EAffectFlag flag) const
-{
-	return m_affected_by.get(flag);
-}
-
 bool CHAR_DATA::low_charm() const
 {
 	for (const auto& aff : affected)
@@ -2131,582 +1997,6 @@ bool CHAR_DATA::low_charm() const
 void CHAR_DATA::cleanup_script()
 {
 	script->cleanup();
-}
-
-void CHAR_DATA::affect_modify(byte loc, int mod, const EAffectFlag affect, bool add)
-{
-	if (add)
-	{
-		m_affected_by.set(affect);
-	}
-	else
-	{
-		if (!permanent_affects().get(affect))
-		{
-			m_affected_by.unset(affect);
-		}
-
-		mod = -mod;
-	}
-
-	switch (loc)
-	{
-	case APPLY_NONE:
-		break;
-
-	case APPLY_STR:
-		set_str_add(get_str_add() + mod);
-		break;
-
-	case APPLY_DEX:
-		set_dex_add(get_dex_add() + mod);
-		break;
-
-	case APPLY_INT:
-		set_int_add(get_int_add() + mod);
-		break;
-
-	case APPLY_WIS:
-		set_wis_add(get_wis_add() + mod);
-		break;
-
-	case APPLY_CON:
-		set_con_add(get_con_add() + mod);
-		break;
-
-	case APPLY_CHA:
-		set_cha_add(get_cha_add() + mod);
-		break;
-
-	case APPLY_CLASS:
-		break;
-
-	case APPLY_LEVEL:
-		break;
-
-	case APPLY_AGE:
-		GET_AGE_ADD(this) += mod;
-		break;
-
-	case APPLY_CHAR_WEIGHT:
-		GET_WEIGHT_ADD(this) += mod;
-		break;
-
-	case APPLY_CHAR_HEIGHT:
-		GET_HEIGHT_ADD(this) += mod;
-		break;
-
-	case APPLY_MANAREG:
-		GET_MANAREG(this) += mod;
-		break;
-
-	case APPLY_HIT:
-		GET_HIT_ADD(this) += mod;
-		break;
-
-	case APPLY_MOVE:
-		GET_MOVE_ADD(this) += mod;
-		break;
-
-	case APPLY_GOLD:
-		break;
-
-	case APPLY_EXP:
-		break;
-
-	case APPLY_AC:
-		GET_AC_ADD(this) += mod;
-		break;
-
-	case APPLY_HITROLL:
-		GET_HR_ADD(this) += mod;
-		break;
-
-	case APPLY_DAMROLL:
-		GET_DR_ADD(this) += mod;
-		break;
-
-	case APPLY_SAVING_WILL:
-		GET_SAVE(this, SAVING_WILL) += mod;
-		break;
-
-	case APPLY_RESIST_FIRE:
-		GET_RESIST(this, FIRE_RESISTANCE) += mod;
-		break;
-
-	case APPLY_RESIST_AIR:
-		GET_RESIST(this, AIR_RESISTANCE) += mod;
-		break;
-
-	case APPLY_RESIST_DARK:
-		GET_RESIST(this, DARK_RESISTANCE) += mod;
-		break;
-
-	case APPLY_SAVING_CRITICAL:
-		GET_SAVE(this, SAVING_CRITICAL) += mod;
-		break;
-
-	case APPLY_SAVING_STABILITY:
-		GET_SAVE(this, SAVING_STABILITY) += mod;
-		break;
-
-	case APPLY_SAVING_REFLEX:
-		GET_SAVE(this, SAVING_REFLEX) += mod;
-		break;
-
-	case APPLY_HITREG:
-		GET_HITREG(this) += mod;
-		break;
-
-	case APPLY_MOVEREG:
-		GET_MOVEREG(this) += mod;
-		break;
-
-	case APPLY_C1:
-	case APPLY_C2:
-	case APPLY_C3:
-	case APPLY_C4:
-	case APPLY_C5:
-	case APPLY_C6:
-	case APPLY_C7:
-	case APPLY_C8:
-	case APPLY_C9:
-		add_obj_slot(loc - APPLY_C1, mod);
-		break;
-
-	case APPLY_SIZE:
-		GET_SIZE_ADD(this) += mod;
-		break;
-
-	case APPLY_ARMOUR:
-		GET_ARMOUR(this) += mod;
-		break;
-
-	case APPLY_POISON:
-		GET_POISON(this) += mod;
-		break;
-
-	case APPLY_CAST_SUCCESS:
-		GET_CAST_SUCCESS(this) += mod;
-		break;
-
-	case APPLY_MORALE:
-		GET_MORALE(this) += mod;
-		break;
-
-	case APPLY_INITIATIVE:
-		GET_INITIATIVE(this) += mod;
-		break;
-
-	case APPLY_RELIGION:
-		if (add)
-			GET_PRAY(this) |= mod;
-		else
-			GET_PRAY(this) &= mod;
-		break;
-
-	case APPLY_ABSORBE:
-		GET_ABSORBE(this) += mod;
-		break;
-
-	case APPLY_LIKES:
-		GET_LIKES(this) += mod;
-		break;
-
-	case APPLY_RESIST_WATER:
-		GET_RESIST(this, WATER_RESISTANCE) += mod;
-		break;
-
-	case APPLY_RESIST_EARTH:
-		GET_RESIST(this, EARTH_RESISTANCE) += mod;
-		break;
-
-	case APPLY_RESIST_VITALITY:
-		GET_RESIST(this, VITALITY_RESISTANCE) += mod;
-		break;
-
-	case APPLY_RESIST_MIND:
-		GET_RESIST(this, MIND_RESISTANCE) += mod;
-		break;
-
-	case APPLY_RESIST_IMMUNITY:
-		GET_RESIST(this, IMMUNITY_RESISTANCE) += mod;
-		break;
-
-	case APPLY_AR:
-		GET_AR(this) += mod;
-		break;
-
-	case APPLY_MR:
-		GET_MR(this) += mod;
-		break;
-
-	case APPLY_ACONITUM_POISON:
-		GET_POISON(this) += mod;
-		break;
-
-	case APPLY_SCOPOLIA_POISON:
-		GET_POISON(this) += mod;
-		break;
-
-	case APPLY_BELENA_POISON:
-		GET_POISON(this) += mod;
-		break;
-
-	case APPLY_DATURA_POISON:
-		GET_POISON(this) += mod;
-		break;
-
-	case APPLY_HIT_GLORY: //вкачка +хп за славу
-		GET_HIT_ADD(this) += mod * GloryConst::HP_FACTOR;
-
-	case APPLY_PR:
-		GET_PR(this) += mod; //скиллрезист
-		break;
-
-	default:
-		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
-		break;
-	}
-}
-
-std::array<EAffectFlag, 2> char_saved_aff =
-{
-	EAffectFlag::AFF_GROUP,
-	EAffectFlag::AFF_HORSE
-};
-
-std::array<EAffectFlag, 3> char_stealth_aff =
-{
-	EAffectFlag::AFF_HIDE,
-	EAffectFlag::AFF_SNEAK,
-	EAffectFlag::AFF_CAMOUFLAGE
-};
-
-void CHAR_DATA::affect_to_char(const AFFECT_DATA<EApplyLocation>& af)
-{
-	auto was_light = affected_by(EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO;
-	auto was_holy_light = affected_by(EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO;
-	auto was_holy_dark = affected_by(EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO;
-
-	const AFFECT_DATA<EApplyLocation>::shared_ptr affected_alloc(new AFFECT_DATA<EApplyLocation>(af));
-	affected.push_front(affected_alloc);
-
-	if (af.bitvector)
-	{
-		affect_modify(af.location, af.modifier, static_cast<EAffectFlag>(af.bitvector), TRUE);
-	}
-
-	update_active_affects();
-
-	check_light(this, LIGHT_UNDEF, was_light, was_holy_light, was_holy_dark, 1);
-}
-
-void CHAR_DATA::update_active_affects()
-{
-	const auto saved = m_affected_by;
-
-	m_affected_by = char_specials.saved.active_affects;
-
-	clear_add_affects();
-
-	{
-		if (is_npc())
-		{
-			// PC's clear all affects, because recalc one
-			const auto& mob_prototype = mob_proto[GET_MOB_RNUM(this)];
-			m_affected_by += mob_prototype.char_specials.saved.active_affects;
-
-			// Restore values for NPC - added by Adept
-			add_abils = (&mob_proto[GET_MOB_RNUM(this)])->add_abils;
-		}
-		else
-		{
-			// PC's clear all affects, because recalc one
-			m_affected_by += clear_flags;
-		}
-	}
-
-	// move object modifiers
-	for (auto i = 0; i < NUM_WEARS; i++)
-	{
-		const auto obj = equipment[i];
-		if (obj)
-		{
-			if (ObjSystem::is_armor_type(obj))
-			{
-				GET_AC_ADD(this) -= apply_ac(i);
-				GET_ARMOUR(this) += apply_armour(i);
-			}
-
-			// Update weapon applies
-			for (auto j = 0; j < MAX_OBJ_AFFECT; j++)
-			{
-				affect_modify(obj->get_affected(j).location, obj->get_affected(j).modifier, static_cast<EAffectFlag>(0), TRUE);
-			}
-
-			// Update weapon bitvectors
-			for (const auto& j : weapon_affect)
-			{
-				// То же самое, но переформулировал
-				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos))
-				{
-					continue;
-				}
-
-				affect_modify(APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
-			}
-		}
-	}
-
-	obj_bonus().apply_affects(this);
-
-	// move features modifiers - added by Gorrah
-	for (auto i = 1; i < MAX_FEATS; i++)
-	{
-		if (can_use_feat(this, i) && (feat_info[i].type == AFFECT_FTYPE))
-		{
-			for (auto j = 0; j < MAX_FEAT_AFFECT; j++)
-			{
-				affect_modify(feat_info[i].affected[j].location, feat_info[i].affected[j].modifier, static_cast<EAffectFlag>(0), TRUE);
-			}
-		}
-	}
-
-	// IMPREGNABLE_FEAT учитывается дважды: выше начисляем единичку за 0 мортов, а теперь по 1 за каждый морт
-	if (can_use_feat(this, IMPREGNABLE_FEAT))
-	{
-		for (auto j = 0; j < MAX_FEAT_AFFECT; j++)
-		{
-			affect_modify(feat_info[IMPREGNABLE_FEAT].affected[j].location,
-				MIN(9, feat_info[IMPREGNABLE_FEAT].affected[j].modifier*get_remort()),
-				static_cast<EAffectFlag>(0),
-				TRUE);
-		}
-	}
-
-	// Обработка изворотливости (с) Числобог
-	if (can_use_feat(this, DODGER_FEAT))
-	{
-		affect_modify(APPLY_SAVING_REFLEX, -(get_remort() + get_level()), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(APPLY_SAVING_WILL, -(get_remort() + get_level()), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(APPLY_SAVING_STABILITY, -(get_remort() + get_level()), static_cast<EAffectFlag>(0), TRUE);
-		affect_modify(APPLY_SAVING_CRITICAL, -(get_remort() + get_level()), static_cast<EAffectFlag>(0), TRUE);
-	}
-
-	// Обработка "выносливости" и "богатырского здоровья
-	// Знаю, что кривовато, придумаете, как лучше - делайте
-	if (!is_npc())
-	{
-		if (can_use_feat(this, ENDURANCE_FEAT))
-		{
-			affect_modify(APPLY_MOVE, get_level() * 2, static_cast<EAffectFlag>(0), TRUE);
-		}
-
-		if (can_use_feat(this, SPLENDID_HEALTH_FEAT))
-		{
-			affect_modify(APPLY_HIT, get_level() * 2, static_cast<EAffectFlag>(0), TRUE);
-		}
-
-		GloryConst::apply_modifiers(this);
-		apply_natural_affects();
-	}
-
-	// move affect modifiers
-	for (const auto& af : affected)
-	{
-		affect_modify(af->location, af->modifier, static_cast<EAffectFlag>(af->bitvector), TRUE);
-	}
-
-	// move race and class modifiers
-	if (!is_npc())
-	{
-		const auto my_class = get_class();
-		if (my_class >= 0
-			&& my_class < NUM_PLAYER_CLASSES)
-		{
-			for (auto i : *class_app[my_class].extra_affects)
-			{
-				affect_modify(APPLY_NONE, 0, i.affect, i.set_or_clear ? true : false);
-			}
-		}
-
-		// Apply other PC modifiers
-		const auto weight_penalty = PlayerSystem::weight_dex_penalty(this);
-		if (weight_penalty != 0)
-		{
-			set_dex_add(get_dex_add() - weight_penalty);
-		}
-
-		GET_DR_ADD(this) += extra_damroll(my_class, get_level());
-		if (!AFF_FLAGGED(this, EAffectFlag::AFF_NOOB_REGEN))
-		{
-			GET_HITREG(this) += (get_level() + 4) / 5 * 10;
-		}
-		if (can_use_feat(this, DARKREGEN_FEAT))
-		{
-			GET_HITREG(this) += GET_HITREG(this) * 0.2;
-		}
-		if (GET_CON_ADD(this))
-		{
-			GET_HIT_ADD(this) += PlayerSystem::con_add_hp(this);
-			const auto i = GET_MAX_HIT(this) + GET_HIT_ADD(this);
-			if (i < 1)
-			{
-				GET_HIT_ADD(this) -= (i - 1);
-			}
-		}
-
-		if (!IS_IMMORTAL(this)
-			&& on_horse(this))
-		{
-			m_affected_by.unset(EAffectFlag::AFF_HIDE);
-			m_affected_by.unset(EAffectFlag::AFF_SNEAK);
-			m_affected_by.unset(EAffectFlag::AFF_CAMOUFLAGE);
-			m_affected_by.unset(EAffectFlag::AFF_INVISIBLE);
-		}
-	}
-
-	// correctize all weapon
-	if (!IS_IMMORTAL(this))
-	{
-		auto obj = equipment[WEAR_BOTHS];
-		if (obj && !OK_BOTH(this, obj))
-		{
-			if (!IS_NPC(this))
-			{
-				act("Вам слишком тяжело держать $o3 в обоих руках!", FALSE, this, obj, 0, TO_CHAR);
-				message_str_need(this, obj, STR_BOTH_W);
-			}
-
-			act("$n прекратил$g использовать $o3.", FALSE, this, obj, 0, TO_ROOM);
-			obj_to_char(unequip_char(this, WEAR_BOTHS), this);
-
-			return;
-		}
-
-		obj = equipment[WEAR_WIELD];
-		if (obj && !OK_WIELD(this, obj))
-		{
-			if (!is_npc())
-			{
-				act("Вам слишком тяжело держать $o3 в правой руке!", FALSE, this, obj, 0, TO_CHAR);
-				message_str_need(this, obj, STR_WIELD_W);
-			}
-
-			act("$n прекратил$g использовать $o3.", FALSE, this, obj, 0, TO_ROOM);
-			obj_to_char(unequip_char(this, WEAR_WIELD), this);
-
-			// если пушку можно вооружить в обе руки и эти руки свободны
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS)
-				&& OK_BOTH(this, obj)
-				&& !equipment[WEAR_HOLD]
-				&& !equipment[WEAR_LIGHT]
-				&& !equipment[WEAR_SHIELD]
-				&& !equipment[WEAR_WIELD]
-				&& !equipment[WEAR_BOTHS])
-			{
-				equip_char(this, obj, WEAR_BOTHS | 0x100);
-			}
-
-			return;
-		}
-
-		obj = equipment[WEAR_HOLD];
-		if (obj && !OK_HELD(this, obj))
-		{
-			if (!is_npc())
-			{
-				act("Вам слишком тяжело держать $o3 в левой руке!", FALSE, this, obj, 0, TO_CHAR);
-				message_str_need(this, obj, STR_HOLD_W);
-			}
-
-			act("$n прекратил$g использовать $o3.", FALSE, this, obj, 0, TO_ROOM);
-			obj_to_char(unequip_char(this, WEAR_HOLD), this);
-
-			return;
-		}
-
-		obj = equipment[WEAR_SHIELD];
-		if (obj && !OK_SHIELD(this, obj))
-		{
-			if (!is_npc())
-			{
-				act("Вам слишком тяжело держать $o3 на левой руке!", FALSE, this, obj, 0, TO_CHAR);
-				message_str_need(this, obj, STR_SHIELD_W);
-			}
-
-			act("$n прекратил$g использовать $o3.", FALSE, this, obj, 0, TO_ROOM);
-			obj_to_char(unequip_char(this, WEAR_SHIELD), this);
-
-			return;
-		}
-
-		obj = equipment[WEAR_QUIVER];
-		if (obj && !equipment[WEAR_BOTHS])
-		{
-			send_to_char("Нету лука, нет и стрел.\r\n", this);
-			act("$n прекратил$g использовать $o3.", FALSE, this, obj, 0, TO_ROOM);
-			obj_to_char(unequip_char(this, WEAR_QUIVER), this);
-
-			return;
-		}
-	}
-
-	// calculate DAMAGE value
-	GET_DAMAGE(this) = (str_bonus(GET_REAL_STR(this), STR_TO_DAM) + GET_REAL_DR(this)) * 2;
-	auto obj = equipment[WEAR_BOTHS];
-	if (obj && GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
-	{
-		GET_DAMAGE(this) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1; // правильный расчет среднего у оружия
-	}
-	else
-	{
-		obj = equipment[WEAR_WIELD];
-		if (obj && GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
-		{
-			GET_DAMAGE(this) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
-		}
-
-		obj = equipment[WEAR_HOLD];
-		if (obj && GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
-		{
-			GET_DAMAGE(this) += (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + GET_OBJ_VAL(obj, 1))) >> 1;
-		}
-	}
-
-	{
-		// Calculate CASTER value
-		auto i = 1;
-		for (GET_CASTER(this) = 0; !is_npc() && i <= MAX_SPELLS; i++)
-		{
-			if (IS_SET(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP))
-			{
-				GET_CASTER(this) += (spell_info[i].danger * GET_SPELL_MEM(this, i));
-			}
-		}
-	}
-
-	{
-		// Check if any stealth affect has been turned off
-		for (const auto& i : char_stealth_aff)
-		{
-			if (saved.get(i)
-				&& !active_affects().get(i))
-			{
-				CHECK_AGRO(this) = TRUE;
-			}
-		}
-	}
-
-	check_berserk(this);
-	if (get_fighting() || affected_by_spell(this, SPELL_GLITTERDUST))
-	{
-		m_affected_by.unset(EAffectFlag::AFF_HIDE);
-		m_affected_by.unset(EAffectFlag::AFF_SNEAK);
-		m_affected_by.unset(EAffectFlag::AFF_CAMOUFLAGE);
-		m_affected_by.unset(EAffectFlag::AFF_INVISIBLE);
-	}
 }
 
 void CHAR_DATA::add_follower_silently(CHAR_DATA* ch)
@@ -2964,7 +2254,6 @@ player_special_data::player_special_data() :
 	logs(nullptr),
 	Exchange_filter(nullptr),
 	Karma(nullptr),
-	logons(nullptr),
 	clanStatus(nullptr)
 {
 }

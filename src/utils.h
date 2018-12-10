@@ -1298,65 +1298,67 @@ size_t strlen_no_colors(const char *str);
 
 
 
-inline bool a_isspace(unsigned char c)
+extern const bool a_isspace_table[];
+inline bool a_isspace(const unsigned char c)
 {
-	return (strchr(" \f\n\r\t\v", c) != NULL);
+	return a_isspace_table[c];
 }
 
 // Далеко не все из следующих функций используются в коде, но пусть будут (переписано с асма AL'ом)
-inline bool a_isascii(unsigned char c)
+inline bool a_isascii(const unsigned char c)
 {
 	return c >= 32;
 }
 
-inline bool a_isprint(unsigned char c)
+inline bool a_isprint(const unsigned char c)
 {
 	return c >= 32;
 }
 
-inline bool a_islower(unsigned char c)
+extern const bool a_islower_table[];
+inline bool a_islower(const unsigned char c)
 {
-	return (c >= 'a' && c <= 'z') || (c >= 192 && c <= 223) || c == 163;
+	return a_islower_table[c];
 }
 
-inline bool a_isupper(unsigned char c)
+extern const bool a_isupper_table[];
+inline bool a_isupper(const unsigned char c)
 {
-	return (c >= 'A' && c <= 'Z') || c >= 224 || c == 179;
+	return a_isupper_table[c];
 }
 
-inline bool a_isdigit(unsigned char c)
+extern const bool a_isdigit_table[];
+inline bool a_isdigit(const unsigned char c)
 {
-	return c >= '0' && c <= '9';
+	return a_isdigit_table[c];
 }
 
-inline bool a_isalpha(unsigned char c)
+extern const bool a_isalpha_table[];
+inline bool a_isalpha(const unsigned char c)
 {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c >= 192 || c == 163 || c == 179;
+	return a_isalpha_table[c];
 }
 
 extern const bool a_isalnum_table[];
-inline bool a_isalnum(unsigned char c)
+inline bool a_isalnum(const unsigned char c)
 {
 	return a_isalnum_table[c];
 }
 
-inline bool a_isxdigit(unsigned char c)
+extern const bool a_isxdigit_table[];
+inline bool a_isxdigit(const unsigned char c)
 {
-	return (c >= '0' && c <= '9')
-		   || (c >= 'a' && c <= 'f')
-		   || (c >= 'A' && c <= 'F');
+	return a_isxdigit_table[c];
 }
 
-inline char a_ucc(unsigned char c)
+extern const char a_ucc_table[];
+inline char a_ucc(const unsigned char c)
 {
-	if (c >= 'a' && c <= 'z') return c - 'a' + 'A';
-	if (c >= 192 && c <= 223) return c + 32;
-	if (c == 163) return c + 16;
-	return c;
+	return a_ucc_table[c];
 }
 
 extern const char a_lcc_table[];
-inline char a_lcc(unsigned char c)
+inline char a_lcc(const unsigned char c)
 {
 	return a_lcc_table[c];
 }
