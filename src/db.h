@@ -334,6 +334,8 @@ public:
 
 	static const std::size_t NOT_FOUND;
 
+	~PlayersIndex();
+
 	std::size_t append(const player_index_element& element);
 	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
 	bool player_exists(const char* name) const { return NOT_FOUND != get_by_name(name); }

@@ -35,6 +35,7 @@ ZoneData::ZoneData() : name(nullptr),
 
 ZoneData::~ZoneData()
 {
+	log("~ZoneData zone %d", number);
 	if (name)
 		free(name);
 	if (comment)

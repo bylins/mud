@@ -6567,11 +6567,17 @@ void load_class_limit()
 
 Rooms::~Rooms()
 {
+	log("~Rooms()");
 	for (auto i = this->begin(); i != this->end(); ++i)
 		delete *i;
 }
 
 const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);
+
+PlayersIndex::~PlayersIndex()
+{
+	log("~PlayersIndex()");
+}
 
 std::size_t PlayersIndex::append(const player_index_element& element)
 {

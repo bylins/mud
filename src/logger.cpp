@@ -388,6 +388,7 @@ OutputThread::OutputThread(const std::size_t queue_size) :
 
 OutputThread::~OutputThread()
 {
+	log("~OutputThread()");
 	m_destroying = true;
 	m_output_queue.destroy();
 
