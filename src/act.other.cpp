@@ -2185,7 +2185,6 @@ void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "краткий", "brief",
 							   "сжатый", "compact",
-							   "цвет", "color",
 							   "повтор", "norepeat",
 							   "обращения", "notell",
 							   "кто-то", "noinvistell",
