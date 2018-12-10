@@ -2078,7 +2078,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
 	}
-
+	PRF_FLAGS(this).set(PRF_COLOR_2); //всегда цвет полный
 	// initialization for imms
 	if (GET_LEVEL(this) >= LVL_IMMORT)
 	{
