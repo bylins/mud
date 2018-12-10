@@ -6203,26 +6203,18 @@ std::array<EAffectFlag, 3> hiding = { EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_H
 
 void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	FLAG_DATA saved;
 	char sp_name[MAX_STRING_LENGTH];
 
-	// Showing the bitvector
-	saved = ch->char_specials.saved.affected_by;
-	for (EAffectFlag j : hiding)
+	// Show the bitset without "hiding" etc.
+	auto aff_copy = ch->char_specials.saved.affected_by;
+	for (auto j : hiding)
 	{
-		AFF_FLAGS(ch).unset(j);
+		aff_copy.unset(j);
 	}
-	ch->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
-	sprintf(buf, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+
+	aff_copy.sprintbits(affected_bits, buf2, ",");
+	snprintf(buf, MAX_STRING_LENGTH, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-	for (EAffectFlag j : hiding)
-	{
-		const uint32_t i = to_underlying(j);
-		if (saved.get(i))
-		{
-			AFF_FLAGS(ch).set(j);
-		}
-	}
 
 	// Routine to show what spells a char is affected by
 	if (!ch->affected.empty())
