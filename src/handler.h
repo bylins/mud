@@ -36,6 +36,9 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
 
 // handling the affected-structures //
+void affect_total(CHAR_DATA * ch);
+void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bool add);
+void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);
 void affect_from_char(CHAR_DATA * ch, int type);
 bool affected_by_spell(CHAR_DATA * ch, int type);
 void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);

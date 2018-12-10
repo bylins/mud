@@ -50,6 +50,7 @@ set(SOURCES
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
+	src/daily_quest.cpp
 	src/db.cpp
 	src/deathtrap.cpp
 	src/depot.cpp
@@ -167,6 +168,7 @@ set(SOURCES
 	src/radix.trie.cpp
 	src/compact.trie.cpp
 	src/id.cpp
+	src/stigmas.cpp
 	src/zone.table.cpp)
 
 set(HEADERS
@@ -221,6 +223,7 @@ set(HEADERS
 	src/constants.h
 	src/coredump.hpp
 	src/corpse.hpp
+	src/daily_quest.hpp
 	src/db.h
 	src/deathtrap.hpp
 	src/depot.hpp
@@ -312,6 +315,7 @@ set(HEADERS
 	src/utils.h
 	src/xml_loading_helper.hpp
 	src/debug.utils.hpp
+	src/stigmas.hpp
 	src/zone.table.hpp)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)

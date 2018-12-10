@@ -628,7 +628,7 @@ void medit_save_to_disk(int zone_num)
 			strip_string(buf1);
 			*buf2 = 0;
 			MOB_FLAGS(mob).tascii(4, buf2);
-			mob->permanent_affects().tascii(4, buf2);
+			AFF_FLAGS(mob).tascii(4, buf2);
 
 			fprintf(mob_file,
 				"%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
@@ -1277,8 +1277,7 @@ void medit_disp_aff_flags(DESCRIPTOR_DATA * d)
 			affected_bits[counter], !(++columns % 2) ? "\r\n" : "");
 		send_to_char(buf, d->character.get());
 	}
-
-	OLC_MOB(d)->permanent_affects().sprintbits(affected_bits, buf1, ",", 5);
+	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 5);
 	sprintf(buf, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
 	send_to_char(buf, d->character.get());
 }
@@ -1340,7 +1339,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 	send_to_char(buf, d->character.get());
 
 	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",",4);
-	mob->permanent_affects().sprintbits(affected_bits, buf2, ",",4);
+	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",",4);
 	sprintf(buf,
 		"%sP%s) Положение     : %s%s\r\n"
 		"%sR%s) По умолчанию  : %s%s\r\n"
@@ -2207,7 +2206,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			OLC_MOB(d)->char_specials.saved.active_affects.toggle_flag(plane, 1 << bit);
+			OLC_MOB(d)->char_specials.saved.affected_by.toggle_flag(plane, 1 << bit);
 			medit_disp_aff_flags(d);
 			return;
 		}

@@ -992,7 +992,7 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		af.bitvector = to_underlying(EAffectFlag::AFF_LIGHT_WALK);
 		send_to_char("Ваши шаги стали легче перышка.\r\n", ch);
 	}
-	ch->affect_to_char(af);
+	affect_to_char(ch, af);
 }
 
 //подгонка и перешивание
@@ -1270,7 +1270,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	}
 	af.battleflag = 0;
 	af.bitvector = 0;
-	follower->affect_to_char(af);
+	affect_to_char(follower, af);
 	follower->mob_specials.capable_spell = spellnum;
 }
 
@@ -1384,14 +1384,13 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 		af.bitvector = to_underlying(EAffectFlag::AFF_NOTELEPORT);
 		af.battleflag = AF_PULSEDEC;
-		ch->affect_to_char(af);
+		affect_to_char(ch, af);
 	}
 	else
 	{
 		timed.time = 2;
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 	}
-
 	timed_feat_to_char(ch, &timed);
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);

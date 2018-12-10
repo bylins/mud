@@ -20,8 +20,6 @@ private:
 
 extern GroupPenalties grouping;
 
-int extra_damroll(int class_num, int level);
-
 #endif // __CLASS_HPP__
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

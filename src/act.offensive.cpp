@@ -941,7 +941,7 @@ void drop_from_horse(CHAR_DATA *victim)
 	if (on_horse(victim))
 	{
 		act("Вы упали с $N1.", FALSE, victim, 0, get_horse(victim), TO_CHAR);
-		victim->remove_affect(EAffectFlag::AFF_HORSE);
+		AFF_FLAGS(victim).unset(EAffectFlag::AFF_HORSE);
 	}
 
 	if (IS_HORSE(victim)
@@ -3244,7 +3244,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.location = APPLY_NONE;
 		af.battleflag = AF_SAME_TIME;
 		af.bitvector = to_underlying(EAffectFlag::AFF_STRANGLED);
-		vict->affect_to_char(af);
+		affect_to_char(vict, af);
 
 		//Урон распределяется нормально. Матожидание линейно привязано к прокачке скилла. Сигма подобрана экспериментально.
 		//урон считается в процентах от максимального числа хитов жертвы.
@@ -3263,7 +3263,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 				act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, 0, ch, TO_CHAR);
 				act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, 0, ch, TO_VICT);
 				act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
-				vict->remove_affect(EAffectFlag::AFF_HORSE);
+				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HORSE);
 			}
 
 			if (ch->get_skill(SKILL_CHOPOFF) && (ch->in_room == IN_ROOM(vict)))

@@ -32,6 +32,7 @@
 #include "conf.h"
 #include "accounts.hpp"
 #include "zone.table.hpp"
+#include "daily_quest.hpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -264,38 +265,33 @@ void Player::add_hryvn(int value)
 	this->hryvn += value;
 }
 
-extern std::vector<DailyQuest> d_quest;
-void Player::dquest(int id)
+void Player::dquest(const int id)
 {
-	for (auto x : d_quest)
+	const auto quest = d_quest.find(id);
+
+	if(quest == d_quest.end())
 	{
-		if (x.id == id)
-		{
-			if (!this->account->quest_is_available(id))
-			{
-				send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
-				return;
-			}
-			int value = x.reward + number(1, 3);
-			if ((zone_table[world[this->in_room]->zone].mob_level > 24) 
-				|| (zone_table[world[this->in_room]->zone].mob_level > (GET_LEVEL(this) + GET_REMORT(this)/5)))
-			{
-				value = value;
-			}
-			else
-			{
-				value /= 2;
-			}
-			this->add_hryvn(value);
-
-			this->account->complete_quest(id);
-			return;
-		}
+		log("Quest ID: %d - не найден", id);
+		return;
 	}
-	log("Quest ID: %d - не найден", id);
-	return;
-}
 
+	if (!this->account->quest_is_available(id))
+	{
+		send_to_char(this, "Сегодня вы уже получали гривны за выполнение этого задания.\r\n");
+		return;
+	}
+	int value = quest->second.reward + number(1, 3);
+	const int zone_lvl = zone_table[world[this->in_room]->zone].mob_level;
+	if (zone_lvl < 25
+		&& zone_lvl <= (GET_LEVEL(this) + GET_REMORT(this) / 5))
+	{
+		value /= 2;
+	}
+
+	this->add_hryvn(value);
+
+	this->account->complete_quest(id);
+}
 
 void Player::mark_city(const size_t index)
 {
@@ -524,7 +520,7 @@ void Player::save_char()
 		 */
 		while (!affected.empty())
 		{
-			remove_pulse_affect(affected.begin());
+			affect_remove(affected.begin());
 		}
 	}
 
@@ -543,20 +539,17 @@ void Player::save_char()
 	}
 	else//по сути так должен норм сохраняцо последний айпи
 	{
-		li = 0;
-		if (LOGON_LIST(this))
+		if (!LOGON_LIST(this).empty())
 		{
-			struct logon_data * cur_log = LOGON_LIST(this);
-			while (cur_log)
+			logon_data* last_logon = &LOGON_LIST(this).at(0);
+			for(auto& cur_log : LOGON_LIST(this))
 			{
-				if ((cur_log)->lasttime > li)
+				if (cur_log.lasttime > last_logon->lasttime)
 				{
-					strcpy(buf, cur_log->ip);
-					li = cur_log->lasttime;
-//					log("%s\r\n", buf);
+					last_logon = &cur_log;
 				}
-				cur_log = cur_log->next;
 			}
+			strcpy(buf, last_logon->ip);
 		}
 		else
 		{
@@ -585,23 +578,17 @@ void Player::save_char()
 	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
 	// дальше пишем как хотим и что хотим
 
-	if (GET_PAD(this, 0))
-		fprintf(saved, "NmI : %s\n", GET_PAD(this, 0));
-	if (GET_PAD(this, 1))
-		fprintf(saved, "NmR : %s\n", GET_PAD(this, 1));
-	if (GET_PAD(this, 2))
-		fprintf(saved, "NmD : %s\n", GET_PAD(this, 2));
-	if (GET_PAD(this, 3))
-		fprintf(saved, "NmV : %s\n", GET_PAD(this, 3));
-	if (GET_PAD(this, 4))
-		fprintf(saved, "NmT : %s\n", GET_PAD(this, 4));
-	if (GET_PAD(this, 5))
-		fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
+	fprintf(saved, "NmI : %s\n", GET_PAD(this, 0));
+	fprintf(saved, "NmR : %s\n", GET_PAD(this, 1));
+	fprintf(saved, "NmD : %s\n", GET_PAD(this, 2));
+	fprintf(saved, "NmV : %s\n", GET_PAD(this, 3));
+	fprintf(saved, "NmT : %s\n", GET_PAD(this, 4));
+	fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
 	if (!this->get_passwd().empty())
 		fprintf(saved, "Pass: %s\n", this->get_passwd().c_str());
-	if (this->player_data.title != "")
+	if (!this->player_data.title.empty())
 		fprintf(saved, "Titl: %s\n", this->player_data.title.c_str());
-	if (this->player_data.description != "")
+	if (!this->player_data.description.empty())
 	{
 		strcpy(buf, this->player_data.description.c_str());
 		kill_ems(buf);
@@ -627,7 +614,7 @@ void Player::save_char()
 	// структуры
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
-	permanent_affects().tascii(4, buf);	// save affects of the old mechanism
+	AFF_FLAGS(this).tascii(4, buf);
 	fprintf(saved, "Aff : %s\n", buf);
 
 	// дальше не по порядку
@@ -734,6 +721,8 @@ void Player::save_char()
 		fprintf(saved, "0\n");
 	}
 
+	// Рецепты
+//    if (GET_LEVEL(this) < LVL_IMMORT)
 	{
 		im_rskill *rs;
 		im_recipe *r;
@@ -763,6 +752,8 @@ void Player::save_char()
 	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(this));
 	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(this));
 	fprintf(saved, "Room: %d\n", GET_LOADROOM(this));
+//	li = this->player_data.time.birth;
+//	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	fprintf(saved, "Lexc: %ld\n", static_cast<long>(LAST_EXCHANGE(this)));
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(this));
 
@@ -811,15 +802,13 @@ void Player::save_char()
 		kill_ems(buf);
 		fprintf(saved, "Karm:\n%s~\n", buf);
 	}
-	if (LOGON_LIST(this))
+	if (!LOGON_LIST(this).empty())
 	{
 		log("Saving logon list.");
-		struct logon_data * next_log = LOGON_LIST(this);
-		std::stringstream buffer;
-		while (next_log)
+		std::ostringstream buffer;
+		for(const auto& logon : LOGON_LIST(this))
 		{
-			buffer << next_log->ip << " " << next_log->count << " " << next_log->lasttime << "\n";
-			next_log = next_log->next;
+			buffer << logon.ip << " " << logon.count << " " << logon.lasttime << "\n";
 		}
 		fprintf(saved, "LogL:\n%s~\n", buffer.str().c_str());
 	}
@@ -994,7 +983,7 @@ void Player::save_char()
 	{
 		if (tmp_aff[i].type)
 		{
-			affect_to_char(tmp_aff[i]);
+			affect_to_char(this, tmp_aff[i]);
 		}
 	}
 
@@ -1012,7 +1001,7 @@ void Player::save_char()
 #endif
 		}
 	}
-	update_active_affects();
+	affect_total(this);
 
 	i = get_ptable_by_name(GET_NAME(this));
 	if (i >= 0)
@@ -1069,9 +1058,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		return -1;
 	}
 
-	///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-		// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
+	// первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
 	if (!this->player_specials)
 	{
 		this->player_specials = std::make_shared<player_special_data>();
@@ -1110,8 +1099,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		{
 			llnum = boost::lexical_cast<unsigned long long>(line1);
 		}
-		catch (boost::bad_lexical_cast &)
-		{
+		catch(boost::bad_lexical_cast &)
+        {
 			llnum = 0;
 		}
 
@@ -1145,7 +1134,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				strcpy(GET_LASTIP(this), line);
 			}
 			//end by WorM
-			break;
+		  break;
 		case 'I':
 			if (!strcmp(tag, "Id  "))
 			{
@@ -1155,7 +1144,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			{
 				//Тут контроль льда потом можно сделать
 				//this->set_ice_currency(lnum);//на праздники
-				if (get_ice_currency() > 0) //обнуляем если есть лед
+				if (get_ice_currency()>0) //обнуляем если есть лед
 					this->set_ice_currency(0);
 			}
 			break;
@@ -1192,10 +1181,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		default:
 			sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
-	} while (!skip_file);
+	}
+	while (!skip_file);
 
 	//added by WorM 2010.08.27 лоадим мыло и последний ip даже при считывании индексов
-	while ((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this)))
+	while((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this)))
 	{
 		if (!fbgetline(fl, line))
 		{
@@ -1249,16 +1239,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 
 	for (i = 1; i <= MAX_SPELLS; i++)
 		GET_SPELL_MEM(this, i) = 0;
-
-	char_specials.saved.active_affects.clear();
-	for (auto a = 0; a != MAX_AFFECT; ++a)
-	{
-		if (clear_flags.get(a))
-		{
-			set_affect(static_cast<EAffectFlag>(i));
-		}
-	}
-
+	this->char_specials.saved.affected_by = clear_flags;
 	POOFIN(this) = NULL;
 	POOFOUT(this) = NULL;
 	GET_RSKILL(this) = NULL;	// рецептов не знает
@@ -1339,7 +1320,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_MOVE(this) = 44;
 	GET_MAX_MOVE(this) = 44;
 	KARMA(this) = 0;
-	LOGON_LIST(this) = 0;
+	LOGON_LIST(this).clear();
 	NAME_GOD(this) = 0;
 	STRING_LENGTH(this) = 80;
 	STRING_WIDTH(this) = 30;
@@ -1354,6 +1335,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
 	PRF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
+	AFF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	GET_PORTALS(this) = NULL;
 	EXCHANGE_FILTER(this) = NULL;
 	clear_ignores();
@@ -1394,9 +1376,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "Aff "))
 			{
-//				FLAG_DATA affects;
-//				affects.from_string(line);
-//				reset_permanent_affects(affects);
+				AFF_FLAGS(this).from_string(line);
 			}
 			else if (!strcmp(tag, "Affs"))
 			{
@@ -1418,7 +1398,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						{
 							af.handler.reset(new LackyAffectHandler());
 						}
-						affect_to_char(af);
+						affect_to_char(this, af);
 						i++;
 					}
 				} while (num != 0);
@@ -1674,8 +1654,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		case 'L':
 			if (!strcmp(tag, "LogL"))
 			{
-				i = 0;
-				struct logon_data * cur_log = 0;
 				long  lnum, lnum2;
 				do
 				{
@@ -1683,23 +1661,22 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
 					if (buf[0] != '~')
 					{
-						if (i == 0)
-							cur_log = LOGON_LIST(this) = new(struct logon_data);
-						else
-						{
-							cur_log->next = new(struct logon_data);
-							cur_log = cur_log->next;
-						}
-						// Добавляем в список.
-						cur_log->ip = str_dup(buf);
-						cur_log->count = lnum;
-						cur_log->lasttime = lnum2;
-						cur_log->next = 0;   // Терминатор списка
-						i++;
+						const logon_data cur_log = { str_dup(buf), lnum, lnum2, false };
+						LOGON_LIST(this).push_back(cur_log);
 					}
 					else break;
 				}
 				while (true);
+
+				if (!LOGON_LIST(this).empty())
+				{
+					LOGON_LIST(this).at(0).is_first = true;
+					std::sort(LOGON_LIST(this).begin(), LOGON_LIST(this).end(),
+						[](const logon_data& a, const logon_data& b)
+					{
+						return a.lasttime < b.lasttime;
+					});
+				}
 			}
 // Gunner
 			else if (!strcmp(tag, "Logs"))
@@ -2101,7 +2078,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
 		}
 	}
-
+	PRF_FLAGS(this).set(PRF_COLOR_2); //всегда цвет полный
 	// initialization for imms
 	if (GET_LEVEL(this) >= LVL_IMMORT)
 	{

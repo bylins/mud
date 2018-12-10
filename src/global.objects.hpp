@@ -13,6 +13,7 @@
 #include "act.wizard.hpp"
 #include "influxdb.hpp"
 #include "zone.table.hpp"
+#include "daily_quest.hpp"
 
 class BanList;	// to avoid inclusion of ban.hpp
 
@@ -56,6 +57,8 @@ public:
 	static BloodyInfoMap& bloody_map();
 	static Rooms& world();
 	static PlayersIndex& player_table();
+
+	static DailyQuestMap& daily_quests();
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__

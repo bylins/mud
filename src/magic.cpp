@@ -990,13 +990,15 @@ void mobile_affect_update(void)
 						}
 					}
 
-					i->remove_pulse_affect(affect_i);
+					i->affect_remove(affect_i);
 				}
 			}
 		}
 
 		if (!was_purged)
 		{
+			affect_total(i.get());
+
 			decltype(i->timed) timed_next;
 			for (auto timed = i->timed; timed; timed = timed_next)
 			{
@@ -1034,8 +1036,6 @@ void mobile_affect_update(void)
 				stop_follower(i.get(), SF_CHARMLOST);
 			}
 		}
-
-		i->update_active_affects();
 	});
 }
 
@@ -1102,7 +1102,7 @@ void player_affect_update(void)
 					}
 				}
 
-				i->remove_pulse_affect(affect_i);
+				i->affect_remove(affect_i);
 			}
 		}
 
@@ -1110,7 +1110,7 @@ void player_affect_update(void)
 		{
 			MemQ_slots(i.get());	// сколько каких слотов занято (с коррекцией)
 
-			i->update_active_affects();
+			affect_total(i.get());
 		}
 	});
 }
@@ -1204,15 +1204,17 @@ void battle_affect_update(CHAR_DATA * ch)
 				}
 			}
 
-			ch->remove_pulse_affect(affect_i);
+			ch->affect_remove(affect_i);
 		}
 	}
+
+	affect_total(ch);
 }
 
 // This file update pulse affects only
 void pulse_affect_update(CHAR_DATA * ch)
 {
-	bool pulse_aff = false;
+	bool pulse_aff = FALSE;
 
 	if (ch->get_fighting())
 	{
@@ -1230,7 +1232,7 @@ void pulse_affect_update(CHAR_DATA * ch)
 			continue;
 		}
 
-		pulse_aff = true;
+		pulse_aff = TRUE;
 		if (affect->duration >= 1)
 		{
 			if (IS_NPC(ch))
@@ -1263,13 +1265,13 @@ void pulse_affect_update(CHAR_DATA * ch)
 				}
 			}
 
-			ch->remove_pulse_affect(affect_i);
+			ch->affect_remove(affect_i);
 		}
 	}
 
 	if (pulse_aff)
 	{
-		ch->update_active_affects();
+		affect_total(ch);
 	}
 }
 
@@ -3491,6 +3493,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			af[0].modifier = level;
 		}
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		af[0].bitvector = to_underlying(EAffectFlag::AFF_PROTECT_EVIL);
 		accum_duration = TRUE;
 		to_vict = "Вы подавили в себе страх к тьме.";
 		to_room = "$n подавил$g в себе страх к тьме.";
@@ -3546,7 +3549,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(victim, 0),
 						GET_CH_SUF_2(victim));
 				act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				victim->remove_affect(EAffectFlag::AFF_HORSE);
+				AFF_FLAGS(victim).unset(EAffectFlag::AFF_HORSE);
 			}
 
 			send_to_char("Вы слишком устали... Спать... Спа...\r\n", victim);
@@ -4732,11 +4735,11 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	af.location = EApplyLocation::APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 	af.battleflag = 0;
-	mob->affect_to_char(af);
+	affect_to_char(mob, af);
 	if (keeper)
 	{
 		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
-		mob->affect_to_char(af);
+		affect_to_char(mob, af);
 		mob->set_skill(SKILL_RESCUE, 100);
 // shapirus: проставим флаг клона тут в явном виде, чтобы
 // режим отсева клонов при показе группы работал гарантированно
@@ -4832,11 +4835,11 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	{
 		if (get_effective_cha(ch) >= 30)
 		{
-			mob->set_affect(EAffectFlag::AFF_FIRESHIELD);
+			AFF_FLAGS(mob).set(EAffectFlag::AFF_FIRESHIELD);
 		}
 		else
 		{
-			mob->set_affect(EAffectFlag::AFF_FIREAURA);
+			AFF_FLAGS(mob).set(EAffectFlag::AFF_FIREAURA);
 		}
 
 		modifier = VPOSI((int)get_effective_cha(ch) - 20, 0, 30);

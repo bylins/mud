@@ -119,15 +119,11 @@ void do_antigods(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Оно вам надо?\r\n", ch);
 		return;
 	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
 	{
 		if (affected_by_spell(ch, SPELL_SHIELD))
-		{
 			affect_from_char(ch, SPELL_SHIELD);
-		}
-
-		ch->remove_affect(EAffectFlag::AFF_SHIELD);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_SHIELD);
 		send_to_char("Голубой кокон вокруг вашего тела угас.\r\n", ch);
 		act("&W$n отринул$g защиту, дарованную богами.&n", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
@@ -405,7 +401,7 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		af.bitvector = to_underlying(EAffectFlag::AFF_SNEAK);
 	}
 
-	ch->affect_to_char(af);
+	affect_to_char(ch, af);
 }
 
 void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
@@ -470,7 +466,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 		af.bitvector = to_underlying(EAffectFlag::AFF_CAMOUFLAGE);
 	}
 
-	ch->affect_to_char(af);
+	affect_to_char(ch, af);
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_CAMOUFLAGE;
@@ -536,7 +532,7 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		af.bitvector = to_underlying(EAffectFlag::AFF_HIDE);
 	}
 
-	ch->affect_to_char(af);
+	affect_to_char(ch, af);
 }
 
 void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
@@ -1013,15 +1009,13 @@ int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
 		return (FALSE);
 	}
 
-	vict->set_affect(EAffectFlag::AFF_GROUP);
-
+	AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 	if (ch != vict)
 	{
 		act("$N принят$A в члены вашего кружка (тьфу-ты, группы :).", FALSE, ch, 0, vict, TO_CHAR);
 		act("Вы приняты в группу $n1.", FALSE, ch, 0, vict, TO_VICT);
 		act("$N принят$A в группу $n1.", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
-
 	return (TRUE);
 }
 
@@ -1100,7 +1094,7 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	if (vict)
 	{
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
-		ch->remove_affect(EAffectFlag::AFF_GROUP);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 		leader->add_follower_silently(ch);
 	}
 
@@ -1558,13 +1552,16 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			act("$N исключен$A из состава вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, vict, TO_VICT);
 			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-			vict->remove_affect(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(vict).unset(EAffectFlag::AFF_GROUP);
 		}
 	}
 }
 
 void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
+	struct follow_type *f, *next_fol;
+	CHAR_DATA *tch;
+
 	one_argument(argument, buf);
 
 	if (ch->has_master()
@@ -1577,13 +1574,12 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!*buf)
 	{
 		sprintf(buf2, "Вы исключены из группы %s.\r\n", GET_PAD(ch, 1));
-		follow_type *next_fol = nullptr;
-		for (auto f = ch->followers; f; f = next_fol)
+		for (f = ch->followers; f; f = next_fol)
 		{
 			next_fol = f->next;
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
 			{
-				f->follower->remove_affect(EAffectFlag::AFF_GROUP);
+				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
 				send_to_char(buf2, f->follower);
 				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
 					&& !(IS_NPC(f->follower)
@@ -1593,34 +1589,27 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 			}
 		}
-
-		ch->remove_affect(EAffectFlag::AFF_GROUP);
+		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 		send_to_char("Вы распустили группу.\r\n", ch);
-
 		return;
 	}
-
-	follow_type *next_fol = nullptr;
-	for (auto f = ch->followers; f; f = next_fol)
+	for (f = ch->followers; f; f = next_fol)
 	{
 		next_fol = f->next;
-		CHAR_DATA* tch = f->follower;
+		tch = f->follower;
 		if (isname(buf, tch->get_pc_name())
 			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 			&& !IS_HORSE(tch))
 		{
-			tch->remove_affect(EAffectFlag::AFF_GROUP);
+			AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
 			act("$N более не член вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, tch, TO_VICT);
 			act("$N был$G изгнан$A из группы $n1!", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
 			stop_follower(tch, SF_EMPTY);
-
 			return;
 		}
 	}
-
 	send_to_char("Этот игрок не входит в состав вашей группы.\r\n", ch);
-
 	return;
 }
 
@@ -2196,7 +2185,6 @@ void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "краткий", "brief",
 							   "сжатый", "compact",
-							   "цвет", "color",
 							   "повтор", "norepeat",
 							   "обращения", "notell",
 							   "кто-то", "noinvistell",
@@ -2266,7 +2254,6 @@ struct gen_tog_param_type
 		0, SCMD_AUTOEXIT, false}, {
 		0, SCMD_BRIEF, false}, {
 		0, SCMD_COMPACT, false}, {
-		0, SCMD_COLOR, false}, {
 		0, SCMD_NOREPEAT, false}, {
 		0, SCMD_NOTELL, false}, {
 		0, SCMD_NOINVISTELL, false}, {
@@ -2642,10 +2629,6 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		break;
 	case SCMD_AUTOMEM:
 		result = PRF_TOG_CHK(ch, PRF_AUTOMEM);
-		break;
-	case SCMD_COLOR:
-		do_color(ch, argument, 0, 0);
-		return;
 		break;
 	case SCMD_SDEMIGOD:
 		result = PRF_TOG_CHK(ch, PRF_SDEMIGOD);
