@@ -4916,10 +4916,11 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 		break;
 	case SPELL_FULL:
 	case SPELL_COMMON_MEAL:
-//		if (!IS_NPC(victim) && !IS_IMMORTAL(victim))
 		{
-			GET_COND(victim, THIRST) = 0;
-			GET_COND(victim, FULL) = 0;
+			if (GET_COND(victim, THIRST) > 0)
+				GET_COND(victim, THIRST) = 0;
+			if (GET_COND(victim, FULL) > 0)
+				GET_COND(victim, FULL) = 0;
 			send_to_char("Вы полностью насытились.\r\n", victim);
 		}
 		break;
