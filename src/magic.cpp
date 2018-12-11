@@ -2817,7 +2817,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (affected_by_spell(victim, SPELL_FIRE_SHIELD))
 			affect_from_char(victim, SPELL_FIRE_SHIELD);
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
-		af[0].battleflag = TRUE;
+		af[0].battleflag = AF_BATTLEDEC;
 		if (IS_NPC(victim) || victim == ch)
 			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0) * koef_duration;
 		else
@@ -2832,7 +2832,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (affected_by_spell(victim, SPELL_AIR_SHIELD))
 			affect_from_char(victim, SPELL_AIR_SHIELD);
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
-		af[0].battleflag = TRUE;
+		af[0].battleflag = AF_BATTLEDEC;
 		if (IS_NPC(victim) || victim == ch)
 			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0) * koef_duration;
 		else
@@ -2847,7 +2847,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (affected_by_spell(victim, SPELL_AIR_SHIELD))
 			affect_from_char(victim, SPELL_AIR_SHIELD);
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
-		af[0].battleflag = TRUE;
+		af[0].battleflag = AF_BATTLEDEC;
 		if (IS_NPC(victim) || victim == ch)
 			af[0].duration = pc_duration(victim, 10 + GET_REMORT(ch), 0, 0, 0, 0) * koef_duration;
 		else
