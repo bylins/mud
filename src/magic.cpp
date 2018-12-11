@@ -4719,18 +4719,12 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
 //-Polud
+	const auto days_from_full_moon =
+		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
+	const auto duration = pc_duration(mob, GET_REAL_WIS(ch) + number(0, days_from_full_moon), 0, 0, 0, 0);
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
-
-	if (weather_info.moon_day < 14)
-	{
-		af.duration = pc_duration(mob, GET_REAL_WIS(ch) + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
-	}
-	else
-	{
-		af.duration = pc_duration(mob, GET_REAL_WIS(ch) + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0, 0);
-	}
-
+	af.duration = duration;
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;
 	af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
@@ -4741,10 +4735,6 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 		affect_to_char(mob, af);
 		mob->set_skill(SKILL_RESCUE, 100);
-// shapirus: проставим флаг клона тут в явном виде, чтобы
-// режим отсева клонов при показе группы работал гарантированно
-// (это была идиотская идея)
-//      SET_BIT (MOB_FLAGS (mob, MOB_CLONE), MOB_CLONE);
 	}
 
 	MOB_FLAGS(mob).set(MOB_CORPSE);
@@ -4833,13 +4823,21 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 //added by Adept
 	if (spellnum == SPELL_SUMMON_FIREKEEPER)
 	{
+		AFFECT_DATA<EApplyLocation> af;
+		af.type = SPELL_CHARM;
+		af.duration = duration;
+		af.modifier = 0;
+		af.location = EApplyLocation::APPLY_NONE;
+		af.battleflag = 0;
 		if (get_effective_cha(ch) >= 30)
 		{
-			AFF_FLAGS(mob).set(EAffectFlag::AFF_FIRESHIELD);
+			af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+			affect_to_char(mob, af);
 		}
 		else
 		{
-			AFF_FLAGS(mob).set(EAffectFlag::AFF_FIREAURA);
+			af.bitvector = to_underlying(EAffectFlag::AFF_FIREAURA);
+			affect_to_char(mob, af);
 		}
 
 		modifier = VPOSI((int)get_effective_cha(ch) - 20, 0, 30);

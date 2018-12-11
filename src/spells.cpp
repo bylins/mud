@@ -2988,9 +2988,25 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((eff_cha - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;
-	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
+	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	affect_to_char(mob, af);
+	//AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
+	af.bitvector = to_underlying(EAffectFlag::AFF_FLY);
+	affect_to_char(mob, af);
+	//AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
+	af.bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
+	affect_to_char(mob, af);
+	if (eff_cha >= 22)
+	{
+		af.bitvector = to_underlying(EAffectFlag::AFF_SANCTUARY);
+		affect_to_char(mob, af);
+	}
+	if (eff_cha >= 30)
+	{
+		af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+		affect_to_char(mob, af);
+	}
 
 	if (IS_FEMALE(ch))
 	{
@@ -3076,8 +3092,6 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
-	AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
-	AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
 	mob->set_level(ch->get_level());
 //----------------------------------------------------------------------
 // добавляем зависимости от уровня и от обаяния
@@ -3119,16 +3133,6 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	{
 		mob->mob_specials.damnodice += 1;
 		mob->mob_specials.damsizedice += 1;
-	}
-
-	if (eff_cha >= 22)
-	{
-		AFF_FLAGS(mob).set(EAffectFlag::AFF_SANCTUARY);
-	}
-
-	if (eff_cha >= 30)
-	{
-		AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
 	}
 
 	char_to_room(mob, ch->in_room);
