@@ -415,7 +415,7 @@ extern const religion_names_t religion_name;
 #define PLR_DUMB         (1 << 19)	// Player is not allowed to tell/emote/social //
 // свободно
 #define PLR_DELETE       (1 << 28)	// RESERVED - ONLY INTERNALLY (MOB_DELETE) //
-#define PLR_FREE         (1 << 29)	// RESERVED - ONLY INTERBALLY (MOB_FREE)//
+#define PLR_FREE         (1 << 29)	// RESERVED - ONLY INTERNALLY (MOB_FREE)//
 
 
 // Mobile flags: used by char_data.char_specials.act
@@ -448,7 +448,7 @@ extern const religion_names_t religion_name;
 #define MOB_LOOTER           (1 << 26)
 #define MOB_PROTECT          (1 << 27)
 #define MOB_DELETE           (1 << 28)	// RESERVED - ONLY INTERNALLY //
-#define MOB_FREE             (1 << 29)	// RESERVED - ONLY INTERBALLY //
+#define MOB_FREE             (1 << 29)	// RESERVED - ONLY INTERNALLY //
 
 #define MOB_SWIMMING         (INT_ONE | (1 << 0))
 #define MOB_FLYING           (INT_ONE | (1 << 1))

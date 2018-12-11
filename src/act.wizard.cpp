@@ -2724,10 +2724,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	if (IS_NPC(k))
 	{
 		k->char_specials.saved.act.sprintbits(action_bits, buf2, ",", 4);
-		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",", 4);
-		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
 		send_to_char(ch, "Вероятность использования умений: %s%d%%%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
@@ -2821,7 +2821,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		for (const auto aff : k->affected)
 		{
 			*buf2 = '\0';
-			sprintf(buf, "Заклинания: (%3dsec) %s%-21s%s ", aff->duration + 1,
+			sprintf(buf, "Заклинания: (%3d%s|%s) %s%-21s%s ", aff->duration + 1,
+				(aff->battleflag & AF_PULSEDEC) || (aff->battleflag & AF_SAME_TIME) ? "плс" : "мин",
+				(aff->battleflag & AF_BATTLEDEC) || (aff->battleflag & AF_SAME_TIME) ? "рнд" : "мин",
 				CCCYN(ch, C_NRM), spell_name(aff->type), CCNRM(ch, C_NRM));
 			if (aff->modifier)
 			{
