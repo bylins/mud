@@ -317,10 +317,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	DpsSystem::check_round(ch);
 	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
 	handle_affects(params);
-	if (affected_by_spell(ch, SPELL_PALADINE_INSPIRATION))
-	{
-		affect_from_char(ch, SPELL_PALADINE_INSPIRATION);
-	}
 	if (switch_others != 2)
 	{
 		for (temp = combat_list; temp; temp = temp->next_fighting)
