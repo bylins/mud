@@ -922,10 +922,12 @@ void show_spell_off(int aff, CHAR_DATA * ch)
 {
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_WRITING))
 		return;
-
-	act(spell_wear_off_msg[aff], FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
-	send_to_char("\r\n", ch);
-
+	sprintf(buf, "%s", spell_wear_off_msg[aff]);
+	if (buf[0] != '*')
+	{
+		act(buf, FALSE, ch, 0, 0, TO_CHAR | TO_SLEEP);
+		send_to_char("\r\n", ch);
+	}
 }
 
 void mobile_affect_update(void)
