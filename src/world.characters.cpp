@@ -12,6 +12,11 @@ Characters::CL_RNumChangeObserver::CL_RNumChangeObserver(Characters& cl) : m_par
 {
 }
 
+Characters::~Characters()
+{
+	log("~Characters()");
+}
+
 void Characters::CL_RNumChangeObserver::notify(ProtectedCharacterData& character, const mob_rnum old_rnum)
 {
 	const auto character_ptr = dynamic_cast<CHAR_DATA*>(&character);
