@@ -135,7 +135,7 @@ void haemorragia(CHAR_DATA * ch, int percent)
 		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
 	}
 }
-void inspiration(CHAR_DATA *ch, int time)
+void inspiration(CHAR_DATA *ch, int time, int mod)
 {
 	AFFECT_DATA<EApplyLocation> af;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
@@ -159,13 +159,13 @@ void inspiration(CHAR_DATA *ch, int time)
 				af.location = APPLY_DAMROLL;
 				af.type = SPELL_PALADINE_INSPIRATION;
 				af.modifier = GET_REMORT(ch) / 5 * 2;
-				af.battleflag = AF_BATTLEDEC;
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				af.duration = pc_duration(ch, time, 0, 0, 0, 0);
 				affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
 				af.location = APPLY_CAST_SUCCESS;
 				af.type = SPELL_PALADINE_INSPIRATION;
-				af.modifier = GET_REMORT(ch) / 5 * 3;
-				af.battleflag = AF_BATTLEDEC;
+				af.modifier = GET_REMORT(ch) / 5 * mod;
+				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 				af.duration = pc_duration(ch, time, 0, 0, 0, 0);
 				affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
 				send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
@@ -176,13 +176,13 @@ void inspiration(CHAR_DATA *ch, int time)
 		af.location = APPLY_DAMROLL;
 		af.type = SPELL_PALADINE_INSPIRATION;
 		af.modifier = GET_REMORT(ch) / 5 * 2;
-		af.battleflag = AF_BATTLEDEC;
+		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 		af.duration = pc_duration(ch, time, 0, 0, 0, 0);
 		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		af.location = APPLY_CAST_SUCCESS;
 		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(ch) / 5 * 3;
-		af.battleflag = AF_BATTLEDEC;
+		af.modifier = GET_REMORT(ch) / 5 * mod;
+		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 		af.duration = pc_duration(ch, time, 0, 0, 0, 0);
 		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
@@ -218,10 +218,16 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		case 3:
 			// Nothing
 			return;
-		case 5:	// Hit genus, victim bashed, speed/2
+		case 4:	// Hit genus, victim bashed, speed/2
 			SET_AF_BATTLE(victim, EAF_SLOW);
 			dam *= (ch->get_skill(SKILL_PUNCTUAL) / 10);
-		case 4:	// victim bashed
+			if (GET_POS(victim) > POS_SITTING)
+				GET_POS(victim) = POS_SITTING;
+			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
+			to_char = "повалило $N3 на землю";
+			to_vict = "повредило вам колено, повалив на землю";
+			break;
+		case 5:	// victim bashed
 			if (GET_POS(victim) > POS_SITTING)
 				GET_POS(victim) = POS_SITTING;
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
@@ -854,7 +860,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 				}
 				if (!affect_found)
 				{
-					inspiration(ch, 2);
+					inspiration(ch, 2, 3);
 					affect_found = true;
 				}
 			}
@@ -862,7 +868,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 		if (!affect_found)
 		{
-			inspiration(ch, 1);
+			inspiration(ch, 1, 1);
 			affect_found = true;
 		}
 	}

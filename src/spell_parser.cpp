@@ -5385,7 +5385,7 @@ void mag_assign_spells(void)
 		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_DARK);
 //233
 	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
-		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
+		   0, 0, 0, 255, 0, FALSE, MAG_AFFECTS, 0, STYPE_NEUTRAL);
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
