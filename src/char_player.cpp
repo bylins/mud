@@ -237,7 +237,7 @@ int Player::get_hryvn()
 
 void Player::set_hryvn(int value)
 {
-	if (this->get_hryvn() + value > 1200)
+	if (value > 1200)
 		value = 1200;
 	this->hryvn = value;
 }
