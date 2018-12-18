@@ -1550,7 +1550,7 @@ long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 	if (*subfield)
 	{
 		sprintf(buf, "DG_Script: Set %s with <%s> for %s.", field, subfield, GET_NAME(ch));
-		mudlog(buf, NRM, -1, ERRLOG, TRUE);
+		log("%s", buf);
 		if (*subfield == '-')
 			return (val - atoi(subfield + 1));
 		else if (*subfield == '+')
