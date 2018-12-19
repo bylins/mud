@@ -1283,6 +1283,17 @@ void do_map(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{	send_to_char("В режиме слепого игрока карта недоступна.\r\n", ch);
 		return;
 	}
+	else if (GET_POS(ch) < POS_SLEEPING)
+	{
+		send_to_char("Спи ребеночек маленький...\r\n", ch);
+		return;
+	}
+	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
+	{
+		send_to_char("Аккуратней с пальцами!\r\n", ch);
+		return;
+	}
+
 	skip_spaces(&argument);
 
 	if (!argument || !*argument)
