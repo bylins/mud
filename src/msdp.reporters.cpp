@@ -25,7 +25,7 @@ namespace msdp
 
 		if ((PRF_FLAGGED(descriptor()->character, PRF_BLIND))||    //В режиме слепого игрока карта недоступна
 				(AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND))||  //Слепому карта не поможет!
-				(is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character) && !can_use_feat(descriptor()->character, DARK_READING_FEAT)))
+				(is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character)))
 		{	
 			return;
 		}
