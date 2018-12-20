@@ -1290,7 +1290,7 @@ void do_map(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !can_use_feat(ch, DARK_READING_FEAT))
 	{
-		send_to_char("Идем на ощуп и на запах!\r\n", ch);
+		send_to_char("Идем на ощупь и на запах!\r\n", ch);
 		return;
 	}
 	
