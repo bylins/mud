@@ -1262,6 +1262,84 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		}
 	}
 }
+// place a character in a room
+void char_flee_to_room(CHAR_DATA * ch, room_rnum room)
+{
+	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world)
+	{
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		return;
+	}
+
+	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
+	{
+		room = ch->get_from_room();
+	}
+
+	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		room = ch->get_from_room();
+	}
+	world[room]->people.push_front(ch);
+
+	ch->in_room = room;
+	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
+	if (PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		sprintf(buf,
+				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
+				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
+				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
+				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
+				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
+				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+	// Stop fighting now, if we left.
+	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting()))
+	{
+		stop_fighting(ch->get_fighting(), FALSE);
+		stop_fighting(ch, TRUE);
+	}
+
+	if (!IS_NPC(ch))
+	{
+		zone_table[world[room]->zone].used = true;
+		zone_table[world[room]->zone].activity++;
+	}
+	else
+	{
+		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
+		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
+		room_affect_process_on_entry(ch, ch->in_room);
+	}
+
+	// небольшой перегиб. когда сбегаешь то ты теряешься в ориентации а тут нате все видно
+//	if (ch->desc)
+//	{
+//		if (!(IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+//			ch->desc->msdp_report("ROOM");
+//	}
+
+	for (unsigned int i = 0; i < cities.size(); i++)
+	{
+		if (GET_ROOM_VNUM(room) == cities[i].rent_vnum)
+		{
+			ch->mark_city(i);
+			break;
+		}
+	}
+}
 
 void restore_object(OBJ_DATA * obj, CHAR_DATA * ch)
 {
