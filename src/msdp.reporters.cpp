@@ -21,6 +21,13 @@ namespace msdp
 			return;
 		}
 
+		if (PRF_FLAGGED(descriptor()->character, PRF_BLIND))||    //В режиме слепого игрока карта недоступна
+				(AFF_FLAGGED(descriptor()->character, EAffectFlag::AFF_BLIND))||  //Слепому карта не поможет!
+				(is_dark(descriptor()->character->in_room) && !CAN_SEE_IN_DARK(descriptor()->character) && !can_use_feat(descriptor()->character, DARK_READING_FEAT))
+		{	
+			return;
+		}
+		
 		const auto room_descriptor = std::make_shared<TableValue>();
 
 		const auto exits = std::make_shared<TableValue>();
