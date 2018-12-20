@@ -1550,7 +1550,7 @@ long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 	if (*subfield)
 	{
 		sprintf(buf, "DG_Script: Set %s with <%s> for %s.", field, subfield, GET_NAME(ch));
-		mudlog(buf, NRM, -1, ERRLOG, TRUE);
+		log("%s", buf);
 		if (*subfield == '-')
 			return (val - atoi(subfield + 1));
 		else if (*subfield == '+')
@@ -2533,7 +2533,12 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "hryvn"))
 		{
+			const long before = c->get_hryvn();
+			int value;
 			c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+			value = c->get_hryvn() - before;
+			sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]", GET_PAD(c, 0), GET_ROOM_VNUM(c->in_room), value, desc_count(value, WHAT_TORCu), GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			sprintf(str, "%d", c->get_hryvn());
 		}
 		else if (!str_cmp(field, "gold"))
