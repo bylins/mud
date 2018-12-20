@@ -531,17 +531,18 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			return (FALSE);
 		}
 
-		// если там ДТ и чар верхом на пони
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_DEATH) && on_horse(ch))
-		{
-		    if (show_msg)
-		    {
-			// я весьма костоязычен, исправьте кто-нибудь на нормальную
-			// мессагу, антуражненькую
-			send_to_char("Ваш скакун не хочет идти туда.\r\n", ch);
-		    }
-		    return (FALSE);
-		}
+		//Полель. уже хочет
+//		// если там ДТ и чар верхом на пони
+//		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ROOM_DEATH) && on_horse(ch))
+//		{
+//		    if (show_msg)
+//		    {
+//			// я весьма костоязычен, исправьте кто-нибудь на нормальную
+//			// мессагу, антуражненькую
+//			send_to_char("Ваш скакун не хочет идти туда.\r\n", ch);
+//		    }
+//		    return (FALSE);
+//		}
 
 		const auto need_movement = calculate_move_cost(ch, dir);
 		if (GET_MOVE(ch) < need_movement)
@@ -872,7 +873,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 
 	char_from_room(ch);
-	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
+	//затычка для бегства. чтобы не отрабатывал MSDP протокол
 	if (is_flee && !IS_NPC(ch) && !can_use_feat(ch, CALMNESS_FEAT))
 		char_flee_to_room(ch, go_to);
 	else	
