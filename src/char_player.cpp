@@ -1145,7 +1145,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				//Тут контроль льда потом можно сделать
 				//this->set_ice_currency(lnum);//на праздники
 //				if (get_ice_currency()>0) //обнуляем если есть лед
-//						this->set_ice_currency(0);
+				this->set_ice_currency(lnum);
 			}
 			break;
 		case 'L':
