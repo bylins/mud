@@ -5665,6 +5665,7 @@ struct set_struct		/*
 	{"remort", LVL_IMPL, PC, BINARY}, // 59
 	{"tester", LVL_IMPL, PC, BINARY}, // 60
 	{"autobot",LVL_IMPL, PC, BINARY}, // 61
+	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6355,6 +6356,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_AUTOBOT);
 			break;
 		}
+	case 62:
+		vict->set_hryvn(value);
+		break;
 
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
