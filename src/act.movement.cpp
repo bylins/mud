@@ -872,7 +872,11 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 
 	char_from_room(ch);
-	char_to_room(ch, go_to);
+	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
+	if (is_flee && !IS_NPC(ch) && !can_use_feat(ch, CALMNESS_FEAT))
+		char_flee_to_room(ch, go_to);
+	else	
+		char_to_room(ch, go_to);
 	if (horse)
 	{
 		GET_HORSESTATE(horse) -= 1;

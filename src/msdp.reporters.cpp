@@ -15,12 +15,21 @@ namespace msdp
 		const auto rnum = IN_ROOM(descriptor()->character);		
 		const auto vnum = GET_ROOM_VNUM(rnum);
 		const auto from_rnum = descriptor()->character->get_from_room();
-		const auto from_vnum = GET_ROOM_VNUM(from_rnum);
-		if (NOWHERE == vnum)
+		if ((from_rnum == vnum)||(NOWHERE == vnum))
 		{
+			//добавил проверку если перемещаемся из неоткуда
 			return;
 		}
+		
+		const auto from_vnum = GET_ROOM_VNUM(from_rnum);
 
+		if ((PRF_FLAGGED(descriptor()->character, PRF_BLIND))||    //В режиме слепого игрока карта недоступна
+				(AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND))||  //Слепому карта не поможет!
+				(is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character)))
+		{	
+			return;
+		}
+		
 		const auto room_descriptor = std::make_shared<TableValue>();
 
 		const auto exits = std::make_shared<TableValue>();

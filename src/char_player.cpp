@@ -1140,13 +1140,6 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			{
 				set_idnum(lnum);
 			}
-			else if (!strcmp(tag, "ICur"))
-			{
-				//Тут контроль льда потом можно сделать
-				//this->set_ice_currency(lnum);//на праздники
-				if (get_ice_currency()>0) //обнуляем если есть лед
-					this->set_ice_currency(0);
-			}
 			break;
 		case 'L':
 			if (!strcmp(tag, "LstL"))
@@ -1642,6 +1635,10 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			{
 				IgnoresLoader ignores_loader(this);
 				ignores_loader.load_from_string(line);
+			}
+			else if (!strcmp(tag, "ICur"))
+			{
+				this->set_ice_currency(num);
 			}
 			break;
 
