@@ -292,7 +292,12 @@ void Player::dquest(const int id)
 	}
 	int value = quest->second.reward + number(1, 3);
 	const int zone_lvl = zone_table[world[this->in_room]->zone].mob_level;
-	if (zone_lvl < 25
+	if (zone_lvl < 11
+		&& 20 <= (GET_LEVEL(this) + GET_REMORT(this) / 5))
+	{
+		value = 0;
+	}
+	else if (zone_lvl < 25
 		&& zone_lvl <= (GET_LEVEL(this) + GET_REMORT(this) / 5))
 	{
 		value /= 2;
