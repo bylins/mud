@@ -237,7 +237,12 @@ int Player::get_hryvn()
 
 void Player::set_hryvn(int value)
 {
-	if (value > 1200)
+	if (GET_REMORT(this) < 6)
+	{
+		send_to_char(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
+		value = 0;
+	}
+	else if (value > 1200)
 		value = 1200;
 	this->hryvn = value;
 }
@@ -250,7 +255,12 @@ void Player::sub_hryvn(int value)
 
 void Player::add_hryvn(int value)
 {
-	if ((this->get_hryvn() + value) > 1200)
+	if (GET_REMORT(this) < 6)
+	{
+		send_to_char(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
+		return;
+	}
+	else if ((this->get_hryvn() + value) > 1200)
 	{
 		value = 1200 - this->get_hryvn();
 		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
