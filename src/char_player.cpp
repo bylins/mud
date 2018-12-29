@@ -237,12 +237,7 @@ int Player::get_hryvn()
 
 void Player::set_hryvn(int value)
 {
-	if (GET_REMORT(this) < 6)
-	{
-		send_to_char(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
-		value = 0;
-	}
-	else if (value > 1200)
+	if (value > 1200)
 		value = 1200;
 	this->hryvn = value;
 }
