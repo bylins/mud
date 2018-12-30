@@ -437,7 +437,7 @@ namespace
 			Heartbeat::PulseStep("Crash save", 60 * PASSES_PER_SEC, 11, std::make_shared<CrashSaveCall>()),
 			Heartbeat::PulseStep("Clan experience updating", 60 * CLAN_EXP_UPDATE_PERIOD * PASSES_PER_SEC, 14, std::make_shared<UpdateClanExpCall>()),
 			Heartbeat::PulseStep("Clan: chest invoice", 60 * CHEST_INVOICE_PERIOD * PASSES_PER_SEC, 15, std::make_shared<SimpleCall>(Clan::ChestInvoice)),
-			Heartbeat::PulseStep("Clan: synchronize top experience", 60 * CLAN_TOP_REFRESH_PERIOD * PASSES_PER_SEC, 16, std::make_shared<SimpleCall>(Clan::SyncTopExp)),
+			Heartbeat::PulseStep("Gifts", 60 * PASSES_PER_SEC, 18, std::make_shared<SimpleCall>(gifts)),
 			Heartbeat::PulseStep("File CRC: saving", PASSES_PER_SEC, 23, std::make_shared<SimpleCall>([]() { FileCRC::save(false); })),
 			Heartbeat::PulseStep("Spells usage saving", 60 * 60 * PASSES_PER_SEC, 0, std::make_shared<SpellUsageCall>())
 		};
