@@ -105,6 +105,8 @@ void timediff(struct timeval *diff, struct timeval *a, struct timeval *b);
 
 int main_function(int argc, char **argv);
 
+void gifts();
+
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
