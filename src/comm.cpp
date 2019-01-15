@@ -413,8 +413,8 @@ unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
 
 // внумы комнат, где ставятся елки
-// размер массива 57
-const int vnum_room_new_year[58] = { 100,
+const int vnum_room_new_year[60] = 
+	{100,
 	4056,
 	5000,
 	6049,
@@ -471,6 +471,8 @@ const int vnum_room_new_year[58] = { 100,
 	21211,
 	12662,
 	25327,
+	49819,
+	40616,
 	12510 } ;
 
 const int len_array_gifts = 63;
@@ -544,7 +546,7 @@ const int vnum_gifts[len_array_gifts] = { 27113,
 void gifts()
 {
 	// выбираем случайную комнату с елкой
-	int rand_vnum_r = vnum_room_new_year[number(1, 56)];
+	int rand_vnum_r = vnum_room_new_year[number(1, 59)];
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
