@@ -51,7 +51,7 @@
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct spell_create_type spell_create[];
-extern bool check_agr_in_house(CHAR_DATA *agressor);
+extern bool check_agr_in_house(CHAR_DATA *agressor, CHAR_DATA *victim);
 FLAG_DATA  EMPTY_FLAG_DATA;
 extern int interpolate(int min_value, int pulse);
 
@@ -5717,9 +5717,9 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		if (!IS_NPC(ch)
 			&& !IS_NPC(ch_vict))
 		{
-			if (ch)
+			if (ch && ch_vict)
 			{
-				if (check_agr_in_house(ch))
+				if (check_agr_in_house(ch, ch_vict))
 				{
 					return 0;
 				}
@@ -5872,9 +5872,9 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 			continue;
 		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
 		{
-			if (ch)
+			if (ch && ch_vict)
 			{
-				if (check_agr_in_house(ch))
+				if (check_agr_in_house(ch, ch_vict))
 					return 0;
 			}
 		}

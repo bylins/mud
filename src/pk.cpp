@@ -36,6 +36,7 @@
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void stop_fighting(CHAR_DATA * ch, int switch_others);
 
 #define FirstPK  1
 #define SecondPK 5
@@ -84,10 +85,12 @@ bool check_agrobd(CHAR_DATA *ch) {
 }
 
 
-bool check_agr_in_house(CHAR_DATA *agressor)
+bool check_agr_in_house(CHAR_DATA *agressor, CHAR_DATA *victim)
 {
 	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor))
 	{
+		if (victim->get_fighting() != NULL)
+			stop_fighting(victim, FALSE);
 		act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
 		char_from_room(agressor);
 		if (IS_FEMALE(agressor))
@@ -501,7 +504,7 @@ bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 		return false;
 	}
 	if (!IS_NPC(victim) || IS_CHARMICE(victim))
-		if (check_agr_in_house(agressor))
+		if (check_agr_in_house(agressor, victim))
 			return false;
 	switch (pk_action_type(agressor, victim))
 	{
