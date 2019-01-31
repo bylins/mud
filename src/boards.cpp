@@ -111,8 +111,8 @@ namespace Boards
 		temp_message->unique = 1;
 		temp_message->level = 1;
 
-		(*board_it)->add_message(temp_message);
-		(*board_it)->renumerate_messages();
+		(*board_it)->write_message(temp_message);
+//		(*board_it)->renumerate_messages();
 	}
 
 	void dg_script_message()
