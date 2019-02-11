@@ -799,7 +799,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	skill_is += int_app[GET_REAL_INT(ch)].to_skilluse;
 	if (!IS_NPC(ch))
 	{
-		size = (MAX(0, GET_SIZE(ch) - 50));
+		size = (MAX(0, GET_REAL_SIZE(ch) - 50));
 	}
 	else
 	{
