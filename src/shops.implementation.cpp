@@ -529,7 +529,7 @@ namespace ShopExt
 		{
 			if (GET_OBJ_COST(obj) > total_money)			{
 				
-				snprintf(buf, MAX_STRING_LENGTH, "Персонаж %s купил предмет %d за %d при его стоимости %d.", ch->get_name().c_str(), GET_OBJ_VNUM(obj), total_money, GET_OBJ_COST(obj));
+				snprintf(buf, MAX_STRING_LENGTH, "Персонаж %s купил предмет %d за %d при его стоимости %d и прайсе %ld.", ch->get_name().c_str(), GET_OBJ_VNUM(obj), total_money, GET_OBJ_COST(obj), price);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			}
 			send_to_char(ch, "Теперь вы стали %s %s.\r\n",
