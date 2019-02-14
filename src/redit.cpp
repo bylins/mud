@@ -838,7 +838,7 @@ void redit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		case '3':
 			OLC_MODE(d) = REDIT_EXIT_KEYWORD;
-			send_to_char("Введите ключевое слово : ", d->character.get());
+			send_to_char("Введите ключевые слова (им.падеж|вин.падеж): ", d->character.get());
 			return;
 		case '4':
 			OLC_MODE(d) = REDIT_EXIT_KEY;
