@@ -1888,7 +1888,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
 			af.bitvector = 0;
-			af.type = 103;
+			af.type = SPELL_FULL;
 //			af.battleflag = 0;
 			af.duration = pc_duration(ch, 10 * 2, 0, 0, 0, 0);
 			affect_join_fspell(ch, af);

@@ -1975,7 +1975,7 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 					GET_ROOM_VNUM(rm->dir_option[i]->to_room()), CCNRM(ch, C_NRM));
 			sprintbit(rm->dir_option[i]->exit_info, exit_bits, buf2);
 			sprintf(buf,
-				"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n ",
+				"Выход %s%-5s%s:  Ведет в : [%s], Ключ: [%5d], Название: %s (%s), Тип: %s\r\n",
 				CCCYN(ch, C_NRM), dirs[i], CCNRM(ch, C_NRM), buf1,
 				rm->dir_option[i]->key,
 				rm->dir_option[i]->keyword ? rm->dir_option[i]->keyword : "Нет(дверь)",
@@ -1983,7 +1983,7 @@ void do_stat_room(CHAR_DATA * ch, const int rnum)
 			send_to_char(buf, ch);
 			if (!rm->dir_option[i]->general_description.empty())
 			{
-				strcpy(buf, rm->dir_option[i]->general_description.c_str());
+                                sprintf(buf, "  %s\r\n", rm->dir_option[i]->general_description.c_str());
 			}
 			else
 			{
@@ -2724,10 +2724,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	if (IS_NPC(k))
 	{
 		k->char_specials.saved.act.sprintbits(action_bits, buf2, ",", 4);
-		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",", 4);
-		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
 		send_to_char(ch, "Вероятность использования умений: %s%d%%%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
@@ -2821,7 +2821,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		for (const auto aff : k->affected)
 		{
 			*buf2 = '\0';
-			sprintf(buf, "Заклинания: (%3dsec) %s%-21s%s ", aff->duration + 1,
+			sprintf(buf, "Заклинания: (%3d%s|%s) %s%-21s%s ", aff->duration + 1,
+				(aff->battleflag & AF_PULSEDEC) || (aff->battleflag & AF_SAME_TIME) ? "плс" : "мин",
+				(aff->battleflag & AF_BATTLEDEC) || (aff->battleflag & AF_SAME_TIME) ? "рнд" : "мин",
 				CCCYN(ch, C_NRM), spell_name(aff->type), CCNRM(ch, C_NRM));
 			if (aff->modifier)
 			{
@@ -2926,22 +2928,21 @@ void do_statip(CHAR_DATA * ch, CHAR_DATA * k)
 	log("Start logon list stat");
 
 	// Отображаем список ip-адресов с которых персонаж входил
-	if (LOGON_LIST(k))
+	if (!LOGON_LIST(k).empty())
 	{
-		struct logon_data * cur_log = LOGON_LIST(k);
 		// update: логон-лист может быть капитально большим, поэтому пишем это в свой дин.буфер, а не в buf2
 		// заодно будет постраничный вывод ип, чтобы имма не посылало на йух с **OVERFLOW**
-		std::string out = "Персонаж заходил с IP-адресов:\r\n";
-		while (cur_log)
+		std::ostringstream out("Персонаж заходил с IP-адресов:\r\n");
+		for(const auto& logon : LOGON_LIST(k))
 		{
-			sprintf(buf1, "%16s %5ld %20s \r\n", cur_log->ip, cur_log->count, rustime(localtime(&cur_log->lasttime)));
-			out += buf1;
-			cur_log = cur_log->next;
-		}
-		page_string(ch->desc, out);
-	}
-	log("End logon list stat");
+			sprintf(buf1, "%16s %5ld %20s%s\r\n", logon.ip, logon.count, rustime(localtime(&logon.lasttime)), logon.is_first ? " (создание)" : "");
 
+			out << buf1;
+		}
+		page_string(ch->desc, out.str());
+	}
+
+	log("End logon list stat");
 }
 
 void do_stat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -3697,48 +3698,42 @@ void inspecting()
 				{
 					if ((it->second->sfor == IIP
 						&& strstr(player_table[it->second->pos].last_ip, it->second->req))
-						|| (it->second->ip_log && !str_cmp(player_table[it->second->pos].last_ip, it->second->ip_log->ip)))
+						|| (!it->second->ip_log.empty() && !str_cmp(player_table[it->second->pos].last_ip, it->second->ip_log.at(0).ip)))
 					{
 						sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s\r\n", (it->second->sfor == ICHAR ? CCBLU(ch, C_SPR) : ""), player_table[it->second->pos].last_ip, (it->second->sfor == ICHAR ? CCNRM(ch, C_SPR) : ""));
 					}
 				}
 			}
-			else if (vict && LOGON_LIST(vict))
+			else if (vict && !LOGON_LIST(vict).empty())
 			{
-				struct logon_data * cur_log = LOGON_LIST(vict);
-				while (cur_log)
+				for(const auto& cur_log : LOGON_LIST(vict))
 				{
-					struct logon_data * ch_log = it->second->ip_log;
-					if (cur_log->ip)
-						while (ch_log)
+					for(const auto& ch_log : it->second->ip_log)
+					{
+						if (!ch_log.ip)
 						{
-							if (!ch_log->ip)
-							{
-								send_to_char(ch, "Ошибка: пустой ip\r\n");//поиск прерываеться если криво заполнено поле ip для поиска
-								break;
-							}
-
-							if ((it->second->sfor == IIP
-								&& strstr(cur_log->ip, ch_log->ip))
-								|| !str_cmp(cur_log->ip, ch_log->ip))
-							{
-								sprintf(buf1 + strlen(buf1), " IP:%s%-16s%sCount:%5ld Last: %-30s%s",
-									(it->second->sfor == ICHAR ? CCBLU(ch, C_SPR) : ""),
-									cur_log->ip,
-									(it->second->sfor == ICHAR ? CCNRM(ch, C_SPR) : ""),
-									cur_log->count,
-									rustime(localtime(&cur_log->lasttime)),
-									(it->second->sfor == IIP ? "\r\n" : ""));
-								if (it->second->sfor == ICHAR)
-								{
-									sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
-										ch_log->count, rustime(localtime(&ch_log->lasttime)));
-								}
-							}
-
-							ch_log = ch_log->next;
+							send_to_char(ch, "Ошибка: пустой ip\r\n");//поиск прерываеться если криво заполнено поле ip для поиска
+							break;
 						}
-					cur_log = cur_log->next;
+
+						if ((it->second->sfor == IIP
+							&& strstr(cur_log.ip, ch_log.ip))
+							|| !str_cmp(cur_log.ip, ch_log.ip))
+						{
+							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%sCount:%5ld Last: %-30s%s",
+								(it->second->sfor == ICHAR ? CCBLU(ch, C_SPR) : ""),
+								cur_log.ip,
+								(it->second->sfor == ICHAR ? CCNRM(ch, C_SPR) : ""),
+								cur_log.count,
+								rustime(localtime(&cur_log.lasttime)),
+								(it->second->sfor == IIP ? "\r\n" : ""));
+							if (it->second->sfor == ICHAR)
+							{
+								sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
+									ch_log.count, rustime(localtime(&ch_log.lasttime)));
+							}
+						}
+					}
 				}
 			}
 		}
@@ -3763,14 +3758,6 @@ void inspecting()
 		}
 	}
 
-	while (it->second->ip_log)
-	{
-		struct logon_data *log_next;
-		log_next = it->second->ip_log->next;
-		free(it->second->ip_log->ip);
-		delete it->second->ip_log;
-		it->second->ip_log = log_next;
-	}
 	need_warn = true;
 	gettimeofday(&stop, NULL);
 	timediff(&result, &stop, &it->second->start);
@@ -3834,7 +3821,6 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	InspReqPtr req(new inspect_request);
-	req->ip_log = NULL;
 	req->mail = NULL;
 	req->fullsearch = 0;
 	req->req = str_dup(buf2);
@@ -3861,11 +3847,8 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		req->sfor = IIP;
 		if (req->fullsearch)
 		{
-			req->ip_log = new(struct logon_data);
-			req->ip_log->ip = str_dup(req->req);
-			req->ip_log->count = 0;
-			req->ip_log->lasttime = 0;
-			req->ip_log->next = 0;
+			const logon_data logon = { str_dup(req->req), 0, 0, false };
+			req->ip_log.push_back(logon);
 		}
 	}
 	else if (is_abbrev(buf, "char"))
@@ -3907,45 +3890,22 @@ void do_inspect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 
 			show_pun(vict.get(), buf2);
-			if (vict && LOGON_LIST(vict))
+			if (vict && !LOGON_LIST(vict).empty())
 			{
 #ifdef TEST_BUILD
 				log("filling logon list");
 #endif
-				struct logon_data * cur_log = LOGON_LIST(vict);
-				struct logon_data * tmp_log = NULL;
-				i = 0;
-				while (cur_log)
+				for(const auto& cur_log : LOGON_LIST(vict))
 				{
-#ifdef TEST_BUILD
-					log("filling logon list %d", i);
-#endif
-					if (i == 0)
-					{
-						req->ip_log = new(struct logon_data);
-						tmp_log = req->ip_log;
-					}
-					else
-					{
-						req->ip_log->next = new(struct logon_data);
-						tmp_log = req->ip_log->next;
-					}
-					tmp_log->ip = str_dup(cur_log->ip);
-					tmp_log->count = cur_log->count;
-					tmp_log->lasttime = cur_log->lasttime;
-					tmp_log->next = 0;
-					i++;
-					cur_log = cur_log->next;
+					const logon_data logon = { str_dup(cur_log.ip), cur_log.count, cur_log.lasttime, false };
+					req->ip_log.push_back(logon);
 				}
 			}
 		}
 		else
 		{
-			req->ip_log = new(struct logon_data);
-			req->ip_log->ip = str_dup(player_table[i].last_ip);
-			req->ip_log->count = 0;
-			req->ip_log->lasttime = player_table[i].last_logon;
-			req->ip_log->next = 0;
+			const logon_data logon = { str_dup(player_table[i].last_ip), 0, player_table[i].last_logon, false };
+			req->ip_log.push_back(logon);
 		}
 	}
 
@@ -5704,6 +5664,8 @@ struct set_struct		/*
 	{"killer", LVL_IMPL, PC, BINARY}, // 58
 	{"remort", LVL_IMPL, PC, BINARY}, // 59
 	{"tester", LVL_IMPL, PC, BINARY}, // 60
+	{"autobot",LVL_IMPL, PC, BINARY}, // 61
+	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6388,6 +6350,14 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 			//			send_to_gods(buf);
 		}
+		break;
+	case 61: // флаг автобота
+		{
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_AUTOBOT);
+			break;
+		}
+	case 62:
+		vict->set_hryvn(value);
 		break;
 
 	default:

@@ -353,7 +353,7 @@ int char_humming(CHAR_DATA * ch)
 
 void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	ubyte prob, percent;
+	int prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_SNEAK))
 	{
@@ -407,7 +407,7 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	struct timed_type timed;
-	ubyte prob, percent;
+	int prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_CAMOUFLAGE))
 	{
@@ -477,7 +477,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 
 void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	ubyte prob, percent;
+	int prob, percent;
 
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_HIDE))
 	{
@@ -2185,7 +2185,6 @@ void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 const char *gen_tog_type[] = { "автовыходы", "autoexits",
 							   "краткий", "brief",
 							   "сжатый", "compact",
-							   "цвет", "color",
 							   "повтор", "norepeat",
 							   "обращения", "notell",
 							   "кто-то", "noinvistell",
@@ -2255,7 +2254,6 @@ struct gen_tog_param_type
 		0, SCMD_AUTOEXIT, false}, {
 		0, SCMD_BRIEF, false}, {
 		0, SCMD_COMPACT, false}, {
-		0, SCMD_COLOR, false}, {
 		0, SCMD_NOREPEAT, false}, {
 		0, SCMD_NOTELL, false}, {
 		0, SCMD_NOINVISTELL, false}, {
@@ -2631,10 +2629,6 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		break;
 	case SCMD_AUTOMEM:
 		result = PRF_TOG_CHK(ch, PRF_AUTOMEM);
-		break;
-	case SCMD_COLOR:
-		do_color(ch, argument, 0, 0);
-		return;
 		break;
 	case SCMD_SDEMIGOD:
 		result = PRF_TOG_CHK(ch, PRF_SDEMIGOD);

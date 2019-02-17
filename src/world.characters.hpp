@@ -29,6 +29,7 @@ public:
 	};
 
 	Characters();
+	~Characters();
 	Characters(const Characters&) = delete;
 	Characters& operator=(const Characters&) = delete;
 

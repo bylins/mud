@@ -50,6 +50,7 @@ set(SOURCES
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
+	src/daily_quest.cpp
 	src/db.cpp
 	src/deathtrap.cpp
 	src/depot.cpp
@@ -222,6 +223,7 @@ set(HEADERS
 	src/constants.h
 	src/coredump.hpp
 	src/corpse.hpp
+	src/daily_quest.hpp
 	src/db.h
 	src/deathtrap.hpp
 	src/depot.hpp

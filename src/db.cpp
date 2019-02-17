@@ -96,7 +96,7 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
-Rooms world;
+Rooms& world = GlobalObjects::world();
 
 room_rnum top_of_world = 0;	// ref to top element of world
 
@@ -124,7 +124,7 @@ int global_uid = 0;
 
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-PlayersIndex player_table;	// index to plr file
+PlayersIndex& player_table = GlobalObjects::player_table();	// index to plr file
 
 bool player_exists(const long id) { return player_table.player_exists(id); }
 
@@ -1150,22 +1150,20 @@ void QuestBodrich::load_rewards()
 	}
 }
 
-std::vector<DailyQuest> d_quest;
-
 void load_dquest()
 {
 	pugi::xml_document doc_;
-	pugi::xml_node class_, file_, object_, level_;
+
 	log("Loading daily_quest.xml....");
-	file_ = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
-	std::vector<QuestBodrichRewards> tmp_array;
-	for (object_ = file_.child("quest"); object_; object_ = object_.next_sibling("quest"))
+
+	const auto file = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
+	for (auto object = file.child("quest"); object; object = object.next_sibling("quest"))
 	{
 		DailyQuest tmp;
-		tmp.id = object_.attribute("id").as_int();
-		tmp.reward = object_.attribute("reward").as_int();
-		tmp.desk = object_.attribute("desk").as_string();
-		d_quest.push_back(tmp);
+		tmp.id = object.attribute("id").as_int();
+		tmp.reward = object.attribute("reward").as_int();
+		tmp.desk = object.attribute("desk").as_string();
+		d_quest.emplace(tmp.id, tmp);
 	}
 }
 
@@ -3194,13 +3192,6 @@ void renum_zone_table(void)
 		renum_single_table(zone);
 	}
 }
-
-/*
- * interpret_espec is the function that takes espec keywords and values
- * and assigns the correct value to the mob as appropriate.  Adding new
- * e-specs is absurdly easy -- just add a new CASE statement to this
- * function!  No other changes need to be made anywhere in the code.
- */
 
 // Make own name by process aliases
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
@@ -6197,12 +6188,13 @@ void room_free(ROOM_DATA * room)
 	if (room->name)
 	{
 		free(room->name);
+		room->name = nullptr;
 	}
 
 	if (room->temp_description)
 	{
 		free(room->temp_description);
-		room->temp_description = 0;
+		room->temp_description = nullptr;
 	}
 
 	// Выходы и входы
@@ -6210,16 +6202,6 @@ void room_free(ROOM_DATA * room)
 	{
 		if (room->dir_option[i])
 		{
-			if (room->dir_option[i]->keyword)
-			{
-				free(room->dir_option[i]->keyword);
-			}
-
-			if (room->dir_option[i]->vkeyword)
-			{
-				free(room->dir_option[i]->vkeyword);
-			}
-
 			room->dir_option[i].reset();
 		}
 	}
@@ -6583,7 +6565,19 @@ void load_class_limit()
 	}
 }
 
+Rooms::~Rooms()
+{
+	log("~Rooms()");
+	for (auto i = this->begin(); i != this->end(); ++i)
+		delete *i;
+}
+
 const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);
+
+PlayersIndex::~PlayersIndex()
+{
+	log("~PlayersIndex()");
+}
 
 std::size_t PlayersIndex::append(const player_index_element& element)
 {

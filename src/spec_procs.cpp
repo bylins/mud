@@ -718,8 +718,8 @@ struct guild_poly_type
 int GUILDS_MONO_USED = 0;
 int GUILDS_POLY_USED = 0;
 
-struct guild_mono_type *guild_mono_info = NULL;
-struct guild_poly_type **guild_poly_info = NULL;
+struct guild_mono_type *guild_mono_info = nullptr;
+struct guild_poly_type **guild_poly_info = nullptr;
 
 void init_guilds(void)
 {
@@ -727,8 +727,9 @@ void init_guilds(void)
 	char name[MAX_INPUT_LENGTH],
 	line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
 	int i, spellnum, skillnum, featnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
-	struct guild_poly_type *poly_guild = NULL;
+	std::unique_ptr<struct guild_poly_type, decltype(free) *> poly_guild(nullptr, free);
 	struct guild_mono_type mono_guild;
+	std::unique_ptr<struct guild_learn_type, decltype(free) *> mono_guild_learn(nullptr, free);
 
 	if (!(magic = fopen(LIB_MISC "guilds.lst", "r")))
 	{
@@ -753,7 +754,8 @@ void init_guilds(void)
 				log("Bad format for monoguild header, #s #s #s #s #s need...");
 				graceful_exit(1);
 			}
-			mono_guild.learn_info = NULL;
+			mono_guild_learn.reset();
+			mono_guild.learn_info = nullptr;
 			mono_guild.races = 0;
 			mono_guild.classes = 0;
 			mono_guild.religion = 0;
@@ -776,7 +778,7 @@ void init_guilds(void)
 				 || !strn_cmp(line, "многоклассовая", strlen(line)))
 		{
 			type = 2;
-			poly_guild = NULL;
+			poly_guild.reset();
 			pgcount = 0;
 		}
 		else if (!strn_cmp(line, "master", strlen(line))
@@ -788,8 +790,8 @@ void init_guilds(void)
 				continue;
 			}
 
-			if (!((type == 1 || type == 11) && mono_guild.learn_info) &&
-					!((type == 2 || type == 12) && poly_guild))
+			if (!((type == 1 && mono_guild_learn) || type == 11) &&
+					!((type == 2 && poly_guild) || type == 12))
 			{
 				log("WARNING: Can't define guild info for master %s. Skipped.", line1);
 				continue;
@@ -806,7 +808,8 @@ void init_guilds(void)
 					{
 						RECREATE(guild_mono_info, GUILDS_MONO_USED + 1);
 					}
-					log("Create mono guild for mobile %s", line1);
+					log("Create mono guild %d", GUILDS_MONO_USED + 1);
+					mono_guild.learn_info = mono_guild_learn.release();
 					RECREATE(mono_guild.learn_info, mgcount + 1);
 					(mono_guild.learn_info + mgcount)->skill_no = SKILL_INVALID;
 					(mono_guild.learn_info + mgcount)->feat_no = -1;
@@ -814,13 +817,10 @@ void init_guilds(void)
 					(mono_guild.learn_info + mgcount)->level = -1;
 					guild_mono_info[GUILDS_MONO_USED] = mono_guild;
 					GUILDS_MONO_USED++;
+					type = 11;
 				}
-				else
-                {
-                    log("Assign mono guild for mobile %s", line1);
-                }
+				log("Assign mono guild %d to mobile %s", GUILDS_MONO_USED, line1);
 				ASSIGNMASTER(num, guild_mono, GUILDS_MONO_USED);
-				type = 11;
 			}
 			if (type == 2 || type == 12)
 			{
@@ -834,19 +834,19 @@ void init_guilds(void)
 					{
 						RECREATE(guild_poly_info, GUILDS_POLY_USED + 1);
 					}
-					log("Create poly guild for mobile %s", line1);
-					RECREATE(poly_guild, pgcount + 1);
-					(poly_guild + pgcount)->feat_no = -1;
-					(poly_guild + pgcount)->skill_no = SKILL_INVALID;
-					(poly_guild + pgcount)->spell_no = -1;
-					(poly_guild + pgcount)->level = -1;
-					guild_poly_info[GUILDS_POLY_USED] = poly_guild;
+					log("Create poly guild %d", GUILDS_POLY_USED + 1);
+					auto ptr = poly_guild.release();
+					RECREATE(ptr, pgcount + 1);
+					(ptr + pgcount)->feat_no = -1;
+					(ptr + pgcount)->skill_no = SKILL_INVALID;
+					(ptr + pgcount)->spell_no = -1;
+					(ptr + pgcount)->level = -1;
+					guild_poly_info[GUILDS_POLY_USED] = ptr;
 					GUILDS_POLY_USED++;
+					type = 12;
 				}
-				else
-					log("Assign poly guild for mobile %s", line1);
+				log("Assign poly guild %d to mobile %s", GUILDS_POLY_USED, line1);
 				ASSIGNMASTER(num, guild_poly, GUILDS_POLY_USED);
-				type = 12;
 			}
 		}
 		else if (type == 1)
@@ -882,18 +882,23 @@ void init_guilds(void)
 				log("Use 1-%d level for guilds", LVL_IMMORT);
 				graceful_exit(1);
 			}
-			if (!mono_guild.learn_info)
+
+			auto ptr = mono_guild_learn.release();
+			if (!ptr)
 			{
-				CREATE(mono_guild.learn_info, mgcount + 1);
+				CREATE(ptr, mgcount + 1);
 			}
 			else
 			{
-				RECREATE(mono_guild.learn_info, mgcount + 1);
+				RECREATE(ptr, mgcount + 1);
 			}
-			(mono_guild.learn_info + mgcount)->spell_no = MAX(0, spellnum);
-			(mono_guild.learn_info + mgcount)->skill_no = static_cast<ESkill>(MAX(0, skillnum));
-			(mono_guild.learn_info + mgcount)->feat_no = MAX(0, featnum);
-			(mono_guild.learn_info + mgcount)->level = level;
+			mono_guild_learn.reset(ptr);
+
+			ptr += mgcount;
+			ptr->spell_no = MAX(0, spellnum);
+			ptr->skill_no = static_cast<ESkill>(MAX(0, skillnum));
+			ptr->feat_no = MAX(0, featnum);
+			ptr->level = level;
 			// log("->%d %d %d<-",spellnum,skillnum,level);
 			mgcount++;
 		}
@@ -901,33 +906,37 @@ void init_guilds(void)
 		{
 			if (lines < 7)
 			{
-				log("You need use 7 arguments for poluguild");
+				log("You need use 7 arguments for polyguild");
 				graceful_exit(1);
 			}
-			if (!poly_guild)
+			auto ptr = poly_guild.release();
+			if (!ptr)
 			{
-				CREATE(poly_guild, pgcount + 1);
+				CREATE(ptr, pgcount + 1);
 			}
 			else
 			{
-				RECREATE(poly_guild, pgcount + 1);
+				RECREATE(ptr, pgcount + 1);
 			}
-			(poly_guild + pgcount)->races = 0;
-			(poly_guild + pgcount)->classes = 0;
-			(poly_guild + pgcount)->religion = 0;
-			(poly_guild + pgcount)->alignment = 0;
+			poly_guild.reset(ptr);
+
+			ptr += pgcount;
+			ptr->races = 0;
+			ptr->classes = 0;
+			ptr->religion = 0;
+			ptr->alignment = 0;
 			for (i = 0; *(line + i); i++)
 				if (strchr("!1xX", *(line + i)))
-					SET_BIT((poly_guild + pgcount)->races, (1 << i));
+					SET_BIT(ptr->races, (1 << i));
 			for (i = 0; *(line1 + i); i++)
 				if (strchr("!1xX", *(line1 + i)))
-					SET_BIT((poly_guild + pgcount)->classes, (1 << i));
+					SET_BIT(ptr->classes, (1 << i));
 			for (i = 0; *(line2 + i); i++)
 				if (strchr("!1xX", *(line2 + i)))
-					SET_BIT((poly_guild + pgcount)->religion, (1 << i));
+					SET_BIT(ptr->religion, (1 << i));
 			for (i = 0; *(line3 + i); i++)
 				if (strchr("!1xX", *(line3 + i)))
-					SET_BIT((poly_guild + pgcount)->alignment, (1 << i));
+					SET_BIT(ptr->alignment, (1 << i));
 			if ((spellnum = atoi(line4)) == 0 || spellnum > MAX_SPELLS)
 			{
 				spellnum = fix_name_and_find_spell_num(line4);
@@ -956,10 +965,10 @@ void init_guilds(void)
 				log("Use 1-%d level for guilds", LVL_IMMORT);
 				graceful_exit(1);
 			}
-			(poly_guild + pgcount)->spell_no = MAX(0, spellnum);
-			(poly_guild + pgcount)->skill_no = static_cast<ESkill>(MAX(0, skillnum));
-			(poly_guild + pgcount)->feat_no = MAX(0, featnum);
-			(poly_guild + pgcount)->level = level;
+			ptr->spell_no = MAX(0, spellnum);
+			ptr->skill_no = static_cast<ESkill>(MAX(0, skillnum));
+			ptr->feat_no = MAX(0, featnum);
+			ptr->level = level;
 			// log("->%d %d %d<-",spellnum,skillnum,level);
 			pgcount++;
 		}

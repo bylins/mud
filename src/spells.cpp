@@ -724,31 +724,31 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 			return;
 		}
 		// Жертву нельзя призвать если она в:
-                //разные варианты моб и игрок
-                if (!IS_NPC(ch))
+		// разные варианты моб и игрок
+		if (!IS_NPC(ch))
 		{
-                    // для чаров
-                    if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
+			// для чаров
+			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) ||	// жертва в комнате с флагом !призвать
 				ROOM_FLAGGED(vic_room, ROOM_TUNNEL)	||	// жертва стоит в ван-руме
 				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
 				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
 				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
 				AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
-                    {
+			{
 			send_to_char(SUMMON_FAIL, ch);
-			return;
-                    }
-                }
-                else
-                {
-                    //для мобов возможно только 2 ошибки 
-                   if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
+				return;
+			}
+		}
+		else
+		{
+			// для мобов возможно только 2 ошибки 
+			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
 			AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
-                    {
-			send_to_char(SUMMON_FAIL, ch);
-			return;
-                    }
-                }
+			{
+				send_to_char(SUMMON_FAIL, ch);
+				return;
+			}
+		}
 
 		// Фейл заклинания суммон
 		if (number(1, 100) < 30)
@@ -812,22 +812,21 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
 	if (!port && name_cmp(ch, cast_argument))
 	{
-        //Таки да, персонаж пытается поставить врата на себя, то бишь на свою метку. Ищем комнату с меткой.
-        label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+		//Таки да, персонаж пытается поставить врата на себя, то бишь на свою метку. Ищем комнату с меткой.
+		label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 
-        //Если такая комната есть - заполняем структуру портала
-        //Тупо конечно, но какого блин туча проверок по всем функциям рассована? Их все обойти - убиться проще.
-        if (label_room)
-        {
-            label_port.vnum = label_room->number;
-            label_port.level = 1;
-            port = &label_port;
-            has_label_portal = true;
-        }
+		//Если такая комната есть - заполняем структуру портала
+		//Тупо конечно, но какого блин туча проверок по всем функциям рассована? Их все обойти - убиться проще.
+		if (label_room)
+		{
+			label_port.vnum = label_room->number;
+			label_port.level = 1;
+			port = &label_port;
+			has_label_portal = true;
+		}
 	}
 	if (port && (has_char_portal(ch, port->vnum) || has_label_portal))
 	{
-
 		// Проверяем скилл тут, чтобы можно было смотреть список и удалять без -!-
 		if (timed_by_skill(ch, SKILL_TOWNPORTAL))
 		{
@@ -1996,19 +1995,19 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		}
 		break;
 
-//Информация о емкостях и контейнерах (Купала)
+	//Информация о контейнерах (Купала)
 	case OBJ_DATA::ITEM_CONTAINER:
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
 	
- 	case OBJ_DATA::ITEM_DRINKCON:
+	//Информация о емкостях (Купала)
+	case OBJ_DATA::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
-//Конец инфы о емкостях и контейнерах (Купала)
 
-           case OBJ_DATA::ITEM_MAGIC_ARROW:
-           case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+	case OBJ_DATA::ITEM_MAGIC_ARROW:
+	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
 		sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
 		sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
 			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
@@ -2989,9 +2988,25 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((eff_cha - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;
-	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
+	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	affect_to_char(mob, af);
+	//AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
+	af.bitvector = to_underlying(EAffectFlag::AFF_FLY);
+	affect_to_char(mob, af);
+	//AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
+	af.bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
+	affect_to_char(mob, af);
+	if (eff_cha >= 22)
+	{
+		af.bitvector = to_underlying(EAffectFlag::AFF_SANCTUARY);
+		affect_to_char(mob, af);
+	}
+	if (eff_cha >= 30)
+	{
+		af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+		affect_to_char(mob, af);
+	}
 
 	if (IS_FEMALE(ch))
 	{
@@ -3077,8 +3092,6 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
-	AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
-	AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
 	mob->set_level(ch->get_level());
 //----------------------------------------------------------------------
 // добавляем зависимости от уровня и от обаяния
@@ -3122,16 +3135,6 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 		mob->mob_specials.damsizedice += 1;
 	}
 
-	if (eff_cha >= 22)
-	{
-		AFF_FLAGS(mob).set(EAffectFlag::AFF_SANCTUARY);
-	}
-
-	if (eff_cha >= 30)
-	{
-		AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
-	}
-
 	char_to_room(mob, ch->in_room);
 
 	if (IS_FEMALE(mob))
@@ -3152,8 +3155,8 @@ void spell_vampire(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_
 
 void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
- // подготовка контейнера для создания заклинания ментальная тень
- // все предложения пишем мад почтой
+	// подготовка контейнера для создания заклинания ментальная тень
+	// все предложения пишем мад почтой
 
 	mob_vnum mob_num = MOB_MENTAL_SHADOW;
 
@@ -3411,7 +3414,7 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"Аура зла больше не помогает вам.",
 	"!SPELL_MENTAL_SHADOW!",                 // 208
 	"Жуткие черные руки побледнели и расплылись зловонной дымкой.", //209 SPELL_EVARDS_BLACK_TENTACLES
-	"!SPELL_WHIRLWIND!",
+	"!SPELL_WHIRLWIND!", //210
 	"Каменные зубы исчезли, возвратив способность двигаться.",
 	"!SPELL_MELFS_ACID_ARROW!",
 	"!SPELL_THUNDERSTONE!",
@@ -3421,14 +3424,21 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL GENERAL SINCERITY!",
 	"!SPELL MAGICAL GAZE!",
 	"!SPELL ALL SEEING EYE!",
-	"!SPELL EYE OF GODS!",
+	"!SPELL EYE OF GODS!", //220
 	"!SPELL BREATHING AT DEPTH!",
 	"!SPELL GENERAL RECOVERY!",
 	"!SPELL COMMON MEAL!",
 	"!SPELL STONE WALL!",
 	"!SPELL SNAKE EYES!",
 	"Матушка земля забыла про Вас.",
-	"Вы вновь ощущаете страх перед тьмой."
+	"Вы вновь ощущаете страх перед тьмой.",
+	"!NONE",
+	"!NONE",
+	"!NONE", //230
+	"!NONE",
+	"!NONE",
+	"*Боевое воодушевление угасло, а с ним и вся жажда подвигов!"
+// * в начале строки значит не выводить текст окончания заклинания см void show_spell_off
 };
 
 /**
@@ -3678,6 +3688,12 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Что яд, а что мед. Не обманемся!", "...и самый сильный яд станет вам виден." }, // SPELL_SNAKE_EYES
 	cast_phrase_t{ "Велес, даруй защиту.", "... земля благословенна твоя." }, // SPELL_EARTH_AURA
 	cast_phrase_t{ "други, супостат нощи", "други, свет который в тебе, да убоится тьма." }, // SPELL_GROUP_PROT_FROM_EVIL
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_FIRE (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_DEATH (set by program)
+	cast_phrase_t{ "Воодушевление", "!set by programm!" }, // воодушевление
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3917,7 +3933,11 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_SNAKE_EYES] = "SPELL_SNAKE_EYES";
 	ESpell_name_by_value[ESpell::SPELL_EARTH_AURA] = "SPELL_EARTH_AURA";
 	ESpell_name_by_value[ESpell::SPELL_GROUP_PROT_FROM_EVIL] = "SPELL_GROUP_PROT_FROM_EVIL";
-	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_FIRE] = "SPELL_ARROWS_FIRE";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_WATER] = "SPELL_ARROWS_WATER";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_EARTH] = "SPELL_ARROWS_EARTH";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_AIR] = "SPELL_ARROWS_AIR";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_DEATH] = "SPELL_ARROWS_DEATH";
 
 	for (const auto& i : ESpell_name_by_value)
 	{

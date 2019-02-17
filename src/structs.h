@@ -405,7 +405,7 @@ extern const religion_names_t religion_name;
 #define PLR_NOTITLE      (1 << 9)	// Player not allowed to set title  //
 #define PLR_DELETED      (1 << 10)	// Player deleted - space reusable  //
 #define PLR_LOADROOM     (1 << 11)	// Player uses nonstandard loadroom  (не используется) //
-// свободно
+#define PLR_AUTOBOT      (1 << 12)	// Player автоматический игрок //
 #define PLR_NODELETE     (1 << 13)	// Player shouldn't be deleted //
 #define PLR_INVSTART     (1 << 14)	// Player should enter game wizinvis //
 #define PLR_CRYO         (1 << 15)	// Player is cryo-saved (purge prog)   //
@@ -608,7 +608,8 @@ extern const religion_names_t religion_name;
 #define PRF_BLIND         (INT_TWO | 1 << 9)  // примочки для слепых
 #define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
 #define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
-#define PRF_IPCONTROL (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
+#define PRF_IPCONTROL     (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
+
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -1382,6 +1383,8 @@ struct EXTRA_DESCR_DATA
 	using shared_ptr = std::shared_ptr<EXTRA_DESCR_DATA>;
 	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
 	~EXTRA_DESCR_DATA();
+	void set_keyword(std::string const& keyword);
+	void set_description(std::string const& description);
 
 	char *keyword;		// Keyword in look/examine          //
 	char *description;	// What to see                      //
@@ -1458,7 +1461,7 @@ struct logon_data
 	char * ip;
 	long count;
 	time_t lasttime; //by kilnik
-	logon_data * next;
+	bool is_first;
 };
 
 class punish_data

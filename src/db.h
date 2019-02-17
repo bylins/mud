@@ -113,16 +113,6 @@ struct ExtraAffects
 	int chance; // вероятность того, что данный экстраффект будет на шмотке
 };
 
-struct DailyQuest
-{
-	// id
-	int id;
-	// desk
-	std::string desk;
-	// награда
-	int reward;
-};
-
 struct QuestBodrichRewards
 {
 	int level;
@@ -300,9 +290,10 @@ class Rooms: public std::vector<ROOM_DATA *>
 {
 public:
 	static constexpr int UNDEFINED_ROOM_VNUM = -1;
+	~Rooms();
 };
 
-extern Rooms world;
+extern Rooms& world;
 
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
@@ -343,6 +334,8 @@ public:
 
 	static const std::size_t NOT_FOUND;
 
+	~PlayersIndex();
+
 	std::size_t append(const player_index_element& element);
 	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
 	bool player_exists(const char* name) const { return NOT_FOUND != get_by_name(name); }
@@ -377,7 +370,7 @@ private:
 	free_names_t m_free_names;
 };
 
-extern PlayersIndex player_table;
+extern PlayersIndex& player_table;
 
 extern long top_idnum;
 

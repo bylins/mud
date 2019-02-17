@@ -2,6 +2,7 @@
 #define __ACT_WIZARD_HPP__
 
 #include "sysdep.h"
+#include "structs.h"
 
 #include <memory>
 #include <map>
@@ -15,7 +16,7 @@ struct inspect_request
 	char *req;			//собственно сам запрос
 	char *mail;			//мыло
 	int pos;			//позиция в таблице
-	struct logon_data * ip_log;	//айпи адреса по которым идет поиск
+	std::vector<logon_data> ip_log;	//айпи адреса по которым идет поиск
 	struct timeval start;		//время когда запустили запрос для отладки
 	std::string out;		//буфер в который накапливается вывод
 	bool sendmail; // отправлять ли на мыло список чаров

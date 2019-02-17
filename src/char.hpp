@@ -270,7 +270,7 @@ struct player_special_data
 	ignores_t ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
-	struct logon_data * logons; //Записи о входах чара
+	std::vector<logon_data> logons; //Записи о входах чара
 
 // Punishments structs
 	punish_data pmute;
@@ -415,8 +415,12 @@ public:
 	void set_name(const char *name);
 	const std::string& get_pc_name() const { return name_; }
 	void set_pc_name(const char *name);
+	void set_pc_name(const std::string& name) {name_ = name; }
+	void set_pc_name(std::string&& name) {name_ = name; }
 	const std::string& get_npc_name() const { return short_descr_; }
 	void set_npc_name(const char *name);
+	void set_npc_name(const std::string& name) {short_descr_ = name; }
+	void set_npc_name(std::string&& name) {short_descr_ = name; }
 	const std::string & get_name_str() const;
 	const char* get_pad(unsigned pad) const;
 	void set_pad(unsigned pad, const char* s);
@@ -717,7 +721,7 @@ private:
 	MorphPtr current_morph_;
 	// аналог класса у моба
 	role_t role_;
-	// для боссов: список атакующих (и им сочувствующих), uid->atacker
+	// для боссов: список атакующих (и им сочувствующих), uid->attacker
 	std::unordered_map<int, attacker_node> attackers_;
 	// для боссов: таймер (в секундах), включающийся по окончанию боя
 	// через который происходит сброс списка атакующих и рефреш моба

@@ -122,7 +122,6 @@ void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void sort_commands(void);
 void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -4940,6 +4939,8 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER) || PRF_FLAGGED(tch, PRF_TESTER)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
+			if (IS_GOD(ch) && (PLR_FLAGGED(tch, PLR_AUTOBOT)))
+				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));
 		}		// endif shortlist
@@ -5946,42 +5947,6 @@ void do_diagnose(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 const char *ctypes[] = { "выключен", "простой", "обычный", "полный", "\n" };
 
-void do_color(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	int tp;
-
-	if (IS_NPC(ch))
-		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg)
-	{
-		sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[COLOR_LEV(ch)], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
-		send_to_char(CAP(buf), ch);
-		return;
-	}
-	if ((tp = search_block(arg, ctypes, FALSE)) == -1)
-	{
-		send_to_char("Формат: [режим] цвет { выкл | простой | обычный | полный }\r\n", ch);
-		return;
-	}
-	PRF_FLAGS(ch).unset(PRF_COLOR_1);
-	PRF_FLAGS(ch).unset(PRF_COLOR_2);
-
-	if (0 != (1 & tp))	// 1 or 3 (simple/full)
-	{
-		PRF_FLAGS(ch).set(PRF_COLOR_1);
-	}
-	if (0 != (2 & tp))	// 2 or 3 (normal/full)
-	{
-		PRF_FLAGS(ch).set(PRF_COLOR_2);
-	}
-
-	sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[tp], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
-	send_to_char(CAP(buf), ch);
-}
-
 void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
@@ -6238,26 +6203,18 @@ std::array<EAffectFlag, 3> hiding = { EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_H
 
 void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	FLAG_DATA saved;
 	char sp_name[MAX_STRING_LENGTH];
 
-	// Showing the bitvector
-	saved = ch->char_specials.saved.affected_by;
-	for (EAffectFlag j : hiding)
+	// Show the bitset without "hiding" etc.
+	auto aff_copy = ch->char_specials.saved.affected_by;
+	for (auto j : hiding)
 	{
-		AFF_FLAGS(ch).unset(j);
+		aff_copy.unset(j);
 	}
-	ch->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
-	sprintf(buf, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+
+	aff_copy.sprintbits(affected_bits, buf2, ",");
+	snprintf(buf, MAX_STRING_LENGTH, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-	for (EAffectFlag j : hiding)
-	{
-		const uint32_t i = to_underlying(j);
-		if (saved.get(i))
-		{
-			AFF_FLAGS(ch).set(j);
-		}
-	}
 
 	// Routine to show what spells a char is affected by
 	if (!ch->affected.empty())

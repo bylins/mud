@@ -1526,7 +1526,7 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 		break;
 	}
 
-	if (wis_is == -1) 
+	if (wis_is == -1)
 		return 0; //Go here if no magic for char
 
 	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REMORT(ch)) : 0);
@@ -1537,7 +1537,7 @@ inline int spell_create_level(const CHAR_DATA* ch, int spellnum)
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 	// дабы у простых игроков не отображлись иммовские заклы
 	if (required_level >= LVL_GOD)
-	    return required_level;
+		return required_level;
 	if (can_use_feat(ch, RUNE_ULTIMATE_FEAT))
 		required_level -= 6;
 	else if (can_use_feat(ch, RUNE_MASTER_FEAT))
@@ -1671,8 +1671,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
 	// Say phrase ?
-    if (IS_NPC(ch))
-    {
+	if (IS_NPC(ch))
+	{
         switch (GET_RACE(ch))
         {
         case NPC_RACE_EVIL_SPIRIT:
@@ -1707,8 +1707,8 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
             // damagee_vict     = "$n злобно рыкнул$g на вас : '%s'.";
             // helpee_vict      = "$n тихо пробормотал$g вам : '%s'.";
 	}
-    }
-    else {
+	}
+	else {
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
@@ -1718,16 +1718,16 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		damagee_vict = "$n зыркнул$g на вас и произнес$q : '%s'.";
 		helpee_vict = "$n подмигнул$g вам и произнес$q : '%s'.";
 		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
-    }
+	}
 
 	if (!*buf)
 	{
-            // не понимаю
-            /*
-            size_t ofs = 0;
+		// не понимаю
+		/*
+		size_t ofs = 0;
 		while (lbuf[ofs])
 		{
-                        log("  1  No entry in syllable table for substring of '%s'", lbuf);
+			log("  1  No entry in syllable table for substring of '%s'", lbuf);
 			for (j = 0; *(syls[j].org); j++)
 			{
 				if (!strncmp(syls[j].org, lbuf + ofs, strlen(syls[j].org)))
@@ -1737,15 +1737,15 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 					break;
 				}
 			}
-                    //походу это условие должно быть здесь. в противном случае цикл вечный
-                    // i.e., we didn't find a match in syls[]
-                    if (!*syls[j].org)
-                    {
-                            log("No entry in syllable table for substring of '%s'", lbuf);
-                            ofs++;
-                    }
+			//походу это условие должно быть здесь. в противном случае цикл вечный
+			// i.e., we didn't find a match in syls[]
+			if (!*syls[j].org)
+			{
+				log("No entry in syllable table for substring of '%s'", lbuf);
+				ofs++;
+			}
 		}
-            */
+		*/
 	}
 
 	if (tch != NULL && IN_ROOM(tch) == ch->in_room)
@@ -2611,7 +2611,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			 */
 			if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS))
 			{
-                call_magic(ch, NULL, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
+				call_magic(ch, NULL, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
 			}
 			else
 			{
@@ -3952,13 +3952,10 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			SET_FEAT(ch, spellnum);
 			break;
 		}
-		
 	}
 	extract_obj(obj);
 }
 // -newbook.patch (Alisher)
-
-
 
 void show_wizdom(CHAR_DATA * ch, int bitset)
 {
@@ -4821,7 +4818,7 @@ void mag_assign_spells(void)
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 //74
 	spello(SPELL_ENLARGE, "увеличение", "enlarge",
-		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC,
+		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC,
 		   0, STYPE_LIFE);
 //75
 	spello(SPELL_FEAR, "страх", "fear",
@@ -5309,64 +5306,87 @@ void mag_assign_spells(void)
 		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_DARK);
 //210
 	spello(SPELL_WHIRLWIND, "вихрь", "whirlwind", 110, 100, 1,
-            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
 //211
 	spello(SPELL_INDRIKS_TEETH, "зубы индрика", "indriks teeth", 60, 45, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //212
 	spello(SPELL_MELFS_ACID_ARROW, "кислотная стрела", "acid arrow", 110, 100, 1,
-            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_WATER);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_WATER);
 //213
 	spello(SPELL_THUNDERSTONE, "громовой камень", "thunderstone", 110, 100, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //214
 	spello(SPELL_CLOD, "глыба", "clod", 110, 100, 1,
-            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //215
 	spello(SPELL_EXPEDIENT, "!боевой прием!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //216
 	spello(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
-//217        
+//217
 	spello(SPELL_GENERAL_SINCERITY, "общая искренность", "general sincerity", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
-//218        
+//218
 	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
-//219        
+//219
 	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "allseeing eye", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
-//220        
+//220
 	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
-//221        
+//221
 	spello(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
-//222        
+//222
 	spello(SPELL_GENERAL_RECOVERY, "общее восстановление", "general recovery", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
-//223        
+//223
 	spello(SPELL_COMMON_MEAL, "общая трапеза", "common meal", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
-//224        
+//224
 	spello(SPELL_STONE_WALL, "каменная стена", "stone wall", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_EARTH);
-//225        
+//225
 	spello(SPELL_SNAKE_EYES, "глаза змея", "snake eyes", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //226
 	spello(SPELL_EARTH_AURA, "земной поклон", "earth aura", 140, 120, 2,
-                   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
 //227
 	spello(SPELL_GROUP_PROT_FROM_EVIL, "групповая защита от тьмы", "group protect evil", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
-       
+
+//228
+	spello(SPELL_ARROWS_FIRE, "стрелы огня", "arrows of fire", 0, 0, 0,
+		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 2, STYPE_FIRE);
+//229
+	spello(SPELL_ARROWS_WATER, "стрелы воды", "arrows of water", 0, 0, 0,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_WATER);
+//230
+	spello(SPELL_ARROWS_EARTH, "стрелы земли", "arrows of earth", 0, 0, 0,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_AREAS | MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
+//231
+	spello(SPELL_ARROWS_AIR, "стрелы воздуха", "arrows of air", 0, 0, 0,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
+//232
+	spello(SPELL_ARROWS_DEATH, "стрелы смерти", "arrows of death", 0, 0, 0,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_DARK);
+//233
+	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
+		   0, 0, 0, 255, 0, FALSE, MAG_AFFECTS, 0, STYPE_NEUTRAL);
+
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
@@ -5391,6 +5411,7 @@ void mag_assign_spells(void)
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
 	spello(SPELL_SOLOBONUS, "награда", "bonus",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
+
 
 	/*
 	 * Declaration of skills - this actually doesn't do anything except
@@ -5448,7 +5469,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_LEADERSHIP, "лидерство", 100);
 	skillo(SKILL_PUNCTUAL, "точный стиль", 110);
 	skillo(SKILL_AWAKE, "осторожный стиль", 100);
-	skillo(SKILL_SENSE, "найти", 200);
+	skillo(SKILL_SENSE, "найти", 160);
 	skillo(SKILL_HORSE, "сражение верхом", 100);
 	skillo(SKILL_HIDETRACK, "замести следы", 120);
 	skillo(SKILL_RELIGION, "!молитва или жертва!", 100);

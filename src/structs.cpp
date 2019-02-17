@@ -636,7 +636,7 @@ void init_EExtraFlag_ITEM_NAMES()
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_DEPEND_RPOTO] = "ITEM_NOT_DEPEND_RPOTO";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_UNLIMIT_TIMER] = "ITEM_NOT_UNLIMIT_TIMER";
 	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE] = "ITEM_UNIQUE_WHEN_PURCHASE";
-	EExtraFlag_name_by_value[EExtraFlag::ITEM_UNIQUE_WHEN_PURCHASE] = "ITEM_NOT_ONE_CLANCHEST";
+	EExtraFlag_name_by_value[EExtraFlag::ITEM_NOT_ONE_CLANCHEST] = "ITEM_NOT_ONE_CLANCHEST";
 
 	for (const auto& i : EExtraFlag_name_by_value)
 	{
@@ -1221,6 +1221,20 @@ void DESCRIPTOR_DATA::string_to_client_encoding(const char* input, char* output)
 	{
 		*output = '\0';
 	}
+}
+
+void EXTRA_DESCR_DATA::set_keyword(std::string const& value)
+{
+	if (keyword != nullptr)
+		free(keyword);
+	keyword = str_dup(value.c_str());
+}
+
+void EXTRA_DESCR_DATA::set_description(std::string const& value)
+{
+	if (description != nullptr)
+		free(description);
+	description = str_dup(value.c_str());
 }
 
 EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()

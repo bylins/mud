@@ -81,11 +81,9 @@ protected:
 	bool discrete_load(const EBootType mode);
 	virtual void read_next_line(const int nr);
 
-	/**
-	* Reads and allocates space for a '~'-terminated string from a given file
-	* '~' character might be escaped: double '~' will be substituted to a single '~'.
-	*/
-	char* fread_string();
+	// Allocates and reads a '~'-terminated string from the file.
+	// '~' character might be escaped: double '~' is replaced with a single '~'.
+	std::string fread_string();
 
 	char fread_letter(FILE * fp);
 
@@ -169,7 +167,7 @@ void DiscreteFile::read_next_line(const int nr)
 	}
 }
 
-char* DiscreteFile::fread_string()
+std::string DiscreteFile::fread_string(void)
 {
 	char bufferIn[MAX_RAW_INPUT_LENGTH];
 	char bufferOut[MAX_STRING_LENGTH];
@@ -217,7 +215,7 @@ char* DiscreteFile::fread_string()
 	}
 	*to = '\0';
 
-	return strdup(bufferOut);
+	return std::string(bufferOut);
 }
 
 char DiscreteFile::fread_letter(FILE * fp)
@@ -325,12 +323,12 @@ void TriggersFile::read_entry(const int nr)
 
 void TriggersFile::parse_trigger(int nr)
 {
-	int t[2], k, indlev;
+	int t[2], k;
 
-	char line[256], *cmds, flags[256], *s;
+	char line[256], flags[256];
 
 	sprintf(buf2, "trig vnum %d", nr);
-	const auto trigger_name = fread_string();
+	std::string name(fread_string());
 	get_line(file(), line);
 
 	int attach_type = 0;
@@ -348,29 +346,31 @@ void TriggersFile::parse_trigger(int nr)
 	asciiflag_conv(flags, &trigger_type);
 
 	const auto rnum = top_of_trigt;
-	TRIG_DATA *trig = new TRIG_DATA(rnum, trigger_name, static_cast<byte>(attach_type), trigger_type);
+	TRIG_DATA *trig = new TRIG_DATA(rnum, std::move(name), static_cast<byte>(attach_type), trigger_type);
 
 	trig->narg = (k == 3) ? t[0] : 0;
 	trig->arglist = fread_string();
-	s = cmds = fread_string();
 
-	trig->cmdlist->reset(new cmdlist_element());
-	const auto& cmdlist = *trig->cmdlist;
-	const auto cmd_token = strtok(s, "\n\r");
-	cmdlist->cmd = cmd_token ? cmd_token : "";
-
-	indlev = 0;
-	indent_trigger(cmdlist->cmd, &indlev);
-
-	auto cle = cmdlist;
-
-	while ((s = strtok(NULL, "\n\r")))
+	std::string cmds(fread_string());
+	std::size_t pos = 0;
+	int indlev = 0;
+	auto ptr = trig->cmdlist.get();
+	do
 	{
-		cle->next.reset(new cmdlist_element());
-		cle = cle->next;
-		cle->cmd = s;
-		indent_trigger(cle->cmd, &indlev);
-	}
+		std::size_t pos_end = cmds.find_first_of("\r\n", pos);
+		std::string line = cmds.substr(pos, (pos_end == std::string::npos) ? pos_end : pos_end - pos);
+		// exclude empty lines, but always include the last one to make sure the list is not empty
+		if (!line.empty() || pos_end == std::string::npos)
+		{
+			ptr->reset(new cmdlist_element());
+			indent_trigger(line, &indlev);
+			(*ptr)->cmd = line;
+			ptr = &(*ptr)->next;
+		}
+		if (pos_end != std::string::npos)
+			pos_end = pos_end + 1;
+		pos = pos_end;
+	} while (pos != std::string::npos);
 
 	if (indlev > 0)
 	{
@@ -379,8 +379,6 @@ void TriggersFile::parse_trigger(int nr)
 		log("%s", tmp);
 		Boards::dg_script_text += tmp + std::string("\r\n");
 	}
-
-	free(cmds);
 
 	add_trig_index_entry(nr, trig);
 }
@@ -446,33 +444,19 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 	world[room_nr]->number = virtual_nr;
 	if (virt)
 	{
-		world[room_nr]->name = str_dup("Виртуальная комната");
-		world[room_nr]->description_num = RoomDescription::add_desc("Похоже, здесь вам делать нечего.");
+		world[room_nr]->set_name(std::string("Виртуальная комната"));
+		world[room_nr]->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
 		world[room_nr]->clear_flags();
 		world[room_nr]->sector_type = SECT_SECRET;
 	}
 	else
 	{
-		// не ставьте тут конструкцию ? : , т.к. gcc >=4.х вызывает в ней fread_string два раза
-		world[room_nr]->name = fread_string();
-		if (!world[room_nr]->name)
-			world[room_nr]->name = str_dup("");
+		world[room_nr]->set_name(fread_string());
 
-		// тож временная галиматья
-		char * temp_buf = fread_string();
-		if (!temp_buf)
-		{
-			temp_buf = str_dup("");
-		}
-		else
-		{
-			std::string buffer(temp_buf);
-			boost::trim_right_if(buffer, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
-			RECREATE(temp_buf, buffer.length() + 1);
-			strcpy(temp_buf, buffer.c_str());
-		}
-		world[room_nr]->description_num = RoomDescription::add_desc(temp_buf);
-		free(temp_buf);
+		std::string desc = fread_string();
+		boost::trim_right_if(desc, boost::is_any_of(std::string(" _"))); //убираем пробелы в конце строки
+		desc.shrink_to_fit();
+		world[room_nr]->description_num = RoomDescription::add_desc(desc);
 
 		if (!get_line(file(), line))
 		{
@@ -541,8 +525,8 @@ void WorldFile::parse_room(int virtual_nr, const int virt)
 		case 'E':
 			{
 				const EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA);
-				new_descr->keyword = fread_string();
-				new_descr->description = fread_string();
+				new_descr->set_keyword(fread_string());
+				new_descr->set_description(fread_string());
 				if (new_descr->keyword && new_descr->description)
 				{
 					new_descr->next = world[room_nr]->ex_description;
@@ -601,27 +585,10 @@ void WorldFile::setup_dir(int room, unsigned dir)
 	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
 	world[room]->dir_option[dir].reset(new EXIT_DATA());
-	const std::shared_ptr<char> general_description(fread_string(), free);
-	world[room]->dir_option[dir]->general_description = general_description.get();
+	world[room]->dir_option[dir]->general_description = fread_string();
 
-	// парс строки алиаса двери на имя;вининельный падеж, если он есть
-	char *alias = fread_string();
-	if (alias && *alias)
-	{
-		std::string buffer(alias);
-		std::string::size_type i = buffer.find('|');
-		if (i != std::string::npos)
-		{
-			world[room]->dir_option[dir]->keyword = str_dup(buffer.substr(0, i).c_str());
-			world[room]->dir_option[dir]->vkeyword = str_dup(buffer.substr(++i).c_str());
-		}
-		else
-		{
-			world[room]->dir_option[dir]->keyword = str_dup(buffer.c_str());
-			world[room]->dir_option[dir]->vkeyword = str_dup(buffer.c_str());
-		}
-	}
-	free(alias);
+	// парс строки алиаса двери на имя; вининельный падеж, если он есть
+	world[room]->dir_option[dir]->set_keywords(fread_string());
 
 	if (!get_line(file(), line))
 	{
@@ -708,7 +675,6 @@ void ObjectFile::read_entry(const int nr)
 void ObjectFile::parse_object(const int nr)
 {
 	int t[10], j = 0;
-	char *tmpptr;
 	char f0[256], f1[256], f2[256];
 
 	OBJ_DATA *tobj = new OBJ_DATA(nr);
@@ -724,36 +690,25 @@ void ObjectFile::parse_object(const int nr)
 	sprintf(m_buffer, "object #%d", nr);
 
 	// *** string data ***
-	const char* aliases = fread_string();
-	if (aliases == nullptr)
+	std::string aliases(fread_string());
+	if (aliases.empty())
 	{
-		log("SYSERR: Null obj name or format error at or near %s", m_buffer);
+		log("SYSERR: Empty obj name or format error at or near %s", m_buffer);
 		exit(1);
 	}
-
 	tobj->set_aliases(aliases);
-	tmpptr = fread_string();
-//	*tmpptr = LOWER(*tmpptr);
-	tobj->set_short_description(colorLOW(tmpptr));
+	tobj->set_short_description(colorLOW(fread_string()));
 
 	strcpy(buf, tobj->get_short_description().c_str());
 	tobj->set_PName(0, colorLOW(buf)); //именительный падеж равен короткому описанию
 
 	for (j = 1; j < CObjectPrototype::NUM_PADS; j++)
 	{
-		char *str = fread_string();
-		tobj->set_PName(j, colorLOW(str));
+		tobj->set_PName(j, colorLOW(fread_string()));
 	}
 
-	tmpptr = fread_string();
-	if (tmpptr && *tmpptr)
-	{
-		colorCAP(tmpptr);
-	}
-	tobj->set_description(tmpptr ? tmpptr : "");
-
-	auto action_description = fread_string();
-	tobj->set_action_description(action_description ? action_description : "");
+	tobj->set_description(colorCAP(fread_string()));
+	tobj->set_action_description(fread_string());
 
 	if (!get_line(file(), m_line))
 	{
@@ -910,8 +865,8 @@ void ObjectFile::parse_object(const int nr)
 		case 'E':
 			{
 				const EXTRA_DESCR_DATA::shared_ptr new_descr(new EXTRA_DESCR_DATA());
-				new_descr->keyword = fread_string();
-				new_descr->description = fread_string();
+				new_descr->set_keyword(fread_string());
+				new_descr->set_description(fread_string());
 				if (new_descr->keyword && new_descr->description)
 				{
 					new_descr->next = tobj->get_ex_description();
@@ -1183,7 +1138,6 @@ void MobileFile::parse_mobile(const int nr)
 	int j, t[10];
 	char line[256], letter;
 	char f1[128], f2[128];
-	char *str;
 	mob_index[i].vnum = nr;
 	mob_index[i].number = 0;
 	mob_index[i].func = NULL;
@@ -1194,18 +1148,8 @@ void MobileFile::parse_mobile(const int nr)
 	mob_proto[i].player_specials = player_special_data::s_for_mobiles;
 
 	// **** String data
-	char *tmp_str = fread_string();
-	mob_proto[i].set_pc_name(tmp_str);
-	if (tmp_str)
-	{
-		free(tmp_str);
-	}
-	tmp_str = fread_string();
-	mob_proto[i].set_npc_name(tmp_str);
-	if (tmp_str)
-	{
-		free(tmp_str);
-	}
+	mob_proto[i].set_pc_name(fread_string());
+	mob_proto[i].set_npc_name(fread_string());
 
 	// real name
 	mob_proto[i].player_data.PNames[0] = mob_proto[i].get_npc_name();
@@ -1213,8 +1157,7 @@ void MobileFile::parse_mobile(const int nr)
 	{
 		mob_proto[i].player_data.PNames[j] = fread_string();
 	}
-	str = fread_string();
-	mob_proto[i].player_data.long_descr = colorCAP(str);
+	mob_proto[i].player_data.long_descr = colorCAP(fread_string());
 	mob_proto[i].player_data.description = fread_string();
 	mob_proto[i].mob_specials.Questor = NULL;
 	mob_proto[i].player_data.title = "";
@@ -1445,6 +1388,12 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
 	return array_string;
 }
 
+/*
+ * interpret_espec is the function that takes espec keywords and values
+ * and assigns the correct value to the mob as appropriate.  Adding new
+ * e-specs is absurdly easy -- just add a new CASE statement to this
+ * function!  No other changes need to be made anywhere in the code.
+ */
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
 {
 	struct helper_data_type *helper;

@@ -33,6 +33,32 @@ ZoneData::ZoneData() : name(nullptr),
 {
 }
 
+ZoneData::~ZoneData()
+{
+	log("~ZoneData zone %d", number);
+	if (name)
+		free(name);
+	if (comment)
+		free(comment);
+	if (author)
+		free(author);
+	if (location)
+		free(location);
+	if (description)
+		free(description);
+	
+	if (cmd)
+		free(cmd);
+
+	if (typeA_list)
+		free(typeA_list);
+
+	if (typeB_list)
+		free(typeB_list);
+	if (typeB_flag)
+		free(typeB_flag);
+}
+
 zone_table_t& zone_table = GlobalObjects::zone_table();	// zone table
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

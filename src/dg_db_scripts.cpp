@@ -149,6 +149,7 @@ void indent_trigger(std::string& cmd, int* level)
 	char* cmd_copy = str_dup(cmd.c_str());;
 	cmd_copy = dirty_indent_trigger(cmd_copy, level);
 	cmd = cmd_copy;
+	free(cmd_copy);
 }
 
 /*
