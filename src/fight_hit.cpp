@@ -4099,7 +4099,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
 		&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
-		&& number(1, 100) <= 20)
+		&& number(1, 100) <= 5)
 	{
 		sprintf(buf,
 			"%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
