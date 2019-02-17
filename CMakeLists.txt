@@ -319,7 +319,6 @@ set(HEADERS
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
-
 if (NOT MSVC)
 	# Default build type will be Release.
 	if (NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -548,7 +547,7 @@ if (CMAKE_HOST_WIN32)
 	if (BOOST_REQUIRED_COMPILER)
 		set(Boost_COMPILER "${BOOST_REQUIRED_COMPILER}")
 	else ()
-		set(Boost_COMPILER "-vc140")
+		set(Boost_COMPILER "-vc141")
 	endif ()
 
 	target_compile_options(circle.library PUBLIC /MP /MDd)
