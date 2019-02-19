@@ -4203,7 +4203,7 @@ int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DAT
 
 	eval_expr(p, list_str, go, sc, trig, type);
 	p = list_str;
-
+	skip_spaces(&p);
 	if (!p || !*p)
 	{
 		return 0;
