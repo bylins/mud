@@ -2224,6 +2224,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	else
 	{
 		++logon->count;
+		logon->lasttime = time(0);
 	}
 
 	int pos = get_ptable_by_unique(GET_UNIQUE(d->character));
