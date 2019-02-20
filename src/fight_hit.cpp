@@ -4103,9 +4103,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 		{
 			if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) && (number(1, 100) <= 5))
+			{
 				blink = true;
-			if ((AFF_FLAGGED(victim, EAffectFlag::AFF_SPELL_BLINK)) && number(1, 100) <=  GET_REMORT(ch))
+			}
+			if (AFF_FLAGGED(victim, EAffectFlag::AFF_SPELL_BLINK) && number(1, 100) <=  (5 + GET_REMORT(ch) * 2 / 3))
+			{
 				blink = true;
+			}
 			if (blink)
 			{
 				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
