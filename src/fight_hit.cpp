@@ -4095,19 +4095,31 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 	// даже в случае попадания можно уклониться мигалкой
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK)
-		&& !GET_AF_BATTLE(ch, EAF_MIGHTHIT)
-		&& !GET_AF_BATTLE(ch, EAF_STUPOR)
-		&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))
-		&& number(1, 100) <= 5)
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) || AFF_FLAGGED(victim, EAffectFlag::AFF_SPELL_BLINK))
 	{
-		sprintf(buf,
-			"%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
-			CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
-		send_to_char(buf, victim);
-		hit_params.dam = 0;
-		hit_params.extdamage(ch, victim);
-		return;
+		bool blink = false;
+		if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)
+				&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT))))
+
+		{
+			if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) && (number(1, 100) <= 5))
+			{
+				blink = true;
+			}
+			if (AFF_FLAGGED(victim, EAffectFlag::AFF_SPELL_BLINK) && number(1, 100) <=  (5 + GET_REMORT(ch) * 2 / 3))
+			{
+				blink = true;
+			}
+			if (blink)
+			{
+				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
+					CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
+				send_to_char(buf, victim);
+				hit_params.dam = 0;
+				hit_params.extdamage(ch, victim);
+				return;
+			}
+		}
 	}
 
 	// обработка по факту попадания
