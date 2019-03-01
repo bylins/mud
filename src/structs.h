@@ -699,7 +699,8 @@ enum class EAffectFlag: uint32_t
 	AFF_VAMPIRE = INT_TWO | (1u << 20),
 	AFF_EXPEDIENT = INT_TWO | (1u << 21),
 	AFF_COMMANDER = INT_TWO | (1u << 22),
-	AFF_EARTHAURA = INT_TWO | (1u << 23)
+	AFF_EARTHAURA = INT_TWO | (1u << 23),
+	AFF_SPELL_BLINK = INT_TWO | (1u << 24)
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);

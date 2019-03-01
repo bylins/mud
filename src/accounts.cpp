@@ -191,7 +191,6 @@ void Account::add_login(const std::string& ip_addr)
 	tmp.count = 1;
 	this->history_logins.insert(std::pair<std::string, login_index>(ip_addr, tmp));
 }
-
 /* Показ хистори логинов */
 void Account::show_history_logins(DESCRIPTOR_DATA* d)
 {
