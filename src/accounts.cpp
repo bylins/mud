@@ -7,7 +7,6 @@
 #include "comm.h"
 #include "password.hpp"
 #include "utils.h"
-
 #include <boost/algorithm/string.hpp>
 
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
