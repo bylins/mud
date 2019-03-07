@@ -801,11 +801,11 @@ cpp_extern const struct command_info cmd_info[] =
 	{"ярость", POS_RESTING, do_courage, 0, 0, -1},
 
 	// God commands for listing
-	{"мсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST, 0},
-	{"осписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST, 0},
-	{"ксписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
-	{"зсписок", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
-	{"исписок", POS_DEAD, do_imlist, LVL_IMPL, 0, 0},
+	{"мсписок", POS_DEAD, do_liblist, 0, SCMD_MLIST, 0},
+	{"осписок", POS_DEAD, do_liblist, 0, SCMD_OLIST, 0},
+	{"ксписок", POS_DEAD, do_liblist, 0, SCMD_RLIST, 0},
+	{"зсписок", POS_DEAD, do_liblist, 0, SCMD_ZLIST, 0},
+	{"исписок", POS_DEAD, do_imlist, LVL_GOD, 0, 0},
 
 	{"'", POS_RESTING, do_say, 0, 0, -1},
 	{":", POS_RESTING, do_echo, 1, SCMD_EMOTE, -1},
@@ -1064,10 +1064,10 @@ cpp_extern const struct command_info cmd_info[] =
 	{"смастерить", POS_STANDING, do_make_item, 0, MAKE_CRAFT, 0},
 
 	// God commands for listing
-	{"mlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_MLIST, 0},
-	{"olist", POS_DEAD, do_liblist, LVL_GOD, SCMD_OLIST, 0},
-	{"rlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_RLIST, 0},
-	{"zlist", POS_DEAD, do_liblist, LVL_GOD, SCMD_ZLIST, 0},
+	{"mlist", POS_DEAD, do_liblist, 0, SCMD_MLIST, 0},
+	{"olist", POS_DEAD, do_liblist, 0, SCMD_OLIST, 0},
+	{"rlist", POS_DEAD, do_liblist, 0, SCMD_RLIST, 0},
+	{"zlist", POS_DEAD, do_liblist, 0, SCMD_ZLIST, 0},
 	{"clist", POS_DEAD, do_liblist, LVL_GOD, SCMD_CLIST, 0},
 
 	{ "attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0 },
