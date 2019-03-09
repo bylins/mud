@@ -6785,16 +6785,16 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 	return result;
 }
 
-void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
+void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 
 	int first, last, nr, found = 0;
 
 	argument = two_arguments(argument, buf, buf2);
 	first = atoi(buf);
-	if (!(Privilege::can_do_priv(ch, std::string(argument), 0, 1, false) && (GET_OLC_ZONE(ch) != first)))
+	if (!(Privilege::can_do_priv(ch,std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first))
 	{
-		send_to_char("Чаво?тест?\r\n", ch);
+		send_to_char("Чаво?\r\n", ch);
 		return;
 	}
 	if (!*buf || (!*buf2 && (subcmd == SCMD_ZLIST)))
