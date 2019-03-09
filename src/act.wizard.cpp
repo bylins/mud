@@ -6785,13 +6785,18 @@ int print_olist(const CHAR_DATA* ch, const int first, const int last, std::strin
 	return result;
 }
 
-void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
+void do_liblist(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 
 	int first, last, nr, found = 0;
 
 	argument = two_arguments(argument, buf, buf2);
-
+	first = atoi(buf);
+	if (!(Privilege::can_do_priv(ch,std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
 	if (!*buf || (!*buf2 && (subcmd == SCMD_ZLIST)))
 	{
 		switch (subcmd)
@@ -6818,7 +6823,7 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		return;
 	}
-	first = atoi(buf);
+
 	if (*buf2 && a_isdigit(buf2[0]))
 	{
 		last = atoi(buf2);
@@ -6841,9 +6846,9 @@ void do_liblist(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		std::swap(first, last);
 	}
 
-	if (first + 200 < last)
+	if (first + 100 < last)
 	{
-		send_to_char("Максимальный показываемый промежуток - 200.\n\r", ch);
+		send_to_char("Максимальный показываемый промежуток - 100.\n\r", ch);
 		return;
 	}
 
