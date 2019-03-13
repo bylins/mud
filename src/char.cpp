@@ -57,7 +57,7 @@ void check_purged(const CHAR_DATA *ch, const char *fnc)
 int normalize_skill(int percent)
 {
 	const static int KMinSkillPercent = 0;
-	const static int KMaxSkillPercent = 200;
+	const static int KMaxSkillPercent = CAP_SKILLS;
 
 	if (percent < KMinSkillPercent)
 		percent = KMinSkillPercent;

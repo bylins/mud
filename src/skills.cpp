@@ -1527,7 +1527,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DATA * victim)
 {
 	const int trained_skill = ch->get_trained_skill(skill_no);
-	if (trained_skill == 0 || trained_skill == 200)
+	if (trained_skill == 0 || trained_skill == CAP_SKILLS)
 	{
 		// скила может и не быть, если получен только со шмоток
 		return;

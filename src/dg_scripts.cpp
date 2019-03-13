@@ -88,7 +88,7 @@ TRIG_DATA *read_trigger(int nr);
 OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
 int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type);
-const char * skill_percent(CHAR_DATA * ch, char *skill);
+const char * skill_percent(TRIG_DATA* trig, CHAR_DATA * ch, char *skill);
 bool feat_owner(TRIG_DATA* trig, CHAR_DATA * ch, char *feat);
 const char * spell_count(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
 const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
@@ -2862,20 +2862,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "maxskill"))
 		{
-			const ESkill skillnum = fix_name_and_find_skill_num(subfield);
-			if (skillnum > 0)
-			{
-				sprintf(str, "%d", MIN(MAX_EXP_PERCENT + GET_REMORT(c) * 5, 200));
-			}
-			else
-			{
-				sprintf(buf2, "Wrong skill name: %s", subfield);
-				trig_log(trig, buf2);
-			}
+			sprintf(str, "%d", MIN(MAX_EXP_PERCENT + GET_REMORT(c) * 5, CAP_SKILLS));
 		}
 		else if (!str_cmp(field, "skill"))
 		{
-			strcpy(str, skill_percent(c, subfield));
+			strcpy(str, skill_percent(trig, c, subfield));
 		}
 		else if (!str_cmp(field, "feat"))
 		{
