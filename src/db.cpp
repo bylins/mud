@@ -3938,10 +3938,14 @@ void after_reset_zone(int nr_zone)
 // update zone ages, queue for reset if necessary, and dequeue when possible
 void zone_update(void)
 {
+
+	log("[ZONEUPDATETIMER] Start");	
+	utils::CExecutionTimer timer_zone_update;
+	const auto execution_time = timer_zone_update.delta();
 	int k = 0;
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
-
+		
 	// jelson 10/22/92
 	if (((++timer * PULSE_ZONE) / PASSES_PER_SEC) >= 60)  	// one minute has passed
 	{
@@ -3951,7 +3955,7 @@ void zone_update(void)
 		 */
 
 		timer = 0;
-
+		log("[ZONEUPDATETIMER] Start For, Count: %f", execution_time.count());
 		// since one minute has passed, increment zone ages
 		for (std::size_t i = 0; i < zone_table.size(); i++)
 		{
@@ -3963,6 +3967,7 @@ void zone_update(void)
 					zone_table[i].age < ZO_DEAD && zone_table[i].reset_mode &&
 					(zone_table[i].reset_idle || zone_table[i].used))  	// enqueue zone
 			{
+				log("[ZONEUPDATETIMER] To table, name: %s, rnum: %d, Count: %f", zone_table[i].name, i, execution_time.count());
 
 				CREATE(update_u, 1);
 				update_u->zone_to_reset = static_cast<zone_rnum>(i);
@@ -3980,7 +3985,7 @@ void zone_update(void)
 			}
 		}
 	}
-
+	log("[ZONEUPDATETIMER] Start update, Count: %f", execution_time.count());
 	// end - one minute has passed
 	// dequeue zones (if possible) and reset
 	// this code is executed every 10 seconds (i.e. PULSE_ZONE)
@@ -3989,7 +3994,9 @@ void zone_update(void)
 				|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
 				|| can_be_reset(update_u->zone_to_reset))
 		{
+			log("[ZONEUPDATETIMER] Start Reset_zone, name: %s, Count: %f", update_u->zone_to_reset, execution_time.count());
 			reset_zone(update_u->zone_to_reset);
+			log("[ZONEUPDATETIMER] End Reset_zone, name: %s, Count: %f", update_u->zone_to_reset, execution_time.count());
 			char tmp[128];
 			snprintf(tmp, sizeof(tmp), "Auto zone reset: %s (%d)",
 				zone_table[update_u->zone_to_reset].name,
@@ -4005,7 +4012,9 @@ void zone_update(void)
 						if (zone_table[j].number ==
 							zone_table[update_u->zone_to_reset].typeA_list[i])
 						{
+							log("[ZONEUPDATETIMER] [Complex] Start Reset_zone, name: %s, Count: %f", update_u->zone_to_reset, execution_time.count());
 							reset_zone(j);
+							log("[ZONEUPDATETIMER] [Complex] End Reset_zone, name: %s, Count: %f", update_u->zone_to_reset, execution_time.count());
 							snprintf(tmp, sizeof(tmp),
 								" ]\r\n[ Also resetting: %s (%d)",
 								zone_table[j].name, zone_table[j].number);
@@ -4034,6 +4043,7 @@ void zone_update(void)
 			if (k >= ZONES_RESET)
 				break;
 		}
+	log("[ZONEUPDATETIMER] End zone_update, Count: %f", execution_time.count());
 }
 
 bool can_be_reset(zone_rnum zone)
@@ -4682,10 +4692,11 @@ void ZoneReset::reset_zone_essential()
 	const auto zone = m_zone_rnum;	// for ZCMD macro
 
 	int last_state, curr_state;	// статус завершения последней и текущей команды
-
+	utils::CExecutionTimer timer_zone_update;
+	const auto execution_time = timer_zone_update.delta();
 	log("[Reset] Start zone %s", zone_table[m_zone_rnum].name);
 	repop_decay(m_zone_rnum);	// рассыпание обьектов ITEM_REPOP_DECAY
-
+	log("[RESETZONETIMER] Start Reset Zone, name: %s, Count: %f", zone_table[m_zone_rnum].name, execution_time.count());
 						//----------------------------------------------------------------------------
 	last_state = 1;		// для первой команды считаем, что все ок
 
@@ -4706,7 +4717,7 @@ void ZoneReset::reset_zone_essential()
 			case 'M':
 				// read a mobile
 				// 'M' <flag> <mob_vnum> <max_in_world> <room_vnum> <max_in_room|-1>
-
+				log("[RESETZONETIMER] Start Reset Zone, Command M, Count: %f", execution_time.count());
 				if (ZCMD.arg3 < FIRST_ROOM)
 				{
 					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить моба в 0 комнату. (VNUM = %d, ZONE = %d)",
@@ -4731,6 +4742,7 @@ void ZoneReset::reset_zone_essential()
 			case 'F':
 				// Follow mobiles
 				// 'F' <flag> <room_vnum> <leader_vnum> <mob_vnum>
+				log("[RESETZONETIMER] Start Reset Zone, Command F, Count: %f", execution_time.count());
 				leader = NULL;
 				if (ZCMD.arg1 >= FIRST_ROOM && ZCMD.arg1 <= top_of_world)
 				{
@@ -4766,6 +4778,7 @@ void ZoneReset::reset_zone_essential()
 				break;
 
 			case 'Q':
+				log("[RESETZONETIMER] Start Reset Zone, Command Q, Count: %f", execution_time.count());
 				if (handle_zone_Q_command(ZCMD.arg1))
 				{
 					curr_state = 1;
@@ -4779,7 +4792,7 @@ void ZoneReset::reset_zone_essential()
 				// read an object
 				// 'O' <flag> <obj_vnum> <max_in_world> <room_vnum|-1> <load%|-1>
 				// Проверка  - сколько всего таких же обьектов надо на эту клетку
-
+				log("[RESETZONETIMER] Start Reset Zone, Command O, Count: %f", execution_time.count());
 				if (ZCMD.arg3 < FIRST_ROOM)
 				{
 					sprintf(buf, "&YВНИМАНИЕ&G Попытка загрузить объект в 0 комнату. (VNUM = %d, ZONE = %d)",
@@ -4835,6 +4848,7 @@ void ZoneReset::reset_zone_essential()
 			case 'P':
 				// object to object
 				// 'P' <flag> <obj_vnum> <max_in_world> <target_vnum> <load%|-1>
+				log("[RESETZONETIMER] Start Reset Zone, Command P, Count: %f", execution_time.count());
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 					|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
@@ -4883,6 +4897,7 @@ void ZoneReset::reset_zone_essential()
 					// ZCMD.command = '*';
 					break;
 				}
+				log("[RESETZONETIMER] Start Reset Zone, Command G, Count: %f", execution_time.count());
 				if ((obj_proto.actual_count(ZCMD.arg1) < GET_OBJ_MIW(obj_proto[ZCMD.arg1])
 					|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
@@ -4909,6 +4924,7 @@ void ZoneReset::reset_zone_essential()
 					// ZCMD.command = '*';
 					break;
 				}
+				log("[RESETZONETIMER] Start Reset Zone, Command E, Count: %f", execution_time.count());
 				if ((obj_proto.actual_count(ZCMD.arg1) < obj_proto[ZCMD.arg1]->get_max_in_world()
 					|| GET_OBJ_MIW(obj_proto[ZCMD.arg1]) == OBJ_DATA::UNLIMITED_GLOBAL_MAXIMUM
 					|| check_unlimited_timer(obj_proto[ZCMD.arg1].get()))
@@ -4954,7 +4970,7 @@ void ZoneReset::reset_zone_essential()
 			case 'R':
 				// rem obj from room
 				// 'R' <flag> <room_vnum> <obj_vnum>
-
+				log("[RESETZONETIMER] Start Reset Zone, Command R, Count: %f", execution_time.count());
 				if (ZCMD.arg1 < FIRST_ROOM)
 				{
 					sprintf(buf, "&YВНИМАНИЕ&G Попытка удалить объект из 0 комнаты. (VNUM = %d, ZONE = %d)",
@@ -4976,7 +4992,7 @@ void ZoneReset::reset_zone_essential()
 			case 'D':
 				// set state of door
 				// 'D' <flag> <room_vnum> <door_pos> <door_state>
-
+				log("[RESETZONETIMER] Start Reset Zone, Command D, Count: %f", execution_time.count());
 				if (ZCMD.arg1 < FIRST_ROOM)
 				{
 					sprintf(buf, "&YВНИМАНИЕ&G Попытка установить двери в 0 комнате. (ZONE = %d)",
@@ -5028,6 +5044,7 @@ void ZoneReset::reset_zone_essential()
 			case 'T':
 				// trigger command; details to be filled in later
 				// 'T' <flag> <trigger_type> <trigger_vnum> <room_vnum, для WLD_TRIGGER>
+				log("[RESETZONETIMER] Start Reset Zone, Command T, Count: %f", execution_time.count());
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
 					auto trig = read_trigger(real_trigger(ZCMD.arg2));
@@ -5062,6 +5079,7 @@ void ZoneReset::reset_zone_essential()
 
 			case 'V':
 				// 'V' <flag> <trigger_type> <room_vnum> <context> <var_name> <var_value>
+				log("[RESETZONETIMER] Start Reset Zone, Command V, Count: %f", execution_time.count());
 				if (ZCMD.arg1 == MOB_TRIGGER && tmob)
 				{
 					if (!SCRIPT(tmob)->has_triggers())
@@ -5134,6 +5152,7 @@ void ZoneReset::reset_zone_essential()
 	int rnum_stop = 0;
 	if (get_zone_rooms(m_zone_rnum, &rnum_start, &rnum_stop))
 	{
+		log("[RESETZONETIMER] Start rooms reset, Count: %f", execution_time.count());
 		// все внутренние резеты комнат зоны теперь идут за один цикл
 		// резет порталов теперь тут же и переписан, чтобы не гонять по всем румам, ибо жрал половину времени резета -- Krodo
 		for (int rnum = rnum_start; rnum <= rnum_stop; rnum++)
@@ -5154,6 +5173,7 @@ void ZoneReset::reset_zone_essential()
 			}
 			paste_on_reset(room);
 		}
+		log("[RESETZONETIMER] End rooms reset, Count: %f", execution_time.count());
 	}
 
 	for (rnum_start = 0; rnum_start < static_cast<int>(zone_table.size()); rnum_start++)
@@ -5174,7 +5194,11 @@ void ZoneReset::reset_zone_essential()
 	for (rnum_start = zone_table[m_zone_rnum].typeB_count; rnum_start > 0; rnum_start--)
 		zone_table[m_zone_rnum].typeB_flag[rnum_start - 1] = FALSE;
 	log("[Reset] Stop zone %s", zone_table[m_zone_rnum].name);
+
+	log("[RESETZONETIMER] Start after reset, Count: %f", execution_time.count());
 	after_reset_zone(m_zone_rnum);
+	log("[RESETZONETIMER] End after reset, Count: %f", execution_time.count());
+	log("[RESETZONETIMER] Start Reset Zone, name: %s, Count: %f", zone_table[m_zone_rnum].name, execution_time.count());
 }
 
 void reset_zone(zone_rnum zone)
