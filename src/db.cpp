@@ -3967,7 +3967,7 @@ void zone_update(void)
 					zone_table[i].age < ZO_DEAD && zone_table[i].reset_mode &&
 					(zone_table[i].reset_idle || zone_table[i].used))  	// enqueue zone
 			{
-				log("[ZONEUPDATETIMER] To table, name: %s, rnum: %d, Count: %f", zone_table[i].name, i, execution_time.count());
+				log("[ZONEUPDATETIMER] To table, name: %s, rnum: %ld, Count: %f", zone_table[i].name, i, execution_time.count());
 
 				CREATE(update_u, 1);
 				update_u->zone_to_reset = static_cast<zone_rnum>(i);
@@ -3994,9 +3994,9 @@ void zone_update(void)
 				|| (is_empty(update_u->zone_to_reset) && zone_table[update_u->zone_to_reset].reset_mode != 3)
 				|| can_be_reset(update_u->zone_to_reset))
 		{
-			log("[ZONEUPDATETIMER] Start Reset_zone, name: %s, Count: %f", update_u->zone_to_reset, execution_time.count());
+			log("[ZONEUPDATETIMER] Start Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, execution_time.count());
 			reset_zone(update_u->zone_to_reset);
-			log("[ZONEUPDATETIMER] End Reset_zone, name: %s, Count: %f", update_u->zone_to_reset, execution_time.count());
+			log("[ZONEUPDATETIMER] End Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, execution_time.count());
 			char tmp[128];
 			snprintf(tmp, sizeof(tmp), "Auto zone reset: %s (%d)",
 				zone_table[update_u->zone_to_reset].name,
@@ -4012,9 +4012,9 @@ void zone_update(void)
 						if (zone_table[j].number ==
 							zone_table[update_u->zone_to_reset].typeA_list[i])
 						{
-							log("[ZONEUPDATETIMER] [Complex] Start Reset_zone, name: %s, Count: %f", update_u->zone_to_reset, execution_time.count());
+							log("[ZONEUPDATETIMER] [Complex] Start Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, execution_time.count());
 							reset_zone(j);
-							log("[ZONEUPDATETIMER] [Complex] End Reset_zone, name: %s, Count: %f", update_u->zone_to_reset, execution_time.count());
+							log("[ZONEUPDATETIMER] [Complex] End Reset_zone, name: %s, Count: %f", zone_table[update_u->zone_to_reset].name, execution_time.count());
 							snprintf(tmp, sizeof(tmp),
 								" ]\r\n[ Also resetting: %s (%d)",
 								zone_table[j].name, zone_table[j].number);

@@ -1312,6 +1312,8 @@ namespace ShopExt
 		}
 
 		add_item(obj->get_vnum(), obj->get_cost(), obj->get_uid());
+		sprintf(buf, "ADD_ITEM: get_vnum() %d, get_cost() %d, get_uid() %d", obj->get_vnum(), obj->get_cost(), obj->get_uid());
+		log("%s", buf);
 
 		put_to_storage(obj);
 	}
