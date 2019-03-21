@@ -579,8 +579,8 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	else
 	{
 		hit(ch, vict, SKILL_BACKSTAB, 1);
-		if (!ch->get_fighting()) // если был ваншот лаг пол секунды
-			WAIT_STATE(ch, PULSE_VIOLENCE / 4);
+//		if (!ch->get_fighting()) // если был ваншот лаг пол секунды
+//			WAIT_STATE(ch, PULSE_VIOLENCE / 4);
 	}
 	set_wait(ch, 2, TRUE);
 }
@@ -1252,7 +1252,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	//float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
 		//(pow(GET_REAL_DEX(vict), 2) + (GET_REAL_CON(vict) - GET_SAVE(vict, SAVING_STABILITY)) * 30.0));
 
-	percent = number(1, skill_info[SKILL_STUN].max_percent * 3 / 2);
+	percent = number(1, skill_info[SKILL_STUN].max_percent);
 	prob = calculate_skill(ch, SKILL_STUN, vict);
 
 	if (percent > prob)
