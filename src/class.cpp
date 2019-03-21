@@ -855,6 +855,7 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for mage thac0.");
+			break;
 		}
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
@@ -932,6 +933,7 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for cleric thac0.");
+			break;
 		}
 	case CLASS_ASSASINE:
 	case CLASS_THIEF:
@@ -1010,6 +1012,7 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for thief thac0.");
+			break;
 		}
 	case CLASS_WARRIOR:
 	case CLASS_GUARD:
@@ -1087,6 +1090,7 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for warrior thac0.");
+			break;
 		}
 	case CLASS_PALADINE:
 	case CLASS_RANGER:
@@ -1165,10 +1169,12 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for warrior thac0.");
+			break;
 		}
 
 	default:
 		log("SYSERR: Unknown class in thac0 chart.");
+		break;
 	}
 
 	// Will not get there unless something is wrong.
@@ -2048,6 +2054,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 		case CLASS_WARRIOR:
 		case CLASS_RANGER:
 			ch->set_skill(SKILL_HORSE, 10);
+			break;
 		case CLASS_SMITH:
 			ch->set_skill(SKILL_SATTACK, 95);
 			break;

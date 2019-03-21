@@ -1203,8 +1203,6 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 
 		std::string buffer;
-		std::string::size_type i;
-
 		switch (fd)
 		{
 		case 1:	// description 

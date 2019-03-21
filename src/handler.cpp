@@ -403,6 +403,7 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		break;
 	case APPLY_HIT_GLORY: //вкачка +хп за славу
 		GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
+		break;
 	case APPLY_PR:
 		GET_PR(ch) += mod; //скиллрезист
 		break;

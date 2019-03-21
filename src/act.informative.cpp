@@ -270,47 +270,48 @@ char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear)
 	int need_str = 0;
 
 	*out_str = '\0';
-	switch (GET_OBJ_TYPE(obj))
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
-	case OBJ_DATA::ITEM_WEAPON:
 		switch (GET_OBJ_SKILL(obj))
 		{
-		case SKILL_BOWS:
-			skill = 1;
-			break;
-		case SKILL_SHORTS:
-			skill = 2;
-			break;
-		case SKILL_LONGS:
-			skill = 3;
-			break;
-		case SKILL_AXES:
-			skill = 4;
-			break;
-		case SKILL_CLUBS:
-			skill = 5;
-			break;
-		case SKILL_NONSTANDART:
-			skill = 6;
-			break;
-		case SKILL_BOTHHANDS:
-			skill = 7;
-			break;
-		case SKILL_PICK:
-			skill = 8;
-			break;
-		case SKILL_SPADES:
-			skill = 9;
-			break;
-		default:
-			sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам !!\r\n");
+			case SKILL_BOWS:
+				skill = 1;
+				break;
+			case SKILL_SHORTS:
+				skill = 2;
+				break;
+			case SKILL_LONGS:
+				skill = 3;
+				break;
+			case SKILL_AXES:
+				skill = 4;
+				break;
+			case SKILL_CLUBS:
+				skill = 5;
+				break;
+			case SKILL_NONSTANDART:
+				skill = 6;
+				break;
+			case SKILL_BOTHHANDS:
+				skill = 7;
+				break;
+			case SKILL_PICK:
+				skill = 8;
+				break;
+			case SKILL_SPADES:
+				skill = 9;
+				break;
+			default:
+				sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам !!\r\n");
+				break;
 		}
 		if (skill)
 		{
 			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", weapon_class[skill - 1]);
 		}
-
-	default:
+	}
+	else
+	{
 		if (show_wear)
 		{
 			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))

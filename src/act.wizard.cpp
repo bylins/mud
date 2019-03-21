@@ -4590,6 +4590,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 	case '*':
 		emote = TRUE;
+		break;
 	case '#':
 		// Установить уровень имм канала
 		one_argument(argument + 1, buf1);

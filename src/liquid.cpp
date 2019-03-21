@@ -827,11 +827,14 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		case 0:
 		case 1:
 			af[0].modifier = -2;
+			break;
 		case 2:
 		case 3:
 			af[1].modifier = -2;
+			break;
 		default:
 			af[2].modifier = 10;
+			break;
 		}
 		for (prob = 0; prob < 3; prob++)
 		{
