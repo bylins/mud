@@ -1034,7 +1034,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const auto skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& (!ch->get_skill(skill_no)
+					&& (!ch->get_trained_skill(skill_no)
 						|| IS_GRGOD(ch))
 					&& can_get_skill(ch, skill_no))
 				{
@@ -1093,7 +1093,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const ESkill skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
+					&& !ch->get_trained_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 				{
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
@@ -1122,17 +1122,17 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					if (IS_SET(bits, SPELL_POTION))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-						ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_skill(SKILL_CREATE_POTION)));
+						ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(SKILL_CREATE_POTION)));
 					}
 					if (IS_SET(bits, SPELL_WAND))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-						ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_skill(SKILL_CREATE_WAND)));
+						ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(SKILL_CREATE_WAND)));
 					}
 					if (IS_SET(bits, SPELL_SCROLL))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-						ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_skill(SKILL_CREATE_SCROLL)));
+						ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 					}
 					found = TRUE;
 				}
@@ -1215,7 +1215,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 				if (skill_no == (guild_mono_info[info_num].learn_info + i)->skill_no)
 				{
-					if (ch->get_skill(skill_no))
+					if (ch->get_trained_skill(skill_no))
 					{
 						act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
@@ -1313,17 +1313,17 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 						if (IS_SET(bits, SPELL_POTION))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-							ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_skill(SKILL_CREATE_POTION)));
+							ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(SKILL_CREATE_POTION)));
 						}
 						if (IS_SET(bits, SPELL_WAND))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-							ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_skill(SKILL_CREATE_WAND)));
+							ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(SKILL_CREATE_WAND)));
 						}
 						if (IS_SET(bits, SPELL_SCROLL))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_skill(SKILL_CREATE_SCROLL)));
+							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 						}
 					}
 					found = TRUE;
@@ -1395,7 +1395,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& (!ch->get_skill(skill_no)
+					&& (!ch->get_trained_skill(skill_no)
 						|| IS_GRGOD(ch))
 					&& can_get_skill(ch, skill_no))
 				{
@@ -1464,7 +1464,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
+					&& !ch->get_trained_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 				{
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
@@ -1505,17 +1505,17 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					if (IS_SET(bits, SPELL_POTION))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-						ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_skill(SKILL_CREATE_POTION)));
+						ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(SKILL_CREATE_POTION)));
 					}
 					if (IS_SET(bits, SPELL_WAND))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-						ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_skill(SKILL_CREATE_WAND)));
+						ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(SKILL_CREATE_WAND)));
 					}
 					if (IS_SET(bits, SPELL_SCROLL))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-						ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_skill(SKILL_CREATE_SCROLL)));
+						ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 					}
 					found = TRUE;
 				}
@@ -1555,7 +1555,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 				if (skill_no == (guild_poly_info[info_num] + i)->skill_no)
 				{
-					if (ch->get_skill(skill_no))
+					if (ch->get_trained_skill(skill_no))
 					{
 						act("$N сказал$G вам : 'Ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
@@ -1714,17 +1714,17 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 						if (IS_SET(bits, SPELL_POTION))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-							ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_skill(SKILL_CREATE_POTION)));
+							ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(SKILL_CREATE_POTION)));
 						}
 						if (IS_SET(bits, SPELL_WAND))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-							ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_skill(SKILL_CREATE_WAND)));
+							ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(SKILL_CREATE_WAND)));
 						}
 						if (IS_SET(bits, SPELL_SCROLL))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_skill(SKILL_CREATE_SCROLL)));
+							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 						}
 					}
 					found = TRUE;
