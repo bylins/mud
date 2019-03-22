@@ -2183,6 +2183,26 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	switch (GET_OBJ_TYPE(j))
 	{
+	case OBJ_DATA::ITEM_BOOK:
+		switch (GET_OBJ_VAL(j, 0))
+		{
+		case BOOK_SPELL:
+			if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_SPELLS)
+			{
+				sprintf(buf, "содержит заклинание        : \"%s\"", spell_info[GET_OBJ_VAL(j, 1)].name);
+			}
+			break;
+		case BOOK_SKILL:
+			if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_SKILL_NUM)
+			{
+				sprintf(buf, "содержит секрет умения     : \"%s\"", skill_info[GET_OBJ_VAL(j, 1)].name);
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+
 	case OBJ_DATA::ITEM_LIGHT:
 		if (GET_OBJ_VAL(j, 2) < 0)
 		{
