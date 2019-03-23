@@ -3956,7 +3956,7 @@ void zone_update(void)
 		 */
 
 		timer = 0;
-		log("[ZONEUPDATETIMER] Start For, Count: %f", timer_step.delta().count(););
+		log("[ZONEUPDATETIMER] Start For, Count: %f", timer_step.delta().count());
 		// since one minute has passed, increment zone ages
 		for (std::size_t i = 0; i < zone_table.size(); i++)
 		{
@@ -3986,7 +3986,7 @@ void zone_update(void)
 			}
 		}
 	}
-	log("[ZONEUPDATETIMER] Start update, Count: %f", timer_step.delta().count(););
+	log("[ZONEUPDATETIMER] Start update, Count: %f", timer_step.delta().count());
 	// end - one minute has passed
 	// dequeue zones (if possible) and reset
 	// this code is executed every 10 seconds (i.e. PULSE_ZONE)
