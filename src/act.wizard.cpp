@@ -2184,6 +2184,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	switch (GET_OBJ_TYPE(j))
 	{
 	case OBJ_DATA::ITEM_BOOK:
+	
 		switch (GET_OBJ_VAL(j, 0))
 		{
 		case BOOK_SPELL:
@@ -2191,18 +2192,62 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			{
 				sprintf(buf, "содержит заклинание        : \"%s\"", spell_info[GET_OBJ_VAL(j, 1)].name);
 			}
+			else
+				sprintf(buf, "неверный номер заклинания");
 			break;
 		case BOOK_SKILL:
 			if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_SKILL_NUM)
 			{
 				sprintf(buf, "содержит секрет умения     : \"%s\"", skill_info[GET_OBJ_VAL(j, 1)].name);
 			}
+			else
+				sprintf(buf, "неверный номер умения");
+			break;
+		case BOOK_UPGRD:
+			{
+				const auto skill_num = GET_OBJ_VAL(j, 1);
+				if (GET_OBJ_VAL(j, 3) > 0)
+				{
+					sprintf(buf, "повышает умение \"%s\" (максимум %d)", skill_info[skill_num].name, GET_OBJ_VAL(j, 3));
+				}
+				else
+				{
+					sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)", skill_info[skill_num].name);
+				}
+				break;
+			}
+		case BOOK_FEAT:
+			if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_FEATS)
+			{
+				sprintf(buf, "содержит секрет способности : \"%s\"", feat_info[GET_OBJ_VAL(j, 1)].name);
+			}
+			else 
+				sprintf(buf, "неверный номер способности");
+			break;
+		case BOOK_RECPT:
+			{
+				const auto recipe = im_get_recipe(GET_OBJ_VAL(j, 1));
+				const auto recipelevel = MAX(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
+				const auto recipemort = imrecipes[recipe].remort;
+				if (recipe >= 0)
+				{
+					sprintf(buf, "содержит рецепт отвара     : \"%s\"", imrecipes[recipe].name);
+					if (recipelevel == -1 || recipemort == -1)
+					{
+						sprintf(buf, "Некорректная запись рецепта.");
+					}
+				}
+				else
+				{
+					sprintf(buf, "уровень изучения: %d, количество ремортов: %d", recipelevel, recipemort);
+				}
+			}
 			break;
 		default:
+			sprintf(buf, "НЕВЕРНО УКАЗАН ТИП КНИГИ");
 			break;
 		}
 		break;
-
 	case OBJ_DATA::ITEM_LIGHT:
 		if (GET_OBJ_VAL(j, 2) < 0)
 		{
