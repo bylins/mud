@@ -3265,6 +3265,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			break;
 		case DL_LOAD_IFLAST:
 			last_load = load && last_load;
+			break;
 		case DL_LOAD_IFLAST_NC:
 			load = load && last_load;
 			break;

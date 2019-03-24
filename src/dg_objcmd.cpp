@@ -713,8 +713,6 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 
 		std::string buffer;
-		std::string::size_type i;
-
 		switch (fd)
 		{
 		case 1:	// description 

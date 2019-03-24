@@ -1599,21 +1599,21 @@ int auto_equip(CHAR_DATA * ch, OBJ_DATA * obj, int location)
 			break;
 
 		case WEAR_HOLD:
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
 			{
-				break;
+				location = LOC_INVENTORY;
 			}
-			location = LOC_INVENTORY;
 			break;
 
 		case WEAR_BOTHS:
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
+			if (!CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
 			{
-				break;
+				location = LOC_INVENTORY;
 			}
-
+			break;
 		default:
 			location = LOC_INVENTORY;
+			break;
 		}
 
 		if (location > 0)  	// Wearable.

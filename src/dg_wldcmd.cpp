@@ -257,10 +257,7 @@ void do_wdoor(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 			exit.reset(new EXIT_DATA());
 			rm->dir_option[dir] = exit;
 		}
-
 		std::string buffer;
-		std::string::size_type i;
-
 		switch (fd)
 		{
 		case 1:	// description //

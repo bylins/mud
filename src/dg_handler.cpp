@@ -83,11 +83,6 @@ const char * skill_percent(TRIG_DATA* trig, CHAR_DATA * ch, char *skill)
 		sprintf(retval, "%d", ch->get_trained_skill(skillnum));
 		return retval;
 	}
-	else
-	{
-		sprintf(buf2, "Wrong skill name: %s", skill);
-		trig_log(trig, buf2);
-	}
 	rid = im_get_recipe_by_name(skill);
 	if (rid >= 0)
 	{
@@ -97,9 +92,9 @@ const char * skill_percent(TRIG_DATA* trig, CHAR_DATA * ch, char *skill)
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-	else
+	if ((skillnum == 0) && (rid < 0))
 	{
-		sprintf(buf2, "Wrong recipe name: %s", skill);
+		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
 		trig_log(trig, buf2);
 	}                                                                                      
 	return ("0");
