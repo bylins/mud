@@ -2206,16 +2206,21 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		case BOOK_UPGRD:
 			{
 				const auto skill_num = GET_OBJ_VAL(j, 1);
-				if (GET_OBJ_VAL(j, 3) > 0)
+				if (skill_num >= 1 && skill_num < MAX_SKILL_NUM)
 				{
-					sprintf(buf, "повышает умение \"%s\" (максимум %d)", skill_info[skill_num].name, GET_OBJ_VAL(j, 3));
+					if (GET_OBJ_VAL(j, 3) > 0)
+					{
+						sprintf(buf, "повышает умение \"%s\" (максимум %d)", skill_info[skill_num].name, GET_OBJ_VAL(j, 3));
+					}
+					else
+					{
+						sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)", skill_info[skill_num].name);
+					}
 				}
 				else
-				{
-					sprintf(buf, "повышает умение \"%s\" (не больше максимума текущего перевоплощения)", skill_info[skill_num].name);
-				}
-				break;
+					sprintf(buf, "неверный номер повышаемоего умения");
 			}
+				break;
 		case BOOK_FEAT:
 			if (GET_OBJ_VAL(j, 1) >= 1 && GET_OBJ_VAL(j, 1) < MAX_FEATS)
 			{
@@ -2227,20 +2232,21 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 		case BOOK_RECPT:
 			{
 				const auto recipe = im_get_recipe(GET_OBJ_VAL(j, 1));
-				const auto recipelevel = MAX(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
-				const auto recipemort = imrecipes[recipe].remort;
 				if (recipe >= 0)
 				{
-					sprintf(buf, "содержит рецепт отвара     : \"%s\"", imrecipes[recipe].name);
-					if (recipelevel == -1 || recipemort == -1)
+					const auto recipelevel = MAX(GET_OBJ_VAL(j, 2), imrecipes[recipe].level);
+					const auto recipemort = imrecipes[recipe].remort;
+					if ((recipelevel >= 0) &&  (recipemort >= 0))
 					{
-						sprintf(buf, "Некорректная запись рецепта.");
+						sprintf(buf, "содержит рецепт отвара     : \"%s\", уровень изучения: %d, количество ремортов: %d", imrecipes[recipe].name, recipelevel, recipemort);
+					}
+					else
+					{
+						sprintf(buf, "Некорректная запись рецепта (нет уровня или реморта)");
 					}
 				}
 				else
-				{
-					sprintf(buf, "уровень изучения: %d, количество ремортов: %d", recipelevel, recipemort);
-				}
+					sprintf(buf, "Некорректная запись рецепта");
 			}
 			break;
 		default:
