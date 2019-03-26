@@ -579,8 +579,8 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	else
 	{
 		hit(ch, vict, SKILL_BACKSTAB, 1);
-//		if (!ch->get_fighting()) // если был ваншот лаг пол секунды
-//			WAIT_STATE(ch, PULSE_VIOLENCE / 4);
+		if (!ch->get_fighting()) // если был ваншот лаг пол секунды
+			WAIT_STATE(ch, PULSE_VIOLENCE / 6);
 	}
 	set_wait(ch, 2, TRUE);
 }
