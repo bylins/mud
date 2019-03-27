@@ -155,10 +155,10 @@ CHAR_DATA *& operator<<(CHAR_DATA * &ch, string p)
 	return ch;
 }
 
-void init_armored();
+void init_armored()
 {
 //		%	таймер+	броня+	поглощение	здоровье	живучесть	стойкость	огня	воздуха	воды	земли
-	int [][11] table = {
+	int table[11][11] = {
 		{100, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0},
 		{110, 102, 2, 0, 0, 0, 0, 0, 0, 0, 0},
 		{120, 104, 2, 2, 2, 2, 2, 2, 2, 2, 2},
@@ -174,9 +174,9 @@ void init_armored();
 //заполним таблицу
 	for (int i = 0; i != 9; ++i)
 	{
-		for (int j = 0; j != 10, ++j)
+		for (int j = 0; j != 10; ++j)
 		{
-			strengtheningTable.emplace(std::make_pair(table[i][0], static_cast(j)), table[i][j]);
+			StrengtheningType.emplace(std::make_pair(table[i][0], static_cast(j)), table[i][j]);
 		}
 	}
 }
