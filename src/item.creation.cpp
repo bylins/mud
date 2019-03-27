@@ -155,32 +155,6 @@ CHAR_DATA *& operator<<(CHAR_DATA * &ch, string p)
 	return ch;
 }
 
-void init_armored()
-{
-//		%	таймер+	броня+	поглощение	здоровье	живучесть	стойкость	огня	воздуха	воды	земли
-	int table[11][11] = {
-		{100, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0},
-		{110, 102, 2, 0, 0, 0, 0, 0, 0, 0, 0},
-		{120, 104, 2, 2, 2, 2, 2, 2, 2, 2, 2},
-		{130, 106, 3, 2, 3, 3, 3, 3, 3, 3, 3},
-		{140, 108, 3, 2, 3, 3, 3, 3, 3, 3, 3},
-		{150, 110, 4, 4, 5, 5, 5, 5, 5, 5, 5},
-		{160, 112, 4, 4, 5, 5, 5, 5, 5, 5, 5},
-		{170, 114, 5, 4, 5, 5, 5, 5, 5, 5, 5},
-		{180, 116, 5, 7, 7, 7, 7, 7, 7, 7, 7},
-		{190, 118, 6, 7, 7, 7, 7, 7, 7, 7, 7},
-		{200, 120, 6, 9, 10, 10, 10, 10, 10, 10, 10}
-	};
-//заполним таблицу
-	for (int i = 0; i != 9; ++i)
-	{
-		for (int j = 0; j != 10; ++j)
-		{
-			StrengtheningType.emplace(std::make_pair(table[i][0], static_cast(j)), table[i][j]);
-		}
-	}
-}
-
 void init_make_items()
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
@@ -2666,4 +2640,5 @@ int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OB
 	}
 	return (TRUE);
 }
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

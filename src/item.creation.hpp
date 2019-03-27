@@ -93,21 +93,6 @@ struct make_skill_type
 
 class MakeRecept;
 
-enum StrengtheningType
-{
-	TIMER,
-	ARMOR,
-	ABSORBTION,
-	HEALTH,
-	VITALITY,
-	STAMINA,
-	FIRE_PROTECTION,
-	AIR_PROTECTION,
-	WATER_PROTECTION,
-	EARTH_PROTECTION
-};
-void init_armored();
-
 class MakeReceptList
 {
 	list < MakeRecept * >recepts;

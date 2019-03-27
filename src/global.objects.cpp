@@ -37,6 +37,7 @@ namespace
 		std::shared_ptr<influxdb::Sender> stats_sender;
 		zone_table_t zone_table;
 		DailyQuestMap daily_quests;
+                Strengthening strengthening;
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -184,5 +185,9 @@ DailyQuestMap& GlobalObjects::daily_quests()
 	return global_objects().daily_quests;
 }
 
+Strengthening& GlobalObjects::strengthening()
+{
+    return global_objects().strengthening;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
