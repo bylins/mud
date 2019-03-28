@@ -45,6 +45,10 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 {
 	*tch = NULL;
 	*tobj = NULL;
+	if (NOWHERE == ch->in_room)
+	{
+		 return FALSE;
+	}
 	*troom = world[ch->in_room];
 
 	if (spellnum == SPELL_CONTROL_WEATHER)
