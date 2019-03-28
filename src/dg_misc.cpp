@@ -45,7 +45,7 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 {
 	*tch = NULL;
 	*tobj = NULL;
-	if (NOWHERE == ch->in_room)
+	if (NOWHERE == ch->in_room)  //если чар есть но он по каким-то причинам в NOWHERE крешает как минимум в mag_masses так как указатель на комнату nullptr
 	{
 		 return FALSE;
 	}
