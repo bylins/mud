@@ -5649,6 +5649,8 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 	{
 		return 0;
 	}
+//	if (room == nullptr)
+//		return 0;
 
 	int i;
 	for (i = 0; masses_messages[i].spell != -1; ++i)

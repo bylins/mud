@@ -24,6 +24,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "logger.hpp"
 
 // copied from spell_parser.c:
 #define SINFO spell_info[spellnum]
@@ -299,6 +300,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 
 	if (target)
 	{
+		log("dg_cast room vnum: %d spellnum %d", troom->number, spellnum);
 		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster), CAST_SPELL);
 	}
 	else if(spellnum != SPELL_RESSURECTION && spellnum != SPELL_ANIMATE_DEAD)

@@ -2054,10 +2054,10 @@ void do_start(CHAR_DATA * ch, int newbie)
 		case CLASS_WARRIOR:
 		case CLASS_RANGER:
 			ch->set_skill(SKILL_HORSE, 10);
+			ch->set_skill(SKILL_SATTACK, 95);
 			break;
 		case CLASS_SMITH:
 			ch->set_skill(SKILL_SATTACK, 95);
-			ch->set_skill(SKILL_HORSE, 10);
 			break;
 		}
 	}
