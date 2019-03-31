@@ -283,24 +283,34 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 
 	if (*arg == UID_CHAR)
 	{
-		if (!(tch = get_char(arg)))
+		tch = get_char(arg);
+		if (tch == nullptr)
 		{
 			sprintf(buf2, "dg_cast: victim (%s) not found", arg + 1);
+			trig_log(trig, buf2);
+		}
+		else if (NOWHERE == caster->in_room)
+		{
+			sprintf(buf2, "dg_cast: caster (%s) in NOWHERE", GET_NAME(caster));
+			trig_log(trig, buf2);
+		}
+		else if (tch->in_room != caster->in_room)
+		{
+			sprintf(buf2, "dg_cast: caster (%s) and victim (%s) в разных клетках комнат", GET_NAME(caster), GET_NAME(tch));
 			trig_log(trig, buf2);
 		}
 		else
 		{
 			target = 1;
+			troom = world[caster->in_room];
 		}
 	}
 	else
 	{
 		target = find_dg_cast_target(spellnum, arg, caster, &tch, &tobj, &troom);
 	}
-
 	if (target)
 	{
-		log("dg_cast room vnum: %d spellnum %d", troom->number, spellnum);
 		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster), CAST_SPELL);
 	}
 	else if(spellnum != SPELL_RESSURECTION && spellnum != SPELL_ANIMATE_DEAD)
