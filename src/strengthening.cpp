@@ -39,9 +39,9 @@ void Strengthening::init()
 //заполним таблицу
 	for (int i = 0; i != 11; ++i)
 	{
-		for (int j = static_cast<Type>(j - 1); j != 11; ++j)
+		for (int j = 1; j != 11; ++j)
 		{
-			m_strengthening_table.emplace(std::make_pair(table[i][0], static_cast<Type>(j)), table[i][j]);
+			m_strengthening_table.emplace(std::make_pair(table[i][0], static_cast<Type>(j - 1)), table[i][j]);
 		}
 	}
 }
