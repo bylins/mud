@@ -2902,7 +2902,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		obj->set_timer(obj->get_timer() * strengthening((GET_SKILL(ch, SKILL_ARMORED) * 10 / 10), Strengthening::TIMER));
 		send_to_char(ch, "увеличиваю таймер на %d\r\n", armorvalue);
 		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
-		send_to_char(ch, "увеличиваю абсорб на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
+		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
 		obj->set_affected(0, APPLY_ARMOUR, armorvalue);
 	if (!ObjSystem::is_armor_type(obj))
 	{

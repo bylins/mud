@@ -17,7 +17,7 @@ public:
         VITALITY,
         STAMINA,
         FIRE_PROTECTION,
-        AIR_PROTECTION,
+        AIR_PROTECTION ,
         WATER_PROTECTION,
         EARTH_PROTECTION
     };
