@@ -2862,9 +2862,17 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	};
 	if (!*arg2)
 	{
-		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть, стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)");
+		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)");
 		return;
 	}
+	// расставим значения без выбора пользователя
+	armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER);
+	int timer =  obj->get_timer() * strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER) / 100;
+	obj->set_timer(timer);
+	send_to_char(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
+	armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
+	send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
+	obj->set_affected(0, APPLY_ARMOUR, armorvalue);
 	switch (arg2[0])
 	{
 		case 'П':
@@ -2872,7 +2880,8 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ABSORBTION);
 			armorvalue = number(armorvalue, armorvalue - 2);
-			obj->set_affected(0, APPLY_ARMOUR, armorvalue);
+			send_to_char(ch, "увеличиваю поглот на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_ABSORBE, armorvalue);
 			break;
 		}
 		case 'З':
@@ -2880,7 +2889,8 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::HEALTH);
 			armorvalue = number(armorvalue, armorvalue - 2);
-			obj->set_affected(0, APPLY_HIT, armorvalue);
+			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_HIT, armorvalue);
 			break;
 		}
 		case 'Ж':
@@ -2888,7 +2898,8 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
 			armorvalue = number(armorvalue, armorvalue - 2);
-			obj->set_affected(0, APPLY_RESIST_VITALITY, armorvalue);
+			send_to_char(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_VITALITY, armorvalue);
 			break;
 		}
 		default:
@@ -2897,13 +2908,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 	}
-		// расставим значения без выбора пользователя
-		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER);
-		obj->set_timer(obj->get_timer() * strengthening((GET_SKILL(ch, SKILL_ARMORED) * 10 / 10), Strengthening::TIMER));
-		send_to_char(ch, "увеличиваю таймер на %d\r\n", armorvalue);
-		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
-		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
-		obj->set_affected(0, APPLY_ARMOUR, armorvalue);
+
 	if (!ObjSystem::is_armor_type(obj))
 	{
 		send_to_char("Вы можете укрепить только доспех.\r\n", ch);
