@@ -2866,49 +2866,82 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	// расставим значения без выбора пользователя
-	armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER);
-	int timer =  obj->get_timer() * strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER) / 100;
-	obj->set_timer(timer);
-	send_to_char(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
-	armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
-	send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
-	obj->set_affected(0, APPLY_ARMOUR, armorvalue);
-	switch (arg2[0])
+	if (*arg2)
 	{
-		case 'П':
-		case 'п':
+
+		if (CompareParam(arg2, "поглощение"))
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ABSORBTION);
 			armorvalue = number(armorvalue, armorvalue - 2);
 			send_to_char(ch, "увеличиваю поглот на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_ABSORBE, armorvalue);
-			break;
 		}
-		case 'З':
-		case 'з':
+		else if (CompareParam(arg2, "здоровье"))
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::HEALTH);
 			armorvalue = number(armorvalue, armorvalue - 2);
 			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_HIT, armorvalue);
-			break;
 		}
-		case 'Ж':
-		case 'ж':
+		else if (CompareParam(arg2, "живучесть"))
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
 			armorvalue = number(armorvalue, armorvalue - 2);
 			send_to_char(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_VITALITY, armorvalue);
-			break;
 		}
-		default:
+		else if (CompareParam(arg2, "стойкость"))
 		{
-			send_to_char(ch, "Ничего не понимаю...");
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
+			armorvalue = number(armorvalue, armorvalue - 2);
+			send_to_char(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_SAVING_STABILITY, armorvalue);
+		}
+		else if (CompareParam(arg2, "воздуха"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
+			armorvalue = number(armorvalue, armorvalue - 2);
+			send_to_char(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_AIR, armorvalue);
+		}
+		else if (CompareParam(arg2, "воды"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
+			armorvalue = number(armorvalue, armorvalue - 2);
+			send_to_char(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_WATER, armorvalue);
+		}
+		else if (CompareParam(arg2, "огня"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
+			armorvalue = number(armorvalue, armorvalue - 2);
+			send_to_char(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_FIRE, armorvalue);
+		}
+		else if (CompareParam(arg2, "земли"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
+			armorvalue = number(armorvalue, armorvalue - 2);
+			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_EARTH, armorvalue);
+		}
+		else
+		{
+			send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)");
 			return;
 		}
+		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER);
+		int timer =  obj->get_timer() * strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER) / 100;
+		obj->set_timer(timer);
+		send_to_char(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
+		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
+		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
+		obj->set_affected(0, APPLY_ARMOUR, armorvalue);
 	}
-
+	else
+	{
+		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)");
+	}
 	if (!ObjSystem::is_armor_type(obj))
 	{
 		send_to_char("Вы можете укрепить только доспех.\r\n", ch);
