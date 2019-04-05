@@ -493,6 +493,12 @@ void apply_natural_affects(CHAR_DATA *ch)
 // restoring original abilities, and then affecting all again
 void affect_total(CHAR_DATA * ch)
 {
+	if (ch->purged())
+	{
+		// we don't care of affects of removed character.
+		return;
+	}
+
 	OBJ_DATA *obj;
 
 	FLAG_DATA saved;
