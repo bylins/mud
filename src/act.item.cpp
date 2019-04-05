@@ -2955,10 +2955,11 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 //			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_HIT, armorvalue);
 		}
-		else if (CompareParam(arg2, "живучесть"))
+		else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
 			armorvalue = - MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_VITALITY, armorvalue);
 		}
@@ -2966,34 +2967,35 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::STAMINA);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_SAVING_STABILITY, armorvalue);
 		}
 		else if (CompareParam(arg2, "воздуха"))
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::AIR_PROTECTION);
-			armorvalue = - MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_AIR, armorvalue);
 		}
 		else if (CompareParam(arg2, "воды"))
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::WATER_PROTECTION);
-			armorvalue = - MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_WATER, armorvalue);
 		}
 		else if (CompareParam(arg2, "огня"))
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::FIRE_PROTECTION);
-			armorvalue = - MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_FIRE, armorvalue);
 		}
 		else if (CompareParam(arg2, "земли"))
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::EARTH_PROTECTION);
-			armorvalue = - MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_EARTH, armorvalue);
 		}
