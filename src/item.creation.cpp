@@ -154,6 +154,7 @@ CHAR_DATA *& operator<<(CHAR_DATA * &ch, string p)
 	send_to_char(p.c_str(), ch);
 	return ch;
 }
+
 void init_make_items()
 {
 	char tmpbuf[MAX_INPUT_LENGTH];
@@ -2639,4 +2640,5 @@ int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OB
 	}
 	return (TRUE);
 }
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

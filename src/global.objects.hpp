@@ -14,6 +14,7 @@
 #include "influxdb.hpp"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
+#include "strengthening.hpp"
 
 class BanList;	// to avoid inclusion of ban.hpp
 
@@ -59,6 +60,8 @@ public:
 	static PlayersIndex& player_table();
 
 	static DailyQuestMap& daily_quests();
+
+        static Strengthening& strengthening();
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__

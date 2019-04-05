@@ -43,7 +43,8 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "char_obj_utils.inl"
-
+#include "global.objects.hpp"
+#include "strengthening.hpp"
 #include <boost/format.hpp>
 // extern variables
 extern CHAR_DATA *mob_proto;
@@ -2834,10 +2835,13 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+//const char *armoredaffect[] = {"поглощение", "здоровье", "живучесть", "стойкость (сопротивление)", "огня (сопротивление)", "воздуха (сопротивление)", "воды (сопротивление)", "земли (сопротивление)"};
 void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
-	int add_ac, add_armor, prob, percent, i, k_mul = 1, k_div = 1;
+	char arg2[MAX_INPUT_LENGTH];
+	int add_ac, prob, percent, i, armorvalue;
+	const auto& strengthening = GlobalObjects::strengthening();
 
 	if (!ch->get_skill(SKILL_ARMORED))
 	{
@@ -2845,7 +2849,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	one_argument(argument, arg);
+	two_arguments(argument, arg, arg2);
 
 	if (!*arg)
 		send_to_char("Что вы хотите укрепить?\r\n", ch);
@@ -2855,7 +2859,8 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
-	};
+	}
+
 
 	if (!ObjSystem::is_armor_type(obj))
 	{
@@ -2878,36 +2883,31 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-	if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_BODY)
-		| to_underlying(EWearFlag::ITEM_WEAR_ABOUT))))
-	{
-		k_mul = 1;
-		k_div = 1;
-	}
-	else if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_SHIELD)
+	if (!OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_BODY)
+		| to_underlying(EWearFlag::ITEM_WEAR_ABOUT)
 		| to_underlying(EWearFlag::ITEM_WEAR_HEAD)
 		| to_underlying(EWearFlag::ITEM_WEAR_ARMS)
-		| to_underlying(EWearFlag::ITEM_WEAR_LEGS))))
-	{
-		k_mul = 2;
-		k_div = 3;
-	}
-	else if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_HANDS)
+		| to_underlying(EWearFlag::ITEM_WEAR_LEGS)
 		| to_underlying(EWearFlag::ITEM_WEAR_FEET))))
-	{
-		k_mul = 1;
-		k_div = 2;
-	}
-	else
 	{
 		act("$o3 невозможно укрепить.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-
+	if (obj->get_owner() != GET_UNIQUE(ch))
+	{
+		send_to_char(ch, "Укрепить можно только лично сделанный предмет.\r\n");
+		return;
+	}
+	if (!*arg2 && (GET_SKILL(ch, SKILL_ARMORED) >= 100))
+	{
+		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
+		return;
+	}
 	switch (obj->get_material())
 	{
 	case OBJ_DATA::MAT_IRON:
 	case OBJ_DATA::MAT_STEEL:
+	case OBJ_DATA::MAT_BULAT:
 		act("Вы принялись закалять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n принял$u закалять $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
@@ -2928,30 +2928,93 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 		return;
 	}
-	obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
-	obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+
 	
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
-
 	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_LEVEL(ch) + 4) / 5);
-	add_armor = IS_IMMORTAL(ch) ? 5 : number(1, (GET_LEVEL(ch) + 4) / 5);
-
 	if (percent > prob
 		|| GET_GOD_FLAG(ch, GF_GODSCURSE))
 	{
 		act("Но только испортили $S.", FALSE, ch, obj, 0, TO_CHAR);
 		add_ac = -add_ac;
-		add_armor = -add_armor;
 	}
-	else
+	else if (GET_SKILL(ch, SKILL_ARMORED) >= 100)
 	{
-		add_ac = MIN(-1, add_ac * k_mul / k_div);
-		add_armor = MAX(1, add_armor * k_mul / k_div);
-	};
-
+		if (CompareParam(arg2, "поглощение"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ABSORBTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю поглот на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_ABSORBE, armorvalue);
+		}
+		else if (CompareParam(arg2, "здоровье"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::HEALTH);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_HIT, armorvalue);
+		}
+		else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
+			armorvalue = - MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
+//			send_to_char(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_VITALITY, armorvalue);
+		}
+		else if (CompareParam(arg2, "стойкость"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::STAMINA);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
+//			send_to_char(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_SAVING_STABILITY, armorvalue);
+		}
+		else if (CompareParam(arg2, "воздуха"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::AIR_PROTECTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_AIR, armorvalue);
+		}
+		else if (CompareParam(arg2, "воды"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::WATER_PROTECTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_WATER, armorvalue);
+		}
+		else if (CompareParam(arg2, "огня"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::FIRE_PROTECTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_FIRE, armorvalue);
+		}
+		else if (CompareParam(arg2, "земли"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::EARTH_PROTECTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_EARTH, armorvalue);
+		}
+		else
+		{
+			send_to_char(ch, "Но не поняли что улучшать.\r\n");
+			return;
+		}
+		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER);
+		int timer =  obj->get_timer() * strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER) / 100;
+		obj->set_timer(timer);
+//		send_to_char(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
+		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
+//		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
+		obj->set_affected(2, APPLY_ARMOUR, armorvalue);
+		obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
+		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+	}
 	obj->set_affected(0, APPLY_AC, add_ac);
-	obj->set_affected(1, APPLY_ARMOUR, add_armor);
 }
 
 void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)

@@ -169,9 +169,11 @@ set(SOURCES
 	src/compact.trie.cpp
 	src/id.cpp
 	src/stigmas.cpp
-	src/zone.table.cpp)
+	src/zone.table.cpp
+        src/strengthening.cpp)
 
 set(HEADERS
+        src/strengthening.hpp
 	src/accounts.hpp
 	src/blocking.queue.hpp
 	src/influxdb.hpp
