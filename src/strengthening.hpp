@@ -19,7 +19,8 @@ public:
         FIRE_PROTECTION,
         AIR_PROTECTION ,
         WATER_PROTECTION,
-        EARTH_PROTECTION
+        EARTH_PROTECTION,
+	REFLEX
     };
 
     using percentage_t = int;

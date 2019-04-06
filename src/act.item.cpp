@@ -2952,8 +2952,9 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::HEALTH);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_HIT, armorvalue);
+			obj->set_affected(1, APPLY_SAVING_CRITICAL, armorvalue);
 		}
 		else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
 		{
