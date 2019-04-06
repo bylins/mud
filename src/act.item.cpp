@@ -2900,7 +2900,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (!*arg2 && (GET_SKILL(ch, SKILL_ARMORED) >= 100))
 	{
-		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
+		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление), реакция\r\n");
 		return;
 	}
 	switch (obj->get_material())
@@ -2998,6 +2998,14 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_EARTH, armorvalue);
+		}
+		else if (CompareParam(arg2, "реакция"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::REFLEX);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
+//			send_to_char(ch, "увеличиваю рефлекс на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_SAVING_REFLEX, armorvalue);
 		}
 		else
 		{
