@@ -2900,7 +2900,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	if (!*arg2 && (GET_SKILL(ch, SKILL_ARMORED) >= 100))
 	{
-		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление), реакция\r\n");
+		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
 		return;
 	}
 	switch (obj->get_material())
@@ -2952,8 +2952,9 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::HEALTH);
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
 //			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_HIT, armorvalue);
+			obj->set_affected(1, APPLY_SAVING_CRITICAL, armorvalue);
 		}
 		else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
 		{
@@ -2998,14 +2999,6 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
 //			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
 			obj->set_affected(1, APPLY_RESIST_EARTH, armorvalue);
-		}
-		else if (CompareParam(arg2, "реакция"))
-		{
-			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::REFLEX);
-			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
-			armorvalue *= -1;
-//			send_to_char(ch, "увеличиваю рефлекс на %d\r\n", armorvalue);
-			obj->set_affected(1, APPLY_SAVING_REFLEX, armorvalue);
 		}
 		else
 		{
@@ -3454,11 +3447,18 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	int prob, percent = 0, decay;
+	struct timed_type timed;
+
 
 	if (!ch->get_skill(SKILL_REPAIR))
 	{
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
+	}
+	if (timed_by_skill(ch, SKILL_REPAIR))
+	{
+	    send_to_char("У вас недостаточно сил для ремонта.\r\n", ch);
+	    return;
 	}
 
 	one_argument(argument, arg);
@@ -3531,11 +3531,11 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		// Карачун. В кузне ремонтируем без ухудшения
-		if (!IS_IMMORTAL(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_SMITH))
-		{
-			obj->set_maximum_durability(obj->get_maximum_durability() - MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 40));
-		}
+		timed.skill = SKILL_REPAIR;
+		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
+		int modif = ch->get_skill(SKILL_TOWNPORTAL) / 7 + number(1, 5);
+		timed.time = MAX(1, 25 - modif);
+		timed_to_char(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
 		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
