@@ -458,6 +458,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			case SKILL_TURN_UNDEAD:
 			case SKILL_STRANGLE:
 			case SKILL_STUN:
+			case SKILL_REPAIR:
 				if (timed_by_skill(ch, sortpos))
 					sprintf(buf, "[%3d] ", timed_by_skill(ch, sortpos));
 				else

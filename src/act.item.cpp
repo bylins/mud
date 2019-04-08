@@ -3447,11 +3447,18 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	int prob, percent = 0, decay;
+	struct timed_type timed;
+
 
 	if (!ch->get_skill(SKILL_REPAIR))
 	{
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
+	}
+	if (timed_by_skill(ch, SKILL_REPAIR))
+	{
+	    send_to_char("У вас недостаточно сил для ремонта.\r\n", ch);
+	    return;
 	}
 
 	one_argument(argument, arg);
@@ -3524,11 +3531,11 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		// Карачун. В кузне ремонтируем без ухудшения
-		if (!IS_IMMORTAL(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_SMITH))
-		{
-			obj->set_maximum_durability(obj->get_maximum_durability() - MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 40));
-		}
+		timed.skill = SKILL_REPAIR;
+		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
+		int modif = ch->get_skill(SKILL_TOWNPORTAL) / 7 + number(1, 5);
+		timed.time = MAX(1, 25 - modif);
+		timed_to_char(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
 		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
