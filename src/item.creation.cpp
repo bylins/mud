@@ -2259,6 +2259,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 		break;
 		case SKILL_MAKE_WEAR:
 			obj->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
+			obj->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
 		break;
 		default:
 		break;

@@ -3533,7 +3533,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		timed.skill = SKILL_REPAIR;
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
-		int modif = ch->get_skill(SKILL_TOWNPORTAL) / 7 + number(1, 5);
+		int modif = ch->get_skill(SKILL_REPAIR) / 7 + number(1, 5);
 		timed.time = MAX(1, 25 - modif);
 		timed_to_char(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));

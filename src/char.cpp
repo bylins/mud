@@ -51,6 +51,7 @@ void check_purged(const CHAR_DATA *ch, const char *fnc)
 	if (ch->purged())
 	{
 		log("SYSERR: Using purged character (%s).", fnc);
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 	}
 }
 
