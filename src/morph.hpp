@@ -6,6 +6,7 @@
 
 #include <list>
 #include <set>
+#include <unordered_map>
 
 extern short MIN_WIS_FOR_MORPH;
 
@@ -25,7 +26,7 @@ typedef std::shared_ptr<AnimalMorph> AnimalMorphPtr;
 MorphPtr GetNormalMorphNew(CHAR_DATA *ch);
 typedef std::map<std::string, AnimalMorphPtr> MorphListType;
 
-typedef std::map<ESkill, int> MorphSkillsList;
+typedef std::unordered_map<ESkill, int> MorphSkillsList;
 
 class IMorph {
 public:
