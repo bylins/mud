@@ -217,7 +217,12 @@ int mana_gain(const CHAR_DATA * ch)
 
 	// Position calculations
 	if (ch->get_fighting())
-		percent -= 90;
+	{
+		if (IS_MANA_CASTER(ch))
+			percent -= 50;
+		else
+			percent -= 90;
+	}
 	else
 		switch (GET_POS(ch))
 		{
