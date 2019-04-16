@@ -1613,7 +1613,7 @@ int mag_manacost(const CHAR_DATA* ch, int spellnum)
 		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
 	};
 
-	return 9999;
+	return 99999;
 }
 
 void spell_prefix(int spellnum, const char** /*say_to_self*/, const char **say_to_other,

@@ -3690,7 +3690,7 @@ void print_do_score_all(CHAR_DATA *ch)
 
 	if (IS_MANA_CASTER(ch))
 		sprintf(buf + strlen(buf),
-				" %sМаг. сила: %4d(%4d) %s|",
+				" %sМанна:   %5d(%5d) %s|",
 				CCICYN(ch, C_NRM), GET_MANA_STORED(ch), GET_MAX_MANA(ch), CCCYN(ch, C_NRM));
 	else
 		strcat(buf, "                       |");
