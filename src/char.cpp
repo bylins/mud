@@ -675,7 +675,34 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
 		log("SYSERROR: неизвесный номер скилла %d в set_skill.", skill_num);
 		return;
 	}
-
+	//костыль на волхва чтоб билдеры не чудили
+	if (IS_MANA_CASTER(this) && get_skill(skill_num) > 0)
+	{
+		if (skill_num == SKILL_WATER_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0)
+		{
+			sprintf(buf, "Попытка установить скилл магии воды без скилла магии огня для игрока %s", GET_NAME(this));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
+		if (skill_num == SKILL_EARTH_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0)
+		{
+			sprintf(buf, "Попытка установить скилл магии земли без скилла магии огня + воды для игрока %s", GET_NAME(this));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
+		if (skill_num == SKILL_AIR_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0)
+		{
+			sprintf(buf, "Попытка установить скилл магии воздуха без скилла магии огня + воды + земли для игрока %s", GET_NAME(this));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
+		if (skill_num == SKILL_DARK_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0 && get_skill(SKILL_EARTH_MAGIC) == 0 && get_skill(SKILL_AIR_MAGIC) == 0)
+		{
+			sprintf(buf, "Попытка установить скилл магии тьмы без скилла магии огня + воды + земли + воздуха для игрока %s", GET_NAME(this));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
+	}
 	CharSkillsType::iterator it = skills.find(skill_num);
 	if (it != skills.end())
 	{

@@ -1457,7 +1457,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 
 		if (*aura_txt)
 			act(aura_txt, FALSE, i, 0, ch, TO_VICT);
-
+	
 		return;
 	}
 
@@ -1639,7 +1639,6 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	if (*aura_txt)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC))
 	{
 		*aura_txt = '\0';
@@ -1714,6 +1713,23 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		strcat(aura_txt, " ...задыхается");
 	if (*aura_txt)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
+	if (IS_MANA_CASTER(i))
+		{
+			*aura_txt = '\0';
+			if (i->get_skill(SKILL_DARK_MAGIC) > 0)
+				strcat(aura_txt,  "...все сферы магии кружатся над головой");
+			else if (i->get_skill(SKILL_AIR_MAGIC) > 0)
+				strcat(aura_txt, "...сферы четырех магий кружатся над головой");
+			else if (i->get_skill(SKILL_EARTH_MAGIC) > 0)
+				strcat(aura_txt, "...сферы трех магий кружатся над головой");
+			else if  (i->get_skill(SKILL_WATER_MAGIC) > 0)
+				strcat(aura_txt, "...сферы двух магий кружатся над головой");
+			else if (i->get_skill(SKILL_FIRE_MAGIC) > 0)
+				strcat(aura_txt, "...сфера огня кружит над головой");
+			if (*aura_txt)
+				act(aura_txt, FALSE, i, 0, ch, TO_VICT);
+		}
+
 }
 
 void list_char_to_char(const ROOM_DATA::people_t& list, CHAR_DATA* ch)
