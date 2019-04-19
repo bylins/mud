@@ -1657,6 +1657,11 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 					(targ && targ != ch ? " на " : ""),
 					(targ && targ != ch ? GET_PAD(targ, 1) : ""));
 				act(buf, TRUE, ch, NULL, NULL, TO_ARENA_LISTEN);
+				auto skillnum = get_magic_skill_number_by_spell(spellnum);
+				if (skillnum > 0)
+				{
+					train_skill(ch, skillnum, skill_info[skillnum].max_percent, 0);
+				}
 			}
 		}
 		extract_item(ch, obj0, spelltype);
