@@ -102,6 +102,8 @@ WeapForAct::WeapForAct(const WeapForAct& from) :
 {
 }
 
+//inline bool has_skill(...) const { return 0 < get_skill(skill); }
+
 void WeapForAct::set_damage_string(const int damage)
 {
 	m_type = EWT_STRING;
