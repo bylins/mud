@@ -5542,8 +5542,9 @@ typedef struct
 } spl_message;
 
 
-const spl_message masses_messages[] =
+const spl_message mag_messages[] =
 {
+// массовые спеллы
 	{SPELL_MASS_BLINDNESS,
 	 "У вас над головой возникла яркая вспышка, которая ослепила все живое.",
 	 "Вдруг над головой $n1 возникла яркая вспышка.",
@@ -5619,136 +5620,7 @@ const spl_message masses_messages[] =
 	 "$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!",
 	 NULL,
 	 0},
-	{ -1, 0, 0, 0, 0}
-};
-
-// наколенный список чаров для масс-заклов, бьющих по комнате
-// в необходимость самого списка не вникал, но данная конструкция над ним
-// нужна потому, что в случае смерти чара при проходе по уже сформированному
-// списку - за ним могут спуржиться и клоны например, которые тоже в этот
-// список попали, после чего имеем креш, т.к. бьем по невалидным указателям
-typedef std::vector<CHAR_DATA *>  AreaCharListType;
-AreaCharListType tmp_char_list;
-
-void add_to_tmp_char_list(CHAR_DATA *ch)
-{
-	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
-	if (it == tmp_char_list.end())
-		tmp_char_list.push_back(ch);
-}
-
-void delete_from_tmp_char_list(CHAR_DATA *ch)
-{
-	if (tmp_char_list.empty()) return;
-
-	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
-	if (it != tmp_char_list.end())
-		*it = 0;
-}
-
-// Применение заклинания к всем существам в комнате
-//---------------------------------------------------------
-int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype)
-{
-	if (ch == NULL)
-	{
-		return 0;
-	}
-//	if (room == nullptr)
-//		return 0;
-
-	int i;
-	for (i = 0; masses_messages[i].spell != -1; ++i)
-	{
-		if (masses_messages[i].spell == spellnum)
-		{
-			break;
-		}
-	}
-
-	if (masses_messages[i].spell == -1)
-	{
-		return 0;
-	}
-
-	if (world[ch->in_room] == room)	 // Давим вывод если чар не в той же комнате
-	{
-		if (multi_cast_say(ch))
-		{
-			const char *msg;
-			if ((msg = masses_messages[i].to_char) != NULL)
-			{
-				act(msg, FALSE, ch, 0, 0, TO_CHAR);
-			}
-			if ((msg = masses_messages[i].to_room) != NULL)
-			{
-				act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			}
-		}
-	}
-
-	tmp_char_list.clear();
-	for (const auto ch_vict : room->people)
-	{
-		if (IS_IMMORTAL(ch_vict)
-			|| !HERE(ch_vict)
-			|| (SpINFO.violent && same_group(ch, ch_vict))
-			|| IS_HORSE(ch_vict)
-			|| MOB_FLAGGED(ch_vict, MOB_PROTECT))
-		{
-			continue;
-		}
-
-		add_to_tmp_char_list(ch_vict);
-	}
-
-	// наколенная (в прямом смысле этого слова, даже стола нет)
-	// версия снижения каста при масс-кастах на чаров, по 9% за каждого игрока
-	const int attacker_cast = GET_CAST_SUCCESS(ch);
-	int targets_count = 0;
-	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
-	{
-		CHAR_DATA* ch_vict = *it;
-		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
-		{
-			continue;
-		}
-
-		const char* msg;
-		if ((msg = masses_messages[i].to_vict) != NULL
-			&& ch_vict->desc)
-		{
-			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
-		}
-
-		if (!IS_NPC(ch)
-			&& !IS_NPC(ch_vict))
-		{
-			if (ch && ch_vict)
-			{
-				if (check_agr_in_house(ch, ch_vict))
-				{
-					return 0;
-				}
-			}
-			++targets_count;
-		}
-
-		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
-		if (ch->purged())
-		{
-			return 1;
-		}
-
-		GET_CAST_SUCCESS(ch) = attacker_cast - attacker_cast * targets_count * 9 / 100;
-	}
-	GET_CAST_SUCCESS(ch) = attacker_cast;
-
-	return 1;
-}
-
-const spl_message areas_messages[] =
-{
+// ареа спеллы
 	{SPELL_CHAIN_LIGHTNING,
 	 "Вы подняли руки к небу и оно осветилось яркими вспышками!",
 	 "$n поднял$g руки к небу и оно осветилось яркими вспышками!",
@@ -5824,120 +5696,7 @@ const spl_message areas_messages[] =
 	 NULL,
 	 NULL,
 	 0},
-	{ -1, 0, 0, 0, 0}
-};
-
-// Применение заклинания к части существ в комнате
-//---------------------------------------------------------
-int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
-{
-	int decay;
-	CHAR_DATA *ch_vict;
-	const char *msg;
-
-	if (!ch || !victim)
-		return 0;
-
-	int i;
-	for (i = 0; areas_messages[i].spell != -1; ++i)
-	{
-		if (areas_messages[i].spell == spellnum)
-		{
-			break;
-		}
-	}
-
-	if (areas_messages[i].spell == -1)
-	{
-		return 0;
-	}
-
-	if (ch->in_room == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
-	{
-		if (multi_cast_say(ch))
-		{
-			if ((msg = areas_messages[i].to_char) != NULL)
-				act(msg, FALSE, ch, 0, victim, TO_CHAR);
-			if ((msg = areas_messages[i].to_room) != NULL)
-				act(msg, FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
-		}
-	}
-	decay = areas_messages[i].decay;
-
-	// список генерится до дамага по виктиму, т.к. на нем могут висеть death тригеры
-	// с появлением новых мобов, по которым тот же шок бьет уже после смерти основной цели
-	tmp_char_list.clear();
-	for (const auto ch_vict : world[ch->in_room]->people)
-	{
-		if (IS_IMMORTAL(ch_vict))
-			continue;
-		if (!HERE(ch_vict))
-			continue;
-		if (ch_vict == victim)
-			continue;
-		if (SpINFO.violent && same_group(ch, ch_vict))
-			continue;
-		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
-		{
-			if (ch && ch_vict)
-			{
-				if (check_agr_in_house(ch, ch_vict))
-					return 0;
-			}
-		}
-		add_to_tmp_char_list(ch_vict);
-	}
-
-	mag_single_target(level, ch, victim, NULL, spellnum, savetype);
-	if (ch->purged())
-	{
-		return 1;
-	}
-
-	level -= decay;
-
-	// у шока после первой цели - рандом на остальные две цели
-	int max_targets = 0;
-	if (spellnum == SPELL_SHOCK)
-	{
-		max_targets = number(0, 2);
-		if (max_targets == 0)
-		{
-			return 1;
-		}
-	}
-
-	size_t size = tmp_char_list.size();
-	int count = 0;
-	while (level > 0 && level >= decay && size != 0)
-	{
-		if (max_targets > 0 && count >= max_targets)
-		{
-			break;
-		}
-
-		const auto index = number(0, static_cast<int>(size) - 1);
-		ch_vict = tmp_char_list[index];
-		tmp_char_list[index] = tmp_char_list[--size];
-
-		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
-		{
-			continue;
-		}
-		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
-		if (ch->purged())
-		{
-			break;
-		}
-		level -= decay;
-		++count;
-	}
-
-	return 1;
-}
-
-const spl_message groups_messages[] =
-{
+// групповые спеллы
 	{SPELL_GROUP_HEAL,
 	 "Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n",
 	 NULL,
@@ -6099,9 +5858,242 @@ const spl_message groups_messages[] =
 	 NULL,
 	 NULL,
 	 0},
-// конец групповых спелов         
-	{ -1, 0, 0, 0, 0 }
+	{ -1, 0, 0, 0, 0}
 };
+
+// наколенный список чаров для масс-заклов, бьющих по комнате
+// в необходимость самого списка не вникал, но данная конструкция над ним
+// нужна потому, что в случае смерти чара при проходе по уже сформированному
+// списку - за ним могут спуржиться и клоны например, которые тоже в этот
+// список попали, после чего имеем креш, т.к. бьем по невалидным указателям
+typedef std::vector<CHAR_DATA *>  AreaCharListType;
+AreaCharListType tmp_char_list;
+
+void add_to_tmp_char_list(CHAR_DATA *ch)
+{
+	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
+	if (it == tmp_char_list.end())
+		tmp_char_list.push_back(ch);
+}
+
+void delete_from_tmp_char_list(CHAR_DATA *ch)
+{
+	if (tmp_char_list.empty()) return;
+
+	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
+	if (it != tmp_char_list.end())
+		*it = 0;
+}
+
+// Применение заклинания к всем существам в комнате
+//---------------------------------------------------------
+int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype)
+{
+	if (ch == NULL)
+	{
+		return 0;
+	}
+//	if (room == nullptr)
+//		return 0;
+
+	int i;
+	for (i = 0; mag_messages[i].spell != -1; ++i)
+	{
+		if (mag_messages[i].spell == spellnum)
+		{
+			break;
+		}
+	}
+
+	if (mag_messages[i].spell == -1)
+	{
+		return 0;
+	}
+
+	if (world[ch->in_room] == room)	 // Давим вывод если чар не в той же комнате
+	{
+		if (multi_cast_say(ch))
+		{
+			const char *msg;
+			if ((msg = mag_messages[i].to_char) != NULL)
+			{
+				act(msg, FALSE, ch, 0, 0, TO_CHAR);
+			}
+			if ((msg = mag_messages[i].to_room) != NULL)
+			{
+				act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			}
+		}
+	}
+
+	tmp_char_list.clear();
+	for (const auto ch_vict : room->people)
+	{
+		if (IS_IMMORTAL(ch_vict)
+			|| !HERE(ch_vict)
+			|| (SpINFO.violent && same_group(ch, ch_vict))
+			|| IS_HORSE(ch_vict)
+			|| MOB_FLAGGED(ch_vict, MOB_PROTECT))
+		{
+			continue;
+		}
+
+		add_to_tmp_char_list(ch_vict);
+	}
+
+	// наколенная (в прямом смысле этого слова, даже стола нет)
+	// версия снижения каста при масс-кастах на чаров, по 9% за каждого игрока
+	const int attacker_cast = GET_CAST_SUCCESS(ch);
+	int targets_count = 0;
+	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
+	{
+		CHAR_DATA* ch_vict = *it;
+		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		{
+			continue;
+		}
+
+		const char* msg;
+		if ((msg = mag_messages[i].to_vict) != NULL
+			&& ch_vict->desc)
+		{
+			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
+		}
+
+		if (!IS_NPC(ch)
+			&& !IS_NPC(ch_vict))
+		{
+			if (ch && ch_vict)
+			{
+				if (check_agr_in_house(ch, ch_vict))
+				{
+					return 0;
+				}
+			}
+			++targets_count;
+		}
+
+		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
+		if (ch->purged())
+		{
+			return 1;
+		}
+
+		GET_CAST_SUCCESS(ch) = attacker_cast - attacker_cast * targets_count * 9 / 100;
+	}
+	GET_CAST_SUCCESS(ch) = attacker_cast;
+
+	return 1;
+}
+
+// Применение заклинания к части существ в комнате
+//---------------------------------------------------------
+int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
+{
+	int decay;
+	CHAR_DATA *ch_vict;
+	const char *msg;
+
+	if (!ch || !victim)
+		return 0;
+
+	int i;
+	for (i = 0; mag_messages[i].spell != -1; ++i)
+	{
+		if (mag_messages[i].spell == spellnum)
+		{
+			break;
+		}
+	}
+
+	if (mag_messages[i].spell == -1)
+	{
+		return 0;
+	}
+
+	if (ch->in_room == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
+	{
+		if (multi_cast_say(ch))
+		{
+			if ((msg = mag_messages[i].to_char) != NULL)
+				act(msg, FALSE, ch, 0, victim, TO_CHAR);
+			if ((msg = mag_messages[i].to_room) != NULL)
+				act(msg, FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+		}
+	}
+	decay = mag_messages[i].decay;
+
+	// список генерится до дамага по виктиму, т.к. на нем могут висеть death тригеры
+	// с появлением новых мобов, по которым тот же шок бьет уже после смерти основной цели
+	tmp_char_list.clear();
+	for (const auto ch_vict : world[ch->in_room]->people)
+	{
+		if (IS_IMMORTAL(ch_vict))
+			continue;
+		if (!HERE(ch_vict))
+			continue;
+		if (ch_vict == victim)
+			continue;
+		if (SpINFO.violent && same_group(ch, ch_vict))
+			continue;
+		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
+		{
+			if (ch && ch_vict)
+			{
+				if (check_agr_in_house(ch, ch_vict))
+					return 0;
+			}
+		}
+		add_to_tmp_char_list(ch_vict);
+	}
+
+	mag_single_target(level, ch, victim, NULL, spellnum, savetype);
+	if (ch->purged())
+	{
+		return 1;
+	}
+
+	level -= decay;
+
+	// у шока после первой цели - рандом на остальные две цели
+	int max_targets = 0;
+	if (spellnum == SPELL_SHOCK)
+	{
+		max_targets = number(0, 2);
+		if (max_targets == 0)
+		{
+			return 1;
+		}
+	}
+
+	size_t size = tmp_char_list.size();
+	int count = 0;
+	while (level > 0 && level >= decay && size != 0)
+	{
+		if (max_targets > 0 && count >= max_targets)
+		{
+			break;
+		}
+
+		const auto index = number(0, static_cast<int>(size) - 1);
+		ch_vict = tmp_char_list[index];
+		tmp_char_list[index] = tmp_char_list[--size];
+
+		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		{
+			continue;
+		}
+		mag_single_target(level, ch, ch_vict, NULL, spellnum, savetype);
+		if (ch->purged())
+		{
+			break;
+		}
+		level -= decay;
+		++count;
+	}
+
+	return 1;
+}
 
 // Применение заклинания к группе в комнате
 //---------------------------------------------------------
@@ -6113,15 +6105,15 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 	}
 
 	int i;
-	for (i = 0; groups_messages[i].spell != -1; ++i)
+	for (i = 0; mag_messages[i].spell != -1; ++i)
 	{
-		if (groups_messages[i].spell == spellnum)
+		if (mag_messages[i].spell == spellnum)
 		{
 			break;
 		}
 	}
 
-	if (groups_messages[i].spell == -1)
+	if (mag_messages[i].spell == -1)
 	{
 		return 0;
 	}
@@ -6130,9 +6122,9 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 	{
 		const char *msg;
 
-		if ((msg = groups_messages[i].to_char) != NULL)
+		if ((msg = mag_messages[i].to_char) != NULL)
 			act(msg, FALSE, ch, 0, 0, TO_CHAR);
-		if ((msg = groups_messages[i].to_room) != NULL)
+		if ((msg = mag_messages[i].to_room) != NULL)
 			act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
