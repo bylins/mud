@@ -3169,7 +3169,7 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		prob = 0;
 	}
 
-	if (prob * 100 / percent < 117
+	if (prob < percent
 		|| dam == 0
 		|| MOB_FLAGGED(victim, MOB_NOSTUPOR))
 	{
