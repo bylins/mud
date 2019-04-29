@@ -93,6 +93,7 @@ const char *trig_types[] = { "Global",
 							 "Раунд боя",
 							 "Каст в моба",
 							 "Смена времени",
+							 "Kill",
 							 "UNUSED",
 							 "Auto",
 							 "\n"
@@ -758,6 +759,49 @@ int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor)
 	}
 
 	return 1;
+}
+
+int kill_mtrigger(CHAR_DATA* ch, CHAR_DATA* actor)
+{
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		return 0;
+	}
+
+	if (!SCRIPT_CHECK(ch, MTRIG_KILL))
+	{
+		return 0;
+	}
+
+	for (auto t : SCRIPT(ch)->trig_list)
+	{
+		if (TRIGGER_CHECK(t, MTRIG_KILL))
+		{
+			if (actor)
+			{
+				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			}
+
+			std::ostringstream out_list;
+			if (!ch->kill_list.empty())
+			{
+				auto it = ch->kill_list.begin();
+				out_list << UID_CHAR << *it;
+				++it;
+
+				for (; it != ch->kill_list.end(); ++it)
+				{
+					out_list << " " << UID_CHAR << *it;
+				}
+			}
+			add_var_cntx(&GET_TRIG_VARS(t), "list", out_list.str().c_str(), 0);
+
+			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+		}
+	}
+
+	return 0;
 }
 
 void load_mtrigger(CHAR_DATA * ch)

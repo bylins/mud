@@ -27,7 +27,7 @@ extern const char *attach_name[];
 #define DG_NO_TRIG         256	// don't check act trigger   //
 
 // mob trigger types //
-#define MTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //
+#define MTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //						
 #define MTRIG_RANDOM           (1 << 1)	// checked randomly           //
 #define MTRIG_COMMAND          (1 << 2)	// character types a command  //
 #define MTRIG_SPEECH           (1 << 3)	// a char says a word/phrase  //
@@ -39,18 +39,18 @@ extern const char *attach_name[];
 #define MTRIG_RECEIVE          (1 << 9)	// character is given obj     //
 #define MTRIG_FIGHT            (1 << 10)	// each pulse while fighting  //
 #define MTRIG_HITPRCNT         (1 << 11)	// fighting and below some hp //
-#define MTRIG_BRIBE	       (1 << 12)	// coins are given to mob     //
+#define MTRIG_BRIBE			   (1 << 12)	// coins are given to mob     //
 #define MTRIG_LOAD             (1 << 13)	// the mob is loaded          //
-#define MTRIG_MEMORY           (1 << 14)	// mob see's someone remembered //
-#define MTRIG_DAMAGE           (1 << 15)	// someone damage mob           //
-#define MTRIG_GREET_PC         (1 << 16)
-#define MTRIG_GREET_PC_ALL     (1 << 17)
-#define MTRIG_INCOME           (1 << 18)	// mob income to room //
-#define MTRIG_INCOME_PC        (1 << 19)	// mob income to room if PC there //
-#define MTRIG_START_FIGHT      (1 << 20) // начало боя с мобом
-#define MTRIG_ROUND_NUM        (1 << 21) // на х раунде боя
-#define MTRIG_CAST             (1 << 22) // каст в моба
-#define MTRIG_TIMECHANGE       (1 << 23) // смена времени
+#define MTRIG_DAMAGE           (1 << 14)	// someone damage mob           //
+#define MTRIG_GREET_PC         (1 << 15)
+#define MTRIG_GREET_PC_ALL     (1 << 16)
+#define MTRIG_INCOME           (1 << 17)	// mob income to room //
+#define MTRIG_INCOME_PC        (1 << 18)	// mob income to room if PC there //
+#define MTRIG_START_FIGHT      (1 << 19) // начало боя с мобом
+#define MTRIG_ROUND_NUM        (1 << 20) // на х раунде боя
+#define MTRIG_CAST             (1 << 21) // каст в моба
+#define MTRIG_TIMECHANGE       (1 << 22) // смена времени
+#define MTRIG_KILL			   (1 << 23) //trig for mob's kill list
 
 // obj trigger types //
 #define OTRIG_GLOBAL           (1 << 0)	// unused                     //
@@ -343,6 +343,7 @@ int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_otrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor);
+int kill_mtrigger(CHAR_DATA* ch, CHAR_DATA* actor);
 int fight_mtrigger(CHAR_DATA * ch);
 void hitprcnt_mtrigger(CHAR_DATA * ch);
 int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim);
