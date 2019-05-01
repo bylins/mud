@@ -41,16 +41,16 @@ extern const char *attach_name[];
 #define MTRIG_HITPRCNT         (1 << 11)	// fighting and below some hp //
 #define MTRIG_BRIBE			   (1 << 12)	// coins are given to mob     //
 #define MTRIG_LOAD             (1 << 13)	// the mob is loaded          //
-#define MTRIG_DAMAGE           (1 << 14)	// someone damage mob           //
-#define MTRIG_GREET_PC         (1 << 15)
-#define MTRIG_GREET_PC_ALL     (1 << 16)
-#define MTRIG_INCOME           (1 << 17)	// mob income to room //
-#define MTRIG_INCOME_PC        (1 << 18)	// mob income to room if PC there //
-#define MTRIG_START_FIGHT      (1 << 19) // начало боя с мобом
-#define MTRIG_ROUND_NUM        (1 << 20) // на х раунде боя
-#define MTRIG_CAST             (1 << 21) // каст в моба
-#define MTRIG_TIMECHANGE       (1 << 22) // смена времени
-#define MTRIG_KILL			   (1 << 23) //trig for mob's kill list
+#define MTRIG_KILL			   (1 << 14) //trig for mob's kill list
+#define MTRIG_DAMAGE           (1 << 15)	// someone damage mob           //
+#define MTRIG_GREET_PC         (1 << 16)
+#define MTRIG_GREET_PC_ALL     (1 << 17)
+#define MTRIG_INCOME           (1 << 18)	// mob income to room //
+#define MTRIG_INCOME_PC        (1 << 19)	// mob income to room if PC there //
+#define MTRIG_START_FIGHT      (1 << 20) // начало боя с мобом
+#define MTRIG_ROUND_NUM        (1 << 21) // на х раунде боя
+#define MTRIG_CAST             (1 << 22) // каст в моба
+#define MTRIG_TIMECHANGE       (1 << 23) // смена времени
 
 // obj trigger types //
 #define OTRIG_GLOBAL           (1 << 0)	// unused                     //
