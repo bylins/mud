@@ -759,17 +759,6 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	{
 		death_cry(ch, killer);
 	}
-
-	if (killer && IS_NPC(killer) && !IS_NPC(ch) && kill_mtrigger(killer, ch))
-	{
-		const auto it = std::find(killer->kill_list.begin(), killer->kill_list.end(), GET_ID(ch));
-		if(it != killer->kill_list.end())
-		{
-			killer->kill_list.erase(it);
-		}
-		killer->kill_list.push_back(GET_ID(ch));
-	}
-
 	// добавляем одну душу киллеру
 	if (IS_NPC(ch) && killer)
 	{

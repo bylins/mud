@@ -801,8 +801,6 @@ public:
 	bool agrobd;		// показывает, агробд или нет
 
 	std::map<int, temporary_spell_data> temp_spells;
-
-	std::vector<int> kill_list; //used only for MTRIG_KILL
 };
 
 inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const
