@@ -67,6 +67,7 @@ CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUA
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);
 int vnum_room(char *searchname, CHAR_DATA * ch);
+int vnum_obj_trig(char *searchname, CHAR_DATA * ch);
 
 // structure for the reset commands
 struct reset_com

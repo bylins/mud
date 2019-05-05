@@ -249,6 +249,7 @@ void GlobalTriggersStorage::unregister_remove_observer(TRIG_DATA* trigger, const
 	}
 }
 
+obj2trigers_t& obj2trigers = GlobalObjects::obj_trigers();
 GlobalTriggersStorage& trigger_list = GlobalObjects::trigger_list();	// all attached triggers
 
 int trgvar_in_room(int vnum)

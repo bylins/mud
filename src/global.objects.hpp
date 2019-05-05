@@ -61,7 +61,9 @@ public:
 
 	static DailyQuestMap& daily_quests();
 
-        static Strengthening& strengthening();
+	static Strengthening& strengthening();
+
+	static obj2trigers_t& obj_trigers();
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__

@@ -371,6 +371,9 @@ void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);
 void script_log(const char *msg, const int type = 0);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);
 
+using obj2trigers_t = std::unordered_map<obj_rnum, std::list<rnum_t>>;
+extern obj2trigers_t& obj2trigers;
+
 class GlobalTriggersStorage
 {
 public:
