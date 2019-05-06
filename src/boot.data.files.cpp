@@ -18,6 +18,7 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string.hpp>
 #include <iostream>
+#include <regex>
 
 extern int scheck;						// TODO: get rid of this line
 extern const char *unused_spellname;	// TODO: get rid of this line
@@ -367,6 +368,27 @@ void TriggersFile::parse_trigger(int nr)
 			indent_trigger(line, &indlev);
 			(*ptr)->cmd = line;
 			ptr = &(*ptr)->next;
+
+			const auto load_obj_exp = std::regex("^\\s*(?:%load%|oload|mload|wload)\\s+obj\\s+(\\d+)");
+			std::smatch match;
+			if(std::regex_search(line, match, load_obj_exp))
+			{
+				obj_rnum obj_num = std::stoi(match.str(1));
+				const auto tlist_it = obj2trigers.find(obj_num);
+				if(tlist_it != obj2trigers.end())
+				{
+					const auto trig_f = std::find(tlist_it->second.begin(), tlist_it->second.end(), top_of_trigt);
+					if(trig_f == tlist_it->second.end())
+					{
+						tlist_it->second.push_back(top_of_trigt);
+					}
+				}
+				else
+				{
+					std::list<rnum_t> tlist = { top_of_trigt };
+					obj2trigers.emplace(obj_num, tlist);
+				}
+			}
 		}
 		if (pos_end != std::string::npos)
 			pos_end = pos_end + 1;

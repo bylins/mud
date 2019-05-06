@@ -1838,11 +1838,13 @@ void do_vnum(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	half_chop(argument, buf, buf2);
 
 	if (!*buf || !*buf2 || (!is_abbrev(buf, "mob") && !is_abbrev(buf, "obj") && !is_abbrev(buf, "room") && !is_abbrev(buf, "flag")
-		&& !is_abbrev(buf, "существо") && !is_abbrev(buf, "предмет") && !is_abbrev(buf, "флаг") && !is_abbrev(buf, "комната")))
+		&& !is_abbrev(buf, "существо") && !is_abbrev(buf, "предмет") && !is_abbrev(buf, "флаг") && !is_abbrev(buf, "комната")
+		&& !is_abbrev(buf, "trig") && !is_abbrev(buf, "триггер")))
 	{
-		send_to_char("Usage: vnum { obj | mob | flag | room } <name>\r\n", ch);
+		send_to_char("Usage: vnum { obj | mob | flag | room | trig } <name>\r\n", ch);
 		return;
 	}
+
 	if ((is_abbrev(buf, "mob")) || (is_abbrev(buf, "существо")))
 		if (!vnum_mobile(buf2, ch))
 			send_to_char("Нет существа с таким именем.\r\n", ch);
@@ -1858,9 +1860,11 @@ void do_vnum(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if ((is_abbrev(buf, "room")) || (is_abbrev(buf, "комната")))
 		if (!vnum_room(buf2, ch))
 			send_to_char("Нет объектов с таким флагом.\r\n", ch);
+
+	if (is_abbrev(buf, "trig") || is_abbrev(buf, "триггер"))
+		if (!vnum_obj_trig(buf2, ch))
+			send_to_char("Нет триггеров, загружаемых такой объект\r\n", ch);
 }
-
-
 
 void do_stat_room(CHAR_DATA * ch, const int rnum)
 {

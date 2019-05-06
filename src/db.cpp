@@ -75,6 +75,7 @@
 #include <sstream>
 #include <string>
 #include <cmath>
+#include <boost/lexical_cast.hpp>
 
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
@@ -3725,6 +3726,34 @@ int vnum_room(char *searchname, CHAR_DATA * ch)
 		}
 	}
 	return (found);
+}
+
+int vnum_obj_trig(char *searchname, CHAR_DATA * ch)
+{
+	int num;
+	try
+	{
+		 num = boost::lexical_cast<int>(searchname);
+	}
+	catch(boost::bad_lexical_cast&)
+	{
+		return 0;
+	}
+
+	const auto trigs = obj2trigers.find(num);
+	if(trigs == obj2trigers.end())
+	{
+		return 0;
+	}
+
+	int found = 0;
+	for(const auto& t : trigs->second)
+	{
+		sprintf(buf, "%3d. [%5d] %s\r\n", ++found, trig_index[t]->vnum, trig_index[t]->proto->get_name().c_str());
+		send_to_char(buf, ch);
+	}
+
+	return found;
 }
 
 namespace {

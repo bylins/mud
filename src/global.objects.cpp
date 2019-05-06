@@ -37,7 +37,8 @@ namespace
 		std::shared_ptr<influxdb::Sender> stats_sender;
 		zone_table_t zone_table;
 		DailyQuestMap daily_quests;
-                Strengthening strengthening;
+		Strengthening strengthening;
+		obj2trigers_t obj2trigers;
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -188,6 +189,11 @@ DailyQuestMap& GlobalObjects::daily_quests()
 Strengthening& GlobalObjects::strengthening()
 {
     return global_objects().strengthening;
+}
+
+obj2trigers_t& GlobalObjects::obj_trigers()
+{
+	return global_objects().obj2trigers;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
