@@ -496,11 +496,9 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
-
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-//		mudlog("Противник исчез при ПК куда-то! функция pk_agro_action", CMP, LVL_GOD, SYSLOG, TRUE);
 		return false;
 	}
 	if (!IS_NPC(victim) || IS_CHARMICE(victim))

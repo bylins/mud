@@ -34,6 +34,7 @@
 #include "conf.h"
 
 #include <cmath>
+#include "logger.hpp"
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -2948,11 +2949,6 @@ void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 // Added by Gorrah
 void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	int percent, dam = 0;
-	int sum, max_level;
-	struct timed_type timed;
-	std::vector<CHAR_DATA*> ch_list;
-
 	if (IS_NPC(ch))		// Cannot use on mobs.
 		return;
 
@@ -2961,16 +2957,14 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
-//	send_to_char("Временно отключено.\r\n", ch);
-//	return;
+
 	if (timed_by_skill(ch, SKILL_TURN_UNDEAD))
 	{
 		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
 		return;
 	}
 
-	timed.skill = SKILL_TURN_UNDEAD;
-	timed.time = IS_PALADINE(ch) ? 6 : 8;
+	timed_type timed = { SKILL_TURN_UNDEAD, static_cast<ubyte>(IS_PALADINE(ch) ? 6 : 8), nullptr };
 	if (can_use_feat(ch, EXORCIST_FEAT))
 		timed.time -= 2;
 	timed_to_char(ch, &timed);
@@ -2979,73 +2973,76 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
 //Составляем список всех персов в комнате и выкидываем дружественных и не-нежить
-	for (const auto ch_vict : world[ch->in_room]->people)
+	std::vector<CHAR_DATA*> vict_list;
+	for (const auto& vict : world[ch->in_room]->people)
 	{
-		if (IS_IMMORTAL(ch_vict))
+		if (IS_IMMORTAL(vict))
 			continue;
-		if (!HERE(ch_vict))
+		if (!HERE(vict))
 			continue;
-		if (same_group(ch, ch_vict))
+		if (same_group(ch, vict))
 			continue;
-		if (!(IS_UNDEAD(ch_vict) || GET_RACE(ch_vict) == NPC_RACE_GHOST))
+		if (!(IS_UNDEAD(vict) || GET_RACE(vict) == NPC_RACE_GHOST))
 			continue;
-		if (!may_kill_here(ch, ch_vict))
+		if (!may_kill_here(ch, vict))
 			return;
-		ch_list.push_back(ch_vict);
+		vict_list.push_back(vict);
 	}
 
-	if (ch_list.size() > 0)
+	if (vict_list.empty())
 	{
-		percent = ch->get_skill(SKILL_TURN_UNDEAD);
-	}
-	else
-	{
-		ch_list.clear();
 		return;
 	}
 
+	const auto percent = ch->get_skill(SKILL_TURN_UNDEAD);
+
 //Определяем максимальный уровень изгоняемой нежити
+	int max_lvl;
 	if (number(1, skill_info[SKILL_TURN_UNDEAD].max_percent) <= percent)
-		max_level = GET_LEVEL(ch) + number(1, percent) / 10 + 5;
+		max_lvl = GET_LEVEL(ch) + number(1, percent) / 10 + 5;
 	else
-		max_level = GET_LEVEL(ch) - number(1, 5);
-	sum = dice(3, 8) + GET_LEVEL(ch) + percent / 2;
+		max_lvl = GET_LEVEL(ch) - number(1, 5);
+
+	int sum = dice(3, 8) + GET_LEVEL(ch) + percent / 2;
 
 //Применяем.
 //Если уровень больше максимального, или отсэйвилось - фейл по этому персу
 //Если поражение - то дамаг+страх, если от страха спасла воля - просто дамаг.
-	for (std::vector<CHAR_DATA *>::iterator it=ch_list.begin();it!=ch_list.end();++it)
+	for (const auto& vict : vict_list)
 	{
 		if (sum <= 0)
 		{
 			break;
 		}
 
-		CHAR_DATA *ch_vict = *it;
-		if (ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
+		if (IN_ROOM(ch) == NOWHERE
+			|| IN_ROOM(vict) == NOWHERE)
 		{
 			continue;
 		}
 
-		if ((GET_LEVEL(ch_vict) > max_level)
-			|| (dice(1, GET_REAL_SAVING_STABILITY(ch_vict)) > dice(1, GET_REAL_WIS(ch))))
+		if ((GET_LEVEL(vict) > max_lvl)
+			|| (dice(1, GET_REAL_SAVING_STABILITY(vict)) > dice(1, GET_REAL_WIS(ch))))
 		{
-			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
-			if (!pk_agro_action(ch, ch_vict))
+			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, vict);
+			if (!pk_agro_action(ch, vict))
 			{
-				return;
+				continue;
 			}
 
 			Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), 0, FightSystem::MAGE_DMG);
 			dmg.flags.set(FightSystem::IGNORE_FSHIELD);
-			dmg.process(ch, ch_vict);
+			dmg.process(ch, vict);
 
 			continue;
 		}
-		sum -= GET_LEVEL(ch_vict);
-		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(ch_vict))
+
+		sum -= GET_LEVEL(vict);
+
+		int dam;
+		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(vict))
 		{
-			dam = MAX(1, GET_HIT(ch_vict) + 11);
+			dam = MAX(1, GET_HIT(vict) + 11);
 		}
 		else
 		{
@@ -3054,17 +3051,26 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 			else
 				dam = dice(8, 4 * GET_REAL_WIS(ch) + GET_REAL_INT(ch)) + GET_LEVEL(ch);
 		}
-		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, ch_vict);
+		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, vict);
 
 		Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), dam, FightSystem::MAGE_DMG);
 		dmg.flags.set(FightSystem::IGNORE_FSHIELD);
-		dmg.process(ch, ch_vict);
-		if (!ch || !ch_vict || ch->purged() || ch_vict->purged())
-			return;
-		if (!MOB_FLAGGED(ch_vict, MOB_NOFEAR)
-			&& !general_savingthrow(ch, ch_vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))
+		dmg.process(ch, vict);
+
+		if (!ch || ch->purged())
 		{
-			go_flee(ch_vict);
+			return;
+		}
+
+		if(!vict || vict->purged())
+		{
+			continue;
+		}
+
+		if (!MOB_FLAGGED(vict, MOB_NOFEAR)
+			&& !general_savingthrow(ch, vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch)))
+		{
+			go_flee(vict);
 		}
 	}
 }
