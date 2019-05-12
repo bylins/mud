@@ -50,6 +50,7 @@
 #include "zone.table.hpp"
 
 #include <vector>
+#include <boost/lexical_cast.hpp>
 
 extern room_rnum r_mortal_start_room;
 
@@ -1392,73 +1393,78 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 	}
 }
 
-void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
+void do_freehelpee(CHAR_DATA* ch, char* argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *helpee;
-	struct follow_type *k;
-	int cost=0, times, i;
-	char isbank[MAX_INPUT_LENGTH];
-
-	if (IS_NPC(ch) || (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
+	if (IS_NPC(ch)
+		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
 	{
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_FREEHELPEE)
+	follow_type* k;
+	for (k = ch->followers; k; k = k->next)
 	{
-		for (k = ch->followers; k; k = k->next)
+		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+			&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
 		{
-			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
-				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
-			{
-				break;
-			}
+			break;
 		}
+	}
 
-		if (k)
+	if (!k)
+	{
+		act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
+		return;
+	}
+
+	if (ch->in_room != IN_ROOM(k->follower))
+	{
+		act("Вам следует встретиться с $N4 для этого.", FALSE, ch, 0, k->follower, TO_CHAR);
+		return;
+	}
+
+	if (GET_POS(k->follower) < POS_STANDING)
+	{
+		act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, k->follower, TO_CHAR);
+		return;
+	}
+
+	if (!IS_IMMORTAL(ch))
+	{
+		for (const auto& aff : k->follower->affected)
 		{
-			if (ch->in_room != IN_ROOM(k->follower))
-				act("Вам следует встретиться с $N4 для этого.", FALSE, ch, 0, k->follower, TO_CHAR);
-			else if (GET_POS(k->follower) < POS_STANDING)
-				act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, k->follower, TO_CHAR);
-			else
+			if (aff->type == SPELL_CHARM)
 			{
-				// added by WorM (Видолюб) 2010.06.04 Cохраняем цену найма моба
-				if (!IS_IMMORTAL(ch))
+				const auto cost = MAX(0, (int)((aff->duration - 1) / 2)*(int)abs(k->follower->mob_specials.hire_price));
+				if (cost > 0)
 				{
-					for (const auto& aff : k->follower->affected)
+					if (k->follower->mob_specials.hire_price < 0)
 					{
-						if (aff->type == SPELL_CHARM)
-						{
-							cost = MAX(0, (int)((aff->duration - 1) / 2)*(int)abs(k->follower->mob_specials.hire_price));
-							if (cost > 0)
-							{
-								if (k->follower->mob_specials.hire_price < 0)
-								{
-									ch->add_bank(cost);
-								}
-								else
-								{
-									ch->add_gold(cost);
-								}
-							}
-
-							break;
-						}
+						ch->add_bank(cost);
+					}
+					else
+					{
+						ch->add_gold(cost);
 					}
 				}
 
-				act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
-				// end by WorM
-				affect_from_char(k->follower, SPELL_CHARM);
-				stop_follower(k->follower, SF_CHARMLOST);
+				break;
 			}
 		}
-		else
-		{
-			act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
-		}
+	}
+
+	act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+	affect_from_char(k->follower, SPELL_CHARM);
+	stop_follower(k->follower, SF_CHARMLOST);
+}
+
+void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	if (IS_NPC(ch)
+		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
+	{
+		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}
 
@@ -1466,6 +1472,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!*arg)
 	{
+		follow_type* k;
 		for (k = ch->followers; k; k = k->next)
 		{
 			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
@@ -1483,15 +1490,18 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
 		}
+
 		return;
 	}
 
-	if (!(helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	const auto helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	if (!helpee)
 	{
 		send_to_char("Вы не видите никого похожего.\r\n", ch);
 		return;
 	}
 
+	follow_type* k;
 	for (k = ch->followers; k; k = k->next)
 	{
 		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
@@ -1519,20 +1529,22 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else
 	{
+		char isbank[MAX_STRING_LENGTH];
 		two_arguments(argument, arg, isbank);
-		if (!*arg)
-			times = 0;
-		else if ((times = atoi(arg)) < 0)
+
+		int times = -1;
+		try
 		{
-			act("Уточните время, на которое вы хотите нанять $N3.", FALSE, ch, 0, helpee, TO_CHAR);
-			return;
+			times = boost::lexical_cast<int>(arg);
 		}
-		if (!times)  	//cost = GET_LEVEL(helpee) * TIME_KOEFF;
+		catch (boost::bad_lexical_cast&) {}
+
+		if(!*arg || times < 0)
 		{
-			cost = calc_hire_price(ch, helpee);
+			const auto cost = calc_hire_price(ch, helpee);
 			sprintf(buf,
-					"$n сказал$g вам : \"Один час моих услуг стоит %d %s\".\r\n",
-					cost, desc_count(cost, WHAT_MONEYu));
+				"$n сказал$g вам : \"Один час моих услуг стоит %d %s\".\r\n",
+				cost, desc_count(cost, WHAT_MONEYu));
 			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 			return;
 		}
@@ -1543,16 +1555,12 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			return;
 		}
 
-		i = calc_hire_price(ch, helpee);
-		cost = (WAITLESS(ch) ? 0 : 1) * i * times;
-// проверка на overflow - не совсем корректно, но в принципе годится
-		sprintf(buf1, "%d", i);
-		if (cost < 0 || (strlen(buf1) + strlen(arg)) > 9)
+		auto cost = times * calc_hire_price(ch, helpee);
+		if(WAITLESS(ch))
 		{
-			cost = 100000000;
-			sprintf(buf, "$n сказал$g вам : \" Хорошо, не буду жадничать, скину тебе немного с цены.\"");
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			cost = 0;
 		}
+
 		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
 				(isname(isbank, "банк bank") && cost > ch->get_bank()))
 		{
@@ -1597,15 +1605,18 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 		affect_from_char(helpee, SPELL_CHARM);
 
-		if (isname(isbank, "банк bank"))
+		if (!WAITLESS(ch))
 		{
-			ch->remove_bank(cost);
-			helpee->mob_specials.hire_price = -i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба через банк
-		}
-		else
-		{
-			ch->remove_gold(cost);
-			helpee->mob_specials.hire_price = i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба
+			if (isname(isbank, "банк bank"))
+			{
+				ch->remove_bank(cost);
+				helpee->mob_specials.hire_price = -cost;
+			}
+			else
+			{
+				ch->remove_gold(cost);
+				helpee->mob_specials.hire_price = cost;
+			}
 		}
 
 		af.type = SPELL_CHARM;
@@ -1614,33 +1625,38 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
-//		AFF_FLAGS(helpee).set(EAffectFlag::AFF_HELPER); 
+
 		af.type = SPELL_CHARM;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
+
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+		
 		if (IS_NPC(helpee))
 		{
-			for (i = 0; i < NUM_WEARS; i++)
+			for (auto i = 0; i < NUM_WEARS; i++)
+			{
 				if (GET_EQ(helpee, i))
 				{
 					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
 						continue;
+
 					act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
 					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
 					obj_to_char(unequip_char(helpee, i | 0x40), helpee);
 				}
+			}
+
 			MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
 			MOB_FLAGS(helpee).unset(MOB_SPEC);
 			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
-			// shapirus: !train для чармисов
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
 			helpee->set_skill(SKILL_PUNCTUAL, 0);
-			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
+
 			Crash_crashsave(ch);
 			ch->save_char();
 		}

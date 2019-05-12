@@ -241,10 +241,6 @@ struct alias_data
 #define SCMD_DO_ADAPT 0
 #define SCMD_MAKE_OVER 1
 
-//  do helpee
-#define SCMD_BUYHELPEE  0
-#define SCMD_FREEHELPEE 1
-
 // do_drop
 #define SCMD_DROP 0
 #define SCMD_DONATE 1
