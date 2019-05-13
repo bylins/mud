@@ -187,6 +187,7 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_featset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_findhelpee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_freehelpee(CHAR_DATA* ch, char* argument, int cmd, int subcmd);
 void do_firstaid(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_fire(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -620,7 +621,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"налить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 	{"наполнить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 	{"найти", POS_STANDING, do_sense, 0, 0, 500},
-	{"нанять", POS_STANDING, do_findhelpee, 0, SCMD_BUYHELPEE, -1},
+	{"нанять", POS_STANDING, do_findhelpee, 0, 0, -1},
 	{"новичок", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 	{"новости", POS_DEAD, Boards::DoBoard, 1, Boards::NEWS_BOARD, -1},
 	{"надеть", POS_RESTING, do_wear, 0, 0, 500},
@@ -729,7 +730,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"разжечь", POS_STANDING, do_fire, 0, 0, -1},
 	{"распустить", POS_DEAD, do_ungroup, 0, 0, 500},
 	{"рассмотреть", POS_STANDING, do_not_here, 0, 0, -1},
-	{"рассчитать", POS_RESTING, do_findhelpee, 0, SCMD_FREEHELPEE, -1},
+	{"рассчитать", POS_RESTING, do_freehelpee, 0, 0, -1},
 	{"режим", POS_DEAD, do_mode, 0, 0, 0},
 	{"ремонт", POS_RESTING, do_repair, 0, 0, -1},
 	{"рецепты", POS_RESTING, do_recipes, 0, 0, 0},
