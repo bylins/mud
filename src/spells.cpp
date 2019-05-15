@@ -1555,11 +1555,13 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		auto cost = times * calc_hire_price(ch, helpee);
+		auto hire_price = calc_hire_price(ch, helpee);
 		if(WAITLESS(ch))
 		{
-			cost = 0;
+			hire_price = 0;
 		}
+
+		const auto cost = times * hire_price;
 
 		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
 				(isname(isbank, "банк bank") && cost > ch->get_bank()))
@@ -1610,12 +1612,12 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (isname(isbank, "банк bank"))
 			{
 				ch->remove_bank(cost);
-				helpee->mob_specials.hire_price = -cost;
+				helpee->mob_specials.hire_price = -hire_price;
 			}
 			else
 			{
 				ch->remove_gold(cost);
-				helpee->mob_specials.hire_price = cost;
+				helpee->mob_specials.hire_price = hire_price;
 			}
 		}
 
