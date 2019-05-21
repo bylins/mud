@@ -40,6 +40,7 @@
 #define MREDIT_INGR_POWER	7
 #define MREDIT_DEL 	 	8
 #define MREDIT_CONFIRM_SAVE     9
+#define MREDIT_SELECT_PROF     10
 
 #define MAKE_ANY 	0
 #define MAKE_POTION	1
@@ -142,25 +143,14 @@ class MakeRecept
 
 	int add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta);
 
-	int get_ingr_lev(OBJ_DATA *ingrobj);
-
-	void make_object(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt);
-
-	void make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS]);
-        //к сожалению у нас не прототип. прийдется расчитывать отдельно
-        float count_mort_requred(OBJ_DATA * obj);
-        
-        float count_affect_weight(int num, int mod);      
-
-	int get_ingr_pow(OBJ_DATA *ingrobj);
-
-	void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
         
 public:
 	bool locked;
 
 	ESkill skill;
 	int obj_proto;
+	short ch_class;  // Полель крафт теперь может иметь разные профессии. для обратной совместимости если не заполненно то все.
+	
 	std::array<ingr_part_type, MAX_PARTS> parts;
 
 	// конструктор деструктор загрузка из строчки.
@@ -175,6 +165,114 @@ public:
 	// сохранить рецепт в строку.
 	int save_to_str(string & rstr);
 };
+
+class AbstractCreateObjectType
+{
+	public:
+		OBJ_DATA *obj;
+		OBJ_DATA *ingrs[MAX_PARTS];
+		ESkill skillnum;		
+		string  tmpstr, charwork, roomwork, charfail, roomfail, charsucc, roomsucc, chardam, roomdam, tagging, itemtag;
+		int		dam = 0;
+		int		ingr_cnt = 0,ingr_pow = 0;
+		int		craft_weight = 0;
+		//virtual AbstractCreateObjectType() {};
+		virtual ~AbstractCreateObjectType() {};
+		virtual void CreateObject(CHAR_DATA */* params*/) {};
+
+		int add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag,int delta);
+
+		bool fail_create(CHAR_DATA* ch);
+		bool check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts);
+		
+		int add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta);
+        //к сожалению у нас не прототип. прийдется расчитывать отдельно
+        float count_mort_requred();
+        
+        float count_affect_weight(int num, int mod);      
+
+		int stat_modify(CHAR_DATA * ch, int value, float devider);
+		void make_object(CHAR_DATA *ch, OBJ_DATA *obj, int ingr_cnt);
+		void load_ingr_in_create(OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt);
+		void add_rnd_skills(CHAR_DATA * ch, OBJ_DATA * obj_from, OBJ_DATA *obj_to);
+		
+		
+};
+
+class CreateStuff : public AbstractCreateObjectType
+{
+	public:
+
+	CreateStuff();
+	~CreateStuff() {};
+	virtual void CreateObject(CHAR_DATA * ch );
+};
+
+class CreateWear : public AbstractCreateObjectType
+{
+	public:
+
+	CreateWear();
+	~CreateWear() {};
+	bool check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts);
+	
+	virtual void CreateObject(CHAR_DATA * ch );
+};
+
+class CreateAmulet : public AbstractCreateObjectType
+{
+	public:
+
+	CreateAmulet();
+	~CreateAmulet() {};
+	virtual void CreateObject(CHAR_DATA * ch );
+};
+
+class CreateJewel : public AbstractCreateObjectType
+{
+	public:
+
+	CreateJewel();
+	~CreateJewel() {};
+	virtual void CreateObject(CHAR_DATA * ch );
+};
+
+class CreatePotion : public AbstractCreateObjectType
+{
+	public:
+
+	CreatePotion();
+	~CreatePotion() {};
+	virtual void CreateObject(CHAR_DATA * ch );
+};
+
+class CreateArmor : public AbstractCreateObjectType
+{
+	public:
+
+	CreateArmor();
+	~CreateArmor() {};
+	virtual void CreateObject(CHAR_DATA * ch );
+};
+
+class CreateWeapon : public AbstractCreateObjectType
+{
+	public:
+
+	CreateWeapon();
+	~CreateWeapon() {};
+	virtual void CreateObject(CHAR_DATA * ch );
+};
+
+class CreateBow : public AbstractCreateObjectType
+{
+	public:
+
+	CreateBow();
+	~CreateBow() {};
+	virtual void CreateObject(CHAR_DATA * ch );
+};
+
 
 #endif
 

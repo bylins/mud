@@ -35,6 +35,7 @@
 
 #define SpINFO   spell_info[spellnum]
 extern int material_value[];
+extern const char *pc_class_types[]; 
 int slot_for_char(CHAR_DATA * ch, int i);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 
@@ -173,6 +174,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 	switch (OLC_MODE(d))
 	{
 	case MREDIT_MAIN_MENU:
+	{
 		// Ввод главного меню.
 		if (sagr == "1")
 		{
@@ -200,6 +202,22 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		if (sagr == "3")
 		{
+			tmpstr = "\r\nСписок профессий:\r\n";
+			sprintf(tmpbuf, "%s%d%s) %s.\r\n", grn, -1, nrm, "Без ограничения");
+			i = 0;
+			for (i = 0; i < NUM_PLAYER_CLASSES; i++)
+			{
+				sprintf(tmpbuf, "%s%d%s) %s.\r\n", grn, i, nrm, pc_class_types[i]);
+				tmpstr += string(tmpbuf);
+				i++;
+			}
+			send_to_char("Введите номер профессии: ", d->character.get());
+			OLC_MODE(d) = MREDIT_SELECT_PROF;
+			return;
+		}
+		
+		if (sagr == "4")
+		{
 			send_to_char("Блокировать рецепт? (y/n): ", d->character.get());
 			OLC_MODE(d) = MREDIT_LOCK;
 			return;
@@ -207,7 +225,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		for (i = 0; i < MAX_PARTS; i++)
 		{
-			if (atoi(sagr.c_str()) - 4 == i)
+			if (atoi(sagr.c_str()) - 5 == i)
 			{
 				OLC_NUM(d) = i;
 				mredit_disp_ingr_menu(d);
@@ -255,8 +273,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		send_to_char("Неверный ввод.\r\n", d->character.get());
 		mredit_disp_menu(d);
 		break;
-
+	}
+	
 	case MREDIT_OBJ_PROTO:
+	{
 		i = atoi(sagr.c_str());
 		if (real_object(i) < 0)
 		{
@@ -269,8 +289,26 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 
+	case MREDIT_SELECT_PROF:
+	{
+		i = atoi(sagr.c_str());
+		if ((CLASS_UNDEFINED < i )&&(i < NUM_PLAYER_CLASSES))
+		{
+			trec->ch_class = i;
+			OLC_VAL(d) = 1;
+		}
+		else
+		{
+			send_to_char("Выбрана некорректная профессия.\r\n", d->character.get());
+		}
+		mredit_disp_menu(d);
+		break;
+	}
+		
 	case MREDIT_SKILL:
+	{
 		int skill_num;
 		skill_num = atoi(sagr.c_str());
 		i = 0;
@@ -288,8 +326,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		send_to_char("Выбрано некорректное умение.\r\n", d->character.get());
 		mredit_disp_menu(d);
 		break;
+	}
 
 	case MREDIT_DEL:
+	{
 		if (sagr == "Y" || sagr == "y")
 		{
 			send_to_char("Рецепт удален. Рецепты сохранены.\r\n", d->character.get());
@@ -310,8 +350,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 
 	case MREDIT_LOCK:
+	{
 		if (sagr == "Y" || sagr == "y")
 		{
 			send_to_char("Рецепт заблокирован от использования.\r\n", d->character.get());
@@ -330,8 +372,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 
 	case MREDIT_INGR_MENU:
+	{
 		// Ввод меню ингридиентов.
 		if (sagr == "1")
 		{
@@ -363,8 +407,10 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		send_to_char("Неверный ввод.\r\n", d->character.get());
 		mredit_disp_ingr_menu(d);
 		break;
+	}
 
 	case MREDIT_INGR_PROTO:
+	{
 		i = atoi(sagr.c_str());
 		if (i == 0)
 		{
@@ -385,22 +431,28 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_ingr_menu(d);
 		break;
+	}
 
 	case MREDIT_INGR_WEIGHT:
+	{
 		i = atoi(sagr.c_str());
 		trec->parts[OLC_NUM(d)].min_weight = i;
 		OLC_VAL(d) = 1;
 		mredit_disp_ingr_menu(d);
 		break;
+	}
 
 	case MREDIT_INGR_POWER:
+	{
 		i = atoi(sagr.c_str());
 		trec->parts[OLC_NUM(d)].min_power = i;
 		OLC_VAL(d) = 1;
 		mredit_disp_ingr_menu(d);
 		break;
+	}
 
 	case MREDIT_CONFIRM_SAVE:
+	{
 		if (sagr == "Y" || sagr == "y")
 		{
 			send_to_char("Рецепты сохранены.\r\n", d->character.get());
@@ -422,6 +474,7 @@ void mredit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		mredit_disp_menu(d);
 		break;
+	}
 	}
 }
 
@@ -528,7 +581,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 	// Рисуем меню ...
 	MakeRecept *trec;
 	char tmpbuf[MAX_INPUT_LENGTH];
-	string tmpstr, objname, skillname;
+	string tmpstr, objname, skillname, profname;
 	trec = OLC_MREC(d);
 	get_char_cols(d->character.get());
 	auto tobj = get_object_prototype(trec->obj_proto);
@@ -552,6 +605,14 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 		}
 		i++;
 	}
+	if (trec->ch_class>CLASS_UNDEFINED)
+	{
+		profname = pc_class_types[trec->ch_class];
+	}
+	else
+	{
+		profname = "Нет";
+	}
 	sprintf(tmpbuf,
 #if defined(CLEAR_SCREEN)
 			"[H[J"
@@ -560,9 +621,12 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 			"-- Рецепт --\r\n"
 			"%s1%s) Предмет    : %s%s (%d)\r\n"
 			"%s2%s) Умение     : %s%s (%d)\r\n"
-			"%s3%s) Блокирован : %s%s \r\n",
+			"%s3%s) Профессия  : %s%s (%d)\r\n"
+			"%s4%s) Блокирован : %s%s \r\n",			
 			grn, nrm, yel, objname.c_str(), trec->obj_proto,
-			grn, nrm, yel, skillname.c_str(), trec->skill, grn, nrm, yel, (trec->locked ? "Да" : "Нет"));
+			grn, nrm, yel, skillname.c_str(), trec->skill, 
+			grn, nrm, yel, profname.c_str(), trec->ch_class, 
+			grn, nrm, yel, (trec->locked ? "Да" : "Нет"));
 	tmpstr = string(tmpbuf);
 	for (int i = 0; i < MAX_PARTS; i++)
 	{
@@ -576,7 +640,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 			objname = "Нет";
 		}
 		sprintf(tmpbuf, "%s%d%s) Компонент %d: %s%s (%d)\r\n",
-			grn, i + 4, nrm, i + 1, yel, objname.c_str(), trec->parts[i].proto);
+			grn, i + 5, nrm, i + 1, yel, objname.c_str(), trec->parts[i].proto);
 		tmpstr += string(tmpbuf);
 	};
 	tmpstr += string(grn) + "d" + string(nrm) + ") Удалить\r\n";
@@ -589,7 +653,7 @@ void mredit_disp_menu(DESCRIPTOR_DATA * d)
 
 void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	string tmpstr, skill_name, obj_name;
+	string tmpstr, skill_name, obj_name, profname;
 	char tmpbuf[MAX_INPUT_LENGTH];
 	MakeRecept *trec;
 	if (make_recepts.size() == 0)
@@ -598,13 +662,14 @@ void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 	// Выдаем список рецептов всех рецептов как в магазине.
-	tmpstr = "###  Б  Умение  Предмет             Составляющие                         \r\n";
-	tmpstr += "------------------------------------------------------------------------------\r\n";
+	tmpstr = "###  Б  Умение  Профессия  Предмет             Составляющие                         \r\n";
+	tmpstr += "-----------------------------------------------------------------------------------------\r\n";
 	for (size_t i = 0; i < make_recepts.size(); i++)
 	{
 		int j = 0;
 		skill_name = "Нет";
 		obj_name = "Нет";
+		profname = "Все";
 		trec = make_recepts[i];
 		auto obj = get_object_prototype(trec->obj_proto);
 		if (obj)
@@ -620,8 +685,12 @@ void do_list_make(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 			}
 			j++;
 		}
-		sprintf(tmpbuf, "%3zd  %-1s  %-6s  %-12s(%5d) :",
-			i + 1, (trec->locked ? "*" : " "), skill_name.c_str(), obj_name.c_str(), trec->obj_proto);
+		if ((trec->ch_class >= 0) && (trec->ch_class < NUM_PLAYER_CLASSES))
+		{
+			profname = pc_class_types[trec->ch_class];
+		}
+		sprintf(tmpbuf, "%3zd  %-1s  %-6s %-10s  %-12s(%5d) :",
+			i + 1, (trec->locked ? "*" : " "), skill_name.c_str(), profname.c_str(), obj_name.c_str(), trec->obj_proto);
 		tmpstr += string(tmpbuf);
 		for (int j = 0; j < MAX_PARTS; j++)
 		{
@@ -1209,6 +1278,48 @@ void do_transform_weapon(CHAR_DATA* ch, char *argument, int/* cmd*/, int subcmd)
 		break;
 	}
 }
+
+int get_ingr_lev(OBJ_DATA * ingrobj)
+{
+	// Получаем уровень ингредиента ...
+	if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_INGREDIENT)
+	{
+		// Получаем уровень игредиента до 128
+		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
+	}
+	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MING)
+	{
+		// У ингров типа 26 совпадает уровень и сила.
+		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
+	}
+	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MATERIAL)
+	{
+		return GET_OBJ_VAL(ingrobj, 0);
+	}
+	else
+	{
+		return -1;
+	}
+}
+
+int get_ingr_pow(OBJ_DATA * ingrobj)
+{
+	// Получаем силу ингредиента ...
+	if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_INGREDIENT
+		|| GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MATERIAL)
+	{
+		return GET_OBJ_VAL(ingrobj, 2);
+	}
+	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MING)
+	{
+		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
+	}
+	else
+	{
+		return -1;
+	}
+}
+
 // *****************************
 MakeReceptList::MakeReceptList()
 {
@@ -1448,10 +1559,15 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 	{
 		return (FALSE);
 	}
-	// Делаем проверку может ли чар сделать предмет такого типа
-	if (skill == SKILL_MAKE_STAFF)
+	if (!(ch_class ==-1 || GET_CLASS(ch) == ch_class))
 	{
-		return 0;
+		return (FALSE);
+	}
+	
+	// Делаем проверку может ли чар сделать предмет такого типа
+	if (!IS_IMPL(ch) && (skill == SKILL_MAKE_STAFF))
+	{
+		return (FALSE);
 	}
 	for (i = 0; i < MAX_PARTS; i++)
 	{
@@ -1480,109 +1596,539 @@ int MakeRecept::can_make(CHAR_DATA * ch)
 	return (TRUE);
 }
 
-int MakeRecept::get_ingr_lev(OBJ_DATA * ingrobj)
+// создать предмет по рецепту
+int MakeRecept::make(CHAR_DATA * ch)
 {
-	// Получаем уровень ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_INGREDIENT)
+	char tmpbuf[MAX_STRING_LENGTH];//, tmpbuf2[MAX_STRING_LENGTH];
+	OBJ_DATA *ingrs[MAX_PARTS];
+	AbstractCreateObjectType *craftType;
+	int dam = 0;
+	bool make_fail;
+	// 1. Проверить есть ли скилл у чара
+	if (IS_NPC(ch) || !ch->get_skill(skill))
 	{
-		// Получаем уровень игредиента до 128
-		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
+		send_to_char("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
+		return (FALSE);
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MING)
+	// 2. Проверить есть ли ингры у чара
+	if (!can_make(ch))
 	{
-		// У ингров типа 26 совпадает уровень и сила.
-		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
+		send_to_char("У вас нет составляющих для этого.\r\n", ch);
+		return (FALSE);
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MATERIAL)
+	if (GET_MOVE(ch) < MIN_MAKE_MOVE)
 	{
-		return GET_OBJ_VAL(ingrobj, 0);
+		send_to_char("Вы слишком устали и вам ничего не хочется делать.\r\n", ch);
+		return (FALSE);
+	}
+	auto tobj = get_object_prototype(obj_proto);
+	if (!tobj)
+	{
+		return 0;
+	}
+	// Проверяем возможность создания предмета
+	if (!IS_IMMORTAL(ch) && (skill == SKILL_MAKE_STAFF))
+	{
+		const OBJ_DATA obj(*tobj);
+		act("Вы не готовы к тому чтобы сделать $o3.", FALSE, ch, &obj, 0, TO_CHAR);
+		return (FALSE);
+	}
+	// Прогружаем в массив реальные ингры
+	// 3. Проверить уровни ингров и чара
+	int ingr_cnt = 0, ingr_lev, i,  ingr_pow;
+	for (i = 0; i < MAX_PARTS; i++)
+	{
+		if (parts[i].proto == 0)
+			break;
+		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
+		ingr_lev = get_ingr_lev(ingrs[i]);
+		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch))))
+		{
+			craftType->tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(3)
+				+ "\r\n и прекратили работу над " + tobj->get_PName(4) + ".\r\n";
+			send_to_char(craftType->tmpstr.c_str(), ch);
+			return (FALSE);
+		};
+		ingr_pow = get_ingr_pow(ingrs[i]);
+		if (ingr_pow < parts[i].min_power)
+		{
+			craftType->tmpstr = "$o не подходит для изготовления " + tobj->get_PName(1) + ".";
+			act(craftType->tmpstr.c_str(), FALSE, ch, ingrs[i], 0, TO_CHAR);
+			return (FALSE);
+		}
+		ingr_cnt++;
+	}
+	//int stat_bonus;
+	// Делаем всякие доп проверки для различных умений.
+	const OBJ_DATA object(*tobj);
+
+	switch (skill)
+	{
+	case SKILL_MAKE_WEAPON:
+		// Проверяем есть ли тут наковальня или комната кузня.
+		if ((!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) && (!IS_IMMORTAL(ch)))
+		{
+			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
+			return (FALSE);
+		}
+		craftType = new CreateWeapon();
+		break;
+	case SKILL_MAKE_ARMOR:
+		// Проверяем есть ли тут наковальня или комната кузня.
+		if ((!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) && (!IS_IMMORTAL(ch)))
+		{
+			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
+			return (FALSE);
+		}
+		craftType = new CreateArmor();
+		break;
+	case SKILL_MAKE_BOW:
+		craftType = new CreateBow();
+		break;
+	case SKILL_MAKE_WEAR:
+		craftType = new CreateWear();
+		break;
+	case SKILL_MAKE_AMULET:
+		craftType = new CreateAmulet();
+		break;
+	case SKILL_MAKE_JEWEL:
+		craftType = new CreateJewel();
+		break;
+	case SKILL_MAKE_STAFF:
+		craftType = new CreateStuff();
+		break;
+	case SKILL_MAKE_POTION:
+		craftType = new CreatePotion();
+		break;
+	default:
+		break;
+	}
+	craftType->load_ingr_in_create(ingrs,ingr_cnt);
+	act(craftType->charwork.c_str(), FALSE, ch, &object, 0, TO_CHAR);
+	act(craftType->roomwork.c_str(), FALSE, ch, &object, 0, TO_ROOM);
+	// дальнейшая обработка перенесанна в класы
+	make_fail = craftType->fail_create(ch);
+	// Делаем тут прокачку умения.
+	// Прокачка должна зависеть от среднего уровня материала и игрока.
+	// При разнице со средним уровнем до 0 никаких штрафов.
+	// При разнице большей чем 1 уровней замедление в 2 раза.
+	// При разнице большей чем в 2 уровней замедление в 3 раза.
+	train_skill(ch, skill, skill_info[skill].max_percent, 0);
+	// 4. Считаем сколько материала треба.
+	if (!make_fail)
+	{
+		make_fail = craftType->check_list_ingr(ch,parts);
+	}
+	if (make_fail)
+	{
+		// Считаем крит фейл или нет.
+		int crit_fail = number(0, 100);
+		if (crit_fail > 2)
+		{
+			//const OBJ_DATA obj(*tobj);
+			act(craftType->charfail.c_str(), FALSE, ch, &object, 0, TO_CHAR);
+			act(craftType->roomfail.c_str(), FALSE, ch, &object, 0, TO_ROOM);
+		}
+		else
+		{
+			const OBJ_DATA obj(*tobj);
+			act(craftType->chardam.c_str(), FALSE, ch, &object, 0, TO_CHAR);
+			act(craftType->roomdam.c_str(), FALSE, ch, &object, 0, TO_ROOM);
+			dam = number(0, craftType->dam);
+			// Наносим дамаг.
+			if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)
+			{
+				send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
+				return (FALSE);
+			}
+			GET_HIT(ch) -= dam;
+			update_pos(ch);
+			char_dam_message(dam, ch, ch, 0);
+			if (GET_POS(ch) == POS_DEAD)
+			{
+				// Убился веником.
+				if (!IS_NPC(ch))
+				{
+					sprintf(tmpbuf, "%s killed by a crafting at %s",
+							GET_NAME(ch),
+							ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name);
+					mudlog(tmpbuf, BRF, LVL_BUILDER, SYSLOG, TRUE);
+				}
+				die(ch, NULL);
+			}
+		}
+		for (i = 0; i < (craftType->ingr_cnt); i++)
+		{
+			if (craftType->ingrs[i] && GET_OBJ_WEIGHT(craftType->ingrs[i]) <= 0)
+			{
+				extract_obj(craftType->ingrs[i]);
+			}
+		}
+		return (FALSE);
+	}
+	// Лоадим предмет игроку
+	const auto obj = world_objects.create_from_prototype_by_vnum(obj_proto);
+	act(craftType->charsucc.c_str(), FALSE, ch, obj.get(), 0, TO_CHAR);
+	act(craftType->roomsucc.c_str(), FALSE, ch, obj.get(), 0, TO_ROOM);
+	// 6. Считаем базовые статсы предмета и таймер
+	//  формула для каждого умения отдельная
+	// Для числовых х-к:  х-ка+(skill - random(100))/20;
+	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
+	// Т.к. сделать мы можем практически любой предмет.
+	// Модифицируем вес предмета и его таймер.
+	// Для маг предметов надо в сторону облегчения.
+//	i = GET_OBJ_WEIGHT(obj);
+	obj->set_create_type(craftType);
+	craftType->obj = obj.get();
+	obj->set_craft(ch);
+	//obj->set_craft(ch);
+	obj->set_weight(stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign));
+	i = obj->get_timer();
+	obj->set_timer(stat_modify(ch, obj->get_timer(), 1));
+	// Модифицируем уникальные для предметов х-ки.
+	// Балансировка варьируется изменением делителя (!20!)
+	// при делителе 20 и умении 100 и макс везении будет +5 к параметру
+	// Можно посчитать бонусы от времени суток.
+	// Считаем среднюю силу ингров .
+	switch (GET_OBJ_TYPE(obj))
+	{
+	case OBJ_DATA::ITEM_LIGHT:
+		// Считаем длительность свечения.
+		if (GET_OBJ_VAL(obj, 2) != -1)
+		{
+			obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2), 1));
+		}
+		break;
+	case OBJ_DATA::ITEM_WAND:
+	case OBJ_DATA::ITEM_STAFF:
+		// Считаем уровень закла
+		obj->set_val(0, GET_LEVEL(ch));
+		break;
+	case OBJ_DATA::ITEM_WEAPON:
+		// Считаем число xdy
+		// модифицируем XdY
+		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2))
+		{
+			obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
+		}
+		else
+		{
+			obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2) - 1, 1) + 1);
+		}
+		break;
+	case OBJ_DATA::ITEM_ARMOR:
+	case OBJ_DATA::ITEM_ARMOR_LIGHT:
+	case OBJ_DATA::ITEM_ARMOR_MEDIAN:
+	case OBJ_DATA::ITEM_ARMOR_HEAVY:
+		// Считаем + АС
+		obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
+		// Считаем поглощение.
+		obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
+		break;
+	case OBJ_DATA::ITEM_POTION:
+		// Считаем уровень итоговый напитка
+		obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
+		break;
+	case OBJ_DATA::ITEM_CONTAINER:
+		// Считаем объем контейнера.
+		obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
+		break;
+	case OBJ_DATA::ITEM_DRINKCON:
+		// Считаем объем контейнера.
+		obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
+		break;
+	case OBJ_DATA::ITEM_INGREDIENT:
+		// Для ингров ничего не трогаем ... ибо опасно. :)
+		break;
+	default:
+		break;
+	}
+	// 7. Считаем доп. статсы предмета.
+	// х-ка прототипа +
+	// если (random(100) - сила ингра ) < 1 то переноситься весь параметр.
+	// если от 1 до 25 то переноситься 1/2
+	// если от 25 до 50 то переноситься 1/3
+	// больше переноситься 0
+	// переносим доп аффекты ...+мудра +ловка и т.п.
+	// 8. Проверяем мах. инворлд.
+	// Считаем по формуле (31 - ср. уровень предмета) * 5 -
+	// овер шмота в мире не 30 лева не больше 5 штук
+	// Т.к. ср. уровень ингров будет определять
+	// число шмоток в мире то шмотки по хуже будут вытеснять
+	// шмотки по лучше (в целом это не так страшно).
+	// Ставим метку если все хорошо.
+	if ((GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT
+		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING)
+		&& (number(1, 100) - calculate_skill(ch, skill, 0) < 0))
+	{
+		act(craftType->tagging.c_str(), FALSE, ch, obj.get(), 0, TO_CHAR);
+		// Прибавляем в экстра описание строчку.
+		char *tagchar = format_act(craftType->itemtag.c_str(), ch, obj.get(), 0);
+		obj->set_tag(tagchar);
+		free(tagchar);
+	};
+	// простановка мортов при шитье
+	float total_weight = craftType->count_mort_requred() * 7 / 10;
+
+	if (total_weight > 35)
+	{
+		obj->set_minimum_remorts(12);
+	}
+	else if (total_weight > 33)
+	{
+		obj->set_minimum_remorts(11);
+	}
+	else if (total_weight > 30)
+	{
+		obj->set_minimum_remorts(9);
+	}
+	else if (total_weight > 25)
+	{
+		obj->set_minimum_remorts(6);
+	}
+	else if (total_weight > 20)
+	{
+		obj->set_minimum_remorts(3);
 	}
 	else
 	{
-		return -1;
+		obj->set_minimum_remorts(0);
+	}
+
+	// Пишем производителя в поле.
+	obj->set_crafter_uid(GET_UNIQUE(ch));
+	// 9. Проверяем минимум 2
+	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+	{
+		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
+		obj_to_room(obj.get(), ch->in_room);
+	}
+	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch))
+	{
+		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
+		obj_to_room(obj.get(), ch->in_room);
+	}
+	else
+	{
+		obj_to_char(obj.get(), ch);
+	}
+	return (TRUE);
+}
+
+// вытащить рецепт из строки.
+int MakeRecept::load_from_str(string & rstr)
+{
+	// Разбираем строку.
+	char tmpbuf[MAX_INPUT_LENGTH];
+	// Проверяем рецепт на блокировку .
+	if (rstr.substr(0, 1) == string("*"))
+	{
+		rstr = rstr.substr(1);
+		locked = true;
+	}
+	else
+	{
+		locked = false;
+	}
+	skill = static_cast<ESkill>(atoi(rstr.substr(0, rstr.find(" ")).c_str()));
+	rstr = rstr.substr(rstr.find(" ") + 1);
+	obj_proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
+	rstr = rstr.substr(rstr.find(" ") + 1);
+
+	//загрузка професии
+	ch_class = atoi((rstr.substr(0, rstr.find(" "))).c_str());
+	rstr = rstr.substr(rstr.find(" ") + 1);
+
+	if (real_object(obj_proto) < 0)
+	{
+		// Обнаружен несуществующий прототип объекта.
+		sprintf(tmpbuf, "MakeRecept::Unfound object proto %d", obj_proto);
+		mudlog(tmpbuf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+		// блокируем рецепты без ингров.
+		locked = true;
+	}
+
+	for (int i = 0; i < MAX_PARTS; i++)
+	{
+		// считали номер прототипа компонента
+		parts[i].proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
+		rstr = rstr.substr(rstr.find(" ") + 1);
+		// Проверяем на конец компонентов.
+		if (parts[i].proto == 0)
+		{
+			break;
+		}
+		if (real_object(parts[i].proto) < 0)
+		{
+			// Обнаружен несуществующий прототип компонента.
+			sprintf(tmpbuf, "MakeRecept::Unfound item part %d for %d", obj_proto, parts[i].proto);
+			mudlog(tmpbuf, LGH, LVL_IMMORT, SYSLOG, TRUE);
+			// блокируем рецепты без ингров.
+			locked = true;
+		}
+		parts[i].min_weight = atoi(rstr.substr(0, rstr.find(" ")).c_str());
+		rstr = rstr.substr(rstr.find(" ") + 1);
+		parts[i].min_power = atoi(rstr.substr(0, rstr.find(" ")).c_str());
+		rstr = rstr.substr(rstr.find(" ") + 1);
+	}
+	return (TRUE);
+}
+
+// сохранить рецепт в строку.
+int MakeRecept::save_to_str(string & rstr)
+{
+	char tmpstr[MAX_INPUT_LENGTH];
+	if (obj_proto == 0)
+	{
+		return (FALSE);
+	}
+	if (locked)
+	{
+		rstr = "*";
+	}
+	else
+	{
+		rstr = "";
+	}
+	sprintf(tmpstr, "%d %d %d", skill, obj_proto, ch_class);
+	rstr += string(tmpstr);
+	for (int i = 0; i < MAX_PARTS; i++)
+	{
+		sprintf(tmpstr, " %d %d %d", parts[i].proto, parts[i].min_weight, parts[i].min_power);
+		rstr += string(tmpstr);
+	}
+	return (TRUE);
+}
+
+// Модификатор базовых значений.
+int MakeRecept::stat_modify(CHAR_DATA * ch, int value, float devider)
+{
+	// Для числовых х-к:  х-ка+(skill - random(100))/20;
+	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
+	int res = value;
+	float delta = 0;
+	int skill_prc = 0;
+	if (devider <= 0)
+	{
+		return res;
+	}
+	skill_prc = calculate_skill(ch, skill, 0);
+	delta = (int)((float)(skill_prc - number(0, skill_info[skill].max_percent)));
+	if (delta > 0)
+	{
+		delta = (value / 2) * delta / skill_info[skill].max_percent / devider;
+	}
+	else
+	{
+		delta = (value / 4) * delta / skill_info[skill].max_percent / devider;
+	}
+	res += (int) delta;
+	// Если параметр завалили то возвращаем 1;
+	if (res < 0)
+	{
+		return 1;
+	}
+	return res;
+}
+
+void AbstractCreateObjectType::add_rnd_skills(CHAR_DATA* /*ch*/, OBJ_DATA * obj_from, OBJ_DATA *obj_to)
+{
+	if (obj_from->has_skills())
+	{
+		int skill_num, rskill;
+		int z = 0;
+		int percent;
+//		send_to_char("Копирую умения :\r\n", ch);
+		CObjectPrototype::skills_t skills;
+		obj_from->get_skills(skills);
+		int i = static_cast<int>(skills.size()); // сколько добавлено умелок
+		rskill = number(0, i); // берем рандом
+//		sprintf(buf, "Всего умений %d копируем из них случайное под N %d.\r\n", i, rskill);
+//		send_to_char(buf,  ch);
+		for (const auto& it : skills)
+		{	
+			if (z == rskill) // ставим рандомную умелку
+			{
+				skill_num = it.first;
+				percent = it.second;
+				if (percent == 0) // TODO: такого не должно быть?
+				{
+					continue;
+				}
+//				sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
+//				CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
+//				CCCYN(ch, C_NRM),
+//				percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
+//				send_to_char(buf, ch);
+				obj_to->set_skill(skill_num, percent);// копируем скиллы
+			}
+			z++;
+		}
 	}
 }
 
-int MakeRecept::get_ingr_pow(OBJ_DATA * ingrobj)
+int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag, int/* delta*/)
 {
-	// Получаем силу ингредиента ...
-	if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_INGREDIENT
-		|| GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MATERIAL)
+// БЕз вариантов вообще :(
+	int tmpprob;
+	for (int i = 0; i < 3; i++)
 	{
-		return GET_OBJ_VAL(ingrobj, 2);
+		for (int j = 0; j < 32; j++)
+		{
+			tmpprob = number(0, 200) - calculate_skill(ch, skill, 0);
+			if ((add_flag->get_plane(i) & (1 << j)) && (tmpprob < 0))
+			{
+				base_flag->set_flag(i, 1 << j);
+			}
+		}
 	}
-	else if (GET_OBJ_TYPE(ingrobj) == OBJ_DATA::ITEM_MING)
-	{
-		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
-	}
-	else
-	{
-		return -1;
-	}
+	return (TRUE);
 }
-void MakeRecept::make_value_wear(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *ingrs[MAX_PARTS])
+
+int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta)
 {
-	int wearkoeff = 50;
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) // 1.1
+	bool found = false;
+	int i, j;
+	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		wearkoeff = 110;
+		found = false;
+		if (add[i].location == APPLY_NONE)
+			continue;
+		for (j = 0; j < MAX_OBJ_AFFECT; j++)
+		{
+			if (base[j].location == APPLY_NONE)
+				continue;
+			if (add[i].location == base[j].location)
+			{
+				// Аффекты совпали.
+				found = true;
+				if (number(0, 100) > delta)
+					break;
+				base[j].modifier += stat_modify(ch, add[i].modifier, 1);
+				break;
+			}
+		}
+		if (!found)
+		{
+			// Ищем первый свободный аффект и втыкаем туда новый.
+			for (int j = 0; j < MAX_OBJ_AFFECT; j++)
+			{
+				if (base[j].location == APPLY_NONE)
+				{
+					if (number(0, 100) > delta)
+						break;
+					base[j].location = add[i].location;
+					base[j].modifier += add[i].modifier;
+					//cout << "add affect " << int(base[j].location) <<" - " << int(base[j].modifier) << endl;
+					break;
+				}
+			}
+		}
 	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.8
-	{
-		wearkoeff = 80;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.5
-	{
-		wearkoeff = 50;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.6
-	{
-		wearkoeff = 60;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.5
-	{
-		wearkoeff = 50;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.9
-	{
-		wearkoeff = 90;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.45
-	{
-		wearkoeff = 45;
-	}
-	obj->set_val(0, ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(SKILL_MAKE_WEAR)) / 100 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
-	{
-		wearkoeff = 90;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.7
-	{
-		wearkoeff = 70;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.4
-	{
-		wearkoeff = 40;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.5
-	{
-		wearkoeff = 50;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.4
-	{
-		wearkoeff = 40;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.8
-	{
-		wearkoeff = 80;
-	}
-	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.31
-	{
-		wearkoeff = 31;
-	}
-	obj->set_val(1, (ch->get_skill(SKILL_MAKE_WEAR) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
+	return (TRUE);
 }
-float MakeRecept::count_mort_requred(OBJ_DATA * obj)
+
+float AbstractCreateObjectType::count_mort_requred()
 {
 	float result = 0.0;
 	const float SQRT_MOD = 1.7095f;
@@ -1688,7 +2234,7 @@ float MakeRecept::count_mort_requred(OBJ_DATA * obj)
 	return result;
 }
 
-float MakeRecept::count_affect_weight(int num, int mod)
+float AbstractCreateObjectType::count_affect_weight(int num, int mod)
 {
 	float weight = 0;
 
@@ -1761,304 +2307,128 @@ float MakeRecept::count_affect_weight(int num, int mod)
 
 	return weight;
 }
-void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_PARTS], int ingr_cnt)
+
+int AbstractCreateObjectType::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag ,int /*delta*/)
 {
-	int i, j;
-	//ставим именительные именительные падежи в алиасы 
-	sprintf(buf, "%s %s %s %s",
-		GET_OBJ_PNAME(obj, 0).c_str(),
-		GET_OBJ_PNAME(ingrs[0], 1).c_str(),
-		GET_OBJ_PNAME(ingrs[1], 4).c_str(),
-		GET_OBJ_PNAME(ingrs[2], 4).c_str());
-	obj->set_aliases(buf);
-	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+// БЕз вариантов вообще :(
+	int tmpprob;
+	for (int i = 0; i < 3; i++)
 	{
-		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i).c_str());
-		strcat(buf, " из ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[0], 1).c_str());
-		strcat(buf, " с ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[1], 4).c_str());
-		strcat(buf, " и ");
-		strcat(buf, GET_OBJ_PNAME(ingrs[2], 4).c_str());
-		obj->set_PName(i, buf);
-		if (i == 0) // именительный падеж
+		for (int j = 0; j < 32; j++)
 		{
-			obj->set_short_description(buf);
-			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
+			tmpprob = number(0, 200) - calculate_skill(ch, skillnum, 0);
+			if ((add_flag->get_plane(i) & (1 << j)) && (tmpprob < 0))
 			{
-				sprintf(buf2, "Брошенный %s лежит тут.", buf);
+				base_flag->set_flag(i, 1 << j);
 			}
-			else if (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
-			{
-				sprintf(buf2, "Брошенная %s лежит тут.", buf);
-			}
-			else if (GET_OBJ_SEX(obj) == ESex::SEX_POLY)
-			{
-				sprintf(buf2, "Брошенные %s лежат тут.", buf);
-			}
-			obj->set_description(buf2); // описание на земле
 		}
 	}
-	obj->set_is_rename(true); // ставим флаг что объект переименован
-	
-	
-	auto temp_flags = obj->get_affect_flags();
-	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
-	obj->set_affect_flags(temp_flags);
-	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
-	temp_flags = obj->get_extra_flags();
-	add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[0]), get_ingr_pow(ingrs[0]));
-	obj->set_extra_flags(temp_flags);
-	auto temp_affected = obj->get_all_affected();
-	add_affects(ch,temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
-	obj->set_all_affected(temp_affected);
-	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
-	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
-	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180, 220)); // таймер зависит в основном от умелки
-	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
-	for (j = 1; j < ingr_cnt; j++)
+	return (TRUE);
+}
+
+int AbstractCreateObjectType::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta)
+{
+	bool found = false;
+	int i, j;
+	for (i = 0; i < MAX_OBJ_AFFECT; i++)
 	{
-		int i, raffect = 0;
-		for (i = 0; i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
+		found = false;
+		if (add[i].location == APPLY_NONE)
+			continue;
+		for (j = 0; j < MAX_OBJ_AFFECT; j++)
 		{
-			if (ingrs[j]->get_affected(i).location == APPLY_NONE)
+			if (base[j].location == APPLY_NONE)
+				continue;
+			if (add[i].location == base[j].location)
 			{
+				// Аффекты совпали.
+				found = true;
+				if (number(0, 100) > delta)
+					break;
+				base[j].modifier += stat_modify(ch, add[i].modifier, 1);
 				break;
 			}
 		}
-		if (i > 0) // если > 0 переносим случайный
+		if (!found)
 		{
-			raffect = number(0, i - 1);
-			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+			// Ищем первый свободный аффект и втыкаем туда новый.
+			for (int j = 0; j < MAX_OBJ_AFFECT; j++)
 			{
-				const auto& ra = ingrs[j]->get_affected(raffect);
-				if (obj->get_affected(i).location == ra.location) // если аффект такой уже висит и он меньше, переставим значение
+				if (base[j].location == APPLY_NONE)
 				{
-					if (obj->get_affected(i).modifier < ra.modifier)
-					{
-						obj->set_affected(i, obj->get_affected(i).location, ra.modifier);
-					}
-					break;
-				}
-				if (obj->get_affected(i).location == APPLY_NONE) // добавляем афф на свободное место
-				{
-					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // проверим фейл на силу ингра
-					{
+					if (number(0, 100) > delta)
 						break;
-					}
-					obj->set_affected(i, ra);
+					base[j].location = add[i].location;
+					base[j].modifier += add[i].modifier;
+					//cout << "add affect " << int(base[j].location) <<" - " << int(base[j].modifier) << endl;
 					break;
 				}
 			}
 		}
-		// переносим аффекты ... c ингров на прототип.
-		auto temp_flags = obj->get_affect_flags();
-		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
-		obj->set_affect_flags(temp_flags);
-		// перносим эффекты ... с ингров на прототип.
-		temp_flags = obj->get_extra_flags();
-		add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), get_ingr_pow(ingrs[j]));
-		obj->set_extra_flags(temp_flags);
-		// переносим 1 рандом аффект
-		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
+	return (TRUE);
 }
-// создать предмет по рецепту
-int MakeRecept::make(CHAR_DATA * ch)
+
+int AbstractCreateObjectType::stat_modify(CHAR_DATA * ch, int value, float devider)
 {
-	char tmpbuf[MAX_STRING_LENGTH];//, tmpbuf2[MAX_STRING_LENGTH];
-	OBJ_DATA *ingrs[MAX_PARTS];
-	string tmpstr, charwork, roomwork, charfail, roomfail, charsucc, roomsucc, chardam, roomdam, tagging, itemtag;
-	int dam = 0;
-	bool make_fail;
-	// 1. Проверить есть ли скилл у чара
-	if (IS_NPC(ch) || !ch->get_skill(skill))
+	// Для числовых х-к:  х-ка+(skill - random(100))/20;
+	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
+	int res = value;
+	float delta = 0;
+	int skill_prc = 0;
+	if (devider <= 0)
 	{
-		send_to_char("Странно что вам вообще пришло в голову cделать это.\r\n", ch);
-		return (FALSE);
+		return res;
 	}
-	// 2. Проверить есть ли ингры у чара
-	if (!can_make(ch))
+	skill_prc = calculate_skill(ch, skillnum, 0);
+	delta = (int)((float)(skill_prc - number(0, skill_info[skillnum].max_percent)));
+	if (delta > 0)
 	{
-		send_to_char("У вас нет составляющих для этого.\r\n", ch);
-		return (FALSE);
+		delta = (value / 2) * delta / skill_info[skillnum].max_percent / devider;
 	}
-	if (GET_MOVE(ch) < MIN_MAKE_MOVE)
+	else
 	{
-		send_to_char("Вы слишком устали и вам ничего не хочется делать.\r\n", ch);
-		return (FALSE);
+		delta = (value / 4) * delta / skill_info[skillnum].max_percent / devider;
 	}
-	auto tobj = get_object_prototype(obj_proto);
-	if (!tobj)
+	res += (int) delta;
+	// Если параметр завалили то возвращаем 1;
+	if (res < 0)
 	{
-		return 0;
+		return 1;
 	}
-	// Проверяем возможность создания предмета
-	if (!IS_IMMORTAL(ch) && (skill == SKILL_MAKE_STAFF))
+	return res;
+}
+
+void AbstractCreateObjectType::load_ingr_in_create(OBJ_DATA *ingr[MAX_PARTS], int ingr_count)
+{
+	ingr_cnt = ingr_count;
+	
+	for (int i = 0; i < MAX_PARTS; i++)
 	{
-		const OBJ_DATA obj(*tobj);
-		act("Вы не готовы к тому чтобы сделать $o3.", FALSE, ch, &obj, 0, TO_CHAR);
-		return (FALSE);
-	}
-	// Прогружаем в массив реальные ингры
-	// 3. Проверить уровни ингров и чара
-	int ingr_cnt = 0, ingr_lev, i, craft_weight, ingr_pow;
-	for (i = 0; i < MAX_PARTS; i++)
-	{
-		if (parts[i].proto == 0)
+		if (!ingr[i])
+		{
 			break;
-		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
-		ingr_lev = get_ingr_lev(ingrs[i]);
-		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch))))
-		{
-			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(3)
-				+ "\r\n и прекратили работу над " + tobj->get_PName(4) + ".\r\n";
-			send_to_char(tmpstr.c_str(), ch);
-			return (FALSE);
-		};
-		ingr_pow = get_ingr_pow(ingrs[i]);
-		if (ingr_pow < parts[i].min_power)
-		{
-			tmpstr = "$o не подходит для изготовления " + tobj->get_PName(1) + ".";
-			act(tmpstr.c_str(), FALSE, ch, ingrs[i], 0, TO_CHAR);
-			return (FALSE);
 		}
-		ingr_cnt++;
+		// перенесем список ингридиентов из рецепта в крафт
+		ingrs[i] = ingr[i];
 	}
-	//int stat_bonus;
-	// Делаем всякие доп проверки для различных умений.
-	switch (skill)
-	{
-	case SKILL_MAKE_WEAPON:
-	case SKILL_MAKE_ARMOR:
-		// Проверяем есть ли тут наковальня или комната кузня.
-		if ((!ROOM_FLAGGED(ch->in_room, ROOM_SMITH)) && (!IS_IMMORTAL(ch)))
-		{
-			send_to_char("Вам нужно попасть в кузницу для этого.\r\n", ch);
-			return (FALSE);
-		}
-		charwork = "Вы поместили заготовку на наковальню и начали ковать $o3.";
-		roomwork = "$n поместил$g закотовку на наковальню и начал$g ковать.";
-		charfail = "Заготовка под вашими ударами покрылась сетью трещин и раскололась.";
-		roomfail = "Под ударами молота $n1 заготовка раскололась.";
-		charsucc = "Вы выковали $o3.";
-		roomsucc = "$n выковал$G $o3.";
-		chardam = "Заготовка выскочила из под молота и больно ударила вас.";
-		roomdam = "Заготовка выскочила из под молота $n1, больно $s ударив.";
-		tagging = "Вы поставили свое клеймо на $o5.";
-		itemtag = "На $o5 стоит клеймо 'Выковал$g $n'.";
-		dam = 70;
-		// Бонус сила
-		//stat_bonus = number(0, GET_REAL_STR(ch));
-		break;
-	case SKILL_MAKE_BOW:
-		charwork = "Вы начали мастерить $o3.";
-		roomwork = "$n начал$g мастерить что-то очень напоминающее $o3.";
-		charfail = "С громким треском $o сломал$U в ваших неумелых руках.";
-		roomfail = "С громким треском $o сломал$U в неумелых руках $n1.";
-		charsucc = "Вы cмастерили $o3.";
-		roomsucc = "$n смастерил$g $o3.";
-		chardam = "$o3 с громким треском сломал$U оцарапав вам руки.";
-		roomdam = "$o3 с громким треском сломал$U оцарапав руки $n2.";
-		tagging = "Вы вырезали свое имя на $o5.";
-		itemtag = "На $o5 видна метка 'Смастерил$g $n'.";
-		// Бонус ловкость
-		//stat_bonus = number(0, GET_REAL_DEX(ch));
-		dam = 40;
-		break;
-	case SKILL_MAKE_WEAR:
-		charwork = "Вы взяли в руку иголку и начали шить $o3.";
-		roomwork = "$n взял$g в руку иголку и начал$g увлеченно шить.";
-		charfail = "У вас ничего не получилось сшить.";
-		roomfail = "$n пытал$u что-то сшить, но ничего не вышло.";
-		charsucc = "Вы сшили $o3.";
-		roomsucc = "$n сшил$g $o3.";
-		chardam = "Игла глубоко вошла в вашу руку. Аккуратнее надо быть.";
-		roomdam = "$n глубоко воткнул$g иглу в себе в руку. \r\nА с виду вполне нормальный человек.";
-		tagging = "Вы пришили к $o2 бирку со своим именем.";
-		itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
-		// Бонус тело , не спрашивайте почему :))
-		//stat_bonus = number(0, GET_REAL_CON(ch));
-		dam = 30;
-		break;
-	case SKILL_MAKE_AMULET:
-		charwork = "Вы взяли в руки необходимые материалы и начали мастерить $o3.";
-		roomwork = "$n взял$g в руки что-то и начал$g увлеченно пыхтеть над чем-то.";
-		charfail = "У вас ничего не получилось";
-		roomfail = "$n пытал$u что-то сделать, но ничего не вышло.";
-		charsucc = "Вы смастерили $o3.";
-		roomsucc = "$n смастерил$g $o3.";
-		chardam = "Яркая вспышка дала вам знать, что с магией необходимо быть поосторожней.";
-		roomdam = "Яркая вспышка осветила все вокруг. $n2 стоит быть аккуратнее с магией! \r\n";
-		tagging = "На обратной стороне $o1 вы нацарапали свое имя.";
-		itemtag = "На обратной стороне $o1 вы заметили слово '$n', видимо, это имя создателя этой чудной вещицы.";
-		dam = 30;
-		break;
-	case SKILL_MAKE_JEWEL:
-		charwork = "Вы начали мастерить $o3.";
-		roomwork = "$n начал мастерить какую-то диковинку.";
-		charfail = "Ваше неудачное движение повредило $o5.";
-		roomfail = "Неудачное движение $n, сделало $s работу бессмысленной.";
-		charsucc = "Вы смастерили $o3.";
-		roomsucc = "$n смастерил$g $o3.";
-		chardam = "Мелкий кусочек материала отскочил и попал вам в глаз.\r\nЭто было больно!";
-		roomdam = "Мелкий кусочек материала отскочил и попал в глаз $n2.";
-		tagging = "Вы приладили к $o2 табличку со своим именем.";
-		itemtag = "С нижней стороны $o1 укреплена табличка 'Cделано $n4'.";
-		// Бонус харя
-		//stat_bonus = number(0, GET_REAL_CHA(ch));
-		dam = 30;
-		break;
-	case SKILL_MAKE_STAFF:
-		charwork = "Вы начали мастерить $o3.";
-		roomwork = "$n начал мастерить что-то, посылая всех к чертям.";
-		charfail = "$o3 осветил комнату магическим светом и истаял.";
-		roomfail = "Предмет в руках $n1 вспыхнул, озарив комнату магическим светом и истаял.";
-		charsucc =
-			"Тайные знаки нанесенные на $o3 вспыхнули и погасли.\r\nДа, $E хорошо послужит своему хозяину.";
-		roomsucc = "$n смастерил$g $o3. Вы почуствовали скрытую силу спрятанную в этом предмете.";
-		chardam = "$o взорвался в ваших руках. Вас сильно обожгло.";
-		roomdam = "$o взорвался в руках $n1, опалив его.\r\nВокруг приятно запахло жаренным мясом.";
-		tagging = "Вы начертили на $o2 свое имя.";
-		itemtag = "Среди рунных знаков видна надпись 'Создано $n4'.";
-		// Бонус ум.
-		//stat_bonus = number(0, GET_REAL_INT(ch));
-		dam = 70;
-		break;
-	case SKILL_MAKE_POTION:
-		charwork = "Вы достали небольшой горшочек и развели под ним огонь, начав варить $o3.";
-		roomwork = "$n достал горшочек и поставил его на огонь.";
-		charfail = "Вы не уследили как зелье закипело и пролилось в огонь.";
-		roomfail =
-			"Зелье которое варил$g $n закипело и пролилось в огонь,\r\n распространив по комнате ужасную вонь.";
-		charsucc = "Зелье удалось вам на славу.";
-		roomsucc = "$n сварил$g $o3. Приятный аромат зелья из горшочка, так и манит вас.";
-		chardam = "Вы опрокинули горшочек с зельем на себя, сильно ошпарившись.";
-		roomdam = "Горшочек с $o4 опрокинулся на $n1, ошпарив $s.";
-		tagging = "Вы на прикрепили к $o2 бирку со своим именем.";
-		itemtag = "На $o1 вы заметили бирку 'Сварено $n4'";
-		// Бонус мудра
-		//stat_bonus = number(0, GET_REAL_WIS(ch));
-		dam = 40;
-		break;
-	default:
-		break;
-	}
-	const OBJ_DATA object(*tobj);
-	act(charwork.c_str(), FALSE, ch, &object, 0, TO_CHAR);
-	act(roomwork.c_str(), FALSE, ch, &object, 0, TO_ROOM);
+	
+}
+
+bool AbstractCreateObjectType::fail_create(CHAR_DATA* ch)
+{
 	// Считаем вероятность испортить отдельный ингридиент
 	// если уровень чара = уровню ингра то фейл 50%
 	// если уровень чара > уровня ингра на 15 то фейл 0%
 	// уровень чара * 2 - random(30) < 15 - фейл то пропадает весь материал
 	// Выдается Вы испортили (...)
 	// и выходим.
-	make_fail = false;
+	bool make_fail = false;
 	// Это средний уровень получившегося предмета.
 	// использует при расчете макс количества предметов в мире.
-	int created_lev = 0;
+	int created_lev = 0 , ingr_lev;
 	int used_non_ingrs = 0;
-	for (i = 0; i < ingr_cnt; i++)
+	for (int i = 0; i < ingr_cnt; i++)
 	{
 		ingr_lev = get_ingr_lev(ingrs[i]);
 		if (ingr_lev < 0)
@@ -2082,14 +2452,13 @@ int MakeRecept::make(CHAR_DATA * ch)
 		}
 	};
 	created_lev = created_lev / MAX(1, (ingr_cnt - used_non_ingrs));
-	int j;
 	int craft_move = MIN_MAKE_MOVE + (created_lev / 2) - 1;
 	// Снимаем мувы за умение
 	if (GET_MOVE(ch) < craft_move)
 	{
 		GET_MOVE(ch) = 0;
 		// Вам не хватило сил доделать.
-		tmpstr = "Вам не хватило сил доделать " + tobj->get_PName(3) + ".\r\n";
+		tmpstr = "Вам не хватило сил закончить работу.\r\n";
 		send_to_char(tmpstr.c_str(), ch);
 		make_fail = true;
 	}
@@ -2100,34 +2469,18 @@ int MakeRecept::make(CHAR_DATA * ch)
 			GET_MOVE(ch) -= craft_move;
 		}
 	}
-	// Делаем тут прокачку умения.
-	// Прокачка должна зависеть от среднего уровня материала и игрока.
-	// При разнице со средним уровнем до 0 никаких штрафов.
-	// При разнице большей чем 1 уровней замедление в 2 раза.
-	// При разнице большей чем в 2 уровней замедление в 3 раза.
-	/*
-	if (skill == SKILL_MAKE_STAFF)
-	{
-		if (number(0, GET_LEVEL(ch) - created_lev) < GET_SPELL_MEM(ch, GET_OBJ_VAL(tobj, 3)))
+
+	return make_fail;
+	
+}
+
+bool AbstractCreateObjectType::check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts)
+{
+	bool make_fail = false;
+	int j;
+	
+		for (int i = 0; i < ingr_cnt; i++)
 		{
-			train_skill(ch, skill, skill_info[skill].max_percent, 0);
-		}
-	}
-	*/ 
-	train_skill(ch, skill, skill_info[skill].max_percent, 0);
-	// 4. Считаем сколько материала треба.
-	if (!make_fail)
-	{
-		for (i = 0; i < ingr_cnt; i++)
-		{
-			if (skill == SKILL_MAKE_WEAR && i == 0) //для шитья всегда раскраиваем шкуру 
-			{
-				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[0]);
-				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
-				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
-				send_to_char(tmpstr.c_str(), ch);
-				continue;
-			}
 			//
 			// нужный материал = мин.материал +
 			// random(100) - skill
@@ -2137,7 +2490,7 @@ int MakeRecept::make(CHAR_DATA * ch)
 			if (get_ingr_lev(ingrs[i]) == -1)
 				continue;	// Компонент не ингр. пропускаем.
 			craft_weight = parts[i].min_weight + number(0, (parts[i].min_weight / 3) + 1);
-			j = number(0, 100) - calculate_skill(ch, skill, 0);
+			j = number(0, 100) - calculate_skill(ch, skillnum, 0);
 			if ((j >= 20) && (j < 50))
 				craft_weight += parts[i].min_weight * number(1, 2);
 			else if (j > 50)
@@ -2193,159 +2546,31 @@ int MakeRecept::make(CHAR_DATA * ch)
 				}
 			}
 		}
-	}
-	if (make_fail)
-	{
-		// Считаем крит фейл или нет.
-		int crit_fail = number(0, 100);
-		if (crit_fail > 2)
-		{
-			const OBJ_DATA obj(*tobj);
-			act(charfail.c_str(), FALSE, ch, &obj, 0, TO_CHAR);
-			act(roomfail.c_str(), FALSE, ch, &obj, 0, TO_ROOM);
-		}
-		else
-		{
-			const OBJ_DATA obj(*tobj);
-			act(chardam.c_str(), FALSE, ch, &obj, 0, TO_CHAR);
-			act(roomdam.c_str(), FALSE, ch, &obj, 0, TO_ROOM);
-			dam = number(0, dam);
-			// Наносим дамаг.
-			if (GET_LEVEL(ch) >= LVL_IMMORT && dam > 0)
-			{
-				send_to_char("Будучи бессмертным, вы избежали повреждения...", ch);
-				return (FALSE);
-			}
-			GET_HIT(ch) -= dam;
-			update_pos(ch);
-			char_dam_message(dam, ch, ch, 0);
-			if (GET_POS(ch) == POS_DEAD)
-			{
-				// Убился веником.
-				if (!IS_NPC(ch))
-				{
-					sprintf(tmpbuf, "%s killed by a crafting at %s",
-							GET_NAME(ch),
-							ch->in_room == NOWHERE ? "NOWHERE" : world[ch->in_room]->name);
-					mudlog(tmpbuf, BRF, LVL_BUILDER, SYSLOG, TRUE);
-				}
-				die(ch, NULL);
-			}
-		}
-		for (i = 0; i < ingr_cnt; i++)
-		{
-			if (ingrs[i] && GET_OBJ_WEIGHT(ingrs[i]) <= 0)
-			{
-				extract_obj(ingrs[i]);
-			}
-		}
-		return (FALSE);
-	}
-	// Лоадим предмет игроку
-	const auto obj = world_objects.create_from_prototype_by_vnum(obj_proto);
-	act(charsucc.c_str(), FALSE, ch, obj.get(), 0, TO_CHAR);
-	act(roomsucc.c_str(), FALSE, ch, obj.get(), 0, TO_ROOM);
-	// 6. Считаем базовые статсы предмета и таймер
-	//  формула для каждого умения отдельная
-	// Для числовых х-к:  х-ка+(skill - random(100))/20;
-	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
-	// Т.к. сделать мы можем практически любой предмет.
-	// Модифицируем вес предмета и его таймер.
-	// Для маг предметов надо в сторону облегчения.
-//	i = GET_OBJ_WEIGHT(obj);
-	switch(skill) {
-		case SKILL_MAKE_BOW:
-			obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
-		break;
-		case SKILL_MAKE_WEAR:
-			obj->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
-			obj->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
-		break;
-		default:
-		break;
-	}
-	int sign = -1;
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON
-		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
-	{
-		sign = 1;
-	}
-	obj->set_weight(stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign));
+	
+	return make_fail;
+	
+}
 
-	i = obj->get_timer();
-	obj->set_timer(stat_modify(ch, obj->get_timer(), 1));
-	// Модифицируем уникальные для предметов х-ки.
-	// Балансировка варьируется изменением делителя (!20!)
-	// при делителе 20 и умении 100 и макс везении будет +5 к параметру
-	// Можно посчитать бонусы от времени суток.
-	// Считаем среднюю силу ингров .
-	switch (GET_OBJ_TYPE(obj))
-	{
-	case OBJ_DATA::ITEM_LIGHT:
-		// Считаем длительность свечения.
-		if (GET_OBJ_VAL(obj, 2) != -1)
-		{
-			obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2), 1));
-		}
-		break;
-	case OBJ_DATA::ITEM_WAND:
-	case OBJ_DATA::ITEM_STAFF:
-		// Считаем уровень закла
-		obj->set_val(0, GET_LEVEL(ch));
-		break;
-	case OBJ_DATA::ITEM_WEAPON:
-		// Считаем число xdy
-		// модифицируем XdY
-		if (GET_OBJ_VAL(obj, 1) > GET_OBJ_VAL(obj, 2))
-		{
-			obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
-		}
-		else
-		{
-			obj->set_val(2, stat_modify(ch, GET_OBJ_VAL(obj, 2) - 1, 1) + 1);
-		}
-		break;
-	case OBJ_DATA::ITEM_ARMOR:
-	case OBJ_DATA::ITEM_ARMOR_LIGHT:
-	case OBJ_DATA::ITEM_ARMOR_MEDIAN:
-	case OBJ_DATA::ITEM_ARMOR_HEAVY:
-		// Считаем + АС
-		obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
-		// Считаем поглощение.
-		obj->set_val(1, stat_modify(ch, GET_OBJ_VAL(obj, 1), 1));
-		break;
-	case OBJ_DATA::ITEM_POTION:
-		// Считаем уровень итоговый напитка
-		obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
-		break;
-	case OBJ_DATA::ITEM_CONTAINER:
-		// Считаем объем контейнера.
-		obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
-		break;
-	case OBJ_DATA::ITEM_DRINKCON:
-		// Считаем объем контейнера.
-		obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
-		break;
-	case OBJ_DATA::ITEM_INGREDIENT:
-		// Для ингров ничего не трогаем ... ибо опасно. :)
-		break;
-	default:
-		break;
-	}
-	// 7. Считаем доп. статсы предмета.
-	// х-ка прототипа +
-	// если (random(100) - сила ингра ) < 1 то переноситься весь параметр.
-	// если от 1 до 25 то переноситься 1/2
-	// если от 25 до 50 то переноситься 1/3
-	// больше переноситься 0
-	// переносим доп аффекты ...+мудра +ловка и т.п.
-	if (skill == SKILL_MAKE_WEAR)
-	{ 
-		make_object(ch, obj.get(), ingrs, ingr_cnt );
-		make_value_wear(ch, obj.get(), ingrs);
-	}
-	else // если не шитье то никаких махинаций с падежами и копированием рандом аффекта
-	{
+CreateStuff::CreateStuff() 
+{
+		skillnum = SKILL_MAKE_STAFF;
+		charwork = "Вы начали мастерить $o3.";
+		roomwork = "$n начал мастерить что-то, посылая всех к чертям.";
+		charfail = "$o3 осветил комнату магическим светом и истаял.";
+		roomfail = "Предмет в руках $n1 вспыхнул, озарив комнату магическим светом и истаял.";
+		charsucc = "Тайные знаки нанесенные на $o3 вспыхнули и погасли.\r\nДа, $E хорошо послужит своему хозяину.";
+		roomsucc = "$n смастерил$g $o3. Вы почуствовали скрытую силу спрятанную в этом предмете.";
+		chardam = "$o взорвался в ваших руках. Вас сильно обожгло.";
+		roomdam = "$o взорвался в руках $n1, опалив его.\r\nВокруг приятно запахло жаренным мясом.";
+		tagging = "Вы начертили на $o2 свое имя.";
+		itemtag = "Среди рунных знаков видна надпись 'Создано $n4'.";
+		dam = 70;
+}
+
+void CreateStuff::CreateObject(CHAR_DATA* ch)
+{
+		int i, j, ingr_pow;
+
 		for (j = 0; j < ingr_cnt; j++)
 		{
 			ingr_pow = get_ingr_pow(ingrs[j]);
@@ -2365,281 +2590,591 @@ int MakeRecept::make(CHAR_DATA * ch)
 			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
 			obj->set_all_affected(temp_affected);
 		}
-	}
-	// Мочим истраченные ингры.
-	for (i = 0; i < ingr_cnt; i++)
-	{
-		if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			// Мочим истраченные ингры.
+		for (i = 0; i < ingr_cnt; i++)
 		{
-			extract_obj(ingrs[i]);
-		}
-	}
-	// 8. Проверяем мах. инворлд.
-	// Считаем по формуле (31 - ср. уровень предмета) * 5 -
-	// овер шмота в мире не 30 лева не больше 5 штук
-	// Т.к. ср. уровень ингров будет определять
-	// число шмоток в мире то шмотки по хуже будут вытеснять
-	// шмотки по лучше (в целом это не так страшно).
-	// Ставим метку если все хорошо.
-	if ((GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT
-		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_MING)
-		&& (number(1, 100) - calculate_skill(ch, skill, 0) < 0))
-	{
-		act(tagging.c_str(), FALSE, ch, obj.get(), 0, TO_CHAR);
-		// Прибавляем в экстра описание строчку.
-		char *tagchar = format_act(itemtag.c_str(), ch, obj.get(), 0);
-		obj->set_tag(tagchar);
-		free(tagchar);
-	};
-	// простановка мортов при шитье
-	float total_weight = count_mort_requred(obj.get()) * 7 / 10;
-
-	if (total_weight > 35)
-	{
-		obj->set_minimum_remorts(12);
-	}
-	else if (total_weight > 33)
-	{
-		obj->set_minimum_remorts(11);
-	}
-	else if (total_weight > 30)
-	{
-		obj->set_minimum_remorts(9);
-	}
-	else if (total_weight > 25)
-	{
-		obj->set_minimum_remorts(6);
-	}
-	else if (total_weight > 20)
-	{
-		obj->set_minimum_remorts(3);
-	}
-	else
-	{
-		obj->set_minimum_remorts(0);
-	}
-
-	// Пишем производителя в поле.
-	obj->set_crafter_uid(GET_UNIQUE(ch));
-	// 9. Проверяем минимум 2
-	if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-	{
-		send_to_char("Вы не сможете унести столько предметов.\r\n", ch);
-		obj_to_room(obj.get(), ch->in_room);
-	}
-	else if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch))
-	{
-		send_to_char("Вы не сможете унести такой вес.\r\n", ch);
-		obj_to_room(obj.get(), ch->in_room);
-	}
-	else
-	{
-		obj_to_char(obj.get(), ch);
-	}
-	return (TRUE);
-}
-// вытащить рецепт из строки.
-int MakeRecept::load_from_str(string & rstr)
-{
-	// Разбираем строку.
-	char tmpbuf[MAX_INPUT_LENGTH];
-	// Проверяем рецепт на блокировку .
-	if (rstr.substr(0, 1) == string("*"))
-	{
-		rstr = rstr.substr(1);
-		locked = true;
-	}
-	else
-	{
-		locked = false;
-	}
-	skill = static_cast<ESkill>(atoi(rstr.substr(0, rstr.find(" ")).c_str()));
-	rstr = rstr.substr(rstr.find(" ") + 1);
-	obj_proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
-	rstr = rstr.substr(rstr.find(" ") + 1);
-
-	if (real_object(obj_proto) < 0)
-	{
-		// Обнаружен несуществующий прототип объекта.
-		sprintf(tmpbuf, "MakeRecept::Unfound object proto %d", obj_proto);
-		mudlog(tmpbuf, LGH, LVL_IMMORT, SYSLOG, TRUE);
-		// блокируем рецепты без ингров.
-		locked = true;
-	}
-
-	for (int i = 0; i < MAX_PARTS; i++)
-	{
-		// считали номер прототипа компонента
-		parts[i].proto = atoi((rstr.substr(0, rstr.find(" "))).c_str());
-		rstr = rstr.substr(rstr.find(" ") + 1);
-		// Проверяем на конец компонентов.
-		if (parts[i].proto == 0)
-		{
-			break;
-		}
-		if (real_object(parts[i].proto) < 0)
-		{
-			// Обнаружен несуществующий прототип компонента.
-			sprintf(tmpbuf, "MakeRecept::Unfound item part %d for %d", obj_proto, parts[i].proto);
-			mudlog(tmpbuf, LGH, LVL_IMMORT, SYSLOG, TRUE);
-			// блокируем рецепты без ингров.
-			locked = true;
-		}
-		parts[i].min_weight = atoi(rstr.substr(0, rstr.find(" ")).c_str());
-		rstr = rstr.substr(rstr.find(" ") + 1);
-		parts[i].min_power = atoi(rstr.substr(0, rstr.find(" ")).c_str());
-		rstr = rstr.substr(rstr.find(" ") + 1);
-	}
-	return (TRUE);
-}
-// сохранить рецепт в строку.
-int MakeRecept::save_to_str(string & rstr)
-{
-	char tmpstr[MAX_INPUT_LENGTH];
-	if (obj_proto == 0)
-	{
-		return (FALSE);
-	}
-	if (locked)
-	{
-		rstr = "*";
-	}
-	else
-	{
-		rstr = "";
-	}
-	sprintf(tmpstr, "%d %d", skill, obj_proto);
-	rstr += string(tmpstr);
-	for (int i = 0; i < MAX_PARTS; i++)
-	{
-		sprintf(tmpstr, " %d %d %d", parts[i].proto, parts[i].min_weight, parts[i].min_power);
-		rstr += string(tmpstr);
-	}
-	return (TRUE);
-}
-// Модификатор базовых значений.
-int MakeRecept::stat_modify(CHAR_DATA * ch, int value, float devider)
-{
-	// Для числовых х-к:  х-ка+(skill - random(100))/20;
-	// Для флагов ???: random(200) - skill > 0 то флаг переноситься.
-	int res = value;
-	float delta = 0;
-	int skill_prc = 0;
-	if (devider <= 0)
-	{
-		return res;
-	}
-	skill_prc = calculate_skill(ch, skill, 0);
-	delta = (int)((float)(skill_prc - number(0, skill_info[skill].max_percent)));
-	if (delta > 0)
-	{
-		delta = (value / 2) * delta / skill_info[skill].max_percent / devider;
-	}
-	else
-	{
-		delta = (value / 4) * delta / skill_info[skill].max_percent / devider;
-	}
-	res += (int) delta;
-	// Если параметр завалили то возвращаем 1;
-	if (res < 0)
-	{
-		return 1;
-	}
-	return res;
-}
-void MakeRecept::add_rnd_skills(CHAR_DATA* /*ch*/, OBJ_DATA * obj_from, OBJ_DATA *obj_to)
-{
-	if (obj_from->has_skills())
-	{
-		int skill_num, rskill;
-		int z = 0;
-		int percent;
-//		send_to_char("Копирую умения :\r\n", ch);
-		CObjectPrototype::skills_t skills;
-		obj_from->get_skills(skills);
-		int i = static_cast<int>(skills.size()); // сколько добавлено умелок
-		rskill = number(0, i); // берем рандом
-//		sprintf(buf, "Всего умений %d копируем из них случайное под N %d.\r\n", i, rskill);
-//		send_to_char(buf,  ch);
-		for (const auto& it : skills)
-		{	
-			if (z == rskill) // ставим рандомную умелку
+			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
 			{
-				skill_num = it.first;
-				percent = it.second;
-				if (percent == 0) // TODO: такого не должно быть?
-				{
-					continue;
-				}
-//				sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-//				CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
-//				CCCYN(ch, C_NRM),
-//				percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
-//				send_to_char(buf, ch);
-				obj_to->set_skill(skill_num, percent);// копируем скиллы
-			}
-			z++;
-		}
-	}
-}
-int MakeRecept::add_flags(CHAR_DATA * ch, FLAG_DATA * base_flag, const FLAG_DATA* add_flag, int/* delta*/)
-{
-// БЕз вариантов вообще :(
-	int tmpprob;
-	for (int i = 0; i < 3; i++)
-	{
-		for (int j = 0; j < 32; j++)
-		{
-			tmpprob = number(0, 200) - calculate_skill(ch, skill, 0);
-			if ((add_flag->get_plane(i) & (1 << j)) && (tmpprob < 0))
-			{
-				base_flag->set_flag(i, 1 << j);
+				extract_obj(ingrs[i]);
 			}
 		}
-	}
-	return (TRUE);
+
 }
-int MakeRecept::add_affects(CHAR_DATA * ch, std::array<obj_affected_type, MAX_OBJ_AFFECT>& base, const std::array<obj_affected_type, MAX_OBJ_AFFECT>& add, int delta)
+
+CreateWear::CreateWear() 
 {
-	bool found = false;
-	int i, j;
-	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-	{
-		found = false;
-		if (add[i].location == APPLY_NONE)
-			continue;
-		for (j = 0; j < MAX_OBJ_AFFECT; j++)
+		skillnum = SKILL_MAKE_WEAR;
+		charwork = "Вы взяли в руку иголку и начали шить $o3.";
+		roomwork = "$n взял$g в руку иголку и начал$g увлеченно шить.";
+		charfail = "У вас ничего не получилось сшить.";
+		roomfail = "$n пытал$u что-то сшить, но ничего не вышло.";
+		charsucc = "Вы сшили $o3.";
+		roomsucc = "$n сшил$g $o3.";
+		chardam = "Игла глубоко вошла в вашу руку. Аккуратнее надо быть.";
+		roomdam = "$n глубоко воткнул$g иглу в себе в руку. \r\nА с виду вполне нормальный человек.";
+		tagging = "Вы пришили к $o2 бирку со своим именем.";
+		itemtag = "На $o5 вы заметили бирку 'Сшил$g $n'.";
+		dam = 30;
+		
+		
+		
+}
+
+bool CreateWear::check_list_ingr(CHAR_DATA* ch , std::array<ingr_part_type, MAX_PARTS> parts)
+{
+	bool make_fail = false;
+	int j;
+	
+		for (int i = 0; i < ingr_cnt; i++)
 		{
-			if (base[j].location == APPLY_NONE)
+		
+			if (i == 0) //для шитья всегда раскраиваем шкуру 
+			{
+				IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[0]);
+				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
+				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(3) + ".\r\n";
+				send_to_char(tmpstr.c_str(), ch);
 				continue;
-			if (add[i].location == base[j].location)
+			}
+			
+			//
+			// нужный материал = мин.материал +
+			// random(100) - skill
+			// если она < 20 то мин.вес + rand(мин.вес/3)
+			// если она < 50 то мин.вес*rand(1,2) + rand(мин.вес/3)
+			// если она > 50    мин.вес*rand(2,5) + rand(мин.вес/3)
+			if (get_ingr_lev(ingrs[i]) == -1)
+				continue;	// Компонент не ингр. пропускаем.
+			craft_weight = parts[i].min_weight + number(0, (parts[i].min_weight / 3) + 1);
+			j = number(0, 100) - calculate_skill(ch, skillnum, 0);
+			if ((j >= 20) && (j < 50))
+				craft_weight += parts[i].min_weight * number(1, 2);
+			else if (j > 50)
+				craft_weight += parts[i].min_weight * number(2, 5);
+			// 5. Делаем проверку есть ли столько материала.
+			// если не хватает то удаляем игридиент и фейлим.
+			int state = craft_weight;
+			// Обсчет веса ингров в цикле, если не хватило веса берем следующий ингр в инве, если не хватает, делаем фэйл (make_fail) и брекаем внешний цикл, смысл дальше ингры смотреть?
+			//send_to_char(ch, "Требуется вес %d вес ингра %d требуемое кол ингров %d\r\n", state, GET_OBJ_WEIGHT(ingrs[i]), ingr_cnt);
+			int obj_vnum_tmp = GET_OBJ_VNUM(ingrs[i]);
+			while (state > 0)
 			{
-				// Аффекты совпали.
-				found = true;
-				if (number(0, 100) > delta)
+				//Переделаем слегка логику итераций
+				//Сперва проверяем сколько нам нужно. Если вес ингра больше, чем требуется, то вычитаем вес и останавливаем итерацию.
+				if (GET_OBJ_WEIGHT(ingrs[i]) > state)
+				{
+					ingrs[i]->sub_weight(state);
+					send_to_char(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
+					IS_CARRYING_W(ch) -= state;
 					break;
-				base[j].modifier += stat_modify(ch, add[i].modifier, 1);
+				}
+				//Если вес ингра ровно столько, сколько требуется, вычитаем вес, ломаем ингр и останавливаем итерацию.
+				else if (GET_OBJ_WEIGHT(ingrs[i]) == state)
+				{
+					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
+					ingrs[i]->set_weight(0);
+					send_to_char(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(3).c_str());
+					//extract_obj(ingrs[i]);
+					break;
+				}
+				//Если вес ингра меньше, чем требуется, то вычтем этот вес из того, сколько требуется.
+				else
+				{
+					state = state - GET_OBJ_WEIGHT(ingrs[i]);
+					send_to_char(ch, "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n", ingrs[i]->get_PName(3).c_str());
+					std::string tmpname = std::string(ingrs[i]->get_PName(1).c_str());
+					IS_CARRYING_W(ch) -= GET_OBJ_WEIGHT(ingrs[i]);
+					ingrs[i]->set_weight(0);
+					extract_obj(ingrs[i]);
+					ingrs[i] = nullptr;
+					//Если некст ингра в инве нет, то сообщаем об этом и идем в фэйл. Некст ингры все равно проверяем
+					if (!get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying))
+					{
+						send_to_char(ch, "У вас в инвентаре больше нет %s.\r\n", tmpname.c_str());
+						make_fail = true;
+						break;
+					}
+					//Подцепляем некст ингр и идем в нашу проверку заново
+					else
+					{
+						ingrs[i] = get_obj_in_list_ingr(obj_vnum_tmp, ch->carrying);
+					}
+				}
+			}
+		}
+	
+	return make_fail;
+	
+}
+
+void CreateWear::CreateObject(CHAR_DATA* ch)
+{
+	int i, j;
+	//ставим именительные именительные падежи в алиасы 
+	sprintf(buf, "%s %s %s %s",
+		GET_OBJ_PNAME(obj, 0).c_str(),
+		GET_OBJ_PNAME(ingrs[0], 1).c_str(),
+		GET_OBJ_PNAME(ingrs[1], 4).c_str(),
+		GET_OBJ_PNAME(ingrs[2], 4).c_str());
+	obj->set_aliases(buf);
+	for (i = 0; i < CObjectPrototype::NUM_PADS; i++) // ставим падежи в имя с учетов ингров
+	{
+		sprintf(buf, "%s", GET_OBJ_PNAME(obj, i).c_str());
+		strcat(buf, " из ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[0], 1).c_str());
+		strcat(buf, " с ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[1], 4).c_str());
+		strcat(buf, " и ");
+		strcat(buf, GET_OBJ_PNAME(ingrs[2], 4).c_str());
+		obj->set_PName(i, buf);
+		if (i == 0) // именительный падеж
+		{
+			obj->set_short_description(buf);
+			if (GET_OBJ_SEX(obj) == ESex::SEX_MALE)
+			{
+				sprintf(buf2, "Брошенный %s лежит тут.", buf);
+			}
+			else if (GET_OBJ_SEX(obj) == ESex::SEX_FEMALE)
+			{
+				sprintf(buf2, "Брошенная %s лежит тут.", buf);
+			}
+			else if (GET_OBJ_SEX(obj) == ESex::SEX_POLY)
+			{
+				sprintf(buf2, "Брошенные %s лежат тут.", buf);
+			}
+			obj->set_description(buf2); // описание на земле
+		}
+	}
+	switch(skill) {
+		case SKILL_MAKE_BOW:
+			obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+		break;
+		case SKILL_MAKE_WEAR:
+			obj->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
+			obj->set_extra_flag(EExtraFlag::ITEM_NOT_UNLIMIT_TIMER);
+		break;
+		default:
+		break;
+	}
+	obj->set_is_rename(true); // ставим флаг что объект переименован
+	auto temp_flags = obj->get_affect_flags();
+	add_flags(ch, &temp_flags, &ingrs[0]->get_affect_flags(), get_ingr_pow(ingrs[0]));
+	obj->set_affect_flags(temp_flags);
+	// перносим эффекты ... с ингров на прототип, 0 объект шкура переносим все, с остальных 1 рандом
+	temp_flags = obj->get_extra_flags();
+	add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[0]), get_ingr_pow(ingrs[0]));
+	obj->set_extra_flags(temp_flags);
+	auto temp_affected = obj->get_all_affected();
+	add_affects(ch,temp_affected, ingrs[0]->get_all_affected(), get_ingr_pow(ingrs[0]));
+	obj->set_all_affected(temp_affected);
+	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
+	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
+	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(skillnum) * number(180, 220)); // таймер зависит в основном от умелки
+	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
+	for (j = 1; j < ingr_cnt; j++)
+	{
+		int i, raffect = 0;
+		for (i = 0; i < MAX_OBJ_AFFECT; i++) // посмотрим скока аффектов
+		{
+			if (ingrs[j]->get_affected(i).location == APPLY_NONE)
+			{
 				break;
 			}
 		}
-		if (!found)
+		if (i > 0) // если > 0 переносим случайный
 		{
-			// Ищем первый свободный аффект и втыкаем туда новый.
-			for (int j = 0; j < MAX_OBJ_AFFECT; j++)
+			raffect = number(0, i - 1);
+			for (int i = 0; i < MAX_OBJ_AFFECT; i++)
 			{
-				if (base[j].location == APPLY_NONE)
+				const auto& ra = ingrs[j]->get_affected(raffect);
+				if (obj->get_affected(i).location == ra.location) // если аффект такой уже висит и он меньше, переставим значение
 				{
-					if (number(0, 100) > delta)
+					if (obj->get_affected(i).modifier < ra.modifier)
+					{
+						obj->set_affected(i, obj->get_affected(i).location, ra.modifier);
+					}
+					break;
+				}
+				if (obj->get_affected(i).location == APPLY_NONE) // добавляем афф на свободное место
+				{
+					if (number(1, 100) > GET_OBJ_VAL(ingrs[j], 2)) // проверим фейл на силу ингра
+					{
 						break;
-					base[j].location = add[i].location;
-					base[j].modifier += add[i].modifier;
-					//cout << "add affect " << int(base[j].location) <<" - " << int(base[j].modifier) << endl;
+					}
+					obj->set_affected(i, ra);
 					break;
 				}
 			}
 		}
+		// переносим аффекты ... c ингров на прототип.
+		auto temp_flags = obj->get_affect_flags();
+		add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), get_ingr_pow(ingrs[j]));
+		obj->set_affect_flags(temp_flags);
+		// перносим эффекты ... с ингров на прототип.
+		temp_flags = obj->get_extra_flags();
+		add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), get_ingr_pow(ingrs[j]));
+		obj->set_extra_flags(temp_flags);
+		// переносим 1 рандом аффект
+		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
-	return (TRUE);
+
+	int wearkoeff = 50;
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) // 1.1
+	{
+		wearkoeff = 110;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.8
+	{
+		wearkoeff = 80;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.6
+	{
+		wearkoeff = 60;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.9
+	{
+		wearkoeff = 90;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.45
+	{
+		wearkoeff = 45;
+	}
+	obj->set_val(0, ((GET_REAL_INT(ch) * GET_REAL_INT(ch) / 10 + ch->get_skill(skillnum)) / 100 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //АС=((инта*инта/10+умелка)/100+левл.шкуры)*коэф.части тела
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY)) //0.9
+	{
+		wearkoeff = 90;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD)) //0.7
+	{
+		wearkoeff = 70;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS)) //0.4
+	{
+		wearkoeff = 40;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET)) //0.5
+	{
+		wearkoeff = 50;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS)) //0.4
+	{
+		wearkoeff = 40;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))//0.8
+	{
+		wearkoeff = 80;
+	}
+	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))//0.31
+	{
+		wearkoeff = 31;
+	}
+	obj->set_val(1, (ch->get_skill(skillnum) / 25 + (GET_OBJ_VAL(ingrs[0], 3) + 1)) * wearkoeff / 100); //броня=(%умелки/25+левл.шкуры)*коэф.части тела
+
+
+}
+
+CreateAmulet::CreateAmulet() 
+{
+		skillnum = SKILL_MAKE_AMULET;
+		charwork = "Вы взяли в руки необходимые материалы и начали мастерить $o3.";
+		roomwork = "$n взял$g в руки что-то и начал$g увлеченно пыхтеть над чем-то.";
+		charfail = "У вас ничего не получилось";
+		roomfail = "$n пытал$u что-то сделать, но ничего не вышло.";
+		charsucc = "Вы смастерили $o3.";
+		roomsucc = "$n смастерил$g $o3.";
+		chardam = "Яркая вспышка дала вам знать, что с магией необходимо быть поосторожней.";
+		roomdam = "Яркая вспышка осветила все вокруг. $n2 стоит быть аккуратнее с магией! \r\n";
+		tagging = "На обратной стороне $o1 вы нацарапали свое имя.";
+		itemtag = "На обратной стороне $o1 вы заметили слово '$n', видимо, это имя создателя этой чудной вещицы.";
+		dam = 30;
+}
+
+void CreateAmulet::CreateObject(CHAR_DATA* ch)
+{
+		int skill_is = ch->get_skill(skillnum);
+		
+		for (int j = 0; j < ingr_cnt; j++)
+		{
+			ingr_pow = get_ingr_pow(ingrs[j]);
+			if (ingr_pow < 0)
+			{
+				ingr_pow = 20;
+			}
+			// переносим аффекты ... c ингров на прототип.
+			auto temp_flags = obj->get_affect_flags();
+			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
+			obj->set_affect_flags(temp_flags);
+			temp_flags = obj->get_extra_flags();
+			// перносим эффекты ... с ингров на прототип.
+			add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);
+			obj->set_extra_flags(temp_flags);
+			auto temp_affected = obj->get_all_affected();
+			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
+			obj->set_all_affected(temp_affected);
+		}
+		for (int i = 0; i < ingr_cnt; i++)
+		{
+			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			{
+				extract_obj(ingrs[i]);
+			}
+		}
+
+}
+
+CreateJewel::CreateJewel() 
+{
+		skillnum = SKILL_MAKE_JEWEL;
+		charwork = "Вы начали мастерить $o3.";
+		roomwork = "$n начал мастерить какую-то диковинку.";
+		charfail = "Ваше неудачное движение повредило $o5.";
+		roomfail = "Неудачное движение $n, сделало $s работу бессмысленной.";
+		charsucc = "Вы смастерили $o3.";
+		roomsucc = "$n смастерил$g $o3.";
+		chardam = "Мелкий кусочек материала отскочил и попал вам в глаз.\r\nЭто было больно!";
+		roomdam = "Мелкий кусочек материала отскочил и попал в глаз $n2.";
+		tagging = "Вы приладили к $o2 табличку со своим именем.";
+		itemtag = "С нижней стороны $o1 укреплена табличка 'Cделано $n4'.";
+		dam = 30;
+}
+
+void CreateJewel::CreateObject(CHAR_DATA* ch)
+{
+		int skill_is = ch->get_skill(skillnum);
+		
+		for (int j = 0; j < ingr_cnt; j++)
+		{
+			ingr_pow = get_ingr_pow(ingrs[j]);
+			if (ingr_pow < 0)
+			{
+				ingr_pow = 20;
+			}
+			// переносим аффекты ... c ингров на прототип.
+			auto temp_flags = obj->get_affect_flags();
+			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
+			obj->set_affect_flags(temp_flags);
+			temp_flags = obj->get_extra_flags();
+			// перносим эффекты ... с ингров на прототип.
+			add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);
+			obj->set_extra_flags(temp_flags);
+			auto temp_affected = obj->get_all_affected();
+			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
+			obj->set_all_affected(temp_affected);
+		}
+		for (int i = 0; i < ingr_cnt; i++)
+		{
+			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			{
+				extract_obj(ingrs[i]);
+			}
+		}
+		
+}
+
+CreatePotion::CreatePotion() 
+{
+		skillnum = SKILL_MAKE_POTION;
+		charwork = "Вы достали небольшой горшочек и развели под ним огонь, начав варить $o3.";
+		roomwork = "$n достал горшочек и поставил его на огонь.";
+		charfail = "Вы не уследили как зелье закипело и пролилось в огонь.";
+		roomfail = "Зелье которое варил$g $n закипело и пролилось в огонь,\r\n распространив по комнате ужасную вонь.";
+		charsucc = "Зелье удалось вам на славу.";
+		roomsucc = "$n сварил$g $o3. Приятный аромат зелья из горшочка, так и манит вас.";
+		chardam = "Вы опрокинули горшочек с зельем на себя, сильно ошпарившись.";
+		roomdam = "Горшочек с $o4 опрокинулся на $n1, ошпарив $s.";
+		tagging = "Вы на прикрепили к $o2 бирку со своим именем.";
+		itemtag = "На $o1 вы заметили бирку 'Сварено $n4'";
+		dam = 40;
+}
+
+void CreatePotion::CreateObject(CHAR_DATA* ch)
+{
+		int skill_is = ch->get_skill(skillnum);
+		
+		for (int j = 0; j < ingr_cnt; j++)
+		{
+			ingr_pow = get_ingr_pow(ingrs[j]);
+			if (ingr_pow < 0)
+			{
+				ingr_pow = 20;
+			}
+			// переносим аффекты ... c ингров на прототип.
+			auto temp_flags = obj->get_affect_flags();
+			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
+			obj->set_affect_flags(temp_flags);
+			temp_flags = obj->get_extra_flags();
+			// перносим эффекты ... с ингров на прототип.
+			add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);
+			obj->set_extra_flags(temp_flags);
+			auto temp_affected = obj->get_all_affected();
+			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
+			obj->set_all_affected(temp_affected);
+		}
+		for (int i = 0; i < ingr_cnt; i++)
+		{
+			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			{
+				extract_obj(ingrs[i]);
+			}
+		}
+
+}
+
+CreateArmor::CreateArmor() 
+{
+		skillnum = SKILL_MAKE_ARMOR;
+		charwork = "Вы поместили заготовку на наковальню и начали ковать $o3.";
+		roomwork = "$n поместил$g закотовку на наковальню и начал$g ковать.";
+		charfail = "Заготовка под вашими ударами покрылась сетью трещин и раскололась.";
+		roomfail = "Под ударами молота $n1 заготовка раскололась.";
+		charsucc = "Вы выковали $o3.";
+		roomsucc = "$n выковал$G $o3.";
+		chardam = "Заготовка выскочила из под молота и больно ударила вас.";
+		roomdam = "Заготовка выскочила из под молота $n1, больно $s ударив.";
+		tagging = "Вы поставили свое клеймо на $o5.";
+		itemtag = "На $o5 стоит клеймо 'Выковал$g $n'.";
+		dam = 70;
+}
+
+void CreateArmor::CreateObject(CHAR_DATA* ch)
+{
+		int skill_is = ch->get_skill(skillnum);
+		
+		for (int j = 0; j < ingr_cnt; j++)
+		{
+			ingr_pow = get_ingr_pow(ingrs[j]);
+			if (ingr_pow < 0)
+			{
+				ingr_pow = 20;
+			}
+			// переносим аффекты ... c ингров на прототип.
+			auto temp_flags = obj->get_affect_flags();
+			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
+			obj->set_affect_flags(temp_flags);
+			temp_flags = obj->get_extra_flags();
+			// перносим эффекты ... с ингров на прототип.
+			add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);
+			obj->set_extra_flags(temp_flags);
+			auto temp_affected = obj->get_all_affected();
+			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
+			obj->set_all_affected(temp_affected);
+		}
+		for (int i = 0; i < ingr_cnt; i++)
+		{
+			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			{
+				extract_obj(ingrs[i]);
+			}
+		}
+
+}
+
+CreateWeapon::CreateWeapon() 
+{
+		skillnum = SKILL_MAKE_WEAPON;
+		charwork = "Вы поместили заготовку на наковальню и начали ковать $o3.";
+		roomwork = "$n поместил$g закотовку на наковальню и начал$g ковать.";
+		charfail = "Заготовка под вашими ударами покрылась сетью трещин и раскололась.";
+		roomfail = "Под ударами молота $n1 заготовка раскололась.";
+		charsucc = "Вы выковали $o3.";
+		roomsucc = "$n выковал$G $o3.";
+		chardam = "Заготовка выскочила из под молота и больно ударила вас.";
+		roomdam = "Заготовка выскочила из под молота $n1, больно $s ударив.";
+		tagging = "Вы поставили свое клеймо на $o5.";
+		itemtag = "На $o5 стоит клеймо 'Выковал$g $n'.";
+		dam = 70;
+}
+
+void CreateWeapon::CreateObject(CHAR_DATA* ch)
+{
+		int skill_is = ch->get_skill(skillnum);
+		
+		for (int j = 0; j < ingr_cnt; j++)
+		{
+			ingr_pow = get_ingr_pow(ingrs[j]);
+			if (ingr_pow < 0)
+			{
+				ingr_pow = 20;
+			}
+			// переносим аффекты ... c ингров на прототип.
+			auto temp_flags = obj->get_affect_flags();
+			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
+			obj->set_affect_flags(temp_flags);
+			temp_flags = obj->get_extra_flags();
+			// перносим эффекты ... с ингров на прототип.
+			add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);
+			obj->set_extra_flags(temp_flags);
+			auto temp_affected = obj->get_all_affected();
+			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
+			obj->set_all_affected(temp_affected);
+		}
+		for (int i = 0; i < ingr_cnt; i++)
+		{
+			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			{
+				extract_obj(ingrs[i]);
+			}
+		}
+
+}
+
+CreateBow::CreateBow() 
+{
+		skillnum = SKILL_MAKE_BOW;
+		charwork = "Вы начали мастерить $o3.";
+		roomwork = "$n начал$g мастерить что-то очень напоминающее $o3.";
+		charfail = "С громким треском $o сломал$U в ваших неумелых руках.";
+		roomfail = "С громким треском $o сломал$U в неумелых руках $n1.";
+		charsucc = "Вы cмастерили $o3.";
+		roomsucc = "$n смастерил$g $o3.";
+		chardam = "$o3 с громким треском сломал$U оцарапав вам руки.";
+		roomdam = "$o3 с громким треском сломал$U оцарапав руки $n2.";
+		tagging = "Вы вырезали свое имя на $o5.";
+		itemtag = "На $o5 видна метка 'Смастерил$g $n'.";
+		dam = 40;
+}
+
+void CreateBow::CreateObject(CHAR_DATA* ch)
+{
+		int skill_is = ch->get_skill(skillnum);
+		
+		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+
+		for (int j = 0; j < ingr_cnt; j++)
+		{
+			ingr_pow = get_ingr_pow(ingrs[j]);
+			if (ingr_pow < 0)
+			{
+				ingr_pow = 20;
+			}
+			// переносим аффекты ... c ингров на прототип.
+			auto temp_flags = obj->get_affect_flags();
+			add_flags(ch, &temp_flags, &ingrs[j]->get_affect_flags(), ingr_pow);
+			obj->set_affect_flags(temp_flags);
+			temp_flags = obj->get_extra_flags();
+			// перносим эффекты ... с ингров на прототип.
+			add_flags(ch, &temp_flags, &GET_OBJ_EXTRA(ingrs[j]), ingr_pow);
+			obj->set_extra_flags(temp_flags);
+			auto temp_affected = obj->get_all_affected();
+			add_affects(ch, temp_affected, ingrs[j]->get_all_affected(), ingr_pow);
+			obj->set_all_affected(temp_affected);
+		}
+		for (int i = 0; i < ingr_cnt; i++)
+		{
+			if (GET_OBJ_WEIGHT(ingrs[i]) <= 0)
+			{
+				extract_obj(ingrs[i]);
+			}
+		}
+
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
