@@ -1782,6 +1782,12 @@ int MakeRecept::make(CHAR_DATA * ch)
 	craftType->obj = obj.get();
 	obj->set_craft(ch);
 	//obj->set_craft(ch);
+	int sign = -1;
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON
+		|| GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
+	{
+		sign = 1;
+	}
 	obj->set_weight(stat_modify(ch, GET_OBJ_WEIGHT(obj), 20 * sign));
 	i = obj->get_timer();
 	obj->set_timer(stat_modify(ch, obj->get_timer(), 1));
@@ -2745,7 +2751,8 @@ void CreateWear::CreateObject(CHAR_DATA* ch)
 			obj->set_description(buf2); // описание на земле
 		}
 	}
-	switch(skill) {
+	switch(ch->get_skill(skillnum)) 
+	{
 		case SKILL_MAKE_BOW:
 			obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
 		break;
