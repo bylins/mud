@@ -2722,7 +2722,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 	}
 	case MEDIT_MAXFACTOR:
-		OLC_MOB(d)->mob_specials.MaxFactor = MIN(0, MAX(0, atoi(arg)));
+		OLC_MOB(d)->mob_specials.MaxFactor =  MAX(0, atoi(arg));
 		break;
 
 	default:
