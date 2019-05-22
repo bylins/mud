@@ -306,7 +306,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 class TriggersFile : public DiscreteFile
 {
 public:
-	TriggersFile(const std::string& file_name) : DiscreteFile(file_name) {}
+	TriggersFile(const std::string& file_name) : DiscreteFile(file_name), load_obj_exp(std::regex("^\\s*(?:%load%|oload|mload|wload)\\s+obj\\s+(\\d+)")) {}
 
 	virtual EBootType mode() const override { return DB_BOOT_TRG; }
 
@@ -315,6 +315,8 @@ public:
 private:
 	virtual void read_entry(const int nr) override;
 	void parse_trigger(int nr);
+
+    const std::regex load_obj_exp;
 };
 
 void TriggersFile::read_entry(const int nr)
@@ -369,7 +371,6 @@ void TriggersFile::parse_trigger(int nr)
 			(*ptr)->cmd = line;
 			ptr = &(*ptr)->next;
 
-			const auto load_obj_exp = std::regex("^\\s*(?:%load%|oload|mload|wload)\\s+obj\\s+(\\d+)");
 			std::smatch match;
 			if(std::regex_search(line, match, load_obj_exp))
 			{
