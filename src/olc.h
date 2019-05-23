@@ -331,6 +331,7 @@ extern struct olc_save_info *olc_save_list;
 #endif
 
 #define MEDIT_RACE			66
+#define MEDIT_MAXFACTOR			67
 
 // Medit additional parameters
 
