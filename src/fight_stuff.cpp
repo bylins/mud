@@ -380,11 +380,17 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		// Вычисляем замакс по мобам
 		// Решил немножко переделать, чтобы короче получилось,
 		// кроме того, исправил ошибку с присутствием лидера в комнате
-		if (IS_NPC(ch) && killer && mob_proto[ch->get_rnum()].mob_specials.MaxFactor <= 0)
+		if (IS_NPC(ch) && killer)
 		{
+			if (mob_proto[ch->get_rnum()].mob_specials.MaxFactor > 0)
+			{
+				mob_proto[ch->get_rnum()].mob_specials.MaxFactor--;
+			}
+			else
+			{
 				process_mobmax(ch, killer);
+			}
 		}
-
 		if (killer)
 		{
 			update_leadership(ch, killer);
@@ -830,8 +836,6 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	if (mob_proto[victim->get_rnum()].mob_specials.MaxFactor > 0)
 	{
 		send_to_char(ch, "&RУ моба еще %d убийств без замакса, экспа %d\r\n&n", mob_proto[victim->get_rnum()].mob_specials.MaxFactor, exp);
-		mob_proto[victim->get_rnum()].mob_specials.MaxFactor--;
-//		return exp;
 	}
 	// если моб убивается первый раз, то повышаем экспу в несколько раз
 	// стимулируем изучение новых зон!
