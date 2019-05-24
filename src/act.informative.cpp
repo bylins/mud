@@ -2259,7 +2259,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 	else
 	{
-		if (PRF_FLAGGED(ch, PRF_MAPPER))
+		if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER))
 		{
 			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 			send_to_char(buf2, ch);
@@ -2281,7 +2281,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 
 	// autoexits
-	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT))
+	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER))
 	{
 		do_auto_exits(ch);
 	}

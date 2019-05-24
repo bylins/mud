@@ -240,7 +240,7 @@ const char *player_bits[] =
 	"NAMED",
 	"REGED",
 	"DUMB",
-	"<null>",
+	"скриптер",
 	"<null>",
 	"<null>",
 	"<null>",

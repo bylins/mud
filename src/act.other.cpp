@@ -2622,6 +2622,11 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		result = (nameserver_is_slow = !nameserver_is_slow);
 		break;
 	case SCMD_AUTOEXIT:
+		if (PLR_FLAGGED(ch, PLR_SCRIPTWRITER))
+		{
+			send_to_char("Скриптерам запрещено видеть автовыходы.\r\n", ch);
+			return;
+		}
 		result = PRF_TOG_CHK(ch, PRF_AUTOEXIT);
 		break;
 	case SCMD_CODERINFO:
@@ -2636,6 +2641,11 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	case SCMD_BLIND:
 		break;
 	case SCMD_MAPPER:
+		if (PLR_FLAGGED(ch, PLR_SCRIPTWRITER))
+		{
+			send_to_char("Скриптерам запрещено видеть vnum комнаты.\r\n", ch);
+			return;
+		}
 		result = PRF_TOG_CHK(ch, PRF_MAPPER);
 		break;
 	case SCMD_TESTER:
