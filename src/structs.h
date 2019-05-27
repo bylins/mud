@@ -413,6 +413,7 @@ extern const religion_names_t religion_name;
 #define PLR_NAMED        (1 << 17)	// Player is in Names Room //
 #define PLR_REGISTERED   (1 << 18)
 #define PLR_DUMB         (1 << 19)	// Player is not allowed to tell/emote/social //
+#define PLR_SCRIPTWRITER (1 << 20)	// скриптер
 // свободно
 #define PLR_DELETE       (1 << 28)	// RESERVED - ONLY INTERNALLY (MOB_DELETE) //
 #define PLR_FREE         (1 << 29)	// RESERVED - ONLY INTERBALLY (MOB_FREE)//

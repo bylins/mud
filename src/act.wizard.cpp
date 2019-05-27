@@ -2805,7 +2805,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
-		send_to_char(ch, "Вероятность использования умений: %s%d%%%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Вероятность использования умений: %s%d%%%s. ", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Убить до начала замакса: %s%d%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.MaxFactor, CCNRM(ch, C_NRM));
 		send_to_char(ch, "Умения:&c");
 		for (const auto counter : AVAILABLE_SKILLS)
 		{
@@ -5742,6 +5743,7 @@ struct set_struct		/*
 	{"tester", LVL_IMPL, PC, BINARY}, // 60
 	{"autobot",LVL_IMPL, PC, BINARY}, // 61
 	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
+	{"scriptwriter",LVL_IMPL, PC, BINARY}, // 63
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6435,7 +6437,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 62:
 		vict->set_hryvn(value);
 		break;
-
+	case 63: // флаг автобота
+		{
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SCRIPTWRITER);
+			break;
+		}
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
 		return (0);
