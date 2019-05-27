@@ -100,8 +100,9 @@ namespace msdp
 		const auto blind = (PRF_FLAGGED(descriptor()->character, PRF_BLIND)) //В режиме слепого игрока карта недоступна
 			|| (AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND));  //Слепому карта не поможет!
 		const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
+		const auto scriptwriter = PLR_FLAGGED(descriptor()->character, PLR_SCRIPTWRITER); // скриптеру не шлем
 
-		return blind || cannot_see_in_dark;
+		return blind || cannot_see_in_dark || scriptwriter;
 	}
 
 	void GoldReporter::get(Variable::shared_ptr& response)
