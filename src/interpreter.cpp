@@ -2790,7 +2790,7 @@ void init_char(CHAR_DATA* ch, player_index_element& element)
 	ch->player_data.time.logon = time(0);
 
 	// make favors for sex
-	if (ch->player_data.sex == ESex::SEX_MALE)
+	if (ch->get_sex() == ESex::SEX_MALE)
 	{
 		ch->player_data.weight = number(120, 180);
 		ch->player_data.height = number(160, 200);

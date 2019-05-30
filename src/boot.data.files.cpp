@@ -1344,7 +1344,7 @@ void MobileFile::parse_simple_mob(int i, int nr)
 
 	mob_proto[i].char_specials.position = t[0];
 	mob_proto[i].mob_specials.default_pos = t[1];
-	mob_proto[i].player_data.sex = static_cast<ESex>(t[2]);
+	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
 	mob_proto[i].set_class(NPC_CLASS_BASE);
