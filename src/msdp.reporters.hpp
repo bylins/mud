@@ -40,6 +40,9 @@ namespace msdp
 		virtual void get(Variable::shared_ptr& response) override;
 
 		static shared_ptr create(const DESCRIPTOR_DATA* descriptor) { return std::make_shared<RoomReporter>(descriptor); }
+
+	private:
+		bool blockReport() const;
 	};
 
 	class GoldReporter : public DescriptorBasedReporter

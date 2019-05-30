@@ -303,18 +303,33 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 	}
 }
 
+class DataFileFactoryImpl : public DataFileFactory
+{
+public:
+    using regex_ptr_t = std::shared_ptr<std::regex>;
+
+    DataFileFactoryImpl() : m_load_obj_exp(std::make_shared<std::regex>("^\\s*(?:%load%|oload|mload|wload)\\s+obj\\s+(\\d+)")) {}
+
+    virtual BaseDataFile::shared_ptr get_file(const EBootType mode, const std::string& file_name) override;
+
+private:
+    const regex_ptr_t m_load_obj_exp;
+};
+
 class TriggersFile : public DiscreteFile
 {
 public:
-	TriggersFile(const std::string& file_name) : DiscreteFile(file_name) {}
+	TriggersFile(const std::string& file_name, const DataFileFactoryImpl::regex_ptr_t& expression) : DiscreteFile(file_name), m_load_obj_exp(expression) {}
 
 	virtual EBootType mode() const override { return DB_BOOT_TRG; }
 
-	static shared_ptr create(const std::string& file_name) { return shared_ptr(new TriggersFile(file_name)); }
+	static shared_ptr create(const std::string& file_name, const DataFileFactoryImpl::regex_ptr_t& expression) { return shared_ptr(new TriggersFile(file_name, expression)); }
 
 private:
 	virtual void read_entry(const int nr) override;
 	void parse_trigger(int nr);
+
+    const DataFileFactoryImpl::regex_ptr_t m_load_obj_exp;
 };
 
 void TriggersFile::read_entry(const int nr)
@@ -369,9 +384,8 @@ void TriggersFile::parse_trigger(int nr)
 			(*ptr)->cmd = line;
 			ptr = &(*ptr)->next;
 
-			const auto load_obj_exp = std::regex("^\\s*(?:%load%|oload|mload|wload)\\s+obj\\s+(\\d+)");
 			std::smatch match;
-			if(std::regex_search(line, match, load_obj_exp))
+			if(std::regex_search(line, match, *m_load_obj_exp))
 			{
 				obj_rnum obj_num = std::stoi(match.str(1));
 				const auto tlist_it = obj2trigers.find(obj_num);
@@ -2223,34 +2237,39 @@ char * SocialsFile::str_dup_bl(const char *source)
 	return (str_dup(line));
 }
 
-BaseDataFile::shared_ptr DataFileFactory::get_file(const EBootType mode, const std::string& file_name)
+DataFileFactory::shared_ptr DataFileFactory::create()
 {
-	switch (mode)
-	{
-	case DB_BOOT_WLD:
-		return WorldFile::create(file_name);
+    return std::make_shared<DataFileFactoryImpl>();
+}
 
-	case DB_BOOT_MOB:
-		return MobileFile::create(file_name);
+BaseDataFile::shared_ptr DataFileFactoryImpl::get_file(const EBootType mode, const std::string& file_name)
+{
+    switch (mode)
+    {
+    case DB_BOOT_WLD:
+        return WorldFile::create(file_name);
 
-	case DB_BOOT_OBJ:
-		return ObjectFile::create(file_name);
+    case DB_BOOT_MOB:
+        return MobileFile::create(file_name);
 
-	case DB_BOOT_ZON:
-		return ZoneFile::create(file_name);
+    case DB_BOOT_OBJ:
+        return ObjectFile::create(file_name);
 
-	case DB_BOOT_HLP:
-		return HelpFile::create(file_name);
+    case DB_BOOT_ZON:
+        return ZoneFile::create(file_name);
 
-	case DB_BOOT_TRG:
-		return TriggersFile::create(file_name);
+    case DB_BOOT_HLP:
+        return HelpFile::create(file_name);
 
-	case DB_BOOT_SOCIAL:
-		return SocialsFile::create(file_name);
+    case DB_BOOT_TRG:
+        return TriggersFile::create(file_name, m_load_obj_exp);
 
-	default:
-		return nullptr;
-	}
+    case DB_BOOT_SOCIAL:
+        return SocialsFile::create(file_name);
+
+    default:
+        return nullptr;
+    }
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

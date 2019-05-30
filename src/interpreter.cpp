@@ -2530,6 +2530,7 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	greet_mtrigger(d->character.get(), -1);
 	greet_otrigger(d->character.get(), -1);
 	STATE(d) = CON_PLAYING;
+	PRF_FLAGS(d->character).set(PRF_COLOR_2); // цвет всегда полный
 // режимы по дефолту у нового чара
 	const bool new_char = GET_LEVEL(d->character) <= 0 ? true : false;
 	if (new_char)
