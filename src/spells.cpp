@@ -1393,7 +1393,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 	}
 }
 
-void do_freehelpee(CHAR_DATA* ch, char* argument, int/* cmd*/, int/* subcmd*/)
+void do_freehelpee(CHAR_DATA* ch, char*/* argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch)
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
@@ -3028,7 +3028,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 
 	if (IS_FEMALE(ch))
 	{
-		GET_SEX(mob) = ESex::SEX_MALE;
+		mob->set_sex(ESex::SEX_MALE);
 		mob->set_pc_name("Небесный защитник");
 		mob->player_data.PNames[0] = "Небесный защитник";
 		mob->player_data.PNames[1] = "Небесного защитника";
@@ -3042,7 +3042,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	}
 	else
 	{
-		GET_SEX(mob) = ESex::SEX_FEMALE;
+		mob->set_sex(ESex::SEX_FEMALE);
 		mob->set_pc_name("Небесная защитница");
 		mob->player_data.PNames[0] = "Небесная защитница";
 		mob->player_data.PNames[1] = "Небесной защитницы";

@@ -73,7 +73,7 @@ int was_agree_name(DESCRIPTOR_DATA * d)
 			{
 				d->character->player_data.PNames[i] = std::string(mortname[i]);
 			}
-			GET_SEX(d->character) = static_cast<ESex>(sex);
+			d->character->set_sex(static_cast<ESex>(sex));
 			// Auto-Agree char ...
 			NAME_GOD(d->character) = immlev + 1000;
 			NAME_ID_GOD(d->character) = get_id_by_name(immname);

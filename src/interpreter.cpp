@@ -186,7 +186,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_featset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_findhelpee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void do_findhelpee(CHAR_DATA *ch, char* argument, int cmd, int subcmd);
 void do_freehelpee(CHAR_DATA* ch, char* argument, int cmd, int subcmd);
 void do_firstaid(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_fire(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -1948,7 +1948,7 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 			if (str_cmp(d->host, k->host))
 			{
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Персонаж = %s Хост = %s(был %s)",
-						GET_IDNUM(d->character), GET_NAME(d->character), d->host, k->host);
+						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 				//send_to_gods(buf);
 			}
@@ -1974,8 +1974,8 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 		{
 			if (str_cmp(d->host, k->host))
 			{
-				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Name = %s Host = %s(was %s)",
-						GET_IDNUM(d->character), GET_NAME(d->character), d->host, k->host);
+				sprintf(buf, "ПОВТОРНЫЙ ВХОД !!! ID = %ld Name = %s Host = %s(был %s)",
+						GET_IDNUM(d->character), GET_NAME(d->character), k->host, d->host);
 				mudlog(buf, BRF, MAX(LVL_IMMORT, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 				//send_to_gods(buf);
 			}
@@ -3541,12 +3541,12 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		{
 		case 'М':
 		case 'M':
-			GET_SEX(d->character) = ESex::SEX_MALE;
+			d->character->set_sex(ESex::SEX_MALE);
 			break;
 
 		case 'Ж':
 		case 'F':
-			GET_SEX(d->character) = ESex::SEX_FEMALE;
+			d->character->set_sex(ESex::SEX_FEMALE);
 			break;
 
 		default:
