@@ -273,7 +273,6 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 
 	if (real_num == -1)
 	{
-		mob->set_sex(static_cast<ESex>(1));
 		mob->set_rnum(NOBODY);
 		mob->set_pc_name("неоконченный моб");
 		mob->set_npc_name("неоконченный моб");
@@ -288,7 +287,6 @@ void medit_setup(DESCRIPTOR_DATA * d, int real_num)
 		mob->player_data.PNames[5] = "неоконченном мобе";
 		mob->mob_specials.Questor = NULL;
 		mob->helpers = NULL;
-		mob->set_race(100);
 #if defined(OASIS_MPROG)
 		OLC_MPROGL(d) = NULL;
 		OLC_MPROG(d) = NULL;

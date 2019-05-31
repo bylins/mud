@@ -368,6 +368,8 @@ size_t CHAR_DATA::remove_random_affects(const size_t count)
 */
 void CHAR_DATA::zero_init()
 {
+	set_sex(ESex::SEX_MALE);
+	set_race(0);
 	protecting_ = 0;
 	touching_ = 0;
 	fighting_ = 0;

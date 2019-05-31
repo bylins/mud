@@ -655,7 +655,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_WEIGHT(ch)  ((ch)->player_data.weight)
 #define GET_WEIGHT_ADD(ch) ((ch)->add_abils.weight_add)
 #define GET_REAL_WEIGHT(ch) (GET_WEIGHT(ch) + GET_WEIGHT_ADD(ch))
-#define GET_SEX(ch)  ((ch)->player_data.sex)
+#define GET_SEX(ch)  ((ch)->get_sex())
 
 #define GET_RELIGION(ch) ((ch)->player_data.Religion)
 #define GET_RACE(ch) ((ch)->player_data.Race)
