@@ -590,21 +590,24 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *vict;
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_BACKSTAB))
+	if (ch->get_skill(SKILL_BACKSTAB) < 1)
 	{
-		send_to_char("Вы не знаете как.\r\n", ch);
+		if (!IS_NPC(ch))
+			send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
 
 	if (onhorse(ch))
 	{
-		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+		if (!IS_NPC(ch))
+			send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
 	if (GET_POS(ch) < POS_FIGHTING)
 	{
-		send_to_char("Вам стоит встать на ноги.\r\n", ch);
+		if (!IS_NPC(ch))
+			send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 
@@ -612,23 +615,25 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
-		send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
+		if (!IS_NPC(ch))
+			send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;
 	}
 
 	if (vict == ch)
 	{
-		send_to_char("Вы, определенно, садомазохист!\r\n", ch);
+		if (!IS_NPC(ch))
+			send_to_char("Вы, определенно, садомазохист!\r\n", ch);
 		return;
 	}
 
-	if (!GET_EQ(ch, WEAR_WIELD))
+	if (!GET_EQ(ch, WEAR_WIELD) && !IS_NPC(ch))
 	{
 		send_to_char("Требуется держать оружие в правой руке.\r\n", ch);
 		return;
 	}
 
-	if (GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != FightSystem::type_pierce)
+	if (!IS_NPC(ch) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != FightSystem::type_pierce )
 	{
 		send_to_char("ЗаКОЛоть можно только КОЛющи оружием!\r\n", ch);
 		return;
@@ -637,13 +642,15 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
 	{
-		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+		if (!IS_NPC(ch))
+			send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
 	if (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT))
 	{
-		send_to_char("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
+		if (!IS_NPC(ch))
+			send_to_char("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
 		return;
 	}
 
