@@ -1198,7 +1198,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 		return;
 	}
 
-	if (!(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS)) && !IS_NPC(ch))
+	if (!IS_NPC(ch) && !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS)))
 	{
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
