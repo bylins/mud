@@ -3443,9 +3443,9 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) //ловкий выстрел дамы от ловки
-		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+		max_dam = get_real_dr(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
 	else
-		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+		max_dam = get_real_dr(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 	if (can_use_feat(ch, BULLY_FEAT))
 	{
@@ -3519,7 +3519,7 @@ void print_do_score_all(CHAR_DATA *ch)
 		}
 	}
 
-	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
+	if (can_use_feat(ch, WEAPON_FINESSE_FEAT) || can_use_feat(ch, SHOT_FINESSE_FEAT))
 	{
 		if (weapon && GET_OBJ_WEIGHT(weapon) > 20)
 		{

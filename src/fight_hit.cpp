@@ -3560,7 +3560,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	calc_thaco -= GET_REAL_HR(ch) * p_hitroll;
 	
 	// Использование ловкости вместо силы для попадания
-	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
+	if (can_use_feat(ch, WEAPON_FINESSE_FEAT) || can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
 		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
 			calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
