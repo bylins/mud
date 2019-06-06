@@ -25,6 +25,7 @@
 #include "spells.h"
 #include "skills.h"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "screen.h"
 #include "constants.h"
 #include "pk.h"
@@ -3518,6 +3519,19 @@ void print_do_score_all(CHAR_DATA *ch)
 		}
 
 	}
+
+	if (weapon)
+	{
+		int tmphr = 0;
+		HitData::check_weap_feats(ch, GET_OBJ_SKILL(weapon), tmphr,  max_dam);
+		hr -= tmphr;
+		send_to_char(ch, "Одел лук %s hr %d, max_dam %d\r\n", GET_OBJ_PNAME(weapon,0).c_str(), hr, max_dam);
+	}
+	else
+	{
+		HitData::check_weap_feats(ch, SKILL_PUNCH, hr,  max_dam);
+	}
+
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
 		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
