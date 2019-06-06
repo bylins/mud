@@ -3480,6 +3480,24 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	else
 	{
+		weapon = GET_EQ(ch, WEAR_HOLD);
+		if (weapon)
+		{
+			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON)
+			{
+				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+				if (ch->get_skill(skill) == SKILL_INVALID)
+				{
+					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
+					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
+				}
+				else
+				{
+				    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+				}
+			}
+		}
 		weapon = GET_EQ(ch, WEAR_WIELD);
 		if (weapon)
 		{
@@ -3499,36 +3517,10 @@ void print_do_score_all(CHAR_DATA *ch)
 			}
 		}
 
-		weapon = GET_EQ(ch, WEAR_HOLD);
-		if (weapon)
-		{
-			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON)
-			{
-				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == SKILL_INVALID)
-				{
-					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-				}
-				else
-				{
-				    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-				}
-			}
-		}
 	}
-
-	if (can_use_feat(ch, WEAPON_FINESSE_FEAT) || can_use_feat(ch, SHOT_FINESSE_FEAT))
+	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
-		if (weapon && GET_OBJ_WEIGHT(weapon) > 20)
-		{
-			hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
-		}
-		else
-		{
-			hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
-		}
+		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
 	}
 	else
 	{
