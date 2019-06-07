@@ -5386,6 +5386,10 @@ void mag_assign_spells(void)
 //233
 	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
 		   0, 0, 0, 255, 0, FALSE, MAG_AFFECTS, 0, STYPE_NEUTRAL);
+//234	
+	spello(SPELL_DEXTERITY, "ловкость", "dexterity", 40, 30, 1,
+		 POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.

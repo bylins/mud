@@ -383,7 +383,8 @@ enum ESpell
 	SPELL_ARROWS_AIR = 231,   // стрелы охотника
 	SPELL_ARROWS_DEATH = 232, // стрелы охотника
 	SPELL_PALADINE_INSPIRATION = 233, //воодушевить при крите
-	SPELLS_COUNT = SPELL_PALADINE_INSPIRATION   // Counter corresponds to the last value because we count spells from 1.
+	SPELL_DEXTERITY = 234, //ловкость
+	SPELLS_COUNT = SPELL_DEXTERITY   // Counter corresponds to the last value because we count spells from 1.
 };
 
 typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
