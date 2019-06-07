@@ -1123,8 +1123,9 @@ float func_koef_duration(int spellnum, int percent)
 	switch (spellnum)
 	{
 		case SPELL_STRENGTH:
+		case SPELL_DEXTERITY:
 			return 1 + percent / 400;
-
+		break;
 		default:
 			return 1;
 	}
@@ -1136,9 +1137,11 @@ float func_koef_modif(int spellnum, int percent)
 	switch (spellnum)
 	{
 	case SPELL_STRENGTH:
+	case SPELL_DEXTERITY:
 		if (percent > 100)
 			return 1;
 		return 0;
+	break;
 	default:
 		return 1;
 	}
@@ -2778,6 +2781,12 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
+		if (affected_by_spell(victim, SPELL_DEXTERITY))
+		{
+			affect_from_char(victim, SPELL_DEXTERITY);
+			success = FALSE;
+			break;
+		}
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 4, level, 5, 4, 0)) * koef_duration;
 		af[0].location = APPLY_STR;
@@ -3585,6 +3594,26 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы почувствовали себя сильнее.";
 		to_room = "Мышцы $n1 налились силой.";
 		spellnum = SPELL_STRENGTH;
+		break;
+
+	case SPELL_DEXTERITY:
+		if (affected_by_spell(victim, SPELL_WEAKNESS))
+		{
+			affect_from_char(victim, SPELL_WEAKNESS);
+			success = FALSE;
+			break;
+		}
+		af[0].location = APPLY_DEX;
+		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		if (ch == victim)
+			af[0].modifier = (level + 9) / 10 + koef_modifier + GET_REMORT(ch) / 5;
+		else
+			af[0].modifier = (level + 14) / 15 + koef_modifier + GET_REMORT(ch) / 5;
+		accum_duration = TRUE;
+		accum_affect = TRUE;
+		to_vict = "Вы почувствовали себя более шустрым.";
+		to_room = "$n1 начал$q двигаться более шустрее.";
+		spellnum = SPELL_DEXTERITY;
 		break;
 
 	case SPELL_PATRONAGE:

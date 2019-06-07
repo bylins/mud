@@ -654,9 +654,9 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict) && !IS_NPC(ch))
 		return;
-	if (!check_pkill(ch, vict, arg))
+	if (!check_pkill(ch, vict, arg) && !IS_NPC(ch))
 		return;
 	go_backstab(ch, vict);
 }
@@ -1121,8 +1121,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *vict = NULL;
 
 	one_argument(argument, arg);
-
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER) || ch->get_skill(SKILL_BASH) < 1)
+	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(SKILL_BASH))
 	{
 		if (!IS_NPC(ch))
 			send_to_char("Вы не знаете как.\r\n", ch);

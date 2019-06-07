@@ -25,6 +25,7 @@
 #include "spells.h"
 #include "skills.h"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "screen.h"
 #include "constants.h"
 #include "pk.h"
@@ -3443,9 +3444,9 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) //ловкий выстрел дамы от ловки
-		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+		max_dam = get_real_dr(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
 	else
-		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+		max_dam = get_real_dr(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 	if (can_use_feat(ch, BULLY_FEAT))
 	{
@@ -3480,6 +3481,24 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	else
 	{
+		weapon = GET_EQ(ch, WEAR_HOLD);
+		if (weapon)
+		{
+			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON)
+			{
+				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+				if (ch->get_skill(skill) == SKILL_INVALID)
+				{
+					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
+					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
+				}
+				else
+				{
+				    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+				}
+			}
+		}
 		weapon = GET_EQ(ch, WEAR_WIELD);
 		if (weapon)
 		{
@@ -3499,36 +3518,23 @@ void print_do_score_all(CHAR_DATA *ch)
 			}
 		}
 
-		weapon = GET_EQ(ch, WEAR_HOLD);
-		if (weapon)
-		{
-			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON)
-			{
-				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == SKILL_INVALID)
-				{
-					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-				}
-				else
-				{
-				    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-				}
-			}
-		}
+	}
+
+	if (weapon)
+	{
+		int tmphr = 0;
+		HitData::check_weap_feats(ch, GET_OBJ_SKILL(weapon), tmphr,  max_dam);
+		hr -= tmphr;
+		send_to_char(ch, "Одел лук %s hr %d, max_dam %d\r\n", GET_OBJ_PNAME(weapon,0).c_str(), hr, max_dam);
+	}
+	else
+	{
+		HitData::check_weap_feats(ch, SKILL_PUNCH, hr,  max_dam);
 	}
 
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
-		if (weapon && GET_OBJ_WEIGHT(weapon) > 20)
-		{
-			hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
-		}
-		else
-		{
-			hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
-		}
+		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
 	}
 	else
 	{

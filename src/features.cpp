@@ -286,7 +286,7 @@ void assign_feats(void)
 //38
 	feat_app.insert(SKILL_BOWS, APPLY_NONE);
 	feat_app.insert(BOWS_FOCUS_FEAT, APPLY_NONE);
-	feato(BOWS_MASTER_FEAT, "мастер-лучник", NORMAL_FTYPE, TRUE, feat_app);
+	feato(BOWS_MASTER_FEAT, "мастер лучник", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //39
 	feato(FOREST_PATHS_FEAT, "лесные тропы", NORMAL_FTYPE, TRUE, feat_app);
