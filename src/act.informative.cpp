@@ -3525,7 +3525,6 @@ void print_do_score_all(CHAR_DATA *ch)
 		int tmphr = 0;
 		HitData::check_weap_feats(ch, GET_OBJ_SKILL(weapon), tmphr,  max_dam);
 		hr -= tmphr;
-		send_to_char(ch, "Одел лук %s hr %d, max_dam %d\r\n", GET_OBJ_PNAME(weapon,0).c_str(), hr, max_dam);
 	}
 	else
 	{
