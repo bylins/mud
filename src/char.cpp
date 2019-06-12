@@ -612,7 +612,12 @@ int CHAR_DATA::get_skill(const ESkill skill_num) const
 	{
 		skill -= skill * GET_POISON(this) / 100;
 	}
-	return normalize_skill(skill);
+	if (is_magic_skill(static_cast<int>(skill_num)))
+	{
+		return skill;
+	}
+	else
+		return normalize_skill(skill);
 }
 
 // * Скилл со шмоток.

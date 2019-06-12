@@ -771,6 +771,9 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	bool pass_mod = 0; // в данный момент для доп.выстрела, чтобы оставить его как скилл,
 	// но не применять к нему левых штрафов и плюсов, плюсуется только от инты немного
 
+	if (is_magic_skill(skill_no))
+		max_percent = 1000;
+
 	if (skill_no < SKILL_FIRST
 		|| skill_no > MAX_SKILL_NUM)  	// log("ERROR: ATTEMPT USING UNKNOWN SKILL <%d>", skill_no);
 	{
@@ -1529,7 +1532,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DATA * victim)
 {
 	const int trained_skill = ch->get_trained_skill(skill_no);
-	if (trained_skill == 0 || trained_skill == CAP_SKILLS)
+	if ((trained_skill <= 0 || trained_skill >= CAP_SKILLS) && !is_magic_skill(trained_skill))
 	{
 		// скила может и не быть, если получен только со шмоток
 		return;
