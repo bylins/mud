@@ -2622,14 +2622,21 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					str[i] = LOWER(str[i]);
 			}
 			else
-				sprintf(str, "null");
+				sprintf(str, "0");
 		}
 		else if (!str_cmp(field, "clanrank"))
 		{
 			if (CLAN(c) && CLAN_MEMBER(c))
 				sprintf(str, "%d", CLAN_MEMBER(c)->rank_num);
 			else
-				sprintf(str, "null");
+				sprintf(str, "0");
+		}
+		else if (!str_cmp(field, "clanlevel"))
+		{
+			if (CLAN(c) && CLAN_MEMBER(c))
+				sprintf(str, "%d", CLAN(c)->GetClanLevel());
+			else
+				sprintf(str, "0");
 		}
 		else if (!str_cmp(field, "m"))
 			strcpy(str, HMHR(c));

@@ -1778,8 +1778,6 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 //функция увеличивает урон спеллов с учетом скилла соответствующей магии и параметра "мудрость"
 int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam)
 {
-	float koeff, skill = 0.0;
-
 	//тупо костыль, пока всем актуальнгым мобам не воткнум магскиллы - 31/03/2014
 	/*if ((spellnum == SPELL_FIRE_BREATH) ||
 	(spellnum == SPELL_GAS_BREATH) ||
@@ -1793,17 +1791,17 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	}
 
 	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
+
 	if (skill_number > 0)
 	{
-		skill = ch->get_skill(skill_number);
+		dam += dam * (1 +  static_cast<double>(ch->get_skill(skill_number)) / 500);
 	}
 
-	koeff = 1.00+skill/25.00;
 	//sprintf(buf1, "Magic skill koefficient = %f", koeff);
 	//mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 	if (GET_REAL_WIS(ch) >= 23)
 	{
-		dam += dam * ((GET_REAL_WIS(ch) - 22) * koeff) / 100;
+		dam += dam * (1 +  static_cast<double>((GET_REAL_WIS(ch) - 22)) / 200);
 	}
 	
 	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.

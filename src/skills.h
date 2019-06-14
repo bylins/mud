@@ -131,7 +131,13 @@ enum ESkill: int
 	// не забываем указывать максимальный номер скилла
 	MAX_SKILL_NUM = SKILL_MAKE_AMULET
 };
-
+inline bool is_magic_skill(int skill) 
+{
+	if (skill >= SKILL_AIR_MAGIC && skill <= SKILL_LIFE_MAGIC)
+		return true;
+	else
+		return false;
+}
 template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);
 template <> const std::string& NAME_BY_ITEM<ESkill>(const ESkill item);
 
