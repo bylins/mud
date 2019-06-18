@@ -388,6 +388,17 @@ void Player::mobmax_save(FILE *saved) const
 	mobmax_.save(saved);
 }
 
+void Player::show_mobmax()
+{
+	MobMax::mobmax_stats_t stats;
+	mobmax_.get_stats(stats);
+	int i = 0;
+	for (const auto& item : stats)
+	{
+		send_to_char(this, "%2d. Level: %d; killed: %d; max kills: %d\n", i, item.first, item.second, get_max_kills(item.first));
+	}
+}
+
 void Player::dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch)
 {
 	dps_.add_dmg(type, ch, dmg, over_dmg);

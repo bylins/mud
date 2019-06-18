@@ -30,6 +30,25 @@ VnumToLevelType vnum_to_level;
 
 } // namespace
 
+int get_max_kills(const int level)
+{
+	return num_levels[level];
+}
+
+void MobMax::get_stats(mobmax_stats_t& result) const
+{
+	result.clear();
+	for (const auto& item : mobmax_)
+	{
+		const auto level = item.level;
+		if (result.find(level) == result.end())
+		{
+			result[level] = 0;
+		}
+		result[level] += item.count;
+	}
+}
+
 // * Иним массив кол-ва мобов каждого левела и мап соответствий внумов и левелов.
 void MobMax::init()
 {std::array<int, MAX_MOB_LEVEL + 1> num_animals_levels = { {0} };

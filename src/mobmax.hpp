@@ -5,14 +5,22 @@
 #ifndef MOBMAX_HPP_INCLUDED
 #define MOBMAX_HPP_INCLUDED
 
-#include <list>
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
 
+#include <list>
+#include <map>
+
+int get_max_kills(const int level);
+
 class MobMax
 {
 public:
+	using mobmax_stats_t = std::map<int, int>;	///< maps level to count
+
+	void get_stats(mobmax_stats_t& result) const;
+
 	static void init();
 	static int get_level_by_vnum(int vnum);
 

@@ -1393,7 +1393,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 	}
 }
 
-void do_freehelpee(CHAR_DATA* ch, char*/* argument*/, int/* cmd*/, int/* subcmd*/)
+void do_freehelpee(CHAR_DATA* ch, char* /* argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch)
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
