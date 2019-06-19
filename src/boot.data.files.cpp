@@ -1604,6 +1604,9 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	{
 		RANGE(0, 255);
 		mob_proto[i].mob_specials.MaxFactor = num_arg;
+		if (mob_proto[i].mob_specials.MaxFactor == 0)
+			(mob_proto + 1)->mob_specials.MaxFactor = mob_proto[i].get_level() / 2;
+		log("SET maxfactor %d level mobs %d vnum d name %s", (mob_proto + 1)->mob_specials.MaxFactor, mob_proto[i].get_level(), mob_proto[i].get_npc_name().c_str());
 	}
 
 	CASE("ExtraAttack")

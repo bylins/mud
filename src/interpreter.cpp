@@ -413,6 +413,7 @@ void do_cities(CHAR_DATA *ch, char*, int, int);
 void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 void do_add_wizard(CHAR_DATA *ch, char*, int, int);
 void do_touch_stigma(CHAR_DATA *ch, char*, int, int);
+void do_show_mobmax(CHAR_DATA *ch, char*, int, int);
 
 /* This is the Master Command List(tm).
 
@@ -555,6 +556,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"заклинания", POS_SLEEPING, do_spells, 0, 0, 0},
 	{"заклстат", POS_DEAD, do_spellstat, LVL_GRGOD, 0, 0},
 	{"закрыть", POS_SITTING, do_gen_door, 0, SCMD_CLOSE, 500},
+	{"замакс", POS_RESTING, do_show_mobmax, 1, 0, -1},
 	{"замести", POS_STANDING, do_hidetrack, 1, 0, -1},
 	{"замолчать", POS_DEAD, do_wizutil, LVL_GOD, SCMD_MUTE, 0},
 	{"заморозить", POS_DEAD, do_wizutil, LVL_FREEZE, SCMD_FREEZE, 0},
