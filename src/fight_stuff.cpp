@@ -29,6 +29,8 @@
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "zone.table.hpp"
+#include "char_player.cpp"
+#include "char_player.hpp"
 
 #include <algorithm>
 
@@ -1433,6 +1435,18 @@ void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	post_init_shields(victim);
+}
+
+void do_show_mobmax(CHAR_DATA *ch, char*, int, int)
+{
+	const auto player = dynamic_cast<Player*>(ch);
+	if (nullptr == player)
+	{
+		// написать в лог, что show_mobmax была вызвана не игроком
+		return;
+	}
+	send_to_char(ch, "&BВ стадии тестирования!!!&n\n");
+	player->show_mobmax();
 }
 
 void Damage::zero_init()

@@ -1376,13 +1376,22 @@ void MobileFile::parse_simple_mob(int i, int nr)
 void MobileFile::parse_enhanced_mob(int i, int nr)
 {
 	char line[256];
-
 	parse_simple_mob(i, nr);
 
 	while (get_line(file(), line))
 	{
 		if (!strcmp(line, "E"))	// end of the enhanced section
+		{
+
+			if ((mob_proto[i].mob_specials.MaxFactor == 0) && !mob_proto[i].get_role_bits().any())
+			{
+				mob_proto[i].mob_specials.MaxFactor = mob_proto[i].get_level() / 2;
+				log("SET maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
+			}
+			if (mob_proto[i].mob_specials.MaxFactor > 0  && mob_proto[i].get_role_bits().any())
+				log("BOSS maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
 			return;
+		}
 		else if (*line == '#')  	// we've hit the next mob, maybe?
 		{
 			log("SYSERR: Unterminated E section in mob #%d", nr);
@@ -1391,8 +1400,10 @@ void MobileFile::parse_enhanced_mob(int i, int nr)
 		else
 		{
 			parse_espec(line, i, nr);
+
 		}
 	}
+
 
 	log("SYSERR: Unexpected end of file reached after mob #%d", nr);
 	exit(1);
@@ -1604,6 +1615,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	{
 		RANGE(0, 255);
 		mob_proto[i].mob_specials.MaxFactor = num_arg;
+
 	}
 
 	CASE("ExtraAttack")

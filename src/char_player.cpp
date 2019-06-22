@@ -33,6 +33,7 @@
 #include "accounts.hpp"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
+#include "mobmax.cpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -386,6 +387,17 @@ void Player::mobmax_remove(int vnum)
 void Player::mobmax_save(FILE *saved) const
 {
 	mobmax_.save(saved);
+}
+
+void Player::show_mobmax()
+{
+	MobMax::mobmax_stats_t stats;
+	mobmax_.get_stats(stats);
+	int i = 0;
+	for (const auto& item : stats)
+	{
+		send_to_char(this, "%2d. Уровень: %d; Убито: %d; Максубийство до размакса: %d\n", ++i, item.first, item.second, get_max_kills(item.first) / MOBKILL_KOEFF);
+	}
 }
 
 void Player::dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch)

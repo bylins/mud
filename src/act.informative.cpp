@@ -4002,7 +4002,8 @@ void print_do_score_all(CHAR_DATA *ch)
 	strcat(buf, " -------------------------------------------------------------------------------------\r\n");
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-//	test_self_hitroll(ch);
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+		test_self_hitroll(ch);
 }
 
 void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
