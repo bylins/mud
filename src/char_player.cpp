@@ -33,6 +33,7 @@
 #include "accounts.hpp"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
+#include "mobmax.cpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -395,7 +396,7 @@ void Player::show_mobmax()
 	int i = 0;
 	for (const auto& item : stats)
 	{
-		send_to_char(this, "%2d. Level: %d; killed: %d; max kills: %d\n", i, item.first, item.second, get_max_kills(item.first));
+		send_to_char(this, "%2d. Уровень: %d; Убито: %d; Максубийство до размакса: %d\n", ++i, item.first, item.second, get_max_kills(item.first) / MOBKILL_KOEFF);
 	}
 }
 

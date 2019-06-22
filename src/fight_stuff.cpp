@@ -1445,6 +1445,7 @@ void do_show_mobmax(CHAR_DATA *ch, char*, int, int)
 		// написать в лог, что show_mobmax была вызвана не игроком
 		return;
 	}
+	send_to_char(ch, "&BВ стадии тестирования!!!&n\n");
 	player->show_mobmax();
 }
 

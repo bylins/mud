@@ -1160,8 +1160,8 @@ private:
 	void parse_mobile(const int nr);
 	void parse_simple_mob(int i, int nr);
 	void parse_enhanced_mob(int i, int nr);
-	void parse_espec(char *buf, int i, int nr, bool = false); //если Maxfactor не указан в пфайле говорим что его нет
-	void interpret_espec(const char *keyword, const char *value, int i, int nr, bool maxfactor);
+	void parse_espec(char *buf, int i, int nr);
+	void interpret_espec(const char *keyword, const char *value, int i, int nr);
 };
 
 void MobileFile::read_entry(const int nr)
@@ -1376,13 +1376,22 @@ void MobileFile::parse_simple_mob(int i, int nr)
 void MobileFile::parse_enhanced_mob(int i, int nr)
 {
 	char line[256];
-	bool maxfactor =  false;
 	parse_simple_mob(i, nr);
 
 	while (get_line(file(), line))
 	{
 		if (!strcmp(line, "E"))	// end of the enhanced section
+		{
+
+			if ((mob_proto[i].mob_specials.MaxFactor == 0) && !mob_proto[i].get_role_bits().any())
+			{
+				mob_proto[i].mob_specials.MaxFactor = mob_proto[i].get_level() / 2;
+				log("SET maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
+			}
+			if (mob_proto[i].mob_specials.MaxFactor > 0  && mob_proto[i].get_role_bits().any())
+				log("BOSS maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
 			return;
+		}
 		else if (*line == '#')  	// we've hit the next mob, maybe?
 		{
 			log("SYSERR: Unterminated E section in mob #%d", nr);
@@ -1390,20 +1399,17 @@ void MobileFile::parse_enhanced_mob(int i, int nr)
 		}
 		else
 		{
-			parse_espec(line, i, nr, maxfactor);
-			if (!maxfactor)
-			{
-				mob_proto[i].mob_specials.MaxFactor = mob_proto[i].get_level() / 2;
-				log("SET NOFIND maxfactor %d level mobs %d  nr %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
-			}
+			parse_espec(line, i, nr);
+
 		}
 	}
+
 
 	log("SYSERR: Unexpected end of file reached after mob #%d", nr);
 	exit(1);
 }
 
-void MobileFile::parse_espec(char *buf, int i, int nr, bool maxfactor)
+void MobileFile::parse_espec(char *buf, int i, int nr)
 {
 	char *ptr;
 
@@ -1419,7 +1425,7 @@ void MobileFile::parse_espec(char *buf, int i, int nr, bool maxfactor)
 	{
 		ptr = NULL;
 	}
-	interpret_espec(buf, ptr, i, nr, maxfactor);
+	interpret_espec(buf, ptr, i, nr);
 }
 
 std::vector<std::string> split_string(const char *str, std::string separator = " ")
@@ -1436,7 +1442,7 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
  * e-specs is absurdly easy -- just add a new CASE statement to this
  * function!  No other changes need to be made anywhere in the code.
  */
-void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr, bool maxfactor)
+void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
 {
 	struct helper_data_type *helper;
 	int k, num_arg, matched = 0, t[4];
@@ -1609,12 +1615,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	{
 		RANGE(0, 255);
 		mob_proto[i].mob_specials.MaxFactor = num_arg;
-		if (mob_proto[i].mob_specials.MaxFactor == 0)
-		{
-			mob_proto[i].mob_specials.MaxFactor = mob_proto[i].get_level() / 2;
-		}
-			log("SET maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
-		maxfactor = true;
+
 	}
 
 	CASE("ExtraAttack")
