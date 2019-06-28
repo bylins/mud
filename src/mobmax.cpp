@@ -37,15 +37,21 @@ int get_max_kills(const int level)
 
 void MobMax::get_stats(mobmax_stats_t& result) const
 {
+	mob_rnum r_num;
 	result.clear();
 	for (const auto& item : mobmax_)
 	{
+		if ((r_num = real_mobile(item.vnum)) < 0)
+		{
+			log("SYSERR: unknown rnum mob in mombax");
+			return;
+		}		
 		const auto level = item.level;
 		if (result.find(level) == result.end())
 		{
 			result[level] = 0;
 		}
-		result[level] += item.count;
+		result[level] += MAX(0, item.count - mob_proto[r_num].mob_specials.MaxFactor); //Уберем количество мобов c экспой без замакса
 	}
 }
 

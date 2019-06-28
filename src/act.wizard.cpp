@@ -3798,10 +3798,10 @@ void inspecting()
 						{
 							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%sCount:%5ld Last: %-30s%s",
 								(it->second->sfor == ICHAR ? CCBLU(ch, C_SPR) : ""),
-								cur_log.ip,
+								ch_log.ip,
 								(it->second->sfor == ICHAR ? CCNRM(ch, C_SPR) : ""),
-								cur_log.count,
-								rustime(localtime(&cur_log.lasttime)),
+								ch_log.count,
+								rustime(localtime(&ch_log.lasttime)),
 								(it->second->sfor == IIP ? "\r\n" : ""));
 							if (it->second->sfor == ICHAR)
 							{

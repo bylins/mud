@@ -1272,8 +1272,8 @@ void MobileFile::parse_mobile(const int nr)
 
 	mob_proto[i].set_rnum(i);
 	mob_proto[i].desc = NULL;
-
-	set_test_data(mob_proto + i);
+	if ((mob_proto + 1)->get_level() == 0)
+		set_test_data(mob_proto + i);
 
 	top_of_mobt = i++;
 }
@@ -1386,10 +1386,10 @@ void MobileFile::parse_enhanced_mob(int i, int nr)
 			if ((mob_proto[i].mob_specials.MaxFactor == 0) && !mob_proto[i].get_role_bits().any())
 			{
 				mob_proto[i].mob_specials.MaxFactor = mob_proto[i].get_level() / 2;
-				log("SET maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
+//				log("SET maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
 			}
-			if (mob_proto[i].mob_specials.MaxFactor > 0  && mob_proto[i].get_role_bits().any())
-				log("BOSS maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
+//			if (mob_proto[i].mob_specials.MaxFactor > 0  && mob_proto[i].get_role_bits().any())
+//				log("BOSS maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
 			return;
 		}
 		else if (*line == '#')  	// we've hit the next mob, maybe?
