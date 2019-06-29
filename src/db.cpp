@@ -4763,6 +4763,7 @@ void ZoneReset::reset_zone_essential()
 						rndlev += number(-2, +2); 
 						mob->set_level(rndlev);
 					}
+
 					char_to_room(mob, ZCMD.arg3);
 					load_mtrigger(mob);
 					tmob = mob;
