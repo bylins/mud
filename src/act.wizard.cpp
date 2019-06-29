@@ -3792,22 +3792,17 @@ void inspecting()
 							break;
 						}
 
-						if ((it->second->sfor == IIP
-							&& strstr(cur_log.ip, ch_log.ip))
-							|| !str_cmp(cur_log.ip, ch_log.ip))
+						if (!str_cmp(cur_log.ip, ch_log.ip))
 						{
-							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%sCount:%5ld Last: %-30s%s",
-								(it->second->sfor == ICHAR ? CCBLU(ch, C_SPR) : ""),
-								ch_log.ip,
-								(it->second->sfor == ICHAR ? CCNRM(ch, C_SPR) : ""),
-								ch_log.count,
-								rustime(localtime(&ch_log.lasttime)),
-								(it->second->sfor == IIP ? "\r\n" : ""));
-							if (it->second->sfor == ICHAR)
+							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s Количество входов с него:%5ld Последний раз: %-30s\r\n",
+								CCBLU(ch, C_SPR), cur_log.ip,  CCNRM(ch, C_SPR),
+								cur_log.count,
+								rustime(localtime(&cur_log.lasttime)));
+/*							if (it->second->sfor == ICHAR)
 							{
 								sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
 									ch_log.count, rustime(localtime(&ch_log.lasttime)));
-							}
+							}*/
 						}
 					}
 				}
@@ -3818,7 +3813,7 @@ void inspecting()
 		{
 			const auto& player = player_table[it->second->pos];
 			mytime = player_table[it->second->pos].last_logon;
-			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d/%d.\r\n",
+			sprintf(buf, "--------------------\r\nИмя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d/%d.\r\n",
 				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
 				player.name(),
 				CCNRM(ch, C_SPR),
