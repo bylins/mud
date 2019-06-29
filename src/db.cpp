@@ -4757,9 +4757,13 @@ void ZoneReset::reset_zone_essential()
 						mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 						return;
 					}
-					int rndlev = mob->get_level();
-					rndlev += number(-2, +2); 
-					mob->set_level(rndlev);
+					if (!mob_proto[mob->get_rnum()].get_role_bits().any())
+					{
+						int rndlev = mob->get_level();
+						rndlev += number(-2, +2); 
+						mob->set_level(rndlev);
+					}
+
 					char_to_room(mob, ZCMD.arg3);
 					load_mtrigger(mob);
 					tmob = mob;
