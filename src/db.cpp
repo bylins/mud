@@ -4746,11 +4746,20 @@ void ZoneReset::reset_zone_essential()
 					break;
 				}
 
-				mob = NULL;	//Добавлено Ладником
+				mob = NULL;	//Добавлено Ладником 
 				if (mob_index[ZCMD.arg1].number < ZCMD.arg2 &&
 					(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
 				{
 					mob = read_mobile(ZCMD.arg1, REAL);
+					if(!mob)
+					{
+						sprintf(buf, "ZRESET: ошибка! моб %d  в зоне %d не существует", ZCMD.arg1, zone_table[m_zone_rnum].number);
+						mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
+						return;
+					}
+					int rndlev = mob->get_level();
+					rndlev += number(-2, +2); 
+					mob->set_level(rndlev);
 					char_to_room(mob, ZCMD.arg3);
 					load_mtrigger(mob);
 					tmob = mob;

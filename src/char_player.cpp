@@ -396,7 +396,7 @@ void Player::show_mobmax()
 	int i = 0;
 	for (const auto& item : stats)
 	{
-		send_to_char(this, "%2d. Уровень: %d; Убито: %d; Максубийство до размакса: %d\n", ++i, item.first, item.second, get_max_kills(item.first));
+		send_to_char(this, "%2d. Уровень: %d; Убито: %d; Всего до размакса: %d\n", ++i, item.first, item.second, get_max_kills(item.first));
 	}
 }
 
