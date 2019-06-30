@@ -1377,9 +1377,6 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 	}
 
 	sprintf(buf, "%sW%s) Флаги   (NPC) : %s%s\r\n"
-#if defined(OASIS_MPROG)
-		"%sX%s) Mob Progs  : %s%s\r\n"
-#endif
 		"%sY%s) Destination: %s%s\r\n"
 		"%sZ%s) Помогают   : %s%s\r\n"
 		"%sА%s) Умения     : \r\n"
@@ -1399,10 +1396,9 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sЦ%s) Раса моба: %s%s\r\n"
 		"%sЧ%s) Клонирование%s\r\n"
 		"%sS%s) Script     : %s%s\r\n"
-		"%sQ%s) Quit\r\n" "Ваш выбор : ", grn, nrm, cyn, buf1,
-#if defined(OASIS_MPROG)
-		grn, nrm, cyn, (OLC_MPROGL(d) ? "Set." : "Not Set."),
-#endif
+		"%sЮ%s) Через сколько мобов замакс: [%s%4d%s]\r\n"
+		"%sQ%s) Quit\r\n" "Ваш выбор : ", 
+		grn, nrm, cyn, buf1,
 		grn, nrm, cyn, buf2,
 		grn, nrm, cyn, mob->helpers ? "Yes" : "No",
 		grn, nrm,
@@ -1427,7 +1423,9 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm,
 		grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
 		grn, nrm, cyn,
-		grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.", grn, nrm);
+		grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.", 
+		grn, nrm, cyn, mob->mob_specials.MaxFactor, nrm,
+		grn, nrm);
 	send_to_char(buf, d->character.get());
 
 	OLC_MODE(d) = MEDIT_MAIN_MENU;
@@ -1876,6 +1874,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'м':
 		case 'М':
 			OLC_MODE(d) = MEDIT_EXTRA;
+			i++;
+			break;
+
+		case 'Ю':
+		case 'ю':
+			OLC_MODE(d) = MEDIT_MAXFACTOR;
 			i++;
 			break;
 
@@ -2332,7 +2336,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 #endif
 
 	case MEDIT_SEX:
-		GET_SEX(OLC_MOB(d)) = static_cast<ESex>(MAX(0, MIN(NUM_GENDERS, atoi(arg))));
+		OLC_MOB(d)->set_sex(static_cast<ESex>(MAX(0, MIN(NUM_GENDERS, atoi(arg)))));
 		break;
 
 	case MEDIT_HITROLL:
@@ -2556,6 +2560,8 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		OLC_MOB(d)->mob_specials.ExtraAttack = MIN(5, MAX(0, atoi(arg)));
 		break;
 
+
+
 	case MEDIT_LIKE:
 		OLC_MOB(d)->mob_specials.LikeWork = MIN(100, MAX(0, atoi(arg)));
 		break;
@@ -2715,6 +2721,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 
 		break;
 	}
+	case MEDIT_MAXFACTOR:
+		OLC_MOB(d)->mob_specials.MaxFactor =  MAX(0, atoi(arg));
+		break;
 
 	default:
 		// * We should never get here.

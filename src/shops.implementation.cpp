@@ -403,7 +403,6 @@ namespace ShopExt
 			&& IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(proto) <= CAN_CARRY_W(ch)
 			&& (bought < sell_count || sell_count == -1))
 		{
-
 			if (!item->empty())
 			{
 				obj = get_from_shelve(item_index);
@@ -444,7 +443,7 @@ namespace ShopExt
 					GloryConst::add_total_spent(price);
 					GloryConst::remove_glory(GET_UNIQUE(ch), price);
 					GloryConst::transfer_log("%s bought %s for %ld const glory",
-							GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price);
+						GET_NAME(ch), GET_OBJ_PNAME(proto, 0).c_str(), price);
 				}
 				else if (currency == "лед")
 				{
@@ -527,8 +526,9 @@ namespace ShopExt
 
 		if (obj)
 		{
-			if (GET_OBJ_COST(obj) > total_money)			{
-				
+			if (GET_OBJ_COST(obj) > total_money)
+			{
+
 				snprintf(buf, MAX_STRING_LENGTH, "Персонаж %s купил предмет %d за %d при его стоимости %d и прайсе %ld.", ch->get_name().c_str(), GET_OBJ_VNUM(obj), total_money, GET_OBJ_COST(obj), price);
 				mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 			}

@@ -1244,7 +1244,7 @@ void do_skillset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Минимальное значение умения 0.\r\n", ch);
 		return;
 	}
-	if (value > 200)
+	if (!is_magic_skill(skill) && value > 200)
 	{
 		send_to_char("Максимальное значение умения 200.\r\n", ch);
 		return;

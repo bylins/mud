@@ -1519,8 +1519,9 @@ bool can_auto_block(CHAR_DATA *ch)
 		return false;
 }
 
+
 // * Проверка на фит "любимое оружие".
-void HitData::check_weap_feats(CHAR_DATA *ch)
+void HitData::check_weap_feats(const CHAR_DATA* ch, int weap_skill, int& calc_thaco, int& dam)
 {
 	switch (weap_skill)
 	{
@@ -3465,7 +3466,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 			calc_thaco -= 2;
 	}
 
-	check_weap_feats(ch);
+	check_weap_feats(ch, weap_skill, calc_thaco, dam);
 
 	if (GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT))
 	{
@@ -3559,19 +3560,16 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 
 	calc_thaco -= GET_REAL_HR(ch) * p_hitroll;
 	
+
 	// Использование ловкости вместо силы для попадания
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
-		if (wielded && GET_OBJ_WEIGHT(wielded) > 20)
-			calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
-		else
-			calc_thaco -= str_bonus(GET_REAL_DEX(ch), STR_TO_HIT) * p_hitroll;
+		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
 	}
 	else
 	{
-		calc_thaco -= str_bonus(GET_REAL_STR(ch), STR_TO_HIT) * p_hitroll;
+		calc_thaco -= str_bonus(GET_REAL_DEX(ch), STR_TO_HIT) * p_hitroll;
 	}
-
 	if ((skill_num == SKILL_THROW
 			|| skill_num == SKILL_BACKSTAB)
 		&& wielded

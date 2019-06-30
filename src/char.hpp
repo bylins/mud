@@ -159,7 +159,7 @@ struct mob_special_data
 	FLAG_DATA npc_flags;
 	byte ExtraAttack;
 	byte LikeWork;
-	byte MaxFactor;
+	int MaxFactor;
 	int GoldNoDs;
 	int GoldSiDs;
 	int HorseState;

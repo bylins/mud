@@ -55,16 +55,18 @@ void check_purged(const CHAR_DATA *ch, const char *fnc)
 	}
 }
 
-int normalize_skill(int percent)
+int normalize_skill(int percent, int skill)
 {
 	const static int KMinSkillPercent = 0;
 	const static int KMaxSkillPercent = CAP_SKILLS;
 
 	if (percent < KMinSkillPercent)
 		percent = KMinSkillPercent;
-	else if (percent > KMaxSkillPercent)
-		percent = KMaxSkillPercent;
-
+	else 
+	{
+		if (percent > KMaxSkillPercent && !is_magic_skill(skill))
+			percent = KMaxSkillPercent;
+	}
 	return percent;
 }
 } // namespace
@@ -368,6 +370,8 @@ size_t CHAR_DATA::remove_random_affects(const size_t count)
 */
 void CHAR_DATA::zero_init()
 {
+	set_sex(ESex::SEX_MALE);
+	set_race(0);
 	protecting_ = 0;
 	touching_ = 0;
 	fighting_ = 0;
@@ -610,7 +614,7 @@ int CHAR_DATA::get_skill(const ESkill skill_num) const
 	{
 		skill -= skill * GET_POISON(this) / 100;
 	}
-	return normalize_skill(skill);
+	return normalize_skill(skill, skill_num);
 }
 
 // * Скилл со шмоток.
@@ -653,7 +657,7 @@ int CHAR_DATA::get_inborn_skill(const ESkill skill_num)
 		CharSkillsType::iterator it = skills.find(skill_num);
 		if (it != skills.end())
 		{
-			return normalize_skill(it->second);
+			return normalize_skill(it->second, skill_num);
 		}
 	}
 	return 0;
@@ -663,7 +667,7 @@ int CHAR_DATA::get_trained_skill(const ESkill skill_num) const
 {
 	if (Privilege::check_skills(this))
 	{
-		return normalize_skill(current_morph_->get_trained_skill(skill_num));
+		return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
 	}
 	return 0;
 }

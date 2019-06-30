@@ -1393,7 +1393,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 	}
 }
 
-void do_freehelpee(CHAR_DATA* ch, char* argument, int/* cmd*/, int/* subcmd*/)
+void do_freehelpee(CHAR_DATA* ch, char* /* argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch)
 		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
@@ -3028,7 +3028,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 
 	if (IS_FEMALE(ch))
 	{
-		GET_SEX(mob) = ESex::SEX_MALE;
+		mob->set_sex(ESex::SEX_MALE);
 		mob->set_pc_name("Небесный защитник");
 		mob->player_data.PNames[0] = "Небесный защитник";
 		mob->player_data.PNames[1] = "Небесного защитника";
@@ -3042,7 +3042,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	}
 	else
 	{
-		GET_SEX(mob) = ESex::SEX_FEMALE;
+		mob->set_sex(ESex::SEX_FEMALE);
 		mob->set_pc_name("Небесная защитница");
 		mob->player_data.PNames[0] = "Небесная защитница";
 		mob->player_data.PNames[1] = "Небесной защитницы";
@@ -3455,7 +3455,8 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!NONE", //230
 	"!NONE",
 	"!NONE",
-	"*Боевое воодушевление угасло, а с ним и вся жажда подвигов!"
+	"*Боевое воодушевление угасло, а с ним и вся жажда подвигов!",
+	"Вы стали менее шустрым."
 // * в начале строки значит не выводить текст окончания заклинания см void show_spell_off
 };
 
@@ -3712,6 +3713,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_DEATH (set by program)
 	cast_phrase_t{ "Воодушевление", "!set by programm!" }, // воодушевление
+	cast_phrase_t{ "будет ловким", "... и человек разумный укрепляет ловкость свою."},
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3956,6 +3958,8 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_ARROWS_EARTH] = "SPELL_ARROWS_EARTH";
 	ESpell_name_by_value[ESpell::SPELL_ARROWS_AIR] = "SPELL_ARROWS_AIR";
 	ESpell_name_by_value[ESpell::SPELL_ARROWS_DEATH] = "SPELL_ARROWS_DEATH";
+	ESpell_name_by_value[ESpell::SPELL_PALADINE_INSPIRATION] = "SPELL_PALADINE_INSPIRATION";
+	ESpell_name_by_value[ESpell::SPELL_DEXTERITY] = "SPELL_DEXTERITY";
 
 	for (const auto& i : ESpell_name_by_value)
 	{

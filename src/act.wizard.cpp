@@ -2805,7 +2805,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
-		send_to_char(ch, "Вероятность использования умений: %s%d%%%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Вероятность использования умений: %s%d%%%s. ", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
+		send_to_char(ch, "Убить до начала замакса: %s%d%s\r\n", CCCYN(ch, C_NRM), k->mob_specials.MaxFactor, CCNRM(ch, C_NRM));
 		send_to_char(ch, "Умения:&c");
 		for (const auto counter : AVAILABLE_SKILLS)
 		{
@@ -3791,22 +3792,17 @@ void inspecting()
 							break;
 						}
 
-						if ((it->second->sfor == IIP
-							&& strstr(cur_log.ip, ch_log.ip))
-							|| !str_cmp(cur_log.ip, ch_log.ip))
+						if (!str_cmp(cur_log.ip, ch_log.ip))
 						{
-							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%sCount:%5ld Last: %-30s%s",
-								(it->second->sfor == ICHAR ? CCBLU(ch, C_SPR) : ""),
-								cur_log.ip,
-								(it->second->sfor == ICHAR ? CCNRM(ch, C_SPR) : ""),
+							sprintf(buf1 + strlen(buf1), " IP:%s%-16s%s Количество входов с него:%5ld Последний раз: %-30s\r\n",
+								CCBLU(ch, C_SPR), cur_log.ip,  CCNRM(ch, C_SPR),
 								cur_log.count,
-								rustime(localtime(&cur_log.lasttime)),
-								(it->second->sfor == IIP ? "\r\n" : ""));
-							if (it->second->sfor == ICHAR)
+								rustime(localtime(&cur_log.lasttime)));
+/*							if (it->second->sfor == ICHAR)
 							{
 								sprintf(buf1 + strlen(buf1), "-> Count:%5ld Last : %s\r\n",
 									ch_log.count, rustime(localtime(&ch_log.lasttime)));
-							}
+							}*/
 						}
 					}
 				}
@@ -3817,7 +3813,7 @@ void inspecting()
 		{
 			const auto& player = player_table[it->second->pos];
 			mytime = player_table[it->second->pos].last_logon;
-			sprintf(buf, "Имя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d/%d.\r\n",
+			sprintf(buf, "--------------------\r\nИмя: %s%-12s%s e-mail: %s&S%-30s&s%s Last: %s. Level %d/%d.\r\n",
 				(is_online ? CCGRN(ch, C_SPR) : CCWHT(ch, C_SPR)),
 				player.name(),
 				CCNRM(ch, C_SPR),
@@ -5742,6 +5738,7 @@ struct set_struct		/*
 	{"tester", LVL_IMPL, PC, BINARY}, // 60
 	{"autobot",LVL_IMPL, PC, BINARY}, // 61
 	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
+	{"scriptwriter",LVL_IMPL, PC, BINARY}, // 63
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6077,7 +6074,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			("Может быть 'мужчина', 'женщина', или 'бесполое'(а вот это я еще не оценил :).\r\n", ch);
 			return (0);
 		}
-		GET_SEX(vict) = static_cast<ESex>(i);
+		vict->set_sex(static_cast<ESex>(i));
 		break;
 
 	case 39:		// set age
@@ -6435,7 +6432,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 62:
 		vict->set_hryvn(value);
 		break;
-
+	case 63: // флаг автобота
+		{
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SCRIPTWRITER);
+			break;
+		}
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
 		return (0);

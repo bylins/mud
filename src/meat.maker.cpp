@@ -22,7 +22,7 @@ MeatMapping::MeatMapping()
 	emplace(ARTEFACT_KEY, 338);
 }
 
-MeatMapping::MeatMapping::key_type MeatMapping::random_key() const
+MeatMapping::key_type MeatMapping::random_key() const
 {
 	const auto index = number(0, static_cast<int>(m_randomly_returnable_keys.size() - 1));
 	//	sprintf(buf, "Размер мясного массива %d выпал предмет под номером %d с vnum %d", static_cast<int>(size()), index, m_index_mapping[index]);

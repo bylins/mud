@@ -33,6 +33,7 @@
 #include "accounts.hpp"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
+#include "mobmax.cpp"
 
 #include <boost/lexical_cast.hpp>
 
@@ -386,6 +387,17 @@ void Player::mobmax_remove(int vnum)
 void Player::mobmax_save(FILE *saved) const
 {
 	mobmax_.save(saved);
+}
+
+void Player::show_mobmax()
+{
+	MobMax::mobmax_stats_t stats;
+	mobmax_.get_stats(stats);
+	int i = 0;
+	for (const auto& item : stats)
+	{
+		send_to_char(this, "%2d. Уровень: %d; Убито: %d; Максубийство до размакса: %d\n", ++i, item.first, item.second, get_max_kills(item.first));
+	}
 }
 
 void Player::dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch)
@@ -1333,7 +1345,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	GET_LOADROOM(this) = NOWHERE;
 	GET_RELIGION(this) = 1;
 	GET_RACE(this) = 1;
-	GET_SEX(this) = ESex::SEX_NEUTRAL;
+	this->set_sex(ESex::SEX_NEUTRAL);
 	GET_COND(this, THIRST) = NORM_COND_VALUE;
 	GET_WEIGHT(this) = 50;
 	GET_WIMP_LEV(this) = 0;
@@ -1941,7 +1953,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_SIZE(this) = num;
 			else if (!strcmp(tag, "Sex "))
 			{
-				GET_SEX(this) = static_cast<ESex>(num);
+				this->set_sex(static_cast<ESex>(num));
 			}
 			else if (!strcmp(tag, "Skil"))
 			{

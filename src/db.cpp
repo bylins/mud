@@ -2967,9 +2967,10 @@ void GameLoader::index_boot(const EBootType mode)
 
 	prepare_global_structures(mode, rec_count);
 
+    const auto data_file_factory = DataFileFactory::create();
 	for (const auto& entry: *index)
 	{
-		auto data_file = DataFileFactory::get_file(mode, entry);
+		auto data_file = data_file_factory->get_file(mode, entry);
 		if (!data_file->open())
 		{
 			continue;	// TODO: we need to react somehow.

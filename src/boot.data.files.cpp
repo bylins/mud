@@ -303,18 +303,33 @@ void DiscreteFile::dg_read_trigger(void *proto, int type)
 	}
 }
 
+class DataFileFactoryImpl : public DataFileFactory
+{
+public:
+    using regex_ptr_t = std::shared_ptr<std::regex>;
+
+    DataFileFactoryImpl() : m_load_obj_exp(std::make_shared<std::regex>("^\\s*(?:%load%|oload|mload|wload)\\s+obj\\s+(\\d+)")) {}
+
+    virtual BaseDataFile::shared_ptr get_file(const EBootType mode, const std::string& file_name) override;
+
+private:
+    const regex_ptr_t m_load_obj_exp;
+};
+
 class TriggersFile : public DiscreteFile
 {
 public:
-	TriggersFile(const std::string& file_name) : DiscreteFile(file_name) {}
+	TriggersFile(const std::string& file_name, const DataFileFactoryImpl::regex_ptr_t& expression) : DiscreteFile(file_name), m_load_obj_exp(expression) {}
 
 	virtual EBootType mode() const override { return DB_BOOT_TRG; }
 
-	static shared_ptr create(const std::string& file_name) { return shared_ptr(new TriggersFile(file_name)); }
+	static shared_ptr create(const std::string& file_name, const DataFileFactoryImpl::regex_ptr_t& expression) { return shared_ptr(new TriggersFile(file_name, expression)); }
 
 private:
 	virtual void read_entry(const int nr) override;
 	void parse_trigger(int nr);
+
+    const DataFileFactoryImpl::regex_ptr_t m_load_obj_exp;
 };
 
 void TriggersFile::read_entry(const int nr)
@@ -369,9 +384,8 @@ void TriggersFile::parse_trigger(int nr)
 			(*ptr)->cmd = line;
 			ptr = &(*ptr)->next;
 
-			const auto load_obj_exp = std::regex("^\\s*(?:%load%|oload|mload|wload)\\s+obj\\s+(\\d+)");
 			std::smatch match;
-			if(std::regex_search(line, match, load_obj_exp))
+			if(std::regex_search(line, match, *m_load_obj_exp))
 			{
 				obj_rnum obj_num = std::stoi(match.str(1));
 				const auto tlist_it = obj2trigers.find(obj_num);
@@ -1344,7 +1358,7 @@ void MobileFile::parse_simple_mob(int i, int nr)
 
 	mob_proto[i].char_specials.position = t[0];
 	mob_proto[i].mob_specials.default_pos = t[1];
-	mob_proto[i].player_data.sex = static_cast<ESex>(t[2]);
+	mob_proto[i].set_sex(static_cast<ESex>(t[2]));
 
 	mob_proto[i].player_data.Race = NPC_RACE_BASIC;
 	mob_proto[i].set_class(NPC_CLASS_BASE);
@@ -1362,13 +1376,22 @@ void MobileFile::parse_simple_mob(int i, int nr)
 void MobileFile::parse_enhanced_mob(int i, int nr)
 {
 	char line[256];
-
 	parse_simple_mob(i, nr);
 
 	while (get_line(file(), line))
 	{
 		if (!strcmp(line, "E"))	// end of the enhanced section
+		{
+
+			if ((mob_proto[i].mob_specials.MaxFactor == 0) && !mob_proto[i].get_role_bits().any())
+			{
+				mob_proto[i].mob_specials.MaxFactor = mob_proto[i].get_level() / 2;
+				log("SET maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
+			}
+			if (mob_proto[i].mob_specials.MaxFactor > 0  && mob_proto[i].get_role_bits().any())
+				log("BOSS maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
 			return;
+		}
 		else if (*line == '#')  	// we've hit the next mob, maybe?
 		{
 			log("SYSERR: Unterminated E section in mob #%d", nr);
@@ -1377,8 +1400,10 @@ void MobileFile::parse_enhanced_mob(int i, int nr)
 		else
 		{
 			parse_espec(line, i, nr);
+
 		}
 	}
+
 
 	log("SYSERR: Unexpected end of file reached after mob #%d", nr);
 	exit(1);
@@ -1420,7 +1445,7 @@ std::vector<std::string> split_string(const char *str, std::string separator = "
 void MobileFile::interpret_espec(const char *keyword, const char *value, int i, int nr)
 {
 	struct helper_data_type *helper;
-	int k, num_arg, matched = 0, t[MAX_NUMBER_RESISTANCE];
+	int k, num_arg, matched = 0, t[4];
 
 	num_arg = atoi(value);
 
@@ -1442,12 +1467,13 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 	
 		
-//		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
-//		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
-//		{
-//			if (zone_table[world[IN_ROOM(&mob_proto[i])]->zone].group < 3) // в зонах 0-2 группы
-//				log("RESIST LIVE num: %d Vnum: %d Level: %d Name: %s", GET_RESIST(mob_proto + i, 4), mob_index[i].vnum, GET_LEVEL(&mob_proto[i]), GET_PAD(&mob_proto[i], 0));
-//		}
+/*		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
+		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
+		{
+			if (zone_table[world[IN_ROOM(&mob_proto[i])]->zone].group < 3) // в зонах 0-2 группы
+				log("RESIST LIVE num: %d Vnum: %d Level: %d Name: %s", GET_RESIST(mob_proto + i, 4), mob_index[i].vnum, GET_LEVEL(&mob_proto[i]), GET_PAD(&mob_proto[i], 0));
+		}
+*/
 	}
 
 	CASE("Saves")
@@ -1589,6 +1615,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	{
 		RANGE(0, 255);
 		mob_proto[i].mob_specials.MaxFactor = num_arg;
+
 	}
 
 	CASE("ExtraAttack")
@@ -2223,34 +2250,39 @@ char * SocialsFile::str_dup_bl(const char *source)
 	return (str_dup(line));
 }
 
-BaseDataFile::shared_ptr DataFileFactory::get_file(const EBootType mode, const std::string& file_name)
+DataFileFactory::shared_ptr DataFileFactory::create()
 {
-	switch (mode)
-	{
-	case DB_BOOT_WLD:
-		return WorldFile::create(file_name);
+    return std::make_shared<DataFileFactoryImpl>();
+}
 
-	case DB_BOOT_MOB:
-		return MobileFile::create(file_name);
+BaseDataFile::shared_ptr DataFileFactoryImpl::get_file(const EBootType mode, const std::string& file_name)
+{
+    switch (mode)
+    {
+    case DB_BOOT_WLD:
+        return WorldFile::create(file_name);
 
-	case DB_BOOT_OBJ:
-		return ObjectFile::create(file_name);
+    case DB_BOOT_MOB:
+        return MobileFile::create(file_name);
 
-	case DB_BOOT_ZON:
-		return ZoneFile::create(file_name);
+    case DB_BOOT_OBJ:
+        return ObjectFile::create(file_name);
 
-	case DB_BOOT_HLP:
-		return HelpFile::create(file_name);
+    case DB_BOOT_ZON:
+        return ZoneFile::create(file_name);
 
-	case DB_BOOT_TRG:
-		return TriggersFile::create(file_name);
+    case DB_BOOT_HLP:
+        return HelpFile::create(file_name);
 
-	case DB_BOOT_SOCIAL:
-		return SocialsFile::create(file_name);
+    case DB_BOOT_TRG:
+        return TriggersFile::create(file_name, m_load_obj_exp);
 
-	default:
-		return nullptr;
-	}
+    case DB_BOOT_SOCIAL:
+        return SocialsFile::create(file_name);
+
+    default:
+        return nullptr;
+    }
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

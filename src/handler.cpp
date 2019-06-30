@@ -4544,7 +4544,7 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	{
 		return effect - resistance * effect / 100;
 	}
-	if (IS_NPC(ch) && resistance >= 200)
+	if (IS_NPC(ch) && resistance > 200)
 	{
 		return 0;
 	}
@@ -4552,7 +4552,8 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	{
 		resistance = MIN(75, resistance);
 	}
-	result = effect - (resistance + number(0, resistance)) * effect / 200;
+	const float divisor = IS_NPC(ch) ? 400 : 200; //иначе если у моба резист выше 100 не работает
+	result = effect - (resistance + number(0, resistance)) * effect / divisor;
 	result = MAX(0, result);
 	return result;
 }

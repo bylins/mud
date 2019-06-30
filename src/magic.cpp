@@ -1123,8 +1123,9 @@ float func_koef_duration(int spellnum, int percent)
 	switch (spellnum)
 	{
 		case SPELL_STRENGTH:
+		case SPELL_DEXTERITY:
 			return 1 + percent / 400;
-
+		break;
 		default:
 			return 1;
 	}
@@ -1136,9 +1137,11 @@ float func_koef_modif(int spellnum, int percent)
 	switch (spellnum)
 	{
 	case SPELL_STRENGTH:
+	case SPELL_DEXTERITY:
 		if (percent > 100)
 			return 1;
 		return 0;
+	break;
 	default:
 		return 1;
 	}
@@ -1775,8 +1778,6 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
 //функция увеличивает урон спеллов с учетом скилла соответствующей магии и параметра "мудрость"
 int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam)
 {
-	float koeff, skill = 0.0;
-
 	//тупо костыль, пока всем актуальнгым мобам не воткнум магскиллы - 31/03/2014
 	/*if ((spellnum == SPELL_FIRE_BREATH) ||
 	(spellnum == SPELL_GAS_BREATH) ||
@@ -1790,17 +1791,17 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	}
 
 	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
+
 	if (skill_number > 0)
 	{
-		skill = ch->get_skill(skill_number);
+		dam += dam * (1 +  static_cast<double>(ch->get_skill(skill_number)) / 500);
 	}
 
-	koeff = 1.00+skill/25.00;
 	//sprintf(buf1, "Magic skill koefficient = %f", koeff);
 	//mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
 	if (GET_REAL_WIS(ch) >= 23)
 	{
-		dam += dam * ((GET_REAL_WIS(ch) - 22) * koeff) / 100;
+		dam += dam * (1 +  static_cast<double>((GET_REAL_WIS(ch) - 22)) / 200);
 	}
 	
 	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.
@@ -2778,6 +2779,12 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			success = FALSE;
 			break;
 		}
+		if (affected_by_spell(victim, SPELL_DEXTERITY))
+		{
+			affect_from_char(victim, SPELL_DEXTERITY);
+			success = FALSE;
+			break;
+		}
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 4, level, 5, 4, 0)) * koef_duration;
 		af[0].location = APPLY_STR;
@@ -3585,6 +3592,26 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы почувствовали себя сильнее.";
 		to_room = "Мышцы $n1 налились силой.";
 		spellnum = SPELL_STRENGTH;
+		break;
+
+	case SPELL_DEXTERITY:
+		if (affected_by_spell(victim, SPELL_WEAKNESS))
+		{
+			affect_from_char(victim, SPELL_WEAKNESS);
+			success = FALSE;
+			break;
+		}
+		af[0].location = APPLY_DEX;
+		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
+		if (ch == victim)
+			af[0].modifier = (level + 9) / 10 + koef_modifier + GET_REMORT(ch) / 5;
+		else
+			af[0].modifier = (level + 14) / 15 + koef_modifier + GET_REMORT(ch) / 5;
+		accum_duration = TRUE;
+		accum_affect = TRUE;
+		to_vict = "Вы почувствовали себя более шустрым.";
+		to_room = "$n1 начал$q двигаться более шустрее.";
+		spellnum = SPELL_DEXTERITY;
 		break;
 
 	case SPELL_PATRONAGE:
@@ -4668,7 +4695,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->player_data.PNames[5] = std::string(buf2);
 		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
 		mob->player_data.PNames[1] = std::string(buf2);
-		GET_SEX(mob) = ESex::SEX_NEUTRAL;
+		mob->set_sex(ESex::SEX_NEUTRAL);
 		MOB_FLAGS(mob).set(MOB_RESURRECTED);	// added by Pereplut
 		// если есть фит ярость тьмы, то прибавляем к хп и дамролам
 		if (can_use_feat(ch, FURYDARK_FEAT))
@@ -4790,7 +4817,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 		GET_POS(mob) = POS_STANDING;
 		GET_DEFAULT_POS(mob) = POS_STANDING;
-		GET_SEX(mob) = ESex::SEX_MALE;
+		mob->set_sex(ESex::SEX_MALE);
 
 		mob->set_class(ch->get_class());
 		GET_WEIGHT(mob) = GET_WEIGHT(ch);

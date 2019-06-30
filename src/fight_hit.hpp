@@ -33,7 +33,6 @@ struct HitData
 	void add_hand_damage(CHAR_DATA *ch);
 	void check_defense_skills(CHAR_DATA *ch, CHAR_DATA *victim);
 	void calc_crit_chance(CHAR_DATA *ch);
-	void check_weap_feats(CHAR_DATA *ch);
 	double crit_backstab_multiplier(CHAR_DATA *ch, CHAR_DATA *victim);
 
 	// extdamage
@@ -87,7 +86,7 @@ public:
 	const flags_t& get_flags() const { return m_flags; }
 	void set_flag(const size_t flag) { m_flags.set(flag); }
 	void reset_flag(const size_t flag) { m_flags.reset(flag); }
-
+	static void check_weap_feats(const CHAR_DATA* ch, int weap_skill, int& calc_thaco, int& dam);
 private:
 	// какой-никакой набор флагов, так же передается в damage()
 	flags_t m_flags;

@@ -131,7 +131,7 @@ class CObjectPrototype
 {
 public:
 	using shared_ptr = std::shared_ptr<CObjectPrototype>;
-virtual	~CObjectPrototype() {};
+
 	enum EObjectType
 	{
 		ITEM_UNDEFINED = 0,
@@ -254,6 +254,7 @@ virtual	~CObjectPrototype() {};
 		m_ilevel(0),
 		m_rnum(DEFAULT_RNUM)
 	{}
+	virtual	~CObjectPrototype() {};
 
 	auto& get_skills() const { return m_skills; }
 	auto dec_val(size_t index) { return --m_vals[index]; }
@@ -471,6 +472,17 @@ private:
 	std::unordered_set<VNumChangeObserver::shared_ptr> m_vnum_change_observers;
 	std::unordered_set<ObjectRNum_ChangeObserver::shared_ptr> m_rnum_change_observers;
 };
+
+inline auto GET_OBJ_VAL(const CObjectPrototype* obj, size_t index)
+{
+        if (nullptr == obj)
+        {
+                return 0;
+        }
+
+        return obj->get_val(index);
+}
+inline auto GET_OBJ_VAL(const CObjectPrototype::shared_ptr& obj, size_t index) { return GET_OBJ_VAL(obj.get(), index); }
 
 class activation
 {

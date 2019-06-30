@@ -86,7 +86,8 @@ public:
 	void mobmax_add(CHAR_DATA *ch, int vnum, int count, int level);
 	void mobmax_load(CHAR_DATA *ch, int vnum, int count, int level);
 	void mobmax_remove(int vnum);
-	void mobmax_save(FILE *saved) const; // TODO мб убрать
+	void mobmax_save(FILE *saved) const; ///< TODO мб убрать
+	void show_mobmax();
 
 	// обертка на Dps
 	void dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch = 0);

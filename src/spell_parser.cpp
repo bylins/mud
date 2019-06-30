@@ -5386,6 +5386,10 @@ void mag_assign_spells(void)
 //233
 	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
 		   0, 0, 0, 255, 0, FALSE, MAG_AFFECTS, 0, STYPE_NEUTRAL);
+//234	
+	spello(SPELL_DEXTERITY, "ловкость", "dexterity", 40, 30, 1,
+		 POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
@@ -5493,13 +5497,13 @@ void mag_assign_spells(void)
 	skillo(SKILL_IRON_WIND, "железный ветер", 150);
 	skillo(SKILL_STRANGLE, "удавить", 200);
 	skillo(SKILL_AIR_MAGIC, "магия воздуха", 200);
-	skillo(SKILL_FIRE_MAGIC, "магия огня", 200);
-	skillo(SKILL_WATER_MAGIC, "магия воды", 200);
-	skillo(SKILL_EARTH_MAGIC, "магия земли", 200);
-	skillo(SKILL_LIGHT_MAGIC, "магия света", 200);
-	skillo(SKILL_DARK_MAGIC, "магия тьмы", 200);
-	skillo(SKILL_MIND_MAGIC, "магия разума", 200);
-	skillo(SKILL_LIFE_MAGIC, "магия жизни", 200);
+	skillo(SKILL_FIRE_MAGIC, "магия огня", 1000);
+	skillo(SKILL_WATER_MAGIC, "магия воды", 1000);
+	skillo(SKILL_EARTH_MAGIC, "магия земли", 1000);
+	skillo(SKILL_LIGHT_MAGIC, "магия света", 1000);
+	skillo(SKILL_DARK_MAGIC, "магия тьмы", 1000);
+	skillo(SKILL_MIND_MAGIC, "магия разума", 1000);
+	skillo(SKILL_LIFE_MAGIC, "магия жизни", 1000);
 	skillo(SKILL_STUN, "ошеломить", 200);
 	skillo(SKILL_MAKE_AMULET, "смастерить оберег", 200);
 }

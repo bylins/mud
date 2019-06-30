@@ -440,16 +440,6 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	return skin.get();
 }
 
-/* The following put modes are supported by the code below:
-
-   1) put <object> <container>
-   2) put all.<object> <container>
-   3) put all <container>
-
-   <container> must be in inventory or on ground.
-   all objects to be put into container must be in inventory.
-*/
-
 void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg1[MAX_INPUT_LENGTH];
@@ -3545,13 +3535,13 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 {
 	int num;
-	switch (GET_LEVEL(mob)/11)
+	switch (GET_LEVEL(mob) / 11)
 	{
 	case 0:
-			num = 15 * animals_levels[0] / 2201; // приводим пропорцией к количеству зверья на 15.11.2015 в мире
-			if (number(1, 100) <= num)
+		num = 15 * animals_levels[0] / 2201; // приводим пропорцией к количеству зверья на 15.11.2015 в мире
+		if (number(1, 100) <= num)
 			return true;
-	break;
+		break;
 	case 1:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 40)
 		{
@@ -3565,8 +3555,8 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			send_to_char(buf, ch);
 			return false;
 		}
-		
-	break;
+
+		break;
 	case 2:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 80)
 		{
@@ -3623,12 +3613,9 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	}
 	return false;
 }
+
 void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	OBJ_DATA *obj;
-	CHAR_DATA *mob;
-	int prob, percent = 0, mobn;
-
 	if (!ch->get_skill(SKILL_MAKEFOOD))
 	{
 		send_to_char("Вы не умеете этого.\r\n", ch);
@@ -3642,24 +3629,34 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))
-		&& !(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents)))
+	auto obj = get_obj_in_list_vis(ch, arg, ch->carrying);
+	if (!obj)
 	{
-		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
-		send_to_char(buf, ch);
-		return;
+		obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
+		if (!obj)
+		{
+			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
+			send_to_char(buf, ch);
+			return;
+		}
 	}
 
-	if (!IS_CORPSE(obj) || (mobn = GET_OBJ_VAL(obj, 2)) < 0)
+	const auto mobn = GET_OBJ_VAL(obj, 2);
+	if (!IS_CORPSE(obj) || mobn < 0)
 	{
 		act("Вы не сможете освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	mob = (mob_proto + real_mobile(mobn));
+
+	const auto mob = (mob_proto + real_mobile(mobn));
 	mob->set_normal_morph();
 
-	if (!IS_IMMORTAL(ch) && ((GET_RACE(mob) != NPC_RACE_ANIMAL) && (GET_RACE(mob) != NPC_RACE_REPTILE) && (GET_RACE(mob) != NPC_RACE_FISH) && (GET_RACE(mob) != NPC_RACE_BIRD) && 
-		(GET_RACE(mob) != NPC_RACE_HUMAN_ANIMAL)))
+	if (!IS_IMMORTAL(ch) 
+		&& GET_RACE(mob) != NPC_RACE_ANIMAL
+		&& GET_RACE(mob) != NPC_RACE_REPTILE
+		&& GET_RACE(mob) != NPC_RACE_FISH
+		&& GET_RACE(mob) != NPC_RACE_BIRD
+		&& GET_RACE(mob) != NPC_RACE_HUMAN_ANIMAL)
 	{
 		send_to_char("Этот труп невозможно освежевать.\r\n", ch);
 		return;
@@ -3671,12 +3668,21 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	prob = number(1, skill_info[SKILL_MAKEFOOD].max_percent);
-	percent = train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent, mob)
+	const auto prob = number(1, skill_info[SKILL_MAKEFOOD].max_percent);
+	const auto percent = train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent, mob)
 		+ number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
+
 	OBJ_DATA::shared_ptr tobj;
-	if (prob > percent
-		|| !(tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.random_key()))) // последняя в списке свежуемого мяса артефакт, обработка отдельная ниже
+	if (GET_SKILL(ch, SKILL_MAKEFOOD) > 150 && number(1, 200) == 1) // артефакт
+	{
+		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get_artefact_key());
+	}
+	else
+	{
+		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.random_key());
+	}
+
+	if (prob > percent || !tobj)
 	{
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -3689,53 +3695,49 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;
-		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,200) == 1)) // артефакт
-		{
-			tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get_artefact_key());
-		}
 		entrails.push_back(tobj.get());
+
 		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
 		{
-			if (skill_to_skin(mob, ch))
+			if (WAITLESS(ch) || skill_to_skin(mob, ch))
 			{
 				entrails.push_back(create_skin(mob, ch));
 			}
 		}
-
-		/*Полель + 
-		 грузим ингридиенты для крафта луков. не глобал дроп. а тупо в коде
-		диапазон 200-400 есть всегда и самый оптимальный 
 		percent = number(GET_SKILL(ch, SKILL_MAKEFOOD),((skill_info[SKILL_MAKEFOOD].max_percent - MIN(200,GET_SKILL(ch, SKILL_MAKEFOOD)))*2+400));
-		if ((GET_RACE(mob) == NPC_RACE_ANIMAL)&&((percent<250)&&(200<percent))) // жгут и жилы
-		{
-			entrails.push_back(create_material(mob));
-		}
-		if ((GET_RACE(mob) == NPC_RACE_PLANT)&&((percent<300)&&(250<percent))) // древко для стрел
-		{
-			entrails.push_back(create_material(mob));
-		}
-		if ((GET_RACE(mob) == NPC_RACE_BIRD)&&((percent<350)&&(300<percent))) // перья для стрел
-		{
-			entrails.push_back(create_material(mob));
-		}
-		if ((GET_RACE(mob) == NPC_RACE_FISH)&&((percent<400)&&(350<percent))) // наконечник для стрел
-		{
-			entrails.push_back(create_material(mob));
-		}
-		*/
+		//Полель + 
+//		 грузим ингридиенты для крафта луков. не глобал дроп. а тупо в коде
+//		диапазон 200-400 есть всегда и самый оптимальный 
 
-		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));  // ингры со всех
-		for (std::vector<OBJ_DATA*>::iterator it = entrails.begin(); it != entrails.end(); ++it)
+		if ((GET_RACE(mob) == NPC_RACE_ANIMAL)&&((percent < 250) && (200 < percent))) // жгут и жилы
 		{
-			if (*it)
+			entrails.push_back(create_material(mob));
+		}
+		if ((GET_RACE(mob) == NPC_RACE_PLANT) && ((percent < 300) && (250 < percent))) // древко для стрел
+		{
+			entrails.push_back(create_material(mob));
+		}
+		if ((GET_RACE(mob) == NPC_RACE_BIRD) && ((percent < 350) && (300 < percent))) // перья для стрел
+		{
+			entrails.push_back(create_material(mob));
+		}
+		if ((GET_RACE(mob) == NPC_RACE_FISH) && ((percent<400) && (350 < percent))) // наконечник для стрел
+		{
+			entrails.push_back(create_material(mob));
+		}
+		
+		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));  // ингры со всех
+		for (const auto& it : entrails)
+		{
+			if (it)
 			{
 				if (obj->get_carried_by() == ch)
 				{
-					can_carry_obj(ch, *it);
+					can_carry_obj(ch, it);
 				}
 				else
 				{
-					obj_to_room(*it, ch->in_room);
+					obj_to_room(it, ch->in_room);
 				}
 			}
 		}
