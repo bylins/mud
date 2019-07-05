@@ -3610,7 +3610,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		accum_affect = TRUE;
 		to_vict = "Вы почувствовали себя более шустрым.";
-		to_room = "$n1 начал$q двигаться более шустрее.";
+		to_room = "$n0 начал$q двигаться более шустрее.";
 		spellnum = SPELL_DEXTERITY;
 		break;
 
