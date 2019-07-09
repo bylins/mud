@@ -1463,6 +1463,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		percent /= 2;
 
 	// не все умения надо модифицировать из-за внешних факторов и морали
+	bool abs_fail = false;
 	if (!pass_mod)
 	{
 		//		percent = complex_skill_modifier(ch, skill_no, GAPPLY_SKILL_SUCCESS, percent);
@@ -1493,6 +1494,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (prob >= fail_limit)
 		{   // Абсолютный фейл 4.9 процента
 			percent = 0;
+            abs_fail = true;
 		}
 		else if (prob < bonus_limit)
 		{
@@ -1509,23 +1511,12 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		percent = MAX(percent, max_percent);
 	else
 		percent = MIN(MAX(0, percent), max_percent);
-/*
-	if (ch && vict && !IS_NPC(ch) && (skill_no == SKILL_BASH || skill_no == SKILL_STRANGLE || skill_no == SKILL_MIGHTHIT
-		|| skill_no == SKILL_STUPOR || skill_no == SKILL_CHOPOFF || skill_no == SKILL_BACKSTAB || skill_no == SKILL_KICK
-		|| skill_no == SKILL_PUNCTUAL || skill_no == SKILL_STUN) && PRF_FLAGGED(ch, PRF_TESTER))
+	if (ch && vict && !IS_NPC(ch) && (skill_no == SKILL_SENSE) && PRF_FLAGGED(ch, PRF_TESTER))
 	{
-		//sprintf(buf, "Противник %s: скилл == %d, итоговый == %d,бонус == %d, сэйвы == %d, сэйвы/2 == %d\r\n", GET_NAME(vict), skill_is, percent, bonus, victim_sav, victim_modi);
-		//mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-		if (absolute_fail)
-			send_to_char(ch, "попали в Абсолютный фейл\r\n");
-		else if (try_morale)
-			send_to_char(ch, "&Cпопали в удачу. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2, morale);
-		else
-			send_to_char(ch, "&Cитоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d&n\r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2);
+		send_to_char(ch, "&BИтог нюха:. итоговый prob = %d, скилл = %d, бонус = %d, сэйвы = %d, сэйвы/2 = %d, мораль = %d абсолютный фэйл %s \r\n", percent, skill_is, bonus, victim_sav, victim_modi / 2, morale, abs_fail? "ДА": "НЕТ");
 	}
 	if (skill_no == SKILL_PROTECT)
 		log("SKILL_PROTECT: Игрок %s , Percent == %d, fail_limit == %d, Morale == %d, Bonus == %d\r\n", GET_NAME(ch), percent, fail_limit, morale, bonus);
-*/
 	return (percent);
 }
 

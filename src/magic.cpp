@@ -5407,6 +5407,7 @@ int mag_creations(int/* level*/, CHAR_DATA * ch, int spellnum)
 	default:
 		send_to_char("Spell unimplemented, it would seem.\r\n", ch);
 		return 0;
+		break;
 	}
 
 	const auto tobj = world_objects.create_from_prototype_by_vnum(z);
@@ -5507,6 +5508,7 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 		break;
 	default:
 		return 0;
+		break;
 	}
 	return 1;
 }
