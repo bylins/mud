@@ -1009,7 +1009,7 @@ void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*
 
 	if ((ch = get_char_by_obj(obj, name)))
 	{
-		trg_spellturn(ch, spellnum, spelltime, last_trig_vnum);
+		trg_spellturntemp(ch, spellnum, spelltime, last_trig_vnum);
 	}
 	else
 	{
