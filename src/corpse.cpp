@@ -478,17 +478,16 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
 		return NULL;
 
+	auto corpse = world_objects.create_from_prototype_by_vnum(100);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
-	auto corpse = world_objects.create_blank(buf2);
-
+	corpse->set_aliases(buf2);
 	corpse->set_sex(ESex::SEX_MALE);
 
 	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
 	corpse->set_description(buf2);
-
+	corpse->set_ex_description(nullptr);
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->set_short_description(buf2);
-
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
 	corpse->set_PName(0, buf2);
 	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
@@ -501,7 +500,6 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse->set_PName(4, buf2);
 	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
 	corpse->set_PName(5, buf2);
-
 	corpse->set_type(OBJ_DATA::ITEM_CONTAINER);
 	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
