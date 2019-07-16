@@ -5291,6 +5291,11 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		break;
 	}
 	case SPELL_REMOVE_POISON:
+		if (IS_CORPSE(obj))
+		{
+			to_char = "Трупак вкусней не станет.";
+			break;
+		}
 		if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1)
 		{
 			to_char = "Содержимое $o1 протухло и не поддается магии.";
