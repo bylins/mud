@@ -2916,7 +2916,14 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			ch->get_skill(SKILL_TOWNPORTAL) &&
 			(port = get_portal(GET_ROOM_VNUM(ch->in_room), NULL)) != NULL && IS_SET(where_bits, FIND_OBJ_ROOM))
 	{
-		if (GET_LEVEL(ch) < MAX(1, port->level - GET_REMORT(ch) / 2))
+
+		if (has_char_portal(ch, GET_ROOM_VNUM(ch->in_room)))
+		{
+			send_to_char("На камне огненными буквами написано слово '&R", ch);
+			send_to_char(port->wrd, ch);
+			send_to_char("&n'.\r\n", ch);
+			return 0;
+		} else if (GET_LEVEL(ch) < MAX(1, port->level - GET_REMORT(ch) / 2))
 		{
 			send_to_char("На камне что-то написано огненными буквами.\r\n", ch);
 			send_to_char("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
