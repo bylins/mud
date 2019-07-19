@@ -12,14 +12,6 @@ cmake-build-debug/
 .crash
 cmake_install.cmake
 libcircle.library.a
-CMakeFiles/
 lib/
-log/boot_load.log
-circle
-CMakeCache.txt
-bylins.cbp
-changelog
-Makefile
-syslog
-log/
 tests/CTestTestfile.cmake
+cmake-build-release/
