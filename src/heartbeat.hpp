@@ -137,7 +137,8 @@ void LabelledMeasurements<Label>::add(const Label& label, const measurement_t me
 template <typename Label>
 void LabelledMeasurements<Label>::remove_handler(const pulse_t pulse)
 {
-    if (!m_labels.empty()) {
+    if (!m_labels.empty())
+    {
         m_labels.erase(pulse);
     }
 }
