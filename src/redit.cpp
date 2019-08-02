@@ -396,9 +396,11 @@ void redit_save_to_disk(int zone_num)
 			{
 				for (auto ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next)
 				{
-					strcpy(buf1, ex_desc->description);
-					strip_string(buf1);
-					fprintf(fp, "E\n%s~\n%s~\n", ex_desc->keyword, buf1);
+					if (ex_desc->keyword && ex_desc->description) {
+                        strcpy(buf1, ex_desc->description);
+                        strip_string(buf1);
+                        fprintf(fp, "E\n%s~\n%s~\n", ex_desc->keyword, buf1);
+                    }
 				}
 			}
 			fprintf(fp, "S\n");
