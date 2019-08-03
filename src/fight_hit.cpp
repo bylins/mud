@@ -2667,7 +2667,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			npc_groupbattle(ch);
 		}
 		// Start the victim fighting the attacker
-		if (GET_POS(victim) > POS_STUNNED && (victim->get_fighting() == NULL))
+		if (GET_POS(victim) > POS_DEAD && (victim->get_fighting() == NULL))
 		{
 			set_fighting(victim, ch);
 			npc_groupbattle(victim);
@@ -3018,11 +3018,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	// Stop someone from fighting if they're stunned or worse
-	if ((GET_POS(victim) <= POS_STUNNED)
+	/*if ((GET_POS(victim) <= POS_STUNNED)
 		&& (victim->get_fighting() != NULL))
 	{
 		stop_fighting(victim, GET_POS(victim) <= POS_DEAD);
-	}
+	} */
+
 
 	// жертва умирает //
 	if (GET_POS(victim) == POS_DEAD)
