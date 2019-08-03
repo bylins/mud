@@ -6,17 +6,17 @@
 #include "obj.hpp"
 #include "utils.h"
 
-inline bool INVIS_OK_OBJ(const CHAR_DATA* sub, const CObjectPrototype* obj)
+inline bool INVIS_OK_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
 {
 	return !obj->get_extra_flag(EExtraFlag::ITEM_INVISIBLE)
 		|| AFF_FLAGGED(sub, EAffectFlag::AFF_DETECT_INVIS);
 }
 
-inline bool MORT_CAN_SEE_OBJ(const CHAR_DATA* sub, const CObjectPrototype* obj)
+inline bool MORT_CAN_SEE_OBJ(const CHAR_DATA* sub, const OBJ_DATA* obj)
 {
 	return INVIS_OK_OBJ(sub, obj)
 		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
-		&& (IS_LIGHT(sub->in_room)
+		&& (IS_LIGHT(obj->get_in_room())
 			|| OBJ_FLAGGED(obj, EExtraFlag::ITEM_GLOW)
 			|| (IS_CORPSE(obj)
 				&& AFF_FLAGGED(sub, EAffectFlag::AFF_INFRAVISION))
