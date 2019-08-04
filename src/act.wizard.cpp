@@ -6791,10 +6791,11 @@ namespace Mlist
 						sprintf(buf1, " [%d]", trigger_vnum);
 						out << buf1;
 					}
-					out << "\r\n";
 				}
 				else
-					out << " - нет скриптов\r\n";
+					out << " - нет скриптов";
+				sprintf(buf1, " Всего в мире: %d\r\n", mob_index[i].number);
+				out << buf1;
 			}
 		}
 
