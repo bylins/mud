@@ -2,6 +2,7 @@
 #define __OBJECT_PROTOTYPES_HPP__
 
 #include "obj.hpp"
+#include "logger.hpp"
 
 #include <deque>
 
@@ -48,7 +49,8 @@ public:
 	const auto& operator[](size_t index) const {
         if (index >= m_prototypes.size() )
         {
-            return m_prototypes[0];
+			mudlog("неизвестный прототип объекта", BRF, LVL_BUILDER, SYSLOG, 1);
+        	return m_prototypes[0];
         }
 	    return m_prototypes[index]; }
 	/** @} */

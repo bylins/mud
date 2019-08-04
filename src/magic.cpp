@@ -5291,9 +5291,12 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		break;
 	}
 	case SPELL_REMOVE_POISON:
-		if (IS_CORPSE(obj))
+		if (GET_OBJ_RNUM(obj)<0)
 		{
-			to_char = "Трупак вкусней не станет.";
+			to_char = "Ничего не случилось.";
+			char buf[100];
+			sprintf(buf, "неизвестный прототип объекта : %s (VNUM=%d)",	GET_OBJ_PNAME(obj, 0).c_str(), obj->get_vnum());
+			mudlog(buf, BRF, LVL_BUILDER, SYSLOG, 1);
 			break;
 		}
 		if (obj_proto[GET_OBJ_RNUM(obj)]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1)
