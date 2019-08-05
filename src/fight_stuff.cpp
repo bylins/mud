@@ -1094,7 +1094,6 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 		&& OK_GAIN_EXP(ch, victim)
 		&& GET_EXP(victim) > 0
 		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-		&& !(MOB_FLAGGED(victim, MOB_ANGEL)|| MOB_FLAGGED(victim, MOB_GHOST))
 		&& !IS_NPC(ch)
 		&& !MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP))
 	{
@@ -1102,12 +1101,29 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP))
+		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
 			battle_exp *= Bonus::get_mult_bonus();
-//		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
-//						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
+		}
 		gain_exp(ch, battle_exp);
 		ch->dps_add_exp(battle_exp, true);
+	}
+
+
+	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		CHAR_DATA * master = ch->get_master();
+		if (master) {
+			int max_exp = MIN(max_exp_gain_pc(master), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
+													   (5 * MAX(1, GET_REMORT(master) - MAX_EXP_COEFFICIENTS_USED - 1)));
+
+			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
+			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
+			if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
+				battle_exp *= Bonus::get_mult_bonus();
+			}
+			gain_exp(ch, battle_exp);
+			master->dps_add_exp(battle_exp, true);
+		}
 	}
 }
 
