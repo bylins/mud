@@ -2354,39 +2354,34 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 
 	case OBJ_DATA::ITEM_INGREDIENT:
 		sprintbit(GET_OBJ_SKILL(j), ingradient_bits, buf2);
-		sprintf(buf, "%s\r\n", buf2);
-		send_to_char(buf, ch);
+		sprintf(buf, "ingr bits %s", buf2);
 
 		if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_USES))
 		{
-			sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(j, 2));
-			send_to_char(buf, ch);
+			sprintf(buf + strlen(buf), "\r\nможно применить %d раз", GET_OBJ_VAL(j, 2));
 		}
 
 		if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_LAG))
 		{
-			sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(j, 0) & 0xFF));
+			sprintf(buf + strlen(buf), "\r\nможно применить 1 раз в %d сек", (i = GET_OBJ_VAL(j, 0) & 0xFF));
 			if (GET_OBJ_VAL(j, 3) == 0 || GET_OBJ_VAL(j, 3) + i < time(NULL))
-				strcat(buf, "(можно применять).\r\n");
+				sprintf(buf + strlen(buf), "(можно применять).");
 			else
 			{
 				li = GET_OBJ_VAL(j, 3) + i - time(NULL);
-				sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
+				sprintf(buf + strlen(buf), "(осталось %ld сек).", li);
 			}
-			send_to_char(buf, ch);
 		}
 
 		if (IS_SET(GET_OBJ_SKILL(j), ITEM_CHECK_LEVEL))
 		{
-			sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
-			send_to_char(buf, ch);
+			sprintf(buf+ strlen(buf), "\r\nможно применить с %d уровня.", (GET_OBJ_VAL(j, 0) >> 8) & 0x1F);
 		}
 
 		if ((i = real_object(GET_OBJ_VAL(j, 1))) >= 0)
 		{
-			sprintf(buf, "прототип %s%s%s.\r\n",
+			sprintf(buf + strlen(buf), "\r\nпрототип %s%s%s.",
 				CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
 		}
 		break;
 	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
