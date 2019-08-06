@@ -49,6 +49,7 @@
 #include "debug.utils.hpp"
 #include "backtrace.hpp"
 #include "coredump.hpp"
+#include "olc.h"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -3663,7 +3664,16 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "name"))
 		{
-			strcpy(str, r->name);
+			if (*subfield)
+			{
+				if (r->name)
+					free(r->name);
+				if (strlen(subfield) > MAX_ROOM_NAME)
+					subfield[MAX_ROOM_NAME - 1] = '\0';
+				r->name = str_dup(subfield);
+			}
+			else 
+				strcpy(str, r->name);
 		}
 		else if (!str_cmp(field, "north"))
 		{
