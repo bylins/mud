@@ -1090,12 +1090,17 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 {
-	if (ch != victim
-		&& OK_GAIN_EXP(ch, victim)
-		&& GET_EXP(victim) > 0
-		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-		&& !IS_NPC(ch)
-		&& !MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP))
+	// не даем получать батлу с себя по зеркалу?
+	if (ch == victim) { return; }
+	// не даем получать экспу с !эксп мобов
+	if (MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP)) { return; }
+	// если цель не нпс то тоже не даем экспы
+	if (!IS_NPC(victim)) { return; }
+	// если цель под чармом не даем экспу
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)) { return; }
+
+	// получение игроками экспы
+	if (!IS_NPC(ch) && OK_GAIN_EXP(ch, victim))
 	{
 		int max_exp = MIN(max_exp_gain_pc(ch), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
@@ -1112,7 +1117,8 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 		CHAR_DATA * master = ch->get_master();
-		if (master) {
+		// проверяем что есть мастер и он может получать экспу с данной цели
+		if (master && OK_GAIN_EXP(master, victim)) {
 			int max_exp = MIN(max_exp_gain_pc(master), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
 													   (5 * MAX(1, GET_REMORT(master) - MAX_EXP_COEFFICIENTS_USED - 1)));
 
