@@ -5423,7 +5423,7 @@ void mag_assign_spells(void)
 	 * min level to use the skill for other classes is set up in class.c.
 	 */
 
-	skillo(SKILL_BACKSTAB, "заколоть", 140);
+	skillo(SKILL_BACKSTAB, "заколоть", 180);
 	skillo(SKILL_BASH, "сбить", 200);
 	skillo(SKILL_HIDE, "спрятаться", 100);
 	skillo(SKILL_KICK, "пнуть", 100);
