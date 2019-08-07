@@ -1090,24 +1090,46 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 {
-	if (ch != victim
-		&& OK_GAIN_EXP(ch, victim)
-		&& GET_EXP(victim) > 0
-		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-		&& !(MOB_FLAGGED(victim, MOB_ANGEL)|| MOB_FLAGGED(victim, MOB_GHOST))
-		&& !IS_NPC(ch)
-		&& !MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP))
+	// не даем получать батлу с себя по зеркалу?
+	if (ch == victim) { return; }
+	// не даем получать экспу с !эксп мобов
+	if (MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP)) { return; }
+	// если цель не нпс то тоже не даем экспы
+	if (!IS_NPC(victim)) { return; }
+	// если цель под чармом не даем экспу
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)) { return; }
+
+	// получение игроками экспы
+	if (!IS_NPC(ch) && OK_GAIN_EXP(ch, victim))
 	{
 		int max_exp = MIN(max_exp_gain_pc(ch), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP))
+		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
 			battle_exp *= Bonus::get_mult_bonus();
-//		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
-//						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
+		}
 		gain_exp(ch, battle_exp);
 		ch->dps_add_exp(battle_exp, true);
+	}
+
+
+	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		CHAR_DATA * master = ch->get_master();
+		// проверяем что есть мастер и он может получать экспу с данной цели
+		if (master && OK_GAIN_EXP(master, victim)) {
+			int max_exp = MIN(max_exp_gain_pc(master), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
+													   (5 * MAX(1, GET_REMORT(master) - MAX_EXP_COEFFICIENTS_USED - 1)));
+
+			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
+			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
+			if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
+				battle_exp *= Bonus::get_mult_bonus();
+			}
+			gain_exp(ch, battle_exp);
+			master->dps_add_exp(battle_exp, true);
+		}
 	}
 }
 
