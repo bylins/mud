@@ -5389,8 +5389,15 @@ void mag_assign_spells(void)
 //234	
 	spello(SPELL_DEXTERITY, "ловкость", "dexterity", 40, 30, 1,
 		 POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
-
-
+//235
+	spello(SPELL_GROUP_BLINK, "групповое мигание", "group blink",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_LIFE);
+//236
+	spello(SPELL_GROUP_CLOUDLY, "групповое затуманивание", "group cloudly",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_WATER);
+//237
+	spello(SPELL_GROUP_AWARNESS, "групповая внимательность", "group awarness",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_MIND);
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
