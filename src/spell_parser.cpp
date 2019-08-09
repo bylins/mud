@@ -5258,8 +5258,7 @@ void mag_assign_spells(void)
 	spello(SPELL_DATURA_POISON, "яд дурмана", "datura poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 
-	spello(SPELL_IDENTIFY, "идентификация", "identify",
-		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
+
 // 193
 	spello(SPELL_TIMER_REPAIR, "обновление таймера", " timer repair",
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
@@ -5402,6 +5401,10 @@ void mag_assign_spells(void)
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
 	 */
+
+//351
+	spello(SPELL_IDENTIFY, "идентификация", "identify",
+		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 
 	spello(SPELL_FIRE_BREATH, "огненное дыхание", "fire breath", 0, 0, 0,
 		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_FIRE);

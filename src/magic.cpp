@@ -5899,17 +5899,17 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 0},
 	{SPELL_GROUP_BLINK,
-	 "Сила света сделала вас полупрозрачным.\r\n",
+	 "Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n",
 	 nullptr,
 	 nullptr,
 	 0},	
 	{SPELL_GROUP_CLOUDLY,
-	 "Сила воды покрыла вас плотным туманом.\r\n",
+	 "Пелена тумана окутала вас и окружющих, скрыв очертания.\r\n",
 	 nullptr,
 	 nullptr,
 	 0},	
 	{SPELL_GROUP_AWARNESS,
-	 "Сила разума заставила вас быть более внимательным.\r\n",
+	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
 	 nullptr,
 	 nullptr,
 	 0},
@@ -6170,6 +6170,8 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 
 	if (mag_messages[i].spell == -1)
 	{
+		sprintf(buf, "Нет сообщения в mag_messages заклинание с номером %d игнорируетсяктся", spellnum);
+		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return 0;
 	}
 
