@@ -2910,7 +2910,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вас окружила ледяная аура.";
 		break;
 
-
+	case SPELL_GROUP_CLOUDLY:
 	case SPELL_CLOUDLY:
 		af[0].location = APPLY_AC;
 		af[0].modifier = -20;
@@ -2918,6 +2918,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		to_room = "Очертания $n1 расплылись и стали менее отчетливыми.";
 		to_vict = "Ваше тело стало прозрачным, как туман.";
+		spellnum = SPELL_CLOUDLY;
 		break;
 
 	case SPELL_GROUP_ARMOR:
@@ -3030,7 +3031,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_vict = "Вы покрылись серебристым инеем.";
 		to_room = "$n покрыл$u красивым серебристым инеем.";
 		break;
-
+	case SPELL_GROUP_AWARNESS:
 	case SPELL_AWARNESS:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_AWARNESS);
@@ -3040,6 +3041,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].bitvector = to_underlying(EAffectFlag::AFF_AWARNESS);
 		to_room = "$n начал$g внимательно осматриваться по сторонам.";
 		to_vict = "Вы стали более внимательны к окружающему.";
+		spellnum = SPELL_AWARNESS;
 		break;
 
 	case SPELL_SHIELD:
@@ -3775,12 +3777,13 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас.";
 		to_vict = "Волна ярко-синего света омыла вас с головы до ног.";
 		break;
-
+	case SPELL_GROUP_BLINK:
 	case SPELL_BLINK:
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_SPELL_BLINK);
 		to_room = "$n начал$g мигать.";
 		to_vict = "Вы начали мигать.";
+		spellnum = SPELL_BLINK;
 		break;
 
 	case SPELL_MAGICSHIELD:
@@ -5895,6 +5898,21 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 nullptr,
 	 0},
+	{SPELL_GROUP_BLINK,
+	 "Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n",
+	 nullptr,
+	 nullptr,
+	 0},	
+	{SPELL_GROUP_CLOUDLY,
+	 "Пелена тумана окутала вас и окружющих, скрыв очертания.\r\n",
+	 nullptr,
+	 nullptr,
+	 0},	
+	{SPELL_GROUP_AWARNESS,
+	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
+	 nullptr,
+	 nullptr,
+	 0},
 	{ -1, 0, 0, 0, 0}
 };
 
@@ -6152,6 +6170,8 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 
 	if (mag_messages[i].spell == -1)
 	{
+		sprintf(buf, "Нет сообщения в mag_messages заклинание с номером %d игнорируетсяктся", spellnum);
+		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return 0;
 	}
 

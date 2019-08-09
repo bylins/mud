@@ -3713,7 +3713,10 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_DEATH (set by program)
 	cast_phrase_t{ "Воодушевление", "!set by programm!" }, // воодушевление
-	cast_phrase_t{ "будет ловким", "... и человек разумный укрепляет ловкость свою."},
+	cast_phrase_t{ "будет ловким", "... и человек разумный укрепляет ловкость свою."}, //ловкость
+	cast_phrase_t{ "защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу." }, // груп мигание
+	cast_phrase_t{ "огрожу беззакония их туманом", "...да защитит и покроет рассветная пелена тела ваши." }, // груп затуманивание
+	cast_phrase_t{ "буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их." } // груп внимательность
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3960,6 +3963,9 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_ARROWS_DEATH] = "SPELL_ARROWS_DEATH";
 	ESpell_name_by_value[ESpell::SPELL_PALADINE_INSPIRATION] = "SPELL_PALADINE_INSPIRATION";
 	ESpell_name_by_value[ESpell::SPELL_DEXTERITY] = "SPELL_DEXTERITY";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_BLINK] = "SPELL_GROUP_BLINK";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_CLOUDLY] = "SPELL_GROUP_CLOUDLY";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_AWARNESS] = "SPELL_GROUP_AWARNESS";
 
 	for (const auto& i : ESpell_name_by_value)
 	{

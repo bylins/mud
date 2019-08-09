@@ -384,7 +384,10 @@ enum ESpell
 	SPELL_ARROWS_DEATH = 232, // стрелы охотника
 	SPELL_PALADINE_INSPIRATION = 233, //воодушевить при крите
 	SPELL_DEXTERITY = 234, //ловкость
-	SPELLS_COUNT = SPELL_DEXTERITY   // Counter corresponds to the last value because we count spells from 1.
+	SPELL_GROUP_BLINK = 235, // групповая мигалка
+	SPELL_GROUP_CLOUDLY = 236, // группповое затуманивание
+	SPELL_GROUP_AWARNESS = 237, // групповая внимательность
+	SPELLS_COUNT = SPELL_GROUP_AWARNESS    // Counter corresponds to the last value because we count spells from 1.
 };
 
 typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;

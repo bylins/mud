@@ -5258,8 +5258,7 @@ void mag_assign_spells(void)
 	spello(SPELL_DATURA_POISON, "яд дурмана", "datura poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 
-	spello(SPELL_IDENTIFY, "идентификация", "identify",
-		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
+
 // 193
 	spello(SPELL_TIMER_REPAIR, "обновление таймера", " timer repair",
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
@@ -5389,12 +5388,23 @@ void mag_assign_spells(void)
 //234	
 	spello(SPELL_DEXTERITY, "ловкость", "dexterity", 40, 30, 1,
 		 POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
-
-
+//235
+	spello(SPELL_GROUP_BLINK, "групповое мигание", "group blink",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_LIFE);
+//236
+	spello(SPELL_GROUP_CLOUDLY, "групповое затуманивание", "group cloudly",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_WATER);
+//237
+	spello(SPELL_GROUP_AWARNESS, "групповая внимательность", "group awarness",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_MIND);
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
 	 */
+
+//351
+	spello(SPELL_IDENTIFY, "идентификация", "identify",
+		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 
 	spello(SPELL_FIRE_BREATH, "огненное дыхание", "fire breath", 0, 0, 0,
 		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_FIRE);
