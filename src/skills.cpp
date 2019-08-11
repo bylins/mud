@@ -1533,7 +1533,11 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 	{
 		return;
 	}
-
+	if (victim->get_master())
+	{
+		if (!IS_NPC(victim->get_master()))
+			return;
+	}
 	if (victim && 
 		(MOB_FLAGGED(victim, MOB_MOUNTING)|| MOB_FLAGGED(victim, MOB_NOTRAIN)))
 	{
