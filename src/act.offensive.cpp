@@ -1202,7 +1202,11 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}
-
+	if (GET_EQ(ch, WEAR_BOTHS) && GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS)
+	{
+		send_to_char("Луком ударить по голове? Оригинально....\r\n", ch);
+		return;
+	}
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
