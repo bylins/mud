@@ -1288,7 +1288,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		set_hit(ch, vict);
 		//аффект "кома"
 		WAIT_STATE(vict, (2 + GET_REMORT(ch) / 5) * PULSE_VIOLENCE);
-		WAIT_STATE(ch, (3 * PULSE_VIOLENCE); // увеличим стандартный лаг до 3 раунда
+		WAIT_STATE(ch, (3 * PULSE_VIOLENCE)); // увеличим стандартный лаг до 3 раунда
 	}
 }
 
