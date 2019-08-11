@@ -1510,7 +1510,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 	if (object && ch)
 	{
 		restore_object(object, ch);
-		if (invalid_anti_class(ch, object) || invalid_unique(ch, object) || NamedStuff::check_named(ch, object, 0))
+		if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
 			may_carry = FALSE;
 		if (!may_carry)
 		{
@@ -1995,7 +1995,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		return;
 	}
 
-	if (invalid_anti_class(ch, obj))
+	if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj))
 	{
 		act("Вас обожгло при попытке использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
