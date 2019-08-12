@@ -4281,7 +4281,7 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 	{
 		r_hp = (1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].charms;
 	}
-
+	r_hp *= MAX( 1.0, 1.0 + (((float)ch->get_remort()-9.0)*1.2)/100.0) ;
 	return (int) r_hp;
 }
 
