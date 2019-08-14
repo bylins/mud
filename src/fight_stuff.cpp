@@ -1127,7 +1127,7 @@ void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 			if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
 				battle_exp *= Bonus::get_mult_bonus();
 			}
-			gain_exp(ch, battle_exp);
+			gain_exp(master, battle_exp);
 			master->dps_add_exp(battle_exp, true);
 		}
 	}
