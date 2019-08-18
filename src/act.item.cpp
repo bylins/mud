@@ -3663,7 +3663,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	const auto prob = number(1, skill_info[SKILL_MAKEFOOD].max_percent);
-	const auto percent = train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent, mob)
+	auto percent = train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent, mob)
 		+ number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
 
 	OBJ_DATA::shared_ptr tobj;
