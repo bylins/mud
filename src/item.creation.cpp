@@ -1644,7 +1644,8 @@ int MakeRecept::make(CHAR_DATA * ch)
 		ingr_lev = get_ingr_lev(ingrs[i]);
 		if (!IS_IMPL(ch) && (ingr_lev > (GET_LEVEL(ch) + 2 * GET_REMORT(ch))))
 		{
-			craftType->tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(3) + "\r\n и прекратили работу над " + tobj->get_PName(4) + ".\r\n";
+			craftType->tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(3)
+				+ "\r\n и прекратили работу над " + tobj->get_PName(4) + ".\r\n";
 			send_to_char(craftType->tmpstr.c_str(), ch);
 			return (FALSE);
 		};
@@ -2905,6 +2906,8 @@ CreateAmulet::CreateAmulet()
 
 void CreateAmulet::CreateObject(CHAR_DATA* ch)
 {
+		int skill_is = ch->get_skill(skillnum);
+		
 		for (int j = 0; j < ingr_cnt; j++)
 		{
 			ingr_pow = get_ingr_pow(ingrs[j]);
@@ -2952,6 +2955,8 @@ CreateJewel::CreateJewel()
 
 void CreateJewel::CreateObject(CHAR_DATA* ch)
 {
+		int skill_is = ch->get_skill(skillnum);
+		
 		for (int j = 0; j < ingr_cnt; j++)
 		{
 			ingr_pow = get_ingr_pow(ingrs[j]);
@@ -2999,6 +3004,8 @@ CreatePotion::CreatePotion()
 
 void CreatePotion::CreateObject(CHAR_DATA* ch)
 {
+		int skill_is = ch->get_skill(skillnum);
+		
 		for (int j = 0; j < ingr_cnt; j++)
 		{
 			ingr_pow = get_ingr_pow(ingrs[j]);
@@ -3046,6 +3053,8 @@ CreateArmor::CreateArmor()
 
 void CreateArmor::CreateObject(CHAR_DATA* ch)
 {
+		int skill_is = ch->get_skill(skillnum);
+		
 		for (int j = 0; j < ingr_cnt; j++)
 		{
 			ingr_pow = get_ingr_pow(ingrs[j]);
@@ -3093,6 +3102,8 @@ CreateWeapon::CreateWeapon()
 
 void CreateWeapon::CreateObject(CHAR_DATA* ch)
 {
+		int skill_is = ch->get_skill(skillnum);
+		
 		for (int j = 0; j < ingr_cnt; j++)
 		{
 			ingr_pow = get_ingr_pow(ingrs[j]);
@@ -3140,7 +3151,10 @@ CreateBow::CreateBow()
 
 void CreateBow::CreateObject(CHAR_DATA* ch)
 {
+		int skill_is = ch->get_skill(skillnum);
+		
 		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+
 		for (int j = 0; j < ingr_cnt; j++)
 		{
 			ingr_pow = get_ingr_pow(ingrs[j]);
