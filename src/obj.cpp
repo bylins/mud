@@ -56,8 +56,7 @@ OBJ_DATA::OBJ_DATA(const obj_vnum vnum):
 	m_script(new SCRIPT_DATA()),
 	m_serial_number(0),
 	m_purged(false),
-	m_activator(false, 0),
-	CreateObjectType(nullptr)
+	m_activator(false, 0)
 {
 	this->zero_init();
 	caching::obj_cache.add(this);
@@ -85,8 +84,7 @@ OBJ_DATA::OBJ_DATA(const CObjectPrototype& other):
 	m_script(new SCRIPT_DATA()),
 	m_serial_number(0),
 	m_purged(false),
-	m_activator(false, 0),
-	CreateObjectType(nullptr)
+	m_activator(false, 0)
 {
 	caching::obj_cache.add(this);
 }
@@ -126,8 +124,6 @@ void OBJ_DATA::zero_init()
 	m_activator.first = false;
 	m_activator.second = 0;
 	m_custom_label = nullptr;
-	CreateObjectType = nullptr;
-
 }
 
 void OBJ_DATA::detach_ex_description()
@@ -388,7 +384,6 @@ void CObjectPrototype::zero_init()
 		m_pnames[i].clear();
 	}
 	m_ilevel = 0;
-
 }
 
 void CObjectPrototype::set_vnum(const obj_vnum vnum)
@@ -775,27 +770,6 @@ void OBJ_DATA::attach_triggers(const triggers_list_t& trigs)
 			}
 		}
 	}
-}
-
-void OBJ_DATA::set_create_type(AbstractCreateObjectType* CreateType)
-{
-	if (CreateObjectType!=nullptr)
-	{
-		//попытка повторно модернизировать объект
-		return;
-	}
-	CreateObjectType = CreateType;
-	
-}
-
-void OBJ_DATA::set_craft(CHAR_DATA* ch)
-{
-	if (CreateObjectType==nullptr)
-	{
-		return;
-	}
-	send_to_char("Вы шаге 8а.\r\n", ch);
-	CreateObjectType->CreateObject(ch);
 }
 
 float count_mort_requred(const CObjectPrototype* obj);

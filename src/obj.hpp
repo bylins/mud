@@ -7,7 +7,6 @@
 
 #include "id.hpp"
 #include "obj_enchant.hpp"
-#include "item.creation.hpp"
 #include "spells.h"
 #include "skills.h"
 #include "structs.h"
@@ -230,7 +229,7 @@ public:
 	using triggers_list_t = std::list<obj_vnum>;
 	using triggers_list_ptr = std::shared_ptr<triggers_list_t>;
 	using affected_t = std::array<obj_affected_type, MAX_OBJ_AFFECT>;
-	
+
 	CObjectPrototype(const obj_vnum vnum) : m_vnum(vnum),
 		m_type(DEFAULT_TYPE),
 		m_weight(DEFAULT_WEIGHT),
@@ -856,10 +855,6 @@ public:
 
 	void attach_triggers(const triggers_list_t& trigs);
 
-	// Полель крафт           //
-	void set_create_type(AbstractCreateObjectType *CreateType);
-	void set_craft(CHAR_DATA* ch);
-	
 private:
 	void zero_init();
 
@@ -888,7 +883,6 @@ private:
 
 	obj::Enchants m_enchants;
 
-	AbstractCreateObjectType *CreateObjectType;	// Полель крафт           //
 	int m_craft_timer;
 
 	TimedSpell m_timed_spell;    ///< временный обкаст

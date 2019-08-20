@@ -3698,29 +3698,9 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				entrails.push_back(create_skin(mob, ch));
 			}
 		}
-		percent = number(GET_SKILL(ch, SKILL_MAKEFOOD),((skill_info[SKILL_MAKEFOOD].max_percent - MIN(200,GET_SKILL(ch, SKILL_MAKEFOOD)))*2+400));
-		//Полель + 
-//		 грузим ингридиенты для крафта луков. не глобал дроп. а тупо в коде
-//		диапазон 200-400 есть всегда и самый оптимальный 
 
-		if ((GET_RACE(mob) == NPC_RACE_ANIMAL)&&((percent < 250) && (200 < percent))) // жгут и жилы
-		{
-			entrails.push_back(create_material(mob));
-		}
-		if ((GET_RACE(mob) == NPC_RACE_PLANT) && ((percent < 300) && (250 < percent))) // древко для стрел
-		{
-			entrails.push_back(create_material(mob));
-		}
-		if ((GET_RACE(mob) == NPC_RACE_BIRD) && ((percent < 350) && (300 < percent))) // перья для стрел
-		{
-			entrails.push_back(create_material(mob));
-		}
-		if ((GET_RACE(mob) == NPC_RACE_FISH) && ((percent<400) && (350 < percent))) // наконечник для стрел
-		{
-			entrails.push_back(create_material(mob));
-		}
-		
 		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));  // ингры со всех
+
 		for (const auto& it : entrails)
 		{
 			if (it)
