@@ -113,6 +113,11 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
 		return 2;
 	}
 
+	if (!put_otrigger(cont, ch));
+	{
+//		return 2;
+	}
+
 	// если кладем в клановый сундук
 	if (Clan::is_clan_chest(cont))
 	{
@@ -189,6 +194,8 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
 				}
 			}
 		}
+
+
 		obj_to_obj(obj.get(), cont);
 
 		act("$n положил$g $o3 в $O3.", TRUE, ch, obj.get(), cont, TO_ROOM | TO_ARENA_LISTEN);
@@ -738,6 +745,12 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	{
 		if(!NamedStuff::wear_msg(ch, obj))
 			act("$p: Эта вещь не предназначена для вас!", FALSE, ch, obj, 0, TO_CHAR);
+		return (0);
+	}
+	else if (invalid_unique(ch, obj))
+	{
+		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
+		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return (0);
 	}
 	return (1);
