@@ -340,7 +340,7 @@ int receive_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, OBJ_DATA * obj);
 void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount);
 int wear_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int where);
 int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
-int put_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
+int put_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, OBJ_DATA *cont);
 int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_otrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument);

@@ -1135,22 +1135,22 @@ int wear_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int where)
 	return 1;
 }
 
-int put_otrigger(OBJ_DATA * obj, CHAR_DATA * actor)
+int put_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, OBJ_DATA *cont)
 {
 	char buf[MAX_INPUT_LENGTH];
 
-	if (!SCRIPT_CHECK(obj, OTRIG_PUT) || GET_INVIS_LEV(actor))
+	if (!SCRIPT_CHECK(cont, OTRIG_PUT) || GET_INVIS_LEV(actor))
 	{
-//		return 1;
+		return 1;
 	}
 
-	for (auto t : obj->get_script()->trig_list)
+	for (auto t :cont->get_script()->trig_list)
 	{
-		if (TRIGGER_CHECK(t, OTRIG_WEAR))
+		if (TRIGGER_CHECK(t, OTRIG_PUT))
 		{
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
 			ADD_UID_OBJ_VAR(buf, t, obj, "object", 0);
-			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+			return script_driver(cont, t, OBJ_TRIGGER, TRIG_NEW);
 		}
 	}
 
@@ -1189,8 +1189,7 @@ int drop_otrigger(OBJ_DATA * obj, CHAR_DATA * actor)
 	}
 
 			sprintf(buf, "1actor %s object %s", GET_NAME(actor), GET_OBJ_PNAME(obj,0).c_str());
-			mudlog(buf,
-	       NRM, LVL_GRGOD, SYSLOG, TRUE);
+			mudlog(buf,  NRM, LVL_GRGOD, SYSLOG, TRUE);
 	for (auto t : obj->get_script()->trig_list)
 	{
 		if (TRIGGER_CHECK(t, OTRIG_DROP)
