@@ -1188,15 +1188,12 @@ int drop_otrigger(OBJ_DATA * obj, CHAR_DATA * actor)
 		return 1;
 	}
 
-			sprintf(buf, "1actor %s object %s", GET_NAME(actor), GET_OBJ_PNAME(obj,0).c_str());
-			mudlog(buf,  NRM, LVL_GRGOD, SYSLOG, TRUE);
 	for (auto t : obj->get_script()->trig_list)
 	{
 		if (TRIGGER_CHECK(t, OTRIG_DROP)
 			&& (number(1, 100) <= GET_TRIG_NARG(t)))
 		{
 			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			ADD_UID_OBJ_VAR(buf, t, obj, "object", 0);
 			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
 		}
 	}
