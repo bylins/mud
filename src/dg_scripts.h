@@ -73,6 +73,7 @@ extern const char *attach_name[];
 #define OTRIG_PICK             (1 << 18)
 #define OTRIG_GREET_ALL_PC     (1 << 19)	// любой персонаж вошел в комнату //
 #define OTRIG_TIMECHANGE       (1 << 20) // смена времени
+#define OTRIG_PUT              (1 << 21) // положили предмет в контейнер
 
 // wld trigger types //
 #define WTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //
@@ -339,6 +340,7 @@ int receive_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, OBJ_DATA * obj);
 void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount);
 int wear_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int where);
 int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
+int put_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, OBJ_DATA *cont);
 int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_otrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
