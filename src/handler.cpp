@@ -4281,9 +4281,10 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 	{
 		r_hp = (1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].charms;
 	}
-	r_hp *= MAX( 1.0, 1.0 + (((float)ch->get_remort()-9.0)*1.2)/100.0) ;
-	send_to_char(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
+	r_hp *= MAX( 1.0, 1.0 + (((float)ch->get_remort()-9.0)*1.2)/100.0);
 
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+		send_to_char(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
 
@@ -4321,8 +4322,9 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
 			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate);
 	}
-	send_to_char(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
 
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+		send_to_char(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
 
