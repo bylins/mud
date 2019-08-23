@@ -2321,11 +2321,11 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& GET_ABSORBE(victim) > 0)
 	{
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
-		int chance = 10;
+		int chance = 10 + GET_REMORT(victim) / 3;
 		if (can_use_feat(victim, IMPREGNABLE_FEAT)
 			&& PRF_FLAGS(victim).get(PRF_AWAKE))
 		{
-			chance = 15;
+			chance += 5;
 		}
 		// физ урон - прямое вычитание из дамага
 		if (number(1, 100) <= chance)
