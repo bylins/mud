@@ -5909,7 +5909,7 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 0},	
 	{SPELL_GROUP_AWARNESS,
-	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
+	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников6.\r\n",
 	 nullptr,
 	 nullptr,
 	 0},
@@ -6168,7 +6168,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 		}
 	}
 
-	if (mag_messages[i].spell == -1)
+	if (mag_messages[i].spell == -1 && !IS_SET(SpINFO.routines, MAG_WARCRY))
 	{
 		sprintf(buf, "Нет сообщения в mag_messages заклинание с номером %d игнорируетсяктся", spellnum);
 		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
