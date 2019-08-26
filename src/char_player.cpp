@@ -33,7 +33,6 @@
 #include "accounts.hpp"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
-#include "mobmax.cpp"
 
 #include <boost/lexical_cast.hpp>
 

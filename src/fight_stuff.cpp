@@ -29,7 +29,6 @@
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "zone.table.hpp"
-#include "char_player.cpp"
 #include "char_player.hpp"
 
 #include <algorithm>
