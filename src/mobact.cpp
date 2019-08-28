@@ -773,6 +773,16 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 	// ****************  Aggressive Mobs
 	if (extra_aggressive(ch, NULL))
 	{
+		const auto& room = world[ch->in_room];
+		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it)
+		{
+			if (affect_it->get()->type == SPELL_RUNE_LABEL && (affect_it != room->affected.end()))
+			{
+				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				affect_room_remove(world[ch->in_room], affect_it);
+				break;
+			}
+		}
 		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
 		return;
 	}
