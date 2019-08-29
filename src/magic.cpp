@@ -5889,7 +5889,7 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 0},
 	{SPELL_EARTH_AURA,
-	 "Земля одарила вас своей зашитой.\r\n",
+	 "Земля одарила вас своей защитой.\r\n",
 	 nullptr,
 	 nullptr,
 	 0},
