@@ -1075,8 +1075,8 @@ cpp_extern const struct command_info cmd_info[] =
 
 	{ "attach", POS_DEAD, do_attach, LVL_IMPL, 0, 0 },
 	{ "detach", POS_DEAD, do_detach, LVL_IMPL, 0, 0 },
-	{ "tlist", POS_DEAD, do_tlist, LVL_GRGOD, 0, 0 },
-	{ "tstat", POS_DEAD, do_tstat, LVL_GRGOD, 0, 0 },
+	{ "tlist", POS_DEAD, do_tlist, 0, 0, 0 },
+	{ "tstat", POS_DEAD, do_tstat, 0, 0, 0 },
 	{ "vdelete", POS_DEAD, do_vdelete, LVL_IMPL, 0, 0 },
 	{ "debug_queues", POS_DEAD, do_debug_queues, LVL_IMPL, 0, 0 },
 
