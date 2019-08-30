@@ -233,7 +233,6 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		AFF_FLAGS(ch).unset(bitv);
 		mod = -mod;
 	}
-
 	switch (loc)
 	{
 	case APPLY_NONE:
