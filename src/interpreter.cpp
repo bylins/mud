@@ -2486,12 +2486,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	}
 
 	set_race_feats(d->character.get());
-	// бонусы от морта
-//	if (can_use_feat(d->character.get(), MAGIC_RESISTANCE_FEAT) && (d->character.get()->get_remort() >= 20))
-		d->character->add_abils.mresist = 20; //GET_REMORT(d->character) - 19;
-		send_to_char(d->character.get(), "добавил мрезист\r\n");
-//	if (can_use_feat(d->character.get(), PHYSICAL_RESISTANCE_FEAT) && (d->character.get()->get_remort() >= 20))
-		d->character.get()->add_abils.presist = 20; //GET_REMORT(d->character.get()) - 19;
 
 	//нефиг левыми скиллами размахивать если не имм
 	if (!IS_IMMORTAL(d->character))

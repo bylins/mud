@@ -522,7 +522,12 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 	}
-	
+
+	// бонусы от морта
+	if (GET_REMORT(ch)>=20) {
+		ch->add_abils.mresist = GET_REMORT(ch) - 19;
+		ch->add_abils.presist = GET_REMORT(ch) - 19;
+	}
 
 	// Restore values for NPC - added by Adept
 	if (IS_NPC(ch))
