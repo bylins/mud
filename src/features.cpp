@@ -604,7 +604,6 @@ void assign_feats(void)
 //143
     feato(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, TRUE, feat_app);
 }
-
 // Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям.
 bool can_use_feat(const CHAR_DATA *ch, int feat)
 {

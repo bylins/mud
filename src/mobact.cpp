@@ -632,6 +632,11 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 
 	if (best)
 	{
+		if (best->player_specials->saved.olc_zone == GET_MOB_VNUM(ch) / 100) // если у игрока стоит олц на зону, в ней его не агрят
+		{
+			send_to_char(best, "&GАгромоб, атака остановлена.\r\n");
+			return(FALSE);
+		}
 	/*
 				   sprintf(buf,"Attacker-%s,B-%s,IS-NPC-%s,IS-CLONE-%s",
 				   GET_NAME(ch),

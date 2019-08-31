@@ -50,6 +50,7 @@
 #include "backtrace.hpp"
 #include "coredump.hpp"
 #include "olc.h"
+#include "privilege.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -6124,7 +6125,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	return ret_val;
 }
 
-void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/)
 {
 	int first, last, nr, found = 0;
 	char pagebuf[65536];
@@ -6132,6 +6133,14 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	strcpy(pagebuf, "");
 
 	two_arguments(argument, buf, buf2);
+
+	first = atoi(buf);
+
+	if (!(Privilege::can_do_priv(ch,std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
 
 	if (!*buf)
 	{
@@ -6244,12 +6253,20 @@ int real_trigger(int vnum)
 	return (rnum);
 }
 
-void do_tstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+void do_tstat(CHAR_DATA *ch, char *argument, int  cmd, int/* subcmd*/)
 {
 	int vnum, rnum;
 	char str[MAX_INPUT_LENGTH];
 
 	half_chop(argument, str, argument);
+
+	auto first = atoi(str);
+	if (!(Privilege::can_do_priv(ch,std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
+
 	if (*str)
 	{
 		vnum = atoi(str);

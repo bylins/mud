@@ -3784,11 +3784,12 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	sprintf(buf + strlen(buf),
 		" %sИнициатива:  %4d %s|"
-		" %s  %+4d%% (%+4d) %s||\r\n"
-		" -------------------------------------------------------------------------------------\r\n",
+		" %s  %+4d%% (%+4d) %s||\r\n",
 		CCGRN(ch, C_NRM), calc_initiative(ch, false), CCCYN(ch, C_NRM),
 		CCRED(ch, C_NRM), GET_MOVEREG(ch), move_gain(ch), CCCYN(ch, C_NRM));
-
+	sprintf(buf + strlen(buf), "&c ||&n                    &c|                       &c| &gМаг. резист: %4d&c |&n                &c||\r\n", GET_MR(ch));
+	sprintf(buf + strlen(buf), "&c ||&n                    &c|                       &c| &gФиз. резист: %4d&c |&n                &c||&n\r\n", GET_PR(ch));
+	sprintf(buf + strlen(buf), " -------------------------------------------------------------------------------------\r\n");
 	if (has_horse(ch, FALSE))
 	{
 		if (on_horse(ch))
