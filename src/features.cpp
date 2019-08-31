@@ -603,12 +603,7 @@ void assign_feats(void)
     feato(DEFT_SHOOTER_FEAT, "ловкий стрелок", NORMAL_FTYPE, TRUE, feat_app);
 //143
     feato(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, TRUE, feat_app);
-//144
-    feato(MAGIC_RESISTANCE_FEAT, "магическое сопротивление", NORMAL_FTYPE, TRUE, feat_app);
-//145
-    feato(PHYSICAL_RESISTANCE_FEAT, "физическое сопротивление", NORMAL_FTYPE, TRUE, feat_app);
 }
-
 // Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям.
 bool can_use_feat(const CHAR_DATA *ch, int feat)
 {

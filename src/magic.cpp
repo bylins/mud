@@ -2491,11 +2491,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && number(1, 999) <= GET_MR(victim) * 10)
 		dam = 0;
 
-	if (can_use_feat(victim, MAGIC_RESISTANCE_FEAT) && (victim->get_remort() >= 20))
-	{
-		if (number(1, 100) <= victim->get_remort() - 19)
-			dam = 0;
-	}
 	for (; count > 0 && rand >= 0; count--)
 	{
 		if (ch->in_room != NOWHERE
