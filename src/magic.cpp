@@ -2488,7 +2488,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
 
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && number(1, 999) <= GET_MR(victim) * 10)
+	if (number(1, 100) <= GET_MR(victim))
 		dam = 0;
 
 	for (; count > 0 && rand >= 0; count--)
