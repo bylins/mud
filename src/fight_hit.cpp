@@ -4125,7 +4125,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			}
 		}
 	}
-
 	// обработка по факту попадания
 	hit_params.dam += get_real_dr(ch);
 	if (can_use_feat(ch, SHOT_FINESSE_FEAT))
