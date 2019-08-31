@@ -4105,7 +4105,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			{
 				blink = true;
 			}
-			if (can_use_feat(ch, THIEVES_STRIKE_FEAT) && (number(1, 100) <= (15 + GET_REMORT(ch) * 2 / 3)))
+			if (can_use_feat(ch, THIEVES_STRIKE_FEAT) && (number(1, 100) <= (10 + GET_REMORT(ch) * 2 / 3)))
 			{
 				blink = true;
 			}
