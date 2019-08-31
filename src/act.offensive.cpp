@@ -1258,7 +1258,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 	struct timed_type timed;
 	timed.skill = SKILL_STUN;
-	timed.time = 6 - (GET_SKILL(ch, SKILL_STUN) - 150) / 10; // 6..1 кулдаун
+	timed.time = 7 - (GET_SKILL(ch, SKILL_STUN) - 150) / 10; // 7..2 кулдаун
 	timed_to_char(ch, &timed);
 	//weap_weight = GET_EQ(ch, WEAR_BOTHS)?  GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) : GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_WIELD));
 	//float num = MIN(95, (pow(GET_SKILL(ch, SKILL_STUN), 2) + pow(weap_weight, 2) + pow(GET_REAL_STR(ch), 2)) /
@@ -1288,7 +1288,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 		set_hit(ch, vict);
 		//аффект "кома"
 		WAIT_STATE(vict, (2 + GET_REMORT(ch) / 5) * PULSE_VIOLENCE);
-		WAIT_STATE(ch, (3 * PULSE_VIOLENCE)); // увеличим стандартный лаг до 3 раунда
+		WAIT_STATE(ch, (3 * PULSE_VIOLENCE)); 
 	}
 }
 
