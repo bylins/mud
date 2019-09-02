@@ -416,6 +416,11 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
 	}
 
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BOTHS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
+	}
+
 	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WIELD))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WIELD);
@@ -426,10 +431,7 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_HOLD);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BOTHS))
-	{
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
-	}
+
 
 	if (!type_item)
 	{
@@ -2531,9 +2533,9 @@ void boot_db(void)
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), EWearFlag::ITEM_WEAR_WAIST);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1), EWearFlag::ITEM_WEAR_QUIVER);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), EWearFlag::ITEM_WEAR_WRIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), EWearFlag::ITEM_WEAR_BOTHS);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), EWearFlag::ITEM_WEAR_WIELD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), EWearFlag::ITEM_WEAR_HOLD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), EWearFlag::ITEM_WEAR_BOTHS);
 
 	boot_profiler.next_step("Loading birth places definitions");
 	log("Loading birth places definitions.");
