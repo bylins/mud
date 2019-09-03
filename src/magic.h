@@ -26,10 +26,11 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 #define MOB_BONEDOG       3003
 #define MOB_BONEDRAGON    3004
 #define MOB_BONESPIRIT    3005
-#define MOB_SWAMPLIGHT    3006
-#define MOB_BANSHEE       3007
-#define MOB_LICH          3008
-#define LAST_NECR_MOB	  3008
+#define MOB_NECR_DAMAGER 3006
+#define MOB_NECR_TANK 3007
+#define MOB_NECR_BRIZER	3008
+#define MOB_NECR_CASTER 3009
+#define LAST_NECR_MOB	  3010
 #define MOB_KEEPER        104
 #define MOB_FIREKEEPER    105
 #define MOB_MENTAL_SHADOW 3020
