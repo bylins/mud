@@ -1293,6 +1293,20 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
 }
 
 // ******************* RESCUE PROCEDURES
+void fighting_rescue(CHAR_DATA * ch,CHAR_DATA * vict, CHAR_DATA * tmp_ch)
+{
+	if (vict->get_fighting() == tmp_ch)
+		stop_fighting(vict, FALSE);
+	if (ch->get_fighting())
+		ch->set_fighting(tmp_ch);
+	else
+		set_fighting(ch, tmp_ch);
+	if (tmp_ch->get_fighting())
+		tmp_ch->set_fighting(ch);
+	else
+		set_fighting(tmp_ch, ch);
+}
+
 void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 {
 	int percent, prob;
@@ -1324,24 +1338,27 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 		return;
 	}
 
+	if (!pk_agro_action(ch, tmp_ch))
+		return;
+
 	act("Хвала Богам, вы героически спасли $N3!", FALSE, ch, 0, vict, TO_CHAR);
 	act("Вы были спасены $N4. Вы чувствуете себя Иудой!", FALSE, vict, 0, ch, TO_CHAR);
 	act("$n героически спас$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 
-	if (vict->get_fighting() == tmp_ch)
-		stop_fighting(vict, FALSE);
-
-	if (!pk_agro_action(ch, tmp_ch))
-		return;
-
-	if (ch->get_fighting())
-		ch->set_fighting(tmp_ch);
+	if (can_use_feat(ch, LIVE_SHIELD_FEAT) && ch->get_skill(SKILL_RESCUE) >= 125 )
+	{
+		for (const auto i : world[ch->in_room]->people)
+		{
+			if (i->get_fighting() == vict)
+			{
+				fighting_rescue(ch, vict, i);
+			}
+		}
+	}
 	else
-		set_fighting(ch, tmp_ch);
-	if (tmp_ch->get_fighting())
-		tmp_ch->set_fighting(ch);
-	else
-		set_fighting(tmp_ch, ch);
+	{
+		fighting_rescue(ch, vict, tmp_ch);
+	}
 	set_wait(ch, 1, FALSE);
 	set_wait(vict, 2, FALSE);
 }

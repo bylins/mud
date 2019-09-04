@@ -563,6 +563,9 @@ void assign_feats(void)
 //131
 	// наем наносит серию сильных ударов, но быстро устает
 	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
+//135
+	feato(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
+
 //Тут промежуток, потому что кто-то зарезервировал номера "под татей"
 //138
 	feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
