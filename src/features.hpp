@@ -152,7 +152,7 @@ using std::bitset;
 #define ELDER_PRIEST_FEAT		129 // Старший жрец
 #define HIGH_LICH_FEAT			130 // Верховный лич
 #define BLACK_RITUAL_FEAT		131 // Темный ритуал
-
+#define LIVE_SHIELD_FEAT		135 // мультиреск
 /*
 //новвоведения для татя
 
