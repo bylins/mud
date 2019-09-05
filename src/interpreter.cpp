@@ -414,6 +414,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 void do_add_wizard(CHAR_DATA *ch, char*, int, int);
 void do_touch_stigma(CHAR_DATA *ch, char*, int, int);
 void do_show_mobmax(CHAR_DATA *ch, char*, int, int);
+void do_flip_activated_feature(CHAR_DATA*, char*, int, int);
 
 /* This is the Master Command List(tm).
 
@@ -505,6 +506,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"вложить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"вернуть", POS_STANDING, do_not_here, 0, 0, -1},
 	{"вернуться", POS_DEAD, do_return, 0, 0, -1},
+	{"включить", POS_STANDING, do_flip_activated_feature, 0, SCMD_ACTIVATE_FEATURE, -1},
 	{"войти", POS_STANDING, do_enter, 0, 0, -2},
 	{"война", POS_RESTING, DoShowWars, 0, 0, 0},
 	{"вооружиться", POS_RESTING, do_wield, 0, 0, 200},
@@ -517,6 +519,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"встать", POS_RESTING, do_stand, 0, 0, 500},
 	{"вспомнить", POS_DEAD, do_remember_char, 0, 0, 0},
 	{"выбросить", POS_RESTING, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
+	{"выключить", POS_STANDING, do_flip_activated_feature, 0, SCMD_DEACTIVATE_FEATURE, -1},
 	{"выследить", POS_STANDING, do_track, 0, 0, 500},
 	{"вылить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
 	{"выходы", POS_RESTING, do_exits, 0, 0, 0},
@@ -981,7 +984,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"settle", POS_STANDING, do_not_here, 1, 0, -1},
 	{"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"show", POS_DEAD, do_show, LVL_IMMORT, 0, 0},
-	
+
 	{"shutdown", POS_DEAD, do_shutdown, LVL_IMPL, SCMD_SHUTDOWN, 0},
 	{"sip", POS_RESTING, do_drink, 0, SCMD_SIP, 500},
 	{"sit", POS_RESTING, do_sit, 0, 0, -1},
@@ -2222,7 +2225,7 @@ void add_logon_record(DESCRIPTOR_DATA * d)
 	if (logon == LOGON_LIST(d->character).end())
 	{
 		const logon_data cur_log = { str_dup(d->host), 1, time(0), false };
-		LOGON_LIST(d->character).push_back(cur_log);			
+		LOGON_LIST(d->character).push_back(cur_log);
 	}
 	else
 	{
@@ -2465,8 +2468,11 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	{
 		PRF_FLAGS(d->character).unset(PRF_GREATAIMINGATTACK);
 	}
-
-	// Gorrah: сбрасываем флаг от скилла, если он каким-то чудом засэйвился
+	if (PRF_FLAGS(d->character).get(PRF_SKIRMISHER)
+		&& !can_use_feat(d->character.get(), SKIRMISHER_FEAT))
+	{
+		PRF_FLAGS(d->character).unset(PRF_SKIRMISHER);
+	}
 	if (PRF_FLAGS(d->character).get(PRF_IRON_WIND))
 	{
 		PRF_FLAGS(d->character).unset(PRF_IRON_WIND);
@@ -2740,7 +2746,7 @@ void DoAfterPassword(DESCRIPTOR_DATA * d)
 	if (!ValidateStats(d))
 	{
 		return;
-	}	
+	}
 
 	SEND_TO_Q("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
 	STATE(d) = CON_RMOTD;
@@ -2999,7 +3005,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			}
 			sprintf(buf, "Online: %d\r\n", online_players);
 		}
-	
+
 		SEND_TO_Q(buf, d);
 		ShowEncodingPrompt(d, false);
 		STATE(d) = CON_GET_KEYTABLE;
@@ -3813,7 +3819,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			SEND_TO_Q("\r\nНекорректный E-mail!" "\r\nВаш E-mail :  ", d);
 			return;
 		}
-		#ifdef TEST_BUILD			
+		#ifdef TEST_BUILD
 		strncpy(GET_EMAIL(d->character), arg, 127);
 		*(GET_EMAIL(d->character) + 127) = '\0';
 		lower_convert(GET_EMAIL(d->character));
@@ -3938,7 +3944,7 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 
 			SEND_TO_Q("Введите описание вашего героя, которое будет выводиться по команде <осмотреть>.\r\n", d);
 			SEND_TO_Q("(/s сохранить /h помощь)\r\n", d);
-			
+
 			d->writer.reset(new DelegatedStdStringWriter(d->character->player_data.description));
 			d->max_str = EXDSCR_LENGTH;
 			STATE(d) = CON_EXDESC;

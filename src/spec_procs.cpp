@@ -337,6 +337,12 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				else
 					sprintf(buf, "[-!-] ");
 				break;
+			case SKIRMISHER_FEAT:
+				if (PRF_FLAGGED(ch, PRF_SKIRMISHER))
+					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
+				else
+					sprintf(buf, "[-!-] ");
+				break;
 			default:
 				sprintf(buf, "      ");
 			}
@@ -399,7 +405,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 
 	for (int k = 0; k < max_slot; k++)
 		delete[] names[k];
-	
+
 	delete[] names;
 }
 
@@ -417,7 +423,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с скилл бонусом
 			{
-				bonus = aff->modifier; // сколько крут стал 
+				bonus = aff->modifier; // сколько крут стал
 			}
 		}
 	}
@@ -467,7 +473,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			default:
 				sprintf(buf, "      ");
 			}
-			
+
 			sprintf(buf + strlen(buf), "%-23s %s\r\n",
 				skill_info[sortpos].name,
 				how_good(ch, ch->get_skill(sortpos) + bonus));
@@ -550,7 +556,7 @@ const char *spells_color(int spellnum )
 	        default:
 	        	return "&n";
 			break;
-	        }	
+	        }
 }
 
 
@@ -639,7 +645,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 
 
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-				"%s|<%c%c%c%c%c%c%c%c>%s %-30s %-7s&n|", 
+				"%s|<%c%c%c%c%c%c%c%c>%s %-30s %-7s&n|",
 
 				slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
 				IS_SET(GET_SPELL_TYPE(ch, i),

@@ -15,7 +15,6 @@
 #include "comm.h"
 #include "db.h"
 #include "interpreter.h"
-#include "skills.h"
 #include "spells.h"
 #include "char.hpp"
 #include "player_races.hpp"
@@ -85,7 +84,9 @@ int find_feat_num(const char *name, bool alias)
 }
 
 // Инициализация способности заданными значениями
-void feato(int feat, const char *name, int type, bool can_up_slot, CFeatArray app)
+void feato(int feat, const char *name, int type, bool can_up_slot, CFeatArray app,
+		 unsigned char difficulty = MIN_DIFFICULTY, ESkill base_skill = SKILL_THAC0,
+		 EApplyLocation base_parameter = APPLY_INT, unsigned char opposite_saving = SAVING_STABILITY)
 {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
@@ -102,6 +103,10 @@ void feato(int feat, const char *name, int type, bool can_up_slot, CFeatArray ap
 		boost::trim_all(alias);
 		feat_info[feat].alias = alias;
 	}
+	feat_info[feat].difficulty = difficulty;
+	feat_info[feat].base_skill = base_skill;
+	feat_info[feat].base_parameter = base_parameter;
+	feat_info[feat].opposite_saving = opposite_saving;
 	feat_info[feat].type = type;
 	feat_info[feat].up_slot = can_up_slot;
 	for (i = 0; i < MAX_FEAT_AFFECT; i++)
@@ -126,6 +131,7 @@ void unused_feat(int feat)
 		}
 
 	feat_info[feat].name = unused_spellname;
+	feat_info[feat].difficulty = MIN_DIFFICULTY;
 	feat_info[feat].type = UNUSED_FTYPE;
 	feat_info[feat].up_slot = FALSE;
 
@@ -542,28 +548,25 @@ void assign_feats(void)
 	// наем наносит серию сильных ударов, но быстро устает
 	feato(SNEAKRAGE_FEAT, "ярость змеи", NORMAL_FTYPE, TRUE, feat_app);
 // для чернокнижника способности по веткам
-//125
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
 //126
-	// наем наносит серию сильных ударов, но быстро устает
 	feato(ELDER_TASKMASTER_FEAT, "старший надсмотрщик", NORMAL_FTYPE, TRUE, feat_app);
 //127
-	// наем наносит серию сильных ударов, но быстро устает
 	feato(LORD_UNDEAD_FEAT, "повелитель нежити", NORMAL_FTYPE, TRUE, feat_app);
 //128
-	// наем наносит серию сильных ударов, но быстро устает
 	feato(DARK_WIZARD_FEAT, "темный маг", NORMAL_FTYPE, TRUE, feat_app);
 //129
-	// наем наносит серию сильных ударов, но быстро устает
 	feato(ELDER_PRIEST_FEAT, "старший жрец", NORMAL_FTYPE, TRUE, feat_app);
 //130
-	// наем наносит серию сильных ударов, но быстро устает
 	feato(HIGH_LICH_FEAT, "верховный лич", NORMAL_FTYPE, TRUE, feat_app);
 //131
-	// наем наносит серию сильных ударов, но быстро устает
 	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
-//Тут промежуток, потому что кто-то зарезервировал номера "под татей"
+//132
+	feato(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
+//133
+	feato(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 40, SKILL_RESCUE, APPLY_DEX, SAVING_REFLEX);
+//134
+	feato(TACTICIAN_FEAT, "построение", ACTIVATED_FTYPE, TRUE, feat_app, 40, SKILL_LEADERSHIP, APPLY_CHA, SAVING_REFLEX);
+// === Проскок номеров
 //138
 	feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
 //139
@@ -820,7 +823,14 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 			return FALSE;
 		}
 		break;
+	case SKIRMISHER_FEAT:
+		if (ch->get_skill(SKILL_RESCUE) < 130)
+		{
+			return FALSE;
+		}
+		break;
 	}
+
 	return TRUE;
 }
 
