@@ -156,6 +156,7 @@ using std::bitset;
 
 #define SKIRMISHER_FEAT			133 // Держать строй
 #define TACTICIAN_FEAT			134 // Построение
+#define LIVE_SHIELD_FEAT		135 // мультиреск
 
 /*
 //новвоведения для татя

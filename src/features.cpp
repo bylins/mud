@@ -566,6 +566,8 @@ void assign_feats(void)
 	feato(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 40, SKILL_RESCUE, APPLY_DEX, SAVING_REFLEX);
 //134
 	feato(TACTICIAN_FEAT, "построение", ACTIVATED_FTYPE, TRUE, feat_app, 40, SKILL_LEADERSHIP, APPLY_CHA, SAVING_REFLEX);
+//135
+	feato(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
 // === Проскок номеров
 //138
 	feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
