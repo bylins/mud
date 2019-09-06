@@ -845,6 +845,15 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
         // минимальный опыт при замаксе 15% от полного опыта
 	exp = exp * MAX(15, koef) / 100;
+	if (affected_by_spell(ch, SPELL_WC_EXPERIENSE))
+	{
+		send_to_char(ch, "добавляю %d процентов опыта  опыт до %d ", ch->get_skill(SKILL_WARCRY) / 20, exp);
+		exp = exp * (ch->get_skill(SKILL_WARCRY) / 20) / 100;
+		send_to_char(ch, " опыт после %d\r\n", exp);
+		
+	}
+	else
+		send_to_char(ch, "111111111111111111111111добавляю %d процентов опыта \r\n", ch->get_skill(SKILL_WARCRY) / 20);
 	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 	return (exp);
 }

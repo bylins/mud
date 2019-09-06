@@ -4275,7 +4275,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_WC_LUCK:
 		{
 		af[0].location = APPLY_MORALE;
-		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 10);
+		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
 		to_room = nullptr;
 		break;
@@ -4283,7 +4283,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_EXPERIENSE:
 		{
-		af[0].location = APPLY_MORALE;
+		af[0].location = APPLY_PERCENT_EXP;
 		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
 		to_room = nullptr;
@@ -4292,7 +4292,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_WC_PHYSDAMAGE:
 		{
-		af[0].location = APPLY_MORALE;
+		af[0].location = APPLY_PERCENT_DAM;
 		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
 		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
 		to_room = nullptr;
