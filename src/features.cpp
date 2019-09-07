@@ -19,7 +19,6 @@
 #include "char.hpp"
 #include "player_races.hpp"
 #include "room.hpp"
-#include "house.h"
 #include "screen.h"
 #include "pk.h"
 #include "dg_scripts.h"
@@ -42,7 +41,7 @@ extern const char *unused_spellname;
 
 struct SFeatInfo feat_info[MAX_FEATS];
 
-void unused_feat(int feat);
+void initializeFeature(int featureNum);
 void assign_feats(void);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
@@ -84,61 +83,64 @@ int find_feat_num(const char *name, bool alias)
 }
 
 // Инициализация способности заданными значениями
-void feato(int feat, const char *name, int type, bool can_up_slot, CFeatArray app,
+void feato(int featureNum, const char *name, int type, bool can_up_slot, CFeatArray app,
 		 unsigned char difficulty = MIN_DIFFICULTY, ESkill base_skill = SKILL_THAC0,
-		 EApplyLocation base_parameter = APPLY_INT, unsigned char opposite_saving = SAVING_STABILITY)
+		 EBaseAbilityParameter base_parameter = BASE_PARAMETER_INT, unsigned char opposite_saving = SAVING_STABILITY)
 {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
-			feat_info[feat].min_remort[i][j] = 0;
-			feat_info[feat].slot[i][j] = 0;
+			feat_info[featureNum].min_remort[i][j] = 0;
+			feat_info[featureNum].slot[i][j] = 0;
 		}
 	if (name)
 	{
-		feat_info[feat].name = name;
+		feat_info[featureNum].name = name;
 		std::string alias(name);
 		std::replace_if(alias.begin(), alias.end(), boost::is_any_of("_:"), ' ');
 		boost::trim_all(alias);
-		feat_info[feat].alias = alias;
+		feat_info[featureNum].alias = alias;
 	}
-	feat_info[feat].difficulty = difficulty;
-	feat_info[feat].base_skill = base_skill;
-	feat_info[feat].base_parameter = base_parameter;
-	feat_info[feat].opposite_saving = opposite_saving;
-	feat_info[feat].type = type;
-	feat_info[feat].up_slot = can_up_slot;
+	feat_info[featureNum].difficulty = difficulty;
+	feat_info[featureNum].base_skill = base_skill;
+	feat_info[featureNum].base_parameter = base_parameter;
+	feat_info[featureNum].opposite_saving = opposite_saving;
+	feat_info[featureNum].type = type;
+	feat_info[featureNum].up_slot = can_up_slot;
 	for (i = 0; i < MAX_FEAT_AFFECT; i++)
 	{
-		feat_info[feat].affected[i].location = app.affected[i].location;
-		feat_info[feat].affected[i].modifier = app.affected[i].modifier;
+		feat_info[featureNum].affected[i].location = app.affected[i].location;
+		feat_info[featureNum].affected[i].modifier = app.affected[i].modifier;
 	}
 }
 
 // Инициализация для unused features
-void unused_feat(int feat)
+void initializeFeature(int featureNum)
 {
 	int i, j;
 
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
-			feat_info[feat].min_remort[i][j] = 0;
-			feat_info[feat].slot[i][j] = 0;
-			feat_info[feat].natural_classfeat[i][j] = FALSE;
-			feat_info[feat].classknow[i][j] = FALSE;
+			feat_info[featureNum].min_remort[i][j] = 0;
+			feat_info[featureNum].slot[i][j] = 0;
+			feat_info[featureNum].natural_classfeat[i][j] = FALSE;
+			feat_info[featureNum].classknow[i][j] = FALSE;
 		}
 
-	feat_info[feat].name = unused_spellname;
-	feat_info[feat].difficulty = MIN_DIFFICULTY;
-	feat_info[feat].type = UNUSED_FTYPE;
-	feat_info[feat].up_slot = FALSE;
+	feat_info[featureNum].name = unused_spellname;
+	feat_info[featureNum].difficulty = MIN_DIFFICULTY;
+	feat_info[featureNum].base_skill = SKILL_THAC0;
+	feat_info[featureNum].base_parameter = BASE_PARAMETER_INT;
+	feat_info[featureNum].opposite_saving = SAVING_STABILITY;
+	feat_info[featureNum].type = UNUSED_FTYPE;
+	feat_info[featureNum].up_slot = FALSE;
 
 	for (i = 0; i < MAX_FEAT_AFFECT; i++)
 	{
-		feat_info[feat].affected[i].location = APPLY_NONE;
-		feat_info[feat].affected[i].modifier = 0;
+		feat_info[featureNum].affected[i].location = APPLY_NONE;
+		feat_info[featureNum].affected[i].modifier = 0;
 	}
 }
 
@@ -149,7 +151,7 @@ void assign_feats(void)
 	CFeatArray feat_app;
 	for (i = 1; i < MAX_FEATS; i++)
 	{
-		unused_feat(i);
+		initializeFeature(i);
 	}
 
 //1
@@ -563,42 +565,16 @@ void assign_feats(void)
 //132
 	feato(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
 //133
-	feato(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 40, SKILL_RESCUE, APPLY_DEX, SAVING_REFLEX);
+	feato(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_RESCUE, BASE_PARAMETER_DEX, SAVING_REFLEX);
 //134
-	feato(TACTICIAN_FEAT, "построение", ACTIVATED_FTYPE, TRUE, feat_app, 40, SKILL_LEADERSHIP, APPLY_CHA, SAVING_REFLEX);
+	feato(TACTICIAN_FEAT, "атаман", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
 //135
 	feato(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
-// === Проскок номеров
+// === Проскок номеров (типа резерв под татей) ===
 //138
 	feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
 //139
 	feato(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
-	/*
-	//
-		feato(AIR_MAGIC_FOCUS_FEAT, "любимая_магия: воздух", SKILL_MOD_FTYPE, TRUE, feat_app);
-		feat_app.clear();
-	//
-		feato(FIRE_MAGIC_FOCUS_FEAT, "любимая_магия: огонь", SKILL_MOD_FTYPE, TRUE, feat_app);
-		feat_app.clear();
-	//
-		feato(WATER_MAGIC_FOCUS_FEAT, "любимая_магия: вода", SKILL_MOD_FTYPE, TRUE, feat_app);
-		feat_app.clear();
-	//
-		feato(EARTH_MAGIC_FOCUS_FEAT, "любимая_магия: земля", SKILL_MOD_FTYPE, TRUE, feat_app);
-		feat_app.clear();
-	//
-		feato(LIGHT_MAGIC_FOCUS_FEAT, "любимая_магия: свет", SKILL_MOD_FTYPE, TRUE, feat_app);
-		feat_app.clear();
-	//
-		feato(DARK_MAGIC_FOCUS_FEAT, "любимая_магия: тьма", SKILL_MOD_FTYPE, TRUE, feat_app);
-		feat_app.clear();
-	//
-		feato(MIND_MAGIC_FOCUS_FEAT, "любимая_магия: разум", SKILL_MOD_FTYPE, TRUE, feat_app);
-		feat_app.clear();
-	//
-		feato(LIFE_MAGIC_FOCUS_FEAT, "любимая_магия: жизнь", SKILL_MOD_FTYPE, TRUE, feat_app);
-		feat_app.clear();
-	*/
 //140
     feato(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //141
@@ -609,7 +585,7 @@ void assign_feats(void)
 //143
     feato(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, TRUE, feat_app);
 }
-// Может ли персонаж использовать способность? Проверка по уровню, ремортам, параметрам персонажа, требованиям.
+
 bool can_use_feat(const CHAR_DATA *ch, int feat)
 {
 	if (!HAVE_FEAT(ch, feat))
@@ -668,7 +644,6 @@ bool can_use_feat(const CHAR_DATA *ch, int feat)
 	return TRUE;
 }
 
-// Может ли персонаж изучить эту способность?
 bool can_get_feat(CHAR_DATA *ch, int feat)
 {
 	int i, count = 0;
@@ -679,16 +654,14 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
-	// Доступность по классу, реморту.
+
 	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat)) ||
 			(GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))
 		return FALSE;
 
-	// Наличие свободных слотов
 	if (!have_feat_slot(ch, feat))
 		return FALSE;
 
-	// Специальные требования для изучения
 	switch (feat)
 	{
 	case PARRY_ARROW_FEAT:
@@ -826,7 +799,13 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 		}
 		break;
 	case SKIRMISHER_FEAT:
-		if (ch->get_skill(SKILL_RESCUE) < 130)
+		if (ch->get_skill(SKILL_RESCUE) < 100)
+		{
+			return FALSE;
+		}
+		break;
+	case TACTICIAN_FEAT:
+		if (ch->get_skill(SKILL_LEADERSHIP) < 100)
 		{
 			return FALSE;
 		}
@@ -836,11 +815,10 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	return TRUE;
 }
 
-//Ищем свободный слот под способность (кроме врожденных).
 bool have_feat_slot(CHAR_DATA *ch, int feat)
 {
 	int i, lowfeat, hifeat;
-	//если способность врожденная - ее всегда можно получить
+
 	if (feat_info[feat].natural_classfeat[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat))
 		return TRUE;
 
@@ -1482,6 +1460,67 @@ void CFeatArray::clear()
 		affected[i].location = APPLY_NONE;
 		affected[i].modifier = 0;
 	}
+}
+
+int getBaseAbilityParamerter(CHAR_DATA *ch, EBaseAbilityParameter BaseAbilityParameter)
+{
+	switch (BaseAbilityParameter)
+	{
+	case BASE_PARAMETER_INT:
+		return GET_REAL_INT(ch);
+		break;
+	case BASE_PARAMETER_STR:
+		return GET_REAL_STR(ch);
+		break;
+	case BASE_PARAMETER_DEX:
+		return GET_REAL_DEX(ch);
+		break;
+	case BASE_PARAMETER_CON:
+		return GET_REAL_CON(ch);
+		break;
+	case BASE_PARAMETER_WIS:
+		return GET_REAL_WIS(ch);
+		break;
+	case BASE_PARAMETER_CHA:
+		return GET_REAL_CHA(ch);
+		break;
+	};
+	return GET_REAL_INT(ch);
+}
+
+short testAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy)
+{
+	const short _skillDivider = 2;
+	const short _parameterDivider = 2;
+	const short _degreesDivider = 5;
+
+	short difficulty = feat_info[ability].difficulty;
+	short baseSkill = ch->get_skill(feat_info[ability].base_skill);
+	short baseParameter  = getBaseAbilityParamerter(ch, feat_info[ability].base_parameter);
+	short oppositeSaving = calculateSaving(ch, enemy, feat_info[ability].opposite_saving, 0);
+
+	short characterRating = difficulty+baseSkill/_skillDivider+baseParameter/_parameterDivider-oppositeSaving;
+	short diceRoll = number(1, 100);
+
+	short degreeOfSuccess = (characterRating-diceRoll)/_degreesDivider;
+
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+	{
+		sprintf(buf, "&CСпособность %s, Сложность %d Противник %s, Cкилл %d, Параметр %d, Сейв %d, Суммарный рейтинг %d, Ролл %d, Успех %d&n\r\n",
+				feat_info[ability].name, difficulty, GET_NAME(enemy), baseSkill, baseParameter, oppositeSaving, characterRating, diceRoll, degreeOfSuccess);
+		send_to_char(buf, ch);
+	}
+
+	return degreeOfSuccess;
+}
+
+bool checkSuccessAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy)
+{
+	if (!can_use_feat(ch, ability) || (testAbilityCharacterVSEnemy(ability, ch, enemy) < ABILITY_TEST_SUCCESS_THRESHOLD))
+	{
+		return false;
+	}
+	return true;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

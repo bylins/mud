@@ -934,22 +934,26 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 extern bool find_master_charmice(CHAR_DATA *charmise);
 CHAR_DATA *find_target(CHAR_DATA *ch)
 {
-	CHAR_DATA *victim, *caster = NULL, *best = NULL;
+	CHAR_DATA *currentVictim, *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
-	victim = ch->get_fighting();
 
-	// интелект моба
-	int i = GET_REAL_INT(ch);
-	// если у моба меньше 20 инты, то моб тупой
-	if (i < INT_STUPID_MOD)
+	currentVictim = ch->get_fighting();
+
+	int mobINT = GET_REAL_INT(ch);
+
+	if (mobINT < INT_STUPID_MOD)
 	{
 		return find_damagee(ch);
 	}
 
-	// если нет цели
-	if (!victim)
+	if (!currentVictim)
 	{
 		return NULL;
+	}
+
+	if (IS_CASTER(currentVictim) && !IS_NPC(currentVictim))
+	{
+		return currentVictim;
 	}
 
 	// проходим по всем чарам в комнате
@@ -968,7 +972,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// волхв
 		if (GET_CLASS(vict) == CLASS_DRUID)
 		{
 			druid = vict;
@@ -976,7 +979,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// лекарь
 		if (GET_CLASS(vict) == CLASS_CLERIC)
 		{
 			cler = vict;
@@ -984,7 +986,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// кудес
 		if (GET_CLASS(vict) == CLASS_CHARMMAGE)
 		{
 			charmmage = vict;
@@ -992,8 +993,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// если у чара меньше 100 хп, то переключаемся на него
-		if (GET_HIT(vict) <= MIN_HP_MOBACT)
+		if (GET_HIT(vict) <= CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK)
 		{
 			return vict;
 		}
@@ -1006,17 +1006,13 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 
 		best = vict;
 	}
-	if (!best)
-		best = victim;
 
-	// если цель кастер, то зачем переключаться ?
-	if (IS_CASTER(victim) && !IS_NPC(victim))
+	if (!best)
 	{
-		return victim;
+		best = currentVictim;
 	}
 
-
-	if (i < INT_MIDDLE_AI)
+	if (mobINT < INT_MIDDLE_AI)
 	{
 		int rand = number(0, 2);
 		if (caster)
@@ -1030,7 +1026,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 		return best;
 	}
 
-	if (i < INT_HIGH_AI)
+	if (mobINT < INT_HIGH_AI)
 	{
 		int rand = number(0, 1);
 		if (caster)
@@ -1134,7 +1130,7 @@ void mob_casting(CHAR_DATA * ch)
 	int spellnum, spells = 0, sp_num;
 	OBJ_DATA *item;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
@@ -1192,7 +1188,7 @@ void mob_casting(CHAR_DATA * ch)
 			for (int i = 1; i <= 3; i++)
 			{
 				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
-				{	
+				{
 					log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
@@ -1790,7 +1786,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 				else
-				{ 
+				{
 //send_to_char(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1967,7 +1963,7 @@ void process_npc_attack(CHAR_DATA *ch)
 	//    continue;
 
 	// Вызываем триггер перед началом боевых моба (магических или физических)
-	
+
 	if (!fight_mtrigger(ch))
 		return;
 
@@ -2260,7 +2256,7 @@ void perform_violence()
 	//* суммон хелперов
 	check_mob_helpers();
 
-	// храним список писей, которым надо показать состояние группы по msdp 
+	// храним список писей, которым надо показать состояние группы по msdp
 	std::unordered_set<CHAR_DATA *> msdp_report_chars;
 
 	//* действия до раунда и расчет инициативы
@@ -2368,7 +2364,7 @@ void perform_violence()
 			}
 		}
 	}
-	
+
 	// покажем группу по msdp
 	// проверка на поддержку протокола есть в методе msdp_report
 	for (const auto& ch: msdp_report_chars)

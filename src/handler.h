@@ -95,6 +95,26 @@ void extract_obj(OBJ_DATA * obj);
 
 // ******* characters ********* //
 
+// =============== Старый комментарий, видимо Кродин:
+// наколенный список чаров для масс-заклов, бьющих по комнате
+// в необходимость самого списка не вникал, но данная конструкция над ним
+// нужна потому, что в случае смерти чара при проходе по уже сформированному
+// списку - за ним могут спуржиться и клоны например, которые тоже в этот
+// список попали, после чего имеем креш, т.к. бьем по невалидным указателям
+// =============== Почистить комментарий после исполнения нижеуказанного ToDo
+
+// Работа с временными списками персонажей (например для групкастов) - перенес из magic.cpp потому что потребовалось в другом месте
+// Sventovit TODO: Переписать на класс, вынести в отдельный модуль, сделать через шаблон, чтоб можно было совать персонажей, предметы и комнаты
+// Затем пройтись по коду: подобная механика у нас используется как минимум еще для слоуДТ, румаффектов, возможно для яда, может и еще где.
+// Она же потребуется для DoT и HoT механик
+typedef std::vector<CHAR_DATA *>  TemporaryCharListType;
+void addCharToTmpList(CHAR_DATA *ch, TemporaryCharListType *tmpCharList);
+void deleteCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *tmpCharList);
+
+// Вообще, это конечно жесть жестяная такое объявлять в глобальном неймспейсе, чисто, чтоб чистить везде где нужно для зашиты от крешецй
+// Но переписывать это сейчас возможности нет.
+extern TemporaryCharListType GroupMagicTmpCharList;
+
 CHAR_DATA *get_char_room(char *name, room_rnum room);
 CHAR_DATA *get_char_num(mob_rnum nr);
 CHAR_DATA *get_char(char *name, int vnum = 0);
@@ -134,7 +154,6 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i);
 
 OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * equipment[], int *j);
 inline OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DATA * equipment[], int *j) { return get_object_in_equip_vis(ch, arg.c_str(), equipment, j); }
-
 // find all dots //
 
 int find_all_dots(char *arg);

@@ -60,6 +60,11 @@
 #include <unordered_set>
 #include <sstream>
 
+// Временный список, куда помещаются цели при масскастах
+// Нужен для защиты от крешей.
+// Вообще это трындец конечно такое через глобальные переменные делать
+TemporaryCharListType GroupMagicTmpCharList;
+
 int max_stats2[][6] =
 	// Str Dex Int Wis Con Cha //
 { {14, 13, 24, 25, 15, 10},	// Лекарь //
@@ -1062,7 +1067,7 @@ void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 			return;
 		}
 	}
-	
+
 	CREATE(timed_alloc, 1);
 
 	*timed_alloc = *timed;
@@ -2066,7 +2071,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			}
 			return;
 		}
-                
+
 	}
 
 	//if (!IS_NPC(ch) && !check_armor_type(ch, obj))
@@ -3177,7 +3182,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 //	log("[Extract char] Remove char from room");
 	char_from_room(ch);
 
-	delete_from_tmp_char_list(ch);
+	deleteCharFromTmpList(ch, &GroupMagicTmpCharList);
 
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
@@ -3478,7 +3483,7 @@ OBJ_DATA* get_obj_vis(CHAR_DATA* ch, const char* name)
 	{
 		return obj;
 	}
-	
+
 	//Scan charater's in room
 	for (const auto& vict : world[ch->in_room]->people)
 	{
@@ -3511,7 +3516,7 @@ OBJ_DATA* get_obj_vis(CHAR_DATA* ch, const char* name)
 			&& (id_obj_set.count(i.get()->get_id()) == 0);
 		return result;
 	};
-	
+
 	return world_objects.find_if(predicate, number - 1).get();
 }
 
@@ -4300,7 +4305,7 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	float r_hp = 0;
 	float eff_cha = 0.0;
 	float max_cha;
-	
+
 	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
 	{
             eff_cha = get_effective_wis(ch, spellnum);
@@ -4589,6 +4594,27 @@ void remove_rune_label(CHAR_DATA *ch)
 			affect_room_remove(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);
 		}
+	}
+}
+
+//функции для работы с временным списком персонажей
+void addCharToTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList)
+{
+	TemporaryCharListType::iterator it = std::find(TmpCharList->begin(), TmpCharList->end(), ch);
+	if (it == TmpCharList->end())
+	{
+		TmpCharList->push_back(ch);
+	}
+}
+
+void deleteCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList)
+{
+	if (TmpCharList->empty()) return;
+
+	TemporaryCharListType::iterator it = std::find(TmpCharList->begin(), TmpCharList->end(), ch);
+	if (it != TmpCharList->end())
+	{
+		*it = 0;
 	}
 }
 

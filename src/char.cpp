@@ -62,7 +62,7 @@ int normalize_skill(int percent, int skill)
 
 	if (percent < KMinSkillPercent)
 		percent = KMinSkillPercent;
-	else 
+	else
 	{
 		if (percent > KMaxSkillPercent && !is_magic_skill(skill))
 			percent = KMaxSkillPercent;
@@ -161,20 +161,20 @@ float CHAR_DATA::get_cond_penalty(int type) const
 {
 	if (IS_NPC(this)) return 1;
 	if (!(GET_COND_M(this,FULL)||GET_COND_M(this,THIRST))) return 1;
-	
+
 	float penalty = 0;
-	
+
 	if (GET_COND_M(this,FULL)) {
 		int tmp = GET_COND_K(this,FULL); // 0 - 1
 		switch (type) {
 			case P_DAMROLL://-50%
-				penalty+=tmp/2; 
+				penalty+=tmp/2;
 				break;
 			case P_HITROLL://-25%
-				penalty+=tmp/4; 
+				penalty+=tmp/4;
 				break;
 			case P_CAST://-25%
-				penalty+=tmp/4; 
+				penalty+=tmp/4;
 				break;
 			case P_MEM_GAIN://-25%
 				penalty+=tmp/4;
@@ -197,13 +197,13 @@ float CHAR_DATA::get_cond_penalty(int type) const
 		int tmp = GET_COND_K(this,THIRST); // 0 - 1
 		switch (type) {
 			case P_DAMROLL://-25%
-				penalty+=tmp/4; 
+				penalty+=tmp/4;
 				break;
 			case P_HITROLL://-50%
-				penalty+=tmp/2; 
+				penalty+=tmp/2;
 				break;
 			case P_CAST://-50%
-				penalty+=tmp/2; 
+				penalty+=tmp/2;
 				break;
 			case P_MEM_GAIN://-50%
 				penalty+=tmp/2;
@@ -432,7 +432,7 @@ void CHAR_DATA::zero_init()
 	ing_list = 0;
 	dl_list = 0;
 	agrobd = false;
-	
+
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
 	memset(&cast_attack_, 0, sizeof(cast_attack_type));
 	//memset(&player_data, 0, sizeof(char_player_data));
@@ -474,7 +474,7 @@ void CHAR_DATA::zero_init()
 void CHAR_DATA::purge()
 {
 	caching::character_cache.remove(this);
-	
+
 	if (!get_name().empty())
 	{
 		log("[FREE CHAR] (%s)", GET_NAME(this));
@@ -508,7 +508,7 @@ void CHAR_DATA::purge()
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
 	{	// otherwise, free strings only if the string is not pointing at proto
-		
+
 		if (this->mob_specials.Questor && this->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
 			free(this->mob_specials.Questor);
 	}
@@ -728,7 +728,7 @@ int skill;
 		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
 		if (skill > 80 + remort*5)
 			it->second = 80 + remort*5;
-		
+
 	}
 
 }
@@ -1985,6 +1985,12 @@ void CHAR_DATA::msdp_report(const std::string& name)
 	}
 }
 
+void CHAR_DATA::removeGroupFlags()
+{
+		AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
+		PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+}
+
 void CHAR_DATA::add_follower(CHAR_DATA* ch)
 {
 	add_follower_silently(ch);
@@ -2331,5 +2337,5 @@ player_special_data_saved::player_special_data_saved() :
 
 // dummy spec area for mobs
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
-																						
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

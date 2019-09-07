@@ -1094,7 +1094,8 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	if (vict)
 	{
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+		//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+		ch->removeGroupFlags();
 		leader->add_follower_silently(ch);
 	}
 
@@ -1553,7 +1554,8 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			act("$N исключен$A из состава вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, vict, TO_VICT);
 			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-			AFF_FLAGS(vict).unset(EAffectFlag::AFF_GROUP);
+			//AFF_FLAGS(vict).unset(EAffectFlag::AFF_GROUP);
+			vict->removeGroupFlags();
 		}
 	}
 }
@@ -1580,7 +1582,8 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			next_fol = f->next;
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
 			{
-				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+				//AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+				f->follower->removeGroupFlags();
 				send_to_char(buf2, f->follower);
 				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
 					&& !(IS_NPC(f->follower)
@@ -1591,6 +1594,7 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+		ch->removeGroupFlags();
 		send_to_char("Вы распустили группу.\r\n", ch);
 		return;
 	}
@@ -1602,7 +1606,8 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 			&& !IS_HORSE(tch))
 		{
-			AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
+			//AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
+			tch->removeGroupFlags();
 			act("$N более не член вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, tch, TO_VICT);
 			act("$N был$G изгнан$A из группы $n1!", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
