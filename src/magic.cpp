@@ -547,7 +547,10 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].must_handled = false;
 		accum_duration = FALSE;
 		update_spell = TRUE;
-		af[0].modifier = MIN(100, GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0));
+		if (IS_MANA_CASTER(ch))
+			af[0].modifier = 80;
+		else
+			af[0].modifier = MIN(100, GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0));
 		if (af[0].modifier > 99)
 		{
 			to_char = "Вы запечатали магией все входы.";

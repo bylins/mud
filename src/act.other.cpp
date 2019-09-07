@@ -3179,6 +3179,40 @@ int insert_wanted_gem::get_qty(int gem_vnum, const std::string& str)
 {
 	return content[gem_vnum][str].qty;
 }
+bool insert_wanted_gem::is_gem(int gem_vnum)
+{
+	const auto it = content.find(gem_vnum);
+	if (it == content.end())
+	{
+		return false ;
+	}
+	return true;
+}
+
+std::string insert_wanted_gem::get_random_str_for(int gem_vnum)
+{
+
+	const auto it = content.find(gem_vnum);
+	if (it == content.end())
+	{
+		return "";
+	}
+
+	auto gem = content[gem_vnum];
+	int rnd = number(0, gem.size());
+
+	int count = 0;
+	for(auto kv : gem)
+	{
+		if (count == rnd)
+		{
+			return  kv.first;
+		}
+		count++;
+	}
+
+	return "";
+}
 
 int insert_wanted_gem::exist(const int gem_vnum, const std::string& str) const
 {
@@ -3525,11 +3559,11 @@ extern void set_obj_eff(OBJ_DATA *itemobj, const EApplyLocation type, int mod)
 
 extern struct index_data *obj_index;
 
-bool is_dig_stone(OBJ_DATA *obj)
-{
+bool is_dig_stone(OBJ_DATA *obj) {
 	if ((GET_OBJ_VNUM(obj) >= dig_vars.stone1_vnum
-			&& GET_OBJ_VNUM(obj) <= dig_vars.stone1_vnum + 17)
-		|| GET_OBJ_VNUM(obj) == DIG_GLASS_VNUM)
+		 && GET_OBJ_VNUM(obj) <= dig_vars.stone1_vnum + 17)
+		|| GET_OBJ_VNUM(obj) == DIG_GLASS_VNUM
+		|| iwg.is_gem( GET_OBJ_VNUM(obj)))
 	{
 		return true;
 	}
@@ -3600,7 +3634,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		send_to_char(buf, ch);
 		return;
 	}
-	if (GET_OBJ_MATER(itemobj) < 1 || (GET_OBJ_MATER(itemobj) > 6 && GET_OBJ_MATER(itemobj) != 13))
+	if (GET_OBJ_MATER(itemobj) < OBJ_DATA::MAT_BULAT || (GET_OBJ_MATER(itemobj) > OBJ_DATA::MAT_COLOR && GET_OBJ_MATER(itemobj) != OBJ_DATA::MAT_BONE))
 	{
 		sprintf(buf, "%s состоит из неподходящего материала.\r\n", itemobj->get_PName(0).c_str());
 		send_to_char(buf, ch);
@@ -3654,13 +3688,10 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		}
 	}
 
-//Polos.insert_wanted_gem
-
 	argument = one_argument(argument, arg3);
 
 	if (!*arg3)
 	{
-//-Polos.insert_wanted_gem
 		improove_skill(ch, SKILL_INSERTGEM, 0, 0);
 
 		if (percent > prob / insgem_vars.prob_divide)
@@ -3684,7 +3715,6 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			}
 			return;
 		}
-//Polos.insert_wanted_gem
 	}
 	else
 	{
@@ -3726,7 +3756,6 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			return;
 		}
 	}
-//-Polos.insert_wanted_gem
 
 	sprintf(buf, "Вы вплавили %s в %s!\r\n", gemobj->get_PName(3).c_str(), itemobj->get_PName(3).c_str());
 	send_to_char(buf, ch);
@@ -3744,290 +3773,25 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		itemobj->set_timer(timer);
 	}
 
-	if (GET_OBJ_MATER(gemobj) == 18)
+	if (GET_OBJ_MATER(gemobj) == OBJ_DATA::MAT_DIAMOND)
 	{
-//Polos.insert_wanted_gem
+		std::string effect = "";
 		if (!*arg3)
 		{
-//-Polos.insert_wanted_gem
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum)
-				switch (number(1, 6))
-				{
-				case 1:
-					set_obj_aff(itemobj, EAffectFlag::AFF_DETECT_INVIS);
-					break;
-				case 2:
-					set_obj_aff(itemobj, EAffectFlag::AFF_DETECT_MAGIC);
-					break;
-				case 3:
-					set_obj_aff(itemobj, EAffectFlag::AFF_DETECT_ALIGN);
-					break;
-				case 4:
-					set_obj_aff(itemobj, EAffectFlag::AFF_BLESS);
-					break;
-				case 5:
-					set_obj_aff(itemobj, EAffectFlag::AFF_HASTE);
-					break;
-
-				case 6:
-					set_obj_eff(itemobj, APPLY_HITROLL, -1);
-					break;
-
-				}
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 1)
-				switch (number(1, 6))
-				{
-				case 1:
-					set_obj_eff(itemobj, APPLY_HITROLL, 1);
-					break;
-				case 2:
-					set_obj_eff(itemobj, APPLY_AC, -20);
-					set_obj_eff(itemobj, APPLY_SAVING_REFLEX, -5);
-					set_obj_eff(itemobj, APPLY_SAVING_STABILITY, -5);
-					break;
-				case 3:
-					set_obj_aff(itemobj, EAffectFlag::AFF_WATERWALK);
-					break;
-				case 4:
-					set_obj_aff(itemobj, EAffectFlag::AFF_SINGLELIGHT);
-					break;
-				case 5:
-					set_obj_aff(itemobj, EAffectFlag::AFF_INFRAVISION);
-					break;
-				case 6:
-					set_obj_aff(itemobj, EAffectFlag::AFF_CURSE);
-					break;
-
-				}
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 2)
-				switch (number(1, 6))
-				{
-				case 1:
-					set_obj_eff(itemobj, APPLY_HIT, 20);
-					break;
-				case 2:
-					set_obj_eff(itemobj, APPLY_MOVE, 20);
-					break;
-				case 3:
-					set_obj_aff(itemobj, EAffectFlag::AFF_PROTECT_EVIL);
-					break;
-				case 4:
-					set_obj_aff(itemobj, EAffectFlag::AFF_PROTECT_GOOD);
-					break;
-				case 5:
-					set_obj_aff(itemobj, EAffectFlag::AFF_AWARNESS);
-					break;
-				case 6:
-					set_obj_eff(itemobj, APPLY_MOVEREG, -5);
-					break;
-
-				}
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 3)
-				switch (number(1, 6))
-				{
-				case 1:
-					set_obj_eff(itemobj, APPLY_SAVING_REFLEX, -10);
-					break;
-
-				case 2:
-					set_obj_eff(itemobj, APPLY_HITREG, 10);
-					break;
-
-				case 3:
-					set_obj_aff(itemobj, EAffectFlag::AFF_HOLYDARK);
-					break;
-
-				case 4:
-					if (!CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_WIELD)
-						&& !CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_HOLD)
-						&& !CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_BOTHS))
-					{
-						set_obj_eff(itemobj, APPLY_SIZE, 7);
-					}
-					else
-					{
-						set_obj_eff(itemobj, APPLY_MORALE, 3);
-					}
-					break;
-
-				case 5:
-					set_obj_eff(itemobj, APPLY_MORALE, 3);
-					break;
-
-				case 6:
-					set_obj_eff(itemobj, APPLY_HITREG, -5);
-					break;
-				}
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 4)
-				switch (number(1, 7))
-				{
-				case 1:
-					set_obj_eff(itemobj, APPLY_SAVING_STABILITY, -10);
-					break;
-
-				case 2:
-					set_obj_eff(itemobj, APPLY_SAVING_CRITICAL, -10);
-					break;
-
-				case 3:
-					set_obj_eff(itemobj, APPLY_RESIST_AIR, 15);
-					break;
-
-				case 4:
-					set_obj_eff(itemobj, APPLY_RESIST_WATER, 15);
-					break;
-
-				case 5:
-					set_obj_eff(itemobj, APPLY_RESIST_FIRE, 15);
-					break;
-
-				case 6:
-					set_obj_eff(itemobj, APPLY_SAVING_CRITICAL, 10);
-					break;
-
-				case 7:
-					set_obj_eff(itemobj, APPLY_RESIST_DARK, 15);
-					break;
-				}
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 5)
-				switch (number(1, 6))
-				{
-				case 1:
-					set_obj_aff(itemobj, EAffectFlag::AFF_SANCTUARY);
-					break;
-
-				case 2:
-					set_obj_aff(itemobj, EAffectFlag::AFF_BLINK);
-					break;
-
-				case 3:
-					if (!CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_WIELD)
-						&& !CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_HOLD)
-						&& !CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_BOTHS))
-					{
-						set_obj_eff(itemobj, APPLY_ABSORBE, 5);
-					}
-					else
-					{
-						set_obj_eff(itemobj, APPLY_HITREG, 25);
-					}
-					break;
-
-				case 4:
-					set_obj_aff(itemobj, EAffectFlag::AFF_FLY);
-					break;
-
-				case 5:
-					set_obj_eff(itemobj, APPLY_MANAREG, 10);
-					break;
-
-				case 6:
-					set_obj_eff(itemobj, APPLY_SAVING_STABILITY, -10);
-					break;
-				}
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 6)
-				switch (number(1, 6))
-				{
-				case 1:
-					set_obj_eff(itemobj, APPLY_DAMROLL, 3);
-					break;
-
-				case 2:
-					set_obj_eff(itemobj, APPLY_HITROLL, 3);
-					break;
-
-				case 3:
-					if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_NODISARM)
-						&& (CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_WIELD)
-							|| CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_HOLD)
-							|| CAN_WEAR(itemobj, EWearFlag::ITEM_WEAR_BOTHS)))
-					{
-						itemobj->set_extra_flag(EExtraFlag::ITEM_NODISARM);
-					}
-					else
-					{
-						set_obj_eff(itemobj, APPLY_HITROLL, 3);
-					}
-					break;
-
-				case 4:
-					set_obj_eff(itemobj, APPLY_SAVING_WILL, -10);
-					break;
-
-				case 5:
-					set_obj_aff(itemobj, EAffectFlag::AFF_INVISIBLE);
-					break;
-
-				case 6:
-					set_obj_eff(itemobj, APPLY_SAVING_WILL, 10);
-					break;
-				}
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 7)
-				switch (number(1, 6))
-				{
-				case 1:
-					set_obj_eff(itemobj, APPLY_INT, 1);
-					break;
-
-				case 2:
-					set_obj_eff(itemobj, APPLY_WIS, 1);
-					break;
-
-				case 3:
-					set_obj_eff(itemobj, APPLY_DEX, 1);
-					break;
-
-				case 4:
-					set_obj_eff(itemobj, APPLY_STR, 1);
-					break;
-
-				case 5:
-					set_obj_eff(itemobj, APPLY_CON, 1);
-					break;
-
-				case 6:
-					set_obj_eff(itemobj, APPLY_CHA, 1);
-					break;
-				}
-			if (GET_OBJ_VNUM(gemobj) == dig_vars.stone1_vnum + 8)
-				switch (number(1, 6))
-				{
-				case 1:
-					set_obj_eff(itemobj, APPLY_INT, 2);
-					break;
-
-				case 2:
-					set_obj_eff(itemobj, APPLY_WIS, 2);
-					break;
-
-				case 3:
-					set_obj_eff(itemobj, APPLY_DEX, 2);
-					break;
-
-				case 4:
-					set_obj_eff(itemobj, APPLY_STR, 2);
-					break;
-
-				case 5:
-					set_obj_eff(itemobj, APPLY_CON, 2);
-					break;
-
-				case 6:
-					set_obj_eff(itemobj, APPLY_CHA, 2);
-					break;
-				}
-//Polos.insert_wanted_gem
+			int gem_vnum = GET_OBJ_VNUM(gemobj);
+			effect = iwg.get_random_str_for(gem_vnum);
 		}
 		else
 		{
-			int tmp_type, tmp_qty;
-			std::string str(arg3);
+			effect = arg3;
+		}
 
-			int tmp_bit = iwg.get_bit(GET_OBJ_VNUM(gemobj), str);
-			tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), str);
-			tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), str);
-			switch (tmp_type)
-			{
+		int tmp_type, tmp_qty;
+		int tmp_bit = iwg.get_bit(GET_OBJ_VNUM(gemobj), effect);
+		tmp_qty = iwg.get_qty(GET_OBJ_VNUM(gemobj), effect);
+		tmp_type = iwg.get_type(GET_OBJ_VNUM(gemobj), effect);
+		switch (tmp_type)
+		{
 			case 1:
 				set_obj_eff(itemobj, static_cast<EApplyLocation>(tmp_bit), tmp_qty);
 				break;
@@ -4043,10 +3807,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			default:
 				break;
 
-			};
-		}
-//-Polos.insert_wanted_gem
-// Теперь все вплавленное занимает слоты
+		};
 	}
 
 	if (OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_WITH3SLOTS))
@@ -4064,8 +3825,9 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		itemobj->unset_extraflag(EExtraFlag::ITEM_WITH1SLOT);
 	}
 
-	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_TRANSFORMED))
+	if (!OBJ_FLAGGED(itemobj, EExtraFlag::ITEM_TRANSFORMED)) {
 		itemobj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED);
+	}
 	extract_obj(gemobj);
 }
 

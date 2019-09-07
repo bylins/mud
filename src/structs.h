@@ -2083,6 +2083,8 @@ public:
 	int get_bit(int gem_vnum, const std::string& str);
 	int get_qty(int gem_vnum, const std::string& str);
 	int exist(const int gem_vnum, const std::string& str) const;
+	bool is_gem(int get_vnum);
+	std::string get_random_str_for( const int gem_vnum);
 };
 
 //-Polos.insert_wanted_gem
