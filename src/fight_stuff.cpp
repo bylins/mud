@@ -844,6 +844,10 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
         // минимальный опыт при замаксе 15% от полного опыта
 	exp = exp * MAX(15, koef) / 100;
+	if (affected_by_spell(ch, SPELL_WC_EXPERIENSE))
+	{
+		exp += exp * (ch->get_skill(SKILL_WARCRY) / 20) / 100.0;
+	}
 	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 	return (exp);
 }

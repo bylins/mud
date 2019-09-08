@@ -4189,7 +4189,12 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		hit_params.add_hand_damage(ch);
 	}
+	if (affected_by_spell(ch, SPELL_WC_PHYSDAMAGE))
+	{
+		hit_params.dam += hit_params.dam * (number (1, (ch->get_skill(SKILL_WARCRY) / 20)) / 100.0);
+	}
 
+		hit_params.add_hand_damage(ch);
 	// Gorrah: бонус к повреждениям от умения "железный ветер"
 	// x5 по идее должно быть
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
