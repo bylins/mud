@@ -5397,16 +5397,6 @@ void mag_assign_spells(void)
 //237
 	spello(SPELL_GROUP_AWARNESS, "групповая внимательность", "group awarness",
 		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_MIND);
-//238    
-	spello(SPELL_WC_EXPERIENSE, "клич обучения", "warcry of training", 10, 10, 10,
-		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
-//239    
-	spello(SPELL_WC_LUCK, "клич везения", "warcry of luck", 10, 10, 10,
-		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
-//240
-	spello(SPELL_WC_PHYSDAMAGE, "клич точности", "warcry of accuracy", 10, 10, 10,
-		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
-
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.

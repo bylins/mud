@@ -4281,33 +4281,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 		}
 
-	case SPELL_WC_LUCK:
-		{
-		af[0].location = APPLY_MORALE;
-		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
-		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
-		to_room = nullptr;
-		break;
-		}
-
-	case SPELL_WC_EXPERIENSE:
-		{
-		af[0].location = APPLY_PERCENT_EXP;
-		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
-		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
-		to_room = nullptr;
-		break;
-		}
-
-	case SPELL_WC_PHYSDAMAGE:
-		{
-		af[0].location = APPLY_PERCENT_DAM;
-		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
-		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
-		to_room = nullptr;
-		break;
-		}
-
 	case SPELL_WC_OF_BATTLE:
 		{
 		af[0].location = APPLY_AC;
@@ -5945,7 +5918,7 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 0},
 	{SPELL_GROUP_AWARNESS,
-	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников6.\r\n",
+	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
 	 nullptr,
 	 nullptr,
 	 0},
@@ -6180,7 +6153,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 		}
 	}
 
-	if (mag_messages[i].spell == -1 && !IS_SET(SpINFO.routines, MAG_WARCRY))
+	if (mag_messages[i].spell == -1)
 	{
 		sprintf(buf, "Нет сообщения в mag_messages заклинание с номером %d игнорируетсяктся", spellnum);
 		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
