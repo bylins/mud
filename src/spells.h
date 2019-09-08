@@ -387,12 +387,37 @@ enum ESpell
 	SPELL_GROUP_BLINK = 235, // групповая мигалка
 	SPELL_GROUP_CLOUDLY = 236, // группповое затуманивание
 	SPELL_GROUP_AWARNESS = 237, // групповая внимательность
-	SPELL_MASS_FAILURE = 238, // взгляд Велеса (массовая недоля)
-	SPELL_MASS_NOFLEE = 239, // западня (массовое сковывание)
-	SPELLS_COUNT = SPELL_MASS_NOFLEE    // Counter corresponds to the last value because we count spells from 1.
+	SPELL_WC_EXPERIENSE = 238, // опыт группы
+	SPELL_WC_LUCK = 239, // удача группы
+	SPELL_WC_PHYSDAMAGE = 240, // + дам
+	SPELL_MASS_FAILURE = 241, // взгляд Велеса (массовая недоля)
+	SPELL_MASS_NOFLEE = 242, // западня (массовое сковывание)
+	SPELLS_COUNT = 	SPELL_MASS_NOFLEE    // Counter corresponds to the last value because we count spells from 1.
 };
 
-typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
+class spell_wear_off_msg_t: public std::array<const char*, SPELLS_COUNT + 1>
+{
+	private:
+		static constexpr std::size_t MESSAGE_BUFFER_LENGTH = 128;
+		static char MESSAGE_BUFFER[MESSAGE_BUFFER_LENGTH];
+
+		using parent_t = std::array<const char*, SPELLS_COUNT + 1>;
+		using parent_t::operator[];
+
+	public:
+		const static char* DEFAULT_MESSAGE;
+
+		value_type operator[](size_type index) const
+		{
+			if (size() > index && nullptr != parent_t::operator[](index))
+			{
+				return parent_t::operator[](index);
+			}
+
+			::snprintf(MESSAGE_BUFFER, MESSAGE_BUFFER_LENGTH, DEFAULT_MESSAGE, index);
+			return MESSAGE_BUFFER;
+		}
+};
 extern const spell_wear_off_msg_t spell_wear_off_msg;
 
 typedef std::array<const char*, 2> cast_phrase_t;
@@ -643,6 +668,7 @@ void init_spell_levels(void);
 const char *feat_name(int num);
 const char *skill_name(int num);
 const char *spell_name(int num);
+int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);

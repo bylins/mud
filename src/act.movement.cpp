@@ -2500,11 +2500,12 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				stop_follower(ch, SF_EMPTY);
 			}
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-			//also removing AFF_GROUP flag from all followers
+			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+			ch->removeGroupFlags();
 			for (f = ch->followers; f; f = f->next)
 			{
-				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+				//AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+				f->follower->removeGroupFlags();
 			}
 
 			leader->add_follower(ch);

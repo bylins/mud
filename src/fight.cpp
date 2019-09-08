@@ -127,6 +127,8 @@ void update_pos(CHAR_DATA * victim)
 		GET_POS(victim) = POS_MORTALLYW;
 	else if (GET_HIT(victim) <= -3)
 		GET_POS(victim) = POS_INCAP;
+	else if (GET_POS(victim) == POS_INCAP && GET_WAIT(victim)>0)
+		GET_POS(victim) = POS_INCAP;
 	else
 		GET_POS(victim) = POS_STUNNED;
 
@@ -938,22 +940,26 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 extern bool find_master_charmice(CHAR_DATA *charmise);
 CHAR_DATA *find_target(CHAR_DATA *ch)
 {
-	CHAR_DATA *victim, *caster = NULL, *best = NULL;
+	CHAR_DATA *currentVictim, *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
-	victim = ch->get_fighting();
 
-	// интелект моба
-	int i = GET_REAL_INT(ch);
-	// если у моба меньше 20 инты, то моб тупой
-	if (i < INT_STUPID_MOD)
+	currentVictim = ch->get_fighting();
+
+	int mobINT = GET_REAL_INT(ch);
+
+	if (mobINT < INT_STUPID_MOD)
 	{
 		return find_damagee(ch);
 	}
 
-	// если нет цели
-	if (!victim)
+	if (!currentVictim)
 	{
 		return NULL;
+	}
+
+	if (IS_CASTER(currentVictim) && !IS_NPC(currentVictim))
+	{
+		return currentVictim;
 	}
 
 	// проходим по всем чарам в комнате
@@ -972,7 +978,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// волхв
 		if (GET_CLASS(vict) == CLASS_DRUID)
 		{
 			druid = vict;
@@ -980,7 +985,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// лекарь
 		if (GET_CLASS(vict) == CLASS_CLERIC)
 		{
 			cler = vict;
@@ -988,7 +992,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// кудес
 		if (GET_CLASS(vict) == CLASS_CHARMMAGE)
 		{
 			charmmage = vict;
@@ -996,8 +999,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// если у чара меньше 100 хп, то переключаемся на него
-		if (GET_HIT(vict) <= MIN_HP_MOBACT)
+		if (GET_HIT(vict) <= CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK)
 		{
 			return vict;
 		}
@@ -1010,17 +1012,13 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 
 		best = vict;
 	}
-	if (!best)
-		best = victim;
 
-	// если цель кастер, то зачем переключаться ?
-	if (IS_CASTER(victim) && !IS_NPC(victim))
+	if (!best)
 	{
-		return victim;
+		best = currentVictim;
 	}
 
-
-	if (i < INT_MIDDLE_AI)
+	if (mobINT < INT_MIDDLE_AI)
 	{
 		int rand = number(0, 2);
 		if (caster)
@@ -1034,7 +1032,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 		return best;
 	}
 
-	if (i < INT_HIGH_AI)
+	if (mobINT < INT_HIGH_AI)
 	{
 		int rand = number(0, 1);
 		if (caster)

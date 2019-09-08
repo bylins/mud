@@ -9,6 +9,7 @@
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
 
+#include "skills.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -145,14 +146,18 @@ using std::bitset;
 #define HORSE_STUN			125 // ошеломить на лошади
 //новвоведения для чернока
 
-#define TEAMSTER_UNDEAD_FEAT	125 // Погонщик нежити
 #define ELDER_TASKMASTER_FEAT	126 // Старший надсмотрщик
 #define LORD_UNDEAD_FEAT		127 // Повелитель нежити
 #define DARK_WIZARD_FEAT		128 // Темный маг
 #define ELDER_PRIEST_FEAT		129 // Старший жрец
 #define HIGH_LICH_FEAT			130 // Верховный лич
 #define BLACK_RITUAL_FEAT		131 // Темный ритуал
+#define TEAMSTER_UNDEAD_FEAT	132 // Погонщик нежити
+
+#define SKIRMISHER_FEAT			133 // Держать строй
+#define TACTICIAN_FEAT			134 // Атаман
 #define LIVE_SHIELD_FEAT		135 // мультиреск
+
 /*
 //новвоведения для татя
 
@@ -171,16 +176,6 @@ using std::bitset;
 #define DEFT_SHOOTER_FEAT		142 //ловкий стрелок
 #define MAGIC_SHOOTER_FEAT		143 //магический выстрел
 
-/*
-#define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
-#define FIRE_MAGIC_FOCUS_FEAT		  //любимая_магия: огонь
-#define WATER_MAGIC_FOCUS_FEAT		  //любимая_магия: вода
-#define EARTH_MAGIC_FOCUS_FEAT		  //любимая_магия: земля
-#define LIGHT_MAGIC_FOCUS_FEAT		  //любимая_магия: свет
-#define DARK_MAGIC_FOCUS_FEAT		  //любимая_магия: тьма
-#define MIND_MAGIC_FOCUS_FEAT		  //любимая_магия: разум
-#define LIFE_MAGIC_FOCUS_FEAT		  //любимая_магия: жизнь
-*/
 
 // MAX_FEATS определяется в structs.h
 
@@ -188,6 +183,30 @@ using std::bitset;
 #define NORMAL_FTYPE	0
 #define AFFECT_FTYPE	1
 #define SKILL_MOD_FTYPE	2
+#define ACTIVATED_FTYPE	3
+
+// Сложность применения фита. Чем  больше число - тем легче.
+// Рекомендуется придерживаться указанныих ниже рамок хотя поле там short int
+#define MAX_DIFFICULTY -150
+#define MIN_DIFFICULTY 150
+
+// При тесте надо выбросить равное или меньше рейтинга значение
+// Функция возвращает разность рейтинга и броска, деленную на пять - "степень успеха"
+// Отрицательное значение - провал. Нулевое или положительное - успех.
+// Но поскольку у нас в большинстве случаев тупо учитывается "прошло/не прошло"
+// То добавил такую константу, чтоб сразу из кода был ясен смысл
+#define ABILITY_TEST_SUCCESS_THRESHOLD 0
+
+// Базовые параметры для способонстей
+enum EBaseAbilityParameter: int
+{
+	BASE_PARAMETER_INT = 0,
+	BASE_PARAMETER_STR,
+	BASE_PARAMETER_DEX,
+	BASE_PARAMETER_CON,
+	BASE_PARAMETER_WIS,
+	BASE_PARAMETER_CHA
+};
 
 /* Константы и формулы, определяющие число способностей у персонажа
    Скорость появления новых слотов можно задавать для каждого класса
@@ -216,6 +235,8 @@ int feature_mod(int feat, int location);
 void check_berserk(CHAR_DATA * ch);
 void set_race_feats(CHAR_DATA *ch, bool flag = true);
 void set_natural_feats(CHAR_DATA *ch);
+short testAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy);
+bool checkSuccessAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy);
 
 /*
 Служебный класс для удобства вбивания значений в массив affected структуры способности
@@ -269,6 +290,12 @@ struct SFeatInfo
 	bool up_slot;
 	const char *name;
 	std::string alias;
+	// Параметры для нового базового броска на способность
+	// Пока тут, до переписывания системы способностей
+	signed char difficulty;
+	ESkill base_skill;
+	EBaseAbilityParameter base_parameter;
+	unsigned char opposite_saving;
 };
 
 #endif // __FEATURES_HPP__

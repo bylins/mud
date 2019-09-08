@@ -610,6 +610,7 @@ extern const religion_names_t religion_name;
 #define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
 #define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
 #define PRF_IPCONTROL     (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
+#define PRF_SKIRMISHER    (INT_TWO | 1 << 13) // персонаж "в строю" в группе
 
 // при добавлении не забываем про preference_bits[]
 
@@ -804,7 +805,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define WEAR_WAIST     13
 #define WEAR_WRIST_R   14
 #define WEAR_WRIST_L   15
-#define WEAR_WIELD     16      // правая рука 
+#define WEAR_WIELD     16      // правая рука
 #define WEAR_HOLD      17      // левая рука
 #define WEAR_BOTHS     18      // обе руки
 #define WEAR_QUIVER    19      // под лук (колчан)
@@ -1081,9 +1082,11 @@ enum EApplyLocation
 	APPLY_PLAQUE = 60,
 	APPLY_MADNESS = 61,
 	APPLY_PR = 62,
-	APPLY_RESIST_DARK = 63,	
+	APPLY_RESIST_DARK = 63,
 	APPLY_VIEW_DT = 64,
-	NUM_APPLIES = 65
+	APPLY_PERCENT_EXP = 65, //бонус +экспа
+	APPLY_PERCENT_DAM = 66, // бонус +повреждение
+	NUM_APPLIES = 67
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
@@ -1133,7 +1136,7 @@ struct obj_affected_type
 
 enum { DRUNK, FULL, THIRST};
 // pernalty types
-//     Хитрол,    Дамрол,    Каст,   Мем,        Восст. эн., Восст. жиз. 
+//     Хитрол,    Дамрол,    Каст,   Мем,        Восст. эн., Восст. жиз.
 enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
 // Sun state for weather_data //
@@ -1228,7 +1231,7 @@ const long MAX_MONEY_KEPT = 1000000000;
 #define INT_STUPID_MOD 10
 #define INT_MIDDLE_AI 30
 #define INT_HIGH_AI 40
-#define MIN_HP_MOBACT 100
+#define CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK 100
 #define STRONG_MOB_LEVEL 30
 const short MAX_MOB_LEVEL = 100;
 

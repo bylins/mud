@@ -13,6 +13,7 @@
 ************************************************************************ */
 #include "mobact.hpp"
 
+#include "features.hpp"
 #include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "obj.hpp"
@@ -232,6 +233,54 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
+CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim)
+{
+	if (initialVictim == nullptr)
+	{
+		return initialVictim;
+	}
+
+	CHAR_DATA *leader = initialVictim;
+	CHAR_DATA *newVictim = initialVictim;
+	TemporaryCharListType victimList;
+
+	if (initialVictim->has_master())
+	{
+		leader = initialVictim->get_master();
+	}
+
+	if (!checkSuccessAbilityCharacterVSEnemy(TACTICIAN_FEAT, leader, assaulter))
+	{
+		return initialVictim;
+	}
+
+	for (const auto newVictim : world[leader->in_room]->people)
+	{
+		if (!HERE(newVictim) || !same_group(leader, newVictim))
+		{
+			continue;
+		}
+		if (PRF_FLAGGED(newVictim, PRF_SKIRMISHER))
+		{
+			addCharToTmpList(newVictim, &victimList);
+		}
+	}
+
+	if (victimList.empty())
+	{
+		return initialVictim;
+	}
+	newVictim = victimList[number(0, victimList.size()-1)];
+    if (!checkSuccessAbilityCharacterVSEnemy(SKIRMISHER_FEAT, newVictim, assaulter))
+	{
+		return initialVictim;
+	}
+
+	act("Вы героически приняли удар $n1 на себя!", FALSE, assaulter, 0, newVictim, TO_VICT | TO_NO_BRIEF_SHIELDS);
+	act("$n попытал$u ворваться в ваши ряды, но $N героически принял$G удар на себя!", FALSE, assaulter, 0, newVictim, TO_NOTVICT | TO_NO_BRIEF_SHIELDS);
+	return newVictim;
+};
+
 
 CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 {
@@ -242,17 +291,12 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 
 	for (const auto vict : world[ch->in_room]->people)
 	{
-		if ((IS_NPC(vict)
-				&& !IS_SET(extmode, CHECK_OPPONENT)
-				&& !IS_CHARMICE(vict))
-			|| (IS_CHARMICE(vict)
-				&& !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
+		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
+			|| (IS_CHARMICE(vict) && !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
 			|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 			|| !MAY_SEE(ch, ch, vict)
-			|| (IS_SET(extmode, CHECK_OPPONENT)
-				&& ch != vict->get_fighting())
-			|| (!may_kill_here(ch, vict)
-				&& !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+			|| (IS_SET(extmode, CHECK_OPPONENT)	&& ch != vict->get_fighting())
+			|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 		{
 			continue;
 		}
@@ -404,7 +448,8 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
 	}
 
-	return best;
+	//return best;
+	return selectVictimDependingOnGroupFormation(ch, best);
 }
 // TODO invert and rename for clarity: -> isStrayCharmice(), to return true if a charmice, and master is absent =II
 bool find_master_charmice(CHAR_DATA *charmice)
@@ -426,18 +471,26 @@ bool find_master_charmice(CHAR_DATA *charmice)
 // пока тестово
 CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 {
-	// интелект моба
-	int i = GET_REAL_INT(ch);
-	// если у моба меньше 20 инты, то моб тупой
-	if (i < INT_STUPID_MOD)
-	{
-		return find_best_stupidmob_victim(ch, extmode);
-	}
-	CHAR_DATA *victim,  *caster = NULL, *best = NULL;
+	CHAR_DATA *currentVictim,  *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	int extra_aggr = 0;
 	bool kill_this;
-	victim = ch->get_fighting();
+
+	int mobINT = GET_REAL_INT(ch);
+	if (mobINT < INT_STUPID_MOD)
+	{
+		return find_best_stupidmob_victim(ch, extmode);
+	}
+
+	currentVictim = ch->get_fighting();
+	if (currentVictim && !IS_NPC(currentVictim))
+	{
+		if (IS_CASTER(currentVictim))
+		{
+			return currentVictim;
+		}
+	}
+
 	// проходим по всем чарам в комнате
 	for (const auto vict : world[ch->in_room]->people)
 	{
@@ -544,11 +597,9 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			caster = vict;
 			continue;
 		}
-		// если у чара меньше 100 хп, то переключаемся на него
-		if (GET_HIT(vict) <= MIN_HP_MOBACT)
+
+		if (GET_HIT(vict) <= CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK)
 		{
-			//continue;
-			//Кто-то сильно очепятался. Теперь тем у кого меньше 100 хп меньше повезет
 			return vict;
 		}
 		if (IS_CASTER(vict))
@@ -561,20 +612,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 
 	if (!best)
 	{
-		best = victim;
+		best = currentVictim;
 	}
 
-	// если цель кастер, то зачем переключаться ?
-	// проверка, а вдруг это существо моб
-	if (victim && !IS_NPC(victim))
-	{
-		if (IS_CASTER(victim))
-		{
-			return victim;
-		}
-	}
-
-	if (i < INT_MIDDLE_AI)
+	if (mobINT < INT_MIDDLE_AI)
 	{
 		int rand = number(0, 2);
 		if (caster)
@@ -593,10 +634,11 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		{
 			best = charmmage;
 		}
-		return best;
+		//return best;
+		return selectVictimDependingOnGroupFormation(ch, best);
 	}
 
-	if (i < INT_HIGH_AI)
+	if (mobINT < INT_HIGH_AI)
 	{
 		int rand = number(0, 1);
 		if (caster)
@@ -608,7 +650,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if ((rand == 1) && (cler))
 			best = cler;
 
-		return best;
+//		return best;
+		return selectVictimDependingOnGroupFormation(ch, best);
 	}
 
 	//  и если >= 40 инты
@@ -621,7 +664,8 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	if (druid)
 		best = druid;
 
-	return best;
+	//return best;
+	return selectVictimDependingOnGroupFormation(ch, best);
 }
 
 int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
@@ -1143,7 +1187,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 
 			if (vict->get_fighting() == ch.get())
-			{				
+			{
 				return;		// Mob is under attack
 			}
 

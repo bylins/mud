@@ -810,7 +810,7 @@ int calc_anti_savings(CHAR_DATA * ch)
 	return modi;
 }
 
-int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply)
+int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply)
 {
 	int temp_save_stat = 0, temp_awake_mod = 0;
 
@@ -898,6 +898,12 @@ int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_
 	if (IS_NPC(victim) && !IS_NPC(killer))
 		log("SAVING: Caster==%s  Mob==%s vnum==%d Level==%d type==%d base_save==%d stat_bonus==%d awake_bonus==%d save_ext==%d cast_apply==%d result==%d new_random==%d", GET_NAME(killer), GET_NAME(victim), GET_MOB_VNUM(victim), GET_LEVEL(victim), type, extend_saving_throws(class_sav, type, GET_LEVEL(victim)), temp_save_stat, temp_awake_mod, GET_SAVE(victim, type), ext_apply, save, number(1, 200));
 	// Throwing a 0 is always a failure.
+	return save;
+}
+
+int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply)
+{
+	int save = calculateSaving(killer, victim, type, ext_apply);
 	if (MAX(10, save) <= number(1, 200))
 		return (true);
 
@@ -4277,6 +4283,33 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 		}
 
+	case SPELL_WC_LUCK:
+		{
+		af[0].location = APPLY_MORALE;
+		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
+		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
+		to_room = nullptr;
+		break;
+		}
+
+	case SPELL_WC_EXPERIENSE:
+		{
+		af[0].location = APPLY_PERCENT_EXP;
+		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
+		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
+		to_room = nullptr;
+		break;
+		}
+
+	case SPELL_WC_PHYSDAMAGE:
+		{
+		af[0].location = APPLY_PERCENT_DAM;
+		af[0].modifier = MAX(1, ch->get_skill(SKILL_WARCRY) / 20);
+		af[0].duration = pc_duration(victim, 2, ch->get_skill(SKILL_WARCRY), 20, 10, 0) * koef_duration;
+		to_room = nullptr;
+		break;
+		}
+
 	case SPELL_WC_OF_BATTLE:
 		{
 		af[0].location = APPLY_AC;
@@ -5914,7 +5947,7 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 0},
 	{SPELL_GROUP_AWARNESS,
-	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
+	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников6.\r\n",
 	 nullptr,
 	 nullptr,
 	 0},
@@ -5930,30 +5963,6 @@ const spl_message mag_messages[] =
 	 0},
 	{ -1, 0, 0, 0, 0}
 };
-
-// наколенный список чаров для масс-заклов, бьющих по комнате
-// в необходимость самого списка не вникал, но данная конструкция над ним
-// нужна потому, что в случае смерти чара при проходе по уже сформированному
-// списку - за ним могут спуржиться и клоны например, которые тоже в этот
-// список попали, после чего имеем креш, т.к. бьем по невалидным указателям
-typedef std::vector<CHAR_DATA *>  AreaCharListType;
-AreaCharListType tmp_char_list;
-
-void add_to_tmp_char_list(CHAR_DATA *ch)
-{
-	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
-	if (it == tmp_char_list.end())
-		tmp_char_list.push_back(ch);
-}
-
-void delete_from_tmp_char_list(CHAR_DATA *ch)
-{
-	if (tmp_char_list.empty()) return;
-
-	std::vector<CHAR_DATA *>::iterator it = std::find(tmp_char_list.begin(), tmp_char_list.end(), ch);
-	if (it != tmp_char_list.end())
-		*it = 0;
-}
 
 // Применение заклинания к всем существам в комнате
 //---------------------------------------------------------
@@ -5996,7 +6005,7 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 		}
 	}
 
-	tmp_char_list.clear();
+	GroupMagicTmpCharList.clear();
 	for (const auto ch_vict : room->people)
 	{
 		if (IS_IMMORTAL(ch_vict)
@@ -6008,14 +6017,14 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 			continue;
 		}
 
-		add_to_tmp_char_list(ch_vict);
+		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
 	}
 
 	// наколенная (в прямом смысле этого слова, даже стола нет)
 	// версия снижения каста при масс-кастах на чаров, по 9% за каждого игрока
 	const int attacker_cast = GET_CAST_SUCCESS(ch);
 	int targets_count = 0;
-	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
+	for (TemporaryCharListType::const_iterator it = GroupMagicTmpCharList.begin(); it != GroupMagicTmpCharList.end(); ++it)
 	{
 		CHAR_DATA* ch_vict = *it;
 		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
@@ -6095,7 +6104,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 
 	// список генерится до дамага по виктиму, т.к. на нем могут висеть death тригеры
 	// с появлением новых мобов, по которым тот же шок бьет уже после смерти основной цели
-	tmp_char_list.clear();
+	GroupMagicTmpCharList.clear();
 	for (const auto ch_vict : world[ch->in_room]->people)
 	{
 		if (IS_IMMORTAL(ch_vict))
@@ -6114,7 +6123,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 					return 0;
 			}
 		}
-		add_to_tmp_char_list(ch_vict);
+		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
 	}
 
 	mag_single_target(level, ch, victim, nullptr, spellnum, savetype);
@@ -6136,7 +6145,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		}
 	}
 
-	size_t size = tmp_char_list.size();
+	size_t size = GroupMagicTmpCharList.size();
 	int count = 0;
 	while (level > 0 && level >= decay && size != 0)
 	{
@@ -6146,8 +6155,8 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		}
 
 		const auto index = number(0, static_cast<int>(size) - 1);
-		ch_vict = tmp_char_list[index];
-		tmp_char_list[index] = tmp_char_list[--size];
+		ch_vict = GroupMagicTmpCharList[index];
+		GroupMagicTmpCharList[index] = GroupMagicTmpCharList[--size];
 
 		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
 		{
@@ -6183,7 +6192,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 		}
 	}
 
-	if (mag_messages[i].spell == -1)
+	if (mag_messages[i].spell == -1 && !IS_SET(SpINFO.routines, MAG_WARCRY))
 	{
 		sprintf(buf, "Нет сообщения в mag_messages заклинание с номером %d игнорируетсяктся", spellnum);
 		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
@@ -6200,7 +6209,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 			act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 
-	tmp_char_list.clear();
+	GroupMagicTmpCharList.clear();
 	for (const auto ch_vict : world[ch->in_room]->people)
 	{
 		if (!HERE(ch_vict)
@@ -6209,10 +6218,10 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 			continue;
 		}
 
-		add_to_tmp_char_list(ch_vict);
+		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
 	}
 
-	for (AreaCharListType::const_iterator it = tmp_char_list.begin(); it != tmp_char_list.end(); ++it)
+	for (TemporaryCharListType::const_iterator it = GroupMagicTmpCharList.begin(); it != GroupMagicTmpCharList.end(); ++it)
 	{
 		const auto ch_vict = *it;
 		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
