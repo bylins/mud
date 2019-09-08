@@ -216,7 +216,7 @@ void do_summon(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Но ваш какун рядом с вами!\r\n", ch);
 		return;
 	}
-	
+
 	send_to_char("Ваш скакун появился перед вами.\r\n", ch);
 	act("$n исчез$q в голубом пламени.", TRUE, horse, 0, 0, TO_ROOM);
 	char_from_room(horse);
@@ -237,7 +237,7 @@ void do_save(CHAR_DATA *ch, char* /*argument*/, int cmd, int/* subcmd*/)
 	{
 		send_to_char("Ладушки.\r\n", ch);
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
-	}	
+	}
 	write_aliases(ch);
 	ch->save_char();
 	Crash_crashsave(ch);
@@ -980,7 +980,7 @@ int max_group_size(CHAR_DATA *ch)
 {
     int bonus_commander = 0;
     if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER)) bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 120) / 10, 0 , 8);
-    
+
     return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4) + bonus_commander;
 }
 
@@ -1094,7 +1094,8 @@ void change_leader(CHAR_DATA *ch, CHAR_DATA *vict)
 	if (vict)
 	{
 		// флаг группы надо снять, иначе при регрупе не будет писаться о старом лидере
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+		//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+		ch->removeGroupFlags();
 		leader->add_follower_silently(ch);
 	}
 
@@ -1199,7 +1200,7 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 	{
 		if (!header)
 			send_to_char
-			("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Положение\r\n", ch);
+			("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n", ch);
 
 		std::string name = GET_NAME(k);
 		name[0] = UPPER(name[0]);
@@ -1264,14 +1265,15 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 				on_horse(k) ? "В" : " ", CCNRM(ch, C_NRM));
 
 		sprintf(buf + strlen(buf), "%5s|", leader ? "Лидер" : "");
-		sprintf(buf + strlen(buf), "%s", POS_STATE[(int) GET_POS(k)]);
+		ok = PRF_FLAGGED(k, PRF_SKIRMISHER);
+		sprintf(buf + strlen(buf), "%s%-14s%s|",	ok ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
+		sprintf(buf + strlen(buf), " %s", POS_STATE[(int) GET_POS(k)]);
 		act(buf, FALSE, ch, 0, k, TO_CHAR);
 	}
 }
 
 void print_list_group(CHAR_DATA *ch)
 {
-	
 	CHAR_DATA *k;
 	struct follow_type *f;
 	int count = 1;
@@ -1422,13 +1424,13 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		print_group(ch);
 		return;
 	}
-	
+
 	if (!str_cmp(buf, "список"))
 	{
 		print_list_group(ch);
 		return;
 	}
-	
+
 	if (GET_POS(ch) < POS_RESTING)
 	{
 		send_to_char("Трудно управлять группой в таком состоянии.\r\n", ch);
@@ -1446,9 +1448,9 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("За вами никто не следует.\r\n", ch);
 		return;
 	}
-	
-	
-	
+
+
+
 // вычисляем количество последователей
 	for (f_number = 0, f = ch->followers; f; f = f->next)
 	{
@@ -1552,7 +1554,8 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			act("$N исключен$A из состава вашей группы.", FALSE, ch, 0, vict, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, vict, TO_VICT);
 			act("$N был$G исключен$A из группы $n1!", FALSE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-			AFF_FLAGS(vict).unset(EAffectFlag::AFF_GROUP);
+			//AFF_FLAGS(vict).unset(EAffectFlag::AFF_GROUP);
+			vict->removeGroupFlags();
 		}
 	}
 }
@@ -1579,7 +1582,8 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			next_fol = f->next;
 			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
 			{
-				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+				//AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+				f->follower->removeGroupFlags();
 				send_to_char(buf2, f->follower);
 				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
 					&& !(IS_NPC(f->follower)
@@ -1590,6 +1594,7 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+		ch->removeGroupFlags();
 		send_to_char("Вы распустили группу.\r\n", ch);
 		return;
 	}
@@ -1601,7 +1606,8 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			&& !AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 			&& !IS_HORSE(tch))
 		{
-			AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
+			//AFF_FLAGS(tch).unset(EAffectFlag::AFF_GROUP);
+			tch->removeGroupFlags();
 			act("$N более не член вашей группы.", FALSE, ch, 0, tch, TO_CHAR);
 			act("Вы исключены из группы $n1!", FALSE, ch, 0, tch, TO_VICT);
 			act("$N был$G изгнан$A из группы $n1!", FALSE, ch, 0, tch, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1689,7 +1695,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 	one_argument(argument, buf);
 
 	int what_currency;
-		
+
 	switch (currency) {
 		case currency::ICE :
 			what_currency = WHAT_ICEu;
@@ -1707,7 +1713,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 			send_to_char("И как вы это планируете сделать?\r\n", ch);
 			return;
 		}
-		
+
 		if (amount > ch->get_gold() && currency == currency::GOLD)
 		{
 			send_to_char("И где бы взять вам столько денег?.\r\n", ch);
@@ -1746,7 +1752,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 			return;
 		}
 		//MONEY_HACK
-	
+
 		switch (currency) {
 			case currency::ICE :
 				ch->sub_ice_currency(share* (num - 1));
@@ -1761,7 +1767,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 		if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == ch->in_room && !IS_NPC(k) && k != ch)
 		{
 			send_to_char(buf, k);
-			switch (currency) 
+			switch (currency)
 			{
 				case currency::ICE :
 				{
@@ -1888,7 +1894,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	OBJ_DATA *mag_item;
-	int do_hold = 0;	
+	int do_hold = 0;
 	two_arguments(argument, arg, buf);
 	char *buf_temp = str_dup(buf);
 	if (!*arg)
@@ -2005,7 +2011,7 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 	if ((do_hold && GET_EQ(ch, WEAR_HOLD) == mag_item) || (!do_hold))
 		mag_objectmagic(ch, mag_item, buf_temp);
 	free (buf_temp);
-		
+
 }
 
 void do_wimpy(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2337,7 +2343,7 @@ void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		strcpy(buf, "Вы можете установить следующее.\r\n");
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
 			if ((GET_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
-				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);					
+				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
 		strcat(buf, "\r\n");
 		send_to_char(buf, ch);
 	}
@@ -3906,7 +3912,7 @@ bool is_dark(room_rnum room)
 	// если светит луна и комната !помещение и !город
 	if ((SECT(room) != SECT_INSIDE) && (SECT(room) != SECT_CITY) && (IS_MOONLIGHT(room)))
 		coef += 1.0;
-		
+
 	// если ночь и мы не внутри и не в городе
 	if ((SECT(room) != SECT_INSIDE) && (SECT(room) != SECT_CITY) && ((weather_info.sunlight == SUN_SET) || (weather_info.sunlight == SUN_DARK)))
 		coef -= 1.0;
@@ -3916,11 +3922,11 @@ bool is_dark(room_rnum room)
 
 	if (ROOM_FLAGGED(room, ROOM_LIGHT))
 		coef += 200.0;
-	
+
 	// проверка на костер
 	if (world[room]->fires)
-		coef += 1.0;	
-	
+		coef += 1.0;
+
 	// проходим по всем чарам и смотрим на них аффекты тьма/свет/освещение
 
 	for (const auto tmp_ch : world[room]->people)
@@ -3937,17 +3943,123 @@ bool is_dark(room_rnum room)
 		// Санка. Логично, что если чар светится ярким сиянием, то это сияние распространяется на комнату
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_SANCTUARY))
 			coef += 1.0;
-		// Тьма. Сразу фигачим коэф 6. 
+		// Тьма. Сразу фигачим коэф 6.
 		if (AFF_FLAGGED(tmp_ch, EAffectFlag::AFF_HOLYDARK))
 			coef -= 6.0;
 	}
-	
+
 	if (coef < 0)
 	{
 		return true;
 	}
 	return false;
-		
+
+}
+
+int get_feature_num(char *featureName)
+{
+	skip_spaces(&featureName);
+	return find_feat_num(featureName);
+}
+
+bool check_accessibility_activated_feature(CHAR_DATA *ch, int featureNum)
+{
+	if (!HAVE_FEAT(ch, featureNum))
+	{
+		send_to_char("Вы не обладаете такой способностью.", ch);
+		return FALSE;
+	}
+	if (!can_use_feat(ch, featureNum))
+	{
+		send_to_char("Вы не в состоянии использовать эту способность.", ch);
+		return FALSE;
+	}
+	if (feat_info[featureNum].type != ACTIVATED_FTYPE)
+	{
+		send_to_char("Эту способность невозможно применить таким образом.", ch);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void do_activate_feature(CHAR_DATA *ch, int featureNum)
+{
+	switch (featureNum)
+	{
+	case SKIRMISHER_FEAT:
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+		{
+			sprintf(buf, "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n", ch->get_name().c_str());
+			return;
+		}
+		if (PRF_FLAGGED(ch, PRF_SKIRMISHER))
+		{
+			send_to_char("Вы уже стоите в передовом строю.\r\n", ch);
+			return;
+		}
+		PRF_FLAGS(ch).set(PRF_SKIRMISHER);
+		send_to_char("Вы протиснулись вперед и встали в строй.\r\n", ch);
+		act("$n0 протиснул$u вперед и встал$g в строй.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		break;
+	}
+	sprintf(buf, "%sВы решили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
+}
+
+void do_deactivate_feature(CHAR_DATA *ch, int featureNum)
+{
+	switch (featureNum)
+	{
+	case SKIRMISHER_FEAT:
+		if (!PRF_FLAGGED(ch, PRF_SKIRMISHER))
+		{
+			sprintf(buf, "Чтобы выйти из чего-нибудь ненужного, нужно сначала встать в что-нибудь ненужное, а у вас группы нет.\r\n");
+			return;
+		}
+		PRF_FLAGS(ch).unset(PRF_SKIRMISHER);
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+		{
+			send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
+			act("$n0 тактически отступил$g в тыл отряда.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		}
+		break;
+	}
+	sprintf(buf, "%sВы прекратили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
+}
+
+void do_flip_activated_feature(CHAR_DATA *ch, char *argument, int /* cmd */, int subcmd)
+{
+	int featureNum;
+
+	if (!*argument)
+	{
+		send_to_char("Формат: включить/выключить { название способности }\r\n", ch);
+		return;
+	}
+
+	featureNum = get_feature_num(argument);
+	if (featureNum <= THAC0_FEAT)
+	{
+		send_to_char("Такой способности не существует в нашем мире.", ch);
+		return;
+	}
+
+	if (!check_accessibility_activated_feature(ch, featureNum))
+	{
+		return;
+	};
+
+	if (subcmd == SCMD_ACTIVATE_FEATURE)
+	{
+		do_activate_feature(ch, featureNum);
+	} else
+	{
+		do_deactivate_feature(ch, featureNum);
+	}
+
+	send_to_char(buf, ch);
+	if (!WAITLESS(ch))
+		WAIT_STATE(ch, PULSE_VIOLENCE);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

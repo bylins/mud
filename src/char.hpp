@@ -88,7 +88,7 @@ public:
 	ubyte mresist;
 	ubyte aresist;
 	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
-	
+
 };
 
 // Char's abilities.
@@ -106,9 +106,9 @@ struct char_ability_data
 // Char's points.
 struct char_point_data
 {
-	int hit;	
+	int hit;
 	sh_int move;
-	
+
 	sh_int max_move;	// Max move for PC/NPC
 	int max_hit;		// Max hit for PC/NPC
 };
@@ -543,7 +543,7 @@ public:
 	** Returns true if character is mob and located in used zone.
 	**/
 	bool in_used_zone() const;
-	
+
 	/**
 	 * Возвращает коэффициент штрафа за состояние
 	**/
@@ -598,7 +598,7 @@ public:
 	void inc_souls();
 	void dec_souls();
 	int get_souls();
-	
+
 	unsigned get_wait() const { return m_wait; }
 	void set_wait(const unsigned _) { m_wait = _; }
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
@@ -615,6 +615,7 @@ public:
 	void set_role(const role_t& new_role) { role_ = new_role; }
 	void msdp_report(const std::string& name);
 
+	void removeGroupFlags();
 	void add_follower(CHAR_DATA* ch);
 	/** Do NOT call this before having checked if a circle of followers
 	* will arise. CH will follow leader
@@ -822,10 +823,10 @@ inline void CHAR_DATA::clear_ignores()
 	get_player_specials()->ignores.clear();
 }
 
-inline int GET_INVIS_LEV(const CHAR_DATA* ch) 
-{ 
+inline int GET_INVIS_LEV(const CHAR_DATA* ch)
+{
 	if (ch->player_specials->saved.invis_level)
-		return ch->player_specials->saved.invis_level; 
+		return ch->player_specials->saved.invis_level;
 	else
 		return 0;
 }

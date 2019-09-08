@@ -171,7 +171,7 @@ const char* first_letter(const char* txt)
 	return txt;
 }
 
-char *colorCAP(char *txt) 
+char *colorCAP(char *txt)
 {
 	char* letter = const_cast<char *>(first_letter(txt));
 	if (letter && *letter)
@@ -778,7 +778,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		if (!ch->get_master()->followers
 			&& !ch->get_master()->has_master())
 		{
-			AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
+			//AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
+			ch->removeGroupFlags();
 		}
 		free(k);
 	}
@@ -799,7 +800,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	master = ch->get_master();
 	ch->set_master(nullptr);
 
-	AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+	ch->removeGroupFlags();
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
@@ -2069,7 +2071,7 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 int get_real_dr(CHAR_DATA *ch)
 {
 	int dd = 0;
-// Инициализация массива для дальнейшего бонуса попаданий/повреждений от количества перевоплощений	
+// Инициализация массива для дальнейшего бонуса попаданий/повреждений от количества перевоплощений
 	int dam[36] = {0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,6,6,6,6,7,7,7,7,7,7,8,8,8,8,8};
         if (IS_SMITH(ch) || IS_GUARD(ch) || IS_RANGER(ch))  // Бонус имеют только Дружинники, охотники, кузнецы
            dd = dam[MIN(35, GET_REMORT(ch))]; //кап на 35+ морт
@@ -2966,7 +2968,7 @@ bool ParseFilter::init_realtime(const char *str)
 		return false;
 	}
 
-	if (!isdigit(static_cast<unsigned int>(str[0])) 
+	if (!isdigit(static_cast<unsigned int>(str[0]))
 		|| !isdigit(static_cast<unsigned int>(str[1]))
 		|| !isdigit(static_cast<unsigned int>(str[3]))
 		|| !isdigit(static_cast<unsigned int>(str[4]))
@@ -4057,14 +4059,14 @@ void utf8_to_koi(char *str_i, char *str_o)
 			// unexpected as a first byte in a sequence, skip
 		}
 		else if (c < 0xE0)
-		{ 
+		{
 			// one more byte to follow, must be b10xxxxxx
 			unsigned char c1 = static_cast<unsigned char>(*str_i);
 			if ((c1 & 0xC0) ==  0x80)
 			{
 				// valid utf-8, but we are only interested in characters from
 				// the first half of Unicode Cyrillic Block (0x400 to 0x47F)
-				
+
 				// init with unknown
 				*str_o = KOI8_UNKNOWN_CHAR;
 
@@ -4120,9 +4122,9 @@ void utf8_to_koi(char *str_i, char *str_o)
 			}
 		}
 		else if (c < 0xF0)
-		{ 
+		{
 			// two more bytes to follow, must be b10xxxxxx
-			
+
 			if ((str_i[0] & 0xC0) ==  0x80
 				&& (str_i[1] & 0xC0) ==  0x80)
 			{
@@ -4132,7 +4134,7 @@ void utf8_to_koi(char *str_i, char *str_o)
 				u = (u << 6) | (str_i[0] & 0x3F);
 				u = (u << 6) | (str_i[1] & 0x3F);
 				*str_o = KOI8_UNKNOWN_CHAR;
-				
+
 				if (u >= 0x2550 && u <= 0x256C )// 0x2550-0x256C
 				{
 					const unsigned char Utf8ToKoiPg[] = {
@@ -4203,13 +4205,13 @@ void utf8_to_koi(char *str_i, char *str_o)
 
 void koi_to_utf8(char *str_i, char *str_o)
 {
-	// KOI8-R to Cyrillic Unicode block 0x0400 - 0x047F 
+	// KOI8-R to Cyrillic Unicode block 0x0400 - 0x047F
 	const unsigned short KoiToUtf8[] =
 	{
-		0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524, 0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590, 
-		0x2591, 0x2592, 0x2593, 0x2320, 0x25A0, 0x2219, 0x221A, 0x2248, 0x2264, 0x2265, 0x00A0, 0x2321, 0x00B0, 0x00B2, 0x00B7, 0x00F7, 
-		0x2550, 0x2501, 0x2502, 0x0451, 0x2553, 0x2554, 0x2555, 0x2556, 0x2557, 0x2558, 0x2559, 0x255A, 0x255B, 0x255C, 0x255D, 0x255E, 
-		0x255F, 0x2560, 0x2561, 0x0401, 0x2562, 0x2563, 0x2564, 0x2565, 0x2566, 0x2567, 0x2568, 0x2569, 0x256A, 0x256B, 0x256C, 0x00A9, 
+		0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524, 0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590,
+		0x2591, 0x2592, 0x2593, 0x2320, 0x25A0, 0x2219, 0x221A, 0x2248, 0x2264, 0x2265, 0x00A0, 0x2321, 0x00B0, 0x00B2, 0x00B7, 0x00F7,
+		0x2550, 0x2501, 0x2502, 0x0451, 0x2553, 0x2554, 0x2555, 0x2556, 0x2557, 0x2558, 0x2559, 0x255A, 0x255B, 0x255C, 0x255D, 0x255E,
+		0x255F, 0x2560, 0x2561, 0x0401, 0x2562, 0x2563, 0x2564, 0x2565, 0x2566, 0x2567, 0x2568, 0x2569, 0x256A, 0x256B, 0x256C, 0x00A9,
 		0x44E, 0x430, 0x431, 0x446, 0x434, 0x435, 0x444, 0x433, 0x445, 0x438, 0x439, 0x43A, 0x43B, 0x43C, 0x43D, 0x43E,
 		0x43F, 0x44F, 0x440, 0x441, 0x442, 0x443, 0x436, 0x432, 0x44C, 0x44B, 0x437, 0x448, 0x44D, 0x449, 0x447, 0x44A,
 		0x42E, 0x410, 0x411, 0x426, 0x414, 0x415, 0x424, 0x413, 0x425, 0x418, 0x419, 0x41A, 0x41B, 0x41C, 0x41D, 0x41E,

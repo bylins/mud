@@ -663,6 +663,7 @@ void init_spell_levels(void);
 const char *feat_name(int num);
 const char *skill_name(int num);
 const char *spell_name(int num);
+int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 int general_savingthrow(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_apply);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 int min_spell_lvl_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
