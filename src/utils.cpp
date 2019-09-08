@@ -832,34 +832,6 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			{
 				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
 			}
-			else
-			{
-				if (master &&
-						!IS_SET(mode, SF_MASTERDIE) &&
-						ch->in_room == IN_ROOM(master) &&
-						CAN_SEE(ch, master) && !ch->get_fighting() &&
-						!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
-				{
-					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))
-					{
-						act("$n посчитал$g, что вы заслуживаете смерти!",
-							FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);
-						act("$n заорал$g : \"Ты долго водил$G меня за нос, но дальше так не пойдет!\""
-						    "              \"Теперь только твоя смерть может искупить твой обман!!!\"",
-						    TRUE, ch, 0, master, TO_NOTVICT | CHECK_DEAF);
-						set_fighting(ch, master);
-					}
-				}
-				else
-				{
-					if (master
-						&& !IS_SET(mode, SF_MASTERDIE)
-						&& CAN_SEE(ch, master) && MOB_FLAGGED(ch, MOB_MEMORY))
-					{
-						remember(ch, master);
-					}
-				}
-			}
 		}
 	}
 

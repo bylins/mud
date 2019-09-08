@@ -1335,6 +1335,10 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 			}
 		}
 
+		if (CAN_SEE(victim, ch)) {
+			remember(victim, ch);
+		}
+
 		affect_from_char(victim, SPELL_CHARM);
 		ch->add_follower(victim);
 		AFFECT_DATA<EApplyLocation> af;
