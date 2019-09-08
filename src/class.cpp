@@ -1983,6 +1983,13 @@ void init_warcry(CHAR_DATA *ch) // проставление кличей в об
 {
 	if (GET_CLASS(ch) == CLASS_GUARD)
 		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
+
+	if (GET_CLASS(ch) == CLASS_RANGER)
+	{
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_EXPERIENSE), SPELL_KNOW); // клич опыта
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_LUCK), SPELL_KNOW); // клич удачи
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_PHYSDAMAGE), SPELL_KNOW); // клич +дамага
+	}
 	if (GET_CLASS(ch) == CLASS_WARRIOR)
 	{
 		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
