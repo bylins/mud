@@ -127,6 +127,8 @@ void update_pos(CHAR_DATA * victim)
 		GET_POS(victim) = POS_MORTALLYW;
 	else if (GET_HIT(victim) <= -3)
 		GET_POS(victim) = POS_INCAP;
+	else if (GET_POS(victim) == POS_INCAP && GET_WAIT(victim)>0)
+		GET_POS(victim) = POS_INCAP;
 	else
 		GET_POS(victim) = POS_STUNNED;
 

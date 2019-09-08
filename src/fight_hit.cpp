@@ -2693,6 +2693,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		return (0);
 	}
 
+	// нельзя драться в состоянии нестояния
+	if (GET_POS(ch) <= POS_INCAP)
+	{
+		return 0;
+	}
+
 	// санка/призма для физ и маг урона
 	if (dam >= 2)
 	{
