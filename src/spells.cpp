@@ -3220,6 +3220,8 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	return;
 }
 
+const char* spell_wear_off_msg_t::DEFAULT_MESSAGE = "!нет сообщения при спадении аффекта под номером %d!";
+char spell_wear_off_msg_t::MESSAGE_BUFFER[spell_wear_off_msg_t::MESSAGE_BUFFER_LENGTH];
 const spell_wear_off_msg_t spell_wear_off_msg =
 {
 	"RESERVED DB.C",	// 0
