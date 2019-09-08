@@ -742,7 +742,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 		}
 		else
 		{
-			// для мобов возможно только 2 ошибки 
+			// для мобов возможно только 2 ошибки
 			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
 			AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
 			{
@@ -1637,7 +1637,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
-		
+
 		if (IS_NPC(helpee))
 		{
 			for (auto i = 0; i < NUM_WEARS; i++)
@@ -2018,7 +2018,7 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-	
+
 	//Информация о емкостях (Купала)
 	case OBJ_DATA::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
@@ -3716,7 +3716,9 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "будет ловким", "... и человек разумный укрепляет ловкость свою."}, //ловкость
 	cast_phrase_t{ "защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу." }, // груп мигание
 	cast_phrase_t{ "огрожу беззакония их туманом", "...да защитит и покроет рассветная пелена тела ваши." }, // груп затуманивание
-	cast_phrase_t{ "буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их." } // груп внимательность
+	cast_phrase_t{ "буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их." }, // груп внимательность
+	cast_phrase_t{ "...отче Велес, очи отвержеши!", "...надежда тщетна: не упадешь ли от одного взгляда его?" }, // SPELL_MASS_FAILURE
+	cast_phrase_t{ "Заклинати поврещение в сети заскопиены!", "...будет трапеза их сетью им, и мирное пиршество их - западнею." } // SPELL_MASS_NOFLEE
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3966,6 +3968,8 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_GROUP_BLINK] = "SPELL_GROUP_BLINK";
 	ESpell_name_by_value[ESpell::SPELL_GROUP_CLOUDLY] = "SPELL_GROUP_CLOUDLY";
 	ESpell_name_by_value[ESpell::SPELL_GROUP_AWARNESS] = "SPELL_GROUP_AWARNESS";
+	ESpell_name_by_value[ESpell::SPELL_MASS_FAILURE] = "SPELL_MASS_FAILURE";
+	ESpell_name_by_value[ESpell::SPELL_MASS_NOFLEE] = "SPELL_MASS_NOFLEE";
 
 	for (const auto& i : ESpell_name_by_value)
 	{

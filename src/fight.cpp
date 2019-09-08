@@ -810,6 +810,10 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 		spellreal = SPELL_CURSE;
 	else if (spellreal == SPELL_MASS_SLOW)
 		spellreal = SPELL_SLOW;
+	else if (spellreal == SPELL_MASS_FAILURE)
+		spellreal = SPELL_FAILURE;
+	else if (spellreal == SPELL_MASS_NOFLEE)
+		spellreal = SPELL_NOFLEE;
 
 	if (GET_REAL_INT(caster) > number(10, 20))
 	{
@@ -1134,7 +1138,7 @@ void mob_casting(CHAR_DATA * ch)
 	int spellnum, spells = 0, sp_num;
 	OBJ_DATA *item;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
@@ -1192,7 +1196,7 @@ void mob_casting(CHAR_DATA * ch)
 			for (int i = 1; i <= 3; i++)
 			{
 				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
-				{	
+				{
 					log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
@@ -1790,7 +1794,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 				else
-				{ 
+				{
 //send_to_char(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1967,7 +1971,7 @@ void process_npc_attack(CHAR_DATA *ch)
 	//    continue;
 
 	// Вызываем триггер перед началом боевых моба (магических или физических)
-	
+
 	if (!fight_mtrigger(ch))
 		return;
 
@@ -2260,7 +2264,7 @@ void perform_violence()
 	//* суммон хелперов
 	check_mob_helpers();
 
-	// храним список писей, которым надо показать состояние группы по msdp 
+	// храним список писей, которым надо показать состояние группы по msdp
 	std::unordered_set<CHAR_DATA *> msdp_report_chars;
 
 	//* действия до раунда и расчет инициативы
@@ -2368,7 +2372,7 @@ void perform_violence()
 			}
 		}
 	}
-	
+
 	// покажем группу по msdp
 	// проверка на поддержку протокола есть в методе msdp_report
 	for (const auto& ch: msdp_report_chars)

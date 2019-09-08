@@ -792,7 +792,7 @@ int timer_affected_roomt(long id, int spellnum)
 int calc_anti_savings(CHAR_DATA * ch)
 {
 	int modi = 0;
-	
+
 	if (WAITLESS(ch))
 		modi = 350;
 	else if (GET_GOD_FLAG(ch, GF_GODSLIKE))
@@ -802,7 +802,7 @@ int calc_anti_savings(CHAR_DATA * ch)
 	else
 		modi = GET_CAST_SUCCESS(ch);
 	modi += MAX(0, MIN(20, (int)((GET_REAL_WIS(ch) - 23) * 3 / 2)));
-	if (!IS_NPC(ch)) 
+	if (!IS_NPC(ch))
 	{
 		modi *= ch->get_cond_penalty(P_CAST);
 	}
@@ -1806,13 +1806,13 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 	{
 		dam += dam * (1 +  static_cast<double>((GET_REAL_WIS(ch) - 22)) / 200);
 	}
-	
+
 	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.
 	if (!IS_NPC(ch))
 	{
 		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 	}
-	
+
 	return (dam);
 }
 
@@ -2417,8 +2417,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			sdice = 4;
 			adice = level * 3;
 		}
-			
-		break;      
+
+		break;
 
 	}			// switch(spellnum)
 
@@ -2484,7 +2484,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		//после коэффициента - так как в самой функции стоит планка по дамагу, пусть и относительная
 		dam = magic_skill_damage_calc(ch, victim, spellnum, dam);
 	}
-	
+
 	//Голодный кастер меньше дамажит!
 	if (!IS_NPC(ch))
 		dam*=ch->get_cond_penalty(P_DAMROLL);
@@ -2675,7 +2675,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	// Magic glass
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY))
 	{
-		if (ch != victim 
+		if (ch != victim
 		    && SpINFO.violent
 		    && ((!IS_GOD(ch)
 		         && AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS)
@@ -2991,7 +2991,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_GROUP_BLESS:
 	case SPELL_BLESS:
 		af[0].location = APPLY_SAVING_STABILITY;
-		af[0].modifier = -5 - GET_REMORT(ch) / 3; 
+		af[0].modifier = -5 - GET_REMORT(ch) / 3;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_BLESS);
 		af[1].location = APPLY_SAVING_WILL;
@@ -3806,6 +3806,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_NOFLEE: // "приковать противника"
 	case SPELL_INDRIKS_TEETH:
+	case SPELL_MASS_NOFLEE:
 		af[0].battleflag = AF_BATTLEDEC;
 		savetype = SAVING_WILL;
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
@@ -4068,6 +4069,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 
 	case SPELL_FAILURE:
+	case SPELL_MASS_FAILURE:
 		{
 		savetype = SAVING_WILL;
 		if (ch != victim && general_savingthrow(ch, victim, savetype, modi))
@@ -5840,7 +5842,7 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 nullptr,
 	 0},
-// новые спелы. описание по ходу появления идей         
+// новые спелы. описание по ходу появления идей
 	{SPELL_SIGHT_OF_DARKNESS,
 	 nullptr,
 	 nullptr,
@@ -5905,16 +5907,26 @@ const spl_message mag_messages[] =
 	 "Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},	
+	 0},
 	{SPELL_GROUP_CLOUDLY,
 	 "Пелена тумана окутала вас и окружющих, скрыв очертания.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},	
+	 0},
 	{SPELL_GROUP_AWARNESS,
 	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
 	 nullptr,
 	 nullptr,
+	 0},
+	{SPELL_MASS_FAILURE,
+	 "Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n",
+	 nullptr,
+	 "$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги.",
+	 0},
+	{SPELL_MASS_NOFLEE,
+	 "Вы соткали магические тенета, опутавшие ваших врагов.\r\n",
+	 nullptr,
+	 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас",
 	 0},
 	{ -1, 0, 0, 0, 0}
 };

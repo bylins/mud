@@ -387,7 +387,9 @@ enum ESpell
 	SPELL_GROUP_BLINK = 235, // групповая мигалка
 	SPELL_GROUP_CLOUDLY = 236, // группповое затуманивание
 	SPELL_GROUP_AWARNESS = 237, // групповая внимательность
-	SPELLS_COUNT = SPELL_GROUP_AWARNESS    // Counter corresponds to the last value because we count spells from 1.
+	SPELL_MASS_FAILURE = 238, // взгляд Велеса (массовая недоля)
+	SPELL_MASS_NOFLEE = 239, // западня (массовое сковывание)
+	SPELLS_COUNT = SPELL_MASS_NOFLEE    // Counter corresponds to the last value because we count spells from 1.
 };
 
 typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
