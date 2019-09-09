@@ -1795,13 +1795,11 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
-				if (!IS_IMMORTAL(ch) && ((!IS_NPC(ch) && (!Clan::MayEnter(ch, door, HCE_PORTAL)
-											|| (GET_LEVEL(ch) <= 10 && world[door]->portal_time)))
-											|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)
-												|| ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
-											|| AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)
-											|| (world[door]->pkPenterUnique && (ROOM_FLAGGED(door, ROOM_ARENA) || ROOM_FLAGGED(door, ROOM_HOUSE)))
-											))
+				if (!IS_IMMORTAL(ch)
+					&& ((!IS_NPC(ch) && (!Clan::MayEnter(ch, door, HCE_PORTAL) || (GET_LEVEL(ch) <= 10 && world[door]->portal_time)))
+						|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)	|| ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
+						|| AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)
+						|| (world[door]->pkPenterUnique && (ROOM_FLAGGED(door, ROOM_ARENA) || ROOM_FLAGGED(door, ROOM_HOUSE)))))
 				{
 					sprintf(buf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
 							CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));

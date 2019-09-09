@@ -735,7 +735,6 @@ void check_horse(CHAR_DATA * ch)
 // при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
 bool stop_follower(CHAR_DATA * ch, int mode)
 {
-	CHAR_DATA *master;
 	struct follow_type *j, *k;
 	int i;
 
@@ -779,7 +778,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			&& !ch->get_master()->has_master())
 		{
 			//AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
-			ch->removeGroupFlags();
+			ch->get_master()->removeGroupFlags();
 		}
 		free(k);
 	}
@@ -797,9 +796,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			free(j);
 		}
 	}
-	master = ch->get_master();
-	ch->set_master(nullptr);
 
+	ch->set_master(nullptr);
 	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 	ch->removeGroupFlags();
 

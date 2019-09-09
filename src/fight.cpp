@@ -812,6 +812,10 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 		spellreal = SPELL_CURSE;
 	else if (spellreal == SPELL_MASS_SLOW)
 		spellreal = SPELL_SLOW;
+	else if (spellreal == SPELL_MASS_FAILURE)
+		spellreal = SPELL_FAILURE;
+	else if (spellreal == SPELL_MASS_NOFLEE)
+		spellreal = SPELL_NOFLEE;
 
 	if (GET_REAL_INT(caster) > number(10, 20))
 	{

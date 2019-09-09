@@ -5385,7 +5385,7 @@ void mag_assign_spells(void)
 //233
 	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
 		   0, 0, 0, 255, 0, FALSE, MAG_AFFECTS, 0, STYPE_NEUTRAL);
-//234	
+//234
 	spello(SPELL_DEXTERITY, "ловкость", "dexterity", 40, 30, 1,
 		 POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //235
@@ -5397,15 +5397,21 @@ void mag_assign_spells(void)
 //237
 	spello(SPELL_GROUP_AWARNESS, "групповая внимательность", "group awarness",
 		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_MIND);
-//238    
+//238
 	spello(SPELL_WC_EXPERIENSE, "клич обучения", "warcry of training", 10, 10, 10,
 		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
-//239    
+//239
 	spello(SPELL_WC_LUCK, "клич везения", "warcry of luck", 10, 10, 10,
 		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //240
 	spello(SPELL_WC_PHYSDAMAGE, "клич точности", "warcry of accuracy", 10, 10, 10,
 		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//241
+	spello(SPELL_MASS_FAILURE, "взор Велеса", "gaze of Veles", 140, 120, 2,
+		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
+//242
+	spello(SPELL_MASS_NOFLEE, "западня", "snare", 140, 120, 2,
+		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
