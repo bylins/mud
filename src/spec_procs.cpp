@@ -251,7 +251,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 					can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
 					feat_info[sortpos].name);
 
-			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
+			if (feat_info[sortpos].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
 				strcat(buf2, buf);
 				j++;
@@ -353,7 +353,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				sprintf(buf + strlen(buf), "%s\r\n", feat_info[sortpos].name);
 			else
 				sprintf(buf, "[-Н-] %s\r\n", feat_info[sortpos].name);
-			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
+			if (feat_info[sortpos].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
 				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);

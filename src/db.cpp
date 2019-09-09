@@ -254,7 +254,7 @@ extern void LoadProxyList();
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
 int strchrn (const char *s, int c) {
-	
+
  int n=-1;
  while (*s) {
   n++;
@@ -266,7 +266,7 @@ int strchrn (const char *s, int c) {
 
 
 // поиск подстроки
-int strchrs(const char *s, const char *t) { 
+int strchrs(const char *s, const char *t) {
  while (*t) {
   int r=strchrn(s,*t);
   if (r>-1) return r;
@@ -322,7 +322,7 @@ bool check_obj_in_system_zone(int vnum)
 	return true;
     // сет-шмот
     if ((vnum >= 1200) && (vnum <= 1299))
-	return true; 
+	return true;
     if ((vnum >= 2300) && (vnum <= 2399))
 	return true;
     // луки
@@ -485,7 +485,7 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	 {
 		 return false;
 	 }
-	// если у объекта таймер ноль, то облом. 
+	// если у объекта таймер ноль, то облом.
 	if (obj->get_timer() == 0)
 	{
 		return false;
@@ -510,9 +510,9 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		}
 	}
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
-	
+
 	// проходим по всем аффектам в нашей таблице
-	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
+	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++)
 	{
 		// проверяем, есть ли наш аффект на предмете
 		if (strstr(buf_temp1, it->first.c_str()) != NULL)
@@ -568,9 +568,9 @@ float count_koef_obj(const CObjectPrototype *obj,int item_wear)
 		}
 	}
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
-	
+
 	// проходим по всем аффектам в нашей таблице
-	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
+	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++)
 	{
 		// проверяем, есть ли наш аффект на предмете
 		if (strstr(buf_temp1, it->first.c_str()) != NULL)
@@ -595,9 +595,9 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 		type_item = true;
 	}
 	// сумма для статов
-	
+
 	result = 0.0;
-	
+
 	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
 	{
 		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FINGER));
@@ -790,7 +790,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 		}
 	}
 
-	if (total_weight < 1) 
+	if (total_weight < 1)
 		return result;
 
 	result = ceil(pow(total_weight, 1 / SQRT_MOD));
@@ -804,20 +804,20 @@ void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
 	pugi::xml_node params, CurNode, affects;
 	params = XMLCriterion.child("params");
 	affects = XMLCriterion.child("affects");
-	
+
 	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
 	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param"))
 	{
 		items_struct[index].params.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
 		//log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}
-	
+
 	// добавляем в массив все аффекты
 	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect"))
 	{
 		items_struct[index].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
 		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
-	}	
+	}
 }
 
 // Separate a 4-character id tag from the data it precedes
@@ -991,7 +991,7 @@ std::vector<_case> cases;
 // Заггрузка сундуков в мире
 void load_cases()
 {
-	pugi::xml_document doc_cases;	
+	pugi::xml_document doc_cases;
 	pugi::xml_node case_, object_, file_case;
 	file_case = XMLLoad(LIB_MISC CASES_FILE, "cases", "Error loading cases file: cases.xml", doc_cases);
 	for (case_ = file_case.child("casef"); case_; case_ = case_.next_sibling("casef"))
@@ -1109,8 +1109,8 @@ void QuestBodrich::load_objs()
 		{
 			tmp_array.push_back(object_.attribute("vnum").as_int());
 		}
-		this->objs.insert(std::pair<int, std::vector<int>>(class_.attribute("id").as_int(), tmp_array));			
-	}	
+		this->objs.insert(std::pair<int, std::vector<int>>(class_.attribute("id").as_int(), tmp_array));
+	}
 }
 
 void QuestBodrich::load_mobs()
@@ -2484,7 +2484,7 @@ void boot_db(void)
 	MKLETTERS(plrstuff/depot);
 	MKDIR("plrstuff/house");
 	MKDIR("stat");
-	
+
 	#undef MKLETTERS
 	#undef MKDIR
 
@@ -2551,7 +2551,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading feature definitions");
 	log("Loading feature definitions.");
-	assign_feats();
+	determineFeaturesSpecification();
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
@@ -2823,11 +2823,11 @@ void boot_db(void)
 	boot_profiler.next_step("Loading mail.xml");
 	log("Load mail.xml");
 	mail::load();
-	
+
 	// загрузка кейсов
 	boot_profiler.next_step("Loading cases");
 	load_cases();
-	
+
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");
 	HelpSystem::reload_all();
@@ -2842,7 +2842,7 @@ void boot_db(void)
 	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
-	
+
 }
 
 // reset the time in the game from file
@@ -4748,7 +4748,7 @@ void ZoneReset::reset_zone_essential()
 					break;
 				}
 
-				mob = NULL;	//Добавлено Ладником 
+				mob = NULL;	//Добавлено Ладником
 				if (mob_index[ZCMD.arg1].number < ZCMD.arg2 &&
 					(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
 				{
@@ -4762,7 +4762,7 @@ void ZoneReset::reset_zone_essential()
 					if (!mob_proto[mob->get_rnum()].get_role_bits().any())
 					{
 						int rndlev = mob->get_level();
-						rndlev += number(-2, +2); 
+						rndlev += number(-2, +2);
 						mob->set_level(rndlev);
 					}
 
@@ -5727,9 +5727,9 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		timed_from_char(ch, ch->timed);
 	}
-	
 
-	
+
+
 
 	while (ch->timed_feat)
 	{
@@ -5739,7 +5739,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		UNSET_FEAT(ch, i);
 	}
-	
+
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0)
 	{
 		ch->clear_skills();
@@ -5762,7 +5762,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			{
 				GET_SPELL_TYPE(ch, i) = 0;
 				GET_SPELL_MEM(ch, i) = 0;
-			}			
+			}
 		}
 	}
 
@@ -5787,7 +5787,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ch->set_protecting(0);
 		ch->BattleAffects.unset(EAF_PROTECT);
 	}
-	
+
 	//Обновляем статистику рипов для текущего перевоплощения
 	GET_RIP_DTTHIS(ch) = 0;
 	GET_EXP_DTTHIS(ch) = 0;
@@ -6559,7 +6559,7 @@ void load_class_limit()
 {
 	pugi::xml_document doc_sw;
 	pugi::xml_node child_, object_, file_sw;
-	
+
 	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i)
 	{
 		for (int j = 0; j < 6; ++j)

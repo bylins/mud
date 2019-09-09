@@ -2484,14 +2484,14 @@ void do_entergame(DESCRIPTOR_DATA * d)
 		if (!HAVE_FEAT(d->character, i)
 			|| can_get_feat(d->character.get(), i))
 		{
-			if (feat_info[i].natural_classfeat[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)])
+			if (feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(d->character)][(int) GET_KIN(d->character)])
 			{
 				SET_FEAT(d->character, i);
 			}
 		}
 	}
 
-	set_race_feats(d->character.get());
+	setFeaturesOfRace(d->character.get());
 
 	//нефиг левыми скиллами размахивать если не имм
 	if (!IS_IMMORTAL(d->character))

@@ -2241,8 +2241,7 @@ void do_ident(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_IDENTIFY;
-		//imed.time = can_use_feat(ch, CONNOISEUR_FEAT) ? feature_mod(CONNOISEUR_FEAT, FEAT_TIMER) : 12;
-		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? feature_mod(CONNOISEUR_FEAT, FEAT_TIMER) : 12) - ((GET_SKILL(ch, SKILL_IDENTIFY) - 25) / 25),1); //12..5 or 8..1
+		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? getModifier(CONNOISEUR_FEAT, FEAT_TIMER) : 12) - ((GET_SKILL(ch, SKILL_IDENTIFY) - 25) / 25),1); //12..5 or 8..1
 		timed_to_char(ch, &timed);
 	}
 	MANUAL_SPELL(skill_identify)
@@ -5385,7 +5384,7 @@ void mag_assign_spells(void)
 //233
 	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
 		   0, 0, 0, 255, 0, FALSE, MAG_AFFECTS, 0, STYPE_NEUTRAL);
-//234	
+//234
 	spello(SPELL_DEXTERITY, "ловкость", "dexterity", 40, 30, 1,
 		 POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
 //235
@@ -5397,10 +5396,10 @@ void mag_assign_spells(void)
 //237
 	spello(SPELL_GROUP_AWARNESS, "групповая внимательность", "group awarness",
 		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_MIND);
-//238    
+//238
 	spello(SPELL_WC_EXPERIENSE, "клич обучения", "warcry of training", 10, 10, 10,
 		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
-//239    
+//239
 	spello(SPELL_WC_LUCK, "клич везения", "warcry of luck", 10, 10, 10,
 		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //240

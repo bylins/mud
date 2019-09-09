@@ -143,9 +143,7 @@ using std::bitset;
 #define LOYALASSIST_FEAT		122 // верный помощник
 #define HAUNTINGSPIRIT_FEAT		123 // блуждающий дух
 #define SNEAKRAGE_FEAT			124 // ярость змеи
-#define HORSE_STUN			125 // ошеломить на лошади
-//новвоведения для чернока
-
+#define HORSE_STUN				125 // ошеломить на лошади
 #define ELDER_TASKMASTER_FEAT	126 // Старший надсмотрщик
 #define LORD_UNDEAD_FEAT		127 // Повелитель нежити
 #define DARK_WIZARD_FEAT		128 // Темный маг
@@ -153,7 +151,6 @@ using std::bitset;
 #define HIGH_LICH_FEAT			130 // Верховный лич
 #define BLACK_RITUAL_FEAT		131 // Темный ритуал
 #define TEAMSTER_UNDEAD_FEAT	132 // Погонщик нежити
-
 #define SKIRMISHER_FEAT			133 // Держать строй
 #define TACTICIAN_FEAT			134 // Атаман
 #define LIVE_SHIELD_FEAT		135 // мультиреск
@@ -185,16 +182,11 @@ using std::bitset;
 #define SKILL_MOD_FTYPE	2
 #define ACTIVATED_FTYPE	3
 
-// Сложность применения фита. Чем  больше число - тем легче.
+// Бонус к броску при проверке срабатывания спосоьности.
 // Рекомендуется придерживаться указанныих ниже рамок хотя поле там short int
-#define MAX_DIFFICULTY -150
-#define MIN_DIFFICULTY 150
+#define MIN_ABILITY_DICEROLL_BONUS -150
+#define MAX_ABILITY_DICEROLL_BONUS 150
 
-// При тесте надо выбросить равное или меньше рейтинга значение
-// Функция возвращает разность рейтинга и броска, деленную на пять - "степень успеха"
-// Отрицательное значение - провал. Нулевое или положительное - успех.
-// Но поскольку у нас в большинстве случаев тупо учитывается "прошло/не прошло"
-// То добавил такую константу, чтоб сразу из кода был ясен смысл
 #define ABILITY_TEST_SUCCESS_THRESHOLD 0
 
 // Базовые параметры для способонстей
@@ -226,16 +218,16 @@ const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4
 
 extern struct SFeatInfo feat_info[MAX_FEATS];
 
+short testAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy);
 int find_feat_num(const char *name, bool alias = false);
-void assign_feats(void);
+int getModifier(int feat, int location);
+void determineFeaturesSpecification(void);
+void check_berserk(CHAR_DATA * ch);
+void setFeaturesOfRace(CHAR_DATA *ch);
+void unsetFeaturesOfRace(CHAR_DATA *ch);
+void setAllInbornFeatures(CHAR_DATA *ch);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-bool have_feat_slot(CHAR_DATA *ch, int feat);
-int feature_mod(int feat, int location);
-void check_berserk(CHAR_DATA * ch);
-void set_race_feats(CHAR_DATA *ch, bool flag = true);
-void set_natural_feats(CHAR_DATA *ch);
-short testAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy);
 bool checkSuccessAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy);
 
 /*
@@ -281,21 +273,21 @@ private:
 
 struct SFeatInfo
 {
-	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
+	int type;
+	int minRemort[NUM_PLAYER_CLASSES][NUM_KIN];
 	int slot[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool classknow[NUM_PLAYER_CLASSES][NUM_KIN];
-	bool natural_classfeat[NUM_PLAYER_CLASSES][NUM_KIN];
-	std::array<CFeatArray::CFeatAffect, MAX_FEAT_AFFECT> affected;
-	int type;
+	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool up_slot;
 	const char *name;
+	std::array<CFeatArray::CFeatAffect, MAX_FEAT_AFFECT> affected;
 	std::string alias;
 	// Параметры для нового базового броска на способность
 	// Пока тут, до переписывания системы способностей
-	signed char difficulty;
-	ESkill base_skill;
-	EBaseAbilityParameter base_parameter;
-	unsigned char opposite_saving;
+	short dicerollBonus;
+	short oppositeSaving;
+	ESkill baseSkill;
+	EBaseAbilityParameter baseParameterOfCharacter;
 };
 
 #endif // __FEATURES_HPP__
