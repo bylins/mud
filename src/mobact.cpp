@@ -249,7 +249,7 @@ CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 		leader = initialVictim->get_master();
 	}
 
-	if (!checkSuccessAbilityCharacterVSEnemy(TACTICIAN_FEAT, leader, assaulter))
+	if (!checkCharacterAbilityVSEnemy(leader, TACTICIAN_FEAT, assaulter))
 	{
 		return initialVictim;
 	}
@@ -271,7 +271,7 @@ CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 		return initialVictim;
 	}
 	newVictim = victimList[number(0, victimList.size()-1)];
-    if (!checkSuccessAbilityCharacterVSEnemy(SKIRMISHER_FEAT, newVictim, assaulter))
+    if (!checkCharacterAbilityVSEnemy(newVictim, SKIRMISHER_FEAT, assaulter))
 	{
 		return initialVictim;
 	}

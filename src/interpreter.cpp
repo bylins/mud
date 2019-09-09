@@ -414,7 +414,6 @@ void do_send_text_to_char(CHAR_DATA *ch, char*, int, int);
 void do_add_wizard(CHAR_DATA *ch, char*, int, int);
 void do_touch_stigma(CHAR_DATA *ch, char*, int, int);
 void do_show_mobmax(CHAR_DATA *ch, char*, int, int);
-void do_flip_activated_feature(CHAR_DATA*, char*, int, int);
 
 /* This is the Master Command List(tm).
 
@@ -506,7 +505,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"вложить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"вернуть", POS_STANDING, do_not_here, 0, 0, -1},
 	{"вернуться", POS_DEAD, do_return, 0, 0, -1},
-	{"включить", POS_STANDING, do_flip_activated_feature, 0, SCMD_ACTIVATE_FEATURE, -1},
 	{"войти", POS_STANDING, do_enter, 0, 0, -2},
 	{"война", POS_RESTING, DoShowWars, 0, 0, 0},
 	{"вооружиться", POS_RESTING, do_wield, 0, 0, 200},
@@ -519,7 +517,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"встать", POS_RESTING, do_stand, 0, 0, 500},
 	{"вспомнить", POS_DEAD, do_remember_char, 0, 0, 0},
 	{"выбросить", POS_RESTING, do_drop, 0, 0 /*SCMD_DONATE */ , 300},
-	{"выключить", POS_STANDING, do_flip_activated_feature, 0, SCMD_DEACTIVATE_FEATURE, -1},
 	{"выследить", POS_STANDING, do_track, 0, 0, 500},
 	{"вылить", POS_STANDING, do_pour, 0, SCMD_POUR, 500},
 	{"выходы", POS_RESTING, do_exits, 0, 0, 0},

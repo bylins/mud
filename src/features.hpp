@@ -182,13 +182,6 @@ using std::bitset;
 #define SKILL_MOD_FTYPE	2
 #define ACTIVATED_FTYPE	3
 
-// Бонус к броску при проверке срабатывания спосоьности.
-// Рекомендуется придерживаться указанныих ниже рамок хотя поле там short int
-#define MIN_ABILITY_DICEROLL_BONUS -150
-#define MAX_ABILITY_DICEROLL_BONUS 150
-
-#define ABILITY_TEST_SUCCESS_THRESHOLD 0
-
 // Базовые параметры для способонстей
 enum EBaseAbilityParameter: int
 {
@@ -216,11 +209,11 @@ const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4
 #define FEAT_TIMER 1
 #define FEAT_SKILL 2
 
-extern struct SFeatInfo feat_info[MAX_FEATS];
+extern struct FeatureInfoType feat_info[MAX_FEATS];
 
-short testAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy);
+short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
+short getModifier(int feat, int location);
 int find_feat_num(const char *name, bool alias = false);
-int getModifier(int feat, int location);
 void determineFeaturesSpecification(void);
 void check_berserk(CHAR_DATA * ch);
 void setFeaturesOfRace(CHAR_DATA *ch);
@@ -228,7 +221,8 @@ void unsetFeaturesOfRace(CHAR_DATA *ch);
 void setAllInbornFeatures(CHAR_DATA *ch);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-bool checkSuccessAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy);
+bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument);
+bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
 
 /*
 Служебный класс для удобства вбивания значений в массив affected структуры способности
@@ -271,7 +265,7 @@ private:
 	int _pos, i;
 };
 
-struct SFeatInfo
+struct FeatureInfoType
 {
 	int type;
 	int minRemort[NUM_PLAYER_CLASSES][NUM_KIN];
@@ -288,6 +282,8 @@ struct SFeatInfo
 	short oppositeSaving;
 	ESkill baseSkill;
 	EBaseAbilityParameter baseParameterOfCharacter;
+
+	short (*calculateSituationalRollBonus)(CHAR_DATA*, CHAR_DATA*);
 };
 
 #endif // __FEATURES_HPP__

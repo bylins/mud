@@ -1127,7 +1127,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	
+
 	if (onhorse(ch))
 	{
 		if (!IS_NPC(ch))
@@ -2278,7 +2278,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 			//af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 			af.location = EApplyLocation::APPLY_PR; // физдамагрезисты
 			af.modifier = 50;
-			af.duration = pc_duration(ch, 3, 0, 0, 0, 0); 
+			af.duration = pc_duration(ch, 3, 0, 0, 0, 0);
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 			af.location = EApplyLocation::APPLY_AR; // магорезисты
@@ -2553,7 +2553,10 @@ const char *cstyles[] = { "normal",
 						  "точный",
 						  "awake",
 						  "осторожный",
-						  "powerattack",
+						  "\n"
+						};
+
+/*						  "powerattack",
 						  "мощнаяатака",
 						  "grandpowerattack",
 						  "улучшеннаямощнаяатака",
@@ -2561,9 +2564,7 @@ const char *cstyles[] = { "normal",
 						  "прицельнаяатака",
 						  "grandaimattack",
 						  "улучшеннаяприцельнаяатака",
-						  "\n"
-						};
-
+*/
 void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int tp;
@@ -2577,6 +2578,10 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 		return;
 	}
+	if (tryFlipActivatedFeature(ch, argument))
+	{
+		return;
+	}
 	if ((tp = search_block(arg, cstyles, FALSE)) == -1)
 	{
 		send_to_char("Формат: стиль { название стиля }\r\n", ch);
@@ -2588,7 +2593,7 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}
-	if ((tp == 3 && !can_use_feat(ch, POWER_ATTACK_FEAT)) || (tp == 4 && !can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)))
+/*	if ((tp == 3 && !can_use_feat(ch, POWER_ATTACK_FEAT)) || (tp == 4 && !can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)))
 	{
 		send_to_char("Вы не можете использовать эту атаку.\r\n", ch);
 		return;
@@ -2597,7 +2602,7 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		send_to_char("Вы не можете использовать эту атаку.\r\n", ch);
 		return;
-	}
+	}*/
 	switch (tp)
 	{
 	case 0:
@@ -2625,11 +2630,12 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			else if (tp == 2)
 				SET_AF_BATTLE(ch, EAF_AWAKE);
 		}
-
-		sprintf(buf, "Вы выбрали %s%s%s стиль боя.\r\n",
+		send_to_char(ch, "Вы выбрали %s%s%s стиль боя.\r\n",
 				CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
+//		sprintf(buf, "Вы выбрали %s%s%s стиль боя.\r\n",
+//				CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
 		break;
-	case 3:
+/*	case 3:
 		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
 		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
 		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
@@ -2696,9 +2702,9 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			sprintf(buf, "%sВы решили использовать улучшенную прицельную атаку.%s\r\n",
 					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
 		}
-		break;
+		break;*/
 	}
-	send_to_char(buf, ch);
+	//send_to_char(buf, ch);
 	if (!WAITLESS(ch))
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 }
@@ -2929,8 +2935,8 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
 
-                
-                
+
+
 		Damage dmg(SkillDmg(SKILL_MANADRAIN), 10, FightSystem::MAGE_DMG);
 		dmg.process(ch, vict);
 	}
@@ -3397,7 +3403,7 @@ void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
 	Noflee.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
 	Noflee.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 	affect_join(ch, Noflee, TRUE, FALSE, TRUE, FALSE);
-	
+
 	// надо потестировать это
 	/* AFFECT_DATA<EApplyLocation> NofleeAndExpedient;
 	NofleeAndExpedient.type = SPELL_BATTLE;
