@@ -2693,6 +2693,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		return (0);
 	}
 
+	// нельзя драться в состоянии нестояния
+	if (GET_POS(ch) <= POS_INCAP)
+	{
+		return 0;
+	}
+
 	// санка/призма для физ и маг урона
 	if (dam >= 2)
 	{
@@ -4183,7 +4189,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		hit_params.add_hand_damage(ch);
 	}
-
+	if (affected_by_spell(ch, SPELL_WC_PHYSDAMAGE))
+	{
+		hit_params.dam += hit_params.dam * (number (1, (ch->get_skill(SKILL_WARCRY) / 20)) / 100.0);
+	}
 	// Gorrah: бонус к повреждениям от умения "железный ветер"
 	// x5 по идее должно быть
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))

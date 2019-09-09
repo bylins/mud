@@ -387,10 +387,35 @@ enum ESpell
 	SPELL_GROUP_BLINK = 235, // групповая мигалка
 	SPELL_GROUP_CLOUDLY = 236, // группповое затуманивание
 	SPELL_GROUP_AWARNESS = 237, // групповая внимательность
-	SPELLS_COUNT = SPELL_GROUP_AWARNESS    // Counter corresponds to the last value because we count spells from 1.
+	SPELL_WC_EXPERIENSE = 238, // опыт группы
+	SPELL_WC_LUCK = 239, // удача группы
+	SPELL_WC_PHYSDAMAGE = 240, // + дам
+	SPELLS_COUNT = 	SPELL_WC_PHYSDAMAGE    // Counter corresponds to the last value because we count spells from 1.
 };
 
-typedef std::array<const char*, SPELLS_COUNT + 1> spell_wear_off_msg_t;
+class spell_wear_off_msg_t: public std::array<const char*, SPELLS_COUNT + 1>
+{
+	private:
+		static constexpr std::size_t MESSAGE_BUFFER_LENGTH = 128;
+		static char MESSAGE_BUFFER[MESSAGE_BUFFER_LENGTH];
+
+		using parent_t = std::array<const char*, SPELLS_COUNT + 1>;
+		using parent_t::operator[];
+
+	public:
+		const static char* DEFAULT_MESSAGE;
+
+		value_type operator[](size_type index) const
+		{
+			if (size() > index && nullptr != parent_t::operator[](index))
+			{
+				return parent_t::operator[](index);
+			}
+
+			::snprintf(MESSAGE_BUFFER, MESSAGE_BUFFER_LENGTH, DEFAULT_MESSAGE, index);
+			return MESSAGE_BUFFER;
+		}
+};
 extern const spell_wear_off_msg_t spell_wear_off_msg;
 
 typedef std::array<const char*, 2> cast_phrase_t;

@@ -1335,6 +1335,10 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 			}
 		}
 
+		if (CAN_SEE(victim, ch)) {
+			remember(victim, ch);
+		}
+
 		affect_from_char(victim, SPELL_CHARM);
 		ch->add_follower(victim);
 		AFFECT_DATA<EApplyLocation> af;
@@ -3220,6 +3224,8 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	return;
 }
 
+const char* spell_wear_off_msg_t::DEFAULT_MESSAGE = "!нет сообщения при спадении аффекта под номером %d!";
+char spell_wear_off_msg_t::MESSAGE_BUFFER[spell_wear_off_msg_t::MESSAGE_BUFFER_LENGTH];
 const spell_wear_off_msg_t spell_wear_off_msg =
 {
 	"RESERVED DB.C",	// 0
@@ -3456,7 +3462,14 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!NONE",
 	"!NONE",
 	"*Боевое воодушевление угасло, а с ним и вся жажда подвигов!",
-	"Вы стали менее шустрым."
+	"Вы стали менее шустрым.",
+	"!NONE",//    SPELL_GROUP_BLINK = 235, // групповая мигалка
+	"!NONE",//    SPELL_GROUP_CLOUDLY = 236, // группповое затуманивание
+	"!NONE",//    SPELL_GROUP_AWARNESS = 237, // групповая внимательность
+	"Действие клича 'везение' закончилось.",
+	"Действие клича 'точности' закончилось.",
+	"Действие клича 'обучение' закончилось."
+
 // * в начале строки значит не выводить текст окончания заклинания см void show_spell_off
 };
 
@@ -3716,7 +3729,10 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "будет ловким", "... и человек разумный укрепляет ловкость свою."}, //ловкость
 	cast_phrase_t{ "защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу." }, // груп мигание
 	cast_phrase_t{ "огрожу беззакония их туманом", "...да защитит и покроет рассветная пелена тела ваши." }, // груп затуманивание
-	cast_phrase_t{ "буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их." } // груп внимательность
+	cast_phrase_t{ "буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их." },
+	cast_phrase_t{ "найдем новизну в рутине сражений!", "найдем новизну в рутине сражений!" }, // опыт на группу
+	cast_phrase_t{ "и пусть удача будет нашей спутницей!", "и пусть удача будет нашей спутницей!" }, // клич на удачу
+	cast_phrase_t{ "бей в глаз, не порти шкуру", "бей в глаз, не порти шкуру." } // клич на дамагу
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
