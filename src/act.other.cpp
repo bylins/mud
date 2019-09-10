@@ -4057,7 +4057,6 @@ void do_flip_activated_feature(CHAR_DATA *ch, char *argument, int /* cmd */, int
 		do_deactivate_feature(ch, featureNum);
 	}
 
-	send_to_char(buf, ch);
 	if (!WAITLESS(ch))
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 }
