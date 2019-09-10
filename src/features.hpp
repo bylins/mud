@@ -212,7 +212,7 @@ const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4
 extern struct FeatureInfoType feat_info[MAX_FEATS];
 
 short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
-short getModifier(int feat, int location);
+int getModifier(int feat, int location);
 int find_feat_num(const char *name, bool alias = false);
 void determineFeaturesSpecification(void);
 void check_berserk(CHAR_DATA * ch);

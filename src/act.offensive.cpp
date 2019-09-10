@@ -2934,9 +2934,6 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		skill = MAX(10, skill - 10 * MAX(0, GET_LEVEL(ch) - GET_LEVEL(vict)));
 		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
 		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
-
-
-
 		Damage dmg(SkillDmg(SKILL_MANADRAIN), 10, FightSystem::MAGE_DMG);
 		dmg.process(ch, vict);
 	}

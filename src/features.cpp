@@ -61,7 +61,7 @@ void determineFeaturesSpecification(void);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
 bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat);
-short getModifier(int feat, int location);
+int getModifier(int feat, int location);
 
 /* Функции для работы с переключаемыми способностями */
 bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument, int /* cmd */, int subcmd);
@@ -75,7 +75,7 @@ bitvector_t getPRFWithFeatureNumber(int fetureNum);
 bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
 bool checkAbilityCriticalFail(short diceRoll);
 short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
-short getBaseAbilityParamerter(CHAR_DATA *ch, EBaseAbilityParameter BaseAbilityParameter);
+short getBaseCharacterParamerter(CHAR_DATA *ch, EBaseAbilityParameter baseParameter);
 short calculateDegreeOfSuccess(short diceRoll);
 
 /* Ситуативные бонусы, пишутся для специфических способностей по потребности */
@@ -888,7 +888,7 @@ bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat)
 	return FALSE;
 }
 
-short getModifier(int feat, int location)
+int getModifier(int feat, int location)
 {
 	for (int i = 0; i < MAX_FEAT_AFFECT; i++)
 	{
@@ -1553,14 +1553,14 @@ bool checkAccessibilityActivatedFeature(CHAR_DATA *ch, int featureNum)
 		send_to_char("Вы не обладаете такой способностью.", ch);
 		return FALSE;
 	}
-	if (!can_use_feat(ch, featureNum))
-	{
-		send_to_char("Вы не в состоянии использовать эту способность.", ch);
-		return FALSE;
-	}
 	if (feat_info[featureNum].type != ACTIVATED_FTYPE)
 	{
 		send_to_char("Эту способность невозможно применить таким образом.", ch);
+		return FALSE;
+	}
+	if (!can_use_feat(ch, featureNum))
+	{
+		send_to_char("Вы не в состоянии использовать эту способность.", ch);
 		return FALSE;
 	}
 
@@ -1616,7 +1616,7 @@ short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
 {
 	short diceRoll = number(1, 100);
 	short baseSkillRating = ch->get_skill(feat_info[ability].baseSkill)/ABILITY_TEST_SKILL_DIVIDER;
-	short baseParameterRating  = getBaseAbilityParamerter(ch, feat_info[ability].baseParameterOfCharacter)/ABILITY_TEST_PARAMETER_DIVIDER;
+	short baseParameterRating  = getBaseCharacterParamerter(ch, feat_info[ability].baseParameterOfCharacter)/ABILITY_TEST_PARAMETER_DIVIDER;
 	short dicerollBonus = feat_info[ability].dicerollBonus + feat_info[ability].calculateSituationalRollBonus(ch, enemy);
 	short oppositeSaving = calculateSaving(ch, enemy, feat_info[ability].oppositeSaving, 0);
 
@@ -1640,9 +1640,9 @@ short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
 	return resultAbilityTest;
 }
 
-short getBaseAbilityParamerter(CHAR_DATA *ch, EBaseAbilityParameter BaseAbilityParameter)
+short getBaseCharacterParamerter(CHAR_DATA *ch, EBaseAbilityParameter baseParameter)
 {
-	switch (BaseAbilityParameter)
+	switch (baseParameter)
 	{
 	case BASE_PARAMETER_INT:
 		return GET_REAL_INT(ch);
