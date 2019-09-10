@@ -390,7 +390,9 @@ enum ESpell
 	SPELL_WC_EXPERIENSE = 238, // опыт группы
 	SPELL_WC_LUCK = 239, // удача группы
 	SPELL_WC_PHYSDAMAGE = 240, // + дам
-	SPELLS_COUNT = 	SPELL_WC_PHYSDAMAGE    // Counter corresponds to the last value because we count spells from 1.
+	SPELL_MASS_FAILURE = 241, // взор Велеса (массовая недоля)
+	SPELL_MASS_NOFLEE = 242, // западня (массовое сковывание)
+	SPELLS_COUNT = 	SPELL_MASS_NOFLEE    // Counter corresponds to the last value because we count spells from 1.
 };
 
 class spell_wear_off_msg_t: public std::array<const char*, SPELLS_COUNT + 1>

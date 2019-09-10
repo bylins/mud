@@ -3621,7 +3621,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		accum_duration = TRUE;
 		accum_affect = TRUE;
 		to_vict = "Вы почувствовали себя более шустрым.";
-		to_room = "$n0 начал$q двигаться более шустрее.";
+		to_room = "$n0 будет двигаться более шустро.";
 		spellnum = SPELL_DEXTERITY;
 		break;
 
@@ -3812,6 +3812,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_NOFLEE: // "приковать противника"
 	case SPELL_INDRIKS_TEETH:
+	case SPELL_MASS_NOFLEE:
 		af[0].battleflag = AF_BATTLEDEC;
 		savetype = SAVING_WILL;
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
@@ -4074,6 +4075,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 
 	case SPELL_FAILURE:
+	case SPELL_MASS_FAILURE:
 		{
 		savetype = SAVING_WILL;
 		if (ch != victim && general_savingthrow(ch, victim, savetype, modi))
@@ -5948,6 +5950,16 @@ const spl_message mag_messages[] =
 	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников6.\r\n",
 	 nullptr,
 	 nullptr,
+	 0},
+	{SPELL_MASS_FAILURE,
+	 "Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n",
+	 nullptr,
+	 "$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги.",
+	 0},
+	{SPELL_MASS_NOFLEE,
+	 "Вы соткали магические тенета, опутавшие ваших врагов.\r\n",
+	 nullptr,
+	 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас",
 	 0},
 	{ -1, 0, 0, 0, 0}
 };

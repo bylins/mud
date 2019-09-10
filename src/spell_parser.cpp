@@ -5405,6 +5405,12 @@ void mag_assign_spells(void)
 //240
 	spello(SPELL_WC_PHYSDAMAGE, "клич точности", "warcry of accuracy", 10, 10, 10,
 		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//241
+	spello(SPELL_MASS_FAILURE, "взор Велеса", "gaze of Veles", 140, 120, 2,
+		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
+//242
+	spello(SPELL_MASS_NOFLEE, "западня", "snare", 140, 120, 2,
+		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
 
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
