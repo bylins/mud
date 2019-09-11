@@ -283,7 +283,7 @@ struct FeatureInfoType
 	ESkill baseSkill;
 	EBaseAbilityParameter baseParameterOfCharacter;
 
-	short (*calculateSituationalRollBonus)(CHAR_DATA*, CHAR_DATA*);
+	short (*calculateSituationalRollBonus)(CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */);
 };
 
 #endif // __FEATURES_HPP__

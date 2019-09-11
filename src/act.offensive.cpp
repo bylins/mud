@@ -2593,16 +2593,7 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}
-/*	if ((tp == 3 && !can_use_feat(ch, POWER_ATTACK_FEAT)) || (tp == 4 && !can_use_feat(ch, GREAT_POWER_ATTACK_FEAT)))
-	{
-		send_to_char("Вы не можете использовать эту атаку.\r\n", ch);
-		return;
-	}
-	if ((tp == 5 && !can_use_feat(ch, AIMING_ATTACK_FEAT)) || (tp == 6 && !can_use_feat(ch, GREAT_AIMING_ATTACK_FEAT)))
-	{
-		send_to_char("Вы не можете использовать эту атаку.\r\n", ch);
-		return;
-	}*/
+
 	switch (tp)
 	{
 	case 0:
@@ -2632,79 +2623,9 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		send_to_char(ch, "Вы выбрали %s%s%s стиль боя.\r\n",
 				CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
-//		sprintf(buf, "Вы выбрали %s%s%s стиль боя.\r\n",
-//				CCRED(ch, C_SPR), tp == 0 ? "обычный" : tp == 1 ? "точный" : "осторожный", CCNRM(ch, C_OFF));
 		break;
-/*	case 3:
-		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
-		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
-		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-		if (PRF_FLAGGED(ch, PRF_POWERATTACK))
-		{
-			PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-			sprintf(buf, "%sВы прекратили использовать мощную атаку.%s\r\n",
-					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
-		}
-		else
-		{
-			PRF_FLAGS(ch).set(PRF_POWERATTACK);
-			sprintf(buf, "%sВы решили использовать мощную атаку.%s\r\n",
-					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
-		}
-		break;
-	case 4:
-		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
-		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
-		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-		if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK))
-		{
-			PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-			sprintf(buf, "%sВы прекратили использовать улучшенную мощную атаку.%s\r\n",
-					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
-		}
-		else
-		{
-			PRF_FLAGS(ch).set(PRF_GREATPOWERATTACK);
-			sprintf(buf, "%sВы решили использовать улучшенную мощную атаку.%s\r\n",
-					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
-		}
-		break;
-	case 5:
-		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
-		if (PRF_FLAGGED(ch, PRF_AIMINGATTACK))
-		{
-			PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
-			sprintf(buf, "%sВы прекратили использовать прицельную атаку.%s\r\n",
-					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
-		}
-		else
-		{
-			PRF_FLAGS(ch).set(PRF_AIMINGATTACK);
-			sprintf(buf, "%sВы решили использовать прицельную атаку.%s\r\n",
-					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
-		}
-		break;
-	case 6:
-		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
-		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
-		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
-		if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK))
-		{
-			PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
-			sprintf(buf, "%sВы прекратили использовать улучшенную прицельную атаку.%s\r\n",
-					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
-		}
-		else
-		{
-			PRF_FLAGS(ch).set(PRF_GREATAIMINGATTACK);
-			sprintf(buf, "%sВы решили использовать улучшенную прицельную атаку.%s\r\n",
-					CCIGRN(ch, C_SPR), CCNRM(ch, C_OFF));
-		}
-		break;*/
 	}
-	//send_to_char(buf, ch);
+
 	if (!WAITLESS(ch))
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 }

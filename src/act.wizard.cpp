@@ -2188,7 +2188,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 	switch (GET_OBJ_TYPE(j))
 	{
 	case OBJ_DATA::ITEM_BOOK:
-	
+
 		switch (GET_OBJ_VAL(j, 0))
 		{
 		case BOOK_SPELL:
@@ -2230,7 +2230,7 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt)
 			{
 				sprintf(buf, "содержит секрет способности : \"%s\"", feat_info[GET_OBJ_VAL(j, 1)].name);
 			}
-			else 
+			else
 				sprintf(buf, "неверный номер способности");
 			break;
 		case BOOK_RECPT:
@@ -7197,6 +7197,7 @@ void do_sanitize(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_godtest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int skl;
+
 	std::ostringstream buffer;
 
 	skip_spaces(&argument);

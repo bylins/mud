@@ -40,16 +40,17 @@
 extern const char *unused_spellname;
 
 // Базовые константы основного теста на успех применения способности
-#define MIN_ABILITY_DICE_ROLL_BONUS -150
-#define MAX_ABILITY_DICE_ROLL_BONUS 150
-#define ABILITY_TEST_SUCCESS_THRESHOLD 0
-#define ABILITY_CRITICAL_FAIL_THRESHOLD 96
-#define MAX_ABILITY_SUCCESS_DEGREE -20
-#define MAX_ABILITY_FAILURE_DEGREE -20
-#define ABILITY_TEST_SKILL_DIVIDER 2
-#define ABILITY_TEST_PARAMETER_DIVIDER 2
-#define SITUATIONABLE_ROLL_BONUS_FACTOR 5
-#define ABILITY_TEST_DEGREE_DIVIDER 5
+const short _minAbilityDiceRollBonus = -150;
+const short _maxAbilityDiceRollBonus = 150;
+const short _abilityTestSuccessThreshold = 0;
+const short _abilityCriticalFailThreshold = 96;
+const short _maxAbilitySuccessDegree = -20;
+const short _minAbilitySuccessDegree = -20;
+const short _abilityTestSkillDivider = 2;
+const short _abilityTestParemeterDivider = 2;
+const short _situationableRollBonusFactor = 5;
+const short _abilityTestDegreeDivider = 5;
+const short _minimalFailResult = -1;
 
 struct FeatureInfoType feat_info[MAX_FEATS];
 
@@ -79,8 +80,8 @@ short getBaseCharacterParamerter(CHAR_DATA *ch, EBaseAbilityParameter baseParame
 short calculateDegreeOfSuccess(short diceRoll);
 
 /* Ситуативные бонусы, пишутся для специфических способностей по потребности */
-short calculateSituationalRollBonusByDefault(CHAR_DATA *, CHAR_DATA *);
-short calculateSituationalRollBonusTactician(CHAR_DATA *ch, CHAR_DATA *);
+short calculateSituationalRollBonusByDefault(CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */);
+short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */);
 
 /* Активные способности */
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -118,7 +119,7 @@ int find_feat_num(const char *name, bool alias)
 }
 
 void initializeFeature(int featureNum, const char *name, int type, bool can_up_slot, CFeatArray app,
-		 short dicerollBonus = MAX_ABILITY_DICE_ROLL_BONUS, ESkill baseSkill = SKILL_THAC0,
+		 short dicerollBonus = _maxAbilityDiceRollBonus, ESkill baseSkill = SKILL_THAC0,
 		 EBaseAbilityParameter baseParameterOfCharacter = BASE_PARAMETER_INT, short oppositeSaving = SAVING_STABILITY)
 {
 	int i, j;
@@ -163,7 +164,7 @@ void initializeFeatureByDefault(int featureNum)
 		}
 
 	feat_info[featureNum].name = unused_spellname;
-	feat_info[featureNum].dicerollBonus = MAX_ABILITY_DICE_ROLL_BONUS;
+	feat_info[featureNum].dicerollBonus = _maxAbilityDiceRollBonus;
 	feat_info[featureNum].baseSkill = SKILL_THAC0;
 	feat_info[featureNum].baseParameterOfCharacter = BASE_PARAMETER_INT;
 	feat_info[featureNum].oppositeSaving = SAVING_STABILITY;
@@ -581,9 +582,10 @@ void determineFeaturesSpecification(void)
 	initializeFeature(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
 //133
 	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_RESCUE, BASE_PARAMETER_DEX, SAVING_REFLEX);
+	feat_info[SKIRMISHER_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //134
 	initializeFeature(TACTICIAN_FEAT, "атаман", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
-	feat_info[TACTICIAN_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusTactician;
+	feat_info[TACTICIAN_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //135
 	initializeFeature(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
 // === Проскок номеров (типа резерв под татей) ===
@@ -1467,18 +1469,9 @@ void CFeatArray::clear()
 
 bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument)
 {
-	int featureNum;
-
-/*	if (!*argument)
-	{
-		send_to_char("Формат: включить/выключить { название способности }\r\n", ch);
-		return;
-	}*/
-
-	featureNum = get_feature_num(argument);
+	int featureNum = get_feature_num(argument);
 	if (featureNum <= THAC0_FEAT)
 	{
-		//send_to_char("Такой способности не существует в нашем мире.", ch);
 		return false;
 	}
 
@@ -1495,19 +1488,43 @@ bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument)
 		activateFeature(ch, featureNum);
 	}
 
+	if (!WAITLESS(ch))
+		WAIT_STATE(ch, PULSE_VIOLENCE);
 	return true;
-//	if (!WAITLESS(ch))
-//		WAIT_STATE(ch, PULSE_VIOLENCE);
 }
 
 void activateFeature(CHAR_DATA *ch, int featureNum)
 {
 	switch (featureNum)
 	{
+	case POWER_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).set(PRF_POWERATTACK);
+		break;
+	case GREAT_POWER_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).set(PRF_GREATPOWERATTACK);
+		break;
+	case AIMING_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).set(PRF_AIMINGATTACK);
+		break;
+	case GREAT_AIMING_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).set(PRF_GREATAIMINGATTACK);
+		break;
 	case SKIRMISHER_FEAT:
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		{
-			sprintf(buf, "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n", ch->get_name().c_str());
+			send_to_char(ch, "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n", ch->get_name().c_str());
 			return;
 		}
 		if (PRF_FLAGGED(ch, PRF_SKIRMISHER))
@@ -1520,7 +1537,6 @@ void activateFeature(CHAR_DATA *ch, int featureNum)
 		act("$n0 протиснул$u вперед и встал$g в строй.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
 	}
-	//sprintf(buf, "%sВы решили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
 	send_to_char(ch, "%sВы решили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
 }
 
@@ -1528,12 +1544,19 @@ void deactivateFeature(CHAR_DATA *ch, int featureNum)
 {
 	switch (featureNum)
 	{
+	case POWER_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		break;
+	case GREAT_POWER_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		break;
+	case AIMING_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		break;
+	case GREAT_AIMING_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		break;
 	case SKIRMISHER_FEAT:
-		if (!PRF_FLAGGED(ch, PRF_SKIRMISHER))
-		{
-			sprintf(buf, "Чтобы выйти из чего-нибудь ненужного, нужно сначала встать в что-нибудь ненужное, а у вас группы нет.\r\n");
-			return;
-		}
 		PRF_FLAGS(ch).unset(PRF_SKIRMISHER);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
 		{
@@ -1542,7 +1565,6 @@ void deactivateFeature(CHAR_DATA *ch, int featureNum)
 		}
 		break;
 	}
-	//sprintf(buf, "%sВы прекратили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
 	send_to_char(ch, "%sВы прекратили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
 }
 
@@ -1550,17 +1572,17 @@ bool checkAccessibilityActivatedFeature(CHAR_DATA *ch, int featureNum)
 {
 	if (!HAVE_FEAT(ch, featureNum))
 	{
-		send_to_char("Вы не обладаете такой способностью.", ch);
+		send_to_char("Вы не обладаете такой способностью.\r\n", ch);
 		return FALSE;
 	}
 	if (feat_info[featureNum].type != ACTIVATED_FTYPE)
 	{
-		send_to_char("Эту способность невозможно применить таким образом.", ch);
+		send_to_char("Эту способность невозможно применить таким образом.\r\n", ch);
 		return FALSE;
 	}
 	if (!can_use_feat(ch, featureNum))
 	{
-		send_to_char("Вы не в состоянии использовать эту способность.", ch);
+		send_to_char("Вы не в состоянии использовать эту способность.\r\n", ch);
 		return FALSE;
 	}
 
@@ -1575,7 +1597,7 @@ int get_feature_num(char *featureName)
 
 /*
 * Это, как обычно, все временно :) До переделки способностей на классы.
-* Ибо не хочется добавлять из-за нескольких способностей целое поле и иметь с ним головняки
+* Не хочется добавлять из-за нескольких способностей целое поле и иметь с ним головняки
 * Тем более, что тогда уж логично вкодить и способность делать автоаффекты и т.п.
 * В общем, временно, ага.
 */
@@ -1605,7 +1627,7 @@ bitvector_t getPRFWithFeatureNumber(int featureNum)
 
 bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
 {
-	if (!can_use_feat(ch, ability) || (testCharacterAbilityVSEnemy(ch, ability, enemy) < ABILITY_TEST_SUCCESS_THRESHOLD))
+	if (!can_use_feat(ch, ability) || (testCharacterAbilityVSEnemy(ch, ability, enemy) < _abilityTestSuccessThreshold))
 	{
 		return false;
 	}
@@ -1615,8 +1637,9 @@ bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
 short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
 {
 	short diceRoll = number(1, 100);
-	short baseSkillRating = ch->get_skill(feat_info[ability].baseSkill)/ABILITY_TEST_SKILL_DIVIDER;
-	short baseParameterRating  = getBaseCharacterParamerter(ch, feat_info[ability].baseParameterOfCharacter)/ABILITY_TEST_PARAMETER_DIVIDER;
+	ESkill baseSkill = feat_info[ability].baseSkill;
+	short baseSkillRating = ch->get_skill(baseSkill)/_abilityTestSkillDivider;
+	short baseParameterRating  = getBaseCharacterParamerter(ch, feat_info[ability].baseParameterOfCharacter)/_abilityTestParemeterDivider;
 	short dicerollBonus = feat_info[ability].dicerollBonus + feat_info[ability].calculateSituationalRollBonus(ch, enemy);
 	short oppositeSaving = calculateSaving(ch, enemy, feat_info[ability].oppositeSaving, 0);
 
@@ -1625,16 +1648,17 @@ short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
 
 	if (PRF_FLAGGED(ch, PRF_TESTER))
 	{
-		//sprintf(buf, "&CСпособность %s, Бонус броска %d Противник %s, Сейв %d, Суммарный рейтинг %d, Ролл %d, Результат броска %d&n\r\n",
-//				feat_info[ability].name, dicerollBonus, GET_NAME(enemy), oppositeSaving, characterRating, diceRoll, resultAbilityTest);
-		//send_to_char(buf, ch);
-		send_to_char(ch, "&CСпособность %s, Бонус броска %d Противник %s, Сейв %d, Суммарный рейтинг %d, Ролл %d, Результат броска %d&n\r\n",
-				feat_info[ability].name, dicerollBonus, GET_NAME(enemy), oppositeSaving, characterRating, diceRoll, resultAbilityTest);
+		send_to_char(ch, "&CСпособность %s, Бонус броска %d Противник %s, Рейтинг умения %d, Рейтинг параметра %d, Сейв %d, Суммарный рейтинг %d, Ролл %d, Результат броска %d&n\r\n",
+				feat_info[ability].name, dicerollBonus, GET_NAME(enemy), baseSkillRating, baseParameterRating, oppositeSaving, characterRating, diceRoll, resultAbilityTest);
 	}
 
 	if (checkAbilityCriticalFail(diceRoll))
 	{
-		return MIN(resultAbilityTest, -1);
+		resultAbilityTest = MIN(resultAbilityTest, _minimalFailResult);
+	}
+	if (resultAbilityTest < _abilityTestSuccessThreshold)
+	{
+		train_skill(ch, baseSkill, skill_info[baseSkill].max_percent, enemy);
 	}
 
 	return resultAbilityTest;
@@ -1668,31 +1692,31 @@ short getBaseCharacterParamerter(CHAR_DATA *ch, EBaseAbilityParameter baseParame
 
 short calculateDegreeOfSuccess(short testResult)
 {
-	return testResult/ABILITY_TEST_DEGREE_DIVIDER;
+	return testResult/_abilityTestDegreeDivider;
 }
 
 // В перспективе тут нужен учет удачи
 // Но его механика еще не придумана. :)
 bool checkAbilityCriticalFail(short diceRoll)
 {
-	if (diceRoll > ABILITY_CRITICAL_FAIL_THRESHOLD)
+	if (diceRoll > _abilityCriticalFailThreshold)
 	{
 		return true;
 	}
 	return false;
 }
 
-short calculateSituationalRollBonusByDefault(CHAR_DATA *, CHAR_DATA *)
+short calculateSituationalRollBonusByDefault(CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */)
 {
 	return 0;
 };
 
 /*
-* Ситуативный бонус броска для "tactician feat":
+* Ситуативный бонус броска для "tactician feat" и "skirmisher feat":
 * Каждый персонаж в строю прикрывает двух, третий дает штраф.
 * Избыток "строевиков" повышает шанс на удачное срабатывание.
 */
-short calculateSituationalRollBonusTactician(CHAR_DATA *ch, CHAR_DATA *)
+short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */)
 {
 	short skirmishers(0), uncoveredSquadMembers(0);
 
@@ -1706,10 +1730,10 @@ short calculateSituationalRollBonusTactician(CHAR_DATA *ch, CHAR_DATA *)
 			} else
 			{
 				uncoveredSquadMembers++;
-			}
+			};
 		}
 	}
-	return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_ROLL_BONUS_FACTOR;
+	return (skirmishers*2 - uncoveredSquadMembers)*_situationableRollBonusFactor;
 };
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
