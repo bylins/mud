@@ -1484,7 +1484,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (k = 0; k < SAVING_COUNT; k++)
-			GET_SAVE(mob_proto + i, k) = MIN(200, MAX(-200, t[k]));
+			GET_SAVE(mob_proto + i, k) = MIN(400, MAX(-400, t[k]));
 	}
 
 	CASE("HPReg")
@@ -1507,7 +1507,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 
 	CASE("CastSuccess")
 	{
-		RANGE(-200, 200);
+		RANGE(-200, 300);
 		mob_proto[i].add_abils.cast_success = num_arg;
 	}
 
@@ -1607,7 +1607,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	// *** Extended for Adamant
 	CASE("LikeWork")
 	{
-		RANGE(0, 200);
+		RANGE(0, 100);
 		mob_proto[i].mob_specials.LikeWork = num_arg;
 	}
 
