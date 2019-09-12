@@ -1484,7 +1484,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (k = 0; k < SAVING_COUNT; k++)
-			GET_SAVE(mob_proto + i, k) = MIN(400, MAX(-400, t[k]));
+			GET_SAVE(mob_proto + i, k) = MIN(MAX_SAVE, MAX(-MAX_SAVE, t[k]));
 	}
 
 	CASE("HPReg")

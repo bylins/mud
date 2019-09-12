@@ -2099,7 +2099,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			GET_SAVE(OLC_MOB(d), number - 1) = MIN(400, MAX(-400, bit));
+			GET_SAVE(OLC_MOB(d), number - 1) = MIN(MAX_SAVE, MAX(-MAX_SAVE, bit));
 		}
 		medit_disp_saves(d);
 		return;
