@@ -1151,9 +1151,19 @@ float func_koef_modif(int spellnum, int percent)
 			return 1;
 		return 0;
 	break;
+	case SPELL_MASS_SLOW:
+	case SPELL_SLOW:
+	{
+		if (percent >= 80)
+		{
+			return (percent - 80) / 20 + 1;
+		}
+	}
+	break;
 	default:
 		return 1;
 	}
+	return 0;
 }
 
 // This file update battle affects only
@@ -3339,7 +3349,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_SLOW:
 		savetype = SAVING_STABILITY;
 		if (AFF_FLAGGED(victim, EAffectFlag::AFF_BROKEN_CHAINS)
-				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi)))
+				|| (ch != victim && general_savingthrow(ch, victim, savetype, modi *  number(1, koef_modifier / 2))))
 		{
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -3356,6 +3366,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),
 						 pc_duration(victim, 9, 0, 0, 0, 0)) * koef_duration;
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_SLOW);
+		af[1].duration = calculate_resistance_coeff(victim, get_resist_type(spellnum),  pc_duration(victim, 9, 0, 0, 0, 0)) * koef_duration;
+		af[1].location = APPLY_DEX;
+		af[1].modifier = -koef_modifier;
 		to_room = "Движения $n1 заметно замедлились.";
 		to_vict = "Ваши движения заметно замедлились.";
 		spellnum = SPELL_SLOW;
