@@ -1234,6 +1234,7 @@ const long MAX_MONEY_KEPT = 1000000000;
 #define CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK 100
 #define STRONG_MOB_LEVEL 30
 const short MAX_MOB_LEVEL = 100;
+const short MAX_SAVE = 400; //максимальное значение воля, здоровье, стойкость, реакция
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 
