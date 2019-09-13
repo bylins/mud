@@ -581,10 +581,10 @@ void determineFeaturesSpecification(void)
 //132
 	initializeFeature(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
 //133
-	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_RESCUE, BASE_PARAMETER_DEX, SAVING_REFLEX);
+	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 90, SKILL_RESCUE, BASE_PARAMETER_DEX, SAVING_REFLEX);
 	feat_info[SKIRMISHER_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //134
-	initializeFeature(TACTICIAN_FEAT, "атаман", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
+	initializeFeature(TACTICIAN_FEAT, "десятский", ACTIVATED_FTYPE, TRUE, feat_app, 90, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
 	feat_info[TACTICIAN_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //135
 	initializeFeature(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
@@ -601,6 +601,8 @@ void determineFeaturesSpecification(void)
     initializeFeature(DEFT_SHOOTER_FEAT, "ловкий стрелок", NORMAL_FTYPE, TRUE, feat_app);
 //143
     initializeFeature(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, TRUE, feat_app);
+//143
+    initializeFeature(THROW_WEAPON_FEAT, "метнуть оружие", WEAPON_EXPEDIENT_FEAT, TRUE, feat_app, 100, SKILL_PICK, BASE_PARAMETER_DEX, SAVING_REFLEX);
 }
 
 bool can_use_feat(const CHAR_DATA *ch, int feat)
@@ -1638,7 +1640,10 @@ short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
 {
 	short diceRoll = number(1, 100);
 	ESkill baseSkill = feat_info[ability].baseSkill;
-	short baseSkillRating = ch->get_skill(baseSkill)/_abilityTestSkillDivider;
+	// В функции calculate_skill творится полная порнография, которая не учитывается в формуле и которуд надо уничтожить
+	// Но пока придется оставить так "пусть безобразно - зато единообразно"
+	short baseSkillRating = calculate_skill(ch, baseSkill, enemy);
+	baseSkillRating = ch->get_skill(baseSkill)/_abilityTestSkillDivider;
 	short baseParameterRating  = getBaseCharacterParamerter(ch, feat_info[ability].baseParameterOfCharacter)/_abilityTestParemeterDivider;
 	short dicerollBonus = feat_info[ability].dicerollBonus + feat_info[ability].calculateSituationalRollBonus(ch, enemy);
 	short oppositeSaving = calculateSaving(ch, enemy, feat_info[ability].oppositeSaving, 0);

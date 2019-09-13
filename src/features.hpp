@@ -172,15 +172,26 @@ using std::bitset;
 #define OBJECT_ENCHANTER_FEAT	141 //зачаровывание предметов
 #define DEFT_SHOOTER_FEAT		142 //ловкий стрелок
 #define MAGIC_SHOOTER_FEAT		143 //магический выстрел
+#define THROW_WEAPON_FEAT		144 // Метание
+#define SHADOW_THROW_FEAT		145 //
+#define SHADOW_DAGGER_FEAT		146 //
+#define SHADOW_SPEAR_FEAT		147 //
+#define SHADOW_AXE_FEAT			148 //
+#define DOUBLE_THROW_FEAT		149 //
+#define TRIPLE_THROW_FEAT		150 //
+#define POWER_THROW_FEAT		151 //
+#define DEADLY_THROW_FEAT		152 //
+#define CARAVAN_DRIVER_FEAT		153 //
 
 
 // MAX_FEATS определяется в structs.h
 
-#define UNUSED_FTYPE	-1
-#define NORMAL_FTYPE	0
-#define AFFECT_FTYPE	1
-#define SKILL_MOD_FTYPE	2
-#define ACTIVATED_FTYPE	3
+#define UNUSED_FTYPE			-1
+#define NORMAL_FTYPE			0
+#define AFFECT_FTYPE			1
+#define SKILL_MOD_FTYPE			2
+#define ACTIVATED_FTYPE			3
+#define WEAPON_EXPEDIENT_FEAT	4
 
 // Базовые параметры для способонстей
 enum EBaseAbilityParameter: int
