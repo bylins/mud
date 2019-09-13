@@ -125,7 +125,7 @@ const char *drinknames[] = { "водой",
 						   };
 
 // effect of drinks on DRUNK, FULL, THIRST -- see values.doc
-const int drink_aff[][3] = { 
+const int drink_aff[][3] = {
 	{0, 1, -10},	        // вода
 	{2, -2, -3},			// пиво
 	{5, -2, -2},			// вино
@@ -303,7 +303,7 @@ void do_drink_poison (CHAR_DATA *ch, OBJ_DATA *jar,int amount) {
 		act("$n поперхнул$u и закашлял$g.", TRUE, ch, 0, 0, TO_ROOM);
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_POISON;
-		//если объем 0 - 
+		//если объем 0 -
 		af.duration = pc_duration(ch, amount == 0 ? 3 : amount==1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
 		af.location = APPLY_STR;
@@ -322,17 +322,17 @@ void do_drink_poison (CHAR_DATA *ch, OBJ_DATA *jar,int amount) {
 
 int cast_potion(CHAR_DATA *ch, OBJ_DATA *jar)
 {
-	// Added by Adept - обкаст если в фонтане или емкости зелье	
+	// Added by Adept - обкаст если в фонтане или емкости зелье
 	if (is_potion(jar) && jar->get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0)
 	{
 		act("$n выпил$g зелья из $o1.", TRUE, ch, jar, 0, TO_ROOM);
 		send_to_char(ch, "Вы выпили зелья из %s.\r\n", OBJN(jar, ch, 1));
-		
+
 		//не очень понятно, но так было
 		for (int i = 1; i <= 3; ++i)
 			if (cast_potion_spell(ch, jar, i) <= 0)
 				break;
-		
+
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		jar->dec_weight();
 		// все выпито
@@ -351,7 +351,7 @@ int cast_potion(CHAR_DATA *ch, OBJ_DATA *jar)
 	return 0;
 }
 
-int do_drink_check(CHAR_DATA *ch, OBJ_DATA *jar) 
+int do_drink_check(CHAR_DATA *ch, OBJ_DATA *jar)
 {
 	//Проверка в бою?
 	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
@@ -414,7 +414,7 @@ OBJ_DATA* do_drink_get_jar (CHAR_DATA *ch, char *jar_name)
 }
 
 int do_drink_get_amount(CHAR_DATA *ch, OBJ_DATA *jar, int subcmd) {
-	
+
 	int amount = 1; //по умолчанию 1 глоток
 	float V = 1;
 
@@ -435,12 +435,12 @@ int do_drink_get_amount(CHAR_DATA *ch, OBJ_DATA *jar, int subcmd) {
 		// рандом 3-10 глотков
 		amount = number(3, 10);
 	}
-	
+
 	// Если жидкость утоляет жаду
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST]<0)
 	{
 		V = (float) - GET_COND(ch,THIRST)/drink_aff[GET_OBJ_VAL(jar, 2)][THIRST];
-	} 
+	}
 	// Если жидоксть вызывает сушняк
 	else if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST]>0)
 	{
@@ -471,7 +471,7 @@ int do_drink_check_conditions(CHAR_DATA *ch, OBJ_DATA *jar, int amount)
 		return 0;
 	}
 
-	
+
 	// Если жидкость с градусом
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK]>0)
 	{
@@ -480,7 +480,7 @@ int do_drink_check_conditions(CHAR_DATA *ch, OBJ_DATA *jar, int amount)
 			if (GET_SKILL(ch,SKILL_DRUNKOFF)>0) {//если опохмел есть
 				send_to_char("Вас передернуло от одной мысли о том что бы выпить.\r\nПохоже, вам стоит опохмелиться.\r\n", ch);
 			} else {//если опохмела нет
-				send_to_char("Вы пытались... но не смогли заставить себя выпить...\r\n", ch);				
+				send_to_char("Вы пытались... но не смогли заставить себя выпить...\r\n", ch);
 			}
 			return 0;
 		}
@@ -529,12 +529,12 @@ void do_drink_drunk(CHAR_DATA *ch, OBJ_DATA *jar, int amount){
 		{
 			send_to_char("Приятное тепло разлилось по вашему телу.\r\n", ch);
 		}
-		
+
 		duration = 2 + MAX(0, GET_COND(ch, DRUNK) - CHAR_DRUNKED);
-		
+
 		if (can_use_feat(ch, DRUNKARD_FEAT))
 			duration += duration/2;
-		
+
 		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)
 				&& GET_DRUNK_STATE(ch) < MAX_COND_VALUE
 					&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK))
@@ -564,7 +564,7 @@ void do_drink_drunk(CHAR_DATA *ch, OBJ_DATA *jar, int amount){
 			af.location = APPLY_DAMROLL;
 			af.bitvector = to_underlying(EAffectFlag::AFF_DRUNKED);
 			af.battleflag = 0;
-			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);			
+			affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
 		}
 	}
 }
@@ -573,7 +573,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *jar;
 	int amount;
-	
+
 	//мобы не пьют
 	if (IS_NPC(ch))
 		return;
@@ -593,18 +593,18 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// Общие проверки
 	if (!do_drink_check(ch,jar))
 		return;
-	
+
 	// Бухаем зелье
 	if (cast_potion(ch, jar))
 		return;
-	
-	// Вычисляем объем жидкости доступный для потребления	
+
+	// Вычисляем объем жидкости доступный для потребления
 	amount = do_drink_get_amount(ch,jar,subcmd);
-	
+
 	// Проверяем может ли чар пить
 	if (!do_drink_check_conditions(ch,jar,amount))
 		return;
-	
+
 	if (subcmd == SCMD_DRINK)
 	{
 		sprintf(buf, "$n выпил$g %s из $o1.", drinks[GET_OBJ_VAL(jar, 2)]);
@@ -652,7 +652,7 @@ void do_drink(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST]<0 && GET_COND(ch, THIRST) <= NORM_COND_VALUE)
 			send_to_char("Вы не чувствуете жажды.\r\n", ch);
 	}
-	
+
 	// Опьянение
 	do_drink_drunk(ch,jar,amount);
 	// Отравление
@@ -781,7 +781,7 @@ void do_drunkoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	timed.skill = SKILL_DRUNKOFF;
-	timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? feature_mod(DRUNKARD_FEAT, FEAT_TIMER) : 12;
+	timed.time = can_use_feat(ch, DRUNKARD_FEAT) ? getModifier(DRUNKARD_FEAT, FEAT_TIMER) : 12;
 	timed_to_char(ch, &timed);
 
 	percent = number(1, skill_info[SKILL_DRUNKOFF].max_percent);

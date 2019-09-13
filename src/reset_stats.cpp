@@ -117,14 +117,13 @@ void reset_stats(CHAR_DATA *ch, Type type)
 		ch->set_start_stat(G_STR, 0);
 		break;
 	case Type::RACE:
-		// убираем способности текущего рода
-		set_race_feats(ch, false);
-		// и потом уже выводим на ValidateStats
+		unsetFeaturesOfRace(ch);
+		// выводим на ValidateStats
 		ch->set_race(99);
 		break;
 	case Type::FEATS:
 		ch->real_abils.Feats.reset();
-		set_natural_feats(ch);
+		setAllInbornFeatures(ch);
 		break;
 	case Type::RELIGION:
 		ch->player_data.Religion = 2; //RELIGION_MONO + 1

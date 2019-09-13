@@ -263,7 +263,7 @@ void Player::add_hryvn(int value)
 	}
 	else
 	{
-		send_to_char(this, "Вы получили %ld %s.\r\n", 
+		send_to_char(this, "Вы получили %ld %s.\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
 	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
@@ -1536,7 +1536,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					this->add_daily_quest(num, num2);
 					this->set_time_daily_quest(num, lnum);
 				}
-				
+
 			}
 			break;
 
@@ -2109,8 +2109,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		GET_LOADROOM(this) = NOWHERE;
 	}
 
-	// Set natural & race features - added by Gorrah
-	set_natural_feats(this);
+	setAllInbornFeatures(this);
 
 	if (IS_GRGOD(this))
 	{
@@ -2148,7 +2147,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
-	
+
 	this->account = Account::get_account(GET_EMAIL(this));
 	if (this->account == nullptr)
 	{
@@ -2327,7 +2326,7 @@ int Player::get_count_daily_quest(int id)
 	if (this->daily_quest.count(id))
 		return this->daily_quest[id];
 	return 0;
-	
+
 }
 
 time_t Player::get_time_daily_quest(int id)

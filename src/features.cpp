@@ -39,18 +39,54 @@
 
 extern const char *unused_spellname;
 
-struct SFeatInfo feat_info[MAX_FEATS];
+// Базовые константы основного теста на успех применения способности
+const short _minAbilityDiceRollBonus = -150;
+const short _maxAbilityDiceRollBonus = 150;
+const short _abilityTestSuccessThreshold = 0;
+const short _abilityCriticalFailThreshold = 96;
+const short _maxAbilitySuccessDegree = -20;
+const short _minAbilitySuccessDegree = -20;
+const short _abilityTestSkillDivider = 2;
+const short _abilityTestParemeterDivider = 2;
+const short _situationableRollBonusFactor = 5;
+const short _abilityTestDegreeDivider = 5;
+const short _minimalFailResult = -1;
 
-void initializeFeature(int featureNum);
-void assign_feats(void);
+struct FeatureInfoType feat_info[MAX_FEATS];
+
+/* Служебные функции */
+extern void fix_name_feat(char *name);
+
+void initializeFeatureByDefault(int featureNum);
+void determineFeaturesSpecification(void);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-bool have_feat_slot(CHAR_DATA *ch, int feat);
-int feature_mod(int feat, int location);
+bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat);
+int getModifier(int feat, int location);
+
+/* Функции для работы с переключаемыми способностями */
+bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument, int /* cmd */, int subcmd);
+void activateFeature(CHAR_DATA *ch, int featureNum);
+void deactivateFeature(CHAR_DATA *ch, int featureNum);
+bool checkAccessibilityActivatedFeature(CHAR_DATA *ch, int featureNum);
+int get_feature_num(char *featureName);
+bitvector_t getPRFWithFeatureNumber(int fetureNum);
+
+/* Игромеханика тестов на срабатывание способностей */
+bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
+bool checkAbilityCriticalFail(short diceRoll);
+short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
+short getBaseCharacterParamerter(CHAR_DATA *ch, EBaseAbilityParameter baseParameter);
+short calculateDegreeOfSuccess(short diceRoll);
+
+/* Ситуативные бонусы, пишутся для специфических способностей по потребности */
+short calculateSituationalRollBonusByDefault(CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */);
+short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */);
+
+/* Активные способности */
+void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void check_berserk(CHAR_DATA * ch);
 
-void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-extern void fix_name_feat(char *name);
 
 ///
 /// Поиск номера способности по имени
@@ -82,16 +118,15 @@ int find_feat_num(const char *name, bool alias)
 	return (-1);
 }
 
-// Инициализация способности заданными значениями
-void feato(int featureNum, const char *name, int type, bool can_up_slot, CFeatArray app,
-		 unsigned char difficulty = MIN_DIFFICULTY, ESkill base_skill = SKILL_THAC0,
-		 EBaseAbilityParameter base_parameter = BASE_PARAMETER_INT, unsigned char opposite_saving = SAVING_STABILITY)
+void initializeFeature(int featureNum, const char *name, int type, bool can_up_slot, CFeatArray app,
+		 short dicerollBonus = _maxAbilityDiceRollBonus, ESkill baseSkill = SKILL_THAC0,
+		 EBaseAbilityParameter baseParameterOfCharacter = BASE_PARAMETER_INT, short oppositeSaving = SAVING_STABILITY)
 {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
-			feat_info[featureNum].min_remort[i][j] = 0;
+			feat_info[featureNum].minRemort[i][j] = 0;
 			feat_info[featureNum].slot[i][j] = 0;
 		}
 	if (name)
@@ -102,10 +137,10 @@ void feato(int featureNum, const char *name, int type, bool can_up_slot, CFeatAr
 		boost::trim_all(alias);
 		feat_info[featureNum].alias = alias;
 	}
-	feat_info[featureNum].difficulty = difficulty;
-	feat_info[featureNum].base_skill = base_skill;
-	feat_info[featureNum].base_parameter = base_parameter;
-	feat_info[featureNum].opposite_saving = opposite_saving;
+	feat_info[featureNum].dicerollBonus = dicerollBonus;
+	feat_info[featureNum].baseSkill = baseSkill;
+	feat_info[featureNum].baseParameterOfCharacter = baseParameterOfCharacter;
+	feat_info[featureNum].oppositeSaving = oppositeSaving;
 	feat_info[featureNum].type = type;
 	feat_info[featureNum].up_slot = can_up_slot;
 	for (i = 0; i < MAX_FEAT_AFFECT; i++)
@@ -115,25 +150,24 @@ void feato(int featureNum, const char *name, int type, bool can_up_slot, CFeatAr
 	}
 }
 
-// Инициализация для unused features
-void initializeFeature(int featureNum)
+void initializeFeatureByDefault(int featureNum)
 {
 	int i, j;
 
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
 		for (j = 0; j < NUM_KIN; j++)
 		{
-			feat_info[featureNum].min_remort[i][j] = 0;
+			feat_info[featureNum].minRemort[i][j] = 0;
 			feat_info[featureNum].slot[i][j] = 0;
-			feat_info[featureNum].natural_classfeat[i][j] = FALSE;
+			feat_info[featureNum].inbornFeatureOfClass[i][j] = FALSE;
 			feat_info[featureNum].classknow[i][j] = FALSE;
 		}
 
 	feat_info[featureNum].name = unused_spellname;
-	feat_info[featureNum].difficulty = MIN_DIFFICULTY;
-	feat_info[featureNum].base_skill = SKILL_THAC0;
-	feat_info[featureNum].base_parameter = BASE_PARAMETER_INT;
-	feat_info[featureNum].opposite_saving = SAVING_STABILITY;
+	feat_info[featureNum].dicerollBonus = _maxAbilityDiceRollBonus;
+	feat_info[featureNum].baseSkill = SKILL_THAC0;
+	feat_info[featureNum].baseParameterOfCharacter = BASE_PARAMETER_INT;
+	feat_info[featureNum].oppositeSaving = SAVING_STABILITY;
 	feat_info[featureNum].type = UNUSED_FTYPE;
 	feat_info[featureNum].up_slot = FALSE;
 
@@ -142,51 +176,51 @@ void initializeFeature(int featureNum)
 		feat_info[featureNum].affected[i].location = APPLY_NONE;
 		feat_info[featureNum].affected[i].modifier = 0;
 	}
+
+	 feat_info[featureNum].calculateSituationalRollBonus = &calculateSituationalRollBonusByDefault;
 }
 
 // Инициализация массива структур способностей
-void assign_feats(void)
+void determineFeaturesSpecification(void)
 {
-	int i;
 	CFeatArray feat_app;
-	for (i = 1; i < MAX_FEATS; i++)
+	for (int i = 1; i < MAX_FEATS; i++)
 	{
-		initializeFeature(i);
+		initializeFeatureByDefault(i);
 	}
-
 //1
-	feato(BERSERK_FEAT, "предсмертная ярость", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(BERSERK_FEAT, "предсмертная ярость", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //2
-	feato(PARRY_ARROW_FEAT, "отбить стрелу", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(PARRY_ARROW_FEAT, "отбить стрелу", NORMAL_FTYPE, TRUE, feat_app);
 //3
-	feato(BLIND_FIGHT_FEAT, "слепой бой", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(BLIND_FIGHT_FEAT, "слепой бой", NORMAL_FTYPE, TRUE, feat_app);
 //4
 	feat_app.insert(APPLY_MR, 1);
 	feat_app.insert(APPLY_AR, 1);
-	feato(IMPREGNABLE_FEAT, "непробиваемый", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(IMPREGNABLE_FEAT, "непробиваемый", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //5-*
-	feato(APPROACHING_ATTACK_FEAT, "встречная атака", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(APPROACHING_ATTACK_FEAT, "встречная атака", NORMAL_FTYPE, TRUE, feat_app);
 //6
-	feato(DEFENDER_FEAT, "щитоносец", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(DEFENDER_FEAT, "щитоносец", NORMAL_FTYPE, TRUE, feat_app);
 //7
-	feato(DODGER_FEAT, "изворотливость", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(DODGER_FEAT, "изворотливость", AFFECT_FTYPE, TRUE, feat_app);
 //8
-	feato(LIGHT_WALK_FEAT, "легкая поступь", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(LIGHT_WALK_FEAT, "легкая поступь", NORMAL_FTYPE, TRUE, feat_app);
 //9
-	feato(WRIGGLER_FEAT, "проныра", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(WRIGGLER_FEAT, "проныра", NORMAL_FTYPE, TRUE, feat_app);
 //10
-	feato(SPELL_SUBSTITUTE_FEAT, "подмена заклинания", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SPELL_SUBSTITUTE_FEAT, "подмена заклинания", NORMAL_FTYPE, TRUE, feat_app);
 //11
-	feato(POWER_ATTACK_FEAT, "мощная атака", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(POWER_ATTACK_FEAT, "мощная атака", ACTIVATED_FTYPE, TRUE, feat_app);
 //12
 	feat_app.insert(APPLY_RESIST_FIRE, 5);
 	feat_app.insert(APPLY_RESIST_AIR, 5);
 	feat_app.insert(APPLY_RESIST_WATER, 5);
 	feat_app.insert(APPLY_RESIST_EARTH, 5);
 	feat_app.insert(APPLY_RESIST_DARK, 5);
-	feato(WOODEN_SKIN_FEAT, "деревянная кожа", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(WOODEN_SKIN_FEAT, "деревянная кожа", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //13
 	feat_app.insert(APPLY_RESIST_FIRE, 10);
@@ -195,395 +229,378 @@ void assign_feats(void)
 	feat_app.insert(APPLY_RESIST_EARTH, 10);
 	feat_app.insert(APPLY_RESIST_DARK, 10);
 	feat_app.insert(APPLY_ABSORBE, 5);
-	feato(IRON_SKIN_FEAT, "железная кожа", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(IRON_SKIN_FEAT, "железная кожа", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //14
 	feat_app.insert(FEAT_TIMER, 8);
-	feato(CONNOISEUR_FEAT, "знаток", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(CONNOISEUR_FEAT, "знаток", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //15
-	feato(EXORCIST_FEAT, "изгоняющий нежить", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(EXORCIST_FEAT, "изгоняющий нежить", SKILL_MOD_FTYPE, TRUE, feat_app);
 //16
-	feato(HEALER_FEAT, "целитель", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(HEALER_FEAT, "целитель", NORMAL_FTYPE, TRUE, feat_app);
 //17
 	feat_app.insert(APPLY_SAVING_REFLEX, -10);
-	feato(LIGHTING_REFLEX_FEAT, "мгновенная реакция", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(LIGHTING_REFLEX_FEAT, "мгновенная реакция", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //18
 	feat_app.insert(FEAT_TIMER, 8);
-	feato(DRUNKARD_FEAT, "пьяница", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(DRUNKARD_FEAT, "пьяница", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //19
-	feato(POWER_MAGIC_FEAT, "мощь колдовства", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(POWER_MAGIC_FEAT, "мощь колдовства", NORMAL_FTYPE, TRUE, feat_app);
 //20
 	feat_app.insert(APPLY_MOVEREG, 40);
-	feato(ENDURANCE_FEAT, "выносливость", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(ENDURANCE_FEAT, "выносливость", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //21
 	feat_app.insert(APPLY_SAVING_WILL, -10);
 	feat_app.insert(APPLY_SAVING_STABILITY, -10);
-	feato(GREAT_FORTITUDE_FEAT, "сила духа", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(GREAT_FORTITUDE_FEAT, "сила духа", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //22
 	feat_app.insert(APPLY_HITREG, 35);
-	feato(FAST_REGENERATION_FEAT, "быстрое заживление", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(FAST_REGENERATION_FEAT, "быстрое заживление", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //23
-	feato(STEALTHY_FEAT, "незаметность", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(STEALTHY_FEAT, "незаметность", SKILL_MOD_FTYPE, TRUE, feat_app);
 //24
 	feat_app.insert(APPLY_CAST_SUCCESS, 80);
-	feato(RELATED_TO_MAGIC_FEAT, "магическое родство", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(RELATED_TO_MAGIC_FEAT, "магическое родство", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
-//25 -*
+//25
 	feat_app.insert(APPLY_HITREG, 10);
 	feat_app.insert(APPLY_SAVING_CRITICAL, -4);
-	feato(SPLENDID_HEALTH_FEAT, "богатырское здоровье", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(SPLENDID_HEALTH_FEAT, "богатырское здоровье", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //26
-	feato(TRACKER_FEAT, "следопыт", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(TRACKER_FEAT, "следопыт", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //27
-	feato(WEAPON_FINESSE_FEAT, "ловкий удар", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(WEAPON_FINESSE_FEAT, "ловкий удар", NORMAL_FTYPE, TRUE, feat_app);
 //28
-	feato(COMBAT_CASTING_FEAT, "боевое колдовство", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(COMBAT_CASTING_FEAT, "боевое колдовство", NORMAL_FTYPE, TRUE, feat_app);
 //29
 	feat_app.insert(SKILL_PUNCH, APPLY_NONE);
 	feat_app.insert(PUNCH_FOCUS_FEAT, APPLY_NONE);
-	feato(PUNCH_MASTER_FEAT, "мастер кулачного боя", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(PUNCH_MASTER_FEAT, "мастер кулачного боя", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //30
 	feat_app.insert(SKILL_CLUBS, APPLY_NONE);
 	feat_app.insert(CLUB_FOCUS_FEAT, APPLY_NONE);
-	feato(CLUBS_MASTER_FEAT, "мастер палицы", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(CLUBS_MASTER_FEAT, "мастер палицы", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //31
 	feat_app.insert(SKILL_AXES, APPLY_NONE);
 	feat_app.insert(AXES_FOCUS_FEAT, APPLY_NONE);
-	feato(AXES_MASTER_FEAT, "мастер секиры", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(AXES_MASTER_FEAT, "мастер секиры", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //32
 	feat_app.insert(SKILL_LONGS, APPLY_NONE);
 	feat_app.insert(LONGS_FOCUS_FEAT, APPLY_NONE);
-	feato(LONGS_MASTER_FEAT, "мастер меча", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(LONGS_MASTER_FEAT, "мастер меча", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //33
 	feat_app.insert(SKILL_SHORTS, APPLY_NONE);
 	feat_app.insert(SHORTS_FOCUS_FEAT, APPLY_NONE);
-	feato(SHORTS_MASTER_FEAT, "мастер ножа", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SHORTS_MASTER_FEAT, "мастер ножа", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //34
 	feat_app.insert(SKILL_NONSTANDART, APPLY_NONE);
 	feat_app.insert(NONSTANDART_FOCUS_FEAT, APPLY_NONE);
-	feato(NONSTANDART_MASTER_FEAT, "мастер необычного оружия", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(NONSTANDART_MASTER_FEAT, "мастер необычного оружия", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //35
 	feat_app.insert(SKILL_BOTHHANDS, APPLY_NONE);
 	feat_app.insert(BOTHHANDS_FOCUS_FEAT, APPLY_NONE);
-	feato(BOTHHANDS_MASTER_FEAT, "мастер двуручника", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(BOTHHANDS_MASTER_FEAT, "мастер двуручника", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //36
 	feat_app.insert(SKILL_PICK, APPLY_NONE);
 	feat_app.insert(PICK_FOCUS_FEAT, APPLY_NONE);
-	feato(PICK_MASTER_FEAT, "мастер кинжала", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(PICK_MASTER_FEAT, "мастер кинжала", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //37
 	feat_app.insert(SKILL_SPADES, APPLY_NONE);
 	feat_app.insert(SPADES_FOCUS_FEAT, APPLY_NONE);
-	feato(SPADES_MASTER_FEAT, "мастер копья", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SPADES_MASTER_FEAT, "мастер копья", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //38
 	feat_app.insert(SKILL_BOWS, APPLY_NONE);
 	feat_app.insert(BOWS_FOCUS_FEAT, APPLY_NONE);
-	feato(BOWS_MASTER_FEAT, "мастер лучник", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(BOWS_MASTER_FEAT, "мастер лучник", NORMAL_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //39
-	feato(FOREST_PATHS_FEAT, "лесные тропы", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(FOREST_PATHS_FEAT, "лесные тропы", NORMAL_FTYPE, TRUE, feat_app);
 //40
-	feato(MOUNTAIN_PATHS_FEAT, "горные тропы", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(MOUNTAIN_PATHS_FEAT, "горные тропы", NORMAL_FTYPE, TRUE, feat_app);
 //41
 	feat_app.insert(APPLY_MORALE, 5);
-	feato(LUCKY_FEAT, "счастливчик", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(LUCKY_FEAT, "счастливчик", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //42
-	feato(SPIRIT_WARRIOR_FEAT, "боевой дух", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SPIRIT_WARRIOR_FEAT, "боевой дух", NORMAL_FTYPE, TRUE, feat_app);
 //43
 	feat_app.insert(APPLY_HITREG, 50);
-	feato(RELIABLE_HEALTH_FEAT, "крепкое здоровье", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(RELIABLE_HEALTH_FEAT, "крепкое здоровье", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //44
 	feat_app.insert(APPLY_MANAREG, 100);
-	feato(EXCELLENT_MEMORY_FEAT, "превосходная память", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(EXCELLENT_MEMORY_FEAT, "превосходная память", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //45
 	feat_app.insert(APPLY_DEX, 1);
-	feato(ANIMAL_DEXTERY_FEAT, "звериная прыть", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(ANIMAL_DEXTERY_FEAT, "звериная прыть", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //46
 	feat_app.insert(APPLY_MANAREG, 25);
-	feato(LEGIBLE_WRITTING_FEAT, "чёткий почерк", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(LEGIBLE_WRITTING_FEAT, "чёткий почерк", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //47
 	feat_app.insert(APPLY_DAMROLL, 2);
-	feato(IRON_MUSCLES_FEAT, "стальные мышцы", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(IRON_MUSCLES_FEAT, "стальные мышцы", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //48
 	feat_app.insert(APPLY_CAST_SUCCESS, 5);
-	feato(MAGIC_SIGN_FEAT, "знак чародея", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(MAGIC_SIGN_FEAT, "знак чародея", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //49
 	feat_app.insert(APPLY_MOVEREG, 75);
-	feato(GREAT_ENDURANCE_FEAT, "двужильность", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(GREAT_ENDURANCE_FEAT, "двужильность", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //50
 	feat_app.insert(APPLY_MORALE, 5);
-	feato(BEST_DESTINY_FEAT, "лучшая доля", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(BEST_DESTINY_FEAT, "лучшая доля", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //51
-	feato(BREW_POTION_FEAT, "травник", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(BREW_POTION_FEAT, "травник", NORMAL_FTYPE, TRUE, feat_app);
 //52
-	feato(JUGGLER_FEAT, "жонглер", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(JUGGLER_FEAT, "жонглер", NORMAL_FTYPE, TRUE, feat_app);
 //53
-	feato(NIMBLE_FINGERS_FEAT, "ловкач", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(NIMBLE_FINGERS_FEAT, "ловкач", SKILL_MOD_FTYPE, TRUE, feat_app);
 //54
-	feato(GREAT_POWER_ATTACK_FEAT, "улучшенная мощная атака", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(GREAT_POWER_ATTACK_FEAT, "улучшенная мощная атака", ACTIVATED_FTYPE, TRUE, feat_app);
 //55
 	feat_app.insert(APPLY_RESIST_IMMUNITY, 15);
-	feato(IMMUNITY_FEAT, "привычка к яду", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(IMMUNITY_FEAT, "привычка к яду", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //56
 	feat_app.insert(APPLY_AC, -40);
-	feato(MOBILITY_FEAT, "подвижность", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(MOBILITY_FEAT, "подвижность", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //57
 	feat_app.insert(APPLY_STR, 1);
-	feato(NATURAL_STRENGTH_FEAT, "силач", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(NATURAL_STRENGTH_FEAT, "силач", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //58
 	feat_app.insert(APPLY_DEX, 1);
-	feato(NATURAL_DEXTERY_FEAT, "проворство", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(NATURAL_DEXTERY_FEAT, "проворство", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //59
 	feat_app.insert(APPLY_INT, 1);
-	feato(NATURAL_INTELLECT_FEAT, "природный ум", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(NATURAL_INTELLECT_FEAT, "природный ум", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //60
 	feat_app.insert(APPLY_WIS, 1);
-	feato(NATURAL_WISDOM_FEAT, "мудрец", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(NATURAL_WISDOM_FEAT, "мудрец", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //61
 	feat_app.insert(APPLY_CON, 1);
-	feato(NATURAL_CONSTITUTION_FEAT, "здоровяк", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(NATURAL_CONSTITUTION_FEAT, "здоровяк", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //62
 	feat_app.insert(APPLY_CHA, 1);
-	feato(NATURAL_CHARISMA_FEAT, "природное обаяние", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(NATURAL_CHARISMA_FEAT, "природное обаяние", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //63
 	feat_app.insert(APPLY_MANAREG, 25);
-	feato(MNEMONIC_ENHANCER_FEAT, "отличная память", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(MNEMONIC_ENHANCER_FEAT, "отличная память", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //64 -*
 	feat_app.insert(SKILL_LEADERSHIP, 5);
-	feato(MAGNETIC_PERSONALITY_FEAT, "предводитель", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(MAGNETIC_PERSONALITY_FEAT, "предводитель", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //65
 	feat_app.insert(APPLY_DAMROLL, 2);
-	feato(DAMROLL_BONUS_FEAT, "тяжел на руку", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(DAMROLL_BONUS_FEAT, "тяжел на руку", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //66
 	feat_app.insert(APPLY_HITROLL, 1);
-	feato(HITROLL_BONUS_FEAT, "твердая рука", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(HITROLL_BONUS_FEAT, "твердая рука", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //67
 	feat_app.insert(APPLY_CAST_SUCCESS, 30);
-	feato(MAGICAL_INSTINCT_FEAT, "магическое чутье", AFFECT_FTYPE, TRUE, feat_app);
+	initializeFeature(MAGICAL_INSTINCT_FEAT, "магическое чутье", AFFECT_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //68
 	feat_app.insert(SKILL_PUNCH, APPLY_NONE);
-	feato(PUNCH_FOCUS_FEAT, "любимое_оружие: голые руки", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(PUNCH_FOCUS_FEAT, "любимое_оружие: голые руки", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //69
 	feat_app.insert(SKILL_CLUBS, APPLY_NONE);
-	feato(CLUB_FOCUS_FEAT, "любимое_оружие: палица", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(CLUB_FOCUS_FEAT, "любимое_оружие: палица", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //70
 	feat_app.insert(SKILL_AXES, APPLY_NONE);
-	feato(AXES_FOCUS_FEAT, "любимое_оружие: секира", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(AXES_FOCUS_FEAT, "любимое_оружие: секира", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //71
 	feat_app.insert(SKILL_LONGS, APPLY_NONE);
-	feato(LONGS_FOCUS_FEAT, "любимое_оружие: меч", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(LONGS_FOCUS_FEAT, "любимое_оружие: меч", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //72
 	feat_app.insert(SKILL_SHORTS, APPLY_NONE);
-	feato(SHORTS_FOCUS_FEAT, "любимое_оружие: нож", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(SHORTS_FOCUS_FEAT, "любимое_оружие: нож", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //73
 	feat_app.insert(SKILL_NONSTANDART, APPLY_NONE);
-	feato(NONSTANDART_FOCUS_FEAT, "любимое_оружие: необычное", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(NONSTANDART_FOCUS_FEAT, "любимое_оружие: необычное", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //74
 	feat_app.insert(SKILL_BOTHHANDS, APPLY_NONE);
-	feato(BOTHHANDS_FOCUS_FEAT, "любимое_оружие: двуручник", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(BOTHHANDS_FOCUS_FEAT, "любимое_оружие: двуручник", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //75
 	feat_app.insert(SKILL_PICK, APPLY_NONE);
-	feato(PICK_FOCUS_FEAT, "любимое_оружие: кинжал", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(PICK_FOCUS_FEAT, "любимое_оружие: кинжал", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //76
 	feat_app.insert(SKILL_SPADES, APPLY_NONE);
-	feato(SPADES_FOCUS_FEAT, "любимое_оружие: копье", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(SPADES_FOCUS_FEAT, "любимое_оружие: копье", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //77
 	feat_app.insert(SKILL_BOWS, APPLY_NONE);
-	feato(BOWS_FOCUS_FEAT, "любимое_оружие: лук", SKILL_MOD_FTYPE, TRUE, feat_app);
+	initializeFeature(BOWS_FOCUS_FEAT, "любимое_оружие: лук", SKILL_MOD_FTYPE, TRUE, feat_app);
 	feat_app.clear();
 //78
-	feato(AIMING_ATTACK_FEAT, "прицельная атака", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(AIMING_ATTACK_FEAT, "прицельная атака", ACTIVATED_FTYPE, TRUE, feat_app);
 //79
-	feato(GREAT_AIMING_ATTACK_FEAT, "улучшенная прицельная атака", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(GREAT_AIMING_ATTACK_FEAT, "улучшенная прицельная атака", ACTIVATED_FTYPE, TRUE, feat_app);
 //80
-	feato(DOUBLESHOT_FEAT, "двойной выстрел", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(DOUBLESHOT_FEAT, "двойной выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //81
-	feato(PORTER_FEAT, "тяжеловоз", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(PORTER_FEAT, "тяжеловоз", NORMAL_FTYPE, TRUE, feat_app);
 //82
-	feato(RUNE_NEWBIE_FEAT, "толкователь рун", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(RUNE_NEWBIE_FEAT, "толкователь рун", NORMAL_FTYPE, TRUE, feat_app);
 //83
-	feato(RUNE_USER_FEAT, "тайные руны", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(RUNE_USER_FEAT, "тайные руны", NORMAL_FTYPE, TRUE, feat_app);
 //84
-	feato(RUNE_MASTER_FEAT, "заветные руны", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(RUNE_MASTER_FEAT, "заветные руны", NORMAL_FTYPE, TRUE, feat_app);
 //85
-	feato(RUNE_ULTIMATE_FEAT, "руны богов", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(RUNE_ULTIMATE_FEAT, "руны богов", NORMAL_FTYPE, TRUE, feat_app);
 //86
-	feato(TO_FIT_ITEM_FEAT, "переделать", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(TO_FIT_ITEM_FEAT, "переделать", NORMAL_FTYPE, TRUE, feat_app);
 //87
-	feato(TO_FIT_CLOTHCES_FEAT, "перешить", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(TO_FIT_CLOTHCES_FEAT, "перешить", NORMAL_FTYPE, TRUE, feat_app);
 //88
-	feato(STRENGTH_CONCETRATION_FEAT, "концентрация силы", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(STRENGTH_CONCETRATION_FEAT, "концентрация силы", NORMAL_FTYPE, TRUE, feat_app);
 //89
-	feato(DARK_READING_FEAT, "кошачий глаз", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(DARK_READING_FEAT, "кошачий глаз", NORMAL_FTYPE, TRUE, feat_app);
 //90
-	feato(SPELL_CAPABLE_FEAT, "зачаровать", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SPELL_CAPABLE_FEAT, "зачаровать", NORMAL_FTYPE, TRUE, feat_app);
 //91
-	feato(ARMOR_LIGHT_FEAT, "легкие доспехи", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(ARMOR_LIGHT_FEAT, "легкие доспехи", NORMAL_FTYPE, TRUE, feat_app);
 //92
-	feato(ARMOR_MEDIAN_FEAT, "средние доспехи", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(ARMOR_MEDIAN_FEAT, "средние доспехи", NORMAL_FTYPE, TRUE, feat_app);
 //93
-	feato(ARMOR_HEAVY_FEAT, "тяжелые доспехи", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(ARMOR_HEAVY_FEAT, "тяжелые доспехи", NORMAL_FTYPE, TRUE, feat_app);
 //94
-	feato(GEMS_INLAY_FEAT, "инкрустация", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(GEMS_INLAY_FEAT, "инкрустация", NORMAL_FTYPE, TRUE, feat_app);
 //95
-	feato(WARRIOR_STR_FEAT, "богатырская сила", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(WARRIOR_STR_FEAT, "богатырская сила", NORMAL_FTYPE, TRUE, feat_app);
 //96
-	feato(RELOCATE_FEAT, "переместиться", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(RELOCATE_FEAT, "переместиться", NORMAL_FTYPE, TRUE, feat_app);
 //97
-	feato(SILVER_TONGUED_FEAT, "сладкоречие", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SILVER_TONGUED_FEAT, "сладкоречие", NORMAL_FTYPE, TRUE, feat_app);
 //98
-	feato(BULLY_FEAT, "забияка", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(BULLY_FEAT, "забияка", NORMAL_FTYPE, TRUE, feat_app);
 //99
-	feato(THIEVES_STRIKE_FEAT, "воровской удар", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(THIEVES_STRIKE_FEAT, "воровской удар", NORMAL_FTYPE, TRUE, feat_app);
 //100
-	feato(MASTER_JEWELER_FEAT, "искусный ювелир", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(MASTER_JEWELER_FEAT, "искусный ювелир", NORMAL_FTYPE, TRUE, feat_app);
 //101
-	feato(SKILLED_TRADER_FEAT, "торговая сметка", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SKILLED_TRADER_FEAT, "торговая сметка", NORMAL_FTYPE, TRUE, feat_app);
 //102
-	feato(ZOMBIE_DROVER_FEAT, "погонщик умертвий", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(ZOMBIE_DROVER_FEAT, "погонщик умертвий", NORMAL_FTYPE, TRUE, feat_app);
 //103
-	feato(EMPLOYER_FEAT, "навык найма", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(EMPLOYER_FEAT, "навык найма", NORMAL_FTYPE, TRUE, feat_app);
 //104
-	feato(MAGIC_USER_FEAT, "использование амулетов", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(MAGIC_USER_FEAT, "использование амулетов", NORMAL_FTYPE, TRUE, feat_app);
 //105
-	feato(GOLD_TONGUE_FEAT, "златоуст", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(GOLD_TONGUE_FEAT, "златоуст", NORMAL_FTYPE, TRUE, feat_app);
 //106
-	feato(CALMNESS_FEAT, "хладнокровие", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(CALMNESS_FEAT, "хладнокровие", NORMAL_FTYPE, TRUE, feat_app);
 //107
-	feato(RETREAT_FEAT, "отступление", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(RETREAT_FEAT, "отступление", NORMAL_FTYPE, TRUE, feat_app);
 //108
-	feato(SHADOW_STRIKE_FEAT, "танцующая тень", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SHADOW_STRIKE_FEAT, "танцующая тень", NORMAL_FTYPE, TRUE, feat_app);
 //109
-	feato(THRIFTY_FEAT, "запасливость", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(THRIFTY_FEAT, "запасливость", NORMAL_FTYPE, TRUE, feat_app);
 //110
-	// Циничность: Вы настолько циничны, что люди не хотят общаться с Вами
-	// -25% опыта за зонинг в группе
-	feato(CYNIC_FEAT, "циничность", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(CYNIC_FEAT, "циничность", NORMAL_FTYPE, TRUE, feat_app);
 //111
-	// если у лидера группы есть данная способность и в группе,
-	// двое человек, то экспа не режется.
-	feato(PARTNER_FEAT, "напарник", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(PARTNER_FEAT, "напарник", NORMAL_FTYPE, TRUE, feat_app);
 //112
-	// уменьшается процент фейла для закла Оживить Труп
-	feato(HELPDARK_FEAT, "помощь тьмы", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(HELPDARK_FEAT, "помощь тьмы", NORMAL_FTYPE, TRUE, feat_app);
 //113
-	// увеличивает характеристики умок
-	feato(FURYDARK_FEAT, "ярость тьмы", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(FURYDARK_FEAT, "ярость тьмы", NORMAL_FTYPE, TRUE, feat_app);
 //114
-	// темное восстановление - увеличивает реген хп
-	feato(DARKREGEN_FEAT, "темное восстановление", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(DARKREGEN_FEAT, "темное восстановление", NORMAL_FTYPE, TRUE, feat_app);
 //115
-	// если на умертвии есть аффект вампиризм, то чару идет +5% от урона умки
-	feato(SOULLINK_FEAT, "родство душ", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(SOULLINK_FEAT, "родство душ", NORMAL_FTYPE, TRUE, feat_app);
 //116
-	// при наличии этого умения невозможно сдизармить оружие
-	feato(STRONGCLUTCH_FEAT, "сильная хватка", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(STRONGCLUTCH_FEAT, "сильная хватка", NORMAL_FTYPE, TRUE, feat_app);
 //117
-	// до 6 стрел одновременно
-	feato(MAGICARROWS_FEAT, "магические стрелы", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(MAGICARROWS_FEAT, "магические стрелы", NORMAL_FTYPE, TRUE, feat_app);
 //118
-	// позволяет производить действия с душами
-	feato(COLLECTORSOULS_FEAT, "колекционер душ", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(COLLECTORSOULS_FEAT, "колекционер душ", NORMAL_FTYPE, TRUE, feat_app);
 //119
-	// увеличивает шанс прохождения кам проклы.
-	feato(DARKDEAL_FEAT, "темная сделка", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(DARKDEAL_FEAT, "темная сделка", NORMAL_FTYPE, TRUE, feat_app);
 //120
-	// Очень сильно увеличивает вред от проклятия
-	feato(DECLINE_FEAT, "порча", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(DECLINE_FEAT, "порча", NORMAL_FTYPE, TRUE, feat_app);
 //121
-	// если у чернока есть больше 9 душ, то перед смертью он немного исцеляется взамен на души
-	feato(HARVESTLIFE_FEAT, "жатва жизни", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(HARVESTLIFE_FEAT, "жатва жизни", NORMAL_FTYPE, TRUE, feat_app);
 //122
-	// у скелета появляется умение спасти
-	feato(LOYALASSIST_FEAT, "верный помощник", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(LOYALASSIST_FEAT, "верный помощник", NORMAL_FTYPE, TRUE, feat_app);
 //123
-	// у костяного духа появляется умение спасти
-	feato(HAUNTINGSPIRIT_FEAT, "блуждающий дух", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(HAUNTINGSPIRIT_FEAT, "блуждающий дух", NORMAL_FTYPE, TRUE, feat_app);
 //124
-	// наем наносит серию сильных ударов, но быстро устает
-	feato(SNEAKRAGE_FEAT, "ярость змеи", NORMAL_FTYPE, TRUE, feat_app);
-// для чернокнижника способности по веткам
+	initializeFeature(SNEAKRAGE_FEAT, "ярость змеи", NORMAL_FTYPE, TRUE, feat_app);
 //126
-	feato(ELDER_TASKMASTER_FEAT, "старший надсмотрщик", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(ELDER_TASKMASTER_FEAT, "старший надсмотрщик", NORMAL_FTYPE, TRUE, feat_app);
 //127
-	feato(LORD_UNDEAD_FEAT, "повелитель нежити", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(LORD_UNDEAD_FEAT, "повелитель нежити", NORMAL_FTYPE, TRUE, feat_app);
 //128
-	feato(DARK_WIZARD_FEAT, "темный маг", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(DARK_WIZARD_FEAT, "темный маг", NORMAL_FTYPE, TRUE, feat_app);
 //129
-	feato(ELDER_PRIEST_FEAT, "старший жрец", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(ELDER_PRIEST_FEAT, "старший жрец", NORMAL_FTYPE, TRUE, feat_app);
 //130
-	feato(HIGH_LICH_FEAT, "верховный лич", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(HIGH_LICH_FEAT, "верховный лич", NORMAL_FTYPE, TRUE, feat_app);
 //131
-	feato(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(BLACK_RITUAL_FEAT, "темный ритуал", NORMAL_FTYPE, TRUE, feat_app);
 //132
-	feato(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
 //133
-	feato(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_RESCUE, BASE_PARAMETER_DEX, SAVING_REFLEX);
+	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_RESCUE, BASE_PARAMETER_DEX, SAVING_REFLEX);
+	feat_info[SKIRMISHER_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //134
-	feato(TACTICIAN_FEAT, "атаман", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
+	initializeFeature(TACTICIAN_FEAT, "десятский", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
+	feat_info[TACTICIAN_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //135
-	feato(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
 // === Проскок номеров (типа резерв под татей) ===
 //138
-	feato(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
 //139
-	feato(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
 //140
-    feato(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
+    initializeFeature(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //141
-    feato(OBJECT_ENCHANTER_FEAT, "наложение чар", NORMAL_FTYPE, TRUE, feat_app);
+    initializeFeature(OBJECT_ENCHANTER_FEAT, "наложение чар", NORMAL_FTYPE, TRUE, feat_app);
 //142
-    // ускороный выстрел зачарованными стрелами
-    feato(DEFT_SHOOTER_FEAT, "ловкий стрелок", NORMAL_FTYPE, TRUE, feat_app);
+    initializeFeature(DEFT_SHOOTER_FEAT, "ловкий стрелок", NORMAL_FTYPE, TRUE, feat_app);
 //143
-    feato(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, TRUE, feat_app);
+    initializeFeature(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, TRUE, feat_app);
 }
 
 bool can_use_feat(const CHAR_DATA *ch, int feat)
@@ -594,7 +611,7 @@ bool can_use_feat(const CHAR_DATA *ch, int feat)
 		return TRUE;
 	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
-	if (GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+	if (GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		return FALSE;
 
 	switch (feat)
@@ -656,10 +673,10 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	}
 
 	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat)) ||
-			(GET_REMORT(ch) < feat_info[feat].min_remort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))
+			(GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))
 		return FALSE;
 
-	if (!have_feat_slot(ch, feat))
+	if (!checkVacantFeatureSlot(ch, feat))
 		return FALSE;
 
 	switch (feat)
@@ -815,11 +832,11 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 	return TRUE;
 }
 
-bool have_feat_slot(CHAR_DATA *ch, int feat)
+bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat)
 {
 	int i, lowfeat, hifeat;
 
-	if (feat_info[feat].natural_classfeat[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat))
+	if (feat_info[feat].inbornFeatureOfClass[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat))
 		return TRUE;
 
 	//сколько у нас вообще способностей, у которых слот меньше требуемого, и сколько - тех, у которых больше или равно?
@@ -831,7 +848,7 @@ bool have_feat_slot(CHAR_DATA *ch, int feat)
 	auto slot_list = std::vector<int>();
 	for (i = 1; i < MAX_FEATS; ++i)
 	{
-		if (feat_info[i].natural_classfeat[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), i))
+		if (feat_info[i].inbornFeatureOfClass[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), i))
 			continue;
 
 		if (HAVE_FEAT(ch, i))
@@ -873,13 +890,15 @@ bool have_feat_slot(CHAR_DATA *ch, int feat)
 	return FALSE;
 }
 
-// Возвращает значение значение модификатора из поля location структуры affected
-int feature_mod(int feat, int location)
+int getModifier(int feat, int location)
 {
-	int i;
-	for (i = 0; i < MAX_FEAT_AFFECT; i++)
+	for (int i = 0; i < MAX_FEAT_AFFECT; i++)
+	{
 		if (feat_info[feat].affected[i].location == location)
+		{
 			return (int) feat_info[feat].affected[i].modifier;
+		}
+	}
 	return 0;
 }
 
@@ -899,7 +918,6 @@ void check_berserk(CHAR_DATA * ch)
 		!timed_by_feat(ch, BERSERK_FEAT) && !AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK) && (GET_HIT(ch) < GET_REAL_MAX_HIT(ch) / 4))
 	{
 		CHAR_DATA *vict = ch->get_fighting();
-		//Gorrah: вроде бы у мобов скиллы тикают так же, так что глюков быть не должно
 		timed.skill = BERSERK_FEAT;
 		timed.time = 4;
 		timed_feat_to_char(ch, &timed);
@@ -930,7 +948,6 @@ void check_berserk(CHAR_DATA * ch)
 	}
 }
 
-// Легкая поступь
 void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	struct timed_type timed;
@@ -984,7 +1001,6 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 	affect_to_char(ch, af);
 }
 
-//подгонка и перешивание
 void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
 	OBJ_DATA *obj;
@@ -1043,23 +1059,12 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	};
 
-	//предмет никуда не надевается, соответственно его не надо подгонять
-	//в принципе без этой проверки можно обойтись, но пусть будет ролеплея ради
-	//кроме того тут же сделаем проверку на сетстафф
 	if ((GET_OBJ_WEAR(obj) <= 1) || OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 	{
 		send_to_char("Этот предмет невозможно переделать.\r\n", ch);
 		return;
 	}
 
-// не подгоняются предметы из
-//(GET_OBJ_MATER(obj) != MAT_CRYSTALL) кристалла
-// (GET_OBJ_MATER(obj) != MAT_FARFOR) керамики
-//(GET_OBJ_MATER(obj) != MAT_ROCK) камня
-// (GET_OBJ_MATER(obj) != MAT_PAPER) бумаги
-//(GET_OBJ_MATER(obj) != MAT_DIAMOND) драгоценного камня
-
-	//Подходит ли материал?
 	switch (subcmd)
 	{
 	case SCMD_DO_ADAPT:
@@ -1386,43 +1391,43 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	greet_otrigger(ch, -1);
 }
 
-// * Выставление чару расовых способностей.
-/// \param flag по дефолту true
-void set_race_feats(CHAR_DATA *ch, bool flag)
+void setFeaturesOfRace(CHAR_DATA *ch)
 {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
-	for (std::vector<int>::iterator i = feat_list.begin(),
-		iend = feat_list.end(); i != iend; ++i)
+	for (std::vector<int>::iterator i = feat_list.begin(), iend = feat_list.end(); i != iend; ++i)
 	{
 		if (can_get_feat(ch, *i))
 		{
-			if (flag)
-				SET_FEAT(ch, *i);
-			else
-				UNSET_FEAT(ch, *i);
+			SET_FEAT(ch, *i);
 		}
 	}
 }
 
-void set_class_feats(CHAR_DATA *ch)
+void unsetFeaturesOfRace(CHAR_DATA *ch)
+{
+	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
+	for (std::vector<int>::iterator i = feat_list.begin(), iend = feat_list.end(); i != iend; ++i)
+	{
+		UNSET_FEAT(ch, *i);
+	}
+}
+
+void setInbornFeaturesOfClass(CHAR_DATA *ch)
 {
 	for (int i = 1; i < MAX_FEATS; ++i)
 	{
 		if (can_get_feat(ch, i)
-			&& feat_info[i].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+			&& feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
 		{
 			SET_FEAT(ch, i);
 		}
 	}
 }
 
-///
-/// Сет чару всех доступных врожденных способностей.
-///
-void set_natural_feats(CHAR_DATA *ch)
+void setAllInbornFeatures(CHAR_DATA *ch)
 {
-	set_class_feats(ch);
-	set_race_feats(ch);
+	setInbornFeaturesOfClass(ch);
+	setFeaturesOfRace(ch);
 }
 
 int CFeatArray::pos(int pos /*= -1*/)
@@ -1462,9 +1467,206 @@ void CFeatArray::clear()
 	}
 }
 
-int getBaseAbilityParamerter(CHAR_DATA *ch, EBaseAbilityParameter BaseAbilityParameter)
+bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument)
 {
-	switch (BaseAbilityParameter)
+	int featureNum = get_feature_num(argument);
+	if (featureNum <= THAC0_FEAT)
+	{
+		return false;
+	}
+
+	if (!checkAccessibilityActivatedFeature(ch, featureNum))
+	{
+		return true;
+	};
+
+	if (PRF_FLAGGED(ch, getPRFWithFeatureNumber(featureNum)))
+	{
+		deactivateFeature(ch, featureNum);
+	} else
+	{
+		activateFeature(ch, featureNum);
+	}
+
+	if (!WAITLESS(ch))
+		WAIT_STATE(ch, PULSE_VIOLENCE);
+	return true;
+}
+
+void activateFeature(CHAR_DATA *ch, int featureNum)
+{
+	switch (featureNum)
+	{
+	case POWER_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).set(PRF_POWERATTACK);
+		break;
+	case GREAT_POWER_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).set(PRF_GREATPOWERATTACK);
+		break;
+	case AIMING_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).set(PRF_AIMINGATTACK);
+		break;
+	case GREAT_AIMING_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		PRF_FLAGS(ch).set(PRF_GREATAIMINGATTACK);
+		break;
+	case SKIRMISHER_FEAT:
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+		{
+			send_to_char(ch, "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n", ch->get_name().c_str());
+			return;
+		}
+		if (PRF_FLAGGED(ch, PRF_SKIRMISHER))
+		{
+			send_to_char("Вы уже стоите в передовом строю.\r\n", ch);
+			return;
+		}
+		PRF_FLAGS(ch).set(PRF_SKIRMISHER);
+		send_to_char("Вы протиснулись вперед и встали в строй.\r\n", ch);
+		act("$n0 протиснул$u вперед и встал$g в строй.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		break;
+	}
+	send_to_char(ch, "%sВы решили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
+}
+
+void deactivateFeature(CHAR_DATA *ch, int featureNum)
+{
+	switch (featureNum)
+	{
+	case POWER_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
+		break;
+	case GREAT_POWER_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
+		break;
+	case AIMING_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
+		break;
+	case GREAT_AIMING_ATTACK_FEAT:
+		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
+		break;
+	case SKIRMISHER_FEAT:
+		PRF_FLAGS(ch).unset(PRF_SKIRMISHER);
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+		{
+			send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
+			act("$n0 тактически отступил$g в тыл отряда.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		}
+		break;
+	}
+	send_to_char(ch, "%sВы прекратили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
+}
+
+bool checkAccessibilityActivatedFeature(CHAR_DATA *ch, int featureNum)
+{
+	if (!HAVE_FEAT(ch, featureNum))
+	{
+		send_to_char("Вы не обладаете такой способностью.\r\n", ch);
+		return FALSE;
+	}
+	if (feat_info[featureNum].type != ACTIVATED_FTYPE)
+	{
+		send_to_char("Эту способность невозможно применить таким образом.\r\n", ch);
+		return FALSE;
+	}
+	if (!can_use_feat(ch, featureNum))
+	{
+		send_to_char("Вы не в состоянии использовать эту способность.\r\n", ch);
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+int get_feature_num(char *featureName)
+{
+	skip_spaces(&featureName);
+	return find_feat_num(featureName);
+}
+
+/*
+* Это, как обычно, все временно :) До переделки способностей на классы.
+* Не хочется добавлять из-за нескольких способностей целое поле и иметь с ним головняки
+* Тем более, что тогда уж логично вкодить и способность делать автоаффекты и т.п.
+* В общем, временно, ага.
+*/
+bitvector_t getPRFWithFeatureNumber(int featureNum)
+{
+    switch (featureNum)
+    {
+	case POWER_ATTACK_FEAT:
+		return PRF_POWERATTACK;
+		break;
+	case GREAT_POWER_ATTACK_FEAT:
+		return PRF_GREATPOWERATTACK;
+		break;
+	case AIMING_ATTACK_FEAT:
+		return PRF_AIMINGATTACK;
+		break;
+	case GREAT_AIMING_ATTACK_FEAT:
+		PRF_GREATAIMINGATTACK;
+		break;
+	case SKIRMISHER_FEAT:
+		return PRF_SKIRMISHER;
+		break;
+    }
+
+    return PRF_POWERATTACK;
+}
+
+bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
+{
+	if (!can_use_feat(ch, ability) || (testCharacterAbilityVSEnemy(ch, ability, enemy) < _abilityTestSuccessThreshold))
+	{
+		return false;
+	}
+	return true;
+}
+
+short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
+{
+	short diceRoll = number(1, 100);
+	ESkill baseSkill = feat_info[ability].baseSkill;
+	short baseSkillRating = ch->get_skill(baseSkill)/_abilityTestSkillDivider;
+	short baseParameterRating  = getBaseCharacterParamerter(ch, feat_info[ability].baseParameterOfCharacter)/_abilityTestParemeterDivider;
+	short dicerollBonus = feat_info[ability].dicerollBonus + feat_info[ability].calculateSituationalRollBonus(ch, enemy);
+	short oppositeSaving = calculateSaving(ch, enemy, feat_info[ability].oppositeSaving, 0);
+
+	short characterRating = dicerollBonus + baseSkillRating + baseParameterRating - oppositeSaving;
+	short resultAbilityTest = characterRating - diceRoll;
+
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+	{
+		send_to_char(ch, "&CСпособность %s, Бонус броска %d Противник %s, Рейтинг умения %d, Рейтинг параметра %d, Сейв %d, Суммарный рейтинг %d, Ролл %d, Результат броска %d&n\r\n",
+				feat_info[ability].name, dicerollBonus, GET_NAME(enemy), baseSkillRating, baseParameterRating, oppositeSaving, characterRating, diceRoll, resultAbilityTest);
+	}
+
+	if (checkAbilityCriticalFail(diceRoll))
+	{
+		resultAbilityTest = MIN(resultAbilityTest, _minimalFailResult);
+	}
+	if (resultAbilityTest < _abilityTestSuccessThreshold)
+	{
+		train_skill(ch, baseSkill, skill_info[baseSkill].max_percent, enemy);
+	}
+
+	return resultAbilityTest;
+}
+
+short getBaseCharacterParamerter(CHAR_DATA *ch, EBaseAbilityParameter baseParameter)
+{
+	switch (baseParameter)
 	{
 	case BASE_PARAMETER_INT:
 		return GET_REAL_INT(ch);
@@ -1488,39 +1690,50 @@ int getBaseAbilityParamerter(CHAR_DATA *ch, EBaseAbilityParameter BaseAbilityPar
 	return GET_REAL_INT(ch);
 }
 
-short testAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy)
+short calculateDegreeOfSuccess(short testResult)
 {
-	const short _skillDivider = 2;
-	const short _parameterDivider = 2;
-	const short _degreesDivider = 5;
-
-	short difficulty = feat_info[ability].difficulty;
-	short baseSkill = ch->get_skill(feat_info[ability].base_skill);
-	short baseParameter  = getBaseAbilityParamerter(ch, feat_info[ability].base_parameter);
-	short oppositeSaving = calculateSaving(ch, enemy, feat_info[ability].opposite_saving, 0);
-
-	short characterRating = difficulty+baseSkill/_skillDivider+baseParameter/_parameterDivider-oppositeSaving;
-	short diceRoll = number(1, 100);
-
-	short degreeOfSuccess = (characterRating-diceRoll)/_degreesDivider;
-
-	if (PRF_FLAGGED(ch, PRF_TESTER))
-	{
-		sprintf(buf, "&CСпособность %s, Сложность %d Противник %s, Cкилл %d, Параметр %d, Сейв %d, Суммарный рейтинг %d, Ролл %d, Успех %d&n\r\n",
-				feat_info[ability].name, difficulty, GET_NAME(enemy), baseSkill, baseParameter, oppositeSaving, characterRating, diceRoll, degreeOfSuccess);
-		send_to_char(buf, ch);
-	}
-
-	return degreeOfSuccess;
+	return testResult/_abilityTestDegreeDivider;
 }
 
-bool checkSuccessAbilityCharacterVSEnemy(int ability, CHAR_DATA *ch, CHAR_DATA *enemy)
+// В перспективе тут нужен учет удачи
+// Но его механика еще не придумана. :)
+bool checkAbilityCriticalFail(short diceRoll)
 {
-	if (!can_use_feat(ch, ability) || (testAbilityCharacterVSEnemy(ability, ch, enemy) < ABILITY_TEST_SUCCESS_THRESHOLD))
+	if (diceRoll > _abilityCriticalFailThreshold)
 	{
-		return false;
+		return true;
 	}
-	return true;
+	return false;
 }
+
+short calculateSituationalRollBonusByDefault(CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */)
+{
+	return 0;
+};
+
+/*
+* Ситуативный бонус броска для "tactician feat" и "skirmisher feat":
+* Каждый персонаж в строю прикрывает двух, третий дает штраф.
+* Избыток "строевиков" повышает шанс на удачное срабатывание.
+*/
+short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */)
+{
+	short skirmishers(0), uncoveredSquadMembers(0);
+
+	for (const auto groupMember : world[ch->in_room]->people)
+	{
+		if (HERE(groupMember) && same_group(ch, groupMember))
+		{
+			if (PRF_FLAGGED(groupMember, PRF_SKIRMISHER))
+			{
+				skirmishers++;
+			} else
+			{
+				uncoveredSquadMembers++;
+			};
+		}
+	}
+	return (skirmishers*2 - uncoveredSquadMembers)*_situationableRollBonusFactor;
+};
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

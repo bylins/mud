@@ -568,6 +568,7 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, (int) GET_REAL_WIS(ch))])
+#define SAME_ROOM(ch, tch)		(IN_ROOM(ch) == IN_ROOM(tch))
 //#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
 #define GET_MANA_COST(ch,spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
@@ -1444,7 +1445,7 @@ public:
 	}
 };
 
-// ВЕЯРМН ЯЙНОХОЮЯРЕМН 
+// ВЕЯРМН ЯЙНОХОЮЯРЕМН
 template<class T> void StrTrim(T str) {
 	int start = 0; // number of leading spaces
 	char* buffer = str;
@@ -1597,12 +1598,12 @@ struct ParseFilter
 	char new_timesign;	   // знак времени < > =
 	time_t new_timedown;   // нижняя граница времени
 	time_t new_timeup;	   // верхняя граница времени
-	int filter_type;       // CLAN/EXCHANGE	
-	
+	int filter_type;       // CLAN/EXCHANGE
+
 	std::vector<int> affect_apply; // аффекты apply_types
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
-	
+
 	std::string show_obj_aff(OBJ_DATA *obj);
 
 private:

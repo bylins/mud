@@ -2159,8 +2159,7 @@ void advance_level(CHAR_DATA * ch)
 	check_max_hp(ch);
 	ch->points.max_move += MAX(1, add_move);
 
-	// Set natural & race features
-	set_natural_feats(ch);
+	setAllInbornFeatures(ch);
 
 	if (IS_IMMORTAL(ch))
 	{
@@ -2306,7 +2305,7 @@ int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA* obj)
 		return (FALSE);
 	}
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_NOT_FOR_NOPK) && char_to_pk_clan(ch)))
-	{		
+	{
 		return (TRUE);
 	}
 
@@ -2781,14 +2780,9 @@ void init_spell_levels(void)
 				feat_info[sp_num].classknow[i[3]][j] = TRUE;
 				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d", feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);
 
-				feat_info[sp_num].min_remort[i[3]][j] = i[4];
-				//log("Remort feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[4]);
-
+				feat_info[sp_num].minRemort[i[3]][j] = i[4];
 				feat_info[sp_num].slot[i[3]][j] = i[5];
-				//log("Level feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[5]);
-
-				feat_info[sp_num].natural_classfeat[i[3]][j] = i[6] ? true : false;
-				//log("Natural classfeature set '%d' kin '%d' classes %d", sp_num, j, i[3]);
+				feat_info[sp_num].inbornFeatureOfClass[i[3]][j] = i[6] ? true : false;
 			}
 	}
 	fclose(magic);
@@ -2959,7 +2953,7 @@ void init_basic_values(void)
 		{
 			int fields = 0;
 			switch (mode)
-			{			
+			{
 			case 1:
 				pointer = (int *) & (int_app[c].spell_aknowlege);
 				fields = sizeof(int_app[c])/sizeof(int);

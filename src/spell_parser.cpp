@@ -2241,8 +2241,7 @@ void do_ident(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_IDENTIFY;
-		//imed.time = can_use_feat(ch, CONNOISEUR_FEAT) ? feature_mod(CONNOISEUR_FEAT, FEAT_TIMER) : 12;
-		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? feature_mod(CONNOISEUR_FEAT, FEAT_TIMER) : 12) - ((GET_SKILL(ch, SKILL_IDENTIFY) - 25) / 25),1); //12..5 or 8..1
+		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? getModifier(CONNOISEUR_FEAT, FEAT_TIMER) : 12) - ((GET_SKILL(ch, SKILL_IDENTIFY) - 25) / 25),1); //12..5 or 8..1
 		timed_to_char(ch, &timed);
 	}
 	MANUAL_SPELL(skill_identify)

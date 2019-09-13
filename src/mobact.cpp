@@ -233,45 +233,55 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
+CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader)
+{
+	TemporaryCharListType victimList;
+	char uncoveredGroupMembers = 0;
+
+	for (const auto skirmisher : world[leader->in_room]->people)
+	{
+		if (!HERE(skirmisher) || !same_group(leader, skirmisher) || !leader->checkSameRoom(skirmisher))
+		{
+			continue;
+		}
+		if (PRF_FLAGGED(skirmisher, PRF_SKIRMISHER))
+		{
+			addCharToTmpList(skirmisher, &victimList);
+		} else
+		{
+			uncoveredGroupMembers++;
+		}
+	}
+
+	if (victimList.empty() || (uncoveredGroupMembers == 0))
+	{
+		return nullptr;
+	}
+	return victimList[number(0, victimList.size()-1)];
+}
+
 CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim)
 {
-	if (initialVictim == nullptr)
+	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffectFlag::AFF_GROUP))
 	{
 		return initialVictim;
 	}
 
 	CHAR_DATA *leader = initialVictim;
 	CHAR_DATA *newVictim = initialVictim;
-	TemporaryCharListType victimList;
 
 	if (initialVictim->has_master())
 	{
 		leader = initialVictim->get_master();
 	}
 
-	if (!checkSuccessAbilityCharacterVSEnemy(TACTICIAN_FEAT, leader, assaulter))
+	newVictim = selectRandomSkirmisherFromGroup(leader);
+	if (!newVictim || !assaulter->checkSameRoom(leader) || !checkCharacterAbilityVSEnemy(leader, TACTICIAN_FEAT, assaulter))
 	{
 		return initialVictim;
 	}
 
-	for (const auto newVictim : world[leader->in_room]->people)
-	{
-		if (!HERE(newVictim) || !same_group(leader, newVictim))
-		{
-			continue;
-		}
-		if (PRF_FLAGGED(newVictim, PRF_SKIRMISHER))
-		{
-			addCharToTmpList(newVictim, &victimList);
-		}
-	}
-
-	if (victimList.empty())
-	{
-		return initialVictim;
-	}
-	newVictim = victimList[number(0, victimList.size()-1)];
-    if (!checkSuccessAbilityCharacterVSEnemy(SKIRMISHER_FEAT, newVictim, assaulter))
+	if (!checkCharacterAbilityVSEnemy(newVictim, SKIRMISHER_FEAT, assaulter))
 	{
 		return initialVictim;
 	}
@@ -448,7 +458,6 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
 	}
 
-	//return best;
 	return selectVictimDependingOnGroupFormation(ch, best);
 }
 // TODO invert and rename for clarity: -> isStrayCharmice(), to return true if a charmice, and master is absent =II
@@ -634,7 +643,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		{
 			best = charmmage;
 		}
-		//return best;
 		return selectVictimDependingOnGroupFormation(ch, best);
 	}
 
@@ -650,7 +658,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if ((rand == 1) && (cler))
 			best = cler;
 
-//		return best;
 		return selectVictimDependingOnGroupFormation(ch, best);
 	}
 
@@ -664,7 +671,6 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	if (druid)
 		best = druid;
 
-	//return best;
 	return selectVictimDependingOnGroupFormation(ch, best);
 }
 
