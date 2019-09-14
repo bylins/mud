@@ -3091,7 +3091,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	float additional_dex_for_charisma = 1.0;
 	float additional_con_for_charisma = 1.0625;
 	float additional_int_for_charisma = 1.5625;
-	float additional_wis_for_charisma = 1.5625;
+	float additional_wis_for_charisma = 0.6;
 	float additional_cha_for_charisma = 1.375;
 
 	mob->set_str(1 + floorf( additional_str_for_charisma * eff_cha ));
