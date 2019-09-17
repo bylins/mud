@@ -584,7 +584,7 @@ void determineFeaturesSpecification(void)
 	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_RESCUE, BASE_PARAMETER_DEX, SAVING_REFLEX);
 	feat_info[SKIRMISHER_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //134
-	initializeFeature(TACTICIAN_FEAT, "десятский", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
+	initializeFeature(TACTICIAN_FEAT, "десяцский", ACTIVATED_FTYPE, TRUE, feat_app, 110, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
 	feat_info[TACTICIAN_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //135
 	initializeFeature(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
