@@ -3191,7 +3191,6 @@ bool insert_wanted_gem::is_gem(int gem_vnum)
 
 std::string insert_wanted_gem::get_random_str_for(int gem_vnum)
 {
-
 	const auto it = content.find(gem_vnum);
 	if (it == content.end())
 	{
@@ -3199,7 +3198,7 @@ std::string insert_wanted_gem::get_random_str_for(int gem_vnum)
 	}
 
 	auto gem = content[gem_vnum];
-	int rnd = number(0, gem.size());
+	int rnd = number(0, gem.size()-1);
 
 	int count = 0;
 	for(auto kv : gem)
