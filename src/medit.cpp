@@ -2099,7 +2099,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		}
 		else
 		{
-			GET_SAVE(OLC_MOB(d), number - 1) = MIN(400, MAX(-400, bit));
+			GET_SAVE(OLC_MOB(d), number - 1) = MIN(MAX_SAVE, MAX(-MAX_SAVE, bit));
 		}
 		medit_disp_saves(d);
 		return;
@@ -2340,7 +2340,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case MEDIT_HITROLL:
-		GET_HR(OLC_MOB(d)) = MAX(0, MIN(50, atoi(arg)));
+		GET_HR(OLC_MOB(d)) = MAX(0, MIN(500, atoi(arg)));
 		break;
 
 	case MEDIT_DAMROLL:
@@ -2348,7 +2348,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case MEDIT_NDD:
-		GET_NDD(OLC_MOB(d)) = MAX(0, MIN(30, atoi(arg)));
+		GET_NDD(OLC_MOB(d)) = MAX(0, MIN(127, atoi(arg)));
 		break;
 
 	case MEDIT_SDD:
@@ -2356,7 +2356,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case MEDIT_NUM_HP_DICE:
-		GET_MEM_TOTAL(OLC_MOB(d)) = MAX(0, MIN(50, atoi(arg)));
+		GET_MEM_TOTAL(OLC_MOB(d)) = MAX(0, MIN(500, atoi(arg)));
 		break;
 
 	case MEDIT_SIZE_HP_DICE:

@@ -172,7 +172,7 @@ using std::bitset;
 #define OBJECT_ENCHANTER_FEAT	141 //зачаровывание предметов
 #define DEFT_SHOOTER_FEAT		142 //ловкий стрелок
 #define MAGIC_SHOOTER_FEAT		143 //магический выстрел
-#define THROW_WEAPON_FEAT		144 // Метание
+#define THROW_WEAPON_FEAT		144 //метание
 #define SHADOW_THROW_FEAT		145 //
 #define SHADOW_DAGGER_FEAT		146 //
 #define SHADOW_SPEAR_FEAT		147 //

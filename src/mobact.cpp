@@ -236,6 +236,8 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader)
 {
 	TemporaryCharListType victimList;
+	char uncoveredGroupMembers = 0;
+
 	for (const auto skirmisher : world[leader->in_room]->people)
 	{
 		if (!HERE(skirmisher) || !same_group(leader, skirmisher) || !leader->checkSameRoom(skirmisher))
@@ -245,10 +247,13 @@ CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader)
 		if (PRF_FLAGGED(skirmisher, PRF_SKIRMISHER))
 		{
 			addCharToTmpList(skirmisher, &victimList);
+		} else
+		{
+			uncoveredGroupMembers++;
 		}
 	}
 
-	if (victimList.empty())
+	if (victimList.empty() || (uncoveredGroupMembers == 0))
 	{
 		return nullptr;
 	}
