@@ -4913,7 +4913,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		}
 		if (eff_wis>=75)
 		{
-			af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+			af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
 			affect_to_char(mob, af);
 		}
 
