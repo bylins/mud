@@ -4586,23 +4586,32 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			{
 				mob_num = MOB_ZOMBIE;
 			}
-			else if (corpse_mob_level <= 20)
+			else if (corpse_mob_level <= 15)
 			{
 				mob_num = MOB_BONEDOG;
 			}
-			else if (corpse_mob_level <= 27)
+			else if (corpse_mob_level <= 20)
 			{
 				mob_num = MOB_BONEDRAGON;
 			}
-			else if (corpse_mob_level <= 34)
+			else if (corpse_mob_level <= 25)
 			{
 				mob_num = MOB_BONESPIRIT;
 			}
+			else if (corpse_mob_level <= 30)
+			{
+				mob_num = MOB_NECR_TANK;
+			}
+			else if (corpse_mob_level <= 39)
+			{
+				mob_num = MOB_NECR_DAMAGER;
+			}
 			else
 			{
-				int rnd_mob = number(MOB_NECR_DAMAGER, MOB_NECR_CASTER);
-				mob_num = rnd_mob;
+				mob_num = MOB_NECR_BRIZER;
 			}
+
+			// MOB_NECR_CASTER disabled, cant cast
 
 			if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 15 && mob_num > MOB_ZOMBIE)
 			{
@@ -4615,6 +4624,11 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 32 && mob_num > MOB_BONEDRAGON)
 			{
 				mob_num = MOB_BONEDRAGON;
+			}
+
+			if (GET_REMORT(ch) < 15 && mob_num >= MOB_NECR_BRIZER )
+			{
+				mob_num = MOB_NECR_DAMAGER;
 			}
 		}
 
@@ -4761,6 +4775,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			mob_cahrms_value = get_reformed_charmice_hp(ch, mob, spellnum);
 		}
 		damnodice--;
+
 		mob->mob_specials.damnodice = damnodice; // get prew damnodice for match with player_charms_value
 		if (damnodice == 255) {
 			// if damnodice == 255 mob damage not maximized. damsize too small
@@ -4887,6 +4902,21 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 		if (mob_num == MOB_BONESPIRIT && can_use_feat(ch, HAUNTINGSPIRIT_FEAT	))
 			mob->set_skill(SKILL_RESCUE, 120);
+
+		// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.
+		float eff_wis = get_effective_wis(ch,spellnum);
+		if (eff_wis>=65)
+		{
+			// пока не даем, если надо включите
+			//af.bitvector = to_underlying(EAffectFlag::AFF_MAGICGLASS);
+			//affect_to_char(mob, af);
+		}
+		if (eff_wis>=75)
+		{
+			af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+			affect_to_char(mob, af);
+		}
+
 	}
 //added by Adept
 	if (spellnum == SPELL_SUMMON_FIREKEEPER)
