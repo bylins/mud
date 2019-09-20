@@ -1216,6 +1216,17 @@ void mob_casting(CHAR_DATA * ch)
 	// перво-наперво  -  лечим себя
 	spellnum = 0;
 	victim = find_cure(ch, ch, &spellnum);
+
+	// angel not cast if master not in room
+	if (MOB_FLAGS(ch).get(MOB_ANGEL))
+	{
+		if (ch->has_master() && ch->in_room != ch->get_master()->in_room)
+		{
+			sprintf(buf, "%s тоскливо сморит по сторонам. Кажется ищет кого-то.",ch->get_name_str().c_str());
+			act(buf, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			return;
+		}
+	}
 	// Ищем рандомную заклинашку и цель для нее
 	for (int i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++)
 	{
