@@ -4115,10 +4115,10 @@ float get_damage_per_round(CHAR_DATA * victim)
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
-	//Если дыхание - то дамаг умножается на 1.1
+	//Если дыхание - то дамаг умножается
  	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))
  	{
- 		dam_per_round *= 1.1f;
+ 		dam_per_round *= 1.3f;
  	}
 
  	return dam_per_round;
