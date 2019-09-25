@@ -1813,7 +1813,7 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 
 	if (skill_number > 0)
 	{
-		dam += dam * (1 +  static_cast<double>(ch->get_trained_skill(skill_number)) / 500);
+		dam += dam * (1 +  static_cast<double>(MIN(CAP_SKILLS, ch->get_trained_skill(skill_number))) / 500);
 	}
 
 	//sprintf(buf1, "Magic skill koefficient = %f", koeff);

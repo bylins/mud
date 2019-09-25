@@ -18,7 +18,7 @@
 
 #include <vector>
 #include <array>
-
+const short CAP_SKILLS = 200;
 extern const char *circlemud_version;
 extern const char *dirs[];
 extern const char *DirsFrom[];
@@ -113,6 +113,7 @@ extern struct zone_type * zone_types;
 #define MOB_DAMAGE_MULT  3
 
 #define MAX_GROUPED_FOLLOWERS 7
+
 
 extern int HORSE_VNUM;
 extern int HORSE_COST;
