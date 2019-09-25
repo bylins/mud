@@ -4649,17 +4649,17 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			{
 				mob_num = MOB_BONESPIRIT;
 			}
-			else if (corpse_mob_level <= 30)
+			else if (corpse_mob_level <= 34)
 			{
 				mob_num = MOB_NECR_TANK;
 			}
-			else if (corpse_mob_level <= 39)
-			{
-				mob_num = MOB_NECR_DAMAGER;
-			}
 			else
 			{
-				mob_num = MOB_NECR_BRIZER;
+				int rnd = number(1,100);
+				mob_num = MOB_NECR_DAMAGER;
+				if (rnd > 50) {
+					mob_num = MOB_NECR_BRIZER;
+				}
 			}
 
 			// MOB_NECR_CASTER disabled, cant cast
@@ -4675,11 +4675,6 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			else if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 32 && mob_num > MOB_BONEDRAGON)
 			{
 				mob_num = MOB_BONEDRAGON;
-			}
-
-			if (GET_REMORT(ch) < 15 && mob_num >= MOB_NECR_BRIZER )
-			{
-				mob_num = MOB_NECR_DAMAGER;
 			}
 		}
 
