@@ -530,8 +530,8 @@ void affect_total(CHAR_DATA * ch)
 
 	// бонусы от морта
 	if (GET_REMORT(ch)>=20) {
-		ch->add_abils.mresist = GET_REMORT(ch) - 19;
-		ch->add_abils.presist = GET_REMORT(ch) - 19;
+		ch->add_abils.mresist += ch->get_remort() - 19;
+		ch->add_abils.presist += ch->get_remort() - 19;
 	}
 
 	// Restore values for NPC - added by Adept
@@ -566,6 +566,9 @@ void affect_total(CHAR_DATA * ch)
 				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
 			}
 		}
+	}
+	if (ch->add_abils.absorb > 0) {
+		ch->add_abils.mresist += MIN(ch->add_abils.absorb / 2, 25); //поглота
 	}
 	ch->obj_bonus().apply_affects(ch);
 
