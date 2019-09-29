@@ -11,7 +11,7 @@ cmake
 
 zlib
 
-собирать: cmake -DSCRIPTING=NO -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=NO
+собирать: cmake -DSCRIPTING=NO -DCMAKE_BUILD_TYPE=Test -DBUILD_TESTS=NO
 
 под cygwin все тоже самое
 
