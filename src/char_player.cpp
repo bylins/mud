@@ -1638,8 +1638,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_COND(this, FULL) = num;
 			else if (!strcmp(tag, "Hry "))
 			{
-				if (num > 1200)
-					num = 1200;
+				if (num > cap_hryvn)
+					num = cap_hryvn;
 				this->set_hryvn(num);
 			}
 			else if (!strcmp(tag, "Host"))
