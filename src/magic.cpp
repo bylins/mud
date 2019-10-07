@@ -4959,7 +4959,13 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		}
 		if (eff_wis>=75)
 		{
+			AFFECT_DATA<EApplyLocation> af;
+			af.type = SPELL_NO_SPELL;
+			af.duration = duration * (1+ GET_REMORT(ch));
+			af.modifier = 0;
+			af.location = EApplyLocation::APPLY_NONE;
 			af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+			af.battleflag = 0;
 			affect_to_char(mob, af);
 		}
 
