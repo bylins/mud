@@ -530,8 +530,8 @@ void affect_total(CHAR_DATA * ch)
 
 	// бонусы от морта
 	if (GET_REMORT(ch)>=20) {
-		ch->add_abils.mresist = GET_REMORT(ch) - 19;
-		ch->add_abils.presist = GET_REMORT(ch) - 19;
+		ch->add_abils.mresist += ch->get_remort() - 19;
+		ch->add_abils.presist += ch->get_remort() - 19;
 	}
 
 	// Restore values for NPC - added by Adept
@@ -566,6 +566,9 @@ void affect_total(CHAR_DATA * ch)
 				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), TRUE);
 			}
 		}
+	}
+	if (ch->add_abils.absorb > 0) {
+		ch->add_abils.mresist += MIN(ch->add_abils.absorb / 2, 25); //поглота
 	}
 	ch->obj_bonus().apply_affects(ch);
 
@@ -4115,10 +4118,10 @@ float get_damage_per_round(CHAR_DATA * victim)
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
-	//Если дыхание - то дамаг умножается на 1.1
+	//Если дыхание - то дамаг умножается
  	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))
  	{
- 		dam_per_round *= 1.1f;
+ 		dam_per_round *= 1.3f;
  	}
 
  	return dam_per_round;

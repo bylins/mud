@@ -385,6 +385,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
+		mob_log(ch, "mload: попытка почармленным мобом загрузать моба/предмет.");
 		return;
 	}
 

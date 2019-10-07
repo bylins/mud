@@ -1813,7 +1813,7 @@ int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, in
 
 	if (skill_number > 0)
 	{
-		dam += dam * (1 +  static_cast<double>(ch->get_skill(skill_number)) / 500);
+		dam += dam * (1 +  static_cast<double>(MIN(CAP_SKILLS, ch->get_skill(skill_number))) / 500);
 	}
 
 	//sprintf(buf1, "Magic skill koefficient = %f", koeff);
@@ -4628,27 +4628,41 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			pfail = 10 + tmp_mob->get_con() * 2
 				- number(1, GET_LEVEL(ch)) - GET_CAST_SUCCESS(ch) - GET_REMORT(ch) * 5;
 
-
-			if (GET_LEVEL(mob_proto + real_mob_num) <= 5)
+			int corpse_mob_level = GET_LEVEL(mob_proto + real_mob_num);
+			if ( corpse_mob_level <= 5)
 			{
 				mob_num = MOB_SKELETON;
 			}
-			else if (GET_LEVEL(mob_proto + real_mob_num) <= 10)
+			else if (corpse_mob_level <= 10)
 			{
 				mob_num = MOB_ZOMBIE;
 			}
-			else if (GET_LEVEL(mob_proto + real_mob_num) <= 20)
+			else if (corpse_mob_level <= 15)
 			{
 				mob_num = MOB_BONEDOG;
 			}
-			else if (GET_LEVEL(mob_proto + real_mob_num) <= 27)
+			else if (corpse_mob_level <= 20)
 			{
 				mob_num = MOB_BONEDRAGON;
 			}
-			else
+			else if (corpse_mob_level <= 25)
 			{
 				mob_num = MOB_BONESPIRIT;
 			}
+			else if (corpse_mob_level <= 34)
+			{
+				mob_num = MOB_NECR_TANK;
+			}
+			else
+			{
+				int rnd = number(1,100);
+				mob_num = MOB_NECR_DAMAGER;
+				if (rnd > 50) {
+					mob_num = MOB_NECR_BRIZER;
+				}
+			}
+
+			// MOB_NECR_CASTER disabled, cant cast
 
 			if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 15 && mob_num > MOB_ZOMBIE)
 			{
@@ -4663,6 +4677,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 				mob_num = MOB_BONEDRAGON;
 			}
 		}
+
 		handle_corpse = TRUE;
 		msg = number(1, 9);
 		fmsg = number(2, 6);
@@ -4791,6 +4806,32 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		return 0;
 	}
 
+	if (spellnum == SPELL_ANIMATE_DEAD && mob_num >= MOB_NECR_DAMAGER && mob_num < LAST_NECR_MOB) {
+		// add 10% mob health by remort
+		mob->set_max_hit(mob->get_max_hit() * (1.0 + ch->get_remort() / 10.0));
+		mob->set_hit(mob->get_max_hit());
+		int player_charms_value = get_player_charms(ch, spellnum);
+		int mob_cahrms_value = get_reformed_charmice_hp(ch, mob, spellnum);
+		int damnodice = 1;
+		mob->mob_specials.damnodice = damnodice;
+		// look for count dice to maximize damage on player_charms_value. max 255.
+		while (player_charms_value > mob_cahrms_value && damnodice <= 255) {
+			damnodice++;
+			mob->mob_specials.damnodice = damnodice;
+			mob_cahrms_value = get_reformed_charmice_hp(ch, mob, spellnum);
+		}
+		damnodice--;
+
+		mob->mob_specials.damnodice = damnodice; // get prew damnodice for match with player_charms_value
+		if (damnodice == 255) {
+			// if damnodice == 255 mob damage not maximized. damsize too small
+			send_to_room("Темные искры пробежали по земле... И исчезли...", ch->in_room,0);
+		} else {
+			// mob damage maximazed.
+			send_to_room("Темные искры пробежали по земле. Кажется сама СМЕРТЬ наполняет это тело силой!", ch->in_room,0);
+		}
+	}
+
 	if (!check_charmee(ch, mob, spellnum))
 	{
 		extract_char(mob, FALSE);
@@ -4907,6 +4948,27 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 		if (mob_num == MOB_BONESPIRIT && can_use_feat(ch, HAUNTINGSPIRIT_FEAT	))
 			mob->set_skill(SKILL_RESCUE, 120);
+
+		// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.
+		float eff_wis = get_effective_wis(ch,spellnum);
+		if (eff_wis>=65)
+		{
+			// пока не даем, если надо включите
+			//af.bitvector = to_underlying(EAffectFlag::AFF_MAGICGLASS);
+			//affect_to_char(mob, af);
+		}
+		if (eff_wis>=75)
+		{
+			AFFECT_DATA<EApplyLocation> af;
+			af.type = SPELL_NO_SPELL;
+			af.duration = duration * (1+ GET_REMORT(ch));
+			af.modifier = 0;
+			af.location = EApplyLocation::APPLY_NONE;
+			af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+			af.battleflag = 0;
+			affect_to_char(mob, af);
+		}
+
 	}
 //added by Adept
 	if (spellnum == SPELL_SUMMON_FIREKEEPER)

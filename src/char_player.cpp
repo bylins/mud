@@ -234,11 +234,12 @@ int Player::get_hryvn()
 {
 	return this->hryvn;
 }
+short cap_hryvn = 1500;
 
 void Player::set_hryvn(int value)
 {
-	if (value > 1200)
-		value = 1200;
+	if (value > cap_hryvn)
+		value = cap_hryvn;
 	this->hryvn = value;
 }
 
@@ -255,9 +256,9 @@ void Player::add_hryvn(int value)
 		send_to_char(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
 	}
-	else if ((this->get_hryvn() + value) > 1200)
+	else if ((this->get_hryvn() + value) > cap_hryvn)
 	{
-		value = 1200 - this->get_hryvn();
+		value = cap_hryvn - this->get_hryvn();
 		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
@@ -1637,8 +1638,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				GET_COND(this, FULL) = num;
 			else if (!strcmp(tag, "Hry "))
 			{
-				if (num > 1200)
-					num = 1200;
+				if (num > cap_hryvn)
+					num = cap_hryvn;
 				this->set_hryvn(num);
 			}
 			else if (!strcmp(tag, "Host"))

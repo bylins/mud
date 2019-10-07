@@ -2308,30 +2308,25 @@ void Damage::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
 }
 
 /**
- * Обработка поглощения физ и маг урона.
+ * Обработка поглощения физ урона.
  * \return true - полное поглощение
  */
-bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
-{
+bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim) {
 	if (dmg_type == FightSystem::PHYS_DMG
 		&& skill_num < 0
 		&& spell_num < 0
 		&& dam > 0
-		&& GET_ABSORBE(victim) > 0)
-	{
+		&& GET_ABSORBE(victim) > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
 		int chance = 10 + GET_REMORT(victim) / 3;
 		if (can_use_feat(victim, IMPREGNABLE_FEAT)
-			&& PRF_FLAGS(victim).get(PRF_AWAKE))
-		{
+			&& PRF_FLAGS(victim).get(PRF_AWAKE)) {
 			chance += 5;
 		}
 		// физ урон - прямое вычитание из дамага
-		if (number(1, 100) <= chance)
-		{
+		if (number(1, 100) <= chance) {
 			dam -= GET_ABSORBE(victim) / 2;
-			if (dam <= 0)
-			{
+			if (dam <= 0) {
 				act("Ваши доспехи полностью поглотили удар $n1.",
 					FALSE, ch, 0, victim, TO_VICT);
 				act("Доспехи $N1 полностью поглотили ваш удар.",
@@ -2341,15 +2336,6 @@ bool Damage::dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim)
 				return true;
 			}
 		}
-	}
-	else if (dmg_type == FightSystem::MAGE_DMG
-		&& dam > 0
-		&& GET_ABSORBE(victim) > 0
-		&& !flags[FightSystem::IGNORE_ABSORBE])
-	{
-		// маг урон - по 1% за каждые 2 абсорба, максимум 25% (цифры из mag_damage)
-		int absorb = MIN(GET_ABSORBE(victim) / 2, 25);
-		dam -= dam * absorb / 100;
 	}
 	return false;
 }

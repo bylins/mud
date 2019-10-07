@@ -746,7 +746,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
 
 #define MAX_EXP_PERCENT   80
-#define CAP_SKILLS   200
 #define MAX_EXP_RMRT_PERCENT(ch) (MAX_EXP_PERCENT+ch->get_remort()*5)
 
 #define GET_COND(ch, i)		((ch)->player_specials->saved.conditions[(i)])

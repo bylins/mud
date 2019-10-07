@@ -50,8 +50,6 @@ double exp_coefficients[] =
 };
 
 
-
-
 // strings corresponding to ordinals/bitvectors in structs.h **********
 
 

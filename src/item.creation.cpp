@@ -1814,7 +1814,7 @@ void MakeRecept::make_object(CHAR_DATA *ch, OBJ_DATA * obj, OBJ_DATA *ingrs[MAX_
 	obj->set_all_affected(temp_affected);
 	add_rnd_skills(ch, ingrs[0], obj); //переносим случайную умелку со шкуры
 	obj->set_extra_flag(EExtraFlag::ITEM_NOALTER);  // нельзя сфрешить черным свитком
-	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) * number(180, 220)); // таймер зависит в основном от умелки
+	obj->set_timer((GET_OBJ_VAL(ingrs[0], 3) + 1) * 1000 + ch->get_skill(SKILL_MAKE_WEAR) / 2 * number(160, 220)); // таймер зависит в основном от умелки
 	obj->set_craft_timer(obj->get_timer()); // запомним таймер созданной вещи для правильного отображения при осм для ее сост.
 	for (j = 1; j < ingr_cnt; j++)
 	{
