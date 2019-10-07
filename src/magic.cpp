@@ -6255,50 +6255,39 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 //Функция определяет какой резист для какого типа спелла следует брать.
 //Работает только если каждый спелл имеет 1 тип
 
-int get_resist_type(int spellnum)
-{
-	if (SpINFO.spell_class == STYPE_FIRE)
-	{
+int get_resist_type(int spellnum) {
+	switch (SpINFO.spell_class) {
+	case STYPE_FIRE:
 		return FIRE_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_DARK)
-	{
+		break;
+	case STYPE_DARK:
 		return DARK_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_AIR)
-	{
+		break;
+	case STYPE_AIR:
 		return AIR_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_WATER)
-	{
+		break;
+	case STYPE_WATER:
 		return WATER_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_EARTH)
-	{
+		break;
+	case STYPE_EARTH:
 		return EARTH_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_LIGHT)
-	{
+		break;
+	case STYPE_LIGHT:
 		return VITALITY_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_DARK)
-	{
-		return VITALITY_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_MIND)
-	{
+		break;
+	case STYPE_MIND:
 		return MIND_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_LIFE)
-	{
+		break;
+	case STYPE_LIFE:
 		return IMMUNITY_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_NEUTRAL)
-	{
+		break;
+	case STYPE_NEUTRAL:
 		return VITALITY_RESISTANCE;
+		break;
 	}
-	log("SYSERR: Unknown spell type in %s", SpINFO.name);
-	return 0;
+	log("SYSERR: Unknown spell type '%d' (spell '%s') passed in get_resist_type",
+			SpINFO.spell_class, SpINFO.name);
+	return VITALITY_RESISTANCE;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

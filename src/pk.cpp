@@ -107,7 +107,7 @@ bool check_agr_in_house(CHAR_DATA *agressor, CHAR_DATA *victim)
 	return false;
 }
 
-//Количество убитых игроков (уникальное мыло) int 
+//Количество убитых игроков (уникальное мыло) int
 int pk_player_count(CHAR_DATA * ch) {
 	struct PK_Memory_type *pk, *pkg;
 	unsigned count = 0;
@@ -614,7 +614,7 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 			pk->next = thief->pk_list;
 			thief->pk_list = pk;
 		}
-                else 
+                else
                    break;
 		if (pk->thief_exp == 0)
 			act("$N получил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
@@ -1216,14 +1216,7 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg)
 
     if (name_cmp(opponent, arg))
         return TRUE;
-    //Svent: Вынес в отдельную функцию, ибо понадобилась такая же проверка.
-	/*strcpy(opp_name, GET_NAME(opponent));
-	for (opp_name_remain = opp_name; *opp_name_remain;)
-	{
-		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
-		if (!str_cmp(arg, opp_name_part))
-			return TRUE;
-	}*/
+
 	// Совпадений не нашел
 	send_to_char("Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n", ch);
 	return FALSE;

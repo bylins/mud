@@ -314,31 +314,13 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 					sprintf(buf, "[-!-] ");
 				break;
 			case POWER_ATTACK_FEAT:
-				if (PRF_FLAGGED(ch, PRF_POWERATTACK))
-					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-				else
-					sprintf(buf, "[-:-] ");
-				break;
 			case GREAT_POWER_ATTACK_FEAT:
-				if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK))
-					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-				else
-					sprintf(buf, "[-:-] ");
-				break;
 			case AIMING_ATTACK_FEAT:
-				if (PRF_FLAGGED(ch, PRF_AIMINGATTACK))
-					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-				else
-					sprintf(buf, "[-:-] ");
-				break;
 			case GREAT_AIMING_ATTACK_FEAT:
-				if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK))
-					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-				else
-					sprintf(buf, "[-:-] ");
-				break;
 			case SKIRMISHER_FEAT:
-				if (PRF_FLAGGED(ch, PRF_SKIRMISHER))
+			case DOUBLE_THROW_FEAT:
+			case TRIPLE_THROW_FEAT:
+				if (PRF_FLAGGED(ch, getPRFWithFeatureNumber(sortpos)))
 					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
 				else
 					sprintf(buf, "[-:-] ");

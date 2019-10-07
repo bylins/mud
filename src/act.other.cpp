@@ -1860,7 +1860,8 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		send_to_char(ch, "Этот предмет уже магический и не может быть зачарован.\r\n");
 		return;
 	}
-	if (target->get_enchants().check(obj::ENCHANT_FROM_OBJ))
+
+	if (target->get_enchants().check(ObjectEnchant::ENCHANT_FROM_OBJ))
 	{
 		send_to_char(ch, "На %s уже наложено зачарование.\r\n",
 			target->get_PName(3).c_str());
@@ -1872,7 +1873,7 @@ void apply_enchant(CHAR_DATA *ch, OBJ_DATA *obj, std::string text)
 		&& check_slots != to_underlying(EWearFlag::ITEM_WEAR_TAKE))
 	{
 		send_to_char(ch, "Вы успешно зачаровали %s.\r\n", GET_OBJ_PNAME(target, 0).c_str());
-		obj::enchant ench(obj);
+		ObjectEnchant::enchant ench(obj);
 		ench.apply_to_obj(target);
 		extract_obj(obj);
 	}

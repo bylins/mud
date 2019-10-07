@@ -12,6 +12,7 @@
 *  $Revision$                                                             *
 ************************************************************************ */
 
+#include "ability.rollsystem.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -2556,64 +2557,47 @@ const char *cstyles[] = { "normal",
 						  "\n"
 						};
 
-/*						  "powerattack",
-						  "мощнаяатака",
-						  "grandpowerattack",
-						  "улучшеннаямощнаяатака",
-						  "aimattack",
-						  "прицельнаяатака",
-						  "grandaimattack",
-						  "улучшеннаяприцельнаяатака",
-*/
 void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int tp;
 
 	one_argument(argument, arg);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		sprintf(buf, "Вы сражаетесь %s стилем.\r\n",
 				PRF_FLAGS(ch).get(PRF_PUNCTUAL) ? "точным" : PRF_FLAGS(ch).get(PRF_AWAKE) ? "осторожным" : "обычным");
 		send_to_char(buf, ch);
 		return;
 	}
-	if (tryFlipActivatedFeature(ch, argument))
-	{
+	if (tryFlipActivatedFeature(ch, argument)) {
 		return;
 	}
-	if ((tp = search_block(arg, cstyles, FALSE)) == -1)
-	{
+	if ((tp = search_block(arg, cstyles, FALSE)) == -1) {
 		send_to_char("Формат: стиль { название стиля }\r\n", ch);
 		return;
 	}
 	tp >>= 1;
-	if ((tp == 1 && !ch->get_skill(SKILL_PUNCTUAL)) || (tp == 2 && !ch->get_skill(SKILL_AWAKE)))
-	{
+	if ((tp == 1 && !ch->get_skill(SKILL_PUNCTUAL)) || (tp == 2 && !ch->get_skill(SKILL_AWAKE))) {
 		send_to_char("Вам неизвестен такой стиль боя.\r\n", ch);
 		return;
 	}
 
-	switch (tp)
-	{
+	switch (tp) {
 	case 0:
 	case 1:
 	case 2:
 		PRF_FLAGS(ch).unset(PRF_PUNCTUAL);
 		PRF_FLAGS(ch).unset(PRF_AWAKE);
 
-		if (tp == 1)
-		{
+		if (tp == 1) {
 			PRF_FLAGS(ch).set(PRF_PUNCTUAL);
 		}
-		if (tp == 2)
-		{
+		if (tp == 2) {
 			PRF_FLAGS(ch).set(PRF_AWAKE);
 		}
 
 		if (ch->get_fighting() && !(AFF_FLAGGED(ch, EAffectFlag::AFF_COURAGE) ||
-							  AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED) || AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT)))
-		{
+							  AFF_FLAGGED(ch, EAffectFlag::AFF_DRUNKED) || AFF_FLAGGED(ch, EAffectFlag::AFF_ABSTINENT))) {
 			CLR_AF_BATTLE(ch, EAF_PUNCTUAL);
 			CLR_AF_BATTLE(ch, EAF_AWAKE);
 			if (tp == 1)
@@ -2626,8 +2610,9 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		break;
 	}
 
-	if (!WAITLESS(ch))
+	if (!WAITLESS(ch)) {
 		WAIT_STATE(ch, PULSE_VIOLENCE);
+	};
 }
 
 // ***************** STOPFIGHT
@@ -2679,104 +2664,82 @@ void do_stopfight(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 }
 
 // ************* THROW PROCEDURES
-void go_throw(CHAR_DATA * ch, CHAR_DATA * vict)
-{
-	int percent, prob;
-	OBJ_DATA *wielded = GET_EQ(ch, WEAR_WIELD);
+void go_throw(CHAR_DATA * ch, CHAR_DATA * victim) {
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (!(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON))
-	{
-		send_to_char("Что вы хотите метнуть?\r\n", ch);
+	victim = try_protect(victim, ch);
+
+	AbilitySystem::ExpedientRoll weaponThrow;
+	weaponThrow.initialize(ch, THROW_WEAPON_FEAT, victim);
+	if (weaponThrow.checkWrongConditions()) {
+		weaponThrow.sendDenyMessage(ch);
 		return;
 	}
-
-	if (!IS_IMMORTAL(ch) && !OBJ_FLAGGED(wielded, EExtraFlag::ITEM_THROWING))
-	{
-		act("$o не предназначен$A для метания.", FALSE, ch, wielded, 0, TO_CHAR);
-		return;
-	}
-
-	vict = try_protect(vict, ch);
-
-	percent = number(1, skill_info[SKILL_THROW].max_percent);
-	prob = train_skill(ch, SKILL_THROW, skill_info[SKILL_THROW].max_percent, vict);
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, GF_GODSCURSE)
-			|| GET_GOD_FLAG(ch, GF_GODSLIKE))
-		prob = percent;
-	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, GF_GODSCURSE) || GET_GOD_FLAG(vict, GF_GODSLIKE))
-		prob = 0;
-
-	// log("Start throw");
-	if (percent > prob)
-	{
+	if (weaponThrow.checkSuccess()) {
+		int damage = weaponThrow.calculateDamage();
+		Damage throwDamage(SkillDmg(SKILL_THROW), damage, FightSystem::PHYS_DMG);
+		if (weaponThrow.checkCriticalSuccess()) {
+			send_to_char("&GВ яблочко!&n\r\n", ch);
+			throwDamage.flags.set(FightSystem::IGNORE_ARMOR);
+			throwDamage.flags.set(FightSystem::CRIT_HIT);
+		}
+		throwDamage.process(ch, victim);
+	} else {
 		Damage dmg(SkillDmg(SKILL_THROW), 0, FightSystem::PHYS_DMG);
-		dmg.process(ch, vict);
+		dmg.process(ch, victim);
+		if (weaponThrow.checkCriticalFail()) {
+			OBJ_DATA *weapon = unequip_char(ch, weaponThrow.getWeaponEquipPosition());
+			if (weapon) {
+				obj_to_char(weapon, ch);
+				send_to_char(ch, "&RВы выронили из рук %s.&n\r\n", GET_OBJ_PNAME(weapon, 3).c_str());
+			};
+		};
 	}
-	else
-		hit(ch, vict, SKILL_THROW, 1);
-	// log("[THROW] Start extract weapon...");
-	if (GET_EQ(ch, WEAR_WIELD))
-	{
-		wielded = unequip_char(ch, WEAR_WIELD);
-		if (IN_ROOM(vict) != NOWHERE)
-			obj_to_char(wielded, vict);
-		else
-			obj_to_room(wielded, ch->in_room);
-		obj_decay(wielded);
-	}
-	// log("[THROW] Miss stop extract weapon...");
 	set_wait(ch, 3, TRUE);
-	// log("Stop throw");
 }
 
 void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *vict = NULL;
-
 	one_argument(argument, arg);
+	CHAR_DATA *victim = get_char_vis(ch, arg, FIND_CHAR_ROOM);
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_THROW))
-	{
-		send_to_char("Вы не знаете как.\r\n", ch);
-		return;
+	if (!IS_IMPL(ch) && !can_use_feat(ch, THROW_WEAPON_FEAT)) {
+			send_to_char("Вы не умеете этого.\r\n", ch);
+			return;
 	}
 
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		if (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
-		{
-			vict = ch->get_fighting();
-		}
-		else
-		{
+	if (!victim) {
+		if (ch->get_fighting() && ch->checkSameRoom(ch->get_fighting())) {
+			victim = ch->get_fighting();
+		} else {
 			send_to_char("В кого мечем?\r\n", ch);
 			return;
 		}
 	};
 
-	if (ch == vict)
-	{
+	if (ch == victim) {
 		send_to_char("Не мечите, и не мечимы будете!\r\n", ch);
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, victim)) {
 		return;
-	if (!check_pkill(ch, vict, arg))
+	}
+	if (!check_pkill(ch, victim, arg)) {
 		return;
+	}
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
-		go_throw(ch, vict);
-	else if (!used_attack(ch))
-	{
-		act("Хорошо. Вы попытаетесь метнуть оружие в $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_THROW, vict);
+	if (IS_IMPL(ch) || !ch->get_fighting()) {
+		go_throw(ch, victim);
+	} else {
+		if (!used_attack(ch)) {
+			act("Хорошо. Вы попытаетесь метнуть оружие в $N3.", FALSE, ch, 0, victim, TO_CHAR);
+			ch->set_extra_attack(EXTRA_ATTACK_THROW, victim);
+		}
 	}
 }
 
@@ -2915,7 +2878,6 @@ void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 }
 
-// Added by Gorrah
 void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))		// Cannot use on mobs.
@@ -3159,24 +3121,20 @@ void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 {
 	int percent, prob, dam, delay;
-//	int visibl=0, aware=0, awake=0, react=0;
 	struct timed_type timed;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT))
-	{
+			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)) {
 		send_to_char("Сейчас у вас не получится выполнить этот прием.\r\n", ch);
 		return;
 	}
 
-	if (ch->get_fighting())
-	{
+	if (ch->get_fighting()) {
 		send_to_char("Вы не можете делать это в бою!\r\n", ch);
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING)
-	{
+	if (GET_POS(ch) < POS_FIGHTING) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -3190,28 +3148,13 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	prob = train_skill(ch, SKILL_STRANGLE, skill_info[SKILL_STRANGLE].max_percent, vict);
 	delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
 	percent = number(1, skill_info[SKILL_STRANGLE].max_percent);
-//     Лонирование шансов удавки
-//        send_to_char(ch,"Вычисление удавки: Prob = %d, Percent = %d, Delay = %d\r\n", prob, percent, delay);
-//        sprintf(buf, "%s Давит гадов : Percent == %d,Prob == %d, Delay == %d\r\n",GET_NAME(ch), percent, prob, delay);
-//                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 
-	//тестим гаусс - пока оставлено, мало ли что.
-	//double mean = 21-1/(0.25+((4*sqrt(11)-1)/320)*ch->get_skill(SKILL_STRANGLE));
-	//mean = (300+5*ch->get_skill(SKILL_STRANGLE))/70;
-	//awake = GaussIntNumber((300+5*ch->get_skill(SKILL_STRANGLE))/70, 7.0, 1, 30);
-	//dam = (GET_MAX_HIT(vict)*GaussIntNumber((300+5*ch->get_skill(SKILL_STRANGLE))/70, 7.0, 1, 30))/100;
-	//sprintf(buf1, "Gauss result mean = %f, sigma 7.0, percent  %d, damage %d", mean, awake, dam);
-	//mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-
-	if (percent > prob)
-	{
+	if (percent > prob) {
 		Damage dmg(SkillDmg(SKILL_STRANGLE), 0, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		set_wait(ch, 3, TRUE);
-	}
-	else
-	{
+	} else {
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_STRANGLE;
 		af.duration = IS_NPC(vict) ? 8 : 15;
@@ -3221,35 +3164,28 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		af.bitvector = to_underlying(EAffectFlag::AFF_STRANGLED);
 		affect_to_char(vict, af);
 
-		//Урон распределяется нормально. Матожидание линейно привязано к прокачке скилла. Сигма подобрана экспериментально.
-		//урон считается в процентах от максимального числа хитов жертвы.
 		dam = (GET_MAX_HIT(vict)*GaussIntNumber((300 + 5 * ch->get_skill(SKILL_STRANGLE)) / 70, 7.0, 1, 30)) / 100;
-		//Ограничение урона сверху: по чарам максхиты наема*2, по мобам *6
 		dam = (IS_NPC(vict) ? MIN(dam, 6*GET_MAX_HIT(ch)) : MIN(dam, 2*GET_MAX_HIT(ch)));
 		Damage dmg(SkillDmg(SKILL_STRANGLE), dam, FightSystem::PHYS_DMG);
 		dmg.flags.set(FightSystem::IGNORE_ARMOR);
 		dmg.process(ch, vict);
-		if (GET_POS(vict) > POS_DEAD)
-		{
+		if (GET_POS(vict) > POS_DEAD) {
 			set_wait(ch, 2, TRUE);
 			set_wait(vict, 2, TRUE); //на случай если чар сидит или трип не пройдет
-			if (on_horse(vict))
-			{
+			if (on_horse(vict)) {
 				act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, 0, ch, TO_CHAR);
 				act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, 0, ch, TO_VICT);
 				act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 				AFF_FLAGS(vict).unset(EAffectFlag::AFF_HORSE);
 			}
 
-			if (ch->get_skill(SKILL_CHOPOFF) && (ch->in_room == IN_ROOM(vict)))
-			{
+			if (ch->get_skill(SKILL_CHOPOFF) && (ch->in_room == IN_ROOM(vict))) {
 				go_chopoff(ch, vict);
 			}
 		}
 	}
 
-	if (!IS_IMMORTAL(ch))
-	{
+	if (!IS_IMMORTAL(ch)) {
 		timed.skill = SKILL_STRANGLE;
 		timed.time = delay;
 		timed_to_char(ch, &timed);
@@ -3321,19 +3257,6 @@ void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
 	Noflee.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
 	Noflee.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 	affect_join(ch, Noflee, TRUE, FALSE, TRUE, FALSE);
-
-	// надо потестировать это
-	/* AFFECT_DATA<EApplyLocation> NofleeAndExpedient;
-	NofleeAndExpedient.type = SPELL_BATTLE;
-	NofleeAndExpedient.aff.set(EAffectFlag::AFF_NOFLEE);
-	NofleeAndExpedient.aff.set(EAffectFlag::AFF_EXPEDIENT);
-	// битвектор так же можно юзать по старинке
-	//NofleeAndExpedient.bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
-	NofleeAndExpedient.location = EApplyLocation::APPLY_NONE;
-	NofleeAndExpedient.modifier = 0;
-	NofleeAndExpedient.duration = pc_duration(ch, duration, 0, 0, 0, 0);;
-	NofleeAndExpedient.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-    affect_join(ch, &NofleeAndExpedient, TRUE, FALSE, TRUE, FALSE);*/
 
     AFFECT_DATA<EApplyLocation> Battle;
     Battle.type = SPELL_BATTLE;
@@ -3490,8 +3413,8 @@ void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict)
 
     act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", FALSE, ch, 0, vict, TO_VICT);
     act("$n сделал$g неуловимое движение, сместившись за спину $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-    hit(ch, vict, TYPE_UNDEFINED, RIGHT_WEAPON);
-    hit(ch, vict, TYPE_UNDEFINED, LEFT_WEAPON);
+    hit(ch, vict, TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
+    hit(ch, vict, TYPE_UNDEFINED, FightSystem::LEFT_WEAPON);
 
     AFFECT_DATA<EApplyLocation> AffectImmunPhysic;
     AffectImmunPhysic.type = SPELL_EXPEDIENT;

@@ -13,6 +13,7 @@ set(SOURCES
 	src/influxdb.cpp
 	src/heartbeat.cpp
 	src/heartbeat.commands.cpp
+	src/ability.rollsystem.cpp
 	src/accounts.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
@@ -145,9 +146,9 @@ set(SOURCES
 	src/spells.cpp
 	src/structs.cpp
 	src/structs.cpp
-	src/stuff.cpp     
+	src/stuff.cpp
 	src/temp_spells.cpp
-	src/time_utils.cpp	
+	src/time_utils.cpp
 	src/title.cpp
 	src/top.cpp
 	src/utils.cpp
@@ -174,6 +175,8 @@ set(SOURCES
 
 set(HEADERS
         src/strengthening.hpp
+	src/ability.constants.hpp
+	src/ability.rollsystem.hpp
 	src/accounts.hpp
 	src/blocking.queue.hpp
 	src/influxdb.hpp
@@ -241,6 +244,7 @@ set(HEADERS
 	src/exchange.h
 	src/ext_money.hpp
 	src/external.trigger.hpp
+	src/features.itemset.hpp
 	src/features.hpp
 	src/fight_constants.hpp
 	src/fight.h
@@ -309,7 +313,7 @@ set(HEADERS
 	src/structs.h
 	src/stuff.hpp
 	src/sysdep.h
-	src/telnet.h      
+	src/telnet.h
 	src/temp_spells.hpp
 	src/time_utils.hpp
 	src/title.hpp
@@ -593,12 +597,12 @@ option(HAVE_ICONV "Allows to enable search of iconv." OFF)
 if (HAVE_ICONV)
 	find_path(ICONV_INCLUDE_DIR iconv.h)
 	find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
-	if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
+	if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES)
 		message(STATUS "Iconv found. Turning it ON")
 		set(ICONV_FOUND TRUE)
 	else ()
 		message(STATUS "Iconv not found. Turning it OFF")
-	endif () 
+	endif ()
 
 	if (ICONV_FOUND)
 		add_definitions("-DHAVE_ICONV")

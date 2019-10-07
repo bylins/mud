@@ -9,6 +9,7 @@
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
 
+#include "features.itemset.hpp"
 #include "skills.h"
 #include "structs.h"
 #include "conf.h"
@@ -18,7 +19,7 @@
 
 using std::bitset;
 
-#define THAC0_FEAT				0   //DO NOT USED
+#define INCORRECT_FEAT			0   //DO NOT USE THIS VALUE
 #define BERSERK_FEAT			1   //предсмертная ярость
 #define PARRY_ARROW_FEAT		2   //отбить стрелу
 #define BLIND_FIGHT_FEAT		3   //слепой бой
@@ -166,19 +167,19 @@ using std::bitset;
 #define RESERVED_FEAT_6			137 //
 */
 
-#define EVASION_FEAT            138 //скользский тип
-#define EXPEDIENT_CUT_FEAT      139 //порез
-#define SHOT_FINESSE_FEAT		140 //ловкий выстрел
-#define OBJECT_ENCHANTER_FEAT	141 //зачаровывание предметов
-#define DEFT_SHOOTER_FEAT		142 //ловкий стрелок
-#define MAGIC_SHOOTER_FEAT		143 //магический выстрел
-#define THROW_WEAPON_FEAT		144 //метание
+#define EVASION_FEAT            138 // скользский тип
+#define EXPEDIENT_CUT_FEAT      139 // порез
+#define SHOT_FINESSE_FEAT		140 // ловкий выстрел
+#define OBJECT_ENCHANTER_FEAT	141 // зачаровывание предметов
+#define DEFT_SHOOTER_FEAT		142 // ловкий стрелок
+#define MAGIC_SHOOTER_FEAT		143 // магический выстрел
+#define THROW_WEAPON_FEAT		144 // метнуть
 #define SHADOW_THROW_FEAT		145 //
 #define SHADOW_DAGGER_FEAT		146 //
 #define SHADOW_SPEAR_FEAT		147 //
 #define SHADOW_AXE_FEAT			148 //
-#define DOUBLE_THROW_FEAT		149 //
-#define TRIPLE_THROW_FEAT		150 //
+#define DOUBLE_THROW_FEAT		149 // двойной бросок
+#define TRIPLE_THROW_FEAT		150 // тройной бросок
 #define POWER_THROW_FEAT		151 //
 #define DEADLY_THROW_FEAT		152 //
 #define CARAVAN_DRIVER_FEAT		153 //
@@ -191,18 +192,7 @@ using std::bitset;
 #define AFFECT_FTYPE			1
 #define SKILL_MOD_FTYPE			2
 #define ACTIVATED_FTYPE			3
-#define WEAPON_EXPEDIENT_FEAT	4
-
-// Базовые параметры для способонстей
-enum EBaseAbilityParameter: int
-{
-	BASE_PARAMETER_INT = 0,
-	BASE_PARAMETER_STR,
-	BASE_PARAMETER_DEX,
-	BASE_PARAMETER_CON,
-	BASE_PARAMETER_WIS,
-	BASE_PARAMETER_CHA
-};
+#define EXPEDIENT_FTYPE			4
 
 /* Константы и формулы, определяющие число способностей у персонажа
    Скорость появления новых слотов можно задавать для каждого класса
@@ -212,7 +202,7 @@ enum EBaseAbilityParameter: int
 
 const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4,5 };
 // Количество пар "параметр-значение" у способности
-#define MAX_FEAT_AFFECT	5
+const short MAX_FEAT_AFFECT	= 5;
 // Максимально доступное на морте количество не-врожденных способностей
 #define MAX_ACC_FEAT(ch)	((int) 1+(LVL_IMMORT-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 
@@ -222,7 +212,6 @@ const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4
 
 extern struct FeatureInfoType feat_info[MAX_FEATS];
 
-short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
 int getModifier(int feat, int location);
 int find_feat_num(const char *name, bool alias = false);
 void determineFeaturesSpecification(void);
@@ -233,13 +222,10 @@ void setAllInbornFeatures(CHAR_DATA *ch);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
 bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument);
-bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
+bitvector_t getPRFWithFeatureNumber(int featureNum);
 
 /*
-Служебный класс для удобства вбивания значений в массив affected структуры способности
-Если у кого-то есть желание, можно вместо массива использовать сам этот класс, реализовав
-методы доступа к значениям, выдачу нужного поля и копирующий конструктор
-Только тогда придется править обращения к структурам feat_info по коду
+	Класс для удобства вбивания значений в массив affected структуры способности
 */
 class CFeatArray
 {
@@ -276,25 +262,32 @@ private:
 	int _pos, i;
 };
 
-struct FeatureInfoType
-{
+struct FeatureInfoType {
 	int type;
 	int minRemort[NUM_PLAYER_CLASSES][NUM_KIN];
 	int slot[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool classknow[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool up_slot;
+	bool alwaysUseFeatureSkill;
 	const char *name;
 	std::array<CFeatArray::CFeatAffect, MAX_FEAT_AFFECT> affected;
 	std::string alias;
 	// Параметры для нового базового броска на способность
 	// Пока тут, до переписывания системы способностей
+	short baseDamageBonusPercent;
+	short degreeOfSuccessDamagePercent;
 	short dicerollBonus;
 	short oppositeSaving;
+	short criticalFailThreshold;
+	short criticalSuccessThreshold;
 	ESkill baseSkill;
-	EBaseAbilityParameter baseParameterOfCharacter;
 
-	short (*calculateSituationalRollBonus)(CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */);
+	ExpedientItemKitsGroupType expedientItemKitsGroup;
+
+	int (*getBaseParameter) (const CHAR_DATA* ch);
+	int (*getEffectParameter) (const CHAR_DATA* ch);
+	short (*calculateSituationalRollBonus) (CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */);
 };
 
 #endif // __FEATURES_HPP__

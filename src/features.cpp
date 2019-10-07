@@ -9,6 +9,7 @@
 
 #include "features.hpp"
 
+#include "ability.constants.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "handler.h"
@@ -37,26 +38,14 @@
 
 #include <string>
 
-extern const char *unused_spellname;
+using namespace AbilitySystemConstants;
 
-// Базовые константы основного теста на успех применения способности
-const short _minAbilityDiceRollBonus = -150;
-const short _maxAbilityDiceRollBonus = 150;
-const short _abilityTestSuccessThreshold = 0;
-const short _abilityCriticalFailThreshold = 96;
-const short _maxAbilitySuccessDegree = -20;
-const short _minAbilitySuccessDegree = -20;
-const short _abilityTestSkillDivider = 2;
-const short _abilityTestParemeterDivider = 2;
-const short _situationableRollBonusFactor = 5;
-const short _abilityTestDegreeDivider = 5;
-const short _minimalFailResult = -1;
+extern const char *unused_spellname;
 
 struct FeatureInfoType feat_info[MAX_FEATS];
 
 /* Служебные функции */
 extern void fix_name_feat(char *name);
-
 void initializeFeatureByDefault(int featureNum);
 void determineFeaturesSpecification(void);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
@@ -66,21 +55,13 @@ int getModifier(int feat, int location);
 
 /* Функции для работы с переключаемыми способностями */
 bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument, int /* cmd */, int subcmd);
+bool checkAccessActivatedFeature(CHAR_DATA *ch, int featureNum);
 void activateFeature(CHAR_DATA *ch, int featureNum);
 void deactivateFeature(CHAR_DATA *ch, int featureNum);
-bool checkAccessibilityActivatedFeature(CHAR_DATA *ch, int featureNum);
 int get_feature_num(char *featureName);
 bitvector_t getPRFWithFeatureNumber(int fetureNum);
 
-/* Игромеханика тестов на срабатывание способностей */
-bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
-bool checkAbilityCriticalFail(short diceRoll);
-short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy);
-short getBaseCharacterParamerter(CHAR_DATA *ch, EBaseAbilityParameter baseParameter);
-short calculateDegreeOfSuccess(short diceRoll);
-
 /* Ситуативные бонусы, пишутся для специфических способностей по потребности */
-short calculateSituationalRollBonusByDefault(CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */);
 short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */);
 
 /* Активные способности */
@@ -95,8 +76,7 @@ void check_berserk(CHAR_DATA * ch);
 ///
 int find_feat_num(const char *name, bool alias)
 {
-	for (int index = 1; index < MAX_FEATS; index++)
-	{
+	for (int index = 1; index < MAX_FEATS; index++) {
 		bool flag = true;
 		std::string name_feat(alias ? feat_info[index].alias.c_str() : feat_info[index].name);
 		std::vector<std::string> strs_feat, strs_args;
@@ -105,10 +85,8 @@ int find_feat_num(const char *name, bool alias)
 		const int bound = static_cast<int>(strs_feat.size() >= strs_args.size()
 				? strs_args.size()
 				: strs_feat.size());
-		for (int i = 0; i < bound; i++)
-		{
-			if (!boost::starts_with(strs_feat[i], strs_args[i]))
-			{
+		for (int i = 0; i < bound; i++) {
+			if (!boost::starts_with(strs_feat[i], strs_args[i])) {
 				flag = false;
 			}
 		}
@@ -119,18 +97,17 @@ int find_feat_num(const char *name, bool alias)
 }
 
 void initializeFeature(int featureNum, const char *name, int type, bool can_up_slot, CFeatArray app,
-		 short dicerollBonus = _maxAbilityDiceRollBonus, ESkill baseSkill = SKILL_THAC0,
-		 EBaseAbilityParameter baseParameterOfCharacter = BASE_PARAMETER_INT, short oppositeSaving = SAVING_STABILITY)
+		 short dicerollBonus = MAX_ABILITY_DICEROLL_BONUS, ESkill baseSkill = SKILL_INVALID,
+		 short oppositeSaving = SAVING_STABILITY)
 {
 	int i, j;
-	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
-		for (j = 0; j < NUM_KIN; j++)
-		{
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
+		for (j = 0; j < NUM_KIN; j++) {
 			feat_info[featureNum].minRemort[i][j] = 0;
 			feat_info[featureNum].slot[i][j] = 0;
 		}
-	if (name)
-	{
+	}
+	if (name) {
 		feat_info[featureNum].name = name;
 		std::string alias(name);
 		std::replace_if(alias.begin(), alias.end(), boost::is_any_of("_:"), ' ');
@@ -139,12 +116,10 @@ void initializeFeature(int featureNum, const char *name, int type, bool can_up_s
 	}
 	feat_info[featureNum].dicerollBonus = dicerollBonus;
 	feat_info[featureNum].baseSkill = baseSkill;
-	feat_info[featureNum].baseParameterOfCharacter = baseParameterOfCharacter;
 	feat_info[featureNum].oppositeSaving = oppositeSaving;
 	feat_info[featureNum].type = type;
 	feat_info[featureNum].up_slot = can_up_slot;
-	for (i = 0; i < MAX_FEAT_AFFECT; i++)
-	{
+	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
 		feat_info[featureNum].affected[i].location = app.affected[i].location;
 		feat_info[featureNum].affected[i].modifier = app.affected[i].modifier;
 	}
@@ -154,38 +129,44 @@ void initializeFeatureByDefault(int featureNum)
 {
 	int i, j;
 
-	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
-		for (j = 0; j < NUM_KIN; j++)
-		{
+	for (i = 0; i < NUM_PLAYER_CLASSES; i++) {
+		for (j = 0; j < NUM_KIN; j++) {
 			feat_info[featureNum].minRemort[i][j] = 0;
 			feat_info[featureNum].slot[i][j] = 0;
-			feat_info[featureNum].inbornFeatureOfClass[i][j] = FALSE;
-			feat_info[featureNum].classknow[i][j] = FALSE;
+			feat_info[featureNum].inbornFeatureOfClass[i][j] = false;
+			feat_info[featureNum].classknow[i][j] = false;
 		}
+	}
 
 	feat_info[featureNum].name = unused_spellname;
-	feat_info[featureNum].dicerollBonus = _maxAbilityDiceRollBonus;
-	feat_info[featureNum].baseSkill = SKILL_THAC0;
-	feat_info[featureNum].baseParameterOfCharacter = BASE_PARAMETER_INT;
-	feat_info[featureNum].oppositeSaving = SAVING_STABILITY;
 	feat_info[featureNum].type = UNUSED_FTYPE;
-	feat_info[featureNum].up_slot = FALSE;
+	feat_info[featureNum].up_slot = false;
+	feat_info[featureNum].alwaysUseFeatureSkill = true;
+	feat_info[featureNum].baseDamageBonusPercent = 0;
+	feat_info[featureNum].degreeOfSuccessDamagePercent = 5;
+	feat_info[featureNum].oppositeSaving = SAVING_STABILITY;
+	feat_info[featureNum].dicerollBonus = MAX_ABILITY_DICEROLL_BONUS;
+	feat_info[featureNum].baseSkill = SKILL_INVALID;
+	feat_info[featureNum].criticalFailThreshold = DEFAULT_CRITICAL_FAIL_THRESHOLD;
+	feat_info[featureNum].criticalSuccessThreshold = DEFAULT_CRITICAL_SUCCESS_THRESHOLD;
 
-	for (i = 0; i < MAX_FEAT_AFFECT; i++)
-	{
+	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
 		feat_info[featureNum].affected[i].location = APPLY_NONE;
 		feat_info[featureNum].affected[i].modifier = 0;
 	}
 
-	 feat_info[featureNum].calculateSituationalRollBonus = &calculateSituationalRollBonusByDefault;
+	feat_info[featureNum].getBaseParameter = &GET_REAL_INT;
+	feat_info[featureNum].getEffectParameter = &GET_REAL_STR;
+	feat_info[featureNum].calculateSituationalRollBonus =
+		([](CHAR_DATA*, CHAR_DATA*) -> short {
+			return 0;
+		});
 }
 
 // Инициализация массива структур способностей
-void determineFeaturesSpecification(void)
-{
+void determineFeaturesSpecification(void) {
 	CFeatArray feat_app;
-	for (int i = 1; i < MAX_FEATS; i++)
-	{
+	for (int i = 1; i < MAX_FEATS; i++) {
 		initializeFeatureByDefault(i);
 	}
 //1
@@ -581,10 +562,12 @@ void determineFeaturesSpecification(void)
 //132
 	initializeFeature(TEAMSTER_UNDEAD_FEAT, "погонщик нежити", NORMAL_FTYPE, TRUE, feat_app);
 //133
-	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 90, SKILL_RESCUE, BASE_PARAMETER_DEX, SAVING_REFLEX);
+	initializeFeature(SKIRMISHER_FEAT, "держать строй", ACTIVATED_FTYPE, TRUE, feat_app, 90, SKILL_RESCUE, SAVING_REFLEX);
+	feat_info[SKIRMISHER_FEAT].getBaseParameter = &GET_REAL_DEX;
 	feat_info[SKIRMISHER_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //134
-	initializeFeature(TACTICIAN_FEAT, "десяцкий", ACTIVATED_FTYPE, TRUE, feat_app, 90, SKILL_LEADERSHIP, BASE_PARAMETER_CHA, SAVING_REFLEX);
+	initializeFeature(TACTICIAN_FEAT, "десяцкий", ACTIVATED_FTYPE, TRUE, feat_app, 90, SKILL_LEADERSHIP, SAVING_REFLEX);
+	feat_info[TACTICIAN_FEAT].getBaseParameter = &GET_REAL_CHA;
 	feat_info[TACTICIAN_FEAT].calculateSituationalRollBonus = &calculateSituationalRollBonusOfGroupFormation;
 //135
 	initializeFeature(LIVE_SHIELD_FEAT, "живой щит", NORMAL_FTYPE, TRUE, feat_app);
@@ -592,7 +575,7 @@ void determineFeaturesSpecification(void)
 //138
 	initializeFeature(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
 //139
-	initializeFeature(EXPEDIENT_CUT_FEAT, "боевой_прием: порез", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", EXPEDIENT_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 //140
     initializeFeature(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //141
@@ -602,22 +585,50 @@ void determineFeaturesSpecification(void)
 //143
     initializeFeature(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //144
-    initializeFeature(THROW_WEAPON_FEAT, "метнуть оружие", WEAPON_EXPEDIENT_FEAT, TRUE, feat_app, 100, SKILL_PICK, BASE_PARAMETER_DEX, SAVING_REFLEX);
+    initializeFeature(THROW_WEAPON_FEAT, "метнуть", EXPEDIENT_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+    feat_info[THROW_WEAPON_FEAT].getBaseParameter = &GET_REAL_DEX;
+    feat_info[THROW_WEAPON_FEAT].getEffectParameter = &GET_REAL_STR;
+    feat_info[THROW_WEAPON_FEAT].baseDamageBonusPercent = 5;
+    feat_info[THROW_WEAPON_FEAT].degreeOfSuccessDamagePercent = 5;
+	// Это ужасно, понимаю, но не хочется возиться с написанием мутной функции с переменным числоа аргументов,
+	// потому что при введении конфига, чем я планирую заняться в ближайшее время, все равно ее придется переписывать.
+	//TODO: Не забыть переписать этот бордель
+	feat_info[THROW_WEAPON_FEAT].alwaysUseFeatureSkill = false;
+    feat_info[THROW_WEAPON_FEAT].expedientItemKitsGroup.reserve(2);
+    ExpedientItemKitType* expedientItemKit;
+
+    expedientItemKit = new ExpedientItemKitType;
+    expedientItemKit->reserve(1);
+    expedientItemKit->push_back(ExpedientItem(WEAR_WIELD, OBJ_DATA::ITEM_WEAPON, SKILL_INVALID, EExtraFlag::ITEM_THROWING));
+    feat_info[THROW_WEAPON_FEAT].expedientItemKitsGroup.push_back(expedientItemKit);
+
+    expedientItemKit = new ExpedientItemKitType;
+    expedientItemKit->reserve(1);
+    expedientItemKit->push_back(ExpedientItem(WEAR_HOLD, OBJ_DATA::ITEM_WEAPON, SKILL_INVALID, EExtraFlag::ITEM_THROWING));
+    feat_info[THROW_WEAPON_FEAT].expedientItemKitsGroup.push_back(expedientItemKit);
+//149
+	initializeFeature(DOUBLE_THROW_FEAT, "двойной бросок", ACTIVATED_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	feat_info[DOUBLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
+//150
+	initializeFeature(TRIPLE_THROW_FEAT, "тройной бросок", ACTIVATED_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	feat_info[TRIPLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 }
 
-bool can_use_feat(const CHAR_DATA *ch, int feat)
-{
-	if (!HAVE_FEAT(ch, feat))
+bool can_use_feat(const CHAR_DATA *ch, int feat) {
+	if (!HAVE_FEAT(ch, feat)) {
 		return FALSE;
-	if (IS_NPC(ch))
+	};
+	if (IS_NPC(ch)) {
 		return TRUE;
-	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+	};
+	if (NUM_LEV_FEAT(ch) < feat_info[feat].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 		return FALSE;
-	if (GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
+	};
+	if (GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 		return FALSE;
+	};
 
-	switch (feat)
-	{
+	switch (feat) {
 	case WEAPON_FINESSE_FEAT:
 	case SHOT_FINESSE_FEAT:
 		if (GET_REAL_DEX(ch) < GET_REAL_STR(ch) || GET_REAL_DEX(ch) < 18)
@@ -663,26 +674,25 @@ bool can_use_feat(const CHAR_DATA *ch, int feat)
 	return TRUE;
 }
 
-bool can_get_feat(CHAR_DATA *ch, int feat)
-{
+bool can_get_feat(CHAR_DATA *ch, int feat) {
 	int i, count = 0;
-	if (feat <= 0 || feat >= MAX_FEATS)
-	{
+	if (feat <= 0 || feat >= MAX_FEATS) {
 		sprintf(buf, "Неверный номер способности (feat=%d, ch=%s) передан в features::can_get_feat!",
 			feat, ch->get_name().c_str());
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
 
-	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat)) ||
-			(GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]))
+	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat))
+		|| (GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])) {
 		return FALSE;
+	}
 
-	if (!checkVacantFeatureSlot(ch, feat))
+	if (!checkVacantFeatureSlot(ch, feat)) {
 		return FALSE;
+	}
 
-	switch (feat)
-	{
+	switch (feat) {
 	case PARRY_ARROW_FEAT:
 		if (!ch->get_skill(SKILL_MULTYPARRY) && !ch->get_skill(SKILL_PARRY))
 			return FALSE;
@@ -812,30 +822,32 @@ bool can_get_feat(CHAR_DATA *ch, int feat)
 			&& !HAVE_FEAT(ch, PICK_MASTER_FEAT)
 			&& !HAVE_FEAT(ch, LONGS_MASTER_FEAT)
 			&& !HAVE_FEAT(ch, SPADES_MASTER_FEAT)
-			&& !HAVE_FEAT(ch, BOTHHANDS_MASTER_FEAT))
-		{
+			&& !HAVE_FEAT(ch, BOTHHANDS_MASTER_FEAT)) {
 			return FALSE;
 		}
 		break;
 	case SKIRMISHER_FEAT:
-		if (ch->get_skill(SKILL_RESCUE) < 100)
-		{
+		if (ch->get_skill(SKILL_RESCUE) < 100) {
 			return FALSE;
 		}
 		break;
 	case TACTICIAN_FEAT:
-		if (ch->get_skill(SKILL_LEADERSHIP) < 100)
-		{
+		if (ch->get_skill(SKILL_LEADERSHIP) < 100) {
 			return FALSE;
 		}
+		break;
+	case DOUBLE_THROW_FEAT:
+		return HAVE_FEAT(ch, THROW_WEAPON_FEAT);
+		break;
+	case TRIPLE_THROW_FEAT:
+		return HAVE_FEAT(ch, DOUBLE_THROW_FEAT);
 		break;
 	}
 
 	return TRUE;
 }
 
-bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat)
-{
+bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat) {
 	int i, lowfeat, hifeat;
 
 	if (feat_info[feat].inbornFeatureOfClass[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), feat))
@@ -848,19 +860,14 @@ bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat)
 	//Мы не можем просто учесть кол-во способностей меньше требуемого и больше требуемого,
 	//т.к. возможны свободные слоты меньше требуемого, и при этом верхние заняты все
 	auto slot_list = std::vector<int>();
-	for (i = 1; i < MAX_FEATS; ++i)
-	{
+	for (i = 1; i < MAX_FEATS; ++i) {
 		if (feat_info[i].inbornFeatureOfClass[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] || PlayerRace::FeatureCheck(GET_KIN(ch), GET_RACE(ch), i))
 			continue;
 
-		if (HAVE_FEAT(ch, i))
-		{
-			if (FEAT_SLOT(ch, i) >= FEAT_SLOT(ch, feat))
-			{
+		if (HAVE_FEAT(ch, i)) {
+			if (FEAT_SLOT(ch, i) >= FEAT_SLOT(ch, feat)) {
 				++hifeat;
-			}
-			else
-			{
+			} else {
 				slot_list.push_back(FEAT_SLOT(ch, i));
 			}
 		}
@@ -869,14 +876,10 @@ bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat)
 	std::sort(slot_list.begin(), slot_list.end());
 
 	//Посчитаем сколько действительно нижние способности занимают слотов (с учетом пропусков)
-	for (const auto& slot : slot_list)
-	{
-		if (lowfeat < slot)
-		{
+	for (const auto& slot : slot_list) {
+		if (lowfeat < slot) {
 			lowfeat = slot + 1;
-		}
-		else
-		{
+		} else {
 			++lowfeat;
 		}
 	}
@@ -892,20 +895,16 @@ bool checkVacantFeatureSlot(CHAR_DATA *ch, int feat)
 	return FALSE;
 }
 
-int getModifier(int feat, int location)
-{
-	for (int i = 0; i < MAX_FEAT_AFFECT; i++)
-	{
-		if (feat_info[feat].affected[i].location == location)
-		{
+int getModifier(int feat, int location) {
+	for (int i = 0; i < MAX_FEAT_AFFECT; i++) {
+		if (feat_info[feat].affected[i].location == location) {
 			return (int) feat_info[feat].affected[i].modifier;
 		}
 	}
 	return 0;
 }
 
-void check_berserk(CHAR_DATA * ch)
-{
+void check_berserk(CHAR_DATA * ch) {
 	struct timed_type timed;
 	int prob;
 
@@ -950,8 +949,7 @@ void check_berserk(CHAR_DATA * ch)
 	}
 }
 
-void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
-{
+void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	struct timed_type timed;
 
 	if (IS_NPC(ch) || !can_use_feat(ch, LIGHT_WALK_FEAT))
@@ -1003,8 +1001,7 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 	affect_to_char(ch, af);
 }
 
-void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
-{
+void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	OBJ_DATA *obj;
 	CHAR_DATA *vict;
 	char arg1[MAX_INPUT_LENGTH];
@@ -1113,8 +1110,7 @@ void do_fit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 int slot_for_char(CHAR_DATA * ch, int i);
 #define SpINFO spell_info[spellnum]
 // Вложить закл в клона
-void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct timed_type timed;
 
 	if (!IS_IMPL(ch) && (IS_NPC(ch) || !can_use_feat(ch, SPELL_CAPABLE_FEAT)))
@@ -1393,47 +1389,36 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	greet_otrigger(ch, -1);
 }
 
-void setFeaturesOfRace(CHAR_DATA *ch)
-{
+void setFeaturesOfRace(CHAR_DATA *ch) {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
-	for (std::vector<int>::iterator i = feat_list.begin(), iend = feat_list.end(); i != iend; ++i)
-	{
-		if (can_get_feat(ch, *i))
-		{
+	for (std::vector<int>::iterator i = feat_list.begin(), iend = feat_list.end(); i != iend; ++i) {
+		if (can_get_feat(ch, *i)) {
 			SET_FEAT(ch, *i);
 		}
 	}
 }
 
-void unsetFeaturesOfRace(CHAR_DATA *ch)
-{
+void unsetFeaturesOfRace(CHAR_DATA *ch) {
 	std::vector<int> feat_list = PlayerRace::GetRaceFeatures((int)GET_KIN(ch),(int)GET_RACE(ch));
-	for (std::vector<int>::iterator i = feat_list.begin(), iend = feat_list.end(); i != iend; ++i)
-	{
+	for (std::vector<int>::iterator i = feat_list.begin(), iend = feat_list.end(); i != iend; ++i) {
 		UNSET_FEAT(ch, *i);
 	}
 }
 
-void setInbornFeaturesOfClass(CHAR_DATA *ch)
-{
-	for (int i = 1; i < MAX_FEATS; ++i)
-	{
-		if (can_get_feat(ch, i)
-			&& feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])
-		{
+void setInbornFeaturesOfClass(CHAR_DATA *ch) {
+	for (int i = 1; i < MAX_FEATS; ++i) {
+		if (can_get_feat(ch, i) && feat_info[i].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) {
 			SET_FEAT(ch, i);
 		}
 	}
 }
 
-void setAllInbornFeatures(CHAR_DATA *ch)
-{
+void setAllInbornFeatures(CHAR_DATA *ch) {
 	setInbornFeaturesOfClass(ch);
 	setFeaturesOfRace(ch);
 }
 
-int CFeatArray::pos(int pos /*= -1*/)
-{
+int CFeatArray::pos(int pos /*= -1*/) {
 	if (pos == -1)
 	{
 		return _pos;
@@ -1443,62 +1428,50 @@ int CFeatArray::pos(int pos /*= -1*/)
 		_pos = pos;
 		return _pos;
 	}
-	sprintf(buf, "SYSERR: invalid arg passed to features::aff_aray.pos (argument value: %d)!", pos);
+	sprintf(buf, "SYSERR: invalid argument (%d) was sended to features::aff_aray.pos!", pos);
 	mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
 	return _pos;
 }
 
-void CFeatArray::insert(const int location, sbyte modifier)
-{
+void CFeatArray::insert(const int location, sbyte modifier) {
 	affected[_pos].location = location;
 	affected[_pos].modifier = modifier;
 	_pos++;
-	if (_pos >= MAX_FEAT_AFFECT)
-	{
+	if (_pos >= MAX_FEAT_AFFECT) {
 		_pos = 0;
 	}
 }
 
-void CFeatArray::clear()
-{
+void CFeatArray::clear() {
 	_pos = 0;
-	for (i = 0; i < MAX_FEAT_AFFECT; i++)
-	{
+	for (i = 0; i < MAX_FEAT_AFFECT; i++) {
 		affected[i].location = APPLY_NONE;
 		affected[i].modifier = 0;
 	}
 }
 
-bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument)
-{
+bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument) {
 	int featureNum = get_feature_num(argument);
-	if (featureNum <= THAC0_FEAT)
-	{
+	if (featureNum <= INCORRECT_FEAT) {
 		return false;
 	}
-
-	if (!checkAccessibilityActivatedFeature(ch, featureNum))
-	{
+	if (!checkAccessActivatedFeature(ch, featureNum)) {
 		return true;
 	};
-
-	if (PRF_FLAGGED(ch, getPRFWithFeatureNumber(featureNum)))
-	{
+	if (PRF_FLAGGED(ch, getPRFWithFeatureNumber(featureNum))) {
 		deactivateFeature(ch, featureNum);
-	} else
-	{
+	} else {
 		activateFeature(ch, featureNum);
 	}
 
-	if (!WAITLESS(ch))
+	if (!WAITLESS(ch)) {
 		WAIT_STATE(ch, PULSE_VIOLENCE);
+	};
 	return true;
 }
 
-void activateFeature(CHAR_DATA *ch, int featureNum)
-{
-	switch (featureNum)
-	{
+void activateFeature(CHAR_DATA *ch, int featureNum) {
+	switch (featureNum) {
 	case POWER_ATTACK_FEAT:
 		PRF_FLAGS(ch).unset(PRF_AIMINGATTACK);
 		PRF_FLAGS(ch).unset(PRF_GREATAIMINGATTACK);
@@ -1524,13 +1497,11 @@ void activateFeature(CHAR_DATA *ch, int featureNum)
 		PRF_FLAGS(ch).set(PRF_GREATAIMINGATTACK);
 		break;
 	case SKIRMISHER_FEAT:
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		{
+		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 			send_to_char(ch, "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n", ch->get_name().c_str());
 			return;
 		}
-		if (PRF_FLAGGED(ch, PRF_SKIRMISHER))
-		{
+		if (PRF_FLAGGED(ch, PRF_SKIRMISHER)) {
 			send_to_char("Вы уже стоите в передовом строю.\r\n", ch);
 			return;
 		}
@@ -1538,14 +1509,20 @@ void activateFeature(CHAR_DATA *ch, int featureNum)
 		send_to_char("Вы протиснулись вперед и встали в строй.\r\n", ch);
 		act("$n0 протиснул$u вперед и встал$g в строй.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
+	case DOUBLE_THROW_FEAT:
+		PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
+		PRF_FLAGS(ch).set(PRF_DOUBLE_THROW);
+		break;
+	case TRIPLE_THROW_FEAT:
+		PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
+		PRF_FLAGS(ch).set(PRF_TRIPLE_THROW);
+		break;
 	}
 	send_to_char(ch, "%sВы решили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
 }
 
-void deactivateFeature(CHAR_DATA *ch, int featureNum)
-{
-	switch (featureNum)
-	{
+void deactivateFeature(CHAR_DATA *ch, int featureNum) {
+	switch (featureNum) {
 	case POWER_ATTACK_FEAT:
 		PRF_FLAGS(ch).unset(PRF_POWERATTACK);
 		break;
@@ -1560,53 +1537,44 @@ void deactivateFeature(CHAR_DATA *ch, int featureNum)
 		break;
 	case SKIRMISHER_FEAT:
 		PRF_FLAGS(ch).unset(PRF_SKIRMISHER);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		{
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
 			send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
 			act("$n0 тактически отступил$g в тыл отряда.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
+		break;
+	case DOUBLE_THROW_FEAT:
+		PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
+		break;
+	case TRIPLE_THROW_FEAT:
+		PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
 		break;
 	}
 	send_to_char(ch, "%sВы прекратили использовать способность '%s'.%s\r\n", CCIGRN(ch, C_SPR), feat_info[featureNum].name, CCNRM(ch, C_OFF));
 }
 
-bool checkAccessibilityActivatedFeature(CHAR_DATA *ch, int featureNum)
-{
-	if (!HAVE_FEAT(ch, featureNum))
-	{
-		send_to_char("Вы не обладаете такой способностью.\r\n", ch);
-		return FALSE;
-	}
-	if (feat_info[featureNum].type != ACTIVATED_FTYPE)
-	{
-		send_to_char("Эту способность невозможно применить таким образом.\r\n", ch);
-		return FALSE;
-	}
-	if (!can_use_feat(ch, featureNum))
-	{
+bool checkAccessActivatedFeature(CHAR_DATA *ch, int featureNum) {
+	if (!can_use_feat(ch, featureNum)) {
 		send_to_char("Вы не в состоянии использовать эту способность.\r\n", ch);
+		return FALSE;
+	}
+	if (feat_info[featureNum].type != ACTIVATED_FTYPE) {
+		send_to_char("Эту способность невозможно применить таким образом.\r\n", ch);
 		return FALSE;
 	}
 
 	return TRUE;
 }
 
-int get_feature_num(char *featureName)
-{
+int get_feature_num(char *featureName) {
 	skip_spaces(&featureName);
 	return find_feat_num(featureName);
 }
 
 /*
-* Это, как обычно, все временно :) До переделки способностей на классы.
-* Не хочется добавлять из-за нескольких способностей целое поле и иметь с ним головняки
-* Тем более, что тогда уж логично вкодить и способность делать автоаффекты и т.п.
-* В общем, временно, ага.
+ TODO: при переписывании способностей переделать на композицию или интерфейс
 */
-bitvector_t getPRFWithFeatureNumber(int featureNum)
-{
-    switch (featureNum)
-    {
+bitvector_t getPRFWithFeatureNumber(int featureNum) {
+    switch (featureNum) {
 	case POWER_ATTACK_FEAT:
 		return PRF_POWERATTACK;
 		break;
@@ -1622,123 +1590,35 @@ bitvector_t getPRFWithFeatureNumber(int featureNum)
 	case SKIRMISHER_FEAT:
 		return PRF_SKIRMISHER;
 		break;
+	case DOUBLE_THROW_FEAT:
+		return PRF_DOUBLE_THROW;
+		break;
+	case TRIPLE_THROW_FEAT:
+		return PRF_TRIPLE_THROW;
+		break;
     }
 
     return PRF_POWERATTACK;
 }
-
-bool checkCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
-{
-	if (!can_use_feat(ch, ability) || (testCharacterAbilityVSEnemy(ch, ability, enemy) < _abilityTestSuccessThreshold))
-	{
-		return false;
-	}
-	return true;
-}
-
-short testCharacterAbilityVSEnemy(CHAR_DATA *ch, int ability, CHAR_DATA *enemy)
-{
-	short diceRoll = number(1, 100);
-	ESkill baseSkill = feat_info[ability].baseSkill;
-	// В функции calculate_skill творится полная порнография, которая не учитывается в формуле и которуд надо уничтожить
-	// Но пока придется оставить так "пусть безобразно - зато единообразно"
-	short baseSkillRating = calculate_skill(ch, baseSkill, enemy);
-	baseSkillRating = baseSkillRating/_abilityTestSkillDivider;
-	short baseParameterRating  = getBaseCharacterParamerter(ch, feat_info[ability].baseParameterOfCharacter)/_abilityTestParemeterDivider;
-	short dicerollBonus = feat_info[ability].dicerollBonus + feat_info[ability].calculateSituationalRollBonus(ch, enemy);
-	short oppositeSaving = calculateSaving(ch, enemy, feat_info[ability].oppositeSaving, 0);
-
-	short characterRating = dicerollBonus + baseSkillRating + baseParameterRating - oppositeSaving;
-	short resultAbilityTest = characterRating - diceRoll;
-
-	if (PRF_FLAGGED(ch, PRF_TESTER))
-	{
-		send_to_char(ch, "&CСпособность %s, Бонус броска %d Противник %s, Рейтинг умения %d, Рейтинг параметра %d, Сейв %d, Суммарный рейтинг %d, Ролл %d, Результат броска %d&n\r\n",
-				feat_info[ability].name, dicerollBonus, GET_NAME(enemy), baseSkillRating, baseParameterRating, oppositeSaving, characterRating, diceRoll, resultAbilityTest);
-	}
-
-	if (checkAbilityCriticalFail(diceRoll))
-	{
-		resultAbilityTest = MIN(resultAbilityTest, _minimalFailResult);
-	}
-	if (resultAbilityTest < _abilityTestSuccessThreshold)
-	{
-		train_skill(ch, baseSkill, skill_info[baseSkill].max_percent, enemy);
-	}
-
-	return resultAbilityTest;
-}
-
-short getBaseCharacterParamerter(CHAR_DATA *ch, EBaseAbilityParameter baseParameter)
-{
-	switch (baseParameter)
-	{
-	case BASE_PARAMETER_INT:
-		return GET_REAL_INT(ch);
-		break;
-	case BASE_PARAMETER_STR:
-		return GET_REAL_STR(ch);
-		break;
-	case BASE_PARAMETER_DEX:
-		return GET_REAL_DEX(ch);
-		break;
-	case BASE_PARAMETER_CON:
-		return GET_REAL_CON(ch);
-		break;
-	case BASE_PARAMETER_WIS:
-		return GET_REAL_WIS(ch);
-		break;
-	case BASE_PARAMETER_CHA:
-		return GET_REAL_CHA(ch);
-		break;
-	};
-	return GET_REAL_INT(ch);
-}
-
-short calculateDegreeOfSuccess(short testResult)
-{
-	return testResult/_abilityTestDegreeDivider;
-}
-
-// В перспективе тут нужен учет удачи
-// Но его механика еще не придумана. :)
-bool checkAbilityCriticalFail(short diceRoll)
-{
-	if (diceRoll > _abilityCriticalFailThreshold)
-	{
-		return true;
-	}
-	return false;
-}
-
-short calculateSituationalRollBonusByDefault(CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */)
-{
-	return 0;
-};
 
 /*
 * Ситуативный бонус броска для "tactician feat" и "skirmisher feat":
 * Каждый персонаж в строю прикрывает двух, третий дает штраф.
 * Избыток "строевиков" повышает шанс на удачное срабатывание.
 */
-short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */)
-{
+short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */) {
 	short skirmishers(0), uncoveredSquadMembers(0);
 
-	for (const auto groupMember : world[ch->in_room]->people)
-	{
-		if (HERE(groupMember) && same_group(ch, groupMember))
-		{
-			if (PRF_FLAGGED(groupMember, PRF_SKIRMISHER))
-			{
+	for (const auto groupMember : world[ch->in_room]->people) {
+		if (HERE(groupMember) && same_group(ch, groupMember)) {
+			if (PRF_FLAGGED(groupMember, PRF_SKIRMISHER)) {
 				skirmishers++;
-			} else
-			{
+			} else {
 				uncoveredSquadMembers++;
 			};
 		}
 	}
-	return (skirmishers*2 - uncoveredSquadMembers)*_situationableRollBonusFactor;
+	return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_FACTOR;
 };
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

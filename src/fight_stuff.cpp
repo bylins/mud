@@ -356,7 +356,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		greet_otrigger(ch, -1);
 //		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
 		return;
-	} 
+	}
 
 	if (IS_NPC(ch)
 		|| !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
@@ -390,7 +390,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 			update_leadership(ch, killer);
 		}
 	}
-	
+
 	update_die_counts(ch, killer, dec_exp );
 	raw_kill(ch, killer);
 }
@@ -648,9 +648,9 @@ bool change_rep(CHAR_DATA *ch, CHAR_DATA *killer)
 	// кланы должны быть разные
 	if (CLAN(ch) == CLAN(killer))
 		return false;
-	
+
 	// 1/10 репутации замка уходит замку киллера
-	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;	
+	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;
 	CLAN(ch)->set_rep(CLAN(ch)->get_rep() - rep_ch);
 	CLAN(killer)->set_rep(CLAN(killer)->get_rep() + rep_ch);
 	send_to_char("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
@@ -719,7 +719,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 			o->set_owner(GET_UNIQUE(ch));
 			obj_to_obj(o.get(), corpse);
 		}
-		
+
 	}
 */
 	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
@@ -799,7 +799,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		{
 			// клановые не теряют вещи
 			arena_kill(ch, killer);
-			
+
 		} else
 		{
 			real_kill(ch, killer);
@@ -926,7 +926,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		}
 
 		if (!IS_NPC(ch) && !ch->affected.empty())
-		{ 
+		{
 			for (const auto aff : ch->affected)
 			{
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
@@ -1346,14 +1346,14 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 void test_self_hitroll(CHAR_DATA *ch)
 {
 	HitData hit;
-	hit.weapon = RIGHT_WEAPON;
+	hit.weapon = FightSystem::RIGHT_WEAPON;
 	hit.init(ch, ch);
 	hit.calc_base_hr(ch);
 	hit.calc_stat_hr(ch);
 	hit.calc_ac(ch);
 
 	HitData hit2;
-	hit2.weapon = LEFT_WEAPON;
+	hit2.weapon = FightSystem::LEFT_WEAPON;
 	hit2.init(ch, ch);
 	hit2.calc_base_hr(ch);
 	hit2.calc_stat_hr(ch);

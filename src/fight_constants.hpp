@@ -3,6 +3,9 @@
 
 namespace FightSystem
 {
+	const int RIGHT_WEAPON = 1;
+	const int LEFT_WEAPON = 2;
+
 	enum DmgType { UNDEF_DMG, PHYS_DMG, MAGE_DMG };
 
 	enum
@@ -53,4 +56,4 @@ namespace FightSystem
 	};
 } // namespace FightSystem
 
-#endif
+#endif //__FIGHT_CONSTANTS_HPP__

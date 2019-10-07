@@ -10,9 +10,6 @@
 #include "sysdep.h"
 #include "structs.h"
 
-#define RIGHT_WEAPON 1
-#define LEFT_WEAPON  2
-
 struct HitData
 {
 	HitData() : weapon(0), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),

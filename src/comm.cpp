@@ -147,13 +147,13 @@
 #define MXP_END "\x04"    /* becomes > */
 #define MXP_AMP "\x05"    /* becomes & */
 
-// Символы 
+// Символы
 
 #define MXP_BEGc '\x03'    /* becomes < */
 #define MXP_ENDc '\x04'    /* becomes > */
 #define MXP_AMPc '\x05'    /* becomes & */
 
-// constructs an MXP tag with < and > around it 
+// constructs an MXP tag with < and > around it
 
 #define MXPTAG(arg) MXP_BEG arg MXP_END
 
@@ -162,7 +162,7 @@
 #define MXPMODE(arg) ESC "[" #arg "z"
 extern void save_zone_count_reset();
 extern int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA * leader);
-// flags for show_list_to_char 
+// flags for show_list_to_char
 
 enum {
   eItemNothing,   /* item is not readily accessible */
@@ -186,8 +186,8 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
   int bInTag = FALSE;
   int bInEntity = FALSE;
 
-  for (p = txt, count = 0; 
-       length > 0; 
+  for (p = txt, count = 0;
+       length > 0;
        p++, length--)
     {
     c = *p;
@@ -195,14 +195,14 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
     if (bInTag)  /* in a tag, eg. <send> */
       {
       if (!bMXP)
-        count--;     /* not output if not MXP */   
+        count--;     /* not output if not MXP */
       if (c == MXP_ENDc)
         bInTag = FALSE;
       } /* end of being inside a tag */
     else if (bInEntity)  /* in a tag, eg. <send> */
       {
       if (!bMXP)
-        count--;     /* not output if not MXP */   
+        count--;     /* not output if not MXP */
       if (c == ';')
         bInEntity = FALSE;
       } /* end of being inside a tag */
@@ -212,18 +212,18 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
       case MXP_BEGc:
         bInTag = TRUE;
         if (!bMXP)
-          count--;     /* not output if not MXP */   
+          count--;     /* not output if not MXP */
         break;
 
       case MXP_ENDc:   /* shouldn't get this case */
         if (!bMXP)
-          count--;     /* not output if not MXP */   
+          count--;     /* not output if not MXP */
         break;
 
       case MXP_AMPc:
         bInEntity = TRUE;
         if (!bMXP)
-          count--;     /* not output if not MXP */   
+          count--;     /* not output if not MXP */
         break;
 
       default:
@@ -233,7 +233,7 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
             {
             case '<':       /* < becomes &lt; */
             case '>':       /* > becomes &gt; */
-              count += 3;    
+              count += 3;
               break;
 
             case '&':
@@ -241,7 +241,7 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
               break;
 
             case '"':        /* " becomes &quot; */
-              count += 5;    
+              count += 5;
               break;
 
             } /* end of inner switch */
@@ -252,7 +252,7 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
 
   return count;
   } /* end of count_mxp_tags */
-  
+
  void convert_mxp_tags (const int bMXP, char * dest, const char *src, int length)
   {
 char c;
@@ -261,8 +261,8 @@ char * pd;
 int bInTag = FALSE;
 int bInEntity = FALSE;
 
-  for (ps = src, pd = dest; 
-       length > 0; 
+  for (ps = src, pd = dest;
+       length > 0;
        ps++, length--)
     {
     c = *ps;
@@ -310,22 +310,22 @@ int bInEntity = FALSE;
             {
             case '<':
               memcpy (pd, "&lt;", 4);
-              pd += 4;    
+              pd += 4;
               break;
 
             case '>':
               memcpy (pd, "&gt;", 4);
-              pd += 4;    
+              pd += 4;
               break;
 
             case '&':
               memcpy (pd, "&amp;", 5);
-              pd += 5;    
+              pd += 5;
               break;
 
             case '"':
               memcpy (pd, "&quot;", 6);
-              pd += 6;    
+              pd += 6;
               break;
 
             default:
@@ -336,15 +336,15 @@ int bInEntity = FALSE;
           }
         else
           *pd++ = c;  /* not MXP - just copy character */
-        break;  
+        break;
 
       } /* end of switch on character */
 
     }   /* end of converting special characters */
   } /* end of convert_mxp_tags */
-  
-/* ----------------------------------------- */  
-  
+
+/* ----------------------------------------- */
+
 void our_terminate();
 
 namespace
@@ -413,7 +413,7 @@ unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
 
 // внумы комнат, где ставятся елки
-const int vnum_room_new_year[60] = 
+const int vnum_room_new_year[60] =
 	{100,
 	4056,
 	5000,
@@ -528,7 +528,7 @@ const int vnum_gifts[len_array_gifts] = { 27113,
 	2155,
 	2156,
 	2157,
-	2158, 
+	2158,
 	10673,
 	10648,
 	10680,
@@ -558,7 +558,7 @@ void gifts()
 
 	const auto obj_gift = world_objects.create_from_prototype_by_rnum(rnum);
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
-	
+
 	// создаем упаковку для подарка
 	obj_to_room(obj_cont.get(), real_room(rand_vnum_r));
 	obj_to_obj(obj_gift.get(), obj_cont.get());
@@ -704,7 +704,7 @@ int main_function(int argc, char **argv)
 	// для нормального вывода русского текста под cygwin 1.7 и выше
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
-	
+
 #ifdef CIRCLE_WINDOWS		// Includes for Win32
 # ifdef __BORLANDC__
 # else				// MSVC
@@ -1853,7 +1853,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		if (PRF_FLAGGED(d->character, PRF_DISPMANA)
 				&& IS_MANA_CASTER(d->character))
 		{
-			perc = (100 * GET_MANA_STORED(d->character)) / GET_MAX_MANA(d->character);
+			perc = (100 * GET_MANA_STORED(d->character)) / GET_MAX_MANA((d->character).get());
 			count +=
 				sprintf(prompt + count, "%s%dз%s ",
 						CCMANA(d->character, C_NRM, perc),
@@ -3421,7 +3421,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				d->character->save_char();
 				check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
 				Crash_ldsave(d->character.get());
-				
+
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			}

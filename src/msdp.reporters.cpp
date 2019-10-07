@@ -12,7 +12,7 @@ namespace msdp
 {
 	void RoomReporter::get(Variable::shared_ptr& response)
 	{
-		const auto rnum = IN_ROOM(descriptor()->character);		
+		const auto rnum = IN_ROOM(descriptor()->character);
 		const auto vnum = GET_ROOM_VNUM(rnum);
 		const auto from_rnum = descriptor()->character->get_from_room();
 		if ((from_rnum == vnum)||(NOWHERE == vnum))
@@ -20,12 +20,12 @@ namespace msdp
 			//добавил проверку если перемещаемся из неоткуда
 			return;
 		}
-		
+
 		if (blockReport())
-		{	
+		{
 			return;
 		}
-		
+
 		const auto room_descriptor = std::make_shared<TableValue>();
 
 		const auto exits = std::make_shared<TableValue>();
@@ -136,7 +136,7 @@ namespace msdp
 
 	void MaxManaReporter::get(Variable::shared_ptr& response)
 	{
-		const auto max_mana = std::to_string(GET_MAX_MANA(descriptor()->character));
+		const auto max_mana = std::to_string(GET_MAX_MANA((descriptor()->character).get()));
 		response = std::make_shared<Variable>("MAX_MANA",
 			std::make_shared<StringValue>(max_mana));
 	}
