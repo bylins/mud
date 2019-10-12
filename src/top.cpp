@@ -11,7 +11,7 @@
 #include "comm.h"
 #include "screen.h"
 #include "top.h"
-#include "glory.hpp"
+#include "glory_const.hpp"
 #include "char.hpp"
 #include "conf.h"
 
@@ -155,7 +155,7 @@ void DoBest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// топ славы
 		if (CompareParam(buffer, "прославленные"))
 		{
-			Glory::print_glory_top(ch);
+			GloryConst::print_glory_top(ch);
 			return;
 		}
 

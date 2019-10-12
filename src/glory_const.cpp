@@ -16,6 +16,7 @@
 #include "handler.h"
 #include "char_player.hpp"
 #include "glory_misc.hpp"
+#include "top.h"
 
 
 #include <boost/lexical_cast.hpp>
@@ -58,6 +59,8 @@ struct glory_node
 	int free_glory;
 	// имя чара для топа прославленных
 	std::string name;
+	int tmp_spent_glory;
+	bool hide;
 	// список статов с прокинутой славой
 	std::map<int /* номер стат из enum */, int /* сколько этого стата вложено*/> stats;
 };
@@ -899,7 +902,9 @@ void save()
 		pugi::xml_node char_node = char_list.append_child();
 		char_node.set_name("char");
 		char_node.append_attribute("uid") = (int)i->first;
+		char_node.append_attribute("name") = i->second->name.c_str();
 		char_node.append_attribute("glory") = i->second->free_glory;
+		char_node.append_attribute("hide") = i->second->hide;
 
 		for (std::map<int, int>::const_iterator k = i->second->stats.begin(),
 			kend = i->second->stats.end(); k != kend; ++k)
@@ -982,6 +987,8 @@ void load()
 
 		long free_glory = std::stoi(node.attribute("glory").value(), nullptr, 10);
 		tmp_node->free_glory = free_glory;
+		tmp_node->name = name;
+		tmp_node->hide = node.attribute("hide").as_bool();
 
 		for (pugi::xml_node stat = node.child("stat"); stat; stat = stat.next_sibling("stat"))
 		{
@@ -1012,6 +1019,7 @@ void load()
 				continue;
 			}
 			tmp_node->stats[stat_num] = stat_amount;
+
 		}
 		glory_list[uid] = tmp_node;
     }
@@ -1162,6 +1170,63 @@ void apply_modifiers(CHAR_DATA *ch)
 		}
 	}
 }
+
+
+	void print_glory_top(CHAR_DATA *ch) {
+		std::stringstream out;
+		boost::format class_format("\t%-20s %-2d\r\n");
+		std::map<int, GloryNodePtr> temp_list;
+		std::stringstream hide;
+
+		bool print_hide = 0;
+		if (IS_IMMORTAL(ch))
+		{
+			print_hide = 1;
+			hide << "\r\nПерсонажи, исключенные из списка: ";
+		}
+		for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it)
+		{
+			it->second->tmp_spent_glory = calculate_glory_in_stats(it);
+		}
+
+		std::list <GloryNodePtr> playerGloryList;
+		for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it)
+		{
+			playerGloryList.insert(playerGloryList.end(), it->second);
+		}
+
+		playerGloryList.sort([](const GloryNodePtr & a, const GloryNodePtr & b) -> bool
+			   {
+				   return (a->free_glory + a->tmp_spent_glory) > (b->free_glory + b->tmp_spent_glory);
+			   });
+
+		out << CCWHT(ch, C_NRM) << "Лучшие прославленные:\r\n" << CCNRM(ch, C_NRM);
+
+		int i = 0;
+		for (std::list <GloryNodePtr>::const_iterator t_it= playerGloryList.begin(); t_it!=playerGloryList.end() && i< MAX_TOP_CLASS; ++t_it, ++i )
+		{
+			if (!t_it->get()->hide) {
+				t_it->get()->name[0] = UPPER(t_it->get()->name[0]);
+				out << class_format % t_it->get()->name % (t_it->get()->free_glory + t_it->get()->tmp_spent_glory);
+			}
+			else
+			{
+				if (print_hide) {
+					t_it->get()->name[0] = UPPER(t_it->get()->name[0]);
+					hide << "\r\n" << "\t"<< t_it->get()->name << " (доступно:" << t_it->get()->free_glory << ", вложено:"<< t_it->get()->tmp_spent_glory << ")";
+					--i;
+				}
+			}
+		}
+
+		send_to_char(out.str().c_str(), ch);
+
+		if (print_hide)
+		{
+			hide << "\r\n";
+			send_to_char(hide.str().c_str(), ch);
+		}
+	}
 
 } // namespace GloryConst
 

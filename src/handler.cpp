@@ -567,11 +567,13 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 	}
-	if (ch->add_abils.absorb > 0) {
-		ch->add_abils.mresist += MIN(ch->add_abils.absorb / 2, 25); //поглота
-	}
+
 	ch->obj_bonus().apply_affects(ch);
 
+/*	if (ch->add_abils.absorb > 0) {
+		ch->add_abils.mresist += MIN(ch->add_abils.absorb / 2, 25); //поглота
+	}
+*/
 	// move features modifiers - added by Gorrah
 	for (int i = 1; i < MAX_FEATS; i++)
 	{
