@@ -85,7 +85,7 @@ void DeathTrap::activity()
 			std::string name = i->get_name_str();
 
 			Damage dmg(SimpleDmg(TYPE_ROOMDEATH), MAX(1, GET_REAL_MAX_HIT(i) >> 2), FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) < 0)
 			{
@@ -133,7 +133,7 @@ void remove(ROOM_DATA* to_room)
 */
 ROOM_DATA* get_from_room(ROOM_DATA* to_room)
 {
-	
+
 	const auto it = portal_list.find(to_room->number);
 	if (it != portal_list.end())
 		return it->second;
@@ -257,7 +257,7 @@ bool DeathTrap::tunnel_damage(CHAR_DATA *ch)
 		const int room_rnum = ch->in_room;
 		const std::string name = ch->get_name_str();
 		Damage dmg(SimpleDmg(TYPE_TUNNERLDEATH), dam, FightSystem::UNDEF_DMG);
-		dmg.flags.set(FightSystem::NO_FLEE);
+		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 		if (dmg.process(ch, ch) < 0)
 		{

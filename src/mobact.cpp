@@ -272,11 +272,11 @@ CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 		return initialVictim;
 	}
 
-	AbilitySystem::AbilityRollVSCharacter abilityRoll;
+	AbilitySystem::AgainstRivalRollType abilityRoll;
 	abilityRoll.initialize(leader, TACTICIAN_FEAT, assaulter);
-	bool tacticianFail = !abilityRoll.checkSuccess();
+	bool tacticianFail = !abilityRoll.isSuccess();
 	abilityRoll.initialize(newVictim, SKIRMISHER_FEAT, assaulter);
-	bool skirmisherFail = !abilityRoll.checkSuccess();
+	bool skirmisherFail = !abilityRoll.isSuccess();
 	if (tacticianFail || skirmisherFail) {
 		return initialVictim;
 	}

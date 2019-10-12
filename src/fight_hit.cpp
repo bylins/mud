@@ -2181,7 +2181,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			flags.set(FightSystem::DRAW_BRIEF_MAG_MIRROR);
 			Damage dmg(SpellDmg(SPELL_MAGICGLASS), mg_damage, FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 			dmg.flags.set(FightSystem::MAGIC_REFLECT);
 			dmg.process(victim, ch);
 		}
@@ -2346,7 +2346,7 @@ void Damage::send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
 	if (!flags[FightSystem::VICTIM_ICE_SHIELD])
 	{
-		sprintf(buf, "&B&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
+		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
 			PERS(victim, ch, 3));
 	}
 	else
@@ -2716,6 +2716,15 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 
+	//учет резистов для магического урона
+	if (dmg_type == FightSystem::MAGE_DMG) {
+		if (spell_num > 0) {
+			dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spell_num), dam));
+		} else {
+			dam = MAX(0, calculate_resistance_coeff(victim, getResisTypeWithSpellClass(magic_type) , dam));
+		};
+	};
+
 	// учет положения атакующего и жертвы
 	// Include a damage multiplier if victim isn't ready to fight:
 	// Position sitting  1.5 x normal
@@ -2991,7 +3000,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
-	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE]);
+	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE_DMG]);
 
 	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
@@ -3030,7 +3039,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& IN_ROOM(victim) != NOWHERE)
 	{
 		Damage dmg(SpellDmg(SPELL_FIRE_SHIELD), fs_damage, FightSystem::UNDEF_DMG);
-		dmg.flags.set(FightSystem::NO_FLEE);
+		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 		dmg.flags.set(FightSystem::MAGIC_REFLECT);
 		dmg.process(victim, ch);
 	}

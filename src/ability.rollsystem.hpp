@@ -3,7 +3,7 @@
 
 /*
 	Классы, реализующие базовые броски на успех и провал
-	навыков умений, а также хранение результатов бросков.
+	навыков (technique), а также хранение результатов броска.
 
 	Черновой варитант. 6.10.2019
 */
@@ -11,19 +11,19 @@
 #include "ability.constants.hpp"
 #include "char.hpp"
 #include "fight_constants.hpp"
+#include "features.hpp"
 #include "skills.h"
 
 #include <string>
 
 namespace AbilitySystem {
 
-	// TODO: выделить расчет чистого урона в методы персонажа.
-	class AbilityRoll {
+	class AbilityRollType {
 	protected:
-		CHAR_DATA *_actor; // сделать по крайней мере пока открытым членом
+		CHAR_DATA *_actor;
 		short _actorRating;
-		short _degreeOfSuccess; // Заменить на чар?
-		int _ability;
+		short _degreeOfSuccess;
+		const FeatureInfoType* _ability;
 		bool _success;
 		bool _criticalFail;
 		bool _criticalSuccess;
@@ -31,11 +31,11 @@ namespace AbilitySystem {
 		ESkill _baseSkill;
 		std::string _denyMessage;
 
-		AbilityRoll() :
+		AbilityRollType() :
 			_actor{nullptr},
 			_actorRating{0},
 			_degreeOfSuccess{0},
-			_ability{0},
+			_ability{nullptr},
 			_success{false},
 			_criticalFail{false},
 			_criticalSuccess{false},
@@ -51,54 +51,66 @@ namespace AbilitySystem {
 		virtual bool tryRevealWrongConditions();
 		virtual bool revealCriticalSuccess(short diceRoll);
 		virtual bool revealCriticalFail(short diceRoll);
-		virtual bool checkActorCantUseAbility();
+		virtual bool isActorCantUseAbility();
+		virtual bool isActorMoraleFailure() = 0;
 		virtual short calculateTargetRating() = 0;
 		virtual short calculateDicerollBonus() = 0;
 		virtual short calculatBaseSkillRating() = 0;
-		virtual short calculateAbilityRating();
+		virtual short calculateActorRating();
 		virtual int calculateBaseDamage();
+		virtual int calculateAddDamage();
 		virtual inline float calculateAbilityDamageFactor();
 		virtual inline float calculateDegreeOfSuccessDamageFactor();
+		virtual inline float calculateSituationalDamageFactor();
 		virtual void trainBaseSkill() = 0;
 
 	public:
-		bool checkSuccess() {return _success;};
-		bool checkCriticalFail() {return _criticalFail;};
-		bool checkCriticalSuccess() {return _criticalSuccess;};
-		bool checkWrongConditions(){return _wrongConditions;};
-		void sendDenyMessage(CHAR_DATA *recipient);
+		bool isSuccess() {return _success;};
+		bool isCriticalFail() {return _criticalFail;};
+		bool isCriticalSuccess() {return _criticalSuccess;};
+		bool isWrongConditions(){return _wrongConditions;};
+		int ID() {return _ability->ID;};
+		CHAR_DATA *const actor() {return _actor;};
+		void sendDenyMessageToActor();
 	};
 
-	class AbilityRollVSCharacter : public AbilityRoll {
+//  -------------------------------------------------------
+
+	class AgainstRivalRollType : public AbilityRollType {
 	protected:
-		CHAR_DATA *_target;
+		CHAR_DATA *_rival;
 
 		void trainBaseSkill();
 		short calculateTargetRating();
 		short calculatBaseSkillRating();
 		short calculateDicerollBonus();
+		bool isActorMoraleFailure();
 
 	public:
 		void initialize(CHAR_DATA *abilityActor, int usedAbility, CHAR_DATA *abilityVictim);
+		CHAR_DATA *const rival() {return _rival;};
 
-		AbilityRollVSCharacter() :
-			_target{nullptr}
+		AgainstRivalRollType() :
+			_rival{nullptr}
 			{};
 	};
 
-	class ExpedientRoll : public AbilityRollVSCharacter {
+//  -------------------------------------------------------
+
+	class TechniqueRollType : public AgainstRivalRollType {
 	protected:
 		int _weaponEquipPosition;
-		int calculateWeaponDamage();
+
+		int calculateAddDamage();
 		void determineBaseSkill();
-		bool checkExpedientKit();
-		bool checkSuitableItem(const ExpedientItem &expedientItem);
+		bool checkTechniqueKit();
+		bool isSuitableItem(const TechniqueItem &techniqueItem);
 
 	public:
 		int getWeaponEquipPosition() {return _weaponEquipPosition;};
 		int calculateDamage();
 
-		ExpedientRoll() :
+		TechniqueRollType() :
 			_weaponEquipPosition{WEAR_WIELD}
 			{};
 	};

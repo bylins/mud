@@ -10,7 +10,7 @@
 #include "structs.h"
 #include "utils.h"
 
-struct ExpedientItem {
+struct TechniqueItem {
 	short _wearPosition;
 	OBJ_DATA::EObjectType _type;
 	ESkill _skill;
@@ -21,35 +21,35 @@ struct ExpedientItem {
 	bool operator== (const OBJ_DATA *item) const {
 		return (item
 				&& (_type == GET_OBJ_TYPE(item))
-				&& ((_skill == SKILL_INVALID) || (_skill == GET_OBJ_SKILL(item)))
+				&& ((_skill == SKILL_INDEFINITE) || (_skill == GET_OBJ_SKILL(item)))
 				&& (_flagged && OBJ_FLAGGED(item, _flag)));
 	};
 
-	ExpedientItem():
+	TechniqueItem():
 		_wearPosition{-1},
 		_type{OBJ_DATA::ITEM_UNDEFINED},
-		_skill{SKILL_INVALID},
+		_skill{SKILL_INDEFINITE},
 		_flagged{false},
 		_flag{0}
 		{};
 
-	ExpedientItem(short objectWearPosition, OBJ_DATA::EObjectType objectType):
+	TechniqueItem(short objectWearPosition, OBJ_DATA::EObjectType objectType):
 		_wearPosition{objectWearPosition} {
 			_type = objectType;
 		};
-	ExpedientItem(short objectWearPosition, OBJ_DATA::EObjectType objectType, ESkill objectSkill):
-		ExpedientItem(objectWearPosition, objectType) {
+	TechniqueItem(short objectWearPosition, OBJ_DATA::EObjectType objectType, ESkill objectSkill):
+		TechniqueItem(objectWearPosition, objectType) {
 			_skill = objectSkill;
 		};
-	ExpedientItem(short objectWearPosition, OBJ_DATA::EObjectType objectType, ESkill objectSkill, EExtraFlag flag):
-		ExpedientItem(objectWearPosition, objectType, objectSkill) {
+	TechniqueItem(short objectWearPosition, OBJ_DATA::EObjectType objectType, ESkill objectSkill, EExtraFlag flag):
+		TechniqueItem(objectWearPosition, objectType, objectSkill) {
 			_flag = flag;
 			_flagged = true;
 		};
 };
 
-using ExpedientItemKitType = std::vector<ExpedientItem>;
-using ExpedientItemKitsGroupType = std::vector<ExpedientItemKitType*>;
+using TechniqueItemKitType = std::vector<TechniqueItem>;
+using TechniqueItemKitsGroupType = std::vector<TechniqueItemKitType*>;
 
 
 #endif // _FEATURES_ITEMSET_HPP_INCLUDED_

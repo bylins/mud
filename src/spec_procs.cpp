@@ -308,6 +308,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			case LIGHT_WALK_FEAT:
 			case SPELL_CAPABLE_FEAT:
 			case RELOCATE_FEAT:
+			case SHADOW_THROW_FEAT:
 				if (timed_by_feat(ch, sortpos))
 					sprintf(buf, "[%3d] ", timed_by_feat(ch, sortpos));
 				else

@@ -503,13 +503,13 @@ int same_time_update(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>::shared_pt
 			poison_dmg = poison_dmg/30;
 		//poison_dmg = interpolate(poison_dmg, 2); // И как оно должно работать чото нифига не понял, понял только что оно не работает
 		Damage dmg(SpellDmg(SPELL_POISON), poison_dmg, FightSystem::UNDEF_DMG);
-		dmg.flags.set(FightSystem::NO_FLEE);
+		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 		result = dmg.process(ch, ch);
 	}
 	else if (af->location == APPLY_ACONITUM_POISON)
 	{
 		Damage dmg(SpellDmg(SPELL_POISON), GET_POISON(ch), FightSystem::UNDEF_DMG);
-		dmg.flags.set(FightSystem::NO_FLEE);
+		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 		result = dmg.process(ch, ch);
 	}
 	return result;

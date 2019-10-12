@@ -647,7 +647,8 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 	SKILL_MIND_MAGIC,
 	SKILL_LIFE_MAGIC,
 	SKILL_STUN,
-	SKILL_MAKE_AMULET
+	SKILL_MAKE_AMULET,
+	SKILL_INDEFINITE
 };
 
 ///
@@ -1798,6 +1799,8 @@ bool can_get_skill(CHAR_DATA *ch, int skill)
 }
 
 //  Реализация класса Skill
+// Закомментим поека за ненадобностью
+/*
 
 //Объявляем глобальный скиллист
 SkillListType Skill::SkillList;
@@ -1856,5 +1859,6 @@ int Skill::GetNumByID(const std::string& ID)
 };
 
 // Конец (увы) реализации класса Skill
+*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

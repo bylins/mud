@@ -114,6 +114,7 @@ void initializeFeature(int featureNum, const char *name, int type, bool can_up_s
 		boost::trim_all(alias);
 		feat_info[featureNum].alias = alias;
 	}
+	feat_info[featureNum].ID = featureNum;
 	feat_info[featureNum].dicerollBonus = dicerollBonus;
 	feat_info[featureNum].baseSkill = baseSkill;
 	feat_info[featureNum].oppositeSaving = oppositeSaving;
@@ -138,10 +139,11 @@ void initializeFeatureByDefault(int featureNum)
 		}
 	}
 
+	feat_info[featureNum].ID = featureNum;
 	feat_info[featureNum].name = unused_spellname;
 	feat_info[featureNum].type = UNUSED_FTYPE;
 	feat_info[featureNum].up_slot = false;
-	feat_info[featureNum].alwaysUseFeatureSkill = true;
+	feat_info[featureNum].usesWeaponSkill = false;
 	feat_info[featureNum].baseDamageBonusPercent = 0;
 	feat_info[featureNum].degreeOfSuccessDamagePercent = 5;
 	feat_info[featureNum].oppositeSaving = SAVING_STABILITY;
@@ -157,6 +159,10 @@ void initializeFeatureByDefault(int featureNum)
 
 	feat_info[featureNum].getBaseParameter = &GET_REAL_INT;
 	feat_info[featureNum].getEffectParameter = &GET_REAL_STR;
+	feat_info[featureNum].calculateSituationalDamageFactor =
+		([](CHAR_DATA*) -> float {
+			return 1.00;
+		});
 	feat_info[featureNum].calculateSituationalRollBonus =
 		([](CHAR_DATA*, CHAR_DATA*) -> short {
 			return 0;
@@ -166,6 +172,7 @@ void initializeFeatureByDefault(int featureNum)
 // Инициализация массива структур способностей
 void determineFeaturesSpecification(void) {
 	CFeatArray feat_app;
+	TechniqueItemKitType* techniqueItemKit;
 	for (int i = 1; i < MAX_FEATS; i++) {
 		initializeFeatureByDefault(i);
 	}
@@ -575,7 +582,7 @@ void determineFeaturesSpecification(void) {
 //138
 	initializeFeature(EVASION_FEAT, "скользкий тип", NORMAL_FTYPE, TRUE, feat_app);
 //139
-	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", EXPEDIENT_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	initializeFeature(EXPEDIENT_CUT_FEAT, "порез", TECHNIQUE_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 //140
     initializeFeature(SHOT_FINESSE_FEAT, "ловкий выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //141
@@ -585,36 +592,85 @@ void determineFeaturesSpecification(void) {
 //143
     initializeFeature(MAGIC_SHOOTER_FEAT, "магический выстрел", NORMAL_FTYPE, TRUE, feat_app);
 //144
-    initializeFeature(THROW_WEAPON_FEAT, "метнуть", EXPEDIENT_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+    initializeFeature(THROW_WEAPON_FEAT, "метнуть", TECHNIQUE_FTYPE, TRUE, feat_app, 100, SKILL_THROW, SAVING_REFLEX);
     feat_info[THROW_WEAPON_FEAT].getBaseParameter = &GET_REAL_DEX;
     feat_info[THROW_WEAPON_FEAT].getEffectParameter = &GET_REAL_STR;
+    feat_info[THROW_WEAPON_FEAT].usesWeaponSkill = false;
+    feat_info[THROW_WEAPON_FEAT].alwaysAvailable = true;
     feat_info[THROW_WEAPON_FEAT].baseDamageBonusPercent = 5;
     feat_info[THROW_WEAPON_FEAT].degreeOfSuccessDamagePercent = 5;
+	feat_info[THROW_WEAPON_FEAT].calculateSituationalDamageFactor =
+		([](CHAR_DATA* ch) -> float {
+			return (0.1*can_use_feat(ch, POWER_THROW_FEAT) + 0.1*can_use_feat(ch, DEADLY_THROW_FEAT));
+		});
+	feat_info[THROW_WEAPON_FEAT].calculateSituationalRollBonus =
+		([](CHAR_DATA* ch, CHAR_DATA* /* enemy */) -> short {
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+				return -60;
+			}
+			return 0;
+		});
 	// Это ужасно, понимаю, но не хочется возиться с написанием мутной функции с переменным числоа аргументов,
 	// потому что при введении конфига, чем я планирую заняться в ближайшее время, все равно ее придется переписывать.
 	//TODO: Не забыть переписать этот бордель
-	feat_info[THROW_WEAPON_FEAT].alwaysUseFeatureSkill = false;
-    feat_info[THROW_WEAPON_FEAT].expedientItemKitsGroup.reserve(2);
-    ExpedientItemKitType* expedientItemKit;
+    feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.reserve(2);
 
-    expedientItemKit = new ExpedientItemKitType;
-    expedientItemKit->reserve(1);
-    expedientItemKit->push_back(ExpedientItem(WEAR_WIELD, OBJ_DATA::ITEM_WEAPON, SKILL_INVALID, EExtraFlag::ITEM_THROWING));
-    feat_info[THROW_WEAPON_FEAT].expedientItemKitsGroup.push_back(expedientItemKit);
+    techniqueItemKit = new TechniqueItemKitType;
+    techniqueItemKit->reserve(1);
+    techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, OBJ_DATA::ITEM_WEAPON, SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
+    feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
 
-    expedientItemKit = new ExpedientItemKitType;
-    expedientItemKit->reserve(1);
-    expedientItemKit->push_back(ExpedientItem(WEAR_HOLD, OBJ_DATA::ITEM_WEAPON, SKILL_INVALID, EExtraFlag::ITEM_THROWING));
-    feat_info[THROW_WEAPON_FEAT].expedientItemKitsGroup.push_back(expedientItemKit);
+    techniqueItemKit = new TechniqueItemKitType;
+    techniqueItemKit->reserve(1);
+    techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, OBJ_DATA::ITEM_WEAPON, SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
+    feat_info[THROW_WEAPON_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
+//145
+	initializeFeature(SHADOW_THROW_FEAT, "змеево оружие", TECHNIQUE_FTYPE, TRUE, feat_app, 100, SKILL_DARK_MAGIC, SAVING_WILL);
+    feat_info[SHADOW_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
+    feat_info[SHADOW_THROW_FEAT].getEffectParameter = &GET_REAL_INT;
+    feat_info[SHADOW_THROW_FEAT].baseDamageBonusPercent = -30;
+    feat_info[SHADOW_THROW_FEAT].degreeOfSuccessDamagePercent = 1;
+    feat_info[SHADOW_THROW_FEAT].usesWeaponSkill = false;
+
+    feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.reserve(2);
+    techniqueItemKit = new TechniqueItemKitType;
+    techniqueItemKit->reserve(1);
+    techniqueItemKit->push_back(TechniqueItem(WEAR_WIELD, OBJ_DATA::ITEM_WEAPON, SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
+    feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
+    techniqueItemKit = new TechniqueItemKitType;
+    techniqueItemKit->reserve(1);
+    techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, OBJ_DATA::ITEM_WEAPON, SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
+    feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
+//146
+	initializeFeature(SHADOW_DAGGER_FEAT, "змеев кинжал", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
+    feat_info[SHADOW_DAGGER_FEAT].getBaseParameter = &GET_REAL_INT;
+    feat_info[SHADOW_DAGGER_FEAT].usesWeaponSkill = false;
+//147
+	initializeFeature(SHADOW_SPEAR_FEAT, "змеево копье", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
+    feat_info[SHADOW_SPEAR_FEAT].getBaseParameter = &GET_REAL_INT;
+    feat_info[SHADOW_SPEAR_FEAT].usesWeaponSkill = false;
+//148
+	initializeFeature(SHADOW_AXE_FEAT, "змеева секира", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
+    feat_info[SHADOW_AXE_FEAT].getBaseParameter = &GET_REAL_INT;
+    feat_info[SHADOW_AXE_FEAT].usesWeaponSkill = false;
 //149
 	initializeFeature(DOUBLE_THROW_FEAT, "двойной бросок", ACTIVATED_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DOUBLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //150
 	initializeFeature(TRIPLE_THROW_FEAT, "тройной бросок", ACTIVATED_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[TRIPLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
+//1151
+	initializeFeature(POWER_THROW_FEAT, "мощный бросок", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	feat_info[POWER_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
+//152
+	initializeFeature(DEADLY_THROW_FEAT, "убийственный бросок", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 }
 
 bool can_use_feat(const CHAR_DATA *ch, int feat) {
+	if (feat_info[feat].alwaysAvailable) {
+		return true;
+	};
 	if (!HAVE_FEAT(ch, feat)) {
 		return FALSE;
 	};
@@ -682,7 +738,10 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 		mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
 		return FALSE;
 	}
-
+	// Если фит доступен всем и всегда - неачем его куда-то "заучиввать".
+	if (feat_info[feat].alwaysAvailable) {
+		return false;
+	};
 	if ((!feat_info[feat].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] && !PlayerRace::FeatureCheck(GET_KIN(ch),GET_RACE(ch),feat))
 		|| (GET_REMORT(ch) < feat_info[feat].minRemort[(int) GET_CLASS(ch)][(int) GET_KIN(ch)])) {
 		return FALSE;
@@ -836,9 +895,11 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 			return FALSE;
 		}
 		break;
+/*
 	case DOUBLE_THROW_FEAT:
 		return HAVE_FEAT(ch, THROW_WEAPON_FEAT);
 		break;
+*/
 	case TRIPLE_THROW_FEAT:
 		return HAVE_FEAT(ch, DOUBLE_THROW_FEAT);
 		break;
@@ -1605,6 +1666,7 @@ bitvector_t getPRFWithFeatureNumber(int featureNum) {
 * Ситуативный бонус броска для "tactician feat" и "skirmisher feat":
 * Каждый персонаж в строю прикрывает двух, третий дает штраф.
 * Избыток "строевиков" повышает шанс на удачное срабатывание.
+* TODO: Заменить на лямбда-функцию.
 */
 short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */) {
 	short skirmishers(0), uncoveredSquadMembers(0);
@@ -1618,6 +1680,9 @@ short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /*
 			};
 		}
 	}
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+		return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_FACTOR-40;
+	};
 	return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_FACTOR;
 };
 

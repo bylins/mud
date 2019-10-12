@@ -174,14 +174,14 @@ using std::bitset;
 #define DEFT_SHOOTER_FEAT		142 // ловкий стрелок
 #define MAGIC_SHOOTER_FEAT		143 // магический выстрел
 #define THROW_WEAPON_FEAT		144 // метнуть
-#define SHADOW_THROW_FEAT		145 //
-#define SHADOW_DAGGER_FEAT		146 //
-#define SHADOW_SPEAR_FEAT		147 //
-#define SHADOW_AXE_FEAT			148 //
+#define SHADOW_THROW_FEAT		145 // змеево оружие
+#define SHADOW_DAGGER_FEAT		146 // кинжал Мары
+#define SHADOW_SPEAR_FEAT		147 // копье Морока
+#define SHADOW_AXE_FEAT			148 // секира Велеса
 #define DOUBLE_THROW_FEAT		149 // двойной бросок
 #define TRIPLE_THROW_FEAT		150 // тройной бросок
-#define POWER_THROW_FEAT		151 //
-#define DEADLY_THROW_FEAT		152 //
+#define POWER_THROW_FEAT		151 // мощный бросок
+#define DEADLY_THROW_FEAT		152 // убийственный бросок
 #define CARAVAN_DRIVER_FEAT		153 //
 
 
@@ -192,7 +192,7 @@ using std::bitset;
 #define AFFECT_FTYPE			1
 #define SKILL_MOD_FTYPE			2
 #define ACTIVATED_FTYPE			3
-#define EXPEDIENT_FTYPE			4
+#define TECHNIQUE_FTYPE			4
 
 /* Константы и формулы, определяющие число способностей у персонажа
    Скорость появления новых слотов можно задавать для каждого класса
@@ -263,13 +263,15 @@ private:
 };
 
 struct FeatureInfoType {
+	int ID;
 	int type;
 	int minRemort[NUM_PLAYER_CLASSES][NUM_KIN];
 	int slot[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool classknow[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool up_slot;
-	bool alwaysUseFeatureSkill;
+	bool usesWeaponSkill;
+	bool alwaysAvailable;
 	const char *name;
 	std::array<CFeatArray::CFeatAffect, MAX_FEAT_AFFECT> affected;
 	std::string alias;
@@ -283,10 +285,11 @@ struct FeatureInfoType {
 	short criticalSuccessThreshold;
 	ESkill baseSkill;
 
-	ExpedientItemKitsGroupType expedientItemKitsGroup;
+	TechniqueItemKitsGroupType techniqueItemKitsGroup;
 
 	int (*getBaseParameter) (const CHAR_DATA* ch);
 	int (*getEffectParameter) (const CHAR_DATA* ch);
+	float (*calculateSituationalDamageFactor) (CHAR_DATA* /* ch */);
 	short (*calculateSituationalRollBonus) (CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */);
 };
 

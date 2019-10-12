@@ -1166,7 +1166,7 @@ void underwater_check()
 				GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
 			Damage dmg(SimpleDmg(TYPE_WATERDEATH), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(d->character.get(), d->character.get()) < 0)
 			{
@@ -2078,7 +2078,7 @@ void point_update(void)
 		else if (GET_POS(i) == POS_INCAP)
 		{
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 1, FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) == -1)
 			{
@@ -2088,7 +2088,7 @@ void point_update(void)
 		else if (GET_POS(i) == POS_MORTALLYW)
 		{
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 2, FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) == -1)
 			{

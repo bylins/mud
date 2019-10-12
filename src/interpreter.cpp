@@ -611,7 +611,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 	{"маскировка", POS_RESTING, do_camouflage, 0, 0, 500},
 	{"магазины", POS_DEAD, do_shops_list, LVL_IMMORT, 0, 0},
-	{"метнуть", POS_FIGHTING, do_throw, 0, 0, -1},
+	{"метнуть", POS_FIGHTING, do_throw, 0, SCMD_PHYSICAL_THROW, -1},
 	{"менять", POS_STANDING, do_not_here, 0, 0, -1},
 	{"месть", POS_RESTING, do_revenge, 0, 0, 0},
 	{"молот", POS_FIGHTING, do_mighthit, 0, 0, -1},
@@ -779,6 +779,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
 	{"счет", POS_DEAD, do_score, 0, 0, 0},
+	{"тень", POS_FIGHTING, do_throw, 0, SCMD_MAGIC_THROW, -1},
 	{"титул", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
 	{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
 	{"убить", POS_FIGHTING, do_kill, 0, 0, -1},

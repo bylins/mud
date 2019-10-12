@@ -1919,6 +1919,8 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "Пр:%d ", timed_by_feat(d->character.get(), RELOCATE_FEAT));
 			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))
 				count += sprintf(prompt + count, "Зч:%d ", timed_by_feat(d->character.get(), SPELL_CAPABLE_FEAT));
+			if (HAVE_FEAT(d->character, SHADOW_THROW_FEAT))
+				count += sprintf(prompt + count, "Зо:%d ", timed_by_feat(d->character.get(), SHADOW_THROW_FEAT));
 		}
 
 		if (!d->character->get_fighting()

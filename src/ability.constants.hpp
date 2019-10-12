@@ -8,8 +8,7 @@
 namespace AbilitySystemConstants {
 	const short MAIN_DICE_SIZE = 100;
 	const short DAMAGE_DICE_SIZE = 5;
-	const short DICE_POOL_DIVIDER = 5;
-	const short DICE_POOL_PARAMETER_FACTOR = 4;
+	const short DAMAGE_DICEPOOL_SKILL_DIVIDER = 5;
 	const short MIN_ABILITY_DICEROLL_BONUS = -150;
 	const short MAX_ABILITY_DICEROLL_BONUS = 150;
 	const short SUCCESS_THRESHOLD = 0;
@@ -19,7 +18,6 @@ namespace AbilitySystemConstants {
 	const short MAX_FAIL_DEGREE = -10;
 	const short MAX_SUCCESS_DEGREE = 10;
 	const short DEGREE_DIVIDER = 10;
-	//const short DEGREE_DAMAGE_FACTOR = 5;
 	const short SKILL_RATING_DIVIDER = 2;
 	const short PARAMETER_RATING_DIVIDER = 2;
 	const short SITUATIONABLE_FACTOR = 5;
