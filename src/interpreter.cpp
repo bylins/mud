@@ -2990,6 +2990,11 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 	if (STATE(d) != CON_CONSOLE)
 		skip_spaces(&arg);
 
+
+	std::string mess = "";
+	char nextChar ;
+	ifstream inFile;
+
 	switch (STATE(d))
 	{
 	case CON_INIT:
@@ -3067,7 +3072,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		break;
 
 	case CON_SEDIT:
-	{
 		try
 		{
 			obj_sets_olc::parse_input(d->character.get(), arg);
@@ -3078,9 +3082,8 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 			d->sedit.reset();
 			STATE(d) = CON_PLAYING;
 		}
-		break;
-	}
-		//. End of OLC states .*/
+	break;
+	//. End of OLC states .*/
 
 	case CON_GET_KEYTABLE:
 		if (strlen(arg) > 0)
@@ -3098,7 +3101,33 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		d->keytable = (ubyte) * arg - (ubyte) '0';
 		ip_log(d->host);
 		SEND_TO_Q(GREETINGS, d);
-		STATE(d) = CON_GET_NAME;
+		inFile.open(LIB_ETC"maintenance.txt");
+		if (inFile) {
+			inFile.close();
+			STATE(d) = CON_MAINTENANCE;
+		} else {
+			STATE(d) = CON_GET_NAME;
+		}
+		break;
+
+	case CON_MAINTENANCE:
+		inFile.open(LIB_ETC"maintenance.txt", std::ifstream::in);
+		mess = "";
+		if (inFile) {
+			nextChar = inFile.get();
+			while  (inFile.good())
+			{
+
+				mess = mess + nextChar;
+				nextChar = inFile.get();
+			}
+			SEND_TO_Q(mess.c_str(), d);
+			inFile.close();
+			STATE(d) = CON_MAINTENANCE;
+		} else{
+			STATE(d) = CON_GET_NAME;
+		}
+
 		break;
 
 	case CON_GET_NAME:	// wait for input of name

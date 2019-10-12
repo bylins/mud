@@ -669,6 +669,7 @@ const char *connected_types[] =
 	"select new religion",
 	"Verification",
 	"Just connected",
+	"Maintenance"
 	"\n"
 };
 
