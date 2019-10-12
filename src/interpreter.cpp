@@ -779,7 +779,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
 	{"счет", POS_DEAD, do_score, 0, 0, 0},
-	{"тень", POS_FIGHTING, do_throw, 0, SCMD_MAGIC_THROW, -1},
+	{"тень", POS_FIGHTING, do_throw, 0, SCMD_SHADOW_THROW, -1},
 	{"титул", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
 	{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
 	{"убить", POS_FIGHTING, do_kill, 0, 0, -1},

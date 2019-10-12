@@ -2815,7 +2815,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		return;
 	}
 
-	if (subcmd == SCMD_MAGIC_THROW) {
+	if (subcmd == SCMD_SHADOW_THROW) {
 		if (timed_by_feat(ch, SHADOW_THROW_FEAT)) {
 			send_to_char("Не стоит так часто беспокоить тёмные силы.\r\n", ch);
 			return;
@@ -3657,6 +3657,9 @@ void makeVictimRoster(CHAR_DATA *ch, TemporaryCharListType &victimRoster) {
 			continue;
 		};
 		if (!HERE(victim)) {
+			continue;
+		};
+		if (!CAN_SEE_CHAR(ch, victim)) {
 			continue;
 		};
 		if (same_group(ch, victim)) {

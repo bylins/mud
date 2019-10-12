@@ -631,6 +631,13 @@ void determineFeaturesSpecification(void) {
     feat_info[SHADOW_THROW_FEAT].baseDamageBonusPercent = -30;
     feat_info[SHADOW_THROW_FEAT].degreeOfSuccessDamagePercent = 1;
     feat_info[SHADOW_THROW_FEAT].usesWeaponSkill = false;
+	feat_info[SHADOW_THROW_FEAT].calculateSituationalRollBonus =
+		([](CHAR_DATA* ch, CHAR_DATA* /* enemy */) -> short {
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
+				return -60;
+			}
+			return 0;
+		});
 
     feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.reserve(2);
     techniqueItemKit = new TechniqueItemKitType;
@@ -646,7 +653,7 @@ void determineFeaturesSpecification(void) {
     feat_info[SHADOW_DAGGER_FEAT].getBaseParameter = &GET_REAL_INT;
     feat_info[SHADOW_DAGGER_FEAT].usesWeaponSkill = false;
 //147
-	initializeFeature(SHADOW_SPEAR_FEAT, "змеево копье", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
+	initializeFeature(SHADOW_SPEAR_FEAT, "змеево копьё", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
     feat_info[SHADOW_SPEAR_FEAT].getBaseParameter = &GET_REAL_INT;
     feat_info[SHADOW_SPEAR_FEAT].usesWeaponSkill = false;
 //148
@@ -660,10 +667,10 @@ void determineFeaturesSpecification(void) {
 	initializeFeature(TRIPLE_THROW_FEAT, "тройной бросок", ACTIVATED_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[TRIPLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
 //1151
-	initializeFeature(POWER_THROW_FEAT, "мощный бросок", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[POWER_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //152
-	initializeFeature(DEADLY_THROW_FEAT, "убийственный бросок", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	initializeFeature(DEADLY_THROW_FEAT, "мощный размах", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 }
 
@@ -725,6 +732,9 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 	case MAGIC_USER_FEAT:
 		if (GET_LEVEL(ch) > 24)
 			return FALSE;
+		break;
+	case SHADOW_THROW_FEAT:
+		return (ch->get_skill(SKILL_DARK_MAGIC) > 120);
 		break;
 	}
 	return TRUE;
@@ -886,22 +896,34 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 		}
 		break;
 	case SKIRMISHER_FEAT:
-		if (ch->get_skill(SKILL_RESCUE) < 100) {
-			return FALSE;
-		}
+		return (ch->get_skill(SKILL_RESCUE) > 99);
 		break;
 	case TACTICIAN_FEAT:
-		if (ch->get_skill(SKILL_LEADERSHIP) < 100) {
-			return FALSE;
-		}
+		return (ch->get_skill(SKILL_LEADERSHIP) > 99);
 		break;
-/*
+	case SHADOW_THROW_FEAT:
+		return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 120));
+		break;
+	case SHADOW_DAGGER_FEAT:
+		return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 130));
+		break;
+	case SHADOW_SPEAR_FEAT:
+		return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 130));
+		break;
+	case SHADOW_AXE_FEAT:
+		return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 130));
+		break;
 	case DOUBLE_THROW_FEAT:
-		return HAVE_FEAT(ch, THROW_WEAPON_FEAT);
+		return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(SKILL_THROW) > 100));
 		break;
-*/
 	case TRIPLE_THROW_FEAT:
-		return HAVE_FEAT(ch, DOUBLE_THROW_FEAT);
+		return (HAVE_FEAT(ch, DEADLY_THROW_FEAT) && (ch->get_skill(SKILL_THROW) > 130));
+		break;
+	case POWER_THROW_FEAT:
+		return (ch->get_skill(SKILL_THROW) > 90);
+		break;
+	case DEADLY_THROW_FEAT:
+		return (HAVE_FEAT(ch, POWER_THROW_FEAT) && (ch->get_skill(SKILL_THROW) > 110));
 		break;
 	}
 
@@ -1666,7 +1688,7 @@ bitvector_t getPRFWithFeatureNumber(int featureNum) {
 * Ситуативный бонус броска для "tactician feat" и "skirmisher feat":
 * Каждый персонаж в строю прикрывает двух, третий дает штраф.
 * Избыток "строевиков" повышает шанс на удачное срабатывание.
-* TODO: Заменить на лямбда-функцию.
+* Svent TODO: Придумать более универсальный механизм бонусов/штрафов в зависимости от данных абилки
 */
 short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */) {
 	short skirmishers(0), uncoveredSquadMembers(0);

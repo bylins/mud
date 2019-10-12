@@ -323,7 +323,7 @@ struct alias_data
 
 // do_throw
 #define SCMD_PHYSICAL_THROW 0
-#define SCMD_MAGIC_THROW	1
+#define SCMD_SHADOW_THROW	1
 
 /**
 * copy the first non-fill-word, space-delimited argument of 'argument'
