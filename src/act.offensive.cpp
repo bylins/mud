@@ -2668,11 +2668,11 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 							affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
 						});
 		break;
-	case SKILL_AXES:
-		featureID = SHADOW_AXE_FEAT;
-		to_char = "Попадание топора ошеломило $n3.";
-		to_vict = "Брошенный $N4 топор врезался вам в лоб! Какие красивые звёздочки вокруг...";
-		to_room = "Попадание топора $N1 ошеломило $n3!";
+	case SKILL_CLUBS:
+		featureID = SHADOW_CLUB_FEAT;
+		to_char = "Попадание булавы ошеломило $n3.";
+		to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
+		to_room = "Попадание булавы $N1 ошеломило $n3!";
 		doSideAction = ([](TechniqueRollType &technique) {
 							AFFECT_DATA<EApplyLocation> af;
 							af.type = SPELL_BATTLE;
@@ -2786,7 +2786,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	// чтобы не убирать пока что само умение
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
 	if (!IS_IMPL(ch) &&  !ch->get_skill(SKILL_THROW)) {
-		send_to_char("Вы принялись метать икру.\r\nЭто единственное, что вы умеете метать.\r\n", ch);
+		send_to_char("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
 /*

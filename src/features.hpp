@@ -175,13 +175,13 @@ using std::bitset;
 #define MAGIC_SHOOTER_FEAT		143 // магический выстрел
 #define THROW_WEAPON_FEAT		144 // метнуть
 #define SHADOW_THROW_FEAT		145 // змеево оружие
-#define SHADOW_DAGGER_FEAT		146 // кинжал Мары
-#define SHADOW_SPEAR_FEAT		147 // копье Морока
-#define SHADOW_AXE_FEAT			148 // секира Велеса
+#define SHADOW_DAGGER_FEAT		146 // змеев кинжал
+#define SHADOW_SPEAR_FEAT		147 // змеево копье
+#define SHADOW_CLUB_FEAT		148 // змеева палица
 #define DOUBLE_THROW_FEAT		149 // двойной бросок
 #define TRIPLE_THROW_FEAT		150 // тройной бросок
-#define POWER_THROW_FEAT		151 // мощный бросок
-#define DEADLY_THROW_FEAT		152 // убийственный бросок
+#define POWER_THROW_FEAT		151 // размах
+#define DEADLY_THROW_FEAT		152 // широкий размах
 #define CARAVAN_DRIVER_FEAT		153 //
 
 

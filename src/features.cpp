@@ -657,9 +657,9 @@ void determineFeaturesSpecification(void) {
     feat_info[SHADOW_SPEAR_FEAT].getBaseParameter = &GET_REAL_INT;
     feat_info[SHADOW_SPEAR_FEAT].usesWeaponSkill = false;
 //148
-	initializeFeature(SHADOW_AXE_FEAT, "змеева секира", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
-    feat_info[SHADOW_AXE_FEAT].getBaseParameter = &GET_REAL_INT;
-    feat_info[SHADOW_AXE_FEAT].usesWeaponSkill = false;
+	initializeFeature(SHADOW_CLUB_FEAT, "змеева палица", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
+    feat_info[SHADOW_CLUB_FEAT].getBaseParameter = &GET_REAL_INT;
+    feat_info[SHADOW_CLUB_FEAT].usesWeaponSkill = false;
 //149
 	initializeFeature(DOUBLE_THROW_FEAT, "двойной бросок", ACTIVATED_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DOUBLE_THROW_FEAT].getBaseParameter = &GET_REAL_DEX;
@@ -670,7 +670,7 @@ void determineFeaturesSpecification(void) {
 	initializeFeature(POWER_THROW_FEAT, "размах", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[POWER_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 //152
-	initializeFeature(DEADLY_THROW_FEAT, "мощный размах", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
+	initializeFeature(DEADLY_THROW_FEAT, "широкий размах", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
 }
 
@@ -910,7 +910,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 	case SHADOW_SPEAR_FEAT:
 		return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 130));
 		break;
-	case SHADOW_AXE_FEAT:
+	case SHADOW_CLUB_FEAT:
 		return (HAVE_FEAT(ch, SHADOW_THROW_FEAT) && (ch->get_skill(SKILL_DARK_MAGIC) > 130));
 		break;
 	case DOUBLE_THROW_FEAT:
