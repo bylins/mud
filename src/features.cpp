@@ -649,15 +649,15 @@ void determineFeaturesSpecification(void) {
     techniqueItemKit->push_back(TechniqueItem(WEAR_HOLD, OBJ_DATA::ITEM_WEAPON, SKILL_INDEFINITE, EExtraFlag::ITEM_THROWING));
     feat_info[SHADOW_THROW_FEAT].techniqueItemKitsGroup.push_back(techniqueItemKit);
 //146
-	initializeFeature(SHADOW_DAGGER_FEAT, "змеев кинжал", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
+	initializeFeature(SHADOW_DAGGER_FEAT, "змеев кинжал", NORMAL_FTYPE, TRUE, feat_app, 80, SKILL_DARK_MAGIC, SAVING_STABILITY);
     feat_info[SHADOW_DAGGER_FEAT].getBaseParameter = &GET_REAL_INT;
     feat_info[SHADOW_DAGGER_FEAT].usesWeaponSkill = false;
 //147
-	initializeFeature(SHADOW_SPEAR_FEAT, "змеево копьё", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
+	initializeFeature(SHADOW_SPEAR_FEAT, "змеево копьё", NORMAL_FTYPE, TRUE, feat_app, 80, SKILL_DARK_MAGIC, SAVING_STABILITY);
     feat_info[SHADOW_SPEAR_FEAT].getBaseParameter = &GET_REAL_INT;
     feat_info[SHADOW_SPEAR_FEAT].usesWeaponSkill = false;
 //148
-	initializeFeature(SHADOW_CLUB_FEAT, "змеева палица", NORMAL_FTYPE, TRUE, feat_app, 140, SKILL_DARK_MAGIC, SAVING_STABILITY);
+	initializeFeature(SHADOW_CLUB_FEAT, "змеева палица", NORMAL_FTYPE, TRUE, feat_app, 80, SKILL_DARK_MAGIC, SAVING_STABILITY);
     feat_info[SHADOW_CLUB_FEAT].getBaseParameter = &GET_REAL_INT;
     feat_info[SHADOW_CLUB_FEAT].usesWeaponSkill = false;
 //149
