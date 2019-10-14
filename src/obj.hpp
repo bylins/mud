@@ -807,7 +807,7 @@ public:
 	const auto& get_enchants() const { return m_enchants; }
 	const auto& get_custom_label() const { return m_custom_label; }
 	const auto& get_script() const { return m_script; }
-	void add_enchant(const obj::enchant& _) { m_enchants.add(_); }
+	void add_enchant(const ObjectEnchant::enchant& _) { m_enchants.add(_); }
 	void remove_custom_label() { m_custom_label.reset(); }
 	void remove_me_from_contains_list(OBJ_DATA*& head);
 	void remove_me_from_objects_list(OBJ_DATA*& head);
@@ -840,10 +840,10 @@ public:
 	void unset_enchant();
 
 	void copy_name_from(const CObjectPrototype* src);
-	
+
 	bool clone_olc_object_from_prototype(const obj_vnum vnum);
 	void copy_from(const CObjectPrototype* src);
-	
+
 	void swap(OBJ_DATA& object);
 	void set_tag(const char* tag);
 
@@ -881,7 +881,7 @@ private:
 	OBJ_DATA *m_next_content;	// For 'contains' lists             //
 	OBJ_DATA *m_next;		// For the object list              //
 
-	obj::Enchants m_enchants;
+	ObjectEnchant::Enchants m_enchants;
 
 	int m_craft_timer;
 
@@ -889,7 +889,7 @@ private:
 
 	object_id_t m_id;			// used by DG triggers              //
 	std::shared_ptr<SCRIPT_DATA> m_script;	// script info for the object       //
-	
+
 	// порядковый номер в списке чаров (для name_list)
 	int m_serial_number;
 	// true - объект спуржен и ждет вызова delete для оболочки

@@ -13,7 +13,7 @@
 #include "constants.h"
 #include "spells.h"
 
-namespace obj
+namespace ObjectEnchant
 {
 
 enchant::enchant()
@@ -241,8 +241,8 @@ void Enchants::update_set_bonus(OBJ_DATA *obj, const obj_sets::ench_type& set_en
 		}
 	}
 
-	obj::enchant tmp;
-	tmp.type_ = obj::ENCHANT_FROM_SET;
+	ObjectEnchant::enchant tmp;
+	tmp.type_ = ObjectEnchant::ENCHANT_FROM_SET;
 	tmp.name_ = "набором предметов";
 	tmp.weight_ = set_ench.weight;
 	tmp.ndice_ = set_ench.ndice;

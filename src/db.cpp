@@ -2515,7 +2515,8 @@ void boot_db(void)
     log("Loading NEW skills definitions");
 	pugi::xml_document doc;
 
-	Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
+	//Svent TODO: Не забыть включить загрузку обратно после переписывания
+	//Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
 	load_dquest();
 	boot_profiler.next_step("Loading criterion");
 	log("Loading Criterion...");

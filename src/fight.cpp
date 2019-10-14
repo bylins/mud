@@ -2052,7 +2052,7 @@ void process_npc_attack(CHAR_DATA *ch)
 	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT))
 	{
-		exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
+		exthit(ch, TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
 	}
 
 	//**** экстраатаки
@@ -2064,7 +2064,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		{
 			continue;
 		}
-		exthit(ch, TYPE_UNDEFINED, i + RIGHT_WEAPON);
+		exthit(ch, TYPE_UNDEFINED, i + FightSystem::RIGHT_WEAPON);
 	}
 }
 
@@ -2143,13 +2143,13 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 			//или молотить, по баттл-аффекту узнать получиться
 			//не во всех частях процедуры, а параметр type
 			//хранит значение до её конца.
-			exthit(ch, GET_AF_BATTLE(ch, EAF_STUPOR) ? SKILL_STUPOR : GET_AF_BATTLE(ch, EAF_MIGHTHIT) ? SKILL_MIGHTHIT : TYPE_UNDEFINED, RIGHT_WEAPON);
+			exthit(ch, GET_AF_BATTLE(ch, EAF_STUPOR) ? SKILL_STUPOR : GET_AF_BATTLE(ch, EAF_MIGHTHIT) ? SKILL_MIGHTHIT : TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
 		}
 // допатака двуручем
 		if (GET_EQ(ch,WEAR_BOTHS)&& can_use_feat(ch, BOTHHANDS_FOCUS_FEAT) && (GET_OBJ_SKILL(GET_EQ(ch,WEAR_BOTHS)) == SKILL_BOTHHANDS) && can_use_feat(ch, RELATED_TO_MAGIC_FEAT))
 		{
 			if (ch->get_skill(SKILL_BOTHHANDS) > (number(1, 500)))
-				hit(ch, ch->get_fighting(), TYPE_UNDEFINED, RIGHT_WEAPON);
+				hit(ch, ch->get_fighting(), TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
 		}
 		CLR_AF_BATTLE(ch, EAF_FIRST);
 		SET_AF_BATTLE(ch, EAF_SECOND);
@@ -2173,7 +2173,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 		{
-			exthit(ch, TYPE_UNDEFINED, LEFT_WEAPON);
+			exthit(ch, TYPE_UNDEFINED, FightSystem::LEFT_WEAPON);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
@@ -2188,7 +2188,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	{
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 		{
-			exthit(ch, TYPE_UNDEFINED, LEFT_WEAPON);
+			exthit(ch, TYPE_UNDEFINED, FightSystem::LEFT_WEAPON);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}

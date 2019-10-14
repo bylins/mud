@@ -3,6 +3,11 @@
 
 namespace FightSystem
 {
+	const int RIGHT_WEAPON = 1;
+	const int LEFT_WEAPON = 2;
+
+	const int ZERO_DMG = 0;
+
 	enum DmgType { UNDEF_DMG, PHYS_DMG, MAGE_DMG };
 
 	enum
@@ -25,8 +30,8 @@ namespace FightSystem
 		HALF_IGNORE_ARMOR,
 		// игнор поглощения
 		IGNORE_ABSORBE,
-		// нельзя сбежать
-		NO_FLEE,
+		// от этого урона не нужно убегать (яд и т.п.)
+		NO_FLEE_DMG,
 		// крит удар
 		CRIT_HIT,
 		// игнор возврата дамаги от огненного щита
@@ -53,4 +58,4 @@ namespace FightSystem
 	};
 } // namespace FightSystem
 
-#endif
+#endif //__FIGHT_CONSTANTS_HPP__

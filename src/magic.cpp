@@ -392,13 +392,10 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 	}
 }
 
-// Апдейт аффектов для комнат - надеюсь это мир не прикончит//
-// Gorrah: Вынес в отдельный лист обкастованные комнаты - теперь думаю не прикончит //
 void room_affect_update(void)
 {
 	CHAR_DATA *ch;
 	int spellnum;
-	//std::list<ROOM_DATA*>::iterator i = aff_room_list.begin();
 
 	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();)
 	{
@@ -2505,8 +2502,6 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (!IS_NPC(ch))
 		dam*=ch->get_cond_penalty(P_DAMROLL);
 
-	dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spellnum), dam));
-
 	if (number(1, 100) <= GET_MR(victim))
 		dam = 0;
 
@@ -2533,11 +2528,11 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			}
 			if (count <= 1)
 			{
-				dmg.flags.reset(FightSystem::NO_FLEE);
+				dmg.flags.reset(FightSystem::NO_FLEE_DMG);
 			}
 			else
 			{
-				dmg.flags.set(FightSystem::NO_FLEE);
+				dmg.flags.set(FightSystem::NO_FLEE_DMG);
 			}
 			rand = dmg.process(ch, victim);
 		}
@@ -6312,55 +6307,6 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 	}
 
 	return 1;
-}
-
-//Функция определяет какой резист для какого типа спелла следует брать.
-//Работает только если каждый спелл имеет 1 тип
-
-int get_resist_type(int spellnum)
-{
-	if (SpINFO.spell_class == STYPE_FIRE)
-	{
-		return FIRE_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_DARK)
-	{
-		return DARK_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_AIR)
-	{
-		return AIR_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_WATER)
-	{
-		return WATER_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_EARTH)
-	{
-		return EARTH_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_LIGHT)
-	{
-		return VITALITY_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_DARK)
-	{
-		return VITALITY_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_MIND)
-	{
-		return MIND_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_LIFE)
-	{
-		return IMMUNITY_RESISTANCE;
-	}
-	if (SpINFO.spell_class == STYPE_NEUTRAL)
-	{
-		return VITALITY_RESISTANCE;
-	}
-	log("SYSERR: Unknown spell type in %s", SpINFO.name);
-	return 0;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

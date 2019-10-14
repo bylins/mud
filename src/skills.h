@@ -127,11 +127,12 @@ enum ESkill: int
 	SKILL_LIFE_MAGIC = 189,
 	SKILL_STUN = 190,
 	SKILL_MAKE_AMULET = 191,
+	SKILL_INDEFINITE = 192,	// Reserved! Нужен, чтобы указывать "произвольный" скилл в некоторых случаях //
 
 	// не забываем указывать максимальный номер скилла
-	MAX_SKILL_NUM = SKILL_MAKE_AMULET
+	MAX_SKILL_NUM = SKILL_INDEFINITE
 };
-inline bool is_magic_skill(int skill) 
+inline bool is_magic_skill(int skill)
 {
 	if (skill >= SKILL_AIR_MAGIC && skill <= SKILL_LIFE_MAGIC)
 		return true;
@@ -248,13 +249,13 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim);
     в номер скилла.
     Это все нужно для совместимости со старой системой.
 */
-
+/*
 #define SKILL_UNDEFINED -1
 #define SKILL_NAME_UNDEFINED "undefined"
 #define SKILLS_FILE "skills.xml"
 #define SKILLS_MAIN_TAG "skills"
 #define SKILLS_ERROR_STR "...skills.xml reading fail"
-
+*/
 class Skill;
 
 typedef std::shared_ptr<Skill> SkillPtr;

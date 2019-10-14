@@ -1058,7 +1058,19 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, 
 	}
 }
 
-// Обработка тикающих способностей - added by Gorrah
+void decreaseFeatTimer(CHAR_DATA * ch, int featureID) {
+	for (struct timed_type* skj = ch->timed_feat; skj; skj = skj->next) {
+		if (skj->skill == featureID) {
+			if (skj->time >= 1) {
+				skj->time--;
+			} else {
+				timed_feat_from_char(ch, skj);
+			}
+			return;
+		}
+	}
+};
+
 void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 {
 	struct timed_type *timed_alloc, *skj;
@@ -1102,7 +1114,6 @@ int timed_by_feat(CHAR_DATA * ch, int feat)
 
 	return (0);
 }
-// End of changes
 
 // Insert an timed_type in a char_data structure
 void timed_to_char(CHAR_DATA * ch, struct timed_type *timed)
@@ -4580,6 +4591,43 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	return result;
 }
 
+int getResisTypeWithSpellClass(int spellClass) {
+	switch (spellClass) {
+	case STYPE_FIRE:
+		return FIRE_RESISTANCE;
+		break;
+	case STYPE_DARK:
+		return DARK_RESISTANCE;
+		break;
+	case STYPE_AIR:
+		return AIR_RESISTANCE;
+		break;
+	case STYPE_WATER:
+		return WATER_RESISTANCE;
+		break;
+	case STYPE_EARTH:
+		return EARTH_RESISTANCE;
+		break;
+	case STYPE_LIGHT:
+		return VITALITY_RESISTANCE;
+		break;
+	case STYPE_MIND:
+		return MIND_RESISTANCE;
+		break;
+	case STYPE_LIFE:
+		return IMMUNITY_RESISTANCE;
+		break;
+	case STYPE_NEUTRAL:
+		return VITALITY_RESISTANCE;
+		break;
+	}
+	return VITALITY_RESISTANCE;
+};
+
+int get_resist_type(int spellnum) {
+	return getResisTypeWithSpellClass(SpINFO.spell_class);
+}
+
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
 int get_object_low_rent(OBJ_DATA *obj)
 {
@@ -4617,9 +4665,8 @@ void deleteCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList)
 	if (TmpCharList->empty()) return;
 
 	TemporaryCharListType::iterator it = std::find(TmpCharList->begin(), TmpCharList->end(), ch);
-	if (it != TmpCharList->end())
-	{
-		*it = 0;
+	if (it != TmpCharList->end()) {
+		TmpCharList->erase(it);
 	}
 }
 

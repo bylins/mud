@@ -936,10 +936,24 @@ inline int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val)
 }
 inline int VPOSI_MOB(const CHAR_DATA::shared_ptr& ch, const int stat_id, const int val) { return VPOSI_MOB(ch.get(), stat_id, val); }
 
-inline auto GET_REAL_DEX(const CHAR_DATA* ch)
-{
+inline auto GET_REAL_STR(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 0, ch->get_str() + ch->get_str_add());
+};
+inline auto GET_REAL_DEX(const CHAR_DATA* ch) {
 	return VPOSI_MOB(ch, 1, ch->get_dex() + ch->get_dex_add());
 }
+inline auto GET_REAL_CON(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 2, ch->get_con() + ch->get_con_add());
+};
+inline auto GET_REAL_WIS(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 3, ch->get_wis() + ch->get_wis_add());
+};
+inline auto GET_REAL_INT(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 4, ch->get_int() + ch->get_int_add());
+};
+inline auto GET_REAL_CHA(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 5, ch->get_cha() + ch->get_cha_add());
+};
 
 void change_fighting(CHAR_DATA * ch, int need_stop);
 

@@ -78,7 +78,6 @@ int compute_armor_class(CHAR_DATA * ch)
 		armorclass -= (240 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 	}
 
-	// Gorrah: штраф к КЗ от применения умения "железный ветер"
 	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
 	{
 		armorclass += ch->get_skill(SKILL_IRON_WIND) / 2;
@@ -171,7 +170,7 @@ void inspiration(CHAR_DATA *ch, int time, int mod)
 				send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
 			}
 		}
-		
+
 	}
 		af.location = APPLY_DAMROLL;
 		af.type = SPELL_PALADINE_INSPIRATION;
@@ -2182,7 +2181,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		{
 			flags.set(FightSystem::DRAW_BRIEF_MAG_MIRROR);
 			Damage dmg(SpellDmg(SPELL_MAGICGLASS), mg_damage, FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 			dmg.flags.set(FightSystem::MAGIC_REFLECT);
 			dmg.process(victim, ch);
 		}
@@ -2224,7 +2223,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (dam
 		&& flags[FightSystem::CRIT_HIT] && flags[FightSystem::VICTIM_ICE_SHIELD]
 		&& !dam_critic
-		&& spell_num != SPELL_POISON 
+		&& spell_num != SPELL_POISON
                 && number(0, 100)<94)
 	{
             act("Ваше меткое попадания частично утонуло в ледяной пелене вокруг $N1.",
@@ -2233,7 +2232,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			FALSE, ch, 0, victim, TO_VICT | TO_NO_BRIEF_SHIELDS);
             act("Ледяной щит вокруг $N1 частично поглотил меткое попадание $n1.",
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
-			
+
                    flags[FightSystem::CRIT_HIT] = false; //вот это место очень тщательно проверить
 		   if (dam > 0) dam -= (dam * number(30, 50) / 100);
         }
@@ -2251,7 +2250,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN | TO_NO_BRIEF_SHIELDS);
 		dam -= (dam * number(30, 50) / 100);
 	}
-	
+
 	if (dam > 0
 		&& flags[FightSystem::VICTIM_AIR_SHIELD]
 		&& !flags[FightSystem::CRIT_HIT])
@@ -2347,7 +2346,7 @@ void Damage::send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
 	if (!flags[FightSystem::VICTIM_ICE_SHIELD])
 	{
-		sprintf(buf, "&B&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
+		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
 			PERS(victim, ch, 3));
 	}
 	else
@@ -2571,7 +2570,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			forget(ch_vict, victim);
 		}
 	}
-                
+
 	}
 
 	if (killer)
@@ -2716,6 +2715,15 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 			dam *= Bonus::get_mult_bonus();
 		}
 	}
+
+	//учет резистов для магического урона
+	if (dmg_type == FightSystem::MAGE_DMG) {
+		if (spell_num > 0) {
+			dam = MAX(0, calculate_resistance_coeff(victim, get_resist_type(spell_num), dam));
+		} else {
+			dam = MAX(0, calculate_resistance_coeff(victim, getResisTypeWithSpellClass(magic_type) , dam));
+		};
+	};
 
 	// учет положения атакующего и жертвы
 	// Include a damage multiplier if victim isn't ready to fight:
@@ -2992,7 +3000,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
-	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE]);
+	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE_DMG]);
 
 	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
@@ -3031,7 +3039,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 		&& IN_ROOM(victim) != NOWHERE)
 	{
 		Damage dmg(SpellDmg(SPELL_FIRE_SHIELD), fs_damage, FightSystem::UNDEF_DMG);
-		dmg.flags.set(FightSystem::NO_FLEE);
+		dmg.flags.set(FightSystem::NO_FLEE_DMG);
 		dmg.flags.set(FightSystem::MAGIC_REFLECT);
 		dmg.process(victim, ch);
 	}
@@ -3552,7 +3560,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 
 	calc_thaco -= GET_REAL_HR(ch) * p_hitroll;
-	
+
 
 	// Использование ловкости вместо силы для попадания
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
@@ -3587,7 +3595,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 			calc_thaco -= (12 * ((GET_REAL_MAX_HIT(ch) / 2) - GET_HIT(ch)) / GET_REAL_MAX_HIT(ch));
 		}
 	}
-	
+
 }
 
 /**
@@ -3601,8 +3609,8 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
-	
-	if (weapon == LEFT_WEAPON
+
+	if (weapon == FightSystem::LEFT_WEAPON
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
 		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
@@ -3693,7 +3701,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch)
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
-	if (weapon == LEFT_WEAPON
+	if (weapon == FightSystem::LEFT_WEAPON
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
 		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
@@ -3735,8 +3743,8 @@ void HitData::calc_stat_hr(CHAR_DATA *ch)
 // * Подсчет армор класса жертвы.
 void HitData::calc_ac(CHAR_DATA *victim)
 {
-	
-	
+
+
 	// Calculate the raw armor including magic armor.  Lower AC is better.
 	victim_ac += compute_armor_class(victim);
 	victim_ac /= 10;
@@ -3751,7 +3759,7 @@ void HitData::calc_ac(CHAR_DATA *victim)
 			}
 		}
 	}
-	
+
 	if (GET_POS(victim) < POS_FIGHTING)
 		victim_ac += 4;
 	if (GET_POS(victim) < POS_RESTING)
@@ -3950,38 +3958,6 @@ void HitData::calc_crit_chance(CHAR_DATA *ch)
 	}
 }
 
-/* Бонусная дамага от "пореза" и других приемов, буде таковые реализуют */
-double expedient_bonus_damage(CHAR_DATA *ch, CHAR_DATA *victim)
-{
-	double factor = 1.00;
-
-	switch (ch->get_extra_attack_mode())
-	{
-	case EXTRA_ATTACK_CUT_SHORTS:
-        if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_AWARE))
-        {
-		factor = 1 + ch->get_skill(SKILL_SHORTS)/35.0;
-        } else
-        {
-		factor = 1 + ch->get_skill(SKILL_SHORTS)/30.0;
-        }
-        break;
-	case EXTRA_ATTACK_CUT_PICK:
-		factor = 1 + ch->get_skill(SKILL_PICK)/70.0;
-        break;
-	default:
-		factor = 1.00;
-        break;
-	}
-	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
-	{
-        sprintf(buf, "&CМножитель урона от приема = %f&n\r\n", factor);
-        send_to_char(buf,ch);
-    }
-
-    return factor;
-};
-
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
 * \param weapon = 1 - атака правой или двумя руками
@@ -4179,11 +4155,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		hit_params.dam += hit_params.dam * (number (1, (ch->get_skill(SKILL_WARCRY) / 20)) / 100.0);
 	}
-	// Gorrah: бонус к повреждениям от умения "железный ветер"
-	// x5 по идее должно быть
+
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 2;
-	//dzMUDiST Обработка !исступления! +Gorrah
+
 	if (affected_by_spell(ch, SPELL_BERSERK))
 	{
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK))
@@ -4245,7 +4220,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		{
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 		}
-		
+
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT)
 			&& IS_NPC(victim)
 			&& !(AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD)
@@ -4260,7 +4235,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			    hit_params.extdamage(ch, victim);
 			    return;
 		}
-		
+
 		if (number(1, 100) < calculate_crit_backstab_percent(ch) * ch->get_cond_penalty(P_HITROLL)
 			&& !general_savingthrow(ch, victim, SAVING_REFLEX, dex_bonus(GET_REAL_DEX(ch))))
 		{
@@ -4309,7 +4284,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		hit_params.extdamage(ch, victim);
-		if (IS_IMPL(ch) || IS_IMPL(victim))
+		if (IS_IMPL(ch) || IS_IMPL(victim) || PRF_FLAGGED(ch, PRF_TESTER))
 		{
 			sprintf(buf, "&CДамага метнуть равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,ch);
@@ -4352,9 +4327,6 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	if (ch->get_extra_attack_mode() != EXTRA_ATTACK_UNUSED)
-        hit_params.dam *= expedient_bonus_damage(ch, victim);
-
 	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
 	{
 		sprintf(buf, "&CРегуляр дамаг = %d&n\r\n", hit_params.dam);
@@ -4371,7 +4343,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 
 	// обработка защитных скилов (захват, уклон, парир, веер, блок)
 	hit_params.check_defense_skills(ch, victim);
-	
+
 	//режем дамаг от голода
 	if (hit_params.dam)
 		hit_params.dam *= ch->get_cond_penalty(P_DAMROLL);
@@ -4401,12 +4373,12 @@ OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, int SelectedWeapon)
 {
 	OBJ_DATA *UsedWeapon = nullptr;
 
-	if (SelectedWeapon == RIGHT_WEAPON)
+	if (SelectedWeapon == FightSystem::RIGHT_WEAPON)
 	{
 		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
 			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
 	}
-	else if (SelectedWeapon == LEFT_WEAPON)
+	else if (SelectedWeapon == FightSystem::LEFT_WEAPON)
 		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
 
     return UsedWeapon;
@@ -4525,7 +4497,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 	{
 		(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, ch->get_fighting());
-		if (weapon == RIGHT_WEAPON)
+		if (weapon == FightSystem::RIGHT_WEAPON)
 		{
 			div = 100 + MIN(80, MAX(1, percent - 80));
 			prob = 100;

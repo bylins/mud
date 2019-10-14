@@ -13,6 +13,7 @@
 ************************************************************************ */
 #include "mobact.hpp"
 
+#include "ability.rollsystem.hpp"
 #include "features.hpp"
 #include "world.characters.hpp"
 #include "world.objects.hpp"
@@ -233,56 +234,50 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
-CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader)
-{
+CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
 	TemporaryCharListType victimList;
 	char uncoveredGroupMembers = 0;
 
-	for (const auto skirmisher : world[leader->in_room]->people)
-	{
-		if (!HERE(skirmisher) || !same_group(leader, skirmisher) || !leader->checkSameRoom(skirmisher))
-		{
+	for (const auto skirmisher : world[leader->in_room]->people) {
+		if (!HERE(skirmisher) || !same_group(leader, skirmisher) || !leader->checkSameRoom(skirmisher)) {
 			continue;
 		}
-		if (PRF_FLAGGED(skirmisher, PRF_SKIRMISHER))
-		{
+		if (PRF_FLAGGED(skirmisher, PRF_SKIRMISHER)) {
 			addCharToTmpList(skirmisher, &victimList);
-		} else
-		{
+		} else {
 			uncoveredGroupMembers++;
 		}
 	}
 
-	if (victimList.empty() || (uncoveredGroupMembers == 0))
-	{
+	if (victimList.empty() || (uncoveredGroupMembers == 0)) {
 		return nullptr;
 	}
 	return victimList[number(0, victimList.size()-1)];
 }
 
-CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim)
-{
-	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffectFlag::AFF_GROUP))
-	{
+CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim) {
+	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffectFlag::AFF_GROUP)) {
 		return initialVictim;
 	}
 
 	CHAR_DATA *leader = initialVictim;
 	CHAR_DATA *newVictim = initialVictim;
 
-	if (initialVictim->has_master())
-	{
+	if (initialVictim->has_master()) {
 		leader = initialVictim->get_master();
 	}
 
 	newVictim = selectRandomSkirmisherFromGroup(leader);
-	if (!newVictim || !assaulter->checkSameRoom(leader) || !checkCharacterAbilityVSEnemy(leader, TACTICIAN_FEAT, assaulter))
-	{
+	if (!newVictim || !assaulter->checkSameRoom(leader)) {
 		return initialVictim;
 	}
 
-	if (!checkCharacterAbilityVSEnemy(newVictim, SKIRMISHER_FEAT, assaulter))
-	{
+	AbilitySystem::AgainstRivalRollType abilityRoll;
+	abilityRoll.initialize(leader, TACTICIAN_FEAT, assaulter);
+	bool tacticianFail = !abilityRoll.isSuccess();
+	abilityRoll.initialize(newVictim, SKIRMISHER_FEAT, assaulter);
+	bool skirmisherFail = !abilityRoll.isSuccess();
+	if (tacticianFail || skirmisherFail) {
 		return initialVictim;
 	}
 

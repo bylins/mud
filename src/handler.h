@@ -34,6 +34,8 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 
 // Resistance calculate //
 int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
+int getResisTypeWithSpellClass(int spellClass);
+int get_resist_type(int spellnum);
 
 // handling the affected-structures //
 void affect_total(CHAR_DATA * ch);
@@ -49,6 +51,7 @@ int timed_by_feat(CHAR_DATA * ch, int skill);
 void timed_to_char(CHAR_DATA * ch, struct timed_type *timed);
 void timed_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_skill(CHAR_DATA * ch, int skill);
+void decreaseFeatTimer(CHAR_DATA * ch, int featureID);
 
 // Обработка аффектов комнат//
 void affect_room_total(ROOM_DATA * room);

@@ -321,9 +321,9 @@ struct alias_data
 #define SCMD_RESTORE_GOD 0
 #define SCMD_RESTORE_TRIGGER 1
 
-// do_flip_activated_feature
-#define SCMD_ACTIVATE_FEATURE 0
-#define SCMD_DEACTIVATE_FEATURE 1
+// do_throw
+#define SCMD_PHYSICAL_THROW 0
+#define SCMD_SHADOW_THROW	1
 
 /**
 * copy the first non-fill-word, space-delimited argument of 'argument'

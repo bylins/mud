@@ -647,7 +647,8 @@ std::array<ESkill, MAX_SKILL_NUM - SKILL_FIRST> AVAILABLE_SKILLS =
 	SKILL_MIND_MAGIC,
 	SKILL_LIFE_MAGIC,
 	SKILL_STUN,
-	SKILL_MAKE_AMULET
+	SKILL_MAKE_AMULET,
+	SKILL_INDEFINITE
 };
 
 ///
@@ -954,7 +955,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		//		victim_modi = 100;
 		break;
 		}
-		
+
 	case SKILL_SNEAK:	// Подкрасться
 		{
 		bonus = dex_bonus(GET_REAL_DEX(ch))
@@ -1386,7 +1387,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = (can_use_feat(ch, EXORCIST_FEAT) ? 20 : 0);
 		break;
 		}
-		
+
 	case SKILL_MORPH:
 		break;
 	case SKILL_STRANGLE: // удавить
@@ -1410,7 +1411,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		}
 		break;
 		}
-		
+
 	case SKILL_STUN: //ошеломить
 		{
 		//victim_sav = GET_SAVE(vict, SAVING_STABILITY) - dex_bonus(GET_REAL_CON(vict)) - GET_LEVEL(vict);
@@ -1433,7 +1434,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 			victim_modi -= calculate_awake_mod(ch, vict);
 
 		// Полель не убираем учет удачи
-		//pass_mod = 1; //Убираем учет удачи  
+		//pass_mod = 1; //Убираем учет удачи
 		break;
 	}
 
@@ -1538,7 +1539,7 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 		if (!IS_NPC(victim->get_master()))
 			return;
 	}
-	if (victim && 
+	if (victim &&
 		(MOB_FLAGGED(victim, MOB_MOUNTING)|| MOB_FLAGGED(victim, MOB_NOTRAIN)))
 	{
 		return;
@@ -1702,7 +1703,7 @@ int find_weapon_focus_by_skill(ESkill skill)
 		return BOWS_FOCUS_FEAT;
 	break;
 	default:
-		return THAC0_FEAT;
+		return INCORRECT_FEAT;
 	}
 }
 
@@ -1741,7 +1742,7 @@ int find_weapon_master_by_skill(ESkill skill)
 		return BOWS_MASTER_FEAT;
 	break;
 	default:
-		return THAC0_FEAT;
+		return INCORRECT_FEAT;
 	}
 }
 
@@ -1798,6 +1799,8 @@ bool can_get_skill(CHAR_DATA *ch, int skill)
 }
 
 //  Реализация класса Skill
+// Закомментим поека за ненадобностью
+/*
 
 //Объявляем глобальный скиллист
 SkillListType Skill::SkillList;
@@ -1856,5 +1859,6 @@ int Skill::GetNumByID(const std::string& ID)
 };
 
 // Конец (увы) реализации класса Skill
+*/
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

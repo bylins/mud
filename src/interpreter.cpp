@@ -583,6 +583,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"изучить", POS_SITTING, do_learn, 0, 0, 0},
 	{"информация", POS_SLEEPING, do_gen_ps, 0, SCMD_INFO, 0},
 	{"испить", POS_RESTING, do_use, 0, SCMD_QUAFF, 500},
+	{"использовать", POS_RESTING, do_style, 0, 0, 0},
 	{"имя", POS_SLEEPING, do_name, LVL_IMMORT, 0, 0},
 
 	{"колдовать", POS_SITTING, do_cast, 1, 0, -1},
@@ -610,7 +611,7 @@ cpp_extern const struct command_info cmd_info[] =
 
 	{"маскировка", POS_RESTING, do_camouflage, 0, 0, 500},
 	{"магазины", POS_DEAD, do_shops_list, LVL_IMMORT, 0, 0},
-	{"метнуть", POS_FIGHTING, do_throw, 0, 0, -1},
+	{"метнуть", POS_FIGHTING, do_throw, 0, SCMD_PHYSICAL_THROW, -1},
 	{"менять", POS_STANDING, do_not_here, 0, 0, -1},
 	{"месть", POS_RESTING, do_revenge, 0, 0, 0},
 	{"молот", POS_FIGHTING, do_mighthit, 0, 0, -1},
@@ -778,6 +779,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
 	{"счет", POS_DEAD, do_score, 0, 0, 0},
+	{"тень", POS_FIGHTING, do_throw, 0, SCMD_SHADOW_THROW, -1},
 	{"титул", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
 	{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
 	{"убить", POS_FIGHTING, do_kill, 0, 0, -1},
@@ -2431,47 +2433,46 @@ void do_entergame(DESCRIPTOR_DATA * d)
 
 	// Чистим стили если не знаем их
 	if (PRF_FLAGS(d->character).get(PRF_PUNCTUAL)
-		&& !d->character->get_skill(SKILL_PUNCTUAL))
-	{
+		&& !d->character->get_skill(SKILL_PUNCTUAL)) {
 		PRF_FLAGS(d->character).unset(PRF_PUNCTUAL);
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_AWAKE)
-		&& !d->character->get_skill(SKILL_AWAKE))
-	{
+		&& !d->character->get_skill(SKILL_AWAKE)) {
 		PRF_FLAGS(d->character).unset(PRF_AWAKE);
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_POWERATTACK)
-		&& !can_use_feat(d->character.get(), POWER_ATTACK_FEAT))
-	{
+		&& !can_use_feat(d->character.get(), POWER_ATTACK_FEAT)) {
 		PRF_FLAGS(d->character).unset(PRF_POWERATTACK);
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_GREATPOWERATTACK)
-		&& !can_use_feat(d->character.get(), GREAT_POWER_ATTACK_FEAT))
-	{
+		&& !can_use_feat(d->character.get(), GREAT_POWER_ATTACK_FEAT)) {
 		PRF_FLAGS(d->character).unset(PRF_GREATPOWERATTACK);
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_AIMINGATTACK)
-		&& !can_use_feat(d->character.get(), AIMING_ATTACK_FEAT))
-	{
+		&& !can_use_feat(d->character.get(), AIMING_ATTACK_FEAT)) {
 		PRF_FLAGS(d->character).unset(PRF_AIMINGATTACK);
 	}
 
 	if (PRF_FLAGS(d->character).get(PRF_GREATAIMINGATTACK)
-		&& !can_use_feat(d->character.get(), GREAT_AIMING_ATTACK_FEAT))
-	{
+		&& !can_use_feat(d->character.get(), GREAT_AIMING_ATTACK_FEAT)) {
 		PRF_FLAGS(d->character).unset(PRF_GREATAIMINGATTACK);
 	}
-	if (PRF_FLAGS(d->character).get(PRF_SKIRMISHER)
-		&& !can_use_feat(d->character.get(), SKIRMISHER_FEAT))
-	{
+	if (PRF_FLAGS(d->character).get(PRF_DOUBLE_THROW)
+		&& !can_use_feat(d->character.get(), DOUBLE_THROW_FEAT)) {
+		PRF_FLAGS(d->character).unset(PRF_DOUBLE_THROW);
+	}
+	if (PRF_FLAGS(d->character).get(PRF_TRIPLE_THROW)
+		&& !can_use_feat(d->character.get(), TRIPLE_THROW_FEAT)) {
+		PRF_FLAGS(d->character).unset(PRF_TRIPLE_THROW);
+	}
+	if (PRF_FLAGS(d->character).get(PRF_SKIRMISHER)) {
 		PRF_FLAGS(d->character).unset(PRF_SKIRMISHER);
 	}
-	if (PRF_FLAGS(d->character).get(PRF_IRON_WIND))
-	{
+	if (PRF_FLAGS(d->character).get(PRF_IRON_WIND)) {
 		PRF_FLAGS(d->character).unset(PRF_IRON_WIND);
 	}
 

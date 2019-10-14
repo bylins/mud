@@ -42,7 +42,6 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 
 #define SpINFO spell_info[spellnum]
 
-int get_resist_type(int spellnum);
 bool is_room_forbidden(ROOM_DATA * room);
 int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract, const CHAR_DATA * targ = NULL);
 void mobile_affect_update(void);

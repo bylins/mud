@@ -5531,6 +5531,7 @@ void mag_assign_spells(void)
 	skillo(SKILL_LIFE_MAGIC, "магия жизни", 1000);
 	skillo(SKILL_STUN, "ошеломить", 200);
 	skillo(SKILL_MAKE_AMULET, "смастерить оберег", 200);
+	skillo(SKILL_INDEFINITE, "!неопределен", 1);
 }
 
 MaxClassSlot::MaxClassSlot()

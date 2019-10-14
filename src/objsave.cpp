@@ -497,7 +497,7 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error)
 			}
 			else if (!strcmp(read_line, "Ench"))
 			{
-				obj::enchant tmp_aff;
+				ObjectEnchant::enchant tmp_aff;
 				std::stringstream text(buffer);
 				std::string tmp_buf;
 

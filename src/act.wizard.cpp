@@ -7196,28 +7196,7 @@ void do_sanitize(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 // This is test command for different testings
 void do_godtest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	int skl;
-
-	std::ostringstream buffer;
-
-	skip_spaces(&argument);
-
-	if (!*argument)
-	{
-		send_to_char("Чувак, укажи ИД проверяемого скилла.\r\n", ch);
-		return;
-	}
-	skl = Skill::GetNumByID(std::string(argument));
-	if (skl == SKILL_UNDEFINED)
-	{
-		send_to_char("Извини, братан, не нашел. :(\r\n", ch);
-		return;
-	}
-	else {
-		buffer << " Найден скилл " << skill_info[skl].name << " под номером " << skl << "\r\n";
-	}
-
-	send_to_char(buffer.str(), ch);
+	send_to_char("В настоящий момент проведура пуста.\r\nЕсли вам хочется что-то test, придется ее реализовать.\r\n", ch);
 }
 
 void do_loadstat(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)

@@ -1766,6 +1766,17 @@ $COLORwПриобретаемые способности:$COLORn
 	Травник
 	Тяжеловоз
 
+$COLORwУникальные способности, доступные после одного или нескольких перевоплощений:$COLORn
+
+	$COLORCРазмах$COLORn
+	$COLORCШирокий размах$COLORn
+	$COLORCДвойной бросок$COLORn
+	$COLORCТройной бросок$COLORn
+	$COLORCЗмеево оружие$COLORn
+	$COLORCЗмеево копьё$COLORn
+	$COLORCЗмеев кинжал$COLORn
+	$COLORCЗмеева палица$COLORn
+
 
 См. также: $COLORCКУПЕЦ$COLORn, $COLORCУМЕНИЯКУПЦА$COLORn, $COLORCЗАКЛИНАНИЯКУПЦА$COLORn, $COLORCОТВАРЫКУПЦА$COLORn
 
