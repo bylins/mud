@@ -32,7 +32,7 @@ mkdir build
 
 cd build
 
-cmake -DSCRIPTING=NO -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=NO ..
+cmake -DSCRIPTING=NO -DCMAKE_BUILD_TYPE=Test -DBUILD_TESTS=NO ..
 
 make
 
