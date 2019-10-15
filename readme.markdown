@@ -1,13 +1,6 @@
 # BRus MUD Engine readme.
 Для сборки под UNIX или WSL  (ubuntu под WIN10) требуется:
 
-
-и следуйте этой статье:
-
-https://blog.jetbrains.com/clion/2018/01/clion-and-linux-toolchain-on-windows-are-now-friends/
-
-
-
 sudo apt update && sudo apt upgrade
 
 sudo apt install build-essential make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip libboost-all-dev cmake
