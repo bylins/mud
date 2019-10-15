@@ -113,6 +113,7 @@ void extract_obj(OBJ_DATA * obj);
 typedef std::vector<CHAR_DATA *>  TemporaryCharListType;
 void addCharToTmpList(CHAR_DATA *ch, TemporaryCharListType *tmpCharList);
 void deleteCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *tmpCharList);
+void eraseCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList);
 
 // Вообще, это конечно жесть жестяная такое объявлять в глобальном неймспейсе, чисто, чтоб чистить везде где нужно для зашиты от крешецй
 // Но переписывать это сейчас возможности нет.

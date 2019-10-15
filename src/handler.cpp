@@ -4666,6 +4666,16 @@ void deleteCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList)
 
 	TemporaryCharListType::iterator it = std::find(TmpCharList->begin(), TmpCharList->end(), ch);
 	if (it != TmpCharList->end()) {
+		*it = 0;
+	}
+}
+
+void eraseCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList)
+{
+	if (TmpCharList->empty()) return;
+
+	TemporaryCharListType::iterator it = std::find(TmpCharList->begin(), TmpCharList->end(), ch);
+	if (it != TmpCharList->end()) {
 		TmpCharList->erase(it);
 	}
 }

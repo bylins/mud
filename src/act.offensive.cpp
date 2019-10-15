@@ -2766,7 +2766,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * victim) {
 		if (ch->purged()) {
 			break;
 		};
-		deleteCharFromTmpList(victim, &GroupMagicTmpCharList);
+		eraseCharFromTmpList(victim, &GroupMagicTmpCharList);
 		if (GroupMagicTmpCharList.size() > 0) {
 			victim = GroupMagicTmpCharList[number(0, GroupMagicTmpCharList.size()-1)];
 		} else {
