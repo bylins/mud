@@ -58,7 +58,8 @@ struct glory_node
 	// свободная слава
 	int free_glory;
 	// имя чара для топа прославленных
-	std::string name;
+	//std::string name;
+	long uid;
 	int tmp_spent_glory;
 	bool hide;
 	// список статов с прокинутой славой
@@ -163,6 +164,7 @@ void add_glory(long uid, int amount)
 	{
 		GloryNodePtr temp_node(new glory_node);
 		temp_node->free_glory = amount;
+		temp_node->hide = false;
 		glory_list[uid] = temp_node;
 	}
 
@@ -902,7 +904,7 @@ void save()
 		pugi::xml_node char_node = char_list.append_child();
 		char_node.set_name("char");
 		char_node.append_attribute("uid") = (int)i->first;
-		char_node.append_attribute("name") = i->second->name.c_str();
+		char_node.append_attribute("name") = GetNameByUnique(i->second->uid, false).c_str();
 		char_node.append_attribute("glory") = i->second->free_glory;
 		char_node.append_attribute("hide") = i->second->hide;
 
@@ -987,7 +989,8 @@ void load()
 
 		long free_glory = std::stoi(node.attribute("glory").value(), nullptr, 10);
 		tmp_node->free_glory = free_glory;
-		tmp_node->name = name;
+		tmp_node->uid = uid;
+		//tmp_node->name = name;
 		tmp_node->hide = node.attribute("hide").as_bool();
 
 		for (pugi::xml_node stat = node.child("stat"); stat; stat = stat.next_sibling("stat"))
@@ -1203,17 +1206,32 @@ void apply_modifiers(CHAR_DATA *ch)
 		out << CCWHT(ch, C_NRM) << "Лучшие прославленные:\r\n" << CCNRM(ch, C_NRM);
 
 		int i = 0;
+
 		for (std::list <GloryNodePtr>::const_iterator t_it= playerGloryList.begin(); t_it!=playerGloryList.end() && i< MAX_TOP_CLASS; ++t_it, ++i )
 		{
-			if (!t_it->get()->hide) {
-				t_it->get()->name[0] = UPPER(t_it->get()->name[0]);
-				out << class_format % t_it->get()->name % (t_it->get()->free_glory + t_it->get()->tmp_spent_glory);
+
+			std::string name = GetNameByUnique( t_it->get()->uid );
+			name[0] = UPPER(name[0]);
+			if(name.length() == 0)
+			{
+				name = "*скрыто*";
+			}
+			if (t_it->get()->hide )
+			{
+				name += "(скрыт)";
+			}
+			if (!IsActiveUser(t_it->get()->uid))
+			{
+				name += "(неактив)";
+			}
+
+			if (!t_it->get()->hide  && IsActiveUser( t_it->get()->uid )) {
+				out << class_format % name % (t_it->get()->free_glory + t_it->get()->tmp_spent_glory);
 			}
 			else
 			{
 				if (print_hide) {
-					t_it->get()->name[0] = UPPER(t_it->get()->name[0]);
-					hide << "\r\n" << "\t"<< t_it->get()->name << " (доступно:" << t_it->get()->free_glory << ", вложено:"<< t_it->get()->tmp_spent_glory << ")";
+					hide << "\r\n" << "\t"<< name << " (доступно:" << t_it->get()->free_glory << ", вложено:"<< t_it->get()->tmp_spent_glory << ")";
 					--i;
 				}
 			}

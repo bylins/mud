@@ -55,6 +55,7 @@
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
 #include "named_stuff.hpp"
+#include "time.h"
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
@@ -4534,6 +4535,22 @@ long GetUniqueByName(const std::string & name, bool god)
 		}
 	}
 	return 0;
+}
+
+bool IsActiveUser(long unique)
+{
+	time_t currTime;
+	time_t charLogon ;
+	int inactivityDelay = /* day*/ (3600  * 24)  * /*days count*/ 60;
+	for (std::size_t i = 0; i < player_table.size(); ++i)
+	{
+		if (player_table[i].unique == unique)
+		{
+			charLogon = player_table[i].last_logon;
+			return  currTime - charLogon > inactivityDelay ;
+		}
+	}
+	return false;
 }
 
 // ищет имя игрока по его УИДу, второй необязательный параметр - учитывать или нет БОГОВ
