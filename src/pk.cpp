@@ -1214,11 +1214,11 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg)
 	while (*arg && (*arg == '.' || (*arg >= '0' && *arg <= '9')))
 		++arg;
 
-    if (name_cmp(opponent, arg))
-        return TRUE;
+	if (name_cmp(opponent, arg))
+		return TRUE;
 
 	// Совпадений не нашел
-	send_to_char("Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n", ch);
+	send_to_char(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
 	return FALSE;
 }
 int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg)
