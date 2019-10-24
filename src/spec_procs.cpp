@@ -141,7 +141,7 @@ char *how_good(CHAR_DATA * ch, int percent)
 		sprintf(out_str, " %s(божественно)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 	else
 		sprintf(out_str, " %s(недостижимо)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(out_str + strlen(out_str), " %d%%", percent);
+	sprintf(out_str + strlen(out_str), " %d%% ", percent);
 	return out_str;
 }
 
@@ -396,8 +396,8 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 {
 	int i = 0, bonus = 0;
 
-	sprintf(buf, "Вы владеете следующими умениями :\r\n");
-
+//	send_to_char(vict, "Максимальное значение владения умениями : %d%%\r\n", MIN(MAX_EXP_RMRT_PERCENT(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20));
+	sprintf(buf, "Вы владеете следующими умениями (можно повысить до %d%%) :\r\n", MIN(MAX_EXP_RMRT_PERCENT(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20));
 	strcpy(buf2, buf);
 	if (!IS_NPC(ch)
 		&& !ch->affected.empty())
@@ -494,8 +494,8 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			buf2_length += i->length();
 		}
 	}
-
 	send_to_char(buf2, vict);
+
 }
 const char *spells_color(int spellnum )
 {
