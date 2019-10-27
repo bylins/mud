@@ -2268,41 +2268,24 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	return false;
 }
 
-void Damage::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim)
-{
+void Damage::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim) {
 	// броня на физ дамаг
-	if (dam > 0
-		&& dmg_type == FightSystem::PHYS_DMG)
-	{
+	if (dam > 0 && dmg_type == FightSystem::PHYS_DMG) {
 		alt_equip(victim, NOWHERE, dam, 50);
-		if (!flags[FightSystem::CRIT_HIT]
-			&& !flags[FightSystem::IGNORE_ARMOR])
-		{
+		if (!flags[FightSystem::CRIT_HIT] && !flags[FightSystem::IGNORE_ARMOR]) {
 			// 50 брони = 50% снижение дамага
 			int max_armour = 50;
-			if (can_use_feat(victim, IMPREGNABLE_FEAT)
-				&& PRF_FLAGS(victim).get(PRF_AWAKE))
-			{
+			if (can_use_feat(victim, IMPREGNABLE_FEAT) && PRF_FLAGS(victim).get(PRF_AWAKE)) {
 				// непробиваемый в осторожке - до 75 брони
 				max_armour = 75;
 			}
 			int tmp_dam = dam * MAX(0, MIN(max_armour, GET_ARMOUR(victim))) / 100;
 			// ополовинивание брони по флагу скила
-			if (tmp_dam >= 2
-				&& flags[FightSystem::HALF_IGNORE_ARMOR])
-			{
+			if (tmp_dam >= 2 && flags[FightSystem::HALF_IGNORE_ARMOR]) {
 				tmp_dam /= 2;
 			}
 			dam -= tmp_dam;
 			// крит удар умножает дамаг, если жертва без призмы и без лед.щита
-		}
-		else if (flags[FightSystem::CRIT_HIT]
-			&& (GET_LEVEL(victim) >= 5
-				|| !IS_NPC(ch))
-			&& !AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA)
-			&& !flags[FightSystem::VICTIM_ICE_SHIELD])
-		{
-			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2));
 		}
 	}
 }
@@ -2803,17 +2786,18 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	}
 
 	// зб, щиты, броня, поглощение
-	if (victim != ch)
-	{
+	if (victim != ch) {
 		bool shield_full_absorb = magic_shields_dam(ch, victim);
 		// сначала броня
 		armor_dam_reduce(ch, victim);
 		// потом абсорб
 		bool armor_full_absorb = dam_absorb(ch, victim);
+		if (flags[FightSystem::CRIT_HIT] && (GET_LEVEL(victim) >= 5 || !IS_NPC(ch)) && !AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA)
+			&& !flags[FightSystem::VICTIM_ICE_SHIELD]) {
+			dam = MAX(dam, MIN(GET_REAL_MAX_HIT(victim) / 8, dam * 2)); //крит
+		}
 		// полное поглощение
-		if (shield_full_absorb
-			|| armor_full_absorb)
-		{
+		if (shield_full_absorb || armor_full_absorb) {
 			return 0;
 		}
 	}
