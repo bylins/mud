@@ -19,14 +19,11 @@ extern bool CompareParam(const std::string & buffer, const char *arg, bool full)
 #define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
 
-const std::shared_ptr<Account> Account::get_account(const std::string& email)
-{
+const std::shared_ptr<Account> Account::get_account(const std::string& email) {
 	const auto search_element = accounts.find(email);
-	if(search_element != accounts.end())
-	{
+	if(search_element != accounts.end()) {
 		return search_element->second;
 	}
-
 	return nullptr;
 }
 
