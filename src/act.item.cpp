@@ -101,83 +101,63 @@ void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
 // 0 - все ок, 1 - нельзя положить и дальше не обрабатывать (для кланов), 2 - нельзя положить и идти дальше
-int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
-{
-	if (!bloody::handle_transfer(ch, NULL, obj.get(), cont))
-	{
+int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont) {
+	if (!bloody::handle_transfer(ch, NULL, obj.get(), cont)) {
 		return 2;
 	}
 
-	if (!drop_otrigger(obj.get(), ch))
-	{
+	if (!drop_otrigger(obj.get(), ch)) {
 		return 2;
 	}
 
-	if (!put_otrigger(obj.get(), ch, cont))
-	{
+	if (!put_otrigger(obj.get(), ch, cot)) {
 		return 2;
 	}
 
 	// если кладем в клановый сундук
-	if (Clan::is_clan_chest(cont))
-	{
-		if (!Clan::PutChest(ch, obj.get(), cont))
-		{
+	if (Clan::is_clan_chest(cont)) {
+		if (!Clan::PutChest(ch, obj.get(), cont)) {
 			return 1;
 		}
 		return 0;
 	}
 
 	// клан-хранилище под ингры
-	if (ClanSystem::is_ingr_chest(cont))
-	{
-		if (!Clan::put_ingr_chest(ch, obj.get(), cont))
-		{
+	if (ClanSystem::is_ingr_chest(cont)) {
+		if (!Clan::put_ingr_chest(ch, obj.get(), cont)) {
 			return 1;
 		}
 		return 0;
 	}
 
 	// персональный сундук
-	if (Depot::is_depot(cont))
-	{
-		if (!Depot::put_depot(ch, obj))
-		{
+	if (Depot::is_depot(cont)) {
+		if (!Depot::put_depot(ch, obj)) {
 			return 1;
 		}
 		return 0;
 	}
 
-	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0))
-	{
+	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0)) {
 		act("$O : $o не помещается туда.", FALSE, ch, obj.get(), cont, TO_CHAR);
 	}
-	else if (obj->get_type() == OBJ_DATA::ITEM_CONTAINER)
-	{
+	else if (obj->get_type() == OBJ_DATA::ITEM_CONTAINER) {
 		act("Невозможно положить контейнер в контейнер.", FALSE, ch, 0, 0, TO_CHAR);
 	}
-	else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
-	{
+	else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj.get(), cont, TO_CHAR);
 	}
-	else if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-		|| obj->get_type() == OBJ_DATA::ITEM_KEY)
-	{
+	else if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY) || obj->get_type() == OBJ_DATA::ITEM_KEY) {
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj.get(), cont, TO_CHAR);
 	}
-	else
-	{
+	else {
 		obj_from_char(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
-		if (obj->get_type() == OBJ_DATA::ITEM_MONEY
-			&& obj->get_vnum() == -1)
-		{
+		if (obj->get_type() == OBJ_DATA::ITEM_MONEY && obj->get_vnum() == -1) {
 			OBJ_DATA *temp, *obj_next;
-			for (temp = cont->get_contains(); temp; temp = obj_next)
-			{
+			for (temp = cont->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				if (GET_OBJ_TYPE(temp) == OBJ_DATA::ITEM_MONEY)
-				{
+				if (GET_OBJ_TYPE(temp) == OBJ_DATA::ITEM_MONEY) {
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					int money = GET_OBJ_VAL(temp, 0);
 					money += GET_OBJ_VAL(obj, 0);
@@ -186,8 +166,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
 					obj_from_obj(obj.get());
 					extract_obj(obj.get());
 					obj = create_money(money);
-					if (!obj)
-					{
+					if (!obj) {
 						return 0;
 					}
 					break;
@@ -201,8 +180,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
 		act("$n положил$g $o3 в $O3.", TRUE, ch, obj.get(), cont, TO_ROOM | TO_ARENA_LISTEN);
 
 		// Yes, I realize this is strange until we have auto-equip on rent. -gg
-		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP) && !cont->get_extra_flag(EExtraFlag::ITEM_NODROP))
-		{
+		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP) && !cont->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 			cont->set_extra_flag(EExtraFlag::ITEM_NODROP);
 			act("Вы почувствовали что-то странное, когда положили $o3 в $O3.",
 				FALSE, ch, obj.get(), cont, TO_CHAR);
