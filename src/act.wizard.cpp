@@ -7194,7 +7194,7 @@ void do_sanitize(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 }
 
 // This is test command for different testings
-void do_godtest(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+void do_godtest(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	send_to_char("В настоящий момент проведура пуста.\r\nЕсли вам хочется что-то test, придется ее реализовать.\r\n", ch);
 }
