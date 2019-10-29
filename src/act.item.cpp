@@ -110,7 +110,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont) {
 		return 2;
 	}
 
-	if (!put_otrigger(obj.get(), ch, cot)) {
+	if (!put_otrigger(obj.get(), ch, cont)) {
 		return 2;
 	}
 

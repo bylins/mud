@@ -1227,7 +1227,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-		go_stun(ch, vict);
+	go_stun(ch, vict);
 }
 
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)

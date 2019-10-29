@@ -2268,7 +2268,7 @@ bool Damage::magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	return false;
 }
 
-void Damage::armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim) {
+void Damage::armor_dam_reduce(CHAR_DATA *victim) {
 	// броня на физ дамаг
 	if (dam > 0 && dmg_type == FightSystem::PHYS_DMG) {
 		alt_equip(victim, NOWHERE, dam, 50);
@@ -2789,7 +2789,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (victim != ch) {
 		bool shield_full_absorb = magic_shields_dam(ch, victim);
 		// сначала броня
-		armor_dam_reduce(ch, victim);
+		armor_dam_reduce(victim);
 		// потом абсорб
 		bool armor_full_absorb = dam_absorb(ch, victim);
 		if (flags[FightSystem::CRIT_HIT] && (GET_LEVEL(victim) >= 5 || !IS_NPC(ch)) && !AFF_FLAGGED(victim, EAffectFlag::AFF_PRISMATICAURA)
