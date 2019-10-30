@@ -396,6 +396,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 {
 	int i = 0, bonus = 0;
 
+
 	sprintf(buf, "Вы владеете следующими умениями (можно повысить до %d%%) :\r\n", max_upgradable_skill(ch));
 	strcpy(buf2, buf);
 	if (!IS_NPC(ch)

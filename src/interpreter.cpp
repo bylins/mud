@@ -4539,7 +4539,7 @@ long GetUniqueByName(const std::string & name, bool god)
 
 bool IsActiveUser(long unique)
 {
-	time_t currTime;
+	time_t currTime = time(0);
 	time_t charLogon ;
 	int inactivityDelay = /* day*/ (3600  * 24)  * /*days count*/ 60;
 	for (std::size_t i = 0; i < player_table.size(); ++i)
