@@ -2173,26 +2173,6 @@ void advance_level(CHAR_DATA * ch)
 	ch->save_char();
 }
 
-void check_max_skills(CHAR_DATA *ch)
-{
-	for (const auto i : AVAILABLE_SKILLS)
-	{
-		if (ch->get_inborn_skill(i)  && i != SKILL_SATTACK)
-		{
-			int max = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * (GET_LEVEL(ch) + 1) / 20;
-			if (max > MAX_EXP_PERCENT)
-				max = MAX_EXP_PERCENT;
-			int sval = ch->get_inborn_skill(i) - max - GET_REMORT(ch) * 5;
-			if (sval < 0)
-				sval = 0;
-			if ((ch->get_inborn_skill(i) - sval) > (wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20))
-			{
-				ch->set_skill(i, ((wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20) + sval));
-			}
-		}
-	}
-}
-
 void decrease_level(CHAR_DATA * ch)
 {
 	int add_move = 0;
@@ -2235,7 +2215,6 @@ void decrease_level(CHAR_DATA * ch)
 		PRF_FLAGS(ch).unset(PRF_HOLYLIGHT);
 	}
 
-	//check_max_skills(ch);
 	TopPlayer::Refresh(ch);
 	ch->save_char();
 }

@@ -396,8 +396,8 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 {
 	int i = 0, bonus = 0;
 
-//	send_to_char(vict, "Максимальное значение владения умениями : %d%%\r\n", MIN(MAX_EXP_RMRT_PERCENT(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20));
-	sprintf(buf, "Вы владеете следующими умениями (можно повысить до %d%%) :\r\n", MIN(MAX_EXP_RMRT_PERCENT(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20.0));
+
+	sprintf(buf, "Вы владеете следующими умениями (можно повысить до %d%%) :\r\n", max_upgradable_skill(ch));
 	strcpy(buf2, buf);
 	if (!IS_NPC(ch)
 		&& !ch->affected.empty())
