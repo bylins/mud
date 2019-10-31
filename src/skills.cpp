@@ -1545,7 +1545,7 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 		return;
 	}
 
-	int skill_is, diff = 0, prob, div;
+	int skill_is, prob, div;
 
 	if ((!victim || OK_GAIN_EXP(ch, victim)) && ch->in_room != NOWHERE && !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)
