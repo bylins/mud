@@ -1547,10 +1547,9 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 
 	int skill_is, diff = 0, prob, div;
 
-	if (IS_IMMORTAL(ch)
-		|| ((!victim || OK_GAIN_EXP(ch, victim)) && ch->in_room != NOWHERE && !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
+	if ((!victim || OK_GAIN_EXP(ch, victim)) && ch->in_room != NOWHERE && !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
 			&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)
-			&&  max_upgradable_skill(ch) - trained_skill > 0))
+			&&  (max_upgradable_skill(ch) - trained_skill > 0))
 	{
 		// Success - multy by 2
 		prob = success ? 20000 : 15000;
