@@ -955,8 +955,18 @@ inline auto GET_REAL_CHA(const CHAR_DATA* ch) {
 	return VPOSI_MOB(ch, 5, ch->get_cha() + ch->get_cha_add());
 };
 
+const short CAP_SKILLS = 200;
+const byte  MAX_EXP_PERCENT = 80;
+
+inline auto MAX_EXP_RMRT_PERCENT(const CHAR_DATA* ch) {
+	return MIN(CAP_SKILLS, MAX_EXP_PERCENT + ch->get_remort() * 5);
+}
+inline auto max_upgradable_skill(const CHAR_DATA *ch) {
+	return MIN(MAX_EXP_RMRT_PERCENT(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20);
+};
 void change_fighting(CHAR_DATA * ch, int need_stop);
 
 #endif // CHAR_HPP_INCLUDED
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

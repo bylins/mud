@@ -18,7 +18,7 @@
 
 #include <vector>
 #include <array>
-const short CAP_SKILLS = 200;
+
 extern const char *circlemud_version;
 extern const char *dirs[];
 extern const char *DirsFrom[];

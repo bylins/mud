@@ -1545,19 +1545,11 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 		return;
 	}
 
-	int skill_is, diff = 0, prob, div;
+	int skill_is, prob, div;
 
-	if (IS_IMMORTAL(ch)
-		|| ((!victim || OK_GAIN_EXP(ch, victim))
-			&& ch->in_room != NOWHERE
-			&& !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-			// Стрибог
-			&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-			//Свентовит
-			&& !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)
-			&& !ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)
-			&& (diff = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20 - trained_skill) > 0
-			&& trained_skill < MAX_EXP_RMRT_PERCENT(ch)))
+	if ((!victim || OK_GAIN_EXP(ch, victim)) && ch->in_room != NOWHERE && !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
+			&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(ch->in_room, ROOM_ATRIUM)
+			&&  (max_upgradable_skill(ch) - trained_skill > 0))
 	{
 		// Success - multy by 2
 		prob = success ? 20000 : 15000;
@@ -1565,7 +1557,7 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
 	int INT_PLAYER = (ch->get_trained_skill(skill_no) < 51 && (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);
-	div = int_app[INT_PLAYER].improove /* + diff */;
+	div = int_app[INT_PLAYER].improove;
 
 		if ((int)GET_CLASS(ch) >= 0 && (int)GET_CLASS(ch) < NUM_PLAYER_CLASSES)
 		{

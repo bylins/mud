@@ -1346,18 +1346,13 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buf2, ch);
 }
 
-void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success)
-{
+void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success) {
 	int prob, div, diff;
 
 	if (IS_NPC(ch) || (rs->perc >=200))
 		return;
 
-	if (IS_IMMORTAL(ch) ||
-			(ch->in_room != NOWHERE &&
-			 (diff = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) *
-					 GET_LEVEL(ch) / 20 - rs->perc) > 0 && rs->perc < MAX_EXP_PERCENT + GET_REMORT(ch) * 5))
-	{
+	if (ch->in_room != NOWHERE && (max_upgradable_skill(ch) - rs->perc > 0)) {
 		int n = ch->get_skills_count();
 		n = (n + 1) >> 1;
 		n += im_get_char_rskill_count(ch);
@@ -1365,13 +1360,13 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success)
 		div = int_app[GET_REAL_INT(ch)].improove;
 		div += imrecipes[rs->rid].k_improove / 100;
 		prob /= (MAX(1, div));
-		if ((diff = n - wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS)) < 0)
+		diff = n - wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS);
+		if (diff < 0)
 			prob += (5 * diff);
 		else
 			prob += (10 * diff);
 		prob += number(1, rs->perc * 5);
-		if (number(1, MAX(1, prob)) <= GET_REAL_INT(ch))
-		{
+		if (number(1, MAX(1, prob)) <= GET_REAL_INT(ch)) {
 			if (success)
 				sprintf(buf,
 						"%sВы постигли тонкости приготовления рецепта \"%s\".%s\r\n",
