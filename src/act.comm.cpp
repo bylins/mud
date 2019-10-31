@@ -66,19 +66,15 @@ void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
-void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 	skip_spaces(&argument);
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
-	{
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);  
 		return;
 	}
@@ -93,8 +89,7 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*argument)
 		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
-	else
-	{
+	else {
 		sprintf(buf, "$n сказал$g : '%s'", argument);
 
 //      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);

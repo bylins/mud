@@ -70,7 +70,7 @@ namespace AbilitySystem {
 		bool isCriticalSuccess() {return _criticalSuccess;};
 		bool isWrongConditions(){return _wrongConditions;};
 		int ID() {return _ability->ID;};
-		CHAR_DATA *const actor() {return _actor;};
+		CHAR_DATA * actor() {return _actor;};
 		void sendDenyMessageToActor();
 	};
 
@@ -88,7 +88,7 @@ namespace AbilitySystem {
 
 	public:
 		void initialize(CHAR_DATA *abilityActor, int usedAbility, CHAR_DATA *abilityVictim);
-		CHAR_DATA *const rival() {return _rival;};
+		CHAR_DATA * rival() {return _rival;};
 
 		AgainstRivalRollType() :
 			_rival{nullptr}

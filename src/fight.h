@@ -122,7 +122,7 @@ private:
 	void post_init_shields(CHAR_DATA *victim);
 	// process()
 	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	void armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
+	void armor_dam_reduce(CHAR_DATA *victim);
 	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
 	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
 	void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim);
