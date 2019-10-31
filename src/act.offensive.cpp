@@ -2660,11 +2660,11 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 		doSideAction = ([](TechniqueRollType &technique) {
 							AFFECT_DATA<EApplyLocation> af;
 							af.type = SPELL_BATTLE;
-							af.duration = pc_duration(technique.rival(), 2, GET_LEVEL(technique.actor()), 9, 6, 2);
-							af.modifier = 0;
-							af.location = APPLY_NONE;
-							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+							//af.modifier = 0;
+							//af.location = APPLY_NONE;
 							af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
+							af.duration = pc_duration(technique.rival(), 2, GET_LEVEL(technique.actor()), 9, 6, 2);
+							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 							affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
 						});
 		break;
@@ -2676,7 +2676,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 		doSideAction = ([](TechniqueRollType &technique) {
 							AFFECT_DATA<EApplyLocation> af;
 							af.type = SPELL_BATTLE;
-							af.location = EApplyLocation::APPLY_NONE;
+							//af.location = EApplyLocation::APPLY_NONE;
 							af.bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
 							af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
@@ -2997,7 +2997,7 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		if (same_group(ch, vict)) {
 			continue;
 		};
-		if (!(IS_UNDEAD(vict) || GET_RACE(vict) == NPC_RACE_GHOST)) {
+		if (!IS_UNDEAD(vict)) {
 			continue;
 		};
 		if (!may_kill_here(ch, vict)) {
@@ -3274,8 +3274,7 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (IS_UNDEAD(vict)
 		|| GET_RACE(vict) == NPC_RACE_FISH
 		|| GET_RACE(vict) == NPC_RACE_PLANT
-		|| GET_RACE(vict) == NPC_RACE_THING
-		|| GET_RACE(vict) == NPC_RACE_GHOST) {
+		|| GET_RACE(vict) == NPC_RACE_THING) {
 		send_to_char("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}
@@ -3666,7 +3665,7 @@ void makeVictimRoster(CHAR_DATA *ch, TemporaryCharListType &victimRoster) {
 			continue;
 		};
 		if (!may_kill_here(ch, victim)) {
-			return;
+			continue;
 		};
 		addCharToTmpList(victim, &GroupMagicTmpCharList);
 	}
