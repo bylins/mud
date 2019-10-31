@@ -1352,7 +1352,7 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success) {
 	if (IS_NPC(ch) || (rs->perc >=200))
 		return;
 
-	if (IS_IMMORTAL(ch) && ch->in_room != NOWHERE && (max_upgradable_skill(ch) - rs->perc > 0)) {
+	if (ch->in_room != NOWHERE && (max_upgradable_skill(ch) - rs->perc > 0)) {
 		int n = ch->get_skills_count();
 		n = (n + 1) >> 1;
 		n += im_get_char_rskill_count(ch);
