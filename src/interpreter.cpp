@@ -4547,7 +4547,7 @@ bool IsActiveUser(long unique)
 		if (player_table[i].unique == unique)
 		{
 			charLogon = player_table[i].last_logon;
-			return  currTime - charLogon > inactivityDelay ;
+			return  currTime - charLogon < inactivityDelay ;
 		}
 	}
 	return false;
