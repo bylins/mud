@@ -14,6 +14,7 @@
 
 #include "magic.h"
 
+#include "action.targeting.hpp"
 #include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
@@ -5755,7 +5756,7 @@ const spl_message mag_messages[] =
 	 0},
 	{SPELL_MASS_FEAR,
 	 "Вы оглядели комнату устрашающим взглядом, заставив всех содрогнуться.",
-	 "$n0 оглядел$g комнату устрашающим взглядом.",  //Added by Niker
+	 "$n0 оглядел$g комнату устрашающим взглядом.",
 	 nullptr,
 	 0},
 	{SPELL_GLITTERDUST,
@@ -6034,101 +6035,67 @@ const spl_message mag_messages[] =
 	{ -1, 0, 0, 0, 0}
 };
 
+void sendCastMessages(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int msgIndex) {
+	if (world[ch->in_room] == room) {
+		if (multi_cast_say(ch)) {
+			const char *msg;
+			if ((msg = mag_messages[msgIndex].to_char) != nullptr) {
+				act(msg, FALSE, ch, 0, victim, TO_CHAR);
+			}
+			if ((msg = mag_messages[msgIndex].to_room) != nullptr) {
+				act(msg, FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+			}
+		}
+	}
+};
+
+int findIndexOfSpellMsg(int spellNumber) {
+	for (int i = 0; mag_messages[i].spell != -1; ++i) {
+		if (mag_messages[i].spell == spellNumber) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 // Применение заклинания к всем существам в комнате
 //---------------------------------------------------------
 int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype)
 {
-	if (ch == nullptr)
-	{
-		return 0;
-	}
-//	if (room == nullptrptr)
-//		return 0;
-
-	int i;
-	for (i = 0; mag_messages[i].spell != -1; ++i)
-	{
-		if (mag_messages[i].spell == spellnum)
-		{
-			break;
-		}
-	}
-
-	if (mag_messages[i].spell == -1)
-	{
+	if (ch == nullptr || (IN_ROOM(ch) == NOWHERE)) {
 		return 0;
 	}
 
-	if (world[ch->in_room] == room)	 // Давим вывод если чар не в той же комнате
-	{
-		if (multi_cast_say(ch))
-		{
-			const char *msg;
-			if ((msg = mag_messages[i].to_char) != nullptr)
-			{
-				act(msg, FALSE, ch, 0, 0, TO_CHAR);
-			}
-			if ((msg = mag_messages[i].to_room) != nullptr)
-			{
-				act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			}
-		}
+	int msgIndex = findIndexOfSpellMsg(spellnum);
+	if (mag_messages[msgIndex].spell == -1) {
+		return 0;
 	}
 
-	GroupMagicTmpCharList.clear();
-	for (const auto ch_vict : room->people)
-	{
-		if (IS_IMMORTAL(ch_vict)
-			|| !HERE(ch_vict)
-			|| (SpINFO.violent && same_group(ch, ch_vict))
-			|| IS_HORSE(ch_vict)
-			|| MOB_FLAGGED(ch_vict, MOB_PROTECT))
-		{
-			continue;
-		}
+	sendCastMessages(ch, nullptr, room, msgIndex);
 
-		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
-	}
-
-	// наколенная (в прямом смысле этого слова, даже стола нет)
-	// версия снижения каста при масс-кастах на чаров, по 9% за каждого игрока
 	const int attacker_cast = GET_CAST_SUCCESS(ch);
 	int targets_count = 0;
-	for (TemporaryCharListType::const_iterator it = GroupMagicTmpCharList.begin(); it != GroupMagicTmpCharList.end(); ++it)
-	{
-		CHAR_DATA* ch_vict = *it;
-		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
-		{
-			continue;
-		}
-
+	ActionTargeting::FoesRosterType roster{ch, [](CHAR_DATA*, CHAR_DATA* target) {return !IS_HORSE(target);}};
+	for (auto victim : roster) {
 		const char* msg;
-		if ((msg = mag_messages[i].to_vict) != nullptr
-			&& ch_vict->desc)
-		{
-			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
+		if ((msg = mag_messages[msgIndex].to_vict) != nullptr && victim->desc) {
+			act(msg, FALSE, ch, 0, victim, TO_VICT);
 		}
 
-		if (!IS_NPC(ch)
-			&& !IS_NPC(ch_vict))
-		{
-			if (ch && ch_vict)
-			{
-				if (check_agr_in_house(ch, ch_vict))
-				{
-					return 0;
-				}
+		if (!IS_NPC(ch)	&& !IS_NPC(victim)) {
+			if (ch && victim && check_agr_in_house(ch, victim)) {
+				return 0;
 			}
-			++targets_count;
 		}
 
-		mag_single_target(level, ch, ch_vict, nullptr, spellnum, savetype);
-		if (ch->purged())
-		{
+		mag_single_target(level, ch, victim, nullptr, spellnum, savetype);
+		if (ch->purged()) {
 			return 1;
 		}
-
-		GET_CAST_SUCCESS(ch) = attacker_cast - attacker_cast * targets_count * 9 / 100;
+		if (!IS_NPC(ch)) {
+			++targets_count;
+			GET_CAST_SUCCESS(ch) = attacker_cast - attacker_cast * targets_count * 9 / 100;
+		}
 	}
 	GET_CAST_SUCCESS(ch) = attacker_cast;
 
@@ -6137,109 +6104,41 @@ int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int sa
 
 // Применение заклинания к части существ в комнате
 //---------------------------------------------------------
-int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
-{
-	int decay;
-	CHAR_DATA *ch_vict;
-	const char *msg;
+int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype) {
 
-	if (!ch || !victim)
-		return 0;
-
-	int i;
-	for (i = 0; mag_messages[i].spell != -1; ++i)
-	{
-		if (mag_messages[i].spell == spellnum)
-		{
-			break;
-		}
-	}
-
-	if (mag_messages[i].spell == -1)
-	{
+	if (ch == nullptr || victim == nullptr || IN_ROOM(ch) == NOWHERE){
 		return 0;
 	}
 
-	if (ch->in_room == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
-	{
-		if (multi_cast_say(ch))
-		{
-			if ((msg = mag_messages[i].to_char) != nullptr)
-				act(msg, FALSE, ch, 0, victim, TO_CHAR);
-			if ((msg = mag_messages[i].to_room) != nullptr)
-				act(msg, FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
-		}
+	int msgIndex = findIndexOfSpellMsg(spellnum);
+	if (mag_messages[msgIndex].spell == -1) {
+		return 0;
 	}
-	decay = mag_messages[i].decay;
 
-	// список генерится до дамага по виктиму, т.к. на нем могут висеть death тригеры
-	// с появлением новых мобов, по которым тот же шок бьет уже после смерти основной цели
-	GroupMagicTmpCharList.clear();
-	for (const auto ch_vict : world[ch->in_room]->people)
-	{
-		if (IS_IMMORTAL(ch_vict))
-			continue;
-		if (!HERE(ch_vict))
-			continue;
-		if (ch_vict == victim)
-			continue;
-		if (SpINFO.violent && same_group(ch, ch_vict))
-			continue;
-		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
-		{
-			if (ch && ch_vict)
-			{
-				if (check_agr_in_house(ch, ch_vict))
-					return 0;
+	sendCastMessages(ch, victim, world[IN_ROOM(victim)], msgIndex);
+
+	int targetsAmount = 1;
+	int decay = mag_messages[msgIndex].decay;
+	if (spellnum == SPELL_SHOCK) {
+		targetsAmount += MIN(number(0, 2), level/decay);
+	} else {
+		targetsAmount += level/decay;
+	};
+
+	ActionTargeting::FoesRosterType roster{ch, victim};
+	for (auto target : roster) {
+		if (!IS_NPC(ch)	&& !IS_NPC(target)) {
+			if (ch && target && check_agr_in_house(ch, target)) {
+				return 0;
 			}
 		}
-		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
-	}
-
-	mag_single_target(level, ch, victim, nullptr, spellnum, savetype);
-	if (ch->purged())
-	{
-		return 1;
-	}
-
-	level -= decay;
-
-	// у шока после первой цели - рандом на остальные две цели
-	int max_targets = 0;
-	if (spellnum == SPELL_SHOCK)
-	{
-		max_targets = number(0, 2);
-		if (max_targets == 0)
-		{
-			return 1;
-		}
-	}
-
-	size_t size = GroupMagicTmpCharList.size();
-	int count = 0;
-	while (level > 0 && level >= decay && size != 0)
-	{
-		if (max_targets > 0 && count >= max_targets)
-		{
-			break;
-		}
-
-		const auto index = number(0, static_cast<int>(size) - 1);
-		ch_vict = GroupMagicTmpCharList[index];
-		GroupMagicTmpCharList[index] = GroupMagicTmpCharList[--size];
-
-		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
-		{
-			continue;
-		}
-		mag_single_target(level, ch, ch_vict, nullptr, spellnum, savetype);
-		if (ch->purged())
-		{
-			break;
-		}
+		mag_single_target(level, ch, target, nullptr, spellnum, savetype);
 		level -= decay;
-		++count;
-	}
+		--targetsAmount;
+		if (ch->purged() || level <= 0 || targetsAmount == 0) {
+			break;
+		};
+	};
 
 	return 1;
 }
@@ -6248,64 +6147,26 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 //---------------------------------------------------------
 int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 {
-	if (ch == nullptr)
-	{
+	if (ch == nullptr) {
 		return 0;
 	}
 
-	int i;
-	for (i = 0; mag_messages[i].spell != -1; ++i)
-	{
-		if (mag_messages[i].spell == spellnum)
-		{
-			break;
-		}
-	}
-
-	if (mag_messages[i].spell == -1 && !IS_SET(SpINFO.routines, MAG_WARCRY))
-	{
-		sprintf(buf, "Нет сообщения в mag_messages заклинание с номером %d игнорируетсяктся", spellnum);
+	int msgIndex = findIndexOfSpellMsg(spellnum);
+	if (mag_messages[msgIndex].spell == -1 && !IS_SET(SpINFO.routines, MAG_WARCRY)) {
+		sprintf(buf, "Нет сообщения в mag_messages: заклинание с номером %d игнорируется.", spellnum);
 		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 		return 0;
 	}
 
-	if (multi_cast_say(ch))
-	{
-		const char *msg;
+	sendCastMessages(ch, nullptr, world[IN_ROOM(ch)], msgIndex);
 
-		if ((msg = mag_messages[i].to_char) != nullptr)
-			act(msg, FALSE, ch, 0, 0, TO_CHAR);
-		if ((msg = mag_messages[i].to_room) != nullptr)
-			act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-	}
-
-	GroupMagicTmpCharList.clear();
-	for (const auto ch_vict : world[ch->in_room]->people)
-	{
-		if (!HERE(ch_vict)
-			|| !same_group(ch, ch_vict))
-		{
-			continue;
-		}
-
-		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
-	}
-
-	for (TemporaryCharListType::const_iterator it = GroupMagicTmpCharList.begin(); it != GroupMagicTmpCharList.end(); ++it)
-	{
-		const auto ch_vict = *it;
-		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
-		{
-			continue;
-		}
-
-		mag_single_target(level, ch, ch_vict, nullptr, spellnum, savetype);
-		if (ch->purged())
-		{
+	ActionTargeting::FriendsRosterType roster{ch, ch};
+	for (auto target : roster) {
+		mag_single_target(level, ch, target, nullptr, spellnum, savetype);
+		if (ch->purged()) {
 			return 1;
 		}
 	}
-
 	return 1;
 }
 

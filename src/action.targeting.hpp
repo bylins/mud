@@ -6,8 +6,8 @@
 	Плюс несколько функций для проверки корректности целей.
 
 	В перспективе сюда нужно перевести всю логику поиска и выбора целей для команд.
-	Причем при большом желании можно сделать класс универсальным, а не только для персонажей.
-	Сейчас это не сделано, потому что при текущей логике исполнения команд это ничего не даст.
+	При большом желании можно сделать класс универсальным, а не только для персонажей.
+	Сейчас это не сделано, потому что при текущей логике исполнения команд это ничего особо не даст.
 */
 
 #include "char.hpp"
@@ -18,33 +18,34 @@
 namespace ActionTargeting {
 
 	using FilterType = std::function<bool (CHAR_DATA*, CHAR_DATA*)>;
-	extern FilterType emptyFilter;
-	extern FilterType isCorrectFriend;
-	extern FilterType isCorrectVictim;
-	extern FilterType isNotCorrectTarget;
+	extern const FilterType emptyFilter;
+	extern const FilterType isCorrectFriend;
+	extern const FilterType isCorrectVictim;
 
 	bool isNotCorrectSingleVictim(CHAR_DATA* actor, CHAR_DATA* target, char* arg);
 
-	class TargetsRosterType : public std::vector<CHAR_DATA*> {
+	class TargetsRosterType {
 	protected:
 		CHAR_DATA* _actor;
+		std::vector<CHAR_DATA*> _roster;
 		FilterType _passesThroughFilter;
-		std::reverse_iterator<std::vector<CHAR_DATA*>::iterator> _currentTarget;
 
-		void setFilter(FilterType &baseFilter, FilterType &extraFilter);
+		void setFilter(const FilterType& baseFilter, const FilterType& extraFilter);
 		void fillRoster();
 		void shuffle();
 		void setPriorityTarget(CHAR_DATA* target);
-		void makeRosterOfFoes(CHAR_DATA* priorityTarget, FilterType &baseFilter, FilterType &extraFilter);
-		void makeRosterOfFriends(CHAR_DATA* priorityTarget, FilterType &baseFilter, FilterType &extraFilter);
-		void prepareRosterForUse(CHAR_DATA* priorityTarget);
+		void makeRosterOfFoes(CHAR_DATA* priorityTarget, const FilterType& baseFilter, const FilterType& extraFilter);
+		void makeRosterOfFriends(CHAR_DATA* priorityTarget, const FilterType& baseFilter, const FilterType& extraFilter);
+		void prepareForUse(CHAR_DATA* priorityTarget);
 
 		TargetsRosterType();
 		TargetsRosterType(CHAR_DATA* actor) :
 			_actor{actor}
 			{};
 	public:
-		CHAR_DATA* shift();
+		auto begin() const noexcept {return std::make_reverse_iterator(std::end(_roster));};
+		auto end() const noexcept {return std::make_reverse_iterator(std::begin(_roster));};
+		int amount() {return _roster.size();};
 	};
 
 //  -------------------------------------------------------
@@ -54,11 +55,11 @@ namespace ActionTargeting {
 		FoesRosterType();
 
 	public:
-		FoesRosterType(CHAR_DATA* actor, CHAR_DATA* priorityTarget, FilterType &extraFilter) :
+		FoesRosterType(CHAR_DATA* actor, CHAR_DATA* priorityTarget, const FilterType& extraFilter) :
 			TargetsRosterType(actor) {
 				makeRosterOfFoes(priorityTarget, isCorrectVictim, extraFilter);
 			};
-		FoesRosterType(CHAR_DATA* actor, FilterType &extraFilter) :
+		FoesRosterType(CHAR_DATA* actor, const FilterType& extraFilter) :
 			FoesRosterType(actor, nullptr, extraFilter)
 			{};
 		FoesRosterType(CHAR_DATA* actor, CHAR_DATA* priorityTarget) :
@@ -76,11 +77,11 @@ namespace ActionTargeting {
 		FriendsRosterType();
 
 	public:
-		FriendsRosterType(CHAR_DATA* actor, CHAR_DATA* priorityTarget = nullptr, FilterType &extraFilter = emptyFilter) :
+		FriendsRosterType(CHAR_DATA* actor, CHAR_DATA* priorityTarget, const FilterType& extraFilter) :
 			TargetsRosterType(actor) {
 				makeRosterOfFriends(priorityTarget, isCorrectFriend, extraFilter);
-			};/*
-		FriendsRosterType(CHAR_DATA* actor, FilterType &extraFilter) :
+			};
+		FriendsRosterType(CHAR_DATA* actor, const FilterType& extraFilter) :
 			FriendsRosterType(actor, nullptr, extraFilter)
 			{};
 		FriendsRosterType(CHAR_DATA* actor, CHAR_DATA* priorityTarget) :
@@ -88,7 +89,7 @@ namespace ActionTargeting {
 			{};
 		FriendsRosterType(CHAR_DATA* actor) :
 			FriendsRosterType(actor, nullptr, emptyFilter)
-			{};*/
+			{};
 	};
 
 }; // namespace ActionTargeting

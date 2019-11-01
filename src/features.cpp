@@ -896,7 +896,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 		}
 		break;
 	case SKIRMISHER_FEAT:
-		return (ch->get_skill(SKILL_RESCUE) > 99);
+		return (ch->get_skill(SKILL_RESCUE));
 		break;
 	case TACTICIAN_FEAT:
 		return (ch->get_skill(SKILL_LEADERSHIP) > 99);

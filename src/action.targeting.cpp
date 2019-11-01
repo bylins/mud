@@ -28,19 +28,20 @@ namespace ActionTargeting {
 	};
 
 // ===== list of filters ===
-	FilterType emptyFilter;
+	const FilterType emptyFilter;
 
-	FilterType isCorrectFriend = [](CHAR_DATA *actor, CHAR_DATA *target) {
+	const FilterType isNotCorrectTarget = [](CHAR_DATA* actor, CHAR_DATA* target) {
+			return (!HERE(target) || IN_ROOM(target) == NOWHERE || !actor->isInSameRoom(target));
+	};
+
+	const FilterType isCorrectFriend = [](CHAR_DATA *actor, CHAR_DATA *target) {
 		if (isNotCorrectTarget(actor, target)) {
 			return false;
 		};
-		if (!same_group(actor, target)) {
-			return false;
-		};
-		return true;
+		return (same_group(actor, target));
 	};
 
-	FilterType isCorrectVictim = [](CHAR_DATA *actor, CHAR_DATA *target) {
+	const FilterType isCorrectVictim = [](CHAR_DATA *actor, CHAR_DATA *target) {
 		if (isNotCorrectTarget(actor, target)) {
 			return false;
 		};
@@ -53,12 +54,9 @@ namespace ActionTargeting {
 		return true;
 	};
 
-	FilterType isNotCorrectTarget = [](CHAR_DATA* /* actor */, CHAR_DATA* target) {
-			return (!HERE(target) || (IN_ROOM(target) == NOWHERE));
-	};
 // ===== end list of filters ===
 
-	void TargetsRosterType::setFilter(FilterType &baseFilter, FilterType &extraFilter) {
+	void TargetsRosterType::setFilter(const FilterType &baseFilter, const FilterType &extraFilter) {
 		if (extraFilter) {
 			_passesThroughFilter =
 				[&baseFilter, &extraFilter](CHAR_DATA* actor, CHAR_DATA* target) {
@@ -70,50 +68,40 @@ namespace ActionTargeting {
 	};
 
 	void TargetsRosterType::fillRoster() {
-        this->reserve(world[_actor->in_room]->people.size()+1);
+        _roster.reserve(world[_actor->in_room]->people.size()+1);
         std::copy_if(world[_actor->in_room]->people.begin(), world[_actor->in_room]->people.end(),
-						 std::back_inserter(*this), [this](CHAR_DATA* ch) {return _passesThroughFilter(_actor, ch);});
+						 std::back_inserter(_roster), [this](CHAR_DATA* ch) {return _passesThroughFilter(_actor, ch);});
 	};
 
 	void TargetsRosterType::setPriorityTarget(CHAR_DATA* target) {
-		auto it = std::find(this->begin(), this->end(), target);
-        if (it != this->end()) {
-            this->erase(it);
+		auto it = std::find(_roster.begin(), _roster.end(), target);
+        if (it != _roster.end()) {
+            _roster.erase(it);
         }
-		this->push_back(target);
+		_roster.push_back(target);
 	};
 
-	void TargetsRosterType::makeRosterOfFoes(CHAR_DATA* priorityTarget, FilterType &baseFilter, FilterType &extraFilter) {
+	void TargetsRosterType::makeRosterOfFoes(CHAR_DATA* priorityTarget, const FilterType &baseFilter, const FilterType &extraFilter) {
 		setFilter(baseFilter, extraFilter);
 		fillRoster();
 		shuffle();
-		prepareRosterForUse(priorityTarget);
+		prepareForUse(priorityTarget);
 	};
 
-	void TargetsRosterType::makeRosterOfFriends(CHAR_DATA* priorityTarget, FilterType &baseFilter, FilterType &extraFilter) {
+	void TargetsRosterType::makeRosterOfFriends(CHAR_DATA* priorityTarget, const FilterType &baseFilter, const FilterType &extraFilter) {
 		setFilter(baseFilter, extraFilter);
 		fillRoster();
-		prepareRosterForUse(priorityTarget);
+		prepareForUse(priorityTarget);
 	};
 
-	void TargetsRosterType::prepareRosterForUse(CHAR_DATA* priorityTarget) {
+	void TargetsRosterType::prepareForUse(CHAR_DATA* priorityTarget) {
 		if (priorityTarget) {
 			setPriorityTarget(priorityTarget);
 		};
-		_currentTarget = this->rbegin();
-	};
-
-	CHAR_DATA* TargetsRosterType::shift() {
-		auto item = std::find_if(_currentTarget, this->rend(), [](CHAR_DATA* ch) {return (!ch->purged());});
-		if (item == this->rend()) {
-			return nullptr;
-		};
-		_currentTarget = std::next(item, 1);
-		return *item;
 	};
 
 	void TargetsRosterType::shuffle() {
-		std::random_shuffle(this->begin(), this->end());
+		std::random_shuffle(_roster.begin(), _roster.end());
 	};
 
 	/*
