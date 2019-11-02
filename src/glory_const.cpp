@@ -1177,7 +1177,7 @@ void apply_modifiers(CHAR_DATA *ch)
 
 	void print_glory_top(CHAR_DATA *ch) {
 		std::stringstream out;
-		boost::format class_format("\t%-20s %-2d\r\n");
+		boost::format class_format("\t%-25s %-2d\r\n");
 		std::map<int, GloryNodePtr> temp_list;
 		std::stringstream hide;
 
@@ -1222,18 +1222,18 @@ void apply_modifiers(CHAR_DATA *ch)
 			}
 			if (!IsActiveUser(t_it->get()->uid))
 			{
-				name += "(неактив)";
+				name += " (в отпуске)";
 			}
 
-			if (!t_it->get()->hide  && IsActiveUser( t_it->get()->uid )) {
+			if (!t_it->get()->hide  /*&& IsActiveUser( t_it->get()->uid ) */) {
 				out << class_format % name % (t_it->get()->free_glory + t_it->get()->tmp_spent_glory);
 			}
 			else
 			{
 				if (print_hide) {
 					hide << "\r\n" << "\t"<< name << " (доступно:" << t_it->get()->free_glory << ", вложено:"<< t_it->get()->tmp_spent_glory << ")";
-					--i;
 				}
+				--i;
 			}
 		}
 
