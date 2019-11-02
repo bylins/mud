@@ -6022,6 +6022,21 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 nullptr,
 	 0},
+	{SPELL_WC_EXPERIENSE,
+	 "Вы приготовились к обретению нового опыта.",
+	 nullptr,
+	 nullptr,
+	 0},
+	{SPELL_WC_LUCK,
+	 "Вы ощутили, что вам улыбнулась удача.",
+	 nullptr,
+	 nullptr,
+	 0},
+	{SPELL_WC_PHYSDAMAGE,
+	 "Боевой клич придал вам сил!",
+	 nullptr,
+	 nullptr,
+	 0},
 	{SPELL_MASS_FAILURE,
 	 "Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n",
 	 nullptr,
@@ -6032,10 +6047,26 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас",
 	 0},
-	{ -1, 0, 0, 0, 0}
+	{ -1, nullptr, nullptr, nullptr, 0}
 };
 
-void sendCastMessages(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int msgIndex) {
+int findIndexOfSpellMsg(int spellNumber) {
+	int i = 0;
+	for (; mag_messages[i].spell != -1; ++i) {
+		if (mag_messages[i].spell == spellNumber) {
+			return i;
+		}
+	}
+	return i;
+}
+
+int trySendCastMessages(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum) {
+	int msgIndex = findIndexOfSpellMsg(spellnum);
+	if (mag_messages[msgIndex].spell < 0) {
+		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания с номером %d.", spellnum);
+		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
+		return msgIndex;
+	}
 	if (world[ch->in_room] == room) {
 		if (multi_cast_say(ch)) {
 			const char *msg;
@@ -6047,31 +6078,18 @@ void sendCastMessages(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int msg
 			}
 		}
 	}
+	return msgIndex;
 };
-
-int findIndexOfSpellMsg(int spellNumber) {
-	for (int i = 0; mag_messages[i].spell != -1; ++i) {
-		if (mag_messages[i].spell == spellNumber) {
-			return i;
-		}
-	}
-	return -1;
-}
 
 // Применение заклинания к всем существам в комнате
 //---------------------------------------------------------
 int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype)
 {
-	if (ch == nullptr || (IN_ROOM(ch) == NOWHERE)) {
+	if (ch == nullptr || IN_ROOM(ch) == NOWHERE) {
 		return 0;
 	}
 
-	int msgIndex = findIndexOfSpellMsg(spellnum);
-	if (mag_messages[msgIndex].spell == -1) {
-		return 0;
-	}
-
-	sendCastMessages(ch, nullptr, room, msgIndex);
+	int msgIndex = trySendCastMessages(ch, nullptr, room, spellnum);
 
 	const int attacker_cast = GET_CAST_SUCCESS(ch);
 	int targets_count = 0;
@@ -6110,12 +6128,7 @@ int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int s
 		return 0;
 	}
 
-	int msgIndex = findIndexOfSpellMsg(spellnum);
-	if (mag_messages[msgIndex].spell == -1) {
-		return 0;
-	}
-
-	sendCastMessages(ch, victim, world[IN_ROOM(victim)], msgIndex);
+	int msgIndex = trySendCastMessages(ch, victim, world[IN_ROOM(victim)], spellnum);
 
 	int targetsAmount = 1;
 	int decay = mag_messages[msgIndex].decay;
@@ -6151,14 +6164,7 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
 		return 0;
 	}
 
-	int msgIndex = findIndexOfSpellMsg(spellnum);
-	if (mag_messages[msgIndex].spell == -1 && !IS_SET(SpINFO.routines, MAG_WARCRY)) {
-		sprintf(buf, "Нет сообщения в mag_messages: заклинание с номером %d игнорируется.", spellnum);
-		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
-		return 0;
-	}
-
-	sendCastMessages(ch, nullptr, world[IN_ROOM(ch)], msgIndex);
+	trySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], spellnum);
 
 	ActionTargeting::FriendsRosterType roster{ch, ch};
 	for (auto target : roster) {
