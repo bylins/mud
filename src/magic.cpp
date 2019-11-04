@@ -6051,9 +6051,9 @@ int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spell
 				int tax = CASTER_CAST_SUCCESS*castDecay*(targetsCounter - mag_messages[msgIndex].freeTargets);
 				GET_CAST_SUCCESS(ch) = MAX(-200, CASTER_CAST_SUCCESS - tax);
 				level = MAX(1, level - levelDecay);
-//				if (PRF_FLAGGED(_actor, PRF_TESTER)) {
+				if (PRF_FLAGGED(ch, PRF_TESTER)) {
 					send_to_char(ch, "&GМакс. целей: %d, Каст: %d, Уровень: %d.&n\r\n", targetsAmount, GET_CAST_SUCCESS(ch), level);
-//				}
+				}
 			};
 		};
 		if (targetsCounter >= targetsAmount) {
