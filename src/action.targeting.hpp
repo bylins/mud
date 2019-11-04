@@ -36,7 +36,6 @@ namespace ActionTargeting {
 		void setPriorityTarget(CHAR_DATA* target);
 		void makeRosterOfFoes(CHAR_DATA* priorityTarget, const FilterType& baseFilter, const FilterType& extraFilter);
 		void makeRosterOfFriends(CHAR_DATA* priorityTarget, const FilterType& baseFilter, const FilterType& extraFilter);
-		void prepareForUse(CHAR_DATA* priorityTarget);
 
 		TargetsRosterType();
 		TargetsRosterType(CHAR_DATA* actor) :

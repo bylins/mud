@@ -15,7 +15,7 @@ namespace ActionTargeting {
 		Если таковые вводить - стоит добавить
 	*/
 	bool isNotCorrectSingleVictim(CHAR_DATA *actor, CHAR_DATA *target, char* arg) {
-		if (actor = target) {
+		if (actor == target) {
 			return true;
 		}
 		if (!check_pkill(actor, target, arg)) {
@@ -74,6 +74,9 @@ namespace ActionTargeting {
 	};
 
 	void TargetsRosterType::setPriorityTarget(CHAR_DATA* target) {
+		if (!target) {
+			return;
+		}
 		auto it = std::find(_roster.begin(), _roster.end(), target);
         if (it != _roster.end()) {
             _roster.erase(it);
@@ -85,19 +88,13 @@ namespace ActionTargeting {
 		setFilter(baseFilter, extraFilter);
 		fillRoster();
 		shuffle();
-		prepareForUse(priorityTarget);
+		setPriorityTarget(priorityTarget);
 	};
 
 	void TargetsRosterType::makeRosterOfFriends(CHAR_DATA* priorityTarget, const FilterType &baseFilter, const FilterType &extraFilter) {
 		setFilter(baseFilter, extraFilter);
 		fillRoster();
-		prepareForUse(priorityTarget);
-	};
-
-	void TargetsRosterType::prepareForUse(CHAR_DATA* priorityTarget) {
-		if (priorityTarget) {
-			setPriorityTarget(priorityTarget);
-		};
+		setPriorityTarget(priorityTarget);
 	};
 
 	void TargetsRosterType::shuffle() {

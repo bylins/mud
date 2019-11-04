@@ -1207,7 +1207,7 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
-			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
+			call_magic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_LEVEL(caster));
 		}
 	}
 }

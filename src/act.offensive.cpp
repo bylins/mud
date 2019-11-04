@@ -2755,7 +2755,7 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * victim) {
 	Damage throwDamage(SkillDmg(SKILL_THROW), ZERO_DMG, throwDamageKind);
 	throwDamage.magic_type = STYPE_DARK;
 
-	ActionTargeting::FoesRosterType roster{ch, victim};
+	ActionTargeting::FoesRosterType roster{ch, victim, [](CHAR_DATA* ch, CHAR_DATA* victim){return CAN_SEE(ch, victim);}};
 	for (auto target : roster) {
 		target = try_protect(target, ch);
 		weaponThrowRoll.initialize(ch, techniqueID, target);

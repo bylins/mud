@@ -18,7 +18,7 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 
 #define DEFAULT_STAFF_LVL	12
 #define DEFAULT_WAND_LVL	12
-#define CAST_UNDEFINED	-1
+
 #define CAST_SPELL	0
 #define CAST_POTION	1
 #define CAST_WAND	2
@@ -33,10 +33,6 @@ struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any 
 
 #define MTYPE_NEUTRAL		(1 << 0)
 #define MTYPE_AGGRESSIVE	(1 << 1)
-/*#define MTYPE_AIR	(1 << 1)
-#define MTYPE_FIRE	(1 << 2)
-#define MTYPE_WATER	(1 << 3)
-#define MTYPE_EARTH	(1 << 4)*/
 
 // *******************************
 // * Spells class                *
@@ -618,11 +614,9 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
 
-int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype);
+int mag_groups(int level, CHAR_DATA * ch, int spellnum);
 
-int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype);
-
-int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
+int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum, int level);
 
 int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype);
 
@@ -636,7 +630,7 @@ int mag_creations(int level, CHAR_DATA * ch, int spellnum);
 
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int casttype);
 
-int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level, int casttype);
+int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level);
 
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument);
 

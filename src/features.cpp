@@ -672,6 +672,8 @@ void determineFeaturesSpecification(void) {
 //152
 	initializeFeature(DEADLY_THROW_FEAT, "широкий размах", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
+//154
+	initializeFeature(MULTI_CAST_FEAT, "изощрённые чары", NORMAL_FTYPE, TRUE, feat_app);
 }
 
 bool can_use_feat(const CHAR_DATA *ch, int feat) {
