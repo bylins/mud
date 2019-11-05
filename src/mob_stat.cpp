@@ -342,6 +342,21 @@ void update_mob_node(std::list<mob_node> &node_list, int members)
 		}
 	}
 }
+
+int last_time_killed_mob(int vnum)
+{
+	auto i = mob_list.find(vnum);
+	if (i != mob_list.end() && i->second.date != 0)
+	{
+		const auto killtime = i->second.date;
+		return killtime;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 void last_kill_mob(CHAR_DATA *mob, std::string& result)
 {
 	auto i = mob_list.find(GET_MOB_VNUM(mob));
