@@ -2167,7 +2167,7 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		SpellUsage::AddSpellStat(GET_CLASS(caster), spellnum);
 
 	if (IS_SET(SpINFO.routines, MAG_AREAS) || IS_SET(SpINFO.routines, MAG_MASSES))
-		callMagicToArea(caster, cvict, rvict, spellnum, level);
+		return callMagicToArea(caster, cvict, rvict, spellnum, level);
 
 	if (IS_SET(SpINFO.routines, MAG_GROUPS))
 		return mag_groups(level, caster, spellnum);
