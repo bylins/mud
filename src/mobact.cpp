@@ -234,16 +234,17 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
+// Sent TODO переписать на использование action.targeting
 CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
-	TemporaryCharListType victimList;
+	std::vector<CHAR_DATA *> victimList;
 	char uncoveredGroupMembers = 0;
 
 	for (const auto skirmisher : world[leader->in_room]->people) {
-		if (!HERE(skirmisher) || !same_group(leader, skirmisher) || !leader->checkSameRoom(skirmisher)) {
+		if (!HERE(skirmisher) || !same_group(leader, skirmisher) || !leader->isInSameRoom(skirmisher)) {
 			continue;
 		}
 		if (PRF_FLAGGED(skirmisher, PRF_SKIRMISHER)) {
-			addCharToTmpList(skirmisher, &victimList);
+			victimList.push_back(skirmisher);
 		} else {
 			uncoveredGroupMembers++;
 		}
@@ -268,7 +269,7 @@ CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 	}
 
 	newVictim = selectRandomSkirmisherFromGroup(leader);
-	if (!newVictim || !assaulter->checkSameRoom(leader)) {
+	if (!newVictim || !assaulter->isInSameRoom(leader)) {
 		return initialVictim;
 	}
 

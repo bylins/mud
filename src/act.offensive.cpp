@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "ability.rollsystem.hpp"
+#include "action.targeting.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -68,7 +69,6 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
 inline bool dontCanAct(CHAR_DATA *ch);
-void makeVictimRoster(CHAR_DATA *ch, TemporaryCharListType &victimRoster);
 
 
 int have_mind(CHAR_DATA * ch)
@@ -1533,7 +1533,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 					}
 					else
 					{
-						to_char = "Камблук вашего сапога надолго запомнится $N2, $M теперь даже бить вас нечем.";
+						to_char = "Каблук вашего сапога надолго запомнится $N2, $M теперь даже бить вас нечем.";
 						to_vict = "Мощный удар ноги $n1 вывел вас из строя.";
 						to_room = "Каблук сапога $n1 надолго запомнится $N2, $M теперь даже биться нечем.";
 						af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
@@ -2638,8 +2638,11 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 	int featureID = INCORRECT_FEAT;
 	std::string to_char, to_vict, to_room;
 	void (*doSideAction)(TechniqueRollType &technique);
+	uint32_t mobNoFlag = MOB_DELETE;
+
 	switch (GET_OBJ_SKILL(weapon)) {
 	case SKILL_SPADES:
+		mobNoFlag = MOB_NOBASH;
 		featureID = SHADOW_SPEAR_FEAT;
 		to_char = "Попадание копья повалило $n3 наземь.";
 		to_vict = "Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
@@ -2648,11 +2651,11 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 							drop_from_horse(technique.rival());
 							WAIT_STATE(technique.rival(), 2*PULSE_VIOLENCE);
 							GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), POS_SITTING);
-							return;
 						});
 		break;
 	case SKILL_SHORTS:
 	case SKILL_PICK:
+		mobNoFlag = MOB_NOSIELENCE;
 		featureID = SHADOW_DAGGER_FEAT;
 		to_char = "Меткое попадание вашего кинжала заставило $n3 умолкнуть.";
 		to_vict = "Бросок $N1 угодил вам в горло. Вы прикусили язык!";
@@ -2660,15 +2663,14 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 		doSideAction = ([](TechniqueRollType &technique) {
 							AFFECT_DATA<EApplyLocation> af;
 							af.type = SPELL_BATTLE;
-							af.duration = pc_duration(technique.rival(), 2, GET_LEVEL(technique.actor()), 9, 6, 2);
-							af.modifier = 0;
-							af.location = APPLY_NONE;
-							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 							af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
+							af.duration = pc_duration(technique.rival(), 2, GET_LEVEL(technique.actor()), 9, 6, 2);
+							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 							affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
 						});
 		break;
 	case SKILL_CLUBS:
+		mobNoFlag = MOB_NOSTUPOR;
 		featureID = SHADOW_CLUB_FEAT;
 		to_char = "Попадание булавы ошеломило $n3.";
 		to_vict = "Брошенная $N4 булава врезалась вам в лоб! Какие красивые звёздочки вокруг...";
@@ -2676,8 +2678,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 		doSideAction = ([](TechniqueRollType &technique) {
 							AFFECT_DATA<EApplyLocation> af;
 							af.type = SPELL_BATTLE;
-							af.location = EApplyLocation::APPLY_NONE;
-							af.bitvector = to_underlying(EAffectFlag::AFF_MAGICSTOPFIGHT);
+							af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 							af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 							affect_join(technique.actor(), af, FALSE, FALSE, FALSE, FALSE);
@@ -2691,7 +2692,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 	};
 	TechniqueRollType sideAbility;
 	sideAbility.initialize(technique.actor(), featureID, technique.rival());
-	if (sideAbility.isSuccess()) {
+	if (sideAbility.isSuccess() && !MOB_FLAGGED(technique.rival(), mobNoFlag)) {
 		act(to_char.c_str(), FALSE, technique.rival(), 0, technique.actor(), TO_VICT);
 		act(to_vict.c_str(), FALSE, technique.rival(), 0, technique.actor(), TO_CHAR);
 		act(to_room.c_str(), FALSE, technique.rival(), 0, technique.actor(), TO_NOTVICT | TO_ARENA_LISTEN);
@@ -2737,7 +2738,6 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * victim) {
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
 	short victimsAmount = 1 + PRF_FLAGGED(ch, PRF_DOUBLE_THROW) + 2*PRF_FLAGGED(ch, PRF_TRIPLE_THROW);
 
-	makeVictimRoster(ch, GroupMagicTmpCharList);
 	int techniqueID = THROW_WEAPON_FEAT;
 	DmgType throwDamageKind = PHYS_DMG;
 	if (PRF_FLAGGED(ch, PRF_SHADOW_THROW)) {
@@ -2755,22 +2755,18 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * victim) {
 	Damage throwDamage(SkillDmg(SKILL_THROW), ZERO_DMG, throwDamageKind);
 	throwDamage.magic_type = STYPE_DARK;
 
-	for (; (victimsAmount > 0) && victim; victimsAmount--) {
-		victim = try_protect(victim, ch);
-		weaponThrowRoll.initialize(ch, techniqueID, victim);
+	ActionTargeting::FoesRosterType roster{ch, victim, [](CHAR_DATA* ch, CHAR_DATA* victim){return CAN_SEE(ch, victim);}};
+	for (auto target : roster) {
+		target = try_protect(target, ch);
+		weaponThrowRoll.initialize(ch, techniqueID, target);
 		if (weaponThrowRoll.isWrongConditions()) {
 			weaponThrowRoll.sendDenyMessageToActor();
 			break;
 		};
 		performWeaponThrow(weaponThrowRoll, throwDamage);
-		if (ch->purged()) {
+		--victimsAmount;
+		if (ch->purged() || victimsAmount == 0) {
 			break;
-		};
-		eraseCharFromTmpList(victim, &GroupMagicTmpCharList);
-		if (GroupMagicTmpCharList.size() > 0) {
-			victim = GroupMagicTmpCharList[number(0, GroupMagicTmpCharList.size()-1)];
-		} else {
-			victim = nullptr;
 		};
 	};
 
@@ -2796,7 +2792,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 */
 	if (!victim) {
-		if (ch->get_fighting() && ch->checkSameRoom(ch->get_fighting())) {
+		if (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
 			victim = ch->get_fighting();
 		} else {
 			send_to_char("В кого мечем?\r\n", ch);
@@ -2961,8 +2957,7 @@ void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 }
 
-void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
-{
+void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch)) {
 		return;
 	}
@@ -2972,43 +2967,20 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		return;
 	}
 
-	if (timed_by_skill(ch, SKILL_TURN_UNDEAD)) {
-		send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
-		return;
-	}
-	timed_type timed = { SKILL_TURN_UNDEAD, static_cast<ubyte>(IS_PALADINE(ch) ? 6 : 8), nullptr };
-	if (can_use_feat(ch, EXORCIST_FEAT)) {
-		timed.time -= 2;
-	}
-	timed_to_char(ch, &timed);
+	if (!IS_IMMORTAL(ch)) {
+		if (timed_by_skill(ch, SKILL_TURN_UNDEAD)) {
+			send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
+			return;
+		}
+		timed_type timed = { SKILL_TURN_UNDEAD, static_cast<ubyte>(IS_PALADINE(ch) ? 6 : 8), nullptr };
+		if (can_use_feat(ch, EXORCIST_FEAT)) {
+			timed.time -= 2;
+		}
+		timed_to_char(ch, &timed);
+	};
 
 	send_to_char(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-
-//Составляем список всех персов в комнате и выкидываем дружественных и не-нежить
-	std::vector<CHAR_DATA*> vict_list;
-	for (const auto& vict : world[ch->in_room]->people) {
-		if (IS_IMMORTAL(vict)) {
-			continue;
-		};
-		if (!HERE(vict)) {
-			continue;
-		};
-		if (same_group(ch, vict)) {
-			continue;
-		};
-		if (!(IS_UNDEAD(vict) || GET_RACE(vict) == NPC_RACE_GHOST)) {
-			continue;
-		};
-		if (!may_kill_here(ch, vict)) {
-			return;
-		};
-		vict_list.push_back(vict);
-	}
-
-	if (vict_list.empty()) {
-		return;
-	}
 
 	const auto percent = ch->get_skill(SKILL_TURN_UNDEAD);
 
@@ -3019,37 +2991,28 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		maxTargetLevel = GET_LEVEL(ch) - number(1, 5);
 	}
 
-	int sum = dice(3, 8) + GET_LEVEL(ch) + percent/2;
+	int totalTargetsLevel = dice(3, 8) + GET_LEVEL(ch) + percent/2;
 
-	for (const auto& vict : vict_list) {
-		if (sum <= 0) {
-			break;
-		}
-
-		if (IN_ROOM(ch) == NOWHERE || IN_ROOM(vict) == NOWHERE) {
-			continue;
-		}
-
-		if ((GET_LEVEL(vict) > maxTargetLevel)
-			|| (dice(1, GET_REAL_SAVING_STABILITY(vict)) > dice(1, GET_REAL_WIS(ch)))) {
-			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, vict);
-			if (!pk_agro_action(ch, vict)) {
+	ActionTargeting::FoesRosterType roster{ch, [](CHAR_DATA*, CHAR_DATA* victim){return IS_UNDEAD(victim);}};
+	for (auto target : roster) {
+		if ((GET_LEVEL(target) > maxTargetLevel) || (dice(1, GET_REAL_SAVING_STABILITY(target)) > dice(1, GET_REAL_WIS(ch)))) {
+			if (!pk_agro_action(ch, target)) {
 				continue;
 			}
 
+			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, target);
 			Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG);
 			dmg.magic_type = STYPE_LIGHT;
 			dmg.flags.set(IGNORE_FSHIELD);
-			dmg.process(ch, vict);
-
+			dmg.process(ch, target);
 			continue;
 		}
 
-		sum -= GET_LEVEL(vict);
+		totalTargetsLevel -= GET_LEVEL(target);
 
 		int dam;
-		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(vict)) {
-			dam = MAX(1, GET_HIT(vict) + 11);
+		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(target)) {
+			dam = MAX(1, GET_HIT(target) + 11);
 		} else {
 			if (IS_CLERIC(ch)) {
 				dam = dice(8, 3 * GET_REAL_WIS(ch)) + GET_LEVEL(ch);
@@ -3057,24 +3020,26 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 				dam = dice(8, 4 * GET_REAL_WIS(ch) + GET_REAL_INT(ch)) + GET_LEVEL(ch);
 			};
 		}
-		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, vict);
+		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, target);
 
 		Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), dam, MAGE_DMG);
 		dmg.magic_type = STYPE_LIGHT;
 		dmg.flags.set(IGNORE_FSHIELD);
-		dmg.process(ch, vict);
+		dmg.process(ch, target);
 
-		if (!ch || ch->purged()) {
+		if (ch->purged()) {
 			return;
 		}
 
-		if(!vict || vict->purged()) {
+		if (target->purged()) {
 			continue;
 		}
-
-		if (!MOB_FLAGGED(vict, MOB_NOFEAR)
-			&& !general_savingthrow(ch, vict, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
-			go_flee(vict);
+		if (!MOB_FLAGGED(target, MOB_NOFEAR)
+			&& !general_savingthrow(ch, target, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
+			go_flee(target);
+		}
+		if (totalTargetsLevel <= 0) {
+			return;
 		}
 	}
 }
@@ -3274,8 +3239,7 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (IS_UNDEAD(vict)
 		|| GET_RACE(vict) == NPC_RACE_FISH
 		|| GET_RACE(vict) == NPC_RACE_PLANT
-		|| GET_RACE(vict) == NPC_RACE_THING
-		|| GET_RACE(vict) == NPC_RACE_GHOST) {
+		|| GET_RACE(vict) == NPC_RACE_THING) {
 		send_to_char("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}
@@ -3647,29 +3611,6 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 
 inline bool dontCanAct(CHAR_DATA *ch) {
 	return (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT));
-}
-
-// TODO При переделке изгнать сделать наконец нормальный таргетинг
-void makeVictimRoster(CHAR_DATA *ch, TemporaryCharListType &victimRoster) {
-	victimRoster.clear();
-	for (const auto victim : world[ch->in_room]->people) {
-		if (IS_IMMORTAL(victim)) {
-			continue;
-		};
-		if (!HERE(victim)) {
-			continue;
-		};
-		if (!CAN_SEE_CHAR(ch, victim)) {
-			continue;
-		};
-		if (same_group(ch, victim)) {
-			continue;
-		};
-		if (!may_kill_here(ch, victim)) {
-			return;
-		};
-		addCharToTmpList(victim, &GroupMagicTmpCharList);
-	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

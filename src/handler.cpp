@@ -60,10 +60,6 @@
 #include <unordered_set>
 #include <sstream>
 
-// Временный список, куда помещаются цели при масскастах
-// Нужен для защиты от крешей.
-// Вообще это трындец конечно такое через глобальные переменные делать
-TemporaryCharListType GroupMagicTmpCharList;
 
 int max_stats2[][6] =
 	// Str Dex Int Wis Con Cha //
@@ -1211,7 +1207,7 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
-			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
+			call_magic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_LEVEL(caster));
 		}
 	}
 }
@@ -3198,8 +3194,6 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 //	log("[Extract char] Remove char from room");
 	char_from_room(ch);
 
-	deleteCharFromTmpList(ch, &GroupMagicTmpCharList);
-
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
 
@@ -4647,36 +4641,6 @@ void remove_rune_label(CHAR_DATA *ch)
 			affect_room_remove(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);
 		}
-	}
-}
-
-//функции для работы с временным списком персонажей
-void addCharToTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList)
-{
-	TemporaryCharListType::iterator it = std::find(TmpCharList->begin(), TmpCharList->end(), ch);
-	if (it == TmpCharList->end())
-	{
-		TmpCharList->push_back(ch);
-	}
-}
-
-void deleteCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList)
-{
-	if (TmpCharList->empty()) return;
-
-	TemporaryCharListType::iterator it = std::find(TmpCharList->begin(), TmpCharList->end(), ch);
-	if (it != TmpCharList->end()) {
-		*it = 0;
-	}
-}
-
-void eraseCharFromTmpList(CHAR_DATA *ch, TemporaryCharListType *TmpCharList)
-{
-	if (TmpCharList->empty()) return;
-
-	TemporaryCharListType::iterator it = std::find(TmpCharList->begin(), TmpCharList->end(), ch);
-	if (it != TmpCharList->end()) {
-		TmpCharList->erase(it);
 	}
 }
 

@@ -15,6 +15,7 @@ set(SOURCES
 	src/heartbeat.commands.cpp
 	src/ability.rollsystem.cpp
 	src/accounts.cpp
+	src/action.targeting.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -178,6 +179,7 @@ set(HEADERS
 	src/ability.constants.hpp
 	src/ability.rollsystem.hpp
 	src/accounts.hpp
+	src/action.targeting.hpp
 	src/blocking.queue.hpp
 	src/influxdb.hpp
 	src/heartbeat.commands.hpp

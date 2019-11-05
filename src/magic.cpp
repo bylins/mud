@@ -14,6 +14,7 @@
 
 #include "magic.h"
 
+#include "action.targeting.hpp"
 #include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
@@ -70,10 +71,8 @@ CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
 {
 	assert(room);
 
-	for (const auto tch : room->people)
-	{
-		if (GET_ID(tch) == char_id)
-		{
+	for (const auto tch : room->people) {
+		if (GET_ID(tch) == char_id) {
 			return (tch);
 		}
 	}
@@ -81,59 +80,29 @@ CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
 	return nullptr;
 }
 
-std::vector<CHAR_DATA*> AssignEnemyCrowd(CHAR_DATA *ch)
-{
-	std::vector<CHAR_DATA*> EnemyCrowd;
-
-	for (const auto enemy : world[ch->in_room]->people)
-	{
-		if (IS_IMMORTAL(enemy)
-			|| !HERE(enemy)
-			|| enemy == ch
-			|| same_group(ch, enemy)
-			|| !may_kill_here(ch, enemy))
-		{
-			continue;
-		}
-
-		EnemyCrowd.push_back(enemy);
-	}
-
-	return EnemyCrowd;
-}
-
-//это все очень некрасиво, но чтоб сделать красиво, надо, чтоб спеллы и чары были нормальными классами
-void MagAttackRndEnemies(CHAR_DATA *caster, int numtargets, int spellnum, int divider)
-{
-	int target, enemynumber;
-	std::vector<CHAR_DATA*> enemies = AssignEnemyCrowd(caster);
-	for (target = 0; (target < numtargets) && (enemies.size() > 0); target++)
-	{
-		enemynumber = number(0, static_cast<int>(enemies.size()) - 1);
-		if (enemies[enemynumber])
-		{
-			call_magic(caster, enemies[enemynumber], nullptr, nullptr, spellnum, 1+GET_LEVEL(caster)/divider, CAST_SPELL);
-			enemies.erase(enemies.begin()+enemynumber);
+void callMagicAttackToAmountFoes(CHAR_DATA *caster, int targetsAmount, int spellnum, int levelDivider) {
+	ActionTargeting::FoesRosterType roster{caster};
+	int targetsCounter = 0;
+	for (const auto& target : roster) {
+		call_magic(caster, target, nullptr, nullptr, spellnum, 1+GET_LEVEL(caster)/levelDivider);
+		++targetsCounter;
+		if (targetsCounter >= targetsAmount) {
+			return;
 		}
 	}
 }
 
-void MagAttackAllEnemies(CHAR_DATA *caster, int spellnum, int divider)
-{
-	std::vector<CHAR_DATA*> enemies = AssignEnemyCrowd(caster);
-	for (std::vector<CHAR_DATA*>::iterator it = enemies.begin();it != enemies.end();++it)
-	{
-		call_magic(caster, *it, nullptr, nullptr, spellnum, 1+GET_LEVEL(caster)/divider, CAST_SPELL);
+void callMagicAttackToAllFoes(CHAR_DATA *caster, int spellnum, int levelDivider) {
+	ActionTargeting::FoesRosterType roster{caster};
+	for (const auto& target : roster) {
+		call_magic(caster, target, nullptr, nullptr, spellnum, 1+GET_LEVEL(caster)/levelDivider);
 	}
 }
 
 bool is_room_forbidden(ROOM_DATA * room)
 {
-	for (const auto af : room->affected)
-	{
-		if (af->type == SPELL_FORBIDDEN
-			&& (number(1, 100) <= af->modifier))
-		{
+	for (const auto af : room->affected) {
+		if (af->type == SPELL_FORBIDDEN && (number(1, 100) <= af->modifier)) {
 			return true;
 		}
 	}
@@ -266,17 +235,16 @@ int find_and_remove_controlled_room_affect(CHAR_DATA *ch)
 // =============================================================== //
 
 // Сообщение при снятии аффекта //
-void show_room_spell_off(int aff, room_rnum room)
-{
+void show_room_spell_off(int aff, room_rnum room) {
 	send_to_room(spell_wear_off_msg[aff], room, 0);
 }
 
 // =============================================================== //
 
 // Добавление новой комнаты в список //
-void AddRoom(ROOM_DATA* room)
-{
-	std::list<ROOM_DATA*>::const_iterator it = std::find(aff_room_list.begin(), aff_room_list.end(), room);
+void AddRoom(ROOM_DATA* room) {
+	//std::list<ROOM_DATA*>::const_iterator
+	const auto it = std::find(aff_room_list.begin(), aff_room_list.end(), room);
 	if (it == aff_room_list.end())
 		aff_room_list.push_back(room);
 }
@@ -302,17 +270,10 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 		break;
 
 	case SPELL_POISONED_FOG:
-		// Обработчик закла
-		// По сути это каст яда на всех без разбора.
-		//	sprintf(buf2 , "Травим всех тут. (%d : %d)\r\n", aff->apply_time, aff->duration);
-		//send_to_room(buf2, room, 0);
-		if (ch) // Кастер нашелся и он тут ...
-		{
+		if (ch)	{
 			const auto people_copy = room->people;
-			for (const auto tch : people_copy)
-			{
-				if (!call_magic(ch, tch, nullptr, nullptr, SPELL_POISON, GET_LEVEL(ch), CAST_SPELL))
-				{
+			for (const auto tch : people_copy) {
+				if (!call_magic(ch, tch, nullptr, nullptr, SPELL_POISON, GET_LEVEL(ch))) {
 					aff->duration = 0;
 					break;
 				}
@@ -324,16 +285,14 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 	case SPELL_METEORSTORM:
 		send_to_char("Раскаленные громовые камни рушатся с небес!\r\n", ch);
 		act("Раскаленные громовые камни рушатся с небес!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		MagAttackAllEnemies(ch, SPELL_THUNDERSTONE, 3);
+		callMagicAttackToAllFoes(ch, SPELL_THUNDERSTONE, 3);
 		break;
 
 	case SPELL_THUNDERSTORM:
 		switch (aff->duration)
 		{
 		case 8:
-			//what_sky = SKY_RAINING;
-			if (!call_magic(ch, nullptr, nullptr, nullptr, SPELL_CONTROL_WEATHER, GET_LEVEL(ch), CAST_SPELL))
-			{
+			if (!call_magic(ch, nullptr, nullptr, nullptr, SPELL_CONTROL_WEATHER, GET_LEVEL(ch))) {
 				aff->duration = 0;
 				break;
 			}
@@ -344,32 +303,32 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 		case 7:
 			send_to_char("Раздался чудовищный раскат грома!\r\n", ch);
 			act("Раздался чудовищный удар грома!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			MagAttackAllEnemies(ch, SPELL_DEAFNESS, 1);
+			callMagicAttackToAllFoes(ch, SPELL_DEAFNESS, 1);
 			break;
 		case 6:
 			send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 			act("Порывы мокрого ледяного ветра обрушились на вас!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			MagAttackRndEnemies(ch, 5, SPELL_CONE_OF_COLD, 4);
+			callMagicAttackToAmountFoes(ch, 5, SPELL_CONE_OF_COLD, 4);
 			break;
 		case 5:
 			send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
 			act("Из туч хлынул дождь кислоты!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			MagAttackRndEnemies(ch, 6, SPELL_ACID, 4);
+			callMagicAttackToAmountFoes(ch, 6, SPELL_ACID, 4);
 			break;
 		case 4:
 			send_to_char("Из туч ударили разряды молний!\r\n", ch);
 			act("Из туч ударили разряды молний!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			MagAttackAllEnemies(ch, SPELL_LIGHTNING_BOLT, 2);
+			callMagicAttackToAllFoes(ch, SPELL_LIGHTNING_BOLT, 2);
 			break;
 		case 3:
 			send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
 			act("Из тучи посыпались шаровые молнии!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			MagAttackRndEnemies(ch, 7, SPELL_CALL_LIGHTNING, 1);
+			callMagicAttackToAmountFoes(ch, 7, SPELL_CALL_LIGHTNING, 1);
 			break;
 		case 2:
 			send_to_char("Буря завыла, закручиваясь в вихри!\r\n", ch);
 			act("Буря завыла, закручиваясь в вихри!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			MagAttackRndEnemies(ch, 3, SPELL_WHIRLWIND, 10);
+			callMagicAttackToAmountFoes(ch, 3, SPELL_WHIRLWIND, 10);
 			break;
 		case 1:
 			what_sky = SKY_CLOUDLESS;
@@ -377,14 +336,14 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 		default:
 			send_to_char("Из туч ударили разряды молний!\r\n", ch);
 			act("Из туч ударили разряды молний!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			MagAttackRndEnemies(ch, 3, SPELL_LIGHTNING_BOLT, 3);
+			callMagicAttackToAmountFoes(ch, 3, SPELL_LIGHTNING_BOLT, 3);
 		}
 		break;
 
 	case SPELL_EVARDS_BLACK_TENTACLES:
 		send_to_char("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
 		act("Мертвые руки навей шарят в поисках добычи!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		MagAttackRndEnemies(ch, 3, SPELL_DAMAGE_SERIOUS, 2);
+		callMagicAttackToAmountFoes(ch, 3, SPELL_DAMAGE_SERIOUS, 2);
 		break;
 
 	default:
@@ -540,7 +499,6 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].duration = (1 + (GET_LEVEL(ch) + 14) / 15)*30;
 		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_FORBIDDEN;
-		// ROOM_AFF_FLAGS(room, AFF_ROOM_FORBIDDEN); смысл этой строки?
 		af[0].must_handled = false;
 		accum_duration = FALSE;
 		update_spell = TRUE;
@@ -568,13 +526,9 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].type = spellnum;
 		af[0].location = APPLY_ROOM_NONE;
 		af[0].modifier = 0;
-		// Расчет взят  только ориентировочный
 		af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
 		af[0].caster_id = GET_ID(ch);
 		af[0].bitvector = AFF_ROOM_LIGHT;
-		// Сохраняем ID кастера т.к. возможно что в живых его к моменту
-		// срабатывания аффекта уже не будет, а ПК-флаги на него вешать
-		// придется
 		af[0].must_handled = false;
 		accum_duration = TRUE;
 		update_spell = TRUE;
@@ -583,18 +537,13 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		break;
 
 	case SPELL_POISONED_FOG:
-		// Идея закла - комната заражается и охватывается туманом
-		// не знаю там какие плюшки с туманом. Но яд травит Ж)
 		af[0].type = spellnum;
-		af[0].location = APPLY_ROOM_POISON; // Изменяет уровень зараженности территории
+		af[0].location = APPLY_ROOM_POISON;
 		af[0].modifier = 50;
-		// Расчет взят  только ориентировочный
 		af[0].duration = pc_duration(ch, 0, GET_LEVEL(ch) + 5, 6, 0, 0);
 		af[0].bitvector = AFF_ROOM_FOG; //Добаляет бит туман
 		af[0].caster_id = GET_ID(ch);
 		af[0].must_handled = true;
-		// Не имеет смысла разделять на разные аффекты
-		//если описание будет одно и время работы одно
 		update_spell = FALSE;
 		to_room = "$n испортил$g воздух и плюнул$g в суп.";
 		break;
@@ -1791,38 +1740,25 @@ int check_recipe_values(CHAR_DATA * ch, int spellnum, int spelltype, int showrec
  * -1 = dead, otherwise the amount of damage done.
  */
 
-//функция увеличивает урон спеллов с учетом скилла соответствующей магии и параметра "мудрость"
-int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam)
-{
-	//тупо костыль, пока всем актуальнгым мобам не воткнум магскиллы - 31/03/2014
-	/*if ((spellnum == SPELL_FIRE_BREATH) ||
-	(spellnum == SPELL_GAS_BREATH) ||
-	(spellnum == SPELL_FROST_BREATH) ||
-	(spellnum == SPELL_ACID_BREATH) ||
-	(spellnum == SPELL_LIGHTNING_BREATH)) */
-	if (IS_NPC(ch))
-	{
+
+int magic_skill_damage_calc(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int dam) {
+	if (IS_NPC(ch)) {
 		dam += dam * ((GET_REAL_WIS(ch) - 22) * 5) / 100;
 		return (dam);
 	}
 
 	const ESkill skill_number = get_magic_skill_number_by_spell(spellnum);
 
-	if (skill_number > 0)
-	{
+	if (skill_number > 0) {
 		dam += dam * (1 +  static_cast<double>(MIN(CAP_SKILLS, ch->get_skill(skill_number))) / 500);
 	}
 
-	//sprintf(buf1, "Magic skill koefficient = %f", koeff);
-	//mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);
-	if (GET_REAL_WIS(ch) >= 23)
-	{
+
+	if (GET_REAL_WIS(ch) >= 23) {
 		dam += dam * (1 +  static_cast<double>((GET_REAL_WIS(ch) - 22)) / 200);
 	}
 
-	//По чару можно дамагнуть максимум вдвое против своих хитов. По мобу - вшестеро.
-	if (!IS_NPC(ch))
-	{
+	if (!IS_NPC(ch)) {
 		dam = (IS_NPC(victim) ? MIN(dam, 6 * GET_MAX_HIT(ch)) : MIN(dam, 2 * GET_MAX_HIT(ch)));
 	}
 
@@ -4783,7 +4719,6 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		extract_char(mob, FALSE);
 		return 0;
 	}
-// shapirus: нельзя оживить моба под ЗБ
 	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, EAffectFlag::AFF_SHIELD))
 	{
 		send_to_char("Боги защищают это существо даже после смерти.\r\n", ch);
@@ -4838,11 +4773,9 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	mob->set_exp(0);
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
-//Polud при оживлении и поднятии трупа лоадились куны из прототипа
 	mob->set_gold(0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
-//-Polud
 	const auto days_from_full_moon =
 		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
 	const auto duration = pc_duration(mob, GET_REAL_WIS(ch) + number(0, days_from_full_moon), 0, 0, 0, 0);
@@ -4890,8 +4823,6 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_cha(ch->get_cha());
 
 		mob->set_level(ch->get_level());
-//      GET_HR (mob) = GET_HR (ch);
-// shapirus: нефиг клонам дамагать. сделаем хитролл достаточно плохой.
 		GET_HR(mob) = -20;
 		GET_AC(mob) = GET_AC(ch);
 		GET_DR(mob) = GET_DR(ch);
@@ -5686,626 +5617,470 @@ typedef struct
 	const char *to_char;
 	const char *to_room;
 	const char *to_vict;
-	int decay;
+	float castSuccessPercentDecay;
+	int skillDivisor;
+	int diceSize;
+	int minTargetsAmount;
+	int maxTargetsAmount;
+	int freeTargets;
+	int castLevelDecay;
 } spl_message;
 
-
+// Svent TODO Перенести этот бордель в спеллпарсер
 const spl_message mag_messages[] =
 {
-// массовые спеллы
 	{SPELL_MASS_BLINDNESS,
 	 "У вас над головой возникла яркая вспышка, которая ослепила все живое.",
 	 "Вдруг над головой $n1 возникла яркая вспышка.",
 	 "Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились.",
-	 0},
+	 0.05, 20, 2, 5, 20, 3, 2},
 	{SPELL_MASS_HOLD,
 	 "Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей.",
 	 nullptr,
 	 "В вас попал каменный луч, исходящий от $n1.",
-	 0},
+	 0.05, 20, 2, 5, 20, 3, 2},
 	{SPELL_MASS_CURSE,
 	 "Медленно оглянувшись, вы прошептали древние слова.",
 	 nullptr,
 	 "$n злобно посмотрел$g на вас и начал$g шептать древние слова.",
-	 0},
+	 0.05, 20, 3, 5, 20, 3, 2},
 	{SPELL_MASS_SILENCE,
 	 "Поведя вокруг грозным взглядом, вы заставили всех замолчать.",
 	 nullptr,
 	 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает.",
-	 0},
+	 0.05, 20, 2, 5, 20, 3, 2},
 	{SPELL_MASS_DEAFNESS,
 	 "Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух.",
 	 "Как только $n0 склонил$g голову, раздался оглушающий хлопок.",
 	 nullptr,
-	 0},
+	 0.05, 10, 3, 5, 20, 3, 2},
 	{SPELL_MASS_SLOW,
 	 "Положив ладони на землю, вы вызвали цепкие корни,\r\nопутавшие существ, стоящих рядом с вами.",
 	 nullptr,
 	 "$n вызвал$g цепкие корни, опутавшие ваши ноги.",
-	 0},
+	 0.05, 10, 3, 5, 20, 3, 2},
 	{SPELL_ARMAGEDDON,
 	 "Вы сплели руки в замысловатом жесте, и все потускнело!",
 	 "$n сплел$g руки в замысловатом жесте, и все потускнело!",
 	 nullptr,
-	 0},
+	 0.05, 25, 2, 5, 20, 3, 2},
 	{SPELL_EARTHQUAKE,
 	 "Вы опустили руки, и земля начала дрожать вокруг вас!",
 	 "$n опустил$g руки, и земля задрожала!",
 	 nullptr,
-	 0},
+	 0.05, 25, 2, 5, 20, 5, 2},
 	{SPELL_METEORSTORM,
 	 "Вы воздели руки к небу, и огромные глыбы посыпались с небес!",
 	 "$n воздел$g руки к небу, и огромные глыбы посыпались с небес!",
 	 nullptr,
-	 0},
+	 0.05, 20, 2, 5, 20, 3, 4},
 	{SPELL_FIREBLAST,
 	 "Вы вызвали потоки подземного пламени!",
 	 "$n0 вызвал$g потоки пламени из глубин земли!",
 	 nullptr,
-	 0},
+	 0.05, 20, 2, 5, 20, 3, 3},
 	{SPELL_ICESTORM,
 	 "Вы воздели руки к небу, и тысячи мелких льдинок хлынули вниз!",
 	 "$n воздел$g руки к небу, и тысячи мелких льдинок хлынули вниз!",
 	 nullptr,
-	 0},
+	 0.05, 30, 2, 5, 20, 3, 4},
 	{SPELL_DUSTSTORM,
 	 "Вы взмахнули руками и вызвали огромное пылевое облако,\r\nскрывшее все вокруг.",
 	 "Вас поглотила пылевая буря, вызванная $n4.",
 	 nullptr,
-	 0},
+	 0.05, 15, 2, 5, 20, 3, 2},
 	{SPELL_MASS_FEAR,
 	 "Вы оглядели комнату устрашающим взглядом, заставив всех содрогнуться.",
-	 "$n0 оглядел$g комнату устрашающим взглядом.",  //Added by Niker
+	 "$n0 оглядел$g комнату устрашающим взглядом.",
 	 nullptr,
-	 0},
+	 0.05, 15, 2, 5, 20, 3, 3},
 	{SPELL_GLITTERDUST,
 	 "Вы слегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли.",
 	 "$n0 сотворил$g облако блестящей пыли, медленно осевшее на землю.",
 	 nullptr,
-	 0},
+	 0.05, 15, 3, 5, 20, 5, 3},
 	{SPELL_SONICWAVE,
 	 "Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!",
 	 "$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!",
 	 nullptr,
-	 0},
-// ареа спеллы
+	 0.05, 20, 2, 5, 20, 3, 3},
 	{SPELL_CHAIN_LIGHTNING,
 	 "Вы подняли руки к небу и оно осветилось яркими вспышками!",
 	 "$n поднял$g руки к небу и оно осветилось яркими вспышками!",
 	 nullptr,
-	 5},
+	 0.05, 10, 3, 1, 8, 1, 5},
 	{SPELL_EARTHFALL,
 	 "Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз.",
 	 "$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз.",
 	 nullptr,
-	 8},
-	{SPELL_SONICWAVE,
-	 "Вы слегка хлопнули в ладоши и во все стороны побежала воздушная волна,\r\nсокрушающая все на своем пути.",
-	 "Негромкий хлопок $n1 породил воздушную волну, сокрушающую все на своем пути.",
-	 nullptr,
-	 3},
+	 0.05, 20, 2, 1, 4, 1, 8},
 	{SPELL_SHOCK,
 	 "Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе.",
 	 "Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе.",
 	 nullptr,
-	 8},
+	 0.05, 35, 2, 1, 4, 2, 8},
 	{SPELL_BURDEN_OF_TIME,
 	 "Вы скрестили руки на груди, вызвав яркую вспышку синего света.",
 	 "$n0 скрестил$g руки на груди, вызвав яркую вспышку синего света.",
 	 nullptr,
-	 8},
+	 0.05, 20, 2, 5, 20, 3, 8},
 	{SPELL_FAILURE,
 	 "Вы простерли руки над головой, вызвав череду раскатов грома.",
 	 "$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться.",
 	 nullptr,
-	 7},
+	 0.05, 15, 2, 1, 5, 3, 8},
 	{SPELL_SCREAM,
 	 "Вы испустили кошмарный вопль, едва не разорвавший вам горло.",
 	 "$n0 испустил$g кошмарный вопль, отдавшийся в вашей душе замогильным холодом.",
 	 nullptr,
-	 5},
+	 0.05, 40, 3, 1, 8, 3, 5},
 	{SPELL_BURNING_HANDS,
 	 "С ваших ладоней сорвался поток жаркого пламени.",
 	 "$n0 испустил$g поток жаркого багрового пламени!",
 	 nullptr,
-	 7},
+	 0.05, 20, 2, 5, 20, 3, 7},
 	{SPELL_COLOR_SPRAY,
 	 "Из ваших рук вылетел сноп ледяных стрел.",
 	 "$n0 метнул$g во врагов сноп ледяных стрел.",
 	 nullptr,
-	 7},
+	 0.05, 30, 2, 1, 5, 3, 7},
 	{SPELL_WC_OF_CHALLENGE,
 	 nullptr,
 	 "Вы не стерпели насмешки, и бросились на $n1!",
 	 nullptr,
-	 0},
+	 0.01, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_MENACE,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.01, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_RAGE,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.01, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_MADNESS,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.01, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_THUNDER,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.01, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_DEFENSE,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
-// групповые спеллы
+	 0.01, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_HEAL,
 	 "Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.01, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_ARMOR,
 	 "Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_RECALL,
 	 "Вы выкрикнули заклинание и хлопнули в ладоши.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_STRENGTH,
 	 "Вы призвали мощь Вселенной.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_BLESS,
 	 "Прикрыв глаза, вы прошептали таинственную молитву.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_HASTE,
 	 "Разведя руки в стороны, вы ощутили всю мощь стихии ветра.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_FLY,
 	 "Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_INVISIBLE,
 	 "Вы вызвали прозрачный туман, поглотивший все дружественное вам.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_MAGICGLASS,
 	 "Вы произнесли несколько резких слов, и все вокруг засеребрилось.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_SANCTUARY,
 	 "Вы подняли руки к небу и произнесли священную молитву.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_PRISMATICAURA,
 	 "Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_FIRE_AURA,
 	 "Силы огня пришли к вам на помощь и защитили вас.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_AIR_AURA,
 	 "Силы воздуха пришли к вам на помощь и защитили вас.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_ICE_AURA,
 	 "Силы холода пришли к вам на помощь и защитили вас.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_REFRESH,
 	 "Ваша магия наполнила воздух зеленоватым сиянием.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_DEFENSE,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_BATTLE,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_POWER,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_BLESS,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_WC_OF_COURAGE,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
-// новые спелы. описание по ходу появления идей
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_SIGHT_OF_DARKNESS,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GENERAL_SINCERITY,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_MAGICAL_GAZE,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_ALL_SEEING_EYE,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_EYE_OF_GODS,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_BREATHING_AT_DEPTH,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GENERAL_RECOVERY,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_COMMON_MEAL,
-	 "Вы услышали гомон лакеев готовящих трапезу.\r\n",
+	 "Вы услышали гомон невидимых лакеев, готовящих трапезу.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_STONE_WALL,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_SNAKE_EYES,
 	 nullptr,
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_EARTH_AURA,
 	 "Земля одарила вас своей защитой.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_PROT_FROM_EVIL,
 	 "Сила света подавила в вас страх к тьме.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_BLINK,
 	 "Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_CLOUDLY,
 	 "Пелена тумана окутала вас и окружющих, скрыв очертания.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_AWARNESS,
 	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников6.\r\n",
 	 nullptr,
 	 nullptr,
-	 0},
+	 0.0, 20, 2, 5, 20, 3, 0},
+	{SPELL_WC_EXPERIENSE,
+	 "Вы приготовились к обретению нового опыта.",
+	 nullptr,
+	 nullptr,
+	 0.0, 20, 2, 5, 20, 3, 0},
+	{SPELL_WC_LUCK,
+	 "Вы ощутили, что вам улыбнулась удача.",
+	 nullptr,
+	 nullptr,
+	 0.0, 20, 2, 5, 20, 3, 0},
+	{SPELL_WC_PHYSDAMAGE,
+	 "Боевой клич придал вам сил!",
+	 nullptr,
+	 nullptr,
+	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_MASS_FAILURE,
 	 "Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.\r\n",
 	 nullptr,
 	 "$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги.",
-	 0},
+	 0.03, 25, 2, 3, 15, 4, 6},
 	{SPELL_MASS_NOFLEE,
 	 "Вы соткали магические тенета, опутавшие ваших врагов.\r\n",
 	 nullptr,
 	 "$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас",
-	 0},
-	{ -1, 0, 0, 0, 0}
+	 0.03, 25, 2, 3, 15, 5, 6},
+	{ -1, nullptr, nullptr, nullptr, 0.01, 1, 1, 1, 1, 1, 0}
 };
+
+int findIndexOfSpellMsg(int spellNumber) {
+	int i = 0;
+	for (; mag_messages[i].spell != -1; ++i) {
+		if (mag_messages[i].spell == spellNumber) {
+			return i;
+		}
+	}
+	return i;
+}
+
+int trySendCastMessages(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum) {
+	int msgIndex = findIndexOfSpellMsg(spellnum);
+	if (mag_messages[msgIndex].spell < 0) {
+		sprintf(buf, "ERROR: Нет сообщений в mag_messages для заклинания с номером %d.", spellnum);
+		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
+		return msgIndex;
+	}
+	if (room && world[ch->in_room] == room) {
+		if (multi_cast_say(ch)) {
+			if (mag_messages[msgIndex].to_char != nullptr) {
+				act(mag_messages[msgIndex].to_char, FALSE, ch, 0, victim, TO_CHAR);
+			}
+			if (mag_messages[msgIndex].to_room != nullptr) {
+				act(mag_messages[msgIndex].to_room, FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
+			}
+		}
+	}
+	return msgIndex;
+};
+
+int calculateAmountTargetsOfSpell(const CHAR_DATA* ch, const int& msgIndex, const int& spellnum) {
+	int amount = ch->get_skill(get_magic_skill_number_by_spell(spellnum));
+	amount = dice(amount/mag_messages[msgIndex].skillDivisor, mag_messages[msgIndex].diceSize);
+	return mag_messages[msgIndex].minTargetsAmount + MIN(amount, mag_messages[msgIndex].maxTargetsAmount);
+}
 
 // Применение заклинания к всем существам в комнате
 //---------------------------------------------------------
-int mag_masses(int level, CHAR_DATA * ch, ROOM_DATA * room, int spellnum, int savetype)
-{
-	if (ch == nullptr)
-	{
-		return 0;
-	}
-//	if (room == nullptrptr)
-//		return 0;
 
-	int i;
-	for (i = 0; mag_messages[i].spell != -1; ++i)
-	{
-		if (mag_messages[i].spell == spellnum)
-		{
-			break;
-		}
-	}
 
-	if (mag_messages[i].spell == -1)
-	{
+int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum, int level) {
+	if (ch == nullptr || IN_ROOM(ch) == NOWHERE) {
 		return 0;
 	}
 
-	if (world[ch->in_room] == room)	 // Давим вывод если чар не в той же комнате
-	{
-		if (multi_cast_say(ch))
-		{
-			const char *msg;
-			if ((msg = mag_messages[i].to_char) != nullptr)
-			{
-				act(msg, FALSE, ch, 0, 0, TO_CHAR);
-			}
-			if ((msg = mag_messages[i].to_room) != nullptr)
-			{
-				act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			}
-		}
+	ActionTargeting::FoesRosterType roster{ch, victim, [](CHAR_DATA*, CHAR_DATA* target) {return !IS_HORSE(target);}};
+	int msgIndex = trySendCastMessages(ch, victim, room, spellnum);
+	int targetsAmount = calculateAmountTargetsOfSpell(ch, msgIndex, spellnum);
+	int targetsCounter = 1;
+	float castDecay = 0.0;
+	int levelDecay = 0;
+	if (can_use_feat(ch, MULTI_CAST_FEAT)) {
+		castDecay = mag_messages[msgIndex].castSuccessPercentDecay*0.6;
+		levelDecay = MAX(MIN(1, mag_messages[msgIndex].castLevelDecay), mag_messages[msgIndex].castLevelDecay - 1);
+	} else {
+		castDecay = mag_messages[msgIndex].castSuccessPercentDecay;
+		levelDecay = mag_messages[msgIndex].castLevelDecay;
 	}
+	const int CASTER_CAST_SUCCESS = GET_CAST_SUCCESS(ch);
 
-	GroupMagicTmpCharList.clear();
-	for (const auto ch_vict : room->people)
-	{
-		if (IS_IMMORTAL(ch_vict)
-			|| !HERE(ch_vict)
-			|| (SpINFO.violent && same_group(ch, ch_vict))
-			|| IS_HORSE(ch_vict)
-			|| MOB_FLAGGED(ch_vict, MOB_PROTECT))
-		{
-			continue;
+	for (const auto& target : roster) {
+		if (mag_messages[msgIndex].to_vict != nullptr && target->desc) {
+			act(mag_messages[msgIndex].to_vict, FALSE, ch, 0, target, TO_VICT);
 		}
-
-		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
-	}
-
-	// наколенная (в прямом смысле этого слова, даже стола нет)
-	// версия снижения каста при масс-кастах на чаров, по 9% за каждого игрока
-	const int attacker_cast = GET_CAST_SUCCESS(ch);
-	int targets_count = 0;
-	for (TemporaryCharListType::const_iterator it = GroupMagicTmpCharList.begin(); it != GroupMagicTmpCharList.end(); ++it)
-	{
-		CHAR_DATA* ch_vict = *it;
-		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
-		{
-			continue;
+		mag_single_target(level, ch, target, nullptr, spellnum, SAVING_STABILITY);
+		if (ch->purged()) {
+			return 1;
 		}
-
-		const char* msg;
-		if ((msg = mag_messages[i].to_vict) != nullptr
-			&& ch_vict->desc)
-		{
-			act(msg, FALSE, ch, 0, ch_vict, TO_VICT);
-		}
-
-		if (!IS_NPC(ch)
-			&& !IS_NPC(ch_vict))
-		{
-			if (ch && ch_vict)
-			{
-				if (check_agr_in_house(ch, ch_vict))
-				{
-					return 0;
+		if (!IS_NPC(ch)) {
+			++targetsCounter;
+			if (targetsCounter > mag_messages[msgIndex].freeTargets) {
+				int tax = CASTER_CAST_SUCCESS*castDecay*(targetsCounter - mag_messages[msgIndex].freeTargets);
+				GET_CAST_SUCCESS(ch) = MAX(-200, CASTER_CAST_SUCCESS - tax);
+				level = MAX(1, level - levelDecay);
+				if (PRF_FLAGGED(ch, PRF_TESTER)) {
+					send_to_char(ch, "&GМакс. целей: %d, Каст: %d, Уровень: %d.&n\r\n", targetsAmount, GET_CAST_SUCCESS(ch), level);
 				}
-			}
-			++targets_count;
+			};
+		};
+		if (targetsCounter >= targetsAmount) {
+			break;
 		}
-
-		mag_single_target(level, ch, ch_vict, nullptr, spellnum, savetype);
-		if (ch->purged())
-		{
-			return 1;
-		}
-
-		GET_CAST_SUCCESS(ch) = attacker_cast - attacker_cast * targets_count * 9 / 100;
 	}
-	GET_CAST_SUCCESS(ch) = attacker_cast;
 
+	GET_CAST_SUCCESS(ch) = CASTER_CAST_SUCCESS;
 	return 1;
 }
-
-// Применение заклинания к части существ в комнате
-//---------------------------------------------------------
-int mag_areas(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype)
-{
-	int decay;
-	CHAR_DATA *ch_vict;
-	const char *msg;
-
-	if (!ch || !victim)
-		return 0;
-
-	int i;
-	for (i = 0; mag_messages[i].spell != -1; ++i)
-	{
-		if (mag_messages[i].spell == spellnum)
-		{
-			break;
-		}
-	}
-
-	if (mag_messages[i].spell == -1)
-	{
-		return 0;
-	}
-
-	if (ch->in_room == IN_ROOM(victim)) // Подавляем вывод если кастер не в комнате
-	{
-		if (multi_cast_say(ch))
-		{
-			if ((msg = mag_messages[i].to_char) != nullptr)
-				act(msg, FALSE, ch, 0, victim, TO_CHAR);
-			if ((msg = mag_messages[i].to_room) != nullptr)
-				act(msg, FALSE, ch, 0, victim, TO_ROOM | TO_ARENA_LISTEN);
-		}
-	}
-	decay = mag_messages[i].decay;
-
-	// список генерится до дамага по виктиму, т.к. на нем могут висеть death тригеры
-	// с появлением новых мобов, по которым тот же шок бьет уже после смерти основной цели
-	GroupMagicTmpCharList.clear();
-	for (const auto ch_vict : world[ch->in_room]->people)
-	{
-		if (IS_IMMORTAL(ch_vict))
-			continue;
-		if (!HERE(ch_vict))
-			continue;
-		if (ch_vict == victim)
-			continue;
-		if (SpINFO.violent && same_group(ch, ch_vict))
-			continue;
-		if (!IS_NPC(ch) && !IS_NPC(ch_vict))
-		{
-			if (ch && ch_vict)
-			{
-				if (check_agr_in_house(ch, ch_vict))
-					return 0;
-			}
-		}
-		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
-	}
-
-	mag_single_target(level, ch, victim, nullptr, spellnum, savetype);
-	if (ch->purged())
-	{
-		return 1;
-	}
-
-	level -= decay;
-
-	// у шока после первой цели - рандом на остальные две цели
-	int max_targets = 0;
-	if (spellnum == SPELL_SHOCK)
-	{
-		max_targets = number(0, 2);
-		if (max_targets == 0)
-		{
-			return 1;
-		}
-	}
-
-	size_t size = GroupMagicTmpCharList.size();
-	int count = 0;
-	while (level > 0 && level >= decay && size != 0)
-	{
-		if (max_targets > 0 && count >= max_targets)
-		{
-			break;
-		}
-
-		const auto index = number(0, static_cast<int>(size) - 1);
-		ch_vict = GroupMagicTmpCharList[index];
-		GroupMagicTmpCharList[index] = GroupMagicTmpCharList[--size];
-
-		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
-		{
-			continue;
-		}
-		mag_single_target(level, ch, ch_vict, nullptr, spellnum, savetype);
-		if (ch->purged())
-		{
-			break;
-		}
-		level -= decay;
-		++count;
-	}
-
-	return 1;
-}
-
 // Применение заклинания к группе в комнате
 //---------------------------------------------------------
-int mag_groups(int level, CHAR_DATA * ch, int spellnum, int savetype)
+int mag_groups(int level, CHAR_DATA * ch, int spellnum)
 {
-	if (ch == nullptr)
-	{
+	if (ch == nullptr) {
 		return 0;
 	}
 
-	int i;
-	for (i = 0; mag_messages[i].spell != -1; ++i)
-	{
-		if (mag_messages[i].spell == spellnum)
-		{
-			break;
-		}
-	}
+	trySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], spellnum);
 
-	if (mag_messages[i].spell == -1 && !IS_SET(SpINFO.routines, MAG_WARCRY))
-	{
-		sprintf(buf, "Нет сообщения в mag_messages заклинание с номером %d игнорируетсяктся", spellnum);
-		mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
-		return 0;
-	}
-
-	if (multi_cast_say(ch))
-	{
-		const char *msg;
-
-		if ((msg = mag_messages[i].to_char) != nullptr)
-			act(msg, FALSE, ch, 0, 0, TO_CHAR);
-		if ((msg = mag_messages[i].to_room) != nullptr)
-			act(msg, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-	}
-
-	GroupMagicTmpCharList.clear();
-	for (const auto ch_vict : world[ch->in_room]->people)
-	{
-		if (!HERE(ch_vict)
-			|| !same_group(ch, ch_vict))
-		{
-			continue;
-		}
-
-		addCharToTmpList(ch_vict, &GroupMagicTmpCharList);
-	}
-
-	for (TemporaryCharListType::const_iterator it = GroupMagicTmpCharList.begin(); it != GroupMagicTmpCharList.end(); ++it)
-	{
-		const auto ch_vict = *it;
-		if (!ch_vict || ch->in_room == NOWHERE || IN_ROOM(ch_vict) == NOWHERE)
-		{
-			continue;
-		}
-
-		mag_single_target(level, ch, ch_vict, nullptr, spellnum, savetype);
-		if (ch->purged())
-		{
+	ActionTargeting::FriendsRosterType roster{ch, ch};
+	for (const auto& target : roster) {
+		mag_single_target(level, ch, target, nullptr, spellnum, SAVING_STABILITY);
+		if (ch->purged()) {
 			return 1;
 		}
 	}
-
 	return 1;
 }
 

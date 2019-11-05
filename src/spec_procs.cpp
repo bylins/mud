@@ -78,8 +78,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int guild(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int dump(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int mayor(CHAR_DATA *ch, void *me, int cmd, char* argument);
-int snake(CHAR_DATA *ch, void *me, int cmd, char* argument);
-int thief(CHAR_DATA *ch, void *me, int cmd, char* argument);
+//int thief(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int magic_user(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int guild_guard(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int fido(CHAR_DATA *ch, void *me, int cmd, char* argument);
@@ -3072,25 +3071,8 @@ void mayor(CHAR_DATA *ch, void *me, int cmd, char* argument)
 // *  General special procedures for mobiles                          *
 // ********************************************************************
 
-int snake(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
-{
-	if (cmd)
-		return (FALSE);
-
-	if (GET_POS(ch) != POS_FIGHTING)
-		return (FALSE);
-
-	if (ch->get_fighting() && (ch->get_fighting()->in_room == ch->in_room) && (number(0, 42 - GET_LEVEL(ch)) == 0))
-	{
-		act("$n bites $N!", 1, ch, 0, ch->get_fighting(), TO_NOTVICT);
-		act("$n bites you!", 1, ch, 0, ch->get_fighting(), TO_VICT);
-		call_magic(ch, ch->get_fighting(), NULL, world[ch->in_room], SPELL_POISON, GET_LEVEL(ch), CAST_SPELL);
-		return (TRUE);
-	}
-	return (FALSE);
-}
-
-int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
+//int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
+/*
 {
 	if (cmd)
 		return (FALSE);
@@ -3112,7 +3094,7 @@ int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 
 	return FALSE;
 }
-
+*/
 int magic_user(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
 	if (cmd || GET_POS(ch) != POS_FIGHTING)

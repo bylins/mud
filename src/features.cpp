@@ -672,6 +672,8 @@ void determineFeaturesSpecification(void) {
 //152
 	initializeFeature(DEADLY_THROW_FEAT, "широкий размах", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
+//154
+	initializeFeature(MULTI_CAST_FEAT, "изощрённые чары", NORMAL_FTYPE, TRUE, feat_app);
 }
 
 bool can_use_feat(const CHAR_DATA *ch, int feat) {
@@ -896,7 +898,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 		}
 		break;
 	case SKIRMISHER_FEAT:
-		return (ch->get_skill(SKILL_RESCUE) > 99);
+		return (ch->get_skill(SKILL_RESCUE));
 		break;
 	case TACTICIAN_FEAT:
 		return (ch->get_skill(SKILL_LEADERSHIP) > 99);

@@ -1103,10 +1103,10 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!victim)
 		return TRUE;
 
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
+	if (MOB_FLAGGED(ch, MOB_NOFIGHT))
 		return (FALSE);
 
-	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))
+	if (MOB_FLAGGED(victim, MOB_NOFIGHT))
 	{
 		act("Боги предотвратили ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		return (FALSE);
