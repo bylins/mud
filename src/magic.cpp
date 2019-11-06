@@ -136,18 +136,15 @@ int timer_affected_roomt(CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
 // =============================================================== //
 
 // Показываем комнаты под аффектами //
-void ShowRooms(CHAR_DATA *ch)
-{
+void ShowRooms(CHAR_DATA *ch) {
 	buf[0] = '\0';
 	strcpy(buf, "Список комнат под аффектами:\r\n" "-------------------\r\n");
-	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
-	{
+	for (const auto& room : aff_room_list) {
 		buf1[0] = '\0';
-		for (const auto af : (*it)->affected)
-		{
+		for (const auto& af : room->affected) {
 			sprintf(buf1 + strlen(buf1), " !%s! (%s) [%d] ", spell_info[af->type].name, get_name_by_id(af->caster_id), af->duration);
 		}
-		sprintf(buf + strlen(buf),  "   [%d] %s\r\n", (*it)->number, buf1);
+		sprintf(buf + strlen(buf),  "   [%d] %s\r\n", room->number, buf1);
 	}
 	page_string(ch->desc, buf, TRUE);
 }
@@ -1778,21 +1775,16 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 //  log("[MAG DAMAGE] %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
 	// Magic glass
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY))
-	{
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY)) {
 		if (ch != victim && spellnum < MAX_SPELLS &&
-			((AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3))))
-		{
+			((AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3)))) {
 			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
 			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
 			act("Ваше магическое зеркало отразило поражение $n1!", FALSE, ch, 0, victim, TO_VICT);
 			return (mag_damage(level, ch, ch, spellnum, savetype));
 		}
-	}
-	else
-	{
-		if (ch != victim && spellnum < MAX_SPELLS && IS_GOD(victim) && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch)))
-		{
+	} else {
+		if (ch != victim && spellnum < MAX_SPELLS && IS_GOD(victim) && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch))) {
 			act("Звуковой барьер $N1 отразил ваш крик!", FALSE, ch, 0, victim, TO_CHAR);
 			act("Звуковой барьер $N1 отразил крик $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
 			act("Ваш звуковой барьер отразил крик $n1!", FALSE, ch, 0, victim, TO_VICT);
@@ -5579,6 +5571,7 @@ int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA
 			send_to_char(NOEFFECT, caster);
 			return (-1);
 		}
+
 	if (IS_SET(SpINFO.routines, MAG_WARCRY) && cvict && IS_UNDEAD(cvict))
 		return 1;
 
@@ -6012,10 +6005,6 @@ int calculateAmountTargetsOfSpell(const CHAR_DATA* ch, const int& msgIndex, cons
 	amount = dice(amount/mag_messages[msgIndex].skillDivisor, mag_messages[msgIndex].diceSize);
 	return mag_messages[msgIndex].minTargetsAmount + MIN(amount, mag_messages[msgIndex].maxTargetsAmount);
 }
-
-// Применение заклинания к всем существам в комнате
-//---------------------------------------------------------
-
 
 int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum, int level) {
 	if (ch == nullptr || IN_ROOM(ch) == NOWHERE) {
