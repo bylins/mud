@@ -136,18 +136,15 @@ int timer_affected_roomt(CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
 // =============================================================== //
 
 // Показываем комнаты под аффектами //
-void ShowRooms(CHAR_DATA *ch)
-{
+void ShowRooms(CHAR_DATA *ch) {
 	buf[0] = '\0';
 	strcpy(buf, "Список комнат под аффектами:\r\n" "-------------------\r\n");
-	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
-	{
+	for (const auto& room : aff_room_list) {
 		buf1[0] = '\0';
-		for (const auto af : (*it)->affected)
-		{
+		for (const auto& af : room->affected) {
 			sprintf(buf1 + strlen(buf1), " !%s! (%s) [%d] ", spell_info[af->type].name, get_name_by_id(af->caster_id), af->duration);
 		}
-		sprintf(buf + strlen(buf),  "   [%d] %s\r\n", (*it)->number, buf1);
+		sprintf(buf + strlen(buf),  "   [%d] %s\r\n", room->number, buf1);
 	}
 	page_string(ch->desc, buf, TRUE);
 }
@@ -6008,10 +6005,6 @@ int calculateAmountTargetsOfSpell(const CHAR_DATA* ch, const int& msgIndex, cons
 	amount = dice(amount/mag_messages[msgIndex].skillDivisor, mag_messages[msgIndex].diceSize);
 	return mag_messages[msgIndex].minTargetsAmount + MIN(amount, mag_messages[msgIndex].maxTargetsAmount);
 }
-
-// Применение заклинания к всем существам в комнате
-//---------------------------------------------------------
-
 
 int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum, int level) {
 	if (ch == nullptr || IN_ROOM(ch) == NOWHERE) {
