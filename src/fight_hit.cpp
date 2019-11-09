@@ -134,58 +134,6 @@ void haemorragia(CHAR_DATA * ch, int percent)
 		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
 	}
 }
-void inspiration(CHAR_DATA *ch, int time, int mod)
-{
-	AFFECT_DATA<EApplyLocation> af;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-	{
-		CHAR_DATA *k;
-		struct follow_type *f;
-		if (ch->has_master())
-		{
-			k = ch->get_master();
-		}
-		else
-		{
-			k = ch;
-		}
-		for (f = k->followers; f; f = f->next)
-		{
-			if (f->follower == ch)
-				continue;
-			if (f->follower->in_room == ch->in_room)
-			{
-				af.location = APPLY_DAMROLL;
-				af.type = SPELL_PALADINE_INSPIRATION;
-				af.modifier = GET_REMORT(ch) / 5 * 2;
-				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-				affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-				af.location = APPLY_CAST_SUCCESS;
-				af.type = SPELL_PALADINE_INSPIRATION;
-				af.modifier = GET_REMORT(ch) / 5 * mod;
-				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-				affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-				send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
-			}
-		}
-
-	}
-		af.location = APPLY_DAMROLL;
-		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(ch) / 5 * 2;
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
-		af.location = APPLY_CAST_SUCCESS;
-		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(ch) / 5 * mod;
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
-		send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
-}
 
 void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 {
@@ -826,51 +774,35 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			obj_to_room(obj, IN_ROOM(victim));
 		obj_decay(obj);
 	}
-	if (!IS_NPC(victim))
-	{
+	if (!IS_NPC(victim)) {
 		dam /= 5;
 	}
 	dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
-	bool affect_found = false;
-	for (int i = 0; i < 4; i++)
-	{
-		if (af[i].type)
-		{
+	for (int i = 0; i < 4; i++) {
+		if (af[i].type) {
 			if (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
 				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
-				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT))
-			{
-				if (victim->get_role(MOB_ROLE_BOSS))
-				{
+				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT)) {
+				if (victim->get_role(MOB_ROLE_BOSS)) {
 					af[i].duration /= 5;
 					// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
 					sh_int extra_duration = 0;
 					OBJ_DATA* both = GET_EQ(ch, WEAR_BOTHS);
 					OBJ_DATA* wield = GET_EQ(ch, WEAR_WIELD);
-					if (both)
-					{
+					if (both) {
 						extra_duration = GET_OBJ_WEIGHT(both) / 5;
 					}
-					else if (wield)
-					{
+					else if (wield) {
 						extra_duration = GET_OBJ_WEIGHT(wield) / 5;
 					}
 					af[i].duration += pc_duration(victim, GET_REMORT(ch)/2 + extra_duration, 0, 0, 0, 0);
 				}
-				if (!affect_found)
-				{
-					inspiration(ch, 2, 3);
-					affect_found = true;
-				}
 			}
 			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
 		}
-		if (!affect_found)
-		{
-			inspiration(ch, 1, 1);
-			affect_found = true;
-		}
+
 	}
+//	inspiration(ch);
 }
 
 /**
