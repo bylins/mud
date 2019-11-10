@@ -293,7 +293,7 @@ int get_virtual_race(CHAR_DATA *mob)
  * Scan until strings are found different or we reach the end of both.
  */
 
-CHAR_DATA *get_random_pc(CHAR_DATA *ch) {
+CHAR_DATA *get_random_group_pc(CHAR_DATA *ch) {
 	std::vector<CHAR_DATA *> tmp_list;
 	CHAR_DATA *victim;
 	CHAR_DATA *k;
@@ -306,7 +306,7 @@ CHAR_DATA *get_random_pc(CHAR_DATA *ch) {
 		k = ch;
 	}
 	for (follow_type *i = k->followers; i; i = i->next) {
-		if (!IS_CHARMICE(i->follower) && (k != i->follower)) {
+		if (!IS_NPC(k) && !IS_CHARMICE(i->follower) && (k != i->follower) && (k->in_room == i->follower->in_room)) {
 			tmp_list.push_back(i->follower);
 		}
 	}

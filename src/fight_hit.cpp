@@ -56,7 +56,51 @@ int armor_class_limit(CHAR_DATA * ch)
 	}
 	return -300;
 }
+void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
+	CHAR_DATA *k;
+	AFFECT_DATA<EApplyLocation> af;
 
+	struct follow_type *f;
+		if (ch->has_master()){
+			k = ch->get_master();
+	}
+	else {
+		k = ch;
+	}
+	for (f = k->followers; f; f = f->next) {
+		if (f->follower->in_room != k->in_room){
+			continue;
+		}
+			af.location = num_apply;
+			af.type = SPELL_PALADINE_INSPIRATION;
+			af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
+			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			af.duration = pc_duration(f->follower, 0, 0, 0 , 0, 0);
+			affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
+			return;
+	}
+	af.location = num_apply;
+	af.type = SPELL_PALADINE_INSPIRATION;
+	af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
+	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+	af.duration = pc_duration(ch, time, 0, 0, 0, 0);
+	affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+}
+void inspiration(CHAR_DATA *ch) {
+	byte vernum;
+	vernum = number(1,2);
+	switch (vernum){
+	case 1:
+		aff_group_inspiration(ch, APPLY_DAMROLL, 50, 20);
+		break;
+	case 2:
+		aff_group_inspiration(ch, APPLY_HITROLL, 50, 20);
+		break;
+	default:
+		break;
+	}
+	send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
+}
 int compute_armor_class(CHAR_DATA * ch)
 {
 	int armorclass = GET_REAL_AC(ch);
@@ -802,7 +846,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 
 	}
-//	inspiration(ch);
+	inspiration(ch);
 }
 
 /**
