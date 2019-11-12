@@ -286,14 +286,8 @@ int get_virtual_race(CHAR_DATA *mob)
 	return -1;
 }
 
-/*
- * str_cmp: a case-insensitive version of strcmp().
- * Returns: 0 if equal, > 0 if arg1 > arg2, or < 0 if arg1 < arg2.
- *
- * Scan until strings are found different or we reach the end of both.
- */
 
-CHAR_DATA *get_random_group_pc(CHAR_DATA *ch) {
+CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
 	std::vector<CHAR_DATA *> tmp_list;
 	CHAR_DATA *victim;
 	CHAR_DATA *k;
@@ -313,9 +307,17 @@ CHAR_DATA *get_random_group_pc(CHAR_DATA *ch) {
 	if (tmp_list.empty()) {
 		return nullptr;
 	}
+	tmp_list.push_back(k); // засунем в список лидера
 	victim = tmp_list.at(number(0, tmp_list.size() - 1));
 	return victim;
 }
+
+/*
+ * str_cmp: a case-insensitive version of strcmp().
+ * Returns: 0 if equal, > 0 if arg1 > arg2, or < 0 if arg1 < arg2.
+ *
+ * Scan until strings are found different or we reach the end of both.
+ */
 
 int str_cmp(const char *arg1, const char *arg2)
 {

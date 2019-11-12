@@ -67,6 +67,13 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 	else {
 		k = ch;
 	}
+// на лидера
+	af.location = num_apply;
+	af.type = SPELL_PALADINE_INSPIRATION;
+	af.modifier = GET_REMORT(k) / 5 * 2 + modi;
+	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+	af.duration = pc_duration(k, time, 0, 0, 0, 0);
+	affect_join(k, af, FALSE, FALSE, FALSE, FALSE);
 	for (f = k->followers; f; f = f->next) {
 		if (f->follower->in_room != k->in_room){
 			continue;
@@ -75,26 +82,41 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 			af.type = SPELL_PALADINE_INSPIRATION;
 			af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			af.duration = pc_duration(f->follower, 0, 0, 0 , 0, 0);
+			af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
 			affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-			return;
 	}
+
+}
+void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
+	CHAR_DATA *target;
+	AFFECT_DATA<EApplyLocation> af;
+
+	target = get_random_pc_group(ch);
 	af.location = num_apply;
 	af.type = SPELL_PALADINE_INSPIRATION;
 	af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
 	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 	af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-	affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
+	affect_join(target , af, FALSE, FALSE, FALSE, FALSE);
 }
 void inspiration(CHAR_DATA *ch) {
-	byte vernum;
-	vernum = number(1,2);
-	switch (vernum){
-	case 1:
+	byte num = number(1,5);
+	CHAR_DATA * target = get_random_pc_group(ch);
+	switch (num){
+	case 1: //дамы на группу
 		aff_group_inspiration(ch, APPLY_DAMROLL, 50, 20);
 		break;
-	case 2:
+	case 2: // хитролы на группу
 		aff_group_inspiration(ch, APPLY_HITROLL, 50, 20);
+		break;
+	case 3: // дамролы на случайного чара в группе
+		aff_random_pc_inspiration(ch, APPLY_DAMROLL, 50, 20);
+		break;
+	case 4: // каст хила на случайного чара в группе
+		call_magic(ch, target , nullptr, nullptr, SPELL_HEAL, GET_LEVEL(ch));
+		break;
+	case 5: // каст массхила
+		call_magic(ch, target , nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
 		break;
 	default:
 		break;
