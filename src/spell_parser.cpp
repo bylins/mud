@@ -2135,9 +2135,7 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level)
-{
-	int savetype;
+int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level) {
 
 	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
 		return (0);
@@ -2170,10 +2168,10 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		return callMagicToArea(caster, cvict, rvict, spellnum, level);
 
 	if (IS_SET(SpINFO.routines, MAG_GROUPS))
-		return mag_groups(level, caster, spellnum);
+		return callMagicToGroup(level, caster, spellnum);
 
 	if (IS_SET(SpINFO.routines, MAG_ROOM))
-		return RoomSpells::mag_room(level, caster, rvict, spellnum);
+		return RoomSpells::imposeSpellToRoom(level, caster, rvict, spellnum);
 
 	return mag_single_target(level, caster, cvict, ovict, spellnum, SAVING_STABILITY);
 }
@@ -4993,8 +4991,6 @@ void mag_assign_spells(void)
 		   150, 140, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 15, STYPE_DARK);
 //135
-//	spello(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm", 125, 110, 2,
-//		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_EARTH);
 	spello(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm", 125, 110, 2,
 		   POS_FIGHTING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_EARTH);
 //136
@@ -5266,7 +5262,7 @@ void mag_assign_spells(void)
 		   POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 1, STYPE_MIND);
 //209
 	spello(SPELL_EVARDS_BLACK_TENTACLES, "навьи руки", "evards black tentacles", 120, 110, 2,
-		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_DARK);
+		   POS_FIGHTING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_DARK);
 //210
 	spello(SPELL_WHIRLWIND, "вихрь", "whirlwind", 110, 100, 1,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,

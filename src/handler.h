@@ -57,7 +57,7 @@ void decreaseFeatTimer(CHAR_DATA * ch, int featureID);
 void affect_room_total(ROOM_DATA * room);
 void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add);
 void affect_to_room(ROOM_DATA * room, const AFFECT_DATA<ERoomApplyLocation>& af);
-void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& af);
+void removeAffectFromRoom(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& af);
 ROOM_DATA::room_affects_list_t::iterator find_room_affect(ROOM_DATA* room, int type);
 void affect_room_join_fspell(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af);
 void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);

@@ -44,6 +44,7 @@ namespace AbilitySystem {
 		}
 	};
 
+	// TODO Лобавить возмодность проверки вполнения "специальныз условимй" для конкретной абилки, а не только оружия
 	bool AbilityRollType::tryRevealWrongConditions() {
 		if (isActorCantUseAbility()) {
 			return true;
@@ -104,7 +105,18 @@ namespace AbilitySystem {
 
 	// Костыльно-черновой учет морали
 	bool AgainstRivalRollType::isActorMoraleFailure() {
-		return ((number(0, _actor->calc_morale()) - number(0, _rival->calc_morale())) < 0);
+		int actorMorale = _actor->calc_morale();
+		int rivalMorale = _rival->calc_morale();
+		if (actorMorale > 0 && rivalMorale > 0) {
+			return ((number(0, _actor->calc_morale()) - number(0, _rival->calc_morale())) < 0);
+		}
+		if (actorMorale <= 0 && rivalMorale <= 0) {
+			return (actorMorale < rivalMorale);
+		}
+		if (actorMorale <= 0 && rivalMorale >= 0) {
+			return true;
+		}
+		return false;
 	};
 
 	// TODO: переделать на static, чтобы иметь возможность считать рейтинги, к примеру, при наложении аффектов

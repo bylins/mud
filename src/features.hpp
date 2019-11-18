@@ -182,7 +182,7 @@ using std::bitset;
 #define TRIPLE_THROW_FEAT		150 // тройной бросок
 #define POWER_THROW_FEAT		151 // размах
 #define DEADLY_THROW_FEAT		152 // широкий размах
-#define CARAVAN_DRIVER_FEAT		153 // ЗАРЕЗЕРВИРОВАНО
+#define TURN_UNDEAD_FEAT		153 // затычка для "изгнать нежить"
 #define MULTI_CAST_FEAT			154 // уменьшение штрафа за число циелей для масскастов
 
 

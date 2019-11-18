@@ -818,18 +818,13 @@ void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect_i)
-{
-	if (room->affected.empty())
-	{
-		log("SYSERR: affect_room_remove when no affects...");
+void removeAffectFromRoom(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect) {
+	if (room->affected.empty()) {
+		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
 	}
-
-	const auto affect = *affect_i;
-	affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, FALSE);
-	room->affected.erase(affect_i);
-
+	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, FALSE);
+	room->affected.erase(affect);
 	affect_room_total(room);
 }
 
@@ -992,7 +987,7 @@ void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, boo
 					af.modifier /= 2;
 				}
 
-				affect_room_remove(room, affect_i);
+				removeAffectFromRoom(room, affect_i);
 				affect_to_room(room, af);
 
 				found = true;
@@ -4632,13 +4627,13 @@ int get_object_low_rent(OBJ_DATA *obj)
 // * Удаление рунной метки (при пропадании в пустоте и реморте).
 void remove_rune_label(CHAR_DATA *ch)
 {
-	ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+	ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room)
 	{
 		const auto aff = find_room_affect(label_room, SPELL_RUNE_LABEL);
 		if (aff != label_room->affected.end())
 		{
-			affect_room_remove(label_room, aff);
+			removeAffectFromRoom(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);
 		}
 	}

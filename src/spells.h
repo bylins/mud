@@ -614,7 +614,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
 
-int mag_groups(int level, CHAR_DATA * ch, int spellnum);
+int callMagicToGroup(int level, CHAR_DATA * ch, int spellnum);
 
 int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum, int level);
 
@@ -640,18 +640,13 @@ bool catch_bloody_corpse(OBJ_DATA * l);
 
 namespace RoomSpells {
 
-// список всех обкстованных комнат //
-extern std::list<ROOM_DATA*> aff_room_list;
-// Показываем комнаты под аффектами //
-void ShowRooms(CHAR_DATA *ch);
-// Применение заклинания к комнате //
-int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
-// Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //
-ROOM_DATA * find_affected_roomt(long id, int spellnum);
-// Время существования заклинания в комнате //
-int timer_affected_roomt(long id, int spellnum);
+	extern std::list<ROOM_DATA*> aff_room_list;
+	void showAffectedRooms(CHAR_DATA *ch);
+	int imposeSpellToRoom(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+	ROOM_DATA * findAffectedRoom(long id, int spellnum);
+	int getUniqueAffectDuration(long casterID, int spellnum);
 
-} // RoomSpells
+} // namespace RoomSpells
 
 // other prototypes //
 void mspell_remort(char *name , int spell, int kin , int chclass, int remort);
@@ -685,6 +680,7 @@ namespace SpellUsage
 #define CALC_SUCCESS(modi,perc)         ((modi)-100+(perc))
 
 const int HOURS_PER_WARCRY = 4;
+const int HOURS_PER_TURN_UNDEAD = 8;
 
 #endif
 

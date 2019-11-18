@@ -5587,8 +5587,8 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	case 18:		// show crc
 		FileCRC::show(ch);
 		break;
-	case 19:		// show affected rooms
-		RoomSpells::ShowRooms(ch);
+	case 19:
+		RoomSpells::showAffectedRooms(ch);
 		break;
 	case 20: // money
 		MoneyDropStat::print(ch);
