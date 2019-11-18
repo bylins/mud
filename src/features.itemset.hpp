@@ -30,7 +30,7 @@ struct TechniqueItem {
 		_type{OBJ_DATA::ITEM_UNDEFINED},
 		_skill{SKILL_INDEFINITE},
 		_flagged{false},
-		_flag{0}
+		_flag{EExtraFlag::ITEM_GLOW}
 		{};
 
 	TechniqueItem(short objectWearPosition, OBJ_DATA::EObjectType objectType):

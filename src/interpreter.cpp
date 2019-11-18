@@ -2433,6 +2433,10 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	Clan::clan_invoice(d->character.get(), true);
 
 	// Чистим стили если не знаем их
+	if (PRF_FLAGS(d->character).get(PRF_SHADOW_THROW)) {
+		PRF_FLAGS(d->character).unset(PRF_SHADOW_THROW);
+	}
+
 	if (PRF_FLAGS(d->character).get(PRF_PUNCTUAL)
 		&& !d->character->get_skill(SKILL_PUNCTUAL)) {
 		PRF_FLAGS(d->character).unset(PRF_PUNCTUAL);

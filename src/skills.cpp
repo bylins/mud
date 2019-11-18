@@ -1384,7 +1384,6 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 
 	case SKILL_TURN_UNDEAD:  // изгнать нежить
 		{
-		bonus = (can_use_feat(ch, EXORCIST_FEAT) ? 20 : 0);
 		break;
 		}
 

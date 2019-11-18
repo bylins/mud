@@ -70,6 +70,7 @@ namespace AbilitySystem {
 		bool isCriticalSuccess() {return _criticalSuccess;};
 		bool isWrongConditions(){return _wrongConditions;};
 		int ID() {return _ability->ID;};
+		int getDegreeOfSuccess() {return _degreeOfSuccess;};
 		CHAR_DATA * actor() {return _actor;};
 		void sendDenyMessageToActor();
 	};

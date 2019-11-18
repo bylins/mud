@@ -18,6 +18,7 @@
 namespace ActionTargeting {
 
 	using FilterType = std::function<bool (CHAR_DATA*, CHAR_DATA*)>;
+	using PredicateType = std::function<bool (CHAR_DATA*)>;
 	extern const FilterType emptyFilter;
 	extern const FilterType isCorrectFriend;
 	extern const FilterType isCorrectVictim;
@@ -44,7 +45,10 @@ namespace ActionTargeting {
 	public:
 		auto begin() const noexcept {return std::make_reverse_iterator(std::end(_roster));};
 		auto end() const noexcept {return std::make_reverse_iterator(std::begin(_roster));};
+		CHAR_DATA* getRandomItem(const PredicateType& predicate);
+		CHAR_DATA* getRandomItem();
 		int amount() {return _roster.size();};
+		int count(const PredicateType& predicate);
 	};
 
 //  -------------------------------------------------------

@@ -14,6 +14,7 @@
 #include "mobact.hpp"
 
 #include "ability.rollsystem.hpp"
+#include "action.targeting.hpp"
 #include "features.hpp"
 #include "world.characters.hpp"
 #include "world.objects.hpp"
@@ -234,29 +235,17 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
-// Sent TODO переписать на использование action.targeting
-CHAR_DATA *selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
-	std::vector<CHAR_DATA *> victimList;
-	char uncoveredGroupMembers = 0;
-
-	for (const auto skirmisher : world[leader->in_room]->people) {
-		if (!HERE(skirmisher) || !same_group(leader, skirmisher) || !leader->isInSameRoom(skirmisher)) {
-			continue;
-		}
-		if (PRF_FLAGGED(skirmisher, PRF_SKIRMISHER)) {
-			victimList.push_back(skirmisher);
-		} else {
-			uncoveredGroupMembers++;
-		}
-	}
-
-	if (victimList.empty() || (uncoveredGroupMembers == 0)) {
+CHAR_DATA* selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
+	ActionTargeting::FriendsRosterType roster{leader};
+	auto isSkirmisher = [](CHAR_DATA* ch){return PRF_FLAGGED(ch, PRF_SKIRMISHER);};
+	int skirmishers = roster.count(isSkirmisher);
+	if (skirmishers == 0 || skirmishers == roster.amount()) {
 		return nullptr;
 	}
-	return victimList[number(0, victimList.size()-1)];
+	return roster.getRandomItem(isSkirmisher);
 }
 
-CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim) {
+CHAR_DATA* selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim) {
 	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffectFlag::AFF_GROUP)) {
 		return initialVictim;
 	}
@@ -267,9 +256,12 @@ CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 	if (initialVictim->has_master()) {
 		leader = initialVictim->get_master();
 	}
+	if (!assaulter->isInSameRoom(leader)) {
+		return initialVictim;
+	}
 
 	newVictim = selectRandomSkirmisherFromGroup(leader);
-	if (!newVictim || !assaulter->isInSameRoom(leader)) {
+	if (!newVictim) {
 		return initialVictim;
 	}
 
@@ -277,8 +269,7 @@ CHAR_DATA *selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 	abilityRoll.initialize(leader, TACTICIAN_FEAT, assaulter);
 	bool tacticianFail = !abilityRoll.isSuccess();
 	abilityRoll.initialize(newVictim, SKIRMISHER_FEAT, assaulter);
-	bool skirmisherFail = !abilityRoll.isSuccess();
-	if (tacticianFail || skirmisherFail) {
+	if (tacticianFail || !abilityRoll.isSuccess()) {
 		return initialVictim;
 	}
 
@@ -830,7 +821,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 			if (affect_it->get()->type == SPELL_RUNE_LABEL && (affect_it != room->affected.end()))
 			{
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				affect_room_remove(world[ch->in_room], affect_it);
+				removeAffectFromRoom(world[ch->in_room], affect_it);
 				break;
 			}
 		}

@@ -813,56 +813,41 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
 	if (!port && name_cmp(ch, cast_argument))
 	{
-		//Таки да, персонаж пытается поставить врата на себя, то бишь на свою метку. Ищем комнату с меткой.
-		label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 
-		//Если такая комната есть - заполняем структуру портала
-		//Тупо конечно, но какого блин туча проверок по всем функциям рассована? Их все обойти - убиться проще.
-		if (label_room)
-		{
+		label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+		if (label_room) {
 			label_port.vnum = label_room->number;
 			label_port.level = 1;
 			port = &label_port;
 			has_label_portal = true;
 		}
 	}
-	if (port && (has_char_portal(ch, port->vnum) || has_label_portal))
-	{
-		// Проверяем скилл тут, чтобы можно было смотреть список и удалять без -!-
-		if (timed_by_skill(ch, SKILL_TOWNPORTAL))
-		{
+	if (port && (has_char_portal(ch, port->vnum) || has_label_portal)) {
+		if (timed_by_skill(ch, SKILL_TOWNPORTAL)) {
 			send_to_char("У вас недостаточно сил для постановки врат.\r\n", ch);
 			return;
 		}
 
-		// Если мы открываем врата из комнаты с камнем, то они не работают //
-		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room)))
-		{
+		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
 			send_to_char("Камень рядом с вами мешает вашей магии.\r\n", ch);
 			return;
 		}
 
-		// Если в комнате есть метка-"камень" то врата ставить нельзя //
 		const auto& room = world[ch->in_room];
 		const auto room_affect_i = find_room_affect(room, SPELL_RUNE_LABEL);
-		if (room_affect_i != room->affected.end())
-		{
+		if (room_affect_i != room->affected.end()) {
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}
 
-		// Чтоб не кастили в NOMAGIC
-		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch))
-		{
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch)) {
 			send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
 			return;
 		}
 		//удаляем переходы
-		if (world[ch->in_room]->portal_time)
-		{
-			if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time)
-			{
+		if (world[ch->in_room]->portal_time) {
+			if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time) {
 				decay_portal(world[ch->in_room]->portal_room);
 			}
 			decay_portal(ch->in_room);
