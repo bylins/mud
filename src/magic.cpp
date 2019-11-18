@@ -48,6 +48,7 @@
 #include "zone.table.hpp"
 
 #include <boost/format.hpp>
+#include <iomanip>
 
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -67,41 +68,8 @@ bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spe
 bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum);
 void pulse_affect_update(CHAR_DATA * ch);
 
-CHAR_DATA * find_char_in_room(long char_id, ROOM_DATA *room)
-{
-	assert(room);
-
-	for (const auto tch : room->people) {
-		if (GET_ID(tch) == char_id) {
-			return (tch);
-		}
-	}
-
-	return nullptr;
-}
-
-void callMagicAttackToAmountFoes(CHAR_DATA *caster, int targetsAmount, int spellnum, int levelDivider) {
-	ActionTargeting::FoesRosterType roster{caster};
-	int targetsCounter = 0;
-	for (const auto& target : roster) {
-		call_magic(caster, target, nullptr, nullptr, spellnum, 1+GET_LEVEL(caster)/levelDivider);
-		++targetsCounter;
-		if (targetsCounter >= targetsAmount) {
-			return;
-		}
-	}
-}
-
-void callMagicAttackToAllFoes(CHAR_DATA *caster, int spellnum, int levelDivider) {
-	ActionTargeting::FoesRosterType roster{caster};
-	for (const auto& target : roster) {
-		call_magic(caster, target, nullptr, nullptr, spellnum, 1+GET_LEVEL(caster)/levelDivider);
-	}
-}
-
-bool is_room_forbidden(ROOM_DATA * room)
-{
-	for (const auto af : room->affected) {
+bool is_room_forbidden(ROOM_DATA * room) {
+	for (const auto& af : room->affected) {
 		if (af->type == SPELL_FORBIDDEN && (number(1, 100) <= af->modifier)) {
 			return true;
 		}
@@ -110,146 +78,110 @@ bool is_room_forbidden(ROOM_DATA * room)
 }
 
 // * Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
-
 namespace RoomSpells {
 
-// список всех обкстованных комнат //
-std::list<ROOM_DATA*> aff_room_list;
+	std::list<ROOM_DATA*> aff_room_list;
 
-// Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //
-ROOM_DATA * find_affected_roomt(long id, int spellnum);
-// Показываем комнаты под аффектами //
-void ShowRooms(CHAR_DATA *ch);
-// Поиск и удаление первого аффекта от спелла spellnum и кастером с идом id //
-void find_and_remove_room_affect(long id, int spellnum);
-// Обработка самих аффектов т.е. их влияния на персонажей в комнате раз в 2 секунды //
-void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA<ERoomApplyLocation>::shared_ptr& aff);
-// Сообщение при снятии аффекта //
-void show_room_spell_off(int aff, room_rnum room);
-// Добавление новой комнаты в список //
-void AddRoom(ROOM_DATA* room);
-// Применение заклинания к комнате //
-int mag_room(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
-// Время существования заклинания в комнате //
-int timer_affected_roomt(CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+	ROOM_DATA* findAffectedRoom(long casterID, int spellnum);
+	void showAffectedRooms(CHAR_DATA *ch);
+	void removeSingleRoomAffect(long casterID, int spellnum);
+	void handleRoomAffect(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA<ERoomApplyLocation>::shared_ptr& aff);
+	void sendAffectOffMessageToRoom(int aff, room_rnum room);
+	void addRoom(ROOM_DATA* room);
+	int imposeSpellToRoom(int level, CHAR_DATA * ch , ROOM_DATA * room, int spellnum);
+	int getUniqueAffectDuration(long casterID, int spellnum);
 
-// =============================================================== //
-
-// Показываем комнаты под аффектами //
-void ShowRooms(CHAR_DATA *ch) {
-	buf[0] = '\0';
-	strcpy(buf, "Список комнат под аффектами:\r\n" "-------------------\r\n");
-	for (const auto& room : aff_room_list) {
-		buf1[0] = '\0';
-		for (const auto& af : room->affected) {
-			sprintf(buf1 + strlen(buf1), " !%s! (%s) [%d] ", spell_info[af->type].name, get_name_by_id(af->caster_id), af->duration);
-		}
-		sprintf(buf + strlen(buf),  "   [%d] %s\r\n", room->number, buf1);
-	}
-	page_string(ch->desc, buf, TRUE);
-}
-
-// =============================================================== //
-
-// Поиск первой комнаты с аффектом от spellnum и кастером с идом Id //
-ROOM_DATA* find_affected_roomt(long id, int spellnum)
-{
-	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
-	{
-		for (const auto af : (*it)->affected)
-		{
-			if (af->type == spellnum
-				&& af->caster_id == id)
-			{
-				return *it;
+	void showAffectedRooms(CHAR_DATA *ch) {
+		const int vnumCW = 7;
+		const int spellCW = 25;
+		const int casterCW = 21;
+		const int timeCW = 10;
+		constexpr int tableW = vnumCW + spellCW + casterCW + timeCW;
+		std::stringstream buffer;
+		buffer << " Список комнат под аффектами:" << std::endl
+				<< " " << std::setfill('-') << std::setw(tableW) << "" << std::endl << std::setfill(' ')
+				<< std::left << " " << std::setw(vnumCW) << "Vnum"
+				<< std::setw(spellCW) << "Spell"
+				<< std::setw(casterCW) << "Caster name"
+				<< std::right << std::setw(timeCW) << "Time (s)"
+				<< std::endl
+				<< " " << std::setfill('-') << std::setw(tableW) << "" << std::endl << std::setfill(' ');
+		for (const auto room : aff_room_list) {
+			for (const auto& af : room->affected) {
+				buffer << std::left << " " << std::setw(vnumCW) << room->number
+						<< std::setw(spellCW) << spell_info[af->type].name
+						<< std::setw(casterCW) << get_name_by_id(af->caster_id)
+						<< std::right << std::setw(timeCW) << af->duration*2
+						<< std::endl;
 			}
 		}
+		page_string(ch->desc, buffer.str());
 	}
 
-	return nullptr;
-}
+	CHAR_DATA* find_char_in_room(long char_id, ROOM_DATA *room) {
+		assert(room);
+		for (const auto tch : room->people) {
+			if (GET_ID(tch) == char_id) {
+				return (tch);
+			}
+		}
+		return nullptr;
+	}
 
-// =============================================================== //
-
-// Поиск и удаление первого аффекта от спелла spellnum и кастером с идом id //
-void find_and_remove_room_affect(long id, int spellnum)
-{
-	for (auto it = aff_room_list.begin();it != aff_room_list.end();++it)
-	{
-		auto& affects = (*it)->affected;
-		auto next_affect_i = affects.begin();
-		for (auto affect_i = next_affect_i; affect_i != affects.end(); affect_i = next_affect_i)
-		{
-			++next_affect_i;
-			const auto& affect = *affect_i;
-			if (affect->type == spellnum
-				&& affect->caster_id == id)
-			{
-				if (affect->type > 0
-					&& affect->type <= SPELLS_COUNT
-					&& *spell_wear_off_msg[affect->type])
-				{
-					show_room_spell_off(affect->type, real_room((*it)->number));
+	ROOM_DATA* findAffectedRoom(long casterID, int spellnum) {
+		for (const auto room : aff_room_list) {
+			for (const auto& af : room->affected) {
+				if (af->type == spellnum && af->caster_id == casterID) {
+					return room;
 				}
-
-				affect_room_remove(*it, affect_i);
-				return;
 			}
 		}
+		return nullptr;
 	}
-}
 
-//поиск первого !контролируемого! заклинания от персонажа ch
-int find_and_remove_controlled_room_affect(CHAR_DATA *ch)
-{
-	int spellnum;
-	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();++it)
-	{
-		auto& affects = (*it)->affected;
-		auto next_affect_i = affects.begin();
-		for (auto affect_i = next_affect_i; affect_i != affects.end(); affect_i = next_affect_i)
-		{
-			++next_affect_i;
-			const auto& affect = *affect_i;
-			if (affect->type > 0 && affect->type <= SPELLS_COUNT && affect->caster_id == GET_ID(ch)
-				&& IS_SET(spell_info[affect->type].routines, MAG_NEED_CONTROL))
-			{
-				if (*spell_wear_off_msg[affect->type])
-				{
-					show_room_spell_off(affect->type, real_room((*it)->number));
-				}
-				spellnum = affect->type;
-				affect_room_remove(*it, affect_i);
-
-				return spellnum;
+	template<typename F>
+	int removeAffectFromRooms(long casterID, int spellnum, const F& filter) {
+		for (const auto room : aff_room_list) {
+			const auto& affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
+			if (affect != room->affected.end()) {
+					sendAffectOffMessageToRoom((*affect)->type, real_room(room->number));
+					spellnum = (*affect)->type;
+					removeAffectFromRoom(room, affect);
+					return spellnum;
 			}
 		}
+		return 0;
 	}
 
-	return 0;
-}
+	void removeSingleRoomAffect(long casterID, int spellnum) {
+		auto filter =
+			[&casterID, &spellnum](auto& af)
+				{return (af->caster_id == casterID && af->type == spellnum);};
+		removeAffectFromRooms(casterID, spellnum, filter);
+	}
 
-// =============================================================== //
+	int removeControlledRoomAffect(CHAR_DATA *ch) {
+		long casterID = GET_ID(ch);
+		auto filter =
+			[&casterID](auto& af)
+				{return (af->caster_id == casterID && IS_SET(spell_info[af->type].routines, MAG_NEED_CONTROL));};
+		return removeAffectFromRooms(casterID, 0, filter);
+	}
 
-// Сообщение при снятии аффекта //
-void show_room_spell_off(int aff, room_rnum room) {
-	send_to_room(spell_wear_off_msg[aff], room, 0);
-}
+	void sendAffectOffMessageToRoom(int affectType, room_rnum room) {
+		if (affectType > 0 && affectType <= SPELLS_COUNT && *spell_wear_off_msg[affectType]) {
+			send_to_room(spell_wear_off_msg[affectType], room, 0);
+		};
+	}
 
-// =============================================================== //
-
-// Добавление новой комнаты в список //
-void AddRoom(ROOM_DATA* room) {
-	//std::list<ROOM_DATA*>::const_iterator
-	const auto it = std::find(aff_room_list.begin(), aff_room_list.end(), room);
-	if (it == aff_room_list.end())
-		aff_room_list.push_back(room);
-}
-
-// =============================================================== //
+	void addRoom(ROOM_DATA* room) {
+		const auto it = std::find(aff_room_list.begin(), aff_room_list.end(), room);
+		if (it == aff_room_list.end())
+			aff_room_list.push_back(room);
+	}
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
-void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA<ERoomApplyLocation>::shared_ptr& aff)
+void handleRoomAffect(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA<ERoomApplyLocation>::shared_ptr& aff)
 {
 	// Аффект в комнате.
 	// Проверяем на то что нам передали бяку в параметрах.
@@ -282,7 +214,7 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 	case SPELL_METEORSTORM:
 		send_to_char("Раскаленные громовые камни рушатся с небес!\r\n", ch);
 		act("Раскаленные громовые камни рушатся с небес!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		callMagicAttackToAllFoes(ch, SPELL_THUNDERSTONE, 3);
+		callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_THUNDERSTONE, ch->get_level());
 		break;
 
 	case SPELL_THUNDERSTORM:
@@ -300,32 +232,32 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 		case 7:
 			send_to_char("Раздался чудовищный раскат грома!\r\n", ch);
 			act("Раздался чудовищный удар грома!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicAttackToAllFoes(ch, SPELL_DEAFNESS, 1);
+			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_DEAFNESS, ch->get_level());
 			break;
 		case 6:
 			send_to_char("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
 			act("Порывы мокрого ледяного ветра обрушились на вас!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicAttackToAmountFoes(ch, 5, SPELL_CONE_OF_COLD, 4);
+			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_CONE_OF_COLD, ch->get_level());
 			break;
 		case 5:
 			send_to_char("Из туч хлынул дождь кислоты!\r\n", ch);
 			act("Из туч хлынул дождь кислоты!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicAttackToAmountFoes(ch, 6, SPELL_ACID, 4);
+			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_ACID, ch->get_level());
 			break;
 		case 4:
 			send_to_char("Из туч ударили разряды молний!\r\n", ch);
 			act("Из туч ударили разряды молний!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicAttackToAllFoes(ch, SPELL_LIGHTNING_BOLT, 2);
+			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_LIGHTNING_BOLT, ch->get_level());
 			break;
 		case 3:
 			send_to_char("Из тучи посыпались шаровые молнии!\r\n", ch);
 			act("Из тучи посыпались шаровые молнии!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicAttackToAmountFoes(ch, 7, SPELL_CALL_LIGHTNING, 1);
+			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_CALL_LIGHTNING, ch->get_level());
 			break;
 		case 2:
 			send_to_char("Буря завыла, закручиваясь в вихри!\r\n", ch);
 			act("Буря завыла, закручиваясь в вихри!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicAttackToAmountFoes(ch, 3, SPELL_WHIRLWIND, 10);
+			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_WHIRLWIND, ch->get_level());
 			break;
 		case 1:
 			what_sky = SKY_CLOUDLESS;
@@ -333,18 +265,18 @@ void pulse_room_affect_handler(ROOM_DATA* room, CHAR_DATA* ch, const AFFECT_DATA
 		default:
 			send_to_char("Из туч ударили разряды молний!\r\n", ch);
 			act("Из туч ударили разряды молний!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-			callMagicAttackToAmountFoes(ch, 3, SPELL_LIGHTNING_BOLT, 3);
+			callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_LIGHTNING_BOLT, ch->get_level());
 		}
 		break;
 
 	case SPELL_EVARDS_BLACK_TENTACLES:
 		send_to_char("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
 		act("Мертвые руки навей шарят в поисках добычи!\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		callMagicAttackToAmountFoes(ch, 3, SPELL_DAMAGE_SERIOUS, 2);
+		callMagicToArea(ch, nullptr, world[ch->in_room], SPELL_DAMAGE_SERIOUS, ch->get_level());
 		break;
 
 	default:
-		log("Try handle room affect for spell without handler");
+		log("ERROR: Try handle room affect for spell without handler!");
 	}
 }
 
@@ -353,105 +285,71 @@ void room_affect_update(void)
 	CHAR_DATA *ch;
 	int spellnum;
 
-	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();)
-	{
+	for (std::list<ROOM_DATA*>::iterator it = aff_room_list.begin();it != aff_room_list.end();) {
 		assert(*it);
 		auto& affects = (*it)->affected;
 		auto next_affect_i = affects.begin();
-		for (auto affect_i = next_affect_i; affect_i != affects.end(); affect_i = next_affect_i)
-		{
+		for (auto affect_i = next_affect_i; affect_i != affects.end(); affect_i = next_affect_i) {
 			++next_affect_i;
 			const auto& affect = *affect_i;
 			spellnum = affect->type;
 			ch = nullptr;
 
-			if (IS_SET(SpINFO.routines, MAG_CASTER_INROOM) || IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
-			{
+			if (IS_SET(SpINFO.routines, MAG_CASTER_INROOM) || IS_SET(SpINFO.routines, MAG_CASTER_INWORLD)) {
 				ch = find_char_in_room(affect->caster_id, *it);
-				// Кастер слинял ... или помер - зря.
-				if (!ch)
-				{
+				if (!ch) {
 					affect->duration = 0;
 				}
-			}
-			else if (IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY))
-			{
-				//Если спелл с задержкой таймера - то обнулять не надо, даже если чара нет, просто тикаем таймером как обычно
-				ch = find_char_in_room(affect->caster_id, *it);
-			}
+			} else if (IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY)) {
+						//Если спелл с задержкой таймера - то обнулять не надо, даже если чара нет, просто тикаем таймером как обычно
+						ch = find_char_in_room(affect->caster_id, *it);
+					}
 
-			// Чую долгое это будет дело ... но деваться некуда
-			if ((!ch) && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD))
-			{
-				// Ищем чара по миру
+			if ((!ch) && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD)) 	{
 				ch = find_char(affect->caster_id);
-				if (!ch)
-				{
+				if (!ch) {
 					affect->duration = 0;
 				}
-			}
-			else if (IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY))
-			{
-				ch = find_char(affect->caster_id);
-			}
+			} else if (IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY)) {
+						ch = find_char(affect->caster_id);
+					}
 
-			if (!(ch && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY)))
-			{
-			// если чара нет в мире или он не найдет то таймер ускоряеться в два раза
-			// старый комент //Если персонаж найден, то таймер тикать не должен - восстанавливаем время.
-				switch (spellnum)
-				{
+			if (!(ch && IS_SET(SpINFO.routines, MAG_CASTER_INWORLD_DELAY))) {
+				switch (spellnum) {
 				case SPELL_RUNE_LABEL:
 					affect->duration--;
 				}
 			}
 
-			if (affect->duration >= 1)
-			{
+			if (affect->duration >= 1) {
 				affect->duration--;
-			}
 			// вот что это такое здесь ?
-			else if (affect->duration == -1)
-			{
+			} else if (affect->duration == -1) {
 				affect->duration = -1;
-			}
-			else
-			{
-				if (affect->type > 0
-					&& affect->type <= MAX_SPELLS)
-				{
+			} else {
+				if (affect->type > 0 && affect->type <= MAX_SPELLS) {
 					if (next_affect_i == affects.end()
 						|| (*next_affect_i)->type != affect->type
-						|| (*next_affect_i)->duration > 0)
-					{
-						if (affect->type > 0
-							&& affect->type <= SPELLS_COUNT
-							&& *spell_wear_off_msg[affect->type])
-						{
-							show_room_spell_off(affect->type, real_room((*it)->number));
-						}
+						|| (*next_affect_i)->duration > 0) {
+							sendAffectOffMessageToRoom(affect->type, real_room((*it)->number));
 					}
 				}
-
-				affect_room_remove(*it, affect_i);
+				removeAffectFromRoom(*it, affect_i);
 				continue;  // Чтоб не вызвался обработчик
 			}
 
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			affect->apply_time++;
-			if (affect->must_handled)
-			{
-				pulse_room_affect_handler(*it, ch, affect);
+			if (affect->must_handled) {
+				handleRoomAffect(*it, ch, affect);
 			}
 		}
 
 		//если больше аффектов нет, удаляем комнату из списка обкастованных
-		if ((*it)->affected.empty())
-		{
+		if ((*it)->affected.empty()) {
 			it = aff_room_list.erase(it);
-		}
-		else if (it != aff_room_list.end())	//Инкремент итератора. Здесь, чтобы можно было удалять элементы списка.
-		{
+		//Инкремент итератора. Здесь, чтобы можно было удалять элементы списка.
+		} else if (it != aff_room_list.end()) {
 			++it;
 		}
 	}
@@ -460,8 +358,7 @@ void room_affect_update(void)
 // =============================================================== //
 
 // Применение заклинания к комнате //
-int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
-{
+int imposeSpellToRoom(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum) {
 	bool accum_affect = FALSE, accum_duration = FALSE, success = TRUE;
 	bool update_spell = FALSE;
 	// Должен ли данный спелл быть только 1 в мире от этого кастера?
@@ -470,14 +367,12 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 	const char *to_room = nullptr;
 	int i = 0, lag = 0;
 	// Sanity check
-	if (room == nullptr || ch == nullptr || ch->in_room == NOWHERE)
-	{
+	if (room == nullptr || ch == nullptr || ch->in_room == NOWHERE) {
 		return 0;
 	}
 
 	AFFECT_DATA<ERoomApplyLocation> af[MAX_SPELL_AFFECTS];
-	for (i = 0; i < MAX_SPELL_AFFECTS; i++)
-	{
+	for (i = 0; i < MAX_SPELL_AFFECTS; i++) {
 		af[i].type = spellnum;
 		af[i].bitvector = 0;
 		af[i].modifier = 0;
@@ -488,8 +383,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[i].apply_time = 0;
 	}
 
-	switch (spellnum)
-	{
+	switch (spellnum) {
 	case SPELL_FORBIDDEN:
 		af[0].type = spellnum;
 		af[0].location = APPLY_ROOM_NONE;
@@ -499,25 +393,21 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].must_handled = false;
 		accum_duration = FALSE;
 		update_spell = TRUE;
-		if (IS_MANA_CASTER(ch))
+		if (IS_MANA_CASTER(ch)) {
 			af[0].modifier = 80;
-		else
+		} else {
 			af[0].modifier = MIN(100, GET_REAL_INT(ch) + MAX((GET_REAL_INT(ch) - 30) * 4, 0));
-		if (af[0].modifier > 99)
-		{
+		}
+		if (af[0].modifier > 99) {
 			to_char = "Вы запечатали магией все входы.";
 			to_room = "$n запечатал$g магией все входы.";
-		}
-		else if (af[0].modifier > 79)
-		{
-			to_char = "Вы почти полностью запечатали магией все входы.";
-			to_room = "$n почти полностью запечатал$g магией все входы.";
-		}
-		else
-		{
-			to_char = "Вы очень плохо запечатали магией все входы.";
-			to_room = "$n очень плохо запечатал$g магией все входы.";
-		}
+		} else if (af[0].modifier > 79) {
+				to_char = "Вы почти полностью запечатали магией все входы.";
+				to_room = "$n почти полностью запечатал$g магией все входы.";
+				} else {
+					to_char = "Вы очень плохо запечатали магией все входы.";
+					to_room = "$n очень плохо запечатал$g магией все входы.";
+				}
 		break;
 	case SPELL_ROOM_LIGHT:
 		af[0].type = spellnum;
@@ -571,8 +461,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		break;
 
 	case SPELL_RUNE_LABEL:
-		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL))
-		{
+		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)) {
 			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 			to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
 			lag = 2;
@@ -586,7 +475,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		af[0].bitvector = AFF_ROOM_RUNE_LABEL;
 		af[0].must_handled = false;
 		accum_duration = TRUE;
-		update_spell = FALSE; //ибо нефик
+		update_spell = FALSE;
 		only_one = TRUE;
 		to_char = "Вы начертали свое имя рунами на земле и произнесли заклинание.";
 		to_room = "$n начертил$g на земле несколько рун и произнес$q заклинание.";
@@ -594,8 +483,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		break;
 
 	case SPELL_HYPNOTIC_PATTERN:
-		if (material_component_processing(ch, ch, spellnum))
-		{
+		if (material_component_processing(ch, ch, spellnum)) {
 			success = FALSE;
 			break;
 		}
@@ -614,8 +502,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		break;
 
 	case SPELL_EVARDS_BLACK_TENTACLES:
-		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_MONO) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_POLY))
-		{
+		if (ROOM_FLAGGED(IN_ROOM(ch), ROOM_MONO) || ROOM_FLAGGED(IN_ROOM(ch), ROOM_POLY)) {
 			success = FALSE;
 			break;
 		}
@@ -632,29 +519,20 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 		to_room = "$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g.\r\nИз-под ваших ног полезли скрюченные мертвые руки.";
 		break;
 	}
-	if (success)
-	{
-		if (IS_SET(SpINFO.routines, MAG_NEED_CONTROL))
-		{
-			int SplFound = find_and_remove_controlled_room_affect(ch);
-			if (SplFound)
-			{
+	if (success) {
+		if (IS_SET(SpINFO.routines, MAG_NEED_CONTROL)) {
+			int SplFound = removeControlledRoomAffect(ch);
+			if (SplFound) {
 				send_to_char(ch, "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n", spell_info[SplFound].name, SpINFO.name);
 			}
-		}
-		else
-		{
+		} else {
 			auto RoomAffect_i = find_room_affect(room, spellnum);
 			const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
-			if (RoomAffect
-				&& RoomAffect->caster_id == GET_ID(ch)
-				&& !update_spell)
-			{
+			if (RoomAffect && RoomAffect->caster_id == GET_ID(ch) && !update_spell) {
 				success = false;
 			}
-			else if (only_one)
-			{
-				find_and_remove_room_affect(GET_ID(ch), spellnum);
+			else if (only_one) {
+				removeSingleRoomAffect(GET_ID(ch), spellnum);
 			}
 		}
 	}
@@ -678,7 +556,7 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 			}
 			//Вставляем указатель на комнату в список обкастованных, с проверкой на наличие
 			//Здесь - потому что все равно надо проверять, может это не первый спелл такого типа на руме
-			AddRoom(room);
+			addRoom(room);
 		}
 	}
 
@@ -699,26 +577,16 @@ int mag_room(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spellnum)
 
 }
 
-// ===============================================================
-
-// Время существования заклинания в комнате //
-int timer_affected_roomt(long id, int spellnum)
-{
-	for (auto it = aff_room_list.begin(); it != aff_room_list.end(); ++it)
-	{
-		for (const auto& af : (*it)->affected)
-		{
-			if (af->type == spellnum
-				&& af->caster_id == id)
-			{
-				return af->duration;
+	int getUniqueAffectDuration(long casterID, int spellnum) {
+		for (const auto& room : aff_room_list) {
+			for (const auto& af : room->affected) {
+				if (af->type == spellnum && af->caster_id == casterID) {
+					return af->duration;
+				}
 			}
 		}
+		return 0;
 	}
-
-	return 0;
-}
-// ===============================================================
 
 } // namespace RoomSpells
 
@@ -4860,7 +4728,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	}
 	if (spellnum == SPELL_ANIMATE_DEAD)
 	{
-		MOB_FLAGS(mob).set(MOB_RESURRECTED);	// added by Pereplut
+		MOB_FLAGS(mob).set(MOB_RESURRECTED);
 		if (mob_num == MOB_SKELETON && can_use_feat(ch, LOYALASSIST_FEAT))
 			mob->set_skill(SKILL_RESCUE, 100);
 
@@ -4888,7 +4756,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		}
 
 	}
-//added by Adept
+
 	if (spellnum == SPELL_SUMMON_FIREKEEPER)
 	{
 		AFFECT_DATA<EApplyLocation> af;
@@ -4919,7 +4787,6 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_skill(SKILL_AWAKE, 50 + modifier * 2);
 		PRF_FLAGS(mob).set(PRF_AWAKE);
 	}
-// shapirus: !train для мобов, созданных магией, тоже сделаем
 	MOB_FLAGS(mob).set(MOB_NOTRAIN);
 
 	// А надо ли это вообще делать???
@@ -5349,11 +5216,8 @@ int mag_alter_objs(int/* level*/, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, 
 		break;
 
 	case SPELL_FLY:
-//		obj->timed_spell.add(obj, SPELL_FLY, 60 * 24 * 3);
 		obj->add_timed_spell(SPELL_FLY, -1);
 		obj->set_extra_flag(EExtraFlag::ITEM_FLYING);
-		//В связи с тем, что летающие вещи более не тонут, флаг плавает тут неуместен
-		//SET_BIT(GET_OBJ_EXTRA(obj, ITEM_SWIMMING), ITEM_SWIMMING);
 		to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
 		break;
 
@@ -5519,14 +5383,13 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 	case SPELL_RELOCATE:
 		MANUAL_SPELL(spell_relocate);
 		break;
-//    case SPELL_TOWNPORTAL:      MANUAL_SPELL(spell_townportal);      break;
 	case SPELL_CHARM:
 		MANUAL_SPELL(spell_charm);
 		break;
 	case SPELL_ENERGY_DRAIN:
 		MANUAL_SPELL(spell_energydrain);
 		break;
-	case SPELL_MASS_FEAR:	//Added by Niker
+	case SPELL_MASS_FEAR:
 	case SPELL_FEAR:
 		MANUAL_SPELL(spell_fear);
 		break;
@@ -5619,7 +5482,7 @@ typedef struct
 	int castLevelDecay;
 } spl_message;
 
-// Svent TODO Перенести этот бордель в спеллпарсер
+// Svent TODO Перенести эту порнографию в спеллпарсер
 const spl_message mag_messages[] =
 {
 	{SPELL_MASS_BLINDNESS,
@@ -5642,6 +5505,11 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 "Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает.",
 	 0.05, 20, 2, 5, 20, 3, 2},
+	{SPELL_DEAFNESS,
+	 nullptr,
+	 nullptr,
+	 nullptr,
+	 0.05, 10, 3, 5, 20, 3, 2},
 	{SPELL_MASS_DEAFNESS,
 	 "Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух.",
 	 "Как только $n0 склонил$g голову, раздался оглушающий хлопок.",
@@ -5662,11 +5530,41 @@ const spl_message mag_messages[] =
 	 "$n опустил$g руки, и земля задрожала!",
 	 nullptr,
 	 0.05, 25, 2, 5, 20, 5, 2},
-	{SPELL_METEORSTORM,
-	 "Вы воздели руки к небу, и огромные глыбы посыпались с небес!",
-	 "$n воздел$g руки к небу, и огромные глыбы посыпались с небес!",
+	{SPELL_THUNDERSTONE,
 	 nullptr,
-	 0.05, 20, 2, 5, 20, 3, 4},
+	 nullptr,
+	 nullptr,
+	 0.05, 25, 2, 3, 15, 3, 4},
+	{SPELL_CONE_OF_COLD,
+	 nullptr,
+	 nullptr,
+	 nullptr,
+	 0.05, 40, 2, 2, 5, 5, 4},
+	{SPELL_ACID,
+	 nullptr,
+	 nullptr,
+	 nullptr,
+	 0.05, 20, 2, 3, 8, 4, 4},
+	{SPELL_LIGHTNING_BOLT,
+	 nullptr,
+	 nullptr,
+	 nullptr,
+	 0.05, 15, 3, 3, 6, 4, 4},
+	{SPELL_CALL_LIGHTNING,
+	 nullptr,
+	 nullptr,
+	 nullptr,
+	 0.05, 15, 3, 3, 5, 4, 4},
+	{SPELL_WHIRLWIND,
+	 nullptr,
+	 nullptr,
+	 nullptr,
+	 0.05, 40, 1, 1, 3, 3, 4},
+	{SPELL_DAMAGE_SERIOUS,
+	 nullptr,
+	 nullptr,
+	 nullptr,
+	 0.05, 20, 3, 1, 6, 6, 4},
 	{SPELL_FIREBLAST,
 	 "Вы вызвали потоки подземного пламени!",
 	 "$n0 вызвал$g потоки пламени из глубин земли!",
@@ -6053,9 +5951,10 @@ int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spell
 	GET_CAST_SUCCESS(ch) = CASTER_CAST_SUCCESS;
 	return 1;
 }
+
 // Применение заклинания к группе в комнате
 //---------------------------------------------------------
-int mag_groups(int level, CHAR_DATA * ch, int spellnum)
+int callMagicToGroup(int level, CHAR_DATA * ch, int spellnum)
 {
 	if (ch == nullptr) {
 		return 0;
@@ -6064,11 +5963,8 @@ int mag_groups(int level, CHAR_DATA * ch, int spellnum)
 	trySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], spellnum);
 
 	ActionTargeting::FriendsRosterType roster{ch, ch};
-	for (const auto& target : roster) {
+	for (const auto target : roster) {
 		mag_single_target(level, ch, target, nullptr, spellnum, SAVING_STABILITY);
-		if (ch->purged()) {
-			return 1;
-		}
 	}
 	return 1;
 }

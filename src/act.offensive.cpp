@@ -1334,7 +1334,7 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 	act("Вы были спасены $N4. Вы чувствуете себя Иудой!", FALSE, vict, 0, ch, TO_CHAR);
 	act("$n героически спас$q $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 
-	if (can_use_feat(ch, LIVE_SHIELD_FEAT) && ch->get_skill(SKILL_RESCUE) >= 125 )
+	if (can_use_feat(ch, LIVE_SHIELD_FEAT))
 	{
 		for (const auto i : world[ch->in_room]->people)
 		{
@@ -2039,7 +2039,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-// shapirus: теперь сдизармить можно все, кроме света
+
 	if (!((wielded && GET_OBJ_TYPE(wielded) != OBJ_DATA::ITEM_LIGHT)
 		|| (helded && GET_OBJ_TYPE(helded) != OBJ_DATA::ITEM_LIGHT)))
 	{
@@ -2163,7 +2163,6 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-// shapirus: теперь сдизармить можно все, кроме света
 	if (!((GET_EQ(vict, WEAR_WIELD)
 			&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_WIELD)) != OBJ_DATA::ITEM_LIGHT)
 			|| (GET_EQ(vict, WEAR_HOLD)
@@ -2958,90 +2957,79 @@ void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (IS_NPC(ch)) {
-		return;
-	}
 
 	if (!ch->get_skill(SKILL_TURN_UNDEAD)) {
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch)) {
-		if (timed_by_skill(ch, SKILL_TURN_UNDEAD)) {
-			send_to_char("Вам сейчас не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
-			return;
-		}
-		timed_type timed = { SKILL_TURN_UNDEAD, static_cast<ubyte>(IS_PALADINE(ch) ? 6 : 8), nullptr };
-		if (can_use_feat(ch, EXORCIST_FEAT)) {
-			timed.time -= 2;
-		}
-		timed_to_char(ch, &timed);
-	};
+	int skillTurnUndead = ch->get_skill(SKILL_TURN_UNDEAD);
+	timed_type timed;
+	timed.skill = SKILL_TURN_UNDEAD;
+	if (can_use_feat(ch, EXORCIST_FEAT)) {
+		timed.time = timed_by_skill(ch, SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD - 2;
+		skillTurnUndead += 10;
+	} else {
+		timed.time = timed_by_skill(ch, SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD;
+	}
+	if (timed.time > HOURS_PER_DAY) {
+		send_to_char("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
+		return;
+	}
+	timed_to_char(ch, &timed);
 
 	send_to_char(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
 	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 
-	const auto percent = ch->get_skill(SKILL_TURN_UNDEAD);
-
-	int maxTargetLevel;
-	if (number(1, skill_info[SKILL_TURN_UNDEAD].max_percent) <= percent) {
-		maxTargetLevel = GET_LEVEL(ch) + number(1, percent)/10 + 5;
-	} else {
-		maxTargetLevel = GET_LEVEL(ch) - number(1, 5);
-	}
-
-	int totalTargetsLevel = dice(3, 8) + GET_LEVEL(ch) + percent/2;
-
-	ActionTargeting::FoesRosterType roster{ch, [](CHAR_DATA*, CHAR_DATA* victim){return IS_UNDEAD(victim);}};
-	for (auto target : roster) {
-		if ((GET_LEVEL(target) > maxTargetLevel) || (dice(1, GET_REAL_SAVING_STABILITY(target)) > dice(1, GET_REAL_WIS(ch)))) {
-			if (!pk_agro_action(ch, target)) {
-				continue;
-			}
-
-			train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, target);
-			Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG);
-			dmg.magic_type = STYPE_LIGHT;
-			dmg.flags.set(IGNORE_FSHIELD);
-			dmg.process(ch, target);
-			continue;
-		}
-
-		totalTargetsLevel -= GET_LEVEL(target);
-
-		int dam;
-		if (GET_LEVEL(ch) - 8 >= GET_LEVEL(target)) {
-			dam = MAX(1, GET_HIT(target) + 11);
-		} else {
-			if (IS_CLERIC(ch)) {
-				dam = dice(8, 3 * GET_REAL_WIS(ch)) + GET_LEVEL(ch);
+// костылиии... и магик намберы
+	int victimsAmount = 20;
+	int victimssHPAmount = skillTurnUndead*25 + MAX(0, skillTurnUndead - 80)*50;
+	Damage turnUndeadDamage(SkillDmg(SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG);
+	turnUndeadDamage.magic_type = STYPE_LIGHT;
+	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
+	TechniqueRollType turnUndeadRoll;
+	ActionTargeting::FoesRosterType roster{ch};
+	for (const auto target : roster) {
+		turnUndeadDamage.dam = ZERO_DMG;
+		turnUndeadRoll.initialize(ch, TURN_UNDEAD_FEAT, target);
+		if (turnUndeadRoll.isSuccess()) {
+			if (turnUndeadRoll.isCriticalSuccess() && ch->get_level() > target->get_level() + dice(1, 5)) {
+				send_to_char(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
+				turnUndeadDamage.dam = MAX(1, GET_HIT(target) + 11);
 			} else {
-				dam = dice(8, 4 * GET_REAL_WIS(ch) + GET_REAL_INT(ch)) + GET_LEVEL(ch);
+				turnUndeadDamage.dam = turnUndeadRoll.calculateDamage();
+				victimssHPAmount -= turnUndeadDamage.dam;
 			};
-		}
-		train_skill(ch, SKILL_TURN_UNDEAD, skill_info[SKILL_TURN_UNDEAD].max_percent, target);
-
-		Damage dmg(SkillDmg(SKILL_TURN_UNDEAD), dam, MAGE_DMG);
-		dmg.magic_type = STYPE_LIGHT;
-		dmg.flags.set(IGNORE_FSHIELD);
-		dmg.process(ch, target);
-
-		if (ch->purged()) {
-			return;
-		}
-
-		if (target->purged()) {
-			continue;
-		}
-		if (!MOB_FLAGGED(target, MOB_NOFEAR)
+		} else if (turnUndeadRoll.isCriticalFail() && !IS_CHARMICE(target)) {
+			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n", FALSE, target, 0, ch, TO_VICT);
+			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n", FALSE, target, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+			AFFECT_DATA<EApplyLocation> af[2];
+			af[0].type = SPELL_COURAGE;
+			af[0].duration = pc_duration(target, 3, 0, 0, 0, 0);
+			af[0].modifier = MAX(1, turnUndeadRoll.getDegreeOfSuccess()*2);
+			af[0].location = APPLY_DAMROLL;
+			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+			af[0].battleflag = 0;
+			af[1].type = SPELL_COURAGE;
+			af[1].duration = pc_duration(target, 3, 0, 0, 0, 0);
+			af[1].modifier = MAX(1, 25 + turnUndeadRoll.getDegreeOfSuccess()*5);
+			af[1].location = APPLY_HITREG;
+			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
+			af[1].battleflag = 0;
+			affect_join(target, af[0], TRUE, FALSE, TRUE, FALSE);
+			affect_join(target, af[1], TRUE, FALSE, TRUE, FALSE);
+		};
+		turnUndeadDamage.process(ch, target);
+		if (!target->purged() && turnUndeadRoll.isSuccess() && !MOB_FLAGGED(target, MOB_NOFEAR)
 			&& !general_savingthrow(ch, target, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
 			go_flee(target);
-		}
-		if (totalTargetsLevel <= 0) {
-			return;
-		}
-	}
+		};
+		--victimsAmount;
+		if (victimsAmount == 0 || victimssHPAmount <= 0) {
+			break;
+		};
+	};
+	set_wait(ch, 1, TRUE);
 }
 
 void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)

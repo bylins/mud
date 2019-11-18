@@ -191,7 +191,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont) {
 	}
 	return 2;
 }
-const int effects_l[5][40][2]{ 
+const int effects_l[5][40][2]{
 	{{0,0}},
 	{{0,	26}, // количество строк
 	{APPLY_ABSORBE,	5},
@@ -419,7 +419,7 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 
 	act("$n умело срезал$g $o3.", FALSE, ch, skin.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("Вы умело срезали $o3.", FALSE, ch, skin.get(), 0, TO_CHAR);
-	
+
 	//ставим флажок "не зависит от прототипа"
 	skin->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
 	return skin.get();
@@ -605,7 +605,7 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-//переложить стрелы из пучка стрел 
+//переложить стрелы из пучка стрел
 //в колчан
 void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -650,13 +650,13 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы не сможете в это сложить стрелы.\r\n", ch);
 		return;
 	}
-       
+
 	if (to_obj == from_obj)
 	{
 		send_to_char("Нечем заняться? На печи ездить еще не научились?\r\n", ch);
 		return;
 	}
-        
+
 	if (GET_OBJ_VAL(to_obj, 2) >= GET_OBJ_VAL(to_obj, 1))
 	{
 		send_to_char("Там нет места.\r\n", ch);
@@ -687,11 +687,11 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
             }
         }
-        
-        
+
+
 	send_to_char("С таким успехом надо пополнять соседние камни, для разговоров по ним.\r\n", ch);
 	return ;
-	
+
 }
 
 
@@ -780,7 +780,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	{
 		return;
 	}
-	
+
 	if (curr_type == currency::ICE) {
 		sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_ICEu));
 		send_to_char(buf, ch);
@@ -1748,7 +1748,7 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		extract_obj(meet);
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 	}
-	else	
+	else
 	{
 		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, LVL_GRGOD, ERRLOG, TRUE);
 	}
@@ -1972,7 +1972,7 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
-    
+
 	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
 	if (   // не может держать если есть свет или двуручник
 		(where == WEAR_HOLD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_LIGHT)
@@ -1991,9 +1991,9 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		return;
 	}
 	if (   // не может одеть колчан если одет не лук
-		(where == WEAR_QUIVER && 
+		(where == WEAR_QUIVER &&
                 !(GET_EQ(ch, WEAR_BOTHS) &&
-                (((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) 
+                (((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON)
                     && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))))
         {
 		send_to_char("А стрелять чем будете?\r\n", ch);
@@ -2898,7 +2898,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	
+
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
 	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_LEVEL(ch) + 4) / 5);
@@ -3104,7 +3104,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		const auto& room = world[ch->in_room];
 		auto aff_i = room->affected.end();
 		auto aff_first = room->affected.end();
-		
+
 		//Find own rune label or first run label in room
 		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it)
 		{
@@ -3150,7 +3150,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					send_to_char(buf, caster);
 				}
 			}
-			affect_room_remove(world[ch->in_room], aff_i);
+			removeAffectFromRoom(world[ch->in_room], aff_i);
 			lag = 3;
 		}
 		else
@@ -3630,7 +3630,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	const auto mob = (mob_proto + real_mobile(mobn));
 	mob->set_normal_morph();
 
-	if (!IS_IMMORTAL(ch) 
+	if (!IS_IMMORTAL(ch)
 		&& GET_RACE(mob) != NPC_RACE_ANIMAL
 		&& GET_RACE(mob) != NPC_RACE_REPTILE
 		&& GET_RACE(mob) != NPC_RACE_FISH
@@ -3670,7 +3670,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		
+
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;

@@ -5,8 +5,16 @@
 
 #include "action.targeting.hpp"
 #include "pk.h"
+#include "logger.hpp"
 
 #include <algorithm>
+
+/*
+	1. Добавить возможность получить сулчайного персонажа из списка.
+	2. Добавить возможность сформировать список группы без учета комнаты.
+	3. Подумать об использовании умного указателя
+
+*/
 
 namespace ActionTargeting {
 
@@ -91,6 +99,15 @@ namespace ActionTargeting {
 		setPriorityTarget(priorityTarget);
 	};
 
+	/*
+		Svent TODO:
+		Тут еще можно сделать проверку, составляем мы список для моба или для игрока.
+		Внутри функции или вызовом отдельной функции - как эстетичней и правильней, надо думать.
+		Для моба, естественно, по умолчанию все мобы - дружественные, если они не чармисы
+		и ие слишком отличаются по наклонностям (по крайней мере до реализации фракций).
+		В очень многих местах по коду (особенно в fight) идут проверки типа "если моб не непись, не ангел"
+		и так далее, чтобы выбрать _дружественную_ цель для моба. Логично вынести это в одно место.
+	*/
 	void TargetsRosterType::makeRosterOfFriends(CHAR_DATA* priorityTarget, const FilterType &baseFilter, const FilterType &extraFilter) {
 		setFilter(baseFilter, extraFilter);
 		fillRoster();
@@ -99,6 +116,30 @@ namespace ActionTargeting {
 
 	void TargetsRosterType::shuffle() {
 		std::random_shuffle(_roster.begin(), _roster.end());
+	};
+
+	int TargetsRosterType::count(const PredicateType& predicate) {
+		return std::count_if(_roster.begin(), _roster.end(), predicate);
+	};
+
+	CHAR_DATA* TargetsRosterType::getRandomItem(const PredicateType& predicate) {
+		int amountOfItems = std::count_if(_roster.begin(), _roster.end(), predicate);
+		if (amountOfItems == 0) {
+			return nullptr;
+		}
+		amountOfItems = number(1, amountOfItems);
+		auto item = _roster.begin();
+		for (auto start = item; amountOfItems > 0; --amountOfItems, start = std::next(item, 1)) {
+			item = std::find_if(start, _roster.end(), predicate);
+		}
+		return (*item);
+	};
+
+	CHAR_DATA* TargetsRosterType::getRandomItem() {
+		if (_roster.empty()) {
+			return nullptr;
+		}
+		return _roster[number(0, _roster.size()-1)];
 	};
 
 	/*

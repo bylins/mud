@@ -5781,6 +5781,9 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 	PRF_FLAGS(ch).unset(PRF_AWAKE);
 	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
+	PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
+	PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
+	PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
 	// Убираем все заученные порталы
 	check_portals(ch);
 	if (ch->get_protecting())

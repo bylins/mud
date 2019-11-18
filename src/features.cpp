@@ -10,6 +10,7 @@
 #include "features.hpp"
 
 #include "ability.constants.hpp"
+#include "action.targeting.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
 #include "handler.h"
@@ -672,6 +673,14 @@ void determineFeaturesSpecification(void) {
 //152
 	initializeFeature(DEADLY_THROW_FEAT, "широкий размах", NORMAL_FTYPE, TRUE, feat_app, 100, SKILL_PUNCH, SAVING_REFLEX);
 	feat_info[DEADLY_THROW_FEAT].getBaseParameter = &GET_REAL_STR;
+//153
+	initializeFeature(TURN_UNDEAD_FEAT, "turn undead", TECHNIQUE_FTYPE, TRUE, feat_app, 70, SKILL_TURN_UNDEAD, SAVING_STABILITY);
+	feat_info[TURN_UNDEAD_FEAT].getBaseParameter = &GET_REAL_INT;
+    feat_info[TURN_UNDEAD_FEAT].getEffectParameter = &GET_REAL_WIS;
+    feat_info[TURN_UNDEAD_FEAT].usesWeaponSkill = false;
+    feat_info[TURN_UNDEAD_FEAT].alwaysAvailable = true;
+    feat_info[TURN_UNDEAD_FEAT].baseDamageBonusPercent = -30;
+    feat_info[TURN_UNDEAD_FEAT].degreeOfSuccessDamagePercent = 2;
 //154
 	initializeFeature(MULTI_CAST_FEAT, "изощрённые чары", NORMAL_FTYPE, TRUE, feat_app);
 }
@@ -696,44 +705,37 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 	switch (feat) {
 	case WEAPON_FINESSE_FEAT:
 	case SHOT_FINESSE_FEAT:
-		if (GET_REAL_DEX(ch) < GET_REAL_STR(ch) || GET_REAL_DEX(ch) < 18)
-			return FALSE;
+		return (GET_REAL_DEX(ch) > GET_REAL_STR(ch) && GET_REAL_DEX(ch) > 17);
 		break;
 	case PARRY_ARROW_FEAT:
-		if (GET_REAL_DEX(ch) < 16)
-			return FALSE;
+		return (GET_REAL_DEX(ch) > 15);
 		break;
 	case POWER_ATTACK_FEAT:
-		if (GET_REAL_STR(ch) < 20)
-			return FALSE;
+		return (GET_REAL_STR(ch) > 19);
 		break;
 	case GREAT_POWER_ATTACK_FEAT:
-		if (GET_REAL_STR(ch) < 22)
-			return FALSE;
+		return (GET_REAL_STR(ch) > 21);
 		break;
 	case AIMING_ATTACK_FEAT:
-		if (GET_REAL_DEX(ch) < 16)
-			return FALSE;
+		return (GET_REAL_DEX(ch) > 15);
 		break;
 	case GREAT_AIMING_ATTACK_FEAT:
-		if (GET_REAL_DEX(ch) < 18)
-			return FALSE;
+		return (GET_REAL_DEX(ch) > 17);
 		break;
 	case DOUBLESHOT_FEAT:
-		if (ch->get_skill(SKILL_BOWS) < 40)
-			return FALSE;
+		return (ch->get_skill(SKILL_BOWS) > 39);
 		break;
 	case MASTER_JEWELER_FEAT:
-		if (ch->get_skill(SKILL_INSERTGEM) < 60)
-			return FALSE;
+		return (ch->get_skill(SKILL_INSERTGEM) > 59);
 		break;
 	case SKILLED_TRADER_FEAT:
-		if ((ch->get_level()+ch->get_remort()/3) < 20)
-			return FALSE;
+		return ((ch->get_level()+ch->get_remort()/3) > 19);
 		break;
 	case MAGIC_USER_FEAT:
-		if (GET_LEVEL(ch) > 24)
-			return FALSE;
+		return (GET_LEVEL(ch) < 25);
+		break;
+	case LIVE_SHIELD_FEAT:
+		return (ch->get_skill(SKILL_RESCUE) > 124);
 		break;
 	case SHADOW_THROW_FEAT:
 		return (ch->get_skill(SKILL_DARK_MAGIC) > 120);
@@ -1693,19 +1695,11 @@ bitvector_t getPRFWithFeatureNumber(int featureNum) {
 * Svent TODO: Придумать более универсальный механизм бонусов/штрафов в зависимости от данных абилки
 */
 short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /* enemy */) {
-	short skirmishers(0), uncoveredSquadMembers(0);
-
-	for (const auto groupMember : world[ch->in_room]->people) {
-		if (HERE(groupMember) && same_group(ch, groupMember)) {
-			if (PRF_FLAGGED(groupMember, PRF_SKIRMISHER)) {
-				skirmishers++;
-			} else {
-				uncoveredSquadMembers++;
-			};
-		}
-	}
+	ActionTargeting::FriendsRosterType roster{ch};
+	int skirmishers = roster.count([](CHAR_DATA* ch){return PRF_FLAGGED(ch, PRF_SKIRMISHER);});
+	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
-		return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_FACTOR-40;
+		return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_FACTOR - 40;
 	};
 	return (skirmishers*2 - uncoveredSquadMembers)*SITUATIONABLE_FACTOR;
 };

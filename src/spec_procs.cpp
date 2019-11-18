@@ -436,6 +436,13 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			case SKILL_WARCRY:
 				sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / HOURS_PER_WARCRY);
 				break;
+			case SKILL_TURN_UNDEAD:
+				if (can_use_feat(ch, EXORCIST_FEAT)) {
+					sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / (HOURS_PER_TURN_UNDEAD - 2));
+				} else {
+					sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / HOURS_PER_TURN_UNDEAD);
+				}
+				break;
 			case SKILL_AID:
 			case SKILL_DRUNKOFF:
 			case SKILL_IDENTIFY:
@@ -443,7 +450,6 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			case SKILL_COURAGE:
 			case SKILL_MANADRAIN:
 			case SKILL_TOWNPORTAL:
-			case SKILL_TURN_UNDEAD:
 			case SKILL_STRANGLE:
 			case SKILL_STUN:
 			case SKILL_REPAIR:

@@ -12,7 +12,6 @@ namespace AbilitySystemConstants {
 	const short MIN_ABILITY_DICEROLL_BONUS = -150;
 	const short MAX_ABILITY_DICEROLL_BONUS = 150;
 	const short SUCCESS_THRESHOLD = 0;
-	const short MINIMAL_FAIL_RESULT = SUCCESS_THRESHOLD-1;
 	const short DEFAULT_CRITICAL_FAIL_THRESHOLD = 95;
 	const short DEFAULT_CRITICAL_SUCCESS_THRESHOLD = 6;
 	const short MAX_FAIL_DEGREE = -10;
@@ -21,6 +20,7 @@ namespace AbilitySystemConstants {
 	const short SKILL_RATING_DIVIDER = 2;
 	const short PARAMETER_RATING_DIVIDER = 2;
 	const short SITUATIONABLE_FACTOR = 5;
+	constexpr short MINIMAL_FAIL_RESULT = SUCCESS_THRESHOLD - 1;
 }; // namespace AbilitySystem
 
 #endif // _ABILITY_CONSTANTS_HPP_INCLUDED_

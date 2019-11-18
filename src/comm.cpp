@@ -1896,8 +1896,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		// Заряды кличей
 		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED))
 		{
-			if (d->character->get_skill(SKILL_WARCRY))
-			{
+			if (d->character->get_skill(SKILL_WARCRY)) {
 				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_WARCRY)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
@@ -1911,8 +1910,15 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "Сг:%d ", timed_by_skill(d->character.get(), SKILL_MANADRAIN));
 			if (d->character->get_skill(SKILL_CAMOUFLAGE))
 				count += sprintf(prompt + count, "Мс:%d ", timed_by_skill(d->character.get(), SKILL_CAMOUFLAGE));
-			if (d->character->get_skill(SKILL_TURN_UNDEAD))
-				count += sprintf(prompt + count, "Из:%d ", timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD));
+			if (d->character->get_skill(SKILL_TURN_UNDEAD)) {
+				if (can_use_feat(d->character.get(), EXORCIST_FEAT)) {
+					count += sprintf(prompt + count,
+						"Из:%d ", (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD)) / (HOURS_PER_TURN_UNDEAD - 2));
+				} else {
+					count += sprintf(prompt + count,
+						"Из:%d ", (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD)) / HOURS_PER_TURN_UNDEAD);
+				}
+			}
 			if (d->character->get_skill(SKILL_STUN))
 				count += sprintf(prompt + count, "Ош:%d ", timed_by_skill(d->character.get(), SKILL_STUN));
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
