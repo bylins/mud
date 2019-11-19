@@ -2077,7 +2077,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		savetype = SAVING_STABILITY;
 		ndice = 5;
 		sdice = 6;
-		adice = level;
+		adice = level + ch->get_remort() * 3;
 		if (GET_POS(victim) > POS_SITTING &&
 				!WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
 				(!general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30))))
