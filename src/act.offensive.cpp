@@ -2988,7 +2988,7 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 	turnUndeadDamage.magic_type = STYPE_LIGHT;
 	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;
-	ActionTargeting::FoesRosterType roster{ch};
+	ActionTargeting::FoesRosterType roster{ch, [](CHAR_DATA*, CHAR_DATA* target) {return IS_UNDEAD(target);}};
 	for (const auto target : roster) {
 		turnUndeadDamage.dam = ZERO_DMG;
 		turnUndeadRoll.initialize(ch, TURN_UNDEAD_FEAT, target);
