@@ -144,6 +144,7 @@ void initializeFeatureByDefault(int featureNum)
 	feat_info[featureNum].name = unused_spellname;
 	feat_info[featureNum].type = UNUSED_FTYPE;
 	feat_info[featureNum].up_slot = false;
+	feat_info[featureNum].alwaysAvailable = false;
 	feat_info[featureNum].usesWeaponSkill = false;
 	feat_info[featureNum].baseDamageBonusPercent = 0;
 	feat_info[featureNum].degreeOfSuccessDamagePercent = 5;

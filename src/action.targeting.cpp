@@ -5,15 +5,11 @@
 
 #include "action.targeting.hpp"
 #include "pk.h"
-#include "logger.hpp"
 
 #include <algorithm>
 
 /*
-	1. Добавить возможность получить сулчайного персонажа из списка.
 	2. Добавить возможность сформировать список группы без учета комнаты.
-	3. Подумать об использовании умного указателя
-
 */
 
 namespace ActionTargeting {
