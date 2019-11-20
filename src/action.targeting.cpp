@@ -5,7 +5,6 @@
 
 #include "action.targeting.hpp"
 #include "pk.h"
-#include "logger.hpp"
 
 #include <algorithm>
 
