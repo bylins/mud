@@ -68,6 +68,7 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 		k = ch;
 	}
 // на лидера
+	send_to_char(k, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
 	af.location = num_apply;
 	af.type = SPELL_PALADINE_INSPIRATION;
 	af.modifier = GET_REMORT(k) / 5 * 2 + modi;
@@ -84,9 +85,10 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
 			affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
+			send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(k,1), num_apply, time, modi);
 	}
-
 }
+
 void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
 	CHAR_DATA *target;
 	AFFECT_DATA<EApplyLocation> af;
@@ -98,30 +100,33 @@ void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time
 	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 	af.duration = pc_duration(ch, time, 0, 0, 0, 0);
 	affect_join(target , af, FALSE, FALSE, FALSE, FALSE);
+	send_to_char(target, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
 }
+
+void msg_inspiration(CHAR_DATA *ch) {
+	send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
+	sprintf(buf, "&YТочный удар %s воодушевил вас, придав новых сил!&n", GET_PAD(ch,1));
+	act(buf, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+}
+
 void inspiration(CHAR_DATA *ch) {
-	byte num = number(1,5);
-	CHAR_DATA * target = get_random_pc_group(ch);
+	byte num = number(1,3);
+//	CHAR_DATA * target = get_random_pc_group(ch);
 	switch (num){
-	case 1: //дамы на группу
-		aff_group_inspiration(ch, APPLY_DAMROLL, 50, 20);
+	case 1: 
+		aff_group_inspiration(ch, APPLY_PERCENT_DAM, 5, GET_REMORT(ch));
 		break;
-	case 2: // хитролы на группу
-		aff_group_inspiration(ch, APPLY_HITROLL, 50, 20);
+	case 2: 
+		aff_group_inspiration(ch, APPLY_CAST_SUCCESS, 2, GET_REMORT(ch));
+		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
 		break;
-	case 3: // дамролы на случайного чара в группе
-		aff_random_pc_inspiration(ch, APPLY_DAMROLL, 50, 20);
-		break;
-	case 4: // каст хила на случайного чара в группе
-		call_magic(ch, target , nullptr, nullptr, SPELL_HEAL, GET_LEVEL(ch));
-		break;
-	case 5: // каст массхила
-		call_magic(ch, target , nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
+	case 3:
+		msg_inspiration(ch);
+		call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
 		break;
 	default:
 		break;
 	}
-	send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
 }
 int compute_armor_class(CHAR_DATA * ch)
 {
