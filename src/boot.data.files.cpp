@@ -951,7 +951,7 @@ void ObjectFile::parse_object(const int nr)
 			break;
 
 		case 'M':
-			tobj->set_max_in_world(atoi(m_line + 1));			
+			tobj->set_max_in_world(atoi(m_line + 1));
 			break;
 
 		case 'R':
@@ -1465,8 +1465,8 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		{
 			GET_RESIST(mob_proto + i, kk) = MIN(300, MAX(-1000, atoi(array_string[kk].c_str())));
 		}
-	
-		
+
+
 /*		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
 		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(MOB_ROLE_BOSS)) // жизнь и не боссы
 		{
@@ -1655,7 +1655,6 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		// *** Empty now
 	}
 
-	// Gorrah
 	CASE("Feat")
 	{
 		if (sscanf(value, "%d", t) != 1)

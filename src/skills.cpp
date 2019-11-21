@@ -445,7 +445,7 @@ void init_ESkill_ITEM_NAMES()
 	ESkill_name_by_value.clear();
 	ESkill_value_by_name.clear();
 
-	ESkill_name_by_value[ESkill::SKILL_THAC0] = "SKILL_THAC0";
+	ESkill_name_by_value[ESkill::SKILL_GLOBAL_COOLDOWN] = "SKILL_GLOBAL_COOLDOWN";
 	ESkill_name_by_value[ESkill::SKILL_PROTECT] = "SKILL_PROTECT";
 	ESkill_name_by_value[ESkill::SKILL_TOUCH] = "SKILL_TOUCH";
 	ESkill_name_by_value[ESkill::SKILL_SHIT] = "SKILL_SHIT";
@@ -1018,7 +1018,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		if (SECT(ch->in_room) == SECT_FOREST || SECT(ch->in_room) == SECT_FIELD)
 			percent += 10;
 
-		percent = complex_skill_modifier(ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS, percent);
+		percent = complex_skill_modifier(ch, SKILL_INDEFINITE, GAPPLY_SKILL_SUCCESS, percent);
 
 		if (SECT(ch->in_room) == SECT_WATER_SWIM ||
 			SECT(ch->in_room) == SECT_WATER_NOSWIM ||

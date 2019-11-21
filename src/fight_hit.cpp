@@ -3484,7 +3484,7 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 		{
 			/*	  calc_thaco +=
 				    (10 -
-				     complex_skill_modifier (ch, SKILL_THAC0, GAPPLY_SKILL_SUCCESS,
+				     complex_skill_modifier (ch, SKILL_INDEFINITE, GAPPLY_SKILL_SUCCESS,
 							     10));
 			*/
 			calc_thaco -= (int)((GET_REAL_INT(ch) - 13) / GET_LEVEL(ch));

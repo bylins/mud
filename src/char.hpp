@@ -317,8 +317,14 @@ enum
 	ATTACKER_ROUNDS
 };
 
-typedef std::map<ESkill/* номер скилла */, int/* значение скилла */> CharSkillsType;
-//typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
+struct CharacterSkillDataType {
+	int skillLevel;
+	unsigned cooldown;
+
+	void decreaseCooldown(unsigned value);
+};
+
+typedef std::map<ESkill, CharacterSkillDataType> CharSkillsType;
 
 class ProtectedCharacterData;	// to break up cyclic dependencies
 
@@ -375,7 +381,6 @@ public:
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
-	void crop_skills();
 	int get_equipped_skill(const ESkill skill_num) const;
 	int get_trained_skill(const ESkill skill_num) const;
 
@@ -604,6 +609,12 @@ public:
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
 	void wait_dec(const unsigned value) { m_wait -= value <= m_wait ? value : m_wait; }
 
+	void setSkillCooldownInPulses(ESkill skillID, unsigned cooldown);
+	void decreaseSkillsCooldowns(unsigned value);
+	bool haveSkillCooldown(ESkill skillID);
+	bool haveCooldown(ESkill skillID);
+	int getSkillCooldownInPulses(ESkill skillID);
+
 	virtual void reset();
 
 	void set_abstinent();
@@ -650,7 +661,7 @@ private:
 
 	void purge();
 
-	CharSkillsType skills;  // список изученных скиллов
+	CharSkillsType skills;  	// список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
 	CHAR_DATA *protecting_; // цель для 'прикрыть'
 	CHAR_DATA *touching_;   // цель для 'перехватить'
@@ -743,7 +754,7 @@ private:
 	void print_leaders_chain(std::ostream& ss) const;
 
 	unsigned m_wait;			// wait for how many loops
-	CHAR_DATA* m_master;	// Who is char following?
+	CHAR_DATA* m_master;		// Who is char following?
 
 public:
 	int punctual_wait;		// wait for how many loops (punctual style)

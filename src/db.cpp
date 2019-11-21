@@ -5752,7 +5752,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	else
 	{
-		ch->crop_skills();
+		ch->set_skill(ch->get_remort());
 		for (i = 1; i <= MAX_SPELLS; i++)
 		{
 			if (GET_CLASS(ch) == CLASS_DRUID)

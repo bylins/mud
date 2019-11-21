@@ -3072,6 +3072,10 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		return;
+	};
 
 	if (!ch->affected.empty())
 	{

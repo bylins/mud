@@ -1368,6 +1368,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d->character)
 		{
 			d->character->wait_dec();
+			d->character->decreaseSkillsCooldowns(1);
 			GET_PUNCTUAL_WAIT_STATE(d->character) -=
 				(GET_PUNCTUAL_WAIT_STATE(d->character) > 0 ? 1 : 0);
 			if (WAITLESS(d->character))
@@ -1893,9 +1894,9 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			else
 				count += sprintf(prompt + count, "Зауч:0 ");
 		}
-		// Заряды кличей
-		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED))
-		{
+		// Заряды и таймепы умений
+		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED)) {
+			count += sprintf(prompt + count, "ОЗ:%d ", d->character->getSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN));
 			if (d->character->get_skill(SKILL_WARCRY)) {
 				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_WARCRY)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);

@@ -38,7 +38,7 @@ enum ExtraAttackEnumType
 enum ESkill: int
 {
 	SKILL_INVALID = 0,
-	SKILL_THAC0 = 0,	// Internal //
+	SKILL_GLOBAL_COOLDOWN = 0,	// Internal - ID for global ability cooldown //
 	SKILL_FIRST = 1,
 	SKILL_PROTECT = SKILL_FIRST,	// *** Protect groupers    //
 	SKILL_TOUCH = 2,	// *** Touch attacker       //
@@ -156,6 +156,9 @@ bool can_get_skill(CHAR_DATA *ch, int skill);
 bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 int find_weapon_focus_by_skill(ESkill skill);
 int find_weapon_master_by_skill(ESkill skill);
+
+const short bonusSkillPointsPerRemort = 5;
+#define MAX_SKILLLEVEL_PER_REMORT(ch) (80 + ch->get_remort()*bonusSkillPointsPerRemort)
 
 // ГОРНОЕ ДЕЛО
 

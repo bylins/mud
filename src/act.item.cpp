@@ -1972,6 +1972,12 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+		if (ch->get_fighting() && (where == WEAR_SHIELD || GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)) {
+			send_to_char("Вм нужно набраться сил.\r\n", ch);
+			return;
+		}
+	};
 
 	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
 	if (   // не может держать если есть свет или двуручник
@@ -2328,16 +2334,14 @@ void do_wear(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	OBJ_DATA *obj;
 	int wear;
 
 	if (IS_NPC(ch) && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)&&(!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
-	if (ch->is_morphed())
-	{
+	if (ch->is_morphed()) {
 		send_to_char("Лапами неудобно держать оружие.\r\n", ch);
 		return;
 	}

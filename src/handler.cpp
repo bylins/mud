@@ -2081,27 +2081,12 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 
 	}
 
-	//if (!IS_NPC(ch) && !check_armor_type(ch, obj))
-	//{
-	//	act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
-	//			FALSE, ch, obj, 0, TO_ROOM);
-	//	if (!obj->carried_by)
-	//		obj_to_char(obj, ch);
-	//	return;
-	//} Нафиг недоделки (Купала)
-
 	if (obj->get_carried_by())
 	{
 		obj_from_char(obj);
 	}
 
-	//if (GET_EQ(ch, WEAR_LIGHT) &&
-	//  GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
-	//  was_lamp = TRUE;
-	//Polud светить должно не только то что надето для освещения, а любой источник света
 	was_lamp = is_wear_light(ch);
-	//-Polud
-
 	GET_EQ(ch, pos) = obj;
 	obj->set_worn_by(ch);
 	obj->set_worn_on(pos);
@@ -2179,6 +2164,10 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		}
 		affect_total(ch);
 		check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
+	}
+
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON || pos == WEAR_SHIELD) {
+		ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
 	}
 }
 

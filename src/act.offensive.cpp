@@ -71,21 +71,30 @@ CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 inline bool dontCanAct(CHAR_DATA *ch);
 
 
-int have_mind(CHAR_DATA * ch)
-{
+int have_mind(CHAR_DATA * ch) {
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && !IS_HORSE(ch))
 		return (TRUE);
 	return (FALSE);
 }
 
-void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room)
-{
-	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))))
+void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room) {
+	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())))) {
 		WAIT_STATE(ch, waittime * PULSE_VIOLENCE);
+	}
 }
 
-int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
-{
+CHAR_DATA* findVictim(CHAR_DATA* ch, char* argument) {
+	one_argument(argument, arg);
+	CHAR_DATA* victim = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	if (!victim) {
+		if (!*arg && ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
+			victim = ch->get_fighting();
+		}
+	}
+	return victim;
+}
+
+int set_hit(CHAR_DATA * ch, CHAR_DATA * victim) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return (FALSE);
@@ -163,31 +172,24 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char(victim, "На вас было совершено нападение, редактирование отменено!\r\n");
 	}
 
-	// Карачун. Правка бага. Если моб в лаге, он не должен бить, но должен запомнить.
-	if (MOB_FLAGGED(ch, MOB_MEMORY) && GET_WAIT(ch) > 0)
-	{
-		if (!IS_NPC(victim))
-		{
+	if (MOB_FLAGGED(ch, MOB_MEMORY) && GET_WAIT(ch) > 0) {
+		if (!IS_NPC(victim)) {
 			remember(ch, victim);
-		}
-		else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-			&& victim->has_master()
-			&& !IS_NPC(victim->get_master()))
-		{
-			if (MOB_FLAGGED(victim, MOB_CLONE))
-			{
-				remember(ch, victim->get_master());
-			}
-			else if (IN_ROOM(victim->get_master()) == ch->in_room && CAN_SEE(ch, victim->get_master()))
-			{
-				remember(ch, victim->get_master());
-			}
+		} else if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+					&& victim->has_master()
+					&& !IS_NPC(victim->get_master())) {
+						if (MOB_FLAGGED(victim, MOB_CLONE)) {
+							remember(ch, victim->get_master());
+						} else if (ch->isInSameRoom(victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
+									remember(ch, victim->get_master());
+								}
 		}
 		return (FALSE);
 	}
 
 	hit(ch, victim, TYPE_UNDEFINED, AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? LEFT_WEAPON : RIGHT_WEAPON);
 	set_wait(ch, 2, TRUE);
+	//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
 	return (TRUE);
 };
 
@@ -270,6 +272,7 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch)
 				act("$N не смог$Q прикрыть вас.", FALSE, victim, 0, vict, TO_CHAR);
 				act("$n не смог$q прикрыть $N3.", TRUE, vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				set_wait(vict, 3, TRUE);
+				//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 3);
 			}
 			else
 			{
@@ -282,6 +285,7 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch)
 				act("$n героически прикрыл$g $N3, приняв удар на себя.", TRUE,
 					vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				set_wait(vict, 1, TRUE);
+				//vict->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
 				return vict;
 			}
 		}
@@ -352,62 +356,47 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *helpee, *opponent;
 
-	if (ch->get_fighting())
-	{
+	if (ch->get_fighting()) {
 		send_to_char("Невозможно. Вы сражаетесь сами.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		helpee = nullptr;
-		for (const auto i : world[ch->in_room]->people)
-		{
-			if (i->get_fighting()
-				&& i->get_fighting() != ch
-				&& ((ch->has_master() && ch->get_master() == i->get_master())	//same leader
-					|| ch->get_master() == i	//i leader for ch
-					|| i->get_master() == ch	//ch leader for i
+		for (const auto i : world[ch->in_room]->people) {
+			if (i->get_fighting() && i->get_fighting() != ch
+				&& ((ch->has_master() && ch->get_master() == i->get_master())
+					|| ch->get_master() == i || i->get_master() == ch
 					|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_master() && ch->get_master()->get_master()
-						&& (ch->get_master()->get_master() == i							//i is leader for charm's master
-							|| ch->get_master()->get_master() == i->get_master()))))	//same leader with charm's master
-			{
+					&& (ch->get_master()->get_master() == i || ch->get_master()->get_master() == i->get_master())))) {
 				helpee = i;
 				break;
 			}
 		}
 
-		if (!helpee)
-		{
+		if (!helpee) {
 			send_to_char("Кому вы хотите помочь?\r\n", ch);
 			return;
 		}
 	}
-	else if (!(helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
+
+	if (!(helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
 		send_to_char(NOPERSON, ch);
 		return;
 	}
-	else if (helpee == ch)
-	{
+	if (helpee == ch) {
 		send_to_char("Вам могут помочь только Боги!\r\n", ch);
 		return;
 	}
 
-	// * Hit the same enemy the person you're helping is.
-	if (helpee->get_fighting())
-	{
+	if (helpee->get_fighting()) {
 		opponent = helpee->get_fighting();
-	}
-	else
-	{
+	} else {
 		opponent = nullptr;
-		for (const auto i : world[ch->in_room]->people)
-		{
-			if (i->get_fighting() == helpee)
-			{
+		for (const auto i : world[ch->in_room]->people) {
+			if (i->get_fighting() == helpee) {
 				opponent = i;
 				break;
 			}
@@ -424,89 +413,75 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	else if (need_full_alias(ch, opponent))
 		act("Используйте команду 'атаковать' для нападения на $N1.", FALSE, ch, 0, opponent, TO_CHAR);
-	else if (set_hit(ch, opponent))
-	{
+	else if (set_hit(ch, opponent)) {
 		act("Вы присоединились к битве, помогая $N2!", FALSE, ch, 0, helpee, TO_CHAR);
 		act("$N решил$G помочь вам в битве!", 0, helpee, 0, ch, TO_CHAR);
 		act("$n вступил$g в бой на стороне $N1.", FALSE, ch, 0, helpee, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
 
-void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
-{
-	CHAR_DATA *vict;
-
+void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, arg);
-
-	if (!*arg)
+	if (!*arg) {
 		send_to_char("Кого бить-то будем?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	}
+
+	CHAR_DATA *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	if (!vict) {
 		send_to_char("Вы не видите цели.\r\n", ch);
-	else if (vict == ch)
-	{
+	}
+	if (vict == ch) {
 		send_to_char("Вы ударили себя... Ведь больно же!\r\n", ch);
-		act("$n ударил$g себя, и громко завопил$g 'Мамочка, больно ведь...'",
-			FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
+		act("$n ударил$g себя, и громко завопил$g 'Мамочка, больно ведь...'", FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF | TO_ARENA_LISTEN);
 		act("$n ударил$g себя", FALSE, ch, 0, vict, TO_ROOM | CHECK_NODEAF | TO_ARENA_LISTEN);
 	}
-	else if (!may_kill_here(ch, vict))
-	{
+	if (!may_kill_here(ch, vict)) {
 		return;
 	}
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& (ch->get_master() == vict))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->get_master() == vict)) {
 		act("$N слишком дорог для вас, чтобы бить $S.", FALSE, ch, 0, vict, TO_CHAR);
+		return;
 	}
-	else
-	{
-		if (subcmd != SCMD_MURDER && !check_pkill(ch, vict, arg))
-		{
+
+	if (subcmd != SCMD_MURDER && !check_pkill(ch, vict, arg)) {
+		return;
+	}
+
+	if (ch->get_fighting()) {
+		if (vict == ch->get_fighting()) {
+			act("Вы уже сражаетесь с $N4.", FALSE, ch, 0, vict, TO_CHAR);
 			return;
 		}
-
-		if (ch->get_fighting())
-		{
-			if (vict == ch->get_fighting())
-			{
-				act("Вы уже сражаетесь с $N4.", FALSE, ch, 0, vict, TO_CHAR);
-				return;
-			}
-
-			if (ch != vict->get_fighting())
-			{
-				act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
-				return;
-			}
-
-			vict = try_protect(vict, ch);
-			stop_fighting(ch, 2); //просто переключаемся
-			set_fighting(ch, vict);
-			set_wait(ch, 2, TRUE);
+		if (ch != vict->get_fighting()) {
+			act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
+			return;
 		}
-		else if ((GET_POS(ch) == POS_STANDING) && (vict != ch->get_fighting())) {
-			set_hit(ch, vict);
-		} else {
-			send_to_char("Вам явно не до боя!\r\n", ch);
-		}
+		vict = try_protect(vict, ch);
+		stop_fighting(ch, 2);
+		set_fighting(ch, vict);
+		set_wait(ch, 2, TRUE);
+		//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+		return;
+	}
+	if ((GET_POS(ch) == POS_STANDING) && (vict != ch->get_fighting())) {
+		set_hit(ch, vict);
+	} else {
+		send_to_char("Вам явно не до боя!\r\n", ch);
 	}
 }
 
-void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
-{
-	CHAR_DATA *vict;
-
+void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 	if (!IS_GRGOD(ch)) {
 		do_hit(ch, argument, cmd, subcmd);
 		return;
 	};
 	one_argument(argument, arg);
-
 	if (!*arg) {
 		send_to_char("Кого вы жизни лишить хотите-то?\r\n", ch);
 		return;
 	};
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+	CHAR_DATA *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	if (!vict) {
 		send_to_char("А его нет здесь :P.\r\n", ch);
 		return;
 	};
@@ -527,8 +502,7 @@ void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 
 // *********************** BACKSTAB VICTIM
 // Проверка на стаб в бою происходит до вызова этой функции
-void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
-{
+void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict) {
 	int percent, prob;
 
 	if (onhorse(ch))
@@ -539,8 +513,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch))
-	{
+	if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch)) {
 		act("Вы заметили, что $N попытал$u вас заколоть!", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n заметил$g Вашу попытку заколоть $s!", FALSE, vict, 0, ch, TO_VICT);
 		act("$n заметил$g попытку $N1 заколоть $s!", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -548,22 +521,18 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	// чтобы наемники 15+ ремортов не мазали по мобам из лоулевел зонам
 	percent = number(1, skill_info[SKILL_BACKSTAB].max_percent - GET_REMORT(ch) * 2);
 	prob = train_skill(ch, SKILL_BACKSTAB, skill_info[SKILL_BACKSTAB].max_percent, vict);
-	//printf("probsssss: %d, skillinfo: %d\n", prob, skill_info[SKILL_BACKSTAB].max_percent);
-	// в функции hit уже есть проверка на попал/не попал.
-	// из-за этого шанс стабануть о маломорченных наемов очень маленький
 
-	if (can_use_feat(ch, SHADOW_STRIKE_FEAT))
-		prob = prob + prob * 20 / 100; // у наема больше ДСУ чем у татя, поэтому дадим небольшой бонус
+	if (can_use_feat(ch, SHADOW_STRIKE_FEAT)) {
+		prob = prob + prob * 20 / 100;
+	};
 
 	if (vict->get_fighting())
 		prob = prob * (GET_REAL_DEX(ch) + 50) / 100;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
-		prob += 5;	// Add by Alez - Improove in hide stab probability
-	// бонус для новичков
+		prob += 5;
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))
 		prob += 5;
 	if (GET_MOB_HOLD(vict))
@@ -572,84 +541,67 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict)
 		prob = percent;
 	if (GET_GOD_FLAG(vict, GF_GODSLIKE) || GET_GOD_FLAG(ch, GF_GODSCURSE))
 		prob = 0;
-	if (percent > prob)
-	{
+	if (percent > prob) {
 		Damage dmg(SkillDmg(SKILL_BACKSTAB), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
-	}
-	else
-	{
+	} else {
 		hit(ch, vict, SKILL_BACKSTAB, RIGHT_WEAPON);
-		if (!ch->get_fighting()) // если был ваншот лаг пол секунды
+		if (!ch->get_fighting())
 			WAIT_STATE(ch, PULSE_VIOLENCE / 6);
 	}
 	set_wait(ch, 2, TRUE);
+	//ch->setSkillCooldownInPulses(SKILL_BACKSTAB, 2);
 }
 
-void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict;
+void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (ch->get_skill(SKILL_BACKSTAB) < 1) {
+		send_to_char("Вы не знаете как.\r\n", ch);
+		return;
+	}
+	if (ch->haveCooldown(SKILL_BACKSTAB)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
-	if (ch->get_skill(SKILL_BACKSTAB) < 1)
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Вы не знаете как.\r\n", ch);
+	if (onhorse(ch)) {
+		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
-	if (onhorse(ch))
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Верхом это сделать затруднительно.\r\n", ch);
-		return;
-	}
-
-	if (GET_POS(ch) < POS_FIGHTING)
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Вам стоит встать на ноги.\r\n", ch);
+	if (GET_POS(ch) < POS_FIGHTING) {
+		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
-
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
+	CHAR_DATA* vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	if (!vict) {
+		send_to_char("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
 		return;
 	}
 
-	if (vict == ch)
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Вы, определенно, садомазохист!\r\n", ch);
+	if (vict == ch) {
+		send_to_char("Вы, определенно, садомазохист!\r\n", ch);
 		return;
 	}
 
-	if (!GET_EQ(ch, WEAR_WIELD) && !IS_NPC(ch))
-	{
+	if (!GET_EQ(ch, WEAR_WIELD) && !IS_NPC(ch)) {
 		send_to_char("Требуется держать оружие в правой руке.\r\n", ch);
 		return;
 	}
 
-	if (!IS_NPC(ch) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != type_pierce )
-	{
+	if (!IS_NPC(ch) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != type_pierce) {
 		send_to_char("ЗаКОЛоть можно только КОЛющи оружием!\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || dontCanAct(ch))
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) || dontCanAct(ch)) {
+		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT))
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
+	if (vict->get_fighting() && !can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
+		send_to_char("Ваша цель слишком быстро движется - вы можете пораниться!\r\n", ch);
 		return;
 	}
 
@@ -672,13 +624,11 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 
 	half_chop(argument, name, message);
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE))
-	{
+	if (GET_GOD_FLAG(ch, GF_GODSCURSE)) {
 		send_to_char("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 		send_to_char("Вы не в состоянии приказывать сейчас.\r\n", ch);
 		return;
 	}
@@ -691,14 +641,12 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else
 	{
-		if (vict && !IS_NPC(vict) && !IS_GOD(ch))
-		{
+		if (vict && !IS_NPC(vict) && !IS_GOD(ch)) {
 			send_to_char(ch, "Игрокам приказывать могут только Боги!\r\n");
 			return;
 		}
 
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		{
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
 			send_to_char("В таком состоянии вы не можете сами отдавать приказы.\r\n", ch);
 			return;
 		}
@@ -706,68 +654,48 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		if (vict
 			&& !is_abbrev(name, "все")
 			&& !is_abbrev(name, "всем")
-			&& !is_abbrev(name, "followers"))
-		{
+			&& !is_abbrev(name, "followers")) {
 			sprintf(buf, "$N приказал$g вам '%s'", message);
 			act(buf, FALSE, vict, 0, ch, TO_CHAR | CHECK_DEAF);
 			act("$n отдал$g приказ $N2.", FALSE, ch, 0, vict, TO_ROOM | CHECK_DEAF);
 
 			if (vict->get_master() != ch
 				|| !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-				|| AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS))
-			{
-				if (!IS_POLY(vict))
-				{
+				|| AFF_FLAGGED(vict, EAffectFlag::AFF_DEAFNESS)) {
+				if (!IS_POLY(vict)) {
 					act("$n безразлично смотрит по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
-				}
-				else
-				{
+				} else {
 					act("$n безразлично смотрят по сторонам.", FALSE, vict, 0, 0, TO_ROOM);
 				}
-			}
-			else
-			{
+			} else {
 				send_to_char(OK, ch);
-				if (vict->get_wait() <= 0)
-				{
+				if (vict->get_wait() <= 0) {
 					command_interpreter(vict, message);
-				}
-				else if (vict->get_fighting())
-				{
-					if (vict->last_comm != NULL)
-					{
+				} else if (vict->get_fighting()) {
+					if (vict->last_comm != NULL) {
 						free(vict->last_comm);
 					}
 					vict->last_comm = str_dup(message);
 				}
 			}
-		}
-		else  	// This is order "followers"
-		{
+		} else {
 			org_room = ch->in_room;
 			act("$n отдал$g приказ.", FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
 
 			CHAR_DATA::followers_list_t followers = ch->get_followers_list();
 
-			for (const auto follower : followers)
-			{
-				if (org_room != follower->in_room)
-				{
+			for (const auto follower : followers) {
+				if (org_room != follower->in_room) {
 					continue;
 				}
 
 				if (AFF_FLAGGED(follower, EAffectFlag::AFF_CHARM)
-					&& !AFF_FLAGGED(follower, EAffectFlag::AFF_DEAFNESS))
-				{
+					&& !AFF_FLAGGED(follower, EAffectFlag::AFF_DEAFNESS)) {
 					found = TRUE;
-					if (follower->get_wait() <= 0)
-					{
+					if (follower->get_wait() <= 0) {
 						command_interpreter(follower, message);
-					}
-					else if (follower->get_fighting())
-					{
-						if (follower->last_comm != NULL)
-						{
+					} else if (follower->get_fighting()) {
+						if (follower->last_comm != NULL) {
 							free(follower->last_comm);
 						}
 						follower->last_comm = str_dup(message);
@@ -775,12 +703,9 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				}
 			}
 
-			if (found)
-			{
+			if (found) {
 				send_to_char(OK, ch);
-			}
-			else
-			{
+			} else {
 				send_to_char("Вы страдаете манией величия!\r\n", ch);
 			}
 		}
@@ -799,17 +724,16 @@ void reduce_exp_after_flee(CHAR_DATA* ch, CHAR_DATA* victim, room_rnum room)
 // ********************* FLEE PROCEDURE
 void go_flee(CHAR_DATA* ch)
 {
-	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0)
+	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0) {
 		return;
+	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY) || PRF_FLAGS(ch).get(PRF_IRON_WIND))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) || AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY) || PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING)
-	{
+	if (GET_POS(ch) < POS_FIGHTING) {
 		send_to_char("Вы не можете сбежать из этого положения.\r\n", ch);
 		return;
 	}
@@ -817,94 +741,76 @@ void go_flee(CHAR_DATA* ch)
 	if (!WAITLESS(ch))
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 
-	if (on_horse(ch) && (GET_POS(get_horse(ch)) < POS_FIGHTING || GET_MOB_HOLD(get_horse(ch))))
-	{
-		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
+	if (on_horse(ch) && (GET_POS(get_horse(ch)) < POS_FIGHTING || GET_MOB_HOLD(get_horse(ch)))) {
+		send_to_char("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
 		return;
 	}
 
 	int dirs[NUM_OF_DIRS];
 	int correct_dirs = 0;
 
-	for (auto i = 0; i < NUM_OF_DIRS; ++i)
-	{
-		if (legal_dir(ch, i, TRUE, FALSE)
-			&& !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ROOM_DEATH))
-		{
+	for (auto i = 0; i < NUM_OF_DIRS; ++i) {
+		if (legal_dir(ch, i, TRUE, FALSE) && !ROOM_FLAGGED(EXIT(ch, i)->to_room(), ROOM_DEATH)) {
 			dirs[correct_dirs] = i;
 			++correct_dirs;
 		}
 	}
 
-	if (correct_dirs > 0
-		&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS)))
-	{
+	if (correct_dirs > 0 && !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS))) {
 		const auto direction = dirs[number(0, correct_dirs - 1)];
 		const auto was_fighting = ch->get_fighting();
 		const auto was_in = ch->in_room;
 
-		if (do_simple_move(ch, direction, TRUE, 0, true))
-		{
+		if (do_simple_move(ch, direction, TRUE, 0, true)) {
 			act("$n запаниковал$g и пытал$u сбежать!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
-			if (on_horse(ch))
-			{
+			if (on_horse(ch)) {
 				act("Верн$W $N вынес$Q вас из боя.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
 			}
 
-			if (was_fighting && !IS_NPC(ch))
-			{
+			if (was_fighting && !IS_NPC(ch)) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
-		}
-		else
-		{
+		} else {
 			act("$n запаниковал$g и попытал$u убежать, но не смог$q!", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 		}
-	}
-	else
-	{
+	} else {
 		act("$n запаниковал$g и попытал$u убежать, но не смог$q!", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		send_to_char("ПАНИКА ОВЛАДЕЛА ВАМИ. Вы не смогли сбежать!\r\n", ch);
 	}
 }
 
-void go_dir_flee(CHAR_DATA * ch, int direction)
-{
-	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0)
+void go_dir_flee(CHAR_DATA * ch, int direction) {
+	if (GET_MOB_HOLD(ch) || GET_WAIT(ch) > 0) {
 		return;
+	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) ||AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)|| PRF_FLAGS(ch).get(PRF_IRON_WIND))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_NOFLEE) ||AFF_FLAGGED(ch, EAffectFlag::AFF_LACKY)|| PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
 		send_to_char("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
 	}
 
-	if (GET_POS(ch) < POS_FIGHTING)
-	{
+	if (GET_POS(ch) < POS_FIGHTING) {
 		send_to_char("Вы не сможете сбежать из этого положения.\r\n", ch);
 		return;
 	}
 
 	if (legal_dir(ch, direction, TRUE, FALSE)
-		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ROOM_DEATH))
-	{
-		if (do_simple_move(ch, direction, TRUE, 0, true))
-		{
+		&& !ROOM_FLAGGED(EXIT(ch, direction)->to_room(), ROOM_DEATH)) {
+		if (do_simple_move(ch, direction, TRUE, 0, true)) {
 			const auto was_in = ch->in_room;
 			const auto was_fighting = ch->get_fighting();
 
 			act("$n запаниковал$g и попытал$u убежать.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
-			if (was_fighting && !IS_NPC(ch))
-			{
+			if (was_fighting && !IS_NPC(ch)) {
 				reduce_exp_after_flee(ch, was_fighting, was_in);
 			}
 
-			if (!WAITLESS(ch))
+			if (!WAITLESS(ch)) {
 				WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
-
+			}
 			return;
 		}
 	}
@@ -924,18 +830,14 @@ const char *FleeDirs[] = { "север",
 void do_flee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	int direction = -1;
-	if (!ch->get_fighting())
-	{
+	if (!ch->get_fighting()) {
 		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
-	if (can_use_feat(ch, CALMNESS_FEAT) || IS_IMMORTAL(ch)
-			|| GET_GOD_FLAG(ch, GF_GODSLIKE))
-	{
+	if (can_use_feat(ch, CALMNESS_FEAT) || GET_GOD_FLAG(ch, GF_GODSLIKE)) {
 		one_argument(argument, arg);
 		if ((direction = search_block(arg, dirs, FALSE)) >= 0 ||
-				(direction = search_block(arg, FleeDirs, FALSE)) >= 0)
-		{
+				(direction = search_block(arg, FleeDirs, FALSE)) >= 0) {
 			go_dir_flee(ch, direction);
 			return;
 		}
@@ -943,34 +845,27 @@ void do_flee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	go_flee(ch);
 }
 
-void drop_from_horse(CHAR_DATA *victim)
-{
-	if (on_horse(victim))
-	{
+void drop_from_horse(CHAR_DATA *victim) {
+	if (on_horse(victim)) {
 		act("Вы упали с $N1.", FALSE, victim, 0, get_horse(victim), TO_CHAR);
 		AFF_FLAGS(victim).unset(EAffectFlag::AFF_HORSE);
 	}
 
-	if (IS_HORSE(victim)
-		&& on_horse(victim->get_master()))
-	{
+	if (IS_HORSE(victim) && on_horse(victim->get_master())) {
 		horse_drop(victim);
 	}
 }
 
 // ************************* BASH PROCEDURES
-void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
-{
+void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
 	int percent = 0, prob;
 
-	if (dontCanAct(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT))
-	{
+	if (dontCanAct(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
-	{
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -978,24 +873,20 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (onhorse(ch))
 		return;
 
-	if (ch == vict)
-	{
+	if (ch == vict) {
 		return;
 	}
 
-	if (!(IS_NPC(ch) ||	// моб
-			GET_EQ(ch, WEAR_SHIELD) ||	// есть щит
-			IS_IMMORTAL(ch) ||	// бессмертный
-			GET_MOB_HOLD(vict) ||	// цель захолжена
-			GET_GOD_FLAG(vict, GF_GODSCURSE)	// есть спецфлаг
-		 ))
-	{
+	if (!(IS_NPC(ch)
+			|| GET_EQ(ch, WEAR_SHIELD)
+			|| IS_IMMORTAL(ch)
+			|| GET_MOB_HOLD(vict)
+			|| GET_GOD_FLAG(vict, GF_GODSCURSE))) {
 		send_to_char("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
 	};
 
-	if (GET_POS(ch) < POS_FIGHTING)
-	{
+	if (GET_POS(ch) < POS_FIGHTING) {
 		send_to_char("Вам стоит встать на ноги.\r\n", ch);
 		return;
 	}
@@ -1005,26 +896,19 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	percent = number(1, skill_info[SKILL_BASH].max_percent);
 	prob = train_skill(ch, SKILL_BASH, skill_info[SKILL_BASH].max_percent, vict);
 
-	//if (PRF_FLAGGED(ch, PRF_AWAKE)) //Проверка в skills.cpp->calculate_skills
-	//	prob /= 2;
-	if (GET_MOB_HOLD(vict))
+	if (GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, GF_GODSCURSE)) {
 		prob = percent;
-	if (GET_GOD_FLAG(vict, GF_GODSCURSE))
-		prob = percent;
-	if (GET_GOD_FLAG(ch, GF_GODSCURSE))
+	}
+	if (MOB_FLAGGED(vict, MOB_NOBASH) || GET_GOD_FLAG(ch, GF_GODSCURSE)) {
 		prob = 0;
-	if (MOB_FLAGGED(vict, MOB_NOBASH))
-		prob = 0;
+	}
 
-	if (percent > prob)
-	{
+	if (percent > prob) {
 		Damage dmg(SkillDmg(SKILL_BASH), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
 		GET_POS(ch) = POS_SITTING;
 		prob = 3;
-	}
-	else
-	{
+	} else {
 		/*
 		 * If we bash a player and they wimp out, they will move to the previous
 		 * room before we set them sitting.  If we try to set the victim sitting
@@ -1033,8 +917,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 		 */
 
 		//не дадим башить мобов в лаге которые спят, оглушены и прочее
-		if (GET_POS(vict) <= POS_STUNNED && GET_WAIT(vict) > 0)
-		{
+		if (GET_POS(vict) <= POS_STUNNED && GET_WAIT(vict) > 0) {
 			send_to_char("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
 			set_wait(ch, 1, FALSE);
 			return;
@@ -1042,19 +925,20 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 
 		int dam = str_bonus(GET_REAL_STR(ch), STR_TO_DAM) + GET_REAL_DR(ch) +
 				  MAX(0, ch->get_skill(SKILL_BASH) / 10 - 5) + GET_LEVEL(ch) / 5;
-//      log("[BASH params] = actor = %s, actorlevel = %d, actordex = %d
-//           target=  %s, targetlevel = %d, targetdex = %d ,skill = %d,
-//           dice = %d, dam = %d", GET_NAME(ch), GET_LEVEL(ch), GET_REAL_DEX(ch),
-//         GET_NAME(vict), GET_LEVEL(vict), GET_REAL_DEX(vict),
-//         percent, prob, dam);
+
 //делаем блокирование баша
-		if ((GET_AF_BATTLE(vict, EAF_BLOCK) || (can_use_feat(vict, DEFENDER_FEAT) && GET_EQ(vict, WEAR_SHIELD) && PRF_FLAGGED(vict, PRF_AWAKE) && vict->get_skill(SKILL_AWAKE) && vict->get_skill(SKILL_BLOCK) && GET_POS(vict) > POS_SITTING))
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
-			&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
-			&& GET_WAIT(vict) <= 0
-			&& GET_MOB_HOLD(vict) == 0)
-		{
+		if ((GET_AF_BATTLE(vict, EAF_BLOCK)
+			|| (can_use_feat(vict, DEFENDER_FEAT)
+			&& GET_EQ(vict, WEAR_SHIELD)
+			&& PRF_FLAGGED(vict, PRF_AWAKE)
+			&& vict->get_skill(SKILL_AWAKE)
+			&& vict->get_skill(SKILL_BLOCK)
+			&& GET_POS(vict) > POS_SITTING))
+				&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPFIGHT)
+				&& !AFF_FLAGGED(vict, EAffectFlag::AFF_MAGICSTOPFIGHT)
+				&& !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
+				&& GET_WAIT(vict) <= 0
+				&& GET_MOB_HOLD(vict) == 0) {
 			if (!(GET_EQ(vict, WEAR_SHIELD) ||
 					IS_NPC(vict) || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
 				send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
@@ -1063,17 +947,14 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 				int range, prob2;
 				range = number(1, skill_info[SKILL_BLOCK].max_percent);
 				prob2 = train_skill(vict, SKILL_BLOCK, skill_info[SKILL_BLOCK].max_percent, ch);
-				if (prob2 < range)
-				{
+				if (prob2 < range) {
 					act("Вы не смогли блокировать попытку $N1 сбить вас.",
 						FALSE, vict, 0, ch, TO_CHAR);
 					act("$N не смог$Q блокировать вашу попытку сбить $S.",
 						FALSE, ch, 0, vict, TO_CHAR);
 					act("$n не смог$q блокировать попытку $N1 сбить $s.",
 						TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
-				}
-				else
-				{
+				} else {
 					act("Вы блокировали попытку $N1 сбить вас с ног.",
 						FALSE, vict, 0, ch, TO_CHAR);
 					act("Вы хотели сбить $N1, но он$G блокировал$G Вашу попытку.",
@@ -1081,11 +962,10 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 					act("$n блокировал$g попытку $N1 сбить $s.",
 						TRUE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 					alt_equip(vict, WEAR_SHIELD, 30, 10);
-					//если атакуем с баша, то бой начинается
-					if (!ch->get_fighting())
-					{
+					if (!ch->get_fighting()) {
 						set_fighting(ch, vict);
 						set_wait(ch, 1, TRUE);
+						//ch->setSkillCooldownInPulses(SKILL_BASH, 2);
 					}
 					return;
 				}
@@ -1094,16 +974,13 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 //делаем блокирование баша
 
 		prob = 0;
-
 		Damage dmg(SkillDmg(SKILL_BASH), dam, PHYS_DMG);
 		dmg.flags.set(NO_FLEE_DMG);
 		dam = dmg.process(ch, vict);
 
-		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD)))  	// -1 = dead, 0 = miss
-		{
+		if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD))) {
 			prob = 3;
-			if (ch->in_room == IN_ROOM(vict))
-			{
+			if (ch->isInSameRoom(vict)) {
 				GET_POS(vict) = POS_SITTING;
 				drop_from_horse(vict);
 			}
@@ -1114,38 +991,28 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict)
 	set_wait(ch, prob, TRUE);
 }
 
-void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict = NULL;
+void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(SKILL_BASH)) {
+		send_to_char("Вы не знаете как.\r\n", ch);
+		return;
+	}
+	if (ch->haveCooldown(SKILL_BASH)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
-	one_argument(argument, arg);
-	if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(SKILL_BASH))
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Вы не знаете как.\r\n", ch);
+	if (onhorse(ch)) {
+		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
-	if (onhorse(ch))
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кого же вы так сильно желаете сбить?\r\n", ch);
 		return;
 	}
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
-		else
-		{
-			if (!IS_NPC(ch))
-				send_to_char("Кого же вы так сильно желаете сбить?\r\n", ch);
-			return;
-		}
-	}
 
-	if (vict == ch)
-	{
+	if (vict == ch) {
 		send_to_char("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
 		return;
 	}
@@ -1155,69 +1022,53 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!check_pkill(ch, vict, arg))
 		return;
 
-	if (IS_IMPL(ch) || !ch->get_fighting())
+	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_bash(ch, vict);
-	else if (isHaveNoExtraAttack(ch))
-	{
-		if (!IS_NPC(ch))
-			act("Хорошо. Вы попытаетесь сбить $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_BASH, vict);
-	}
+	} else if (isHaveNoExtraAttack(ch)) {
+				if (!IS_NPC(ch))
+				act("Хорошо. Вы попытаетесь сбить $N3.", FALSE, ch, 0, vict, TO_CHAR);
+				ch->set_extra_attack(EXTRA_ATTACK_BASH, vict);
+			}
 }
 
 void do_stun(CHAR_DATA* ch, char* argument, int, int)
 {
-	CHAR_DATA *vict = NULL;
-
-	one_argument(argument, arg);
-
-	if (ch->get_skill(SKILL_STUN) < 1)
-	{
-		if (!IS_NPC(ch))
+	if (ch->get_skill(SKILL_STUN) < 1) {
 			send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_STUN)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
-	if (!on_horse(ch))
-	{
-		if (!IS_NPC(ch))
+	if (!on_horse(ch)) {
 			send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
 		return;
 	}
-	if ((GET_SKILL(ch, SKILL_HORSE) < 151) && (!IS_NPC(ch)))
-	{
+	if ((GET_SKILL(ch, SKILL_HORSE) < 151) && (!IS_NPC(ch))) {
 		send_to_char("Вы слишком неуверенно управляете лошадью, чтоб на ней пытаться ошеломить противника.\r\n", ch);
 		return;
 	}
-	if (timed_by_skill(ch, SKILL_STUN) && (!IS_NPC(ch)))
-	{
+	if (timed_by_skill(ch, SKILL_STUN) && (!IS_NPC(ch))) {
 			send_to_char("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
-
-	if (!IS_NPC(ch) && !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS)))
-	{
+	if (!IS_NPC(ch) && !(GET_EQ(ch, WEAR_WIELD) || GET_EQ(ch, WEAR_BOTHS))) {
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}
-	if (GET_EQ(ch, WEAR_BOTHS) && GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS)
-	{
+	if (GET_EQ(ch, WEAR_BOTHS) && GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS) 	{
 		send_to_char("Луком ударить по голове? Оригинально....\r\n", ch);
 		return;
 	}
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
-		else
-		{
-			if (!IS_NPC(ch))
-				send_to_char("Кто это так сильно путается под рукой?\r\n", ch);
-			return;
-		}
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кто это так сильно путается у вас под руками?\r\n", ch);
+		return;
 	}
-	if (vict == ch)
-	{
+
+	if (vict == ch) {
 		send_to_char("Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы...\r\n", ch);
 		return;
 	}
@@ -1230,8 +1081,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 	go_stun(ch, vict);
 }
 
-void go_stun(CHAR_DATA * ch, CHAR_DATA * vict)
-{
+void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 	int percent = 0, prob = 0;
 	if (GET_SKILL(ch, SKILL_STUN) < 150)
 	{
@@ -1305,8 +1155,7 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (on_horse(ch))
-	{
+	if (on_horse(ch)) {
 	    send_to_char(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", GET_PAD(vict,1));
 	    return;
 	}
@@ -1320,10 +1169,10 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 	if (GET_GOD_FLAG(ch, GF_GODSCURSE))
 		prob = 0;
 
-	if (percent != skill_info[SKILL_RESCUE].max_percent && percent > prob)
-	{
+	if (percent != skill_info[SKILL_RESCUE].max_percent && percent > prob) {
 		act("Вы безуспешно пытались спасти $N3.", FALSE, ch, 0, vict, TO_CHAR);
 		set_wait(ch, 1, FALSE);
+		//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
 		return;
 	}
 
@@ -1349,21 +1198,22 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch)
 		fighting_rescue(ch, vict, tmp_ch);
 	}
 	set_wait(ch, 1, FALSE);
+	//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
 	set_wait(vict, 2, FALSE);
 }
 
-void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict, *tmp_ch;
-
-	if (!ch->get_skill(SKILL_RESCUE))
-	{
+void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (!ch->get_skill(SKILL_RESCUE)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_RESCUE)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
+	CHAR_DATA *vict, *tmp_ch;
 	one_argument(argument, arg);
-
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		send_to_char("Кого вы хотите спасти?\r\n", ch);
@@ -1448,6 +1298,10 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_KICK)) {
+		send_to_char("Вы уже все ноги себе отбили, отдохнител слегка.\r\n", ch);
+		return;
+	};
 
 	vict = try_protect(vict, ch);
 
@@ -1596,49 +1450,42 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict)
 			}
 			affect_join(vict, af, TRUE, FALSE, TRUE, FALSE);
 		}
-//      log("[KICK damage] Name==%s dam==%d",GET_NAME(ch),dam);
-	//Пиная из осторожки моба в осторожке получаешь всего лишь резанье дамага в 16 раз...
-	//Уберем проверку на пинок из осторожки, а то в итоге дружи лишены единственного дамага, который могли выдавать
-		if (GET_AF_BATTLE(vict, EAF_AWAKE))
-		{
-			if (on_horse(ch))
+
+		if (GET_AF_BATTLE(vict, EAF_AWAKE)) {
+			dam >>= (2 - on_horse(ch));
+/*			if (on_horse(ch)) {
 				dam >>= 1;
-			else
-				dam >>= 2;	// в 4 раза меньше
+			} else {
+				dam >>= 2;
+			}*/
 		}
 		Damage dmg(SkillDmg(SKILL_KICK), dam, PHYS_DMG);
 		dmg.process(ch, vict);
 		prob = 2;
 	}
-	set_wait(ch, prob, TRUE);
+	//set_wait(ch, prob, TRUE);
+	ch->setSkillCooldownInPulses(SKILL_KICK, prob);
+	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
 }
 
-void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict = NULL;
+void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_KICK))
-	{
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_KICK)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_KICK)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
-//	if (onhorse(ch))
-//		return;
-
-	one_argument(argument, arg);
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
-		else
-		{
-			send_to_char("Кто это так сильно путается под вашими ногами?\r\n", ch);
-			return;
-		}
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кто это так сильно путается под вашими ногами?\r\n", ch);
+		return;
 	}
-	if (vict == ch)
-	{
+
+	if (vict == ch) {
 		send_to_char("Вы БОЛЬНО пнули себя! Поздравляю, вы сошли с ума...\r\n", ch);
 		return;
 	}
@@ -1650,18 +1497,15 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (IS_IMPL(ch) || !ch->get_fighting())
 		go_kick(ch, vict);
-	else if (isHaveNoExtraAttack(ch))
-	{
-		act("Хорошо. Вы попытаетесь пнуть $N3.", FALSE, ch, 0, vict, TO_CHAR);
-		ch->set_extra_attack(EXTRA_ATTACK_KICK, vict);
-	}
+	else if (isHaveNoExtraAttack(ch)) {
+			act("Хорошо. Вы попытаетесь пнуть $N3.", FALSE, ch, 0, vict, TO_CHAR);
+			ch->set_extra_attack(EXTRA_ATTACK_KICK, vict);
+		}
 }
 
 // ******************* BLOCK PROCEDURES
-void go_block(CHAR_DATA * ch)
-{
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT))
-	{
+void go_block(CHAR_DATA * ch) {
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)) {
 		send_to_char("Ваша рука парализована.\r\n", ch);
 		return;
 	}
@@ -1669,29 +1513,27 @@ void go_block(CHAR_DATA * ch)
 	send_to_char("Хорошо, вы попробуете отразить щитом следующую атаку.\r\n", ch);
 }
 
-void do_block(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
-{
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_BLOCK))
-	{
+void do_block(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_BLOCK)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->get_fighting())
-	{
+	if (ch->haveCooldown(SKILL_BLOCK)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
+	if (!ch->get_fighting()) {
 		send_to_char("Но вы ни с кем не сражаетесь!\r\n", ch);
 		return;
 	};
-	if (!(IS_NPC(ch) ||	// моб
-			GET_EQ(ch, WEAR_SHIELD) ||	// есть щит
-			IS_IMMORTAL(ch) ||	// бессмертный
-			GET_GOD_FLAG(ch, GF_GODSLIKE)	// спецфлаг
-		 ))
-	{
+	if (!(IS_NPC(ch)
+			|| GET_EQ(ch, WEAR_SHIELD)
+			|| IS_IMMORTAL(ch)
+			|| GET_GOD_FLAG(ch, GF_GODSLIKE))) {
 		send_to_char("Вы не можете сделать это без щита.\r\n", ch);
 		return;
 	}
-	if (GET_AF_BATTLE(ch, EAF_BLOCK))
-	{
+	if (GET_AF_BATTLE(ch, EAF_BLOCK)) 	{
 		send_to_char("Вы уже прикрываетесь щитом!\r\n", ch);
 		return;
 	}
@@ -1710,33 +1552,32 @@ void go_multyparry(CHAR_DATA * ch)
 	send_to_char("Вы попробуете использовать веерную защиту.\r\n", ch);
 }
 
-void do_multyparry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
-{
-	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
-
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_MULTYPARRY))
-	{
+void do_multyparry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_MULTYPARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->get_fighting())
-	{
+	if (ch->haveCooldown(SKILL_MULTYPARRY)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
+	if (!ch->get_fighting()) {
 		send_to_char("Но вы ни с кем не сражаетесь?\r\n", ch);
 		return;
 	}
-	if (!(IS_NPC(ch)	// моб
+
+	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD), *offhand = GET_EQ(ch, WEAR_HOLD);
+	if (!(IS_NPC(ch)
 		|| (primary
 			&& GET_OBJ_TYPE(primary) == OBJ_DATA::ITEM_WEAPON
 			&& offhand
-			&& GET_OBJ_TYPE(offhand) == OBJ_DATA::ITEM_WEAPON)	// два оружия
-		|| IS_IMMORTAL(ch)	// бессмертный
-		|| GET_GOD_FLAG(ch, GF_GODSLIKE)))	// спецфлаг
-	{
+			&& GET_OBJ_TYPE(offhand) == OBJ_DATA::ITEM_WEAPON)
+		|| IS_IMMORTAL(ch)
+		|| GET_GOD_FLAG(ch, GF_GODSLIKE))) {
 		send_to_char("Вы не можете отражать атаки безоружным.\r\n", ch);
 		return;
 	}
-	if (GET_AF_BATTLE(ch, EAF_STUPOR))
-	{
+	if (GET_AF_BATTLE(ch, EAF_STUPOR)) {
 		send_to_char("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
@@ -1760,51 +1601,44 @@ void go_parry(CHAR_DATA * ch)
 
 void do_parry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_PARRY))
-	{
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_PARRY)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->get_fighting())
-	{
+	if (ch->haveCooldown(SKILL_PARRY)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
+
+	if (!ch->get_fighting()) {
 		send_to_char("Но вы ни с кем не сражаетесь?\r\n", ch);
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, GF_GODSLIKE))
-	{
-		if (GET_EQ(ch, WEAR_BOTHS))
-		{
+	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, GF_GODSLIKE)) {
+		if (GET_EQ(ch, WEAR_BOTHS)) {
 			send_to_char("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
 			return;
 		}
 
 		bool prim = 0, offh = 0;
-		if (GET_EQ(ch, WEAR_WIELD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON)
-		{
+		if (GET_EQ(ch, WEAR_WIELD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD)) == OBJ_DATA::ITEM_WEAPON) {
 			prim = 1;
 		}
-		if (GET_EQ(ch, WEAR_HOLD)
-			&& GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON)
-		{
+		if (GET_EQ(ch, WEAR_HOLD) && GET_OBJ_TYPE(GET_EQ(ch, WEAR_HOLD)) == OBJ_DATA::ITEM_WEAPON) {
 			offh = 1;
 		}
 
-		if (!prim && !offh)
-		{
+		if (!prim && !offh) {
 			send_to_char("Вы не можете отклонить атаку безоружным.\r\n", ch);
 			return;
-		}
-		else if (!prim || !offh)
-		{
-			send_to_char("Вы можете отклонить атаку только с двумя оружиями в руках.\r\n", ch);
-			return;
-		}
+		} else if (!prim || !offh) {
+					send_to_char("Вы можете отклонить атаку только с двумя оружиями в руках.\r\n", ch);
+					return;
+				}
 	}
 
-	if (GET_AF_BATTLE(ch, EAF_STUPOR))
-	{
+	if (GET_AF_BATTLE(ch, EAF_STUPOR)) {
 		send_to_char("Невозможно! Вы стараетесь оглушить противника.\r\n", ch);
 		return;
 	}
@@ -1812,8 +1646,7 @@ void do_parry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 }
 
 // ************** PROTECT PROCEDURES
-void go_protect(CHAR_DATA * ch, CHAR_DATA * vict)
-{
+void go_protect(CHAR_DATA * ch, CHAR_DATA * vict) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -1824,62 +1657,53 @@ void go_protect(CHAR_DATA * ch, CHAR_DATA * vict)
 	SET_AF_BATTLE(ch, EAF_PROTECT);
 }
 
-void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict;
-
+void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
-	if (!*arg)
-	{
-		if (ch->get_protecting())
-		{
+	if (!*arg) {
+		if (ch->get_protecting()) {
 			CLR_AF_BATTLE(ch, EAF_PROTECT);
 			ch->set_protecting(0);
 			send_to_char("Вы перестали прикрывать своего товарища.\r\n", ch);
-		}else
-		{
+		} else {
 			send_to_char("Вы никого не прикрываете.\r\n", ch);
 		}
 		return;
 	}
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_PROTECT))
-	{
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_PROTECT)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_PROTECT)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
+	CHAR_DATA *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	if (!vict) {
 		send_to_char("И кто так сильно мил вашему сердцу?\r\n", ch);
 		return;
 	};
 
-	if (vict == ch)
-	{
+	if (vict == ch) {
 		send_to_char("Попробуйте парировать удары или защищаться щитом.\r\n", ch);
 		return;
 	}
 
-	if (ch->get_fighting() == vict)
-	{
+	if (ch->get_fighting() == vict) {
 		send_to_char("Вы явно пацифист, или мазохист.\r\n", ch);
 		return;
 	}
 
 	CHAR_DATA *tch = nullptr;
-	for (const auto i : world[ch->in_room]->people)
-	{
-		if (i->get_fighting() == vict)
-		{
+	for (const auto i : world[ch->in_room]->people) {
+		if (i->get_fighting() == vict) 	{
 			tch = i;
-
 			break;
 		}
 	}
 
-	if (IS_NPC(vict)
-		&& tch
+	if (IS_NPC(vict) && tch
 		&& (!IS_NPC(tch)
 			|| (AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
 				&& tch->has_master()
@@ -1887,17 +1711,13 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		&& (!IS_NPC(ch)
 			|| (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 				&& ch->has_master()
-				&& !IS_NPC(ch->get_master()))))
-	{
+				&& !IS_NPC(ch->get_master())))) {
 		send_to_char("Вы пытаетесь прикрыть чужого противника.\r\n", ch);
 		return;
 	}
 
-	for (const auto tch : world[ch->in_room]->people)
-	{
-		if (tch->get_fighting() == vict
-			&& !may_kill_here(ch, tch))
-		{
+	for (const auto tch : world[ch->in_room]->people) {
+		if (tch->get_fighting() == vict && !may_kill_here(ch, tch)) {
 			return;
 		}
 	}
@@ -1906,8 +1726,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // ************* TOUCH PROCEDURES
-void go_touch(CHAR_DATA * ch, CHAR_DATA * vict)
-{
+void go_touch(CHAR_DATA * ch, CHAR_DATA * vict) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -1917,67 +1736,53 @@ void go_touch(CHAR_DATA * ch, CHAR_DATA * vict)
 	ch->set_touching(vict);
 }
 
-void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD) ? GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch,
-						WEAR_BOTHS);
-	CHAR_DATA *vict = NULL;
-
-	one_argument(argument, arg);
-
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOUCH))
-	{
+void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOUCH)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!(IS_IMMORTAL(ch) ||	// бессмертный
-			IS_NPC(ch) ||	// моб
-			GET_GOD_FLAG(ch, GF_GODSLIKE) ||	// спецфлаг
-			!primary		// нет оружия
-		 ))
-	{
+	if (ch->haveCooldown(SKILL_TOUCH)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
+
+	OBJ_DATA *primary = GET_EQ(ch, WEAR_WIELD) ? GET_EQ(ch, WEAR_WIELD) : GET_EQ(ch,
+						WEAR_BOTHS);
+	if (!(IS_IMMORTAL(ch) || IS_NPC(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE) ||	!primary)) {
 		send_to_char("У вас заняты руки.\r\n", ch);
 		return;
 	}
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		vict = nullptr;
-		for (const auto i : world[ch->in_room]->people)
-		{
-			if (i->get_fighting() == ch)
-			{
+
+	CHAR_DATA *vict = nullptr;
+	one_argument(argument, arg);
+	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
+		for (const auto i : world[ch->in_room]->people) {
+			if (i->get_fighting() == ch) {
 				vict = i;
 				break;
 			}
 		}
 
-		if (!vict)
-		{
-			if (!ch->get_fighting())
-			{
+		if (!vict) {
+			if (!ch->get_fighting()) {
 				send_to_char("Но вы ни с кем не сражаетесь.\r\n", ch);
 				return;
-			}
-			else
-			{
+			} else {
 				vict = ch->get_fighting();
 			}
 		}
 	}
 
-	if (ch == vict)
-	{
+	if (ch == vict) {
 		send_to_char(GET_NAME(ch), ch);
 		send_to_char(", вы похожи на котенка, ловящего собственный хвост.\r\n", ch);
 		return;
 	}
-	if (vict->get_fighting() != ch && ch->get_fighting() != vict)
-	{
+	if (vict->get_fighting() != ch && ch->get_fighting() != vict) {
 		act("Но вы не сражаетесь с $N4.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT))
-	{
+	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT)) {
 		send_to_char("Невозможно. Вы приготовились к богатырскому удару.\r\n", ch);
 		return;
 	}
@@ -1991,37 +1796,38 @@ void do_touch(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // ************* DEVIATE PROCEDURES
-void go_deviate(CHAR_DATA * ch)
-{
+void go_deviate(CHAR_DATA * ch) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (onhorse(ch))
+	if (onhorse(ch)) {
 		return;
+	};
 	SET_AF_BATTLE(ch, EAF_DEVIATE);
 	send_to_char("Хорошо, вы попытаетесь уклониться от следующей атаки!\r\n", ch);
 }
 
-void do_deviate(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
-{
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_DEVIATE))
-	{
+void do_deviate(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_DEVIATE)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_DEVIATE)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
-	if (!(ch->get_fighting()))
-	{
+	if (!(ch->get_fighting())) {
 		send_to_char("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
 
-	if (onhorse(ch))
+	if (onhorse(ch)) {
 		return;
+	}
 
-	if (GET_AF_BATTLE(ch, EAF_DEVIATE))
-	{
+	if (GET_AF_BATTLE(ch, EAF_DEVIATE)) {
 		send_to_char("Вы и так вертитесь, как волчок.\r\n", ch);
 		return;
 	};
@@ -2029,8 +1835,7 @@ void do_deviate(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 }
 
 // ************* DISARM PROCEDURES
-void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
-{
+void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict) {
 	int percent, prob, pos = 0;
 	OBJ_DATA *wielded = GET_EQ(vict, WEAR_WIELD) ? GET_EQ(vict, WEAR_WIELD) :
 						GET_EQ(vict, WEAR_BOTHS), *helded = GET_EQ(vict, WEAR_HOLD);
@@ -2098,26 +1903,18 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 		send_to_char(buf, vict);
 		act("$n ловко выбил$g $o3 из рук $N1.", TRUE, ch, wielded, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		unequip_char(vict, pos);
-		if (GET_WAIT(vict) <= 0)
-		{
-			set_wait(vict, IS_NPC(vict) ? 1 : 2, FALSE);
+		if (GET_WAIT(vict) <= 0) {
+			//set_wait(vict, IS_NPC(vict) ? 1 : 2, FALSE);
+			vict->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, IS_NPC(vict) ? 1 : 2);
 		}
 		prob = 2;
-		//+Полель
-        // для арены, игроков и чармисов оружие в инвентарь. во всех остальных случаях на землю
-        // профсаюз мобов может писать жалабу на Полазника. :)
-		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA)
-			|| (!IS_MOB(vict))
-			|| vict->has_master())
-		{
+
+		if (ROOM_FLAGGED(IN_ROOM(vict), ROOM_ARENA) || (!IS_MOB(vict)) || vict->has_master()) {
             obj_to_char(wielded, vict);
-        }
-		else
-		{
+        } else {
             obj_to_room(wielded, IN_ROOM(vict));
             obj_decay(wielded);
 		};
-		//-Полель
 	}
 
 	appear(ch);
@@ -2125,36 +1922,29 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict)
 	{
 		set_hit(vict, ch);
 	}
-	set_wait(ch, prob, FALSE);
+	//set_wait(ch, prob, FALSE);
+	ch->setSkillCooldownInPulses(SKILL_DISARM, prob);
+	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
 }
 
-void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict = NULL;
-
-	one_argument(argument, arg);
-
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_DISARM))
-	{
+void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_DISARM)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
-
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
-		else
-		{
-			send_to_char("Кого обезоруживаем?\r\n", ch);
-			return;
-		}
+	if (ch->haveCooldown(SKILL_DISARM)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
 	};
 
-	if (ch == vict)
-	{
-		send_to_char(GET_NAME(ch), ch);
-		send_to_char(", попробуйте набрать \"снять <название.оружия>\".\r\n", ch);
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кого обезоруживаем?\r\n", ch);
+		return;
+	}
+
+	if (ch == vict) {
+		send_to_char("Попробуйте набрать \"снять <название.оружия>\".\r\n", ch);
 		return;
 	}
 
@@ -2168,27 +1958,21 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			|| (GET_EQ(vict, WEAR_HOLD)
 				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_HOLD)) != OBJ_DATA::ITEM_LIGHT)
 			|| (GET_EQ(vict, WEAR_BOTHS)
-				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != OBJ_DATA::ITEM_LIGHT)))
-	{
+				&& GET_OBJ_TYPE(GET_EQ(vict, WEAR_BOTHS)) != OBJ_DATA::ITEM_LIGHT))) {
 		send_to_char("Вы не можете обезоружить безоружное создание.\r\n", ch);
 		return;
 	}
 
-	if (IS_IMPL(ch)
-		|| !ch->get_fighting())
-	{
+	if (IS_IMPL(ch) || !ch->get_fighting()) {
 		go_disarm(ch, vict);
-	}
-	else if (isHaveNoExtraAttack(ch))
-	{
+	} else if (isHaveNoExtraAttack(ch)) {
 		act("Хорошо. Вы попытаетесь разоружить $N3.", FALSE, ch, 0, vict, TO_CHAR);
 		ch->set_extra_attack(EXTRA_ATTACK_DISARM, vict);
 	}
 }
 
 // ************************* CHOPOFF PROCEDURES
-void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
-{
+void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 	int percent, prob;
 
 	if (dontCanAct(ch)) {
@@ -2196,8 +1980,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		return;
 	}
 
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
-	{
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND)) {
 		send_to_char("Вы не можете применять этот прием в таком состоянии!\r\n", ch);
 		return;
 	}
@@ -2205,13 +1988,12 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 	if (onhorse(ch))
 		return;
 
-	// Апгрейд трипа: coded by Делан
-	if ((GET_POS(vict) < POS_FIGHTING))
-	{
+	if ((GET_POS(vict) < POS_FIGHTING)) {
 		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF))
 		{
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			set_wait(ch, 1, FALSE);
+			//ch->setSkillCooldownInPulses(SKILL_DISARM, 1);
 			return;
 		}
 	}
@@ -2222,8 +2004,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
 	prob = train_skill(ch, SKILL_CHOPOFF, skill_info[SKILL_CHOPOFF].max_percent, vict);
 // в сетке хуже трипается
-	if (check_spell_on_player(ch, SPELL_WEB))
-	{
+	if (check_spell_on_player(ch, SPELL_WEB)) {
 		prob /= 3;
 	}
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE)
@@ -2274,14 +2055,11 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 		act("$n ловко подсек$q $N3, уронив $S на землю.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_wait(vict, 3, FALSE);
 
-		if (ch->in_room == IN_ROOM(vict))
-		{
+		if (ch->isInSameRoom(vict)) {
 			GET_POS(vict) = POS_SITTING;
 		}
 
-		if (IS_HORSE(vict)
-			&& on_horse(vict->get_master()))
-		{
+		if (IS_HORSE(vict) && on_horse(vict->get_master())) {
 			horse_drop(vict);
 		}
 		prob = 1;
@@ -2297,41 +2075,31 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 
 	set_wait(ch, prob, FALSE);
+	//ch->setSkillCooldownInPulses(SKILL_CHOPOFF, prob);
 }
 
-void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict = NULL;
+void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (ch->get_skill(SKILL_CHOPOFF) < 1) {
+		send_to_char("Вы не знаете как.\r\n", ch);
+		return;
+	}
+	if (ch->haveCooldown(SKILL_CHOPOFF)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
-	one_argument(argument, arg);
-
-	if (ch->get_skill(SKILL_CHOPOFF) < 1)
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Вы не знаете как.\r\n", ch);
+	if (onhorse(ch)) {
+		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
-	if (onhorse(ch))
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Верхом это сделать затруднительно.\r\n", ch);
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кого вы собираетесь подсечь?\r\n", ch);
 		return;
 	}
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-	{
-		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
-			vict = ch->get_fighting();
-		else
-		{
-			if (!IS_NPC(ch))
-				send_to_char("Кого вы собираетесь подсечь?\r\n", ch);
-			return;
-		}
-	}
 
-	if (vict == ch)
-	{
+	if (vict == ch) {
 		send_to_char("Вы можете воспользоваться командой <сесть>.\r\n", ch);
 		return;
 	}
@@ -2352,8 +2120,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // ************************* STUPOR PROCEDURES
-void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
-{
+void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim) {
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -2370,30 +2137,37 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim)
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, SKILL_STUPOR, RIGHT_WEAPON);
 		set_wait(ch, 2, TRUE);
+		//ch->setSkillCooldownInPulses(SKILL_STUPOR, 2);
 	} else {
 		act("Вы попытаетесь оглушить $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, FALSE);
 			set_fighting(ch, victim);
 			set_wait(ch, 2, TRUE);
+			//ch->setSkillCooldownInPulses(SKILL_STUPOR, 2);
 		}
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 	}
 }
 
-void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict = NULL;
-
-	one_argument(argument, arg);
-
-	if (ch->get_skill(SKILL_STUPOR) < 1)
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Вы не знаете как.\r\n", ch);
+void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (ch->get_skill(SKILL_STUPOR) < 1) {
+		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_STUPOR)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кого вы хотите оглушить?\r\n", ch);
+		return;
+	}
+/*
+	CHAR_DATA *vict = nullptr;
+	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
@@ -2405,7 +2179,7 @@ void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 	}
-
+*/
 	if (vict == ch)
 	{
 		send_to_char("Вы громко заорали, заглушая свой собственный голос.\r\n", ch);
@@ -2441,6 +2215,8 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 		hit(ch, victim, SKILL_MIGHTHIT, RIGHT_WEAPON);
 		set_wait(ch, 2, TRUE);
+		//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+		//ch->setSkillCooldownInPulses(SKILL_MIGHTHIT, 2);
 		return;
 	}
 
@@ -2452,24 +2228,31 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim)
 			stop_fighting(ch, 2); //просто переключаемся
 			set_fighting(ch, victim);
 			set_wait(ch, 2, TRUE);
+			//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+			//ch->setSkillCooldownInPulses(SKILL_MIGHTHIT, 2);
 		}
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 	}
 }
 
-void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict = NULL;
-
-	one_argument(argument, arg);
-
-	if (ch->get_skill(SKILL_MIGHTHIT) < 1)
-	{
-		if (!IS_NPC(ch))
-			send_to_char("Вы не знаете как.\r\n", ch);
+void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
+	if (ch->get_skill(SKILL_MIGHTHIT) < 1) {
+		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_MIGHTHIT)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
 
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кого вы хотите оглушить?\r\n", ch);
+		return;
+	}
+/*
+	CHAR_DATA *vict = nullptr;
+	one_argument(argument, arg);
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
@@ -2481,7 +2264,7 @@ void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 	}
-
+*/
 	if (vict == ch)
 	{
 		send_to_char("Вы СИЛЬНО ударили себя. Но вы и не спали.\r\n", ch);
@@ -2519,10 +2302,13 @@ const char *cstyles[] = { "normal",
 						  "\n"
 						};
 
-void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	int tp;
+void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
+	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
+		return;
+	};
+	int tp;
 	one_argument(argument, arg);
 
 	if (!*arg) {
@@ -2648,8 +2434,8 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 		to_room = "Копье $N1 сбило $n3 наземь!";
 		doSideAction = ([](TechniqueRollType &technique) {
 							drop_from_horse(technique.rival());
-							WAIT_STATE(technique.rival(), 2*PULSE_VIOLENCE);
 							GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), POS_SITTING);
+							set_wait(technique.rival(), 2, TRUE);
 						});
 		break;
 	case SKILL_SHORTS:
@@ -2681,7 +2467,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 							af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 							affect_join(technique.actor(), af, FALSE, FALSE, FALSE, FALSE);
-							WAIT_STATE(technique.rival(), 3*PULSE_VIOLENCE);
+							set_wait(technique.rival(), 3, TRUE);
 						});
 		break;
 	};
@@ -2769,37 +2555,38 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * victim) {
 		};
 	};
 
-	set_wait(ch, 3, TRUE);
+	ch->setSkillCooldownInPulses(SKILL_THROW, 3);
+	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
 }
 
-void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
-{
-	one_argument(argument, arg);
-	CHAR_DATA *victim = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
+
 
 	// Костыль-заглушка на использование старого умения,
 	// чтобы не убирать пока что само умение
 	//Svent TODO: Не забыть убрать заглушку после дописывания навыков
-	if (!IS_IMPL(ch) &&  !ch->get_skill(SKILL_THROW)) {
+	if (!ch->get_skill(SKILL_THROW)) {
 		send_to_char("Вы принялись метать икру. Это единственное, что вы умеете метать.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_THROW)) {
+		send_to_char("Так и рука отвалится, нужно передохнуть.\r\n", ch);
+		return;
+	};
 /*
 	if (!IS_IMPL(ch) && !can_use_feat(ch, THROW_WEAPON_FEAT)) {
 			send_to_char("Вы не умеете этого.\r\n", ch);
 			return;
 	}
 */
+	CHAR_DATA* victim = findVictim(ch, argument);
 	if (!victim) {
-		if (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
-			victim = ch->get_fighting();
-		} else {
-			send_to_char("В кого мечем?\r\n", ch);
-			return;
-		}
-	};
+		send_to_char("В кого мечем?\r\n", ch);
+		return;
+	}
+
 	if (ch == victim) {
-		send_to_char("Не мечите, и не мечимы будете!\r\n", ch);
+		send_to_char("Вы начали метаться как белка в колесе.\r\n", ch);
 		return;
 	}
 
@@ -2828,26 +2615,29 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 }
 
-void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict;
+void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+
 	struct timed_type timed;
 	int drained_mana, prob, percent, skill;
 
 	one_argument(argument, arg);
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_MANADRAIN))
-	{
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_MANADRAIN)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch) && timed_by_skill(ch, SKILL_MANADRAIN))
-	{
+	if (timed_by_skill(ch, SKILL_MANADRAIN) || ch->haveCooldown(SKILL_MANADRAIN)) {
 		send_to_char("Так часто не получится.\r\n", ch);
 		return;
 	}
 
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кого вы хотите оглушить?\r\n", ch);
+		return;
+	}
+/*
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
 	{
 		if (ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting()))
@@ -2860,27 +2650,23 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 	};
-
-	if (ch == vict)
-	{
+*/
+	if (ch == vict) {
 		send_to_char("Вы укусили себя за левое ухо.\r\n", ch);
 		return;
 	}
 
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE))
-	{
+	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE)) {
 		send_to_char("Поищите другое место для выражения своих кровожадных наклонностей.\r\n", ch);
 		return;
 	}
 
-	if (!IS_NPC(vict))
-	{
+	if (!IS_NPC(vict)) {
 		send_to_char("На живом человеке? Креста не вас нет!\r\n", ch);
 		return;
 	}
 
-	if (affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
-	{
+	if (affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT)) {
 		send_to_char("Боги хранят вашу жертву.\r\n", ch);
 		return;
 	}
@@ -2962,6 +2748,10 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		send_to_char("Вам это не по силам.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_TURN_UNDEAD)) {
+		send_to_char("Вм нужно набраться сил для применения этого навыка.\r\n", ch);
+		return;
+	};
 
 	int skillTurnUndead = ch->get_skill(SKILL_TURN_UNDEAD);
 	timed_type timed;
@@ -2988,7 +2778,7 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 	turnUndeadDamage.magic_type = STYPE_LIGHT;
 	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
 	TechniqueRollType turnUndeadRoll;
-	ActionTargeting::FoesRosterType roster{ch};
+	ActionTargeting::FoesRosterType roster{ch, [](CHAR_DATA*, CHAR_DATA* target) {return IS_UNDEAD(target);}};
 	for (const auto target : roster) {
 		turnUndeadDamage.dam = ZERO_DMG;
 		turnUndeadRoll.initialize(ch, TURN_UNDEAD_FEAT, target);
@@ -3029,7 +2819,9 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 			break;
 		};
 	};
-	set_wait(ch, 1, TRUE);
+	//set_wait(ch, 1, TRUE);
+	ch->setSkillCooldownInPulses(SKILL_TURN_UNDEAD, 2);
+	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
 }
 
 void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
@@ -3071,27 +2863,28 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim)
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
 		hit(ch, victim, TYPE_UNDEFINED, RIGHT_WEAPON);
 		set_wait(ch, 2, TRUE);
+		//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+		//ch->setSkillCooldownInPulses(SKILL_IRON_WIND, 2);
 	} else {
 		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
 	}
 }
 
-void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict = NULL;
-	int moves;
-
-
+void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_IRON_WIND)) {
 		send_to_char("Вы не знаете как.\r\n", ch);
+		return;
+	};
+	if (ch->haveCooldown(SKILL_IRON_WIND)) {
+		send_to_char("Вм нужно набраться сил.\r\n", ch);
 		return;
 	};
 	if (GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) {
 		send_to_char("Невозможно! Вы слишкм заняты боем!\r\n", ch);
 		return;
 	};
-	moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->get_skill(SKILL_IRON_WIND)) / 15);
+	int moves = GET_MAX_MOVE(ch) / (2 + MAX(15, ch->get_skill(SKILL_IRON_WIND)) / 15);
 	if (GET_MAX_MOVE(ch) < moves * 2) {
 		send_to_char("Вы слишком устали...\r\n", ch);
 		return;
@@ -3100,16 +2893,12 @@ void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы слишком здравомыслящи для этого...\r\n", ch);
 		return;
 	};
-
-	one_argument(argument, arg);
-	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
-		if (!*arg && ch->get_fighting() && ch->in_room == IN_ROOM(ch->get_fighting())) {
-			vict = ch->get_fighting();
-		} else {
-			send_to_char("Кого вам угодно изрубить в капусту?\r\n", ch);
-			return;
-		}
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кого вам угодно изрубить в капусту?\r\n", ch);
+		return;
 	}
+
 	if (vict == ch) {
 		send_to_char("Вы с чувством собственного достоинства мощно пустили ветры... Железные.\r\n", ch);
 		return;
@@ -3160,6 +2949,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		set_wait(ch, 3, TRUE);
+		//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 3);
 	} else {
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_STRANGLE;
@@ -3177,7 +2967,9 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 		dmg.process(ch, vict);
 		if (GET_POS(vict) > POS_DEAD) {
 			set_wait(ch, 2, TRUE);
-			set_wait(vict, 2, TRUE); //на случай если чар сидит или трип не пройдет
+			//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+			set_wait(vict, 2, TRUE);
+			//vict->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
 			if (on_horse(vict)) {
 				act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, 0, ch, TO_CHAR);
 				act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, 0, ch, TO_VICT);
@@ -3198,27 +2990,29 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict)
 	}
 }
 
-void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	CHAR_DATA *vict;
-
+void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_STRANGLE)) {
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
 	}
 
-	if (timed_by_skill(ch, SKILL_STRANGLE)) {
+	if (timed_by_skill(ch, SKILL_STRANGLE) || ch->haveCooldown(SKILL_STRANGLE)) {
 		send_to_char("Так часто душить нельзя - человеки кончатся.\r\n", ch);
 		return;
 	}
 
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
+		send_to_char("Кого вы жаждете удавить?\r\n", ch);
+		return;
+	}
+/*
 	one_argument(argument, arg);
-
 	if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM))) {
 		send_to_char("Кого вы жаждете удавить?\r\n", ch);
 		return;
 	}
-
+*/
 	if (AFF_FLAGGED(vict, EAffectFlag::AFF_STRANGLED)) {
 		send_to_char("Ваша жертва хватается руками за горло - не подобраться!\r\n", ch);
 		return;
@@ -3246,8 +3040,7 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	go_strangle(ch, vict);
 }
 
-void ApplyNoFleeAffect(CHAR_DATA *ch, int duration)
-{
+void ApplyNoFleeAffect(CHAR_DATA *ch, int duration) {
     //Это жутко криво, но почемук-то при простановке сразу 2 флагов битвектора начинаются глюки, хотя все должно быть нормально
     //По-видимому, где-то просто не учтено, что ненулевых битов может быть более 1
 	AFFECT_DATA<EApplyLocation> Noflee;
@@ -3514,9 +3307,8 @@ ESkill GetExpedientCutSkill(CHAR_DATA *ch)
 //но никак не пример организации кода. Если вы хотите добавлять новые приемы,
 //это следует делать через класс а-ля Expedient и интерфеqс класса свызовом типа Expedient.execute(ch, SCMD).
 //или даже ch.Expedient(SCMD)
-void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
-{
-    CHAR_DATA *vict;
+void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
+
     ESkill skill;
 
 	if (IS_NPC(ch) || (!can_use_feat(ch, EXPEDIENT_CUT_FEAT) && !IS_IMPL(ch)))
@@ -3549,26 +3341,20 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		return;
 	}
 
-	one_argument(argument, arg);
-
-	if (!*arg && ch->get_fighting() && IN_ROOM(ch) == IN_ROOM(ch->get_fighting()))
-	{
-		vict = ch->get_fighting();
-    } else if (!(vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
-    {
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
 		send_to_char("Кого вы хотите порезать?\r\n", ch);
 		return;
-    } else if (ch->get_fighting() && (vict->get_fighting() != ch) && (vict != ch))
-    {
-        act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
-        return;
-    }
+	}
 
-	if (vict == ch)
-	{
+	if (vict == ch) 	{
 		send_to_char("Вы таки да? Ой-вей, но тут таки Древняя Русь, а не Палестина!\r\n", ch);
 		return;
 	}
+	if (ch->get_fighting() && vict->get_fighting() != ch) {
+        act("$N не сражается с вами, не трогайте $S.", FALSE, ch, 0, vict, TO_CHAR);
+        return;
+    }
 
 	if (!may_kill_here(ch, vict))
 		return;
