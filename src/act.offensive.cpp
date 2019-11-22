@@ -421,14 +421,10 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
-	one_argument(argument, arg);
-	if (!*arg) {
-		send_to_char("Кого бить-то будем?\r\n", ch);
-	}
-
-	CHAR_DATA *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	CHAR_DATA* vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Вы не видите цели.\r\n", ch);
+		return;
 	}
 	if (vict == ch) {
 		send_to_char("Вы ударили себя... Ведь больно же!\r\n", ch);
@@ -475,16 +471,11 @@ void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd) {
 		do_hit(ch, argument, cmd, subcmd);
 		return;
 	};
-	one_argument(argument, arg);
-	if (!*arg) {
+	CHAR_DATA* vict = findVictim(ch, argument);
+	if (!vict) {
 		send_to_char("Кого вы жизни лишить хотите-то?\r\n", ch);
 		return;
-	};
-	CHAR_DATA *vict = get_char_vis(ch, arg, FIND_CHAR_ROOM);
-	if (!vict) {
-		send_to_char("А его нет здесь :P.\r\n", ch);
-		return;
-	};
+	}
 	if (ch == vict) {
 		send_to_char("Вы мазохист... :(\r\n", ch);
 		return;
