@@ -57,6 +57,7 @@
 #include <iterator>
 #include <set>
 #include <utility>
+#include <iomanip>
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -2322,31 +2323,36 @@ void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 
 	argument = one_argument(argument, arg);
-	if (!*arg)
-	{
+	if (!*arg) {
 		do_toggle(ch, argument, 0, 0);
 		return;
-	}
-	else if (*arg == '?')
+	} else if (*arg == '?') {
 		showhelp = TRUE;
-	else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0)
+	} else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0) {
 		showhelp = TRUE;
-	else if ((GET_LEVEL(ch) < gen_tog_param[i >> 1].level) || (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester))
-	{
+	} else if ((GET_LEVEL(ch) < gen_tog_param[i >> 1].level) || (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester)) {
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
 		//showhelp = TRUE;
-	}
-	else
+	} else {
 		do_gen_tog(ch, argument, 0, gen_tog_param[i >> 1].subcmd);
+	}
 
-	if (showhelp)
-	{
+	if (showhelp) {
+		std::stringstream buffer;
+		buffer << "Вы можете установить следующее.\r\n" << std::endl;
+		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++) {
+			if ((GET_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester)) {
+				buffer << std::setw(20) << gen_tog_type[i << 1] << " (" << gen_tog_type[(i << 1) + 1] << ")" << std::endl;
+			}
+		}
+		send_to_char(buffer.str(), ch);
+/*
 		strcpy(buf, "Вы можете установить следующее.\r\n");
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
 			if ((GET_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
 				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(buf, ch);*/
 	}
 }
 

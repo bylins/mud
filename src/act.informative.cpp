@@ -1380,53 +1380,21 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			*aura_txt = '\0';
 			n = 0;
 			strcat(aura_txt, "...");
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_AIRAURA))
-			{
-				strcat(aura_txt, "воздушная");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_FIREAURA))
-			{
-				if (n > 0)
-					strcat(aura_txt, ", огненная");
-				else
-					strcat(aura_txt, "огненная");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_ICEAURA))
-			{
-				if (n > 0)
-					strcat(aura_txt, ", ледяная");
-				else
-					strcat(aura_txt, "ледяная");
-				n++;
-                        }
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
-			{
-				if (n > 0)
-					strcat(aura_txt, ", коричневая");
-				else
-					strcat(aura_txt, "коричневая");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
-			{
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS)) {
 				if (n > 0)
 					strcat(aura_txt, ", серебристая");
 				else
 					strcat(aura_txt, "серебристая");
 				n++;
 			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_BROKEN_CHAINS))
-			{
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_BROKEN_CHAINS)) {
 				if (n > 0)
 					strcat(aura_txt, ", ярко-синяя");
 				else
 					strcat(aura_txt, "ярко-синяя");
 				n++;
 			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS))
-			{
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS)) {
 				if (n > 0)
 					strcat(aura_txt, ", черная");
 				else
@@ -1645,35 +1613,6 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		*aura_txt = '\0';
 		n = 0;
 		strcat(aura_txt, " ..");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_AIRAURA))
-		{
-			strcat(aura_txt, "воздушная");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_FIREAURA))
-		{
-			if (n > 0)
-				strcat(aura_txt, ", огненная");
-			else
-				strcat(aura_txt, "огненная");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_ICEAURA))
-		{
-			if (n > 0)
-				strcat(aura_txt, ", ледяная");
-			else
-				strcat(aura_txt, "ледяная");
-			n++;
-                }
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
-		{
-			if (n > 0)
-				strcat(aura_txt, ", коричневая");
-			else
-				strcat(aura_txt, "коричневая");
-			n++;
-		}
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
 		{
 			if (n > 0)
@@ -5992,7 +5931,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			" Сжатый режим  : %-3s \r\n"
 			" Повтор команд : %-3s     "
 			" Обращения     : %-3s     "
-			" Цвет          : %-8s\r\n"
+			" Цвет          : %-8s \r\n"
 			" Кто-то        : %-6s  "
 			" Болтать       : %-3s     "
 			" Орать         : %-3s \r\n"
@@ -6003,25 +5942,26 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			" Автозавершение: %-3s     "
 			" Группа (вид)  : %-7s \r\n"
 			" Без двойников : %-3s     "
-			" Автодележ     : %-3s     "
-			" Автограбеж    : %-7s \r\n"
+			" Автопомощь    : %-3s     "
+			" Автодележ     : %-3s \r\n"
+			" Автограбеж    : %-7s "
 			" Брать куны    : %-3s     "
-			" Арена         : %-3s     "
-			" Трусость      : %-3s \r\n"
+			" Арена         : %-3s \r\n"
+			" Трусость      : %-3s     "
 			" Ширина экрана : %-3d     "
-			" Высота экрана : %-3d     "
-			" Сжатие        : %-6s \r\n"
+			" Высота экрана : %-3d \r\n"
+			" Сжатие        : %-6s  "
 			" Новости (вид) : %-5s   "
-			" Доски         : %-3s     "
-			" Хранилище     : %-10s\r\n"
+			" Доски         : %-3s \r\n"
+			" Хранилище     : %-8s"
 			" Пклист        : %-3s     "
-			" Политика      : %-3s     "
-			" Пкформат      : %-10s\r\n"
-			" Соклановцы    : %-3s     "
-			" Оффтоп        : %-3s     "
-			" Потеря связи  : %-3s \r\n"
+			" Политика      : %-3s \r\n"
+			" Пкформат      : %-6s  "
+			" Соклановцы    : %-8s"
+			" Оффтоп        : %-3s \r\n"
+			" Потеря связи  : %-3s     "
 			" Ингредиенты   : %-3s     "
-			" Вспомнить     : %-3u     ",
+			" Вспомнить     : %-3u \r\n",
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
 			ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
@@ -6038,6 +5978,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			ONOFF(PRF_FLAGGED(ch, PRF_GOAHEAD)),
 			PRF_FLAGGED(ch, PRF_SHOWGROUP) ? "полный" : "краткий",
 			ONOFF(PRF_FLAGGED(ch, PRF_NOCLONES)),
+			ONOFF(PRF_FLAGGED(ch, PRF_AUTOASSIST)),
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOSPLIT)),
 			PRF_FLAGGED(ch, PRF_AUTOLOOT) ? PRF_FLAGGED(ch, PRF_NOINGR_LOOT) ? "NO-INGR" : "ALL    " : "OFF    ",
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOMONEY)),
@@ -6064,21 +6005,21 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch) > 0)
 	{
-		sprintf(buf,  " Уведомления   : %-3ld \r\n", NOTIFY_EXCH_PRICE(ch));
+		sprintf(buf,  " Уведомления   : %-7ld ", NOTIFY_EXCH_PRICE(ch));
 	}
 	else
 	{
-		sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
+		sprintf(buf,  " Уведомления   : %-7s ", "Нет");
 	}
 	send_to_char(buf, ch);
 
 	sprintf(buf,
 		" Карта         : %-3s     "
-		" Вход в зону   : %-3s     "
-		" Магщиты (вид) : %s\r\n"
-		" Автопризыв    : %-3s     "
-		" Маппер        : %-3s     "
-		" Контроль IP   : %-3s",
+		" Вход в зону   : %-3s   \r\n"
+		" Магщиты (вид) : %-8s"
+		" Автопризыв    : %-5s   "
+		" Маппер        : %-3s   \r\n"
+		" Контроль IP   : %-6s  ",
 		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
 		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
 		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"),

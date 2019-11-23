@@ -741,6 +741,13 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 	case SHADOW_THROW_FEAT:
 		return (ch->get_skill(SKILL_DARK_MAGIC) > 120);
 		break;
+	// Костыльный блок работы скирмишера где не нужно
+	// Svent TODO Для абилок не забыть реализовать провкрку состояния персонажа
+	case SKIRMISHER_FEAT:
+		return !(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
+				|| GET_POS(ch) < POS_FIGHTING);
+		break;
 	}
 	return TRUE;
 }
@@ -1552,9 +1559,7 @@ bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument) {
 		activateFeature(ch, featureNum);
 	}
 
-	if (!WAITLESS(ch)) {
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-	};
+	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
 	return true;
 }
 
