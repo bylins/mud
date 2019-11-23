@@ -2083,7 +2083,7 @@ void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 
 	CHAR_DATA* vict = findVictim(ch, argument);
 	if (!vict) {
-		send_to_char("Кого вы хотите оглушить?\r\n", ch);
+		send_to_char("Кого вы хотите СИЛЬНО ударить?\r\n", ch);
 		return;
 	}
 
