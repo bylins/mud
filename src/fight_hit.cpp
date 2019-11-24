@@ -85,7 +85,7 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
 			affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-			send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(k,1), num_apply, time, modi);
+			send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(k,1));
 	}
 }
 
@@ -871,9 +871,7 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			}
 			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
 		}
-
 	}
-	inspiration(ch);
 }
 
 /**
@@ -4138,11 +4136,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		hit_params.add_hand_damage(ch);
 	}
-	if (affected_by_spell(ch, SPELL_WC_PHYSDAMAGE))
-	{
-		hit_params.dam += hit_params.dam * (number (1, (ch->get_skill(SKILL_WARCRY) / 20)) / 100.0);
-	}
-
+	if (ch->add_abils.percent_dam_add > 0)
+		hit_params.dam += hit_params.dam * (number(1, ch->add_abils.percent_dam_add) / 100.0);
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 2;
 
@@ -4281,36 +4276,29 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 
-	if (GET_AF_BATTLE(ch, EAF_PUNCTUAL)
-		&& GET_PUNCTUAL_WAIT(ch) <= 0
-		&& GET_WAIT(ch) <= 0
-		&& (hit_params.diceroll >= 18 - GET_MOB_HOLD(victim))
-		&& !MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL))
-	{
+	if (GET_AF_BATTLE(ch, EAF_PUNCTUAL) && GET_PUNCTUAL_WAIT(ch) <= 0 && GET_WAIT(ch) <= 0
+		&& (hit_params.diceroll >= 18 - GET_MOB_HOLD(victim))) {
 		int percent = train_skill(ch, SKILL_PUNCTUAL, skill_info[SKILL_PUNCTUAL].max_percent, victim);
-		if (!PUNCTUAL_WAITLESS(ch))
-		{
+		if (!PUNCTUAL_WAITLESS(ch)) {
 			PUNCTUAL_WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 		}
-
 		if (percent >= number(1, skill_info[SKILL_PUNCTUAL].max_percent)
 			&& (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
-				|| percent >= skill_info[SKILL_PUNCTUAL].max_percent))
-		{
-			hit_params.set_flag(FightSystem::CRIT_HIT);
-			// CRIT_HIT и так щиты игнорит, но для порядку
-			hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
-			hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
-			if (IS_IMPL(ch) || IS_IMPL(victim))
-			{
-				sprintf(buf, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
-				send_to_char(buf,ch);
+				|| percent >= skill_info[SKILL_PUNCTUAL].max_percent)) {
+			if (!MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL)) {
+				hit_params.set_flag(FightSystem::CRIT_HIT);
+				// CRIT_HIT и так щиты игнорит, но для порядку
+				hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
+				hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
+				if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER)) {
+					sprintf(buf, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
+					send_to_char(buf, ch);
+				}
+				if (!PUNCTUAL_WAITLESS(ch)) {
+					PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+				}
 			}
-
-			if (!PUNCTUAL_WAITLESS(ch))
-			{
-				PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-			}
+			inspiration(ch);
 		}
 	}
 
