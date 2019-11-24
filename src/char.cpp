@@ -747,19 +747,24 @@ void CharacterSkillDataType::decreaseCooldown(unsigned value) {
 	};
 };
 
-void CHAR_DATA::setSkillCooldownInPulses(ESkill skillID, unsigned cooldown) {
+void CHAR_DATA::setSkillCooldown(ESkill skillID, unsigned cooldown) {
 	auto skillData = skills.find(skillID);
 	if (skillData != skills.end()) {
-		skillData->second.cooldown = cooldown*PULSE_VIOLENCE;
+		skillData->second.cooldown = cooldown;
 	}
 };
 
-int CHAR_DATA::getSkillCooldownInPulses(ESkill skillID) {
+unsigned CHAR_DATA::getSkillCooldown(ESkill skillID) {
 	auto skillData = skills.find(skillID);
 	if (skillData != skills.end()) {
-		return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + PULSE_VIOLENCE)));
+		return skillData->second.cooldown;
 	}
 	return 0;
+};
+
+int CHAR_DATA::getSkillCooldownInPulses(ESkill skillID) {
+	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + PULSE_VIOLENCE)));
+	return static_cast<int>(std::ceil(getSkillCooldown(skillID)/(0.0 + PULSE_VIOLENCE)));
 };
 
 /* Понадобится - тогда и раскомментим...

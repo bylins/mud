@@ -69,6 +69,9 @@ short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /*
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void check_berserk(CHAR_DATA * ch);
 
+/* Extern */
+extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
+
 
 ///
 /// Поиск номера способности по имени
@@ -1559,7 +1562,7 @@ bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument) {
 		activateFeature(ch, featureNum);
 	}
 
-	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+	setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 2);
 	return true;
 }
 

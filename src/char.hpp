@@ -609,11 +609,12 @@ public:
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
 	void wait_dec(const unsigned value) { m_wait -= value <= m_wait ? value : m_wait; }
 
-	void setSkillCooldownInPulses(ESkill skillID, unsigned cooldown);
+	void setSkillCooldown(ESkill skillID, unsigned cooldown);
 	void decreaseSkillsCooldowns(unsigned value);
 	bool haveSkillCooldown(ESkill skillID);
 	bool haveCooldown(ESkill skillID);
 	int getSkillCooldownInPulses(ESkill skillID);
+	unsigned getSkillCooldown(ESkill skillID);
 
 	virtual void reset();
 

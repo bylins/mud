@@ -17,6 +17,7 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
 void npc_groupbattle(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 void go_autoassist(CHAR_DATA * ch);
 
 int armor_class_limit(CHAR_DATA * ch)
@@ -3136,7 +3137,9 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, 
 			might_hit_bash(ch, victim);
 		}
 	}
-	set_wait(ch, lag, TRUE);
+	//set_wait(ch, lag, TRUE);
+	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, SKILL_MIGHTHIT, lag);
 }
 
 void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
@@ -3219,7 +3222,9 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			send_to_char(buf, victim);
 		}
 	}
-	set_wait(ch, lag, TRUE);
+	//set_wait(ch, lag, TRUE);
+	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, SKILL_STUPOR, lag);
 }
 
 int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
@@ -4337,12 +4342,21 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	//Обнуление лага, когда виктим убит с применением
 	//оглушить или молотить. Чтобы все это было похоже на
 	//действие скиллов экстраатак(пнуть, сбить и т.д.)
+/*
 	if (CHECK_WAIT(ch)
 		&& made_dam == -1
 		&& (type == SKILL_STUPOR
 			|| type == SKILL_MIGHTHIT))
 	{
 		ch->set_wait(0u);
+	} */
+	if (made_dam == -1 && type == SKILL_STUPOR && ch->getSkillCooldown(SKILL_STUPOR) > 0) {
+		ch->setSkillCooldown(SKILL_STUPOR, 0u);
+		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 0u);
+	}
+	if (made_dam == -1 && type == SKILL_MIGHTHIT && ch->getSkillCooldown(SKILL_MIGHTHIT) > 0) {
+		ch->setSkillCooldown(SKILL_MIGHTHIT, 0u);
+		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 0u);
 	}
 
 	// check if the victim has a hitprcnt trigger

@@ -120,6 +120,7 @@ extern std::vector<City> cities;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
+extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 
 char *fname(const char *namelist)
 {
@@ -2166,8 +2167,8 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON || pos == WEAR_SHIELD) {
-		ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+	if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON || pos == WEAR_SHIELD)) {
+		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
 	}
 }
 

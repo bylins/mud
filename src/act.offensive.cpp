@@ -84,6 +84,20 @@ void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room) {
 	}
 }
 
+void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) {
+	if (ch->getSkillCooldownInPulses(skill) < cooldownInPulses) {
+		ch->setSkillCooldown(skill, cooldownInPulses*PULSE_VIOLENCE);
+	}
+}
+
+void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) {
+	if (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
+		setSkillCooldown(ch, skill, cooldownInPulses);
+	} else {
+		WAIT_STATE(ch, PULSE_VIOLENCE/8);
+	}
+}
+
 CHAR_DATA* findVictim(CHAR_DATA* ch, char* argument) {
 	one_argument(argument, arg);
 	CHAR_DATA* victim = get_char_vis(ch, arg, FIND_CHAR_ROOM);
@@ -171,7 +185,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim) {
 
 	hit(ch, victim, TYPE_UNDEFINED, AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? LEFT_WEAPON : RIGHT_WEAPON);
 	set_wait(ch, 2, TRUE);
-	//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+	//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 	return (TRUE);
 };
 
@@ -248,19 +262,16 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch) {
 				act("$N не смог$Q прикрыть вас.", FALSE, victim, 0, vict, TO_CHAR);
 				act("$n не смог$q прикрыть $N3.", TRUE, vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				//set_wait(vict, 3, TRUE);
-				vict->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 3);
+				setSkillCooldownInFight(vict, SKILL_GLOBAL_COOLDOWN, 3);
 			} else {
 				if (!pk_agro_action(vict, ch))
 					return victim; // по аналогии с реском прикрывая кого-то можно пофлагаться
-				act("Вы героически прикрыли $N3, приняв удар на себя.", FALSE,
-					vict, 0, victim, TO_CHAR);
-				act("$N героически прикрыл$G вас, приняв удар на себя.", FALSE,
-					victim, 0, vict, TO_CHAR);
-				act("$n героически прикрыл$g $N3, приняв удар на себя.", TRUE,
-					vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
+				act("Вы героически прикрыли $N3, приняв удар на себя.", FALSE, vict, 0, victim, TO_CHAR);
+				act("$N героически прикрыл$G вас, приняв удар на себя.", FALSE, victim, 0, vict, TO_CHAR);
+				act("$n героически прикрыл$g $N3, приняв удар на себя.", TRUE, vict, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 				//set_wait(vict, 1, TRUE);
-				vict->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
-				vict->setSkillCooldownInPulses(SKILL_PROTECT, 1);
+				setSkillCooldownInFight(vict, SKILL_GLOBAL_COOLDOWN, 1);
+				setSkillCooldownInFight(vict, SKILL_PROTECT, 1);
 				return vict;
 			}
 		}
@@ -422,7 +433,7 @@ void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		stop_fighting(ch, 2);
 		set_fighting(ch, vict);
 		set_wait(ch, 2, TRUE);
-		//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+		//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 		return;
 	}
 	if ((GET_POS(ch) == POS_STANDING) && (vict != ch->get_fighting())) {
@@ -507,7 +518,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict) {
 			WAIT_STATE(ch, PULSE_VIOLENCE / 6);
 	}
 	set_wait(ch, 2, TRUE);
-	//ch->setSkillCooldownInPulses(SKILL_BACKSTAB, 2);
+	//ch->setSkillCooldown(SKILL_BACKSTAB, 2);
 }
 
 void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -873,7 +884,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
 		if (GET_POS(vict) <= POS_STUNNED && GET_WAIT(vict) > 0) {
 			send_to_char("Ваша жертва и так слишком слаба, надо быть милосерднее.\r\n", ch);
 			//set_wait(ch, 1, FALSE);
-			ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+			ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, PULSE_VIOLENCE);
 			return;
 		}
 
@@ -919,7 +930,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
 					if (!ch->get_fighting()) {
 						set_fighting(ch, vict);
 						set_wait(ch, 1, TRUE);
-						//ch->setSkillCooldownInPulses(SKILL_BASH, 2);
+						//setSkillCooldownInFight(ch, SKILL_BASH, 1);
 					}
 					return;
 				}
@@ -1076,7 +1087,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 		GET_POS(vict) = POS_INCAP;
 		WAIT_STATE(vict, (2 + GET_REMORT(ch) / 5) * PULSE_VIOLENCE);
 		//WAIT_STATE(ch, (3 * PULSE_VIOLENCE));
-		ch->setSkillCooldownInPulses(SKILL_STUN, 3);
+		ch->setSkillCooldown(SKILL_STUN, 3*PULSE_VIOLENCE);
 		set_hit(ch, vict);
 	}
 }
@@ -1118,7 +1129,7 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch) {
 	if (percent != skill_info[SKILL_RESCUE].max_percent && percent > prob) {
 		act("Вы безуспешно пытались спасти $N3.", FALSE, ch, 0, vict, TO_CHAR);
 		//set_wait(ch, 1, FALSE);
-		ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, PULSE_VIOLENCE);
 		return;
 	}
 
@@ -1142,8 +1153,8 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch) {
 		fighting_rescue(ch, vict, tmp_ch);
 	}
 	//set_wait(ch, 1, FALSE);
-	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
-	ch->setSkillCooldownInPulses(SKILL_RESCUE, 1 + hostilesCounter);
+	setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldown(ch, SKILL_RESCUE, 1 + hostilesCounter);
 	set_wait(vict, 2, FALSE);
 }
 
@@ -1353,8 +1364,8 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict) {
 		prob = 2;
 	}
 	//set_wait(ch, prob, TRUE);
-	ch->setSkillCooldownInPulses(SKILL_KICK, prob);
-	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, SKILL_KICK, prob);
+	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 }
 
 void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1763,10 +1774,7 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict) {
 		unequip_char(vict, pos);
 		//if (GET_WAIT(vict) <= 0) {
 			//set_wait(vict, IS_NPC(vict) ? 1 : 2, FALSE);
-			int coolDown = IS_NPC(vict) ? 1 : 2;
-			if (vict->getSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN) < coolDown) {
-				vict->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, coolDown);
-			}
+			setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, IS_NPC(vict) ? 1 : 2);
 		//}
 		prob = 2;
 
@@ -1783,8 +1791,8 @@ void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict) {
 		set_hit(vict, ch);
 	}
 	//set_wait(ch, prob, FALSE);
-	ch->setSkillCooldownInPulses(SKILL_DISARM, prob);
-	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldown(ch, SKILL_DISARM, prob);
+	setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
 }
 
 void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1852,7 +1860,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF)) {
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			//set_wait(ch, 1, FALSE);
-			ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+			setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
 			return;
 		}
 	}
@@ -1926,7 +1934,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 	}
 
 	set_wait(ch, prob, FALSE);
-	//ch->setSkillCooldownInPulses(SKILL_CHOPOFF, prob);
+	//ch->setSkillCooldown(SKILL_CHOPOFF, prob);
 }
 
 void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1987,16 +1995,16 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim) {
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, SKILL_STUPOR, RIGHT_WEAPON);
 		//set_wait(ch, 2, TRUE);
-		ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
-		ch->setSkillCooldownInPulses(SKILL_STUPOR, 2);
+		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 1);
+		ch->setSkillCooldown(SKILL_STUPOR, 2);
 	} else {
 		act("Вы попытаетесь оглушить $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, FALSE);
 			set_fighting(ch, victim);
 			//set_wait(ch, 2, TRUE);
-			ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
-			ch->setSkillCooldownInPulses(SKILL_STUPOR, 2);
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+			setSkillCooldownInFight(ch, SKILL_STUPOR, 2);
 		}
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 	}
@@ -2049,10 +2057,10 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim) {
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+		setSkillCooldownInFight(ch, SKILL_MIGHTHIT, 2);
 		hit(ch, victim, SKILL_MIGHTHIT, RIGHT_WEAPON);
 		//set_wait(ch, 2, TRUE);
-		ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
-		ch->setSkillCooldownInPulses(SKILL_MIGHTHIT, 2);
 		return;
 	}
 
@@ -2064,8 +2072,8 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim) {
 			stop_fighting(ch, 2); //просто переключаемся
 			set_fighting(ch, victim);
 			//set_wait(ch, 2, TRUE);
-			ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
-			ch->setSkillCooldownInPulses(SKILL_MIGHTHIT, 2);
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+			setSkillCooldownInFight(ch, SKILL_MIGHTHIT, 2);
 		}
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 	}
@@ -2183,7 +2191,7 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		break;
 	}
 
-	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+	ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 }
 
 // ***************** STOPFIGHT
@@ -2367,8 +2375,10 @@ void go_throw(CHAR_DATA * ch, CHAR_DATA * victim) {
 		};
 	};
 
-	ch->setSkillCooldownInPulses(SKILL_THROW, 3);
-	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	if (techniqueID == THROW_WEAPON_FEAT) {
+		setSkillCooldownInFight(ch, SKILL_THROW, 3);
+	}
 }
 
 void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -2606,8 +2616,8 @@ void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd
 		};
 	};
 	//set_wait(ch, 1, TRUE);
-	ch->setSkillCooldownInPulses(SKILL_TURN_UNDEAD, 2);
-	ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, SKILL_TURN_UNDEAD, 2);
 }
 
 void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim) {
@@ -2647,8 +2657,8 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim) {
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
 		hit(ch, victim, TYPE_UNDEFINED, RIGHT_WEAPON);
 		set_wait(ch, 2, TRUE);
-		//ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
-		//ch->setSkillCooldownInPulses(SKILL_IRON_WIND, 2);
+		//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
+		//ch->setSkillCooldown(SKILL_IRON_WIND, 2);
 	} else {
 		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
@@ -2729,7 +2739,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict) {
 		dmg.flags.set(IGNORE_ARMOR);
 		dmg.process(ch, vict);
 		//set_wait(ch, 3, TRUE);
-		ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 3);
+		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 3);
 	} else {
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_STRANGLE;
@@ -2747,7 +2757,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict) {
 		dmg.process(ch, vict);
 		if (GET_POS(vict) > POS_DEAD) {
 			set_wait(vict, 2, TRUE);
-			//vict->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+			//vict->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 			if (on_horse(vict)) {
 				act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, 0, ch, TO_CHAR);
 				act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, 0, ch, TO_VICT);
@@ -2758,7 +2768,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict) {
 				go_chopoff(ch, vict);
 			}
 			//set_wait(ch, 2, TRUE);
-			ch->setSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN, 2);
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 2);
 		}
 	}
 
