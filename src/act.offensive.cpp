@@ -1994,9 +1994,9 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim) {
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, SKILL_STUPOR, RIGHT_WEAPON);
-		//set_wait(ch, 2, TRUE);
 		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 1);
 		ch->setSkillCooldown(SKILL_STUPOR, 2);
+		//set_wait(ch, 2, TRUE);
 	} else {
 		act("Вы попытаетесь оглушить $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
@@ -2057,9 +2057,9 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim) {
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
+		hit(ch, victim, SKILL_MIGHTHIT, RIGHT_WEAPON);
 		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 		setSkillCooldownInFight(ch, SKILL_MIGHTHIT, 2);
-		hit(ch, victim, SKILL_MIGHTHIT, RIGHT_WEAPON);
 		//set_wait(ch, 2, TRUE);
 		return;
 	}
