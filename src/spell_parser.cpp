@@ -1616,50 +1616,6 @@ int mag_manacost(const CHAR_DATA* ch, int spellnum)
 	return 99999;
 }
 
-void spell_prefix(int spellnum, const char** /*say_to_self*/, const char **say_to_other,
-				  const char** /*say_to_obj_vis*/, const char **say_to_something, const char **damagee_vict,
-				  const char** /*helpee_vict*/)
-{
-	switch (spellnum)
-	{
-	case SPELL_WC_OF_CHALLENGE:
-		*say_to_other = "$n гнусным голосом заорал$g : '%s'.";
-		*damagee_vict = "$n гнусным голосом заорал$g : '%s'.";
-		break;
-	case SPELL_WC_OF_MENACE:
-		*say_to_other = "$n оскалил$u и взревел$g : '%s'.";
-		*damagee_vict = "$n оскалил$u и взревел$g : '%s'.";
-		break;
-	case SPELL_WC_OF_RAGE:
-		*say_to_other = "$n ударил$g себя в грудь и неистово завопил$g : '%s'.";
-		*damagee_vict = "$n ударил$g себя в грудь и неистово завопил$g : '%s'.";
-		break;
-	case SPELL_WC_OF_MADNESS:
-		*say_to_other = "$n устрашающе зыркнул$g и зарычал$g : '%s'.";
-		*damagee_vict = "$n устрашающе зыркнул$g и зарычал$g : '%s'.";
-		break;
-	case SPELL_WC_OF_THUNDER:
-		*say_to_other = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
-		*damagee_vict = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
-		break;
-	case SPELL_WC_OF_DEFENSE:
-		*say_to_something = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
-		break;
-	case SPELL_WC_OF_BATTLE:
-		*say_to_something = "$n смело выкрикнул$g : '%s'.";
-		break;
-	case SPELL_WC_OF_POWER:
-		*say_to_something = "$n богатырским гласом загремел$g : '%s'.";
-		break;
-	case SPELL_WC_OF_BLESS:
-		*say_to_something = "$n рявкнул$g : '%s'.";
-		break;
-	case SPELL_WC_OF_COURAGE:
-		*say_to_something = "$n надсаживаясь заорал$g : '%s'.";
-		break;
-	}
-}
-
 // say_spell erodes buf, buf1, buf2
 void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 {
@@ -1671,42 +1627,31 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
 	// Say phrase ?
-	if (IS_NPC(ch))
-	{
-        switch (GET_RACE(ch))
-        {
-        case NPC_RACE_EVIL_SPIRIT:
-        case NPC_RACE_GHOST:
-        case NPC_RACE_HUMAN:
-        case NPC_RACE_ZOMBIE:
-        case NPC_RACE_SPIRIT:
-            religion = number(RELIGION_POLY, RELIGION_MONO);
-            if (*cast_phrase[spellnum][religion] != '\n')
-                strcpy(buf, cast_phrase[spellnum][religion]);
-            say_to_self = "$n пробормотал$g : '%s'.";
-            say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
-            say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
-            say_to_something = "$n произнес$q : '%s'.";
-            damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
-            helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
-            spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
-            break;
-
-        default:
-            say_to_self = "$n издал$g непонятный звук.";
-            say_to_other = "$n издал$g непонятный звук.";
-            say_to_obj_vis = "$n издал$g непонятный звук.";
-            say_to_something = "$n издал$g непонятный звук.";
-            damagee_vict = "$n издал$g непонятный звук.";
-            helpee_vict = "$n издал$g непонятный звук.";
-
-            // say_to_self      = "$n рявкнул$g : '%s'.";
-            // say_to_other     = "$n взглянул$g на $N3 и глухо просипел$q : '%s'.";
-            // say_to_obj_vis   = "$n посмотрел$g на $o3 и произнес$q : '%s'.";
-            // say_to_something = "$n молвил$g : '%s'.";
-            // damagee_vict     = "$n злобно рыкнул$g на вас : '%s'.";
-            // helpee_vict      = "$n тихо пробормотал$g вам : '%s'.";
-	}
+	if (IS_NPC(ch)) {
+		switch (GET_RACE(ch)) {
+		case NPC_RACE_EVIL_SPIRIT:
+		case NPC_RACE_GHOST:
+		case NPC_RACE_HUMAN:
+		case NPC_RACE_ZOMBIE:
+		case NPC_RACE_SPIRIT:
+			religion = number(RELIGION_POLY, RELIGION_MONO);
+			if (*cast_phrase[spellnum][religion] != '\n')
+				strcpy(buf, cast_phrase[spellnum][religion]);
+			say_to_self = "$n пробормотал$g : '%s'.";
+			say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
+			say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
+			say_to_something = "$n произнес$q : '%s'.";
+			damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
+			helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
+			break;
+		default:
+			say_to_self = "$n издал$g непонятный звук.";
+			say_to_other = "$n издал$g непонятный звук.";
+			say_to_obj_vis = "$n издал$g непонятный звук.";
+			say_to_something = "$n издал$g непонятный звук.";
+			damagee_vict = "$n издал$g непонятный звук.";
+			helpee_vict = "$n издал$g непонятный звук.";
+		}
 	}
 	else {
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
@@ -1717,7 +1662,6 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		say_to_something = "$n произнес$q : '%s'.";
 		damagee_vict = "$n зыркнул$g на вас и произнес$q : '%s'.";
 		helpee_vict = "$n подмигнул$g вам и произнес$q : '%s'.";
-		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
 	}
 
 	if (!*buf)

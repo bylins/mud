@@ -101,6 +101,7 @@ extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
 
 // public functions in utils.cpp
 CHAR_DATA *find_char(long n);
+CHAR_DATA *get_random_pc_group(CHAR_DATA *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);

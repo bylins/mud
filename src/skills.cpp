@@ -1533,6 +1533,10 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 	{
 		return;
 	}
+	if (ch->agrobd) //чтоб на согрупниках не качалось
+	{
+		return;
+	}
 	if (victim && victim->get_master())
 	{
 		if (!IS_NPC(victim->get_master()))

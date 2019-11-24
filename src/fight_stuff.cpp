@@ -860,10 +860,7 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	// даем увеличенную экспу за давно не убитых мобов.
 	// за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
 	exp *= get_npc_long_live_exp_bounus(GET_MOB_VNUM(victim));
-
-	if (affected_by_spell(ch, SPELL_WC_EXPERIENSE)) {
-		exp += exp * (ch->get_skill(SKILL_WARCRY) / 20) / 100.0;
-	}
+	exp += exp * (ch->add_abils.percent_exp_add) / 100.0;
 
 	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)	{
 		// так чуть-чуть поприятней

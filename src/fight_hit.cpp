@@ -57,7 +57,78 @@ int armor_class_limit(CHAR_DATA * ch)
 	}
 	return -300;
 }
+void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
+	CHAR_DATA *k;
+	AFFECT_DATA<EApplyLocation> af;
 
+	struct follow_type *f;
+		if (ch->has_master()){
+			k = ch->get_master();
+	}
+	else {
+		k = ch;
+	}
+// на лидера
+	send_to_char(k, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
+	af.location = num_apply;
+	af.type = SPELL_PALADINE_INSPIRATION;
+	af.modifier = GET_REMORT(k) / 5 * 2 + modi;
+	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+	af.duration = pc_duration(k, time, 0, 0, 0, 0);
+	affect_join(k, af, FALSE, FALSE, FALSE, FALSE);
+	for (f = k->followers; f; f = f->next) {
+		if (f->follower->in_room != k->in_room){
+			continue;
+		}
+			af.location = num_apply;
+			af.type = SPELL_PALADINE_INSPIRATION;
+			af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
+			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+			af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
+			affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
+			send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(k,1));
+	}
+}
+
+void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
+	CHAR_DATA *target;
+	AFFECT_DATA<EApplyLocation> af;
+
+	target = get_random_pc_group(ch);
+	af.location = num_apply;
+	af.type = SPELL_PALADINE_INSPIRATION;
+	af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
+	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+	af.duration = pc_duration(ch, time, 0, 0, 0, 0);
+	affect_join(target , af, FALSE, FALSE, FALSE, FALSE);
+	send_to_char(target, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
+}
+
+void msg_inspiration(CHAR_DATA *ch) {
+	send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
+	sprintf(buf, "&YТочный удар %s воодушевил вас, придав новых сил!&n", GET_PAD(ch,1));
+	act(buf, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+}
+
+void inspiration(CHAR_DATA *ch) {
+	byte num = number(1,3);
+//	CHAR_DATA * target = get_random_pc_group(ch);
+	switch (num){
+	case 1: 
+		aff_group_inspiration(ch, APPLY_PERCENT_DAM, 5, GET_REMORT(ch));
+		break;
+	case 2: 
+		aff_group_inspiration(ch, APPLY_CAST_SUCCESS, 2, GET_REMORT(ch));
+		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
+		break;
+	case 3:
+		msg_inspiration(ch);
+		call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
+		break;
+	default:
+		break;
+	}
+}
 int compute_armor_class(CHAR_DATA * ch)
 {
 	int armorclass = GET_REAL_AC(ch);
@@ -134,58 +205,6 @@ void haemorragia(CHAR_DATA * ch, int percent)
 	{
 		affect_join(ch, af[i], TRUE, FALSE, TRUE, FALSE);
 	}
-}
-void inspiration(CHAR_DATA *ch, int time, int mod)
-{
-	AFFECT_DATA<EApplyLocation> af;
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-	{
-		CHAR_DATA *k;
-		struct follow_type *f;
-		if (ch->has_master())
-		{
-			k = ch->get_master();
-		}
-		else
-		{
-			k = ch;
-		}
-		for (f = k->followers; f; f = f->next)
-		{
-			if (f->follower == ch)
-				continue;
-			if (f->follower->in_room == ch->in_room)
-			{
-				af.location = APPLY_DAMROLL;
-				af.type = SPELL_PALADINE_INSPIRATION;
-				af.modifier = GET_REMORT(ch) / 5 * 2;
-				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-				affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-				af.location = APPLY_CAST_SUCCESS;
-				af.type = SPELL_PALADINE_INSPIRATION;
-				af.modifier = GET_REMORT(ch) / 5 * mod;
-				af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-				af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-				affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-				send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
-			}
-		}
-
-	}
-		af.location = APPLY_DAMROLL;
-		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(ch) / 5 * 2;
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
-		af.location = APPLY_CAST_SUCCESS;
-		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(ch) / 5 * mod;
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-		affect_join(ch, af, FALSE, FALSE, FALSE, FALSE);
-		send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
 }
 
 void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
@@ -827,49 +846,31 @@ void HitData::compute_critical(CHAR_DATA * ch, CHAR_DATA * victim)
 			obj_to_room(obj, IN_ROOM(victim));
 		obj_decay(obj);
 	}
-	if (!IS_NPC(victim))
-	{
+	if (!IS_NPC(victim)) {
 		dam /= 5;
 	}
 	dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, dam);
-	bool affect_found = false;
-	for (int i = 0; i < 4; i++)
-	{
-		if (af[i].type)
-		{
+	for (int i = 0; i < 4; i++) {
+		if (af[i].type) {
 			if (af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPFIGHT)
 				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPRIGHT)
-				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT))
-			{
-				if (victim->get_role(MOB_ROLE_BOSS))
-				{
+				|| af[i].bitvector == to_underlying(EAffectFlag::AFF_STOPLEFT)) {
+				if (victim->get_role(MOB_ROLE_BOSS)) {
 					af[i].duration /= 5;
 					// вес оружия тоже влияет на длит точки, офф проходит реже, берем вес прайма.
 					sh_int extra_duration = 0;
 					OBJ_DATA* both = GET_EQ(ch, WEAR_BOTHS);
 					OBJ_DATA* wield = GET_EQ(ch, WEAR_WIELD);
-					if (both)
-					{
+					if (both) {
 						extra_duration = GET_OBJ_WEIGHT(both) / 5;
 					}
-					else if (wield)
-					{
+					else if (wield) {
 						extra_duration = GET_OBJ_WEIGHT(wield) / 5;
 					}
 					af[i].duration += pc_duration(victim, GET_REMORT(ch)/2 + extra_duration, 0, 0, 0, 0);
 				}
-				if (!affect_found)
-				{
-					inspiration(ch, 2, 3);
-					affect_found = true;
-				}
 			}
 			affect_join(victim, af[i], TRUE, FALSE, TRUE, FALSE);
-		}
-		if (!affect_found)
-		{
-			inspiration(ch, 1, 1);
-			affect_found = true;
 		}
 	}
 }
@@ -4140,11 +4141,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		hit_params.add_hand_damage(ch);
 	}
-	if (affected_by_spell(ch, SPELL_WC_PHYSDAMAGE))
-	{
-		hit_params.dam += hit_params.dam * (number (1, (ch->get_skill(SKILL_WARCRY) / 20)) / 100.0);
-	}
-
+	if (ch->add_abils.percent_dam_add > 0)
+		hit_params.dam += hit_params.dam * (number(1, ch->add_abils.percent_dam_add) / 100.0);
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 2;
 
@@ -4283,36 +4281,29 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 
-	if (GET_AF_BATTLE(ch, EAF_PUNCTUAL)
-		&& GET_PUNCTUAL_WAIT(ch) <= 0
-		&& GET_WAIT(ch) <= 0
-		&& (hit_params.diceroll >= 18 - GET_MOB_HOLD(victim))
-		&& !MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL))
-	{
+	if (GET_AF_BATTLE(ch, EAF_PUNCTUAL) && GET_PUNCTUAL_WAIT(ch) <= 0 && GET_WAIT(ch) <= 0
+		&& (hit_params.diceroll >= 18 - GET_MOB_HOLD(victim))) {
 		int percent = train_skill(ch, SKILL_PUNCTUAL, skill_info[SKILL_PUNCTUAL].max_percent, victim);
-		if (!PUNCTUAL_WAITLESS(ch))
-		{
+		if (!PUNCTUAL_WAITLESS(ch)) {
 			PUNCTUAL_WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 		}
-
 		if (percent >= number(1, skill_info[SKILL_PUNCTUAL].max_percent)
 			&& (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
-				|| percent >= skill_info[SKILL_PUNCTUAL].max_percent))
-		{
-			hit_params.set_flag(FightSystem::CRIT_HIT);
-			// CRIT_HIT и так щиты игнорит, но для порядку
-			hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
-			hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
-			if (IS_IMPL(ch) || IS_IMPL(victim))
-			{
-				sprintf(buf, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
-				send_to_char(buf,ch);
+				|| percent >= skill_info[SKILL_PUNCTUAL].max_percent)) {
+			if (!MOB_FLAGGED(victim, MOB_NOTKILLPUNCTUAL)) {
+				hit_params.set_flag(FightSystem::CRIT_HIT);
+				// CRIT_HIT и так щиты игнорит, но для порядку
+				hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
+				hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
+				if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER)) {
+					sprintf(buf, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
+					send_to_char(buf, ch);
+				}
+				if (!PUNCTUAL_WAITLESS(ch)) {
+					PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+				}
 			}
-
-			if (!PUNCTUAL_WAITLESS(ch))
-			{
-				PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-			}
+			inspiration(ch);
 		}
 	}
 
