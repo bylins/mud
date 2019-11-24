@@ -3565,6 +3565,9 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 
 	max_dam += ch->obj_bonus().calc_phys_dmg(max_dam);
+	if (ch->add_abils.percent_dam_add > 0) {
+		max_dam += max_dam * ch->add_abils.percent_dam_add / 100. / 2;
+	}
 	max_dam = MAX(0, max_dam);
 	max_dam *= ch->get_cond_penalty(P_DAMROLL);
 
