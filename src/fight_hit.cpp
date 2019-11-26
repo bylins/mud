@@ -68,7 +68,7 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 		k = ch;
 	}
 // на лидера
-	send_to_char(k, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
+
 	af.location = num_apply;
 	af.type = SPELL_PALADINE_INSPIRATION;
 	af.modifier = GET_REMORT(k) / 5 * 2 + modi;
@@ -79,13 +79,15 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 		if (f->follower->in_room != k->in_room){
 			continue;
 		}
+		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
+			continue;
+		}
 			af.location = num_apply;
 			af.type = SPELL_PALADINE_INSPIRATION;
 			af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
 			affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-			send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(k,1));
 	}
 }
 
@@ -112,6 +114,7 @@ void msg_inspiration(CHAR_DATA *ch) {
 void inspiration(CHAR_DATA *ch) {
 	byte num = number(1,3);
 //	CHAR_DATA * target = get_random_pc_group(ch);
+	msg_inspiration(ch);
 	switch (num){
 	case 1: 
 		aff_group_inspiration(ch, APPLY_PERCENT_DAM, 5, GET_REMORT(ch));
@@ -121,13 +124,13 @@ void inspiration(CHAR_DATA *ch) {
 		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
 		break;
 	case 3:
-		msg_inspiration(ch);
 		call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
 		break;
 	default:
 		break;
 	}
 }
+
 int compute_armor_class(CHAR_DATA * ch)
 {
 	int armorclass = GET_REAL_AC(ch);
