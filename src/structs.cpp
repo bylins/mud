@@ -942,8 +942,7 @@ typedef std::map<const std::string, EApplyLocation> EApplyLocation_value_by_name
 EApplyLocation_name_by_value_t EApplyLocation_name_by_value;
 EApplyLocation_value_by_name_t EApplyLocation_value_by_name;
 
-void init_EApplyLocation_ITEM_NAMES()
-{
+void init_EApplyLocation_ITEM_NAMES() {
 	EApplyLocation_name_by_value.clear();
 	EApplyLocation_value_by_name.clear();
 
@@ -1011,12 +1010,13 @@ void init_EApplyLocation_ITEM_NAMES()
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_PLAQUE] = "APPLY_PLAQUE";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_MADNESS] = "APPLY_MADNESS";
 	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_PR";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_RESIST_DARK";
-	EApplyLocation_name_by_value[EApplyLocation::APPLY_PR] = "APPLY_VIEW_DT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_RESIST_DARK] = "APPLY_RESIST_DARK";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_VIEW_DT] = "APPLY_VIEW_DT";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_EXP] = "APPLY_PERCENT_EXP";
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_PERCENT_DAM] = "APPLY_PERCENT_DAM";	
+	EApplyLocation_name_by_value[EApplyLocation::APPLY_SPELL_BLINK] = "APPLY_SPELL_BLINK";
 	EApplyLocation_name_by_value[EApplyLocation::NUM_APPLIES] = "NUM_APPLIES";
-
-	for (const auto& i : EApplyLocation_name_by_value)
-	{
+	for (const auto& i : EApplyLocation_name_by_value) {
 		EApplyLocation_value_by_name[i.second] = i.first;
 	}
 }
