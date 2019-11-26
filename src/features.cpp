@@ -69,6 +69,9 @@ short calculateSituationalRollBonusOfGroupFormation(CHAR_DATA *ch, CHAR_DATA* /*
 void do_lightwalk(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void check_berserk(CHAR_DATA * ch);
 
+/* Extern */
+extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
+
 
 ///
 /// Поиск номера способности по имени
@@ -144,6 +147,7 @@ void initializeFeatureByDefault(int featureNum)
 	feat_info[featureNum].name = unused_spellname;
 	feat_info[featureNum].type = UNUSED_FTYPE;
 	feat_info[featureNum].up_slot = false;
+	feat_info[featureNum].alwaysAvailable = false;
 	feat_info[featureNum].usesWeaponSkill = false;
 	feat_info[featureNum].baseDamageBonusPercent = 0;
 	feat_info[featureNum].degreeOfSuccessDamagePercent = 5;
@@ -739,6 +743,13 @@ bool can_use_feat(const CHAR_DATA *ch, int feat) {
 		break;
 	case SHADOW_THROW_FEAT:
 		return (ch->get_skill(SKILL_DARK_MAGIC) > 120);
+		break;
+	// Костыльный блок работы скирмишера где не нужно
+	// Svent TODO Для абилок не забыть реализовать провкрку состояния персонажа
+	case SKIRMISHER_FEAT:
+		return !(AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
+				|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
+				|| GET_POS(ch) < POS_FIGHTING);
 		break;
 	}
 	return TRUE;
@@ -1551,9 +1562,7 @@ bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument) {
 		activateFeature(ch, featureNum);
 	}
 
-	if (!WAITLESS(ch)) {
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-	};
+	setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 2);
 	return true;
 }
 

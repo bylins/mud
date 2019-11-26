@@ -1962,16 +1962,20 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	};
 
 	// first, make sure that the wear position is valid.
-	if (!CAN_WEAR(obj, wear_bitvectors[where]))
-	{
+	if (!CAN_WEAR(obj, wear_bitvectors[where])) {
 		act("Вы не можете надеть $o3 на эту часть тела.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if (unique_stuff(ch, obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE))
-	{
+	if (unique_stuff(ch, obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE)) {
 		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+		if (ch->get_fighting() && (where == WEAR_SHIELD || GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)) {
+			send_to_char("Вм нужно набраться сил.\r\n", ch);
+			return;
+		}
+	};
 
 	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
 	if (   // не может держать если есть свет или двуручник
@@ -2328,16 +2332,14 @@ void do_wear(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	OBJ_DATA *obj;
 	int wear;
 
 	if (IS_NPC(ch) && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)&&(!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
-	if (ch->is_morphed())
-	{
+	if (ch->is_morphed()) {
 		send_to_char("Лапами неудобно держать оружие.\r\n", ch);
 		return;
 	}
@@ -2517,32 +2519,26 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 
 
-void perform_remove(CHAR_DATA * ch, int pos)
-{
+void perform_remove(CHAR_DATA * ch, int pos) {
 	OBJ_DATA *obj;
 
-	if (!(obj = GET_EQ(ch, pos)))
-	{
+	if (!(obj = GET_EQ(ch, pos))) {
 		log("SYSERR: perform_remove: bad pos %d passed.", pos);
-	}
-	else
-	{
+	} else {
 		/*
 		   if (IS_OBJ_STAT(obj, ITEM_NODROP))
 		   act("Вы не можете снять $o3!", FALSE, ch, obj, 0, TO_CHAR);
 		   else
 		 */
-		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-		{
+		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 			act("$p: Вы не можете нести столько вещей!", FALSE, ch, obj, 0, TO_CHAR);
-		}
-		else
-		{
-			if (!remove_otrigger(obj, ch))
-			{
+		} else {
+			if (!remove_otrigger(obj, ch)) {
 				return;
 			}
-
+			if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON || pos == WEAR_SHIELD)) {
+				ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
+			}
 			act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			obj_to_char(unequip_char(ch, pos | 0x40), ch);

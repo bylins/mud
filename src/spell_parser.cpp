@@ -3016,6 +3016,10 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		return;
+	};
 
 	if (!ch->affected.empty())
 	{
@@ -4375,7 +4379,7 @@ void unused_spell(int spl)
 	spell_info[spl].syn = unused_spellname;
 }
 
-void skillo(int spl, const char *name, int max_percent)
+void skillo(int spl, const char *name, const char *shortName, int max_percent)
 {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
@@ -4387,6 +4391,7 @@ void skillo(int spl, const char *name, int max_percent)
 		}
 	skill_info[spl].min_position = 0;
 	skill_info[spl].name = name;
+	skill_info[spl].shortName = shortName;
 	skill_info[spl].max_percent = max_percent;
 }
 
@@ -5353,90 +5358,90 @@ void mag_assign_spells(void)
 	 * min level to use the skill for other classes is set up in class.c.
 	 */
 
-	skillo(SKILL_BACKSTAB, "заколоть", 180);
-	skillo(SKILL_BASH, "сбить", 200);
-	skillo(SKILL_HIDE, "спрятаться", 100);
-	skillo(SKILL_KICK, "пнуть", 100);
-	skillo(SKILL_PICK_LOCK, "взломать", 120);
-	skillo(SKILL_PUNCH, "кулачный бой", 100);
-	skillo(SKILL_RESCUE, "спасти", 130);
-	skillo(SKILL_SNEAK, "подкрасться", 100);
-	skillo(SKILL_STEAL, "украсть", 100);
-	skillo(SKILL_TRACK, "выследить", 100);
-	skillo(SKILL_PARRY, "парировать", 120);
-	skillo(SKILL_BLOCK, "блокировать щитом", 200);
-	skillo(SKILL_TOUCH, "перехватить атаку", 100);
-	skillo(SKILL_PROTECT, "прикрыть", 120);
-	skillo(SKILL_BOTHHANDS, "двуручники", 160);
-	skillo(SKILL_LONGS, "длинные лезвия", 160);
-	skillo(SKILL_SPADES, "копья и рогатины", 160);
-	skillo(SKILL_SHORTS, "короткие лезвия", 160);
-	skillo(SKILL_BOWS, "луки", 160);
-	skillo(SKILL_CLUBS, "палицы и дубины", 160);
-	skillo(SKILL_PICK, "проникающее оружие", 160);
-	skillo(SKILL_NONSTANDART, "иное оружие", 160);
-	skillo(SKILL_AXES, "секиры", 160);
-	skillo(SKILL_SATTACK, "атака левой рукой", 100);
-	skillo(SKILL_LOOKING, "приглядеться", 100);
-	skillo(SKILL_HEARING, "прислушаться", 100);
-
-	skillo(SKILL_DISARM, "обезоружить", 100);
-	skillo(SKILL_HEAL, "!heal!", 100);
-	skillo(SKILL_MORPH, "оборотничество", 150);
-	skillo(SKILL_ADDSHOT, "дополнительный выстрел", 200);
-	skillo(SKILL_CAMOUFLAGE, "маскировка", 100);
-	skillo(SKILL_DEVIATE, "уклониться", 100);
-	skillo(SKILL_CHOPOFF, "подножка", 200);
-	skillo(SKILL_REPAIR, "ремонт", 180);
-	skillo(SKILL_COURAGE, "ярость", 100);
-	skillo(SKILL_IDENTIFY, "опознание", 100);
-	skillo(SKILL_LOOK_HIDE, "подсмотреть", 100);
-	skillo(SKILL_UPGRADE, "заточить", 100);
-	skillo(SKILL_ARMORED, "укрепить", 100);
-	skillo(SKILL_DRUNKOFF, "опохмелиться", 100);
-	skillo(SKILL_AID, "лечить", 100);
-	skillo(SKILL_FIRE, "разжечь костер", 160);
-	skillo(SKILL_SHIT, "удар левой рукой", 100);
-	skillo(SKILL_MIGHTHIT, "богатырский молот", 200);
-	skillo(SKILL_STUPOR, "оглушить", 200);
-	skillo(SKILL_POISONED, "отравить", 200);
-	skillo(SKILL_LEADERSHIP, "лидерство", 100);
-	skillo(SKILL_PUNCTUAL, "точный стиль", 110);
-	skillo(SKILL_AWAKE, "осторожный стиль", 100);
-	skillo(SKILL_SENSE, "найти", 160);
-	skillo(SKILL_HORSE, "сражение верхом", 100);
-	skillo(SKILL_HIDETRACK, "замести следы", 120);
-	skillo(SKILL_RELIGION, "!молитва или жертва!", 100);
-	skillo(SKILL_MAKEFOOD, "освежевать", 120);
-	skillo(SKILL_MULTYPARRY, "веерная защита", 140);
-	skillo(SKILL_TRANSFORMWEAPON, "перековать", 140);
-	skillo(SKILL_THROW, "метнуть", 150);
+	skillo(SKILL_GLOBAL_COOLDOWN, "!глобальная задержка", "ОЗ",  2);
+	skillo(SKILL_BACKSTAB, "заколоть", "Зак", 180);
+	skillo(SKILL_BASH, "сбить", "Сб", 200);
+	skillo(SKILL_HIDE, "спрятаться", "Сп", 100);
+	skillo(SKILL_KICK, "пнуть", "Пн", 100);
+	skillo(SKILL_PICK_LOCK, "взломать", "Вз", 120);
+	skillo(SKILL_PUNCH, "кулачный бой", "Кб", 100);
+	skillo(SKILL_RESCUE, "спасти", "Спс", 130);
+	skillo(SKILL_SNEAK, "подкрасться", "Пд", 100);
+	skillo(SKILL_STEAL, "украсть", "Ук", 100);
+	skillo(SKILL_TRACK, "выследить", "Выс", 100);
+	skillo(SKILL_PARRY, "парировать", "Пр", 120);
+	skillo(SKILL_BLOCK, "блокировать щитом", "Бщ", 200);
+	skillo(SKILL_TOUCH, "перехватить атаку", "Пер", 100);
+	skillo(SKILL_PROTECT, "прикрыть", "Пр", 120);
+	skillo(SKILL_BOTHHANDS, "двуручники", "Дв", 160);
+	skillo(SKILL_LONGS, "длинные лезвия", "Дл", 160);
+	skillo(SKILL_SPADES, "копья и рогатины", "Кр", 160);
+	skillo(SKILL_SHORTS, "короткие лезвия", "Кл", 160);
+	skillo(SKILL_BOWS, "луки", "Лк", 160);
+	skillo(SKILL_CLUBS, "палицы и дубины", "Пдб", 160);
+	skillo(SKILL_PICK, "проникающее оружие", "Прн", 160);
+	skillo(SKILL_NONSTANDART, "иное оружие", "Ин", 160);
+	skillo(SKILL_AXES, "секиры", "Ск", 160);
+	skillo(SKILL_SATTACK, "атака левой рукой", "Алр", 100);
+	skillo(SKILL_LOOKING, "приглядеться", "Прг", 100);
+	skillo(SKILL_HEARING, "прислушаться", "Прс", 100);
+	skillo(SKILL_DISARM, "обезоружить", "Об", 100);
+	skillo(SKILL_HEAL, "!heal!", "Hl", 100);
+	skillo(SKILL_MORPH, "оборотничество", "Об", 150);
+	skillo(SKILL_ADDSHOT, "дополнительный выстрел", "Доп", 200);
+	skillo(SKILL_CAMOUFLAGE, "маскировка", "Мск", 100);
+	skillo(SKILL_DEVIATE, "уклониться", "Укл", 100);
+	skillo(SKILL_CHOPOFF, "подножка", "Пд", 200);
+	skillo(SKILL_REPAIR, "ремонт", "Рм", 180);
+	skillo(SKILL_COURAGE, "ярость", "Яр", 100);
+	skillo(SKILL_IDENTIFY, "опознание", "Оп", 100);
+	skillo(SKILL_LOOK_HIDE, "подсмотреть", "Пдм", 100);
+	skillo(SKILL_UPGRADE, "заточить", "Зат", 100);
+	skillo(SKILL_ARMORED, "укрепить", "Укр", 100);
+	skillo(SKILL_DRUNKOFF, "опохмелиться", "Опх", 100);
+	skillo(SKILL_AID, "лечить", "Лч", 100);
+	skillo(SKILL_FIRE, "разжечь костер", "Рк", 160);
+	skillo(SKILL_SHIT, "удар левой рукой", "Улр", 100);
+	skillo(SKILL_MIGHTHIT, "богатырский молот", "Бм", 200);
+	skillo(SKILL_STUPOR, "оглушить", "Ог", 200);
+	skillo(SKILL_POISONED, "отравить", "Отр", 200);
+	skillo(SKILL_LEADERSHIP, "лидерство", "Лд", 100);
+	skillo(SKILL_PUNCTUAL, "точный стиль", "Тс", 110);
+	skillo(SKILL_AWAKE, "осторожный стиль", "Ос", 100);
+	skillo(SKILL_SENSE, "найти", "Нйт", 160);
+	skillo(SKILL_HORSE, "сражение верхом", "Срв", 100);
+	skillo(SKILL_HIDETRACK, "замести следы", "Зс", 120);
+	skillo(SKILL_RELIGION, "!молитва или жертва!", "Error", 1);
+	skillo(SKILL_MAKEFOOD, "освежевать", "Осв", 120);
+	skillo(SKILL_MULTYPARRY, "веерная защита", "Вз", 140);
+	skillo(SKILL_TRANSFORMWEAPON, "перековать", "Прк", 140);
+	skillo(SKILL_THROW, "метнуть", "Мт", 150);
 //  skillo(SKILL_CREATEBOW,    "смастерить лук", 140);
-	skillo(SKILL_MAKE_BOW, "смастерить лук", 140);
-	skillo(SKILL_MAKE_WEAPON, "выковать оружие", 140);
-	skillo(SKILL_MAKE_ARMOR, "выковать доспех", 140);
-	skillo(SKILL_MAKE_WEAR, "сшить одежду", 140);
-	skillo(SKILL_MAKE_JEWEL, "смастерить диковинку", 140);
-	skillo(SKILL_MANADRAIN, "сглазить", 100);
-	skillo(SKILL_NOPARRYHIT, "скрытый удар", 100);
-	skillo(SKILL_TOWNPORTAL, "врата", 100);
-	skillo(SKILL_DIG, "горное дело", 100);
-	skillo(SKILL_INSERTGEM, "ювелир", 100);
-	skillo(SKILL_WARCRY, "боевой клич", 100);
-	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
-	skillo(SKILL_IRON_WIND, "железный ветер", 150);
-	skillo(SKILL_STRANGLE, "удавить", 200);
-	skillo(SKILL_AIR_MAGIC, "магия воздуха", 200);
-	skillo(SKILL_FIRE_MAGIC, "магия огня", 1000);
-	skillo(SKILL_WATER_MAGIC, "магия воды", 1000);
-	skillo(SKILL_EARTH_MAGIC, "магия земли", 1000);
-	skillo(SKILL_LIGHT_MAGIC, "магия света", 1000);
-	skillo(SKILL_DARK_MAGIC, "магия тьмы", 1000);
-	skillo(SKILL_MIND_MAGIC, "магия разума", 1000);
-	skillo(SKILL_LIFE_MAGIC, "магия жизни", 1000);
-	skillo(SKILL_STUN, "ошеломить", 200);
-	skillo(SKILL_MAKE_AMULET, "смастерить оберег", 200);
-	skillo(SKILL_INDEFINITE, "!неопределен", 1);
+	skillo(SKILL_MAKE_BOW, "смастерить лук", "Сл", 140);
+	skillo(SKILL_MAKE_WEAPON, "выковать оружие", "Вкр", 140);
+	skillo(SKILL_MAKE_ARMOR, "выковать доспех", "Вкд", 140);
+	skillo(SKILL_MAKE_WEAR, "сшить одежду", "Сш", 140);
+	skillo(SKILL_MAKE_JEWEL, "смастерить диковинку", "Сд", 140);
+	skillo(SKILL_MANADRAIN, "сглазить", "Сг", 100);
+	skillo(SKILL_NOPARRYHIT, "скрытый удар", "Сд", 100);
+	skillo(SKILL_TOWNPORTAL, "врата", "Вр", 100);
+	skillo(SKILL_DIG, "горное дело", "Гд", 100);
+	skillo(SKILL_INSERTGEM, "ювелир", "Юв", 100);
+	skillo(SKILL_WARCRY, "боевой клич", "Бк", 100);
+	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", "Из", 100);
+	skillo(SKILL_IRON_WIND, "железный ветер", "Жв", 150);
+	skillo(SKILL_STRANGLE, "удавить", "Уд", 200);
+	skillo(SKILL_AIR_MAGIC, "магия воздуха", "Ма", 200);
+	skillo(SKILL_FIRE_MAGIC, "магия огня", "Мо", 1000);
+	skillo(SKILL_WATER_MAGIC, "магия воды", "Мвд", 1000);
+	skillo(SKILL_EARTH_MAGIC, "магия земли", "Мз", 1000);
+	skillo(SKILL_LIGHT_MAGIC, "магия света", "Мс", 1000);
+	skillo(SKILL_DARK_MAGIC, "магия тьмы", "Мт", 1000);
+	skillo(SKILL_MIND_MAGIC, "магия разума", "Мр", 1000);
+	skillo(SKILL_LIFE_MAGIC, "магия жизни", "Мж", 1000);
+	skillo(SKILL_STUN, "ошеломить", "Ош", 200);
+	skillo(SKILL_MAKE_AMULET, "смастерить оберег", "Со", 200);
+	skillo(SKILL_INDEFINITE, "!неопределен", "Error", 1);
 }
 
 MaxClassSlot::MaxClassSlot()

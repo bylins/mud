@@ -57,6 +57,7 @@
 #include <iterator>
 #include <set>
 #include <utility>
+#include <iomanip>
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -2081,6 +2082,7 @@ void set_display_bits(CHAR_DATA *ch, bool flag)
 		PRF_FLAGS(ch).set(PRF_DISPLEVEL);
 		PRF_FLAGS(ch).set(PRF_DISPEXP);
 		PRF_FLAGS(ch).set(PRF_DISPFIGHT);
+		PRF_FLAGS(ch).set(PRF_DISP_COOLDOWNS);
 		if (!IS_IMMORTAL(ch))
 		{
 			PRF_FLAGS(ch).set(PRF_DISP_TIMED);
@@ -2097,48 +2099,41 @@ void set_display_bits(CHAR_DATA *ch, bool flag)
 		PRF_FLAGS(ch).unset(PRF_DISPEXP);
 		PRF_FLAGS(ch).unset(PRF_DISPFIGHT);
 		PRF_FLAGS(ch).unset(PRF_DISP_TIMED);
+		PRF_FLAGS(ch).unset(PRF_DISP_COOLDOWNS);
 	}
 }
 
 const char *DISPLAY_HELP =
-	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П } | все | нет }\r\n";
+	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П | К } | все | нет }\r\n";
 
 void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	if (IS_NPC(ch))
-	{
+	if (IS_NPC(ch)) {
 		send_to_char("И зачем это монстру? Не юродствуйте.\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
 
-	if (!*argument)
-	{
+	if (!*argument) {
 		send_to_char(DISPLAY_HELP, ch);
 		return;
 	}
 
 	if (!str_cmp(argument, "on") || !str_cmp(argument, "all") ||
-			!str_cmp(argument, "вкл") || !str_cmp(argument, "все"))
-	{
+			!str_cmp(argument, "вкл") || !str_cmp(argument, "все")) {
 		set_display_bits(ch, true);
 	}
 	else if (!str_cmp(argument, "off")
 		|| !str_cmp(argument, "none")
 		|| !str_cmp(argument, "выкл")
-		|| !str_cmp(argument, "нет"))
-	{
+		|| !str_cmp(argument, "нет")) {
 		set_display_bits(ch, false);
-	}
-	else
-	{
+	} else {
 		set_display_bits(ch, false);
 
 		const size_t len = strlen(argument);
-		for (size_t i = 0; i < len; i++)
-		{
-			switch (LOWER(argument[i]))
-			{
+		for (size_t i = 0; i < len; i++) {
+			switch (LOWER(argument[i])) {
 			case 'h':
 			case 'ж':
 				PRF_FLAGS(ch).set(PRF_DISPHP);
@@ -2174,6 +2169,10 @@ void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			case 'п':
 			case 't':
 				PRF_FLAGS(ch).set(PRF_DISP_TIMED);
+				break;
+			case 'к':
+			case 'c':
+				PRF_FLAGS(ch).set(PRF_DISP_COOLDOWNS);
 				break;
 			case ' ':
 				break;
@@ -2322,31 +2321,36 @@ void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 
 	argument = one_argument(argument, arg);
-	if (!*arg)
-	{
+	if (!*arg) {
 		do_toggle(ch, argument, 0, 0);
 		return;
-	}
-	else if (*arg == '?')
+	} else if (*arg == '?') {
 		showhelp = TRUE;
-	else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0)
+	} else if ((i = search_block(arg, gen_tog_type, FALSE)) < 0) {
 		showhelp = TRUE;
-	else if ((GET_LEVEL(ch) < gen_tog_param[i >> 1].level) || (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester))
-	{
+	} else if ((GET_LEVEL(ch) < gen_tog_param[i >> 1].level) || (!GET_GOD_FLAG(ch, GF_TESTER) && gen_tog_param[i >> 1].tester)) {
 		send_to_char("Эта команда вам недоступна.\r\n", ch);
 		//showhelp = TRUE;
-	}
-	else
+	} else {
 		do_gen_tog(ch, argument, 0, gen_tog_param[i >> 1].subcmd);
+	}
 
-	if (showhelp)
-	{
+	if (showhelp) {
+		std::stringstream buffer;
+		buffer << "Вы можете установить следующее.\r\n" << std::endl;
+		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++) {
+			if ((GET_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester)) {
+				buffer << std::setw(20) << gen_tog_type[i << 1] << " (" << gen_tog_type[(i << 1) + 1] << ")" << std::endl;
+			}
+		}
+		send_to_char(buffer.str(), ch);
+/*
 		strcpy(buf, "Вы можете установить следующее.\r\n");
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++)
 			if ((GET_LEVEL(ch) >= gen_tog_param[i].level) && (GET_GOD_FLAG(ch, GF_TESTER) || !gen_tog_param[i].tester))
 				sprintf(buf + strlen(buf), "%-20s(%s)\r\n", gen_tog_type[i << 1], gen_tog_type[(i << 1) + 1]);
 		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
+		send_to_char(buf, ch);*/
 	}
 }
 

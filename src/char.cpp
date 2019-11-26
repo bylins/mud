@@ -119,6 +119,7 @@ CHAR_DATA::CHAR_DATA() :
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.add(this);
+	this->set_skill(SKILL_GLOBAL_COOLDOWN, 1);
 }
 
 CHAR_DATA::~CHAR_DATA()
@@ -650,33 +651,26 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 }
 
 // * Родной тренированный скилл чара.
-int CHAR_DATA::get_inborn_skill(const ESkill skill_num)
-{
-	if (Privilege::check_skills(this))
-	{
+int CHAR_DATA::get_inborn_skill(const ESkill skill_num) {
+	if (Privilege::check_skills(this))	{
 		CharSkillsType::iterator it = skills.find(skill_num);
-		if (it != skills.end())
-		{
-			return normalize_skill(it->second, skill_num);
+		if (it != skills.end()) {
+			return normalize_skill(it->second.skillLevel, skill_num);
 		}
 	}
 	return 0;
 }
 
-int CHAR_DATA::get_trained_skill(const ESkill skill_num) const
-{
-	if (Privilege::check_skills(this))
-	{
+int CHAR_DATA::get_trained_skill(const ESkill skill_num) const {
+	if (Privilege::check_skills(this)) {
 		return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
 	}
 	return 0;
 }
 
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
-void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
-{
-	if (skill_num < 0 || skill_num > MAX_SKILL_NUM)
-	{
+void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
+	if (skill_num < 0 || skill_num > MAX_SKILL_NUM) {
 		log("SYSERROR: неизвесный номер скилла %d в set_skill.", skill_num);
 		return;
 	}
@@ -709,28 +703,26 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
 		}
 	}
 	CharSkillsType::iterator it = skills.find(skill_num);
-	if (it != skills.end())
-	{
-		if (percent)
-			it->second = percent;
-		else
+	if (it != skills.end()) {
+		if (percent) {
+			it->second.skillLevel = percent;
+		} else {
 			skills.erase(it);
+		}
+	} else if (percent) {
+		skills[skill_num].skillLevel = percent;
 	}
-	else if (percent)
-		skills[skill_num] = percent;
 }
 
-void CHAR_DATA::set_skill(short remort)
-{
-int skill;
-	for (auto it=skills.begin();it!=skills.end();it++)
-	{
+void CHAR_DATA::set_skill(short remort) {
+	int skill;
+	int maxSkillLevel = MAX_SKILLLEVEL_PER_REMORT(this);
+	for (auto it = skills.begin(); it != skills.end(); it++) {
 		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
-		if (skill > 80 + remort*5)
-			it->second = 80 + remort*5;
-
+		if (skill > maxSkillLevel) {
+			it->second.skillLevel = maxSkillLevel;
+		};
 	}
-
 }
 
 void CHAR_DATA::set_morphed_skill(const ESkill skill_num, int percent)
@@ -742,23 +734,67 @@ void CHAR_DATA::clear_skills()
 {
 	skills.clear();
 }
-// оберзает все скиллы до максимум на реморт
-void CHAR_DATA::crop_skills()
-{
-	int skill;
-	for (auto it = skills.begin();it != skills.end();it++)
-	{
-		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
-		if (skill > 80 + this->get_remort() * 5)
-			it->second = 80 + this->get_remort() * 5;
-	}
-}
 
-
-int CHAR_DATA::get_skills_count() const
-{
+int CHAR_DATA::get_skills_count() const {
 	return static_cast<int>(skills.size());
 }
+
+void CharacterSkillDataType::decreaseCooldown(unsigned value) {
+	if (cooldown > value) {
+		cooldown -= value;
+	} else {
+		cooldown = 0;
+	};
+};
+
+void CHAR_DATA::setSkillCooldown(ESkill skillID, unsigned cooldown) {
+	auto skillData = skills.find(skillID);
+	if (skillData != skills.end()) {
+		skillData->second.cooldown = cooldown;
+	}
+};
+
+unsigned CHAR_DATA::getSkillCooldown(ESkill skillID) {
+	auto skillData = skills.find(skillID);
+	if (skillData != skills.end()) {
+		return skillData->second.cooldown;
+	}
+	return 0;
+};
+
+int CHAR_DATA::getSkillCooldownInPulses(ESkill skillID) {
+	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + PULSE_VIOLENCE)));
+	return static_cast<int>(std::ceil(getSkillCooldown(skillID)/(0.0 + PULSE_VIOLENCE)));
+};
+
+/* Понадобится - тогда и раскомментим...
+void CHAR_DATA::decreaseSkillCooldown(ESkill skillID, unsigned value) {
+	auto skillData = skills.find(skillID);
+	if (skillData != skills.end()) {
+		skillData->second.decreaseCooldown(value);
+	}
+};
+*/
+void CHAR_DATA::decreaseSkillsCooldowns(unsigned value) {
+	for (auto& skillData : skills) {
+		skillData.second.decreaseCooldown(value);
+	}
+};
+
+bool CHAR_DATA::haveSkillCooldown(ESkill skillID) {
+	auto skillData = skills.find(skillID);
+	if (skillData != skills.end()) {
+		return (skillData->second.cooldown > 0);
+	}
+	return false;
+};
+
+bool CHAR_DATA::haveCooldown(ESkill skillID) {
+	if (skills[SKILL_GLOBAL_COOLDOWN].cooldown > 0) {
+		return true;
+	}
+	return haveSkillCooldown(skillID);
+};
 
 int CHAR_DATA::get_obj_slot(int slot_num)
 {

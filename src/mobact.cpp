@@ -1055,6 +1055,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		}
 
 		ch->wait_dec(missed_pulses);
+		ch->decreaseSkillsCooldowns(missed_pulses);
 
 		if (GET_PUNCTUAL_WAIT(ch) > 0)
 			GET_PUNCTUAL_WAIT(ch) -= missed_pulses;

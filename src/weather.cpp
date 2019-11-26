@@ -1122,7 +1122,7 @@ int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value)
 	case GAPPLY_SKILL_SUCCESS:
 		switch (skillnum)
 		{
-		case SKILL_THAC0:
+		case SKILL_INDEFINITE:
 			if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
 			{
 				switch (sky)

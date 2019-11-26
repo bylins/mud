@@ -140,7 +140,7 @@ namespace RoomSpells {
 	}
 
 	template<typename F>
-	int removeAffectFromRooms(long casterID, int spellnum, const F& filter) {
+	int removeAffectFromRooms([[maybe_unused]] long casterID, int spellnum, const F& filter) {
 		for (const auto room : aff_room_list) {
 			const auto& affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 			if (affect != room->affected.end()) {
@@ -5604,7 +5604,7 @@ const spl_message mag_messages[] =
 	 "Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз.",
 	 "$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз.",
 	 nullptr,
-	 0.05, 20, 2, 1, 4, 1, 8},
+	 0.05, 20, 2, 1, 3, 1, 8},
 	{SPELL_SHOCK,
 	 "Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе.",
 	 "Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе.",
