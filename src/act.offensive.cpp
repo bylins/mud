@@ -88,9 +88,6 @@ void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) {
 	if (ch->getSkillCooldownInPulses(skill) < cooldownInPulses) {
 		ch->setSkillCooldown(skill, cooldownInPulses*PULSE_VIOLENCE);
 	}
-	sprintf(buf, "CD: На умение %s установлена задержка %d на персонаже %s.",
-			skill_info[static_cast<int>(skill)].name, cooldownInPulses, ch->get_name().c_str());
-	mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 }
 
 void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) {
