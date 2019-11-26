@@ -17,8 +17,9 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
 void npc_groupbattle(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
-void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 void go_autoassist(CHAR_DATA * ch);
+extern void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
+extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 
 int armor_class_limit(CHAR_DATA * ch)
 {
@@ -114,10 +115,10 @@ void inspiration(CHAR_DATA *ch) {
 	byte num = number(1,3);
 //	CHAR_DATA * target = get_random_pc_group(ch);
 	switch (num){
-	case 1: 
+	case 1:
 		aff_group_inspiration(ch, APPLY_PERCENT_DAM, 5, GET_REMORT(ch));
 		break;
-	case 2: 
+	case 2:
 		aff_group_inspiration(ch, APPLY_CAST_SUCCESS, 2, GET_REMORT(ch));
 		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
 		break;
@@ -3039,40 +3040,27 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	int prob = train_skill(ch, SKILL_MIGHTHIT, skill_info[SKILL_MIGHTHIT].max_percent, victim);
 	int lag = 0, might = 0;
 
-	if (GET_MOB_HOLD(victim))
-	{
+	if (GET_MOB_HOLD(victim)) {
 		percent = number(1, 25);
 	}
 
-	if (IS_IMMORTAL(victim))
-	{
+	if (IS_IMMORTAL(victim)) {
 		prob = 0;
 	}
 
-/*  Логирование шанса молота.
-send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, Might == %d, Stab == %d\r\n", prob, percent, might, stab);
- sprintf(buf, "%s молотит : Percent == %d,Prob == %d, Might == %d, Stability == %d\r\n",GET_NAME(ch), percent, prob, might, stab);
-                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
-*/
-	if (percent > prob || dam == 0)
-	{
+	if (percent > prob || dam == 0) {
 		sprintf(buf, "&c&qВаш богатырский удар пропал впустую.&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 3;
 		dam = 0;
-	}
-	else if (MOB_FLAGGED(victim, MOB_NOHAMER))
-	{
+	} else if (MOB_FLAGGED(victim, MOB_NOHAMER)) {
 		sprintf(buf, "&c&qНа других надо силу проверять!&Q&n\r\n");
 		send_to_char(buf, ch);
 		lag = 1;
 		dam = 0;
-	}
-	else
-	{
+	} else {
 		might = prob * 100 / percent;
-		if (might < 180)
-		{
+		if (might < 180) {
 			sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n",
 				PERS(victim, ch, 3));
 			send_to_char(buf, ch);
@@ -3089,13 +3077,10 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, 
 			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N содрогнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-			if (!number(0, 2))
-			{
+			if (!number(0, 2)) {
 				might_hit_bash(ch, victim);
 			}
-		}
-		else if (might < 800)
-		{
+		} else if (might < 800) {
 			sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n", PERS(victim, ch, 3));
 			send_to_char(buf, ch);
 			lag = 2;
@@ -3112,13 +3097,10 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, 
 			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 			act("$N пошатнул$U от богатырского удара $n1.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-			if (!number(0, 1))
-			{
+			if (!number(0, 1)) {
 				might_hit_bash(ch, victim);
 			}
-		}
-		else
-		{
+		} else {
 			sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n", PERS(victim, ch, 3));
 			send_to_char(buf, ch);
 			lag = 2;
@@ -3139,8 +3121,8 @@ send_to_char(ch, "Вычисление молота: Prob == %d, Percent == %d, 
 		}
 	}
 	//set_wait(ch, lag, TRUE);
-	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
-	setSkillCooldownInFight(ch, SKILL_MIGHTHIT, lag);
+	//setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldown(ch, SKILL_MIGHTHIT, lag);
 }
 
 void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
@@ -3149,33 +3131,25 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 	int prob = train_skill(ch, SKILL_STUPOR, skill_info[SKILL_STUPOR].max_percent, victim);
 	int lag = 0;
 
-	if (GET_MOB_HOLD(victim))
-	{
+	if (GET_MOB_HOLD(victim)) {
 		prob = MAX(prob, percent * 150 / 100 + 1);
 	}
 
-	if (IS_IMMORTAL(victim))
-	{
+	if (IS_IMMORTAL(victim)) {
 		prob = 0;
 	}
 
-	if (prob < percent
-		|| dam == 0
-		|| MOB_FLAGGED(victim, MOB_NOSTUPOR))
-	{
+	if (prob < percent || dam == 0 || MOB_FLAGGED(victim, MOB_NOSTUPOR)) {
 		sprintf(buf, "&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n", PERS(victim, ch, 3));
 		send_to_char(buf, ch);
 		lag = 3;
 		dam = 0;
-	}
-	else if (prob * 100 / percent < 300)
-	{
+	} else if (prob * 100 / percent < 300) {
 		sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n", PERS(victim, ch, 3));
 		send_to_char(buf, ch);
 		lag = 2;
 		int k = ch->get_skill(SKILL_STUPOR) / 30;
-		if (!IS_NPC(victim))
-		{
+		if (!IS_NPC(victim)) {
 			k = MIN(2, k);
 		}
 		dam *= MAX(2, number(1, k));
@@ -3183,49 +3157,37 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 		send_to_char(buf, victim);
 		act("$n оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-	}
-	else
-	{
-		if (MOB_FLAGGED(victim, MOB_NOBASH))
-		{
+	} else {
+		if (MOB_FLAGGED(victim, MOB_NOBASH)) {
 			sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n", PERS(victim, ch, 3));
-		}
-		else
-		{
+		} else {
 			sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n", PERS(victim, ch, 3));
 		}
 		send_to_char(buf, ch);
-		if (MOB_FLAGGED(victim, MOB_NOBASH))
-		{
+		if (MOB_FLAGGED(victim, MOB_NOBASH)) {
 			act("$n мощным ударом оглушил$a $N3.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
-		}
-		else
-		{
+		} else {
 			act("$n своим оглушающим ударом сбил$a $N3 с ног.", TRUE, ch, 0, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 		}
 		lag = 2;
 		int k = ch->get_skill(SKILL_STUPOR) / 20;
-		if (!IS_NPC(victim))
-		{
+		if (!IS_NPC(victim)) {
 			k = MIN(4, k);
 		}
 		dam *= MAX(3, number(1, k));
 		WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
-		if (GET_POS(victim) > POS_SITTING && !MOB_FLAGGED(victim, MOB_NOBASH))
-		{
+		if (GET_POS(victim) > POS_SITTING && !MOB_FLAGGED(victim, MOB_NOBASH)) {
 			GET_POS(victim) = POS_SITTING;
 			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
-		}
-		else
-		{
+		} else {
 			sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 			send_to_char(buf, victim);
 		}
 	}
 	//set_wait(ch, lag, TRUE);
-	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
-	setSkillCooldownInFight(ch, SKILL_STUPOR, lag);
+	//setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldown(ch, SKILL_STUPOR, lag);
 }
 
 int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
@@ -3245,44 +3207,29 @@ int HitData::extdamage(CHAR_DATA *ch, CHAR_DATA *victim)
 	//* богатырский молот //
 	// в эти условия ничего добавлять не надо, иначе EAF_MIGHTHIT не снимется
 	// с моба по ходу боя, если он не может по каким-то причинам смолотить
-	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT)
-		&& GET_WAIT(ch) <= 0)
-	{
+	if (GET_AF_BATTLE(ch, EAF_MIGHTHIT) && GET_WAIT(ch) <= 0) {
 		CLR_AF_BATTLE(ch, EAF_MIGHTHIT);
-		if (check_mighthit_weapon(ch) && !GET_AF_BATTLE(ch, EAF_TOUCH))
-		{
+		if (check_mighthit_weapon(ch) && !GET_AF_BATTLE(ch, EAF_TOUCH)) {
 			try_mighthit_dam(ch, victim);
 		}
 	}
 	//* оглушить //
 	// аналогично молоту, все доп условия добавляются внутри
-	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0)
-	{
+	else if (GET_AF_BATTLE(ch, EAF_STUPOR) && GET_WAIT(ch) <= 0) {
 		CLR_AF_BATTLE(ch, EAF_STUPOR);
-		if (IS_NPC(ch) || IS_IMMORTAL(ch))
-		{
+		if (IS_NPC(ch) || IS_IMMORTAL(ch)) {
 			try_stupor_dam(ch, victim);
-		}
-		else if (wielded)
-		{
-			if (GET_OBJ_SKILL(wielded) == SKILL_BOWS)
-			{
+		} else if (wielded) {
+			if (GET_OBJ_SKILL(wielded) == SKILL_BOWS) {
 				send_to_char("Луком оглушить нельзя.\r\n", ch);
-			}
-			else if (!GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY))
-			{
-				if (GET_OBJ_WEIGHT(wielded) > 18)
-				{
+			} else if (!GET_AF_BATTLE(ch, EAF_PARRY) && !GET_AF_BATTLE(ch, EAF_MULTYPARRY)) {
+				if (GET_OBJ_WEIGHT(wielded) > 18) {
 					try_stupor_dam(ch, victim);
-				}
-				else
-				{
+				} else {
 					send_to_char("&WВаше оружие слишком легкое, чтобы им можно было оглушить!&Q&n\r\n", ch);
 				}
 			}
-		}
-		else
-		{
+		} else {
 			sprintf(buf,"&c&qВы оказались без оружия, а пальцем оглушить нельзя.&Q&n\r\n");
 			send_to_char(buf, ch);
 			sprintf(buf,"&c&q%s оказался без оружия и не смог вас оглушить.&Q&n\r\n", GET_NAME(ch));
@@ -3967,10 +3914,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 	// Do some sanity checking, in case someone flees, etc.
-	if (ch->in_room != IN_ROOM(victim) || ch->in_room == NOWHERE)
-	{
-		if (ch->get_fighting() && ch->get_fighting() == victim)
-		{
+	if (ch->in_room != IN_ROOM(victim) || ch->in_room == NOWHERE) {
+		if (ch->get_fighting() && ch->get_fighting() == victim) {
 			stop_fighting(ch, TRUE);
 		}
 		return;
@@ -3981,8 +3926,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		&& ((IS_NPC(victim) && (GET_HIT(victim) < GET_MAX_HIT(victim)
 			|| MOB_FLAGGED(victim, MOB_AWARE)))
 			|| AFF_FLAGGED(victim, EAffectFlag::AFF_AWARNESS))
-		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0)
-	{
+		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0) {
 		set_battle_pos(victim);
 	}
 
@@ -3997,14 +3941,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	hit_params.init(ch, victim);
 
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CLOUD_OF_ARROWS) && hit_params.skill_num < 0
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CLOUD_OF_ARROWS)
+		&& hit_params.skill_num < 0
 		&& (ch->get_fighting()
-		|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR))))
-	{
+		|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
 		mag_damage(1, ch, victim, SPELL_MAGIC_MISSILE, SAVING_REFLEX);
-		if (ch->purged() || victim->purged())
-		{
+		if (ch->purged() || victim->purged()) {
 			return;
 		}
 	}
@@ -4018,24 +3961,18 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	const int ch_lvl_miss = ch->get_level() + ch->get_remort();
 
 	// собсно выяснение попали или нет
-	if (victim_lvl_miss - ch_lvl_miss <= 5
-		|| (!IS_NPC(ch) && !IS_NPC(victim)))
-	{
+	if (victim_lvl_miss - ch_lvl_miss <= 5 || (!IS_NPC(ch) && !IS_NPC(victim))) {
 		// 5% шанс промазать, если цель в пределах 5 уровней или пвп случай
-		if ((number(1, 100) <= 5))
-		{
+		if ((number(1, 100) <= 5)) {
 			hit_params.dam = 0;
 			hit_params.extdamage(ch, victim);
 			hitprcnt_mtrigger(victim);
 			return;
 		}
-	}
-	else
-	{
+	} else {
 		// шанс промазать = разнице уровней и мортов
 		const int diff = victim_lvl_miss - ch_lvl_miss;
-		if (number(1, 100) <= diff)
-		{
+		if (number(1, 100) <= diff) {
 			hit_params.dam = 0;
 			hit_params.extdamage(ch, victim);
 			hitprcnt_mtrigger(victim);
@@ -4044,16 +3981,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 	// всегда есть 5% вероятность попасть (diceroll == 20)
 	if ((hit_params.diceroll < 20 && AWAKE(victim))
-		&& hit_params.calc_thaco - hit_params.diceroll > hit_params.victim_ac)
-	{
+		&& hit_params.calc_thaco - hit_params.diceroll > hit_params.victim_ac) {
 		hit_params.dam = 0;
 		hit_params.extdamage(ch, victim);
 		hitprcnt_mtrigger(victim);
 		return;
 	}
 	// даже в случае попадания можно уклониться мигалкой
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) || AFF_FLAGGED(victim, EAffectFlag::AFF_SPELL_BLINK))
-	{
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) || AFF_FLAGGED(victim, EAffectFlag::AFF_SPELL_BLINK)) {
 		bool blink = false;
 		if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)
 				&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT))))
@@ -4101,8 +4036,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (GET_EQ(ch, WEAR_BOTHS) && hit_params.weap_skill != SKILL_BOWS)
 		hit_params.dam *= 2;
 
-	if (IS_NPC(ch))
-	{
+	if (IS_NPC(ch)) {
 		hit_params.dam += dice(ch->mob_specials.damnodice, ch->mob_specials.damsizedice);
 	}
 
@@ -4120,25 +4054,18 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		{
 			// 0 раунд и стаб = 70% скрытого, дальше раунд * 0.4 (до 5 раунда)
 			int round_dam = tmp_dam * 7 / 10;
-			if (can_use_feat(ch, SNEAKRAGE_FEAT))
-			{
-				if (ROUND_COUNTER(ch) >= 1 && ROUND_COUNTER(ch) <= 3)
-				{
+			if (can_use_feat(ch, SNEAKRAGE_FEAT)) {
+				if (ROUND_COUNTER(ch) >= 1 && ROUND_COUNTER(ch) <= 3) {
 					hit_params.dam *= ROUND_COUNTER(ch);
 				}
 			}
-			if (hit_params.skill_num == SKILL_BACKSTAB || ROUND_COUNTER(ch) <= 0)
-			{
+			if (hit_params.skill_num == SKILL_BACKSTAB || ROUND_COUNTER(ch) <= 0) {
 				hit_params.dam += round_dam;
-			}
-			else
-			{
+			} else {
 				hit_params.dam += round_dam * MIN(3, ROUND_COUNTER(ch));
 			}
 		}
-	}
-	else
-	{
+	} else {
 		hit_params.add_hand_damage(ch);
 	}
 	if (ch->add_abils.percent_dam_add > 0)
@@ -4146,65 +4073,48 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
 		hit_params.dam += ch->get_skill(SKILL_IRON_WIND) / 2;
 
-	if (affected_by_spell(ch, SPELL_BERSERK))
-	{
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK))
-		{
+	if (affected_by_spell(ch, SPELL_BERSERK)) {
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BERSERK)) {
 			hit_params.dam = (hit_params.dam * MAX(150, 150 + GET_LEVEL(ch) + dice(0, GET_REMORT(ch)) * 2)) / 100;
 		}
 	}
 
 	// at least 1 hp damage min per hit
 	hit_params.dam = MAX(1, hit_params.dam);
-	if (GET_SKILL(ch, SKILL_HORSE) > 100 && on_horse(ch))
-	{
+	if (GET_SKILL(ch, SKILL_HORSE) > 100 && on_horse(ch)) {
 		hit_params.dam *= 1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0; // на лошадке до +20%
 	}
 
 	// зовется до alt_equip, чтобы не абузить повреждение пушек
-	if (damage_mtrigger(ch, victim))
-	{
+	if (damage_mtrigger(ch, victim)) {
 		return;
 	}
 
-	if (hit_params.weapon_pos)
-	{
+	if (hit_params.weapon_pos) {
 		alt_equip(ch, hit_params.weapon_pos, hit_params.dam, 10);
 	}
 
-	if (hit_params.skill_num == SKILL_BACKSTAB)
-	{
+	if (hit_params.skill_num == SKILL_BACKSTAB) {
 		hit_params.reset_flag(FightSystem::CRIT_HIT);
 		hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
-		if (can_use_feat(ch, THIEVES_STRIKE_FEAT) || can_use_feat(ch, SHADOW_STRIKE_FEAT))
-		{
+		if (can_use_feat(ch, THIEVES_STRIKE_FEAT) || can_use_feat(ch, SHADOW_STRIKE_FEAT)) {
 			// тати игнорят броню полностью
 			// и наемы тоже!
 			hit_params.set_flag(FightSystem::IGNORE_ARMOR);
-		}
-		else
-		{
+		} else {
 			//мобы игнорят вполовину
 			hit_params.set_flag(FightSystem::HALF_IGNORE_ARMOR);
 		}
 		// Наемы фигачат больше
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim))
-		{
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && IS_NPC(victim)) {
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * (1.0 + ch->get_skill(SKILL_NOPARRYHIT) / 200.0);
-		}
-		else if (can_use_feat(ch, THIEVES_STRIKE_FEAT))
-		{
-			if (victim->get_fighting())
-			{
+		} else if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
+			if (victim->get_fighting()) {
 				hit_params.dam *= backstab_mult(GET_LEVEL(ch));
-			}
-			else
-			{
+			} else {
 				hit_params.dam *= backstab_mult(GET_LEVEL(ch)) * 1.3;
 			}
-		}
-		else
-		{
+		} else {
 			hit_params.dam *= backstab_mult(GET_LEVEL(ch));
 		}
 
@@ -4214,8 +4124,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 				&& !(MOB_FLAGGED(victim, MOB_PROTECT)))
 			&& (number(1,100) <= 6 * ch->get_cond_penalty(P_HITROLL)) //голодный наем снижаем скрытый удар
 			&& IS_NPC(victim)
-			&& !victim->get_role(MOB_ROLE_BOSS))
-		{
+			&& !victim->get_role(MOB_ROLE_BOSS)) {
 			    GET_HIT(victim) = 1;
 			    hit_params.dam = 2000; // для надежности
 			    send_to_char(ch, "&GПрямо в сердце, насмерть!&n\r\n");
@@ -4245,13 +4154,11 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			send_to_char(buf,ch);
 		}
 		// режем стаб
-		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch))
-		{
+		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch)) {
 			hit_params.dam = MIN(8000 + GET_REMORT(ch) * 20 * GET_LEVEL(ch), hit_params.dam);
 		}
 
-		if (IS_IMPL(ch) || IS_IMPL(victim) || PRF_FLAGGED(ch, PRF_TESTER))
-		{
+		if (IS_IMPL(ch) || IS_IMPL(victim) || PRF_FLAGGED(ch, PRF_TESTER)) {
 			sprintf(buf, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
 			send_to_char(buf,ch);
 			sprintf(buf, "&RДамага стаба  равна = %d&n\r\n", hit_params.dam);
@@ -4261,23 +4168,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 
-	if (hit_params.skill_num == SKILL_THROW)
-	{
+	if (hit_params.skill_num == SKILL_THROW) {
 		hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
 		hit_params.dam *= (calculate_skill(ch, SKILL_THROW, victim) + 10) / 10;
-		if (IS_NPC(ch))
-		{
+		if (IS_NPC(ch)) {
 			hit_params.dam = MIN(300, hit_params.dam);
 		}
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		hit_params.extdamage(ch, victim);
-		if (IS_IMPL(ch) || IS_IMPL(victim) || PRF_FLAGGED(ch, PRF_TESTER))
-		{
-			sprintf(buf, "&CДамага метнуть равна = %d&n\r\n", hit_params.dam);
-			send_to_char(buf,ch);
-			sprintf(buf, "&RДамага метнуть равна = %d&n\r\n", hit_params.dam);
-			send_to_char(buf,victim);
-		}
 		return;
 	}
 
@@ -4307,16 +4205,13 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
-	{
+	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER)) {
 		sprintf(buf, "&CРегуляр дамаг = %d&n\r\n", hit_params.dam);
 		send_to_char(buf,ch);
 	}
 
 	// обнуляем флаги, если у нападающего есть лаг
-	if ((GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT))
-		&& GET_WAIT(ch) > 0)
-	{
+	if ((GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && GET_WAIT(ch) > 0) {
 		CLR_AF_BATTLE(ch, EAF_STUPOR);
 		CLR_AF_BATTLE(ch, EAF_MIGHTHIT);
 	}
@@ -4341,13 +4236,14 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	{
 		ch->set_wait(0u);
 	} */
-	if (made_dam == -1 && type == SKILL_STUPOR && ch->getSkillCooldown(SKILL_STUPOR) > 0) {
-		ch->setSkillCooldown(SKILL_STUPOR, 0u);
-		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 0u);
-	}
-	if (made_dam == -1 && type == SKILL_MIGHTHIT && ch->getSkillCooldown(SKILL_MIGHTHIT) > 0) {
-		ch->setSkillCooldown(SKILL_MIGHTHIT, 0u);
-		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 0u);
+	if (made_dam == -1) {
+		if (type == SKILL_STUPOR && ch->getSkillCooldown(SKILL_STUPOR) > 0) {
+			ch->setSkillCooldown(SKILL_STUPOR, 0u);
+			ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 0u);
+		} else if (type == SKILL_MIGHTHIT && ch->getSkillCooldown(SKILL_MIGHTHIT) > 0) {
+			ch->setSkillCooldown(SKILL_MIGHTHIT, 0u);
+			ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 0u);
+		}
 	}
 
 	// check if the victim has a hitprcnt trigger

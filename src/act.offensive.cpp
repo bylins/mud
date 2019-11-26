@@ -88,6 +88,9 @@ void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) {
 	if (ch->getSkillCooldownInPulses(skill) < cooldownInPulses) {
 		ch->setSkillCooldown(skill, cooldownInPulses*PULSE_VIOLENCE);
 	}
+	sprintf(buf, "CD: На умение %s установлена задержка %d на персонаже %s.",
+			skill_info[static_cast<int>(skill)].name, cooldownInPulses, ch->get_name().c_str());
+	mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
 }
 
 void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) {
@@ -1860,7 +1863,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF)) {
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			//set_wait(ch, 1, FALSE);
-			setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 1);
+			setSkillCooldown(ch, SKILL_CHOPOFF, 1);
 			return;
 		}
 	}
@@ -1994,17 +1997,15 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim) {
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, SKILL_STUPOR, RIGHT_WEAPON);
-		ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 1);
-		ch->setSkillCooldown(SKILL_STUPOR, 2);
 		//set_wait(ch, 2, TRUE);
+		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, ch->getSkillCooldownInPulses(SKILL_STUPOR));
 	} else {
 		act("Вы попытаетесь оглушить $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, FALSE);
 			set_fighting(ch, victim);
 			//set_wait(ch, 2, TRUE);
-			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
-			setSkillCooldownInFight(ch, SKILL_STUPOR, 2);
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, ch->getSkillCooldownInPulses(SKILL_STUPOR));
 		}
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 	}
@@ -2058,8 +2059,7 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim) {
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 		hit(ch, victim, SKILL_MIGHTHIT, RIGHT_WEAPON);
-		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
-		setSkillCooldownInFight(ch, SKILL_MIGHTHIT, 2);
+		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, ch->getSkillCooldownInPulses(SKILL_MIGHTHIT));
 		//set_wait(ch, 2, TRUE);
 		return;
 	}
@@ -2069,11 +2069,10 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim) {
 	} else {
 		act("Вы попытаетесь нанести богатырский удар по $N2.", FALSE, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
-			stop_fighting(ch, 2); //просто переключаемся
+			stop_fighting(ch, 2);
 			set_fighting(ch, victim);
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, ch->getSkillCooldownInPulses(SKILL_MIGHTHIT));
 			//set_wait(ch, 2, TRUE);
-			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
-			setSkillCooldownInFight(ch, SKILL_MIGHTHIT, 2);
 		}
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 	}

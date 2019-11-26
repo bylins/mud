@@ -2082,6 +2082,7 @@ void set_display_bits(CHAR_DATA *ch, bool flag)
 		PRF_FLAGS(ch).set(PRF_DISPLEVEL);
 		PRF_FLAGS(ch).set(PRF_DISPEXP);
 		PRF_FLAGS(ch).set(PRF_DISPFIGHT);
+		PRF_FLAGS(ch).set(PRF_DISP_COOLDOWNS);
 		if (!IS_IMMORTAL(ch))
 		{
 			PRF_FLAGS(ch).set(PRF_DISP_TIMED);
@@ -2098,48 +2099,41 @@ void set_display_bits(CHAR_DATA *ch, bool flag)
 		PRF_FLAGS(ch).unset(PRF_DISPEXP);
 		PRF_FLAGS(ch).unset(PRF_DISPFIGHT);
 		PRF_FLAGS(ch).unset(PRF_DISP_TIMED);
+		PRF_FLAGS(ch).unset(PRF_DISP_COOLDOWNS);
 	}
 }
 
 const char *DISPLAY_HELP =
-	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П } | все | нет }\r\n";
+	"Формат: статус { { Ж | Э | З | В | Д | У | О | Б | П | К } | все | нет }\r\n";
 
 void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	if (IS_NPC(ch))
-	{
+	if (IS_NPC(ch)) {
 		send_to_char("И зачем это монстру? Не юродствуйте.\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
 
-	if (!*argument)
-	{
+	if (!*argument) {
 		send_to_char(DISPLAY_HELP, ch);
 		return;
 	}
 
 	if (!str_cmp(argument, "on") || !str_cmp(argument, "all") ||
-			!str_cmp(argument, "вкл") || !str_cmp(argument, "все"))
-	{
+			!str_cmp(argument, "вкл") || !str_cmp(argument, "все")) {
 		set_display_bits(ch, true);
 	}
 	else if (!str_cmp(argument, "off")
 		|| !str_cmp(argument, "none")
 		|| !str_cmp(argument, "выкл")
-		|| !str_cmp(argument, "нет"))
-	{
+		|| !str_cmp(argument, "нет")) {
 		set_display_bits(ch, false);
-	}
-	else
-	{
+	} else {
 		set_display_bits(ch, false);
 
 		const size_t len = strlen(argument);
-		for (size_t i = 0; i < len; i++)
-		{
-			switch (LOWER(argument[i]))
-			{
+		for (size_t i = 0; i < len; i++) {
+			switch (LOWER(argument[i])) {
 			case 'h':
 			case 'ж':
 				PRF_FLAGS(ch).set(PRF_DISPHP);
@@ -2175,6 +2169,10 @@ void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			case 'п':
 			case 't':
 				PRF_FLAGS(ch).set(PRF_DISP_TIMED);
+				break;
+			case 'к':
+			case 'c':
+				PRF_FLAGS(ch).set(PRF_DISP_COOLDOWNS);
 				break;
 			case ' ':
 				break;
