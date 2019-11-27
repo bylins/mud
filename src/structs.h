@@ -614,6 +614,7 @@ extern const religion_names_t religion_name;
 #define PRF_DOUBLE_THROW    (INT_TWO | 1 << 14) // готов использовать двойной бросок
 #define PRF_TRIPLE_THROW   (INT_TWO | 1 << 15) // готов использовать тройной бросок
 #define PRF_SHADOW_THROW   (INT_TWO | 1 << 16) // применяет "теневой бросок"
+#define PRF_DISP_COOLDOWNS (INT_TWO | 1 << 17) // Показывать кулдауны скиллов в промпте
 
 // при добавлении не забываем про preference_bits[]
 

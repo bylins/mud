@@ -525,6 +525,7 @@ struct skill_info_type
 	int classknow[NUM_PLAYER_CLASSES][NUM_KIN];
 	int max_percent;
 	const char *name;
+	const char *shortName;
 };
 
 struct spell_create_item

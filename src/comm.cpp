@@ -1894,9 +1894,24 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			else
 				count += sprintf(prompt + count, "Зауч:0 ");
 		}
-		// Заряды и таймепы умений
+		// Cooldowns
+		if (PRF_FLAGGED(d->character, PRF_DISP_COOLDOWNS)) {
+			// И вся эта дичь потому, что процелура составления промпта не является членом player, как дОлжно,
+			// потому мы не можем просто пройтись по списку _имеющихся у игрока_ скиллов
+			// у кого руки дойдут - может переделать на метод класса...
+			count += sprintf(prompt + count, "%s:%d ",
+								skill_info[SKILL_GLOBAL_COOLDOWN].shortName, d->character->getSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN));
+			for (const auto skill : AVAILABLE_SKILLS) {
+				if (skill_info[skill].max_percent > 1 && d->character->get_skill(skill)) {
+					int cooldown = d->character->getSkillCooldownInPulses(skill);
+					if (cooldown > 0) {
+						count += sprintf(prompt + count, "%s:%d ", skill_info[skill].shortName, cooldown);
+					}
+				}
+			}
+		}
+		// Заряды и таймеры умений
 		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED)) {
-			count += sprintf(prompt + count, "ОЗ:%d ", d->character->getSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN));
 			if (d->character->get_skill(SKILL_WARCRY)) {
 				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_WARCRY)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
