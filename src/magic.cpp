@@ -3599,7 +3599,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	case SPELL_BLINK:
 		af[0].location = APPLY_SPELL_BLINK;
 		af[0].modifier = 5 + GET_REMORT(ch) * 2 / 3.0;
-		af[0].bitvector = to_underlying(EAffectFlag::AFF_BLINK);
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		to_room = "$n начал$g мигать.";
 		to_vict = "Вы начали мигать.";
