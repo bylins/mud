@@ -706,7 +706,6 @@ enum class EAffectFlag: uint32_t
 	AFF_EXPEDIENT = INT_TWO | (1u << 21),
 	AFF_COMMANDER = INT_TWO | (1u << 22),
 	AFF_EARTHAURA = INT_TWO | (1u << 23),
-	AFF_SPELL_BLINK = INT_TWO | (1u << 24)
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
@@ -1090,7 +1089,8 @@ enum EApplyLocation
 	APPLY_VIEW_DT = 64,
 	APPLY_PERCENT_EXP = 65, //бонус +экспа
 	APPLY_PERCENT_DAM = 66, // бонус +повреждение
-	NUM_APPLIES = 67
+	APPLY_SPELL_BLINK = 67, // мигание заклом
+	NUM_APPLIES = 68
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);

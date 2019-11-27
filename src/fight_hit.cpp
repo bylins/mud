@@ -3990,27 +3990,25 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		return;
 	}
 	// даже в случае попадания можно уклониться мигалкой
-	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) || AFF_FLAGGED(victim, EAffectFlag::AFF_SPELL_BLINK)) {
-		bool blink = false;
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) || victim->add_abils.percent_spell_blink > 0) {
+		ubyte blink = 101;
 		if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)
-				&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT))))
-
-		{
-			if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) && (number(1, 100) <= 5))
-			{
-				blink = true;
+				&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))) {
+			if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
+				blink = 10 + GET_REMORT(ch) * 2 / 3;
 			}
-			if (can_use_feat(ch, THIEVES_STRIKE_FEAT) && (number(1, 100) <= (10 + GET_REMORT(ch) * 2 / 3)))
-			{
-				blink = true;
+			else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
+				blink = victim->add_abils.percent_spell_blink;
 			}
-			else
-				if (AFF_FLAGGED(victim, EAffectFlag::AFF_SPELL_BLINK) && number(1, 100) <=  (5 + GET_REMORT(ch) * 2 / 3))
-				{
-					blink = true;
-				}
-			if (blink)
-			{
+			else {
+				if (victim->is_npc())
+					blink = 25;
+				else
+					blink = 5;
+			}
+			if (PRF_FLAGGED(victim, PRF_TESTER))
+				send_to_char(victim, "Шанс мигалки равен == %d процентов.\r\n", blink);
+			if (blink >= number(1, 100)) {
 				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
 					CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
 				send_to_char(buf, victim);

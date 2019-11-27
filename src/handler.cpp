@@ -414,6 +414,9 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 	case APPLY_PERCENT_EXP:
 		ch->add_abils.percent_exp_add += mod;
 		break;
+	case APPLY_SPELL_BLINK:
+		ch->add_abils.percent_spell_blink += mod;
+		break;
 	default:
 		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
 		break;

@@ -85,6 +85,7 @@ public:
 	int pray_add;
 	ubyte percent_exp_add;
 	ubyte percent_dam_add;
+	ubyte percent_spell_blink;
 	std::array<sh_int, 4> apply_saving_throw;		// Saving throw (Bonuses)
 	std::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	// Сопротивление (резисты) к магии, ядам и крит. ударам
 	ubyte mresist;
