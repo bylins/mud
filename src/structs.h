@@ -414,6 +414,7 @@ extern const religion_names_t religion_name;
 #define PLR_REGISTERED   (1 << 18)
 #define PLR_DUMB         (1 << 19)	// Player is not allowed to tell/emote/social //
 #define PLR_SCRIPTWRITER (1 << 20)	// скриптер
+#define PLR_SPAMMER      (1 << 21)	// спаммер
 // свободно
 #define PLR_DELETE       (1 << 28)	// RESERVED - ONLY INTERNALLY (MOB_DELETE) //
 #define PLR_FREE         (1 << 29)	// RESERVED - ONLY INTERBALLY (MOB_FREE)//

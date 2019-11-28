@@ -61,7 +61,7 @@ int armor_class_limit(CHAR_DATA * ch)
 void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
 	CHAR_DATA *k;
 	AFFECT_DATA<EApplyLocation> af;
-
+	send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
 	struct follow_type *f;
 		if (ch->has_master()){
 			k = ch->get_master();
@@ -76,6 +76,9 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 	af.duration = pc_duration(k, time, 0, 0, 0, 0);
 	affect_join(k, af, FALSE, FALSE, FALSE, FALSE);
+	if (k != ch)
+		send_to_char(k, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
+// на группу
 	for (f = k->followers; f; f = f->next) {
 		if (f->follower->in_room != k->in_room){
 			continue;
@@ -89,6 +92,8 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
 			af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
 			affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
+			if (ch != f->follower)
+				send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
 	}
 }
 
@@ -106,16 +111,10 @@ void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time
 	send_to_char(target, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
 }
 
-void msg_inspiration(CHAR_DATA *ch) {
-	send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
-	sprintf(buf, "&YТочный удар %s воодушевил вас, придав новых сил!&n", GET_PAD(ch,1));
-	act(buf, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-}
-
 void inspiration(CHAR_DATA *ch) {
 	byte num = number(1,3);
 //	CHAR_DATA * target = get_random_pc_group(ch);
-	msg_inspiration(ch);
+
 	switch (num){
 	case 1:
 		aff_group_inspiration(ch, APPLY_PERCENT_DAM, 5, GET_REMORT(ch));
@@ -125,6 +124,7 @@ void inspiration(CHAR_DATA *ch) {
 		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
 		break;
 	case 3:
+		aff_group_inspiration(ch, APPLY_HITROLL, 0, 0); // вывод мессаги
 		call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
 		break;
 	default:
@@ -3991,20 +3991,19 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 	// даже в случае попадания можно уклониться мигалкой
 	if (AFF_FLAGGED(victim, EAffectFlag::AFF_BLINK) || victim->add_abils.percent_spell_blink > 0) {
-		ubyte blink = 101;
+
 		if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)
 				&& (!(hit_params.skill_num == SKILL_BACKSTAB && can_use_feat(ch, THIEVES_STRIKE_FEAT)))) {
+			ubyte blink;
+			if (victim->is_npc())
+				blink = 25;
+			else
+				blink = 5;
 			if (can_use_feat(ch, THIEVES_STRIKE_FEAT)) {
 				blink = 10 + GET_REMORT(ch) * 2 / 3;
 			}
 			else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
 				blink = victim->add_abils.percent_spell_blink;
-			}
-			else {
-				if (victim->is_npc())
-					blink = 25;
-				else
-					blink = 5;
 			}
 			if (PRF_FLAGGED(victim, PRF_TESTER))
 				send_to_char(victim, "Шанс мигалки равен == %d процентов.\r\n", blink);

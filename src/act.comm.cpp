@@ -905,9 +905,13 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ign_flag = IGNORE_SHOUT;
 		break;
 	case SCMD_GOSSIP:
+		if (PLR_FLAGGED(ch, PLR_SPAMMER))
+			return;
 		ign_flag = IGNORE_GOSSIP;
 		break;
 	case SCMD_HOLLER:
+		if (PLR_FLAGGED(ch, PLR_SPAMMER))
+			return;
 		ign_flag = IGNORE_HOLLER;
 		break;
 	default:
