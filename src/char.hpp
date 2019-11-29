@@ -977,7 +977,7 @@ inline auto MAX_EXP_RMRT_PERCENT(const CHAR_DATA* ch) {
 	return MIN(CAP_SKILLS, MAX_EXP_PERCENT + ch->get_remort() * 5);
 }
 inline auto max_upgradable_skill(const CHAR_DATA *ch) {
-	return MIN(MAX_EXP_RMRT_PERCENT(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20);
+	return MIN(MAX_EXP_RMRT_PERCENT(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20.0);
 };
 void change_fighting(CHAR_DATA * ch, int need_stop);
 

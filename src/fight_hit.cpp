@@ -70,30 +70,31 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 		k = ch;
 	}
 // на лидера
-	af.location = num_apply;
-	af.type = SPELL_PALADINE_INSPIRATION;
-	af.modifier = GET_REMORT(k) / 5 * 2 + modi;
-	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	af.duration = pc_duration(k, time, 0, 0, 0, 0);
-	affect_join(k, af, FALSE, FALSE, FALSE, FALSE);
-	if (k != ch)
-		send_to_char(k, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
+	if (ch->in_room == k->in_room) {
+		af.location = num_apply;
+		af.type = SPELL_PALADINE_INSPIRATION;
+		af.modifier = GET_REMORT(k) / 5 * 2 + modi;
+		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+		af.duration = pc_duration(k, time, 0, 0, 0, 0);
+		affect_join(k, af, FALSE, FALSE, FALSE, FALSE);
+		if (k != ch)
+			send_to_char(k, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
+	}
 // на группу
 	for (f = k->followers; f; f = f->next) {
-		if (f->follower->in_room != k->in_room){
-			continue;
-		}
 		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
 			continue;
 		}
-			af.location = num_apply;
-			af.type = SPELL_PALADINE_INSPIRATION;
-			af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
-			af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-			af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
-			affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-			if (ch != f->follower)
-				send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
+		if (ch->in_room != f->follower->in_room)
+			continue;
+		af.location = num_apply;
+		af.type = SPELL_PALADINE_INSPIRATION;
+		af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
+		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+		af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
+		affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
+		if (ch != f->follower)
+			send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
 	}
 }
 
@@ -112,7 +113,7 @@ void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time
 }
 
 void inspiration(CHAR_DATA *ch) {
-	byte num = number(1,3);
+	byte num = number(1,4);
 //	CHAR_DATA * target = get_random_pc_group(ch);
 
 	switch (num){
@@ -120,10 +121,12 @@ void inspiration(CHAR_DATA *ch) {
 		aff_group_inspiration(ch, APPLY_PERCENT_DAM, 5, GET_REMORT(ch));
 		break;
 	case 2:
-		aff_group_inspiration(ch, APPLY_CAST_SUCCESS, 2, GET_REMORT(ch));
-		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
+		aff_group_inspiration(ch, APPLY_CAST_SUCCESS, 3, GET_REMORT(ch));
 		break;
 	case 3:
+		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
+		break;
+	case 4:
 		aff_group_inspiration(ch, APPLY_HITROLL, 0, 0); // вывод мессаги
 		call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
 		break;
