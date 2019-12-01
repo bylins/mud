@@ -140,7 +140,7 @@ namespace RoomSpells {
 	}
 
 	template<typename F>
-	int removeAffectFromRooms([[maybe_unused]] long casterID, int spellnum, const F& filter) {
+	int removeAffectFromRooms(int spellnum, const F& filter) {
 		for (const auto room : aff_room_list) {
 			const auto& affect = std::find_if(room->affected.begin(), room->affected.end(), filter);
 			if (affect != room->affected.end()) {
@@ -157,7 +157,7 @@ namespace RoomSpells {
 		auto filter =
 			[&casterID, &spellnum](auto& af)
 				{return (af->caster_id == casterID && af->type == spellnum);};
-		removeAffectFromRooms(casterID, spellnum, filter);
+		removeAffectFromRooms(spellnum, filter);
 	}
 
 	int removeControlledRoomAffect(CHAR_DATA *ch) {
@@ -165,7 +165,7 @@ namespace RoomSpells {
 		auto filter =
 			[&casterID](auto& af)
 				{return (af->caster_id == casterID && IS_SET(spell_info[af->type].routines, MAG_NEED_CONTROL));};
-		return removeAffectFromRooms(casterID, 0, filter);
+		return removeAffectFromRooms(0, filter);
 	}
 
 	void sendAffectOffMessageToRoom(int affectType, room_rnum room) {
@@ -946,8 +946,13 @@ float func_koef_duration(int spellnum, int percent)
 		case SPELL_DEXTERITY:
 			return 1 + percent / 400;
 		break;
+		case SPELL_GROUP_BLINK:
+		case SPELL_BLINK:
+			return 1 + percent / 400;
+		break;
 		default:
 			return 1;
+		break;
 	}
 }
 
@@ -3592,8 +3597,9 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 	case SPELL_GROUP_BLINK:
 	case SPELL_BLINK:
+		af[0].location = APPLY_SPELL_BLINK;
+		af[0].modifier = 5 + GET_REMORT(ch) * 2 / 3.0;
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
-		af[0].bitvector = to_underlying(EAffectFlag::AFF_SPELL_BLINK);
 		to_room = "$n начал$g мигать.";
 		to_vict = "Вы начали мигать.";
 		spellnum = SPELL_BLINK;

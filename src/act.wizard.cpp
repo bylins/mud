@@ -5735,6 +5735,7 @@ struct set_struct		/*
 	{"autobot",LVL_IMPL, PC, BINARY}, // 61
 	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
 	{"scriptwriter",LVL_IMPL, PC, BINARY}, // 63
+	{"spammer",LVL_GOD, PC, BINARY}, // 64	
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6431,6 +6432,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 63: // флаг автобота
 		{
 			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SCRIPTWRITER);
+			break;
+		}
+	case 64: // флаг спамера
+		{
+			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SPAMMER);
 			break;
 		}
 	default:

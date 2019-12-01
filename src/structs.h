@@ -414,6 +414,7 @@ extern const religion_names_t religion_name;
 #define PLR_REGISTERED   (1 << 18)
 #define PLR_DUMB         (1 << 19)	// Player is not allowed to tell/emote/social //
 #define PLR_SCRIPTWRITER (1 << 20)	// скриптер
+#define PLR_SPAMMER      (1 << 21)	// спаммер
 // свободно
 #define PLR_DELETE       (1 << 28)	// RESERVED - ONLY INTERNALLY (MOB_DELETE) //
 #define PLR_FREE         (1 << 29)	// RESERVED - ONLY INTERBALLY (MOB_FREE)//
@@ -706,7 +707,6 @@ enum class EAffectFlag: uint32_t
 	AFF_EXPEDIENT = INT_TWO | (1u << 21),
 	AFF_COMMANDER = INT_TWO | (1u << 22),
 	AFF_EARTHAURA = INT_TWO | (1u << 23),
-	AFF_SPELL_BLINK = INT_TWO | (1u << 24)
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
@@ -1090,7 +1090,8 @@ enum EApplyLocation
 	APPLY_VIEW_DT = 64,
 	APPLY_PERCENT_EXP = 65, //бонус +экспа
 	APPLY_PERCENT_DAM = 66, // бонус +повреждение
-	NUM_APPLIES = 67
+	APPLY_SPELL_BLINK = 67, // мигание заклом
+	NUM_APPLIES = 68
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);

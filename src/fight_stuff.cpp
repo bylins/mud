@@ -861,13 +861,14 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	// за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
 	exp *= get_npc_long_live_exp_bounus(GET_MOB_VNUM(victim));
 	exp += exp * (ch->add_abils.percent_exp_add) / 100.0;
-
+/*  бонусы за непопулярных мобов круче
 	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)	{
 		// так чуть-чуть поприятней
 		exp *= 1.5;
 		exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 		return (exp);
 	}
+*/
 	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim)) - mob_proto[victim->get_rnum()].mob_specials.MaxFactor + 1; // отсчет от 0 добавляю +1
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
         // минимальный опыт при замаксе 15% от полного опыта
