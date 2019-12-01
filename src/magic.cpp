@@ -4766,18 +4766,14 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		// Svent TODO: не забыть перенести это в ability
 		mob->set_level(ch->get_level());
         int rating  = (ch->get_skill(SKILL_LIGHT_MAGIC) + GET_REAL_CHA(ch))/2;
-		GET_MAX_HIT(mob) = GET_HIT(mob) = 100 + dice(10, 10) + rating*3;
+		GET_MAX_HIT(mob) = GET_HIT(mob) = 50 + dice(10, 10) + rating*6;
 		mob->set_skill(SKILL_PUNCH, 10 + rating*1.5);
 		mob->set_skill(SKILL_RESCUE, 50 + rating);
-		if (rating > 95) {
-            SET_FEAT(mob, LIVE_SHIELD_FEAT);
-		}
 		mob->set_str(3+rating/5);
 		mob->set_dex(10+rating/5);
 		mob->set_con(10+rating/5);
-		GET_DR(mob) = rating/10;
-		GET_NDD(mob) = 1+rating/15;
-		GET_SDD(mob) = 1+rating/12;
+		GET_HR(mob) = rating/2 - 4;
+		GET_AC(mob) = 100 -  rating*2.65;
 	}
 
 	if (spellnum == SPELL_SUMMON_FIREKEEPER) {
