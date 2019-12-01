@@ -2253,16 +2253,24 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 			}
 		}
 
-		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
-		{
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL)
-			{
+		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL) {
 				// чтобы мобов не чекали
-				if (IS_NPC(ch) || !IS_NPC(*tch))
-				{
-					if (SpINFO.violent && !check_pkill(ch, *tch, t))
+				if (IS_NPC(ch) || !IS_NPC(*tch)) {
+					if (SpINFO.violent && !check_pkill(ch, *tch, t)) {
 						return FALSE;
+					}
 					return TRUE;
+				}
+				if (!IS_NPC(ch)) {
+					struct follow_type *k, *k_next;
+					for (k = ch->followers; k; k = k_next) {
+						k_next = k->next;
+						if (isname(t, k->follower->get_pc_name())) {
+							*tch = k->follower;
+							return TRUE;
+						}
+					}
 				}
 			}
 		}
@@ -5358,8 +5366,8 @@ void mag_assign_spells(void)
 	 * min level to use the skill for other classes is set up in class.c.
 	 */
 
-	skillo(SKILL_GLOBAL_COOLDOWN, "!глобальная задержка", "ОЗ",  2);
-	skillo(SKILL_BACKSTAB, "заколоть", "Зак", 180);
+	skillo(SKILL_GLOBAL_COOLDOWN, "!глобальная задержка", "ОЗ",  1);
+	skillo(SKILL_BACKSTAB, "заколоть", "Зк", 180);
 	skillo(SKILL_BASH, "сбить", "Сб", 200);
 	skillo(SKILL_HIDE, "спрятаться", "Сп", 100);
 	skillo(SKILL_KICK, "пнуть", "Пн", 100);
@@ -5371,18 +5379,18 @@ void mag_assign_spells(void)
 	skillo(SKILL_TRACK, "выследить", "Выс", 100);
 	skillo(SKILL_PARRY, "парировать", "Пр", 120);
 	skillo(SKILL_BLOCK, "блокировать щитом", "Бщ", 200);
-	skillo(SKILL_TOUCH, "перехватить атаку", "Пер", 100);
+	skillo(SKILL_TOUCH, "перехватить атаку", "Пр", 100);
 	skillo(SKILL_PROTECT, "прикрыть", "Пр", 120);
 	skillo(SKILL_BOTHHANDS, "двуручники", "Дв", 160);
 	skillo(SKILL_LONGS, "длинные лезвия", "Дл", 160);
 	skillo(SKILL_SPADES, "копья и рогатины", "Кр", 160);
 	skillo(SKILL_SHORTS, "короткие лезвия", "Кл", 160);
 	skillo(SKILL_BOWS, "луки", "Лк", 160);
-	skillo(SKILL_CLUBS, "палицы и дубины", "Пдб", 160);
+	skillo(SKILL_CLUBS, "палицы и дубины", "Пд", 160);
 	skillo(SKILL_PICK, "проникающее оружие", "Прн", 160);
 	skillo(SKILL_NONSTANDART, "иное оружие", "Ин", 160);
 	skillo(SKILL_AXES, "секиры", "Ск", 160);
-	skillo(SKILL_SATTACK, "атака левой рукой", "Алр", 100);
+	skillo(SKILL_SATTACK, "атака левой рукой", "Ал", 100);
 	skillo(SKILL_LOOKING, "приглядеться", "Прг", 100);
 	skillo(SKILL_HEARING, "прислушаться", "Прс", 100);
 	skillo(SKILL_DISARM, "обезоружить", "Об", 100);

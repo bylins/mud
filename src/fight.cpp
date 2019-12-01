@@ -161,7 +161,7 @@ void set_battle_pos(CHAR_DATA * ch)
 		{
 			if (IS_NPC(ch))
 			{
-				act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n поднял$u.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_FIGHTING;
 			}
 			else if (GET_POS(ch) == POS_SLEEPING)
@@ -195,7 +195,7 @@ void restore_battle_pos(CHAR_DATA * ch)
 				GET_WAIT(ch) <= 0 &&
 				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		{
-			act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n поднял$u.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			GET_POS(ch) = POS_STANDING;
 		}
 		break;
@@ -1451,7 +1451,7 @@ void stand_up_or_sit(CHAR_DATA *ch)
 {
 	if (IS_NPC(ch))
 	{
-		act("$n встал$g на ноги.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("$n поднял$u.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_FIGHTING;
 	}
 	else if (GET_POS(ch) == POS_SLEEPING)

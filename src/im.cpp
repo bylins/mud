@@ -383,7 +383,7 @@ OBJ_DATA *load_ingredient(int index, int power, int rnum)
 			sprintf(buf, "IM METATYPE ingredient loading %d", imtypes[index].id);
 			break;
 		}
-		
+
 		const auto ing = world_objects.create_from_prototype_by_vnum(imtypes[index].proto_vnum);
 		if (!ing)
 		{
@@ -867,7 +867,7 @@ void init_im(void)
 		imrecipes[i].remort = -1;
 	}
 
-	im_file = fopen(LIB_MISC "classrecipe.lst", "r");
+	im_file = fopen(LIB_MISC "class.recipes.lst", "r");
 	if (!im_file)
 	{
 		imlog(BRF, "Can not open classrecipe.lst. All recipes unavailable now");

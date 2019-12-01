@@ -684,7 +684,7 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 				 */
 		if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 		{
-			act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
 			GET_POS(ch) = POS_STANDING;
 		}
 
@@ -750,7 +750,7 @@ int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 			{
-				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
 
@@ -891,7 +891,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 			{
-				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
 			if (GET_RACE(ch) != NPC_RACE_HUMAN)
@@ -1210,7 +1210,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			switch (GET_DEFAULT_POS(ch))
 			{
 			case POS_STANDING:
-				act("$n встал$g на ноги.", FALSE, ch.get(), 0, 0, TO_ROOM);
+				act("$n поднял$u.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 				break;
 			case POS_SITTING:

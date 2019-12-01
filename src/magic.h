@@ -19,26 +19,27 @@
 class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
-// These mobiles do not exist.
-#define MOB_DOUBLE        3000 //внум прототипа для клона
-#define MOB_SKELETON      3001
-#define MOB_ZOMBIE        3002
-#define MOB_BONEDOG       3003
-#define MOB_BONEDRAGON    3004
-#define MOB_BONESPIRIT    3005
-#define MOB_NECR_DAMAGER 3007
-#define MOB_NECR_TANK 3008
-#define MOB_NECR_BRIZER	3009
-#define MOB_NECR_CASTER 3010
-#define LAST_NECR_MOB	  3011
-#define MOB_KEEPER        104
-#define MOB_FIREKEEPER    105
-#define MOB_MENTAL_SHADOW 3020
+// VNUM'ы мобов для заклинаний, создающих мобов
+const int MOB_DOUBLE = 3000; //внум прототипа для клона
+const int MOB_SKELETON = 3001;
+const int MOB_ZOMBIE = 3002;
+const int MOB_BONEDOG = 3003;
+const int MOB_BONEDRAGON = 3004;
+const int MOB_BONESPIRIT = 3005;
+const int MOB_NECRODAMAGER = 3007;
+const int MOB_NECROTANK = 3008;
+const int MOB_NECROBREATHER = 3009;
+const int MOB_NECROCASTER = 3010;
+const int LAST_NECRO_MOB = 3010;
+// резерв для некротических забав
+const int MOB_MENTAL_SHADOW = 3020;
+const int MOB_KEEPER = 3021;
+const int MOB_FIREKEEPER = 3022;
 
-#define MAX_SPELL_AFFECTS 16	// change if more needed
+const int MAX_SPELL_AFFECTS = 16; // change it if you need more
 
 //таймеры для спеллов, которые должны тикать, только если кастер помер или вышел
-#define TIME_SPELL_RUNE_LABEL 300
+const int TIME_SPELL_RUNE_LABEL = 300;
 
 #define SpINFO spell_info[spellnum]
 
@@ -48,8 +49,7 @@ void mobile_affect_update(void);
 void player_affect_update(void);
 void print_rune_log();
 
-namespace RoomSpells
-{
+namespace RoomSpells {
 	void room_affect_update(void);
 }
 

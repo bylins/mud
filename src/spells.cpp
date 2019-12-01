@@ -623,143 +623,105 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 {
 	room_rnum ch_room, vic_room;
 	struct follow_type *k, *k_next;
-	// Если переменные не определены или каст на себя - завершаем.
-	if (ch == NULL || victim == NULL || ch == victim)
+
+	if (ch == NULL || victim == NULL || ch == victim) {
 		return;
+	}
 
 	ch_room = ch->in_room;
 	vic_room = IN_ROOM(victim);
 
-	// Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE.
-	if (ch_room == NOWHERE || vic_room == NOWHERE)
-	{
+	if (ch_room == NOWHERE || vic_room == NOWHERE) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	// Игрок не может присуммонить моба.
-	if (!IS_NPC(ch) && IS_NPC(victim))
-	{
+	if (IS_NPC(ch) && IS_NPC(victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	// Моб не может призвать моба
-	// Насчет этого я не особо уверен что такое может случиться (разве что суммон запоминающим мобом чармиса),
-	// но в старом коде суммона данная строчка присутствовала в одном из условий.
-	if (IS_NPC(ch) && IS_NPC(victim))
-	{
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	}
-
-	// Богов лучше не суммонить - им это может не понравится.
-	if (IS_IMMORTAL(victim))
-	{
-		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim)))
-		{
+	if (IS_IMMORTAL(victim)) {
+		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 	}
 
-	// Ограничения для смертных (богов ниже следующее не касается)
-	if (!IS_IMMORTAL(ch))
-	{
-		// Если игрок не моб или чармис, то:
-		if (!IS_NPC(ch) || IS_CHARMICE(ch))
-		{
-			// Нельзя производить суммон под ЗБ
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
-			{
-				send_to_char(SUMMON_FAIL3, ch);	// Про маг. кокон вокруг суммонера
+	if (!IS_NPC(ch) && IS_NPC(victim)) {
+		if (victim->get_master() != ch
+			|| !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+			|| AFF_FLAGGED(victim, EAffectFlag::AFF_HELPER)
+			|| victim->get_fighting()
+			|| GET_POS(victim) < POS_RESTING) {
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+	}
+
+
+	if (!IS_IMMORTAL(ch)) {
+		if (!IS_NPC(ch) || IS_CHARMICE(ch)) {
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD)) {
+				send_to_char(SUMMON_FAIL3, ch);
 				return;
 			}
-			// Нельзя призвать жертву без режима (если не в группе)
-			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim))
-			{
-				send_to_char(SUMMON_FAIL2, ch);	// Устойчива
+			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+				send_to_char(SUMMON_FAIL2, ch);
 				return;
 			}
-			// Нельзя призвать жертву в БД
-			if (RENTABLE(victim))
-			{
+			if (RENTABLE(victim)) {
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
-			// Нельзя призвать жертву в бою
-			if (victim->get_fighting())
-			{
-				send_to_char(SUMMON_FAIL4, ch);	// Цель в бою
+			if (victim->get_fighting()) {
+				send_to_char(SUMMON_FAIL4, ch);
 				return;
 			}
 		}
-		// И независимо от того моб это или нет:
-		// Жертву в лаге нельзя суммонить.
-		if (GET_WAIT(victim) > 0)
-		{
+		if (GET_WAIT(victim) > 0) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		// и чаров 10 и ниже левела тоже
-		if (!IS_NPC(ch) && GET_LEVEL(victim) <= 10)
-		{
+		if (!IS_NPC(ch) && !IS_NPC(victim) && GET_LEVEL(victim) <= 10) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 
-		// Проверка мест где нельзя суммонить и откуда нельзя суммонить.
-		// Где нельзя суммонить:
-		if (ROOM_FLAGGED(ch_room, ROOM_NOSUMMON) ||	// суммонер в комнате с флагом !призвать
-				ROOM_FLAGGED(ch_room, ROOM_DEATH) ||	// суммонер в ДТ
-				ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH) ||	// суммонер в медленном ДТ
-				ROOM_FLAGGED(ch_room, ROOM_TUNNEL) ||	// суммонер в ван-руме
-				ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) ||	// суммонер в мирной комнате
-				ROOM_FLAGGED(ch_room, ROOM_NOBATTLE) ||	// суммонер в комнате с запретом на драки
-				ROOM_FLAGGED(ch_room, ROOM_GODROOM) ||	// суммонер в комнате для бессмертных
-				ROOM_FLAGGED(ch_room, ROOM_ARENA) ||	// суммонер на арене
-				!Clan::MayEnter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка
-				SECT(ch->in_room) == SECT_SECRET)	// суммонер стоит в клетке с типом "секретый"
-		{
+		if (ROOM_FLAGGED(ch_room, ROOM_NOSUMMON)
+			|| ROOM_FLAGGED(ch_room, ROOM_DEATH)
+			|| ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH)
+			|| ROOM_FLAGGED(ch_room, ROOM_TUNNEL)
+			|| ROOM_FLAGGED(ch_room, ROOM_NOBATTLE)
+			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)
+			|| !Clan::MayEnter(victim, ch_room, HCE_PORTAL)
+			|| SECT(ch->in_room) == SECT_SECRET
+			|| (!same_group(ch, victim) && (ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch_room, ROOM_ARENA)))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		// Жертву нельзя призвать если она в:
-		// разные варианты моб и игрок
-		if (!IS_NPC(ch))
-		{
-			// для чаров
-			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) ||	// жертва в комнате с флагом !призвать
-				ROOM_FLAGGED(vic_room, ROOM_TUNNEL)	||	// жертва стоит в ван-руме
-				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
-				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
-				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
-				AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
-			{
-			send_to_char(SUMMON_FAIL, ch);
+
+		if (!IS_NPC(ch)) {
+			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)
+				|| ROOM_FLAGGED(vic_room, ROOM_GODROOM)
+				|| !Clan::MayEnter(ch, vic_room, HCE_PORTAL)
+				|| AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)
+				|| (!same_group(ch, victim) && (ROOM_FLAGGED(vic_room, ROOM_TUNNEL) || ROOM_FLAGGED(vic_room, ROOM_ARENA)))) {
+				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
-		}
-		else
-		{
-			// для мобов возможно только 2 ошибки
-			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
-			AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
-			{
+		} else {
+			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) || AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)) 	{
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
 		}
 
-		// Фейл заклинания суммон
-		if (number(1, 100) < 30)
-		{
-			send_to_char(SUMMON_FAIL, ch);
+		if (IS_NPC(ch) && number(1, 100) < 30) {
 			return;
 		}
 	}
 
-	// Ничто не помешало нашему суммону - и он все-таки произошел
 	act("$n растворил$u на ваших глазах.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, ch_room);
@@ -767,21 +729,14 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 	act("$n прибыл$g по вызову.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("$n призвал$g вас!", FALSE, ch, 0, victim, TO_VICT);
 	check_auto_nosummon(victim);
+	GET_POS(victim) = POS_STANDING;
 	look_at_room(victim, 0);
 	// призываем чармисов
-	for (k = victim->followers; k; k = k_next)
-	{
+	for (k = victim->followers; k; k = k_next) {
 		k_next = k->next;
-		// проверяем, находится ли чармис в той же комнате, где был сам чар
-		if (IN_ROOM(k->follower) == vic_room)
-		{
-			// проверяем, чармис ли это вообще
-			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
-			{
-				// чармис не должен быть в бою
-				if (!k->follower->get_fighting())
-				{
-					// призываем
+		if (IN_ROOM(k->follower) == vic_room) {
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)) {
+				if (!k->follower->get_fighting()) {
 					act("$n растворил$u на ваших глазах.", TRUE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					char_from_room(k->follower);
 					char_to_room(k->follower, ch_room);

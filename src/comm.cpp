@@ -1902,7 +1902,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			count += sprintf(prompt + count, "%s:%d ",
 								skill_info[SKILL_GLOBAL_COOLDOWN].shortName, d->character->getSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN));
 			for (const auto skill : AVAILABLE_SKILLS) {
-				if (skill_info[skill].max_percent > 1 && d->character->get_skill(skill)) {
+				if (*skill_info[skill].name != '!' && d->character->get_skill(skill)) {
 					int cooldown = d->character->getSkillCooldownInPulses(skill);
 					if (cooldown > 0) {
 						count += sprintf(prompt + count, "%s:%d ", skill_info[skill].shortName, cooldown);

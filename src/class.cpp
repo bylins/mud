@@ -2470,7 +2470,7 @@ void load_skills_definitions()
 //Polud Читает данные из файла хранения параметров умений
 void load_skills()
 {
-	const char *CLASS_SKILLS_FILE = LIB_MISC"classskills.xml";
+	const char *CLASS_SKILLS_FILE = LIB_MISC"class.skills.xml";
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
@@ -2485,7 +2485,7 @@ void load_skills()
 
 	if (!node_list)
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "...classskills.xml read fail");
+		snprintf(buf, MAX_STRING_LENGTH, "...class.skills.xml read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -2560,9 +2560,9 @@ void init_spell_levels(void)
 	char line1[256], line2[256], line3[256], name[256];
 	int i[15], j, sp_num;
 
-	if (!(magic = fopen(LIB_MISC "magic.lst", "r")))
+	if (!(magic = fopen(LIB_MISC "class.spells.lst", "r")))
 	{
-		log("Can't open magic list file...");
+		log("Can't open class spells file...");
 		perror("fopen");
 		graceful_exit(1);
 	}
@@ -2615,7 +2615,7 @@ void init_spell_levels(void)
 
 	}
 	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "items.lst", "r")))
+	if (!(magic = fopen(LIB_MISC "runes.lst", "r")))
 	{
 		log("Cann't open items list file...");
 		graceful_exit(1);
@@ -2702,8 +2702,7 @@ void init_spell_levels(void)
 		}
 	}
 	fclose(magic);
-	// Load features variables - added by Gorrah
-	if (!(magic = fopen(LIB_MISC "features.lst", "r")))
+	if (!(magic = fopen(LIB_MISC "class.features.lst", "r")))
 	{
 		log("Cann't open features list file...");
 		graceful_exit(1);
@@ -2868,7 +2867,7 @@ void init_spell_levels(void)
 
 	/* Remove to init_im::im.cpp - Gorrah
 	// +newbook.patch (Alisher)
-		if (!(magic = fopen(LIB_MISC "classrecipe.lst", "r"))) {
+		if (!(magic = fopen(LIB_MISC "class.recipes.lst", "r"))) {
 			log("Cann't open classrecipe list file...");
 			graceful_exit(1);
 		}
