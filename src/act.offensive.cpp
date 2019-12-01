@@ -483,7 +483,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict) {
 
 	if ((MOB_FLAGGED(vict, MOB_AWARE) && AWAKE(vict)) && !IS_GOD(ch)) {
 		act("Вы заметили, что $N попытал$u вас заколоть!", FALSE, vict, 0, ch, TO_CHAR);
-		act("$n заметил$g Вашу попытку заколоть $s!", FALSE, vict, 0, ch, TO_VICT);
+		act("$n заметил$g вашу попытку заколоть $s!", FALSE, vict, 0, ch, TO_VICT);
 		act("$n заметил$g попытку $N1 заколоть $s!", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
 		set_hit(vict, ch);
 		return;
@@ -514,11 +514,12 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict) {
 		dmg.process(ch, vict);
 	} else {
 		hit(ch, vict, SKILL_BACKSTAB, RIGHT_WEAPON);
-		if (!ch->get_fighting())
-			WAIT_STATE(ch, PULSE_VIOLENCE / 6);
+		//if (!ch->get_fighting())
+			//WAIT_STATE(ch, PULSE_VIOLENCE / 6);
 	}
-	set_wait(ch, 2, TRUE);
-	//ch->setSkillCooldown(SKILL_BACKSTAB, 2);
+	//set_wait(ch, 2, TRUE);
+	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	setSkillCooldownInFight(ch, SKILL_BACKSTAB, 2);
 }
 
 void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1841,8 +1842,6 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
-	int percent, prob;
-
 	if (dontCanAct(ch)) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
@@ -1860,7 +1859,8 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 		if (number(1, 100) < ch->get_skill(SKILL_CHOPOFF)) {
 			send_to_char("Вы приготовились провести подсечку, но вовремя остановились.\r\n", ch);
 			//set_wait(ch, 1, FALSE);
-			setSkillCooldown(ch, SKILL_CHOPOFF, 1);
+			//setSkillCooldown(ch, SKILL_CHOPOFF, 1);
+			ch->setSkillCooldown(SKILL_CHOPOFF, PULSE_VIOLENCE/6);
 			return;
 		}
 	}
@@ -1868,8 +1868,8 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
-	prob = train_skill(ch, SKILL_CHOPOFF, skill_info[SKILL_CHOPOFF].max_percent, vict);
+	int percent = number(1, skill_info[SKILL_CHOPOFF].max_percent);
+	int prob = train_skill(ch, SKILL_CHOPOFF, skill_info[SKILL_CHOPOFF].max_percent, vict);
 
 	if (check_spell_on_player(ch, SPELL_WEB)) {
 		prob /= 3;
@@ -1885,7 +1885,9 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 			on_horse(vict) || GET_POS(vict) < POS_FIGHTING || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
 		prob = 0;
 
-	if (percent > prob) {
+	bool skillFail = percent > prob;
+
+	if (skillFail) {
 		sprintf(buf, "%sВы попытались подсечь $N3, но упали сами...%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 		act(buf,FALSE,ch,0,vict,TO_CHAR);
 		act("$n попытал$u подсечь вас, но упал$g сам$g.", FALSE, ch, 0, vict, TO_VICT);
@@ -1933,8 +1935,12 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 		set_hit(vict, ch);
 	}
 
-	set_wait(ch, prob, FALSE);
-	//ch->setSkillCooldown(SKILL_CHOPOFF, prob);
+	if (skillFail) {
+		set_wait(ch, prob, FALSE);
+	} else  {
+		setSkillCooldownInFight(ch, SKILL_CHOPOFF, prob);
+		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	}
 }
 
 void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -1995,14 +2001,16 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim) {
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 		hit(ch, victim, SKILL_STUPOR, RIGHT_WEAPON);
 		//set_wait(ch, 2, TRUE);
-		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, ch->getSkillCooldownInPulses(SKILL_STUPOR));
+		if (ch->getSkillCooldown(SKILL_STUPOR) > 0) {
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+		}
 	} else {
 		act("Вы попытаетесь оглушить $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, FALSE);
 			set_fighting(ch, victim);
 			//set_wait(ch, 2, TRUE);
-			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, ch->getSkillCooldownInPulses(SKILL_STUPOR));
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 2);
 		}
 		SET_AF_BATTLE(ch, EAF_STUPOR);
 	}
@@ -2056,7 +2064,9 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim) {
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
 		hit(ch, victim, SKILL_MIGHTHIT, RIGHT_WEAPON);
-		setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, ch->getSkillCooldownInPulses(SKILL_MIGHTHIT));
+		if (ch->getSkillCooldown(SKILL_MIGHTHIT) > 0) {
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+		}
 		//set_wait(ch, 2, TRUE);
 		return;
 	}
@@ -2068,7 +2078,7 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim) {
 		if (ch->get_fighting() != victim) {
 			stop_fighting(ch, 2);
 			set_fighting(ch, victim);
-			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, ch->getSkillCooldownInPulses(SKILL_MIGHTHIT));
+			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 2);
 			//set_wait(ch, 2, TRUE);
 		}
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);

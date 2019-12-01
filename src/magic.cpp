@@ -3867,7 +3867,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 	case SPELL_STONEBONES:
 		{
-		if (GET_MOB_VNUM(victim) < MOB_SKELETON || GET_MOB_VNUM(victim) > LAST_NECR_MOB)
+		if (GET_MOB_VNUM(victim) < MOB_SKELETON || GET_MOB_VNUM(victim) > LAST_NECRO_MOB)
 		{
 			send_to_char(NOEFFECT, ch);
 			success = FALSE;
@@ -4448,18 +4448,18 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 			}
 			else if (corpse_mob_level <= 34)
 			{
-				mob_num = MOB_NECR_TANK;
+				mob_num = MOB_NECROTANK;
 			}
 			else
 			{
 				int rnd = number(1,100);
-				mob_num = MOB_NECR_DAMAGER;
+				mob_num = MOB_NECRODAMAGER;
 				if (rnd > 50) {
-					mob_num = MOB_NECR_BRIZER;
+					mob_num = MOB_NECROBREATHER;
 				}
 			}
 
-			// MOB_NECR_CASTER disabled, cant cast
+			// MOB_NECROCASTER disabled, cant cast
 
 			if (GET_LEVEL(ch) + GET_REMORT(ch) + 4 < 15 && mob_num > MOB_ZOMBIE)
 			{
@@ -4602,7 +4602,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		return 0;
 	}
 
-	if (spellnum == SPELL_ANIMATE_DEAD && mob_num >= MOB_NECR_DAMAGER && mob_num < LAST_NECR_MOB) {
+	if (spellnum == SPELL_ANIMATE_DEAD && mob_num >= MOB_NECRODAMAGER && mob_num <= LAST_NECRO_MOB) {
 		// add 10% mob health by remort
 		mob->set_max_hit(mob->get_max_hit() * (1.0 + ch->get_remort() / 10.0));
 		mob->set_hit(mob->get_max_hit());
@@ -4661,8 +4661,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	}
 
 	MOB_FLAGS(mob).set(MOB_CORPSE);
-	if (spellnum == SPELL_CLONE)  	// Don't mess up the proto with strcpy.
-	{
+	if (spellnum == SPELL_CLONE) {
 		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
 		mob->set_pc_name(buf2);
 		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
@@ -4763,8 +4762,21 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 
 	}
 
-	if (spellnum == SPELL_SUMMON_FIREKEEPER)
-	{
+	if (spellnum == SPELL_SUMMON_KEEPER) {
+		// Svent TODO: не забыть перенести это в ability
+		mob->set_level(ch->get_level());
+        int rating  = (ch->get_skill(SKILL_LIGHT_MAGIC) + GET_REAL_CHA(ch))/2;
+		GET_MAX_HIT(mob) = GET_HIT(mob) = 50 + dice(10, 10) + rating*6;
+		mob->set_skill(SKILL_PUNCH, 10 + rating*1.5);
+		mob->set_skill(SKILL_RESCUE, 50 + rating);
+		mob->set_str(3+rating/5);
+		mob->set_dex(10+rating/5);
+		mob->set_con(10+rating/5);
+		GET_HR(mob) = rating/2 - 4;
+		GET_AC(mob) = 100 -  rating*2.65;
+	}
+
+	if (spellnum == SPELL_SUMMON_FIREKEEPER) {
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 		af.duration = duration;

@@ -17,6 +17,7 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
 void npc_groupbattle(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
+void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 void go_autoassist(CHAR_DATA * ch);
 extern void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
@@ -3126,7 +3127,8 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 	//set_wait(ch, lag, TRUE);
-	//setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	// Временный костыль, чтоб пофиксить лищний раунд КД
+	lag = MAX(1, lag - 1);
 	setSkillCooldown(ch, SKILL_MIGHTHIT, lag);
 }
 
@@ -3191,7 +3193,8 @@ void HitData::try_stupor_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 		}
 	}
 	//set_wait(ch, lag, TRUE);
-	//setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
+	// Временный костыль, чтоб пофиксить лищний раунд КД
+	lag = MAX(1, lag - 1);
 	setSkillCooldown(ch, SKILL_STUPOR, lag);
 }
 
@@ -4239,18 +4242,15 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		ch->set_wait(0u);
 	} */
 	if (made_dam == -1) {
-		if (type == SKILL_STUPOR && ch->getSkillCooldown(SKILL_STUPOR) > 0) {
+		if (type == SKILL_STUPOR) {
 			ch->setSkillCooldown(SKILL_STUPOR, 0u);
-			ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 0u);
-		} else if (type == SKILL_MIGHTHIT && ch->getSkillCooldown(SKILL_MIGHTHIT) > 0) {
+		} else if (type == SKILL_MIGHTHIT) {
 			ch->setSkillCooldown(SKILL_MIGHTHIT, 0u);
-			ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 0u);
 		}
 	}
 
 	// check if the victim has a hitprcnt trigger
-	if (made_dam != -1)
-	{
+	if (made_dam != -1) {
 		// victim is not dead after hit
 		hitprcnt_mtrigger(victim);
 	}

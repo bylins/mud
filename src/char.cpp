@@ -743,7 +743,7 @@ void CharacterSkillDataType::decreaseCooldown(unsigned value) {
 	if (cooldown > value) {
 		cooldown -= value;
 	} else {
-		cooldown = 0;
+		cooldown = 0u;
 	};
 };
 
