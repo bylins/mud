@@ -869,55 +869,45 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				ch->remember_add(buf1, Remember::ALL);
 			}
 		}
+		switch (subcmd) {
+		case SCMD_SHOUT:
+			ign_flag = IGNORE_SHOUT;
+			break;
+		case SCMD_GOSSIP:
+			if (PLR_FLAGGED(ch, PLR_SPAMMER))
+				return;
+			ign_flag = IGNORE_GOSSIP;
+			break;
+		case SCMD_HOLLER:
+			if (PLR_FLAGGED(ch, PLR_SPAMMER))
+				return;
+			ign_flag = IGNORE_HOLLER;
+			break;
+		default:
+			ign_flag = 0;
+		}
 		snprintf(out_str, MAX_STRING_LENGTH, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
-                if (IS_FEMALE(ch))
-		{
-                if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP))
-		 {
-			snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметила :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
-			ch->remember_add(buf1, Remember::GOSSIP);
-		 }
-                if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER))
-                 {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорала :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
-                        ch->remember_add(buf1, Remember::GOSSIP);
-                 }
-                }
-                else
-                {
-                if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP))
-                 {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметил :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
-                        ch->remember_add(buf1, Remember::GOSSIP);
-                 }
-                if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER))
-                 {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорал :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
-                        ch->remember_add(buf1, Remember::GOSSIP);
-                 }
-                }
-
+		if (IS_FEMALE(ch)) {
+			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP)) {
+				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметила :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+				ch->remember_add(buf1, Remember::GOSSIP);
+			}
+			if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER)) {
+				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорала :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+				ch->remember_add(buf1, Remember::GOSSIP);
+			}
+		}
+		else {
+			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP)) {
+				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметил :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+				ch->remember_add(buf1, Remember::GOSSIP);
+			}
+			if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER)) {
+				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорал :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+				ch->remember_add(buf1, Remember::GOSSIP);
+			}
+		}
 	}
-
-	switch (subcmd)
-	{
-	case SCMD_SHOUT:
-		ign_flag = IGNORE_SHOUT;
-		break;
-	case SCMD_GOSSIP:
-		if (PLR_FLAGGED(ch, PLR_SPAMMER))
-			return;
-		ign_flag = IGNORE_GOSSIP;
-		break;
-	case SCMD_HOLLER:
-		if (PLR_FLAGGED(ch, PLR_SPAMMER))
-			return;
-		ign_flag = IGNORE_HOLLER;
-		break;
-	default:
-		ign_flag = 0;
-	}
-
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next)
 	{
