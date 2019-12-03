@@ -1139,10 +1139,10 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	ch->set_last_tell(argument);
-
+	if (PLR_FLAGGED(ch, PLR_SPAMMER)) // а вот фиг, еще проверка :)
+		return;
 	snprintf(buf, MAX_STRING_LENGTH, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
 	snprintf(buf1, MAX_STRING_LENGTH, "&c%s&n", buf);
-
 	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
 	{
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
