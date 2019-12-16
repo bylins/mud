@@ -2199,7 +2199,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 	else
 	{
-		if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER))
+		if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER))
 		{
 			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 			send_to_char(buf2, ch);
