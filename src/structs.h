@@ -158,6 +158,7 @@ typedef uint32_t bitvector_t;
 #define ROOM_NOBATTLE       (INT_ONE | (1 << 9)) //в клетке нельзя начать бой
 #define ROOM_QUEST	    (INT_ONE | (1 << 10))
 #define ROOM_LIGHT          (INT_ONE | (1 << 11))
+#define ROOM_NOMAPPER       (INT_ONE | (1 << 12))  //нет внумов комнат
 
 #define ROOM_NOITEM         (INT_TWO|(1<<0))	// Передача вещей в комнате запрещена
 #define ROOM_RUSICHI        (INT_TWO|(1<<1))
