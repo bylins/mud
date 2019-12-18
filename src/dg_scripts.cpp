@@ -3040,7 +3040,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				GET_POS(c) = pos;
 			}
 		}
-		else if (!str_cmp(field, "wait"))
+		else if (!str_cmp(field, "wait") || !str_cmp(field, "lag"))
 		{
 			int pos;
 
