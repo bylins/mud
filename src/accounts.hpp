@@ -13,6 +13,7 @@
 #include <ctime>
 #include <memory>
 #include <unordered_map>
+#include "char.hpp"
 
 struct DQuest
 {
@@ -51,6 +52,7 @@ public:
 	void read_from_file();
 	std::string get_email();
 	bool quest_is_available(int id);
+	void zero_hryvn(CHAR_DATA *ch, int val);
 	void complete_quest(int id);
 	static const std::shared_ptr<Account> get_account(const std::string& email);
 	void show_list_players(DESCRIPTOR_DATA *d);

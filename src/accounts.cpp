@@ -8,6 +8,7 @@
 #include "password.hpp"
 #include "utils.h"
 #include <boost/algorithm/string.hpp>
+#include "zone.table.hpp"
 
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
@@ -25,6 +26,17 @@ const std::shared_ptr<Account> Account::get_account(const std::string& email) {
 		return search_element->second;
 	}
 	return nullptr;
+}
+void  Account::zero_hryvn(CHAR_DATA *ch, int val){
+	const int zone_lvl = zone_table[world[ch->in_room]->zone].mob_level;
+	for (auto &plr : this->players_list){
+		const auto& player = player_table[get_ptable_by_unique(plr)];
+		if (zone_lvl <= 15 && (player.level + player.remorts / 5 >= 20)){
+			send_to_char(ch, "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n", player.name(), val, player.level, player.remorts);
+			val = 0;
+		}
+	}
+//	return val;
 }
 
 void Account::complete_quest(int id)
