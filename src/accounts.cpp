@@ -27,16 +27,22 @@ const std::shared_ptr<Account> Account::get_account(const std::string& email) {
 	}
 	return nullptr;
 }
-void  Account::zero_hryvn(CHAR_DATA *ch, int val){
+void  Account::zero_hryvn(CHAR_DATA *ch, int val) {
 	const int zone_lvl = zone_table[world[ch->in_room]->zone].mob_level;
 	for (auto &plr : this->players_list){
+		std::string name = GetNameByUnique(plr);
+		if (name.empty()) {
+			continue;
+		}
+
 		const auto& player = player_table[get_ptable_by_unique(plr)];
-		if (zone_lvl <= 15 && (player.level + player.remorts / 5 >= 20)){
-			send_to_char(ch, "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n", player.name(), val, player.level, player.remorts);
+		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)){
+			if (PRF_FLAGGED(ch, PRF_TESTER)) {
+				send_to_char(ch, "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n", player.name(), val, player.level, player.remorts);
+			}
 			val = 0;
 		}
 	}
-//	return val;
 }
 
 void Account::complete_quest(int id)
@@ -63,8 +69,16 @@ void Account::show_list_players(DESCRIPTOR_DATA *d)
 	int count = 1;
 	for (auto &x : this->players_list)
 	{
+		std::string name = GetNameByUnique(x);
+		if (name.empty()){
+//			SEND_TO_Q("тут удаленный чар, удаляю\r\n", d);  внутри цикла удалять нельзя :( надо переделать
+//			this->Account::remove_player(x);
+//			Account::remove_player(x);
+			continue;
+		}
 		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);
-		SEND_TO_Q(GetNameByUnique(x, false).c_str(), d);
+		name[0] = UPPER(name[0]);
+		SEND_TO_Q(name.c_str(), d);
 		SEND_TO_Q("\r\n", d);
 		count++;
 	}
