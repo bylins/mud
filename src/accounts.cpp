@@ -27,7 +27,7 @@ const std::shared_ptr<Account> Account::get_account(const std::string& email) {
 	}
 	return nullptr;
 }
-void  Account::zero_hryvn(CHAR_DATA *ch, int val) {
+int  Account::zero_hryvn(CHAR_DATA *ch, int val) {
 	const int zone_lvl = zone_table[world[ch->in_room]->zone].mob_level;
 	for (auto &plr : this->players_list){
 		std::string name = GetNameByUnique(plr);
@@ -43,6 +43,7 @@ void  Account::zero_hryvn(CHAR_DATA *ch, int val) {
 			val = 0;
 		}
 	}
+	return val;
 }
 
 void Account::complete_quest(int id)
