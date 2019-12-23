@@ -1656,8 +1656,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "ICur"))
 			{
-//				this->set_ice_currency(num);
-				this->set_ice_currency(0); // чистка льда
+				this->set_ice_currency(num);
+//				this->set_ice_currency(0); // чистка льда
 			}
 			break;
 
