@@ -4945,10 +4945,12 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 	const size_t BUFFER_SIZE = 1024;
 	char tmpstr[BUFFER_SIZE];
 	snprintf(tmpstr, BUFFER_SIZE,
-		"%3d %-60.60s Уровень: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
-		"    Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d, Mob-level: %2d; Автор: %s\r\n",
-		zone_table[zone].number, zone_table[zone].name,
-		zone_table[zone].level, zone_types[zone_table[zone].type].name,
+		"%3d %-60.60s Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
+		"    Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; Автор: %s, посещено после ребута: %d\r\n",
+		zone_table[zone].number, 
+		zone_table[zone].name,
+		zone_table[zone].mob_level,
+		zone_types[zone_table[zone].type].name,
 		zone_table[zone].age, zone_table[zone].lifespan,
 		zone_table[zone].reset_mode,
 		(zone_table[zone].reset_mode == 3) ? (can_be_reset(zone) ? 1 : 0) : (is_empty(zone) ? 1 : 0),
@@ -4959,8 +4961,8 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 		zone_table[zone].used ? "Y" : "N",
 		(double)zone_table[zone].activity / 1000,
 		zone_table[zone].group,
-		zone_table[zone].mob_level,
-		zone_table[zone].author ? zone_table[zone].author : "Не известен.");
+		zone_table[zone].author ? zone_table[zone].author : "Не известен.",
+		zone_table[zone].traffic);
 	*bufptr = str_add(*bufptr, tmpstr);
 }
 
