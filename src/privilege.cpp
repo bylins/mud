@@ -233,17 +233,22 @@ void load()
 
 	while (file >> name)
 	{
-		if (name == "#")
-		{
+		if (name == "#") {
 			ReadEndString(file);
 			continue;
 		}
 		else if (name == "<groups>")
 		{
+
 			while (file >> name)
 			{
+                if (name == "#") {
+                    ReadEndString(file);
+                    continue;
+                }
 				if (name == "</groups>")
 					break;
+
 				file >> temp; // "="
 				std::getline(file, commands);
 				boost::trim(commands);
@@ -256,6 +261,10 @@ void load()
 		{
 			while (file >> name)
 			{
+			    if (name == "#") {
+                    ReadEndString(file);
+                    continue;
+                }
 				if (name == "</gods>")
 					break;
 				file >> uid;
@@ -282,6 +291,7 @@ void load()
 * \param name - имя имма, unique - его уид
 * \return 0 - не нашли, 1 - нашли
 */
+
 bool god_list_check(const std::string &name, long unique)
 {
 #ifdef TEST_BUILD
