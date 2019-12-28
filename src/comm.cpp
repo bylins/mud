@@ -61,6 +61,7 @@
 #include "msdp.constants.hpp"
 #include "heartbeat.hpp"
 #include "zone.table.hpp"
+#include "db.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -954,6 +955,7 @@ void init_game(ush_int port)
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
+	zone_traffic_save();
 #if defined WITH_SCRIPTING
 	//scripting::terminate();
 #endif
