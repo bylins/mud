@@ -418,7 +418,8 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		ch->add_abils.percent_spell_blink += mod;
 		break;
 	default:
-		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
+//		это не ошибка не все апплаи поднимают статы
+//		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
 		break;
 	}			// switch
 }
