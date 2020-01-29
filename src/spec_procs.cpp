@@ -78,8 +78,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int guild(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int dump(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int mayor(CHAR_DATA *ch, void *me, int cmd, char* argument);
-int snake(CHAR_DATA *ch, void *me, int cmd, char* argument);
-int thief(CHAR_DATA *ch, void *me, int cmd, char* argument);
+//int thief(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int magic_user(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int guild_guard(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int fido(CHAR_DATA *ch, void *me, int cmd, char* argument);
@@ -141,7 +140,7 @@ char *how_good(CHAR_DATA * ch, int percent)
 		sprintf(out_str, " %s(божественно)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
 	else
 		sprintf(out_str, " %s(недостижимо)%s", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-	sprintf(out_str + strlen(out_str), " %d%%", percent);
+	sprintf(out_str + strlen(out_str), " %d%% ", percent);
 	return out_str;
 }
 
@@ -251,7 +250,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 					can_get_feat(ch, sortpos) ? "[Д]" : "[Н]",
 					feat_info[sortpos].name);
 
-			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
+			if (feat_info[sortpos].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
 				strcat(buf2, buf);
 				j++;
@@ -308,34 +307,23 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 			case LIGHT_WALK_FEAT:
 			case SPELL_CAPABLE_FEAT:
 			case RELOCATE_FEAT:
+			case SHADOW_THROW_FEAT:
 				if (timed_by_feat(ch, sortpos))
 					sprintf(buf, "[%3d] ", timed_by_feat(ch, sortpos));
 				else
 					sprintf(buf, "[-!-] ");
 				break;
 			case POWER_ATTACK_FEAT:
-				if (PRF_FLAGGED(ch, PRF_POWERATTACK))
-					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-				else
-					sprintf(buf, "[-!-] ");
-				break;
 			case GREAT_POWER_ATTACK_FEAT:
-				if (PRF_FLAGGED(ch, PRF_GREATPOWERATTACK))
-					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-				else
-					sprintf(buf, "[-!-] ");
-				break;
 			case AIMING_ATTACK_FEAT:
-				if (PRF_FLAGGED(ch, PRF_AIMINGATTACK))
-					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
-				else
-					sprintf(buf, "[-!-] ");
-				break;
 			case GREAT_AIMING_ATTACK_FEAT:
-				if (PRF_FLAGGED(ch, PRF_GREATAIMINGATTACK))
+			case SKIRMISHER_FEAT:
+			case DOUBLE_THROW_FEAT:
+			case TRIPLE_THROW_FEAT:
+				if (PRF_FLAGGED(ch, getPRFWithFeatureNumber(sortpos)))
 					sprintf(buf, "[-%s*%s-] ", CCIGRN(vict, C_NRM), CCNRM(vict, C_NRM));
 				else
-					sprintf(buf, "[-!-] ");
+					sprintf(buf, "[-:-] ");
 				break;
 			default:
 				sprintf(buf, "      ");
@@ -347,7 +335,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 				sprintf(buf + strlen(buf), "%s\r\n", feat_info[sortpos].name);
 			else
 				sprintf(buf, "[-Н-] %s\r\n", feat_info[sortpos].name);
-			if (feat_info[sortpos].natural_classfeat[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
+			if (feat_info[sortpos].inbornFeatureOfClass[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] || PlayerRace::FeatureCheck((int)GET_KIN(ch),(int)GET_RACE(ch),sortpos))
 			{
 				sprintf(buf2 + strlen(buf2), "    ");
 				strcat(buf2, buf);
@@ -399,7 +387,7 @@ void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats)
 
 	for (int k = 0; k < max_slot; k++)
 		delete[] names[k];
-	
+
 	delete[] names;
 }
 
@@ -407,8 +395,8 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 {
 	int i = 0, bonus = 0;
 
-	sprintf(buf, "Вы владеете следующими умениями :\r\n");
 
+	sprintf(buf, "Вы владеете следующими умениями (можно повысить до %d%%) :\r\n", max_upgradable_skill(ch));
 	strcpy(buf2, buf);
 	if (!IS_NPC(ch)
 		&& !ch->affected.empty())
@@ -417,7 +405,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 		{
 			if (aff->location == APPLY_BONUS_SKILLS) // скушал свиток с скилл бонусом
 			{
-				bonus = aff->modifier; // сколько крут стал 
+				bonus = aff->modifier; // сколько крут стал
 			}
 		}
 	}
@@ -448,6 +436,13 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			case SKILL_WARCRY:
 				sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / HOURS_PER_WARCRY);
 				break;
+			case SKILL_TURN_UNDEAD:
+				if (can_use_feat(ch, EXORCIST_FEAT)) {
+					sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / (HOURS_PER_TURN_UNDEAD - 2));
+				} else {
+					sprintf(buf, "[-%d-] ", (HOURS_PER_DAY - timed_by_skill(ch, sortpos)) / HOURS_PER_TURN_UNDEAD);
+				}
+				break;
 			case SKILL_AID:
 			case SKILL_DRUNKOFF:
 			case SKILL_IDENTIFY:
@@ -455,9 +450,9 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			case SKILL_COURAGE:
 			case SKILL_MANADRAIN:
 			case SKILL_TOWNPORTAL:
-			case SKILL_TURN_UNDEAD:
 			case SKILL_STRANGLE:
 			case SKILL_STUN:
+			case SKILL_REPAIR:
 				if (timed_by_skill(ch, sortpos))
 					sprintf(buf, "[%3d] ", timed_by_skill(ch, sortpos));
 				else
@@ -466,7 +461,7 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			default:
 				sprintf(buf, "      ");
 			}
-			
+
 			sprintf(buf + strlen(buf), "%-23s %s\r\n",
 				skill_info[sortpos].name,
 				how_good(ch, ch->get_skill(sortpos) + bonus));
@@ -504,8 +499,8 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter/* = NULL*/
 			buf2_length += i->length();
 		}
 	}
-
 	send_to_char(buf2, vict);
+
 }
 const char *spells_color(int spellnum )
 {
@@ -549,7 +544,7 @@ const char *spells_color(int spellnum )
 	        default:
 	        	return "&n";
 			break;
-	        }	
+	        }
 }
 
 
@@ -638,7 +633,7 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells)
 
 
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
-				"%s|<%c%c%c%c%c%c%c%c>%s %-30s %-7s&n|", 
+				"%s|<%c%c%c%c%c%c%c%c>%s %-30s %-7s&n|",
 
 				slots[slot_num] % 114 < 10 ? "\r\n" : "  ",
 				IS_SET(GET_SPELL_TYPE(ch, i),
@@ -718,8 +713,8 @@ struct guild_poly_type
 int GUILDS_MONO_USED = 0;
 int GUILDS_POLY_USED = 0;
 
-struct guild_mono_type *guild_mono_info = NULL;
-struct guild_poly_type **guild_poly_info = NULL;
+struct guild_mono_type *guild_mono_info = nullptr;
+struct guild_poly_type **guild_poly_info = nullptr;
 
 void init_guilds(void)
 {
@@ -727,8 +722,9 @@ void init_guilds(void)
 	char name[MAX_INPUT_LENGTH],
 	line[256], line1[256], line2[256], line3[256], line4[256], line5[256], line6[256], *pos;
 	int i, spellnum, skillnum, featnum, num, type = 0, lines = 0, level, pgcount = 0, mgcount = 0;
-	struct guild_poly_type *poly_guild = NULL;
+	std::unique_ptr<struct guild_poly_type, decltype(free) *> poly_guild(nullptr, free);
 	struct guild_mono_type mono_guild;
+	std::unique_ptr<struct guild_learn_type, decltype(free) *> mono_guild_learn(nullptr, free);
 
 	if (!(magic = fopen(LIB_MISC "guilds.lst", "r")))
 	{
@@ -753,7 +749,8 @@ void init_guilds(void)
 				log("Bad format for monoguild header, #s #s #s #s #s need...");
 				graceful_exit(1);
 			}
-			mono_guild.learn_info = NULL;
+			mono_guild_learn.reset();
+			mono_guild.learn_info = nullptr;
 			mono_guild.races = 0;
 			mono_guild.classes = 0;
 			mono_guild.religion = 0;
@@ -776,7 +773,7 @@ void init_guilds(void)
 				 || !strn_cmp(line, "многоклассовая", strlen(line)))
 		{
 			type = 2;
-			poly_guild = NULL;
+			poly_guild.reset();
 			pgcount = 0;
 		}
 		else if (!strn_cmp(line, "master", strlen(line))
@@ -788,8 +785,8 @@ void init_guilds(void)
 				continue;
 			}
 
-			if (!((type == 1 || type == 11) && mono_guild.learn_info) &&
-					!((type == 2 || type == 12) && poly_guild))
+			if (!((type == 1 && mono_guild_learn) || type == 11) &&
+					!((type == 2 && poly_guild) || type == 12))
 			{
 				log("WARNING: Can't define guild info for master %s. Skipped.", line1);
 				continue;
@@ -806,7 +803,8 @@ void init_guilds(void)
 					{
 						RECREATE(guild_mono_info, GUILDS_MONO_USED + 1);
 					}
-					log("Create mono guild for mobile %s", line1);
+					log("Create mono guild %d", GUILDS_MONO_USED + 1);
+					mono_guild.learn_info = mono_guild_learn.release();
 					RECREATE(mono_guild.learn_info, mgcount + 1);
 					(mono_guild.learn_info + mgcount)->skill_no = SKILL_INVALID;
 					(mono_guild.learn_info + mgcount)->feat_no = -1;
@@ -814,13 +812,10 @@ void init_guilds(void)
 					(mono_guild.learn_info + mgcount)->level = -1;
 					guild_mono_info[GUILDS_MONO_USED] = mono_guild;
 					GUILDS_MONO_USED++;
+					type = 11;
 				}
-				else
-                {
-                    log("Assign mono guild for mobile %s", line1);
-                }
+				log("Assign mono guild %d to mobile %s", GUILDS_MONO_USED, line1);
 				ASSIGNMASTER(num, guild_mono, GUILDS_MONO_USED);
-				type = 11;
 			}
 			if (type == 2 || type == 12)
 			{
@@ -834,19 +829,19 @@ void init_guilds(void)
 					{
 						RECREATE(guild_poly_info, GUILDS_POLY_USED + 1);
 					}
-					log("Create poly guild for mobile %s", line1);
-					RECREATE(poly_guild, pgcount + 1);
-					(poly_guild + pgcount)->feat_no = -1;
-					(poly_guild + pgcount)->skill_no = SKILL_INVALID;
-					(poly_guild + pgcount)->spell_no = -1;
-					(poly_guild + pgcount)->level = -1;
-					guild_poly_info[GUILDS_POLY_USED] = poly_guild;
+					log("Create poly guild %d", GUILDS_POLY_USED + 1);
+					auto ptr = poly_guild.release();
+					RECREATE(ptr, pgcount + 1);
+					(ptr + pgcount)->feat_no = -1;
+					(ptr + pgcount)->skill_no = SKILL_INVALID;
+					(ptr + pgcount)->spell_no = -1;
+					(ptr + pgcount)->level = -1;
+					guild_poly_info[GUILDS_POLY_USED] = ptr;
 					GUILDS_POLY_USED++;
+					type = 12;
 				}
-				else
-					log("Assign poly guild for mobile %s", line1);
+				log("Assign poly guild %d to mobile %s", GUILDS_POLY_USED, line1);
 				ASSIGNMASTER(num, guild_poly, GUILDS_POLY_USED);
-				type = 12;
 			}
 		}
 		else if (type == 1)
@@ -882,18 +877,23 @@ void init_guilds(void)
 				log("Use 1-%d level for guilds", LVL_IMMORT);
 				graceful_exit(1);
 			}
-			if (!mono_guild.learn_info)
+
+			auto ptr = mono_guild_learn.release();
+			if (!ptr)
 			{
-				CREATE(mono_guild.learn_info, mgcount + 1);
+				CREATE(ptr, mgcount + 1);
 			}
 			else
 			{
-				RECREATE(mono_guild.learn_info, mgcount + 1);
+				RECREATE(ptr, mgcount + 1);
 			}
-			(mono_guild.learn_info + mgcount)->spell_no = MAX(0, spellnum);
-			(mono_guild.learn_info + mgcount)->skill_no = static_cast<ESkill>(MAX(0, skillnum));
-			(mono_guild.learn_info + mgcount)->feat_no = MAX(0, featnum);
-			(mono_guild.learn_info + mgcount)->level = level;
+			mono_guild_learn.reset(ptr);
+
+			ptr += mgcount;
+			ptr->spell_no = MAX(0, spellnum);
+			ptr->skill_no = static_cast<ESkill>(MAX(0, skillnum));
+			ptr->feat_no = MAX(0, featnum);
+			ptr->level = level;
 			// log("->%d %d %d<-",spellnum,skillnum,level);
 			mgcount++;
 		}
@@ -901,33 +901,37 @@ void init_guilds(void)
 		{
 			if (lines < 7)
 			{
-				log("You need use 7 arguments for poluguild");
+				log("You need use 7 arguments for polyguild");
 				graceful_exit(1);
 			}
-			if (!poly_guild)
+			auto ptr = poly_guild.release();
+			if (!ptr)
 			{
-				CREATE(poly_guild, pgcount + 1);
+				CREATE(ptr, pgcount + 1);
 			}
 			else
 			{
-				RECREATE(poly_guild, pgcount + 1);
+				RECREATE(ptr, pgcount + 1);
 			}
-			(poly_guild + pgcount)->races = 0;
-			(poly_guild + pgcount)->classes = 0;
-			(poly_guild + pgcount)->religion = 0;
-			(poly_guild + pgcount)->alignment = 0;
+			poly_guild.reset(ptr);
+
+			ptr += pgcount;
+			ptr->races = 0;
+			ptr->classes = 0;
+			ptr->religion = 0;
+			ptr->alignment = 0;
 			for (i = 0; *(line + i); i++)
 				if (strchr("!1xX", *(line + i)))
-					SET_BIT((poly_guild + pgcount)->races, (1 << i));
+					SET_BIT(ptr->races, (1 << i));
 			for (i = 0; *(line1 + i); i++)
 				if (strchr("!1xX", *(line1 + i)))
-					SET_BIT((poly_guild + pgcount)->classes, (1 << i));
+					SET_BIT(ptr->classes, (1 << i));
 			for (i = 0; *(line2 + i); i++)
 				if (strchr("!1xX", *(line2 + i)))
-					SET_BIT((poly_guild + pgcount)->religion, (1 << i));
+					SET_BIT(ptr->religion, (1 << i));
 			for (i = 0; *(line3 + i); i++)
 				if (strchr("!1xX", *(line3 + i)))
-					SET_BIT((poly_guild + pgcount)->alignment, (1 << i));
+					SET_BIT(ptr->alignment, (1 << i));
 			if ((spellnum = atoi(line4)) == 0 || spellnum > MAX_SPELLS)
 			{
 				spellnum = fix_name_and_find_spell_num(line4);
@@ -956,10 +960,10 @@ void init_guilds(void)
 				log("Use 1-%d level for guilds", LVL_IMMORT);
 				graceful_exit(1);
 			}
-			(poly_guild + pgcount)->spell_no = MAX(0, spellnum);
-			(poly_guild + pgcount)->skill_no = static_cast<ESkill>(MAX(0, skillnum));
-			(poly_guild + pgcount)->feat_no = MAX(0, featnum);
-			(poly_guild + pgcount)->level = level;
+			ptr->spell_no = MAX(0, spellnum);
+			ptr->skill_no = static_cast<ESkill>(MAX(0, skillnum));
+			ptr->feat_no = MAX(0, featnum);
+			ptr->level = level;
 			// log("->%d %d %d<-",spellnum,skillnum,level);
 			pgcount++;
 		}
@@ -1025,7 +1029,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const auto skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& (!ch->get_skill(skill_no)
+					&& (!ch->get_trained_skill(skill_no)
 						|| IS_GRGOD(ch))
 					&& can_get_skill(ch, skill_no))
 				{
@@ -1084,7 +1088,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const ESkill skill_no = (guild_mono_info[info_num].learn_info + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
+					&& !ch->get_trained_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 				{
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
@@ -1113,17 +1117,17 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					if (IS_SET(bits, SPELL_POTION))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-						ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_skill(SKILL_CREATE_POTION)));
+						ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(SKILL_CREATE_POTION)));
 					}
 					if (IS_SET(bits, SPELL_WAND))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-						ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_skill(SKILL_CREATE_WAND)));
+						ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(SKILL_CREATE_WAND)));
 					}
 					if (IS_SET(bits, SPELL_SCROLL))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-						ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_skill(SKILL_CREATE_SCROLL)));
+						ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 					}
 					found = TRUE;
 				}
@@ -1206,7 +1210,7 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 				if (skill_no == (guild_mono_info[info_num].learn_info + i)->skill_no)
 				{
-					if (ch->get_skill(skill_no))
+					if (ch->get_trained_skill(skill_no))
 					{
 						act("$N сказал$g вам : 'Ничем помочь не могу, ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
@@ -1304,17 +1308,17 @@ int guild_mono(CHAR_DATA *ch, void *me, int cmd, char* argument)
 						if (IS_SET(bits, SPELL_POTION))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-							ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_skill(SKILL_CREATE_POTION)));
+							ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(SKILL_CREATE_POTION)));
 						}
 						if (IS_SET(bits, SPELL_WAND))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-							ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_skill(SKILL_CREATE_WAND)));
+							ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(SKILL_CREATE_WAND)));
 						}
 						if (IS_SET(bits, SPELL_SCROLL))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_skill(SKILL_CREATE_SCROLL)));
+							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 						}
 					}
 					found = TRUE;
@@ -1386,7 +1390,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& (!ch->get_skill(skill_no)
+					&& (!ch->get_trained_skill(skill_no)
 						|| IS_GRGOD(ch))
 					&& can_get_skill(ch, skill_no))
 				{
@@ -1455,7 +1459,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 				const ESkill skill_no = (guild_poly_info[info_num] + i)->skill_no;
 				bits = skill_no;
 				if (SKILL_INVALID != skill_no
-					&& !ch->get_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
+					&& !ch->get_trained_skill(skill_no))  	// sprintf(buf, "$N научил$G вас умению %s\"%s\"\%s",
 				{
 					//             CCCYN(ch, C_NRM), skill_name(skill_no), CCNRM(ch, C_NRM));
 					// act(buf,FALSE,ch,0,victim,TO_CHAR);
@@ -1496,17 +1500,17 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 					if (IS_SET(bits, SPELL_POTION))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-						ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_skill(SKILL_CREATE_POTION)));
+						ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(SKILL_CREATE_POTION)));
 					}
 					if (IS_SET(bits, SPELL_WAND))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-						ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_skill(SKILL_CREATE_WAND)));
+						ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(SKILL_CREATE_WAND)));
 					}
 					if (IS_SET(bits, SPELL_SCROLL))
 					{
 						SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-						ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_skill(SKILL_CREATE_SCROLL)));
+						ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 					}
 					found = TRUE;
 				}
@@ -1546,7 +1550,7 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 				if (skill_no == (guild_poly_info[info_num] + i)->skill_no)
 				{
-					if (ch->get_skill(skill_no))
+					if (ch->get_trained_skill(skill_no))
 					{
 						act("$N сказал$G вам : 'Ты уже владеешь этим умением.'", FALSE, ch, 0, victim, TO_CHAR);
 					}
@@ -1705,17 +1709,17 @@ int guild_poly(CHAR_DATA *ch, void *me, int cmd, char* argument)
 						if (IS_SET(bits, SPELL_POTION))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_POTION);
-							ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_skill(SKILL_CREATE_POTION)));
+							ch->set_skill(SKILL_CREATE_POTION, MAX(10, ch->get_trained_skill(SKILL_CREATE_POTION)));
 						}
 						if (IS_SET(bits, SPELL_WAND))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_WAND);
-							ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_skill(SKILL_CREATE_WAND)));
+							ch->set_skill(SKILL_CREATE_WAND, MAX(10, ch->get_trained_skill(SKILL_CREATE_WAND)));
 						}
 						if (IS_SET(bits, SPELL_SCROLL))
 						{
 							SET_BIT(GET_SPELL_TYPE(ch, spell_no), SPELL_SCROLL);
-							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_skill(SKILL_CREATE_SCROLL)));
+							ch->set_skill(SKILL_CREATE_SCROLL, MAX(10, ch->get_trained_skill(SKILL_CREATE_SCROLL)));
 						}
 					}
 					found = TRUE;
@@ -3073,25 +3077,8 @@ void mayor(CHAR_DATA *ch, void *me, int cmd, char* argument)
 // *  General special procedures for mobiles                          *
 // ********************************************************************
 
-int snake(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
-{
-	if (cmd)
-		return (FALSE);
-
-	if (GET_POS(ch) != POS_FIGHTING)
-		return (FALSE);
-
-	if (ch->get_fighting() && (ch->get_fighting()->in_room == ch->in_room) && (number(0, 42 - GET_LEVEL(ch)) == 0))
-	{
-		act("$n bites $N!", 1, ch, 0, ch->get_fighting(), TO_NOTVICT);
-		act("$n bites you!", 1, ch, 0, ch->get_fighting(), TO_VICT);
-		call_magic(ch, ch->get_fighting(), NULL, world[ch->in_room], SPELL_POISON, GET_LEVEL(ch), CAST_SPELL);
-		return (TRUE);
-	}
-	return (FALSE);
-}
-
-int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
+//int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
+/*
 {
 	if (cmd)
 		return (FALSE);
@@ -3113,7 +3100,7 @@ int thief(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 
 	return FALSE;
 }
-
+*/
 int magic_user(CHAR_DATA *ch, void* /*me*/, int cmd, char* /*argument*/)
 {
 	if (cmd || GET_POS(ch) != POS_FIGHTING)

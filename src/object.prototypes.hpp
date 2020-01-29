@@ -2,6 +2,7 @@
 #define __OBJECT_PROTOTYPES_HPP__
 
 #include "obj.hpp"
+#include "logger.hpp"
 
 #include <deque>
 
@@ -41,9 +42,17 @@ public:
 	auto begin() const { return m_prototypes.begin(); }
 	auto end() const { return m_prototypes.end(); }
 	auto size() const { return m_prototypes.size(); }
-	const auto& at(const size_t index) const { return m_prototypes.at(index); }
+	const auto& at(const size_t index) const {
+	    return m_prototypes[index];
+	}
 
-	const auto& operator[](size_t index) const { return m_prototypes[index]; }
+	const auto& operator[](size_t index) const {
+        if (index >= m_prototypes.size() )
+        {
+			mudlog("неизвестный прототип объекта", BRF, LVL_BUILDER, SYSLOG, 1);
+        	return m_prototypes[0];
+        }
+	    return m_prototypes[index]; }
 	/** @} */
 
 	size_t add(CObjectPrototype* prototype, const obj_vnum vnum);

@@ -7,8 +7,8 @@
 #include "comm.h"
 #include "password.hpp"
 #include "utils.h"
-
 #include <boost/algorithm/string.hpp>
+#include "zone.table.hpp"
 
 std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 extern std::string GetNameByUnique(long unique, bool god);
@@ -20,15 +20,30 @@ extern bool CompareParam(const std::string & buffer, const char *arg, bool full)
 #define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
 
-const std::shared_ptr<Account> Account::get_account(const std::string& email)
-{
+const std::shared_ptr<Account> Account::get_account(const std::string& email) {
 	const auto search_element = accounts.find(email);
-	if(search_element != accounts.end())
-	{
+	if(search_element != accounts.end()) {
 		return search_element->second;
 	}
-
 	return nullptr;
+}
+int  Account::zero_hryvn(CHAR_DATA *ch, int val) {
+	const int zone_lvl = zone_table[world[ch->in_room]->zone].mob_level;
+	for (auto &plr : this->players_list){
+		std::string name = GetNameByUnique(plr);
+		if (name.empty()) {
+			continue;
+		}
+
+		const auto& player = player_table[get_ptable_by_unique(plr)];
+		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)){
+			if (PRF_FLAGGED(ch, PRF_TESTER)) {
+				send_to_char(ch, "У чара %s в расчете %d гривен, тут будет 0, левел %d морты %d обнуляем!!!\r\n", player.name(), val, player.level, player.remorts);
+			}
+			val = 0;
+		}
+	}
+	return val;
 }
 
 void Account::complete_quest(int id)
@@ -55,8 +70,16 @@ void Account::show_list_players(DESCRIPTOR_DATA *d)
 	int count = 1;
 	for (auto &x : this->players_list)
 	{
+		std::string name = GetNameByUnique(x);
+		if (name.empty()){
+//			SEND_TO_Q("тут удаленный чар, удаляю\r\n", d);  внутри цикла удалять нельзя :( надо переделать
+//			this->Account::remove_player(x);
+//			Account::remove_player(x);
+			continue;
+		}
 		SEND_TO_Q((std::to_string(count) + ") ").c_str(), d);
-		SEND_TO_Q(GetNameByUnique(x, false).c_str(), d);
+		name[0] = UPPER(name[0]);
+		SEND_TO_Q(name.c_str(), d);
 		SEND_TO_Q("\r\n", d);
 		count++;
 	}
@@ -191,7 +214,6 @@ void Account::add_login(const std::string& ip_addr)
 	tmp.count = 1;
 	this->history_logins.insert(std::pair<std::string, login_index>(ip_addr, tmp));
 }
-
 /* Показ хистори логинов */
 void Account::show_history_logins(DESCRIPTOR_DATA* d)
 {
@@ -219,7 +241,7 @@ bool Account::quest_is_available(int id)
 	{
 		if (x.id == id)
 		{
-			if (x.time != 0 && (time(0) - x.time) < 86400)
+			if (x.time != 0 && (time(0) - x.time) < 82800)
 			{
 				return false;
 			}

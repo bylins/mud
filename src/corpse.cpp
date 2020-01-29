@@ -506,6 +506,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	corpse->set_wear_flag(EWearFlag::ITEM_WEAR_TAKE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NODONATE);
 	corpse->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	corpse->set_extra_flag(EExtraFlag::ITEM_NORENT);
 	corpse->set_val(0, 0);	// You can't store stuff in a corpse
 	corpse->set_val(2, IS_NPC(ch) ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, OBJ_DATA::CORPSE_INDICATOR);	// corpse identifier

@@ -27,7 +27,7 @@ extern const char *attach_name[];
 #define DG_NO_TRIG         256	// don't check act trigger   //
 
 // mob trigger types //
-#define MTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //
+#define MTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //						
 #define MTRIG_RANDOM           (1 << 1)	// checked randomly           //
 #define MTRIG_COMMAND          (1 << 2)	// character types a command  //
 #define MTRIG_SPEECH           (1 << 3)	// a char says a word/phrase  //
@@ -39,9 +39,9 @@ extern const char *attach_name[];
 #define MTRIG_RECEIVE          (1 << 9)	// character is given obj     //
 #define MTRIG_FIGHT            (1 << 10)	// each pulse while fighting  //
 #define MTRIG_HITPRCNT         (1 << 11)	// fighting and below some hp //
-#define MTRIG_BRIBE	       (1 << 12)	// coins are given to mob     //
+#define MTRIG_BRIBE			   (1 << 12)	// coins are given to mob     //
 #define MTRIG_LOAD             (1 << 13)	// the mob is loaded          //
-#define MTRIG_MEMORY           (1 << 14)	// mob see's someone remembered //
+#define MTRIG_KILL			   (1 << 14) //trig for mob's kill list
 #define MTRIG_DAMAGE           (1 << 15)	// someone damage mob           //
 #define MTRIG_GREET_PC         (1 << 16)
 #define MTRIG_GREET_PC_ALL     (1 << 17)
@@ -73,6 +73,7 @@ extern const char *attach_name[];
 #define OTRIG_PICK             (1 << 18)
 #define OTRIG_GREET_ALL_PC     (1 << 19)	// любой персонаж вошел в комнату //
 #define OTRIG_TIMECHANGE       (1 << 20) // смена времени
+#define OTRIG_PUT              (1 << 21) // положили предмет в контейнер
 
 // wld trigger types //
 #define WTRIG_GLOBAL           (1 << 0)	// check even if zone empty   //
@@ -148,6 +149,7 @@ public:
 	TRIG_DATA& operator=(const TRIG_DATA& right);
 	TRIG_DATA(const sh_int rnum, const char* name, const long trigger_type);
 	TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type, const long trigger_type);
+	TRIG_DATA(const sh_int rnum, std::string&& name, const byte attach_type, const long trigger_type);
 
 	virtual ~TRIG_DATA() {}	// make constructor virtual to be able to create a mock for this class
 
@@ -338,10 +340,12 @@ int receive_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, OBJ_DATA * obj);
 void bribe_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor, int amount);
 int wear_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int where);
 int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
+int put_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, OBJ_DATA *cont);
 int command_mtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_otrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int command_wtrigger(CHAR_DATA * actor, char *cmd, const char *argument);
 int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor);
+int kill_mtrigger(CHAR_DATA* ch, CHAR_DATA* actor);
 int fight_mtrigger(CHAR_DATA * ch);
 void hitprcnt_mtrigger(CHAR_DATA * ch);
 int damage_mtrigger(CHAR_DATA * damager, CHAR_DATA * victim);
@@ -368,6 +372,9 @@ void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);
 
 void script_log(const char *msg, const int type = 0);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
 void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);
+
+using obj2trigers_t = std::unordered_map<obj_rnum, std::list<rnum_t>>;
+extern obj2trigers_t& obj2trigers;
 
 class GlobalTriggersStorage
 {

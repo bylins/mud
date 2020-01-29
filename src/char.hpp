@@ -24,7 +24,6 @@
 #include <map>
 
 // These data contain information about a players time data
-
 struct time_data
 {
 	time_t birth;		// This represents the characters age
@@ -84,12 +83,15 @@ public:
 	int initiative_add;
 	int poison_add;
 	int pray_add;
+	ubyte percent_exp_add;
+	ubyte percent_dam_add;
+	ubyte percent_spell_blink;
 	std::array<sh_int, 4> apply_saving_throw;		// Saving throw (Bonuses)
 	std::array<sh_int, MAX_NUMBER_RESISTANCE> apply_resistance_throw;	// Сопротивление (резисты) к магии, ядам и крит. ударам
 	ubyte mresist;
 	ubyte aresist;
 	ubyte presist;	// added by WorM(Видолюб) по просьбе <сумасшедшего> (зачеркнуто) безбашенного билдера поглощение физ.урона в %
-	
+
 };
 
 // Char's abilities.
@@ -107,9 +109,9 @@ struct char_ability_data
 // Char's points.
 struct char_point_data
 {
-	int hit;	
+	int hit;
 	sh_int move;
-	
+
 	sh_int max_move;	// Max move for PC/NPC
 	int max_hit;		// Max hit for PC/NPC
 };
@@ -160,7 +162,7 @@ struct mob_special_data
 	FLAG_DATA npc_flags;
 	byte ExtraAttack;
 	byte LikeWork;
-	byte MaxFactor;
+	int MaxFactor;
 	int GoldNoDs;
 	int GoldSiDs;
 	int HorseState;
@@ -270,7 +272,7 @@ struct player_special_data
 	ignores_t ignores;
 	char *Karma; // Записи о поощрениях, наказаниях персонажа
 
-	struct logon_data * logons; //Записи о входах чара
+	std::vector<logon_data> logons; //Записи о входах чара
 
 // Punishments structs
 	punish_data pmute;
@@ -318,8 +320,14 @@ enum
 	ATTACKER_ROUNDS
 };
 
-typedef std::map<ESkill/* номер скилла */, int/* значение скилла */> CharSkillsType;
-//typedef __gnu_cxx::hash_map < int/* номер скилла */, int/* значение скилла */ > CharSkillsType;
+struct CharacterSkillDataType {
+	int skillLevel;
+	unsigned cooldown;
+
+	void decreaseCooldown(unsigned value);
+};
+
+typedef std::map<ESkill, CharacterSkillDataType> CharSkillsType;
 
 class ProtectedCharacterData;	// to break up cyclic dependencies
 
@@ -376,7 +384,6 @@ public:
 	void clear_skills();
 	int get_skill(const ESkill skill_num) const;
 	int get_skills_count() const;
-	void crop_skills();
 	int get_equipped_skill(const ESkill skill_num) const;
 	int get_trained_skill(const ESkill skill_num) const;
 
@@ -415,8 +422,12 @@ public:
 	void set_name(const char *name);
 	const std::string& get_pc_name() const { return name_; }
 	void set_pc_name(const char *name);
+	void set_pc_name(const std::string& name) {name_ = name; }
+	void set_pc_name(std::string&& name) {name_ = name; }
 	const std::string& get_npc_name() const { return short_descr_; }
 	void set_npc_name(const char *name);
+	void set_npc_name(const std::string& name) {short_descr_ = name; }
+	void set_npc_name(std::string&& name) {short_descr_ = name; }
 	const std::string & get_name_str() const;
 	const char* get_pad(unsigned pad) const;
 	void set_pad(unsigned pad, const char* s);
@@ -540,7 +551,7 @@ public:
 	** Returns true if character is mob and located in used zone.
 	**/
 	bool in_used_zone() const;
-	
+
 	/**
 	 * Возвращает коэффициент штрафа за состояние
 	**/
@@ -595,11 +606,18 @@ public:
 	void inc_souls();
 	void dec_souls();
 	int get_souls();
-	
+
 	unsigned get_wait() const { return m_wait; }
 	void set_wait(const unsigned _) { m_wait = _; }
 	void wait_dec() { m_wait -= 0 < m_wait ? 1 : 0; }
 	void wait_dec(const unsigned value) { m_wait -= value <= m_wait ? value : m_wait; }
+
+	void setSkillCooldown(ESkill skillID, unsigned cooldown);
+	void decreaseSkillsCooldowns(unsigned value);
+	bool haveSkillCooldown(ESkill skillID);
+	bool haveCooldown(ESkill skillID);
+	int getSkillCooldownInPulses(ESkill skillID);
+	unsigned getSkillCooldown(ESkill skillID);
 
 	virtual void reset();
 
@@ -612,6 +630,7 @@ public:
 	void set_role(const role_t& new_role) { role_ = new_role; }
 	void msdp_report(const std::string& name);
 
+	void removeGroupFlags();
 	void add_follower(CHAR_DATA* ch);
 	/** Do NOT call this before having checked if a circle of followers
 	* will arise. CH will follow leader
@@ -646,7 +665,7 @@ private:
 
 	void purge();
 
-	CharSkillsType skills;  // список изученных скиллов
+	CharSkillsType skills;  	// список изученных скиллов
 	////////////////////////////////////////////////////////////////////////////
 	CHAR_DATA *protecting_; // цель для 'прикрыть'
 	CHAR_DATA *touching_;   // цель для 'перехватить'
@@ -717,7 +736,7 @@ private:
 	MorphPtr current_morph_;
 	// аналог класса у моба
 	role_t role_;
-	// для боссов: список атакующих (и им сочувствующих), uid->atacker
+	// для боссов: список атакующих (и им сочувствующих), uid->attacker
 	std::unordered_map<int, attacker_node> attackers_;
 	// для боссов: таймер (в секундах), включающийся по окончанию боя
 	// через который происходит сброс списка атакующих и рефреш моба
@@ -731,6 +750,7 @@ private:
 	int souls;
 
 public:
+	bool isInSameRoom(const CHAR_DATA *ch) const {return (this->in_room == ch->in_room);};
 	room_rnum in_room;	// Location (real room number)
 
 private:
@@ -738,7 +758,7 @@ private:
 	void print_leaders_chain(std::ostream& ss) const;
 
 	unsigned m_wait;			// wait for how many loops
-	CHAR_DATA* m_master;	// Who is char following?
+	CHAR_DATA* m_master;		// Who is char following?
 
 public:
 	int punctual_wait;		// wait for how many loops (punctual style)
@@ -798,6 +818,8 @@ public:
 	bool agrobd;		// показывает, агробд или нет
 
 	std::map<int, temporary_spell_data> temp_spells;
+
+	std::vector<int> kill_list; //used only for MTRIG_KILL
 };
 
 inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const
@@ -817,10 +839,10 @@ inline void CHAR_DATA::clear_ignores()
 	get_player_specials()->ignores.clear();
 }
 
-inline int GET_INVIS_LEV(const CHAR_DATA* ch) 
-{ 
+inline int GET_INVIS_LEV(const CHAR_DATA* ch)
+{
 	if (ch->player_specials->saved.invis_level)
-		return ch->player_specials->saved.invis_level; 
+		return ch->player_specials->saved.invis_level;
 	else
 		return 0;
 }
@@ -929,13 +951,37 @@ inline int VPOSI_MOB(const CHAR_DATA *ch, const int stat_id, const int val)
 }
 inline int VPOSI_MOB(const CHAR_DATA::shared_ptr& ch, const int stat_id, const int val) { return VPOSI_MOB(ch.get(), stat_id, val); }
 
-inline auto GET_REAL_DEX(const CHAR_DATA* ch)
-{
+inline auto GET_REAL_STR(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 0, ch->get_str() + ch->get_str_add());
+};
+inline auto GET_REAL_DEX(const CHAR_DATA* ch) {
 	return VPOSI_MOB(ch, 1, ch->get_dex() + ch->get_dex_add());
 }
+inline auto GET_REAL_CON(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 2, ch->get_con() + ch->get_con_add());
+};
+inline auto GET_REAL_WIS(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 3, ch->get_wis() + ch->get_wis_add());
+};
+inline auto GET_REAL_INT(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 4, ch->get_int() + ch->get_int_add());
+};
+inline auto GET_REAL_CHA(const CHAR_DATA* ch) {
+	return VPOSI_MOB(ch, 5, ch->get_cha() + ch->get_cha_add());
+};
 
+const short CAP_SKILLS = 200;
+const byte  MAX_EXP_PERCENT = 80;
+
+inline auto MAX_EXP_RMRT_PERCENT(const CHAR_DATA* ch) {
+	return MIN(CAP_SKILLS, MAX_EXP_PERCENT + ch->get_remort() * 5);
+}
+inline auto max_upgradable_skill(const CHAR_DATA *ch) {
+	return MIN(MAX_EXP_RMRT_PERCENT(ch), wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20.0);
+};
 void change_fighting(CHAR_DATA * ch, int need_stop);
 
 #endif // CHAR_HPP_INCLUDED
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

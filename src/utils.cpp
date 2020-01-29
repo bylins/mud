@@ -137,7 +137,7 @@ int MAX(int a, int b)
 	return (a > b ? a : b);
 }
 
-char* first_letter(char* txt)
+const char* first_letter(const char* txt)
 {
 	if (txt)
 	{
@@ -171,9 +171,9 @@ char* first_letter(char* txt)
 	return txt;
 }
 
-char *colorCAP(char *txt) 
+char *colorCAP(char *txt)
 {
-	char* letter = first_letter(txt);
+	char* letter = const_cast<char *>(first_letter(txt));
 	if (letter && *letter)
 	{
 		*letter = UPPER(*letter);
@@ -181,14 +181,40 @@ char *colorCAP(char *txt)
 	return txt;
 }
 
+std::string& colorCAP(std::string& txt)
+{
+	size_t pos = first_letter(txt.c_str()) - txt.c_str();
+	txt[pos] = UPPER(txt[pos]);
+	return txt;
+}
+
+// rvalue variant
+std::string& colorCAP(std::string&& txt)
+{
+	return colorCAP(txt);
+}
+
 char *colorLOW(char *txt)
 {
-	char* letter = first_letter(txt);
+	char* letter = const_cast<char *>(first_letter(txt));
 	if (letter && *letter)
 	{
 		*letter = LOWER(*letter);
 	}
 	return txt;
+}
+
+std::string& colorLOW(std::string& txt)
+{
+	size_t pos = first_letter(txt.c_str()) - txt.c_str();
+	txt[pos] = LOWER(txt[pos]);
+	return txt;
+}
+
+// rvalue variant
+std::string& colorLOW(std::string&& txt)
+{
+	return colorLOW(txt);
 }
 
 char * CAP(char *txt)
@@ -260,12 +286,39 @@ int get_virtual_race(CHAR_DATA *mob)
 	return -1;
 }
 
+
+CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
+	std::vector<CHAR_DATA *> tmp_list;
+	CHAR_DATA *victim;
+	CHAR_DATA *k;
+	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+		return nullptr;
+	if (ch->has_master()) {
+		k = ch->get_master();
+	}
+	else {
+		k = ch;
+	}
+	for (follow_type *i = k->followers; i; i = i->next) {
+		if (!IS_NPC(k) && !IS_CHARMICE(i->follower) && (k != i->follower) && (k->in_room == i->follower->in_room)) {
+			tmp_list.push_back(i->follower);
+		}
+	}
+	if (tmp_list.empty()) {
+		return nullptr;
+	}
+	tmp_list.push_back(k); // засунем в список лидера
+	victim = tmp_list.at(number(0, tmp_list.size() - 1));
+	return victim;
+}
+
 /*
  * str_cmp: a case-insensitive version of strcmp().
  * Returns: 0 if equal, > 0 if arg1 > arg2, or < 0 if arg1 < arg2.
  *
  * Scan until strings are found different or we reach the end of both.
  */
+
 int str_cmp(const char *arg1, const char *arg2)
 {
 	int chk, i;
@@ -709,7 +762,6 @@ void check_horse(CHAR_DATA * ch)
 // при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
 bool stop_follower(CHAR_DATA * ch, int mode)
 {
-	CHAR_DATA *master;
 	struct follow_type *j, *k;
 	int i;
 
@@ -752,7 +804,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 		if (!ch->get_master()->followers
 			&& !ch->get_master()->has_master())
 		{
-			AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
+			//AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
+			ch->get_master()->removeGroupFlags();
 		}
 		free(k);
 	}
@@ -770,10 +823,10 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			free(j);
 		}
 	}
-	master = ch->get_master();
-	ch->set_master(nullptr);
 
-	AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+	ch->set_master(nullptr);
+	//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+	ch->removeGroupFlags();
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
@@ -805,34 +858,6 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 			else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
 			{
 				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
-			}
-			else
-			{
-				if (master &&
-						!IS_SET(mode, SF_MASTERDIE) &&
-						ch->in_room == IN_ROOM(master) &&
-						CAN_SEE(ch, master) && !ch->get_fighting() &&
-						!ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))   //Polud - ну не надо агрить в мирках, незачем это
-				{
-					if (number(1, GET_REAL_INT(ch) * 2) > GET_REAL_CHA(master))
-					{
-						act("$n посчитал$g, что вы заслуживаете смерти!",
-							FALSE, ch, 0, master, TO_VICT | CHECK_DEAF);
-						act("$n заорал$g : \"Ты долго водил$G меня за нос, но дальше так не пойдет!\""
-						    "              \"Теперь только твоя смерть может искупить твой обман!!!\"",
-						    TRUE, ch, 0, master, TO_NOTVICT | CHECK_DEAF);
-						set_fighting(ch, master);
-					}
-				}
-				else
-				{
-					if (master
-						&& !IS_SET(mode, SF_MASTERDIE)
-						&& CAN_SEE(ch, master) && MOB_FLAGGED(ch, MOB_MEMORY))
-					{
-						remember(ch, master);
-					}
-				}
 			}
 		}
 	}
@@ -2071,7 +2096,7 @@ size_t strl_cpy(char *dst, const char *src, size_t siz)
 int get_real_dr(CHAR_DATA *ch)
 {
 	int dd = 0;
-// Инициализация массива для дальнейшего бонуса попаданий/повреждений от количества перевоплощений	
+// Инициализация массива для дальнейшего бонуса попаданий/повреждений от количества перевоплощений
 	int dam[36] = {0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,5,5,5,6,6,6,6,6,6,6,7,7,7,7,7,7,8,8,8,8,8};
         if (IS_SMITH(ch) || IS_GUARD(ch) || IS_RANGER(ch))  // Бонус имеют только Дружинники, охотники, кузнецы
            dd = dam[MIN(35, GET_REMORT(ch))]; //кап на 35+ морт
@@ -2968,7 +2993,7 @@ bool ParseFilter::init_realtime(const char *str)
 		return false;
 	}
 
-	if (!isdigit(static_cast<unsigned int>(str[0])) 
+	if (!isdigit(static_cast<unsigned int>(str[0]))
 		|| !isdigit(static_cast<unsigned int>(str[1]))
 		|| !isdigit(static_cast<unsigned int>(str[3]))
 		|| !isdigit(static_cast<unsigned int>(str[4]))
@@ -3740,7 +3765,26 @@ std::string ParseFilter::print() const
 	return buffer;
 }
 
-const char a_lcc_table[] = {
+const char a_ucc_table[256] = {
+	'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',	//15
+	'\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f',	//31
+	'\x20', '\x21', '\x22', '\x23', '\x24', '\x25', '\x26', '\x27', '\x28', '\x29', '\x2a', '\x2b', '\x2c', '\x2d', '\x2e', '\x2f',	//47
+	'\x30', '\x31', '\x32', '\x33', '\x34', '\x35', '\x36', '\x37', '\x38', '\x39', '\x3a', '\x3b', '\x3c', '\x3d', '\x3e', '\x3f',	//63
+	'\x40', '\x41', '\x42', '\x43', '\x44', '\x45', '\x46', '\x47', '\x48', '\x49', '\x4a', '\x4b', '\x4c', '\x4d', '\x4e', '\x4f',	//79
+	'\x50', '\x51', '\x52', '\x53', '\x54', '\x55', '\x56', '\x57', '\x58', '\x59', '\x5a', '\x5b', '\x5c', '\x5d', '\x5e', '\x5f',	//95
+	'\x60', '\x41', '\x42', '\x43', '\x44', '\x45', '\x46', '\x47', '\x48', '\x49', '\x4a', '\x4b', '\x4c', '\x4d', '\x4e', '\x4f',	//111
+	'\x50', '\x51', '\x52', '\x53', '\x54', '\x55', '\x56', '\x57', '\x58', '\x59', '\x5a', '\x7b', '\x7c', '\x7d', '\x7e', '\x7f',	//127
+	'\x80', '\x81', '\x82', '\x83', '\x84', '\x85', '\x86', '\x87', '\x88', '\x89', '\x8a', '\x8b', '\x8c', '\x8d', '\x8e', '\x8f',	//143
+	'\x90', '\x91', '\x92', '\x93', '\x94', '\x95', '\x96', '\x97', '\x98', '\x99', '\x9a', '\x9b', '\x9c', '\x9d', '\x9e', '\x9f',	//159
+	'\xa0', '\xa1', '\xa2', '\xb3', '\xa4', '\xa5', '\xa6', '\xa7', '\xa8', '\xa9', '\xaa', '\xab', '\xac', '\xad', '\xae', '\xaf',	//175
+	'\xb0', '\xb1', '\xb2', '\xb3', '\xb4', '\xb5', '\xb6', '\xb7', '\xb8', '\xb9', '\xba', '\xbb', '\xbc', '\xbd', '\xbe', '\xbf',	//191
+	'\xe0', '\xe1', '\xe2', '\xe3', '\xe4', '\xe5', '\xe6', '\xe7', '\xe8', '\xe9', '\xea', '\xeb', '\xec', '\xed', '\xee', '\xef',	//207
+	'\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7', '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff',	//223
+	'\xe0', '\xe1', '\xe2', '\xe3', '\xe4', '\xe5', '\xe6', '\xe7', '\xe8', '\xe9', '\xea', '\xeb', '\xec', '\xed', '\xee', '\xef',	//239
+	'\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7', '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'	//255
+};
+
+const char a_lcc_table[256] = {
 	'\x00', '\x01', '\x02', '\x03', '\x04', '\x05', '\x06', '\x07', '\x08', '\x09', '\x0a', '\x0b', '\x0c', '\x0d', '\x0e', '\x0f',
 	'\x10', '\x11', '\x12', '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19', '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f',
 	'\x20', '\x21', '\x22', '\x23', '\x24', '\x25', '\x26', '\x27', '\x28', '\x29', '\x2a', '\x2b', '\x2c', '\x2d', '\x2e', '\x2f',
@@ -3759,7 +3803,7 @@ const char a_lcc_table[] = {
 	'\xd0', '\xd1', '\xd2', '\xd3', '\xd4', '\xd5', '\xd6', '\xd7', '\xd8', '\xd9', '\xda', '\xdb', '\xdc', '\xdd', '\xde', '\xdf'
 };
 
-const bool a_isalnum_table[] = {
+const bool a_isalnum_table[256] = {
 	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
 	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
 	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
@@ -3795,6 +3839,101 @@ const bool a_isdigit_table[256] = {
 	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
 	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,
 	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
+};
+
+const bool a_isupper_table[256] = {
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//15
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//31
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//47
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//63
+	false, true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//79
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false, false, false, false, false,	//95
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//111
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//127
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//143
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//159
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//175
+	false, false, false, true,  false, false, false, false, false, false, false, false, false, false, false, false,	//191
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//207
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//223
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//239
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true	//255
+};
+
+const bool a_isxdigit_table[256] = {
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//15
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//31
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//47
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false, false, false, false, false, false,	//63
+	false, true,  true,  true,  true,  true,  true,  false, false, false, false, false, false, false, false, false,	//79
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//95
+	false, true,  true,  true,  true,  true,  true,  false, false, false, false, false, false, false, false, false,	//111
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//127
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//143
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//159
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//175
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//191
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//207
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//223
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//239
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false	//255
+};
+
+const bool a_isalpha_table[256] = {
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//15
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//31
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//47
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//63
+	false, true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//79
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false, false, false, false, false,	//95
+	false, true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//111
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false, false, false, false, false,	//127
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//143
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//159
+	false, false, false, true,  false, false, false, false, false, false, false, false, false, false, false, false,	//175
+	false, false, false, true,  false, false, false, false, false, false, false, false, false, false, false, false,	//191
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//207
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//223
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//239
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true	//255
+};
+
+const bool a_islower_table[256] = {
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//15
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//31
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//47
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//63
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//79
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//95
+	false, true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//111
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  false, false, false, false, false,	//127
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//143
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//159
+	false, false, false, true,  false, false, false, false, false, false, false, false, false, false, false, false,	//175
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//191
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//207
+	true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,  true,	//223
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//239
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false	//255
+};
+
+const bool a_isspace_table[256] = {
+	true, false, false, false, false, false, false, false, false, true,  true,  true,  true,  true,  false, false,	//15
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//31
+	true,  false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//47
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//63
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//79
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//95
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//111
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//127
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//143
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//159
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//175
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//191
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//207
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//223
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false,	//239
+	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false	//255
 };
 
 #include <iostream>
@@ -3945,14 +4084,14 @@ void utf8_to_koi(char *str_i, char *str_o)
 			// unexpected as a first byte in a sequence, skip
 		}
 		else if (c < 0xE0)
-		{ 
+		{
 			// one more byte to follow, must be b10xxxxxx
 			unsigned char c1 = static_cast<unsigned char>(*str_i);
 			if ((c1 & 0xC0) ==  0x80)
 			{
 				// valid utf-8, but we are only interested in characters from
 				// the first half of Unicode Cyrillic Block (0x400 to 0x47F)
-				
+
 				// init with unknown
 				*str_o = KOI8_UNKNOWN_CHAR;
 
@@ -4008,9 +4147,9 @@ void utf8_to_koi(char *str_i, char *str_o)
 			}
 		}
 		else if (c < 0xF0)
-		{ 
+		{
 			// two more bytes to follow, must be b10xxxxxx
-			
+
 			if ((str_i[0] & 0xC0) ==  0x80
 				&& (str_i[1] & 0xC0) ==  0x80)
 			{
@@ -4020,7 +4159,7 @@ void utf8_to_koi(char *str_i, char *str_o)
 				u = (u << 6) | (str_i[0] & 0x3F);
 				u = (u << 6) | (str_i[1] & 0x3F);
 				*str_o = KOI8_UNKNOWN_CHAR;
-				
+
 				if (u >= 0x2550 && u <= 0x256C )// 0x2550-0x256C
 				{
 					const unsigned char Utf8ToKoiPg[] = {
@@ -4091,13 +4230,13 @@ void utf8_to_koi(char *str_i, char *str_o)
 
 void koi_to_utf8(char *str_i, char *str_o)
 {
-	// KOI8-R to Cyrillic Unicode block 0x0400 - 0x047F 
+	// KOI8-R to Cyrillic Unicode block 0x0400 - 0x047F
 	const unsigned short KoiToUtf8[] =
 	{
-		0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524, 0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590, 
-		0x2591, 0x2592, 0x2593, 0x2320, 0x25A0, 0x2219, 0x221A, 0x2248, 0x2264, 0x2265, 0x00A0, 0x2321, 0x00B0, 0x00B2, 0x00B7, 0x00F7, 
-		0x2550, 0x2501, 0x2502, 0x0451, 0x2553, 0x2554, 0x2555, 0x2556, 0x2557, 0x2558, 0x2559, 0x255A, 0x255B, 0x255C, 0x255D, 0x255E, 
-		0x255F, 0x2560, 0x2561, 0x0401, 0x2562, 0x2563, 0x2564, 0x2565, 0x2566, 0x2567, 0x2568, 0x2569, 0x256A, 0x256B, 0x256C, 0x00A9, 
+		0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524, 0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590,
+		0x2591, 0x2592, 0x2593, 0x2320, 0x25A0, 0x2219, 0x221A, 0x2248, 0x2264, 0x2265, 0x00A0, 0x2321, 0x00B0, 0x00B2, 0x00B7, 0x00F7,
+		0x2550, 0x2501, 0x2502, 0x0451, 0x2553, 0x2554, 0x2555, 0x2556, 0x2557, 0x2558, 0x2559, 0x255A, 0x255B, 0x255C, 0x255D, 0x255E,
+		0x255F, 0x2560, 0x2561, 0x0401, 0x2562, 0x2563, 0x2564, 0x2565, 0x2566, 0x2567, 0x2568, 0x2569, 0x256A, 0x256B, 0x256C, 0x00A9,
 		0x44E, 0x430, 0x431, 0x446, 0x434, 0x435, 0x444, 0x433, 0x445, 0x438, 0x439, 0x43A, 0x43B, 0x43C, 0x43D, 0x43E,
 		0x43F, 0x44F, 0x440, 0x441, 0x442, 0x443, 0x436, 0x432, 0x44C, 0x44B, 0x437, 0x448, 0x44D, 0x449, 0x447, 0x44A,
 		0x42E, 0x410, 0x411, 0x426, 0x414, 0x415, 0x424, 0x413, 0x425, 0x418, 0x419, 0x41A, 0x41B, 0x41C, 0x41D, 0x41E,

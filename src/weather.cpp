@@ -515,9 +515,11 @@ void weather_change(void)
 		if ((time_info.month == MONTH_MART && avg_week_temp > 5
 				&& weather_info.snowlevel == 0) || (time_info.month == MONTH_APRIL && weather_info.snowlevel == 0))
 			weather_info.season = SEASON_SPRING;
+		break;
 	case SEASON_AUTUMN:
 		if (time_info.month == MONTH_NOVEMBER && (avg_week_temp < 2 || weather_info.snowlevel >= 5))
 			weather_info.season = SEASON_WINTER;
+		break;
 	}
 
 	sky_change = 0;
@@ -1120,7 +1122,7 @@ int weather_skill_modifier(CHAR_DATA * ch, int skillnum, int type, int value)
 	case GAPPLY_SKILL_SUCCESS:
 		switch (skillnum)
 		{
-		case SKILL_THAC0:
+		case SKILL_INDEFINITE:
 			if (weather_info.sunlight == SUN_SET || weather_info.sunlight == SUN_DARK)
 			{
 				switch (sky)

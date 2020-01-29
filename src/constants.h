@@ -114,6 +114,7 @@ extern struct zone_type * zone_types;
 
 #define MAX_GROUPED_FOLLOWERS 7
 
+
 extern int HORSE_VNUM;
 extern int HORSE_COST;
 extern int START_BREAD;

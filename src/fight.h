@@ -97,6 +97,10 @@ public:
 	int skill_num;
 	// номер заклинания, если >= 0
 	int spell_num;
+	// Какой стихией магии наносится урон.
+	// Применяется, если урон магический, но наносится не спеллом.
+	// Если спеллом - тип урона берется из самого спелла.
+	int magic_type;
 	// см. описание в HitData, но здесь может быть -1
 	int hit_type;
 	// номер сообщения об ударе из файла messages
@@ -118,7 +122,7 @@ private:
 	void post_init_shields(CHAR_DATA *victim);
 	// process()
 	bool magic_shields_dam(CHAR_DATA *ch, CHAR_DATA *victim);
-	void armor_dam_reduce(CHAR_DATA *ch, CHAR_DATA *victim);
+	void armor_dam_reduce(CHAR_DATA *victim);
 	bool dam_absorb(CHAR_DATA *ch, CHAR_DATA *victim);
 	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
 	void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim);

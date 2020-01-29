@@ -34,6 +34,8 @@ void check_light(CHAR_DATA * ch, int was_equip, int was_single, int was_holyligh
 
 // Resistance calculate //
 int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect);
+int getResisTypeWithSpellClass(int spellClass);
+int get_resist_type(int spellnum);
 
 // handling the affected-structures //
 void affect_total(CHAR_DATA * ch);
@@ -49,12 +51,13 @@ int timed_by_feat(CHAR_DATA * ch, int skill);
 void timed_to_char(CHAR_DATA * ch, struct timed_type *timed);
 void timed_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_skill(CHAR_DATA * ch, int skill);
+void decreaseFeatTimer(CHAR_DATA * ch, int featureID);
 
 // Обработка аффектов комнат//
 void affect_room_total(ROOM_DATA * room);
 void affect_room_modify(ROOM_DATA * room, byte loc, sbyte mod, bitvector_t bitv, bool add);
 void affect_to_room(ROOM_DATA * room, const AFFECT_DATA<ERoomApplyLocation>& af);
-void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& af);
+void removeAffectFromRoom(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& af);
 ROOM_DATA::room_affects_list_t::iterator find_room_affect(ROOM_DATA* room, int type);
 void affect_room_join_fspell(ROOM_DATA* room, const AFFECT_DATA<ERoomApplyLocation>& af);
 void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
@@ -102,7 +105,9 @@ CHAR_DATA *get_char(char *name, int vnum = 0);
 void char_from_room(CHAR_DATA * ch);
 inline void char_from_room(const CHAR_DATA::shared_ptr& ch) { char_from_room(ch.get()); }
 void char_to_room(CHAR_DATA * ch, room_rnum room);
+void char_flee_to_room(CHAR_DATA * ch, room_rnum room);
 inline void char_to_room(const CHAR_DATA::shared_ptr& ch, room_rnum room) { char_to_room(ch.get(), room); }
+inline void char_flee_to_room(const CHAR_DATA::shared_ptr& ch, room_rnum room) { char_flee_to_room(ch.get(), room); }
 void extract_char(CHAR_DATA * ch, int clear_objs, bool zone_reset = 0);
 void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room);
 
@@ -132,7 +137,6 @@ bool try_locate_obj(CHAR_DATA * ch, OBJ_DATA *i);
 
 OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const char *arg, OBJ_DATA * equipment[], int *j);
 inline OBJ_DATA *get_object_in_equip_vis(CHAR_DATA * ch, const std::string &arg, OBJ_DATA * equipment[], int *j) { return get_object_in_equip_vis(ch, arg.c_str(), equipment, j); }
-
 // find all dots //
 
 int find_all_dots(char *arg);

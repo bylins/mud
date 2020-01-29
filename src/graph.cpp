@@ -225,7 +225,9 @@ int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
 		while (!CAN_GO(ch, dir) && --tries);
 		return dir;
 	}
-	return find_first_step(ch->in_room, victim->in_room, ch);
+    if (PRF_FLAGGED(ch, PRF_TESTER))
+            send_to_char(ch, "НЮХ: skill == %d percent ==%d реморт цеди %d\r\n", skill, percent, GET_REMORT(victim));
+    return find_first_step(ch->in_room, victim->in_room, ch);
 }
 
 void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)

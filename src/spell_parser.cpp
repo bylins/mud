@@ -1526,7 +1526,7 @@ int slot_for_char(CHAR_DATA * ch, int slot_num)
 		break;
 	}
 
-	if (wis_is == -1) 
+	if (wis_is == -1)
 		return 0; //Go here if no magic for char
 
 	return ((wis_is || (GET_REMORT(ch) > slot_num)) ? MIN(25, wis_is + ch->get_obj_slot(slot_num) + GET_REMORT(ch)) : 0);
@@ -1537,7 +1537,7 @@ inline int spell_create_level(const CHAR_DATA* ch, int spellnum)
 	int required_level = spell_create[spellnum].runes.min_caster_level;
 	// дабы у простых игроков не отображлись иммовские заклы
 	if (required_level >= LVL_GOD)
-	    return required_level;
+		return required_level;
 	if (can_use_feat(ch, RUNE_ULTIMATE_FEAT))
 		required_level -= 6;
 	else if (can_use_feat(ch, RUNE_MASTER_FEAT))
@@ -1613,51 +1613,7 @@ int mag_manacost(const CHAR_DATA* ch, int spellnum)
 		return mana_cost * koef_skill_magic(ch->get_skill(get_magic_skill_number_by_spell(spellnum))) / 100; // при скилле 200 + 25%
 	};
 
-	return 9999;
-}
-
-void spell_prefix(int spellnum, const char** /*say_to_self*/, const char **say_to_other,
-				  const char** /*say_to_obj_vis*/, const char **say_to_something, const char **damagee_vict,
-				  const char** /*helpee_vict*/)
-{
-	switch (spellnum)
-	{
-	case SPELL_WC_OF_CHALLENGE:
-		*say_to_other = "$n гнусным голосом заорал$g : '%s'.";
-		*damagee_vict = "$n гнусным голосом заорал$g : '%s'.";
-		break;
-	case SPELL_WC_OF_MENACE:
-		*say_to_other = "$n оскалил$u и взревел$g : '%s'.";
-		*damagee_vict = "$n оскалил$u и взревел$g : '%s'.";
-		break;
-	case SPELL_WC_OF_RAGE:
-		*say_to_other = "$n ударил$g себя в грудь и неистово завопил$g : '%s'.";
-		*damagee_vict = "$n ударил$g себя в грудь и неистово завопил$g : '%s'.";
-		break;
-	case SPELL_WC_OF_MADNESS:
-		*say_to_other = "$n устрашающе зыркнул$g и зарычал$g : '%s'.";
-		*damagee_vict = "$n устрашающе зыркнул$g и зарычал$g : '%s'.";
-		break;
-	case SPELL_WC_OF_THUNDER:
-		*say_to_other = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
-		*damagee_vict = "$n воздел$g руки к небу и оглушающе заревел$g : '%s'.";
-		break;
-	case SPELL_WC_OF_DEFENSE:
-		*say_to_something = "$n поднял$g оружие вверх над головой и командным голосом сообщил$g : '%s'.";
-		break;
-	case SPELL_WC_OF_BATTLE:
-		*say_to_something = "$n смело выкрикнул$g : '%s'.";
-		break;
-	case SPELL_WC_OF_POWER:
-		*say_to_something = "$n богатырским гласом загремел$g : '%s'.";
-		break;
-	case SPELL_WC_OF_BLESS:
-		*say_to_something = "$n рявкнул$g : '%s'.";
-		break;
-	case SPELL_WC_OF_COURAGE:
-		*say_to_something = "$n надсаживаясь заорал$g : '%s'.";
-		break;
-	}
+	return 99999;
 }
 
 // say_spell erodes buf, buf1, buf2
@@ -1671,44 +1627,33 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
 	// Say phrase ?
-    if (IS_NPC(ch))
-    {
-        switch (GET_RACE(ch))
-        {
-        case NPC_RACE_EVIL_SPIRIT:
-        case NPC_RACE_GHOST:
-        case NPC_RACE_HUMAN:
-        case NPC_RACE_ZOMBIE:
-        case NPC_RACE_SPIRIT:
-            religion = number(RELIGION_POLY, RELIGION_MONO);
-            if (*cast_phrase[spellnum][religion] != '\n')
-                strcpy(buf, cast_phrase[spellnum][religion]);
-            say_to_self = "$n пробормотал$g : '%s'.";
-            say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
-            say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
-            say_to_something = "$n произнес$q : '%s'.";
-            damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
-            helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
-            spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
-            break;
-
-        default:
-            say_to_self = "$n издал$g непонятный звук.";
-            say_to_other = "$n издал$g непонятный звук.";
-            say_to_obj_vis = "$n издал$g непонятный звук.";
-            say_to_something = "$n издал$g непонятный звук.";
-            damagee_vict = "$n издал$g непонятный звук.";
-            helpee_vict = "$n издал$g непонятный звук.";
-
-            // say_to_self      = "$n рявкнул$g : '%s'.";
-            // say_to_other     = "$n взглянул$g на $N3 и глухо просипел$q : '%s'.";
-            // say_to_obj_vis   = "$n посмотрел$g на $o3 и произнес$q : '%s'.";
-            // say_to_something = "$n молвил$g : '%s'.";
-            // damagee_vict     = "$n злобно рыкнул$g на вас : '%s'.";
-            // helpee_vict      = "$n тихо пробормотал$g вам : '%s'.";
+	if (IS_NPC(ch)) {
+		switch (GET_RACE(ch)) {
+		case NPC_RACE_EVIL_SPIRIT:
+		case NPC_RACE_GHOST:
+		case NPC_RACE_HUMAN:
+		case NPC_RACE_ZOMBIE:
+		case NPC_RACE_SPIRIT:
+			religion = number(RELIGION_POLY, RELIGION_MONO);
+			if (*cast_phrase[spellnum][religion] != '\n')
+				strcpy(buf, cast_phrase[spellnum][religion]);
+			say_to_self = "$n пробормотал$g : '%s'.";
+			say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
+			say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
+			say_to_something = "$n произнес$q : '%s'.";
+			damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
+			helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
+			break;
+		default:
+			say_to_self = "$n издал$g непонятный звук.";
+			say_to_other = "$n издал$g непонятный звук.";
+			say_to_obj_vis = "$n издал$g непонятный звук.";
+			say_to_something = "$n издал$g непонятный звук.";
+			damagee_vict = "$n издал$g непонятный звук.";
+			helpee_vict = "$n издал$g непонятный звук.";
+		}
 	}
-    }
-    else {
+	else {
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
@@ -1717,17 +1662,16 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		say_to_something = "$n произнес$q : '%s'.";
 		damagee_vict = "$n зыркнул$g на вас и произнес$q : '%s'.";
 		helpee_vict = "$n подмигнул$g вам и произнес$q : '%s'.";
-		spell_prefix(spellnum, &say_to_self, &say_to_other, &say_to_obj_vis, &say_to_something, &damagee_vict, &helpee_vict);
-    }
+	}
 
 	if (!*buf)
 	{
-            // не понимаю
-            /*
-            size_t ofs = 0;
+		// не понимаю
+		/*
+		size_t ofs = 0;
 		while (lbuf[ofs])
 		{
-                        log("  1  No entry in syllable table for substring of '%s'", lbuf);
+			log("  1  No entry in syllable table for substring of '%s'", lbuf);
 			for (j = 0; *(syls[j].org); j++)
 			{
 				if (!strncmp(syls[j].org, lbuf + ofs, strlen(syls[j].org)))
@@ -1737,15 +1681,15 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 					break;
 				}
 			}
-                    //походу это условие должно быть здесь. в противном случае цикл вечный
-                    // i.e., we didn't find a match in syls[]
-                    if (!*syls[j].org)
-                    {
-                            log("No entry in syllable table for substring of '%s'", lbuf);
-                            ofs++;
-                    }
+			//походу это условие должно быть здесь. в противном случае цикл вечный
+			// i.e., we didn't find a match in syls[]
+			if (!*syls[j].org)
+			{
+				log("No entry in syllable table for substring of '%s'", lbuf);
+				ofs++;
+			}
 		}
-            */
+		*/
 	}
 
 	if (tch != NULL && IN_ROOM(tch) == ch->in_room)
@@ -2135,80 +2079,45 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level, int casttype)
-{
-	int savetype;
+int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level) {
 
 	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
 		return (0);
 
-	if (caster && cvict)
-	{
+	if (caster && cvict) {
 		cast_mtrigger(cvict, caster, spellnum);
 	}
 
-	// Определяю возможность чтения заклинания
-	//******************************************
-	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !may_cast_in_nomagic(caster, cvict, spellnum))
-	{
+	if (ROOM_FLAGGED(IN_ROOM(caster), ROOM_NOMAGIC) && !may_cast_in_nomagic(caster, cvict, spellnum)) {
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
 		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return 0;
 	}
 
-	if (!may_cast_here(caster, cvict, spellnum))
-	{
-		if (IS_SET(SpINFO.routines, MAG_WARCRY))
-		{
+	if (!may_cast_here(caster, cvict, spellnum)) {
+		if (IS_SET(SpINFO.routines, MAG_WARCRY)) {
 			send_to_char("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
 			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		}
-		else
-		{
+		} else {
 			send_to_char("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
 			act("Яркая вспышка на миг осветила комнату, и тут же погасла.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		return 0;
 	}
 
-	// determine the type of saving throw
-	switch (casttype)
-	{
-	case CAST_STAFF:
-	case CAST_SCROLL:
-	case CAST_POTION:
-	case CAST_WAND:
-	case CAST_ITEMS:
-	case CAST_RUNES:
-	case CAST_SPELL:
-		savetype = SAVING_STABILITY;
-		break;
-	default:
-		savetype = SAVING_CRITICAL;
-		break;
-	}
-
 	if (SpellUsage::isActive)
 		SpellUsage::AddSpellStat(GET_CLASS(caster), spellnum);
 
-	// Обработка заклинания
-	//******************************************
-
-	// Проверка модификаторов целеуказаний
-
-	if (IS_SET(SpINFO.routines, MAG_MASSES))
-		return mag_masses(level, caster, rvict, spellnum, savetype);
+	if (IS_SET(SpINFO.routines, MAG_AREAS) || IS_SET(SpINFO.routines, MAG_MASSES))
+		return callMagicToArea(caster, cvict, rvict, spellnum, level);
 
 	if (IS_SET(SpINFO.routines, MAG_GROUPS))
-		return mag_groups(level, caster, spellnum, savetype);
-
-	if (IS_SET(SpINFO.routines, MAG_AREAS))
-		return mag_areas(level, caster, cvict, spellnum, savetype);
+		return callMagicToGroup(level, caster, spellnum);
 
 	if (IS_SET(SpINFO.routines, MAG_ROOM))
-		return RoomSpells::mag_room(level, caster, rvict, spellnum);
+		return RoomSpells::imposeSpellToRoom(level, caster, rvict, spellnum);
 
-	return mag_single_target(level, caster, cvict, ovict, spellnum, savetype);
+	return mag_single_target(level, caster, cvict, ovict, spellnum, SAVING_STABILITY);
 }
 
 void do_ident(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -2241,8 +2150,7 @@ void do_ident(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (!IS_IMMORTAL(ch))
 	{
 		timed.skill = SKILL_IDENTIFY;
-		//imed.time = can_use_feat(ch, CONNOISEUR_FEAT) ? feature_mod(CONNOISEUR_FEAT, FEAT_TIMER) : 12;
-		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? feature_mod(CONNOISEUR_FEAT, FEAT_TIMER) : 12) - ((GET_SKILL(ch, SKILL_IDENTIFY) - 25) / 25),1); //12..5 or 8..1
+		timed.time = MAX((can_use_feat(ch, CONNOISEUR_FEAT) ? getModifier(CONNOISEUR_FEAT, FEAT_TIMER) : 12) - ((GET_SKILL(ch, SKILL_IDENTIFY) - 25) / 25),1); //12..5 or 8..1
 		timed_to_char(ch, &timed);
 	}
 	MANUAL_SPELL(skill_identify)
@@ -2345,16 +2253,24 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 			}
 		}
 
-		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
-		{
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL)
-			{
+		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
+			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL) {
 				// чтобы мобов не чекали
-				if (IS_NPC(ch) || !IS_NPC(*tch))
-				{
-					if (SpINFO.violent && !check_pkill(ch, *tch, t))
+				if (IS_NPC(ch) || !IS_NPC(*tch)) {
+					if (SpINFO.violent && !check_pkill(ch, *tch, t)) {
 						return FALSE;
+					}
 					return TRUE;
+				}
+				if (!IS_NPC(ch)) {
+					struct follow_type *k, *k_next;
+					for (k = ch->followers; k; k = k_next) {
+						k_next = k->next;
+						if (isname(t, k->follower->get_pc_name())) {
+							*tch = k->follower;
+							return TRUE;
+						}
+					}
 				}
 			}
 		}
@@ -2611,7 +2527,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			 */
 			if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS))
 			{
-                call_magic(ch, NULL, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
+				call_magic(ch, NULL, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			}
 			else
 			{
@@ -2620,7 +2536,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				{
 					if (ch != tch)
 					{
-						call_magic(ch, tch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_STAFF);
+						call_magic(ch, tch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 					}
 				}
 			}
@@ -2734,7 +2650,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 		obj->dec_val(2);
 		WAIT_STATE(ch, PULSE_VIOLENCE);
-		call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level, CAST_WAND);
+		call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 		break;
 
 	case OBJ_DATA::ITEM_SCROLL:
@@ -2776,7 +2692,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
 		{
-			if (call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level, CAST_SCROLL) <= 0)
+			if (call_magic(ch, tch, tobj, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0)
 			{
 				break;
 			}
@@ -2808,7 +2724,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
 		{
-			if (call_magic(ch, ch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, i), level, CAST_POTION) <= 0)
+			if (call_magic(ch, ch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0)
 			{
 				break;
 			}
@@ -3017,7 +2933,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	{
 		GET_CASTER(ch) -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 	}
-	return (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch), CAST_SPELL));
+	return (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)));
 }
 
 int spell_use_success(CHAR_DATA * ch, CHAR_DATA * victim, int casting_type, int spellnum)
@@ -3108,6 +3024,10 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
+	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+		send_to_char("Вам нужно набраться сил.\r\n", ch);
+		return;
+	};
 
 	if (!ch->affected.empty())
 	{
@@ -3402,7 +3322,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buf, ch);
 	say_spell(ch, spellnum, tch, tobj);
 
-	if (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch), CAST_SPELL) >= 0)
+	if (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)) >= 0)
 	{
 		if (!WAITLESS(ch))
 		{
@@ -3549,8 +3469,7 @@ void do_mixture(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		}
 		else  	// call magic returns 1 on success; set waitstate
 		{
-			if (call_magic(ch, tch, tobj, world[ch->in_room], spellnum, GET_LEVEL(ch),
-						   subcmd == SCMD_ITEMS ? CAST_ITEMS : CAST_RUNES) >= 0)
+			if (call_magic(ch, tch, tobj, world[ch->in_room], spellnum, GET_LEVEL(ch)) >= 0)
 			{
 				if (!(WAITLESS(ch) || CHECK_WAIT(ch)))
 					WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -3952,13 +3871,10 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			SET_FEAT(ch, spellnum);
 			break;
 		}
-		
 	}
 	extract_obj(obj);
 }
 // -newbook.patch (Alisher)
-
-
 
 void show_wizdom(CHAR_DATA * ch, int bitset)
 {
@@ -4399,8 +4315,7 @@ void mspell_slot(char *name, int spell, int kin , int chclass, int slot)
 
 
 // Assign the spells on boot up
-void
-spello(int spl, const char *name, const char *syn,
+void spello(int spl, const char *name, const char *syn,
 	   int max_mana, int min_mana, int mana_change,
 	   int minpos, int targets, int violent, int routines, int danger, int spell_class)
 {
@@ -4472,7 +4387,7 @@ void unused_spell(int spl)
 	spell_info[spl].syn = unused_spellname;
 }
 
-void skillo(int spl, const char *name, int max_percent)
+void skillo(int spl, const char *name, const char *shortName, int max_percent)
 {
 	int i, j;
 	for (i = 0; i < NUM_PLAYER_CLASSES; i++)
@@ -4484,6 +4399,7 @@ void skillo(int spl, const char *name, int max_percent)
 		}
 	skill_info[spl].min_position = 0;
 	skill_info[spl].name = name;
+	skill_info[spl].shortName = shortName;
 	skill_info[spl].max_percent = max_percent;
 }
 
@@ -4821,7 +4737,7 @@ void mag_assign_spells(void)
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
 //74
 	spello(SPELL_ENLARGE, "увеличение", "enlarge",
-		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC,
+		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_SELF_ONLY, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC,
 		   0, STYPE_LIFE);
 //75
 	spello(SPELL_FEAR, "страх", "fear",
@@ -5032,8 +4948,6 @@ void mag_assign_spells(void)
 		   150, 140, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_NEUTRAL, MAG_DAMAGE | NPC_DAMAGE_PC, 15, STYPE_DARK);
 //135
-//	spello(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm", 125, 110, 2,
-//		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_DAMAGE | NPC_DAMAGE_PC, 5, STYPE_EARTH);
 	spello(SPELL_METEORSTORM, "метеоритный дождь", "meteor storm", 125, 110, 2,
 		   POS_FIGHTING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_EARTH);
 //136
@@ -5173,7 +5087,7 @@ void mag_assign_spells(void)
 		   FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //170
 	spello(SPELL_FAILURE, "недоля", "failure", 100, 85, 2, POS_FIGHTING,
-		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE, MAG_AREAS | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_DARK);
+		   TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 5, STYPE_DARK);
 
 //171
 	spello(SPELL_CLANPRAY, "!клановые чары!", "!clan affect!", 0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0,  STYPE_NEUTRAL);
@@ -5261,8 +5175,7 @@ void mag_assign_spells(void)
 	spello(SPELL_DATURA_POISON, "яд дурмана", "datura poison",
 		0, 0, 0, POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 0, STYPE_LIFE);
 
-	spello(SPELL_IDENTIFY, "идентификация", "identify",
-		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
+
 // 193
 	spello(SPELL_TIMER_REPAIR, "обновление таймера", " timer repair",
 		   110, 100, 1, POS_STANDING, TAR_OBJ_INV | TAR_OBJ_EQUIP, FALSE, MAG_ALTER_OBJS, 0, STYPE_LIGHT);
@@ -5306,71 +5219,125 @@ void mag_assign_spells(void)
 		   POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL, 1, STYPE_MIND);
 //209
 	spello(SPELL_EVARDS_BLACK_TENTACLES, "навьи руки", "evards black tentacles", 120, 110, 2,
-		   POS_STANDING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_DARK);
+		   POS_FIGHTING, TAR_ROOM_THIS, FALSE, MAG_NEED_CONTROL | MAG_ROOM | MAG_CASTER_INROOM, 0, STYPE_DARK);
 //210
 	spello(SPELL_WHIRLWIND, "вихрь", "whirlwind", 110, 100, 1,
-            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
 //211
 	spello(SPELL_INDRIKS_TEETH, "зубы индрика", "indriks teeth", 60, 45, 1, POS_FIGHTING,
 		   TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //212
 	spello(SPELL_MELFS_ACID_ARROW, "кислотная стрела", "acid arrow", 110, 100, 1,
-            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_WATER);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_WATER);
 //213
 	spello(SPELL_THUNDERSTONE, "громовой камень", "thunderstone", 110, 100, 2,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
 		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //214
 	spello(SPELL_CLOD, "глыба", "clod", 110, 100, 1,
-            POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
-            MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
 //215
 	spello(SPELL_EXPEDIENT, "!боевой прием!", "!set by programm!",
 		   0, 0, 0, 255, 0, FALSE, MAG_MANUAL, 0, STYPE_NEUTRAL);
 //216
 	spello(SPELL_SIGHT_OF_DARKNESS, "зрение тьмы", "sight darkness", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
-//217        
+//217
 	spello(SPELL_GENERAL_SINCERITY, "общая искренность", "general sincerity", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
-//218        
+//218
 	spello(SPELL_MAGICAL_GAZE, "магический взор", "magical gaze", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
-//219        
+//219
 	spello(SPELL_ALL_SEEING_EYE, "всевидящее око", "allseeing eye", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
-//220        
+//220
 	spello(SPELL_EYE_OF_GODS, "око богов", "eye gods", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
-//221        
+//221
 	spello(SPELL_BREATHING_AT_DEPTH, "дыхание глубин", "breathing at depth", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_WATER);
-//222        
+//222
 	spello(SPELL_GENERAL_RECOVERY, "общее восстановление", "general recovery", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIFE);
-//223        
+//223
 	spello(SPELL_COMMON_MEAL, "общая трапеза", "common meal", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
-//224        
+//224
 	spello(SPELL_STONE_WALL, "каменная стена", "stone wall", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_EARTH);
-//225        
+//225
 	spello(SPELL_SNAKE_EYES, "глаза змея", "snake eyes", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_MIND);
 //226
 	spello(SPELL_EARTH_AURA, "земной поклон", "earth aura", 140, 120, 2,
-                   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
+		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_EARTH);
 //227
 	spello(SPELL_GROUP_PROT_FROM_EVIL, "групповая защита от тьмы", "group protect evil", 110, 100, 1,
 		   POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
-       
+
+//228
+	spello(SPELL_ARROWS_FIRE, "стрелы огня", "arrows of fire", 0, 0, 0,
+		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 2, STYPE_FIRE);
+//229
+	spello(SPELL_ARROWS_WATER, "стрелы воды", "arrows of water", 0, 0, 0,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_WATER);
+//230
+	spello(SPELL_ARROWS_EARTH, "стрелы земли", "arrows of earth", 0, 0, 0,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_AREAS | MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_EARTH);
+//231
+	spello(SPELL_ARROWS_AIR, "стрелы воздуха", "arrows of air", 0, 0, 0,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_AIR);
+//232
+	spello(SPELL_ARROWS_DEATH, "стрелы смерти", "arrows of death", 0, 0, 0,
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_DARK);
+//233
+	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
+		   0, 0, 0, 255, 0, FALSE, MAG_AFFECTS, 0, STYPE_NEUTRAL);
+//234
+	spello(SPELL_DEXTERITY, "ловкость", "dexterity", 40, 30, 1,
+		 POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);
+//235
+	spello(SPELL_GROUP_BLINK, "групповое мигание", "group blink",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_LIFE);
+//236
+	spello(SPELL_GROUP_CLOUDLY, "групповое затуманивание", "group cloudly",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_WATER);
+//237
+	spello(SPELL_GROUP_AWARNESS, "групповая внимательность", "group awarness",
+		110, 100, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 30, STYPE_MIND);
+//238
+	spello(SPELL_WC_EXPERIENSE, "клич обучения", "warcry of training", 10, 10, 10,
+		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//239
+	spello(SPELL_WC_LUCK, "клич везения", "warcry of luck", 10, 10, 10,
+		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//240
+	spello(SPELL_WC_PHYSDAMAGE, "клич точности", "warcry of accuracy", 10, 10, 10,
+		POS_FIGHTING, TAR_IGNORE, FALSE,  MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
+//241
+	spello(SPELL_MASS_FAILURE, "взор Велеса", "gaze of Veles", 140, 120, 2,
+		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_DARK);
+//242
+	spello(SPELL_MASS_NOFLEE, "западня", "snare", 140, 120, 2,
+		   POS_FIGHTING, TAR_IGNORE, MTYPE_NEUTRAL, MAG_MASSES | MAG_AFFECTS | NPC_AFFECT_PC, 2, STYPE_MIND);
+
 	/*
 	 * These spells are currently not used, not implemented, and not castable.
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
 	 */
+
+//351
+	spello(SPELL_IDENTIFY, "идентификация", "identify",
+		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 
 	spello(SPELL_FIRE_BREATH, "огненное дыхание", "fire breath", 0, 0, 0,
 		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_FIRE);
@@ -5392,95 +5359,97 @@ void mag_assign_spells(void)
 	spello(SPELL_SOLOBONUS, "награда", "bonus",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
 
+
 	/*
 	 * Declaration of skills - this actually doesn't do anything except
 	 * set it up so that immortals can use these skills by default.  The
 	 * min level to use the skill for other classes is set up in class.c.
 	 */
 
-	skillo(SKILL_BACKSTAB, "заколоть", 140);
-	skillo(SKILL_BASH, "сбить", 200);
-	skillo(SKILL_HIDE, "спрятаться", 100);
-	skillo(SKILL_KICK, "пнуть", 100);
-	skillo(SKILL_PICK_LOCK, "взломать", 120);
-	skillo(SKILL_PUNCH, "кулачный бой", 100);
-	skillo(SKILL_RESCUE, "спасти", 130);
-	skillo(SKILL_SNEAK, "подкрасться", 100);
-	skillo(SKILL_STEAL, "украсть", 100);
-	skillo(SKILL_TRACK, "выследить", 100);
-	skillo(SKILL_PARRY, "парировать", 120);
-	skillo(SKILL_BLOCK, "блокировать щитом", 200);
-	skillo(SKILL_TOUCH, "перехватить атаку", 100);
-	skillo(SKILL_PROTECT, "прикрыть", 120);
-	skillo(SKILL_BOTHHANDS, "двуручники", 160);
-	skillo(SKILL_LONGS, "длинные лезвия", 160);
-	skillo(SKILL_SPADES, "копья и рогатины", 160);
-	skillo(SKILL_SHORTS, "короткие лезвия", 160);
-	skillo(SKILL_BOWS, "луки", 160);
-	skillo(SKILL_CLUBS, "палицы и дубины", 160);
-	skillo(SKILL_PICK, "проникающее оружие", 160);
-	skillo(SKILL_NONSTANDART, "иное оружие", 160);
-	skillo(SKILL_AXES, "секиры", 160);
-	skillo(SKILL_SATTACK, "атака левой рукой", 100);
-	skillo(SKILL_LOOKING, "приглядеться", 100);
-	skillo(SKILL_HEARING, "прислушаться", 100);
-
-	skillo(SKILL_DISARM, "обезоружить", 100);
-	skillo(SKILL_HEAL, "!heal!", 100);
-	skillo(SKILL_MORPH, "оборотничество", 150);
-	skillo(SKILL_ADDSHOT, "дополнительный выстрел", 200);
-	skillo(SKILL_CAMOUFLAGE, "маскировка", 100);
-	skillo(SKILL_DEVIATE, "уклониться", 100);
-	skillo(SKILL_CHOPOFF, "подножка", 200);
-	skillo(SKILL_REPAIR, "ремонт", 100);
-	skillo(SKILL_COURAGE, "ярость", 100);
-	skillo(SKILL_IDENTIFY, "опознание", 100);
-	skillo(SKILL_LOOK_HIDE, "подсмотреть", 100);
-	skillo(SKILL_UPGRADE, "заточить", 100);
-	skillo(SKILL_ARMORED, "укрепить", 100);
-	skillo(SKILL_DRUNKOFF, "опохмелиться", 100);
-	skillo(SKILL_AID, "лечить", 100);
-	skillo(SKILL_FIRE, "разжечь костер", 160);
-	skillo(SKILL_SHIT, "удар левой рукой", 100);
-	skillo(SKILL_MIGHTHIT, "богатырский молот", 200);
-	skillo(SKILL_STUPOR, "оглушить", 160);
-	skillo(SKILL_POISONED, "отравить", 200);
-	skillo(SKILL_LEADERSHIP, "лидерство", 100);
-	skillo(SKILL_PUNCTUAL, "точный стиль", 110);
-	skillo(SKILL_AWAKE, "осторожный стиль", 100);
-	skillo(SKILL_SENSE, "найти", 160);
-	skillo(SKILL_HORSE, "сражение верхом", 100);
-	skillo(SKILL_HIDETRACK, "замести следы", 120);
-	skillo(SKILL_RELIGION, "!молитва или жертва!", 100);
-	skillo(SKILL_MAKEFOOD, "освежевать", 120);
-	skillo(SKILL_MULTYPARRY, "веерная защита", 140);
-	skillo(SKILL_TRANSFORMWEAPON, "перековать", 140);
-	skillo(SKILL_THROW, "метнуть", 150);
+	skillo(SKILL_GLOBAL_COOLDOWN, "!глобальная задержка", "ОЗ",  1);
+	skillo(SKILL_BACKSTAB, "заколоть", "Зк", 180);
+	skillo(SKILL_BASH, "сбить", "Сб", 200);
+	skillo(SKILL_HIDE, "спрятаться", "Сп", 100);
+	skillo(SKILL_KICK, "пнуть", "Пн", 100);
+	skillo(SKILL_PICK_LOCK, "взломать", "Вз", 120);
+	skillo(SKILL_PUNCH, "кулачный бой", "Кб", 100);
+	skillo(SKILL_RESCUE, "спасти", "Спс", 130);
+	skillo(SKILL_SNEAK, "подкрасться", "Пд", 100);
+	skillo(SKILL_STEAL, "украсть", "Ук", 100);
+	skillo(SKILL_TRACK, "выследить", "Выс", 100);
+	skillo(SKILL_PARRY, "парировать", "Пр", 120);
+	skillo(SKILL_BLOCK, "блокировать щитом", "Бщ", 200);
+	skillo(SKILL_TOUCH, "перехватить атаку", "Пр", 100);
+	skillo(SKILL_PROTECT, "прикрыть", "Пр", 120);
+	skillo(SKILL_BOTHHANDS, "двуручники", "Дв", 160);
+	skillo(SKILL_LONGS, "длинные лезвия", "Дл", 160);
+	skillo(SKILL_SPADES, "копья и рогатины", "Кр", 160);
+	skillo(SKILL_SHORTS, "короткие лезвия", "Кл", 160);
+	skillo(SKILL_BOWS, "луки", "Лк", 160);
+	skillo(SKILL_CLUBS, "палицы и дубины", "Пд", 160);
+	skillo(SKILL_PICK, "проникающее оружие", "Прн", 160);
+	skillo(SKILL_NONSTANDART, "иное оружие", "Ин", 160);
+	skillo(SKILL_AXES, "секиры", "Ск", 160);
+	skillo(SKILL_SATTACK, "атака левой рукой", "Ал", 100);
+	skillo(SKILL_LOOKING, "приглядеться", "Прг", 100);
+	skillo(SKILL_HEARING, "прислушаться", "Прс", 100);
+	skillo(SKILL_DISARM, "обезоружить", "Об", 100);
+	skillo(SKILL_HEAL, "!heal!", "Hl", 100);
+	skillo(SKILL_MORPH, "оборотничество", "Об", 150);
+	skillo(SKILL_ADDSHOT, "дополнительный выстрел", "Доп", 200);
+	skillo(SKILL_CAMOUFLAGE, "маскировка", "Мск", 100);
+	skillo(SKILL_DEVIATE, "уклониться", "Укл", 100);
+	skillo(SKILL_CHOPOFF, "подножка", "Пд", 200);
+	skillo(SKILL_REPAIR, "ремонт", "Рм", 180);
+	skillo(SKILL_COURAGE, "ярость", "Яр", 100);
+	skillo(SKILL_IDENTIFY, "опознание", "Оп", 100);
+	skillo(SKILL_LOOK_HIDE, "подсмотреть", "Пдм", 100);
+	skillo(SKILL_UPGRADE, "заточить", "Зат", 100);
+	skillo(SKILL_ARMORED, "укрепить", "Укр", 100);
+	skillo(SKILL_DRUNKOFF, "опохмелиться", "Опх", 100);
+	skillo(SKILL_AID, "лечить", "Лч", 100);
+	skillo(SKILL_FIRE, "разжечь костер", "Рк", 160);
+	skillo(SKILL_SHIT, "удар левой рукой", "Улр", 100);
+	skillo(SKILL_MIGHTHIT, "богатырский молот", "Бм", 200);
+	skillo(SKILL_STUPOR, "оглушить", "Ог", 200);
+	skillo(SKILL_POISONED, "отравить", "Отр", 200);
+	skillo(SKILL_LEADERSHIP, "лидерство", "Лд", 100);
+	skillo(SKILL_PUNCTUAL, "точный стиль", "Тс", 110);
+	skillo(SKILL_AWAKE, "осторожный стиль", "Ос", 100);
+	skillo(SKILL_SENSE, "найти", "Нйт", 160);
+	skillo(SKILL_HORSE, "сражение верхом", "Срв", 100);
+	skillo(SKILL_HIDETRACK, "замести следы", "Зс", 120);
+	skillo(SKILL_RELIGION, "!молитва или жертва!", "Error", 1);
+	skillo(SKILL_MAKEFOOD, "освежевать", "Осв", 120);
+	skillo(SKILL_MULTYPARRY, "веерная защита", "Вз", 140);
+	skillo(SKILL_TRANSFORMWEAPON, "перековать", "Прк", 140);
+	skillo(SKILL_THROW, "метнуть", "Мт", 150);
 //  skillo(SKILL_CREATEBOW,    "смастерить лук", 140);
-	skillo(SKILL_MAKE_BOW, "смастерить лук", 140);
-	skillo(SKILL_MAKE_WEAPON, "выковать оружие", 140);
-	skillo(SKILL_MAKE_ARMOR, "выковать доспех", 140);
-	skillo(SKILL_MAKE_WEAR, "сшить одежду", 140);
-	skillo(SKILL_MAKE_JEWEL, "смастерить диковинку", 140);
-	skillo(SKILL_MANADRAIN, "сглазить", 100);
-	skillo(SKILL_NOPARRYHIT, "скрытый удар", 100);
-	skillo(SKILL_TOWNPORTAL, "врата", 100);
-	skillo(SKILL_DIG, "горное дело", 100);
-	skillo(SKILL_INSERTGEM, "ювелир", 100);
-	skillo(SKILL_WARCRY, "боевой клич", 100);
-	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", 100);
-	skillo(SKILL_IRON_WIND, "железный ветер", 150);
-	skillo(SKILL_STRANGLE, "удавить", 200);
-	skillo(SKILL_AIR_MAGIC, "магия воздуха", 200);
-	skillo(SKILL_FIRE_MAGIC, "магия огня", 200);
-	skillo(SKILL_WATER_MAGIC, "магия воды", 200);
-	skillo(SKILL_EARTH_MAGIC, "магия земли", 200);
-	skillo(SKILL_LIGHT_MAGIC, "магия света", 200);
-	skillo(SKILL_DARK_MAGIC, "магия тьмы", 200);
-	skillo(SKILL_MIND_MAGIC, "магия разума", 200);
-	skillo(SKILL_LIFE_MAGIC, "магия жизни", 200);
-	skillo(SKILL_STUN, "ошеломить", 200);
-	skillo(SKILL_MAKE_AMULET, "смастерить оберег", 200);
+	skillo(SKILL_MAKE_BOW, "смастерить лук", "Сл", 140);
+	skillo(SKILL_MAKE_WEAPON, "выковать оружие", "Вкр", 140);
+	skillo(SKILL_MAKE_ARMOR, "выковать доспех", "Вкд", 140);
+	skillo(SKILL_MAKE_WEAR, "сшить одежду", "Сш", 140);
+	skillo(SKILL_MAKE_JEWEL, "смастерить диковинку", "Сд", 140);
+	skillo(SKILL_MANADRAIN, "сглазить", "Сг", 100);
+	skillo(SKILL_NOPARRYHIT, "скрытый удар", "Сд", 100);
+	skillo(SKILL_TOWNPORTAL, "врата", "Вр", 100);
+	skillo(SKILL_DIG, "горное дело", "Гд", 100);
+	skillo(SKILL_INSERTGEM, "ювелир", "Юв", 100);
+	skillo(SKILL_WARCRY, "боевой клич", "Бк", 100);
+	skillo(SKILL_TURN_UNDEAD, "изгнать нежить", "Из", 100);
+	skillo(SKILL_IRON_WIND, "железный ветер", "Жв", 150);
+	skillo(SKILL_STRANGLE, "удавить", "Уд", 200);
+	skillo(SKILL_AIR_MAGIC, "магия воздуха", "Ма", 200);
+	skillo(SKILL_FIRE_MAGIC, "магия огня", "Мо", 1000);
+	skillo(SKILL_WATER_MAGIC, "магия воды", "Мвд", 1000);
+	skillo(SKILL_EARTH_MAGIC, "магия земли", "Мз", 1000);
+	skillo(SKILL_LIGHT_MAGIC, "магия света", "Мс", 1000);
+	skillo(SKILL_DARK_MAGIC, "магия тьмы", "Мт", 1000);
+	skillo(SKILL_MIND_MAGIC, "магия разума", "Мр", 1000);
+	skillo(SKILL_LIFE_MAGIC, "магия жизни", "Мж", 1000);
+	skillo(SKILL_STUN, "ошеломить", "Ош", 200);
+	skillo(SKILL_MAKE_AMULET, "смастерить оберег", "Со", 200);
+	skillo(SKILL_INDEFINITE, "!неопределен", "Error", 1);
 }
 
 MaxClassSlot::MaxClassSlot()

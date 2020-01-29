@@ -36,6 +36,7 @@
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+void stop_fighting(CHAR_DATA * ch, int switch_others);
 
 #define FirstPK  1
 #define SecondPK 5
@@ -84,10 +85,12 @@ bool check_agrobd(CHAR_DATA *ch) {
 }
 
 
-bool check_agr_in_house(CHAR_DATA *agressor)
+bool check_agr_in_house(CHAR_DATA *agressor, CHAR_DATA *victim)
 {
 	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor))
 	{
+		if (victim->get_fighting() != NULL)
+			stop_fighting(victim, FALSE);
 		act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
 		char_from_room(agressor);
 		if (IS_FEMALE(agressor))
@@ -104,7 +107,7 @@ bool check_agr_in_house(CHAR_DATA *agressor)
 	return false;
 }
 
-//Количество убитых игроков (уникальное мыло) int 
+//Количество убитых игроков (уникальное мыло) int
 int pk_player_count(CHAR_DATA * ch) {
 	struct PK_Memory_type *pk, *pkg;
 	unsigned count = 0;
@@ -493,15 +496,13 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim)
 
 bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim)
 {
-
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL)
 	{
-//		mudlog("Противник исчез при ПК куда-то! функция pk_agro_action", CMP, LVL_GOD, SYSLOG, TRUE);
 		return false;
 	}
 	if (!IS_NPC(victim) || IS_CHARMICE(victim))
-		if (check_agr_in_house(agressor))
+		if (check_agr_in_house(agressor, victim))
 			return false;
 	switch (pk_action_type(agressor, victim))
 	{
@@ -613,7 +614,7 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 			pk->next = thief->pk_list;
 			thief->pk_list = pk;
 		}
-                else 
+                else
                    break;
 		if (pk->thief_exp == 0)
 			act("$N получил$G право на ваш отстрел!", FALSE, thief, 0, victim, TO_CHAR);
@@ -1102,10 +1103,10 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 	if (!victim)
 		return TRUE;
 
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOFIGHT))
+	if (MOB_FLAGGED(ch, MOB_NOFIGHT))
 		return (FALSE);
 
-	if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_NOFIGHT))
+	if (MOB_FLAGGED(victim, MOB_NOFIGHT))
 	{
 		act("Боги предотвратили ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		return (FALSE);
@@ -1213,18 +1214,11 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg)
 	while (*arg && (*arg == '.' || (*arg >= '0' && *arg <= '9')))
 		++arg;
 
-    if (name_cmp(opponent, arg))
-        return TRUE;
-    //Svent: Вынес в отдельную функцию, ибо понадобилась такая же проверка.
-	/*strcpy(opp_name, GET_NAME(opponent));
-	for (opp_name_remain = opp_name; *opp_name_remain;)
-	{
-		opp_name_remain = one_argument(opp_name_remain, opp_name_part);
-		if (!str_cmp(arg, opp_name_part))
-			return TRUE;
-	}*/
+	if (name_cmp(opponent, arg))
+		return TRUE;
+
 	// Совпадений не нашел
-	send_to_char("Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n", ch);
+	send_to_char(ch, "Для исключения незапланированной агрессии введите имя жертвы полностью.\r\n");
 	return FALSE;
 }
 int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg)

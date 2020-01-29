@@ -24,6 +24,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "logger.hpp"
 
 // copied from spell_parser.c:
 #define SINFO spell_info[spellnum]
@@ -45,6 +46,10 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 {
 	*tch = NULL;
 	*tobj = NULL;
+	if (NOWHERE == ch->in_room)  //если чар есть но он по каким-то причинам в NOWHERE крешает как минимум в mag_masses так как указатель на комнату nullptr
+	{
+		 return FALSE;
+	}
 	*troom = world[ch->in_room];
 
 	if (spellnum == SPELL_CONTROL_WEATHER)
@@ -151,14 +156,14 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 }
 
 
-// cast a spell; can be called by mobiles, objects and rooms, and no   
-// level check is required. Note that mobs should generally use the    
-// normal 'cast' command (which must be patched to allow mobs to cast  
-// spells) as the spell system is designed to have a character caster, 
-// and this cast routine may overlook certain issues.                  
-// LIMITATION: a target MUST exist for the spell unless the spell is   
-// set to TAR_IGNORE. Also, group spells are not permitted             
-// code borrowed from do_cast() 
+// cast a spell; can be called by mobiles, objects and rooms, and no
+// level check is required. Note that mobs should generally use the
+// normal 'cast' command (which must be patched to allow mobs to cast
+// spells) as the spell system is designed to have a character caster,
+// and this cast routine may overlook certain issues.
+// LIMITATION: a target MUST exist for the spell unless the spell is
+// set to TAR_IGNORE. Also, group spells are not permitted
+// code borrowed from do_cast()
 void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char *cmd)
 {
 	CHAR_DATA *caster = NULL;
@@ -167,7 +172,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	int spellnum, target = 0;
 
 
-	// need to get the caster or the room of the temporary caster 
+	// need to get the caster or the room of the temporary caster
 	switch (type)
 	{
 	case MOB_TRIGGER:
@@ -189,7 +194,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		return;
 	}
 
-	// get: blank, spell name, target name 
+	// get: blank, spell name, target name
 	s = strtok(cmd, "'");
 	if (s == NULL)
 	{
@@ -206,7 +211,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	}
 	t = strtok(NULL, "\0");
 
-	// spellnum = search_block(s, spells, 0); 
+	// spellnum = search_block(s, spells, 0);
 	spellnum = fix_name_and_find_spell_num(s);
 	if ((spellnum < 1) || (spellnum > MAX_SPELLS))
 	{
@@ -230,8 +235,8 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 			trig_log(trig, "dg_cast: Cannot load the caster mob!");
 			return;
 		}
-		// set the caster's name to that of the object, or the gods.... 
-		// take select pieces from char_to_room(); 
+		// set the caster's name to that of the object, or the gods....
+		// take select pieces from char_to_room();
 		if (type == OBJ_TRIGGER)
 		{
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
@@ -257,7 +262,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 			caster->player_data.PNames[2] = "Богам";
 			caster->player_data.PNames[3] = "Богов";
 			caster->player_data.PNames[4] = "Богами";
-			caster->player_data.PNames[5] = "Богах"; 
+			caster->player_data.PNames[5] = "Богах";
 		}
 
 		caster_room->people.push_front(caster);
@@ -265,7 +270,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		IN_ROOM(caster) = real_room(caster_room->number);
 	}
 
-	// Find the target 
+	// Find the target
 	if (t != NULL)
 		one_argument(t, arg);
 	else
@@ -278,24 +283,35 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 
 	if (*arg == UID_CHAR)
 	{
-		if (!(tch = get_char(arg)))
+		tch = get_char(arg);
+		if (tch == nullptr)
 		{
 			sprintf(buf2, "dg_cast: victim (%s) not found", arg + 1);
+			trig_log(trig, buf2);
+		}
+		else if (NOWHERE == caster->in_room)
+		{
+			sprintf(buf2, "dg_cast: caster (%s) in NOWHERE", GET_NAME(caster));
+			trig_log(trig, buf2);
+		}
+		else if (tch->in_room != caster->in_room)
+		{
+			sprintf(buf2, "dg_cast: caster (%s) and victim (%s) в разных клетках комнат", GET_NAME(caster), GET_NAME(tch));
 			trig_log(trig, buf2);
 		}
 		else
 		{
 			target = 1;
+			troom = world[caster->in_room];
 		}
 	}
 	else
 	{
 		target = find_dg_cast_target(spellnum, arg, caster, &tch, &tobj, &troom);
 	}
-
 	if (target)
 	{
-		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster), CAST_SPELL);
+		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster));
 	}
 	else if(spellnum != SPELL_RESSURECTION && spellnum != SPELL_ANIMATE_DEAD)
 	{
@@ -409,7 +425,7 @@ void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* scri
 		{
 			af.duration = duration;
 		}
-		else 
+		else
 		{
 			af.duration = pc_duration(ch, duration * 2, 0, 0, 0, 0);
 		}

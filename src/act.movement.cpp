@@ -309,7 +309,7 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 			absolute_fail = ((200 - prob) / 20 + 5)*(vict->get_role(MOB_ROLE_BOSS) ? 5 : 1 );
 			try_fail = number(1, 100) < absolute_fail;
 			}
-			else 
+			else
 				try_fail = false;
 
 
@@ -872,7 +872,11 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	}
 
 	char_from_room(ch);
-	char_to_room(ch, go_to);
+	//затычка для бегства. чтоьы не отрабатывал MSDP протокол
+	if (is_flee && !IS_NPC(ch) && !can_use_feat(ch, CALMNESS_FEAT))
+		char_flee_to_room(ch, go_to);
+	else
+		char_to_room(ch, go_to);
 	if (horse)
 	{
 		GET_HORSESTATE(horse) -= 1;
@@ -1507,7 +1511,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 					if (GET_OBJ_VNUM(obj) == cases[i].vnum)
 					{
 						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
-						// chance = cases[i].chance;		
+						// chance = cases[i].chance;
 						// chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
 						const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
 						const int random_number = number(0, maximal_chance);
@@ -1561,7 +1565,7 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	}
 
 	// Notify the room
-	sprintf(local_buf + strlen(local_buf), "%s.", (obj) ? "$p" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
+	sprintf(local_buf + strlen(local_buf), "%s.", (obj) ? "$o3" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
 	if (!obj || (obj->get_in_room() != NOWHERE))
 	{
 		act(local_buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
@@ -1791,13 +1795,11 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
-				if (!IS_IMMORTAL(ch) && ((!IS_NPC(ch) && (!Clan::MayEnter(ch, door, HCE_PORTAL)
-											|| (GET_LEVEL(ch) <= 10 && world[door]->portal_time)))
-											|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)
-												|| ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
-											|| AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)
-											|| (world[door]->pkPenterUnique && (ROOM_FLAGGED(door, ROOM_ARENA) || ROOM_FLAGGED(door, ROOM_HOUSE)))
-											))
+				if (!IS_IMMORTAL(ch)
+					&& ((!IS_NPC(ch) && (!Clan::MayEnter(ch, door, HCE_PORTAL) || (GET_LEVEL(ch) <= 10 && world[door]->portal_time)))
+						|| (ROOM_FLAGGED(from_room, ROOM_NOTELEPORTOUT)	|| ROOM_FLAGGED(door, ROOM_NOTELEPORTIN))
+						|| AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)
+						|| (world[door]->pkPenterUnique && (ROOM_FLAGGED(door, ROOM_ARENA) || ROOM_FLAGGED(door, ROOM_HOUSE)))))
 				{
 					sprintf(buf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
 							CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -2498,11 +2500,12 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				stop_follower(ch, SF_EMPTY);
 			}
-			AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
-			//also removing AFF_GROUP flag from all followers
+			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
+			ch->removeGroupFlags();
 			for (f = ch->followers; f; f = f->next)
 			{
-				AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+				//AFF_FLAGS(f->follower).unset(EAffectFlag::AFF_GROUP);
+				f->follower->removeGroupFlags();
 			}
 
 			leader->add_follower(ch);

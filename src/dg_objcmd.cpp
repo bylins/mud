@@ -701,10 +701,6 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (exit)
 		{
-			if (exit->keyword)
-				free(exit->keyword);
-			if (exit->vkeyword)
-				free(exit->vkeyword);
 			rm->dir_option[dir].reset();
 		}
 	}
@@ -717,8 +713,6 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 
 		std::string buffer;
-		std::string::size_type i;
-
 		switch (fd)
 		{
 		case 1:	// description 
@@ -734,22 +728,7 @@ void do_odoor(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 			break;
 
 		case 4:	// name        
-			if (exit->keyword)
-				free(exit->keyword);
-			if (exit->vkeyword)
-				free(exit->vkeyword);
-			buffer = value;
-			i = buffer.find('|');
-			if (i != std::string::npos)
-			{
-				exit->keyword = str_dup(buffer.substr(0, i).c_str());
-				exit->vkeyword = str_dup(buffer.substr(++i).c_str());
-			}
-			else
-			{
-				exit->keyword = str_dup(buffer.c_str());
-				exit->vkeyword = str_dup(buffer.c_str());
-			}
+			exit->set_keywords(value);
 			break;
 
 		case 5:	// room        
@@ -1030,7 +1009,7 @@ void do_ospellturntemp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*
 
 	if ((ch = get_char_by_obj(obj, name)))
 	{
-		trg_spellturn(ch, spellnum, spelltime, last_trig_vnum);
+		trg_spellturntemp(ch, spellnum, spelltime, last_trig_vnum);
 	}
 	else
 	{

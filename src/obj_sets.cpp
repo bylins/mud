@@ -1093,11 +1093,11 @@ std::string print_activ_help(const set_node &set)
 {
 	std::string out, prof_list;
 	char buf_[2048];
-
+	const int num = setidx_by_uid(set.uid) + 1;
 	snprintf(buf_, sizeof(buf_),
 		"--------------------------------------------------------------------------------\r\n"
-		"%sНабор предметов: %s%s%s%s\r\n",
-		KNRM, KWHT, set.name.c_str(), KNRM,
+		"%s%d) Набор предметов: %s%s%s%s\r\n",
+		KNRM, num, KWHT, set.name.c_str(), KNRM,
 		set.enabled ? "" : " (в данный момент отключен)");
 	out += buf_ + print_obj_list(set) +
 		"--------------------------------------------------------------------------------\r\n";
@@ -1150,6 +1150,10 @@ std::string print_total_activ(const set_node &set)
 			if (prof_list.empty())
 			{
 				print_bitset(i->second.prof, pc_class_name, ",", prof_list);
+				if (i->second.npc)
+				{
+					prof_list += prof_list.empty() ? "npc" : ", npc";
+				}
 			}
 			prof_summ += &(i->second);
 		}

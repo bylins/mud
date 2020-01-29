@@ -84,6 +84,7 @@ const char *trig_types[] = { "Global",
 							 "HitPrcnt",
 							 "Bribe",
 							 "Load",
+							 "Kill",
 							 "Damage",
 							 "Great PC",
 							 "Great-All PC",
@@ -120,7 +121,7 @@ const char *otrig_types[] = { "Global",
 							  "Взломать",
 							  "Вход PC",
 							  "Смена времени",
-							  "UNUSED",
+							  "Положили в контейнер",
 							  "UNUSED",
 							  "UNUSED",
 							  "UNUSED",
@@ -760,6 +761,49 @@ int death_mtrigger(CHAR_DATA * ch, CHAR_DATA * actor)
 	return 1;
 }
 
+int kill_mtrigger(CHAR_DATA* ch, CHAR_DATA* actor)
+{
+	if (!ch || ch->purged())
+	{
+		log("SYSERROR: ch = %s (%s:%d)", ch ? "purged" : "false", __FILE__, __LINE__);
+		return 0;
+	}
+
+	if (!SCRIPT_CHECK(ch, MTRIG_KILL))
+	{
+		return 0;
+	}
+
+	for (auto t : SCRIPT(ch)->trig_list)
+	{
+		if (TRIGGER_CHECK(t, MTRIG_KILL))
+		{
+			if (actor)
+			{
+				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			}
+
+			std::ostringstream out_list;
+			if (!ch->kill_list.empty())
+			{
+				auto it = ch->kill_list.begin();
+				out_list << UID_CHAR << *it;
+				++it;
+
+				for (; it != ch->kill_list.end(); ++it)
+				{
+					out_list << " " << UID_CHAR << *it;
+				}
+			}
+			add_var_cntx(&GET_TRIG_VARS(t), "list", out_list.str().c_str(), 0);
+
+			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+		}
+	}
+
+	return 0;
+}
+
 void load_mtrigger(CHAR_DATA * ch)
 {
 	if (!ch || ch->purged())
@@ -1085,6 +1129,28 @@ int wear_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, int where)
 			snprintf(buf, MAX_INPUT_LENGTH, "%d", where);
 			add_var_cntx(&GET_TRIG_VARS(t), "where", buf, 0);
 			return script_driver(obj, t, OBJ_TRIGGER, TRIG_NEW);
+		}
+	}
+
+	return 1;
+}
+
+int put_otrigger(OBJ_DATA * obj, CHAR_DATA * actor, OBJ_DATA *cont)
+{
+	char buf[MAX_INPUT_LENGTH];
+
+	if (!SCRIPT_CHECK(cont, OTRIG_PUT) || GET_INVIS_LEV(actor))
+	{
+		return 1;
+	}
+
+	for (auto t :cont->get_script()->trig_list)
+	{
+		if (TRIGGER_CHECK(t, OTRIG_PUT))
+		{
+			ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+			ADD_UID_OBJ_VAR(buf, t, obj, "object", 0);
+			return script_driver(cont, t, OBJ_TRIGGER, TRIG_NEW);
 		}
 	}
 

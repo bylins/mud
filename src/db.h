@@ -47,6 +47,7 @@ int get_level_by_unique(long unique);
 long get_lastlogon_by_unique(long unique);
 long get_ptable_by_unique(long unique);
 int get_zone_rooms(int, int *, int *);
+void zone_traffic_save();
 
 int load_char(const char *name, CHAR_DATA * char_element, bool reboot = 0, const bool find_id = true);
 CHAR_DATA *read_mobile(mob_vnum nr, int type);
@@ -67,6 +68,7 @@ CObjectPrototype::shared_ptr get_object_prototype(obj_vnum nr, int type = VIRTUA
 int vnum_object(char *searchname, CHAR_DATA * ch);
 int vnum_flag(char *searchname, CHAR_DATA * ch);
 int vnum_room(char *searchname, CHAR_DATA * ch);
+int vnum_obj_trig(char *searchname, CHAR_DATA * ch);
 
 // structure for the reset commands
 struct reset_com
@@ -111,16 +113,6 @@ struct ExtraAffects
 	int min_val; // минимальное значение
 	int max_val; // максимальное значение
 	int chance; // вероятность того, что данный экстраффект будет на шмотке
-};
-
-struct DailyQuest
-{
-	// id
-	int id;
-	// desk
-	std::string desk;
-	// награда
-	int reward;
 };
 
 struct QuestBodrichRewards
@@ -300,9 +292,10 @@ class Rooms: public std::vector<ROOM_DATA *>
 {
 public:
 	static constexpr int UNDEFINED_ROOM_VNUM = -1;
+	~Rooms();
 };
 
-extern Rooms world;
+extern Rooms& world;
 
 extern INDEX_DATA *mob_index;
 extern mob_rnum top_of_mobt;
@@ -343,6 +336,8 @@ public:
 
 	static const std::size_t NOT_FOUND;
 
+	~PlayersIndex();
+
 	std::size_t append(const player_index_element& element);
 	bool player_exists(const int id) const { return m_id_to_index.find(id) != m_id_to_index.end(); }
 	bool player_exists(const char* name) const { return NOT_FOUND != get_by_name(name); }
@@ -377,7 +372,7 @@ private:
 	free_names_t m_free_names;
 };
 
-extern PlayersIndex player_table;
+extern PlayersIndex& player_table;
 
 extern long top_idnum;
 

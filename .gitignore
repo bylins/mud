@@ -8,3 +8,10 @@ bin
 .vscode
 .idea
 build.clang/*
+cmake-build-debug/
+.crash
+cmake_install.cmake
+libcircle.library.a
+lib/
+tests/CTestTestfile.cmake
+cmake-build-release/

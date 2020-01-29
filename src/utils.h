@@ -101,6 +101,7 @@ extern int class_stats_limit[NUM_PLAYER_CLASSES][6];
 
 // public functions in utils.cpp
 CHAR_DATA *find_char(long n);
+CHAR_DATA *get_random_pc_group(CHAR_DATA *ch);
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
@@ -190,7 +191,11 @@ int MIN(int a, int b);
 #define MMAX(a,b) ((a<b)?b:a)
 
 char *colorLOW(char *txt);
+std::string& colorLOW(std::string& txt);
+std::string& colorLOW(std::string&& txt);
 char * colorCAP(char *txt);
+std::string& colorCAP(std::string& txt);
+std::string& colorCAP(std::string&& txt);
 char * CAP(char *txt);
 
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
@@ -563,8 +568,8 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define GET_HELPER(ch)  ((ch)->helpers)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
-#define GET_MAX_MANA(ch)      MIN(9998,mana[MIN(50, (int) GET_REAL_WIS(ch))]+GET_REMORT(ch)*500)
-//#define GET_MANA_COST(ch,spellnum)      (mana_cost_cs[(int)GET_LEVEL(ch)][spell_create[spellnum].runes.krug-1])
+#define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
+#define SAME_ROOM(ch, tch)		(IN_ROOM(ch) == IN_ROOM(tch))
 #define GET_MANA_COST(ch,spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
@@ -651,7 +656,7 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_WEIGHT(ch)  ((ch)->player_data.weight)
 #define GET_WEIGHT_ADD(ch) ((ch)->add_abils.weight_add)
 #define GET_REAL_WEIGHT(ch) (GET_WEIGHT(ch) + GET_WEIGHT_ADD(ch))
-#define GET_SEX(ch)  ((ch)->player_data.sex)
+#define GET_SEX(ch)  ((ch)->get_sex())
 
 #define GET_RELIGION(ch) ((ch)->player_data.Religion)
 #define GET_RACE(ch) ((ch)->player_data.Race)
@@ -659,15 +664,10 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_DRUNK_STATE(ch) ((ch)->player_specials->saved.DrunkState)
 
 #define GET_STR_ADD(ch) ((ch)->get_str_add())
-#define GET_REAL_STR(ch) (VPOSI_MOB(ch, 0, ((ch)->get_str() + GET_STR_ADD(ch))))
 #define GET_CON_ADD(ch) ((ch)->get_con_add())
-#define GET_REAL_CON(ch) (VPOSI_MOB(ch, 2, (ch)->get_con() + GET_CON_ADD(ch)))
 #define GET_WIS_ADD(ch) ((ch)->get_wis_add())
-#define GET_REAL_WIS(ch) (VPOSI_MOB(ch, 3, ((ch)->get_wis() + GET_WIS_ADD(ch))))
 #define GET_INT_ADD(ch) ((ch)->get_int_add())
-#define GET_REAL_INT(ch) (VPOSI_MOB(ch, 4, ((ch)->get_int() + GET_INT_ADD(ch))))
 #define GET_CHA_ADD(ch) ((ch)->get_cha_add())
-#define GET_REAL_CHA(ch) (VPOSI_MOB(ch, 5, ((ch)->get_cha() + GET_CHA_ADD(ch))))
 #define GET_SIZE(ch)    ((ch)->real_abils.size)
 #define GET_SIZE_ADD(ch)  ((ch)->add_abils.size_add)
 #define GET_REAL_SIZE(ch) (VPOSI(GET_SIZE(ch) + GET_SIZE_ADD(ch), 1, 100))
@@ -745,9 +745,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define NAME_LEVEL 5
 #define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
 #define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
-
-#define MAX_EXP_PERCENT   80
-#define MAX_EXP_RMRT_PERCENT(ch) (MAX_EXP_PERCENT+ch->get_remort()*5)
 
 #define GET_COND(ch, i)		((ch)->player_specials->saved.conditions[(i)])
 #define GET_LOADROOM(ch)	((ch)->player_specials->saved.load_room)
@@ -1027,7 +1024,6 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_OBJ_PARENT(obj)      ((obj)->get_parent())
 #define GET_OBJ_RENAME(obj)      ((obj)->get_is_rename())
 #define GET_OBJ_CRAFTIMER(obj)      ((obj)->get_craft_timer())
-#define GET_OBJ_VAL(obj, val) ((obj)->get_val((val)))
 #define GET_OBJ_WEIGHT(obj)   ((obj)->get_weight())
 #define GET_OBJ_DESTROY(obj) ((obj)->get_destroyer())
 #define GET_OBJ_SKILL(obj) ((obj)->get_skill())
@@ -1157,7 +1153,7 @@ inline T VPOSI(const T val, const T min, const T max)
             ((int) GET_CLASS(ch) == CLASS_NECROMANCER))
 
 #define IS_UNDEAD(ch) (IS_NPC(ch) && \
-	(MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE)))
+	(MOB_FLAGGED(ch, MOB_RESURRECTED) || (GET_RACE(ch) == NPC_RACE_ZOMBIE) || (GET_RACE(ch) == NPC_RACE_GHOST)))
 
 #define LIKE_ROOM(ch) ((IS_CLERIC(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_CLERIC)) || \
                        (IS_MAGIC_USER(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_MAGE)) || \
@@ -1294,65 +1290,67 @@ size_t strlen_no_colors(const char *str);
 
 
 
-inline bool a_isspace(unsigned char c)
+extern const bool a_isspace_table[];
+inline bool a_isspace(const unsigned char c)
 {
-	return (strchr(" \f\n\r\t\v", c) != NULL);
+	return a_isspace_table[c];
 }
 
 // Далеко не все из следующих функций используются в коде, но пусть будут (переписано с асма AL'ом)
-inline bool a_isascii(unsigned char c)
+inline bool a_isascii(const unsigned char c)
 {
 	return c >= 32;
 }
 
-inline bool a_isprint(unsigned char c)
+inline bool a_isprint(const unsigned char c)
 {
 	return c >= 32;
 }
 
-inline bool a_islower(unsigned char c)
+extern const bool a_islower_table[];
+inline bool a_islower(const unsigned char c)
 {
-	return (c >= 'a' && c <= 'z') || (c >= 192 && c <= 223) || c == 163;
+	return a_islower_table[c];
 }
 
-inline bool a_isupper(unsigned char c)
+extern const bool a_isupper_table[];
+inline bool a_isupper(const unsigned char c)
 {
-	return (c >= 'A' && c <= 'Z') || c >= 224 || c == 179;
+	return a_isupper_table[c];
 }
 
-inline bool a_isdigit(unsigned char c)
+extern const bool a_isdigit_table[];
+inline bool a_isdigit(const unsigned char c)
 {
-	return c >= '0' && c <= '9';
+	return a_isdigit_table[c];
 }
 
-inline bool a_isalpha(unsigned char c)
+extern const bool a_isalpha_table[];
+inline bool a_isalpha(const unsigned char c)
 {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c >= 192 || c == 163 || c == 179;
+	return a_isalpha_table[c];
 }
 
 extern const bool a_isalnum_table[];
-inline bool a_isalnum(unsigned char c)
+inline bool a_isalnum(const unsigned char c)
 {
 	return a_isalnum_table[c];
 }
 
-inline bool a_isxdigit(unsigned char c)
+extern const bool a_isxdigit_table[];
+inline bool a_isxdigit(const unsigned char c)
 {
-	return (c >= '0' && c <= '9')
-		   || (c >= 'a' && c <= 'f')
-		   || (c >= 'A' && c <= 'F');
+	return a_isxdigit_table[c];
 }
 
-inline char a_ucc(unsigned char c)
+extern const char a_ucc_table[];
+inline char a_ucc(const unsigned char c)
 {
-	if (c >= 'a' && c <= 'z') return c - 'a' + 'A';
-	if (c >= 192 && c <= 223) return c + 32;
-	if (c == 163) return c + 16;
-	return c;
+	return a_ucc_table[c];
 }
 
 extern const char a_lcc_table[];
-inline char a_lcc(unsigned char c)
+inline char a_lcc(const unsigned char c)
 {
 	return a_lcc_table[c];
 }
@@ -1438,10 +1436,25 @@ public:
 	}
 };
 
+// ВЕЯРМН ЯЙНОХОЮЯРЕМН
+template<class T> void StrTrim(T str) {
+	int start = 0; // number of leading spaces
+	char* buffer = str;
+	while (*str && *str++ == ' ') ++start;
+	while (*str++); // move to end of string
+	int end = str - buffer - 1;
+	while (end > 0 && buffer[end - 1] == ' ') --end; // backup over trailing spaces
+	buffer[end] = 0; // remove trailing spaces
+	if (end <= start || start == 0) return; // exit if no leading spaces or string is now empty
+	str = buffer + start;
+	while ((*buffer++ = *str++));  // remove leading spaces: K&R
+}
+
 template<class T> void skip_spaces(T string)
 {
 	for (; **string && a_isspace(**string); (*string)++) ;
 }
+
 
 namespace MoneyDropStat
 {
@@ -1576,12 +1589,12 @@ struct ParseFilter
 	char new_timesign;	   // знак времени < > =
 	time_t new_timedown;   // нижняя граница времени
 	time_t new_timeup;	   // верхняя граница времени
-	int filter_type;       // CLAN/EXCHANGE	
-	
+	int filter_type;       // CLAN/EXCHANGE
+
 	std::vector<int> affect_apply; // аффекты apply_types
 	std::vector<int> affect_weap;  // аффекты weapon_affects
 	std::vector<int> affect_extra; // аффекты extra_bits
-	
+
 	std::string show_obj_aff(OBJ_DATA *obj);
 
 private:

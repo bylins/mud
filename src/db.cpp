@@ -75,12 +75,13 @@
 #include <sstream>
 #include <string>
 #include <cmath>
+#include <boost/lexical_cast.hpp>
 
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
 #define RANDOMOBJ_FILE "randomobj.xml"
 #define SPEEDWALKS_FILE "speedwalks.xml"
-#define CLASS_LIMIT_FILE "class_limit.xml"
+#define CLASS_LIMIT_FILE "class.basestatlimits.xml"
 #define DAILY_FILE "daily.xml"
 #define CITIES_FILE "cities.xml"
 #define QUESTBODRICH_FILE "quest_bodrich.xml"
@@ -96,7 +97,7 @@ long beginning_of_time = -1561789232;
 long beginning_of_time = 650336715;
 #endif
 
-Rooms world;
+Rooms& world = GlobalObjects::world();
 
 room_rnum top_of_world = 0;	// ref to top element of world
 
@@ -124,7 +125,7 @@ int global_uid = 0;
 
 struct message_list fight_messages[MAX_MESSAGES];	// fighting messages
 extern int slot_for_char(CHAR_DATA * ch, int slot_num);
-PlayersIndex player_table;	// index to plr file
+PlayersIndex& player_table = GlobalObjects::player_table();	// index to plr file
 
 bool player_exists(const long id) { return player_table.player_exists(id); }
 
@@ -161,6 +162,7 @@ struct portals_list_type *portals_list;	// Список проталов для 
 
 extern int number_of_social_messages;
 extern int number_of_social_commands;
+const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 
 guardian_type guardian_list;
 
@@ -253,7 +255,7 @@ extern void LoadProxyList();
 extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason);
 
 int strchrn (const char *s, int c) {
-	
+
  int n=-1;
  while (*s) {
   n++;
@@ -265,7 +267,7 @@ int strchrn (const char *s, int c) {
 
 
 // поиск подстроки
-int strchrs(const char *s, const char *t) { 
+int strchrs(const char *s, const char *t) {
  while (*t) {
   int r=strchrn(s,*t);
   if (r>-1) return r;
@@ -321,7 +323,7 @@ bool check_obj_in_system_zone(int vnum)
 	return true;
     // сет-шмот
     if ((vnum >= 1200) && (vnum <= 1299))
-	return true; 
+	return true;
     if ((vnum >= 2300) && (vnum <= 2399))
 	return true;
     // луки
@@ -415,6 +417,11 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WRIST);
 	}
 
+	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BOTHS))
+	{
+		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
+	}
+
 	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_WIELD))
 	{
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_WIELD);
@@ -425,10 +432,7 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		item_wear = exp_two(EWearFlag::ITEM_WEAR_HOLD);
 	}
 
-	if (obj->has_wear_flag(EWearFlag::ITEM_WEAR_BOTHS))
-	{
-		item_wear = exp_two(EWearFlag::ITEM_WEAR_BOTHS);
-	}
+
 
 	if (!type_item)
 	{
@@ -482,7 +486,7 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 	 {
 		 return false;
 	 }
-	// если у объекта таймер ноль, то облом. 
+	// если у объекта таймер ноль, то облом.
 	if (obj->get_timer() == 0)
 	{
 		return false;
@@ -507,9 +511,9 @@ bool check_unlimited_timer(const CObjectPrototype* obj)
 		}
 	}
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
-	
+
 	// проходим по всем аффектам в нашей таблице
-	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
+	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++)
 	{
 		// проверяем, есть ли наш аффект на предмете
 		if (strstr(buf_temp1, it->first.c_str()) != NULL)
@@ -565,9 +569,9 @@ float count_koef_obj(const CObjectPrototype *obj,int item_wear)
 		}
 	}
 	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
-	
+
 	// проходим по всем аффектам в нашей таблице
-	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++) 
+	for(std::map<std::string, double>::iterator it = items_struct[item_wear].affects.begin(); it != items_struct[item_wear].affects.end(); it++)
 	{
 		// проверяем, есть ли наш аффект на предмете
 		if (strstr(buf_temp1, it->first.c_str()) != NULL)
@@ -592,9 +596,9 @@ float count_unlimited_timer(const CObjectPrototype *obj)
 		type_item = true;
 	}
 	// сумма для статов
-	
+
 	result = 0.0;
-	
+
 	if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
 	{
 		result += count_koef_obj(obj, exp_two(EWearFlag::ITEM_WEAR_FINGER));
@@ -787,7 +791,7 @@ float count_mort_requred(const CObjectPrototype *obj)
 		}
 	}
 
-	if (total_weight < 1) 
+	if (total_weight < 1)
 		return result;
 
 	result = ceil(pow(total_weight, 1 / SQRT_MOD));
@@ -801,20 +805,20 @@ void Load_Criterion(pugi::xml_node XMLCriterion, const EWearFlag type)
 	pugi::xml_node params, CurNode, affects;
 	params = XMLCriterion.child("params");
 	affects = XMLCriterion.child("affects");
-	
+
 	// добавляем в массив все параметры, типа силы, ловкости, каст и тд
 	for (CurNode = params.child("param"); CurNode; CurNode = CurNode.next_sibling("param"))
 	{
 		items_struct[index].params.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
 		//log("str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
 	}
-	
+
 	// добавляем в массив все аффекты
 	for (CurNode = affects.child("affect"); CurNode; CurNode = CurNode.next_sibling("affect"))
 	{
 		items_struct[index].affects.insert(std::make_pair(CurNode.attribute("name").value(), CurNode.attribute("value").as_double()));
 		//log("Affects:str:%s, double:%f", CurNode.attribute("name").value(),  CurNode.attribute("value").as_double());
-	}	
+	}
 }
 
 // Separate a 4-character id tag from the data it precedes
@@ -988,7 +992,7 @@ std::vector<_case> cases;
 // Заггрузка сундуков в мире
 void load_cases()
 {
-	pugi::xml_document doc_cases;	
+	pugi::xml_document doc_cases;
 	pugi::xml_node case_, object_, file_case;
 	file_case = XMLLoad(LIB_MISC CASES_FILE, "cases", "Error loading cases file: cases.xml", doc_cases);
 	for (case_ = file_case.child("casef"); case_; case_ = case_.next_sibling("casef"))
@@ -1106,8 +1110,8 @@ void QuestBodrich::load_objs()
 		{
 			tmp_array.push_back(object_.attribute("vnum").as_int());
 		}
-		this->objs.insert(std::pair<int, std::vector<int>>(class_.attribute("id").as_int(), tmp_array));			
-	}	
+		this->objs.insert(std::pair<int, std::vector<int>>(class_.attribute("id").as_int(), tmp_array));
+	}
 }
 
 void QuestBodrich::load_mobs()
@@ -1150,22 +1154,20 @@ void QuestBodrich::load_rewards()
 	}
 }
 
-std::vector<DailyQuest> d_quest;
-
 void load_dquest()
 {
 	pugi::xml_document doc_;
-	pugi::xml_node class_, file_, object_, level_;
+
 	log("Loading daily_quest.xml....");
-	file_ = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
-	std::vector<QuestBodrichRewards> tmp_array;
-	for (object_ = file_.child("quest"); object_; object_ = object_.next_sibling("quest"))
+
+	const auto file = XMLLoad(LIB_MISC DQ_FILE, "daily_quest", "Error loading rewards file: daily_quest.xml", doc_);
+	for (auto object = file.child("quest"); object; object = object.next_sibling("quest"))
 	{
 		DailyQuest tmp;
-		tmp.id = object_.attribute("id").as_int();
-		tmp.reward = object_.attribute("reward").as_int();
-		tmp.desk = object_.attribute("desk").as_string();
-		d_quest.push_back(tmp);
+		tmp.id = object.attribute("id").as_int();
+		tmp.reward = object.attribute("reward").as_int();
+		tmp.desk = object.attribute("desk").as_string();
+		d_quest.emplace(tmp.id, tmp);
 	}
 }
 
@@ -2452,6 +2454,48 @@ void load_messages(void)
 
 	fclose(fl);
 }
+void zone_traffic_save() {
+	pugi::xml_document doc;
+	doc.append_child().set_name("zone_traffic");
+	pugi::xml_node traffic = doc.child("zone_traffic");
+	for (auto i = 0u; i < zone_table.size(); ++i) {
+		pugi::xml_node zone_node = traffic.append_child();
+		zone_node.set_name("zone");
+		zone_node.append_attribute("vnum") = zone_table[i].number;
+		zone_node.append_attribute("traffic") = zone_table[i].traffic;
+	}
+
+	doc.save_file(ZONE_TRAFFIC_FILE);
+}
+void zone_traffic_load() {
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(ZONE_TRAFFIC_FILE);
+	if (!result) {
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+	pugi::xml_node traffic = doc.child("zone_traffic");
+	if (!traffic) {
+		snprintf(buf, MAX_STRING_LENGTH, "zone_traffic: нет заглавного тега");
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+	for (pugi::xml_node node = traffic.child("zone"); node; node = node.next_sibling("zone")){
+		const int zone_vnum = atoi(node.attribute("vnum").value());
+		zone_rnum zrn;
+		for (zrn = 0; zone_table[zrn].number != zone_vnum && zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+		/* empty loop */
+		}
+		int num = atoi(node.attribute("traffic").value());
+		if (zrn >= static_cast<zone_rnum>(zone_table.size())) {
+			snprintf(buf, MAX_STRING_LENGTH, "zone_traffic: несуществующий номер зоны %d ее траффик %d ", zone_vnum, num);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+		zone_table[zrn].traffic = atoi(node.attribute("traffic").value());
+	}
+}
 
 // body of the booting system
 void boot_db(void)
@@ -2483,7 +2527,7 @@ void boot_db(void)
 	MKLETTERS(plrstuff/depot);
 	MKDIR("plrstuff/house");
 	MKDIR("stat");
-	
+
 	#undef MKLETTERS
 	#undef MKDIR
 
@@ -2514,7 +2558,8 @@ void boot_db(void)
     log("Loading NEW skills definitions");
 	pugi::xml_document doc;
 
-	Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
+	//Svent TODO: Не забыть включить загрузку обратно после переписывания
+	//Skill::Load(XMLLoad(LIB_MISC SKILLS_FILE, SKILLS_MAIN_TAG, SKILLS_ERROR_STR, doc));
 	load_dquest();
 	boot_profiler.next_step("Loading criterion");
 	log("Loading Criterion...");
@@ -2532,9 +2577,9 @@ void boot_db(void)
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <waist>", doc1), EWearFlag::ITEM_WEAR_WAIST);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "waist", "Error Loading Criterion.xml: <quiver>", doc1), EWearFlag::ITEM_WEAR_QUIVER);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wrist", "Error Loading Criterion.xml: <wrist>", doc1), EWearFlag::ITEM_WEAR_WRIST);
+	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), EWearFlag::ITEM_WEAR_BOTHS);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "wield", "Error Loading Criterion.xml: <wield>", doc1), EWearFlag::ITEM_WEAR_WIELD);
 	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "hold", "Error Loading Criterion.xml: <hold>", doc1), EWearFlag::ITEM_WEAR_HOLD);
-	Load_Criterion(XMLLoad(LIB_MISC CRITERION_FILE, "boths", "Error Loading Criterion.xml: <boths>", doc1), EWearFlag::ITEM_WEAR_BOTHS);
 
 	boot_profiler.next_step("Loading birth places definitions");
 	log("Loading birth places definitions.");
@@ -2550,7 +2595,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading feature definitions");
 	log("Loading feature definitions.");
-	assign_feats();
+	determineFeaturesSpecification();
 
 	boot_profiler.next_step("Loading ingredients magic");
 	log("Booting IM");
@@ -2752,6 +2797,9 @@ void boot_db(void)
 	log("Load glory log.");
 	GloryMisc::load_log();
 
+	log("Load zone traffic.");
+	zone_traffic_load();
+
 	//Polud грузим параметры рас мобов
 	boot_profiler.next_step("Loading mob races");
 	log("Load mob races.");
@@ -2822,11 +2870,11 @@ void boot_db(void)
 	boot_profiler.next_step("Loading mail.xml");
 	log("Load mail.xml");
 	mail::load();
-	
+
 	// загрузка кейсов
 	boot_profiler.next_step("Loading cases");
 	load_cases();
-	
+
 	// справка должна иниться после всего того, что может в нее что-то добавить
 	boot_profiler.next_step("Reloading help system");
 	HelpSystem::reload_all();
@@ -2835,13 +2883,13 @@ void boot_db(void)
 	Bonus::bonus_log_load();
 	load_speedwalk();
 
-	boot_profiler.next_step("Loading class_limit.xml");
-	log("Load class_limit.xml");
+	boot_profiler.next_step("Loading class base stat limits");
+	log("Loading class base stat limits");
 	load_class_limit();
 	load_cities();
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
-	
+
 }
 
 // reset the time in the game from file
@@ -2938,9 +2986,10 @@ void GameLoader::index_boot(const EBootType mode)
 
 	prepare_global_structures(mode, rec_count);
 
+    const auto data_file_factory = DataFileFactory::create();
 	for (const auto& entry: *index)
 	{
-		auto data_file = DataFileFactory::get_file(mode, entry);
+		auto data_file = data_file_factory->get_file(mode, entry);
 		if (!data_file->open())
 		{
 			continue;	// TODO: we need to react somehow.
@@ -3195,13 +3244,6 @@ void renum_zone_table(void)
 	}
 }
 
-/*
- * interpret_espec is the function that takes espec keywords and values
- * and assigns the correct value to the mob as appropriate.  Adding new
- * e-specs is absurdly easy -- just add a new CASE statement to this
- * function!  No other changes need to be made anywhere in the code.
- */
-
 // Make own name by process aliases
 int trans_obj_name(OBJ_DATA * obj, CHAR_DATA * ch)
 {
@@ -3274,6 +3316,7 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 			break;
 		case DL_LOAD_IFLAST:
 			last_load = load && last_load;
+			break;
 		case DL_LOAD_IFLAST_NC:
 			load = load && last_load;
 			break;
@@ -3733,6 +3776,34 @@ int vnum_room(char *searchname, CHAR_DATA * ch)
 		}
 	}
 	return (found);
+}
+
+int vnum_obj_trig(char *searchname, CHAR_DATA * ch)
+{
+	int num;
+	try
+	{
+		 num = boost::lexical_cast<int>(searchname);
+	}
+	catch(boost::bad_lexical_cast&)
+	{
+		return 0;
+	}
+
+	const auto trigs = obj2trigers.find(num);
+	if(trigs == obj2trigers.end())
+	{
+		return 0;
+	}
+
+	int found = 0;
+	for(const auto& t : trigs->second)
+	{
+		sprintf(buf, "%3d. [%5d] %s\r\n", ++found, trig_index[t]->vnum, trig_index[t]->proto->get_name().c_str());
+		send_to_char(buf, ch);
+	}
+
+	return found;
 }
 
 namespace {
@@ -4729,6 +4800,19 @@ void ZoneReset::reset_zone_essential()
 					(ZCMD.arg4 < 0 || mobs_in_room(ZCMD.arg1, ZCMD.arg3) < ZCMD.arg4))
 				{
 					mob = read_mobile(ZCMD.arg1, REAL);
+					if(!mob)
+					{
+						sprintf(buf, "ZRESET: ошибка! моб %d  в зоне %d не существует", ZCMD.arg1, zone_table[m_zone_rnum].number);
+						mudlog(buf, BRF, LVL_BUILDER, SYSLOG, TRUE);
+						return;
+					}
+					if (!mob_proto[mob->get_rnum()].get_role_bits().any())
+					{
+						int rndlev = mob->get_level();
+						rndlev += number(-2, +2);
+						mob->set_level(rndlev);
+					}
+
 					char_to_room(mob, ZCMD.arg3);
 					load_mtrigger(mob);
 					tmob = mob;
@@ -5690,9 +5774,9 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		timed_from_char(ch, ch->timed);
 	}
-	
 
-	
+
+
 
 	while (ch->timed_feat)
 	{
@@ -5702,7 +5786,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	{
 		UNSET_FEAT(ch, i);
 	}
-	
+
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0)
 	{
 		ch->clear_skills();
@@ -5714,7 +5798,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	}
 	else
 	{
-		ch->crop_skills();
+		ch->set_skill(ch->get_remort());
 		for (i = 1; i <= MAX_SPELLS; i++)
 		{
 			if (GET_CLASS(ch) == CLASS_DRUID)
@@ -5725,7 +5809,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			{
 				GET_SPELL_TYPE(ch, i) = 0;
 				GET_SPELL_MEM(ch, i) = 0;
-			}			
+			}
 		}
 	}
 
@@ -5743,6 +5827,9 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	PRF_FLAGS(ch).unset(PRF_GREATPOWERATTACK);
 	PRF_FLAGS(ch).unset(PRF_AWAKE);
 	PRF_FLAGS(ch).unset(PRF_IRON_WIND);
+	PRF_FLAGS(ch).unset(PRF_DOUBLE_THROW);
+	PRF_FLAGS(ch).unset(PRF_TRIPLE_THROW);
+	PRF_FLAGS(ch).unset(PRF_SHADOW_THROW);
 	// Убираем все заученные порталы
 	check_portals(ch);
 	if (ch->get_protecting())
@@ -5750,7 +5837,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		ch->set_protecting(0);
 		ch->BattleAffects.unset(EAF_PROTECT);
 	}
-	
+
 	//Обновляем статистику рипов для текущего перевоплощения
 	GET_RIP_DTTHIS(ch) = 0;
 	GET_EXP_DTTHIS(ch) = 0;
@@ -6197,12 +6284,13 @@ void room_free(ROOM_DATA * room)
 	if (room->name)
 	{
 		free(room->name);
+		room->name = nullptr;
 	}
 
 	if (room->temp_description)
 	{
 		free(room->temp_description);
-		room->temp_description = 0;
+		room->temp_description = nullptr;
 	}
 
 	// Выходы и входы
@@ -6210,16 +6298,6 @@ void room_free(ROOM_DATA * room)
 	{
 		if (room->dir_option[i])
 		{
-			if (room->dir_option[i]->keyword)
-			{
-				free(room->dir_option[i]->keyword);
-			}
-
-			if (room->dir_option[i]->vkeyword)
-			{
-				free(room->dir_option[i]->vkeyword);
-			}
-
 			room->dir_option[i].reset();
 		}
 	}
@@ -6531,7 +6609,7 @@ void load_class_limit()
 {
 	pugi::xml_document doc_sw;
 	pugi::xml_node child_, object_, file_sw;
-	
+
 	for (int i = 0; i < NUM_PLAYER_CLASSES; ++i)
 	{
 		for (int j = 0; j < 6; ++j)
@@ -6583,7 +6661,19 @@ void load_class_limit()
 	}
 }
 
+Rooms::~Rooms()
+{
+	log("~Rooms()");
+	for (auto i = this->begin(); i != this->end(); ++i)
+		delete *i;
+}
+
 const std::size_t PlayersIndex::NOT_FOUND = ~static_cast<std::size_t>(0);
+
+PlayersIndex::~PlayersIndex()
+{
+	log("~PlayersIndex()");
+}
 
 std::size_t PlayersIndex::append(const player_index_element& element)
 {

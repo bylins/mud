@@ -63,7 +63,7 @@ int NormalMorph::get_trained_skill(const ESkill skill_num)
 
 int AnimalMorph::get_trained_skill(const ESkill skill_num)
 {
-	CharSkillsType::iterator it = skills_.find(skill_num);
+	auto it = skills_.find(skill_num);
 	return it != skills_.end() ? it->second : 0;
 }
 
@@ -74,7 +74,7 @@ void NormalMorph::set_skill(const ESkill skill_num, int percent)
 
 void AnimalMorph::set_skill(const ESkill skill_num, int percent)
 {
-	CharSkillsType::iterator it = skills_.find(skill_num);
+	auto it = skills_.find(skill_num);
 	if (it != skills_.end())
 	{
 		int diff = percent - it->second;//Polud	пока все снижения уровня скилов в звериной форме уходят в /dev/null
@@ -152,10 +152,12 @@ std::string GetMorphIdByName(char *arg)
 
 void AnimalMorph::InitSkills(int value)
 {
-	for (CharSkillsType::iterator it = skills_.begin(); it != skills_.end();++it)
+	for (auto it = skills_.begin(); it != skills_.end();++it)
 	{
 		if (value)
-			it->second = value;
+                {
+                    it->second = value;
+                }
 	}
 	skills_[SKILL_MORPH]=value;
 };
@@ -367,7 +369,7 @@ void load_morphs()
 			node.fromLevel = desc.attribute("lvl").as_int();
 			descList.push_back(node);
 		}
-		CharSkillsType skills;
+		MorphSkillsList skills;
 		IMorph::affects_list_t affs;
 		pugi::xml_node skillsList=morph.child("skills");
 		pugi::xml_node affectsList=morph.child("affects");

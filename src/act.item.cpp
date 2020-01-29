@@ -43,7 +43,8 @@
 #include "sysdep.h"
 #include "conf.h"
 #include "char_obj_utils.inl"
-
+#include "global.objects.hpp"
+#include "strengthening.hpp"
 #include <boost/format.hpp>
 // extern variables
 extern CHAR_DATA *mob_proto;
@@ -100,78 +101,63 @@ void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // чтобы словить невозможность положить в клан-сундук,
 // иначе при пол все сун будет спам на каждый предмет, мол низя
 // 0 - все ок, 1 - нельзя положить и дальше не обрабатывать (для кланов), 2 - нельзя положить и идти дальше
-int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
-{
-	if (!bloody::handle_transfer(ch, NULL, obj.get(), cont))
-	{
+int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont) {
+	if (!bloody::handle_transfer(ch, NULL, obj.get(), cont)) {
 		return 2;
 	}
 
-	if (!drop_otrigger(obj.get(), ch))
-	{
+	if (!drop_otrigger(obj.get(), ch)) {
+		return 2;
+	}
+
+	if (!put_otrigger(obj.get(), ch, cont)) {
 		return 2;
 	}
 
 	// если кладем в клановый сундук
-	if (Clan::is_clan_chest(cont))
-	{
-		if (!Clan::PutChest(ch, obj.get(), cont))
-		{
+	if (Clan::is_clan_chest(cont)) {
+		if (!Clan::PutChest(ch, obj.get(), cont)) {
 			return 1;
 		}
 		return 0;
 	}
 
 	// клан-хранилище под ингры
-	if (ClanSystem::is_ingr_chest(cont))
-	{
-		if (!Clan::put_ingr_chest(ch, obj.get(), cont))
-		{
+	if (ClanSystem::is_ingr_chest(cont)) {
+		if (!Clan::put_ingr_chest(ch, obj.get(), cont)) {
 			return 1;
 		}
 		return 0;
 	}
 
 	// персональный сундук
-	if (Depot::is_depot(cont))
-	{
-		if (!Depot::put_depot(ch, obj))
-		{
+	if (Depot::is_depot(cont)) {
+		if (!Depot::put_depot(ch, obj)) {
 			return 1;
 		}
 		return 0;
 	}
 
-	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0))
-	{
+	if (GET_OBJ_WEIGHT(cont) + GET_OBJ_WEIGHT(obj) > GET_OBJ_VAL(cont, 0)) {
 		act("$O : $o не помещается туда.", FALSE, ch, obj.get(), cont, TO_CHAR);
 	}
-	else if (obj->get_type() == OBJ_DATA::ITEM_CONTAINER)
-	{
+	else if (obj->get_type() == OBJ_DATA::ITEM_CONTAINER) {
 		act("Невозможно положить контейнер в контейнер.", FALSE, ch, 0, 0, TO_CHAR);
 	}
-	else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
-	{
+	else if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj.get(), cont, TO_CHAR);
 	}
-	else if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY)
-		|| obj->get_type() == OBJ_DATA::ITEM_KEY)
-	{
+	else if (obj->get_extra_flag(EExtraFlag::ITEM_ZONEDECAY) || obj->get_type() == OBJ_DATA::ITEM_KEY) {
 		act("Неведомая сила помешала положить $o3 в $O3.", FALSE, ch, obj.get(), cont, TO_CHAR);
 	}
-	else
-	{
+	else {
 		obj_from_char(obj.get());
 		// чтобы там по 1 куне гор не было, чару тож возвращается на счет, а не в инвентарь кучкой
-		if (obj->get_type() == OBJ_DATA::ITEM_MONEY
-			&& obj->get_vnum() == -1)
-		{
+		if (obj->get_type() == OBJ_DATA::ITEM_MONEY && obj->get_vnum() == -1) {
 			OBJ_DATA *temp, *obj_next;
-			for (temp = cont->get_contains(); temp; temp = obj_next)
-			{
+			for (temp = cont->get_contains(); temp; temp = obj_next) {
 				obj_next = temp->get_next_content();
-				if (GET_OBJ_TYPE(temp) == OBJ_DATA::ITEM_MONEY)
-				{
+				if (GET_OBJ_TYPE(temp) == OBJ_DATA::ITEM_MONEY) {
 					// тут можно просто в поле прибавить, но там описание для кун разное от кол-ва
 					int money = GET_OBJ_VAL(temp, 0);
 					money += GET_OBJ_VAL(obj, 0);
@@ -180,21 +166,21 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
 					obj_from_obj(obj.get());
 					extract_obj(obj.get());
 					obj = create_money(money);
-					if (!obj)
-					{
+					if (!obj) {
 						return 0;
 					}
 					break;
 				}
 			}
 		}
+
+
 		obj_to_obj(obj.get(), cont);
 
 		act("$n положил$g $o3 в $O3.", TRUE, ch, obj.get(), cont, TO_ROOM | TO_ARENA_LISTEN);
 
 		// Yes, I realize this is strange until we have auto-equip on rent. -gg
-		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP) && !cont->get_extra_flag(EExtraFlag::ITEM_NODROP))
-		{
+		if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP) && !cont->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 			cont->set_extra_flag(EExtraFlag::ITEM_NODROP);
 			act("Вы почувствовали что-то странное, когда положили $o3 в $O3.",
 				FALSE, ch, obj.get(), cont, TO_CHAR);
@@ -205,7 +191,7 @@ int perform_put(CHAR_DATA * ch, OBJ_DATA::shared_ptr obj, OBJ_DATA * cont)
 	}
 	return 2;
 }
-const int effects_l[5][40][2]{ 
+const int effects_l[5][40][2]{
 	{{0,0}},
 	{{0,	26}, // количество строк
 	{APPLY_ABSORBE,	5},
@@ -433,21 +419,11 @@ OBJ_DATA *create_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 
 	act("$n умело срезал$g $o3.", FALSE, ch, skin.get(), 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("Вы умело срезали $o3.", FALSE, ch, skin.get(), 0, TO_CHAR);
-	
+
 	//ставим флажок "не зависит от прототипа"
 	skin->set_extra_flag(EExtraFlag::ITEM_NOT_DEPEND_RPOTO);
 	return skin.get();
 }
-
-/* The following put modes are supported by the code below:
-
-   1) put <object> <container>
-   2) put all.<object> <container>
-   3) put all <container>
-
-   <container> must be in inventory or on ground.
-   all objects to be put into container must be in inventory.
-*/
 
 void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -629,7 +605,7 @@ void do_put(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-//переложить стрелы из пучка стрел 
+//переложить стрелы из пучка стрел
 //в колчан
 void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -674,13 +650,13 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы не сможете в это сложить стрелы.\r\n", ch);
 		return;
 	}
-       
+
 	if (to_obj == from_obj)
 	{
 		send_to_char("Нечем заняться? На печи ездить еще не научились?\r\n", ch);
 		return;
 	}
-        
+
 	if (GET_OBJ_VAL(to_obj, 2) >= GET_OBJ_VAL(to_obj, 1))
 	{
 		send_to_char("Там нет места.\r\n", ch);
@@ -711,11 +687,11 @@ void do_refill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
             }
         }
-        
-        
+
+
 	send_to_char("С таким успехом надо пополнять соседние камни, для разговоров по ним.\r\n", ch);
 	return ;
-	
+
 }
 
 
@@ -747,12 +723,6 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	{
 		if(!NamedStuff::wear_msg(ch, obj))
 			act("$p: Эта вещь не предназначена для вас!", FALSE, ch, obj, 0, TO_CHAR);
-		return (0);
-	}
-	else if (invalid_unique(ch, obj))
-	{
-		act("Вас обожгло при попытке взять $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		act("$n попытал$u взять $o3 - и чудом не сгорел$g.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return (0);
 	}
 	return (1);
@@ -810,7 +780,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	{
 		return;
 	}
-	
+
 	if (curr_type == currency::ICE) {
 		sprintf(buf, "Это составило %d %s.\r\n", value, desc_count(value, WHAT_ICEu));
 		send_to_char(buf, ch);
@@ -1778,7 +1748,7 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		extract_obj(meet);
 		WAIT_STATE(ch, 1 * PULSE_VIOLENCE);
 	}
-	else	
+	else
 	{
 		mudlog("Не возможно загрузить жаренное мясо в act.item.cpp::do_fry!", NRM, LVL_GRGOD, ERRLOG, TRUE);
 	}
@@ -1888,7 +1858,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
 			af.bitvector = 0;
-			af.type = 103;
+			af.type = SPELL_FULL;
 //			af.battleflag = 0;
 			af.duration = pc_duration(ch, 10 * 2, 0, 0, 0, 0);
 			affect_join_fspell(ch, af);
@@ -1992,17 +1962,21 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 	};
 
 	// first, make sure that the wear position is valid.
-	if (!CAN_WEAR(obj, wear_bitvectors[where]))
-	{
+	if (!CAN_WEAR(obj, wear_bitvectors[where])) {
 		act("Вы не можете надеть $o3 на эту часть тела.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if (unique_stuff(ch, obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE))
-	{
+	if (unique_stuff(ch, obj) && OBJ_FLAGGED(obj, EExtraFlag::ITEM_UNIQUE)) {
 		send_to_char("Вы не можете использовать более одной такой вещи.\r\n", ch);
 		return;
 	}
-    
+	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
+		if (ch->get_fighting() && (where == WEAR_SHIELD || GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)) {
+			send_to_char("Вм нужно набраться сил.\r\n", ch);
+			return;
+		}
+	};
+
 	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
 	if (   // не может держать если есть свет или двуручник
 		(where == WEAR_HOLD && (GET_EQ(ch, WEAR_BOTHS) || GET_EQ(ch, WEAR_LIGHT)
@@ -2021,9 +1995,9 @@ void perform_wear(CHAR_DATA * ch, OBJ_DATA * obj, int where)
 		return;
 	}
 	if (   // не может одеть колчан если одет не лук
-		(where == WEAR_QUIVER && 
+		(where == WEAR_QUIVER &&
                 !(GET_EQ(ch, WEAR_BOTHS) &&
-                (((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON) 
+                (((GET_OBJ_TYPE(GET_EQ(ch, WEAR_BOTHS))) == OBJ_DATA::ITEM_WEAPON)
                     && (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS )))))
         {
 		send_to_char("А стрелять чем будете?\r\n", ch);
@@ -2358,16 +2332,14 @@ void do_wear(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	OBJ_DATA *obj;
 	int wear;
 
 	if (IS_NPC(ch) && (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)&&(!NPC_FLAGGED(ch, NPC_WIELDING) || MOB_FLAGGED(ch, MOB_RESURRECTED))))
 		return;
 
-	if (ch->is_morphed())
-	{
+	if (ch->is_morphed()) {
 		send_to_char("Лапами неудобно держать оружие.\r\n", ch);
 		return;
 	}
@@ -2547,32 +2519,26 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 
 
-void perform_remove(CHAR_DATA * ch, int pos)
-{
+void perform_remove(CHAR_DATA * ch, int pos) {
 	OBJ_DATA *obj;
 
-	if (!(obj = GET_EQ(ch, pos)))
-	{
+	if (!(obj = GET_EQ(ch, pos))) {
 		log("SYSERR: perform_remove: bad pos %d passed.", pos);
-	}
-	else
-	{
+	} else {
 		/*
 		   if (IS_OBJ_STAT(obj, ITEM_NODROP))
 		   act("Вы не можете снять $o3!", FALSE, ch, obj, 0, TO_CHAR);
 		   else
 		 */
-		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-		{
+		if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
 			act("$p: Вы не можете нести столько вещей!", FALSE, ch, obj, 0, TO_CHAR);
-		}
-		else
-		{
-			if (!remove_otrigger(obj, ch))
-			{
+		} else {
+			if (!remove_otrigger(obj, ch)) {
 				return;
 			}
-
+			if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON || pos == WEAR_SHIELD)) {
+				ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
+			}
 			act("Вы прекратили использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n прекратил$g использовать $o3.", TRUE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 			obj_to_char(unequip_char(ch, pos | 0x40), ch);
@@ -2834,10 +2800,13 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
+//const char *armoredaffect[] = {"поглощение", "здоровье", "живучесть", "стойкость (сопротивление)", "огня (сопротивление)", "воздуха (сопротивление)", "воды (сопротивление)", "земли (сопротивление)"};
 void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
-	int add_ac, add_armor, prob, percent, i, k_mul = 1, k_div = 1;
+	char arg2[MAX_INPUT_LENGTH];
+	int add_ac, prob, percent, i, armorvalue;
+	const auto& strengthening = GlobalObjects::strengthening();
 
 	if (!ch->get_skill(SKILL_ARMORED))
 	{
@@ -2845,7 +2814,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	one_argument(argument, arg);
+	two_arguments(argument, arg, arg2);
 
 	if (!*arg)
 		send_to_char("Что вы хотите укрепить?\r\n", ch);
@@ -2855,7 +2824,8 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
-	};
+	}
+
 
 	if (!ObjSystem::is_armor_type(obj))
 	{
@@ -2878,36 +2848,31 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-	if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_BODY)
-		| to_underlying(EWearFlag::ITEM_WEAR_ABOUT))))
-	{
-		k_mul = 1;
-		k_div = 1;
-	}
-	else if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_SHIELD)
+	if (!OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_BODY)
+		| to_underlying(EWearFlag::ITEM_WEAR_ABOUT)
 		| to_underlying(EWearFlag::ITEM_WEAR_HEAD)
 		| to_underlying(EWearFlag::ITEM_WEAR_ARMS)
-		| to_underlying(EWearFlag::ITEM_WEAR_LEGS))))
-	{
-		k_mul = 2;
-		k_div = 3;
-	}
-	else if (OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::ITEM_WEAR_HANDS)
+		| to_underlying(EWearFlag::ITEM_WEAR_LEGS)
 		| to_underlying(EWearFlag::ITEM_WEAR_FEET))))
-	{
-		k_mul = 1;
-		k_div = 2;
-	}
-	else
 	{
 		act("$o3 невозможно укрепить.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-
+	if (obj->get_owner() != GET_UNIQUE(ch))
+	{
+		send_to_char(ch, "Укрепить можно только лично сделанный предмет.\r\n");
+		return;
+	}
+	if (!*arg2 && (GET_SKILL(ch, SKILL_ARMORED) >= 100))
+	{
+		send_to_char(ch, "Укажите параметр для улучшения: поглощение, здоровье, живучесть (сопротивление), стойкость (сопротивление), огня (сопротивление), воздуха (сопротивление), воды (сопротивление), земли (сопротивление)\r\n");
+		return;
+	}
 	switch (obj->get_material())
 	{
 	case OBJ_DATA::MAT_IRON:
 	case OBJ_DATA::MAT_STEEL:
+	case OBJ_DATA::MAT_BULAT:
 		act("Вы принялись закалять $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n принял$u закалять $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		break;
@@ -2928,30 +2893,94 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 		return;
 	}
-	obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
-	obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
-	
+
+
 	percent = number(1, skill_info[SKILL_ARMORED].max_percent);
 	prob = train_skill(ch, SKILL_ARMORED, skill_info[SKILL_ARMORED].max_percent, 0);
-
 	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GET_LEVEL(ch) + 4) / 5);
-	add_armor = IS_IMMORTAL(ch) ? 5 : number(1, (GET_LEVEL(ch) + 4) / 5);
-
 	if (percent > prob
 		|| GET_GOD_FLAG(ch, GF_GODSCURSE))
 	{
 		act("Но только испортили $S.", FALSE, ch, obj, 0, TO_CHAR);
 		add_ac = -add_ac;
-		add_armor = -add_armor;
 	}
-	else
+	else if (GET_SKILL(ch, SKILL_ARMORED) >= 100)
 	{
-		add_ac = MIN(-1, add_ac * k_mul / k_div);
-		add_armor = MAX(1, add_armor * k_mul / k_div);
-	};
-
+		if (CompareParam(arg2, "поглощение"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ABSORBTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю поглот на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_ABSORBE, armorvalue);
+		}
+		else if (CompareParam(arg2, "здоровье"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::HEALTH);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
+//			send_to_char(ch, "увеличиваю здоровье на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_SAVING_CRITICAL, armorvalue);
+		}
+		else if (CompareParam(arg2, "живучесть"))// резисты в - лучше
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::VITALITY);
+			armorvalue = - MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
+//			send_to_char(ch, "увеличиваю живучесть на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_VITALITY, armorvalue);
+		}
+		else if (CompareParam(arg2, "стойкость"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::STAMINA);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+			armorvalue *= -1;
+//			send_to_char(ch, "увеличиваю стойкость на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_SAVING_STABILITY, armorvalue);
+		}
+		else if (CompareParam(arg2, "воздуха"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::AIR_PROTECTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю сопр воздуха на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_AIR, armorvalue);
+		}
+		else if (CompareParam(arg2, "воды"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::WATER_PROTECTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю сопр воды на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_WATER, armorvalue);
+		}
+		else if (CompareParam(arg2, "огня"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::FIRE_PROTECTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю сопр огню на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_FIRE, armorvalue);
+		}
+		else if (CompareParam(arg2, "земли"))
+		{
+			armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::EARTH_PROTECTION);
+			armorvalue = MAX(0, number(armorvalue, armorvalue - 2));
+//			send_to_char(ch, "увеличиваю сопр земли на %d\r\n", armorvalue);
+			obj->set_affected(1, APPLY_RESIST_EARTH, armorvalue);
+		}
+		else
+		{
+			send_to_char(ch, "Но не поняли что улучшать.\r\n");
+			return;
+		}
+		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER);
+		int timer =  obj->get_timer() * strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::TIMER) / 100;
+		obj->set_timer(timer);
+//		send_to_char(ch, "увеличиваю таймер на %d%, устанавливаю таймер %d\r\n", armorvalue, timer);
+		armorvalue = strengthening((GET_SKILL(ch, SKILL_ARMORED) / 10 * 10), Strengthening::ARMOR);
+//		send_to_char(ch, "увеличиваю армор на %d скилл равен %d  значение берем %d\r\n", armorvalue, GET_SKILL(ch, SKILL_ARMORED), (GET_SKILL(ch, SKILL_ARMORED) / 10 * 10) );
+		obj->set_affected(2, APPLY_ARMOUR, armorvalue);
+		obj->set_extra_flag(EExtraFlag::ITEM_ARMORED);
+		obj->set_extra_flag(EExtraFlag::ITEM_TRANSFORMED); // установили флажок трансформации кодом
+	}
 	obj->set_affected(0, APPLY_AC, add_ac);
-	obj->set_affected(1, APPLY_ARMOUR, add_armor);
 }
 
 void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
@@ -3071,7 +3100,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		const auto& room = world[ch->in_room];
 		auto aff_i = room->affected.end();
 		auto aff_first = room->affected.end();
-		
+
 		//Find own rune label or first run label in room
 		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it)
 		{
@@ -3117,7 +3146,7 @@ void do_extinguish(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					send_to_char(buf, caster);
 				}
 			}
-			affect_room_remove(world[ch->in_room], aff_i);
+			removeAffectFromRoom(world[ch->in_room], aff_i);
 			lag = 3;
 		}
 		else
@@ -3383,11 +3412,18 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	OBJ_DATA *obj;
 	int prob, percent = 0, decay;
+	struct timed_type timed;
+
 
 	if (!ch->get_skill(SKILL_REPAIR))
 	{
 		send_to_char("Вы не умеете этого.\r\n", ch);
 		return;
+	}
+	if (timed_by_skill(ch, SKILL_REPAIR))
+	{
+	    send_to_char("У вас недостаточно сил для ремонта.\r\n", ch);
+	    return;
 	}
 
 	one_argument(argument, arg);
@@ -3460,11 +3496,11 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else
 	{
-		// Карачун. В кузне ремонтируем без ухудшения
-		if (!IS_IMMORTAL(ch) && !ROOM_FLAGGED(ch->in_room, ROOM_SMITH))
-		{
-			obj->set_maximum_durability(obj->get_maximum_durability() - MAX(1, (GET_OBJ_MAX(obj) - GET_OBJ_CUR(obj)) / 40));
-		}
+		timed.skill = SKILL_REPAIR;
+		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
+		int modif = ch->get_skill(SKILL_REPAIR) / 7 + number(1, 5);
+		timed.time = MAX(1, 25 - modif);
+		timed_to_char(ch, &timed);
 		obj->set_current_durability(MIN(GET_OBJ_MAX(obj), GET_OBJ_CUR(obj) * percent / prob + 1));
 		send_to_char(ch, "Теперь %s выгляд%s лучше.\r\n", obj->get_PName(0).c_str(), GET_OBJ_POLY_1(ch, obj));
 		act("$n умело починил$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -3474,13 +3510,13 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 {
 	int num;
-	switch (GET_LEVEL(mob)/11)
+	switch (GET_LEVEL(mob) / 11)
 	{
 	case 0:
-			num = 15 * animals_levels[0] / 2201; // приводим пропорцией к количеству зверья на 15.11.2015 в мире
-			if (number(1, 100) <= num)
+		num = 15 * animals_levels[0] / 2201; // приводим пропорцией к количеству зверья на 15.11.2015 в мире
+		if (number(1, 100) <= num)
 			return true;
-	break;
+		break;
 	case 1:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 40)
 		{
@@ -3494,8 +3530,8 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 			send_to_char(buf, ch);
 			return false;
 		}
-		
-	break;
+
+		break;
 	case 2:
 		if (ch->get_skill(SKILL_MAKEFOOD) >= 80)
 		{
@@ -3552,12 +3588,9 @@ bool skill_to_skin(CHAR_DATA *mob, CHAR_DATA *ch)
 	}
 	return false;
 }
+
 void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	OBJ_DATA *obj;
-	CHAR_DATA *mob;
-	int prob, percent = 0, mobn;
-
 	if (!ch->get_skill(SKILL_MAKEFOOD))
 	{
 		send_to_char("Вы не умеете этого.\r\n", ch);
@@ -3571,24 +3604,34 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))
-		&& !(obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents)))
+	auto obj = get_obj_in_list_vis(ch, arg, ch->carrying);
+	if (!obj)
 	{
-		sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
-		send_to_char(buf, ch);
-		return;
+		obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
+		if (!obj)
+		{
+			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
+			send_to_char(buf, ch);
+			return;
+		}
 	}
 
-	if (!IS_CORPSE(obj) || (mobn = GET_OBJ_VAL(obj, 2)) < 0)
+	const auto mobn = GET_OBJ_VAL(obj, 2);
+	if (!IS_CORPSE(obj) || mobn < 0)
 	{
 		act("Вы не сможете освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	mob = (mob_proto + real_mobile(mobn));
+
+	const auto mob = (mob_proto + real_mobile(mobn));
 	mob->set_normal_morph();
 
-	if (!IS_IMMORTAL(ch) && ((GET_RACE(mob) != NPC_RACE_ANIMAL) && (GET_RACE(mob) != NPC_RACE_REPTILE) && (GET_RACE(mob) != NPC_RACE_FISH) && (GET_RACE(mob) != NPC_RACE_BIRD) && 
-		(GET_RACE(mob) != NPC_RACE_HUMAN_ANIMAL)))
+	if (!IS_IMMORTAL(ch)
+		&& GET_RACE(mob) != NPC_RACE_ANIMAL
+		&& GET_RACE(mob) != NPC_RACE_REPTILE
+		&& GET_RACE(mob) != NPC_RACE_FISH
+		&& GET_RACE(mob) != NPC_RACE_BIRD
+		&& GET_RACE(mob) != NPC_RACE_HUMAN_ANIMAL)
 	{
 		send_to_char("Этот труп невозможно освежевать.\r\n", ch);
 		return;
@@ -3600,12 +3643,21 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	prob = number(1, skill_info[SKILL_MAKEFOOD].max_percent);
-	percent = train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent, mob)
+	const auto prob = number(1, skill_info[SKILL_MAKEFOOD].max_percent);
+	const auto percent = train_skill(ch, SKILL_MAKEFOOD, skill_info[SKILL_MAKEFOOD].max_percent, mob)
 		+ number(1, GET_REAL_DEX(ch)) + number(1, GET_REAL_STR(ch));
+
 	OBJ_DATA::shared_ptr tobj;
-	if (prob > percent
-		|| !(tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.random_key()))) // последняя в списке свежуемого мяса артефакт, обработка отдельная ниже
+	if (GET_SKILL(ch, SKILL_MAKEFOOD) > 150 && number(1, 200) == 1) // артефакт
+	{
+		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get_artefact_key());
+	}
+	else
+	{
+		tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.random_key());
+	}
+
+	if (prob > percent || !tobj)
 	{
 		act("Вы не сумели освежевать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u освежевать $o3, но неудачно.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -3614,34 +3666,33 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		act("$n умело освежевал$g $o3.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		act("Вы умело освежевали $o3.", FALSE, ch, obj, 0, TO_CHAR);
-		
+
 		dl_load_obj(obj, mob, ch, DL_SKIN);
 
 		std::vector<OBJ_DATA*> entrails;
-		if ((GET_SKILL(ch, SKILL_MAKEFOOD) > 150) && (number(1,200) == 1)) // артефакт
-		{
-			tobj = world_objects.create_from_prototype_by_vnum(meat_mapping.get_artefact_key());
-		}
 		entrails.push_back(tobj.get());
+
 		if (GET_RACE(mob) == NPC_RACE_ANIMAL) // шкуры только с животных
 		{
-			if (skill_to_skin(mob, ch))
+			if (WAITLESS(ch) || skill_to_skin(mob, ch))
 			{
 				entrails.push_back(create_skin(mob, ch));
 			}
 		}
+
 		entrails.push_back(try_make_ingr(mob, 1000 - ch->get_skill(SKILL_MAKEFOOD) * 2, 100));  // ингры со всех
-		for (std::vector<OBJ_DATA*>::iterator it = entrails.begin(); it != entrails.end(); ++it)
+
+		for (const auto& it : entrails)
 		{
-			if (*it)
+			if (it)
 			{
 				if (obj->get_carried_by() == ch)
 				{
-					can_carry_obj(ch, *it);
+					can_carry_obj(ch, it);
 				}
 				else
 				{
-					obj_to_room(*it, ch->in_room);
+					obj_to_room(it, ch->in_room);
 				}
 			}
 		}

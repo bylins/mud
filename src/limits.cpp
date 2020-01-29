@@ -217,7 +217,12 @@ int mana_gain(const CHAR_DATA * ch)
 
 	// Position calculations
 	if (ch->get_fighting())
-		percent -= 90;
+	{
+		if (IS_MANA_CASTER(ch))
+			percent -= 50;
+		else
+			percent -= 90;
+	}
 	else
 		switch (GET_POS(ch))
 		{
@@ -840,21 +845,16 @@ void beat_points_update(int pulse)
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(i)
-			&& GET_MANA_STORED(i) < GET_MAX_MANA(i))
-		{
+		if (IS_MANA_CASTER(i) && GET_MANA_STORED(i) < GET_MAX_MANA(i.get())) {
 			GET_MANA_STORED(i) += mana_gain(i);
-			if (GET_MANA_STORED(i) >= GET_MAX_MANA(i))
-			{
-				GET_MANA_STORED(i) = GET_MAX_MANA(i);
+			if (GET_MANA_STORED(i) >= GET_MAX_MANA(i.get())) {
+				GET_MANA_STORED(i) = GET_MAX_MANA(i.get());
 				send_to_char("Ваша магическая энергия полностью восстановилась\r\n", i.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(i)
-			&& GET_MANA_STORED(i) > GET_MAX_MANA(i))
-		{
-			GET_MANA_STORED(i) = GET_MAX_MANA(i);
+		if (IS_MANA_CASTER(i) && GET_MANA_STORED(i) > GET_MAX_MANA(i.get())) {
+			GET_MANA_STORED(i) = GET_MAX_MANA(i.get());
 		}
 
 		// Restore moves
@@ -1166,7 +1166,7 @@ void underwater_check()
 				GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
 			Damage dmg(SimpleDmg(TYPE_WATERDEATH), MAX(1, GET_REAL_MAX_HIT(d->character) >> 2), FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(d->character.get(), d->character.get()) < 0)
 			{
@@ -1217,7 +1217,7 @@ void check_idling(CHAR_DATA * ch)
 				Clan::clan_invoice(ch, false);
 				sprintf(buf, "%s force-rented and extracted (idle).", GET_NAME(ch));
 				mudlog(buf, NRM, LVL_GOD, SYSLOG, TRUE);
-				extract_char(ch, FALSE);		
+				extract_char(ch, FALSE);
 
 				// чара в лд уже посейвило при обрыве коннекта
 				if (ch->desc)
@@ -1230,7 +1230,7 @@ void check_idling(CHAR_DATA * ch)
 					ch->desc->character = NULL;
 					ch->desc = NULL;
 				}
-				
+
 			}
 		}
 	}
@@ -2078,7 +2078,7 @@ void point_update(void)
 		else if (GET_POS(i) == POS_INCAP)
 		{
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 1, FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) == -1)
 			{
@@ -2088,7 +2088,7 @@ void point_update(void)
 		else if (GET_POS(i) == POS_MORTALLYW)
 		{
 			Damage dmg(SimpleDmg(TYPE_SUFFERING), 2, FightSystem::UNDEF_DMG);
-			dmg.flags.set(FightSystem::NO_FLEE);
+			dmg.flags.set(FightSystem::NO_FLEE_DMG);
 
 			if (dmg.process(i, i) == -1)
 			{

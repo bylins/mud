@@ -49,8 +49,9 @@ bool CompareParam(const std::string & buffer, const char *arg, bool full = 0);
 bool CompareParam(const std::string & buffer, const std::string & buffer2, bool full = 0);
 DESCRIPTOR_DATA *DescByUID(int uid);
 DESCRIPTOR_DATA* get_desc_by_id(long id, bool playing = 1);
-long GetUniqueByName(const std::string & name, bool god = 0);
-std::string GetNameByUnique(long unique, bool god = 0);
+long GetUniqueByName(const std::string & name, bool god = false);
+std::string GetNameByUnique(long unique, bool god = false);
+bool IsActiveUser(long unique);
 void CreateFileName(std::string &name);
 std::string ExpFormat(long long exp);
 void lower_convert(std::string& text);
@@ -154,7 +155,7 @@ struct alias_data
 #define SCMD_SLOWNS  14
 #define SCMD_AUTOEXIT   15
 #define SCMD_TRACK   16
-#define SCMD_COLOR      17
+//#define SCMD_COLOR      17  теперь свободно
 #define SCMD_CODERINFO  18
 #define SCMD_AUTOMEM    19
 #define SCMD_COMPRESS   20
@@ -241,10 +242,6 @@ struct alias_data
 #define SCMD_DO_ADAPT 0
 #define SCMD_MAKE_OVER 1
 
-//  do helpee
-#define SCMD_BUYHELPEE  0
-#define SCMD_FREEHELPEE 1
-
 // do_drop
 #define SCMD_DROP 0
 #define SCMD_DONATE 1
@@ -324,6 +321,10 @@ struct alias_data
 // do_restore
 #define SCMD_RESTORE_GOD 0
 #define SCMD_RESTORE_TRIGGER 1
+
+// do_throw
+#define SCMD_PHYSICAL_THROW 0
+#define SCMD_SHADOW_THROW	1
 
 /**
 * copy the first non-fill-word, space-delimited argument of 'argument'

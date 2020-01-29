@@ -13,7 +13,9 @@ set(SOURCES
 	src/influxdb.cpp
 	src/heartbeat.cpp
 	src/heartbeat.commands.cpp
+	src/ability.rollsystem.cpp
 	src/accounts.cpp
+	src/action.targeting.cpp
 	src/act.comm.cpp
 	src/act.informative.cpp
 	src/act.item.cpp
@@ -50,6 +52,7 @@ set(SOURCES
 	src/config.cpp
 	src/constants.cpp
 	src/corpse.cpp
+	src/daily_quest.cpp
 	src/db.cpp
 	src/deathtrap.cpp
 	src/depot.cpp
@@ -144,9 +147,9 @@ set(SOURCES
 	src/spells.cpp
 	src/structs.cpp
 	src/structs.cpp
-	src/stuff.cpp     
+	src/stuff.cpp
 	src/temp_spells.cpp
-	src/time_utils.cpp	
+	src/time_utils.cpp
 	src/title.cpp
 	src/top.cpp
 	src/utils.cpp
@@ -168,10 +171,15 @@ set(SOURCES
 	src/compact.trie.cpp
 	src/id.cpp
 	src/stigmas.cpp
-	src/zone.table.cpp)
+	src/zone.table.cpp
+        src/strengthening.cpp)
 
 set(HEADERS
+        src/strengthening.hpp
+	src/ability.constants.hpp
+	src/ability.rollsystem.hpp
 	src/accounts.hpp
+	src/action.targeting.hpp
 	src/blocking.queue.hpp
 	src/influxdb.hpp
 	src/heartbeat.commands.hpp
@@ -222,6 +230,7 @@ set(HEADERS
 	src/constants.h
 	src/coredump.hpp
 	src/corpse.hpp
+	src/daily_quest.hpp
 	src/db.h
 	src/deathtrap.hpp
 	src/depot.hpp
@@ -237,6 +246,7 @@ set(HEADERS
 	src/exchange.h
 	src/ext_money.hpp
 	src/external.trigger.hpp
+	src/features.itemset.hpp
 	src/features.hpp
 	src/fight_constants.hpp
 	src/fight.h
@@ -305,7 +315,7 @@ set(HEADERS
 	src/structs.h
 	src/stuff.hpp
 	src/sysdep.h
-	src/telnet.h      
+	src/telnet.h
 	src/temp_spells.hpp
 	src/time_utils.hpp
 	src/title.hpp
@@ -319,7 +329,6 @@ set(HEADERS
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
 set(CMAKE_CONFIGURATION_TYPES Release Debug Test FastTest)
-
 if (NOT MSVC)
 	# Default build type will be Release.
 	if (NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -506,7 +515,7 @@ set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 # Main library file.
 add_library(circle.library STATIC ${CIRCLE_FILES})
 if (UNIX OR CYGWIN)
-	add_definitions("--std=gnu++14")
+	add_definitions("--std=gnu++17")
 else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 14)
 endif ()
@@ -590,12 +599,12 @@ option(HAVE_ICONV "Allows to enable search of iconv." OFF)
 if (HAVE_ICONV)
 	find_path(ICONV_INCLUDE_DIR iconv.h)
 	find_library(ICONV_LIBRARIES NAMES iconv libiconv libiconv-2 c)
-	if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES) 
+	if (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES)
 		message(STATUS "Iconv found. Turning it ON")
 		set(ICONV_FOUND TRUE)
 	else ()
 		message(STATUS "Iconv not found. Turning it OFF")
-	endif () 
+	endif ()
 
 	if (ICONV_FOUND)
 		add_definitions("-DHAVE_ICONV")
@@ -629,10 +638,16 @@ else ()
 	message(STATUS "Turning compiling with ASAN in debug mode OFF")
 endif ()
 
+option(NOCRYPT "Allows to turn off usage of crypt() function." OFF)
+	set(DEBUG_CRYPT "")
+if (NOCRYPT)
+	set(DEBUG_CRYPT "-DNOCRYPT")
+endif ()
+
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
-		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS}")
+		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT}")
 		set(CMAKE_CXX_FLAGS_TEST     "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 
@@ -698,3 +713,4 @@ if (BUILD_TESTS)
 endif ()
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
+

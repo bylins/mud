@@ -66,19 +66,15 @@ void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 #define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
-void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 	skip_spaces(&argument);
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 		send_to_char(SIELENCE, ch);
 		return;
 	}
 
-	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
-	{
+	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);  
 		return;
 	}
@@ -93,8 +89,7 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!*argument)
 		send_to_char("Вы задумались: \"Чего бы такого сказать?\"\r\n", ch);
-	else
-	{
+	else {
 		sprintf(buf, "$n сказал$g : '%s'", argument);
 
 //      act (buf, FALSE, ch, 0, 0, TO_ROOM | DG_NO_TRIG | CHECK_DEAF);
@@ -874,51 +869,45 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 				ch->remember_add(buf1, Remember::ALL);
 			}
 		}
+		switch (subcmd) {
+		case SCMD_SHOUT:
+			ign_flag = IGNORE_SHOUT;
+			break;
+		case SCMD_GOSSIP:
+			if (PLR_FLAGGED(ch, PLR_SPAMMER))
+				return;
+			ign_flag = IGNORE_GOSSIP;
+			break;
+		case SCMD_HOLLER:
+			if (PLR_FLAGGED(ch, PLR_SPAMMER))
+				return;
+			ign_flag = IGNORE_HOLLER;
+			break;
+		default:
+			ign_flag = 0;
+		}
 		snprintf(out_str, MAX_STRING_LENGTH, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
-                if (IS_FEMALE(ch))
-		{
-                if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP))
-		 {
-			snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметила :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
-			ch->remember_add(buf1, Remember::GOSSIP);
-		 }
-                if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER))
-                 {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорала :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
-                        ch->remember_add(buf1, Remember::GOSSIP);
-                 }
-                }
-                else
-                {
-                if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP))
-                 {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметил :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
-                        ch->remember_add(buf1, Remember::GOSSIP);
-                 }
-                if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER))
-                 {
-                        snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорал :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
-                        ch->remember_add(buf1, Remember::GOSSIP);
-                 }
-                }
-
+		if (IS_FEMALE(ch)) {
+			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP)) {
+				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметила :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+				ch->remember_add(buf1, Remember::GOSSIP);
+			}
+			if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER)) {
+				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорала :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+				ch->remember_add(buf1, Remember::GOSSIP);
+			}
+		}
+		else {
+			if (!IS_NPC(ch) && (subcmd == SCMD_GOSSIP)) {
+				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заметил :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+				ch->remember_add(buf1, Remember::GOSSIP);
+			}
+			if (!IS_NPC(ch) && (subcmd == SCMD_HOLLER)) {
+				snprintf(buf1, MAX_STRING_LENGTH, "%s%s заорал :'%s'%s\r\n",color_on, GET_NAME(ch), argument,KNRM);
+				ch->remember_add(buf1, Remember::GOSSIP);
+			}
+		}
 	}
-
-	switch (subcmd)
-	{
-	case SCMD_SHOUT:
-		ign_flag = IGNORE_SHOUT;
-		break;
-	case SCMD_GOSSIP:
-		ign_flag = IGNORE_GOSSIP;
-		break;
-	case SCMD_HOLLER:
-		ign_flag = IGNORE_HOLLER;
-		break;
-	default:
-		ign_flag = 0;
-	}
-
 	// now send all the strings out
 	for (i = descriptor_list; i; i = i->next)
 	{
@@ -1003,7 +992,7 @@ void do_pray_gods(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!IS_NPC(ch) && (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE)))
 	{
-		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучали...\r\n", ch);
+		send_to_char("Вам запрещено обращаться к Богам, вероятно, вы их замучили...\r\n", ch);
 		return;
 	}
 
@@ -1100,7 +1089,7 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (PLR_FLAGGED(ch, PLR_DUMB))
+	if (PLR_FLAGGED(ch, PLR_DUMB) || PLR_FLAGGED(ch, PLR_MUTE))
 	{
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
 		return;
@@ -1140,10 +1129,10 @@ void do_offtop(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 	ch->set_last_tell(argument);
-
+	if (PLR_FLAGGED(ch, PLR_SPAMMER)) // а вот фиг, еще проверка :)
+		return;
 	snprintf(buf, MAX_STRING_LENGTH, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
 	snprintf(buf1, MAX_STRING_LENGTH, "&c%s&n", buf);
-
 	for (DESCRIPTOR_DATA *i = descriptor_list; i; i = i->next)
 	{
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...

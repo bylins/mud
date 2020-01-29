@@ -111,8 +111,8 @@ namespace Boards
 		temp_message->unique = 1;
 		temp_message->level = 1;
 
-		(*board_it)->add_message(temp_message);
-		(*board_it)->renumerate_messages();
+		(*board_it)->write_message(temp_message);
+//		(*board_it)->renumerate_messages();
 	}
 
 	void dg_script_message()
@@ -1140,8 +1140,9 @@ void report_on_board(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	temp_message->text = argument;
 	temp_message->date = time(0);
 
-	(*board)->add_message(temp_message);
-	(*board)->renumerate_messages();
+	(*board)->write_message(temp_message);
+//	(*board)->renumerate_messages();
+//	(*board)->Save();
 	send_to_char(ch,
 		"Текст сообщения:\r\n"
 		"%s\r\n\r\n"

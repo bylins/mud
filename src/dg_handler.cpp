@@ -70,11 +70,11 @@ void extract_script_mem(struct script_memory *sc)
 }
 
 // perhaps not the best place for this, but I didn't want a new file 
-const char * skill_percent(CHAR_DATA * ch, char *skill)
+const char * skill_percent(TRIG_DATA* trig, CHAR_DATA * ch, char *skill)
 {
 	static char retval[256];
 	im_rskill *rs;
-    int rid;
+	int rid;
 
 	const ESkill skillnum = fix_name_and_find_skill_num(skill);
 	if (skillnum > 0)
@@ -83,7 +83,6 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 		sprintf(retval, "%d", ch->get_trained_skill(skillnum));
 		return retval;
 	}
-
 	rid = im_get_recipe_by_name(skill);
 	if (rid >= 0)
 	{
@@ -93,7 +92,11 @@ const char * skill_percent(CHAR_DATA * ch, char *skill)
 		sprintf(retval, "%d", rs->perc);
 		return retval;
 	}
-                                                                                      
+	if ((skillnum == 0) && (rid < 0))
+	{
+		sprintf(buf2, "Wrong skill\recipe name: %s", skill);
+		trig_log(trig, buf2);
+	}                                                                                      
 	return ("0");
 }
 

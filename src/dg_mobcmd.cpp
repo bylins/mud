@@ -23,17 +23,6 @@
  *  $Revision$                                                   *
  ***************************************************************************/
 
-/***************************************************************************
- *  The MOBprograms have been contributed by N'Atas-ha.  Any support for   *
- *  these routines should not be expected from Merc Industries.  However,  *
- *  under no circumstances should the blame for bugs, etc be placed on     *
- *  Merc Industries.  They are not guaranteed to work on all systems due   *
- *  to their frequent use of strxxx functions.  They are also not the most *
- *  efficient way to perform their tasks, but hopefully should be in the   *
- *  easiest possible way to install and begin using. Documentation for     *
- *  such installation can be found in INSTALL.  Enjoy........    N'Atas-Ha *
- ***************************************************************************/
-
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "dg_scripts.h"
@@ -48,7 +37,6 @@
 #include "features.hpp"
 #include "char.hpp"
 #include "skills.h"
-#include "name_list.hpp"
 #include "room.hpp"
 #include "fight.h"
 #include "fight_hit.hpp"
@@ -69,18 +57,12 @@ struct mob_command_info
 
 #define IS_CHARMED(ch)          (IS_HORSE(ch)||AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 
-extern DESCRIPTOR_DATA *descriptor_list;
-extern INDEX_DATA *mob_index;
-
-extern const char *dirs[];
-
 extern int reloc_target;
 extern TRIG_DATA *cur_trig;
 
 void sub_write(char *arg, CHAR_DATA * ch, byte find_invis, int targets);
 ROOM_DATA *get_room(char *name);
 OBJ_DATA *get_obj_by_char(CHAR_DATA * ch, char *name);
-extern void die(CHAR_DATA * ch, CHAR_DATA * killer);
 // * Local functions.
 void mob_command_interpreter(CHAR_DATA* ch, char *argument);
 bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
@@ -93,12 +75,6 @@ void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
 	sprintf(buf, "(Mob: '%s', VNum: %d, trig: %d): %s", GET_SHORT(mob), GET_MOB_VNUM(mob), last_trig_vnum, msg);
 	script_log(buf, type);
 }
-
-// * macro to determine if a mob is permitted to use these commands
-#define MOB_OR_IMPL(ch) \
-        (IS_NPC(ch) && (!(ch)->desc || GET_LEVEL((ch)->desc->original)>=LVL_IMPL))
-
-// mob commands
 
 //returns the real room number, or NOWHERE if not found or invalid
 //copy from find_target_room except char's messages
@@ -116,7 +92,7 @@ room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr)
 		return NOWHERE;
 	}
 
-	auto tmp = atoi(roomstr);
+	const auto tmp = atoi(roomstr);
 	if (tmp > 0)
 	{
 		location = real_room(tmp);
@@ -134,12 +110,6 @@ room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr)
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
@@ -151,7 +121,7 @@ void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	skip_spaces(&argument);
 
-	int temp_in_room = ch->in_room;
+	const int temp_in_room = ch->in_room;
 	for (int door = 0; door < NUM_OF_DIRS; door++)
 	{
 		const auto& exit = world[temp_in_room]->dir_option[door];
@@ -172,12 +142,6 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (MOB_FLAGGED(ch, MOB_NOFIGHT))
 	{
@@ -232,7 +196,6 @@ void do_mkill(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	hit(ch, victim, TYPE_UNDEFINED, 1);
-	return;
 }
 
 /*
@@ -246,12 +209,6 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int pos, junk_all = 0;
 	OBJ_DATA *obj;
 	OBJ_DATA *obj_next;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -295,7 +252,6 @@ void do_mjunk(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			extract_obj(obj);
 		}
 	}
-	return;
 }
 
 // prints the message to everyone in the room other than the mob and victim
@@ -304,12 +260,6 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char arg[MAX_INPUT_LENGTH];
 	CHAR_DATA *victim;
 	char *p;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -327,7 +277,7 @@ void do_mechoaround(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "mechoaround: victim (%s) does not exist", arg + 1);
+			sprintf(buf, "mechoaround: victim (%s) UID does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
 		}
@@ -357,12 +307,6 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *victim;
 	char *p;
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
@@ -379,7 +323,7 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(arg)))
 		{
-			sprintf(buf, "msend: victim (%s) does not exist", arg + 1);
+			sprintf(buf, "msend: victim (%s) UID does not exist", arg + 1);
 			mob_log(ch, buf, LGH);
 			return;
 		}
@@ -406,12 +350,6 @@ void do_msend(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_mecho(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char *p;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -445,22 +383,12 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int number = 0;
 	CHAR_DATA *mob;
 
-	if (!MOB_OR_IMPL(ch))
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
-		send_to_char("Чаво?\r\n", ch);
+		mob_log(ch, "mload: попытка почармленным мобом загрузать моба/предмет.");
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
-		mob_log(ch, "mload: in charm");
-		return;
-	}
-	if (ch->desc && GET_LEVEL(ch->desc->original) < LVL_IMPL)
-	{
-		mob_log(ch, "mload: not IMPL");
-		return;
-	}
 	two_arguments(argument, arg1, arg2);
 
 	if (!*arg1 || !*arg2 || !is_number(arg2) || ((number = atoi(arg2)) < 0))
@@ -530,16 +458,7 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *victim;
 	OBJ_DATA *obj;
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
 		return;
 
 	one_argument(argument, arg);
@@ -589,12 +508,6 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char buf[MAX_INPUT_LENGTH];
 	int location;
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
@@ -627,12 +540,6 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char buf[MAX_INPUT_LENGTH];
 	int location;
 	int original;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -670,12 +577,6 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int target;
 	room_rnum from_room;
 	CHAR_DATA *vict, *horse;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -734,7 +635,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!(vict = get_char(arg1)))
 			{
-				sprintf(buf, "mteleport: victim (%s) does not exist", arg1 + 1);
+				sprintf(buf, "mteleport: victim (%s) UID does not exist", arg1 + 1);
 				mob_log(ch, buf);
 				return;
 			}
@@ -807,16 +708,7 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char arg[MAX_INPUT_LENGTH];
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
 		return;
 
 	argument = one_argument(argument, arg);
@@ -832,69 +724,52 @@ void do_mforce(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		mob_log(ch, "ERROR: \'mforce all\' command disabled.");
 		return;
-		//DESCRIPTOR_DATA *i;
-
-		//// не знаю почему здесь идут только по плеерам, но раз так,
-		//// то LVL_IMMORT+ для мобов здесь исключать пока нет смысла
-		//for (i = descriptor_list; i; i = i->next)
-		//{
-		//	if ((i->character.get() != ch) && !i->connected && (IN_ROOM(i->character) == ch->in_room))
-		//	{
-		//		const auto vch = i->character;
-		//		if (GET_LEVEL(vch) < GET_LEVEL(ch) && CAN_SEE(ch, vch) && GET_LEVEL(vch) < LVL_IMMORT)
-		//		{
-		//			command_interpreter(vch.get(), argument);
-		//		}
-		//	}
-		//}
 	}
-	else
+
+	CHAR_DATA *victim = nullptr;
+
+	if (*arg == UID_CHAR)
 	{
-		CHAR_DATA *victim = nullptr;
-
-		if (*arg == UID_CHAR)
+		if (!(victim = get_char(arg)))
 		{
-			if (!(victim = get_char(arg)))
-			{
-				sprintf(buf, "mforce: victim (%s) does not exist", arg + 1);
-				mob_log(ch, buf);
-				return;
-			}
+			sprintf(buf, "mforce: victim (%s) UID does not exist", arg + 1);
+			mob_log(ch, buf);
+			return;
 		}
-		else if ((victim = get_char_room_vis(ch, arg)) == NULL)
+	}
+	else if ((victim = get_char_room_vis(ch, arg)) == NULL)
+	{
+		mob_log(ch, "mforce: no such victim");
+		return;
+	}
+
+	if (!IS_NPC(victim))
+	{
+		if ((!victim->desc))
 		{
-			mob_log(ch, "mforce: no such victim");
+			return;
+		}
+	}
+
+	if (victim == ch)
+	{
+		mob_log(ch, "mforce: forcing self");
+		return;
+	}
+
+	if (IS_NPC(victim))
+	{
+		if (mob_script_command_interpreter(victim, argument))
+		{
+			mob_log(ch, "Mob trigger commands in mforce. Please rewrite trigger.");
 			return;
 		}
 
-		if (!IS_NPC(victim))
-		{
-			if ((!victim->desc))
-			{
-				return;
-			}
-		}
-
-		if (victim == ch)
-		{
-			mob_log(ch, "mforce: forcing self");
-			return;
-		}
-
-		if (IS_NPC(victim))
-		{
-			if (mob_script_command_interpreter(victim, argument))
-			{
-				mob_log(ch, "Mob trigger commands in mforce. Please rewrite trigger.");
-				return;
-			}
-
-			command_interpreter(victim, argument);
-		}
-		else if(GET_LEVEL(victim) < LVL_IMMORT)
-		{
-			command_interpreter(victim, argument);
-		}
+		command_interpreter(victim, argument);
+	}
+	else if (GET_LEVEL(victim) < LVL_IMMORT)
+	{
+		command_interpreter(victim, argument);
 	}
 }
 
@@ -905,12 +780,6 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 
 	mob_log(ch, "WARNING: mexp command is depracated! Use: %actor.exp(amount-to-add)%");
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -930,7 +799,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mexp: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mexp: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -954,16 +823,7 @@ void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	mob_log(ch, "WARNING: mgold command is depracated! Use: %actor.gold(amount-to-add)%");
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
 		return;
 
 	two_arguments(argument, name, amount);
@@ -978,7 +838,7 @@ void do_mgold(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mgold: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mgold: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1013,12 +873,6 @@ void do_mtransform(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	OBJ_DATA *obj[NUM_WEARS];
 	int keep_hp = 1;	// new mob keeps the old mob's hp/max hp/exp
 	int pos;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
@@ -1146,13 +1000,6 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		"\n"
 	};
 
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
@@ -1191,10 +1038,6 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (exit)
 		{
-			if (exit->keyword)
-				free(exit->keyword);
-			if (exit->vkeyword)
-				free(exit->vkeyword);
 			rm->dir_option[dir].reset();
 		}
 	}
@@ -1207,8 +1050,6 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 
 		std::string buffer;
-		std::string::size_type i;
-
 		switch (fd)
 		{
 		case 1:	// description 
@@ -1224,22 +1065,7 @@ void do_mdoor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			break;
 
 		case 4:	// name        
-			if (exit->keyword)
-				free(exit->keyword);
-			if (exit->vkeyword)
-				free(exit->vkeyword);
-			buffer = value;
-			i = buffer.find('|');
-			if (i != std::string::npos)
-			{
-				exit->keyword = str_dup(buffer.substr(0, i).c_str());
-				exit->vkeyword = str_dup(buffer.substr(++i).c_str());
-			}
-			else
-			{
-				exit->keyword = str_dup(buffer.c_str());
-				exit->vkeyword = str_dup(buffer.c_str());
-			}
+			exit->set_keywords(value);
 			break;
 
 		case 5:	// room        
@@ -1276,12 +1102,6 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char name[MAX_INPUT_LENGTH], featname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH], *pos;
 	int featnum = 0, featdiff = 0;
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
@@ -1316,17 +1136,11 @@ void do_mfeatturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-		return;
-
 	if (*name == UID_CHAR)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mfeatturn: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mfeatturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1350,12 +1164,6 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	ESkill skillnum = SKILL_INVALID;
 	int recipenum = 0;
 	int skilldiff = 0;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
@@ -1395,27 +1203,11 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
-		return;
-	}
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-	{
-		return;
-	}
-
 	if (*name == UID_CHAR)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mskillturn: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mskillturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1425,7 +1217,7 @@ void do_mskillturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf, "mskillturn: victim (%s) does not exist", name);
 		mob_log(ch, buf);
 		return;
-	};
+	}
 
 	if (isSkill)
 	{
@@ -1454,12 +1246,6 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int recipenum = 0;
 	int skilldiff = 0;
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
 		return;
@@ -1486,27 +1272,11 @@ void do_mskilladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	skilldiff = atoi(amount);
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
-		return;
-	}
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-	{
-		return;
-	}
-
 	if (*name == UID_CHAR)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mskilladd: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mskilladd: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1533,12 +1303,6 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int skillnum = 0, skilldiff = 0;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
@@ -1574,23 +1338,14 @@ void do_mspellturn(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
 		return;
 
 	if (*name == UID_CHAR)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mspellturn: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mspellturn: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1610,12 +1365,6 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelltime = 0;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
@@ -1645,23 +1394,11 @@ void do_mspellturntemp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		return;
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-		return;
-
 	if (*name == UID_CHAR)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mspellturntemp: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mspellturntemp: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1682,12 +1419,6 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char name[MAX_INPUT_LENGTH], skillname[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int skillnum = 0, skilldiff = 0;
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
@@ -1707,27 +1438,11 @@ void do_mspelladd(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	skilldiff = atoi(amount);
 
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
-
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-	{
-		return;
-	}
-
-	if (ch->desc && (GET_LEVEL(ch->desc->original) < LVL_IMPL))
-	{
-		return;
-	}
-
 	if (*name == UID_CHAR)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mspelladd: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mspelladd: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1747,12 +1462,6 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *victim;
 	char name[MAX_INPUT_LENGTH], spellname[MAX_INPUT_LENGTH], type[MAX_INPUT_LENGTH], turn[MAX_INPUT_LENGTH];
 	int spellnum = 0, spelldiff = 0, spell = 0;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{
@@ -1817,7 +1526,7 @@ void do_mspellitem(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if (!(victim = get_char(name)))
 		{
-			sprintf(buf, "mspellitem: victim (%s) does not exist", name + 1);
+			sprintf(buf, "mspellitem: victim (%s) UID does not exist", name + 1);
 			mob_log(ch, buf);
 			return;
 		}
@@ -1836,12 +1545,6 @@ void do_mdamage(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	char name[MAX_INPUT_LENGTH], amount[MAX_INPUT_LENGTH];
 	int dam = 0;
-
-	if (!MOB_OR_IMPL(ch))
-	{
-		send_to_char("Чаво?\r\n", ch);
-		return;
-	}
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 	{

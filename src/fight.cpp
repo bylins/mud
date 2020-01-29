@@ -127,6 +127,8 @@ void update_pos(CHAR_DATA * victim)
 		GET_POS(victim) = POS_MORTALLYW;
 	else if (GET_HIT(victim) <= -3)
 		GET_POS(victim) = POS_INCAP;
+	else if (GET_POS(victim) == POS_INCAP && GET_WAIT(victim)>0)
+		GET_POS(victim) = POS_INCAP;
 	else
 		GET_POS(victim) = POS_STUNNED;
 
@@ -159,7 +161,7 @@ void set_battle_pos(CHAR_DATA * ch)
 		{
 			if (IS_NPC(ch))
 			{
-				act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n поднял$u.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 				GET_POS(ch) = POS_FIGHTING;
 			}
 			else if (GET_POS(ch) == POS_SLEEPING)
@@ -193,7 +195,7 @@ void restore_battle_pos(CHAR_DATA * ch)
 				GET_WAIT(ch) <= 0 &&
 				!GET_MOB_HOLD(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		{
-			act("$n встал$g на ноги.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n поднял$u.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			GET_POS(ch) = POS_STANDING;
 		}
 		break;
@@ -317,7 +319,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others)
 	DpsSystem::check_round(ch);
 	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
 	handle_affects(params);
-
 	if (switch_others != 2)
 	{
 		for (temp = combat_list; temp; temp = temp->next_fighting)
@@ -811,6 +812,10 @@ CHAR_DATA *find_opp_affectee(CHAR_DATA * caster, int spellnum)
 		spellreal = SPELL_CURSE;
 	else if (spellreal == SPELL_MASS_SLOW)
 		spellreal = SPELL_SLOW;
+	else if (spellreal == SPELL_MASS_FAILURE)
+		spellreal = SPELL_FAILURE;
+	else if (spellreal == SPELL_MASS_NOFLEE)
+		spellreal = SPELL_NOFLEE;
 
 	if (GET_REAL_INT(caster) > number(10, 20))
 	{
@@ -935,22 +940,26 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 extern bool find_master_charmice(CHAR_DATA *charmise);
 CHAR_DATA *find_target(CHAR_DATA *ch)
 {
-	CHAR_DATA *victim, *caster = NULL, *best = NULL;
+	CHAR_DATA *currentVictim, *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
-	victim = ch->get_fighting();
 
-	// интелект моба
-	int i = GET_REAL_INT(ch);
-	// если у моба меньше 20 инты, то моб тупой
-	if (i < INT_STUPID_MOD)
+	currentVictim = ch->get_fighting();
+
+	int mobINT = GET_REAL_INT(ch);
+
+	if (mobINT < INT_STUPID_MOD)
 	{
 		return find_damagee(ch);
 	}
 
-	// если нет цели
-	if (!victim)
+	if (!currentVictim)
 	{
 		return NULL;
+	}
+
+	if (IS_CASTER(currentVictim) && !IS_NPC(currentVictim))
+	{
+		return currentVictim;
 	}
 
 	// проходим по всем чарам в комнате
@@ -969,7 +978,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// волхв
 		if (GET_CLASS(vict) == CLASS_DRUID)
 		{
 			druid = vict;
@@ -977,7 +985,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// лекарь
 		if (GET_CLASS(vict) == CLASS_CLERIC)
 		{
 			cler = vict;
@@ -985,7 +992,6 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// кудес
 		if (GET_CLASS(vict) == CLASS_CHARMMAGE)
 		{
 			charmmage = vict;
@@ -993,8 +999,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 			continue;
 		}
 
-		// если у чара меньше 100 хп, то переключаемся на него
-		if (GET_HIT(vict) <= MIN_HP_MOBACT)
+		if (GET_HIT(vict) <= CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK)
 		{
 			return vict;
 		}
@@ -1007,17 +1012,13 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 
 		best = vict;
 	}
-	if (!best)
-		best = victim;
 
-	// если цель кастер, то зачем переключаться ?
-	if (IS_CASTER(victim) && !IS_NPC(victim))
+	if (!best)
 	{
-		return victim;
+		best = currentVictim;
 	}
 
-
-	if (i < INT_MIDDLE_AI)
+	if (mobINT < INT_MIDDLE_AI)
 	{
 		int rand = number(0, 2);
 		if (caster)
@@ -1031,7 +1032,7 @@ CHAR_DATA *find_target(CHAR_DATA *ch)
 		return best;
 	}
 
-	if (i < INT_HIGH_AI)
+	if (mobINT < INT_HIGH_AI)
 	{
 		int rand = number(0, 1);
 		if (caster)
@@ -1135,7 +1136,7 @@ void mob_casting(CHAR_DATA * ch)
 	int spellnum, spells = 0, sp_num;
 	OBJ_DATA *item;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) 
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_HOLD)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
 		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)
@@ -1193,7 +1194,7 @@ void mob_casting(CHAR_DATA * ch)
 			for (int i = 1; i <= 3; i++)
 			{
 				if (GET_OBJ_VAL(item, i) < 0 || GET_OBJ_VAL(item, i) > TOP_SPELL_DEFINE)
-				{	
+				{
 					log("SYSERR: Не верно указано значение спела в свитке %d %s, позиция: %d, значение: %d ", GET_OBJ_VNUM(item), item->get_PName(0).c_str(), i, GET_OBJ_VAL(item, i));
 					continue;
 				}
@@ -1215,6 +1216,17 @@ void mob_casting(CHAR_DATA * ch)
 	// перво-наперво  -  лечим себя
 	spellnum = 0;
 	victim = find_cure(ch, ch, &spellnum);
+
+	// angel not cast if master not in room
+	if (MOB_FLAGS(ch).get(MOB_ANGEL))
+	{
+		if (ch->has_master() && ch->in_room != ch->get_master()->in_room)
+		{
+			sprintf(buf, "%s тоскливо сморит по сторонам. Кажется ищет кого-то.",ch->get_name_str().c_str());
+			act(buf, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			return;
+		}
+	}
 	// Ищем рандомную заклинашку и цель для нее
 	for (int i = 0; !victim && spells && i < GET_REAL_INT(ch) / 5; i++)
 	{
@@ -1439,7 +1451,7 @@ void stand_up_or_sit(CHAR_DATA *ch)
 {
 	if (IS_NPC(ch))
 	{
-		act("$n встал$g на ноги.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+		act("$n поднял$u.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		GET_POS(ch) = POS_FIGHTING;
 	}
 	else if (GET_POS(ch) == POS_SLEEPING)
@@ -1791,7 +1803,7 @@ void using_mob_skills(CHAR_DATA *ch)
 					}
 				}
 				else
-				{ 
+				{
 //send_to_char(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
 //                mudlog(buf, LGH, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
@@ -1968,7 +1980,7 @@ void process_npc_attack(CHAR_DATA *ch)
 	//    continue;
 
 	// Вызываем триггер перед началом боевых моба (магических или физических)
-	
+
 	if (!fight_mtrigger(ch))
 		return;
 
@@ -2040,7 +2052,7 @@ void process_npc_attack(CHAR_DATA *ch)
 	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT))
 	{
-		exthit(ch, TYPE_UNDEFINED, RIGHT_WEAPON);
+		exthit(ch, TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
 	}
 
 	//**** экстраатаки
@@ -2052,7 +2064,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		{
 			continue;
 		}
-		exthit(ch, TYPE_UNDEFINED, i + RIGHT_WEAPON);
+		exthit(ch, TYPE_UNDEFINED, i + FightSystem::RIGHT_WEAPON);
 	}
 }
 
@@ -2131,13 +2143,13 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 			//или молотить, по баттл-аффекту узнать получиться
 			//не во всех частях процедуры, а параметр type
 			//хранит значение до её конца.
-			exthit(ch, GET_AF_BATTLE(ch, EAF_STUPOR) ? SKILL_STUPOR : GET_AF_BATTLE(ch, EAF_MIGHTHIT) ? SKILL_MIGHTHIT : TYPE_UNDEFINED, RIGHT_WEAPON);
+			exthit(ch, GET_AF_BATTLE(ch, EAF_STUPOR) ? SKILL_STUPOR : GET_AF_BATTLE(ch, EAF_MIGHTHIT) ? SKILL_MIGHTHIT : TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
 		}
-// двуруч при скиллкапе 160 и перке любимоедвуруч дает допатаку 20%
-		if (GET_EQ(ch,WEAR_BOTHS)&& can_use_feat(ch, BOTHHANDS_FOCUS_FEAT) && (GET_OBJ_SKILL(GET_EQ(ch,WEAR_BOTHS)) == SKILL_BOTHHANDS))
+// допатака двуручем
+		if (GET_EQ(ch,WEAR_BOTHS)&& can_use_feat(ch, BOTHHANDS_FOCUS_FEAT) && (GET_OBJ_SKILL(GET_EQ(ch,WEAR_BOTHS)) == SKILL_BOTHHANDS) && can_use_feat(ch, RELATED_TO_MAGIC_FEAT))
 		{
-			if (ch->get_skill(SKILL_BOTHHANDS) > (number(1,800)))
-				hit(ch, ch->get_fighting(), TYPE_UNDEFINED, RIGHT_WEAPON);
+			if (ch->get_skill(SKILL_BOTHHANDS) > (number(1, 500)))
+				hit(ch, ch->get_fighting(), TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
 		}
 		CLR_AF_BATTLE(ch, EAF_FIRST);
 		SET_AF_BATTLE(ch, EAF_SECOND);
@@ -2161,7 +2173,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 		{
-			exthit(ch, TYPE_UNDEFINED, LEFT_WEAPON);
+			exthit(ch, TYPE_UNDEFINED, FightSystem::LEFT_WEAPON);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
@@ -2176,7 +2188,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	{
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 		{
-			exthit(ch, TYPE_UNDEFINED, LEFT_WEAPON);
+			exthit(ch, TYPE_UNDEFINED, FightSystem::LEFT_WEAPON);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
@@ -2261,7 +2273,7 @@ void perform_violence()
 	//* суммон хелперов
 	check_mob_helpers();
 
-	// храним список писей, которым надо показать состояние группы по msdp 
+	// храним список писей, которым надо показать состояние группы по msdp
 	std::unordered_set<CHAR_DATA *> msdp_report_chars;
 
 	//* действия до раунда и расчет инициативы
@@ -2369,7 +2381,7 @@ void perform_violence()
 			}
 		}
 	}
-	
+
 	// покажем группу по msdp
 	// проверка на поддержку протокола есть в методе msdp_report
 	for (const auto& ch: msdp_report_chars)

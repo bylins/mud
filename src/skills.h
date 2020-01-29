@@ -38,7 +38,7 @@ enum ExtraAttackEnumType
 enum ESkill: int
 {
 	SKILL_INVALID = 0,
-	SKILL_THAC0 = 0,	// Internal //
+	SKILL_GLOBAL_COOLDOWN = 0,	// Internal - ID for global ability cooldown //
 	SKILL_FIRST = 1,
 	SKILL_PROTECT = SKILL_FIRST,	// *** Protect groupers    //
 	SKILL_TOUCH = 2,	// *** Touch attacker       //
@@ -104,7 +104,7 @@ enum ESkill: int
 	SKILL_MANADRAIN = 166,
 	SKILL_NOPARRYHIT = 167,
 	SKILL_TOWNPORTAL = 168,
-	SKILL_MAKE_STAFF = 169,
+	SKILL_MAKE_STAFF = 169,  //смастерить предмет
 	SKILL_MAKE_BOW = 170,
 	SKILL_MAKE_WEAPON = 171,
 	SKILL_MAKE_ARMOR = 172,
@@ -127,11 +127,18 @@ enum ESkill: int
 	SKILL_LIFE_MAGIC = 189,
 	SKILL_STUN = 190,
 	SKILL_MAKE_AMULET = 191,
+	SKILL_INDEFINITE = 192,	// Reserved! Нужен, чтобы указывать "произвольный" скилл в некоторых случаях //
 
 	// не забываем указывать максимальный номер скилла
-	MAX_SKILL_NUM = SKILL_MAKE_AMULET
+	MAX_SKILL_NUM = SKILL_INDEFINITE
 };
-
+inline bool is_magic_skill(int skill)
+{
+	if (skill >= SKILL_AIR_MAGIC && skill <= SKILL_LIFE_MAGIC)
+		return true;
+	else
+		return false;
+}
 template <> ESkill ITEM_BY_NAME<ESkill>(const std::string& name);
 template <> const std::string& NAME_BY_ITEM<ESkill>(const ESkill item);
 
@@ -149,6 +156,9 @@ bool can_get_skill(CHAR_DATA *ch, int skill);
 bool can_get_skill_with_req(CHAR_DATA *ch, int skill, int req_lvl);
 int find_weapon_focus_by_skill(ESkill skill);
 int find_weapon_master_by_skill(ESkill skill);
+
+const short bonusSkillPointsPerRemort = 5;
+#define MAX_SKILLLEVEL_PER_REMORT(ch) (80 + ch->get_remort()*bonusSkillPointsPerRemort)
 
 // ГОРНОЕ ДЕЛО
 
@@ -242,13 +252,13 @@ int calculate_awake_mod(CHAR_DATA *killer, CHAR_DATA *victim);
     в номер скилла.
     Это все нужно для совместимости со старой системой.
 */
-
+/*
 #define SKILL_UNDEFINED -1
 #define SKILL_NAME_UNDEFINED "undefined"
 #define SKILLS_FILE "skills.xml"
 #define SKILLS_MAIN_TAG "skills"
 #define SKILLS_ERROR_STR "...skills.xml reading fail"
-
+*/
 class Skill;
 
 typedef std::shared_ptr<Skill> SkillPtr;

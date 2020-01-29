@@ -12,11 +12,16 @@ namespace msdp
 {
 	void RoomReporter::get(Variable::shared_ptr& response)
 	{
-		const auto rnum = IN_ROOM(descriptor()->character);		
+		const auto rnum = IN_ROOM(descriptor()->character);
 		const auto vnum = GET_ROOM_VNUM(rnum);
 		const auto from_rnum = descriptor()->character->get_from_room();
-		const auto from_vnum = GET_ROOM_VNUM(from_rnum);
-		if (NOWHERE == vnum)
+		if ((from_rnum == vnum)||(NOWHERE == vnum))
+		{
+			//добавил проверку если перемещаемся из неоткуда
+			return;
+		}
+
+		if (blockReport())
 		{
 			return;
 		}
@@ -64,13 +69,19 @@ namespace msdp
 			std::make_shared<StringValue>(zone_name.get())));
 		room_descriptor->add(std::make_shared<Variable>("ZONE",
 			std::make_shared<StringValue>(std::to_string(vnum / 100))));
+
+		const auto from_vnum = GET_ROOM_VNUM(from_rnum);
 		if (from_vnum != NOWHERE)
+		{
 			room_descriptor->add(std::make_shared<Variable>("FROM_ROOM",
 				std::make_shared<StringValue>(std::to_string(from_vnum))));
+		}
+
 		if (from_direction != "-")
+		{
 			room_descriptor->add(std::make_shared<Variable>("FROM_DIRECTION",
 				std::make_shared<StringValue>(from_direction)));
-		
+		}
 
 		const auto stype = SECTOR_TYPE_BY_VALUE.find(world[rnum]->sector_type);
 		if (stype != SECTOR_TYPE_BY_VALUE.end())
@@ -82,6 +93,16 @@ namespace msdp
 		room_descriptor->add(std::make_shared<Variable>("EXITS", exits));
 
 		response = std::make_shared<Variable>(constants::ROOM, room_descriptor);
+	}
+
+	bool RoomReporter::blockReport() const
+	{
+		const auto blind = (PRF_FLAGGED(descriptor()->character, PRF_BLIND)) //В режиме слепого игрока карта недоступна
+			|| (AFF_FLAGGED((descriptor()->character), EAffectFlag::AFF_BLIND));  //Слепому карта не поможет!
+		const auto cannot_see_in_dark = (is_dark(IN_ROOM(descriptor()->character)) && !CAN_SEE_IN_DARK(descriptor()->character));
+		const auto scriptwriter = PLR_FLAGGED(descriptor()->character, PLR_SCRIPTWRITER); // скриптеру не шлем
+
+		return blind || cannot_see_in_dark || scriptwriter;
 	}
 
 	void GoldReporter::get(Variable::shared_ptr& response)
@@ -115,7 +136,7 @@ namespace msdp
 
 	void MaxManaReporter::get(Variable::shared_ptr& response)
 	{
-		const auto max_mana = std::to_string(GET_MAX_MANA(descriptor()->character));
+		const auto max_mana = std::to_string(GET_MAX_MANA((descriptor()->character).get()));
 		response = std::make_shared<Variable>("MAX_MANA",
 			std::make_shared<StringValue>(max_mana));
 	}

@@ -158,6 +158,7 @@ typedef uint32_t bitvector_t;
 #define ROOM_NOBATTLE       (INT_ONE | (1 << 9)) //в клетке нельзя начать бой
 #define ROOM_QUEST	    (INT_ONE | (1 << 10))
 #define ROOM_LIGHT          (INT_ONE | (1 << 11))
+#define ROOM_NOMAPPER       (INT_ONE | (1 << 12))  //нет внумов комнат
 
 #define ROOM_NOITEM         (INT_TWO|(1<<0))	// Передача вещей в комнате запрещена
 #define ROOM_RUSICHI        (INT_TWO|(1<<1))
@@ -405,7 +406,7 @@ extern const religion_names_t religion_name;
 #define PLR_NOTITLE      (1 << 9)	// Player not allowed to set title  //
 #define PLR_DELETED      (1 << 10)	// Player deleted - space reusable  //
 #define PLR_LOADROOM     (1 << 11)	// Player uses nonstandard loadroom  (не используется) //
-// свободно
+#define PLR_AUTOBOT      (1 << 12)	// Player автоматический игрок //
 #define PLR_NODELETE     (1 << 13)	// Player shouldn't be deleted //
 #define PLR_INVSTART     (1 << 14)	// Player should enter game wizinvis //
 #define PLR_CRYO         (1 << 15)	// Player is cryo-saved (purge prog)   //
@@ -413,6 +414,8 @@ extern const religion_names_t religion_name;
 #define PLR_NAMED        (1 << 17)	// Player is in Names Room //
 #define PLR_REGISTERED   (1 << 18)
 #define PLR_DUMB         (1 << 19)	// Player is not allowed to tell/emote/social //
+#define PLR_SCRIPTWRITER (1 << 20)	// скриптер
+#define PLR_SPAMMER      (1 << 21)	// спаммер
 // свободно
 #define PLR_DELETE       (1 << 28)	// RESERVED - ONLY INTERNALLY (MOB_DELETE) //
 #define PLR_FREE         (1 << 29)	// RESERVED - ONLY INTERBALLY (MOB_FREE)//
@@ -608,7 +611,13 @@ extern const religion_names_t religion_name;
 #define PRF_BLIND         (INT_TWO | 1 << 9)  // примочки для слепых
 #define PRF_MAPPER	  (INT_TWO | 1 << 10) // Показывает хеши рядом с названием комнаты
 #define PRF_TESTER	  (INT_TWO | 1 << 11) // отображать допинфу при годсфлаге тестер
-#define PRF_IPCONTROL (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
+#define PRF_IPCONTROL     (INT_TWO | 1 << 12) // отправлять код на мыло при заходе из новой подсети
+#define PRF_SKIRMISHER    (INT_TWO | 1 << 13) // персонаж "в строю" в группе
+#define PRF_DOUBLE_THROW    (INT_TWO | 1 << 14) // готов использовать двойной бросок
+#define PRF_TRIPLE_THROW   (INT_TWO | 1 << 15) // готов использовать тройной бросок
+#define PRF_SHADOW_THROW   (INT_TWO | 1 << 16) // применяет "теневой бросок"
+#define PRF_DISP_COOLDOWNS (INT_TWO | 1 << 17) // Показывать кулдауны скиллов в промпте
+
 // при добавлении не забываем про preference_bits[]
 
 // Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -698,7 +707,7 @@ enum class EAffectFlag: uint32_t
 	AFF_VAMPIRE = INT_TWO | (1u << 20),
 	AFF_EXPEDIENT = INT_TWO | (1u << 21),
 	AFF_COMMANDER = INT_TWO | (1u << 22),
-	AFF_EARTHAURA = INT_TWO | (1u << 23)
+	AFF_EARTHAURA = INT_TWO | (1u << 23),
 };
 
 template <> const std::string& NAME_BY_ITEM<EAffectFlag>(const EAffectFlag item);
@@ -801,7 +810,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define WEAR_WAIST     13
 #define WEAR_WRIST_R   14
 #define WEAR_WRIST_L   15
-#define WEAR_WIELD     16      // правая рука 
+#define WEAR_WIELD     16      // правая рука
 #define WEAR_HOLD      17      // левая рука
 #define WEAR_BOTHS     18      // обе руки
 #define WEAR_QUIVER    19      // под лук (колчан)
@@ -1078,9 +1087,12 @@ enum EApplyLocation
 	APPLY_PLAQUE = 60,
 	APPLY_MADNESS = 61,
 	APPLY_PR = 62,
-	APPLY_RESIST_DARK = 63,	
+	APPLY_RESIST_DARK = 63,
 	APPLY_VIEW_DT = 64,
-	NUM_APPLIES = 65
+	APPLY_PERCENT_EXP = 65, //бонус +экспа
+	APPLY_PERCENT_DAM = 66, // бонус +повреждение
+	APPLY_SPELL_BLINK = 67, // мигание заклом
+	NUM_APPLIES = 68
 };
 
 template <> const std::string& NAME_BY_ITEM<EApplyLocation>(const EApplyLocation item);
@@ -1130,7 +1142,7 @@ struct obj_affected_type
 
 enum { DRUNK, FULL, THIRST};
 // pernalty types
-//     Хитрол,    Дамрол,    Каст,   Мем,        Восст. эн., Восст. жиз. 
+//     Хитрол,    Дамрол,    Каст,   Мем,        Восст. эн., Восст. жиз.
 enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
 // Sun state for weather_data //
@@ -1225,9 +1237,10 @@ const long MAX_MONEY_KEPT = 1000000000;
 #define INT_STUPID_MOD 10
 #define INT_MIDDLE_AI 30
 #define INT_HIGH_AI 40
-#define MIN_HP_MOBACT 100
+#define CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK 100
 #define STRONG_MOB_LEVEL 30
 const short MAX_MOB_LEVEL = 100;
+const short MAX_SAVE = 400; //максимальное значение воля, здоровье, стойкость, реакция
 
 bool sprintbitwd(bitvector_t bitvector, const char *names[], char *result, const char *div, const int print_flag = 0);
 
@@ -1382,6 +1395,8 @@ struct EXTRA_DESCR_DATA
 	using shared_ptr = std::shared_ptr<EXTRA_DESCR_DATA>;
 	EXTRA_DESCR_DATA() : keyword(nullptr), description(nullptr), next(nullptr) {}
 	~EXTRA_DESCR_DATA();
+	void set_keyword(std::string const& keyword);
+	void set_description(std::string const& description);
 
 	char *keyword;		// Keyword in look/examine          //
 	char *description;	// What to see                      //
@@ -1458,7 +1473,7 @@ struct logon_data
 	char * ip;
 	long count;
 	time_t lasttime; //by kilnik
-	logon_data * next;
+	bool is_first;
 };
 
 class punish_data
@@ -2077,6 +2092,8 @@ public:
 	int get_bit(int gem_vnum, const std::string& str);
 	int get_qty(int gem_vnum, const std::string& str);
 	int exist(const int gem_vnum, const std::string& str) const;
+	bool is_gem(int get_vnum);
+	std::string get_random_str_for( const int gem_vnum);
 };
 
 //-Polos.insert_wanted_gem

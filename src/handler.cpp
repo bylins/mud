@@ -60,6 +60,7 @@
 #include <unordered_set>
 #include <sstream>
 
+
 int max_stats2[][6] =
 	// Str Dex Int Wis Con Cha //
 { {14, 13, 24, 25, 15, 10},	// Лекарь //
@@ -119,6 +120,7 @@ extern std::vector<City> cities;
 extern int global_uid;
 extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
+extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 
 char *fname(const char *namelist)
 {
@@ -233,7 +235,6 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		AFF_FLAGS(ch).unset(bitv);
 		mod = -mod;
 	}
-
 	switch (loc)
 	{
 	case APPLY_NONE:
@@ -403,11 +404,22 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		break;
 	case APPLY_HIT_GLORY: //вкачка +хп за славу
 		GET_HIT_ADD(ch) += mod * GloryConst::HP_FACTOR;
+		break;
 	case APPLY_PR:
 		GET_PR(ch) += mod; //скиллрезист
 		break;
+	case APPLY_PERCENT_DAM:
+		ch->add_abils.percent_dam_add += mod;
+		break;
+	case APPLY_PERCENT_EXP:
+		ch->add_abils.percent_exp_add += mod;
+		break;
+	case APPLY_SPELL_BLINK:
+		ch->add_abils.percent_spell_blink += mod;
+		break;
 	default:
-		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
+//		это не ошибка не все апплаи поднимают статы
+//		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
 		break;
 	}			// switch
 }
@@ -492,6 +504,12 @@ void apply_natural_affects(CHAR_DATA *ch)
 // restoring original abilities, and then affecting all again
 void affect_total(CHAR_DATA * ch)
 {
+	if (ch->purged())
+	{
+		// we don't care of affects of removed character.
+		return;
+	}
+
 	OBJ_DATA *obj;
 
 	FLAG_DATA saved;
@@ -516,7 +534,12 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 	}
-	
+
+	// бонусы от морта
+	if (GET_REMORT(ch)>=20) {
+		ch->add_abils.mresist += ch->get_remort() - 19;
+		ch->add_abils.presist += ch->get_remort() - 19;
+	}
 
 	// Restore values for NPC - added by Adept
 	if (IS_NPC(ch))
@@ -551,8 +574,13 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 	}
+
 	ch->obj_bonus().apply_affects(ch);
 
+/*	if (ch->add_abils.absorb > 0) {
+		ch->add_abils.mresist += MIN(ch->add_abils.absorb / 2, 25); //поглота
+	}
+*/
 	// move features modifiers - added by Gorrah
 	for (int i = 1; i < MAX_FEATS; i++)
 	{
@@ -801,18 +829,13 @@ void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af)
 	check_light(ch, LIGHT_UNDEF, was_lgt, was_hlgt, was_hdrk, 1);
 }
 
-void affect_room_remove(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect_i)
-{
-	if (room->affected.empty())
-	{
-		log("SYSERR: affect_room_remove when no affects...");
+void removeAffectFromRoom(ROOM_DATA* room, const ROOM_DATA::room_affects_list_t::iterator& affect) {
+	if (room->affected.empty()) {
+		log("ERROR: Attempt to remove affect from no affected room!");
 		return;
 	}
-
-	const auto affect = *affect_i;
-	affect_room_modify(room, affect->location, affect->modifier, affect->bitvector, FALSE);
-	room->affected.erase(affect_i);
-
+	affect_room_modify(room, (*affect)->location, (*affect)->modifier, (*affect)->bitvector, FALSE);
+	room->affected.erase(affect);
 	affect_room_total(room);
 }
 
@@ -975,7 +998,7 @@ void affect_room_join(ROOM_DATA * room, AFFECT_DATA<ERoomApplyLocation>& af, boo
 					af.modifier /= 2;
 				}
 
-				affect_room_remove(room, affect_i);
+				removeAffectFromRoom(room, affect_i);
 				affect_to_room(room, af);
 
 				found = true;
@@ -1037,7 +1060,19 @@ void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, 
 	}
 }
 
-// Обработка тикающих способностей - added by Gorrah
+void decreaseFeatTimer(CHAR_DATA * ch, int featureID) {
+	for (struct timed_type* skj = ch->timed_feat; skj; skj = skj->next) {
+		if (skj->skill == featureID) {
+			if (skj->time >= 1) {
+				skj->time--;
+			} else {
+				timed_feat_from_char(ch, skj);
+			}
+			return;
+		}
+	}
+};
+
 void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 {
 	struct timed_type *timed_alloc, *skj;
@@ -1051,7 +1086,7 @@ void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed)
 			return;
 		}
 	}
-	
+
 	CREATE(timed_alloc, 1);
 
 	*timed_alloc = *timed;
@@ -1081,7 +1116,6 @@ int timed_by_feat(CHAR_DATA * ch, int feat)
 
 	return (0);
 }
-// End of changes
 
 // Insert an timed_type in a char_data structure
 void timed_to_char(CHAR_DATA * ch, struct timed_type *timed)
@@ -1179,7 +1213,7 @@ void room_affect_process_on_entry(CHAR_DATA * ch, room_rnum room)
 
 			send_to_char("Вы уставились на огненный узор, как баран на новые ворота.",ch);
 			act("$n0 уставил$u на огненный узор, как баран на новые ворота.", TRUE, ch, 0, ch, TO_ROOM | TO_ARENA_LISTEN);
-			call_magic(caster, ch, NULL, NULL, SPELL_SLEEP, GET_LEVEL(caster), CAST_SPELL);
+			call_magic(caster, ch, nullptr, nullptr, SPELL_SLEEP, GET_LEVEL(caster));
 		}
 	}
 }
@@ -1252,6 +1286,84 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		if (!(IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
 			ch->desc->msdp_report("ROOM");
 	}
+
+	for (unsigned int i = 0; i < cities.size(); i++)
+	{
+		if (GET_ROOM_VNUM(room) == cities[i].rent_vnum)
+		{
+			ch->mark_city(i);
+			break;
+		}
+	}
+}
+// place a character in a room
+void char_flee_to_room(CHAR_DATA * ch, room_rnum room)
+{
+	if (ch == NULL || room < NOWHERE + 1 || room > top_of_world)
+	{
+		debug::backtrace(runtime_config.logs(ERRLOG).handle());
+		log("SYSERR: Illegal value(s) passed to char_to_room. (Room: %d/%d Ch: %p", room, top_of_world, ch);
+		return;
+	}
+
+	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
+	{
+		room = ch->get_from_room();
+	}
+
+	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
+	{
+		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
+		room = ch->get_from_room();
+	}
+	world[room]->people.push_front(ch);
+
+	ch->in_room = room;
+	check_light(ch, LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, 1);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILHIDE);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
+	EXTRA_FLAGS(ch).unset(EXTRA_FAILCAMOUFLAGE);
+	if (PRF_FLAGGED(ch, PRF_CODERINFO))
+	{
+		sprintf(buf,
+				"%sКомната=%s%d %sСвет=%s%d %sОсвещ=%s%d %sКостер=%s%d %sЛед=%s%d "
+				"%sТьма=%s%d %sСолнце=%s%d %sНебо=%s%d %sЛуна=%s%d%s.\r\n",
+				CCNRM(ch, C_NRM), CCINRM(ch, C_NRM), room,
+				CCRED(ch, C_NRM), CCIRED(ch, C_NRM), world[room]->light,
+				CCGRN(ch, C_NRM), CCIGRN(ch, C_NRM), world[room]->glight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->fires,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), world[room]->ices,
+				CCBLU(ch, C_NRM), CCIBLU(ch, C_NRM), world[room]->gdark,
+				CCMAG(ch, C_NRM), CCICYN(ch, C_NRM), weather_info.sky,
+				CCWHT(ch, C_NRM), CCIWHT(ch, C_NRM), weather_info.sunlight,
+				CCYEL(ch, C_NRM), CCIYEL(ch, C_NRM), weather_info.moon_day, CCNRM(ch, C_NRM));
+		send_to_char(buf, ch);
+	}
+	// Stop fighting now, if we left.
+	if (ch->get_fighting() && ch->in_room != IN_ROOM(ch->get_fighting()))
+	{
+		stop_fighting(ch->get_fighting(), FALSE);
+		stop_fighting(ch, TRUE);
+	}
+
+	if (!IS_NPC(ch))
+	{
+		zone_table[world[room]->zone].used = true;
+		zone_table[world[room]->zone].activity++;
+	}
+	else
+	{
+		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
+		//как сделать красивей я не придумал, т.к. look_at_room вызывается в act.movement а не тут
+		room_affect_process_on_entry(ch, ch->in_room);
+	}
+
+	// небольшой перегиб. когда сбегаешь то ты теряешься в ориентации а тут нате все видно
+//	if (ch->desc)
+//	{
+//		if (!(IS_DARK(ch->in_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)))
+//			ch->desc->msdp_report("ROOM");
+//	}
 
 	for (unsigned int i = 0; i < cities.size(); i++)
 	{
@@ -1425,7 +1537,7 @@ void obj_to_char(OBJ_DATA * object, CHAR_DATA * ch)
 	if (object && ch)
 	{
 		restore_object(object, ch);
-		if (invalid_anti_class(ch, object) || invalid_unique(ch, object) || NamedStuff::check_named(ch, object, 0))
+		if (invalid_anti_class(ch, object) || NamedStuff::check_named(ch, object, 0))
 			may_carry = FALSE;
 		if (!may_carry)
 		{
@@ -1910,7 +2022,7 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		return;
 	}
 
-	if (invalid_anti_class(ch, obj))
+	if (invalid_anti_class(ch, obj) || invalid_unique(ch, obj))
 	{
 		act("Вас обожгло при попытке использовать $o3.", FALSE, ch, obj, 0, TO_CHAR);
 		act("$n попытал$u использовать $o3 - и чудом не обгорел$g.", FALSE, ch, obj, 0, TO_ROOM);
@@ -1977,30 +2089,15 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 			}
 			return;
 		}
-                
-	}
 
-	//if (!IS_NPC(ch) && !check_armor_type(ch, obj))
-	//{
-	//	act("$n попытал$u использовать $o3, но у н$s ничего не получилось.",
-	//			FALSE, ch, obj, 0, TO_ROOM);
-	//	if (!obj->carried_by)
-	//		obj_to_char(obj, ch);
-	//	return;
-	//} Нафиг недоделки (Купала)
+	}
 
 	if (obj->get_carried_by())
 	{
 		obj_from_char(obj);
 	}
 
-	//if (GET_EQ(ch, WEAR_LIGHT) &&
-	//  GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
-	//  was_lamp = TRUE;
-	//Polud светить должно не только то что надето для освещения, а любой источник света
 	was_lamp = is_wear_light(ch);
-	//-Polud
-
 	GET_EQ(ch, pos) = obj;
 	obj->set_worn_by(ch);
 	obj->set_worn_on(pos);
@@ -2078,6 +2175,10 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		}
 		affect_total(ch);
 		check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
+	}
+
+	if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON || pos == WEAR_SHIELD)) {
+		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 2);
 	}
 }
 
@@ -2267,8 +2368,7 @@ unsigned int deactivate_stuff(CHAR_DATA * ch, OBJ_DATA * obj,
 
 //  0x40 - show setstuff related messages
 //  0x80 - no total affect update
-OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
-{
+OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos) {
 	int was_lgt = AFF_FLAGGED(ch, EAffectFlag::AFF_SINGLELIGHT) ? LIGHT_YES : LIGHT_NO,
 				  was_hlgt = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYLIGHT) ? LIGHT_YES : LIGHT_NO,
 							 was_hdrk = AFF_FLAGGED(ch, EAffectFlag::AFF_HOLYDARK) ? LIGHT_YES : LIGHT_NO, was_lamp = FALSE;
@@ -2277,26 +2377,18 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 
 	REMOVE_BIT(pos, (0x80 | 0x40));
 
-	if (pos < 0 || pos >= NUM_WEARS)
-	{
+	if (pos < 0 || pos >= NUM_WEARS) {
 		log("SYSERR: unequip_char(%s,%d) - unused pos...", GET_NAME(ch), pos);
 		return nullptr;
 	}
 
 	OBJ_DATA* obj = GET_EQ(ch, pos);
-	if (nullptr == obj)
-	{
+	if (nullptr == obj) {
 		log("SYSERR: unequip_char(%s,%d) - no equip...", GET_NAME(ch), pos);
 		return nullptr;
 	}
 
-//	if (GET_EQ(ch, WEAR_LIGHT) &&
-//	    GET_OBJ_TYPE(GET_EQ(ch, WEAR_LIGHT)) == ITEM_LIGHT && GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2))
-//		was_lamp = TRUE;
-	//Polud светить должно не только то что надето для освещения, а любой источник света
 	was_lamp = is_wear_light(ch);
-	//-Polud
-
 
 	if (ch->in_room == NOWHERE)
 		log("SYSERR: ch->in_room = NOWHERE when unequipping char %s.", GET_NAME(ch));
@@ -2305,31 +2397,22 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 
 	if (OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF))
 		for (; it != OBJ_DATA::set_table.end(); it++)
-			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
-			{
+			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				deactivate_stuff(ch, obj, it, 0 | (show_msg ? 0x40 : 0), 0);
 				break;
 			}
 
-	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end())
-	{
-		for (j = 0; j < MAX_OBJ_AFFECT; j++)
-		{
+	if (!OBJ_FLAGGED(obj, EExtraFlag::ITEM_SETSTUFF) || it == OBJ_DATA::set_table.end()) {
+		for (j = 0; j < MAX_OBJ_AFFECT; j++) {
 			affect_modify(ch, obj->get_affected(j).location, obj->get_affected(j).modifier, static_cast<EAffectFlag>(0), FALSE);
 		}
 
-		if (ch->in_room != NOWHERE)
-		{
-			for (const auto& j : weapon_affect)
-			{
-				if (j.aff_bitvector == 0
-					|| !IS_OBJ_AFF(obj, j.aff_pos))
-				{
+		if (ch->in_room != NOWHERE) {
+			for (const auto& j : weapon_affect) {
+				if (j.aff_bitvector == 0 || !IS_OBJ_AFF(obj, j.aff_pos)) {
 					continue;
 				}
-				if (IS_NPC(ch)
-					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffectFlag>(j.aff_bitvector)))
-				{
+				if (IS_NPC(ch) && AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffectFlag>(j.aff_bitvector))) {
 					continue;
 				}
 				affect_modify(ch, APPLY_NONE, 0, static_cast<EAffectFlag>(j.aff_bitvector), FALSE);
@@ -2345,12 +2428,9 @@ OBJ_DATA *unequip_char(CHAR_DATA * ch, int pos)
 	obj->set_worn_on(NOWHERE);
 	obj->set_next_content(nullptr);
 
-	if (!skip_total)
-	{
-		if (obj_sets::is_set_item(obj))
-		{
-			if (obj->get_activator().first)
-			{
+	if (!skip_total) {
+		if (obj_sets::is_set_item(obj)) {
+			if (obj->get_activator().first) {
 				obj_sets::print_off_msg(ch, obj);
 			}
 			ch->obj_bonus().update(ch);
@@ -2988,7 +3068,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 	std::string name = GET_NAME(ch);
-	log("[Extract char] Start function for char %s", name.c_str());
+	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
 	if (!IS_NPC(ch) && !ch->desc)
 	{
 //		log("[Extract char] Extract descriptors");
@@ -3088,8 +3168,6 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 //	log("[Extract char] Remove char from room");
 	char_from_room(ch);
 
-	delete_from_tmp_char_list(ch);
-
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
 
@@ -3135,7 +3213,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 		character_list.remove(ch);
 	}
 
-	log("[Extract char] Stop function for char %s", name.c_str());
+	log("[Extract char] Stop function for char %s ", name.c_str());
 }
 
 /* ***********************************************************************
@@ -3389,7 +3467,7 @@ OBJ_DATA* get_obj_vis(CHAR_DATA* ch, const char* name)
 	{
 		return obj;
 	}
-	
+
 	//Scan charater's in room
 	for (const auto& vict : world[ch->in_room]->people)
 	{
@@ -3422,7 +3500,7 @@ OBJ_DATA* get_obj_vis(CHAR_DATA* ch, const char* name)
 			&& (id_obj_set.count(i.get()->get_id()) == 0);
 		return result;
 	};
-	
+
 	return world_objects.find_if(predicate, number - 1).get();
 }
 
@@ -4021,10 +4099,10 @@ float get_damage_per_round(CHAR_DATA * victim)
 
 	float dam_per_round = dam_per_attack * num_attacks;
 
-	//Если дыхание - то дамаг умножается на 1.1
+	//Если дыхание - то дамаг умножается
  	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))
  	{
- 		dam_per_round *= 1.1f;
+ 		dam_per_round *= 1.3f;
  	}
 
  	return dam_per_round;
@@ -4196,7 +4274,13 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 	{
 		r_hp = (1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].charms;
 	}
+	float remort_coeff = 1.0 + (((float)ch->get_remort()-9.0)*1.2)/100.0;
+	if (remort_coeff>1.0f) {
+		r_hp *= remort_coeff;
+	}
 
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+		send_to_char(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
 
@@ -4205,7 +4289,7 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 	float r_hp = 0;
 	float eff_cha = 0.0;
 	float max_cha;
-	
+
 	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
 	{
             eff_cha = get_effective_wis(ch, spellnum);
@@ -4235,6 +4319,8 @@ int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
 			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate);
 	}
 
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+		send_to_char(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
 
@@ -4459,7 +4545,7 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	{
 		return effect - resistance * effect / 100;
 	}
-	if (IS_NPC(ch) && resistance >= 200)
+	if (IS_NPC(ch) && resistance > 200)
 	{
 		return 0;
 	}
@@ -4467,9 +4553,47 @@ int calculate_resistance_coeff(CHAR_DATA *ch, int resist_type, int effect)
 	{
 		resistance = MIN(75, resistance);
 	}
-	result = effect - (resistance + number(0, resistance)) * effect / 200;
+	const float divisor = IS_NPC(ch) ? 400 : 200; //иначе если у моба резист выше 100 не работает
+	result = effect - (resistance + number(0, resistance)) * effect / divisor;
 	result = MAX(0, result);
 	return result;
+}
+
+int getResisTypeWithSpellClass(int spellClass) {
+	switch (spellClass) {
+	case STYPE_FIRE:
+		return FIRE_RESISTANCE;
+		break;
+	case STYPE_DARK:
+		return DARK_RESISTANCE;
+		break;
+	case STYPE_AIR:
+		return AIR_RESISTANCE;
+		break;
+	case STYPE_WATER:
+		return WATER_RESISTANCE;
+		break;
+	case STYPE_EARTH:
+		return EARTH_RESISTANCE;
+		break;
+	case STYPE_LIGHT:
+		return VITALITY_RESISTANCE;
+		break;
+	case STYPE_MIND:
+		return MIND_RESISTANCE;
+		break;
+	case STYPE_LIFE:
+		return IMMUNITY_RESISTANCE;
+		break;
+	case STYPE_NEUTRAL:
+		return VITALITY_RESISTANCE;
+		break;
+	}
+	return VITALITY_RESISTANCE;
+};
+
+int get_resist_type(int spellnum) {
+	return getResisTypeWithSpellClass(SpINFO.spell_class);
 }
 
 // * Берется минимальная цена ренты шмотки, не важно, одетая она будет или снятая.
@@ -4482,13 +4606,13 @@ int get_object_low_rent(OBJ_DATA *obj)
 // * Удаление рунной метки (при пропадании в пустоте и реморте).
 void remove_rune_label(CHAR_DATA *ch)
 {
-	ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+	ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room)
 	{
 		const auto aff = find_room_affect(label_room, SPELL_RUNE_LABEL);
 		if (aff != label_room->affected.end())
 		{
-			affect_room_remove(label_room, aff);
+			removeAffectFromRoom(label_room, aff);
 			send_to_char("Ваша рунная метка удалена.\r\n", ch);
 		}
 	}

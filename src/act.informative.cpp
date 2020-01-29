@@ -25,6 +25,7 @@
 #include "spells.h"
 #include "skills.h"
 #include "fight.h"
+#include "fight_hit.hpp"
 #include "screen.h"
 #include "constants.h"
 #include "pk.h"
@@ -122,7 +123,6 @@ void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_levels(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_consider(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_diagnose(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_color(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void sort_commands(void);
 void do_commands(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -150,7 +150,7 @@ const char *diag_liquid_timer(const OBJ_DATA * obj);
 
 void do_quest(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	
+
 	send_to_char("У Вас нет никаких ежедневных поручений.\r\nЧтобы взять новые, наберите &Wпоручения получить&n.\r\n", ch);
 }
 
@@ -271,156 +271,136 @@ char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear)
 	int need_str = 0;
 
 	*out_str = '\0';
-	switch (GET_OBJ_TYPE(obj))
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON)
 	{
-	case OBJ_DATA::ITEM_WEAPON:
 		switch (GET_OBJ_SKILL(obj))
 		{
-		case SKILL_BOWS:
-			skill = 1;
-			break;
-		case SKILL_SHORTS:
-			skill = 2;
-			break;
-		case SKILL_LONGS:
-			skill = 3;
-			break;
-		case SKILL_AXES:
-			skill = 4;
-			break;
-		case SKILL_CLUBS:
-			skill = 5;
-			break;
-		case SKILL_NONSTANDART:
-			skill = 6;
-			break;
-		case SKILL_BOTHHANDS:
-			skill = 7;
-			break;
-		case SKILL_PICK:
-			skill = 8;
-			break;
-		case SKILL_SPADES:
-			skill = 9;
-			break;
-		default:
-			sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам !!\r\n");
+			case SKILL_BOWS:
+				skill = 1;
+				break;
+			case SKILL_SHORTS:
+				skill = 2;
+				break;
+			case SKILL_LONGS:
+				skill = 3;
+				break;
+			case SKILL_AXES:
+				skill = 4;
+				break;
+			case SKILL_CLUBS:
+				skill = 5;
+				break;
+			case SKILL_NONSTANDART:
+				skill = 6;
+				break;
+			case SKILL_BOTHHANDS:
+				skill = 7;
+				break;
+			case SKILL_PICK:
+				skill = 8;
+				break;
+			case SKILL_SPADES:
+				skill = 9;
+				break;
+			default:
+				sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам !!\r\n");
+				break;
 		}
 		if (skill)
 		{
 			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", weapon_class[skill - 1]);
 		}
-
-	default:
-		if (show_wear)
+	}
+	if (show_wear)
+	{
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
 		{
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FINGER))
+			sprintf(out_str + strlen(out_str), "Можно надеть на палец.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на шею.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на туловище.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на голову.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на ноги.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+		{
+			sprintf(out_str + strlen(out_str), "Можно обуть.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на кисти.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на руки.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на плечи.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на пояс.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
+		{
+			sprintf(out_str + strlen(out_str), "Можно использовать как колчан.\r\n");
+		}
+		if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
+		{
+			sprintf(out_str + strlen(out_str), "Можно надеть на запястья.\r\n");
+		}
+		if (show_wear > 1)
+		{
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
 			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на палец.\r\n");
+				need_str = MAX(0, calc_str_req((GET_OBJ_WEIGHT(obj)+1)/2, STR_HOLD_W));
+				sprintf(out_str + strlen(out_str), "Можно использовать как щит (требуется %d %s).\r\n", need_str, desc_count(need_str, WHAT_STR));
 			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_NECK))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
 			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на шею.\r\n");
+				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
+				sprintf(out_str + strlen(out_str), "Можно взять в правую руку (требуется %d %s).\r\n", need_str, desc_count(need_str, WHAT_STR));
 			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BODY))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
 			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на туловище.\r\n");
+				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
+				sprintf(out_str + strlen(out_str), "Можно взять в левую руку (требуется %d %s).\r\n", need_str, desc_count(need_str, WHAT_STR));
 			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HEAD))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
 			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на голову.\r\n");
+				need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
+				sprintf(out_str + strlen(out_str), "Можно взять в обе руки (требуется %d %s).\r\n", need_str, desc_count(need_str, WHAT_STR));
 			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_LEGS))
+		}
+		else
+		{
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
 			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на ноги.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно использовать как щит.\r\n");
 			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_FEET))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
 			{
-				sprintf(out_str + strlen(out_str), "Можно обуть.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно взять в правую руку.\r\n");
 			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HANDS))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
 			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на кисти.\r\n");
+				sprintf(out_str + strlen(out_str), "Можно взять в левую руку.\r\n");
 			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ARMS))
+			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
 			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на руки.\r\n");
-			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_ABOUT))
-			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на плечи.\r\n");
-			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WAIST))
-			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на пояс.\r\n");
-			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_QUIVER))
-			{
-				sprintf(out_str + strlen(out_str), "Можно использовать как колчан.\r\n");
-			}
-
-			if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WRIST))
-			{
-				sprintf(out_str + strlen(out_str), "Можно надеть на запястья.\r\n");
-			}
-
-			if (show_wear > 1)
-			{
-				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
-				{
-					need_str = MAX(0, calc_str_req((GET_OBJ_WEIGHT(obj)+1)/2, STR_HOLD_W));
-					sprintf(out_str + strlen(out_str), "Можно использовать как щит (требуется %d %s).\r\n", need_str, desc_count(need_str, WHAT_STR));
-				}
-
-				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
-				{
-					need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_WIELD_W));
-					sprintf(out_str + strlen(out_str), "Можно взять в правую руку (требуется %d %s).\r\n", need_str, desc_count(need_str, WHAT_STR));
-				}
-
-				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
-				{
-					need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_HOLD_W));
-					sprintf(out_str + strlen(out_str), "Можно взять в левую руку (требуется %d %s).\r\n", need_str, desc_count(need_str, WHAT_STR));
-				}
-
-				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
-				{
-					need_str = MAX(0, calc_str_req(GET_OBJ_WEIGHT(obj), STR_BOTH_W));
-					sprintf(out_str + strlen(out_str), "Можно взять в обе руки (требуется %d %s).\r\n", need_str, desc_count(need_str, WHAT_STR));
-				}
-			}
-			else
-			{
-				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_SHIELD))
-				{
-					sprintf(out_str + strlen(out_str), "Можно использовать как щит.\r\n");
-				}
-
-				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_WIELD))
-				{
-					sprintf(out_str + strlen(out_str), "Можно взять в правую руку.\r\n");
-				}
-
-				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_HOLD))
-				{
-					sprintf(out_str + strlen(out_str), "Можно взять в левую руку.\r\n");
-				}
-
-				if (CAN_WEAR(obj, EWearFlag::ITEM_WEAR_BOTHS))
-				{
-					sprintf(out_str + strlen(out_str), "Можно взять в обе руки.\r\n");
-				}
+				sprintf(out_str + strlen(out_str), "Можно взять в обе руки.\r\n");
 			}
 		}
 	}
@@ -442,7 +422,7 @@ const char *diag_obj_timer(const OBJ_DATA* obj)
 		{
 			prot_timer = GET_OBJ_CRAFTIMER(obj);// если вещь скрафчена, смотрим ее таймер а не у прототипа
 		}
-		else 
+		else
 		{
 			prot_timer = obj_proto[GET_OBJ_RNUM(obj)]->get_timer();
 		}
@@ -818,7 +798,7 @@ void list_obj_to_char(OBJ_DATA * list, CHAR_DATA * ch, int mode, int show)
 				push = i;
 				push_count = 1;
 			}
-			else if ((!equal_obj(i, push)) 
+			else if ((!equal_obj(i, push))
 				|| (quest_item(i)))
 			{
 				if (clan_chest)
@@ -1400,53 +1380,21 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			*aura_txt = '\0';
 			n = 0;
 			strcat(aura_txt, "...");
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_AIRAURA))
-			{
-				strcat(aura_txt, "воздушная");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_FIREAURA))
-			{
-				if (n > 0)
-					strcat(aura_txt, ", огненная");
-				else
-					strcat(aura_txt, "огненная");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_ICEAURA))
-			{
-				if (n > 0)
-					strcat(aura_txt, ", ледяная");
-				else
-					strcat(aura_txt, "ледяная");
-				n++;
-                        }
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
-			{
-				if (n > 0)
-					strcat(aura_txt, ", коричневая");
-				else
-					strcat(aura_txt, "коричневая");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
-			{
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS)) {
 				if (n > 0)
 					strcat(aura_txt, ", серебристая");
 				else
 					strcat(aura_txt, "серебристая");
 				n++;
 			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_BROKEN_CHAINS))
-			{
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_BROKEN_CHAINS)) {
 				if (n > 0)
 					strcat(aura_txt, ", ярко-синяя");
 				else
 					strcat(aura_txt, "ярко-синяя");
 				n++;
 			}
-			if (AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS))
-			{
+			if (AFF_FLAGGED(i, EAffectFlag::AFF_EVILESS)) {
 				if (n > 0)
 					strcat(aura_txt, ", черная");
 				else
@@ -1660,41 +1608,11 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	if (*aura_txt)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
 	}
-
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DETECT_MAGIC))
 	{
 		*aura_txt = '\0';
 		n = 0;
 		strcat(aura_txt, " ..");
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_AIRAURA))
-		{
-			strcat(aura_txt, "воздушная");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_FIREAURA))
-		{
-			if (n > 0)
-				strcat(aura_txt, ", огненная");
-			else
-				strcat(aura_txt, "огненная");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_ICEAURA))
-		{
-			if (n > 0)
-				strcat(aura_txt, ", ледяная");
-			else
-				strcat(aura_txt, "ледяная");
-			n++;
-                }
-		if (AFF_FLAGGED(i, EAffectFlag::AFF_EARTHAURA))
-		{
-			if (n > 0)
-				strcat(aura_txt, ", коричневая");
-			else
-				strcat(aura_txt, "коричневая");
-			n++;
-		}
 		if (AFF_FLAGGED(i, EAffectFlag::AFF_MAGICGLASS))
 		{
 			if (n > 0)
@@ -1735,6 +1653,23 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		strcat(aura_txt, " ...задыхается");
 	if (*aura_txt)
 		act(aura_txt, FALSE, i, 0, ch, TO_VICT);
+	if (IS_MANA_CASTER(i))
+		{
+			*aura_txt = '\0';
+			if (i->get_trained_skill(SKILL_DARK_MAGIC) > 0)
+				strcat(aura_txt,  "...все сферы магии кружатся над головой");
+			else if (i->get_trained_skill(SKILL_AIR_MAGIC) > 0)
+				strcat(aura_txt, "...сферы четырех магий кружатся над головой");
+			else if (i->get_trained_skill(SKILL_EARTH_MAGIC) > 0)
+				strcat(aura_txt, "...сферы трех магий кружатся над головой");
+			else if  (i->get_trained_skill(SKILL_WATER_MAGIC) > 0)
+				strcat(aura_txt, "...сферы двух магий кружатся над головой");
+			else if (i->get_trained_skill(SKILL_FIRE_MAGIC) > 0)
+				strcat(aura_txt, "...сфера огня кружит над головой");
+			if (*aura_txt)
+				act(aura_txt, FALSE, i, 0, ch, TO_VICT);
+		}
+
 }
 
 void list_char_to_char(const ROOM_DATA::people_t& list, CHAR_DATA* ch)
@@ -2007,7 +1942,7 @@ void show_extend_room(const char * const description, CHAR_DATA * ch)
 		*pos = '\0';
 		if (pos > buf && *(pos - 1) == '\r')
 			*--pos = '\0';
-	}	
+	}
 
 	send_to_char(buf, ch);
 	send_to_char("\r\n", ch);
@@ -2264,12 +2199,12 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 	else
 	{
-		if (PRF_FLAGGED(ch, PRF_MAPPER))
+		if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER))
 		{
 			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 			send_to_char(buf2, ch);
 		}
-		else    
+		else
 			send_to_char(world[ch->in_room]->name, ch);
 	}
 
@@ -2286,7 +2221,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 
 	// autoexits
-	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT))
+	if (!IS_NPC(ch) && PRF_FLAGGED(ch, PRF_AUTOEXIT) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER))
 	{
 		do_auto_exits(ch);
 	}
@@ -2370,10 +2305,8 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 
 	send_to_char("&Y&q", ch);
 //  if (IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL),SPELL_KNOW))
-	if (ch->get_skill(SKILL_TOWNPORTAL))
-	{
-		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room)))
-		{
+	if (ch->get_skill(SKILL_TOWNPORTAL)) {
+		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
 			send_to_char("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
 		}
 	}
@@ -2382,14 +2315,15 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&R&q", ch);
 	list_char_to_char(world[ch->in_room]->people, ch);
 	send_to_char("&Q&n", ch);
-	
+
 	// вход в новую зону
-	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number)
-	{
+	zone_rnum inroom = world[ch->in_room]->zone;
+	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[inroom].number) {
 		if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
 			print_zone_info(ch);
-		++zone_table[world[ch->in_room]->zone].traffic;
-		
+		if (ch->get_level() < LVL_IMMORT)
+			++zone_table[inroom].traffic;
+
 	}
 }
 
@@ -2562,7 +2496,7 @@ void hear_in_direction(CHAR_DATA * ch, int dir, int info_is)
 							tmpstr += " Вы слышите чей-то громкий скрип.\r\n";
 						else
 							tmpstr += " Вы слышите чей-то грозный скрип.\r\n";
-					} 
+					}
 					else if (real_sector(ch->in_room) != SECT_UNDERWATER)
 					{
 						if (GET_LEVEL(tch) < 5)
@@ -2920,7 +2854,14 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 			ch->get_skill(SKILL_TOWNPORTAL) &&
 			(port = get_portal(GET_ROOM_VNUM(ch->in_room), NULL)) != NULL && IS_SET(where_bits, FIND_OBJ_ROOM))
 	{
-		if (GET_LEVEL(ch) < MAX(1, port->level - GET_REMORT(ch) / 2))
+
+		if (has_char_portal(ch, GET_ROOM_VNUM(ch->in_room)))
+		{
+			send_to_char("На камне огненными буквами написано слово '&R", ch);
+			send_to_char(port->wrd, ch);
+			send_to_char("&n'.\r\n", ch);
+			return 0;
+		} else if (GET_LEVEL(ch) < MAX(1, port->level - GET_REMORT(ch) / 2))
 		{
 			send_to_char("На камне что-то написано огненными буквами.\r\n", ch);
 			send_to_char("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
@@ -3448,9 +3389,9 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCWHT(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	if (can_use_feat(ch, SHOT_FINESSE_FEAT)) //ловкий выстрел дамы от ловки
-		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
+		max_dam = get_real_dr(ch) + str_bonus(GET_REAL_DEX(ch), STR_TO_DAM);
 	else
-		max_dam = GET_REAL_DR(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
+		max_dam = get_real_dr(ch) + str_bonus(GET_REAL_STR(ch), STR_TO_DAM);
 
 	if (can_use_feat(ch, BULLY_FEAT))
 	{
@@ -3485,6 +3426,24 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	else
 	{
+		weapon = GET_EQ(ch, WEAR_HOLD);
+		if (weapon)
+		{
+			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON)
+			{
+				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
+				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
+				if (ch->get_skill(skill) == SKILL_INVALID)
+				{
+					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
+					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
+				}
+				else
+				{
+				    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
+				}
+			}
+		}
 		weapon = GET_EQ(ch, WEAR_WIELD);
 		if (weapon)
 		{
@@ -3504,36 +3463,22 @@ void print_do_score_all(CHAR_DATA *ch)
 			}
 		}
 
-		weapon = GET_EQ(ch, WEAR_HOLD);
-		if (weapon)
-		{
-			if (GET_OBJ_TYPE(weapon) == OBJ_DATA::ITEM_WEAPON)
-			{
-				max_dam += GET_OBJ_VAL(weapon, 1) * (GET_OBJ_VAL(weapon, 2) + 1) / 2;
-				skill = static_cast<ESkill>(GET_OBJ_SKILL(weapon));
-				if (ch->get_skill(skill) == SKILL_INVALID)
-				{
-					hr -= (50 - MIN(50, GET_REAL_INT(ch))) / 3;
-					max_dam -= (50 - MIN(50, GET_REAL_INT(ch))) / 6;
-				}
-				else
-				{
-				    apply_weapon_bonus(GET_CLASS(ch), skill, &max_dam, &hr);
-				}
-			}
-		}
+	}
+
+	if (weapon)
+	{
+		int tmphr = 0;
+		HitData::check_weap_feats(ch, GET_OBJ_SKILL(weapon), tmphr,  max_dam);
+		hr -= tmphr;
+	}
+	else
+	{
+		HitData::check_weap_feats(ch, SKILL_PUNCH, hr,  max_dam);
 	}
 
 	if (can_use_feat(ch, WEAPON_FINESSE_FEAT))
 	{
-		if (weapon && GET_OBJ_WEIGHT(weapon) > 20)
-		{
-			hr += str_bonus(GET_REAL_STR(ch), STR_TO_HIT);
-		}
-		else
-		{
-			hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
-		}
+		hr += str_bonus(GET_REAL_DEX(ch), STR_TO_HIT);
 	}
 	else
 	{
@@ -3558,6 +3503,9 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 
 	max_dam += ch->obj_bonus().calc_phys_dmg(max_dam);
+	if (ch->add_abils.percent_dam_add > 0) {
+		max_dam += max_dam * ch->add_abils.percent_dam_add / 100. / 2;
+	}
 	max_dam = MAX(0, max_dam);
 	max_dam *= ch->get_cond_penalty(P_DAMROLL);
 
@@ -3711,7 +3659,7 @@ void print_do_score_all(CHAR_DATA *ch)
 
 	if (IS_MANA_CASTER(ch))
 		sprintf(buf + strlen(buf),
-				" %sМаг. сила: %4d(%4d) %s|",
+				" %sМанна:   %5d(%5d) %s|",
 				CCICYN(ch, C_NRM), GET_MANA_STORED(ch), GET_MAX_MANA(ch), CCCYN(ch, C_NRM));
 	else
 		strcat(buf, "                       |");
@@ -3777,11 +3725,12 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 	sprintf(buf + strlen(buf),
 		" %sИнициатива:  %4d %s|"
-		" %s  %+4d%% (%+4d) %s||\r\n"
-		" -------------------------------------------------------------------------------------\r\n",
+		" %s  %+4d%% (%+4d) %s||\r\n",
 		CCGRN(ch, C_NRM), calc_initiative(ch, false), CCCYN(ch, C_NRM),
 		CCRED(ch, C_NRM), GET_MOVEREG(ch), move_gain(ch), CCCYN(ch, C_NRM));
-
+	sprintf(buf + strlen(buf), "&c ||&n                    &c|                       &c| &gМаг. резист: %4d&c |&n                &c||\r\n", GET_MR(ch));
+	sprintf(buf + strlen(buf), "&c ||&n                    &c|                       &c| &gФиз. резист: %4d&c |&n                &c||&n\r\n", GET_PR(ch));
+	sprintf(buf + strlen(buf), " -------------------------------------------------------------------------------------\r\n");
 	if (has_horse(ch, FALSE))
 	{
 		if (on_horse(ch))
@@ -3799,10 +3748,10 @@ void print_do_score_all(CHAR_DATA *ch)
 	}
 
 	//Напоминаем о метке, если она есть.
-    ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+    ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
 	if (label_room)
 	{
-		const int timer_room_label = RoomSpells::timer_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+		const int timer_room_label = RoomSpells::getUniqueAffectDuration(GET_ID(ch), SPELL_RUNE_LABEL);
 		sprintf(buf + strlen(buf),
 				" %s|| &G&qВы поставили рунную метку в комнате %s%s||\r\n",
 				CCCYN(ch, C_NRM),
@@ -3811,7 +3760,7 @@ void print_do_score_all(CHAR_DATA *ch)
 		if (timer_room_label > 0)
 		{
 			*buf2 = '\0';
-			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, desc_count((timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа.");			
+			(timer_room_label + 1) / SECS_PER_MUD_HOUR ? sprintf(buf2, "%d %s.", (timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, desc_count((timer_room_label + 1) / SECS_PER_MUD_HOUR + 1, WHAT_HOUR)) : sprintf(buf2, "менее часа.");
 			sprintf(buf + strlen(buf),
 					" || Метка продержится еще %-58s||\r\n",buf2);
 			*buf2 = '\0';
@@ -4002,7 +3951,8 @@ void print_do_score_all(CHAR_DATA *ch)
 	strcat(buf, " -------------------------------------------------------------------------------------\r\n");
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-//	test_self_hitroll(ch);
+	if (PRF_FLAGGED(ch, PRF_TESTER))
+		test_self_hitroll(ch);
 }
 
 void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -4142,7 +4092,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 
 	//Напоминаем о метке, если она есть.
-    ROOM_DATA *label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
+    ROOM_DATA *label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
     if (label_room)
 	{
         sprintf(buf + strlen(buf),
@@ -4224,7 +4174,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			else
 				strcat(buf, "Вы немного пьяны.\r\n");
 		}
-			
+
 	}
 	if (GET_COND_M(ch, FULL))
 		strcat(buf, "Вы голодны.\r\n");
@@ -4927,7 +4877,7 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					sprintf(buf + strlen(buf),
 							"\r\nПадежи: %s/%s/%s/%s/%s/%s Email: &S%s&s Пол: %s",
 							GET_PAD(tch, 0), GET_PAD(tch, 1), GET_PAD(tch, 2),
-							GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5), 
+							GET_PAD(tch, 3), GET_PAD(tch, 4), GET_PAD(tch, 5),
 							GET_GOD_FLAG(ch, GF_DEMIGOD) ? "скрыто" : GET_EMAIL(tch),
 							genders[static_cast<int>(GET_SEX(tch))]);
 				}
@@ -4940,6 +4890,8 @@ void do_who(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			if (IS_GOD(ch) && (GET_GOD_FLAG(tch, GF_TESTER) || PRF_FLAGGED(tch, PRF_TESTER)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");
+			if (IS_GOD(ch) && (PLR_FLAGGED(tch, PLR_AUTOBOT)))
+				sprintf(buf + strlen(buf), " &G(БОТ!)&n");
 			if (IS_IMMORTAL(tch))
 				strcat(buf, CCNRM(ch, C_SPR));
 		}		// endif shortlist
@@ -5858,7 +5810,7 @@ void do_levels(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	ptr += sprintf(ptr, "Уровень          Опыт            Макс на урв.\r\n");
 	for (i = 1; i < LVL_IMMORT; i++)
-	{	
+	{
 		ptr += sprintf(ptr, "%s[%2d] %13s-%-13s %-13s%s\r\n", (ch->get_level() == i) ? CCICYN(ch, C_NRM) : "", i,
 			thousands_sep(level_exp(ch, i)).c_str(),
 			thousands_sep(level_exp(ch, i + 1) - 1).c_str(),
@@ -5946,42 +5898,6 @@ void do_diagnose(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 const char *ctypes[] = { "выключен", "простой", "обычный", "полный", "\n" };
 
-void do_color(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
-	int tp;
-
-	if (IS_NPC(ch))
-		return;
-
-	one_argument(argument, arg);
-
-	if (!*arg)
-	{
-		sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[COLOR_LEV(ch)], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
-		send_to_char(CAP(buf), ch);
-		return;
-	}
-	if ((tp = search_block(arg, ctypes, FALSE)) == -1)
-	{
-		send_to_char("Формат: [режим] цвет { выкл | простой | обычный | полный }\r\n", ch);
-		return;
-	}
-	PRF_FLAGS(ch).unset(PRF_COLOR_1);
-	PRF_FLAGS(ch).unset(PRF_COLOR_2);
-
-	if (0 != (1 & tp))	// 1 or 3 (simple/full)
-	{
-		PRF_FLAGS(ch).set(PRF_COLOR_1);
-	}
-	if (0 != (2 & tp))	// 2 or 3 (normal/full)
-	{
-		PRF_FLAGS(ch).set(PRF_COLOR_2);
-	}
-
-	sprintf(buf, "%s %sцветовой%s режим.\r\n", ctypes[tp], CCRED(ch, C_SPR), CCNRM(ch, C_OFF));
-	send_to_char(CAP(buf), ch);
-}
-
 void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	if (IS_NPC(ch))
@@ -6017,7 +5933,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			" Сжатый режим  : %-3s \r\n"
 			" Повтор команд : %-3s     "
 			" Обращения     : %-3s     "
-			" Цвет          : %-8s\r\n"
+			" Цвет          : %-8s \r\n"
 			" Кто-то        : %-6s  "
 			" Болтать       : %-3s     "
 			" Орать         : %-3s \r\n"
@@ -6028,25 +5944,26 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			" Автозавершение: %-3s     "
 			" Группа (вид)  : %-7s \r\n"
 			" Без двойников : %-3s     "
-			" Автодележ     : %-3s     "
-			" Автограбеж    : %-7s \r\n"
+			" Автопомощь    : %-3s     "
+			" Автодележ     : %-3s \r\n"
+			" Автограбеж    : %-7s "
 			" Брать куны    : %-3s     "
-			" Арена         : %-3s     "
-			" Трусость      : %-3s \r\n"
+			" Арена         : %-3s \r\n"
+			" Трусость      : %-3s     "
 			" Ширина экрана : %-3d     "
-			" Высота экрана : %-3d     "
-			" Сжатие        : %-6s \r\n"
+			" Высота экрана : %-3d \r\n"
+			" Сжатие        : %-6s  "
 			" Новости (вид) : %-5s   "
-			" Доски         : %-3s     "
-			" Хранилище     : %-10s\r\n"
+			" Доски         : %-3s \r\n"
+			" Хранилище     : %-8s"
 			" Пклист        : %-3s     "
-			" Политика      : %-3s     "
-			" Пкформат      : %-10s\r\n"
-			" Соклановцы    : %-3s     "
-			" Оффтоп        : %-3s     "
-			" Потеря связи  : %-3s \r\n"
+			" Политика      : %-3s \r\n"
+			" Пкформат      : %-6s  "
+			" Соклановцы    : %-8s"
+			" Оффтоп        : %-3s \r\n"
+			" Потеря связи  : %-3s     "
 			" Ингредиенты   : %-3s     "
-			" Вспомнить     : %-3u     ",
+			" Вспомнить     : %-3u \r\n",
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
 			ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
@@ -6063,6 +5980,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			ONOFF(PRF_FLAGGED(ch, PRF_GOAHEAD)),
 			PRF_FLAGGED(ch, PRF_SHOWGROUP) ? "полный" : "краткий",
 			ONOFF(PRF_FLAGGED(ch, PRF_NOCLONES)),
+			ONOFF(PRF_FLAGGED(ch, PRF_AUTOASSIST)),
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOSPLIT)),
 			PRF_FLAGGED(ch, PRF_AUTOLOOT) ? PRF_FLAGGED(ch, PRF_NOINGR_LOOT) ? "NO-INGR" : "ALL    " : "OFF    ",
 			ONOFF(PRF_FLAGGED(ch, PRF_AUTOMONEY)),
@@ -6089,21 +6007,21 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch) > 0)
 	{
-		sprintf(buf,  " Уведомления   : %-3ld \r\n", NOTIFY_EXCH_PRICE(ch));
+		sprintf(buf,  " Уведомления   : %-7ld ", NOTIFY_EXCH_PRICE(ch));
 	}
 	else
 	{
-		sprintf(buf,  " Уведомления   : %-3s \r\n", "Нет");
+		sprintf(buf,  " Уведомления   : %-7s ", "Нет");
 	}
 	send_to_char(buf, ch);
 
 	sprintf(buf,
 		" Карта         : %-3s     "
-		" Вход в зону   : %-3s     "
-		" Магщиты (вид) : %s\r\n"
-		" Автопризыв    : %-3s     "
-		" Маппер        : %-3s     "
-		" Контроль IP   : %-3s",
+		" Вход в зону   : %-3s   \r\n"
+		" Магщиты (вид) : %-8s"
+		" Автопризыв    : %-5s   "
+		" Маппер        : %-3s   \r\n"
+		" Контроль IP   : %-6s  ",
 		ONOFF(PRF_FLAGGED(ch, PRF_DRAW_MAP)),
 		ONOFF(PRF_FLAGGED(ch, PRF_ENTER_ZONE)),
 		(PRF_FLAGGED(ch, PRF_BRIEF_SHIELDS) ? "краткий" : "полный"),
@@ -6238,26 +6156,18 @@ std::array<EAffectFlag, 3> hiding = { EAffectFlag::AFF_SNEAK, EAffectFlag::AFF_H
 
 void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	FLAG_DATA saved;
 	char sp_name[MAX_STRING_LENGTH];
 
-	// Showing the bitvector
-	saved = ch->char_specials.saved.affected_by;
-	for (EAffectFlag j : hiding)
+	// Show the bitset without "hiding" etc.
+	auto aff_copy = ch->char_specials.saved.affected_by;
+	for (auto j : hiding)
 	{
-		AFF_FLAGS(ch).unset(j);
+		aff_copy.unset(j);
 	}
-	ch->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",");
-	sprintf(buf, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+
+	aff_copy.sprintbits(affected_bits, buf2, ",");
+	snprintf(buf, MAX_STRING_LENGTH, "Аффекты: %s%s%s\r\n", CCIYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
-	for (EAffectFlag j : hiding)
-	{
-		const uint32_t i = to_underlying(j);
-		if (saved.get(i))
-		{
-			AFF_FLAGS(ch).set(j);
-		}
-	}
 
 	// Routine to show what spells a char is affected by
 	if (!ch->affected.empty())
@@ -6347,7 +6257,7 @@ void do_affects(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			    sprintf(buf, "Заклинание : %s%-21s %-12s%s ", CCICYN(ch, C_NRM),  "награда",  buf2, CCNRM(ch, C_NRM));
 			    *buf2 = '\0';
 			    if (aff->modifier)
-			    {	
+			    {
 				    sprintf(buf2, "%s%-3d к параметру: %s%s%s",(aff->modifier > 0)? "+": "",  aff->modifier, CCIRED(ch, C_NRM), apply_types[(int) aff->location], CCNRM(ch, C_NRM));
 				    strcat(buf, buf2);
 			    }

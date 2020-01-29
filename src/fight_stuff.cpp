@@ -29,6 +29,9 @@
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "zone.table.hpp"
+#include "char_player.hpp"
+#include "mob_stat.hpp"
+#include <math.h>
 
 #include <algorithm>
 
@@ -355,7 +358,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		greet_otrigger(ch, -1);
 //		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
 		return;
-	} 
+	}
 
 	if (IS_NPC(ch)
 		|| !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
@@ -384,13 +387,12 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		{
 			process_mobmax(ch, killer);
 		}
-
 		if (killer)
 		{
 			update_leadership(ch, killer);
 		}
 	}
-	
+
 	update_die_counts(ch, killer, dec_exp );
 	raw_kill(ch, killer);
 }
@@ -623,7 +625,7 @@ void check_spell_capable(CHAR_DATA *ch, CHAR_DATA *killer)
 			FALSE, ch, 0, killer, TO_ROOM | TO_ARENA_LISTEN);
 		int pos = GET_POS(ch);
 		GET_POS(ch) = POS_STANDING;
-		call_magic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell, GET_LEVEL(ch), CAST_SPELL);
+		call_magic(ch, killer, NULL, world[ch->in_room], ch->mob_specials.capable_spell, GET_LEVEL(ch));
 		GET_POS(ch) = pos;
 	}
 }
@@ -648,9 +650,9 @@ bool change_rep(CHAR_DATA *ch, CHAR_DATA *killer)
 	// кланы должны быть разные
 	if (CLAN(ch) == CLAN(killer))
 		return false;
-	
+
 	// 1/10 репутации замка уходит замку киллера
-	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;	
+	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;
 	CLAN(ch)->set_rep(CLAN(ch)->get_rep() - rep_ch);
 	CLAN(killer)->set_rep(CLAN(killer)->get_rep() + rep_ch);
 	send_to_char("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
@@ -719,7 +721,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 			o->set_owner(GET_UNIQUE(ch));
 			obj_to_obj(o.get(), corpse);
 		}
-		
+
 	}
 */
 	// Теперь реализация режимов "автограбеж" и "брать куны" происходит не в damage,
@@ -759,6 +761,17 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	{
 		death_cry(ch, killer);
 	}
+
+	if (killer && IS_NPC(killer) && !IS_NPC(ch) && kill_mtrigger(killer, ch))
+	{
+		const auto it = std::find(killer->kill_list.begin(), killer->kill_list.end(), GET_ID(ch));
+		if(it != killer->kill_list.end())
+		{
+			killer->kill_list.erase(it);
+		}
+		killer->kill_list.push_back(GET_ID(ch));
+	}
+
 	// добавляем одну душу киллеру
 	if (IS_NPC(ch) && killer)
 	{
@@ -788,7 +801,7 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		{
 			// клановые не теряют вещи
 			arena_kill(ch, killer);
-			
+
 		} else
 		{
 			real_kill(ch, killer);
@@ -809,6 +822,28 @@ int get_remort_mobmax(CHAR_DATA * ch)
 	return 0;
 }
 
+float get_npc_long_live_exp_bounus(int vnum)
+{
+	if (vnum == -1)	{
+		return  1.0f;
+	}
+	int nowTime = time(0);
+	int lastKillTime = mob_stat::last_time_killed_mob(vnum);
+	if ( lastKillTime > 0) {
+		int deltaTime = nowTime - lastKillTime;
+		int delay = 60 * 60 * 24 * 30 ; // 30 days
+		float timeMultiplicator = floor(deltaTime/delay);
+		if (timeMultiplicator<1.0f) {
+			timeMultiplicator = 1.0f;
+		}
+		if (timeMultiplicator>10.0f) {
+			timeMultiplicator = 10.0f;
+		}
+		return timeMultiplicator;
+	}
+	return  1.0f;
+}
+
 int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	int base, diff;
@@ -816,23 +851,33 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 
 	if (!IS_NPC(victim) || IS_NPC(ch))
 		return (exp);
-
 	// если моб убивается первый раз, то повышаем экспу в несколько раз
 	// стимулируем изучение новых зон!
-	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)
-	{
+	if (PRF_FLAGGED(ch, PRF_TESTER)) {
+		send_to_char(ch, "&RУ моба еще %d убийств без замакса, экспа %d, убито %d\r\n&n", mob_proto[victim->get_rnum()].mob_specials.MaxFactor, exp, ch->mobmax_get(GET_MOB_VNUM(victim)));
+	}
+// все равно таблица корявая, учитываются только уникальные мобы и глючит
+/*    
+	// даем увеличенную экспу за давно не убитых мобов.
+	// за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
+	exp *= get_npc_long_live_exp_bounus(GET_MOB_VNUM(victim));
+	exp += exp * (ch->add_abils.percent_exp_add) / 100.0;
+*/
+/*  бонусы за непопулярных мобов круче
+	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)	{
 		// так чуть-чуть поприятней
 		exp *= 1.5;
 		exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 		return (exp);
 	}
-
-	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim));
+*/
+	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim)) - mob_proto[victim->get_rnum()].mob_specials.MaxFactor;
 			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
         // минимальный опыт при замаксе 15% от полного опыта
 	exp = exp * MAX(15, koef) / 100;
-	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 
+	// делим на реморты
+	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
 	return (exp);
 }
 
@@ -854,21 +899,7 @@ void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim)
 --*/
 void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef)
 {
-	if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
-		&& !IS_NPC(ch)
-		&& !IS_IMMORTAL(ch)
-		&& IS_NPC(victim)
-		&& !IS_CHARMICE(victim)
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
-	{
-		mob_stat::add_mob(victim, members);
-		EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
-	}
-	else if (IS_NPC(ch) && !IS_NPC(victim)
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
-	{
-		mob_stat::add_mob(ch, 0);
-	}
+
 
 // Странно, но для NPC эта функция тоже должна работать
 //  if (IS_NPC(ch) || !OK_GAIN_EXP(ch,victim))
@@ -910,7 +941,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 		}
 
 		if (!IS_NPC(ch) && !ch->affected.empty())
-		{ 
+		{
 			for (const auto aff : ch->affected)
 			{
 				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
@@ -920,18 +951,70 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 			}
 		}
 
+		int long_live_bonus = floor(get_npc_long_live_exp_bounus( GET_MOB_VNUM(victim)));
+		if (long_live_bonus>1)	{
+			std::string mess = "";
+			switch (long_live_bonus)
+			{
+				case 2:
+					mess = "Редкая удача! Опыт повышен!\r\n";
+					break;
+				case 3:
+					mess = "Очень редкая удача! Опыт повышен!\r\n";
+					break;
+				case 4:
+					mess = "Очень-очень редкая удача! Опыт повышен!\r\n";
+					break;
+				case 5:
+					mess = "Вы везунчик! Опыт повышен!\r\n";
+					break;
+				case 6:
+					mess = "Ваша удача велика! Опыт повышен!\r\n";
+					break;
+				case 7:
+					mess = "Ваша удача достигла небес! Опыт повышен!\r\n";
+					break;
+				case 8:
+					mess = "Ваша удача коснулась луны! Опыт повышен!\r\n";
+					break;
+				case 9:
+					mess = "Ваша удача затмевает солнце! Опыт повышен!\r\n";
+					break;
+				case 10:
+					mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
+					break;
+				default:
+					mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
+					break;
+			}
+			send_to_char(mess.c_str(), ch);
+		}
+
 		exp = MIN(max_exp_gain_pc(ch), exp);
-		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n",
-		exp, desc_count(exp, WHAT_POINT));
+		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n", exp, desc_count(exp, WHAT_POINT));
 	}
-	else if (exp == 1)
-	{
-		send_to_char(
-			"Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
+	else if (exp == 1) {
+		send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
 	}
 	gain_exp(ch, exp);
 	change_alignment(ch, victim);
 	TopPlayer::Refresh(ch);
+
+	if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
+		&& !IS_NPC(ch)
+		&& !IS_IMMORTAL(ch)
+		&& IS_NPC(victim)
+		&& !IS_CHARMICE(victim)
+		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
+	{
+		mob_stat::add_mob(victim, members);
+		EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
+	}
+	else if (IS_NPC(ch) && !IS_NPC(victim)
+			 && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
+	{
+		mob_stat::add_mob(ch, 0);
+	}
 }
 
 
@@ -1077,24 +1160,46 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 {
-	if (ch != victim
-		&& OK_GAIN_EXP(ch, victim)
-		&& GET_EXP(victim) > 0
-		&& !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-		&& !(MOB_FLAGGED(victim, MOB_ANGEL)|| MOB_FLAGGED(victim, MOB_GHOST))
-		&& !IS_NPC(ch)
-		&& !MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP))
+	// не даем получать батлу с себя по зеркалу?
+	if (ch == victim) { return; }
+	// не даем получать экспу с !эксп мобов
+	if (MOB_FLAGGED(victim, MOB_NO_BATTLE_EXP)) { return; }
+	// если цель не нпс то тоже не даем экспы
+	if (!IS_NPC(victim)) { return; }
+	// если цель под чармом не даем экспу
+	if (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)) { return; }
+
+	// получение игроками экспы
+	if (!IS_NPC(ch) && OK_GAIN_EXP(ch, victim))
 	{
 		int max_exp = MIN(max_exp_gain_pc(ch), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
 			(5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
 		double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
 		int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
-		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP))
+		if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
 			battle_exp *= Bonus::get_mult_bonus();
-//		int battle_exp = MAX(1, (GET_LEVEL(victim) * MIN(dam, GET_HIT(victim)) + 4) /
-//						 (5 * MAX(1, GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED - 1)));
+		}
 		gain_exp(ch, battle_exp);
 		ch->dps_add_exp(battle_exp, true);
+	}
+
+
+	// перенаправляем батлэкспу чармиса в хозяина, цифры те же что и у файтеров.
+	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
+		CHAR_DATA * master = ch->get_master();
+		// проверяем что есть мастер и он может получать экспу с данной цели
+		if (master && OK_GAIN_EXP(master, victim)) {
+			int max_exp = MIN(max_exp_gain_pc(master), (GET_LEVEL(victim) * GET_MAX_HIT(victim) + 4) /
+													   (5 * MAX(1, GET_REMORT(master) - MAX_EXP_COEFFICIENTS_USED - 1)));
+
+			double coeff = MIN(dam, GET_HIT(victim)) / static_cast<double>(GET_MAX_HIT(victim));
+			int battle_exp = MAX(1, static_cast<int>(max_exp * coeff));
+			if (Bonus::is_bonus(Bonus::BONUS_WEAPON_EXP)) {
+				battle_exp *= Bonus::get_mult_bonus();
+			}
+			gain_exp(master, battle_exp);
+			master->dps_add_exp(battle_exp, true);
+		}
 	}
 }
 
@@ -1308,14 +1413,14 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 void test_self_hitroll(CHAR_DATA *ch)
 {
 	HitData hit;
-	hit.weapon = RIGHT_WEAPON;
+	hit.weapon = FightSystem::RIGHT_WEAPON;
 	hit.init(ch, ch);
 	hit.calc_base_hr(ch);
 	hit.calc_stat_hr(ch);
 	hit.calc_ac(ch);
 
 	HitData hit2;
-	hit2.weapon = LEFT_WEAPON;
+	hit2.weapon = FightSystem::LEFT_WEAPON;
 	hit2.init(ch, ch);
 	hit2.calc_base_hr(ch);
 	hit2.calc_stat_hr(ch);
@@ -1424,11 +1529,24 @@ void Damage::post_init(CHAR_DATA *ch, CHAR_DATA *victim)
 	post_init_shields(victim);
 }
 
+void do_show_mobmax(CHAR_DATA *ch, char*, int, int)
+{
+	const auto player = dynamic_cast<Player*>(ch);
+	if (nullptr == player)
+	{
+		// написать в лог, что show_mobmax была вызвана не игроком
+		return;
+	}
+	send_to_char(ch, "&BВ стадии тестирования!!!&n\n");
+	player->show_mobmax();
+}
+
 void Damage::zero_init()
 {
 	dam = 0;
 	dam_critic = 0;
 	fs_damage = 0;
+	magic_type = 0;
 	dmg_type = -1;
 	skill_num = -1;
 	spell_num = -1;

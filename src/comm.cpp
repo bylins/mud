@@ -61,6 +61,7 @@
 #include "msdp.constants.hpp"
 #include "heartbeat.hpp"
 #include "zone.table.hpp"
+#include "db.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -147,13 +148,13 @@
 #define MXP_END "\x04"    /* becomes > */
 #define MXP_AMP "\x05"    /* becomes & */
 
-// Символы 
+// Символы
 
 #define MXP_BEGc '\x03'    /* becomes < */
 #define MXP_ENDc '\x04'    /* becomes > */
 #define MXP_AMPc '\x05'    /* becomes & */
 
-// constructs an MXP tag with < and > around it 
+// constructs an MXP tag with < and > around it
 
 #define MXPTAG(arg) MXP_BEG arg MXP_END
 
@@ -162,7 +163,7 @@
 #define MXPMODE(arg) ESC "[" #arg "z"
 extern void save_zone_count_reset();
 extern int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA * leader);
-// flags for show_list_to_char 
+// flags for show_list_to_char
 
 enum {
   eItemNothing,   /* item is not readily accessible */
@@ -186,8 +187,8 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
   int bInTag = FALSE;
   int bInEntity = FALSE;
 
-  for (p = txt, count = 0; 
-       length > 0; 
+  for (p = txt, count = 0;
+       length > 0;
        p++, length--)
     {
     c = *p;
@@ -195,14 +196,14 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
     if (bInTag)  /* in a tag, eg. <send> */
       {
       if (!bMXP)
-        count--;     /* not output if not MXP */   
+        count--;     /* not output if not MXP */
       if (c == MXP_ENDc)
         bInTag = FALSE;
       } /* end of being inside a tag */
     else if (bInEntity)  /* in a tag, eg. <send> */
       {
       if (!bMXP)
-        count--;     /* not output if not MXP */   
+        count--;     /* not output if not MXP */
       if (c == ';')
         bInEntity = FALSE;
       } /* end of being inside a tag */
@@ -212,18 +213,18 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
       case MXP_BEGc:
         bInTag = TRUE;
         if (!bMXP)
-          count--;     /* not output if not MXP */   
+          count--;     /* not output if not MXP */
         break;
 
       case MXP_ENDc:   /* shouldn't get this case */
         if (!bMXP)
-          count--;     /* not output if not MXP */   
+          count--;     /* not output if not MXP */
         break;
 
       case MXP_AMPc:
         bInEntity = TRUE;
         if (!bMXP)
-          count--;     /* not output if not MXP */   
+          count--;     /* not output if not MXP */
         break;
 
       default:
@@ -233,7 +234,7 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
             {
             case '<':       /* < becomes &lt; */
             case '>':       /* > becomes &gt; */
-              count += 3;    
+              count += 3;
               break;
 
             case '&':
@@ -241,7 +242,7 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
               break;
 
             case '"':        /* " becomes &quot; */
-              count += 5;    
+              count += 5;
               break;
 
             } /* end of inner switch */
@@ -252,7 +253,7 @@ int count_mxp_tags (const int bMXP, const char *txt, int length)
 
   return count;
   } /* end of count_mxp_tags */
-  
+
  void convert_mxp_tags (const int bMXP, char * dest, const char *src, int length)
   {
 char c;
@@ -261,8 +262,8 @@ char * pd;
 int bInTag = FALSE;
 int bInEntity = FALSE;
 
-  for (ps = src, pd = dest; 
-       length > 0; 
+  for (ps = src, pd = dest;
+       length > 0;
        ps++, length--)
     {
     c = *ps;
@@ -310,22 +311,22 @@ int bInEntity = FALSE;
             {
             case '<':
               memcpy (pd, "&lt;", 4);
-              pd += 4;    
+              pd += 4;
               break;
 
             case '>':
               memcpy (pd, "&gt;", 4);
-              pd += 4;    
+              pd += 4;
               break;
 
             case '&':
               memcpy (pd, "&amp;", 5);
-              pd += 5;    
+              pd += 5;
               break;
 
             case '"':
               memcpy (pd, "&quot;", 6);
-              pd += 6;    
+              pd += 6;
               break;
 
             default:
@@ -336,15 +337,15 @@ int bInEntity = FALSE;
           }
         else
           *pd++ = c;  /* not MXP - just copy character */
-        break;  
+        break;
 
       } /* end of switch on character */
 
     }   /* end of converting special characters */
   } /* end of convert_mxp_tags */
-  
-/* ----------------------------------------- */  
-  
+
+/* ----------------------------------------- */
+
 void our_terminate();
 
 namespace
@@ -413,65 +414,38 @@ unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
 
 // внумы комнат, где ставятся елки
-// размер массива 57
-const int vnum_room_new_year[58] = { 100,
-	4056,
-	5000,
-	6049,
-	7038,
-	8010,
-	9007,
-	66069,
-	60036,
-	18253,
-	63671,
-	34404,
-	61064,
-	76601,
-	25685,
-	13589,
-	27018,
-	63030,
-	30266,
-	69091,
-	77065,
-	79044,
-	76000,
-	49987,
-	25075,
-	72043,
-	75000,
-	64035,
-	85123,
-	35040,
-	73050,
-	60288,
-	24074,
-	62001,
-	32480,
-	68051,
-	21017,
-	20962,
-	58123,
-	30423,
-	35738,
-	14611,
-	77501,
-	31210,
-	21186,
-	13405,
-	15906,
-	85540,
-	13101,
-	77622,
-	23744,
-	71300,
-	85146,
-	42103,
-	21211,
-	12662,
-	25327,
-	12510 } ;
+const int vnum_room_new_year[31] =
+{4056,
+5000,
+6049,
+7038,
+8010,
+9007,
+66069,
+60036,
+18253,
+63671,
+34404,
+13589,
+27018,
+63030,
+30266,
+69091,
+77065,
+76000,
+49987,
+25075,
+72043,
+75000,
+85123,
+35040,
+73050,
+60288,
+24074,
+62001,
+32480,
+68051,
+85146 } ;
 
 const int len_array_gifts = 63;
 
@@ -526,11 +500,11 @@ const int vnum_gifts[len_array_gifts] = { 27113,
 	2155,
 	2156,
 	2157,
-	2158, 
+	10610,
 	10673,
 	10648,
 	10680,
-	10627,
+	10639,
 	10609,
 	10659,
 	10613,
@@ -544,7 +518,7 @@ const int vnum_gifts[len_array_gifts] = { 27113,
 void gifts()
 {
 	// выбираем случайную комнату с елкой
-	int rand_vnum_r = vnum_room_new_year[number(1, 56)];
+	int rand_vnum_r = vnum_room_new_year[number(0, 30)];
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
@@ -556,7 +530,7 @@ void gifts()
 
 	const auto obj_gift = world_objects.create_from_prototype_by_rnum(rnum);
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
-	
+
 	// создаем упаковку для подарка
 	obj_to_room(obj_cont.get(), real_room(rand_vnum_r));
 	obj_to_obj(obj_gift.get(), obj_cont.get());
@@ -702,7 +676,7 @@ int main_function(int argc, char **argv)
 	// для нормального вывода русского текста под cygwin 1.7 и выше
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
-	
+
 #ifdef CIRCLE_WINDOWS		// Includes for Win32
 # ifdef __BORLANDC__
 # else				// MSVC
@@ -952,6 +926,7 @@ void init_game(ush_int port)
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
+	zone_traffic_save();
 #if defined WITH_SCRIPTING
 	//scripting::terminate();
 #endif
@@ -1366,6 +1341,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d->character)
 		{
 			d->character->wait_dec();
+			d->character->decreaseSkillsCooldowns(1u);
 			GET_PUNCTUAL_WAIT_STATE(d->character) -=
 				(GET_PUNCTUAL_WAIT_STATE(d->character) > 0 ? 1 : 0);
 			if (WAITLESS(d->character))
@@ -1851,7 +1827,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		if (PRF_FLAGGED(d->character, PRF_DISPMANA)
 				&& IS_MANA_CASTER(d->character))
 		{
-			perc = (100 * GET_MANA_STORED(d->character)) / GET_MAX_MANA(d->character);
+			perc = (100 * GET_MANA_STORED(d->character)) / GET_MAX_MANA((d->character).get());
 			count +=
 				sprintf(prompt + count, "%s%dз%s ",
 						CCMANA(d->character, C_NRM, perc),
@@ -1891,11 +1867,25 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 			else
 				count += sprintf(prompt + count, "Зауч:0 ");
 		}
-		// Заряды кличей
-		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED))
-		{
-			if (d->character->get_skill(SKILL_WARCRY))
-			{
+		// Cooldowns
+		if (PRF_FLAGGED(d->character, PRF_DISP_COOLDOWNS)) {
+			// И вся эта дичь потому, что процелура составления промпта не является членом player, как дОлжно,
+			// потому мы не можем просто пройтись по списку _имеющихся у игрока_ скиллов
+			// у кого руки дойдут - может переделать на метод класса...
+			count += sprintf(prompt + count, "%s:%d ",
+								skill_info[SKILL_GLOBAL_COOLDOWN].shortName, d->character->getSkillCooldownInPulses(SKILL_GLOBAL_COOLDOWN));
+			for (const auto skill : AVAILABLE_SKILLS) {
+				if (*skill_info[skill].name != '!' && d->character->get_skill(skill)) {
+					int cooldown = d->character->getSkillCooldownInPulses(skill);
+					if (cooldown > 0) {
+						count += sprintf(prompt + count, "%s:%d ", skill_info[skill].shortName, cooldown);
+					}
+				}
+			}
+		}
+		// Заряды и таймеры умений
+		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED)) {
+			if (d->character->get_skill(SKILL_WARCRY)) {
 				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_WARCRY)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
@@ -1909,14 +1899,23 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "Сг:%d ", timed_by_skill(d->character.get(), SKILL_MANADRAIN));
 			if (d->character->get_skill(SKILL_CAMOUFLAGE))
 				count += sprintf(prompt + count, "Мс:%d ", timed_by_skill(d->character.get(), SKILL_CAMOUFLAGE));
-			if (d->character->get_skill(SKILL_TURN_UNDEAD))
-				count += sprintf(prompt + count, "Из:%d ", timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD));
+			if (d->character->get_skill(SKILL_TURN_UNDEAD)) {
+				if (can_use_feat(d->character.get(), EXORCIST_FEAT)) {
+					count += sprintf(prompt + count,
+						"Из:%d ", (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD)) / (HOURS_PER_TURN_UNDEAD - 2));
+				} else {
+					count += sprintf(prompt + count,
+						"Из:%d ", (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD)) / HOURS_PER_TURN_UNDEAD);
+				}
+			}
 			if (d->character->get_skill(SKILL_STUN))
 				count += sprintf(prompt + count, "Ош:%d ", timed_by_skill(d->character.get(), SKILL_STUN));
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
 				count += sprintf(prompt + count, "Пр:%d ", timed_by_feat(d->character.get(), RELOCATE_FEAT));
 			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))
 				count += sprintf(prompt + count, "Зч:%d ", timed_by_feat(d->character.get(), SPELL_CAPABLE_FEAT));
+			if (HAVE_FEAT(d->character, SHADOW_THROW_FEAT))
+				count += sprintf(prompt + count, "Зо:%d ", timed_by_feat(d->character.get(), SHADOW_THROW_FEAT));
 		}
 
 		if (!d->character->get_fighting()
@@ -3419,7 +3418,7 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 				d->character->save_char();
 				check_light(d->character.get(), LIGHT_NO, LIGHT_NO, LIGHT_NO, LIGHT_NO, -1);
 				Crash_ldsave(d->character.get());
-				
+
 				sprintf(buf, "Closing link to: %s.", GET_NAME(d->character));
 				mudlog(buf, NRM, MAX(LVL_GOD, GET_INVIS_LEV(d->character)), SYSLOG, TRUE);
 			}

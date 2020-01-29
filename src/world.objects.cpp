@@ -107,7 +107,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_blank(const std::string& alias)
 
 	const auto id = max_id.allocate();
 	new_object->set_id(id);
-
+	new_object->set_extra_flag(EExtraFlag::ITEM_NORENT);
 	new_object->set_aliases(alias);
 
 	return std::move(new_object);

@@ -13,6 +13,9 @@
 ************************************************************************ */
 #include "mobact.hpp"
 
+#include "ability.rollsystem.hpp"
+#include "action.targeting.hpp"
+#include "features.hpp"
 #include "world.characters.hpp"
 #include "world.objects.hpp"
 #include "obj.hpp"
@@ -232,6 +235,49 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
+CHAR_DATA* selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
+	ActionTargeting::FriendsRosterType roster{leader};
+	auto isSkirmisher = [](CHAR_DATA* ch){return PRF_FLAGGED(ch, PRF_SKIRMISHER);};
+	int skirmishers = roster.count(isSkirmisher);
+	if (skirmishers == 0 || skirmishers == roster.amount()) {
+		return nullptr;
+	}
+	return roster.getRandomItem(isSkirmisher);
+}
+
+CHAR_DATA* selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim) {
+	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffectFlag::AFF_GROUP)) {
+		return initialVictim;
+	}
+
+	CHAR_DATA *leader = initialVictim;
+	CHAR_DATA *newVictim = initialVictim;
+
+	if (initialVictim->has_master()) {
+		leader = initialVictim->get_master();
+	}
+	if (!assaulter->isInSameRoom(leader)) {
+		return initialVictim;
+	}
+
+	newVictim = selectRandomSkirmisherFromGroup(leader);
+	if (!newVictim) {
+		return initialVictim;
+	}
+
+	AbilitySystem::AgainstRivalRollType abilityRoll;
+	abilityRoll.initialize(leader, TACTICIAN_FEAT, assaulter);
+	bool tacticianFail = !abilityRoll.isSuccess();
+	abilityRoll.initialize(newVictim, SKIRMISHER_FEAT, assaulter);
+	if (tacticianFail || !abilityRoll.isSuccess()) {
+		return initialVictim;
+	}
+
+	act("Вы героически приняли удар $n1 на себя!", FALSE, assaulter, 0, newVictim, TO_VICT | TO_NO_BRIEF_SHIELDS);
+	act("$n попытал$u ворваться в ваши ряды, но $N героически принял$G удар на себя!", FALSE, assaulter, 0, newVictim, TO_NOTVICT | TO_NO_BRIEF_SHIELDS);
+	return newVictim;
+};
+
 
 CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 {
@@ -242,17 +288,12 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 
 	for (const auto vict : world[ch->in_room]->people)
 	{
-		if ((IS_NPC(vict)
-				&& !IS_SET(extmode, CHECK_OPPONENT)
-				&& !IS_CHARMICE(vict))
-			|| (IS_CHARMICE(vict)
-				&& !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
+		if ((IS_NPC(vict) && !IS_SET(extmode, CHECK_OPPONENT) && !IS_CHARMICE(vict))
+			|| (IS_CHARMICE(vict) && !vict->get_fighting()) // чармиса агрим только если он уже с кем-то сражается
 			|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 			|| !MAY_SEE(ch, ch, vict)
-			|| (IS_SET(extmode, CHECK_OPPONENT)
-				&& ch != vict->get_fighting())
-			|| (!may_kill_here(ch, vict)
-				&& !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+			|| (IS_SET(extmode, CHECK_OPPONENT)	&& ch != vict->get_fighting())
+			|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 		{
 			continue;
 		}
@@ -404,7 +445,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
 	}
 
-	return best;
+	return selectVictimDependingOnGroupFormation(ch, best);
 }
 // TODO invert and rename for clarity: -> isStrayCharmice(), to return true if a charmice, and master is absent =II
 bool find_master_charmice(CHAR_DATA *charmice)
@@ -426,18 +467,26 @@ bool find_master_charmice(CHAR_DATA *charmice)
 // пока тестово
 CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 {
-	// интелект моба
-	int i = GET_REAL_INT(ch);
-	// если у моба меньше 20 инты, то моб тупой
-	if (i < INT_STUPID_MOD)
-	{
-		return find_best_stupidmob_victim(ch, extmode);
-	}
-	CHAR_DATA *victim,  *caster = NULL, *best = NULL;
+	CHAR_DATA *currentVictim,  *caster = NULL, *best = NULL;
 	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
 	int extra_aggr = 0;
 	bool kill_this;
-	victim = ch->get_fighting();
+
+	int mobINT = GET_REAL_INT(ch);
+	if (mobINT < INT_STUPID_MOD)
+	{
+		return find_best_stupidmob_victim(ch, extmode);
+	}
+
+	currentVictim = ch->get_fighting();
+	if (currentVictim && !IS_NPC(currentVictim))
+	{
+		if (IS_CASTER(currentVictim))
+		{
+			return currentVictim;
+		}
+	}
+
 	// проходим по всем чарам в комнате
 	for (const auto vict : world[ch->in_room]->people)
 	{
@@ -544,11 +593,9 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 			caster = vict;
 			continue;
 		}
-		// если у чара меньше 100 хп, то переключаемся на него
-		if (GET_HIT(vict) <= MIN_HP_MOBACT)
+
+		if (GET_HIT(vict) <= CHARACTER_HP_FOR_MOB_PRIORITY_ATTACK)
 		{
-			//continue;
-			//Кто-то сильно очепятался. Теперь тем у кого меньше 100 хп меньше повезет
 			return vict;
 		}
 		if (IS_CASTER(vict))
@@ -561,20 +608,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 
 	if (!best)
 	{
-		best = victim;
+		best = currentVictim;
 	}
 
-	// если цель кастер, то зачем переключаться ?
-	// проверка, а вдруг это существо моб
-	if (victim && !IS_NPC(victim))
-	{
-		if (IS_CASTER(victim))
-		{
-			return victim;
-		}
-	}
-
-	if (i < INT_MIDDLE_AI)
+	if (mobINT < INT_MIDDLE_AI)
 	{
 		int rand = number(0, 2);
 		if (caster)
@@ -593,10 +630,10 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		{
 			best = charmmage;
 		}
-		return best;
+		return selectVictimDependingOnGroupFormation(ch, best);
 	}
 
-	if (i < INT_HIGH_AI)
+	if (mobINT < INT_HIGH_AI)
 	{
 		int rand = number(0, 1);
 		if (caster)
@@ -608,7 +645,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 		if ((rand == 1) && (cler))
 			best = cler;
 
-		return best;
+		return selectVictimDependingOnGroupFormation(ch, best);
 	}
 
 	//  и если >= 40 инты
@@ -621,7 +658,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 	if (druid)
 		best = druid;
 
-	return best;
+	return selectVictimDependingOnGroupFormation(ch, best);
 }
 
 int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
@@ -632,6 +669,11 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 
 	if (best)
 	{
+		if (best->player_specials->saved.olc_zone == GET_MOB_VNUM(ch) / 100) // если у игрока стоит олц на зону, в ней его не агрят
+		{
+			send_to_char(best, "&GАгромоб, атака остановлена.\r\n");
+			return(FALSE);
+		}
 	/*
 				   sprintf(buf,"Attacker-%s,B-%s,IS-NPC-%s,IS-CLONE-%s",
 				   GET_NAME(ch),
@@ -642,7 +684,7 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 				 */
 		if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 		{
-			act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+			act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
 			GET_POS(ch) = POS_STANDING;
 		}
 
@@ -708,7 +750,7 @@ int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 			{
-				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
 
@@ -773,6 +815,16 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 	// ****************  Aggressive Mobs
 	if (extra_aggressive(ch, NULL))
 	{
+		const auto& room = world[ch->in_room];
+		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it)
+		{
+			if (affect_it->get()->type == SPELL_RUNE_LABEL && (affect_it != room->affected.end()))
+			{
+				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				removeAffectFromRoom(world[ch->in_room], affect_it);
+				break;
+			}
+		}
 		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
 		return;
 	}
@@ -839,7 +891,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 			{
-				act("$n вскочил$g на ноги.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
 			if (GET_RACE(ch) != NPC_RACE_HUMAN)
@@ -1003,6 +1055,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		}
 
 		ch->wait_dec(missed_pulses);
+		ch->decreaseSkillsCooldowns(missed_pulses);
 
 		if (GET_PUNCTUAL_WAIT(ch) > 0)
 			GET_PUNCTUAL_WAIT(ch) -= missed_pulses;
@@ -1128,7 +1181,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			}
 
 			if (vict->get_fighting() == ch.get())
-			{				
+			{
 				return;		// Mob is under attack
 			}
 
@@ -1157,7 +1210,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			switch (GET_DEFAULT_POS(ch))
 			{
 			case POS_STANDING:
-				act("$n встал$g на ноги.", FALSE, ch.get(), 0, 0, TO_ROOM);
+				act("$n поднял$u.", FALSE, ch.get(), 0, 0, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 				break;
 			case POS_SITTING:

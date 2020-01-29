@@ -50,6 +50,7 @@
 #include "zone.table.hpp"
 
 #include <vector>
+#include <boost/lexical_cast.hpp>
 
 extern room_rnum r_mortal_start_room;
 
@@ -622,143 +623,105 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 {
 	room_rnum ch_room, vic_room;
 	struct follow_type *k, *k_next;
-	// Если переменные не определены или каст на себя - завершаем.
-	if (ch == NULL || victim == NULL || ch == victim)
+
+	if (ch == NULL || victim == NULL || ch == victim) {
 		return;
+	}
 
 	ch_room = ch->in_room;
 	vic_room = IN_ROOM(victim);
 
-	// Нельзя суммонить находясь в NOWHERE или если цель в NOWHERE.
-	if (ch_room == NOWHERE || vic_room == NOWHERE)
-	{
+	if (ch_room == NOWHERE || vic_room == NOWHERE) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	// Игрок не может присуммонить моба.
-	if (!IS_NPC(ch) && IS_NPC(victim))
-	{
+	if (IS_NPC(ch) && IS_NPC(victim)) {
 		send_to_char(SUMMON_FAIL, ch);
 		return;
 	}
 
-	// Моб не может призвать моба
-	// Насчет этого я не особо уверен что такое может случиться (разве что суммон запоминающим мобом чармиса),
-	// но в старом коде суммона данная строчка присутствовала в одном из условий.
-	if (IS_NPC(ch) && IS_NPC(victim))
-	{
-		send_to_char(SUMMON_FAIL, ch);
-		return;
-	}
-
-	// Богов лучше не суммонить - им это может не понравится.
-	if (IS_IMMORTAL(victim))
-	{
-		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim)))
-		{
+	if (IS_IMMORTAL(victim)) {
+		if (IS_NPC(ch) || (!IS_NPC(ch) && GET_LEVEL(ch) < GET_LEVEL(victim))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 	}
 
-	// Ограничения для смертных (богов ниже следующее не касается)
-	if (!IS_IMMORTAL(ch))
-	{
-		// Если игрок не моб или чармис, то:
-		if (!IS_NPC(ch) || IS_CHARMICE(ch))
-		{
-			// Нельзя производить суммон под ЗБ
-			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD))
-			{
-				send_to_char(SUMMON_FAIL3, ch);	// Про маг. кокон вокруг суммонера
+	if (!IS_NPC(ch) && IS_NPC(victim)) {
+		if (victim->get_master() != ch
+			|| !AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
+			|| AFF_FLAGGED(victim, EAffectFlag::AFF_HELPER)
+			|| victim->get_fighting()
+			|| GET_POS(victim) < POS_RESTING) {
+			send_to_char(SUMMON_FAIL, ch);
+			return;
+		}
+	}
+
+
+	if (!IS_IMMORTAL(ch)) {
+		if (!IS_NPC(ch) || IS_CHARMICE(ch)) {
+			if (AFF_FLAGGED(ch, EAffectFlag::AFF_SHIELD)) {
+				send_to_char(SUMMON_FAIL3, ch);
 				return;
 			}
-			// Нельзя призвать жертву без режима (если не в группе)
-			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim))
-			{
-				send_to_char(SUMMON_FAIL2, ch);	// Устойчива
+			if (!PRF_FLAGGED(victim, PRF_SUMMONABLE) && !same_group(ch, victim)) {
+				send_to_char(SUMMON_FAIL2, ch);
 				return;
 			}
-			// Нельзя призвать жертву в БД
-			if (RENTABLE(victim))
-			{
+			if (RENTABLE(victim)) {
 				send_to_char(SUMMON_FAIL, ch);
 				return;
 			}
-			// Нельзя призвать жертву в бою
-			if (victim->get_fighting())
-			{
-				send_to_char(SUMMON_FAIL4, ch);	// Цель в бою
+			if (victim->get_fighting()) {
+				send_to_char(SUMMON_FAIL4, ch);
 				return;
 			}
 		}
-		// И независимо от того моб это или нет:
-		// Жертву в лаге нельзя суммонить.
-		if (GET_WAIT(victim) > 0)
-		{
+		if (GET_WAIT(victim) > 0) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		// и чаров 10 и ниже левела тоже
-		if (!IS_NPC(ch) && GET_LEVEL(victim) <= 10)
-		{
+		if (!IS_NPC(ch) && !IS_NPC(victim) && GET_LEVEL(victim) <= 10) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
 
-		// Проверка мест где нельзя суммонить и откуда нельзя суммонить.
-		// Где нельзя суммонить:
-		if (ROOM_FLAGGED(ch_room, ROOM_NOSUMMON) ||	// суммонер в комнате с флагом !призвать
-				ROOM_FLAGGED(ch_room, ROOM_DEATH) ||	// суммонер в ДТ
-				ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH) ||	// суммонер в медленном ДТ
-				ROOM_FLAGGED(ch_room, ROOM_TUNNEL) ||	// суммонер в ван-руме
-				ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) ||	// суммонер в мирной комнате
-				ROOM_FLAGGED(ch_room, ROOM_NOBATTLE) ||	// суммонер в комнате с запретом на драки
-				ROOM_FLAGGED(ch_room, ROOM_GODROOM) ||	// суммонер в комнате для бессмертных
-				ROOM_FLAGGED(ch_room, ROOM_ARENA) ||	// суммонер на арене
-				!Clan::MayEnter(victim, ch_room, HCE_PORTAL) ||	// суммонер стоит во внутренней части клан-замка
-				SECT(ch->in_room) == SECT_SECRET)	// суммонер стоит в клетке с типом "секретый"
-		{
+		if (ROOM_FLAGGED(ch_room, ROOM_NOSUMMON)
+			|| ROOM_FLAGGED(ch_room, ROOM_DEATH)
+			|| ROOM_FLAGGED(ch_room, ROOM_SLOWDEATH)
+			|| ROOM_FLAGGED(ch_room, ROOM_TUNNEL)
+			|| ROOM_FLAGGED(ch_room, ROOM_NOBATTLE)
+			|| ROOM_FLAGGED(ch_room, ROOM_GODROOM)
+			|| !Clan::MayEnter(victim, ch_room, HCE_PORTAL)
+			|| SECT(ch->in_room) == SECT_SECRET
+			|| (!same_group(ch, victim) && (ROOM_FLAGGED(ch_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch_room, ROOM_ARENA)))) {
 			send_to_char(SUMMON_FAIL, ch);
 			return;
 		}
-		// Жертву нельзя призвать если она в:
-                //разные варианты моб и игрок
-                if (!IS_NPC(ch))
-		{
-                    // для чаров
-                    if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
-				ROOM_FLAGGED(vic_room, ROOM_TUNNEL)	||	// жертва стоит в ван-руме
-				ROOM_FLAGGED(vic_room, ROOM_GODROOM)||	// жертва в комнате для бессмертных
-				ROOM_FLAGGED(vic_room, ROOM_ARENA)	||	// жертва на арене
-				!Clan::MayEnter(ch, vic_room, HCE_PORTAL)||// жертва во внутренних покоях клан-замка
-				AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
-                    {
-			send_to_char(SUMMON_FAIL, ch);
-			return;
-                    }
-                }
-                else
-                {
-                    //для мобов возможно только 2 ошибки 
-                   if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)	||	// жертва в комнате с флагом !призвать
-			AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT))	// жертва под действием заклинания "приковать противника"
-                    {
-			send_to_char(SUMMON_FAIL, ch);
-			return;
-                    }
-                }
 
-		// Фейл заклинания суммон
-		if (number(1, 100) < 30)
-		{
-			send_to_char(SUMMON_FAIL, ch);
+		if (!IS_NPC(ch)) {
+			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON)
+				|| ROOM_FLAGGED(vic_room, ROOM_GODROOM)
+				|| !Clan::MayEnter(ch, vic_room, HCE_PORTAL)
+				|| AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)
+				|| (!same_group(ch, victim) && (ROOM_FLAGGED(vic_room, ROOM_TUNNEL) || ROOM_FLAGGED(vic_room, ROOM_ARENA)))) {
+				send_to_char(SUMMON_FAIL, ch);
+				return;
+			}
+		} else {
+			if (ROOM_FLAGGED(vic_room, ROOM_NOSUMMON) || AFF_FLAGGED(victim, EAffectFlag::AFF_NOTELEPORT)) 	{
+				send_to_char(SUMMON_FAIL, ch);
+				return;
+			}
+		}
+
+		if (IS_NPC(ch) && number(1, 100) < 30) {
 			return;
 		}
 	}
 
-	// Ничто не помешало нашему суммону - и он все-таки произошел
 	act("$n растворил$u на ваших глазах.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, ch_room);
@@ -766,21 +729,14 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 	act("$n прибыл$g по вызову.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("$n призвал$g вас!", FALSE, ch, 0, victim, TO_VICT);
 	check_auto_nosummon(victim);
+	GET_POS(victim) = POS_STANDING;
 	look_at_room(victim, 0);
 	// призываем чармисов
-	for (k = victim->followers; k; k = k_next)
-	{
+	for (k = victim->followers; k; k = k_next) {
 		k_next = k->next;
-		// проверяем, находится ли чармис в той же комнате, где был сам чар
-		if (IN_ROOM(k->follower) == vic_room)
-		{
-			// проверяем, чармис ли это вообще
-			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
-			{
-				// чармис не должен быть в бою
-				if (!k->follower->get_fighting())
-				{
-					// призываем
+		if (IN_ROOM(k->follower) == vic_room) {
+			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM)) {
+				if (!k->follower->get_fighting()) {
 					act("$n растворил$u на ваших глазах.", TRUE, k->follower, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 					char_from_room(k->follower);
 					char_to_room(k->follower, ch_room);
@@ -812,57 +768,41 @@ void spell_townportal(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 	//если портала нет, проверяем, возможно игрок ставит врата на свою метку
 	if (!port && name_cmp(ch, cast_argument))
 	{
-        //Таки да, персонаж пытается поставить врата на себя, то бишь на свою метку. Ищем комнату с меткой.
-        label_room = RoomSpells::find_affected_roomt(GET_ID(ch), SPELL_RUNE_LABEL);
 
-        //Если такая комната есть - заполняем структуру портала
-        //Тупо конечно, но какого блин туча проверок по всем функциям рассована? Их все обойти - убиться проще.
-        if (label_room)
-        {
-            label_port.vnum = label_room->number;
-            label_port.level = 1;
-            port = &label_port;
-            has_label_portal = true;
-        }
+		label_room = RoomSpells::findAffectedRoom(GET_ID(ch), SPELL_RUNE_LABEL);
+		if (label_room) {
+			label_port.vnum = label_room->number;
+			label_port.level = 1;
+			port = &label_port;
+			has_label_portal = true;
+		}
 	}
-	if (port && (has_char_portal(ch, port->vnum) || has_label_portal))
-	{
-
-		// Проверяем скилл тут, чтобы можно было смотреть список и удалять без -!-
-		if (timed_by_skill(ch, SKILL_TOWNPORTAL))
-		{
+	if (port && (has_char_portal(ch, port->vnum) || has_label_portal)) {
+		if (timed_by_skill(ch, SKILL_TOWNPORTAL)) {
 			send_to_char("У вас недостаточно сил для постановки врат.\r\n", ch);
 			return;
 		}
 
-		// Если мы открываем врата из комнаты с камнем, то они не работают //
-		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room)))
-		{
+		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
 			send_to_char("Камень рядом с вами мешает вашей магии.\r\n", ch);
 			return;
 		}
 
-		// Если в комнате есть метка-"камень" то врата ставить нельзя //
 		const auto& room = world[ch->in_room];
 		const auto room_affect_i = find_room_affect(room, SPELL_RUNE_LABEL);
-		if (room_affect_i != room->affected.end())
-		{
+		if (room_affect_i != room->affected.end()) {
 			send_to_char("Начертанные на земле магические руны подавляют вашу магию!\r\n", ch);
 			return;
 		}
 
-		// Чтоб не кастили в NOMAGIC
-		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch))
-		{
+		if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) && !IS_GRGOD(ch)) {
 			send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
 			act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, ch, 0, 0, TO_ROOM);
 			return;
 		}
 		//удаляем переходы
-		if (world[ch->in_room]->portal_time)
-		{
-			if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time)
-			{
+		if (world[ch->in_room]->portal_time) {
+			if (world[world[ch->in_room]->portal_room]->portal_room == ch->in_room && world[world[ch->in_room]->portal_room]->portal_time) {
 				decay_portal(world[ch->in_room]->portal_room);
 			}
 			decay_portal(ch->in_room);
@@ -1335,6 +1275,10 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 			}
 		}
 
+		if (CAN_SEE(victim, ch)) {
+			remember(victim, ch);
+		}
+
 		affect_from_char(victim, SPELL_CHARM);
 		ch->add_follower(victim);
 		AFFECT_DATA<EApplyLocation> af;
@@ -1393,73 +1337,78 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 	}
 }
 
-void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
+void do_freehelpee(CHAR_DATA* ch, char* /* argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	CHAR_DATA *helpee;
-	struct follow_type *k;
-	int cost=0, times, i;
-	char isbank[MAX_INPUT_LENGTH];
-
-	if (IS_NPC(ch) || (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
+	if (IS_NPC(ch)
+		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
 	{
 		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_FREEHELPEE)
+	follow_type* k;
+	for (k = ch->followers; k; k = k->next)
 	{
-		for (k = ch->followers; k; k = k->next)
+		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
+			&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
 		{
-			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
-				&& AFF_FLAGGED(k->follower, EAffectFlag::AFF_CHARM))
-			{
-				break;
-			}
+			break;
 		}
+	}
 
-		if (k)
+	if (!k)
+	{
+		act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
+		return;
+	}
+
+	if (ch->in_room != IN_ROOM(k->follower))
+	{
+		act("Вам следует встретиться с $N4 для этого.", FALSE, ch, 0, k->follower, TO_CHAR);
+		return;
+	}
+
+	if (GET_POS(k->follower) < POS_STANDING)
+	{
+		act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, k->follower, TO_CHAR);
+		return;
+	}
+
+	if (!IS_IMMORTAL(ch))
+	{
+		for (const auto& aff : k->follower->affected)
 		{
-			if (ch->in_room != IN_ROOM(k->follower))
-				act("Вам следует встретиться с $N4 для этого.", FALSE, ch, 0, k->follower, TO_CHAR);
-			else if (GET_POS(k->follower) < POS_STANDING)
-				act("$N2 сейчас, похоже, не до вас.", FALSE, ch, 0, k->follower, TO_CHAR);
-			else
+			if (aff->type == SPELL_CHARM)
 			{
-				// added by WorM (Видолюб) 2010.06.04 Cохраняем цену найма моба
-				if (!IS_IMMORTAL(ch))
+				const auto cost = MAX(0, (int)((aff->duration - 1) / 2)*(int)abs(k->follower->mob_specials.hire_price));
+				if (cost > 0)
 				{
-					for (const auto& aff : k->follower->affected)
+					if (k->follower->mob_specials.hire_price < 0)
 					{
-						if (aff->type == SPELL_CHARM)
-						{
-							cost = MAX(0, (int)((aff->duration - 1) / 2)*(int)abs(k->follower->mob_specials.hire_price));
-							if (cost > 0)
-							{
-								if (k->follower->mob_specials.hire_price < 0)
-								{
-									ch->add_bank(cost);
-								}
-								else
-								{
-									ch->add_gold(cost);
-								}
-							}
-
-							break;
-						}
+						ch->add_bank(cost);
+					}
+					else
+					{
+						ch->add_gold(cost);
 					}
 				}
 
-				act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
-				// end by WorM
-				affect_from_char(k->follower, SPELL_CHARM);
-				stop_follower(k->follower, SF_CHARMLOST);
+				break;
 			}
 		}
-		else
-		{
-			act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
-		}
+	}
+
+	act("Вы рассчитали $N3.", FALSE, ch, 0, k->follower, TO_CHAR);
+	affect_from_char(k->follower, SPELL_CHARM);
+	stop_follower(k->follower, SF_CHARMLOST);
+}
+
+void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	if (IS_NPC(ch)
+		|| (!WAITLESS(ch) && !can_use_feat(ch, EMPLOYER_FEAT)))
+	{
+		send_to_char("Вам недоступно это!\r\n", ch);
 		return;
 	}
 
@@ -1467,6 +1416,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!*arg)
 	{
+		follow_type* k;
 		for (k = ch->followers; k; k = k->next)
 		{
 			if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
@@ -1484,15 +1434,18 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{
 			act("У вас нет наемников!", FALSE, ch, 0, 0, TO_CHAR);
 		}
+
 		return;
 	}
 
-	if (!(helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM)))
+	const auto helpee = get_char_vis(ch, arg, FIND_CHAR_ROOM);
+	if (!helpee)
 	{
 		send_to_char("Вы не видите никого похожего.\r\n", ch);
 		return;
 	}
 
+	follow_type* k;
 	for (k = ch->followers; k; k = k->next)
 	{
 		if (AFF_FLAGGED(k->follower, EAffectFlag::AFF_HELPER)
@@ -1520,20 +1473,22 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Следование по кругу запрещено.\r\n", ch);
 	else
 	{
+		char isbank[MAX_STRING_LENGTH];
 		two_arguments(argument, arg, isbank);
-		if (!*arg)
-			times = 0;
-		else if ((times = atoi(arg)) < 0)
+
+		int times = -1;
+		try
 		{
-			act("Уточните время, на которое вы хотите нанять $N3.", FALSE, ch, 0, helpee, TO_CHAR);
-			return;
+			times = boost::lexical_cast<int>(arg);
 		}
-		if (!times)  	//cost = GET_LEVEL(helpee) * TIME_KOEFF;
+		catch (boost::bad_lexical_cast&) {}
+
+		if(!*arg || times < 0)
 		{
-			cost = calc_hire_price(ch, helpee);
+			const auto cost = calc_hire_price(ch, helpee);
 			sprintf(buf,
-					"$n сказал$g вам : \"Один час моих услуг стоит %d %s\".\r\n",
-					cost, desc_count(cost, WHAT_MONEYu));
+				"$n сказал$g вам : \"Один час моих услуг стоит %d %s\".\r\n",
+				cost, desc_count(cost, WHAT_MONEYu));
 			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
 			return;
 		}
@@ -1544,16 +1499,14 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			return;
 		}
 
-		i = calc_hire_price(ch, helpee);
-		cost = (WAITLESS(ch) ? 0 : 1) * i * times;
-// проверка на overflow - не совсем корректно, но в принципе годится
-		sprintf(buf1, "%d", i);
-		if (cost < 0 || (strlen(buf1) + strlen(arg)) > 9)
+		auto hire_price = calc_hire_price(ch, helpee);
+		if(WAITLESS(ch))
 		{
-			cost = 100000000;
-			sprintf(buf, "$n сказал$g вам : \" Хорошо, не буду жадничать, скину тебе немного с цены.\"");
-			act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+			hire_price = 0;
 		}
+
+		const auto cost = times * hire_price;
+
 		if ((!isname(isbank, "банк bank") && cost > ch->get_gold()) ||
 				(isname(isbank, "банк bank") && cost > ch->get_bank()))
 		{
@@ -1598,15 +1551,18 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 		affect_from_char(helpee, SPELL_CHARM);
 
-		if (isname(isbank, "банк bank"))
+		if (!WAITLESS(ch))
 		{
-			ch->remove_bank(cost);
-			helpee->mob_specials.hire_price = -i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба через банк
-		}
-		else
-		{
-			ch->remove_gold(cost);
-			helpee->mob_specials.hire_price = i;// added by WorM (Видолюб) 2010.06.04 Сохраняем цену по которой наняли моба
+			if (isname(isbank, "банк bank"))
+			{
+				ch->remove_bank(cost);
+				helpee->mob_specials.hire_price = -hire_price;
+			}
+			else
+			{
+				ch->remove_gold(cost);
+				helpee->mob_specials.hire_price = hire_price;
+			}
 		}
 
 		af.type = SPELL_CHARM;
@@ -1615,33 +1571,38 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		af.bitvector = to_underlying(EAffectFlag::AFF_CHARM);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
-//		AFF_FLAGS(helpee).set(EAffectFlag::AFF_HELPER); 
+
 		af.type = SPELL_CHARM;
 		af.modifier = 0;
 		af.location = APPLY_NONE;
 		af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
+
 		sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
 		act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
+
 		if (IS_NPC(helpee))
 		{
-			for (i = 0; i < NUM_WEARS; i++)
+			for (auto i = 0; i < NUM_WEARS; i++)
+			{
 				if (GET_EQ(helpee, i))
 				{
 					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
 						continue;
+
 					act("Вы прекратили использовать $o3.", FALSE, helpee, GET_EQ(helpee, i), 0, TO_CHAR);
 					act("$n прекратил$g использовать $o3.", TRUE, helpee, GET_EQ(helpee, i), 0, TO_ROOM);
 					obj_to_char(unequip_char(helpee, i | 0x40), helpee);
 				}
+			}
+
 			MOB_FLAGS(helpee).unset(MOB_AGGRESSIVE);
 			MOB_FLAGS(helpee).unset(MOB_SPEC);
 			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
-			// shapirus: !train для чармисов
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
 			helpee->set_skill(SKILL_PUNCTUAL, 0);
-			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
+
 			Crash_crashsave(ch);
 			ch->save_char();
 		}
@@ -1996,19 +1957,19 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 		}
 		break;
 
-//Информация о емкостях и контейнерах (Купала)
+	//Информация о контейнерах (Купала)
 	case OBJ_DATA::ITEM_CONTAINER:
 		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
 		send_to_char(buf, ch);
 		break;
-	
- 	case OBJ_DATA::ITEM_DRINKCON:
+
+	//Информация о емкостях (Купала)
+	case OBJ_DATA::ITEM_DRINKCON:
 		drinkcon::identify(ch, obj);
 		break;
-//Конец инфы о емкостях и контейнерах (Купала)
 
-           case OBJ_DATA::ITEM_MAGIC_ARROW:
-           case OBJ_DATA::ITEM_MAGIC_CONTAINER:
+	case OBJ_DATA::ITEM_MAGIC_ARROW:
+	case OBJ_DATA::ITEM_MAGIC_CONTAINER:
 		sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
 		sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
 			GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
@@ -2951,7 +2912,7 @@ void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_D
 void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	mob_vnum mob_num = 108;
-	int modifier = 0;
+	//int modifier = 0;
 	CHAR_DATA *mob = NULL;
 	struct follow_type *k, *k_next;
 
@@ -2967,14 +2928,13 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 			stop_follower(k->follower, SF_CHARMLOST);
 		}
 	}
-	if (eff_cha < 16 && !IS_IMMORTAL(ch))
+
+	float base_success = 26.0;
+	float additional_success_for_charisma = 1.5; // 50 at 16 charisma, 101 at 50 charisma
+
+	if (number(1, 100) > floorf(base_success + additional_success_for_charisma * eff_cha))
 	{
-		send_to_char("Боги не обратили на вас никакого внимания!\r\n", ch);
-		return;
-	};
-	if (number(1, 1001) < 500 - 30 * GET_REMORT(ch) && !IS_IMMORTAL(ch))
-	{
-		send_to_char("Боги только посмеялись над вами!\r\n", ch);
+		send_to_room("Яркая вспышка света! Несколько белых перьев кружась легли на землю...", ch->in_room, true);
 		return;
 	};
 	if (!(mob = read_mobile(-mob_num, VIRTUAL)))
@@ -2982,20 +2942,65 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 		send_to_char("Вы точно не помните, как создать данного монстра.\r\n", ch);
 		return;
 	}
-	//reset_char(mob);
+
+	int base_hp = 360;
+	int additional_hp_for_charisma = 40;
+	float base_shields = 0.0;
+	float additional_shields_for_charisma = 0.0454; // 0.72 shield at 16 charisma, 1 shield at 23 charisma. 45 for 2 shields
+	float base_awake = 2;
+	float additional_awake_for_charisma = 4; // 64 awake on 16 charisma, 202 awake at 50 charisma
+	float base_multiparry = 2;
+	float additional_multiparry_for_charisma = 2; // 34 multiparry on 16 charisma, 102 multiparry at 50 charisma;
+	float base_rescue = 20.0;
+	float additional_rescue_for_charisma = 2.5; // 60 rescue at 16 charisma, 135 rescue at 50 charisma;
+	float base_heal = 0;
+	float additional_heal_for_charisma = 0.12; // 1 heal at 16 charisma,  6 heal at 50 charisma;
+	float base_ttl = 10.0;
+	float additional_ttl_for_charisma = 0.25; // 14 min at 16 chsrisma, 22 min at 50 charisma;
+	float base_ac = 100;
+	float additional_ac_for_charisma = -2.5; //
+	float base_armour = 0;
+	float additional_armour_for_charisma = 0.5; // 8 armour for 16 charisma, 25 armour for 50 charisma
+
 	clear_char_skills(mob);
 	AFFECT_DATA<EApplyLocation> af;
 	af.type = SPELL_CHARM;
-	af.duration = pc_duration(mob, 5 + (int) VPOSI<float>((eff_cha - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.duration = pc_duration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApplyLocation::APPLY_NONE;
-	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	af.battleflag = 0;
+	af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
 	affect_to_char(mob, af);
+
+	af.bitvector = to_underlying(EAffectFlag::AFF_FLY);
+	affect_to_char(mob, af);
+
+	af.bitvector = to_underlying(EAffectFlag::AFF_INFRAVISION);
+	affect_to_char(mob, af);
+
+	af.bitvector = to_underlying(EAffectFlag::AFF_SANCTUARY);
+	affect_to_char(mob, af);
+
+	//Set shields
+	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma) ;
+	if (count_shields>0) {
+		af.bitvector = to_underlying(EAffectFlag::AFF_AIRSHIELD);
+		affect_to_char(mob, af);
+	}
+	if (count_shields>1)
+	{
+		af.bitvector = to_underlying(EAffectFlag::AFF_ICESHIELD);
+		affect_to_char(mob, af);
+	}
+	if (count_shields>2)
+	{
+		af.bitvector = to_underlying(EAffectFlag::AFF_FIRESHIELD);
+		affect_to_char(mob, af);
+	}
 
 	if (IS_FEMALE(ch))
 	{
-		GET_SEX(mob) = ESex::SEX_MALE;
+		mob->set_sex(ESex::SEX_MALE);
 		mob->set_pc_name("Небесный защитник");
 		mob->player_data.PNames[0] = "Небесный защитник";
 		mob->player_data.PNames[1] = "Небесного защитника";
@@ -3009,7 +3014,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	}
 	else
 	{
-		GET_SEX(mob) = ESex::SEX_FEMALE;
+		mob->set_sex(ESex::SEX_FEMALE);
 		mob->set_pc_name("Небесная защитница");
 		mob->player_data.PNames[0] = "Небесная защитница";
 		mob->player_data.PNames[1] = "Небесной защитницы";
@@ -3022,29 +3027,37 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 		mob->player_data.description = str_dup("Сияющая призрачная фигура о двух крылах.\r\n");
 	}
 
-	mob->set_str(11);
-	mob->set_dex(16);
-	mob->set_con(17);
-	mob->set_int(25);
-	mob->set_wis(25);
-	mob->set_cha(22);
+	float additional_str_for_charisma = 0.6875;
+	float additional_dex_for_charisma = 1.0;
+	float additional_con_for_charisma = 1.0625;
+	float additional_int_for_charisma = 1.5625;
+	float additional_wis_for_charisma = 0.6;
+	float additional_cha_for_charisma = 1.375;
+
+	mob->set_str(1 + floorf( additional_str_for_charisma * eff_cha ));
+	mob->set_dex(1 + floorf( additional_dex_for_charisma * eff_cha ));
+	mob->set_con(1 + floorf( additional_con_for_charisma * eff_cha ));
+	mob->set_int(1 + floorf( additional_int_for_charisma * eff_cha ));
+	mob->set_wis(1 + floorf( additional_wis_for_charisma * eff_cha ));
+	mob->set_cha(1 + floorf( additional_cha_for_charisma * eff_cha ));
 
 	GET_WEIGHT(mob) = 150;
 	GET_HEIGHT(mob) = 200;
 	GET_SIZE(mob) = 65;
 
-	GET_HR(mob) = 25;
-	GET_AC(mob) = 100;
+	GET_HR(mob) = 1;
+	GET_AC(mob) = floorf( base_ac + additional_ac_for_charisma * eff_cha);
 	GET_DR(mob) = 0;
+	GET_ARMOUR(mob) = floorf(base_armour +  additional_armour_for_charisma * eff_cha );
 
 	mob->mob_specials.damnodice = 1;
 	mob->mob_specials.damsizedice = 1;
-	mob->mob_specials.ExtraAttack = 1;
+	mob->mob_specials.ExtraAttack = 0;
 
 	mob->set_exp(0);
 
-	GET_MAX_HIT(mob) = 600;
-	GET_HIT(mob) = 600;
+	GET_MAX_HIT(mob) = floorf( base_hp + additional_hp_for_charisma * eff_cha);
+	GET_HIT(mob) = GET_MAX_HIT(mob);
 	mob->set_gold(0);
 	GET_GOLD_NoDs(mob) = 0;
 	GET_GOLD_SiDs(mob) = 0;
@@ -3052,18 +3065,15 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	GET_POS(mob) = POS_STANDING;
 	GET_DEFAULT_POS(mob) = POS_STANDING;
 
-//----------------------------------------------------------------------
-	mob->set_skill(SKILL_RESCUE, 65);
-	mob->set_skill(SKILL_AWAKE, 50);
-	mob->set_skill(SKILL_PUNCH, 50);
-	mob->set_skill(SKILL_BLOCK, 50);
+	mob->set_skill(SKILL_RESCUE, floorf( base_rescue +additional_rescue_for_charisma * eff_cha));
+	mob->set_skill(SKILL_AWAKE, floorf( base_awake +additional_awake_for_charisma * eff_cha ));
+	mob->set_skill(SKILL_MULTYPARRY, floorf( base_multiparry + additional_multiparry_for_charisma * eff_cha ));
 
 	SET_SPELL(mob, SPELL_CURE_BLIND, 1);
-	SET_SPELL(mob, SPELL_CURE_CRITIC, 3);
 	SET_SPELL(mob, SPELL_REMOVE_HOLD, 1);
 	SET_SPELL(mob, SPELL_REMOVE_POISON, 1);
+	SET_SPELL(mob, SPELL_HEAL, floorf( base_heal + additional_heal_for_charisma * eff_cha));
 
-//----------------------------------------------------------------------
 	if (mob->get_skill(SKILL_AWAKE))
 	{
 		PRF_FLAGS(mob).set(PRF_AWAKE);
@@ -3077,60 +3087,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
 
-	AFF_FLAGS(mob).set(EAffectFlag::AFF_FLY);
-	AFF_FLAGS(mob).set(EAffectFlag::AFF_INFRAVISION);
 	mob->set_level(ch->get_level());
-//----------------------------------------------------------------------
-// добавляем зависимости от уровня и от обаяния
-// level
-
-	modifier = (int)(5 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
-					 + 5 * VPOSI<float>(eff_cha - 16, 0, 50));
-
-	mob->set_skill(SKILL_RESCUE, mob->get_skill(SKILL_RESCUE) + modifier);
-	mob->set_skill(SKILL_AWAKE, mob->get_skill(SKILL_AWAKE) + modifier);
-	mob->set_skill(SKILL_PUNCH, mob->get_skill(SKILL_PUNCH) + modifier);
-	mob->set_skill(SKILL_BLOCK, mob->get_skill(SKILL_BLOCK) + modifier);
-
-	modifier = (int)(2 * VPOSI(GET_LEVEL(ch) - 26, 0, 50)
-					 + 1 * VPOSI<float>(eff_cha - 16, 0, 50));
-	GET_HR(mob) += modifier;
-
-	modifier = VPOSI(GET_LEVEL(ch) - 26, 0, 50);
-	mob->inc_con(modifier);
-
-	modifier = (int)(20 * VPOSI<float>(eff_cha - 16, 0, 50));
-	GET_MAX_HIT(mob) += modifier;
-	GET_HIT(mob) += modifier;
-
-	modifier = (int)(3 * VPOSI<float>(eff_cha - 16, 0, 50));
-	GET_AC(mob) -= modifier;
-
-	modifier = 1 * VPOSI((int)((eff_cha - 16) / 2), 0, 50);
-	mob->inc_str(modifier);
-	mob->inc_dex(modifier);
-
-	modifier = VPOSI((int)((eff_cha - 22) / 4), 0, 50);
-	SET_SPELL(mob, SPELL_HEAL, GET_SPELL_MEM(mob, SPELL_HEAL) + modifier);
-
-	if (eff_cha >= 26)
-		mob->mob_specials.ExtraAttack += 1;
-
-	if (eff_cha >= 24)
-	{
-		mob->mob_specials.damnodice += 1;
-		mob->mob_specials.damsizedice += 1;
-	}
-
-	if (eff_cha >= 22)
-	{
-		AFF_FLAGS(mob).set(EAffectFlag::AFF_SANCTUARY);
-	}
-
-	if (eff_cha >= 30)
-	{
-		AFF_FLAGS(mob).set(EAffectFlag::AFF_AIRSHIELD);
-	}
 
 	char_to_room(mob, ch->in_room);
 
@@ -3140,7 +3097,7 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	}
 	else
 	{
-		act("Небесный защитник появился в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM);
+		act("Небесный защитник появился в яркой вспышке света!", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	}
 	ch->add_follower(mob);
 	return;
@@ -3152,8 +3109,8 @@ void spell_vampire(int/* level*/, CHAR_DATA* /*ch*/, CHAR_DATA* /*victim*/, OBJ_
 
 void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
- // подготовка контейнера для создания заклинания ментальная тень
- // все предложения пишем мад почтой
+	// подготовка контейнера для создания заклинания ментальная тень
+	// все предложения пишем мад почтой
 
 	mob_vnum mob_num = MOB_MENTAL_SHADOW;
 
@@ -3199,6 +3156,8 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	return;
 }
 
+const char* spell_wear_off_msg_t::DEFAULT_MESSAGE = "!нет сообщения при спадении аффекта под номером %d!";
+char spell_wear_off_msg_t::MESSAGE_BUFFER[spell_wear_off_msg_t::MESSAGE_BUFFER_LENGTH];
 const spell_wear_off_msg_t spell_wear_off_msg =
 {
 	"RESERVED DB.C",	// 0
@@ -3304,7 +3263,7 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"Ваши передвижения стали заметны.",	// 100
 	"Кураж прошел. Мама, лучше бы я умер$q вчера.",
 	"А головка ваша уже не болит.",
-	"Вам снова захотелось жаренького.",
+	"Вам снова захотелось жареного, да с дымком.",
 	"Вы согрелись и подвижность вернулась к вам.",
 	"К вам вернулась способность нормально сражаться.",	// 105
 	"Ваши кровоточащие раны затянулись.",
@@ -3411,7 +3370,7 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"Аура зла больше не помогает вам.",
 	"!SPELL_MENTAL_SHADOW!",                 // 208
 	"Жуткие черные руки побледнели и расплылись зловонной дымкой.", //209 SPELL_EVARDS_BLACK_TENTACLES
-	"!SPELL_WHIRLWIND!",
+	"!SPELL_WHIRLWIND!", //210
 	"Каменные зубы исчезли, возвратив способность двигаться.",
 	"!SPELL_MELFS_ACID_ARROW!",
 	"!SPELL_THUNDERSTONE!",
@@ -3421,14 +3380,31 @@ const spell_wear_off_msg_t spell_wear_off_msg =
 	"!SPELL GENERAL SINCERITY!",
 	"!SPELL MAGICAL GAZE!",
 	"!SPELL ALL SEEING EYE!",
-	"!SPELL EYE OF GODS!",
+	"!SPELL EYE OF GODS!", //220
 	"!SPELL BREATHING AT DEPTH!",
 	"!SPELL GENERAL RECOVERY!",
 	"!SPELL COMMON MEAL!",
 	"!SPELL STONE WALL!",
 	"!SPELL SNAKE EYES!",
 	"Матушка земля забыла про Вас.",
-	"Вы вновь ощущаете страх перед тьмой."
+	"Вы вновь ощущаете страх перед тьмой.",
+	"!NONE",
+	"!NONE",
+	"!NONE", //230
+	"!NONE",
+	"!NONE",
+	"*Боевое воодушевление угасло, а с ним и вся жажда подвигов!",
+	"Вы стали менее шустрым.",
+	"!NONE",//    SPELL_GROUP_BLINK = 235, // групповая мигалка
+	"!NONE",//    SPELL_GROUP_CLOUDLY = 236, // группповое затуманивание
+	"!NONE",//    SPELL_GROUP_AWARNESS = 237, // групповая внимательность
+	"Действие клича 'обучение' закончилось.",
+	"Действие клича 'везение' закончилось.",
+	"Действие клича 'точности' закончилось.",
+	"Удача снова повернулась к вам лицом... и залепила пощечину.", // SPELL_MASS_FAILURE !взор Велеса!
+	"Покрывавшие вас сети колдовской западни растаяли." // SPELL_MASS_NOFLEE !западня!
+
+// * в начале строки значит не выводить текст окончания заклинания см void show_spell_off
 };
 
 /**
@@ -3678,6 +3654,21 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Что яд, а что мед. Не обманемся!", "...и самый сильный яд станет вам виден." }, // SPELL_SNAKE_EYES
 	cast_phrase_t{ "Велес, даруй защиту.", "... земля благословенна твоя." }, // SPELL_EARTH_AURA
 	cast_phrase_t{ "други, супостат нощи", "други, свет который в тебе, да убоится тьма." }, // SPELL_GROUP_PROT_FROM_EVIL
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_FIRE (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
+	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_DEATH (set by program)
+	cast_phrase_t{ "Воодушевление", "!set by programm!" }, // воодушевление
+	cast_phrase_t{ "будет ловким", "... и человек разумный укрепляет ловкость свою."}, //ловкость
+	cast_phrase_t{ "защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу." }, // груп мигание
+	cast_phrase_t{ "огрожу беззакония их туманом", "...да защитит и покроет рассветная пелена тела ваши." }, // груп затуманивание
+	cast_phrase_t{ "буде вежды ваши открыты", "... и забота о ближнем отгоняет сон от очей их." },
+	cast_phrase_t{ "найдем новизну в рутине сражений!", "найдем новизну в рутине сражений!" }, // опыт на группу
+	cast_phrase_t{ "и пусть удача будет нашей спутницей!", "и пусть удача будет нашей спутницей!" }, // клич на удачу
+	cast_phrase_t{ "бей в глаз, не порти шкуру", "бей в глаз, не порти шкуру." }, // клич на дамагу
+	cast_phrase_t{ "...отче Велес, очи отвержеши!", "...надежда тщетна: не упадешь ли от одного взгляда его?" }, // SPELL_MASS_FAILURE
+	cast_phrase_t{ "Заклинати поврещение в сети заскопиены!", "...будет трапеза их сетью им, и мирное пиршество их - западнею." } // SPELL_MASS_NOFLEE
 };
 
 typedef std::map<ESpell, std::string> ESpell_name_by_value_t;
@@ -3917,7 +3908,18 @@ void init_ESpell_ITEM_NAMES()
 	ESpell_name_by_value[ESpell::SPELL_SNAKE_EYES] = "SPELL_SNAKE_EYES";
 	ESpell_name_by_value[ESpell::SPELL_EARTH_AURA] = "SPELL_EARTH_AURA";
 	ESpell_name_by_value[ESpell::SPELL_GROUP_PROT_FROM_EVIL] = "SPELL_GROUP_PROT_FROM_EVIL";
-	ESpell_name_by_value[ESpell::SPELLS_COUNT] = "SPELLS_COUNT";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_FIRE] = "SPELL_ARROWS_FIRE";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_WATER] = "SPELL_ARROWS_WATER";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_EARTH] = "SPELL_ARROWS_EARTH";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_AIR] = "SPELL_ARROWS_AIR";
+	ESpell_name_by_value[ESpell::SPELL_ARROWS_DEATH] = "SPELL_ARROWS_DEATH";
+	ESpell_name_by_value[ESpell::SPELL_PALADINE_INSPIRATION] = "SPELL_PALADINE_INSPIRATION";
+	ESpell_name_by_value[ESpell::SPELL_DEXTERITY] = "SPELL_DEXTERITY";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_BLINK] = "SPELL_GROUP_BLINK";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_CLOUDLY] = "SPELL_GROUP_CLOUDLY";
+	ESpell_name_by_value[ESpell::SPELL_GROUP_AWARNESS] = "SPELL_GROUP_AWARNESS";
+	ESpell_name_by_value[ESpell::SPELL_MASS_FAILURE] = "SPELL_MASS_FAILURE";
+	ESpell_name_by_value[ESpell::SPELL_MASS_NOFLEE] = "SPELL_MASS_NOFLEE";
 
 	for (const auto& i : ESpell_name_by_value)
 	{

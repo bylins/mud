@@ -9,6 +9,8 @@
 #ifndef __FEATURES_HPP__
 #define __FEATURES_HPP__
 
+#include "features.itemset.hpp"
+#include "skills.h"
 #include "structs.h"
 #include "conf.h"
 
@@ -17,7 +19,7 @@
 
 using std::bitset;
 
-#define THAC0_FEAT				0   //DO NOT USED
+#define INCORRECT_FEAT			0   //DO NOT USE THIS VALUE
 #define BERSERK_FEAT			1   //предсмертная ярость
 #define PARRY_ARROW_FEAT		2   //отбить стрелу
 #define BLIND_FIGHT_FEAT		3   //слепой бой
@@ -142,16 +144,17 @@ using std::bitset;
 #define LOYALASSIST_FEAT		122 // верный помощник
 #define HAUNTINGSPIRIT_FEAT		123 // блуждающий дух
 #define SNEAKRAGE_FEAT			124 // ярость змеи
-#define HORSE_STUN			125 // ошеломить на лошади
-//новвоведения для чернока
-
-#define TEAMSTER_UNDEAD_FEAT	125 // Погонщик нежити
+#define HORSE_STUN				125 // ошеломить на лошади
 #define ELDER_TASKMASTER_FEAT	126 // Старший надсмотрщик
 #define LORD_UNDEAD_FEAT		127 // Повелитель нежити
 #define DARK_WIZARD_FEAT		128 // Темный маг
 #define ELDER_PRIEST_FEAT		129 // Старший жрец
 #define HIGH_LICH_FEAT			130 // Верховный лич
 #define BLACK_RITUAL_FEAT		131 // Темный ритуал
+#define TEAMSTER_UNDEAD_FEAT	132 // Погонщик нежити
+#define SKIRMISHER_FEAT			133 // Держать строй
+#define TACTICIAN_FEAT			134 // Атаман
+#define LIVE_SHIELD_FEAT		135 // мультиреск
 
 /*
 //новвоведения для татя
@@ -164,27 +167,33 @@ using std::bitset;
 #define RESERVED_FEAT_6			137 //
 */
 
-#define EVASION_FEAT            138 //скользский тип
-#define EXPEDIENT_CUT_FEAT      139 //порез
-#define SHOT_FINESSE_FEAT		140  //ловкий выстрел
+#define EVASION_FEAT            138 // скользский тип
+#define EXPEDIENT_CUT_FEAT      139 // порез
+#define SHOT_FINESSE_FEAT		140 // ловкий выстрел
+#define OBJECT_ENCHANTER_FEAT	141 // зачаровывание предметов
+#define DEFT_SHOOTER_FEAT		142 // ловкий стрелок
+#define MAGIC_SHOOTER_FEAT		143 // магический выстрел
+#define THROW_WEAPON_FEAT		144 // метнуть
+#define SHADOW_THROW_FEAT		145 // змеево оружие
+#define SHADOW_DAGGER_FEAT		146 // змеев кинжал
+#define SHADOW_SPEAR_FEAT		147 // змеево копье
+#define SHADOW_CLUB_FEAT		148 // змеева палица
+#define DOUBLE_THROW_FEAT		149 // двойной бросок
+#define TRIPLE_THROW_FEAT		150 // тройной бросок
+#define POWER_THROW_FEAT		151 // размах
+#define DEADLY_THROW_FEAT		152 // широкий размах
+#define TURN_UNDEAD_FEAT		153 // затычка для "изгнать нежить"
+#define MULTI_CAST_FEAT			154 // уменьшение штрафа за число циелей для масскастов
 
-/*
-#define AIR_MAGIC_FOCUS_FEAT		  //любимая_магия: воздух
-#define FIRE_MAGIC_FOCUS_FEAT		  //любимая_магия: огонь
-#define WATER_MAGIC_FOCUS_FEAT		  //любимая_магия: вода
-#define EARTH_MAGIC_FOCUS_FEAT		  //любимая_магия: земля
-#define LIGHT_MAGIC_FOCUS_FEAT		  //любимая_магия: свет
-#define DARK_MAGIC_FOCUS_FEAT		  //любимая_магия: тьма
-#define MIND_MAGIC_FOCUS_FEAT		  //любимая_магия: разум
-#define LIFE_MAGIC_FOCUS_FEAT		  //любимая_магия: жизнь
-*/
 
 // MAX_FEATS определяется в structs.h
 
-#define UNUSED_FTYPE	-1
-#define NORMAL_FTYPE	0
-#define AFFECT_FTYPE	1
-#define SKILL_MOD_FTYPE	2
+#define UNUSED_FTYPE			-1
+#define NORMAL_FTYPE			0
+#define AFFECT_FTYPE			1
+#define SKILL_MOD_FTYPE			2
+#define ACTIVATED_FTYPE			3
+#define TECHNIQUE_FTYPE			4
 
 /* Константы и формулы, определяющие число способностей у персонажа
    Скорость появления новых слотов можно задавать для каждого класса
@@ -194,7 +203,7 @@ using std::bitset;
 
 const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4,5 };
 // Количество пар "параметр-значение" у способности
-#define MAX_FEAT_AFFECT	5
+const short MAX_FEAT_AFFECT	= 5;
 // Максимально доступное на морте количество не-врожденных способностей
 #define MAX_ACC_FEAT(ch)	((int) 1+(LVL_IMMORT-1)*(5+GET_REMORT(ch)/feat_slot_for_remort[(int) GET_CLASS(ch)])/28)
 
@@ -202,23 +211,22 @@ const int feat_slot_for_remort[NUM_PLAYER_CLASSES] = { 5,6,4,4,4,4,6,6,6,4,4,4,4
 #define FEAT_TIMER 1
 #define FEAT_SKILL 2
 
-extern struct SFeatInfo feat_info[MAX_FEATS];
+extern struct FeatureInfoType feat_info[MAX_FEATS];
 
+int getModifier(int feat, int location);
 int find_feat_num(const char *name, bool alias = false);
-void assign_feats(void);
+void determineFeaturesSpecification(void);
+void check_berserk(CHAR_DATA * ch);
+void setFeaturesOfRace(CHAR_DATA *ch);
+void unsetFeaturesOfRace(CHAR_DATA *ch);
+void setAllInbornFeatures(CHAR_DATA *ch);
 bool can_use_feat(const CHAR_DATA *ch, int feat);
 bool can_get_feat(CHAR_DATA *ch, int feat);
-bool have_feat_slot(CHAR_DATA *ch, int feat);
-int feature_mod(int feat, int location);
-void check_berserk(CHAR_DATA * ch);
-void set_race_feats(CHAR_DATA *ch, bool flag = true);
-void set_natural_feats(CHAR_DATA *ch);
+bool tryFlipActivatedFeature(CHAR_DATA *ch, char *argument);
+bitvector_t getPRFWithFeatureNumber(int featureNum);
 
 /*
-Служебный класс для удобства вбивания значений в массив affected структуры способности
-Если у кого-то есть желание, можно вместо массива использовать сам этот класс, реализовав
-методы доступа к значениям, выдачу нужного поля и копирующий конструктор
-Только тогда придется править обращения к структурам feat_info по коду
+	Класс для удобства вбивания значений в массив affected структуры способности
 */
 class CFeatArray
 {
@@ -255,17 +263,35 @@ private:
 	int _pos, i;
 };
 
-struct SFeatInfo
-{
-	int min_remort[NUM_PLAYER_CLASSES][NUM_KIN];
+struct FeatureInfoType {
+	int ID;
+	int type;
+	int minRemort[NUM_PLAYER_CLASSES][NUM_KIN];
 	int slot[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool classknow[NUM_PLAYER_CLASSES][NUM_KIN];
-	bool natural_classfeat[NUM_PLAYER_CLASSES][NUM_KIN];
-	std::array<CFeatArray::CFeatAffect, MAX_FEAT_AFFECT> affected;
-	int type;
+	bool inbornFeatureOfClass[NUM_PLAYER_CLASSES][NUM_KIN];
 	bool up_slot;
+	bool usesWeaponSkill;
+	bool alwaysAvailable;
 	const char *name;
+	std::array<CFeatArray::CFeatAffect, MAX_FEAT_AFFECT> affected;
 	std::string alias;
+	// Параметры для нового базового броска на способность
+	// Пока тут, до переписывания системы способностей
+	short baseDamageBonusPercent;
+	short degreeOfSuccessDamagePercent;
+	short dicerollBonus;
+	short oppositeSaving;
+	short criticalFailThreshold;
+	short criticalSuccessThreshold;
+	ESkill baseSkill;
+
+	TechniqueItemKitsGroupType techniqueItemKitsGroup;
+
+	int (*getBaseParameter) (const CHAR_DATA* ch);
+	int (*getEffectParameter) (const CHAR_DATA* ch);
+	float (*calculateSituationalDamageFactor) (CHAR_DATA* /* ch */);
+	short (*calculateSituationalRollBonus) (CHAR_DATA* /* ch */, CHAR_DATA* /* enemy */);
 };
 
 #endif // __FEATURES_HPP__

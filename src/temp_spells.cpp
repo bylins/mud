@@ -1,5 +1,4 @@
 #include "temp_spells.hpp"
-
 #include "spell_parser.hpp"
 #include "world.characters.hpp"
 #include "screen.h"
@@ -45,7 +44,6 @@ namespace Temporary_Spells
 	void update_times()
 	{
 		time_t now = time(0);
-
 		for (const auto& ch : character_list)
 		{                                 
 			if (IS_NPC(ch)

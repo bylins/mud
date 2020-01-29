@@ -51,19 +51,22 @@ void check_purged(const CHAR_DATA *ch, const char *fnc)
 	if (ch->purged())
 	{
 		log("SYSERR: Using purged character (%s).", fnc);
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 	}
 }
 
-int normalize_skill(int percent)
+int normalize_skill(int percent, int skill)
 {
 	const static int KMinSkillPercent = 0;
-	const static int KMaxSkillPercent = 200;
+	const static int KMaxSkillPercent = CAP_SKILLS;
 
 	if (percent < KMinSkillPercent)
 		percent = KMinSkillPercent;
-	else if (percent > KMaxSkillPercent)
-		percent = KMaxSkillPercent;
-
+	else
+	{
+		if (percent > KMaxSkillPercent && !is_magic_skill(skill))
+			percent = KMaxSkillPercent;
+	}
 	return percent;
 }
 } // namespace
@@ -116,6 +119,7 @@ CHAR_DATA::CHAR_DATA() :
 	this->zero_init();
 	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.add(this);
+	this->set_skill(SKILL_GLOBAL_COOLDOWN, 1);
 }
 
 CHAR_DATA::~CHAR_DATA()
@@ -158,20 +162,20 @@ float CHAR_DATA::get_cond_penalty(int type) const
 {
 	if (IS_NPC(this)) return 1;
 	if (!(GET_COND_M(this,FULL)||GET_COND_M(this,THIRST))) return 1;
-	
+
 	float penalty = 0;
-	
+
 	if (GET_COND_M(this,FULL)) {
 		int tmp = GET_COND_K(this,FULL); // 0 - 1
 		switch (type) {
 			case P_DAMROLL://-50%
-				penalty+=tmp/2; 
+				penalty+=tmp/2;
 				break;
 			case P_HITROLL://-25%
-				penalty+=tmp/4; 
+				penalty+=tmp/4;
 				break;
 			case P_CAST://-25%
-				penalty+=tmp/4; 
+				penalty+=tmp/4;
 				break;
 			case P_MEM_GAIN://-25%
 				penalty+=tmp/4;
@@ -194,13 +198,13 @@ float CHAR_DATA::get_cond_penalty(int type) const
 		int tmp = GET_COND_K(this,THIRST); // 0 - 1
 		switch (type) {
 			case P_DAMROLL://-25%
-				penalty+=tmp/4; 
+				penalty+=tmp/4;
 				break;
 			case P_HITROLL://-50%
-				penalty+=tmp/2; 
+				penalty+=tmp/2;
 				break;
 			case P_CAST://-50%
-				penalty+=tmp/2; 
+				penalty+=tmp/2;
 				break;
 			case P_MEM_GAIN://-50%
 				penalty+=tmp/2;
@@ -367,6 +371,8 @@ size_t CHAR_DATA::remove_random_affects(const size_t count)
 */
 void CHAR_DATA::zero_init()
 {
+	set_sex(ESex::SEX_MALE);
+	set_race(0);
 	protecting_ = 0;
 	touching_ = 0;
 	fighting_ = 0;
@@ -427,7 +433,7 @@ void CHAR_DATA::zero_init()
 	ing_list = 0;
 	dl_list = 0;
 	agrobd = false;
-	
+
 	memset(&extra_attack_, 0, sizeof(extra_attack_type));
 	memset(&cast_attack_, 0, sizeof(cast_attack_type));
 	//memset(&player_data, 0, sizeof(char_player_data));
@@ -469,7 +475,7 @@ void CHAR_DATA::zero_init()
 void CHAR_DATA::purge()
 {
 	caching::character_cache.remove(this);
-	
+
 	if (!get_name().empty())
 	{
 		log("[FREE CHAR] (%s)", GET_NAME(this));
@@ -503,7 +509,7 @@ void CHAR_DATA::purge()
 	}
 	else if ((i = GET_MOB_RNUM(this)) >= 0)
 	{	// otherwise, free strings only if the string is not pointing at proto
-		
+
 		if (this->mob_specials.Questor && this->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
 			free(this->mob_specials.Questor);
 	}
@@ -580,16 +586,7 @@ void CHAR_DATA::purge()
 			free(GET_CLAN_STATUS(this));
 		}
 
-		// Чистим лист логонов
-		while (LOGON_LIST(this))
-		{
-			struct logon_data *log_next;
-			log_next = LOGON_LIST(this)->next;
-			free(this->player_specials->logons->ip);
-			delete LOGON_LIST(this);
-			LOGON_LIST(this) = log_next;
-		}
-		LOGON_LIST(this) = NULL;
+		LOGON_LIST(this).clear();
 
 		this->player_specials.reset();
 
@@ -618,7 +615,7 @@ int CHAR_DATA::get_skill(const ESkill skill_num) const
 	{
 		skill -= skill * GET_POISON(this) / 100;
 	}
-	return normalize_skill(skill);
+	return normalize_skill(skill, skill_num);
 }
 
 // * Скилл со шмоток.
@@ -654,60 +651,78 @@ int CHAR_DATA::get_equipped_skill(const ESkill skill_num) const
 }
 
 // * Родной тренированный скилл чара.
-int CHAR_DATA::get_inborn_skill(const ESkill skill_num)
-{
-	if (Privilege::check_skills(this))
-	{
+int CHAR_DATA::get_inborn_skill(const ESkill skill_num) {
+	if (Privilege::check_skills(this))	{
 		CharSkillsType::iterator it = skills.find(skill_num);
-		if (it != skills.end())
-		{
-			return normalize_skill(it->second);
+		if (it != skills.end()) {
+			return normalize_skill(it->second.skillLevel, skill_num);
 		}
 	}
 	return 0;
 }
 
-int CHAR_DATA::get_trained_skill(const ESkill skill_num) const
-{
-	if (Privilege::check_skills(this))
-	{
-		return normalize_skill(current_morph_->get_trained_skill(skill_num));
+int CHAR_DATA::get_trained_skill(const ESkill skill_num) const {
+	if (Privilege::check_skills(this)) {
+		return normalize_skill(current_morph_->get_trained_skill(skill_num), skill_num);
 	}
 	return 0;
 }
 
 // * Нулевой скилл мы не сетим, а при обнулении уже имеющегося удалем эту запись.
-void CHAR_DATA::set_skill(const ESkill skill_num, int percent)
-{
-	if (skill_num < 0 || skill_num > MAX_SKILL_NUM)
-	{
+void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
+	if (skill_num < 0 || skill_num > MAX_SKILL_NUM) {
 		log("SYSERROR: неизвесный номер скилла %d в set_skill.", skill_num);
 		return;
 	}
-
-	CharSkillsType::iterator it = skills.find(skill_num);
-	if (it != skills.end())
+	//костыль на волхва чтоб билдеры не чудили
+	if (IS_MANA_CASTER(this) && get_skill(skill_num) > 0)
 	{
-		if (percent)
-			it->second = percent;
-		else
-			skills.erase(it);
+		if (skill_num == SKILL_WATER_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0)
+		{
+			sprintf(buf, "Попытка установить скилл магии воды без скилла магии огня для игрока %s", GET_NAME(this));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
+		if (skill_num == SKILL_EARTH_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0)
+		{
+			sprintf(buf, "Попытка установить скилл магии земли без скилла магии огня + воды для игрока %s", GET_NAME(this));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
+		if (skill_num == SKILL_AIR_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0)
+		{
+			sprintf(buf, "Попытка установить скилл магии воздуха без скилла магии огня + воды + земли для игрока %s", GET_NAME(this));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
+		if (skill_num == SKILL_DARK_MAGIC && get_skill(SKILL_FIRE_MAGIC) == 0 && get_skill(SKILL_WATER_MAGIC) == 0 && get_skill(SKILL_EARTH_MAGIC) == 0 && get_skill(SKILL_AIR_MAGIC) == 0)
+		{
+			sprintf(buf, "Попытка установить скилл магии тьмы без скилла магии огня + воды + земли + воздуха для игрока %s", GET_NAME(this));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return;
+		}
 	}
-	else if (percent)
-		skills[skill_num] = percent;
+	CharSkillsType::iterator it = skills.find(skill_num);
+	if (it != skills.end()) {
+		if (percent) {
+			it->second.skillLevel = percent;
+		} else {
+			skills.erase(it);
+		}
+	} else if (percent) {
+		skills[skill_num].skillLevel = percent;
+	}
 }
 
-void CHAR_DATA::set_skill(short remort)
-{
-int skill;
-	for (auto it=skills.begin();it!=skills.end();it++)
-	{
+void CHAR_DATA::set_skill(short remort) {
+	int skill;
+	int maxSkillLevel = MAX_SKILLLEVEL_PER_REMORT(this);
+	for (auto it = skills.begin(); it != skills.end(); it++) {
 		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
-		if (skill > 80 + remort*5)
-			it->second = 80 + remort*5;
-		
+		if (skill > maxSkillLevel) {
+			it->second.skillLevel = maxSkillLevel;
+		};
 	}
-
 }
 
 void CHAR_DATA::set_morphed_skill(const ESkill skill_num, int percent)
@@ -719,23 +734,67 @@ void CHAR_DATA::clear_skills()
 {
 	skills.clear();
 }
-// оберзает все скиллы до максимум на реморт
-void CHAR_DATA::crop_skills()
-{
-	int skill;
-	for (auto it = skills.begin();it != skills.end();it++)
-	{
-		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
-		if (skill > 80 + this->get_remort() * 5)
-			it->second = 80 + this->get_remort() * 5;
-	}
-}
 
-
-int CHAR_DATA::get_skills_count() const
-{
+int CHAR_DATA::get_skills_count() const {
 	return static_cast<int>(skills.size());
 }
+
+void CharacterSkillDataType::decreaseCooldown(unsigned value) {
+	if (cooldown > value) {
+		cooldown -= value;
+	} else {
+		cooldown = 0u;
+	};
+};
+
+void CHAR_DATA::setSkillCooldown(ESkill skillID, unsigned cooldown) {
+	auto skillData = skills.find(skillID);
+	if (skillData != skills.end()) {
+		skillData->second.cooldown = cooldown;
+	}
+};
+
+unsigned CHAR_DATA::getSkillCooldown(ESkill skillID) {
+	auto skillData = skills.find(skillID);
+	if (skillData != skills.end()) {
+		return skillData->second.cooldown;
+	}
+	return 0;
+};
+
+int CHAR_DATA::getSkillCooldownInPulses(ESkill skillID) {
+	//return static_cast<int>(std::ceil(skillData->second.cooldown/(0.0 + PULSE_VIOLENCE)));
+	return static_cast<int>(std::ceil(getSkillCooldown(skillID)/(0.0 + PULSE_VIOLENCE)));
+};
+
+/* Понадобится - тогда и раскомментим...
+void CHAR_DATA::decreaseSkillCooldown(ESkill skillID, unsigned value) {
+	auto skillData = skills.find(skillID);
+	if (skillData != skills.end()) {
+		skillData->second.decreaseCooldown(value);
+	}
+};
+*/
+void CHAR_DATA::decreaseSkillsCooldowns(unsigned value) {
+	for (auto& skillData : skills) {
+		skillData.second.decreaseCooldown(value);
+	}
+};
+
+bool CHAR_DATA::haveSkillCooldown(ESkill skillID) {
+	auto skillData = skills.find(skillID);
+	if (skillData != skills.end()) {
+		return (skillData->second.cooldown > 0);
+	}
+	return false;
+};
+
+bool CHAR_DATA::haveCooldown(ESkill skillID) {
+	if (skills[SKILL_GLOBAL_COOLDOWN].cooldown > 0) {
+		return true;
+	}
+	return haveSkillCooldown(skillID);
+};
 
 int CHAR_DATA::get_obj_slot(int slot_num)
 {
@@ -1962,6 +2021,12 @@ void CHAR_DATA::msdp_report(const std::string& name)
 	}
 }
 
+void CHAR_DATA::removeGroupFlags()
+{
+		AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
+		PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+}
+
 void CHAR_DATA::add_follower(CHAR_DATA* ch)
 {
 	add_follower_silently(ch);
@@ -2263,7 +2328,6 @@ player_special_data::player_special_data() :
 	logs(nullptr),
 	Exchange_filter(nullptr),
 	Karma(nullptr),
-	logons(nullptr),
 	clanStatus(nullptr)
 {
 }
@@ -2309,5 +2373,5 @@ player_special_data_saved::player_special_data_saved() :
 
 // dummy spec area for mobs
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
-																						
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

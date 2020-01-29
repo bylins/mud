@@ -49,6 +49,8 @@
 #include "debug.utils.hpp"
 #include "backtrace.hpp"
 #include "coredump.hpp"
+#include "olc.h"
+#include "privilege.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -88,7 +90,7 @@ TRIG_DATA *read_trigger(int nr);
 OBJ_DATA *get_object_in_equip(CHAR_DATA * ch, char *name);
 void extract_trigger(TRIG_DATA * trig);
 int eval_lhs_op_rhs(const char *expr, char *result, void *go, SCRIPT_DATA * sc, TRIG_DATA * trig, int type);
-const char * skill_percent(CHAR_DATA * ch, char *skill);
+const char * skill_percent(TRIG_DATA* trig, CHAR_DATA * ch, char *skill);
 bool feat_owner(TRIG_DATA* trig, CHAR_DATA * ch, char *feat);
 const char * spell_count(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
 const char * spell_knowledge(TRIG_DATA* trig, CHAR_DATA * ch, char *spell);
@@ -249,6 +251,7 @@ void GlobalTriggersStorage::unregister_remove_observer(TRIG_DATA* trigger, const
 	}
 }
 
+obj2trigers_t& obj2trigers = GlobalObjects::obj_trigers();
 GlobalTriggersStorage& trigger_list = GlobalObjects::trigger_list();	// all attached triggers
 
 int trgvar_in_room(int vnum)
@@ -941,6 +944,7 @@ void do_stat_trigger(CHAR_DATA * ch, TRIG_DATA * trig)
 	sprintf(sb, "Name: '%s%s%s',  VNum: [%s%5d%s], RNum: [%5d]\r\n",
 		CCYEL(ch, C_NRM), GET_TRIG_NAME(trig), CCNRM(ch, C_NRM),
 		CCGRN(ch, C_NRM), GET_TRIG_VNUM(trig), CCNRM(ch, C_NRM), GET_TRIG_RNUM(trig));
+	send_to_char(sb, ch);
 
 	if (trig->get_attach_type() == MOB_TRIGGER)
 	{
@@ -1549,7 +1553,7 @@ long gm_char_field(CHAR_DATA * ch, char *field, char *subfield, long val)
 	if (*subfield)
 	{
 		sprintf(buf, "DG_Script: Set %s with <%s> for %s.", field, subfield, GET_NAME(ch));
-		mudlog(buf, NRM, -1, ERRLOG, TRUE);
+		log("%s", buf);
 		if (*subfield == '-')
 			return (val - atoi(subfield + 1));
 		else if (*subfield == '+')
@@ -2532,7 +2536,12 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "hryvn"))
 		{
+			const long before = c->get_hryvn();
+			int value;
 			c->set_hryvn(MAX(0, gm_char_field(c, field, subfield, c->get_hryvn())));
+			value = c->get_hryvn() - before;
+			sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]", GET_PAD(c, 0), GET_ROOM_VNUM(c->in_room), value, desc_count(value, WHAT_TORCu), GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig));
+			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			sprintf(str, "%d", c->get_hryvn());
 		}
 		else if (!str_cmp(field, "gold"))
@@ -2615,14 +2624,21 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					str[i] = LOWER(str[i]);
 			}
 			else
-				sprintf(str, "null");
+				sprintf(str, "0");
 		}
 		else if (!str_cmp(field, "clanrank"))
 		{
 			if (CLAN(c) && CLAN_MEMBER(c))
 				sprintf(str, "%d", CLAN_MEMBER(c)->rank_num);
 			else
-				sprintf(str, "null");
+				sprintf(str, "0");
+		}
+		else if (!str_cmp(field, "clanlevel"))
+		{
+			if (CLAN(c) && CLAN_MEMBER(c))
+				sprintf(str, "%d", CLAN(c)->GetClanLevel());
+			else
+				sprintf(str, "0");
 		}
 		else if (!str_cmp(field, "m"))
 			strcpy(str, HMHR(c));
@@ -2854,15 +2870,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				}
 			}
 		}
+		else if (!str_cmp(field, "maxskill"))
+		{
+			sprintf(str, "%d", MIN(MAX_EXP_PERCENT + GET_REMORT(c) * 5, CAP_SKILLS));
+		}
 		else if (!str_cmp(field, "skill"))
 		{
-			char *pos;
-			while ((pos = strchr(subfield, '.')))
-				* pos = ' ';
-			while ((pos = strchr(subfield, '_')))
-				* pos = ' ';
-			strcpy(str, skill_percent(c, subfield));
-
+			strcpy(str, skill_percent(trig, c, subfield));
 		}
 		else if (!str_cmp(field, "feat"))
 		{
@@ -3026,7 +3040,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				GET_POS(c) = pos;
 			}
 		}
-		else if (!str_cmp(field, "wait"))
+		else if (!str_cmp(field, "wait") || !str_cmp(field, "lag"))
 		{
 			int pos;
 
@@ -3651,7 +3665,16 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "name"))
 		{
-			strcpy(str, r->name);
+			if (*subfield)
+			{
+				if (r->name)
+					free(r->name);
+				if (strlen(subfield) > MAX_ROOM_NAME)
+					subfield[MAX_ROOM_NAME - 1] = '\0';
+				r->name = str_dup(subfield);
+			}
+			else 
+				strcpy(str, r->name);
 		}
 		else if (!str_cmp(field, "north"))
 		{
@@ -4197,7 +4220,7 @@ int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DAT
 
 	eval_expr(p, list_str, go, sc, trig, type);
 	p = list_str;
-
+	skip_spaces(&p);
 	if (!p || !*p)
 	{
 		return 0;
@@ -6102,7 +6125,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 	return ret_val;
 }
 
-void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+void do_tlist(CHAR_DATA *ch, char *argument, int cmd, int/* subcmd*/)
 {
 	int first, last, nr, found = 0;
 	char pagebuf[65536];
@@ -6110,6 +6133,14 @@ void do_tlist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	strcpy(pagebuf, "");
 
 	two_arguments(argument, buf, buf2);
+
+	first = atoi(buf);
+
+	if (!(Privilege::can_do_priv(ch,std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
 
 	if (!*buf)
 	{
@@ -6222,12 +6253,20 @@ int real_trigger(int vnum)
 	return (rnum);
 }
 
-void do_tstat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+void do_tstat(CHAR_DATA *ch, char *argument, int  cmd, int/* subcmd*/)
 {
 	int vnum, rnum;
 	char str[MAX_INPUT_LENGTH];
 
 	half_chop(argument, str, argument);
+
+	auto first = atoi(str);
+	if (!(Privilege::can_do_priv(ch,std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first))
+	{
+		send_to_char("Чаво?\r\n", ch);
+		return;
+	}
+
 	if (*str)
 	{
 		vnum = atoi(str);
@@ -6770,6 +6809,20 @@ TRIG_DATA::TRIG_DATA() :
 }
 
 TRIG_DATA::TRIG_DATA(const sh_int rnum, const char* name, const byte attach_type, const long trigger_type) :
+	cmdlist(new cmdlist_element::shared_ptr()),
+	narg(0),
+	depth(0),
+	loops(-1),
+	wait_event(nullptr),
+	var_list(nullptr),
+	nr(rnum),
+	attach_type(attach_type),
+	name(name),
+	trigger_type(trigger_type)
+{
+}
+
+TRIG_DATA::TRIG_DATA(const sh_int rnum, std::string&& name, const byte attach_type, const long trigger_type) :
 	cmdlist(new cmdlist_element::shared_ptr()),
 	narg(0),
 	depth(0),

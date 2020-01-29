@@ -196,14 +196,6 @@ const char *class_menu_step =
 	"  [С]атучы\r\n"
 	"  Се[и]д\r\n";
 
-const char *color_menu =
-	"\r\n"
-	"Выберите режим цвета :\r\n"
-	"  [0]Выкл\r\n"
-	"  [1]Простой\r\n"
-	"  [2]Обычный\r\n"
-	"  [3]Полный\r\n";
-
 // The menu for choosing a religion in interpreter.c:
 const char *religion_menu =
 	"\r\n" "Какой религии вы отдаете предпочтение :\r\n" "  Я[з]ычество\r\n" "  [Х]ристианство\r\n";
@@ -863,6 +855,7 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for mage thac0.");
+			break;
 		}
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
@@ -940,6 +933,7 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for cleric thac0.");
+			break;
 		}
 	case CLASS_ASSASINE:
 	case CLASS_THIEF:
@@ -1018,6 +1012,7 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for thief thac0.");
+			break;
 		}
 	case CLASS_WARRIOR:
 	case CLASS_GUARD:
@@ -1095,6 +1090,7 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for warrior thac0.");
+			break;
 		}
 	case CLASS_PALADINE:
 	case CLASS_RANGER:
@@ -1173,10 +1169,12 @@ int thaco(int class_num, int level)
 			return 0;
 		default:
 			log("SYSERR: Missing level for warrior thac0.");
+			break;
 		}
 
 	default:
 		log("SYSERR: Unknown class in thac0 chart.");
+		break;
 	}
 
 	// Will not get there unless something is wrong.
@@ -1985,6 +1983,13 @@ void init_warcry(CHAR_DATA *ch) // проставление кличей в об
 {
 	if (GET_CLASS(ch) == CLASS_GUARD)
 		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_DEFENSE), SPELL_KNOW); // клич призыв к обороне
+
+	if (GET_CLASS(ch) == CLASS_RANGER)
+	{
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_EXPERIENSE), SPELL_KNOW); // клич опыта
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_LUCK), SPELL_KNOW); // клич удачи
+		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_PHYSDAMAGE), SPELL_KNOW); // клич +дамага
+	}
 	if (GET_CLASS(ch) == CLASS_WARRIOR)
 	{
 		SET_BIT(GET_SPELL_TYPE(ch, SPELL_WC_OF_BATTLE), SPELL_KNOW); // клич призыв битвы
@@ -2056,6 +2061,8 @@ void do_start(CHAR_DATA * ch, int newbie)
 		case CLASS_WARRIOR:
 		case CLASS_RANGER:
 			ch->set_skill(SKILL_HORSE, 10);
+			ch->set_skill(SKILL_SATTACK, 95);
+			break;
 		case CLASS_SMITH:
 			ch->set_skill(SKILL_SATTACK, 95);
 			break;
@@ -2152,8 +2159,7 @@ void advance_level(CHAR_DATA * ch)
 	check_max_hp(ch);
 	ch->points.max_move += MAX(1, add_move);
 
-	// Set natural & race features
-	set_natural_feats(ch);
+	setAllInbornFeatures(ch);
 
 	if (IS_IMMORTAL(ch))
 	{
@@ -2165,26 +2171,6 @@ void advance_level(CHAR_DATA * ch)
 	TopPlayer::Refresh(ch);
 	levelup_events(ch);
 	ch->save_char();
-}
-
-void check_max_skills(CHAR_DATA *ch)
-{
-	for (const auto i : AVAILABLE_SKILLS)
-	{
-		if (ch->get_inborn_skill(i)  && i != SKILL_SATTACK)
-		{
-			int max = wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * (GET_LEVEL(ch) + 1) / 20;
-			if (max > MAX_EXP_PERCENT)
-				max = MAX_EXP_PERCENT;
-			int sval = ch->get_inborn_skill(i) - max - GET_REMORT(ch) * 5;
-			if (sval < 0)
-				sval = 0;
-			if ((ch->get_inborn_skill(i) - sval) > (wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20))
-			{
-				ch->set_skill(i, ((wis_bonus(GET_REAL_WIS(ch), WIS_MAX_LEARN_L20) * GET_LEVEL(ch) / 20) + sval));
-			}
-		}
-	}
 }
 
 void decrease_level(CHAR_DATA * ch)
@@ -2229,7 +2215,6 @@ void decrease_level(CHAR_DATA * ch)
 		PRF_FLAGS(ch).unset(PRF_HOLYLIGHT);
 	}
 
-	//check_max_skills(ch);
 	TopPlayer::Refresh(ch);
 	ch->save_char();
 }
@@ -2299,7 +2284,7 @@ int invalid_anti_class(CHAR_DATA *ch, const OBJ_DATA* obj)
 		return (FALSE);
 	}
 	if ((IS_OBJ_ANTI(obj, EAntiFlag::ITEM_NOT_FOR_NOPK) && char_to_pk_clan(ch)))
-	{		
+	{
 		return (TRUE);
 	}
 
@@ -2485,7 +2470,7 @@ void load_skills_definitions()
 //Polud Читает данные из файла хранения параметров умений
 void load_skills()
 {
-	const char *CLASS_SKILLS_FILE = LIB_MISC"classskills.xml";
+	const char *CLASS_SKILLS_FILE = LIB_MISC"class.skills.xml";
 
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(CLASS_SKILLS_FILE);
@@ -2500,7 +2485,7 @@ void load_skills()
 
 	if (!node_list)
 	{
-		snprintf(buf, MAX_STRING_LENGTH, "...classskills.xml read fail");
+		snprintf(buf, MAX_STRING_LENGTH, "...class.skills.xml read fail");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
@@ -2575,9 +2560,9 @@ void init_spell_levels(void)
 	char line1[256], line2[256], line3[256], name[256];
 	int i[15], j, sp_num;
 
-	if (!(magic = fopen(LIB_MISC "magic.lst", "r")))
+	if (!(magic = fopen(LIB_MISC "class.spells.lst", "r")))
 	{
-		log("Can't open magic list file...");
+		log("Can't open class spells file...");
 		perror("fopen");
 		graceful_exit(1);
 	}
@@ -2630,7 +2615,7 @@ void init_spell_levels(void)
 
 	}
 	fclose(magic);
-	if (!(magic = fopen(LIB_MISC "items.lst", "r")))
+	if (!(magic = fopen(LIB_MISC "runes.lst", "r")))
 	{
 		log("Cann't open items list file...");
 		graceful_exit(1);
@@ -2717,8 +2702,7 @@ void init_spell_levels(void)
 		}
 	}
 	fclose(magic);
-	// Load features variables - added by Gorrah
-	if (!(magic = fopen(LIB_MISC "features.lst", "r")))
+	if (!(magic = fopen(LIB_MISC "class.features.lst", "r")))
 	{
 		log("Cann't open features list file...");
 		graceful_exit(1);
@@ -2774,14 +2758,9 @@ void init_spell_levels(void)
 				feat_info[sp_num].classknow[i[3]][j] = TRUE;
 				log("Classknow feat set '%s': %d kin: %d classes: %d Remort: %d Level: %d Natural: %d", feat_info[sp_num].name, sp_num, j, i[3], i[4], i[5], i[6]);
 
-				feat_info[sp_num].min_remort[i[3]][j] = i[4];
-				//log("Remort feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[4]);
-
+				feat_info[sp_num].minRemort[i[3]][j] = i[4];
 				feat_info[sp_num].slot[i[3]][j] = i[5];
-				//log("Level feat set '%d' kin '%d' classes %d value %d", sp_num, j, i[3], i[5]);
-
-				feat_info[sp_num].natural_classfeat[i[3]][j] = i[6] ? true : false;
-				//log("Natural classfeature set '%d' kin '%d' classes %d", sp_num, j, i[3]);
+				feat_info[sp_num].inbornFeatureOfClass[i[3]][j] = i[6] ? true : false;
 			}
 	}
 	fclose(magic);
@@ -2888,7 +2867,7 @@ void init_spell_levels(void)
 
 	/* Remove to init_im::im.cpp - Gorrah
 	// +newbook.patch (Alisher)
-		if (!(magic = fopen(LIB_MISC "classrecipe.lst", "r"))) {
+		if (!(magic = fopen(LIB_MISC "class.recipes.lst", "r"))) {
 			log("Cann't open classrecipe list file...");
 			graceful_exit(1);
 		}
@@ -2952,7 +2931,7 @@ void init_basic_values(void)
 		{
 			int fields = 0;
 			switch (mode)
-			{			
+			{
 			case 1:
 				pointer = (int *) & (int_app[c].spell_aknowlege);
 				fields = sizeof(int_app[c])/sizeof(int);
