@@ -369,12 +369,8 @@ bool ClanExpHistory::need_destroy() const
 	}
 	return calc_exp_history() < MIN_EXP_HISTORY ? true : false;
 }
-void ClanExpHistory::fulldelete()
-{
-	for (HistoryExpListType::iterator i = list_.begin(), iend = list_.end(); i != iend; ++i)
-	{
-		i->second = 0;
-	}
+void ClanExpHistory::fulldelete() {
+	list_.clear();
 }
 void ClanExpHistory::show(CHAR_DATA *ch) const
 {
