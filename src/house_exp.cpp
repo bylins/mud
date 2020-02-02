@@ -298,12 +298,13 @@ void ClanExpHistory::load(const std::string &abbrev)
 void ClanExpHistory::save(const std::string &abbrev) const
 {
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + "-history.exp";
-	if (list_.empty())
+// и зачем удалять файл а потом проверять его наличие
+/*	if (list_.empty())
 	{
 		remove(filename.c_str());
 		return;
 	}
-
+*/
 	std::ofstream file(filename.c_str());
 	if (!file.is_open())
 	{
