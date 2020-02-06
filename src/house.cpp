@@ -2844,6 +2844,7 @@ void Clan::HcontrolBuild(CHAR_DATA * ch, std::string & buffer)
 	std::vector<std::string> temp_ranks(ranks, ranks + 10);
 	std::vector<std::string> temp_ranks_female(ranks_female, ranks_female + 10);
 	tempClan->ranks = temp_ranks;
+	tempClan->bank = 1000;
 	tempClan->ranks_female = temp_ranks_female;
 
 	// привилегии
@@ -2970,7 +2971,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 	clan->clan_exp = 0;
 	clan->clan_level = 0;
 	clan->politics.clear();
-	clan->bank = 0;
+	clan->bank = 1000;
 	clan->gold_tax_pct_ = 0;
 	clan->ingr_chest_room_rnum_ = 0;
 	clan->storehouse = 0;

@@ -298,12 +298,13 @@ void ClanExpHistory::load(const std::string &abbrev)
 void ClanExpHistory::save(const std::string &abbrev) const
 {
 	std::string filename = LIB_HOUSE + abbrev + "/" + abbrev + "-history.exp";
-	if (list_.empty())
+// и зачем удалять файл а потом проверять его наличие
+/*	if (list_.empty())
 	{
 		remove(filename.c_str());
 		return;
 	}
-
+*/
 	std::ofstream file(filename.c_str());
 	if (!file.is_open())
 	{
@@ -369,12 +370,8 @@ bool ClanExpHistory::need_destroy() const
 	}
 	return calc_exp_history() < MIN_EXP_HISTORY ? true : false;
 }
-void ClanExpHistory::fulldelete()
-{
-	for (HistoryExpListType::iterator i = list_.begin(), iend = list_.end(); i != iend; ++i)
-	{
-		i->second = 0;
-	}
+void ClanExpHistory::fulldelete() {
+	list_.clear();
 }
 void ClanExpHistory::show(CHAR_DATA *ch) const
 {
