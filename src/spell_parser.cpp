@@ -3580,7 +3580,7 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!check_recipe_items(ch, spellnum, itemnum, TRUE))
 	{
-		send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
+		send_to_char("У вас нет нужных инградиентов!\r\n", ch);
 		return;
 	}
 }
@@ -3589,7 +3589,7 @@ void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	send_to_char(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
 		obj->get_PName(3).c_str());
-	act("$n с интересом принял$u читать $o3.\r\n"
+	act("$n с интересом принял$g читать $o3.\r\n"
 		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
 		FALSE, ch, obj, 0, TO_ROOM);
 }
@@ -3761,7 +3761,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			stype1[GET_OBJ_VAL(obj, 0)],
 			spellname);
 		send_to_char(buf, ch);
-		act("$n с интересом принял$u читать $o3.\r\n"
+		act("$n с интересом принял$g читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
 			FALSE, ch, obj, 0, TO_ROOM);
 		return;

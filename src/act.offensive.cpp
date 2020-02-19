@@ -1241,7 +1241,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict) {
 		return;
 	}
 	if (ch->haveCooldown(SKILL_KICK)) {
-		send_to_char("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
+		send_to_char("Вы уже все ноги себе отбили, отдохнител слегка.\r\n", ch);
 		return;
 	};
 
