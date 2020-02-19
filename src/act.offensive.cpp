@@ -1313,7 +1313,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict) {
 				case 3:
 					to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
 					to_vict = "Мощный удар ноги $n1 попал вам точно в челюсть, заставив вас замолчать.";
-					to_room = "Сильно пнув ногой в челюсть $N3, $n застави$q $S замолчать.";
+					to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
 					af.type = SPELL_BATTLE;
 					af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
@@ -2649,11 +2649,11 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim) {
 	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", FALSE, ch, 0, victim, TO_CHAR);
 	OBJ_DATA *weapon;
 	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS))) {
-		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешенно размахивая $o4!");
-		strcpy(buf2, "$N взревел$G и ринул$U на вас, бешенно размахивая $o4!");
+		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!");
+		strcpy(buf2, "$N взревел$G и ринул$U на вас, бешено размахивая $o4!");
 	} else {
-		strcpy(buf, "$n бешенно взревел$g и ринул$u на $N3!");
-		strcpy(buf2, "$N бешенно взревел$G и ринул$U на вас!");
+		strcpy(buf, "$n бешено взревел$g и ринул$u на $N3!");
+		strcpy(buf2, "$N бешено взревел$G и ринул$U на вас!");
 	};
 	act(buf, FALSE, ch, weapon, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	act(buf2, FALSE, victim, weapon, ch, TO_CHAR);
