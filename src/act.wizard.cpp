@@ -368,7 +368,7 @@ void do_showzonestats(CHAR_DATA* ch, char*, int, int)
 	send_to_char(ch, "Статистика с 22.02.2020\r\n");
 	for (auto i = 0u; i < zone_table.size(); ++i)
 	{
-		sprintf(buf, "Zone: %d, count_reset: %d, посещено: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
+		sprintf(buf, "Zone: %d, count_reset с ребута: %d, посещено: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
 		buffer += std::string(buf) + "\r\n";
 	}
 	page_string(ch->desc, buffer);
