@@ -365,9 +365,10 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 void do_showzonestats(CHAR_DATA* ch, char*, int, int)
 {
 	std::string buffer = "";
+	send_to_char(ch, "Статистика с 22.02.2020\r\n");
 	for (auto i = 0u; i < zone_table.size(); ++i)
 	{
-		sprintf(buf, "Zone: %d, count_reset: %d, посещено с ребута: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
+		sprintf(buf, "Zone: %d, count_reset: %d, посещено: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
 		buffer += std::string(buf) + "\r\n";
 	}
 	page_string(ch->desc, buffer);
