@@ -2302,7 +2302,6 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 			send_to_char(buf, ch);
 		}
 	}
-
 	send_to_char("&Y&q", ch);
 //  if (IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL),SPELL_KNOW))
 	if (ch->get_skill(SKILL_TOWNPORTAL)) {
@@ -2317,13 +2316,14 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&Q&n", ch);
 
 	// вход в новую зону
-	zone_rnum inroom = world[ch->in_room]->zone;
-	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[inroom].number) {
-		if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
-			print_zone_info(ch);
-		if (ch->get_level() < LVL_IMMORT)
-			++zone_table[inroom].traffic;
-
+	if (!IS_NPC(ch)) {
+		zone_rnum inroom = world[ch->in_room]->zone;
+		if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[inroom].number) {
+			if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+				print_zone_info(ch);
+			if (ch->get_level() < LVL_IMMORT)
+				++zone_table[inroom].traffic;
+		}
 	}
 }
 

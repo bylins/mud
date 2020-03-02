@@ -549,7 +549,7 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length);
 void sanity_check(void);
 void circle_sleep(struct timeval *timeout);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased);
-void init_game(ush_int port);
+void stop_game(ush_int port);
 void signal_setup(void);
 #ifdef HAS_EPOLL
 void game_loop(int epoll, socket_t mother_desc);
@@ -824,15 +824,14 @@ int main_function(int argc, char **argv)
 		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
 		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
 		// по эксепшену для удобства отладки и штатного сброса сислога в файл, т.к. в коре будет фиг
-		init_game(port);
+		stop_game(port);
 	}
 
 	return 0;
 }
 
 
-// Init sockets, run game, and cleanup sockets
-void init_game(ush_int port)
+void stop_game(ush_int port)
 {
 	socket_t mother_desc;
 #ifdef HAS_EPOLL
