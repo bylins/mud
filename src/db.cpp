@@ -163,6 +163,7 @@ struct portals_list_type *portals_list;	// Список проталов для 
 extern int number_of_social_messages;
 extern int number_of_social_commands;
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
+time_t zones_stat_date;
 
 guardian_type guardian_list;
 
@@ -2458,6 +2459,7 @@ void zone_traffic_save() {
 	pugi::xml_document doc;
 	doc.append_child().set_name("zone_traffic");
 	pugi::xml_node traffic = doc.child("zone_traffic");
+	traffic.append_attribute("date") = static_cast<unsigned long long>(zones_stat_date);
 	for (auto i = 0u; i < zone_table.size(); ++i) {
 		pugi::xml_node zone_node = traffic.append_child();
 		zone_node.set_name("zone");
@@ -2476,6 +2478,10 @@ void zone_traffic_load() {
 		return;
 	}
 	pugi::xml_node traffic = doc.child("zone_traffic");
+	pugi::xml_attribute xml_date = traffic.attribute("date");
+	if (xml_date) {
+	      zones_stat_date = static_cast<time_t>(xml_date.as_ullong());
+	}
 	if (!traffic) {
 		snprintf(buf, MAX_STRING_LENGTH, "zone_traffic: нет заглавного тега");
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);

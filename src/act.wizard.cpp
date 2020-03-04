@@ -100,6 +100,7 @@ extern const char *weapon_affects[];
 extern int circle_restrict;
 extern int load_into_inventory;
 extern int buf_switches, buf_largecount, buf_overflows;
+extern time_t zones_stat_date;
 extern mob_rnum top_of_mobt;
 extern CHAR_DATA *mob_proto;
 void medit_save_to_disk(int zone_num);
@@ -361,19 +362,23 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buf2, ch);
 
 }
-char *show_zones_stat_date;
 
-void do_showzonestats(CHAR_DATA* ch, char* argument, int, int)
-{
+void do_showzonestats(CHAR_DATA* ch, char* argument, int, int) {
 	std::string buffer = "";
 	one_argument(argument, arg);
-	if (*arg == 'о'){
+	if (!strcmp(arg, "очистить")) {
 		const time_t ct = time(0);
-		show_zones_stat_date = asctime(localtime(&ct));
+		char *date = asctime(localtime(&ct));
+		send_to_char(ch, "Начинаю новую запись статистики от %s", date);
+		zones_stat_date = ct;
+		zone_traffic_save();
+		for (auto i = 0u; i < zone_table.size(); ++i) {
+			zone_table[i].traffic = 0;
+		}
+		return;
 	}
-	send_to_char(ch, "Статистика с %s\r\n", show_zones_stat_date);
-	for (auto i = 0u; i < zone_table.size(); ++i)
-	{
+	send_to_char(ch, "Статистика с %sДля создания новой введите команду 'очистить'.\r\n", asctime(localtime(&zones_stat_date)));
+	for (auto i = 0u; i < zone_table.size(); ++i) {
 		sprintf(buf, "Zone: %d, count_reset с ребута: %d, посещено: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
 		buffer += std::string(buf) + "\r\n";
 	}
