@@ -377,9 +377,9 @@ void do_showzonestats(CHAR_DATA* ch, char* argument, int, int) {
 		}
 		return;
 	}
-	send_to_char(ch, "Статистика с %sДля создания новой введите команду 'очистить'.\r\n", asctime(localtime(&zones_stat_date)));
+	send_to_char(ch, "Статистика с %sДля создания новой таблицы введите команду 'очистить'.\r\n", asctime(localtime(&zones_stat_date)));
 	for (auto i = 0u; i < zone_table.size(); ++i) {
-		sprintf(buf, "Zone: %d, count_reset с ребута: %d, посещено: %d", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic);
+		sprintf(buf, "Zone: %5d, count_reset с ребута: %3d, посещено: %5d, назвение зоны: %s", zone_table[i].number, zone_table[i].count_reset, zone_table[i].traffic, zone_table[i].name);
 		buffer += std::string(buf) + "\r\n";
 	}
 	page_string(ch->desc, buffer);
