@@ -2321,7 +2321,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[inroom].number) {
 			if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
 				print_zone_info(ch);
-			if (ch->get_level() < LVL_IMMORT)
+			if ((ch->get_level() < LVL_IMMORT) && !ch->get_master())
 				++zone_table[inroom].traffic;
 		}
 	}
