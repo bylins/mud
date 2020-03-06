@@ -163,6 +163,7 @@ struct portals_list_type *portals_list;	// Список проталов для 
 extern int number_of_social_messages;
 extern int number_of_social_commands;
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
+time_t zones_stat_date;
 
 guardian_type guardian_list;
 
@@ -2457,9 +2458,13 @@ void load_messages(void)
 void zone_traffic_save() {
 	pugi::xml_document doc;
 	doc.append_child().set_name("zone_traffic");
-	pugi::xml_node traffic = doc.child("zone_traffic");
+	pugi::xml_node node_list = doc.child("zone_traffic");
+	pugi::xml_node time_node = node_list.append_child();
+	time_node.set_name("time");
+	time_node.append_attribute("date") = static_cast<unsigned long long>(zones_stat_date);
+
 	for (auto i = 0u; i < zone_table.size(); ++i) {
-		pugi::xml_node zone_node = traffic.append_child();
+		pugi::xml_node zone_node = node_list.append_child();
 		zone_node.set_name("zone");
 		zone_node.append_attribute("vnum") = zone_table[i].number;
 		zone_node.append_attribute("traffic") = zone_table[i].traffic;
@@ -2475,13 +2480,13 @@ void zone_traffic_load() {
 		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
 		return;
 	}
-	pugi::xml_node traffic = doc.child("zone_traffic");
-	if (!traffic) {
-		snprintf(buf, MAX_STRING_LENGTH, "zone_traffic: нет заглавного тега");
-		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
-		return;
+	pugi::xml_node node_list = doc.child("zone_traffic");
+	pugi::xml_node time_node = node_list.child("time");
+	pugi::xml_attribute xml_date = time_node.attribute("date");
+	if (xml_date) {
+		zones_stat_date = static_cast<time_t>(xml_date.as_ullong());
 	}
-	for (pugi::xml_node node = traffic.child("zone"); node; node = node.next_sibling("zone")){
+	for (pugi::xml_node node = node_list.child("zone"); node; node = node.next_sibling("zone")){
 		const int zone_vnum = atoi(node.attribute("vnum").value());
 		zone_rnum zrn;
 		for (zrn = 0; zone_table[zrn].number != zone_vnum && zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
