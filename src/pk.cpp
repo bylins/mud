@@ -1157,6 +1157,10 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 			return FALSE;
 		}
 	}
+	//Проверка на чармиса(своего или группы)
+	if (!check_charmise(victim)) {
+		return FALSE;
+
 	return TRUE;
 }
 
@@ -1275,6 +1279,17 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 		}
 	}
 	return false;
+}
+
+bool check_charmise(CHAR_DATA * victim)
+{
+	if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
+	    if (!strcmp(GET_NAME(victim), argument)) {
+     		 send_to_char(ch, "Это ваш или последователь группы, введите имя полностью.\r\n");
+		      return FALSE;
+	    }
+	}
+	return true;
 }
 
 //Polud
