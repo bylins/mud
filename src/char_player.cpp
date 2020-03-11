@@ -267,6 +267,11 @@ void Player::add_hryvn(int value)
 		send_to_char(this, "Вы получили %ld %s.\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
+	else (value == 0)
+	{
+	return;
+	}
+
 	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
 	this->hryvn += value;
 }
