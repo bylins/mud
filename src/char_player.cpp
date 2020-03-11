@@ -262,7 +262,7 @@ void Player::add_hryvn(int value)
 		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
-	else
+	else if (value > 0)
 	{
 		send_to_char(this, "Вы получили %ld %s.\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
