@@ -25,7 +25,7 @@ namespace ActionTargeting {
 		if (!check_pkill(actor, target, arg)) {
 			return true;
 		}
-		if (!may_kill_here(actor, target)) {
+		if (!may_kill_here(actor, target, NULL)) {
 			return true;
 		}
 		return false;
@@ -52,7 +52,7 @@ namespace ActionTargeting {
 		if (same_group(actor, target) || IS_IMMORTAL(target)) {
 			return false;
 		};
-		if (!may_kill_here(actor, target)) {
+		if (!may_kill_here(actor, target, NULL)) {
 			return false;
 		};
 		return true;

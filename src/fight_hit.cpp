@@ -2418,8 +2418,7 @@ void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
 					? victim->get_master()
 					: victim;
 
-				if ((keeper_leader == victim_leader)
-					&& (may_kill_here(keeper->get_master(), ch)))
+				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->get_master(), ch, NULL)))
 				{
 					if (!pk_agro_action(keeper->get_master(), ch))
 					{

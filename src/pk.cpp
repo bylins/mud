@@ -296,7 +296,7 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 
 	if (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))
 	{
-		may_kill_here(agressor, victim);
+		may_kill_here(agressor, victim, NULL);
 		return;
 	}
 
@@ -1098,7 +1098,7 @@ void save_pkills(CHAR_DATA * ch, FILE * saved)
 }
 
 // Проверка может ли ch начать аргессивные действия против victim
-int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
+int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim, char * argument)
 {
 	if (!victim)
 		return TRUE;
@@ -1158,9 +1158,9 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 	}
 	//Проверка на чармиса(своего или группы)
-//	if (!check_charmise(victim)) {
-//		return FALSE;
-//	}
+	if (argument && !check_charmise(ch, victim, argument)) {
+		return FALSE;
+	}
 	return TRUE;
 }
 
@@ -1273,18 +1273,18 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 	return false;
 }
 
-/*
-bool check_charmise(CHAR_DATA * victim)
-{
+bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument) {
+	skip_spaces(&argument);
+	send_to_char(ch, "моб !%s!  аргумент !%s!.\r\n", GET_NAME(victim), argument);
 	if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
-	    if (!strcmp(GET_NAME(victim), argument)) {
-     		 send_to_char(ch, "Это ваш или последователь группы, введите имя полностью.\r\n");
-		      return FALSE;
-	    }
+		send_to_char(ch, "попытка метнуть в чармиса!!!!!!!!!!!!!!!!!!!!!!!!!.\r\n");
+		if (strcmp(GET_NAME(victim), argument)) {
+			send_to_char(ch, "Это ваш или последователь группы, введите имя полностью.\r\n");
+			return FALSE;
+		} 
 	}
 	return true;
 }
-*/
 //Polud
 void pkPortal(CHAR_DATA* ch)
 {

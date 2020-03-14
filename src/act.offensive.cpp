@@ -250,7 +250,7 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch) {
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
 				if (!pk_agro_action(ch, victim))
 					return victim;
-				if (!may_kill_here(vict, ch))
+				if (!may_kill_here(vict, ch, NULL))
 					continue;
 				// Вписываемся в противника прикрываемого ...
 				stop_fighting(vict, FALSE);
@@ -385,7 +385,7 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Вы не видите противника $N1!", FALSE, ch, 0, helpee, TO_CHAR);
 	else if (opponent == ch)
 		act("Дык $E сражается с ВАМИ!", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (!may_kill_here(ch, opponent))
+	else if (!may_kill_here(ch, opponent, NULL))
 		return;
 	else if (need_full_alias(ch, opponent))
 		act("Используйте команду 'атаковать' для нападения на $N1.", FALSE, ch, 0, opponent, TO_CHAR);
@@ -408,7 +408,7 @@ void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		act("$n ударил$g себя", FALSE, ch, 0, vict, TO_ROOM | CHECK_NODEAF | TO_ARENA_LISTEN);
 		return;
 	}
-	if (!may_kill_here(ch, vict)) {
+	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->get_master() == vict)) {
@@ -574,7 +574,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict) && !IS_NPC(ch))
+	if (!may_kill_here(ch, vict, argument) && !IS_NPC(ch))
 		return;
 	if (!check_pkill(ch, vict, arg) && !IS_NPC(ch))
 		return;
@@ -983,7 +983,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -1039,7 +1039,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -1225,7 +1225,7 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (!may_kill_here(ch, enemy)) {
+	if (!may_kill_here(ch, enemy, argument)) {
 		return;
 	}
 
@@ -1390,7 +1390,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -1612,7 +1612,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (tch->get_fighting() == vict && !may_kill_here(ch, tch)) {
+		if (tch->get_fighting() == vict && !may_kill_here(ch, tch, argument)) {
 			return;
 		}
 	}
@@ -1817,7 +1817,7 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -1969,7 +1969,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -2037,7 +2037,7 @@ void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -2121,7 +2121,7 @@ void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -2414,7 +2414,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!may_kill_here(ch, victim)) {
+	if (!may_kill_here(ch, victim, argument)) {
 		return;
 	}
 	if (!check_pkill(ch, victim, arg)) {
@@ -2704,7 +2704,7 @@ void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict)) {
+	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
 	if (!check_pkill(ch, vict, arg)) {
@@ -2819,7 +2819,7 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict)) {
+	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
 	if (!check_pkill(ch, vict, arg)) {
@@ -3096,7 +3096,7 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
         return;
     }
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
