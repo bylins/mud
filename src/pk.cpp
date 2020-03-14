@@ -1158,32 +1158,24 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 		}
 	}
 	//Проверка на чармиса(своего или группы)
-	if (!check_charmise(victim)) {
-		return FALSE;
-
+//	if (!check_charmise(victim)) {
+//		return FALSE;
+//	}
 	return TRUE;
 }
 
 // Определяет необходимость вводить
 // имя жертвы полностью для начала агродействий
-bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent)
-{
+bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent) {
 	// Потенциальная жертва приведет к ПК?
-	if (IS_NPC(opponent)
-		&& (!opponent->has_master()
-			|| IS_NPC(opponent->get_master())
-			|| opponent->get_master() == ch))
-	{
+	if (IS_NPC(opponent) && (!opponent->has_master() || IS_NPC(opponent->get_master()) || opponent->get_master() == ch)) {
 		return false;
 	}
 
 	// Уже воюю?
-	if (ch->get_fighting() == opponent
-		|| opponent->get_fighting() == ch)
-	{
+	if (ch->get_fighting() == opponent || opponent->get_fighting() == ch) {
 		return false;
 	}
-
 	return true;
 }
 
@@ -1281,6 +1273,7 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 	return false;
 }
 
+/*
 bool check_charmise(CHAR_DATA * victim)
 {
 	if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
@@ -1291,7 +1284,7 @@ bool check_charmise(CHAR_DATA * victim)
 	}
 	return true;
 }
-
+*/
 //Polud
 void pkPortal(CHAR_DATA* ch)
 {
