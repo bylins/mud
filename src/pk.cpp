@@ -296,7 +296,7 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 
 	if (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))
 	{
-		may_kill_here(agressor, victim, NULL);
+		may_kill_here(agressor, victim, NoArgument);
 		return;
 	}
 
