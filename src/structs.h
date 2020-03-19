@@ -47,6 +47,7 @@ namespace currency
 }
 
 #define MAX_ALIAS_LENGTH 100
+#define  NoArgument  nullptr
 //-Polos.insert_wanted_gem
 
 /*
