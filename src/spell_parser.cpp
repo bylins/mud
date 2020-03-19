@@ -1987,14 +1987,14 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		// ch_vict может стать потунциальной жертвой
 		if (SpINFO.violent)
 		{
-			if (!may_kill_here(caster, ch_vict, NULL))
+			if (!may_kill_here(caster, ch_vict, NoArgument))
 			{
 				return 0;
 			}
 		}
 		else
 		{
-			if (!may_kill_here(caster, ch_vict->get_fighting(), NULL))
+			if (!may_kill_here(caster, ch_vict->get_fighting(), NoArgument))
 			{
 				return 0;
 			}

@@ -250,7 +250,7 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch) {
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
 				if (!pk_agro_action(ch, victim))
 					return victim;
-				if (!may_kill_here(vict, ch, NULL))
+				if (!may_kill_here(vict, ch, NoArgument))
 					continue;
 				// Вписываемся в противника прикрываемого ...
 				stop_fighting(vict, FALSE);
@@ -385,7 +385,7 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Вы не видите противника $N1!", FALSE, ch, 0, helpee, TO_CHAR);
 	else if (opponent == ch)
 		act("Дык $E сражается с ВАМИ!", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (!may_kill_here(ch, opponent, NULL))
+	else if (!may_kill_here(ch, opponent, NoArgument))
 		return;
 	else if (need_full_alias(ch, opponent))
 		act("Используйте команду 'атаковать' для нападения на $N1.", FALSE, ch, 0, opponent, TO_CHAR);

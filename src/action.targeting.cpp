@@ -1,12 +1,11 @@
-
 /*
 	Модуль составление списков целей для умений/зклинаний.
 */
 
 #include "action.targeting.hpp"
 #include "pk.h"
-
 #include <algorithm>
+
 
 /*
 	2. Добавить возможность сформировать список группы без учета комнаты.
@@ -25,7 +24,7 @@ namespace ActionTargeting {
 		if (!check_pkill(actor, target, arg)) {
 			return true;
 		}
-		if (!may_kill_here(actor, target, NULL)) {
+		if (!may_kill_here(actor, target, NoArgument)) {
 			return true;
 		}
 		return false;
@@ -52,7 +51,7 @@ namespace ActionTargeting {
 		if (same_group(actor, target) || IS_IMMORTAL(target)) {
 			return false;
 		};
-		if (!may_kill_here(actor, target, NULL)) {
+		if (!may_kill_here(actor, target, NoArgument)) {
 			return false;
 		};
 		return true;
