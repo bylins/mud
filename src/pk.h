@@ -107,7 +107,7 @@ void save_pkills(CHAR_DATA * ch, FILE * saved);
 bool has_clan_members_in_group(CHAR_DATA * ch);
 
 //проверяем не чармис ли это наш или группы
-bool check_charmise(CHAR_DATA * victim, char * argument);
+bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument);
 
 //Polud
 void pkPortal(CHAR_DATA* ch);

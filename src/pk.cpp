@@ -1158,7 +1158,7 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim, char * argument)
 		}
 	}
 	//Проверка на чармиса(своего или группы)
-	if (argument && !check_charmise(victim, argument)) {
+	if (argument && !check_charmise(ch, victim, argument)) {
 		return FALSE;
 	}
 	return TRUE;
@@ -1267,10 +1267,11 @@ bool has_clan_members_in_group(CHAR_DATA * ch) {
 	return false;
 }
 
-bool check_charmise(CHAR_DATA * victim, char * argument) {
+bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument) {
 	skip_spaces(&argument);
 	if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
 		if (strcmp(GET_NAME(victim), argument)) {
+			send_to_char(ch, "Это ваш или последователь группы, введите имя полностью.\r\n");
 			return FALSE;
 		} 
 	}
