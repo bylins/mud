@@ -251,27 +251,22 @@ void Player::sub_hryvn(int value)
 
 void Player::add_hryvn(int value)
 {
-	if (GET_REMORT(this) < 6)
-	{
+	if (GET_REMORT(this) < 6) {
 		send_to_char(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
 	}
-	else if ((this->get_hryvn() + value) > cap_hryvn)
-	{
+	else if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
-	else if (value > 0)
-	{
+	else if (value > 0) {
 		send_to_char(this, "Вы получили %ld %s.\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
-	else (value == 0)
-	{
-	return;
+	else if (value == 0) {
+		return;
 	}
-
 	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
 	this->hryvn += value;
 }

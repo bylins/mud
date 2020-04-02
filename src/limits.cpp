@@ -267,7 +267,7 @@ int mana_gain(const CHAR_DATA * ch)
 		percent /= 4;
 	if (!IS_NPC(ch))
 		percent *= ch->get_cond_penalty(P_MEM_GAIN);
-	percent = MAX(0, MIN(250, percent));
+	percent = MAX(0, MIN(1000, percent));
 	gain = gain * percent / 100;
 	return (stopmem ? 0 : gain);
 }
