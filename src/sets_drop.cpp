@@ -52,7 +52,7 @@ const int MIN_GROUP_MOB_LVL = 32;
 const int MIN_SOLO_MOB_LVL = 25;
 const int MAX_SOLO_MOB_LVL = 31;
 // макс. кол-во участников в группе учитываемое в статистике
-const int MAX_GROUP_SIZE = 12;
+const int SET_MAX_GROUP_SIZE = 20;
 const char *DROP_TABLE_FILE = LIB_PLRSTUFF"sets_drop.xml";
 // сброс таблицы лоада каждые х часов
 const int RESET_TIMER = 35;
@@ -554,7 +554,7 @@ void init_zone_type()
 			kend = i->mobs.end(); k != kend; ++k)
 		{
 			int group_cnt = 0;
-			for (int cnt = 2; cnt <= MAX_GROUP_SIZE; ++cnt)
+			for (int cnt = 2; cnt <= SET_MAX_GROUP_SIZE; ++cnt)
 			{
 				group_cnt += k->kill_stat.at(cnt);
 			}
@@ -584,7 +584,7 @@ void init_mob_type()
 			kend = i->mobs.end(); k != kend; ++k)
 		{
 			int group_cnt = 0;
-			for (int cnt = 2; cnt <= MAX_GROUP_SIZE; ++cnt)
+			for (int cnt = 2; cnt <= SET_MAX_GROUP_SIZE; ++cnt)
 			{
 				group_cnt += k->kill_stat.at(cnt);
 			}
@@ -782,7 +782,7 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 		int max_kill = 0;
 		int num1 = 2;
 		// в два цикла как-то нагляднее
-		for (int i = 2; i <= MAX_GROUP_SIZE; ++i)
+		for (int i = 2; i <= SET_MAX_GROUP_SIZE; ++i)
 		{
 			if (mob->kill_stat.at(i) > max_kill)
 			{
@@ -792,7 +792,7 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum)
 		}
 		int max_kill2 = 0;
 		int num2 = 2;
-		for (int i = 2; i <= MAX_GROUP_SIZE; ++i)
+		for (int i = 2; i <= SET_MAX_GROUP_SIZE; ++i)
 		{
 			if (i != num1
 				&& mob->kill_stat.at(i) > max_kill2)
