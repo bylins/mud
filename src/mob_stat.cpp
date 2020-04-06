@@ -228,7 +228,7 @@ void load()
 				continue;
 			}
 			count_stats[tmp_mob.month] += 1;
-			for (int k = 0; k <= MAX_GROUP_SIZE; ++k)
+			for (int k = 0; k <= MOB_MAX_GROUP_SIZE; ++k)
 			{
 				snprintf(buf_, sizeof(buf_), "n%d", k);
 				pugi::xml_attribute attr = xml_time.attribute(buf_);
@@ -268,7 +268,7 @@ void save()
 			time_node.set_name("t");
 			time_node.append_attribute("m") = k->month;
 			time_node.append_attribute("y") = k->year;
-			for (int g = 0; g <= MAX_GROUP_SIZE; ++g)
+			for (int g = 0; g <= MOB_MAX_GROUP_SIZE; ++g)
 			{
 				if (k->kills.at(g) > 0)
 				{
@@ -373,7 +373,7 @@ void last_kill_mob(CHAR_DATA *mob, std::string& result)
 }
 void add_mob(CHAR_DATA *mob, int members)
 {
-	if (members < 0 || members > MAX_GROUP_SIZE)
+	if (members < 0 || members > MOB_MAX_GROUP_SIZE)
 	{
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_),
@@ -436,7 +436,7 @@ mob_node sum_stat(const std::list<mob_node> &mob_list, int months)
 	{
 		if (months == 0 || min_month < (i->month + i->year * 12))
 		{
-			for (int k = 0; k <= MAX_GROUP_SIZE; ++k)
+			for (int k = 0; k <= MOB_MAX_GROUP_SIZE; ++k)
 			{
 				tmp_stat.kills.at(k) += i->kills.at(k);
 			}
@@ -467,7 +467,7 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months)
 		out << i->first << " : " << std::setw(20)
 			<< print_mob_name(i->first) << " : "
 			<< i->second.kills.at(0) << " :";
-		for (int g = 1; g <= MAX_GROUP_SIZE; ++g)
+		for (int g = 1; g <= MOB_MAX_GROUP_SIZE; ++g)
 		{
 			if (i->second.kills.at(g) > 0)
 			{
