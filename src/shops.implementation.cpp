@@ -526,7 +526,7 @@ namespace ShopExt
 
 		if (obj)
 		{
-			if (GET_OBJ_COST(obj) > total_money)
+			if ((GET_OBJ_COST(obj) * bought) > total_money)
 			{
 
 				snprintf(buf, MAX_STRING_LENGTH, "Персонаж %s купил предмет %d за %d при его стоимости %d и прайсе %ld.", ch->get_name().c_str(), GET_OBJ_VNUM(obj), total_money, GET_OBJ_COST(obj), price);
