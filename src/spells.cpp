@@ -949,26 +949,14 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 		}
 
-		if (!isname(name, i->get_aliases()))
-		{
+		if (!isname(name, i->get_aliases())) {
 			return false;
 		}
 
-		if (i->get_carried_by())
-		{
+		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
-			if (world[IN_ROOM(carried_by)]->zone == world[ch->in_room]->zone
-				|| !IS_NPC(carried_by)
-				|| IS_GOD(ch))
-			{
-				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n",
-					i->get_short_description().c_str(),
-					GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
-			}
-			else
-			{
-				return false;
-			}
+			sprintf(buf, "1%s наход%sся у %s в инвентаре, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
+				GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1), world[carried_by->in_room]->name, zone_table[world[carried_by->in_room]->zone].name);
 		}
 		else if (i->get_in_room() != NOWHERE
 			&& i->get_in_room())
@@ -981,7 +969,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			{
 				if (bloody_corpse)
 				{
-					sprintf(buf, "%s наход%sся в %s (%s).\r\n",
+					sprintf(buf, "2%s наход%sся в %s (%s).\r\n",
 						i->get_short_description().c_str(),
 						GET_OBJ_POLY_1(ch, i),
 						world[room]->name,
@@ -989,7 +977,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 				}
 				else
 				{
-					sprintf(buf, "%s наход%sся в %s.\r\n",
+					sprintf(buf, "3%s наход%sся в %s.\r\n",
 						i->get_short_description().c_str(),
 						GET_OBJ_POLY_1(ch, i),
 						world[room]->name);
@@ -1043,7 +1031,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 					}
 				}
 
-				sprintf(buf, "%s наход%sся в %s.\r\n",
+				sprintf(buf, "4%s наход%sся в %s.\r\n",
 					i->get_short_description().c_str(),
 					GET_OBJ_POLY_1(ch, i),
 					i->get_in_obj()->get_PName(5).c_str());
@@ -1060,7 +1048,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 				|| IS_GOD(ch)
 				|| bloody_corpse)
 			{
-				sprintf(buf, "%s надет%s на %s.\r\n",
+				sprintf(buf, "5%s надет%s на %s.\r\n",
 					i->get_short_description().c_str(),
 					GET_OBJ_SUF_6(i),
 					PERS(worn_by, ch, 3));
@@ -3642,7 +3630,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Небесе тутнет!", "...и взял оттуда камень, и бросил из пращи." }, // SPELL_THUNDERSTONE
 	cast_phrase_t{ "Онома утес низринется!", "...доколе камень не оторвался от горы без содействия рук." }, // SPELL_CLODd
 	cast_phrase_t{ "!Применил боевой прием!", "!use battle expedient!" }, // SPELL_EXPEDIENT (set by program)
-	cast_phrase_t{ "Что свет, что тьма - глазу однаково.", "Станьте зрячи в тьме кромешной!" }, // SPELL_SIGHT_OF_DARKNESS
+	cast_phrase_t{ "Что свет, что тьма - глазу одинаково.", "Станьте зрячи в тьме кромешной!" }, // SPELL_SIGHT_OF_DARKNESS
 	cast_phrase_t{ "...да не скроются намерения.", "И узрим братья намерения окружающих." }, // SPELL_GENERAL_SINCERITY
 	cast_phrase_t{ "Узрим же все, что с магией навкруги нас.", "Покажи, Спаситель, магические силы братии." }, // SPELL_MAGICAL_GAZE
 	cast_phrase_t{ "Все тайное станет явным.", "Не спрячется, не скроется, ни заяц, ни блоха." }, // SPELL_ALL_SEEING_EYE
