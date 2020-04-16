@@ -942,9 +942,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 				return false;
 			}
 
-			if (SECT(IN_ROOM(carried_by)) == SECT_SECRET
-				|| IS_IMMORTAL(carried_by))
-			{
+			if (SECT(IN_ROOM(carried_by)) == SECT_SECRET || IS_IMMORTAL(carried_by)) {
 				return false;
 			}
 		}
@@ -952,41 +950,17 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		if (!isname(name, i->get_aliases())) {
 			return false;
 		}
-
 		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
-			sprintf(buf, "1%s наход%sся у %s в инвентаре, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
+			sprintf(buf, "%s наход%sся у %s в инвентаре, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
 				GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1), world[carried_by->in_room]->name, zone_table[world[carried_by->in_room]->zone].name);
+
 		}
-		else if (i->get_in_room() != NOWHERE
-			&& i->get_in_room())
-		{
+		else if (i->get_in_room() != NOWHERE && i->get_in_room()) {
 			const auto room = i->get_in_room();
-			if ((world[room]->zone == world[ch->in_room]->zone
-					&& !i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE))
-				|| IS_GOD(ch)
-				|| bloody_corpse)
-			{
-				if (bloody_corpse)
-				{
-					sprintf(buf, "2%s наход%sся в %s (%s).\r\n",
-						i->get_short_description().c_str(),
-						GET_OBJ_POLY_1(ch, i),
-						world[room]->name,
-						zone_table[world[room]->zone].name);
-				}
-				else
-				{
-					sprintf(buf, "3%s наход%sся в %s.\r\n",
-						i->get_short_description().c_str(),
-						GET_OBJ_POLY_1(ch, i),
-						world[room]->name);
-				}
-			}
-			else
-			{
-				return false;
-			}
+			sprintf(buf, "%s наход%sся в комнате: '%s', название зоны: '%s'.\r\n",
+				i->get_short_description().c_str(), GET_OBJ_POLY_1(ch, i),
+				world[room]->name, zone_table[world[room]->zone].name);
 		}
 		else if (i->get_in_obj())
 		{
@@ -998,68 +972,41 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			{
 				if (!IS_GOD(ch))
 				{
-					if (i->get_in_obj()->get_carried_by())
-					{
-						const auto carried_by = i->get_in_obj()->get_carried_by();
-						if (IS_NPC(i->get_in_obj()->get_carried_by())
-							&& (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-								|| world[IN_ROOM(carried_by)]->zone != world[ch->in_room]->zone))
-						{
+					if (i->get_in_obj()->get_carried_by()) {
+						if (IS_NPC(i->get_in_obj()->get_carried_by()) && i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)) {
 							return false;
 						}
 					}
 					if (i->get_in_obj()->get_in_room() != NOWHERE
-						&& i->get_in_obj()->get_in_room())
-					{
-						if ((world[i->get_in_obj()->get_in_room()]->zone != world[IN_ROOM(ch)]->zone
-								|| i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE))
-							&& !bloody_corpse)
-						{
+						&& i->get_in_obj()->get_in_room()) {
+						if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE) && !bloody_corpse) {
 							return false;
 						}
 					}
-					if (i->get_in_obj()->get_worn_by())
-					{
+					if (i->get_in_obj()->get_worn_by()) {
 						const auto worn_by = i->get_in_obj()->get_worn_by();
-						if ((IS_NPC(worn_by)
-							&& (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-								|| world[worn_by->in_room]->zone != world[IN_ROOM(ch)]->zone))
-							&& !bloody_corpse)
-						{
+						if (IS_NPC(worn_by) && i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE) && !bloody_corpse) {
 							return false;
 						}
 					}
 				}
-
-				sprintf(buf, "4%s наход%sся в %s.\r\n",
+				sprintf(buf, "%s наход%sся в %s.\r\n",
 					i->get_short_description().c_str(),
 					GET_OBJ_POLY_1(ch, i),
 					i->get_in_obj()->get_PName(5).c_str());
 			}
 		}
-		else if (i->get_worn_by())
-		{
+		else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
-			if ((IS_NPC(worn_by)
-					&& !i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-					&& world[IN_ROOM(worn_by)]->zone == world[ch->in_room]->zone)
-				|| (!IS_NPC(worn_by)
-					&& GET_LEVEL(worn_by) < LVL_IMMORT)
-				|| IS_GOD(ch)
-				|| bloody_corpse)
-			{
-				sprintf(buf, "5%s надет%s на %s.\r\n",
-					i->get_short_description().c_str(),
-					GET_OBJ_SUF_6(i),
-					PERS(worn_by, ch, 3));
+			if (IS_NPC(worn_by) || !IS_NPC(worn_by) /*&& GET_LEVEL(worn_by) < LVL_IMMORT))*/ || bloody_corpse) {
+				sprintf(buf, "%s надет%s на %s, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
+					GET_OBJ_POLY_1(ch, i), PERS(worn_by, ch, 1), world[worn_by->in_room]->name, zone_table[world[worn_by->in_room]->zone].name);
 			}
-			else
-			{
+			else {
 				return false;
 			}
 		}
-		else
-		{
+		else {
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, 1));
 		}
 
