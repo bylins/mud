@@ -1000,7 +1000,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			const auto worn_by = i->get_worn_by();
 			if (IS_NPC(worn_by) || !IS_NPC(worn_by) /*&& GET_LEVEL(worn_by) < LVL_IMMORT))*/ || bloody_corpse) {
 				sprintf(buf, "%s надет%s на %s, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
-					GET_OBJ_POLY_1(ch, i), PERS(worn_by, ch, 1), world[worn_by->in_room]->name, zone_table[world[worn_by->in_room]->zone].name);
+					GET_OBJ_SUF_6(i), PERS(worn_by, ch, 1), world[worn_by->in_room]->name, zone_table[world[worn_by->in_room]->zone].name);
 			}
 			else {
 				return false;
