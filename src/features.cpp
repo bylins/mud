@@ -778,28 +778,22 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 
 	switch (feat) {
 	case PARRY_ARROW_FEAT:
-		if (!ch->get_skill(SKILL_MULTYPARRY) && !ch->get_skill(SKILL_PARRY))
-			return FALSE;
+		return (ch->get_skill(SKILL_MULTYPARRY) || ch->get_skill(SKILL_PARRY));
 		break;
 	case CONNOISEUR_FEAT:
-		if (!ch->get_skill(SKILL_IDENTIFY))
-			return FALSE;
+		return (ch->get_skill(SKILL_IDENTIFY));
 		break;
 	case EXORCIST_FEAT:
-		if (!ch->get_skill(SKILL_TURN_UNDEAD))
-			return FALSE;
+		return (ch->get_skill(SKILL_TURN_UNDEAD));
 		break;
 	case HEALER_FEAT:
-		if (!ch->get_skill(SKILL_AID))
-			return FALSE;
+		return (ch->get_skill(SKILL_AID));
 		break;
 	case STEALTHY_FEAT:
-		if (!ch->get_skill(SKILL_HIDE) && !ch->get_skill(SKILL_SNEAK) && !ch->get_skill(SKILL_CAMOUFLAGE))
-			return FALSE;
+		return (ch->get_skill(SKILL_HIDE) || ch->get_skill(SKILL_SNEAK) || ch->get_skill(SKILL_CAMOUFLAGE));
 		break;
 	case TRACKER_FEAT:
-		if (!ch->get_skill(SKILL_TRACK) && !ch->get_skill(SKILL_SENSE))
-			return FALSE;
+		return (ch->get_skill(SKILL_TRACK) || ch->get_skill(SKILL_SENSE))
 		break;
 	case PUNCH_MASTER_FEAT:
 	case CLUBS_MASTER_FEAT:
@@ -820,16 +814,13 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 			return FALSE;
 		break;
 	case SPIRIT_WARRIOR_FEAT:
-		if (!HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT))
-			return FALSE;
+		return (HAVE_FEAT(ch, GREAT_FORTITUDE_FEAT));
 		break;
 	case NIMBLE_FINGERS_FEAT:
-		if (!ch->get_skill(SKILL_STEAL) && !ch->get_skill(SKILL_PICK_LOCK))
-			return FALSE;
+		return (ch->get_skill(SKILL_STEAL) || ch->get_skill(SKILL_PICK_LOCK));
 		break;
 	case GREAT_POWER_ATTACK_FEAT:
-		if (!HAVE_FEAT(ch, POWER_ATTACK_FEAT))
-			return FALSE;
+		return (HAVE_FEAT(ch, POWER_ATTACK_FEAT));
 		break;
 	case PUNCH_FOCUS_FEAT:
 	case CLUB_FOCUS_FEAT:
@@ -859,56 +850,30 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 			return FALSE;
 		}
 		break;
-
 	case GREAT_AIMING_ATTACK_FEAT:
-		if (!HAVE_FEAT(ch, AIMING_ATTACK_FEAT))
-		{
-			return FALSE;
-		}
+		return (HAVE_FEAT(ch, AIMING_ATTACK_FEAT))
 		break;
-
 	case DOUBLESHOT_FEAT:
-		if (!HAVE_FEAT(ch, BOWS_FOCUS_FEAT) || ch->get_skill(SKILL_BOWS) < 40)
-		{
-			return FALSE;
-		}
+		return (HAVE_FEAT(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_BOWS) > 39)
 		break;
-
 	case RUNE_USER_FEAT:
-		if (!HAVE_FEAT(ch, RUNE_NEWBIE_FEAT))
-		{
-			return FALSE;
-		}
+		return (HAVE_FEAT(ch, RUNE_NEWBIE_FEAT));
 		break;
-
 	case RUNE_MASTER_FEAT:
-		if (!HAVE_FEAT(ch, RUNE_USER_FEAT))
-		{
-			return FALSE;
-		}
+		return (HAVE_FEAT(ch, RUNE_USER_FEAT));
 		break;
-
 	case RUNE_ULTIMATE_FEAT:
-		if (!HAVE_FEAT(ch, RUNE_MASTER_FEAT))
-		{
-			return FALSE;
-		}
+		return (HAVE_FEAT(ch, RUNE_MASTER_FEAT));
 		break;
-
 	case MASTER_JEWELER_FEAT:
-		if (ch->get_skill(SKILL_INSERTGEM) < 60)
-		{
-			return FALSE;
-		}
+		return (ch->get_skill(SKILL_INSERTGEM) > 59);
 		break;
 	case EXPEDIENT_CUT_FEAT:
-		if (!HAVE_FEAT(ch, SHORTS_MASTER_FEAT)
-			&& !HAVE_FEAT(ch, PICK_MASTER_FEAT)
-			&& !HAVE_FEAT(ch, LONGS_MASTER_FEAT)
-			&& !HAVE_FEAT(ch, SPADES_MASTER_FEAT)
-			&& !HAVE_FEAT(ch, BOTHHANDS_MASTER_FEAT)) {
-			return FALSE;
-		}
+		return (HAVE_FEAT(ch, SHORTS_MASTER_FEAT)
+			|| HAVE_FEAT(ch, PICK_MASTER_FEAT)
+			|| HAVE_FEAT(ch, LONGS_MASTER_FEAT)
+			|| HAVE_FEAT(ch, SPADES_MASTER_FEAT)
+			|| HAVE_FEAT(ch, BOTHHANDS_MASTER_FEAT));
 		break;
 	case SKIRMISHER_FEAT:
 		return (ch->get_skill(SKILL_RESCUE));
