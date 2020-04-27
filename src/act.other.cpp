@@ -744,50 +744,40 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		hit(vict, ch, TYPE_UNDEFINED, 1);
 }
 
-void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CHAR_DATA *vict;
 	char vict_name[MAX_INPUT_LENGTH], obj_name[MAX_INPUT_LENGTH];
 
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_STEAL))
-	{
+	if (IS_NPC(ch) || !ch->get_skill(SKILL_STEAL)) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-
-	if (!WAITLESS(ch) && on_horse(ch))
-	{
+	if (!WAITLESS(ch) && on_horse(ch)) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
-
 	two_arguments(argument, obj_name, vict_name);
-
-	if (!(vict = get_char_vis(ch, vict_name, FIND_CHAR_ROOM)))
-	{
+	if (!(vict = get_char_vis(ch, vict_name, FIND_CHAR_ROOM))) {
 		send_to_char("Украсть у кого?\r\n", ch);
 		return;
 	}
-	else if (vict == ch)
-	{
+	else if (vict == ch) {
 		send_to_char("Попробуйте набрать \"бросить <n> кун\".\r\n", ch);
 		return;
 	}
-
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
-	{
+	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))) {
 		send_to_char("Здесь слишком мирно. Вам не хочется нарушать сию благодать...\r\n", ch);
 		return;
 	}
-
-	if (IS_NPC(vict)
-			&& (MOB_FLAGGED(vict, MOB_NOFIGHT) || AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
-			&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE)))
-	{
+	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+		send_to_char("Воровать у своих? Это мерзко...\r\n", ch);
+		return;
+	}
+	if (IS_NPC(vict) && (MOB_FLAGGED(vict, MOB_NOFIGHT) || AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT))
+			&& !(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, GF_GODSLIKE))) {
 		send_to_char("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
 		return;
 	}
-
 	go_steal(ch, vict, obj_name);
 }
 
