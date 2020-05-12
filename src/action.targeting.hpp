@@ -49,6 +49,7 @@ namespace ActionTargeting {
 		CHAR_DATA* getRandomItem();
 		int amount() {return _roster.size();};
 		int count(const PredicateType& predicate);
+		void flip();
 	};
 
 //  -------------------------------------------------------

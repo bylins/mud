@@ -248,7 +248,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 			&& killer->get_master()->get_skill(SKILL_LEADERSHIP) > 0
 			&& IN_ROOM(killer) == IN_ROOM(killer->get_master()))
 		{
-			improove_skill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
+			improve_skill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
 		}
 		else if (IS_NPC(killer) // Убил чармис загрупленного чара
 			&& IS_CHARMICE(killer)
@@ -260,7 +260,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
 				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master()))
 			{
-				improove_skill(killer->get_master()->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
+				improve_skill(killer->get_master()->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
 			}
 		}
 	}
@@ -857,7 +857,7 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 		send_to_char(ch, "&RУ моба еще %d убийств без замакса, экспа %d, убито %d\r\n&n", mob_proto[victim->get_rnum()].mob_specials.MaxFactor, exp, ch->mobmax_get(GET_MOB_VNUM(victim)));
 	}
 // все равно таблица корявая, учитываются только уникальные мобы и глючит
-/*    
+/*
 	// даем увеличенную экспу за давно не убитых мобов.
 	// за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
 	exp *= get_npc_long_live_exp_bounus(GET_MOB_VNUM(victim));

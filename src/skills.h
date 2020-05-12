@@ -147,7 +147,7 @@ extern std::array<ESkill, MAX_SKILL_NUM - SKILL_PROTECT> AVAILABLE_SKILLS;
 int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std::string add = "");
 
 int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict);
-void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DATA * victim);
+void improve_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DATA * victim);
 
 int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA * vict);
 int min_skill_level(CHAR_DATA *ch, int skill);

@@ -2379,7 +2379,7 @@ void load_skills_definitions()
 		if (sscanf(name, "%s %s %d %d %d %d %d", line1, line2, i, i + 1, i + 2, i + 3, i + 4) != 7)
 		{
 			log("Bad format for skill string!\r\n"
-				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improove (%%d)> !");
+				"Format : <skill name (%%s %%s)>  <kin (%%d)> <class (%%d)> <remort (%%d)> <minlevel> <improve (%%d)> !");
 			graceful_exit(1);
 		}
 		name[0] = '\0';
@@ -2412,8 +2412,8 @@ void load_skills_definitions()
 		}
 		if (i[4])
 		{
-			skill_info[sp_num].k_improove[i[1]][i[0]] = MAX(1, i[4]);
-			log("Improove set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[4]);
+			skill_info[sp_num].k_improve[i[1]][i[0]] = MAX(1, i[4]);
+			log("Improve set '%d' kin '%d' classes %d value %d", sp_num, i[0], i[1], i[4]);
 		}
 		if (i[3])
 		{
@@ -2518,15 +2518,12 @@ void load_skills()
 				{
 					skill_info[sk_num].level_decrement[PCclass][PCkin] = level_decrement;
 				}
-				//log("Умение '%s' для расы %d класса %d разрешено.", skill_info[sk_num].name, PCkin, PCclass);
 				int value = xNodeSkill.attribute("improve").as_int();
-				skill_info[sk_num].k_improove[PCclass][PCkin] = MAX(1, value);
-				//log("Коэффициент улучшения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, (int)skill_info[sk_num].k_improove[PCclass][PCkin]);
+				skill_info[sk_num].k_improve[PCclass][PCkin] = MAX(1, value);
 				value = xNodeSkill.attribute("level").as_int();
 				if (value > 0 && value < LVL_IMMORT)
 				{
 					skill_info[sk_num].min_level[PCclass][PCkin] = value;
-					//log("Минимальный уровень изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, value);
 				}
 				else
 				{
@@ -2537,7 +2534,6 @@ void load_skills()
 				if (value >= 0 && value < MAX_REMORT)
 				{
 					skill_info[sk_num].min_remort[PCclass][PCkin] = value;
-					//log("Минимальное количество ремортов для изучения умения '%s' расы %d класса %d установлен в %d", skill_info[sk_num].name, PCkin, PCclass, skill_info[sk_num].min_remort[j][PCkin]);
 				}
 				else
 				{

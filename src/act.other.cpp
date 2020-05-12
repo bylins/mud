@@ -636,7 +636,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			prob = calculate_skill(ch, SKILL_STEAL, vict);
 
 			if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
-				prob += 5;	// Add by Alez - Improove in hide steal probability
+				prob += 5;
 			if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP))
 				prob = 0;
 			if (percent > prob && !success)
@@ -670,14 +670,14 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 				}
 			}
 			if (CAN_SEE(vict, ch) && AWAKE(vict))
-				improove_skill(ch, SKILL_STEAL, 0, vict);
+				improve_skill(ch, SKILL_STEAL, 0, vict);
 		}
 	}
 	else  		// Steal some coins
 	{
 		prob = calculate_skill(ch, SKILL_STEAL, vict);
 		if (AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
-			prob += 5;	// Add by Alez - Improove in hide steal probability
+			prob += 5;
 		if (!WAITLESS(ch) && AFF_FLAGGED(vict, EAffectFlag::AFF_SLEEP))
 			prob = 0;
 		if (percent > prob && !success)
@@ -735,7 +735,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 			}
 		}
 		if (CAN_SEE(vict, ch) && AWAKE(vict))
-			improove_skill(ch, SKILL_STEAL, 0, vict);
+			improve_skill(ch, SKILL_STEAL, 0, vict);
 	}
 	if (!WAITLESS(ch) && ohoh)
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
@@ -3457,7 +3457,7 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	old_wis = ch->get_wis();
 	ch->set_int(ch->get_int() + 14 - MAX(14, GET_REAL_INT(ch)));
 	ch->set_wis(ch->get_wis() + 14 - MAX(14, GET_REAL_WIS(ch)));
-	improove_skill(ch, SKILL_DIG, 0, 0);
+	improve_skill(ch, SKILL_DIG, 0, 0);
 	ch->set_int(old_int);
 	ch->set_wis(old_wis);
 
@@ -3686,7 +3686,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	if (!*arg3)
 	{
-		improove_skill(ch, SKILL_INSERTGEM, 0, 0);
+		improve_skill(ch, SKILL_INSERTGEM, 0, 0);
 
 		if (percent > prob / insgem_vars.prob_divide)
 		{
@@ -3733,7 +3733,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			return;
 		}
 
-		improove_skill(ch, SKILL_INSERTGEM, 0, 0);
+		improve_skill(ch, SKILL_INSERTGEM, 0, 0);
 
 		//успех или фэйл? при 80% скила успех 30% при 100% скила 50% при 200% скила успех 75%
 		if (number(1, ch->get_skill(SKILL_INSERTGEM)) > (ch->get_skill(SKILL_INSERTGEM) - 50))

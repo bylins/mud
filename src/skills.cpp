@@ -1520,7 +1520,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	return (percent);
 }
 
-void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DATA * victim)
+void improve_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DATA * victim)
 {
 	const int trained_skill = ch->get_trained_skill(skill_no);
 	if ((trained_skill <= 0 || trained_skill >= CAP_SKILLS) && !is_magic_skill(skill_no))
@@ -1560,11 +1560,11 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
 	int INT_PLAYER = (ch->get_trained_skill(skill_no) < 51 && (AFF_FLAGGED(ch, EAffectFlag::AFF_NOOB_REGEN))) ? 50 : GET_REAL_INT(ch);
-	div = int_app[INT_PLAYER].improove;
+	div = int_app[INT_PLAYER].improve;
 
 		if ((int)GET_CLASS(ch) >= 0 && (int)GET_CLASS(ch) < NUM_PLAYER_CLASSES)
 		{
-			div += (skill_info[skill_no].k_improove[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] / 100);
+			div += (skill_info[skill_no].k_improve[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] / 100);
 		}
 
 		prob /= (MAX(1, div));
@@ -1574,9 +1574,6 @@ void improove_skill(CHAR_DATA * ch, const ESkill skill_no, int success, CHAR_DAT
 
 		skill_is = number(1, MAX(1, prob));
 
-		//if (!IS_NPC(ch))
-		//log("Player %s skill '%d' - need to improove %d(%d-%d)",
-		//GET_NAME(ch), skill_no, skill_is, div, prob);
 		if ((skill_no == SKILL_STEAL) && (!IS_NPC(victim)))
 		{
 			return;
@@ -1625,7 +1622,7 @@ int train_skill(CHAR_DATA * ch, const ESkill skill_no, int max_value, CHAR_DATA 
 					&& !AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
 					&& !IS_HORSE(vict))))
 		{
-			improove_skill(ch, skill_no, percent >= max_value, vict);
+			improve_skill(ch, skill_no, percent >= max_value, vict);
 		}
 	}
 	else if (!IS_CHARMICE(ch))

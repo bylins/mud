@@ -4395,7 +4395,7 @@ void skillo(int spl, const char *name, const char *shortName, int max_percent)
 		{
 			skill_info[spl].min_remort[i][j] = MAX_REMORT;
 			skill_info[spl].min_level[i][j] = 0 ;
-			skill_info[spl].k_improove[i][j] = 0;
+			skill_info[spl].k_improve[i][j] = 0;
 		}
 	skill_info[spl].min_position = 0;
 	skill_info[spl].name = name;
@@ -4412,7 +4412,7 @@ void unused_skill(int spl)
 		{
 			skill_info[spl].min_remort[i][j] = MAX_REMORT;
 			skill_info[spl].min_level[i][j] = 0;
-			skill_info[spl].k_improove[i][j] = 0 ;
+			skill_info[spl].k_improve[i][j] = 0 ;
 		}
 	skill_info[spl].min_position = 0;
 	skill_info[spl].max_percent = 200;

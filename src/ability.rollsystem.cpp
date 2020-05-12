@@ -81,8 +81,11 @@ namespace AbilitySystem {
 			_criticalSuccess =  revealCriticalSuccess(diceRoll);
 		} else {
 			_criticalFail =  revealCriticalFail(diceRoll);
-			trainBaseSkill();
 		}
+		// Идея была в том, чтобы прокачка шла только на провалах умения.
+		// Тогда она естественным образом замедлялась бы по мере роста умения, требуя находить другие источники улучшения.
+		// Но это требует выстоенного баланса которым и не пахнет, потому сделал прокачку в любом случае.
+		trainBaseSkill();
 	};
 
 	bool AbilityRollType::revealCriticalSuccess(short diceRoll) {

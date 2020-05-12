@@ -1821,7 +1821,7 @@ struct int_app_type
 	int to_skilluse;		// ADD CHANSE FOR USING SKILL         //
 	int mana_per_tic;
 	int spell_success;		//  max count of spell on 1s level    //
-	int improove;		// chance to improove skill           //
+	int improve;		// chance to improve skill           //
 	int observation;		// chance to use SKILL_AWAKE/CRITICAL //
 };
 
