@@ -5981,6 +5981,7 @@ int callMagicToGroup(int level, CHAR_DATA * ch, int spellnum)
 	trySendCastMessages(ch, nullptr, world[IN_ROOM(ch)], spellnum);
 
 	ActionTargeting::FriendsRosterType roster{ch, ch};
+	roster.flip();
 	for (const auto target : roster) {
 		mag_single_target(level, ch, target, nullptr, spellnum, SAVING_STABILITY);
 	}

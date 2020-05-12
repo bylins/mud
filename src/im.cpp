@@ -672,7 +672,7 @@ void init_im(void)
 				++top_imrecipes;
 				imrecipes[top_imrecipes].id = id;
 				imrecipes[top_imrecipes].name = str_dup(name);
-				imrecipes[top_imrecipes].k_improove = 1000;
+				imrecipes[top_imrecipes].k_improve = 1000;
 				while (get_line(im_file, tmp))
 				{
 					if (*tmp == '~')
@@ -693,7 +693,7 @@ void init_im(void)
 					else if (!strn_cmp(tmp, "IMP", 3))
 					{
 						if (sscanf
-								(tmp, "%s %d", dummy, &imrecipes[top_imrecipes].k_improove) != 2)
+								(tmp, "%s %d", dummy, &imrecipes[top_imrecipes].k_improve) != 2)
 						{
 							log("[IM] Invalid IMP recipe string (%2d) '%s'!\n",
 								imrecipes[top_imrecipes].id, imrecipes[top_imrecipes].name);
@@ -1346,7 +1346,7 @@ void do_rset(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	send_to_char(buf2, ch);
 }
 
-void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success) {
+void im_improve_recipe(CHAR_DATA * ch, im_rskill * rs, int success) {
 	int prob, div, diff;
 
 	if (IS_NPC(ch) || (rs->perc >=200))
@@ -1357,8 +1357,8 @@ void im_improove_recipe(CHAR_DATA * ch, im_rskill * rs, int success) {
 		n = (n + 1) >> 1;
 		n += im_get_char_rskill_count(ch);
 		prob = success ? 20000 : 15000;
-		div = int_app[GET_REAL_INT(ch)].improove;
-		div += imrecipes[rs->rid].k_improove / 100;
+		div = int_app[GET_REAL_INT(ch)].improve;
+		div += imrecipes[rs->rid].k_improve / 100;
 		prob /= (MAX(1, div));
 		diff = n - wis_bonus(GET_REAL_WIS(ch), WIS_MAX_SKILLS);
 		if (diff < 0)
@@ -1707,7 +1707,7 @@ void do_cook(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	sprintf(name, "Режим - %d", mres);
 	imlog(CMP, name);
 
-	im_improove_recipe(ch, rs, mres == IM_MSG_OK);
+	im_improve_recipe(ch, rs, mres == IM_MSG_OK);
 
 	// Рассылаю сообщения
 	imlog(CMP, "Рассылка сообщений");

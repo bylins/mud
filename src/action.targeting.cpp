@@ -113,6 +113,10 @@ namespace ActionTargeting {
 		std::random_shuffle(_roster.begin(), _roster.end());
 	};
 
+	void TargetsRosterType::flip() {
+		std::reverse(_roster.begin(), _roster.end());
+	};
+
 	int TargetsRosterType::count(const PredicateType& predicate) {
 		return std::count_if(_roster.begin(), _roster.end(), predicate);
 	};

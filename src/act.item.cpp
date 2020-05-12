@@ -3037,7 +3037,7 @@ void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		world[ch->in_room]->fires = MAX(0, (prob - percent) / 5) + 1;
 		send_to_char("Вы набрали хворосту и разожгли огонь.\n\r", ch);
 		act("$n развел$g огонь.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-		improove_skill(ch, SKILL_FIRE, TRUE, 0);
+		improve_skill(ch, SKILL_FIRE, TRUE, 0);
 	}
 }
 
@@ -3288,14 +3288,14 @@ void do_firstaid(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		act("У вас не хватит умения вылечить $N3.", FALSE, ch, 0, vict, TO_CHAR);
 	}
-	else  			//improove_skill(ch, SKILL_AID, TRUE, 0);
+	else
 	{
 		timed.skill = SKILL_AID;
 		timed.time = IS_IMMORTAL(ch) ? 2 : IS_PALADINE(ch) ? 4 : IS_CLERIC(ch) ? 2 : 6;
 		timed_to_char(ch, &timed);
 		if (vict != ch)
 		{
-			improove_skill(ch, SKILL_AID, success, 0);
+			improve_skill(ch, SKILL_AID, success, 0);
 			if (success)
 			{
 				act("Вы оказали первую помощь $N2.", FALSE, ch, 0, vict, TO_CHAR);

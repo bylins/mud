@@ -385,7 +385,7 @@ void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 	if (number(1, 200) <= 25
 		|| (!GET_AF_BATTLE(vict, EAF_FIRST_POISON) && !AFF_FLAGGED(vict, EAffectFlag::AFF_POISON)))
 	{
-		improove_skill(ch, SKILL_POISONED, TRUE, vict);
+		improve_skill(ch, SKILL_POISONED, TRUE, vict);
 		if (weap_poison_vict(ch, vict, spell_num))
 		{
 			if (spell_num == SPELL_ACONITUM_POISON)

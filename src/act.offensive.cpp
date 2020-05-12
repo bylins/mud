@@ -241,7 +241,7 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch) {
 			if (vict->haveCooldown(SKILL_PROTECT)) {
 				prob /= 2;
 			};
-			improove_skill(vict, SKILL_PROTECT, prob >= percent, ch);
+			improve_skill(vict, SKILL_PROTECT, prob >= percent, ch);
 
 			if (GET_GOD_FLAG(vict, GF_GODSCURSE))
 				prob = 0;
@@ -1050,7 +1050,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 	timed_type timed;
 	if (GET_SKILL(ch, SKILL_STUN) < 150) {
-		improove_skill(ch, SKILL_STUN, TRUE, vict);
+		improve_skill(ch, SKILL_STUN, TRUE, vict);
 		timed.skill = SKILL_STUN;
 		timed.time = 7;
 		timed_to_char(ch, &timed);
@@ -1073,7 +1073,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 
 	if (percent > prob)
 	{
-		improove_skill(ch, SKILL_STUN, FALSE, vict);
+		improve_skill(ch, SKILL_STUN, FALSE, vict);
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
 		act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1081,7 +1081,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 //			dmg.process(ch, vict);
 		set_hit(ch, vict);
 	} else {
-		improove_skill(ch, SKILL_STUN, TRUE, vict);
+		improve_skill(ch, SKILL_STUN, TRUE, vict);
 		act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
 		act("Ошеломляющий удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n мощным ударом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1120,7 +1120,7 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch) {
 
 	int percent = number(1, skill_info[SKILL_RESCUE].max_percent);
 	int prob = calculate_skill(ch, SKILL_RESCUE, tmp_ch);
-	improove_skill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
+	improve_skill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
 
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE))
 		prob = percent;
@@ -2292,7 +2292,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 							af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 							af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-							affect_join(technique.actor(), af, FALSE, FALSE, FALSE, FALSE);
+							affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
 							set_wait(technique.rival(), 3, TRUE);
 						});
 		break;
@@ -2486,7 +2486,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	percent = number(1, skill_info[SKILL_MANADRAIN].max_percent);
 	prob = MAX(20, 90 - 5 * MAX(0, GET_LEVEL(vict) - GET_LEVEL(ch)));
-	improove_skill(ch, SKILL_MANADRAIN, percent > prob, vict);
+	improve_skill(ch, SKILL_MANADRAIN, percent > prob, vict);
 
 	Damage manadrainDamage(SkillDmg(SKILL_MANADRAIN), ZERO_DMG, MAGE_DMG);
 	manadrainDamage.magic_type = STYPE_DARK;
