@@ -705,7 +705,7 @@ void real_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 			ch->set_gold(0);
 		}
 		dl_load_obj(corpse, ch, NULL, DL_ORDINARY);
-		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION);
+//		dl_load_obj(corpse, ch, NULL, DL_PROGRESSION); вот зачем это неработающее?
 #if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
 #endif
