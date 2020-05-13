@@ -167,7 +167,7 @@ void medit_mobile_copy(CHAR_DATA * dst, CHAR_DATA * src)
 	dst->set_normal_morph();//вот это копировать не нада
 
 	// Теперь дублирую память
-	
+
 	dst->mob_specials.Questor = (src->mob_specials.Questor
 		&& *src->mob_specials.Questor ? str_dup(src->mob_specials.Questor)
 		: NULL);
@@ -220,7 +220,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 	if (i == -1 || mob == &mob_proto[i])
 	{
 		// Нет прототипа или сам прототип, удалять все подряд
-		
+
 		if (mob->mob_specials.Questor)
 		{
 			free(mob->mob_specials.Questor);
@@ -230,7 +230,7 @@ void medit_mobile_free(CHAR_DATA * mob)
 	else
 	{
 		// Есть прототип, удалять несовпадающее
-		
+
 		if (mob->mob_specials.Questor && mob->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
 		{
 			free(mob->mob_specials.Questor);
@@ -352,14 +352,14 @@ void medit_save_internally(DESCRIPTOR_DATA * d)
 	CHAR_DATA *new_proto;
 	INDEX_DATA *new_index;
 	DESCRIPTOR_DATA *dsc;
-	
+
 	//  rmob_num = real_mobile(OLC_NUM(d));
 	rmob_num = GET_MOB_RNUM(OLC_MOB(d));
 	//	set_test_data(OLC_MOB(d));
 
 	if (rmob_num >= 0)
 	{
-		/* 
+		/*
 		Собственно полная суть бага:
 		Лоадим моба - его падежи указывают на адрес X в структуре mob_proto. Убиваю его.
 		Дальше, я меняю моба, в прототипе падежи будут указывать уже на другой адрес.
@@ -718,7 +718,7 @@ void medit_save_to_disk(int zone_num)
 			}
 			for (const auto c : AVAILABLE_SKILLS)
 			{
-				if (mob->get_skill(c))
+				if (mob->get_skill(c) && *skill_info[c].name != '!')
 				{
 					fprintf(mob_file, "Skill: %d %d\n", c, mob->get_skill(c));
 				}
@@ -1397,7 +1397,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sЧ%s) Клонирование%s\r\n"
 		"%sS%s) Script     : %s%s\r\n"
 		"%sЮ%s) Через сколько мобов замакс: [%s%4d%s]\r\n"
-		"%sQ%s) Quit\r\n" "Ваш выбор : ", 
+		"%sQ%s) Quit\r\n" "Ваш выбор : ",
 		grn, nrm, cyn, buf1,
 		grn, nrm, cyn, buf2,
 		grn, nrm, cyn, mob->helpers ? "Yes" : "No",
@@ -1423,7 +1423,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm,
 		grn, nrm, cyn, npc_race_types[GET_RACE(mob) - NPC_RACE_BASIC],
 		grn, nrm, cyn,
-		grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.", 
+		grn, nrm, cyn, !mob->proto_script->empty() ? "Set." : "Not Set.",
 		grn, nrm, cyn, mob->mob_specials.MaxFactor, nrm,
 		grn, nrm);
 	send_to_char(buf, d->character.get());
@@ -2299,7 +2299,7 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 			medit_disp_mprog(d);
 		return;
 #endif
-		
+
 		// * Numerical responses.
 
 #if defined(OASIS_MPROG)

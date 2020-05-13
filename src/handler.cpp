@@ -2177,7 +2177,9 @@ void equip_char(CHAR_DATA * ch, OBJ_DATA * obj, int pos)
 		check_light(ch, was_lamp, was_lgt, was_hlgt, was_hdrk, 1);
 	}
 
-	if (ch->get_fighting() && (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON || pos == WEAR_SHIELD)) {
+	// Раз показываем сообщение, значит, предмет надевает сам персонаж
+	// А вообще эта порнография из-за того, что одна функция используется с кучей флагов в разных вариантах
+	if (show_msg && ch->get_fighting() && (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_WEAPON || pos == WEAR_SHIELD)) {
 		setSkillCooldown(ch, SKILL_GLOBAL_COOLDOWN, 2);
 	}
 }

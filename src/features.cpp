@@ -793,7 +793,7 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 		return (ch->get_skill(SKILL_HIDE) || ch->get_skill(SKILL_SNEAK) || ch->get_skill(SKILL_CAMOUFLAGE));
 		break;
 	case TRACKER_FEAT:
-		return (ch->get_skill(SKILL_TRACK) || ch->get_skill(SKILL_SENSE))
+		return (ch->get_skill(SKILL_TRACK) || ch->get_skill(SKILL_SENSE));
 		break;
 	case PUNCH_MASTER_FEAT:
 	case CLUBS_MASTER_FEAT:
@@ -851,10 +851,10 @@ bool can_get_feat(CHAR_DATA *ch, int feat) {
 		}
 		break;
 	case GREAT_AIMING_ATTACK_FEAT:
-		return (HAVE_FEAT(ch, AIMING_ATTACK_FEAT))
+		return (HAVE_FEAT(ch, AIMING_ATTACK_FEAT));
 		break;
 	case DOUBLESHOT_FEAT:
-		return (HAVE_FEAT(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_BOWS) > 39)
+		return (HAVE_FEAT(ch, BOWS_FOCUS_FEAT) && ch->get_skill(SKILL_BOWS) > 39);
 		break;
 	case RUNE_USER_FEAT:
 		return (HAVE_FEAT(ch, RUNE_NEWBIE_FEAT));

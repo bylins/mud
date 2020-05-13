@@ -2636,8 +2636,9 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
                                 return;
 			}
 		}
-		else
+		else {
 			perform_remove(ch, i);
+		}
 	}
         //мы что-то да снимали. значит проверю я доп слот
         if ((obj = GET_EQ(ch, WEAR_QUIVER)) && !GET_EQ(ch, WEAR_BOTHS))
