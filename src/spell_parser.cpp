@@ -1987,14 +1987,14 @@ int may_cast_here(CHAR_DATA * caster, CHAR_DATA * victim, int spellnum)
 		// ch_vict может стать потунциальной жертвой
 		if (SpINFO.violent)
 		{
-			if (!may_kill_here(caster, ch_vict))
+			if (!may_kill_here(caster, ch_vict, NoArgument))
 			{
 				return 0;
 			}
 		}
 		else
 		{
-			if (!may_kill_here(caster, ch_vict->get_fighting()))
+			if (!may_kill_here(caster, ch_vict->get_fighting(), NoArgument))
 			{
 				return 0;
 			}
@@ -3580,7 +3580,7 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!check_recipe_items(ch, spellnum, itemnum, TRUE))
 	{
-		send_to_char("У вас нет нужных инградиентов!\r\n", ch);
+		send_to_char("У вас нет нужных ингредиентов!\r\n", ch);
 		return;
 	}
 }
@@ -3589,7 +3589,7 @@ void book_upgrd_fail_message(CHAR_DATA *ch, OBJ_DATA *obj)
 {
 	send_to_char(ch, "Изучив %s от корки до корки вы так и не узнали ничего нового.\r\n",
 		obj->get_PName(3).c_str());
-	act("$n с интересом принял$g читать $o3.\r\n"
+	act("$n с интересом принял$u читать $o3.\r\n"
 		"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
 		FALSE, ch, obj, 0, TO_ROOM);
 }
@@ -3761,7 +3761,7 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 			stype1[GET_OBJ_VAL(obj, 0)],
 			spellname);
 		send_to_char(buf, ch);
-		act("$n с интересом принял$g читать $o3.\r\n"
+		act("$n с интересом принял$u читать $o3.\r\n"
 			"Постепенно $s интерес начал угасать, и $e, плюясь, сунул$g $o3 обратно.",
 			FALSE, ch, obj, 0, TO_ROOM);
 		return;
@@ -4395,7 +4395,7 @@ void skillo(int spl, const char *name, const char *shortName, int max_percent)
 		{
 			skill_info[spl].min_remort[i][j] = MAX_REMORT;
 			skill_info[spl].min_level[i][j] = 0 ;
-			skill_info[spl].k_improove[i][j] = 0;
+			skill_info[spl].k_improve[i][j] = 0;
 		}
 	skill_info[spl].min_position = 0;
 	skill_info[spl].name = name;
@@ -4412,7 +4412,7 @@ void unused_skill(int spl)
 		{
 			skill_info[spl].min_remort[i][j] = MAX_REMORT;
 			skill_info[spl].min_level[i][j] = 0;
-			skill_info[spl].k_improove[i][j] = 0 ;
+			skill_info[spl].k_improve[i][j] = 0 ;
 		}
 	skill_info[spl].min_position = 0;
 	skill_info[spl].max_percent = 200;
@@ -5282,7 +5282,8 @@ void mag_assign_spells(void)
 
 //228
 	spello(SPELL_ARROWS_FIRE, "стрелы огня", "arrows of fire", 0, 0, 0,
-		   POS_FIGHTING, TAR_IGNORE, MTYPE_AGGRESSIVE, MAG_AFFECTS, 2, STYPE_FIRE);
+		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,
+		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_FIRE);
 //229
 	spello(SPELL_ARROWS_WATER, "стрелы воды", "arrows of water", 0, 0, 0,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_VICT, MTYPE_AGGRESSIVE,

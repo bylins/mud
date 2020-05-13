@@ -869,7 +869,7 @@ std::string Static::print_stats(CHAR_DATA* ch, const Board::shared_ptr board, in
 	{
 		const int unread = board->count_unread(ch->get_board_date(board->get_type()));
 		out += boost::str(boost::format
-			(" %2d)  %10s   [%3d|%3d]   %40s  %6s\r\n")
+			(" %3d)  %10s   [%3d|%3d]   %40s  %6s\r\n")
 			% num % board->get_name() % unread % board->messages_count()
 			% board->get_description() % access);
 	}

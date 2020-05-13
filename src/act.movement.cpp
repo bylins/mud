@@ -223,13 +223,13 @@ int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict)
 				affect_from_char(ch, SPELL_HIDE);
 				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_HIDE))
 				{
-					improove_skill(ch, SKILL_HIDE, FALSE, vict);
+					improve_skill(ch, SKILL_HIDE, FALSE, vict);
 					act("Вы не сумели остаться незаметным.", FALSE, ch, 0, vict, TO_CHAR);
 				}
 			}
 			else
 			{
-				improove_skill(ch, SKILL_HIDE, TRUE, vict);
+				improve_skill(ch, SKILL_HIDE, TRUE, vict);
 				act("Вам удалось остаться незаметным.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 				return (TRUE);
 			}
@@ -262,13 +262,13 @@ int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict)
 				affect_from_char(ch, SPELL_CAMOUFLAGE);
 				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CAMOUFLAGE))
 				{
-					improove_skill(ch, SKILL_CAMOUFLAGE, FALSE, vict);
+					improve_skill(ch, SKILL_CAMOUFLAGE, FALSE, vict);
 					act("Вы не сумели правильно замаскироваться.", FALSE, ch, 0, vict, TO_CHAR);
 				}
 			}
 			else
 			{
-				improove_skill(ch, SKILL_CAMOUFLAGE, TRUE, vict);
+				improve_skill(ch, SKILL_CAMOUFLAGE, TRUE, vict);
 				act("Ваша маскировка оказалась на высоте.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 				return (TRUE);
 			}
@@ -320,13 +320,13 @@ int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict)
 					affect_from_char(ch, SPELL_HIDE);
 				if (!AFF_FLAGGED(ch, EAffectFlag::AFF_SNEAK))
 				{
-					improove_skill(ch, SKILL_SNEAK, FALSE, vict);
+					improve_skill(ch, SKILL_SNEAK, FALSE, vict);
 					act("Вы не сумели пробраться незаметно.", FALSE, ch, 0, vict, TO_CHAR);
 				}
 			}
 			else
 			{
-				improove_skill(ch, SKILL_SNEAK, TRUE, vict);
+				improve_skill(ch, SKILL_SNEAK, TRUE, vict);
 				act("Вам удалось прокрасться незаметно.\r\n", FALSE, ch, 0, vict, TO_CHAR);
 				return (TRUE);
 			}
@@ -868,7 +868,7 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (!IS_NPC(ch) && IS_BITS(ch->track_dirs, dir))
 	{
 		send_to_char("Вы двинулись по следу.\r\n", ch);
-		improove_skill(ch, SKILL_TRACK, TRUE, 0);
+		improve_skill(ch, SKILL_TRACK, TRUE, 0);
 	}
 
 	char_from_room(ch);

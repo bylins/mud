@@ -58,7 +58,7 @@ int pk_action_type(CHAR_DATA * agressor, CHAR_DATA * victim);
 // Проверка может ли ch начать аргессивные действия против victim
 // TRUE - может
 // FALSE - не может
-int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim);
+int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim, char * argument);
 
 // проверка на агробд для сетов
 bool check_agrobd(CHAR_DATA *ch);
@@ -105,6 +105,10 @@ void save_pkills(CHAR_DATA * ch, FILE * saved);
 
 //*************************************************************************
 bool has_clan_members_in_group(CHAR_DATA * ch);
+
+//проверяем не чармис ли это наш или группы
+bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument);
+
 //Polud
 void pkPortal(CHAR_DATA* ch);
 

@@ -61,6 +61,7 @@
 #include "msdp.constants.hpp"
 #include "heartbeat.hpp"
 #include "zone.table.hpp"
+#include "db.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -413,67 +414,38 @@ unsigned long int number_of_bytes_read = 0;
 unsigned long int number_of_bytes_written = 0;
 
 // внумы комнат, где ставятся елки
-const int vnum_room_new_year[60] =
-	{100,
-	4056,
-	5000,
-	6049,
-	7038,
-	8010,
-	9007,
-	66069,
-	60036,
-	18253,
-	63671,
-	34404,
-	61064,
-	76601,
-	25685,
-	13589,
-	27018,
-	63030,
-	30266,
-	69091,
-	77065,
-	79044,
-	76000,
-	49987,
-	25075,
-	72043,
-	75000,
-	64035,
-	85123,
-	35040,
-	73050,
-	60288,
-	24074,
-	62001,
-	32480,
-	68051,
-	21017,
-	20962,
-	58123,
-	30423,
-	35738,
-	14611,
-	77501,
-	31210,
-	21186,
-	13405,
-	15906,
-	85540,
-	13101,
-	77622,
-	23744,
-	71300,
-	85146,
-	42103,
-	21211,
-	12662,
-	25327,
-	49819,
-	40616,
-	12510 } ;
+const int vnum_room_new_year[31] =
+{4056,
+5000,
+6049,
+7038,
+8010,
+9007,
+66069,
+60036,
+18253,
+63671,
+34404,
+13589,
+27018,
+63030,
+30266,
+69091,
+77065,
+76000,
+49987,
+25075,
+72043,
+75000,
+85123,
+35040,
+73050,
+60288,
+24074,
+62001,
+32480,
+68051,
+85146 } ;
 
 const int len_array_gifts = 63;
 
@@ -528,11 +500,11 @@ const int vnum_gifts[len_array_gifts] = { 27113,
 	2155,
 	2156,
 	2157,
-	2158,
+	10610,
 	10673,
 	10648,
 	10680,
-	10627,
+	10639,
 	10609,
 	10659,
 	10613,
@@ -546,7 +518,7 @@ const int vnum_gifts[len_array_gifts] = { 27113,
 void gifts()
 {
 	// выбираем случайную комнату с елкой
-	int rand_vnum_r = vnum_room_new_year[number(1, 59)];
+	int rand_vnum_r = vnum_room_new_year[number(0, 30)];
 	// выбираем  случайный подарок
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	obj_rnum rnum;
@@ -577,7 +549,7 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length);
 void sanity_check(void);
 void circle_sleep(struct timeval *timeout);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased);
-void init_game(ush_int port);
+void stop_game(ush_int port);
 void signal_setup(void);
 #ifdef HAS_EPOLL
 void game_loop(int epoll, socket_t mother_desc);
@@ -852,15 +824,14 @@ int main_function(int argc, char **argv)
 		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
 		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
 		// по эксепшену для удобства отладки и штатного сброса сислога в файл, т.к. в коре будет фиг
-		init_game(port);
+		stop_game(port);
 	}
 
 	return 0;
 }
 
 
-// Init sockets, run game, and cleanup sockets
-void init_game(ush_int port)
+void stop_game(ush_int port)
 {
 	socket_t mother_desc;
 #ifdef HAS_EPOLL
@@ -954,6 +925,7 @@ void init_game(ush_int port)
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
+	zone_traffic_save();
 #if defined WITH_SCRIPTING
 	//scripting::terminate();
 #endif

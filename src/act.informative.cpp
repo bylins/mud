@@ -2199,7 +2199,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	}
 	else
 	{
-		if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER))
+		if (PRF_FLAGGED(ch, PRF_MAPPER) && !PLR_FLAGGED(ch, PLR_SCRIPTWRITER) && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAPPER))
 		{
 			sprintf(buf2, "%s [%d]", world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 			send_to_char(buf2, ch);
@@ -2302,13 +2302,10 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 			send_to_char(buf, ch);
 		}
 	}
-
 	send_to_char("&Y&q", ch);
 //  if (IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL),SPELL_KNOW))
-	if (ch->get_skill(SKILL_TOWNPORTAL))
-	{
-		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room)))
-		{
+	if (ch->get_skill(SKILL_TOWNPORTAL)) {
+		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
 			send_to_char("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
 		}
 	}
@@ -2319,12 +2316,14 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 	send_to_char("&Q&n", ch);
 
 	// вход в новую зону
-	if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[world[ch->in_room]->zone].number)
-	{
-		if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
-			print_zone_info(ch);
-		++zone_table[world[ch->in_room]->zone].traffic;
-
+	if (!IS_NPC(ch)) {
+		zone_rnum inroom = world[ch->in_room]->zone;
+		if (zone_table[world[ch->get_from_room()]->zone].number != zone_table[inroom].number) {
+			if (PRF_FLAGGED(ch, PRF_ENTER_ZONE))
+				print_zone_info(ch);
+			if ((ch->get_level() < LVL_IMMORT) && !ch->get_master())
+				++zone_table[inroom].traffic;
+		}
 	}
 }
 

@@ -1382,12 +1382,12 @@ void MobileFile::parse_enhanced_mob(int i, int nr)
 	{
 		if (!strcmp(line, "E"))	// end of the enhanced section
 		{
-
-			if (!mob_proto[i].get_role_bits().any())
+/*			if (!mob_proto[i].get_role_bits().any())
 			{
-				mob_proto[i].mob_specials.MaxFactor = mob_proto[i].get_level() / 5;
+				mob_proto[i].mob_specials.MaxFactor = mob_proto[i].get_level() / 9;
 //				log("SET maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
 			}
+*/
 //			if (mob_proto[i].mob_specials.MaxFactor > 0  && mob_proto[i].get_role_bits().any())
 //				log("BOSS maxfactor %d level mobs %d vnum %d  name %s", mob_proto[i].mob_specials.MaxFactor, mob_proto[i].get_level(), nr, mob_proto[i].get_npc_name().c_str());
 			return;

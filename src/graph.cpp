@@ -188,7 +188,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 	percent = number(0, skill_info[skill_no].max_percent - if_sense);
 	//current_skillpercent = GET_SKILL(ch, SKILL_SENSE);
 	if ((!IS_NPC(victim)) && (!IS_GOD(ch)) && (!IS_NPC(ch))) //Если цель чар и ищет не бог
-	{ 
+	{
 		percent = MIN(99, number(0, GET_REMORT(victim)) + percent);
 	}
 	if (percent > calculate_skill(ch, skill_no, victim))
@@ -210,7 +210,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no)
 int go_sense(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	int percent, dir, skill = calculate_skill(ch, SKILL_SENSE, victim);
-	
+
 	skill = skill - MAX(1, (GET_REMORT(victim) - GET_REMORT(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
 	skill = skill - MAX(1, (GET_LEVEL(victim) - GET_LEVEL(ch)) * 5);
 	skill = MAX(0, skill);
@@ -288,7 +288,7 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		strcpy(buf, "Ваши чувства молчат.");
 		break;
 	default:		// Success!
-		improove_skill(ch, SKILL_SENSE, TRUE, vict);
+		improve_skill(ch, SKILL_SENSE, TRUE, vict);
 		sprintf(buf, "Чувство подсказало вам : \"Ступай %s.\"\r\n", DirsTo[dir]);
 		break;
 	}
@@ -312,17 +312,17 @@ int age_track(CHAR_DATA* /*ch*/, int time, int calc_track)
 
 	if (calc_track >= number(1, 50))
 	{
-		if (time & 0x03)	// 2 
+		if (time & 0x03)	// 2
 			when = 0;
-		else if (time & 0x1F)	// 5 
+		else if (time & 0x1F)	// 5
 			when = 1;
-		else if (time & 0x3FF)	// 10 
+		else if (time & 0x3FF)	// 10
 			when = 2;
-		else if (time & 0x7FFF)	// 15 
+		else if (time & 0x7FFF)	// 15
 			when = 3;
-		else if (time & 0xFFFFF)	// 20 
+		else if (time & 0xFFFFF)	// 20
 			when = 4;
-		else if (time & 0x3FFFFFF)	// 26 
+		else if (time & 0x3FFFFFF)	// 26
 			when = 5;
 		else
 			when = 6;
@@ -339,7 +339,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	int found = FALSE, calc_track = 0, track_t, i;
 	char name[MAX_INPUT_LENGTH];
 
-	// The character must have the track skill. 
+	// The character must have the track skill.
 	if (IS_NPC(ch) || !ch->get_skill(SKILL_TRACK))
 	{
 		send_to_char("Но вы не знаете как.\r\n", ch);
@@ -359,7 +359,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	act("Похоже, $n кого-то выслеживает.", FALSE, ch, 0, 0, TO_ROOM);
 	one_argument(argument, arg);
 
-	// No argument - show all 
+	// No argument - show all
 	if (!*arg)
 	{
 		for (track = world[ch->in_room]->track; track; track = track->next)
@@ -406,7 +406,7 @@ void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	// found victim 
+	// found victim
 	for (track = world[ch->in_room]->track; track; track = track->next)
 	{
 		*name = '\0';
@@ -533,13 +533,13 @@ void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 	{
 		send_to_char("Вы безуспешно попытались замести свои следы.\r\n", ch);
 		if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))
-			improove_skill(ch, SKILL_HIDETRACK, FALSE, 0);
+			improve_skill(ch, SKILL_HIDETRACK, FALSE, 0);
 	}
 	else
 	{
 		send_to_char("Вы успешно замели свои следы.\r\n", ch);
 		if (!number(0, 25 - timed_by_skill(ch, SKILL_HIDETRACK) ? 0 : 15))
-			improove_skill(ch, SKILL_HIDETRACK, TRUE, 0);
+			improve_skill(ch, SKILL_HIDETRACK, TRUE, 0);
 		prob -= percent;
 		for (i = 0; i <= NUM_OF_DIRS; i++)
 			if (track[i])

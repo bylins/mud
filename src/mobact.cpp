@@ -293,7 +293,7 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 			|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 			|| !MAY_SEE(ch, ch, vict)
 			|| (IS_SET(extmode, CHECK_OPPONENT)	&& ch != vict->get_fighting())
-			|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+			|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 		{
 			continue;
 		}
@@ -495,7 +495,7 @@ CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 				|| PRF_FLAGGED(vict, PRF_NOHASSLE)
 				|| !MAY_SEE(ch, ch, vict) // если не видим цель,
 				|| (IS_SET(extmode, CHECK_OPPONENT) && ch != vict->get_fighting())
-				|| (!may_kill_here(ch, vict) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
+				|| (!may_kill_here(ch, vict, NoArgument) && !IS_SET(extmode, GUARD_ATTACK)))//старжники агрят в мирках
 		{
 			continue;
 		}
@@ -854,7 +854,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 			{
 				if (names->id == GET_IDNUM(vict))
 				{
-					if (!MAY_SEE(ch, ch, vict) || !may_kill_here(ch, vict))
+					if (!MAY_SEE(ch, ch, vict) || !may_kill_here(ch, vict, NoArgument))
 					{
 						continue;
 					}

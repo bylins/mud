@@ -49,6 +49,7 @@ enum
 	GLORY_STABILITY, //стойкость
 	GLORY_REFLEX, //реакция
 	GLORY_MIND, //разум
+	GLORY_MANAREG,
 	GLORY_TOTAL
 };
 
@@ -108,7 +109,8 @@ const char *olc_stat_name[] =
 	"Воля",
 	"Стойкость",
 	"Реакция",
-	"Разум"
+	"Разум",
+	"Запоминание"
 };
 
 void transfer_log(const char *format, ...)
@@ -190,6 +192,8 @@ int stat_multi(int stat)
 		multi = SAVE_FACTOR;
 	if(stat == GLORY_MIND)
 		multi = RESIST_FACTOR;
+	if(stat == GLORY_MANAREG)
+		multi = MANAREG_FACTOR;
 	return multi;
 }
 
@@ -276,6 +280,7 @@ const char *olc_del_name[] =
 	"Л",
 	"М",
 	"Н",
+	"Э",
 };
 
 const char *olc_add_name[] =
@@ -292,6 +297,7 @@ const char *olc_add_name[] =
 	"Ч",
 	"Ш",
 	"Щ",
+	"Ю",
 };
 
 std::string olc_print_stat(CHAR_DATA *ch, int stat)
@@ -335,7 +341,8 @@ void spend_glory_menu(CHAR_DATA *ch)
 		<< olc_print_stat(ch, GLORY_WILL)
 		<< olc_print_stat(ch, GLORY_STABILITY)
 		<< olc_print_stat(ch, GLORY_REFLEX)
-		<< olc_print_stat(ch, GLORY_MIND);
+		<< olc_print_stat(ch, GLORY_MIND)
+		<< olc_print_stat(ch, GLORY_MANAREG);
 
 	out << "\r\n  Свободной славы: " << ch->desc->glory_const->olc_free_glory << "\r\n\r\n";
 
@@ -390,6 +397,7 @@ void olc_add_stat(CHAR_DATA *ch, int stat)
 		case GLORY_WILL:
 		case GLORY_STABILITY:
 		case GLORY_REFLEX:
+		case GLORY_MANAREG:
 			if (ch->desc->glory_const->olc_free_glory >= need_glory)
 				ok = true;
 			break;
@@ -467,6 +475,9 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 		case 'н':
 			olc_del_stat(ch, GLORY_MIND);
 			break;
+		case 'э':
+			olc_del_stat(ch, GLORY_MANAREG);
+			break;
 		case 'о':
 			olc_add_stat(ch, GLORY_STR);
 			break;
@@ -502,6 +513,9 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			break;
 		case 'щ':
 			olc_add_stat(ch, GLORY_MIND);
+			break;
+		case 'ю':
+			olc_add_stat(ch, GLORY_MANAREG);
 			break;
 		case 'в':
 		{
@@ -574,11 +588,7 @@ const char *GLORY_CONST_FORMAT =
 void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
-	// До исправления баги
-	//send_to_char("Временно отключено...\r\n", ch);
-	//return;
-	if (glory_list.end() == it || IS_IMMORTAL(ch))
-	{
+	if (glory_list.end() == it || IS_IMMORTAL(ch)) {
 		send_to_char("Вам это не нужно...\r\n", ch);
 		return;
 	}
@@ -586,10 +596,8 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 
-	if (buffer2.empty())
-	{
-		if (it->second->free_glory < 1000 && it->second->stats.empty())
-		{
+	if (buffer2.empty()) {
+		if (it->second->free_glory < 1000 && it->second->stats.empty()) {
 			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
 			return;
 		}
@@ -607,6 +615,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		tmp_glory_olc->stat_cur[GLORY_STABILITY] = it->second->stats[GLORY_STABILITY];
 		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
 		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
+		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MANAREG];
 
 		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
 		{
@@ -1160,6 +1169,9 @@ void apply_modifiers(CHAR_DATA *ch)
 				break;
 			case GLORY_MIND:
 				location = APPLY_RESIST_MIND;
+				break;
+			case GLORY_MANAREG:
+				location = APPLY_MANAREG;
 				break;
 			default:
 				break;

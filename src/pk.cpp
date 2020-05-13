@@ -296,7 +296,7 @@ void pk_increment_kill(CHAR_DATA * agressor, CHAR_DATA * victim, int rent, bool 
 
 	if (ROOM_FLAGGED(agressor->in_room, ROOM_NOBATTLE) || ROOM_FLAGGED(victim->in_room, ROOM_NOBATTLE))
 	{
-		may_kill_here(agressor, victim);
+		may_kill_here(agressor, victim, NoArgument);
 		return;
 	}
 
@@ -1098,7 +1098,7 @@ void save_pkills(CHAR_DATA * ch, FILE * saved)
 }
 
 // Проверка может ли ch начать аргессивные действия против victim
-int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
+int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim, char * argument)
 {
 	if (!victim)
 		return TRUE;
@@ -1157,29 +1157,25 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim)
 			return FALSE;
 		}
 	}
+	//Проверка на чармиса(своего или группы)
+	if (argument && !check_charmise(ch, victim, argument)) {
+		return FALSE;
+	}
 	return TRUE;
 }
 
 // Определяет необходимость вводить
 // имя жертвы полностью для начала агродействий
-bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent)
-{
+bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent) {
 	// Потенциальная жертва приведет к ПК?
-	if (IS_NPC(opponent)
-		&& (!opponent->has_master()
-			|| IS_NPC(opponent->get_master())
-			|| opponent->get_master() == ch))
-	{
+	if (IS_NPC(opponent) && (!opponent->has_master() || IS_NPC(opponent->get_master()) || opponent->get_master() == ch)) {
 		return false;
 	}
 
 	// Уже воюю?
-	if (ch->get_fighting() == opponent
-		|| opponent->get_fighting() == ch)
-	{
+	if (ch->get_fighting() == opponent || opponent->get_fighting() == ch) {
 		return false;
 	}
-
 	return true;
 }
 
@@ -1252,24 +1248,18 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg)
 
 // Проверяет, есть ли члены любого клан в группе чара и находятся ли они
 // в одной с ним комнате
-bool has_clan_members_in_group(CHAR_DATA * ch)
-{
+bool has_clan_members_in_group(CHAR_DATA * ch) {
 	CHAR_DATA *leader;
 	struct follow_type *f;
 	leader = ch->has_master() ? ch->get_master() : ch;
 
 	// проверяем, был ли в группе клановый чар
-	if (CLAN(leader))
-	{
+	if (CLAN(leader)) {
 		return true;
 	}
-	else
-	{
-		for (f = leader->followers; f; f = f->next)
-		{
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& IN_ROOM(f->follower) == ch->in_room && CLAN(f->follower))
-			{
+	else {
+		for (f = leader->followers; f; f = f->next) {
+			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && IN_ROOM(f->follower) == ch->in_room && CLAN(f->follower)) {
 				return true;
 			}
 		}
@@ -1277,9 +1267,18 @@ bool has_clan_members_in_group(CHAR_DATA * ch)
 	return false;
 }
 
+bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument) {
+	skip_spaces(&argument);
+	if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
+		if (strcmp(GET_NAME(victim), argument)) {
+			send_to_char(ch, "Это ваш или последователь группы, введите имя полностью.\r\n");
+			return FALSE;
+		} 
+	}
+	return true;
+}
 //Polud
-void pkPortal(CHAR_DATA* ch)
-{
+void pkPortal(CHAR_DATA* ch) {
 	AGRO(ch) = MAX(AGRO(ch), time(NULL) + PENTAGRAM_TIME * 60);
 	RENTABLE(ch) = MAX(RENTABLE(ch), time(NULL) + PENTAGRAM_TIME * 60);
 }
@@ -1287,10 +1286,8 @@ void pkPortal(CHAR_DATA* ch)
 BloodyInfoMap& bloody_map = GlobalObjects::bloody_map();
 
 //Устанавливает экстрабит кровавому стафу
-void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
-{
-	if (!list)
-	{
+void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch) {
+	if (!list) {
 		return;
 	}
 	set_bloody_flag(list->get_contains(), ch);
@@ -1308,8 +1305,7 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 			|| t == OBJ_DATA::ITEM_ARMOR_MEDIAN
 			|| t == OBJ_DATA::ITEM_ARMOR_HEAVY
 			|| t == OBJ_DATA::ITEM_INGREDIENT
-			|| t == OBJ_DATA::ITEM_WORN))
-	{
+			|| t == OBJ_DATA::ITEM_WORN)) {
 		list->set_extra_flag(EExtraFlag::ITEM_BLOODY);
 		bloody_map[list].owner_unique = GET_UNIQUE(ch);
 		bloody_map[list].kill_at = time(NULL);
@@ -1317,15 +1313,12 @@ void set_bloody_flag(OBJ_DATA* list, const CHAR_DATA * ch)
 	}
 }
 
-void bloody::update()
-{
+void bloody::update() {
 	const long t = time(NULL);
 	BloodyInfoMap::iterator it = bloody_map.begin();
-	while (it != bloody_map.end())
-	{
+	while (it != bloody_map.end()) {
 		BloodyInfoMap::iterator cur = it++;
-		if (t - cur->second.kill_at >= BLOODY_DURATION * 60) //Действие флага заканчивается
-		{
+		if (t - cur->second.kill_at >= BLOODY_DURATION * 60) {
 			cur->second.object->unset_extraflag(EExtraFlag::ITEM_BLOODY);
 			bloody_map.erase(cur);
 		}

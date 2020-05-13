@@ -83,7 +83,7 @@ struct _im_recipe_tag
 {
 	int id;			// номер из im.lst
 	char *name;		// название рецепта
-	int k_improove;		// сложность прокачки
+	int k_improve;		// сложность прокачки
 	int result;		// VNUM прототипа результата
 	float k[IM_NPARAM], kp;	// курсы перевода
 	int *require;		// массив обязательных компонентов

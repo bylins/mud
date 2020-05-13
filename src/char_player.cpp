@@ -251,21 +251,21 @@ void Player::sub_hryvn(int value)
 
 void Player::add_hryvn(int value)
 {
-	if (GET_REMORT(this) < 6)
-	{
+	if (GET_REMORT(this) < 6) {
 		send_to_char(this, "Глянув на непонятный слиток, Вы решили выкинуть его...\r\n");
 		return;
 	}
-	else if ((this->get_hryvn() + value) > cap_hryvn)
-	{
+	else if ((this->get_hryvn() + value) > cap_hryvn) {
 		value = cap_hryvn - this->get_hryvn();
 		send_to_char(this, "Вы получили только %ld %s, так как в вашу копилку больше не лезет...\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
 	}
-	else
-	{
+	else if (value > 0) {
 		send_to_char(this, "Вы получили %ld %s.\r\n",
 			static_cast<long>(value), desc_count(value, WHAT_TORCu));
+	}
+	else if (value == 0) {
+		return;
 	}
 	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
 	this->hryvn += value;
@@ -288,12 +288,8 @@ void Player::dquest(const int id)
 	}
 	int value = quest->second.reward + number(1, 3);
 	const int zone_lvl = zone_table[world[this->in_room]->zone].mob_level;
-	if (zone_lvl < 11
-		&& 20 <= (GET_LEVEL(this) + GET_REMORT(this) / 5))
-	{
-		value = 0;
-	}
-	else if (zone_lvl < 25
+	value = this->account->zero_hryvn(this, value);
+	if (zone_lvl < 25
 		&& zone_lvl <= (GET_LEVEL(this) + GET_REMORT(this) / 5))
 	{
 		value /= 2;
@@ -1660,8 +1656,8 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			}
 			else if (!strcmp(tag, "ICur"))
 			{
-//				this->set_ice_currency(num);
-				this->set_ice_currency(0); // чистка льда
+				this->set_ice_currency(num);
+//				this->set_ice_currency(0); // чистка льда
 			}
 			break;
 

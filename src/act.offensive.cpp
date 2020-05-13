@@ -241,7 +241,7 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch) {
 			if (vict->haveCooldown(SKILL_PROTECT)) {
 				prob /= 2;
 			};
-			improove_skill(vict, SKILL_PROTECT, prob >= percent, ch);
+			improve_skill(vict, SKILL_PROTECT, prob >= percent, ch);
 
 			if (GET_GOD_FLAG(vict, GF_GODSCURSE))
 				prob = 0;
@@ -250,7 +250,7 @@ CHAR_DATA* try_protect(CHAR_DATA* victim, CHAR_DATA* ch) {
 				// агрим жертву после чего можно будет проверить возможно ли его здесь прикрыть(костыли конечно)
 				if (!pk_agro_action(ch, victim))
 					return victim;
-				if (!may_kill_here(vict, ch))
+				if (!may_kill_here(vict, ch, NoArgument))
 					continue;
 				// Вписываемся в противника прикрываемого ...
 				stop_fighting(vict, FALSE);
@@ -385,7 +385,7 @@ void do_assist(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("Вы не видите противника $N1!", FALSE, ch, 0, helpee, TO_CHAR);
 	else if (opponent == ch)
 		act("Дык $E сражается с ВАМИ!", FALSE, ch, 0, helpee, TO_CHAR);
-	else if (!may_kill_here(ch, opponent))
+	else if (!may_kill_here(ch, opponent, NoArgument))
 		return;
 	else if (need_full_alias(ch, opponent))
 		act("Используйте команду 'атаковать' для нападения на $N1.", FALSE, ch, 0, opponent, TO_CHAR);
@@ -408,7 +408,7 @@ void do_hit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		act("$n ударил$g себя", FALSE, ch, 0, vict, TO_ROOM | CHECK_NODEAF | TO_ARENA_LISTEN);
 		return;
 	}
-	if (!may_kill_here(ch, vict)) {
+	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && (ch->get_master() == vict)) {
@@ -574,7 +574,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict) && !IS_NPC(ch))
+	if (!may_kill_here(ch, vict, argument) && !IS_NPC(ch))
 		return;
 	if (!check_pkill(ch, vict, arg) && !IS_NPC(ch))
 		return;
@@ -983,7 +983,7 @@ void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -1039,7 +1039,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -1050,7 +1050,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 	timed_type timed;
 	if (GET_SKILL(ch, SKILL_STUN) < 150) {
-		improove_skill(ch, SKILL_STUN, TRUE, vict);
+		improve_skill(ch, SKILL_STUN, TRUE, vict);
 		timed.skill = SKILL_STUN;
 		timed.time = 7;
 		timed_to_char(ch, &timed);
@@ -1073,7 +1073,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 
 	if (percent > prob)
 	{
-		improove_skill(ch, SKILL_STUN, FALSE, vict);
+		improve_skill(ch, SKILL_STUN, FALSE, vict);
 		act("У вас не получилось ошеломить $N3, надо больше тренироваться!", FALSE, ch, 0, vict, TO_CHAR);
 		act("$N3 попытал$U ошеломить вас, но не получилось.", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n попытал$u ошеломить $N3, но плохому танцору и тапки мешают.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1081,7 +1081,7 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 //			dmg.process(ch, vict);
 		set_hit(ch, vict);
 	} else {
-		improove_skill(ch, SKILL_STUN, TRUE, vict);
+		improve_skill(ch, SKILL_STUN, TRUE, vict);
 		act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
 		act("Ошеломляющий удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
 		act("$n мощным ударом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
@@ -1120,7 +1120,7 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch) {
 
 	int percent = number(1, skill_info[SKILL_RESCUE].max_percent);
 	int prob = calculate_skill(ch, SKILL_RESCUE, tmp_ch);
-	improove_skill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
+	improve_skill(ch, SKILL_RESCUE, prob >= percent, tmp_ch);
 
 	if (GET_GOD_FLAG(ch, GF_GODSLIKE))
 		prob = percent;
@@ -1225,7 +1225,7 @@ void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (!may_kill_here(ch, enemy)) {
+	if (!may_kill_here(ch, enemy, argument)) {
 		return;
 	}
 
@@ -1241,7 +1241,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict) {
 		return;
 	}
 	if (ch->haveCooldown(SKILL_KICK)) {
-		send_to_char("Вы уже все ноги себе отбили, отдохнител слегка.\r\n", ch);
+		send_to_char("Вы уже все ноги себе отбили, отдохните слегка.\r\n", ch);
 		return;
 	};
 
@@ -1313,7 +1313,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict) {
 				case 3:
 					to_char = "Сильно пнув в челюсть, вы заставили $N3 замолчать.";
 					to_vict = "Мощный удар ноги $n1 попал вам точно в челюсть, заставив вас замолчать.";
-					to_room = "Сильно пнув ногой в челюсть $N3, $n застави$q $S замолчать.";
+					to_room = "Сильно пнув ногой в челюсть $N3, $n заставил$q $S замолчать.";
 					af.type = SPELL_BATTLE;
 					af.bitvector = to_underlying(EAffectFlag::AFF_SILENCE);
 					af.duration = pc_duration(vict, 3 + GET_REMORT(ch) / 5, 0, 0, 0, 0);
@@ -1390,7 +1390,7 @@ void do_kick(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -1612,7 +1612,7 @@ void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (tch->get_fighting() == vict && !may_kill_here(ch, tch)) {
+		if (tch->get_fighting() == vict && !may_kill_here(ch, tch, argument)) {
 			return;
 		}
 	}
@@ -1817,7 +1817,7 @@ void do_disarm(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -1969,7 +1969,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -2037,7 +2037,7 @@ void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -2121,7 +2121,7 @@ void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 		return;
 	}
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
@@ -2289,7 +2289,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
 							af.bitvector = to_underlying(EAffectFlag::AFF_STOPFIGHT);
 							af.duration = pc_duration(technique.rival(), 3, 0, 0, 0, 0);
 							af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-							affect_join(technique.actor(), af, FALSE, FALSE, FALSE, FALSE);
+							affect_join(technique.rival(), af, FALSE, FALSE, FALSE, FALSE);
 							set_wait(technique.rival(), 3, TRUE);
 						});
 		break;
@@ -2411,7 +2411,7 @@ void do_throw(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!may_kill_here(ch, victim)) {
+	if (!may_kill_here(ch, victim, argument)) {
 		return;
 	}
 	if (!check_pkill(ch, victim, arg)) {
@@ -2483,7 +2483,7 @@ void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	percent = number(1, skill_info[SKILL_MANADRAIN].max_percent);
 	prob = MAX(20, 90 - 5 * MAX(0, GET_LEVEL(vict) - GET_LEVEL(ch)));
-	improove_skill(ch, SKILL_MANADRAIN, percent > prob, vict);
+	improve_skill(ch, SKILL_MANADRAIN, percent > prob, vict);
 
 	Damage manadrainDamage(SkillDmg(SKILL_MANADRAIN), ZERO_DMG, MAGE_DMG);
 	manadrainDamage.magic_type = STYPE_DARK;
@@ -2646,11 +2646,11 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim) {
 	act("Вас обуяло безумие боя, и вы бросились на $N3!\r\n", FALSE, ch, 0, victim, TO_CHAR);
 	OBJ_DATA *weapon;
 	if ((weapon = GET_EQ(ch, WEAR_WIELD)) || (weapon = GET_EQ(ch, WEAR_BOTHS))) {
-		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешенно размахивая $o4!");
-		strcpy(buf2, "$N взревел$G и ринул$U на вас, бешенно размахивая $o4!");
+		strcpy(buf, "$n взревел$g и ринул$u на $N3, бешено размахивая $o4!");
+		strcpy(buf2, "$N взревел$G и ринул$U на вас, бешено размахивая $o4!");
 	} else {
-		strcpy(buf, "$n бешенно взревел$g и ринул$u на $N3!");
-		strcpy(buf2, "$N бешенно взревел$G и ринул$U на вас!");
+		strcpy(buf, "$n бешено взревел$g и ринул$u на $N3!");
+		strcpy(buf2, "$N бешено взревел$G и ринул$U на вас!");
 	};
 	act(buf, FALSE, ch, weapon, victim, TO_NOTVICT | TO_ARENA_LISTEN);
 	act(buf2, FALSE, victim, weapon, ch, TO_CHAR);
@@ -2701,7 +2701,7 @@ void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict)) {
+	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
 	if (!check_pkill(ch, vict, arg)) {
@@ -2816,7 +2816,7 @@ void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict)) {
+	if (!may_kill_here(ch, vict, argument)) {
 		return;
 	}
 	if (!check_pkill(ch, vict, arg)) {
@@ -3093,7 +3093,7 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
         return;
     }
 
-	if (!may_kill_here(ch, vict))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;

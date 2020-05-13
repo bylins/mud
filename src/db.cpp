@@ -162,6 +162,8 @@ struct portals_list_type *portals_list;	// Список проталов для 
 
 extern int number_of_social_messages;
 extern int number_of_social_commands;
+const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
+time_t zones_stat_date;
 
 guardian_type guardian_list;
 
@@ -2453,6 +2455,52 @@ void load_messages(void)
 
 	fclose(fl);
 }
+void zone_traffic_save() {
+	pugi::xml_document doc;
+	doc.append_child().set_name("zone_traffic");
+	pugi::xml_node node_list = doc.child("zone_traffic");
+	pugi::xml_node time_node = node_list.append_child();
+	time_node.set_name("time");
+	time_node.append_attribute("date") = static_cast<unsigned long long>(zones_stat_date);
+
+	for (auto i = 0u; i < zone_table.size(); ++i) {
+		pugi::xml_node zone_node = node_list.append_child();
+		zone_node.set_name("zone");
+		zone_node.append_attribute("vnum") = zone_table[i].number;
+		zone_node.append_attribute("traffic") = zone_table[i].traffic;
+	}
+
+	doc.save_file(ZONE_TRAFFIC_FILE);
+}
+void zone_traffic_load() {
+	pugi::xml_document doc;
+	pugi::xml_parse_result result = doc.load_file(ZONE_TRAFFIC_FILE);
+	if (!result) {
+		snprintf(buf, MAX_STRING_LENGTH, "...%s", result.description());
+		mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+		return;
+	}
+	pugi::xml_node node_list = doc.child("zone_traffic");
+	pugi::xml_node time_node = node_list.child("time");
+	pugi::xml_attribute xml_date = time_node.attribute("date");
+	if (xml_date) {
+		zones_stat_date = static_cast<time_t>(xml_date.as_ullong());
+	}
+	for (pugi::xml_node node = node_list.child("zone"); node; node = node.next_sibling("zone")){
+		const int zone_vnum = atoi(node.attribute("vnum").value());
+		zone_rnum zrn;
+		for (zrn = 0; zone_table[zrn].number != zone_vnum && zrn < static_cast<zone_rnum>(zone_table.size()); zrn++) {
+		/* empty loop */
+		}
+		int num = atoi(node.attribute("traffic").value());
+		if (zrn >= static_cast<zone_rnum>(zone_table.size())) {
+			snprintf(buf, MAX_STRING_LENGTH, "zone_traffic: несуществующий номер зоны %d ее траффик %d ", zone_vnum, num);
+			mudlog(buf, CMP, LVL_IMMORT, SYSLOG, TRUE);
+			continue;
+		}
+		zone_table[zrn].traffic = atoi(node.attribute("traffic").value());
+	}
+}
 
 // body of the booting system
 void boot_db(void)
@@ -2753,6 +2801,9 @@ void boot_db(void)
 	GloryConst::load();
 	log("Load glory log.");
 	GloryMisc::load_log();
+
+	log("Load zone traffic.");
+	zone_traffic_load();
 
 	//Polud грузим параметры рас мобов
 	boot_profiler.next_step("Loading mob races");
