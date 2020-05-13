@@ -22,18 +22,14 @@ void go_autoassist(CHAR_DATA * ch);
 extern void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 
-int armor_class_limit(CHAR_DATA * ch)
-{
-	if (IS_CHARMICE(ch))
-	{
+int armor_class_limit(CHAR_DATA * ch) {
+	if (IS_CHARMICE(ch)) {
 		return -200;
 	};
-	if (IS_NPC(ch))
-	{
+	if (IS_NPC(ch)) {
 		return -300;
 	};
-	switch (GET_CLASS(ch))
-	{
+	switch (GET_CLASS(ch)) {
 	case CLASS_ASSASINE:
 	case CLASS_THIEF:
 	case CLASS_GUARD:
@@ -59,6 +55,7 @@ int armor_class_limit(CHAR_DATA * ch)
 	}
 	return -300;
 }
+
 void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
 	CHAR_DATA *k;
 	AFFECT_DATA<EApplyLocation> af;
@@ -178,6 +175,11 @@ int compute_armor_class(CHAR_DATA * ch)
 		}
 		if (GET_EQ(ch, WEAR_BOTHS))
 			armorclass += 10 * MAX(-1, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_BOTHS)) / 5 - 6);
+	}
+
+	// Bonus for leadership
+	if (calc_leadership(ch)) {
+			armorclass -= 20;
 	}
 
 	armorclass = MIN(100, armorclass);
@@ -3406,9 +3408,6 @@ void HitData::calc_base_hr(CHAR_DATA *ch)
 			else	// а богатырям положен бонус за отсутствие оружия
 				calc_thaco -= 3;
 		}
-		// Bonus for leadership
-		if (calc_leadership(ch))
-			calc_thaco -= 2;
 	}
 
 	check_weap_feats(ch, weap_skill, calc_thaco, dam);
