@@ -46,6 +46,8 @@ struct PK_Memory_type
 	struct PK_Memory_type *next;
 };
 
+const short MAX_REVENGE = 2;	// Максимальное количество попыток реализации мести
+
 #define		PK_ACTION_NO		1	// никаких конфликтов
 #define		PK_ACTION_FIGHT     2	// действия в процессе поединка
 #define		PK_ACTION_REVENGE	4	// попытка реализовать месть
@@ -116,7 +118,7 @@ void pkPortal(CHAR_DATA* ch);
 namespace bloody
 {
 	//обновляет флаг кровавости на стафе
-	void update(); 
+	void update();
 	//убирает флаг
 	void remove_obj(const OBJ_DATA* obj);
 
