@@ -223,7 +223,6 @@ void prune_crlf(char *txt);
 int Crash_read_timer(const std::size_t index, int temp);
 void Crash_clear_objects(const std::size_t index);
 extern void extract_trigger(TRIG_DATA * trig);
-//F@N|
 int exchange_database_load(void);
 
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
@@ -233,10 +232,7 @@ extern void repop_decay(zone_rnum zone);	// рассыпание обьекто�
 int real_zone(int number);
 int level_exp(CHAR_DATA * ch, int level);
 extern char *fread_action(FILE * fl, int nr);
-
-//polud
 void load_mobraces();
-//-polud
 
 // external vars
 extern int no_specials;

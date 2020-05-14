@@ -5425,7 +5425,6 @@ void mag_assign_spells(void)
 	skillo(SKILL_MULTYPARRY, "веерная защита", "Вз", 140);
 	skillo(SKILL_TRANSFORMWEAPON, "перековать", "Прк", 140);
 	skillo(SKILL_THROW, "метнуть", "Мт", 150);
-//  skillo(SKILL_CREATEBOW,    "смастерить лук", 140);
 	skillo(SKILL_MAKE_BOW, "смастерить лук", "Сл", 140);
 	skillo(SKILL_MAKE_WEAPON, "выковать оружие", "Вкр", 140);
 	skillo(SKILL_MAKE_ARMOR, "выковать доспех", "Вкд", 140);

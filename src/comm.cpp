@@ -1884,20 +1884,26 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 		}
 		// Заряды и таймеры умений
 		if (PRF_FLAGGED(d->character, PRF_DISP_TIMED)) {
+			if (d->character->get_skill(SKILL_IDENTIFY))
+				count += sprintf(prompt + count, "Пз:%d ", timed_by_skill(d->character.get(), SKILL_IDENTIFY));
+			if (d->character->get_skill(SKILL_DRUNKOFF))
+				count += sprintf(prompt + count, "Пх:%d ", timed_by_skill(d->character.get(), SKILL_DRUNKOFF));
+			if (d->character->get_skill(SKILL_AID))
+				count += sprintf(prompt + count, "Лч:%d ", timed_by_skill(d->character.get(), SKILL_AID));
+			if (d->character->get_skill(SKILL_CAMOUFLAGE))
+				count += sprintf(prompt + count, "Мс:%d ", timed_by_skill(d->character.get(), SKILL_CAMOUFLAGE));
+			if (d->character->get_skill(SKILL_REPAIR))
+				count += sprintf(prompt + count, "Рм:%d ", timed_by_skill(d->character.get(), SKILL_REPAIR));
+			if (d->character->get_skill(SKILL_COURAGE))
+				count += sprintf(prompt + count, "Яр:%d ", timed_by_skill(d->character.get(), SKILL_COURAGE));
+			if (d->character->get_skill(SKILL_MANADRAIN))
+				count += sprintf(prompt + count, "Сг:%d ", timed_by_skill(d->character.get(), SKILL_MANADRAIN));
+			if (d->character->get_skill(SKILL_TOWNPORTAL))
+				count += sprintf(prompt + count, "Вр:%d ", timed_by_skill(d->character.get(), SKILL_TOWNPORTAL));
 			if (d->character->get_skill(SKILL_WARCRY)) {
 				int wc_count = (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_WARCRY)) / HOURS_PER_WARCRY;
 				count += sprintf(prompt + count, "Кл:%d ", wc_count);
 			}
-			if (d->character->get_skill(SKILL_COURAGE))
-				count += sprintf(prompt + count, "Яр:%d ", timed_by_skill(d->character.get(), SKILL_COURAGE));
-			if (d->character->get_skill(SKILL_STRANGLE))
-				count += sprintf(prompt + count, "Уд:%d ", timed_by_skill(d->character.get(), SKILL_STRANGLE));
-			if (d->character->get_skill(SKILL_TOWNPORTAL))
-				count += sprintf(prompt + count, "Вр:%d ", timed_by_skill(d->character.get(), SKILL_TOWNPORTAL));
-			if (d->character->get_skill(SKILL_MANADRAIN))
-				count += sprintf(prompt + count, "Сг:%d ", timed_by_skill(d->character.get(), SKILL_MANADRAIN));
-			if (d->character->get_skill(SKILL_CAMOUFLAGE))
-				count += sprintf(prompt + count, "Мс:%d ", timed_by_skill(d->character.get(), SKILL_CAMOUFLAGE));
 			if (d->character->get_skill(SKILL_TURN_UNDEAD)) {
 				if (can_use_feat(d->character.get(), EXORCIST_FEAT)) {
 					count += sprintf(prompt + count,
@@ -1907,8 +1913,12 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 						"Из:%d ", (HOURS_PER_DAY - timed_by_skill(d->character.get(), SKILL_TURN_UNDEAD)) / HOURS_PER_TURN_UNDEAD);
 				}
 			}
+			if (d->character->get_skill(SKILL_STRANGLE))
+				count += sprintf(prompt + count, "Уд:%d ", timed_by_skill(d->character.get(), SKILL_STRANGLE));
 			if (d->character->get_skill(SKILL_STUN))
 				count += sprintf(prompt + count, "Ош:%d ", timed_by_skill(d->character.get(), SKILL_STUN));
+
+
 			if (HAVE_FEAT(d->character, RELOCATE_FEAT))
 				count += sprintf(prompt + count, "Пр:%d ", timed_by_feat(d->character.get(), RELOCATE_FEAT));
 			if (HAVE_FEAT(d->character, SPELL_CAPABLE_FEAT))

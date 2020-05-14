@@ -1452,7 +1452,6 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 #define CASE(test) if (!matched && !str_cmp(keyword, test) && (matched = 1))
 #define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
 
-	//Added by Adept
 	CASE("Resistances")
 	{
 		auto array_string = split_string(value);
@@ -1669,7 +1668,6 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 		SET_FEAT(mob_proto + i, t[0]);
 	}
-	// End of changes
 
 	CASE("Skill")
 	{

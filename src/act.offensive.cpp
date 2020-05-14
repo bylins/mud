@@ -94,7 +94,7 @@ void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) 
 	if (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
 		setSkillCooldown(ch, skill, cooldownInPulses);
 	} else {
-		WAIT_STATE(ch, PULSE_VIOLENCE/8);
+		WAIT_STATE(ch, PULSE_VIOLENCE/6);
 	}
 }
 
@@ -2149,9 +2149,6 @@ void do_style(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (!*arg) {
-/*		sprintf(buf, "Вы сражаетесь %s стилем.\r\n",
-				PRF_FLAGS(ch).get(PRF_PUNCTUAL) ? "точным" : PRF_FLAGS(ch).get(PRF_AWAKE) ? "осторожным" : "обычным");
-		send_to_char(buf, ch);*/
 		send_to_char(ch, "Вы сражаетесь %s стилем.\r\n",
 			PRF_FLAGS(ch).get(PRF_PUNCTUAL) ? "точным" : PRF_FLAGS(ch).get(PRF_AWAKE) ? "осторожным" : "обычным");
 		return;
