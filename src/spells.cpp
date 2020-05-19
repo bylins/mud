@@ -82,7 +82,7 @@ void perform_remove(CHAR_DATA * ch, int pos);
 int get_zone_rooms(int, int *, int *);
 
 int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim);
-void pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim);
+int pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim);
 
 int what_sky = SKY_CLOUDLESS;
 // * Special spells appear below.
@@ -579,9 +579,9 @@ void spell_portal(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 			   || pkPortal || ((!IS_NPC(victim) || IS_CHARMICE(ch)) && PRF_FLAGGED(victim, PRF_SUMMONABLE))
 			|| same_group(ch, victim))
 	{
-		// Если пента по мести - то считаем постановку пенты попыткой ее реализовать
-		// после 3ех попыток реализаци (3ех пент) -- месть исчезает
-		if (pkPortal) pk_increment_revenge(ch, victim);
+		if (pkPortal) {
+			pk_increment_revenge(ch, victim);
+		}
 
 		to_room = ch->in_room;
 		world[fnd_room]->portal_room = to_room;

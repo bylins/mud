@@ -1792,16 +1792,22 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 						break;
 					if (*line == '~')
 						break;
-					sscanf(line, "%ld %d", &lnum, &num);
-
+					if (sscanf(line, "%ld %d %d", &lnum, &num, &num2) < 3) {
+						num2 = 0;
+					};
 					if (lnum < 0 || !correct_unique(lnum))
 						continue;
+					if (num2 >= MAX_REVENGE) {
+						if (--num <= 0) {
+							continue;
+						}
+						num2 = 0;
+					}
 					struct PK_Memory_type * pk_one = NULL;
 					for (pk_one = this->pk_list; pk_one; pk_one = pk_one->next)
 						if (pk_one->unique == lnum)
 							break;
-					if (pk_one)
-					{
+					if (pk_one) {
 						log("SYSERROR: duplicate entry pkillers data for %d %s", id, filename);
 						continue;
 					}
@@ -1809,6 +1815,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 					CREATE(pk_one, 1);
 					pk_one->unique = lnum;
 					pk_one->kill_num = num;
+					pk_one->revenge_num = num2;
 					pk_one->next = this->pk_list;
 					this->pk_list = pk_one;
 				}
