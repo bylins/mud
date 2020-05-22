@@ -104,60 +104,49 @@ WeapForAct::WeapForAct(const WeapForAct& from) :
 
 //inline bool has_skill(...) const { return 0 < get_skill(skill); }
 
-void WeapForAct::set_damage_string(const int damage)
-{
+void WeapForAct::set_damage_string(const int damage) {
 	m_type = EWT_STRING;
-	if (damage <= 5)
-	{
+	if (damage <= 5) {
 		m_string = s_kick_type[0];
 	}
-	else if (damage <= 11)
-	{
+	else if (damage <= 11) {
 		m_string = s_kick_type[1];
 	}
-	else if (damage <= 26)
-	{
+	else if (damage <= 26) {
 		m_string = s_kick_type[2];
 	}
-	else if (damage <= 35)
-	{
+	else if (damage <= 35) {
 		m_string = s_kick_type[3];
 	}
-	else if (damage <= 45)
-	{
+	else if (damage <= 45) {
 		m_string = s_kick_type[4];
 	}
-	else if (damage <= 56)
-	{
+	else if (damage <= 56) {
 		m_string = s_kick_type[5];
 	}
-	else if (damage <= 96)
-	{
+	else if (damage <= 96) {
 		m_string = s_kick_type[6];
 	}
-	else if (damage <= 136)
-	{
+	else if (damage <= 136) {
 		m_string = s_kick_type[7];
 	}
-	else if (damage <= 176)
-	{
+	else if (damage <= 176) {
 		m_string = s_kick_type[8];
 	}
-	else if (damage <= 216)
-	{
+	else if (damage <= 216) {
 		m_string = s_kick_type[9];
 	}
-	else if (damage <= 256)
-	{
+	else if (damage <= 256) {
 		m_string = s_kick_type[10];
 	}
-	else if (damage <= 296)
-	{
+	else if (damage <= 296) {
 		m_string = s_kick_type[11];
 	}
-	else
-	{
+	else if (damage <= 400) {
 		m_string = s_kick_type[12];
+	}
+	else {
+		m_string = s_kick_type[13];
 	}
 }
 
