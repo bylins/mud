@@ -145,8 +145,11 @@ void WeapForAct::set_damage_string(const int damage) {
 	else if (damage <= 400) {
 		m_string = s_kick_type[12];
 	}
-	else {
+	else if (damage <= 800) {
 		m_string = s_kick_type[13];
+	}
+	else {
+		m_string = s_kick_type[14];
 	}
 }
 
@@ -235,7 +238,8 @@ const WeapForAct::kick_type_t WeapForAct::s_kick_type =
 	"ЖЕСТОКО ",	// 217..256
 	"УЖАСНО ",// 257..296
 	"УБИЙСТВЕННО ",	 // 297..400
-	"СМЕРТЕЛЬНО " // 400+
+	"ИЗУВЕРСКИ ", // 400+
+	"СМЕРТЕЛЬНО " // 800+
 };
 
 struct brief_shields

@@ -1996,6 +1996,10 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 			"Вы УБИЙСТВЕННО #wи $N3.",
 			"$n УБИЙСТВЕННО #w$g вас."
 		}, {
+			"$n ИЗУВЕРСКИ #w$g $N3.",	//    297..400  15 //
+			"Вы ИЗУВЕРСКИ #wи $N3.",
+			"$n ИЗУВЕРСКИ #w$g вас."
+		}, {
 			"$n СМЕРТЕЛЬНО #w$g $N3.",	// 400+  16 //
 			"Вы СМЕРТЕЛЬНО #wи $N3.",
 			"$n СМЕРТЕЛЬНО #w$g вас."
@@ -2037,8 +2041,10 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 		dam_msgnum = 13;
 	else if (dam <= 400)
 		dam_msgnum = 14;
-	else
+	else if (dam <= 800)
 		dam_msgnum = 15;
+	else
+		dam_msgnum = 16;
 	// damage message to onlookers
 	char *buf_ptr = replace_string(dam_weapons[dam_msgnum].to_room,
 		attack_hit_text[w_type].singular, attack_hit_text[w_type].plural);
