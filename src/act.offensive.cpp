@@ -1024,10 +1024,6 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int)
 		send_to_char("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}
-	if (GET_EQ(ch, WEAR_BOTHS) && GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS) 	{
-		send_to_char("Луком ударить по голове? Оригинально....\r\n", ch);
-		return;
-	}
 	CHAR_DATA* vict = findVictim(ch, argument);
 	if (!vict) {
 		send_to_char("Кто это так сильно путается у вас под руками?\r\n", ch);
@@ -1082,9 +1078,16 @@ void go_stun(CHAR_DATA * ch, CHAR_DATA * vict) {
 		set_hit(ch, vict);
 	} else {
 		improve_skill(ch, SKILL_STUN, TRUE, vict);
-		act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
-		act("Ошеломляющий удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
-		act("$n мощным ударом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		if (GET_EQ(ch, WEAR_BOTHS) && GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS) {
+			act("Точным выстрелом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
+			act("Точный выстрел $N1 повалил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$n точным выстрелом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		}
+		else {
+			act("Мощным ударом вы ошеломили $N3!", FALSE, ch, 0, vict, TO_CHAR);
+			act("Ошеломляющий удар $N1 сбил вас с ног и лишил сознания.", FALSE, vict, 0, ch, TO_CHAR);
+			act("$n мощным ударом ошеломил$g $N3!", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+		}
 		GET_POS(vict) = POS_INCAP;
 		WAIT_STATE(vict, (2 + GET_REMORT(ch) / 5) * PULSE_VIOLENCE);
 		//WAIT_STATE(ch, (3 * PULSE_VIOLENCE));
