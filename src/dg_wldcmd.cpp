@@ -595,7 +595,7 @@ void do_wload(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "wload: количество больше чем в MIW для #%d, предмет удален.", number);
+				sprintf(buf, "wload: количество больше чем в MIW для #%d.", number);
 				wld_log(room, buf);
 //				extract_obj(object.get());
 //				return;

@@ -422,7 +422,7 @@ void do_mload(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
+				sprintf(buf, "mload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				mob_log(ch, buf);
 //				extract_obj(object.get());
 //				return;
