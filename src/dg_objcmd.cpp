@@ -586,7 +586,7 @@ void do_dgoload(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!check_unlimited_timer(obj_proto[object->get_rnum()].get()))
 			{
-				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d, предмет удален.", number);
+				sprintf(buf, "oload: Попытка загрузить предмет больше чем в MIW для #%d.", number);
 				obj_log(obj, buf);
 //				extract_obj(object.get());
 //				return;

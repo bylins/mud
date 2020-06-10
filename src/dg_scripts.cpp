@@ -5810,7 +5810,7 @@ int script_driver(void *go, TRIG_DATA * trig, int type, int mode)
 		const char* p = nullptr;
 		for (p = cl->cmd.c_str(); !stop && trig && *p && a_isspace(*p); p++);
 
-		if (*p == '*')	// comment
+		if (*p == '*' || *p == '/')	// comment
 		{
 			continue;
 		}
