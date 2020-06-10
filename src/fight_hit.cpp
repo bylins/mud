@@ -1992,7 +1992,7 @@ void Damage::dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const
 			"Вы УЖАСНО #wи $N3.",
 			"$n УЖАСНО #w$g вас."
 		}, {
-			"$n УБИЙСТВЕННО #w$g $N3.",	//    297..400  15 //
+			"$n УБИЙСТВЕННО #w$g $N3.",	//    297..400  14 //
 			"Вы УБИЙСТВЕННО #wи $N3.",
 			"$n УБИЙСТВЕННО #w$g вас."
 		}, {
@@ -3097,7 +3097,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n", PERS(victim, ch, 3));
 			send_to_char(buf, ch);
 			lag = 2;
-			dam += (dam / 1);
+			dam += dam;
 			WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_BATTLE;
@@ -3834,17 +3834,12 @@ void HitData::add_hand_damage(CHAR_DATA *ch)
 		dam += MAX(0, GET_REAL_STR(ch) - 25);
 	}
 
-	// Мультипликатор повреждений без оружия и в перчатках (линейная интерполяция)
+	// Мультипликатор повреждений (линейная зависимость)
 	// <вес перчаток> <увеличение>
-	// 0  50%
-	// 5 100%
-	// 10 150%
-	// 15 200%
-	// НА МОЛОТ НЕ ВЛИЯЕТ
 	if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 		|| get_flags()[FightSystem::CRIT_HIT]) //в метком молоте идет учет перчаток
 	{
-		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18) : 0)); //вес перчаток больше 18 не учитывается
+		int modi = 10 * MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 16); //вес перчаток больше 16 не учитывается
 		if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
 		{
 			modi = MAX(100, modi);

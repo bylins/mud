@@ -2037,7 +2037,7 @@ void process_npc_attack(CHAR_DATA *ch)
 			}
 		}
 	}
-	else if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+	else //if (!AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))      //под подчинением тоже можно умения применять..
 	{
 		//* применение скилов
 		using_mob_skills(ch);
