@@ -3093,7 +3093,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			if (!number(0, 2)) {
 				might_hit_bash(ch, victim);
 			}
-		} else if (might < 800) {
+		} else if (might < 750) {
 			sprintf(buf, "&g&qВаш богатырский удар пошатнул %s.&Q&n\r\n", PERS(victim, ch, 3));
 			send_to_char(buf, ch);
 			lag = 2;
@@ -3117,7 +3117,7 @@ void HitData::try_mighthit_dam(CHAR_DATA *ch, CHAR_DATA *victim)
 			sprintf(buf, "&G&qВаш богатырский удар сотряс %s.&Q&n\r\n", PERS(victim, ch, 3));
 			send_to_char(buf, ch);
 			lag = 2;
-			dam *= 4;
+			dam *= 3;
 			WAIT_STATE(victim, 3 * PULSE_VIOLENCE);
 			AFFECT_DATA<EApplyLocation> af;
 			af.type = SPELL_BATTLE;
@@ -3839,7 +3839,7 @@ void HitData::add_hand_damage(CHAR_DATA *ch)
 	if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 		|| get_flags()[FightSystem::CRIT_HIT]) //в метком молоте идет учет перчаток
 	{
-		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18) : 0));
+		int modi = 10 * (1 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18) : 0));
 		if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
 		{
 			modi = MAX(100, modi);
