@@ -851,7 +851,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		bonus = size
 			+ dex_bonus(GET_REAL_DEX(ch))
 			+ (GET_EQ(ch, WEAR_SHIELD)
-				? weapon_app[MIN(35, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing
+				? weapon_app[MIN(100, MAX(0, GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD))))].bashing
 				: 0);
 		if (vict)
 		{
@@ -935,7 +935,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 		}
 
-	case SKILL_PUNCH:	//удар левой рукой
+	case SKILL_PUNCH:	//кулачный бой
 		{
 		//victim_sav = GET_SAVE(vict, SAVING_REFLEX) - dex_bonus(GET_REAL_DEX(vict));
 		victim_sav = -GET_REAL_SAVING_REFLEX(vict);
@@ -1233,7 +1233,7 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 		break;
 	case SKILL_COURAGE:
 		break;
-	case SKILL_SHIT:
+	case SKILL_SHIT:   //удар левой рукой
 		break;
 	case SKILL_MIGHTHIT: // богатырский молот
 		{
