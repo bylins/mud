@@ -3839,13 +3839,11 @@ void HitData::add_hand_damage(CHAR_DATA *ch)
 	if (!GET_AF_BATTLE(ch, EAF_MIGHTHIT)
 		|| get_flags()[FightSystem::CRIT_HIT]) //в метком молоте идет учет перчаток
 	{
-		int modi = 10 * (1 + MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 16)); //вес перчаток больше 16 не учитывается
+		int modi = 10 * (5 + (GET_EQ(ch, WEAR_HANDS) ? MIN(GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_HANDS)), 18) : 0));
 		if (IS_NPC(ch) || can_use_feat(ch, BULLY_FEAT))
 		{
 			modi = MAX(100, modi);
 		}
-		if (modi < 5)
-			modi=5;
 		dam *= modi / 100;
 	}
 }
