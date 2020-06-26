@@ -1560,46 +1560,35 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 		}
 	}
 
-	CASE("Str")
-	{
+	CASE("Str") {
 		mob_proto[i].set_str(num_arg);
 	}
 
-	CASE("StrAdd")
-	{
+	CASE("StrAdd") {
 		mob_proto[i].set_str_add(num_arg);
 	}
 
-	CASE("Int")
-	{
-		RANGE(3, 50);
+	CASE("Int") {
 		mob_proto[i].set_int(num_arg);
 	}
 
-	CASE("Wis")
-	{
-		RANGE(3, 50);
+	CASE("Wis") {
 		mob_proto[i].set_wis(num_arg);
 	}
 
-	CASE("Dex")
-	{
+	CASE("Dex") {
 		mob_proto[i].set_dex(num_arg);
 	}
 
-	CASE("Con")
-	{
+	CASE("Con") {
 		mob_proto[i].set_con(num_arg);
 	}
 
-	CASE("Cha")
-	{
-		RANGE(3, 50);
+	CASE("Cha") {
 		mob_proto[i].set_cha(num_arg);
 	}
 
-	CASE("Size")
-	{
+	CASE("Size") {
 		RANGE(0, 100);
 		mob_proto[i].real_abils.size = num_arg;
 	}
