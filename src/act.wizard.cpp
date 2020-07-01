@@ -5750,6 +5750,7 @@ struct set_struct		/*
 	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
 	{"scriptwriter",LVL_IMPL, PC, BINARY}, // 63
 	{"spammer",LVL_GOD, PC, BINARY}, // 64	
+	{"gloryhide",LVL_IMPL, PC, BINARY}, // 65	
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6453,6 +6454,15 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SPAMMER);
 			break;
 		}
+	case 65: { // спрятать отображение славы
+		if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
+		send_to_char("вызываю глорихайд\r\n", ch);
+			GloryConst::glory_hide(vict, true);
+		} else {
+			GloryConst::glory_hide(vict, false);
+		}
+			break;
+	}
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
 		return (0);
