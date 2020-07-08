@@ -1223,7 +1223,7 @@ const int HISTORY_SIZE = 5;
 #define EXDSCR_LENGTH         512
 #define MAX_SPELLS            350
 #define MAX_AFFECT            32
-#define MAX_OBJ_AFFECT        6
+#define MAX_OBJ_AFFECT        8
 #define MAX_TIMED_SKILLS      16
 #define MAX_FEATS             256 // Максимальное количество фитов //
 #define MAX_TIMED_FEATS       16 // Макс. количество фитов с таймером //
