@@ -6456,12 +6456,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 	case 65: { // спрятать отображение славы
 		if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
-		send_to_char("вызываю глорихайд\r\n", ch);
 			GloryConst::glory_hide(vict, true);
 		} else {
 			GloryConst::glory_hide(vict, false);
-		}
-			break;
+	}
+		break;
 	}
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);

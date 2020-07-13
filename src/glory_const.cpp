@@ -113,26 +113,20 @@ const char *olc_stat_name[] =
 	"Запоминание"
 };
 
-void glory_hide(CHAR_DATA *ch, bool mode) {
+void glory_hide(CHAR_DATA *ch, bool mode) {  //Говнокод от Стрибога не понимаю как это работает но факт, может ктонить срефакторит
 	std::list <GloryNodePtr> playerGloryList;
-	mudlog("зашли в простановку хайда!",      CMP, LVL_GRGOD, SYSLOG, TRUE);
-	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it)
-	{
-	    playerGloryList.insert(playerGloryList.end(), it->second);
+	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it) {
+		playerGloryList.insert(playerGloryList.end(), it->second);
 	}
-
-	playerGloryList.sort([](const GloryNodePtr & a, const GloryNodePtr & b) -> bool
-	       {
-		   return (a->free_glory + a->tmp_spent_glory) > (b->free_glory + b->tmp_spent_glory);
-	       });
-
 	for (std::list <GloryNodePtr>::const_iterator t_it= playerGloryList.begin(); t_it!=playerGloryList.end(); ++t_it) {
-		sprintf(buf, "Проставляю хайд для %d  ВТОРАЯ ЧАСТЬ %ld", ch->get_uid(), t_it->get()->uid );
-				mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
 		if (ch->get_uid() == t_it->get()->uid ){
-				sprintf(buf, "Проставляю хайд для %d", ch->get_uid());
-				mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
-
+				if (mode == true) {
+					sprintf(buf, "Проставляю hide славы для %s", GET_NAME(ch));
+					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
+				} else {
+					sprintf(buf, "Убираю hide славы для %s", GET_NAME(ch));
+					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
+				}
 			t_it->get()->hide = mode;
 		}
 	}
