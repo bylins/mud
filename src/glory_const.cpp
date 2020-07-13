@@ -113,6 +113,25 @@ const char *olc_stat_name[] =
 	"Запоминание"
 };
 
+void glory_hide(CHAR_DATA *ch, bool mode) {  //Говнокод от Стрибога не понимаю как это работает но факт, может ктонить срефакторит
+	std::list <GloryNodePtr> playerGloryList;
+	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it) {
+		playerGloryList.insert(playerGloryList.end(), it->second);
+	}
+	for (std::list <GloryNodePtr>::const_iterator t_it= playerGloryList.begin(); t_it!=playerGloryList.end(); ++t_it) {
+		if (ch->get_uid() == t_it->get()->uid ){
+				if (mode == true) {
+					sprintf(buf, "Проставляю hide славы для %s", GET_NAME(ch));
+					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
+				} else {
+					sprintf(buf, "Убираю hide славы для %s", GET_NAME(ch));
+					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
+				}
+			t_it->get()->hide = mode;
+		}
+	}
+}
+
 void transfer_log(const char *format, ...)
 {
 	const char *filename = "../log/glory_transfer.log";
