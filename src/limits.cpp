@@ -1440,7 +1440,7 @@ void exchange_point_update()
 		{
 			std::string cap = GET_EXCHANGE_ITEM(exch_item)->get_PName(0);
 			cap[0] = UPPER(cap[0]);
-			sprintf(buf, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
+			snprintf(buf, MAX_STRING_LENGTH, "Exchange: - %s рассыпал%s от длительного использования.\r\n",
 				cap.c_str(), GET_OBJ_SUF_2(GET_EXCHANGE_ITEM(exch_item)));
 			log("%s", buf);
 			extract_exchange_item(exch_item);
@@ -1563,12 +1563,13 @@ void charmee_obj_decay_tell(CHAR_DATA *charmee, OBJ_DATA *obj, int where)
 	*/
 	std::string cap = obj->get_PName(0);
 	cap[0] = UPPER(cap[0]);
-	snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s вам : '%s рассыпал%s %s...'",
-		GET_NAME(charmee),
-		GET_CH_SUF_1(charmee),
-		cap.c_str(),
-		GET_OBJ_SUF_2(obj),
-		buf1);
+	snprintf(buf, MAX_STRING_LENGTH, "%s сказал%s вам : '%s%s рассыпал%s %s...'",
+			 GET_NAME(charmee),
+			 GET_CH_SUF_1(charmee),
+			 cap.c_str(),
+			 char_get_custom_label( obj,charmee->get_master()).c_str(),
+			 GET_OBJ_SUF_2(obj),
+			 buf1);
 	send_to_char(charmee->get_master(), "%s%s%s\r\n", CCICYN(charmee->get_master(), C_NRM), CAP(buf), CCNRM(charmee->get_master(), C_NRM));
 }
 
@@ -1764,7 +1765,9 @@ void obj_point_update()
 						}
 						else
 						{
-							act("$o рассыпал$U в ваших руках...", FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
+							snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U в ваших руках...",
+									 char_get_custom_label(j.get(), j->get_worn_by()).c_str());
+							act(buf, FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
 						}
 						break;
 
@@ -1775,7 +1778,9 @@ void obj_point_update()
 						}
 						else
 						{
-							act("$o рассыпал$U прямо на вас...", FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
+							snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U прямо на вас...",
+									 char_get_custom_label(j.get(), j->get_worn_by()).c_str());
+							act(buf, FALSE, j->get_worn_by(), j.get(), 0, TO_CHAR);
 						}
 						break;
 					}
@@ -1789,7 +1794,9 @@ void obj_point_update()
 					}
 					else
 					{
-						act("$o рассыпал$U в ваших руках...", FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
+						snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U в ваших руках...",
+								 char_get_custom_label(j.get(), j->get_carried_by()).c_str());
+						act(buf, FALSE, j->get_carried_by(), j.get(), 0, TO_CHAR);
 					}
 					obj_from_char(j.get());
 				}
@@ -1827,7 +1834,9 @@ void obj_point_update()
 						else
 						{
 							char buf[MAX_STRING_LENGTH];
-							snprintf(buf, MAX_STRING_LENGTH, "$o рассыпал$U в %s...", j->get_in_obj()->get_PName(5).c_str());
+							snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U в %s...",
+									 char_get_custom_label(j.get(),cont_owner).c_str(),
+									 j->get_in_obj()->get_PName(5).c_str());
 							act(buf, FALSE, cont_owner, j.get(), 0, TO_CHAR);
 						}
 					}

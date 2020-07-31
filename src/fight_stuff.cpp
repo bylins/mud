@@ -1225,10 +1225,14 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 		{
 			if (obj->get_worn_by())
 			{
-				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
+				snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U, не выдержав повреждений.", 
+						 char_get_custom_label(obj, obj->get_worn_by()).c_str());
+				act(buf, FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
 			}
 			else if (obj->get_carried_by())
 			{
+				snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U, не выдержав повреждений.",
+						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
 				act("$o рассыпал$U, не выдержав повреждений.", FALSE, obj->get_carried_by(), obj, 0, TO_CHAR);
 			}
 			extract_obj(obj);
