@@ -1222,7 +1222,7 @@ void mob_casting(CHAR_DATA * ch)
 	{
 		if (ch->has_master() && ch->in_room != ch->get_master()->in_room)
 		{
-			sprintf(buf, "%s тоскливо сморит по сторонам. Кажется ищет кого-то.",ch->get_name_str().c_str());
+			sprintf(buf, "%s тоскливо смотрит по сторонам. Кажется, ищет кого-то.",ch->get_name_str().c_str());
 			act(buf, FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			return;
 		}
