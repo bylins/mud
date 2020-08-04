@@ -654,6 +654,10 @@ public:
 
 	bool is_npc() const { return char_specials.saved.act.get(MOB_ISNPC); }
 
+	//отладочные сообщения тестеру/кодеру
+	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
+
+
 private:
 	const auto& get_player_specials() const { return player_specials; }
 	auto& get_player_specials() { return player_specials; }

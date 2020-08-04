@@ -2264,12 +2264,18 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 				}
 				if (!IS_NPC(ch)) {
 					struct follow_type *k, *k_next;
+					int number, i=1; // нам тут могут передать 2.чармис же!
+					char tmpname[MAX_INPUT_LENGTH];
+					char *tmp = tmpname;
+					strcpy(tmp, t);
+					number = get_number(&tmp);
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
-						if (isname(t, k->follower->get_pc_name())) {
+						if (i == number && isname(tmp, k->follower->get_pc_name())) {
 							*tch = k->follower;
 							return TRUE;
 						}
+						i++;
 					}
 				}
 			}

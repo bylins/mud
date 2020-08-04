@@ -3684,8 +3684,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
 		af[2].duration = af[0].duration;
 		af[2].location = APPLY_HIT;
-		af[2].modifier = GET_REAL_MAX_HIT(victim);
 		af[2].bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
+		//при рекасте сложатся с текущим аффектом. Не меняем логику
+		if (!AFF_FLAGGED(victim, EAffectFlag::AFF_EVILESS))
+			af[2].modifier = GET_REAL_MAX_HIT(victim);
 		to_vict = "Черное облако покрыло вас.";
 		to_room = "Черное облако покрыло $n3 с головы до пят.";
 		break;
@@ -4252,15 +4254,16 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	}
 
 	/*
-	 * If this is a mob that has this affect set in its mob file, do not
-	 * perform the affect.  This prevents people from un-sancting mobs
-	 * by sancting them and waiting for it to fade, for example.
+	 * защита от рекаста заклинаний на мобах..
+	 * типа, палка огнещита снимет щит 
 	 */
 	if (IS_NPC(victim) && success)
 	{
 		for (i = 0; i < MAX_SPELL_AFFECTS && success; i++)
 		{
-			if (AFF_FLAGGED(victim, static_cast<EAffectFlag>(af[i].bitvector)))
+			//мало ли, что на мобе сейчас. Если родился с аффектом - фейлим его рекасты
+			//это позволит рекастить силы зла, например.
+			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], EAffectFlag::AFF_EVILESS))
 			{
 				if (ch->in_room == IN_ROOM(victim))
 				{
@@ -4271,15 +4274,12 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 	}
 
-	// * If the victim is already affected by this spell
-
-	// Если прошло, и спелл дружествееный - то снять его нафиг чтобы обновить
+	// Если успешно, и спелл дружественный - выставляем флаг обновления
 	if (!SpINFO.violent && affected_by_spell(victim, spellnum) && success)
 	{
-//    affect_from_char(victim,spellnum);
 		update_spell = TRUE;
 	}
-
+	// вот такой оригинальный способ запретить рекасты оффенсивных аффектов - через флаг апдейта
 	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell))
 	{
 		if (ch->in_room == IN_ROOM(victim))
@@ -4308,7 +4308,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	{
 		if (spellnum == SPELL_POISON)
 			victim->Poisoner = GET_ID(ch);
-		if (spellnum == SPELL_EVILESS && (GET_HIT(victim) < GET_MAX_HIT(victim)))
+		// это тот еще костыль, конечно
+		// если не рекаст, то еще и похилит. Иначе - будет абуз. 	
+		if (!AFF_FLAGGED(victim, EAffectFlag::AFF_EVILESS) &&
+			spellnum == SPELL_EVILESS && (GET_HIT(victim) < GET_MAX_HIT(victim)))
 		{
 			GET_HIT(victim) = GET_MAX_HIT(victim); //Без этой строки update_pos еще не видит восстановленных ХП
 			update_pos(victim);

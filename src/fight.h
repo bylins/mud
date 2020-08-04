@@ -127,7 +127,6 @@ private:
 	void process_death(CHAR_DATA *ch, CHAR_DATA *victim);
 	void send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim);
 	void dam_message(CHAR_DATA* ch, CHAR_DATA* victim) const;
-
 	// обратный дамаг от огненного щита
 	int fs_damage;
 	// строка для краткого режима щитов, дописывается после ударов и прочего

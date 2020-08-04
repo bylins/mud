@@ -2310,6 +2310,39 @@ void CHAR_DATA::inc_restore_timer(int num)
 		}
 	}
 }
+//метод передачи отладочного сообщения: 
+//имморталу, тестеру или кодеру
+//остальные параметры - функция printf
+void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...)
+{
+	bool needSend = false;
+	if ((IS_CHARMICE(this) && IS_NPC(this->get_master())) //если это чармис у нпц
+		|| (IS_NPC(this) && !IS_CHARMICE(this)))//просто непись
+	return;
+
+	if (to_impl)
+		needSend = true;	
+	if (!needSend && to_coder && 
+		(PRF_FLAGGED(this, PRF_CODERINFO) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_CODERINFO))))
+	   )
+		needSend = true;
+	if (!needSend && to_tester && 
+		(PRF_FLAGGED(this, PRF_TESTER) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_TESTER))))
+	   )
+	   needSend = true;
+
+	va_list args;
+	char tmpbuf[MAX_STRING_LENGTH];
+
+	va_start(args, msg);
+	vsnprintf(tmpbuf, sizeof(tmpbuf), msg, args);
+	va_end(args);
+
+	if (!tmpbuf)
+		return;
+   
+	send_to_char(tmpbuf, this->get_master() ? this->get_master() : this);
+} 
 
 obj_sets::activ_sum& CHAR_DATA::obj_bonus()
 {

@@ -853,9 +853,12 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 		return (exp);
 	// если моб убивается первый раз, то повышаем экспу в несколько раз
 	// стимулируем изучение новых зон!
-	if (PRF_FLAGGED(ch, PRF_TESTER)) {
-		send_to_char(ch, "&RУ моба еще %d убийств без замакса, экспа %d, убито %d\r\n&n", mob_proto[victim->get_rnum()].mob_specials.MaxFactor, exp, ch->mobmax_get(GET_MOB_VNUM(victim)));
-	}
+	ch->send_to_TC(false, true, false,
+		"&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n", 
+			mob_proto[victim->get_rnum()].mob_specials.MaxFactor, 
+			exp, 
+			ch->mobmax_get(GET_MOB_VNUM(victim))
+				);
 // все равно таблица корявая, учитываются только уникальные мобы и глючит
 /*
 	// даем увеличенную экспу за давно не убитых мобов.
