@@ -3899,9 +3899,69 @@ void HitData::calc_crit_chance(CHAR_DATA *ch)
 	}
 }
 
+// вытащил эту простыню из exhit, чтобы воткнуть в hit
+// иначе первая атака всегда физ.дамага у дышащего моба
+// возвращает true, если надышал
+bool mob_breath_hit(CHAR_DATA *ch, CHAR_DATA *victim, int weapon)
+{
+	int percent = 0, prob = 0;
+
+	if (IS_NPC(ch))
+	{
+		if (MOB_FLAGGED(ch, MOB_EADECREASE) && weapon > 1)
+		{
+			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < weapon * GET_REAL_MAX_HIT(ch))
+				return false;
+		}
+		if (MOB_FLAGGED(ch, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH |
+							 MOB_ACIDBREATH | MOB_LIGHTBREATH)))
+		{
+			for (prob = percent = 0; prob <= 4; prob++)
+				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
+					percent++;
+			percent = weapon % percent;
+			for (prob = 0; prob <= 4; prob++)
+			{
+				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
+				{
+					if (0 == percent)
+						break;
+					--percent;
+				}
+			}
+
+			if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
+			{
+				const auto people = world[ch->in_room]->people;	// make copy because inside loop this list might be changed.
+				for (const auto& tch : people)
+				{
+					if (IS_IMMORTAL(tch)
+						|| ch->in_room == NOWHERE
+						|| IN_ROOM(tch) == NOWHERE)
+						continue;
+
+					if (tch != ch
+						&& !same_group(ch, tch))
+					{
+						mag_damage(GET_LEVEL(ch), ch, tch, SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+					}
+				}
+			}
+			else
+			{
+				mag_damage(GET_LEVEL(ch), ch, victim , SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
+			}
+			return true;
+		}
+		return false;
+	}
+	return false;
+}
+
+
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
-* \param weapon = 1 - атака правой или двумя руками
+* param weapon = 1 - атака правой или двумя руками
 *               = 2 - атака левой рукой
 */
 void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
@@ -3924,6 +3984,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 		return;
 	}
+
 	// Stand awarness mobs
 	if (CAN_SEE(victim, ch)
 		&& !victim->get_fighting()
@@ -3933,6 +3994,10 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0) {
 		set_battle_pos(victim);
 	}
+
+	//моб подышал на цель, или всех...
+	if (mob_breath_hit(ch, victim, weapon))
+		return;
 
 	//go_autoassist(ch);
 
@@ -4274,60 +4339,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 	OBJ_DATA *wielded = NULL;
 	int percent = 0, prob = 0, div = 0, moves = 0;
 
-	if (IS_NPC(ch))
-	{
-		if (MOB_FLAGGED(ch, MOB_EADECREASE) && weapon > 1)
-		{
-			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < weapon * GET_REAL_MAX_HIT(ch))
-				return;
-		}
-		if (MOB_FLAGGED(ch, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH |
-							 MOB_ACIDBREATH | MOB_LIGHTBREATH)))
-		{
-			for (prob = percent = 0; prob <= 4; prob++)
-				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
-					percent++;
-			percent = weapon % percent;
-			for (prob = 0; prob <= 4; prob++)
-			{
-				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
-				{
-					if (0 == percent)
-					{
-						break;
-					}
-
-					--percent;
-				}
-			}
-
-			if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
-			{
-				const auto people = world[ch->in_room]->people;	// make copy because inside loop this list might be changed.
-				for (const auto& tch : people)
-				{
-					if (IS_IMMORTAL(tch)
-						|| ch->in_room == NOWHERE
-						|| IN_ROOM(tch) == NOWHERE)
-					{
-						continue;
-					}
-
-					if (tch != ch
-						&& !same_group(ch, tch))
-					{
-						mag_damage(GET_LEVEL(ch), ch, tch, SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
-					}
-				}
-			}
-			else
-			{
-				mag_damage(GET_LEVEL(ch), ch, ch->get_fighting(), SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
-			}
-
-			return;
-		}
-	}
+	// тут был код, вынесен в mob_breath_hit, который вызывается из hit(..)
 
 	wielded = GetUsedWeapon(ch, weapon);
 
