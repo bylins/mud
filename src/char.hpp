@@ -792,6 +792,8 @@ public:
 	void set_master(CHAR_DATA::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
 	bool makes_loop(const CHAR_DATA::ptr_t master) const;
+	//отладочные сообщения имморталу/тестеру/кодеру
+	void send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...);
 
 	struct spell_mem_queue MemQueue;		// очередь изучаемых заклинаний
 
