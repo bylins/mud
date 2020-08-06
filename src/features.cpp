@@ -9,6 +9,7 @@
 
 #include "features.hpp"
 
+#include "aff.checks.hpp"
 #include "ability.constants.hpp"
 #include "action.targeting.hpp"
 #include "logger.hpp"
@@ -1194,11 +1195,8 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 
 	s = strtok(argument, "'*!");
 	if (s == NULL)

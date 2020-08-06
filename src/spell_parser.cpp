@@ -12,8 +12,10 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+
 #include "spell_parser.hpp"
 
+#include "aff.checks.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
@@ -1624,8 +1626,25 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	*helpee_vict, *damagee_vict, *format;
 	int  religion;
 
+	if (!IS_NPC(ch))
+	{
+		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) //если включен режим без повторов (подавление ехо) не показываем
+		{
+			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
+				send_to_char(OK, ch);
+		}
+		else
+		{//если режима нет, ехо включено, выводим сообщение
+			if (IS_SET(SpINFO.routines, MAG_WARCRY))
+				send_to_char(ch, "Вы выкрикнули %s%s%s.\r\n", SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
+			else //считаем, что остальное это заклинания =)
+				send_to_char(ch, "Вы произнесли заклинание \"%s%s%s\".\r\n", CCICYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM) );
+		}
+	}
+	
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
+
 	// Say phrase ?
 	if (IS_NPC(ch)) {
 		switch (GET_RACE(ch)) {
@@ -1910,9 +1929,13 @@ int fix_name_and_find_spell_num(std::string& name)
 
 int may_cast_in_nomagic(CHAR_DATA * caster, CHAR_DATA* /*victim*/, int spellnum)
 {
-	// More than 33 level - may cast always
-	if (IS_GRGOD(caster) || IS_SET(SpINFO.routines, MAG_WARCRY))
+	// имморталу - можно
+	if (IS_GRGOD(caster))
 		return TRUE;
+	// кричать - можно
+	if (IS_SET(SpINFO.routines, MAG_WARCRY))
+		return TRUE;
+	// тут странноэ 	
 	if (IS_NPC(caster) && !(AFF_FLAGGED(caster, EAffectFlag::AFF_CHARM) || MOB_FLAGGED(caster, MOB_ANGEL)))
 		return TRUE;
 
@@ -2081,8 +2104,11 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
  */
 int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level) {
 
-	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
+	
+	if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE) {
+		log("SYSERR: call_magic trying to call spellnum %d/%d.\n", spellnum, TOP_SPELL_DEFINE);
 		return (0);
+	}
 
 	if (caster && cvict) {
 		cast_mtrigger(cvict, caster, spellnum);
@@ -2092,6 +2118,19 @@ int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DAT
 		send_to_char("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
 		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", FALSE, caster, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		return 0;
+	}
+
+	if (!caster->affected.empty())
+	{
+		for (const auto& aff : caster->affected)
+		{
+			if (aff->location == APPLY_MADNESS
+				&& number(1, 100) < 20) // безумие 20% фэйл закла
+			{
+				send_to_char("Начав безумно кричать, вы забыли, что хотели произнести.\r\n", caster);
+				return 0;
+			}
+		}
 	}
 
 	if (!may_cast_here(caster, cvict, spellnum)) {
@@ -2347,122 +2386,6 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 	return FALSE;
 }
 
-int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
-{
-	*tch = NULL;
-	*tobj = NULL;
-	*troom = world[ch->in_room];
-
-	if (spellnum == SPELL_CONTROL_WEATHER)
-	{
-		if ((what_sky = search_block(t, what_sky_type, FALSE)) < 0)
-		{
-			send_to_char("Не указан тип погоды.\r\n", ch);
-			return FALSE;
-		}
-		else
-			what_sky >>= 1;
-	}
-
-	if (spellnum == SPELL_CREATE_WEAPON)
-	{
-		if ((what_sky = search_block(t, what_weapon, FALSE)) < 0)
-		{
-			send_to_char("Не указан тип оружия.\r\n", ch);
-			return FALSE;
-		}
-		else
-			what_sky = 5 + (what_sky >> 1);
-	}
-
-	cast_argument[t.copy(cast_argument, MAX_INPUT_LENGTH - 1, 0)] = '\0';
-
-	if (IS_SET(SpINFO.targets, TAR_ROOM_THIS))
-		return TRUE;
-	if (IS_SET(SpINFO.targets, TAR_IGNORE))
-		return TRUE;
-	if (t.length())
-	{
-		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM))
-		{
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_ROOM)) != NULL)
-			{
-				if (SpINFO.violent && !check_pkill(ch, *tch, t))
-					return FALSE;
-				return TRUE;
-			}
-		}
-
-		if (IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
-		{
-			if ((*tch = get_char_vis(ch, t, FIND_CHAR_WORLD)) != NULL)
-			{
-				// чтобы мобов не чекали
-				if (IS_NPC(ch) || !IS_NPC(*tch))
-				{
-					if (SpINFO.violent && !check_pkill(ch, *tch, t))
-						return FALSE;
-					return TRUE;
-				}
-			}
-		}
-
-		if (IS_SET(SpINFO.targets, TAR_OBJ_INV))
-			if ((*tobj = get_obj_in_list_vis(ch, t, ch->carrying)) != NULL)
-				return TRUE;
-
-		if (IS_SET(SpINFO.targets, TAR_OBJ_EQUIP))
-		{
-			int i;
-			for (i = 0; i < NUM_WEARS; i++)
-				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases()))
-				{
-					*tobj = GET_EQ(ch, i);
-					return TRUE;
-				}
-		}
-
-		if (IS_SET(SpINFO.targets, TAR_OBJ_ROOM))
-			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != NULL)
-				return TRUE;
-
-		if (IS_SET(SpINFO.targets, TAR_OBJ_WORLD))
-			if ((*tobj = get_obj_vis(ch, t)) != NULL)
-				return TRUE;
-	}
-	else
-	{
-		if (IS_SET(SpINFO.targets, TAR_FIGHT_SELF))
-			if (ch->get_fighting() != NULL)
-			{
-				*tch = ch;
-				return TRUE;
-			}
-		if (IS_SET(SpINFO.targets, TAR_FIGHT_VICT))
-			if (ch->get_fighting() != NULL)
-			{
-				*tch = ch->get_fighting();
-				return TRUE;
-			}
-		if (IS_SET(SpINFO.targets, TAR_CHAR_ROOM) && !SpINFO.violent)
-		{
-			*tch = ch;
-			return TRUE;
-		}
-	}
-	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
-	if (IS_SET(SpINFO.routines, MAG_WARCRY))
-		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
-				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
-				? "ЧТО" : "КОГО");
-	else
-		sprintf(buf, "На %s вы хотите ЭТО колдовать?\r\n",
-				IS_SET(SpINFO.targets, TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD | TAR_OBJ_EQUIP)
-				? "ЧТО" : "КОГО");
-	send_to_char(buf, ch);
-	return FALSE;
-}
-
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 {
 	int i, spellnum;
@@ -2660,16 +2583,10 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		break;
 
 	case OBJ_DATA::ITEM_SCROLL:
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-		{
-			send_to_char("Вы немы, как рыба.\r\n", ch);
+		if (silence_check(ch, -1, true))
 			return;
-		}
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-		{
-			send_to_char("Вы ослеплены.\r\n", ch);
+		if (blind_check(ch, -1))
 			return;
-		}
 
 		spellnum = GET_OBJ_VAL(obj, 1);
 		if (!*argument)
@@ -2787,7 +2704,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		switch (GET_POS(ch))
 		{
 		case POS_SLEEPING:
-			send_to_char("Вы спите и не могете думать больше ни о чем.\r\n", ch);
+			sleep_check(ch, -1); //некрасиво, двойная проверка..
 			break;
 		case POS_RESTING:
 			send_to_char("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
@@ -2832,7 +2749,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 				   | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_WORLD | TAR_OBJ_EQUIP | TAR_ROOM_THIS
 				   | TAR_ROOM_DIR))
 	{
-		send_to_char("Цель заклинания не доступна.\r\n", ch);
+		send_to_char("Цель заклинания недоступна.\r\n", ch);
 		return (0);
 	}
 
@@ -2842,7 +2759,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	{
 		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
 		{
-			send_to_char("Цель заклинания не доступна.\r\n", ch);
+			send_to_char("Цель заклинания недоступна.\r\n", ch);
 			return (0);
 		}
 	}
@@ -2891,22 +2808,6 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 					return FALSE;
 				}
 			}
-		}
-	}
-	// Конец изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
-	if (!IS_NPC(ch))
-	{
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) //если включен режим без повторов (подавление ехо) не показываем
-		{
-			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
-				send_to_char(OK, ch);
-		}
-		else
-		{
-			//если режима нет, ехо включено, выводим сообщение
-			sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-					CCICYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
 		}
 	}
 	//тренируем магические компетенции
@@ -3025,11 +2926,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
-		return;
-	}
+
 	if (ch->haveCooldown(SKILL_GLOBAL_COOLDOWN)) {
 		send_to_char("Вам нужно набраться сил.\r\n", ch);
 		return;
@@ -3045,16 +2942,11 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n", ch);
 				return;
 			}
-
-			if (aff->location == APPLY_MADNESS
-				&& number(1, 100) < 20) // безумие 20% фэйл закла
-			{
-				send_to_char("Начав безумно кричать, вы забыли, что хотели произнести.\r\n", ch);
-				return;
-			}
 		}
 	}
 
+	if (silence_check(ch, spellnum, 0))
+		return;
 
 	if (ch->is_morphed())
 	{
@@ -3217,11 +3109,8 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 
 	std::string buffer = argument;
 	typedef boost::tokenizer<pred_separator> tokenizer;
@@ -3278,8 +3167,18 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
 	ROOM_DATA *troom;
+	std::string tgt;
 
-	int target = find_cast_target(spellnum, tok_iter == tok.end() ? "" : *tok_iter, ch, &tch, &tobj, &troom);
+// указана цель, берем первую
+	if (tok_iter != tok.end()){
+		tgt = (*tok_iter++);
+	}
+	else {
+		tgt = "";
+	} 
+// вот зачем автор дублировал код?!
+	int target = find_cast_target(spellnum, tgt.c_str(), ch, &tch, &tobj, &troom);
+	ch->send_to_TC(true,false,false, "Warcry: %d target: %s arg: %s\r\n", target, tch? tch->get_description() : "", tgt.c_str());
 
 	if (!target)
 	{
@@ -3323,9 +3222,7 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("У вас не хватит сил для этого.\r\n", ch);
 		return;
 	}
-
-	sprintf(buf, "Вы выкрикнули %s%s%s.\r\n", SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
+	
 	say_spell(ch, spellnum, tch, tobj);
 
 	if (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)) >= 0)
@@ -5143,7 +5040,7 @@ void mag_assign_spells(void)
 */
 //183
 	spello(SPELL_WC_OF_DEFENSE, "клич обороны", "warcry of defense", 10, 10, 10,
-		   POS_FIGHTING, TAR_IGNORE, FALSE,
+		   POS_FIGHTING, TAR_IGNORE | TAR_CHAR_ROOM, FALSE,
 		   MAG_WARCRY | MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_MIND);
 //184
 	spello(SPELL_WC_OF_BATTLE, "клич битвы", "warcry of battle", 20, 20, 50,

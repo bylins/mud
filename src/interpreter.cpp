@@ -15,6 +15,7 @@
 
 #include "interpreter.h"
 
+#include "aff.checks.hpp"
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
@@ -1317,7 +1318,7 @@ void command_interpreter(CHAR_DATA * ch, char *argument)
 			send_to_char("Вы слишком слабы, чтобы сделать это!\r\n", ch);
 			break;
 		case POS_SLEEPING:
-			send_to_char("Сделать это в ваших снах?\r\n", ch);
+			sleep_check(ch, -1);
 			break;
 		case POS_RESTING:
 			send_to_char("Нет... Вы слишком расслаблены...\r\n", ch);

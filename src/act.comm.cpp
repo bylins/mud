@@ -32,6 +32,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "aff.checks.hpp"
 
 #include <sstream>
 #include <list>
@@ -63,16 +64,13 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 // shapirus
 void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
-#define SIELENCE ("Вы немы, как рыба об лед.\r\n")
 #define SOUNDPROOF ("Стены заглушили ваши слова.\r\n")
 
 void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 	skip_spaces(&argument);
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
-		send_to_char(SIELENCE, ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB)) {
 		send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);  
@@ -125,12 +123,8 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *k;
 	struct follow_type *f;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char(SIELENCE, ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -331,12 +325,8 @@ void do_tell(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char(SIELENCE, ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
-
 	/* Непонятно нафига нужно
 	if (ROOM_FLAGGED(ch->in_room, ROOM_ARENARECV))
 	{
@@ -370,11 +360,8 @@ void do_reply(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (IS_NPC(ch))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char(SIELENCE, ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -432,11 +419,8 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	const char *action_sing, *action_plur, *action_others, *vict1, *vict2;
 	char vict3[MAX_INPUT_LENGTH];
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char(SIELENCE, ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -736,11 +720,8 @@ void do_gen_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char(SIELENCE, ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{

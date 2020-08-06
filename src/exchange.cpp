@@ -10,6 +10,7 @@
 
 #include "exchange.h"
 
+#include "aff.checks.hpp"
 #include "object.prototypes.hpp"
 #include "world.characters.hpp"
 #include "obj.hpp"
@@ -113,11 +114,8 @@ int exchange(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 	{
 		if (IS_NPC(ch))
 			return 0;
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-		{
-			send_to_char("Вы немы, как рыба об лед.\r\n", ch);
-			return 1;
-		}
+		if (silence_check(ch, -1, true))
+			return 0;
 		if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 		{
 			send_to_char("Вам запрещено общаться с торговцами!\r\n", ch);

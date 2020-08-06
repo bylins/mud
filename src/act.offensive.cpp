@@ -12,6 +12,7 @@
 *  $Revision$                                                             *
 ************************************************************************ */
 
+#include "aff.checks.hpp"
 #include "ability.rollsystem.hpp"
 #include "action.targeting.hpp"
 #include "obj.hpp"
@@ -597,10 +598,8 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
-		send_to_char("Вы не в состоянии приказывать сейчас.\r\n", ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 	if (!*name || !*message)
 		send_to_char("Приказать что и кому?\r\n", ch);
 	else if (!(vict = get_char_vis(ch, name, FIND_CHAR_ROOM)) &&

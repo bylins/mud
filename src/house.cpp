@@ -6,6 +6,7 @@
 
 #include "house.h"
 
+#include "aff.checks.hpp"
 #include "world.objects.hpp"
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
@@ -1766,12 +1767,8 @@ void Clan::CharToChannel(CHAR_DATA *ch, std::string text, int subcmd)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
-		|| AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
-		send_to_char(SIELENCE, ch);
+	if (silence_check(ch, -1, true))
 		return;
-	}
 
 	if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
 	{
@@ -2030,7 +2027,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				% CCNRM(ch, C_NRM);
 		}
 	}
-	// просто выводим все дружины и всех членов (без параметра 'все' в списке будут только дружины)
+	// просто выводим все дружины и всех членов (без параметра 'все' в ??писке будут только дружины)
 	else
 	{
 		int count = 1;
@@ -4220,7 +4217,7 @@ void Clan::MainMenu(DESCRIPTOR_DATA * d)
 	std::ostringstream buffer;
 	buffer << "Раздел добавления и удаления привилегий.\r\n"
 	<< "Выберите редактируемое звание или действие:\r\n";
-	// звания ниже своего
+	// зв??ния ниже своего
 	int rank = CLAN_MEMBER(d->character)->rank_num + 1;
 	int num = 0;
 	for (std::vector<std::string>::const_iterator it = d->clan_olc->clan->ranks.begin() + rank; it != d->clan_olc->clan->ranks.end(); ++it)

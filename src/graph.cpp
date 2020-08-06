@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "aff.checks.hpp"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -242,11 +243,8 @@ void do_sense(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-	{
-		send_to_char("Вы слепы как крот.\r\n", ch);
+	if (blind_check(ch, -1))
 		return;
-	}
 
 	if (!check_moves(ch, can_use_feat(ch, TRACKER_FEAT) ? SENSE_MOVES / 2 : SENSE_MOVES))
 		return;

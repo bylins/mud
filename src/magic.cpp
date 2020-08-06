@@ -4978,7 +4978,6 @@ int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnu
 			&& !same_group(ch, victim))
 		{
 			send_to_char("Только на себя или одногруппника!\r\n", ch);
-
 			return 0;
 		}
 

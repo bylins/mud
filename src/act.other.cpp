@@ -14,6 +14,7 @@
 
 #include "act.other.hpp"
 
+#include "aff.checks.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
@@ -148,7 +149,7 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Вас пригласила к себе владелица косы...\r\n", ch);
 		die(ch, NULL);
 	}
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_SLEEP))
+	else if (sleep_check(ch, -1))
 	{
 		return;
 	}

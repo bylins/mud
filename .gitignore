@@ -15,3 +15,8 @@ libcircle.library.a
 lib/
 tests/CTestTestfile.cmake
 cmake-build-release/
+src/GPATH
+src/GRTAGS
+src/GTAGS
+log/*
+syslog.*

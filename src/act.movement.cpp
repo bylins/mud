@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "aff.checks.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
@@ -2401,9 +2402,11 @@ void do_wake(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (*arg)
 	{
-		if (GET_POS(ch) == POS_SLEEPING)
-			send_to_char("Может быть вам лучше проснуться?\r\n", ch);
-		else if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)) == NULL)
+		if (incap_check(ch,-1))
+			return;
+		if (sleep_check(ch,-1))
+			return;
+		if ((vict = get_char_vis(ch, arg, FIND_CHAR_ROOM)) == NULL)
 			send_to_char(NOPERSON, ch);
 		else if (vict == ch)
 			self = 1;

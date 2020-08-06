@@ -3,6 +3,7 @@
 
 #include "boards.h"
 
+#include "aff.checks.hpp"
 #include "logger.hpp"
 #include "boards.types.hpp"
 #include "boards.changelog.loaders.hpp"
@@ -184,11 +185,8 @@ namespace Boards
 			return;
 		}
 
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-		{
-			send_to_char("Вы ослеплены!\r\n", ch);
+		if (blind_check(ch, -1))
 			return;
-		}
 		
 		Board::shared_ptr board_ptr;
 		for (const auto& board_i : board_list)

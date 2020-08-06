@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "aff.checks.hpp"
 #include "world.objects.hpp"
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
@@ -705,8 +706,8 @@ const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int sh
 		}
 		if (object->get_extra_flag(EExtraFlag::ITEM_GLOW))
 			strcat(buf, " ..блестит!");
-		if (object->get_extra_flag(EExtraFlag::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
-			strcat(buf, " ..шумит!");
+		if (object->get_extra_flag(EExtraFlag::ITEM_HUM) && !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+			strcat(buf, " ..шумит!"); //чойта вдруг не показывать шум немому?!)
 		if (object->get_extra_flag(EExtraFlag::ITEM_FIRE))
 			strcat(buf, " ..горит!");
 		if (object->get_extra_flag(EExtraFlag::ITEM_BLOODY))
@@ -1249,7 +1250,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		}
 		if (IS_SET(skill_mode, ACHECK_GLOWING)
 				&& IS_SET(skill_mode, ACHECK_HUMMING)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
+				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 		{
 			REMOVE_BIT(skill_mode, ACHECK_GLOWING);
 			REMOVE_BIT(skill_mode, ACHECK_HUMMING);
@@ -1261,13 +1262,13 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 			sprintf(buf + strlen(buf), "блеск экипировки%s", skill_mode ? ", " : " ");
 		}
 		if (IS_SET(skill_mode, ACHECK_HUMMING)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
+				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 		{
 			REMOVE_BIT(skill_mode, ACHECK_HUMMING);
 			sprintf(buf + strlen(buf), "шум экипировки%s", skill_mode ? ", " : " ");
 		}
 		if (IS_SET(skill_mode, ACHECK_WEIGHT)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE))
+				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 		{
 			REMOVE_BIT(skill_mode, ACHECK_WEIGHT);
 			sprintf(buf + strlen(buf), "бряцание металла%s", skill_mode ? ", " : " ");
@@ -1752,11 +1753,8 @@ void do_exits(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		do_blind_exits(ch);
 		return;
 	}
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-	{
-		send_to_char("Вы слепы, как котенок!\r\n", ch);
+	if (blind_check(ch, -1))
 		return;
-	}
 	for (door = 0; door < NUM_OF_DIRS; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
 		{
@@ -1788,11 +1786,8 @@ void do_blind_exits(CHAR_DATA *ch)
 
 	*buf = '\0';
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-	{
-		send_to_char("Вы слепы, как котенок!\r\n", ch);
+	if (blind_check(ch, -1))
 		return;
-	}
 	for (door = 0; door < NUM_OF_DIRS; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != NOWHERE && !EXIT_FLAGGED(EXIT(ch, door), EX_CLOSED))
 		{
@@ -2159,15 +2154,12 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		show_glow_objs(ch);
 		return;
 	}
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-	{
-		send_to_char("Вы все еще слепы...\r\n", ch);
+	if (blind_check(ch, -1))
 		return;
-	}
-	else if (GET_POS(ch) < POS_SLEEPING)
-	{
+	if (sleep_check(ch, -1))
 		return;
-	}
+	if (incap_check(ch, -1))
+		return;
 
 	if (PRF_FLAGGED(ch, PRF_DRAW_MAP) && !PRF_FLAGGED(ch, PRF_BLIND))
 	{
@@ -3016,13 +3008,13 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	if (!ch->desc)
 		return;
 
-	if (GET_POS(ch) < POS_SLEEPING)
+	if (sleep_check(ch, -1))
 	{
-		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
+		return;
 	}
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
+	if (blind_check(ch, -1))
 	{
-		send_to_char("Вы ослеплены!\r\n", ch);
+		return;
 	}
 	else if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch))
 	{
@@ -3085,23 +3077,19 @@ void do_look(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 void do_sides(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
-	int i;
-
 	if (!ch->desc)
 		return;
-
-	if (GET_POS(ch) <= POS_SLEEPING)
-		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-		send_to_char("Вы ослеплены!\r\n", ch);
-	else
+	if (incap_check(ch,-1))
+		return;
+	if (sleep_check(ch, -1))		
+		return;
+	if (blind_check(ch, -1))
+		return;
+	skip_hide_on_look(ch);
+	send_to_char("Вы посмотрели по сторонам.\r\n", ch);
+	for (int i = 0; i < NUM_OF_DIRS; i++)
 	{
-		skip_hide_on_look(ch);
-		send_to_char("Вы посмотрели по сторонам.\r\n", ch);
-		for (i = 0; i < NUM_OF_DIRS; i++)
-		{
-			look_in_direction(ch, i, 0);
-		}
+		look_in_direction(ch, i, 0);
 	}
 }
 
@@ -3112,13 +3100,13 @@ void do_looking(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	if (!ch->desc)
 		return;
 
-	if (GET_POS(ch) < POS_SLEEPING)
-		send_to_char("Белый Ангел возник перед вами, маняще помахивая крыльями.\r\n", ch);
-	if (GET_POS(ch) == POS_SLEEPING)
-		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-		send_to_char("Вы ослеплены!\r\n", ch);
-	else if (ch->get_skill(SKILL_LOOKING))
+	if (incap_check(ch, -1))
+		return;
+	if (sleep_check(ch, -1))
+		return;
+	if (blind_check(ch, -1))
+		return;
+	if (ch->get_skill(SKILL_LOOKING))
 	{
 		if (check_moves(ch, LOOKING_MOVES))
 		{
@@ -3145,12 +3133,11 @@ void do_hearing(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы глухи и все равно ничего не услышите.\r\n", ch);
 		return;
 	}
-
-	if (GET_POS(ch) < POS_SLEEPING)
-		send_to_char("Вам начали слышаться голоса предков, зовущие вас к себе.\r\n", ch);
-	if (GET_POS(ch) == POS_SLEEPING)
-		send_to_char("Морфей медленно задумчиво провел рукой по струнам и заиграл колыбельную.\r\n", ch);
-	else if (ch->get_skill(SKILL_HEARING))
+	if (incap_check(ch,-1))
+		return;
+	if (sleep_check(ch,-1))
+		return;
+	if (ch->get_skill(SKILL_HEARING))
 	{
 		if (check_moves(ch, HEARING_MOVES))
 		{
@@ -3172,17 +3159,12 @@ void do_examine(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	char where[MAX_INPUT_LENGTH];
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP | FIND_CHAR_ROOM | FIND_OBJ_EXDESC;
 
-
-	if (GET_POS(ch) < POS_SLEEPING)
-	{
-		send_to_char("Виделся часто сон беспокойный...\r\n", ch);
+	if (incap_check(ch,-1))
 		return;
-	}
-	else if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-	{
-		send_to_char("Вы ослеплены!\r\n", ch);
+	if (sleep_check(ch, -1))
 		return;
-	}
+	if (blind_check(ch, -1))
+		return;
 
 	two_arguments(argument, arg, where);
 

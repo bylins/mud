@@ -14,6 +14,7 @@
 
 #include "fight.h"
 
+#include "aff.checks.hpp"
 #include "world.characters.hpp"
 #include "fight_hit.hpp"
 #include "AffectHandler.hpp"
@@ -2083,9 +2084,8 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	//* каст заклинания
 	if (ch->get_cast_spell() && GET_WAIT(ch) <= 0)
 	{
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
+		if (silence_check(ch, -1, true))
 		{
-			send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 			ch->set_cast(0, 0, 0, 0, 0);
 		}
 		else

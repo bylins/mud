@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "aff.checks.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
@@ -2999,12 +3000,8 @@ void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-	{
-		send_to_char("Вы ничего не видите!\r\n", ch);
+	if (blind_check(ch, -1))
 		return;
-	}
-
 
 	if (world[ch->in_room]->fires)
 	{
