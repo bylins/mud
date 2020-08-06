@@ -222,6 +222,17 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	{
 		obj->set_extra_flag(EExtraFlag::ITEM_NAMED);//ставим флаг именной предмет
 	}
+	//восстанавливаем метки, если они были
+	if (tmp.get_custom_label()){  
+		obj->set_custom_label(new custom_label());
+		obj->get_custom_label()->label_text = str_dup(tmp.get_custom_label()->label_text);
+		obj->get_custom_label()->author = tmp.get_custom_label()->author;
+		if (tmp.get_custom_label()->clan != nullptr)
+		{
+			obj->get_custom_label()->clan = str_dup(tmp.get_custom_label()->clan);
+		}
+		obj->get_custom_label()->author_mail = str_dup(tmp.get_custom_label()->author_mail);
+	}
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.

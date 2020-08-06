@@ -2373,8 +2373,11 @@ int Crash_load(CHAR_DATA * ch)
 		// Предмет разваливается от старости
 		if (obj->get_timer() <= 0)
 		{
-			sprintf(buf, "%s%s рассыпал%s от длительного использования.\r\n",
-				CCWHT(ch, C_NRM), cap.c_str(), GET_OBJ_SUF_2(obj));
+			snprintf(buf, MAX_STRING_LENGTH, "%s%s%s рассыпал%s от длительного использования.\r\n",
+					 CCWHT(ch, C_NRM), 
+					 cap.c_str(), 
+					 char_get_custom_label(obj.get(), ch).c_str(), 
+					 GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
 			extract_obj(obj.get());
 
