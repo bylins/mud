@@ -124,6 +124,9 @@ void oedit_setup(DESCRIPTOR_DATA * d, int real_num)
 	else
 	{
 		obj->clone_olc_object_from_prototype(vnum);
+		//Это же прототип, поэтому имя у него, как у пустого контейнера
+		if (obj->get_type() == OBJ_DATA::ITEM_DRINKCON)
+			name_from_drinkcon(obj);
 		obj->set_rnum(real_num);
 	}
 
@@ -198,7 +201,7 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 	{
 		obj->set_timer(tmp.get_timer());
 	}
-	// емкостям сохраняем жидкость и кол-во глотков, во избежание жалоб
+	// емкостям сохраняем их текущую жидкость и кол-во глотков, во избежание жалоб
 	if (GET_OBJ_TYPE(&tmp) == OBJ_DATA::ITEM_DRINKCON
 		&& GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_DRINKCON)
 	{
@@ -209,10 +212,13 @@ void olc_update_object(int robj_num, OBJ_DATA *obj, OBJ_DATA *olc_proto)
 		}
 		// сохранение в случае перелитых заклов
 		// пока там ничего кроме заклов и нет - копируем весь values
+		// тут, конечно, может произойти магия "воду превратили в вино"..
 		if (tmp.get_value(ObjVal::EValueKey::POTION_PROTO_VNUM) > 0)
 		{
 			obj->set_values(tmp.get_all_values());
 		}
+		// восстанавливаем имя объекта "емкость -> емкость с жыжей"
+		name_to_drinkcon(obj, GET_OBJ_VAL(obj, 2));
 	}
 	if (tmp.get_extra_flag(EExtraFlag::ITEM_TICKTIMER))//если у старого объекта запущен таймер
 	{
