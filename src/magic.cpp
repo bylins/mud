@@ -2518,7 +2518,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 	}
 
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && ch != victim && SpINFO.violent && number(1, 999) <= GET_AR(victim) * 10)
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && ch != victim && SpINFO.violent 
+		&& number(1, 999) <= GET_AR(victim) * 10)
 	{
 		send_to_char(NOEFFECT, ch);
 		return 0;
@@ -3308,7 +3309,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
-		victim->Poisoner = GET_ID(ch);
 
 		break;
 
@@ -4246,7 +4246,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_LACKY:
-		{
 		af[0].duration = pc_duration(victim, 6, 0, 0, 0, 0);
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_LACKY);
 		//Polud пробный обработчик аффектов
@@ -4257,7 +4256,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n вдохновенно выпятил$g грудь.";
 		to_vict = "Вы почувствовали вдохновение.";
 		break;
-		}
 
 	case SPELL_ARROWS_FIRE:
 	case SPELL_ARROWS_WATER:
@@ -4271,53 +4269,45 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	}
 
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
-	//чтобы этот аффект не очистился, со временем
-	if (IS_NPC(victim) && success)
-	{
-		for (i = 0; i < MAX_SPELL_AFFECTS && success; i++)
-		{
-			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffectFlag>(af[i].bitvector)))
-			{
-				if (ch->in_room == IN_ROOM(victim))
-				{
+	//чтобы этот аффект не очистился, при спадении спелла
+	if (IS_NPC(victim) && success){
+		for (i = 0; i < MAX_SPELL_AFFECTS && success; ++i) {
+			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffectFlag>(af[i].bitvector))) {
+				if (ch->in_room == IN_ROOM(victim)){
 					send_to_char(NOEFFECT, ch);
 				}
 				success = FALSE;
 			}
 		}
 	}
-	
-	if (!SpINFO.violent && affected_by_spell(victim, spellnum) && success)
-	{
+	// позитивные аффекты - продлеваем, если они уже на цели
+	if (!SpINFO.violent && affected_by_spell(victim, spellnum) && success){
 		update_spell = TRUE;
 	}
-	// вот такой оригинальный способ запретить рекасты оффенсивных аффектов - через флаг апдейта
-	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell))
-	{
+	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
+	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell)) {
 		if (ch->in_room == IN_ROOM(victim))
 			send_to_char(NOEFFECT, ch);
 		success = FALSE;
 	}
 
-	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
-	{
+	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++){
 		af[i].type = spellnum;
-		if (af[i].bitvector || af[i].location != APPLY_NONE)
-		{
+		if (af[i].bitvector || af[i].location != APPLY_NONE){
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (update_spell)
-			{
 				affect_join_fspell(victim, af[i]);
-			}
 			else
-			{
 				affect_join(victim, af[i], accum_duration, FALSE, accum_affect, FALSE);
-			}
 		}
+		// тут мы ездим по циклу 16 раз, хотя аффектов 1-3...
+//		ch->send_to_TC(true, true, true, "Applied affect type %i\r\n", af[i].type);
 	}
 
-	if (success)
-	{
+	if (success) {
+		// вот некрасиво же тут это делать...
+		if (spellnum == SPELL_POISON)	
+			victim->Poisoner = GET_ID(ch);
 		if (to_vict != nullptr)
 			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
 		if (to_room != nullptr)
