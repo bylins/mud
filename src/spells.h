@@ -594,7 +594,6 @@ void spell_identify(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_enchant_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_control_weather(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_create_weapon(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
-void spell_eviless(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_townportal(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_energydrain(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
 void spell_fear(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj);
