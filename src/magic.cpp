@@ -1273,7 +1273,9 @@ void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 	{
 		if (spelltype == SPELL_RUNES)
 		{
-			act("$o рассыпал$U у вас в руках.", FALSE, ch, obj, 0, TO_CHAR);
+			snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U у вас в руках.",
+					 char_get_custom_label(obj, ch).c_str());
+			act(buf, FALSE, ch, obj, 0, TO_CHAR);
 		}
 		obj_from_char(obj);
 		extract_obj(obj);
