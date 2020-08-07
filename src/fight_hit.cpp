@@ -2788,17 +2788,12 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	//if(GET_PR(victim) && IS_NPC(victim)
 	if (GET_PR(victim) && dmg_type == FightSystem::PHYS_DMG)
 	{
-		if (PRF_FLAGGED(victim, PRF_TESTER))
-		{
-			int ResultDam = dam - (dam * GET_PR(victim) / 100);
-			sprintf(buf, "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
-			send_to_char(buf, victim);
-			dam = ResultDam;
-		}
-		else
-		{
-			dam = dam - (dam * GET_PR(victim) / 100);
-		}
+		int ResultDam = dam - (dam * GET_PR(victim) / 100);
+		ch->send_to_TC(false, true, false,
+			"&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
+		victim->send_to_TC(false, true, false,
+			"&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
+		dam = ResultDam;
 	}
 
 	// зб, щиты, броня, поглощение
@@ -3002,11 +2997,8 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 	/// Use send_to_char -- act() doesn't send message if you are DEAD.
 	char_dam_message(dam, ch, victim, flags[FightSystem::NO_FLEE_DMG]);
 
-	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
-	{
-		sprintf(buf, "&MПрименен урон = %d&n\r\n", dam);
-		send_to_char(buf,ch);
-	}
+	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
+	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
 
 	// Проверить, что жертва все еще тут. Может уже сбежала по трусости.
 	// Думаю, простой проверки достаточно.
@@ -4014,9 +4006,9 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 			}
 			else if (victim->add_abils.percent_spell_blink > 0) { //мигалка спеллом а не аффектом с шмотки
 				blink = victim->add_abils.percent_spell_blink;
+				ch->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
+				victim->send_to_TC(false, true, false, "Шанс мигалки равен == %d процентов.\r\n", blink);
 			}
-			if (PRF_FLAGGED(victim, PRF_TESTER))
-				send_to_char(victim, "Шанс мигалки равен == %d процентов.\r\n", blink);
 			if (blink >= number(1, 100)) {
 				sprintf(buf, "%sНа мгновение вы исчезли из поля зрения противника.%s\r\n",
 					CCINRM(victim, C_NRM), CCNRM(victim, C_NRM));
@@ -4157,22 +4149,18 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		//Adept: учитываем резисты от крит. повреждений
 		hit_params.dam = calculate_resistance_coeff(victim, VITALITY_RESISTANCE, hit_params.dam);
 		// выводим временно влияние живучести
-		if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER))
-		{
-			sprintf(buf, "&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g количество хитов врага = %d&n\r\n", initial_dam, GET_RESIST(victim, VITALITY_RESISTANCE), float(hit_params.dam) / initial_dam, GET_MAX_HIT(victim));
-			send_to_char(buf,ch);
-		}
+		ch->send_to_TC(false, true, true,
+			"&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g количество хитов врага = %d&n\r\n", initial_dam, GET_RESIST(victim, VITALITY_RESISTANCE), float(hit_params.dam) / initial_dam, GET_MAX_HIT(victim));
+		victim->send_to_TC(false, true, true,
+			"&CДамага стаба до учета живучести = %d, живучесть = %d, коэфициент разницы = %g количество хитов врага = %d&n\r\n", initial_dam, GET_RESIST(victim, VITALITY_RESISTANCE), float(hit_params.dam) / initial_dam, GET_MAX_HIT(victim));
+
 		// режем стаб
 		if (can_use_feat(ch, SHADOW_STRIKE_FEAT) && !IS_NPC(ch)) {
 			hit_params.dam = MIN(8000 + GET_REMORT(ch) * 20 * GET_LEVEL(ch), hit_params.dam);
 		}
 
-		if (IS_IMPL(ch) || IS_IMPL(victim) || PRF_FLAGGED(ch, PRF_TESTER)) {
-			sprintf(buf, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
-			send_to_char(buf,ch);
-			sprintf(buf, "&RДамага стаба  равна = %d&n\r\n", hit_params.dam);
-			send_to_char(buf,victim);
-		}
+		ch->send_to_TC(false, true, false, "&CДамага стаба равна = %d&n\r\n", hit_params.dam);
+		victim->send_to_TC(false, true, false, "&RДамага стаба  равна = %d&n\r\n", hit_params.dam);
 		hit_params.extdamage(ch, victim);
 		return;
 	}
@@ -4202,10 +4190,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 				// CRIT_HIT и так щиты игнорит, но для порядку
 				hit_params.set_flag(FightSystem::IGNORE_FSHIELD);
 				hit_params.dam_critic = do_punctual(ch, victim, hit_params.wielded);
-				if (IS_IMPL(ch) || PRF_FLAGGED(ch, PRF_TESTER)) {
-					sprintf(buf, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
-					send_to_char(buf, ch);
-				}
+				ch->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
+				victim->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 				if (!PUNCTUAL_WAITLESS(ch)) {
 					PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 				}
@@ -4214,10 +4200,8 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		}
 	}
 
-	if (PRF_FLAGGED(ch, PRF_CODERINFO) || PRF_FLAGGED(ch, PRF_TESTER)) {
-		sprintf(buf, "&CРегуляр дамаг = %d&n\r\n", hit_params.dam);
-		send_to_char(buf,ch);
-	}
+	ch->send_to_TC(false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
+	victim->send_to_TC(false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 
 	// обнуляем флаги, если у нападающего есть лаг
 	if ((GET_AF_BATTLE(ch, EAF_STUPOR) || GET_AF_BATTLE(ch, EAF_MIGHTHIT)) && GET_WAIT(ch) > 0) {
