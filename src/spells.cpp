@@ -2774,22 +2774,6 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* 
 	}
 }
 
-void spell_eviless(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
-{
-	for (const auto tch : world[ch->in_room]->people)
-	{
-		if (IS_NPC(tch)
-			&& tch->get_master() == ch
-			&& MOB_FLAGGED(tch, MOB_CORPSE))
-		{
-			if (mag_affects(GET_LEVEL(ch), ch, tch, SPELL_EVILESS, SAVING_STABILITY))
-			{
-				GET_HIT(tch) = MAX(GET_HIT(tch), GET_REAL_MAX_HIT(tch));
-			}
-		}
-	}
-}
-
 void spell_holystrike(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* /*obj*/)
 {
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";

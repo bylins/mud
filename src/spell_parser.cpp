@@ -4962,8 +4962,8 @@ void mag_assign_spells(void)
 	spello(SPELL_PRISMATICAURA, "призматическая аура", "prismatic aura", 85, 70, 4,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //139
-	spello(SPELL_EVILESS, "силы зла", "eviless", 150, 130, 5, POS_STANDING, TAR_IGNORE, FALSE, MAG_MANUAL,
-		   3, STYPE_DARK);
+	spello(SPELL_EVILESS, "силы зла", "eviless", 150, 130, 5, 
+		   POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | MAG_POINTS, 3, STYPE_DARK);
 //140
 	spello(SPELL_AIR_AURA, "воздушная аура", "air aura",
 		   140, 120, 2, POS_FIGHTING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_AIR);

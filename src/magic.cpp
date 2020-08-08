@@ -2518,7 +2518,8 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 	}
 
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && ch != victim && SpINFO.violent && number(1, 999) <= GET_AR(victim) * 10)
+	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && ch != victim && SpINFO.violent 
+		&& number(1, 999) <= GET_AR(victim) * 10)
 	{
 		send_to_char(NOEFFECT, ch);
 		return 0;
@@ -3308,6 +3309,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 
 		to_vict = "Вы почувствовали себя отравленным.";
 		to_room = "$n позеленел$g от действия яда.";
+
 		break;
 
 	case SPELL_PROT_FROM_EVIL:
@@ -3674,6 +3676,10 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_EVILESS:
+		if (!IS_NPC(victim) || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE)) {
+			//тихо уходим, т.к. заклинание массовое
+			break;
+		}
 		af[0].duration = pc_duration(victim, 10, GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		af[0].location = APPLY_DAMROLL;
 		af[0].modifier = 15 + (GET_REMORT(ch) > 8 ? (GET_REMORT(ch) - 8) : 0);
@@ -3684,8 +3690,21 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[1].bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
 		af[2].duration = af[0].duration;
 		af[2].location = APPLY_HIT;
-		af[2].modifier = GET_REAL_MAX_HIT(victim);
 		af[2].bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
+
+		// иначе, при рекасте, модификатор суммируется с текущим аффектом.
+		if (!AFF_FLAGGED(victim, EAffectFlag::AFF_EVILESS)){
+			af[2].modifier = GET_REAL_MAX_HIT(victim);
+			// не очень красивый способ передать сигнал на лечение в mag_points
+			AFFECT_DATA<EApplyLocation> tmpaf;
+			tmpaf.type = SPELL_EVILESS;
+			tmpaf.duration = 1;
+			tmpaf.modifier = 0;
+			tmpaf.location = EApplyLocation::APPLY_NONE;
+			tmpaf.battleflag = 0;
+			tmpaf.bitvector = to_underlying(EAffectFlag::AFF_EVILESS);
+			affect_to_char(ch, tmpaf);			
+		}
 		to_vict = "Черное облако покрыло вас.";
 		to_room = "Черное облако покрыло $n3 с головы до пят.";
 		break;
@@ -4227,7 +4246,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		break;
 
 	case SPELL_LACKY:
-		{
 		af[0].duration = pc_duration(victim, 6, 0, 0, 0, 0);
 		af[0].bitvector = to_underlying(EAffectFlag::AFF_LACKY);
 		//Polud пробный обработчик аффектов
@@ -4238,7 +4256,6 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		to_room = "$n вдохновенно выпятил$g грудь.";
 		to_vict = "Вы почувствовали вдохновение.";
 		break;
-		}
 
 	case SPELL_ARROWS_FIRE:
 	case SPELL_ARROWS_WATER:
@@ -4251,68 +4268,46 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		}
 	}
 
-	/*
-	 * If this is a mob that has this affect set in its mob file, do not
-	 * perform the affect.  This prevents people from un-sancting mobs
-	 * by sancting them and waiting for it to fade, for example.
-	 */
-	if (IS_NPC(victim) && success)
-	{
-		for (i = 0; i < MAX_SPELL_AFFECTS && success; i++)
-		{
-			if (AFF_FLAGGED(victim, static_cast<EAffectFlag>(af[i].bitvector)))
-			{
-				if (ch->in_room == IN_ROOM(victim))
-				{
+	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
+	//чтобы этот аффект не очистился, при спадении спелла
+	if (IS_NPC(victim) && success){
+		for (i = 0; i < MAX_SPELL_AFFECTS && success; ++i) {
+			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffectFlag>(af[i].bitvector))) {
+				if (ch->in_room == IN_ROOM(victim)){
 					send_to_char(NOEFFECT, ch);
 				}
 				success = FALSE;
 			}
 		}
 	}
-
-	// * If the victim is already affected by this spell
-
-	// Если прошло, и спелл дружествееный - то снять его нафиг чтобы обновить
-	if (!SpINFO.violent && affected_by_spell(victim, spellnum) && success)
-	{
-//    affect_from_char(victim,spellnum);
+	// позитивные аффекты - продлеваем, если они уже на цели
+	if (!SpINFO.violent && affected_by_spell(victim, spellnum) && success){
 		update_spell = TRUE;
 	}
-
-	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell))
-	{
+	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
+	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell)) {
 		if (ch->in_room == IN_ROOM(victim))
 			send_to_char(NOEFFECT, ch);
 		success = FALSE;
 	}
 
-	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++)
-	{
+	for (i = 0; success && i < MAX_SPELL_AFFECTS; i++){
 		af[i].type = spellnum;
-		if (af[i].bitvector || af[i].location != APPLY_NONE)
-		{
+		if (af[i].bitvector || af[i].location != APPLY_NONE){
 			af[i].duration = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (update_spell)
-			{
 				affect_join_fspell(victim, af[i]);
-			}
 			else
-			{
 				affect_join(victim, af[i], accum_duration, FALSE, accum_affect, FALSE);
-			}
 		}
+		// тут мы ездим по циклу 16 раз, хотя аффектов 1-3...
+//		ch->send_to_TC(true, true, true, "Applied affect type %i\r\n", af[i].type);
 	}
 
-	if (success)
-	{
-		if (spellnum == SPELL_POISON)
+	if (success) {
+		// вот некрасиво же тут это делать...
+		if (spellnum == SPELL_POISON)	
 			victim->Poisoner = GET_ID(ch);
-		if (spellnum == SPELL_EVILESS && (GET_HIT(victim) < GET_MAX_HIT(victim)))
-		{
-			GET_HIT(victim) = GET_MAX_HIT(victim); //Без этой строки update_pos еще не видит восстановленных ХП
-			update_pos(victim);
-		}
 		if (to_vict != nullptr)
 			act(to_vict, FALSE, victim, 0, ch, TO_CHAR);
 		if (to_room != nullptr)
@@ -4828,12 +4823,16 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	return 1;
 }
 
-int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/* savetype*/)
+int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int)
 {
-	int hit = 0, move = 0;
+	int hit = 0; //если выставить больше нуля, то лечит 
+	int move = 0; //если выставить больше нуля, то реген хп
+	bool extraHealing = false; //если true, то лечит сверх макс.хп
 
-	if (victim == nullptr)
-		return 0;
+	if (victim == nullptr)	{
+		log("MAG_POINTS: Ошибка! Не указана цель, спелл spellnum: %d!\r\n", spellnum);
+		return 0;		
+	}
 
 	switch (spellnum)
 	{
@@ -4851,24 +4850,35 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 		break;
 	case SPELL_HEAL:
 	case SPELL_GROUP_HEAL:
-//MZ.overflow_fix
 		hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
-//-MZ.overflow_fix
 		send_to_char("Вы почувствовали себя здоровым.\r\n", victim);
 		break;
 	case SPELL_PATRONAGE:
 		hit = (GET_LEVEL(victim) + GET_REMORT(victim)) * 2;
 		break;
-	case SPELL_REFRESH:
-	case SPELL_GROUP_REFRESH:
-//MZ.overflow_fix
-		move = GET_REAL_MAX_MOVE(victim) - GET_MOVE(victim);
-//-MZ.overflow_fix
-		send_to_char("Вы почувствовали себя полным сил.\r\n", victim);
+	case SPELL_WC_OF_POWER:
+		hit = MIN(200, (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2);
+		send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
 		break;
 	case SPELL_EXTRA_HITS:
+		extraHealing = true;
 		hit = dice(10, level / 3) + level;
 		send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
+		break;				
+	case SPELL_EVILESS:
+	//лечим только умертвия-чармисы
+		if (!IS_NPC(victim) || victim->get_master() != ch || !MOB_FLAGGED(victim, MOB_CORPSE))
+			return 1;
+	//при рекасте - не лечим		
+		if (AFF_FLAGGED(ch, EAffectFlag::AFF_EVILESS)){
+			hit = GET_REAL_MAX_HIT(victim) - GET_HIT(victim);
+			affect_from_char(ch, SPELL_EVILESS); //сбрасываем аффект с хозяина
+		}
+		break;		
+	case SPELL_REFRESH:
+	case SPELL_GROUP_REFRESH:
+		move = GET_REAL_MAX_MOVE(victim) - GET_MOVE(victim);
+		send_to_char("Вы почувствовали себя полным сил.\r\n", victim);
 		break;
 	case SPELL_FULL:
 	case SPELL_COMMON_MEAL:
@@ -4880,38 +4890,39 @@ int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/
 			send_to_char("Вы полностью насытились.\r\n", victim);
 		}
 		break;
-	case SPELL_WC_OF_POWER:
-		hit = (4 * ch->get_con() + ch->get_skill(SKILL_WARCRY)) / 2;
-		send_to_char("По вашему телу начала струиться живительная сила.\r\n", victim);
+	default:
+		log("MAG_POINTS: Ошибка! Передан не определенный лечащий спелл spellnum: %d!\r\n", spellnum);
+		return 0;
 		break;
 	}
 
 	hit = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, hit);
 
-	if (hit && victim->get_fighting() && ch != victim)
-	{
-
+	if (hit && victim->get_fighting() && ch != victim){
 		if (!pk_agro_action(ch, victim->get_fighting()))
 			return 0;
 	}
-
-	if ((spellnum == SPELL_EXTRA_HITS || spellnum == SPELL_PATRONAGE)
-			&& (GET_HIT(victim) < MAX_HITS))
-//MZ.extrahits_fix
-		if (GET_REAL_MAX_HIT(victim) <= 0)
-			GET_HIT(victim) = MAX(GET_HIT(victim), MIN(GET_HIT(victim) + hit, 1));
-		else
-			GET_HIT(victim) = MAX(GET_HIT(victim),
-								  MIN(GET_HIT(victim) + hit,
-									  GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100));
-//-MZ.extrahits_fix
-	else if (GET_HIT(victim) < GET_REAL_MAX_HIT(victim))
-		GET_HIT(victim) = MIN(GET_HIT(victim) + hit, GET_REAL_MAX_HIT(victim));
-//MZ.overflow_fix
-	if (GET_MOVE(victim) < GET_REAL_MAX_MOVE(victim))
+	// лечение
+	if (GET_HIT(victim) < MAX_HITS && hit != 0) {
+		// просто лечим
+		if (!extraHealing  &&  GET_HIT(victim) < GET_REAL_MAX_HIT(victim))
+			GET_HIT(victim) = MIN(GET_HIT(victim) + hit, GET_REAL_MAX_HIT(victim));
+		// добавляем фикс.хиты сверх максимума
+		if (extraHealing) {
+			// если макс.хп отрицательные - доводим до 1
+			if (GET_REAL_MAX_HIT(victim) <= 0)
+				GET_HIT(victim) = MAX(GET_HIT(victim), MIN(GET_HIT(victim) + hit, 1));
+			else
+			// лимит в треть от макс.хп сверху
+				GET_HIT(victim) = MAX(GET_HIT(victim),
+									MIN(GET_HIT(victim) + hit,
+										GET_REAL_MAX_HIT(victim) + GET_REAL_MAX_HIT(victim) * 33 / 100));
+		}
+	}
+	if (move != 0 && GET_MOVE(victim) < GET_REAL_MAX_MOVE(victim))
 		GET_MOVE(victim) = MIN(GET_MOVE(victim) + move, GET_REAL_MAX_MOVE(victim));
-//-MZ.overflow_fix
 	update_pos(victim);
+
 	return 1;
 }
 
@@ -5378,9 +5389,6 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 		break;
 	case SPELL_TELEPORT:
 		MANUAL_SPELL(spell_teleport);
-		break;
-	case SPELL_EVILESS:
-		MANUAL_SPELL(spell_eviless);
 		break;
 	case SPELL_CONTROL_WEATHER:
 		MANUAL_SPELL(spell_control_weather);
