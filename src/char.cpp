@@ -2329,6 +2329,8 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 	if (!needSend && to_tester && 
 		(PRF_FLAGGED(this, PRF_TESTER) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_TESTER)))))
 	   	needSend = true;
+	if (!needSend)
+		return;
 
 	va_list args;
 	char tmpbuf[MAX_STRING_LENGTH];
@@ -2339,8 +2341,7 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 
 	if (!tmpbuf)
 		return;
-  
-	send_to_char(tmpbuf, this->get_master() ? this->get_master() : this);
+		send_to_char(tmpbuf, this->get_master() ? this->get_master() : this);
 } 
 
 
