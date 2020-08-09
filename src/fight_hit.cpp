@@ -4,6 +4,8 @@
 #include "handler.h"
 #include "screen.h"
 #include "dg_scripts.h"
+#include "skills.h"
+#include "magic.h"
 #include "pk.h"
 #include "dps.hpp"
 #include "fight.h"
@@ -982,7 +984,7 @@ void try_remove_extrahits(CHAR_DATA *ch, CHAR_DATA *victim)
 * На заднице 70% от итоговых процентов.
 * У чармисов 100% и 60% без остальных допов.
 */
-void addshot_damage(CHAR_DATA * ch, int type, int weapon)
+void addshot_damage(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon)
 {
 	int prob = train_skill(ch, SKILL_ADDSHOT, skill_info[SKILL_ADDSHOT].max_percent, ch->get_fighting());
 
@@ -3292,7 +3294,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	// Find weapon for attack number weapon //
 
-	if (weapon == 1)
+	if (weapon == FightSystem::AttType::MAIN_HAND)
 	{
 		if (!(wielded = GET_EQ(ch, WEAR_WIELD)))
 		{
@@ -3300,7 +3302,7 @@ void HitData::init(CHAR_DATA *ch, CHAR_DATA *victim)
 			weapon_pos = WEAR_BOTHS;
 		}
 	}
-	else if (weapon == 2)
+	else if (weapon == FightSystem::AttType::OFFHAND)
 	{
 		wielded = GET_EQ(ch, WEAR_HOLD);
 		weapon_pos = WEAR_HOLD;
@@ -3551,7 +3553,7 @@ void HitData::calc_rand_hr(CHAR_DATA *ch, CHAR_DATA *victim)
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
 
-	if (weapon == FightSystem::LEFT_WEAPON
+	if (weapon == FightSystem::AttType::OFFHAND
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
 		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
@@ -3642,7 +3644,7 @@ void HitData::calc_stat_hr(CHAR_DATA *ch)
 	float p_hitroll = ch->get_cond_penalty(P_HITROLL);
 	// штраф в размере 1 хитролла за каждые
 	// недокачанные 10% скилла "удар левой рукой"
-	if (weapon == FightSystem::LEFT_WEAPON
+	if (weapon == FightSystem::AttType::OFFHAND
 		&& skill_num != SKILL_THROW
 		&& skill_num != SKILL_BACKSTAB
 		&& !(wielded && GET_OBJ_TYPE(wielded) == OBJ_DATA::ITEM_WEAPON)
@@ -3899,12 +3901,28 @@ void HitData::calc_crit_chance(CHAR_DATA *ch)
 	}
 }
 
+ESpell breathFlag2Spellnum (CHAR_DATA *ch)
+{
+	ESpell t = SPELL_NO_SPELL;
+	// наркоманский код с объездом в двух циклах битвекторов флагов заменил на читаемый код
+	// извините..
+	if (MOB_FLAGGED(ch, (MOB_FIREBREATH)))
+		t = ESpell::SPELL_FIRE_BREATH;
+	if (MOB_FLAGGED(ch, (MOB_GASBREATH)))
+		t = ESpell::SPELL_GAS_BREATH;
+	if (MOB_FLAGGED(ch, (MOB_FROSTBREATH)))
+		t = ESpell::SPELL_FROST_BREATH;
+	if (MOB_FLAGGED(ch, (MOB_ACIDBREATH)))
+		t = ESpell::SPELL_ACID_BREATH;
+	if (MOB_FLAGGED(ch, (MOB_LIGHTBREATH)))
+		t = ESpell::SPELL_LIGHTNING_BREATH;
+	return t;
+}
+
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
-* \param weapon = 1 - атака правой или двумя руками
-*               = 2 - атака левой рукой
 */
-void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
+void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType weapon)
 {
 	if (!victim)
 	{
@@ -3933,20 +3951,40 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 		&& !GET_MOB_HOLD(victim) && GET_WAIT(victim) <= 0) {
 		set_battle_pos(victim);
 	}
+	
+	// AOE атаки всегда магические. Раздаём каждому игроку и уходим.
+	if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
+	{
+		const auto people = world[ch->in_room]->people;	// make copy because inside loop this list might be changed.
+		for (const auto& tch : people) {
+			if (IS_IMMORTAL(tch) || ch->in_room == NOWHERE || IN_ROOM(tch) == NOWHERE)
+				continue;
+			if (tch != ch && !same_group(ch, tch))
+				mag_damage(GET_LEVEL(ch), ch, tch, breathFlag2Spellnum (ch), SAVING_STABILITY);
+		}
+		return;
+	}
 
+	// а теперь просто дышащие
+	ESpell spellnum = breathFlag2Spellnum(ch);
+	if ( spellnum != ESpell::SPELL_NO_SPELL) {
+		mag_damage(GET_LEVEL(ch), ch, victim, spellnum, SAVING_STABILITY);
+		return;
+	}
+	
 	//go_autoassist(ch);
 
 	// старт инициализации полей для удара
 	HitData hit_params;
 	//конвертация скиллов, которые предполагают вызов hit()
 	//c тип_андеф, в тип_андеф.
-	hit_params.skill_num = type != SKILL_STUPOR && type != SKILL_MIGHTHIT ? type : TYPE_UNDEFINED;
+	hit_params.skill_num = type != SKILL_STUPOR && type != SKILL_MIGHTHIT ? type : SKILL_UNDEF;
 	hit_params.weapon = weapon;
 	hit_params.init(ch, victim);
 
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CLOUD_OF_ARROWS)
-		&& hit_params.skill_num < 0
+		&& hit_params.skill_num == ESkill::SKILL_UNDEF
 		&& (ch->get_fighting()
 		|| (!GET_AF_BATTLE(ch, EAF_MIGHTHIT) && !GET_AF_BATTLE(ch, EAF_STUPOR)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
@@ -4244,24 +4282,68 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon)
 	}
 }
 
-OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, int SelectedWeapon)
+// реализация скилла "железный ветер"
+void performIronWindAttacks(CHAR_DATA *ch, FightSystem::AttType weapon)
+{
+	int percent = 0, prob = 0, div = 0, moves = 0;
+	/*
+	первая дополнительная атака правой наносится 100%
+	вторая дополнительная атака правой начинает наноситься с 80%+ скилла, но не более чем с 80% вероятностью
+	первая дополнительная атака левой начинает наноситься сразу, но не более чем с 80% вероятностью
+	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
+	*/
+	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
+	{
+		percent = ch->get_skill(SKILL_IRON_WIND);
+		moves = GET_MAX_MOVE(ch) / (6 + MAX(10, percent) / 10);
+		prob = GET_AF_BATTLE(ch, EAF_IRON_WIND);
+		if (prob && !check_moves(ch, moves)) {
+			CLR_AF_BATTLE(ch, EAF_IRON_WIND);
+		}
+		else if (!prob && (GET_MOVE(ch) > moves)) {
+			SET_AF_BATTLE(ch, EAF_IRON_WIND);
+		};
+	};
+	if (GET_AF_BATTLE(ch, EAF_IRON_WIND)) {
+		(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, ch->get_fighting());
+		if (weapon == FightSystem::MAIN_HAND){
+			div = 100 + MIN(80, MAX(1, percent - 80));
+			prob = 100;
+		}
+		else {
+			div = MIN(80, percent + 10);
+			prob = 80 - MIN(30, MAX(0, percent - 170));
+		};
+		while (div > 0) {
+			if (number(1, 100) < div)
+				hit(ch, ch->get_fighting(), ESkill::SKILL_UNDEF, weapon);
+			div -= prob;
+		};
+	};
+
+}
+
+
+OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, FightSystem::AttType AttackType)
 {
 	OBJ_DATA *UsedWeapon = nullptr;
 
-	if (SelectedWeapon == FightSystem::RIGHT_WEAPON)
+	if (AttackType == FightSystem::AttType::MAIN_HAND)
 	{
 		if (!(UsedWeapon = GET_EQ(ch, WEAR_WIELD)))
 			UsedWeapon = GET_EQ(ch, WEAR_BOTHS);
 	}
-	else if (SelectedWeapon == FightSystem::LEFT_WEAPON)
+	else if (AttackType == FightSystem::AttType::OFFHAND)
 		UsedWeapon = GET_EQ(ch, WEAR_HOLD);
 
     return UsedWeapon;
 }
 
-//**** This function realize second shot for bows ******
-void exthit(CHAR_DATA * ch, int type, int weapon)
+// Обработка доп.атак
+void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon)
 {
+	int prob;
+	
 	if (!ch || ch->purged())
 	{
 		log("SYSERROR: ch = %s (%s:%d)",
@@ -4269,67 +4351,12 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 				__FILE__, __LINE__);
 		return;
 	}
+	// обрабатываем доп.атаки от железного ветра
+	performIronWindAttacks (ch, weapon);
 
 	OBJ_DATA *wielded = NULL;
-	int percent = 0, prob = 0, div = 0, moves = 0;
-
-	if (IS_NPC(ch))
-	{
-		if (MOB_FLAGGED(ch, MOB_EADECREASE) && weapon > 1)
-		{
-			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < weapon * GET_REAL_MAX_HIT(ch))
-				return;
-		}
-		if (MOB_FLAGGED(ch, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH |
-							 MOB_ACIDBREATH | MOB_LIGHTBREATH)))
-		{
-			for (prob = percent = 0; prob <= 4; prob++)
-				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
-					percent++;
-			percent = weapon % percent;
-			for (prob = 0; prob <= 4; prob++)
-			{
-				if (MOB_FLAGGED(ch, (INT_TWO | (1 << prob))))
-				{
-					if (0 == percent)
-					{
-						break;
-					}
-
-					--percent;
-				}
-			}
-
-			if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
-			{
-				const auto people = world[ch->in_room]->people;	// make copy because inside loop this list might be changed.
-				for (const auto& tch : people)
-				{
-					if (IS_IMMORTAL(tch)
-						|| ch->in_room == NOWHERE
-						|| IN_ROOM(tch) == NOWHERE)
-					{
-						continue;
-					}
-
-					if (tch != ch
-						&& !same_group(ch, tch))
-					{
-						mag_damage(GET_LEVEL(ch), ch, tch, SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
-					}
-				}
-			}
-			else
-			{
-				mag_damage(GET_LEVEL(ch), ch, ch->get_fighting(), SPELL_FIRE_BREATH + MIN(prob, 4), SAVING_CRITICAL);
-			}
-
-			return;
-		}
-	}
-
+	
 	wielded = GetUsedWeapon(ch, weapon);
-
 	if (wielded
 			&& !GET_EQ(ch, WEAR_SHIELD)
 			&& GET_OBJ_SKILL(wielded) == SKILL_BOWS
@@ -4347,49 +4374,7 @@ void exthit(CHAR_DATA * ch, int type, int weapon)
 			addshot_damage(ch, type, weapon);
 		}
 	}
-
-	/*
-	собсно работа скилла "железный ветер"
-	первая дополнительная атака правой наносится 100%
-	вторая дополнительная атака правой начинает наноситься с 80%+ скилла, но не более чем с 80% вероятностью
-	первая дополнительная атака левой начинает наноситься сразу, но не более чем с 80% вероятностью
-	вторая дополнительная атака левей начинает наноситься с 170%+ скилла, но не более чем с 30% вероятности
-	*/
-	if (PRF_FLAGS(ch).get(PRF_IRON_WIND))
-	{
-		percent = ch->get_skill(SKILL_IRON_WIND);
-		moves = GET_MAX_MOVE(ch) / (6 + MAX(10, percent) / 10);
-		prob = GET_AF_BATTLE(ch, EAF_IRON_WIND);
-		if (prob && !check_moves(ch, moves))
-		{
-			CLR_AF_BATTLE(ch, EAF_IRON_WIND);
-		}
-		else if (!prob && (GET_MOVE(ch) > moves))
-		{
-			SET_AF_BATTLE(ch, EAF_IRON_WIND);
-		};
-	};
-	if (GET_AF_BATTLE(ch, EAF_IRON_WIND))
-	{
-		(void) train_skill(ch, SKILL_IRON_WIND, skill_info[SKILL_IRON_WIND].max_percent, ch->get_fighting());
-		if (weapon == FightSystem::RIGHT_WEAPON)
-		{
-			div = 100 + MIN(80, MAX(1, percent - 80));
-			prob = 100;
-		}
-		else
-		{
-			div = MIN(80, percent + 10);
-			prob = 80 - MIN(30, MAX(0, percent - 170));
-		};
-		while (div > 0)
-		{
-			if (number(1, 100) < div)
-				hit(ch, ch->get_fighting(), type, weapon);
-			div -= prob;
-		};
-	};
-
+	
 	hit(ch, ch->get_fighting(), type, weapon);
 }
 

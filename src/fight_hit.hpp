@@ -12,8 +12,8 @@
 
 struct HitData
 {
-	HitData() : weapon(0), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
-		weap_skill_is(0), skill_num(-1), hit_type(0), hit_no_parry(false),
+	HitData() : weapon(FightSystem::MAIN_HAND), wielded(0), weapon_pos(WEAR_WIELD), weap_skill(SKILL_INVALID),
+		weap_skill_is(0), skill_num(SKILL_UNDEF), hit_type(0), hit_no_parry(false),
 		ch_start_pos(-1), victim_start_pos(-1), victim_ac(0), calc_thaco(0),
 		dam(0), dam_critic(0)
 	{
@@ -41,7 +41,7 @@ struct HitData
 	// init()
 	// 1 - атака правой или двумя руками (RIGHT_WEAPON),
 	// 2 - атака левой рукой (LEFT_WEAPON)
-	int weapon;
+	FightSystem::AttType weapon;
 	// пушка, которой в данный момент производится удар
 	OBJ_DATA *wielded;
 	// номер позиции (NUM_WEARS) пушки
@@ -52,10 +52,10 @@ struct HitData
 	int weap_skill_is;
 	// брошенные кубики на момент расчета попадания
 	int diceroll;
-	// номер скила, пришедший из вызова hit(), может быть TYPE_UNDEFINED
+	// номер скила, пришедший из вызова hit(), может быть SKILL_UNDEF
 	// в целом если < 0 - считается, что бьем простой атакой hit_type
 	// если >= 0 - считается, что бьем скилом
-	int skill_num;
+	ESkill skill_num;
 	// тип удара пушкой или руками (attack_hit_text[])
 	// инится в любом случае независимо от skill_num
 	int hit_type;
@@ -99,8 +99,8 @@ void group_gain(CHAR_DATA * ch, CHAR_DATA * victim);
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);
 bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int line);
 
-void exthit(CHAR_DATA * ch, int type, int weapon);
-void hit(CHAR_DATA *ch, CHAR_DATA *victim, int type, int weapon);
+void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon);
+void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType weapon);
 
 #endif // _FIGHT_LOCAL_HPP_
 

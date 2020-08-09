@@ -652,7 +652,7 @@ int skill_message(int dam, CHAR_DATA * ch, CHAR_DATA * vict, int attacktype, std
 	int i, j, nr;
 	struct message_type *msg;
 
-	// log("[SKILL MESSAGE] Message for skill %d",attacktype);
+	//log("[SKILL MESSAGE] Message for skill %d",attacktype);
 	for (i = 0; i < MAX_MESSAGES; i++)
 	{
 		if (fight_messages[i].a_type == attacktype)

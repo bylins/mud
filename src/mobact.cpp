@@ -23,7 +23,7 @@
 #include "comm.h"
 #include "interpreter.h"
 #include "handler.h"
-#include "spells.h"
+#include "magic.h"
 #include "skills.h"
 #include "constants.h"
 #include "pk.h"
@@ -219,7 +219,7 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 		if (!ch->get_fighting())
 		{
 			victim = try_protect(victim, ch);
-			hit(ch, victim, TYPE_UNDEFINED, 1);
+			hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 		}
 		return (TRUE);
 	}
@@ -724,7 +724,7 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 				}
 		}
 		if (!attack_best(ch, best) && !ch->get_fighting())
-			hit(ch, best, TYPE_UNDEFINED, 1);
+			hit(ch, best, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 		return (TRUE);
 	}
 	return (FALSE);
@@ -756,7 +756,7 @@ int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 
 			if (!attack_best(ch, vict) && !ch->get_fighting())
 			{
-				hit(ch, vict, TYPE_UNDEFINED, 1);
+				hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 			}
 
 			return (TRUE);
@@ -905,7 +905,7 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 			}
 			if (!attack_best(ch, victim))
 			{
-				hit(ch, victim, TYPE_UNDEFINED, 1);
+				hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 			}
 			return;
 		}

@@ -2052,19 +2052,20 @@ void process_npc_attack(CHAR_DATA *ch)
 	//**** удар основным оружием или рукой
 	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT))
 	{
-		exthit(ch, TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
+		exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::MAIN_HAND);
 	}
 
-	//**** экстраатаки
+	//**** экстраатаки мобов. Первая - оффхэнд
 	for (int i = 1; i <= ch->mob_specials.ExtraAttack; i++)
 	{
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT)
-			|| (i == 1 && AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT)))
-		{
+		// левая покалечена - скипуем
+		if (i == 1 && AFF_FLAGGED(ch, EAffectFlag::AFF_STOPLEFT))
 			continue;
-		}
-		exthit(ch, TYPE_UNDEFINED, i + FightSystem::RIGHT_WEAPON);
+		// если хп пробиты - уходим
+		if (MOB_FLAGGED(ch, MOB_EADECREASE))
+			if (ch->mob_specials.ExtraAttack * GET_HIT(ch) * 2 < i * GET_REAL_MAX_HIT(ch))
+				return;		
+		exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::MOB_ADD);
 	}
 }
 
@@ -2111,14 +2112,12 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	if (GET_AF_BATTLE(ch, EAF_MULTYPARRY))
 		return;
 
-	//* применение экстра атаки
-	if (ch->get_extra_victim()
-		&& GET_WAIT(ch) <= 0
+	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
+	if (ch->get_extra_victim() && GET_WAIT(ch) <= 0
 		&& using_extra_attack(ch))
 	{
 		ch->set_extra_attack(EXTRA_ATTACK_UNUSED, 0);
-		if (INITIATIVE(ch) > min_init)
-		{
+		if (INITIATIVE(ch) > min_init){
 			INITIATIVE(ch)--;
 			return;
 		}
@@ -2143,13 +2142,19 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 			//или молотить, по баттл-аффекту узнать получиться
 			//не во всех частях процедуры, а параметр type
 			//хранит значение до её конца.
-			exthit(ch, GET_AF_BATTLE(ch, EAF_STUPOR) ? SKILL_STUPOR : GET_AF_BATTLE(ch, EAF_MIGHTHIT) ? SKILL_MIGHTHIT : TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
+			ESkill tmpSkilltype;
+			if (GET_AF_BATTLE(ch, EAF_STUPOR))
+				tmpSkilltype = SKILL_STUPOR;
+			else if (GET_AF_BATTLE(ch, EAF_MIGHTHIT))
+				tmpSkilltype = SKILL_MIGHTHIT;
+			else tmpSkilltype = ESkill::SKILL_UNDEF;
+			exthit(ch, tmpSkilltype, FightSystem::AttType::MAIN_HAND);
 		}
 // допатака двуручем
 		if (GET_EQ(ch,WEAR_BOTHS)&& can_use_feat(ch, BOTHHANDS_FOCUS_FEAT) && (GET_OBJ_SKILL(GET_EQ(ch,WEAR_BOTHS)) == SKILL_BOTHHANDS) && can_use_feat(ch, RELATED_TO_MAGIC_FEAT))
 		{
 			if (ch->get_skill(SKILL_BOTHHANDS) > (number(1, 500)))
-				hit(ch, ch->get_fighting(), TYPE_UNDEFINED, FightSystem::RIGHT_WEAPON);
+				hit(ch, ch->get_fighting(), ESkill::SKILL_UNDEF, FightSystem::AttType::MAIN_HAND);
 		}
 		CLR_AF_BATTLE(ch, EAF_FIRST);
 		SET_AF_BATTLE(ch, EAF_SECOND);
@@ -2173,7 +2178,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 		{
-			exthit(ch, TYPE_UNDEFINED, FightSystem::LEFT_WEAPON);
+			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::OFFHAND);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}
@@ -2188,7 +2193,7 @@ void process_player_attack(CHAR_DATA *ch, int min_init)
 	{
 		if (IS_IMMORTAL(ch) || !GET_AF_BATTLE(ch, EAF_USEDLEFT))
 		{
-			exthit(ch, TYPE_UNDEFINED, FightSystem::LEFT_WEAPON);
+			exthit(ch, ESkill::SKILL_UNDEF, FightSystem::AttType::OFFHAND);
 		}
 		CLR_AF_BATTLE(ch, EAF_SECOND);
 	}

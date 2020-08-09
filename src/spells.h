@@ -141,7 +141,7 @@ template <> const std::string& NAME_BY_ITEM<EIngredientFlag>(const EIngredientFl
 #define   MI_LEVEL16     (1 << 12)
 
 // PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS //
-enum ESpell
+enum ESpell: int
 {
 	SPELL_NO_SPELL = 0,
 	SPELL_ARMOR = 1,	// Reserved Skill[] DO NOT CHANGE //
@@ -388,7 +388,12 @@ enum ESpell
 	SPELL_WC_PHYSDAMAGE = 240, // + дам
 	SPELL_MASS_FAILURE = 241, // взор Велеса (массовая недоля)
 	SPELL_MASS_NOFLEE = 242, // западня (массовое сковывание)
-	SPELLS_COUNT = 	SPELL_MASS_NOFLEE    // Counter corresponds to the last value because we count spells from 1.
+ 	SPELL_FIRE_BREATH = 243,       // магическое дыхание
+ 	SPELL_GAS_BREATH = 244,        // магическое дыхание
+ 	SPELL_FROST_BREATH = 245,      // магическое дыхание
+ 	SPELL_ACID_BREATH = 246,       // магическое дыхание
+ 	SPELL_LIGHTNING_BREATH = 247,  // магическое дыхание	
+	SPELLS_COUNT = 	SPELL_LIGHTNING_BREATH    // Counter corresponds to the last value because we count spells from 1.
 };
 
 class spell_wear_off_msg_t: public std::array<const char*, SPELLS_COUNT + 1>
@@ -434,11 +439,6 @@ template <> const std::string& NAME_BY_ITEM<ESpell>(const ESpell spell);
  */
 
 #define SPELL_IDENTIFY               351
-#define SPELL_FIRE_BREATH            352
-#define SPELL_GAS_BREATH             353
-#define SPELL_FROST_BREATH           354
-#define SPELL_ACID_BREATH            355
-#define SPELL_LIGHTNING_BREATH       356
 #define SPELL_QUEST		     357	// Spell for dg_affect using
 
 #define TOP_SPELL_DEFINE	     399
@@ -609,32 +609,6 @@ void spell_mental_shadow(int level, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *
 // basic magic calling functions
 
 int fix_name_and_find_spell_num(char *name);
-
-int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
-
-int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
-
-int callMagicToGroup(int level, CHAR_DATA * ch, int spellnum);
-
-int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum, int level);
-
-int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype);
-
-int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
-
-int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int type);
-
-int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int type);
-
-int mag_creations(int level, CHAR_DATA * ch, int spellnum);
-
-int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int casttype);
-
-int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level);
-
-void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument);
-
-int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
 
 bool catch_bloody_corpse(OBJ_DATA * l);
 

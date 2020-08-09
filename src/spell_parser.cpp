@@ -2046,7 +2046,7 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 		if (IS_NPC(victim))
 			attack_best(victim, caster);
 		else
-			hit(victim, caster, TYPE_UNDEFINED, 1);
+			hit(victim, caster, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 	}
 	else if (CAN_SEE(victim, caster) && !IS_NPC(caster) && IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY))
 	{
@@ -5336,10 +5336,10 @@ void mag_assign_spells(void)
 	 * Values for the 'breath' spells are filled in assuming a dragon's breath.
 	 */
 
-//351
+
 	spello(SPELL_IDENTIFY, "идентификация", "identify",
 		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
-
+//243 - 247
 	spello(SPELL_FIRE_BREATH, "огненное дыхание", "fire breath", 0, 0, 0,
 		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_FIRE);
 
@@ -5354,7 +5354,7 @@ void mag_assign_spells(void)
 
 	spello(SPELL_LIGHTNING_BREATH, "опаляющее дыхание", "lightning breath",
 		   0, 0, 0, POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_DARK);
-
+// 357
 	spello(SPELL_QUEST, "чары", "quest spell",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
 	spello(SPELL_SOLOBONUS, "награда", "bonus",
