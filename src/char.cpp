@@ -716,7 +716,7 @@ void CHAR_DATA::set_skill(const ESkill skill_num, int percent) {
 
 void CHAR_DATA::set_skill(short remort) {
 	int skill;
-	int maxSkillLevel = MAX_SKILLLEVEL_PER_REMORT(this);
+	int maxSkillLevel = baseSkillLevel + remort*bonusSkillPointsPerRemort;
 	for (auto it = skills.begin(); it != skills.end(); it++) {
 		skill = get_trained_skill((*it).first) + get_equipped_skill((*it).first);
 		if (skill > maxSkillLevel) {
@@ -2317,10 +2317,15 @@ void CHAR_DATA::inc_restore_timer(int num)
 void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...)
 {
 	bool needSend = false;
-	if ((IS_CHARMICE(this) && IS_NPC(this->get_master())) //если это чармис у нпц
-		|| (IS_NPC(this) && !IS_CHARMICE(this)))//просто непись
-	return;
-
+	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
+	if (IS_CHARMICE(this) && !this->has_master()) {
+		log("[WARNING] CHAR_DATA::send_to_TC. Чармис без хозяина: %s", this->get_name().c_str());
+		return;
+	}
+	if ((IS_CHARMICE(this) && this->get_master()->is_npc()) //если это чармис у нпц
+		|| (IS_NPC(this) && !IS_CHARMICE(this))) //просто непись
+		return;
+		
 	if (to_impl)
 		needSend = true;	
 	if (!needSend && to_coder && 
@@ -2342,7 +2347,7 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 	if (!tmpbuf)
 		return;
 	
-	send_to_char(tmpbuf, this->get_master() ? this->get_master() : this);
+	send_to_char(tmpbuf, this->has_master() ? this->get_master() : this);
 } 
 
 

@@ -159,7 +159,7 @@ int find_weapon_focus_by_skill(ESkill skill);
 int find_weapon_master_by_skill(ESkill skill);
 
 const short bonusSkillPointsPerRemort = 5;
-#define MAX_SKILLLEVEL_PER_REMORT(ch) (80 + ch->get_remort()*bonusSkillPointsPerRemort)
+const short baseSkillLevel = 80;//базовый уровень умения, если не задано явно
 
 // ГОРНОЕ ДЕЛО
 
