@@ -182,8 +182,8 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim) {
 		}
 		return (FALSE);
 	}
-
-	hit(ch, victim, TYPE_UNDEFINED, AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? LEFT_WEAPON : RIGHT_WEAPON);
+	hit(ch, victim, ESkill::SKILL_UNDEF, 
+		AFF_FLAGGED(ch, EAffectFlag::AFF_STOPRIGHT) ? FightSystem::OFFHAND : FightSystem::MAIN_HAND);
 	set_wait(ch, 2, TRUE);
 	//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 	return (TRUE);
@@ -513,7 +513,7 @@ void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict) {
 		Damage dmg(SkillDmg(SKILL_BACKSTAB), ZERO_DMG, PHYS_DMG);
 		dmg.process(ch, vict);
 	} else {
-		hit(ch, vict, SKILL_BACKSTAB, RIGHT_WEAPON);
+		hit(ch, vict, SKILL_BACKSTAB, FightSystem::MAIN_HAND);
 		//if (!ch->get_fighting())
 			//WAIT_STATE(ch, PULSE_VIOLENCE / 6);
 	}
@@ -2002,7 +2002,7 @@ void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim) {
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_STUPOR);
-		hit(ch, victim, SKILL_STUPOR, RIGHT_WEAPON);
+		hit(ch, victim, SKILL_STUPOR, FightSystem::MAIN_HAND);
 		//set_wait(ch, 2, TRUE);
 		if (ch->getSkillCooldown(SKILL_STUPOR) > 0) {
 			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
@@ -2066,7 +2066,7 @@ void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim) {
 
 	if (!ch->get_fighting()) {
 		SET_AF_BATTLE(ch, EAF_MIGHTHIT);
-		hit(ch, victim, SKILL_MIGHTHIT, RIGHT_WEAPON);
+		hit(ch, victim, SKILL_MIGHTHIT, FightSystem::MAIN_HAND);
 		if (ch->getSkillCooldown(SKILL_MIGHTHIT) > 0) {
 			setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
 		}
@@ -2661,7 +2661,7 @@ void go_iron_wind(CHAR_DATA * ch, CHAR_DATA * victim) {
 	if (!ch->get_fighting()) {
 		PRF_FLAGS(ch).set(PRF_IRON_WIND);
 		SET_AF_BATTLE(ch, EAF_IRON_WIND);
-		hit(ch, victim, TYPE_UNDEFINED, RIGHT_WEAPON);
+		hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 		set_wait(ch, 2, TRUE);
 		//ch->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
 		//ch->setSkillCooldown(SKILL_IRON_WIND, 2);
@@ -2969,8 +2969,8 @@ void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict) {
 
     act("$n сделал$g неуловимое движение и на мгновение исчез$q из вида.", FALSE, ch, 0, vict, TO_VICT);
     act("$n сделал$g неуловимое движение, сместившись за спину $N1.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
-    hit(ch, vict, TYPE_UNDEFINED, RIGHT_WEAPON);
-    hit(ch, vict, TYPE_UNDEFINED, LEFT_WEAPON);
+    hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+    hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::OFFHAND);
 
     AFFECT_DATA<EApplyLocation> AffectImmunPhysic;
     AffectImmunPhysic.type = SPELL_EXPEDIENT;

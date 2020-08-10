@@ -17,7 +17,7 @@
 #include "dg_event.h"
 #include "db.h"
 #include "screen.h"
-#include "spells.h"
+#include "magic.h"
 #include "char.hpp"
 #include "room.hpp"
 #include "utils.h"

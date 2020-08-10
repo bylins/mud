@@ -15,7 +15,7 @@
 #include "db.h"
 #include "comm.h"
 #include "handler.h"
-#include "spells.h"
+#include "magic.h"
 #include "skills.h"
 #include "room.hpp"
 #include "screen.h"

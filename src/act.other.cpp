@@ -741,7 +741,7 @@ void go_steal(CHAR_DATA * ch, CHAR_DATA * vict, char *obj_name)
 		WAIT_STATE(ch, 3 * PULSE_VIOLENCE);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && IS_NPC(vict) && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
-		hit(vict, ch, TYPE_UNDEFINED, 1);
+		hit(vict, ch, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 }
 
 void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

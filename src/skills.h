@@ -37,6 +37,7 @@ enum ExtraAttackEnumType
 // PLAYER SKILLS - Numbered from 1 to MAX_SKILL_NUM //
 enum ESkill: int
 {
+	SKILL_UNDEF = -1,
 	SKILL_INVALID = 0,
 	SKILL_GLOBAL_COOLDOWN = 0,	// Internal - ID for global ability cooldown //
 	SKILL_FIRST = 1,

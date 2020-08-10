@@ -469,7 +469,7 @@ extern const religion_names_t religion_name;
 #define MOB_LIKE_SUMMER      (INT_ONE | (1 << 12))
 #define MOB_LIKE_AUTUMN      (INT_ONE | (1 << 13))
 #define MOB_NOFIGHT          (INT_ONE | (1 << 14))
-#define MOB_EADECREASE       (INT_ONE | (1 << 15))
+#define MOB_EADECREASE       (INT_ONE | (1 << 15)) // понижает количество своих атак по мере убывания тек.хп
 #define MOB_HORDE            (INT_ONE | (1 << 16))
 #define MOB_CLONE            (INT_ONE | (1 << 17))
 #define MOB_NOTKILLPUNCTUAL  (INT_ONE | (1 << 18))

@@ -3,12 +3,21 @@
 
 namespace FightSystem
 {
-	const int RIGHT_WEAPON = 1;
-	const int LEFT_WEAPON = 2;
+	enum AttType {
+		MAIN_HAND = 1, //Основная атака
+		OFFHAND = 2,  //Доп.атака 
+		MOB_ADD = 3    //Доп.атака моба		
+	};
 
 	const int ZERO_DMG = 0;
 
-	enum DmgType { UNDEF_DMG, PHYS_DMG, MAGE_DMG };
+	enum DmgType { 
+		UNDEF_DMG,  // для совместимости, надо убирать
+		PHYS_DMG,   // физический урон
+		MAGE_DMG,   // магический урон, дальше смотрим тип
+		POISON_DMG, // чтобы использовать вместо UNDEF
+		PURE_DMG    // например, чистый урон SLOW DT
+	};
 
 	enum
 	{

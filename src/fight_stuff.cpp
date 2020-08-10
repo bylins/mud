@@ -1419,14 +1419,14 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 void test_self_hitroll(CHAR_DATA *ch)
 {
 	HitData hit;
-	hit.weapon = FightSystem::RIGHT_WEAPON;
+	hit.weapon = FightSystem::AttType::MAIN_HAND;
 	hit.init(ch, ch);
 	hit.calc_base_hr(ch);
 	hit.calc_stat_hr(ch);
 	hit.calc_ac(ch);
 
 	HitData hit2;
-	hit2.weapon = FightSystem::LEFT_WEAPON;
+	hit2.weapon = FightSystem::AttType::OFFHAND;
 	hit2.init(ch, ch);
 	hit2.calc_base_hr(ch);
 	hit2.calc_stat_hr(ch);

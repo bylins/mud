@@ -14,10 +14,11 @@
 #ifndef _MAGIC_H_
 #define _MAGIC_H_
 
-#include <cstdlib>
+#include "obj.hpp"
+#include "char.hpp"
+#include "room.hpp"
 
-class CHAR_DATA;	// forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
+#include <cstdlib>
 
 // VNUM'ы мобов для заклинаний, создающих мобов
 const int MOB_DOUBLE = 3000; //внум прототипа для клона
@@ -48,6 +49,22 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 void mobile_affect_update(void);
 void player_affect_update(void);
 void print_rune_log();
+
+int callMagicToGroup(int level, CHAR_DATA * ch, int spellnum);
+int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum, int level);
+
+int call_magic(CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, ROOM_DATA *rvict, int spellnum, int level);
+int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA *troom, int spellnum, int spell_subst);
+
+int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
+int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
+int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int savetype);
+int mag_points(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int savetype);
+int mag_unaffects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int type);
+int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int type);
+int mag_creations(int level, CHAR_DATA * ch, int spellnum);
+int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int casttype);
+void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument);
 
 namespace RoomSpells {
 	void room_affect_update(void);
