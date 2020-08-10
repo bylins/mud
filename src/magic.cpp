@@ -2336,12 +2336,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 			{
 				dmg.flags.set(FightSystem::NO_FLEE_DMG);
 			}
-			rand = dmg.process(ch, victim);
-			log("[Damage fields]: msg_num: %d\r\nmagic_type :%d\r\nskill_num :%d\r\nspell_num: %d\r\n",  
-										dmg.msg_num, 
-										dmg.magic_type, 
-										dmg.skill_num, 
-										dmg.spell_num);			
+			rand = dmg.process(ch, victim);	
 		}
 	}
 	return rand;
