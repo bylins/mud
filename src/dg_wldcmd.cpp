@@ -65,7 +65,7 @@ struct wld_command_info
 
 
 // attaches room vnum to msg and sends it to script_log
-void wld_log(ROOM_DATA * room, const char *msg, const int type = 0)
+void wld_log(ROOM_DATA * room, const char *msg, LogMode type = LogMode::OFF)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 

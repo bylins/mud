@@ -68,7 +68,7 @@ void mob_command_interpreter(CHAR_DATA* ch, char *argument);
 bool mob_script_command_interpreter(CHAR_DATA* ch, char *argument);
 
 // attaches mob's name and vnum to msg and sends it to script_log
-void mob_log(CHAR_DATA * mob, const char *msg, const int type = 0)
+void mob_log(CHAR_DATA * mob, const char *msg, LogMode type = LogMode::OFF)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 

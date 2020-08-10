@@ -61,7 +61,7 @@ struct obj_command_info
 #define SCMD_OECHOAROUND   1
 
 // attaches object name and vnum to msg and sends it to script_log 
-void obj_log(OBJ_DATA * obj, const char *msg, const int type = 0)
+void obj_log(OBJ_DATA * obj, const char *msg, LogMode type = LogMode::OFF)
 {
 	char buf[MAX_INPUT_LENGTH + 100];
 

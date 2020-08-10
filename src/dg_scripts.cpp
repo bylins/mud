@@ -131,7 +131,7 @@ const char uid_replace_table[] = {
 	'\xf0', '\xf1', '\xf2', '\xf3', '\xf4', '\xf5', '\xf6', '\xf7', '\xf8', '\xf9', '\xfa', '\xfb', '\xfc', '\xfd', '\xfe', '\xff'	//256
 };
 
-void script_log(const char *msg, const int type)
+void script_log(const char *msg, LogMode type)
 {
 	char tmpbuf[MAX_STRING_LENGTH];
 
@@ -152,7 +152,7 @@ void script_log(const char *msg, const int type)
  *  Logs any errors caused by scripts to the system log.
  *  Will eventually allow on-line view of script errors.
  */
-void trig_log(TRIG_DATA * trig, const char *msg, const int type)
+void trig_log(TRIG_DATA * trig, const char *msg, LogMode type)
 {
 	char tmpbuf[MAX_STRING_LENGTH];
 	snprintf(tmpbuf, MAX_STRING_LENGTH, "(Trigger: %s, VNum: %d) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), msg);

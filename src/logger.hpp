@@ -21,15 +21,20 @@ void err_log(const char *format, ...) __attribute__((format(printf,1,2)));
 void ip_log(const char *ip);
 
 // defines for mudlog() //
-#define OFF 0
-#define CMP 1
-#define BRF 2
-#define NRM 3
-#define LGH 4
-#define DEF 5
+enum LogMode : int
+{
+	OFF = 0, 
+	CMP = 1, 
+	BRF = 2,
+	NRM = 3,
+	LGH = 4,
+	DEF = 5
+};
 
-void mudlog(const char *str, int type, int level, EOutputStream channel, int file);
-void mudlog_python(const std::string& str, int type, int level, const EOutputStream channel, int file);
+void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int file);
+void mudlog(std::string str, LogMode type, int level, EOutputStream channel, int file);
+
+void mudlog_python(const std::string& str, LogMode type, int level, const EOutputStream channel, int file);
 
 void hexdump(FILE* file, const char *ptr, size_t buflen, const char* title = nullptr);
 inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, const char* title = nullptr)

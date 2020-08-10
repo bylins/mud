@@ -2319,13 +2319,14 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 	bool needSend = false;
 	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
 	if (IS_CHARMICE(this) && !this->has_master()) {
-		log("[WARNING] CHAR_DATA::send_to_TC. Чармис без хозяина: %s", this->get_name().c_str());
+		sprintf(buf, "[WARNING] CHAR_DATA::send_to_TC. Чармис без хозяина: %s", this->get_name().c_str());
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
 	if ((IS_CHARMICE(this) && this->get_master()->is_npc()) //если это чармис у нпц
 		|| (IS_NPC(this) && !IS_CHARMICE(this))) //просто непись
 		return;
-		
+
 	if (to_impl)
 		needSend = true;	
 	if (!needSend && to_coder && 
