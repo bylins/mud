@@ -2264,12 +2264,18 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 				}
 				if (!IS_NPC(ch)) {
 					struct follow_type *k, *k_next;
+					int number, i = 1; // нам тут могут передать 2.чармис же!
+					char tmpname[MAX_INPUT_LENGTH];
+					char *tmp = tmpname;
+					strcpy(tmp, t);
+					number = get_number(&tmp);					
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
-						if (isname(t, k->follower->get_pc_name())) {
+						if (i == number && isname(tmp, k->follower->get_pc_name())) {
 							*tch = k->follower;
 							return TRUE;
 						}
+						++i;
 					}
 				}
 			}
@@ -2340,7 +2346,7 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 	send_to_char(buf, ch);
 	return FALSE;
 }
-
+/*
 int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DATA ** tch, OBJ_DATA ** tobj, ROOM_DATA ** troom)
 {
 	*tch = NULL;
@@ -2457,6 +2463,7 @@ int find_cast_target(int spellnum, const std::string &t, CHAR_DATA * ch, CHAR_DA
 	return FALSE;
 }
 
+*/
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 {
 	int i, spellnum;
@@ -3272,8 +3279,9 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	CHAR_DATA *tch;
 	OBJ_DATA *tobj;
 	ROOM_DATA *troom;
+	//афтар сотворил клона функции, а остальное не перевёл :(
 
-	int target = find_cast_target(spellnum, tok_iter == tok.end() ? "" : *tok_iter, ch, &tch, &tobj, &troom);
+	int target = find_cast_target(spellnum, tok_iter == tok.end() ? "" : (*tok_iter).c_str(), ch, &tch, &tobj, &troom);
 
 	if (!target)
 	{
