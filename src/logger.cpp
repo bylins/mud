@@ -217,19 +217,18 @@ void ip_log(const char *ip)
 }
 
 /*
- * Перезагрузка для функции mudlog, которая первым параметром вместо char *, принимает строку
+ * Перегрузка функции mudlog, которая первым параметром вместо char *, принимает строку
  */
-void mudlog(std::string str, int type, int level, EOutputStream channel, int file)
+void mudlog(std::string str, LogMode type, int level, EOutputStream channel, int file)
 {
 	mudlog(str.c_str(), type, level, channel, file);
 }
 
 /*
 * mudlog -- log mud messages to a file & to online imm's syslogs
-* based on syslog by Fen Jul 3, 1992
 * file - номер файла для вывода (0..NLOG), -1 не выводить в файл
 */
-void mudlog(const char *str, int type, int level, EOutputStream channel, int file)
+void mudlog(const char *str, LogMode type, int level, EOutputStream channel, int file)
 {
 	char tmpbuf[MAX_STRING_LENGTH];
 	DESCRIPTOR_DATA *i;
@@ -278,7 +277,7 @@ void mudlog(const char *str, int type, int level, EOutputStream channel, int fil
 	}
 }
 
-void mudlog_python(const std::string& str, int type, int level, const EOutputStream channel, int file)
+void mudlog_python(const std::string& str, LogMode type, int level, const EOutputStream channel, int file)
 {
 	mudlog(str.c_str(), type, level, channel, file);
 }

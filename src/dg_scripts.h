@@ -14,6 +14,7 @@
 
 #include "skills.h"
 #include "structs.h"
+#include "logger.hpp"
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
@@ -370,8 +371,8 @@ void do_sstat_room(CHAR_DATA * ch);
 void do_sstat_object(CHAR_DATA * ch, OBJ_DATA * j);
 void do_sstat_character(CHAR_DATA * ch, CHAR_DATA * k);
 
-void script_log(const char *msg, const int type = 0);//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
-void trig_log(TRIG_DATA * trig, const char *msg, const int type = 0);
+void script_log(const char *msg, LogMode type = LogMode::OFF );//type нужен чтоб не спамить мессаги тем у кого errlog не полный а краткий например
+void trig_log(TRIG_DATA * trig, const char *msg, LogMode type = LogMode::OFF);
 
 using obj2trigers_t = std::unordered_map<obj_rnum, std::list<rnum_t>>;
 extern obj2trigers_t& obj2trigers;
