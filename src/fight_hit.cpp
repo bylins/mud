@@ -4346,14 +4346,9 @@ OBJ_DATA *GetUsedWeapon(CHAR_DATA *ch, FightSystem::AttType AttackType)
 
 // Обработка доп.атак
 void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon)
-{
-	int prob;
-	
-	if (!ch || ch->purged())
-	{
-		log("SYSERROR: ch = %s (%s:%d)",
-				ch ? (ch->purged() ? "purged" : "true") : "false",
-				__FILE__, __LINE__);
+{	
+	if (!ch || ch->purged()){
+		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
 	}
 	// обрабатываем доп.атаки от железного ветра
@@ -4372,7 +4367,6 @@ void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon)
 				&& MIN(850, 200 + ch->get_skill(SKILL_BOWS) * 4 + GET_REAL_DEX(ch) * 5) >= number(1, 1000))
 		{
 			hit(ch, ch->get_fighting(), type, weapon);
-			prob = 0;
 		}
 		else if (ch->get_skill(SKILL_ADDSHOT) > 0)
 		{

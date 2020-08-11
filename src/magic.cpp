@@ -1648,7 +1648,7 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 	if (!pk_agro_action(ch, victim))
 		return (0);
 
-//  log("[MAG DAMAGE] %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
+     log("[MAG DAMAGE] %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
 	// Magic glass
 	if (!IS_SET(SpINFO.routines, MAG_WARCRY)) {
 		if (ch != victim && spellnum < MAX_SPELLS &&
@@ -4935,7 +4935,8 @@ inline bool NODISPELL(const AFFECT_DATA<EApplyLocation>::shared_ptr& affect)
 		|| affect->type == SPELL_QUEST
 		|| affect->type == SPELL_FASCINATION
 		|| affect->type == SPELL_PATRONAGE
-		|| affect->type == SPELL_SOLOBONUS;
+		|| affect->type == SPELL_SOLOBONUS
+		|| affect->type == SPELL_EVILESS;
 }
 
 int mag_unaffects(int/* level*/, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int/* type*/)
@@ -5453,6 +5454,13 @@ int mag_manual(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovic
 //---------------------------------------------------------
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int savetype)
 {
+	/*
+	if (IS_SET(SpINFO.routines, 0)){
+			send_to_char(NOEFFECT, caster);
+			return (-1);
+	}
+	*/
+
 	//туповато конечно, но подобные проверки тут как счупалцьа перепутаны
 	//и чтоб сделать по человечески надо треть пары модулей перелопатить
 	if (cvict && (caster != cvict))
