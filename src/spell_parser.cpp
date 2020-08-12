@@ -1624,9 +1624,15 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	*helpee_vict, *damagee_vict, *format;
 	int  religion;
 
+
 	*buf = '\0';
 	strcpy(lbuf, SpINFO.syn);
 	// Say phrase ?
+	if (cast_phrase[spellnum][GET_RELIGION(ch)] == nullptr){
+		sprintf(buf, "[ERROR]: say_spell: для спелла %d не объявлена cast_phrase", spellnum);
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);			
+		return;
+	}
 	if (IS_NPC(ch)) {
 		switch (GET_RACE(ch)) {
 		case NPC_RACE_EVIL_SPIRIT:
@@ -1654,6 +1660,16 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		}
 	}
 	else {
+		//если включен режим без повторов (подавление ехо) не показываем	
+		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) {
+			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
+				send_to_char(OK, ch);
+		}
+		else {
+			sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
+					CCICYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
+			send_to_char(buf, ch);
+		}
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
 			strcpy(buf, cast_phrase[spellnum][GET_RELIGION(ch)]);
 		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
@@ -2762,29 +2778,22 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	int ignore;
 	ESkill skillnum = SKILL_INVALID;
 
-	if (spellnum < 0 || spellnum > TOP_SPELL_DEFINE)
-	{
+	if (spellnum < 0 || spellnum > TOP_SPELL_DEFINE){
 		log("SYSERR: cast_spell trying to call spellnum %d/%d.\n", spellnum, TOP_SPELL_DEFINE);
 		return (0);
 	}
 //проверка на алайнмент мобов
 
-	if (tch && ch)
-	{
+	if (tch && ch){
 		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !SpINFO.violent)
-		{
 			return (0);
-		}
 	}
 
 	if (!troom)
-	{
 		// Вызвали с пустой комнатой значит будем кастить тут
 		troom = world[ch->in_room];
-	}
 
-	if (GET_POS(ch) < SpINFO.min_position)
-	{
+	if (GET_POS(ch) < SpINFO.min_position) {
 		switch (GET_POS(ch))
 		{
 		case POS_SLEEPING:
@@ -2806,23 +2815,17 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 		return (0);
 	}
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-		&& ch->get_master() == tch)
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_master() == tch)	{
 		send_to_char("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
 		return (0);
 	}
 
-	if (tch != ch
-		&& !IS_IMMORTAL(ch)
-		&& IS_SET(SpINFO.targets, TAR_SELF_ONLY))
-	{
+	if (tch != ch && !IS_IMMORTAL(ch) && IS_SET(SpINFO.targets, TAR_SELF_ONLY)) {
 		send_to_char("Вы можете колдовать это только на себя!\r\n", ch);
 		return (0);
 	}
 
-	if (tch == ch && IS_SET(SpINFO.targets, TAR_NOT_SELF))
-	{
+	if (tch == ch && IS_SET(SpINFO.targets, TAR_NOT_SELF)) {
 		send_to_char("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
 		return (0);
 	}
@@ -2839,107 +2842,65 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 
 	// add by Pereplut: если цель уйдет из клетки в случае кастинга в бою (с лагом) - то
 	// не будет кастоваться на соседние клетки, в случае если закл не глобальный
-	if (tch && ch && IN_ROOM(tch) != ch->in_room)
-	{
-		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD))
-		{
+	if (tch && ch && IN_ROOM(tch) != ch->in_room) {
+		if (!IS_SET(SpINFO.targets, TAR_CHAR_WORLD)) {
 			send_to_char("Цель заклинания не доступна.\r\n", ch);
 			return (0);
 		}
 	}
 
-	// Начало изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
-
 // Может-ли кастер зачитать заклинание если на нем эфект !смирение!?
-// Далее идет код _аналогичный_ коду функции may_cast_here()
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL))
-		// Проверяю, что закл имеет одну из допустимых комбинаций параметров
-		// если игнорируется цель, то должен быть GROUP или MASS
-		// в противном случае на цель кастовать нельзя
-	{
+// одиночная цель - запрет агро
+// 
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL)){
 		ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
 				 IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS);
-
-		if (ignore)
-		{
-			if (SpINFO.violent)
-			{
+		if (ignore)  { // индивидуальная цель
+			if (SpINFO.violent) {
 				send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 				return FALSE;	// нельзя злые кастовать
 			}
 		}
-		// индивидуальная цель
-
 		// начинаю проверять условия каста
 		// Для добрых заклинаний - проверка на противника цели
 		// Для злых заклинаний - проверка на цель
-		for (const auto ch_vict : world[ch->in_room]->people)
-		{
-			if (SpINFO.violent)
-			{
-				if (ch_vict == tch)
-				{
+		for (const auto ch_vict : world[ch->in_room]->people) {
+			if (SpINFO.violent) {
+				if (ch_vict == tch) {
 					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 					return FALSE;
 				}
 			}
-			else
-			{
-				if (ch_vict == tch
-					&& !same_group(ch, ch_vict))
-				{
+			else {
+				if (ch_vict == tch && !same_group(ch, ch_vict)) {
 					send_to_char("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
 					return FALSE;
 				}
 			}
 		}
 	}
-	// Конец изменений. (с) Дмитрий ака dzMUDiST ака Кудояр
-	if (!IS_NPC(ch))
-	{
-		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) //если включен режим без повторов (подавление ехо) не показываем
-		{
-			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
-				send_to_char(OK, ch);
-		}
-		else
-		{
-			//если режима нет, ехо включено, выводим сообщение
-			sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-					CCICYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
-		}
-	}
+
 	//тренируем магические компетенции
 	skillnum = get_magic_skill_number_by_spell(spellnum);
-	if (skillnum > 0)
-	{
+	if (skillnum != SKILL_INVALID && skillnum != SKILL_UNDEF) {
 		train_skill(ch, skillnum, skill_info[skillnum].max_percent, tch);
 	}
 	// Комнату тут в say_spell не обрабатываем - будет сказал "что-то"
 	say_spell(ch, spellnum, tch, tobj);
+	// Уменьшаем кол-во заклов в меме
 	if (GET_SPELL_MEM(ch, spell_subst) > 0)
 		GET_SPELL_MEM(ch, spell_subst)--;
 	else
 		GET_SPELL_MEM(ch, spell_subst) = 0;
+	// если включен автомем
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
 		MemQ_remember(ch, spell_subst);
-	if (!IS_NPC(ch))
-	{
-		/*log("[CAST_SPELL->AFFECT_TOTAL] Start <%s(%d)> <%s(%d)> <%s> <%d>",
-		   GET_NAME(ch),
-		   ch->in_room,
-		   tch  ? GET_NAME(tch)   : "-",
-		   tch  ? IN_ROOM(tch)    : -2,
-		   tobj ? tobj->PNames[0] : "-",
-		   spellnum); */
-		affect_total(ch);
-		//log("[CAST_SPELL->AFFECT_TOTAL] Stop");
-	}
-	else
-	{
+	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов
+	if (IS_NPC(ch)) 
 		GET_CASTER(ch) -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
-	}
+	if (!IS_NPC(ch))
+		affect_total(ch);
+	
 	return (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)));
 }
 
@@ -3026,8 +2987,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)) {
 		send_to_char("Вы не смогли вымолвить и слова.\r\n", ch);
 		return;
 	}
@@ -3036,43 +2996,32 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	};
 
-	if (!ch->affected.empty())
-	{
-		for (const auto& aff : ch->affected)
-		{
-			if (aff->location == APPLY_PLAQUE
-				&& number(1, 100) < 10) // лихорадка 10% фэйл закла
-			{
+	if (!ch->affected.empty()) {
+		for (const auto& aff : ch->affected){
+			if (aff->location == APPLY_PLAQUE && number(1, 100) < 10) { // лихорадка 10% фэйл закла
 				send_to_char("Вас трясет лихорадка, вы не смогли сконцентрироваться на произнесении заклинания.\r\n", ch);
 				return;
 			}
-
-			if (aff->location == APPLY_MADNESS
-				&& number(1, 100) < 20) // безумие 20% фэйл закла
-			{
+			if (aff->location == APPLY_MADNESS && number(1, 100) < 20) { // безумие 20% фэйл закла
 				send_to_char("Начав безумно кричать, вы забыли, что хотели произнести.\r\n", ch);
 				return;
 			}
 		}
 	}
 
-
-	if (ch->is_morphed())
-	{
+	if (ch->is_morphed()) {
 		send_to_char("Вы не можете произносить заклинания в звериной форме.\r\n", ch);
 		return;
 	}
 
 	// get: blank, spell name, target name
 	s = strtok(argument, "'*!");
-	if (s == NULL)
-	{
+	if (s == NULL) {
 		send_to_char("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
 	s = strtok(NULL, "'*!");
-	if (s == NULL)
-	{
+	if (s == NULL) {
 		send_to_char("Название заклинания должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
@@ -3081,15 +3030,8 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	spellnum = fix_name_and_find_spell_num(s);
 	spell_subst = spellnum;
 
-/*	if (!Privilege::check_spells(ch, spellnum))
-	{
-		send_to_char("Не положено...\r\n", ch);
-		return;
-	}
-*/
 	// Unknown spell
-	if (spellnum < 1 || spellnum > MAX_SPELLS)
-	{
+	if (spellnum < 1 || spellnum > MAX_SPELLS) {
 		send_to_char("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -3101,13 +3043,12 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	{
 		if (GET_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
 				|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
-				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
+				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) 
 		{
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
 		}
-		else
-		{
+		else {
 			send_to_char("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 			return;
 		}
@@ -3120,9 +3061,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 				&& (spellnum == SPELL_CURE_LIGHT || spellnum == SPELL_CURE_SERIOUS
 					|| spellnum == SPELL_CURE_CRITIC || spellnum == SPELL_HEAL))
 		{
-
-			for (i = 1; i <= MAX_SPELLS; i++)
-			{
+			for (i = 1; i <= MAX_SPELLS; i++) {
 				if (GET_SPELL_MEM(ch, i) &&
 					spell_info[i].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)] ==
 					spell_info[spellnum].slot_forc[(int)GET_CLASS(ch)][(int)GET_KIN(ch)])
@@ -3131,16 +3070,12 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 					break;
 				}
 			}
-			if (i > SPELLS_COUNT)
-			{
+			if (i > SPELLS_COUNT) {
 				send_to_char("У вас нет заученных заклинаний этого круга.\r\n", ch);
 				return;
 			}
-
-
 		}
-		else
-		{
+		else {
 			send_to_char("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 			return;
 		}
@@ -3154,14 +3089,12 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 
 	target = find_cast_target(spellnum, arg, ch, &tch, &tobj, &troom);
 
-	if (target && (tch == ch) && SpINFO.violent)
-	{
+	if (target && (tch == ch) && SpINFO.violent) {
 		send_to_char("Лекари не рекомендуют использовать ЭТО на себя!\r\n", ch);
 		return;
 	}
 
-	if (!target)
-	{
+	if (!target) {
 		send_to_char("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
@@ -5349,19 +5282,19 @@ void mag_assign_spells(void)
 		   0, 0, 0, 0, TAR_CHAR_ROOM | TAR_OBJ_INV | TAR_OBJ_ROOM | TAR_OBJ_EQUIP, FALSE, MAG_MANUAL, 0, STYPE_MIND);
 //243 - 247
 	spello(SPELL_FIRE_BREATH, "огненное дыхание", "fire breath", 0, 0, 0,
-		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_FIRE);
+		   POS_SITTING, TAR_IGNORE, TRUE, MAG_DAMAGE, 3, STYPE_FIRE);
 
 	spello(SPELL_GAS_BREATH, "зловонное дыхание", "gas breath", 0, 0, 0,
-		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_EARTH);
+		   POS_SITTING, TAR_IGNORE, TRUE, MAG_DAMAGE, 3, STYPE_EARTH);
 
 	spello(SPELL_FROST_BREATH, "ледяное дыхание", "frost breath", 0, 0, 0,
-		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_AIR);
+		   POS_SITTING, TAR_IGNORE, TRUE, MAG_DAMAGE, 3, STYPE_AIR);
 
 	spello(SPELL_ACID_BREATH, "кислотное дыхание", "acid breath", 0, 0, 0,
-		   POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_WATER);
+		   POS_SITTING, TAR_IGNORE, TRUE, MAG_DAMAGE, 3, STYPE_WATER);
 
 	spello(SPELL_LIGHTNING_BREATH, "опаляющее дыхание", "lightning breath",
-		   0, 0, 0, POS_SITTING, TAR_IGNORE, TRUE, 0, 0, STYPE_DARK);
+		   0, 0, 0, POS_SITTING, TAR_IGNORE, TRUE, MAG_DAMAGE, 3, STYPE_DARK);
 // 357
 	spello(SPELL_QUEST, "чары", "quest spell",
 		   55, 40, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_NOT_SELF, MTYPE_NEUTRAL, MAG_MANUAL, 1, STYPE_NEUTRAL);
