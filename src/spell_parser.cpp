@@ -2280,18 +2280,19 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 				}
 				if (!IS_NPC(ch)) {
 					struct follow_type *k, *k_next;
-					int number, i = 1; // нам тут могут передать 2.чармис же!
+					int tnum = 1, fnum = 0; // ищем одноимённые цели
 					char tmpname[MAX_INPUT_LENGTH];
 					char *tmp = tmpname;
 					strcpy(tmp, t);
-					number = get_number(&tmp);					
+					tnum = get_number(&tmp); // возвращает 1, если первая цель					
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
-						if (i == number && isname(tmp, k->follower->get_pc_name())) {
-							*tch = k->follower;
-							return TRUE;
+						if (isname(tmp, k->follower->get_pc_name())) {
+							if (++fnum == tnum) {// нашли!!
+								*tch = k->follower;
+								return TRUE;								
+							}
 						}
-						++i;
 					}
 				}
 			}
