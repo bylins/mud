@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
+#include "act.movement.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -56,15 +57,10 @@ typedef int special_f(CHAR_DATA*, void*, int, char*);
 
 // extern functions
 void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no);
-int has_key(CHAR_DATA * ch, obj_vnum key);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
-void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
 void ASSIGNMASTER(mob_vnum mob, special_f, int learn_info);
-int has_key(CHAR_DATA * ch, obj_vnum key);
-int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 
 // local functions
 char *how_good(CHAR_DATA * ch, int percent);

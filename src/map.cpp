@@ -4,6 +4,7 @@
 
 #include "map.hpp"
 
+#include "act.movement.hpp"
 #include "obj.hpp"
 #include "screen.h"
 #include "room.hpp"
@@ -40,7 +41,7 @@ namespace Noob
 {
 int outfit(CHAR_DATA *ch, void *me, int cmd, char* argument);
 }
-extern int has_boat(CHAR_DATA *ch);
+
 
 
 
