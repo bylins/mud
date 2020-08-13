@@ -72,6 +72,7 @@ int valid_email(const char *address);
 // external functions
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void perform_drop_gold(CHAR_DATA * ch, int amount);
+void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 char AltToKoi[] =
 {
@@ -2650,9 +2651,12 @@ size_t strlen_no_colors(const char *str)
 // Симуляция телла от моба
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL))
+	char local_buf[MAX_INPUT_LENGTH];	
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL)) {
+		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
+		do_echo(keeper, local_buf, 0, SCMD_EMOTE);
 		return;
-	char local_buf[MAX_INPUT_LENGTH];
+	}
 	snprintf(local_buf, MAX_INPUT_LENGTH,
 		"%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), arg);
 	send_to_char(ch, "%s%s%s\r\n",
