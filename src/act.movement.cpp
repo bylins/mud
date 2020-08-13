@@ -1418,8 +1418,9 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, DOOR_SCMD scmd)
 	int other_room = 0;
 	int r_num, vnum;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
-	char local_buf[MAX_STRING_LENGTH]; // глобальный buf в тригах переписывается
-	
+	char local_buf[MAX_STRING_LENGTH]; // строка, в которую накапливается совершенное действо
+	// пишем начало строки - кто чё сделал
+	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
 		deaf = true;

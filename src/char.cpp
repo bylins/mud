@@ -2346,9 +2346,13 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 	va_end(args);
 
 	if (!tmpbuf)
+	{
+		sprintf(buf, "[WARNING] CHAR_DATA::send_to_TC. Передано пустое сообщение");
+		mudlog(buf, BRF, LVL_GOD, SYSLOG, TRUE);
 		return;
-	
-	send_to_char(tmpbuf, this->has_master() ? this->get_master() : this);
+	}
+	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру	
+	send_to_char(tmpbuf, IS_CHARMICE(this)? this->get_master() : this);
 } 
 
 
