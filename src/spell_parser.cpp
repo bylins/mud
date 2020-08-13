@@ -1666,8 +1666,12 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 				send_to_char(OK, ch);
 		}
 		else {
-			sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-					CCICYN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
+			if (IS_SET(SpINFO.routines, MAG_WARCRY))
+				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n", 
+					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
+			else
+				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
+					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 		if (*cast_phrase[spellnum][GET_RELIGION(ch)] != '\n')
@@ -3260,8 +3264,6 @@ void do_warcry(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	sprintf(buf, "Вы выкрикнули %s%s%s.\r\n", SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
 	say_spell(ch, spellnum, tch, tobj);
 
 	if (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)) >= 0)
