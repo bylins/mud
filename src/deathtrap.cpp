@@ -20,8 +20,8 @@
 
 #include <list>
 #include <algorithm>
+#include "act.movement.hpp"
 
-extern int has_boat(CHAR_DATA * ch);
 extern void death_cry(CHAR_DATA * ch, CHAR_DATA * killer);
 extern void reset_affects(CHAR_DATA *ch);
 

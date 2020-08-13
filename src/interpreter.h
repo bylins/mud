@@ -282,13 +282,6 @@ struct alias_data
 #define SCMD_ECHO 0
 #define SCMD_EMOTE   1
 
-// do_gen_door
-#define SCMD_OPEN       0
-#define SCMD_CLOSE      1
-#define SCMD_UNLOCK     2
-#define SCMD_LOCK       3
-#define SCMD_PICK       4
-
 // do_mixture
 #define SCMD_ITEMS      0
 #define SCMD_RUNES      1

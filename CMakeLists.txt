@@ -172,10 +172,11 @@ set(SOURCES
 	src/id.cpp
 	src/stigmas.cpp
 	src/zone.table.cpp
-        src/strengthening.cpp)
+    src/strengthening.cpp)
 
 set(HEADERS
-        src/strengthening.hpp
+    src/act.movement.hpp
+	src/strengthening.hpp
 	src/ability.constants.hpp
 	src/ability.rollsystem.hpp
 	src/accounts.hpp

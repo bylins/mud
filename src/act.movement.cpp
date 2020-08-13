@@ -11,6 +11,7 @@
 *  $Date$                                           *
 *  $Revision$                                                       *
 ************************************************************************ */
+#include "act.movement.hpp"
 
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
@@ -52,21 +53,9 @@ void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 // local functions
 void check_ice(int room);
-int has_boat(CHAR_DATA * ch);
-int find_door(CHAR_DATA * ch, const char *type, char *dir, const char *cmdname);
-int has_key(CHAR_DATA * ch, obj_vnum key);
-void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd);
-int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
+
 extern int get_pick_chance(int skill_pick, int lock_complexity);
 
-void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 const int Reverse[NUM_OF_DIRS] = { 2, 3, 0, 1, 5, 4 };
 const char *DirIs[] =
@@ -1273,9 +1262,9 @@ void do_hidemove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			(GET_OBJ_VAL(obj,3)) :\
 			(EXIT(ch, door)->lock_complexity))
 
-int find_door(CHAR_DATA* ch, const char *type, char *dir, const char* /*cmdname*/)
-{
+int find_door(CHAR_DATA* ch, const char *type, char *dir,  DOOR_SCMD scmd) {
 	int door;
+	bool found = false;
 
 	if (*dir)  //Указано направление (второй аргумент)
 	{
@@ -1283,55 +1272,60 @@ int find_door(CHAR_DATA* ch, const char *type, char *dir, const char* /*cmdname*
 		if ((door = search_block(dir, dirs, FALSE)) == -1 && (door = search_block(dir, DirIs, FALSE)) == -1)  	// Partial Match
 		{
 			//strcpy(doorbuf,"Уточните направление.\r\n");
-			return (-1); //НЕВЕРНОЕ НАПРАВЛЕНИЕ
+			return (FD_WRONG_DIR); //НЕВЕРНОЕ НАПРАВЛЕНИЕ
 		}
-		if (EXIT(ch, door)) //Проверяем есть ли такая дверь в указанном направлении
-		{
-			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) //Дверь как-то по-особенному называется?
-			{
+		if (EXIT(ch, door)) { //Проверяем есть ли такая дверь в указанном направлении
+			if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) {//Дверь как-то по-особенному называется?
 				if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
 					//Первый аргумент соответствует именительному или винительному алиасу двери
 					return (door);
 				else
-				{
-					return (-2); //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
-				}
+					return (FD_WRONG_DOOR_NAME); //НЕ ПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ В ЭТОМ НАПРАВЛЕНИИ
 			}
-			else if (is_abbrev(type, "дверь") || is_abbrev(type, "door"))
+			else if (is_abbrev(type, "дверь") || is_abbrev(type, "door")) {
 				//Аргумент соответствует "дверь" или "door" и есть в указанном направлении
 				return (door);
+			}
 			else
 				//Дверь с названием "дверь" есть, но аргумент не соответствует
-				return (-2);
+				return (FD_DOORNAME_WRONG);
 		}
 		else
 		{
-			return (-3); //В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРЕЙ
+			return (FD_NO_DOOR_GIVEN_DIR); //В ЭТОМ НАПРАВЛЕНИИ НЕТ ДВЕРЕЙ
 		}
 	}
 	else //Направления не указано, ищем дверь по названию
 	{
-		if (!*type) //Названия не указано
-		{
-			return (-4); //НЕ УКАЗАНО АРГУМЕНТОВ
+		if (!*type) { //Названия не указано
+			return (FD_DOORNAME_EMPTY); //НЕ УКАЗАНО АРГУМЕНТОВ
 		}
-		for (door = 0; door < NUM_OF_DIRS; door++) //Проверяем все направления, не найдется ли двери?
-		{
-			if (EXIT(ch, door)) //Есть выход в этом направлении
-			{
-				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) //Дверь как-то по-особенному называется?
-				{
+		for (door = 0; door < NUM_OF_DIRS; door++) {//Проверяем все направления, не найдется ли двери?
+			found = false;
+			if (EXIT(ch, door)) {//Есть выход в этом направлении
+				if (EXIT(ch, door)->keyword && EXIT(ch, door)->vkeyword) { //Дверь как-то по-особенному называется?
 					if (isname(type, EXIT(ch, door)->keyword) || isname(type, EXIT(ch, door)->vkeyword))
 						//Аргумент соответствует имени этой двери
-						return (door);
+						found = true;
 				}
 				else if (DOOR_IS(ch, door) && (is_abbrev(type, "дверь") || is_abbrev(type, "door")))
 					//Дверь не имеет особых алиасов, аргумент соответствует двери
-					return (door);
+					found = true;
 			}
+			// дверь найдена проверяем ейный статус. 
+			// скипуем попытку закрыть закрытую и открыть открытую. 
+			// остальные статусы двери автоматом не проверяются.
+			if (found) {
+				if ((scmd == SCMD_OPEN && DOOR_IS_OPEN(ch, nullptr, door)) || 
+					(scmd == SCMD_CLOSE && DOOR_IS_CLOSED(ch, nullptr, door) ))
+					continue;
+				else 
+					return door;
+			}	
 		}
-		return (-5); //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
+		return (FD_DOORNAME_WRONG); //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
 	}
+
 }
 
 int has_key(CHAR_DATA * ch, obj_vnum key)
@@ -1394,56 +1388,50 @@ const int flags_door[] =
 
 inline void OPEN_DOOR(const room_rnum room, OBJ_DATA* obj, const int door)
 {
-	if (obj)
-	{
+	if (obj) {
 		auto v = obj->get_val(1);
 		TOGGLE_BIT(v, CONT_CLOSED);
 		obj->set_val(1, v);
 	}
-	else
-	{
+	else {
 		TOGGLE_BIT(EXITN(room, door)->exit_info, EX_CLOSED);
 	}
 }
 
 inline void LOCK_DOOR(const room_rnum room, OBJ_DATA* obj, const int door)
 {
-	if (obj)
-	{
+	if (obj) {
 		auto v = obj->get_val(1);
 		TOGGLE_BIT(v, CONT_LOCKED);
 		obj->set_val(1, v);
 	}
-	else
-	{
+	else {
 		TOGGLE_BIT(EXITN(room, door)->exit_info, EX_LOCKED);
 	}
 }
 
 // для кейсов
 extern std::vector<_case> cases;;
-void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
+void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, DOOR_SCMD scmd)
 {
+	bool deaf = false;
 	int other_room = 0;
 	int r_num, vnum;
 	int rev_dir[] = { SOUTH, WEST, NORTH, EAST, DOWN, UP };
 	char local_buf[MAX_STRING_LENGTH]; // глобальный buf в тригах переписывается
-	// объект, который выпадает из сундука
-	sprintf(local_buf, "$n %s ", cmd_door[scmd]);
-//  if (IS_NPC(ch))
-//     log("MOB DOOR Moving:Моб %s %s дверь в комнате %d",GET_NAME(ch),cmd_door[scmd],GET_ROOM_VNUM(ch->in_room));
+	
 
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+		deaf = true;
+	// ищем парную дверь в другой клетке
 	ROOM_DATA::exit_data_ptr back;
-	if (!obj && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE))
-	{
+	if (!obj && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE)) {
 		back = world[other_room]->dir_option[rev_dir[door]];
-		if (back)
-		{
-			if ((back->to_room() != ch->in_room) ||
-				((EXITDATA(ch->in_room, door)->exit_info
+		if (back) {
+			if ((back->to_room() != ch->in_room) 
+				|| ((EXITDATA(ch->in_room, door)->exit_info 
 					^ EXITDATA(other_room, rev_dir[door])->exit_info)
-					& (EX_ISDOOR | EX_CLOSED | EX_LOCKED)))
-			{
+					& (EX_ISDOOR | EX_CLOSED | EX_LOCKED))) {
 				back.reset();
 			}
 		}
@@ -1455,13 +1443,13 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 	case SCMD_CLOSE:
 		if (scmd == SCMD_OPEN && obj && !open_otrigger(obj, ch, FALSE))
 			return;
-		if (scmd == SCMD_CLOSE && obj && !close_otrigger(obj, ch, FALSE))
-			return;
 		if (scmd == SCMD_OPEN && !obj && !open_wtrigger(world[ch->in_room], ch, door, FALSE))
 			return;
-		if (scmd == SCMD_CLOSE && !obj && !close_wtrigger(world[ch->in_room], ch, door, FALSE))
-			return;
 		if (scmd == SCMD_OPEN && !obj && back && !open_wtrigger(world[other_room], ch, rev_dir[door], FALSE))
+			return;
+		if (scmd == SCMD_CLOSE && obj && !close_otrigger(obj, ch, FALSE))
+			return;
+		if (scmd == SCMD_CLOSE && !obj && !close_wtrigger(world[ch->in_room], ch, door, FALSE))
 			return;
 		if (scmd == SCMD_CLOSE && !obj && back && !close_wtrigger(world[other_room], ch, rev_dir[door], FALSE))
 			return;
@@ -1471,15 +1459,13 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 			OPEN_DOOR(other_room, obj, rev_dir[door]);
 		}
 		// вываливание и пурж кошелька
-		if (obj && system_obj::is_purse(obj))
-		{
+		if (obj && system_obj::is_purse(obj)) {
 			sprintf(buf, "<%s> {%d} открыл трупный кошелек %s.", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), get_name_by_unique(GET_OBJ_VAL(obj, 3)));
 			mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 			system_obj::process_open_purse(ch, obj);
 			return;
 		}
-		else
-		{
+		else {
 			send_to_char(OK, ch);
 		}
 		break;
@@ -1501,49 +1487,48 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 		LOCK_DOOR(ch->in_room, obj, door);
 		if (back)
 			LOCK_DOOR(other_room, obj, rev_dir[door]);
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS))
+		if (!deaf)
+			send_to_char("*Щелк*\r\n", ch);	
+		if (obj)
 		{
-			send_to_char("*Щелк*\r\n", ch);
-			if (obj)
+			for (unsigned long i = 0; i < cases.size(); i++)
 			{
-				for (unsigned long i = 0; i < cases.size(); i++)
-				{
-					if (GET_OBJ_VNUM(obj) == cases[i].vnum)
-					{
+				if (GET_OBJ_VNUM(obj) == cases[i].vnum)
+				{	
+					if (!deaf)
 						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
-						// chance = cases[i].chance;
-						// chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
-						const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
-						const int random_number = number(0, maximal_chance);
-						vnum = cases[i].vnum_objs[random_number];
-						if ((r_num = real_object(vnum)) < 0)
-						{
-							send_to_char("Ошибка с номером 1, пожалуйста, напишите об этом в воззвать.\r\n", ch);
-							return;
-						}
-						// сначала удалим ключ из инвентаря
-						int vnum_key = GET_OBJ_VAL(obj, 2);
-						// первый предмет в инвентаре
-						OBJ_DATA *obj_inv = ch->carrying;
-						OBJ_DATA *i;
-						for (i = obj_inv; i; i = i->get_next_content())
-						{
-							if (GET_OBJ_VNUM(i) == vnum_key)
-							{
-								extract_obj(i);
-								break;
-							}
-						}
-						extract_obj(obj);
-						obj = world_objects.create_from_prototype_by_rnum(r_num).get();
-						obj->set_crafter_uid(GET_UNIQUE(ch));
-						obj_to_char(obj, ch);
-						act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);
-						load_otrigger(obj);
-						obj_decay(obj);
-						olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
+					// chance = cases[i].chance;
+					// chance пока что не учитывается, просто падает одна рандомная стафина из всего этого
+					const int maximal_chance = static_cast<int>(cases[i].vnum_objs.size() - 1);
+					const int random_number = number(0, maximal_chance);
+					vnum = cases[i].vnum_objs[random_number];
+					if ((r_num = real_object(vnum)) < 0)
+					{
+						act("$o исчез$Y с яркой вспышкой. Случилось неладное, поняли вы..", FALSE, ch, obj, 0, TO_ROOM);
+						sprintf(local_buf, "[ERROR] do_doorcmd: ошибка при открытии контейнера %d, неизвестное содержимое!",obj->get_vnum());
+						mudlog(local_buf, LogMode::CMP, LVL_GRGOD, MONEY_LOG, TRUE);
 						return;
 					}
+					// сначала удалим ключ из инвентаря
+					int vnum_key = GET_OBJ_VAL(obj, 2);
+					// первый предмет в инвентаре
+					OBJ_DATA *obj_inv = ch->carrying;
+					OBJ_DATA *i;
+					for (i = obj_inv; i; i = i->get_next_content()) {
+						if (GET_OBJ_VNUM(i) == vnum_key) {
+							extract_obj(i);
+							break;
+						}
+					}
+					extract_obj(obj);
+					obj = world_objects.create_from_prototype_by_rnum(r_num).get();
+					obj->set_crafter_uid(GET_UNIQUE(ch));
+					obj_to_char(obj, ch);
+					act("$n завизжал$g от радости.", FALSE, ch, 0, 0, TO_ROOM);
+					load_otrigger(obj);
+					obj_decay(obj);
+					olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
+					return;
 				}
 			}
 		}
@@ -1566,28 +1551,21 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, int scmd)
 
 	// Notify the room
 	sprintf(local_buf + strlen(local_buf), "%s.", (obj) ? "$o3" : (EXIT(ch, door)->vkeyword ? "$F" : "дверь"));
-	if (!obj || (obj->get_in_room() != NOWHERE))
-	{
+	if (!obj || (obj->get_in_room() != NOWHERE)) {
 		act(local_buf, FALSE, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, TO_ROOM);
 	}
 
 	// Notify the other room
-	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back)
-	{
+	if ((scmd == SCMD_OPEN || scmd == SCMD_CLOSE) && back) {
 		const auto& people = world[EXIT(ch, door)->to_room()]->people;
-		if (!people.empty())
-		{
+		if (!people.empty()) {
 			sprintf(local_buf + strlen(local_buf) - 1, " с той стороны.");
 			int allowed_items_remained = 1000;
-			for (const auto to : people)
-			{
-				if (0 == allowed_items_remained)
-				{
+			for (const auto to : people) {
+				if (0 == allowed_items_remained) {
 					break;
 				}
-
 				perform_act(local_buf, ch, obj, obj ? 0 : EXIT(ch, door)->vkeyword, to);
-
 				--allowed_items_remained;
 			}
 		}
@@ -1632,7 +1610,7 @@ int ok_pick(CHAR_DATA* ch, obj_vnum /*keynum*/, OBJ_DATA* obj, int door, int scm
 	return (1);
 }
 
-void do_gen_door(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
+void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 {
 	int door = -1;
 	obj_vnum keynum;
@@ -1641,20 +1619,17 @@ void do_gen_door(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	CHAR_DATA *victim = NULL;
 	int where_bits = FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_EQUIP;
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
-	{
+	if (AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND)) {
 		send_to_char("Очнитесь, вы же слепы!\r\n", ch);
 		return;
 	}
 
-	if (subcmd == SCMD_PICK && !ch->get_skill(SKILL_PICK_LOCK))
-	{
+	if (subcmd == SCMD_PICK && !ch->get_skill(SKILL_PICK_LOCK)) {
 		send_to_char("Это умение вам недоступно.\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);
-	if (!*argument)
-	{
+	if (!*argument) {
 		sprintf(buf, "%s что?\r\n", a_cmd_door[subcmd]);
 		send_to_char(CAP(buf), ch);
 		return;
@@ -1669,7 +1644,7 @@ void do_gen_door(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		where_bits = FIND_OBJ_EQUIP;
 
 	//Сначала ищем дверь, считая второй аргумент указанием на сторону света
-	door = find_door(ch, type, dir, a_cmd_door[subcmd]);
+	door = find_door(ch, type, dir, (DOOR_SCMD)subcmd);
 	//Если двери не нашлось, проверяем объекты в экипировке, инвентаре, на земле
 	if (door < 0)
 		if (!generic_find(type, where_bits, ch, &victim, &obj))
@@ -1726,7 +1701,7 @@ void do_gen_door(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		else if (DOOR_IS_BROKEN(ch, obj, door) && !Privilege::check_flag(ch, Privilege::USE_SKILLS) && ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
 			send_to_char("Замок сломан.\r\n", ch);
 		else if (ok_pick(ch, keynum, obj, door, subcmd))
-			do_doorcmd(ch, obj, door, subcmd);
+			do_doorcmd(ch, obj, door, (DOOR_SCMD)subcmd);
 	}
 	return;
 }

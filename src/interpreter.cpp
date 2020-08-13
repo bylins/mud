@@ -15,6 +15,7 @@
 
 #include "interpreter.h"
 
+#include "act.movement.hpp"
 #include "world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
@@ -194,7 +195,6 @@ void do_fire(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_eat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_enter(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_equipment(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_examine(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -204,7 +204,6 @@ void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_exit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_exits(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_flee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_horseon(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_horseoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_horseput(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -220,7 +219,6 @@ void do_glory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_gecho(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mobshout(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_gen_ps(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_give(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -281,7 +279,6 @@ void do_rescue(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stopfight(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_save(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -292,16 +289,13 @@ void do_send(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_set(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_show(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_shutdown(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_skillset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_snoop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
-void do_stand(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_fry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -321,7 +315,6 @@ void do_users(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_vnum(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_vstat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_wear(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_weather(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_where(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -501,7 +494,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"вече", POS_DEAD, Boards::DoBoard, 1, Boards::GENERAL_BOARD, -1},
 	{"взять", POS_RESTING, do_get, 0, 0, 200},
 	{"взглянуть", POS_RESTING, do_diagnose, 0, 0, 100},
-	{"взломать", POS_STANDING, do_gen_door, 1, SCMD_PICK, -1},
+	{"взломать", POS_STANDING, do_gen_door, 1, DOOR_SCMD::SCMD_PICK, -1},
 	{"вихрь", POS_FIGHTING, do_iron_wind, 0, 0, -1},
 	{"вложить", POS_STANDING, do_not_here, 1, 0, -1},
 	{"вернуть", POS_STANDING, do_not_here, 0, 0, -1},
@@ -654,7 +647,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"отразить", POS_FIGHTING, do_multyparry, 0, 0, -1},
 	{"отвязать", POS_DEAD, do_horseget, 0, 0, -1},
 	{"отдохнуть", POS_RESTING, do_rest, 0, 0, -1},
-	{"открыть", POS_SITTING, do_gen_door, 0, SCMD_OPEN, 500},
+	{"открыть", POS_SITTING, do_gen_door, 0, DOOR_SCMD::SCMD_OPEN, 500},
 	{"отпереть", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 500},
 	{"отпустить", POS_SITTING, do_stophorse, 0, 0, -1},
 	{"отравить", POS_FIGHTING, do_poisoned, 0, 0, -1},
