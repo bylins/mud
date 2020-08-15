@@ -2280,9 +2280,8 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		dam = complex_spell_modifier(ch, spellnum, GAPPLY_SPELL_EFFECT, dam);
 
 		// колдуны в 2 раза сильнее фрагают по мобам
-		if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim))
-		{
-			dam += dam;
+		if (can_use_feat(ch, POWER_MAGIC_FEAT) && IS_NPC(victim)) {
+			dam += (int) dam * 0.5;
 		}
 
 
