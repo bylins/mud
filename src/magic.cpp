@@ -1647,32 +1647,37 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 
 	if (!pk_agro_action(ch, victim))
 		return (0);
-
-     log("[MAG DAMAGE] %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
+	
+	log("[MAG DAMAGE] %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
 	// Magic glass
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY)) {
-		if (ch != victim && spellnum < MAX_SPELLS &&
-			((AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3)))) {
-			act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
-			act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
-			act("Ваше магическое зеркало отразило поражение $n1!", FALSE, ch, 0, victim, TO_VICT);
-			return (mag_damage(level, ch, ch, spellnum, savetype));
+	if ((spellnum != SPELL_LIGHTNING_BREATH && spellnum != SPELL_FIRE_BREATH && spellnum != SPELL_GAS_BREATH && spellnum != SPELL_ACID_BREATH)
+		|| ch == victim) {
+		if (!IS_SET(SpINFO.routines, MAG_WARCRY)) {
+			if (ch != victim && spellnum < MAX_SPELLS &&
+				((AFF_FLAGGED(victim, EAffectFlag::AFF_MAGICGLASS) && number(1, 100) < (GET_LEVEL(victim) / 3)))) {
+				act("Магическое зеркало $N1 отразило вашу магию!", FALSE, ch, 0, victim, TO_CHAR);
+				act("Магическое зеркало $N1 отразило магию $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
+				act("Ваше магическое зеркало отразило поражение $n1!", FALSE, ch, 0, victim, TO_VICT);
+				log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);
+				return (mag_damage(level, ch, ch, spellnum, savetype));
+			}
+		} else {
+			if (ch != victim && spellnum < MAX_SPELLS && IS_GOD(victim) && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch))) {
+				act("Звуковой барьер $N1 отразил ваш крик!", FALSE, ch, 0, victim, TO_CHAR);
+				act("Звуковой барьер $N1 отразил крик $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
+				act("Ваш звуковой барьер отразил крик $n1!", FALSE, ch, 0, victim, TO_VICT);
+				return (mag_damage(level, ch, ch, spellnum, savetype));
+			}
 		}
-	} else {
-		if (ch != victim && spellnum < MAX_SPELLS && IS_GOD(victim) && (IS_NPC(ch) || GET_LEVEL(victim) > GET_LEVEL(ch))) {
-			act("Звуковой барьер $N1 отразил ваш крик!", FALSE, ch, 0, victim, TO_CHAR);
-			act("Звуковой барьер $N1 отразил крик $n1!", FALSE, ch, 0, victim, TO_NOTVICT);
-			act("Ваш звуковой барьер отразил крик $n1!", FALSE, ch, 0, victim, TO_VICT);
-			return (mag_damage(level, ch, ch, spellnum, savetype));
-		}
-	}
 
-	if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, EAffectFlag::AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < 21)
-	{
-		act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
-		act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
-		act("Густая тень вокруг вас поглотила магию $n1.", FALSE, ch, 0, victim, TO_VICT);
-		return (0);
+		if (!IS_SET(SpINFO.routines, MAG_WARCRY) && AFF_FLAGGED(victim, EAffectFlag::AFF_SHADOW_CLOAK) && spellnum < MAX_SPELLS && number(1, 100) < 21)
+		{
+			act("Густая тень вокруг $N1 жадно поглотила вашу магию.", FALSE, ch, 0, victim, TO_CHAR);
+			act("Густая тень вокруг $N1 жадно поглотила магию $n1.", FALSE, ch, 0, victim, TO_NOTVICT);
+			act("Густая тень вокруг вас поглотила магию $n1.", FALSE, ch, 0, victim, TO_VICT);
+			log("[MAG DAMAGE] Мантия  - поглощение урона: %s damage %s (%d)",GET_NAME(ch),GET_NAME(victim),spellnum);			
+			return (0);
+		}
 	}
 
 	// позиции до начала атаки для расчета модификаторов в damage()
