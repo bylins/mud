@@ -41,13 +41,14 @@ namespace Boards
 	void StreamBoardFormatter::print_title(const Message::shared_ptr message)
 	{
 		char timeBuf[17];
-		const std::tm* tm = std::localtime(&message->date);
-		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y", tm);
-		if (message->date > date())
-		{
+		char title[255];
+		const std::tm* tm = std::localtime(&message->date);		
+		strftime(timeBuf, 17, "%H:%m %d-%m-%Y", tm);
+		snprintf (title, 250, "%s: (%s) :: %s", timeBuf, message->author.c_str(), message->subject.c_str());
+		if (message->date > date()) {
 			out() << CCWHT(character(), C_NRM); // новые подсветим
 		}
-		out() << timeBuf << CCNRM(character(), C_NRM);
+		out() << title << CCNRM(character(), C_NRM);
 	}
 
 	class Coder_BoardFormatter : public StreamBoardFormatter
