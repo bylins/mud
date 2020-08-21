@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "object.prototypes.hpp"
+#include "mercenary.h"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -136,6 +137,7 @@ void assign_mobiles(void)
 
 	// BANK //
 	ASSIGNMOB(4001, bank);
+    ASSIGNMOB(4001, mercenary);
 
 	// HORSEKEEPER //
 	ASSIGNMOB(4023, horse_keeper);
@@ -212,6 +214,8 @@ void init_spec_procs(void)
 				ASSIGNMOB(i, torc);
 			else if (!str_cmp(line2, "outfit"))
 				ASSIGNMOB(i, Noob::outfit);
+            else if (!str_cmp(line2, "mercenary"))
+                ASSIGNMOB(i, mercenary);
 			else
 				log("Unknown mobile %d assignment type - %s...", i, line2);
 		}

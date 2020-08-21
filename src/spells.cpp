@@ -1266,6 +1266,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 			MOB_FLAGS(victim).set(MOB_NOTRAIN);
 			victim->set_skill(SKILL_PUNCTUAL, 0);
 			// по идее при речарме и последующем креше можно оказаться с сейвом без шмота на чармисе -- Krodo
+			ch->updateCharmee(GET_MOB_VNUM(victim), 0);
 			Crash_crashsave(ch);
 			ch->save_char();
 		}
@@ -1537,6 +1538,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
 			helpee->set_skill(SKILL_PUNCTUAL, 0);
+			ch->updateCharmee(GET_MOB_VNUM(helpee), hire_price);
 
 			Crash_crashsave(ch);
 			ch->save_char();

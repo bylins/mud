@@ -2488,4 +2488,20 @@ unsigned weight_dex_penalty(CHAR_DATA* ch)
 
 } // namespace PlayerSystem
 
+void Player::updateCharmee(int vnum, int gold) {
+    std::map<int, MERCDATA>::iterator it;
+    MERCDATA md = {1, gold};
+    it = this->charmeeHistory.find(vnum);
+    if ( it == this->charmeeHistory.end()) {
+        this->charmeeHistory.insert( std::pair<int,MERCDATA>(vnum, md));
+    } else {
+        ++it->second.CharmedCount;
+        it->second.spentGold += gold;
+    }
+}
+
+std::map<int, MERCDATA> *Player::getMercList(){
+    return &this->charmeeHistory;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

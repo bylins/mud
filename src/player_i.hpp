@@ -9,9 +9,12 @@
 #include "structs.h"
 #include "conf.h"
 #include "sysdep.h"
-
-
+#include <map>
 #include <string>
+#include <mercenary.h>
+
+struct MERCDATA;
+
 class Account;
 namespace DpsSystem
 {
@@ -139,6 +142,8 @@ public:
 		return 1;
 	};
 	virtual std::shared_ptr<Account> get_account() { return nullptr; };
+    virtual void updateCharmee(int vnum, int gold) {};
+    virtual std::map<int, MERCDATA>  *getMercList() { return nullptr; };
 	
 protected:
 	PlayerI() {};
