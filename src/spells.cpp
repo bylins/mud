@@ -1538,7 +1538,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			PRF_FLAGS(helpee).unset(PRF_PUNCTUAL);
 			MOB_FLAGS(helpee).set(MOB_NOTRAIN);
 			helpee->set_skill(SKILL_PUNCTUAL, 0);
-			ch->updateCharmee(GET_MOB_VNUM(helpee), hire_price);
+			ch->updateCharmee(GET_MOB_VNUM(helpee), cost);
 
 			Crash_crashsave(ch);
 			ch->save_char();

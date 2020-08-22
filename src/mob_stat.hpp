@@ -73,6 +73,8 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months);
 void clear_zone(int zone_vnum);
 /// выборка моб-статистики за последние months месяцев (0 = все)
 mob_node sum_stat(const std::list<mob_node> &mob_stat, int months);
+// имя моба по его vnum
+std::string print_mob_name(int mob_vnum, int len);
 
 } // namespace mob_stat
 

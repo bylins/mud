@@ -142,7 +142,7 @@ public:
 		return 1;
 	};
 	virtual std::shared_ptr<Account> get_account() { return nullptr; };
-    virtual void updateCharmee(int vnum, int gold) {};
+    virtual void updateCharmee(int /*vnum*/, int /*gold*/) {};
     virtual std::map<int, MERCDATA>  *getMercList() { return nullptr; };
 	
 protected:
