@@ -2327,7 +2327,8 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 		|| (IS_NPC(this) && !IS_CHARMICE(this))) //просто непись
 		return;
 
-	if (to_impl)
+	if (to_impl &&
+		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
 		needSend = true;	
 	if (!needSend && to_coder && 
 		(PRF_FLAGGED(this, PRF_CODERINFO) || (IS_CHARMICE(this) && (PRF_FLAGGED(this->get_master(), PRF_CODERINFO)))))
