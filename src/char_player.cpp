@@ -995,7 +995,7 @@ void Player::save_char()
     std::map<int, MERCDATA>::iterator it = this->charmeeHistory.begin();
 	// перечень чармисов кудеса и купца
 	if (this->charmeeHistory.size() > 0 && 
-		(this->get_class() == CLASS_CHARMMAGE || this->get_class() == CLASS_MERCHANT)) {
+		(this->get_class() == CLASS_CHARMMAGE || this->get_class() == CLASS_MERCHANT || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (;it!= this->charmeeHistory.end(); ++it)
 		{

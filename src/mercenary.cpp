@@ -28,14 +28,17 @@ namespace MERC {
                 tell_to_char(boss, ch, "Ступай, поначалу, заведи знакомства, потом ко мне приходи.");
             else if (ch->get_class() == CLASS_CHARMMAGE)
                 tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
+            else if (IS_IMMORTAL(ch))
+                tell_to_char(boss, ch, "Не гневайся, боже, но не было у тебя последователей еще.");
            return;
         }
-        if (ch->get_class() == CLASS_MERCHANT)
-        {
+        if (IS_IMMORTAL(ch)) {
+            sprintf(buf, "Вот, господи, %s тварей земных, чьим разумом ты владел волею своей:",
+                    isFavList ? "краткий список" : "полный список");
+        } else if (ch->get_class() == CLASS_MERCHANT) {
             sprintf(buf, "%s тех, с кем знакомство ты водишь:",
                           isFavList? "Краткий список": "Полный список");                  
-        }
-        if (ch->get_class() == CLASS_CHARMMAGE) {
+        } else if (ch->get_class() == CLASS_CHARMMAGE) {
             sprintf(buf, "Вот %s тварей земных, чьим разумом ты владел с помощью чар колдовских:",
                           isFavList? "краткий список": "полный список");
         }
