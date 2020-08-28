@@ -297,6 +297,7 @@ extern int receptionist(CHAR_DATA*, void*, int, char*);
 extern int postmaster(CHAR_DATA*, void*, int, char*);
 extern int bank(CHAR_DATA*, void*, int, char*);
 extern int shop_ext(CHAR_DATA*, void*, int, char*);
+extern int mercenary(CHAR_DATA*, void*, int, char*);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)

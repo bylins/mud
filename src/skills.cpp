@@ -1497,8 +1497,8 @@ int calculate_skill(CHAR_DATA * ch, const ESkill skill_no, CHAR_DATA * vict)
 	else
 		percent = MIN(MAX(0, percent), max_percent);
 
-	ch->send_to_TC(false, true, true, "&CП: %s, Ц:  %s, Скилл: %d. Итог.скилл = %d, fail_limit = %d, Morale = %d, Bonus == %d, Сейвы цели = %d, Моди.цели = %d&n\r\n", 
-										GET_NAME(ch), GET_NAME(vict), skill_no, percent, fail_limit, morale, bonus, victim_sav, victim_modi/2);
+	ch->send_to_TC(false, true, true, "&CП: %s, Ц:  %s, Скилл: %d. Итог.скилл = %d, fail_limit = %d, Morale = %d, Bonus == %d, Сейвы цели = %d, Моди.цели = %d&n\r\n",
+                   ch? GET_NAME(ch): "NULL", vict? GET_NAME(vict):"NULL", skill_no, percent, fail_limit, morale, bonus, victim_sav, victim_modi/2);
 	return (percent);
 }
 

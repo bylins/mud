@@ -17,7 +17,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
-
 #include <sstream>
 
 extern int do_social(CHAR_DATA * ch, char *argument);	// implemented in the act.social.cpp
@@ -580,7 +579,7 @@ namespace ShopExt
 				}
 			}
 
-			std::string numToShow = (count == -1 || count > 100 ? "Навалом" : boost::lexical_cast<std::string>(count));
+			std::string numToShow = (count == -1 || count > 999 ? "Навалом" : boost::lexical_cast<std::string>(count));
 
 			// имхо вполне логично раз уж мы получаем эту надпись в ней и искать
 			if (arg.empty()
