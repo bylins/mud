@@ -5,6 +5,8 @@
 
 #include <array>
 
+int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
+
 class GroupPenalties
 {
 public:

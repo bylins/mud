@@ -14,29 +14,13 @@
 #include "pk.h"
 
 #include "global.objects.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "interpreter.h"
 #include "screen.h"
-#include "char.hpp"
-#include "room.hpp"
 #include "house.h"
-#include "constants.h"
-#include "logger.hpp"
-#include "world.characters.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "dg_scripts.h"
-#include <map>
+#include "handler.h"
+#include "fight.h"
+#include "class.hpp"
 
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
-extern int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
-void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void stop_fighting(CHAR_DATA * ch, int switch_others);
 
 #define FirstPK  1
 #define SecondPK 5
@@ -63,8 +47,6 @@ void stop_fighting(CHAR_DATA * ch, int switch_others);
 
 #define MAX_PKILL_FOR_PERIOD 3
 
-#define MAX_PKILLER_MEM  100
-
 int pk_count(CHAR_DATA* ch) {
 	struct PK_Memory_type *pk;
 	int i;
@@ -88,28 +70,6 @@ PK_Memory_type* findPKEntry(CHAR_DATA* agressor, CHAR_DATA* victim) {
 		}
 	}
 	return nullptr;
-}
-
-bool check_agr_in_house(CHAR_DATA *agressor, CHAR_DATA *victim)
-{
-	if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor))
-	{
-		if (victim->get_fighting() != NULL)
-			stop_fighting(victim, FALSE);
-		act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
-		char_from_room(agressor);
-		if (IS_FEMALE(agressor))
-			send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
-		else
-			send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
-		send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
-		char_to_room(agressor, real_room(CLAN(agressor)->out_rent));
-		look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
-		act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, agressor, 0, 0, TO_ROOM);
-		set_wait(agressor, 1, TRUE);
-		return true;
-	}
-	return false;
 }
 
 //Количество убитых игроков (уникальное мыло) int
@@ -412,6 +372,29 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim) {
 	}
 }
 
+bool check_agr_in_house(CHAR_DATA *agressor, CHAR_DATA *victim)
+{
+    if (ROOM_FLAGGED(agressor->in_room, ROOM_HOUSE) && !ROOM_FLAGGED(agressor->in_room, ROOM_ARENA) && CLAN(agressor))
+    {
+        if (victim->get_fighting() != NULL)
+            stop_fighting(victim, FALSE);
+        act("$n был$g выдворен$a за пределы замка!", TRUE, agressor, 0, 0, TO_ROOM);
+        char_from_room(agressor);
+        if (IS_FEMALE(agressor))
+            send_to_char("Охолонись малая, на своих бросаться не дело!\r\n", agressor);
+        else
+            send_to_char("Охолонись малец, на своих бросаться не дело!\r\n", agressor);
+        send_to_char("Защитная магия взяла вас за шиворот и выкинула вон из замка!\r\n", agressor);
+        char_to_room(agressor, real_room(CLAN(agressor)->out_rent));
+        look_at_room(agressor, real_room(CLAN(agressor)->out_rent));
+        act("$n свалил$u с небес, выкрикивая какие-то ругательства!", TRUE, agressor, 0, 0, TO_ROOM);
+        set_wait(agressor, 1, TRUE);
+        return true;
+    }
+    return false;
+}
+
+
 bool pk_agro_action(CHAR_DATA * agressor, CHAR_DATA * victim) {
 	pk_translate_pair(&agressor, &victim);
 	if (victim == NULL) {
@@ -489,7 +472,6 @@ int pk_action_type_summon(CHAR_DATA * agressor, CHAR_DATA * victim) {
 	return PK_ACTION_KILL;
 }
 
-
 void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 {
 	struct PK_Memory_type *pk;
@@ -532,6 +514,8 @@ void pk_thiefs_action(CHAR_DATA * thief, CHAR_DATA * victim)
 	}
 	return;
 }
+
+
 
 void pk_revenge_action(CHAR_DATA * killer, CHAR_DATA * victim)
 {
@@ -961,17 +945,28 @@ void save_pkills(CHAR_DATA * ch, FILE * saved) {
 	fprintf(saved, "~\n");
 }
 
+bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument) {
+    skip_spaces(&argument);
+    if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
+        if (strcmp(GET_NAME(victim), argument)) {
+            send_to_char(ch, "Это ваш или последователь группы, введите имя полностью.\r\n");
+            return FALSE;
+        }
+    }
+    return true;
+}
+
+
 // Проверка может ли ch начать аргессивные действия против victim
 int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim, char * argument)
 {
-	if (!victim)
+    if (!victim)
 		return TRUE;
 
 	if (MOB_FLAGGED(ch, MOB_NOFIGHT))
 		return (FALSE);
 
-	if (MOB_FLAGGED(victim, MOB_NOFIGHT))
-	{
+	if (MOB_FLAGGED(victim, MOB_NOFIGHT)) {
 		act("Боги предотвратили ваше нападение на $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		return (FALSE);
 	}
@@ -988,38 +983,27 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim, char * argument)
 		act("Вы еще слишком слабы, чтобы напасть на $N3.", FALSE, ch, 0, victim, TO_CHAR);
 		return (FALSE);
 	}
-
+    // уже идёт сражение
 	if ((ch->get_fighting() && ch->get_fighting() == victim)
-		|| (victim->get_fighting() && victim->get_fighting() == ch))
-	{
+		|| (victim->get_fighting() && victim->get_fighting() == ch)) {
 		return TRUE;
 	}
-
-	if (ch != victim
-		&& !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
+    // Один из участников в мирной комнате
+    if (ch != victim && !ROOM_FLAGGED(victim->in_room, ROOM_ARENA)
 		&& (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)
-			|| ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)))
-	{
-		// Один из участников в мирной комнате
-		if (MOB_FLAGGED(victim, MOB_HORDE)
-			|| (MOB_FLAGGED(ch, MOB_IGNORPEACE)
-				&& !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)))
-		{
-			return TRUE;
-		}
-
-		if (IS_GOD(ch)
-			|| (IS_NPC(ch)
-				&& ch->get_rnum() == real_mobile(DG_CASTER_PROXY))
-			|| (pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT)))
-		{
-			return TRUE;
-		}
-		else
-		{
+			|| ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL))) {
+        if (MOB_FLAGGED(victim, MOB_HORDE))
+            return TRUE;
+        if (MOB_FLAGGED(ch, MOB_IGNORPEACE) && !IS_CHARMICE(ch))
+            return TRUE;
+        if (IS_NPC(ch) && ch->get_rnum() == real_mobile(DG_CASTER_PROXY))
+            return TRUE;
+        if (IS_GOD(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
+            return TRUE;
+    }
+    else {
 			send_to_char("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
 			return FALSE;
-		}
 	}
 	//Проверка на чармиса(своего или группы)
 	if (argument && !check_charmise(ch, victim, argument)) {
@@ -1031,11 +1015,10 @@ int may_kill_here(CHAR_DATA * ch, CHAR_DATA * victim, char * argument)
 // Определяет необходимость вводить
 // имя жертвы полностью для начала агродействий
 bool need_full_alias(CHAR_DATA * ch, CHAR_DATA * opponent) {
-	// Потенциальная жертва приведет к ПК?
-	if (IS_NPC(opponent) && (!opponent->has_master() || IS_NPC(opponent->get_master()) || opponent->get_master() == ch)) {
+	// Цель - НПЦ, не являющаяся чармисом игрока
+	if (IS_NPC(opponent) && (!opponent->has_master() || IS_NPC(opponent->get_master()) )) {
 		return false;
 	}
-
 	// Уже воюю?
 	if (ch->get_fighting() == opponent || opponent->get_fighting() == ch) {
 		return false;
@@ -1063,7 +1046,6 @@ int name_cmp(CHAR_DATA * ch, const char *arg)
 // TRUE - агродействие разрешено, FALSE - агродействие запрещено
 int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const char *arg)
 {
-
 	if (!need_full_alias(ch, opponent))
 		return TRUE;
 
@@ -1131,16 +1113,7 @@ bool has_clan_members_in_group(CHAR_DATA * ch) {
 	return false;
 }
 
-bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument) {
-	skip_spaces(&argument);
-	if (victim && IS_CHARMICE(victim) && victim->get_master() && !IS_NPC(victim->get_master())) {
-		if (strcmp(GET_NAME(victim), argument)) {
-			send_to_char(ch, "Это ваш или последователь группы, введите имя полностью.\r\n");
-			return FALSE;
-		}
-	}
-	return true;
-}
+
 //Polud
 void pkPortal(CHAR_DATA* ch) {
 	AGRO(ch) = MAX(AGRO(ch), time(NULL) + PENTAGRAM_TIME * 60);

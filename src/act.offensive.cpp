@@ -574,7 +574,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!may_kill_here(ch, vict, argument) && !IS_NPC(ch))
+	if (!may_kill_here(ch, vict, argument))
 		return;
 	if (!check_pkill(ch, vict, arg) && !IS_NPC(ch))
 		return;

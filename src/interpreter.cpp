@@ -77,6 +77,7 @@
 #include "debug.utils.hpp"
 #include "global.objects.hpp"
 #include "accounts.hpp"
+#include "pk.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -198,7 +199,6 @@ void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_equipment(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_examine(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_revenge(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remort(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remember_char(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_exit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

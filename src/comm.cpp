@@ -62,6 +62,7 @@
 #include "heartbeat.hpp"
 #include "zone.table.hpp"
 #include "db.h"
+#include "utils.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -3707,11 +3708,8 @@ void send_stat_char(const CHAR_DATA * ch)
 
 void send_to_char(const char *messg, const CHAR_DATA* ch)
 {
-	if (ch->desc
-		&& messg)
-	{
+    if (ch->desc && messg)
 		SEND_TO_Q(messg, ch->desc);
-	}
 }
 
 // New edition :)
@@ -3723,33 +3721,23 @@ void send_to_char(const CHAR_DATA* ch, const char *messg, ...)
 	va_start(args, messg);
 	vsnprintf(tmpbuf, sizeof(tmpbuf), messg, args);
 	va_end(args);
-
-	if (ch->desc && messg)
-	{
-		SEND_TO_Q(tmpbuf, ch->desc);
-	}
+    send_to_char (tmpbuf, ch);
 }
 
 // а вот те еще одна едишн Ж)
 void send_to_char(const std::string & buffer, const CHAR_DATA* ch)
 {
 	if (ch->desc && !buffer.empty())
-	{
-		SEND_TO_Q(buffer.c_str(), ch->desc);
-	}
+        send_to_char(buffer.c_str(), ch);
 }
 
 void send_to_all(const char *messg)
 {
 	if (messg == NULL)
-	{
 		return;
-	}
-
 	for (auto i = descriptor_list; i; i = i->next)
 	{
-		if (STATE(i) == CON_PLAYING)
-		{
+		if (STATE(i) == CON_PLAYING) {
 			SEND_TO_Q(messg, i);
 		}
 	}

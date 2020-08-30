@@ -100,6 +100,7 @@ void aura(CHAR_DATA * ch, int lvl, CHAR_DATA * victim, char *s);
 const char *CCPK(CHAR_DATA * ch, int lvl, CHAR_DATA * victim);
 inline const char *CCPK(CHAR_DATA* ch, int lvl, const CHAR_DATA::shared_ptr& victim) { return CCPK(ch, lvl, victim.get()); }
 void pk_list_sprintf(CHAR_DATA * ch, char *buff);
+void do_revenge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 
 //*************************************************************************
 // Системные функции сохранения/загрузки ПК флагов
@@ -109,7 +110,7 @@ void save_pkills(CHAR_DATA * ch, FILE * saved);
 bool has_clan_members_in_group(CHAR_DATA * ch);
 
 //проверяем не чармис ли это наш или группы
-bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument);
+//bool check_charmise(CHAR_DATA * ch, CHAR_DATA * victim, char * argument);
 
 //Polud
 void pkPortal(CHAR_DATA* ch);
