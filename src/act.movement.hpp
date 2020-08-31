@@ -33,7 +33,7 @@ void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 int has_boat(CHAR_DATA * ch);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
-
+int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg);
 
 #endif // _ACT_MOVEMENT_HPP_
 

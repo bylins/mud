@@ -2355,8 +2355,11 @@ void CHAR_DATA::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const ch
 	send_to_char(tmpbuf, IS_CHARMICE(this)? this->get_master() : this);
 } 
 
-
-
+bool CHAR_DATA::have_mind() {
+    if (!AFF_FLAGGED(this, EAffectFlag::AFF_CHARM) && !IS_HORSE(this))
+        return true;
+    return false;
+}
 
 obj_sets::activ_sum& CHAR_DATA::obj_bonus()
 {

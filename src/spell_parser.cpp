@@ -14,6 +14,8 @@
 
 #include "spell_parser.hpp"
 
+#include "skills/do_stun.h"
+
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
@@ -72,7 +74,6 @@ void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_stun(CHAR_DATA*, char*, int, int);
 
 void unused_spell(int spl);
 void unused_skill(int spl);

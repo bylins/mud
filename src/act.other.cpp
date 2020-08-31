@@ -76,7 +76,6 @@ void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 void appear(CHAR_DATA * ch);
 void write_aliases(CHAR_DATA * ch);
 void perform_immort_vis(CHAR_DATA * ch);
-int have_mind(CHAR_DATA * ch);
 void do_gen_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern char *color_value(CHAR_DATA * ch, int real, int max);
 int posi_value(int real, int max);

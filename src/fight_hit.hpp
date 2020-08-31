@@ -102,6 +102,8 @@ bool check_valid_chars(CHAR_DATA *ch, CHAR_DATA *victim, const char *fname, int 
 void exthit(CHAR_DATA * ch, ESkill type, FightSystem::AttType weapon);
 void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType weapon);
 
+void appear(CHAR_DATA * ch);
+
 #endif // _FIGHT_LOCAL_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

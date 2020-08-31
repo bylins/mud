@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj.hpp"
+#include "skills/do_flee.h"
 #include "world.characters.hpp"
 #include "fight.h"
 #include "fight.penalties.hpp"
@@ -42,7 +43,6 @@ int max_exp_gain_pc(CHAR_DATA * ch);
 int max_exp_loss_pc(CHAR_DATA * ch);
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 int slot_for_char(CHAR_DATA * ch, int i);
-void do_flee(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 extern int material_value[];

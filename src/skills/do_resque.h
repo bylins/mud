@@ -1,0 +1,10 @@
+#ifndef BYLINS_DO_RESQUE_H
+#define BYLINS_DO_RESQUE_H
+
+#include "char.hpp"
+
+void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+
+#endif //BYLINS_DO_RESQUE_H
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

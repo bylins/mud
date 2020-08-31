@@ -14,6 +14,13 @@
 
 #include "fight.h"
 
+#include "skills/do_bash.h"
+#include "skills/do_kick.h"
+#include "skills/do_chopoff.h"
+#include "skills/do_disarm.h"
+#include "skills/do_throw.h"
+#include "skills/do_protect.h"
+
 #include "world.characters.hpp"
 #include "fight_hit.hpp"
 #include "AffectHandler.hpp"
@@ -54,17 +61,8 @@ extern DESCRIPTOR_DATA *descriptor_list;
 // External procedures
 // void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void battle_affect_update(CHAR_DATA * ch);
-void go_throw(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_kick(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch);
-void go_parry(CHAR_DATA * ch);
-void go_multyparry(CHAR_DATA * ch);
-void go_block(CHAR_DATA * ch);
 void go_touch(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);
 void go_cut_shorts(CHAR_DATA * ch, CHAR_DATA * vict);
 int npc_battle_scavenge(CHAR_DATA * ch);
 void npc_wield(CHAR_DATA * ch);

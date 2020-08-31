@@ -48,6 +48,7 @@
 #include "conf.h"
 #include "world.characters.hpp"
 #include "zone.table.hpp"
+#include "skills/do_flee.h"
 
 #include <vector>
 #include <boost/lexical_cast.hpp>
@@ -74,7 +75,6 @@ int compute_armor_class(CHAR_DATA * ch);
 char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int calc_anti_savings(CHAR_DATA * ch);
-void go_flee(CHAR_DATA * ch);
 
 void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 

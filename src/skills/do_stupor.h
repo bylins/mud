@@ -1,0 +1,9 @@
+#ifndef BYLINS_DO_STUPOR_H
+#define BYLINS_DO_STUPOR_H
+
+#include "char.hpp"
+
+void go_stupor(CHAR_DATA * ch, CHAR_DATA * victim);
+void do_stupor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+
+#endif //BYLINS_DO_STUPOR_H

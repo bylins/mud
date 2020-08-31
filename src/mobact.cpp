@@ -13,6 +13,16 @@
 ************************************************************************ */
 #include "mobact.hpp"
 
+#include "skills/do_backstab.h"
+#include "skills/do_bash.h"
+#include "skills/do_strangle.h"
+#include "skills/do_chopoff.h"
+#include "skills/do_disarm.h"
+#include "skills/do_stupor.h"
+#include "skills/do_throw.h"
+#include "skills/do_mighthit.h"
+#include "skills/do_protect.h"
+
 #include "ability.rollsystem.hpp"
 #include "action.targeting.hpp"
 #include "features.hpp"
@@ -39,8 +49,9 @@
 #include "sysdep.h"
 #include "conf.h"
 
+
 // external structs
-extern INDEX_DATA *mob_index;
+//extern INDEX_DATA *mob_index;
 extern int no_specials;
 extern TIME_INFO_DATA time_info;
 extern int guild_poly(CHAR_DATA*, void*, int, char*);
@@ -49,14 +60,6 @@ extern struct ZoneData * zone_table;
 extern bool check_mighthit_weapon(CHAR_DATA *ch);
 
 void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_mighthit(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_stupor(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_throw(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -80,7 +83,6 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 
 // local functions
-CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
 
