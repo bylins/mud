@@ -1493,13 +1493,10 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				do {
 					fbgetline(fl, line);
 					sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
-					if (num != 0 && this->charmeeHistory.find(num) == this->charmeeHistory.end()) {
+					if (this->charmeeHistory.find(num) == this->charmeeHistory.end() && num != 0) {
 						MERCDATA md = {num2, num3, num4, num5, num6}; // num - key
 						this->charmeeHistory.insert( std::pair<int,MERCDATA>(num, md));
 						log("Load_char: Charmees: vnum: %d", num);
-					} else {
-						sprintf(buf, "[ERROR]: Player::load_char_ascii: дублированный vnum %d чармиса в истории.", num);
-						mudlog(buf, NRM, LVL_GRGOD, ERRLOG, TRUE);
 					}
 				} while (num != 0);
 			}
@@ -2523,6 +2520,10 @@ unsigned weight_dex_penalty(CHAR_DATA* ch)
 
 // апдейт истории, при почарме освежает в памяти
 void Player::updateCharmee(int vnum, int gold) {
+    if (vnum <1) {
+        log("[ERROR] Player::updateCharmee. Вызов функции с vnum < 1, %s", this->get_name().c_str());
+        return;
+    }
     std::map<int, MERCDATA>::iterator it;
     MERCDATA md = {1, gold, 0, 1, 1};
     it = this->charmeeHistory.find(vnum);
