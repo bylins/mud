@@ -1,7 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj.hpp"
-#include "skills/do_flee.h"
+#include "skills/flee.h"
 #include "world.characters.hpp"
 #include "fight.h"
 #include "fight.penalties.hpp"

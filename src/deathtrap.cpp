@@ -99,50 +99,6 @@ void DeathTrap::activity()
 	}
 }
 
-namespace OneWayPortal
-{
-
-// список односторонних порталов <куда указывает, откуда поставлен>
-std::unordered_map<room_vnum /*to*/, ROOM_DATA* /*from*/> portal_list;
-
-/**
-* Добавление портала в список
-* \param to_room - куда ставится пента
-* \param from_room - откуда ставится
-*/
-void add(ROOM_DATA* to_room, ROOM_DATA* from_room)
-{
-	portal_list.emplace(to_room->number, from_room);
-}
-
-/**
-* Удаление портала из списка
-* \param to_room - куда указывает пента
-*/
-void remove(ROOM_DATA* to_room)
-{
-	const auto it = portal_list.find(to_room->number);
-	if (it != portal_list.end())
-		portal_list.erase(it);
-}
-
-/**
-* Проверка на наличие комнаты в списке
-* \param to_room - куда указывает пента
-* \return указатель на источник пенты
-*/
-ROOM_DATA* get_from_room(ROOM_DATA* to_room)
-{
-
-	const auto it = portal_list.find(to_room->number);
-	if (it != portal_list.end())
-		return it->second;
-
-	return nullptr;
-}
-
-} // namespace OneWayPortal
-
 // * Логирование в отдельный файл уходов в дт для интересу и мб статистики.
 void DeathTrap::log_death_trap(CHAR_DATA * ch)
 {

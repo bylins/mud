@@ -15,21 +15,23 @@
 
 #include "interpreter.h"
 
-#include "skills/do_flee.h"
-#include "skills/do_bash.h"
-#include "skills/do_stun.h"
-#include "skills/do_resque.h"
-#include "skills/do_kick.h"
-#include "skills/do_strangle.h"
-#include "skills/do_chopoff.h"
-#include "skills/do_disarm.h"
-#include "skills/do_stupor.h"
-#include "skills/do_ironwind.h"
-#include "skills/do_throw.h"
-#include "skills/do_mighthit.h"
-#include "skills/do_block.h"
-#include "skills/do_parry.h"
-#include "skills/do_protect.h"
+#include "skills/manadrain.h"
+#include "skills/flee.h"
+#include "skills/bash.h"
+#include "skills/stun.h"
+#include "skills/resque.h"
+#include "skills/kick.h"
+#include "skills/strangle.h"
+#include "skills/chopoff.h"
+#include "skills/disarm.h"
+#include "skills/stupor.h"
+#include "skills/ironwind.h"
+#include "skills/throw.h"
+#include "skills/mighthit.h"
+#include "skills/block.h"
+#include "skills/parry.h"
+#include "skills/protect.h"
+#include "skills/turnundead.h"
 
 #include "act.movement.hpp"
 #include "world.characters.hpp"
@@ -211,7 +213,6 @@ void do_fire(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_eat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_equipment(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_examine(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remort(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -345,7 +346,6 @@ void do_dig(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_insertgem(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_ignore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_proxy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_turn_undead(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_exchange(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_godtest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_print_armor(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

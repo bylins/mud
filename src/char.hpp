@@ -654,6 +654,8 @@ public:
 
 	bool is_npc() const { return char_specials.saved.act.get(MOB_ISNPC); }
     bool have_mind();
+    bool onhorse();
+    void drop_from_horse();
 private:
 	const auto& get_player_specials() const { return player_specials; }
 	auto& get_player_specials() { return player_specials; }

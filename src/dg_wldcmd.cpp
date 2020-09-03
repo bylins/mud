@@ -12,7 +12,7 @@
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
-#include "screen.h"
+#include "skills/townportal.h"
 #include "dg_scripts.h"
 #include "comm.h"
 #include "interpreter.h"

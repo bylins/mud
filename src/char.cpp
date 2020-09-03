@@ -147,6 +147,30 @@ int CHAR_DATA::get_souls()
 	return this->souls;
 }
 
+bool CHAR_DATA::onhorse() {
+    if (on_horse(this)) {
+        act("Вам мешает $N.", FALSE, this, 0, get_horse(this), TO_CHAR);
+        return true;
+    }
+    return false;
+};
+
+void CHAR_DATA::drop_from_horse() {
+    if (on_horse(this)) {
+        act("Вы упали с $N1.", FALSE, this, 0, get_horse(this), TO_CHAR);
+        AFF_FLAGS(this).unset(EAffectFlag::AFF_HORSE);
+    }
+    if (IS_HORSE(this) && on_horse(this->get_master())) {
+        act("$N сбросил$G вас со своей спины.", FALSE, this->get_master(), 0, this, TO_CHAR);
+        AFF_FLAGS(this->get_master()).unset(EAffectFlag::AFF_HORSE);
+        WAIT_STATE(this->get_master(), 3 * PULSE_VIOLENCE);
+        if (GET_POS(this->get_master()) > POS_SITTING) {
+            GET_POS(this->get_master()) = POS_SITTING;
+        }
+    }
+};
+
+
 bool CHAR_DATA::in_used_zone() const
 {
 	if (IS_MOB(this))

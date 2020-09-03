@@ -16,7 +16,7 @@
 #include "world.characters.hpp"
 #include "obj.hpp"
 #include "spells.h"
-#include "skills.h"
+#include "skills/townportal.h"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"

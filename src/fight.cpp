@@ -14,12 +14,12 @@
 
 #include "fight.h"
 
-#include "skills/do_bash.h"
-#include "skills/do_kick.h"
-#include "skills/do_chopoff.h"
-#include "skills/do_disarm.h"
-#include "skills/do_throw.h"
-#include "skills/do_protect.h"
+#include "skills/bash.h"
+#include "skills/kick.h"
+#include "skills/chopoff.h"
+#include "skills/disarm.h"
+#include "skills/throw.h"
+#include "skills/throw.h"
 
 #include "world.characters.hpp"
 #include "fight_hit.hpp"

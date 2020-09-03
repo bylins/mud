@@ -173,16 +173,32 @@ set(SOURCES
 		src/stigmas.cpp
 		src/zone.table.cpp
 		src/strengthening.cpp
-		src/skills/do_backstab.cpp
-		src/skills/do_flee.cpp
-		src/skills/do_bash.cpp
-		src/skills/do_stun.cpp
-		src/skills/do_resque.cpp
-		src/skills/do_kick.cpp
-		src/skills/do_strangle.cpp
-		src/skills/do_chopoff.cpp src/skills/do_disarm.cpp src/skills/do_disarm.h src/skills/do_stupor.cpp src/skills/do_ironwind.cpp src/skills/do_ironwind.h src/skills/do_throw.cpp src/skills/do_throw.h src/skills/do_mighthit.cpp src/skills/do_mighthit.h src/skills/do_block.cpp src/skills/do_block.h src/skills/do_parry.cpp src/skills/do_parry.h src/skills/do_protect.cpp src/skills/do_protect.h)
+		src/skills/backstab.cpp
+		src/skills/flee.cpp
+		src/skills/bash.cpp
+		src/skills/stun.cpp
+		src/skills/resque.cpp
+		src/skills/kick.cpp
+		src/skills/strangle.cpp
+		src/skills/chopoff.cpp
+		src/skills/disarm.cpp
+		src/skills/stupor.cpp
+		src/skills/ironwind.cpp
+		src/skills/throw.cpp
+		src/skills/mighthit.cpp
+		src/skills/mighthit.h
+		src/skills/block.cpp
+		src/skills/parry.cpp
+		src/skills/protect.cpp
+		src/skills/expendientcut.cpp src/skills/expendientcut.h src/skills/turnundead.cpp src/skills/turnundead.h src/skills/townportal.cpp src/skills/townportal.h src/skills/manadrain.cpp src/skills/manadrain.h)
 
 set(HEADERS
+		src/skills/block.h
+		src/skills/protect.h
+		src/skills/parry.h
+		src/skills/throw.h
+		src/skills/ironwind.h
+		src/skills/disarm.h
 		src/act.movement.hpp
 		src/strengthening.hpp
 		src/ability.constants.hpp
@@ -335,14 +351,14 @@ set(HEADERS
 		src/stigmas.hpp
 		src/zone.table.hpp
 		src/act.offensive.h
-		src/skills/do_flee.h
-		src/skills/do_backstab.h
-		src/skills/do_bash.h
-		src/skills/do_stun.h
-		src/skills/do_resque.h
-		src/skills/do_kick.h
-		src/skills/do_strangle.h
-		src/skills/do_chopoff.h src/skills/do_stupor.h)
+		src/skills/flee.h
+		src/skills/backstab.h
+		src/skills/bash.h
+		src/skills/stun.h
+		src/skills/resque.h
+		src/skills/kick.h
+		src/skills/strangle.h
+		src/skills/chopoff.h src/skills/stupor.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

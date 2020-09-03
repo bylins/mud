@@ -3,7 +3,6 @@
 
 #include "char.hpp"
 
-int onhorse(CHAR_DATA* ch);
 inline bool dontCanAct(CHAR_DATA *ch);
 
 int set_hit(CHAR_DATA * ch, CHAR_DATA * victim);

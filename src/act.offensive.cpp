@@ -36,12 +36,12 @@
 #include "sysdep.h"
 #include "conf.h"
 
-#include "skills/do_flee.h"
-#include "skills/do_strangle.h"
-#include "skills/do_kick.h"
-#include "skills/do_bash.h"
-#include "skills/do_stun.h"
-#include "skills/do_protect.h"
+#include "skills/flee.h"
+#include "skills/strangle.h"
+#include "skills/kick.h"
+#include "skills/bash.h"
+#include "skills/stun.h"
+#include "skills/protect.h"
 
 #include <cmath>
 #include "logger.hpp"
@@ -64,15 +64,12 @@ void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_hit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_order(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_manadrain(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_expedient_cut(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 
 inline bool dontCanAct(CHAR_DATA *ch) {
 	return (AFF_FLAGGED(ch, EAffectFlag::AFF_STOPFIGHT) || AFF_FLAGGED(ch, EAffectFlag::AFF_MAGICSTOPFIGHT));
 }
-
-
 
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room) {
 	if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())))) {
@@ -185,13 +182,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim) {
 	return (TRUE);
 };
 
-int onhorse(CHAR_DATA* ch) {
-	if (on_horse(ch)) {
-		act("Вам мешает $N.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
-		return (TRUE);
-	}
-	return (FALSE);
-};
+
 
 void parry_override(CHAR_DATA * ch) {
 	std::string message = "";
@@ -481,18 +472,6 @@ void do_order(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-void drop_from_horse(CHAR_DATA *victim) {
-	if (on_horse(victim)) {
-		act("Вы упали с $N1.", FALSE, victim, 0, get_horse(victim), TO_CHAR);
-		AFF_FLAGS(victim).unset(EAffectFlag::AFF_HORSE);
-	}
-
-	if (IS_HORSE(victim) && on_horse(victim->get_master())) {
-		horse_drop(victim);
-	}
-}
-
-
 
 // ************* TOUCH PROCEDURES
 void go_touch(CHAR_DATA * ch, CHAR_DATA * vict) {
@@ -570,7 +549,7 @@ void go_deviate(CHAR_DATA * ch) {
 		send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
 		return;
 	}
-	if (onhorse(ch)) {
+	if (ch->onhorse()) {
 		return;
 	};
 	SET_AF_BATTLE(ch, EAF_DEVIATE);
@@ -592,7 +571,7 @@ void do_deviate(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (onhorse(ch)) {
+	if (ch->onhorse()) {
 		return;
 	}
 
@@ -707,193 +686,6 @@ void do_stopfight(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 }
 
 
-
-void do_manadrain(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-
-	struct timed_type timed;
-	int drained_mana, prob, percent, skill;
-
-	one_argument(argument, arg);
-
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_MANADRAIN)) {
-		send_to_char("Вы не знаете как.\r\n", ch);
-		return;
-	}
-
-	if (timed_by_skill(ch, SKILL_MANADRAIN) || ch->haveCooldown(SKILL_MANADRAIN)) {
-		send_to_char("Так часто не получится.\r\n", ch);
-		return;
-	}
-
-	CHAR_DATA* vict = findVictim(ch, argument);
-	if (!vict) {
-		send_to_char("Кого вы столь сильно ненавидите?\r\n", ch);
-		return;
-	}
-
-	if (ch == vict) {
-		send_to_char("Вы укусили себя за левое ухо.\r\n", ch);
-		return;
-	}
-
-	if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_NOBATTLE)) {
-		send_to_char("Поищите другое место для выражения своих кровожадных наклонностей.\r\n", ch);
-		return;
-	}
-
-	if (!IS_NPC(vict)) {
-		send_to_char("На живом человеке? Креста не вас нет!\r\n", ch);
-		return;
-	}
-
-	if (affected_by_spell(vict, SPELL_SHIELD) || MOB_FLAGGED(vict, MOB_PROTECT)) {
-		send_to_char("Боги хранят вашу жертву.\r\n", ch);
-		return;
-	}
-
-	skill = ch->get_skill(SKILL_MANADRAIN);
-
-	percent = number(1, skill_info[SKILL_MANADRAIN].max_percent);
-	prob = MAX(20, 90 - 5 * MAX(0, GET_LEVEL(vict) - GET_LEVEL(ch)));
-	improve_skill(ch, SKILL_MANADRAIN, percent > prob, vict);
-
-	Damage manadrainDamage(SkillDmg(SKILL_MANADRAIN), ZERO_DMG, MAGE_DMG);
-	manadrainDamage.magic_type = STYPE_DARK;
-	if (percent <= prob) {
-		skill = MAX(10, skill - 10 * MAX(0, GET_LEVEL(ch) - GET_LEVEL(vict)));
-		drained_mana = (GET_MAX_MANA(ch) - GET_MANA_STORED(ch)) * skill / 100;
-		GET_MANA_STORED(ch) = MIN(GET_MAX_MANA(ch), GET_MANA_STORED(ch) + drained_mana);
-		manadrainDamage.dam = 10;
-	}
-	manadrainDamage.process(ch, vict);
-
-	if (!IS_IMMORTAL(ch)) {
-		timed.skill = SKILL_MANADRAIN;
-		timed.time = 6 - MIN(4, (ch->get_skill(SKILL_MANADRAIN) + 30) / 50);
-		timed_to_char(ch, &timed);
-	}
-
-}
-
-extern char cast_argument[MAX_INPUT_LENGTH];
-void do_townportal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-
-	struct char_portal_type *tmp, *dlt = NULL;
-	char arg2[MAX_INPUT_LENGTH];
-	int vnum = 0;
-
-	if (IS_NPC(ch) || !ch->get_skill(SKILL_TOWNPORTAL)) {
-		send_to_char("Прежде изучите секрет постановки врат.\r\n", ch);
-		return;
-	}
-
-	two_arguments(argument, arg, arg2);
-	if (!str_cmp(arg, "забыть")) {
-		vnum = find_portal_by_word(arg2);
-		for (tmp = GET_PORTALS(ch); tmp; tmp = tmp->next) {
-			if (tmp->vnum == vnum) {
-				if (dlt) {
-					dlt->next = tmp->next;
-				} else {
-					GET_PORTALS(ch) = tmp->next;
-				}
-				free(tmp);
-				sprintf(buf, "Вы полностью забыли, как выглядит камень '&R%s&n'.\r\n", arg2);
-				send_to_char(buf, ch);
-				break;
-			}
-			dlt = tmp;
-		}
-		return;
-	}
-
-	*cast_argument = '\0';
-	if (argument)
-		strcat(cast_argument, arg);
-	spell_townportal(GET_LEVEL(ch), ch, NULL, NULL);
-}
-
-void do_turn_undead(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
-
-	if (!ch->get_skill(SKILL_TURN_UNDEAD)) {
-		send_to_char("Вам это не по силам.\r\n", ch);
-		return;
-	}
-	if (ch->haveCooldown(SKILL_TURN_UNDEAD)) {
-		send_to_char("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
-		return;
-	};
-
-	int skillTurnUndead = ch->get_skill(SKILL_TURN_UNDEAD);
-	timed_type timed;
-	timed.skill = SKILL_TURN_UNDEAD;
-	if (can_use_feat(ch, EXORCIST_FEAT)) {
-		timed.time = timed_by_skill(ch, SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD - 2;
-		skillTurnUndead += 10;
-	} else {
-		timed.time = timed_by_skill(ch, SKILL_TURN_UNDEAD) + HOURS_PER_TURN_UNDEAD;
-	}
-	if (timed.time > HOURS_PER_DAY) {
-		send_to_char("Вам пока не по силам изгонять нежить, нужно отдохнуть.\r\n", ch);
-		return;
-	}
-	timed_to_char(ch, &timed);
-
-	send_to_char(ch, "Вы свели руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n");
-	act("$n свел$g руки в магическом жесте и отовсюду хлынули яркие лучи света.\r\n", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-
-// костылиии... и магик намберы
-	int victimsAmount = 20;
-	int victimssHPAmount = skillTurnUndead*25 + MAX(0, skillTurnUndead - 80)*50;
-	Damage turnUndeadDamage(SkillDmg(SKILL_TURN_UNDEAD), ZERO_DMG, MAGE_DMG);
-	turnUndeadDamage.magic_type = STYPE_LIGHT;
-	turnUndeadDamage.flags.set(IGNORE_FSHIELD);
-	TechniqueRollType turnUndeadRoll;
-	ActionTargeting::FoesRosterType roster{ch, [](CHAR_DATA*, CHAR_DATA* target) {return IS_UNDEAD(target);}};
-	for (const auto target : roster) {
-		turnUndeadDamage.dam = ZERO_DMG;
-		turnUndeadRoll.initialize(ch, TURN_UNDEAD_FEAT, target);
-		if (turnUndeadRoll.isSuccess()) {
-			if (turnUndeadRoll.isCriticalSuccess() && ch->get_level() > target->get_level() + dice(1, 5)) {
-				send_to_char(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
-				turnUndeadDamage.dam = MAX(1, GET_HIT(target) + 11);
-			} else {
-				turnUndeadDamage.dam = turnUndeadRoll.calculateDamage();
-				victimssHPAmount -= turnUndeadDamage.dam;
-			};
-		} else if (turnUndeadRoll.isCriticalFail() && !IS_CHARMICE(target)) {
-			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n", FALSE, target, 0, ch, TO_VICT);
-			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n", FALSE, target, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
-			AFFECT_DATA<EApplyLocation> af[2];
-			af[0].type = SPELL_COURAGE;
-			af[0].duration = pc_duration(target, 3, 0, 0, 0, 0);
-			af[0].modifier = MAX(1, turnUndeadRoll.getDegreeOfSuccess()*2);
-			af[0].location = APPLY_DAMROLL;
-			af[0].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
-			af[0].battleflag = 0;
-			af[1].type = SPELL_COURAGE;
-			af[1].duration = pc_duration(target, 3, 0, 0, 0, 0);
-			af[1].modifier = MAX(1, 25 + turnUndeadRoll.getDegreeOfSuccess()*5);
-			af[1].location = APPLY_HITREG;
-			af[1].bitvector = to_underlying(EAffectFlag::AFF_NOFLEE);
-			af[1].battleflag = 0;
-			affect_join(target, af[0], TRUE, FALSE, TRUE, FALSE);
-			affect_join(target, af[1], TRUE, FALSE, TRUE, FALSE);
-		};
-		turnUndeadDamage.process(ch, target);
-		if (!target->purged() && turnUndeadRoll.isSuccess() && !MOB_FLAGGED(target, MOB_NOFEAR)
-			&& !general_savingthrow(ch, target, SAVING_WILL, GET_REAL_WIS(ch) + GET_REAL_INT(ch))) {
-			go_flee(target);
-		};
-		--victimsAmount;
-		if (victimsAmount == 0 || victimssHPAmount <= 0) {
-			break;
-		};
-	};
-	//set_wait(ch, 1, TRUE);
-	setSkillCooldownInFight(ch, SKILL_GLOBAL_COOLDOWN, 1);
-	setSkillCooldownInFight(ch, SKILL_TURN_UNDEAD, 2);
-}
 
 void ApplyNoFleeAffect(CHAR_DATA *ch, int duration) {
     //Это жутко криво, но почемук-то при простановке сразу 2 флагов битвектора начинаются глюки, хотя все должно быть нормально
@@ -1128,7 +920,7 @@ void do_expedient_cut(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/
 		return;
 	}
 
-	if (onhorse(ch)) {
+	if (ch->onhorse()) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

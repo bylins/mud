@@ -17,6 +17,7 @@
 
 #include "db.h"
 
+#include "skills/townportal.h"
 #include "global.objects.hpp"
 #include "speedwalks.hpp"
 #include "world.characters.hpp"

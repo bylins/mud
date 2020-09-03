@@ -732,20 +732,7 @@ CHAR_DATA *get_horse(CHAR_DATA * ch)
 	return (NULL);
 }
 
-void horse_drop(CHAR_DATA * ch)
-{
-	if (ch->has_master())
-	{
-		act("$N сбросил$G вас со своей спины.", FALSE, ch->get_master(), 0, ch, TO_CHAR);
-		AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_HORSE);
-		WAIT_STATE(ch->get_master(), 3 * PULSE_VIOLENCE);
 
-		if (GET_POS(ch->get_master()) > POS_SITTING)
-		{
-			GET_POS(ch->get_master()) = POS_SITTING;
-		}
-	}
-}
 
 void check_horse(CHAR_DATA * ch)
 {

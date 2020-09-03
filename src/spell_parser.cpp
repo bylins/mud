@@ -14,7 +14,7 @@
 
 #include "spell_parser.hpp"
 
-#include "skills/do_stun.h"
+#include "skills/stun.h"
 
 #include "object.prototypes.hpp"
 #include "obj.hpp"
