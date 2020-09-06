@@ -1,7 +1,7 @@
 #ifndef _ACT_MOVEMENT_HPP_
 #define _ACT_MOVEMENT_HPP_
 
-#include "char.hpp"
+#include "chars/char.hpp"
 
 enum DOOR_SCMD : int
 {

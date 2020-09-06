@@ -11,7 +11,7 @@
 #include "db.h"
 #include "constants.h"
 #include "handler.h"
-#include "char_player.hpp"
+#include "chars/char_player.hpp"
 #include "skills.h"
 #include "screen.h"
 #include "modify.h"

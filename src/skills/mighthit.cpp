@@ -1,9 +1,10 @@
 #include "mighthit.h"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/common.h"
+#include "skills/parry.h"
 #include "spells.h"
 #include "protect.h"
 

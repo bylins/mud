@@ -1,8 +1,9 @@
 #include "resque.h"
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+
+#include "fightsystem/common.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "handler.h"
 #include "spells.h"
 
@@ -28,7 +29,7 @@ void go_rescue(CHAR_DATA * ch, CHAR_DATA * vict, CHAR_DATA * tmp_ch) {
         send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
         return;
     }
-    if (on_horse(ch)) {
+    if (ch->ahorse()) {
         send_to_char(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", GET_PAD(vict,1));
         return;
     }

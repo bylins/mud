@@ -1,7 +1,7 @@
 #ifndef BYLINS_RESQUE_H
 #define BYLINS_RESQUE_H
 
-#include "char.hpp"
+#include "chars/char.hpp"
 
 void do_rescue(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 

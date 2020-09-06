@@ -12,11 +12,11 @@
 #include "comm.h"
 #include "db.h"
 #include "screen.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "privilege.hpp"
 #include "handler.h"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 
 #include <boost/algorithm/string.hpp>
 

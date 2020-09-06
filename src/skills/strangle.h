@@ -1,7 +1,7 @@
 #ifndef BYLINS_STRANGLE_H
 #define BYLINS_STRANGLE_H
 
-#include "char.hpp"
+#include "chars/char.hpp"
 
 void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict);
 void do_strangle(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

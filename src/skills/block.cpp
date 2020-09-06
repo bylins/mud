@@ -1,9 +1,8 @@
 #include "block.h"
 
-#include "pk.h"
-#include "fight_hit.hpp"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight_hit.hpp"
 #include "spells.h"
-#include "protect.h"
 
 using  namespace FightSystem;
 

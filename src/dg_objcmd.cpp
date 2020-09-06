@@ -21,12 +21,12 @@
 #include "spell_parser.hpp"
 #include "spells.h"
 #include "im.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
 #include "magic.h"
-#include "fight.h"
+#include "fightsystem/fight.h"
 #include "features.hpp"
 #include "logger.hpp"
 #include "utils.h"
@@ -457,13 +457,10 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				continue;
 			}
 
-			if (on_horse(ch)
-				|| has_horse(ch, TRUE))
-			{
-				horse = get_horse(ch);
+			if (ch->ahorse() || ch->has_horse(true)){
+				horse = ch->get_horse();
 			}
-			else
-			{
+			else {
 				horse = NULL;
 			}
 
@@ -490,7 +487,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				char_to_room(horse, target);
 			}
 
-			check_horse(ch);
+			ch->dismount();
 			look_at_room(ch, TRUE);
 		}
 	}
@@ -498,10 +495,8 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if ((ch = get_char_by_obj(obj, arg1)))
 		{
-			if (on_horse(ch)
-				|| has_horse(ch, TRUE))
-			{
-				horse = get_horse(ch);
+			if (ch->ahorse()|| ch->has_horse(true)) {
+				horse = ch->get_horse();
 			}
 			else
 			{
@@ -532,7 +527,7 @@ void do_oteleport(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 				char_to_room(horse, target);
 			}
 
-			check_horse(ch);
+			ch->dismount();
 			look_at_room(ch, TRUE);
 		}
 		else

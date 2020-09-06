@@ -26,7 +26,7 @@
 #include "ability.rollsystem.hpp"
 #include "action.targeting.hpp"
 #include "features.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "obj.hpp"
 #include "db.h"
@@ -36,14 +36,14 @@
 #include "magic.h"
 #include "skills.h"
 #include "constants.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "random.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "house.h"
 #include "room.hpp"
 #include "shop_ext.hpp"
-#include "fight.h"
-#include "fight_hit.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -1467,7 +1467,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 // 11.07.2002 - у зачармленных мобов не работает механизм памяти на время чарма
 
 // make ch remember victim
-void remember(CHAR_DATA * ch, CHAR_DATA * victim)
+void mobRemember(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	struct timed_type timed;
 	memory_rec *tmp;

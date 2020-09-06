@@ -3,7 +3,7 @@
 
 #include "noob.hpp"
 
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "obj.hpp"
 #include "db.h"
 #include "comm.h"

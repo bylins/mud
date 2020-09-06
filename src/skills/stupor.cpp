@@ -1,12 +1,12 @@
 #include "stupor.h"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/common.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "skills/parry.h"
 #include "spells.h"
 #include "protect.h"
-
 
 using  namespace FightSystem;
 

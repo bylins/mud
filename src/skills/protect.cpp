@@ -1,9 +1,9 @@
 #include "protect.h"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/common.h"
+#include "fightsystem/fight_hit.hpp"
 #include "handler.h"
 #include "spells.h"
 

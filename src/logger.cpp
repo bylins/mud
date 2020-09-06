@@ -5,7 +5,7 @@
 #include "screen.h"
 #include "comm.h"
 #include "utils.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 
 #include <iostream>
 

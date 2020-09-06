@@ -2,7 +2,7 @@
 #define __CHAR_OBJ_UTILS_HPP__
 
 #include "structs.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "obj.hpp"
 #include "utils.h"
 

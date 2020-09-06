@@ -1,8 +1,8 @@
 #include "bash.h"
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/common.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "spells.h"
 #include "protect.h"
 
@@ -28,7 +28,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
         return;
     }
 
-    if (ch->onhorse())
+    if (ch->isHorsePrevents())
         return;
 
     if (ch == vict) {
@@ -126,7 +126,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
             prob = 3;
             if (ch->isInSameRoom(vict)) {
                 GET_POS(vict) = POS_SITTING;
-                drop_from_horse(vict);
+                vict->drop_from_horse();
             }
             set_wait(vict, prob, FALSE);
             prob = 2;
@@ -135,7 +135,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
     set_wait(ch, prob, TRUE);
 }
 
-[[maybe_unused]] void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+void do_bash(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     if ((IS_NPC(ch) && (!AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))) || !ch->get_skill(SKILL_BASH)) {
         send_to_char("Вы не знаете как.\r\n", ch);
         return;
@@ -145,7 +145,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
         return;
     };
 
-    if (ch->onhorse()) {
+    if (ch->ahorse()) {
         send_to_char("Верхом это сделать затруднительно.\r\n", ch);
         return;
     }

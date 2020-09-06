@@ -29,12 +29,12 @@
 #include "dg_scripts.h"
 #include "screen.h"
 #include "house.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "features.hpp"
 #include "im.h"
 #include "deathtrap.hpp"
 #include "privilege.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "depot.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
@@ -47,9 +47,10 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "zone.table.hpp"
 #include "skills/flee.h"
+#include "mobact.hpp"
 
 #include <vector>
 #include <boost/lexical_cast.hpp>
@@ -363,7 +364,7 @@ void spell_recall(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 	act("$n исчез$q.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, fnd_room);
-	check_horse(victim);
+	victim->dismount();
 	act("$n появил$u в центре комнаты.", TRUE, victim, 0, 0, TO_ROOM);
 	look_at_room(victim, 0);
 	greet_mtrigger(victim, -1);
@@ -393,7 +394,7 @@ void spell_teleport(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DAT
 	act("$n медленно исчез$q из виду.", FALSE, ch, 0, 0, TO_ROOM);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
-	check_horse(ch);
+	ch->dismount();
 	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
@@ -469,7 +470,7 @@ void spell_relocate(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
-	check_horse(ch);
+	ch->dismount();
 	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
 	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch)))
 	{
@@ -720,7 +721,7 @@ void spell_summon(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* 
 	act("$n растворил$u на ваших глазах.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	char_from_room(victim);
 	char_to_room(victim, ch_room);
-	check_horse(victim);
+    victim->dismount();
 	act("$n прибыл$g по вызову.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	act("$n призвал$g вас!", FALSE, ch, 0, victim, TO_VICT);
 	check_auto_nosummon(victim);
@@ -1098,7 +1099,7 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		}
 
 		if (CAN_SEE(victim, ch)) {
-			remember(victim, ch);
+			mobRemember(victim, ch);
 		}
 
 		affect_from_char(victim, SPELL_CHARM);

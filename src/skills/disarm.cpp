@@ -1,8 +1,9 @@
 #include "disarm.h"
 
-#include "pk.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/common.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/start.fight.h"
 #include "handler.h"
 #include "spells.h"
 #include "random.hpp"

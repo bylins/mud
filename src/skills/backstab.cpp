@@ -1,9 +1,10 @@
 #include "backstab.h"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/common.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/start.fight.h"
 #include "handler.h"
 #include "spells.h"
 #include "protect.h"
@@ -21,7 +22,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         return;
     };
 
-    if (ch->onhorse()) {
+    if (ch->ahorse()) {
         send_to_char("Верхом это сделать затруднительно.\r\n", ch);
         return;
     }
@@ -65,7 +66,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
     if (!may_kill_here(ch, vict, argument))
         return;
-    if (!check_pkill(ch, vict, arg) && !IS_NPC(ch))
+    if (!check_pkill(ch, vict, arg))
         return;
     go_backstab(ch, vict);
 }
@@ -75,7 +76,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict) {
     int percent, prob;
 
-    if (ch->onhorse())
+    if (ch->isHorsePrevents())
         return;
 
     vict = try_protect(vict, ch);

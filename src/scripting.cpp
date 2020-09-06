@@ -11,12 +11,12 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 */
 #include "scripting.hpp"
 
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "comm.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "interpreter.h"
 #include "obj.hpp"
 #include "db.h"
@@ -629,7 +629,7 @@ public:
 		Ensurer ch(*this);
 		char_from_room(ch);
 		char_to_room(ch, in_room);
-		check_horse(ch);
+        ch->dismount();
 	}
 
 	bool is_affected_by_spell(int spell_num) const
@@ -1397,7 +1397,7 @@ void char_to_room_wrap(CharacterWrapper& c, int vnum)
 	}
 	char_from_room(ch);
 	char_to_room(ch, location);
-	check_horse(ch);
+	ch->dismount();
 	look_at_room(ch, 0);
 
 }

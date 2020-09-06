@@ -28,16 +28,16 @@
 #include "house.h"
 #include "constants.h"
 #include "dg_scripts.h"
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "magic.h"
 #include "features.hpp"
 #include "depot.hpp"
 #include "privilege.hpp"
 #include "random.hpp"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 #include "remember.hpp"
 #include "room.hpp"
 #include "objsave.h"
@@ -204,7 +204,7 @@ void do_summon(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
 	// для начала проверяем, есть ли вообще лошадь у чара
 	CHAR_DATA *horse = NULL;
-	horse = get_horse(ch);
+	horse = ch->get_horse();
 	if (!horse)
 	{
 		send_to_char("У вас нет скакуна!\r\n", ch);
@@ -361,9 +361,9 @@ void do_sneak(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (on_horse(ch))
+	if (ch->ahorse())
 	{
-		act("Вам стоит подумать о мягкой обуви для $N1", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("Вам стоит подумать о мягкой обуви для $N1", FALSE, ch, 0, ch->get_horse(), TO_CHAR);
 		return;
 	}
 
@@ -415,7 +415,7 @@ void do_camouflage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (on_horse(ch))
+	if (ch->ahorse())
 	{
 		send_to_char("Вы замаскировались под статую Юрия Долгорукого.\r\n", ch);
 		return;
@@ -485,9 +485,9 @@ void do_hide(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (on_horse(ch))
+	if (ch->ahorse())
 	{
-		act("А куда вы хотите спрятать $N3?", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("А куда вы хотите спрятать $N3?", FALSE, ch, 0, ch->get_horse(), TO_CHAR);
 		return;
 	}
 
@@ -751,7 +751,7 @@ void do_steal(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!WAITLESS(ch) && on_horse(ch)) {
+	if (!WAITLESS(ch) && ch->ahorse()) {
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
@@ -1252,7 +1252,7 @@ void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
 										(k, WEAR_LIGHT),
 										2))) ? "С" : " ",
 				CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
-				on_horse(k) ? "В" : " ", CCNRM(ch, C_NRM));
+				k->ahorse() ? "В" : " ", CCNRM(ch, C_NRM));
 
 		sprintf(buf + strlen(buf), "%5s|", leader ? "Лидер" : "");
 		ok = PRF_FLAGGED(k, PRF_SKIRMISHER);
@@ -3347,7 +3347,7 @@ void do_dig(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (!WAITLESS(ch) && on_horse(ch))
+	if (!WAITLESS(ch) && ch->ahorse())
 	{
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;
@@ -3641,7 +3641,7 @@ void do_insertgem(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		return;
 	}
 
-	if (!WAITLESS(ch) && on_horse(ch))
+	if (!WAITLESS(ch) && ch->ahorse())
 	{
 		send_to_char("Верхом это сделать затруднительно.\r\n", ch);
 		return;

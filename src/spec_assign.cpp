@@ -24,7 +24,7 @@
 #include "house.h"
 #include "boards.constants.hpp"
 #include "boards.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "noob.hpp"
 

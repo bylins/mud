@@ -14,7 +14,7 @@
 *********************************************************************** */
 
 #include "logger.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "utils.h"
 
 void write_aliases(CHAR_DATA * ch);

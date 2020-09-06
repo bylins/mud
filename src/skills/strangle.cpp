@@ -1,10 +1,10 @@
 #include "strangle.h"
 #include "chopoff.h"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/common.h"
 #include "handler.h"
 #include "spells.h"
 #include "random.hpp"
@@ -32,7 +32,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict) {
     if (!pk_agro_action(ch, vict))
         return;
 
-    act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, 0, vict, TO_CHAR);
+    act("Вы попытались накинуть удавку на шею $N2.\r\n", FALSE, ch, nullptr, vict, TO_CHAR);
 
     int prob = train_skill(ch, SKILL_STRANGLE, skill_info[SKILL_STRANGLE].max_percent, vict);
     int delay = 6 - MIN(4, (ch->get_skill(SKILL_STRANGLE) + 30) / 50);
@@ -62,11 +62,11 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict) {
         if (GET_POS(vict) > POS_DEAD) {
             set_wait(vict, 2, TRUE);
             //vict->setSkillCooldown(SKILL_GLOBAL_COOLDOWN, 2);
-            if (on_horse(vict)) {
-                act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, 0, ch, TO_CHAR);
-                act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, 0, ch, TO_VICT);
-                act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, 0, ch, TO_NOTVICT | TO_ARENA_LISTEN);
-                drop_from_horse(vict);
+            if (vict->ahorse()) {
+                act("Рванув на себя, $N стащил$G Вас на землю.", FALSE, vict, nullptr, ch, TO_CHAR);
+                act("Рванув на себя, Вы стащили $n3 на землю.", FALSE, vict, nullptr, ch, TO_VICT);
+                act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
+                vict->drop_from_horse();
             }
             if (ch->get_skill(SKILL_CHOPOFF) && ch->isInSameRoom(vict)) {
                 go_chopoff(ch, vict);

@@ -14,13 +14,12 @@ set(SOURCES
 		src/heartbeat.cpp
 		src/heartbeat.commands.cpp
 		src/ability.rollsystem.cpp
-		src/accounts.cpp
+		src/chars/accounts.cpp
 		src/action.targeting.cpp
 		src/act.comm.cpp
 		src/act.informative.cpp
 		src/act.item.cpp
 		src/act.movement.cpp
-		src/act.offensive.cpp
 		src/act.other.cpp
 		src/act.social.cpp
 		src/act.wizard.cpp
@@ -42,8 +41,8 @@ set(SOURCES
 		src/boot.index.cpp
 		src/cache.cpp
 		src/celebrates.cpp
-		src/char.cpp
-		src/char_player.cpp
+		src/chars/char.cpp
+		src/chars/char_player.cpp
 		src/class.cpp
 		src/color.cpp
 		src/comm.cpp
@@ -75,10 +74,10 @@ set(SOURCES
 		src/ext_money.cpp
 		src/external.trigger.cpp
 		src/features.cpp
-		src/fight.cpp
-		src/fight_hit.cpp
-		src/fight.penalties.cpp
-		src/fight_stuff.cpp
+        src/fightsystem/fight.cpp
+        src/fightsystem/fight_hit.cpp
+        src/fightsystem/fight.penalties.cpp
+        src/fightsystem/fight_stuff.cpp
 		src/file_crc.cpp
 		src/genchar.cpp
 		src/glory_const.cpp
@@ -124,8 +123,8 @@ set(SOURCES
 		src/parcel.cpp
 		src/parse.cpp
 		src/password.cpp
-		src/pk.cpp
-		src/player_races.cpp
+		src/fightsystem/pk.cpp
+		src/chars/player_races.cpp
 		src/poison.cpp
 		src/privilege.cpp
 		src/pugixml.cpp
@@ -163,7 +162,7 @@ set(SOURCES
 		src/find.obj.id.by.vnum.cpp
 		src/global.objects.cpp
 		src/shops.implementation.cpp
-		src/world.characters.cpp
+		src/chars/world.characters.cpp
 		src/debug.utils.cpp
 		src/speedwalks.cpp
 		src/shops.implementation.cpp
@@ -186,13 +185,23 @@ set(SOURCES
 		src/skills/ironwind.cpp
 		src/skills/throw.cpp
 		src/skills/mighthit.cpp
-		src/skills/mighthit.h
 		src/skills/block.cpp
 		src/skills/parry.cpp
 		src/skills/protect.cpp
-		src/skills/expendientcut.cpp src/skills/expendientcut.h src/skills/turnundead.cpp src/skills/turnundead.h src/skills/townportal.cpp src/skills/townportal.h src/skills/manadrain.cpp src/skills/manadrain.h)
+		src/skills/expendientcut.cpp
+		src/skills/turnundead.cpp
+		src/skills/townportal.cpp
+		src/skills/manadrain.cpp
+		src/chars/mount.cpp
+		src/fightsystem/assist.cpp src/fightsystem/assist.h src/fightsystem/start.fight.cpp src/fightsystem/start.fight.h src/skills/styles.cpp src/skills/styles.h src/cmd/order.cpp src/cmd/order.h src/fightsystem/common.cpp src/fightsystem/common.h src/cmd/retreat.cpp src/cmd/retreat.h)
 
 set(HEADERS
+		src/chars/mount.h
+		src/skills/manadrain.h
+		src/skills/townportal.h
+		src/skills/turnundead.h
+		src/skills/mighthit.h
+		src/skills/expendientcut.h
 		src/skills/block.h
 		src/skills/protect.h
 		src/skills/parry.h
@@ -203,7 +212,7 @@ set(HEADERS
 		src/strengthening.hpp
 		src/ability.constants.hpp
 		src/ability.rollsystem.hpp
-		src/accounts.hpp
+		src/chars/accounts.hpp
 		src/action.targeting.hpp
 		src/blocking.queue.hpp
 		src/influxdb.hpp
@@ -213,7 +222,7 @@ set(HEADERS
 		src/act.wizard.hpp
 		src/heartbeat.hpp
 		src/speedwalks.hpp
-		src/world.characters.hpp
+		src/chars/world.characters.hpp
 		src/shops.implementation.hpp
 		src/global.objects.hpp
 		src/find.obj.id.by.vnum.hpp
@@ -243,9 +252,9 @@ set(HEADERS
 		src/boot.index.hpp
 		src/cache.hpp
 		src/celebrates.hpp
-		src/char.hpp
+		src/chars/char.hpp
 		src/char_obj_utils.inl
-		src/char_player.hpp
+		src/chars/char_player.hpp
 		src/class.hpp
 		src/comm.h
 		src/command.shutdown.hpp
@@ -273,11 +282,11 @@ set(HEADERS
 		src/external.trigger.hpp
 		src/features.itemset.hpp
 		src/features.hpp
-		src/fight_constants.hpp
-		src/fight.h
-		src/fight_hit.hpp
-		src/fight_stuff.hpp
-		src/fight.penalties.hpp
+        src/fightsystem/fight_constants.hpp
+        src/fightsystem/fight.h
+        src/fightsystem/fight_hit.hpp
+        src/fightsystem/fight_stuff.hpp
+        src/fightsystem/fight.penalties.hpp
 		src/file_crc.hpp
 		src/genchar.h
 		src/glory_const.hpp
@@ -316,9 +325,9 @@ set(HEADERS
 		src/parcel.hpp
 		src/parse.hpp
 		src/password.hpp
-		src/pk.h
-		src/player_i.hpp
-		src/player_races.hpp
+		src/fightsystem/pk.h
+		src/chars/player_i.hpp
+		src/chars/player_races.hpp
 		src/poison.hpp
 		src/privilege.hpp
 		src/pugiconfig.hpp
@@ -350,7 +359,6 @@ set(HEADERS
 		src/debug.utils.hpp
 		src/stigmas.hpp
 		src/zone.table.hpp
-		src/act.offensive.h
 		src/skills/flee.h
 		src/skills/backstab.h
 		src/skills/bash.h
@@ -358,7 +366,8 @@ set(HEADERS
 		src/skills/resque.h
 		src/skills/kick.h
 		src/skills/strangle.h
-		src/skills/chopoff.h src/skills/stupor.h)
+		src/skills/chopoff.h
+		src/skills/stupor.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

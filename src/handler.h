@@ -17,7 +17,7 @@
 #ifndef _HANDLER_H_
 #define _HANDLER_H_
 
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "structs.h"	// there was defined type "byte" if it had been missing
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
@@ -171,7 +171,6 @@ void Crash_idlesave(CHAR_DATA * ch);
 
 bool stop_follower(CHAR_DATA * ch, int mode);
 void forget(CHAR_DATA * ch, CHAR_DATA * victim);
-void remember(CHAR_DATA * ch, CHAR_DATA * victim);
 
 // townportal //
 char *find_portal_by_vnum(int vnum);

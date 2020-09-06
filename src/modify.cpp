@@ -27,7 +27,7 @@
 #include "features.hpp"
 #include "house.h"
 #include "privilege.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "skills.h"
 #include "genchar.h"
 #include "logger.hpp"

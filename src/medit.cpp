@@ -7,7 +7,7 @@
 *  $Revision$                                                      *
  ************************************************************************/
 
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "obj.hpp"
 #include "comm.h"
 #include "spells.h"
@@ -18,13 +18,13 @@
 #include "constants.h"
 #include "features.hpp"
 #include "im.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
 #include "corpse.hpp"
 #include "sets_drop.hpp"
-#include "fight.h"
+#include "fightsystem/fight.h"
 #include "zone.table.hpp"
 #include "logger.hpp"
 #include "utils.h"

@@ -28,7 +28,7 @@
 #include "screen.h"
 #include "constants.h"
 #include "random.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "celebrates.hpp"
 

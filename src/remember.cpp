@@ -8,7 +8,7 @@
 #include "utils.h"
 #include "comm.h"
 #include "db.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "interpreter.h"
 #include "screen.h"
 #include "house.h"

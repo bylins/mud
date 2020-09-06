@@ -20,8 +20,8 @@
 #include "db.h"
 #include "screen.h"
 #include "privilege.hpp"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 
 #include <boost/algorithm/string.hpp>
 

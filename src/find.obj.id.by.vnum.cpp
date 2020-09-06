@@ -3,7 +3,7 @@
 #include "logger.hpp"
 #include "dg_scripts.h"
 #include "world.objects.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "obj.hpp"
 #include "room.hpp"
 

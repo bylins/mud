@@ -13,7 +13,7 @@
 #include "comm.h"
 #include "handler.h"
 #include "db.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "char_obj_utils.inl"
 #include "utils.h"

@@ -1,7 +1,7 @@
 #ifndef BYLINS_BACKSTAB_H
 #define BYLINS_BACKSTAB_H
 
-#include "char.hpp"
+#include "chars/char.hpp"
 
 void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict);
 void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

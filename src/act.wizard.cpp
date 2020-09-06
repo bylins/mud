@@ -17,7 +17,7 @@
 #include "action.targeting.hpp"
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "logger.hpp"
 #include "command.shutdown.hpp"
 #include "obj.hpp"
@@ -32,7 +32,7 @@
 #include "constants.h"
 #include "olc.h"
 #include "dg_scripts.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "im.h"
 #include "top.h"
 #include "ban.hpp"
@@ -45,8 +45,8 @@
 #include "glory.hpp"
 #include "genchar.h"
 #include "file_crc.hpp"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "modify.h"
@@ -55,12 +55,12 @@
 #include "glory_const.hpp"
 #include "shop_ext.hpp"
 #include "celebrates.hpp"
-#include "player_races.hpp"
+#include "chars/player_races.hpp"
 #include "birth_places.hpp"
 #include "corpse.hpp"
 #include "pugixml.hpp"
 #include "sets_drop.hpp"
-#include "fight.h"
+#include "fightsystem/fight.h"
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "mail.h"
@@ -1733,7 +1733,7 @@ void do_at(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		char_from_room(ch);
 		char_to_room(ch, original_loc);
 	}
-	check_horse(ch);
+	ch->dismount();
 }
 
 void do_unfreeze(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
@@ -1806,7 +1806,7 @@ void do_goto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	char_from_room(ch);
 
 	char_to_room(ch, location);
-	check_horse(ch);
+	ch->dismount();
 
 	if (POOFIN(ch))
 		sprintf(buf, "$n %s", POOFIN(ch));
@@ -1839,7 +1839,7 @@ void do_teleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		act("$n растворил$u в клубах дыма.", FALSE, victim, 0, 0, TO_ROOM);
 		char_from_room(victim);
 		char_to_room(victim, target);
-		check_horse(victim);
+        victim->dismount();
 		act("$n появил$u, окутанн$w розовым туманом.", FALSE, victim, 0, 0, TO_ROOM);
 		act("$n переместил$g вас!", FALSE, ch, 0, (char *)victim, TO_VICT);
 		look_at_room(victim, 0);
@@ -5979,7 +5979,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		if (IN_ROOM(vict) != NOWHERE)	// Another Eric Green special.
 			char_from_room(vict);
 		char_to_room(vict, rnum);
-		check_horse(vict);
+		vict->dismount();
 		break;
 	case 28:
 		SET_OR_REMOVE(on, off, PRF_FLAGS(vict), PRF_ROOMFLAGS);

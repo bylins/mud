@@ -1,7 +1,7 @@
 #ifndef __CHAR__UTILITIES_HPP__
 #define __CHAR__UTILITIES_HPP__
 
-#include <char.hpp>
+#include <chars/char.hpp>
 
 namespace test_utils
 {

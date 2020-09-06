@@ -1,7 +1,7 @@
 #include "commands.hpp"
 
 #include "utils.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "levenshtein.hpp"
 #include "compact.trie.hpp"
 #include "utils.string.hpp"

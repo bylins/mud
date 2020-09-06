@@ -3,7 +3,7 @@
 #include "modify.h"
 #include "handler.h"
 #include "spells.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 
 namespace OneWayPortal
 {
@@ -48,16 +48,6 @@ namespace OneWayPortal
     }
 
 } // namespace OneWayPortal
-
-
-
-inline void decay_portal(const int room_num)
-{
-    act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->first_character(), 0, 0, TO_ROOM);
-    act("Пентаграмма медленно растаяла.", FALSE, world[room_num]->first_character(), 0, 0, TO_CHAR);
-    world[room_num]->portal_time = 0;
-    world[room_num]->portal_room = 0;
-}
 
 void spell_townportal(CHAR_DATA *ch, char *arg)
 {

@@ -15,7 +15,7 @@
 #include "magic.h"
 
 #include "action.targeting.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
@@ -28,12 +28,12 @@
 #include "screen.h"
 #include "constants.h"
 #include "dg_scripts.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "features.hpp"
-#include "fight.h"
+#include "fightsystem/fight.h"
 #include "deathtrap.hpp"
 #include "random.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "poison.hpp"
 #include "modify.h"
 #include "room.hpp"
@@ -53,7 +53,6 @@
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct spell_create_type spell_create[];
-extern bool check_agr_in_house(CHAR_DATA *agressor, CHAR_DATA *victim);
 FLAG_DATA  EMPTY_FLAG_DATA;
 extern int interpolate(int min_value, int pulse);
 
@@ -654,12 +653,12 @@ int calculateSaving(CHAR_DATA *killer, CHAR_DATA *victim, int type, int ext_appl
 			save >>= 1;
 		save -= dex_bonus(GET_REAL_DEX(victim));
 		temp_save_stat = dex_bonus(GET_REAL_DEX(victim));
-		if (on_horse(victim))
+		if (victim->ahorse())
 			save += 20;
 		break;
 	case SAVING_STABILITY:   //2  стойкость
 		save += -GET_REAL_CON(victim);
-		if (on_horse(victim))
+		if (victim->ahorse())
 			save -= 20;
 		temp_save_stat = GET_REAL_CON(victim);
 		break;
@@ -3385,7 +3384,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (GET_POS(victim) > POS_SLEEPING && success)
 		{
 			// add by Pereplut
-			if (on_horse(victim))
+			if (victim->ahorse())
 			{
 				sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(victim, 0),
 						GET_CH_SUF_2(victim));

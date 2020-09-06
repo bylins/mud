@@ -26,16 +26,17 @@
 #include "constants.h"
 #include "features.hpp"
 #include "house.h"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
+#include "chars/mount.h"
 #include "room.hpp"
 #include "depot.hpp"
-#include "player_races.hpp"
+#include "chars/player_races.hpp"
 #include "magic.h"
-#include "fight.h"
-#include "fight_hit.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "char_obj_utils.inl"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -1760,7 +1761,7 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 	if (!*argument)
 	{
-		if (has_horse(ch, FALSE))
+		if (ch->has_horse(false))
 		{
 			act("$N поинтересовал$U : \"$n, зачем тебе второй скакун? У тебя ведь одно седалище.\"",
 				FALSE, ch, 0, victim, TO_CHAR);
@@ -1774,7 +1775,7 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 	if (!strn_cmp(argument, "купить", strlen(argument)) || !strn_cmp(argument, "buy", strlen(argument)))
 	{
-		if (has_horse(ch, FALSE))
+		if (ch->has_horse(false))
 		{
 			act("$N засмеял$U : \"$n, ты шутишь, у тебя же есть скакун.\"", FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
@@ -1805,19 +1806,19 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 
 	if (!strn_cmp(argument, "продать", strlen(argument)) || !strn_cmp(argument, "sell", strlen(argument)))
 	{
-		if (!has_horse(ch, TRUE))
+		if (!ch->has_horse(true))
 		{
 			act("$N засмеял$U : \"$n, ты не влезешь в мое стойло.\"", FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
-		if (on_horse(ch))
+		if (ch->ahorse())
 		{
 			act("\"Я не собираюсь платить еще и за всадника.\"-усмехнул$U $N",
 				FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);
 		}
 
-		if (!(horse = get_horse(ch)) || GET_MOB_VNUM(horse) != HORSE_VNUM)
+		if (!(horse = ch->get_horse()) || GET_MOB_VNUM(horse) != HORSE_VNUM)
 		{
 			act("\"Извини, твой скакун мне не подходит.\"- заявил$G $N", FALSE, ch, 0, victim, TO_CHAR);
 			return (TRUE);

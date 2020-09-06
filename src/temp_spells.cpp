@@ -1,6 +1,6 @@
 #include "temp_spells.hpp"
 #include "spell_parser.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "screen.h"
 #include "utils.h"
 #include "handler.h"

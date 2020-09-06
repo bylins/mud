@@ -1,9 +1,9 @@
 #include "turnundead.h"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/common.h"
 #include "action.targeting.hpp"
 #include "ability.rollsystem.hpp"
 #include "handler.h"

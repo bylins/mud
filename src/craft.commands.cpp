@@ -5,7 +5,7 @@
 #include "craft.static.hpp"
 #include "xml_loading_helper.hpp"
 #include "craft.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "commands.hpp"
 
 #include <sstream>

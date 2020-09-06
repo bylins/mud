@@ -1,11 +1,11 @@
 #include "manadrain.h"
 
-#include <act.offensive.h>
 #include "handler.h"
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/common.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/start.fight.h"
 
 using  namespace FightSystem;
 

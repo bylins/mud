@@ -3,7 +3,7 @@
 */
 
 #include "action.targeting.hpp"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include <algorithm>
 
 

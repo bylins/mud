@@ -14,7 +14,7 @@
 
 #include "utils.h"
 
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
@@ -29,14 +29,14 @@
 #include "dg_scripts.h"
 #include "features.hpp"
 #include "privilege.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "modify.h"
 #include "house.h"
-#include "player_races.hpp"
+#include "chars/player_races.hpp"
 #include "depot.hpp"
 #include "objsave.h"
-#include "fight.h"
+#include "fightsystem/fight.h"
 #include "skills.h"
 #include "exchange.h"
 #include "sets_drop.hpp"
@@ -673,75 +673,6 @@ bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim)
 	return false;
 }
 
-void make_horse(CHAR_DATA * horse, CHAR_DATA * ch)
-{
-	AFF_FLAGS(horse).set(EAffectFlag::AFF_HORSE);
-	ch->add_follower(horse);
-	MOB_FLAGS(horse).unset(MOB_WIMPY);
-	MOB_FLAGS(horse).unset(MOB_SENTINEL);
-	MOB_FLAGS(horse).unset(MOB_HELPER);
-	MOB_FLAGS(horse).unset(MOB_AGGRESSIVE);
-	MOB_FLAGS(horse).unset(MOB_MOUNTING);
-	AFF_FLAGS(horse).unset(EAffectFlag::AFF_TETHERED);
-}
-
-int on_horse(const CHAR_DATA * ch)
-{
-	return AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
-		&& has_horse(ch, TRUE);
-}
-
-int has_horse(const CHAR_DATA * ch, int same_room)
-{
-	struct follow_type *f;
-
-	if (IS_NPC(ch))
-	{
-		return FALSE;
-	}
-
-	for (f = ch->followers; f; f = f->next)
-	{
-		if (IS_NPC(f->follower)
-			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)
-			&& (!same_room
-				|| ch->in_room == IN_ROOM(f->follower)))
-		{
-			return (TRUE);
-		}
-	}
-
-	return (FALSE);
-}
-
-CHAR_DATA *get_horse(CHAR_DATA * ch)
-{
-	struct follow_type *f;
-
-	if (IS_NPC(ch))
-		return (NULL);
-
-	for (f = ch->followers; f; f = f->next)
-	{
-		if (IS_NPC(f->follower)
-			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE))
-		{
-			return (f->follower);
-		}
-	}
-	return (NULL);
-}
-
-
-
-void check_horse(CHAR_DATA * ch)
-{
-	if (!IS_NPC(ch)
-		&& !has_horse(ch, TRUE))
-	{
-		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
-	}
-}
 
 // Called when stop following persons, or stopping charm //
 // This will NOT do if a character quits/dies!!          //
@@ -770,10 +701,9 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 	}
 
 	//log("[Stop follower] Stop horse");
-	if (get_horse(ch->get_master()) == ch
-		&& on_horse(ch->get_master()))
+	if (ch->get_master()->get_horse() == ch && ch->get_master()->ahorse())
 	{
-		horse_drop(ch);
+		ch->drop_from_horse();
 	}
 	else
 	{
@@ -873,8 +803,7 @@ bool die_follower(CHAR_DATA * ch)
 		return true;
 	}
 
-	if (on_horse(ch))
-	{
+	if (ch->ahorse()) {
 		AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 	}
 

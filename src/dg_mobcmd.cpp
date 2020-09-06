@@ -35,11 +35,11 @@
 #include "spells.h"
 #include "im.h"
 #include "features.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "skills.h"
 #include "room.hpp"
-#include "fight.h"
-#include "fight_hit.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
@@ -661,10 +661,9 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 
-		if (on_horse(vict)
-			|| has_horse(vict, TRUE))
+		if (vict->ahorse() || vict->has_horse(true))
 		{
-			horse = get_horse(vict);
+			horse = vict->get_horse();
 		}
 		else
 		{
@@ -695,7 +694,7 @@ void do_mteleport(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 		}
 //-Polud
-		check_horse(vict);
+        vict->dismount();
 		look_at_room(vict, TRUE);
 	}
 }

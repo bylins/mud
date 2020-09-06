@@ -6,7 +6,7 @@
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "db.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "comm.h"
 #include "handler.h"
 #include "dg_scripts.h"

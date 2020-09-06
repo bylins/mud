@@ -1,7 +1,7 @@
 #ifndef BYLINS_PROTECT_H
 #define BYLINS_PROTECT_H
 
-#include "char.hpp"
+#include "chars/char.hpp"
 
 void go_protect(CHAR_DATA * ch, CHAR_DATA * vict);
 void do_protect(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

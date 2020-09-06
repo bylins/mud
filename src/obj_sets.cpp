@@ -1,7 +1,7 @@
 // Copyright (c) 2014 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "conf.h"
 #include "logger.hpp"
@@ -15,7 +15,7 @@
 #include "parse.hpp"
 #include "constants.h"
 #include "handler.h"
-#include "char_player.hpp"
+#include "chars/char_player.hpp"
 #include "skills.h"
 #include "screen.h"
 #include "modify.h"

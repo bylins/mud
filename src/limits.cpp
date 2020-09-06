@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "world.objects.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "obj.hpp"
 #include "spells.h"
 #include "skills/townportal.h"
@@ -33,12 +33,12 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "features.hpp"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 #include "room.hpp"
 #include "birth_places.hpp"
 #include "objsave.h"
-#include "fight.h"
+#include "fightsystem/fight.h"
 #include "ext_money.hpp"
 #include "mob_stat.hpp"
 #include "spell_parser.hpp"
@@ -2009,7 +2009,7 @@ void point_update(void)
 						mana = 10;
 					}
 
-					if (on_horse(i->get_master()))
+					if (i->get_master()->ahorse() )
 					{
 						mana /= 2;
 					}

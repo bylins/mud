@@ -1,11 +1,13 @@
 #include "kick.h"
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/common.h"
 #include "spells.h"
 #include "handler.h"
 #include "protect.h"
+
+
 
 using  namespace FightSystem;
 
@@ -29,7 +31,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict) {
     if (GET_GOD_FLAG(vict, GF_GODSCURSE) || GET_MOB_HOLD(vict)) {
         prob = percent;
     }
-    if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (!on_horse(ch) && on_horse(vict))) {
+    if (GET_GOD_FLAG(ch, GF_GODSCURSE) || (!ch->ahorse() && vict->ahorse())) {
         prob = 0;
     }
 
@@ -49,7 +51,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict) {
             modi = 5 * (10 + (GET_EQ(ch, WEAR_FEET) ? GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_FEET)) : 0));
             dam = modi * dam / 100;
         }
-        if (on_horse(ch) && (ch->get_skill(SKILL_HORSE) >= 150) && (ch->get_skill(SKILL_KICK) >= 150)) {
+        if (ch->ahorse() && (ch->get_skill(SKILL_HORSE) >= 150) && (ch->get_skill(SKILL_KICK) >= 150)) {
             AFFECT_DATA<EApplyLocation> af;
             af.location = APPLY_NONE;
             af.type = SPELL_BATTLE;
@@ -135,7 +137,7 @@ void go_kick(CHAR_DATA * ch, CHAR_DATA * vict) {
         }
 
         if (GET_AF_BATTLE(vict, EAF_AWAKE)) {
-            dam >>= (2 - on_horse(ch));
+            dam >>= (2 - (ch->ahorse()? 1 : 0));
         }
         Damage dmg(SkillDmg(SKILL_KICK), dam, PHYS_DMG);
         dmg.process(ch, vict);

@@ -1,7 +1,7 @@
 #ifndef BYLINS_IRONWIND_H
 #define BYLINS_IRONWIND_H
 
-#include "char.hpp"
+#include "chars/char.hpp"
 
 void do_iron_wind(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 

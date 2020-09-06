@@ -1,7 +1,6 @@
 #include "skills/flee.h"
 #include "act.movement.hpp"
 #include "random.hpp"
-#include "act.offensive.h"
 
 void reduce_exp_after_flee(CHAR_DATA* ch, CHAR_DATA* victim, room_rnum room)
 {
@@ -32,7 +31,7 @@ void go_flee(CHAR_DATA* ch)
     if (!WAITLESS(ch))
         WAIT_STATE(ch, PULSE_VIOLENCE);
 
-    if (on_horse(ch) && (GET_POS(get_horse(ch)) < POS_FIGHTING || GET_MOB_HOLD(get_horse(ch)))) {
+    if (ch->ahorse() && (GET_POS(ch->get_horse()) < POS_FIGHTING || GET_MOB_HOLD(ch->get_horse()))) {
         send_to_char("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
         return;
     }
@@ -55,8 +54,8 @@ void go_flee(CHAR_DATA* ch)
         if (do_simple_move(ch, direction, TRUE, 0, true)) {
             act("$n запаниковал$g и пытал$u сбежать!", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
             send_to_char("Вы быстро убежали с поля битвы.\r\n", ch);
-            if (on_horse(ch)) {
-                act("Верн$W $N вынес$Q вас из боя.", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+            if (ch->ahorse()) {
+                act("Верн$W $N вынес$Q вас из боя.", FALSE, ch, 0, ch->get_horse(), TO_CHAR);
             }
 
             if (was_fighting && !IS_NPC(ch)) {

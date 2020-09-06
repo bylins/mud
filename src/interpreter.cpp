@@ -15,6 +15,9 @@
 
 #include "interpreter.h"
 
+#include "cmd/retreat.h"
+#include "cmd/order.h"
+
 #include "skills/manadrain.h"
 #include "skills/flee.h"
 #include "skills/bash.h"
@@ -32,9 +35,10 @@
 #include "skills/parry.h"
 #include "skills/protect.h"
 #include "skills/turnundead.h"
-
+#include "fightsystem/assist.h"
+#include "fightsystem/start.fight.h"
 #include "act.movement.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "craft.commands.hpp"
@@ -51,7 +55,7 @@
 #include "screen.h"
 #include "olc.h"
 #include "dg_scripts.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "genchar.h"
 #include "ban.hpp"
 #include "item.creation.hpp"
@@ -64,8 +68,8 @@
 #include "privilege.hpp"
 #include "depot.hpp"
 #include "glory.hpp"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "name_list.hpp"
@@ -78,7 +82,7 @@
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
 #endif
-#include "player_races.hpp"
+#include "chars/player_races.hpp"
 #include "birth_places.hpp"
 #include "help.hpp"
 #include "map.hpp"
@@ -94,8 +98,8 @@
 #include "bonus.h"
 #include "debug.utils.hpp"
 #include "global.objects.hpp"
-#include "accounts.hpp"
-#include "pk.h"
+#include "chars/accounts.hpp"
+#include "fightsystem/pk.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>
@@ -182,7 +186,6 @@ void init_warcry(CHAR_DATA *ch);
 void do_advance(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_alias(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_antigods(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_assist(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_at(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_affects(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_backstab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -244,13 +247,11 @@ void do_grab(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_group(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_gsay(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_hide(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_hit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_info(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_inspect(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_insult(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_inventory(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_invis(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_kill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_last(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mode(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mark(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -266,7 +267,6 @@ void do_sides(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_not_here(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_offer(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_olc(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_order(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_page(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_pray(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_poofset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -287,7 +287,6 @@ void do_rent(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_reply(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_report(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_refill(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_stopfight(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_setall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_stophorse(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_restore(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -642,26 +641,26 @@ cpp_extern const struct command_info cmd_info[] =
 	{"оседлать", POS_STANDING, do_horsetake, 1, 0, -1},
 	{"оскорбить", POS_RESTING, do_insult, 0, 0, -1},
 	{"осушить", POS_RESTING, do_use, 0, SCMD_QUAFF, 300},
-	{"освежевать", POS_STANDING, do_makefood, 0, 0, -1},
-	{"ответить", POS_RESTING, do_reply, 0, 0, -1},
-	{"отразить", POS_FIGHTING, do_multyparry, 0, 0, -1},
-	{"отвязать", POS_DEAD, do_horseget, 0, 0, -1},
-	{"отдохнуть", POS_RESTING, do_rest, 0, 0, -1},
-	{"открыть", POS_SITTING, do_gen_door, 0, DOOR_SCMD::SCMD_OPEN, 500},
-	{"отпереть", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 500},
-	{"отпустить", POS_SITTING, do_stophorse, 0, 0, -1},
-	{"отравить", POS_FIGHTING, do_poisoned, 0, 0, -1},
-	{"отринуть", POS_RESTING, do_antigods, 1, 0, -1},
-	{"отступить", POS_FIGHTING, do_stopfight, 1, 0, -1},
-	{"отправить", POS_STANDING, do_not_here, 1, 0, -1},
-	{"оффтоп", POS_DEAD, do_offtop, 0, 0, -1},
-	{"ошеломить", POS_STANDING, do_stun, 1, 0, -1},
-	{"оценить", POS_STANDING, do_not_here, 0, 0, 500},
-	{"очки", POS_DEAD, do_score, 0, 0, 0},
-	{"очепятки", POS_DEAD, Boards::DoBoard, 1, Boards::MISPRINT_BOARD, 0},
-	{"очистить", POS_DEAD, do_not_here, 0, SCMD_CLEAR, -1},
-	{"ошибк", POS_DEAD, do_quit, 0, 0, 0},
-	{"ошибка", POS_DEAD, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
+	{"освежевать", POS_STANDING, do_makefood,             0, 0,                      -1},
+	{"ответить", POS_RESTING,    do_reply,                0, 0,                      -1},
+	{"отразить", POS_FIGHTING,   do_multyparry,           0, 0,                      -1},
+	{"отвязать", POS_DEAD,       do_horseget,             0, 0,                      -1},
+	{"отдохнуть", POS_RESTING,   do_rest,                 0, 0,                      -1},
+	{"открыть", POS_SITTING,     do_gen_door,             0, DOOR_SCMD::SCMD_OPEN,   500},
+	{"отпереть", POS_SITTING,    do_gen_door,             0, SCMD_UNLOCK,            500},
+	{"отпустить", POS_SITTING,   do_stophorse,            0, 0,                      -1},
+	{"отравить", POS_FIGHTING,   do_poisoned,             0, 0,                      -1},
+	{"отринуть", POS_RESTING,    do_antigods,             1, 0,                      -1},
+	{"отступить", POS_FIGHTING,  do_retreat,              1, 0,                      -1},
+	{"отправить", POS_STANDING,  do_not_here,             1, 0,                      -1},
+	{"оффтоп", POS_DEAD,         do_offtop,               0, 0,                      -1},
+	{"ошеломить", POS_STANDING,  do_stun,                 1, 0,                      -1},
+	{"оценить", POS_STANDING,    do_not_here,             0, 0,                      500},
+	{"очки", POS_DEAD,           do_score,                0, 0,                      0},
+	{"очепятки", POS_DEAD,       Boards::DoBoard,         1, Boards::MISPRINT_BOARD, 0},
+	{"очистить", POS_DEAD,       do_not_here,             0, SCMD_CLEAR,             -1},
+	{"ошибк", POS_DEAD,          do_quit,                 0, 0,                      0},
+	{"ошибка", POS_DEAD,         Boards::report_on_board, 0, Boards::ERROR_BOARD,    0},
 
 	{"парировать", POS_FIGHTING, do_parry, 0, 0, -1},
 	{"перехватить", POS_FIGHTING, do_touch, 0, 0, -1},

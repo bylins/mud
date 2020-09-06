@@ -8,7 +8,7 @@
 #include "comm.h"
 #include "screen.h"
 #include "poison.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "db.h"
 #include "room.hpp"
 #include "logger.hpp"

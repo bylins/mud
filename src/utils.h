@@ -712,8 +712,8 @@ inline T VPOSI(const T val, const T min, const T max)
 #define GET_DAMAGE(ch)    ((ch)->DamageLevel)
 #define GET_LIKES(ch)     ((ch)->mob_specials.LikeWork)
 
-#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)	+ (on_horse(ch) ? 20 : 0))
-#define GET_REAL_SAVING_REFLEX(ch)		(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)		+ (on_horse(ch) ? -20 : 0))
+#define GET_REAL_SAVING_STABILITY(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_STABILITY)	+ (ch->ahorse() ? 20 : 0))
+#define GET_REAL_SAVING_REFLEX(ch)		(dex_bonus(GET_REAL_DEX(ch)) - GET_SAVE(ch, SAVING_REFLEX)		+ (ch->ahorse() ? -20 : 0))
 #define GET_REAL_SAVING_CRITICAL(ch)	(dex_bonus(GET_REAL_CON(ch)) - GET_SAVE(ch, SAVING_CRITICAL))
 #define GET_REAL_SAVING_WILL(ch)		(dex_bonus(GET_REAL_WIS(ch)) - GET_SAVE(ch, SAVING_WILL))
 
@@ -1168,13 +1168,6 @@ inline T VPOSI(const T val, const T min, const T max)
                        (IS_DRUID(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
-
-int on_horse(const CHAR_DATA* ch);
-int has_horse(const CHAR_DATA * ch, int same_room);
-CHAR_DATA *get_horse(CHAR_DATA * ch);
-void horse_drop(CHAR_DATA * ch);
-void make_horse(CHAR_DATA * horse, CHAR_DATA * ch);
-void check_horse(CHAR_DATA * ch);
 
 bool same_group(CHAR_DATA * ch, CHAR_DATA * tch);
 

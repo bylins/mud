@@ -4,7 +4,7 @@
 
 #include "mobmax.hpp"
 
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "logger.hpp"
 #include "utils.h"
 #include "db.h"

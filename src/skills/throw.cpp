@@ -2,13 +2,13 @@
 #include "action.targeting.hpp"
 #include "ability.rollsystem.hpp"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "handler.h"
 #include "spells.h"
 #include "protect.h"
+#include "fightsystem/common.h"
 
 using  namespace FightSystem;
 using  namespace AbilitySystem;
@@ -35,7 +35,7 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
             to_vict = "Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
             to_room = "Копье $N1 сбило $n3 наземь!";
             doSideAction = ([](TechniqueRollType &technique) {
-                drop_from_horse(technique.rival());
+                technique.rival()->drop_from_horse();
                 GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), POS_SITTING);
                 set_wait(technique.rival(), 2, TRUE);
             });

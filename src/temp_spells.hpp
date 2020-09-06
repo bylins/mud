@@ -1,7 +1,7 @@
 #ifndef TEMP_SPELLS_HPP_INCLUDED
 #define TEMP_SPELLS_HPP_INCLUDED
 
-#include "char.hpp"
+#include "chars/char.hpp"
 
 #include <vector>
 

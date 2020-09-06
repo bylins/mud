@@ -10,7 +10,7 @@
 #include "db.h"
 #include "olc.h"
 #include "dg_scripts.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "help.hpp"
 #include "zone.table.hpp"

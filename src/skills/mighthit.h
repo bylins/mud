@@ -1,7 +1,7 @@
 #ifndef BYLINS_MIGHTHIT_H
 #define BYLINS_MIGHTHIT_H
 
-#include "char.hpp"
+#include "chars/char.hpp"
 
 void go_mighthit(CHAR_DATA * ch, CHAR_DATA * victim);
 void do_mighthit(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);

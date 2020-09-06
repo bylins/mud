@@ -1,12 +1,11 @@
 #include "stun.h"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/common.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/start.fight.h"
 #include "handler.h"
 #include "spells.h"
-#include "protect.h"
 
 using  namespace FightSystem;
 
@@ -21,7 +20,7 @@ void do_stun(CHAR_DATA* ch, char* argument, int, int) {
         return;
     };
 
-    if (!on_horse(ch)) {
+    if (!ch->ahorse()) {
         send_to_char("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
         return;
     }

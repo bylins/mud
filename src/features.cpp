@@ -18,16 +18,16 @@
 #include "db.h"
 #include "interpreter.h"
 #include "spells.h"
-#include "char.hpp"
-#include "player_races.hpp"
+#include "chars/char.hpp"
+#include "chars/player_races.hpp"
 #include "room.hpp"
 #include "screen.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "dg_scripts.h"
 #include "room.hpp"
 #include "house.h"
 #include "screen.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "dg_scripts.h"
 #include "utils.h"
 #include "structs.h"
@@ -1021,9 +1021,9 @@ void do_lightwalk(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 		return;
 	}
 
-	if (on_horse(ch))
+	if (ch->ahorse())
 	{
-		act("Позаботьтесь сперва о мягких тапочках для $N3...", FALSE, ch, 0, get_horse(ch), TO_CHAR);
+		act("Позаботьтесь сперва о мягких тапочках для $N3...", FALSE, ch, 0, ch->get_horse(), TO_CHAR);
 		return;
 	}
 
@@ -1425,7 +1425,7 @@ void do_relocate(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	send_to_char("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, fnd_room);
-	check_horse(ch);
+    ch->dismount();
 	act("$n медленно появил$u откуда-то.", TRUE, ch, 0, 0, TO_ROOM);
 	if (!(PRF_FLAGGED(victim, PRF_SUMMONABLE) || same_group(ch, victim) || IS_IMMORTAL(ch) || ROOM_FLAGGED(fnd_room, ROOM_ARENA)))
 	{

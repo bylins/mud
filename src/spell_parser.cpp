@@ -27,23 +27,24 @@
 #include "screen.h"
 #include "constants.h"
 #include "dg_scripts.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "features.hpp"
 #include "im.h"
 #include "privilege.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "name_list.hpp"
 #include "depot.hpp"
 #include "parcel.hpp"
 #include "room.hpp"
 #include "magic.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "world.characters.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "chars/world.characters.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "mobact.hpp"
 
 #include <boost/tokenizer.hpp>
 
@@ -2071,7 +2072,7 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 	}
 	else if (CAN_SEE(victim, caster) && !IS_NPC(caster) && IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY))
 	{
-		remember(victim, caster);
+		mobRemember(victim, caster);
 	}
 
 	if (caster->purged())

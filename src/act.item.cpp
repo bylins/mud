@@ -16,14 +16,14 @@
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "obj.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "comm.h"
 #include "constants.h"
 #include "db.h"
 #include "depot.hpp"
 #include "dg_scripts.h"
 #include "features.hpp"
-#include "fight.h"
+#include "fightsystem/fight.h"
 #include "handler.h"
 #include "house.h"
 #include "im.h"
@@ -32,7 +32,7 @@
 #include "magic.h"
 #include "named_stuff.hpp"
 #include "objsave.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "poison.hpp"
 #include "room.hpp"
 #include "skills.h"
@@ -2993,7 +2993,7 @@ void do_fire(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		return;
 	}
 
-	if (on_horse(ch))
+	if (ch->ahorse())
 	{
 		send_to_char("Верхом это будет затруднительно.\r\n", ch);
 		return;

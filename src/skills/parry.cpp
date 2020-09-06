@@ -1,10 +1,8 @@
 #include "parry.h"
 
-#include "pk.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
-#include "handler.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/common.h"
 #include "spells.h"
 
 using  namespace FightSystem;
@@ -109,6 +107,22 @@ void do_parry(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/) {
     go_parry(ch);
 }
 
+void parry_override(CHAR_DATA * ch) {
+    std::string message = "";
+    if (GET_AF_BATTLE(ch, EAF_BLOCK)) {
+        message = "Вы прекратили прятаться за щит и бросились в бой.";
+        CLR_AF_BATTLE(ch, EAF_BLOCK);
+    }
+    if (GET_AF_BATTLE(ch, EAF_PARRY)) {
+        message = "Вы прекратили парировать атаки и бросились в бой.";
+        CLR_AF_BATTLE(ch, EAF_PARRY);
+    }
+    if (GET_AF_BATTLE(ch, EAF_MULTYPARRY)) {
+        message = "Вы забыли о защите и бросились в бой.";
+        CLR_AF_BATTLE(ch, EAF_MULTYPARRY);
+    }
+    act(message.c_str(), FALSE, ch, 0, 0, TO_CHAR);
+}
 
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

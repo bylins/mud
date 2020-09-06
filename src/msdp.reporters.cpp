@@ -3,7 +3,7 @@
 #include "structs.h"
 #include "utils.h"
 #include "db.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "magic.h"
 #include "msdp.constants.hpp"
 #include "zone.table.hpp"
@@ -230,9 +230,7 @@ namespace msdp
 			affects += "Л";
 		}
 
-		if (!IS_NPC(character)
-			&& on_horse(character))
-		{
+		if (!IS_NPC(character) && character->ahorse()) {
 			affects += "В";
 		}
 

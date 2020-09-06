@@ -1,13 +1,13 @@
 #include "chopoff.h"
 
-#include "pk.h"
-#include "fight_hit.hpp"
-#include "act.offensive.h"
+#include "fightsystem/pk.h"
+#include "fightsystem/common.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/start.fight.h"
 #include "handler.h"
 #include "spells.h"
 #include "random.hpp"
 #include "screen.h"
-
 
 using  namespace FightSystem;
 
@@ -23,7 +23,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
         return;
     }
 
-    if (ch->onhorse())
+    if (ch->isHorsePrevents())
         return;
 
     if ((GET_POS(vict) < POS_FIGHTING)) {
@@ -53,7 +53,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
 
     if (GET_GOD_FLAG(ch, GF_GODSCURSE) ||
         GET_GOD_FLAG(vict, GF_GODSLIKE) ||
-        on_horse(vict) || GET_POS(vict) < POS_FIGHTING || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
+        vict->ahorse() || GET_POS(vict) < POS_FIGHTING || MOB_FLAGGED(vict, MOB_NOTRIP) || IS_IMMORTAL(vict))
         prob = 0;
 
     bool skillFail = percent > prob;
@@ -91,8 +91,8 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
             GET_POS(vict) = POS_SITTING;
         }
 
-        if (IS_HORSE(vict) && on_horse(vict->get_master())) {
-            horse_drop(vict);
+        if (IS_HORSE(vict) && vict->get_master()->ahorse()) {
+            vict->drop_from_horse();
         }
         prob = 1;
     }
@@ -120,7 +120,7 @@ void do_chopoff(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         return;
     };
 
-    if (ch->onhorse()) {
+    if (ch->ahorse()) {
         send_to_char("Верхом это сделать затруднительно.\r\n", ch);
         return;
     }
