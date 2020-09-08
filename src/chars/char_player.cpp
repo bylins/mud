@@ -992,6 +992,24 @@ void Player::save_char()
 		fprintf(saved, "CntF: %d\n", get_reset_stats_cnt(ResetStats::Type::FEATS));
 	}
 
+    std::map<int, MERCDATA>::iterator it = this->charmeeHistory.begin();
+	// перечень чармисов кудеса и купца
+	if (this->charmeeHistory.size() > 0 && 
+		(this->get_class() == CLASS_CHARMMAGE || this->get_class() == CLASS_MERCHANT || IS_IMMORTAL(this))) {
+		fprintf(saved, "Chrm:\n");
+		for (;it!= this->charmeeHistory.end(); ++it)
+		{
+			fprintf(saved, "%d %d %d %d %d %d\n" , 
+							it->first, 
+							it->second.CharmedCount, 
+							it->second.spentGold, 
+							it->second.deathCount, 
+							it->second.currRemortAvail, 
+							it->second.isFavorite);
+		}
+		fprintf(saved, "0 0 0 0 0 0\n");// терминирующая строчка
+	}
+	
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
 
@@ -1470,6 +1488,18 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 		case 'C':
 			if (!strcmp(tag, "Cha "))
 				this->set_cha(num);
+			else if ( !strcmp(tag, "Chrm") ) {
+				log("Load_char: Charmees loading");
+				do {
+					fbgetline(fl, line);
+					sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
+					if (this->charmeeHistory.find(num) == this->charmeeHistory.end() && num != 0) {
+						MERCDATA md = {num2, num3, num4, num5, num6}; // num - key
+						this->charmeeHistory.insert( std::pair<int,MERCDATA>(num, md));
+						log("Load_char: Charmees: vnum: %d", num);
+					}
+				} while (num != 0);
+			}
 			else if (!strcmp(tag, "Con "))
 				this->set_con(num);
 			else if (!strcmp(tag, "CntS"))
@@ -2487,5 +2517,27 @@ unsigned weight_dex_penalty(CHAR_DATA* ch)
 }
 
 } // namespace PlayerSystem
+
+// апдейт истории, при почарме освежает в памяти
+void Player::updateCharmee(int vnum, int gold) {
+    if (vnum <1) {
+        log("[ERROR] Player::updateCharmee. Вызов функции с vnum < 1, %s", this->get_name().c_str());
+        return;
+    }
+    std::map<int, MERCDATA>::iterator it;
+    MERCDATA md = {1, gold, 0, 1, 1};
+    it = this->charmeeHistory.find(vnum);
+    if ( it == this->charmeeHistory.end()) {
+        this->charmeeHistory.insert( std::pair<int,MERCDATA>(vnum, md));
+    } else {
+        ++it->second.CharmedCount;
+        it->second.spentGold += gold;
+		it->second.currRemortAvail = 1;
+    }
+}
+
+std::map<int, MERCDATA> *Player::getMercList(){
+    return &this->charmeeHistory;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

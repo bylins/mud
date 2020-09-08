@@ -18,6 +18,7 @@
 #include "boards.types.hpp"
 #include "quest.hpp"
 #include "stigmas.hpp"
+#include "cmd/mercenary.h"
 
 #include <string>
 #include <array>
@@ -161,6 +162,10 @@ public:
 	void dquest(int id);
 
 	std::shared_ptr<Account> get_account();
+    // добавить/обновить чармиса в историю игрока
+    void updateCharmee(int vnum, int gold);
+    // получить список чармисов игрока
+    std::map<int, MERCDATA>  *getMercList();
 
 private:
 	// показывает, является ли чар турнирным или нет
@@ -230,9 +235,9 @@ private:
 	std::map<int, time_t> daily_quest_timed;
 	// Аккаунт
 	std::shared_ptr<Account> account;
+    //перечень чармисов, доступных с команды наемник
+    std::map<int, MERCDATA> charmeeHistory;
 };
-
-
 
 namespace PlayerSystem
 {

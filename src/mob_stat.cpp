@@ -411,7 +411,7 @@ void add_mob(CHAR_DATA *mob, int members)
 	}
 }
 
-std::string print_mob_name(int mob_vnum)
+std::string print_mob_name(int mob_vnum, int len)
 {
 	std::string name = "null";
 	const int rnum = real_mobile(mob_vnum);
@@ -419,9 +419,9 @@ std::string print_mob_name(int mob_vnum)
 	{
 		name = mob_proto[rnum].get_name();
 	}
-	if (name.size() > 20)
+	if (name.size() >= len)
 	{
-		name = name.substr(0, 20);
+		name = name.substr(0, len);
 	}
 	return name;
 }
@@ -465,7 +465,7 @@ void show_zone(CHAR_DATA *ch, int zone_vnum, int months)
 	for (auto i = sort_list.begin(); i != sort_list.end(); ++i)
 	{
 		out << i->first << " : " << std::setw(20)
-			<< print_mob_name(i->first) << " : "
+			<< print_mob_name(i->first, 20) << " : "
 			<< i->second.kills.at(0) << " :";
 		for (int g = 1; g <= MAX_GROUP_SIZE; ++g)
 		{

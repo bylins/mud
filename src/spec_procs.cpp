@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "act.movement.hpp"
+#include "cmd/mercenary.h"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
@@ -83,7 +84,6 @@ int janitor(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int cityguard(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int pet_shops(CHAR_DATA *ch, void *me, int cmd, char* argument);
 int bank(CHAR_DATA *ch, void *me, int cmd, char* argument);
-
 
 // ********************************************************************
 // *  Special procedures for mobiles                                  *
@@ -3445,7 +3445,6 @@ CHAR_DATA *get_player_of_name(const char *name)
 // ********************************************************************
 // *  Special procedures for objects                                  *
 // ********************************************************************
-
 int bank(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 {
 	int amount;

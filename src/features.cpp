@@ -686,7 +686,7 @@ void determineFeaturesSpecification(void) {
     feat_info[TURN_UNDEAD_FEAT].baseDamageBonusPercent = -30;
     feat_info[TURN_UNDEAD_FEAT].degreeOfSuccessDamagePercent = 2;
 //154
-	initializeFeature(MULTI_CAST_FEAT, "изощрённые чары", NORMAL_FTYPE, TRUE, feat_app);
+	initializeFeature(MULTI_CAST_FEAT, "изощренные чары", NORMAL_FTYPE, TRUE, feat_app);
 }
 
 bool can_use_feat(const CHAR_DATA *ch, int feat) {

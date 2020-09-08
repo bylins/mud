@@ -297,6 +297,7 @@ extern int receptionist(CHAR_DATA*, void*, int, char*);
 extern int postmaster(CHAR_DATA*, void*, int, char*);
 extern int bank(CHAR_DATA*, void*, int, char*);
 extern int shop_ext(CHAR_DATA*, void*, int, char*);
+extern int mercenary(CHAR_DATA*, void*, int, char*);
 
 #define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
 #define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
@@ -1168,6 +1169,13 @@ inline T VPOSI(const T val, const T min, const T max)
                        (IS_DRUID(ch) && ROOM_FLAGGED((ch)->in_room, ROOM_DRUID)))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS))
+
+int on_horse(const CHAR_DATA* ch);
+int has_horse(const CHAR_DATA * ch, int same_room);
+CHAR_DATA *get_horse(CHAR_DATA * ch);
+void horse_drop(CHAR_DATA * ch);
+void make_horse(CHAR_DATA * horse, CHAR_DATA * ch);
+void check_horse(CHAR_DATA * ch);
 
 bool same_group(CHAR_DATA * ch, CHAR_DATA * tch);
 

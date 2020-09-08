@@ -193,10 +193,23 @@ set(SOURCES
 		src/skills/townportal.cpp
 		src/skills/manadrain.cpp
 		src/chars/mount.cpp
-		src/fightsystem/assist.cpp src/fightsystem/assist.h src/fightsystem/start.fight.cpp src/fightsystem/start.fight.h src/skills/styles.cpp src/skills/styles.h src/cmd/order.cpp src/cmd/order.h src/fightsystem/common.cpp src/fightsystem/common.h src/cmd/retreat.cpp src/cmd/retreat.h)
+		src/fightsystem/assist.cpp
+		src/fightsystem/start.fight.cpp
+		src/skills/styles.cpp
+		src/fightsystem/common.cpp
+		src/cmd/retreat.cpp
+		src/cmd/order.cpp
+		src/cmd/mercenary.cpp
+		)
 
 set(HEADERS
-		src/chars/mount.h
+		src/fightsystem/common.h
+		src/fightsystem/assist.h
+		src/fightsystem/start.fight.h
+		src/cmd/retreat.h
+		src/cmd/order.h
+		src/cmd/mercenary.h
+		src/skills/styles.h
 		src/skills/manadrain.h
 		src/skills/townportal.h
 		src/skills/turnundead.h
@@ -212,6 +225,7 @@ set(HEADERS
 		src/strengthening.hpp
 		src/ability.constants.hpp
 		src/ability.rollsystem.hpp
+		src/chars/mount.h
 		src/chars/accounts.hpp
 		src/action.targeting.hpp
 		src/blocking.queue.hpp

@@ -17,7 +17,6 @@
 
 #include "cmd/retreat.h"
 #include "cmd/order.h"
-
 #include "skills/manadrain.h"
 #include "skills/flee.h"
 #include "skills/bash.h"
@@ -37,6 +36,7 @@
 #include "skills/turnundead.h"
 #include "fightsystem/assist.h"
 #include "fightsystem/start.fight.h"
+#include "cmd/mercenary.h"
 #include "act.movement.hpp"
 #include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
@@ -613,6 +613,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"мысл", POS_DEAD, do_quit, 0, 0, 0},
 	{"мысль", POS_DEAD, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
 
+    {"наемник", POS_STANDING, do_not_here, 1, 0, -1},
 	{"наказания", POS_DEAD, Boards::DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
 	{"налить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
 	{"наполнить", POS_STANDING, do_pour, 0, SCMD_FILL, 500},
@@ -910,6 +911,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 500},
 	{"map", POS_RESTING, do_map, 0, 0, 0},
 	{"mail", POS_STANDING, do_not_here, 1, 0, -1},
+    {"mercenary", POS_STANDING, do_not_here, 1, 0, -1},
 	{"mode", POS_DEAD, do_mode, 0, 0, 0},
 	{"mshout", POS_RESTING, do_mobshout, 0, 0, -1},
 	{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},

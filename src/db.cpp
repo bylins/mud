@@ -5850,6 +5850,14 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	GET_RIP_OTHERTHIS(ch) = 0;
 	GET_EXP_OTHERTHIS(ch) = 0;
 
+	// забываем всех чармисов
+	std::map<int, MERCDATA> *m;
+	m = ch->getMercList();
+	if (m->size()>0) {
+		std::map<int, MERCDATA>::iterator it = m->begin();
+		for (;it != m->end(); ++it)
+			it->second.currRemortAvail = 0;
+	}
 	do_start(ch, FALSE);
 	ch->save_char();
 	if (PLR_FLAGGED(ch, PLR_HELLED))
