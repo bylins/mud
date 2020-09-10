@@ -12,7 +12,7 @@
 
 #include "im.h"
 
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
@@ -23,7 +23,7 @@
 #include "constants.h"
 #include "screen.h"
 #include "features.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "modify.h"
 #include "room.hpp"
 #include "logger.hpp"

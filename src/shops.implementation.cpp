@@ -4,7 +4,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "liquid.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "ext_money.hpp"
@@ -12,7 +12,7 @@
 #include "handler.h"
 #include "modify.h"
 #include "named_stuff.hpp"
-#include "pk.h"
+#include "fightsystem/pk.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>

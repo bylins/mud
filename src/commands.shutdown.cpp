@@ -1,6 +1,6 @@
 #include "command.shutdown.hpp"
 
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "comm.h"
 #include "interpreter.h"
 #include "structs.h"

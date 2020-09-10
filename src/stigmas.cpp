@@ -1,5 +1,5 @@
 #include "stigmas.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 
 
 /*void do_touch_stigma(CHAR_DATA *ch, char*, int, int);

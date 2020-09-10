@@ -9,11 +9,11 @@
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "genchar.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "db.h"
 #include "screen.h"
 #include "comm.h"
-#include "char_player.hpp"
+#include "chars/char_player.hpp"
 #include "modify.h"
 
 #include <boost/algorithm/string.hpp>

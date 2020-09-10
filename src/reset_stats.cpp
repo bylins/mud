@@ -9,7 +9,7 @@
 #include "db.h"
 #include "screen.h"
 #include "parse.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "features.hpp"
 #include "conf.h"
 

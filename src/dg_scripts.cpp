@@ -11,7 +11,7 @@
 #include "dg_scripts.h"
 
 #include "global.objects.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "heartbeat.hpp"
 #include "find.obj.id.by.vnum.hpp"
 #include "world.objects.hpp"
@@ -27,8 +27,8 @@
 #include "constants.h"
 #include "top.h"
 #include "features.hpp"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 #include "name_list.hpp"
 #include "modify.h"
 #include "room.hpp"
@@ -3033,7 +3033,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				sprintf(str, "%d", GET_POS(c));
 			else if (!WAITLESS(c))
 			{
-				if (on_horse(c))
+				if (c->ahorse())
 				{
 					AFF_FLAGS(c).unset(EAffectFlag::AFF_HORSE);
 				}

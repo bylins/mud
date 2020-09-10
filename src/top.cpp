@@ -12,7 +12,7 @@
 #include "screen.h"
 #include "top.h"
 #include "glory_const.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "conf.h"
 
 #include <boost/algorithm/string.hpp>

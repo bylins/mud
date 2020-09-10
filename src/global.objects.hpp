@@ -1,7 +1,7 @@
 #ifndef __GLOBAL_OBJECTS_HPP__
 #define __GLOBAL_OBJECTS_HPP__
 
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "celebrates.hpp"
 #include "logger.hpp"
 #include "heartbeat.hpp"
@@ -9,7 +9,7 @@
 #include "shutdown.parameters.hpp"
 #include "shops.implementation.hpp"
 #include "world.objects.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "act.wizard.hpp"
 #include "influxdb.hpp"
 #include "zone.table.hpp"

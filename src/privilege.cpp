@@ -6,7 +6,7 @@
 
 #include "logger.hpp"
 #include "utils.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "conf.h"
 #include "sysdep.h"

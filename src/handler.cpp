@@ -14,7 +14,7 @@
 
 #include "handler.h"
 
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "world.objects.hpp"
 #include "obj.hpp"
@@ -31,8 +31,8 @@
 #include "features.hpp"
 #include "house.h"
 #include "exchange.h"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 #include "liquid.hpp"
 #include "magic.h"
 #include "poison.hpp"
@@ -40,8 +40,8 @@
 #include "room.hpp"
 #include "named_stuff.hpp"
 #include "glory_const.hpp"
-#include "fight.h"
-#include "pk.h"
+#include "fightsystem/fight.h"
+#include "fightsystem/pk.h"
 #include "ext_money.hpp"
 #include "noob.hpp"
 #include "obj_sets.hpp"
@@ -666,7 +666,7 @@ void affect_total(CHAR_DATA * ch)
 			}
 		}
 
-		if (!WAITLESS(ch) && on_horse(ch))
+		if (!WAITLESS(ch) && ch->ahorse())
 		{
 			AFF_FLAGS(ch).unset(EAffectFlag::AFF_HIDE);
 			AFF_FLAGS(ch).unset(EAffectFlag::AFF_SNEAK);

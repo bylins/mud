@@ -10,7 +10,7 @@
 	Сейчас это не сделано, потому что при текущей логике исполнения команд это ничего особо не даст.
 */
 
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "structs.h"
 
 #include <functional>

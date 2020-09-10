@@ -26,7 +26,7 @@
 #include "skills.h"
 #include "features.hpp"
 #include "random.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 
 #include <vector>

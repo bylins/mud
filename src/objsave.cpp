@@ -12,7 +12,7 @@
 #include "objsave.h"
 
 #include "world.objects.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -25,7 +25,7 @@
 #include "house.h"
 #include "im.h"
 #include "depot.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "liquid.hpp"
 #include "file_crc.hpp"
 #include "named_stuff.hpp"

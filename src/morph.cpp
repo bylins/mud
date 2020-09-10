@@ -7,7 +7,7 @@
 #include "handler.h"
 #include "spell_parser.hpp"
 #include "spells.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "comm.h"
 #include "skills.h"
 #include "db.h"

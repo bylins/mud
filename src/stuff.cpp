@@ -16,7 +16,7 @@
 #include "db.h"
 #include "handler.h"
 #include "dg_scripts.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "corpse.hpp"
 #include "screen.h"

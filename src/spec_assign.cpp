@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "object.prototypes.hpp"
-#include "mercenary.h"
+#include "cmd/mercenary.h"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
@@ -25,7 +25,7 @@
 #include "house.h"
 #include "boards.constants.hpp"
 #include "boards.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "noob.hpp"
 

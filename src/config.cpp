@@ -21,7 +21,7 @@
 #include "interpreter.h"	// alias_data definition for structs.h
 #include "utils.h"
 #include "constants.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "birth_places.hpp"
 #include "structs.h"
 #include "conf.h"

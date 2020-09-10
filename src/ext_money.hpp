@@ -8,7 +8,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include <string>
 
 namespace ExtMoney

@@ -13,10 +13,20 @@
 ************************************************************************ */
 #include "mobact.hpp"
 
+#include "skills/backstab.h"
+#include "skills/bash.h"
+#include "skills/strangle.h"
+#include "skills/chopoff.h"
+#include "skills/disarm.h"
+#include "skills/stupor.h"
+#include "skills/throw.h"
+#include "skills/mighthit.h"
+#include "skills/protect.h"
+
 #include "ability.rollsystem.hpp"
 #include "action.targeting.hpp"
 #include "features.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "obj.hpp"
 #include "db.h"
@@ -26,21 +36,22 @@
 #include "magic.h"
 #include "skills.h"
 #include "constants.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "random.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "house.h"
 #include "room.hpp"
 #include "shop_ext.hpp"
-#include "fight.h"
-#include "fight_hit.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
 
+
 // external structs
-extern INDEX_DATA *mob_index;
+//extern INDEX_DATA *mob_index;
 extern int no_specials;
 extern TIME_INFO_DATA time_info;
 extern int guild_poly(CHAR_DATA*, void*, int, char*);
@@ -49,14 +60,6 @@ extern struct ZoneData * zone_table;
 extern bool check_mighthit_weapon(CHAR_DATA *ch);
 
 void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void go_bash(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_backstab(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_disarm(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_mighthit(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_stupor(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_throw(CHAR_DATA * ch, CHAR_DATA * vict);
-void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict);
 int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict);
@@ -80,7 +83,6 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 
 // local functions
-CHAR_DATA *try_protect(CHAR_DATA * victim, CHAR_DATA * ch);
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
 
@@ -1465,7 +1467,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 // 11.07.2002 - у зачармленных мобов не работает механизм памяти на время чарма
 
 // make ch remember victim
-void remember(CHAR_DATA * ch, CHAR_DATA * victim)
+void mobRemember(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	struct timed_type timed;
 	memory_rec *tmp;

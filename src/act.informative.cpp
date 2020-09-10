@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "world.objects.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
 #include "shutdown.parameters.hpp"
@@ -24,11 +24,11 @@
 #include "db.h"
 #include "spells.h"
 #include "skills.h"
-#include "fight.h"
-#include "fight_hit.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
 #include "screen.h"
 #include "constants.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "dg_scripts.h"
 #include "mail.h"
 #include "parcel.hpp"
@@ -40,14 +40,14 @@
 #include "depot.hpp"
 #include "glory.hpp"
 #include "random.hpp"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "modify.h"
 #include "room.hpp"
 #include "glory_const.hpp"
-#include "player_races.hpp"
+#include "chars/player_races.hpp"
 #include "corpse.hpp"
 #include "sets_drop.hpp"
 #include "help.hpp"
@@ -891,7 +891,7 @@ void diag_char_to_char(CHAR_DATA * i, CHAR_DATA * ch)
 	else
 		strcat(buf, " умирает");
 
-	if (!on_horse(i))
+	if (!i->ahorse())
 		switch (GET_POS(i))
 			{
 			case POS_MORTALLYW:
@@ -1201,7 +1201,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 		"стоят здесь. "
 	};
 
-	if (IS_HORSE(i) && on_horse(i->get_master()))
+	if (IS_HORSE(i) && i->get_master()->ahorse())
 	{
 		if (ch == i->get_master())
 		{
@@ -1457,9 +1457,9 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 
 	if (GET_POS(i) != POS_FIGHTING)
 	{
-		if (on_horse(i))
+		if (i->ahorse())
 		{
-			CHAR_DATA *horse = get_horse(i);
+			CHAR_DATA *horse = i->get_horse();
 			if (horse)
 			{
 				const char *msg =
@@ -1494,16 +1494,16 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 				strcat(buf, "ВАМИ");
 			else
 				strcat(buf, GET_PAD(i->get_fighting(), 4));
-			if (on_horse(i))
-				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(get_horse(i), ch, 5));
+			if (i->ahorse())
+				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(i->get_horse(), ch, 5));
 			else
 				strcat(buf, "! ");
 		}
 		else		// NIL fighting pointer
 		{
 			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
-			if (on_horse(i))
-				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(get_horse(i), ch, 5));
+			if (i->ahorse())
+				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(i->get_horse(), ch, 5));
 			else
 				strcat(buf, ". ");
 		}
@@ -2303,7 +2303,6 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		}
 	}
 	send_to_char("&Y&q", ch);
-//  if (IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL),SPELL_KNOW))
 	if (ch->get_skill(SKILL_TOWNPORTAL)) {
 		if (find_portal_by_vnum(GET_ROOM_VNUM(ch->in_room))) {
 			send_to_char("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
@@ -2850,7 +2849,6 @@ bool look_at_target(CHAR_DATA * ch, char *arg, int subcmd)
 
 	// для townportal
 	if (isname(whatp, "камень") &&
-//       IS_SET(GET_SPELL_TYPE(ch, SPELL_TOWNPORTAL), SPELL_KNOW) &&
 			ch->get_skill(SKILL_TOWNPORTAL) &&
 			(port = get_portal(GET_ROOM_VNUM(ch->in_room), NULL)) != NULL && IS_SET(where_bits, FIND_OBJ_ROOM))
 	{
@@ -3519,7 +3517,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			" %sВоде:      %3d %s||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_LEVEL(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_str(), GET_REAL_STR(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), hr - (on_horse(ch) ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0) , CCCYN(ch, C_NRM),
+			CCIGRN(ch, C_NRM), hr - (ch->ahorse() ? (10 - GET_SKILL(ch, SKILL_HORSE) / 20) : 0) , CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	resist = MIN(GET_RESIST(ch, EARTH_RESISTANCE), 75);
@@ -3530,7 +3528,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			" %sЗемле:     %3d %s||\r\n",
 			CCNRM(ch, C_NRM), CCWHT(ch, C_NRM), GET_REMORT(ch), CCCYN(ch, C_NRM),
 			CCICYN(ch, C_NRM), ch->get_dex(), GET_REAL_DEX(ch), CCCYN(ch, C_NRM),
-			CCIGRN(ch, C_NRM), int (max_dam * (on_horse(ch) ? ((GET_SKILL(ch, SKILL_HORSE) > 100) ? (1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0) : 1 ) : 1)), CCCYN(ch, C_NRM),
+			CCIGRN(ch, C_NRM), int (max_dam * (ch->ahorse() ? ((GET_SKILL(ch, SKILL_HORSE) > 100) ? (1 + (GET_SKILL(ch, SKILL_HORSE) - 100) / 500.0) : 1 ) : 1)), CCCYN(ch, C_NRM),
 			CCYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
 	resist = GET_RESIST(ch, DARK_RESISTANCE);
@@ -3592,7 +3590,7 @@ void print_do_score_all(CHAR_DATA *ch)
 			CCGRN(ch, C_NRM), GET_REAL_SAVING_WILL(ch), CCCYN(ch, C_NRM),
 			CCIYEL(ch, C_NRM), resist, CCCYN(ch, C_NRM));
 
-	if (!on_horse(ch))
+	if (!ch->ahorse())
 		switch (GET_POS(ch))
 		{
 		case POS_DEAD:
@@ -3731,20 +3729,20 @@ void print_do_score_all(CHAR_DATA *ch)
 	sprintf(buf + strlen(buf), "&c ||&n                    &c|                       &c| &gМаг. резист: %4d&c |&n                &c||\r\n", GET_MR(ch));
 	sprintf(buf + strlen(buf), "&c ||&n                    &c|                       &c| &gФиз. резист: %4d&c |&n                &c||&n\r\n", GET_PR(ch));
 	sprintf(buf + strlen(buf), " -------------------------------------------------------------------------------------\r\n");
-	if (has_horse(ch, FALSE))
+	if (ch->has_horse(false))
 	{
-		if (on_horse(ch))
+		if (ch->ahorse())
 			sprintf(buf + strlen(buf),
 					" %s|| %sВы верхом на %-67s%s||\r\n"
 					" -------------------------------------------------------------------------------------\r\n",
 					CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM),
-					(string(GET_PAD(get_horse(ch), 5)) + string(".")).substr(0, 67).c_str(), CCCYN(ch, C_NRM));
+					(string(GET_PAD(ch->get_horse(), 5)) + string(".")).substr(0, 67).c_str(), CCCYN(ch, C_NRM));
 		else
 			sprintf(buf + strlen(buf),
 					" %s|| %sУ вас есть %-69s%s||\r\n"
 					" -------------------------------------------------------------------------------------\r\n",
 					CCCYN(ch, C_NRM), CCIGRN(ch, C_NRM),
-					(string(GET_NAME(get_horse(ch))) + string(".")).substr(0, 69).c_str(), CCCYN(ch, C_NRM));
+					(string(GET_NAME(ch->get_horse())) + string(".")).substr(0, 69).c_str(), CCCYN(ch, C_NRM));
 	}
 
 	//Напоминаем о метке, если она есть.
@@ -4118,7 +4116,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			playing_time.day, desc_count(playing_time.day, WHAT_DAY),
 			playing_time.hours, desc_count(playing_time.hours, WHAT_HOUR));
 
-	if (!on_horse(ch))
+	if (!ch->ahorse())
 		switch (GET_POS(ch))
 		{
 		case POS_DEAD:
@@ -4189,12 +4187,12 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (PRF_FLAGGED(ch, PRF_SUMMONABLE))
 		strcat(buf, "Вы можете быть призваны.\r\n");
 
-	if (has_horse(ch, FALSE))
+	if (ch->has_horse(false))
 	{
-		if (on_horse(ch))
-			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(get_horse(ch), 5));
+		if (ch->ahorse())
+			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
 		else
-			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(get_horse(ch)));
+			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
 	}
 	strcat(buf, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);

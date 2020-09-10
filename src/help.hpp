@@ -8,7 +8,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "interpreter.h"
-#include "char_player.hpp"
+#include "chars/char_player.hpp"
 
 #include <string>
 #include <map>

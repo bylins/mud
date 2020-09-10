@@ -11,7 +11,7 @@
 #include <vector>
 #include "conf.h"
 #include "sysdep.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 
 void update_clan_exp();
 void save_clan_exp();

@@ -7,7 +7,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "obj.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "spells.h"
 #include "liquid.hpp"
 #include "screen.h"
@@ -16,10 +16,8 @@
 #include "comm.h"
 #include "skills.h"
 #include "room.hpp"
-#include "fight.h"
+#include "fightsystem/fight.h"
 
-extern void drop_from_horse(CHAR_DATA *victim);
-extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern int interpolate(int min_value, int pulse);
 
 namespace
@@ -225,13 +223,13 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 			// аналог баша с лагом
 			if (GET_POS(vict) >= POS_FIGHTING)
 			{
-				if (on_horse(vict))
+				if (vict->ahorse())
 				{
 					send_to_char(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
-							GET_PAD(get_horse(vict), 5));
-					act("$n0 зашатал$u и не смог$q усидеть на $N5.", true, vict, 0, get_horse(vict), TO_NOTVICT);
+							GET_PAD(vict->get_horse(), 5));
+					act("$n0 зашатал$u и не смог$q усидеть на $N5.", true, vict, 0, vict->get_horse(), TO_NOTVICT);
 				}
 				else
 				{
@@ -241,8 +239,7 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 					act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
 				}
 				GET_POS(vict) = POS_SITTING;
-				drop_from_horse(vict);
-				set_wait(vict, 3, false);
+                vict->drop_from_horse();
 				break;
 			}
 			// если цель нельзя сбить - идем дальше по списку

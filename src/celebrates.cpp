@@ -6,7 +6,7 @@
 #include "db.h"
 #include "dg_db_scripts.hpp"
 #include "dg_scripts.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "handler.h"
 #include "utils.h"

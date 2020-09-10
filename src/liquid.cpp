@@ -10,7 +10,7 @@
 #include "liquid.hpp"
 
 #include "obj.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "char_obj_utils.inl"
 #include "db.h"
 #include "comm.h"

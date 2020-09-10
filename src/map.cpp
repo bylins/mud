@@ -9,7 +9,7 @@
 #include "screen.h"
 #include "room.hpp"
 #include "db.h"
-#include "char_player.hpp"
+#include "chars/char_player.hpp"
 #include "shop_ext.hpp"
 #include "noob.hpp"
 #include "char_obj_utils.inl"

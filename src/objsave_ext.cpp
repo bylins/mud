@@ -6,7 +6,7 @@
 #include "house.h"
 #include "depot.hpp"
 #include "parcel.hpp"
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 
 #include <list>
 #include <vector>

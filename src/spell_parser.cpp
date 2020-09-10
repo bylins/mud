@@ -14,6 +14,8 @@
 
 #include "spell_parser.hpp"
 
+#include "skills/stun.h"
+
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "interpreter.h"
@@ -25,23 +27,24 @@
 #include "screen.h"
 #include "constants.h"
 #include "dg_scripts.h"
-#include "pk.h"
+#include "fightsystem/pk.h"
 #include "features.hpp"
 #include "im.h"
 #include "privilege.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "name_list.hpp"
 #include "depot.hpp"
 #include "parcel.hpp"
 #include "room.hpp"
 #include "magic.h"
-#include "fight.h"
-#include "fight_hit.hpp"
-#include "world.characters.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "chars/world.characters.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
+#include "mobact.hpp"
 
 #include <boost/tokenizer.hpp>
 
@@ -72,7 +75,6 @@ void do_create(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_forget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_remember(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_mixture(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_stun(CHAR_DATA*, char*, int, int);
 
 void unused_spell(int spl);
 void unused_skill(int spl);
@@ -2070,7 +2072,7 @@ void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum)
 	}
 	else if (CAN_SEE(victim, caster) && !IS_NPC(caster) && IS_NPC(victim) && MOB_FLAGGED(victim, MOB_MEMORY))
 	{
-		remember(victim, caster);
+		mobRemember(victim, caster);
 	}
 
 	if (caster->purged())

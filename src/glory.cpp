@@ -13,8 +13,8 @@
 #include "genchar.h"
 #include "screen.h"
 #include "top.h"
-#include "char.hpp"
-#include "char_player.hpp"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
 #include "modify.h"
 #include "glory_misc.hpp"
 

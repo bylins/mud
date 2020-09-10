@@ -8,7 +8,7 @@
 #include "object.prototypes.hpp"
 #include "obj.hpp"
 #include "screen.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "comm.h"
 #include "db.h"
 #include "handler.h"

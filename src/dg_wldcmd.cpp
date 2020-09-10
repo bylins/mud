@@ -12,7 +12,7 @@
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "obj.hpp"
-#include "screen.h"
+#include "skills/townportal.h"
 #include "dg_scripts.h"
 #include "comm.h"
 #include "interpreter.h"
@@ -22,11 +22,11 @@
 #include "db.h"
 #include "im.h"
 #include "deathtrap.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "skills.h"
 #include "room.hpp"
 #include "magic.h"
-#include "fight.h"
+#include "fightsystem/fight.h"
 #include "features.hpp"
 #include "zone.table.hpp"
 #include "logger.hpp"
@@ -351,14 +351,11 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				continue;
 			}
 
-			if (on_horse(ch)
-				|| has_horse(ch, TRUE))
-			{
-				horse = get_horse(ch);
+			if (ch->ahorse() || ch->has_horse(true)) {
+				horse = ch->get_horse();
 			}
-			else
-			{
-				horse = NULL;
+			else {
+				horse = nullptr;
 			}
 
 			char_from_room(ch);
@@ -376,7 +373,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				char_to_room(horse, target);
 			}
 
-			check_horse(ch);
+            ch->dismount();
 			look_at_room(ch, TRUE);
 		}
 	}
@@ -384,9 +381,9 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		if ((ch = get_char_by_room(room, arg1)))
 		{
-			if (on_horse(ch) || has_horse(ch, TRUE))
+			if (ch->ahorse() || ch->has_horse(true))
 			{
-				horse = get_horse(ch);
+				horse = ch->get_horse();
 			}
 			else
 			{
@@ -416,7 +413,7 @@ void do_wteleport(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 				char_to_room(horse, target);
 			}
 
-			check_horse(ch);
+            ch->dismount();
 			look_at_room(ch, TRUE);
 		}
 		else

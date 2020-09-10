@@ -1,4 +1,4 @@
-#include "fight.penalties.hpp"
+#include "fightsystem/fight.penalties.hpp"
 
 #include "char.utilities.hpp"
 

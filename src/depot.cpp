@@ -4,7 +4,7 @@
 
 #include "depot.hpp"
 
-#include "world.characters.hpp"
+#include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "db.h"
@@ -14,9 +14,9 @@
 #include "exchange.h"
 #include "interpreter.h"
 #include "screen.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "name_list.hpp"
-#include "char_player.hpp"
+#include "chars/char_player.hpp"
 #include "modify.h"
 #include "objsave.h"
 #include "room.hpp"

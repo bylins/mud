@@ -18,7 +18,7 @@
 #include "db.h"
 #include "screen.h"
 #include "magic.h"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 #include "utils.h"
 #include "structs.h"

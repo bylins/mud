@@ -12,7 +12,7 @@
 #include "handler.h"
 #include "db.h"
 #include "ban.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "modify.h"
 #include "logger.hpp"
 #include "utils.h"

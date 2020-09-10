@@ -15,7 +15,7 @@
 #define _MAGIC_H_
 
 #include "obj.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "room.hpp"
 
 #include <cstdlib>

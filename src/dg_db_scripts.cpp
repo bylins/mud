@@ -25,7 +25,7 @@
 #include "skills.h"
 #include "im.h"
 #include "features.hpp"
-#include "char.hpp"
+#include "chars/char.hpp"
 #include "interpreter.h"
 #include "room.hpp"
 #include "magic.h"
