@@ -11,6 +11,8 @@
 #include "skills/protect.h"
 #include "handler.h"
 
+#include <math.h>
+
 using namespace FightSystem;
 
 ESkill ExpedientWeaponSkill(CHAR_DATA *ch) {
