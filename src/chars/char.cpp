@@ -2407,7 +2407,7 @@ bool CHAR_DATA::drop_from_horse() {
     sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
     act(buf, FALSE, plr, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
     AFF_FLAGS(plr).unset(EAffectFlag::AFF_HORSE);
-    WAIT_STATE(this, 3);
+    WAIT_STATE(this, 3*PULSE_VIOLENCE);
     if (GET_POS(plr) > POS_SITTING)
         GET_POS(plr) = POS_SITTING;
     return true;
