@@ -985,61 +985,39 @@ float func_koef_modif(int spellnum, int percent)
 void battle_affect_update(CHAR_DATA * ch)
 {
 	auto next_affect_i = ch->affected.begin();
+
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i)
 	{
 		++next_affect_i;
 		const auto& affect = *affect_i;
 
-		if (!IS_SET(affect->battleflag, AF_BATTLEDEC)
-			&& !IS_SET(affect->battleflag, AF_SAME_TIME))
-		{
+		if (!IS_SET(affect->battleflag, AF_BATTLEDEC) && !IS_SET(affect->battleflag, AF_SAME_TIME))
 			continue;
-		}
 
-		if (IS_NPC(ch)
-			&& affect->location == APPLY_POISON)
-		{
+		if (IS_NPC(ch) && affect->location == APPLY_POISON)
 			continue;
-		}
 
-		if (affect->duration >= 1)
-		{
-			if (IS_SET(affect->battleflag, AF_SAME_TIME))
-			{
-				// здесь плеера могут спуржить
-				if (same_time_update(ch, affect) == -1)
-				{
+		if (affect->duration >= 1) {
+			if (IS_SET(affect->battleflag, AF_SAME_TIME)) {
+			    if (same_time_update(ch, affect) == -1) // жертва умерла
 					return;
-				}
 				affect->duration--;
 			}
-			else
-			{
+			else {
 				if (IS_NPC(ch))
-				{
 					affect->duration--;
-				}
 				else
-				{
 					affect->duration -= MIN(affect->duration, SECS_PER_MUD_HOUR / SECS_PER_PLAYER_AFFECT);
-				}
 			}
 		}
-		else if (affect->duration != -1)
-		{
-			if (affect->type > 0
-				&& affect->type <= MAX_SPELLS)
-			{
+		else if (affect->duration != -1) {
+			if (affect->type > 0 && affect->type <= MAX_SPELLS) {
 				if (next_affect_i == ch->affected.end()
 					|| (*next_affect_i)->type != affect->type
 					|| (*next_affect_i)->duration > 0)
 				{
-					if (affect->type > 0
-						&& affect->type <= SPELLS_COUNT
-						&& *spell_wear_off_msg[affect->type])
-					{
+					if (affect->type > 0 && affect->type <= SPELLS_COUNT && *spell_wear_off_msg[affect->type])
 						show_spell_off(affect->type, ch);
-					}
 				}
 			}
 
@@ -3385,13 +3363,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		{
 			// add by Pereplut
 			if (victim->ahorse())
-			{
-				sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(victim, 0),
-						GET_CH_SUF_2(victim));
-				act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-				AFF_FLAGS(victim).unset(EAffectFlag::AFF_HORSE);
-			}
-
+			    victim->drop_from_horse();
 			send_to_char("Вы слишком устали... Спать... Спа...\r\n", victim);
 			act("$n прилег$q подремать.", TRUE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 

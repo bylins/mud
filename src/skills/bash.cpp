@@ -14,11 +14,8 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
         send_to_char("Вы временно не в состоянии сражаться.\r\n", ch);
         return;
     }
-    if (!(IS_NPC(ch)
-          || GET_EQ(ch, WEAR_SHIELD)
-          || IS_IMMORTAL(ch)
-          || GET_MOB_HOLD(vict)
-          || GET_GOD_FLAG(vict, GF_GODSCURSE))) {
+
+    if (!(IS_NPC(ch)  || GET_EQ(ch, WEAR_SHIELD) || IS_IMMORTAL(ch) || GET_MOB_HOLD(vict) || GET_GOD_FLAG(vict, GF_GODSCURSE))) {
         send_to_char("Вы не можете сделать этого без щита.\r\n", ch);
         return;
     };
@@ -83,8 +80,7 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
             && !AFF_FLAGGED(vict, EAffectFlag::AFF_STOPLEFT)
             && GET_WAIT(vict) <= 0
             && GET_MOB_HOLD(vict) == 0) {
-            if (!(GET_EQ(vict, WEAR_SHIELD) ||
-                  IS_NPC(vict) || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
+            if (!(GET_EQ(vict, WEAR_SHIELD) || IS_NPC(vict) || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, GF_GODSLIKE)))
                 send_to_char("У вас нечем отразить атаку противника.\r\n", vict);
             else
             {
@@ -115,21 +111,18 @@ void go_bash(CHAR_DATA * ch, CHAR_DATA * vict) {
                 }
             }
         }
-//делаем блокирование баша
 
-        prob = 0;
+        prob = 0; // если башем убил - лага не будет
         Damage dmg(SkillDmg(SKILL_BASH), dam, PHYS_DMG);
         dmg.flags.set(NO_FLEE_DMG);
         dam = dmg.process(ch, vict);
 
         if (dam > 0 || (dam == 0 && AFF_FLAGGED(vict, EAffectFlag::AFF_SHIELD))) {
-            prob = 3;
-            if (ch->isInSameRoom(vict)) {
-                GET_POS(vict) = POS_SITTING;
-                vict->drop_from_horse();
-            }
-            set_wait(vict, prob, FALSE);
             prob = 2;
+            if (!vict->drop_from_horse()) {
+                GET_POS(vict) = POS_SITTING;
+                set_wait(vict, 3, FALSE);
+            }
         }
     }
     set_wait(ch, prob, TRUE);

@@ -571,7 +571,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					FALSE, ch, 0, ch->get_horse(), TO_CHAR);
 				act("$n соскочил$g с $N1.", FALSE, ch, 0, ch->get_horse(), TO_ROOM | TO_ARENA_LISTEN);
-				AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
+				ch->dismount();
 			}
 		}
 		//проверка на ванрум: скидываем игрока с коня, если там незанято
@@ -1749,8 +1749,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				{
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 						FALSE, ch, 0, ch->get_horse(), TO_CHAR);
-					act("$n соскочил$g с $N1.", FALSE, ch, 0, ch->get_horse(), TO_ROOM | TO_ARENA_LISTEN);
-					AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
+					ch->dismount();
 				}
 				//проверка на ванрум и лошадь
 				if (ROOM_FLAGGED(door, ROOM_TUNNEL) &&
@@ -1765,8 +1764,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 					{
 						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
 							FALSE, ch, 0, ch->get_horse(), TO_CHAR);
-						act("$n соскочил$g с $N1.", FALSE, ch, 0, ch->get_horse(), TO_ROOM | TO_ARENA_LISTEN);
-						AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
+						ch->dismount();
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
