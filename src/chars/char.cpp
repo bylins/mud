@@ -2417,7 +2417,7 @@ void CHAR_DATA::dismount()
 {
     if (!this->ahorse() || this->get_horse() == nullptr)
         return;
-    if (!IS_NPC(this) && !this->has_horse(true)) {
+    if (!IS_NPC(this) && this->has_horse(true)) {
         AFF_FLAGS(this).unset(EAffectFlag::AFF_HORSE);
     }
     act("Вы слезли со спины $N1.", FALSE, this, 0, this->get_horse(), TO_CHAR);

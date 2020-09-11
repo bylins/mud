@@ -570,7 +570,6 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 			{
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
 					FALSE, ch, 0, ch->get_horse(), TO_CHAR);
-				act("$n соскочил$g с $N1.", FALSE, ch, 0, ch->get_horse(), TO_ROOM | TO_ARENA_LISTEN);
 				ch->dismount();
 			}
 		}
