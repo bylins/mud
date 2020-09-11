@@ -1,6 +1,7 @@
 #include "skills/flee.h"
 #include "act.movement.hpp"
 #include "random.hpp"
+#include <math.h>
 
 void reduce_exp_after_flee(CHAR_DATA* ch, CHAR_DATA* victim, room_rnum room)
 {
