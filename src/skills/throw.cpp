@@ -35,9 +35,13 @@ void performShadowThrowSideAbilities(TechniqueRollType &technique) {
             to_vict = "Копье $N1 попало вам в колено. Вы рухнули наземь! Кажется, ваши приключения сейчас закончатся...";
             to_room = "Копье $N1 сбило $n3 наземь!";
             doSideAction = ([](TechniqueRollType &technique) {
-                technique.rival()->drop_from_horse();
-                GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), POS_SITTING);
-                set_wait(technique.rival(), 2, TRUE);
+                if (technique.rival()->ahorse()) { //если на лошади - падение с лагом 3
+                    technique.rival()->drop_from_horse();
+                    }
+                else { // иначе просто садится на попу с лагом 2
+                    GET_POS(technique.rival()) = MIN(GET_POS(technique.rival()), POS_SITTING);
+                    set_wait(technique.rival(), 2, TRUE);
+                    }
             });
             break;
         case SKILL_SHORTS:

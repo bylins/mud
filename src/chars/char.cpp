@@ -2390,8 +2390,8 @@ bool CHAR_DATA::isHorsePrevents() {
     return false;
 };
 
-void CHAR_DATA::drop_from_horse() {
-    CHAR_DATA * plr;
+bool CHAR_DATA::drop_from_horse() {
+    CHAR_DATA * plr = nullptr;
     // вызвали для лошади
     if (IS_HORSE(this) && this->get_master()->ahorse()) {
         plr = this->get_master();
@@ -2402,18 +2402,26 @@ void CHAR_DATA::drop_from_horse() {
         plr = this;
         act("Вы упали с $N1.", FALSE, plr, 0, this->get_horse(), TO_CHAR);
     }
-
+    if (plr == nullptr || !plr->ahorse())
+        return false;
+    sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
+    act(buf, FALSE, plr, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
     AFF_FLAGS(plr).unset(EAffectFlag::AFF_HORSE);
-    WAIT_STATE(plr, 3 * PULSE_VIOLENCE);
+    WAIT_STATE(this, 3*PULSE_VIOLENCE);
     if (GET_POS(plr) > POS_SITTING)
         GET_POS(plr) = POS_SITTING;
+    return true;
 };
 
 void CHAR_DATA::dismount()
 {
-    if (!IS_NPC(this) && !this->has_horse(true)) {
+    if (!this->ahorse() || this->get_horse() == nullptr)
+        return;
+    if (!IS_NPC(this) && this->has_horse(true)) {
         AFF_FLAGS(this).unset(EAffectFlag::AFF_HORSE);
     }
+    act("Вы слезли со спины $N1.", FALSE, this, 0, this->get_horse(), TO_CHAR);
+    act("$n соскочил$g с $N1.", FALSE, this, 0, this->get_horse(), TO_ROOM | TO_ARENA_LISTEN);
 }
 
 CHAR_DATA* CHAR_DATA::get_horse()

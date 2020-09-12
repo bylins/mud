@@ -3035,7 +3035,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			{
 				if (c->ahorse())
 				{
-					AFF_FLAGS(c).unset(EAffectFlag::AFF_HORSE);
+					c->dismount();
 				}
 				GET_POS(c) = pos;
 			}

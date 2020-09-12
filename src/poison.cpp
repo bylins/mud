@@ -221,30 +221,25 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 		{
 		case 1:
 			// аналог баша с лагом
-			if (GET_POS(vict) >= POS_FIGHTING)
-			{
-				if (vict->ahorse())
-				{
+			if (GET_POS(vict) >= POS_FIGHTING) {
+				if (vict->ahorse()) {
 					send_to_char(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
 							GET_PAD(vict->get_horse(), 5));
 					act("$n0 зашатал$u и не смог$q усидеть на $N5.", true, vict, 0, vict->get_horse(), TO_NOTVICT);
+                    vict->drop_from_horse();
 				}
-				else
-				{
+				else {
 					send_to_char(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",
 							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли устоять на ногах!\r\n");
 					act("$N0 зашатал$U и не смог$Q устоять на ногах.", true, ch, 0, vict, TO_NOTVICT);
+                    GET_POS(vict) = POS_SITTING;
+                    WAIT_STATE(vict, 3 * PULSE_VIOLENCE);
 				}
-				GET_POS(vict) = POS_SITTING;
-                vict->drop_from_horse();
 				break;
 			}
-			// если цель нельзя сбить - идем дальше по списку
-
-			// fall through
 		case 2:
 		{
 			// минус статы (1..5)

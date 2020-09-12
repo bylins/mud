@@ -87,10 +87,8 @@ void do_horseoff(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
         send_to_char("Вы ведь и так не на лошади.", ch);
         return;
     }
+    ch->dismount();
 
-    act("Вы слезли со спины $N1.", FALSE, ch, 0, horse, TO_CHAR);
-    act("$n соскочил$g с $N1.", FALSE, ch, 0, horse, TO_ROOM | TO_ARENA_LISTEN);
-    AFF_FLAGS(ch).unset(EAffectFlag::AFF_HORSE);
 }
 
 void do_horseget(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)

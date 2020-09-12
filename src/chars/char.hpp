@@ -828,7 +828,7 @@ public:
     bool ahorse() const;
     bool has_horse(bool same_room) const;
     CHAR_DATA *get_horse();
-    void drop_from_horse();
+    bool drop_from_horse();
     bool isHorsePrevents();
     void dismount();
 };
