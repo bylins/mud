@@ -259,15 +259,6 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		break;
 	case APPLY_CLASS:
 		break;
-
-		/*
-		 * My personal thoughts on these two would be to set the person to the
-		 * value of the apply.  That way you won't have to worry about people
-		 * making +1 level things to be imp (you restrict anything that gives
-		 * immortal level of course).  It also makes more sense to set someone
-		 * to a class rather than adding to the class number. -gg
-		 */
-
 	case APPLY_LEVEL:
 		break;
 	case APPLY_AGE:
@@ -418,8 +409,6 @@ void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bo
 		ch->add_abils.percent_spell_blink += mod;
 		break;
 	default:
-//		это не ошибка не все апплаи поднимают статы
-//		log("SYSERR: Unknown apply adjust %d attempt (%s, affect_modify).", loc, __FILE__);
 		break;
 	}			// switch
 }

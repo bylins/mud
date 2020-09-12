@@ -769,7 +769,7 @@ void mobile_affect_update(void)
 					if (IS_SET(affect->battleflag, AF_SAME_TIME) && (!i->get_fighting() || affect->location == APPLY_POISON))
 					{
 						// здесь плеера могут спуржить
-						if (same_time_update(i.get(), affect) == -1)
+						if (processPoisonDamage(i.get(), affect) == -1)
 						{
 							was_purged = true;
 
@@ -888,7 +888,7 @@ void player_affect_update(void)
 				if (IS_SET(affect->battleflag, AF_SAME_TIME) && !i->get_fighting())
 				{
 					// здесь плеера могут спуржить
-					if (same_time_update(i.get(), affect) == -1)
+					if (processPoisonDamage(i.get(), affect) == -1)
 					{
 						was_purged = true;
 						break;
@@ -985,7 +985,6 @@ float func_koef_modif(int spellnum, int percent)
 void battle_affect_update(CHAR_DATA * ch)
 {
 	auto next_affect_i = ch->affected.begin();
-
 	for (auto affect_i = next_affect_i; affect_i != ch->affected.end(); affect_i = next_affect_i)
 	{
 		++next_affect_i;
@@ -999,7 +998,7 @@ void battle_affect_update(CHAR_DATA * ch)
 
 		if (affect->duration >= 1) {
 			if (IS_SET(affect->battleflag, AF_SAME_TIME)) {
-			    if (same_time_update(ch, affect) == -1) // жертва умерла
+			    if (processPoisonDamage(ch, affect) == -1) // жертва умерла
 					return;
 				affect->duration--;
 			}
