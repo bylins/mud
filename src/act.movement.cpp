@@ -47,7 +47,6 @@
 // external functs
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
-int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 int awake_others(CHAR_DATA * ch);
 void affect_from_char(CHAR_DATA * ch, int type);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);

@@ -70,7 +70,6 @@ void prune_crlf(char *txt);
 int valid_email(const char *address);
 
 // external functions
-int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 void perform_drop_gold(CHAR_DATA * ch, int amount);
 void do_echo(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 

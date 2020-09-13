@@ -36,7 +36,6 @@ extern const char *dirs[];
 extern const char *DirsTo[];
 extern int track_through_doors;
 extern CHAR_DATA *mob_proto;
-int attack_best(CHAR_DATA * ch, CHAR_DATA * vict);
 
 // local functions
 void bfs_enqueue(room_rnum room, int dir);
