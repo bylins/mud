@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "core/affect_data.h"
+#include "mobact.hpp"
 #include "obj.hpp"
 #include "skills/flee.h"
 #include "chars/world.characters.hpp"
