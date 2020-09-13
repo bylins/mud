@@ -200,9 +200,13 @@ set(SOURCES
 		src/cmd/retreat.cpp
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
-        src/core/affect_data.cpp src/core/affect_data.h)
+        src/core/affect_data.cpp
+		src/cmd/track.cpp
+		)
 
 set(HEADERS
+		src/core/affect_data.h
+		src/cmd/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
 		src/fightsystem/start.fight.h
@@ -381,7 +385,8 @@ set(HEADERS
 		src/skills/kick.h
 		src/skills/strangle.h
 		src/skills/chopoff.h
-		src/skills/stupor.h)
+		src/skills/stupor.h
+		src/graph.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

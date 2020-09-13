@@ -30,7 +30,6 @@
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "chars/mount.h"
-#include "room.hpp"
 #include "depot.hpp"
 #include "chars/player_races.hpp"
 #include "magic.h"
@@ -41,7 +40,6 @@
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
 #include "temp_spells.hpp"
 #include <cmath>
 #include <boost/algorithm/string.hpp>
@@ -60,7 +58,6 @@ typedef int special_f(CHAR_DATA*, void*, int, char*);
 // extern functions
 void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_say(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no);
 int find_first_step(room_rnum src, room_rnum target, CHAR_DATA * ch);
 void ASSIGNMASTER(mob_vnum mob, special_f, int learn_info);
 
@@ -1843,67 +1840,10 @@ int horse_keeper(CHAR_DATA *ch, void *me, int cmd, char* argument)
 	return (0);
 }
 
-int check_room_tracks(const room_rnum room, const long victim_id)
-{
-	for (auto track = world[room]->track; track; track = track->next)
-	{
-		if (track->who == victim_id)
-		{
-			for (int i = 0; i < NUM_OF_DIRS; i++)
-			{
-				if (IS_SET(track->time_outgone[i], 7))
-				{
-					return i;
-				}
-			}
-		}
-	}
 
-	return BFS_ERROR;
-}
 
-int find_door(CHAR_DATA* ch, const bool track_method)
-{
-	bool msg = false;
 
-	for (const auto& vict : character_list)
-	{
-		if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
-		{
-			for (auto names = MEMORY(ch); names; names = names->next)
-			{
-				if (GET_IDNUM(vict) == names->id
-					&& (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
-						|| world[ch->in_room]->zone == world[IN_ROOM(vict)]->zone))
-				{
-					if (!msg)
-					{
-						msg = true;
-						act("$n начал$g внимательно искать чьи-то следы.", FALSE, ch, 0, 0, TO_ROOM);
-					}
 
-					const auto door = track_method
-						? check_room_tracks(ch->in_room, GET_IDNUM(vict))
-						: go_track(ch, vict.get(), SKILL_TRACK);
-
-					if (BFS_ERROR != door)
-					{
-						return door;
-					}
-				}
-			}
-		}
-	}
-
-	return BFS_ERROR;
-}
-
-int npc_track(CHAR_DATA * ch)
-{
-	const auto result = find_door(ch, GET_REAL_INT(ch) < number(15, 20));
-
-	return result;
-}
 
 bool item_nouse(OBJ_DATA * obj)
 {

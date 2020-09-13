@@ -35,6 +35,10 @@ int has_key(CHAR_DATA * ch, obj_vnum key);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);
 int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg);
 
+int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict);
+int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict);
+int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict);
+
 #endif // _ACT_MOVEMENT_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
