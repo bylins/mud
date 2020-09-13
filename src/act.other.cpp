@@ -880,52 +880,6 @@ void do_courage(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 	timed.skill = SKILL_COURAGE;
 	timed.time = 6;
 	timed_to_char(ch, &timed);
-	/******************* Remove to hit()
-	percent = number(1,skill_info[SKILL_COURAGE].max_percent+GET_REAL_MAX_HIT(ch)-GET_HIT(ch));
-	prob    = train_skill(ch,SKILL_COURAGE,skill_info[SKILL_COURAGE].max_percent,0);
-	if (percent > prob)
-	   {af[0].type      = SPELL_COURAGE;
-	    af[0].duration  = pc_duration(ch,3,0,0,0,0);
-	    af[0].modifier  = 0;
-	    af[0].location  = APPLY_DAMROLL;
-	    af[0].bitvector = AFF_NOFLEE;
-	    af[0].battleflag= 0;
-	    af[1].type      = SPELL_COURAGE;
-	    af[1].duration  = pc_duration(ch,3,0,0,0,0);
-	    af[1].modifier  = 0;
-	    af[1].location  = APPLY_HITROLL;
-	    af[1].bitvector = AFF_NOFLEE;
-	    af[1].battleflag= 0;
-	    af[2].type      = SPELL_COURAGE;
-	    af[2].duration  = pc_duration(ch,3,0,0,0,0);
-	    af[2].modifier  = 20;
-	    af[2].location  = APPLY_AC;
-	    af[2].bitvector = AFF_NOFLEE;
-	    af[2].battleflag= 0;
-	   }
-	else
-	   {af[0].type      = SPELL_COURAGE;
-	    af[0].duration  = pc_duration(ch,3,0,0,0,0);
-	    af[0].modifier  = MAX(1, (prob+19) / 20);
-	    af[0].location  = APPLY_DAMROLL;
-	    af[0].bitvector = AFF_NOFLEE;
-	    af[0].battleflag= 0;
-	    af[1].type      = SPELL_COURAGE;
-	    af[1].duration  = pc_duration(ch,3,0,0,0,0);
-	    af[1].modifier  = MAX(1, (prob+9) / 10);
-	    af[1].location  = APPLY_HITROLL;
-	    af[1].bitvector = AFF_NOFLEE;
-	    af[1].battleflag= 0;
-	    af[2].type      = SPELL_COURAGE;
-	    af[2].duration  = pc_duration(ch,3,0,0,0,0);
-	    af[2].modifier  = 20;
-	    af[2].location  = APPLY_AC;
-	    af[2].bitvector = AFF_NOFLEE;
-	    af[2].battleflag= 0;
-	   }
-	 for (prob = 0; prob < 3; prob++)
-	     affect_join(ch,&af[prob],TRUE,FALSE,TRUE,FALSE);
-	 ************************************/
 	prob = calculate_skill(ch, SKILL_COURAGE, 0) / 20;
 	AFFECT_DATA<EApplyLocation> af[4];
 	af[0].type = SPELL_COURAGE;

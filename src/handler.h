@@ -38,13 +38,6 @@ int getResisTypeWithSpellClass(int spellClass);
 int get_resist_type(int spellnum);
 
 // handling the affected-structures //
-void affect_total(CHAR_DATA * ch);
-void affect_modify(CHAR_DATA * ch, byte loc, int mod, const EAffectFlag bitv, bool add);
-void affect_to_char(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);
-void affect_from_char(CHAR_DATA * ch, int type);
-bool affected_by_spell(CHAR_DATA * ch, int type);
-void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);
-void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void timed_feat_to_char(CHAR_DATA * ch, struct timed_type *timed);
 void timed_feat_from_char(CHAR_DATA * ch, struct timed_type *timed);
 int timed_by_feat(CHAR_DATA * ch, int skill);
@@ -170,7 +163,6 @@ void Crash_crashsave(CHAR_DATA * ch);
 void Crash_idlesave(CHAR_DATA * ch);
 
 bool stop_follower(CHAR_DATA * ch, int mode);
-void forget(CHAR_DATA * ch, CHAR_DATA * victim);
 
 // townportal //
 char *find_portal_by_vnum(int vnum);

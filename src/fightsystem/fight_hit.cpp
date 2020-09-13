@@ -2567,7 +2567,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			continue;
 		if (MOB_FLAGGED(ch_vict, MOB_MEMORY))
 		{
-			forget(ch_vict, victim);
+            mobForget(ch_vict, victim);
 		}
 	}
 

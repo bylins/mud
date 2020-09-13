@@ -1,5 +1,6 @@
 // Part of Bylins http://www.mud.ru
 
+#include "core/affect_data.h"
 #include "obj.hpp"
 #include "skills/flee.h"
 #include "chars/world.characters.hpp"
@@ -397,24 +398,6 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 	raw_kill(ch, killer);
 }
 
-// * Снятие аффектов с чара при смерти/уходе в дт.
-void reset_affects(CHAR_DATA *ch)
-{
-	auto naf = ch->affected.begin();
-
-	for (auto af = naf; af != ch->affected.end(); af = naf)
-	{
-		++naf;
-		const auto& affect = *af;
-		if (!IS_SET(affect->battleflag, AF_DEADKEEP))
-		{
-			ch->affect_remove(af);
-		}
-	}
-
-	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
-	affect_total(ch);
-}
 
 void forget_all_spells(CHAR_DATA *ch)
 {
@@ -636,7 +619,7 @@ void clear_mobs_memory(CHAR_DATA *ch)
 	{
 		if (IS_NPC(hitter) && MEMORY(hitter))
 		{
-			forget(hitter.get(), ch);
+            mobForget(hitter.get(), ch);
 		}
 	}
 }

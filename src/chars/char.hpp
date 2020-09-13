@@ -15,6 +15,7 @@
 #include "utils.h"
 #include "structs.h"
 #include "conf.h"
+#include "core/affect_data.h"
 
 #include <boost/dynamic_bitset.hpp>
 

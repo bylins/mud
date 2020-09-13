@@ -1252,29 +1252,6 @@ EXTRA_DESCR_DATA::~EXTRA_DESCR_DATA()
 	// we don't take care of items in list. So, we don't do anything with the next field.
 }
 
-template <>
-bool AFFECT_DATA<EApplyLocation>::removable() const
-{
-	return !spell_info[type].name
-		|| *spell_info[type].name == '!'
-		|| type == SPELL_SLEEP
-		|| type == SPELL_POISON
-		|| type == SPELL_WEAKNESS
-		|| type == SPELL_CURSE
-		|| type == SPELL_PLAQUE
-		|| type == SPELL_SILENCE
-		|| type == SPELL_POWER_SILENCE
-		|| type == SPELL_BLINDNESS
-		|| type == SPELL_POWER_BLINDNESS
-		|| type == SPELL_HAEMORRAGIA
-		|| type == SPELL_HOLD
-		|| type == SPELL_POWER_HOLD
-		|| type == SPELL_PEACEFUL
-		|| type == SPELL_CONE_OF_COLD
-		|| type == SPELL_DEAFNESS
-		|| type == SPELL_POWER_DEAFNESS
-		|| type == SPELL_BATTLE;
-}
 
 punish_data::punish_data() : duration(0), reason(nullptr), level(0), godid(0)
 {

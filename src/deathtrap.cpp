@@ -23,7 +23,6 @@
 #include "act.movement.hpp"
 
 extern void death_cry(CHAR_DATA * ch, CHAR_DATA * killer);
-extern void reset_affects(CHAR_DATA *ch);
 
 namespace DeathTrap
 {

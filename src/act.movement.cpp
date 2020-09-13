@@ -29,6 +29,7 @@
 #include "dg_scripts.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
+#include "fightsystem/mobact.hpp"
 #include "features.hpp"
 #include "deathtrap.hpp"
 #include "privilege.hpp"
@@ -49,7 +50,6 @@ int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
 int attack_best(CHAR_DATA * ch, CHAR_DATA * victim);
 int awake_others(CHAR_DATA * ch);
 void affect_from_char(CHAR_DATA * ch, int type);
-void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
 // local functions
 void check_ice(int room);

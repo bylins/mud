@@ -24,7 +24,7 @@
 #include "magic.h"
 #include "objsave.h"
 #include "limits.hpp"
-#include "mobact.hpp"
+#include "fightsystem/mobact.hpp"
 #include "dg_event.h"
 #include "corpse.hpp"
 #include "chars/char.hpp"

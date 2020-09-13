@@ -132,7 +132,6 @@ void list_skills(CHAR_DATA * ch, CHAR_DATA * vict, const char* filter = NULL);
 void list_spells(CHAR_DATA * ch, CHAR_DATA * vict, int all_spells);
 extern void print_rune_stats(CHAR_DATA *ch);
 extern int real_zone(int number);
-extern void reset_affects(CHAR_DATA *ch);
 // local functions
 int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg);
 void perform_immort_invis(CHAR_DATA * ch, int level);

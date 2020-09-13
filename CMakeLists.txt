@@ -102,7 +102,7 @@ set(SOURCES
 		src/map.cpp
 		src/meat.maker.cpp
 		src/medit.cpp
-		src/mobact.cpp
+		src/fightsystem/mobact.cpp
 		src/mobmax.cpp
 		src/mob_stat.cpp
 		src/modify.cpp
@@ -200,7 +200,7 @@ set(SOURCES
 		src/cmd/retreat.cpp
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
-		)
+        src/core/affect_data.cpp src/core/affect_data.h)
 
 set(HEADERS
 		src/fightsystem/common.h
@@ -322,7 +322,7 @@ set(HEADERS
 		src/mail.h
 		src/map.hpp
 		src/meat.maker.hpp
-		src/mobact.hpp
+		src/fightsystem/mobact.hpp
 		src/mobmax.hpp
 		src/mob_stat.hpp
 		src/modify.h

@@ -8,6 +8,7 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
+#include "core/affect_data.h"
 
 void poison_victim(CHAR_DATA * ch, CHAR_DATA * vict, int modifier);
 void try_weap_poison(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num);

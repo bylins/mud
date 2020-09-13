@@ -50,7 +50,7 @@
 #include "chars/world.characters.hpp"
 #include "zone.table.hpp"
 #include "skills/flee.h"
-#include "mobact.hpp"
+#include "fightsystem/mobact.hpp"
 
 #include <vector>
 #include <boost/lexical_cast.hpp>

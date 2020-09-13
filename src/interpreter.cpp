@@ -36,6 +36,7 @@
 #include "skills/turnundead.h"
 #include "fightsystem/assist.h"
 #include "fightsystem/start.fight.h"
+#include "fightsystem/mobact.hpp"
 #include "cmd/mercenary.h"
 #include "act.movement.hpp"
 #include "chars/world.characters.hpp"
@@ -166,7 +167,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void medit_parse(DESCRIPTOR_DATA * d, char *arg);
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
 int find_social(char *name);
-void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern void check_max_hp(CHAR_DATA *ch);
 // local functions

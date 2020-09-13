@@ -6,6 +6,7 @@
 #include <array>
 
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
+int extra_damroll(int class_num, int level);
 
 class GroupPenalties
 {

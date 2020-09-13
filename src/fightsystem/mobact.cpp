@@ -23,6 +23,7 @@
 #include "skills/mighthit.h"
 #include "skills/protect.h"
 
+#include "core/affect_data.h"
 #include "ability.rollsystem.hpp"
 #include "action.targeting.hpp"
 #include "features.hpp"
@@ -75,7 +76,6 @@ void npc_groupbattle(CHAR_DATA * ch);
 int npc_walk(CHAR_DATA * ch);
 int npc_steal(CHAR_DATA * ch);
 void npc_light(CHAR_DATA * ch);
-void pulse_affect_update(CHAR_DATA * ch);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict);
 extern bool is_room_forbidden(ROOM_DATA*room);
@@ -1505,7 +1505,7 @@ void mobRemember(CHAR_DATA * ch, CHAR_DATA * victim)
 
 
 // make ch forget victim
-void forget(CHAR_DATA * ch, CHAR_DATA * victim)
+void mobForget(CHAR_DATA * ch, CHAR_DATA * victim)
 {
 	memory_rec *curr, *prev = NULL;
 
@@ -1560,7 +1560,7 @@ bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
 	if (!IS_NPC(ch) || !vict || !MOB_FLAGGED(ch, MOB_GUARDIAN))
 		return false;
 //на всякий случай проверим, а вдруг моб да подевался куда из списка...
-	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(ch));
+    auto it = guardian_list.find(GET_MOB_VNUM(ch));
 	if (it == guardian_list.end())
 		return false;
 
@@ -1579,7 +1579,7 @@ bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
 			return true;
 	}
 	if (AGRESSOR(vict))
-		for (std::vector<zone_vnum>::iterator iter = tmp_guard.agro_argressors_in_zones.begin(); iter != tmp_guard.agro_argressors_in_zones.end();iter++)
+		for (auto iter = tmp_guard.agro_argressors_in_zones.begin(); iter != tmp_guard.agro_argressors_in_zones.end(); iter++)
 		{
 			if (*iter == AGRESSOR(vict)/100) return true;
 		}

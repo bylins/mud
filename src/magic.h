@@ -49,6 +49,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 void mobile_affect_update(void);
 void player_affect_update(void);
 void print_rune_log();
+void show_spell_off(int aff, CHAR_DATA * ch);
 
 int callMagicToGroup(int level, CHAR_DATA * ch, int spellnum);
 int callMagicToArea(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int spellnum, int level);
