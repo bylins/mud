@@ -25,6 +25,7 @@
 #include "assist.h"
 #include "chars/world.characters.hpp"
 #include "fight_hit.hpp"
+#include "fightsystem/mobact.hpp"
 #include "AffectHandler.hpp"
 #include "obj.hpp"
 #include "comm.h"
@@ -68,7 +69,6 @@ void go_touch(CHAR_DATA * ch, CHAR_DATA * vict);
 int npc_battle_scavenge(CHAR_DATA * ch);
 void npc_wield(CHAR_DATA * ch);
 void npc_armor(CHAR_DATA * ch);
-int perform_mob_switch(CHAR_DATA * ch);
 
 void go_autoassist(CHAR_DATA * ch)
 {
@@ -931,7 +931,6 @@ CHAR_DATA *find_damagee(CHAR_DATA * caster)
 	return victim;
 }
 
-extern bool find_master_charmice(CHAR_DATA *charmise);
 CHAR_DATA *find_target(CHAR_DATA *ch)
 {
 	CHAR_DATA *currentVictim, *caster = NULL, *best = NULL;

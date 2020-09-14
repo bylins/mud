@@ -44,7 +44,7 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "mobact.hpp"
+#include "fightsystem/mobact.hpp"
 
 #include <boost/tokenizer.hpp>
 

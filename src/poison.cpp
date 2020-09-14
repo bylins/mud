@@ -484,7 +484,7 @@ bool check_poison(int spell)
 * APPLY_POISON - у плеера раз в 2 секунды везде, у моба раз в минуту везде.
 * Остальные аффекты - у плеера раз в 2 секунды везде, у моба в бою раз в 2 секунды, вне боя - раз в минуту.
 */
-int same_time_update(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>::shared_ptr& af)
+int processPoisonDamage(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>::shared_ptr& af)
 {
 	int result = 0;
 	if (af->location == APPLY_POISON)

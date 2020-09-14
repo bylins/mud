@@ -17,6 +17,8 @@
 
 #include "cmd/retreat.h"
 #include "cmd/order.h"
+#include "cmd/track.h"
+
 #include "skills/manadrain.h"
 #include "skills/flee.h"
 #include "skills/bash.h"
@@ -36,6 +38,7 @@
 #include "skills/turnundead.h"
 #include "fightsystem/assist.h"
 #include "fightsystem/start.fight.h"
+#include "fightsystem/mobact.hpp"
 #include "cmd/mercenary.h"
 #include "act.movement.hpp"
 #include "chars/world.characters.hpp"
@@ -166,7 +169,6 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg);
 void medit_parse(DESCRIPTOR_DATA * d, char *arg);
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
 int find_social(char *name);
-void do_aggressive_room(CHAR_DATA * ch, int check_sneak);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern void check_max_hp(CHAR_DATA *ch);
 // local functions
@@ -227,7 +229,6 @@ void do_horseoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_horseput(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_hidetrack(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_hidemove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_fit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_force(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -315,7 +316,6 @@ void do_teleport(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_tell(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_time(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_toggle(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_track(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_sense(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_unban(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_ungroup(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

@@ -2567,7 +2567,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			continue;
 		if (MOB_FLAGGED(ch_vict, MOB_MEMORY))
 		{
-			forget(ch_vict, victim);
+            mobForget(ch_vict, victim);
 		}
 	}
 
@@ -3951,25 +3951,28 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 	// дышащий моб может оглушить, и нанесёт физ.дамаг!!
 	if (type == ESkill::SKILL_UNDEF) {
 		ESpell spellnum;
-		spellnum = breathFlag2Spellnum (ch);		
-		// AOE атаки всегда магические. Раздаём каждому игроку и уходим.
-		if (MOB_FLAGGED(ch, MOB_AREA_ATTACK))
-		{
-			const auto people = world[ch->in_room]->people;	// make copy because inside loop this list might be changed.
-			for (const auto& tch : people) {
-				if (IS_IMMORTAL(tch) || ch->in_room == NOWHERE || IN_ROOM(tch) == NOWHERE)
-					continue;
-				if (tch != ch && !same_group(ch, tch)) {					
-					if (spellnum != ESpell::SPELL_NO_SPELL) // защита от падения
-						mag_damage(GET_LEVEL(ch), ch, tch, spellnum, SAVING_STABILITY);
-				}		
-			}
-			return;
-		}
-		// а теперь просто дышащие
-		if (spellnum != ESpell::SPELL_NO_SPELL) {
-			mag_damage(GET_LEVEL(ch), ch, victim, spellnum, SAVING_STABILITY);
-			return;
+		spellnum = breathFlag2Spellnum (ch);
+        if (spellnum != ESpell::SPELL_NO_SPELL) // защита от падения
+        {
+            if (!ch->get_fighting())
+                set_fighting(ch, victim);
+            if (!victim->get_fighting())
+                set_fighting(victim, ch);
+            // AOE атаки всегда магические. Раздаём каждому игроку и уходим.
+            if (MOB_FLAGGED(ch, MOB_AREA_ATTACK)) {
+                const auto people = world[ch->in_room]->people;	// make copy because inside loop this list might be changed.
+                for (const auto& tch : people) {
+                    if (IS_IMMORTAL(tch) || ch->in_room == NOWHERE || IN_ROOM(tch) == NOWHERE)
+                        continue;
+                    if (tch != ch && !same_group(ch, tch)) {
+                            mag_damage(GET_LEVEL(ch), ch, tch, spellnum, SAVING_STABILITY);
+                        }
+                    }
+                return;
+            }
+            // а теперь просто дышащие
+            mag_damage(GET_LEVEL(ch), ch, victim, spellnum, SAVING_STABILITY);
+            return;
 		}
 	}
 		

@@ -1488,35 +1488,6 @@ public:
 	long godid;
 };
 
-// An affect structure. //
-class IAffectHandler;
-
-template<typename TLocation>
-class AFFECT_DATA
-{
-public:
-	using shared_ptr = std::shared_ptr<AFFECT_DATA<TLocation>>;
-
-	AFFECT_DATA() : type(0), duration(0), modifier(0), location(static_cast<TLocation>(0)),
-		battleflag(0), bitvector(0), caster_id(0), must_handled(0),
-		apply_time(0) {};
-	bool removable() const;
-
-	sh_int type;		// The type of spell that caused this      //
-	int duration;	// For how long its effects will last      //
-	int modifier;		// This is added to appropriate ability     //
-	TLocation location;		// Tells which ability to change(APPLY_XXX) //
-	long battleflag;	   //*** SUCH AS HOLD,SIELENCE etc
-	FLAG_DATA aff;
-	uint32_t bitvector;		// Tells which bits to set (AFF_XXX) //
-	long caster_id; //Unique caster ID //
-	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
-	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
-	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
-};
-
-template <> bool AFFECT_DATA<EApplyLocation>::removable() const;
-
 struct timed_type
 {
 	ubyte skill;		// Number of used skill/spell //
@@ -1852,7 +1823,7 @@ struct weapon_app_type
 struct extra_affects_type
 {
 	EAffectFlag affect;
-	int set_or_clear;
+	bool set_or_clear;
 };
 
 struct class_app_type

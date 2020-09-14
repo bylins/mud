@@ -23,48 +23,41 @@
 #include "skills/mighthit.h"
 #include "skills/protect.h"
 
+#include "cmd/track.h"
+
+#include "core/affect_data.h"
 #include "ability.rollsystem.hpp"
 #include "action.targeting.hpp"
+#include "act.movement.hpp"
 #include "features.hpp"
 #include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "obj.hpp"
 #include "db.h"
 #include "comm.h"
-#include "interpreter.h"
 #include "handler.h"
 #include "magic.h"
 #include "skills.h"
-#include "constants.h"
 #include "fightsystem/pk.h"
 #include "random.hpp"
 #include "chars/char.hpp"
 #include "house.h"
 #include "room.hpp"
-#include "shop_ext.hpp"
 #include "fightsystem/fight.h"
+#include "fightsystem/start.fight.h"
 #include "fightsystem/fight_hit.hpp"
 #include "logger.hpp"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
 
 
 // external structs
 //extern INDEX_DATA *mob_index;
 extern int no_specials;
-extern TIME_INFO_DATA time_info;
 extern int guild_poly(CHAR_DATA*, void*, int, char*);
 extern guardian_type guardian_list;
 extern struct ZoneData * zone_table;
-extern bool check_mighthit_weapon(CHAR_DATA *ch);
 
-void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-int skip_hiding(CHAR_DATA * ch, CHAR_DATA * vict);
-int skip_sneaking(CHAR_DATA * ch, CHAR_DATA * vict);
-int skip_camouflage(CHAR_DATA * ch, CHAR_DATA * vict);
-int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg);
-int npc_track(CHAR_DATA * ch);
 int npc_scavenge(CHAR_DATA * ch);
 int npc_loot(CHAR_DATA * ch);
 int npc_move(CHAR_DATA * ch, int dir, int need_specials_check);
@@ -75,12 +68,9 @@ void npc_groupbattle(CHAR_DATA * ch);
 int npc_walk(CHAR_DATA * ch);
 int npc_steal(CHAR_DATA * ch);
 void npc_light(CHAR_DATA * ch);
-void pulse_affect_update(CHAR_DATA * ch);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict);
-extern bool is_room_forbidden(ROOM_DATA*room);
 void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset);
-int remove_otrigger(OBJ_DATA * obj, CHAR_DATA * actor);
 
 // local functions
 
@@ -237,6 +227,70 @@ int attack_best(CHAR_DATA * ch, CHAR_DATA * victim)
 #define CHECK_OPPONENT  (1 << 14)
 #define GUARD_ATTACK    (1 << 15)
 
+int check_room_tracks(const room_rnum room, const long victim_id)
+{
+    for (auto track = world[room]->track; track; track = track->next)
+    {
+        if (track->who == victim_id)
+        {
+            for (int i = 0; i < NUM_OF_DIRS; i++)
+            {
+                if (IS_SET(track->time_outgone[i], 7))
+                {
+                    return i;
+                }
+            }
+        }
+    }
+
+    return BFS_ERROR;
+}
+
+
+int find_door(CHAR_DATA* ch, const bool track_method)
+{
+    bool msg = false;
+
+    for (const auto& vict : character_list)
+    {
+        if (CAN_SEE(ch, vict) && IN_ROOM(vict) != NOWHERE)
+        {
+            for (auto names = MEMORY(ch); names; names = names->next)
+            {
+                if (GET_IDNUM(vict) == names->id
+                    && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
+                        || world[ch->in_room]->zone == world[IN_ROOM(vict)]->zone))
+                {
+                    if (!msg)
+                    {
+                        msg = true;
+                        act("$n начал$g внимательно искать чьи-то следы.", FALSE, ch, 0, 0, TO_ROOM);
+                    }
+
+                    const auto door = track_method
+                                      ? check_room_tracks(ch->in_room, GET_IDNUM(vict))
+                                      : go_track(ch, vict.get(), SKILL_TRACK);
+
+                    if (BFS_ERROR != door)
+                    {
+                        return door;
+                    }
+                }
+            }
+        }
+    }
+
+    return BFS_ERROR;
+}
+
+
+int npc_track(CHAR_DATA * ch)
+{
+    const auto result = find_door(ch, GET_REAL_INT(ch) < number(15, 20));
+
+    return result;
+}
+
 CHAR_DATA* selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
 	ActionTargeting::FriendsRosterType roster{leader};
 	auto isSkirmisher = [](CHAR_DATA* ch){return PRF_FLAGGED(ch, PRF_SKIRMISHER);};
@@ -275,15 +329,15 @@ CHAR_DATA* selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 		return initialVictim;
 	}
 
-	act("Вы героически приняли удар $n1 на себя!", FALSE, assaulter, 0, newVictim, TO_VICT | TO_NO_BRIEF_SHIELDS);
-	act("$n попытал$u ворваться в ваши ряды, но $N героически принял$G удар на себя!", FALSE, assaulter, 0, newVictim, TO_NOTVICT | TO_NO_BRIEF_SHIELDS);
+	act("Вы героически приняли удар $n1 на себя!", FALSE, assaulter, nullptr, newVictim, TO_VICT | TO_NO_BRIEF_SHIELDS);
+	act("$n попытал$u ворваться в ваши ряды, но $N героически принял$G удар на себя!", FALSE, assaulter, nullptr, newVictim, TO_NOTVICT | TO_NO_BRIEF_SHIELDS);
 	return newVictim;
-};
+}
 
 
 CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 {
-	CHAR_DATA *victim, *use_light = NULL, *min_hp = NULL, *min_lvl = NULL, *caster = NULL, *best = NULL;
+	CHAR_DATA *victim, *use_light = nullptr, *min_hp = nullptr, *min_lvl = nullptr, *caster = nullptr, *best = nullptr;
 	int kill_this, extra_aggr = 0;
 
 	victim = ch->get_fighting();
@@ -436,15 +490,15 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRMONO) &&
 			!IS_NPC(best) && GET_RELIGION(best) == RELIGION_MONO)
 	{
-		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на вас.", FALSE, ch, 0, best, TO_VICT);
-		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
+		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на вас.", FALSE, ch, nullptr, best, TO_VICT);
+		act("$n закричал$g: 'Умри, христианская собака!' и набросил$u на $N3.", FALSE, ch, nullptr, best, TO_NOTVICT);
 	}
 
 	if (best && !ch->get_fighting() && MOB_FLAGGED(ch, MOB_AGGRPOLY) &&
 			!IS_NPC(best) && GET_RELIGION(best) == RELIGION_POLY)
 	{
-		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на вас.", FALSE, ch, 0, best, TO_VICT);
-		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", FALSE, ch, 0, best, TO_NOTVICT);
+		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на вас.", FALSE, ch, nullptr, best, TO_VICT);
+		act("$n закричал$g: 'Умри, грязный язычник!' и набросил$u на $N3.", FALSE, ch, nullptr, best, TO_NOTVICT);
 	}
 
 	return selectVictimDependingOnGroupFormation(ch, best);
@@ -469,8 +523,8 @@ bool find_master_charmice(CHAR_DATA *charmice)
 // пока тестово
 CHAR_DATA *find_best_mob_victim(CHAR_DATA * ch, int extmode)
 {
-	CHAR_DATA *currentVictim,  *caster = NULL, *best = NULL;
-	CHAR_DATA *druid = NULL, *cler = NULL, *charmmage = NULL;
+	CHAR_DATA *currentVictim,  *caster = nullptr, *best = nullptr;
+	CHAR_DATA *druid = nullptr, *cler = nullptr, *charmmage = nullptr;
 	int extra_aggr = 0;
 	bool kill_this;
 
@@ -671,62 +725,50 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 
 	if (best)
 	{
-		if (best->player_specials->saved.olc_zone == GET_MOB_VNUM(ch) / 100) // если у игрока стоит олц на зону, в ней его не агрят
-		{
+        // если у игрока стоит олц на зону, в ней его не агрят
+		if (best->player_specials->saved.olc_zone == GET_MOB_VNUM(ch) / 100) {
 			send_to_char(best, "&GАгромоб, атака остановлена.\r\n");
 			return(FALSE);
 		}
-	/*
-				   sprintf(buf,"Attacker-%s,B-%s,IS-NPC-%s,IS-CLONE-%s",
-				   GET_NAME(ch),
-				   best ? GET_NAME(best) : "None",
-				   IS_NPC(best)   ? "1" : "0",
-				   MOB_FLAGGED(best, MOB_CLONE)   ? "1" : "0");
-				   act(buf,FALSE,ch,0,0,TO_ROOM);
-				 */
-		if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
-		{
-			act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
+		if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING) {
+			act("$n вскочил$g.", FALSE, ch, nullptr, nullptr, TO_ROOM);
 			GET_POS(ch) = POS_STANDING;
 		}
 
-		if (IS_SET(extmode, KILL_FIGHTING) && best->get_fighting())
-		{
+		if (IS_SET(extmode, KILL_FIGHTING) && best->get_fighting()) {
 			if (MOB_FLAGGED(best->get_fighting(), MOB_NOHELPS))
 				return (FALSE);
-			act("$n вступил$g в битву на стороне $N1.", FALSE, ch, 0, best->get_fighting(), TO_ROOM);
+			act("$n вступил$g в битву на стороне $N1.", FALSE, ch, nullptr, best->get_fighting(), TO_ROOM);
 		}
 
-		if (IS_SET(extmode, GUARD_ATTACK))
-		{
-			act("'$N - за грехи свои ты заслуживаешь смерти!', сурово проговорил$g $n.", FALSE, ch, 0, best, TO_ROOM);
-			act("'Как страж этого города, я намерен$g привести приговор в исполнение немедленно. Защищайся!'", FALSE, ch, 0, best, TO_ROOM);
+		if (IS_SET(extmode, GUARD_ATTACK)) {
+			act("'$N - за грехи свои ты заслуживаешь смерти!', сурово проговорил$g $n.", FALSE, ch, nullptr, best, TO_ROOM);
+			act("'Как страж этого города, я намерен$g привести приговор в исполнение немедленно. Защищайся!'", FALSE, ch, nullptr, best, TO_ROOM);
 		}
 
 		if (!IS_NPC(best))
 		{
 			struct follow_type *f;
-			// Обработка клоунов
-			// Теперь работает как обычный mirror image
-// неявно предполагаем, что клоны могут следовать только за своим создателем
+			// поиск клонов и отработка атаки в клона персонажа
 			for (f = best->followers; f; f = f->next)
 				if (MOB_FLAGGED(f->follower, MOB_CLONE))
 					clone_number++;
 			for (f = best->followers; f; f = f->next)
-				if (IS_NPC(f->follower) &&
-						MOB_FLAGGED(f->follower, MOB_CLONE) && IN_ROOM(f->follower) == IN_ROOM(best))
-				{
+				if (IS_NPC(f->follower) && MOB_FLAGGED(f->follower, MOB_CLONE) && IN_ROOM(f->follower) == IN_ROOM(best)) {
 					if (number(0, clone_number) == 1)
 						break;
-					if( (GET_REAL_INT(ch)<20) && number(0,clone_number) ) break;
-					if( GET_REAL_INT(ch)>=30 ) break;
-					if( (GET_REAL_INT(ch)>=20) && number(1, 10+VPOSI((35-GET_REAL_INT(ch)),0,15)*clone_number)<=10  ) break;
+					if( (GET_REAL_INT(ch)<20) && number(0,clone_number) )
+					    break;
+					if( GET_REAL_INT(ch)>=30 )
+					    break;
+					if( (GET_REAL_INT(ch)>=20) && number(1, 10+VPOSI((35-GET_REAL_INT(ch)),0,15)*clone_number)<=10  )
+					    break;
 					best = f->follower;
 					break;
 				}
 		}
 		if (!attack_best(ch, best) && !ch->get_fighting())
-			hit(ch, best, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+		    hit(ch, best, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 		return (TRUE);
 	}
 	return (FALSE);
@@ -734,33 +776,24 @@ int perform_best_mob_attack(CHAR_DATA * ch, int extmode)
 
 int perform_best_horde_attack(CHAR_DATA * ch, int extmode)
 {
-	if (perform_best_mob_attack(ch, extmode))
-	{
+	if (perform_best_mob_attack(ch, extmode)) {
 		return (TRUE);
 	}
 
-	for (const auto vict : world[ch->in_room]->people)
-	{
-		if (!IS_NPC(vict)
-			|| !MAY_SEE(ch, ch, vict)
-			|| MOB_FLAGGED(vict, MOB_PROTECT))
-		{
+	for (const auto vict : world[ch->in_room]->people) {
+		if (!IS_NPC(vict) || !MAY_SEE(ch, ch, vict) || MOB_FLAGGED(vict, MOB_PROTECT)) {
 			continue;
 		}
 
-		if (!SAME_ALIGN(ch, vict))
-		{
-			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
-			{
-				act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
+		if (!SAME_ALIGN(ch, vict)) {
+			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING){
+				act("$n вскочил$g.", FALSE, ch, nullptr, nullptr, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
 
-			if (!attack_best(ch, vict) && !ch->get_fighting())
-			{
+			if (!attack_best(ch, vict) && !ch->get_fighting()) {
 				hit(ch, vict, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 			}
-
 			return (TRUE);
 		}
 	}
@@ -799,8 +832,7 @@ int perform_mob_switch(CHAR_DATA * ch)
 
 void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 {
-	if (!ch || ch->in_room == NOWHERE || !IS_NPC(ch)
-		|| !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
+	if (!ch || ch->in_room == NOWHERE || !IS_NPC(ch) || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffectFlag::AFF_BLIND))
 	{
 		return;
 	}
@@ -815,14 +847,14 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 	}
 
 	// ****************  Aggressive Mobs
-	if (extra_aggressive(ch, NULL))
+	if (extra_aggressive(ch, nullptr))
 	{
 		const auto& room = world[ch->in_room];
 		for (auto affect_it = room->affected.begin(); affect_it != room->affected.end(); ++affect_it)
 		{
 			if (affect_it->get()->type == SPELL_RUNE_LABEL && (affect_it != room->affected.end()))
 			{
-				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.", FALSE, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 				removeAffectFromRoom(world[ch->in_room], affect_it);
 				break;
 			}
@@ -893,21 +925,21 @@ void do_aggressive_mob(CHAR_DATA *ch, int check_sneak)
 		{
 			if (GET_POS(ch) < POS_FIGHTING && GET_POS(ch) > POS_SLEEPING)
 			{
-				act("$n вскочил$g.", FALSE, ch, 0, 0, TO_ROOM);
+				act("$n вскочил$g.", FALSE, ch, nullptr, nullptr, TO_ROOM);
 				GET_POS(ch) = POS_STANDING;
 			}
 			if (GET_RACE(ch) != NPC_RACE_HUMAN)
 			{
-				act("$n вспомнил$g $N3.", FALSE, ch, 0, victim, TO_ROOM);
+				act("$n вспомнил$g $N3.", FALSE, ch, nullptr, victim, TO_ROOM);
 			}
 			else
 			{
 				act("'$N - ты пытал$U убить меня ! Попал$U ! Умри !!!', воскликнул$g $n.",
-					FALSE, ch, 0, victim, TO_ROOM);
+					FALSE, ch, nullptr, victim, TO_ROOM);
 			}
 			if (!attack_best(ch, victim))
 			{
-				hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
+                hit(ch, victim, ESkill::SKILL_UNDEF, FightSystem::MAIN_HAND);
 			}
 			return;
 		}
@@ -1027,10 +1059,10 @@ namespace
 		if (!objects.empty())
 		{
 			OBJ_DATA* charmice_box = create_charmice_box(ch);
-			for (std::vector<OBJ_DATA*>::iterator it = objects.begin(); it != objects.end(); ++it) {
+			for (auto it = objects.begin(); it != objects.end(); ++it) {
 				obj_to_obj(*it, charmice_box);
 			}
-			drop_obj_on_zreset(ch, charmice_box, 1, false);
+			drop_obj_on_zreset(ch, charmice_box, true, false);
 		}
 
 		extract_char(ch, FALSE);
@@ -1080,8 +1112,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 
 // на случай вызова mobile_activity() не каждый пульс
 		// TODO: by WorM а где-то используется это mob_specials.speed ???
-		if (ch_activity - activity_lev < missed_pulses
-			&& ch_activity - activity_lev >= 0)
+		if (ch_activity - activity_lev < missed_pulses && ch_activity - activity_lev >= 0)
 		{
 			ch_activity = activity_lev;
 		}
@@ -1095,7 +1126,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 		// Examine call for special procedure
 		if (MOB_FLAGGED(ch, MOB_SPEC) && !no_specials)
 		{
-			if (mob_index[GET_MOB_RNUM(ch)].func == NULL)
+			if (mob_index[GET_MOB_RNUM(ch)].func == nullptr)
 			{
 				log("SYSERR: %s (#%d): Attempting to call non-existing mob function.",
 					GET_NAME(ch), GET_MOB_VNUM(ch));
@@ -1115,8 +1146,7 @@ void mobile_activity(int activity_level, int missed_pulses)
 			&& MOB_FLAGGED(ch, MOB_MOUNTING)
 			&& !ch->has_master()) // если скакун, под седлом но нет хозяина
 		{
-			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.",
-				FALSE, ch.get(), 0, 0, TO_ROOM);
+			act("Возникший как из-под земли цыган ловко вскочил на $n3 и унесся прочь.", FALSE, ch.get(), nullptr, nullptr, TO_ROOM);
 			extract_char(ch.get(), FALSE);
 
 			return;
@@ -1469,20 +1499,21 @@ void mobile_activity(int activity_level, int missed_pulses)
 // make ch remember victim
 void mobRemember(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	struct timed_type timed;
+	struct timed_type timed{};
 	memory_rec *tmp;
 	bool present = FALSE;
 
 	if (!IS_NPC(ch) ||
-			IS_NPC(victim) ||
-			PRF_FLAGGED(victim, PRF_NOHASSLE) || !MOB_FLAGGED(ch, MOB_MEMORY) || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
+        IS_NPC(victim) ||
+        PRF_FLAGGED(victim, PRF_NOHASSLE) ||
+        !MOB_FLAGGED(ch, MOB_MEMORY) ||
+        AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
 		return;
 
 	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
-		if (tmp->id == GET_IDNUM(victim))
-		{
+		if (tmp->id == GET_IDNUM(victim)) {
 			if (tmp->time > 0)
-				tmp->time = time(NULL) + MOB_MEM_KOEFF * GET_REAL_INT(ch);
+				tmp->time = time(nullptr) + MOB_MEM_KOEFF * GET_REAL_INT(ch);
 			present = TRUE;
 		}
 
@@ -1491,7 +1522,7 @@ void mobRemember(CHAR_DATA * ch, CHAR_DATA * victim)
 		CREATE(tmp, 1);
 		tmp->next = MEMORY(ch);
 		tmp->id = GET_IDNUM(victim);
-		tmp->time = time(NULL) + MOB_MEM_KOEFF * GET_REAL_INT(ch);
+		tmp->time = time(nullptr) + MOB_MEM_KOEFF * GET_REAL_INT(ch);
 		MEMORY(ch) = tmp;
 	}
 
@@ -1505,9 +1536,9 @@ void mobRemember(CHAR_DATA * ch, CHAR_DATA * victim)
 
 
 // make ch forget victim
-void forget(CHAR_DATA * ch, CHAR_DATA * victim)
+void mobForget(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	memory_rec *curr, *prev = NULL;
+	memory_rec *curr, *prev = nullptr;
 
 	// Момент спорный, но думаю, что так правильнее
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -1548,7 +1579,7 @@ void clearMemory(CHAR_DATA * ch)
 		free(curr);
 		curr = next;
 	}
-	MEMORY(ch) = NULL;
+	MEMORY(ch) = nullptr;
 }
 //Polud Функция проверяет, является ли моб ch стражником (описан в файле guards.xml)
 //и должен ли он сагрить на эту жертву vict
@@ -1560,7 +1591,7 @@ bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
 	if (!IS_NPC(ch) || !vict || !MOB_FLAGGED(ch, MOB_GUARDIAN))
 		return false;
 //на всякий случай проверим, а вдруг моб да подевался куда из списка...
-	guardian_type::iterator it = guardian_list.find(GET_MOB_VNUM(ch));
+    auto it = guardian_list.find(GET_MOB_VNUM(ch));
 	if (it == guardian_list.end())
 		return false;
 
@@ -1579,7 +1610,7 @@ bool guardian_attack(CHAR_DATA *ch, CHAR_DATA *vict)
 			return true;
 	}
 	if (AGRESSOR(vict))
-		for (std::vector<zone_vnum>::iterator iter = tmp_guard.agro_argressors_in_zones.begin(); iter != tmp_guard.agro_argressors_in_zones.end();iter++)
+		for (auto iter = tmp_guard.agro_argressors_in_zones.begin(); iter != tmp_guard.agro_argressors_in_zones.end(); iter++)
 		{
 			if (*iter == AGRESSOR(vict)/100) return true;
 		}
