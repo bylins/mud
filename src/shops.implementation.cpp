@@ -149,7 +149,8 @@ namespace ShopExt
 		{
 			return i->second;
 		}
-
+		sprintf(buf, "ERROR: GoodsStorage::get_by_uid вернул NULL, uid: %d", uid);
+        mudlog(buf, LogMode::BRF, LVL_IMPL, SYSLOG, TRUE);
 		return nullptr;
 	}
 
@@ -405,12 +406,13 @@ namespace ShopExt
 			if (!item->empty())
 			{
 				obj = get_from_shelve(item_index);
-				item->remove_uid(obj->get_uid());
-				if (item->empty())
-				{
+				if (obj != nullptr) {
+                    item->remove_uid(obj->get_uid());
+                    remove_from_storage(obj);
+                }
+				else {
 					m_items_list.remove(item_index);
 				}
-				remove_from_storage(obj);
 			}
 			else
 			{
@@ -858,8 +860,7 @@ namespace ShopExt
 			else
 			{
 				OBJ_DATA* tmp_obj = get_from_shelve(k);
-				if (tmp_obj)
-				{
+				if (tmp_obj)  {
 					if (!((wear != EWearFlag::ITEM_WEAR_UNDEFINED && CAN_WEAR(tmp_obj, wear))
 						|| (type > 0 && type == GET_OBJ_TYPE(tmp_obj))))
 					{
@@ -873,7 +874,6 @@ namespace ShopExt
 				else
 				{
 					m_items_list.remove(k);	// remove from shop object that we cannot instantiate
-
 					continue;
 				}
 			}
@@ -1183,7 +1183,9 @@ namespace ShopExt
 		const auto uid = node->uid();
 		if (ItemNode::NO_UID == uid)
 		{
-			return nullptr;
+            sprintf(buf, "ERROR: get_from_shelve: вернул NULL, index: %d", index);
+            mudlog(buf, LogMode::BRF, LVL_IMPL, SYSLOG, TRUE);
+            return nullptr;
 		}
 
 		return m_storage.get_by_uid(uid);
