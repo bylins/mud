@@ -75,7 +75,8 @@ Player::Player():
 	motion_(true),
 	ice_currency(0),
 	hryvn(0),
-	spent_hryvn(0)
+	spent_hryvn(0),
+    telegram_id(0)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
@@ -1009,7 +1010,8 @@ void Player::save_char()
 		}
 		fprintf(saved, "0 0 0 0 0 0\n");// терминирующая строчка
 	}
-	
+    fprintf(saved, "Tlgr: %lu\n", this->telegram_id);
+
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
 
@@ -2092,12 +2094,14 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				set_ext_money(ExtMoney::TORC_SILVER, num, false);
 			else if (!strcmp(tag, "TrcB"))
 				set_ext_money(ExtMoney::TORC_BRONZE, num, false);
-			else if (!strcmp(tag, "TrcL"))
-			{
+			else if (!strcmp(tag, "TrcL")) {
 				sscanf(line, "%d %d", &num, &num2);
 				today_torc_.first = num;
 				today_torc_.second = num2;
 			}
+            else if (!strcmp(tag, "Tlgr")) {
+                this->telegram_id = lnum;
+            }
 			else if (!strcmp(tag, "TSpl"))
 			{
 				do
@@ -2538,6 +2542,13 @@ void Player::updateCharmee(int vnum, int gold) {
 
 std::map<int, MERCDATA> *Player::getMercList(){
     return &this->charmeeHistory;
+}
+
+void Player::setTelegramId(unsigned long chat_id) {
+    this->telegram_id = chat_id;
+}
+unsigned long int Player::getTelegramId() const {
+    return this->telegram_id;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

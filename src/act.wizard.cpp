@@ -5749,7 +5749,8 @@ struct set_struct		/*
 	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
 	{"scriptwriter",LVL_IMPL, PC, BINARY}, // 63
 	{"spammer",LVL_GOD, PC, BINARY}, // 64	
-	{"gloryhide",LVL_IMPL, PC, BINARY}, // 65	
+	{"gloryhide",LVL_IMPL, PC, BINARY}, // 65
+    {"telegram",LVL_IMPL, PC, MISC}, // 66
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6461,6 +6462,18 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	}
 		break;
 	}
+	case 66: // идентификатор чата телеграма
+    {
+	    unsigned long int id = strtoul(val_arg, nullptr, 10);
+	    if (id != 0) {
+	        sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->getTelegramId(), id);
+	        send_to_char(buf, ch);
+	        vict->setTelegramId(id);
+        }
+	    else
+            send_to_char("Ошибка, указано неверное число.\r\n", ch);
+        break;
+    }
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
 		return (0);

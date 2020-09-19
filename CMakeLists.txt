@@ -202,7 +202,7 @@ set(SOURCES
 		src/cmd/mercenary.cpp
         src/core/affect_data.cpp
 		src/cmd/track.cpp
-		)
+		src/cmd/telegram.cpp src/cmd/telegram.h)
 
 set(HEADERS
 		src/core/affect_data.h
@@ -672,6 +672,39 @@ if (HAVE_ICONV)
 		add_definitions("-DHAVE_ICONV")
 		include_directories(system ${ICONV_INCLUDE_DIR})
 		target_link_libraries(circle.library ${ICONV_LIBRARIES})
+	endif ()
+endif ()
+
+# Telegram integration
+if (CMAKE_HOST_WIN32)
+	set(DEFAULT_TG "NO")
+else ()
+	set(DEFAULT_TG "YES")
+endif ()
+option(HAVE_TG "SSL and CURL should be compiled, only LINUX. It is required to support Telegram." ${DEFAULT_TG})
+if (HAVE_TG)
+	find_package(Threads REQUIRED)
+	if (NOT Threads_FOUND)
+		set(HAVE_TG "NO")
+	endif()
+	find_package(OpenSSL REQUIRED)
+	if (NOT OPENSSL_FOUND)
+		set(HAVE_TG "NO")
+	endif()
+	find_package(CURL)
+	if (NOT CURL_FOUND)
+		set(HAVE_TG "NO")
+	endif()
+	find_library(TGBOT_LIBRARY NAMES libTgBot HINTS "/usr/local/lib/")
+	if (TGBOT_LIBRARY-NOTFOUND)
+		set(HAVE_TG "NO")
+	endif()
+	if (HAVE_TG)
+		set(Boost_USE_MULTITHREADED ON)
+		target_link_libraries(circle.library /usr/local/lib/libTgBot.a ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
+		message(STATUS "SSL IS ON, Telegram support enabled")
+	else ()
+		message(STATUS "Telegram support disabled, no dependant libs found")
 	endif ()
 endif ()
 
