@@ -247,6 +247,7 @@ struct player_special_data_saved
 	long ntfyExchangePrice;
 	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	unsigned int who_mana; // количество энергии для использования команды кто
+    unsigned long int telegram_id;// идентификатор телеграма
 };
 
 

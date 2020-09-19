@@ -6466,7 +6466,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
     {
 	    unsigned long int id = strtoul(val_arg, nullptr, 10);
 	    if (id != 0) {
-	        sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->getTelegramId(), id);
+	        sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->player_specials->saved.telegram_id, id);
 	        send_to_char(buf, ch);
 	        vict->setTelegramId(id);
         }
