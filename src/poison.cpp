@@ -211,20 +211,18 @@ bool weap_poison_vict(CHAR_DATA *ch, CHAR_DATA *vict, int spell_num)
 }
 
 // * Крит при отравлении с пушек.
-void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
-{
+void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/) {
+    AFFECT_DATA<EApplyLocation> af;
 	int percent = number(1, skill_info[SKILL_POISONED].max_percent * 3);
 	int prob = calculate_skill(ch, SKILL_POISONED, vict);
-	if (prob >= percent)
-	{
-		switch (number(1, 5))
-		{
+	if (prob >= percent) {
+		switch (number(1, 5)) {
 		case 1:
 			// аналог баша с лагом
 			if (GET_POS(vict) >= POS_FIGHTING) {
 				if (vict->ahorse()) {
 					send_to_char(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
-							CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
+                    CCGRN(ch, C_NRM), PERS(vict, ch, 1), CCNRM(ch, C_NRM));
 					send_to_char(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
 							GET_PAD(vict->get_horse(), 5));
 					act("$n0 зашатал$u и не смог$q усидеть на $N5.", true, vict, 0, vict->get_horse(), TO_NOTVICT);
@@ -240,82 +238,74 @@ void weap_crit_poison(CHAR_DATA *ch, CHAR_DATA *vict, int/* spell_num*/)
 				}
 				break;
 			}
-		case 2:
-		{
-			// минус статы (1..5)
-			AFFECT_DATA<EApplyLocation> af;
-			af.type = SPELL_POISON;
-			af.duration = 30;
-			af.modifier = -GET_LEVEL(ch)/6;
-			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
-			af.battleflag = AF_SAME_TIME;
+			break;
+		case 2: {
+            // минус статы (1..5)
+            af.type = SPELL_POISON;
+            af.duration = 30;
+            af.modifier = -GET_LEVEL(ch) / 6;
+            af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+            af.battleflag = AF_SAME_TIME;
 
-			for (int i = APPLY_STR; i <= APPLY_CHA; i++)
-			{
-				af.location = static_cast<EApplyLocation>(i);
-				affect_join(vict, af, false, false, false, false);
-			}
+            for (int i = APPLY_STR; i <= APPLY_CHA; i++) {
+                af.location = static_cast<EApplyLocation>(i);
+                affect_join(vict, af, false, false, false, false);
+            }
 
-			send_to_char(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
-					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
-			send_to_char(vict, "Вы почувствовали слабость во всем теле!\r\n");
-			act("$N0 побледнел$G на ваших глазах.", true, ch, 0, vict, TO_NOTVICT);
-			break;
-		}
-		case 3:
-		{
-			// минус реакция (1..5)
-			AFFECT_DATA<EApplyLocation> af;
-			af.type = SPELL_POISON;
-			af.duration = 30;
-			af.location = APPLY_SAVING_REFLEX;
-			af.modifier = GET_LEVEL(ch)/6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
-			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
-			af.battleflag = AF_SAME_TIME;
-			affect_join(vict, af, false, false, false, false);
-			send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
-					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
-			send_to_char(vict, "Вам стало труднее реагировать на движения противников!\r\n");
-			act("$N0 стал$G хуже реагировать на ваши движения!", true, ch, 0, vict, TO_NOTVICT);
-			break;
-		}
-		case 4:
-		{
-			// минус инициатива (1..5)
-			AFFECT_DATA<EApplyLocation> af;
-			af.type = SPELL_POISON;
-			af.duration = 30;
-			af.location = APPLY_INITIATIVE;
-			af.modifier = -GET_LEVEL(ch)/6;
-			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
-			af.battleflag = AF_SAME_TIME;
-			affect_join(vict, af, false, false, false, false);
-			send_to_char(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
-					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
-			send_to_char(vict, "Вы стали заметно медленнее двигаться!\r\n");
-			act("$N0 стал$G заметно медленнее двигаться!", true, ch, 0, vict, TO_NOTVICT);
-			break;
-		}
-		case 5:
-		{
-			// минус живучесть (1..5)
-			AFFECT_DATA<EApplyLocation> af;
-			af.type = SPELL_POISON;
-			af.duration = 30;
-			af.location = APPLY_RESIST_VITALITY;
-			af.modifier = -GET_LEVEL(ch)/6;
-			af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
-			af.battleflag = AF_SAME_TIME;
-			affect_join(vict, af, false, false, false, false);
-			send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
-					CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
-			send_to_char(vict, "Вы стали хуже переносить повреждения!\r\n");
-			act("$N0 стал$G хуже переносить повреждения!", true, ch, 0, vict, TO_NOTVICT);
-			break;
-		}
+            send_to_char(ch, "%sОт действия вашего яда %s побледнел%s!%s\r\n",
+                         CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
+            send_to_char(vict, "Вы почувствовали слабость во всем теле!\r\n");
+            act("$N0 побледнел$G на ваших глазах.", true, ch, 0, vict, TO_NOTVICT);
+            break;
+        } // case 2
+		case 3: {
+            // минус реакция (1..5)
+            af.type = SPELL_POISON;
+            af.duration = 30;
+            af.location = APPLY_SAVING_REFLEX;
+            af.modifier = GET_LEVEL(ch) / 6; //Polud с плюсом, поскольку здесь чем больше - тем хуже
+            af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+            af.battleflag = AF_SAME_TIME;
+            affect_join(vict, af, false, false, false, false);
+            send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже реагировать на движения противников!%s\r\n",
+                         CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
+            send_to_char(vict, "Вам стало труднее реагировать на движения противников!\r\n");
+            act("$N0 стал$G хуже реагировать на ваши движения!", true, ch, 0, vict, TO_NOTVICT);
+            break;
+        } // case 3
+		case 4: {
+            // минус инициатива (1..5)
+            af.type = SPELL_POISON;
+            af.duration = 30;
+            af.location = APPLY_INITIATIVE;
+            af.modifier = -GET_LEVEL(ch) / 6;
+            af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+            af.battleflag = AF_SAME_TIME;
+            affect_join(vict, af, false, false, false, false);
+            send_to_char(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
+                         CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
+            send_to_char(vict, "Вы стали заметно медленнее двигаться!\r\n");
+            act("$N0 стал$G заметно медленнее двигаться!", true, ch, 0, vict, TO_NOTVICT);
+            break;
+        } // case 4
+		case 5: {
+            // минус живучесть (1..5)
+            af.type = SPELL_POISON;
+            af.duration = 30;
+            af.location = APPLY_RESIST_VITALITY;
+            af.modifier = -GET_LEVEL(ch) / 6;
+            af.bitvector = to_underlying(EAffectFlag::AFF_POISON);
+            af.battleflag = AF_SAME_TIME;
+            affect_join(vict, af, false, false, false, false);
+            send_to_char(ch, "%sОт действия вашего яда %s стал%s хуже переносить повреждения!%s\r\n",
+                         CCGRN(ch, C_NRM), PERS(vict, ch, 0), GET_CH_VIS_SUF_1(vict, ch), CCNRM(ch, C_NRM));
+            send_to_char(vict, "Вы стали хуже переносить повреждения!\r\n");
+            act("$N0 стал$G хуже переносить повреждения!", true, ch, 0, vict, TO_NOTVICT);
+            break;
+        } // case 5
 		} // switch
+
 	}
-	return;
 }
 
 } // namespace

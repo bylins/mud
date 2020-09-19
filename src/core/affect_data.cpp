@@ -459,7 +459,6 @@ void affect_from_char(CHAR_DATA * ch, int type)
     }
 }
 
-#pragma clang diagnostic push
 // This updates a character by subtracting everything he is affected by
 // restoring original abilities, and then affecting all again
 void affect_total(CHAR_DATA * ch)
@@ -756,7 +755,7 @@ void affect_total(CHAR_DATA * ch)
         AFF_FLAGS(ch).unset(EAffectFlag::AFF_INVISIBLE);
     }
 }
-#pragma clang diagnostic pop
+
 
 void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod)
 {
