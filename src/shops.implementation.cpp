@@ -1183,7 +1183,7 @@ namespace ShopExt
 		const auto uid = node->uid();
 		if (ItemNode::NO_UID == uid)
 		{
-            sprintf(buf, "ERROR: get_from_shelve: вернул NULL, index: %d", index);
+            sprintf(buf, "ERROR: get_from_shelve: вернул NULL, index: %zu", index);
             mudlog(buf, LogMode::BRF, LVL_IMPL, SYSLOG, TRUE);
             return nullptr;
 		}
