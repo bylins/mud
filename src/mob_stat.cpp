@@ -411,7 +411,7 @@ void add_mob(CHAR_DATA *mob, int members)
 	}
 }
 
-std::string print_mob_name(int mob_vnum, int len)
+std::string print_mob_name(int mob_vnum, unsigned int len)
 {
 	std::string name = "null";
 	const int rnum = real_mobile(mob_vnum);

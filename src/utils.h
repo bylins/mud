@@ -1641,11 +1641,13 @@ char buf[MAX_STRING_LENGTH];
 char buf1[MAX_STRING_LENGTH];
 char buf2[MAX_STRING_LENGTH];
 char arg[MAX_STRING_LENGTH];
+char smallBuf[MAX_RAW_INPUT_LENGTH];
 #else
 extern char buf[MAX_STRING_LENGTH];
 extern char buf1[MAX_STRING_LENGTH];
 extern char buf2[MAX_STRING_LENGTH];
 extern char arg[MAX_STRING_LENGTH];
+extern char smallBuf[MAX_RAW_INPUT_LENGTH];
 #endif
 
 #define plant_magic(x)	do { (x)[sizeof(x) - 1] = MAGIC_NUMBER; } while (0)

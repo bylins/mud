@@ -34,22 +34,17 @@
 #include "deathtrap.hpp"
 #include "privilege.hpp"
 #include "chars/char.hpp"
-#include "corpse.hpp"
 #include "room.hpp"
 #include "named_stuff.hpp"
 #include "fightsystem/fight.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
 #include "random.hpp"
 #include <cmath>
 
 // external functs
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 int find_eq_pos(CHAR_DATA * ch, OBJ_DATA * obj, char *arg);
-int awake_others(CHAR_DATA * ch);
-void affect_from_char(CHAR_DATA * ch, int type);
-void die(CHAR_DATA * ch, CHAR_DATA * killer);
 // local functions
 void check_ice(int room);
 
@@ -640,39 +635,52 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 }
 
 #define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
-
 #define MAX_DRUNK_SONG 6
-const char *drunk_songs[MAX_DRUNK_SONG] = { "\"Шумел камыш, и-к-к..., деревья гнулися\"",
-		"\"Куда ты, тропинка, меня завела\"",
-		"\"Бабам, пара пабабам\"",
-		"\"А мне любое море по колено\"",
-		"\"Не жди меня мама, хорошего сына\"",
-		"\"Бываааали дниии, весеееелыя\"",
-										  };
-
 #define MAX_DRUNK_VOICE 5
-const char *drunk_voice[MAX_DRUNK_VOICE] = { " - затянул$g $n",
-		" - запел$g $n.",
-		" - прохрипел$g $n.",
-		" - зычно заревел$g $n.",
-		" - разухабисто протянул$g $n.",
-										   };
 
-int check_drunk_move(CHAR_DATA* ch, int direction, bool need_specials_check)
-{
+void performDunkSong(CHAR_DATA* ch){
+    const char *drunk_songs[MAX_DRUNK_SONG] = { "\"Шумел камыш, и-к-к..., деревья гнулися\"",
+                                                "\"Куда ты, тропинка, меня завела\"",
+                                                "\"Пабабам, пара пабабам\"",
+                                                "\"А мне любое море по колено\"",
+                                                "\"Не жди меня мама, хорошего сына\"",
+                                                "\"Бываааали дниии, весеееелыя\"",
+    };
+    const char *drunk_voice[MAX_DRUNK_VOICE] = { " - затянул$g $n",
+                                                 " - запел$g $n.",
+                                                 " - прохрипел$g $n.",
+                                                 " - зычно заревел$g $n.",
+                                                 " - разухабисто протянул$g $n.",
+    };
+    // орем песни
+    if (!ch->get_fighting() && number(10, 24) < GET_COND(ch, DRUNK))
+    {
+        sprintf(buf, "%s", drunk_songs[number(0, MAX_DRUNK_SONG - 1)]);
+        send_to_char(buf, ch);
+        send_to_char("\r\n", ch);
+        strcat(buf, drunk_voice[number(0, MAX_DRUNK_VOICE - 1)]);
+        act(buf, FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
+        affect_from_char(ch, SPELL_SNEAK);
+        affect_from_char(ch, SPELL_HIDE);
+        affect_from_char(ch, SPELL_CAMOUFLAGE);
+    }
+}
+
+int calcDrunkDirection(CHAR_DATA* ch, int direction, bool need_specials_check) {
+
+    int drunk_move = direction;
+    //пересчет направления, в зависимости от степени опьянения
 	if (!IS_NPC(ch)
-		&& GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED
-		&& !ch->ahorse()
+	    && GET_COND(ch, DRUNK) >= CHAR_MORTALLY_DRUNKED
+	    && !ch->ahorse()
 		&& GET_COND(ch, DRUNK) >= number(CHAR_DRUNKED, 50))
 	{
-		int dirs[NUM_OF_DIRS];
+		int possibleDirs[NUM_OF_DIRS];
 		int correct_dirs = 0;
 
-		for (auto i = 0; i < NUM_OF_DIRS; ++i)
-		{
-			if (legal_dir(ch, i, need_specials_check, TRUE))
-			{
-				dirs[correct_dirs] = i;
+		for (auto i = 0; i < NUM_OF_DIRS; ++i) {
+			if (legal_dir(ch, i, need_specials_check, TRUE)) {
+                possibleDirs[correct_dirs] = i;
 				++correct_dirs;
 			}
 		}
@@ -680,11 +688,15 @@ int check_drunk_move(CHAR_DATA* ch, int direction, bool need_specials_check)
 		if (correct_dirs > 0
 			&& !bernoulli_trial(std::pow((1.0 - static_cast<double>(correct_dirs) / NUM_OF_DIRS), NUM_OF_DIRS)))
 		{
-			return dirs[number(0, correct_dirs - 1)];
+            drunk_move = possibleDirs[number(0, correct_dirs - 1)];
 		}
 	}
 
-	return direction;
+    if (direction != drunk_move) {
+        sprintf(buf, "Ваши ноги не хотят слушаться вас...\r\n");
+        send_to_char(buf, ch);
+    }
+	return drunk_move;
 }
 
 int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA * leader, bool is_flee)
@@ -693,30 +705,16 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	room_rnum was_in, go_to;
 	int i, invis = 0, use_horse = 0, is_horse = 0, direction = 0;
 	int mob_rnum = -1;
-	CHAR_DATA *horse = NULL;
+	CHAR_DATA *horse = nullptr;
 
-	// Mortally drunked - it is loss direction
-	if (!IS_NPC(ch) && !leader)
-	{
-		const auto drunk_move = check_drunk_move(ch, dir, need_specials_check);
-		if (dir != drunk_move)
-		{
-			sprintf(buf, "Ваши ноги не хотят слушаться вас...\r\n");
-			send_to_char(buf, ch);
-			dir = drunk_move;
-		}
-
-		if (!ch->get_fighting() && number(10, 24) < GET_COND(ch, DRUNK))
-		{
-			sprintf(buf, "%s", drunk_songs[number(0, MAX_DRUNK_SONG - 1)]);
-			send_to_char(buf, ch);
-			send_to_char("\r\n", ch);
-			strcat(buf, drunk_voice[number(0, MAX_DRUNK_VOICE - 1)]);
-			act(buf, FALSE, ch, 0, 0, TO_ROOM | CHECK_DEAF);
-			affect_from_char(ch, SPELL_SNEAK);
-			affect_from_char(ch, SPELL_CAMOUFLAGE);
-		}
-	}
+    if (ch->purged()) {
+        return FALSE;
+    }
+    // если не моб и не ведут за ручку - проверка на пьяные выкрутасы
+    if (!IS_NPC(ch) && !leader) {
+        dir = calcDrunkDirection(ch, dir, need_specials_check);
+    }
+    performDunkSong(ch);
 
 	if (!legal_dir(ch, dir, need_specials_check, TRUE))
 	    return (FALSE);
@@ -724,14 +722,8 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (!entry_mtrigger(ch))
 		return (FALSE);
 
-	if (ch->purged())
-		return FALSE;
-
 	if (!enter_wtrigger(world[EXIT(ch, dir)->to_room()], ch, dir))
 		return (FALSE);
-
-	if (ch->purged())
-		return FALSE;
 
 	// Now we know we're allow to go into the room.
 	if (!IS_IMMORTAL(ch) && !IS_NPC(ch))
@@ -775,10 +767,8 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
 	direction = dir + 1;
-	use_horse = AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE)
-		&& ch->has_horse(false)
-		&& (IN_ROOM(ch->get_horse()) == was_in
-			|| IN_ROOM(ch->get_horse()) == go_to);
+	use_horse = ch->ahorse() && ch->has_horse(false)
+	            && (IN_ROOM(ch->get_horse()) == was_in || IN_ROOM(ch->get_horse()) == go_to);
 	is_horse = IS_HORSE(ch)
 		&& ch->has_master()
 		&& !AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_INVISIBLE)
@@ -788,13 +778,13 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 	if (!invis && !is_horse)
 	{
 		if (is_flee)
-			strcpy(buf1, "сбежал$g");
+			strcpy(smallBuf, "сбежал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVERUN))
-			strcpy(buf1, "убежал$g");
+			strcpy(smallBuf, "убежал$g");
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
 		{
-			strcpy(buf1, "улетел$g");
+			strcpy(smallBuf, "улетел$g");
 		}
 		else if (IS_NPC(ch)
 			&& NPC_FLAGGED(ch, NPC_MOVESWIM)
@@ -802,37 +792,33 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 				|| real_sector(was_in) == SECT_WATER_NOSWIM
 				|| real_sector(was_in) == SECT_UNDERWATER))
 		{
-			strcpy(buf1, "уплыл$g");
+			strcpy(smallBuf, "уплыл$g");
 		}
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEJUMP))
-			strcpy(buf1, "ускакал$g");
+			strcpy(smallBuf, "ускакал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVECREEP))
-			strcpy(buf1, "уполз$q");
+			strcpy(smallBuf, "уполз$q");
 		else if (real_sector(was_in) == SECT_WATER_SWIM
 			|| real_sector(was_in) == SECT_WATER_NOSWIM
 			|| real_sector(was_in) == SECT_UNDERWATER)
 		{
-			strcpy(buf1, "уплыл$g");
+			strcpy(smallBuf, "уплыл$g");
 		}
 		else if (use_horse)
 		{
-			CHAR_DATA *horse = ch->get_horse();
+			horse = ch->get_horse();
 			if (horse && AFF_FLAGGED(horse, EAffectFlag::AFF_FLY))
-			{
-				strcpy(buf1, "улетел$g");
-			}
+				strcpy(smallBuf, "улетел$g");
 			else
-			{
-				strcpy(buf1, "уехал$g");
-			}
+				strcpy(smallBuf, "уехал$g");
 		}
 		else
-			strcpy(buf1, "уш$y");
+			strcpy(smallBuf, "уш$y");
 
 		if (is_flee && !IS_NPC(ch) && can_use_feat(ch, WRIGGLER_FEAT))
-			sprintf(buf2, "$n %s.", buf1);
+			sprintf(buf2, "$n %s.", smallBuf);
 		else
-			sprintf(buf2, "$n %s %s.", buf1, DirsTo[dir]);
+			sprintf(buf2, "$n %s %s.", smallBuf, DirsTo[dir]);
 		act(buf2, TRUE, ch, 0, 0, TO_ROOM);
 	}
 
@@ -850,7 +836,6 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 		stop_fighting(ch, TRUE);
 	}
 
-	// track improovment
 	if (!IS_NPC(ch) && IS_BITS(ch->track_dirs, dir))
 	{
 		send_to_char("Вы двинулись по следу.\r\n", ch);
@@ -893,48 +878,48 @@ int do_simple_move(CHAR_DATA * ch, int dir, int need_specials_check, CHAR_DATA *
 			|| (IS_NPC(ch)
 				&& NPC_FLAGGED(ch, NPC_MOVERUN)))
 		{
-			strcpy(buf1, "прибежал$g");
+			strcpy(smallBuf, "прибежал$g");
 		}
 		else if ((!use_horse && AFF_FLAGGED(ch, EAffectFlag::AFF_FLY))
 			|| (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEFLY)))
 		{
-			strcpy(buf1, "прилетел$g");
+			strcpy(smallBuf, "прилетел$g");
 		}
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVESWIM)
 			&& (real_sector(go_to) == SECT_WATER_SWIM
 				|| real_sector(go_to) == SECT_WATER_NOSWIM
 				|| real_sector(go_to) == SECT_UNDERWATER))
 		{
-			strcpy(buf1, "приплыл$g");
+			strcpy(smallBuf, "приплыл$g");
 		}
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVEJUMP))
-			strcpy(buf1, "прискакал$g");
+			strcpy(smallBuf, "прискакал$g");
 		else if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_MOVECREEP))
-			strcpy(buf1, "приполз$q");
+			strcpy(smallBuf, "приполз$q");
 		else if (real_sector(go_to) == SECT_WATER_SWIM
 			|| real_sector(go_to) == SECT_WATER_NOSWIM
 			|| real_sector(go_to) == SECT_UNDERWATER)
 		{
-			strcpy(buf1, "приплыл$g");
+			strcpy(smallBuf, "приплыл$g");
 		}
 		else if (use_horse)
 		{
-			CHAR_DATA *horse = ch->get_horse();
+			horse = ch->get_horse();
 			if (horse && AFF_FLAGGED(horse, EAffectFlag::AFF_FLY))
 			{
-				strcpy(buf1, "прилетел$g");
+				strcpy(smallBuf, "прилетел$g");
 			}
 			else
 			{
-				strcpy(buf1, "приехал$g");
+				strcpy(smallBuf, "приехал$g");
 			}
 
 		}
 		else
-			strcpy(buf1, "приш$y");
+			strcpy(smallBuf, "приш$y");
 
 		//log("%s-%d",GET_NAME(ch),ch->in_room);
-		sprintf(buf2, "$n %s %s.", buf1, DirsFrom[dir]);
+		sprintf(buf2, "$n %s %s.", smallBuf, DirsFrom[dir]);
 		//log(buf2);
 		act(buf2, TRUE, ch, 0, 0, TO_ROOM);
 		//log("ACT OK !");
@@ -1100,7 +1085,7 @@ int perform_move(CHAR_DATA *ch, int dir, int need_specials_check, int checkmob, 
 	room_rnum was_in;
 	struct follow_type *k, *next;
 
-	if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
+	if (ch == nullptr || dir < 0 || dir >= NUM_OF_DIRS || ch->get_fighting())
 		return FALSE;
 	else if (!EXIT(ch, dir) || EXIT(ch, dir)->to_room() == NOWHERE)
 		send_to_char("Вы не сможете туда пройти...\r\n", ch);
@@ -1608,7 +1593,7 @@ int ok_pick(CHAR_DATA* ch, obj_vnum /*keynum*/, OBJ_DATA* obj, int door, int scm
 	return (1);
 }
 
-void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
+void do_gen_door(CHAR_DATA *ch, char *argument, int, int subcmd)
 {
 	int door = -1;
 	obj_vnum keynum;
@@ -1701,7 +1686,6 @@ void do_gen_door(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		else if (ok_pick(ch, keynum, obj, door, subcmd))
 			do_doorcmd(ch, obj, door, (DOOR_SCMD)subcmd);
 	}
-	return;
 }
 
 void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1710,12 +1694,12 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	const char *p_str = "пентаграмма";
 	struct follow_type *k, *k_next;
 
-	one_argument(argument, buf);
+	one_argument(argument, smallBuf);
 
-	if (*buf)
-//     {if (!str_cmp("пентаграмма",buf))
+	if (*smallBuf)
+//     {if (!str_cmp("пентаграмма",smallBuf))
 	{
-		if (isname(buf, p_str))
+		if (isname(smallBuf, p_str))
 		{
 			if (!world[ch->in_room]->portal_time)
 				send_to_char("Вы не видите здесь пентаграмму.\r\n", ch);
@@ -1772,10 +1756,10 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						|| AFF_FLAGGED(ch, EAffectFlag::AFF_NOTELEPORT)
 						|| (world[door]->pkPenterUnique && (ROOM_FLAGGED(door, ROOM_ARENA) || ROOM_FLAGGED(door, ROOM_HOUSE)))))
 				{
-					sprintf(buf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
+					sprintf(smallBuf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
 							CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-					act(buf, TRUE, ch, 0, 0, TO_CHAR);
-					act(buf, TRUE, ch, 0, 0, TO_ROOM);
+					act(smallBuf, TRUE, ch, 0, 0, TO_CHAR);
+					act(smallBuf, TRUE, ch, 0, 0, TO_ROOM);
 
 					send_to_char("Мощным ударом вас отшвырнуло от пентаграммы.\r\n", ch);
 					act("$n с визгом отлетел$g от пентаграммы.\r\n", TRUE, ch,
@@ -1834,7 +1818,7 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 						command_interpreter(k->follower, buf2);
 					}
 				}
-				if (ch->desc != NULL)
+				if (ch->desc != nullptr)
 					look_at_room(ch, 0);
 			}
 		}
@@ -1843,14 +1827,14 @@ void do_enter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			for (door = 0; door < NUM_OF_DIRS; door++)
 			{
 				if (EXIT(ch, door)
-					&& (isname(buf, EXIT(ch, door)->keyword)
-						|| isname(buf, EXIT(ch, door)->vkeyword)))
+					&& (isname(smallBuf, EXIT(ch, door)->keyword)
+						|| isname(smallBuf, EXIT(ch, door)->vkeyword)))
 				{
 					perform_move(ch, door, 1, TRUE, 0);
 					return;
 				}
 			}
-			sprintf(buf2, "Вы не нашли здесь '%s'.\r\n", buf);
+			sprintf(buf2, "Вы не нашли здесь '%s'.\r\n", smallBuf);
 			send_to_char(buf2, ch);
 		}
 	}
@@ -2079,13 +2063,13 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	CHAR_DATA *leader;
 	struct follow_type *f;
-	one_argument(argument, buf);
+	one_argument(argument, smallBuf);
 
 	if (IS_NPC(ch) && AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM) && ch->get_fighting())
 		return;
-	if (*buf)
+	if (*smallBuf)
 	{
-		if (!str_cmp(buf, "я") || !str_cmp(buf, "self") || !str_cmp(buf, "me"))
+		if (!str_cmp(smallBuf, "я") || !str_cmp(smallBuf, "self") || !str_cmp(smallBuf, "me"))
 		{
 			if (!ch->has_master())
 			{
@@ -2097,7 +2081,7 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			return;
 		}
-		if (!(leader = get_char_vis(ch, buf, FIND_CHAR_ROOM)))
+		if (!(leader = get_char_vis(ch, smallBuf, FIND_CHAR_ROOM)))
 		{
 			send_to_char(NOPERSON, ch);
 			return;
