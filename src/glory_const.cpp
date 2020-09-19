@@ -634,7 +634,7 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		tmp_glory_olc->stat_cur[GLORY_STABILITY] = it->second->stats[GLORY_STABILITY];
 		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
 		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
-		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MANAREG];
+		tmp_glory_olc->stat_cur[GLORY_MANAREG] = it->second->stats[GLORY_MANAREG];
 
 		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
 		{
