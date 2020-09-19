@@ -168,7 +168,6 @@ public:
     std::map<int, MERCDATA>  *getMercList();
     // метод выставления chat_id
     void setTelegramId(unsigned long chat_id);
-    unsigned long int getTelegramId() const;
 
 private:
 	// показывает, является ли чар турнирным или нет
@@ -240,8 +239,6 @@ private:
 	std::shared_ptr<Account> account;
     //перечень чармисов, доступных с команды наемник
     std::map<int, MERCDATA> charmeeHistory;
-    // chat_id телеграма
-    unsigned long int telegram_id;
 };
 
 namespace PlayerSystem

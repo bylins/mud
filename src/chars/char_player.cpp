@@ -75,8 +75,7 @@ Player::Player():
 	motion_(true),
 	ice_currency(0),
 	hryvn(0),
-	spent_hryvn(0),
-    telegram_id(0)
+	spent_hryvn(0)
 {
 	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
@@ -1010,7 +1009,7 @@ void Player::save_char()
 		}
 		fprintf(saved, "0 0 0 0 0 0\n");// терминирующая строчка
 	}
-    fprintf(saved, "Tlgr: %lu\n", this->telegram_id);
+    fprintf(saved, "Tlgr: %lu\n", this->player_specials->saved.telegram_id);
 
 	fclose(saved);
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, GET_UNIQUE(this));
@@ -2100,7 +2099,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				today_torc_.second = num2;
 			}
             else if (!strcmp(tag, "Tlgr")) {
-                this->telegram_id = lnum;
+                this->player_specials->saved.telegram_id = lnum;
             }
 			else if (!strcmp(tag, "TSpl"))
 			{
@@ -2545,10 +2544,7 @@ std::map<int, MERCDATA> *Player::getMercList(){
 }
 
 void Player::setTelegramId(unsigned long chat_id) {
-    this->telegram_id = chat_id;
-}
-unsigned long int Player::getTelegramId() const {
-    return this->telegram_id;
+    this->player_specials->saved.telegram_id = chat_id;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
