@@ -146,7 +146,7 @@ public:
     virtual std::map<int, MERCDATA>  *getMercList() { return nullptr; };
 
     virtual void setTelegramId(unsigned long int) {};
-
+    virtual unsigned long int getTelegramId() {return 0;};
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};

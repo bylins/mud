@@ -2547,4 +2547,8 @@ void Player::setTelegramId(unsigned long chat_id) {
     this->player_specials->saved.telegram_id = chat_id;
 }
 
+unsigned long int Player::getTelegramId() {
+    return this->player_specials->saved.telegram_id;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -15,7 +15,9 @@
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
 #include "strengthening.hpp"
-
+#if defined(HAVE_TG)
+#include <tgbot/tgbot.h>
+#endif
 class BanList;	// to avoid inclusion of ban.hpp
 
 /**
@@ -64,6 +66,10 @@ public:
 	static Strengthening& strengthening();
 
 	static obj2trigers_t& obj_trigers();
+#if defined(HAVE_TG)
+    static TgBot::Bot bot();
+#endif
+
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__
