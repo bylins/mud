@@ -4,6 +4,7 @@
 #if defined(HAVE_TG)
 #include <tgbot/tgbot.h>
 #endif
+#include <obj.hpp>
 
 extern CHAR_DATA *get_player_of_name(const char *name);
 
@@ -34,10 +35,7 @@ void do_telegram(CHAR_DATA *ch, char *argument, int, int){
         send_to_char(ch, "Звыняйте, барин, нэмае у той телеги колесьев...");
         return;
     }
-    TgBot::Bot bot("1330963555:AAHvh-gXBRxJHVKOmjsl8E73TJr0cO2eC50");
-//    bot.getApi().sendMessage(358708535, "bot started");
-
-    if (!bot.getApi().sendMessage(p_vict.getTelegramId(), smallBuf)) {
+    if (!system_obj::bot.getApi().sendMessage(p_vict.getTelegramId(), smallBuf)) {
         send_to_char("Ошибочка вышла..\r\n", ch);
         return;
     };

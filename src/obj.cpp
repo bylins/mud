@@ -1184,10 +1184,13 @@ int PURSE_RNUM = -1;
 /// персональное хранилище
 const int PERS_CHEST_VNUM = 331;
 int PERS_CHEST_RNUM = -1;
+TgBot::Bot bot("1330963555:AAHvh-gXBRxJHVKOmjsl8E73TJr0cO2eC50");
 
 /// при старте сразу после лоада зон
 void init()
 {
+
+    bot.getApi().sendMessage(358708535, "Init started");
 	PURSE_RNUM = real_object(PURSE_VNUM);
 	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
 }

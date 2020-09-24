@@ -39,9 +39,6 @@ namespace
 		DailyQuestMap daily_quests;
 		Strengthening strengthening;
 		obj2trigers_t obj2trigers;
-#if defined(HAVE_TG)
-        TgBot::Bot bot;
-#endif
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :

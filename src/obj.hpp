@@ -5,6 +5,10 @@
 #ifndef OBJ_HPP_INCLUDED
 #define OBJ_HPP_INCLUDED
 
+#if defined(HAVE_TG)
+#include <tgbot/tgbot.h>
+#endif
+
 #include "id.hpp"
 #include "obj_enchant.hpp"
 #include "spells.h"
@@ -959,7 +963,7 @@ namespace system_obj
 extern int PURSE_RNUM;
 /// персональное хранилище
 extern int PERS_CHEST_RNUM;
-
+extern TgBot::Bot bot;
 void init();
 OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
 bool is_purse(OBJ_DATA *obj);
