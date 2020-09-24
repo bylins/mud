@@ -1987,89 +1987,72 @@ const IMorph::affects_list_t& CHAR_DATA::GetMorphAffects()
 //-Polud
 //===================================
 
-bool CHAR_DATA::get_role(unsigned num) const
-{
+bool CHAR_DATA::get_role(unsigned num) const {
 	bool result = false;
-	if (num < role_.size())
-	{
+	if (num < role_.size())	{
 		result = role_.test(num);
 	}
-	else
-	{
+	else {
 		log("SYSERROR: num=%u (%s:%d)", num, __FILE__, __LINE__);
 	}
 	return result;
 }
 
-void CHAR_DATA::set_role(unsigned num, bool flag)
-{
-	if (num < role_.size())
-	{
+void CHAR_DATA::set_role(unsigned num, bool flag) {
+	if (num < role_.size()) {
 		role_.set(num, flag);
 	}
-	else
-	{
+	else {
 		log("SYSERROR: num=%u (%s:%d)", num, __FILE__, __LINE__);
 	}
 }
 
-void CHAR_DATA::msdp_report(const std::string& name)
-{
-	if (nullptr != desc)
-	{
+void CHAR_DATA::msdp_report(const std::string& name) {
+	if (nullptr != desc) {
 		desc->msdp_report(name);
 	}
 }
 
-void CHAR_DATA::removeGroupFlags()
-{
+void CHAR_DATA::removeGroupFlags() {
 		AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
 		PRF_FLAGS(this).unset(PRF_SKIRMISHER);
 }
 
-void CHAR_DATA::add_follower(CHAR_DATA* ch)
-{
+void CHAR_DATA::add_follower(CHAR_DATA* ch) {
+
+	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_NOGROUP))
+		return;
 	add_follower_silently(ch);
 
-	if (!IS_HORSE(ch))
-	{
+	if (!IS_HORSE(ch)) {
 		act("Вы начали следовать за $N4.", FALSE, ch, 0, this, TO_CHAR);
 		act("$n начал$g следовать за вами.", TRUE, ch, 0, this, TO_VICT);
 		act("$n начал$g следовать за $N4.", TRUE, ch, 0, this, TO_NOTVICT | TO_ARENA_LISTEN);
 	}
 }
 
-CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const
-{
+CHAR_DATA::followers_list_t CHAR_DATA::get_followers_list() const {
 	CHAR_DATA::followers_list_t result;
-
 	auto pos = followers;
-	while (pos)
-	{
+	while (pos) {
 		const auto follower = pos->follower;
 		result.push_back(follower);
 		pos = pos->next;
 	}
-
 	return result;
 }
 
-bool CHAR_DATA::low_charm() const
-{
-	for (const auto& aff : affected)
-	{
+bool CHAR_DATA::low_charm() const {
+	for (const auto& aff : affected) {
 		if (aff->type == SPELL_CHARM
-			&& aff->duration <= 1)
-		{
+			&& aff->duration <= 1) {
 			return true;
 		}
 	}
-
 	return false;
 }
 
-void CHAR_DATA::cleanup_script()
-{
+void CHAR_DATA::cleanup_script() {
 	script->cleanup();
 }
 
