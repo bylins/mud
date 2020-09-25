@@ -108,7 +108,7 @@ namespace MERC {
                 act("Спустя некоторое время, взмыленная ватага вернулась, волоча на аркане $n3.", TRUE, mob, 0, 0, TO_ROOM);
             } else {
                 act("$n вскочил$g и скрыл$u из виду.", TRUE, boss, 0, 0, TO_ROOM);
-                sprintf(buf, "Спустя некоторое время, %s вернул$u, ведя за собой $n3.", boss->get_npc_name().c_str());
+                sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
                 act(buf, TRUE, mob, 0, 0, TO_ROOM);
             }
             if (!WAITLESS(ch)) {
