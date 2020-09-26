@@ -202,9 +202,10 @@ set(SOURCES
 		src/cmd/mercenary.cpp
         src/core/affect_data.cpp
 		src/cmd/track.cpp
-		)
+		src/cmd/hire.cpp)
 
 set(HEADERS
+		src/cmd/hire.h
 		src/core/affect_data.h
 		src/cmd/track.h
 		src/fightsystem/common.h
@@ -563,7 +564,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES})
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/cmd/hire.cpp src/cmd/hire.h)
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
