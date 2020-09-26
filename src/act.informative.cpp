@@ -5502,9 +5502,8 @@ void sendWhoami(CHAR_DATA *ch) {
     sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(ch));
     send_to_char(buf, ch);
     Clan::CheckPkList(ch);
-    if (ch->player_specials->saved.telegram_id != 0) {
-        sprintf(buf, "Подключен Телеграм, chat_id: %lu\r\n", ch->player_specials->saved.telegram_id);
-        send_to_char(buf, ch);
+    if (ch->player_specials->saved.telegram_id != 0) { //тут прямое обращение, ибо базовый класс, а не наследник
+        send_to_char(ch, "Подключен Телеграм, chat_id: %lu\r\n", ch->player_specials->saved.telegram_id);
     }
 
 }
