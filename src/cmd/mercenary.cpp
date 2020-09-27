@@ -109,7 +109,7 @@ namespace MERC {
             } else {
                 act("$n вскочил$g и скрыл$u из виду.", TRUE, boss, 0, 0, TO_ROOM);
                 sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
-                act(buf, TRUE, mob, 0, 0, TO_ROOM);
+                act(buf, TRUE, mob, 0, ch, TO_ROOM);
             }
             if (!WAITLESS(ch)) {
                 if (isname(bank, "банк bank"))

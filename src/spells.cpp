@@ -53,7 +53,7 @@
 #include "zone.table.hpp"
 #include "skills/flee.h"
 #include "fightsystem/mobact.hpp"
-
+#include <math.h>
 #include <vector>
 
 extern room_rnum r_mortal_start_room;
