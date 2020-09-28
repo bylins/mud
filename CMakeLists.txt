@@ -206,6 +206,7 @@ set(SOURCES
      	src/cmd/hire.cpp)
 
 set(HEADERS
+		src/cmd/telegram.h
 		src/cmd/hire.h
 		src/cmd/telegram.h
 		src/core/affect_data.h
