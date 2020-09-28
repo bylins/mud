@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
+#include "cmd/hire.h"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"
@@ -46,6 +47,8 @@
 #include "global.objects.hpp"
 #include "strengthening.hpp"
 #include <boost/format.hpp>
+
+
 // extern variables
 extern CHAR_DATA *mob_proto;
 extern struct house_control_rec house_control[];

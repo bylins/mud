@@ -2268,7 +2268,7 @@ void look_at_room(CHAR_DATA * ch, int ignore_brief)
 		send_to_char(buf, ch);
 	}
 
-	if (ch->in_room != NOWHERE && !ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER))
+	if (ch->in_room != NOWHERE && !ROOM_FLAGGED(ch->in_room, ROOM_NOWEATHER) && !ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
 	{
 		*buf = '\0';
 		switch (real_sector(ch->in_room))

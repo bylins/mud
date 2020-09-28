@@ -19,6 +19,7 @@
 #include "cmd/order.h"
 #include "cmd/track.h"
 #include "cmd/telegram.h"
+#include "cmd/hire.h"
 
 #include "skills/manadrain.h"
 #include "skills/flee.h"
@@ -212,8 +213,6 @@ void do_drink(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_drunkoff(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_featset(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_findhelpee(CHAR_DATA *ch, char* argument, int cmd, int subcmd);
-void do_freehelpee(CHAR_DATA* ch, char* argument, int cmd, int subcmd);
 void do_firstaid(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_fire(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_drop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

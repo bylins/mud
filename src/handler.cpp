@@ -61,42 +61,6 @@
 #include <sstream>
 
 
-int max_stats2[][6] =
-	// Str Dex Int Wis Con Cha //
-{ {14, 13, 24, 25, 15, 10},	// Лекарь //
-	{14, 12, 25, 23, 13, 16},	// Колдун //
-	{19, 25, 12, 12, 17, 16},	// Вор //
-	{25, 11, 15, 15, 25, 10},	// Богатырь //
-	{22, 24, 14, 14, 17, 12},	// Наемник //
-	{23, 17, 14, 14, 23, 12},	// Дружинник //
-	{14, 12, 25, 23, 13, 16},	// Кудесник //
-	{14, 12, 25, 23, 13, 16},	// Волшебник //
-	{15, 13, 25, 23, 14, 12},	// Чернокнижник //
-	{22, 13, 16, 19, 18, 17},	// Витязь //
-	{25, 21, 16, 16, 18, 16},	// Охотник //
-	{25, 17, 13, 15, 20, 16},	// Кузнец //
-	{21, 17, 14, 13, 20, 17},	// Купец //
-	{18, 12, 24, 18, 15, 12}	// Волхв //
-};
-
-int min_stats2[][6] =
-	// Str Dex Int Wis Con Cha //
-{ {11, 10, 19, 20, 12, 10},	// Лекарь //
-	{10,  9, 20, 18, 10, 13},	// Колдун //
-	{16, 22,  9,  9, 14, 13},	// Вор //
-	{21,  8, 11, 11, 22, 10},	// Богатырь //
-	{17, 19, 11, 11, 14, 12},	// Наемник //
-	{20, 14, 10, 10, 17, 12},	// Дружинник //
-	{10,  9, 20, 18, 10, 13},	// Кудесник //
-	{10,  9, 20, 18, 10, 13},	// Волшебник //
-	{ 9,  9, 20, 20, 11, 10},	// Чернокнижник //
-	{19, 10, 12, 15, 14, 13},	// Витязь //
-	{19, 15, 11, 11, 14, 11},	// Охотник //
-	{20, 14, 10, 11, 14, 12},	// Кузнец //
-	{18, 14, 10, 10, 14, 13},	// Купец //
-	{15, 10, 19, 15, 12, 12}	// Волхв //
-};
-
 // local functions //
 int apply_ac(CHAR_DATA * ch, int eq_pos);
 int apply_armour(CHAR_DATA * ch, int eq_pos);
@@ -3405,26 +3369,6 @@ void check_portals(CHAR_DATA * ch)
 	}
 }
 
-//Функции для модифицированного чарма
-float get_damage_per_round(CHAR_DATA * victim)
-{
-	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
-			+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
-			+ (AFF_FLAGGED(victim, EAffectFlag::AFF_CLOUD_OF_ARROWS) ? 14 : 0);
-	int num_attacks = 1 + victim->mob_specials.ExtraAttack
-			+ (victim->get_skill(SKILL_ADDSHOT) ? 2 : 0);
-
-	float dam_per_round = dam_per_attack * num_attacks;
-
-	//Если дыхание - то дамаг умножается
- 	if (MOB_FLAGGED(victim, (MOB_FIREBREATH | MOB_GASBREATH | MOB_FROSTBREATH | MOB_ACIDBREATH | MOB_LIGHTBREATH)))
- 	{
- 		dam_per_round *= 1.3f;
- 	}
-
- 	return dam_per_round;
-}
-
 float get_effective_cha(CHAR_DATA * ch)
 {
 	int key_value, key_value_add;
@@ -3516,50 +3460,6 @@ float get_effective_int(CHAR_DATA * ch)
 	return VPOSI<float>(eff_int, 1.0f, static_cast<float>(max_int));
 }
 
-float calc_cha_for_hire(CHAR_DATA * victim)
-{
-	int i;
-	float reformed_hp = 0.0, needed_cha = 0.0;
-	for (i = 0; i < 50; i++)
-	{
-		reformed_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) * cha_app[i].dam_to_hit_rate;
-		if (cha_app[i].charms >= reformed_hp)
-			break;
-	}
-	i = POSI(i);
-	needed_cha = i - 1 + (reformed_hp - cha_app[i - 1].charms) / (cha_app[i].charms - cha_app[i - 1].charms);
-//sprintf(buf,"check: charms = %d   rhp = %f\r\n",cha_app[i].charms,reformed_hp);
-//act(buf,FALSE,victim,0,0,TO_ROOM);
-	return VPOSI<float>(needed_cha, 1.0, 50.0);
-}
-
-int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim)
-{
-	float needed_cha = calc_cha_for_hire(victim), dpr = 0.0;
-	float e_cha = get_effective_cha(ch), e_int = get_effective_int(ch);
-	float stat_overlimit = VPOSI<float>(e_cha + e_int - 1.0 -
-								 min_stats2[(int) GET_CLASS(ch)][5] - 1 -
-								 min_stats2[(int) GET_CLASS(ch)][2], 0, 100);
-
-	float price = 0;
-	float real_cha = 1.0 + GET_LEVEL(ch) / 2.0 + stat_overlimit / 2.0;
-	float difference = needed_cha - real_cha;
-
-	dpr = get_damage_per_round(victim);
-
-	log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);
-
-	if (difference <= 0)
-		price = dpr * (1.0 - 0.01 * stat_overlimit);
-	else
-		price = MMIN((dpr * pow(2.0F, difference)), MAXPRICE);
-
-	if (price <= 0.0 || (difference >= 25 && (int) dpr))
-		price = MAXPRICE;
-
-	return (int) ceil(price);
-}
-
 int get_player_charms(CHAR_DATA * ch, int spellnum)
 {
 	float r_hp = 0;
@@ -3598,46 +3498,6 @@ int get_player_charms(CHAR_DATA * ch, int spellnum)
 
 	if (PRF_FLAGGED(ch, PRF_TESTER))
 		send_to_char(ch, "&Gget_player_charms Расчет чарма r_hp = %f \r\n&n", r_hp);
-	return (int) r_hp;
-}
-
-int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
-{
-	float r_hp = 0;
-	float eff_cha = 0.0;
-	float max_cha;
-
-	if (spellnum == SPELL_RESSURECTION || spellnum == SPELL_ANIMATE_DEAD)
-	{
-            eff_cha = get_effective_wis(ch, spellnum);
-			max_cha = class_stats_limit[ch->get_class()][3];
-	}
-	else
-	{
-			max_cha = class_stats_limit[ch->get_class()][5];
-            eff_cha = get_effective_cha(ch);
-	}
-
-	if (spellnum != SPELL_CHARM)
-	{
-		eff_cha = MMIN(max_cha, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
-	}
-
-	// Интерполяция между значениями для целых значений обаяния
-	if (eff_cha < max_cha)
-	{
-		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
-			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate +
-				(eff_cha - (int)eff_cha) * cha_app[(int)eff_cha + 1].dam_to_hit_rate);
-	}
-	else
-	{
-		r_hp = GET_MAX_HIT(victim) + get_damage_per_round(victim) *
-			((1 - eff_cha + (int)eff_cha) * cha_app[(int)eff_cha].dam_to_hit_rate);
-	}
-
-	if (PRF_FLAGGED(ch, PRF_TESTER))
-		send_to_char(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
 	return (int) r_hp;
 }
 
