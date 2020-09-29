@@ -2477,7 +2477,8 @@ player_special_data_saved::player_special_data_saved() :
 	Exp_other_this(0),
 	ntfyExchangePrice(0),
 	HiredCost(0),
-	who_mana(0)
+	who_mana(0),
+    telegram_id(0)
 {
 	memset(EMail, 0, sizeof(EMail));
 	memset(LastIP, 0, sizeof(LastIP));
