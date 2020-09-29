@@ -18,6 +18,7 @@
 #include "cmd/retreat.h"
 #include "cmd/order.h"
 #include "cmd/track.h"
+#include "cmd/telegram.h"
 #include "cmd/hire.h"
 
 #include "skills/manadrain.h"
@@ -772,6 +773,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"стиль", POS_RESTING, do_style, 0, 0, 0},
 	{"строка", POS_DEAD, do_display, 0, 0, 0},
 	{"счет", POS_DEAD, do_score, 0, 0, 0},
+    {"телега", POS_DEAD, do_telegram, LVL_IMMORT, 0, -1},
 	{"тень", POS_FIGHTING, do_throw, 0, SCMD_SHADOW_THROW, -1},
 	{"титул", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
 	{"трусость", POS_DEAD, do_wimpy, 0, 0, 0},
@@ -852,7 +854,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"enter", POS_STANDING, do_enter, 0, 0, -2},
 	{"equipment", POS_SLEEPING, do_equipment, 0, 0, 0},
 	{"examine", POS_RESTING, do_examine, 0, 0, 500},
-//F@N|
 	{"exchange", POS_RESTING, do_exchange, 1, 0, -1},
 	{"exits", POS_RESTING, do_exits, 0, 0, 500},
 	{"featset", POS_SLEEPING, do_featset, LVL_IMPL, 0, 0},
@@ -977,7 +978,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"settle", POS_STANDING, do_not_here, 1, 0, -1},
 	{"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"show", POS_DEAD, do_show, LVL_IMMORT, 0, 0},
-
 	{"shutdown", POS_DEAD, do_shutdown, LVL_IMPL, SCMD_SHUTDOWN, 0},
 	{"sip", POS_RESTING, do_drink, 0, SCMD_SIP, 500},
 	{"sit", POS_RESTING, do_sit, 0, 0, -1},
@@ -1006,7 +1006,8 @@ cpp_extern const struct command_info cmd_info[] =
 	{"take", POS_RESTING, do_get, 0, 0, 500},
 	{"taste", POS_RESTING, do_eat, 0, SCMD_TASTE, 500},
 	{"t2c", POS_RESTING, do_send_text_to_char, LVL_GRGOD, 0, -1 },
-	{"teleport", POS_DEAD, do_teleport, LVL_GRGOD, 0, -1},
+	{"telegram", POS_DEAD, do_telegram, LVL_IMMORT, 0, -1},
+    {"teleport", POS_DEAD, do_teleport, LVL_GRGOD, 0, -1},
 	{"tell", POS_RESTING, do_tell, 0, 0, -1},
 	{"time", POS_DEAD, do_time, 0, 0, 0},
 	{"title", POS_DEAD, TitleSystem::do_title, 0, 0, 0},
