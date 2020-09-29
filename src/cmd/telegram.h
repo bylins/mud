@@ -2,7 +2,8 @@
 #define BYLINS_TELEGRAM_H
 
 #if defined(HAVE_TG)
-#include <tgbot/tgbot.h>
+#include <curl/curl.h>
+#include <string>
 #endif
 class CHAR_DATA;
 
@@ -11,9 +12,10 @@ void do_telegram(CHAR_DATA *ch, char *argument, int, int);
 class TelegramBot {
 private:
 #if defined(HAVE_TG)
-    TgBot::Bot* _bot;
+    CURL *curl;
 #endif
-    const std::string token = "1330963555:AAHvh-gXBRxJHVKOmjsl8E73TJr0cO2eC50";
+    const std::string msgStr = "chat_id=358708535&text=";
+    const std::string uri = "https://api.telegram.org/bot1330963555:AAHvh-gXBRxJHVKOmjsl8E73TJr0cO2eC50/sendMessage";
     const unsigned long debugChatId = 358708535;
 public:
     TelegramBot();
