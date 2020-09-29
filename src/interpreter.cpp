@@ -21,6 +21,8 @@
 #include "cmd/telegram.h"
 #include "cmd/hire.h"
 
+#include "cmd.wiz/stat.h"
+
 #include "skills/manadrain.h"
 #include "skills/flee.h"
 #include "skills/bash.h"
@@ -308,7 +310,6 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
 void do_fry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_syslog(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
