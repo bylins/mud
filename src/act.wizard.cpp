@@ -2519,8 +2519,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	sprinttype(to_underlying(GET_SEX(k)), genders, buf);
 	if (IS_NPC(k))
 	{
-		sprinttype(GET_RACE(k) - NPC_RACE_BASIC, npc_race_types, smallBuf);
-		sprintf(buf, "%s %s", buf, smallBuf);
+		sprinttype(GET_RACE(k) - NPC_RACE_BASIC, npc_race_types, buf2);
+		sprintf(buf, "%s %s", buf, buf2);
 	}
 	sprintf(buf2, " %s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]",
 		(!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
@@ -2568,10 +2568,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		if (!text.empty())
 			send_to_char(ch, "Registered by email from %s\r\n", text.c_str());
 
-		if (k->player_specials->saved.telegram_id != 0)
-            send_to_char(ch, "Подключен Телеграм, chat_id: %lu\r\n", k->player_specials->saved.telegram_id);
-
-        if (GET_REMORT(k))
+		if (GET_REMORT(k))
 		{
 			sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(k));
 			send_to_char(buf, ch);
@@ -2612,7 +2609,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		}
 		if (!PLR_FLAGGED(k, PLR_REGISTERED) && UNREG_DURATION(k))
 		{
-			sprintf(buf, "Не будет зарегистрирован : %ld час [%s].\r\n",
+			sprintf(buf, "Не будет зарегестрирован : %ld час [%s].\r\n",
 				static_cast<long>((UNREG_DURATION(k) - time(NULL)) / 3600),
 				UNREG_REASON(k) ? UNREG_REASON(k) : "-");
 			send_to_char(buf, ch);
@@ -2642,11 +2639,10 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 	if (!IS_NPC(k))
 	{
-		sprinttype(k->get_class(), pc_class_types, smallBuf);
+		sprinttype(k->get_class(), pc_class_types, buf2);
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
-                    PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
-                    k->get_race_name().c_str(),
-                    smallBuf);
+			PlayerRace::GetKinNameByNum(GET_KIN(k), GET_SEX(k)).c_str(),
+			k->get_race_name().c_str(), buf2);
 		send_to_char(buf, ch);
 	}
 	else
@@ -2782,9 +2778,9 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 		GET_MANAREG(k), GET_CAST_SUCCESS(k), GET_HITREG(k), GET_MOVEREG(k), GET_ABSORBE(k), k->calc_morale(), GET_INITIATIVE(k));
 	send_to_char(buf, ch);
 
-	sprinttype(GET_POS(k), position_types, smallBuf);
+	sprinttype(GET_POS(k), position_types, buf2);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
-            smallBuf, (k->get_fighting() ? GET_NAME(k->get_fighting()) : "Нет"), (equip_in_metall(k) ? "Да" : "Нет"));
+		buf2, (k->get_fighting() ? GET_NAME(k->get_fighting()) : "Нет"), (equip_in_metall(k) ? "Да" : "Нет"));
 
 	if (IS_NPC(k))
 	{
@@ -2809,11 +2805,11 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 
 	if (IS_NPC(k))
 	{
-		k->char_specials.saved.act.sprintbits(action_bits, smallBuf, ",", 4);
-		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+		k->char_specials.saved.act.sprintbits(action_bits, buf2, ",", 4);
+		sprintf(buf, "MOB флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
-		k->mob_specials.npc_flags.sprintbits(function_bits, smallBuf, ",", 4);
-		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+		k->mob_specials.npc_flags.sprintbits(function_bits, buf2, ",", 4);
+		sprintf(buf, "NPC флаги: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 		send_to_char(ch, "Количество атак: %s%d%s. ", CCCYN(ch, C_NRM), k->mob_specials.ExtraAttack + 1, CCNRM(ch, C_NRM));
 		send_to_char(ch, "Вероятность использования умений: %s%d%%%s. ", CCCYN(ch, C_NRM), k->mob_specials.LikeWork, CCNRM(ch, C_NRM));
@@ -2830,18 +2826,18 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 	}
 	else
 	{
-		k->char_specials.saved.act.sprintbits(player_bits, smallBuf, ",", 4);
-		sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+		k->char_specials.saved.act.sprintbits(player_bits, buf2, ",", 4);
+		sprintf(buf, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 
-		k->player_specials->saved.pref.sprintbits(preference_bits, smallBuf, ",", 4);
-		sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+		k->player_specials->saved.pref.sprintbits(preference_bits, buf2, ",", 4);
+		sprintf(buf, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 		send_to_char(buf, ch);
 
 		if (IS_IMPL(ch))
 		{
-			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, smallBuf, ",");
-			sprintf(buf, "GFL: %s%s%s\r\n", CCCYN(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, buf2, ",");
+			sprintf(buf, "GFL: %s%s%s\r\n", CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 			send_to_char(buf, ch);
 		}
 	}
@@ -2898,8 +2894,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt)
 			send_to_char(strcat(buf, "\r\n"), ch);
 	}
 	// Showing the bitvector
-	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, ",", 4);
-	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
+	k->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",", 4);
+	sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 	send_to_char(buf, ch);
 
 	// Routine to show what spells a char is affected by
@@ -3715,7 +3711,7 @@ void inspecting()
 		}
 
 #ifdef TEST_BUILD
-		log("inspecting %d/%lu", 1 + it->second->pos, player_table.size());
+		log("inspecting %d/%d", 1 + it->second->pos, player_table.size());
 #endif
 
 		if (!*it->second->req)
@@ -5753,8 +5749,7 @@ struct set_struct		/*
 	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
 	{"scriptwriter",LVL_IMPL, PC, BINARY}, // 63
 	{"spammer",LVL_GOD, PC, BINARY}, // 64	
-	{"gloryhide",LVL_IMPL, PC, BINARY}, // 65
-    {"telegram",LVL_IMPL, PC, MISC}, // 66
+	{"gloryhide",LVL_IMPL, PC, BINARY}, // 65	
 	{"\n", 0, BOTH, MISC}
 };
 
@@ -6466,18 +6461,6 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	}
 		break;
 	}
-	case 66: // идентификатор чата телеграма
-    {
-	    unsigned long int id = strtoul(val_arg, nullptr, 10);
-	    if (id != 0) {
-	        sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->player_specials->saved.telegram_id, id);
-	        send_to_char(buf, ch);
-	        vict->setTelegramId(id);
-        }
-	    else
-            send_to_char("Ошибка, указано неверное число.\r\n", ch);
-        break;
-    }
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
 		return (0);

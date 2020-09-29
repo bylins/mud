@@ -166,9 +166,6 @@ public:
     void updateCharmee(int vnum, int gold);
     // получить список чармисов игрока
     std::map<int, MERCDATA>  *getMercList();
-    // метод выставления chat_id
-    void setTelegramId(unsigned long chat_id) override;
-    unsigned long int getTelegramId() override;
 
 private:
 	// показывает, является ли чар турнирным или нет
