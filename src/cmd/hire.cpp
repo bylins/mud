@@ -306,8 +306,7 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         af.location = APPLY_NONE;
         af.bitvector = to_underlying(EAffectFlag::AFF_HELPER);
         af.battleflag = 0;
-	affect_to_char(helpee, af);
-
+        affect_to_char(helpee, af);
 
         sprintf(buf, "$n сказал$g вам : \"Приказывай, %s!\"", IS_FEMALE(ch) ? "хозяйка" : "хозяин");
         act(buf, FALSE, helpee, 0, ch, TO_VICT | CHECK_DEAF);
