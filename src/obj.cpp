@@ -1177,85 +1177,85 @@ void init_item_levels()
 
 namespace system_obj
 {
-    /// кошелек для кун с игрока
-    const int PURSE_VNUM = 1924;
-    int PURSE_RNUM = -1;
-    /// персональное хранилище
-    const int PERS_CHEST_VNUM = 331;
-    int PERS_CHEST_RNUM = -1;
-    TelegramBot *bot = new TelegramBot();
 
-    /// при старте сразу после лоада зон
-    void init()
-    {
-        PURSE_RNUM = real_object(PURSE_VNUM);
-        PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
-    }
+/// кошелек для кун с игрока
+const int PURSE_VNUM = 1924;
+int PURSE_RNUM = -1;
+/// персональное хранилище
+const int PERS_CHEST_VNUM = 331;
+int PERS_CHEST_RNUM = -1;
 
-    OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
-    {
-        const auto obj = world_objects.create_from_prototype_by_rnum(PURSE_RNUM);
-        if (!obj)
-        {
-            return obj.get();
-        }
+/// при старте сразу после лоада зон
+void init()
+{
+	PURSE_RNUM = real_object(PURSE_VNUM);
+	PERS_CHEST_RNUM = real_object(PERS_CHEST_VNUM);
+}
 
-        obj->set_aliases("тугой кошелек");
-        obj->set_short_description("тугой кошелек");
-        obj->set_description("Кем-то оброненный тугой кошелек лежит здесь.");
-        obj->set_PName(0, "тугой кошелек");
-        obj->set_PName(1, "тугого кошелька");
-        obj->set_PName(2, "тугому кошельку");
-        obj->set_PName(3, "тугой кошелек");
-        obj->set_PName(4, "тугим кошельком");
-        obj->set_PName(5, "тугом кошельке");
+OBJ_DATA* create_purse(CHAR_DATA *ch, int/* gold*/)
+{
+	const auto obj = world_objects.create_from_prototype_by_rnum(PURSE_RNUM);
+	if (!obj)
+	{
+		return obj.get();
+	}
 
-        char buf_[MAX_INPUT_LENGTH];
-        snprintf(buf_, sizeof(buf_),
-            "--------------------------------------------------\r\n"
-            "Владелец: %s\r\n"
-            "В случае потери просьба вернуть за вознаграждение.\r\n"
-            "--------------------------------------------------\r\n"
-            , ch->get_name().c_str());
-        obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
+	obj->set_aliases("тугой кошелек");
+	obj->set_short_description("тугой кошелек");
+	obj->set_description("Кем-то оброненный тугой кошелек лежит здесь.");
+	obj->set_PName(0, "тугой кошелек");
+	obj->set_PName(1, "тугого кошелька");
+	obj->set_PName(2, "тугому кошельку");
+	obj->set_PName(3, "тугой кошелек");
+	obj->set_PName(4, "тугим кошельком");
+	obj->set_PName(5, "тугом кошельке");
 
-        obj->set_type(OBJ_DATA::ITEM_CONTAINER);
-        obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_),
+		"--------------------------------------------------\r\n"
+		"Владелец: %s\r\n"
+		"В случае потери просьба вернуть за вознаграждение.\r\n"
+		"--------------------------------------------------\r\n"
+		, ch->get_name().c_str());
+	obj->set_ex_description(obj->get_PName(0).c_str(), buf_);
 
-        obj->set_val(0, 0);
-        // CLOSEABLE + CLOSED
-        obj->set_val(1,  5);
-        obj->set_val(2, -1);
-        obj->set_val(3, ch->get_uid());
+	obj->set_type(OBJ_DATA::ITEM_CONTAINER);
+	obj->set_wear_flags(to_underlying(EWearFlag::ITEM_WEAR_TAKE));
 
-        obj->set_rent_off(0);
-        obj->set_rent_on(0);
-        // чтобы скавенж мобов не трогать
-        obj->set_cost(2);
-        obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
-        obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
+	obj->set_val(0, 0);
+	// CLOSEABLE + CLOSED
+	obj->set_val(1,  5);
+	obj->set_val(2, -1);
+	obj->set_val(3, ch->get_uid());
 
-        return obj.get();
-    }
+	obj->set_rent_off(0);
+	obj->set_rent_on(0);
+	// чтобы скавенж мобов не трогать
+	obj->set_cost(2);
+	obj->set_extra_flag(EExtraFlag::ITEM_NODONATE);
+	obj->set_extra_flag(EExtraFlag::ITEM_NOSELL);
 
-    bool is_purse(OBJ_DATA *obj)
-    {
-        return obj->get_rnum() == PURSE_RNUM;
-    }
+	return obj.get();
+}
 
-    /// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
-    void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
-    {
-        auto value = obj->get_val(1);
-        REMOVE_BIT(value, CONT_CLOSED);
-        obj->set_val(1, value);
+bool is_purse(OBJ_DATA *obj)
+{
+	return obj->get_rnum() == PURSE_RNUM;
+}
 
-        char buf_[MAX_INPUT_LENGTH];
-        snprintf(buf_, sizeof(buf_), "all");
-        get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
-        act("$o рассыпал$U в ваших руках...", FALSE, ch, obj, 0, TO_CHAR);
-        extract_obj(obj);
-    }
+/// вываливаем и пуржим кошелек при попытке открыть или при взятии хозяином
+void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj)
+{
+	auto value = obj->get_val(1);
+	REMOVE_BIT(value, CONT_CLOSED);
+	obj->set_val(1, value);
+
+	char buf_[MAX_INPUT_LENGTH];
+	snprintf(buf_, sizeof(buf_), "all");
+	get_from_container(ch, obj, buf_, FIND_OBJ_INV, 1, false);
+	act("$o рассыпал$U в ваших руках...", FALSE, ch, obj, 0, TO_CHAR);
+	extract_obj(obj);
+}
 
 } // namespace system_obj
 

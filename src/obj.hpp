@@ -12,7 +12,6 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "cmd/telegram.h"
 
 #include <array>
 #include <vector>
@@ -942,28 +941,29 @@ private:
 
 namespace ObjSystem
 {
-    float count_affect_weight(const CObjectPrototype* obj, int num, int mod);
-    bool is_armor_type(const CObjectPrototype *obj);
-    void release_purged_list();
-    void init_item_levels();
-    void init_ilvl(CObjectPrototype *obj);
-    bool is_mob_item(const CObjectPrototype *obj);
+
+float count_affect_weight(const CObjectPrototype* obj, int num, int mod);
+bool is_armor_type(const CObjectPrototype *obj);
+void release_purged_list();
+void init_item_levels();
+void init_ilvl(CObjectPrototype *obj);
+bool is_mob_item(const CObjectPrototype *obj);
+
 } // namespace ObjSystem
 
 std::string char_get_custom_label(OBJ_DATA *obj, CHAR_DATA *ch);
 
 namespace system_obj
 {
-    /// кошелек для кун с игрока
-    extern int PURSE_RNUM;
-    /// персональное хранилище
-    extern int PERS_CHEST_RNUM;
-    void init();
-    OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
-    bool is_purse(OBJ_DATA *obj);
-    void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);
-    // телеграм-бот
-    extern TelegramBot *bot;
+/// кошелек для кун с игрока
+extern int PURSE_RNUM;
+/// персональное хранилище
+extern int PERS_CHEST_RNUM;
+
+void init();
+OBJ_DATA* create_purse(CHAR_DATA *ch, int gold);
+bool is_purse(OBJ_DATA *obj);
+void process_open_purse(CHAR_DATA *ch, OBJ_DATA *obj);
 } // namespace system_obj
 
 namespace SetSystem

@@ -15,6 +15,7 @@
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
 #include "strengthening.hpp"
+
 class BanList;	// to avoid inclusion of ban.hpp
 
 /**
@@ -57,8 +58,11 @@ public:
 	static BloodyInfoMap& bloody_map();
 	static Rooms& world();
 	static PlayersIndex& player_table();
+
 	static DailyQuestMap& daily_quests();
+
 	static Strengthening& strengthening();
+
 	static obj2trigers_t& obj_trigers();
 };
 
