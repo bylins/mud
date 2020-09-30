@@ -1,12 +1,13 @@
 #include "telegram.h"
 #include "chars/char_player.hpp"
+#include "chars/world.characters.hpp"
 
 #include <obj.hpp>
 
-extern CHAR_DATA *get_player_of_name(const char *name);
-
 void do_telegram(CHAR_DATA *ch, char *argument, int, int){
 #if defined(HAVE_TG)
+    unsigned long int tgId = 0;
+    bool found = false;
     char playerName[24];
     char output[MAX_INPUT_LENGTH];
     char utfBuf[MAX_RAW_INPUT_LENGTH];
@@ -20,17 +21,25 @@ void do_telegram(CHAR_DATA *ch, char *argument, int, int){
         send_to_char(ch, "Коротковато сообщеньице!\r\n");
         return;
     }
-    CHAR_DATA * victim = get_player_of_name(playerName);
+    for (const auto& character : character_list) {
+        const auto i = character.get();
+        if (isname(playerName, i->get_pc_name())) {
+            found = true;
+            tgId = i->player_specials->saved.telegram_id;
+            break;
+        }
+    }
     Player p_vict;
-    if (!victim) {
+    if (!found) {
+//        send_to_char(ch, "Не нашли онлайн, ищем в файле.\r\n");
         if (load_char(playerName, &p_vict) == -1) {
             send_to_char("Ошибочка вышла..\r\n", ch);
             return;
         }
-    } else
-        p_vict = *(dynamic_cast<Player*>(victim));
+        tgId = p_vict.getTelegramId();
+    }
 
-    if (p_vict.getTelegramId() == 0) {
+    if (tgId == 0) {
         send_to_char(ch, "Звыняйте, барин, нэмае у той телеги колесьев...\r\n");
         return;
     }
@@ -41,7 +50,7 @@ void do_telegram(CHAR_DATA *ch, char *argument, int, int){
         send_to_char("Ошибочка вышла..\r\n", ch);
         return;
     }
-    if (!system_obj::bot->sendMessage(p_vict.getTelegramId(), utfBuf)) {
+    if (!system_obj::bot->sendMessage(tgId, utfBuf)) {
         send_to_char("Ошибочка вышла..\r\n", ch);
         return;
     };
@@ -66,7 +75,7 @@ bool TelegramBot::sendMessage(unsigned long chatId, const std::string& msg) {
     if (chatId < 1 || msg.empty())
         return false;
     curl_easy_setopt(curl, CURLOPT_URL, this->uri.c_str());
-    sprintf(msgBuf, "chat_id=358708535&text=%s", curl_easy_escape(curl, msg.c_str(), msg.length()));
+    sprintf(msgBuf, "%s%s", msgStr.c_str(), curl_easy_escape(curl, msg.c_str(), msg.length()));
     curl_easy_setopt(curl, CURLOPT_POSTFIELDS, msgBuf);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, noop_cb);
 
@@ -84,6 +93,13 @@ TelegramBot::TelegramBot() {
     curl_global_init(CURL_GLOBAL_ALL);
     this->sendMessage(debugChatId, "Chat-bot init successful.");
     #endif
+}
+
+TelegramBot::~TelegramBot() {
+#if defined(HAVE_TG)
+    curl_global_cleanup();
+#endif
+
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

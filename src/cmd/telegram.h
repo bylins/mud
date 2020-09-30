@@ -19,6 +19,7 @@ private:
     const unsigned long debugChatId = 358708535;
 public:
     TelegramBot();
+    ~TelegramBot();
     bool sendMessage(unsigned long chatId, const std::string& msg);
 };
 
