@@ -15,6 +15,8 @@ private:
     CURL *curl;
 #endif
     const std::string msgStr = "chat_id=358708535&text=";
+    const std::string chatIdParam = "chat_id=";
+    const std::string textParam = "&text=";
     const std::string uri = "https://api.telegram.org/bot1330963555:AAHvh-gXBRxJHVKOmjsl8E73TJr0cO2eC50/sendMessage";
     const unsigned long debugChatId = 358708535;
 public:
