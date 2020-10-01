@@ -205,7 +205,7 @@ set(SOURCES
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
 		src/cmd.wiz/stat.cpp
-)
+        src/cmd/follow.cpp src/cmd/follow.h)
 
 set(HEADERS
 		src/cmd.wiz/stat.h
