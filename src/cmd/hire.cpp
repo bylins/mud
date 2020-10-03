@@ -255,6 +255,8 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
                 return;
             }
         }
+	if (MOB_FLAGGED(helpee, MOB_NOGROUP))
+		    MOB_FLAGS(helpee).unset(MOB_NOGROUP);
 
         AFFECT_DATA<EApplyLocation> af;
         if (!(k && k->follower == helpee)) {

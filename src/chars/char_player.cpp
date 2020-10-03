@@ -2099,7 +2099,11 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				today_torc_.second = num2;
 			}
             else if (!strcmp(tag, "Tlgr")) {
-                this->player_specials->saved.telegram_id = lnum;
+                if (lnum <= 10000000000000) {
+                    this->player_specials->saved.telegram_id = lnum;
+                } else { // зачищаем остатки старой баги
+                    this->player_specials->saved.telegram_id = 0;
+                }
             }
 			else if (!strcmp(tag, "TSpl"))
 			{

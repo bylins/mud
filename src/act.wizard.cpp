@@ -5158,13 +5158,13 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 66: // идентификатор чата телеграма
     {
 	    unsigned long int id = strtoul(val_arg, nullptr, 10);
-	    if (id != 0) {
+	    if (!IS_NPC(ch) && id != 0) {
 	        sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->player_specials->saved.telegram_id, id);
 	        send_to_char(buf, ch);
 	        vict->setTelegramId(id);
         }
 	    else
-            send_to_char("Ошибка, указано неверное число.\r\n", ch);
+            send_to_char("Ошибка, указано неверное число или персонаж.\r\n", ch);
         break;
     }
 	default:

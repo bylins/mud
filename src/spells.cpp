@@ -1104,13 +1104,15 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 			mobRemember(victim, ch);
 		}
 
+		if (MOB_FLAGGED(victim, MOB_NOGROUP))
+			MOB_FLAGS(victim).unset(MOB_NOGROUP);
+
 		affect_from_char(victim, SPELL_CHARM);
 		ch->add_follower(victim);
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 
-		if (GET_REAL_INT(victim) > GET_REAL_INT(ch))
-		{
+		if (GET_REAL_INT(victim) > GET_REAL_INT(ch)) {
 			af.duration = pc_duration(victim, GET_REAL_CHA(ch), 0, 0, 0, 0);
 		}
 		else
@@ -1124,21 +1126,16 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		af.battleflag = 0;
 		affect_to_char(victim, af);
 
-		if (GET_HELPER(victim))
-		{
+		if (GET_HELPER(victim)) {
 			GET_HELPER(victim) = NULL;
 		}
 
 		act("$n покорил$g ваше сердце настолько, что вы готовы на все ради н$s.", FALSE, ch, 0, victim, TO_VICT);
-		if (IS_NPC(victim))
-		{
+		if (IS_NPC(victim)) {
 //Eli. Раздеваемся.
-			for (int i = 0; i < NUM_WEARS; i++)
-			{
-				if (GET_EQ(victim, i))
-				{
-					if (!remove_otrigger(GET_EQ(victim, i), victim))
-					{
+			for (int i = 0; i < NUM_WEARS; i++) {
+				if (GET_EQ(victim, i)) {
+					if (!remove_otrigger(GET_EQ(victim, i), victim)) {
 						continue;
 					}
 

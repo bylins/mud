@@ -205,9 +205,10 @@ set(SOURCES
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
 		src/cmd.wiz/stat.cpp
-        src/cmd/follow.cpp src/cmd/follow.h)
+        src/cmd/follow.cpp )
 
 set(HEADERS
+		src/cmd/follow.h
 		src/cmd.wiz/stat.h
 		src/cmd/telegram.h
 		src/cmd/hire.h
@@ -690,10 +691,10 @@ else ()
 endif ()
 option(HAVE_TG "SSL and CURL should be compiled, only LINUX. It is required to support Telegram." ${DEFAULT_TG})
 if (HAVE_TG)
-	find_package(Threads REQUIRED)
-	if (NOT Threads_FOUND)
-		set(HAVE_TG "NO")
-	endif()
+#	find_package(Threads REQUIRED)
+#	if (NOT Threads_FOUND)
+#		set(HAVE_TG "NO")
+#	endif()
 	find_package(OpenSSL REQUIRED)
 	if (NOT OPENSSL_FOUND)
 		set(HAVE_TG "NO")
@@ -708,8 +709,9 @@ if (HAVE_TG)
 	endif()
 	if (HAVE_TG)
 		add_definitions("-DHAVE_TG")
-		set(Boost_USE_MULTITHREADED ON)
-		target_link_libraries(circle.library /usr/local/lib/libTgBot.a ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
+#		set(Boost_USE_MULTITHREADED ON)
+#		${CMAKE_THREAD_LIBS_INIT}
+		target_link_libraries(circle.library /usr/local/lib/libTgBot.a ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
 		message(STATUS "SSL IS ON, Telegram support enabled")
 	else ()
 		message(STATUS "Telegram support disabled, no dependant libs found")
