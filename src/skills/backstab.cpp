@@ -50,7 +50,7 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     }
 
     if (!IS_NPC(ch) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != type_pierce) {
-        send_to_char("ЗаКОЛоть можно только КОЛющи оружием!\r\n", ch);
+        send_to_char("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
         return;
     }
 
