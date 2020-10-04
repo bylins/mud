@@ -202,10 +202,14 @@ set(SOURCES
 		src/cmd/mercenary.cpp
         src/core/affect_data.cpp
 		src/cmd/track.cpp
+		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
-     	src/cmd/hire.cpp)
+		src/cmd.wiz/stat.cpp
+        src/cmd/follow.cpp )
 
 set(HEADERS
+		src/cmd/follow.h
+		src/cmd.wiz/stat.h
 		src/cmd/telegram.h
 		src/cmd/hire.h
 		src/cmd/telegram.h

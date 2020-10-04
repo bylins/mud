@@ -114,7 +114,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 int touch(const char *path);
-void pers_log(CHAR_DATA *ch, const char *format, ...) __attribute__((format(printf,2,3)));
+
 int number(int from, int to);
 int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
@@ -138,14 +138,13 @@ int valid_email(const char *address);
 void skip_dots(char **string);
 const char * str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
-bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 int get_real_dr(CHAR_DATA *ch);
 extern bool GetAffectNumByName(const std::string& affName, EAffectFlag& result);
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
 bool is_head(std::string name);
-extern std::list<FILE *> opened_files;
+
 extern bool is_dark(room_rnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 extern const char *ACTNULL;
@@ -204,9 +203,6 @@ char * CAP(char *txt);
 #define WtoK(c) ((ubyte)(c) < 128 ? (c) : WinToKoi[(ubyte)(c)-128])
 #define AtoK(c) ((ubyte)(c) < 128 ? (c) : AltToKoi[(ubyte)(c)-128])
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
-
-// in magic.cpp //
-bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim);
 
 // in act.informative.cpp //
 void look_at_room(CHAR_DATA * ch, int mode);
@@ -1548,8 +1544,6 @@ void print_bitset(const N& bits, const T& names,
 }
 
 const char *print_obj_state(int tm_pct);
-
-bool no_bad_affects(OBJ_DATA *obj);
 
 struct exchange_item_data;
 // для парса строки с фильтрами в клан-хранах и базаре

@@ -1,5 +1,6 @@
 #include "hire.h"
 
+#include "cmd/follow.h"
 #include "handler.h"
 #include <boost/lexical_cast.hpp>
 

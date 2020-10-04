@@ -9,6 +9,54 @@
 
 #include <iostream>
 
+/**
+* Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
+* Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).
+*/
+// дескрипторы открытых файлов логов для сброса буфера при креше
+std::list<FILE *> opened_files;
+
+void pers_log(CHAR_DATA *ch, const char *format, ...)
+{
+    if (!ch)
+    {
+        log("NULL character resieved! (%s %s %d)", __FILE__, __func__, __LINE__);
+        return;
+    }
+
+    if (!format)
+    {
+        format = "SYSERR: pers_log received a NULL format.";
+    }
+
+    if (!ch->desc->pers_log)
+    {
+        char filename[128], name[64], *ptr;
+        strcpy(name, GET_NAME(ch));
+        for (ptr = name; *ptr; ptr++)
+        {
+            *ptr = LOWER(AtoL(*ptr));
+        }
+        sprintf(filename, "../log/perslog/%s.log", name);
+        ch->desc->pers_log = fopen(filename, "a");
+        if (!ch->desc->pers_log)
+        {
+            log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
+            return;
+        }
+        opened_files.push_back(ch->desc->pers_log);
+    }
+
+    write_time(ch->desc->pers_log);
+    va_list args;
+    va_start(args, format);
+    vfprintf(ch->desc->pers_log, format, args);
+    va_end(args);
+    fprintf(ch->desc->pers_log, "\n");
+}
+
+
+
 // Файл для вывода
 FILE *logfile = nullptr;
 

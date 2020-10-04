@@ -1,14 +1,41 @@
 #include <glory_const.hpp>
+
 #include "affect_data.h"
+#include "chars/char_player.hpp"
+#include "chars/world.characters.hpp"
+#include "class.hpp"
+#include "cmd/follow.h"
+#include "deathtrap.hpp"
 #include "handler.h"
 #include "magic.h"
 #include "poison.hpp"
-#include "class.hpp"
-
-#include "chars/world.characters.hpp"
-#include "deathtrap.hpp"
 #include "spells.h"
-#include "chars/char_player.hpp"
+
+bool no_bad_affects(OBJ_DATA *obj)
+{
+    static std::list<EWeaponAffectFlag> bad_waffects =
+            {
+                    EWeaponAffectFlag::WAFF_HOLD,
+                    EWeaponAffectFlag::WAFF_SANCTUARY,
+                    EWeaponAffectFlag::WAFF_PRISMATIC_AURA,
+                    EWeaponAffectFlag::WAFF_POISON,
+                    EWeaponAffectFlag::WAFF_SILENCE,
+                    EWeaponAffectFlag::WAFF_DEAFNESS,
+                    EWeaponAffectFlag::WAFF_HAEMORRAGIA,
+                    EWeaponAffectFlag::WAFF_BLINDNESS,
+                    EWeaponAffectFlag::WAFF_SLEEP,
+                    EWeaponAffectFlag::WAFF_HOLY_DARK
+            };
+    for (const auto wa : bad_waffects)
+    {
+        if (OBJ_AFFECT(obj, wa))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 // Return the effect of a piece of armor in position eq_pos
 int apply_ac(CHAR_DATA * ch, int eq_pos)
