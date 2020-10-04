@@ -1443,10 +1443,23 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		ndice = 6;
 		sdice = 15;
 		adice = (level - 22) * 2;
-		if (GET_POS(victim) > POS_SITTING &&
-				!WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
+		// если наездник, то считаем не сейвисы, а SKILL_HORSE
+		if (ch->ahorse()) {
+//		    5% шанс успеха,
+            rand = number(1,100);
+            if (rand > 95)
+                break;
+            // провал - 5% шанс или скилл наездника vs скилл магии кастера на кубике d6
+            if (rand < 5 || (calculate_skill(victim, SKILL_HORSE, nullptr) * number (1, 6)) < GET_SKILL(ch, SKILL_EARTH_MAGIC) * number (1, 6) ) {//фейл
+                ch->drop_from_horse();
+                break;
+            }
+		}
+		if (GET_POS(victim) > POS_SITTING && !WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30))))
 		{
+            if (IS_HORSE(ch))
+                ch->drop_from_horse();
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
