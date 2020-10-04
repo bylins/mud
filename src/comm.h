@@ -36,6 +36,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake);
 void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
 void perform_to_all(const char *messg, CHAR_DATA * ch);
+char *color_value(CHAR_DATA* /*ch*/, int real, int max);
 #ifdef HAS_EPOLL
 void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event *events, int n_ev);
 #else

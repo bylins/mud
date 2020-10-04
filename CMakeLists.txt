@@ -203,7 +203,7 @@ set(SOURCES
         src/core/affect_data.cpp
 		src/cmd/track.cpp
 		src/cmd/telegram.cpp
-     	src/cmd/hire.cpp)
+     	src/cmd/hire.cpp src/groups/grp.member.cpp src/groups/grp.member.h src/groups/group.cpp src/groups/group.h)
 
 set(HEADERS
 		src/cmd/telegram.h
