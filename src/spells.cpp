@@ -1240,11 +1240,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	if (fullness < 30)
 		return;
-
-	send_to_char("Материал : ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprinttype(obj->get_material(), material_name, buf);
-	strcat(buf, "\r\n");
+	sprinttype(obj->get_material(), material_name, buf2);
+	sprintf(buf, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, obj->get_maximum_durability(), obj->get_current_durability());
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
@@ -1631,8 +1628,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	obj_sets::print_identify(ch, obj);
 }
 
-void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
-{
+void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch) {
+
 	int i, found, drndice = 0, drsdice = 0;
 	long int li;
 
@@ -1644,23 +1641,16 @@ void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
 	send_to_char(buf, ch);
 
 	strcpy(buf, diag_weapon_to_char(obj, 2));
-	if (*buf)
-	{
+	if (*buf) {
 		send_to_char(buf, ch);
 	}
 
-	//show_weapon(ch, obj);
-
-	send_to_char("Материал : ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprinttype(obj->get_material(), material_name, buf);
-	strcat(buf, "\r\n");
+	sprinttype(obj->get_material(), material_name, buf2);
+	sprintf(buf, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, obj->get_maximum_durability(), obj->get_current_durability());
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
 	sprintf(buf, "Таймер : %d\r\n", obj->get_timer());
-	send_to_char(buf, ch);
-	sprintf(buf, "Прочность : %d\\%d\r\n", obj->get_current_durability(), obj->get_maximum_durability());
 	send_to_char(buf, ch);
 
 	send_to_char("Накладывает на вас аффекты: ", ch);
