@@ -635,10 +635,8 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt = 0)
     sprintbit(j->get_wear_flags(), wear_bits, buf);
     strcat(buf, "\r\n");
     send_to_char(buf, ch);
-
-    sprintf(buf, "Материал : ");
-    sprinttype(j->get_material(), material_name, buf + strlen(buf));
-    strcat(buf, "\r\n");
+    sprinttype(j->get_material(), material_name, buf2);
+    sprintf(buf, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, j->get_maximum_durability(), j->get_current_durability());
     send_to_char(buf, ch);
 
     send_to_char("Неудобства : ", ch);
