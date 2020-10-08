@@ -51,7 +51,6 @@ extern int file_to_string_alloc(const char *name, char **buf);
 // TODO: думать надо с этим, или глобально следить за спамом, или игноров напихать на все случаи жизни, или так и оставить
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
-extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern char const *class_abbrevs[];
 extern bool char_to_pk_clan(CHAR_DATA *ch);
@@ -4888,7 +4887,7 @@ void DoStoreHouse(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 				if (tmp_obj)
 				{
 					send_to_char(ch, "Характеристики предмета: %s\r\n", stufina);
-					GET_LEVEL(ch) < LVL_IMPL ? mort_show_obj_values(tmp_obj, ch, 200) : imm_show_obj_values(tmp_obj, ch);
+					mort_show_obj_values(tmp_obj, ch, 200);
 					ch->remove_bank(CHEST_IDENT_PAY);
 					send_to_char(ch, "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 						CCIGRN(ch, C_NRM), CHEST_IDENT_PAY, desc_count(CHEST_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));
