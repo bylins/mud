@@ -45,35 +45,30 @@ void do_statip(CHAR_DATA * ch, CHAR_DATA * k)
 
 void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt = 0)
 {
-    int i, i2, found = 0;
-    OBJ_DATA *j;
-    struct follow_type *fol;
-    char tmpbuf[128];
-
-    int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
-    int k_room = -1;
-    if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k))))
-    {
-        k_room = GET_ROOM_VNUM(IN_ROOM(k));
-    }
-    // пишем пол  (мужчина)
-    sprinttype(to_underlying(GET_SEX(k)), genders, tmpbuf);
-    // пишем расу (Человек)
-    if (IS_NPC(k))
-    {
-        sprinttype(GET_RACE(k) - NPC_RACE_BASIC, npc_race_types, smallBuf);
-        sprintf(buf, "%s %s", tmpbuf, smallBuf);
-    }
-    sprintf(buf2, " %s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]",
-            (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")),
-            GET_NAME(k), GET_IDNUM(k), k_room, GET_ID(k));
-    send_to_char(strcat(buf, buf2), ch);
-    send_to_char(ch, " ЛАГ: [%d]\r\n", k->get_wait());
-    if (IS_MOB(k))
-    {
-        sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n", k->get_pc_name().c_str(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
-        send_to_char(buf, ch);
-    }
+	int i, i2, found = 0;
+	OBJ_DATA *j;
+	struct follow_type *fol;
+	char tmpbuf[128];
+	buf[0] = 0;
+	int god_level = PRF_FLAGGED(ch, PRF_CODERINFO) ? LVL_IMPL : GET_LEVEL(ch);
+	int k_room = -1;
+	if (!virt && (god_level == LVL_IMPL || (god_level == LVL_GRGOD && !IS_NPC(k)))) {
+		k_room = GET_ROOM_VNUM(IN_ROOM(k));
+	}
+	// пишем пол  (мужчина)
+	sprinttype(to_underlying(GET_SEX(k)), genders, tmpbuf);
+	// пишем расу (Человек)
+	if (IS_NPC(k)) {
+		sprinttype(GET_RACE(k) - NPC_RACE_BASIC, npc_race_types, smallBuf);
+		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
+	}
+	sprintf(buf2, "%s '%s' IDNum: [%ld] В комнате [%d] Текущий ID:[%ld]", (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")), GET_NAME(k), GET_IDNUM(k), k_room, GET_ID(k));
+	send_to_char(strcat(buf, buf2), ch);
+	send_to_char(ch, " ЛАГ: [%d]\r\n", k->get_wait());
+	if (IS_MOB(k)) {
+		sprintf(buf, "Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n", k->get_pc_name().c_str(), GET_MOB_VNUM(k), GET_MOB_RNUM(k));
+		send_to_char(buf, ch);
+	}
 
     sprintf(buf, "Падежи: %s/%s/%s/%s/%s/%s ", GET_PAD(k, 0), GET_PAD(k, 1), GET_PAD(k, 2), GET_PAD(k, 3), GET_PAD(k, 4), GET_PAD(k, 5));
     send_to_char(buf, ch);
