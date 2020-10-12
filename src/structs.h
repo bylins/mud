@@ -533,7 +533,7 @@ extern const religion_names_t religion_name;
 #define NPC_WIELDING      (INT_ONE | (1 << 1))
 #define NPC_ARMORING      (INT_ONE | (1 << 2))
 #define NPC_USELIGHT      (INT_ONE | (1 << 3))
-#define NPC_NOTAKEITEMS   (INT_ONE | (1 << 3))
+#define NPC_NOTAKEITEMS   (INT_ONE | (1 << 4))
 
 // Descriptor flags //
 #define DESC_CANZLIB (1 << 0)	// Client says compression capable.   //
