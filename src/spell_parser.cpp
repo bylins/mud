@@ -3569,7 +3569,6 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		"умения",
 		"умения",
 		"рецепта",
-		"рецепта",
 		"способности"
 	};
 

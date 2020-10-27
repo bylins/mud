@@ -2391,7 +2391,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		accum_duration = TRUE;
 		to_room = "$n глубоко поклонил$u земле.";
-		to_vict = "Глубокий поклон тебе матушка земля.";
+		to_vict = "Глубокий поклон тебе, матушка земля.";
 		break;
 
 	case SPELL_FIRE_AURA:
@@ -5557,7 +5557,7 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_AWARNESS,
-	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников6.\r\n",
+	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
 	 nullptr,
 	 nullptr,
 	 0.0, 20, 2, 5, 20, 3, 0},
