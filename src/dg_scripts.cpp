@@ -2195,7 +2195,12 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				int n = 0;
 				if (!p) {
 					p = subfield;
-					n++;
+					while (*p++ != '\0') {
+						if (*p == ' ')
+							n++;
+					}
+					sprintf(str, "%d", n + 1);
+					return;
 				}
 				else {
 					*(p++) = '\0';
