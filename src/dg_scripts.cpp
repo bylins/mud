@@ -2193,11 +2193,17 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			if (!str_cmp(field, "item")) {
 				char *p = strchr(subfield, ',');
 				int n = 0;
+				int i = 1;
 				if (!p) {
 					p = subfield;
-					while (*p++ != '\0') {
-						if (*p == ' ')
+					while (p[i] != '\0') {
+						if (p[i] == ' ' && (p[i + 1] == ' ' ||  p[i + 1] == '\0')) {
+							i++;
+							continue;
+						}
+						if (p[i] == ' ')
 							n++;
+					i++;
 					}
 					sprintf(str, "%d", n + 1);
 					return;
