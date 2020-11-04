@@ -15,9 +15,9 @@ namespace GloryConst
 
     // процент комиссии на вложенную славу при вынимании
     const int STAT_RETURN_FEE = 0; // комис за перевод славы (проценты)
-    const int TRANSFER_FEE = 5; // минимальный комис за перевод славы (не проценты)
-    const int MIN_TRANSFER_TAX = 50; // минимальное кол-во славы для перевода (>= MIN_TRANSFER_TAX)
-    const int MIN_TRANSFER_AMOUNT = 100;
+    const int TRANSFER_FEE = 0; // минимальный комис за перевод славы (не проценты)
+    const int MIN_TRANSFER_TAX = 0; // минимальное кол-во славы для перевода (>= MIN_TRANSFER_TAX)
+    const int MIN_TRANSFER_AMOUNT = 5;
 
     //Кол-во единиц жизни, добавляемое за раз
     const int HP_FACTOR = 50;
