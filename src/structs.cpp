@@ -51,7 +51,7 @@ void asciiflag_conv(const char *flag, void *to)
 
 int ext_search_block(const char *arg, const char * const * const list, int exact)
 {
-	int i, j, o;
+	unsigned int i, j, o;
 
 	if (exact)
 	{
