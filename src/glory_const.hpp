@@ -14,10 +14,10 @@ namespace GloryConst
     const int cur_ver=1;//текущая версия нужна чтоб определить надо обновлять xml файл/пересчитывать статы или нет
 
     // процент комиссии на вложенную славу при вынимании
-    const int STAT_RETURN_FEE = 0; // комис за перевод славы (проценты)
-    const int TRANSFER_FEE = 0; // минимальный комис за перевод славы (не проценты)
-    const int MIN_TRANSFER_TAX = 0; // минимальное кол-во славы для перевода (>= MIN_TRANSFER_TAX)
-    const int MIN_TRANSFER_AMOUNT = 5;
+    const int STAT_RETURN_FEE = 0; // комис за перевод славы в статах (проценты)
+    const int TRANSFER_FEE = 5; // минимальный комис за перевод славы (в процентах)
+//    const int MIN_TRANSFER_AMOUNT = 1; 
+    const int MIN_TRANSFER_TAX = 20; // //минимальное кол-во славы для перевода
 
     //Кол-во единиц жизни, добавляемое за раз
     const int HP_FACTOR = 50;

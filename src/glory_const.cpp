@@ -660,14 +660,6 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	else if (CompareParam(buffer2, "перевести"))
 	{
-		if (it->second->free_glory < MIN_TRANSFER_AMOUNT)
-		{
-			send_to_char(ch,
-				"У вас недостаточно свободных очков постоянной славы (минимум %d).\r\n",
-				MIN_TRANSFER_AMOUNT);
-			return;
-		}
-
 		std::string name;
 		GetOneParam(buffer, name);
 		// buffer = кол-во
@@ -698,16 +690,16 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			return;
 		}
 
-		if (amount < MIN_TRANSFER_AMOUNT || amount > it->second->free_glory)
+		if (amount < MIN_TRANSFER_TAX || amount > it->second->free_glory)
 		{
 			send_to_char(ch,
 				"%d - некорректное количество для перевода.\r\n"
 				"Вы можете перевести от %d до %d постоянной славы.\r\n",
-				amount, MIN_TRANSFER_AMOUNT, it->second->free_glory);
+				amount, MIN_TRANSFER_TAX, it->second->free_glory);
 			return;
 		}
 
-		int tax = MAX(MIN_TRANSFER_TAX, amount / 100 * TRANSFER_FEE);
+		int tax = int (amount / 100. * TRANSFER_FEE);
 		int total_amount = amount - tax;
 
 		remove_glory(GET_UNIQUE(ch), amount);
