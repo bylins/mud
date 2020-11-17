@@ -3790,96 +3790,94 @@ void Clan::load_mod()
 
 // казна дружины... команды теже самые с приставкой 'казна' в начале
 // смотреть/вкладывать могут все, снимать по привилегии, висит на стандартных банкирах
-bool Clan::BankManage(CHAR_DATA * ch, char *arg)
-{
+bool Clan::BankManage(CHAR_DATA * ch, char *arg) {
 	if (IS_NPC(ch) || !CLAN(ch) || GET_LEVEL(ch) >= LVL_IMMORT)
 		return 0;
 
 	std::string buffer = arg, buffer2;
 	GetOneParam(buffer, buffer2);
 
-	if (CompareParam(buffer2, "баланс") || CompareParam(buffer2, "balance"))
-	{
+	if (CompareParam(buffer2, "баланс") || CompareParam(buffer2, "balance")) {
 		send_to_char(ch, "На счету вашей дружины ровно %ld %s.\r\n", CLAN(ch)->bank, desc_count(CLAN(ch)->bank, WHAT_MONEYa));
 		return 1;
 
 	}
-	else if (CompareParam(buffer2, "вложить") || CompareParam(buffer2, "deposit"))
-	{
+	else if (CompareParam(buffer2, "вложить") || CompareParam(buffer2, "deposit")) {
 		GetOneParam(buffer, buffer2);
 		long gold = atol(buffer2.c_str());
 
-		if (gold <= 0)
-		{
+		if (gold <= 0) {
 			send_to_char("Сколько вы хотите вложить?\r\n", ch);
 			return 1;
 		}
-		if (ch->get_gold() < gold)
-		{
+		if (ch->get_gold() < gold) {
 			send_to_char("О такой сумме вы можете только мечтать!\r\n", ch);
 			return 1;
 		}
 
 		// на случай переполнения казны
-		if ((CLAN(ch)->bank + gold) < 0)
-		{
+		if ((CLAN(ch)->bank + gold) < 0) {
 			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
 			CLAN(ch)->bank += over;
 			CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), over);
 			ch->remove_gold(over);
 			send_to_char(ch, "Вам удалось вложить в казну дружины только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
 			act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+			std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
+				% GET_NAME(ch) % GET_CH_SUF_1(ch) % over % desc_count(over, WHAT_MONEYu));
+				CLAN(ch)->chest_log.add(log_text);
 			return 1;
 		}
-
 		ch->remove_gold(gold);
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(GET_UNIQUE(ch), gold);
 		send_to_char(ch, "Вы вложили %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+		std::string log_text = boost::str(boost::format("%s вложил%s в казну %ld %s\r\n")
+			% GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % desc_count(gold, WHAT_MONEYu));
+			CLAN(ch)->chest_log.add(log_text);
 		return 1;
 
 	}
-	else if (CompareParam(buffer2, "получить") || CompareParam(buffer2, "withdraw"))
-	{
-		if (!CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_BANK])
-		{
+	else if (CompareParam(buffer2, "получить") || CompareParam(buffer2, "withdraw")) {
+		if (!CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_BANK]) {
 			send_to_char("К сожалению, у вас нет возможности транжирить средства дружины.\r\n", ch);
 			return 1;
 		}
 		GetOneParam(buffer, buffer2);
 		long gold = atol(buffer2.c_str());
 
-		if (gold <= 0)
-		{
+		if (gold <= 0) {
 			send_to_char("Уточните количество денег, которые вы хотите получить?\r\n", ch);
 			return 1;
 		}
-		if (CLAN(ch)->bank < gold)
-		{
+		if (CLAN(ch)->bank < gold) {
 			send_to_char("К сожалению, ваша дружина не так богата.\r\n", ch);
 			return 1;
 		}
 
 		// на случай переполнения персонажа
-		if ((ch->get_gold() + gold) < 0)
-		{
-			long over = std::numeric_limits<long int>::max() - ch->get_gold();
+		if ((ch->get_gold() + gold) < 0) {
+			long over = std::numeric_limits<long int>::max() - CLAN(ch)->bank;
 			ch->add_gold(over);
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), over);
 			send_to_char(ch, "Вам удалось снять только %ld %s.\r\n", over, desc_count(over, WHAT_MONEYu));
 			act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+			std::string log_text = boost::str(boost::format("%s получил%s из казны %ld %s\r\n")
+				% GET_NAME(ch) % GET_CH_SUF_1(ch) % over % desc_count(over, WHAT_MONEYu));
+				CLAN(ch)->chest_log.add(log_text);
 			return 1;
 		}
-
 		CLAN(ch)->bank -= gold;
 		CLAN(ch)->m_members.sub_money(GET_UNIQUE(ch), gold);
 		ch->add_gold(gold);
 		send_to_char(ch, "Вы сняли %ld %s.\r\n", gold, desc_count(gold, WHAT_MONEYu));
 		act("$n произвел$g финансовую операцию.", TRUE, ch, 0, FALSE, TO_ROOM);
+		std::string log_text = boost::str(boost::format("%s получил%s из казны %ld %s\r\n")
+			% GET_NAME(ch) % GET_CH_SUF_1(ch) % gold % desc_count(gold, WHAT_MONEYu));
+		CLAN(ch)->chest_log.add(log_text);
 		return 1;
-
 	}
 	else
 		send_to_char(ch, "Формат команды: казна вложить|получить|баланс сумма.\r\n");
