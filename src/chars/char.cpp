@@ -401,6 +401,7 @@ void CHAR_DATA::zero_init()
 	int_add_ = 0;
 	cha_ = 0;
 	cha_add_ = 0;
+	glory_time_ = 0;
 	role_.reset();
 	attackers_.clear();
 	restore_timer_ = 0;
@@ -1575,6 +1576,10 @@ int CHAR_DATA::get_inborn_str() const
 void CHAR_DATA::set_str(int param)
 {
 	str_ = MAX(1, param);
+}
+
+void CHAR_DATA::time_set_glory_stats(time_t param) {
+	glory_time_ = MAX(1, param);
 }
 
 void CHAR_DATA::inc_str(int param)

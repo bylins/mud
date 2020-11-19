@@ -583,6 +583,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			STATE(ch->desc) = CON_PLAYING;
 			check_max_hp(ch);
 			send_to_char("Ваши изменения сохранены.\r\n", ch);
+			ch->time_set_glory_stats(time(NULL));
 			ch->save_char();
 			save();
 			return 1;

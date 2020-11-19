@@ -75,10 +75,9 @@ Player::Player():
 	motion_(true),
 	ice_currency(0),
 	hryvn(0),
-	spent_hryvn(0)
-{
-	for (int i = 0; i < START_STATS_TOTAL; ++i)
-	{
+	spent_hryvn(0),
+	time_set_glory_stats(0) {
+	for (int i = 0; i < START_STATS_TOTAL; ++i) {
 		start_stats_.at(i) = 0;
 	}
 
@@ -90,13 +89,11 @@ Player::Player():
 	// на деле инит ровно тоже самое, может на перспективу это все было
 	//set_morph(NormalMorph::GetNormalMorph(this));
 
-	for (unsigned i = 0; i < ext_money_.size(); ++i)
-	{
+	for (unsigned i = 0; i < ext_money_.size(); ++i) {
 		ext_money_[i] = 0;
 	}
 
-	for (unsigned i = 0; i < reset_stats_cnt_.size(); ++i)
-	{
+	for (unsigned i = 0; i < reset_stats_cnt_.size(); ++i) {
 		reset_stats_cnt_.at(i) = 0;
 	}
 
@@ -759,6 +756,7 @@ void Player::save_char()
 	fprintf(saved, "Drol: %d\n", GET_DR(this));
 	fprintf(saved, "Ac  : %d\n", GET_AC(this));
 	fprintf(saved, "Hry : %d\n", this->get_hryvn());
+	fprintf(saved, "Tglo: %ld\n", static_cast<long int>(this->time_set_glory_stats));
 	fprintf(saved, "Hit : %d/%d\n", GET_HIT(this), GET_MAX_HIT(this));
 	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(this), GET_MEM_TOTAL(this));
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
@@ -2096,17 +2094,19 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 			else if (!strcmp(tag, "TrcL")) {
 				sscanf(line, "%d %d", &num, &num2);
 				today_torc_.first = num;
-				today_torc_.second = num2;
+				today_torc_.second = num2; 
 			}
-            else if (!strcmp(tag, "Tlgr")) {
-                if (lnum <= 10000000000000) {
-                    this->player_specials->saved.telegram_id = lnum;
-                } else { // зачищаем остатки старой баги
-                    this->player_specials->saved.telegram_id = 0;
-                }
-            }
-			else if (!strcmp(tag, "TSpl"))
-			{
+			else if (!strcmp(tag, "Tglo")) {
+				this->time_set_glory_stats = static_cast<time_t>(num);
+			}
+			else if (!strcmp(tag, "Tlgr")) {
+				if (lnum <= 10000000000000) {
+					this->player_specials->saved.telegram_id = lnum;
+				}
+				else  // зачищаем остатки старой баги
+					this->player_specials->saved.telegram_id = 0;
+			}
+			else if (!strcmp(tag, "TSpl")) {
 				do
 				{
 					fbgetline(fl, line);

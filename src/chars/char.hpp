@@ -506,6 +506,7 @@ public:
 	int get_inborn_str() const;
 	void set_str(int);
 	void inc_str(int);
+	void time_set_glory_stats(time_t);
 	int get_dex() const;
 	int get_inborn_dex() const;
 	void set_dex(int);
@@ -751,6 +752,7 @@ private:
 	int count_score;
 	// души, онли чернок
 	int souls;
+	time_t glory_time_;
 
 public:
 	bool isInSameRoom(const CHAR_DATA *ch) const {return (this->in_room == ch->in_room);};

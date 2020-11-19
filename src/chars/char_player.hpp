@@ -238,8 +238,10 @@ private:
 	std::map<int, time_t> daily_quest_timed;
 	// Аккаунт
 	std::shared_ptr<Account> account;
-    //перечень чармисов, доступных с команды наемник
-    std::map<int, MERCDATA> charmeeHistory;
+	//перечень чармисов, доступных с команды наемник
+	std::map<int, MERCDATA> charmeeHistory;
+	// когда в последний раз перебрасывал статы за славу
+	time_t time_set_glory_stats;
 };
 
 namespace PlayerSystem
