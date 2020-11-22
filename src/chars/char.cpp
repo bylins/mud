@@ -401,7 +401,6 @@ void CHAR_DATA::zero_init()
 	int_add_ = 0;
 	cha_ = 0;
 	cha_add_ = 0;
-	glory_time_ = 0;
 	role_.reset();
 	attackers_.clear();
 	restore_timer_ = 0;
@@ -1578,10 +1577,6 @@ void CHAR_DATA::set_str(int param)
 	str_ = MAX(1, param);
 }
 
-void CHAR_DATA::time_set_glory_stats(time_t param) {
-	glory_time_ = MAX(1, param);
-}
-
 void CHAR_DATA::inc_str(int param)
 {
 	str_ = MAX(1, str_+param);
@@ -2483,7 +2478,8 @@ player_special_data_saved::player_special_data_saved() :
 	ntfyExchangePrice(0),
 	HiredCost(0),
 	who_mana(0),
-    telegram_id(0)
+    telegram_id(0),
+    lastGloryRespecTime(0)
 {
 	memset(EMail, 0, sizeof(EMail));
 	memset(LastIP, 0, sizeof(LastIP));

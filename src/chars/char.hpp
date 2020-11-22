@@ -248,6 +248,7 @@ struct player_special_data_saved
 	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	unsigned int who_mana; // количество энергии для использования команды кто
     unsigned long int telegram_id;// идентификатор телеграма
+    time_t lastGloryRespecTime; // дата последнего респека славой
 };
 
 
@@ -752,7 +753,6 @@ private:
 	int count_score;
 	// души, онли чернок
 	int souls;
-	time_t glory_time_;
 
 public:
 	bool isInSameRoom(const CHAR_DATA *ch) const {return (this->in_room == ch->in_room);};
