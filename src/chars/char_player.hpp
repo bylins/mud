@@ -169,6 +169,9 @@ public:
     // метод выставления chat_id
     void setTelegramId(unsigned long chat_id) override;
     unsigned long int getTelegramId() override;
+    // методы работы с последним временем респека славой
+    void setGloryRespecTime(time_t param) override;
+    time_t getGloryRespecTime() override;
 
 private:
 	// показывает, является ли чар турнирным или нет
@@ -238,8 +241,8 @@ private:
 	std::map<int, time_t> daily_quest_timed;
 	// Аккаунт
 	std::shared_ptr<Account> account;
-    //перечень чармисов, доступных с команды наемник
-    std::map<int, MERCDATA> charmeeHistory;
+	//перечень чармисов, доступных с команды наемник
+	std::map<int, MERCDATA> charmeeHistory;
 };
 
 namespace PlayerSystem

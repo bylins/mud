@@ -453,10 +453,8 @@ int olc_real_stat(CHAR_DATA *ch, int stat)
 		+ ch->desc->glory_const->stat_add[stat];
 }
 
-bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
-{
-	switch (LOWER(*arg))
-	{
+bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg) {
+	switch (LOWER(*arg)) {
 		case 'а':
 			olc_del_stat(ch, GLORY_STR);
 			break;
@@ -583,6 +581,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			STATE(ch->desc) = CON_PLAYING;
 			check_max_hp(ch);
 			send_to_char("Ваши изменения сохранены.\r\n", ch);
+			ch->setGloryRespecTime(time(NULL));
 			ch->save_char();
 			save();
 			return 1;
@@ -610,7 +609,10 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вам это не нужно...\r\n", ch);
 		return;
 	}
-
+	if (ch->getGloryRespecTime() !=0 && (time(0) - ch->getGloryRespecTime() < 86400)) {
+		send_to_char("Не прошло и суток, а вам неймется...\r\n", ch);
+		return;
+	}
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
 
