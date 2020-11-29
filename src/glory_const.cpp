@@ -598,7 +598,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg) {
 }
 
 const char *GLORY_CONST_FORMAT =
-	"Формат: слава2\r\n"
+	"Формат: слава2 изменить\r\n"
 	"        слава2 информация\r\n"
 	"        слава2 перевести <имя> <кол-во>\r\n";
 
@@ -609,59 +609,15 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вам это не нужно...\r\n", ch);
 		return;
 	}
-	if (ch->getGloryRespecTime() !=0 && (time(0) - ch->getGloryRespecTime() < 86400)) {
-		send_to_char("Не прошло и суток, а вам неймется...\r\n", ch);
-		return;
-	}
+
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
-
-	if (buffer2.empty()) {
-		if (it->second->free_glory < 1000 && it->second->stats.empty()) {
-			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
-			return;
-		}
-
-		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
-		tmp_glory_olc->stat_cur[GLORY_STR] = ch->get_inborn_str();
-		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->get_inborn_dex();
-		tmp_glory_olc->stat_cur[GLORY_INT] = ch->get_inborn_int();
-		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->get_inborn_wis();
-		tmp_glory_olc->stat_cur[GLORY_CON] = ch->get_inborn_con();
-		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->get_inborn_cha();
-		tmp_glory_olc->stat_cur[GLORY_HIT] = it->second->stats[GLORY_HIT];
-		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = it->second->stats[GLORY_SUCCESS];
-		tmp_glory_olc->stat_cur[GLORY_WILL] = it->second->stats[GLORY_WILL];
-		tmp_glory_olc->stat_cur[GLORY_STABILITY] = it->second->stats[GLORY_STABILITY];
-		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
-		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
-		tmp_glory_olc->stat_cur[GLORY_MANAREG] = it->second->stats[GLORY_MANAREG];
-
-		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
-		{
-			if (i->first < GLORY_TOTAL && i->first >= 0)
-			{
-				tmp_glory_olc->stat_cur[i->first] -= i->second;
-				tmp_glory_olc->stat_add[i->first] = tmp_glory_olc->stat_was[i->first] = i->second;
-			}
-			else
-			{
-				log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
-			}
-		}
-		tmp_glory_olc->olc_free_glory = tmp_glory_olc->olc_was_free_glory = it->second->free_glory;
-
-		ch->desc->glory_const = tmp_glory_olc;
-		STATE(ch->desc) = CON_GLORY_CONST;
-		spend_glory_menu(ch);
-	}
-	else if (CompareParam(buffer2, "информация"))
-	{
+	if (CompareParam(buffer2, "информация")) {
 		send_to_char("Информация о вложенных вами очках славы:\r\n", ch);
 		print_glory(ch, it);
+		return;
 	}
-	else if (CompareParam(buffer2, "перевести"))
-	{
+	if (CompareParam(buffer2, "перевести")) {
 		std::string name;
 		GetOneParam(buffer, name);
 		// buffer = кол-во
@@ -669,31 +625,26 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		Player p_vict;
 		CHAR_DATA *vict = &p_vict;
-		if (load_char(name.c_str(), vict) < 0)
-		{
+		if (load_char(name.c_str(), vict) < 0) {
 			send_to_char(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
 			return;
 		}
-		if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict)))
-		{
+		if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict))) {
 			send_to_char(ch, "Персонажи имеют разные email адреса.\r\n");
 			return;
 		}
 
 		int amount = 0;
-		try
-		{
+		try {
 			amount = std::stoi(buffer);
 		}
-		catch(...)
-		{
+		catch(...) {
 			send_to_char(ch, "%s - некорректное количество для перевода.\r\n", buffer.c_str());
 			send_to_char(GLORY_CONST_FORMAT, ch);
 			return;
 		}
 
-		if (amount < MIN_TRANSFER_TAX || amount > it->second->free_glory)
-		{
+		if (amount < MIN_TRANSFER_TAX || amount > it->second->free_glory) {
 			send_to_char(ch,
 				"%d - некорректное количество для перевода.\r\n"
 				"Вы можете перевести от %d до %d постоянной славы.\r\n",
@@ -727,7 +678,49 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// TODO: ну если в глори-лог или карму, то надо стоимость/налог
 		// на трансфер ставить, чтобы не заспамили.
 		// а без отдельных логов потом фик поймешь откуда на чаре слава
+		return;
 	}
+	if (CompareParam(buffer2, "изменить")) {
+		if (it->second->free_glory < 1000 && it->second->stats.empty()) {
+			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
+			return;
+		}
+		if (ch->getGloryRespecTime() !=0 && (time(0) - ch->getGloryRespecTime() < 86400)) {
+			send_to_char("Не прошло и суток, а вам неймется...\r\n", ch);
+			return;
+		}
+		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
+		tmp_glory_olc->stat_cur[GLORY_STR] = ch->get_inborn_str();
+		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->get_inborn_dex();
+		tmp_glory_olc->stat_cur[GLORY_INT] = ch->get_inborn_int();
+		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->get_inborn_wis();
+		tmp_glory_olc->stat_cur[GLORY_CON] = ch->get_inborn_con();
+		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->get_inborn_cha();
+		tmp_glory_olc->stat_cur[GLORY_HIT] = it->second->stats[GLORY_HIT];
+		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = it->second->stats[GLORY_SUCCESS];
+		tmp_glory_olc->stat_cur[GLORY_WILL] = it->second->stats[GLORY_WILL];
+		tmp_glory_olc->stat_cur[GLORY_STABILITY] = it->second->stats[GLORY_STABILITY];
+		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
+		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
+		tmp_glory_olc->stat_cur[GLORY_MANAREG] = it->second->stats[GLORY_MANAREG];
+
+		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i) {
+			if (i->first < GLORY_TOTAL && i->first >= 0) {
+				tmp_glory_olc->stat_cur[i->first] -= i->second;
+				tmp_glory_olc->stat_add[i->first] = tmp_glory_olc->stat_was[i->first] = i->second;
+			}
+			else
+			{
+				log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
+			}
+		}
+		tmp_glory_olc->olc_free_glory = tmp_glory_olc->olc_was_free_glory = it->second->free_glory;
+
+		ch->desc->glory_const = tmp_glory_olc;
+		STATE(ch->desc) = CON_GLORY_CONST;
+		spend_glory_menu(ch);
+	}
+
 	else
 	{
 		send_to_char(GLORY_CONST_FORMAT, ch);
