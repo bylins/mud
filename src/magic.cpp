@@ -462,7 +462,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spel
 		break;
 
 	case SPELL_RUNE_LABEL:
-		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)) {
+		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL) || ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)) {
 			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 			to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
 			lag = 2;
