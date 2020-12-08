@@ -973,7 +973,7 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 					mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
 					break;
 			}
-			send_to_char(mess.c_str(), ch);
+//			send_to_char(mess.c_str(), ch);
 		}
 
 		exp = MIN(max_exp_gain_pc(ch), exp);
