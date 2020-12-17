@@ -28,9 +28,13 @@ int armor_class_limit(CHAR_DATA * ch) {
 		return -200;
 	};
 	if (IS_NPC(ch)) {
+
 		return -300;
 	};
 	switch (GET_CLASS(ch)) {
+	case CLASS_PALADINE:
+		return -270;
+		break;
 	case CLASS_ASSASINE:
 	case CLASS_THIEF:
 	case CLASS_GUARD:
@@ -38,7 +42,6 @@ int armor_class_limit(CHAR_DATA * ch) {
 		break;
 	case CLASS_MERCHANT:
 	case CLASS_WARRIOR:
-	case CLASS_PALADINE:
 	case CLASS_RANGER:
 	case CLASS_SMITH:
 		return -200;
