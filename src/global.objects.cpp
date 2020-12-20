@@ -1,3 +1,4 @@
+#include <grp/grp.roster.h>
 #include "global.objects.hpp"
 
 #include "ban.hpp"
@@ -39,10 +40,11 @@ namespace
 		DailyQuestMap daily_quests;
 		Strengthening strengthening;
 		obj2trigers_t obj2trigers;
+		GroupRoster groupRoster;
 	};
 
 	GlobalObjectsStorage::GlobalObjectsStorage() :
-		ban(nullptr)
+		ban(nullptr), groupRoster()
 	{
 	}
 
@@ -194,6 +196,10 @@ Strengthening& GlobalObjects::strengthening()
 obj2trigers_t& GlobalObjects::obj_trigers()
 {
 	return global_objects().obj2trigers;
+}
+
+GroupRoster& GlobalObjects::groupRoster() {
+    return global_objects().groupRoster;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

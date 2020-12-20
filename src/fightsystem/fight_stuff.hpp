@@ -4,6 +4,7 @@
 class CHAR_DATA;	// to avoid inclusion "char.hpp" into header file.
 
 bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer);
+void die(CHAR_DATA *ch, CHAR_DATA *killer);
 
 #endif // __FIGHT_STUFF_HPP__
 

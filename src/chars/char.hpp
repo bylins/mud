@@ -24,6 +24,8 @@
 #include <list>
 #include <map>
 
+class Group;
+
 // These data contain information about a players time data
 struct time_data
 {
@@ -833,6 +835,8 @@ public:
     bool drop_from_horse();
     bool isHorsePrevents();
     void dismount();
+public:
+    Group* personGroup;
 };
 
 inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const

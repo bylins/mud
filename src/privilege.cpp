@@ -34,16 +34,16 @@
 * # title - одобрение/запрет чужих титулов
 * # остальные группы вписываете сколько хотите
 * # иммы: имя уид (0 не канает, теперь надо сразу писать уид) команды/группы
-* <groups>
+* <grp>
 * default = wizhelp wiznet register имя титул title holylight uptime date set (title name) rules show nohassle ; show (punishment stats player)
 * default_demigod = wizhelp wiznet имя rules
 * arena = purge
 * olc = oedit zedit redit olc trigedit
 * goto = goto прыжок poofin poofout
-* </groups>
+* </grp>
 * <gods>
-* Йцук 595336650 groups (olc) hell mute dumb ban delete set (bank)
-* Фыва 803863739 groups (arena goto olc boards) hell mute dumb ban delete set (bank)
+* Йцук 595336650 grp (olc) hell mute dumb ban delete set (bank)
+* Фыва 803863739 grp (arena goto olc boards) hell mute dumb ban delete set (bank)
 * </gods>
 * Формат файла временный, zone.ru там грозится своим форматом на lua, а xml в очередной раз решено не воротить, хотя и хотелось...
 */
@@ -200,7 +200,7 @@ void parse_command_line(const std::string &commands, int other_flags)
 				fill_mode = 2;
 				continue;
 			}
-			else if ((*tmp_tok_iter) == "groups")
+			else if ((*tmp_tok_iter) == "grp")
 			{
 				fill_mode = 3;
 				continue;
@@ -237,7 +237,7 @@ void load()
 			ReadEndString(file);
 			continue;
 		}
-		else if (name == "<groups>")
+		else if (name == "<grp>")
 		{
 
 			while (file >> name)
@@ -246,7 +246,7 @@ void load()
                     ReadEndString(file);
                     continue;
                 }
-				if (name == "</groups>")
+				if (name == "</grp>")
 					break;
 
 				file >> temp; // "="

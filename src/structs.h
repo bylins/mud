@@ -791,6 +791,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
 #define CON_RANDOM_NUMBER	 56 // Verification code entry: where player enter in the game from new location
 #define CON_INIT		 57 // just connected
+#define CON_IMPLTEST     58 // внутренние тесты имплементора
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //

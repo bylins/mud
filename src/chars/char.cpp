@@ -39,8 +39,11 @@
 #include <algorithm>
 #include <iostream>
 
+#include "grp/grp.group.cpp"
+
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
+
 
 namespace
 {
@@ -120,6 +123,7 @@ CHAR_DATA::CHAR_DATA() :
 	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.add(this);
 	this->set_skill(SKILL_GLOBAL_COOLDOWN, 1);
+	this->personGroup = nullptr;
 }
 
 CHAR_DATA::~CHAR_DATA()
@@ -2014,8 +2018,12 @@ void CHAR_DATA::msdp_report(const std::string& name) {
 }
 
 void CHAR_DATA::removeGroupFlags() {
-		AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
-		PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
+	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+	if (!this->personGroup)
+	    return;
+	this->personGroup->removeMember(this);
+	this->personGroup = nullptr;
 }
 
 void CHAR_DATA::add_follower(CHAR_DATA* ch) {

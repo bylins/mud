@@ -3410,7 +3410,9 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			|| STATE(d) == CON_NAMED_STUFF
 			|| STATE(d) == CON_MAP_MENU
 			|| STATE(d) == CON_TORC_EXCH
-			|| STATE(d) == CON_SEDIT || STATE(d) == CON_CONSOLE)
+			|| STATE(d) == CON_SEDIT
+			|| STATE(d) == CON_CONSOLE
+			|| STATE(d) == CON_IMPLTEST)
 		{
 			STATE(d) = CON_PLAYING;
 		}

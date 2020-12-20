@@ -22,7 +22,7 @@ set(SOURCES
 		src/act.movement.cpp
 		src/act.other.cpp
 		src/act.social.cpp
-		src/act.wizard.cpp
+        src/cmd.imm/act.wizard.cpp
 		src/AffectHandler.cpp
 		src/alias.cpp
 		src/auction.cpp
@@ -203,7 +203,10 @@ set(SOURCES
         src/core/affect_data.cpp
 		src/cmd/track.cpp
 		src/cmd/telegram.cpp
-     	src/cmd/hire.cpp src/groups/grp.member.cpp src/groups/grp.member.h src/groups/group.cpp src/groups/group.h)
+     	src/cmd/hire.cpp
+		src/grp/grp.group.cpp
+		src/grp/grp.roster.cpp
+		)
 
 set(HEADERS
 		src/cmd/telegram.h
@@ -241,7 +244,7 @@ set(HEADERS
 		src/heartbeat.commands.hpp
 		src/weather.hpp
 		src/limits.hpp
-		src/act.wizard.hpp
+        src/cmd.imm/act.wizard.hpp
 		src/heartbeat.hpp
 		src/speedwalks.hpp
 		src/chars/world.characters.hpp
@@ -390,7 +393,10 @@ set(HEADERS
 		src/skills/strangle.h
 		src/skills/chopoff.h
 		src/skills/stupor.h
-		src/graph.h)
+		src/graph.h
+		src/grp/grp.group.h
+		src/grp/grp.roster.h
+		)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -567,7 +573,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES})
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/cmd.imm/test.cpp src/cmd.imm/test.h src/grp/follow.cpp src/grp/follow.h src/cmd/quit.cpp src/cmd/quit.h)
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)

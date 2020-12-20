@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "act.wizard.hpp"
+#include "cmd.imm/act.wizard.hpp"
 
 #include "action.targeting.hpp"
 #include "object.prototypes.hpp"

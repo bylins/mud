@@ -2837,9 +2837,9 @@ PUGI__NS_BEGIN
 		// <!-- ... -->, <? ... ?>, "...", '...'
 		// <![...]]>
 		// <!...>
-		// First group can not contain nested groups
-		// Second group can contain nested groups of the same type
-		// Third group can contain all other groups
+		// First group can not contain nested grp
+		// Second group can contain nested grp of the same type
+		// Third group can contain all other grp
 		char_t* parse_doctype_primitive(char_t* s)
 		{
 			if (*s == '"' || *s == '\'')
