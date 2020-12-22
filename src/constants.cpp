@@ -666,7 +666,7 @@ const char *connected_types[] =
 	"GloryConst OLC",
 	"NamedStuff OLC",
 	"Select new kin",
-	// 50-57
+	// 50-59
 	"Select new race",
 	"Interactive console",
 	"обмен гривен",
@@ -675,6 +675,10 @@ const char *connected_types[] =
 	"select new religion",
 	"Verification",
 	"Just connected",
+	"ERROR:UNDEF",
+    "ERROR:UNDEF",
+    // 60-59
+    "ERROR:UNDEF"
 	"\n"
 };
 

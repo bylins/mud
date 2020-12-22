@@ -8,8 +8,10 @@
 #include "handler.h"
 #include "objsave.h"
 #include "house.h"
+#include "grp/grp.group.h"
 
 extern int free_rent;
+
 
 void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {

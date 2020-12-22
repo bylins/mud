@@ -573,7 +573,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/cmd.imm/test.cpp src/cmd.imm/test.h src/grp/follow.cpp src/grp/follow.h src/cmd/quit.cpp src/cmd/quit.h)
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/grp/follow.cpp src/grp/follow.h src/cmd/quit.cpp src/cmd/quit.h)
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)

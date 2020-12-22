@@ -791,7 +791,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
 #define CON_RANDOM_NUMBER	 56 // Verification code entry: where player enter in the game from new location
 #define CON_INIT		 57 // just connected
-#define CON_IMPLTEST     58 // внутренние тесты имплементора
+
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
@@ -1603,6 +1603,8 @@ namespace obj_sets_olc
 	class sedit;
 }
 
+class GControl;
+
 #ifndef HAVE_ZLIB
 struct z_stream;
 #endif
@@ -1744,7 +1746,6 @@ struct DESCRIPTOR_DATA
     std::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
     std::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 	bool mxp; // Для MXP
-
 private:
 	bool m_msdp_support;
 	std::unordered_set<std::string> m_msdp_requested_report;

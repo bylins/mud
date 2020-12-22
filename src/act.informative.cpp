@@ -61,6 +61,7 @@
 #include "sysdep.h"
 #include "bonus.h"
 #include "conf.h"
+#include "grp/grp.group.h"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -5505,7 +5506,8 @@ void sendWhoami(CHAR_DATA *ch) {
     if (ch->player_specials->saved.telegram_id != 0) { //тут прямое обращение, ибо базовый класс, а не наследник
         send_to_char(ch, "Подключен Телеграм, chat_id: %lu\r\n", ch->player_specials->saved.telegram_id);
     }
-
+    if (ch->personGroup)
+    	send_to_char(ch, "Стоит в группе #%d лидера %s\r\n", ch->personGroup->getUid(), ch->personGroup->getLeaderName().c_str());
 }
 
 // Generic page_string function for displaying text

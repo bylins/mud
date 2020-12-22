@@ -2020,10 +2020,6 @@ void CHAR_DATA::msdp_report(const std::string& name) {
 void CHAR_DATA::removeGroupFlags() {
 	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
 	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
-	if (!this->personGroup)
-	    return;
-	this->personGroup->removeMember(this);
-	this->personGroup = nullptr;
 }
 
 void CHAR_DATA::add_follower(CHAR_DATA* ch) {

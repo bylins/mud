@@ -468,13 +468,6 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         return;
     }
 
-    if (!str_cmp(buf, "новый"))
-    {
-        if (ch->personGroup)
-            ch->personGroup->print(ch);
-        return;
-    }
-
     if (GET_POS(ch) < POS_RESTING)
     {
         send_to_char("Трудно управлять группой в таком состоянии.\r\n", ch);
@@ -604,8 +597,11 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
     }
 }
 
-void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_group2(CHAR_DATA *ch, char *argument, int, int){
+    ch->personGroup->processGroupCommands(ch, argument);
+}
+
+void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     struct follow_type *f, *next_fol;
     CHAR_DATA *tch;
 
@@ -724,10 +720,10 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
     send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 
-
 Group::Group(CHAR_DATA *leader, u_long uid){
     this->_memberCap = IS_NPC(leader)? 255 : max_group_size(leader);
     this->_uid = uid;
+    // заодно иничим остальные поля
     this->addMember(leader);
     this->setLeader(leader);
 }
@@ -735,7 +731,19 @@ Group::Group(CHAR_DATA *leader, u_long uid){
 void Group::addMember(CHAR_DATA *member) {
     if (IS_NPC(member))
         return;
-    this->_memberList.emplace(member->get_uid(), member);
+    if (member->personGroup == this)
+        return;
+    auto it = this->_memberList.find(member->get_uid());
+    if (it == this->_memberList.end())
+        this->_memberList.emplace(member->get_uid(), new char_info(member->get_uid(),
+                                                                   member,
+                                                                   member->get_pc_name()) );
+    else {
+        sprintf(buf, "ROSTER: группа id=%lu, добавление персонажа с тем же uid", this->_uid);
+        mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+        return;
+    }
+    member->personGroup = this;
 }
 
 void Group::removeMember(CHAR_DATA *member) {
@@ -747,22 +755,7 @@ void Group::removeMember(CHAR_DATA *member) {
     auto it = this->_memberList.find(member->get_uid());
     if (it != this->_memberList.end())
         this->_memberList.erase(it);
-}
-
-void Group::print(CHAR_DATA *member) {
-    if (this->_memberList.empty()) {
-        send_to_char(member, "WTF");
-        return;
-    }
-    sprintf(buf, "Персонажи в группе, id = %lu\r\n", this->_uid);
-    for (auto & it : this->_memberList){
-        if (it.second->get_uid() != this->_uid) {
-            sprintf(buf, "%s - %s", it.second->get_pc_name().c_str(), "Игрок");
-        } else {
-            sprintf(buf, "%s - %s", it.second->get_pc_name().c_str(), "Лидер");
-        }
-    }
-
+    member->personGroup = nullptr;
 }
 
 CHAR_DATA *Group::getLeader() const {
@@ -772,6 +765,7 @@ CHAR_DATA *Group::getLeader() const {
 void Group::setLeader(CHAR_DATA *leader) {
     this->_leaderUID = leader->get_uid();
     _leader = leader;
+    _leaderName = leader->get_pc_name();
 }
 
 bool Group::isActive() {
@@ -797,97 +791,138 @@ int Group::getMemberCap() const {
 Group::~Group() {
     // чистим ссылки
     for (auto & it : this->_memberList){
-        if (it.second->purged())
+        if (!it.second->member || it.second->member->purged())
             continue;
-        send_to_char(it.second, "Ваша группа была распущена.\r\n");
-        it.second->personGroup = nullptr;
+        if (it.second->member != this->_leader)
+            send_to_char(it.second->member, "Ваша группа была распущена.\r\n");
+        it.second->member->personGroup = nullptr;
     }
 }
 
-bool Group::applyRequest(CHAR_DATA *applicant) {
-    if (this->_requestList.find(applicant->get_uid()) == this->_requestList.end()) {
-        act("$E подал$A заявку на вступление в группу.", FALSE, this->_leader, 0, applicant, TO_CHAR);
-        this->_requestList.emplace(applicant->get_uid(), applicant);
-        return true;
-    }
-    return false;
-}
-
-bool Group::approveRequest(CHAR_DATA *applicant) {
-    if (this->_memberList.size() == this->_memberCap){
+bool Group::approveRequest(char *applicant) {
+    if ((int)this->_memberList.size() == this->_memberCap){
         send_to_char(this->_leader, "Чтобы принять кого нужного, надо сперва исключить кого ненужного!\r\n");
         return false;
     }
+    return true;
 }
 
-bool Group::denyRequest(CHAR_DATA *applicant) {
+void Group::printGroup(CHAR_DATA *requestor) {
+
+}
+
+void Group::processGroupCommands(CHAR_DATA *ch, char *argument) {
+    enum SubCmd { PRINT, HELP, LIST, MAKE, INVITE, TAKE, REJECT, EXPELL, LEADER, LEAVE, DISBAND};
+    SubCmd mode;
+    Group * grp;
+
+    const std::string strHELP = "справка помощь";
+    const std::string strMAKE = "создать make";
+    const std::string strLIST = "список list";
+    const std::string strINVITE = "пригласить invite";
+    const std::string strTAKE = "принять approve";
+    const std::string strREJECT = "отклонить reject";
+    const std::string strEXPELL = "выгнать expell";
+    const std::string strLEADER = "лидер leader";
+    const std::string strLEAVE = "покинуть leave";
+    const std::string strDISBAND = "распустить disband";
+    char subcmd[MAX_INPUT_LENGTH],  target[MAX_INPUT_LENGTH];
+
+    if (!ch || IS_NPC(ch))
+        return;
+
+    two_arguments(argument, subcmd, target);
+
+    // выбираем режим
+    if (!*subcmd)
+        mode = PRINT;
+    else if (isname(subcmd, strHELP.c_str()))
+        mode = HELP;
+    else if (isname(subcmd, strMAKE.c_str()))
+        mode = MAKE;
+    else if (isname(subcmd, strLIST.c_str()))
+        mode = LIST;
+    else if (isname(subcmd, strINVITE.c_str()))
+        mode = INVITE;
+    else if (isname(subcmd, strTAKE.c_str()))
+        mode = TAKE;
+    else if (isname(subcmd, strREJECT.c_str()))
+        mode = REJECT;
+    else if (isname(subcmd, strEXPELL.c_str()))
+        mode = EXPELL;
+    else if (isname(subcmd, strLEADER.c_str()))
+        mode = LEADER;
+    else if (isname(subcmd, strLEAVE.c_str()))
+        mode = LEAVE;
+    else if (isname(subcmd, strDISBAND.c_str()))
+        mode = DISBAND;
+    else {
+        send_to_char("Уточните команду.\r\n", ch);
+        return;
+    }
+    grp = ch->personGroup;
+
+    if (mode == MAKE) {
+        if (grp && grp->getLeader() == ch){
+            send_to_char(ch, "Только древний правитель Цесарь Иулий мог водить много легионов!\r\n");
+            return;
+        }
+        if (grp) // в группе - покидаем
+            grp->removeMember(ch);
+        groupRoster.addGroup(ch);
+        send_to_char(ch, "Вы создали группу id:%lu, максимальное число последователей: %d\r\n",ch->personGroup->getUid(),  ch->personGroup->getMemberCap());
+        return;
+    }
+
+    if (!grp || grp->getLeader() != ch ) {
+        send_to_char(ch, "Необходимо быть лидером группы для этого.\r\n");
+        return;
+    }
+    if (GET_POS(ch) < POS_RESTING) {
+        send_to_char("Трудно управлять группой в таком состоянии.\r\n", ch);
+        return;
+    }
+
+    // MAKE был раньше, т.к. он создает группу
+    switch (mode) {
+        case PRINT:
+            grp->printGroup(ch);
+            break;
+        case HELP:
+            break;
+        case LIST:
+            //grp->listMembers(ch);
+            break;
+        case INVITE:
+            groupRoster.makeRequest(target);
+            break;
+        case TAKE:
+            //grp->approveRequest(target);
+            break;
+        case REJECT:
+            //grp->denyRequest(target);
+            break;
+        case EXPELL:
+            //grp->expellMember(target);
+            break;
+        case LEADER:
+            //grp->promote(target);
+            break;
+        case LEAVE:
+            //grp->leave(ch);
+            break;
+        case DISBAND:
+            groupRoster.removeGroup(grp->getUid());
+            break;
+    }
+}
+
+const std::string &Group::getLeaderName() const {
+    return _leaderName;
+}
+
+bool Group::isFull() {
+    if (this->_currentMemberCount == this->_memberCap)
+        return true;
     return false;
-}
-
-void GCmd::do_gmake(CHAR_DATA *ch, char *argument, int, int) {
-    if (!ch)
-        return;
-    if (ch->personGroup && ch->personGroup->getLeader() == ch){
-        send_to_char(ch, "Только древний правитель Цесарь Иулий мог водить много легионов!\r\n");
-        return;
-    }
-    if (ch->personGroup) // в группе - покидаем
-        ch->personGroup->removeMember(ch);
-    groupRoster.addGroup(ch);
-    send_to_char(ch, "Вы создали группу id:%d, максимальное число последователей: %d\r\n",ch->personGroup->getUid(),  ch->personGroup->getMemberCap());
-}
-
-void GCmd::do_ginvite(CHAR_DATA *ch, char *argument, int, int) {
-
-}
-
-void GCmd::do_grequest(CHAR_DATA *ch, char *argument, int, int) {
-    CHAR_DATA *vict = nullptr;
-
-    if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-        return;
-
-    if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED)){
-        send_to_char(ch, "Вы немы, как рыба об лед.\r\n");
-        return;
-    }
-    if (ch->personGroup && ch->personGroup->getLeader() == ch){
-        send_to_char(ch, "Негоже лидеру группы напрашиваться в чужую!\r\n");
-        return;
-    }
-
-    one_argument(argument, smallBuf);
-
-    if (!*smallBuf) {
-        send_to_char("И кому же вы хотите напроситься в группу?.\r\n", ch);
-        return;
-    }
-    if (!(vict = get_player_vis(ch, smallBuf, FIND_CHAR_WORLD)) || IS_NPC(vict))
-    {
-        send_to_char("Необходимо видеть лидера группы.\r\n", ch);
-        return;
-    }
-    if (vict->personGroup->applyRequest(ch)){
-        send_to_char("Заявка на вступление в группу отправлена.\r\n", ch);
-    } else {
-        send_to_char("Вы уже подавали заявку в группу!.\r\n", ch);
-    }
-}
-
-void GCmd::do_gleave(CHAR_DATA *ch, char *argument, int, int) {
-
-}
-
-void GCmd::do_gabandon(CHAR_DATA *ch, char *argument, int, int) {
-    if (!ch->personGroup || ch->personGroup->getLeader() != ch){
-        send_to_char(ch, "У вас мания величия, вы не управляете группой!\r\n");
-        return;
-    }
-    send_to_char(ch, "Вы распустили группу id:%d\r\n",ch->personGroup->getUid());
-    groupRoster.removeGroup(ch->personGroup->getUid());
-
-}
-
-void GCmd::do_gpromote(CHAR_DATA *ch, char *argument, int, int) {
-
 }

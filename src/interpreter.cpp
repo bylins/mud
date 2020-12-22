@@ -85,7 +85,6 @@
 #include "time.h"
 #include "title.hpp"
 #include "top.h"
-#include "cmd.imm/test.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -521,9 +520,10 @@ cpp_extern const struct command_info cmd_info[] =
 	{"гдругам", POS_SLEEPING, DoClanChannel, 0, SCMD_CHANNEL, 0},
 	{"где", POS_RESTING, do_where, LVL_IMMORT, 0, 0},
 	{"гдея", POS_RESTING, do_zone, 0, 0, 0},
+    {"гзаявка", POS_DEAD, do_grequest, 0, 0, 0 },
 	{"глоток", POS_RESTING, do_drink, 0, SCMD_SIP, 200},
 	{"города", POS_DEAD, do_cities, 0, 0, 0 },
-	{"группа", POS_SLEEPING, do_group, 1, 0, -1},
+	{"группа", POS_SLEEPING, do_group2, 1, 0, -1},
 	{"гсоюзникам", POS_SLEEPING, DoClanChannel, 0, SCMD_ACHANNEL, 0},
 	{"гэхо", POS_DEAD, do_gecho, LVL_GOD, 0, 0},
 	{"гбогам", POS_DEAD, do_wiznet, LVL_IMMORT, 0, 0},
@@ -880,12 +880,8 @@ cpp_extern const struct command_info cmd_info[] =
 	{"group", POS_RESTING, do_group, 1, 0, 500},
 	{"gsay", POS_SLEEPING, do_gsay, 0, 0, -1},
 	{"gtell", POS_SLEEPING, do_gsay, 0, 0, -1},
-    {"gabandon", POS_SLEEPING, GCmd::do_gabandon, 0, 0, -1},
-    {"gmake", POS_SLEEPING, GCmd::do_gmake, 0, 0, -1},
-    {"gpromote", POS_SLEEPING, GCmd::do_gpromote, 0, 0, -1},
-    {"ginvite", POS_SLEEPING, GCmd::do_ginvite, 0, 0, -1},
-    {"grequest", POS_SLEEPING, GCmd::do_grequest, 0, 0, -1},
-    {"gleave", POS_SLEEPING, GCmd::do_gleave, 0, 0, -1},
+    {"group2", POS_RESTING, do_group2, 1, 0, 500},
+    {"grequest", POS_RESTING, do_grequest, 1, 0, 500},
 	{"handbook", POS_DEAD, do_gen_ps, LVL_IMMORT, SCMD_HANDBOOK, 0},
 	{"hcontrol", POS_DEAD, DoHcontrol, LVL_GRGOD, 0, 0},
 	{"help", POS_DEAD, do_help, 0, 0, 0},
@@ -1010,7 +1006,6 @@ cpp_extern const struct command_info cmd_info[] =
 	{"sedit", POS_DEAD, do_sedit, LVL_IMPL, 0, 0},
 	{"errlog", POS_DEAD, do_syslog, LVL_BUILDER, ERRLOG, 0},
 	{"imlog", POS_DEAD, do_syslog, LVL_BUILDER, IMLOG, 0},
-    {"test", POS_DEAD, do_test, LVL_IMPL, 0, 0},
 	{"take", POS_RESTING, do_get, 0, 0, 500},
 	{"taste", POS_RESTING, do_eat, 0, SCMD_TASTE, 500},
 	{"t2c", POS_RESTING, do_send_text_to_char, LVL_GRGOD, 0, -1 },
@@ -4299,10 +4294,6 @@ void nanny(DESCRIPTOR_DATA * d, char *arg)
 		STATE(d) = CON_RMOTD;
 
 		break;
-        case CON_IMPLTEST: {
-            handleTestInput(d->character.get(), arg);
-            break;
-        }
 
 	default:
 		log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",
