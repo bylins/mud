@@ -724,27 +724,12 @@ Group::Group(CHAR_DATA *leader, u_long uid){
     this->_memberCap = IS_NPC(leader)? 255 : max_group_size(leader);
     this->_uid = uid;
     // заодно иничим остальные поля
-    this->addMember(leader);
+    GroupManager mgr = this->getMemberManager();
+    mgr->addMember(leader);
     this->setLeader(leader);
 }
 
-void Group::addMember(CHAR_DATA *member) {
-    if (IS_NPC(member))
-        return;
-    if (member->personGroup == this)
-        return;
-    auto it = this->_memberList.find(member->get_uid());
-    if (it == this->_memberList.end())
-        this->_memberList.emplace(member->get_uid(), new char_info(member->get_uid(),
-                                                                   member,
-                                                                   member->get_pc_name()) );
-    else {
-        sprintf(buf, "ROSTER: группа id=%lu, добавление персонажа с тем же uid", this->_uid);
-        mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-        return;
-    }
-    member->personGroup = this;
-}
+
 
 void Group::removeMember(CHAR_DATA *member) {
     if (this->_currentMemberCount == 0) {
@@ -775,6 +760,8 @@ bool Group::isActive() {
 bool Group::checkMember(int uid) {
     return false;
 }
+
+MemberManager::MemberManager(const std::map<int, char_info *> &memberList) : _memberList(memberList) {}
 
 u_long Group::getUid() const {
     return _uid;
@@ -894,7 +881,11 @@ void Group::processGroupCommands(CHAR_DATA *ch, char *argument) {
             //grp->listMembers(ch);
             break;
         case INVITE:
-            groupRoster.makeRequest(target);
+            if (this->isFull()){
+                send_to_char(ch, "Командир, но в твоей группе больше нет места!\r\n");
+                return;
+            }
+            groupRoster.makeInvite(target);
             break;
         case TAKE:
             //grp->approveRequest(target);
