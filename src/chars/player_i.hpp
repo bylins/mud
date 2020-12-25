@@ -11,7 +11,7 @@
 #include "sysdep.h"
 #include <map>
 #include <string>
-#include <cmd/mercenary.h>
+#include "cmd/cmd.generic.h"
 
 struct MERCDATA;
 

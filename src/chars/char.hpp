@@ -371,6 +371,7 @@ class CHAR_DATA : public ProtectedCharacterData
 // новое
 public:
 	using ptr_t = CHAR_DATA*;
+	using grp_ptr = std::shared_ptr<Group>;
 	using shared_ptr = std::shared_ptr<CHAR_DATA>;
 	using char_affects_list_t = std::list<AFFECT_DATA<EApplyLocation>::shared_ptr>;
 	using morphs_list_t = std::list<std::string>;
@@ -836,7 +837,7 @@ public:
     bool isHorsePrevents();
     void dismount();
 public:
-    Group* personGroup;
+    grp_ptr personGroup;
 };
 
 inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const

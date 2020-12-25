@@ -1,4 +1,4 @@
-#include <cmd/mercenary.h>
+#include "cmd.generic.h"
 #include <chars/char_player.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/format.hpp>

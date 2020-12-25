@@ -9,51 +9,62 @@ endif ()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
-		src/blocking.queue.cpp
-		src/influxdb.cpp
-		src/heartbeat.cpp
-		src/heartbeat.commands.cpp
 		src/ability.rollsystem.cpp
-		src/chars/accounts.cpp
-		src/action.targeting.cpp
 		src/act.comm.cpp
 		src/act.informative.cpp
 		src/act.item.cpp
 		src/act.movement.cpp
 		src/act.other.cpp
 		src/act.social.cpp
-        src/cmd.imm/act.wizard.cpp
+		src/action.targeting.cpp
 		src/AffectHandler.cpp
 		src/alias.cpp
 		src/auction.cpp
 		src/backtrace.cpp
 		src/ban.cpp
 		src/birth_places.cpp
+		src/blocking.queue.cpp
 		src/boards.changelog.loaders.cpp
 		src/boards.constants.cpp
 		src/boards.cpp
 		src/boards.formatters.cpp
 		src/boards.types.cpp
-		src/bonus.cpp
 		src/bonus.command.parser.cpp
+		src/bonus.cpp
 		src/boot.constants.cpp
 		src/boot.data.files.cpp
 		src/boot.index.cpp
 		src/cache.cpp
 		src/celebrates.cpp
+		src/chars/accounts.cpp
 		src/chars/char.cpp
 		src/chars/char_player.cpp
+		src/chars/mount.cpp
+		src/chars/player_races.cpp
+		src/chars/world.characters.cpp
 		src/class.cpp
+		src/cmd.imm/act.wizard.cpp
+		src/cmd/hire.cpp
+		src/cmd/mercenary.cpp
+		src/cmd/order.cpp
+		src/cmd/quit.cpp
+		src/cmd/retreat.cpp
+		src/cmd/telegram.cpp
+		src/cmd/track.cpp
+		src/cmd/whoami.cpp
 		src/color.cpp
 		src/comm.cpp
 		src/command.shutdown.cpp
 		src/commands.cpp
+		src/compact.trie.cpp
 		src/config.cpp
 		src/constants.cpp
+		src/core/affect_data.cpp
 		src/corpse.cpp
 		src/daily_quest.cpp
 		src/db.cpp
 		src/deathtrap.cpp
+		src/debug.utils.cpp
 		src/depot.cpp
 		src/description.cpp
 		src/dg_comm.cpp
@@ -74,27 +85,47 @@ set(SOURCES
 		src/ext_money.cpp
 		src/external.trigger.cpp
 		src/features.cpp
-        src/fightsystem/fight.cpp
-        src/fightsystem/fight_hit.cpp
-        src/fightsystem/fight.penalties.cpp
-        src/fightsystem/fight_stuff.cpp
+		src/fightsystem/assist.cpp
+		src/fightsystem/common.cpp
+		src/fightsystem/fight.cpp
+		src/fightsystem/fight.penalties.cpp
+		src/fightsystem/fight_hit.cpp
+		src/fightsystem/fight_stuff.cpp
+		src/fightsystem/mobact.cpp
+		src/fightsystem/pk.cpp
+		src/fightsystem/start.fight.cpp
 		src/file_crc.cpp
+		src/find.obj.id.by.vnum.cpp
 		src/genchar.cpp
-		src/glory_const.cpp
+		src/global.objects.cpp
 		src/glory.cpp
+		src/glory_const.cpp
 		src/glory_misc.cpp
 		src/graph.cpp
+		src/grp/follow.cpp
+		src/grp/grp.cmdprocessor.cpp
+		src/grp/grp.group.cpp
+		src/grp/grp.groupmanager.cpp
+		src/grp/grp.membermanager.cpp
+		src/grp/grp.request.cpp
+		src/grp/grp.requestmanager.cpp
+		src/grp/grp.roster.cpp
 		src/handler.cpp
+		src/heartbeat.commands.cpp
+		src/heartbeat.cpp
 		src/help.cpp
 		src/house.cpp
 		src/house_exp.cpp
+		src/id.cpp
+		src/id.cpp
 		src/ignores.cpp
 		src/ignores.loader.cpp
 		src/im.cpp
+		src/influxdb.cpp
 		src/interpreter.cpp
 		src/item.creation.cpp
-		src/limits.cpp
 		src/levenshtein.cpp
+		src/limits.cpp
 		src/liquid.cpp
 		src/logger.cpp
 		src/magic.cpp
@@ -102,34 +133,33 @@ set(SOURCES
 		src/map.cpp
 		src/meat.maker.cpp
 		src/medit.cpp
-		src/fightsystem/mobact.cpp
-		src/mobmax.cpp
 		src/mob_stat.cpp
+		src/mobmax.cpp
 		src/modify.cpp
 		src/morph.cpp
-		src/named_stuff.cpp
 		src/name_list.cpp
+		src/named_stuff.cpp
 		src/names.cpp
 		src/noob.cpp
 		src/obj.cpp
+		src/obj.spell.cpp
 		src/obj_enchant.cpp
-		src/objsave.cpp
-		src/objsave_ext.cpp
 		src/obj_sets.cpp
 		src/obj_sets_olc.cpp
-		src/obj.spell.cpp
+		src/object.prototypes.cpp
+		src/objsave.cpp
+		src/objsave_ext.cpp
 		src/oedit.cpp
 		src/olc.cpp
 		src/parcel.cpp
 		src/parse.cpp
 		src/password.cpp
-		src/fightsystem/pk.cpp
-		src/chars/player_races.cpp
 		src/poison.cpp
 		src/privilege.cpp
 		src/pugixml.cpp
 		src/quest.cpp
 		src/quested.cpp
+		src/radix.trie.cpp
 		src/random.cpp
 		src/redit.cpp
 		src/remember.cpp
@@ -137,13 +167,39 @@ set(SOURCES
 		src/room.cpp
 		src/sets_drop.cpp
 		src/shop_ext.cpp
+		src/shops.implementation.cpp
+		src/shops.implementation.cpp
 		src/shutdown.parameters.cpp
 		src/skills.cpp
+		src/skills/backstab.cpp
+		src/skills/bash.cpp
+		src/skills/block.cpp
+		src/skills/chopoff.cpp
+		src/skills/disarm.cpp
+		src/skills/expendientcut.cpp
+		src/skills/flee.cpp
+		src/skills/ironwind.cpp
+		src/skills/kick.cpp
+		src/skills/manadrain.cpp
+		src/skills/mighthit.cpp
+		src/skills/parry.cpp
+		src/skills/protect.cpp
+		src/skills/resque.cpp
+		src/skills/strangle.cpp
+		src/skills/stun.cpp
+		src/skills/stupor.cpp
+		src/skills/styles.cpp
+		src/skills/throw.cpp
+		src/skills/townportal.cpp
+		src/skills/turnundead.cpp
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
+		src/speedwalks.cpp
 		src/spell_parser.cpp
 		src/spells.cpp
+		src/stigmas.cpp
+		src/strengthening.cpp
 		src/structs.cpp
 		src/structs.cpp
 		src/stuff.cpp
@@ -152,74 +208,21 @@ set(SOURCES
 		src/title.cpp
 		src/top.cpp
 		src/utils.cpp
+		src/utils.string.cpp
 		src/version.cpp
 		src/weather.cpp
-		src/zedit.cpp
-		src/utils.string.cpp
 		src/world.objects.cpp
-		src/object.prototypes.cpp
-		src/id.cpp
-		src/find.obj.id.by.vnum.cpp
-		src/global.objects.cpp
-		src/shops.implementation.cpp
-		src/chars/world.characters.cpp
-		src/debug.utils.cpp
-		src/speedwalks.cpp
-		src/shops.implementation.cpp
-		src/radix.trie.cpp
-		src/compact.trie.cpp
-		src/id.cpp
-		src/stigmas.cpp
+		src/zedit.cpp
 		src/zone.table.cpp
-		src/strengthening.cpp
-		src/skills/backstab.cpp
-		src/skills/flee.cpp
-		src/skills/bash.cpp
-		src/skills/stun.cpp
-		src/skills/resque.cpp
-		src/skills/kick.cpp
-		src/skills/strangle.cpp
-		src/skills/chopoff.cpp
-		src/skills/disarm.cpp
-		src/skills/stupor.cpp
-		src/skills/ironwind.cpp
-		src/skills/throw.cpp
-		src/skills/mighthit.cpp
-		src/skills/block.cpp
-		src/skills/parry.cpp
-		src/skills/protect.cpp
-		src/skills/expendientcut.cpp
-		src/skills/turnundead.cpp
-		src/skills/townportal.cpp
-		src/skills/manadrain.cpp
-		src/chars/mount.cpp
-		src/fightsystem/assist.cpp
-		src/fightsystem/start.fight.cpp
-		src/skills/styles.cpp
-		src/fightsystem/common.cpp
-		src/cmd/retreat.cpp
-		src/cmd/order.cpp
-		src/cmd/mercenary.cpp
-        src/core/affect_data.cpp
-		src/cmd/track.cpp
-		src/cmd/telegram.cpp
-     	src/cmd/hire.cpp
-		src/grp/grp.group.cpp
-		src/grp/grp.roster.cpp
 		)
 
 set(HEADERS
-		src/cmd/telegram.h
-		src/cmd/hire.h
-		src/cmd/telegram.h
+		src/grp/follow.h
+		src/grp/grp.main.h
 		src/core/affect_data.h
-		src/cmd/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
 		src/fightsystem/start.fight.h
-		src/cmd/retreat.h
-		src/cmd/order.h
-		src/cmd/mercenary.h
 		src/skills/styles.h
 		src/skills/manadrain.h
 		src/skills/townportal.h
@@ -394,9 +397,7 @@ set(HEADERS
 		src/skills/chopoff.h
 		src/skills/stupor.h
 		src/graph.h
-		src/grp/grp.group.h
-		src/grp/grp.roster.h
-		)
+		src/cmd/cmd.generic.h)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -573,7 +574,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} src/grp/follow.cpp src/grp/follow.h src/cmd/quit.cpp src/cmd/quit.h src/grp/grp.request.cpp src/grp/grp.request.h src/grp/grp.cmdprocessor.cpp src/grp/grp.cmdprocessor.h src/grp/grp.requestmanager.cpp src/grp/grp.requestmanager.h src/grp/grp.groupmanager.cpp src/grp/grp.groupmanager.h src/grp/grp.membermanager.cpp src/grp/grp.membermanager.h)
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} )
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
@@ -754,7 +755,7 @@ endif ()
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
-		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT}")
+		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT} ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_TEST     "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 

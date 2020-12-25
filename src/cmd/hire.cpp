@@ -1,4 +1,4 @@
-#include "hire.h"
+#include "cmd.generic.h"
 
 #include "handler.h"
 #include <boost/lexical_cast.hpp>

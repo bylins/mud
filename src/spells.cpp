@@ -15,7 +15,7 @@
 #include "spells.h"
 
 #include "skills/townportal.h"
-#include "cmd/hire.h"
+#include "cmd/cmd.generic.h"
 
 #include "coredump.hpp"
 #include "world.objects.hpp"

@@ -18,7 +18,7 @@
 #include "boards.types.hpp"
 #include "quest.hpp"
 #include "stigmas.hpp"
-#include "cmd/mercenary.h"
+#include "cmd/cmd.generic.h"
 
 #include <string>
 #include <array>

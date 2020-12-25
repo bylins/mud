@@ -12,12 +12,13 @@
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"
-#include "cmd/telegram.h"
 
 #include <array>
 #include <vector>
 #include <string>
 #include <map>
+
+class TelegramBot;
 
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CHAR_DATA *ch, const obj_affected_type &affect);

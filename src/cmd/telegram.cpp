@@ -1,4 +1,4 @@
-#include "telegram.h"
+#include "cmd.generic.h"
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
 

@@ -21,13 +21,7 @@
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
-#include "cmd/hire.h"
-#include "cmd/mercenary.h"
-#include "cmd/order.h"
-#include "cmd/quit.h"
-#include "cmd/retreat.h"
-#include "cmd/telegram.h"
-#include "cmd/track.h"
+#include "cmd/cmd.generic.h"
 #include "comm.h"
 #include "constants.h"
 #include "craft.commands.hpp"
@@ -43,7 +37,6 @@
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
-#include "grp/grp.group.h"
 #include "handler.h"
 #include "heartbeat.commands.hpp"
 #include "house.h"
@@ -594,7 +587,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"кричать", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, -1},
 	{"кто", POS_RESTING, do_who, 0, 0, 0},
 	{"ктодружина", POS_RESTING, DoWhoClan, 0, 0, 0},
-	{"ктоя", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
+	{"ктоя", POS_DEAD, do_whoami, 0, 0, 0},
 	{"купить", POS_STANDING, do_not_here, 0, 0, -1},
 
 	{"леваярука", POS_RESTING, do_grab, 1, 0, 300},
@@ -1042,7 +1035,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"whirl", POS_FIGHTING, do_iron_wind, 0, 0, -1},
 	{"whisper", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
 	{"who", POS_RESTING, do_who, 0, 0, 0},
-	{"whoami", POS_DEAD, do_gen_ps, 0, SCMD_WHOAMI, 0},
+	{"whoami", POS_DEAD, do_whoami, 0, 0, 0},
 	{"wield", POS_RESTING, do_wield, 0, 0, 500},
 	{"wimpy", POS_DEAD, do_wimpy, 0, 0, 0},
 	{"withdraw", POS_STANDING, do_not_here, 1, 0, -1},

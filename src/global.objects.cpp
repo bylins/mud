@@ -1,4 +1,3 @@
-#include <grp/grp.roster.h>
 #include "global.objects.hpp"
 
 #include "ban.hpp"

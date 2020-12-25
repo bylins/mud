@@ -1,17 +1,13 @@
-//
-// Created by ubuntu on 20/12/20.
-//
-
-#include "quit.h"
+#include "cmd.generic.h"
 #include "fightsystem/fight_stuff.hpp"
 #include "depot.hpp"
 #include "handler.h"
 #include "objsave.h"
 #include "house.h"
-#include "grp/grp.group.h"
+#include "global.objects.hpp"
 
 extern int free_rent;
-
+extern GroupRoster& groupRoster;
 
 void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 {
@@ -61,7 +57,7 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
         Depot::exit_char(ch);
         Clan::clan_invoice(ch, false);
         if (ch->personGroup)
-            ch->personGroup->removeMember(ch);
+            ch->personGroup->getMemberManager()->removeMember(ch);
 
         /*
          * kill off all sockets connected to the same player as the one who is

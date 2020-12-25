@@ -23,7 +23,7 @@
 #include "skills/mighthit.h"
 #include "skills/protect.h"
 
-#include "cmd/track.h"
+#include "cmd/cmd.generic.h"
 
 #include "core/affect_data.h"
 #include "ability.rollsystem.hpp"

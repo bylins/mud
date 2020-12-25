@@ -15,7 +15,7 @@
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
 #include "strengthening.hpp"
-#include "grp/grp.roster.h"
+#include <grp/grp.main.h>
 
 class BanList;	// to avoid inclusion of ban.hpp
 

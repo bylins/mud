@@ -2,9 +2,9 @@
 // Created by ubuntu on 23.12.2020.
 //
 
-#include "grp.requestmanager.h"
 #include "handler.h"
 #include "global.objects.hpp"
+#include "grp/grp.main.h"
 
 extern GroupRoster& groupRoster;
 
@@ -37,7 +37,7 @@ void RequestManager::makeInvite(CHAR_DATA *leader, char *targetPerson) {
     }
 }
 
-std::tuple<INV_R, CHAR_DATA *> RequestManager::tryMakeInvite(Group *grp, char *member) {
+std::tuple<INV_R, CHAR_DATA *> RequestManager::tryMakeInvite(grp_ptr grp, char *member) {
     CHAR_DATA *vict = get_player_vis(grp->getLeader(), member, FIND_CHAR_WORLD);
     if (!vict) return std::make_tuple(INV_R_NO_PERSON, nullptr);
     if (vict->personGroup != nullptr ) return std::make_tuple(INV_R::INV_R_BUSY, nullptr);
@@ -95,7 +95,7 @@ void RequestManager::makeRequest(CHAR_DATA *author, char* target) {
         send_to_char("И кому же вы хотите напроситься в группу?.\r\n", author);
         return;
     }
-    RequestManager* mgr = groupRoster.getRequestManager();
+    std::shared_ptr<RequestManager> mgr = groupRoster.getRequestManager();
     auto [res, grp] = mgr->tryAddRequest(author, target);
     switch (res) {
         case RQ_R::RQ_R_OVERFLOW:
@@ -124,7 +124,7 @@ void RequestManager::revokeRequest(CHAR_DATA *ch, char* target) {
     send_to_char(ch, "заявка не найдена\r\n");
 }
 
-std::tuple<RQ_R, Group *> RequestManager::tryAddRequest(CHAR_DATA *author, char *targetGroup) {
+std::tuple<RQ_R, grp_ptr> RequestManager::tryAddRequest(CHAR_DATA *author, char *targetGroup) {
     if (!author || author->purged()){
         sprintf(buf, "RequestManager::tryAddRequest: author is null or purged\r\n");
         mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -133,7 +133,7 @@ std::tuple<RQ_R, Group *> RequestManager::tryAddRequest(CHAR_DATA *author, char 
     if (targetGroup == nullptr){
         return std::make_tuple(RQ_R::RQ_R_NO_GROUP, nullptr);
     }
-    Group* grp = groupRoster.getGroupManager()->findGroup(targetGroup) ;
+    grp_ptr grp = groupRoster.getGroupManager()->findGroup(targetGroup) ;
     if (grp == nullptr)
         return std::make_tuple(RQ_R::RQ_R_NO_GROUP, nullptr);
     if (grp->isFull())
@@ -149,3 +149,5 @@ std::tuple<RQ_R, Group *> RequestManager::tryAddRequest(CHAR_DATA *author, char 
     this->_requestList.emplace(_requestList.end(), Request(author, grp, RQ_PERSON));
     return std::make_tuple(RQ_R::RQ_R_OK, grp);
 }
+
+RequestManager::RequestManager() = default;

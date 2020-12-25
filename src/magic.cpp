@@ -14,7 +14,7 @@
 
 #include "magic.h"
 
-#include "cmd/hire.h"
+#include "cmd/cmd.generic.h"
 #include "core/affect_data.h"
 #include "action.targeting.hpp"
 #include "chars/world.characters.hpp"

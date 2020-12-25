@@ -12,7 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "cmd/hire.h"
+#include "cmd/cmd.generic.h"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
 #include "logger.hpp"

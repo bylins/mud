@@ -2,7 +2,7 @@
 *   File: track.cpp                                     Part of Bylins    *
 *  ************************************************************************/
 
-#include "track.h"
+#include "cmd.generic.h"
 #include "graph.h"
 #include "handler.h"
 

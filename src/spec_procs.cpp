@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "act.movement.hpp"
-#include "cmd/mercenary.h"
+#include "cmd/cmd.generic.h"
 #include "obj.hpp"
 #include "comm.h"
 #include "interpreter.h"
