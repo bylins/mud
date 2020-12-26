@@ -16,7 +16,6 @@ void do_grequest(CHAR_DATA *ch, char *argument, int, int){
     // гзаявка создать Верий - отправляет заявку в группу
     // гзаявка отменить Верий - отменяет заявку в группу
 
-    auto rm = groupRoster.getRequestManager();
     two_arguments(argument, subcmd, target);
     /*печать перечня заявок*/
     if (!*subcmd) {
@@ -27,17 +26,17 @@ void do_grequest(CHAR_DATA *ch, char *argument, int, int){
         return;
     }
     else if (isname(subcmd, "список list")) {
-        rm->printRequestList(ch);
+        groupRoster.printRequestList(ch);
         return;
     }
         /*создание заявки*/
     else if (isname(subcmd, "создать отправить make send")) {
-        rm->makeRequest(ch, target);
+        groupRoster.makeRequest(ch, target);
         return;
     }
         /*отзыв заявки*/
     else if (isname(subcmd, "отменить отозвать cancel revoke")){
-        rm->revokeRequest(ch, target);
+        groupRoster.revokeRequest(ch, target);
         return;
     }
     else {

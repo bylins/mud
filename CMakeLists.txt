@@ -105,10 +105,7 @@ set(SOURCES
 		src/grp/follow.cpp
 		src/grp/grp.cmdprocessor.cpp
 		src/grp/grp.group.cpp
-		src/grp/grp.groupmanager.cpp
-		src/grp/grp.membermanager.cpp
 		src/grp/grp.request.cpp
-		src/grp/grp.requestmanager.cpp
 		src/grp/grp.roster.cpp
 		src/handler.cpp
 		src/heartbeat.commands.cpp
@@ -214,7 +211,7 @@ set(SOURCES
 		src/world.objects.cpp
 		src/zedit.cpp
 		src/zone.table.cpp
-		)
+        )
 
 set(HEADERS
 		src/grp/follow.h

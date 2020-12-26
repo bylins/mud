@@ -837,7 +837,7 @@ public:
     bool isHorsePrevents();
     void dismount();
 public:
-    grp_ptr personGroup;
+    Group* personGroup;
 };
 
 inline const player_special_data::ignores_t& CHAR_DATA::get_ignores() const

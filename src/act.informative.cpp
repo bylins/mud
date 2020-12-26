@@ -61,7 +61,7 @@
 #include "sysdep.h"
 #include "bonus.h"
 #include "conf.h"
-#include "grp/grp.main.h"
+
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>

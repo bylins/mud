@@ -4,7 +4,7 @@
 
 #include "grp.main.h"
 
-Request::Request(CHAR_DATA *subject, grp_ptr group, RQ_TYPE type) {
+Request::Request(CHAR_DATA *subject, Group* group, RQ_TYPE type) {
     if (!subject || !group)
         return;
     _applicant = subject;
