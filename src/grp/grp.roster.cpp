@@ -4,6 +4,8 @@
 
 #include "global.objects.hpp"
 #include "handler.h"
+#include "grp.main.h"
+
 
 GroupRoster& groupRoster = GlobalObjects::groupRoster();
 
@@ -22,8 +24,6 @@ void GroupRoster::restorePlayerGroup(CHAR_DATA *ch) {
 }
 
 void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
-    enum SubCmd { PRINT, ALL, HELP, LIST, MAKE, INVITE, TAKE, REJECT, EXPELL, LEADER, LEAVE, DISBAND};
-    SubCmd mode;
 
     const std::string strHELP = "справка помощь";
     const std::string strMAKE = "создать make";
@@ -36,110 +36,92 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
     const std::string strLEAVE = "покинуть leave";
     const std::string strDISBAND = "распустить clear";
     const std::string strALL = "все all";
+    const std::string strTEST = "тест test";
     char subcmd[MAX_INPUT_LENGTH],  target[MAX_INPUT_LENGTH];
 
     if (!ch || IS_NPC(ch))
         return;
 
     two_arguments(argument, subcmd, target);
-
-    // выбираем режим
-    if (!*subcmd)
-        mode = PRINT;
-    else if (isname(subcmd, strALL.c_str()))
-        mode = ALL;
-    else if (isname(subcmd, strHELP.c_str()))
-        mode = HELP;
-    else if (isname(subcmd, strMAKE.c_str()))
-        mode = MAKE;
-    else if (isname(subcmd, strLIST.c_str()))
-        mode = LIST;
-    else if (isname(subcmd, strINVITE.c_str()))
-        mode = INVITE;
-    else if (isname(subcmd, strTAKE.c_str()))
-        mode = TAKE;
-    else if (isname(subcmd, strREJECT.c_str()))
-        mode = REJECT;
-    else if (isname(subcmd, strEXPELL.c_str()))
-        mode = EXPELL;
-    else if (isname(subcmd, strLEADER.c_str()))
-        mode = LEADER;
-    else if (isname(subcmd, strLEAVE.c_str()))
-        mode = LEAVE;
-    else if (isname(subcmd, strDISBAND.c_str()))
-        mode = DISBAND;
-    else {
-        send_to_char("Уточните команду.\r\n", ch);
-        return;
-    }
     if (GET_POS(ch) < POS_RESTING) {
         send_to_char("Трудно управлять группой в таком состоянии.\r\n", ch);
         return;
     }
     auto grp = ch->personGroup;
 
-    if (mode == MAKE) {
+    // выбираем режим
+    if (!*subcmd) {
+        grp->printGroup(ch); return;}
+    else if (isname(subcmd, strALL.c_str())) {
+        if (IS_IMMORTAL(ch))
+            groupRoster.printList(ch);
+        return;
+    }
+    else if (isname(subcmd, strHELP.c_str())) {
+        send_to_char(ch, "Команды: %s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n%s\r\n",
+                     strHELP.c_str(), strMAKE.c_str(), strLIST.c_str(),strINVITE.c_str(), strTAKE.c_str(),
+                     strREJECT.c_str(), strEXPELL.c_str(), strLEADER.c_str(), strLEAVE.c_str(), strDISBAND.c_str());
+        return;
+    }
+    else if (isname(subcmd, strMAKE.c_str())) {
         if (grp != nullptr && grp->getLeader() == ch){
             send_to_char(ch, "Только великим правителям, навроде Цесаря Иулия, было дозволено водить много легионов!\r\n");
             return;
         }
         if (grp != nullptr) // в группе - покидаем
-            grp->removeMember(ch);
+            grp->_removeMember(ch);
         groupRoster.addGroup(ch);
         send_to_char(ch, "Вы создали группу c максимальным числом последователей %d.\r\n", ch->personGroup ? ch->personGroup->_getMemberCap() : 0);
+         return;
+    }
+    else if (isname(subcmd, strLIST.c_str())) {
+        grp->listMembers(ch);
         return;
     }
+    else if (isname(subcmd, strLEAVE.c_str())){
+        grp->leaveGroup();
+        return;
+    }
+
 
     if (grp != nullptr && grp->getLeader() != ch ) {
         send_to_char(ch, "Необходимо быть лидером группы для этого.\r\n");
         return;
     }
 
-
-    // MAKE был раньше, т.к. он создает группу
-    switch (mode) {
-        case MAKE:
-            break;
-        case PRINT:
-            grp->printGroup(ch);
-            break;
-        case ALL:
-            if (!IS_IMMORTAL(ch))
-                return;
-            groupRoster.printList(ch);
-            break;
-        case HELP:
-            break;
-        case LIST:
-            //grp->listMembers(ch);
-            break;
-        case INVITE:
-            if (grp->_isFull()){
-                send_to_char(ch, "Командир, но в твоей группе больше нет места!\r\n");
-                return;
-            }
-            groupRoster.makeInvite(ch, target);
-            break;
-        case TAKE:
-            grp->approveRequest(target);
-            break;
-        case REJECT:
-            //grp->denyRequest(target);
-            break;
-        case EXPELL:
-            //grp->expellMember(target);
-            break;
-        case LEADER:
-            grp->promote(target);
-            break;
-        case LEAVE:
-            //grp->leave(ch);
-            break;
-        case DISBAND:
-            groupRoster.removeGroup(grp->getUid());
-            grp = nullptr;
-            break;
+    if (isname(subcmd, strINVITE.c_str())) {
+        if (grp->_isFull()){
+            send_to_char(ch, "Командир, но в твоей группе больше нет места!\r\n");
+            return;
+        }
+        groupRoster.makeInvite(ch, target);
+        return;
+        }
+    else if (isname(subcmd, strTAKE.c_str())) {
+        grp->approveRequest(target);
     }
+    else if (isname(subcmd, strREJECT.c_str())){
+        grp->rejectRequest(target);
+        return;
+    }
+    else if (isname(subcmd, strEXPELL.c_str())){
+        grp->expellMember(target);
+        return;
+    }
+    else if (isname(subcmd, strLEADER.c_str())) {
+        grp->promote(target);
+        return;
+    }
+    else if (isname(subcmd, strDISBAND.c_str())) {
+        groupRoster.removeGroup(grp->getUid());
+        grp = nullptr;
+        return;
+    }
+    else {
+        send_to_char("Уточните команду.\r\n", ch);
+        return;
+    }
+
 }
 
 
@@ -156,7 +138,6 @@ grp_ptr GroupRoster::addGroup(CHAR_DATA * leader) {
 void GroupRoster::removeGroup(u_long uid) {
     auto grp = _groupList.find(uid);
     if (grp != _groupList.end()) {
-        grp->second->clear(false);
         _groupList.erase(uid);
         return;
     }
@@ -190,6 +171,8 @@ grp_ptr GroupRoster::findGroup(char *leaderName) {
 
 
 void GroupRoster::printList(CHAR_DATA *ch) {
+    if (ch == nullptr)
+        return;
     size_t cnt = this->_groupList.size();
     send_to_char(ch, "Текущее количество групп в мире: %lu\r\n", cnt);
     for (auto & it : this->_groupList) {
@@ -199,9 +182,8 @@ void GroupRoster::printList(CHAR_DATA *ch) {
     }
 }
 
-
 void GroupRoster::makeInvite(CHAR_DATA *leader, char *targetPerson) {
-    if (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM))
+    if (!leader || AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM))
         return;
     if (AFF_FLAGGED(leader, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(leader, EAffectFlag::AFF_STRANGLED)) {
         send_to_char(leader, "Вы немы, как рыба об лед.\r\n");
@@ -230,9 +212,11 @@ void GroupRoster::makeInvite(CHAR_DATA *leader, char *targetPerson) {
 }
 
 std::tuple<INV_R, CHAR_DATA *> GroupRoster::tryMakeInvite(Group* grp, char *member) {
+    // проверки
     CHAR_DATA *vict = get_player_vis(grp->getLeader(), member, FIND_CHAR_WORLD);
     if (!vict) return std::make_tuple(INV_R_NO_PERSON, nullptr);
     if (vict->personGroup != nullptr ) return std::make_tuple(INV_R::INV_R_BUSY, nullptr);
+    // ищем и продлеваем
     for (auto & it : this->_requestList){
         if (vict == it->_applicant && grp == it->_group){
             it->_time = std::chrono::system_clock::now();
@@ -247,7 +231,7 @@ std::tuple<INV_R, CHAR_DATA *> GroupRoster::tryMakeInvite(Group* grp, char *memb
 
 void GroupRoster::printRequestList(CHAR_DATA *ch) {
     bool notFound = true;
-    if (!ch || ch->purged())
+    if (!ch)
         return;
     send_to_char(ch, "Активные заявки и приглашения:\r\n");
     for (const auto & it : this->_requestList){
@@ -272,7 +256,7 @@ void GroupRoster::printRequestList(CHAR_DATA *ch) {
 }
 
 void GroupRoster::makeRequest(CHAR_DATA *author, char* target) {
-    if (AFF_FLAGGED(author, EAffectFlag::AFF_CHARM))
+    if (!author || AFF_FLAGGED(author, EAffectFlag::AFF_CHARM))
         return;
 
     if (AFF_FLAGGED(author, EAffectFlag::AFF_SILENCE) || AFF_FLAGGED(author, EAffectFlag::AFF_STRANGLED)) {
@@ -307,16 +291,19 @@ void GroupRoster::makeRequest(CHAR_DATA *author, char* target) {
 }
 
 void GroupRoster::revokeRequest(CHAR_DATA *ch, char* target) {
+    if (!ch)
+        return;
     for (auto it = this->_requestList.begin(); it != this->_requestList.end(); ++it)
         if ( it->get()->_applicant == ch  && str_cmp(target, it->get()->_group->getLeaderName().c_str())){
-            send_to_char(ch, "заявка найдена и удалена\r\n");
+            send_to_char(ch, "Вы отменили заявку на вступление в группу.\r\n");
             this->_requestList.erase(it);
             return;
         }
-    send_to_char(ch, "заявка не найдена\r\n");
+    send_to_char(ch, "Заявка не найдена.\r\n");
 }
 
 std::tuple<RQ_R, grp_ptr> GroupRoster::tryAddRequest(CHAR_DATA *author, char *targetGroup) {
+    // проверки
     if (!author || author->purged()){
         sprintf(buf, "GroupRoster::tryAddRequest: author is null or purged\r\n");
         mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -325,12 +312,13 @@ std::tuple<RQ_R, grp_ptr> GroupRoster::tryAddRequest(CHAR_DATA *author, char *ta
     if (targetGroup == nullptr){
         return std::make_tuple(RQ_R::RQ_R_NO_GROUP, nullptr);
     }
+    // ищем группу и проверяем на всякое
     grp_ptr grp = groupRoster.findGroup(targetGroup) ;
     if (grp == nullptr)
         return std::make_tuple(RQ_R::RQ_R_NO_GROUP, nullptr);
     if (grp->_isFull())
         return std::make_tuple(RQ_R::RQ_R_OVERFLOW, nullptr);
-
+    // продлеваем
     for (auto & it : this->_requestList){
         if (author == it->_applicant && grp.get() == it->_group){
             it->_time = std::chrono::system_clock::now();
@@ -341,4 +329,33 @@ std::tuple<RQ_R, grp_ptr> GroupRoster::tryAddRequest(CHAR_DATA *author, char *ta
     rq_ptr rq = std::make_shared<Request>(author, grp.get(), RQ_PERSON);
     this->_requestList.emplace(_requestList.end(), rq);
     return std::make_tuple(RQ_R::RQ_R_OK, grp);
+}
+
+Request *GroupRoster::findRequest(const char* targetPerson, const char* group, RQ_TYPE type) {
+    for (auto & it : this->_requestList){
+        if (type == it->_type &&
+            !str_cmp(group, it->_group->getLeaderName().c_str()) &&
+            !str_cmp(targetPerson, it->_applicantName))
+            return it.get();
+    }
+    return nullptr;
+}
+
+void GroupRoster::deleteRequest(Request *r) {
+    for (auto it = this->_requestList.begin(); it != this->_requestList.end(); ++it)
+        if ( it->get() == r){
+            this->_requestList.erase(it);
+            return;
+        }
+
+}
+// who - игрок,
+// author - имя лидера (может быть офлайн)
+void GroupRoster::acceptInvite(CHAR_DATA* who, char* author) {
+    if (!who)
+        return;
+    auto r = findRequest(who->get_pc_name().c_str(), author, RQ_TYPE::RQ_GROUP);
+    r->_group->addMember(r->_applicant);
+    send_to_char(r->_applicant, "Вы одобрили заявку от лидера %s\r\n", r->_group->getLeaderName().c_str());
+    deleteRequest(r);
 }

@@ -23,6 +23,7 @@ void do_grequest(CHAR_DATA *ch, char *argument, int, int){
         send_to_char(ch, "гзаявка список - для получения списка заявок\r\n");
         send_to_char(ch, "гзаявка создать Верий - отправляет заявку в группу лидера Верий\r\n");
         send_to_char(ch, "гзаявка отменить Верий - отменяет заявку в группу лидера Верий\r\n");
+        send_to_char(ch, "гзаявка принять Верий - принимает заявку от лидера группы Верий\r\n");
         return;
     }
     else if (isname(subcmd, "список list")) {
@@ -39,7 +40,10 @@ void do_grequest(CHAR_DATA *ch, char *argument, int, int){
         groupRoster.revokeRequest(ch, target);
         return;
     }
-    else {
+    else if (isname(subcmd, "принять accept")){
+        groupRoster.acceptInvite(ch, target);
+        return;
+    }else {
         send_to_char("Уточните команду.\r\n", ch);
         return;
     }
@@ -55,263 +59,6 @@ bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
     else
     {
         return true;
-    }
-}
-
-void print_one_line(CHAR_DATA * ch, CHAR_DATA * k, int leader, int header)
-{
-    int ok, ok2, div;
-    const char *WORD_STATE[] = { "При смерти",
-                                 "Оч.тяж.ран",
-                                 "Оч.тяж.ран",
-                                 " Тяж.ранен",
-                                 " Тяж.ранен",
-                                 "  Ранен   ",
-                                 "  Ранен   ",
-                                 "  Ранен   ",
-                                 "Лег.ранен ",
-                                 "Лег.ранен ",
-                                 "Слег.ранен",
-                                 " Невредим "
-    };
-    const char *MOVE_STATE[] = { "Истощен",
-                                 "Истощен",
-                                 "О.устал",
-                                 " Устал ",
-                                 " Устал ",
-                                 "Л.устал",
-                                 "Л.устал",
-                                 "Хорошо ",
-                                 "Хорошо ",
-                                 "Хорошо ",
-                                 "Отдохн.",
-                                 " Полон "
-    };
-    const char *POS_STATE[] = { "Умер",
-                                "Истекает кровью",
-                                "При смерти",
-                                "Без сознания",
-                                "Спит",
-                                "Отдыхает",
-                                "Сидит",
-                                "Сражается",
-                                "Стоит"
-    };
-
-    if (IS_NPC(k))
-    {
-        if (!header)
-//       send_to_char("Персонаж       | Здоровье |Рядом| Доп | Положение     | Лояльн.\r\n",ch);
-            send_to_char("Персонаж            | Здоровье |Рядом| Аффект | Положение\r\n", ch);
-        std::string name = GET_NAME(k);
-        name[0] = UPPER(name[0]);
-        sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM),
-                name.substr(0, 20).c_str(), CCNRM(ch, C_NRM));
-        sprintf(buf + strlen(buf), "%s%10s%s|",
-                color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)),
-                WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1], CCNRM(ch, C_NRM));
-
-        ok = ch->in_room == IN_ROOM(k);
-        sprintf(buf + strlen(buf), "%s%5s%s|",
-                ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
-
-        sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
-                CCIRED(ch, C_NRM),
-                AFF_FLAGGED(k, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(k, EAffectFlag::AFF_PRISMATICAURA) ? "П" : " "),
-                CCGRN(ch, C_NRM),
-                AFF_FLAGGED(k, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch, C_NRM),
-                AFF_FLAGGED(k, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM),
-                (AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
-                 || AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
-                 || (GET_EQ(k, WEAR_LIGHT)
-                     && GET_OBJ_VAL(GET_EQ(k, WEAR_LIGHT), 2))) ? "С" : " ",
-                CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
-                k->low_charm() ? "Т" : " ", CCNRM(ch, C_NRM));
-
-        sprintf(buf + strlen(buf), "%-15s", POS_STATE[(int) GET_POS(k)]);
-
-        act(buf, FALSE, ch, 0, k, TO_CHAR);
-    }
-    else
-    {
-        if (!header)
-            send_to_char
-                    ("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n", ch);
-
-        std::string name = GET_NAME(k);
-        name[0] = UPPER(name[0]);
-        sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM), name.c_str(), CCNRM(ch, C_NRM));
-        sprintf(buf + strlen(buf), "%s%10s%s|",
-                color_value(ch, GET_HIT(k), GET_REAL_MAX_HIT(k)),
-                WORD_STATE[posi_value(GET_HIT(k), GET_REAL_MAX_HIT(k)) + 1], CCNRM(ch, C_NRM));
-
-        sprintf(buf + strlen(buf), "%s%7s%s|",
-                color_value(ch, GET_MOVE(k), GET_REAL_MAX_MOVE(k)),
-                MOVE_STATE[posi_value(GET_MOVE(k), GET_REAL_MAX_MOVE(k)) + 1], CCNRM(ch, C_NRM));
-
-        ok = ch->in_room == IN_ROOM(k);
-        sprintf(buf + strlen(buf), "%s%5s%s|",
-                ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
-
-        if ((!IS_MANA_CASTER(k) && !MEMQUEUE_EMPTY(k)) ||
-            (IS_MANA_CASTER(k) && GET_MANA_STORED(k) < GET_MAX_MANA(k)))
-        {
-            div = mana_gain(k);
-            if (div > 0)
-            {
-                if (!IS_MANA_CASTER(k))
-                {
-                    ok2 = MAX(0, 1 + GET_MEM_TOTAL(k) - GET_MEM_COMPLETED(k));
-                    ok2 = ok2 * 60 / div;	// время мема в сек
-                }
-                else
-                {
-                    ok2 = MAX(0, 1 + GET_MAX_MANA(k) - GET_MANA_STORED(k));
-                    ok2 = ok2 / div;	// время восстановления в секундах
-                }
-                ok = ok2 / 60;
-                ok2 %= 60;
-                if (ok > 99)
-                    sprintf(buf + strlen(buf), "&g%5d&n|", ok);
-                else
-                    sprintf(buf + strlen(buf), "&g%2d:%02d&n|", ok, ok2);
-            }
-            else
-            {
-                sprintf(buf + strlen(buf), "&r    -&n|");
-            }
-        }
-        else
-            sprintf(buf + strlen(buf), "     |");
-
-        sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
-                CCIRED(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(k, EAffectFlag::AFF_PRISMATICAURA)
-                                                                                       ? "П" : " "), CCGRN(ch,
-                                                                                                           C_NRM),
-                AFF_FLAGGED(k, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch,
-                                                                                 C_NRM),
-                AFF_FLAGGED(k, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM), (AFF_FLAGGED(k, EAffectFlag::AFF_SINGLELIGHT)
-                                                                                            || AFF_FLAGGED(k, EAffectFlag::AFF_HOLYLIGHT)
-                                                                                            || (GET_EQ(k, WEAR_LIGHT)
-                                                                                                &&
-                                                                                                GET_OBJ_VAL(GET_EQ
-                                                                                                            (k, WEAR_LIGHT),
-                                                                                                            2))) ? "С" : " ",
-                CCIBLU(ch, C_NRM), AFF_FLAGGED(k, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
-                k->ahorse() ? "В" : " ", CCNRM(ch, C_NRM));
-
-        sprintf(buf + strlen(buf), "%5s|", leader ? "Лидер" : "");
-        ok = PRF_FLAGGED(k, PRF_SKIRMISHER);
-        sprintf(buf + strlen(buf), "%s%-14s%s|",	ok ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
-        sprintf(buf + strlen(buf), " %s", POS_STATE[(int) GET_POS(k)]);
-        act(buf, FALSE, ch, 0, k, TO_CHAR);
-    }
-}
-
-void print_group(CHAR_DATA * ch)
-{
-    int gfound = 0, cfound = 0;
-    CHAR_DATA *k;
-    struct follow_type *f, *g;
-
-    k = ch->has_master() ? ch->get_master() : ch;
-    if (!IS_NPC(ch))
-        ch->desc->msdp_report(msdp::constants::GROUP);
-
-    if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-    {
-        send_to_char("Ваша группа состоит из:\r\n", ch);
-        if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP))
-        {
-            print_one_line(ch, k, TRUE, gfound++);
-        }
-
-        for (f = k->followers; f; f = f->next)
-        {
-            if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-            {
-                continue;
-            }
-            print_one_line(ch, f->follower, FALSE, gfound++);
-        }
-    }
-
-    for (f = ch->followers; f; f = f->next)
-    {
-        if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-              || MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST)))
-        {
-            continue;
-        }
-        if (!cfound)
-            send_to_char("Ваши последователи:\r\n", ch);
-        print_one_line(ch, f->follower, FALSE, cfound++);
-    }
-    if (!gfound && !cfound)
-    {
-        send_to_char("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
-        return;
-    }
-    if (PRF_FLAGGED(ch, PRF_SHOWGROUP))
-    {
-        for (g = k->followers, cfound = 0; g; g = g->next)
-        {
-            for (f = g->follower->followers; f; f = f->next)
-            {
-                if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-                      || MOB_FLAGGED(f->follower, MOB_ANGEL) || MOB_FLAGGED(f->follower, MOB_GHOST))
-                    || !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-                {
-                    continue;
-                }
-
-                if (f->follower->get_master() == ch
-                    || !AFF_FLAGGED(f->follower->get_master(), EAffectFlag::AFF_GROUP))
-                {
-                    continue;
-                }
-
-                // shapirus: при включенном режиме не показываем клонов и хранителей
-                if (PRF_FLAGGED(ch, PRF_NOCLONES)
-                    && IS_NPC(f->follower)
-                    && (MOB_FLAGGED(f->follower, MOB_CLONE)
-                        || GET_MOB_VNUM(f->follower) == MOB_KEEPER))
-                {
-                    continue;
-                }
-
-                if (!cfound)
-                {
-                    send_to_char("Последователи членов вашей группы:\r\n", ch);
-                }
-                print_one_line(ch, f->follower, FALSE, cfound++);
-            }
-
-            if (ch->has_master())
-            {
-                if (!(AFF_FLAGGED(g->follower, EAffectFlag::AFF_CHARM)
-                      || MOB_FLAGGED(g->follower, MOB_ANGEL) || MOB_FLAGGED(g->follower, MOB_GHOST))
-                    || !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-                {
-                    continue;
-                }
-
-                // shapirus: при включенном режиме не показываем клонов и хранителей
-                if (PRF_FLAGGED(ch, PRF_NOCLONES)
-                    && IS_NPC(g->follower)
-                    && (MOB_FLAGGED(g->follower, MOB_CLONE)
-                        || GET_MOB_VNUM(g->follower) == MOB_KEEPER))
-                {
-                    continue;
-                }
-
-                if (!cfound)
-                {
-                    send_to_char("Последователи членов вашей группы:\r\n", ch);
-                }
-                print_one_line(ch, g->follower, FALSE, cfound++);
-            }
-        }
     }
 }
 
@@ -489,7 +236,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
     if (!*buf)
     {
-        print_group(ch);
+//        print_group(ch);
         return;
     }
 

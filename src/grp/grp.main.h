@@ -19,8 +19,6 @@ int max_group_size(CHAR_DATA *ch);
 
 class Group;
 class Request;
-using grp_ptr = std::shared_ptr<Group>;
-using rq_ptr = std::shared_ptr<Request>;
 
 struct char_info {
     char_info(int memberUid, CHAR_DATA *member, std::string memberName);
@@ -30,6 +28,9 @@ struct char_info {
     std::string memberName;
 };
 
+using grp_ptr = std::shared_ptr<Group>;
+using rq_ptr = std::shared_ptr<Request>;
+using mm_ptr = char_info *;
 
 class Group {
 private:
@@ -43,13 +44,13 @@ private:
     std::string _leaderName;
     // ссылка на персонажа, АХТУНГ! Может меняться и быть невалидным
     CHAR_DATA* _leader = nullptr;
-    void clear();
+    void _printDeadLine(CHAR_DATA* ch, char* playerName, int header);
 public:
     u_long getUid() const;
     u_short getCurrentMemberCount() const;
     const std::string &getLeaderName() const;
-    CHAR_DATA *getLeader();
-    void clear(bool silent);
+    CHAR_DATA *getLeader() const;
+    void _clear(bool silent);
     Group(CHAR_DATA *leader, u_long uid);
     ~Group();
     void _setLeader(CHAR_DATA *leader);
@@ -58,18 +59,27 @@ public:
     bool _isActive(); // проверка, что в группе все персонажи онлайн
     bool _isMember(int uid);
     int _findMember(char* memberName);
-private:
-    std::map<int, std::shared_ptr<char_info>> _memberList;
+    CHAR_DATA* _findMember(int UID);
+    bool _removeMember(CHAR_DATA *member);
 
+private:
+    std::map<int, std::shared_ptr<char_info *>> * _memberList;
+    void _printLine(CHAR_DATA * ch, int memberUID, int header);
+    bool _sameGroup(CHAR_DATA * ch, CHAR_DATA * vict);
 public:
     void addMember(CHAR_DATA *member);
-    bool removeMember(CHAR_DATA *member);
+    void expellMember(char* memberName);
     bool restoreMember(CHAR_DATA *member);
     void printGroup(CHAR_DATA *requestor);
     void listMembers(CHAR_DATA *requestor);
+
     void sendToGroup(GRP_COMM mode, const char *msg, ...);
     void promote(char *applicant);
-    void approveRequest(char *applicant);
+    void approveRequest(const char *applicant);
+    void rejectRequest(char *applicant);
+    void leaveGroup();
+
+    void charDataPurged(CHAR_DATA* ch);
 };
 
 class Request {
@@ -105,11 +115,14 @@ private:
     std::tuple<INV_R, CHAR_DATA *> tryMakeInvite(Group* grp, char* member);
     std::tuple<RQ_R, grp_ptr> tryAddRequest(CHAR_DATA* author, char* targetGroup);
 public:
-// методы работы с заявками
+    // методы работы с заявками
     void printRequestList(CHAR_DATA* ch);
     void makeInvite(CHAR_DATA* leader, char* targetPerson);
     void makeRequest(CHAR_DATA* author, char* targetGroup);
     void revokeRequest(CHAR_DATA* author, char* targetGroup);
+    void acceptInvite(CHAR_DATA* who, char* author);
+    void deleteRequest(Request * r);
+    Request* findRequest(const char* targetPerson, const char* group, RQ_TYPE type);
 };
 
 #endif //BYLINS_GRP_MAIN_H
