@@ -240,7 +240,7 @@ void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
         return;
     }
 
-    if (!str_cmp(buf, "список"))
+    if (isname(buf, "список"))
     {
         print_list_group(ch);
         return;

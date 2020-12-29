@@ -64,7 +64,7 @@ CHAR_DATA *Group::getLeader() const{
 
 int Group::_findMember(char *memberName) {
     for (auto & it : *_memberList) {
-        if (!str_cmp((*it.second)->memberName, memberName))
+        if (isname((*it.second)->memberName, memberName))
             return it.first;
     }
     return 0;
@@ -74,6 +74,14 @@ CHAR_DATA* Group::_findMember(int uid) {
     for (auto & it : *_memberList) {
         if ((*it.second)->memberUID == uid)
             return (*it.second)->member;
+    }
+    return nullptr;
+}
+
+const char* Group::_getMemberName(int uid) {
+    for (auto & it : *_memberList) {
+        if ((*it.second)->memberUID == uid)
+            return (*it.second)->memberName.c_str();
     }
     return nullptr;
 }
@@ -101,67 +109,6 @@ int Group::_getMemberCap() const {
     return _memberCap;
 }
 
-void Group::printGroup(CHAR_DATA *ch) {
-    int gfound = 0, cfound = 0;
-    CHAR_DATA *leader;
-    struct follow_type *f, *g;
-
-    if (ch->personGroup)
-        leader = ch->personGroup->getLeader();
-    else
-        leader = ch;
-
-    if (!IS_NPC(ch))
-        ch->desc->msdp_report(msdp::constants::GROUP);
-    // печатаем группу
-    if (ch->personGroup != nullptr )
-    {
-        send_to_char("Ваша группа состоит из:\r\n", ch);
-        for (auto &it : *_memberList ){
-            _printLine(ch, it.first, gfound++);
-        }
-    }
-    // допечатываем чармисов
-    for (f = ch->followers; f; f = f->next)
-    {
-        if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-              || MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST)))
-        {
-            continue;
-        }
-        if (!cfound)
-            send_to_char("Ваши последователи:\r\n", ch);
-        _printLine(ch, f->follower, cfound++);
-    }
-    if (!gfound && !cfound) {
-        send_to_char("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
-        return;
-    }
-    // печатаем чармисов членов группы
-    if (PRF_FLAGGED(ch, PRF_SHOWGROUP))
-    {
-        for (auto &it : *_memberList ) {
-            for (f = (*it.second)->member->followers; f; f = f->next) {
-                if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-                    || MOB_FLAGGED(f->follower, MOB_ANGEL) || MOB_FLAGGED(f->follower, MOB_GHOST))){
-                    continue;
-                }
-                // клоны отключены
-                if (PRF_FLAGGED(ch, PRF_NOCLONES) && IS_NPC(f->follower) &&
-                    (MOB_FLAGGED(f->follower, MOB_CLONE) || GET_MOB_VNUM(f->follower) == MOB_KEEPER)) {
-                    continue;
-                }
-
-                if (!cfound) {
-                    send_to_char("Последователи членов вашей группы:\r\n", ch);
-                }
-                _printLine(ch, f->follower, cfound++);
-            }
-
-        }
-    }
-}
-
 const std::string &Group::getLeaderName() const {
     return _leaderName;
 }
@@ -172,21 +119,17 @@ bool Group::_isFull() {
     return false;
 }
 
-void Group::sendToGroup(GRP_COMM mode, const char *msg, ...) {
-    va_list args;
-    va_start(args, msg);
-    vsnprintf(smallBuf, sizeof(smallBuf), msg, args);
-    va_end(args);
-    if (mode == GRP_COMM::GRP_COMM_ALL)
-        for (auto & it : *_memberList ) {
-            send_to_char((*it.second)->member, "%s%s", smallBuf, "\r\n");
-        }
-    if (mode == GRP_COMM_LEADER)
-        send_to_char(_leader, "%s%s", smallBuf, "\r\n");
+bool Group::_sameGroup(CHAR_DATA *ch, CHAR_DATA *vict) {
+    if (ch == nullptr || vict == nullptr)
+        return false;
+    if (ch->personGroup == vict->personGroup)
+        return true;
+    return false;
 }
 
+
 Group::~Group() {
-    this->_clear(true);
+    this->_clear(false);
     mudlog("~Group", BRF, LVL_IMMORT, SYSLOG, TRUE);
 }
 
@@ -216,11 +159,17 @@ void Group::addMember(CHAR_DATA *member) {
         return;
     }
     member->personGroup = this;
+    actToGroup(member, "$N принят$A в группу.");
 //    getLeader()->send_to_TC(true, false, false, "Размер списка: %lu\r\n", _memberList->size());
-
 }
 
 bool Group::restoreMember(CHAR_DATA *member) {
+    for (auto &it: *_memberList){
+        if (it.first == member->get_uid()) {
+            (*it.second)->member = member;
+            return true;
+        }
+    }
     return false;
 }
 
@@ -232,14 +181,33 @@ bool Group::_removeMember(CHAR_DATA *member) {
         mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
         return false;
     }
-    auto it = _memberList->find(member->get_uid());
-    if (it == _memberList->end()){
+    // удаляем персонажа из группы и ссылку на группу
+    auto num = _memberList->erase(member->get_uid());
+    member->personGroup = nullptr;
+    if (num == 0){
         sprintf(buf, "Group::_removeMember: персонаж не найден, id=%lu", getUid());
         mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
         return false;
     }
-    _memberList->erase(it);
-    member->personGroup = nullptr;
+
+    CHAR_DATA* nxtLdr = _leader;
+    int nxtLdrGrpSize = 0;
+    // если ушел лидер - ищем нового, но после ухода предыдущего
+    if ( member == _leader) {
+        for (const auto & mit : *_memberList){
+            auto m = (*mit.second)->member;
+            if ( m != nullptr && !m->purged() && max_group_size(m) > nxtLdrGrpSize ) {
+                nxtLdr = m;
+                nxtLdrGrpSize = max_group_size(m);
+            }
+        }
+    }
+    // никого не осталось, распускаем группу
+    if (nxtLdr == nullptr) {
+        groupRoster.removeGroup(_uid);
+        return false;
+    }
+    _setLeader(nxtLdr);
     return true;
 }
 
@@ -274,7 +242,7 @@ void Group::promote(char *applicant) {
     _setLeader((*_memberList->at(memberId))->member);
     sendToGroup(GRP_COMM_ALL, "Изменился лидер группы на %.", (*_memberList->at(memberId))->memberName.c_str());
     _memberCap = 1;
-    u_short diff = (u_short)(_memberList->size() - _memberCap);
+    auto diff = (u_short)(_memberList->size() - _memberCap);
     if (diff > 0){
         u_short i = 0;
         CHAR_DATA* expellList[diff];
@@ -290,12 +258,33 @@ void Group::promote(char *applicant) {
     }
 }
 
-void Group::approveRequest(const char *applicant) {
+void Group::rejectRequest(char *applicant) {
+    if (!*applicant) {
+        send_to_char(_leader, "Заявка не найдена, уточните имя.\r\n");
+        return;
+    }
     auto r = groupRoster.findRequest(applicant, this->getLeaderName().c_str(), RQ_PERSON);
     if (r == nullptr || r->_group != this){
         send_to_char(_leader, "Заявка не найдена, уточните имя.\r\n");
         return;
     }
+    send_to_char(r->_applicant, "Ваша заявка в группу лидера %s отклонена.\r\n", r->_group->getLeaderName().c_str());
+    groupRoster.deleteRequest(r);
+    send_to_char(_leader, "Вы отклонили заявку.\r\n");
+}
+
+
+void Group::approveRequest(const char *applicant) {
+    if (!*applicant) {
+        send_to_char(_leader, "Заявка не найдена, уточните имя.\r\n");
+        return;
+    }
+    auto r = groupRoster.findRequest(applicant, this->getLeaderName().c_str(), RQ_PERSON);
+    if (r == nullptr || r->_group != this){
+        send_to_char(_leader, "Заявка не найдена, уточните имя.\r\n");
+        return;
+    }
+    actToGroup(r->_applicant, "$N принят$A в группу.");
     addMember(r->_applicant);
     send_to_char(r->_applicant, "Вас приняли в группу.\r\n");
     groupRoster.deleteRequest(r);
@@ -306,9 +295,9 @@ void Group::expellMember(char *memberName) {
     auto vict = (*_memberList->at(mId))->member;
     if (mId != 0 && vict != nullptr) {
         _removeMember(vict);
-        act("$N исключен$A из состава вашей группы.", FALSE, _leader, 0, vict, TO_CHAR);
-        act("Вы исключены из группы $n1!", FALSE, _leader, 0, vict, TO_VICT);
-        act("$N был$G исключен$A из группы $n1!", FALSE, _leader, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+        act("$N исключен$A из состава вашей группы.", FALSE, _leader, nullptr, vict, TO_CHAR);
+        act("Вы исключены из группы $n1!", FALSE, _leader, nullptr, vict, TO_VICT);
+        act("$N был$G исключен$A из группы $n1!", FALSE, _leader, nullptr, vict, TO_NOTVICT | TO_ARENA_LISTEN);
     }
 }
 
@@ -342,155 +331,206 @@ void Group::listMembers(CHAR_DATA *ch) {
     }
 }
 
-void Group::rejectRequest(char *applicant) {
-
+void Group::leaveGroup(CHAR_DATA* ch) {
+    if (ch->personGroup == nullptr) {
+        send_to_char(ch, "Нельзя стать еще более одиноким, чем сейчас.\r\n");
+        return;
+    }
+    _removeMember(ch);
 }
 
-void Group::leaveGroup() {
-
-}
-
-void Group::_printDeadLine(CHAR_DATA* ch, char* playerName, int header) {
+void Group::_printHeader(CHAR_DATA* ch, bool npc) {
     if (ch == nullptr)
         return;
-    if (header)
+    if (npc)
         send_to_char("Персонаж            | Здоровье |Рядом| Аффект | Положение\r\n", ch);
-    send_to_char(ch, "%s47 Отсутсвует в игре\r\n", playerName);
+    else
+        send_to_char ("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n", ch);
+
 }
 
-
-void Group::_printLine(CHAR_DATA* ch, int memberUID, int header)
-{
-    CHAR_DATA* member = this->_findMember(memberUID);
+void Group::_printDeadLine(CHAR_DATA* ch, const char* playerName, int header) {
     if (ch == nullptr)
         return;
+    if (header == 0)
+        _printHeader(ch, false);
+    send_to_char(ch, "%s%-20s| Пока нет в игре.%s\r\n",  CCINRM(ch, C_NRM), playerName, CCNRM(ch, C_NRM));
+}
+
+void Group::_printNPCLine(CHAR_DATA* ch, CHAR_DATA* npc, int header) {
+    if (ch == nullptr || npc == nullptr)
+        return;
+    if (header == 0)
+        _printHeader(ch, true);
+    std::string name = GET_NAME(npc);
+    name[0] = UPPER(name[0]);
+    sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM),
+            name.substr(0, 20).c_str(), CCNRM(ch, C_NRM));
+    sprintf(buf + strlen(buf), "%s%10s%s|",
+            color_value(ch, GET_HIT(npc), GET_REAL_MAX_HIT(npc)),
+            WORD_STATE[posi_value(GET_HIT(npc), GET_REAL_MAX_HIT(npc)) + 1], CCNRM(ch, C_NRM));
+
+    auto ok = ch->in_room == IN_ROOM(npc);
+    sprintf(buf + strlen(buf), "%s%5s%s|",
+            ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
+
+    sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
+            CCIRED(ch, C_NRM),
+            AFF_FLAGGED(npc, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(npc, EAffectFlag::AFF_PRISMATICAURA) ? "П" : " "),
+            CCGRN(ch, C_NRM),
+            AFF_FLAGGED(npc, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch, C_NRM),
+            AFF_FLAGGED(npc, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM),
+            (AFF_FLAGGED(npc, EAffectFlag::AFF_SINGLELIGHT)
+             || AFF_FLAGGED(npc, EAffectFlag::AFF_HOLYLIGHT)
+             || (GET_EQ(npc, WEAR_LIGHT)
+                 && GET_OBJ_VAL(GET_EQ(npc, WEAR_LIGHT), 2))) ? "С" : " ",
+            CCIBLU(ch, C_NRM), AFF_FLAGGED(npc, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
+            npc->low_charm() ? "Т" : " ", CCNRM(ch, C_NRM));
+
+    sprintf(buf + strlen(buf), "%-15s", POS_STATE[(int) GET_POS(npc)]);
+
+    act(buf, FALSE, ch, nullptr, npc, TO_CHAR);
+}
+
+void Group::_printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header) {
     int ok, ok2, div;
 
     bool leader = false;
-    if (member!= nullptr && member->personGroup)
-        if (member->personGroup->getLeader() == member)
+    if (pc!= nullptr && pc->personGroup)
+        if (pc->personGroup->getLeader() == pc)
             leader = true;
-    if (member == nullptr) {
-        _printDeadLine();
-    }
+    if (header == 0)
+        _printHeader(ch, false);
+    std::string name = pc->get_pc_name();
+    name[0] = UPPER(name[0]);
+    sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM), name.c_str(), CCNRM(ch, C_NRM));
+    sprintf(buf + strlen(buf), "%s%10s%s|",
+            color_value(ch, GET_HIT(pc), GET_REAL_MAX_HIT(pc)),
+            WORD_STATE[posi_value(GET_HIT(pc), GET_REAL_MAX_HIT(pc)) + 1], CCNRM(ch, C_NRM));
 
-    if (IS_NPC(member))
+    sprintf(buf + strlen(buf), "%s%7s%s|",
+            color_value(ch, GET_MOVE(pc), GET_REAL_MAX_MOVE(pc)),
+            MOVE_STATE[posi_value(GET_MOVE(pc), GET_REAL_MAX_MOVE(pc)) + 1], CCNRM(ch, C_NRM));
+
+    ok = ch->in_room == IN_ROOM(pc);
+    sprintf(buf + strlen(buf), "%s%5s%s|",
+            ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
+
+    if ((!IS_MANA_CASTER(pc) && !MEMQUEUE_EMPTY(pc)) ||
+        (IS_MANA_CASTER(pc) && GET_MANA_STORED(pc) < GET_MAX_MANA(pc)))
     {
-        if (!header)
-//       send_to_char("Персонаж       | Здоровье |Рядом| Доп | Положение     | Лояльн.\r\n",ch);
-            send_to_char("Персонаж            | Здоровье |Рядом| Аффект | Положение\r\n", ch);
-        std::string name = GET_NAME(member);
-        name[0] = UPPER(name[0]);
-        sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM),
-                name.substr(0, 20).c_str(), CCNRM(ch, C_NRM));
-        sprintf(buf + strlen(buf), "%s%10s%s|",
-                color_value(ch, GET_HIT(member), GET_REAL_MAX_HIT(member)),
-                WORD_STATE[posi_value(GET_HIT(member), GET_REAL_MAX_HIT(member)) + 1], CCNRM(ch, C_NRM));
-
-        ok = ch->in_room == IN_ROOM(member);
-        sprintf(buf + strlen(buf), "%s%5s%s|",
-                ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
-
-        sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
-                CCIRED(ch, C_NRM),
-                AFF_FLAGGED(member, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(member, EAffectFlag::AFF_PRISMATICAURA) ? "П" : " "),
-                CCGRN(ch, C_NRM),
-                AFF_FLAGGED(member, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch, C_NRM),
-                AFF_FLAGGED(member, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM),
-                (AFF_FLAGGED(member, EAffectFlag::AFF_SINGLELIGHT)
-                 || AFF_FLAGGED(member, EAffectFlag::AFF_HOLYLIGHT)
-                 || (GET_EQ(member, WEAR_LIGHT)
-                     && GET_OBJ_VAL(GET_EQ(member, WEAR_LIGHT), 2))) ? "С" : " ",
-                CCIBLU(ch, C_NRM), AFF_FLAGGED(member, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
-                member->low_charm() ? "Т" : " ", CCNRM(ch, C_NRM));
-
-        sprintf(buf + strlen(buf), "%-15s", POS_STATE[(int) GET_POS(member)]);
-
-        act(buf, FALSE, ch, 0, member, TO_CHAR);
-    }
-    else
-    {
-        if (!header)
-            send_to_char
-                    ("Персонаж            | Здоровье |Энергия|Рядом|Учить| Аффект | Кто | Держит строй | Положение \r\n", ch);
-
-        std::string name = member->get_pc_name();
-        name[0] = UPPER(name[0]);
-        sprintf(buf, "%s%-20s%s|", CCIBLU(ch, C_NRM), name.c_str(), CCNRM(ch, C_NRM));
-        sprintf(buf + strlen(buf), "%s%10s%s|",
-                color_value(ch, GET_HIT(member), GET_REAL_MAX_HIT(member)),
-                WORD_STATE[posi_value(GET_HIT(member), GET_REAL_MAX_HIT(member)) + 1], CCNRM(ch, C_NRM));
-
-        sprintf(buf + strlen(buf), "%s%7s%s|",
-                color_value(ch, GET_MOVE(member), GET_REAL_MAX_MOVE(member)),
-                MOVE_STATE[posi_value(GET_MOVE(member), GET_REAL_MAX_MOVE(member)) + 1], CCNRM(ch, C_NRM));
-
-        ok = ch->in_room == IN_ROOM(member);
-        sprintf(buf + strlen(buf), "%s%5s%s|",
-                ok ? CCGRN(ch, C_NRM) : CCRED(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
-
-        if ((!IS_MANA_CASTER(member) && !MEMQUEUE_EMPTY(member)) ||
-            (IS_MANA_CASTER(member) && GET_MANA_STORED(member) < GET_MAX_MANA(member)))
-        {
-            div = mana_gain(member);
-            if (div > 0)
-            {
-                if (!IS_MANA_CASTER(member))
-                {
-                    ok2 = MAX(0, 1 + GET_MEM_TOTAL(member) - GET_MEM_COMPLETED(member));
-                    ok2 = ok2 * 60 / div;	// время мема в сек
-                }
-                else
-                {
-                    ok2 = MAX(0, 1 + GET_MAX_MANA(member) - GET_MANA_STORED(member));
-                    ok2 = ok2 / div;	// время восстановления в секундах
-                }
-                ok = ok2 / 60;
-                ok2 %= 60;
-                if (ok > 99)
-                    sprintf(buf + strlen(buf), "&g%5d&n|", ok);
-                else
-                    sprintf(buf + strlen(buf), "&g%2d:%02d&n|", ok, ok2);
+        div = mana_gain(pc);
+        if (div > 0) {
+            if (!IS_MANA_CASTER(pc)) {
+                ok2 = MAX(0, 1 + GET_MEM_TOTAL(pc) - GET_MEM_COMPLETED(pc));
+                ok2 = ok2 * 60 / div;	// время мема в сек
+            } else {
+                ok2 = MAX(0, 1 + GET_MAX_MANA(pc) - GET_MANA_STORED(pc));
+                ok2 = ok2 / div;	// время восстановления в секундах
             }
+            ok = ok2 / 60;
+            ok2 %= 60;
+            if (ok > 99)
+                sprintf(buf + strlen(buf), "&g%5d&n|", ok);
             else
-            {
-                sprintf(buf + strlen(buf), "&r    -&n|");
-            }
+                sprintf(buf + strlen(buf), "&g%2d:%02d&n|", ok, ok2);
+        } else {
+            sprintf(buf + strlen(buf), "&r    -&n|");
         }
-        else
-            sprintf(buf + strlen(buf), "     |");
+    } else
+        sprintf(buf + strlen(buf), "     |");
 
-        sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
-                CCIRED(ch, C_NRM), AFF_FLAGGED(member, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(member, EAffectFlag::AFF_PRISMATICAURA)
-                                                                                       ? "П" : " "), CCGRN(ch,
-                                                                                                           C_NRM),
-                AFF_FLAGGED(member, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch,
-                                                                                 C_NRM),
-                AFF_FLAGGED(member, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM), (AFF_FLAGGED(member, EAffectFlag::AFF_SINGLELIGHT)
-                                                                                            || AFF_FLAGGED(member, EAffectFlag::AFF_HOLYLIGHT)
-                                                                                            || (GET_EQ(member, WEAR_LIGHT)
-                                                                                                &&
-                                                                                                GET_OBJ_VAL(GET_EQ
-                                                                                                            (member, WEAR_LIGHT),
-                                                                                                            2))) ? "С" : " ",
-                CCIBLU(ch, C_NRM), AFF_FLAGGED(member, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
-                member->ahorse() ? "В" : " ", CCNRM(ch, C_NRM));
+    sprintf(buf + strlen(buf), " %s%s%s%s%s%s%s%s%s%s%s%s%s |",
+            CCIRED(ch, C_NRM), AFF_FLAGGED(pc, EAffectFlag::AFF_SANCTUARY) ? "О" : (AFF_FLAGGED(pc, EAffectFlag::AFF_PRISMATICAURA)
+                                                                                        ? "П" : " "), CCGRN(ch,
+                                                                                                            C_NRM),
+            AFF_FLAGGED(pc, EAffectFlag::AFF_WATERBREATH) ? "Д" : " ", CCICYN(ch,
+                                                                                  C_NRM),
+            AFF_FLAGGED(pc, EAffectFlag::AFF_INVISIBLE) ? "Н" : " ", CCIYEL(ch, C_NRM), (AFF_FLAGGED(pc, EAffectFlag::AFF_SINGLELIGHT)
+                                                                                             || AFF_FLAGGED(pc, EAffectFlag::AFF_HOLYLIGHT)
+                                                                                             || (GET_EQ(pc, WEAR_LIGHT)
+                                                                                                 &&
+                                                                                                 GET_OBJ_VAL(GET_EQ
+                                                                                                             (pc, WEAR_LIGHT),
+                                                                                                             2))) ? "С" : " ",
+            CCIBLU(ch, C_NRM), AFF_FLAGGED(pc, EAffectFlag::AFF_FLY) ? "Л" : " ", CCYEL(ch, C_NRM),
+            pc->ahorse() ? "В" : " ", CCNRM(ch, C_NRM));
 
-        sprintf(buf + strlen(buf), "%5s|", leader ? "Лидер" : "");
-        ok = PRF_FLAGGED(member, PRF_SKIRMISHER);
-        sprintf(buf + strlen(buf), "%s%-14s%s|",	ok ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
-        sprintf(buf + strlen(buf), " %s", POS_STATE[(int) GET_POS(member)]);
-        act(buf, FALSE, ch, 0, member, TO_CHAR);
+    sprintf(buf + strlen(buf), "%5s|", leader ? "Лидер" : "");
+    ok = PRF_FLAGGED(pc, PRF_SKIRMISHER);
+    sprintf(buf + strlen(buf), "%s%-14s%s|",	ok ? CCGRN(ch, C_NRM) : CCNRM(ch, C_NRM), ok ? " Да  " : " Нет ", CCNRM(ch, C_NRM));
+    sprintf(buf + strlen(buf), " %s", POS_STATE[(int) GET_POS(pc)]);
+    act(buf, FALSE, ch, nullptr, pc, TO_CHAR);
+}
+
+void Group::printGroup(CHAR_DATA *ch) {
+    int gfound = 0, cfound = 0;
+    CHAR_DATA *leader;
+    struct follow_type *f, *g;
+
+    if (ch->personGroup)
+        leader = ch->personGroup->getLeader();
+    else
+        leader = ch;
+
+    if (!IS_NPC(ch))
+        ch->desc->msdp_report(msdp::constants::GROUP);
+
+    // печатаем группу
+    if (ch->personGroup != nullptr )
+    {
+        send_to_char("Ваша группа состоит из:\r\n", ch);
+        for (auto &it : *_memberList ){
+            if ((*it.second)->member == nullptr || (*it.second)->member->purged())
+                _printDeadLine(ch, (*it.second)->memberName.c_str(), gfound++);
+            else
+                _printPCLine(ch, (*it.second)->member, gfound++);
+        }
+    }
+
+    // допечатываем чармисов
+    for (f = ch->followers; f; f = f->next)
+    {
+        if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
+              || MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST))) {
+            continue;
+        }
+        if (!cfound)
+            send_to_char("Ваши последователи:\r\n", ch);
+        _printNPCLine(ch, f->follower, cfound++);
+    }
+
+    if (!gfound && !cfound) {
+        send_to_char("Но вы же не член (в лучшем смысле этого слова) группы!\r\n", ch);
+        return;
+    }
+
+    // печатаем чармисов членов группы
+    if (PRF_FLAGGED(ch, PRF_SHOWGROUP))
+    {
+        for (auto &it : *_memberList ) {
+            for (f = (*it.second)->member->followers; f; f = f->next) {
+                if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
+                      || MOB_FLAGGED(f->follower, MOB_ANGEL) || MOB_FLAGGED(f->follower, MOB_GHOST))){
+                    continue;
+                }
+                // клоны отключены
+                if (PRF_FLAGGED(ch, PRF_NOCLONES) && IS_NPC(f->follower) &&
+                    (MOB_FLAGGED(f->follower, MOB_CLONE) || GET_MOB_VNUM(f->follower) == MOB_KEEPER)) {
+                    continue;
+                }
+
+                if (!cfound) {
+                    send_to_char("Последователи членов вашей группы:\r\n", ch);
+                }
+                _printNPCLine(ch, f->follower, cfound++);
+            }
+
+        }
     }
 }
 
-bool Group::_sameGroup(CHAR_DATA *ch, CHAR_DATA *vict) {
-    if (ch == nullptr || vict == nullptr)
-        return false;
-    if (ch->personGroup == vict->personGroup)
-        return true;
-    return false;
-}
+
 
 void Group::charDataPurged(CHAR_DATA *ch) {
     for (auto &it : *_memberList) {
@@ -498,5 +538,46 @@ void Group::charDataPurged(CHAR_DATA *ch) {
             (*(it.second))->member = nullptr;
             return;
         }
+    }
+}
+
+
+void Group::sendToGroup(GRP_COMM mode, const char *msg, ...) {
+    va_list args;
+    va_start(args, msg);
+    vsnprintf(smallBuf, sizeof(smallBuf), msg, args);
+    va_end(args);
+    if (mode == GRP_COMM::GRP_COMM_ALL)
+        for (auto & it : *_memberList ) {
+            send_to_char((*it.second)->member, "%s%s", smallBuf, "\r\n");
+        }
+    else if (mode == GRP_COMM_LEADER) {
+        send_to_char(_leader, "%s%s", smallBuf, "\r\n");
+    }
+}
+
+// надстройка над act, пока только про персонажей
+void Group::actToGroup(CHAR_DATA* vict, const char *msg, ...) {
+    if (vict == nullptr)
+        return;
+    va_list args;
+    va_start(args, msg);
+    vsnprintf(smallBuf, sizeof(smallBuf), msg, args);
+    va_end(args);
+    for (auto &it : *_memberList) {
+        auto ch = (*(it.second))->member;
+        if ( ch == nullptr || ch->purged()) {
+            continue;
+        }
+        act(smallBuf, FALSE, ch, nullptr, vict, TO_CHAR);
+    }
+}
+
+void Group::makeAddFollowers(CHAR_DATA *leader) {
+    for (auto f = leader->followers; f; f = f->next) {
+        if (IS_NPC(f->follower))
+            continue;
+        if (_memberList->size() > _memberCap)
+            this->addMember(f->follower);
     }
 }

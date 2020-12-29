@@ -72,7 +72,6 @@ unsigned long get_ip(const char *addr);
 #define TO_NOTVICT	3
 #define TO_CHAR		4
 #define TO_ROOM_HIDE    5	// В комнату, но только тем, кто чувствует жизнь
-#define TO_GROUP 6 // сообщения игрокам в группе
 #define CHECK_NODEAF        32   // посылать только глухим
 #define CHECK_DEAF          64   // не посылать глухим
 #define TO_SLEEP            128  // to char, even if sleeping

@@ -5,7 +5,7 @@
 #include "chars/char.hpp"
 
 enum RQ_TYPE {RQ_GROUP, RQ_PERSON};
-enum GRP_COMM {GRP_COMM_LEADER, GRP_COMM_ALL, GRP_COMM_ACT};
+enum GRP_COMM {GRP_COMM_LEADER, GRP_COMM_ALL, GRP_COMM_OTHER};
 enum RQ_R {RQ_R_OK, RQ_R_NO_GROUP, RQ_R_OVERFLOW, RQ_REFRESH};
 enum INV_R {INV_R_OK, INV_R_NO_PERSON, INV_R_BUSY, INV_R_REFRESH};
 
@@ -44,7 +44,6 @@ private:
     std::string _leaderName;
     // ссылка на персонажа, АХТУНГ! Может меняться и быть невалидным
     CHAR_DATA* _leader = nullptr;
-    void _printDeadLine(CHAR_DATA* ch, char* playerName, int header);
 public:
     u_long getUid() const;
     u_short getCurrentMemberCount() const;
@@ -58,28 +57,34 @@ public:
     bool _isFull();
     bool _isActive(); // проверка, что в группе все персонажи онлайн
     bool _isMember(int uid);
+    const char* _getMemberName(int uid);
     int _findMember(char* memberName);
     CHAR_DATA* _findMember(int UID);
     bool _removeMember(CHAR_DATA *member);
-
+    void charDataPurged(CHAR_DATA* ch);
 private:
     std::map<int, std::shared_ptr<char_info *>> * _memberList;
-    void _printLine(CHAR_DATA * ch, int memberUID, int header);
+    void _printHeader(CHAR_DATA* ch, bool npc);
+    void _printDeadLine(CHAR_DATA* ch, const char* playerName, int header);
+    void _printNPCLine(CHAR_DATA* ch, CHAR_DATA* npc, int header);
+    void _printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header);
     bool _sameGroup(CHAR_DATA * ch, CHAR_DATA * vict);
 public:
+    void makeAddFollowers(CHAR_DATA* leader);
     void addMember(CHAR_DATA *member);
     void expellMember(char* memberName);
     bool restoreMember(CHAR_DATA *member);
+
     void printGroup(CHAR_DATA *requestor);
     void listMembers(CHAR_DATA *requestor);
 
-    void sendToGroup(GRP_COMM mode, const char *msg, ...);
     void promote(char *applicant);
     void approveRequest(const char *applicant);
     void rejectRequest(char *applicant);
-    void leaveGroup();
+    void leaveGroup(CHAR_DATA* vict);
 
-    void charDataPurged(CHAR_DATA* ch);
+    void sendToGroup(GRP_COMM mode, const char *msg, ...);
+    void actToGroup(CHAR_DATA* vict, const char *msg, ...);
 };
 
 class Request {

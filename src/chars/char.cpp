@@ -611,7 +611,8 @@ void CHAR_DATA::purge()
 	}
 
 	// чистим указатель в групе
-	this->personGroup->charDataPurged(this);
+	if (this->personGroup != nullptr)
+	    this->personGroup->charDataPurged(this);
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.

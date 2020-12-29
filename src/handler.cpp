@@ -2333,8 +2333,7 @@ void change_npc_leader(CHAR_DATA *ch)
 */
 void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 {
-	if (ch->purged())
-	{
+	if (ch->purged()) {
 		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
@@ -2342,41 +2341,33 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	DESCRIPTOR_DATA *t_desc;
 	int i;
 
-	if (MOB_FLAGGED(ch, MOB_FREE)
-		|| MOB_FLAGGED(ch, MOB_DELETE))
-	{
+	if (MOB_FLAGGED(ch, MOB_FREE) || MOB_FLAGGED(ch, MOB_DELETE)) {
 		return;
 	}
 
 	std::string name = GET_NAME(ch);
+
 	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
-	if (!IS_NPC(ch) && !ch->desc)
-	{
-//		log("[Extract char] Extract descriptors");
-		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
-		{
-			if (t_desc->original.get() == ch)
-			{
-				do_return(t_desc->character.get(), NULL, 0, 0);
+	if (!IS_NPC(ch) && !ch->desc) {
+		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
+			if (t_desc->original.get() == ch) {
+				do_return(t_desc->character.get(), nullptr, 0, 0);
 			}
 		}
 	}
 
 	// Forget snooping, if applicable
 //	log("[Extract char] Stop snooping");
-	if (ch->desc)
-	{
-		if (ch->desc->snooping)
-		{
-			ch->desc->snooping->snoop_by = NULL;
-			ch->desc->snooping = NULL;
+	if (ch->desc) {
+		if (ch->desc->snooping) {
+			ch->desc->snooping->snoop_by = nullptr;
+			ch->desc->snooping = nullptr;
 		}
 
-		if (ch->desc->snoop_by)
-		{
+		if (ch->desc->snoop_by) {
 			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
-			ch->desc->snoop_by->snooping = NULL;
-			ch->desc->snoop_by = NULL;
+			ch->desc->snoop_by->snooping = nullptr;
+			ch->desc->snoop_by = nullptr;
 		}
 	}
 
@@ -2399,47 +2390,32 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 
 	// transfer objects to room, if any
 //	log("[Extract char] Drop objects");
-	while (ch->carrying)
-	{
+	while (ch->carrying) {
 		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
 		drop_obj_on_zreset(ch, obj, 1, zone_reset);
 	}
 
-	if(IS_NPC(ch))
-	{
+	if(IS_NPC(ch)) {
 		// дроп гривен до изменений последователей за мобом
 		ExtMoney::drop_torc(ch);
 	}
+    // лидер группы теперь не меняется после смерти, код удалил
 
-	if (!IS_NPC(ch)
-		&& !ch->has_master()
-		&& ch->followers
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-	{
-//		log("[Extract char] Change group leader");
-		change_leader(ch, 0);
-	}
-	else if (IS_NPC(ch)
-		&& !IS_CHARMICE(ch)
-		&& !ch->has_master()
-		&& ch->followers)
-	{
-//		log("[Extract char] Changing NPC leader");
+    // у НПЦ всё по-прежнему, хороводы
+    if (IS_NPC(ch) && !IS_CHARMICE(ch) && !ch->has_master() && ch->followers) {
 		change_npc_leader(ch);
 	}
 
 //	log("[Extract char] Die followers");
 	if ((ch->followers || ch->has_master())
-		&& die_follower(ch))
-	{
+		&& die_follower(ch)) {
 		// TODO: странно все это с пуржем в stop_follower
 		return;
 	}
 
 //	log("[Extract char] Stop fighting self");
-	if (ch->get_fighting())
-	{
+	if (ch->get_fighting()) {
 		stop_fighting(ch, TRUE);
 	}
 
@@ -2452,45 +2428,35 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
 
-	if (ch->desc && ch->desc->original)
-	{
+    // TODO: совершенно не понял, причём тут вселение?!!
+	if (ch->desc && ch->desc->original) {
 		do_return(ch, NULL, 0, 0);
 	}
 
 	const bool is_npc = IS_NPC(ch);
-	if (!is_npc)
-	{
-//		log("[Extract char] All save for PC");
+	if (!is_npc) {
 		check_auction(ch, NULL);
 		ch->save_char();
 		//удаляются рент-файлы, если только персонаж не ушел в ренту
 		Crash_delete_crashfile(ch);
-	}
-	else
-	{
-//		log("[Extract char] All clear for NPC");
-		if ((GET_MOB_RNUM(ch) > -1)
-			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))	// if mobile и не умертвие
-		{
+	} else {
+		if ((GET_MOB_RNUM(ch) > -1) && !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) {	// if mobile и не умертвие
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		}
 	}
 
+    // выкидываем табличку входа в игру, если персонаж еще онлайн
 	bool left_in_game = false;
-	if (!is_npc
-		&& ch->desc != NULL)
-	{
+	if (!is_npc && ch->desc != nullptr)  {
 		STATE(ch->desc) = CON_MENU;
 		SEND_TO_Q(MENU, ch->desc);
-		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
-		{
+		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs) {
 			do_entergame(ch->desc);
 			left_in_game = true;
 		}
 	}
-
-	if (!left_in_game)
-	{
+    // если ушел или нпц - удаляем
+	if (!left_in_game) {
 		character_list.remove(ch);
 	}
 
