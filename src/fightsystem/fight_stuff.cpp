@@ -361,6 +361,22 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 //		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
 		return;
 	}
+//костыль для новогоднего лабиринта
+	if (!IS_NPC(ch) && (zone_table[world[ch->in_room]->zone].number == 2002))
+	{
+		act("$n бездарно погиб$q.", FALSE, ch, 0, 0, TO_ROOM);
+		char_from_room(ch);
+		char_to_room(ch, real_room(200200));
+		ch->dismount();
+		GET_HIT(ch) = 1;
+		update_pos(ch);
+		act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
+		look_at_room(ch, 0);
+		greet_mtrigger(ch, -1);
+		greet_otrigger(ch, -1);
+//		WAIT_STATE(ch, 10 * PULSE_VIOLENCE); лаг лучше ставить триггерами
+		return;
+	}
 
 	if (IS_NPC(ch)
 		|| !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
