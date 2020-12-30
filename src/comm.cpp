@@ -4135,13 +4135,11 @@ void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj
 	int to_sleeping, check_deaf, check_nodeaf, to_arena=0, arena_room_rnum;
 	int to_brief_shields = 0, to_no_brief_shields = 0;
 
-	if (!str || !*str)
-	{
+	if (!str || !*str) {
 		return;
 	}
 
-	if (!(dg_act_check = !(type & DG_NO_TRIG)))
-	{
+	if (!(dg_act_check = !(type & DG_NO_TRIG))){
 		type &= ~DG_NO_TRIG;
 	}
 

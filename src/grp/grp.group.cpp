@@ -133,10 +133,11 @@ Group::~Group() {
     mudlog("~Group", BRF, LVL_IMMORT, SYSLOG, TRUE);
 }
 
-char_info::char_info(int uid, CHAR_DATA *m, std::string name) {
+char_info::char_info(int uid, CHAR_DATA *m, const std::string& name) {
     memberUID = uid;
     member = m;
     memberName.assign(name);
+    expiryTime = steady_clock::now() + DEF_EXPIRY_TIME;
 }
 
 char_info::~char_info() {
@@ -148,10 +149,16 @@ void Group::addMember(CHAR_DATA *member) {
         return;
     if (member->personGroup == this)
         return;
+    // в другой группе, вышвыриваем
+    if (member->personGroup != nullptr)
+        member->personGroup->_removeMember(member);
     auto it = _memberList->find(member->get_uid());
     if (it == _memberList->end()) {
+        // рисуем сообщение до добавления
+        actToGroup(member, GRP_COMM_ALL, "$N принят$A в группу.");
         auto ci = new char_info(member->get_uid(), member, member->get_pc_name());
         _memberList->emplace(member->get_uid(), std::make_shared<char_info *>(ci));
+        send_to_char(member, "Вас приняли в группу.\r\n");
     }
     else {
         sprintf(buf, "Group::addMember: группа id=%lu, попытка повторного добавления персонажа с тем же uid", getUid());
@@ -159,11 +166,14 @@ void Group::addMember(CHAR_DATA *member) {
         return;
     }
     member->personGroup = this;
-    actToGroup(member, "$N принят$A в группу.");
-//    getLeader()->send_to_TC(true, false, false, "Размер списка: %lu\r\n", _memberList->size());
+    auto r = groupRoster.findRequest(member->get_pc_name().c_str(), getLeaderName().c_str(), RQ_ANY);
+    if (r)
+        groupRoster.deleteRequest(r);
 }
 
-bool Group::restoreMember(CHAR_DATA *member) {
+bool Group::_restoreMember(CHAR_DATA *member) {
+    if (!member)
+        return false;
     for (auto &it: *_memberList){
         if (it.first == member->get_uid()) {
             (*it.second)->member = member;
@@ -190,7 +200,7 @@ bool Group::_removeMember(CHAR_DATA *member) {
         return false;
     }
 
-    CHAR_DATA* nxtLdr = _leader;
+    CHAR_DATA* nxtLdr = nullptr;
     int nxtLdrGrpSize = 0;
     // если ушел лидер - ищем нового, но после ухода предыдущего
     if ( member == _leader) {
@@ -284,10 +294,7 @@ void Group::approveRequest(const char *applicant) {
         send_to_char(_leader, "Заявка не найдена, уточните имя.\r\n");
         return;
     }
-    actToGroup(r->_applicant, "$N принят$A в группу.");
-    addMember(r->_applicant);
-    send_to_char(r->_applicant, "Вас приняли в группу.\r\n");
-    groupRoster.deleteRequest(r);
+    addMember(r->_applicant); //и удаление заявки
 }
 
 void Group::expellMember(char *memberName) {
@@ -530,8 +537,6 @@ void Group::printGroup(CHAR_DATA *ch) {
     }
 }
 
-
-
 void Group::charDataPurged(CHAR_DATA *ch) {
     for (auto &it : *_memberList) {
         if (ch == (*(it.second))->member) {
@@ -540,7 +545,6 @@ void Group::charDataPurged(CHAR_DATA *ch) {
         }
     }
 }
-
 
 void Group::sendToGroup(GRP_COMM mode, const char *msg, ...) {
     va_list args;
@@ -557,27 +561,32 @@ void Group::sendToGroup(GRP_COMM mode, const char *msg, ...) {
 }
 
 // надстройка над act, пока только про персонажей
-void Group::actToGroup(CHAR_DATA* vict, const char *msg, ...) {
+void Group::actToGroup(CHAR_DATA* vict, GRP_COMM mode, const char *msg, ...) {
     if (vict == nullptr)
         return;
     va_list args;
     va_start(args, msg);
     vsnprintf(smallBuf, sizeof(smallBuf), msg, args);
     va_end(args);
+    CHAR_DATA* to;
+    if (mode == GRP_COMM_LEADER) {
+        act(smallBuf, FALSE, _leader, nullptr, vict, TO_CHAR);
+        return;
+    }
     for (auto &it : *_memberList) {
-        auto ch = (*(it.second))->member;
-        if ( ch == nullptr || ch->purged()) {
+        to = (*(it.second))->member;
+        if ( to == nullptr || to->purged()) {
             continue;
         }
-        act(smallBuf, FALSE, ch, nullptr, vict, TO_CHAR);
+        act(smallBuf, FALSE, to, nullptr, vict, TO_CHAR);
     }
 }
 
-void Group::makeAddFollowers(CHAR_DATA *leader) {
+void Group::addFollowers(CHAR_DATA *leader) {
     for (auto f = leader->followers; f; f = f->next) {
         if (IS_NPC(f->follower))
             continue;
-        if (_memberList->size() > _memberCap)
+        if ((u_short)_memberList->size() < (u_short)_memberCap)
             this->addMember(f->follower);
     }
 }

@@ -4,7 +4,7 @@
 #include <utility>
 #include "chars/char.hpp"
 
-enum RQ_TYPE {RQ_GROUP, RQ_PERSON};
+enum RQ_TYPE {RQ_GROUP, RQ_PERSON, RQ_ANY};
 enum GRP_COMM {GRP_COMM_LEADER, GRP_COMM_ALL, GRP_COMM_OTHER};
 enum RQ_R {RQ_R_OK, RQ_R_NO_GROUP, RQ_R_OVERFLOW, RQ_REFRESH};
 enum INV_R {INV_R_OK, INV_R_NO_PERSON, INV_R_BUSY, INV_R_REFRESH};
@@ -20,17 +20,21 @@ int max_group_size(CHAR_DATA *ch);
 class Group;
 class Request;
 
-struct char_info {
-    char_info(int memberUid, CHAR_DATA *member, std::string memberName);
-    virtual ~char_info();
-    int memberUID;
-    CHAR_DATA * member;
-    std::string memberName;
-};
-
+using namespace std::chrono;
 using grp_ptr = std::shared_ptr<Group>;
 using rq_ptr = std::shared_ptr<Request>;
-using mm_ptr = char_info *;
+using sclock_t = time_point<std::chrono::steady_clock>;
+
+const duration DEF_EXPIRY_TIME = 600s;
+
+struct char_info {
+    char_info(int memberUid, CHAR_DATA *member, const std::string& memberName);
+    virtual ~char_info();
+    int memberUID; // часть ключа
+    CHAR_DATA * member; // ссылка на персонажа, может быть невалидна!
+    std::string memberName; // бэкап имени, если персонаж оффлайн
+    sclock_t expiryTime; // время, когда запись автоматом удаляется после проверок.
+};
 
 class Group {
 private:
@@ -64,16 +68,16 @@ public:
     void charDataPurged(CHAR_DATA* ch);
 private:
     std::map<int, std::shared_ptr<char_info *>> * _memberList;
-    void _printHeader(CHAR_DATA* ch, bool npc);
-    void _printDeadLine(CHAR_DATA* ch, const char* playerName, int header);
-    void _printNPCLine(CHAR_DATA* ch, CHAR_DATA* npc, int header);
-    void _printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header);
+    static void _printHeader(CHAR_DATA* ch, bool npc);
+    static void _printDeadLine(CHAR_DATA* ch, const char* playerName, int header);
+    static void _printNPCLine(CHAR_DATA* ch, CHAR_DATA* npc, int header);
+    static void _printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header);
     bool _sameGroup(CHAR_DATA * ch, CHAR_DATA * vict);
 public:
-    void makeAddFollowers(CHAR_DATA* leader);
+    void addFollowers(CHAR_DATA* leader);
     void addMember(CHAR_DATA *member);
     void expellMember(char* memberName);
-    bool restoreMember(CHAR_DATA *member);
+    bool _restoreMember(CHAR_DATA *member);
 
     void printGroup(CHAR_DATA *requestor);
     void listMembers(CHAR_DATA *requestor);
@@ -84,12 +88,12 @@ public:
     void leaveGroup(CHAR_DATA* vict);
 
     void sendToGroup(GRP_COMM mode, const char *msg, ...);
-    void actToGroup(CHAR_DATA* vict, const char *msg, ...);
+    void actToGroup(CHAR_DATA* vict, GRP_COMM mode, const char *msg, ...);
 };
 
 class Request {
 public:
-    std::chrono::time_point<std::chrono::system_clock> _time;
+    sclock_t _time;
     CHAR_DATA *_applicant;
     Group* _group;
     std::string _applicantName;
@@ -113,8 +117,9 @@ private:
 public:
     grp_ptr addGroup(CHAR_DATA* leader);
     void removeGroup(u_long uid);
-    grp_ptr findGroup(CHAR_DATA* ch);
+    grp_ptr findGroup(int personUID);
     grp_ptr findGroup(char* leaderName);
+    void runTests(CHAR_DATA* leader);
 private:
     std::list<rq_ptr> _requestList;
     std::tuple<INV_R, CHAR_DATA *> tryMakeInvite(Group* grp, char* member);
