@@ -2390,12 +2390,6 @@ void perform_violence()
 	}
 }
 
-
-int stopFollowWhenAggro(CHAR_DATA * ch, CHAR_DATA * victim)
-{
-	if (IS_CHARMICE(ch))
-}
-
 int calc_leadership(CHAR_DATA * ch)
 {
 	int prob, percent;

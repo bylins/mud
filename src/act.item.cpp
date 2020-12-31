@@ -731,29 +731,9 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	return (1);
 }
 
-/// считаем сколько у ch в группе еще игроков (не мобов)
-int other_pc_in_group(CHAR_DATA *ch)
-{
-	int num = 0;
-	CHAR_DATA *k = ch->has_master() ? ch->get_master() : ch;
-	for (follow_type *f = k->followers; f; f = f->next)
-	{
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(f->follower)
-			&& IN_ROOM(f->follower) == ch->in_room)
-		{
-			++num;
-		}
-	}
-	return num;
-}
-
 void split_or_clan_tax(CHAR_DATA *ch, long amount)
 {
-	if (IS_AFFECTED(ch, AFF_GROUP)
-		&& other_pc_in_group(ch) > 0
-		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT))
-	{
+	if (ch->personGroup != nullptr && ch->personGroup->size() > 1 && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
 		do_split(ch, buf_, 0, 0);
@@ -789,7 +769,8 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		send_to_char(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!
-		if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0) {
+		if (ch->personGroup != nullptr && ch->personGroup->size() > 1)
+		{
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
 			do_split(ch, local_buf, 0, 0,curr_type);
@@ -808,7 +789,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	send_to_char(buf, ch);
 
 	// все, что делится на группу - идет через налог (из кошельков не делится)
-	if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0
+	if (ch->personGroup != nullptr && ch->personGroup->size() > 1
 		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT)
 		&& (!cont || !system_obj::is_purse(cont)))
 	{

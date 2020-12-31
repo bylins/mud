@@ -17,23 +17,25 @@
 
 #include "db.h"
 
-#include "skills/townportal.h"
-#include "global.objects.hpp"
-#include "speedwalks.hpp"
-#include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
-#include "world.objects.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "shutdown.parameters.hpp"
-#include "boards.h"
+#include <sys/stat.h>
+#include <sstream>
+#include <string>
+#include <cmath>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+
 #include "ban.hpp"
 #include "birth_places.hpp"
+#include "boards.h"
 #include "bonus.h"
 #include "boot.data.files.hpp"
 #include "boot.index.hpp"
 #include "celebrates.hpp"
 #include "chars/char.hpp"
+#include "chars/player_races.hpp"
+#include "chars/world.characters.hpp"
+#include "class.hpp"
 #include "corpse.hpp"
 #include "deathtrap.hpp"
 #include "depot.hpp"
@@ -42,6 +44,7 @@
 #include "ext_money.hpp"
 #include "fightsystem/fight.h"
 #include "file_crc.hpp"
+#include "global.objects.hpp"
 #include "glory.hpp"
 #include "glory_const.hpp"
 #include "glory_misc.hpp"
@@ -50,33 +53,29 @@
 #include "house.h"
 #include "item.creation.hpp"
 #include "liquid.hpp"
+#include "logger.hpp"
 #include "mail.h"
 #include "mob_stat.hpp"
 #include "modify.h"
 #include "named_stuff.hpp"
+#include "names.hpp"
 #include "noob.hpp"
+#include "object.prototypes.hpp"
 #include "olc.h"
 #include "parcel.hpp"
 #include "parse.hpp"
-#include "chars/player_races.hpp"
 #include "privilege.hpp"
 #include "sets_drop.hpp"
 #include "shop_ext.hpp"
+#include "shutdown.parameters.hpp"
+#include "skills/townportal.h"
+#include "speedwalks.hpp"
 #include "stuff.hpp"
 #include "time_utils.hpp"
 #include "title.hpp"
-#include "names.hpp"
 #include "top.h"
-#include "class.hpp"
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-
-#include <sys/stat.h>
-
-#include <sstream>
-#include <string>
-#include <cmath>
-#include <boost/lexical_cast.hpp>
+#include "utils.h"
+#include "world.objects.hpp"
 
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"

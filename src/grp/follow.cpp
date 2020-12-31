@@ -252,7 +252,7 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // возвращает true, если последователь - чармис или ему похожая тварь
 // при указании второго параметра - проверяет, что эта тварь персональная
-bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict){
+bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict) {
     if (master == nullptr || vict == nullptr)
         return false;
     if IS_NPC(master)
@@ -260,7 +260,7 @@ bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict){
     // проверяем флаги, нпц-проверки внутре
     if ( IS_HORSE(vict) // конь
          || IS_CHARMICE(vict) // почармлен
-         || IS_HIRED(vict) // нанят
-         )
-
+         || IS_HIRED(vict)) // нанят
+        return true;
+    return false;
 }

@@ -302,7 +302,7 @@ CHAR_DATA* selectRandomSkirmisherFromGroup(CHAR_DATA *leader) {
 }
 
 CHAR_DATA* selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA *initialVictim) {
-	if ((initialVictim == nullptr) || !AFF_FLAGGED(initialVictim, EAffectFlag::AFF_GROUP)) {
+	if ((initialVictim == nullptr) || initialVictim->personGroup== nullptr) {
 		return initialVictim;
 	}
 

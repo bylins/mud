@@ -2509,7 +2509,6 @@ void do_entergame(DESCRIPTOR_DATA * d)
 	Temporary_Spells::update_char_times(d->character.get(), time(0));
 
 	// Карачун. Редкая бага. Сбрасываем явно не нужные аффекты.
-	d->character->remove_affect(EAffectFlag::AFF_GROUP);
 	d->character->remove_affect(EAffectFlag::AFF_HORSE);
 
 	// изменяем порталы

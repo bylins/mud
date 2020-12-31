@@ -16,6 +16,7 @@ void do_group2(CHAR_DATA *ch, char *argument, int, int);
 void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 int max_group_size(CHAR_DATA *ch);
+bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict);
 
 class Group;
 class Request;
@@ -66,6 +67,7 @@ public:
     CHAR_DATA* _findMember(int UID);
     bool _removeMember(CHAR_DATA *member);
     void charDataPurged(CHAR_DATA* ch);
+    u_short size() { return (u_short)_memberList->size();}
 private:
     std::map<int, std::shared_ptr<char_info *>> * _memberList;
     static void _printHeader(CHAR_DATA* ch, bool npc);

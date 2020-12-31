@@ -1124,58 +1124,6 @@ int real_sector(int room)
 	return SECT_INSIDE;
 }
 
-bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
-{
-	if (!ch || !tch)
-		return false;
-
-	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-	if (IS_NPC(ch)
-		&& ch->has_master()
-		&& !IS_NPC(ch->get_master())
-		&& (IS_HORSE(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(ch, MOB_ANGEL)
-			|| MOB_FLAGGED(ch, MOB_GHOST)))
-	{
-		ch = ch->get_master();
-	}
-
-	if (IS_NPC(tch)
-		&& tch->has_master()
-		&& !IS_NPC(tch->get_master())
-		&& (IS_HORSE(tch)
-			|| AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(tch, MOB_ANGEL)
-			|| MOB_FLAGGED(tch, MOB_GHOST)))
-	{
-		tch = tch->get_master();
-	}
-
-	// NPC's always in same group
-	if ((IS_NPC(ch) && IS_NPC(tch))
-		|| ch == tch)
-	{
-		return true;
-	}
-
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-		|| !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
-	{
-		return false;
-	}
-
-	if (ch->get_master() == tch
-		|| tch->get_master() == ch
-		|| (ch->has_master()
-			&& ch->get_master() == tch->get_master()))
-	{
-		return true;
-	}
-
-	return false;
-}
-
 // Проверка является комната рентой.
 bool is_rent(room_rnum room)
 {

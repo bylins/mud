@@ -307,9 +307,7 @@ namespace msdp
 		for (auto f = master->followers; f; f = f->next)
 		{
 			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& !(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(f->follower, MOB_ANGEL)
-					|| MOB_FLAGGED(f->follower, MOB_GHOST)))
+				&& !(MOB_FLAGGED(f->follower, MOB_PLAYER_SUMMON)))
 			{
 				continue;
 			}
@@ -325,8 +323,7 @@ namespace msdp
 			for (auto ff = f->follower->followers; ff; ff = ff->next)
 			{
 				if (!(AFF_FLAGGED(ff->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(ff->follower, MOB_ANGEL)
-					|| MOB_FLAGGED(ff->follower, MOB_GHOST)))
+					|| MOB_FLAGGED(ff->follower, MOB_PLAYER_SUMMON)))
 				{
 					continue;
 				}

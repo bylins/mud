@@ -2518,8 +2518,8 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			group_gain(killer, victim);
 		}
 		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(killer, MOB_ANGEL)
-				|| MOB_FLAGGED(killer, MOB_GHOST))
+		        || AFF_FLAGGED(killer, EAffectFlag::AFF_HELPER)
+				|| MOB_FLAGGED(killer, MOB_PLAYER_SUMMON))
 			&& killer->has_master())
 			// killer - зачармленный NPC с хозяином
 		{
@@ -2582,6 +2582,23 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 	die(victim, ch);
 }
 
+void stopFollowOnAggro(CHAR_DATA* aggressor, CHAR_DATA* victim)
+{
+    if (aggressor == nullptr || victim == nullptr)
+        return;
+    if (!victim->has_master() || IS_CHARMICE(victim))
+        return;
+    // оба в группе - всё нормально
+    if (victim->personGroup == aggressor->personGroup)
+        return;
+    // агрессор - чармис чувака в группе
+    if (aggressor->has_master() && aggressor->get_master()->personGroup == victim->personGroup)
+        return;
+    if (victim->get_master() == aggressor ||
+        (aggressor->has_master() && victim->get_master() == aggressor->get_master()))
+        stop_follower(victim, SF_EMPTY);
+}
+
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
 // возвращает сделанный дамаг
 int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
@@ -2641,7 +2658,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// If you attack a pet, it hates your guts
 	if (!same_group(ch, victim))
-        stopFollowWhenAggro(ch, victim);
+        stopFollowOnAggro(ch, victim);
 
 	if (victim != ch)  	// Start the attacker fighting the victim
 	{

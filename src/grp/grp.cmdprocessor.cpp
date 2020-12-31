@@ -437,6 +437,98 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     return;
 }
 
+void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+    CHAR_DATA *k;
+    struct follow_type *f;
+
+    if (AFF_FLAGGED(ch, EAffectFlag::AFF_SILENCE)
+        || AFF_FLAGGED(ch, EAffectFlag::AFF_STRANGLED))
+    {
+        send_to_char("Вы немы, как рыба об лед.\r\n", ch);
+        return;
+    }
+
+    if (!IS_NPC(ch) && PLR_FLAGGED(ch, PLR_DUMB))
+    {
+        send_to_char("Вам запрещено обращаться к другим игрокам!\r\n", ch);
+        return;
+    }
+
+    skip_spaces(&argument);
+
+    if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+    {
+        send_to_char("Вы не являетесь членом группы!\r\n", ch);
+        return;
+    }
+
+    if (!*argument)
+    {
+        send_to_char("О чем вы хотите сообщить своей группе?\r\n", ch);
+    }
+    else
+    {
+        if (ch->has_master())
+        {
+            k = ch->get_master();
+        }
+        else
+        {
+            k = ch;
+        }
+
+        sprintf(buf, "$n сообщил$g группе : '%s'", argument);
+
+        if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
+            && k != ch
+            && !ignores(k, ch, IGNORE_GROUP))
+        {
+            act(buf, FALSE, ch, 0, k, TO_VICT | TO_SLEEP | CHECK_DEAF);
+            // added by WorM  групптелы 2010.10.13
+            if(!AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)
+               && GET_POS(k) > POS_DEAD)
+            {
+                sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, k) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, k), argument);
+                k->remember_add(buf1, Remember::ALL);
+                k->remember_add(buf1, Remember::GROUP);
+            }
+            //end by WorM
+        }
+        for (f = k->followers; f; f = f->next)
+        {
+            if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+                && (f->follower != ch)
+                && !ignores(f->follower, ch, IGNORE_GROUP))
+            {
+                act(buf, FALSE, ch, 0, f->follower, TO_VICT | TO_SLEEP | CHECK_DEAF);
+                // added by WorM  групптелы 2010.10.13
+                if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_DEAFNESS)
+                    && GET_POS(f->follower) > POS_DEAD)
+                {
+                    sprintf(buf1, "%s сообщил%s группе : '%s'\r\n", tell_can_see(ch, f->follower) ? GET_NAME(ch) : "Кто-то", GET_CH_VIS_SUF_1(ch, f->follower), argument);
+                    f->follower->remember_add(buf1, Remember::ALL);
+                    f->follower->remember_add(buf1, Remember::GROUP);
+                }
+                //end by WorM
+            }
+        }
+
+        if (PRF_FLAGGED(ch, PRF_NOREPEAT))
+            send_to_char(OK, ch);
+        else
+        {
+            sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
+            send_to_char(buf, ch);
+            // added by WorM  групптелы 2010.10.13
+            ch->remember_add(buf, Remember::ALL);
+            ch->remember_add(buf, Remember::GROUP);
+            //end by WorM
+        }
+    }
+}
+
+
 void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
     CHAR_DATA *k;
@@ -496,4 +588,146 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
         send_to_char(buf, k);
     }
     send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
+}
+
+void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+    do_split(ch,argument,0,0,0);
+}
+
+void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency)
+{
+    int amount, num, share, rest;
+    CHAR_DATA *k;
+    struct follow_type *f;
+
+    if (IS_NPC(ch))
+        return;
+
+    one_argument(argument, buf);
+
+    int what_currency;
+
+    switch (currency) {
+        case currency::ICE :
+            what_currency = WHAT_ICEu;
+            break;
+        default :
+            what_currency = WHAT_MONEYu;
+            break;
+    }
+
+    if (is_number(buf)) {
+        amount = atoi(buf);
+        if (amount <= 0)
+        {
+            send_to_char("И как вы это планируете сделать?\r\n", ch);
+            return;
+        }
+
+        if (amount > ch->get_gold() && currency == currency::GOLD)
+        {
+            send_to_char("И где бы взять вам столько денег?.\r\n", ch);
+            return;
+        }
+        k = ch->has_master() ? ch->get_master() : ch;
+
+        if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
+            && (k->in_room == ch->in_room))
+        {
+            num = 1;
+        }
+        else
+        {
+            num = 0;
+        }
+
+        for (f = k->followers; f; f = f->next)
+        {
+            if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+                && !IS_NPC(f->follower)
+                && IN_ROOM(f->follower) == ch->in_room)
+            {
+                num++;
+            }
+        }
+
+        if (num && AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
+        {
+            share = amount / num;
+            rest = amount % num;
+        }
+        else
+        {
+            send_to_char("С кем вы хотите разделить это добро?\r\n", ch);
+            return;
+        }
+        //MONEY_HACK
+
+        switch (currency) {
+            case currency::ICE :
+                ch->sub_ice_currency(share* (num - 1));
+                break;
+            case currency::GOLD :
+                ch->remove_gold(share * (num - 1));
+                break;
+        }
+
+        sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
+                GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, what_currency), share);
+        if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == ch->in_room && !IS_NPC(k) && k != ch)
+        {
+            send_to_char(buf, k);
+            switch (currency)
+            {
+                case currency::ICE :
+                {
+                    k->add_ice_currency(share);
+                    break;
+                }
+                case currency::GOLD :
+                {
+                    k->add_gold(share, true, true);
+                    break;
+                }
+            }
+        }
+        for (f = k->followers; f; f = f->next)
+        {
+            if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
+                && !IS_NPC(f->follower)
+                && IN_ROOM(f->follower) == ch->in_room
+                && f->follower != ch)
+            {
+                send_to_char(buf, f->follower);
+                switch (currency) {
+                    case currency::ICE :
+                        f->follower->add_ice_currency(share);
+                        break;
+                    case currency::GOLD :
+                        f->follower->add_gold(share, true, true);
+                        break;
+                }
+            }
+        }
+        sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
+                amount, desc_count(amount, what_currency), num, share);
+        if (rest)
+        {
+            sprintf(buf + strlen(buf),
+                    "Как истинный еврей вы оставили %d %s (которые не смогли разделить нацело) себе.\r\n",
+                    rest, desc_count(rest, what_currency));
+        }
+
+        send_to_char(buf, ch);
+        // клан-налог лутера с той части, которая пошла каждому в группе
+        if (currency == currency::GOLD) {
+            const long clan_tax = ClanSystem::do_gold_tax(ch, share);
+            ch->remove_gold(clan_tax);
+        }
+    }
+    else
+    {
+        send_to_char("Сколько и чего вы хотите разделить?\r\n", ch);
+        return;
+    }
 }

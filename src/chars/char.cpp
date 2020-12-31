@@ -39,7 +39,7 @@
 #include <algorithm>
 #include <iostream>
 
-#include "grp/grp.group.cpp"
+#include "grp/grp.main.h"
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
