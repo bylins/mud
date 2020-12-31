@@ -928,12 +928,21 @@ bool IS_HORSE(const CHAR_DATA* ch)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
 }
 
+bool IS_HIRED(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		   && ch->has_master()
+		   && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER);
+}
+
 bool IS_MORTIFIER(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
 		&& ch->has_master()
 		&& MOB_FLAGGED(ch, MOB_CORPSE);
 }
+
+
 
 bool MAY_ATTACK(const CHAR_DATA* sub)
 {

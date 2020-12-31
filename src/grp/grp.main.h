@@ -89,6 +89,9 @@ public:
 
     void sendToGroup(GRP_COMM mode, const char *msg, ...);
     void actToGroup(CHAR_DATA* vict, GRP_COMM mode, const char *msg, ...);
+public:
+    // всякий унаследованный стафф
+    CHAR_DATA* get_random_pc_group();
 };
 
 class Request {

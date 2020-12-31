@@ -1321,7 +1321,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount)
 		}
 
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
+		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
 		{
 			send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
 				amount, desc_count(amount, WHAT_MONEYu));
@@ -2368,9 +2368,9 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		else if (IS_NPC(ch)
 			&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			&& MOB_FLAGGED(ch, MOB_CORPSE))
+			&& MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
 		{
-			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
+			send_to_char("Существа, созданные магией не могут вооружаться.\r\n", ch);
 		}
 		else
 		{
@@ -2486,9 +2486,9 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 			if (IS_NPC(ch)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-				&& MOB_FLAGGED(ch, MOB_CORPSE))
+				&& MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
 			{
-				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
+				send_to_char("Существа, созданные магией, не могут вооружаться.\r\n", ch);
 				return;
 			}
 			if (!IS_IMMORTAL(ch)

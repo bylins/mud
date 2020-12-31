@@ -89,7 +89,7 @@ private:
 	flags_t m_flags;
 };
 
-int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim);
+int stopFollowWhenAggro(CHAR_DATA * ch, CHAR_DATA * victim);
 void set_battle_pos(CHAR_DATA * ch);
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam);

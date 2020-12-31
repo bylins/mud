@@ -287,30 +287,7 @@ int get_virtual_race(CHAR_DATA *mob)
 }
 
 
-CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
-	std::vector<CHAR_DATA *> tmp_list;
-	CHAR_DATA *victim;
-	CHAR_DATA *k;
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		return nullptr;
-	if (ch->has_master()) {
-		k = ch->get_master();
-	}
-	else {
-		k = ch;
-	}
-	for (follow_type *i = k->followers; i; i = i->next) {
-		if (!IS_NPC(k) && !IS_CHARMICE(i->follower) && (k != i->follower) && (k->in_room == i->follower->in_room)) {
-			tmp_list.push_back(i->follower);
-		}
-	}
-	if (tmp_list.empty()) {
-		return nullptr;
-	}
-	tmp_list.push_back(k); // засунем в список лидера
-	victim = tmp_list.at(number(0, tmp_list.size() - 1));
-	return victim;
-}
+
 
 /*
  * str_cmp: a case-insensitive version of strcmp().

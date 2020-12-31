@@ -1346,7 +1346,9 @@ void char_dam_message(int dam, CHAR_DATA * ch, CHAR_DATA * victim, bool noflee)
 		send_to_char("Сознание покинуло вас. В битве от вас пока проку мало.\r\n", victim);
 		break;
 	case POS_DEAD:
-		if (IS_NPC(victim) && (MOB_FLAGGED(victim, MOB_CORPSE)))
+	    // нежить и саммоны не оставляют трупов
+		if (IS_NPC(victim) && (MOB_FLAGGED(victim,MOB_CORPSE)
+		                    || MOB_FLAGGED(victim, MOB_PLAYER_SUMMON)))
 		{
 			act("$n вспыхнул$g и рассыпал$u в прах.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			send_to_char("Похоже вас убили и даже тела не оставили!\r\n", victim);

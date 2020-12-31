@@ -2261,10 +2261,9 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 			act("Вы выбросили $o3 на землю.", FALSE, ch, obj, 0, TO_CHAR);
 		else
 			act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
-		// Если этот моб трупа не оставит, то не выводить сообщение
-		// иначе ужасно коряво смотрится в бою и в тригах
+		// Саммоны и андеды трупов не оставляют
 		bool msgShown = false;
-		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
+		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON) || !MOB_FLAGGED(ch, MOB_CORPSE))
 		{
 			if (inv)
 				act("$n бросил$g $o3 на землю.", FALSE, ch, obj, 0, TO_ROOM);

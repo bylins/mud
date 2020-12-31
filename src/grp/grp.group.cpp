@@ -590,3 +590,16 @@ void Group::addFollowers(CHAR_DATA *leader) {
             this->addMember(f->follower);
     }
 }
+
+// метод может вернуть мусор :(
+CHAR_DATA* Group::get_random_pc_group() {
+    u_short rnd = number(0, (u_short)_memberList->size() - 1);
+    int i = 0;
+    for (auto it : *_memberList){
+        if (i == rnd) {
+            return (*it.second)->member; //
+        }
+        i++;
+    }
+    return nullptr;
+}

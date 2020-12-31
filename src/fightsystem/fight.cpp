@@ -14,6 +14,7 @@
 
 #include "fight.h"
 
+#include "grp/grp.main.h"
 #include "skills/bash.h"
 #include "skills/kick.h"
 #include "skills/chopoff.h"
@@ -2389,176 +2390,37 @@ void perform_violence()
 	}
 }
 
-// returns 1 if only ch was outcasted
-// returns 2 if only victim was outcasted
-// returns 4 if both were outcasted
-// returns 0 if none was outcasted
-int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim)
+
+int stopFollowWhenAggro(CHAR_DATA * ch, CHAR_DATA * victim)
 {
-	CHAR_DATA *cleader, *vleader;
-	int return_value = 0;
-
-	if (ch == victim)
-	{
-		return return_value;
-	}
-
-// translating pointers from charimces to their leaders
-	if (IS_NPC(ch)
-		&& ch->has_master()
-		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(ch, MOB_ANGEL)
-			|| MOB_FLAGGED(ch, MOB_GHOST)
-			|| IS_HORSE(ch)))
-	{
-		ch = ch->get_master();
-	}
-
-	if (IS_NPC(victim)
-		&& victim->has_master()
-		&& (AFF_FLAGGED(victim, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(victim, MOB_ANGEL)
-			|| MOB_FLAGGED(victim, MOB_GHOST)
-			|| IS_HORSE(victim)))
-	{
-		victim = victim->get_master();
-	}
-
-	cleader = ch;
-	vleader = victim;
-// finding leaders
-	while (cleader->has_master())
-	{
-		if (IS_NPC(cleader)
-			&& !AFF_FLAGGED(cleader, EAffectFlag::AFF_CHARM)
-			&& !(MOB_FLAGGED(cleader, MOB_ANGEL)||MOB_FLAGGED(cleader, MOB_GHOST))
-			&& !IS_HORSE(cleader))
-		{
-			break;
-		}
-		cleader = cleader->get_master();
-	}
-
-	while (vleader->has_master())
-	{
-		if (IS_NPC(vleader)
-			&& !AFF_FLAGGED(vleader, EAffectFlag::AFF_CHARM)
-			&& !(MOB_FLAGGED(vleader, MOB_ANGEL)||MOB_FLAGGED(vleader, MOB_GHOST))
-			&& !IS_HORSE(vleader))
-		{
-			break;
-		}
-		vleader = vleader->get_master();
-	}
-
-	if (cleader != vleader)
-	{
-		return return_value;
-	}
-
-// finding closest to the leader nongrouped agressor
-// it cannot be a charmice
-	while (ch->has_master()
-		&& ch->get_master()->has_master())
-	{
-		if (!AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(ch->get_master()))
-		{
-			ch = ch->get_master();
-			continue;
-		}
-		else if (IS_NPC(ch->get_master())
-			&& !AFF_FLAGGED(ch->get_master()->get_master(), EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(ch->get_master()->get_master())
-			&& ch->get_master()->get_master()->get_master())
-		{
-			ch = ch->get_master()->get_master();
-			continue;
-		}
-		else
-		{
-			break;
-		}
-	}
-
-// finding closest to the leader nongrouped victim
-// it cannot be a charmice
-	while (victim->has_master()
-		&& victim->get_master()->has_master())
-	{
-		if (!AFF_FLAGGED(victim->get_master(), EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(victim->get_master()))
-		{
-			victim = victim->get_master();
-			continue;
-		}
-		else if (IS_NPC(victim->get_master())
-			&& !AFF_FLAGGED(victim->get_master()->get_master(), EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(victim->get_master()->get_master())
-			&& victim->get_master()->get_master()->has_master())
-		{
-			victim = victim->get_master()->get_master();
-			continue;
-		}
-		else
-		{
-			break;
-		}
-	}
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-		|| cleader == victim)
-	{
-		stop_follower(ch, SF_EMPTY);
-		return_value |= 1;
-	}
-	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP)
-		|| vleader == ch)
-	{
-		stop_follower(victim, SF_EMPTY);
-		return_value |= 2;
-	}
-	return return_value;
+	if (IS_CHARMICE(ch))
 }
 
 int calc_leadership(CHAR_DATA * ch)
 {
 	int prob, percent;
-	CHAR_DATA *leader = 0;
 
-	if (IS_NPC(ch)
-		|| !AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-		|| (!ch->has_master()
-			&& !ch->followers))
-	{
+	if (IS_NPC(ch) || ch->personGroup == nullptr) {
 		return FALSE;
 	}
 
-	if (ch->has_master())
-	{
-		if (IN_ROOM(ch) != IN_ROOM(ch->get_master()))
-		{
-			return FALSE;
-		}
-		leader = ch->get_master();
-	}
-	else
-	{
-		leader = ch;
-	}
+    CHAR_DATA* leader = ch->personGroup->getLeader();
 
-	if (!leader->get_skill(SKILL_LEADERSHIP))
-	{
+    // если лидер умер или нет в комнате - фиг вам, а не бонусы
+    if (leader == nullptr || IN_ROOM(ch) != IN_ROOM(leader)) {
+        return FALSE;
+    }
+
+	if (!leader->get_skill(SKILL_LEADERSHIP))	{
 		return (FALSE);
 	}
 
 	percent = number(1, 101);
 	prob = calculate_skill(leader, SKILL_LEADERSHIP, 0);
-	if (percent > prob)
-	{
+	if (percent > prob)  {
 		return (FALSE);
 	}
-	else
-	{
+	else {
 		return (TRUE);
 	}
 }

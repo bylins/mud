@@ -448,7 +448,7 @@ extern const religion_names_t religion_name;
 #define MOB_AGGRPOLY         (1 << 22)
 #define MOB_NOFEAR           (1 << 23)
 #define MOB_NOGROUP          (1 << 24)
-#define MOB_CORPSE           (1 << 25)
+#define MOB_CORPSE           (1 << 25)  // нежить, если по-нашенски.
 #define MOB_LOOTER           (1 << 26)
 #define MOB_PROTECT          (1 << 27)
 #define MOB_DELETE           (1 << 28)	// RESERVED - ONLY INTERNALLY //
@@ -471,10 +471,10 @@ extern const religion_names_t religion_name;
 #define MOB_NOFIGHT          (INT_ONE | (1 << 14))
 #define MOB_EADECREASE       (INT_ONE | (1 << 15)) // понижает количество своих атак по мере убывания тек.хп
 #define MOB_HORDE            (INT_ONE | (1 << 16))
-#define MOB_CLONE            (INT_ONE | (1 << 17))
+#define MOB_CLONE            (INT_ONE | (1 << 17)) // моб создан спеллом !клонирование!
 #define MOB_NOTKILLPUNCTUAL  (INT_ONE | (1 << 18))
 #define MOB_NOTRIP           (INT_ONE | (1 << 19))
-#define MOB_ANGEL            (INT_ONE | (1 << 20))
+#define MOB_ANGEL            (INT_ONE | (1 << 20)) // моб создан спеллом !ангел!
 #define MOB_GUARDIAN         (INT_ONE | (1 << 21)) //Polud моб-стражник, ставится программно, берется из файла guards.xml
 #define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22)) // игнорирует печать
 #define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // не дает экспу за удары
@@ -504,6 +504,7 @@ extern const religion_names_t religion_name;
 #define MOB_AGGR_STEPNYAKI (INT_TWO | (1 << 19))
 #define MOB_NORESURRECTION (INT_TWO | (1 << 20))
 #define MOB_AWAKE          (INT_TWO | (1 << 21))
+#define MOB_NO_BODY        (INT_TWO | (1 << 22)) // не оставляет труп после смерти
 
 
 #define NPC_NORTH         (1 << 0)

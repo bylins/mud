@@ -3384,8 +3384,8 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					{
 						trans_obj_name(tobj.get(), ch);
 					}
-					// Добавлена проверка на отсутствие трупа
-					if (MOB_FLAGGED(ch, MOB_CORPSE))
+					// Нежить и саммоны не оставляют трупов
+					if (MOB_FLAGGED(ch, MOB_PLAYER_SUMMON) || MOB_FLAGGED(ch, MOB_CORPSE))
 					{
 						act("На земле остал$U лежать $o.", FALSE, ch, tobj.get(), 0, TO_ROOM);
 						obj_to_room(tobj.get(), ch->in_room);
@@ -3948,7 +3948,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	}
 	else
 	{
-		MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
+		MOB_FLAGS(mob).set(MOB_CORPSE);
 	}
 
 	i = mob_index[i].zone;
@@ -4167,8 +4167,7 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 	{
 		return;
 	}
-//	if (MOB_FLAGGED(ch, MOB_CORPSE))
-//		return;
+
 	if (room == NOWHERE)
 		return;
 

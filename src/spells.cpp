@@ -2617,11 +2617,12 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
 
-	MOB_FLAGS(mob).set(MOB_CORPSE);
+	// ангел - не андед!
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
+    MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
 
-	mob->set_level(ch->get_level());
+    mob->set_level(ch->get_level());
 
 	char_to_room(mob, ch->in_room);
 
@@ -2683,6 +2684,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	mob->set_protecting(ch);
 	MOB_FLAGS(mob).set(MOB_CORPSE);
 	MOB_FLAGS(mob).set(MOB_GHOST);
+    MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
 
 	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 

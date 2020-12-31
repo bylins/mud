@@ -4324,7 +4324,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_skill(SKILL_RESCUE, 100);
 	}
 
-	MOB_FLAGS(mob).set(MOB_CORPSE);
+	MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
 	if (spellnum == SPELL_CLONE) {
 		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
 		mob->set_pc_name(buf2);

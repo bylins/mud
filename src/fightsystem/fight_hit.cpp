@@ -14,6 +14,7 @@
 #include "bonus.h"
 #include "mobact.hpp"
 #include "fightsystem/common.h"
+#include "grp/grp.main.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -101,7 +102,7 @@ void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time
 	CHAR_DATA *target;
 	AFFECT_DATA<EApplyLocation> af;
 
-	target = get_random_pc_group(ch);
+	target = ch->personGroup? ch->personGroup->get_random_pc_group() : ch;
 	af.location = num_apply;
 	af.type = SPELL_PALADINE_INSPIRATION;
 	af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
@@ -2640,7 +2641,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// If you attack a pet, it hates your guts
 	if (!same_group(ch, victim))
-		check_agro_follower(ch, victim);
+        stopFollowWhenAggro(ch, victim);
 
 	if (victim != ch)  	// Start the attacker fighting the victim
 	{

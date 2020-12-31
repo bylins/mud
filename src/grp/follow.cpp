@@ -98,7 +98,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 
         if (IS_NPC(ch))
         {
-            if (MOB_FLAGGED(ch, MOB_CORPSE))
+            if (MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
             {
                 act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
                 GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
@@ -123,8 +123,6 @@ bool stop_follower(CHAR_DATA * ch, int mode)
 
     return (FALSE);
 }
-
-
 
 // * Called when a character that follows/is followed dies
 bool die_follower(CHAR_DATA * ch)
@@ -250,4 +248,19 @@ void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
             leader->add_follower(ch);
         }
     }
+}
+
+// возвращает true, если последователь - чармис или ему похожая тварь
+// при указании второго параметра - проверяет, что эта тварь персональная
+bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict){
+    if (master == nullptr || vict == nullptr)
+        return false;
+    if IS_NPC(master)
+        return false;
+    // проверяем флаги, нпц-проверки внутре
+    if ( IS_HORSE(vict) // конь
+         || IS_CHARMICE(vict) // почармлен
+         || IS_HIRED(vict) // нанят
+         )
+
 }
