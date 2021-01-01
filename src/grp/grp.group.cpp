@@ -167,6 +167,14 @@ void Group::addMember(CHAR_DATA *member) {
     auto r = groupRoster.findRequest(member->get_pc_name().c_str(), getLeaderName().c_str(), RQ_ANY);
     if (r)
         groupRoster.deleteRequest(r);
+    // добавляем чармисов группу
+    for (auto f = member->followers; f; f = f->next) {
+        auto ff = f->follower;
+        if (IS_CHARMICE(ff)) {
+            _npcRoster->insert(ff);
+            ff->personGroup = this;
+        }
+    }
 }
 
 bool Group::_restoreMember(CHAR_DATA *member) {
@@ -197,6 +205,20 @@ bool Group::_removeMember(CHAR_DATA *member) {
         mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
         return false;
     }
+    // а также удаляем чармисов персонажа из групповых
+    if (member->followers != nullptr) {
+        for (auto f = member->followers; f; f = f->next) {
+            auto ff = f->follower;
+            if (IS_CHARMICE(ff)) {
+                auto c = _npcRoster->find(ff);
+                if (c != _npcRoster->end()) {
+                    _npcRoster->erase(c);
+                    ff->personGroup = nullptr;
+                }
+            }
+        }
+    }
+
 
     CHAR_DATA* nxtLdr = nullptr;
     int nxtLdrGrpSize = 0;
@@ -230,6 +252,7 @@ void Group::_clear(bool silentMode) {
     sprintf(buf, "[Group::clear()]: _memberList: %lu", _memberList->size());
     mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
     CHAR_DATA* ch;
+    // чистим игроков
     for (auto & it : *_memberList) {
         ch = (*it.second)->member;
         if (ch == nullptr || ch->purged())
@@ -238,6 +261,11 @@ void Group::_clear(bool silentMode) {
             send_to_char(ch, "Ваша группа распущена.\r\n");
         ch->personGroup = nullptr;
     }
+    // чистим чармисов
+    for (auto & it : *_npcRoster) {
+        it->personGroup = nullptr;
+    }
+    _npcRoster->clear();
     _memberList->clear();
 }
 
@@ -280,7 +308,6 @@ void Group::rejectRequest(char *applicant) {
     groupRoster.deleteRequest(r);
     send_to_char(_leader, "Вы отклонили заявку.\r\n");
 }
-
 
 void Group::approveRequest(const char *applicant) {
     if (!*applicant) {
@@ -482,8 +509,7 @@ void Group::printGroup(CHAR_DATA *ch) {
         ch->desc->msdp_report(msdp::constants::GROUP);
 
     // печатаем группу
-    if (ch->personGroup != nullptr )
-    {
+    if (ch->personGroup != nullptr ) {
         send_to_char("Ваша группа состоит из:\r\n", ch);
         for (auto &it : *_memberList ){
             if ((*it.second)->member == nullptr || (*it.second)->member->purged())
@@ -494,15 +520,11 @@ void Group::printGroup(CHAR_DATA *ch) {
     }
 
     // допечатываем чармисов
-    for (f = ch->followers; f; f = f->next)
-    {
-        if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-              || MOB_FLAGGED(f->follower, MOB_ANGEL)|| MOB_FLAGGED(f->follower, MOB_GHOST))) {
-            continue;
-        }
+    for (auto & it: *_npcRoster) {
         if (!cfound)
             send_to_char("Ваши последователи:\r\n", ch);
-        _printNPCLine(ch, f->follower, cfound++);
+        if (it->get_master() == ch)
+            _printNPCLine(ch, it, cfound++);
     }
 
     if (!gfound && !cfound) {
@@ -511,24 +533,17 @@ void Group::printGroup(CHAR_DATA *ch) {
     }
 
     // печатаем чармисов членов группы
-    if (PRF_FLAGGED(ch, PRF_SHOWGROUP))
-    {
+    if (PRF_FLAGGED(ch, PRF_SHOWGROUP)) {
         for (auto &it : *_memberList ) {
-            for (f = (*it.second)->member->followers; f; f = f->next) {
-                if (!(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-                      || MOB_FLAGGED(f->follower, MOB_ANGEL) || MOB_FLAGGED(f->follower, MOB_GHOST))){
-                    continue;
-                }
+            for (auto & npc: *_npcRoster) {
                 // клоны отключены
-                if (PRF_FLAGGED(ch, PRF_NOCLONES) && IS_NPC(f->follower) &&
-                    (MOB_FLAGGED(f->follower, MOB_CLONE) || GET_MOB_VNUM(f->follower) == MOB_KEEPER)) {
+                if (PRF_FLAGGED(ch, PRF_NOCLONES) &&
+                    (MOB_FLAGGED(npc, MOB_CLONE) || GET_MOB_VNUM(npc) == MOB_KEEPER) &&
+                     npc->get_master() == ch /*этих раньше вывели*/)
                     continue;
-                }
-
-                if (!cfound) {
+                if (!cfound)
                     send_to_char("Последователи членов вашей группы:\r\n", ch);
-                }
-                _printNPCLine(ch, f->follower, cfound++);
+                _printNPCLine(ch, npc, cfound++);
             }
 
         }
@@ -602,54 +617,46 @@ CHAR_DATA* Group::get_random_pc_group() {
     return nullptr;
 }
 
+// room_rnum = 0 - ignore
+cd_v Group::getMembers(rnum_t room_rnum) {
+    cd_v retval = std::make_shared<std::vector<CHAR_DATA*>>();
+    for (const auto& it : *_memberList) {
+        auto c = (*it.second)->member;
+        if (room_rnum == (room_rnum == 0 ? room_rnum : c->in_room)  && !c->purged())
+            retval->push_back((*it.second)->member);
+    }
+    return cd_v();
+}
+
+npc_r Group::getCharmee(rnum_t room_rnum) {
+    npc_r retval;
+    if (room_rnum == 0)
+        return _npcRoster;
+    else {
+        retval = new std::unordered_set<CHAR_DATA*>();
+        for (auto &it: *_npcRoster) {
+            if (it->in_room == room_rnum)
+                retval->insert(it);
+        }
+        return retval;
+    }
+}
+
+u_short Group::size(rnum_t room_rnum) {
+    u_short  retval = 0;
+    for (const auto& it : *_memberList){
+        auto c = (*it.second)->member;
+        if (room_rnum == (room_rnum == 0 ? room_rnum : c->in_room)  && !c->purged() && retval < 255)
+            retval++;
+    }
+    return retval;
+}
+
 bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 {
     if (!ch || !tch)
         return false;
-
-    // Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-    if (IS_NPC(ch)
-        && ch->has_master()
-        && !IS_NPC(ch->get_master())
-        && (IS_HORSE(ch)
-            || AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-            || MOB_FLAGGED(ch, MOB_ANGEL)
-            || MOB_FLAGGED(ch, MOB_GHOST)))
-    {
-        ch = ch->get_master();
-    }
-
-    if (IS_NPC(tch)
-        && tch->has_master()
-        && !IS_NPC(tch->get_master())
-        && (IS_HORSE(tch)
-            || AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
-            || MOB_FLAGGED(tch, MOB_ANGEL)
-            || MOB_FLAGGED(tch, MOB_GHOST)))
-    {
-        tch = tch->get_master();
-    }
-
-    // NPC's always in same group
-    if ((IS_NPC(ch) && IS_NPC(tch))
-        || ch == tch)
-    {
+    if (ch->personGroup == tch->personGroup)
         return true;
-    }
-
-    if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-        || !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
-    {
-        return false;
-    }
-
-    if (ch->get_master() == tch
-        || tch->get_master() == ch
-        || (ch->has_master()
-            && ch->get_master() == tch->get_master()))
-    {
-        return true;
-    }
-
     return false;
 }

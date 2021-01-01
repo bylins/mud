@@ -3,6 +3,7 @@
 
 #include <utility>
 #include "chars/char.hpp"
+#include "structs.h"
 
 enum RQ_TYPE {RQ_GROUP, RQ_PERSON, RQ_ANY};
 enum GRP_COMM {GRP_COMM_LEADER, GRP_COMM_ALL, GRP_COMM_OTHER};
@@ -25,8 +26,12 @@ using namespace std::chrono;
 using grp_ptr = std::shared_ptr<Group>;
 using rq_ptr = std::shared_ptr<Request>;
 using sclock_t = time_point<std::chrono::steady_clock>;
+using cd_v = std::shared_ptr<std::vector<CHAR_DATA*>>;
+using npc_r = std::unordered_set<CHAR_DATA *> *;
 
 const duration DEF_EXPIRY_TIME = 600s;
+
+inline bool IN_GROUP(CHAR_DATA* ch) {return ch != nullptr && ch->personGroup != nullptr;};
 
 struct char_info {
     char_info(int memberUid, CHAR_DATA *member, const std::string& memberName);
@@ -67,9 +72,10 @@ public:
     CHAR_DATA* _findMember(int UID);
     bool _removeMember(CHAR_DATA *member);
     void charDataPurged(CHAR_DATA* ch);
-    u_short size() { return (u_short)_memberList->size();}
+    u_short size(rnum_t room_rnum = 0);
 private:
     std::map<int, std::shared_ptr<char_info *>> * _memberList;
+    npc_r _npcRoster;
     static void _printHeader(CHAR_DATA* ch, bool npc);
     static void _printDeadLine(CHAR_DATA* ch, const char* playerName, int header);
     static void _printNPCLine(CHAR_DATA* ch, CHAR_DATA* npc, int header);
@@ -91,6 +97,8 @@ public:
 
     void sendToGroup(GRP_COMM mode, const char *msg, ...);
     void actToGroup(CHAR_DATA* vict, GRP_COMM mode, const char *msg, ...);
+    cd_v getMembers(rnum_t room_rnum = 0);
+    npc_r getCharmee(rnum_t room_rnum = 0);
 public:
     // всякий унаследованный стафф
     CHAR_DATA* get_random_pc_group();

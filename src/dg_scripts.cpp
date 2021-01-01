@@ -2292,6 +2292,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "arenahp"))
 		{
+		    // TODO: переписать эту сраку, непонятно ни фига
 			CHAR_DATA *k;
 			struct follow_type *f;
 			int arena_hp = GET_HIT(c);
@@ -2308,7 +2309,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					can_use = 1;
 				}
-				else if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP))
+				else if (IN_GROUP(k))
 				{
 					if (!IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
 						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
@@ -3085,26 +3086,11 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "group"))
 		{
-			CHAR_DATA *l;
-			struct follow_type *f;
-			if (!AFF_FLAGGED(c, EAffectFlag::AFF_GROUP))
-			{
+            if (!IN_GROUP(c)) {
 				return;
 			}
-			l = c->get_master();
-			if (!l)
-			{
-				l = c;
-			}
-			// l - лидер группы
-			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
-			for (f = l->followers; f; f = f->next)
-			{
-				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-				{
-					continue;
-				}
-				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(f->follower));
+			for (auto it : *(c->personGroup->getMembers())) {
+				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(it));
 			}
 		}
 		else if (!str_cmp(field, "attackers"))

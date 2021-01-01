@@ -14,6 +14,7 @@
 #include "parse.hpp"
 #include "zone.table.hpp"
 #include "utils.h"
+#include "grp/grp.main.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>
@@ -697,30 +698,18 @@ void drop_torc(CHAR_DATA *mob)
 	log("[Extract char] Checking %s for ExtMoney.", mob->get_name().c_str());
 
 	std::pair<int /* uid */, int /* rounds */> damager = mob->get_max_damager_in_room();
-	DESCRIPTOR_DATA *d = 0;
-	if (damager.first > 0)
-	{
+	DESCRIPTOR_DATA *d = nullptr;
+	if (damager.first > 0) {
 		d = DescByUID(damager.first);
 	}
-	if (!d)
-	{
+	if (!d) {
 		return;
 	}
-
-	CHAR_DATA *leader = (d->character->has_master() && AFF_FLAGGED(d->character, EAffectFlag::AFF_GROUP))
-		? d->character->get_master()
-		: d->character.get();
+    auto grp = d->character->personGroup;
+	CHAR_DATA *leader = grp != nullptr? d->character->personGroup->getLeader() : d->character.get();
 
 	int members = 1;
-	for (follow_type *f = leader->followers; f; f = f->next)
-	{
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->follower))
-		{
-			++members;
-		}
-	}
+	members = leader->personGroup->size(mob->in_room);
 
 	const int zone_lvl = zone_table[mob_index[GET_MOB_RNUM(mob)].zone].mob_level;
 	const int drop = calc_drop_torc(zone_lvl, members);
@@ -732,20 +721,16 @@ void drop_torc(CHAR_DATA *mob)
 	if (IN_ROOM(leader) == IN_ROOM(mob)
 		&& GET_GOD_FLAG(leader, GF_REMORT)
 		&& (GET_UNIQUE(leader) == damager.first
-			|| mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2))
-	{
+			|| mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2)) {
 		gain_torc(leader, drop);
 	}
-
-	for (follow_type *f = leader->followers; f; f = f->next)
-	{
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(mob)
-			&& !IS_NPC(f->follower)
-			&& GET_GOD_FLAG(f->follower, GF_REMORT)
-			&& mob->get_attacker(f->follower, ATTACKER_ROUNDS) >= damager.second / 2)
-		{
-			gain_torc(f->follower, drop);
+	// он был один, сваливаем
+	if (grp == nullptr)
+	    return;
+    auto m_list = grp->getMembers(mob->in_room); // список живых мемберов в комнате
+	for (auto &m : *m_list) {
+		if (GET_GOD_FLAG(m, GF_REMORT)  && mob->get_attacker(m, ATTACKER_ROUNDS) >= damager.second / 2) {
+			gain_torc(m, drop);
 		}
 	}
 }
