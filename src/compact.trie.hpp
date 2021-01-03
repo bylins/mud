@@ -4,6 +4,7 @@
 #include <vector>
 #include <list>
 #include <memory>
+#include <string>
 
 class BasicCompactTrie
 {

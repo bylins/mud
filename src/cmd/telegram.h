@@ -3,8 +3,10 @@
 
 #if defined(HAVE_TG)
 #include <curl/curl.h>
-#include <string>
 #endif
+
+#include <string>
+
 class CHAR_DATA;
 
 void do_telegram(CHAR_DATA *ch, char *argument, int, int);

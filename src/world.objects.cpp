@@ -1,8 +1,6 @@
 #include "world.objects.hpp"
 
-#include "id.hpp"
 #include "object.prototypes.hpp"
-#include "logger.hpp"
 #include "db.h"
 #include "liquid.hpp"
 #include "dg_scripts.h"
@@ -16,7 +14,7 @@ void WorldObjects::WO_VNumChangeObserver::notify(CObjectPrototype& object, const
 	if (old_vnum != object.get_vnum())
 	{
 		// find shared_ptr
-		object_raw_ptr_to_object_ptr_t::iterator i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
+		auto i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
 		if (i == m_parent.m_object_raw_ptr_to_object_ptr.end())
 		{
 			log("LOGIC ERROR: object with VNUM %d has not been found in world objects container. New VNUM is %d.",
@@ -26,7 +24,7 @@ void WorldObjects::WO_VNumChangeObserver::notify(CObjectPrototype& object, const
 		OBJ_DATA::shared_ptr object_ptr = *i->second;
 
 		// remove old index entry
-		vnum_to_object_ptr_t::iterator vnum_to_object_i = m_parent.m_vnum_to_object_ptr.find(old_vnum);
+        auto vnum_to_object_i = m_parent.m_vnum_to_object_ptr.find(old_vnum);
 		if (vnum_to_object_i != m_parent.m_vnum_to_object_ptr.end())
 		{
 			vnum_to_object_i->second.erase(object_ptr);
@@ -43,7 +41,7 @@ void WorldObjects::WO_RNumChangeObserver::notify(CObjectPrototype& object, const
 	if (old_rnum != object.get_rnum())
 	{
 		// find shared_ptr
-		object_raw_ptr_to_object_ptr_t::iterator i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
+        auto i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
 		if (i == m_parent.m_object_raw_ptr_to_object_ptr.end())
 		{
 			log("LOGIC ERROR: object with RNUM %d has not been found in world objects container. New RNUM is %d.",
@@ -53,7 +51,7 @@ void WorldObjects::WO_RNumChangeObserver::notify(CObjectPrototype& object, const
 		OBJ_DATA::shared_ptr object_ptr = *i->second;
 
 		// remove old index entry
-		rnum_to_object_ptr_t::iterator rnum_to_object_ptr_i = m_parent.m_rnum_to_object_ptr.find(old_rnum);
+        auto rnum_to_object_ptr_i = m_parent.m_rnum_to_object_ptr.find(old_rnum);
 		if (rnum_to_object_ptr_i != m_parent.m_vnum_to_object_ptr.end())
 		{
 			rnum_to_object_ptr_i->second.erase(object_ptr);
@@ -70,7 +68,7 @@ void WorldObjects::WO_IDChangeObserver::notify(OBJ_DATA& object, const object_id
 	if (old_id != object.get_id())
 	{
 		// find shared_ptr
-		object_raw_ptr_to_object_ptr_t::iterator i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
+        auto i = m_parent.m_object_raw_ptr_to_object_ptr.find(&object);
 		if (i == m_parent.m_object_raw_ptr_to_object_ptr.end())
 		{
 			log("LOGIC ERROR: object with ID %ld has not been found in world objects container. New ID is %ld.",
@@ -80,7 +78,7 @@ void WorldObjects::WO_IDChangeObserver::notify(OBJ_DATA& object, const object_id
 		OBJ_DATA::shared_ptr object_ptr = *i->second;
 
 		// remove old index entry
-		id_to_object_ptr_t::iterator id_to_object_ptr_i = m_parent.m_id_to_object_ptr.find(old_id);
+        auto id_to_object_ptr_i = m_parent.m_id_to_object_ptr.find(old_id);
 		if (id_to_object_ptr_i != m_parent.m_id_to_object_ptr.end())
 		{
 			id_to_object_ptr_i->second.erase(object_ptr);
@@ -110,7 +108,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_blank(const std::string& alias)
 	new_object->set_extra_flag(EExtraFlag::ITEM_NORENT);
 	new_object->set_aliases(alias);
 
-	return std::move(new_object);
+	return new_object;
 }
 
 OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(obj_vnum vnum)
@@ -127,7 +125,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_vnum(obj_vnum vnum)
 
 OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 {
-	const auto new_object = create_raw_from_prototype_by_rnum(rnum);
+	auto new_object = create_raw_from_prototype_by_rnum(rnum);
 	if (new_object)
 	{
 		rnum = obj_proto.zone(rnum);
@@ -156,7 +154,7 @@ OBJ_DATA::shared_ptr WorldObjects::create_from_prototype_by_rnum(obj_rnum rnum)
 		assign_triggers(new_object.get(), OBJ_TRIGGER);
 	}
 
-	return std::move(new_object);
+	return new_object;
 }
 
 OBJ_DATA::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(obj_rnum rnum)
@@ -168,11 +166,11 @@ OBJ_DATA::shared_ptr WorldObjects::create_raw_from_prototype_by_rnum(obj_rnum rn
 		return nullptr;
 	}
 
-	const auto new_object = std::make_shared<OBJ_DATA>(*obj_proto[rnum]);
+	auto new_object = std::make_shared<OBJ_DATA>(*obj_proto[rnum]);
 	obj_proto.inc_number(rnum);
 	world_objects.add(new_object);
 
-	return std::move(new_object);
+	return new_object;
 }
 
 void WorldObjects::add(const OBJ_DATA::shared_ptr& object)
@@ -209,31 +207,31 @@ void WorldObjects::remove(OBJ_DATA* object)
 	m_purge_list.push_back(object_ptr);
 }
 
-void WorldObjects::foreach(const foreach_f function) const
+void WorldObjects::foreach(const foreach_f& function) const
 {
 	const list_t& list = get_list();
 	std::for_each(list.begin(), list.end(), function);
 }
 
-void WorldObjects::foreach_on_copy(const foreach_f function) const
+void WorldObjects::foreach_on_copy(const foreach_f& function) const
 {
 	const list_t list = get_list();
 	std::for_each(list.begin(), list.end(), function);
 }
 
-void WorldObjects::foreach_on_copy_while(const foreach_while_f function) const
+void WorldObjects::foreach_on_copy_while(const foreach_while_f& function) const
 {
 	const list_t list = get_list();
-	for (list_t::const_iterator i = list.begin(); i != list.end(); ++i)
+	for (const auto & it : list)
 	{
-		if (!function(*i))
+		if (!function(it))
 		{
 			break;
 		}
 	}
 }
 
-void WorldObjects::foreach_with_vnum(const obj_vnum vnum, const foreach_f function) const
+void WorldObjects::foreach_with_vnum(const obj_vnum vnum, const foreach_f& function) const
 {
 	const auto set_i = m_vnum_to_object_ptr.find(vnum);
 	if (set_i != m_vnum_to_object_ptr.end())
@@ -242,7 +240,7 @@ void WorldObjects::foreach_with_vnum(const obj_vnum vnum, const foreach_f functi
 	}
 }
 
-void WorldObjects::foreach_with_rnum(const obj_rnum rnum, const foreach_f function) const
+void WorldObjects::foreach_with_rnum(const obj_rnum rnum, const foreach_f& function) const
 {
 	const auto set_i = m_rnum_to_object_ptr.find(rnum);
 	if (set_i != m_rnum_to_object_ptr.end())
@@ -251,7 +249,7 @@ void WorldObjects::foreach_with_rnum(const obj_rnum rnum, const foreach_f functi
 	}
 }
 
-void WorldObjects::foreach_with_id(const object_id_t id, const foreach_f function) const
+void WorldObjects::foreach_with_id(const object_id_t id, const foreach_f& function) const
 {
 	const auto set_i = m_id_to_object_ptr.find(id);
 	if (set_i != m_id_to_object_ptr.end())
@@ -260,19 +258,19 @@ void WorldObjects::foreach_with_id(const object_id_t id, const foreach_f functio
 	}
 }
 
-OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f predicate) const
+OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f& predicate) const
 {
 	return find_if(predicate, 0);
 }
 
-OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f predicate, unsigned number) const
+OBJ_DATA::shared_ptr WorldObjects::find_if(const predicate_f& predicate, unsigned number) const
 {
 	return find_if_and_dec_number(predicate, number);
 }
 
-OBJ_DATA::shared_ptr WorldObjects::find_if_and_dec_number(const predicate_f predicate, unsigned& number) const
+OBJ_DATA::shared_ptr WorldObjects::find_if_and_dec_number(const predicate_f& predicate, unsigned& number) const
 {
-	list_t::const_iterator result_i = std::find_if(m_objects_list.begin(), m_objects_list.end(), predicate);
+	auto result_i = std::find_if(m_objects_list.begin(), m_objects_list.end(), predicate);
 
 	while (result_i != m_objects_list.end()
 		&& 0 < number)
@@ -287,7 +285,7 @@ OBJ_DATA::shared_ptr WorldObjects::find_if_and_dec_number(const predicate_f pred
 		result = *result_i;
 	}
 
-	return std::move(result);
+	return result;
 }
 
 OBJ_DATA::shared_ptr WorldObjects::find_by_name(const char* name) const
@@ -379,7 +377,7 @@ OBJ_DATA::shared_ptr WorldObjects::get_by_raw_ptr(OBJ_DATA* object) const
 		result = *result_i->second;
 	}
 
-	return std::move(result);
+	return result;
 }
 
 void WorldObjects::add_to_index(const list_t::iterator& object_i)

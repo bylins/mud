@@ -4,16 +4,10 @@
 
 #include "ext_money.hpp"
 
-#include "conf.h"
 #include "screen.h"
-#include "db.h"
-#include "logger.hpp"
-#include "interpreter.h"
 #include "pugixml.hpp"
-#include "room.hpp"
 #include "parse.hpp"
 #include "zone.table.hpp"
-#include "utils.h"
 
 #include <boost/format.hpp>
 #include <boost/algorithm/string.hpp>

@@ -1,9 +1,3 @@
-/* ****************************************************************************
-* File: top.cpp                                                Part of Bylins *
-* Usage: Топ игроков пошустрее                                                *
-* (c) 2006 Krodo                                                              *
-******************************************************************************/
-
 #include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
@@ -33,14 +27,10 @@ void TopPlayer::Remove(CHAR_DATA * short_ch)
 {
 	std::list<TopPlayer> &tmp_list = TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))];
 
-	std::list<TopPlayer>::iterator it = std::find_if(tmp_list.begin(), tmp_list.end(),
-		[&](const TopPlayer& p)
+	tmp_list.remove_if([&short_ch](const TopPlayer& p)
 	{
 		return p.unique == GET_UNIQUE(short_ch);
 	});
-
-	if (it != tmp_list.end())
-		tmp_list.erase(it);
 }
 
 // проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
