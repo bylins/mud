@@ -4,13 +4,16 @@
 
 #include "dps.hpp"
 
-#include "logger.hpp"
-#include "utils.h"
+
 #include "comm.h"
 #include "chars/char.hpp"
-#include "interpreter.h"
 #include "db.h"
+#include "grp/grp.main.h"
 #include "handler.h"
+#include "interpreter.h"
+#include "logger.hpp"
+#include "utils.h"
+
 
 #include <boost/format.hpp>
 
@@ -111,6 +114,7 @@ void Dps::add_dmg(int type, CHAR_DATA *ch, int dmg, int over_dmg)
 		pers_dps_.add_charm_dmg(ch, dmg, over_dmg);
 		break;
 	case GROUP_DPS:
+	    // comes with properly defined group here
 		add_group_dmg(ch, dmg, over_dmg);
 		break;
 	case GROUP_CHARM_DPS:
@@ -148,7 +152,7 @@ void Dps::end_round(int type, CHAR_DATA *ch)
 }
 
 // * Очистка себя или группы.
-void Dps::clear(int type)
+void Dps::clear(CHAR_DATA* ch, int type)
 {
 	switch (type)
 	{
@@ -164,7 +168,8 @@ void Dps::clear(int type)
 	case PERS_CHARM_DPS:
 		break;
 	case GROUP_DPS:
-		group_dps_.clear();
+		if (ch->personGroup)
+            ch->personGroup->_group_dps.clear();
 		break;
 	case GROUP_CHARM_DPS:
 		break;
@@ -196,8 +201,11 @@ unsigned tmp_total_dmg = 0;
 
 void Dps::add_tmp_group_list(CHAR_DATA *ch)
 {
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch));
-	if (it != group_dps_.end())
+    if (!ch->personGroup) return;
+    DpsSystem::GroupListType* group_dps_;
+    group_dps_ = &ch->personGroup->_group_dps;
+	GroupListType::iterator it = group_dps_->find(GET_ID(ch));
+	if (it != group_dps_->end())
 	{
 		sort_node tmp_node(it->second.get_name(), it->second.get_stat(),
 				it->second.get_round_dmg(), it->second.get_over_dmg());
@@ -237,11 +245,9 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 			thousands_sep(abs(lost_exp_)).c_str(), balance >= 0 ? "+" : "-",
 			thousands_sep(abs(balance)).c_str());
 
-	if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-	{
+	if (IN_GROUP(ch)) {
 		tmp_total_dmg = 0;
-		CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
-		leader->dps_print_group_stats(ch, coder);
+		ch->dps_print_group_stats(ch, coder);
 	}
 }
 
@@ -252,25 +258,16 @@ void Dps::print_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 */
 void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 {
-	if (!coder)
-	{
+	if (!coder) {
 		coder = ch;
 	}
 
 	send_to_char("\r\nСтатистика вашей группы:\r\n"
 			"---------------------------|--------------------|----------------|-------------|\r\n", coder);
-
-	CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
-	for (follow_type *f = leader->followers; f; f = f->next)
-	{
-		if (f->follower
-			&& !IS_NPC(f->follower)
-			&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-		{
-			add_tmp_group_list(f->follower);
-		}
+    auto groupList = ch->personGroup->getMembers();
+	for (auto it : groupList) {
+	    add_tmp_group_list(it);
 	}
-	add_tmp_group_list(leader);
 
 	std::string out;
 	for (SortGroupType::reverse_iterator it = tmp_group_list.rbegin(); it != tmp_group_list.rend(); ++it)
@@ -285,8 +282,12 @@ void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 
 void Dps::add_group_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 {
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch));
-	if (it != group_dps_.end())
+    if (!ch->personGroup) return;
+    DpsSystem::GroupListType* group_dps_;
+    group_dps_ = &ch->personGroup->_group_dps;
+
+	auto it = group_dps_->find(GET_ID(ch));
+	if (it != group_dps_->end())
 	{
 		it->second.add_dmg(dmg, over_dmg);
 	}
@@ -295,14 +296,17 @@ void Dps::add_group_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 		PlayerDpsNode tmp_node;
 		tmp_node.set_name(GET_NAME(ch));
 		tmp_node.add_dmg(dmg, over_dmg);
-		group_dps_.insert(std::make_pair(GET_ID(ch), tmp_node));
+		group_dps_->insert(std::make_pair(GET_ID(ch), tmp_node));
 	}
 }
 
 void Dps::end_group_round(CHAR_DATA *ch)
 {
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch));
-	if (it != group_dps_.end())
+    if (!ch->personGroup) return;
+    DpsSystem::GroupListType* group_dps_;
+    group_dps_ = &ch->personGroup->_group_dps;
+	GroupListType::iterator it = group_dps_->find(GET_ID(ch));
+	if (it != group_dps_->end())
 	{
 		it->second.end_round();
 	}
@@ -311,14 +315,17 @@ void Dps::end_group_round(CHAR_DATA *ch)
 		PlayerDpsNode tmp_node;
 		tmp_node.set_name(GET_NAME(ch));
 		tmp_node.end_round();
-		group_dps_.insert(std::make_pair(GET_ID(ch), tmp_node));
+		group_dps_->insert(std::make_pair(GET_ID(ch), tmp_node));
 	}
 }
 
 void Dps::add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 {
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch->get_master()));
-	if (it != group_dps_.end())
+    if (!ch->personGroup) return;
+    DpsSystem::GroupListType* group_dps_;
+    group_dps_ = &ch->personGroup->_group_dps;
+	auto it = group_dps_->find(GET_ID(ch->get_master()));
+	if (it != group_dps_->end())
 	{
 		it->second.add_charm_dmg(ch, dmg, over_dmg);
 	}
@@ -327,14 +334,17 @@ void Dps::add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg)
 		PlayerDpsNode tmp_node;
 		tmp_node.set_name(GET_NAME(ch->get_master()));
 		tmp_node.add_charm_dmg(ch, dmg, over_dmg);
-		group_dps_.insert(std::make_pair(GET_ID(ch->get_master()), tmp_node));
+		group_dps_->insert(std::make_pair(GET_ID(ch->get_master()), tmp_node));
 	}
 }
 
 void Dps::end_group_charm_round(CHAR_DATA *ch)
 {
-	GroupListType::iterator it = group_dps_.find(GET_ID(ch->get_master()));
-	if (it != group_dps_.end())
+    if (!ch->personGroup) return;
+    DpsSystem::GroupListType* group_dps_;
+    group_dps_ = &ch->personGroup->_group_dps;
+	GroupListType::iterator it = group_dps_->find(GET_ID(ch->get_master()));
+	if (it != group_dps_->end())
 	{
 		it->second.end_charm_round(ch);
 	}
@@ -343,10 +353,10 @@ void Dps::end_group_charm_round(CHAR_DATA *ch)
 		PlayerDpsNode tmp_node;
 		tmp_node.set_name(GET_NAME(ch->get_master()));
 		tmp_node.end_charm_round(ch);
-		group_dps_.insert(std::make_pair(GET_ID(ch->get_master()), tmp_node));
+		group_dps_->insert(std::make_pair(GET_ID(ch->get_master()), tmp_node));
 	}
 }
-
+/*
 // * Чтобы не морочить голову в dps_copy, заменяем только груп.статистику.
 Dps & Dps::operator= (const Dps &copy)
 {
@@ -356,7 +366,7 @@ Dps & Dps::operator= (const Dps &copy)
 	}
 	return *this;
 }
-
+*/
 void Dps::add_exp(int exp)
 {
 	if (exp >= 0)
@@ -473,21 +483,17 @@ void PlayerDpsNode::print_group_charm_stats(CHAR_DATA *ch) const
 // * Подсчет дамаги за предыдущий раунд, дергается в начале раунда и по окончанию боя.
 void check_round(CHAR_DATA *ch)
 {
-	if (!IS_NPC(ch))
-	{
+	if (!IS_NPC(ch)) {
 		ch->dps_end_round(DpsSystem::PERS_DPS);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
+		if (IN_GROUP(ch)) {
+			CHAR_DATA *leader = ch->personGroup->getLeader();
 			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
 		}
 	}
-	else if (IS_CHARMICE(ch) && ch->has_master())
-	{
+	else if (IS_CHARMICE(ch) && ch->has_master()) {
 		ch->get_master()->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
-		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
+		if (IN_GROUP(ch->get_master())) {
+			CHAR_DATA *leader = ch->get_master()->personGroup->getLeader();
 			leader->dps_end_round(DpsSystem::GROUP_CHARM_DPS, ch);
 		}
 	}
@@ -534,13 +540,11 @@ void do_dmeter(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else if (isname(name, "группа"))
 		{
-			if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-			{
+			if (!IN_GROUP(ch)) {
 				send_to_char("Вы не состоите в группе.\r\n", ch);
 				return;
 			}
-			if (ch->has_master())
-			{
+			if (ch->personGroup->getLeader() != ch) {
 				send_to_char("Вы не являетесь лидером группы.\r\n", ch);
 				return;
 			}

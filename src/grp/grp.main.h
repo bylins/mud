@@ -4,6 +4,7 @@
 #include <utility>
 #include "chars/char.hpp"
 #include "structs.h"
+#include "dps.hpp"
 
 enum RQ_TYPE {RQ_GROUP, RQ_PERSON, RQ_ANY};
 enum GRP_COMM {GRP_COMM_LEADER, GRP_COMM_ALL, GRP_COMM_OTHER};
@@ -26,12 +27,13 @@ using namespace std::chrono;
 using grp_ptr = std::shared_ptr<Group>;
 using rq_ptr = std::shared_ptr<Request>;
 using sclock_t = time_point<std::chrono::steady_clock>;
-using cd_v = std::shared_ptr<std::vector<CHAR_DATA*>>;
+using cd_v = std::vector<CHAR_DATA*>;
 using npc_r = std::unordered_set<CHAR_DATA *> *;
 
 const duration DEF_EXPIRY_TIME = 600s;
 
-inline bool IN_GROUP(CHAR_DATA* ch) {return ch != nullptr && ch->personGroup != nullptr;};
+inline bool IN_GROUP(CHAR_DATA* ch) {return ch != nullptr && ch->personGroup != nullptr;}
+inline bool IN_SAME_GROUP(CHAR_DATA* p1, CHAR_DATA* p2) {return IN_GROUP(p1) && IN_GROUP(p2) && p1->personGroup == p2->personGroup;}
 
 struct char_info {
     char_info(int memberUid, CHAR_DATA *member, const std::string& memberName);
@@ -83,7 +85,7 @@ private:
     bool _sameGroup(CHAR_DATA * ch, CHAR_DATA * vict);
 public:
     void addFollowers(CHAR_DATA* leader);
-    void addMember(CHAR_DATA *member);
+    void addMember(CHAR_DATA *member, bool silent = false);
     void expellMember(char* memberName);
     bool _restoreMember(CHAR_DATA *member);
 
@@ -102,6 +104,9 @@ public:
 public:
     // всякий унаследованный стафф
     CHAR_DATA* get_random_pc_group();
+    // лень обвязывать, тупо переместил объект
+    DpsSystem::GroupListType _group_dps;
+    bool has_clan_members_in_group(CHAR_DATA *victim);
 };
 
 class Request {

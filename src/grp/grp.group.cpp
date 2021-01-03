@@ -52,7 +52,8 @@ Group::Group(CHAR_DATA *leader, u_long uid){
     _memberCap = 0;
     _uid = uid;
     _memberList = new std::map<int, std::shared_ptr<char_info *>>;
-    addMember(leader);
+    _npcRoster = new std::unordered_set<CHAR_DATA *>;
+    addMember(leader, true);
     _setLeader(leader);
 }
 
@@ -142,39 +143,45 @@ char_info::~char_info() {
     mudlog("[~char_info]", BRF, LVL_IMMORT, SYSLOG, TRUE);
 }
 
-void Group::addMember(CHAR_DATA *member) {
-    if (IS_NPC(member))
-        return;
+void Group::addMember(CHAR_DATA *member, bool silent) {
     if (member->personGroup == this)
         return;
     // в другой группе, вышвыриваем
     if (member->personGroup != nullptr)
         member->personGroup->_removeMember(member);
-    auto it = _memberList->find(member->get_uid());
-    if (it == _memberList->end()) {
-        // рисуем сообщение до добавления
-        actToGroup(member, GRP_COMM_ALL, "$N принят$A в группу.");
-        auto ci = new char_info(member->get_uid(), member, member->get_pc_name());
-        _memberList->emplace(member->get_uid(), std::make_shared<char_info *>(ci));
-        send_to_char(member, "Вас приняли в группу.\r\n");
-    }
-    else {
-        sprintf(buf, "Group::addMember: группа id=%lu, попытка повторного добавления персонажа с тем же uid", getUid());
-        mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
-        return;
-    }
-    member->personGroup = this;
-    auto r = groupRoster.findRequest(member->get_pc_name().c_str(), getLeaderName().c_str(), RQ_ANY);
-    if (r)
-        groupRoster.deleteRequest(r);
-    // добавляем чармисов группу
-    for (auto f = member->followers; f; f = f->next) {
-        auto ff = f->follower;
-        if (IS_CHARMICE(ff)) {
-            _npcRoster->insert(ff);
-            ff->personGroup = this;
+    if (IS_CHARMICE(member)) {
+        auto it = _npcRoster->find(member);
+        if (it == _npcRoster->end())
+            _npcRoster->emplace(member);
+    } else {
+        auto it = _memberList->find(member->get_uid());
+        if (it == _memberList->end()) {
+            // рисуем сообщение до добавления
+            if (!silent) {
+                actToGroup(member, GRP_COMM_ALL, "$N принят$A в группу.");
+                send_to_char(member, "Вас приняли в группу.\r\n");
+            }
+            auto ci = new char_info(member->get_uid(), member, member->get_pc_name());
+            _memberList->emplace(member->get_uid(), std::make_shared<char_info *>(ci));
+        } else {
+            sprintf(buf, "Group::addMember: группа id=%lu, попытка повторного добавления персонажа с тем же uid",
+                    getUid());
+            mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+            return;
+        }
+        member->personGroup = this;
+        auto r = groupRoster.findRequest(member->get_pc_name().c_str(), getLeaderName().c_str(), RQ_ANY);
+        if (r)
+            groupRoster.deleteRequest(r);
+        // добавляем чармисов группу
+        for (auto f = member->followers; f; f = f->next) {
+            auto ff = f->follower;
+            if (IS_CHARMICE(ff)) {
+                this->addMember(ff); // рекурсия!
+            }
         }
     }
+
 }
 
 bool Group::_restoreMember(CHAR_DATA *member) {
@@ -267,6 +274,8 @@ void Group::_clear(bool silentMode) {
     }
     _npcRoster->clear();
     _memberList->clear();
+    delete _memberList;
+    delete _npcRoster;
 }
 
 void Group::promote(char *applicant) {
@@ -277,12 +286,12 @@ void Group::promote(char *applicant) {
     }
     _setLeader((*_memberList->at(memberId))->member);
     sendToGroup(GRP_COMM_ALL, "Изменился лидер группы на %.", (*_memberList->at(memberId))->memberName.c_str());
-    _memberCap = 1;
-    auto diff = (u_short)(_memberList->size() - _memberCap);
+    auto diff = (u_short)_memberCap - (u_short)_memberList->size();
+    if (diff < 0) diff = 0;
     if (diff > 0){
         u_short i = 0;
         CHAR_DATA* expellList[diff];
-        for (auto it = _memberList->begin(); it!= _memberList->end() || diff > i; it++){
+        for (auto it = _memberList->begin(); it!= _memberList->end() || i > diff; it++){
             if ((*it->second)->member != _leader ) {
                 expellList[i] = (*it->second)->member;
                 ++i;
@@ -498,7 +507,6 @@ void Group::_printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header) {
 void Group::printGroup(CHAR_DATA *ch) {
     int gfound = 0, cfound = 0;
     CHAR_DATA *leader;
-    struct follow_type *f, *g;
 
     if (ch->personGroup)
         leader = ch->personGroup->getLeader();
@@ -519,12 +527,14 @@ void Group::printGroup(CHAR_DATA *ch) {
         }
     }
 
-    // допечатываем чармисов
-    for (auto & it: *_npcRoster) {
-        if (!cfound)
-            send_to_char("Ваши последователи:\r\n", ch);
-        if (it->get_master() == ch)
-            _printNPCLine(ch, it, cfound++);
+    // допечатываем чармисов, которые прямые последователи
+    for (auto f = ch->followers; f; f = f->next)
+    {
+        if (IS_CHARMICE(f->follower)) {
+            if (!cfound)
+                send_to_char("Ваши последователи:\r\n", ch);
+            _printNPCLine(ch, f->follower, cfound++);
+        }
     }
 
     if (!gfound && !cfound) {
@@ -619,13 +629,13 @@ CHAR_DATA* Group::get_random_pc_group() {
 
 // room_rnum = 0 - ignore
 cd_v Group::getMembers(rnum_t room_rnum) {
-    cd_v retval = std::make_shared<std::vector<CHAR_DATA*>>();
+    cd_v retval;
     for (const auto& it : *_memberList) {
         auto c = (*it.second)->member;
         if (room_rnum == (room_rnum == 0 ? room_rnum : c->in_room)  && !c->purged())
-            retval->push_back((*it.second)->member);
+            retval.push_back((*it.second)->member);
     }
-    return cd_v();
+    return retval;
 }
 
 npc_r Group::getCharmee(rnum_t room_rnum) {
@@ -650,6 +660,17 @@ u_short Group::size(rnum_t room_rnum) {
             retval++;
     }
     return retval;
+}
+
+bool Group::has_clan_members_in_group(CHAR_DATA *victim) {
+    for (const auto& it : *_memberList) {
+        auto gm = (*it.second)->member;
+        if (gm == nullptr)
+            continue;
+        if (CLAN(gm) && gm->in_room == victim->in_room)
+            return true;
+    }
+    return false;
 }
 
 bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)

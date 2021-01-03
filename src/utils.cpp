@@ -3953,4 +3953,15 @@ void koi_to_utf8(char *str_i, char *str_o)
 
 #endif // HAVE_ICONV
 
+bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict)
+{
+    if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

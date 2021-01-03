@@ -728,7 +728,7 @@ void drop_torc(CHAR_DATA *mob)
 	if (grp == nullptr)
 	    return;
     auto m_list = grp->getMembers(mob->in_room); // список живых мемберов в комнате
-	for (auto &m : *m_list) {
+	for (auto m : m_list) {
 		if (GET_GOD_FLAG(m, GF_REMORT)  && mob->get_attacker(m, ATTACKER_ROUNDS) >= damager.second / 2) {
 			gain_torc(m, drop);
 		}

@@ -4,9 +4,11 @@
 
 #include "global.objects.hpp"
 #include "handler.h"
+#include "house.h"
 #include "screen.h"
 #include "msdp.constants.hpp"
 #include "magic.h"
+#include "remember.hpp"
 
 extern GroupRoster& groupRoster;
 
@@ -590,10 +592,6 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
     send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 
-void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-    do_split(ch,argument,0,0,0);
-}
-
 void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency)
 {
     int amount, num, share, rest;
@@ -730,4 +728,8 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
         send_to_char("Сколько и чего вы хотите разделить?\r\n", ch);
         return;
     }
+}
+
+void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+    do_split(ch,argument,0,0,0);
 }

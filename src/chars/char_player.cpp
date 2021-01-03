@@ -403,7 +403,7 @@ void Player::dps_add_dmg(int type, int dmg, int over_dmg, CHAR_DATA *ch)
 
 void Player::dps_clear(int type)
 {
-	dps_.clear(type);
+	dps_.clear(this, type);
 }
 
 void Player::dps_print_stats(CHAR_DATA *coder)

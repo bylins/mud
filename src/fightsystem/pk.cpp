@@ -14,6 +14,7 @@
 #include "pk.h"
 
 #include "global.objects.hpp"
+#include "grp/grp.main.h"
 #include "screen.h"
 #include "house.h"
 #include "handler.h"
@@ -1098,22 +1099,9 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg)
 // Проверяет, есть ли члены любого клан в группе чара и находятся ли они
 // в одной с ним комнате
 bool has_clan_members_in_group(CHAR_DATA * ch) {
-	CHAR_DATA *leader;
-	struct follow_type *f;
-	leader = ch->has_master() ? ch->get_master() : ch;
-
-	// проверяем, был ли в группе клановый чар
-	if (CLAN(leader)) {
-		return true;
-	}
-	else {
-		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && IN_ROOM(f->follower) == ch->in_room && CLAN(f->follower)) {
-				return true;
-			}
-		}
-	}
-	return false;
+	if (!ch || ch->purged() || !IN_GROUP(ch))
+	    return false;
+    return ch->personGroup->has_clan_members_in_group(ch);
 }
 
 

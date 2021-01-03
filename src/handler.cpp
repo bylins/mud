@@ -2372,16 +2372,10 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 
 	// transfer equipment to room, if any
 //	log("[Extract char] Drop equipment");
-	for (i = 0; i < NUM_WEARS; i++)
-	{
-		if (GET_EQ(ch, i))
-		{
+	for (i = 0; i < NUM_WEARS; i++) {
+		if (GET_EQ(ch, i)) {
 			OBJ_DATA *obj_eq = unequip_char(ch, i);
-			if (!obj_eq)
-			{
-				continue;
-			}
-
+			if (!obj_eq)  { continue; }
 			remove_otrigger(obj_eq, ch);
 			drop_obj_on_zreset(ch, obj_eq, 0, zone_reset);
 		}
@@ -2407,8 +2401,7 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	}
 
 //	log("[Extract char] Die followers");
-	if ((ch->followers || ch->has_master())
-		&& die_follower(ch)) {
+	if ((ch->followers || ch->has_master()) && die_follower(ch)) {
 		// TODO: странно все это с пуржем в stop_follower
 		return;
 	}

@@ -78,10 +78,10 @@ class Dps
 {
 public:
 	Dps() : exp_(0), battle_exp_(0), lost_exp_(0) {};
-	Dps & operator= (const Dps &copy);
+//	Dps & operator= (const Dps &copy);
 
 	void add_dmg(int type, CHAR_DATA *ch, int dmg, int over_dmg);
-	void clear(int type);
+	void clear(CHAR_DATA* ch, int type);
 	void print_stats(CHAR_DATA *ch, CHAR_DATA *coder = 0);
 	void print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder = 0);
 	void end_round(int type, CHAR_DATA *ch);
@@ -96,7 +96,7 @@ private:
 	void add_group_charm_dmg(CHAR_DATA *ch, int dmg, int over_dmg);
 	void end_group_charm_round(CHAR_DATA *ch);
 
-	// групповая статистика
+	// групповая статистика уехало в группу =)
 	GroupListType group_dps_;
 	// персональная статистика и свои чармисы
 	PlayerDpsNode pers_dps_;

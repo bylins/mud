@@ -67,22 +67,22 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
         if (grp != nullptr) // в группе - покидаем
             grp->_removeMember(ch);
         groupRoster.addGroup(ch);
-        send_to_char(ch, "Вы создали группу c максимальным числом последователей %d.\r\n", ch->personGroup ? ch->personGroup->_getMemberCap() : 0);
          return;
     } else if (isname(subcmd, strLIST.c_str())) {
         grp->listMembers(ch);
         return;
     } else if (isname(subcmd, strALL.c_str())) {
-        // если в группе, но не лидером - покидаем
-        if (grp != nullptr && grp->getLeader() != ch){
-            grp->_removeMember(ch);
-            grp = nullptr;
-        }
-        // если нет группы - создаем и становимся лидером
+        // если в группе, печатаем полный список.
         if (grp == nullptr) {
             grp = groupRoster.addGroup(ch).get();
+            grp->addFollowers(ch);
+            return;
         }
-        // сюда приходим лидером
+        if (grp->getLeader() != ch){
+            grp->printGroup(ch);
+            return;
+        }
+        // сюда приходим лидером и добавляем всех, кто следует.
         grp->addFollowers(ch);
         return;
     } else if (isname(subcmd, strLEAVE.c_str())){
@@ -370,8 +370,8 @@ void GroupRoster::acceptInvite(CHAR_DATA* who, char* author) {
     }
 
     auto r = findRequest(who->get_pc_name().c_str(), author, RQ_TYPE::RQ_GROUP);
+    send_to_char(r->_applicant, "Вы приняли приглашение.\r\n");
     r->_group->addMember(r->_applicant); // и удалит заявку, если есть
-    send_to_char(r->_applicant, "Вы приняли приглашение.\r\n", r->_group->getLeaderName().c_str());
 }
 
 void GroupRoster::runTests(CHAR_DATA *leader) {

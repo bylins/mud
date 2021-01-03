@@ -120,18 +120,6 @@ void do_say(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/){
 	}
 }
 
-bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict)
-{
-	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 void perform_tell(CHAR_DATA * ch, CHAR_DATA * vict, char *arg)
 {
 // shapirus: не позволим телять, если жертва не видит и включила

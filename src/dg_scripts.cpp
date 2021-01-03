@@ -10,47 +10,48 @@
 
 #include "dg_scripts.h"
 
-#include "global.objects.hpp"
-#include "chars/world.characters.hpp"
-#include "heartbeat.hpp"
-#include "find.obj.id.by.vnum.hpp"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "dg_event.h"
-#include "db.h"
-#include "screen.h"
-#include "house.h"
-#include "constants.h"
-#include "top.h"
-#include "features.hpp"
+#include "backtrace.hpp"
+#include "bonus.h"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
-#include "name_list.hpp"
-#include "modify.h"
-#include "room.hpp"
-#include "named_stuff.hpp"
-#include "spell_parser.hpp"
-#include "spells.h"
-#include "skills.h"
-#include "noob.hpp"
-#include "genchar.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
+#include "chars/world.characters.hpp"
+#include "comm.h"
 #include "conf.h"
-#include "dg_db_scripts.hpp"
-#include "bonus.h"
-#include "zone.table.hpp"
-#include "debug.utils.hpp"
-#include "backtrace.hpp"
+#include "constants.h"
 #include "coredump.hpp"
+#include "db.h"
+#include "debug.utils.hpp"
+#include "dg_db_scripts.hpp"
+#include "dg_event.h"
+#include "features.hpp"
+#include "find.obj.id.by.vnum.hpp"
+#include "genchar.h"
+#include "global.objects.hpp"
+#include "grp/grp.main.h"
+#include "handler.h"
+#include "heartbeat.hpp"
+#include "house.h"
+#include "interpreter.h"
+#include "logger.hpp"
+#include "modify.h"
+#include "name_list.hpp"
+#include "named_stuff.hpp"
+#include "noob.hpp"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
 #include "olc.h"
 #include "privilege.hpp"
+#include "room.hpp"
+#include "screen.h"
+#include "skills.h"
+#include "spell_parser.hpp"
+#include "spells.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "top.h"
+#include "utils.h"
+#include "world.objects.hpp"
+#include "zone.table.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -2320,9 +2321,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					{
 						for (f = k->followers; f; f = f->next)
 						{
-							if (IS_NPC(f->follower)
-								|| !AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-							{
+							if (IS_NPC(f->follower) || !IN_SAME_GROUP(k, f->follower)) {
 								continue;
 							}
 							if ((GET_CLASS(f->follower) == 8
@@ -3089,8 +3088,9 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
             if (!IN_GROUP(c)) {
 				return;
 			}
-			for (auto it : *(c->personGroup->getMembers())) {
-				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(it));
+			for (auto it : c->personGroup->getMembers()) {
+			    if (it)
+				    sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(it));
 			}
 		}
 		else if (!str_cmp(field, "attackers"))

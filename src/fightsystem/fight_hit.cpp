@@ -2377,18 +2377,14 @@ void Damage::send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
 
 void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 {
-	if (!IS_NPC(ch))
-	{
+	if (!IS_NPC(ch)) {
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d", GET_NAME(ch), GET_CLASS(ch), GET_REMORT(ch), GET_LEVEL(ch), real_dam, over_dam);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
-			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
+		if (IN_GROUP(ch)) {
+			ch->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
 		}
 	}
-	else if (IS_CHARMICE(ch)
-		&& ch->has_master())
+	else if (IS_CHARMICE(ch) && ch->has_master())
 	{
 		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 		if (!IS_NPC(ch->get_master()))
@@ -2398,54 +2394,39 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 				GET_LEVEL(ch->get_master()), real_dam, over_dam);
 		}
 
-		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
-			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
+		if (IN_GROUP(ch->get_master())) {
+            ch->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
 		}
 	}
 }
 
-void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
-{
+void try_angel_sacrifice(CHAR_DATA* ch, CHAR_DATA* victim) {
+    CHAR_DATA* angel = nullptr;
 	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
-	if (GET_HIT(victim) <= 0
-		&& !IS_NPC(victim)
-		&& AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP))
-	{
-		const auto people = world[IN_ROOM(victim)]->people;	// make copy of people because keeper might be removed from this list inside the loop
-		for (const auto keeper : people)
-		{
-			if (IS_NPC(keeper)
-				&& MOB_FLAGGED(keeper, MOB_ANGEL)
-				&& keeper->has_master()
-				&& AFF_FLAGGED(keeper->get_master(), EAffectFlag::AFF_GROUP))
-			{
-				CHAR_DATA *keeper_leader = keeper->get_master()->has_master()
-					? keeper->get_master()->get_master()
-					: keeper->get_master();
-				CHAR_DATA *victim_leader = victim->has_master()
-					? victim->get_master()
-					: victim;
+	if (GET_HIT(victim) <= 0 && !IS_NPC(victim) && IN_GROUP(victim)) {
+        // ищем первого попавшегося ангела из группы в комнате
+        for (auto npc : *victim->personGroup->getCharmee(victim->in_room)){
+            if (MOB_FLAGGED(npc, MOB_ANGEL)) {
+                angel = npc;
+                break;
+            }
+        }
+        if (angel == nullptr)
+            return;
 
-				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->get_master(), ch, NULL)))
-				{
-					if (!pk_agro_action(keeper->get_master(), ch))
-					{
-						return;
-					}
-					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
-						GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
-					snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
-						GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
-					act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-
-					extract_char(keeper, 0);
-					GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
-				}
-			}
-		}
-	}
+        if (may_kill_here(angel->get_master(), ch, NULL)) {
+            if (!pk_agro_action(angel->get_master(), ch)) {
+                return;
+            }
+            send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
+                         GET_PAD(angel, 0), GET_CH_SUF_1(angel));
+            snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
+                     GET_PAD(angel, 0), GET_CH_SUF_1(angel), GET_PAD(victim, 3));
+            act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+            extract_char(angel, 0);
+            GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
+        }
+    }
 }
 
 void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)

@@ -1,7 +1,9 @@
 #include "char.utilities.hpp"
 
 #include <utils.h>
-#include <chars/char.hpp>
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
+#include "chars/player_races.hpp"
 #include <handler.h>
 #include <act.other.hpp>
 
@@ -11,6 +13,8 @@ void CharacterBuilder::create_new()
 {
 	const auto result = std::make_shared<character_t>();
 	result->player_specials = std::make_shared<player_special_data>();
+    result->char_specials.saved.act = clear_flags;
+	result->char_specials.saved.affected_by = clear_flags;
 	result->set_class(CLASS_DRUID);
 	result->set_level(1);
 	m_result = result;
@@ -133,6 +137,26 @@ void CharacterBuilder::check_character_existance(result_t character)
 	}
 }
 
+    void CharacterBuilder::add_skill(ESkill skill, short value) {
+        m_result->set_skill(skill, value);
+    }
+
+    void CharacterBuilder::load_player(u_short idx) {
+        getcwd(buf, 3000);
+        Player* t_vict = new Player();
+        if (load_char(_names[idx].c_str(), t_vict) == -1)
+            throw std::runtime_error("Character wasn't created.");
+        m_result = std::shared_ptr<character_t>(t_vict);
+    }
+
+    void CharacterBuilder::create_new(char *name) {
+        create_new();
+        m_result->set_pc_name(name);
+    }
+
+    GroupBuilder::GroupBuilder() {
+    _roster = new GroupRoster();
+    }
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
