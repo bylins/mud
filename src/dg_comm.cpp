@@ -12,14 +12,7 @@
 #include "dg_scripts.h"
 #include "comm.h"
 #include "handler.h"
-#include "db.h"
-#include "chars/char.hpp"
-#include "room.hpp"
 #include "char_obj_utils.inl"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
 
 extern DESCRIPTOR_DATA *descriptor_list;
 

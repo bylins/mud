@@ -7,24 +7,15 @@
 #include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
-#include "db.h"
 #include "handler.h"
-#include "comm.h"
 #include "auction.h"
 #include "exchange.h"
-#include "interpreter.h"
 #include "screen.h"
-#include "chars/char.hpp"
-#include "name_list.hpp"
 #include "chars/char_player.hpp"
 #include "modify.h"
 #include "objsave.h"
-#include "room.hpp"
-#include "features.hpp"
 #include "house.h"
-#include "obj.hpp"
 #include "char_obj_utils.inl"
-#include "logger.hpp"
 
 #include <map>
 #include <list>
@@ -97,14 +88,14 @@ public:
 	void load_online_objs(int file_type, bool reload = 0);
 	void online_to_offline(ObjListType &cont);
 
-	int get_cost_per_day()
+	int get_cost_per_day() const
 	{
 		return cost_per_day;
-	};
+	}
 	void reset_cost_per_day()
 	{
 		cost_per_day = 0;
-	} ;
+	}
 	void add_cost_per_day(OBJ_DATA *obj);
 	void add_cost_per_day(int amount);
 };
@@ -160,8 +151,8 @@ void save_purged_list()
 		log("Хранилище: error open file: %s! (%s %s %d)", filename, __FILE__, __func__, __LINE__);
 		return;
 	}
-	for (PurgedListType::const_iterator it = purged_list.begin(); it != purged_list.end(); ++it)
-		file << it->first << " " << it->second << "\n";
+	for (const auto & [uid, time] : purged_list)
+		file << uid << " " << time << "\n";
 
 	need_save_purged_list = false;
 }
@@ -302,7 +293,7 @@ void add_purged_message(long uid, int obj_vnum, unsigned int obj_uid)
 
 void delete_purged_entry(long uid)
 {
-	PurgedListType::iterator it = purged_list.find(uid);
+	auto it = purged_list.find(uid);
 	if (it != purged_list.end())
 	{
 		std::string name = generate_purged_filename(uid);
@@ -319,7 +310,7 @@ void delete_purged_entry(long uid)
 
 bool show_purged_message(CHAR_DATA *ch)
 {
-	PurgedListType::iterator it = purged_list.find(GET_UNIQUE(ch));
+	auto it = purged_list.find(GET_UNIQUE(ch));
 	if (it != purged_list.end())
 	{
 		// имя у нас канеш и так есть, но че зря код дублировать
@@ -350,7 +341,7 @@ bool show_purged_message(CHAR_DATA *ch)
 void clear_old_purged_entry()
 {
 	time_t today = time(0);
-	for (PurgedListType::iterator it = purged_list.begin(); it != purged_list.end(); /* пусто */)
+	for (auto it = purged_list.begin(); it != purged_list.end(); /* пусто */)
 	{
 		time_t diff = today - it->second;
 		// месяц в секундах

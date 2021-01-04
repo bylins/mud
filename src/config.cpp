@@ -18,16 +18,8 @@
 
 #include "boards.changelog.loaders.hpp"
 #include "boards.constants.hpp"
-#include "interpreter.h"	// alias_data definition for structs.h
 #include "utils.h"
-#include "constants.h"
 #include "chars/char.hpp"
-#include "birth_places.hpp"
-#include "structs.h"
-#include "conf.h"
-#include "sysdep.h"
-
-#include <boost/version.hpp>
 
 #if CIRCLE_UNIX
 #include <sys/stat.h>

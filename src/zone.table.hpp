@@ -19,7 +19,7 @@ public:
 
 	~ZoneData();
 
-	char *name;		// назвение зоны
+	char *name;		// название зоны
 	char *comment;
 	char *author;
 	int traffic;

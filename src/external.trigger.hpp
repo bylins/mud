@@ -2,6 +2,7 @@
 #define __EXTERNAL_TRIGGER_HPP__
 
 #include <string>
+#include <filesystem>
 
 class ExternalTriggerChecker
 {
@@ -12,9 +13,9 @@ public:
 	bool check();
 
 private:
-	std::size_t get_mtime() const;
+    std::filesystem::file_time_type get_mtime() const;
 
-	std::size_t m_mtime;
+    std::filesystem::file_time_type m_mtime;
 	std::string m_filename;
 };
 
