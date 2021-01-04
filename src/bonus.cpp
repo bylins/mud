@@ -257,9 +257,9 @@ namespace Bonus
 
 		std::stringstream buf_str;
 
-		for (auto [it, count] = std::tuple(bonus_log.rbegin(), 0); it != bonus_log.rend() && count <= MAXIMUM_BONUS_RECORDS; ++it, ++count)
+		for (auto [it, count] = std::tuple(bonus_log.rbegin(), 0ul); it != bonus_log.rend() && count <= MAXIMUM_BONUS_RECORDS; ++it, ++count)
 		{
-            buf_str << "&G" << count << ". &W" << it << "&n\r\n";
+            buf_str << "&G" << count << ". &W" << *it << "&n\r\n";
 		}
 
 		page_string(ch->desc, buf_str.str());
