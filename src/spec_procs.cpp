@@ -13,37 +13,38 @@
 ************************************************************************ */
 
 #include "act.movement.hpp"
-#include "cmd/cmd.generic.h"
-#include "obj.hpp"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "spell_parser.hpp"
-#include "spells.h"
-#include "skills.h"
-#include "screen.h"
-#include "dg_scripts.h"
-#include "constants.h"
-#include "features.hpp"
-#include "house.h"
+#include "char_obj_utils.inl"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "chars/mount.h"
-#include "depot.hpp"
 #include "chars/player_races.hpp"
-#include "magic.h"
+#include "chars/world.characters.hpp"
+#include "cmd/cmd.generic.h"
+#include "comm.h"
+#include "constants.h"
+#include "core/leveling.h"
+#include "db.h"
+#include "depot.hpp"
+#include "dg/dg_scripts.h"
+#include "features.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
-#include "char_obj_utils.inl"
-#include "chars/world.characters.hpp"
+#include "handler.h"
+#include "house.h"
+#include "interpreter.h"
 #include "logger.hpp"
+#include "magic.h"
+#include "obj.hpp"
+#include "screen.h"
+#include "skills.h"
+#include "spell_parser.hpp"
+#include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "temp_spells.hpp"
+
 #include <cmath>
 #include <boost/algorithm/string.hpp>
-
 #include <string>
 
 //   external vars
@@ -2910,7 +2911,7 @@ int dump(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 		send_to_char("Боги оценили вашу жертву.\r\n", ch);
 		act("$n оценен$y Богами.", TRUE, ch, 0, 0, TO_ROOM);
 		if (GET_LEVEL(ch) < 3)
-			gain_exp(ch, value);
+			ExpCalc::gain_exp(ch, value);
 		else
 			ch->add_gold(value);
 	}

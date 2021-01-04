@@ -27,7 +27,7 @@
 #include "craft.commands.hpp"
 #include "db.h"
 #include "depot.hpp"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/assist.h"
 #include "fightsystem/mobact.hpp"
@@ -83,6 +83,7 @@
 #include "scripting.hpp"
 #endif
 #include "chars/player_races.hpp"
+#include "chars/char_player.hpp"
 #include "birth_places.hpp"
 #include "help.hpp"
 #include "map.hpp"
@@ -168,7 +169,6 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg);
 void trigedit_parse(DESCRIPTOR_DATA * d, char *arg);
 int find_social(char *name);
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
-extern void check_max_hp(CHAR_DATA *ch);
 // local functions
 int perform_dupe_check(DESCRIPTOR_DATA * d);
 struct alias_data *find_alias(struct alias_data *alias_list, char *str);

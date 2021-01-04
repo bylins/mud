@@ -9,31 +9,33 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "skills/townportal.h"
-#include "dg_scripts.h"
+#include "chars/char.hpp"
 #include "comm.h"
-#include "interpreter.h"
+#include "core/leveling.h"
+#include "conf.h"
+#include "db.h"
+#include "deathtrap.hpp"
+#include "dg_scripts.h"
+#include "features.hpp"
+#include "fightsystem/fight.h"
 #include "handler.h"
+#include "im.h"
+#include "interpreter.h"
+#include "logger.hpp"
+#include "magic.h"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
+#include "room.hpp"
+#include "skills.h"
+#include "skills/townportal.h"
 #include "spell_parser.hpp"
 #include "spells.h"
-#include "db.h"
-#include "im.h"
-#include "deathtrap.hpp"
-#include "chars/char.hpp"
-#include "skills.h"
-#include "room.hpp"
-#include "magic.h"
-#include "fightsystem/fight.h"
-#include "features.hpp"
-#include "zone.table.hpp"
-#include "logger.hpp"
-#include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
+#include "utils.h"
+#include "world.objects.hpp"
+#include "zone.table.hpp"
+
 
 extern const char *dirs[];
 
@@ -501,7 +503,7 @@ void do_wexp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((ch = get_char_by_room(room, name)))
 	{
-		gain_exp(ch, atoi(amount));
+        ExpCalc::gain_exp(ch, atoi(amount));
 		sprintf(buf, "wexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
 		wld_log(room, buf);
 	}

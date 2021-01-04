@@ -1,8 +1,5 @@
 #include "structs.h"
 #include "chars/char.hpp"
-#include "spells.h"
-#include "utils.h"
-#include "logger.hpp"
 #include "msdp.hpp"
 #include "msdp.constants.hpp"
 
@@ -51,7 +48,7 @@ void asciiflag_conv(const char *flag, void *to)
 
 int ext_search_block(const char *arg, const char * const * const list, int exact)
 {
-	int i, j, o;
+	long i, j, o;
 
 	if (exact)
 	{

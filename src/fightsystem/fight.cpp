@@ -36,7 +36,7 @@
 #include "spells.h"
 #include "screen.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "im.h"
 #include "skills.h"
 #include "features.hpp"
@@ -2387,35 +2387,6 @@ void perform_violence()
 		{
 			ch->desc->msdp_report(msdp::constants::GROUP);
 		}
-	}
-}
-
-int calc_leadership(CHAR_DATA * ch)
-{
-	int prob, percent;
-
-	if (IS_NPC(ch) || ch->personGroup == nullptr) {
-		return FALSE;
-	}
-
-    CHAR_DATA* leader = ch->personGroup->getLeader();
-
-    // если лидер умер или нет в комнате - фиг вам, а не бонусы
-    if (leader == nullptr || IN_ROOM(ch) != IN_ROOM(leader)) {
-        return FALSE;
-    }
-
-	if (!leader->get_skill(SKILL_LEADERSHIP))	{
-		return (FALSE);
-	}
-
-	percent = number(1, 101);
-	prob = calculate_skill(leader, SKILL_LEADERSHIP, 0);
-	if (percent > prob)  {
-		return (FALSE);
-	}
-	else {
-		return (TRUE);
 	}
 }
 

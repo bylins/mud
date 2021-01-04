@@ -22,7 +22,7 @@
 #include "constants.h"
 #include "db.h"
 #include "depot.hpp"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
 #include "handler.h"

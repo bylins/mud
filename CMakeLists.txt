@@ -67,17 +67,17 @@ set(SOURCES
 		src/debug.utils.cpp
 		src/depot.cpp
 		src/description.cpp
-		src/dg_comm.cpp
-		src/dg_db_scripts.cpp
-		src/dg_event.cpp
-		src/dg_handler.cpp
-		src/dg_misc.cpp
-		src/dg_mobcmd.cpp
-		src/dg_objcmd.cpp
-		src/dg_olc.cpp
-		src/dg_scripts.cpp
-		src/dg_triggers.cpp
-		src/dg_wldcmd.cpp
+        src/dg/dg_comm.cpp
+        src/dg/dg_db_scripts.cpp
+        src/dg/dg_event.cpp
+        src/dg/dg_handler.cpp
+        src/dg/dg_misc.cpp
+        src/dg/dg_mobcmd.cpp
+        src/dg/dg_objcmd.cpp
+        src/dg/dg_olc.cpp
+        src/dg/dg_scripts.cpp
+        src/dg/dg_triggers.cpp
+        src/dg/dg_wldcmd.cpp
 		src/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
@@ -211,9 +211,11 @@ set(SOURCES
 		src/world.objects.cpp
 		src/zedit.cpp
 		src/zone.table.cpp
-        )
+        src/core/leveling.cpp
+		src/grp/grouppenalties.cpp src/grp/grouppenaltycalculator.cpp)
 
 set(HEADERS
+        src/core/leveling.h
 		src/grp/follow.h
 		src/grp/grp.main.h
 		src/core/affect_data.h
@@ -294,10 +296,10 @@ set(HEADERS
 		src/deathtrap.hpp
 		src/depot.hpp
 		src/description.h
-		src/dg_db_scripts.hpp
-		src/dg_event.h
-		src/dg_olc.h
-		src/dg_scripts.h
+        src/dg/dg_db_scripts.hpp
+        src/dg/dg_event.h
+        src/dg/dg_olc.h
+        src/dg/dg_scripts.h
 		src/dictionary.hpp
 		src/diskio.h
 		src/double_map.hpp

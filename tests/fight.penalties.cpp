@@ -1,4 +1,4 @@
-#include "fightsystem/fight.penalties.hpp"
+#include "grp/grp.main.h"
 
 #include "char.utilities.hpp"
 

@@ -26,7 +26,7 @@
 #include "skills.h"
 #include "house.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/mobact.hpp"

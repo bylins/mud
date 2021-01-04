@@ -12,56 +12,57 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "world.objects.hpp"
-#include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
-#include "logger.hpp"
-#include "shutdown.parameters.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "skills.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
-#include "screen.h"
-#include "constants.h"
-#include "fightsystem/pk.h"
-#include "dg_scripts.h"
-#include "mail.h"
-#include "parcel.hpp"
-#include "features.hpp"
-#include "im.h"
-#include "house.h"
-#include "description.h"
-#include "privilege.hpp"
-#include "depot.hpp"
-#include "glory.hpp"
-#include "random.hpp"
+#include "bonus.h"
+#include "char_obj_utils.inl"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
-#include "parcel.hpp"
-#include "liquid.hpp"
-#include "modify.h"
-#include "room.hpp"
-#include "glory_const.hpp"
 #include "chars/player_races.hpp"
-#include "corpse.hpp"
-#include "sets_drop.hpp"
-#include "help.hpp"
-#include "map.hpp"
-#include "ext_money.hpp"
-#include "mob_stat.hpp"
-#include "char_obj_utils.inl"
+#include "chars/world.characters.hpp"
 #include "class.hpp"
-#include "zone.table.hpp"
+#include "comm.h"
+#include "core/leveling.h"
+#include "conf.h"
+#include "constants.h"
+#include "corpse.hpp"
+#include "db.h"
+#include "depot.hpp"
+#include "description.h"
+#include "dg/dg_scripts.h"
+#include "ext_money.hpp"
+#include "features.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/pk.h"
+#include "glory.hpp"
+#include "glory_const.hpp"
+#include "grp/grp.main.h"
+#include "handler.h"
+#include "help.hpp"
+#include "house.h"
+#include "im.h"
+#include "interpreter.h"
+#include "liquid.hpp"
+#include "logger.hpp"
+#include "mail.h"
+#include "map.hpp"
+#include "mob_stat.hpp"
+#include "modify.h"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
+#include "parcel.hpp"
+#include "parcel.hpp"
+#include "privilege.hpp"
+#include "random.hpp"
+#include "room.hpp"
+#include "screen.h"
+#include "sets_drop.hpp"
+#include "shutdown.parameters.hpp"
+#include "skills.h"
+#include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "bonus.h"
-#include "conf.h"
-
+#include "world.objects.hpp"
+#include "zone.table.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -72,6 +73,7 @@
 #include <vector>
 
 using std::string;
+using namespace ExpCalc;
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
@@ -93,7 +95,6 @@ extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
 // extern functions
 long find_class_bitvector(char arg);
-int level_exp(CHAR_DATA * ch, int level);
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
 int compute_armor_class(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);

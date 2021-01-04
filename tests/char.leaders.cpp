@@ -72,6 +72,7 @@ TEST(CHAR_Leaders, Group) {
     test_utils::CharacterBuilder builder;
 
     builder.create_new();
+    builder.add_skill(ESkill::SKILL_LEADERSHIP, 200);
     auto leader = builder.get();
     builder.create_new("F7");
     builder.add_skill(ESkill::SKILL_LEADERSHIP, 10);
@@ -83,7 +84,6 @@ TEST(CHAR_Leaders, Group) {
         auto follower = builder.get();
         leader->add_follower(follower.get());
     }
-
 
     test_utils::GroupBuilder g;
     auto grp = g._roster->addGroup(leader.get());

@@ -25,6 +25,7 @@
 #include "chars/world.characters.hpp"
 #include "comm.h"
 #include "command.shutdown.hpp"
+#include "core/leveling.h"
 #include "conf.h"
 #include "config.hpp"
 #include "constants.h"
@@ -32,7 +33,7 @@
 #include "db.h"
 #include "depot.hpp"
 #include "description.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "ext_money.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
@@ -87,6 +88,7 @@
 
 using std::ifstream;
 using std::fstream;
+using namespace ExpCalc;
 
 // external vars
 extern bool need_warn;
@@ -115,7 +117,7 @@ extern bool CompareBits(const FLAG_DATA& flags, const char *names[], int affect)
 void do_recall(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void save_zone_count_reset();
 // extern functions
-int level_exp(CHAR_DATA * ch, int level);
+
 void appear(CHAR_DATA * ch);
 void reset_zone(zone_rnum zone);
 int parse_class(char arg);
@@ -4129,7 +4131,7 @@ void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		imm_log("%s has advanced %s to level %d (from %d)", GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
 	}
 
-	gain_exp_regardless(victim, level_exp(victim, newlevel)
+	ExpCalc::gain_exp_regardless(victim, ExpCalc::level_exp(victim, newlevel)
 		- GET_EXP(victim));
 	victim->save_char();
 }
@@ -5646,7 +5648,7 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		break;
 	case 25: // remort
-		Remort::show_config(ch);
+		ExtMoney::show_config(ch);
 		break;
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);

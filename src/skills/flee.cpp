@@ -1,6 +1,9 @@
-#include "skills/flee.h"
+
 #include "act.movement.hpp"
+#include "core/leveling.h"
+#include "skills/flee.h"
 #include "random.hpp"
+
 #include <math.h>
 
 void reduce_exp_after_flee(CHAR_DATA* ch, CHAR_DATA* victim, room_rnum room)
@@ -9,7 +12,7 @@ void reduce_exp_after_flee(CHAR_DATA* ch, CHAR_DATA* victim, room_rnum room)
         return;
 
     const auto loss = MAX(1, GET_REAL_MAX_HIT(victim) - GET_HIT(victim)) * GET_LEVEL(victim);
-    gain_exp(ch, -loss);
+    ExpCalc::gain_exp(ch, -loss);
 }
 
 // ********************* FLEE PROCEDURE

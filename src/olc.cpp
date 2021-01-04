@@ -15,7 +15,7 @@
 #include "interpreter.h"
 #include "comm.h"
 #include "db.h"
-#include "dg_olc.h"
+#include "dg/dg_olc.h"
 #include "screen.h"
 #include "item.creation.hpp"
 #include "im.h"

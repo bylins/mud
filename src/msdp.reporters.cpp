@@ -1,11 +1,12 @@
 #include "msdp.reporters.hpp"
 
-#include "structs.h"
-#include "utils.h"
-#include "db.h"
 #include "chars/char.hpp"
+#include "grp/grp.main.h"
+#include "db.h"
 #include "magic.h"
 #include "msdp.constants.hpp"
+#include "structs.h"
+#include "utils.h"
 #include "zone.table.hpp"
 
 namespace msdp
@@ -302,36 +303,13 @@ namespace msdp
 		*/
 		const auto group_descriptor = std::make_shared<ArrayValue>();
 		const auto ch = descriptor()->character.get();
-		const auto master = ch->has_master() ? ch->get_master() : ch;
-		append_char(group_descriptor, ch, master, true);
-		for (auto f = master->followers; f; f = f->next)
-		{
-			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& !(MOB_FLAGGED(f->follower, MOB_PLAYER_SUMMON)))
-			{
-				continue;
-			}
-
-			append_char(group_descriptor, ch, f->follower, false);
-
-			// followers of a follower
-			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-			{
-				continue;
-			}
-
-			for (auto ff = f->follower->followers; ff; ff = ff->next)
-			{
-				if (!(AFF_FLAGGED(ff->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(ff->follower, MOB_PLAYER_SUMMON)))
-				{
-					continue;
-				}
-
-				append_char(group_descriptor, ch, ff->follower, false);
-			}
-		}
-
+        auto grp = ch->personGroup;
+		if (grp == nullptr)
+		    return;
+		auto gl = grp->getMembers(0, true);
+		for (auto it : gl) {
+            append_char(group_descriptor, ch, it, true);
+        }
 		response = std::make_shared<Variable>(constants::GROUP, group_descriptor);
 	}
 }

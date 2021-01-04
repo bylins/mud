@@ -8,34 +8,33 @@
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"
-#include "chars/char.hpp"
+//#include "chars/char.hpp"
 #include <string>
 
-namespace ExtMoney
-{
+class CHAR_DATA;
 
-void torc_exch_menu(CHAR_DATA *ch);
-void torc_exch_parse(CHAR_DATA *ch, const char *arg);
+namespace ExtMoney {
+    void torc_exch_menu(CHAR_DATA *ch);
+    void torc_exch_parse(CHAR_DATA *ch, const char *arg);
 
-void drop_torc(CHAR_DATA *mob);
-std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat = false);
+    void drop_torc(CHAR_DATA *mob);
+    std::string draw_daily_limit(CHAR_DATA *ch, bool imm_stat = false);
 
-void player_drop_log(CHAR_DATA *ch, unsigned type, int num);
-std::string name_currency_plural(std::string name);
+    void player_drop_log(CHAR_DATA *ch, unsigned type, int num);
+    std::string name_currency_plural(std::string name);
+    void show_config(CHAR_DATA *ch);
 
 } // namespace ExtMoney
 
-namespace Remort
+struct TorcReq
 {
+    TorcReq(int rmrt);
+    // тип гривн
+    unsigned type;
+    // кол-во
+    int amount;
+};
 
-extern std::string WHERE_TO_REMORT_STR;
-
-bool can_remort_now(CHAR_DATA *ch);
-void init();
-void show_config(CHAR_DATA *ch);
-bool need_torc(CHAR_DATA *ch);
-
-} // namespace Remort
 
 int torc(CHAR_DATA *ch, void *me, int cmd, char* argument);
 

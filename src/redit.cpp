@@ -12,7 +12,7 @@
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
-#include "dg_olc.h"
+#include "dg/dg_olc.h"
 #include "constants.h"
 #include "im.h"
 #include "description.h"
