@@ -1,4 +1,3 @@
-#include "sysdep.h"
 #include "structs.h"
 #include "utils.h"
 #include "interpreter.h"
@@ -7,12 +6,10 @@
 #include "top.h"
 #include "glory_const.hpp"
 #include "chars/char.hpp"
-#include "conf.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 
-#include <functional>
 #include <sstream>
 #include <iomanip>
 
@@ -27,10 +24,13 @@ void TopPlayer::Remove(CHAR_DATA * short_ch)
 {
 	std::list<TopPlayer> &tmp_list = TopPlayer::TopList[static_cast<int>(GET_CLASS(short_ch))];
 
-	tmp_list.remove_if([&short_ch](const TopPlayer& p)
+	auto it = std::find_if(tmp_list.begin(), tmp_list.end(), [&short_ch](const TopPlayer& p)
 	{
 		return p.unique == GET_UNIQUE(short_ch);
 	});
+
+	if (it != tmp_list.end())
+	    tmp_list.erase(it);
 }
 
 // проверяем надо-ли добавлять в топ и добавляем/обновляем при случае. reboot по дефолту 0 (1 для ребута)
