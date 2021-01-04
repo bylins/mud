@@ -23,27 +23,29 @@
  *  $Revision$                                                   *
  ***************************************************************************/
 
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "dg_scripts.h"
-#include "obj.hpp"
-#include "db.h"
-#include "handler.h"
-#include "interpreter.h"
-#include "comm.h"
-#include "spell_parser.hpp"
-#include "spells.h"
-#include "im.h"
-#include "features.hpp"
 #include "chars/char.hpp"
-#include "skills.h"
-#include "room.hpp"
+#include "comm.h"
+#include "core/leveling.h"
+#include "conf.h"
+#include "db.h"
+#include "dg_scripts.h"
+#include "features.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
+#include "handler.h"
+#include "im.h"
+#include "interpreter.h"
 #include "logger.hpp"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
+#include "room.hpp"
+#include "skills.h"
+#include "spell_parser.hpp"
+#include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
+#include "world.objects.hpp"
+
 
 struct mob_command_info
 {
@@ -811,7 +813,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	sprintf(buf, "mexp: victim (%s) получил опыт %d", name, atoi(amount));
 	mob_log(ch, buf);
-	gain_exp(victim, atoi(amount));
+	ExpCalc::gain_exp(victim, atoi(amount));
 }
 
 // increases the target's gold

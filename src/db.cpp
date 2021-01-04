@@ -39,8 +39,8 @@
 #include "corpse.hpp"
 #include "deathtrap.hpp"
 #include "depot.hpp"
-#include "dg_db_scripts.hpp"
-#include "dg_scripts.h"
+#include "dg/dg_db_scripts.hpp"
+#include "dg/dg_scripts.h"
 #include "ext_money.hpp"
 #include "fightsystem/fight.h"
 #include "file_crc.hpp"
@@ -52,6 +52,7 @@
 #include "help.hpp"
 #include "house.h"
 #include "item.creation.hpp"
+#include "core/leveling.h"
 #include "liquid.hpp"
 #include "logger.hpp"
 #include "mail.h"
@@ -230,7 +231,7 @@ void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
 extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY
 int real_zone(int number);
-int level_exp(CHAR_DATA * ch, int level);
+
 extern char *fread_action(FILE * fl, int nr);
 void load_mobraces();
 
@@ -5409,7 +5410,7 @@ long cmp_ptable_by_name(char *name, int len)
 
 long get_ptable_by_name(const char *name)
 {
-	one_argument(name, arg);
+	one_argument(name, smallBuf);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
@@ -5419,7 +5420,7 @@ long get_ptable_by_name(const char *name)
 			return static_cast<long>(i);
 		}
 	}
-	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
+	sprintf(buf, "Char %s(%s) not found !!!", name, smallBuf);
 	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, FALSE);
 	return (-1);
 }
@@ -5687,7 +5688,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
-	if (GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
+	if (GET_EXP(ch) < ExpCalc::level_exp(ch, LVL_IMMORT) - 1)
 	{
 		send_to_char("ЧАВО???\r\n", ch);
 		return;

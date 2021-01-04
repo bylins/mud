@@ -1,48 +1,47 @@
 // Part of Bylins http://www.mud.ru
 
 #include "core/affect_data.h"
-#include "mobact.hpp"
-#include "obj.hpp"
-#include "skills/flee.h"
-#include "chars/world.characters.hpp"
-#include "fight.h"
-#include "fight.penalties.hpp"
-#include "fight_hit.hpp"
+#include "core/leveling.h"
+#include "backtrace.hpp"
+#include "bonus.h"
 #include "chars/char.hpp"
-#include "skills.h"
-#include "handler.h"
-#include "db.h"
-#include "room.hpp"
-#include "spells.h"
-#include "dg_scripts.h"
-#include "corpse.hpp"
-#include "house.h"
-#include "pk.h"
-#include "stuff.hpp"
-#include "sets_drop.hpp"
-#include "top.h"
+#include "chars/char_player.hpp"
+#include "chars/world.characters.hpp"
 #include "constants.h"
-#include "screen.h"
+#include "corpse.hpp"
+#include "db.h"
+#include "dg/dg_scripts.h"
+#include "fight.h"
+#include "fight_hit.hpp"
+#include "grp/grp.main.h"
+#include "handler.h"
+#include "house.h"
+#include "logger.hpp"
 #include "magic.h"
 #include "mob_stat.hpp"
-#include "logger.hpp"
-#include "bonus.h"
-#include "backtrace.hpp"
-#include "spell_parser.hpp"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "zone.table.hpp"
-#include "chars/char_player.hpp"
 #include "mob_stat.hpp"
-#include <math.h>
+#include "mobact.hpp"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
+#include "pk.h"
+#include "room.hpp"
+#include "screen.h"
+#include "sets_drop.hpp"
+#include "skills.h"
+#include "skills/flee.h"
+#include "spell_parser.hpp"
+#include "spells.h"
+#include "stuff.hpp"
+#include "top.h"
+#include "world.objects.hpp"
+#include "zone.table.hpp"
 
+#include <math.h>
 #include <algorithm>
 
 // extern
 void perform_drop_gold(CHAR_DATA * ch, int amount);
-int level_exp(CHAR_DATA * ch, int chlevel);
-int max_exp_gain_pc(CHAR_DATA * ch);
-int max_exp_loss_pc(CHAR_DATA * ch);
+
 void get_from_container(CHAR_DATA * ch, OBJ_DATA * cont, char *arg, int mode, int amount, bool autoloot);
 int slot_for_char(CHAR_DATA * ch, int i);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
@@ -53,6 +52,11 @@ extern int max_exp_gain_npc;
 //интервал в секундах между восстановлением кругов после рипа
 extern const unsigned RECALL_SPELLS_INTERVAL;
 const unsigned RECALL_SPELLS_INTERVAL = 28;
+// using
+
+using namespace ExpCalc;
+
+
 void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
 {
 	bool leader_partner = false;
@@ -331,7 +335,8 @@ bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
 
 void die(CHAR_DATA *ch, CHAR_DATA *killer)
 {
-	int dec_exp = 0, e = GET_EXP(ch);
+	int dec_exp = 0;
+	long currentExp = GET_EXP(ch);
 
 	if (!IS_NPC(ch) && (ch->in_room == NOWHERE))
 	{
@@ -362,23 +367,16 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		return;
 	}
 
-	if (IS_NPC(ch)
-		|| !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		|| RENTABLE(ch))
-	{
+	if (IS_NPC(ch) || !ROOM_FLAGGED(ch->in_room, ROOM_ARENA) || RENTABLE(ch)) {
 		if (!(IS_NPC(ch)
 			|| IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, GF_GODSLIKE)
 			|| (killer && PRF_FLAGGED(killer, PRF_EXECUTOR))))//если убил не палач
 		{
-			if (!RENTABLE(ch))
-				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5)) / ch->death_player_count();
-			else
-				dec_exp = (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
-			gain_exp(ch, -dec_exp);
-			dec_exp = e - GET_EXP(ch);
-			sprintf(buf, "Вы потеряли %d %s опыта.\r\n",
-				dec_exp, desc_count(dec_exp, WHAT_POINT));
+		    dec_exp = calcDeathExp(ch);
+			ExpCalc::gain_exp(ch, -dec_exp);
+			dec_exp = (int)(currentExp - GET_EXP(ch));
+			sprintf(buf, "Вы потеряли %d %s опыта.\r\n", dec_exp, desc_count(dec_exp, WHAT_POINT));
 			send_to_char(buf, ch);
 		}
 
@@ -794,215 +792,6 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
-int get_remort_mobmax(CHAR_DATA * ch)
-{
-	int remort = GET_REMORT(ch);
-	if (remort >= 18)
-		return 15;
-	if (remort >= 14)
-		return 7;
-	if (remort >= 9)
-		return 4;
-	return 0;
-}
-
-float get_npc_long_live_exp_bounus(int vnum)
-{
-	if (vnum == -1)	{
-		return  1.0f;
-	}
-	int nowTime = time(0);
-	int lastKillTime = mob_stat::last_time_killed_mob(vnum);
-	if ( lastKillTime > 0) {
-		int deltaTime = nowTime - lastKillTime;
-		int delay = 60 * 60 * 24 * 30 ; // 30 days
-		float timeMultiplicator = floor(deltaTime/delay);
-		if (timeMultiplicator<1.0f) {
-			timeMultiplicator = 1.0f;
-		}
-		if (timeMultiplicator>10.0f) {
-			timeMultiplicator = 10.0f;
-		}
-		return timeMultiplicator;
-	}
-	return  1.0f;
-}
-
-int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
-{
-	int base, diff;
-	int koef;
-
-	if (!IS_NPC(victim) || IS_NPC(ch))
-		return (exp);
-	// если моб убивается первый раз, то повышаем экспу в несколько раз
-	// стимулируем изучение новых зон!
-	ch->send_to_TC(false, true, false,
-			"&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n", 
-			mob_proto[victim->get_rnum()].mob_specials.MaxFactor, 
-			exp, 
-			ch->mobmax_get(GET_MOB_VNUM(victim)));
-// все равно таблица корявая, учитываются только уникальные мобы и глючит
-/*
-	// даем увеличенную экспу за давно не убитых мобов.
-	// за совсем неубитых мобов не даем, что бы новые зоны не давали x10 экспу.
-	exp *= get_npc_long_live_exp_bounus(GET_MOB_VNUM(victim));
-*/
-/*  бонусы за непопулярных мобов круче
-	if (ch->mobmax_get(GET_MOB_VNUM(victim)) == 0)	{
-		// так чуть-чуть поприятней
-		exp *= 1.5;
-		exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
-		return (exp);
-	}
-*/
-	exp += exp * (ch->add_abils.percent_exp_add) / 100.0;
-	for (koef = 100, base = 0, diff = ch->mobmax_get(GET_MOB_VNUM(victim)) - mob_proto[victim->get_rnum()].mob_specials.MaxFactor;
-			base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
-        // минимальный опыт при замаксе 15% от полного опыта
-	exp = exp * MAX(15, koef) / 100;
-
-	// делим на реморты
-	exp /= std::max(1.0, 0.5 * (GET_REMORT(ch) - MAX_EXP_COEFFICIENTS_USED));
-	return (exp);
-}
-
-// When ch kills victim
-void change_alignment(CHAR_DATA * ch, CHAR_DATA * victim)
-{
-	/*
-	 * new alignment change algorithm: if you kill a monster with alignment A,
-	 * you move 1/16th of the way to having alignment -A.  Simple and fast.
-	 */
-	GET_ALIGNMENT(ch) += (-GET_ALIGNMENT(victim) - GET_ALIGNMENT(ch)) / 16;
-}
-
-/*++
-   Функция начисления опыта
-      ch - кому опыт начислять
-           Вызов этой функции для NPC смысла не имеет, но все равно
-           какие-то проверки внутри зачем то делаются
---*/
-void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef)
-{
-
-
-// Странно, но для NPC эта функция тоже должна работать
-//  if (IS_NPC(ch) || !OK_GAIN_EXP(ch,victim))
-	if (!OK_GAIN_EXP(ch, victim))
-	{
-		send_to_char("Ваше деяние никто не оценил.\r\n", ch);
-		return;
-	}
-
-	// 1. Опыт делится поровну на всех
-	int exp = GET_EXP(victim) / MAX(members, 1);
-
-	if(victim->get_zone_group() > 1 && members < victim->get_zone_group())
-	{
-		// в случае груп-зоны своего рода планка на мин кол-во человек в группе
-		exp = GET_EXP(victim) / victim->get_zone_group();
-	}
-
-	// 2. Учитывается коэффициент (лидерство, разность уровней)
-	//    На мой взгляд его правильней использовать тут а не в конце процедуры,
-	//    хотя в большинстве случаев это все равно
-	exp = exp * koef / 100;
-
-	// 3. Вычисление опыта для PC и NPC
-	if (IS_NPC(ch))
-	{
-		exp = MIN(max_exp_gain_npc, exp);
-		exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
-	}
-	else
-		exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
-	// 4. Последняя проверка
-	exp = MAX(1, exp);
-	if (exp > 1)
-	{
-		if (Bonus::is_bonus(Bonus::BONUS_EXP))
-		{
-			exp *= Bonus::get_mult_bonus();
-		}
-
-		if (!IS_NPC(ch) && !ch->affected.empty())
-		{
-			for (const auto aff : ch->affected)
-			{
-				if (aff->location == APPLY_BONUS_EXP) // скушал свиток с эксп бонусом
-				{
-					exp *= MIN(3, aff->modifier); // бонус макс тройной
-				}
-			}
-		}
-
-		int long_live_bonus = floor(get_npc_long_live_exp_bounus( GET_MOB_VNUM(victim)));
-		if (long_live_bonus>1)	{
-			std::string mess = "";
-			switch (long_live_bonus)
-			{
-				case 2:
-					mess = "Редкая удача! Опыт повышен!\r\n";
-					break;
-				case 3:
-					mess = "Очень редкая удача! Опыт повышен!\r\n";
-					break;
-				case 4:
-					mess = "Очень-очень редкая удача! Опыт повышен!\r\n";
-					break;
-				case 5:
-					mess = "Вы везунчик! Опыт повышен!\r\n";
-					break;
-				case 6:
-					mess = "Ваша удача велика! Опыт повышен!\r\n";
-					break;
-				case 7:
-					mess = "Ваша удача достигла небес! Опыт повышен!\r\n";
-					break;
-				case 8:
-					mess = "Ваша удача коснулась луны! Опыт повышен!\r\n";
-					break;
-				case 9:
-					mess = "Ваша удача затмевает солнце! Опыт повышен!\r\n";
-					break;
-				case 10:
-					mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
-					break;
-				default:
-					mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
-					break;
-			}
-			send_to_char(mess.c_str(), ch);
-		}
-
-		exp = MIN(max_exp_gain_pc(ch), exp);
-		send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n", exp, desc_count(exp, WHAT_POINT));
-	}
-	else if (exp == 1) {
-		send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
-	}
-	gain_exp(ch, exp);
-	change_alignment(ch, victim);
-	TopPlayer::Refresh(ch);
-
-	if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
-		&& !IS_NPC(ch)
-		&& !IS_IMMORTAL(ch)
-		&& IS_NPC(victim)
-		&& !IS_CHARMICE(victim)
-		&& !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
-	{
-		mob_stat::add_mob(victim, members);
-		EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
-	}
-	else if (IS_NPC(ch) && !IS_NPC(victim)
-			 && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
-	{
-		mob_stat::add_mob(ch, 0);
-	}
-}
-
 
 int grouping_koef(int player_class, int player_remort)
 {
@@ -1010,138 +799,6 @@ int grouping_koef(int player_class, int player_remort)
 		return 1;
 	return grouping[player_class][player_remort];
 
-}
-
-
-/*++
-   Функция расчитывает всякие бонусы для группы при получении опыта,
- после чего вызывает функцию получения опыта для всех членов группы
- Т.к. членом группы может быть только PC, то эта функция раздаст опыт только PC
-
-   ch - обязательно член группы, из чего следует:
-            1. Это не NPC
-            2. Он находится в группе лидера (или сам лидер)
-
-   Просто для PC-последователей эта функция не вызывается
-
---*/
-void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
-{
-	int inroom_members, koef = 100, maxlevel;
-	struct follow_type *f;
-	int partner_count = 0;
-	int total_group_members = 1;
-	bool use_partner_exp = false;
-
-	// если наем лидер, то тоже режем экспу
-	if (can_use_feat(killer, CYNIC_FEAT))
-	{
-		maxlevel = 300;
-	}
-	else
-	{
-		maxlevel = GET_LEVEL(killer);
-	}
-
-	auto leader = killer->get_master();
-	if (nullptr == leader)
-	{
-		leader = killer;
-	}
-
-	// k - подозрение на лидера группы
-	const bool leader_inroom = AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
-		&& leader->in_room == IN_ROOM(killer);
-
-	// Количество согрупников в комнате
-	if (leader_inroom)
-	{
-		inroom_members = 1;
-		maxlevel = GET_LEVEL(leader);
-	}
-	else
-	{
-		inroom_members = 0;
-	}
-
-	// Вычисляем максимальный уровень в группе
-	for (f = leader->followers; f; f = f->next)
-	{
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(killer))
-		{
-			// если в группе наем, то режим опыт всей группе
-			// дабы наема не выгодно было бы брать в группу
-			// ставим 300, чтобы вообще под ноль резало
-			if (can_use_feat(f->follower, CYNIC_FEAT))
-			{
-				maxlevel = 300;
-			}
-			// просмотр членов группы в той же комнате
-			// член группы => PC автоматически
-			++inroom_members;
-			maxlevel = MAX(maxlevel, GET_LEVEL(f->follower));
-			if (!IS_NPC(f->follower))
-			{
-				partner_count++;
-			}
-		}
-	}
-
-	GroupPenaltyCalculator group_penalty(killer, leader, maxlevel, grouping);
-	koef -= group_penalty.get();
-
-	koef = MAX(0, koef);
-
-	// Лидерство используется, если в комнате лидер и есть еще хоть кто-то
-	// из группы из PC (последователи типа лошади или чармисов не считаются)
-	if (koef >= 100 && leader_inroom && (inroom_members > 1) && calc_leadership(leader))
-	{
-		koef += 20;
-	}
-
-	// Раздача опыта
-
-	// если групповой уровень зоны равняется единице
-	if (zone_table[world[killer->in_room]->zone].group < 2)
-	{
-		// чтобы не абьюзили на суммонах, когда в группе на самом деле больше
-		// двух мемберов, но лишних реколят перед непосредственным рипом
-		use_partner_exp = total_group_members == 2;
-	}
-
-	// если лидер группы в комнате
-	if (leader_inroom)
-	{
-		// если у лидера группы есть способность напарник
-		if (can_use_feat(leader, PARTNER_FEAT) && use_partner_exp)
-		{
-			// если в группе всего двое человек
-			// k - лидер, и один последователь
-			if (partner_count == 1)
-			{
-				// и если кожф. больше или равен 100
-				if (koef >= 100)
-				{
-					if (leader->get_zone_group() < 2)
-					{
-						koef += 100;
-					}
-				}
-			}
-		}
-		perform_group_gain(leader, victim, inroom_members, koef);
-	}
-
-	for (f = leader->followers; f; f = f->next)
-	{
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& f->follower->in_room == IN_ROOM(killer))
-		{
-			perform_group_gain(f->follower, victim, inroom_members, koef);
-		}
-	}
 }
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)

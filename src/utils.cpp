@@ -26,7 +26,7 @@
 #include "interpreter.h"
 #include "constants.h"
 #include "im.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "privilege.hpp"
 #include "chars/char.hpp"

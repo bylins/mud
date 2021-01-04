@@ -31,7 +31,7 @@
 #include "named_stuff.hpp"
 #include "room.hpp"
 #include "mail.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "char_obj_utils.inl"
 #include "structs.h"

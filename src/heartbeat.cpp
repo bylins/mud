@@ -25,7 +25,7 @@
 #include "objsave.h"
 #include "limits.hpp"
 #include "fightsystem/mobact.hpp"
-#include "dg_event.h"
+#include "dg/dg_event.h"
 #include "corpse.hpp"
 #include "chars/char.hpp"
 #include "shutdown.parameters.hpp"

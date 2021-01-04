@@ -3,7 +3,7 @@
 #include "logger.hpp"
 #include "handler.h"
 #include "screen.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "skills.h"
 #include "magic.h"
 #include "pk.h"
@@ -2456,60 +2456,41 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 
 void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	CHAR_DATA *killer = NULL;
+	CHAR_DATA *killer = nullptr;
 
-	if (IS_NPC(victim) || victim->desc)
-	{
-		if (victim == ch && IN_ROOM(victim) != NOWHERE)
-		{
-			if (spell_num == SPELL_POISON)
-			{
-				for (const auto poisoner : world[IN_ROOM(victim)]->people)
-				{
-					if (poisoner != victim
-						&& GET_ID(poisoner) == victim->Poisoner)
-					{
+	// вычисляем, чем убили и кто убивец. Но тут какая то херня :(
+	if (IS_NPC(victim) || victim->desc) {
+		if (victim == ch && IN_ROOM(victim) != NOWHERE) {
+			if (spell_num == SPELL_POISON) {
+				for (const auto poisoner : world[IN_ROOM(victim)]->people) {
+					if (poisoner != victim && GET_ID(poisoner) == victim->Poisoner) {
 						killer = poisoner;
 					}
 				}
-			}
-			else if (msg_num == TYPE_SUFFERING)
-			{
-				for (const auto attacker : world[IN_ROOM(victim)]->people)
-				{
-					if (attacker->get_fighting() == victim)
-					{
+			} else if (msg_num == TYPE_SUFFERING) {
+				for (const auto attacker : world[IN_ROOM(victim)]->people) {
+					if (attacker->get_fighting() == victim) {
 						killer = attacker;
 					}
 				}
 			}
 		}
-
-		if (ch != victim)
-		{
+		if (ch != victim) {
 			killer = ch;
 		}
 	}
 
-	if (killer)
-	{
-		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP))
-		{
+	if (killer) {
+	    // и чармис и хозяин в одной группе
+	    if (IN_GROUP(killer))
+            group_gain(killer, victim);
+
+		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
-			group_gain(killer, victim);
-		}
-		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-		        || AFF_FLAGGED(killer, EAffectFlag::AFF_HELPER)
-				|| MOB_FLAGGED(killer, MOB_PLAYER_SUMMON))
-			&& killer->has_master())
-			// killer - зачармленный NPC с хозяином
-		{
-			// по логике надо бы сделать, что если хозяина нет в клетке, но
-			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
-			// которые рядом с убившим моба чармисом.
-			if (AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP)
-				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()))
-			{
+
+		} else
+		if ((IS_CHARMICE(killer) || MOB_FLAGGED(killer, MOB_PLAYER_SUMMON)) && killer->has_master()) {
+			if (IN_GROUP(killer->get_master()) && IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
 				// Хозяин - PC в группе => опыт группе
 				group_gain(killer->get_master(), victim);
 			}

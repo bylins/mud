@@ -7,7 +7,7 @@
 #include "logger.hpp"
 #include "utils.h"
 #include "db.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "handler.h"
 #include "boards.h"
 #include "file_crc.hpp"
@@ -18,6 +18,7 @@
 #include "im.h"
 #include "olc.h"
 #include "comm.h"
+#include "core/leveling.h"
 #include "fightsystem/pk.h"
 #include "diskio.h"
 #include "interpreter.h"
@@ -48,7 +49,7 @@
 #include <bitset>
 
 
-int level_exp(CHAR_DATA * ch, int level);
+
 extern std::vector<City> cities;
 extern std::string default_str_cities;
 namespace
@@ -1235,9 +1236,9 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
 
 	//Indexing experience - if his exp is lover than required for his level - set it to required
-	if (GET_EXP(this) < level_exp(this, GET_LEVEL(this)))
+	if (GET_EXP(this) < ExpCalc::level_exp(this, GET_LEVEL(this)))
 	{
-		set_exp(level_exp(this, GET_LEVEL(this)));
+		set_exp(ExpCalc::level_exp(this, GET_LEVEL(this)));
 	}
 
 	if (reboot)
@@ -2553,6 +2554,13 @@ void Player::setTelegramId(unsigned long chat_id) {
 
 unsigned long int Player::getTelegramId() {
     return this->player_specials->saved.telegram_id;
+}
+
+// * Перерасчет максимальных родных хп персонажа.
+// * При входе в игру, левеле/делевеле, добавлении/удалении славы.
+void check_max_hp(CHAR_DATA *ch)
+{
+    GET_MAX_HIT(ch) = PlayerSystem::con_natural_hp(ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

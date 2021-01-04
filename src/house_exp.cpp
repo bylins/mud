@@ -20,6 +20,28 @@
 #include <string>
 #include <sstream>
 
+void update_clan_exp(CHAR_DATA *ch, int gain)
+{
+    if (CLAN(ch) && gain != 0)
+    {
+        // экспа для уровня клана (+ только на праве, - любой, но /5)
+        if (gain < 0 || GET_GOD_FLAG(ch, GF_REMORT))
+        {
+            int tmp = gain > 0 ? gain : gain / 5;
+            CLAN(ch)->SetClanExp(ch, tmp);
+        }
+        // экспа для топа кланов за месяц (учитываются все + и -)
+        CLAN(ch)->last_exp.add_temp(gain);
+        // экспа для топа кланов за все время (учитываются все + и -)
+        CLAN(ch)->AddTopExp(ch, gain);
+        // экспа для авто-очистки кланов (учитываются только +)
+        if (gain > 0)
+        {
+            CLAN(ch)->exp_history.add_exp(gain);
+        }
+    }
+}
+
 namespace
 {
 

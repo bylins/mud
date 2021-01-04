@@ -9,7 +9,7 @@
 #include "object.prototypes.hpp"
 #include "parse.hpp"
 #include "handler.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "screen.h"
 #include "celebrates.hpp"
 #include "fightsystem/pk.h"

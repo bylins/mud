@@ -29,7 +29,7 @@
 #include "interpreter.h"
 #include "screen.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "fightsystem/pk.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"

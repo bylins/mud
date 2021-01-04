@@ -28,7 +28,7 @@
 #include "db.h"
 #include "constants.h"
 #include "interpreter.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "screen.h"
 #include "house.h"
 #include "fightsystem/pk.h"

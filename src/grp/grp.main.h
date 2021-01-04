@@ -1,3 +1,14 @@
+/* ************************************************************************
+*   File: grp.main.h                                    Part of Bylins    *
+*   Заголовок всех функций и классов работы с группами                    *
+*                                                                         *
+*  All rights reserved.  See license.doc for complete information.        *
+*                                                                         *
+*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
+*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
+*                                                                         *
+************************************************************************ */
+
 #ifndef BYLINS_GRP_MAIN_H
 #define BYLINS_GRP_MAIN_H
 
@@ -19,6 +30,7 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 int max_group_size(CHAR_DATA *ch);
 bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict);
+int calc_leadership(CHAR_DATA * ch);
 
 class Group;
 class Request;
@@ -99,7 +111,7 @@ public:
 
     void sendToGroup(GRP_COMM mode, const char *msg, ...);
     void actToGroup(CHAR_DATA* vict, GRP_COMM mode, const char *msg, ...);
-    cd_v getMembers(rnum_t room_rnum = 0);
+    cd_v getMembers(rnum_t room_rnum = 0, bool includeCharmee = false);
     npc_r getCharmee(rnum_t room_rnum = 0);
 public:
     // всякий унаследованный стафф
@@ -107,6 +119,7 @@ public:
     // лень обвязывать, тупо переместил объект
     DpsSystem::GroupListType _group_dps;
     bool has_clan_members_in_group(CHAR_DATA *victim);
+
 };
 
 class Request {
@@ -153,4 +166,42 @@ public:
     Request* findRequest(const char* targetPerson, const char* group, RQ_TYPE type);
 };
 
+class GroupPenalties
+{
+public:
+    using class_penalties_t = std::array<int, MAX_REMORT + 1>;
+    using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
+
+    int init();
+    const auto& operator[](const size_t character_class) const { return m_grouping[character_class]; }
+
+private:
+    penalties_t m_grouping;
+};
+
+class GroupPenaltyCalculator
+{
+public:
+    constexpr static int DEFAULT_PENALTY = 100;
+
+    GroupPenaltyCalculator(const CHAR_DATA* killer, const CHAR_DATA* leader, const int max_level, const GroupPenalties& grouping):
+            m_killer(killer),
+            m_leader(leader),
+            m_max_level(max_level),
+            m_grouping(grouping)
+    {
+    }
+
+    int get() const;
+
+private:
+    const CHAR_DATA* m_killer;
+    const CHAR_DATA* m_leader;
+    const int m_max_level;
+    const GroupPenalties& m_grouping;
+
+    bool penalty_by_leader(const CHAR_DATA* player, int& penalty) const;
+};
+
+extern GroupPenalties grouping;
 #endif //BYLINS_GRP_MAIN_H

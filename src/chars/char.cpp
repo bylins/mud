@@ -29,7 +29,7 @@
 #include "utils.h"
 #include "msdp.constants.hpp"
 #include "backtrace.hpp"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "zone.table.hpp"
 
 #include <boost/format.hpp>
@@ -898,6 +898,7 @@ OBJ_DATA * CHAR_DATA::get_cast_obj() const
 
 bool IS_CHARMICE(const CHAR_DATA* ch)
 {
+    if (!ch) return false;
 	return IS_NPC(ch)
 		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
@@ -905,6 +906,7 @@ bool IS_CHARMICE(const CHAR_DATA* ch)
 
 bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 {
+    if (!sub) return false;
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
 		&& (IS_LIGHT((obj)->in_room)
@@ -913,6 +915,7 @@ bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 
 bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj)
 {
+    if (!ch) return false;
 	return !(GET_INVIS_LEV(ch) > 30)
 		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
 		&& (!IS_DARK(sub->in_room)
@@ -2033,6 +2036,8 @@ void CHAR_DATA::msdp_report(const std::string& name) {
 void CHAR_DATA::removeGroupFlags() {
 	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
 	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+	if (personGroup != nullptr && IS_CHARMICE(this))
+        personGroup->_removeMember(this);
 }
 
 void CHAR_DATA::add_follower(CHAR_DATA* ch) {

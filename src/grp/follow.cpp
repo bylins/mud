@@ -45,61 +45,46 @@ bool stop_follower(CHAR_DATA * ch, int mode)
     }
 
     //log("[Stop follower] Remove from followers list");
-    if (!ch->get_master()->followers)
-    {
+    if (!ch->get_master()->followers) {
         log("[Stop follower] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->get_master()));
-    }
-    else if (ch->get_master()->followers->follower == ch)  	// Head of follower-list?
-    {
+    } else if (ch->get_master()->followers->follower == ch) {
         k = ch->get_master()->followers;
         ch->get_master()->followers = k->next;
-        if (!ch->get_master()->followers
-            && !ch->get_master()->has_master())
-        {
-            //AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
+
+        if (!ch->get_master()->followers && !ch->get_master()->has_master()) {
             ch->get_master()->removeGroupFlags();
         }
         free(k);
     }
-    else  		// locate follower who is not head of list
-    {
+    else {   		// locate follower who is not head of list
         for (k = ch->get_master()->followers; k->next && k->next->follower != ch; k = k->next);
-        if (!k->next)
-        {
-            log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->get_master()));
-        }
-        else
-        {
-            j = k->next;
-            k->next = j->next;
-            free(j);
-        }
+            if (!k->next) {
+                log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->get_master()));
+            }
+            else {
+                j = k->next;
+                k->next = j->next;
+                free(j);
+            }
     }
 
     ch->set_master(nullptr);
-    //AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
     ch->removeGroupFlags();
 
-    if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-        || AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
-        || IS_SET(mode, SF_CHARMLOST))
-    {
-        if (affected_by_spell(ch, SPELL_CHARM))
-        {
+    if (IS_CHARMICE(ch)|| IS_SET(mode, SF_CHARMLOST)) {
+        if (affected_by_spell(ch, SPELL_CHARM)) {
             affect_from_char(ch, SPELL_CHARM);
         }
         EXTRACT_TIMER(ch) = 5;
+
         AFF_FLAGS(ch).unset(EAffectFlag::AFF_CHARM);
 
-        if (ch->get_fighting())
-        {
+        if (ch->get_fighting()) {
             stop_fighting(ch, TRUE);
         }
 
-        if (IS_NPC(ch))
-        {
-            if (MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
-            {
+        if (IS_NPC(ch)) {
+            if (MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) {
                 act("Налетевший ветер развеял $n3, не оставив и следа.", TRUE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
                 GET_LASTROOM(ch) = GET_ROOM_VNUM(ch->in_room);
                 perform_drop_gold(ch, ch->get_gold());
@@ -107,8 +92,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
                 extract_char(ch, FALSE);
                 return (TRUE);
             }
-            else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER))
-            {
+            else if (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)) {
                 AFF_FLAGS(ch).unset(EAffectFlag::AFF_HELPER);
             }
         }

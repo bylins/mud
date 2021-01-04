@@ -42,5 +42,5 @@ void do_whoami(CHAR_DATA *ch, char *, int, int) {
         send_to_char(ch, "Подключен Телеграм, chat_id: %lu\r\n", ch->player_specials->saved.telegram_id);
     }
     if (ch->personGroup)
-        send_to_char(ch, "Состоит в группе #%d лидера %s\r\n", ch->personGroup->getUid(), ch->personGroup->getLeaderName().c_str());
+        send_to_char(ch, "Состоит в группе #%lu лидера %s\r\n", ch->personGroup->getUid(), ch->personGroup->getLeaderName().c_str());
 }

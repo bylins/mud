@@ -2,8 +2,8 @@
 
 #include "object.prototypes.hpp"
 #include "logger.hpp"
-#include "dg_scripts.h"
-#include "dg_olc.h"
+#include "dg/dg_scripts.h"
+#include "dg/dg_olc.h"
 #include "boards.h"
 #include "constants.h"
 #include "room.hpp"
@@ -11,7 +11,7 @@
 #include "im.h"
 #include "chars/char.hpp"
 #include "help.hpp"
-#include "dg_db_scripts.hpp"
+#include "dg/dg_db_scripts.hpp"
 #include "zone.table.hpp"
 #include "utils.h"
 

@@ -13,7 +13,7 @@
 #include "db.h"
 #include "handler.h"
 #include "house.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "pugixml.hpp"
 #include "logger.hpp"
 #include "utils.h"

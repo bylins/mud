@@ -13,6 +13,7 @@
 #include "sysdep.h"
 #include "chars/char.hpp"
 
+void update_clan_exp(CHAR_DATA *ch, int gain);
 void update_clan_exp();
 void save_clan_exp();
 

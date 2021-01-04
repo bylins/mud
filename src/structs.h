@@ -16,6 +16,7 @@
 #define _STRUCTS_H_
 
 #include "boards.types.hpp"
+#include "ext_money.hpp"
 #include "sysdep.h"
 
 #include <vector>
@@ -29,17 +30,17 @@
 #include <unordered_map>
 #include <array>
 
-namespace ExtMoney
-{
+
+namespace ExtMoney {
 // золотые гривны
-const unsigned TORC_GOLD = 0;
+    const unsigned TORC_GOLD = 0;
 // серебряные гривны
-const unsigned TORC_SILVER = 1;
+    const unsigned TORC_SILVER = 1;
 // бронзовые гривны
-const unsigned TORC_BRONZE = 2;
+    const unsigned TORC_BRONZE = 2;
 // терминатор всегда в конце
-const unsigned TOTAL_TYPES = 3;
-} // namespace ExtMoney
+    const unsigned TOTAL_TYPES = 3;
+}
 
 namespace currency
 {
