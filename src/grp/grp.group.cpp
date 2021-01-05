@@ -909,7 +909,7 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
         }
     }
 
-    GroupPenaltyCalculator group_penalty(killer, leader, maxlevel, grouping);
+    GroupPenaltyCalculator group_penalty(killer, leader, maxlevel, groupRoster.grouping);
     koef -= group_penalty.get();
 
     koef = MAX(0, koef);

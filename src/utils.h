@@ -205,9 +205,6 @@ char * CAP(char *txt);
 #define AtoK(c) ((ubyte)(c) < 128 ? (c) : AltToKoi[(ubyte)(c)-128])
 #define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
 
-// in magic.cpp //
-bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim);
-
 // in act.informative.cpp //
 void look_at_room(CHAR_DATA * ch, int mode);
 

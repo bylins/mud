@@ -1,5 +1,6 @@
 #include "cmd.generic.h"
 
+#include "grp/follow.h"
 #include "handler.h"
 #include <boost/lexical_cast.hpp>
 

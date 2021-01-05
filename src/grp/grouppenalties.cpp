@@ -18,12 +18,15 @@
 #include "sysdep.h"
 #include "utils.h"
 
+extern GroupRoster& groupRoster;
+
 /*
 	Берет misc/grouping, первый столбик цифр считает номерами мортов,
 	остальные столбики - значение макс. разрыва в уровнях для конкретного
 	класса. На момент написания этого в конфиге присутствует 26 строк, макс.
 	морт равен 50 - строки с мортами с 26 по 50 копируются с 25-мортовой строки.
 */
+
 int GroupPenalties::init()
 {
     int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = MAX_REMORT+1;
@@ -108,4 +111,10 @@ int GroupPenalties::init()
     return 0;
 }
 
-GroupPenalties grouping;	///< TODO: get rid of this global variable.
+int grouping_koef(int player_class, int player_remort)
+{
+    if ((player_class >= NUM_PLAYER_CLASSES) || (player_class < 0))
+        return 1;
+    return groupRoster.grouping[player_class][player_remort];
+
+}

@@ -2563,4 +2563,5 @@ void check_max_hp(CHAR_DATA *ch)
     GET_MAX_HIT(ch) = PlayerSystem::con_natural_hp(ch);
 }
 
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

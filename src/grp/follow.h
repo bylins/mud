@@ -4,5 +4,6 @@
 #include "chars/char.hpp"
 
 void do_follow(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim);
 
 #endif //BYLINS_FOLLOW_H

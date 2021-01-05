@@ -2704,7 +2704,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
-	if (grouping.init())
+	if (GlobalObjects::groupRoster().grouping.init())
 	{
 		exit(1);
 	}

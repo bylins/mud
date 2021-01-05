@@ -77,6 +77,7 @@ using namespace ExpCalc;
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
+extern GroupRoster& groupRoster;
 extern int number_of_social_commands;
 extern char *credits;
 extern char *info;
@@ -3818,8 +3819,8 @@ void print_do_score_all(CHAR_DATA *ch)
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
 				" || %sв %2d %-75s%s||\r\n",
 				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))],
-				(string(desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))], WHAT_LEVEL))
+				groupRoster.grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))],
+				(string(desc_count(groupRoster.grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))], WHAT_LEVEL))
 				 + string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
 
 	if (RENTABLE(ch))
@@ -4087,8 +4088,8 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))],
-				desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))], WHAT_LEVEL));
+                groupRoster.grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))],
+				desc_count(groupRoster.grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))], WHAT_LEVEL));
 	}
 
 	//Напоминаем о метке, если она есть.

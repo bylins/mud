@@ -122,6 +122,44 @@ public:
 
 };
 
+// это писал йобаный наркоман
+class GroupPenalties
+{
+public:
+    using class_penalties_t = std::array<int, MAX_REMORT + 1>;
+    using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
+
+    int init();
+    const auto& operator[](const size_t character_class) const { return m_grouping[character_class]; }
+
+private:
+    penalties_t m_grouping;
+};
+
+class GroupPenaltyCalculator
+{
+public:
+    constexpr static int DEFAULT_PENALTY = 100;
+
+    GroupPenaltyCalculator(const CHAR_DATA* killer, const CHAR_DATA* leader, const int max_level, const GroupPenalties& grouping):
+            m_killer(killer),
+            m_leader(leader),
+            m_max_level(max_level),
+            m_grouping(grouping)
+    {
+    }
+
+    int get() const;
+
+private:
+    const CHAR_DATA* m_killer;
+    const CHAR_DATA* m_leader;
+    const int m_max_level;
+    const GroupPenalties& m_grouping;
+
+    bool penalty_by_leader(const CHAR_DATA* player, int& penalty) const;
+};
+
 class Request {
 public:
     sclock_t _time;
@@ -164,44 +202,9 @@ public:
     void acceptInvite(CHAR_DATA* who, char* author);
     void deleteRequest(Request * r);
     Request* findRequest(const char* targetPerson, const char* group, RQ_TYPE type);
+    GroupPenalties grouping;
 };
 
-class GroupPenalties
-{
-public:
-    using class_penalties_t = std::array<int, MAX_REMORT + 1>;
-    using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
 
-    int init();
-    const auto& operator[](const size_t character_class) const { return m_grouping[character_class]; }
-
-private:
-    penalties_t m_grouping;
-};
-
-class GroupPenaltyCalculator
-{
-public:
-    constexpr static int DEFAULT_PENALTY = 100;
-
-    GroupPenaltyCalculator(const CHAR_DATA* killer, const CHAR_DATA* leader, const int max_level, const GroupPenalties& grouping):
-            m_killer(killer),
-            m_leader(leader),
-            m_max_level(max_level),
-            m_grouping(grouping)
-    {
-    }
-
-    int get() const;
-
-private:
-    const CHAR_DATA* m_killer;
-    const CHAR_DATA* m_leader;
-    const int m_max_level;
-    const GroupPenalties& m_grouping;
-
-    bool penalty_by_leader(const CHAR_DATA* player, int& penalty) const;
-};
-
-extern GroupPenalties grouping;
+//extern GroupPenalties grouping;
 #endif //BYLINS_GRP_MAIN_H

@@ -793,14 +793,6 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 }
 
 
-int grouping_koef(int player_class, int player_remort)
-{
-	if ((player_class >= NUM_PLAYER_CLASSES) || (player_class < 0))
-		return 1;
-	return grouping[player_class][player_remort];
-
-}
-
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 {
 	// не даем получать батлу с себя по зеркалу?
