@@ -876,13 +876,11 @@ void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
                                && leader->in_room == IN_ROOM(killer);
 
     // Количество согрупников в комнате
-    if (leader_inroom)
-    {
+    if (leader_inroom) {
         inroom_members = 1;
         maxlevel = GET_LEVEL(leader);
     }
-    else
-    {
+    else {
         inroom_members = 0;
     }
 

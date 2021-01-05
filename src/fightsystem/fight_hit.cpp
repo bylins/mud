@@ -2484,20 +2484,13 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 	    // и чармис и хозяин в одной группе
 	    if (IN_GROUP(killer))
             group_gain(killer, victim);
-
-		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)) {
-			// т.к. помечен флагом AFF_GROUP - точно PC
-
-		} else
-		if ((IS_CHARMICE(killer) || MOB_FLAGGED(killer, MOB_PLAYER_SUMMON)) && killer->has_master()) {
+	}  else if ((IS_CHARMICE(killer) || MOB_FLAGGED(killer, MOB_PLAYER_SUMMON)) && killer->has_master()) {
 			if (IN_GROUP(killer->get_master()) && IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
 				// Хозяин - PC в группе => опыт группе
 				group_gain(killer->get_master(), victim);
 			}
-			else if (IN_ROOM(killer) == IN_ROOM(killer->get_master()))
-				// Чармис и хозяин в одной комнате
-				// Опыт хозяину
-			{
+			else if (IN_ROOM(killer) == IN_ROOM(killer->get_master())){
+                // Чармис и хозяин в одной комнате -опыт хозяину
 				perform_group_gain(killer->get_master(), victim, 1, 100);
 			}
 			// else
@@ -2509,7 +2502,6 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 			// Просто NPC или PC сам по себе
 			perform_group_gain(killer, victim, 1, 100);
 		}
-	}
 
 	// в сислог иммам идут только смерти в пк (без арен)
 	// в файл пишутся все смерти чаров
@@ -2518,6 +2510,7 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))
 	{
 		update_pk_logs(ch, victim);
+
 
 	for (const auto& ch_vict : world[ch->in_room]->people)
 	{
