@@ -1252,7 +1252,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			&& k->follower->get_master() == ch
 			&& MOB_FLAGGED(k->follower, MOB_CLONE)
 			&& !affected_by_spell(k->follower, SPELL_CAPABLE)
-			&& ch->in_room == IN_ROOM(k->follower))
+			&& SAME_ROOM(ch, k->follower))
 		{
 			follower = k->follower;
 			break;

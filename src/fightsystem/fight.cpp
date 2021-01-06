@@ -2005,7 +2005,7 @@ void process_npc_attack(CHAR_DATA *ch)
 		&& ch->has_master()
 		// && !IS_NPC(ch->master)
 		&& CAN_SEE(ch, ch->get_master())
-		&& ch->in_room == IN_ROOM(ch->get_master())
+		&& SAME_ROOM(ch, ch->get_master())
 		&& AWAKE(ch)
 		&& MAY_ACT(ch)
 		&& GET_POS(ch) >= POS_FIGHTING)
@@ -2290,7 +2290,7 @@ void perform_violence()
 			auto master = ch->get_master();
 			if (master->desc
 				&& !master->get_fighting()
-				&& master->in_room == ch->in_room)
+				&& SAME_ROOM(master, ch))
 			{
 				msdp_report_chars.insert(master);
 			}

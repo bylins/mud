@@ -201,10 +201,10 @@ unsigned tmp_total_dmg = 0;
 
 void Dps::add_tmp_group_list(CHAR_DATA *ch)
 {
-    if (!ch->personGroup) return;
+    if (ch == nullptr || !ch->personGroup) return;
     DpsSystem::GroupListType* group_dps_;
     group_dps_ = &ch->personGroup->_group_dps;
-	GroupListType::iterator it = group_dps_->find(GET_ID(ch));
+	auto it = group_dps_->find(GET_ID(ch));
 	if (it != group_dps_->end())
 	{
 		sort_node tmp_node(it->second.get_name(), it->second.get_stat(),
@@ -264,9 +264,8 @@ void Dps::print_group_stats(CHAR_DATA *ch, CHAR_DATA *coder)
 
 	send_to_char("\r\nСтатистика вашей группы:\r\n"
 			"---------------------------|--------------------|----------------|-------------|\r\n", coder);
-    auto groupList = ch->personGroup->getMembers();
-	for (auto it : groupList) {
-	    add_tmp_group_list(it);
+	for (auto &it : *ch->personGroup) {
+	    add_tmp_group_list(it.second->member);
 	}
 
 	std::string out;

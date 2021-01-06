@@ -2961,7 +2961,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (ch != victim && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) ||
 							 general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2)))
 		{
-			if (ch->in_room == IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
+			if (SAME_ROOM(ch, victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
 				send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -3426,7 +3426,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				|| (ch != victim
 					&& affected_by_spell(victim, SPELL_DEAFNESS)))
 			{
-				if (ch->in_room == IN_ROOM(victim))
+				if (SAME_ROOM(ch, victim))
 					send_to_char(NOEFFECT, ch);
 			}
 			else
@@ -3940,7 +3940,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	if (IS_NPC(victim) && success){
 		for (i = 0; i < MAX_SPELL_AFFECTS && success; ++i) {
 			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffectFlag>(af[i].bitvector))) {
-				if (ch->in_room == IN_ROOM(victim)){
+				if (SAME_ROOM(ch, victim)){
 					send_to_char(NOEFFECT, ch);
 				}
 				success = FALSE;
@@ -3953,7 +3953,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	}
 	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
 	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell)) {
-		if (ch->in_room == IN_ROOM(victim))
+		if (SAME_ROOM(ch, victim))
 			send_to_char(NOEFFECT, ch);
 		success = FALSE;
 	}

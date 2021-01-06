@@ -512,7 +512,7 @@ bool find_master_charmice(CHAR_DATA *charmice)
 		return true;
 	}
 
-	if (charmice->in_room == charmice->get_master()->in_room)
+	if (SAME_ROOM(charmice, charmice->get_master())
 	{
 		return true;
 	}

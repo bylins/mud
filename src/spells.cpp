@@ -2361,7 +2361,7 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* 
 			if (IS_NPC(f->follower)
 				&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
 				&& MOB_FLAGGED(f->follower, MOB_CORPSE)
-				&& ch->in_room == IN_ROOM(f->follower))
+				&& SAME_ROOM(ch,f->follower))
 			{
 				do_sacrifice(f->follower, dam);
 			}
@@ -2596,8 +2596,9 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	GET_LIKES(mob) = 100;
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
-
-	// ангел - не андед!
+    // тварь же человеком создана
+    MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
+    // ангел - не андед!
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
     MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);

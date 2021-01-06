@@ -2037,7 +2037,7 @@ void CHAR_DATA::removeGroupFlags() {
 	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
 	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
 	if (personGroup != nullptr && IS_CHARMICE(this))
-        personGroup->_removeMember(this);
+        personGroup->_removeMember(this->get_uid());
 }
 
 void CHAR_DATA::add_follower(CHAR_DATA* ch) {
@@ -2376,7 +2376,7 @@ bool CHAR_DATA::has_horse(bool same_room) const {
 
     for (f = this->followers; f; f = f->next) {
         if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)
-            && (!same_room || this->in_room == IN_ROOM(f->follower))) {
+            && (!same_room || SAME_ROOM(this, f->follower))) {
             return true;
         }
     }

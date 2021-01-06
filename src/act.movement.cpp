@@ -420,7 +420,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	// charmed
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& ch->has_master()
-		&& ch->in_room == ch->get_master()->in_room)
+		&& SAME_ROOM(ch,  ch->get_master()))
 	{
 		if (show_msg)
 		{

@@ -630,7 +630,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
         k = ch->has_master() ? ch->get_master() : ch;
 
         if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
-            && (k->in_room == ch->in_room))
+            && (SAME_ROOM(k, ch)))
         {
             num = 1;
         }
@@ -643,7 +643,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
         {
             if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
                 && !IS_NPC(f->follower)
-                && IN_ROOM(f->follower) == ch->in_room)
+                && SAME_ROOM(f->follower) == ch->in_room)
             {
                 num++;
             }

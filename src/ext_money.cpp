@@ -682,7 +682,7 @@ namespace ExtMoney
         CHAR_DATA *leader = grp != nullptr? d->character->personGroup->getLeader() : d->character.get();
 
         int members = 1;
-        members = leader->personGroup->size(mob->in_room);
+        members = leader->personGroup->size(IN_ROOM(mob));
 
         const int zone_lvl = zone_table[mob_index[GET_MOB_RNUM(mob)].zone].mob_level;
         const int drop = calc_drop_torc(zone_lvl, members);
@@ -700,10 +700,11 @@ namespace ExtMoney
         // он был один, сваливаем
         if (grp == nullptr)
             return;
-        auto m_list = grp->getMembers(mob->in_room); // список живых мемберов в комнате
-        for (auto m : m_list) {
-            if (GET_GOD_FLAG(m, GF_REMORT)  && mob->get_attacker(m, ATTACKER_ROUNDS) >= damager.second / 2) {
-                gain_torc(m, drop);
+        for (const auto& m : *grp) {
+            if (m.second->member == nullptr || IN_ROOM(mob) != IN_ROOM(m.second->member))
+                return;
+            if (GET_GOD_FLAG(m.second->member, GF_REMORT)  && mob->get_attacker(m.second->member, ATTACKER_ROUNDS) >= damager.second / 2) {
+                gain_torc(m.second->member, drop);
             }
         }
     }

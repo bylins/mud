@@ -65,7 +65,7 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
             return;
         }
         if (grp != nullptr) // в группе - покидаем
-            grp->_removeMember(ch);
+            grp->_removeMember(ch->get_uid());
         groupRoster.addGroup(ch);
          return;
     } else if (isname(subcmd, strLIST.c_str())) {
@@ -189,7 +189,7 @@ void GroupRoster::printList(CHAR_DATA *ch) {
     for (auto & it : this->_groupList) {
         send_to_char(ch, "Группа лидера %s, кол-во участников: %hu\r\n",
                      it.second->getLeaderName().c_str(),
-                     it.second->getCurrentMemberCount());
+                     it.second->size());
     }
 }
 

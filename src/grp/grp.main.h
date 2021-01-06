@@ -17,6 +17,7 @@
 #include "structs.h"
 #include "dps.hpp"
 
+enum GM_TYPE {GM_CHAR, GM_CHARMEE};
 enum RQ_TYPE {RQ_GROUP, RQ_PERSON, RQ_ANY};
 enum GRP_COMM {GRP_COMM_LEADER, GRP_COMM_ALL, GRP_COMM_OTHER};
 enum RQ_R {RQ_R_OK, RQ_R_NO_GROUP, RQ_R_OVERFLOW, RQ_REFRESH};
@@ -32,13 +33,25 @@ int max_group_size(CHAR_DATA *ch);
 bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict);
 int calc_leadership(CHAR_DATA * ch);
 
-class Group;
 class Request;
 
 using namespace std::chrono;
+
+using sclock_t = time_point<std::chrono::steady_clock>;
+
+struct char_info {
+    char_info(int memberUid, GM_TYPE type, CHAR_DATA *member, const std::string& memberName);
+    virtual ~char_info();
+    int memberUID; // часть ключа
+    GM_TYPE type; // тип персонажа
+    CHAR_DATA * member; // ссылка на персонажа, может быть невалидна!
+    std::string memberName; // бэкап имени, если персонаж оффлайн
+    sclock_t expiryTime; // время, когда запись автоматом удаляется после проверок.
+};
+
+using grp_mt = std::map<int, std::shared_ptr<char_info>>;
 using grp_ptr = std::shared_ptr<Group>;
 using rq_ptr = std::shared_ptr<Request>;
-using sclock_t = time_point<std::chrono::steady_clock>;
 using cd_v = std::vector<CHAR_DATA*>;
 using npc_r = std::unordered_set<CHAR_DATA *> *;
 
@@ -47,16 +60,8 @@ const duration DEF_EXPIRY_TIME = 600s;
 inline bool IN_GROUP(CHAR_DATA* ch) {return ch != nullptr && ch->personGroup != nullptr;}
 inline bool IN_SAME_GROUP(CHAR_DATA* p1, CHAR_DATA* p2) {return IN_GROUP(p1) && IN_GROUP(p2) && p1->personGroup == p2->personGroup;}
 
-struct char_info {
-    char_info(int memberUid, CHAR_DATA *member, const std::string& memberName);
-    virtual ~char_info();
-    int memberUID; // часть ключа
-    CHAR_DATA * member; // ссылка на персонажа, может быть невалидна!
-    std::string memberName; // бэкап имени, если персонаж оффлайн
-    sclock_t expiryTime; // время, когда запись автоматом удаляется после проверок.
-};
-
-class Group {
+// класс-коллекция персонажей обоих типов что ли..
+class Group : public grp_mt {
 private:
     // ид группы в ростере
     u_long _uid = 0;
@@ -70,7 +75,6 @@ private:
     CHAR_DATA* _leader = nullptr;
 public:
     u_long getUid() const;
-    u_short getCurrentMemberCount() const;
     const std::string &getLeaderName() const;
     CHAR_DATA *getLeader() const;
     void _clear(bool silent);
@@ -84,12 +88,17 @@ public:
     const char* _getMemberName(int uid);
     int _findMember(char* memberName);
     CHAR_DATA* _findMember(int UID);
-    bool _removeMember(CHAR_DATA *member);
+    bool _removeMember(int memberUID);
     void charDataPurged(CHAR_DATA* ch);
     u_short size(rnum_t room_rnum = 0);
 private:
-    std::map<int, std::shared_ptr<char_info *>> * _memberList;
-    npc_r _npcRoster;
+    GM_TYPE getType(CHAR_DATA* ch) {
+        if (IS_CHARMICE(ch))
+            return  GM_CHARMEE;
+        else
+            return GM_CHAR;
+    }
+
     static void _printHeader(CHAR_DATA* ch, bool npc);
     static void _printDeadLine(CHAR_DATA* ch, const char* playerName, int header);
     static void _printNPCLine(CHAR_DATA* ch, CHAR_DATA* npc, int header);
@@ -111,8 +120,6 @@ public:
 
     void sendToGroup(GRP_COMM mode, const char *msg, ...);
     void actToGroup(CHAR_DATA* vict, GRP_COMM mode, const char *msg, ...);
-    cd_v getMembers(rnum_t room_rnum = 0, bool includeCharmee = false);
-    npc_r getCharmee(rnum_t room_rnum = 0);
 public:
     // всякий унаследованный стафф
     CHAR_DATA* get_random_pc_group();

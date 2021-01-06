@@ -7,8 +7,8 @@ int GroupPenaltyCalculator::get() const
 {
     const bool leader_is_npc = IS_NPC(m_leader);
     const bool leader_in_group = AFF_FLAGGED(m_leader, EAffectFlag::AFF_GROUP);
-    const bool leader_is_in_room = leader_in_group
-                                   && m_leader->in_room == IN_ROOM(m_killer);
+    const bool leader_is_in_room = leader_in_group && SAME_ROOM(m_leader, m_killer);
+
     if (!leader_is_npc
         && leader_is_in_room)
     {

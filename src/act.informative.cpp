@@ -1283,7 +1283,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	if (IS_NPC(i)
 		&& i->player_data.long_descr != ""
 		&& GET_POS(i) == GET_DEFAULT_POS(i)
-		&& ch->in_room == i->in_room
+		&& SAME_ROOM(ch, i)
 		&& !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
 		&& !IS_HORSE(i))
 	{
@@ -1688,7 +1688,7 @@ void list_char_to_char(const ROOM_DATA::people_t& list, CHAR_DATA* ch)
 				list_one_char(i, ch, 0);
 			}
 			else if (IS_DARK(i->in_room)
-				&& i->in_room == ch->in_room
+				&& SAME_ROOM(ch, i)
 				&& !CAN_SEE_IN_DARK(ch)
 				&& AFF_FLAGGED(i, EAffectFlag::AFF_INFRAVISION))
 			{

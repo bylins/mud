@@ -70,7 +70,7 @@ void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, in
 		k = ch;
 	}
 // на лидера
-	if (ch->in_room == k->in_room) {
+	if (SAME_ROOM(ch, k)) {
 		af.location = num_apply;
 		af.type = SPELL_PALADINE_INSPIRATION;
 		af.modifier = GET_REMORT(k) / 5 * 2 + modi;
@@ -2405,9 +2405,9 @@ void try_angel_sacrifice(CHAR_DATA* ch, CHAR_DATA* victim) {
 	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
 	if (GET_HIT(victim) <= 0 && !IS_NPC(victim) && IN_GROUP(victim)) {
         // ищем первого попавшегося ангела из группы в комнате
-        for (auto npc : *victim->personGroup->getCharmee(victim->in_room)){
-            if (MOB_FLAGGED(npc, MOB_ANGEL)) {
-                angel = npc;
+        for (const auto& npc : *victim->personGroup){
+            if (SAME_ROOM(npc.second->member, victim) && MOB_FLAGGED(npc.second->member, MOB_ANGEL) ){
+                angel = npc.second->member;
                 break;
             }
         }
@@ -3905,7 +3905,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		return;
 	}
 	// Do some sanity checking, in case someone flees, etc.
-	if (ch->in_room != IN_ROOM(victim) || ch->in_room == NOWHERE) {
+	if (!SAME_ROOM(ch, victim) || ch->in_room == NOWHERE) {
 		if (ch->get_fighting() && ch->get_fighting() == victim) {
 			stop_fighting(ch, TRUE);
 		}

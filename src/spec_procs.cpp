@@ -2192,8 +2192,7 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 	{
 		return (FALSE);
 	}
-	else if (ch->has_master()
-		&& ch->in_room == IN_ROOM(ch->get_master()))
+	else if (ch->has_master() && SAME_ROOM(ch, IN_ROOM))
 	{
 		return (FALSE);
 	}
@@ -2764,7 +2763,7 @@ void npc_group(CHAR_DATA * ch)
 	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
 		return;
 
-	if (ch->has_master() && ch->in_room == IN_ROOM(ch->get_master())) {
+	if (ch->has_master() && SAME_ROOM(ch, ch->get_master())) {
 		leader = ch->get_master();
 	}
 
@@ -2853,7 +2852,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 	for (; k; (k = tch ? k : k->next), tch = NULL)
 	{
 		helper = tch ? tch : k->follower;
-		if (ch->in_room == IN_ROOM(helper)
+		if (SAME_ROOM(ch, helper)
 			&& !helper->get_fighting()
 			&& !IS_NPC(helper)
 			&& GET_POS(helper) > POS_STUNNED)

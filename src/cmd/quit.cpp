@@ -57,7 +57,7 @@ void do_quit(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
         Depot::exit_char(ch);
         Clan::clan_invoice(ch, false);
         if (ch->personGroup)
-            ch->personGroup->_removeMember(ch);
+            ch->personGroup->_removeMember(ch->get_uid());
 
         /*
          * kill off all sockets connected to the same player as the one who is

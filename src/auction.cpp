@@ -646,7 +646,7 @@ void trans_auction(int lot)
 		return;
 	}
 
-	if (ch->in_room == IN_ROOM(tch))
+	if (SAME_ROOM(ch, tch))
 	{
 		// Проверка на нахождение в одной комнате.
 		tmpstr = "$n стоит рядом с вами.";
@@ -788,9 +788,7 @@ void sell_auction(int lot)
 	if (!check_sell(lot))
 		return;
 
-	if (ch->in_room != IN_ROOM(tch)
-			|| !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
-	{
+	if (!(SAME_ROOM(ch, tch)) || !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 		if (GET_LOT(lot)->tact >= MAX_AUCTION_TACT_PRESENT)
 		{
 			sprintf(tmpbuff, "Аукцион : лот %d(%s) снят с аукциона распорядителем торгов.", lot, obj->get_PName(0).c_str());

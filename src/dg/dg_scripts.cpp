@@ -3084,9 +3084,10 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
             if (!IN_GROUP(c)) {
 				return;
 			}
-			for (auto it : c->personGroup->getMembers()) {
-			    if (it)
-				    sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(it));
+			for (auto &it : *c->personGroup) {
+			    // мы же про одну комнату в триггере говорим, да?
+			    if (it.second->member != nullptr && IN_ROOM(c) == IN_ROOM(it.second->member) )
+				    sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(it.second->member));
 			}
 		}
 		else if (!str_cmp(field, "attackers"))

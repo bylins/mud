@@ -344,32 +344,19 @@ int pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim) {
 }
 
 void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim) {
-	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP)) 	{
+	if (!IN_GROUP(victim)){
 		pk_increment_kill(agressor, victim, TRUE, false);
 		return;
 	}
-
-
-	CHAR_DATA *leader;
-	struct follow_type *f;
 	bool has_clanmember = false;
 	if (!IS_GOD(victim)) {
 		has_clanmember = has_clan_members_in_group(victim);
 	}
-
-	leader = victim->has_master() ? victim->get_master() : victim;
-
-	if (AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
-		&& IN_ROOM(leader) == IN_ROOM(victim)
-		&& pk_action_type(agressor, leader) > PK_ACTION_FIGHT) {
-		pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
-	}
-	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& IN_ROOM(f->follower) == IN_ROOM(victim)
-			&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT) {
-			pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
-		}
+	auto grp = victim->personGroup->getMembers(IN_ROOM(victim), false);
+	for (auto it : grp){
+        if (pk_action_type(agressor, it) > PK_ACTION_FIGHT) {
+            pk_increment_kill(agressor, it, it == victim, has_clanmember);
+        }
 	}
 }
 

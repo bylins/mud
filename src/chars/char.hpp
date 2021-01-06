@@ -17,6 +17,7 @@
 #include "conf.h"
 #include "core/affect_data.h"
 
+
 #include <boost/dynamic_bitset.hpp>
 
 #include <unordered_map>
@@ -756,7 +757,7 @@ private:
 	int souls;
 
 public:
-	bool isInSameRoom(const CHAR_DATA *ch) const {return (this->in_room == ch->in_room);};
+	bool isInSameRoom(const CHAR_DATA *ch) const {return SAME_ROOM(this, ch);};
 	room_rnum in_room;	// Location (real room number)
 
 private:

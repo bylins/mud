@@ -57,92 +57,50 @@ const unsigned RECALL_SPELLS_INTERVAL = 28;
 using namespace ExpCalc;
 
 
-void process_mobmax(CHAR_DATA *ch, CHAR_DATA *killer)
+void process_mobmax(CHAR_DATA *mob, CHAR_DATA *killer)
 {
-	bool leader_partner = false;
-	int partner_feat = 0;
-	int total_group_members = 1;
-	CHAR_DATA *partner = nullptr;
+	CHAR_DATA* leader = nullptr; // лидер, кому даём замакс, если в группе
+	CHAR_DATA* person = nullptr; // персонаж, кому даём замакс
+	bool hasPartnerFeat = false;
+	u_short groupMembersCount = 0; // сколько персонажей в комнате, за вычетом лидера
 
-	CHAR_DATA *master = nullptr;
-	if (IS_NPC(killer)
-		&& (AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(killer, MOB_ANGEL)
-			|| MOB_FLAGGED(killer, MOB_GHOST))
-		&& killer->has_master())
-	{
-		master = killer->get_master();
+	// если убивец - чармис, пытаемся найти его хозяина
+    if (killer->has_master()
+        && (IS_CHARMICE(killer) || MOB_FLAGGED(killer, MOB_ANGEL) || MOB_FLAGGED(killer, MOB_GHOST))) {
+        // транслируем чармиса в хозяина
+        person = killer->get_master();
+    } else {
+        person = killer;
+    }
+    // определяем наличие группы
+    if(IN_GROUP(killer)) {
+        leader = killer->personGroup->getLeader();
+    }
+
+	if (leader == nullptr || !can_use_feat(leader, PARTNER_FEAT) || !SAME_ROOM(leader, mob)) {
+	    // убивец не в группе
+	    // или лидер группы без партнёрки, или лидера нет в комнате
+	    // и таки да, он в комнате с мобом
+	    if (SAME_ROOM(person, mob))
+            person->mobmax_add(person, GET_MOB_VNUM(mob), 1, GET_LEVEL(mob));
 	}
-	else if (!IS_NPC(killer))
-	{
-		master = killer;
-	}
-
-	// На этот момент master - PC
-	if (master)
-	{
-		int cnt = 0;
-		if (AFF_FLAGGED(master, EAffectFlag::AFF_GROUP))
-		{
-
-			// master - член группы, переходим на лидера группы
-			if (master->has_master())
-			{
-				master = master->get_master();
-			}
-
-			if (IN_ROOM(master) == IN_ROOM(killer))
-			{
-				// лидер группы в тойже комнате, что и убивец
-				cnt = 1;
-				if (can_use_feat(master, PARTNER_FEAT))
-				{
-					leader_partner = true;
-				}
-			}
-
-			for (struct follow_type *f = master->followers; f; f = f->next)
-			{
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer))
-				{
-					++cnt;
-					if (leader_partner)
-					{
-						if (!IS_NPC(f->follower))
-						{
-							partner_feat++;
-							partner = f->follower;
-						}
-					}
-				}
-			}
-		}
-
-		// обоим замакс, если способность напарник работает
-		// получается замакс идет в 2 раза быстрее, чем без способности в той же группе
-		if (leader_partner
-			&& partner_feat == 1 && total_group_members == 2)
-		{
-			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
-			partner->mobmax_add(partner, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
-		} else {
-			// выберем случайным образом мембера группы для замакса
-			auto n = number(0, cnt);
-			int i = 0;
-			for (struct follow_type *f = master->followers; f && i < n; f = f->next)
-			{
-				if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-					&& IN_ROOM(f->follower) == IN_ROOM(killer))
-				{
-					++i;
-					master = f->follower;
-				}
-			}
-			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GET_LEVEL(ch));
-		}
-	}
+	else { // всё хорошо, из группы есть минимум лидер
+	    // смотрим сколько _живых_ игроков из группы щас в зоне, помимо лидера
+	    // сразу пишем в вектор
+	    std::vector<CHAR_DATA*> membersInRoom;
+	    for (auto& grp: *person->personGroup) {
+	        if (grp.second->type == GM_CHARMEE || grp.second->member == nullptr || grp.second->member->purged())
+                continue;
+	        if (SAME_ROOM(grp.second->member, mob) && grp.second->member != leader)
+                membersInRoom.push_back(grp.second->member);
+	    }
+	    // лепим удвоенные замаксы лидеру и рандомному персонажу. При парном зонинге попадутся оба
+        if (!membersInRoom.empty()) {
+            leader->mobmax_add(leader, GET_MOB_VNUM(mob), 2, GET_LEVEL(mob));
+	        int rnd = number(0, membersInRoom.size()-1);
+            membersInRoom[rnd]->mobmax_add(membersInRoom[rnd], GET_MOB_VNUM(mob), 2, GET_LEVEL(mob));
+        }
+    }
 }
 
 void gift_new_year(CHAR_DATA* /*vict*/)
@@ -277,7 +235,7 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 		&& IS_NPC(killer)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
 		&& ch->has_master()
-		&& ch->in_room == IN_ROOM(ch->get_master())
+		&& SAME_ROOM(ch, ch->get_master())
 		&& ch->get_master()->get_inborn_skill(SKILL_LEADERSHIP) > 1)
 	{
 		const auto current_skill = ch->get_master()->get_trained_skill(SKILL_LEADERSHIP);
@@ -383,8 +341,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		// Вычисляем замакс по мобам
 		// Решил немножко переделать, чтобы короче получилось,
 		// кроме того, исправил ошибку с присутствием лидера в комнате
-		if (IS_NPC(ch) && killer)
-		{
+		if (IS_NPC(ch) && killer) {
 			process_mobmax(ch, killer);
 		}
 		if (killer)
@@ -569,7 +526,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 			|| MOB_FLAGGED(killer, MOB_GHOST))
 		&& (corpse != NULL)
 		&& killer->has_master()
-		&& killer->in_room == killer->get_master()->in_room
+		&& SAME_ROOM(killer, killer->get_master())
 		&& PRF_FLAGGED(killer->get_master(), PRF_AUTOLOOT)
 		&& can_loot(killer->get_master()))
 	{
@@ -584,7 +541,7 @@ void auto_loot(CHAR_DATA *ch, CHAR_DATA *killer, OBJ_DATA *corpse, int local_gol
 			|| MOB_FLAGGED(killer, MOB_GHOST))
 		&& (corpse != NULL)
 		&& killer->has_master()
-		&& killer->in_room == killer->get_master()->in_room
+		&& SAME_ROOM(killer, killer->get_master())
 		&& PRF_FLAGGED(killer->get_master(), PRF_AUTOMONEY)
 		&& can_loot(killer->get_master()))
 	{

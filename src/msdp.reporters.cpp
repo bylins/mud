@@ -198,7 +198,7 @@ namespace msdp
 		const auto move_percents = std::to_string(posi_value(GET_MOVE(character), GET_REAL_MAX_MOVE(character)) * 10);// *10 to show percents
 		member->add(std::make_shared<Variable>("MOVE", std::make_shared<StringValue>(move_percents)));
 
-		const bool same_room = ch->in_room == IN_ROOM(character);
+		const bool same_room = SAME_ROOM(ch, character);
 		member->add(std::make_shared<Variable>("IS_HERE", std::make_shared<StringValue>(same_room ? "1" : "0")));
 
 		const int memory = get_mem(character);
