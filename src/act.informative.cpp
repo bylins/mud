@@ -5922,8 +5922,11 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			" Оффтоп        : %-3s \r\n"
 			" Потеря связи  : %-3s     "
 			" Ингредиенты   : %-3s     "
-			" Вспомнить     : %-3u \r\n",
-			ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
+			" Вспомнить     : %-3u \r\n"
+            " Автогрупвыход : %-3s     "
+            "               : %-3s     "
+            "               : %-3s \r\n",
+            ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
 			ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
 			YESNO(!PRF_FLAGGED(ch, PRF_NOREPEAT)),
@@ -5962,7 +5965,11 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_ANTIDC_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)),
-			ch->remember_get_num());
+			ch->remember_get_num(),
+            ONOFF(PRF_FLAGGED(ch, PRF_FOLLOW_GRP_EXIT)),
+            "",
+            ""
+			);
 	send_to_char(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch) > 0)
 	{

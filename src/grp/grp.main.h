@@ -86,18 +86,21 @@ public:
     bool _isActive(); // проверка, что в группе все персонажи онлайн
     bool _isMember(int uid);
     const char* _getMemberName(int uid);
-    int _findMember(char* memberName);
-    CHAR_DATA* _findMember(int UID);
-    bool _removeMember(int memberUID);
+    char_info* _findMember(char* memberName);
+    bool _removeMember(CHAR_DATA* ch);
+    bool _removeMember(int uid);
+    bool _removeMember(char *name);
+    void _promote(CHAR_DATA* ch);
     void charDataPurged(CHAR_DATA* ch);
     u_short size(rnum_t room_rnum = 0);
 private:
     GM_TYPE getType(CHAR_DATA* ch) {
-        if (IS_CHARMICE(ch))
+        if (IS_NPC(ch))
             return  GM_CHARMEE;
         else
             return GM_CHAR;
     }
+    int _calcUID(CHAR_DATA* ch);
 
     static void _printHeader(CHAR_DATA* ch, bool npc);
     static void _printDeadLine(CHAR_DATA* ch, const char* playerName, int header);

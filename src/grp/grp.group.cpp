@@ -79,18 +79,10 @@ CHAR_DATA *Group::getLeader() const{
     return _leader;
 }
 
-int Group::_findMember(char *memberName) {
+char_info*  Group::_findMember(char *memberName) {
     for (auto & it : *this) {
-        if (isname(it.second->memberName, memberName))
-            return it.first;
-    }
-    return 0;
-}
-
-CHAR_DATA* Group::_findMember(int uid) {
-    for (auto & it : *this) {
-        if (it.second->memberUID == uid)
-            return it.second->member;
+        if (isname(memberName, it.second->memberName))
+            return it.second.get();
     }
     return nullptr;
 }
@@ -104,7 +96,7 @@ const char* Group::_getMemberName(int uid) {
 }
 
 void Group::_setLeader(CHAR_DATA *leader) {
-    _leaderUID = leader->get_uid();
+    _leaderUID = _calcUID(leader);
     _leader = leader;
     _leaderName.assign(leader->get_pc_name());
     _memberCap = IS_NPC(leader)? 255 : max_group_size(leader);
@@ -163,17 +155,17 @@ void Group::addMember(CHAR_DATA *member, bool silent) {
         return;
     // в другой группе, вышвыриваем
     if (member->personGroup != nullptr)
-        member->personGroup->_removeMember(member->get_uid());
+        _removeMember(member);
 
-    auto it = this->find(member->get_uid());
+    auto it = this->find(_calcUID(member));
     if (it == this->end()) {
         // рисуем сообщение до добавления, чтобы самому персонажу не показывать
         if (!silent) {
             actToGroup(member, GRP_COMM_ALL, "$N принят$A в группу.");
             send_to_char(member, "Вас приняли в группу.\r\n");
         }
-        auto ci = char_info(member->get_uid(), getType(member), member, member->get_pc_name());
-        this->emplace(member->get_uid(), std::make_shared<char_info>(ci));
+        auto ci = char_info(_calcUID(member), getType(member), member, member->get_pc_name());
+        this->emplace(_calcUID(member), std::make_shared<char_info>(ci));
     } else {
         sprintf(buf, "Group::addMember: группа id=%lu, попытка повторного добавления персонажа с тем же uid",
                 getUid());
@@ -188,7 +180,7 @@ void Group::addMember(CHAR_DATA *member, bool silent) {
     for (auto f = member->followers; f; f = f->next) {
         auto ff = f->follower;
         if (IS_CHARMICE(ff)) {
-            this->addMember(ff); // рекурсия!
+            this->addMember(ff, true); // рекурсия!
         }
     }
 }
@@ -206,8 +198,9 @@ bool Group::_removeMember(int memberUID) {
         mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
         return false;
     }
-    auto member =it->second->member;
-    member->personGroup = nullptr;
+    auto member = it->second->member;
+    if (member != nullptr)
+        member->personGroup = nullptr;
     this->erase(memberUID); // finally remove it
 
     // а также удаляем чармисов персонажа из групповых
@@ -215,7 +208,7 @@ bool Group::_removeMember(int memberUID) {
         for (auto f = member->followers; f; f = f->next) {
             auto ff = f->follower;
             if (IS_CHARMICE(ff)) {
-                auto c = this->find(ff->get_uid());
+                auto c = this->find(_calcUID(ff));
                 if (c != this->end()) {
                     this->erase(c);
                     ff->personGroup = nullptr;
@@ -224,33 +217,51 @@ bool Group::_removeMember(int memberUID) {
         }
     }
 
-
-    CHAR_DATA* nxtLdr = nullptr;
+    CHAR_DATA* nxtLdr = _leader;
     int nxtLdrGrpSize = 0;
     // если ушел лидер - ищем нового, но после ухода предыдущего
     if ( member == _leader) {
+        nxtLdr = nullptr;
         for (const auto& mit : *this){
             auto m = mit.second->member;
             if ( m != nullptr && !m->purged() && max_group_size(m) > nxtLdrGrpSize ) {
-                nxtLdr = m;
+                nxtLdr = m; // нашелся!!
                 nxtLdrGrpSize = max_group_size(m);
             }
         }
     }
-    // никого не осталось, распускаем группу
+    // нового лидера не нашлось, распускаем группу
     if (nxtLdr == nullptr) {
         groupRoster.removeGroup(_uid);
         return false;
     }
-    _setLeader(nxtLdr);
+    _promote(nxtLdr);
     return true;
+}
+
+bool Group::_removeMember(char *name) {
+    int uid = 0;
+    for (auto &it: *this){
+        if (str_cmp(name, it.second->memberName) == 0) {
+            uid = it.first;
+            break;
+        }
+    }
+    if (uid != 0)
+       return _removeMember(uid);
+    return false;
+}
+
+bool Group::_removeMember(CHAR_DATA *member) {
+    int memberUID = _calcUID(member);
+    return _removeMember(memberUID);
 }
 
 bool Group::_restoreMember(CHAR_DATA *member) {
     if (!member)
         return false;
     for (auto &it: *this){
-        if (it.first == member->get_uid()) {
+        if (it.first == _calcUID(member)) {
             it.second->member = member;
             member->personGroup = this;
             return true;
@@ -283,28 +294,12 @@ void Group::_clear(bool silentMode) {
 }
 
 void Group::promote(char *applicant) {
-    int memberId = _findMember(applicant);
-    if (memberId == 0) {
+    auto member = _findMember(applicant);
+    if (member == nullptr || member->member == nullptr) {
         sendToGroup(GRP_COMM_LEADER, "Нет такого персонажа.");
         return;
     }
-    _setLeader(this->at(memberId)->member);
-    sendToGroup(GRP_COMM_ALL, "Изменился лидер группы на %.", _leaderName.c_str() );
-    auto diff = (u_short)_memberCap - (u_short)this->size();
-    if (diff < 0) diff = 0;
-    if (diff > 0){
-        u_short i = 0;
-        int expellList[diff];
-        for (auto it = this->begin(); it!= this->end() || i > diff; it++){
-            if (it->second->member != _leader ) {
-                expellList[i] = it->second->member->get_uid();
-                ++i;
-            }
-        }
-        for (i=0; i < diff; i++){
-            _removeMember(expellList[i]);
-        }
-    }
+    _promote(member->member);
 }
 
 void Group::rejectRequest(char *applicant) {
@@ -336,20 +331,19 @@ void Group::approveRequest(const char *applicant) {
 }
 
 void Group::expellMember(char *memberName) {
-    auto mId = _findMember(memberName);
-    if (mId == 0)
+    auto vict = _findMember(memberName);
+    if (vict == nullptr) {
+        sendToGroup(GRP_COMM_LEADER, "Нет такого персонажа.");
         return;
-    auto vict = this->at(mId)->member; // тут может быть пусто..
-    if (vict != nullptr) {
-        _removeMember(vict->get_uid());
+    }
+    _removeMember(vict->memberUID);
+    if (vict != nullptr && vict->member != nullptr) {
         act("$N исключен$A из состава вашей группы.", FALSE, _leader, nullptr, vict, TO_CHAR);
         act("Вы исключены из группы $n1!", FALSE, _leader, nullptr, vict, TO_VICT);
         act("$N был$G исключен$A из группы $n1!", FALSE, _leader, nullptr, vict, TO_NOTVICT | TO_ARENA_LISTEN);
     } else {
-
+        sendToGroup(GRP_COMM_LEADER, "%s был исключен из группы.'\r\n", vict->memberName.c_str());
     }
-
-
 }
 
 void Group::listMembers(CHAR_DATA *ch) {
@@ -387,7 +381,7 @@ void Group::leaveGroup(CHAR_DATA* ch) {
         send_to_char(ch, "Нельзя стать еще более одиноким, чем сейчас.\r\n");
         return;
     }
-    _removeMember(ch->get_uid());
+    _removeMember(_calcUID(ch));
 }
 
 void Group::_printHeader(CHAR_DATA* ch, bool npc) {
@@ -661,6 +655,36 @@ bool Group::has_clan_members_in_group(CHAR_DATA *victim) {
     }
     return false;
 }
+
+int Group::_calcUID(CHAR_DATA *ch) {
+    if (IS_NPC(ch))
+        return ch->id;
+    else
+        return ch->get_uid();
+
+}
+
+void Group::_promote(CHAR_DATA *member) {
+    _setLeader(member);
+    sendToGroup(GRP_COMM_ALL, "Изменился лидер группы на %.", _leaderName.c_str() );
+    auto diff = (u_short)_memberCap - (u_short)this->size();
+    if (diff < 0) diff = 0;
+    if (diff > 0){
+        u_short i = 0;
+        int expellList[diff];
+        for (auto it = this->begin(); it!= this->end() || i > diff; it++){
+            if (it->second->member != _leader ) {
+                expellList[i] = _calcUID(it->second->member);
+                ++i;
+            }
+        }
+        for (i=0; i < diff; i++){
+            _removeMember(expellList[i]);
+        }
+    }
+
+}
+
 
 bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 {

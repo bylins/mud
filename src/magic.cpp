@@ -15,39 +15,41 @@
 #include "magic.h"
 
 #include "cmd/cmd.generic.h"
-#include "core/affect_data.h"
 #include "action.targeting.hpp"
+#include "AffectHandler.hpp"
+#include "char_obj_utils.inl"
+#include "chars/char.hpp"
 #include "chars/world.characters.hpp"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "obj.hpp"
 #include "comm.h"
-#include "spells.h"
-#include "skills.h"
-#include "handler.h"
-#include "db.h"
-#include "interpreter.h"
-#include "screen.h"
+#include "conf.h"
 #include "constants.h"
+#include "core/affect_data.h"
+#include "corpse.hpp"
+#include "db.h"
+#include "deathtrap.hpp"
 #include "dg/dg_scripts.h"
-#include "fightsystem/pk.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
-#include "deathtrap.hpp"
-#include "random.hpp"
-#include "chars/char.hpp"
-#include "poison.hpp"
-#include "modify.h"
-#include "room.hpp"
-#include "AffectHandler.hpp"
-#include "corpse.hpp"
+#include "fightsystem/pk.h"
+#include "grp/grp.main.h"
+#include "handler.h"
+#include "interpreter.h"
 #include "logger.hpp"
-#include "utils.h"
+#include "modify.h"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
+#include "poison.hpp"
+#include "random.hpp"
+#include "room.hpp"
+#include "screen.h"
+#include "skills.h"
+#include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
-#include "char_obj_utils.inl"
+#include "utils.h"
+#include "world.objects.hpp"
 #include "zone.table.hpp"
+
 
 #include <boost/format.hpp>
 #include <iomanip>
@@ -4379,6 +4381,8 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
 
 	ch->add_follower(mob);
+	if (ch->personGroup != nullptr)
+	    ch->personGroup->addMember(mob, true);
 	if (spellnum == SPELL_CLONE)
 	{
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано

@@ -2406,6 +2406,8 @@ void try_angel_sacrifice(CHAR_DATA* ch, CHAR_DATA* victim) {
 	if (GET_HIT(victim) <= 0 && !IS_NPC(victim) && IN_GROUP(victim)) {
         // ищем первого попавшегося ангела из группы в комнате
         for (const auto& npc : *victim->personGroup){
+            if (npc.second->member == nullptr)
+                continue;
             if (SAME_ROOM(npc.second->member, victim) && MOB_FLAGGED(npc.second->member, MOB_ANGEL) ){
                 angel = npc.second->member;
                 break;

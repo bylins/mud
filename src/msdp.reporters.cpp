@@ -306,9 +306,10 @@ namespace msdp
         auto grp = ch->personGroup;
 		if (grp == nullptr)
 		    return;
-		auto gl = grp->getMembers(0, true);
-		for (auto it : gl) {
-            append_char(group_descriptor, ch, it, true);
+		for (auto it : *grp) {
+		    if (it.second->member == nullptr)
+                continue;
+            append_char(group_descriptor, ch, it.second->member, true);
         }
 		response = std::make_shared<Variable>(constants::GROUP, group_descriptor);
 	}

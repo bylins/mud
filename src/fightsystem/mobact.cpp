@@ -507,16 +507,13 @@ CHAR_DATA *find_best_stupidmob_victim(CHAR_DATA * ch, int extmode)
 bool find_master_charmice(CHAR_DATA *charmice)
 {
 	// проверяем на спелл чарма, ищем хозяина и сравниваем румы
-	if (!IS_CHARMICE(charmice) || !charmice->has_master())
-	{
+	if (!IS_CHARMICE(charmice) || !charmice->has_master()) {
 		return true;
 	}
 
-	if (SAME_ROOM(charmice, charmice->get_master())
-	{
+	if (SAME_ROOM(charmice, charmice->get_master())) {
 		return true;
 	}
-
 	return false;
 }
 

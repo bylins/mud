@@ -20,6 +20,7 @@
 #include "fightsystem/mobact.hpp"
 #include "fightsystem/pk.h"
 #include "grp/follow.h"
+#include "grp/grp.main.h"
 #include "handler.h"
 #include "house.h"
 #include "liquid.hpp"
@@ -1088,6 +1089,8 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 
 		affect_from_char(victim, SPELL_CHARM);
 		ch->add_follower(victim);
+		if (ch->personGroup != nullptr)
+		    ch->personGroup->addMember(victim, true);
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 

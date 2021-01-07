@@ -352,10 +352,12 @@ void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim) {
 	if (!IS_GOD(victim)) {
 		has_clanmember = has_clan_members_in_group(victim);
 	}
-	auto grp = victim->personGroup->getMembers(IN_ROOM(victim), false);
-	for (auto it : grp){
-        if (pk_action_type(agressor, it) > PK_ACTION_FIGHT) {
-            pk_increment_kill(agressor, it, it == victim, has_clanmember);
+
+	for (auto it : *victim->personGroup){
+	    if (it.second->member != nullptr && SAME_ROOM(agressor, it.second->member)) {
+            if (pk_action_type(agressor, it.second->member) > PK_ACTION_FIGHT) {
+                pk_increment_kill(agressor, it.second->member, it.second->member == victim, has_clanmember);
+            }
         }
 	}
 }

@@ -1213,63 +1213,66 @@ void do_display(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 #define TOG_OFF 0
 #define TOG_ON  1
-const char *gen_tog_type[] = { "автовыходы", "autoexits",
-							   "краткий", "brief",
-							   "сжатый", "compact",
-							   "повтор", "norepeat",
-							   "обращения", "notell",
-							   "кто-то", "noinvistell",
-							   "болтать", "nogossip",
-							   "кричать", "noshout",
-							   "орать", "noholler",
-							   "поздравления", "nogratz",
-							   "аукцион", "noauction",
-							   "базар", "exchange",
-							   "задание", "quest",
-							   "автозаучивание", "automem",
-							   "нет агров", "nohassle",
-							   "призыв", "nosummon",
-							   "частный", "nowiz",
-							   "флаги комнат", "roomflags",
-							   "замедление", "slowns",
-							   "выслеживание", "trackthru",
-							   "супервидение", "holylight",
-							   "кодер", "coder",
-							   "автозавершение", "goahead",
-							   "группа", "showgroup",
-							   "без двойников", "noclones",
-							   "автопомощь", "autoassist",
-							   "автограбеж", "autoloot",
-							   "автодележ", "autosplit",
-							   "брать куны", "automoney",
-							   "арена", "arena",
-							   "ширина", "length",
-							   "высота", "width",
-							   "экран", "screen",
-							   "новости", "news",
-							   "доски", "boards",
-							   "хранилище", "chest",
-							   "пклист", "pklist",
-							   "политика", "politics",
-							   "пкформат", "pkformat",
-							   "соклановцы", "workmate",
-							   "оффтоп", "offtop",
-							   "потеря связи", "disconnect",
-							   "ингредиенты", "ingredient",
-							   "вспомнить", "remember",
-							   "уведомления", "notify",
-							   "карта", "map",
-							   "вход в зону", "enter zone",
-							   "опечатки", "misprint",
-							   "магщиты", "mageshields",
-							   "автопризыв", "autonosummon",
-							   "сдемигодам", "sdemigod",
-							   "незрячий", "blind",
-							   "маппер", "mapper",
-							   "тестер", "tester",
-							   "контроль IP", "IP control",
-							   "\n"
-							 };
+const char *gen_tog_type[] =
+        {
+        "автовыходы", "autoexits",
+       "краткий", "brief",
+       "сжатый", "compact",
+       "повтор", "norepeat",
+       "обращения", "notell",
+       "кто-то", "noinvistell",
+       "болтать", "nogossip",
+       "кричать", "noshout",
+       "орать", "noholler",
+       "поздравления", "nogratz",
+       "аукцион", "noauction",
+       "базар", "exchange",
+       "задание", "quest",
+       "автозаучивание", "automem",
+       "нет агров", "nohassle",
+       "призыв", "nosummon",
+       "частный", "nowiz",
+       "флаги комнат", "roomflags",
+       "замедление", "slowns",
+       "выслеживание", "trackthru",
+       "супервидение", "holylight",
+       "кодер", "coder",
+       "автозавершение", "goahead",
+       "группа", "showgroup",
+       "без двойников", "noclones",
+       "автопомощь", "autoassist",
+       "автограбеж", "autoloot",
+       "автодележ", "autosplit",
+       "брать куны", "automoney",
+       "арена", "arena",
+       "ширина", "length",
+       "высота", "width",
+       "экран", "screen",
+       "новости", "news",
+       "доски", "boards",
+       "хранилище", "chest",
+       "пклист", "pklist",
+       "политика", "politics",
+       "пкформат", "pkformat",
+       "соклановцы", "workmate",
+       "оффтоп", "offtop",
+       "потеря связи", "disconnect",
+       "ингредиенты", "ingredient",
+       "вспомнить", "remember",
+       "уведомления", "notify",
+       "карта", "map",
+       "вход в зону", "enter zone",
+       "опечатки", "misprint",
+       "магщиты", "mageshields",
+       "автопризыв", "autonosummon",
+       "сдемигодам", "sdemigod",
+       "незрячий", "blind",
+       "маппер", "mapper",
+       "тестер", "tester",
+       "контроль IP", "IP control",
+       "автогрупвыход", "followgroupexit",
+       "\n"
+};
 
 
 
@@ -1336,7 +1339,9 @@ struct gen_tog_param_type
 		0, SCMD_BLIND, false}, {
 		0, SCMD_MAPPER, false}, {
 		0, SCMD_TESTER, true}, {
-			0, SCMD_IPCONTROL, false}
+	    0, SCMD_IPCONTROL, false}, {
+        0, SCMD_FOLLOW_GRP_EXIT, false}
+
 };
 
 void do_mode(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
@@ -1601,7 +1606,9 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		{"Режим вывода тестовой информации выключен.\r\n",
 		 "Режим вывода тестовой информации включен.\r\n"},
 		{"Режим контроля смены IP-адреса персонажа выключен.\r\n",
-		 "Режим контроля смены IP-адреса персонажа включен.\r\n"}
+		 "Режим контроля смены IP-адреса персонажа включен.\r\n"},
+        {"После изменения порядка следования (след я) вы автоматически покинете группу.\r\n",
+         "Изменение порядка следования не влияет на членство в группе. Используйте команду груп покинуть.\r\n"}
 	};
 
 	if (IS_NPC(ch))
@@ -1824,6 +1831,9 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	case SCMD_AUTO_NOSUMMON:
 		result = PRF_TOG_CHK(ch, PRF_AUTO_NOSUMMON);
 		break;
+	case SCMD_FOLLOW_GRP_EXIT:
+        result = PRF_TOG_CHK(ch, PRF_FOLLOW_GRP_EXIT);
+        break;
 	default:
 		send_to_char(ch, "Введите параметр режима полностью.\r\n");
 //		log("SYSERR: Unknown subcmd %d in do_gen_toggle.", subcmd);

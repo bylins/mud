@@ -643,8 +643,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
         {
             if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
                 && !IS_NPC(f->follower)
-                && SAME_ROOM(f->follower) == ch->in_room)
-            {
+                && SAME_ROOM(f->follower, ch)) {
                 num++;
             }
         }

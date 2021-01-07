@@ -2192,7 +2192,7 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 	{
 		return (FALSE);
 	}
-	else if (ch->has_master() && SAME_ROOM(ch, IN_ROOM))
+	else if (ch->has_master() && SAME_ROOM(ch, ch->get_master()))
 	{
 		return (FALSE);
 	}
