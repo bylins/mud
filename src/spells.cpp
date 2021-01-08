@@ -1066,16 +1066,13 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else
 	{
-		if (!check_charmee(ch, victim, SPELL_CHARM))
-		{
+		if (!check_charmee(ch, victim, SPELL_CHARM)){
 			return;
 		}
 
 		// Левая проверка
-		if (victim->has_master())
-		{
-			if (stop_follower(victim, SF_MASTERDIE))
-			{
+		if (victim->has_master()){
+			if (stop_follower(victim, SF_MASTERDIE)){
 				return;
 			}
 		}

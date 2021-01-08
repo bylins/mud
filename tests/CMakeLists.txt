@@ -81,7 +81,8 @@ set(UTILITIES
 		char.utilities.cpp)
 set(ADDITIONAL_FILES
 		data/boards/changelog.sample
-		data/boards/news.sample)
+		data/boards/news.sample
+		data/plrs/bikbaj.player)
 source_group("Tests data" FILES ${ADDITIONAL_FILES})
 source_group("Tests" FILES ${TESTS})
 source_group("Tests helpers" FILES ${UTILITIES})
@@ -94,6 +95,8 @@ if (NOT WIN32)
 endif ()
 
 add_test(all tests)
+
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/data/plrs/)
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 
@@ -112,8 +115,14 @@ add_custom_target(tests.data.boards.news_sample
 		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/boards/news.sample ${CMAKE_CURRENT_BINARY_DIR}/data/boards/news.sample
 		COMMENT "Copy tests/data/boards/news.sample for tests.")
 set_target_properties(tests.data.boards.news_sample PROPERTIES FOLDER "Utility targets/Tests data")
+add_custom_target(tests.data.plrs
+		DEPENDS ${CMAKE_SOURCE_DIR}/tests/data/plrs
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/tests/data/plrs/* ${CMAKE_CURRENT_BINARY_DIR}/data/plrs/
+		COMMENT "Copy tests.data.plrs for tests.")
+set_target_properties(tests.data.boards.changelog_sample PROPERTIES FOLDER "Utility targets/Tests data")
 
-add_dependencies(tests tests.misc.grouping tests.data.boards.changelog_sample tests.data.boards.news_sample)
+
+add_dependencies(tests tests.misc.grouping tests.data.boards.changelog_sample tests.data.boards.news_sample tests.data.plrs)
 add_dependencies(checks tests)
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :

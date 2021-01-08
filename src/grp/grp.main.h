@@ -88,12 +88,11 @@ public:
     const char* _getMemberName(int uid);
     char_info* _findMember(char* memberName);
     bool _removeMember(CHAR_DATA* ch);
-    bool _removeMember(int uid);
-    bool _removeMember(char *name);
     void _promote(CHAR_DATA* ch);
     void charDataPurged(CHAR_DATA* ch);
-    u_short size(rnum_t room_rnum = 0);
+    u_short get_size(rnum_t room_rnum = 0);
 private:
+    bool _removeMember(int uid);
     GM_TYPE getType(CHAR_DATA* ch) {
         if (IS_NPC(ch))
             return  GM_CHARMEE;

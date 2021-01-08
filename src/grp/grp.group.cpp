@@ -155,7 +155,7 @@ void Group::addMember(CHAR_DATA *member, bool silent) {
         return;
     // в другой группе, вышвыриваем
     if (member->personGroup != nullptr)
-        _removeMember(member);
+        member->personGroup->_removeMember(member);
 
     auto it = this->find(_calcUID(member));
     if (it == this->end()) {
@@ -199,9 +199,13 @@ bool Group::_removeMember(int memberUID) {
         return false;
     }
     auto member = it->second->member;
-    if (member != nullptr)
+    if (member != nullptr) {
+        send_to_char(member, "Вы покинули группу.\r\n");
         member->personGroup = nullptr;
+    }
+    sendToGroup(GRP_COMM_ALL, "Персонаж %s покинул группу.", it->second->memberName.c_str());
     this->erase(memberUID); // finally remove it
+
 
     // а также удаляем чармисов персонажа из групповых
     if (member->followers != nullptr) {
@@ -239,19 +243,6 @@ bool Group::_removeMember(int memberUID) {
     return true;
 }
 
-bool Group::_removeMember(char *name) {
-    int uid = 0;
-    for (auto &it: *this){
-        if (str_cmp(name, it.second->memberName) == 0) {
-            uid = it.first;
-            break;
-        }
-    }
-    if (uid != 0)
-       return _removeMember(uid);
-    return false;
-}
-
 bool Group::_removeMember(CHAR_DATA *member) {
     int memberUID = _calcUID(member);
     return _removeMember(memberUID);
@@ -278,7 +269,7 @@ bool Group::_isMember(int uid) {
 }
 
 void Group::_clear(bool silentMode) {
-    sprintf(buf, "[Group::clear()]: this: %hu", this->size());
+    sprintf(buf, "[Group::clear()]: this: %lu", this->size());
     mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
     CHAR_DATA* ch;
     // чистим игроков
@@ -336,7 +327,6 @@ void Group::expellMember(char *memberName) {
         sendToGroup(GRP_COMM_LEADER, "Нет такого персонажа.");
         return;
     }
-    _removeMember(vict->memberUID);
     if (vict != nullptr && vict->member != nullptr) {
         act("$N исключен$A из состава вашей группы.", FALSE, _leader, nullptr, vict, TO_CHAR);
         act("Вы исключены из группы $n1!", FALSE, _leader, nullptr, vict, TO_VICT);
@@ -344,11 +334,11 @@ void Group::expellMember(char *memberName) {
     } else {
         sendToGroup(GRP_COMM_LEADER, "%s был исключен из группы.'\r\n", vict->memberName.c_str());
     }
+    _removeMember(vict->memberUID);
 }
 
 void Group::listMembers(CHAR_DATA *ch) {
     CHAR_DATA *leader;
-    struct follow_type *f;
     int count = 1;
 
     if (ch->personGroup)
@@ -510,12 +500,6 @@ void Group::_printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header) {
 
 void Group::printGroup(CHAR_DATA *ch) {
     int gfound = 0, cfound = 0;
-    CHAR_DATA *leader;
-
-    if (ch->personGroup)
-        leader = ch->personGroup->getLeader();
-    else
-        leader = ch;
 
     if (!IS_NPC(ch))
         ch->desc->msdp_report(msdp::constants::GROUP);
@@ -617,14 +601,14 @@ void Group::addFollowers(CHAR_DATA *leader) {
     for (auto f = leader->followers; f; f = f->next) {
         if (IS_NPC(f->follower))
             continue;
-        if ((u_short)this->size() < (u_short)_memberCap)
+        if ((u_short)this->get_size() < (u_short)_memberCap)
             this->addMember(f->follower);
     }
 }
 
 // метод может вернуть мусор :(
 CHAR_DATA* Group::get_random_pc_group() {
-    u_short rnd = number(0, (u_short)this->size() - 1);
+    u_short rnd = number(0, (u_short)this->get_size() - 1);
     int i = 0;
     for (const auto& it : *this){
         if (i == rnd) {
@@ -635,10 +619,12 @@ CHAR_DATA* Group::get_random_pc_group() {
     return nullptr;
 }
 
-u_short Group::size(rnum_t room_rnum) {
+u_short Group::get_size(rnum_t room_rnum) {
     u_short  retval = 0;
     for (const auto& it : *this){
         auto c = it.second->member;
+        if (c == nullptr)
+            continue;
         if (room_rnum == (room_rnum == 0 ? room_rnum : c->in_room)  && !c->purged() && retval < 255)
             retval++;
     }
@@ -665,16 +651,19 @@ int Group::_calcUID(CHAR_DATA *ch) {
 }
 
 void Group::_promote(CHAR_DATA *member) {
+    if (_leader == member)
+        return;
     _setLeader(member);
-    sendToGroup(GRP_COMM_ALL, "Изменился лидер группы на %.", _leaderName.c_str() );
+    sendToGroup(GRP_COMM_ALL, "Изменился лидер группы на %s.", _leaderName.c_str() );
     auto diff = (u_short)_memberCap - (u_short)this->size();
-    if (diff < 0) diff = 0;
+    if (diff < 0) diff = abs(diff); else diff = 0;
     if (diff > 0){
         u_short i = 0;
         int expellList[diff];
-        for (auto it = this->begin(); it!= this->end() || i > diff; it++){
+        for (auto it = this->begin(); it != this->end() && i < diff; it++){
             if (it->second->member != _leader ) {
                 expellList[i] = _calcUID(it->second->member);
+                sendToGroup(GRP_COMM_ALL, "В группе не хватает места, нас покинул %s!", it->second->memberName.c_str() );
                 ++i;
             }
         }

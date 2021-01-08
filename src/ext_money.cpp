@@ -682,7 +682,7 @@ namespace ExtMoney
         CHAR_DATA *leader = grp != nullptr? d->character->personGroup->getLeader() : d->character.get();
 
         int members = 1;
-        members = leader->personGroup->size(IN_ROOM(mob));
+        members = leader->personGroup->get_size(IN_ROOM(mob));
 
         const int zone_lvl = zone_table[mob_index[GET_MOB_RNUM(mob)].zone].mob_level;
         const int drop = calc_drop_torc(zone_lvl, members);

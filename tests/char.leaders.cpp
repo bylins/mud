@@ -69,26 +69,31 @@ TEST(CHAR_Leaders, SimpleLoop)
 }
 
 TEST(CHAR_Leaders, Group) {
+    std::string pName;
     test_utils::CharacterBuilder builder;
 
     builder.create_new();
     builder.add_skill(ESkill::SKILL_LEADERSHIP, 200);
     auto leader = builder.get();
+    test_utils::GroupBuilder g;
+    auto grp = g._roster->addGroup(leader.get());
+
     builder.create_new("F7");
     builder.add_skill(ESkill::SKILL_LEADERSHIP, 10);
     auto f7 = builder.get();
     leader->add_follower(f7.get());
+    grp->addFollowers(leader.get());
+
 
     for (int i = 0; i <12; i++) {
-        builder.create_new();
+        pName = "Player" + std::to_string(i);
+        builder.create_new(pName);
         auto follower = builder.get();
         leader->add_follower(follower.get());
     }
-
-    test_utils::GroupBuilder g;
-    auto grp = g._roster->addGroup(leader.get());
     grp->addFollowers(leader.get());
-    EXPECT_EQ(12, leader->personGroup->size());
+    EXPECT_EQ(0, leader->personGroup->get_size(100));
+    EXPECT_EQ(11, leader->personGroup->size());
     grp->promote("F7");
     EXPECT_EQ(7, leader->personGroup->size());
 

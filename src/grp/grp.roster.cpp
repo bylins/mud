@@ -65,7 +65,7 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
             return;
         }
         if (grp != nullptr) // в группе - покидаем
-            grp->_removeMember(ch->get_uid());
+            grp->_removeMember(ch);
         groupRoster.addGroup(ch);
          return;
     } else if (isname(subcmd, strLIST.c_str())) {
