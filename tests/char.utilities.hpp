@@ -47,6 +47,7 @@ namespace test_utils
 	public:
         GroupRoster* _roster;
 	    GroupBuilder();
+	    Group* makeFullGroup(int leadership);
 	};
 
 }

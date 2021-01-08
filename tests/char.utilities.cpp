@@ -8,6 +8,7 @@
 #include <handler.h>
 #include <act.other.hpp>
 #include "diskio.h"
+#include "diskio.h"
 
 
 
@@ -158,6 +159,23 @@ namespace test_utils
 
     GroupBuilder::GroupBuilder() {
     _roster = new GroupRoster();
+    }
+
+    Group* GroupBuilder::makeFullGroup(int leadership) {
+        test_utils::CharacterBuilder builder;
+        std::string plrName = "Player-";
+
+        builder.create_new("Leader");
+        builder.add_skill(ESkill::SKILL_LEADERSHIP, leadership);
+        auto leader = builder.get();
+        auto grp = _roster->addGroup(leader.get());
+        for (int i=0; i < grp->_getMemberCap(); i++){
+            builder.create_new(plrName + std::to_string(i));
+            auto f7 = builder.get();
+            leader->add_follower(f7.get());
+        }
+        grp->addFollowers(leader.get());
+        return grp.get();
     }
 }
 

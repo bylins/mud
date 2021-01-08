@@ -98,4 +98,16 @@ TEST(CHAR_Leaders, Group) {
     EXPECT_EQ(7, leader->personGroup->size());
 
 }
+
+TEST(CHAR_Leaders, GroupMigration) {
+    test_utils::GroupBuilder g;
+
+    auto grp = g.makeFullGroup(200);
+
+    EXPECT_EQ(11, grp->get_size(0));
+    grp->promote("Player-2");
+    EXPECT_EQ(7, grp->get_size(0));
+
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
