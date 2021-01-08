@@ -2037,7 +2037,7 @@ void CHAR_DATA::removeGroupFlags() {
 	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
 	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
 	if (personGroup != nullptr && IS_CHARMICE(this))
-        personGroup->_removeMember(this->get_uid());
+        personGroup->_removeMember(this);
 }
 
 void CHAR_DATA::add_follower(CHAR_DATA* ch) {

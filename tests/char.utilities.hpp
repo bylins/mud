@@ -12,8 +12,10 @@ namespace test_utils
 		using character_t = CHAR_DATA;
 		using result_t = character_t::shared_ptr;
 
-		void create_new();
-        void create_new(char* name);
+        CharacterBuilder() {m_uid = 1;}
+
+        void create_new();
+        void create_new(std::string name);
 		void load_player(u_short idx);
 		void create_new_with_class(const short player_class);
 		void create_character_with_one_removable_affect();
@@ -36,10 +38,9 @@ namespace test_utils
 		void check_character_existance() const;
 
 		static void check_character_existance(result_t character);
-
+        int m_uid = 1;
 		result_t m_result;
-		const std::string _names[13] = {"Бикбай", "Первый", "Второй", "третий", "четвертый", "пятый", "шестой",
-                                        "седьмой", "восьмой", "девятый", "десятый", "одиннадцатый", "двеннадцатый"};
+		std::vector<result_t> _store;
 	};
 
 	class GroupBuilder {

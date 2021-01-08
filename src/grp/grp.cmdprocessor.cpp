@@ -536,11 +536,11 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
     CHAR_DATA *k;
     struct follow_type *f;
 
-    if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-    {
+    if (!IN_GROUP(ch) && !AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)) {
         send_to_char("И перед кем вы отчитываетесь?\r\n", ch);
         return;
     }
+    // готовим строку
     if (ch->is_druid())
     {
         sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
@@ -552,10 +552,8 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
     else if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
     {
         int loyalty = 0;
-        for (const auto& aff : ch->affected)
-        {
-            if (aff->type == SPELL_CHARM)
-            {
+        for (const auto& aff : ch->affected) {
+            if (aff->type == SPELL_CHARM) {
                 loyalty = aff->duration / 2;
                 break;
             }
@@ -573,22 +571,22 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
                 GET_HIT(ch), GET_REAL_MAX_HIT(ch),
                 GET_MOVE(ch), GET_REAL_MAX_MOVE(ch));
     }
+
     CAP(buf);
-    k = ch->has_master() ? ch->get_master() : ch;
-    for (f = k->followers; f; f = f->next)
-    {
-        if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-            && f->follower != ch
-            && !AFF_FLAGGED(f->follower, EAffectFlag::AFF_DEAFNESS))
-        {
-            send_to_char(buf, f->follower);
+    if (IN_GROUP(ch))
+        ch->personGroup->sendToGroup(GRP_COMM_ALL, buf);
+    else {//чармис докладывает мастеру
+        k = ch->has_master() ? ch->get_master() : ch;
+        for (f = k->followers; f; f = f->next) {
+            if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_DEAFNESS) && f->follower != ch) {
+                send_to_char(buf, f->follower);
+            }
+        }
+        if (k != ch && !AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS)) {
+            send_to_char(buf, k);
         }
     }
 
-    if (k != ch && !AFF_FLAGGED(k, EAffectFlag::AFF_DEAFNESS))
-    {
-        send_to_char(buf, k);
-    }
     send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 

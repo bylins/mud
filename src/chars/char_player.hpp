@@ -25,6 +25,7 @@
 #include <array>
 #include <vector>
 #include <bitset>
+#include <diskio.h>
 
 // * Перерасчет максимальных родных хп персонажа.
 // * При входе в игру, левеле/делевеле, добавлении/удалении славы.
@@ -107,6 +108,8 @@ public:
 
 	void save_char();
 	int load_char_ascii(const char *name, bool reboot = 0, const bool find_id = true);
+    // метод загрузки файла игрока напрямую
+    bool _pfileLoad(FBFILE *fl, bool reboot, const char* name);
 
 	bool get_disposable_flag(int num);
 	void set_disposable_flag(int num);
@@ -174,7 +177,6 @@ public:
     // метод выставления chat_id
     void setTelegramId(unsigned long chat_id) override;
     unsigned long int getTelegramId() override;
-
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
