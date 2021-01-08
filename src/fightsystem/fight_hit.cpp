@@ -8,12 +8,12 @@
 #include "magic.h"
 #include "pk.h"
 #include "dps.hpp"
-#include "fight.h"
 #include "house_exp.hpp"
 #include "poison.hpp"
 #include "bonus.h"
 #include "mobact.hpp"
 #include "fightsystem/common.h"
+#include "fightsystem/fight.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -58,83 +58,6 @@ int armor_class_limit(CHAR_DATA * ch) {
 		break;
 	}
 	return -300;
-}
-
-void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
-	CHAR_DATA *k;
-	AFFECT_DATA<EApplyLocation> af;
-	send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
-	struct follow_type *f;
-		if (ch->has_master()){
-			k = ch->get_master();
-	}
-	else {
-		k = ch;
-	}
-// на лидера
-	if (ch->in_room == k->in_room) {
-		af.location = num_apply;
-		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(k) / 5 * 2 + modi;
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		af.duration = pc_duration(k, time, 0, 0, 0, 0);
-		affect_join(k, af, FALSE, FALSE, FALSE, FALSE);
-		if (k != ch)
-			send_to_char(k, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
-	}
-// на группу
-	for (f = k->followers; f; f = f->next) {
-		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
-			continue;
-		}
-		if (ch->in_room != f->follower->in_room)
-			continue;
-		af.location = num_apply;
-		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
-		affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-		if (ch != f->follower)
-			send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
-	}
-}
-
-void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
-	CHAR_DATA *target;
-	AFFECT_DATA<EApplyLocation> af;
-
-	target = get_random_pc_group(ch);
-	af.location = num_apply;
-	af.type = SPELL_PALADINE_INSPIRATION;
-	af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
-	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-	af.duration = pc_duration(ch, time, 0, 0, 0, 0);
-	affect_join(target , af, FALSE, FALSE, FALSE, FALSE);
-	send_to_char(target, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
-}
-
-void inspiration(CHAR_DATA *ch) {
-	byte num = number(1,4);
-//	CHAR_DATA * target = get_random_pc_group(ch);
-
-	switch (num){
-	case 1:
-		aff_group_inspiration(ch, APPLY_PERCENT_DAM, 5, GET_REMORT(ch));
-		break;
-	case 2:
-		aff_group_inspiration(ch, APPLY_CAST_SUCCESS, 3, GET_REMORT(ch));
-		break;
-	case 3:
-		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
-		break;
-	case 4:
-		aff_group_inspiration(ch, APPLY_HITROLL, 0, 0); // вывод мессаги
-		call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
-		break;
-	default:
-		break;
-	}
 }
 
 int compute_armor_class(CHAR_DATA * ch)
@@ -4241,7 +4164,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 					PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 				}
 			}
-			inspiration(ch);
+            call_magic(ch, victim, nullptr, nullptr, ESpell::SPELL_PALADINE_INSPIRATION, ch->get_level());
 		}
 	}
 
