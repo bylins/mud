@@ -2,6 +2,7 @@
 
 #include "cmd/follow.h"
 #include "handler.h"
+#include "screen.h"
 #include <boost/lexical_cast.hpp>
 
 int max_stats2[][6] =
@@ -78,35 +79,73 @@ float calc_cha_for_hire(CHAR_DATA * victim)
 }
 
 int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
-    float needed_cha = calc_cha_for_hire(victim), dpr = 0.0;
-    float e_cha = get_effective_cha(ch), e_int = get_effective_int(ch);
-    float stat_overlimit = VPOSI<float>(e_cha + e_int - 1.0 -
-                                        min_stats2[(int) GET_CLASS(ch)][5] - 1 -
-                                        min_stats2[(int) GET_CLASS(ch)][2], 0, 100);
+    float price = 0; // стоимость найма
+    int m_str = victim->get_str() * 20;
+    int m_int = victim->get_int() * 20;
+    int m_wis = victim->get_wis() * 20;
+    int m_dex = victim->get_dex() * 20;
+    int m_con = victim->get_con() * 20;
+    int m_cha = victim->get_cha() * 10;
+    ch->send_to_TC(true, true, true, "Базовые статы найма: Str:%d Int:%d Wis:%d Dex:%d Con:%d Cha:%d\r\n",
+                   m_str, m_int, m_wis, m_dex, m_con, m_cha);
+    price += m_str + m_int + m_wis + m_dex+ m_con+ m_cha;
 
-    if (stat_overlimit >= 100.0) stat_overlimit = 99.99;
+    float m_hit = victim->get_max_hit() * 0.5;
+    float m_lvl = victim->get_level() * 50;
+    float m_ac = GET_AC(victim) * (-50);
+    float m_hr = GET_HR(victim) * 50;
+    float m_armor = GET_ARMOUR(victim) *25;
+    float m_absorb = GET_ABSORBE(victim) *4;
+    ch->send_to_TC(true, true, true, "Статы живучести: HP:%.4lf LVL:%.4lf AC:%.4lf HR:%.4lf ARMOR:%.4lf ABSORB:%.4lf\r\n",
+                   m_hit, m_lvl, m_ac, m_hr, m_armor, m_absorb);
 
-    float price = 0;
-    float real_cha = 1.0 + GET_LEVEL(ch) / 2.0 + stat_overlimit / 2.0;
-    float difference = needed_cha - real_cha;
+    price += m_hit + m_lvl + m_ac + m_hr+ m_armor+ m_absorb;
 
-    dpr = get_damage_per_round(victim);
+    int m_stab = GET_SAVE(victim, SAVING_STABILITY) *(-4);
+    int m_ref = GET_SAVE(victim, SAVING_REFLEX) *(-4);
+    int m_crit = GET_SAVE(victim, SAVING_CRITICAL) *(-4);
+    int m_wil = GET_SAVE(victim, SAVING_WILL) *(-4);
+    ch->send_to_TC(true, true, true, "Сейвы: STAB:%d REF:%d CRIT:%d WILL:%d\r\n",
+                   m_stab, m_ref, m_crit, m_wil);
+    price += m_stab + m_ref + m_crit + m_wil;
+    // магические резисты
+    int m_fire = GET_RESIST(victim, FIRE_RESISTANCE) *4;
+    int m_air = GET_RESIST(victim, AIR_RESISTANCE) *4;
+    int m_water = GET_RESIST(victim, WATER_RESISTANCE) *4;
+    int m_earth = GET_RESIST(victim, EARTH_RESISTANCE) *4;
+    int m_vita = GET_RESIST(victim, VITALITY_RESISTANCE) *4;
+    int m_mind = GET_RESIST(victim, MIND_RESISTANCE) *4;
+    int m_immu = GET_RESIST(victim, IMMUNITY_RESISTANCE) *4;
+    int m_dark = GET_RESIST(victim, DARK_RESISTANCE) *4;
+    ch->send_to_TC(true, true, true, "Маг.резисты: Fire:%d Air:%d Water:%d Earth:%d Vita:%d Mind:%d Immu:%d Dark:%d\r\n",
+                   m_fire, m_air, m_water, m_earth, m_vita, m_mind, m_immu, m_dark);
 
-    log("MERCHANT: hero (%s) mob (%s [%5d] ) charm (%f) dpr (%f)",GET_NAME(ch),GET_NAME(victim),GET_MOB_VNUM(victim),needed_cha,dpr);
+    price += m_fire + m_air+ m_water+ m_earth+ m_vita+ m_mind+ m_immu+ m_dark;
+    // удача и инициатива
+    int m_luck = victim->calc_morale() *10;
+    int m_ini = GET_INITIATIVE(victim);
+    // сопротивления
+    int m_ar = GET_AR(victim) *50;
+    int m_mr = GET_MR(victim) *50;
+    int m_pr = GET_PR(victim) *50;
+    // дамаг
+    int m_dr = GET_DR(victim) + 75;
+    float extraAttack = victim->mob_specials.ExtraAttack * (2*GET_DR(victim)/75);
 
+    ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
+                   m_luck, m_ini, m_ar, m_mr, m_pr, m_dr, extraAttack);
 
+    price += m_luck+ m_ini+ m_ar+ m_mr+ m_pr+ m_dr+ extraAttack;
+    // сколько персонаж может
+    float hirePoints = 0;
+    hirePoints += GET_REMORT(ch) * 2;
+    hirePoints += GET_REAL_INT(ch) *2;
+    hirePoints += GET_REAL_CHA(ch) *2;
 
-    if (difference <= 0)
-        price = dpr * (1.00 - 0.01 * stat_overlimit);
-    else
-        price = MMIN((dpr * pow(2.0F, difference)), MAXPRICE);
+    hirePoints = 10 * 0.5 * hirePoints;
+    float min_price = GET_LEVEL(victim) *5;
+    price = MAX(min_price, price - hirePoints);
 
-    if (price <= 0.0 || (difference >= 25 && (int) dpr))
-        price = MAXPRICE;
-
-    if(WAITLESS(ch)) {
-        price = 0;
-    }
     return (int) ceil(price);
 }
 
