@@ -129,7 +129,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     int m_mr = GET_MR(victim) *50;
     int m_pr = GET_PR(victim) *50;
     // дамаг
-    int m_dr = (GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)) * 300;
+    int m_dr = GET_DR(victim) * 300;
     float extraAttack = victim->mob_specials.ExtraAttack * m_dr/2;
 
     ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
@@ -144,7 +144,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
 
     hirePoints =  10 * 0.5 * hirePoints;
-    ch->send_to_TC(true, true, true, "Параметры персонажа: RMRT: %d, CHA: %d, INT: %D, TOTAL: %d\r\n", rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints);
+    ch->send_to_TC(true, true, true, "Параметры персонажа: RMRT: %d, CHA: %d, INT: %d, TOTAL: %d\r\n", rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints);
     float min_price = GET_LEVEL(victim) *5;
     price = MAX(min_price, price - hirePoints);
 
