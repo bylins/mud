@@ -92,7 +92,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
 
     float m_hit = victim->get_max_hit() * 0.5;
     float m_lvl = victim->get_level() * 50;
-    float m_ac = GET_AC(victim) * (-50);
+    float m_ac = GET_AC(victim) * (-5);
     float m_hr = GET_HR(victim) * 50;
     float m_armor = GET_ARMOUR(victim) *25;
     float m_absorb = GET_ABSORBE(victim) *4;
@@ -123,14 +123,14 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     price += m_fire + m_air+ m_water+ m_earth+ m_vita+ m_mind+ m_immu+ m_dark;
     // удача и инициатива
     int m_luck = victim->calc_morale() *10;
-    int m_ini = GET_INITIATIVE(victim);
+    int m_ini = GET_INITIATIVE(victim) *10;
     // сопротивления
     int m_ar = GET_AR(victim) *50;
     int m_mr = GET_MR(victim) *50;
     int m_pr = GET_PR(victim) *50;
     // дамаг
-    int m_dr = GET_DR(victim) + 75;
-    float extraAttack = victim->mob_specials.ExtraAttack * (2*GET_DR(victim)/75);
+    int m_dr = (GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)) * 150;
+    float extraAttack = victim->mob_specials.ExtraAttack * m_dr/2;
 
     ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
                    m_luck, m_ini, m_ar, m_mr, m_pr, m_dr, extraAttack);
@@ -138,11 +138,13 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     price += m_luck+ m_ini+ m_ar+ m_mr+ m_pr+ m_dr+ extraAttack;
     // сколько персонаж может
     float hirePoints = 0;
-    hirePoints += GET_REMORT(ch) * 2;
-    hirePoints += GET_REAL_INT(ch) *2;
-    hirePoints += GET_REAL_CHA(ch) *2;
+    int rem_hirePoints = GET_REMORT(ch) * 2;
+    int int_hirePoints = GET_REAL_INT(ch) *2;
+    int cha_hirePoints = GET_REAL_CHA(ch) *2;
+    hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
 
-    hirePoints = 10 * 0.5 * hirePoints;
+    hirePoints =  10 * 0.5 * hirePoints;
+    ch->send_to_TC(true, true, true, "Параметры персонажа: RMRT: %d, CHA: %d, INT: %D, TOTAL: %d\r\n", rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints);
     float min_price = GET_LEVEL(victim) *5;
     price = MAX(min_price, price - hirePoints);
 
