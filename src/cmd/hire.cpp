@@ -143,11 +143,11 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     int cha_hirePoints = GET_REAL_CHA(ch) *2;
     hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
 
-    hirePoints =  10 * 0.5 * hirePoints;
-    ch->send_to_TC(true, true, true, "Параметры персонажа: RMRT: %d, CHA: %d, INT: %d, TOTAL: %d\r\n", rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints);
+    hirePoints =  5 * GET_LEVEL(victim) * hirePoints;
     float min_price = GET_LEVEL(victim) *5;
     price = MAX(min_price, price - hirePoints);
 
+    ch->send_to_TC(true, true, true, "Параметры персонажа: RMRT: %d, CHA: %d, INT: %d, TOTAL: %.4lf. Цена чармиса: %d \r\n", rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, (int)ceil(price));
     return (int) ceil(price);
 }
 
