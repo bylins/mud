@@ -90,7 +90,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
                    m_str, m_int, m_wis, m_dex, m_con, m_cha);
     price += m_str + m_int + m_wis + m_dex+ m_con+ m_cha;
 
-    float m_hit = victim->get_max_hit() * 0.5;
+    float m_hit = victim->get_max_hit() * 2;
     float m_lvl = victim->get_level() * 50;
     float m_ac = GET_AC(victim) * (-5);
     float m_hr = GET_HR(victim) * 50;
@@ -129,7 +129,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     int m_mr = GET_MR(victim) *50;
     int m_pr = GET_PR(victim) *50;
     // дамаг
-    int m_dr = GET_DR(victim) * 400;
+    int m_dr = GET_DR(victim) * 200;
     float extraAttack = victim->mob_specials.ExtraAttack * m_dr/2;
 
     ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
