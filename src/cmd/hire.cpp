@@ -144,8 +144,8 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
     hirePoints =  5 * GET_LEVEL(victim) * hirePoints;
 
-    float min_price = GET_LEVEL(victim) *5;
-    int finalPrice = MAX(ceil(min_price), ceil(price - hirePoints));
+    int min_price = GET_LEVEL(victim) *5;
+    int finalPrice = MAX(min_price, (int)ceil(price - hirePoints));
 
     ch->send_to_TC(true, true, true, "Параметры персонажа: RMRT: %d, CHA: %d, INT: %d, TOTAL: %.4lf. Цена чармиса: %d \r\n", rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, finalPrice);
     return finalPrice;
