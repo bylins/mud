@@ -138,17 +138,17 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     price += m_luck+ m_ini+ m_ar+ m_mr+ m_pr+ m_dr+ extraAttack;
     // сколько персонаж может
     float hirePoints = 0;
-    int rem_hirePoints = GET_REMORT(ch) * 2;
-    int int_hirePoints = GET_REAL_INT(ch) *2;
-    int cha_hirePoints = GET_REAL_CHA(ch) *2;
+    float rem_hirePoints = GET_REMORT(ch) *   1.8;
+    float int_hirePoints = GET_REAL_INT(ch) * 1.8;
+    float cha_hirePoints = GET_REAL_CHA(ch) * 1.8;
     hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
-
     hirePoints =  5 * GET_LEVEL(victim) * hirePoints;
-    float min_price = GET_LEVEL(victim) *5;
-    price = MAX(min_price, price - hirePoints);
 
-    ch->send_to_TC(true, true, true, "Параметры персонажа: RMRT: %d, CHA: %d, INT: %d, TOTAL: %.4lf. Цена чармиса: %d \r\n", rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, (int)ceil(price));
-    return (int) ceil(price);
+    float min_price = GET_LEVEL(victim) *5;
+    int finalPrice = MAX(ceil(min_price), ceil(price - hirePoints));
+
+    ch->send_to_TC(true, true, true, "Параметры персонажа: RMRT: %d, CHA: %d, INT: %d, TOTAL: %.4lf. Цена чармиса: %d \r\n", rem_hirePoints, cha_hirePoints, int_hirePoints, hirePoints, finalPrice);
+    return finalPrice;
 }
 
 int get_reformed_charmice_hp(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum)
