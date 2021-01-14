@@ -144,7 +144,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
     hirePoints =  hirePoints * 5 * GET_LEVEL(ch);
 
-    int min_price = GET_LEVEL(ch) *5;
+    int min_price = GET_LEVEL(victim) *5;
     int finalPrice = MAX(min_price, (int)ceil(price - hirePoints));
 
     ch->send_to_TC(true, true, true,
