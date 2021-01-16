@@ -20,16 +20,14 @@
 enum GM_TYPE {GM_CHAR, GM_CHARMEE};
 enum RQ_TYPE {RQ_GROUP, RQ_PERSON, RQ_ANY};
 
-class grpActMode:std::bitset<4> {
-public:
-    enum GRP_COMM : short {
-        GC_LEADER = 0, // только лидеру
-        GC_CHAR = 1, // только персонажу
-        GC_REST = 2, // всем остальным
-        GC_ROOM = 3 // эхо в комнату
-    };
-    grpActMode(GRP_COMM val);
+
+enum GRP_COMM : short {
+    GC_LEADER = 1, // только лидеру
+    GC_CHAR = 2, // только персонажу
+    GC_REST = 4, // всем остальным
+    GC_ROOM = 8 // эхо в комнату
 };
+
 enum RQ_R {RQ_R_OK, RQ_R_NO_GROUP, RQ_R_OVERFLOW, RQ_REFRESH};
 enum INV_R {INV_R_OK, INV_R_NO_PERSON, INV_R_BUSY, INV_R_REFRESH};
 
@@ -91,6 +89,7 @@ private:
 // класс-коллекция персонажей обоих типов что ли..
 class Group : public grp_mt {
 private:
+    constexpr static int DEFAULT_100 = 100;
     // ид группы в ростере
     u_long _uid = 0;
     //макс.количество игроков
@@ -103,6 +102,8 @@ private:
     CHAR_DATA* _leader = nullptr;
     // макс.уровень игрока в группе, для расчета штрафа
     u_short _maxPlayerLevel = 1;
+    // количество игроков
+    u_short _pcCount = 0;
 public:
     u_long getUid() const;
     const std::string &getLeaderName() const;
@@ -137,7 +138,7 @@ private:
     static void _printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header);
     bool _sameGroup(CHAR_DATA * ch, CHAR_DATA * vict);
 public:
-    constexpr static int DEFAULT_100 = 100;
+
 
     void addFollowers(CHAR_DATA* leader);
     void addMember(CHAR_DATA *member, bool silent = false);
@@ -153,7 +154,7 @@ public:
     void leaveGroup(CHAR_DATA* vict);
 
 //    void sendToGroup(GRP_COMM mode, const char *msg, ...);
-    void actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, grpActMode mode, const char *msg, ...);
+    void actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, int mode, const char *msg, ...);
     u_short calcExpMultiplicator(const CHAR_DATA* player);
 public:
     // всякий унаследованный стафф

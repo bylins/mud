@@ -54,36 +54,6 @@ void do_grequest(CHAR_DATA *ch, char *argument, int, int){
 
 }
 
-bool is_group_member(CHAR_DATA *ch, CHAR_DATA *vict)
-{
-    if (IS_NPC(vict) || !AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP) || vict->get_master() != ch)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
-}
-
-int perform_group(CHAR_DATA * ch, CHAR_DATA * vict)
-{
-    if (AFF_FLAGGED(vict, EAffectFlag::AFF_GROUP)
-        || AFF_FLAGGED(vict, EAffectFlag::AFF_CHARM)
-        || MOB_FLAGGED(vict, MOB_ANGEL)
-        || MOB_FLAGGED(vict, MOB_GHOST)
-        || IS_HORSE(vict))
-    {
-        return (FALSE);
-    }
-
-    AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
-    if (ch != vict)
-    {
-
-    }
-    return (TRUE);
-}
 
 int max_group_size(CHAR_DATA *ch)
 {
@@ -204,7 +174,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
     CAP(buf);
     if (IN_GROUP(ch))
-        ch->personGroup->actToGroup(nullptr, nullptr, grpActMode(GC_LEADER | GC_REST), buf);
+        ch->personGroup->actToGroup(nullptr, nullptr, GC_LEADER | GC_REST, buf);
     else {//чармис докладывает мастеру
         k = ch->has_master() ? ch->get_master() : ch;
         for (f = k->followers; f; f = f->next) {
@@ -223,11 +193,17 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency)
 {
     int amount, num, share, rest;
-    CHAR_DATA *k;
-    struct follow_type *f;
+    CHAR_DATA* m;
+
 
     if (IS_NPC(ch))
         return;
+
+    if (!IN_GROUP(ch)){
+        send_to_char("Увы, но вам не с кем делиться.\r\n", ch);
+        return;
+    }
+    auto grp = ch->personGroup;
 
     one_argument(argument, buf);
 
@@ -244,49 +220,29 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 
     if (is_number(buf)) {
         amount = atoi(buf);
-        if (amount <= 0)
-        {
+        if (amount <= 0) {
             send_to_char("И как вы это планируете сделать?\r\n", ch);
             return;
         }
 
-        if (amount > ch->get_gold() && currency == currency::GOLD)
-        {
+        if (amount > ch->get_gold() && currency == currency::GOLD) {
             send_to_char("И где бы взять вам столько денег?.\r\n", ch);
             return;
         }
-        k = ch->has_master() ? ch->get_master() : ch;
 
-        if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP)
-            && (SAME_ROOM(k, ch)))
-        {
-            num = 1;
-        }
-        else
-        {
-            num = 0;
-        }
-
-        for (f = k->followers; f; f = f->next)
-        {
-            if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-                && !IS_NPC(f->follower)
-                && SAME_ROOM(f->follower, ch)) {
+        for (auto it : *grp) {
+            if (it.second->type == GM_CHAR &&SAME_ROOM(it.second->member, ch) )
                 num++;
-            }
         }
 
-        if (num && AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-        {
+        if (num) {
             share = amount / num;
             rest = amount % num;
         }
-        else
-        {
+        else {
             send_to_char("С кем вы хотите разделить это добро?\r\n", ch);
             return;
         }
-        //MONEY_HACK
 
         switch (currency) {
             case currency::ICE :
@@ -299,38 +255,20 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
 
         sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
                 GET_NAME(ch), GET_CH_SUF_1(ch), amount, desc_count(amount, what_currency), share);
-        if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP) && IN_ROOM(k) == ch->in_room && !IS_NPC(k) && k != ch)
-        {
-            send_to_char(buf, k);
-            switch (currency)
-            {
-                case currency::ICE :
-                {
-                    k->add_ice_currency(share);
+
+        for (auto it : *grp) {
+            m = it.second->member;
+            if (it.second->type != GM_CHAR || !SAME_ROOM(m, ch) || m == ch)
+                continue;
+            send_to_char(buf, m);
+            switch (currency) {
+                case currency::ICE : {
+                    m->add_ice_currency(share);
                     break;
                 }
-                case currency::GOLD :
-                {
-                    k->add_gold(share, true, true);
+                case currency::GOLD : {
+                    m->add_gold(share, true, true);
                     break;
-                }
-            }
-        }
-        for (f = k->followers; f; f = f->next)
-        {
-            if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-                && !IS_NPC(f->follower)
-                && IN_ROOM(f->follower) == ch->in_room
-                && f->follower != ch)
-            {
-                send_to_char(buf, f->follower);
-                switch (currency) {
-                    case currency::ICE :
-                        f->follower->add_ice_currency(share);
-                        break;
-                    case currency::GOLD :
-                        f->follower->add_gold(share, true, true);
-                        break;
                 }
             }
         }
@@ -361,7 +299,3 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
     do_split(ch,argument,0,0,0);
 }
 
-grpActMode::grpActMode(grpActMode::GRP_COMM val) {
-    this->set();
-
-}

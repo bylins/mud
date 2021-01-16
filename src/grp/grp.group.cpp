@@ -159,13 +159,15 @@ void Group::addMember(CHAR_DATA *member, bool silent) {
 
     auto it = this->find(_calcUID(member));
     if (it == this->end()) {
-        if (!silent) {
-            actToGroup(nullptr, member, grpActMode(GC_LEADER), "$N принят$A в члены вашего кружка (тьфу-ты, группы :).");
-            actToGroup(member, _leader, grpActMode(GC_CHAR) , "Вы приняты в группу $N1.");
-            actToGroup(member, _leader, grpActMode(GC_REST) , "$n принят$a в группу $N1.");
-        }
         auto ci = char_info(_calcUID(member), getType(member), member, member->get_pc_name());
         this->emplace(_calcUID(member), std::make_shared<char_info>(ci));
+        if (!IS_NPC(member))
+            _pcCount++;
+        if (!silent) {
+            actToGroup(nullptr, member, GC_LEADER, "$N принят$A в члены вашего кружка (тьфу-ты, группы :).");
+            actToGroup(member, _leader, GC_CHAR , "Вы приняты в группу $N1.");
+            actToGroup(nullptr, member, GC_REST , "$N принят$A в группу.");
+        }
     } else {
         sprintf(buf, "Group::addMember: группа id=%lu, попытка повторного добавления персонажа с тем же uid",
                 getUid());
@@ -206,7 +208,9 @@ bool Group::_removeMember(int memberUID) {
         send_to_char(member, "Вы покинули группу.\r\n");
         member->personGroup = nullptr;
     }
-    actToGroup(nullptr, it->second->member, grpActMode(GC_ROOM) , "%n покинул группу.");
+    actToGroup(nullptr, it->second->member, GC_ROOM , "%n покинул$g группу.");
+    if (it->second->type == GM_CHAR)
+        _pcCount--;
     this->erase(memberUID); // finally remove it
     // пересчитываем макс.уровень
     if ( GET_LEVEL(member) == _maxPlayerLevel) {
@@ -299,7 +303,7 @@ void Group::_clear(bool silentMode) {
 void Group::promote(char *applicant) {
     auto member = _findMember(applicant);
     if (member == nullptr || member->member == nullptr) {
-        actToGroup(_leader, nullptr, grpActMode(GC_LEADER), "Нет такого персонажа.");
+        actToGroup(_leader, nullptr, GC_LEADER, "Нет такого персонажа.");
         return;
     }
     _promote(member->member);
@@ -336,7 +340,7 @@ void Group::approveRequest(const char *applicant) {
 void Group::expellMember(char *memberName) {
     auto vict = _findMember(memberName);
     if (vict == nullptr) {
-        actToGroup(_leader, nullptr, grpActMode(GC_LEADER), "Нет такого персонажа.");
+        actToGroup(_leader, nullptr, GC_LEADER, "Нет такого персонажа.");
         return;
     }
     if (vict != nullptr && vict->member != nullptr) {
@@ -344,7 +348,7 @@ void Group::expellMember(char *memberName) {
         act("Вы исключены из группы $n1!", FALSE, _leader, nullptr, vict->member, TO_VICT);
         act("$N был$G исключен$A из группы $n1!", FALSE, _leader, nullptr, vict->member, TO_NOTVICT | TO_ARENA_LISTEN);
     } else {
-        actToGroup(nullptr, nullptr, grpActMode(GC_ROOM), "%s был исключен из группы.'\r\n", vict->memberName.c_str());
+        actToGroup(nullptr, nullptr, GC_ROOM, "%s был исключен из группы.'\r\n", vict->memberName.c_str());
     }
     _removeMember(vict->memberUID);
 }
@@ -352,17 +356,21 @@ void Group::expellMember(char *memberName) {
 void Group::listMembers(CHAR_DATA *ch) {
     CHAR_DATA *leader;
     int count = 1;
+    u_short inRoomCount = 0;
 
     if (ch->personGroup)
     {
         leader = ch->personGroup->getLeader();
-        for (auto & it : *this )
-        {
+        for (const auto rm : world[ch->in_room]->people) {
+            if (IN_SAME_GROUP(ch, rm))
+                inRoomCount++;
+        }
+        for (auto & it : *this ) {
             if (it.second->member == leader)
                 continue;
             count++;
             if (count == 2){
-                send_to_char("Ваша группа состоит из:\r\n", ch);
+                send_to_char( ch, "Ваша группа [%d/%d/%d]:\r\n", _pcCount, _getMemberCap(), inRoomCount );
                 sprintf(smallBuf, "Лидер: %s\r\n", ch->personGroup->getLeaderName().c_str() );
                 send_to_char(smallBuf, ch);
             }
@@ -522,7 +530,7 @@ void Group::printGroup(CHAR_DATA *ch) {
         for (auto &it : *this ){
             if (it.second->type == GM_CHARMEE)
                 continue; // чармисов скипуем и показываем ниже
-            if (it.second->member == nullptr || it.second->member->purged())
+            if (it.second->member == nullptr || it.second->member->purged() || it.second->member->desc == NULL)
                 _printDeadLine(ch, it.second->memberName.c_str(), gfound++);
             else
                 _printPCLine(ch, it.second->member, gfound++);
@@ -590,8 +598,9 @@ void Group::sendToGroup(GRP_COMM mode, const char *msg, ...) {
 */
 
 // надстройка над act, регулируется набором флагов grpActMode + GRP_COMM
+// ch указывается для указания цели в режиме GC_CHAR и GC_ROOM
 // vict передается в аргумент функции act
-void Group::actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, grpActMode mode, const char *msg, ...) {
+void Group::actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, int mode, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     vsnprintf(smallBuf, sizeof(smallBuf), msg, args);
@@ -602,13 +611,13 @@ void Group::actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, grpActMode mode, const ch
         if ( to == nullptr || to->purged()) {
             continue;
         }
-        if ((mode.test(GRP_COMM::GC_LEADER) && to == _leader) ||
-            (mode.test(GRP_COMM::GC_CHAR) && to == ch) ||
-            (mode.test(GRP_COMM::GC_REST) && to != ch && to != _leader))
+        if ( (mode & GC_LEADER && to == _leader) ||
+            (mode & GC_CHAR && to == ch) ||
+            (mode & GC_REST && to != vict && to != _leader))
             act(smallBuf, TRUE, to, nullptr, vict, TO_CHAR);
     }
-    if (mode.test(GRP_COMM::GC_ROOM))
-        act(smallBuf, TRUE, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
+    if (mode & GC_ROOM)
+        act(smallBuf, TRUE, ch, nullptr, vict, TO_ROOM | TO_ARENA_LISTEN);
 }
 
 void Group::addFollowers(CHAR_DATA *leader) {
@@ -668,7 +677,7 @@ void Group::_promote(CHAR_DATA *member) {
     if (_leader == member)
         return;
     _setLeader(member);
-    actToGroup(nullptr, nullptr, grpActMode(GC_LEADER | GC_REST), "Изменился лидер группы на %s.", _leaderName.c_str());
+    actToGroup(nullptr, nullptr, GC_LEADER | GC_REST, "Изменился лидер группы на %s.", _leaderName.c_str());
     auto diff = (u_short)_memberCap - (u_short)this->size();
     if (diff < 0) diff = abs(diff); else diff = 0;
     if (diff > 0){
@@ -677,7 +686,7 @@ void Group::_promote(CHAR_DATA *member) {
         for (auto it = this->begin(); it != this->end() && i < diff; it++){
             if (it->second->member != _leader ) {
                 expellList[i] = _calcUID(it->second->member);
-                actToGroup(nullptr, nullptr, grpActMode(GC_LEADER | GC_REST), "В группе не хватает места, нас покинул %s!", it->second->memberName.c_str());
+                actToGroup(nullptr, nullptr, GC_LEADER | GC_REST, "В группе не хватает места, нас покинул %s!", it->second->memberName.c_str());
                 ++i;
             }
         }

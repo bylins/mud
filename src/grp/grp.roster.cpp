@@ -19,7 +19,7 @@ void GroupRoster::restorePlayerGroup(CHAR_DATA *ch) {
         return;
     if (!grp->_restoreMember(ch))
         return;
-    grp->actToGroup(nullptr, ch,grpActMode(GC_LEADER | GC_REST), "$N заново присоединил$A к вашей группе.");
+    grp->actToGroup(nullptr, ch, GC_LEADER | GC_REST, "$N заново присоединил$U к вашей группе.");
 }
 
 void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
@@ -293,7 +293,7 @@ void GroupRoster::makeRequest(CHAR_DATA *author, char* target) {
             return;
         case RQ_R::RQ_R_OK:
             send_to_char("Заявка на вступление в группу отправлена.\r\n", author);
-            grp->actToGroup(nullptr, author, grpActMode(GC_LEADER), "Получена заявка от $N1 на вступление в группу.\r\n");
+            grp->actToGroup(nullptr, author, GC_LEADER, "Получена заявка от $N1 на вступление в группу.\r\n");
             break;
         case RQ_R::RQ_REFRESH:
             send_to_char("Заявка успешно продлена.\r\n", author);

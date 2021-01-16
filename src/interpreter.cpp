@@ -2050,6 +2050,10 @@ int perform_dupe_check(DESCRIPTOR_DATA * d)
 	PLR_FLAGS(d->character).unset(PLR_WRITING);
 	STATE(d) = CON_PLAYING;
 
+	if (d->character->personGroup != nullptr) {
+        d->character->personGroup->actToGroup(nullptr, d->character.get(), GC_LEADER | GC_REST, "$N восстановил$G связь.");
+	}
+
 	switch (mode)
 	{
 	case RECON:
