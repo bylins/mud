@@ -620,7 +620,7 @@ extern const religion_names_t religion_name;
 #define PRF_TRIPLE_THROW   (INT_TWO | 1 << 15) // готов использовать тройной бросок
 #define PRF_SHADOW_THROW   (INT_TWO | 1 << 16) // применяет "теневой бросок"
 #define PRF_DISP_COOLDOWNS (INT_TWO | 1 << 17) // Показывать кулдауны скиллов в промпте
-#define PRF_FOLLOW_GRP_EXIT (INT_TWO | 1 << 18) // Активирует телеграм-канал у персонажа
+#define PRF_FOLLOW_GRP_EXIT (INT_TWO | 1 << 18) // Активирует автоматику выхода из группы при смене следования
 
 // при добавлении не забываем про preference_bits[]
 

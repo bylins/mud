@@ -19,6 +19,7 @@ namespace ExpCalc {
     int level_exp(CHAR_DATA * ch, int level);
     int calcDeathExp(CHAR_DATA* ch);
     void advance_level(CHAR_DATA * ch);
+    void increaseExperience(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef);
 }
 
 namespace Remort

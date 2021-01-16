@@ -19,7 +19,7 @@ void GroupRoster::restorePlayerGroup(CHAR_DATA *ch) {
         return;
     if (!grp->_restoreMember(ch))
         return;
-    grp->actToGroup(ch, GRP_COMM_ALL, "$N заново присоединил$A к вашей группе.");
+    grp->actToGroup(nullptr, ch,grpActMode(GC_LEADER | GC_REST), "$N заново присоединил$A к вашей группе.");
 }
 
 void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
@@ -187,7 +187,7 @@ void GroupRoster::printList(CHAR_DATA *ch) {
     size_t cnt = this->_groupList.size();
     send_to_char(ch, "Текущее количество групп в мире: %lu\r\n", cnt);
     for (auto & it : this->_groupList) {
-        send_to_char(ch, "Группа лидера %s, кол-во участников: %hu\r\n",
+        send_to_char(ch, "Группа лидера %s, кол-во участников: %lu\r\n",
                      it.second->getLeaderName().c_str(),
                      it.second->size());
     }
@@ -293,7 +293,7 @@ void GroupRoster::makeRequest(CHAR_DATA *author, char* target) {
             return;
         case RQ_R::RQ_R_OK:
             send_to_char("Заявка на вступление в группу отправлена.\r\n", author);
-            grp->actToGroup(author, GRP_COMM_LEADER, "Получена заявка от $N1 на вступление в группу.\r\n");
+            grp->actToGroup(nullptr, author, grpActMode(GC_LEADER), "Получена заявка от $N1 на вступление в группу.\r\n");
             break;
         case RQ_R::RQ_REFRESH:
             send_to_char("Заявка успешно продлена.\r\n", author);
@@ -376,4 +376,20 @@ void GroupRoster::acceptInvite(CHAR_DATA* who, char* author) {
 
 void GroupRoster::runTests(CHAR_DATA *leader) {
 
+}
+
+// удаление заявок при пурже персонажа
+void GroupRoster::charDataPurged(CHAR_DATA *ch) {
+    if (IS_NPC(ch))
+        return;
+    for (auto r = _requestList.begin(); r != _requestList.end();){
+        if (r->get()->_applicant == ch) {
+            _requestList.erase(r);
+        } else {
+            ++r;
+        }
+
+
+
+    }
 }

@@ -87,7 +87,7 @@ void go_chopoff(CHAR_DATA * ch, CHAR_DATA * vict) {
         act("$n ловко подсек$q $N3, уронив $S на землю.", TRUE, ch, 0, vict, TO_NOTVICT | TO_ARENA_LISTEN);
         set_wait(vict, 3, FALSE);
 
-        if (ch->isInSameRoom(vict)) {
+        if (SAME_ROOM(ch, vict)) {
             GET_POS(vict) = POS_SITTING;
         }
 

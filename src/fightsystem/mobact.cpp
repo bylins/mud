@@ -312,7 +312,7 @@ CHAR_DATA* selectVictimDependingOnGroupFormation(CHAR_DATA *assaulter, CHAR_DATA
 	if (initialVictim->has_master()) {
 		leader = initialVictim->get_master();
 	}
-	if (!assaulter->isInSameRoom(leader)) {
+	if (!SAME_ROOM(assaulter, leader)) {
 		return initialVictim;
 	}
 

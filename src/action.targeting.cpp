@@ -34,7 +34,7 @@ namespace ActionTargeting {
 	const FilterType emptyFilter;
 
 	const FilterType isNotCorrectTarget = [](CHAR_DATA* actor, CHAR_DATA* target) {
-			return (!HERE(target) || IN_ROOM(target) == NOWHERE || !actor->isInSameRoom(target));
+			return (!HERE(target) || IN_ROOM(target) == NOWHERE || !SAME_ROOM(actor, target));
 	};
 
 	const FilterType isCorrectFriend = [](CHAR_DATA *actor, CHAR_DATA *target) {

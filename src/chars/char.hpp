@@ -757,7 +757,6 @@ private:
 	int souls;
 
 public:
-	bool isInSameRoom(const CHAR_DATA *ch) const {return SAME_ROOM(this, ch);};
 	room_rnum in_room;	// Location (real room number)
 
 private:

@@ -564,7 +564,6 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define SAME_ROOM(ch, tch)		(IN_ROOM(ch) == IN_ROOM(tch))
 #define GET_MANA_COST(ch,spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
@@ -1776,6 +1775,9 @@ private:
 };
 
 bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
+
+bool SAME_ROOM(CHAR_DATA *ch, CHAR_DATA *tch);
+bool SAME_ROOM(const CHAR_DATA *ch, const CHAR_DATA *tch);
 
 #endif // _UTILS_H_
 

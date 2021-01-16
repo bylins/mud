@@ -130,8 +130,8 @@ namespace test_utils
 
         m_result->add_follower_silently(character.get());
 
-        perform_group(m_result.get(), m_result.get());
-        perform_group(m_result.get(), character.get());
+//        perform_group(m_result.get(), m_result.get());
+//        perform_group(m_result.get(), character.get());
     }
 
     void CharacterBuilder::check_character_existance() const

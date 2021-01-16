@@ -3963,5 +3963,19 @@ bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict)
     {
         return false;
     }
-}
+};
+
+bool SAME_ROOM(CHAR_DATA *ch, CHAR_DATA *tch) {
+    if (ch == nullptr || tch == nullptr)
+        return false;
+    return IN_ROOM(ch) == IN_ROOM(tch);
+};
+
+bool SAME_ROOM(const CHAR_DATA *ch, const CHAR_DATA *tch) {
+    if (ch == nullptr || tch == nullptr)
+        return false;
+    return IN_ROOM(ch) == IN_ROOM(tch);
+};
+
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

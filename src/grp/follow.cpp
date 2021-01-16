@@ -12,7 +12,6 @@ void perform_drop_gold(CHAR_DATA * ch, int amount);
 // This will NOT do if a character quits/dies!!          //
 // При возврате 1 использовать ch нельзя, т.к. прошли через extract_char
 // TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
-// при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
 bool stop_follower(CHAR_DATA * ch, int mode)
 {
     struct follow_type *j, *k;

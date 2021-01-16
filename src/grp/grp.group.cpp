@@ -159,10 +159,10 @@ void Group::addMember(CHAR_DATA *member, bool silent) {
 
     auto it = this->find(_calcUID(member));
     if (it == this->end()) {
-        // рисуем сообщение до добавления, чтобы самому персонажу не показывать
         if (!silent) {
-            actToGroup(member, GRP_COMM_ALL, "$N принят$A в группу.");
-            send_to_char(member, "Вас приняли в группу.\r\n");
+            actToGroup(nullptr, member, grpActMode(GC_LEADER), "$N принят$A в члены вашего кружка (тьфу-ты, группы :).");
+            actToGroup(member, _leader, grpActMode(GC_CHAR) , "Вы приняты в группу $N1.");
+            actToGroup(member, _leader, grpActMode(GC_REST) , "$n принят$a в группу $N1.");
         }
         auto ci = char_info(_calcUID(member), getType(member), member, member->get_pc_name());
         this->emplace(_calcUID(member), std::make_shared<char_info>(ci));
@@ -173,6 +173,9 @@ void Group::addMember(CHAR_DATA *member, bool silent) {
         return;
     }
     member->personGroup = this;
+    if (!IS_NPC(member) && _maxPlayerLevel < GET_LEVEL(member))
+        _maxPlayerLevel = GET_LEVEL(member);
+
     auto r = groupRoster.findRequest(member->get_pc_name().c_str(), getLeaderName().c_str(), RQ_ANY);
     if (r)
         groupRoster.deleteRequest(r);
@@ -203,9 +206,18 @@ bool Group::_removeMember(int memberUID) {
         send_to_char(member, "Вы покинули группу.\r\n");
         member->personGroup = nullptr;
     }
-    sendToGroup(GRP_COMM_ALL, "Персонаж %s покинул группу.", it->second->memberName.c_str());
+    actToGroup(nullptr, it->second->member, grpActMode(GC_ROOM) , "%n покинул группу.");
     this->erase(memberUID); // finally remove it
-
+    // пересчитываем макс.уровень
+    if ( GET_LEVEL(member) == _maxPlayerLevel) {
+        _maxPlayerLevel = 1;
+        for (auto m: *this) {
+            if (m.second->member == nullptr || m.second->type == GM_CHARMEE)
+                continue;
+            if (GET_LEVEL(m.second->member) > _maxPlayerLevel)
+                _maxPlayerLevel = GET_LEVEL(m.second->member);
+        }
+    }
 
     // а также удаляем чармисов персонажа из групповых
     if (member->followers != nullptr) {
@@ -287,7 +299,7 @@ void Group::_clear(bool silentMode) {
 void Group::promote(char *applicant) {
     auto member = _findMember(applicant);
     if (member == nullptr || member->member == nullptr) {
-        sendToGroup(GRP_COMM_LEADER, "Нет такого персонажа.");
+        actToGroup(_leader, nullptr, grpActMode(GC_LEADER), "Нет такого персонажа.");
         return;
     }
     _promote(member->member);
@@ -324,15 +336,15 @@ void Group::approveRequest(const char *applicant) {
 void Group::expellMember(char *memberName) {
     auto vict = _findMember(memberName);
     if (vict == nullptr) {
-        sendToGroup(GRP_COMM_LEADER, "Нет такого персонажа.");
+        actToGroup(_leader, nullptr, grpActMode(GC_LEADER), "Нет такого персонажа.");
         return;
     }
     if (vict != nullptr && vict->member != nullptr) {
-        act("$N исключен$A из состава вашей группы.", FALSE, _leader, nullptr, vict, TO_CHAR);
-        act("Вы исключены из группы $n1!", FALSE, _leader, nullptr, vict, TO_VICT);
-        act("$N был$G исключен$A из группы $n1!", FALSE, _leader, nullptr, vict, TO_NOTVICT | TO_ARENA_LISTEN);
+        act("$N исключен$A из состава вашей группы.", FALSE, _leader, nullptr, vict->member, TO_CHAR);
+        act("Вы исключены из группы $n1!", FALSE, _leader, nullptr, vict->member, TO_VICT);
+        act("$N был$G исключен$A из группы $n1!", FALSE, _leader, nullptr, vict->member, TO_NOTVICT | TO_ARENA_LISTEN);
     } else {
-        sendToGroup(GRP_COMM_LEADER, "%s был исключен из группы.'\r\n", vict->memberName.c_str());
+        actToGroup(nullptr, nullptr, grpActMode(GC_ROOM), "%s был исключен из группы.'\r\n", vict->memberName.c_str());
     }
     _removeMember(vict->memberUID);
 }
@@ -561,6 +573,7 @@ void Group::charDataPurged(CHAR_DATA *ch) {
     }
 }
 
+/*
 void Group::sendToGroup(GRP_COMM mode, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
@@ -574,27 +587,28 @@ void Group::sendToGroup(GRP_COMM mode, const char *msg, ...) {
         send_to_char(_leader, "%s%s", smallBuf, "\r\n");
     }
 }
+*/
 
-// надстройка над act, пока только про персонажей
-void Group::actToGroup(CHAR_DATA* vict, GRP_COMM mode, const char *msg, ...) {
-    if (vict == nullptr)
-        return;
+// надстройка над act, регулируется набором флагов grpActMode + GRP_COMM
+// vict передается в аргумент функции act
+void Group::actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, grpActMode mode, const char *msg, ...) {
     va_list args;
     va_start(args, msg);
     vsnprintf(smallBuf, sizeof(smallBuf), msg, args);
     va_end(args);
     CHAR_DATA* to;
-    if (mode == GRP_COMM_LEADER) {
-        act(smallBuf, FALSE, _leader, nullptr, vict, TO_CHAR);
-        return;
-    }
     for (auto &it : *this) {
         to = it.second->member;
         if ( to == nullptr || to->purged()) {
             continue;
         }
-        act(smallBuf, FALSE, to, nullptr, vict, TO_CHAR);
+        if ((mode.test(GRP_COMM::GC_LEADER) && to == _leader) ||
+            (mode.test(GRP_COMM::GC_CHAR) && to == ch) ||
+            (mode.test(GRP_COMM::GC_REST) && to != ch && to != _leader))
+            act(smallBuf, TRUE, to, nullptr, vict, TO_CHAR);
     }
+    if (mode.test(GRP_COMM::GC_ROOM))
+        act(smallBuf, TRUE, ch, nullptr, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 }
 
 void Group::addFollowers(CHAR_DATA *leader) {
@@ -654,7 +668,7 @@ void Group::_promote(CHAR_DATA *member) {
     if (_leader == member)
         return;
     _setLeader(member);
-    sendToGroup(GRP_COMM_ALL, "Изменился лидер группы на %s.", _leaderName.c_str() );
+    actToGroup(nullptr, nullptr, grpActMode(GC_LEADER | GC_REST), "Изменился лидер группы на %s.", _leaderName.c_str());
     auto diff = (u_short)_memberCap - (u_short)this->size();
     if (diff < 0) diff = abs(diff); else diff = 0;
     if (diff > 0){
@@ -663,7 +677,7 @@ void Group::_promote(CHAR_DATA *member) {
         for (auto it = this->begin(); it != this->end() && i < diff; it++){
             if (it->second->member != _leader ) {
                 expellList[i] = _calcUID(it->second->member);
-                sendToGroup(GRP_COMM_ALL, "В группе не хватает места, нас покинул %s!", it->second->memberName.c_str() );
+                actToGroup(nullptr, nullptr, grpActMode(GC_LEADER | GC_REST), "В группе не хватает места, нас покинул %s!", it->second->memberName.c_str());
                 ++i;
             }
         }
@@ -685,128 +699,6 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 }
 
 
-/*++
-   Функция начисления опыта
-      ch - кому опыт начислять
-           Вызов этой функции для NPC смысла не имеет, но все равно
-           какие-то проверки внутри зачем то делаются
---*/
-void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef)
-{
-
-
-// Странно, но для NPC эта функция тоже должна работать
-//  if (IS_NPC(ch) || !OK_GAIN_EXP(ch,victim))
-    if (!OK_GAIN_EXP(ch, victim))
-    {
-        send_to_char("Ваше деяние никто не оценил.\r\n", ch);
-        return;
-    }
-
-    // 1. Опыт делится поровну на всех
-    int exp = GET_EXP(victim) / MAX(members, 1);
-
-    if(victim->get_zone_group() > 1 && members < victim->get_zone_group())
-    {
-        // в случае груп-зоны своего рода планка на мин кол-во человек в группе
-        exp = GET_EXP(victim) / victim->get_zone_group();
-    }
-
-    // 2. Учитывается коэффициент (лидерство, разность уровней)
-    //    На мой взгляд его правильней использовать тут а не в конце процедуры,
-    //    хотя в большинстве случаев это все равно
-    exp = exp * koef / 100;
-
-    // 3. Вычисление опыта для PC и NPC
-    if (IS_NPC(ch))
-    {
-        exp = MIN(max_exp_gain_npc, exp);
-        exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
-    }
-    else
-        exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
-    // 4. Последняя проверка
-    exp = MAX(1, exp);
-    if (exp > 1)
-    {
-        if (Bonus::is_bonus(Bonus::BONUS_EXP))
-        {
-            exp *= Bonus::get_mult_bonus();
-        }
-
-        if (!IS_NPC(ch) && !ch->affected.empty()) {
-            for (const auto& aff : ch->affected) {
-                if (aff->location == APPLY_BONUS_EXP) {
-                    // скушал свиток с эксп бонусом
-                    exp *= MIN(3, aff->modifier); // бонус макс тройной
-                }
-            }
-        }
-
-        int long_live_bonus = floor(ExpCalc::get_npc_long_live_exp_bounus( GET_MOB_VNUM(victim)));
-        if (long_live_bonus>1)	{
-            std::string mess;
-            switch (long_live_bonus) {
-                case 2:
-                    mess = "Редкая удача! Опыт повышен!\r\n";
-                    break;
-                case 3:
-                    mess = "Очень редкая удача! Опыт повышен!\r\n";
-                    break;
-                case 4:
-                    mess = "Очень-очень редкая удача! Опыт повышен!\r\n";
-                    break;
-                case 5:
-                    mess = "Вы везунчик! Опыт повышен!\r\n";
-                    break;
-                case 6:
-                    mess = "Ваша удача велика! Опыт повышен!\r\n";
-                    break;
-                case 7:
-                    mess = "Ваша удача достигла небес! Опыт повышен!\r\n";
-                    break;
-                case 8:
-                    mess = "Ваша удача коснулась луны! Опыт повышен!\r\n";
-                    break;
-                case 9:
-                    mess = "Ваша удача затмевает солнце! Опыт повышен!\r\n";
-                    break;
-                case 10:
-                    mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
-                    break;
-                default:
-                    mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
-                    break;
-            }
-            send_to_char(mess.c_str(), ch);
-        }
-
-        exp = MIN(max_exp_gain_pc(ch), exp);
-        send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n", exp, desc_count(exp, WHAT_POINT));
-    }
-    else if (exp == 1) {
-        send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
-    }
-    gain_exp(ch, exp);
-    GET_ALIGNMENT(ch) += (-GET_ALIGNMENT(victim) - GET_ALIGNMENT(ch)) / 16;
-    TopPlayer::Refresh(ch);
-
-    if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
-        && !IS_NPC(ch)
-        && !IS_IMMORTAL(ch)
-        && IS_NPC(victim)
-        && !IS_CHARMICE(victim)
-        && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
-    {
-        mob_stat::add_mob(victim, members);
-        EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
-    }
-    else if (IS_NPC(ch) && !IS_NPC(victim)
-             && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
-    {
-        mob_stat::add_mob(ch, 0);
-    }
-}
 
 /*++
    Функция расчитывает всякие бонусы для группы при получении опыта,
@@ -821,146 +713,109 @@ void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koe
 
 --*/
 
-void group_gain(CHAR_DATA * killer, CHAR_DATA * victim)
-{
-    int inroom_members, koef = 100, maxlevel;
-    struct follow_type *f;
-    int partner_count = 0;
-    int total_group_members = 1;
-    bool use_partner_exp = false;
+void Group::gainExp(CHAR_DATA * victim) {
+    int inroom_members = 0;
+    u_short expMultiplicator = 0;
+    u_short expDivider = 1;
+    CHAR_DATA* ch;
 
-    // если наем лидер, то тоже режем экспу
-    if (can_use_feat(killer, CYNIC_FEAT)) {
-        maxlevel = 300;
-    }
-    else {
-        maxlevel = GET_LEVEL(killer);
-    }
+    // на всякий пожарный проверим
+    if (!victim)
+        return;
 
-    auto leader = killer->get_master();
-    if (nullptr == leader) {
-        leader = killer;
-    }
+    // есть ли в комнате живой лидер
+    const bool leader_inroom = SAME_ROOM(_leader, victim);
 
-    // k - подозрение на лидера группы
-    const bool leader_inroom = AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
-                               && SAME_ROOM(leader, killer);
-
-    // Количество согрупников в комнате
-    if (leader_inroom) {
-        inroom_members = 1;
-        maxlevel = GET_LEVEL(leader);
-    }
-    else {
-        inroom_members = 0;
-    }
-
-    // Вычисляем максимальный уровень в группе
-    for (f = leader->followers; f; f = f->next)
-    {
-        if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) ++total_group_members;
-        if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-            && SAME_ROOM(f->follower, killer))
-        {
-            // если в группе наем, то режим опыт всей группе
-            // дабы наема не выгодно было бы брать в группу
-            // ставим 300, чтобы вообще под ноль резало
-            if (can_use_feat(f->follower, CYNIC_FEAT))
-            {
-                maxlevel = 300;
-            }
-            // просмотр членов группы в той же комнате
-            // член группы => PC автоматически
+    // прежде чем раздать опыт, считаем количество персонажей в клетке
+    for (auto it: *this) {
+        ch = it.second->member;
+        if (ch != nullptr && SAME_ROOM(ch, victim) && it.second->type == GM_CHAR) {
             ++inroom_members;
-            maxlevel = MAX(maxlevel, GET_LEVEL(f->follower));
-            if (!IS_NPC(f->follower))
-            {
-                partner_count++;
-            }
         }
     }
+    // есть партнерка и персонажей двое и зона негрупповая
+    if (leader_inroom and inroom_members == 2 and can_use_feat(_leader, PARTNER_FEAT) and _leader->get_zone_group() <2)
+        expDivider = 1;
+    else
+        expDivider = inroom_members;
 
-    GroupPenaltyCalculator group_penalty(killer, leader, maxlevel, groupRoster.grouping);
-    koef -= group_penalty.get();
-
-    koef = MAX(0, koef);
-
-    // Лидерство используется, если в комнате лидер и есть еще хоть кто-то
-    // из группы из PC (последователи типа лошади или чармисов не считаются)
-    if (koef >= 100 && leader_inroom && (inroom_members > 1) && calc_leadership(leader))
-    {
-        koef += 20;
-    }
-
-    // Раздача опыта
-
-    // если групповой уровень зоны равняется единице
-    if (zone_table[world[killer->in_room]->zone].group < 2)
-    {
-        // чтобы не абьюзили на суммонах, когда в группе на самом деле больше
-        // двух мемберов, но лишних реколят перед непосредственным рипом
-        use_partner_exp = total_group_members == 2;
-    }
-
-    // если лидер группы в комнате
-    if (leader_inroom)
-    {
-        // если у лидера группы есть способность напарник
-        if (can_use_feat(leader, PARTNER_FEAT) && use_partner_exp)
-        {
-            // если в группе всего двое человек
-            // k - лидер, и один последователь
-            if (partner_count == 1)
-            {
-                // и если кожф. больше или равен 100
-                if (koef >= 100)
-                {
-                    if (leader->get_zone_group() < 2)
-                    {
-                        koef += 100;
-                    }
-                }
-            }
+    // погнали раздавать опыт
+    for (auto m: *this) {
+        ch = m.second->member;
+        if (ch != nullptr && SAME_ROOM(ch, victim) && m.second->type == GM_CHAR) {
+            expMultiplicator = calcExpMultiplicator(ch); // цифра процента
         }
-        perform_group_gain(leader, victim, inroom_members, koef);
-    }
-
-    for (f = leader->followers; f; f = f->next)
-    {
-        if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-            && SAME_ROOM(f->follower, killer))
-        {
-            perform_group_gain(f->follower, victim, inroom_members, koef);
-        }
+        // если прокнула лидерка, то добавляем еще 20
+        if (leader_inroom && calc_leadership(_leader) and inroom_members > 1)
+            expMultiplicator += 20;
+        increaseExperience(ch, victim, expDivider, expMultiplicator);
     }
 }
 
-
-int calc_leadership(CHAR_DATA * ch)
+bool calc_leadership(CHAR_DATA * ch)
 {
     int prob, percent;
 
     if (IS_NPC(ch) || ch->personGroup == nullptr) {
-        return FALSE;
+        return false;
     }
 
     CHAR_DATA* leader = ch->personGroup->getLeader();
 
     // если лидер умер или нет в комнате - фиг вам, а не бонусы
-    if (leader == nullptr || IN_ROOM(ch) != IN_ROOM(leader)) {
-        return FALSE;
+    if (!SAME_ROOM(ch, leader)) {
+        return false;
     }
 
     if (!leader->get_skill(SKILL_LEADERSHIP))	{
-        return (FALSE);
+        return false;
     }
 
     percent = number(1, 101);
     prob = calculate_skill(leader, SKILL_LEADERSHIP, 0);
     if (percent > prob)  {
-        return (FALSE);
+        return false;
     }
     else {
-        return (TRUE);
+        return true;
     }
 }
+
+
+u_short Group::calcExpMultiplicator(const CHAR_DATA* player)
+{
+    const int player_remorts = static_cast<int>(GET_REMORT(player));
+    const int player_class = static_cast<int>(GET_CLASS(player));
+    const int player_level = GET_LEVEL(player);
+    auto m_grouping = groupRoster.grouping;
+    short result = DEFAULT_100;
+
+    if (IS_NPC(player))
+    {
+        log("LOGIC ERROR: try to get penalty for NPC [%s], VNum: %d\n",
+            player->get_name().c_str(),
+            GET_MOB_VNUM(player));
+        return result;
+    }
+
+    if (0 > player_class || player_class > NUM_PLAYER_CLASSES) {
+        log("LOGIC ERROR: wrong player class: %d for player [%s]",
+            player_class,
+            player->get_name().c_str());
+        return result;
+
+    }
+
+    if (0 > player_remorts || player_remorts > MAX_REMORT){
+        log("LOGIC ERROR: wrong number of remorts: %d for player [%s]",
+            player_remorts,
+            player->get_name().c_str());
+        return result;
+    }
+
+    if (_maxPlayerLevel - player_level > m_grouping[player_class][player_remorts]) {
+        return MAX(1, DEFAULT_100 - 3 * (_maxPlayerLevel - player_level));
+    }
+    return DEFAULT_100;
+}
+

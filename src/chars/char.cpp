@@ -41,6 +41,8 @@
 
 #include "grp/grp.main.h"
 
+extern GroupRoster& groupRoster;
+
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
 
@@ -613,6 +615,7 @@ void CHAR_DATA::purge()
 	// чистим указатель в групе
 	if (this->personGroup != nullptr)
 	    this->personGroup->charDataPurged(this);
+	groupRoster.charDataPurged(this);
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
@@ -969,16 +972,12 @@ bool AWAKE(const CHAR_DATA* ch)
 
 bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 {
-	return !NAME_BAD(ch)
-		&& (NAME_FINE(ch)
-			|| !(GET_LEVEL(ch) == NAME_LEVEL))
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		&& IS_NPC(victim)
-		&& (GET_EXP(victim) > 0)
-		&& (!IS_NPC(victim)
-			|| !IS_NPC(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		&& !IS_HORSE(victim);
+    return !NAME_BAD(ch)
+           && (NAME_FINE(ch) || !(GET_LEVEL(ch) == NAME_LEVEL))
+           && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+           && IS_NPC(victim)
+           && (GET_EXP(victim) > 0)
+           && !IS_CHARMICE(victim);
 }
 
 bool IS_MALE(const CHAR_DATA* ch)

@@ -19,19 +19,28 @@
 
 enum GM_TYPE {GM_CHAR, GM_CHARMEE};
 enum RQ_TYPE {RQ_GROUP, RQ_PERSON, RQ_ANY};
-enum GRP_COMM {GRP_COMM_LEADER, GRP_COMM_ALL, GRP_COMM_OTHER};
+
+class grpActMode:std::bitset<4> {
+public:
+    enum GRP_COMM : short {
+        GC_LEADER = 0, // только лидеру
+        GC_CHAR = 1, // только персонажу
+        GC_REST = 2, // всем остальным
+        GC_ROOM = 3 // эхо в комнату
+    };
+    grpActMode(GRP_COMM val);
+};
 enum RQ_R {RQ_R_OK, RQ_R_NO_GROUP, RQ_R_OVERFLOW, RQ_REFRESH};
 enum INV_R {INV_R_OK, INV_R_NO_PERSON, INV_R_BUSY, INV_R_REFRESH};
 
 void do_grequest(CHAR_DATA *ch, char *argument, int, int);
-void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
-void do_group(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_group2(CHAR_DATA *ch, char *argument, int, int);
 void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 int max_group_size(CHAR_DATA *ch);
 bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict);
-int calc_leadership(CHAR_DATA * ch);
+// возвращает true, если рядом с персонажем лидер группы и прокнул скилл
+bool calc_leadership(CHAR_DATA * ch);
 
 class Request;
 
@@ -49,6 +58,10 @@ struct char_info {
     sclock_t expiryTime; // время, когда запись автоматом удаляется после проверок.
 };
 
+struct PenaltyCalcData {
+    int penalty;
+};
+
 using grp_mt = std::map<int, std::shared_ptr<char_info>>;
 using grp_ptr = std::shared_ptr<Group>;
 using rq_ptr = std::shared_ptr<Request>;
@@ -59,6 +72,21 @@ const duration DEF_EXPIRY_TIME = 600s;
 
 inline bool IN_GROUP(CHAR_DATA* ch) {return ch != nullptr && ch->personGroup != nullptr;}
 inline bool IN_SAME_GROUP(CHAR_DATA* p1, CHAR_DATA* p2) {return IN_GROUP(p1) && IN_GROUP(p2) && p1->personGroup == p2->personGroup;}
+
+// класс, хранящий обвязку штрафов по экспе для группы
+// наркоман писал, не иначе
+class GroupPenalties
+{
+public:
+    using class_penalties_t = std::array<int, MAX_REMORT + 1>;
+    using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
+
+    int init();
+    const auto& operator[](const size_t player_class) const { return m_grouping[player_class]; }
+private:
+    penalties_t m_grouping;
+};
+
 
 // класс-коллекция персонажей обоих типов что ли..
 class Group : public grp_mt {
@@ -73,6 +101,8 @@ private:
     std::string _leaderName;
     // ссылка на персонажа, АХТУНГ! Может меняться и быть невалидным
     CHAR_DATA* _leader = nullptr;
+    // макс.уровень игрока в группе, для расчета штрафа
+    u_short _maxPlayerLevel = 1;
 public:
     u_long getUid() const;
     const std::string &getLeaderName() const;
@@ -107,6 +137,8 @@ private:
     static void _printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header);
     bool _sameGroup(CHAR_DATA * ch, CHAR_DATA * vict);
 public:
+    constexpr static int DEFAULT_100 = 100;
+
     void addFollowers(CHAR_DATA* leader);
     void addMember(CHAR_DATA *member, bool silent = false);
     void expellMember(char* memberName);
@@ -120,53 +152,17 @@ public:
     void rejectRequest(char *applicant);
     void leaveGroup(CHAR_DATA* vict);
 
-    void sendToGroup(GRP_COMM mode, const char *msg, ...);
-    void actToGroup(CHAR_DATA* vict, GRP_COMM mode, const char *msg, ...);
+//    void sendToGroup(GRP_COMM mode, const char *msg, ...);
+    void actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, grpActMode mode, const char *msg, ...);
+    u_short calcExpMultiplicator(const CHAR_DATA* player);
 public:
     // всякий унаследованный стафф
     CHAR_DATA* get_random_pc_group();
     // лень обвязывать, тупо переместил объект
     DpsSystem::GroupListType _group_dps;
     bool has_clan_members_in_group(CHAR_DATA *victim);
-
-};
-
-// это писал йобаный наркоман
-class GroupPenalties
-{
-public:
-    using class_penalties_t = std::array<int, MAX_REMORT + 1>;
-    using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
-
-    int init();
-    const auto& operator[](const size_t character_class) const { return m_grouping[character_class]; }
-
-private:
-    penalties_t m_grouping;
-};
-
-class GroupPenaltyCalculator
-{
-public:
-    constexpr static int DEFAULT_PENALTY = 100;
-
-    GroupPenaltyCalculator(const CHAR_DATA* killer, const CHAR_DATA* leader, const int max_level, const GroupPenalties& grouping):
-            m_killer(killer),
-            m_leader(leader),
-            m_max_level(max_level),
-            m_grouping(grouping)
-    {
-    }
-
-    int get() const;
-
-private:
-    const CHAR_DATA* m_killer;
-    const CHAR_DATA* m_leader;
-    const int m_max_level;
-    const GroupPenalties& m_grouping;
-
-    bool penalty_by_leader(const CHAR_DATA* player, int& penalty) const;
+    // группа получает экспу за убивство
+    void gainExp(CHAR_DATA * victim);
 };
 
 class Request {
@@ -185,6 +181,7 @@ class GroupRoster {
 // properties
 public:
     GroupRoster();
+    void charDataPurged(CHAR_DATA* ch); // очистка заявок при пурже персонажа
     void restorePlayerGroup(CHAR_DATA* ch); // возвращает игрока в группу после смерти
     void processGroupCommands(CHAR_DATA *ch, char *argument);
     void printList(CHAR_DATA *ch);

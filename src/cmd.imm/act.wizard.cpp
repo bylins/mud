@@ -4131,8 +4131,7 @@ void do_advance(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		imm_log("%s has advanced %s to level %d (from %d)", GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
 	}
 
-	ExpCalc::gain_exp_regardless(victim, ExpCalc::level_exp(victim, newlevel)
-		- GET_EXP(victim));
+	ExpCalc::gain_exp_regardless(victim, ExpCalc::level_exp(victim, newlevel) - GET_EXP(victim));
 	victim->save_char();
 }
 

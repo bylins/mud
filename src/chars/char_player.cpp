@@ -1057,49 +1057,6 @@ void Player::save_char()
 
 #undef NO_EXTRANEOUS_TRIGGERS
 
-// на счет reboot: используется только при старте мада в вызовах из entrycount
-// при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
-// поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
-// убедиться, что изменный код работает с действительно проинициализированными полями персонажа
-// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
-// * \param reboot - по дефолту = false
-int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/)
-{
-    int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
-    long int lnum = 0, lnum3 = 0;
-    unsigned long long llnum = 0;
-    FBFILE *fl = NULL;
-    char filename[40];
-    char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
-    char line1[MAX_RAW_INPUT_LENGTH];
-    struct timed_type timed;
-
-	*filename = '\0';
-	log("Load ascii char %s", name);
-	if (!find_id)
-	{
-		id = 1;
-	}
-	else
-	{
-		id = find_name(name);
-	}
-
-	bool result = id >= 0;
-	result = result && get_filename(name, filename, PLAYERS_FILE);
-	result = result && (fl = fbopen(filename, FB_READ));
-	if (!result)
-	{
-		const std::size_t BUFFER_SIZE = 1024;
-		char buffer[BUFFER_SIZE];
-		log("Can't load ascii. ID: %d; File name: \"%s\"; Current directory: \"%s\")", id, filename, getcwd(buffer, BUFFER_SIZE));
-		return -1;
-	}
-    if (!_pfileLoad(fl, reboot, name));
-        return -1;
-	return id;
-}
-
 bool Player::get_disposable_flag(int num)
 {
 	if (num < 0 || num >= DIS_TOTAL_NUM)
@@ -1455,177 +1412,13 @@ unsigned long int Player::getTelegramId() {
     return this->player_specials->saved.telegram_id;
 }
 
-bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
-    int num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
-    long int lnum = 0, lnum3 = 0;
-    unsigned long long llnum = 0;
-    char filename[40];
-    char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
-    char line1[MAX_RAW_INPUT_LENGTH];
-    struct timed_type timed;
-    ///////////////////////////////////////////////////////////////////////////////
+void Player::initPlayerFields() {// character init
+// initializations necessary to keep some things straight
+    int i = 0;
+    set_npc_name(0);
+    player_data.long_descr = "";
 
-    // первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
-    if (!this->player_specials)
-    {
-        this->player_specials = std::make_shared<player_special_data>();
-    }
-
-    set_level(1);
-    set_class(1);
-    set_uid(0);
-    set_last_logon(time(0));
-    set_idnum(0);
-    set_exp(0);
-    set_remort(0);
-    GET_LASTIP(this)[0] = 0;
-    GET_EMAIL(this)[0] = 0;
-    PLR_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
-
-    bool skip_file = 0;
-
-    do
-    {
-        if (!fbgetline(fl, line))
-        {
-            log("SYSERROR: Wrong file ascii %d %s", id, filename);
-            return (-1);
-        }
-
-        tag_argument(line, tag);
-        for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++)
-        {
-            line1[i] = line[i];
-        }
-        line1[i] = '\0';
-        num = atoi(line1);
-        lnum = atol(line1);
-        try
-        {
-            llnum = boost::lexical_cast<unsigned long long>(line1);
-        }
-        catch(boost::bad_lexical_cast &)
-        {
-            llnum = 0;
-        }
-
-
-        switch (*tag)
-        {
-            case 'A':
-                if (!strcmp(tag, "Act "))
-                {
-                    PLR_FLAGS(this).from_string(line);
-                }
-                break;
-            case 'C':
-                if (!strcmp(tag, "Clas"))
-                {
-                    set_class(num);
-                }
-                break;
-            case 'E':
-                if (!strcmp(tag, "Exp "))
-                {
-                    set_exp(lnum);
-                }
-                    //added by WorM 2010.08.27 лоадим мыло и айпи даже при ребуте
-                else if (!strcmp(tag, "EMal"))
-                    strcpy(GET_EMAIL(this), line);
-                break;
-            case 'H':
-                if (!strcmp(tag, "Host"))
-                {
-                    strcpy(GET_LASTIP(this), line);
-                }
-                //end by WorM
-                break;
-            case 'I':
-                if (!strcmp(tag, "Id  "))
-                {
-                    set_idnum(lnum);
-                }
-                break;
-            case 'L':
-                if (!strcmp(tag, "LstL"))
-                {
-                    set_last_logon(lnum);
-                }
-                else if (!strcmp(tag, "Levl"))
-                {
-                    set_level(num);
-                }
-                break;
-            case 'N':
-                if (!strcmp(tag, "Name"))
-                {
-                    set_name(line);
-                }
-                break;
-            case 'R':
-                if (!strcmp(tag, "Rebt"))
-                    skip_file = 1;
-                else if (!strcmp(tag, "Rmrt"))
-                {
-                    set_remort(num);
-                }
-                break;
-            case 'U':
-                if (!strcmp(tag, "UIN "))
-                {
-                    set_uid(num);
-                }
-                break;
-            default:
-                sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
-        }
-    }
-    while (!skip_file);
-
-    //added by WorM 2010.08.27 лоадим мыло и последний ip даже при считывании индексов
-    while((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this)))
-    {
-        if (!fbgetline(fl, line))
-        {
-            log("SYSERROR: Wrong file ascii %d %s", id, filename);
-            return (-1);
-        }
-
-        tag_argument(line, tag);
-
-        if (!strcmp(tag, "EMal"))
-            strcpy(GET_EMAIL(this), line);
-        else if (!strcmp(tag, "Host"))
-            strcpy(GET_LASTIP(this), line);
-    }
-    //end by WorM
-
-    // если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
-
-    //Indexing experience - if his exp is lover than required for his level - set it to required
-    if (GET_EXP(this) < ExpCalc::level_exp(this, GET_LEVEL(this)))
-    {
-        set_exp(ExpCalc::level_exp(this, GET_LEVEL(this)));
-    }
-
-    if (reboot)
-    {
-        fbclose(fl);
-        return id;
-    }
-    this->str_to_cities(default_str_cities);
-    // если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
-
-///////////////////////////////////////////////////////////////////////////////
-
-
-    // character init
-    // initializations necessary to keep some things straight
-
-    this->set_npc_name(0);
-    this->player_data.long_descr = "";
-
-    this->real_abils.Feats.reset();
+    real_abils.Feats.reset();
 
     // волхвам сетим все спеллы на рунах, остальные инит нулями
     if (GET_CLASS(this) != CLASS_DRUID)
@@ -1637,13 +1430,13 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
 
     for (i = 1; i <= MAX_SPELLS; i++)
         GET_SPELL_MEM(this, i) = 0;
-    this->char_specials.saved.affected_by = clear_flags;
+    char_specials.saved.affected_by = clear_flags;
     POOFIN(this) = NULL;
     POOFOUT(this) = NULL;
-    GET_RSKILL(this) = NULL;	// рецептов не знает
-    this->char_specials.carry_weight = 0;
-    this->char_specials.carry_items = 0;
-    this->real_abils.armor = 100;
+    GET_RSKILL(this) = NULL;    // рецептов не знает
+    char_specials.carry_weight = 0;
+    char_specials.carry_items = 0;
+    real_abils.armor = 100;
     GET_MEM_TOTAL(this) = 0;
     GET_MEM_COMPLETED(this) = 0;
     MemQ_init(this);
@@ -1651,15 +1444,15 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
     GET_AC(this) = 10;
     GET_ALIGNMENT(this) = 0;
     GET_BAD_PWS(this) = 0;
-    this->player_data.time.birth = time(0);
+    player_data.time.birth = time(0);
     GET_KIN(this) = 0;
 
-    this->set_str(10);
-    this->set_dex(10);
-    this->set_con(10);
-    this->set_int(10);
-    this->set_wis(10);
-    this ->set_cha(10);
+    set_str(10);
+    set_dex(10);
+    set_con(10);
+    set_int(10);
+    set_wis(10);
+    set_cha(10);
 
     GET_COND(this, DRUNK) = 0;
     GET_DRUNK_STATE(this) = 0;
@@ -1707,14 +1500,14 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
     set_gold(0, false);
     set_bank(0, false);
     set_ruble(0);
-    this->player_specials->saved.GodsLike = 0;
+    player_specials->saved.GodsLike = 0;
     GET_HIT(this) = 21;
     GET_MAX_HIT(this) = 21;
     GET_HEIGHT(this) = 50;
     GET_HR(this) = 0;
     GET_COND(this, FULL) = 0;
     SET_INVIS_LEV(this, 0);
-    this->player_data.time.logon = time(0);
+    player_data.time.logon = time(0);
     GET_MOVE(this) = 44;
     GET_MAX_MOVE(this) = 44;
     KARMA(this) = 0;
@@ -1724,50 +1517,199 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
     STRING_WIDTH(this) = 30;
     NAME_ID_GOD(this) = 0;
     GET_OLC_ZONE(this) = 0;
-    this->player_data.time.played = 0;
+    player_data.time.played = 0;
     GET_LOADROOM(this) = NOWHERE;
     GET_RELIGION(this) = 1;
     GET_RACE(this) = 1;
-    this->set_sex(ESex::SEX_NEUTRAL);
+    set_sex(ESex::SEX_NEUTRAL);
     GET_COND(this, THIRST) = NORM_COND_VALUE;
     GET_WEIGHT(this) = 50;
     GET_WIMP_LEV(this) = 0;
-    PRF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
-    AFF_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
+    PRF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
+    AFF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
     GET_PORTALS(this) = NULL;
     EXCHANGE_FILTER(this) = NULL;
     clear_ignores();
     CREATE(GET_LOGS(this), 1 + LAST_LOG);
     NOTIFY_EXCH_PRICE(this) = 0;
-    this->player_specials->saved.HiredCost = 0;
-    this->set_who_mana(WHO_MANA_MAX);
-    this->set_who_last(time(0));
+    player_specials->saved.HiredCost = 0;
+    set_who_mana(WHO_MANA_MAX);
+    set_who_last(time(0));
+}
 
-    while (fbgetline(fl, line))
+int Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
+    int num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
+    long int lnum = 0, lnum3 = 0;
+    unsigned long long llnum = 0;
+    char filename[40];
+    char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
+    char line1[MAX_RAW_INPUT_LENGTH];
+    struct timed_type timed;
+    ///////////////////////////////////////////////////////////////////////////////
+
+    // первыми иним и парсим поля для ребута до поля "Rebt", если reboot на входе = 1, то на этом парс и кончается
+    if (!this->player_specials)
     {
+        this->player_specials = std::make_shared<player_special_data>();
+    }
+
+    set_level(1);
+    set_class(1);
+    set_uid(0);
+    set_last_logon(time(0));
+    set_idnum(0);
+    set_exp(0);
+    set_remort(0);
+    GET_LASTIP(this)[0] = 0;
+    GET_EMAIL(this)[0] = 0;
+    PLR_FLAGS(this).from_string("");	// suspicious line: we should clear flags.. Loading from "" does not clear flags.
+
+    bool skip_file = 0;
+
+    do
+    {
+        if (!fbgetline(fl, line)) {
+            log("SYSERROR: Wrong file ascii %d %s", id, filename);
+            return (-1);
+        }
+
         tag_argument(line, tag);
-        for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++)
-        {
+        for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++) {
             line1[i] = line[i];
         }
         line1[i] = '\0';
         num = atoi(line1);
         lnum = atol(line1);
-        try
-        {
-            llnum = std::stoull(line1, nullptr, 10);
+        try {
+            llnum = boost::lexical_cast<unsigned long long>(line1);
         }
-        catch (const std::invalid_argument &)
-        {
+        catch(boost::bad_lexical_cast &) {
             llnum = 0;
         }
-        catch (const std::out_of_range &)
+        // reboot header
+        switch (*tag) {
+            case 'N': {
+                if (!strcmp(tag, "Name"))
+                {
+                    set_name(line);
+                }
+                break;
+            }
+            case 'L': {
+                if (!strcmp(tag, "LstL"))
+                {
+                    set_last_logon(lnum);
+                }
+                else if (!strcmp(tag, "Levl"))
+                {
+                    set_level(num);
+                }
+                break;
+            }
+            case 'C': {
+                if (!strcmp(tag, "Clas"))
+                    set_class(num);
+                break;
+            }
+            case 'U': {
+                if (!strcmp(tag, "UIN ")) {
+                    set_uid(num);
+                }
+                break;
+            }
+            case 'H': {
+                if (!strcmp(tag, "Host")) {
+                    strcpy(GET_LASTIP(this), line);
+                }
+                break;
+            }
+            case 'I': {
+                if (!strcmp(tag, "Id  ")) {
+                    set_idnum(lnum);
+                }
+                break;
+            }
+            case 'E': {
+                if (!strcmp(tag, "Exp ")) {
+                    set_exp(lnum);
+                }
+                else if (!strcmp(tag, "EMal"))
+                    strcpy(GET_EMAIL(this), line);
+                break;
+            }
+            case 'A': {
+                if (!strcmp(tag, "Act "))
+                    PLR_FLAGS(this).from_string(line);
+                break;
+            }
+            case 'R': {
+                if (!strcmp(tag, "Rebt"))
+                    skip_file = 1;
+                else if (!strcmp(tag, "Rmrt"))
+                {
+                    set_remort(num);
+                }
+                break;
+            }
+            default:
+                sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
+        }
+    }
+    while (!skip_file);
+
+    while((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this)))
+    {
+        if (!fbgetline(fl, line))
         {
+            log("SYSERROR: Wrong file ascii %d %s", id, filename);
+            return (-1);
+        }
+
+        tag_argument(line, tag);
+
+        if (!strcmp(tag, "EMal"))
+            strcpy(GET_EMAIL(this), line);
+        else if (!strcmp(tag, "Host"))
+            strcpy(GET_LASTIP(this), line);
+    }
+    // если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
+
+    //Indexing experience - if his exp is lower than required for his level - set it to required
+    if (GET_EXP(this) < ExpCalc::level_exp(this, GET_LEVEL(this))) {
+        set_exp(ExpCalc::level_exp(this, GET_LEVEL(this)));
+    }
+
+    if (reboot) {
+        fbclose(fl);
+        return id;
+    }
+    this->str_to_cities(default_str_cities);
+    // если происходит обычный лоад плеера, то читаем файл дальше и иним все остальные поля
+
+///////////////////////////////////////////////////////////////////////////////
+    initPlayerFields();
+
+    while (fbgetline(fl, line))
+    {
+        tag_argument(line, tag);
+        for (i = 0; !(line[i] == ' ' || line[i] == '\0'); i++){
+            line1[i] = line[i];
+        }
+        line1[i] = '\0';
+        num = atoi(line1);
+        lnum = atol(line1);
+        try {
+            llnum = std::stoull(line1, nullptr, 10);
+        }
+        catch (const std::invalid_argument &) {
+            llnum = 0;
+        }
+        catch (const std::out_of_range &) {
             llnum = 0;
         }
         switch (*tag)
         {
-            case 'A':
+            case 'A':{
                 if (!strcmp(tag, "Ac  "))
                 {
                     GET_AC(this) = num;
@@ -1807,8 +1749,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     GET_ALIGNMENT(this) = num;
                 }
                 break;
-
-            case 'B':
+            }
+            case 'B': {
                 if (!strcmp(tag, "Badp"))
                 {
                     GET_BAD_PWS(this) = num;
@@ -1853,8 +1795,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                 else if (!strcmp(tag, "Brth"))
                     this->player_data.time.birth = lnum;
                 break;
-
-            case 'C':
+            }
+            case 'C':{
                 if (!strcmp(tag, "Cha "))
                     this->set_cha(num);
                 else if ( !strcmp(tag, "Chrm") ) {
@@ -1900,8 +1842,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     this->str_to_cities(std::string(buffer_cities));
                 }
                 break;
-
-            case 'D':
+            }
+            case 'D': {
                 if (!strcmp(tag, "Desc"))
                 {
                     const auto ptr = fbgetstring(fl);
@@ -1935,14 +1877,12 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
 
                 }
                 break;
-
-            case 'E':
+            }
+            case 'E': {
                 if (!strcmp(tag, "ExFl"))
                     EXCHANGE_FILTER(this) = str_dup(line);
                 else if (!strcmp(tag, "EMal"))
                     strcpy(GET_EMAIL(this), line);
-//29.11.09. (c) Василиса
-//edited by WorM 2011.05.21
                 else if (!strcmp(tag, "Expa"))
                     GET_EXP_ARENA(this) = llnum;
                 else if (!strcmp(tag, "Expm"))
@@ -1961,11 +1901,9 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     GET_EXP_DT(this) = llnum;
                 else if (!strcmp(tag, "Exdt"))
                     GET_EXP_DTTHIS(this) = llnum;
-//end by WorM
-//Конец правки (с) Василиса
                 break;
-
-            case 'F':
+            }
+            case 'F': {
                 // Оставлено для совместимости со старым форматом наказаний
                 if (!strcmp(tag, "Frez"))
                     GET_FREEZE_LEV(this) = num;
@@ -1997,8 +1935,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     while (num != 0);
                 }
                 break;
-
-            case 'G':
+            }
+            case 'G': {
                 if (!strcmp(tag, "Gold"))
                 {
                     set_gold(lnum, false);
@@ -2017,8 +1955,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                 }
                 // end by WorM
                 break;
-
-            case 'H':
+            }
+            case 'H': {
                 if (!strcmp(tag, "Hit "))
                 {
                     sscanf(line, "%d/%d", &num, &num2);
@@ -2040,8 +1978,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                 else if (!strcmp(tag, "Host"))
                     strcpy(GET_LASTIP(this), line);
                 break;
-
-            case 'I':
+            }
+            case 'I': {
                 if (!strcmp(tag, "Int "))
                     this->set_int(num);
                 else if (!strcmp(tag, "Invs"))
@@ -2059,14 +1997,15 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
 //				this->set_ice_currency(0); // чистка льда
                 }
                 break;
-
-            case 'K':
+            }
+            case 'K': {
                 if (!strcmp(tag, "Kin "))
                     GET_KIN(this) = num;
                 else if (!strcmp(tag, "Karm"))
                     KARMA(this) = fbgetstring(fl);
                 break;
-            case 'L':
+            }
+            case 'L': {
                 if (!strcmp(tag, "LogL"))
                 {
                     long  lnum, lnum2;
@@ -2093,7 +2032,6 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                                   });
                     }
                 }
-// Gunner
                 else if (!strcmp(tag, "Logs"))
                 {
                     sscanf(line, "%d %d", &num, &num2);
@@ -2103,8 +2041,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                 else if (!strcmp(tag, "Lexc"))
                     this->set_last_exchange(num);
                 break;
-
-            case 'M':
+            }
+            case 'M': {
                 if (!strcmp(tag, "Mana"))
                 {
                     sscanf(line, "%d/%d", &num, &num2);
@@ -2141,7 +2079,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     morphs_load(this, std::string(line));
                 }
                 break;
-            case 'N':
+            }
+            case 'N': {
                 if (!strcmp(tag, "NmI "))
                     this->player_data.PNames[0] = std::string(line);
                 else if (!strcmp(tag, "NmR "))
@@ -2163,14 +2102,13 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                 else if (!strcmp(tag, "NtfE"))//Polud мин. цена для оффлайн-оповещений
                     NOTIFY_EXCH_PRICE(this) = lnum;
                 break;
-
-            case 'O':
+            }
+            case 'O': {
                 if (!strcmp(tag, "Olc "))
                     GET_OLC_ZONE(this) = num;
                 break;
-
-
-            case 'P':
+            }
+            case 'P': {
                 if (!strcmp(tag, "Pass"))
                     this->set_passwd(line);
                 else if (!strcmp(tag, "Plyd"))
@@ -2281,8 +2219,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                 }
 
                 break;
-
-            case 'Q':
+            }
+            case 'Q': {
                 if (!strcmp(tag, "Qst "))
                 {
                     buf[0] = '\0';
@@ -2290,11 +2228,10 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     this->quested_add(this, num, buf);
                 }
                 break;
-
-            case 'R':
+            }
+            case 'R': {
                 if (!strcmp(tag, "Room"))
                     GET_LOADROOM(this) = num;
-//29.11.09. (c) Василиса
                 else if (!strcmp(tag, "Ripa"))
                     GET_RIP_ARENA(this) = num;
                 else if (!strcmp(tag, "Ripm"))
@@ -2315,29 +2252,24 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     GET_RIP_DT(this) = num;
                 else if (!strcmp(tag, "Ridt"))
                     GET_RIP_DTTHIS(this) = num;
-//(с) Василиса
                 else if (!strcmp(tag, "Rmbr"))
                     this->remember_set_num(num);
                 else if (!strcmp(tag, "Reli"))
                     GET_RELIGION(this) = num;
                 else if (!strcmp(tag, "Race"))
                     GET_RACE(this) = num;
-                else if (!strcmp(tag, "Rcps"))
-                {
+                else if (!strcmp(tag, "Rcps")) {
                     im_rskill *last = NULL;
-                    for (;;)
-                    {
+                    for (;;) {
                         im_rskill *rs;
                         fbgetline(fl, line);
                         sscanf(line, "%d %d", &num, &num2);
                         if (num < 0)
                             break;
                         num = im_get_recipe(num);
-// +newbook.patch (Alisher)
                         if (num < 0 || imrecipes[num].classknow[(int) GET_CLASS(this)] != KNOW_RECIPE)
-// -newbook.patch (Alisher)
                             continue;
-                        CREATE(rs,  1);
+                        CREATE(rs, 1);
                         rs->rid = num;
                         rs->perc = num2;
                         rs->link = NULL;
@@ -2349,88 +2281,62 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     }
                 }
                 break;
-
-            case 'S':
+            }
+            case 'S': {
                 if (!strcmp(tag, "Size"))
                     GET_SIZE(this) = num;
-                else if (!strcmp(tag, "Sex "))
-                {
+                else if (!strcmp(tag, "Sex ")) {
                     this->set_sex(static_cast<ESex>(num));
-                }
-                else if (!strcmp(tag, "Skil"))
-                {
-                    do
-                    {
+                } else if (!strcmp(tag, "Skil")) {
+                    do {
                         fbgetline(fl, line);
                         sscanf(line, "%d %d", &num, &num2);
-                        if (num != 0)
-                        {
-                            if (skill_info[num].classknow[(int)GET_CLASS(this)][(int)GET_KIN(this)] == KNOW_SKILL)
-                            {
+                        if (num != 0) {
+                            if (skill_info[num].classknow[(int) GET_CLASS(this)][(int) GET_KIN(this)] == KNOW_SKILL) {
                                 this->set_skill(static_cast<ESkill>(num), num2);
                             }
                         }
-                    }
-                    while (num != 0);
-                }
-                else if (!strcmp(tag, "SkTm"))
-                {
-                    do
-                    {
+                    } while (num != 0);
+                } else if (!strcmp(tag, "SkTm")) {
+                    do {
                         fbgetline(fl, line);
                         sscanf(line, "%d %d", &num, &num2);
-                        if (num != 0)
-                        {
+                        if (num != 0) {
                             timed.skill = num;
                             timed.time = num2;
                             timed_to_char(this, &timed);
                         }
-                    }
-                    while (num != 0);
-                }
-                else if (!strcmp(tag, "Spel"))
-                {
-                    do
-                    {
+                    } while (num != 0);
+                } else if (!strcmp(tag, "Spel")) {
+                    do {
                         fbgetline(fl, line);
                         sscanf(line, "%d %d", &num, &num2);
                         if (num != 0 && spell_info[num].name)
                             GET_SPELL_TYPE(this, num) = num2;
-                    }
-                    while (num != 0);
-                }
-                else if (!strcmp(tag, "SpMe"))
-                {
-                    do
-                    {
+                    } while (num != 0);
+                } else if (!strcmp(tag, "SpMe")) {
+                    do {
                         fbgetline(fl, line);
                         sscanf(line, "%d %d", &num, &num2);
                         if (num != 0)
                             GET_SPELL_MEM(this, num) = num2;
-                    }
-                    while (num != 0);
-                }
-                else if (!strcmp(tag, "SpTM"))
-                {
-                    struct spell_mem_queue_item *qi_cur, ** qi = &MemQueue.queue;
+                    } while (num != 0);
+                } else if (!strcmp(tag, "SpTM")) {
+                    struct spell_mem_queue_item *qi_cur, **qi = &MemQueue.queue;
                     while (*qi)
                         qi = &((*qi)->link);
-                    do
-                    {
+                    do {
                         fbgetline(fl, line);
                         sscanf(line, "%d", &num);
-                        if (num != 0)
-                        {
+                        if (num != 0) {
                             CREATE(qi_cur, 1);
                             *qi = qi_cur;
                             qi_cur->spellnum = num;
                             qi_cur->link = NULL;
                             qi = &qi_cur->link;
                         }
-                    }
-                    while (num != 0);
-                }
-                else if (!strcmp(tag, "Str "))
+                    } while (num != 0);
+                } else if (!strcmp(tag, "Str "))
                     this->set_str(num);
                 else if (!strcmp(tag, "StrL"))
                     STRING_LENGTH(this) = num;
@@ -2449,8 +2355,8 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                 else if (!strcmp(tag, "St05"))
                     this->set_start_stat(G_CHA, lnum);
                 break;
-
-            case 'T':
+            }
+            case 'T': {
                 if (!strcmp(tag, "Thir"))
                     GET_COND(this, THIRST) = num;
                 else if (!strcmp(tag, "Titl"))
@@ -2465,43 +2371,36 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                     sscanf(line, "%d %d", &num, &num2);
                     today_torc_.first = num;
                     today_torc_.second = num2;
-                }
-                else if (!strcmp(tag, "Tlgr")) {
+                } else if (!strcmp(tag, "Tlgr")) {
                     if (lnum <= 10000000000000) {
                         this->player_specials->saved.telegram_id = lnum;
                     } else { // зачищаем остатки старой баги
                         this->player_specials->saved.telegram_id = 0;
                     }
-                }
-                else if (!strcmp(tag, "TSpl"))
-                {
-                    do
-                    {
+                } else if (!strcmp(tag, "TSpl")) {
+                    do {
                         fbgetline(fl, line);
                         sscanf(line, "%d %ld %ld", &num, &lnum, &lnum3);
-                        if (num != 0 && spell_info[num].name)
-                        {
+                        if (num != 0 && spell_info[num].name) {
                             Temporary_Spells::add_spell(this, num, lnum, lnum3);
                         }
                     } while (num != 0);
                 }
                 break;
-
-            case 'W':
+            }
+            case 'W': {
                 if (!strcmp(tag, "Wate"))
                     GET_WEIGHT(this) = num;
                 else if (!strcmp(tag, "Wimp"))
                     GET_WIMP_LEV(this) = num;
                 else if (!strcmp(tag, "Wis "))
                     this->set_wis(num);
-//29.11.09 (c) Василиса
                 else if (!strcmp(tag, "Wina"))
                     GET_WIN_ARENA(this) = num;
-//конец правки (с) Василиса
                 else if (!strcmp(tag, "Wman"))
                     this->set_who_mana(num);
                 break;
-
+            }
             default:
                 sprintf(buf, "SYSERR: Unknown tag %s in pfile %s", tag, name);
         }
@@ -2532,8 +2431,6 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
         {
             if (spell_info[i].slot_forc[(int) GET_CLASS(this)][(int) GET_KIN(this)] == MAX_SLOT)
                 REMOVE_BIT(GET_SPELL_TYPE(this, i), SPELL_KNOW | SPELL_TEMP);
-// shapirus: изученное не убираем на всякий случай, но из мема выкидываем,
-// если мортов мало
             if (GET_REMORT(this) < MIN_CAST_REM(spell_info[i], this))
                 GET_SPELL_MEM(this, i) = 0;
         }
@@ -2565,7 +2462,48 @@ bool Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
         this->account = temp_account;
     }
     this->account->add_player(GET_UNIQUE(this));
+    return id;
 }
+
+// на счет reboot: используется только при старте мада в вызовах из entrycount
+// при включенном флаге файл читается только до поля Rebt, все остальные поля пропускаются
+// поэтому при каких-то изменениях в entrycount, must_be_deleted и TopPlayer::Refresh следует
+// убедиться, что изменный код работает с действительно проинициализированными полями персонажа
+// на данный момент это: PLR_FLAGS, GET_CLASS, GET_EXP, GET_IDNUM, LAST_LOGON, GET_LEVEL, GET_NAME, GET_REMORT, GET_UNIQUE, GET_EMAIL
+// * \param reboot - по дефолту = false
+int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*= true*/)
+{
+    int id, num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
+    long int lnum = 0, lnum3 = 0;
+    unsigned long long llnum = 0;
+    FBFILE *fl = NULL;
+    char filename[40];
+    char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
+    char line1[MAX_RAW_INPUT_LENGTH];
+    struct timed_type timed;
+
+    *filename = '\0';
+    log("Load ascii char %s", name);
+    if (!find_id) {
+        id = 1;
+    }
+    else {
+        id = find_name(name);
+    }
+
+    bool result = id >= 0;
+    result = result && get_filename(name, filename, PLAYERS_FILE);
+    result = result && (fl = fbopen(filename, FB_READ));
+    if (!result)
+    {
+        const std::size_t BUFFER_SIZE = 1024;
+        char buffer[BUFFER_SIZE];
+        log("Can't load ascii. ID: %d; File name: \"%s\"; Current directory: \"%s\")", id, filename, getcwd(buffer, BUFFER_SIZE));
+        return -1;
+    }
+    return _pfileLoad(fl, reboot, name);
+}
+
 
 // * Перерасчет максимальных родных хп персонажа.
 // * При входе в игру, левеле/делевеле, добавлении/удалении славы.
