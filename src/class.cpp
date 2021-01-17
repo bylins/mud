@@ -2053,8 +2053,10 @@ void do_start(CHAR_DATA * ch, int newbie)
 			break;
 		case CLASS_THIEF:
 		case CLASS_ASSASINE:
-		case CLASS_MERCHANT:
 			ch->set_skill(SKILL_SATTACK, 75);
+			break;
+		case CLASS_MERCHANT:
+			ch->set_skill(SKILL_SATTACK, 85);
 			break;
 		case CLASS_GUARD:
 		case CLASS_PALADINE:
