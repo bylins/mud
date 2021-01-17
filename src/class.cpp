@@ -2037,8 +2037,6 @@ void do_start(CHAR_DATA * ch, int newbie)
 		}
 	}
 
-	if (newbie || (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0))
-	{
 		switch (GET_CLASS(ch))
 		{
 		case CLASS_BATTLEMAGE:
@@ -2069,7 +2067,6 @@ void do_start(CHAR_DATA * ch, int newbie)
 			ch->set_skill(SKILL_SATTACK, 95);
 			break;
 		}
-	}
 
 	advance_level(ch);
 	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GET_LEVEL(ch));
