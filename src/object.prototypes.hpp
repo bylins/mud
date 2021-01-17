@@ -9,7 +9,7 @@
 class CHAR_DATA;	// to avoid inclusion of the "char.hpp"
 class TRIG_DATA;	// to avoid inclusion of the "dg_script.h"
 
-class CObjectPrototypes
+class  CObjectPrototypes
 {
 private:
 	struct SPrototypeIndex

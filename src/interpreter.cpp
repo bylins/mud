@@ -22,12 +22,25 @@
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
 #include "cmd/cmd.generic.h"
+#include "cmd.wiz/stat.h"
+#include "cmd/follow.h"
+#include "cmd/hire.h"
+#include "cmd/mercenary.h"
+#include "cmd/order.h"
+#include "cmd/retreat.h"
+#include "cmd/telegram.h"
+#include "cmd/track.h"
 #include "comm.h"
 #include "constants.h"
 #include "craft.commands.hpp"
 #include "db.h"
 #include "depot.hpp"
 #include "dg/dg_scripts.h"
+#include "features.hpp"
+#include "fightsystem/assist.h"
+#include "fightsystem/mobact.hpp"
+#include "depot.hpp"
+#include "dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/assist.h"
 #include "fightsystem/mobact.hpp"
@@ -302,7 +315,6 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
 void do_fry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_stat(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_syslog(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

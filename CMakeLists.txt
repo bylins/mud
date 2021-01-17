@@ -67,17 +67,17 @@ set(SOURCES
 		src/debug.utils.cpp
 		src/depot.cpp
 		src/description.cpp
-        src/dg/dg_comm.cpp
-        src/dg/dg_db_scripts.cpp
-        src/dg/dg_event.cpp
-        src/dg/dg_handler.cpp
-        src/dg/dg_misc.cpp
-        src/dg/dg_mobcmd.cpp
-        src/dg/dg_objcmd.cpp
-        src/dg/dg_olc.cpp
-        src/dg/dg_scripts.cpp
-        src/dg/dg_triggers.cpp
-        src/dg/dg_wldcmd.cpp
+		src/dg/dg_comm.cpp
+		src/dg/dg_db_scripts.cpp
+		src/dg/dg_event.cpp
+		src/dg/dg_handler.cpp
+		src/dg/dg_misc.cpp
+		src/dg/dg_mobcmd.cpp
+		src/dg/dg_objcmd.cpp
+		src/dg/dg_olc.cpp
+		src/dg/dg_scripts.cpp
+		src/dg/dg_triggers.cpp
+		src/dg/dg_wldcmd.cpp
 		src/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
@@ -211,11 +211,11 @@ set(SOURCES
 		src/world.objects.cpp
 		src/zedit.cpp
 		src/zone.table.cpp
-        src/core/leveling.cpp
+		src/core/leveling.cpp
 		src/grp/grouppenalties.cpp)
 
 set(HEADERS
-        src/core/leveling.h
+		src/core/leveling.h
 		src/grp/follow.h
 		src/grp/grp.main.h
 		src/core/affect_data.h
@@ -246,7 +246,7 @@ set(HEADERS
 		src/heartbeat.commands.hpp
 		src/weather.hpp
 		src/limits.hpp
-        src/cmd.imm/act.wizard.hpp
+		src/cmd.imm/act.wizard.hpp
 		src/heartbeat.hpp
 		src/speedwalks.hpp
 		src/chars/world.characters.hpp
@@ -296,10 +296,10 @@ set(HEADERS
 		src/deathtrap.hpp
 		src/depot.hpp
 		src/description.h
-        src/dg/dg_db_scripts.hpp
-        src/dg/dg_event.h
-        src/dg/dg_olc.h
-        src/dg/dg_scripts.h
+		src/dg/dg_db_scripts.hpp
+		src/dg/dg_event.h
+		src/dg/dg_olc.h
+		src/dg/dg_scripts.h
 		src/dictionary.hpp
 		src/diskio.h
 		src/double_map.hpp
@@ -309,11 +309,11 @@ set(HEADERS
 		src/external.trigger.hpp
 		src/features.itemset.hpp
 		src/features.hpp
-        src/fightsystem/fight_constants.hpp
-        src/fightsystem/fight.h
-        src/fightsystem/fight_hit.hpp
-        src/fightsystem/fight_stuff.hpp
-        src/fightsystem/fight.penalties.hpp
+		src/fightsystem/fight_constants.hpp
+		src/fightsystem/fight.h
+		src/fightsystem/fight_hit.hpp
+		src/fightsystem/fight_stuff.hpp
+		src/fightsystem/fight.penalties.hpp
 		src/file_crc.hpp
 		src/genchar.h
 		src/glory_const.hpp
@@ -573,7 +573,14 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} )
+set(CIRCLE_FILES
+	${SOURCES}
+	${HEADERS}
+	${CRAFT_FILES}
+	${MISC_FILES}
+	readme.markdown
+	CONTRIBUTING.md
+    )
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
@@ -705,15 +712,11 @@ if (HAVE_TG)
 	if (NOT CURL_FOUND)
 		set(HAVE_TG "NO")
 	endif()
-	find_library(TGBOT_LIBRARY NAMES libTgBot HINTS "/usr/local/lib/")
-	if (TGBOT_LIBRARY-NOTFOUND)
-		set(HAVE_TG "NO")
-	endif()
 	if (HAVE_TG)
 		add_definitions("-DHAVE_TG")
 #		set(Boost_USE_MULTITHREADED ON)
 #		${CMAKE_THREAD_LIBS_INIT}
-		target_link_libraries(circle.library /usr/local/lib/libTgBot.a ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
+		target_link_libraries(circle.library ${OPENSSL_LIBRARIES} ${Boost_LIBRARIES} ${CURL_LIBRARIES})
 		message(STATUS "SSL IS ON, Telegram support enabled")
 	else ()
 		message(STATUS "Telegram support disabled, no dependant libs found")
@@ -754,7 +757,7 @@ endif ()
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
-		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${TESTBUILD_DEFINITIONS} ${ASAN_FLAGS} ${DEBUG_CRYPT} -DLOG_AUTOFLUSH")
+		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT}")
 		set(CMAKE_CXX_FLAGS_TEST     "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 

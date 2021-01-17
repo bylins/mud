@@ -6,10 +6,7 @@
 
 #include "ability.rollsystem.hpp"
 
-#include "comm.h"
-#include "obj.hpp"
 #include "random.hpp"
-#include "utils.h"
 
 namespace AbilitySystem {
 

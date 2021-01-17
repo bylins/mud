@@ -10,12 +10,10 @@
 **************************************************************************/
 
 #include "chars/char.hpp"
+#include "cmd/follow.h"
 #include "comm.h"
 #include "core/leveling.h"
-#include "conf.h"
 #include "db.h"
-#include "deathtrap.hpp"
-#include "dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
 #include "handler.h"
@@ -35,7 +33,6 @@
 #include "utils.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
-
 
 extern const char *dirs[];
 

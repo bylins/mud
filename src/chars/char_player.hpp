@@ -177,6 +177,10 @@ public:
     // метод выставления chat_id
     void setTelegramId(unsigned long chat_id) override;
     unsigned long int getTelegramId() override;
+    // методы работы с последним временем респека славой
+    void setGloryRespecTime(time_t param) override;
+    time_t getGloryRespecTime() override;
+
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;

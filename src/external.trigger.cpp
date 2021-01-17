@@ -1,8 +1,8 @@
 #include "external.trigger.hpp"
 
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 
-ExternalTriggerChecker::ExternalTriggerChecker(const std::string& filename) : m_mtime(0), m_filename(filename)
+ExternalTriggerChecker::ExternalTriggerChecker(const std::string& filename) : m_mtime(), m_filename(filename)
 {
 	init();
 }
@@ -18,31 +18,31 @@ bool ExternalTriggerChecker::check()
 
 	try
 	{
-		const std::size_t mtime = get_mtime();
+		const auto mtime = get_mtime();
 		if (m_mtime < mtime)
 		{
 			result = true;
 			m_mtime = mtime;
 		}
 	}
-	catch (const boost::filesystem::filesystem_error&)
+	catch (const std::filesystem::filesystem_error&)
 	{
 	}
 
 	return result;
 }
 
-std::size_t ExternalTriggerChecker::get_mtime() const
+std::filesystem::file_time_type ExternalTriggerChecker::get_mtime() const
 {
-	std::size_t result = 0;
+    std::filesystem::file_time_type result;
 
 	if (!m_filename.empty())
 	{
 		try
 		{
-			result = boost::filesystem::last_write_time(m_filename.c_str());
+			result = std::filesystem::last_write_time(m_filename.c_str());
 		}
-		catch (const boost::system::error_code&)
+		catch (const std::error_code&)
 		{
 		}
 	}

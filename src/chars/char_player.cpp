@@ -76,9 +76,8 @@ Player::Player():
 	ice_currency(0),
 	hryvn(0),
 	spent_hryvn(0)
-{
-	for (int i = 0; i < START_STATS_TOTAL; ++i)
 	{
+	for (int i = 0; i < START_STATS_TOTAL; ++i) {
 		start_stats_.at(i) = 0;
 	}
 
@@ -90,13 +89,11 @@ Player::Player():
 	// на деле инит ровно тоже самое, может на перспективу это все было
 	//set_morph(NormalMorph::GetNormalMorph(this));
 
-	for (unsigned i = 0; i < ext_money_.size(); ++i)
-	{
+	for (unsigned i = 0; i < ext_money_.size(); ++i) {
 		ext_money_[i] = 0;
 	}
 
-	for (unsigned i = 0; i < reset_stats_cnt_.size(); ++i)
-	{
+	for (unsigned i = 0; i < reset_stats_cnt_.size(); ++i) {
 		reset_stats_cnt_.at(i) = 0;
 	}
 
@@ -759,6 +756,7 @@ void Player::save_char()
 	fprintf(saved, "Drol: %d\n", GET_DR(this));
 	fprintf(saved, "Ac  : %d\n", GET_AC(this));
 	fprintf(saved, "Hry : %d\n", this->get_hryvn());
+	fprintf(saved, "Tglo: %ld\n", static_cast<long int>(this->getGloryRespecTime()));
 	fprintf(saved, "Hit : %d/%d\n", GET_HIT(this), GET_MAX_HIT(this));
 	fprintf(saved, "Mana: %d/%d\n", GET_MEM_COMPLETED(this), GET_MEM_TOTAL(this));
 	fprintf(saved, "Move: %d/%d\n", GET_MOVE(this), GET_MAX_MOVE(this));
@@ -2510,6 +2508,15 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 void check_max_hp(CHAR_DATA *ch)
 {
     GET_MAX_HIT(ch) = PlayerSystem::con_natural_hp(ch);
+}
+
+
+void Player::setGloryRespecTime(time_t param) {
+    this->player_specials->saved.lastGloryRespecTime = MAX(1, param);
+}
+
+time_t Player::getGloryRespecTime() {
+    return this->player_specials->saved.lastGloryRespecTime;
 }
 
 

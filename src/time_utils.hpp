@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <list>
+#include <string>
 
 #define LOAD_LOG_FOLDER "../log/"
 #define LOAD_LOG_FILE "boot_load.log"

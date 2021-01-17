@@ -464,7 +464,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spel
 		break;
 
 	case SPELL_RUNE_LABEL:
-		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)) {
+		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL) || ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)) {
 			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 			to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
 			lag = 2;
@@ -1445,10 +1445,23 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		ndice = 6;
 		sdice = 15;
 		adice = (level - 22) * 2;
-		if (GET_POS(victim) > POS_SITTING &&
-				!WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
+		// если наездник, то считаем не сейвисы, а SKILL_HORSE
+		if (ch->ahorse()) {
+//		    5% шанс успеха,
+            rand = number(1,100);
+            if (rand > 95)
+                break;
+            // провал - 5% шанс или скилл наездника vs скилл магии кастера на кубике d6
+            if (rand < 5 || (calculate_skill(victim, SKILL_HORSE, nullptr) * number (1, 6)) < GET_SKILL(ch, SKILL_EARTH_MAGIC) * number (1, 6) ) {//фейл
+                ch->drop_from_horse();
+                break;
+            }
+		}
+		if (GET_POS(victim) > POS_SITTING && !WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30))))
 		{
+            if (IS_HORSE(ch))
+                ch->drop_from_horse();
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
@@ -2380,7 +2393,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		accum_duration = TRUE;
 		to_room = "$n глубоко поклонил$u земле.";
-		to_vict = "Глубокий поклон тебе матушка земля.";
+		to_vict = "Глубокий поклон тебе, матушка земля.";
 		break;
 
 	case SPELL_FIRE_AURA:
@@ -4003,9 +4016,9 @@ const char *mag_summon_msgs[] =
 	"\r\n",
 	"$n сделал$g несколько изящних пассов - вы почувствовали странное дуновение!",
 	"$n поднял$g труп!",
-	"$N появил$G из клубов голубого дыма!",
-	"$N появил$G из клубов зеленого дыма!",
-	"$N появил$G из клубов красного дыма!",
+	"$N появил$U из клубов голубого дыма!",
+	"$N появил$U из клубов зеленого дыма!",
+	"$N появил$U из клубов красного дыма!",
 	"$n сделал$g несколько изящных пассов - вас обдало порывом холодного ветра.",
 	"$n сделал$g несколько изящных пассов, от чего ваши волосы встали дыбом.",
 	"$n сделал$g несколько изящных пассов, обдав вас нестерпимым жаром.",
@@ -5548,7 +5561,7 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_AWARNESS,
-	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников6.\r\n",
+	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
 	 nullptr,
 	 nullptr,
 	 0.0, 20, 2, 5, 20, 3, 0},

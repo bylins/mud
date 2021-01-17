@@ -9,10 +9,8 @@
 *  $Revision$                                                       *
 **************************************************************************/
 
-
 #include "chars/char.hpp"
 #include "comm.h"
-#include "core/leveling.h"
 #include "conf.h"
 #include "db.h"
 #include "dg_scripts.h"
@@ -29,6 +27,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "skills.h"
+#include "skills/townportal.h"
 #include "spell_parser.hpp"
 #include "spells.h"
 #include "structs.h"
@@ -126,7 +125,42 @@ int find_obj_target_room(OBJ_DATA * obj, char *rawroomstr)
 	return location;
 }
 
-// Object commands 
+void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
+	int target, howlong, curroom, nr;
+	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+
+	argument = two_arguments(argument, arg1, arg2);
+	skip_spaces(&argument);
+
+	if (!*arg1 || !*arg2)
+	{
+		obj_log(obj, "oportal: called with too few args");
+		return;
+	}
+
+	howlong = atoi(arg2);
+	nr = atoi(arg1);
+	target = real_room(nr);
+
+	if (target == NOWHERE)
+	{
+		obj_log(obj, "oportal: target is an invalid room");
+		return;
+	}
+
+	/* Ставим пентаграмму из текущей комнаты в комнату target с
+	   длительностью howlong */
+	curroom = real_room(get_room_where_obj(obj));
+	world[curroom]->portal_room = target;
+	world[curroom]->portal_time = howlong;
+	world[curroom]->pkPenterUnique = 0;
+//	sprintf(buf, "Ставим врата из %d в %d длит %d\r\n", currom, target, howlong );
+//	mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
+	OneWayPortal::add(world[target], world[curroom]);
+	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
+}
+// Object commands
 void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
@@ -1143,6 +1177,7 @@ const struct obj_command_info obj_cmd_info[] =
 	{"oskillturn", do_oskillturn, 0},
 	{"oskilladd", do_oskilladd, 0},
 	{"ospellitem", do_ospellitem, 0},
+	{"oportal", do_oportal, 0},
 	{"\n", 0, 0}		// this must be last
 };
 

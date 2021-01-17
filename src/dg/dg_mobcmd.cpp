@@ -46,7 +46,6 @@
 #include "sysdep.h"
 #include "world.objects.hpp"
 
-
 struct mob_command_info
 {
 	const char *command;
@@ -109,6 +108,40 @@ room_rnum dg_find_target_room(CHAR_DATA * ch, char *rawroomstr)
 	return location;
 }
 
+void do_mportal(CHAR_DATA *mob, char *argument, int/* cmd*/, int/* subcmd*/)
+{
+	int target, howlong, curroom, nr;
+	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+
+	argument = two_arguments(argument, arg1, arg2);
+	skip_spaces(&argument);
+
+	if (!*arg1 || !*arg2)
+	{
+		mob_log(mob, "mportal: called with too few args");
+		return;
+	}
+
+	howlong = atoi(arg2);
+	nr = atoi(arg1);
+	target = real_room(nr);
+
+	if (target == NOWHERE)
+	{
+		mob_log(mob, "mportal: target is an invalid room");
+		return;
+	}
+
+	/* Ставим пентаграмму из текущей комнаты в комнату target с
+	   длительностью howlong */
+	curroom = mob->in_room;
+	world[curroom]->portal_room = target;
+	world[curroom]->portal_time = howlong;
+	world[curroom]->pkPenterUnique = 0;
+	OneWayPortal::add(world[target], world[curroom]);
+	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
+	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
+}
 // prints the argument to all the rooms aroud the mobile
 void do_masound(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 {
@@ -1629,6 +1662,7 @@ const struct mob_command_info mob_cmd_info[] =
 	{ "mspellturntemp", POS_DEAD, do_mspellturntemp, -1, false},
 	{ "mspelladd", POS_DEAD, do_mspelladd, -1, false},
 	{ "mspellitem", POS_DEAD, do_mspellitem, -1, false},
+	{ "mportal",POS_DEAD, do_mportal, -1, false},
 	{ "\n", 0, 0, 0, 0}		// this must be last
 };
 

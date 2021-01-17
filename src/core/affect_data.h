@@ -55,5 +55,6 @@ bool affected_by_spell(CHAR_DATA * ch, int type);
 void affect_join_fspell(CHAR_DATA* ch, const AFFECT_DATA<EApplyLocation>& af);
 void affect_join(CHAR_DATA * ch, AFFECT_DATA<EApplyLocation>& af, bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void reset_affects(CHAR_DATA *ch);
+bool no_bad_affects(OBJ_DATA *obj);
 
 #endif //BYLINS_AFFECT_DATA_H

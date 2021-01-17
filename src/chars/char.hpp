@@ -251,6 +251,7 @@ struct player_special_data_saved
 	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	unsigned int who_mana; // количество энергии для использования команды кто
     unsigned long int telegram_id;// идентификатор телеграма
+    time_t lastGloryRespecTime; // дата последнего респека славой
 };
 
 
@@ -510,6 +511,7 @@ public:
 	int get_inborn_str() const;
 	void set_str(int);
 	void inc_str(int);
+	void time_set_glory_stats(time_t);
 	int get_dex() const;
 	int get_inborn_dex() const;
 	void set_dex(int);

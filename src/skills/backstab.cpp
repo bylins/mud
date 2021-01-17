@@ -44,13 +44,13 @@ void do_backstab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         return;
     }
 
-    if (!GET_EQ(ch, WEAR_WIELD) && !IS_NPC(ch)) {
+    if (!GET_EQ(ch, WEAR_WIELD) && (!IS_NPC(ch) || IS_CHARMICE(ch))) {
         send_to_char("Требуется держать оружие в правой руке.\r\n", ch);
         return;
     }
 
-    if (!IS_NPC(ch) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != type_pierce) {
-        send_to_char("ЗаКОЛоть можно только КОЛющи оружием!\r\n", ch);
+    if ((!IS_NPC(ch) || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, WEAR_WIELD), 3) != type_pierce) {
+        send_to_char("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
         return;
     }
 

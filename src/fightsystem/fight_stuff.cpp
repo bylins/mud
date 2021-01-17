@@ -729,7 +729,6 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
-
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 {
 	// не даем получать батлу с себя по зеркалу?

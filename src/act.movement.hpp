@@ -29,7 +29,7 @@ void do_sit(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_rest(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_sleep(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_wake(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
+
 int has_boat(CHAR_DATA * ch);
 int has_key(CHAR_DATA * ch, obj_vnum key);
 int ok_pick(CHAR_DATA * ch, obj_vnum keynum, OBJ_DATA* obj, int door, int scmd);

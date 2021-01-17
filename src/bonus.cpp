@@ -6,19 +6,11 @@
 #include "bonus.command.parser.hpp"
 #include "structs.h"
 #include "comm.h"
-#include "db.h"
 #include "handler.h"
 #include "modify.h"
-#include "chars/char.hpp"
 #include "chars/char_player.hpp"
-#include "utils.h"
-#include "logger.hpp"
-#include "structs.h"
-
-#include <boost/algorithm/string/replace.hpp>
 
 #include <iostream>
-#include <fstream>
 
 namespace Bonus
 {
@@ -229,20 +221,10 @@ namespace Bonus
 	// проверка на тип бонуса
 	bool is_bonus(int type)
 	{
-		if (type == 0)
-		{
-			return time_bonus <= -1 ? false : true;
-		}
-
-		if (time_bonus <= -1)
-		{
-			return false;
-		}
-
-		if (type == type_bonus)
-		{
-			return true;
-		}
+	    if ((type == 0 || type == type_bonus) && time_bonus > -1)
+        {
+	        return true;
+        }
 
 		return false;
 	}
@@ -267,24 +249,19 @@ namespace Bonus
 	// выводит весь лог в обратном порядке
 	void show_log(CHAR_DATA *ch)
 	{
-		if (bonus_log.size() == 0)
+		if (bonus_log.empty())
 		{
 			send_to_char(ch, "Лог пустой!\r\n");
 			return;
 		}
 
-		size_t counter = 0;
 		std::stringstream buf_str;
-		std::list<bonus_log_t::const_reverse_iterator> to_output;
-		for (bonus_log_t::const_reverse_iterator i = bonus_log.rbegin(); i != bonus_log.rend() && MAXIMUM_BONUS_RECORDS > counter; ++i, ++counter)
+
+		for (auto [it, count] = std::tuple(bonus_log.rbegin(), 0ul); it != bonus_log.rend() && count <= MAXIMUM_BONUS_RECORDS; ++it, ++count)
 		{
-			to_output.push_front(i);
+            buf_str << "&G" << count << ". &W" << *it << "&n\r\n";
 		}
-		counter = 0;
-		for (const auto i : to_output)
-		{
-			buf_str << "&G" << ++counter << ". &W" << *i << "&n\r\n";
-		}
+
 		page_string(ch->desc, buf_str.str());
 	}
 

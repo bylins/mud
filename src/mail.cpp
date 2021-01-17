@@ -118,7 +118,7 @@ const int MIN_MAIL_LEVEL = 2;
 // стоимость отправки письма
 const int STAMP_PRICE = 50;
 // макс. размер сообщения
-const int MAX_MAIL_SIZE = 4096;
+const int MAX_MAIL_SIZE = 32768;
 
 //****************************************************************
 //* Below is the spec_proc for a postmaster using the above      *

@@ -27,6 +27,20 @@
 #include "depot.hpp"
 #include "dg/dg_scripts.h"
 #include "features.hpp"
+#include "char_obj_utils.inl"
+#include "chars/char.hpp"
+#include "chars/char_player.hpp"
+#include "chars/mount.h"
+#include "chars/player_races.hpp"
+#include "chars/world.characters.hpp"
+#include "cmd/follow.h"
+#include "cmd/mercenary.h"
+#include "comm.h"
+#include "constants.h"
+#include "db.h"
+#include "depot.hpp"
+#include "dg_scripts.h"
+#include "features.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
 #include "handler.h"
@@ -2652,10 +2666,6 @@ int npc_walk(CHAR_DATA * ch)
 
 	if (GET_DEST(ch) == NOWHERE || (rnum = real_room(GET_DEST(ch))) == NOWHERE)
 		return (BFS_ERROR);
-
-	// Не разрешаем ходы моба если он ушел в другую зону от маршрута.
-	if (world[ch->in_room]->zone != world[rnum]->zone)
-		return (BFS_NO_PATH);
 
 	if (ch->in_room == rnum)
 	{
