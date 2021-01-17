@@ -2654,10 +2654,6 @@ int npc_walk(CHAR_DATA * ch)
 	if (GET_DEST(ch) == NOWHERE || (rnum = real_room(GET_DEST(ch))) == NOWHERE)
 		return (BFS_ERROR);
 
-	// Не разрешаем ходы моба если он ушел в другую зону от маршрута.
-	if (world[ch->in_room]->zone != world[rnum]->zone)
-		return (BFS_NO_PATH);
-
 	if (ch->in_room == rnum)
 	{
 		if (ch->mob_specials.dest_count == 1)
