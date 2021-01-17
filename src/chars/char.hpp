@@ -11,7 +11,7 @@
 #include "room.hpp"
 #include "ignores.hpp"
 #include "im.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "utils.h"
 #include "structs.h"
 #include "conf.h"

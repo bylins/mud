@@ -10,7 +10,7 @@
 #ifndef __ITEM_CREATION_HPP__
 #define __ITEM_CREATION_HPP__
 
-#include "skills.h"
+#include "skills/skills.h"
 #include "interpreter.h"
 #include "features.hpp"
 #include "conf.h"

@@ -14,7 +14,7 @@
 #include "pk.h"
 #include "poison.hpp"
 #include "screen.h"
-#include "skills.h"
+#include "skills/skills.h"
 
 // extern
 int extra_aco(int class_num, int level);

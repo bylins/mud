@@ -13,7 +13,7 @@
 #include "obj.hpp"
 #include "screen.h"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "constants.h"
 #include "comm.h"
 #include "interpreter.h"

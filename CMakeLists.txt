@@ -43,7 +43,9 @@ set(SOURCES
 		src/chars/player_races.cpp
 		src/chars/world.characters.cpp
 		src/class.cpp
-		src/cmd.imm/act.wizard.cpp
+		src/cmd.wiz/act.wizard.cpp
+		src/cmd.wiz/stat.cpp
+		src/cmd/follow.cpp
 		src/cmd/hire.cpp
 		src/cmd/mercenary.cpp
 		src/cmd/order.cpp
@@ -60,6 +62,7 @@ set(SOURCES
 		src/config.cpp
 		src/constants.cpp
 		src/core/affect_data.cpp
+		src/core/leveling.cpp
 		src/corpse.cpp
 		src/daily_quest.cpp
 		src/db.cpp
@@ -103,6 +106,7 @@ set(SOURCES
 		src/glory_misc.cpp
 		src/graph.cpp
 		src/grp/follow.cpp
+		src/grp/grouppenalties.cpp
 		src/grp/grp.cmdprocessor.cpp
 		src/grp/grp.group.cpp
 		src/grp/grp.request.cpp
@@ -167,7 +171,7 @@ set(SOURCES
 		src/shops.implementation.cpp
 		src/shops.implementation.cpp
 		src/shutdown.parameters.cpp
-		src/skills.cpp
+		src/skills/skills.cpp
 		src/skills/backstab.cpp
 		src/skills/bash.cpp
 		src/skills/block.cpp
@@ -211,89 +215,61 @@ set(SOURCES
 		src/world.objects.cpp
 		src/zedit.cpp
 		src/zone.table.cpp
-		src/core/leveling.cpp
-		src/grp/grouppenalties.cpp)
+		)
 
 set(HEADERS
 		src/core/leveling.h
-		src/grp/follow.h
-		src/grp/grp.main.h
-		src/core/affect_data.h
-		src/fightsystem/common.h
-		src/fightsystem/assist.h
-		src/fightsystem/start.fight.h
-		src/skills/styles.h
-		src/skills/manadrain.h
-		src/skills/townportal.h
-		src/skills/turnundead.h
-		src/skills/mighthit.h
-		src/skills/expendientcut.h
-		src/skills/block.h
-		src/skills/protect.h
-		src/skills/parry.h
-		src/skills/throw.h
-		src/skills/ironwind.h
-		src/skills/disarm.h
-		src/act.movement.hpp
-		src/strengthening.hpp
 		src/ability.constants.hpp
 		src/ability.rollsystem.hpp
-		src/chars/mount.h
-		src/chars/accounts.hpp
-		src/action.targeting.hpp
-		src/blocking.queue.hpp
-		src/influxdb.hpp
-		src/heartbeat.commands.hpp
-		src/weather.hpp
-		src/limits.hpp
-		src/cmd.imm/act.wizard.hpp
-		src/heartbeat.hpp
-		src/speedwalks.hpp
-		src/chars/world.characters.hpp
-		src/shops.implementation.hpp
-		src/global.objects.hpp
-		src/find.obj.id.by.vnum.hpp
-		src/id.hpp
-		src/compact.trie.hpp
-		src/radix.trie.hpp
-		src/object.prototypes.hpp
-		src/world.objects.hpp
-		src/utils.string.hpp
+		src/act.movement.hpp
 		src/act.other.hpp
+		src/action.targeting.hpp
 		src/AffectHandler.hpp
 		src/auction.h
 		src/backtrace.hpp
 		src/ban.hpp
 		src/birth_places.hpp
+		src/blocking.queue.hpp
 		src/boards.changelog.loaders.hpp
 		src/boards.constants.hpp
 		src/boards.formatters.hpp
 		src/boards.h
 		src/boards.message.hpp
 		src/boards.types.hpp
-		src/bonus.h
 		src/bonus.command.parser.hpp
+		src/bonus.h
 		src/bonus.types.hpp
 		src/boot.constants.hpp
 		src/boot.data.files.hpp
 		src/boot.index.hpp
 		src/cache.hpp
 		src/celebrates.hpp
-		src/chars/char.hpp
 		src/char_obj_utils.inl
+		src/chars/accounts.hpp
+		src/chars/char.hpp
 		src/chars/char_player.hpp
+		src/chars/mount.h
+		src/chars/player_i.hpp
+		src/chars/player_races.hpp
+		src/chars/world.characters.hpp
 		src/class.hpp
+		src/cmd.wiz/act.wizard.hpp
+		src/cmd.wiz/stat.h
+		src/cmd/cmd.generic.h
 		src/comm.h
 		src/command.shutdown.hpp
 		src/commands.hpp
+		src/compact.trie.hpp
 		src/conf.h
 		src/config.hpp
 		src/constants.h
+		src/core/affect_data.h
 		src/coredump.hpp
 		src/corpse.hpp
 		src/daily_quest.hpp
 		src/db.h
 		src/deathtrap.hpp
+		src/debug.utils.hpp
 		src/depot.hpp
 		src/description.h
 		src/dg/dg_db_scripts.hpp
@@ -307,60 +283,72 @@ set(HEADERS
 		src/exchange.h
 		src/ext_money.hpp
 		src/external.trigger.hpp
-		src/features.itemset.hpp
 		src/features.hpp
-		src/fightsystem/fight_constants.hpp
+		src/features.itemset.hpp
+		src/fightsystem/assist.h
+		src/fightsystem/common.h
 		src/fightsystem/fight.h
+		src/fightsystem/fight.penalties.hpp
+		src/fightsystem/fight_constants.hpp
 		src/fightsystem/fight_hit.hpp
 		src/fightsystem/fight_stuff.hpp
-		src/fightsystem/fight.penalties.hpp
+		src/fightsystem/mobact.hpp
+		src/fightsystem/pk.h
+		src/fightsystem/start.fight.h
 		src/file_crc.hpp
+		src/find.obj.id.by.vnum.hpp
 		src/genchar.h
-		src/glory_const.hpp
+		src/global.objects.hpp
 		src/glory.hpp
+		src/glory_const.hpp
 		src/glory_misc.hpp
+		src/graph.h
+		src/grp/grp.main.h
 		src/handler.h
+		src/heartbeat.commands.hpp
+		src/heartbeat.hpp
 		src/help.hpp
-		src/house_exp.hpp
 		src/house.h
+		src/house_exp.hpp
+		src/id.hpp
 		src/ignores.hpp
 		src/ignores.loader.hpp
 		src/im.h
+		src/influxdb.hpp
 		src/interpreter.h
 		src/item.creation.hpp
 		src/levenshtein.hpp
+		src/limits.hpp
 		src/liquid.hpp
 		src/logger.hpp
 		src/magic.h
 		src/mail.h
 		src/map.hpp
 		src/meat.maker.hpp
-		src/fightsystem/mobact.hpp
-		src/mobmax.hpp
 		src/mob_stat.hpp
+		src/mobmax.hpp
 		src/modify.h
 		src/morph.hpp
-		src/named_stuff.hpp
 		src/name_list.hpp
+		src/named_stuff.hpp
 		src/noob.hpp
-		src/obj_enchant.hpp
 		src/obj.hpp
-		src/objsave.h
+		src/obj_enchant.hpp
 		src/obj_sets.hpp
 		src/obj_sets_stuff.hpp
+		src/object.prototypes.hpp
+		src/objsave.h
 		src/olc.h
 		src/parcel.hpp
 		src/parse.hpp
 		src/password.hpp
-		src/fightsystem/pk.h
-		src/chars/player_i.hpp
-		src/chars/player_races.hpp
 		src/poison.hpp
 		src/privilege.hpp
 		src/pugiconfig.hpp
 		src/pugixml.hpp
-		src/quested.hpp
 		src/quest.hpp
+		src/quested.hpp
+		src/radix.trie.hpp
 		src/random.hpp
 		src/remember.hpp
 		src/reset_stats.hpp
@@ -368,11 +356,36 @@ set(HEADERS
 		src/screen.h
 		src/sets_drop.hpp
 		src/shop_ext.hpp
+		src/shops.implementation.hpp
 		src/shutdown.parameters.hpp
-		src/skills.h
+		src/skills/skills.h
+		src/skills/backstab.h
+		src/skills/bash.h
+		src/skills/block.h
+		src/skills/chopoff.h
+		src/skills/disarm.h
+		src/skills/expendientcut.h
+		src/skills/flee.h
+		src/skills/ironwind.h
+		src/skills/kick.h
+		src/skills/manadrain.h
+		src/skills/mighthit.h
+		src/skills/parry.h
+		src/skills/protect.h
+		src/skills/resque.h
+		src/skills/strangle.h
+		src/skills/stun.h
+		src/skills/stupor.h
+		src/skills/styles.h
+		src/skills/throw.h
+		src/skills/townportal.h
+		src/skills/turnundead.h
 		src/spam.hpp
+		src/speedwalks.hpp
 		src/spell_parser.hpp
 		src/spells.h
+		src/stigmas.hpp
+		src/strengthening.hpp
 		src/structs.h
 		src/stuff.hpp
 		src/sysdep.h
@@ -382,21 +395,12 @@ set(HEADERS
 		src/title.hpp
 		src/top.h
 		src/utils.h
+		src/utils.string.hpp
+		src/weather.hpp
+		src/world.objects.hpp
 		src/xml_loading_helper.hpp
-		src/debug.utils.hpp
-		src/stigmas.hpp
 		src/zone.table.hpp
-		src/skills/flee.h
-		src/skills/backstab.h
-		src/skills/bash.h
-		src/skills/stun.h
-		src/skills/resque.h
-		src/skills/kick.h
-		src/skills/strangle.h
-		src/skills/chopoff.h
-		src/skills/stupor.h
-		src/graph.h
-		src/cmd/cmd.generic.h)
+)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types

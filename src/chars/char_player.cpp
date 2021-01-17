@@ -13,7 +13,7 @@
 #include "file_crc.hpp"
 #include "spells.h"
 #include "constants.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "ignores.loader.hpp"
 #include "im.h"
 #include "olc.h"

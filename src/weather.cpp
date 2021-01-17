@@ -18,7 +18,7 @@
 #include "sysdep.h"
 #include "structs.h"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "comm.h"

@@ -16,7 +16,7 @@
 #include "comm.h"
 #include "handler.h"
 #include "magic.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "room.hpp"
 #include "screen.h"
 #include "features.hpp"

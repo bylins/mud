@@ -14,7 +14,7 @@
 #include "handler.h"
 #include "db.h"
 #include "comm.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "room.hpp"
 #include "fightsystem/fight.h"
 

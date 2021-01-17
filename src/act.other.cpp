@@ -43,7 +43,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "shop_ext.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"

@@ -20,7 +20,7 @@
 #include "obj.hpp"
 #include "interpreter.h"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "handler.h"
 #include "comm.h"
 #include "db.h"

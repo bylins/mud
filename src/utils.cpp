@@ -37,7 +37,7 @@
 #include "depot.hpp"
 #include "objsave.h"
 #include "fightsystem/fight.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "exchange.h"
 #include "sets_drop.hpp"
 #include "structs.h"

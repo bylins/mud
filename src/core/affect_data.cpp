@@ -4,7 +4,7 @@
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
 #include "class.hpp"
-#include "cmd/follow.h"
+#include "grp/grp.main.h"
 #include "deathtrap.hpp"
 #include "handler.h"
 #include "magic.h"

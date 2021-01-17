@@ -12,7 +12,7 @@
 #ifndef _DG_SCRIPTS_H_
 #define _DG_SCRIPTS_H_
 
-#include "skills.h"
+#include "skills/skills.h"
 #include "structs.h"
 #include "logger.hpp"
 

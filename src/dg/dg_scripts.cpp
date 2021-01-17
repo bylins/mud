@@ -38,7 +38,7 @@
 #include "privilege.hpp"
 #include "room.hpp"
 #include "screen.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spell_parser.hpp"
 #include "spells.h"
 #include "structs.h"

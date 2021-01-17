@@ -17,7 +17,7 @@
 #include "fightsystem/pk.h"
 #include "screen.h"
 #include "boards.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
 #include "privilege.hpp"
 #include "chars/char.hpp"

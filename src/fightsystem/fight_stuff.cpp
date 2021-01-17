@@ -27,7 +27,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "sets_drop.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "skills/flee.h"
 #include "spell_parser.hpp"
 #include "spells.h"

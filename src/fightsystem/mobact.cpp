@@ -37,7 +37,7 @@
 #include "comm.h"
 #include "handler.h"
 #include "magic.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "fightsystem/pk.h"
 #include "random.hpp"
 #include "chars/char.hpp"

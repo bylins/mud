@@ -17,9 +17,9 @@
 #include "char_obj_utils.inl"
 #include "chars/world.characters.hpp"
 #include "depot.hpp"
+#include "fightsystem/fight.h"
 #include "fightsystem/mobact.hpp"
 #include "fightsystem/pk.h"
-#include "grp/follow.h"
 #include "grp/grp.main.h"
 #include "handler.h"
 #include "house.h"
@@ -55,7 +55,6 @@ ESkill get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 void weight_change_object(OBJ_DATA * obj, int weight);
-int compute_armor_class(CHAR_DATA * ch);
 char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int calc_anti_savings(CHAR_DATA * ch);

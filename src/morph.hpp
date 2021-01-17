@@ -1,7 +1,7 @@
 #ifndef MORPH_HPP_INCLUDED
 #define MORPH_HPP_INCLUDED
 
-#include "skills.h"
+#include "skills/skills.h"
 #include "comm.h"
 
 #include <list>

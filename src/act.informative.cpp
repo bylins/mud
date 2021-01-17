@@ -57,7 +57,7 @@
 #include "screen.h"
 #include "sets_drop.hpp"
 #include "shutdown.parameters.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -97,7 +97,6 @@ extern std::vector<City> cities;
 // extern functions
 long find_class_bitvector(char arg);
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
-int compute_armor_class(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);
 // local functions
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);

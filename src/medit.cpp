@@ -19,7 +19,7 @@
 #include "features.hpp"
 #include "im.h"
 #include "chars/char.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "name_list.hpp"
 #include "room.hpp"
 #include "corpse.hpp"

@@ -42,7 +42,7 @@
 #include "random.hpp"
 #include "room.hpp"
 #include "screen.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"

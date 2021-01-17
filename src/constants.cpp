@@ -17,7 +17,7 @@
 
 #include "constants.h"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "interpreter.h"	// alias_data
 #include "house.h"
 

@@ -4,7 +4,6 @@
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/common.h"
 #include "spells.h"
-#include "handler.h"
 #include "protect.h"
 
 

@@ -40,7 +40,7 @@
 #include "noob.hpp"
 #include "obj.hpp"
 #include "screen.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spam.hpp"
 #include "spell_parser.hpp"
 #include "spells.h"

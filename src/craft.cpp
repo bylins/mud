@@ -14,7 +14,7 @@
 #include "time_utils.hpp"
 #include "xml_loading_helper.hpp"
 #include "parse.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "comm.h"
 #include "db.h"
 #include "utils.h"

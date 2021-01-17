@@ -20,7 +20,7 @@
 #include "screen.h"
 #include "im.h"
 #include "constants.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "named_stuff.hpp"

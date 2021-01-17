@@ -37,6 +37,9 @@ void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 int max_group_size(CHAR_DATA *ch);
 bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict);
+bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim);
+bool die_follower(CHAR_DATA * ch);
+bool stop_follower(CHAR_DATA * ch, int mode);
 // возвращает true, если рядом с персонажем лидер группы и прокнул скилл
 bool calc_leadership(CHAR_DATA * ch);
 

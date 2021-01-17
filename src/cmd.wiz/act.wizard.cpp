@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 
-#include "cmd.imm/act.wizard.hpp"
+#include "act.wizard.hpp"
 
 #include "action.targeting.hpp"
 #include "ban.hpp"
@@ -67,8 +67,9 @@
 #include "screen.h"
 #include "sets_drop.hpp"
 #include "shop_ext.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
+#include "stat.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "time_utils.hpp"
@@ -127,7 +128,6 @@ void rename_char(CHAR_DATA * ch, char *oname);
 int _parse_name(char *arg, char *name);
 int Valid_Name(char *name);
 int reserved_word(const char *name);
-int compute_armor_class(CHAR_DATA * ch);
 extern bool can_be_reset(zone_rnum zone);
 extern bool is_empty(zone_rnum zone_nr);
 void list_feats(CHAR_DATA * ch, CHAR_DATA * vict, bool all_feats);

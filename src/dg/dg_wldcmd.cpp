@@ -10,7 +10,7 @@
 **************************************************************************/
 
 #include "chars/char.hpp"
-#include "cmd/follow.h"
+#include "grp/grp.main.h"
 #include "comm.h"
 #include "core/leveling.h"
 #include "db.h"
@@ -24,7 +24,7 @@
 #include "obj.hpp"
 #include "object.prototypes.hpp"
 #include "room.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "skills/townportal.h"
 #include "spell_parser.hpp"
 #include "spells.h"

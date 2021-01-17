@@ -25,7 +25,7 @@
 #include "depot.hpp"
 #include "chars/char.hpp"
 #include "house.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "parcel.hpp"
 #include "liquid.hpp"
 #include "name_list.hpp"

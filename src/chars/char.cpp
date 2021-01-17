@@ -14,7 +14,7 @@
 #include "interpreter.h"
 #include "boards.h"
 #include "privilege.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "constants.h"
 #include "char_player.hpp"
 #include "spells.h"

@@ -36,7 +36,7 @@
 #include "fightsystem/pk.h"
 #include "poison.hpp"
 #include "room.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
 #include "mobmax.hpp"
 #include "meat.maker.hpp"

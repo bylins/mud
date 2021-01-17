@@ -1,6 +1,6 @@
 #include "cmd.generic.h"
 
-#include "grp/follow.h"
+
 #include "grp/grp.main.h"
 #include "handler.h"
 #include "screen.h"
