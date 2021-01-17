@@ -129,7 +129,7 @@ int calc_hire_price(CHAR_DATA * ch, CHAR_DATA * victim) {
     int m_mr = GET_MR(victim) *50;
     int m_pr = GET_PR(victim) *50;
     // дамаг
-    int m_dr = (victim->mob_specials.damnodice * victim->mob_specials.damsizedice + victim->mob_specials.damnodice) / 2 + GET_DR(victim);
+    int m_dr = ((victim->mob_specials.damnodice * victim->mob_specials.damsizedice + victim->mob_specials.damnodice) / 2 + GET_DR(victim)) * 10;
     float extraAttack = victim->mob_specials.ExtraAttack * m_dr;
 
     ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
