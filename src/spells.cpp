@@ -842,7 +842,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			const auto carried_by = i->get_carried_by();
 			const auto same_zone = world[ch->in_room]->zone == world[carried_by->in_room]->zone;
 			if (!IS_NPC(carried_by) || same_zone || bloody_corpse) {
-				sprintf(buf, "%s наход%sся у %s в инвентаре\r\n", i->get_short_description().c_str(),
+				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
 					GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
 			} else {
 				return false;
@@ -896,7 +896,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			const auto worn_by = i->get_worn_by();
 			const auto same_zone = world[ch->in_room]->zone == world[worn_by->in_room]->zone;
 			if (!IS_NPC(worn_by) || same_zone || bloody_corpse) {
-				sprintf(buf, "%s надет%s на %s\r\n", i->get_short_description().c_str(),
+				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
 					GET_OBJ_SUF_6(i), PERS(worn_by, ch, 3));
 			} else {
 				return false;
