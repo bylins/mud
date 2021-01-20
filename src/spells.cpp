@@ -850,11 +850,7 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		else if (i->get_in_room() != NOWHERE && i->get_in_room()) {
 			const auto room = i->get_in_room();
-<<<<<<< HEAD
 			const auto same_zone = world[ch->in_room]->zone == world[room]->zone;
-=======
-			const auto с = world[ch->in_room]->zone == world[room]->zone;
->>>>>>> 4904e3a8d70524a4d08798357f18e0bc887d7340
 			if (same_zone) {
 				sprintf(buf, "%s наход%sся в комнате '%s'\r\n",
 					i->get_short_description().c_str(), GET_OBJ_POLY_1(ch, i), world[room]->name);
