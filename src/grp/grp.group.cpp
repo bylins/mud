@@ -208,7 +208,7 @@ bool Group::_removeMember(int memberUID) {
         send_to_char(member, "Вы покинули группу.\r\n");
         member->personGroup = nullptr;
     }
-    actToGroup(nullptr, it->second->member, GC_ROOM , "%n покинул$g группу.");
+    actToGroup(nullptr, it->second->member, GC_LEADER | GC_REST , "$N покинул$G группу.");
     if (it->second->type == GM_CHAR)
         _pcCount--;
     this->erase(memberUID); // finally remove it
@@ -620,13 +620,17 @@ void Group::actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, int mode, const char *msg
         act(smallBuf, TRUE, ch, nullptr, vict, TO_ROOM | TO_ARENA_LISTEN);
 }
 
-void Group::addFollowers(CHAR_DATA *leader) {
+bool Group::addFollowers(CHAR_DATA *leader) {
+    bool result = false;
     for (auto f = leader->followers; f; f = f->next) {
         if (IS_NPC(f->follower))
             continue;
-        if ((u_short)this->get_size() < (u_short)_memberCap)
+        if ((u_short)this->get_size() < (u_short)_memberCap) {
             this->addMember(f->follower);
+            result = true;
+        }
     }
+    return result;
 }
 
 // метод может вернуть мусор :(

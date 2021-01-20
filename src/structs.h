@@ -637,7 +637,7 @@ enum class EAffectFlag: uint32_t
 	AFF_SENSE_LIFE = 1u << 5,				///< Char can sense hidden life
 	AFF_WATERWALK = 1u << 6,				///< Char can walk on water
 	AFF_SANCTUARY = 1u << 7,				///< Char protected by sanct.
-	AFF_GROUP = 1u << 8,					///< (R) Char is grouped
+	AFF_UNUSED1 = 1u << 8,					///< (R) Char is grouped
 	AFF_CURSE = 1u << 9,					///< Char is cursed
 	AFF_INFRAVISION = 1u << 10,				///< Char can see in dark
 	AFF_POISON = 1u << 11,					///< (R) Char is poisoned

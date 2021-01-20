@@ -143,7 +143,7 @@ private:
 public:
 
 
-    void addFollowers(CHAR_DATA* leader);
+    bool addFollowers(CHAR_DATA* leader);
     void addMember(CHAR_DATA *member, bool silent = false);
     void expellMember(char* memberName);
     bool _restoreMember(CHAR_DATA *member);

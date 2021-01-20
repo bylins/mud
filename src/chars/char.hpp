@@ -638,7 +638,7 @@ public:
 	void set_role(const role_t& new_role) { role_ = new_role; }
 	void msdp_report(const std::string& name);
 
-	void removeGroupFlags();
+	void removeGroupFlags(bool reboot = false);
 	void add_follower(CHAR_DATA* ch);
 	/** Do NOT call this before having checked if a circle of followers
 	* will arise. CH will follow leader

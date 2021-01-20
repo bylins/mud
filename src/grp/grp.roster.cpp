@@ -32,7 +32,7 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
     const std::string strREJECT = "отклонить reject";
     const std::string strEXPELL = "выгнать expell";
     const std::string strLEADER = "лидер leader";
-    const std::string strLEAVE = "покинуть leave";
+    const std::string strLEAVE = "покинуть выйти leave";
     const std::string strDISBAND = "распустить clear";
     const std::string strWORLD = "мир world";
     const std::string strALL = "все all";// старый режим, создание группы и добавление всех последователей.
@@ -61,7 +61,7 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
         return;
     } else if (isname(subcmd, strMAKE.c_str())) {
         if (grp != nullptr && grp->getLeader() == ch){
-            send_to_char(ch, "Только великим правителям, навроде Цесаря Иулия, было дозволено водить много легионов!\r\n");
+            send_to_char(ch, "Только великим правителям, навроде Цесаря Иулия, было под силу водить много легионов!\r\n");
             return;
         }
         if (grp != nullptr) // в группе - покидаем
@@ -72,18 +72,21 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
         grp->listMembers(ch);
         return;
     } else if (isname(subcmd, strALL.c_str())) {
-        // если в группе, печатаем полный список.
+        // если не в группе, создаем и добавляем всех последователей
         if (grp == nullptr) {
             grp = groupRoster.addGroup(ch).get();
-            grp->addFollowers(ch);
+            if (!grp->addFollowers(ch))
+                send_to_char(ch, "А окромя вас, в группу то добавить и некого...\r\n");
             return;
         }
+        // если не лидер и в группе, печатаем полный список.
         if (grp->getLeader() != ch){
             grp->printGroup(ch);
             return;
         }
         // сюда приходим лидером и добавляем всех, кто следует.
-        grp->addFollowers(ch);
+        if (!grp->addFollowers(ch))
+            send_to_char(ch, "Все, кто за вами следует, уже в группе.\r\n");
         return;
     } else if (isname(subcmd, strLEAVE.c_str())){
         grp->leaveGroup(ch);

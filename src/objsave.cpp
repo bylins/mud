@@ -3448,7 +3448,7 @@ void Crash_save_all_rent(void)
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(PLR_CRASH);
-			(ch.get())->removeGroupFlags();
+			(ch.get())->removeGroupFlags(true);
 			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
 			extract_char(ch.get(), FALSE);
 		}

@@ -2799,18 +2799,12 @@ void npc_group(CHAR_DATA * ch)
 			continue;
 		}
 
-		if (vict == leader) {
-			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
-			continue;
-		}
-
 		if (!vict->has_master()) {
 			leader->add_follower(vict);
 		} else if (vict->get_master() != leader) {
 			stop_follower(vict, SF_EMPTY);
 			leader->add_follower(vict);
 		}
-		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 	}
 }
 

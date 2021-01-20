@@ -2032,11 +2032,14 @@ void CHAR_DATA::msdp_report(const std::string& name) {
 	}
 }
 
-void CHAR_DATA::removeGroupFlags() {
-	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
-	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
-	if (personGroup != nullptr && IS_CHARMICE(this))
+void CHAR_DATA::removeGroupFlags(bool reboot) {
+    if (personGroup == nullptr)
+        return;
+    // чармис всегда, персонаж по настройке, или при ребуте
+    if (IS_CHARMICE(this) || PRF_FLAGGED(this, PRF_FOLLOW_GRP_EXIT) || reboot) {
+        PRF_FLAGS(this).unset(PRF_SKIRMISHER);
         personGroup->_removeMember(this);
+    }
 }
 
 void CHAR_DATA::add_follower(CHAR_DATA* ch) {

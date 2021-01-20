@@ -131,7 +131,7 @@ void apply_natural_affects(CHAR_DATA *ch)
 
 std::array<EAffectFlag, 2> char_saved_aff =
         {
-                EAffectFlag::AFF_GROUP,
+                EAffectFlag::AFF_UNUSED1,
                 EAffectFlag::AFF_HORSE
         };
 

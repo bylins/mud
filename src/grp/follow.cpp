@@ -17,29 +17,22 @@ bool stop_follower(CHAR_DATA * ch, int mode)
     struct follow_type *j, *k;
     int i;
 
-    //log("[Stop follower] Start function(%s->%s)",ch ? GET_NAME(ch) : "none",
-    //      ch->master ? GET_NAME(ch->master) : "none");
-
-    if (!ch->has_master())
-    {
+    if (!ch->has_master())  {
         log("SYSERR: stop_follower(%s) without master", GET_NAME(ch));
         return (FALSE);
     }
 
     // для смены лидера без лишнего спама
-    if (!IS_SET(mode, SF_SILENCE))
-    {
+    if (!IS_SET(mode, SF_SILENCE)) {
         act("Вы прекратили следовать за $N4.", FALSE, ch, 0, ch->get_master(), TO_CHAR);
         act("$n прекратил$g следовать за $N4.", TRUE, ch, 0, ch->get_master(), TO_NOTVICT | TO_ARENA_LISTEN);
     }
 
     //log("[Stop follower] Stop horse");
-    if (ch->get_master()->get_horse() == ch && ch->get_master()->ahorse())
-    {
+    if (ch->get_master()->get_horse() == ch && ch->get_master()->ahorse()) {
         ch->drop_from_horse();
     }
-    else
-    {
+    else {
         act("$n прекратил$g следовать за вами.", TRUE, ch, 0, ch->get_master(), TO_VICT);
     }
 
@@ -49,10 +42,6 @@ bool stop_follower(CHAR_DATA * ch, int mode)
     } else if (ch->get_master()->followers->follower == ch) {
         k = ch->get_master()->followers;
         ch->get_master()->followers = k->next;
-
-        if (!ch->get_master()->followers && !ch->get_master()->has_master()) {
-            ch->get_master()->removeGroupFlags();
-        }
         free(k);
     }
     else {   		// locate follower who is not head of list
@@ -68,6 +57,7 @@ bool stop_follower(CHAR_DATA * ch, int mode)
     }
 
     ch->set_master(nullptr);
+    // чармис покидает группу всегда, персонаж по настроению
     ch->removeGroupFlags();
 
     if (IS_CHARMICE(ch)|| IS_SET(mode, SF_CHARMLOST)) {
@@ -96,11 +86,8 @@ bool stop_follower(CHAR_DATA * ch, int mode)
             }
         }
     }
-
-    if (IS_NPC(ch)
-        && !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)	//Не ресетим флаги, если моб призван игроком
-        && (i = GET_MOB_RNUM(ch)) >= 0)
-    {
+//Не ресетим флаги, если моб призван игроком
+    if (IS_NPC(ch)&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON) && (i = GET_MOB_RNUM(ch)) >= 0) {
         MOB_FLAGS(ch) = MOB_FLAGS(mob_proto + i);
     }
 
