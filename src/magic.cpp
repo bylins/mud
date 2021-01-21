@@ -15,39 +15,18 @@
 #include "magic.h"
 
 #include "cmd/hire.h"
-#include "core/affect_data.h"
 #include "action.targeting.hpp"
 #include "chars/world.characters.hpp"
 #include "world.objects.hpp"
 #include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "spells.h"
-#include "skills.h"
 #include "handler.h"
-#include "db.h"
-#include "interpreter.h"
 #include "screen.h"
-#include "constants.h"
-#include "dg_scripts.h"
 #include "fightsystem/pk.h"
-#include "features.hpp"
 #include "fightsystem/fight.h"
-#include "deathtrap.hpp"
 #include "random.hpp"
-#include "chars/char.hpp"
-#include "poison.hpp"
 #include "modify.h"
-#include "room.hpp"
 #include "AffectHandler.hpp"
 #include "corpse.hpp"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "char_obj_utils.inl"
-#include "zone.table.hpp"
 
 #include <boost/format.hpp>
 #include <iomanip>
@@ -55,19 +34,16 @@
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct spell_create_type spell_create[];
-FLAG_DATA  EMPTY_FLAG_DATA;
 extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
 byte extend_saving_throws(int class_num, int type, int level);
-void alterate_object(OBJ_DATA * obj, int dam, int chance);
 int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
 int slot_for_char(CHAR_DATA * ch, int slotnum);
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
 
 bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
 bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum);
-void pulse_affect_update(CHAR_DATA * ch);
 
 bool is_room_forbidden(ROOM_DATA * room) {
 	for (const auto& af : room->affected) {
@@ -3946,7 +3922,34 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			//Додати обработчик
 			break;
 		}
+    case SPELL_PALADINE_INSPIRATION:
+       byte num = number(1,4);
+        af[0].type = SPELL_PALADINE_INSPIRATION;
+        af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+        switch (num){
+            case 1:
+                af[0].location = APPLY_PERCENT_DAM;
+                af[0].duration = pc_duration(victim, 5, 0, 0, 0, 0);
+                af[0].modifier = GET_REMORT(ch) / 5 * 2 + GET_REMORT(ch);
+                break;
+            case 2:
+                af[0].location = APPLY_CAST_SUCCESS;
+                af[0].duration = pc_duration(victim, 3, 0, 0, 0, 0);
+                af[0].modifier = GET_REMORT(ch) / 5 * 2 + GET_REMORT(ch);
+                break;
+            case 3:
+                af[0].location = APPLY_MANAREG;
+                af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
+                af[0].modifier = GET_REMORT(ch) / 5 * 2 + GET_REMORT(ch) * 5;
+                break;
+            case 4:
+                call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
+                break;
+            default:
+                break;
+        }
 	}
+
 
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
 	//чтобы этот аффект не очистился, при спадении спелла
@@ -5201,7 +5204,12 @@ typedef struct
 // Svent TODO Перенести эту порнографию в спеллпарсер
 const spl_message mag_messages[] =
 {
-	{SPELL_EVILESS,
+    {SPELL_PALADINE_INSPIRATION, // групповой
+    "Ваш точный удар воодушевил и придал новых сил!",
+    "Точный удар $n1 воодушевил и придал новых сил!",
+            nullptr,
+    0.0, 20, 2, 1, 20, 3, 0},
+    {SPELL_EVILESS,
 	 "Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше..",
 	 "Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда.",
 	 nullptr,
@@ -5609,6 +5617,7 @@ int trySendCastMessages(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int s
 	if (room && world[ch->in_room] == room) {
 		if (multi_cast_say(ch)) {
 			if (mag_messages[msgIndex].to_char != nullptr) {
+                // вот тут надо воткнуть проверку на группу.
 				act(mag_messages[msgIndex].to_char, FALSE, ch, 0, victim, TO_CHAR);
 			}
 			if (mag_messages[msgIndex].to_room != nullptr) {
