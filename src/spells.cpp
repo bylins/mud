@@ -779,9 +779,9 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 		}
 
-		if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-			&& i->get_carried_by() != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+		if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE) && i->get_carried_by() != ch)
 		{
+			// !локейт стаф может локейтить только имм или тот кто его держит
 			return false;
 		}
 
@@ -797,7 +797,6 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 			if (!carried_by_ptr)
 			{
-//				debug::coredump();
 				sprintf(buf, "SYSERR: Illegal carried_by ptr. Создана кора для исследований");
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 				return false;
@@ -805,7 +804,6 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 			if (!VALID_RNUM(IN_ROOM(carried_by)))
 			{
-//				debug::coredump();
 				sprintf(buf, "SYSERR: Illegal room %d, char %s. Создана кора для исследований", IN_ROOM(carried_by), carried_by->get_name().c_str());
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 				return false;
@@ -821,15 +819,23 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
-			sprintf(buf, "%s наход%sся у %s в инвентаре, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
-				GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1), world[carried_by->in_room]->name, zone_table[world[carried_by->in_room]->zone].name);
-
+			const auto same_zone = world[ch->in_room]->zone == world[carried_by->in_room]->zone;
+			if (!IS_NPC(carried_by) || same_zone || bloody_corpse) {
+				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
+					GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
+			} else {
+				return false;
+			}
 		}
 		else if (i->get_in_room() != NOWHERE && i->get_in_room()) {
 			const auto room = i->get_in_room();
-			sprintf(buf, "%s наход%sся в комнате: '%s', название зоны: '%s'.\r\n",
-				i->get_short_description().c_str(), GET_OBJ_POLY_1(ch, i),
-				world[room]->name, zone_table[world[room]->zone].name);
+			const auto same_zone = world[ch->in_room]->zone == world[room]->zone;
+			if (same_zone) {
+				sprintf(buf, "%s наход%sся в комнате '%s'\r\n",
+					i->get_short_description().c_str(), GET_OBJ_POLY_1(ch, i), world[room]->name);
+			} else {
+				return false;
+			}
 		}
 		else if (i->get_in_obj())
 		{
@@ -867,11 +873,11 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
-			if (IS_NPC(worn_by) || !IS_NPC(worn_by) /*&& GET_LEVEL(worn_by) < LVL_IMMORT))*/ || bloody_corpse) {
-				sprintf(buf, "%s надет%s на %s, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
-					GET_OBJ_SUF_6(i), PERS(worn_by, ch, 3), world[worn_by->in_room]->name, zone_table[world[worn_by->in_room]->zone].name);
-			}
-			else {
+			const auto same_zone = world[ch->in_room]->zone == world[worn_by->in_room]->zone;
+			if (!IS_NPC(worn_by) || same_zone || bloody_corpse) {
+				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
+					GET_OBJ_SUF_6(i), PERS(worn_by, ch, 3));
+			} else {
 				return false;
 			}
 		}
@@ -2709,7 +2715,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_DEATH (set by program)
-	cast_phrase_t{ "Воодушевление", "!set by programm!" }, // воодушевление
+	cast_phrase_t{ "\n", "\n"}, // воодушевление
 	cast_phrase_t{ "будет ловким", "... и человек разумный укрепляет ловкость свою."}, //ловкость
 	cast_phrase_t{ "защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу." }, // груп мигание
 	cast_phrase_t{ "огрожу беззакония их туманом", "...да защитит и покроет рассветная пелена тела ваши." }, // груп затуманивание

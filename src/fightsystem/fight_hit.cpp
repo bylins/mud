@@ -4141,7 +4141,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 					PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 				}
 			}
-//			inspiration(ch);
+            call_magic(ch, victim, nullptr, nullptr, ESpell::SPELL_PALADINE_INSPIRATION, ch->get_level());
 		}
 	}
 
