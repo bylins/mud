@@ -3946,10 +3946,19 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			break;
 		}
     case SPELL_PALADINE_INSPIRATION:
-       byte num = number(1,4);
+        /*
+         * групповой спелл, развешивающий рандомные аффекты, к сожалению
+         * не может быть применен по принципа "сгенерили рандом - и применили"
+         * поэтому на каждого члена группы применяется свой аффект, а кастер еще и полечить может
+         * */
+
+        if (ch == victim)
+            rnd = number(1,4);
+        else
+            rnd = number(1,3);
         af[0].type = SPELL_PALADINE_INSPIRATION;
         af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-        switch (num){
+        switch (rnd){
             case 1:
                 af[0].location = APPLY_PERCENT_DAM;
                 af[0].duration = pc_duration(victim, 5, 0, 0, 0, 0);
