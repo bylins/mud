@@ -307,8 +307,6 @@ void do_sneak(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_snoop(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spec_comm(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_spell_capable(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
 void do_fry(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_steal(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_switch(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

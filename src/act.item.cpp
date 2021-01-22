@@ -12,40 +12,42 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "cmd/cmd.generic.h"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "logger.hpp"
-#include "obj.hpp"
+#include "char_obj_utils.inl"
 #include "chars/char.hpp"
+#include "cmd/cmd.generic.h"
 #include "comm.h"
+#include "conf.h"
 #include "constants.h"
 #include "db.h"
 #include "depot.hpp"
 #include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
+#include "fightsystem/pk.h"
+#include "global.objects.hpp"
+#include "grp/grp.main.h"
 #include "handler.h"
 #include "house.h"
 #include "im.h"
 #include "interpreter.h"
 #include "liquid.hpp"
+#include "logger.hpp"
 #include "magic.h"
+#include "meat.maker.hpp"
+#include "mobmax.hpp"
 #include "named_stuff.hpp"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
 #include "objsave.h"
-#include "fightsystem/pk.h"
 #include "poison.hpp"
 #include "room.hpp"
 #include "skills/skills.h"
 #include "spells.h"
-#include "mobmax.hpp"
-#include "meat.maker.hpp"
+#include "strengthening.hpp"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
-#include "char_obj_utils.inl"
-#include "global.objects.hpp"
-#include "strengthening.hpp"
+#include "world.objects.hpp"
+
 #include <boost/format.hpp>
 
 
@@ -83,8 +85,6 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj);
 // from class.cpp
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
 void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_put(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

@@ -94,8 +94,7 @@ void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
+
 void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd);

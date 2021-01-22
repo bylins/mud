@@ -192,7 +192,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency)
 {
-    int amount, num, share, rest;
+    int amount, num = 0, share, rest;
     CHAR_DATA* m;
 
 
@@ -231,7 +231,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
         }
 
         for (auto it : *grp) {
-            if (it.second->type == GM_CHAR &&SAME_ROOM(it.second->member, ch) )
+            if (it.second->type == GM_CHAR && SAME_ROOM(it.second->member, ch) )
                 num++;
         }
 

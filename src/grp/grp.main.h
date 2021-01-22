@@ -31,6 +31,9 @@ enum GRP_COMM : short {
 enum RQ_R {RQ_R_OK, RQ_R_NO_GROUP, RQ_R_OVERFLOW, RQ_REFRESH};
 enum INV_R {INV_R_OK, INV_R_NO_PERSON, INV_R_BUSY, INV_R_REFRESH};
 
+void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency);
+void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+
 void do_grequest(CHAR_DATA *ch, char *argument, int, int);
 void do_group2(CHAR_DATA *ch, char *argument, int, int);
 void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
