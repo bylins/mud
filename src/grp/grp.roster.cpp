@@ -22,6 +22,33 @@ void GroupRoster::restorePlayerGroup(CHAR_DATA *ch) {
     grp->actToGroup(nullptr, ch, GC_LEADER | GC_REST, "$N заново присоединил$U к вашей группе.");
 }
 
+void GroupRoster::processGroupScmds(CHAR_DATA *ch, char *argument, GRP_SUBCMD subcmd) {
+    switch (subcmd) {
+        case GRP_SUBCMD::GCMD_DISBAND: {
+            auto grp = ch->personGroup;
+            if (grp == nullptr) {
+                send_to_char(ch, "Дабы выгнать кого, сперва надобно в ватаге состояти.\r\n");
+                return;
+            }
+            if (ch != grp->getLeader()) {
+                send_to_char(ch, "Негоже простому ратнику ватагой командовати.\r\n");
+                return;
+            }
+            if (!*argument)
+                groupRoster.removeGroup(grp->getUid());
+            else
+                grp->expellMember(argument);
+            return;
+        }
+        default:{
+            sprintf(buf, "GroupRoster::processGroupScmds: вызов не поддерживаемой команды.\r\n");
+            mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+            send_to_char(ch, "Не поддерживается!\r\n");
+            return;
+        }
+    }
+}
+
 void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
 
     const std::string strHELP = "справка помощь";
@@ -396,3 +423,5 @@ void GroupRoster::charDataPurged(CHAR_DATA *ch) {
 
     }
 }
+
+

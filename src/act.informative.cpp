@@ -5922,7 +5922,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			" Потеря связи  : %-3s     "
 			" Ингредиенты   : %-3s     "
 			" Вспомнить     : %-3u \r\n"
-            " Автогрупвыход : %-3s     "
+            " ГрупВыход     : %-3s     "
             "               : %-3s     "
             "               : %-3s \r\n",
             ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),

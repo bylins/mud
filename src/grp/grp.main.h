@@ -28,6 +28,21 @@ enum GRP_COMM : short {
     GC_ROOM = 8 // эхо в комнату
 };
 
+enum GRP_SUBCMD : short {
+    GCMD_HELP = 1,
+    GCMD_MAKE = 2,
+    GCMD_LIST = 3,
+    GCMD_INVITE = 4,
+    GCMD_APPROVE = 5,
+    GCMD_REJECT = 6,
+    GCMD_EXPELL = 7,
+    GCMD_LEADER = 8,
+    GCMD_LEAVE = 9,
+    GCMD_DISBAND = 10,
+    GCMD_IMMINFO = 11,
+    GCMD_ALL = 12
+};
+
 enum RQ_R {RQ_R_OK, RQ_R_NO_GROUP, RQ_R_OVERFLOW, RQ_REFRESH};
 enum INV_R {INV_R_OK, INV_R_NO_PERSON, INV_R_BUSY, INV_R_REFRESH};
 
@@ -62,14 +77,9 @@ struct char_info {
     sclock_t expiryTime; // время, когда запись автоматом удаляется после проверок.
 };
 
-struct PenaltyCalcData {
-    int penalty;
-};
-
 using grp_mt = std::map<int, std::shared_ptr<char_info>>;
 using grp_ptr = std::shared_ptr<Group>;
 using rq_ptr = std::shared_ptr<Request>;
-using cd_v = std::vector<CHAR_DATA*>;
 using npc_r = std::unordered_set<CHAR_DATA *> *;
 
 const duration DEF_EXPIRY_TIME = 600s;
@@ -78,7 +88,6 @@ inline bool IN_GROUP(CHAR_DATA* ch) {return ch != nullptr && ch->personGroup != 
 inline bool IN_SAME_GROUP(CHAR_DATA* p1, CHAR_DATA* p2) {return IN_GROUP(p1) && IN_GROUP(p2) && p1->personGroup == p2->personGroup;}
 
 // класс, хранящий обвязку штрафов по экспе для группы
-// наркоман писал, не иначе
 class GroupPenalties
 {
 public:
@@ -191,6 +200,7 @@ public:
     void charDataPurged(CHAR_DATA* ch); // очистка заявок при пурже персонажа
     void restorePlayerGroup(CHAR_DATA* ch); // возвращает игрока в группу после смерти
     void processGroupCommands(CHAR_DATA *ch, char *argument);
+    void processGroupScmds(CHAR_DATA *ch, char *argument, GRP_SUBCMD subcmd);
     void printList(CHAR_DATA *ch);
 private:
     u_long _currentGroupIndex = 0;

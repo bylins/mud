@@ -12,6 +12,7 @@
 #include "grp.main.h"
 
 
+
 extern GroupRoster& groupRoster;
 
 void do_grequest(CHAR_DATA *ch, char *argument, int, int){
@@ -63,8 +64,14 @@ int max_group_size(CHAR_DATA *ch)
     return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4) + bonus_commander;
 }
 
-void do_group2(CHAR_DATA *ch, char *argument, int, int){
-    groupRoster.processGroupCommands(ch, argument);
+void do_group2(CHAR_DATA *ch, char *argument, int, int subcmd){
+    if (subcmd < 0 || subcmd > 12)
+        return;
+    if (subcmd == 0) {
+        groupRoster.processGroupCommands(ch, argument);
+        return;
+    }
+    groupRoster.processGroupScmds(ch, argument, (GRP_SUBCMD)subcmd);
 }
 
 void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {

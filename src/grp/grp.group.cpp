@@ -755,9 +755,10 @@ void Group::gainExp(CHAR_DATA * victim) {
     // погнали раздавать опыт
     for (auto m: *this) {
         ch = m.second->member;
-        if (ch != nullptr && SAME_ROOM(ch, victim) && m.second->type == GM_CHAR) {
-            expMultiplicator = calcExpMultiplicator(ch); // цифра процента
+        if (ch == nullptr || ch->purged() || m.second->type == GM_CHARMEE || !SAME_ROOM(ch, victim) ) {
+            continue;
         }
+        expMultiplicator = calcExpMultiplicator(ch); // цифра процента
         // если прокнула лидерка, то добавляем еще 20
         if (leader_inroom && calc_leadership(_leader) and inroom_members > 1)
             expMultiplicator += 20;
