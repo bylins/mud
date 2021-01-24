@@ -19,6 +19,10 @@ bool nsMindHalls::initMindHalls(){
     return true;
 }
 
+void nsMindHalls::do_mindhalls(CHAR_DATA *ch, char *argument, int, int) {
+
+}
+
 OBJ_DATA* MindHalls::operator[](obj_rnum runeId) const {
     auto it = _runes.find(runeId);
     if (it == _runes.end())
@@ -33,18 +37,18 @@ void MindHalls::erase(u_short remort) {
 
 HRESULT MindHalls::addRune(CHAR_DATA* owner, char* runeName) {
     if (owner == nullptr || !*runeName)
-        return HRESULT::NOT_FOUND;
+        return MH_NOT_FOUND;
     auto rune = get_obj_in_list_vis(owner, runeName, owner->carrying);
     if (rune == nullptr || !mag_item_ok(owner, rune, SPELL_RUNES))
-        return HRESULT::NOT_FOUND;
+        return MH_NOT_FOUND;
     if (_runes[rune->get_vnum()] != nullptr)
-        return HRESULT::ALREADY_STORED;
+        return MH_ALREADY_STORED;
     if (_limits - mindHallsParameters.getRunePower(rune->get_vnum()) < 0)
-        return HRESULT::OVER_LIMIT;
+        return MH_OVER_LIMIT;
     auto runeToStore = world_objects.create_from_prototype_by_vnum(rune->get_vnum());
     _runes.emplace(rune->get_vnum(), runeToStore);
     _limits -= mindHallsParameters.getRunePower(rune->get_vnum());
-    return HRESULT::OK;
+    return MH_OK;
 }
 
 HRESULT MindHalls::removeRune(char* runeName) {
@@ -53,10 +57,10 @@ HRESULT MindHalls::removeRune(char* runeName) {
         if (isname(runeName, r->get_aliases())) {
             _limits += mindHallsParameters.getRunePower(it.first);
             _runes.erase(it.first);
-            return HRESULT::OK;
+            return MH_OK;
         }
     }
-    return HRESULT::NOT_FOUND;
+    return MH_NOT_FOUND;
 }
 
 MindHalls::MindHalls(CHAR_DATA* owner, char* runes) {

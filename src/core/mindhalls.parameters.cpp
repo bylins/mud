@@ -23,7 +23,7 @@ MindHallsParams::MindHallsParams() {
 bool MindHallsParams::load() {
     std::ifstream ifs(_paramFile, std::ios::binary);
     if (!ifs.is_open()) {
-//        log("MindHallsParams::load: ошибка - не найден файл с параметрами");
+        log("MindHallsParams::load: ошибка - не найден файл с параметрами");
         return false;
     }
     // define parser callback

@@ -5,13 +5,14 @@
 #ifndef BYLINS_MINDHALLS_PARAMETERS_H
 #define BYLINS_MINDHALLS_PARAMETERS_H
 
+#include "boot.constants.hpp"
 #include "structs.h"
 
 #include <map>
 
 class MindHallsParams {
 private:
-    const char* _paramFile = "../test.json";
+    const char* _paramFile = LIB_MISC"mindhalls.json";
     std::map<short, u_short> _runePower;
     short _hallsCapacity[MAX_REMORT-1];
 public:

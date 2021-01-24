@@ -2862,7 +2862,6 @@ void init_spell_levels(void)
 
 	if (!nsMindHalls::initMindHalls()){
         log("Can't open mindhalls parameters file...");
-        perror("fopen");
         graceful_exit(1);
 	}
 

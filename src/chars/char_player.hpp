@@ -245,7 +245,7 @@ private:
 	//перечень чармисов, доступных с команды наемник
 	std::map<int, MERCDATA> charmeeHistory;
 	// хранилище рун в чертогах разума
-    nsMindHalls::MindHalls* _mindHalls;
+    MindHalls* _mindHalls;
 };
 
 namespace PlayerSystem

@@ -7,6 +7,7 @@
 
 #include "structs.h"
 
+
 #include <array>
 
 class CHAR_DATA;
@@ -17,7 +18,7 @@ using namespace nlohmann;
 
 namespace nsMindHalls {
     bool initMindHalls();
-    enum HRESULT {OK, NOT_FOUND, OVER_LIMIT, ALREADY_STORED};
+    enum HRESULT {MH_OK, MH_NOT_FOUND, MH_OVER_LIMIT, MH_ALREADY_STORED};
     void do_mindhalls(CHAR_DATA *ch, char *argument, int, int);
 }
 
