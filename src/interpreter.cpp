@@ -73,6 +73,7 @@
 #include "skills/kick.h"
 #include "skills/manadrain.h"
 #include "skills/mighthit.h"
+#include "skills/mindhalls.h"
 #include "skills/parry.h"
 #include "skills/protect.h"
 #include "skills/resque.h"
@@ -793,6 +794,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"хранилище", POS_DEAD, DoStoreHouse, 0, 0, 0},
 	{"характеристики", POS_STANDING, do_not_here, 0, 0, -1},
 	{"кланстаф", POS_STANDING, do_clanstuff, 0, 0, 0},
+    {"чертоги", POS_STANDING, nsMindHalls::do_mindhalls, 0, 0, 0},
 	{"чинить", POS_STANDING, do_not_here, 0, 0, -1},
 	{"читать", POS_RESTING, do_look, 0, SCMD_READ, 200},
 	{"шептать", POS_RESTING, do_spec_comm, 0, SCMD_WHISPER, -1},
@@ -914,6 +916,7 @@ cpp_extern const struct command_info cmd_info[] =
 	{"mail", POS_STANDING, do_not_here, 1, 0, -1},
     {"mercenary", POS_STANDING, do_not_here, 1, 0, -1},
 	{"mode", POS_DEAD, do_mode, 0, 0, 0},
+    {"mindhalls", POS_STANDING, nsMindHalls::do_mindhalls, 0, 0, 0},
 	{"mshout", POS_RESTING, do_mobshout, 0, 0, -1},
 	{"motd", POS_DEAD, do_gen_ps, 0, SCMD_MOTD, 0},
 	{"murder", POS_FIGHTING, do_hit, 0, SCMD_MURDER, -1},

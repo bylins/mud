@@ -61,6 +61,7 @@
 #include "sets_drop.hpp"
 #include "shop_ext.hpp"
 #include "shutdown.parameters.hpp"
+#include "skills/mindhalls.h"
 #include "skills/townportal.h"
 #include "speedwalks.hpp"
 #include "stuff.hpp"
@@ -5858,6 +5859,12 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		for (;it != m->end(); ++it)
 			it->second.currRemortAvail = 0;
 	}
+	// очищаем руны из чертогов
+    auto mh = ch->getMindHalls();
+	if (mh != nullptr){
+	    mh->erase(ch->get_remort());
+	}
+
 	do_start(ch, FALSE);
 	ch->save_char();
 	if (PLR_FLAGGED(ch, PLR_HELLED))

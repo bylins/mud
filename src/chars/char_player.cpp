@@ -2563,5 +2563,9 @@ time_t Player::getGloryRespecTime() {
     return this->player_specials->saved.lastGloryRespecTime;
 }
 
+MindHalls *Player::getMindHalls() {
+    return _mindHalls;
+}
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

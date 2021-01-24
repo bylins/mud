@@ -38,6 +38,7 @@
 #include "spam.hpp"
 #include "screen.h"
 #include "chars/char_player.hpp"
+#include "skills/mindhalls.h"
 #include "named_stuff.hpp"
 #include "chars/player_races.hpp"
 #include "noob.hpp"
@@ -2858,6 +2859,12 @@ void init_spell_levels(void)
 		name[0] = '\0';
 	}
 	fclose(magic);
+
+	if (!nsMindHalls::initMindHalls()){
+        log("Can't open mindhalls parameters file...");
+        perror("fopen");
+        graceful_exit(1);
+	}
 
 
 	/* Remove to init_im::im.cpp - Gorrah

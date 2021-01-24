@@ -205,9 +205,13 @@ set(SOURCES
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
 		src/cmd.wiz/stat.cpp
-        src/cmd/follow.cpp )
+        src/cmd/follow.cpp
+		src/skills/mindhalls.cpp
+		src/core/mindhalls.parameters.cpp
+		)
 
 set(HEADERS
+		src/core/mindhalls.parameters.h
 		src/cmd/follow.h
 		src/cmd.wiz/stat.h
 		src/cmd/telegram.h
@@ -233,6 +237,7 @@ set(HEADERS
 		src/skills/throw.h
 		src/skills/ironwind.h
 		src/skills/disarm.h
+		src/skills/mindhalls.h
 		src/act.movement.hpp
 		src/strengthening.hpp
 		src/ability.constants.hpp
@@ -714,6 +719,14 @@ if (HAVE_TG)
 	endif ()
 endif ()
 
+find_package(nlohmann_json 3.2.0 REQUIRED)
+if (NLOHMANN_JSON_FOUND)
+	message(STATUS "JSON LIBRARY FOUND, OK")
+endif()
+
+target_link_libraries(circle.library ${NLOHMANN_JSON_LIBRARIES} )
+
+
 include_directories(src
 	system ${Boost_INCLUDE_DIRS}
 	system ${PYTHON_INCLUDE_DIRS})
@@ -749,6 +762,7 @@ if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
 		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT}")
+#		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT} ${TESTBUILD_DEFINITIONS}")
 		set(CMAKE_CXX_FLAGS_TEST     "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 

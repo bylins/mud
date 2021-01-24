@@ -66,6 +66,7 @@ int mag_alter_objs(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int 
 int mag_creations(int level, CHAR_DATA * ch, int spellnum);
 int mag_single_target(int level, CHAR_DATA * caster, CHAR_DATA * cvict, OBJ_DATA * ovict, int spellnum, int casttype);
 void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument);
+bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype);
 
 namespace RoomSpells {
 	void room_affect_update(void);

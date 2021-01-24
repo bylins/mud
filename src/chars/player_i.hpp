@@ -12,6 +12,7 @@
 #include <map>
 #include <string>
 #include <cmd/mercenary.h>
+#include "skills/mindhalls.h"
 
 struct MERCDATA;
 
@@ -149,6 +150,8 @@ public:
     virtual unsigned long int getTelegramId() {return 0;};
     virtual void setGloryRespecTime(time_t) {};
     virtual time_t getGloryRespecTime() {return 0;};
+
+    virtual MindHalls* getMindHalls() {return nullptr;};
 protected:
 	PlayerI() {};
 	virtual ~PlayerI() {};

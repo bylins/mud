@@ -172,7 +172,8 @@ public:
     // методы работы с последним временем респека славой
     void setGloryRespecTime(time_t param) override;
     time_t getGloryRespecTime() override;
-
+    // хранилище рун в чертогах разума
+    MindHalls* getMindHalls() override;
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -243,6 +244,8 @@ private:
 	std::shared_ptr<Account> account;
 	//перечень чармисов, доступных с команды наемник
 	std::map<int, MERCDATA> charmeeHistory;
+	// хранилище рун в чертогах разума
+    nsMindHalls::MindHalls* _mindHalls;
 };
 
 namespace PlayerSystem

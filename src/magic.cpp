@@ -786,14 +786,11 @@ bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 {
 	int num = 0;
 
-	if (spelltype == SPELL_RUNES
-		&& GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT)
-	{
+	if (spelltype == SPELL_RUNES && GET_OBJ_TYPE(obj) != OBJ_DATA::ITEM_INGREDIENT) {
 		return false;
 	}
 
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT)
-	{
+	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_INGREDIENT) {
 		if ((!IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype == SPELL_RUNES)
 			|| (IS_SET(GET_OBJ_SKILL(obj), ITEM_RUNES) && spelltype != SPELL_RUNES))
 		{
@@ -801,14 +798,11 @@ bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 		}
 	}
 
-	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES)
-		&& GET_OBJ_VAL(obj, 2) <= 0)
-	{
+	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES) && GET_OBJ_VAL(obj, 2) <= 0) {
 		return false;
 	}
 
-	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG))
-	{
+	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG)) {
 		num = 0;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LAG1s))
 			num += 1;
@@ -830,8 +824,7 @@ bool mag_item_ok(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 			return false;
 	}
 
-	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
-	{
+	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL)) {
 		num = 0;
 		if (IS_SET(GET_OBJ_VAL(obj, 0), MI_LEVEL1))
 			num += 1;
@@ -917,8 +910,7 @@ void extract_item(CHAR_DATA * ch, OBJ_DATA * obj, int spelltype)
 	if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES))
 	{
 		obj->dec_val(2);
-		if (GET_OBJ_VAL(obj, 2) <= 0
-			&& IS_SET(GET_OBJ_SKILL(obj), ITEM_DECAY_EMPTY))
+		if (GET_OBJ_VAL(obj, 2) <= 0 && IS_SET(GET_OBJ_SKILL(obj), ITEM_DECAY_EMPTY))
 		{
 			extract = TRUE;
 		}
@@ -949,53 +941,45 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	ESkill skillnum = SKILL_INVALID;
 	struct spell_create_item *items;
 
-	if (spellnum <= 0
-		|| spellnum > MAX_SPELLS)
-	{
+	if (spellnum <= 0 || spellnum > MAX_SPELLS) {
 		return (FALSE);
 	}
-	if (spelltype == SPELL_ITEMS)
-	{
-		items = &spell_create[spellnum].items;
-	}
-	else if (spelltype == SPELL_POTION)
-	{
-		items = &spell_create[spellnum].potion;
-		skillnum = SKILL_CREATE_POTION;
-		create = 1;
-	}
-	else if (spelltype == SPELL_WAND)
-	{
-		items = &spell_create[spellnum].wand;
-		skillnum = SKILL_CREATE_WAND;
-		create = 1;
-	}
-	else if (spelltype == SPELL_SCROLL)
-	{
-		items = &spell_create[spellnum].scroll;
-		skillnum = SKILL_CREATE_SCROLL;
-		create = 1;
-	}
-	else if (spelltype == SPELL_RUNES)
-	{
-		items = &spell_create[spellnum].runes;
-	}
-	else
-	{
-		return (FALSE);
-	}
+    switch (spelltype) {
+	    case SPELL_ITEMS:
+            items = &spell_create[spellnum].items;
+            break;
+	    case SPELL_POTION:
+            items = &spell_create[spellnum].potion;
+            skillnum = SKILL_CREATE_POTION;
+            create = 1;
+            break;
+	    case SPELL_WAND:
+            items = &spell_create[spellnum].wand;
+            skillnum = SKILL_CREATE_WAND;
+            create = 1;
+            break;
+        case SPELL_SCROLL:
+            items = &spell_create[spellnum].scroll;
+            skillnum = SKILL_CREATE_SCROLL;
+            create = 1;
+            break;
+        case SPELL_RUNES:
+            items = &spell_create[spellnum].runes;
+            break;
+        default:
+            return 0;
+    }
 
 	if (((spelltype == SPELL_RUNES || spelltype == SPELL_ITEMS) &&
 			(item3 = items->rnumber) +
 			(item0 = items->items[0]) +
 			(item1 = items->items[1]) +
 			(item2 = items->items[2]) < -3)
-		|| ((spelltype == SPELL_SCROLL
-			|| spelltype == SPELL_WAND
-			|| spelltype == SPELL_POTION)
+		|| ((spelltype == SPELL_SCROLL || spelltype == SPELL_WAND || spelltype == SPELL_POTION)
 				&& ((obj_num = items->rnumber) < 0
-					|| (item0 = items->items[0]) + (item1 = items->items[1])
-						+ (item2 = items->items[2]) < -2)))
+					|| (item0 = items->items[0]) +
+					   (item1 = items->items[1]) +
+					   (item2 = items->items[2]) < -2)))
 	{
 		return (FALSE);
 	}
@@ -1005,8 +989,7 @@ int check_recipe_items(CHAR_DATA * ch, int spellnum, int spelltype, int extract,
 	const int item2_rnum = item2 >= 0 ? real_object(item2) : -1;
 	const int item3_rnum = item3 >= 0 ? real_object(item3) : -1;
 
-	for (auto obj = ch->carrying; obj; obj = obj->get_next_content())
-	{
+	for (auto obj = ch->carrying; obj; obj = obj->get_next_content()) {
 		if (item0 >= 0 && item0_rnum >= 0
 			&& GET_OBJ_VAL(obj, 1) == GET_OBJ_VAL(obj_proto[item0_rnum], 1)
 			&& mag_item_ok(ch, obj, spelltype))

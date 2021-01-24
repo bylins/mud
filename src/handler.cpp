@@ -2641,9 +2641,7 @@ OBJ_DATA* get_obj_in_list_vis(CHAR_DATA * ch, const char *name, OBJ_DATA * list,
 
 	for (i = list; i && (j <= number); i = i->get_next_content())
 	{
-		if (isname(tmp, i->get_aliases())
-			|| CHECK_CUSTOM_LABEL(tmp, i, ch))
-		{
+		if (isname(tmp, i->get_aliases()) || CHECK_CUSTOM_LABEL(tmp, i, ch)) {
 			if (CAN_SEE_OBJ(ch, i))
 			{
 				// sprintf(buf,"Show obj %d %s %x ", number, i->name, i);
