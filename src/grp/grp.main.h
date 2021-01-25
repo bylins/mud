@@ -107,7 +107,7 @@ private:
     constexpr static int DEFAULT_100 = 100;
     // ид группы в ростере
     u_long _uid = 0;
-    //макс.количество игроков
+    //макс.количество игроков. Храним, ибо лидера могло спуржить, но он к нам вернётся..
     int _memberCap = 0;
     // ид лидера
     int _leaderUID;
@@ -152,6 +152,7 @@ private:
     static void _printNPCLine(CHAR_DATA* ch, CHAR_DATA* npc, int header);
     static void _printPCLine(CHAR_DATA* ch, CHAR_DATA* pc, int header);
     bool _sameGroup(CHAR_DATA * ch, CHAR_DATA * vict);
+    void _updateMemberCap();
 public:
 
 

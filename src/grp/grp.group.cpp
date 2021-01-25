@@ -99,7 +99,7 @@ void Group::_setLeader(CHAR_DATA *leader) {
     _leaderUID = _calcUID(leader);
     _leader = leader;
     _leaderName.assign(leader->get_pc_name());
-    _memberCap = IS_NPC(leader)? 255 : max_group_size(leader);
+    _memberCap = IS_NPC(leader)? 255 : max_group_size(leader) + 1; // функция возвращает кол-во ПОСЛЕДОВАТЕЛЕЙ
 }
 
 bool Group::_isActive() {
@@ -111,6 +111,8 @@ u_long Group::getUid() const {
 }
 
 int Group::_getMemberCap() const {
+    if (_leader != nullptr)
+        return max_group_size(_leader) + 1;
     return _memberCap;
 }
 
@@ -119,7 +121,7 @@ const std::string &Group::getLeaderName() const {
 }
 
 bool Group::_isFull() {
-    if ((u_short)this->size() >= (u_short)_memberCap)
+    if (this->_pcCount >= _getMemberCap())
         return true;
     return false;
 }
@@ -188,6 +190,7 @@ void Group::addMember(CHAR_DATA *member, bool silent) {
             this->addMember(ff, true); // рекурсия!
         }
     }
+    _updateMemberCap();
 }
 
 bool Group::_removeMember(int memberUID) {
@@ -256,6 +259,7 @@ bool Group::_removeMember(int memberUID) {
         return false;
     }
     _promote(nxtLdr);
+    _updateMemberCap();
     return true;
 }
 
@@ -625,7 +629,7 @@ bool Group::addFollowers(CHAR_DATA *leader) {
     for (auto f = leader->followers; f; f = f->next) {
         if (IS_NPC(f->follower))
             continue;
-        if ((u_short)this->get_size() < (u_short)_memberCap) {
+        if ((u_short)this->get_size() < (u_short)_getMemberCap()) {
             this->addMember(f->follower);
             result = true;
         }
@@ -682,7 +686,7 @@ void Group::_promote(CHAR_DATA *member) {
         return;
     _setLeader(member);
     actToGroup(nullptr, nullptr, GC_LEADER | GC_REST, "Изменился лидер группы на %s.", _leaderName.c_str());
-    auto diff = (u_short)_memberCap - (u_short)this->size();
+    auto diff = (u_short)_getMemberCap() - (u_short)this->size();
     if (diff < 0) diff = abs(diff); else diff = 0;
     if (diff > 0){
         u_short i = 0;
@@ -831,5 +835,11 @@ u_short Group::calcExpMultiplicator(const CHAR_DATA* player)
         return MAX(1, DEFAULT_100 - 3 * (_maxPlayerLevel - player_level));
     }
     return DEFAULT_100;
+}
+
+void Group::_updateMemberCap() {
+    if (_leader == nullptr || _leader->purged())
+        return;
+    _memberCap = _getMemberCap();
 }
 
