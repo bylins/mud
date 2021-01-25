@@ -46,15 +46,17 @@ enum GRP_SUBCMD : short {
 enum RQ_R {RQ_R_OK, RQ_R_NO_GROUP, RQ_R_OVERFLOW, RQ_REFRESH};
 enum INV_R {INV_R_OK, INV_R_NO_PERSON, INV_R_BUSY, INV_R_REFRESH};
 
-void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency);
-void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+namespace grp {
+    void gc(); // garbage collection
+    void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency);
+    void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
+    void do_grequest(CHAR_DATA *ch, char *argument, int, int);
+    void do_group2(CHAR_DATA *ch, char *argument, int, int);
 
-void do_grequest(CHAR_DATA *ch, char *argument, int, int);
-void do_group2(CHAR_DATA *ch, char *argument, int, int);
-void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
-void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
-int max_group_size(CHAR_DATA *ch);
-bool isGroupedFollower(CHAR_DATA* master, CHAR_DATA* vict);
+    void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
+    int max_group_size(CHAR_DATA *ch);
+}
+
 bool circle_follow(CHAR_DATA * ch, CHAR_DATA * victim);
 bool die_follower(CHAR_DATA * ch);
 bool stop_follower(CHAR_DATA * ch, int mode);
@@ -82,7 +84,7 @@ using grp_ptr = std::shared_ptr<Group>;
 using rq_ptr = std::shared_ptr<Request>;
 using npc_r = std::unordered_set<CHAR_DATA *> *;
 
-const duration DEF_EXPIRY_TIME = 600s;
+const duration DEF_EXPIRY_TIME = 10s;
 
 inline bool IN_GROUP(CHAR_DATA* ch) {return ch != nullptr && ch->personGroup != nullptr;}
 inline bool IN_SAME_GROUP(CHAR_DATA* p1, CHAR_DATA* p2) {return IN_GROUP(p1) && IN_GROUP(p2) && p1->personGroup == p2->personGroup;}
@@ -172,6 +174,7 @@ public:
 //    void sendToGroup(GRP_COMM mode, const char *msg, ...);
     void actToGroup(CHAR_DATA* ch, CHAR_DATA* vict, int mode, const char *msg, ...);
     u_short calcExpMultiplicator(const CHAR_DATA* player);
+    void processGarbageCollection();
 public:
     // всякий унаследованный стафф
     CHAR_DATA* get_random_pc_group();
@@ -184,7 +187,7 @@ public:
 
 class Request {
 public:
-    sclock_t _time;
+    sclock_t _expiryTime;
     CHAR_DATA *_applicant;
     Group* _group;
     std::string _applicantName;
@@ -203,6 +206,7 @@ public:
     void processGroupCommands(CHAR_DATA *ch, char *argument);
     void processGroupScmds(CHAR_DATA *ch, char *argument, GRP_SUBCMD subcmd);
     void printList(CHAR_DATA *ch);
+    void processGarbageCollection();
 private:
     u_long _currentGroupIndex = 0;
     std::map<u_long, grp_ptr> _groupList;

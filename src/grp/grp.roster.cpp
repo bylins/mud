@@ -260,7 +260,7 @@ std::tuple<INV_R, CHAR_DATA *> GroupRoster::tryMakeInvite(Group* grp, char *memb
     // ищем и продлеваем
     for (auto & it : this->_requestList){
         if (vict == it->_applicant && grp == it->_group){
-            it->_time = steady_clock::now() + DEF_EXPIRY_TIME;
+            it->_expiryTime = steady_clock::now() + DEF_EXPIRY_TIME;
             return std::make_tuple(INV_R::INV_R_REFRESH, vict);
         }
     }
@@ -362,7 +362,7 @@ std::tuple<RQ_R, grp_ptr> GroupRoster::tryAddRequest(CHAR_DATA *author, char *ta
     // продлеваем
     for (auto & it : this->_requestList){
         if (author == it->_applicant && grp.get() == it->_group){
-            it->_time = std::chrono::steady_clock::now() + DEF_EXPIRY_TIME;
+            it->_expiryTime = std::chrono::steady_clock::now() + DEF_EXPIRY_TIME;
             return std::make_tuple(RQ_REFRESH, grp);
         }
     }
@@ -404,7 +404,7 @@ void GroupRoster::acceptInvite(CHAR_DATA* who, char* author) {
     r->_group->addMember(r->_applicant); // и удалит заявку, если есть
 }
 
-void GroupRoster::runTests(CHAR_DATA *leader) {
+void GroupRoster::runTests(CHAR_DATA *) {
 
 }
 
@@ -414,7 +414,7 @@ void GroupRoster::charDataPurged(CHAR_DATA *ch) {
         return;
     for (auto r = _requestList.begin(); r != _requestList.end();){
         if (r->get()->_applicant == ch) {
-            _requestList.erase(r);
+            r = _requestList.erase(r);
         } else {
             ++r;
         }
@@ -424,4 +424,21 @@ void GroupRoster::charDataPurged(CHAR_DATA *ch) {
     }
 }
 
+void GroupRoster::processGarbageCollection() {
+    for (auto it: _groupList){
+        it.second->processGarbageCollection();
+    }
+    for (auto rq = _requestList.begin(); rq != _requestList.end();){
+        if ((*rq)->_expiryTime <= steady_clock::now()) {
+            rq = _requestList.erase(rq);
+        } else {
+            ++rq;
+        }
+    }
+}
 
+
+// expell timed out members
+void grp::gc() {
+    groupRoster.processGarbageCollection();
+}

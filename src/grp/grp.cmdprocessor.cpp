@@ -15,7 +15,7 @@
 
 extern GroupRoster& groupRoster;
 
-void do_grequest(CHAR_DATA *ch, char *argument, int, int){
+void grp::do_grequest(CHAR_DATA *ch, char *argument, int, int){
     char subcmd[MAX_INPUT_LENGTH], target[MAX_INPUT_LENGTH];
     // гзаявка список
     // гзаявка создать Верий - отправляет заявку в группу
@@ -56,7 +56,7 @@ void do_grequest(CHAR_DATA *ch, char *argument, int, int){
 }
 
 
-int max_group_size(CHAR_DATA *ch)
+int grp::max_group_size(CHAR_DATA *ch)
 {
     int bonus_commander = 0;
     if (AFF_FLAGGED(ch, EAffectFlag::AFF_COMMANDER)) bonus_commander = VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 120) / 10, 0 , 8);
@@ -64,7 +64,7 @@ int max_group_size(CHAR_DATA *ch)
     return MAX_GROUPED_FOLLOWERS + (int) VPOSI((ch->get_skill(SKILL_LEADERSHIP) - 80) / 5, 0, 4) + bonus_commander;
 }
 
-void do_group2(CHAR_DATA *ch, char *argument, int, int subcmd){
+void grp::do_group2(CHAR_DATA *ch, char *argument, int, int subcmd){
     if (subcmd < 0 || subcmd > 12)
         return;
     if (subcmd == 0) {
@@ -72,10 +72,6 @@ void do_group2(CHAR_DATA *ch, char *argument, int, int subcmd){
         return;
     }
     groupRoster.processGroupScmds(ch, argument, (GRP_SUBCMD)subcmd);
-}
-
-void do_ungroup(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-    groupRoster.processGroupCommands(ch, argument);
 }
 
 
@@ -138,7 +134,7 @@ void do_gsay(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 
-void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
+void grp::do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 {
     CHAR_DATA *k;
     struct follow_type *f;
@@ -197,7 +193,7 @@ void do_report(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
     send_to_char("Вы доложили о состоянии всем членам вашей группы.\r\n", ch);
 }
 
-void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency)
+void grp::do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int currency)
 {
     int amount, num = 0, share, rest;
     CHAR_DATA* m;
@@ -302,7 +298,7 @@ void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/,int cur
     }
 }
 
-void do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-    do_split(ch,argument,0,0,0);
+void grp::do_split(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+    grp::do_split(ch,argument,0,0,0);
 }
 

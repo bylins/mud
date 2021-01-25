@@ -46,14 +46,14 @@ bool stop_follower(CHAR_DATA * ch, int mode)
     }
     else {   		// locate follower who is not head of list
         for (k = ch->get_master()->followers; k->next && k->next->follower != ch; k = k->next);
-            if (!k->next) {
-                log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->get_master()));
-            }
-            else {
-                j = k->next;
-                k->next = j->next;
-                free(j);
-            }
+        if (!k->next) {
+            log("[Stop follower] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->get_master()));
+        }
+        else {
+            j = k->next;
+            k->next = j->next;
+            free(j);
+        }
     }
 
     ch->set_master(nullptr);

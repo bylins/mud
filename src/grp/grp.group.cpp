@@ -99,7 +99,7 @@ void Group::_setLeader(CHAR_DATA *leader) {
     _leaderUID = _calcUID(leader);
     _leader = leader;
     _leaderName.assign(leader->get_pc_name());
-    _memberCap = IS_NPC(leader)? 255 : max_group_size(leader) + 1; // функция возвращает кол-во ПОСЛЕДОВАТЕЛЕЙ
+    _memberCap = IS_NPC(leader)? 255 : grp::max_group_size(leader) + 1; // функция возвращает кол-во ПОСЛЕДОВАТЕЛЕЙ
 }
 
 bool Group::_isActive() {
@@ -112,7 +112,7 @@ u_long Group::getUid() const {
 
 int Group::_getMemberCap() const {
     if (_leader != nullptr)
-        return max_group_size(_leader) + 1;
+        return grp::max_group_size(_leader) + 1;
     return _memberCap;
 }
 
@@ -247,9 +247,9 @@ bool Group::_removeMember(int memberUID) {
         nxtLdr = nullptr;
         for (const auto& mit : *this){
             auto m = mit.second->member;
-            if ( m != nullptr && !m->purged() && max_group_size(m) > nxtLdrGrpSize ) {
+            if ( m != nullptr && !m->purged() && grp::max_group_size(m) > nxtLdrGrpSize ) {
                 nxtLdr = m; // нашелся!!
-                nxtLdrGrpSize = max_group_size(m);
+                nxtLdrGrpSize = grp::max_group_size(m);
             }
         }
     }
@@ -580,6 +580,7 @@ void Group::charDataPurged(CHAR_DATA *ch) {
     for (auto &it : *this) {
         if (ch == it.second->member) {
             it.second->member = nullptr;
+            it.second->expiryTime = steady_clock::now() + DEF_EXPIRY_TIME;
             return;
         }
     }
@@ -841,5 +842,16 @@ void Group::_updateMemberCap() {
     if (_leader == nullptr || _leader->purged())
         return;
     _memberCap = _getMemberCap();
+}
+
+void Group::processGarbageCollection() {
+    for (auto it = this->begin(); it != this->end();) {
+        auto m = (*it).second;
+        if (m->expiryTime <= steady_clock::now() && m->member == nullptr) {
+            _removeMember(m->memberUID);
+        } else {
+            ++it;
+        }
+    }
 }
 

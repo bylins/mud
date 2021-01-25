@@ -736,7 +736,7 @@ void split_or_clan_tax(CHAR_DATA *ch, long amount)
 	if (ch->personGroup != nullptr && ch->personGroup->size() > 1 && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
-		do_split(ch, buf_, 0, 0);
+		grp::do_split(ch, buf_, 0, 0);
 	}
 	else
 	{
@@ -773,7 +773,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		{
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
-			do_split(ch, local_buf, 0, 0,curr_type);
+            grp::do_split(ch, local_buf, 0, 0,curr_type);
 		}
 		extract_obj(obj);
 		return;
@@ -800,7 +800,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
-		do_split(ch, local_buf, 0, 0);
+        grp::do_split(ch, local_buf, 0, 0);
 	}
 	else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1)
 	{
