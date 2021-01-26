@@ -557,7 +557,7 @@ void Group::printGroup(CHAR_DATA *ch) {
     }
 
     // печатаем чармисов членов группы
-    if (PRF_FLAGGED(ch, PRF_SHOWGROUP)) {
+    if (PRF_FLAGGED(ch, PRF_SHOWGROUP) && ch->personGroup != nullptr) { //
         for (auto &it : *this ) {
             auto npc = it.second->member;
             // на всякий пожарный
