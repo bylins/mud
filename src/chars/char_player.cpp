@@ -14,6 +14,7 @@
 #include "spells.h"
 #include "constants.h"
 #include "skills.h"
+#include "skills/mindhalls.h"
 #include "ignores.loader.hpp"
 #include "im.h"
 #include "olc.h"
@@ -967,6 +968,7 @@ void Player::save_char()
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
 	morphs_save(this, saved);
+    nsMindHalls::save(this,saved);
 
 	fprintf(saved, "Map : %s\n", map_options_.bit_list_.to_string().c_str());
 
@@ -1734,43 +1736,35 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
 				this->set_last_exchange(num);
 			break;
 
-		case 'M':
-			if (!strcmp(tag, "Mana"))
-			{
-				sscanf(line, "%d/%d", &num, &num2);
-				GET_MEM_COMPLETED(this) = num;
-				GET_MEM_TOTAL(this) = num2;
-			}
-			else if (!strcmp(tag, "Map "))
-			{
-				std::string str(line);
-				std::bitset<MapSystem::TOTAL_MAP_OPTIONS> tmp(str);
-				map_options_.bit_list_ = tmp;
-			}
-			else if (!strcmp(tag, "Move"))
-			{
-				sscanf(line, "%d/%d", &num, &num2);
-				GET_MOVE(this) = num;
-				GET_MAX_MOVE(this) = num2;
-			}
-			else if (!strcmp(tag, "Mobs"))
-			{
-				do
-				{
-					if (!fbgetline(fl, line))
-						break;
-					if (*line == '~')
-						break;
-					sscanf(line, "%d %d", &num, &num2);
-					this->mobmax_load(this, num, num2, MobMax::get_level_by_vnum(num));
-				}
-				while (true);
-			}
-			else if (!strcmp(tag, "Mrph"))
-			{
-				morphs_load(this, std::string(line));
-			}
-			break;
+		case 'M': {
+            if (!strcmp(tag, "Mana")) {
+                sscanf(line, "%d/%d", &num, &num2);
+                GET_MEM_COMPLETED(this) = num;
+                GET_MEM_TOTAL(this) = num2;
+            } else if (!strcmp(tag, "Map ")) {
+                std::string str(line);
+                std::bitset<MapSystem::TOTAL_MAP_OPTIONS> tmp(str);
+                map_options_.bit_list_ = tmp;
+            } else if (!strcmp(tag, "Move")) {
+                sscanf(line, "%d/%d", &num, &num2);
+                GET_MOVE(this) = num;
+                GET_MAX_MOVE(this) = num2;
+            } else if (!strcmp(tag, "Mobs")) {
+                do {
+                    if (!fbgetline(fl, line))
+                        break;
+                    if (*line == '~')
+                        break;
+                    sscanf(line, "%d %d", &num, &num2);
+                    this->mobmax_load(this, num, num2, MobMax::get_level_by_vnum(num));
+                } while (true);
+            } else if (!strcmp(tag, "Mrph")) {
+                morphs_load(this, std::string(line));
+            }  else if (!strcmp(tag, "MndH")) {
+                nsMindHalls::load(this, line);
+            }
+            break;
+        }
 		case 'N':
 			if (!strcmp(tag, "NmI "))
 				this->player_data.PNames[0] = std::string(line);
@@ -2564,7 +2558,7 @@ time_t Player::getGloryRespecTime() {
 }
 
 MindHalls *Player::getMindHalls() {
-    return _mindHalls;
+    return this->player_specials->saved._mindHalls.get();
 }
 
 

@@ -244,8 +244,6 @@ private:
 	std::shared_ptr<Account> account;
 	//перечень чармисов, доступных с команды наемник
 	std::map<int, MERCDATA> charmeeHistory;
-	// хранилище рун в чертогах разума
-    MindHalls* _mindHalls;
 };
 
 namespace PlayerSystem

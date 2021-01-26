@@ -4387,6 +4387,9 @@ void do_inventory(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/
 {
 	send_to_char("Вы несете:\r\n", ch);
 	list_obj_to_char(ch->carrying, ch, 1, 2);
+    auto m = ch->getMindHalls();
+	if ( m != nullptr)
+	    send_to_char(ch,"%s", m->getContents(ch).c_str());
 }
 
 void do_equipment(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)

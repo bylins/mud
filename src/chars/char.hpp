@@ -249,6 +249,7 @@ struct player_special_data_saved
 	unsigned int who_mana; // количество энергии для использования команды кто
     unsigned long int telegram_id;// идентификатор телеграма
     time_t lastGloryRespecTime; // дата последнего респека славой
+    std::shared_ptr<MindHalls> _mindHalls; // хранилище рун в чертогах разума
 };
 
 

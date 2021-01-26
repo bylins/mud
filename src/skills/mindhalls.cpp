@@ -1,15 +1,15 @@
 //
 // sudo apt-get install nlohmann-json3-dev helped me
 //
+#include <house.h>
 #include "mindhalls.h"
 
 #include "handler.h"
 #include "magic.h"
 #include "world.objects.hpp"
+#include "screen.h"
 
 #include "core/mindhalls.parameters.h"
-
-using namespace nsMindHalls;
 
 MindHallsParams mindHallsParameters;
 
@@ -21,6 +21,37 @@ bool nsMindHalls::initMindHalls(){
 
 void nsMindHalls::do_mindhalls(CHAR_DATA *ch, char *argument, int, int) {
 
+}
+
+bool nsMindHalls::load(CHAR_DATA *owner, char *line) {
+    if (owner == nullptr){
+        sprintf(buf, "Ошибка загрузки чертогов, параметры NULL: player: %s, file: %s",
+                owner? owner->get_name().c_str() : "NULL",
+                *line?  "NULL" : line);
+        mudlog(buf, BRF, LVL_GOD, SYSLOG, 1);
+        return false;
+    }
+    owner->player_specials->saved._mindHalls = std::make_shared<MindHalls>();
+    auto m = owner->getMindHalls();
+    if (!m->load(owner, line))
+        return false;
+    return true;
+}
+
+bool nsMindHalls::save(CHAR_DATA *owner, FILE *playerFile) {
+    std::string line;
+    if (owner == nullptr || playerFile == nullptr){
+        sprintf(buf, "Ошибка сохранения чертогов, параметры NULL: player: %s, file: %s",
+                owner? owner->get_name().c_str() : "NULL",
+                playerFile == nullptr?  "NULL" : "есть");
+        mudlog(buf, BRF, LVL_BUILDER, SYSLOG, 1);
+        return false;
+    }
+    if (owner->getMindHalls() == nullptr)
+        return true;
+    line = owner->getMindHalls()->to_string();
+    fprintf(playerFile, "MndH: %s\n", line.c_str());
+    return true;
 }
 
 OBJ_DATA* MindHalls::operator[](obj_rnum runeId) const {
@@ -63,19 +94,8 @@ HRESULT MindHalls::removeRune(char* runeName) {
     return MH_NOT_FOUND;
 }
 
-MindHalls::MindHalls(CHAR_DATA* owner, char* runes) {
-    _limits = mindHallsParameters.getHallsCapacity(owner->get_remort());
-    json r = json::parse(runes, nullptr, false);
-    if (r.is_discarded()) {
-        sprintf(buf, "Ошибка инициализации рун из файла игрока: %s ", owner->get_name().c_str());
-        mudlog(buf, BRF, LVL_BUILDER, SYSLOG, 1);
-        return;
-    }
-    for (auto it : r.items()) {
-        auto runeToStore = world_objects.create_from_prototype_by_vnum(it.value());
-        _runes.emplace(it.value(), runeToStore);
-        _limits -= mindHallsParameters.getRunePower(it.value());
-    }
+MindHalls::MindHalls() {
+
 }
 
 std::string MindHalls::to_string() {
@@ -90,3 +110,34 @@ std::string MindHalls::to_string() {
 u_short MindHalls::getFreeStore() {
     return _limits;
 }
+
+bool MindHalls::load(CHAR_DATA* owner, char* runes) {
+    _limits = mindHallsParameters.getHallsCapacity(owner->get_remort());
+    json r = json::parse(runes, nullptr, false);
+    if (r.is_discarded()) {
+        sprintf(buf, "Ошибка инициализации рун из файла игрока: %s, строка: %s ",
+                owner->get_name().c_str(),
+                runes);
+        mudlog(buf, BRF, LVL_GOD, SYSLOG, 1);
+        return false;
+    }
+    for (const auto& it : r.items()) {
+        auto runeToStore = world_objects.create_from_prototype_by_vnum(it.value());
+        _runes.emplace(it.value(), runeToStore);
+        _limits -= mindHallsParameters.getRunePower(it.value());
+    }
+    return true;
+}
+
+std::string MindHalls::getContents(CHAR_DATA* owner) {
+    bool empty = true;
+    sprintf(buf, "\r\n%sВ чертогах разума:%s\r\n", CCBLU(owner, C_NRM) , CCNRM(owner, C_NRM));
+    for (const auto& it: _runes) {
+        sprintf(buf + strlen(buf), "%s\r\n", it.second->get_PName(0).c_str());
+        empty = false;
+    }
+    if (empty)
+        sprintf(buf + strlen(buf), "ничего нет, и свободно %d места.\r\n", _limits);
+    return std::string(buf);
+}
+
