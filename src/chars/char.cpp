@@ -2036,7 +2036,7 @@ void CHAR_DATA::removeGroupFlags(bool reboot) {
     if (personGroup == nullptr)
         return;
     // чармис всегда, персонаж по настройке, или при ребуте
-    if (IS_CHARMICE(this) || PRF_FLAGGED(this, PRF_FOLLOW_GRP_EXIT) || reboot) {
+    if (IS_CHARMICE(this) || !PRF_FLAGGED(this, PRF_FOLLOW_GRP_EXIT) || reboot) {
         PRF_FLAGS(this).unset(PRF_SKIRMISHER);
         personGroup->_removeMember(this);
     }
