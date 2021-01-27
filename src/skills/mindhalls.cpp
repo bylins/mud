@@ -7,11 +7,15 @@
 #include "handler.h"
 #include "magic.h"
 #include "world.objects.hpp"
+#include "object.prototypes.hpp"
 #include "screen.h"
 
 #include "core/mindhalls.parameters.h"
 
+using namespace std::chrono;
+
 MindHallsParams mindHallsParameters;
+extern CObjectPrototypes obj_proto;
 
 bool nsMindHalls::initMindHalls(){
     if (!mindHallsParameters.load())
@@ -58,7 +62,7 @@ OBJ_DATA* MindHalls::operator[](obj_rnum runeId) const {
     auto it = _runes.find(runeId);
     if (it == _runes.end())
         return nullptr;
-    return it->second.get();
+    return nullptr;
 }
 
 void MindHalls::erase(u_short remort) {
@@ -122,7 +126,7 @@ bool MindHalls::load(CHAR_DATA* owner, char* runes) {
         return false;
     }
     for (const auto& it : r.items()) {
-        auto runeToStore = world_objects.create_from_prototype_by_vnum(it.value());
+        auto runeToStore = 	std::make_shared<OBJ_DATA>(*obj_proto[real_object(it.value())]);
         _runes.emplace(it.value(), runeToStore);
         _limits -= mindHallsParameters.getRunePower(it.value());
     }
