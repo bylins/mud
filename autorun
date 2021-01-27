@@ -52,8 +52,4 @@ while ( : ) do
     sleep 5
   fi
 
-  while [ -r pause ]; do
-    sleep 60
-  done
-
 done

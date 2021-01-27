@@ -234,7 +234,7 @@ extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
 #define WEATHER_MEDIUMWIND    (1 << 10)
 #define WEATHER_BIGWIND       (1 << 11)
 
-#define MAX_REMORT            50
+#define MAX_REMORT            75
 
 
 
