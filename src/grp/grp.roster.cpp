@@ -370,6 +370,10 @@ void GroupRoster::acceptInvite(CHAR_DATA* who, char* author) {
     }
 
     auto r = findRequest(who->get_pc_name().c_str(), author, RQ_TYPE::RQ_GROUP);
+    if (r == nullptr) {
+        send_to_char(who, "Соберись! Чье приглашение принимаем?!\r\n");
+        return;
+    }
     send_to_char(r->_applicant, "Вы приняли приглашение.\r\n");
     r->_group->addMember(r->_applicant); // и удалит заявку, если есть
 }
