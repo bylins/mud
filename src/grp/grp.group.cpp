@@ -75,7 +75,7 @@ Group::Group(CHAR_DATA *leader, u_long uid){
     _setLeader(leader);
 }
 
-CHAR_DATA *Group::getLeader() const{
+CHAR_DATA* Group::getLeader() const{
     return _leader;
 }
 
@@ -216,9 +216,9 @@ bool Group::_removeMember(int memberUID) {
         _pcCount--;
     this->erase(memberUID); // finally remove it
     // пересчитываем макс.уровень
-    if ( GET_LEVEL(member) == _maxPlayerLevel) {
+    {
         _maxPlayerLevel = 1;
-        for (auto m: *this) {
+        for (const auto& m: *this) {
             if (m.second->member == nullptr || m.second->type == GM_CHARMEE)
                 continue;
             if (GET_LEVEL(m.second->member) > _maxPlayerLevel)
@@ -227,7 +227,7 @@ bool Group::_removeMember(int memberUID) {
     }
 
     // а также удаляем чармисов персонажа из групповых
-    if (member->followers != nullptr) {
+    if (member != nullptr && member->followers != nullptr) {
         for (auto f = member->followers; f; f = f->next) {
             auto ff = f->follower;
             if (IS_CHARMICE(ff)) {
@@ -240,10 +240,10 @@ bool Group::_removeMember(int memberUID) {
         }
     }
 
-    CHAR_DATA* nxtLdr = _leader;
+    CHAR_DATA* nxtLdr = getLeader();
     int nxtLdrGrpSize = 0;
     // если ушел лидер - ищем нового, но после ухода предыдущего
-    if ( member == _leader) {
+    if (_leaderUID == memberUID) {
         nxtLdr = nullptr;
         for (const auto& mit : *this){
             auto m = mit.second->member;
@@ -709,9 +709,11 @@ void Group::_promote(CHAR_DATA *member) {
 
 bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
 {
-    if (!ch || !tch)
-        return false;
-    if (ch->personGroup == tch->personGroup)
+    if (!ch || !tch) return false;
+    if (ch == tch) return true;
+    // нпц по-умолчанию в группе, если одного алайнмента
+    if (IS_NPC(ch) && IS_NPC(tch) && SAME_ALIGN(ch, tch)) return true;
+    if (ch->personGroup != nullptr && tch->personGroup != nullptr && ch->personGroup == tch->personGroup)
         return true;
     return false;
 }
@@ -845,13 +847,16 @@ void Group::_updateMemberCap() {
 }
 
 void Group::processGarbageCollection() {
-    for (auto it = this->begin(); it != this->end();) {
-        auto m = (*it).second;
+    std::vector<int> expellV; // массивчик персонажей, которых надо удалить из группы
+    for (const auto& it : *this) {
+        auto m = it.second;
         if (m->expiryTime <= steady_clock::now() && m->member == nullptr) {
-            _removeMember(m->memberUID);
-        } else {
-            ++it;
+            expellV.push_back(m->memberUID);
         }
     }
+    if (!expellV.empty())
+        for (auto it : expellV) {
+            _removeMember(it);
+        }
 }
 

@@ -429,7 +429,7 @@ void GroupRoster::charDataPurged(CHAR_DATA *ch) {
 }
 
 void GroupRoster::processGarbageCollection() {
-    for (auto it: _groupList){
+    for (const auto& it: _groupList){
         it.second->processGarbageCollection();
     }
     for (auto rq = _requestList.begin(); rq != _requestList.end();){
