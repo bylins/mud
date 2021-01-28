@@ -280,8 +280,10 @@ void GroupRoster::printRequestList(CHAR_DATA *ch) {
             sprintf(smallBuf, "%s%s\r\n",
                     it->_type== RQ_TYPE::RQ_PERSON? "Заявка в группу лидера ": "Приглашение от лидера группы ",
                     it->_group->getLeaderName().c_str());
+            notFound = false;
         }
         if (ch->personGroup != nullptr && ch->personGroup->getUid() == it->_group->getUid()) {
+            notFound = false;
             if (it->_type== RQ_TYPE::RQ_GROUP) {
                 sprintf(smallBuf, "Приглашение игроку: %s\r\n", it->_applicantName.c_str() );
             }
@@ -289,8 +291,8 @@ void GroupRoster::printRequestList(CHAR_DATA *ch) {
                 sprintf(smallBuf, "Заявка от игрока: %s\r\n", it->_applicantName.c_str() );
             }
         }
-        send_to_char(ch, "%s", smallBuf);
-        notFound = false;
+        if (!notFound)
+            send_to_char(ch, "%s", smallBuf);
     }
     if (notFound)
         send_to_char(ch, "Заявок нет.\r\n");
