@@ -27,7 +27,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "sets_drop.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "skills/flee.h"
 #include "spell_parser.hpp"
 #include "spells.h"
@@ -47,7 +47,7 @@ int slot_for_char(CHAR_DATA * ch, int i);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 
 extern int material_value[];
-extern int max_exp_gain_npc;
+
 
 //интервал в секундах между восстановлением кругов после рипа
 extern const unsigned RECALL_SPELLS_INTERVAL;
@@ -201,46 +201,26 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 //end by WorM
 //конец правки (с) Василиса
 
-void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
+void update_leadership(CHAR_DATA *victim, CHAR_DATA *killer)
 {
-	// train LEADERSHIP
-	if (IS_NPC(ch) && killer) // Убили моба
-	{
-		if (!IS_NPC(killer) // Убил загрупленный чар
-			&& AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP)
-			&& killer->has_master()
-			&& killer->get_master()->get_skill(SKILL_LEADERSHIP) > 0
-			&& IN_ROOM(killer) == IN_ROOM(killer->get_master()))
-		{
-			improve_skill(killer->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
-		}
-		else if (IS_NPC(killer) // Убил чармис загрупленного чара
-			&& IS_CHARMICE(killer)
-			&& killer->has_master()
-			&& AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP))
-		{
-			if (killer->get_master()->has_master() // Владелец чармиса НЕ лидер
-				&& killer->get_master()->get_master()->get_skill(SKILL_LEADERSHIP) > 0
-				&& IN_ROOM(killer) == IN_ROOM(killer->get_master())
-				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()->get_master()))
-			{
-				improve_skill(killer->get_master()->get_master(), SKILL_LEADERSHIP, number(0, 1), ch);
-			}
-		}
+    // не в группе - выходим
+    if (!killer || !IN_GROUP(killer))
+        return;
+    auto leader = killer->personGroup->getLeader();
+    // лидера нет с нами
+    if (leader == nullptr || leader->purged() || !SAME_ROOM(leader, killer)) {
+        return;
+    }
+	// если убили чюжого моба не не-чармиса
+	if (IS_NPC(victim) && !IS_CHARMICE(victim)) {
+        improve_skill(leader, SKILL_LEADERSHIP, number(0, 1), victim);
+	}
+	// если убили персонажа из группы
+	if (!IS_NPC(victim) && IN_SAME_GROUP(leader, victim)) {
+        const auto current_skill = victim->get_master()->get_trained_skill(SKILL_LEADERSHIP);
+        victim->get_master()->set_skill(SKILL_LEADERSHIP, current_skill - 1);
 	}
 
-	// decrease LEADERSHIP
-	if (!IS_NPC(ch) // Член группы убит мобом
-		&& killer
-		&& IS_NPC(killer)
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-		&& ch->has_master()
-		&& SAME_ROOM(ch, ch->get_master())
-		&& ch->get_master()->get_inborn_skill(SKILL_LEADERSHIP) > 1)
-	{
-		const auto current_skill = ch->get_master()->get_trained_skill(SKILL_LEADERSHIP);
-		ch->get_master()->set_skill(SKILL_LEADERSHIP, current_skill - 1);
-	}
 }
 
 bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
@@ -748,7 +728,6 @@ void raw_kill(CHAR_DATA *ch, CHAR_DATA *killer)
 		}
 	}
 }
-
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam)
 {

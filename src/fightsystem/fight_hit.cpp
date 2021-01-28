@@ -1,20 +1,20 @@
 #include "fight_hit.hpp"
 
-#include "logger.hpp"
-#include "handler.h"
-#include "screen.h"
-#include "dg/dg_scripts.h"
-#include "skills.h"
-#include "magic.h"
-#include "pk.h"
+#include "bonus.h"
 #include "dps.hpp"
 #include "fight.h"
-#include "house_exp.hpp"
-#include "poison.hpp"
-#include "bonus.h"
-#include "mobact.hpp"
 #include "fightsystem/common.h"
 #include "grp/grp.main.h"
+#include "handler.h"
+#include "house_exp.hpp"
+#include "core/leveling.h"
+#include "logger.hpp"
+#include "magic.h"
+#include "mobact.hpp"
+#include "pk.h"
+#include "poison.hpp"
+#include "screen.h"
+#include "skills/skills.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -22,16 +22,19 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
 void npc_groupbattle(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
-void go_autoassist(CHAR_DATA * ch);
 
 int armor_class_limit(CHAR_DATA * ch) {
 	if (IS_CHARMICE(ch)) {
 		return -200;
 	};
 	if (IS_NPC(ch)) {
+
 		return -300;
 	};
 	switch (GET_CLASS(ch)) {
+	case CLASS_PALADINE:
+		return -270;
+		break;
 	case CLASS_ASSASINE:
 	case CLASS_THIEF:
 	case CLASS_GUARD:
@@ -39,7 +42,6 @@ int armor_class_limit(CHAR_DATA * ch) {
 		break;
 	case CLASS_MERCHANT:
 	case CLASS_WARRIOR:
-	case CLASS_PALADINE:
 	case CLASS_RANGER:
 	case CLASS_SMITH:
 		return -200;
@@ -58,46 +60,6 @@ int armor_class_limit(CHAR_DATA * ch) {
 	return -300;
 }
 
-void aff_group_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
-	CHAR_DATA *k;
-	AFFECT_DATA<EApplyLocation> af;
-	send_to_char(ch, "&YВаш точный удар воодушевил вас, придав новых сил!&n\r\n");
-	struct follow_type *f;
-		if (ch->has_master()){
-			k = ch->get_master();
-	}
-	else {
-		k = ch;
-	}
-// на лидера
-	if (SAME_ROOM(ch, k)) {
-		af.location = num_apply;
-		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(k) / 5 * 2 + modi;
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		af.duration = pc_duration(k, time, 0, 0, 0, 0);
-		affect_join(k, af, FALSE, FALSE, FALSE, FALSE);
-		if (k != ch)
-			send_to_char(k, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
-	}
-// на группу
-	for (f = k->followers; f; f = f->next) {
-		if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)) {
-			continue;
-		}
-		if (ch->in_room != f->follower->in_room)
-			continue;
-		af.location = num_apply;
-		af.type = SPELL_PALADINE_INSPIRATION;
-		af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
-		af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
-		af.duration = pc_duration(f->follower, time, 0, 0 , 0, 0);
-		affect_join(f->follower, af, FALSE, FALSE, FALSE, FALSE);
-		if (ch != f->follower)
-			send_to_char(f->follower, "&YТочный удар %s воодушевил вас, придав новых сил!\r\n&n", GET_PAD(ch, 1));
-	}
-}
-
 void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
 	CHAR_DATA *target;
 	AFFECT_DATA<EApplyLocation> af;
@@ -112,28 +74,6 @@ void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time
 	send_to_char(target, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
 }
 
-void inspiration(CHAR_DATA *ch) {
-	byte num = number(1,4);
-//	CHAR_DATA * target = get_random_pc_group(ch);
-
-	switch (num){
-	case 1:
-		aff_group_inspiration(ch, APPLY_PERCENT_DAM, 5, GET_REMORT(ch));
-		break;
-	case 2:
-		aff_group_inspiration(ch, APPLY_CAST_SUCCESS, 3, GET_REMORT(ch));
-		break;
-	case 3:
-		aff_group_inspiration(ch, APPLY_MANAREG, 10,  GET_REMORT(ch) * 5);
-		break;
-	case 4:
-		aff_group_inspiration(ch, APPLY_HITROLL, 0, 0); // вывод мессаги
-		call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
-		break;
-	default:
-		break;
-	}
-}
 
 int compute_armor_class(CHAR_DATA * ch)
 {
@@ -2460,83 +2400,71 @@ void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 {
 	CHAR_DATA *killer = nullptr;
 
-	// вычисляем, чем убили и кто убивец. Но тут какая то херня :(
-	if (IS_NPC(victim) || victim->desc) {
+    // если не умер сам, или отравили - убивец сразу известен
+    if (ch != victim) {
+        killer = ch;
+        // определяем убивца, если отравили или сам помер, от ран
+    } else if (IS_NPC(victim) || victim->desc) {
+	    // когда умирает от яда - киллер равно виктим, киллера извлекаем из свойств отравы
 		if (victim == ch && IN_ROOM(victim) != NOWHERE) {
 			if (spell_num == SPELL_POISON) {
 				for (const auto poisoner : world[IN_ROOM(victim)]->people) {
 					if (poisoner != victim && GET_ID(poisoner) == victim->Poisoner) {
 						killer = poisoner;
+						break;
 					}
 				}
+			//	киллер - первый попавшийся убивец, хотя надо бы по дамагу =)
 			} else if (msg_num == TYPE_SUFFERING) {
 				for (const auto attacker : world[IN_ROOM(victim)]->people) {
 					if (attacker->get_fighting() == victim) {
 						killer = attacker;
+						break;
 					}
 				}
 			}
 		}
-		if (ch != victim) {
-			killer = ch;
-		}
 	}
 
 	if (killer) {
-	    // и чармис и хозяин в одной группе
-	    if (IN_GROUP(killer))
-            group_gain(killer, victim);
-	}  else if ((IS_CHARMICE(killer) || MOB_FLAGGED(killer, MOB_PLAYER_SUMMON)) && killer->has_master()) {
-			if (IN_GROUP(killer->get_master()) && IN_ROOM(killer) == IN_ROOM(killer->get_master())) {
-				// Хозяин - PC в группе => опыт группе
-				group_gain(killer->get_master(), victim);
-			}
-			else if (IN_ROOM(killer) == IN_ROOM(killer->get_master())){
-                // Чармис и хозяин в одной комнате -опыт хозяину
-				perform_group_gain(killer->get_master(), victim, 1, 100);
-			}
-			// else
-			// А хозяина то рядом не оказалось, все чармису - убрано
-			// нефиг абьюзить чарм  perform_group_gain( killer, victim, 1, 100 );
-		}
-		else
-		{
-			// Просто NPC или PC сам по себе
-			perform_group_gain(killer, victim, 1, 100);
-		}
+        if (IN_GROUP(killer)) {
+            // и чармис и хозяин обязательно одной группе, доп проверок не надо
+            killer->personGroup->gainExp(victim);
+        }
+        else
+            if ((IS_CHARMICE(killer) || MOB_FLAGGED(killer, MOB_PLAYER_SUMMON)) && killer->has_master()
+                && SAME_ROOM(killer->get_master(), killer)) {
+                // был убит чармисом, хозяин рядышком - ему экспу
+                ExpCalc::increaseExperience(killer->get_master(), victim, 1, 100);
+            } else {
+                // Просто NPC или PC сам по себе
+                ExpCalc::increaseExperience(killer, victim, 1, 100);
+            }
+    }
 
 	// в сислог иммам идут только смерти в пк (без арен)
 	// в файл пишутся все смерти чаров
-	// если чар убит палачем то тоже не спамим
+	// если чар убит палачом то тоже не спамим
 
-	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))
-	{
+	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR))) {
 		update_pk_logs(ch, victim);
 
-
-	for (const auto& ch_vict : world[ch->in_room]->people)
-	{
-		//Мобы все кто присутствовал при смерти игрока забывают
-		if (IS_IMMORTAL(ch_vict))
-			continue;
-		if (!HERE(ch_vict))
-			continue;
-		if (!IS_NPC(ch_vict))
-			continue;
-		if (MOB_FLAGGED(ch_vict, MOB_MEMORY))
-		{
-            mobForget(ch_vict, victim);
-		}
+        for (const auto& ch_vict : world[ch->in_room]->people)
+        {
+            //Мобы все кто присутствовал при смерти игрока забывают
+            if (IS_IMMORTAL(ch_vict))
+                continue;
+            if (!HERE(ch_vict))
+                continue;
+            if (!IS_NPC(ch_vict))
+                continue;
+            if (MOB_FLAGGED(ch_vict, MOB_MEMORY)) {
+                mobForget(ch_vict, victim);
+            }
+        }
 	}
 
-	}
-
-	if (killer)
-	{
-		ch = killer;
-	}
-
-	die(victim, ch);
+    die(victim, killer);
 }
 
 void stopFollowOnAggro(CHAR_DATA* aggressor, CHAR_DATA* victim)
@@ -4213,7 +4141,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 					PUNCTUAL_WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
 				}
 			}
-			inspiration(ch);
+            call_magic(ch, victim, nullptr, nullptr, ESpell::SPELL_PALADINE_INSPIRATION, ch->get_level());
 		}
 	}
 

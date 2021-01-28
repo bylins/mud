@@ -8,7 +8,7 @@
 #include "id.hpp"
 #include "obj_enchant.hpp"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "conf.h"

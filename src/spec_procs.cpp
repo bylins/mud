@@ -14,33 +14,19 @@
 
 #include "act.movement.hpp"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "chars/mount.h"
 #include "chars/player_races.hpp"
 #include "chars/world.characters.hpp"
-#include "cmd/cmd.generic.h"
-#include "comm.h"
-#include "constants.h"
 #include "core/leveling.h"
-#include "db.h"
 #include "depot.hpp"
-#include "dg/dg_scripts.h"
-#include "features.hpp"
+#include "grp/grp.main.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
-#include "handler.h"
 #include "house.h"
-#include "interpreter.h"
-#include "logger.hpp"
 #include "magic.h"
-#include "obj.hpp"
 #include "screen.h"
-#include "skills.h"
 #include "spell_parser.hpp"
-#include "spells.h"
-#include "structs.h"
-#include "sysdep.h"
 #include "temp_spells.hpp"
 
 #include <cmath>
@@ -2653,10 +2639,6 @@ int npc_walk(CHAR_DATA * ch)
 	if (GET_DEST(ch) == NOWHERE || (rnum = real_room(GET_DEST(ch))) == NOWHERE)
 		return (BFS_ERROR);
 
-	// Не разрешаем ходы моба если он ушел в другую зону от маршрута.
-	if (world[ch->in_room]->zone != world[rnum]->zone)
-		return (BFS_NO_PATH);
-
 	if (ch->in_room == rnum)
 	{
 		if (ch->mob_specials.dest_count == 1)
@@ -2817,18 +2799,12 @@ void npc_group(CHAR_DATA * ch)
 			continue;
 		}
 
-		if (vict == leader) {
-			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
-			continue;
-		}
-
 		if (!vict->has_master()) {
 			leader->add_follower(vict);
 		} else if (vict->get_master() != leader) {
 			stop_follower(vict, SF_EMPTY);
 			leader->add_follower(vict);
 		}
-		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 	}
 }
 

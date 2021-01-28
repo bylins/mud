@@ -444,6 +444,16 @@ OBJ_DATA::shared_ptr read_one_object_new(char **data, int *error)
 				sscanf(buffer, "%d %d", t, t + 1);
 				object->set_affected(5, static_cast<EApplyLocation>(t[0]), t[1]);
 			}
+			else if (!strcmp(read_line, "Afc6")) {
+				*error = 456;
+				sscanf(buffer, "%d %d", t, t + 1);
+				object->set_affected(6, static_cast<EApplyLocation>(t[0]), t[1]);
+			}
+			else if (!strcmp(read_line, "Afc7")) {
+				*error = 457;
+				sscanf(buffer, "%d %d", t, t + 1);
+				object->set_affected(7, static_cast<EApplyLocation>(t[0]), t[1]);
+			}
 			else if (!strcmp(read_line, "Edes"))
 			{
 				*error = 46;
@@ -3438,7 +3448,7 @@ void Crash_save_all_rent(void)
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(PLR_CRASH);
-			(ch.get())->removeGroupFlags();
+			(ch.get())->removeGroupFlags(true);
 			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
 			extract_char(ch.get(), FALSE);
 		}

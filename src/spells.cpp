@@ -17,9 +17,9 @@
 #include "char_obj_utils.inl"
 #include "chars/world.characters.hpp"
 #include "depot.hpp"
+#include "fightsystem/fight.h"
 #include "fightsystem/mobact.hpp"
 #include "fightsystem/pk.h"
-#include "grp/follow.h"
 #include "grp/grp.main.h"
 #include "handler.h"
 #include "house.h"
@@ -55,7 +55,6 @@ ESkill get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 void weight_change_object(OBJ_DATA * obj, int weight);
-int compute_armor_class(CHAR_DATA * ch);
 char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int calc_anti_savings(CHAR_DATA * ch);
@@ -780,9 +779,9 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 			}
 		}
 
-		if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE)
-			&& i->get_carried_by() != ch) //!локейт стаф может локейтить только имм или тот кто его держит
+		if (i->get_extra_flag(EExtraFlag::ITEM_NOLOCATE) && i->get_carried_by() != ch)
 		{
+			// !локейт стаф может локейтить только имм или тот кто его держит
 			return false;
 		}
 
@@ -798,7 +797,6 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 			if (!carried_by_ptr)
 			{
-//				debug::coredump();
 				sprintf(buf, "SYSERR: Illegal carried_by ptr. Создана кора для исследований");
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 				return false;
@@ -806,7 +804,6 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 
 			if (!VALID_RNUM(IN_ROOM(carried_by)))
 			{
-//				debug::coredump();
 				sprintf(buf, "SYSERR: Illegal room %d, char %s. Создана кора для исследований", IN_ROOM(carried_by), carried_by->get_name().c_str());
 				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
 				return false;
@@ -822,15 +819,23 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		if (i->get_carried_by()) {
 			const auto carried_by = i->get_carried_by();
-			sprintf(buf, "%s наход%sся у %s в инвентаре, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
-				GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1), world[carried_by->in_room]->name, zone_table[world[carried_by->in_room]->zone].name);
-
+			const auto same_zone = world[ch->in_room]->zone == world[carried_by->in_room]->zone;
+			if (!IS_NPC(carried_by) || same_zone || bloody_corpse) {
+				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
+					GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
+			} else {
+				return false;
+			}
 		}
 		else if (i->get_in_room() != NOWHERE && i->get_in_room()) {
 			const auto room = i->get_in_room();
-			sprintf(buf, "%s наход%sся в комнате: '%s', название зоны: '%s'.\r\n",
-				i->get_short_description().c_str(), GET_OBJ_POLY_1(ch, i),
-				world[room]->name, zone_table[world[room]->zone].name);
+			const auto same_zone = world[ch->in_room]->zone == world[room]->zone;
+			if (same_zone) {
+				sprintf(buf, "%s наход%sся в комнате '%s'\r\n",
+					i->get_short_description().c_str(), GET_OBJ_POLY_1(ch, i), world[room]->name);
+			} else {
+				return false;
+			}
 		}
 		else if (i->get_in_obj())
 		{
@@ -868,11 +873,11 @@ void spell_locate_object(int level, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DA
 		}
 		else if (i->get_worn_by()) {
 			const auto worn_by = i->get_worn_by();
-			if (IS_NPC(worn_by) || !IS_NPC(worn_by) /*&& GET_LEVEL(worn_by) < LVL_IMMORT))*/ || bloody_corpse) {
-				sprintf(buf, "%s надет%s на %s, комната: '%s', название зоны: '%s'\r\n", i->get_short_description().c_str(),
-					GET_OBJ_SUF_6(i), PERS(worn_by, ch, 1), world[worn_by->in_room]->name, zone_table[world[worn_by->in_room]->zone].name);
-			}
-			else {
+			const auto same_zone = world[ch->in_room]->zone == world[worn_by->in_room]->zone;
+			if (!IS_NPC(worn_by) || same_zone || bloody_corpse) {
+				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
+					GET_OBJ_SUF_6(i), PERS(worn_by, ch, 3));
+			} else {
 				return false;
 			}
 		}
@@ -1219,11 +1224,8 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 
 	if (fullness < 30)
 		return;
-
-	send_to_char("Материал : ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprinttype(obj->get_material(), material_name, buf);
-	strcat(buf, "\r\n");
+	sprinttype(obj->get_material(), material_name, buf2);
+	sprintf(buf, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, obj->get_maximum_durability(), obj->get_current_durability());
 	send_to_char(buf, ch);
 	send_to_char(CCNRM(ch, C_NRM), ch);
 
@@ -1610,359 +1612,6 @@ void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness)
 	obj_sets::print_identify(ch, obj);
 }
 
-void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch)
-{
-	int i, found, drndice = 0, drsdice = 0;
-	long int li;
-
-	send_to_char("Вы узнали следующее:\r\n", ch);
-	sprintf(buf, "UID: %u, Предмет \"%s\", тип : ", obj->get_uid(), obj->get_short_description().c_str());
-	sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
-	strcat(buf, buf2);
-	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-
-	strcpy(buf, diag_weapon_to_char(obj, 2));
-	if (*buf)
-	{
-		send_to_char(buf, ch);
-	}
-
-	//show_weapon(ch, obj);
-
-	send_to_char("Материал : ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
-	sprinttype(obj->get_material(), material_name, buf);
-	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
-
-	sprintf(buf, "Таймер : %d\r\n", obj->get_timer());
-	send_to_char(buf, ch);
-	sprintf(buf, "Прочность : %d\\%d\r\n", obj->get_current_durability(), obj->get_maximum_durability());
-	send_to_char(buf, ch);
-
-	send_to_char("Накладывает на вас аффекты: ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",",IS_IMMORTAL(ch)?4:0);
-	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
-
-	send_to_char("Имеет экстрафлаги: ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
-	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
-	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
-
-	send_to_char("Недоступен : ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_anti_flags().sprintbits(anti_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
-	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
-
-	send_to_char("Неудобен : ", ch);
-	send_to_char(CCCYN(ch, C_NRM), ch);
-	obj->get_no_flags().sprintbits(no_bits, buf, ",",IS_IMMORTAL(ch)?4:0);
-	strcat(buf, "\r\n");
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
-
-	if (obj->get_auto_mort_req() > 0)
-	{
-		send_to_char(ch, "Требует перевоплощений : %s%d%s\r\n",
-			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
-	}
-	else if (obj->get_auto_mort_req() < -1)
-	{
-		send_to_char(ch, "Максимальное перевоплощений : %s%d%s\r\n",
-			CCCYN(ch, C_NRM), obj->get_auto_mort_req(), CCNRM(ch, C_NRM));
-	}
-
-	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
-		GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj), GET_OBJ_RENTEQ(obj));
-	send_to_char(buf, ch);
-
-	switch (GET_OBJ_TYPE(obj))
-	{
-	case OBJ_DATA::ITEM_SCROLL:
-	case OBJ_DATA::ITEM_POTION:
-		sprintf(buf, "Содержит заклинания: ");
-		if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
-			sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 1)));
-		if (GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 2) < MAX_SPELLS)
-			sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 2)));
-		if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
-			sprintf(buf + strlen(buf), " %s", spell_name(GET_OBJ_VAL(obj, 3)));
-		strcat(buf, "\r\n");
-		send_to_char(buf, ch);
-		break;
-
-	case OBJ_DATA::ITEM_WAND:
-	case OBJ_DATA::ITEM_STAFF:
-		sprintf(buf, "Вызывает заклинания: ");
-		if (GET_OBJ_VAL(obj, 3) >= 1 && GET_OBJ_VAL(obj, 3) < MAX_SPELLS)
-			sprintf(buf + strlen(buf), " %s\r\n", spell_name(GET_OBJ_VAL(obj, 3)));
-		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
-		send_to_char(buf, ch);
-		break;
-
-	case OBJ_DATA::ITEM_WEAPON:
-		sprintf(buf, "Наносимые повреждения '%dD%d'", GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
-		sprintf(buf + strlen(buf), " среднее %.1f.\r\n",
-				(((GET_OBJ_VAL(obj, 2) + 1) / 2.0) * GET_OBJ_VAL(obj, 1)));
-		send_to_char(buf, ch);
-		break;
-
-	case OBJ_DATA::ITEM_ARMOR:
-	case OBJ_DATA::ITEM_ARMOR_LIGHT:
-	case OBJ_DATA::ITEM_ARMOR_MEDIAN:
-	case OBJ_DATA::ITEM_ARMOR_HEAVY:
-		sprintf(buf, "защита (AC) : %d\r\n", GET_OBJ_VAL(obj, 0));
-		send_to_char(buf, ch);
-		sprintf(buf, "броня       : %d\r\n", GET_OBJ_VAL(obj, 1));
-		send_to_char(buf, ch);
-		break;
-
-	case OBJ_DATA::ITEM_BOOK:
-		switch (GET_OBJ_VAL(obj, 0))
-		{
-		case BOOK_SPELL:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SPELLS)
-			{
-				drndice = GET_OBJ_VAL(obj, 1);
-				if (MIN_CAST_REM(spell_info[GET_OBJ_VAL(obj, 1)], ch) > GET_REMORT(ch))
-					drsdice = 34;
-				else
-					drsdice = min_spell_lvl_with_req(ch, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
-				sprintf(buf, "содержит заклинание        : \"%s\"\r\n", spell_info[drndice].name);
-				send_to_char(buf, ch);
-				sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-				send_to_char(buf, ch);
-			}
-			break;
-
-		case BOOK_SKILL:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_SKILL_NUM)
-			{
-				drndice = GET_OBJ_VAL(obj, 1);
-				if (skill_info[drndice].classknow[(int) GET_CLASS(ch)][(int) GET_KIN(ch)] == KNOW_SKILL)
-				{
-					drsdice = min_skill_level_with_req(ch, drndice, GET_OBJ_VAL(obj, 2));
-				}
-				else
-				{
-					drsdice = LVL_IMPL;
-				}
-				sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", skill_info[drndice].name);
-				send_to_char(buf, ch);
-				sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-				send_to_char(buf, ch);
-			}
-			break;
-
-		case BOOK_UPGRD:
-			print_book_uprgd_skill(ch, obj);
-			break;
-
-		case BOOK_RECPT:
-			drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-			if (drndice >= 0)
-			{
-				drsdice = MAX(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
-				i = imrecipes[drndice].remort;
-				if (imrecipes[drndice].classknow[(int) GET_CLASS(ch)] != KNOW_RECIPE)
-					drsdice = LVL_IMPL;
-				sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-				send_to_char(buf, ch);
-				if (drsdice == -1 || i == -1)
-				{
-					send_to_char(CCIRED(ch, C_NRM), ch);
-					send_to_char("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-					send_to_char(CCNRM(ch, C_NRM), ch);
-				}
-				else if (drsdice == LVL_IMPL)
-				{
-					sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
-					send_to_char(buf, ch);
-				}
-				else
-				{
-					sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, i);
-					send_to_char(buf, ch);
-				}
-			}
-			break;
-
-		case BOOK_FEAT:
-			if (GET_OBJ_VAL(obj, 1) >= 1 && GET_OBJ_VAL(obj, 1) < MAX_FEATS)
-			{
-				drndice = GET_OBJ_VAL(obj, 1);
-				if (can_get_feat(ch, drndice))
-				{
-					drsdice = feat_info[drndice].slot[(int) GET_CLASS(ch)][(int) GET_KIN(ch)];
-				}
-				else
-				{
-					drsdice = LVL_IMPL;
-				}
-				sprintf(buf, "содержит секрет способности : \"%s\"\r\n", feat_info[drndice].name);
-				send_to_char(buf, ch);
-				sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-				send_to_char(buf, ch);
-			}
-			break;
-
-		default:
-			send_to_char(CCIRED(ch, C_NRM), ch);
-			send_to_char("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
-			send_to_char(CCNRM(ch, C_NRM), ch);
-			break;
-		}
-		break;
-
-	case OBJ_DATA::ITEM_INGREDIENT:
-		sprintbit(GET_OBJ_SKILL(obj), ingradient_bits, buf2);
-		sprintf(buf, "%s\r\n", buf2);
-		send_to_char(buf, ch);
-
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_USES))
-		{
-			sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
-			send_to_char(buf, ch);
-		}
-
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LAG))
-		{
-			sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
-			if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(NULL))
-				strcat(buf, "(можно применять).\r\n");
-			else
-			{
-				li = GET_OBJ_VAL(obj, 3) + i - time(NULL);
-				sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
-			}
-			send_to_char(buf, ch);
-		}
-
-		if (IS_SET(GET_OBJ_SKILL(obj), ITEM_CHECK_LEVEL))
-		{
-			sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
-			send_to_char(buf, ch);
-		}
-
-		if ((i = real_object(GET_OBJ_VAL(obj, 1))) >= 0)
-		{
-			sprintf(buf, "прототип %s%s%s.\r\n",
-				CCICYN(ch, C_NRM), obj_proto[i]->get_PName(0).c_str(), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
-		}
-		break;
-
-	case OBJ_DATA::ITEM_MING:
-		sprintf(buf, "Сила ингредиента = %d\r\n", GET_OBJ_VAL(obj, IM_POWER_SLOT));
-		send_to_char(buf, ch);
-		break;
-
-//Информация о емкостях и контейнерах (Купала)
-	case OBJ_DATA::ITEM_CONTAINER:
-		sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
-		send_to_char(buf, ch);
-		break;
-	case OBJ_DATA::ITEM_DRINKCON:
-		drinkcon::identify(ch, obj);
-		break;
-//Конец инфы о емкостях и контейнерах (Купала)
-
-	default:
-		break;
-	} // switch
-
-	found = FALSE;
-	for (i = 0; i < MAX_OBJ_AFFECT; i++)
-	{
-		if (obj->get_affected(i).location != APPLY_NONE && obj->get_affected(i).modifier != 0)
-		{
-			if (!found)
-			{
-				send_to_char("Дополнительные свойства :\r\n", ch);
-				found = TRUE;
-			}
-			print_obj_affects(ch, obj->get_affected(i));
-		}
-	}
-
-	if (GET_OBJ_TYPE(obj) == OBJ_DATA::ITEM_ENCHANT
-		&& GET_OBJ_VAL(obj, 0) != 0)
-	{
-		if (!found)
-		{
-			send_to_char("Дополнительные свойства :\r\n", ch);
-			found = TRUE;
-		}
-		send_to_char(ch, "%s   %s вес предмета на %d%s\r\n", CCCYN(ch, C_NRM),
-				GET_OBJ_VAL(obj, 0) > 0 ? "увеличивает" : "уменьшает",
-				abs(GET_OBJ_VAL(obj, 0)), CCNRM(ch, C_NRM));
-	}
-
-	if (obj->has_skills())
-	{
-		send_to_char("Меняет умения :\r\n", ch);
-		CObjectPrototype::skills_t skills;
-		obj->get_skills(skills);
-		int skill_num;
-		int percent;
-		for (const auto& it : skills)
-		{
-			skill_num = it.first;
-			percent = it.second;
-
-			if (percent == 0) // TODO: такого не должно быть?
-				continue;
-
-			sprintf(buf, "   %s%s%s%s%s%d%%%s\r\n",
-					CCCYN(ch, C_NRM), skill_info[skill_num].name, CCNRM(ch, C_NRM),
-					CCCYN(ch, C_NRM),
-					percent < 0 ? " ухудшает на " : " улучшает на ", abs(percent), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
-		}
-	}
-
-	//added by WorM 2010.09.07 доп ифна о сете
-	id_to_set_info_map::iterator it = OBJ_DATA::set_table.begin();
-	if (obj->get_extra_flag(EExtraFlag::ITEM_SETSTUFF))
-	{
-		for (; it != OBJ_DATA::set_table.end(); it++)
-		{
-			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end())
-			{
-				sprintf(buf, "Часть набора предметов: %s%s%s\r\n", CCNRM(ch, C_NRM), it->second.get_name().c_str(), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
-				for (set_info::iterator vnum = it->second.begin(), iend = it->second.end(); vnum != iend; ++vnum)
-				{
-					int r_num;
-					if ((r_num = real_object(vnum->first)) < 0)
-					{
-						send_to_char("Неизвестный объект!!!\r\n", ch);
-						continue;
-					}
-					sprintf(buf, "   %s\r\n", obj_proto[r_num]->get_short_description().c_str());
-					send_to_char(buf, ch);
-				}
-				break;
-			}
-		}
-	}
-	//end by WorM
-
-	if (!obj->get_enchants().empty())
-	{
-		obj->get_enchants().print(ch);
-	}
-	obj_sets::print_identify(ch, obj);
-}
 
 #define IDENT_SELF_LEVEL 6
 
@@ -2061,122 +1710,12 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	send_to_char(CCNRM(ch, C_NRM), ch);
 }
 
-void imm_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch)
-{
-	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
-	send_to_char(buf, ch);
-	sprintf(buf, "Написание : %s/%s/%s/%s/%s/%s\r\n",
-			GET_PAD(victim, 0), GET_PAD(victim, 1), GET_PAD(victim, 2),
-			GET_PAD(victim, 3), GET_PAD(victim, 4), GET_PAD(victim, 5));
-	send_to_char(buf, ch);
-
-	if (!IS_NPC(victim))
-	{
-		sprintf(buf,
-				"Возраст %s  : %d лет, %d месяцев, %d дней и %d часов.\r\n",
-				GET_PAD(victim, 1), age(victim)->year, age(victim)->month,
-				age(victim)->day, age(victim)->hours);
-		send_to_char(buf, ch);
+void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj) {
+	if (obj) {
+		mort_show_obj_values(obj, ch, train_skill(ch, SKILL_IDENTIFY, skill_info[SKILL_IDENTIFY].max_percent, 0));
 	}
-
-	sprintf(buf, "Рост %d(%s%d%s), Вес %d(%s%d%s), Размер %d(%s%d%s)\r\n",
-			GET_HEIGHT(victim),
-			CCIRED(ch, C_NRM), GET_REAL_HEIGHT(victim), CCNRM(ch, C_NRM),
-			GET_WEIGHT(victim),
-			CCIRED(ch, C_NRM), GET_REAL_WEIGHT(victim), CCNRM(ch, C_NRM),
-			GET_SIZE(victim), CCIRED(ch, C_NRM), GET_REAL_SIZE(victim), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
-
-	sprintf(buf,
-			"Уровень : %d, может выдержать повреждений : %d(%d,%s%d%s)\r\n",
-			GET_LEVEL(victim), GET_HIT(victim), GET_MAX_HIT(victim),
-			CCIRED(ch, C_NRM), GET_REAL_MAX_HIT(victim), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
-
-	sprintf(buf,
-			"Защита от чар : %d, Защита от магических повреждений : %d, Защита от физических повреждений : %d\r\n",
-			MIN(GET_AR(victim), 100), MIN(GET_MR(victim), 100), MIN(GET_PR(victim), 100));
-	send_to_char(buf, ch);
-
-	sprintf(buf,
-			"Защита : %d(%s%d%s), Атака : %d(%s%d%s), Повреждения : %d(%s%d%s)\r\n",
-			GET_AC(victim), CCIRED(ch, C_NRM), compute_armor_class(victim),
-			CCNRM(ch, C_NRM), GET_HR(victim), CCIRED(ch, C_NRM),
-			GET_REAL_HR(victim), CCNRM(ch, C_NRM), GET_DR(victim),
-			CCIRED(ch, C_NRM), GET_REAL_DR(victim), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
-
-	sprintf(buf, "Сила: %d, Ум: %d, Муд: %d, Ловк: %d, Тел: %d, Обаян: %d\r\n",
-			victim->get_inborn_str(), victim->get_inborn_int(), victim->get_inborn_wis(), victim->get_inborn_dex(),
-			victim->get_inborn_con(), victim->get_inborn_cha());
-	send_to_char(buf, ch);
-	sprintf(buf,
-			"Сила: %s%d%s, Ум: %s%d%s, Муд: %s%d%s, Ловк: %s%d%s, Тел: %s%d%s, Обаян: %s%d%s\r\n",
-			CCIRED(ch, C_NRM), GET_REAL_STR(victim), CCNRM(ch, C_NRM),
-			CCIRED(ch, C_NRM), GET_REAL_INT(victim), CCNRM(ch, C_NRM),
-			CCIRED(ch, C_NRM), GET_REAL_WIS(victim), CCNRM(ch, C_NRM),
-			CCIRED(ch, C_NRM), GET_REAL_DEX(victim), CCNRM(ch, C_NRM),
-			CCIRED(ch, C_NRM), GET_REAL_CON(victim), CCNRM(ch, C_NRM),
-			CCIRED(ch, C_NRM), GET_REAL_CHA(victim), CCNRM(ch, C_NRM));
-	send_to_char(buf, ch);
-
-	int found = FALSE;
-	for (const auto& aff : victim->affected)
-	{
-		if (aff->location != APPLY_NONE && aff->modifier != 0)
-		{
-			if (!found)
-			{
-				send_to_char("Дополнительные свойства :\r\n", ch);
-				found = TRUE;
-				send_to_char(CCIRED(ch, C_NRM), ch);
-			}
-			sprinttype(aff->location, apply_types, buf2);
-			sprintf(buf, "   %s изменяет на %s%d\r\n", buf2, aff->modifier > 0 ? "+" : "", aff->modifier);
-			send_to_char(buf, ch);
-		}
-	}
-	send_to_char(CCNRM(ch, C_NRM), ch);
-
-	send_to_char("Аффекты :\r\n", ch);
-	send_to_char(CCIBLU(ch, C_NRM), ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n",IS_IMMORTAL(ch)?4:0);
-	sprintf(buf, "%s\r\n", buf2);
-
-	if (victim->followers)
-	{
-		sprintf(buf + strlen(buf), "Имеет последователей.\r\n");
-	}
-	else if (victim->has_master())
-	{
-		sprintf(buf + strlen(buf), "Следует за %s.\r\n", GET_PAD(victim->get_master(), 4));
-	}
-
-	sprintf(buf + strlen(buf),
-		"Уровень повреждений %d, уровень заклинаний %d.\r\n", GET_DAMAGE(victim), GET_CASTER(victim));
-	send_to_char(buf, ch);
-	send_to_char(CCNRM(ch, C_NRM), ch);
-}
-
-void skill_identify(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA *obj)
-{
-	if (obj)
-	{
-		if (IS_IMMORTAL(ch))
-		{
-			imm_show_obj_values(obj, ch);
-		}
-		else
-		{
-			mort_show_obj_values(obj, ch, train_skill(ch, SKILL_IDENTIFY, skill_info[SKILL_IDENTIFY].max_percent, 0));
-		}
-	}
-	else if (victim)
-	{
-		if (IS_IMMORTAL(ch))
-			imm_show_char_values(victim, ch);
-		else if (GET_LEVEL(victim) < 3)
-		{
+	else if (victim) {
+		if (GET_LEVEL(victim) < 3) {
 			send_to_char("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
 			return;
 		}
@@ -3104,7 +2643,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "Будут слезы твои, аки камень на сердце", "... и постигнет твой дух угнетение вечное." },	//SPELL_CRYING
 	cast_phrase_t{ "будь живот аки буява с шерстнями.", /* Добавлено. Далим. */ "... опадет на тебя чернь страшная." },	// SPELL_OBLIVION
 	cast_phrase_t{ "Яко небытие нещадно к вам, али время вернулось вспять.",	/* Добавлено. Далим. */ "... и время не властно над ними." },	// SPELL_BURDEN_OF_TIME
-	cast_phrase_t{ "Исполняше други силою!", "...да не останется ни обделенного ни обессиленого." },	//SPELL_GROUP_REFRESH
+	cast_phrase_t{ "Исполняше други силою!", "...да не останется ни обделенного, ни обессиленного." },	//SPELL_GROUP_REFRESH
 	cast_phrase_t{ "Избавь речь свою от недобрых слов, а ум - от крамольных мыслей.", "... любите врагов ваших и благотворите ненавидящим вас." },
 	cast_phrase_t{ "\n!получил в бою!", "\n" },
 	cast_phrase_t{ "\n!Предсмертная ярость!", "\n" },
@@ -3176,7 +2715,7 @@ const cast_phrases_t cast_phrase =
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_ (set by program)
 	cast_phrase_t{ "!магический выстрел!", "!use battle expedient!" }, // SPELL_ARROWS_DEATH (set by program)
-	cast_phrase_t{ "Воодушевление", "!set by programm!" }, // воодушевление
+	cast_phrase_t{ "\n", "\n"}, // воодушевление
 	cast_phrase_t{ "будет ловким", "... и человек разумный укрепляет ловкость свою."}, //ловкость
 	cast_phrase_t{ "защити нас от железа разящего", "... ни стрела, ни меч не пронзят печень вашу." }, // груп мигание
 	cast_phrase_t{ "огрожу беззакония их туманом", "...да защитит и покроет рассветная пелена тела ваши." }, // груп затуманивание

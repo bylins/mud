@@ -2,7 +2,7 @@
 #define __BOOT_CONSTANTS_HPP__
 
 #include "sysdep.h"
-
+#include <string>
 #include <unordered_map>
 
 // arbitrary constants used by index_boot() (must be unique)

@@ -114,7 +114,7 @@ int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
 int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
 int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
 int touch(const char *path);
-void pers_log(CHAR_DATA *ch, const char *format, ...) __attribute__((format(printf,2,3)));
+
 int number(int from, int to);
 int dice(int number, int size);
 void sprinttype(int type, const char *names[], char *result);
@@ -138,14 +138,13 @@ int valid_email(const char *address);
 void skip_dots(char **string);
 const char * str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
-bool die_follower(CHAR_DATA * ch);
 void cut_one_word(std::string &str, std::string &word);
 size_t strl_cpy(char *dst, const char *src, size_t siz);
 int get_real_dr(CHAR_DATA *ch);
 extern bool GetAffectNumByName(const std::string& affName, EAffectFlag& result);
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg);
 bool is_head(std::string name);
-extern std::list<FILE *> opened_files;
+
 extern bool is_dark(room_rnum room);
 #define core_dump()     core_dump_real(__FILE__, __LINE__)
 extern const char *ACTNULL;
@@ -564,7 +563,6 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define SAME_ROOM(ch, tch)		(IN_ROOM(ch) == IN_ROOM(tch))
 #define GET_MANA_COST(ch,spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
@@ -1543,8 +1541,6 @@ void print_bitset(const N& bits, const T& names,
 
 const char *print_obj_state(int tm_pct);
 
-bool no_bad_affects(OBJ_DATA *obj);
-
 struct exchange_item_data;
 // для парса строки с фильтрами в клан-хранах и базаре
 struct ParseFilter
@@ -1776,6 +1772,9 @@ private:
 };
 
 bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
+
+bool SAME_ROOM(CHAR_DATA *ch, CHAR_DATA *tch);
+bool SAME_ROOM(const CHAR_DATA *ch, const CHAR_DATA *tch);
 
 #endif // _UTILS_H_
 

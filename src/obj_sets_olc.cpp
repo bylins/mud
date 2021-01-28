@@ -12,7 +12,7 @@
 #include "constants.h"
 #include "handler.h"
 #include "chars/char_player.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "screen.h"
 #include "modify.h"
 #include "spells.h"

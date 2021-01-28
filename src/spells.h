@@ -11,7 +11,7 @@
 #ifndef _SPELLS_H_
 #define _SPELLS_H_
 
-#include "skills.h"
+#include "skills/skills.h"
 #include "structs.h"	// there was defined type "byte" if it had been missing
 
 struct ROOM_DATA;	// forward declaration to avoid inclusion of room.hpp and any dependencies of that header.

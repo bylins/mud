@@ -5415,7 +5415,7 @@ long get_ptable_by_name(const char *name)
 	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		const char* pname = player_table[i].name();
-		if (!str_cmp(pname, arg))
+		if (!str_cmp(pname, smallBuf))
 		{
 			return static_cast<long>(i);
 		}

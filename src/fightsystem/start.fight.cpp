@@ -75,7 +75,7 @@ int set_hit(CHAR_DATA * ch, CHAR_DATA * victim) {
                    && !IS_NPC(victim->get_master())) {
             if (MOB_FLAGGED(victim, MOB_CLONE)) {
                 mobRemember(ch, victim->get_master());
-            } else if (ch->isInSameRoom(victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
+            } else if (SAME_ROOM(ch, victim->get_master()) && CAN_SEE(ch, victim->get_master())) {
                 mobRemember(ch, victim->get_master());
             }
         }

@@ -43,7 +43,7 @@
 #include "room.hpp"
 #include "screen.h"
 #include "shop_ext.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -94,8 +94,7 @@ void do_spells(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_features(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_skills(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_visible(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
+
 void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_wimpy(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_display(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -1270,7 +1269,7 @@ const char *gen_tog_type[] =
        "маппер", "mapper",
        "тестер", "tester",
        "контроль IP", "IP control",
-       "автогрупвыход", "followgroupexit",
+       "групвыход", "followgroupexit",
        "\n"
 };
 
@@ -1607,8 +1606,8 @@ void do_gen_tog(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		 "Режим вывода тестовой информации включен.\r\n"},
 		{"Режим контроля смены IP-адреса персонажа выключен.\r\n",
 		 "Режим контроля смены IP-адреса персонажа включен.\r\n"},
-        {"После изменения порядка следования (след я) вы автоматически покинете группу.\r\n",
-         "Изменение порядка следования не влияет на членство в группе. Используйте команду груп покинуть.\r\n"}
+        {"При изменении порядка следования (след я) вы автоматически покинете группу.\r\n",
+         "При изменении порядка следования (след я) вы не покинете группу. Используйте команду груп покинуть.\r\n"}
 	};
 
 	if (IS_NPC(ch))

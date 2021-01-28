@@ -12,7 +12,7 @@
 #include "room.hpp"
 #include "birth_places.hpp"
 #include "handler.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"

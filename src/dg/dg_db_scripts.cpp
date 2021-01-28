@@ -22,7 +22,7 @@
 #include "dg_event.h"
 #include "comm.h"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "im.h"
 #include "features.hpp"
 #include "chars/char.hpp"

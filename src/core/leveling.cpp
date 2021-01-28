@@ -1,7 +1,7 @@
 #include "leveling.h"
 
+#include "bonus.h"
 #include "chars/char_player.hpp"
-#include "class.hpp"
 #include "exchange.h"
 #include "ext_money.hpp"
 #include "house_exp.hpp"
@@ -13,6 +13,7 @@
 #include "zone.table.hpp"
 
 extern double exp_coefficients[];
+extern int max_exp_gain_npc;
 const char* Remort::CONFIG_FILE = LIB_MISC"remort.xml";
 
 int get_remort_mobmax(CHAR_DATA * ch)
@@ -799,6 +800,128 @@ namespace ExpCalc {
         else
             return (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch))) / (3 + MIN(3, GET_REMORT(ch) / 5));
     }
+/*++
+   Функция начисления опыта
+      ch - кому опыт начислять
+           Вызов этой функции для NPC смысла не имеет, но все равно
+           какие-то проверки внутри зачем то делаются
+--*/
+    void increaseExperience(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef)
+    {
+
+// Странно, но для NPC эта функция тоже должна работать
+//  if (IS_NPC(ch) || !OK_GAIN_EXP(ch,victim))
+        if (!OK_GAIN_EXP(ch, victim))
+        {
+            send_to_char("Ваше деяние никто не оценил.\r\n", ch);
+            return;
+        }
+
+        // 1. Опыт делится поровну на всех
+        int exp = GET_EXP(victim) / MAX(members, 1);
+
+        if(victim->get_zone_group() > 1 && members < victim->get_zone_group())
+        {
+            // в случае груп-зоны своего рода планка на мин кол-во человек в группе
+            exp = GET_EXP(victim) / victim->get_zone_group();
+        }
+
+        // 2. Учитывается коэффициент (лидерство, разность уровней)
+        //    На мой взгляд его правильней использовать тут а не в конце процедуры,
+        //    хотя в большинстве случаев это все равно
+        exp = exp * koef / 100;
+
+        // 3. Вычисление опыта для PC и NPC
+        if (IS_NPC(ch))
+        {
+            exp = MIN(max_exp_gain_npc, exp);
+            exp += MAX(0, (exp * MIN(4, (GET_LEVEL(victim) - GET_LEVEL(ch)))) / 8);
+        }
+        else
+            exp = MIN(max_exp_gain_pc(ch), get_extend_exp(exp, ch, victim));
+        // 4. Последняя проверка
+        exp = MAX(1, exp);
+        if (exp > 1)
+        {
+            if (Bonus::is_bonus(Bonus::BONUS_EXP))
+            {
+                exp *= Bonus::get_mult_bonus();
+            }
+
+            if (!IS_NPC(ch) && !ch->affected.empty()) {
+                for (const auto& aff : ch->affected) {
+                    if (aff->location == APPLY_BONUS_EXP) {
+                        // скушал свиток с эксп бонусом
+                        exp *= MIN(3, aff->modifier); // бонус макс тройной
+                    }
+                }
+            }
+
+            int long_live_bonus = floor(ExpCalc::get_npc_long_live_exp_bounus( GET_MOB_VNUM(victim)));
+            if (long_live_bonus>1)	{
+                std::string mess;
+                switch (long_live_bonus) {
+                    case 2:
+                        mess = "Редкая удача! Опыт повышен!\r\n";
+                        break;
+                    case 3:
+                        mess = "Очень редкая удача! Опыт повышен!\r\n";
+                        break;
+                    case 4:
+                        mess = "Очень-очень редкая удача! Опыт повышен!\r\n";
+                        break;
+                    case 5:
+                        mess = "Вы везунчик! Опыт повышен!\r\n";
+                        break;
+                    case 6:
+                        mess = "Ваша удача велика! Опыт повышен!\r\n";
+                        break;
+                    case 7:
+                        mess = "Ваша удача достигла небес! Опыт повышен!\r\n";
+                        break;
+                    case 8:
+                        mess = "Ваша удача коснулась луны! Опыт повышен!\r\n";
+                        break;
+                    case 9:
+                        mess = "Ваша удача затмевает солнце! Опыт повышен!\r\n";
+                        break;
+                    case 10:
+                        mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
+                        break;
+                    default:
+                        mess = "Ваша удача выше звезд! Опыт повышен!\r\n";
+                        break;
+                }
+                send_to_char(mess.c_str(), ch);
+            }
+
+            exp = MIN(max_exp_gain_pc(ch), exp);
+            send_to_char(ch, "Ваш опыт повысился на %d %s.\r\n", exp, desc_count(exp, WHAT_POINT));
+        }
+        else if (exp == 1) {
+            send_to_char("Ваш опыт повысился всего лишь на маленькую единичку.\r\n", ch);
+        }
+        gain_exp(ch, exp);
+        GET_ALIGNMENT(ch) += (-GET_ALIGNMENT(victim) - GET_ALIGNMENT(ch)) / 16;
+        TopPlayer::Refresh(ch);
+
+        if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
+            && !IS_NPC(ch)
+            && !IS_IMMORTAL(ch)
+            && IS_NPC(victim)
+            && !IS_CHARMICE(victim)
+            && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
+        {
+            mob_stat::add_mob(victim, members);
+            EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
+        }
+        else if (IS_NPC(ch) && !IS_NPC(victim)
+                 && !ROOM_FLAGGED(IN_ROOM(victim), ROOM_ARENA))
+        {
+            mob_stat::add_mob(ch, 0);
+        }
+    }
+
 }
 
 namespace Remort

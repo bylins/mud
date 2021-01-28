@@ -82,7 +82,7 @@ set(UTILITIES
 set(ADDITIONAL_FILES
 		data/boards/changelog.sample
 		data/boards/news.sample
-		data/plrs/bikbaj.player)
+		data/plrs/sample.player)
 source_group("Tests data" FILES ${ADDITIONAL_FILES})
 source_group("Tests" FILES ${TESTS})
 source_group("Tests helpers" FILES ${UTILITIES})

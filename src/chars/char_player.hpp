@@ -109,7 +109,7 @@ public:
 	void save_char();
 	int load_char_ascii(const char *name, bool reboot = 0, const bool find_id = true);
     // метод загрузки файла игрока напрямую
-    bool _pfileLoad(FBFILE *fl, bool reboot, const char* name);
+    int _pfileLoad(FBFILE *fl, bool reboot, const char* name);
 
 	bool get_disposable_flag(int num);
 	void set_disposable_flag(int num);
@@ -177,6 +177,10 @@ public:
     // метод выставления chat_id
     void setTelegramId(unsigned long chat_id) override;
     unsigned long int getTelegramId() override;
+    // методы работы с последним временем респека славой
+    void setGloryRespecTime(time_t param) override;
+    time_t getGloryRespecTime() override;
+
 private:
 	// показывает, является ли чар турнирным или нет
 	bool arena_player = false;
@@ -247,6 +251,8 @@ private:
 	std::shared_ptr<Account> account;
     //перечень чармисов, доступных с команды наемник
     std::map<int, MERCDATA> charmeeHistory;
+
+    void initPlayerFields();
 };
 
 namespace PlayerSystem

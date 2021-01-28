@@ -14,7 +14,7 @@
 #include "interpreter.h"
 #include "boards.h"
 #include "privilege.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "constants.h"
 #include "char_player.hpp"
 #include "spells.h"
@@ -40,6 +40,8 @@
 #include <iostream>
 
 #include "grp/grp.main.h"
+
+extern GroupRoster& groupRoster;
 
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
@@ -613,6 +615,7 @@ void CHAR_DATA::purge()
 	// чистим указатель в групе
 	if (this->personGroup != nullptr)
 	    this->personGroup->charDataPurged(this);
+	groupRoster.charDataPurged(this);
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
@@ -969,16 +972,12 @@ bool AWAKE(const CHAR_DATA* ch)
 
 bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 {
-	return !NAME_BAD(ch)
-		&& (NAME_FINE(ch)
-			|| !(GET_LEVEL(ch) == NAME_LEVEL))
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		&& IS_NPC(victim)
-		&& (GET_EXP(victim) > 0)
-		&& (!IS_NPC(victim)
-			|| !IS_NPC(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		&& !IS_HORSE(victim);
+    return !NAME_BAD(ch)
+           && (NAME_FINE(ch) || !(GET_LEVEL(ch) == NAME_LEVEL))
+           && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+           && IS_NPC(victim)
+           && (GET_EXP(victim) > 0)
+           && !IS_CHARMICE(victim);
 }
 
 bool IS_MALE(const CHAR_DATA* ch)
@@ -2033,11 +2032,14 @@ void CHAR_DATA::msdp_report(const std::string& name) {
 	}
 }
 
-void CHAR_DATA::removeGroupFlags() {
-	AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
-	PRF_FLAGS(this).unset(PRF_SKIRMISHER);
-	if (personGroup != nullptr && IS_CHARMICE(this))
+void CHAR_DATA::removeGroupFlags(bool reboot) {
+    if (personGroup == nullptr)
+        return;
+    // чармис всегда, персонаж по настройке, или при ребуте
+    if (IS_CHARMICE(this) || !PRF_FLAGGED(this, PRF_FOLLOW_GRP_EXIT) || reboot) {
+        PRF_FLAGS(this).unset(PRF_SKIRMISHER);
         personGroup->_removeMember(this);
+    }
 }
 
 void CHAR_DATA::add_follower(CHAR_DATA* ch) {
@@ -2500,7 +2502,8 @@ player_special_data_saved::player_special_data_saved() :
 	ntfyExchangePrice(0),
 	HiredCost(0),
 	who_mana(0),
-    telegram_id(0)
+    telegram_id(0),
+    lastGloryRespecTime(0)
 {
 	memset(EMail, 0, sizeof(EMail));
 	memset(LastIP, 0, sizeof(LastIP));

@@ -48,7 +48,7 @@ void asciiflag_conv(const char *flag, void *to)
 
 int ext_search_block(const char *arg, const char * const * const list, int exact)
 {
-	long i, j, o;
+	unsigned long i, j, o;
 
 	if (exact)
 	{
@@ -678,7 +678,7 @@ void init_EAffectFlag_ITEM_NAMES()
 	EAffectFlag_name_by_value[EAffectFlag::AFF_SENSE_LIFE] = "AFF_SENSE_LIFE";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_WATERWALK] = "AFF_WATERWALK";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_SANCTUARY] = "AFF_SANCTUARY";
-	EAffectFlag_name_by_value[EAffectFlag::AFF_GROUP] = "AFF_GROUP";
+	EAffectFlag_name_by_value[EAffectFlag::AFF_UNUSED1] = "AFF_UNUSED1";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_CURSE] = "AFF_CURSE";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_INFRAVISION] = "AFF_INFRAVISION";
 	EAffectFlag_name_by_value[EAffectFlag::AFF_POISON] = "AFF_POISON";

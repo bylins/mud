@@ -2,7 +2,7 @@
 #define BYLINS_CMD_GENERIC_H
 
 #include "chars/char.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 
 #include <map>
 
@@ -58,5 +58,7 @@ int go_track(CHAR_DATA * ch, CHAR_DATA * victim, const ESkill skill_no);
 void do_track(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void do_hidetrack(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/);
 void do_whoami(CHAR_DATA *ch, char *, int, int);
+
+void do_follow(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 
 #endif //BYLINS_CMD_GENERIC_H

@@ -20,7 +20,7 @@
 #include "screen.h"
 #include "im.h"
 #include "constants.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "named_stuff.hpp"
@@ -49,7 +49,6 @@ extern int invalid_align(CHAR_DATA * ch, const OBJ_DATA * obj);
 extern char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear);
 extern const char *diag_obj_timer(const OBJ_DATA* obj);
 extern char *diag_timer_to_char(const OBJ_DATA* obj);
-extern void imm_show_obj_values(OBJ_DATA * obj, CHAR_DATA * ch);
 extern void mort_show_obj_values(const OBJ_DATA * obj, CHAR_DATA * ch, int fullness);
 extern void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
 extern bool is_dig_stone(OBJ_DATA *obj);
@@ -601,11 +600,7 @@ int exchange_identify(CHAR_DATA * ch, char *arg)
 		send_to_char("У вас не хватит на это денег!\r\n", ch);
 		return false;
 	}
-	if (GET_LEVEL(ch) < LVL_IMPL)
-		mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200);	//200 - полное опознание
-	else
-		imm_show_obj_values(GET_EXCHANGE_ITEM(item), ch);
-
+	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200);	//200 - полное опознание
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
 	send_to_char(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 		CCIGRN(ch, C_NRM), EXCHANGE_IDENT_PAY, desc_count(EXCHANGE_IDENT_PAY, WHAT_MONEYu), CCNRM(ch, C_NRM));

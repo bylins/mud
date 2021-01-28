@@ -20,7 +20,7 @@
 #include "room.hpp"
 #include "corpse.hpp"
 #include "screen.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "sets_drop.hpp"
 #include "logger.hpp"
 #include "utils.h"

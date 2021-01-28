@@ -3421,6 +3421,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{
 			act("$n потерял$g связь.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			if (IN_GROUP(d->character.get()))
+                d->character->personGroup->actToGroup(nullptr, d->character.get(), GC_LEADER | GC_REST, "$n потерял$g связь.");
 			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
 			{
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");

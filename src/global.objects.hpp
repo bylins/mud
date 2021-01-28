@@ -10,7 +10,7 @@
 #include "shops.implementation.hpp"
 #include "world.objects.hpp"
 #include "chars/world.characters.hpp"
-#include "cmd.imm/act.wizard.hpp"
+#include "cmd.wiz/act.wizard.hpp"
 #include "influxdb.hpp"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"

@@ -42,7 +42,7 @@
 #include "random.hpp"
 #include "room.hpp"
 #include "screen.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -57,19 +57,16 @@
 extern int what_sky;
 extern DESCRIPTOR_DATA *descriptor_list;
 extern struct spell_create_type spell_create[];
-FLAG_DATA  EMPTY_FLAG_DATA;
 extern int interpolate(int min_value, int pulse);
 
 byte saving_throws(int class_num, int type, int level);	// class.cpp
 byte extend_saving_throws(int class_num, int type, int level);
-void alterate_object(OBJ_DATA * obj, int dam, int chance);
 int check_charmee(CHAR_DATA * ch, CHAR_DATA * victim, int spellnum);
 int slot_for_char(CHAR_DATA * ch, int slotnum);
 void cast_reaction(CHAR_DATA * victim, CHAR_DATA * caster, int spellnum);
 
 bool material_component_processing(CHAR_DATA *caster, CHAR_DATA *victim, int spellnum);
 bool material_component_processing(CHAR_DATA *caster, int vnum, int spellnum);
-void pulse_affect_update(CHAR_DATA * ch);
 
 bool is_room_forbidden(ROOM_DATA * room) {
 	for (const auto& af : room->affected) {
@@ -464,7 +461,7 @@ int imposeSpellToRoom(int/* level*/, CHAR_DATA * ch , ROOM_DATA * room, int spel
 		break;
 
 	case SPELL_RUNE_LABEL:
-		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL)) {
+		if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) || ROOM_FLAGGED(ch->in_room, ROOM_TUNNEL) || ROOM_FLAGGED(ch->in_room, ROOM_NOTELEPORTIN)) {
 			to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 			to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
 			lag = 2;
@@ -1445,10 +1442,23 @@ int mag_damage(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int 
 		ndice = 6;
 		sdice = 15;
 		adice = (level - 22) * 2;
-		if (GET_POS(victim) > POS_SITTING &&
-				!WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
+		// если наездник, то считаем не сейвисы, а SKILL_HORSE
+		if (ch->ahorse()) {
+//		    5% шанс успеха,
+            rand = number(1,100);
+            if (rand > 95)
+                break;
+            // провал - 5% шанс или скилл наездника vs скилл магии кастера на кубике d6
+            if (rand < 5 || (calculate_skill(victim, SKILL_HORSE, nullptr) * number (1, 6)) < GET_SKILL(ch, SKILL_EARTH_MAGIC) * number (1, 6) ) {//фейл
+                ch->drop_from_horse();
+                break;
+            }
+		}
+		if (GET_POS(victim) > POS_SITTING && !WAITLESS(victim) && (number(1, 999)  > GET_AR(victim) * 10) &&
 				(GET_MOB_HOLD(victim) || !general_savingthrow(ch, victim, SAVING_REFLEX, CALC_SUCCESS(modi, 30))))
 		{
+            if (IS_HORSE(ch))
+                ch->drop_from_horse();
 			act("$n3 повалило на землю.", FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 			act("Вас повалило на землю.", FALSE, victim, 0, 0, TO_CHAR);
 			GET_POS(victim) = POS_SITTING;
@@ -2380,7 +2390,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		af[0].duration = pc_duration(victim, 20, SECS_PER_PLAYER_AFFECT * GET_REMORT(ch), 1, 0, 0) * koef_duration;
 		accum_duration = TRUE;
 		to_room = "$n глубоко поклонил$u земле.";
-		to_vict = "Глубокий поклон тебе матушка земля.";
+		to_vict = "Глубокий поклон тебе, матушка земля.";
 		break;
 
 	case SPELL_FIRE_AURA:
@@ -3935,7 +3945,43 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 			//Додати обработчик
 			break;
 		}
+    case SPELL_PALADINE_INSPIRATION:
+        /*
+         * групповой спелл, развешивающий рандомные аффекты, к сожалению
+         * не может быть применен по принципа "сгенерили рандом - и применили"
+         * поэтому на каждого члена группы применяется свой аффект, а кастер еще и полечить может
+         * */
+
+        if (ch == victim)
+            rnd = number(1,4);
+        else
+            rnd = number(1,3);
+        af[0].type = SPELL_PALADINE_INSPIRATION;
+        af[0].battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+        switch (rnd){
+            case 1:
+                af[0].location = APPLY_PERCENT_DAM;
+                af[0].duration = pc_duration(victim, 5, 0, 0, 0, 0);
+                af[0].modifier = GET_REMORT(ch) / 5 * 2 + GET_REMORT(ch);
+                break;
+            case 2:
+                af[0].location = APPLY_CAST_SUCCESS;
+                af[0].duration = pc_duration(victim, 3, 0, 0, 0, 0);
+                af[0].modifier = GET_REMORT(ch) / 5 * 2 + GET_REMORT(ch);
+                break;
+            case 3:
+                af[0].location = APPLY_MANAREG;
+                af[0].duration = pc_duration(victim, 10, 0, 0, 0, 0);
+                af[0].modifier = GET_REMORT(ch) / 5 * 2 + GET_REMORT(ch) * 5;
+                break;
+            case 4:
+                call_magic(ch, ch, nullptr, nullptr, SPELL_GROUP_HEAL, GET_LEVEL(ch));
+                break;
+            default:
+                break;
+        }
 	}
+
 
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
 	//чтобы этот аффект не очистился, при спадении спелла
@@ -4003,9 +4049,9 @@ const char *mag_summon_msgs[] =
 	"\r\n",
 	"$n сделал$g несколько изящних пассов - вы почувствовали странное дуновение!",
 	"$n поднял$g труп!",
-	"$N появил$G из клубов голубого дыма!",
-	"$N появил$G из клубов зеленого дыма!",
-	"$N появил$G из клубов красного дыма!",
+	"$N появил$U из клубов голубого дыма!",
+	"$N появил$U из клубов зеленого дыма!",
+	"$N появил$U из клубов красного дыма!",
 	"$n сделал$g несколько изящных пассов - вас обдало порывом холодного ветра.",
 	"$n сделал$g несколько изящных пассов, от чего ваши волосы встали дыбом.",
 	"$n сделал$g несколько изящных пассов, обдав вас нестерпимым жаром.",
@@ -5192,7 +5238,12 @@ typedef struct
 // Svent TODO Перенести эту порнографию в спеллпарсер
 const spl_message mag_messages[] =
 {
-	{SPELL_EVILESS,
+    {SPELL_PALADINE_INSPIRATION, // групповой
+    "Ваш точный удар воодушевил и придал новых сил!",
+    "Точный удар $n1 воодушевил и придал новых сил!",
+            nullptr,
+    0.0, 20, 2, 1, 20, 3, 0},
+    {SPELL_EVILESS,
 	 "Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше..",
 	 "Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда.",
 	 nullptr,
@@ -5548,7 +5599,7 @@ const spl_message mag_messages[] =
 	 nullptr,
 	 0.0, 20, 2, 5, 20, 3, 0},
 	{SPELL_GROUP_AWARNESS,
-	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников6.\r\n",
+	 "Произнесенные слова обострили ваши чувства и внимательность ваших соратников.\r\n",
 	 nullptr,
 	 nullptr,
 	 0.0, 20, 2, 5, 20, 3, 0},
@@ -5600,6 +5651,7 @@ int trySendCastMessages(CHAR_DATA* ch, CHAR_DATA* victim, ROOM_DATA* room, int s
 	if (room && world[ch->in_room] == room) {
 		if (multi_cast_say(ch)) {
 			if (mag_messages[msgIndex].to_char != nullptr) {
+                // вот тут надо воткнуть проверку на группу.
 				act(mag_messages[msgIndex].to_char, FALSE, ch, 0, victim, TO_CHAR);
 			}
 			if (mag_messages[msgIndex].to_room != nullptr) {

@@ -34,223 +34,234 @@ extern void add_karma(CHAR_DATA * ch, const char * punish , const char * reason)
 namespace GloryConst
 {
 
-enum
-{
-	GLORY_STR = 0, // +статы G_STR..G_CHA
-	GLORY_DEX,
-	GLORY_INT,
-	GLORY_WIS,
-	GLORY_CON,
-	GLORY_CHA, // -//-
-	GLORY_HIT, // +хп
-	GLORY_SUCCESS, //каст
-	GLORY_WILL, //воля
-	GLORY_STABILITY, //стойкость
-	GLORY_REFLEX, //реакция
-	GLORY_MIND, //разум
-	GLORY_MANAREG,
-	GLORY_TOTAL
-};
+    enum
+    {
+        GLORY_STR = 0, // +статы G_STR..G_CHA
+        GLORY_DEX,
+        GLORY_INT,
+        GLORY_WIS,
+        GLORY_CON,
+        GLORY_CHA, // -//-
+        GLORY_HIT, // +хп
+        GLORY_SUCCESS, //каст
+        GLORY_WILL, //воля
+        GLORY_STABILITY, //стойкость
+        GLORY_REFLEX, //реакция
+        GLORY_MIND, //разум
+        GLORY_MANAREG,
+        GLORY_TOTAL
+    };
 
-struct glory_node
-{
-	glory_node() : free_glory(0) {};
-	// свободная слава
-	int free_glory;
-	// имя чара для топа прославленных
-	//std::string name;
-	long uid;
-	int tmp_spent_glory;
-	bool hide;
-	// список статов с прокинутой славой
-	std::map<int /* номер стат из enum */, int /* сколько этого стата вложено*/> stats;
-};
+    struct glory_node
+    {
+        glory_node() : free_glory(0) {};
+        // свободная слава
+        int free_glory;
+        // имя чара для топа прославленных
+        //std::string name;
+        long uid;
+        int tmp_spent_glory;
+        bool hide;
+        // список статов с прокинутой славой
+        std::map<int /* номер стат из enum */, int /* сколько этого стата вложено*/> stats;
+    };
 
-// общий список свободной и вложенной славы
-typedef std::shared_ptr<glory_node> GloryNodePtr;
-typedef std::map<long /* уид чара */, GloryNodePtr> GloryListType;
-GloryListType glory_list;
-// суммарное списанное в виде комиса кол-во славы
-int total_charge = 0;
-// потраченное в магазинах
-int total_spent = 0;
+    // общий список свободной и вложенной славы
+    typedef std::shared_ptr<glory_node> GloryNodePtr;
+    typedef std::map<long /* уид чара */, GloryNodePtr> GloryListType;
+    GloryListType glory_list;
+    // суммарное списанное в виде комиса кол-во славы
+    int total_charge = 0;
+    // потраченное в магазинах
+    int total_spent = 0;
 
-struct glory_olc
-{
-	glory_olc() : olc_free_glory(0), olc_was_free_glory(0)
-	{
-		for (int i = 0; i < GLORY_TOTAL; ++i)
-		{
-			stat_cur[i] = 0;
-			stat_add[i] = 0;
-			stat_was[i] = 0;
-		}
-	};
+    struct glory_olc
+    {
+        glory_olc() : olc_free_glory(0), olc_was_free_glory(0)
+        {
+            for (int i = 0; i < GLORY_TOTAL; ++i)
+            {
+                stat_cur[i] = 0;
+                stat_add[i] = 0;
+                stat_was[i] = 0;
+            }
+        };
 
-	std::array<int, GLORY_TOTAL> stat_cur;
-	std::array<int, GLORY_TOTAL> stat_add;
-	std::array<int, GLORY_TOTAL> stat_was;
+        std::array<int, GLORY_TOTAL> stat_cur;
+        std::array<int, GLORY_TOTAL> stat_add;
+        std::array<int, GLORY_TOTAL> stat_was;
 
-	int olc_free_glory;
-	int olc_was_free_glory;
-};
+        int olc_free_glory;
+        int olc_was_free_glory;
+    };
 
-const char *olc_stat_name[] =
-{
-	"Сила",
-	"Ловкость",
-	"Ум",
-	"Мудрость",
-	"Телосложение",
-	"Обаяние",
-	"Макс.жизнь",
-	"Успех.колдовства",
-	"Воля",
-	"Стойкость",
-	"Реакция",
-	"Разум",
-	"Запоминание"
-};
+    const char *olc_stat_name[] =
+    {
+        "Сила",
+        "Ловкость",
+        "Ум",
+        "Мудрость",
+        "Телосложение",
+        "Обаяние",
+        "Макс.жизнь",
+        "Успех.колдовства",
+        "Воля",
+        "Стойкость",
+        "Реакция",
+        "Разум",
+        "Запоминание"
+    };
 
-void glory_hide(CHAR_DATA *ch, bool mode) {  //Говнокод от Стрибога не понимаю как это работает но факт, может ктонить срефакторит
-	std::list <GloryNodePtr> playerGloryList;
-	for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it) {
-		playerGloryList.insert(playerGloryList.end(), it->second);
-	}
-	for (std::list <GloryNodePtr>::const_iterator t_it= playerGloryList.begin(); t_it!=playerGloryList.end(); ++t_it) {
-		if (ch->get_uid() == t_it->get()->uid ){
-				if (mode == true) {
-					sprintf(buf, "Проставляю hide славы для %s", GET_NAME(ch));
-					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
-				} else {
-					sprintf(buf, "Убираю hide славы для %s", GET_NAME(ch));
-					mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
-				}
-			t_it->get()->hide = mode;
-		}
-	}
-}
+    void glory_hide(CHAR_DATA *ch, bool mode) {  //Говнокод от Стрибога не понимаю как это работает но факт, может ктонить срефакторит
+        std::list <GloryNodePtr> playerGloryList;
+        for (GloryListType::const_iterator it = glory_list.begin(); it != glory_list.end(); ++it) {
+            playerGloryList.insert(playerGloryList.end(), it->second);
+        }
+        for (std::list <GloryNodePtr>::const_iterator t_it= playerGloryList.begin(); t_it!=playerGloryList.end(); ++t_it) {
+            if (ch->get_uid() == t_it->get()->uid ){
+                    if (mode == true) {
+                        sprintf(buf, "Проставляю hide славы для %s", GET_NAME(ch));
+                        mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
+                    } else {
+                        sprintf(buf, "Убираю hide славы для %s", GET_NAME(ch));
+                        mudlog(buf,  CMP, LVL_GRGOD, SYSLOG, TRUE);
+                    }
+                t_it->get()->hide = mode;
+            }
+        }
+    }
 
-void transfer_log(const char *format, ...)
-{
-	const char *filename = "../log/glory_transfer.log";
+    void transfer_log(const char *format, ...)
+    {
+        const char *filename = "../log/glory_transfer.log";
 
-	FILE *file = fopen(filename, "a");
-	if (!file)
-	{
-		log("SYSERR: can't open %s!", filename);
-		return;
-	}
+        FILE *file = fopen(filename, "a");
+        if (!file)
+        {
+            log("SYSERR: can't open %s!", filename);
+            return;
+        }
 
-	if (!format)
-		format = "SYSERR: imm_log received a NULL format.";
+        if (!format)
+            format = "SYSERR: imm_log received a NULL format.";
 
-	write_time(file);
-	va_list args;
-	va_start(args, format);
-	vfprintf(file, format, args);
-	va_end(args);
-	fprintf(file, "\n");
+        write_time(file);
+        va_list args;
+        va_start(args, format);
+        vfprintf(file, format, args);
+        va_end(args);
+        fprintf(file, "\n");
 
-	fclose(file);
-}
+        fclose(file);
+    }
 
-// * Аналог бывшего макроса GET_GLORY().
-int get_glory(long uid)
-{
-	int glory = 0;
-	GloryListType::iterator it = glory_list.find(uid);
-	if (it != glory_list.end())
-	{
-		glory = it->second->free_glory;
-	}
-	return glory;
-}
+    // * Аналог бывшего макроса GET_GLORY().
+    int get_glory(long uid)
+    {
+        int glory = 0;
+        GloryListType::iterator it = glory_list.find(uid);
+        if (it != glory_list.end())
+        {
+            glory = it->second->free_glory;
+        }
+        return glory;
+    }
 
-// * Добавление славы чару, создание новой записи при необходимости, уведомление, если чар онлайн.
-void add_glory(long uid, int amount)
-{
-	if (uid <= 0 || amount <= 0)
-	{
-		return;
-	}
+    // * Добавление славы чару, создание новой записи при необходимости, уведомление, если чар онлайн.
+    void add_glory(long uid, int amount)
+    {
+        if (uid <= 0 || amount <= 0)
+        {
+            return;
+        }
 
-	GloryListType::iterator it = glory_list.find(uid);
-	if (it != glory_list.end())
-	{
-		it->second->free_glory += amount;
-	}
-	else
-	{
-		GloryNodePtr temp_node(new glory_node);
-		temp_node->free_glory = amount;
-		temp_node->hide = false;
-		glory_list[uid] = temp_node;
-	}
+        GloryListType::iterator it = glory_list.find(uid);
+        if (it != glory_list.end())
+        {
+            it->second->free_glory += amount;
+        }
+        else
+        {
+            GloryNodePtr temp_node(new glory_node);
+            temp_node->free_glory = amount;
+            temp_node->hide = false;
+            glory_list[uid] = temp_node;
+        }
 
-	DESCRIPTOR_DATA *d = DescByUID(uid);
-	if (d)
-	{
-		send_to_char(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
-			CCGRN(d->character, C_NRM),
-			amount, desc_count(amount, WHAT_POINT),
-			CCNRM(d->character, C_NRM));
-	}
-	save();
-}
+        DESCRIPTOR_DATA *d = DescByUID(uid);
+        if (d)
+        {
+            send_to_char(d->character.get(), "%sВы заслужили %d %s постоянной славы!%s\r\n",
+                CCGRN(d->character, C_NRM),
+                amount, desc_count(amount, WHAT_POINT),
+                CCNRM(d->character, C_NRM));
+        }
+        save();
+    }
 
-int stat_multi(int stat)
-{
-	int multi = 1;
-	if(stat == GLORY_HIT)
-		multi = HP_FACTOR;
-	if(stat == GLORY_SUCCESS)
-		multi = SUCCESS_FACTOR;
-	if(stat >= GLORY_WILL && stat <= GLORY_REFLEX)
-		multi = SAVE_FACTOR;
-	if(stat == GLORY_MIND)
-		multi = RESIST_FACTOR;
-	if(stat == GLORY_MANAREG)
-		multi = MANAREG_FACTOR;
-	return multi;
-}
+    int stat_multi(int stat)
+    {
+        int multi = 1;
+        if(stat == GLORY_HIT)
+            multi = HP_FACTOR;
+        if(stat == GLORY_SUCCESS)
+            multi = SUCCESS_FACTOR;
+        if(stat >= GLORY_WILL && stat <= GLORY_REFLEX)
+            multi = SAVE_FACTOR;
+        if(stat == GLORY_MIND)
+            multi = RESIST_FACTOR;
+        if(stat == GLORY_MANAREG)
+            multi = MANAREG_FACTOR;
+        return multi;
+    }
 
-// * Распечатка 'слава информация'.
-void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
-{
-	*buf = '\0';
-	for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
-	{
-		if ((i->first >= 0) && (i->first < (int)sizeof(olc_stat_name))) {
-			sprintf(buf+strlen(buf), "%-16s: +%d", olc_stat_name[i->first], i->second * stat_multi(i->first));
-			if (stat_multi(i->first) > 1)
-				sprintf(buf+strlen(buf), "(%d)", i->second);
-			strcat(buf, "\r\n");
-		}
-		else
-		{
-			log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
-		}
-	}
-	sprintf(buf+strlen(buf), "Свободных очков : %d\r\n", it->second->free_glory);
-	send_to_char(buf, ch);
-	return;
-}
+    int calculate_glory_in_stats(GloryListType::const_iterator &i)
+    {
+        int total = 0;
+        for (auto k = i->second->stats.begin(), kend = i->second->stats.end(); k != kend; ++k)
+        {
+            for (int m = 0; m < k->second; m++)
+                total += m * 200 + 1000;
+        }
+        return total;
+    }
 
-// * Показ свободной и вложенной славы у чара (glory имя).
-void print_to_god(CHAR_DATA *ch, CHAR_DATA *god)
-{
-	GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
-	if (it == glory_list.end())
-	{
-		send_to_char(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
-		return;
-	}
+    // * Распечатка 'слава информация'.
+    void print_glory(CHAR_DATA *ch, GloryListType::iterator &it)
+    {
+        int spent = 0;
+        *buf = '\0';
+        for (auto i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
+        {
+            if ((i->first >= 0) && (i->first < (int)sizeof(olc_stat_name))) {
+                sprintf(buf+strlen(buf), "%-16s: +%d", olc_stat_name[i->first], i->second * stat_multi(i->first));
+                if (stat_multi(i->first) > 1)
+                    sprintf(buf+strlen(buf), "(%d)", i->second);
+                strcat(buf, "\r\n");
+            }
+            else
+            {
+                log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
+            }
+            spent = spent + 1000*i->second + 200*(i->second - 1);
+        }
+        sprintf(buf+strlen(buf), "Свободных очков: %d. Вложено: %d\r\n", it->second->free_glory, spent);
+        send_to_char(buf, ch);
+    }
 
-	send_to_char(god, "Информация об очках славы %s:\r\n", GET_PAD(ch, 1));
-	print_glory(god, it);
-	return;
-}
+    // * Показ свободной и вложенной славы у чара (glory имя).
+    void print_to_god(CHAR_DATA *ch, CHAR_DATA *god)
+    {
+        GloryListType::iterator it = glory_list.find(GET_UNIQUE(ch));
+        if (it == glory_list.end())
+        {
+            send_to_char(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
+            return;
+        }
+
+        send_to_char(god, "Информация об очках славы %s:\r\n", GET_PAD(ch, 1));
+        print_glory(god, it);
+    }
 
 int add_stat_cost(int stat, std::shared_ptr<GloryConst::glory_olc> olc)
 {
@@ -441,22 +452,8 @@ int olc_real_stat(CHAR_DATA *ch, int stat)
 		+ ch->desc->glory_const->stat_add[stat];
 }
 
-int calculate_glory_in_stats(GloryListType::const_iterator &i)
-{
-	int total = 0;
-	for (std::map<int, int>::const_iterator k = i->second->stats.begin(),
-		kend = i->second->stats.end(); k != kend; ++k)
-	{
-		for (int m = 0; m < k->second; m++)
-			total += m * 200 + 1000;
-	}
-	return total;
-}
-
-bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
-{
-	switch (LOWER(*arg))
-	{
+bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg) {
+	switch (LOWER(*arg)) {
 		case 'а':
 			olc_del_stat(ch, GLORY_STR);
 			break;
@@ -583,6 +580,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 			STATE(ch->desc) = CON_PLAYING;
 			check_max_hp(ch);
 			send_to_char("Ваши изменения сохранены.\r\n", ch);
+			ch->setGloryRespecTime(time(NULL));
 			ch->save_char();
 			save();
 			return 1;
@@ -599,7 +597,7 @@ bool parse_spend_glory_menu(CHAR_DATA *ch, char *arg)
 }
 
 const char *GLORY_CONST_FORMAT =
-	"Формат: слава2\r\n"
+	"Формат: слава2 изменить\r\n"
 	"        слава2 информация\r\n"
 	"        слава2 перевести <имя> <кол-во>\r\n";
 
@@ -613,61 +611,12 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	std::string buffer = argument, buffer2;
 	GetOneParam(buffer, buffer2);
-
-	if (buffer2.empty()) {
-		if (it->second->free_glory < 1000 && it->second->stats.empty()) {
-			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
-			return;
-		}
-
-		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
-		tmp_glory_olc->stat_cur[GLORY_STR] = ch->get_inborn_str();
-		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->get_inborn_dex();
-		tmp_glory_olc->stat_cur[GLORY_INT] = ch->get_inborn_int();
-		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->get_inborn_wis();
-		tmp_glory_olc->stat_cur[GLORY_CON] = ch->get_inborn_con();
-		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->get_inborn_cha();
-		tmp_glory_olc->stat_cur[GLORY_HIT] = it->second->stats[GLORY_HIT];
-		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = it->second->stats[GLORY_SUCCESS];
-		tmp_glory_olc->stat_cur[GLORY_WILL] = it->second->stats[GLORY_WILL];
-		tmp_glory_olc->stat_cur[GLORY_STABILITY] = it->second->stats[GLORY_STABILITY];
-		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
-		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
-		tmp_glory_olc->stat_cur[GLORY_MANAREG] = it->second->stats[GLORY_MANAREG];
-
-		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i)
-		{
-			if (i->first < GLORY_TOTAL && i->first >= 0)
-			{
-				tmp_glory_olc->stat_cur[i->first] -= i->second;
-				tmp_glory_olc->stat_add[i->first] = tmp_glory_olc->stat_was[i->first] = i->second;
-			}
-			else
-			{
-				log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
-			}
-		}
-		tmp_glory_olc->olc_free_glory = tmp_glory_olc->olc_was_free_glory = it->second->free_glory;
-
-		ch->desc->glory_const = tmp_glory_olc;
-		STATE(ch->desc) = CON_GLORY_CONST;
-		spend_glory_menu(ch);
-	}
-	else if (CompareParam(buffer2, "информация"))
-	{
+	if (CompareParam(buffer2, "информация")) {
 		send_to_char("Информация о вложенных вами очках славы:\r\n", ch);
 		print_glory(ch, it);
+		return;
 	}
-	else if (CompareParam(buffer2, "перевести"))
-	{
-		if (it->second->free_glory < MIN_TRANSFER_AMOUNT)
-		{
-			send_to_char(ch,
-				"У вас недостаточно свободных очков постоянной славы (минимум %d).\r\n",
-				MIN_TRANSFER_AMOUNT);
-			return;
-		}
-
+	if (CompareParam(buffer2, "перевести")) {
 		std::string name;
 		GetOneParam(buffer, name);
 		// buffer = кол-во
@@ -675,39 +624,34 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 		Player p_vict;
 		CHAR_DATA *vict = &p_vict;
-		if (load_char(name.c_str(), vict) < 0)
-		{
+		if (load_char(name.c_str(), vict) < 0) {
 			send_to_char(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
 			return;
 		}
-		if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict)))
-		{
+		if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict))) {
 			send_to_char(ch, "Персонажи имеют разные email адреса.\r\n");
 			return;
 		}
 
 		int amount = 0;
-		try
-		{
+		try {
 			amount = std::stoi(buffer);
 		}
-		catch(...)
-		{
+		catch(...) {
 			send_to_char(ch, "%s - некорректное количество для перевода.\r\n", buffer.c_str());
 			send_to_char(GLORY_CONST_FORMAT, ch);
 			return;
 		}
 
-		if (amount < MIN_TRANSFER_AMOUNT || amount > it->second->free_glory)
-		{
+		if (amount < MIN_TRANSFER_TAX || amount > it->second->free_glory) {
 			send_to_char(ch,
 				"%d - некорректное количество для перевода.\r\n"
 				"Вы можете перевести от %d до %d постоянной славы.\r\n",
-				amount, MIN_TRANSFER_AMOUNT, it->second->free_glory);
+				amount, MIN_TRANSFER_TAX, it->second->free_glory);
 			return;
 		}
 
-		int tax = MAX(MIN_TRANSFER_TAX, amount / 100 * TRANSFER_FEE);
+		int tax = int (amount / 100. * TRANSFER_FEE);
 		int total_amount = amount - tax;
 
 		remove_glory(GET_UNIQUE(ch), amount);
@@ -733,7 +677,49 @@ void do_spend_glory(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		// TODO: ну если в глори-лог или карму, то надо стоимость/налог
 		// на трансфер ставить, чтобы не заспамили.
 		// а без отдельных логов потом фик поймешь откуда на чаре слава
+		return;
 	}
+	if (CompareParam(buffer2, "изменить")) {
+		if (it->second->free_glory < 1000 && it->second->stats.empty()) {
+			send_to_char("У вас недостаточно очков славы для использования этой команды.\r\n", ch);
+			return;
+		}
+		if (ch->getGloryRespecTime() !=0 && (time(0) - ch->getGloryRespecTime() < 86400)) {
+			send_to_char("Не прошло и суток, а вам неймется...\r\n", ch);
+			return;
+		}
+		std::shared_ptr<glory_olc> tmp_glory_olc(new glory_olc);
+		tmp_glory_olc->stat_cur[GLORY_STR] = ch->get_inborn_str();
+		tmp_glory_olc->stat_cur[GLORY_DEX] = ch->get_inborn_dex();
+		tmp_glory_olc->stat_cur[GLORY_INT] = ch->get_inborn_int();
+		tmp_glory_olc->stat_cur[GLORY_WIS] = ch->get_inborn_wis();
+		tmp_glory_olc->stat_cur[GLORY_CON] = ch->get_inborn_con();
+		tmp_glory_olc->stat_cur[GLORY_CHA] = ch->get_inborn_cha();
+		tmp_glory_olc->stat_cur[GLORY_HIT] = it->second->stats[GLORY_HIT];
+		tmp_glory_olc->stat_cur[GLORY_SUCCESS] = it->second->stats[GLORY_SUCCESS];
+		tmp_glory_olc->stat_cur[GLORY_WILL] = it->second->stats[GLORY_WILL];
+		tmp_glory_olc->stat_cur[GLORY_STABILITY] = it->second->stats[GLORY_STABILITY];
+		tmp_glory_olc->stat_cur[GLORY_REFLEX] = it->second->stats[GLORY_REFLEX];
+		tmp_glory_olc->stat_cur[GLORY_MIND] = it->second->stats[GLORY_MIND];
+		tmp_glory_olc->stat_cur[GLORY_MANAREG] = it->second->stats[GLORY_MANAREG];
+
+		for (std::map<int, int>::const_iterator i = it->second->stats.begin(), iend = it->second->stats.end(); i != iend; ++i) {
+			if (i->first < GLORY_TOTAL && i->first >= 0) {
+				tmp_glory_olc->stat_cur[i->first] -= i->second;
+				tmp_glory_olc->stat_add[i->first] = tmp_glory_olc->stat_was[i->first] = i->second;
+			}
+			else
+			{
+				log("Glory: некорректный номер стата %d (uid: %ld)", i->first, it->first);
+			}
+		}
+		tmp_glory_olc->olc_free_glory = tmp_glory_olc->olc_was_free_glory = it->second->free_glory;
+
+		ch->desc->glory_const = tmp_glory_olc;
+		STATE(ch->desc) = CON_GLORY_CONST;
+		spend_glory_menu(ch);
+	}
+
 	else
 	{
 		send_to_char(GLORY_CONST_FORMAT, ch);

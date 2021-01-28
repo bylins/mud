@@ -39,7 +39,7 @@ int isHaveNoExtraAttack(CHAR_DATA * ch) {
 }
 
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room) {
-    if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())))) {
+    if (!WAITLESS(ch) && (!victim_in_room || (ch->get_fighting() && SAME_ROOM(ch, ch->get_fighting())))) {
         WAIT_STATE(ch, waittime * PULSE_VIOLENCE);
     }
 }
@@ -51,7 +51,7 @@ void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) {
 }
 
 void setSkillCooldownInFight(CHAR_DATA* ch, ESkill skill, int cooldownInPulses) {
-    if (ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
+    if (ch->get_fighting() && SAME_ROOM(ch,ch->get_fighting())) {
         setSkillCooldown(ch, skill, cooldownInPulses);
     } else {
         WAIT_STATE(ch, PULSE_VIOLENCE/6);
@@ -62,7 +62,7 @@ CHAR_DATA* findVictim(CHAR_DATA* ch, char* argument) {
     one_argument(argument, arg);
     CHAR_DATA* victim = get_char_vis(ch, arg, FIND_CHAR_ROOM);
     if (!victim) {
-        if (!*arg && ch->get_fighting() && ch->isInSameRoom(ch->get_fighting())) {
+        if (!*arg && ch->get_fighting() && SAME_ROOM(ch, ch->get_fighting())) {
             victim = ch->get_fighting();
         }
     }

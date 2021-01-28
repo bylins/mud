@@ -23,7 +23,7 @@
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "house.h"
 #include "constants.h"
 #include "dg/dg_scripts.h"

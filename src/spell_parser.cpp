@@ -20,7 +20,7 @@
 #include "obj.hpp"
 #include "interpreter.h"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "handler.h"
 #include "comm.h"
 #include "db.h"
@@ -3569,7 +3569,6 @@ void do_learn(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 		"умения",
 		"умения",
 		"рецепта",
-		"рецепта",
 		"способности"
 	};
 
@@ -5248,7 +5247,7 @@ void mag_assign_spells(void)
 		   MAG_DAMAGE | NPC_AFFECT_PC | MAG_AFFECTS | NPC_DAMAGE_PC | NPC_DAMAGE_PC_MINHP, 2, STYPE_DARK);
 //233
 	spello(SPELL_PALADINE_INSPIRATION, "воодушевление", "inspiration",
-		   0, 0, 0, 255, 0, FALSE, MAG_AFFECTS, 0, STYPE_NEUTRAL);
+		   0, 0, 0, 255, 0, FALSE, MAG_GROUPS | MAG_AFFECTS, 0, STYPE_NEUTRAL);
 //234
 	spello(SPELL_DEXTERITY, "ловкость", "dexterity", 40, 30, 1,
 		 POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 0, STYPE_LIFE);

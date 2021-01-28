@@ -37,7 +37,7 @@
 #include "depot.hpp"
 #include "objsave.h"
 #include "fightsystem/fight.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "exchange.h"
 #include "sets_drop.hpp"
 #include "structs.h"
@@ -467,77 +467,6 @@ int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n)
 		return (LOWER(arg1[i]) - LOWER('\0'));
 }
 
-// дескрипторы открытых файлов логов для сброса буфера при креше
-std::list<FILE *> opened_files;
-
-bool no_bad_affects(OBJ_DATA *obj)
-{
-	static std::list<EWeaponAffectFlag> bad_waffects =
-	{
-		EWeaponAffectFlag::WAFF_HOLD,
-		EWeaponAffectFlag::WAFF_SANCTUARY,
-		EWeaponAffectFlag::WAFF_PRISMATIC_AURA,
-		EWeaponAffectFlag::WAFF_POISON,
-		EWeaponAffectFlag::WAFF_SILENCE,
-		EWeaponAffectFlag::WAFF_DEAFNESS,
-		EWeaponAffectFlag::WAFF_HAEMORRAGIA,
-		EWeaponAffectFlag::WAFF_BLINDNESS,
-		EWeaponAffectFlag::WAFF_SLEEP,
-		EWeaponAffectFlag::WAFF_HOLY_DARK
-	};
-	for (const auto wa : bad_waffects)
-	{
-		if (OBJ_AFFECT(obj, wa))
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-/**
-* Файл персонального лога терь открывается один раз за каждый вход плеера в игру.
-* Дескриптор открытого файла у плеера же и хранится (закрывает при con_close).
-*/
-void pers_log(CHAR_DATA *ch, const char *format, ...)
-{
-	if (!ch)
-	{
-		log("NULL character resieved! (%s %s %d)", __FILE__, __func__, __LINE__);
-		return;
-	}
-
-	if (!format)
-	{
-		format = "SYSERR: pers_log received a NULL format.";
-	}
-
-	if (!ch->desc->pers_log)
-	{
-		char filename[128], name[64], *ptr;
-		strcpy(name, GET_NAME(ch));
-		for (ptr = name; *ptr; ptr++)
-		{
-			*ptr = LOWER(AtoL(*ptr));
-		}
-		sprintf(filename, "../log/perslog/%s.log", name);
-		ch->desc->pers_log = fopen(filename, "a");
-		if (!ch->desc->pers_log)
-		{
-			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
-			return;
-		}
-		opened_files.push_back(ch->desc->pers_log);
-	}
-
-	write_time(ch->desc->pers_log);
-	va_list args;
-	va_start(args, format);
-	vfprintf(ch->desc->pers_log, format, args);
-	va_end(args);
-	fprintf(ch->desc->pers_log, "\n");
-}
-
 // the "touch" command, essentially.
 int touch(const char *path)
 {
@@ -591,8 +520,6 @@ TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1)
 	return (&now);
 }
 
-
-
 // Calculate the MUD time passed over the last t2-t1 centuries (secs) //
 TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1)
 {
@@ -614,8 +541,6 @@ TIME_INFO_DATA *mud_time_passed(time_t t2, time_t t1)
 
 	return (&now);
 }
-
-
 
 TIME_INFO_DATA *age(const CHAR_DATA * ch)
 {
@@ -3963,5 +3888,19 @@ bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict)
     {
         return false;
     }
-}
+};
+
+bool SAME_ROOM(CHAR_DATA *ch, CHAR_DATA *tch) {
+    if (ch == nullptr || tch == nullptr)
+        return false;
+    return IN_ROOM(ch) == IN_ROOM(tch);
+};
+
+bool SAME_ROOM(const CHAR_DATA *ch, const CHAR_DATA *tch) {
+    if (ch == nullptr || tch == nullptr)
+        return false;
+    return IN_ROOM(ch) == IN_ROOM(tch);
+};
+
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

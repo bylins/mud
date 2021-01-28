@@ -16,6 +16,7 @@
 #include "title.hpp"
 #include "depot.hpp"
 #include "glory.hpp"
+#include "grp/grp.main.h"
 #include "file_crc.hpp"
 #include "sets_drop.hpp"
 #include "mail.h"
@@ -423,6 +424,7 @@ namespace
 			Heartbeat::PulseStep("Bloody: updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 10, std::make_shared<SimpleCall>(bloody::update)),
 			Heartbeat::PulseStep("Room point updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 6, std::make_shared<SimpleCall>(room_point_update)),
 			Heartbeat::PulseStep("Temporary spells: times updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 5, std::make_shared<SimpleCall>(Temporary_Spells::update_times)),
+            Heartbeat::PulseStep("Group garbage collecting", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 0, std::make_shared<SimpleCall>(grp::gc)),
 			Heartbeat::PulseStep("Exchange point updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 2, std::make_shared<SimpleCall>(exchange_point_update)),
 			Heartbeat::PulseStep("Players index flushing", SECS_PER_MUD_HOUR * PASSES_PER_SEC, 1, std::make_shared<SimpleCall>(flush_player_index)),
 			Heartbeat::PulseStep("Point updating", SECS_PER_MUD_HOUR * PASSES_PER_SEC, PASSES_PER_SEC - 5, std::make_shared<SimpleCall>(point_update)),

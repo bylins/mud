@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <array>
+#include <string>
 #include <vector>
 
 class RadixTrie

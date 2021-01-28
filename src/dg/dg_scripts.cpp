@@ -38,7 +38,7 @@
 #include "privilege.hpp"
 #include "room.hpp"
 #include "screen.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spell_parser.hpp"
 #include "spells.h"
 #include "structs.h"
@@ -2190,9 +2190,20 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 			if (!str_cmp(field, "item")) {
 				char *p = strchr(subfield, ',');
 				int n = 0;
+				int i = 1;
 				if (!p) {
 					p = subfield;
-					n++;
+					while (p[i] != '\0') {
+						if (p[i] == ' ' && (p[i + 1] == ' ' ||  p[i + 1] == '\0')) {
+							i++;
+							continue;
+						}
+						if (p[i] == ' ')
+							n++;
+					i++;
+					}
+					sprintf(str, "%d", n + 1);
+					return;
 				}
 				else {
 					*(p++) = '\0';

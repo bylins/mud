@@ -19,7 +19,34 @@ void GroupRoster::restorePlayerGroup(CHAR_DATA *ch) {
         return;
     if (!grp->_restoreMember(ch))
         return;
-    grp->actToGroup(ch, GRP_COMM_ALL, "$N заново присоединил$A к вашей группе.");
+    grp->actToGroup(nullptr, ch, GC_LEADER | GC_REST, "$N заново присоединил$U к вашей группе.");
+}
+
+void GroupRoster::processGroupScmds(CHAR_DATA *ch, char *argument, GRP_SUBCMD subcmd) {
+    switch (subcmd) {
+        case GRP_SUBCMD::GCMD_DISBAND: {
+            auto grp = ch->personGroup;
+            if (grp == nullptr) {
+                send_to_char(ch, "Дабы выгнать кого, сперва надобно в ватаге состояти.\r\n");
+                return;
+            }
+            if (ch != grp->getLeader()) {
+                send_to_char(ch, "Негоже простому ратнику ватагой командовати.\r\n");
+                return;
+            }
+            if (!*argument)
+                groupRoster.removeGroup(grp->getUid());
+            else
+                grp->expellMember(argument);
+            return;
+        }
+        default:{
+            sprintf(buf, "GroupRoster::processGroupScmds: вызов не поддерживаемой команды.\r\n");
+            mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+            send_to_char(ch, "Не поддерживается!\r\n");
+            return;
+        }
+    }
 }
 
 void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
@@ -32,7 +59,7 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
     const std::string strREJECT = "отклонить reject";
     const std::string strEXPELL = "выгнать expell";
     const std::string strLEADER = "лидер leader";
-    const std::string strLEAVE = "покинуть leave";
+    const std::string strLEAVE = "покинуть выйти leave";
     const std::string strDISBAND = "распустить clear";
     const std::string strWORLD = "мир world";
     const std::string strALL = "все all";// старый режим, создание группы и добавление всех последователей.
@@ -61,7 +88,7 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
         return;
     } else if (isname(subcmd, strMAKE.c_str())) {
         if (grp != nullptr && grp->getLeader() == ch){
-            send_to_char(ch, "Только великим правителям, навроде Цесаря Иулия, было дозволено водить много легионов!\r\n");
+            send_to_char(ch, "Только великим правителям, навроде Цесаря Иулия, было под силу водить много легионов!\r\n");
             return;
         }
         if (grp != nullptr) // в группе - покидаем
@@ -72,18 +99,21 @@ void GroupRoster::processGroupCommands(CHAR_DATA *ch, char *argument) {
         grp->listMembers(ch);
         return;
     } else if (isname(subcmd, strALL.c_str())) {
-        // если в группе, печатаем полный список.
+        // если не в группе, создаем и добавляем всех последователей
         if (grp == nullptr) {
             grp = groupRoster.addGroup(ch).get();
-            grp->addFollowers(ch);
+            if (!grp->addFollowers(ch))
+                send_to_char(ch, "А окромя вас, в группу то добавить и некого...\r\n");
             return;
         }
+        // если не лидер и в группе, печатаем полный список.
         if (grp->getLeader() != ch){
             grp->printGroup(ch);
             return;
         }
         // сюда приходим лидером и добавляем всех, кто следует.
-        grp->addFollowers(ch);
+        if (!grp->addFollowers(ch))
+            send_to_char(ch, "Все, кто за вами следует, уже в группе.\r\n");
         return;
     } else if (isname(subcmd, strLEAVE.c_str())){
         grp->leaveGroup(ch);
@@ -187,7 +217,7 @@ void GroupRoster::printList(CHAR_DATA *ch) {
     size_t cnt = this->_groupList.size();
     send_to_char(ch, "Текущее количество групп в мире: %lu\r\n", cnt);
     for (auto & it : this->_groupList) {
-        send_to_char(ch, "Группа лидера %s, кол-во участников: %hu\r\n",
+        send_to_char(ch, "Группа лидера %s, кол-во участников: %lu\r\n",
                      it.second->getLeaderName().c_str(),
                      it.second->size());
     }
@@ -230,7 +260,7 @@ std::tuple<INV_R, CHAR_DATA *> GroupRoster::tryMakeInvite(Group* grp, char *memb
     // ищем и продлеваем
     for (auto & it : this->_requestList){
         if (vict == it->_applicant && grp == it->_group){
-            it->_time = steady_clock::now() + DEF_EXPIRY_TIME;
+            it->_expiryTime = steady_clock::now() + DEF_EXPIRY_TIME;
             return std::make_tuple(INV_R::INV_R_REFRESH, vict);
         }
     }
@@ -293,7 +323,7 @@ void GroupRoster::makeRequest(CHAR_DATA *author, char* target) {
             return;
         case RQ_R::RQ_R_OK:
             send_to_char("Заявка на вступление в группу отправлена.\r\n", author);
-            grp->actToGroup(author, GRP_COMM_LEADER, "Получена заявка от $N1 на вступление в группу.\r\n");
+            grp->actToGroup(nullptr, author, GC_LEADER, "Получена заявка от $N1 на вступление в группу.\r\n");
             break;
         case RQ_R::RQ_REFRESH:
             send_to_char("Заявка успешно продлена.\r\n", author);
@@ -332,7 +362,7 @@ std::tuple<RQ_R, grp_ptr> GroupRoster::tryAddRequest(CHAR_DATA *author, char *ta
     // продлеваем
     for (auto & it : this->_requestList){
         if (author == it->_applicant && grp.get() == it->_group){
-            it->_time = std::chrono::steady_clock::now() + DEF_EXPIRY_TIME;
+            it->_expiryTime = std::chrono::steady_clock::now() + DEF_EXPIRY_TIME;
             return std::make_tuple(RQ_REFRESH, grp);
         }
     }
@@ -378,6 +408,41 @@ void GroupRoster::acceptInvite(CHAR_DATA* who, char* author) {
     r->_group->addMember(r->_applicant); // и удалит заявку, если есть
 }
 
-void GroupRoster::runTests(CHAR_DATA *leader) {
+void GroupRoster::runTests(CHAR_DATA *) {
 
+}
+
+// удаление заявок при пурже персонажа
+void GroupRoster::charDataPurged(CHAR_DATA *ch) {
+    if (IS_NPC(ch))
+        return;
+    for (auto r = _requestList.begin(); r != _requestList.end();){
+        if (r->get()->_applicant == ch) {
+            r = _requestList.erase(r);
+        } else {
+            ++r;
+        }
+
+
+
+    }
+}
+
+void GroupRoster::processGarbageCollection() {
+    for (auto it: _groupList){
+        it.second->processGarbageCollection();
+    }
+    for (auto rq = _requestList.begin(); rq != _requestList.end();){
+        if ((*rq)->_expiryTime <= steady_clock::now()) {
+            rq = _requestList.erase(rq);
+        } else {
+            ++rq;
+        }
+    }
+}
+
+
+// expell timed out members
+void grp::gc() {
+    groupRoster.processGarbageCollection();
 }

@@ -12,40 +12,42 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "cmd/cmd.generic.h"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "logger.hpp"
-#include "obj.hpp"
+#include "char_obj_utils.inl"
 #include "chars/char.hpp"
+#include "cmd/cmd.generic.h"
 #include "comm.h"
+#include "conf.h"
 #include "constants.h"
 #include "db.h"
 #include "depot.hpp"
 #include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
+#include "fightsystem/pk.h"
+#include "global.objects.hpp"
+#include "grp/grp.main.h"
 #include "handler.h"
 #include "house.h"
 #include "im.h"
 #include "interpreter.h"
 #include "liquid.hpp"
+#include "logger.hpp"
 #include "magic.h"
+#include "meat.maker.hpp"
+#include "mobmax.hpp"
 #include "named_stuff.hpp"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
 #include "objsave.h"
-#include "fightsystem/pk.h"
 #include "poison.hpp"
 #include "room.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
-#include "mobmax.hpp"
-#include "meat.maker.hpp"
+#include "strengthening.hpp"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
-#include "char_obj_utils.inl"
-#include "global.objects.hpp"
-#include "strengthening.hpp"
+#include "world.objects.hpp"
+
 #include <boost/format.hpp>
 
 
@@ -83,8 +85,6 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj);
 // from class.cpp
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
 void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_put(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -736,7 +736,7 @@ void split_or_clan_tax(CHAR_DATA *ch, long amount)
 	if (ch->personGroup != nullptr && ch->personGroup->size() > 1 && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
-		do_split(ch, buf_, 0, 0);
+		grp::do_split(ch, buf_, 0, 0);
 	}
 	else
 	{
@@ -773,7 +773,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		{
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
-			do_split(ch, local_buf, 0, 0,curr_type);
+            grp::do_split(ch, local_buf, 0, 0,curr_type);
 		}
 		extract_obj(obj);
 		return;
@@ -800,7 +800,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
-		do_split(ch, local_buf, 0, 0);
+        grp::do_split(ch, local_buf, 0, 0);
 	}
 	else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1)
 	{
@@ -1436,38 +1436,35 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int /*subcmd*/)
 	}
 }
 
-void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
-{
+void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj) {
 	if (!bloody::handle_transfer(ch, vict, obj))
 		return;
-	if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM) && !IS_GOD(ch))
-	{
+	if (ROOM_FLAGGED(ch->in_room, ROOM_NOITEM) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!", FALSE, ch, 0, 0, TO_CHAR);
 		return;
 	}
-	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP))
-	{
+	if (NPC_FLAGGED(vict, NPC_NOTAKEITEMS)) {
+		act("$N не нуждается в ваших подачках, своего барахла навалом.", FALSE, ch, 0, vict, TO_CHAR);
+		return;
+	} 
+	if (obj->get_extra_flag(EExtraFlag::ITEM_NODROP)) {
 		act("Вы не можете передать $o3!", FALSE, ch, obj, 0, TO_CHAR);
 		return;
 	}
-	if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict))
-	{
+	if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict)) {
 		act("У $N1 заняты руки.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict))
-	{
+	if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
 		act("$E не может нести такой вес.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
-	if (!give_otrigger(obj, ch, vict))
-	{
+	if (!give_otrigger(obj, ch, vict)) {
 		act("$E не хочет иметь дело с этой вещью.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
 
-	if (!receive_mtrigger(vict, ch, obj))
-	{
+	if (!receive_mtrigger(vict, ch, obj)) {
 		act("$E не хочет иметь дело с этой вещью.", FALSE, ch, 0, vict, TO_CHAR);
 		return;
 	}
@@ -1476,8 +1473,7 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 	act("$n дал$g вам $o3.", FALSE, ch, obj, vict, TO_VICT);
 	act("$n дал$g $o3 $N2.", TRUE, ch, obj, vict, TO_NOTVICT | TO_ARENA_LISTEN);
 
-	if (!world_objects.get_by_raw_ptr(obj))
-	{
+	if (!world_objects.get_by_raw_ptr(obj)) {
 		return;	// object has been removed from world during script execution.
 	}
 
@@ -1487,8 +1483,7 @@ void perform_give(CHAR_DATA * ch, CHAR_DATA * vict, OBJ_DATA * obj)
 	// передача объектов-денег и кошельков
 	get_check_money(vict, obj, 0);
 
-	if (!IS_NPC(ch) && !IS_NPC(vict))
-	{
+	if (!IS_NPC(ch) && !IS_NPC(vict)) {
 		ObjSaveSync::add(ch->get_uid(), vict->get_uid(), ObjSaveSync::CHAR_SAVE);
 	}
 }

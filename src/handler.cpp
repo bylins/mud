@@ -15,47 +15,23 @@
 #include "handler.h"
 
 #include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
-#include "world.objects.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "db.h"
-#include "glory_const.hpp"
-#include "interpreter.h"
-#include "spells.h"
-#include "skills.h"
-#include "screen.h"
-#include "dg/dg_db_scripts.hpp"
-#include "dg/dg_scripts.h"
 #include "auction.h"
-#include "features.hpp"
-#include "house.h"
-#include "exchange.h"
-#include "chars/char.hpp"
+#include "backtrace.hpp"
+#include "char_obj_utils.inl"
 #include "chars/char_player.hpp"
-#include "liquid.hpp"
-#include "magic.h"
-#include "poison.hpp"
-#include "name_list.hpp"
-#include "room.hpp"
-#include "named_stuff.hpp"
-#include "glory_const.hpp"
+#include "exchange.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
-#include "ext_money.hpp"
-#include "noob.hpp"
-#include "obj_sets.hpp"
-#include "char_obj_utils.inl"
-#include "constants.h"
+#include "grp/grp.main.h"
+#include "house.h"
+#include "liquid.hpp"
+#include "magic.h"
+#include "named_stuff.hpp"
+#include "object.prototypes.hpp"
+#include "screen.h"
 #include "spell_parser.hpp"
-#include "logger.hpp"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
+#include "world.objects.hpp"
 #include "zone.table.hpp"
-#include "backtrace.hpp"
-
-#include <math.h>
 
 #include <unordered_set>
 #include <sstream>
@@ -78,7 +54,6 @@ void do_entergame(DESCRIPTOR_DATA * d);
 void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern std::vector<City> cities;
 extern int global_uid;
-extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 

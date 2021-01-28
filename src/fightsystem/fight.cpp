@@ -38,7 +38,7 @@
 #include "constants.h"
 #include "dg/dg_scripts.h"
 #include "im.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "features.hpp"
 #include "random.hpp"
 #include "chars/char.hpp"
@@ -2389,5 +2389,6 @@ void perform_violence()
 		}
 	}
 }
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

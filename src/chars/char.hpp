@@ -11,7 +11,7 @@
 #include "room.hpp"
 #include "ignores.hpp"
 #include "im.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "utils.h"
 #include "structs.h"
 #include "conf.h"
@@ -251,6 +251,7 @@ struct player_special_data_saved
 	int HiredCost;// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	unsigned int who_mana; // количество энергии для использования команды кто
     unsigned long int telegram_id;// идентификатор телеграма
+    time_t lastGloryRespecTime; // дата последнего респека славой
 };
 
 
@@ -510,6 +511,7 @@ public:
 	int get_inborn_str() const;
 	void set_str(int);
 	void inc_str(int);
+	void time_set_glory_stats(time_t);
 	int get_dex() const;
 	int get_inborn_dex() const;
 	void set_dex(int);
@@ -636,7 +638,7 @@ public:
 	void set_role(const role_t& new_role) { role_ = new_role; }
 	void msdp_report(const std::string& name);
 
-	void removeGroupFlags();
+	void removeGroupFlags(bool reboot = false);
 	void add_follower(CHAR_DATA* ch);
 	/** Do NOT call this before having checked if a circle of followers
 	* will arise. CH will follow leader
@@ -757,7 +759,6 @@ private:
 	int souls;
 
 public:
-	bool isInSameRoom(const CHAR_DATA *ch) const {return SAME_ROOM(this, ch);};
 	room_rnum in_room;	// Location (real room number)
 
 private:

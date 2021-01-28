@@ -235,7 +235,7 @@ extern std::unordered_map<int, std::string> SECTOR_TYPE_BY_VALUE;
 #define WEATHER_MEDIUMWIND    (1 << 10)
 #define WEATHER_BIGWIND       (1 << 11)
 
-#define MAX_REMORT            50
+#define MAX_REMORT            75
 
 
 
@@ -535,6 +535,7 @@ extern const religion_names_t religion_name;
 #define NPC_WIELDING      (INT_ONE | (1 << 1))
 #define NPC_ARMORING      (INT_ONE | (1 << 2))
 #define NPC_USELIGHT      (INT_ONE | (1 << 3))
+#define NPC_NOTAKEITEMS   (INT_ONE | (1 << 4))
 
 // Descriptor flags //
 #define DESC_CANZLIB (1 << 0)	// Client says compression capable.   //
@@ -620,7 +621,7 @@ extern const religion_names_t religion_name;
 #define PRF_TRIPLE_THROW   (INT_TWO | 1 << 15) // готов использовать тройной бросок
 #define PRF_SHADOW_THROW   (INT_TWO | 1 << 16) // применяет "теневой бросок"
 #define PRF_DISP_COOLDOWNS (INT_TWO | 1 << 17) // Показывать кулдауны скиллов в промпте
-#define PRF_FOLLOW_GRP_EXIT (INT_TWO | 1 << 18) // Активирует телеграм-канал у персонажа
+#define PRF_FOLLOW_GRP_EXIT (INT_TWO | 1 << 18) // Активирует автоматику выхода из группы при смене следования
 
 // при добавлении не забываем про preference_bits[]
 
@@ -636,7 +637,7 @@ enum class EAffectFlag: uint32_t
 	AFF_SENSE_LIFE = 1u << 5,				///< Char can sense hidden life
 	AFF_WATERWALK = 1u << 6,				///< Char can walk on water
 	AFF_SANCTUARY = 1u << 7,				///< Char protected by sanct.
-	AFF_GROUP = 1u << 8,					///< (R) Char is grouped
+	AFF_UNUSED1 = 1u << 8,					///< (R) Char is grouped
 	AFF_CURSE = 1u << 9,					///< Char is cursed
 	AFF_INFRAVISION = 1u << 10,				///< Char can see in dark
 	AFF_POISON = 1u << 11,					///< (R) Char is poisoned

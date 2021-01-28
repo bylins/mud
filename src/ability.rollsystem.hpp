@@ -12,7 +12,7 @@
 #include "chars/char.hpp"
 #include "fightsystem/fight_constants.hpp"
 #include "features.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 
 #include <string>
 

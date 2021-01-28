@@ -662,9 +662,8 @@ namespace ExtMoney
     // то, что чар находился в комнате с мобом не менее половины раундов дамагера)
     void drop_torc(CHAR_DATA *mob)
     {
-        if (!mob->get_role(MOB_ROLE_BOSS)
-            || has_connected_bosses(mob))
-        {
+        CHAR_DATA* m;
+        if (!mob->get_role(MOB_ROLE_BOSS) || has_connected_bosses(mob)) {
             return;
         }
 
@@ -679,10 +678,10 @@ namespace ExtMoney
             return;
         }
         auto grp = d->character->personGroup;
+        // если чар в группе, хватаем лидера
         CHAR_DATA *leader = grp != nullptr? d->character->personGroup->getLeader() : d->character.get();
 
-        int members = 1;
-        members = leader->personGroup->get_size(IN_ROOM(mob));
+        int members =  grp != nullptr? leader->personGroup->get_size(IN_ROOM(mob)) : 1;
 
         const int zone_lvl = zone_table[mob_index[GET_MOB_RNUM(mob)].zone].mob_level;
         const int drop = calc_drop_torc(zone_lvl, members);
@@ -691,20 +690,19 @@ namespace ExtMoney
             return;
         }
 
-        if (IN_ROOM(leader) == IN_ROOM(mob)
-            && GET_GOD_FLAG(leader, GF_REMORT)
-            && (GET_UNIQUE(leader) == damager.first
-                || mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2)) {
+        if (SAME_ROOM(leader, mob) && GET_GOD_FLAG(leader, GF_REMORT)
+            && (GET_UNIQUE(leader) == damager.first || mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2)) {
             gain_torc(leader, drop);
         }
         // он был один, сваливаем
         if (grp == nullptr)
             return;
-        for (const auto& m : *grp) {
-            if (m.second->member == nullptr || IN_ROOM(mob) != IN_ROOM(m.second->member))
+        for (const auto& it : *grp) {
+            m = it.second->member;
+            if (m == nullptr || !SAME_ROOM(mob, m) || m == leader) // лидеру уже раздали
                 return;
-            if (GET_GOD_FLAG(m.second->member, GF_REMORT)  && mob->get_attacker(m.second->member, ATTACKER_ROUNDS) >= damager.second / 2) {
-                gain_torc(m.second->member, drop);
+            if (GET_GOD_FLAG(m, GF_REMORT)  && mob->get_attacker(m, ATTACKER_ROUNDS) >= damager.second / 2) {
+                gain_torc(m, drop);
             }
         }
     }
