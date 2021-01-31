@@ -106,7 +106,6 @@ set(SOURCES
 		src/glory_misc.cpp
 		src/graph.cpp
 		src/grp/follow.cpp
-		src/grp/grouppenalties.cpp
 		src/grp/grp.cmdprocessor.cpp
 		src/grp/grp.group.cpp
 		src/grp/grp.request.cpp

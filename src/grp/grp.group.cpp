@@ -808,7 +808,6 @@ u_short Group::calcExpMultiplicator(const CHAR_DATA* player)
     const int player_remorts = static_cast<int>(GET_REMORT(player));
     const int player_class = static_cast<int>(GET_CLASS(player));
     const int player_level = GET_LEVEL(player);
-    auto m_grouping = groupRoster.grouping;
     short result = DEFAULT_100;
 
     if (IS_NPC(player))
@@ -834,7 +833,7 @@ u_short Group::calcExpMultiplicator(const CHAR_DATA* player)
         return result;
     }
 
-    if (_maxPlayerLevel - player_level > m_grouping[player_class][player_remorts]) {
+    if (_maxPlayerLevel - player_level > groupRoster.getPenalty(player)) {
         return MAX(1, DEFAULT_100 - 3 * (_maxPlayerLevel - player_level));
     }
     return DEFAULT_100;

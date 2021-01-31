@@ -8,9 +8,10 @@
 
 
 GroupRoster& groupRoster = GlobalObjects::groupRoster();
+extern const char *class_name[];
 
 GroupRoster::GroupRoster() {
-
+    initPenaltyTable();
 }
 
 void GroupRoster::restorePlayerGroup(CHAR_DATA *ch) {
@@ -424,9 +425,6 @@ void GroupRoster::charDataPurged(CHAR_DATA *ch) {
         } else {
             ++r;
         }
-
-
-
     }
 }
 
@@ -447,4 +445,107 @@ void GroupRoster::processGarbageCollection() {
 // expell timed out members
 void grp::gc() {
     groupRoster.processGarbageCollection();
+}
+
+int GroupRoster::initPenaltyTable()
+{
+    int clss = 0, remorts = 0, rows_assigned = 0, levels = 0, pos = 0, max_rows = MAX_REMORT+1;
+
+    // пре-инициализация
+    for (remorts = 0; remorts < max_rows; remorts++) //Строк в массиве должно быть на 1 больше, чем макс. морт
+    {
+        for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++) //Столбцов в массиве должно быть ровно столько же, сколько есть классов
+        {
+            m_grouping[clss][remorts] = -1;
+        }
+    }
+
+    FILE* f = fopen(LIB_MISC "grouping", "r");
+    if (!f)
+    {
+        log("Невозможно открыть файл %s", LIB_MISC "grouping");
+        return 1;
+    }
+
+    while (get_line(f, buf))
+    {
+        if (!buf[0] || buf[0] == ';' || buf[0] == '\n') //Строка пустая или строка-коммент
+        {
+            continue;
+        }
+        clss = 0;
+        pos = 0;
+        while (sscanf(&buf[pos], "%d", &levels) == 1)
+        {
+            while (buf[pos] == ' ' || buf[pos] == '\t')
+            {
+                pos++;
+            }
+            if (clss == 0) //Первый проход цикла по строке
+            {
+                remorts = levels; //Номера строк
+                if (m_grouping[0][remorts] != -1)
+                {
+                    log("Ошибка при чтении файла %s: дублирование параметров для %d ремортов",
+                        LIB_MISC "grouping", remorts);
+                    return 2;
+                }
+                if (remorts > MAX_REMORT || remorts < 0)
+                {
+                    log("Ошибка при чтении файла %s: неверное значение количества ремортов: %d, "
+                        "должно быть в промежутке от 0 до %d",
+                        LIB_MISC "grouping", remorts, MAX_REMORT);
+                    return 3;
+                }
+            }
+            else
+            {
+                m_grouping[clss - 1][remorts] = levels; // -1 потому что в массиве нет столбца с кол-вом мортов
+            }
+            clss++; //+Номер столбца массива
+            while (buf[pos] != ' ' && buf[pos] != '\t' && buf[pos] != 0)
+            {
+                pos++; //Ищем следующее число в строке конфига
+            }
+        }
+        if (clss != NUM_PLAYER_CLASSES+1)
+        {
+            log("Ошибка при чтении файла %s: неверный формат строки '%s', должно быть %d "
+                "целых чисел, прочитали %d", LIB_MISC "grouping", buf, NUM_PLAYER_CLASSES+1, clss);
+            return 4;
+        }
+        rows_assigned++;
+    }
+
+    if (rows_assigned < max_rows)
+    {
+        for (levels = remorts; levels < max_rows; levels++) //Берем свободную переменную
+        {
+            for (clss = 0; clss < NUM_PLAYER_CLASSES; clss++)
+            {
+                m_grouping[clss][levels] = m_grouping[clss][remorts]; //Копируем последнюю строку на все морты, для которых нет строк
+            }
+        }
+    }
+    fclose(f);
+    return 0;
+}
+
+void GroupRoster::show(CHAR_DATA *ch, char* arg) {
+    send_to_char(ch, "Параметры группы:\r\n");
+    for (int i = 0; i< NUM_PLAYER_CLASSES; i++) {
+        if (*arg && !isname(arg, class_name[i]))
+            continue;
+        send_to_char(ch, "Класс %s, реморт:уровень:\r\n", class_name[i]);
+        for (int j = 0; j < MAX_REMORT; j++) {
+            send_to_char(ch, "%d:%d ", j, m_grouping[i][j]);
+        }
+        send_to_char(ch, "\r\n");
+    }
+}
+
+short GroupRoster::getPenalty(const CHAR_DATA *ch) {
+    if (ch == nullptr || ch->purged())
+        return 0;
+    return m_grouping[GET_CLASS(ch)][GET_REMORT(ch)];
 }

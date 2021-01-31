@@ -3817,9 +3817,8 @@ void print_do_score_all(CHAR_DATA *ch)
 		sprintf(buf + strlen(buf),
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
 				" || %sв %2d %-75s%s||\r\n",
-				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-				groupRoster.grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))],
-				(string(desc_count(groupRoster.grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))], WHAT_LEVEL))
+				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+				CCNRM(ch, C_NRM), groupRoster.getPenalty(ch), (string(desc_count(groupRoster.getPenalty(ch), WHAT_LEVEL))
 				 + string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
 
 	if (RENTABLE(ch))
@@ -4087,8 +4086,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-                groupRoster.grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))],
-				desc_count(groupRoster.grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))], WHAT_LEVEL));
+                groupRoster.getPenalty(ch), desc_count(groupRoster.getPenalty(ch), WHAT_LEVEL));
 	}
 
 	//Напоминаем о метке, если она есть.

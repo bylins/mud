@@ -89,20 +89,6 @@ const duration DEF_EXPIRY_TIME = 10s;
 inline bool IN_GROUP(CHAR_DATA* ch) {return ch != nullptr && ch->personGroup != nullptr;}
 inline bool IN_SAME_GROUP(CHAR_DATA* p1, CHAR_DATA* p2) {return IN_GROUP(p1) && IN_GROUP(p2) && p1->personGroup == p2->personGroup;}
 
-// класс, хранящий обвязку штрафов по экспе для группы
-class GroupPenalties
-{
-public:
-    using class_penalties_t = std::array<int, MAX_REMORT + 1>;
-    using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
-
-    int init();
-    const auto& operator[](const size_t player_class) const { return m_grouping[player_class]; }
-private:
-    penalties_t m_grouping;
-};
-
-
 // класс-коллекция персонажей обоих типов что ли..
 class Group : public grp_mt {
 private:
@@ -230,7 +216,14 @@ public:
     void acceptInvite(CHAR_DATA* who, char* author);
     void deleteRequest(Request * r);
     Request* findRequest(const char* targetPerson, const char* group, RQ_TYPE type);
-    GroupPenalties grouping;
+private:
+    using class_penalties_t = std::array<int, MAX_REMORT + 1>;
+    using penalties_t = std::array<class_penalties_t, NUM_PLAYER_CLASSES>;
+    penalties_t m_grouping;
+public:
+    int initPenaltyTable();
+    void show(CHAR_DATA* ch, char* arg);
+    short getPenalty(const CHAR_DATA* ch);
 };
 
 

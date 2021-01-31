@@ -3824,6 +3824,7 @@ struct show_struct show_fields[] =
 	{"mobstat", LVL_IMPL},
 	{"bosses", LVL_IMPL},
 	{"remort", LVL_IMPL}, // 25
+	{"grouping", LVL_IMPL},
 	{"\n", 0}
 };
 
@@ -4337,6 +4338,10 @@ void do_show(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	case 25: // remort
 		ExtMoney::show_config(ch);
 		break;
+	case 26: {
+		GlobalObjects::groupRoster().show(ch, value);
+		break;
+	}
 	default:
 		send_to_char("Извините, неверная команда.\r\n", ch);
 		break;
