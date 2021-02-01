@@ -137,7 +137,6 @@ bool Group::_sameGroup(CHAR_DATA *ch, CHAR_DATA *vict) {
 
 Group::~Group() {
     this->_clear(false);
-    mudlog("~Group", BRF, LVL_IMMORT, SYSLOG, TRUE);
 }
 
 char_info::char_info(int uid, GM_TYPE type, CHAR_DATA *m, const std::string& name) {
@@ -149,7 +148,6 @@ char_info::char_info(int uid, GM_TYPE type, CHAR_DATA *m, const std::string& nam
 }
 
 char_info::~char_info() {
-    mudlog("[~char_info]", BRF, LVL_IMMORT, SYSLOG, TRUE);
 }
 
 void Group::addMember(CHAR_DATA *member, bool silent) {
