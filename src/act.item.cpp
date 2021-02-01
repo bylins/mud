@@ -733,7 +733,7 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 
 void split_or_clan_tax(CHAR_DATA *ch, long amount)
 {
-	if (ch->personGroup != nullptr && ch->personGroup->size() > 1 && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
+	if (ch->personGroup != nullptr && ch->personGroup->get_size() > 1 && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
 		grp::do_split(ch, buf_, 0, 0);
@@ -769,7 +769,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		send_to_char(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!
-		if (ch->personGroup != nullptr && ch->personGroup->size() > 1)
+		if (ch->personGroup != nullptr && ch->personGroup->get_size() > 1)
 		{
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
@@ -789,7 +789,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	send_to_char(buf, ch);
 
 	// все, что делится на группу - идет через налог (из кошельков не делится)
-	if (ch->personGroup != nullptr && ch->personGroup->size() > 1
+	if (ch->personGroup != nullptr && ch->personGroup->get_size() > 1
 		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT)
 		&& (!cont || !system_obj::is_purse(cont)))
 	{
