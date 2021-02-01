@@ -115,7 +115,7 @@ public:
     Group(CHAR_DATA *leader, u_long uid);
     ~Group();
     void _setLeader(CHAR_DATA *leader);
-    int _getMemberCap() const;
+    int _getMemberCap();
     bool _isFull();
     bool _isActive(); // проверка, что в группе все персонажи онлайн
     bool _isMember(int uid);

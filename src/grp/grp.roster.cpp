@@ -173,7 +173,7 @@ grp_ptr GroupRoster::addGroup(CHAR_DATA * leader) {
     ++this->_currentGroupIndex;
     auto group = std::make_shared<Group>(leader, _currentGroupIndex) ;
     this->_groupList.emplace(_currentGroupIndex, group);
-    send_to_char(leader, "Вы создали группу c максимальным числом последователей %d.\r\n", leader->personGroup ? leader->personGroup->_getMemberCap() : 0);
+    send_to_char(leader, "Вы создали группу c максимальным числом соратников %d.\r\n", leader->personGroup ? leader->personGroup->_getMemberCap() : 0);
     return group;
 }
 

@@ -1539,7 +1539,6 @@ int Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
     int num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
     long int lnum = 0, lnum3 = 0;
     unsigned long long llnum = 0;
-    char filename[40];
     char buf[MAX_RAW_INPUT_LENGTH], line[MAX_RAW_INPUT_LENGTH], tag[6];
     char line1[MAX_RAW_INPUT_LENGTH];
     struct timed_type timed;
@@ -1567,7 +1566,7 @@ int Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
     do
     {
         if (!fbgetline(fl, line)) {
-            log("SYSERROR: Wrong file ascii %d %s", id, filename);
+            log("SYSERROR: Wrong file ascii %d", id);
             return (-1);
         }
 
@@ -1659,7 +1658,7 @@ int Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
     {
         if (!fbgetline(fl, line))
         {
-            log("SYSERROR: Wrong file ascii %d %s", id, filename);
+            log("SYSERROR: Wrong file ascii %d", id);
             return (-1);
         }
 
@@ -2143,7 +2142,7 @@ int Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
                             if (pk_one->unique == lnum)
                                 break;
                         if (pk_one) {
-                            log("SYSERROR: duplicate entry pkillers data for %d %s", id, filename);
+                            log("SYSERROR: duplicate entry pkillers data for %d", id);
                             continue;
                         }
 
@@ -2450,7 +2449,6 @@ int Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
     // здесь мы закладываемся на то, что при ребуте это все сейчас пропускается и это нормально,
     // иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
     // и в любом случае при ребуте это все пересчитывать не нужно
-    FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
 
     this->account = Account::get_account(GET_EMAIL(this));
     if (this->account == nullptr)
@@ -2499,7 +2497,13 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
         log("Can't load ascii. ID: %d; File name: \"%s\"; Current directory: \"%s\")", id, filename, getcwd(buffer, BUFFER_SIZE));
         return -1;
     }
-    return _pfileLoad(fl, reboot, name);
+    // здесь мы закладываемся на то, что при ребуте это все сейчас пропускается и это нормально,
+    // иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
+    // и в любом случае при ребуте это все пересчитывать не нужно
+
+    auto retval = _pfileLoad(fl, reboot, name);
+    FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
+    return retval;
 }
 
 

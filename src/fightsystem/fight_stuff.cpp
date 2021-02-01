@@ -203,8 +203,8 @@ void update_die_counts(CHAR_DATA *ch, CHAR_DATA *killer, int dec_exp)
 
 void update_leadership(CHAR_DATA *victim, CHAR_DATA *killer)
 {
-    // не в группе - выходим
-    if (!killer || !IN_GROUP(killer))
+    // не в группе, или один в клетке - выходим
+    if (!killer || !victim || !IN_GROUP(killer) || killer->personGroup->get_size(victim->in_room) < 2)
         return;
     auto leader = killer->personGroup->getLeader();
     // лидера нет с нами

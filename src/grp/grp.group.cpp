@@ -110,9 +110,9 @@ u_long Group::getUid() const {
     return _uid;
 }
 
-int Group::_getMemberCap() const {
+int Group::_getMemberCap() {
     if (_leader != nullptr)
-        return grp::max_group_size(_leader) + 1;
+        _memberCap = grp::max_group_size(_leader) + 1;
     return _memberCap;
 }
 
@@ -361,14 +361,12 @@ void Group::listMembers(CHAR_DATA *ch) {
     CHAR_DATA *leader;
     int count = 1;
     u_short inRoomCount = 0;
+    bool isCharmice = false;
 
     if (ch->personGroup)
     {
         leader = ch->personGroup->getLeader();
-        for (const auto rm : world[ch->in_room]->people) {
-            if (IN_SAME_GROUP(ch, rm))
-                inRoomCount++;
-        }
+        inRoomCount = this->get_size(ch->in_room);
         for (auto & it : *this ) {
             if (it.second->member == leader)
                 continue;
@@ -378,8 +376,14 @@ void Group::listMembers(CHAR_DATA *ch) {
                 sprintf(smallBuf, "Лидер: %s\r\n", ch->personGroup->getLeaderName().c_str() );
                 send_to_char(smallBuf, ch);
             }
-            sprintf(smallBuf, "%d. Согруппник: %s\r\n", count, it.second->memberName.c_str());
+            if (it.second->member != nullptr)
+                isCharmice = IS_CHARMICE(it.second->member);
+            sprintf(smallBuf, "%d. %s: %s\r\n",
+                                        count,
+                                        isCharmice? "Чармис": "Согруппник",
+                                        it.second->memberName.c_str());
             send_to_char(smallBuf, ch);
+            isCharmice = false;
         }
         if (count == 1)
             send_to_char(ch, "Увы, но вы один, как перст!\r\n");
@@ -630,7 +634,7 @@ bool Group::addFollowers(CHAR_DATA *leader) {
     for (auto f = leader->followers; f; f = f->next) {
         if (IS_NPC(f->follower))
             continue;
-        if ((u_short)this->get_size() < (u_short)_getMemberCap()) {
+        if ((u_short)this->get_size() <= (u_short)_getMemberCap()) {
             this->addMember(f->follower);
             result = true;
         }
@@ -653,11 +657,13 @@ CHAR_DATA* Group::get_random_pc_group() {
 
 u_short Group::get_size(rnum_t room_rnum) {
     u_short  retval = 0;
+    if (room_rnum == 0)
+        return _pcCount;
     for (const auto& it : *this){
         auto c = it.second->member;
-        if (c == nullptr)
+        if (it.second->type != GM_CHAR || c== nullptr)
             continue;
-        if (room_rnum == (room_rnum == 0 ? room_rnum : c->in_room)  && !c->purged() && retval < 255)
+        if (room_rnum == c->in_room && !c->purged() && retval < 255)
             retval++;
     }
     return retval;
@@ -713,12 +719,12 @@ bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
     if (ch == tch) return true;
     // нпц по-умолчанию в группе, если одного алайнмента
     if (IS_NPC(ch) && IS_NPC(tch) && SAME_ALIGN(ch, tch)) return true;
-    if (ch->personGroup != nullptr && tch->personGroup != nullptr && ch->personGroup == tch->personGroup)
-        return true;
+    // чармис тоже в "группе" с хозяином
+    if (IS_CHARMICE(tch) && ch == tch->get_master()) return true;
+    // а теперь проверяем группы =)
+    if (IN_SAME_GROUP(ch, tch))  return true;
     return false;
 }
-
-
 
 /*++
    Функция расчитывает всякие бонусы для группы при получении опыта,
@@ -747,12 +753,8 @@ void Group::gainExp(CHAR_DATA * victim) {
     const bool leader_inroom = SAME_ROOM(_leader, victim);
 
     // прежде чем раздать опыт, считаем количество персонажей в клетке
-    for (auto it: *this) {
-        ch = it.second->member;
-        if (ch != nullptr && SAME_ROOM(ch, victim) && it.second->type == GM_CHAR) {
-            ++inroom_members;
-        }
-    }
+    inroom_members = this->get_size(victim->in_room);
+
     // есть партнерка и персонажей двое и зона негрупповая
     if (leader_inroom and inroom_members == 2 and can_use_feat(_leader, PARTNER_FEAT) and _leader->get_zone_group() <2)
         expDivider = 1;
@@ -767,7 +769,7 @@ void Group::gainExp(CHAR_DATA * victim) {
         }
         expMultiplicator = calcExpMultiplicator(ch); // цифра процента
         // если прокнула лидерка, то добавляем еще 20
-        if (leader_inroom && calc_leadership(_leader) and inroom_members > 1)
+        if (leader_inroom && inroom_members > 1 && calc_leadership(_leader))
             expMultiplicator += 20;
         increaseExperience(ch, victim, expDivider, expMultiplicator);
     }
