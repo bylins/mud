@@ -201,7 +201,7 @@ void save_zone_count_reset()
 // Отправляет любой текст выбранному чару
 void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
 {
-	CHAR_DATA *vict = NULL;
+	CHAR_DATA *vict = nullptr;
 
 	half_chop(argument, buf, buf2);
 

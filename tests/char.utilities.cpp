@@ -20,7 +20,7 @@ namespace test_utils
         char filename[40] = "data/plrs/sample.player";
         FBFILE *fl = NULL;
         fl = fbopen(filename, FB_READ);
-        result->_pfileLoad(fl, false, "test");
+        result->_pfileLoad(fl, false, "test", 0);
         m_result = result;
         sprintf(smallBuf, "Player-%d",m_uid);
         m_result->set_pc_name(smallBuf);

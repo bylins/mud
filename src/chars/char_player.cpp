@@ -1535,7 +1535,7 @@ void Player::initPlayerFields() {// character init
     set_who_last(time(0));
 }
 
-int Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name) {
+int Player::_pfileLoad(FBFILE *fl, bool reboot, const char* name, int id) {
     int num = 0, num2 = 0, num3 = 0, num4 = 0, num5 = 0, num6 = 0, i;
     long int lnum = 0, lnum3 = 0;
     unsigned long long llnum = 0;
@@ -2501,7 +2501,7 @@ int Player::load_char_ascii(const char *name, bool reboot, const bool find_id /*
     // иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
     // и в любом случае при ребуте это все пересчитывать не нужно
 
-    auto retval = _pfileLoad(fl, reboot, name);
+    auto retval = _pfileLoad(fl, reboot, name, id);
     FileCRC::check_crc(filename, FileCRC::PLAYER, GET_UNIQUE(this));
     return retval;
 }

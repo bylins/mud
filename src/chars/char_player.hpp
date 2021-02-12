@@ -109,7 +109,7 @@ public:
 	void save_char();
 	int load_char_ascii(const char *name, bool reboot = 0, const bool find_id = true);
     // метод загрузки файла игрока напрямую
-    int _pfileLoad(FBFILE *fl, bool reboot, const char* name);
+    int _pfileLoad(FBFILE *fl, bool reboot, const char* name, int id);
 
 	bool get_disposable_flag(int num);
 	void set_disposable_flag(int num);
