@@ -2010,9 +2010,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case ZEDIT_TYPE_A_LIST:
 		// * Add or delete new zone in the type A zones list.
 		pos = atoi(arg);
-		if (!is_number(arg) || (pos < 1) || (pos > 999))
-		{
-			send_to_char("Повторите ввод (1-999) : ", d->character.get());
+		if (!is_number(arg) || (pos < 1) || (pos > MAX_PROTO_NUMBER)) {
+			send_to_char(d->character.get(), "Повторите ввод (1-%d) : " ,MAX_PROTO_NUMBER );
 		}
 		else
 		{
@@ -2061,9 +2060,8 @@ void zedit_parse(DESCRIPTOR_DATA * d, char *arg)
 	case ZEDIT_TYPE_B_LIST:
 		// * Add or delete new zone in the type A zones list.
 		pos = atoi(arg);
-		if (!is_number(arg) || (pos < 1) || (pos > 999))
-		{
-			send_to_char("Повторите ввод (1-999) : ", d->character.get());
+		if (!is_number(arg) || (pos < 1) || (pos > MAX_PROTO_NUMBER)) {
+			send_to_char(d->character.get(), "Повторите ввод (1-%d) : " ,MAX_PROTO_NUMBER );
 		}
 		else
 		{
