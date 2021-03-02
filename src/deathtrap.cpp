@@ -135,7 +135,7 @@ int DeathTrap::check_death_trap(CHAR_DATA * ch)
 			OBJ_DATA *corpse;
 			DeathTrap::log_death_trap(ch);
 
-			if (check_tester_death(ch, nullptr))
+			if (check_tester_death(ch))
 			{
 				sprintf(buf1, "Player %s died in DT (room %d) but zone is under construction.", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf1, LGH, LVL_IMMORT, SYSLOG, TRUE);

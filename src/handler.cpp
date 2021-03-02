@@ -583,16 +583,22 @@ void char_to_room(CHAR_DATA * ch, room_rnum room)
 		return;
 	}
 
-	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL))
-	{
+	if (!IS_NPC(ch) && !Clan::MayEnter(ch, room, HCE_PORTAL)) {
 		room = ch->get_from_room();
 	}
 
-	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch))
-	{
+	if (!IS_NPC(ch) && RENTABLE(ch) && ROOM_FLAGGED(room, ROOM_ARENA) && !IS_IMMORTAL(ch)) {
 		send_to_char("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
+	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone].under_construction;
+
+//	if (RENTABLE(ch) && zone_is_under_construction) {
+	if (zone_is_under_construction) {
+		send_to_char("Вы не можете попасть в зону которая тестируется, в состоянии боевых действий!\r\n", ch);
+//		room = ch->get_from_room();
+	}
+
 	world[room]->people.push_front(ch);
 
 	ch->in_room = room;
