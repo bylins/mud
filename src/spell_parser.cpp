@@ -4480,7 +4480,7 @@ void mag_assign_spells(void)
 	spello(SPELL_CURE_LIGHT, "легкое исцеление", "light cure",
 		   40, 30, 1, POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_POINTS | NPC_DUMMY, 1, STYPE_LIFE);
 //17
-	spello(SPELL_CURSE, "проклятье", "curse", 55, 40, 1, POS_FIGHTING,
+	spello(SPELL_CURSE, "проклятие", "curse", 55, 40, 1, POS_FIGHTING,
 		TAR_CHAR_ROOM | TAR_FIGHT_VICT | TAR_OBJ_INV, MTYPE_NEUTRAL,
 		MAG_AFFECTS | MAG_ALTER_OBJS | NPC_AFFECT_PC, 1, STYPE_DARK);
 //18
