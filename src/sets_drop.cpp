@@ -668,7 +668,7 @@ void filter_dupe_names()
 				|| MOB_FLAGGED(mob, MOB_LIKE_SPRING)
 				|| MOB_FLAGGED(mob, MOB_LIKE_SUMMER)
 				|| MOB_FLAGGED(mob, MOB_LIKE_AUTUMN)
-				|| NPC_FLAGGED(mob, NPC_NOSETSDROP)
+				|| NPC_FLAGGED(mob, NPC_FREEDROP)
 				|| mob->get_exp() <= 0)
 			{
 				continue;

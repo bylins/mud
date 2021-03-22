@@ -526,7 +526,7 @@ extern const religion_names_t religion_name;
 #define NPC_EARTHCREATURE (1 << 22)
 #define NPC_FIRECREATURE  (1 << 23)
 #define NPC_HELPED        (1 << 24)
-#define NPC_NOSETSDROP    (1 << 25)
+#define NPC_FREEDROP      (1 << 25)
 #define NPC_NOINGRDROP    (1 << 26)
 
 #define NPC_STEALING      (INT_ONE | (1 << 0))
