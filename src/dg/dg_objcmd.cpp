@@ -10,31 +10,27 @@
 **************************************************************************/
 
 #include "chars/char.hpp"
-#include "cmd/follow.h"
 #include "comm.h"
-#include "conf.h"
+#include "core/leveling.h"
 #include "db.h"
-#include "dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
+#include "grp/grp.main.h"
 #include "handler.h"
 #include "im.h"
 #include "interpreter.h"
 #include "logger.hpp"
 #include "magic.h"
-#include "name_list.hpp"
 #include "obj.hpp"
 #include "object.prototypes.hpp"
 #include "room.hpp"
-#include "screen.h"
-#include "skills.h"
+#include "skills/townportal.h"
 #include "spell_parser.hpp"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "utils.h"
 #include "world.objects.hpp"
-#include "skills/townportal.h"
 
 extern const char *dirs[];
 extern int up_obj_where(OBJ_DATA * obj);
@@ -161,7 +157,7 @@ void do_oportal(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_CHAR);
 	act("Лазурная пентаграмма возникла в воздухе.", FALSE, world[curroom]->first_character(), 0, 0, TO_ROOM);
 }
-// Object commands 
+// Object commands
 void do_oecho(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 {
 	skip_spaces(&argument);
@@ -327,7 +323,7 @@ void do_oexp(OBJ_DATA *obj, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((ch = get_char_by_obj(obj, name)))
 	{
-		gain_exp(ch, atoi(amount));
+		ExpCalc::gain_exp(ch, atoi(amount));
 		sprintf(buf, "oexp: victim (%s) получил опыт %d", GET_NAME(ch) , atoi(amount));
 		obj_log(obj, buf);
 	}

@@ -26,7 +26,7 @@
 #include "interpreter.h"
 #include "constants.h"
 #include "im.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "privilege.hpp"
 #include "chars/char.hpp"
@@ -37,7 +37,7 @@
 #include "depot.hpp"
 #include "objsave.h"
 #include "fightsystem/fight.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "exchange.h"
 #include "sets_drop.hpp"
 #include "structs.h"
@@ -287,30 +287,7 @@ int get_virtual_race(CHAR_DATA *mob)
 }
 
 
-CHAR_DATA *get_random_pc_group(CHAR_DATA *ch) {
-	std::vector<CHAR_DATA *> tmp_list;
-	CHAR_DATA *victim;
-	CHAR_DATA *k;
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		return nullptr;
-	if (ch->has_master()) {
-		k = ch->get_master();
-	}
-	else {
-		k = ch;
-	}
-	for (follow_type *i = k->followers; i; i = i->next) {
-		if (!IS_NPC(k) && !IS_CHARMICE(i->follower) && (k != i->follower) && (k->in_room == i->follower->in_room)) {
-			tmp_list.push_back(i->follower);
-		}
-	}
-	if (tmp_list.empty()) {
-		return nullptr;
-	}
-	tmp_list.push_back(k); // засунем в список лидера
-	victim = tmp_list.at(number(0, tmp_list.size() - 1));
-	return victim;
-}
+
 
 /*
  * str_cmp: a case-insensitive version of strcmp().
@@ -1070,58 +1047,6 @@ int real_sector(int room)
 		break;
 	}
 	return SECT_INSIDE;
-}
-
-bool same_group(CHAR_DATA * ch, CHAR_DATA * tch)
-{
-	if (!ch || !tch)
-		return false;
-
-	// Добавлены проверки чтобы не любой заследовавшийся моб считался согруппником (Купала)
-	if (IS_NPC(ch)
-		&& ch->has_master()
-		&& !IS_NPC(ch->get_master())
-		&& (IS_HORSE(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(ch, MOB_ANGEL)
-			|| MOB_FLAGGED(ch, MOB_GHOST)))
-	{
-		ch = ch->get_master();
-	}
-
-	if (IS_NPC(tch)
-		&& tch->has_master()
-		&& !IS_NPC(tch->get_master())
-		&& (IS_HORSE(tch)
-			|| AFF_FLAGGED(tch, EAffectFlag::AFF_CHARM)
-			|| MOB_FLAGGED(tch, MOB_ANGEL)
-			|| MOB_FLAGGED(tch, MOB_GHOST)))
-	{
-		tch = tch->get_master();
-	}
-
-	// NPC's always in same group
-	if ((IS_NPC(ch) && IS_NPC(tch))
-		|| ch == tch)
-	{
-		return true;
-	}
-
-	if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)
-		|| !AFF_FLAGGED(tch, EAffectFlag::AFF_GROUP))
-	{
-		return false;
-	}
-
-	if (ch->get_master() == tch
-		|| tch->get_master() == ch
-		|| (ch->has_master()
-			&& ch->get_master() == tch->get_master()))
-	{
-		return true;
-	}
-
-	return false;
 }
 
 // Проверка является комната рентой.
@@ -3952,5 +3877,30 @@ void koi_to_utf8(char *str_i, char *str_o)
 }
 
 #endif // HAVE_ICONV
+
+bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict)
+{
+    if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+};
+
+bool SAME_ROOM(CHAR_DATA *ch, CHAR_DATA *tch) {
+    if (ch == nullptr || tch == nullptr)
+        return false;
+    return IN_ROOM(ch) == IN_ROOM(tch);
+};
+
+bool SAME_ROOM(const CHAR_DATA *ch, const CHAR_DATA *tch) {
+    if (ch == nullptr || tch == nullptr)
+        return false;
+    return IN_ROOM(ch) == IN_ROOM(tch);
+};
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

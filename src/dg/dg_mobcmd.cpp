@@ -24,14 +24,13 @@
  ***************************************************************************/
 
 #include "chars/char.hpp"
-#include "cmd/follow.h"
 #include "comm.h"
-#include "conf.h"
+#include "core/leveling.h"
 #include "db.h"
-#include "dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
+#include "grp/grp.main.h"
 #include "handler.h"
 #include "im.h"
 #include "interpreter.h"
@@ -39,13 +38,12 @@
 #include "obj.hpp"
 #include "object.prototypes.hpp"
 #include "room.hpp"
-#include "skills.h"
+#include "skills/townportal.h"
 #include "spell_parser.hpp"
 #include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
 #include "world.objects.hpp"
-#include "skills/townportal.h"
 
 struct mob_command_info
 {
@@ -847,7 +845,7 @@ void do_mexp(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 	sprintf(buf, "mexp: victim (%s) получил опыт %d", name, atoi(amount));
 	mob_log(ch, buf);
-	gain_exp(victim, atoi(amount));
+	ExpCalc::gain_exp(victim, atoi(amount));
 }
 
 // increases the target's gold

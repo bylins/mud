@@ -9,64 +9,78 @@ endif ()
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
-		src/blocking.queue.cpp
-		src/influxdb.cpp
-		src/heartbeat.cpp
-		src/heartbeat.commands.cpp
 		src/ability.rollsystem.cpp
-		src/chars/accounts.cpp
-		src/action.targeting.cpp
 		src/act.comm.cpp
 		src/act.informative.cpp
 		src/act.item.cpp
 		src/act.movement.cpp
 		src/act.other.cpp
 		src/act.social.cpp
-		src/act.wizard.cpp
+		src/action.targeting.cpp
 		src/AffectHandler.cpp
 		src/alias.cpp
 		src/auction.cpp
 		src/backtrace.cpp
 		src/ban.cpp
 		src/birth_places.cpp
+		src/blocking.queue.cpp
 		src/boards.changelog.loaders.cpp
 		src/boards.constants.cpp
 		src/boards.cpp
 		src/boards.formatters.cpp
 		src/boards.types.cpp
-		src/bonus.cpp
 		src/bonus.command.parser.cpp
+		src/bonus.cpp
 		src/boot.constants.cpp
 		src/boot.data.files.cpp
 		src/boot.index.cpp
 		src/cache.cpp
 		src/celebrates.cpp
+		src/chars/accounts.cpp
 		src/chars/char.cpp
 		src/chars/char_player.cpp
+		src/chars/mount.cpp
+		src/chars/player_races.cpp
+		src/chars/world.characters.cpp
 		src/class.cpp
+		src/cmd.wiz/act.wizard.cpp
+		src/cmd.wiz/stat.cpp
+		src/cmd/follow.cpp
+		src/cmd/hire.cpp
+		src/cmd/mercenary.cpp
+		src/cmd/order.cpp
+		src/cmd/quit.cpp
+		src/cmd/retreat.cpp
+		src/cmd/telegram.cpp
+		src/cmd/track.cpp
+		src/cmd/whoami.cpp
 		src/color.cpp
 		src/comm.cpp
 		src/command.shutdown.cpp
 		src/commands.cpp
+		src/compact.trie.cpp
 		src/config.cpp
 		src/constants.cpp
+		src/core/affect_data.cpp
+		src/core/leveling.cpp
 		src/corpse.cpp
 		src/daily_quest.cpp
 		src/db.cpp
 		src/deathtrap.cpp
+		src/debug.utils.cpp
 		src/depot.cpp
 		src/description.cpp
-		src/dg_comm.cpp
-		src/dg_db_scripts.cpp
-		src/dg_event.cpp
-		src/dg_handler.cpp
-		src/dg_misc.cpp
-		src/dg_mobcmd.cpp
-		src/dg_objcmd.cpp
-		src/dg_olc.cpp
-		src/dg_scripts.cpp
-		src/dg_triggers.cpp
-		src/dg_wldcmd.cpp
+		src/dg/dg_comm.cpp
+		src/dg/dg_db_scripts.cpp
+		src/dg/dg_event.cpp
+		src/dg/dg_handler.cpp
+		src/dg/dg_misc.cpp
+		src/dg/dg_mobcmd.cpp
+		src/dg/dg_objcmd.cpp
+		src/dg/dg_olc.cpp
+		src/dg/dg_scripts.cpp
+		src/dg/dg_triggers.cpp
+		src/dg/dg_wldcmd.cpp
 		src/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
@@ -74,27 +88,44 @@ set(SOURCES
 		src/ext_money.cpp
 		src/external.trigger.cpp
 		src/features.cpp
-        src/fightsystem/fight.cpp
-        src/fightsystem/fight_hit.cpp
-        src/fightsystem/fight.penalties.cpp
-        src/fightsystem/fight_stuff.cpp
+		src/fightsystem/assist.cpp
+		src/fightsystem/common.cpp
+		src/fightsystem/fight.cpp
+		src/fightsystem/fight.penalties.cpp
+		src/fightsystem/fight_hit.cpp
+		src/fightsystem/fight_stuff.cpp
+		src/fightsystem/mobact.cpp
+		src/fightsystem/pk.cpp
+		src/fightsystem/start.fight.cpp
 		src/file_crc.cpp
+		src/find.obj.id.by.vnum.cpp
 		src/genchar.cpp
-		src/glory_const.cpp
+		src/global.objects.cpp
 		src/glory.cpp
+		src/glory_const.cpp
 		src/glory_misc.cpp
 		src/graph.cpp
+		src/grp/follow.cpp
+		src/grp/grp.cmdprocessor.cpp
+		src/grp/grp.group.cpp
+		src/grp/grp.request.cpp
+		src/grp/grp.roster.cpp
 		src/handler.cpp
+		src/heartbeat.commands.cpp
+		src/heartbeat.cpp
 		src/help.cpp
 		src/house.cpp
 		src/house_exp.cpp
+		src/id.cpp
+		src/id.cpp
 		src/ignores.cpp
 		src/ignores.loader.cpp
 		src/im.cpp
+		src/influxdb.cpp
 		src/interpreter.cpp
 		src/item.creation.cpp
-		src/limits.cpp
 		src/levenshtein.cpp
+		src/limits.cpp
 		src/liquid.cpp
 		src/logger.cpp
 		src/magic.cpp
@@ -102,34 +133,33 @@ set(SOURCES
 		src/map.cpp
 		src/meat.maker.cpp
 		src/medit.cpp
-		src/fightsystem/mobact.cpp
-		src/mobmax.cpp
 		src/mob_stat.cpp
+		src/mobmax.cpp
 		src/modify.cpp
 		src/morph.cpp
-		src/named_stuff.cpp
 		src/name_list.cpp
+		src/named_stuff.cpp
 		src/names.cpp
 		src/noob.cpp
 		src/obj.cpp
+		src/obj.spell.cpp
 		src/obj_enchant.cpp
-		src/objsave.cpp
-		src/objsave_ext.cpp
 		src/obj_sets.cpp
 		src/obj_sets_olc.cpp
-		src/obj.spell.cpp
+		src/object.prototypes.cpp
+		src/objsave.cpp
+		src/objsave_ext.cpp
 		src/oedit.cpp
 		src/olc.cpp
 		src/parcel.cpp
 		src/parse.cpp
 		src/password.cpp
-		src/fightsystem/pk.cpp
-		src/chars/player_races.cpp
 		src/poison.cpp
 		src/privilege.cpp
 		src/pugixml.cpp
 		src/quest.cpp
 		src/quested.cpp
+		src/radix.trie.cpp
 		src/random.cpp
 		src/redit.cpp
 		src/remember.cpp
@@ -137,13 +167,39 @@ set(SOURCES
 		src/room.cpp
 		src/sets_drop.cpp
 		src/shop_ext.cpp
+		src/shops.implementation.cpp
+		src/shops.implementation.cpp
 		src/shutdown.parameters.cpp
-		src/skills.cpp
+		src/skills/skills.cpp
+		src/skills/backstab.cpp
+		src/skills/bash.cpp
+		src/skills/block.cpp
+		src/skills/chopoff.cpp
+		src/skills/disarm.cpp
+		src/skills/expendientcut.cpp
+		src/skills/flee.cpp
+		src/skills/ironwind.cpp
+		src/skills/kick.cpp
+		src/skills/manadrain.cpp
+		src/skills/mighthit.cpp
+		src/skills/parry.cpp
+		src/skills/protect.cpp
+		src/skills/resque.cpp
+		src/skills/strangle.cpp
+		src/skills/stun.cpp
+		src/skills/stupor.cpp
+		src/skills/styles.cpp
+		src/skills/throw.cpp
+		src/skills/townportal.cpp
+		src/skills/turnundead.cpp
 		src/spam.cpp
 		src/spec_assign.cpp
 		src/spec_procs.cpp
+		src/speedwalks.cpp
 		src/spell_parser.cpp
 		src/spells.cpp
+		src/stigmas.cpp
+		src/strengthening.cpp
 		src/structs.cpp
 		src/structs.cpp
 		src/stuff.cpp
@@ -152,153 +208,73 @@ set(SOURCES
 		src/title.cpp
 		src/top.cpp
 		src/utils.cpp
+		src/utils.string.cpp
 		src/version.cpp
 		src/weather.cpp
-		src/zedit.cpp
-		src/utils.string.cpp
 		src/world.objects.cpp
-		src/object.prototypes.cpp
-		src/id.cpp
-		src/find.obj.id.by.vnum.cpp
-		src/global.objects.cpp
-		src/shops.implementation.cpp
-		src/chars/world.characters.cpp
-		src/debug.utils.cpp
-		src/speedwalks.cpp
-		src/shops.implementation.cpp
-		src/radix.trie.cpp
-		src/compact.trie.cpp
-		src/id.cpp
-		src/stigmas.cpp
+		src/zedit.cpp
 		src/zone.table.cpp
-		src/strengthening.cpp
-		src/skills/backstab.cpp
-		src/skills/flee.cpp
-		src/skills/bash.cpp
-		src/skills/stun.cpp
-		src/skills/resque.cpp
-		src/skills/kick.cpp
-		src/skills/strangle.cpp
-		src/skills/chopoff.cpp
-		src/skills/disarm.cpp
-		src/skills/stupor.cpp
-		src/skills/ironwind.cpp
-		src/skills/throw.cpp
-		src/skills/mighthit.cpp
-		src/skills/block.cpp
-		src/skills/parry.cpp
-		src/skills/protect.cpp
-		src/skills/expendientcut.cpp
-		src/skills/turnundead.cpp
-		src/skills/townportal.cpp
-		src/skills/manadrain.cpp
-		src/chars/mount.cpp
-		src/fightsystem/assist.cpp
-		src/fightsystem/start.fight.cpp
-		src/skills/styles.cpp
-		src/fightsystem/common.cpp
-		src/cmd/retreat.cpp
-		src/cmd/order.cpp
-		src/cmd/mercenary.cpp
-        src/core/affect_data.cpp
-		src/cmd/track.cpp
-		src/cmd/hire.cpp
-		src/cmd/telegram.cpp
-		src/cmd.wiz/stat.cpp
-        src/cmd/follow.cpp )
+		)
 
 set(HEADERS
-		src/cmd/follow.h
-		src/cmd.wiz/stat.h
-		src/cmd/telegram.h
-		src/cmd/hire.h
-		src/cmd/telegram.h
-		src/core/affect_data.h
-		src/cmd/track.h
-		src/fightsystem/common.h
-		src/fightsystem/assist.h
-		src/fightsystem/start.fight.h
-		src/cmd/retreat.h
-		src/cmd/order.h
-		src/cmd/mercenary.h
-		src/skills/styles.h
-		src/skills/manadrain.h
-		src/skills/townportal.h
-		src/skills/turnundead.h
-		src/skills/mighthit.h
-		src/skills/expendientcut.h
-		src/skills/block.h
-		src/skills/protect.h
-		src/skills/parry.h
-		src/skills/throw.h
-		src/skills/ironwind.h
-		src/skills/disarm.h
-		src/act.movement.hpp
-		src/strengthening.hpp
+		src/core/leveling.h
 		src/ability.constants.hpp
 		src/ability.rollsystem.hpp
-		src/chars/mount.h
-		src/chars/accounts.hpp
-		src/action.targeting.hpp
-		src/blocking.queue.hpp
-		src/influxdb.hpp
-		src/heartbeat.commands.hpp
-		src/weather.hpp
-		src/limits.hpp
-		src/act.wizard.hpp
-		src/heartbeat.hpp
-		src/speedwalks.hpp
-		src/chars/world.characters.hpp
-		src/shops.implementation.hpp
-		src/global.objects.hpp
-		src/find.obj.id.by.vnum.hpp
-		src/id.hpp
-		src/compact.trie.hpp
-		src/radix.trie.hpp
-		src/object.prototypes.hpp
-		src/world.objects.hpp
-		src/utils.string.hpp
+		src/act.movement.hpp
 		src/act.other.hpp
+		src/action.targeting.hpp
 		src/AffectHandler.hpp
 		src/auction.h
 		src/backtrace.hpp
 		src/ban.hpp
 		src/birth_places.hpp
+		src/blocking.queue.hpp
 		src/boards.changelog.loaders.hpp
 		src/boards.constants.hpp
 		src/boards.formatters.hpp
 		src/boards.h
 		src/boards.message.hpp
 		src/boards.types.hpp
-		src/bonus.h
 		src/bonus.command.parser.hpp
+		src/bonus.h
 		src/bonus.types.hpp
 		src/boot.constants.hpp
 		src/boot.data.files.hpp
 		src/boot.index.hpp
 		src/cache.hpp
 		src/celebrates.hpp
-		src/chars/char.hpp
 		src/char_obj_utils.inl
+		src/chars/accounts.hpp
+		src/chars/char.hpp
 		src/chars/char_player.hpp
+		src/chars/mount.h
+		src/chars/player_i.hpp
+		src/chars/player_races.hpp
+		src/chars/world.characters.hpp
 		src/class.hpp
+		src/cmd.wiz/act.wizard.hpp
+		src/cmd.wiz/stat.h
+		src/cmd/cmd.generic.h
 		src/comm.h
 		src/command.shutdown.hpp
 		src/commands.hpp
+		src/compact.trie.hpp
 		src/conf.h
 		src/config.hpp
 		src/constants.h
+		src/core/affect_data.h
 		src/coredump.hpp
 		src/corpse.hpp
 		src/daily_quest.hpp
 		src/db.h
 		src/deathtrap.hpp
+		src/debug.utils.hpp
 		src/depot.hpp
 		src/description.h
-		src/dg_db_scripts.hpp
-		src/dg_event.h
-		src/dg_olc.h
-		src/dg_scripts.h
+		src/dg/dg_db_scripts.hpp
+		src/dg/dg_event.h
+		src/dg/dg_olc.h
+		src/dg/dg_scripts.h
 		src/dictionary.hpp
 		src/diskio.h
 		src/double_map.hpp
@@ -306,60 +282,72 @@ set(HEADERS
 		src/exchange.h
 		src/ext_money.hpp
 		src/external.trigger.hpp
-		src/features.itemset.hpp
 		src/features.hpp
-        src/fightsystem/fight_constants.hpp
-        src/fightsystem/fight.h
-        src/fightsystem/fight_hit.hpp
-        src/fightsystem/fight_stuff.hpp
-        src/fightsystem/fight.penalties.hpp
+		src/features.itemset.hpp
+		src/fightsystem/assist.h
+		src/fightsystem/common.h
+		src/fightsystem/fight.h
+		src/fightsystem/fight.penalties.hpp
+		src/fightsystem/fight_constants.hpp
+		src/fightsystem/fight_hit.hpp
+		src/fightsystem/fight_stuff.hpp
+		src/fightsystem/mobact.hpp
+		src/fightsystem/pk.h
+		src/fightsystem/start.fight.h
 		src/file_crc.hpp
+		src/find.obj.id.by.vnum.hpp
 		src/genchar.h
-		src/glory_const.hpp
+		src/global.objects.hpp
 		src/glory.hpp
+		src/glory_const.hpp
 		src/glory_misc.hpp
+		src/graph.h
+		src/grp/grp.main.h
 		src/handler.h
+		src/heartbeat.commands.hpp
+		src/heartbeat.hpp
 		src/help.hpp
-		src/house_exp.hpp
 		src/house.h
+		src/house_exp.hpp
+		src/id.hpp
 		src/ignores.hpp
 		src/ignores.loader.hpp
 		src/im.h
+		src/influxdb.hpp
 		src/interpreter.h
 		src/item.creation.hpp
 		src/levenshtein.hpp
+		src/limits.hpp
 		src/liquid.hpp
 		src/logger.hpp
 		src/magic.h
 		src/mail.h
 		src/map.hpp
 		src/meat.maker.hpp
-		src/fightsystem/mobact.hpp
-		src/mobmax.hpp
 		src/mob_stat.hpp
+		src/mobmax.hpp
 		src/modify.h
 		src/morph.hpp
-		src/named_stuff.hpp
 		src/name_list.hpp
+		src/named_stuff.hpp
 		src/noob.hpp
-		src/obj_enchant.hpp
 		src/obj.hpp
-		src/objsave.h
+		src/obj_enchant.hpp
 		src/obj_sets.hpp
 		src/obj_sets_stuff.hpp
+		src/object.prototypes.hpp
+		src/objsave.h
 		src/olc.h
 		src/parcel.hpp
 		src/parse.hpp
 		src/password.hpp
-		src/fightsystem/pk.h
-		src/chars/player_i.hpp
-		src/chars/player_races.hpp
 		src/poison.hpp
 		src/privilege.hpp
 		src/pugiconfig.hpp
 		src/pugixml.hpp
-		src/quested.hpp
 		src/quest.hpp
+		src/quested.hpp
+		src/radix.trie.hpp
 		src/random.hpp
 		src/remember.hpp
 		src/reset_stats.hpp
@@ -367,11 +355,36 @@ set(HEADERS
 		src/screen.h
 		src/sets_drop.hpp
 		src/shop_ext.hpp
+		src/shops.implementation.hpp
 		src/shutdown.parameters.hpp
-		src/skills.h
+		src/skills/skills.h
+		src/skills/backstab.h
+		src/skills/bash.h
+		src/skills/block.h
+		src/skills/chopoff.h
+		src/skills/disarm.h
+		src/skills/expendientcut.h
+		src/skills/flee.h
+		src/skills/ironwind.h
+		src/skills/kick.h
+		src/skills/manadrain.h
+		src/skills/mighthit.h
+		src/skills/parry.h
+		src/skills/protect.h
+		src/skills/resque.h
+		src/skills/strangle.h
+		src/skills/stun.h
+		src/skills/stupor.h
+		src/skills/styles.h
+		src/skills/throw.h
+		src/skills/townportal.h
+		src/skills/turnundead.h
 		src/spam.hpp
+		src/speedwalks.hpp
 		src/spell_parser.hpp
 		src/spells.h
+		src/stigmas.hpp
+		src/strengthening.hpp
 		src/structs.h
 		src/stuff.hpp
 		src/sysdep.h
@@ -381,20 +394,12 @@ set(HEADERS
 		src/title.hpp
 		src/top.h
 		src/utils.h
+		src/utils.string.hpp
+		src/weather.hpp
+		src/world.objects.hpp
 		src/xml_loading_helper.hpp
-		src/debug.utils.hpp
-		src/stigmas.hpp
 		src/zone.table.hpp
-		src/skills/flee.h
-		src/skills/backstab.h
-		src/skills/bash.h
-		src/skills/stun.h
-		src/skills/resque.h
-		src/skills/kick.h
-		src/skills/strangle.h
-		src/skills/chopoff.h
-		src/skills/stupor.h
-		src/graph.h)
+)
 
 set(CONFIGURATION_FILES lib.template/misc/configuration.xml)
 # Build types
@@ -571,7 +576,14 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES})
+set(CIRCLE_FILES
+	${SOURCES}
+	${HEADERS}
+	${CRAFT_FILES}
+	${MISC_FILES}
+	readme.markdown
+	CONTRIBUTING.md
+    )
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
@@ -748,8 +760,8 @@ endif ()
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0    -Wall -Wextra")
-		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT}")
-#		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT} ${TESTBUILD_DEFINITIONS}")
+		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT} -DLOG_AUTOFLUSH")
+#		set(CMAKE_CXX_FLAGS_DEBUG "-ggdb3 -O0    -Wall -Wextra -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT} ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_TEST     "       -Og    -Wall -Wextra ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "       -Ofast -Wall -Wextra ${TESTBUILD_DEFINITIONS}")
 

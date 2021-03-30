@@ -5,6 +5,7 @@
 #include "chars/player_races.hpp"
 #include "char_obj_utils.inl"
 #include "description.h"
+#include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
 #include "fightsystem/pk.h"
 #include "olc.h"

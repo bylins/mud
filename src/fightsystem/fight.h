@@ -161,8 +161,6 @@ void alt_equip(CHAR_DATA *ch, int pos, int dam, int chance);
 void char_dam_message(int dam, CHAR_DATA *ch, CHAR_DATA *victim, bool mayflee);
 void test_self_hitroll(CHAR_DATA *ch);
 
-int calc_leadership(CHAR_DATA * ch);
-
 #endif
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

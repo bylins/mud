@@ -14,19 +14,42 @@
 
 #include "magic.h"
 
-#include "cmd/hire.h"
+#include "cmd/cmd.generic.h"
 #include "action.targeting.hpp"
-#include "chars/world.characters.hpp"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "handler.h"
-#include "screen.h"
-#include "fightsystem/pk.h"
-#include "fightsystem/fight.h"
-#include "random.hpp"
-#include "modify.h"
 #include "AffectHandler.hpp"
+#include "char_obj_utils.inl"
+#include "chars/char.hpp"
+#include "chars/world.characters.hpp"
+#include "comm.h"
+#include "conf.h"
+#include "constants.h"
+#include "core/affect_data.h"
 #include "corpse.hpp"
+#include "db.h"
+#include "deathtrap.hpp"
+#include "dg/dg_scripts.h"
+#include "features.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/pk.h"
+#include "grp/grp.main.h"
+#include "handler.h"
+#include "interpreter.h"
+#include "logger.hpp"
+#include "modify.h"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
+#include "poison.hpp"
+#include "random.hpp"
+#include "room.hpp"
+#include "screen.h"
+#include "skills/skills.h"
+#include "spells.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "utils.h"
+#include "world.objects.hpp"
+#include "zone.table.hpp"
+
 
 #include <boost/format.hpp>
 #include <iomanip>
@@ -2950,7 +2973,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 		if (ch != victim && (AFF_FLAGGED(victim, EAffectFlag::AFF_SHIELD) ||
 							 general_savingthrow(ch, victim, savetype, modi - GET_REAL_CON(victim) / 2)))
 		{
-			if (ch->in_room == IN_ROOM(victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
+			if (SAME_ROOM(ch, victim)) // Добавлено чтобы яд нанесенный SPELL_POISONED_FOG не спамил чару постоянно
 				send_to_char(NOEFFECT, ch);
 			success = FALSE;
 			break;
@@ -3415,7 +3438,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 				|| (ch != victim
 					&& affected_by_spell(victim, SPELL_DEAFNESS)))
 			{
-				if (ch->in_room == IN_ROOM(victim))
+				if (SAME_ROOM(ch, victim))
 					send_to_char(NOEFFECT, ch);
 			}
 			else
@@ -3965,7 +3988,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	if (IS_NPC(victim) && success){
 		for (i = 0; i < MAX_SPELL_AFFECTS && success; ++i) {
 			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], static_cast<EAffectFlag>(af[i].bitvector))) {
-				if (ch->in_room == IN_ROOM(victim)){
+				if (SAME_ROOM(ch, victim)){
 					send_to_char(NOEFFECT, ch);
 				}
 				success = FALSE;
@@ -3978,7 +4001,7 @@ int mag_affects(int level, CHAR_DATA * ch, CHAR_DATA * victim, int spellnum, int
 	}
 	// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
 	if ((ch != victim) && affected_by_spell(victim, spellnum) && success && (!update_spell)) {
-		if (ch->in_room == IN_ROOM(victim))
+		if (SAME_ROOM(ch, victim))
 			send_to_char(NOEFFECT, ch);
 		success = FALSE;
 	}
@@ -4349,7 +4372,7 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 		mob->set_skill(SKILL_RESCUE, 100);
 	}
 
-	MOB_FLAGS(mob).set(MOB_CORPSE);
+	MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
 	if (spellnum == SPELL_CLONE) {
 		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
 		mob->set_pc_name(buf2);
@@ -4404,6 +4427,8 @@ int mag_summons(int level, CHAR_DATA * ch, OBJ_DATA * obj, int spellnum, int sav
 	act(mag_summon_msgs[msg], FALSE, ch, 0, mob, TO_ROOM | TO_ARENA_LISTEN);
 
 	ch->add_follower(mob);
+	if (ch->personGroup != nullptr)
+	    ch->personGroup->addMember(mob, true);
 	if (spellnum == SPELL_CLONE)
 	{
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано

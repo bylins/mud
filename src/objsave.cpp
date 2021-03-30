@@ -31,7 +31,7 @@
 #include "named_stuff.hpp"
 #include "room.hpp"
 #include "mail.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "char_obj_utils.inl"
 #include "structs.h"
@@ -3448,8 +3448,7 @@ void Crash_save_all_rent(void)
 			save_char_objects(ch.get(), RENT_FORCED, 0);
 			log("Saving char: %s", GET_NAME(ch));
 			PLR_FLAGS(ch).unset(PLR_CRASH);
-			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
-			(ch.get())->removeGroupFlags();
+			(ch.get())->removeGroupFlags(true);
 			AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_HORSE);
 			extract_char(ch.get(), FALSE);
 		}

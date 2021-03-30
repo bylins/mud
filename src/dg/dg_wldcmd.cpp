@@ -10,12 +10,10 @@
 **************************************************************************/
 
 #include "chars/char.hpp"
-#include "cmd/follow.h"
+#include "grp/grp.main.h"
 #include "comm.h"
-#include "conf.h"
+#include "core/leveling.h"
 #include "db.h"
-#include "deathtrap.hpp"
-#include "dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
 #include "handler.h"
@@ -26,7 +24,7 @@
 #include "obj.hpp"
 #include "object.prototypes.hpp"
 #include "room.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "skills/townportal.h"
 #include "spell_parser.hpp"
 #include "spells.h"
@@ -502,7 +500,7 @@ void do_wexp(ROOM_DATA *room, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if ((ch = get_char_by_room(room, name)))
 	{
-		gain_exp(ch, atoi(amount));
+        ExpCalc::gain_exp(ch, atoi(amount));
 		sprintf(buf, "wexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
 		wld_log(room, buf);
 	}

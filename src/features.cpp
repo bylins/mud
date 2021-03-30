@@ -23,12 +23,12 @@
 #include "room.hpp"
 #include "screen.h"
 #include "fightsystem/pk.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "room.hpp"
 #include "house.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "utils.h"
 #include "structs.h"
 #include "sysdep.h"
@@ -1252,7 +1252,7 @@ void do_spell_capable(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			&& k->follower->get_master() == ch
 			&& MOB_FLAGGED(k->follower, MOB_CLONE)
 			&& !affected_by_spell(k->follower, SPELL_CAPABLE)
-			&& ch->in_room == IN_ROOM(k->follower))
+			&& SAME_ROOM(ch, k->follower))
 		{
 			follower = k->follower;
 			break;
@@ -1558,7 +1558,7 @@ void activateFeature(CHAR_DATA *ch, int featureNum) {
 		PRF_FLAGS(ch).set(PRF_GREATAIMINGATTACK);
 		break;
 	case SKIRMISHER_FEAT:
-		if (!AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+		if (ch->personGroup == nullptr) {
 			send_to_char(ch, "Голос десятника Никифора вдруг рявкнул: \"%s, тюрюхайло! 'В шеренгу по одному' иначе сполняется!\"\r\n", ch->get_name().c_str());
 			return;
 		}
@@ -1598,7 +1598,7 @@ void deactivateFeature(CHAR_DATA *ch, int featureNum) {
 		break;
 	case SKIRMISHER_FEAT:
 		PRF_FLAGS(ch).unset(PRF_SKIRMISHER);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP)) {
+		if (ch->personGroup != nullptr) {
 			send_to_char("Вы решили, что в обозе вам будет спокойней.\r\n", ch);
 			act("$n0 тактически отступил$g в тыл отряда.", FALSE, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}

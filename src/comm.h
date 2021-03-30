@@ -36,6 +36,7 @@ void send_to_room(const char *messg, room_rnum room, int to_awake);
 void send_to_outdoor(const char *messg, int control);
 void send_to_gods(const char *messg);
 void perform_to_all(const char *messg, CHAR_DATA * ch);
+char *color_value(CHAR_DATA* /*ch*/, int real, int max);
 #ifdef HAS_EPOLL
 void close_socket(DESCRIPTOR_DATA * d, int direct, int epoll, struct epoll_event *events, int n_ev);
 #else
@@ -77,6 +78,7 @@ unsigned long get_ip(const char *addr);
 #define TO_ARENA_LISTEN     512  // не отсылать сообщение с арены слушателям, чтоб не спамить передвижениями и тп
 #define TO_BRIEF_SHIELDS    1024 // отсылать только тем, у кого включен режим PRF_BRIEF_SHIELDS
 #define TO_NO_BRIEF_SHIELDS 2048 // отсылать только тем, у кого нет режима PRF_BRIEF_SHIELDS
+
 
 // I/O functions
 int write_to_descriptor(socket_t desc, const char *txt, size_t total);

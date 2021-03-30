@@ -12,55 +12,57 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "world.objects.hpp"
-#include "chars/world.characters.hpp"
-#include "object.prototypes.hpp"
-#include "logger.hpp"
-#include "shutdown.parameters.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "skills.h"
-#include "fightsystem/fight.h"
-#include "fightsystem/fight_hit.hpp"
-#include "screen.h"
-#include "constants.h"
-#include "fightsystem/pk.h"
-#include "dg_scripts.h"
-#include "mail.h"
-#include "parcel.hpp"
-#include "features.hpp"
-#include "im.h"
-#include "house.h"
-#include "description.h"
-#include "privilege.hpp"
-#include "depot.hpp"
-#include "glory.hpp"
-#include "random.hpp"
+#include "bonus.h"
+#include "char_obj_utils.inl"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
-#include "parcel.hpp"
-#include "liquid.hpp"
-#include "modify.h"
-#include "room.hpp"
-#include "glory_const.hpp"
 #include "chars/player_races.hpp"
-#include "corpse.hpp"
-#include "sets_drop.hpp"
-#include "help.hpp"
-#include "map.hpp"
-#include "ext_money.hpp"
-#include "mob_stat.hpp"
-#include "char_obj_utils.inl"
+#include "chars/world.characters.hpp"
 #include "class.hpp"
-#include "zone.table.hpp"
+#include "comm.h"
+#include "core/leveling.h"
+#include "conf.h"
+#include "constants.h"
+#include "corpse.hpp"
+#include "db.h"
+#include "depot.hpp"
+#include "description.h"
+#include "dg/dg_scripts.h"
+#include "ext_money.hpp"
+#include "features.hpp"
+#include "fightsystem/fight.h"
+#include "fightsystem/fight_hit.hpp"
+#include "fightsystem/pk.h"
+#include "glory.hpp"
+#include "glory_const.hpp"
+#include "grp/grp.main.h"
+#include "handler.h"
+#include "help.hpp"
+#include "house.h"
+#include "im.h"
+#include "interpreter.h"
+#include "liquid.hpp"
+#include "logger.hpp"
+#include "mail.h"
+#include "map.hpp"
+#include "mob_stat.hpp"
+#include "modify.h"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
+#include "parcel.hpp"
+#include "parcel.hpp"
+#include "privilege.hpp"
+#include "random.hpp"
+#include "room.hpp"
+#include "screen.h"
+#include "sets_drop.hpp"
+#include "shutdown.parameters.hpp"
+#include "skills/skills.h"
+#include "spells.h"
 #include "structs.h"
 #include "sysdep.h"
-#include "bonus.h"
-#include "conf.h"
+#include "world.objects.hpp"
+#include "zone.table.hpp"
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -71,9 +73,11 @@
 #include <vector>
 
 using std::string;
+using namespace ExpCalc;
 
 // extern variables
 extern DESCRIPTOR_DATA *descriptor_list;
+extern GroupRoster& groupRoster;
 extern int number_of_social_commands;
 extern char *credits;
 extern char *info;
@@ -92,9 +96,7 @@ extern int nameserver_is_slow; //config.cpp
 extern std::vector<City> cities;
 // extern functions
 long find_class_bitvector(char arg);
-int level_exp(CHAR_DATA * ch, int level);
 TIME_INFO_DATA *real_time_passed(time_t t2, time_t t1);
-int compute_armor_class(CHAR_DATA * ch);
 int pk_count(CHAR_DATA * ch);
 // local functions
 const char *show_obj_to_char(OBJ_DATA * object, CHAR_DATA * ch, int mode, int show_state, int how);
@@ -1280,7 +1282,7 @@ void list_one_char(CHAR_DATA * i, CHAR_DATA * ch, int skill_mode)
 	if (IS_NPC(i)
 		&& i->player_data.long_descr != ""
 		&& GET_POS(i) == GET_DEFAULT_POS(i)
-		&& ch->in_room == i->in_room
+		&& SAME_ROOM(ch, i)
 		&& !AFF_FLAGGED(i, EAffectFlag::AFF_CHARM)
 		&& !IS_HORSE(i))
 	{
@@ -1685,7 +1687,7 @@ void list_char_to_char(const ROOM_DATA::people_t& list, CHAR_DATA* ch)
 				list_one_char(i, ch, 0);
 			}
 			else if (IS_DARK(i->in_room)
-				&& i->in_room == ch->in_room
+				&& SAME_ROOM(ch, i)
 				&& !CAN_SEE_IN_DARK(ch)
 				&& AFF_FLAGGED(i, EAffectFlag::AFF_INFRAVISION))
 			{
@@ -3815,9 +3817,8 @@ void print_do_score_all(CHAR_DATA *ch)
 		sprintf(buf + strlen(buf),
 				" || %sВы можете вступить в группу с максимальной разницей                             %s||\r\n"
 				" || %sв %2d %-75s%s||\r\n",
-				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))],
-				(string(desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))], WHAT_LEVEL))
+				CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+				CCNRM(ch, C_NRM), groupRoster.getPenalty(ch), (string(desc_count(groupRoster.getPenalty(ch), WHAT_LEVEL))
 				 + string(" без потерь для опыта.")).substr(0, 76).c_str(), CCCYN(ch, C_NRM));
 
 	if (RENTABLE(ch))
@@ -4085,8 +4086,7 @@ void do_score(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		sprintf(buf + strlen(buf),
 				"Вы можете вступить в группу с максимальной разницей в %d %s без потерь для опыта.\r\n",
-				grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))],
-				desc_count(grouping[static_cast<int>(GET_CLASS(ch))][static_cast<int>(GET_REMORT(ch))], WHAT_LEVEL));
+                groupRoster.getPenalty(ch), desc_count(groupRoster.getPenalty(ch), WHAT_LEVEL));
 	}
 
 	//Напоминаем о метке, если она есть.
@@ -5466,48 +5466,6 @@ void do_users(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	page_string(ch->desc, line, TRUE);
 }
 
-void sendWhoami(CHAR_DATA *ch) {
-    sprintf(buf, "Персонаж : %s\r\n", GET_NAME(ch));
-    sprintf(buf + strlen(buf),
-            "Падежи : &W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n/&W%s&n\r\n",
-            ch->get_name().c_str(), GET_PAD(ch, 1), GET_PAD(ch, 2),
-            GET_PAD(ch, 3), GET_PAD(ch, 4), GET_PAD(ch, 5));
-
-    sprintf(buf + strlen(buf), "Ваш e-mail : &S%s&s\r\n", GET_EMAIL(ch));
-    time_t birt = ch->player_data.time.birth;
-    sprintf(buf + strlen(buf), "Дата вашего рождения : %s\r\n", rustime(localtime(&birt)));
-    sprintf(buf + strlen(buf), "Ваш IP-адрес : %s\r\n", ch->desc ? ch->desc->host : "Unknown");
-    send_to_char(buf, ch);
-    if (!NAME_GOD(ch))
-    {
-        sprintf(buf, "Имя никем не одобрено!\r\n");
-        send_to_char(buf, ch);
-    }
-    else
-    {
-        const int god_level = NAME_GOD(ch) > 1000 ? NAME_GOD(ch) - 1000 : NAME_GOD(ch);
-        sprintf(buf1, "%s", get_name_by_id(NAME_ID_GOD(ch)));
-        *buf1 = UPPER(*buf1);
-
-        static const char *by_rank_god = "Богом";
-        static const char *by_rank_privileged = "привилегированным игроком";
-        const char * by_rank = god_level < LVL_IMMORT ?  by_rank_privileged : by_rank_god;
-
-        if (NAME_GOD(ch) < 1000)
-            sprintf(buf, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
-        else
-            sprintf(buf, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);
-        send_to_char(buf, ch);
-    }
-    sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(ch));
-    send_to_char(buf, ch);
-    Clan::CheckPkList(ch);
-    if (ch->player_specials->saved.telegram_id != 0) { //тут прямое обращение, ибо базовый класс, а не наследник
-        send_to_char(ch, "Подключен Телеграм, chat_id: %lu\r\n", ch->player_specials->saved.telegram_id);
-    }
-
-}
-
 // Generic page_string function for displaying text
 void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 {
@@ -5541,11 +5499,6 @@ void do_gen_ps(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int subcmd)
 	case SCMD_VERSION:
 		show_code_date(ch);
 		break;
-	case SCMD_WHOAMI:
-	{
-        sendWhoami(ch);
-		break;
-	}
 	default:
 		log("SYSERR: Unhandled case in do_gen_ps. (%d)", subcmd);
 		return;
@@ -5966,8 +5919,11 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			" Оффтоп        : %-3s \r\n"
 			" Потеря связи  : %-3s     "
 			" Ингредиенты   : %-3s     "
-			" Вспомнить     : %-3u \r\n",
-			ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
+			" Вспомнить     : %-3u \r\n"
+            " ГрупВыход     : %-3s     "
+            "               : %-3s     "
+            "               : %-3s \r\n",
+            ONOFF(PRF_FLAGGED(ch, PRF_AUTOEXIT)),
 			ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
 			ONOFF(PRF_FLAGGED(ch, PRF_COMPACT)),
 			YESNO(!PRF_FLAGGED(ch, PRF_NOREPEAT)),
@@ -6006,7 +5962,11 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 			ONOFF(PRF_FLAGGED(ch, PRF_OFFTOP_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_ANTIDC_MODE)),
 			ONOFF(PRF_FLAGGED(ch, PRF_NOINGR_MODE)),
-			ch->remember_get_num());
+			ch->remember_get_num(),
+            ONOFF(PRF_FLAGGED(ch, PRF_FOLLOW_GRP_EXIT)),
+            "",
+            ""
+			);
 	send_to_char(buf, ch);
 	if (NOTIFY_EXCH_PRICE(ch) > 0)
 	{

@@ -14,7 +14,7 @@
 #include "interpreter.h"
 #include "boards.h"
 #include "privilege.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "constants.h"
 #include "char_player.hpp"
 #include "spells.h"
@@ -29,7 +29,7 @@
 #include "utils.h"
 #include "msdp.constants.hpp"
 #include "backtrace.hpp"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "zone.table.hpp"
 
 #include <boost/format.hpp>
@@ -39,8 +39,13 @@
 #include <algorithm>
 #include <iostream>
 
+#include "grp/grp.main.h"
+
+extern GroupRoster& groupRoster;
+
 std::string PlayerI::empty_const_str;
 MapSystem::Options PlayerI::empty_map_options;
+
 
 namespace
 {
@@ -120,6 +125,7 @@ CHAR_DATA::CHAR_DATA() :
 	current_morph_ = GetNormalMorphNew(this);
 	caching::character_cache.add(this);
 	this->set_skill(SKILL_GLOBAL_COOLDOWN, 1);
+	this->personGroup = nullptr;
 }
 
 CHAR_DATA::~CHAR_DATA()
@@ -605,6 +611,11 @@ void CHAR_DATA::purge()
 		free(follower);
 		follower = next_one;
 	}
+
+	// чистим указатель в групе
+	if (this->personGroup != nullptr)
+	    this->personGroup->charDataPurged(this);
+	groupRoster.charDataPurged(this);
 }
 
 // * Скилл с учетом всех плюсов и минусов от шмоток/яда.
@@ -890,6 +901,7 @@ OBJ_DATA * CHAR_DATA::get_cast_obj() const
 
 bool IS_CHARMICE(const CHAR_DATA* ch)
 {
+    if (!ch) return false;
 	return IS_NPC(ch)
 		&& (AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER)
 			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM));
@@ -897,6 +909,7 @@ bool IS_CHARMICE(const CHAR_DATA* ch)
 
 bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 {
+    if (!sub) return false;
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
 		&& (IS_LIGHT((obj)->in_room)
@@ -905,6 +918,7 @@ bool MORT_CAN_SEE(const CHAR_DATA* sub, const CHAR_DATA* obj)
 
 bool MAY_SEE(const CHAR_DATA* ch, const CHAR_DATA* sub, const CHAR_DATA* obj)
 {
+    if (!ch) return false;
 	return !(GET_INVIS_LEV(ch) > 30)
 		&& !AFF_FLAGGED(sub, EAffectFlag::AFF_BLIND)
 		&& (!IS_DARK(sub->in_room)
@@ -920,12 +934,21 @@ bool IS_HORSE(const CHAR_DATA* ch)
 		&& AFF_FLAGGED(ch, EAffectFlag::AFF_HORSE);
 }
 
+bool IS_HIRED(const CHAR_DATA* ch)
+{
+	return IS_NPC(ch)
+		   && ch->has_master()
+		   && AFF_FLAGGED(ch, EAffectFlag::AFF_HELPER);
+}
+
 bool IS_MORTIFIER(const CHAR_DATA* ch)
 {
 	return IS_NPC(ch)
 		&& ch->has_master()
 		&& MOB_FLAGGED(ch, MOB_CORPSE);
 }
+
+
 
 bool MAY_ATTACK(const CHAR_DATA* sub)
 {
@@ -949,16 +972,12 @@ bool AWAKE(const CHAR_DATA* ch)
 
 bool OK_GAIN_EXP(const CHAR_DATA* ch, const CHAR_DATA* victim)
 {
-	return !NAME_BAD(ch)
-		&& (NAME_FINE(ch)
-			|| !(GET_LEVEL(ch) == NAME_LEVEL))
-		&& !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-		&& IS_NPC(victim)
-		&& (GET_EXP(victim) > 0)
-		&& (!IS_NPC(victim)
-			|| !IS_NPC(ch)
-			|| AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
-		&& !IS_HORSE(victim);
+    return !NAME_BAD(ch)
+           && (NAME_FINE(ch) || !(GET_LEVEL(ch) == NAME_LEVEL))
+           && !ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
+           && IS_NPC(victim)
+           && (GET_EXP(victim) > 0)
+           && !IS_CHARMICE(victim);
 }
 
 bool IS_MALE(const CHAR_DATA* ch)
@@ -2013,9 +2032,14 @@ void CHAR_DATA::msdp_report(const std::string& name) {
 	}
 }
 
-void CHAR_DATA::removeGroupFlags() {
-		AFF_FLAGS(this).unset(EAffectFlag::AFF_GROUP);
-		PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+void CHAR_DATA::removeGroupFlags(bool reboot) {
+    if (personGroup == nullptr)
+        return;
+    // чармис всегда, персонаж по настройке, или при ребуте
+    if (IS_CHARMICE(this) || !PRF_FLAGGED(this, PRF_FOLLOW_GRP_EXIT) || reboot) {
+        PRF_FLAGS(this).unset(PRF_SKIRMISHER);
+        personGroup->_removeMember(this);
+    }
 }
 
 void CHAR_DATA::add_follower(CHAR_DATA* ch) {
@@ -2354,7 +2378,7 @@ bool CHAR_DATA::has_horse(bool same_room) const {
 
     for (f = this->followers; f; f = f->next) {
         if (IS_NPC(f->follower) && AFF_FLAGGED(f->follower, EAffectFlag::AFF_HORSE)
-            && (!same_room || this->in_room == IN_ROOM(f->follower))) {
+            && (!same_room || SAME_ROOM(this, f->follower))) {
             return true;
         }
     }

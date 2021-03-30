@@ -17,6 +17,14 @@
 
 #include "db.h"
 
+#include <sys/stat.h>
+#include <sstream>
+#include <string>
+#include <cmath>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/format.hpp>
+
 #include "ban.hpp"
 #include "birth_places.hpp"
 #include "boards.h"
@@ -28,12 +36,11 @@
 #include "chars/player_races.hpp"
 #include "chars/world.characters.hpp"
 #include "class.hpp"
-#include "cmd/follow.h"
 #include "corpse.hpp"
 #include "deathtrap.hpp"
 #include "depot.hpp"
-#include "dg_db_scripts.hpp"
-#include "dg_scripts.h"
+#include "dg/dg_db_scripts.hpp"
+#include "dg/dg_scripts.h"
 #include "ext_money.hpp"
 #include "fightsystem/fight.h"
 #include "file_crc.hpp"
@@ -45,6 +52,7 @@
 #include "help.hpp"
 #include "house.h"
 #include "item.creation.hpp"
+#include "core/leveling.h"
 #include "liquid.hpp"
 #include "logger.hpp"
 #include "mail.h"
@@ -69,14 +77,6 @@
 #include "top.h"
 #include "utils.h"
 #include "world.objects.hpp"
-
-#include <boost/algorithm/string.hpp>
-#include <boost/format.hpp>
-#include <sys/stat.h>
-#include <sstream>
-#include <string>
-#include <cmath>
-#include <boost/lexical_cast.hpp>
 
 #define CRITERION_FILE "criterion.xml"
 #define CASES_FILE "cases.xml"
@@ -231,7 +231,7 @@ void calc_easter(void);
 void do_start(CHAR_DATA * ch, int newbie);
 extern void repop_decay(zone_rnum zone);	// рассыпание обьектов ITEM_REPOP_DECAY
 int real_zone(int number);
-int level_exp(CHAR_DATA * ch, int level);
+
 extern char *fread_action(FILE * fl, int nr);
 void load_mobraces();
 
@@ -2704,7 +2704,7 @@ void boot_db(void)
 
 	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
-	if (grouping.init())
+	if (GlobalObjects::groupRoster().initPenaltyTable() != 0)
 	{
 		exit(1);
 	}
@@ -3384,8 +3384,8 @@ int dl_load_obj(OBJ_DATA * corpse, CHAR_DATA * ch, CHAR_DATA * chr, int DL_LOAD_
 					{
 						trans_obj_name(tobj.get(), ch);
 					}
-					// Добавлена проверка на отсутствие трупа
-					if (MOB_FLAGGED(ch, MOB_CORPSE))
+					// Нежить и саммоны не оставляют трупов
+					if (MOB_FLAGGED(ch, MOB_PLAYER_SUMMON) || MOB_FLAGGED(ch, MOB_CORPSE))
 					{
 						act("На земле остал$U лежать $o.", FALSE, ch, tobj.get(), 0, TO_ROOM);
 						obj_to_room(tobj.get(), ch->in_room);
@@ -3948,7 +3948,7 @@ CHAR_DATA *read_mobile(mob_vnum nr, int type)
 	}
 	else
 	{
-		MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
+		MOB_FLAGS(mob).set(MOB_CORPSE);
 	}
 
 	i = mob_index[i].zone;
@@ -4167,8 +4167,7 @@ void paste_mob(CHAR_DATA *ch, room_rnum room)
 	{
 		return;
 	}
-//	if (MOB_FLAGGED(ch, MOB_CORPSE))
-//		return;
+
 	if (room == NOWHERE)
 		return;
 
@@ -5411,17 +5410,17 @@ long cmp_ptable_by_name(char *name, int len)
 
 long get_ptable_by_name(const char *name)
 {
-	one_argument(name, arg);
+	one_argument(name, smallBuf);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
 	for (std::size_t i = 0; i < player_table.size(); i++)
 	{
 		const char* pname = player_table[i].name();
-		if (!str_cmp(pname, arg))
+		if (!str_cmp(pname, smallBuf))
 		{
 			return static_cast<long>(i);
 		}
 	}
-	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
+	sprintf(buf, "Char %s(%s) not found !!!", name, smallBuf);
 	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, FALSE);
 	return (-1);
 }
@@ -5689,7 +5688,7 @@ void do_remort(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		send_to_char("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
-	if (GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
+	if (GET_EXP(ch) < ExpCalc::level_exp(ch, LVL_IMMORT) - 1)
 	{
 		send_to_char("ЧАВО???\r\n", ch);
 		return;

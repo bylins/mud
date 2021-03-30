@@ -89,13 +89,9 @@ private:
 	flags_t m_flags;
 };
 
-int compute_armor_class(CHAR_DATA * ch);
-
-int check_agro_follower(CHAR_DATA * ch, CHAR_DATA * victim);
 void set_battle_pos(CHAR_DATA * ch);
 
 void gain_battle_exp(CHAR_DATA *ch, CHAR_DATA *victim, int dam);
-void perform_group_gain(CHAR_DATA * ch, CHAR_DATA * victim, int members, int koef);
 void group_gain(CHAR_DATA * ch, CHAR_DATA * victim);
 
 char *replace_string(const char *str, const char *weapon_singular, const char *weapon_plural);

@@ -10,7 +10,7 @@
 #define __FEATURES_HPP__
 
 #include "features.itemset.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "structs.h"
 #include "conf.h"
 

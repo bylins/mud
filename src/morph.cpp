@@ -9,7 +9,7 @@
 #include "spells.h"
 #include "chars/char.hpp"
 #include "comm.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "db.h"
 #include "logger.hpp"
 #include "utils.h"

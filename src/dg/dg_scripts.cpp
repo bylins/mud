@@ -10,47 +10,44 @@
 
 #include "dg_scripts.h"
 
-#include "global.objects.hpp"
-#include "chars/world.characters.hpp"
-#include "heartbeat.hpp"
-#include "find.obj.id.by.vnum.hpp"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "obj.hpp"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "dg_event.h"
-#include "db.h"
-#include "screen.h"
-#include "house.h"
-#include "constants.h"
-#include "top.h"
-#include "features.hpp"
+#include "backtrace.hpp"
+#include "bonus.h"
 #include "chars/char.hpp"
 #include "chars/char_player.hpp"
-#include "name_list.hpp"
-#include "modify.h"
-#include "room.hpp"
-#include "named_stuff.hpp"
-#include "spell_parser.hpp"
-#include "spells.h"
-#include "skills.h"
-#include "noob.hpp"
-#include "genchar.h"
-#include "logger.hpp"
-#include "utils.h"
-#include "structs.h"
-#include "sysdep.h"
-#include "conf.h"
-#include "dg_db_scripts.hpp"
-#include "bonus.h"
-#include "zone.table.hpp"
+#include "chars/world.characters.hpp"
+#include "comm.h"
+#include "core/leveling.h"
+#include "constants.h"
+#include "db.h"
 #include "debug.utils.hpp"
-#include "backtrace.hpp"
-#include "coredump.hpp"
+#include "dg_db_scripts.hpp"
+#include "dg_event.h"
+#include "features.hpp"
+#include "find.obj.id.by.vnum.hpp"
+#include "global.objects.hpp"
+#include "handler.h"
+#include "house.h"
+#include "interpreter.h"
+#include "logger.hpp"
+#include "modify.h"
+#include "named_stuff.hpp"
+#include "noob.hpp"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
 #include "olc.h"
 #include "privilege.hpp"
+#include "room.hpp"
+#include "screen.h"
+#include "skills/skills.h"
+#include "spell_parser.hpp"
+#include "spells.h"
+#include "structs.h"
+#include "sysdep.h"
+#include "utils.h"
+#include "world.objects.hpp"
+#include "zone.table.hpp"
+
+using namespace ExpCalc;
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
 
@@ -2303,6 +2300,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "arenahp"))
 		{
+		    // TODO: переписать эту сраку, непонятно ни фига
 			CHAR_DATA *k;
 			struct follow_type *f;
 			int arena_hp = GET_HIT(c);
@@ -2319,7 +2317,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				{
 					can_use = 1;
 				}
-				else if (AFF_FLAGGED(k, EAffectFlag::AFF_GROUP))
+				else if (IN_GROUP(k))
 				{
 					if (!IS_NPC(k) && (GET_CLASS(k) == 8 || GET_CLASS(k) == 13) //чернок или волхв может использовать ужи на согруппов
 						&& world[IN_ROOM(k)]->zone == world[IN_ROOM(c)]->zone) //но только если находится в той же зоне
@@ -2330,9 +2328,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					{
 						for (f = k->followers; f; f = f->next)
 						{
-							if (IS_NPC(f->follower)
-								|| !AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-							{
+							if (IS_NPC(f->follower) || !IN_SAME_GROUP(k, f->follower)) {
 								continue;
 							}
 							if ((GET_CLASS(f->follower) == 8
@@ -3096,26 +3092,13 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 		}
 		else if (!str_cmp(field, "group"))
 		{
-			CHAR_DATA *l;
-			struct follow_type *f;
-			if (!AFF_FLAGGED(c, EAffectFlag::AFF_GROUP))
-			{
+            if (!IN_GROUP(c)) {
 				return;
 			}
-			l = c->get_master();
-			if (!l)
-			{
-				l = c;
-			}
-			// l - лидер группы
-			sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(l));
-			for (f = l->followers; f; f = f->next)
-			{
-				if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-				{
-					continue;
-				}
-				sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(f->follower));
+			for (auto &it : *c->personGroup) {
+			    // мы же про одну комнату в триггере говорим, да?
+			    if (it.second->member != nullptr && IN_ROOM(c) == IN_ROOM(it.second->member) )
+				    sprintf(str + strlen(str), "%c%ld ", UID_CHAR, GET_ID(it.second->member));
 			}
 		}
 		else if (!str_cmp(field, "attackers"))

@@ -1,19 +1,20 @@
 #include "fight_hit.hpp"
 
-#include "logger.hpp"
-#include "handler.h"
-#include "screen.h"
-#include "dg_scripts.h"
-#include "skills.h"
-#include "magic.h"
-#include "pk.h"
-#include "dps.hpp"
-#include "house_exp.hpp"
-#include "poison.hpp"
 #include "bonus.h"
-#include "mobact.hpp"
+#include "dps.hpp"
+#include "fight.h"
 #include "fightsystem/common.h"
-#include "fightsystem/fight.h"
+#include "grp/grp.main.h"
+#include "handler.h"
+#include "house_exp.hpp"
+#include "core/leveling.h"
+#include "logger.hpp"
+#include "magic.h"
+#include "mobact.hpp"
+#include "pk.h"
+#include "poison.hpp"
+#include "screen.h"
+#include "skills/skills.h"
 
 // extern
 int extra_aco(int class_num, int level);
@@ -21,7 +22,6 @@ void alt_equip(CHAR_DATA * ch, int pos, int dam, int chance);
 int thaco(int class_num, int level);
 void npc_groupbattle(CHAR_DATA * ch);
 void set_wait(CHAR_DATA * ch, int waittime, int victim_in_room);
-void go_autoassist(CHAR_DATA * ch);
 
 int armor_class_limit(CHAR_DATA * ch) {
 	if (IS_CHARMICE(ch)) {
@@ -59,6 +59,21 @@ int armor_class_limit(CHAR_DATA * ch) {
 	}
 	return -300;
 }
+
+void aff_random_pc_inspiration(CHAR_DATA *ch, EApplyLocation num_apply, int time, int modi) {
+	CHAR_DATA *target;
+	AFFECT_DATA<EApplyLocation> af;
+
+	target = ch->personGroup? ch->personGroup->get_random_pc_group() : ch;
+	af.location = num_apply;
+	af.type = SPELL_PALADINE_INSPIRATION;
+	af.modifier = GET_REMORT(ch) / 5 * 2 + modi;
+	af.battleflag = AF_BATTLEDEC | AF_PULSEDEC;
+	af.duration = pc_duration(ch, time, 0, 0, 0, 0);
+	affect_join(target , af, FALSE, FALSE, FALSE, FALSE);
+	send_to_char(target, "&YТочный удар %s воодушевил вас, придав новых сил!&n\r\n", GET_PAD(ch,1));
+}
+
 
 int compute_armor_class(CHAR_DATA * ch)
 {
@@ -2302,18 +2317,14 @@ void Damage::send_critical_message(CHAR_DATA *ch, CHAR_DATA *victim)
 
 void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 {
-	if (!IS_NPC(ch))
-	{
+	if (!IS_NPC(ch)) {
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
 		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d", GET_NAME(ch), GET_CLASS(ch), GET_REMORT(ch), GET_LEVEL(ch), real_dam, over_dam);
-		if (AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->has_master() ? ch->get_master() : ch;
-			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
+		if (IN_GROUP(ch)) {
+			ch->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
 		}
 	}
-	else if (IS_CHARMICE(ch)
-		&& ch->has_master())
+	else if (IS_CHARMICE(ch) && ch->has_master())
 	{
 		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 		if (!IS_NPC(ch->get_master()))
@@ -2323,54 +2334,41 @@ void update_dps_stats(CHAR_DATA *ch, int real_dam, int over_dam)
 				GET_LEVEL(ch->get_master()), real_dam, over_dam);
 		}
 
-		if (AFF_FLAGGED(ch->get_master(), EAffectFlag::AFF_GROUP))
-		{
-			CHAR_DATA *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
-			leader->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
+		if (IN_GROUP(ch->get_master())) {
+            ch->dps_add_dmg(DpsSystem::GROUP_CHARM_DPS, real_dam, over_dam, ch);
 		}
 	}
 }
 
-void try_angel_sacrifice(CHAR_DATA *ch, CHAR_DATA *victim)
-{
+void try_angel_sacrifice(CHAR_DATA* ch, CHAR_DATA* victim) {
+    CHAR_DATA* angel = nullptr;
 	// если виктим в группе с кем-то с ангелом - вместо смерти виктима умирает ангел
-	if (GET_HIT(victim) <= 0
-		&& !IS_NPC(victim)
-		&& AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP))
-	{
-		const auto people = world[IN_ROOM(victim)]->people;	// make copy of people because keeper might be removed from this list inside the loop
-		for (const auto keeper : people)
-		{
-			if (IS_NPC(keeper)
-				&& MOB_FLAGGED(keeper, MOB_ANGEL)
-				&& keeper->has_master()
-				&& AFF_FLAGGED(keeper->get_master(), EAffectFlag::AFF_GROUP))
-			{
-				CHAR_DATA *keeper_leader = keeper->get_master()->has_master()
-					? keeper->get_master()->get_master()
-					: keeper->get_master();
-				CHAR_DATA *victim_leader = victim->has_master()
-					? victim->get_master()
-					: victim;
+	if (GET_HIT(victim) <= 0 && !IS_NPC(victim) && IN_GROUP(victim)) {
+        // ищем первого попавшегося ангела из группы в комнате
+        for (const auto& npc : *victim->personGroup){
+            if (npc.second->member == nullptr)
+                continue;
+            if (SAME_ROOM(npc.second->member, victim) && MOB_FLAGGED(npc.second->member, MOB_ANGEL) ){
+                angel = npc.second->member;
+                break;
+            }
+        }
+        if (angel == nullptr)
+            return;
 
-				if ((keeper_leader == victim_leader) && (may_kill_here(keeper->get_master(), ch, NULL)))
-				{
-					if (!pk_agro_action(keeper->get_master(), ch))
-					{
-						return;
-					}
-					send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
-						GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
-					snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
-						GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
-					act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
-
-					extract_char(keeper, 0);
-					GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
-				}
-			}
-		}
-	}
+        if (may_kill_here(angel->get_master(), ch, NULL)) {
+            if (!pk_agro_action(angel->get_master(), ch)) {
+                return;
+            }
+            send_to_char(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
+                         GET_PAD(angel, 0), GET_CH_SUF_1(angel));
+            snprintf(buf, MAX_STRING_LENGTH, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
+                     GET_PAD(angel, 0), GET_CH_SUF_1(angel), GET_PAD(victim, 3));
+            act(buf, FALSE, victim, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+            extract_char(angel, 0);
+            GET_HIT(victim) = MIN(300, GET_MAX_HIT(victim) / 2);
+        }
+    }
 }
 
 void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
@@ -2400,111 +2398,90 @@ void update_pk_logs(CHAR_DATA *ch, CHAR_DATA *victim)
 
 void Damage::process_death(CHAR_DATA *ch, CHAR_DATA *victim)
 {
-	CHAR_DATA *killer = NULL;
+	CHAR_DATA *killer = nullptr;
 
-	if (IS_NPC(victim) || victim->desc)
-	{
-		if (victim == ch && IN_ROOM(victim) != NOWHERE)
-		{
-			if (spell_num == SPELL_POISON)
-			{
-				for (const auto poisoner : world[IN_ROOM(victim)]->people)
-				{
-					if (poisoner != victim
-						&& GET_ID(poisoner) == victim->Poisoner)
-					{
+    // если не умер сам, или отравили - убивец сразу известен
+    if (ch != victim) {
+        killer = ch;
+        // определяем убивца, если отравили или сам помер, от ран
+    } else if (IS_NPC(victim) || victim->desc) {
+	    // когда умирает от яда - киллер равно виктим, киллера извлекаем из свойств отравы
+		if (victim == ch && IN_ROOM(victim) != NOWHERE) {
+			if (spell_num == SPELL_POISON) {
+				for (const auto poisoner : world[IN_ROOM(victim)]->people) {
+					if (poisoner != victim && GET_ID(poisoner) == victim->Poisoner) {
 						killer = poisoner;
+						break;
 					}
 				}
-			}
-			else if (msg_num == TYPE_SUFFERING)
-			{
-				for (const auto attacker : world[IN_ROOM(victim)]->people)
-				{
-					if (attacker->get_fighting() == victim)
-					{
+			//	киллер - первый попавшийся убивец, хотя надо бы по дамагу =)
+			} else if (msg_num == TYPE_SUFFERING) {
+				for (const auto attacker : world[IN_ROOM(victim)]->people) {
+					if (attacker->get_fighting() == victim) {
 						killer = attacker;
+						break;
 					}
 				}
 			}
 		}
-
-		if (ch != victim)
-		{
-			killer = ch;
-		}
 	}
 
-	if (killer)
-	{
-		if (AFF_FLAGGED(killer, EAffectFlag::AFF_GROUP))
-		{
-			// т.к. помечен флагом AFF_GROUP - точно PC
-			group_gain(killer, victim);
-		}
-		else if ((AFF_FLAGGED(killer, EAffectFlag::AFF_CHARM)
-				|| MOB_FLAGGED(killer, MOB_ANGEL)
-				|| MOB_FLAGGED(killer, MOB_GHOST))
-			&& killer->has_master())
-			// killer - зачармленный NPC с хозяином
-		{
-			// по логике надо бы сделать, что если хозяина нет в клетке, но
-			// кто-то из группы хозяина в клетке, то опыт накинуть согруппам,
-			// которые рядом с убившим моба чармисом.
-			if (AFF_FLAGGED(killer->get_master(), EAffectFlag::AFF_GROUP)
-				&& IN_ROOM(killer) == IN_ROOM(killer->get_master()))
-			{
-				// Хозяин - PC в группе => опыт группе
-				group_gain(killer->get_master(), victim);
-			}
-			else if (IN_ROOM(killer) == IN_ROOM(killer->get_master()))
-				// Чармис и хозяин в одной комнате
-				// Опыт хозяину
-			{
-				perform_group_gain(killer->get_master(), victim, 1, 100);
-			}
-			// else
-			// А хозяина то рядом не оказалось, все чармису - убрано
-			// нефиг абьюзить чарм  perform_group_gain( killer, victim, 1, 100 );
-		}
-		else
-		{
-			// Просто NPC или PC сам по себе
-			perform_group_gain(killer, victim, 1, 100);
-		}
-	}
+	if (killer) {
+        if (IN_GROUP(killer)) {
+            // и чармис и хозяин обязательно одной группе, доп проверок не надо
+            killer->personGroup->gainExp(victim);
+        }
+        else
+            if ((IS_CHARMICE(killer) || MOB_FLAGGED(killer, MOB_PLAYER_SUMMON)) && killer->has_master()
+                && SAME_ROOM(killer->get_master(), killer)) {
+                // был убит чармисом, хозяин рядышком - ему экспу
+                ExpCalc::increaseExperience(killer->get_master(), victim, 1, 100);
+            } else {
+                // Просто NPC или PC сам по себе
+                ExpCalc::increaseExperience(killer, victim, 1, 100);
+            }
+    }
 
 	// в сислог иммам идут только смерти в пк (без арен)
 	// в файл пишутся все смерти чаров
-	// если чар убит палачем то тоже не спамим
+	// если чар убит палачом то тоже не спамим
 
-	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR)))
-	{
+	if (!IS_NPC(victim) && !(killer && PRF_FLAGGED(killer, PRF_EXECUTOR))) {
 		update_pk_logs(ch, victim);
 
-	for (const auto& ch_vict : world[ch->in_room]->people)
-	{
-		//Мобы все кто присутствовал при смерти игрока забывают
-		if (IS_IMMORTAL(ch_vict))
-			continue;
-		if (!HERE(ch_vict))
-			continue;
-		if (!IS_NPC(ch_vict))
-			continue;
-		if (MOB_FLAGGED(ch_vict, MOB_MEMORY))
-		{
-            mobForget(ch_vict, victim);
-		}
+        for (const auto& ch_vict : world[ch->in_room]->people)
+        {
+            //Мобы все кто присутствовал при смерти игрока забывают
+            if (IS_IMMORTAL(ch_vict))
+                continue;
+            if (!HERE(ch_vict))
+                continue;
+            if (!IS_NPC(ch_vict))
+                continue;
+            if (MOB_FLAGGED(ch_vict, MOB_MEMORY)) {
+                mobForget(ch_vict, victim);
+            }
+        }
 	}
 
-	}
+    die(victim, killer);
+}
 
-	if (killer)
-	{
-		ch = killer;
-	}
-
-	die(victim, ch);
+void stopFollowOnAggro(CHAR_DATA* aggressor, CHAR_DATA* victim)
+{
+    if (aggressor == nullptr || victim == nullptr)
+        return;
+    if (!victim->has_master() || IS_CHARMICE(victim))
+        return;
+    // оба в группе - всё нормально
+    if (victim->personGroup == aggressor->personGroup)
+        return;
+    // агрессор - чармис чувака в группе
+    if (aggressor->has_master() && aggressor->get_master()->personGroup == victim->personGroup)
+        return;
+    if (victim->get_master() == aggressor ||
+        (aggressor->has_master() && victim->get_master() == aggressor->get_master()))
+        stop_follower(victim, SF_EMPTY);
 }
 
 // обработка щитов, зб, поглощения, сообщения для огн. щита НЕ ЗДЕСЬ
@@ -2566,7 +2543,7 @@ int Damage::process(CHAR_DATA *ch, CHAR_DATA *victim)
 
 	// If you attack a pet, it hates your guts
 	if (!same_group(ch, victim))
-		check_agro_follower(ch, victim);
+        stopFollowOnAggro(ch, victim);
 
 	if (victim != ch)  	// Start the attacker fighting the victim
 	{
@@ -3858,7 +3835,7 @@ void hit(CHAR_DATA *ch, CHAR_DATA *victim, ESkill type, FightSystem::AttType wea
 		return;
 	}
 	// Do some sanity checking, in case someone flees, etc.
-	if (ch->in_room != IN_ROOM(victim) || ch->in_room == NOWHERE) {
+	if (!SAME_ROOM(ch, victim) || ch->in_room == NOWHERE) {
 		if (ch->get_fighting() && ch->get_fighting() == victim) {
 			stop_fighting(ch, TRUE);
 		}

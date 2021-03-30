@@ -6,24 +6,30 @@
 #define CHAR_PLAYER_HPP_INCLUDED
 
 #include "conf.h"
-#include "sysdep.h"
-#include "structs.h"
-#include "quested.hpp"
-#include "mobmax.hpp"
-#include "remember.hpp"
-#include "char.hpp"
-#include "dps.hpp"
-#include "map.hpp"
-#include "reset_stats.hpp"
 #include "boards.types.hpp"
+#include "char.hpp"
+#include "cmd/cmd.generic.h"
+#include "dps.hpp"
+#include "ext_money.hpp"
+#include "map.hpp"
+#include "mobmax.hpp"
 #include "quest.hpp"
+#include "quested.hpp"
+#include "remember.hpp"
+#include "reset_stats.hpp"
 #include "stigmas.hpp"
-#include "cmd/mercenary.h"
+#include "structs.h"
+#include "sysdep.h"
 
 #include <string>
 #include <array>
 #include <vector>
 #include <bitset>
+#include <diskio.h>
+
+// * Перерасчет максимальных родных хп персонажа.
+// * При входе в игру, левеле/делевеле, добавлении/удалении славы.
+void check_max_hp(CHAR_DATA *ch);
 
 // кол-во сохраняемых стартовых статов в файле
 const int START_STATS_TOTAL = 6;
@@ -102,6 +108,8 @@ public:
 
 	void save_char();
 	int load_char_ascii(const char *name, bool reboot = 0, const bool find_id = true);
+    // метод загрузки файла игрока напрямую
+    int _pfileLoad(FBFILE *fl, bool reboot, const char* name, int id);
 
 	bool get_disposable_flag(int num);
 	void set_disposable_flag(int num);
@@ -241,8 +249,10 @@ private:
 	std::map<int, time_t> daily_quest_timed;
 	// Аккаунт
 	std::shared_ptr<Account> account;
-	//перечень чармисов, доступных с команды наемник
-	std::map<int, MERCDATA> charmeeHistory;
+    //перечень чармисов, доступных с команды наемник
+    std::map<int, MERCDATA> charmeeHistory;
+
+    void initPlayerFields();
 };
 
 namespace PlayerSystem

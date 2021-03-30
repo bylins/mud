@@ -32,37 +32,39 @@
 #include "comm.h"
 
 #include "global.objects.hpp"
-#include "magic.h"
-#include "world.objects.hpp"
-#include "chars/world.characters.hpp"
-#include "shutdown.parameters.hpp"
-#include "object.prototypes.hpp"
-#include "external.trigger.hpp"
-#include "handler.h"
-#include "house.h"
-#include "olc.h"
-#include "screen.h"
 #include "ban.hpp"
-#include "exchange.h"
-#include "title.hpp"
-#include "depot.hpp"
-#include "glory.hpp"
-#include "file_crc.hpp"
+#include "char_obj_utils.inl"
+#include "chars/world.characters.hpp"
+#include "core/leveling.h"
 #include "corpse.hpp"
-#include "glory_misc.hpp"
+#include "db.h"
+#include "depot.hpp"
+#include "exchange.h"
+#include "external.trigger.hpp"
+#include "file_crc.hpp"
+#include "glory.hpp"
 #include "glory_const.hpp"
-#include "shop_ext.hpp"
-#include "sets_drop.hpp"
+#include "glory_misc.hpp"
+#include "handler.h"
+#include "heartbeat.hpp"
+#include "house.h"
+#include "logger.hpp"
+#include "magic.h"
 #include "mail.h"
 #include "mob_stat.hpp"
-#include "char_obj_utils.inl"
-#include "logger.hpp"
-#include "msdp.hpp"
 #include "msdp.constants.hpp"
-#include "heartbeat.hpp"
-#include "zone.table.hpp"
-#include "db.h"
+#include "msdp.hpp"
+#include "object.prototypes.hpp"
+#include "olc.h"
+#include "screen.h"
+#include "sets_drop.hpp"
+#include "shop_ext.hpp"
+#include "shutdown.parameters.hpp"
+#include "title.hpp"
 #include "utils.h"
+#include "world.objects.hpp"
+#include "zone.table.hpp"
+
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -592,7 +594,7 @@ void zedit_save_to_disk(int zone_num);
 int real_zone(int number);
 void Crash_ldsave(CHAR_DATA * ch);
 void Crash_save_all_rent();
-int level_exp(CHAR_DATA * ch, int level);
+
 unsigned long TxtToIp(const char * text);
 
 #ifdef __CXREF__
@@ -1842,7 +1844,7 @@ char *make_prompt(DESCRIPTOR_DATA * d)
 				count += sprintf(prompt + count, "??? ");
 			else
 				count += sprintf(prompt + count, "%ldо ",
-								 level_exp(d->character.get(),
+								 ExpCalc::level_exp(d->character.get(),
 										   GET_LEVEL(d->character) + 1) - GET_EXP(d->character));
 		}
 		// Mem Info
@@ -3410,7 +3412,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 			|| STATE(d) == CON_NAMED_STUFF
 			|| STATE(d) == CON_MAP_MENU
 			|| STATE(d) == CON_TORC_EXCH
-			|| STATE(d) == CON_SEDIT || STATE(d) == CON_CONSOLE)
+			|| STATE(d) == CON_SEDIT
+			|| STATE(d) == CON_CONSOLE)
 		{
 			STATE(d) = CON_PLAYING;
 		}
@@ -3418,6 +3421,8 @@ void close_socket(DESCRIPTOR_DATA * d, int direct)
 		if (STATE(d) == CON_PLAYING || STATE(d) == CON_DISCONNECT)
 		{
 			act("$n потерял$g связь.", TRUE, d->character.get(), 0, 0, TO_ROOM | TO_ARENA_LISTEN);
+			if (IN_GROUP(d->character.get()))
+                d->character->personGroup->actToGroup(nullptr, d->character.get(), GC_LEADER | GC_REST, "$n потерял$g связь.");
 			if (d->character->get_fighting() && PRF_FLAGGED(d->character, PRF_ANTIDC_MODE))
 			{
 				snprintf(buf2, sizeof(buf2), "зачитать свиток.возврата");
@@ -4134,13 +4139,11 @@ void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj
 	int to_sleeping, check_deaf, check_nodeaf, to_arena=0, arena_room_rnum;
 	int to_brief_shields = 0, to_no_brief_shields = 0;
 
-	if (!str || !*str)
-	{
+	if (!str || !*str) {
 		return;
 	}
 
-	if (!(dg_act_check = !(type & DG_NO_TRIG)))
-	{
+	if (!(dg_act_check = !(type & DG_NO_TRIG))){
 		type &= ~DG_NO_TRIG;
 	}
 

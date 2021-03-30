@@ -10,11 +10,13 @@
 #include "shops.implementation.hpp"
 #include "world.objects.hpp"
 #include "chars/world.characters.hpp"
-#include "act.wizard.hpp"
+#include "cmd.wiz/act.wizard.hpp"
 #include "influxdb.hpp"
 #include "zone.table.hpp"
 #include "daily_quest.hpp"
 #include "strengthening.hpp"
+#include <grp/grp.main.h>
+
 class BanList;	// to avoid inclusion of ban.hpp
 
 /**
@@ -60,6 +62,7 @@ public:
 	static DailyQuestMap& daily_quests();
 	static Strengthening& strengthening();
 	static obj2trigers_t& obj_trigers();
+	static GroupRoster& groupRoster();
 };
 
 #endif // __GLOBAL_OBJECTS_HPP__

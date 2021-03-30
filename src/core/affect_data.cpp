@@ -4,7 +4,7 @@
 #include "chars/char_player.hpp"
 #include "chars/world.characters.hpp"
 #include "class.hpp"
-#include "cmd/follow.h"
+#include "grp/grp.main.h"
 #include "deathtrap.hpp"
 #include "handler.h"
 #include "magic.h"
@@ -131,7 +131,7 @@ void apply_natural_affects(CHAR_DATA *ch)
 
 std::array<EAffectFlag, 2> char_saved_aff =
         {
-                EAffectFlag::AFF_GROUP,
+                EAffectFlag::AFF_UNUSED1,
                 EAffectFlag::AFF_HORSE
         };
 

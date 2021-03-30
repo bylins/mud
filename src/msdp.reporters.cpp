@@ -1,11 +1,12 @@
 #include "msdp.reporters.hpp"
 
-#include "structs.h"
-#include "utils.h"
-#include "db.h"
 #include "chars/char.hpp"
+#include "grp/grp.main.h"
+#include "db.h"
 #include "magic.h"
 #include "msdp.constants.hpp"
+#include "structs.h"
+#include "utils.h"
 #include "zone.table.hpp"
 
 namespace msdp
@@ -197,7 +198,7 @@ namespace msdp
 		const auto move_percents = std::to_string(posi_value(GET_MOVE(character), GET_REAL_MAX_MOVE(character)) * 10);// *10 to show percents
 		member->add(std::make_shared<Variable>("MOVE", std::make_shared<StringValue>(move_percents)));
 
-		const bool same_room = ch->in_room == IN_ROOM(character);
+		const bool same_room = SAME_ROOM(ch, character);
 		member->add(std::make_shared<Variable>("IS_HERE", std::make_shared<StringValue>(same_room ? "1" : "0")));
 
 		const int memory = get_mem(character);
@@ -302,39 +303,14 @@ namespace msdp
 		*/
 		const auto group_descriptor = std::make_shared<ArrayValue>();
 		const auto ch = descriptor()->character.get();
-		const auto master = ch->has_master() ? ch->get_master() : ch;
-		append_char(group_descriptor, ch, master, true);
-		for (auto f = master->followers; f; f = f->next)
-		{
-			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-				&& !(AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(f->follower, MOB_ANGEL)
-					|| MOB_FLAGGED(f->follower, MOB_GHOST)))
-			{
-				continue;
-			}
-
-			append_char(group_descriptor, ch, f->follower, false);
-
-			// followers of a follower
-			if (!AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP))
-			{
-				continue;
-			}
-
-			for (auto ff = f->follower->followers; ff; ff = ff->next)
-			{
-				if (!(AFF_FLAGGED(ff->follower, EAffectFlag::AFF_CHARM)
-					|| MOB_FLAGGED(ff->follower, MOB_ANGEL)
-					|| MOB_FLAGGED(ff->follower, MOB_GHOST)))
-				{
-					continue;
-				}
-
-				append_char(group_descriptor, ch, ff->follower, false);
-			}
-		}
-
+        auto grp = ch->personGroup;
+		if (grp == nullptr)
+		    return;
+		for (auto it : *grp) {
+		    if (it.second->member == nullptr)
+                continue;
+            append_char(group_descriptor, ch, it.second->member, true);
+        }
 		response = std::make_shared<Variable>(constants::GROUP, group_descriptor);
 	}
 }

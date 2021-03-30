@@ -14,49 +14,25 @@
 
 #include "handler.h"
 
+#include "chars/world.characters.hpp"
 #include "auction.h"
 #include "backtrace.hpp"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
 #include "chars/char_player.hpp"
-#include "chars/world.characters.hpp"
-#include "cmd/follow.h"
-#include "comm.h"
-#include "conf.h"
-#include "constants.h"
-#include "db.h"
-#include "dg_db_scripts.hpp"
-#include "dg_scripts.h"
 #include "exchange.h"
-#include "ext_money.hpp"
-#include "features.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
-#include "glory_const.hpp"
-#include "glory_const.hpp"
+#include "grp/grp.main.h"
 #include "house.h"
-#include "interpreter.h"
 #include "liquid.hpp"
-#include "logger.hpp"
 #include "magic.h"
-#include "name_list.hpp"
 #include "named_stuff.hpp"
-#include "noob.hpp"
-#include "obj.hpp"
-#include "obj_sets.hpp"
 #include "object.prototypes.hpp"
-#include "poison.hpp"
-#include "room.hpp"
 #include "screen.h"
-#include "skills.h"
 #include "spell_parser.hpp"
-#include "spells.h"
-#include "structs.h"
-#include "sysdep.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
 
-#include <math.h>
 #include <unordered_set>
 #include <sstream>
 
@@ -78,7 +54,6 @@ void do_entergame(DESCRIPTOR_DATA * d);
 void do_return(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 extern std::vector<City> cities;
 extern int global_uid;
-extern void change_leader(CHAR_DATA *ch, CHAR_DATA *vict);
 extern char *find_exdesc(char *word, const EXTRA_DESCR_DATA::shared_ptr& list);
 extern void setSkillCooldown(CHAR_DATA* ch, ESkill skill, int cooldownInPulses);
 
@@ -2261,10 +2236,9 @@ void drop_obj_on_zreset(CHAR_DATA *ch, OBJ_DATA *obj, bool inv, bool zone_reset)
 			act("Вы выбросили $o3 на землю.", FALSE, ch, obj, 0, TO_CHAR);
 		else
 			act("Вы сняли $o3 и выбросили на землю.", FALSE, ch, obj, 0, TO_CHAR);
-		// Если этот моб трупа не оставит, то не выводить сообщение
-		// иначе ужасно коряво смотрится в бою и в тригах
+		// Саммоны и андеды трупов не оставляют
 		bool msgShown = false;
-		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
+		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON) || !MOB_FLAGGED(ch, MOB_CORPSE))
 		{
 			if (inv)
 				act("$n бросил$g $o3 на землю.", FALSE, ch, obj, 0, TO_ROOM);
@@ -2333,8 +2307,7 @@ void change_npc_leader(CHAR_DATA *ch)
 */
 void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 {
-	if (ch->purged())
-	{
+	if (ch->purged()) {
 		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
@@ -2342,56 +2315,42 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	DESCRIPTOR_DATA *t_desc;
 	int i;
 
-	if (MOB_FLAGGED(ch, MOB_FREE)
-		|| MOB_FLAGGED(ch, MOB_DELETE))
-	{
+	if (MOB_FLAGGED(ch, MOB_FREE) || MOB_FLAGGED(ch, MOB_DELETE)) {
 		return;
 	}
 
 	std::string name = GET_NAME(ch);
+
 	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
-	if (!IS_NPC(ch) && !ch->desc)
-	{
-//		log("[Extract char] Extract descriptors");
-		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
-		{
-			if (t_desc->original.get() == ch)
-			{
-				do_return(t_desc->character.get(), NULL, 0, 0);
+	if (!IS_NPC(ch) && !ch->desc) {
+		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
+			if (t_desc->original.get() == ch) {
+				do_return(t_desc->character.get(), nullptr, 0, 0);
 			}
 		}
 	}
 
 	// Forget snooping, if applicable
 //	log("[Extract char] Stop snooping");
-	if (ch->desc)
-	{
-		if (ch->desc->snooping)
-		{
-			ch->desc->snooping->snoop_by = NULL;
-			ch->desc->snooping = NULL;
+	if (ch->desc) {
+		if (ch->desc->snooping) {
+			ch->desc->snooping->snoop_by = nullptr;
+			ch->desc->snooping = nullptr;
 		}
 
-		if (ch->desc->snoop_by)
-		{
+		if (ch->desc->snoop_by) {
 			SEND_TO_Q("Ваша жертва теперь недоступна.\r\n", ch->desc->snoop_by);
-			ch->desc->snoop_by->snooping = NULL;
-			ch->desc->snoop_by = NULL;
+			ch->desc->snoop_by->snooping = nullptr;
+			ch->desc->snoop_by = nullptr;
 		}
 	}
 
 	// transfer equipment to room, if any
 //	log("[Extract char] Drop equipment");
-	for (i = 0; i < NUM_WEARS; i++)
-	{
-		if (GET_EQ(ch, i))
-		{
+	for (i = 0; i < NUM_WEARS; i++) {
+		if (GET_EQ(ch, i)) {
 			OBJ_DATA *obj_eq = unequip_char(ch, i);
-			if (!obj_eq)
-			{
-				continue;
-			}
-
+			if (!obj_eq)  { continue; }
 			remove_otrigger(obj_eq, ch);
 			drop_obj_on_zreset(ch, obj_eq, 0, zone_reset);
 		}
@@ -2399,47 +2358,31 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 
 	// transfer objects to room, if any
 //	log("[Extract char] Drop objects");
-	while (ch->carrying)
-	{
+	while (ch->carrying) {
 		OBJ_DATA *obj = ch->carrying;
 		obj_from_char(obj);
 		drop_obj_on_zreset(ch, obj, 1, zone_reset);
 	}
 
-	if(IS_NPC(ch))
-	{
+	if(IS_NPC(ch)) {
 		// дроп гривен до изменений последователей за мобом
 		ExtMoney::drop_torc(ch);
 	}
+    // лидер группы теперь не меняется после смерти, код удалил
 
-	if (!IS_NPC(ch)
-		&& !ch->has_master()
-		&& ch->followers
-		&& AFF_FLAGGED(ch, EAffectFlag::AFF_GROUP))
-	{
-//		log("[Extract char] Change group leader");
-		change_leader(ch, 0);
-	}
-	else if (IS_NPC(ch)
-		&& !IS_CHARMICE(ch)
-		&& !ch->has_master()
-		&& ch->followers)
-	{
-//		log("[Extract char] Changing NPC leader");
+    // у НПЦ всё по-прежнему, хороводы
+    if (IS_NPC(ch) && !IS_CHARMICE(ch) && !ch->has_master() && ch->followers) {
 		change_npc_leader(ch);
 	}
 
 //	log("[Extract char] Die followers");
-	if ((ch->followers || ch->has_master())
-		&& die_follower(ch))
-	{
+	if ((ch->followers || ch->has_master()) && die_follower(ch)) {
 		// TODO: странно все это с пуржем в stop_follower
 		return;
 	}
 
 //	log("[Extract char] Stop fighting self");
-	if (ch->get_fighting())
-	{
+	if (ch->get_fighting()) {
 		stop_fighting(ch, TRUE);
 	}
 
@@ -2452,45 +2395,35 @@ void extract_char(CHAR_DATA* ch, int clear_objs, bool zone_reset)
 	// pull the char from the list
 	MOB_FLAGS(ch).set(MOB_DELETE);
 
-	if (ch->desc && ch->desc->original)
-	{
+    // TODO: совершенно не понял, причём тут вселение?!!
+	if (ch->desc && ch->desc->original) {
 		do_return(ch, NULL, 0, 0);
 	}
 
 	const bool is_npc = IS_NPC(ch);
-	if (!is_npc)
-	{
-//		log("[Extract char] All save for PC");
+	if (!is_npc) {
 		check_auction(ch, NULL);
 		ch->save_char();
 		//удаляются рент-файлы, если только персонаж не ушел в ренту
 		Crash_delete_crashfile(ch);
-	}
-	else
-	{
-//		log("[Extract char] All clear for NPC");
-		if ((GET_MOB_RNUM(ch) > -1)
-			&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))	// if mobile и не умертвие
-		{
+	} else {
+		if ((GET_MOB_RNUM(ch) > -1) && !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)) {	// if mobile и не умертвие
 			mob_index[GET_MOB_RNUM(ch)].number--;
 		}
 	}
 
+    // выкидываем табличку входа в игру, если персонаж еще онлайн
 	bool left_in_game = false;
-	if (!is_npc
-		&& ch->desc != NULL)
-	{
+	if (!is_npc && ch->desc != nullptr)  {
 		STATE(ch->desc) = CON_MENU;
 		SEND_TO_Q(MENU, ch->desc);
-		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs)
-		{
+		if (!IS_NPC(ch) && RENTABLE(ch) && clear_objs) {
 			do_entergame(ch->desc);
 			left_in_game = true;
 		}
 	}
-
-	if (!left_in_game)
-	{
+    // если ушел или нпц - удаляем
+	if (!left_in_game) {
 		character_list.remove(ch);
 	}
 

@@ -1,0 +1,136 @@
+Name: Бикбай
+Levl: 34
+Clas: 1
+UIN : 1009969084
+LstL: 1610053558
+Host: 192.168.204.1
+Id  : 1
+Exp : 2000000000
+Act : C0D0 
+EMal: bikbai@mail
+Rebt: следующие далее поля при перезагрузке не парсятся
+
+NmI : Бикбай
+NmR : Бикбая
+NmD : Бикбаю
+NmV : Бикбая
+NmT : Бикбаем
+NmP : Бикбаи
+Pass: 12345
+Sex : 1 мужчина
+Kin : 0 Русич
+Brth: 1601408138 Tue Sep 29 22:35:38 2020
+
+Plyd: 366111
+Last: 1610053558 Fri Jan  8 00:05:58 2021
+
+Hite: 178
+Wate: 130
+Size: 50
+Alin: 0
+Aff : k0 
+Str : 25
+Int : 25
+Wis : 25
+Dex : 25
+Con : 25
+Cha : 25
+Cits: 1
+Rcps:
+-1 -1
+Hrol: 0
+Drol: 0
+Ac  : 100
+Hry : 0
+Hit : 630/630
+Mana: 0/0
+Move: 82/82
+Gold: 0
+Bank: 0
+ICur: 0
+Ruble: 0
+Wimp: 0
+Frez: 0
+Invs: 0
+Room: 0
+Lexc: -252316953
+Badp: 0
+Br01: 1601408097
+Br02: 1601408097
+Br03: 1601408097
+Br04: 1601408097
+Br05: 1601408097
+Br06: 1601408097
+Br07: 1601408097
+Br08: 1601408097
+Br09: 1601408097
+Br10: 1601408097
+Br11: 1601408097
+Br12: 1601408097
+Br13: 1601408097
+Br14: 1601408097
+Br15: 1601408097
+Br16: 1601408097
+St00: 11
+St01: 10
+St02: 24
+St03: 23
+St04: 12
+St05: 15
+Reli: 1 Христианин
+Race: 2 Кривич
+DrSt: 0
+Olc : 0
+Pref: e0f0g0o0u0w0x0c2 
+LogL:
+192.168.204.1 224 1610053558
+~
+GdFl: 0
+NamG: 1034
+NaID: -1
+StrL: 80
+StrW: 30
+NtfE: 0
+Logs: 0 992872272
+Logs: 1 22041
+Logs: 2 34478
+Logs: 3 0
+Logs: 4 49
+Disp: 0
+Ripa: 0
+Wina: 0
+Expa: 0
+Ripm: 0
+Expm: 0
+Ripd: 0
+Expd: 0
+Ripo: 0
+Expo: 0
+Ripp: 0
+Expp: 0
+Rimt: 0
+Exmt: 0
+Ridt: 0
+Exdt: 0
+Riot: 0
+Exot: 0
+Ript: 0
+Expt: 0
+Wman: 6000
+Mobs:
+~
+Pkil:
+~
+Mrph: #MORPH_FALCON#MORPH_LYNX#MORPH_PIKE#MORPH_WOLF
+Map : 000000000000000000000
+TrcG: 0
+TrcS: 0
+TrcB: 0
+TrcL: 0 0
+Chrm:
+4010 1 0 0 1 1
+4019 1 0 0 1 1
+4020 6 0 0 1 1
+4021 18 0 0 1 1
+0 0 0 0 0 0
+Tlgr: 0

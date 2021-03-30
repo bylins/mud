@@ -14,33 +14,19 @@
 
 #include "act.movement.hpp"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
 #include "chars/char_player.hpp"
 #include "chars/mount.h"
 #include "chars/player_races.hpp"
 #include "chars/world.characters.hpp"
-#include "cmd/follow.h"
-#include "cmd/mercenary.h"
-#include "comm.h"
-#include "constants.h"
-#include "db.h"
+#include "core/leveling.h"
 #include "depot.hpp"
-#include "dg_scripts.h"
-#include "features.hpp"
+#include "grp/grp.main.h"
 #include "fightsystem/fight.h"
 #include "fightsystem/fight_hit.hpp"
-#include "handler.h"
 #include "house.h"
-#include "interpreter.h"
-#include "logger.hpp"
 #include "magic.h"
-#include "obj.hpp"
 #include "screen.h"
-#include "skills.h"
 #include "spell_parser.hpp"
-#include "spells.h"
-#include "structs.h"
-#include "sysdep.h"
 #include "temp_spells.hpp"
 
 #include <cmath>
@@ -2192,8 +2178,7 @@ int npc_move(CHAR_DATA * ch, int dir, int/* need_specials_check*/)
 	{
 		return (FALSE);
 	}
-	else if (ch->has_master()
-		&& ch->in_room == IN_ROOM(ch->get_master()))
+	else if (ch->has_master() && SAME_ROOM(ch, ch->get_master()))
 	{
 		return (FALSE);
 	}
@@ -2754,33 +2739,26 @@ int npc_steal(CHAR_DATA * ch)
 
 void npc_group(CHAR_DATA * ch)
 {
-	CHAR_DATA *leader = NULL;
+	CHAR_DATA *leader = nullptr;
 	int zone = ZONE(ch), group = GROUP(ch), members = 0;
 
 	if (GET_DEST(ch) == NOWHERE || ch->in_room == NOWHERE)
 		return;
 
-	if (ch->has_master()
-		&& ch->in_room == IN_ROOM(ch->get_master()))
-	{
+	if (ch->has_master() && SAME_ROOM(ch, ch->get_master())) {
 		leader = ch->get_master();
 	}
 
-	if (!ch->has_master())
-	{
+	if (!ch->has_master()) {
 		leader = ch;
 	}
 
-	if (leader
-		&& (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM)
-			|| GET_POS(leader) < POS_SLEEPING))
-	{
-		leader = NULL;
+	if (leader && (AFF_FLAGGED(leader, EAffectFlag::AFF_CHARM) || GET_POS(leader) < POS_SLEEPING)) {
+		leader = nullptr;
 	}
 
 	// Find leader
-	for (const auto vict : world[ch->in_room]->people)
-	{
+	for (const auto vict : world[ch->in_room]->people) {
 		if (!IS_NPC(vict)
 			|| GET_DEST(vict) != GET_DEST(ch)
 			|| zone != ZONE(vict)
@@ -2793,31 +2771,24 @@ void npc_group(CHAR_DATA * ch)
 
 		members++;
 
-		if (!leader
-			|| GET_REAL_INT(vict) > GET_REAL_INT(leader))
-		{
+		if (!leader || GET_REAL_INT(vict) > GET_REAL_INT(leader)) {
 			leader = vict;
 		}
 	}
 
-	if (members <= 1)
-	{
-		if (ch->has_master())
-		{
+	if (members <= 1) {
+		if (ch->has_master()) {
 			stop_follower(ch, SF_EMPTY);
 		}
-
 		return;
 	}
 
-	if (leader->has_master())
-	{
+	if (leader->has_master()) {
 		stop_follower(leader, SF_EMPTY);
 	}
 
 	// Assign leader
-	for (const auto vict : world[ch->in_room]->people)
-	{
+	for (const auto vict : world[ch->in_room]->people) {
 		if (!IS_NPC(vict)
 			|| GET_DEST(vict) != GET_DEST(ch)
 			|| zone != ZONE(vict)
@@ -2828,22 +2799,12 @@ void npc_group(CHAR_DATA * ch)
 			continue;
 		}
 
-		if (vict == leader)
-		{
-			AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
-			continue;
-		}
-
-		if (!vict->has_master())
-		{
+		if (!vict->has_master()) {
 			leader->add_follower(vict);
-		}
-		else if (vict->get_master() != leader)
-		{
+		} else if (vict->get_master() != leader) {
 			stop_follower(vict, SF_EMPTY);
 			leader->add_follower(vict);
 		}
-		AFF_FLAGS(vict).set(EAffectFlag::AFF_GROUP);
 	}
 }
 
@@ -2867,7 +2828,7 @@ void npc_groupbattle(CHAR_DATA * ch)
 	for (; k; (k = tch ? k : k->next), tch = NULL)
 	{
 		helper = tch ? tch : k->follower;
-		if (ch->in_room == IN_ROOM(helper)
+		if (SAME_ROOM(ch, helper)
 			&& !helper->get_fighting()
 			&& !IS_NPC(helper)
 			&& GET_POS(helper) > POS_STUNNED)
@@ -2907,7 +2868,7 @@ int dump(CHAR_DATA *ch, void* /*me*/, int cmd, char* argument)
 		send_to_char("Боги оценили вашу жертву.\r\n", ch);
 		act("$n оценен$y Богами.", TRUE, ch, 0, 0, TO_ROOM);
 		if (GET_LEVEL(ch) < 3)
-			gain_exp(ch, value);
+			ExpCalc::gain_exp(ch, value);
 		else
 			ch->add_gold(value);
 	}

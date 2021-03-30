@@ -16,6 +16,7 @@
 #define _STRUCTS_H_
 
 #include "boards.types.hpp"
+#include "ext_money.hpp"
 #include "sysdep.h"
 
 #include <vector>
@@ -29,17 +30,17 @@
 #include <unordered_map>
 #include <array>
 
-namespace ExtMoney
-{
+
+namespace ExtMoney {
 // золотые гривны
-const unsigned TORC_GOLD = 0;
+    const unsigned TORC_GOLD = 0;
 // серебряные гривны
-const unsigned TORC_SILVER = 1;
+    const unsigned TORC_SILVER = 1;
 // бронзовые гривны
-const unsigned TORC_BRONZE = 2;
+    const unsigned TORC_BRONZE = 2;
 // терминатор всегда в конце
-const unsigned TOTAL_TYPES = 3;
-} // namespace ExtMoney
+    const unsigned TOTAL_TYPES = 3;
+}
 
 namespace currency
 {
@@ -448,7 +449,7 @@ extern const religion_names_t religion_name;
 #define MOB_AGGRPOLY         (1 << 22)
 #define MOB_NOFEAR           (1 << 23)
 #define MOB_NOGROUP          (1 << 24)
-#define MOB_CORPSE           (1 << 25)
+#define MOB_CORPSE           (1 << 25)  // нежить, если по-нашенски.
 #define MOB_LOOTER           (1 << 26)
 #define MOB_PROTECT          (1 << 27)
 #define MOB_DELETE           (1 << 28)	// RESERVED - ONLY INTERNALLY //
@@ -471,10 +472,10 @@ extern const religion_names_t religion_name;
 #define MOB_NOFIGHT          (INT_ONE | (1 << 14))
 #define MOB_EADECREASE       (INT_ONE | (1 << 15)) // понижает количество своих атак по мере убывания тек.хп
 #define MOB_HORDE            (INT_ONE | (1 << 16))
-#define MOB_CLONE            (INT_ONE | (1 << 17))
+#define MOB_CLONE            (INT_ONE | (1 << 17)) // моб создан спеллом !клонирование!
 #define MOB_NOTKILLPUNCTUAL  (INT_ONE | (1 << 18))
 #define MOB_NOTRIP           (INT_ONE | (1 << 19))
-#define MOB_ANGEL            (INT_ONE | (1 << 20))
+#define MOB_ANGEL            (INT_ONE | (1 << 20)) // моб создан спеллом !ангел!
 #define MOB_GUARDIAN         (INT_ONE | (1 << 21)) //Polud моб-стражник, ставится программно, берется из файла guards.xml
 #define MOB_IGNORE_FORBIDDEN (INT_ONE | (1 << 22)) // игнорирует печать
 #define MOB_NO_BATTLE_EXP    (INT_ONE | (1 << 23)) // не дает экспу за удары
@@ -504,6 +505,7 @@ extern const religion_names_t religion_name;
 #define MOB_AGGR_STEPNYAKI (INT_TWO | (1 << 19))
 #define MOB_NORESURRECTION (INT_TWO | (1 << 20))
 #define MOB_AWAKE          (INT_TWO | (1 << 21))
+#define MOB_NO_BODY        (INT_TWO | (1 << 22)) // не оставляет труп после смерти
 
 
 #define NPC_NORTH         (1 << 0)
@@ -619,7 +621,7 @@ extern const religion_names_t religion_name;
 #define PRF_TRIPLE_THROW   (INT_TWO | 1 << 15) // готов использовать тройной бросок
 #define PRF_SHADOW_THROW   (INT_TWO | 1 << 16) // применяет "теневой бросок"
 #define PRF_DISP_COOLDOWNS (INT_TWO | 1 << 17) // Показывать кулдауны скиллов в промпте
-#define PRF_TELEGRAM (INT_TWO | 1 << 18) // Активирует телеграм-канал у персонажа
+#define PRF_FOLLOW_GRP_EXIT (INT_TWO | 1 << 18) // Активирует автоматику выхода из группы при смене следования
 
 // при добавлении не забываем про preference_bits[]
 
@@ -635,7 +637,7 @@ enum class EAffectFlag: uint32_t
 	AFF_SENSE_LIFE = 1u << 5,				///< Char can sense hidden life
 	AFF_WATERWALK = 1u << 6,				///< Char can walk on water
 	AFF_SANCTUARY = 1u << 7,				///< Char protected by sanct.
-	AFF_GROUP = 1u << 8,					///< (R) Char is grouped
+	AFF_UNUSED1 = 1u << 8,					///< (R) Char is grouped
 	AFF_CURSE = 1u << 9,					///< Char is cursed
 	AFF_INFRAVISION = 1u << 10,				///< Char can see in dark
 	AFF_POISON = 1u << 11,					///< (R) Char is poisoned
@@ -792,6 +794,7 @@ typedef std::list<EAffectFlag> affects_list_t;
 #define CON_RESET_RELIGION   55 // сброс религии из меню сброса статов
 #define CON_RANDOM_NUMBER	 56 // Verification code entry: where player enter in the game from new location
 #define CON_INIT		 57 // just connected
+
 // не забываем отражать новые состояния в connected_types -- Krodo
 
 // Character equipment positions: used as index for char_data.equipment[] //
@@ -1603,6 +1606,8 @@ namespace obj_sets_olc
 	class sedit;
 }
 
+class GControl;
+
 #ifndef HAVE_ZLIB
 struct z_stream;
 #endif
@@ -1744,7 +1749,6 @@ struct DESCRIPTOR_DATA
     std::array<int, ExtMoney::TOTAL_TYPES> ext_money; // обмен доп.денег
     std::shared_ptr<obj_sets_olc::sedit> sedit; // редактирование сетов
 	bool mxp; // Для MXP
-
 private:
 	bool m_msdp_support;
 	std::unordered_set<std::string> m_msdp_requested_report;

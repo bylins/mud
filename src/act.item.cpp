@@ -12,40 +12,42 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 
-#include "cmd/hire.h"
-#include "world.objects.hpp"
-#include "object.prototypes.hpp"
-#include "logger.hpp"
-#include "obj.hpp"
+#include "char_obj_utils.inl"
 #include "chars/char.hpp"
+#include "cmd/cmd.generic.h"
 #include "comm.h"
+#include "conf.h"
 #include "constants.h"
 #include "db.h"
 #include "depot.hpp"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "features.hpp"
 #include "fightsystem/fight.h"
+#include "fightsystem/pk.h"
+#include "global.objects.hpp"
+#include "grp/grp.main.h"
 #include "handler.h"
 #include "house.h"
 #include "im.h"
 #include "interpreter.h"
 #include "liquid.hpp"
+#include "logger.hpp"
 #include "magic.h"
+#include "meat.maker.hpp"
+#include "mobmax.hpp"
 #include "named_stuff.hpp"
+#include "obj.hpp"
+#include "object.prototypes.hpp"
 #include "objsave.h"
-#include "fightsystem/pk.h"
 #include "poison.hpp"
 #include "room.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "spells.h"
-#include "mobmax.hpp"
-#include "meat.maker.hpp"
+#include "strengthening.hpp"
 #include "structs.h"
 #include "sysdep.h"
-#include "conf.h"
-#include "char_obj_utils.inl"
-#include "global.objects.hpp"
-#include "strengthening.hpp"
+#include "world.objects.hpp"
+
 #include <boost/format.hpp>
 
 
@@ -83,8 +85,6 @@ bool unique_stuff(const CHAR_DATA *ch, const OBJ_DATA *obj);
 // from class.cpp
 int invalid_no_class(CHAR_DATA * ch, const OBJ_DATA * obj);
 
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
-void do_split(CHAR_DATA *ch, char *argument, int cmd, int subcmd,int currency);
 void do_remove(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_put(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
 void do_get(CHAR_DATA *ch, char *argument, int cmd, int subcmd);
@@ -731,32 +731,12 @@ int can_take_obj(CHAR_DATA * ch, OBJ_DATA * obj)
 	return (1);
 }
 
-/// считаем сколько у ch в группе еще игроков (не мобов)
-int other_pc_in_group(CHAR_DATA *ch)
-{
-	int num = 0;
-	CHAR_DATA *k = ch->has_master() ? ch->get_master() : ch;
-	for (follow_type *f = k->followers; f; f = f->next)
-	{
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& !IS_NPC(f->follower)
-			&& IN_ROOM(f->follower) == ch->in_room)
-		{
-			++num;
-		}
-	}
-	return num;
-}
-
 void split_or_clan_tax(CHAR_DATA *ch, long amount)
 {
-	if (IS_AFFECTED(ch, AFF_GROUP)
-		&& other_pc_in_group(ch) > 0
-		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT))
-	{
+	if (ch->personGroup != nullptr && ch->personGroup->get_size() > 1 && PRF_FLAGGED(ch, PRF_AUTOSPLIT)) {
 		char buf_[MAX_INPUT_LENGTH];
 		snprintf(buf_, sizeof(buf_), "%ld", amount);
-		do_split(ch, buf_, 0, 0);
+		grp::do_split(ch, buf_, 0, 0);
 	}
 	else
 	{
@@ -789,10 +769,11 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		send_to_char(buf, ch);
 		ch->add_ice_currency(value);
 		//Делить лед ВСЕГДА!
-		if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0) {
+		if (ch->personGroup != nullptr && ch->personGroup->get_size() > 1)
+		{
 			char local_buf[256];
 			sprintf(local_buf, "%d", value);
-			do_split(ch, local_buf, 0, 0,curr_type);
+            grp::do_split(ch, local_buf, 0, 0,curr_type);
 		}
 		extract_obj(obj);
 		return;
@@ -808,7 +789,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 	send_to_char(buf, ch);
 
 	// все, что делится на группу - идет через налог (из кошельков не делится)
-	if (IS_AFFECTED(ch, AFF_GROUP) && other_pc_in_group(ch) > 0
+	if (ch->personGroup != nullptr && ch->personGroup->get_size() > 1
 		&& PRF_FLAGGED(ch, PRF_AUTOSPLIT)
 		&& (!cont || !system_obj::is_purse(cont)))
 	{
@@ -819,7 +800,7 @@ void get_check_money(CHAR_DATA *ch, OBJ_DATA *obj, OBJ_DATA *cont)
 		mudlog(buf, NRM, LVL_GRGOD, MONEY_LOG, TRUE);
 		char local_buf[256];
 		sprintf(local_buf, "%d", value);
-		do_split(ch, local_buf, 0, 0);
+        grp::do_split(ch, local_buf, 0, 0);
 	}
 	else if ((cont && IS_MOB_CORPSE(cont)) || GET_OBJ_VNUM(obj) != -1)
 	{
@@ -1321,7 +1302,7 @@ void perform_drop_gold(CHAR_DATA * ch, int amount)
 		}
 
 		// Если этот моб трупа не оставит, то не выводить сообщение иначе ужасно коряво смотрится в бою и в тригах
-		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_CORPSE))
+		if (!IS_NPC(ch) || !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
 		{
 			send_to_char(ch, "Вы бросили %d %s на землю.\r\n",
 				amount, desc_count(amount, WHAT_MONEYu));
@@ -2363,9 +2344,9 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		else if (IS_NPC(ch)
 			&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-			&& MOB_FLAGGED(ch, MOB_CORPSE))
+			&& MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
 		{
-			send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
+			send_to_char("Существа, созданные магией не могут вооружаться.\r\n", ch);
 		}
 		else
 		{
@@ -2481,9 +2462,9 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 			if (IS_NPC(ch)
 				&& AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
-				&& MOB_FLAGGED(ch, MOB_CORPSE))
+				&& MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
 			{
-				send_to_char("Ожившие трупы не могут вооружаться.\r\n", ch);
+				send_to_char("Существа, созданные магией, не могут вооружаться.\r\n", ch);
 				return;
 			}
 			if (!IS_IMMORTAL(ch)

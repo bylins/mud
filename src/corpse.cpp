@@ -12,7 +12,7 @@
 #include "chars/char.hpp"
 #include "comm.h"
 #include "handler.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "im.h"
 #include "room.hpp"
 #include "pugixml.hpp"
@@ -475,7 +475,7 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 	OBJ_DATA *o;
 	int i;
 
-	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_CORPSE))
+	if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_PLAYER_SUMMON))
 		return NULL;
 
 	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
@@ -595,12 +595,10 @@ OBJ_DATA *make_corpse(CHAR_DATA * ch, CHAR_DATA * killer)
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if(IS_CHARMICE(ch)
-		&& !MOB_FLAGGED(ch, MOB_CORPSE)
+		&& !MOB_FLAGGED(ch, MOB_PLAYER_SUMMON)
 		&& ch->has_master()
-		&& ((killer
-				&& PRF_FLAGGED(killer, PRF_EXECUTOR))
-			|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)
-				&& !RENTABLE(ch->get_master()))))
+		&& ((killer && PRF_FLAGGED(killer, PRF_EXECUTOR))
+			|| (ROOM_FLAGGED(ch->in_room, ROOM_ARENA) && !RENTABLE(ch->get_master()))))
 	{
 		obj_to_char(corpse.get(), ch->get_master());
 		return NULL;

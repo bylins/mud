@@ -1,6 +1,7 @@
-#include "hire.h"
+#include "cmd.generic.h"
 
-#include "cmd/follow.h"
+
+#include "grp/grp.main.h"
 #include "handler.h"
 #include "screen.h"
 #include <boost/lexical_cast.hpp>
@@ -304,6 +305,8 @@ void do_findhelpee(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
         AFFECT_DATA<EApplyLocation> af;
         if (!(k && k->follower == helpee)) {
             ch->add_follower(helpee);
+            if (ch->personGroup != nullptr)
+                ch->personGroup->addMember(helpee, true);
             af.duration = pc_duration(helpee, times * TIME_KOEFF, 0, 0, 0, 0);
         }
         else {

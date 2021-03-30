@@ -23,7 +23,7 @@
 #include "screen.h"
 #include "interpreter.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "house.h"
 #include "constants.h"
 #include "exchange.h"
@@ -71,14 +71,11 @@ extern const unsigned RECALL_SPELLS_INTERVAL;
 extern int CheckProxy(DESCRIPTOR_DATA * ch);
 extern int check_death_ice(int room, CHAR_DATA * ch);
 
-void decrease_level(CHAR_DATA * ch);
-int max_exp_gain_pc(CHAR_DATA * ch);
-int max_exp_loss_pc(CHAR_DATA * ch);
 int average_day_temp(void);
 
 // local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
-int level_exp(CHAR_DATA * ch, int level);
+
 void update_char_objects(CHAR_DATA * ch);	// handler.cpp
 // Delete this, if you delete overflow fix in beat_points_update below.
 void die(CHAR_DATA * ch, CHAR_DATA * killer);
@@ -868,186 +865,6 @@ void beat_points_update(int pulse)
 		}
 		//-MZ.overflow_fix
 	});
-}
-
-void update_clan_exp(CHAR_DATA *ch, int gain)
-{
-	if (CLAN(ch) && gain != 0)
-	{
-		// экспа для уровня клана (+ только на праве, - любой, но /5)
-		if (gain < 0 || GET_GOD_FLAG(ch, GF_REMORT))
-		{
-			int tmp = gain > 0 ? gain : gain / 5;
-			CLAN(ch)->SetClanExp(ch, tmp);
-		}
-		// экспа для топа кланов за месяц (учитываются все + и -)
-		CLAN(ch)->last_exp.add_temp(gain);
-		// экспа для топа кланов за все время (учитываются все + и -)
-		CLAN(ch)->AddTopExp(ch, gain);
-		// экспа для авто-очистки кланов (учитываются только +)
-		if (gain > 0)
-		{
-			CLAN(ch)->exp_history.add_exp(gain);
-		}
-	}
-}
-
-void gain_exp(CHAR_DATA * ch, int gain)
-{
-	int is_altered = FALSE;
-	int num_levels = 0;
-	char buf[128];
-
-	if (IS_NPC(ch))
-	{
-		ch->set_exp(ch->get_exp() + gain);
-		return;
-	}
-	else
-	{
-		ch->dps_add_exp(gain);
-		ZoneExpStat::add(zone_table[world[ch->in_room]->zone].number, gain);
-	}
-
-	if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_IMMORT)))
-		return;
-
-	if (gain > 0 && GET_LEVEL(ch) < LVL_IMMORT)
-	{
-		gain = MIN(max_exp_gain_pc(ch), gain);	// put a cap on the max gain per kill
-		ch->set_exp(ch->get_exp() + gain);
-		if (GET_EXP(ch) >= level_exp(ch, LVL_IMMORT))
-		{
-			if (!GET_GOD_FLAG(ch, GF_REMORT) && GET_REMORT(ch) < MAX_REMORT)
-			{
-				if (Remort::can_remort_now(ch))
-				{
-					send_to_char(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-						CCIGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-				}
-				else
-				{
-					send_to_char(ch,
-						"%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
-						"%s%s\r\n", CCIGRN(ch, C_NRM), Remort::WHERE_TO_REMORT_STR.c_str(), CCNRM(ch, C_NRM));
-				}
-				SET_GOD_FLAG(ch, GF_REMORT);
-			}
-		}
-		ch->set_exp(MIN(GET_EXP(ch), level_exp(ch, LVL_IMMORT) - 1));
-		while (GET_LEVEL(ch) < LVL_IMMORT && GET_EXP(ch) >= level_exp(ch, GET_LEVEL(ch) + 1))
-		{
-			ch->set_level(ch->get_level() + 1);
-			num_levels++;
-			sprintf(buf, "%sВы достигли следующего уровня!%s\r\n", CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
-			advance_level(ch);
-			is_altered = TRUE;
-		}
-
-		if (is_altered)
-		{
-			sprintf(buf, "%s advanced %d level%s to level %d.",
-				GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
-			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-		}
-	}
-	else if (gain < 0 && GET_LEVEL(ch) < LVL_IMMORT)
-	{
-		gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
-		ch->set_exp(ch->get_exp() + gain);
-		while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
-		{
-			ch->set_level(ch->get_level() - 1);
-			num_levels++;
-			sprintf(buf,
-				"%sВы потеряли уровень. Вам должно быть стыдно!%s\r\n",
-				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-			send_to_char(buf, ch);
-			decrease_level(ch);
-			is_altered = TRUE;
-		}
-		if (is_altered)
-		{
-			sprintf(buf, "%s decreases %d level%s to level %d.",
-				GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
-			mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-		}
-	}
-	if ((GET_EXP(ch) < level_exp(ch, LVL_IMMORT) - 1)
-		&& GET_GOD_FLAG(ch, GF_REMORT)
-		&& gain
-		&& (GET_LEVEL(ch) < LVL_IMMORT))
-	{
-		if (Remort::can_remort_now(ch))
-		{
-			send_to_char(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
-				CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-		}
-		CLR_GOD_FLAG(ch, GF_REMORT);
-	}
-
-	char_stat::add_class_exp(GET_CLASS(ch), gain);
-	update_clan_exp(ch, gain);
-}
-
-// юзается исключительно в act.wizards.cpp в имм командах "advance" и "set exp".
-void gain_exp_regardless(CHAR_DATA * ch, int gain)
-{
-	int is_altered = FALSE;
-	int num_levels = 0;
-
-	ch->set_exp(ch->get_exp() + gain);
-	if (!IS_NPC(ch))
-	{
-		if (gain > 0)
-		{
-			while (GET_LEVEL(ch) < LVL_IMPL && GET_EXP(ch) >= level_exp(ch, GET_LEVEL(ch) + 1))
-			{
-				ch->set_level(ch->get_level() + 1);
-				num_levels++;
-				sprintf(buf, "%sВы достигли следующего уровня!%s\r\n",
-					CCWHT(ch, C_NRM), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
-
-				advance_level(ch);
-				is_altered = TRUE;
-			}
-
-			if (is_altered)
-			{
-				sprintf(buf, "%s advanced %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-			}
-		}
-		else if (gain < 0)
-		{
-			// Pereplut: глупый участок кода.
-			//			gain = MAX(-max_exp_loss_pc(ch), gain);	// Cap max exp lost per death
-			//			GET_EXP(ch) += gain;
-			//			if (GET_EXP(ch) < 0)
-			//				GET_EXP(ch) = 0;
-			while (GET_LEVEL(ch) > 1 && GET_EXP(ch) < level_exp(ch, GET_LEVEL(ch)))
-			{
-				ch->set_level(ch->get_level() - 1);
-				num_levels++;
-				sprintf(buf,
-					"%sВы потеряли уровень!%s\r\n",
-					CCIRED(ch, C_NRM), CCNRM(ch, C_NRM));
-				send_to_char(buf, ch);
-				decrease_level(ch);
-				is_altered = TRUE;
-			}
-			if (is_altered)
-			{
-				sprintf(buf, "%s decreases %d level%s to level %d.",
-					GET_NAME(ch), num_levels, num_levels == 1 ? "" : "s", GET_LEVEL(ch));
-				mudlog(buf, BRF, LVL_IMPL, SYSLOG, TRUE);
-			}
-		}
-
-	}
 }
 
 void gain_condition(CHAR_DATA * ch, unsigned condition, int value)

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <dg_scripts.h>
+#include <dg/dg_scripts.h>
 #include <db.h>
 
 class TriggersList_F : public ::testing::Test

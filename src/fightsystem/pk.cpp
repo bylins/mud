@@ -14,6 +14,7 @@
 #include "pk.h"
 
 #include "global.objects.hpp"
+#include "grp/grp.main.h"
 #include "screen.h"
 #include "house.h"
 #include "handler.h"
@@ -343,32 +344,21 @@ int pk_increment_revenge(CHAR_DATA * agressor, CHAR_DATA * victim) {
 }
 
 void pk_increment_gkill(CHAR_DATA * agressor, CHAR_DATA * victim) {
-	if (!AFF_FLAGGED(victim, EAffectFlag::AFF_GROUP)) 	{
+	if (!IN_GROUP(victim)){
 		pk_increment_kill(agressor, victim, TRUE, false);
 		return;
 	}
-
-
-	CHAR_DATA *leader;
-	struct follow_type *f;
 	bool has_clanmember = false;
 	if (!IS_GOD(victim)) {
 		has_clanmember = has_clan_members_in_group(victim);
 	}
 
-	leader = victim->has_master() ? victim->get_master() : victim;
-
-	if (AFF_FLAGGED(leader, EAffectFlag::AFF_GROUP)
-		&& IN_ROOM(leader) == IN_ROOM(victim)
-		&& pk_action_type(agressor, leader) > PK_ACTION_FIGHT) {
-		pk_increment_kill(agressor, leader, leader == victim, has_clanmember);
-	}
-	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP)
-			&& IN_ROOM(f->follower) == IN_ROOM(victim)
-			&& pk_action_type(agressor, f->follower) > PK_ACTION_FIGHT) {
-			pk_increment_kill(agressor, f->follower, f->follower == victim, has_clanmember);
-		}
+	for (auto it : *victim->personGroup){
+	    if (it.second->member != nullptr && SAME_ROOM(agressor, it.second->member)) {
+            if (pk_action_type(agressor, it.second->member) > PK_ACTION_FIGHT) {
+                pk_increment_kill(agressor, it.second->member, it.second->member == victim, has_clanmember);
+            }
+        }
 	}
 }
 
@@ -1098,22 +1088,9 @@ int check_pkill(CHAR_DATA * ch, CHAR_DATA * opponent, const std::string &arg)
 // Проверяет, есть ли члены любого клан в группе чара и находятся ли они
 // в одной с ним комнате
 bool has_clan_members_in_group(CHAR_DATA * ch) {
-	CHAR_DATA *leader;
-	struct follow_type *f;
-	leader = ch->has_master() ? ch->get_master() : ch;
-
-	// проверяем, был ли в группе клановый чар
-	if (CLAN(leader)) {
-		return true;
-	}
-	else {
-		for (f = leader->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffectFlag::AFF_GROUP) && IN_ROOM(f->follower) == ch->in_room && CLAN(f->follower)) {
-				return true;
-			}
-		}
-	}
-	return false;
+	if (!ch || ch->purged() || !IN_GROUP(ch))
+	    return false;
+    return ch->personGroup->has_clan_members_in_group(ch);
 }
 
 

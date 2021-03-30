@@ -23,10 +23,10 @@
 #include "handler.h"
 #include "db.h"
 #include "spells.h"
-#include "skills.h"
+#include "skills/skills.h"
 #include "house.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/mobact.hpp"
@@ -420,7 +420,7 @@ int legal_dir(CHAR_DATA * ch, int dir, int need_specials_check, int show_msg)
 	// charmed
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM)
 		&& ch->has_master()
-		&& ch->in_room == ch->get_master()->in_room)
+		&& SAME_ROOM(ch,  ch->get_master()))
 	{
 		if (show_msg)
 		{
@@ -2058,6 +2058,5 @@ void do_wake(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 		GET_POS(ch) = POS_SITTING;
 	}
 }
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

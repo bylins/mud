@@ -1,4 +1,4 @@
-#include "retreat.h"
+#include "cmd.generic.h"
 #include "fightsystem/fight.h"
 
 // ***************** STOPFIGHT

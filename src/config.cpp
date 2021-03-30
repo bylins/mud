@@ -49,8 +49,6 @@
  *
  */
 
-int level_exp(CHAR_DATA * ch, int level);
-
 // GAME PLAY OPTIONS
 
 // exp change limits
@@ -282,23 +280,6 @@ const char *START_MESSG =
 	"тебя в нашем мире.\r\n"
 	" Твоя задача непроста, но надеемся, что ты сумеешь достойно решить ее.\r\n"
 	" В добрый час, путник, и да будет скатертью тебе дорога...\r\n" "\r\n";
-
-int max_exp_gain_pc(CHAR_DATA * ch)
-{
-	int result = 1;
-	if (!IS_NPC(ch))
-	{
-		int max_per_lev =
-			level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0);
-		result = max_per_lev / (10 + GET_REMORT(ch));
-	}
-	return result;
-}
-
-int max_exp_loss_pc(CHAR_DATA * ch)
-{
-	return (IS_NPC(ch) ? 1 : (level_exp(ch, GET_LEVEL(ch) + 1) - level_exp(ch, GET_LEVEL(ch) + 0)) / 3);
-}
 
 int calc_loadroom(const CHAR_DATA* ch, int bplace_mode /*= BIRTH_PLACE_UNDEFINED*/)
 {

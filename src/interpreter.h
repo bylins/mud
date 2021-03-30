@@ -195,6 +195,7 @@ struct alias_data
 #define SCMD_MAPPER 55
 #define SCMD_TESTER 56
 #define SCMD_IPCONTROL 57
+#define SCMD_FOLLOW_GRP_EXIT 58
 
 // do_wizutil
 #define SCMD_REROLL     0

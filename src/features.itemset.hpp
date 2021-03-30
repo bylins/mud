@@ -6,7 +6,7 @@
 */
 
 #include "obj.hpp"
-#include "skills.h"
+#include "skills/skills.h"
 #include "structs.h"
 #include "utils.h"
 

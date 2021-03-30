@@ -9,7 +9,7 @@
 #include "chars/char.hpp"
 #include "comm.h"
 #include "handler.h"
-#include "dg_scripts.h"
+#include "dg/dg_scripts.h"
 #include "im.h"
 #include "room.hpp"
 #include "pugixml.hpp"

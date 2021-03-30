@@ -14,43 +14,23 @@
 
 #include "spells.h"
 
-#include "birth_places.hpp"
 #include "char_obj_utils.inl"
-#include "chars/char.hpp"
 #include "chars/world.characters.hpp"
-#include "cmd/follow.h"
-#include "cmd/hire.h"
-#include "comm.h"
-#include "conf.h"
-#include "constants.h"
-#include "coredump.hpp"
-#include "db.h"
-#include "deathtrap.hpp"
 #include "depot.hpp"
-#include "dg_scripts.h"
-#include "features.hpp"
+#include "fightsystem/fight.h"
 #include "fightsystem/mobact.hpp"
 #include "fightsystem/pk.h"
+#include "grp/grp.main.h"
 #include "handler.h"
 #include "house.h"
-#include "im.h"
-#include "interpreter.h"
 #include "liquid.hpp"
-#include "logger.hpp"
 #include "magic.h"
-#include "modify.h"
-#include "obj.hpp"
-#include "obj_sets.hpp"
 #include "object.prototypes.hpp"
 #include "parcel.hpp"
 #include "privilege.hpp"
-#include "room.hpp"
 #include "screen.h"
-#include "skills.h"
 #include "skills/flee.h"
 #include "skills/townportal.h"
-#include "structs.h"
-#include "sysdep.h"
 #include "world.objects.hpp"
 #include "zone.table.hpp"
 
@@ -75,7 +55,6 @@ ESkill get_magic_skill_number_by_spell(int spellnum);
 bool can_get_spell(CHAR_DATA *ch, int spellnum);
 bool can_get_spell_with_req(CHAR_DATA *ch, int spellnum, int req_lvl);
 void weight_change_object(OBJ_DATA * obj, int weight);
-int compute_armor_class(CHAR_DATA * ch);
 char *diag_weapon_to_char(const CObjectPrototype* obj, int show_wear);
 void create_rainsnow(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int calc_anti_savings(CHAR_DATA * ch);
@@ -1092,16 +1071,13 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 		send_to_char("Ваша магия потерпела неудачу.\r\n", ch);
 	else
 	{
-		if (!check_charmee(ch, victim, SPELL_CHARM))
-		{
+		if (!check_charmee(ch, victim, SPELL_CHARM)){
 			return;
 		}
 
 		// Левая проверка
-		if (victim->has_master())
-		{
-			if (stop_follower(victim, SF_MASTERDIE))
-			{
+		if (victim->has_master()){
+			if (stop_follower(victim, SF_MASTERDIE)){
 				return;
 			}
 		}
@@ -1115,6 +1091,8 @@ void spell_charm(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* /* o
 
 		affect_from_char(victim, SPELL_CHARM);
 		ch->add_follower(victim);
+		if (ch->personGroup != nullptr)
+		    ch->personGroup->addMember(victim, true);
 		AFFECT_DATA<EApplyLocation> af;
 		af.type = SPELL_CHARM;
 
@@ -1922,7 +1900,7 @@ void spell_sacrifice(int/* level*/, CHAR_DATA *ch, CHAR_DATA *victim, OBJ_DATA* 
 			if (IS_NPC(f->follower)
 				&& AFF_FLAGGED(f->follower, EAffectFlag::AFF_CHARM)
 				&& MOB_FLAGGED(f->follower, MOB_CORPSE)
-				&& ch->in_room == IN_ROOM(f->follower))
+				&& SAME_ROOM(ch,f->follower))
 			{
 				do_sacrifice(f->follower, dam);
 			}
@@ -2157,12 +2135,14 @@ void spell_angel(int/* level*/, CHAR_DATA *ch, CHAR_DATA* /*victim*/, OBJ_DATA* 
 	GET_LIKES(mob) = 100;
 	IS_CARRYING_W(mob) = 0;
 	IS_CARRYING_N(mob) = 0;
-
-	MOB_FLAGS(mob).set(MOB_CORPSE);
+    // тварь же человеком создана
+    MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
+    // ангел - не андед!
 	MOB_FLAGS(mob).set(MOB_ANGEL);
 	MOB_FLAGS(mob).set(MOB_LIGHTBREATH);
+    MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
 
-	mob->set_level(ch->get_level());
+    mob->set_level(ch->get_level());
 
 	char_to_room(mob, ch->in_room);
 
@@ -2224,6 +2204,7 @@ void spell_mental_shadow(int/* level*/, CHAR_DATA* ch, CHAR_DATA* /*victim*/, OB
 	mob->set_protecting(ch);
 	MOB_FLAGS(mob).set(MOB_CORPSE);
 	MOB_FLAGS(mob).set(MOB_GHOST);
+    MOB_FLAGS(mob).set(MOB_PLAYER_SUMMON);
 
 	act("Мимолётное наваждение воплотилось в призрачную тень.", TRUE, mob, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 

@@ -13,7 +13,7 @@
 ************************************************************************ */
 
 #include "object.prototypes.hpp"
-#include "cmd/mercenary.h"
+#include "cmd/cmd.generic.h"
 #include "conf.h"
 #include "sysdep.h"
 #include "structs.h"

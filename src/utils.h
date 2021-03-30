@@ -215,9 +215,6 @@ int perform_move(CHAR_DATA * ch, int dir, int following, int checkmob, CHAR_DATA
 int mana_gain(const CHAR_DATA * ch);
 int hit_gain(CHAR_DATA * ch);
 int move_gain(CHAR_DATA * ch);
-void advance_level(CHAR_DATA * ch);
-void gain_exp(CHAR_DATA * ch, int gain);
-void gain_exp_regardless(CHAR_DATA * ch, int gain);
 void gain_condition(CHAR_DATA * ch, unsigned condition, int value);
 void check_idling(CHAR_DATA * ch);
 void point_update(void);
@@ -566,7 +563,6 @@ inline void TOGGLE_BIT(T& var, const uint32_t bit)
 #define GET_TITLE(ch)   ((ch)->player_data.title)
 #define GET_LEVEL(ch)   ((ch)->get_level())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GET_REAL_WIS(ch))])
-#define SAME_ROOM(ch, tch)		(IN_ROOM(ch) == IN_ROOM(tch))
 #define GET_MANA_COST(ch,spellnum)      mag_manacost(ch,spellnum)
 #define GET_MANA_STORED(ch)   ((ch)->MemQueue.stored)
 #define GET_MEM_COMPLETED(ch) ((ch)->MemQueue.stored)
@@ -1774,6 +1770,11 @@ private:
 	std::ostream& m_stream;
 	std::ios::fmtflags m_flags;
 };
+
+bool tell_can_see(CHAR_DATA *ch, CHAR_DATA *vict);
+
+bool SAME_ROOM(CHAR_DATA *ch, CHAR_DATA *tch);
+bool SAME_ROOM(const CHAR_DATA *ch, const CHAR_DATA *tch);
 
 #endif // _UTILS_H_
 

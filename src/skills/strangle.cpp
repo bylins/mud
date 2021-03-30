@@ -68,7 +68,7 @@ void go_strangle(CHAR_DATA * ch, CHAR_DATA * vict) {
                 act("Рванув на себя, $N стащил$G $n3 на землю.", FALSE, vict, nullptr, ch, TO_NOTVICT | TO_ARENA_LISTEN);
                 vict->drop_from_horse();
             }
-            if (ch->get_skill(SKILL_CHOPOFF) && ch->isInSameRoom(vict)) {
+            if (ch->get_skill(SKILL_CHOPOFF) && SAME_ROOM(ch, vict)) {
                 go_chopoff(ch, vict);
             }
             //set_wait(ch, 2, TRUE);
