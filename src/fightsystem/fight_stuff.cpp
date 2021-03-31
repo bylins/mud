@@ -281,30 +281,43 @@ void update_leadership(CHAR_DATA *ch, CHAR_DATA *killer)
 	}
 }
 
-bool check_tester_death(CHAR_DATA *ch) {
+bool check_tester_death(CHAR_DATA *ch, CHAR_DATA *killer)
+{
 	const bool player_died = !IS_NPC(ch);
 	const bool zone_is_under_construction = 0 != zone_table[world[ch->in_room]->zone].under_construction;
 
-	if (!player_died || !zone_is_under_construction)	{
+	if (!player_died
+		|| !zone_is_under_construction)
+	{
 		return false;
 	}
+
+
+	if (killer && (!IS_NPC(killer) || IS_CHARMICE(killer)) && (ch != killer)) // рип в тестовой зоне от моба но не чармиса
+	{
+		return false;
+	}
+
 	// Сюда попадают только тестеры на волоске от смерти. Для инх функция должна вернуть true.
 	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
 	act("$n погиб$q смертью храбрых.", FALSE, ch, 0, 0, TO_ROOM);
 	const int rent_room = real_room(GET_LOADROOM(ch));
-	if (rent_room == NOWHERE) {
+	if (rent_room == NOWHERE)
+	{
 		send_to_char("Вам некуда возвращаться!\r\n", ch);
 		return true;
 	}
 	send_to_char("Божественная сила спасла вашу жизнь.!\r\n", ch);
 	char_from_room(ch);
 	char_to_room(ch, rent_room);
-	ch->dismount();
+    ch->dismount();
 	GET_HIT(ch) = 1;
 	update_pos(ch);
 	act("$n медленно появил$u откуда-то.", FALSE, ch, 0, 0, TO_ROOM);
-	if (!ch->affected.empty()) {
-		while (!ch->affected.empty()) {
+	if (!ch->affected.empty())
+	{
+		while (!ch->affected.empty())
+		{
 			ch->affect_remove(ch->affected.begin());
 		}
 	}
@@ -312,6 +325,7 @@ bool check_tester_death(CHAR_DATA *ch) {
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
+
 	return true;
 }
 
@@ -325,7 +339,7 @@ void die(CHAR_DATA *ch, CHAR_DATA *killer)
 		return;
 	}
 
-	if (check_tester_death(ch))
+	if (check_tester_death(ch, killer))
 	{
 		return;
 	}
