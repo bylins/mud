@@ -4615,12 +4615,22 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 19:
 		reason = one_argument(val_arg, num);
 		if (!*num || !reason || !*reason) {
-			send_to_char(ch, "Укажите срок и причину наказания\r\n");
+			send_to_char(ch, "Укажите срок и причину наказания.\r\n");
 			return(0);
 		}
-		times = atol(num);
-		if (!set_punish(ch, vict, SCMD_FREEZE, reason, times)) 
+		if (!strcmp(num, "0")) {
+			set_punish(ch, vict, SCMD_FREEZE, reason, 0);
 			return (0);
+		}
+		times = atol(num);
+		if (times == 0) {
+			send_to_char(ch, "Срок указан не верно.\r\n");
+			return (0);
+		}
+		else {
+			set_punish(ch, vict, SCMD_FREEZE, reason, times);
+			return (0);
+		}
 		break;
 	case 20:
 	case 21:
