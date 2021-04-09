@@ -4614,8 +4614,13 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 19:
 		reason = one_argument(val_arg, num);
-		if (*num) times = atol(num);
-		if (!set_punish(ch, vict, SCMD_FREEZE, reason, times)) return (0);
+		if (!*num || !reason || !*reason) {
+			send_to_char(ch, "Укажите срок и причину наказания\r\n");
+			return(0);
+		}
+		times = atol(num);
+		if (!set_punish(ch, vict, SCMD_FREEZE, reason, times)) 
+			return (0);
 		break;
 	case 20:
 	case 21:
@@ -4627,7 +4632,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	{
 		const unsigned num = mode - 22; // magic number циркулевских времен
 		if (num >= (ch)->player_specials->saved.conditions.size())
-		{
+	    	{
 			send_to_char("Ошибка: num >= saved.conditions.size(), сообщите кодерам.\r\n", ch);
 			return 0;
 		}
@@ -4992,8 +4997,9 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 49:
 		reason = one_argument(val_arg, num);
-		if (*num) times = atol(num);
-		if (!set_punish(ch, vict, SCMD_HELL, reason, times)) return (0);
+		if (*num) times = atol(num); 
+			if (!set_punish(ch, vict, SCMD_HELL, reason, times)) 
+			return (0);
 		break;
 
 	case 50:
@@ -5042,13 +5048,15 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 53:
 		reason = one_argument(val_arg, num);
 		if (*num) times = atol(num);
-		if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) return (0);
+			if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) 
+			return (0);
 		break;
 
 	case 54:
 		reason = one_argument(val_arg, num);
-		if (*num) times = atol(num);
-		if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) return (0);
+		if (*num) times = atol(num); 
+			if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) 
+			return (0);
 		break;
 
 	case 55:
@@ -5057,11 +5065,11 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			send_to_char("Кем вы себя возомнили?\r\n", ch);
 			return 0;
 		}
-		reason = one_argument(val_arg, num);
-		if (*num && reason && *reason)
+		reason = strdup(val_arg);
+		if (reason && *reason)
 		{
 			skip_spaces(&reason);
-			sprintf(buf, "%s by %s", num, GET_NAME(ch));
+			sprintf(buf, "add by %s", GET_NAME(ch));
 			if (!strcmp(reason, "clear"))
 			{
 				if KARMA(vict)
@@ -5077,15 +5085,14 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else
 		{
-			send_to_char("Формат команды: set [ file | player ] <character> karma <action> <reason>\r\n", ch);
+			send_to_char("Формат команды: set [ file | player ] <character> karma <reason>\r\n", ch);
 			return (0);
 		}
 		break;
 
 	case 56:      // Разрегистрация персонажа
 		reason = one_argument(val_arg, num);
-		if (*num) times = atol(num);
-		if (!set_punish(ch, vict, SCMD_REGISTER, reason, times)) return (0);
+		if (!set_punish(ch, vict, SCMD_UNREGISTER, reason, 0)) return (0);
 		break;
 
 	case 57:      // Установка флага палач
