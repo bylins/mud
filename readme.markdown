@@ -1,5 +1,5 @@
 # BRus MUD Engine readme.
-Для сборки под UNIX или WSL  (ubuntu под WIN10) требуется:
+Для сборки под Ubuntu 20.04 или WSL (ubuntu под WIN10) требуется ввести:
 
 sudo apt update && sudo apt upgrade
 
