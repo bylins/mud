@@ -216,7 +216,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	else
 	{
-		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
+		snprintf(buf1, MAX_STRING_LENGTH + 3, "%s\r\n", buf2);
 		send_to_char(buf1, vict);
 	}
 }
@@ -318,34 +318,28 @@ extern const char *deaf_social;
 
 
 // Adds karma string to KARMA
-void add_karma(CHAR_DATA * ch, const char * punish, const char * reason)
-{
-	if (reason && (reason[0] != '.'))
-	{
+void add_karma(CHAR_DATA * ch, const char * punish, const char * reason) {
+	if (reason && (reason[0] != '.')) {
 		time_t nt = time(NULL);
 		sprintf(buf1, "%s :: %s [%s]\r\n", rustime(localtime(&nt)), punish, reason);
 		KARMA(ch) = str_add(KARMA(ch), buf1);
-	};
+	}
 }
 
-void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int vnum;
 	one_argument(argument, buf);
 	int num = 0;
-	if (!*buf || !a_isdigit(*buf))
-	{
+	if (!*buf || !a_isdigit(*buf)) {
 		send_to_char("Usage: delete <number>\r\n", ch);
 		return;
 	}
-	if ((vnum = atoi(buf)) < 0)
-	{
+	if ((vnum = atoi(buf)) < 0) {
 		send_to_char("Указан неверный VNUM объекта !\r\n", ch);
 		return;
 	}
 
-	world_objects.foreach_with_vnum(vnum, [&](const OBJ_DATA::shared_ptr& k)
-	{
+	world_objects.foreach_with_vnum(vnum, [&](const OBJ_DATA::shared_ptr& k) {
 		k->set_timer(0);
 		++num;
 	});
@@ -356,7 +350,6 @@ void do_delete_obj(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	sprintf(buf2, "Удалено всего предметов: %d", num);
 	send_to_char(buf2, ch);
-
 }
 
 void do_showzonestats(CHAR_DATA* ch, char* argument, int, int) {
@@ -489,7 +482,7 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 		break;
 	}
 	assert(pundata);
-	if (GET_LEVEL(ch) < pundata->level && !PRF_FLAGGED(ch, PRF_CODERINFO))
+	if (GET_LEVEL(ch) < pundata->level)
 	{
 		send_to_char("Да кто ты такой!!? Чтобы оспаривать волю СТАРШИХ БОГОВ !!!\r\n", ch);
 		return 0;
@@ -551,11 +544,10 @@ int set_punish(CHAR_DATA * ch, CHAR_DATA * vict, int punish, char * reason, long
 			sprintf(buf, "Freeze OFF for %s by %s.", GET_NAME(vict), GET_NAME(ch));
 			mudlog(buf, DEF, MAX(LVL_IMMORT, GET_INVIS_LEV(ch)), SYSLOG, TRUE);
 			imm_log("%s", buf);
-
 			sprintf(buf, "Freeze OFF by %s", GET_NAME(ch));
 			add_karma(vict, buf, reason);
-			if (IN_ROOM(vict) != NOWHERE)
-			{
+
+			if (IN_ROOM(vict) != NOWHERE) {
 				act("$n выпущен$a из темницы!", FALSE, vict, 0, 0, TO_ROOM);
 
 				if ((result = GET_LOADROOM(vict)) == NOWHERE)
@@ -1622,7 +1614,7 @@ void do_send(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Послано.\r\n", ch);
 	else
 	{
-		sprintf(buf2, "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
+		snprintf(buf2, MAX_STRING_LENGTH + 18,  "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
 		send_to_char(buf2, ch);
 	}
 }
@@ -3451,7 +3443,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		sprintf(buf1, "%s%s: %s%s\r\n", GET_NAME(ch), emote ? "" : " богам", emote ? "<--- " : "", argument);
 	}
-	snprintf(buf2, MAX_STRING_LENGTH, "&c%s&n", buf1);
+	snprintf(buf2, MAX_STRING_LENGTH + 4, "&c%s&n", buf1);
 	Remember::add_to_flaged_cont(Remember::wiznet_, buf2, level);
 
 	// пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов
@@ -4614,13 +4606,15 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	case 19:
 		reason = one_argument(val_arg, num);
-		if (!*num || !reason || !*reason) {
-			send_to_char(ch, "Укажите срок и причину наказания.\r\n");
-			return(0);
+		if (!*num) {
+			send_to_char(ch, "Укажите срок наказания.\r\n");
+			return(0); // return(0) обходит запись в файл в do_set
 		}
 		if (!strcmp(num, "0")) {
-			set_punish(ch, vict, SCMD_FREEZE, reason, 0);
-			return (0);
+			if (!set_punish(ch, vict, SCMD_FREEZE, reason, times)){
+				return (0);
+			}
+			return (1);
 		}
 		times = atol(num);
 		if (times == 0) {
@@ -4628,8 +4622,8 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 			return (0);
 		}
 		else {
-			set_punish(ch, vict, SCMD_FREEZE, reason, times);
-			return (0);
+			if (!set_punish(ch, vict, SCMD_FREEZE, reason, times))
+				return (0);
 		}
 		break;
 	case 20:
@@ -5007,11 +5001,26 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 49:
 		reason = one_argument(val_arg, num);
-		if (*num) times = atol(num); 
-			if (!set_punish(ch, vict, SCMD_HELL, reason, times)) 
+		if (!*num) {
+			send_to_char(ch, "Укажите срок наказания.\r\n");
+			return(0); // return(0) обходит запись в файл в do_set
+		}
+		if (!str_cmp(num, "0")) {
+			if (!set_punish(ch, vict, SCMD_HELL, reason, times)) {
+				return (0);
+			}
+			return (1);
+		}
+		times = atol(num);
+		if (times == 0) {
+			send_to_char(ch, "Срок указан не верно.\r\n");
 			return (0);
+		}
+		else {
+			if (!set_punish(ch, vict, SCMD_HELL, reason, times))
+				return (0);
+		}
 		break;
-
 	case 50:
 		if (valid_email(val_arg))
 		{
@@ -5057,18 +5066,49 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 
 	case 53:
 		reason = one_argument(val_arg, num);
-		if (*num) times = atol(num);
-			if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) 
+		if (!*num) {
+			send_to_char(ch, "Укажите срок наказания.\r\n");
+			return(0); // return(0) обходит запись в файл в do_set
+		}
+		if (!str_cmp(num, "0")) {
+			if (!set_punish(ch, vict, SCMD_MUTE, reason, times)) {
+				return (0);
+			}
+			return (1);
+		}
+		times = atol(num);
+		if (times == 0) {
+			send_to_char(ch, "Срок указан не верно.\r\n");
 			return (0);
+		}
+		else {
+			if (!set_punish(ch, vict, SCMD_MUTE, reason, times))
+				return (0);
+		}
 		break;
 
 	case 54:
 		reason = one_argument(val_arg, num);
-		if (*num) times = atol(num); 
-			if (!set_punish(ch, vict, SCMD_DUMB, reason, times)) 
+		if (!*num) {
+			send_to_char(ch, "Укажите срок наказания.\r\n");
+			return(0); // return(0) обходит запись в файл в do_set
+		}
+		if (!str_cmp(num, "0")) {
+			if (!set_punish(ch, vict, SCMD_DUMB, reason, times)){
+				return (0);
+			}
+			return (1);
+		}
+		times = atol(num);
+		if (times == 0) {
+			send_to_char(ch, "Срок указан не верно.\r\n");
 			return (0);
+		}
+		else {
+			if (!set_punish(ch, vict, SCMD_DUMB, reason, times))
+				return (0);
+		}
 		break;
-
 	case 55:
 		if (GET_LEVEL(vict) >= LVL_IMMORT && !IS_IMPL(ch) && !PRF_FLAGGED(ch, PRF_CODERINFO))
 		{
@@ -6426,7 +6466,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				negative = !negative;
 			}
-			sprintf(buf, "   %s%s%s%s%s%d%s\r\n",
+			snprintf(buf,MAX_STRING_LENGTH + 7, "   %s%s%s%s%s%d%s\r\n",
 				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 				CCCYN(ch, C_NRM),
 				negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
