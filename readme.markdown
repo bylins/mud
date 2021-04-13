@@ -5,20 +5,6 @@ sudo apt update && sudo apt upgrade
 
 sudo apt install build-essential make libssl-dev libghc-zlib-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip libboost-all-dev cmake
 
-собрать библиотеку libTgBot, см. описание https://github.com/reo7sp/tgbot-cpp
-
-wget https://github.com/git/git/archive/master.zip
-
-unzip master.zip
-
-cd git-master/
-
-make prefix=/usr/local all
-
-sudo make prefix=/usr/local install
-
-cd ..
-
 git clone https://github.com/bylins/mud
 
 cd mud
