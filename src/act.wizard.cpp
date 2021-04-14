@@ -5171,8 +5171,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		send_to_gods(buf);
 		break;
 	case 60: // флаг тестера
-		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл"))
-		{
+		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
 			CLR_GOD_FLAG(vict, GF_TESTER);
 			PRF_FLAGS(vict).unset(PRF_TESTER); // обнулим реж тестер
 			sprintf(buf, "%s убрал флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
@@ -5194,11 +5193,28 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 62:
 		vict->set_hryvn(value);
 		break;
-	case 63: // флаг автобота
-		{
-			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SCRIPTWRITER);
-			break;
+	case 63: // флаг скриптера
+		sprintf(buf, "%s", GET_NAME(ch));
+		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
+			PLR_FLAGS(vict).unset(PLR_SCRIPTWRITER); 
+			add_karma(vict, "Снятие флага скриптера", buf);
+			sprintf(buf, "%s убрал флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
+			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+			return (1);
 		}
+		else
+			if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
+				PLR_FLAGS(vict).set(PLR_SCRIPTWRITER); 
+				add_karma(vict, "Установка флага скриптера", buf);
+				sprintf(buf, "%s установил  флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
+				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
+				return (1);
+			}
+		else {
+			send_to_char(ch, "Значение может быть только on/off или вкл/выкл.\r\n");
+			return (0); // не пишем в пфайл ничего
+		}
+		break;
 	case 64: // флаг спамера
 		{
 			SET_OR_REMOVE(on, off, PLR_FLAGS(vict), PLR_SPAMMER);
@@ -5212,18 +5228,18 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	}
 		break;
 	}
-	case 66: // идентификатор чата телеграма
-    {
-	    unsigned long int id = strtoul(val_arg, nullptr, 10);
-	    if (!IS_NPC(ch) && id != 0) {
-	        sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->player_specials->saved.telegram_id, id);
-	        send_to_char(buf, ch);
-	        vict->setTelegramId(id);
-        }
-	    else
-            send_to_char("Ошибка, указано неверное число или персонаж.\r\n", ch);
-        break;
-    }
+	case 66: { // идентификатор чата телеграма
+	
+		unsigned long int id = strtoul(val_arg, nullptr, 10);
+		if (!IS_NPC(ch) && id != 0) {
+			sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->player_specials->saved.telegram_id, id);
+			send_to_char(buf, ch);
+			vict->setTelegramId(id);
+		}
+		else
+			send_to_char("Ошибка, указано неверное число или персонаж.\r\n", ch);
+		break;
+	}
 	default:
 		send_to_char("Не могу установить это!\r\n", ch);
 		return (0);

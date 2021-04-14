@@ -780,9 +780,8 @@ int thaco(int class_num, int level)
 	case CLASS_BATTLEMAGE:
 	case CLASS_DEFENDERMAGE:
 	case CLASS_CHARMMAGE:
-	case CLASS_NECROMANCER:
-		switch (level)
-		{
+	case CLASS_NECROMANCER: {
+		switch (level) {
 		case 0:
 			return 100;
 		case 1:
@@ -857,6 +856,7 @@ int thaco(int class_num, int level)
 			log("SYSERR: Missing level for mage thac0.");
 			break;
 		}
+	}
 	case CLASS_CLERIC:
 	case CLASS_DRUID:
 		switch (level)
@@ -2037,8 +2037,7 @@ void do_start(CHAR_DATA * ch, int newbie)
 		}
 	}
 
-		switch (GET_CLASS(ch))
-		{
+		switch (GET_CLASS(ch)) {
 		case CLASS_BATTLEMAGE:
 		case CLASS_DEFENDERMAGE:
 		case CLASS_CHARMMAGE:
@@ -2060,12 +2059,15 @@ void do_start(CHAR_DATA * ch, int newbie)
 		case CLASS_PALADINE:
 		case CLASS_WARRIOR:
 		case CLASS_RANGER:
-			ch->set_skill(SKILL_HORSE, 10);
+			if (ch->get_skill(SKILL_HORSE) == 0)
+				ch->set_skill(SKILL_HORSE, 10);
 			ch->set_skill(SKILL_SATTACK, 95);
 			break;
 		case CLASS_SMITH:
 			ch->set_skill(SKILL_SATTACK, 95);
 			break;
+		default:
+		break;
 		}
 
 	advance_level(ch);
