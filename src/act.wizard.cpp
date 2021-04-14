@@ -216,7 +216,7 @@ void do_send_text_to_char(CHAR_DATA *ch, char *argument, int, int)
 		send_to_char("Такого персонажа нет в игре.\r\n", ch);
 	else
 	{
-		snprintf(buf1, MAX_STRING_LENGTH + 3, "%s\r\n", buf2);
+		snprintf(buf1, MAX_STRING_LENGTH, "%s\r\n", buf2);
 		send_to_char(buf1, vict);
 	}
 }
@@ -1614,7 +1614,7 @@ void do_send(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Послано.\r\n", ch);
 	else
 	{
-		snprintf(buf2, MAX_STRING_LENGTH + 18,  "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
+		snprintf(buf2, MAX_STRING_LENGTH,  "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
 		send_to_char(buf2, ch);
 	}
 }
@@ -3443,7 +3443,7 @@ void do_wiznet(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	{
 		sprintf(buf1, "%s%s: %s%s\r\n", GET_NAME(ch), emote ? "" : " богам", emote ? "<--- " : "", argument);
 	}
-	snprintf(buf2, MAX_STRING_LENGTH + 4, "&c%s&n", buf1);
+	snprintf(buf2, MAX_STRING_LENGTH, "&c%s&n", buf1);
 	Remember::add_to_flaged_cont(Remember::wiznet_, buf2, level);
 
 	// пробегаемся по списку дескрипторов чаров и кто должен - тот услышит богов
@@ -6466,7 +6466,7 @@ void do_print_armor(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			{
 				negative = !negative;
 			}
-			snprintf(buf,MAX_STRING_LENGTH + 7, "   %s%s%s%s%s%d%s\r\n",
+			snprintf(buf,MAX_STRING_LENGTH, "   %s%s%s%s%s%d%s\r\n",
 				CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM),
 				CCCYN(ch, C_NRM),
 				negative ? " ухудшает на " : " улучшает на ", abs(drsdice), CCNRM(ch, C_NRM));
