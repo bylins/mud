@@ -1060,10 +1060,12 @@ void script_stat(CHAR_DATA * ch, SCRIPT_DATA * sc)
 			send_to_char(ch, "Trigger Intended Assignment: undefined (attach_type=%d)\r\n",
 				static_cast<int>(t->get_attach_type()));
 		}
-
-		sprintf(buf, "  Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
-			buf1, GET_TRIG_NARG(t), !t->arglist.empty() ? t->arglist.c_str() : "None");
-		send_to_char(buf, ch);
+		std::stringstream buffer;
+		buffer << "  Trigger Type: " << buf1 << ", Numeric Arg:" << GET_TRIG_NARG(t)
+			<< " , Arg list:"  << !t->arglist.empty() ? t->arglist.c_str() : "None";
+//		sprintf(buf, "  Trigger Type: %s, Numeric Arg: %d, Arg list: %s\r\n",
+//			buf1, GET_TRIG_NARG(t), !t->arglist.empty() ? t->arglist.c_str() : "None");
+		send_to_char(buffer.str(), ch);
 
 		if (GET_TRIG_WAIT(t))
 		{
@@ -4253,7 +4255,6 @@ int process_foreach_begin(const char* cond, void *go, SCRIPT_DATA * sc, TRIG_DAT
 	}
 
 	add_var_cntx(&GET_TRIG_VARS(trig), name, value, 0);
-
 	sprintf(value, "%s%s", name, FOREACH_LIST_GUID);
 	add_var_cntx(&GET_TRIG_VARS(trig), value, list_str, 0);
 
@@ -4985,26 +4986,31 @@ int process_run(void *go, SCRIPT_DATA ** sc, TRIG_DATA ** trig, int type, char *
 
 	return (TRUE);
 }
+CHAR_DATA *dg_caster_owner_obj(OBJ_DATA * obj) {
 
-ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj)
-{
-	if (obj->get_in_room() > NOWHERE)
-	{
+	if (obj->get_carried_by()) {
+		return obj->get_carried_by();
+	}
+	if (obj->get_worn_by()) {
+		return obj->get_worn_by();
+	}
+}
+
+ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj) {
+
+	if (obj->get_in_room() > NOWHERE) {
 		return world[obj->get_in_room()];
 	}
 
-	if (obj->get_carried_by())
-	{
+	if (obj->get_carried_by()) {
 		return world[obj->get_carried_by()->in_room];
 	}
 
-	if (obj->get_worn_by())
-	{
+	if (obj->get_worn_by())	{
 		return world[obj->get_worn_by()->in_room];
 	}
 
-	if (obj->get_in_obj())
-	{
+	if (obj->get_in_obj()) {
 		return dg_room_of_obj(obj->get_in_obj());
 	}
 
@@ -5367,8 +5373,10 @@ void process_remote(SCRIPT_DATA * sc, TRIG_DATA * trig, char *cmd)
 
 	// find the target script from the uid number
 	uid = atoi(buf2 + 1);
-	if (uid <= 0)
-	{
+	if (uid <= 0) {
+//		std::stringstream buffer;
+//		buffer << "remote: illegal uid " << buf2;
+//		sprintf(buf, buffer.str());
 		sprintf(buf, "remote: illegal uid '%s'", buf2);
 		trig_log(trig, buf);
 		return;

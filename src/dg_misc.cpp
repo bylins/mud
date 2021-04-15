@@ -183,6 +183,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		break;
 	case OBJ_TRIGGER:
 		caster_room = dg_room_of_obj((OBJ_DATA *) go);
+		caster = dg_caster_owner_obj((OBJ_DATA *) go);
 		if (!caster_room)
 		{
 			trig_log(trig, "dg_do_cast: unknown room for object-caster!");
@@ -269,6 +270,9 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 
 		IN_ROOM(caster) = real_room(caster_room->number);
 	}
+	sprintf(buf2, "dg_cast: кастер имя: %s уровень: %d морты: %d закл: %s", GET_NAME(caster), 
+		GET_LEVEL(caster), GET_REMORT(caster), spell_info[spellnum].name);
+	trig_log(trig, buf2);
 
 	// Find the target
 	if (t != NULL)
@@ -318,7 +322,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);
 	}
-	if (caster_room)
+	if (caster && IS_NPC(caster))
 		extract_char(caster, FALSE);
 }
 
