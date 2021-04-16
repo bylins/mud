@@ -523,18 +523,15 @@ void trg_spelladd(CHAR_DATA * ch, int spellnum, int spelldiff, int vnum)
 	}
 }
 
-void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
-{
+void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell) {
 	char type[MAX_STRING_LENGTH];
 
 	if ((spelldiff && IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)) ||
 			(!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spellnum), spell)))
 		return;
-	if (!spelldiff)
-	{
+	if (!spelldiff) {
 		REMOVE_BIT(GET_SPELL_TYPE(ch, spellnum), spell);
-		switch (spell)
-		{
+		switch (spell) {
 		case SPELL_SCROLL:
 			strcpy(type, "создания свитка");
 			break;
@@ -551,13 +548,15 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
 			strcpy(type, "использования рун");
 			break;
 		};
-		sprintf(buf, "Вы утратили умение %s '%s'", type, spell_name(spellnum));
+		std::stringstream buffer;
+//		sprintf(buf, "Вы утратили умение %s '%s'", type, spell_name(spellnum));
+		buffer << "Вы утратили умение " << type << " '" << spell_name(spellnum) << "'";
+		send_to_char(buffer.str(), ch);
+
 	}
-	else
-	{
+	else {
 		SET_BIT(GET_SPELL_TYPE(ch, spellnum), spell);
-		switch (spell)
-		{
+		switch (spell) {
 		case SPELL_SCROLL:
 			if (!ch->get_skill(SKILL_CREATE_SCROLL))
 				ch->set_skill(SKILL_CREATE_SCROLL, 5);
@@ -579,9 +578,11 @@ void trg_spellitem(CHAR_DATA * ch, int spellnum, int spelldiff, int spell)
 		case SPELL_RUNES:
 			strcpy(type, "использования рун");
 			break;
-		};
-		sprintf(buf, "Вы приобрели умение %s '%s'", type, spell_name(spellnum));
-		send_to_char(buf, ch);
+		}
+		std::stringstream buffer;
+		buffer << "Вы приобрели умение " << type << " '" << spell_name(spellnum) << "'";
+//		sprintf(buf, "Вы приобрели умение %s '%s'", type, spell_name(spellnum));
+		send_to_char(buffer.str(), ch);
 		check_recipe_items(ch, spellnum, spell, TRUE);
 	}
 }

@@ -483,16 +483,19 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			sprintf(vict3, "%s", GET_PAD(vict, 2));
 		else
 			sprintf(vict3, "у %s", GET_PAD(vict, 1));
-
-		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
-		act(buf, FALSE, ch, 0, vict, TO_VICT | CHECK_DEAF);
+		std::stringstream buffer;
+		buffer << "$n " << action_plur << "$g " << vict2 << buf2;
+//		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
+		act(buffer.str().c_str(), FALSE, ch, 0, vict, TO_VICT | CHECK_DEAF);
 
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 			send_to_char(OK, ch);
 		else
 		{
-			sprintf(buf, "Вы %sи %s : '%s'\r\n", action_plur, vict3, buf2);
-			send_to_char(buf, ch);
+			std::stringstream buffer;
+			buffer << "Вы " << action_plur << "и " << vict3 << " : '"<< buf2 << "'" << std::endl;
+//			sprintf(buf, "Вы %sи %s : '%s'\r\n", action_plur, vict3, buf2);
+			send_to_char(buffer.str(), ch);
 		}
 
 		act(action_others, FALSE, ch, 0, vict, TO_NOTVICT);
@@ -609,8 +612,7 @@ void do_write(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	}
 }
 
-void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DESCRIPTOR_DATA *d;
 	CHAR_DATA *vict;
 
@@ -620,9 +622,10 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Создания-не-персонажи этого не могут.. ступайте.\r\n", ch);
 	else if (!*arg)
 		send_to_char("Whom do you wish to page?\r\n", ch);
-	else
-	{
-		sprintf(buf, "\007\007*$n* %s", buf2);
+	else {
+		std::stringstream buffer;
+		buffer << "\007\007*$n*" << buf2;
+//		sprintf(buf, "\007\007*$n* %s", buf2);
 		if (!str_cmp(arg, "all") || !str_cmp(arg, "все"))
 		{
 			if (IS_GRGOD(ch))
@@ -643,11 +646,11 @@ void do_page(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		if ((vict = get_char_vis(ch, arg, FIND_CHAR_WORLD)) != NULL)
 		{
-			act(buf, FALSE, ch, 0, vict, TO_VICT);
+			act(buffer.str().c_str(), FALSE, ch, 0, vict, TO_VICT);
 			if (PRF_FLAGGED(ch, PRF_NOREPEAT))
 				send_to_char(OK, ch);
 			else
-				act(buf, FALSE, ch, 0, vict, TO_CHAR);
+				act(buffer.str().c_str(), FALSE, ch, 0, vict, TO_CHAR);
 		}
 		else
 			send_to_char("Такой игрок отсутствует!\r\n", ch);
