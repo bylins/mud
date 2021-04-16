@@ -320,18 +320,12 @@ extern struct olc_save_info *olc_save_list;
 #define MEDIT_CLONE			63
 #define MEDIT_CLONE_WITH_TRIGGERS	64
 #define MEDIT_CLONE_WITHOUT_TRIGGERS 65
-
-#if defined(OASIS_MPROG)
-#define MEDIT_MPROG                     60
-#define MEDIT_CHANGE_MPROG              61
-#define MEDIT_MPROG_COMLIST             62
-#define MEDIT_MPROG_ARGS                63
-#define MEDIT_MPROG_TYPE                64
-#define MEDIT_PURGE_MPROG               65
-#endif
-
 #define MEDIT_RACE			66
 #define MEDIT_MAXFACTOR			67
+#define MEDIT_REMORT			68
+
+
+
 
 // Medit additional parameters
 
