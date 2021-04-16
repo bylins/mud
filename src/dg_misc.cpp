@@ -164,17 +164,16 @@ int find_dg_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA *
 // LIMITATION: a target MUST exist for the spell unless the spell is
 // set to TAR_IGNORE. Also, group spells are not permitted
 // code borrowed from do_cast()
-void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char *cmd)
-{
+void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char *cmd) {
 	CHAR_DATA *caster = NULL;
 	ROOM_DATA *caster_room = NULL;
 	char *s, *t;
 	int spellnum, target = 0;
+	bool npc_caster = false;
 
 
 	// need to get the caster or the room of the temporary caster
-	switch (type)
-	{
+	switch (type) {
 	case MOB_TRIGGER:
 		caster = (CHAR_DATA *) go;
 		break;
@@ -197,15 +196,13 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 
 	// get: blank, spell name, target name
 	s = strtok(cmd, "'");
-	if (s == NULL)
-	{
+	if (s == NULL) {
 		sprintf(buf2, "dg_cast: needs spell name.");
 		trig_log(trig, buf2);
 		return;
 	}
 	s = strtok(NULL, "'");
-	if (s == NULL)
-	{
+	if (s == NULL) {
 		sprintf(buf2, "dg_cast: needs spell name in `'s.");
 		trig_log(trig, buf2);
 		return;
@@ -214,8 +211,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 
 	// spellnum = search_block(s, spells, 0);
 	spellnum = fix_name_and_find_spell_num(s);
-	if ((spellnum < 1) || (spellnum > MAX_SPELLS))
-	{
+	if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
 		sprintf(buf2, "dg_cast: invalid spell name (%s)", cmd);
 		trig_log(trig, buf2);
 		return;
@@ -228,18 +224,16 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		return;
 	}
 */
-	if (!caster)
-	{
+	if (!caster) {
 		caster = read_mobile(DG_CASTER_PROXY, VIRTUAL);
-		if (!caster)
-		{
+		if (!caster) {
 			trig_log(trig, "dg_cast: Cannot load the caster mob!");
 			return;
 		}
 		// set the caster's name to that of the object, or the gods....
 		// take select pieces from char_to_room();
-		if (type == OBJ_TRIGGER)
-		{
+		npc_caster = true;
+		if (type == OBJ_TRIGGER) {
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->set_npc_name(buf);
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
@@ -255,8 +249,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 			sprintf(buf, "духе %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->player_data.PNames[5] = std::string(buf);
 		}
-		else if (type == WLD_TRIGGER)
-		{
+		else if (type == WLD_TRIGGER) {
 			caster->set_npc_name("Боги");
 			caster->player_data.PNames[0] = "Боги";
 			caster->player_data.PNames[1] = "Богов";
@@ -285,44 +278,36 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	OBJ_DATA *tobj = 0;
 	ROOM_DATA *troom = 0;
 
-	if (*arg == UID_CHAR)
-	{
+	if (*arg == UID_CHAR) {
 		tch = get_char(arg);
-		if (tch == nullptr)
-		{
+		if (tch == nullptr) {
 			sprintf(buf2, "dg_cast: victim (%s) not found", arg + 1);
 			trig_log(trig, buf2);
 		}
-		else if (NOWHERE == caster->in_room)
-		{
+		else if (NOWHERE == caster->in_room) {
 			sprintf(buf2, "dg_cast: caster (%s) in NOWHERE", GET_NAME(caster));
 			trig_log(trig, buf2);
 		}
-		else if (tch->in_room != caster->in_room)
-		{
+		else if (tch->in_room != caster->in_room) {
 			sprintf(buf2, "dg_cast: caster (%s) and victim (%s) в разных клетках комнат", GET_NAME(caster), GET_NAME(tch));
 			trig_log(trig, buf2);
 		}
-		else
-		{
+		else {
 			target = 1;
 			troom = world[caster->in_room];
 		}
 	}
-	else
-	{
+	else {
 		target = find_dg_cast_target(spellnum, arg, caster, &tch, &tobj, &troom);
 	}
-	if (target)
-	{
+	if (target) {
 		call_magic(caster, tch, tobj, troom, spellnum, GET_LEVEL(caster));
 	}
-	else if(spellnum != SPELL_RESSURECTION && spellnum != SPELL_ANIMATE_DEAD)
-	{
+	else if(spellnum != SPELL_RESSURECTION && spellnum != SPELL_ANIMATE_DEAD) {
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);
 	}
-	if (caster && IS_NPC(caster))
+	if (npc_caster)
 		extract_char(caster, FALSE);
 }
 
@@ -334,8 +319,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
    if duration < 1 - function removes affect */
 #define APPLY_TYPE	1
 #define AFFECT_TYPE	2
-void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* script_type*/, char *cmd)
-{
+void do_dg_affect(void* /*go*/, SCRIPT_DATA* /*sc*/, TRIG_DATA* trig, int/* script_type*/, char *cmd) {
 	CHAR_DATA *ch = NULL;
 	int value = 0, duration = 0, battle = 0;
 	char junk[MAX_INPUT_LENGTH];	// will be set to "dg_affect"
