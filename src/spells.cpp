@@ -1674,9 +1674,9 @@ void mort_show_char_values(CHAR_DATA * victim, CHAR_DATA * ch, int fullness)
 	val0 = GET_LEVEL(victim);
 	val1 = GET_HIT(victim);
 	val2 = GET_REAL_MAX_HIT(victim);
-	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d)\r\n", val0, val1, val2);
+	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
 	send_to_char(buf, ch);
-
+	send_to_char(ch, "Перевоплощений : %d\r\n", victim->get_remort());
 	val0 = MIN(GET_AR(victim), 100);
 	val1 = MIN(GET_MR(victim), 100);
 	val2 = MIN(GET_PR(victim), 100);
