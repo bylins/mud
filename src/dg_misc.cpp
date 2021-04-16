@@ -169,7 +169,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 	ROOM_DATA *caster_room = NULL;
 	char *s, *t;
 	int spellnum, target = 0;
-	bool npc_caster = false;
+	bool dummy_mob = false;
 
 
 	// need to get the caster or the room of the temporary caster
@@ -232,7 +232,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		}
 		// set the caster's name to that of the object, or the gods....
 		// take select pieces from char_to_room();
-		npc_caster = true;
+		dummy_mob = true;
 		if (type == OBJ_TRIGGER) {
 			sprintf(buf, "дух %s", ((OBJ_DATA *) go)->get_PName(1).c_str());
 			caster->set_npc_name(buf);
@@ -308,7 +308,7 @@ void do_dg_cast(void *go, SCRIPT_DATA* /*sc*/, TRIG_DATA * trig, int type, char 
 		sprintf(buf2, "dg_cast: target not found (%s)", cmd);
 		trig_log(trig, buf2);
 	}
-	if (npc_caster)
+	if (dummy_mob)
 		extract_char(caster, FALSE);
 }
 
