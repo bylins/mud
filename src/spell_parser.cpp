@@ -1632,7 +1632,7 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 	// Say phrase ?
 	if (cast_phrase[spellnum][GET_RELIGION(ch)] == nullptr){
 		sprintf(buf, "[ERROR]: say_spell: для спелла %d не объявлена cast_phrase", spellnum);
-		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);			
+		mudlog(buf, CMP, LVL_GOD, SYSLOG, TRUE);
 		return;
 	}
 	if (IS_NPC(ch)) {
@@ -1662,14 +1662,14 @@ void say_spell(CHAR_DATA * ch, int spellnum, CHAR_DATA * tch, OBJ_DATA * tobj)
 		}
 	}
 	else {
-		//если включен режим без повторов (подавление ехо) не показываем	
+		//если включен режим без повторов (подавление ехо) не показываем
 		if (PRF_FLAGGED(ch, PRF_NOREPEAT)) {
 			if (!ch->get_fighting()) //если персонаж не в бою, шлем строчку, если в бою ничего не шлем
 				send_to_char(OK, ch);
 		}
 		else {
 			if (IS_SET(SpINFO.routines, MAG_WARCRY))
-				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n", 
+				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
 					SpINFO.violent ? CCIRED(ch, C_NRM) : CCIGRN(ch, C_NRM), SpINFO.name, CCNRM(ch, C_NRM));
 			else
 				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
@@ -2290,13 +2290,13 @@ int find_cast_target(int spellnum, const char *t, CHAR_DATA * ch, CHAR_DATA ** t
 					char tmpname[MAX_INPUT_LENGTH];
 					char *tmp = tmpname;
 					strcpy(tmp, t);
-					tnum = get_number(&tmp); // возвращает 1, если первая цель					
+					tnum = get_number(&tmp); // возвращает 1, если первая цель
 					for (k = ch->followers; k; k = k_next) {
 						k_next = k->next;
 						if (isname(tmp, k->follower->get_pc_name())) {
 							if (++fnum == tnum) {// нашли!!
 								*tch = k->follower;
-								return TRUE;								
+								return TRUE;
 							}
 						}
 					}
@@ -2491,9 +2491,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 {
 	int i, spellnum;
 	int level;
-	CHAR_DATA *tch = NULL;
-	OBJ_DATA *tobj = NULL;
-	ROOM_DATA *troom = NULL;
+	CHAR_DATA *tch = nullptr;
+	OBJ_DATA *tobj = nullptr;
+	ROOM_DATA *troom = nullptr;
 
 	one_argument(argument, cast_argument);
 	level = GET_OBJ_VAL(obj, 0);
@@ -2524,18 +2524,11 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		if (!obj->get_action_description().empty())
 		{
 			act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_CHAR);
-		}
-		else
-		{
-			act("Вы ударили $o4 о землю.", FALSE, ch, obj, 0, TO_CHAR);
-		}
-
-		if (!obj->get_action_description().empty())
-		{
 			act(obj->get_action_description().c_str(), FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
+			act("Вы ударили $o4 о землю.", FALSE, ch, obj, 0, TO_CHAR);
 			act("$n ударил$g $o4 о землю.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
@@ -2548,16 +2541,9 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 		{
 			obj->dec_val(2);
 			WAIT_STATE(ch, PULSE_VIOLENCE);
-
-			/*
-			 * Problem : Area/mass spells on staves can cause crashes.
-			 * Solution: Remove the special nature of area/mass spells on staves.
-			 * Problem : People like that behavior.
-			 * Solution: We special case the area/mass spells here.
-			 */
 			if (HAS_SPELL_ROUTINE(GET_OBJ_VAL(obj, 3), MAG_MASSES | MAG_AREAS))
 			{
-				call_magic(ch, NULL, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+				call_magic(ch, nullptr, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 			}
 			else
 			{
@@ -2566,7 +2552,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 				{
 					if (ch != tch)
 					{
-						call_magic(ch, tch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
+						call_magic(ch, tch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, 3), level);
 					}
 				}
 			}
@@ -2577,104 +2563,58 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 	case OBJ_DATA::ITEM_WAND:
 		spellnum = GET_OBJ_VAL(obj, 3);
 
-		if (GET_OBJ_VAL(obj, 2) <= 0)
-		{
+		if (GET_OBJ_VAL(obj, 2) <= 0) {
 			send_to_char("Похоже, магия кончилась.\r\n", ch);
-			//act("И ничего не произошло.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
-			//перемещено чтобы не было возможности читерно использовать пустую палку с локейтом
 			return;
 		}
 
-		if (!*argument)
-		{
-			tch = ch;
-		}
-		else if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom))
-		{
-			return;
-		}
-
-		if (tch)
-		{
-			if (IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES))  	// Wands with area spells don't need to be pointed.
-			{
-				if (!obj->get_action_description().empty())
-				{
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-				}
-				else
-				{
-					act("Вы обвели $o4 вокруг комнаты.", FALSE, ch, obj, NULL, TO_CHAR);
-				}
-
-				if (!obj->get_action_description().empty())
-				{
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
-				}
-				else
-				{
-					act("$n обвел$g $o4 вокруг комнаты.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
-				}
+		if (!*argument) {
+			if (!IS_SET(spell_info[GET_OBJ_VAL(obj, 3)].routines, MAG_AREAS | MAG_MASSES)) {
+				tch = ch;
 			}
-			else if (tch == ch)
-			{
-				if (!obj->get_action_description().empty())
-				{
-					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-				}
-				else
-				{
-					act("Вы указали $o4 на себя.", FALSE, ch, obj, 0, TO_CHAR);
-				}
+		} else {
+			if (!find_cast_target(spellnum, argument, ch, &tch, &tobj, &troom)) {
+				return;
+			}
+		}
 
-				if (!obj->get_action_description().empty())
-				{
+		if (tch) {
+			if (tch == ch) {
+				if (!obj->get_action_description().empty()) {
+					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
 					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
-				}
-				else
-				{
+				} else {
+					act("Вы указали $o4 на себя.", FALSE, ch, obj, 0, TO_CHAR);
 					act("$n указал$g $o4 на себя.", FALSE, ch, obj, 0, TO_ROOM | TO_ARENA_LISTEN);
 				}
-			}
-			else
-			{
-				if (!obj->get_action_description().empty())
-				{
+			} else {
+				if (!obj->get_action_description().empty()) {
 					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
-				}
-				else
-				{
-					act("Вы ткнули $o4 в $N3.", FALSE, ch, obj, tch, TO_CHAR);
-				}
-
-				if (!obj->get_action_description().empty())
-				{
 					act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
-				}
-				else
-				{
-					act("$n ткнул$g $o4 в $N3.", TRUE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+				} else {
+					act("Вы ткнули $o4 в $N3.", FALSE, ch, obj, tch, TO_CHAR);
+					act("$N указал$G $o4 на вас.", FALSE, tch, obj, ch, TO_CHAR);
+					act("$n ткнул$g $o4 в $N3.", TRUE, ch, obj, tch, TO_NOTVICT | TO_ARENA_LISTEN);
 				}
 			}
 		}
-		else if (tobj)
-		{
-			if (!obj->get_action_description().empty())
-			{
+		else if (tobj) {
+			if (!obj->get_action_description().empty()) {
 				act(obj->get_action_description().c_str(), FALSE, ch, obj, tobj, TO_CHAR);
-			}
-			else
-			{
-				act("Вы прикоснулись $o4 к $O2.", FALSE, ch, obj, tobj, TO_CHAR);
-			}
-
-			if (!obj->get_action_description().empty())
-			{
 				act(obj->get_action_description().c_str(), FALSE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
-			}
-			else
-			{
+			} else {
+				act("Вы прикоснулись $o4 к $O2.", FALSE, ch, obj, tobj, TO_CHAR);
 				act("$n прикоснул$u $o4 к $O2.", TRUE, ch, obj, tobj, TO_ROOM | TO_ARENA_LISTEN);
+			}
+		}
+		else {
+			if (!obj->get_action_description().empty()) {
+				act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_CHAR);
+				act(obj->get_action_description().c_str(), FALSE, ch, obj, tch, TO_ROOM | TO_ARENA_LISTEN);
+			}
+			else {
+				act("Вы обвели $o4 вокруг комнаты.", FALSE, ch, obj, nullptr, TO_CHAR);
+				act("$n обвел$g $o4 вокруг комнаты.", TRUE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 			}
 		}
 
@@ -2703,20 +2643,13 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 
 		if (!obj->get_action_description().empty())
 		{
-			act(obj->get_action_description().c_str(), FALSE, ch, obj, NULL, TO_CHAR);
+			act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_CHAR);
+			act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
 			act("Вы зачитали $o3, котор$W рассыпался в прах.", TRUE, ch, obj, 0, TO_CHAR);
-		}
-
-		if (!obj->get_action_description().empty())
-		{
-			act(obj->get_action_description().c_str(), FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
-		}
-		else
-		{
-			act("$n зачитал$g $o3.", FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+			act("$n зачитал$g $o3.", FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -2728,7 +2661,7 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			}
 		}
 
-		if (obj != NULL)
+		if (obj != nullptr)
 		{
 			extract_obj(obj);
 		}
@@ -2741,26 +2674,27 @@ void mag_objectmagic(CHAR_DATA * ch, OBJ_DATA * obj, const char *argument)
 			return;
 		}
 		tch = ch;
-		act("Вы осушили $o3.", FALSE, ch, obj, NULL, TO_CHAR);
 		if (!obj->get_action_description().empty())
 		{
-			act(obj->get_action_description().c_str(), FALSE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+			act(obj->get_action_description().c_str(), TRUE, ch, obj, nullptr, TO_CHAR);
+			act(obj->get_action_description().c_str(), FALSE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		}
 		else
 		{
-			act("$n осушил$g $o3.", TRUE, ch, obj, NULL, TO_ROOM | TO_ARENA_LISTEN);
+			act("Вы осушили $o3.", FALSE, ch, obj, nullptr, TO_CHAR);
+			act("$n осушил$g $o3.", TRUE, ch, obj, nullptr, TO_ROOM | TO_ARENA_LISTEN);
 		}
 
 		WAIT_STATE(ch, PULSE_VIOLENCE);
 		for (i = 1; i <= 3; i++)
 		{
-			if (call_magic(ch, ch, NULL, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0)
+			if (call_magic(ch, ch, nullptr, world[ch->in_room], GET_OBJ_VAL(obj, i), level) <= 0)
 			{
 				break;
 			}
 		}
 
-		if (obj != NULL)
+		if (obj != nullptr)
 		{
 			extract_obj(obj);
 		}
@@ -2858,7 +2792,7 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 
 // Может-ли кастер зачитать заклинание если на нем эфект !смирение!?
 // одиночная цель - запрет агро
-// 
+//
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_PEACEFUL)){
 		ignore = IS_SET(SpINFO.targets, TAR_IGNORE) ||
 				 IS_SET(SpINFO.routines, MAG_MASSES) || IS_SET(SpINFO.routines, MAG_GROUPS);
@@ -2903,11 +2837,11 @@ int cast_spell(CHAR_DATA * ch, CHAR_DATA * tch, OBJ_DATA * tobj, ROOM_DATA * tro
 	if (!IS_NPC(ch) && !IS_IMMORTAL(ch) && PRF_FLAGGED(ch, PRF_AUTOMEM))
 		MemQ_remember(ch, spell_subst);
 	// если НПЦ - уменьшаем его макс.количество кастуемых спеллов
-	if (IS_NPC(ch)) 
+	if (IS_NPC(ch))
 		GET_CASTER(ch) -= (IS_SET(spell_info[spellnum].routines, NPC_CALCULATE) ? 1 : 0);
 	if (!IS_NPC(ch))
 		affect_total(ch);
-	
+
 	return (call_magic(ch, tch, tobj, troom, spellnum, GET_LEVEL(ch)));
 }
 
@@ -3050,7 +2984,7 @@ void do_cast(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	{
 		if (GET_LEVEL(ch) < MIN_CAST_LEV(SpINFO, ch)
 				|| GET_REMORT(ch) < MIN_CAST_REM(SpINFO, ch)
-				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0) 
+				||  slot_for_char(ch, SpINFO.slot_forc[(int) GET_CLASS(ch)][(int) GET_KIN(ch)]) <= 0)
 		{
 			send_to_char("Рано еще вам бросаться такими словами!\r\n", ch);
 			return;
@@ -4907,7 +4841,7 @@ void mag_assign_spells(void)
 	spello(SPELL_PRISMATICAURA, "призматическая аура", "prismatic aura", 85, 70, 4,
 		   POS_FIGHTING, TAR_CHAR_ROOM | TAR_FIGHT_SELF, FALSE, MAG_AFFECTS | NPC_AFFECT_NPC, 1, STYPE_LIGHT);
 //139
-	spello(SPELL_EVILESS, "силы зла", "eviless", 150, 130, 5, 
+	spello(SPELL_EVILESS, "силы зла", "eviless", 150, 130, 5,
 		   POS_STANDING, TAR_IGNORE, FALSE, MAG_GROUPS | MAG_AFFECTS | MAG_POINTS, 3, STYPE_DARK);
 //140
 	spello(SPELL_AIR_AURA, "воздушная аура", "air aura",
