@@ -5912,7 +5912,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	if (GET_LEVEL(ch) >= LVL_IMMORT || PRF_FLAGGED(ch, PRF_CODERINFO))
 	{
-		sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH,
 				" Нет агров     : %-3s     "
 				" Супервидение  : %-3s     "
 				" Флаги комнат  : %-3s \r\n"
@@ -5930,7 +5930,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		send_to_char(buf, ch);
 	}
 
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH, 
 			" Автовыходы    : %-3s     "
 			" Краткий режим : %-3s     "
 			" Сжатый режим  : %-3s \r\n"
@@ -6017,8 +6017,7 @@ void do_toggle(CHAR_DATA *ch, char* /*argument*/, int/* cmd*/, int/* subcmd*/)
 		sprintf(buf,  " Уведомления   : %-7s ", "Нет");
 	}
 	send_to_char(buf, ch);
-
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH,
 		" Карта         : %-3s     "
 		" Вход в зону   : %-3s   \r\n"
 		" Магщиты (вид) : %-8s"
