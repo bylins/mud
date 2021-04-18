@@ -411,6 +411,7 @@ void extract_script_mem(struct script_memory *sc);
 
 TRIG_DATA *read_trigger(int nr);
 // void add_var(struct trig_var_data **var_list, char *name, char *value, long id);
+CHAR_DATA *dg_caster_owner_obj(OBJ_DATA * obj);
 ROOM_DATA *dg_room_of_obj(OBJ_DATA * obj);
 void do_dg_cast(void *go, SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);
 void do_dg_affect(void *go, SCRIPT_DATA *sc, TRIG_DATA * trig, int type, char *cmd);

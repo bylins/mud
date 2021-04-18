@@ -1,11 +1,11 @@
 /**************************************************************************
- * OasisOLC - medit.cpp					Part of Bylins    *
- * Copyright 1996 Harvey Gilpin.					  *
+* OasisOLC - medit.cpp					Part of Bylins    *
+* Copyright 1996 Harvey Gilpin.					  *
 * 									  *
 *  $Author$                                                        *
 *  $Date$                                           *
 *  $Revision$                                                      *
- ************************************************************************/
+***************************************************************************/
 
 #include "chars/world.characters.hpp"
 #include "obj.hpp"
@@ -700,6 +700,8 @@ void medit_save_to_disk(int zone_num)
 				fprintf(mob_file, "MaxFactor: %d\n", mob->mob_specials.MaxFactor);
 			if (mob->mob_specials.ExtraAttack)
 				fprintf(mob_file, "ExtraAttack: %d\n", mob->mob_specials.ExtraAttack);
+			if (mob->get_remort())
+				fprintf(mob_file, "MobRemort: %d\n", mob->get_remort());
 			if (GET_CLASS(mob))
 				fprintf(mob_file, "Class: %d\n", GET_CLASS(mob));
 			if (GET_RACE(mob))
@@ -1384,7 +1386,8 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sВ%s) Сила : [%s%4d%s],%sГ%s) Ловк : [%s%4d%s],%sД%s) Тело : [%s%4d%s]\r\n"
 		"%sЕ%s) Мудр : [%s%4d%s],%sЖ%s) Ум   : [%s%4d%s],%sЗ%s) Обая : [%s%4d%s]\r\n"
 		"%sИ%s) Рост : [%s%4d%s],%sК%s) Вес  : [%s%4d%s],%sЛ%s) Разм : [%s%4d%s]\r\n"
-		"%sМ%s) ДопА : [%s%4d%s]\n"
+		"%sМ%s) Дополнительные атаки: [%s%4d%s]\r\n"
+		"%sХ%s) Реморты: [%s%4d%s]\r\n"
 		"%sН%s) Шансы использования умений: [%s%4d%s]\r\n"
 		"%sО%s) Ингредиенты: %s%s\r\n"
 		"%sП%s) Загружаемые объекты: %s%s\r\n"
@@ -1394,10 +1397,10 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		"%sУ%s) Дополнительные параметры:\r\n"
 		"%sФ%s) Способности:\r\n"
 		"%sЦ%s) Раса моба: %s%s\r\n"
-		"%sЧ%s) Клонирование%s\r\n"
+		"%sЧ%s) Клонирование:%s\r\n"
 		"%sS%s) Script     : %s%s\r\n"
 		"%sЮ%s) Через сколько мобов замакс: [%s%4d%s]\r\n"
-		"%sQ%s) Quit\r\n" "Ваш выбор : ",
+		"%sQ%s) Quit\r\n" "Ваш выбор: ",
 		grn, nrm, cyn, buf1,
 		grn, nrm, cyn, buf2,
 		grn, nrm, cyn, mob->helpers ? "Yes" : "No",
@@ -1413,6 +1416,7 @@ void medit_disp_menu(DESCRIPTOR_DATA * d)
 		grn, nrm, cyn, GET_WEIGHT(mob), nrm,
 		grn, nrm, cyn, GET_SIZE(mob), nrm,
 		grn, nrm, cyn, mob->mob_specials.ExtraAttack, nrm,
+		grn, nrm, cyn, mob->get_remort(), nrm,
 		grn, nrm, cyn, mob->mob_specials.LikeWork, nrm,
 		grn, nrm, cyn, mob->ing_list ? "Есть" : "Нет",
 		grn, nrm, cyn, mob->dl_list ? "Есть" : "Нет",
@@ -1874,6 +1878,12 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		case 'м':
 		case 'М':
 			OLC_MODE(d) = MEDIT_EXTRA;
+			i++;
+			break;
+
+		case 'х':
+		case 'Х':
+			OLC_MODE(d) = MEDIT_REMORT;
 			i++;
 			break;
 
@@ -2560,7 +2570,9 @@ void medit_parse(DESCRIPTOR_DATA * d, char *arg)
 		OLC_MOB(d)->mob_specials.ExtraAttack = MIN(5, MAX(0, atoi(arg)));
 		break;
 
-
+	case MEDIT_REMORT:
+		OLC_MOB(d)->set_remort(MIN(100, MAX(0, atoi(arg))));
+		break;
 
 	case MEDIT_LIKE:
 		OLC_MOB(d)->mob_specials.LikeWork = MIN(100, MAX(0, atoi(arg)));

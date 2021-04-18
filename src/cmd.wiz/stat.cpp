@@ -108,11 +108,7 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt = 0)
         if (k->player_specials->saved.telegram_id != 0)
             send_to_char(ch, "Подключен Телеграм, chat_id: %lu\r\n", k->player_specials->saved.telegram_id);
 
-        if (GET_REMORT(k))
-        {
-            sprintf(buf, "Перевоплощений: %d\r\n", GET_REMORT(k));
-            send_to_char(buf, ch);
-        }
+
         if (PLR_FLAGGED(k, PLR_FROZEN) && FREEZE_DURATION(k))
         {
             sprintf(buf, "Заморожен : %ld час [%s].\r\n",
@@ -440,7 +436,8 @@ void do_stat_character(CHAR_DATA * ch, CHAR_DATA * k, const int virt = 0)
     k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, ",", 4);
     sprintf(buf, "Аффекты: %s%s%s\r\n", CCYEL(ch, C_NRM), smallBuf, CCNRM(ch, C_NRM));
     send_to_char(buf, ch);
-
+    sprintf(buf, "&GПеревоплощений: %d\r\n&n", GET_REMORT(k));
+    send_to_char(buf, ch);
     // Routine to show what spells a char is affected by
     if (!k->affected.empty())
     {
@@ -631,8 +628,11 @@ void do_stat_object(CHAR_DATA * ch, OBJ_DATA * j, const int virt = 0)
     strcat(buf, "\r\n");
     send_to_char(buf, ch);
     sprinttype(j->get_material(), material_name, buf2);
-    sprintf(buf, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, j->get_maximum_durability(), j->get_current_durability());
-    send_to_char(buf, ch);
+	std::stringstream buffer;
+	buffer << "Материал : " << buf2 << ", макс.прочность : " << j->get_maximum_durability() << ", тек.прочность : " 
+	<< j->get_current_durability();
+//	sprintf(buf, "Материал : %s, макс.прочность : %d, тек.прочность : %d\r\n", buf2, j->get_maximum_durability(), j->get_current_durability());
+	send_to_char(buffer.str(), ch);
 
     send_to_char("Неудобства : ", ch);
     j->get_no_flags().sprintbits(no_bits, buf, ",", 4);

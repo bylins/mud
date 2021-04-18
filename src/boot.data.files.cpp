@@ -1237,7 +1237,7 @@ void MobileFile::parse_mobile(const int nr)
 	// DG triggers -- script info follows mob S/E section
 	// DG triggers -- script is defined after the end of the room 'T'
 	// Ингредиентная магия -- 'I'
-	// Объекты загружаемые по-смертно -- 'D'
+	// Объекты загружаемые по-смертно -- 'L'
 
 	do
 	{
@@ -1258,7 +1258,12 @@ void MobileFile::parse_mobile(const int nr)
 		case 'T':
 			dg_read_trigger(&mob_proto[i], MOB_TRIGGER);
 			break;
-
+/*		case 'R':
+			get_line(file(), line);
+			sscanf(line, "%s", f1);
+			mob_proto[i].mob_specials.mob_remort = atoi(f1);
+			break;
+*/
 		default:
 			letter = 0;
 			break;
@@ -1610,6 +1615,12 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 	{
 		RANGE(0, 255);
 		mob_proto[i].mob_specials.ExtraAttack = num_arg;
+	}
+
+	CASE("MobRemort")
+	{
+		RANGE(0, 100);
+		mob_proto[i].set_remort(num_arg);
 	}
 
 	CASE("Class")

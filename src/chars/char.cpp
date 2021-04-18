@@ -2,8 +2,6 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include "char.hpp"
-
 #include "world.characters.hpp"
 #include "logger.hpp"
 #include "obj.hpp"

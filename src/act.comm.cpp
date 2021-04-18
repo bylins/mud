@@ -483,8 +483,9 @@ void do_spec_comm(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 			sprintf(vict3, "%s", GET_PAD(vict, 2));
 		else
 			sprintf(vict3, "у %s", GET_PAD(vict, 1));
+
 		std::stringstream buffer;
-		buffer << "$n " << action_plur << "$g " << vict2 << buf2;
+		buffer << "$n " << action_plur << "$g " << vict2 << " : " << buf2;
 //		sprintf(buf, "$n %s$g %s : '%s'", action_plur, vict2, buf2);
 		act(buffer.str().c_str(), FALSE, ch, 0, vict, TO_VICT | CHECK_DEAF);
 
