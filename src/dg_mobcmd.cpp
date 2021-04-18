@@ -538,10 +538,8 @@ void do_mpurge(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // lets the mobile goto any location it wishes that is not private
-void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
-	char buf[MAX_INPUT_LENGTH];
 	int location;
 
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_CHARM))
@@ -549,16 +547,16 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	one_argument(argument, arg);
 
-	if (!*arg)
-	{
+	if (!*arg) {
 		mob_log(ch, "mgoto called with no argument");
 		return;
 	}
 
-	if ((location = dg_find_target_room(ch, arg)) == NOWHERE)
-	{
-		sprintf(buf, "mgoto: invalid location '%s'", arg);
-		mob_log(ch, buf);
+	if ((location = dg_find_target_room(ch, arg)) == NOWHERE) {
+		std::stringstream buffer;
+		buffer << "mgoto: invalid location '" << arg << "'";
+//		sprintf(buf, "mgoto: invalid location '%s'", arg);
+		mob_log(ch, buffer.str().c_str());
 		return;
 	}
 
@@ -570,10 +568,8 @@ void do_mgoto(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 }
 
 // lets the mobile do a command at another location. Very useful
-void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
-{
+void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	char arg[MAX_INPUT_LENGTH];
-	char buf[MAX_INPUT_LENGTH];
 	int location;
 	int original;
 
@@ -582,16 +578,16 @@ void do_mat(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	argument = one_argument(argument, arg);
 
-	if (!*arg || !*argument)
-	{
+	if (!*arg || !*argument) {
 		mob_log(ch, "mat: bad argument");
 		return;
 	}
 
-	if ((location = dg_find_target_room(ch, arg)) == NOWHERE)
-	{
-		sprintf(buf, "mat: invalid location '%s'", arg);
-		mob_log(ch, buf);
+	if ((location = dg_find_target_room(ch, arg)) == NOWHERE) {
+		std::stringstream buffer;
+		buffer << "mat: invalid location '" << arg << "'";
+//		sprintf(buf, "mat: invalid location '%s'", arg);
+		mob_log(ch, buffer.str().c_str());
 		return;
 	}
 

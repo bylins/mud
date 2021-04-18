@@ -5409,20 +5409,19 @@ long cmp_ptable_by_name(char *name, int len)
 
 
 
-long get_ptable_by_name(const char *name)
-{
+long get_ptable_by_name(const char *name) {
 	one_argument(name, arg);
 	/* Anton Gorev (2015/12/29): see (MAPHELPER) comment. */
-	for (std::size_t i = 0; i < player_table.size(); i++)
-	{
+	for (std::size_t i = 0; i < player_table.size(); i++) {
 		const char* pname = player_table[i].name();
-		if (!str_cmp(pname, arg))
-		{
+		if (!str_cmp(pname, arg)) {
 			return static_cast<long>(i);
 		}
 	}
-	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
-	mudlog(buf, LGH, LVL_IMMORT, SYSLOG, FALSE);
+	std::stringstream buffer;
+	buffer << "Char " << name << "(" << arg << ") not found !!!";
+//	sprintf(buf, "Char %s(%s) not found !!!", name, arg);
+	mudlog(buffer.str().c_str(), LGH, LVL_IMMORT, SYSLOG, FALSE);
 	return (-1);
 }
 
