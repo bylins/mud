@@ -29,11 +29,11 @@ set(SOURCES
 		src/backtrace.cpp
 		src/ban.cpp
 		src/birth_places.cpp
-		src/boards.changelog.loaders.cpp
-		src/boards.constants.cpp
-		src/boards.cpp
-		src/boards.formatters.cpp
-		src/boards.types.cpp
+		src/boards/boards.changelog.loaders.cpp
+		src/boards/boards.constants.cpp
+		src/boards/boards.cpp
+		src/boards/boards.formatters.cpp
+		src/boards/boards.types.cpp
 		src/bonus.cpp
 		src/bonus.command.parser.cpp
 		src/boot.constants.cpp
@@ -56,17 +56,17 @@ set(SOURCES
 		src/deathtrap.cpp
 		src/depot.cpp
 		src/description.cpp
-		src/dg_comm.cpp
-		src/dg_db_scripts.cpp
-		src/dg_event.cpp
-		src/dg_handler.cpp
-		src/dg_misc.cpp
-		src/dg_mobcmd.cpp
-		src/dg_objcmd.cpp
-		src/dg_olc.cpp
-		src/dg_scripts.cpp
-		src/dg_triggers.cpp
-		src/dg_wldcmd.cpp
+		src/dg_script/dg_comm.cpp
+		src/dg_script/dg_db_scripts.cpp
+		src/dg_script/dg_event.cpp
+		src/dg_script/dg_handler.cpp
+		src/dg_script/dg_misc.cpp
+		src/dg_script/dg_mobcmd.cpp
+		src/dg_script/dg_objcmd.cpp
+		src/dg_script/dg_olc.cpp
+		src/dg_script/dg_scripts.cpp
+		src/dg_script/dg_triggers.cpp
+		src/dg_script/dg_wldcmd.cpp
 		src/dictionary.cpp
 		src/diskio.cpp
 		src/dps.cpp
@@ -101,7 +101,7 @@ set(SOURCES
 		src/mail.cpp
 		src/map.cpp
 		src/meat.maker.cpp
-		src/medit.cpp
+		src/olc/medit.cpp
 		src/fightsystem/mobact.cpp
 		src/mobmax.cpp
 		src/mob_stat.cpp
@@ -118,8 +118,8 @@ set(SOURCES
 		src/obj_sets.cpp
 		src/obj_sets_olc.cpp
 		src/obj.spell.cpp
-		src/oedit.cpp
-		src/olc.cpp
+		src/olc/oedit.cpp
+		src/olc/olc.cpp
 		src/parcel.cpp
 		src/parse.cpp
 		src/password.cpp
@@ -131,7 +131,7 @@ set(SOURCES
 		src/quest.cpp
 		src/quested.cpp
 		src/random.cpp
-		src/redit.cpp
+		src/olc/redit.cpp
 		src/remember.cpp
 		src/reset_stats.cpp
 		src/room.cpp
@@ -154,7 +154,7 @@ set(SOURCES
 		src/utils.cpp
 		src/version.cpp
 		src/weather.cpp
-		src/zedit.cpp
+		src/olc/zedit.cpp
 		src/utils.string.cpp
 		src/world.objects.cpp
 		src/object.prototypes.cpp
@@ -201,7 +201,7 @@ set(SOURCES
 		src/cmd/order.cpp
 		src/cmd/mercenary.cpp
         src/core/affect_data.cpp
-		src/cmd/track.cpp
+		src/skills/track.cpp
 		src/cmd/hire.cpp
 		src/cmd/telegram.cpp
 		src/cmd.wiz/stat.cpp
@@ -214,7 +214,7 @@ set(HEADERS
 		src/cmd/hire.h
 		src/cmd/telegram.h
 		src/core/affect_data.h
-		src/cmd/track.h
+		src/skills/track.h
 		src/fightsystem/common.h
 		src/fightsystem/assist.h
 		src/fightsystem/start.fight.h
@@ -264,12 +264,12 @@ set(HEADERS
 		src/backtrace.hpp
 		src/ban.hpp
 		src/birth_places.hpp
-		src/boards.changelog.loaders.hpp
-		src/boards.constants.hpp
-		src/boards.formatters.hpp
-		src/boards.h
-		src/boards.message.hpp
-		src/boards.types.hpp
+		src/boards/boards.changelog.loaders.hpp
+		src/boards/boards.constants.hpp
+		src/boards/boards.formatters.hpp
+		src/boards/boards.h
+		src/boards/boards.message.hpp
+		src/boards/boards.types.hpp
 		src/bonus.h
 		src/bonus.command.parser.hpp
 		src/bonus.types.hpp
@@ -295,10 +295,10 @@ set(HEADERS
 		src/deathtrap.hpp
 		src/depot.hpp
 		src/description.h
-		src/dg_db_scripts.hpp
-		src/dg_event.h
-		src/dg_olc.h
-		src/dg_scripts.h
+		src/dg_script/dg_db_scripts.hpp
+		src/dg_script/dg_event.h
+		src/dg_script/dg_olc.h
+		src/dg_script/dg_scripts.h
 		src/dictionary.hpp
 		src/diskio.h
 		src/double_map.hpp
@@ -347,7 +347,7 @@ set(HEADERS
 		src/objsave.h
 		src/obj_sets.hpp
 		src/obj_sets_stuff.hpp
-		src/olc.h
+		src/olc/olc.h
 		src/parcel.hpp
 		src/parse.hpp
 		src/password.hpp
@@ -492,16 +492,16 @@ else()
 endif ()
 
 set(MSDP_FILES
-	src/msdp.hpp
-	src/msdp.cpp
-	src/msdp.parser.cpp
-	src/msdp.parser.hpp
-	src/msdp.constants.hpp
-	src/msdp.constants.cpp
-	src/msdp.reporters.cpp
-	src/msdp.reporters.hpp
-	src/msdp.senders.cpp
-	src/msdp.senders.hpp)
+	src/msdp/msdp.hpp
+	src/msdp/msdp.cpp
+	src/msdp/msdp.parser.cpp
+	src/msdp/msdp.parser.hpp
+	src/msdp/msdp.constants.hpp
+	src/msdp/msdp.constants.cpp
+	src/msdp/msdp.reporters.cpp
+	src/msdp/msdp.reporters.hpp
+	src/msdp/msdp.senders.cpp
+	src/msdp/msdp.senders.hpp)
 list(APPEND SOURCES ${MSDP_FILES})
 
 # Versioning
@@ -535,15 +535,15 @@ set(CRAFT_TEMPLATE_FILES
 	lib.template/misc/craft/recipe_template.xml)
 set(CRAFT_PROTOTYPES)
 set(CRAFT_SOURCE_FILES
-	src/craft.commands.cpp
-	src/craft.cpp
-	src/craft.logger.cpp
-	src/craft.static.cpp)
+	src/craft/craft.commands.cpp
+	src/craft/craft.cpp
+	src/craft/craft.logger.cpp
+	src/craft/craft.static.cpp)
 set(CRAFT_HEADER_FILES
-	src/craft.commands.hpp
-	src/craft.hpp
-	src/craft.logger.hpp
-	src/craft.static.hpp)
+	src/craft/craft.commands.hpp
+	src/craft/craft.hpp
+	src/craft/craft.logger.hpp
+	src/craft/craft.static.hpp)
 
 source_group("Craft\\Configuration" FILES ${CRAFT_GENERAL_FILES})
 source_group("Craft\\Configuration\\Tailoring" FILES ${CRAFT_TAILORING_FILES})

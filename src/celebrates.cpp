@@ -4,8 +4,8 @@
 #include "obj.hpp"
 #include "comm.h"
 #include "db.h"
-#include "dg_db_scripts.hpp"
-#include "dg_scripts.h"
+#include "dg_script/dg_db_scripts.hpp"
+#include "dg_script/dg_scripts.h"
 #include "chars/char.hpp"
 #include "room.hpp"
 #include "handler.h"
@@ -107,7 +107,7 @@ std::string add_rest(CelebrateList::iterator it, CelebrateDataPtr celebrate)
 			--days_count;
 			hours = 24 + hours;
 		}
-		return ". До окончания - дней: " + boost::lexical_cast<std::string>(days_count) + 
+		return ". До окончания - дней: " + boost::lexical_cast<std::string>(days_count) +
 				", часов: " +boost::lexical_cast<std::string>(hours);
 }
 
@@ -235,7 +235,7 @@ int find_real_day_number(int day, int month)
 
 int get_previous_day(int day, bool is_real)
 {
-	if (day == 1) 
+	if (day == 1)
 		return is_real ? 365 : DAYS_PER_MONTH*12;
 	else
 		return day-1;
@@ -243,7 +243,7 @@ int get_previous_day(int day, bool is_real)
 
 int get_next_day(int day, bool is_real)
 {
-	if ((is_real && day == 365) || (!is_real && day == DAYS_PER_MONTH*12)) 
+	if ((is_real && day == 365) || (!is_real && day == DAYS_PER_MONTH*12))
 		return 1;
 	else
 		return day+1;
@@ -284,7 +284,7 @@ void load_celebrates(pugi::xml_node node_list, CelebrateList &celebrates, bool i
 			{
 				start -= 24;
 				dayBefore = get_previous_day(dayBefore, is_real);
-				celebrates[dayBefore] = tmp_day; 
+				celebrates[dayBefore] = tmp_day;
 			}
 			CelebrateDayPtr tmp_day1(new CelebrateDay);
 			tmp_day1->celebrate = tmp_holiday;
@@ -339,7 +339,7 @@ void load()
 
 int get_mud_day()
 {
-	return time_info.month * DAYS_PER_MONTH + time_info.day + 1; 
+	return time_info.month * DAYS_PER_MONTH + time_info.day + 1;
 }
 
 int get_real_day()
@@ -468,7 +468,7 @@ void remove_triggers(TrigList trigs, SCRIPT_DATA* sc)
 		checker.report_null_sc();
 		return;
 	}
-	
+
 	for (TrigList::const_iterator it = trigs.begin(); it!= trigs.end(); ++it)
 	{
 		if (nullptr == sc)
@@ -517,11 +517,11 @@ bool make_clean(CelebrateDataPtr celebrate)
 {
 	CelebrateObjs::iterator obj_it;
 	CelebrateMobs::iterator mob_it;
-	
+
 	for (mob_it = attached_mobs.begin(); mob_it != attached_mobs.end(); ++mob_it)
 	{
 		const auto rnum = mob_it->second->get_rnum();
-		int vnum = mob_index[rnum].vnum;	
+		int vnum = mob_index[rnum].vnum;
 		for (AttachZonList::iterator it = celebrate->mobsToAttach.begin(); it != celebrate->mobsToAttach.end();++it)
 		{
 			if (it->second.find(vnum) != it->second.end())
@@ -539,7 +539,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 
 	for (obj_it = attached_objs.begin(); obj_it != attached_objs.end(); ++obj_it)
 	{
-		int vnum = obj_it->second->get_rnum();	
+		int vnum = obj_it->second->get_rnum();
 		for (AttachZonList::iterator it = celebrate->objsToAttach.begin(); it != celebrate->objsToAttach.end();++it)
 		{
 			if (it->second.find(vnum) != it->second.end())
@@ -561,7 +561,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 	for (const auto& mob : loaded_mobs_copy)
 	{
 		const auto rnum = mob->get_rnum();
-		const int vnum = mob_index[rnum].vnum;	
+		const int vnum = mob_index[rnum].vnum;
 		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
 		{
 			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
@@ -582,7 +582,7 @@ bool make_clean(CelebrateDataPtr celebrate)
 
 	for (obj_it = loaded_objs.begin(); obj_it != loaded_objs.end(); ++obj_it)
 	{
-		const int vnum = obj_it->second->get_rnum();	
+		const int vnum = obj_it->second->get_rnum();
 		for (CelebrateZonList::iterator rooms = celebrate->rooms.begin(); rooms != celebrate->rooms.end();++rooms)
 		{
 			for (CelebrateRoomsList::iterator room = rooms->second.begin(); room != rooms->second.end(); ++room)
@@ -625,7 +625,7 @@ void clear_real_celebrates(CelebrateList celebrates)
 	{
 		if (!it->second->celebrate->is_clean
 			&& !is_active(it, true)
-			&& it->second->last) 
+			&& it->second->last)
 		{
 			if (make_clean(it->second->celebrate))
 			{
@@ -642,7 +642,7 @@ void clear_mud_celebrates(CelebrateList celebrates)
 	{
 		if (!it->second->celebrate->is_clean
 			&& !is_active(it, false)
-			&& it->second->last) 
+			&& it->second->last)
 		{
 			if (make_clean(it->second->celebrate))
 			{

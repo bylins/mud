@@ -9,7 +9,7 @@
 #include "comm.h"
 #include "db.h"
 #include "olc.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "chars/char.hpp"
 #include "room.hpp"
 #include "help.hpp"

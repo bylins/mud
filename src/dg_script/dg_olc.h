@@ -1,5 +1,5 @@
 /**************************************************************************
-*  File: dg_olc.cpp                                      Part of Bylins   *
+*  File: trigedit.cpp                                      Part of Bylins   *
 *  Usage: this header file is used in extending Oasis style OLC for       *
 *  dg-scripts onto a CircleMUD that already has dg-scripts (as released   *
 *  by Mark Heilpern on 1/1/98) implemented.                               *
@@ -19,7 +19,7 @@
 
 #include "dg_scripts.h"
 
-// prototype exported functions from dg_olc.cpp
+// prototype exported functions from trigedit.cpp
 //void script_copy(void *dst, void *src, int type);
 void script_save_to_disk(FILE * fp, const void *item, int type);
 //void dg_olc_script_free(DESCRIPTOR_DATA *d);
@@ -33,7 +33,7 @@ void indent_trigger(std::string& cmd, int* level);
 
 #define NUM_TRIG_TYPE_FLAGS		26
 
-// * Submodes of TRIGEDIT connectedness.
+// * Submodes of DG_OLC connectedness.
 #define TRIGEDIT_MAIN_MENU              0
 #define TRIGEDIT_TRIGTYPE               1
 #define TRIGEDIT_CONFIRM_SAVESTRING	2

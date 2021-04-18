@@ -21,9 +21,9 @@
 #include "spell_parser.hpp"
 #include "spells.h"
 #include "mail.h"
-#include "boards.h"
+#include "boards/boards.h"
 #include "screen.h"
-#include "olc.h"
+#include "olc/olc.h"
 #include "features.hpp"
 #include "house.h"
 #include "privilege.hpp"
@@ -1012,7 +1012,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 				{
 					d->writer->clear();
 				}
-				
+
 				SEND_TO_Q("Сообщение прервано.\r\n", d);
 			}
 		}
@@ -1020,7 +1020,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 		if (d->character && !IS_NPC(d->character))
 		{
 			PLR_FLAGS(d->character).unset(PLR_WRITING);
-			
+
 			PLR_FLAGS(d->character).unset(PLR_MAILING);
 		}
 		if (d->backstr)
@@ -1028,7 +1028,7 @@ void string_add(DESCRIPTOR_DATA * d, char *str)
 			free(d->backstr);
 			d->backstr = nullptr;
 		}
-		
+
 		d->writer.reset();
 	}
 	else if (!action)

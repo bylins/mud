@@ -15,7 +15,7 @@
 #include "comm.h"
 #include "db.h"
 #include "handler.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "chars/char.hpp"
 #include "room.hpp"
 #include "corpse.hpp"
@@ -293,7 +293,7 @@ void generate_warrior_enchant(OBJ_DATA *obj)
 void generate_magic_enchant(OBJ_DATA *obj)
 {
 	const auto main_list = make_array<EApplyLocation>(
-		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT, APPLY_WIS, 
+		APPLY_STR, APPLY_DEX, APPLY_CON, APPLY_INT, APPLY_WIS,
 		APPLY_CHA, APPLY_AC, APPLY_DAMROLL, APPLY_AR, APPLY_MR);
 
 	const auto second_list = make_array<EApplyLocation>(

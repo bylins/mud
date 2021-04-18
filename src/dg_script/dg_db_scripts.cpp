@@ -29,7 +29,7 @@
 #include "interpreter.h"
 #include "room.hpp"
 #include "magic.h"
-#include "boards.h"
+#include "boards/boards.h"
 #include "logger.hpp"
 #include "utils.h"
 #include "structs.h"
@@ -222,11 +222,11 @@ void dg_obj_trigger(char *line, OBJ_DATA * obj)
 	if (owner_trig.find(vnum) == owner_trig.end())
 	{
 		owner_to_triggers_map_t tmp_map;
-		owner_trig.emplace(vnum, tmp_map);	
+		owner_trig.emplace(vnum, tmp_map);
 	}
 	add_trig_to_owner(-1, vnum, GET_OBJ_VNUM(obj));
 
-	
+
 	obj->add_proto_script(vnum);
 }
 

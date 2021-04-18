@@ -31,7 +31,7 @@
 #include "named_stuff.hpp"
 #include "room.hpp"
 #include "mail.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "features.hpp"
 #include "char_obj_utils.inl"
 #include "structs.h"
@@ -2384,9 +2384,9 @@ int Crash_load(CHAR_DATA * ch)
 		if (obj->get_timer() <= 0)
 		{
 			snprintf(buf, MAX_STRING_LENGTH, "%s%s%s рассыпал%s от длительного использования.\r\n",
-					 CCWHT(ch, C_NRM), 
-					 cap.c_str(), 
-					 char_get_custom_label(obj.get(), ch).c_str(), 
+					 CCWHT(ch, C_NRM),
+					 cap.c_str(),
+					 char_get_custom_label(obj.get(), ch).c_str(),
 					 GET_OBJ_SUF_2(obj));
 			send_to_char(buf, ch);
 			extract_obj(obj.get());

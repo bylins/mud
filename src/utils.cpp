@@ -26,7 +26,7 @@
 #include "interpreter.h"
 #include "constants.h"
 #include "im.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "features.hpp"
 #include "privilege.hpp"
 #include "chars/char.hpp"
@@ -2328,7 +2328,7 @@ size_t strlen_no_colors(const char *str)
 // Симуляция телла от моба
 void tell_to_char(CHAR_DATA *keeper, CHAR_DATA *ch, const char *arg)
 {
-	char local_buf[MAX_INPUT_LENGTH];	
+	char local_buf[MAX_INPUT_LENGTH];
 	if (AFF_FLAGGED(ch, EAffectFlag::AFF_DEAFNESS) || PRF_FLAGGED(ch, PRF_NOTELL)) {
 		sprintf(local_buf, "жестами показал$g на свой рот и уши. Ну его, болезного ..");
 		do_echo(keeper, local_buf, 0, SCMD_EMOTE);

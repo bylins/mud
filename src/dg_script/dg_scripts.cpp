@@ -49,7 +49,7 @@
 #include "debug.utils.hpp"
 #include "backtrace.hpp"
 #include "coredump.hpp"
-#include "olc.h"
+#include "olc/olc.h"
 #include "privilege.hpp"
 
 #define PULSES_PER_MUD_HOUR     (SECS_PER_MUD_HOUR*PASSES_PER_SEC)
@@ -2624,7 +2624,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 				}
 				else
 					sprintf(str, "%ld", GET_EXP(c));
-			}			
+			}
 		}
 		else if (!str_cmp(field, "sex"))
 			sprintf(str, "%d", (int)GET_SEX(c));
@@ -3686,7 +3686,7 @@ void find_replacement(void* go, SCRIPT_DATA* sc, TRIG_DATA* trig, int type, char
 					subfield[MAX_ROOM_NAME - 1] = '\0';
 				r->name = str_dup(subfield);
 			}
-			else 
+			else
 				strcpy(str, r->name);
 		}
 		else if (!str_cmp(field, "north"))

@@ -1,7 +1,7 @@
 #include "find.obj.id.by.vnum.hpp"
 
 #include "logger.hpp"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "world.objects.hpp"
 #include "chars/char.hpp"
 #include "obj.hpp"

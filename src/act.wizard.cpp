@@ -34,7 +34,7 @@
 #include "db.h"
 #include "depot.hpp"
 #include "description.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "ext_money.hpp"
 #include "fightsystem/fight.h"
 #include "fightsystem/pk.h"
@@ -58,7 +58,7 @@
 #include "noob.hpp"
 #include "obj.hpp"
 #include "object.prototypes.hpp"
-#include "olc.h"
+#include "olc/olc.h"
 #include "parcel.hpp"
 #include "password.hpp"
 #include "privilege.hpp"
@@ -3643,7 +3643,7 @@ void print_zone_to_buf(char **bufptr, zone_rnum zone)
 	snprintf(tmpstr, BUFFER_SIZE,
 		"%3d %-60.60s Средний уровень мобов: %2d; Type: %-20.20s; Age: %3d; Reset: %3d (%1d)(%1d)\r\n"
 		"    Top: %5d %s %s; ResetIdle: %s; Занято: %s; Активность: %.2f; Группа: %2d; Автор: %s, посещено после ребута: %d\r\n",
-		zone_table[zone].number, 
+		zone_table[zone].number,
 		zone_table[zone].name,
 		zone_table[zone].mob_level,
 		zone_types[zone_table[zone].type].name,
@@ -4433,7 +4433,7 @@ struct set_struct		/*
 	{"autobot",LVL_IMPL, PC, BINARY}, // 61
 	{"hryvn",LVL_IMPL, PC, NUMBER}, // 62
 	{"scriptwriter",LVL_IMPL, PC, BINARY}, // 63
-	{"spammer",LVL_GOD, PC, BINARY}, // 64	
+	{"spammer",LVL_GOD, PC, BINARY}, // 64
 	{"gloryhide",LVL_IMPL, PC, BINARY}, // 65
     {"telegram",LVL_IMPL, PC, MISC}, // 66
 	{"\n", 0, BOTH, MISC}
@@ -5196,7 +5196,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 	case 63: // флаг скриптера
 		sprintf(buf, "%s", GET_NAME(ch));
 		if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
-			PLR_FLAGS(vict).unset(PLR_SCRIPTWRITER); 
+			PLR_FLAGS(vict).unset(PLR_SCRIPTWRITER);
 			add_karma(vict, "Снятие флага скриптера", buf);
 			sprintf(buf, "%s убрал флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 			mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -5204,7 +5204,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		}
 		else
 			if (!str_cmp(val_arg, "on") || !str_cmp(val_arg, "вкл")) {
-				PLR_FLAGS(vict).set(PLR_SCRIPTWRITER); 
+				PLR_FLAGS(vict).set(PLR_SCRIPTWRITER);
 				add_karma(vict, "Установка флага скриптера", buf);
 				sprintf(buf, "%s установил  флаг скриптера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, LVL_IMMORT, SYSLOG, TRUE);
@@ -5229,7 +5229,7 @@ int perform_set(CHAR_DATA * ch, CHAR_DATA * vict, int mode, char *val_arg)
 		break;
 	}
 	case 66: { // идентификатор чата телеграма
-	
+
 		unsigned long int id = strtoul(val_arg, nullptr, 10);
 		if (!IS_NPC(ch) && id != 0) {
 			sprintf(buf, "Telegram chat_id изменен с %lu на %lu\r\n", vict->player_specials->saved.telegram_id, id);

@@ -16,7 +16,7 @@
 #include "handler.h"
 #include "fightsystem/pk.h"
 #include "screen.h"
-#include "boards.h"
+#include "boards/boards.h"
 #include "skills.h"
 #include "spells.h"
 #include "privilege.hpp"
@@ -210,7 +210,7 @@ void Clan::ClanReload(std::string index)
 				std::string name_buffer = (*clan)->abbrev;
 				CreateFileName(name_buffer);
 				if (name_buffer == index)
-				{					
+				{
 					Clan::ClanList.erase(clan);
 					break;
 				}
@@ -218,7 +218,7 @@ void Clan::ClanReload(std::string index)
 			Clan::ClanLoadSingle(index);
 		}
 	}
-	
+
 }
 
 // лоад отдельного клана из файла
@@ -1935,7 +1935,7 @@ void DoClanList(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			//if (clan->test_clan)
 				//sort_clan.insert(std::make_pair(0, clan));
 			sort_clan.insert(std::make_pair(clan->last_exp.get_exp(), clan));
-			
+
 
 		}
 
@@ -2124,7 +2124,7 @@ void Clan::SetPk(CHAR_DATA *ch, std::string buffer)
 	}
 
 	clan->get()->change_pk_status();
-	send_to_char(ch, "Статус дружины изменен.\r\n");	
+	send_to_char(ch, "Статус дружины изменен.\r\n");
 }
 
 bool char_to_pk_clan(CHAR_DATA *ch)
@@ -2965,7 +2965,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 	}
 
 	clan->set_rep(0);
-	clan->builtOn = 0; 
+	clan->builtOn = 0;
 	clan->exp = 0;
 	clan->clan_exp = 0;
 	clan->clan_level = 0;
@@ -2974,8 +2974,8 @@ void Clan::DestroyClan(Clan::shared_ptr clan)
 	clan->gold_tax_pct_ = 0;
 	clan->ingr_chest_room_rnum_ = 0;
 	clan->storehouse = 0;
-	clan->pkList.clear(); 
-	clan->frList.clear(); 
+	clan->pkList.clear();
+	clan->frList.clear();
 	OBJ_DATA *temp, *chest, *obj_next;
 	for (chest = world[real_room(clan->chest_room)]->contents; chest; chest = chest->get_next_content())
 	{

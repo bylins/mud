@@ -13,7 +13,7 @@
 #include "structs.h"
 #include "db.h"
 #include "interpreter.h"
-#include "boards.h"
+#include "boards/boards.h"
 #include "spells.h"
 
 #include <boost/tokenizer.hpp>

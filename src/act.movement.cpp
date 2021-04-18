@@ -26,7 +26,7 @@
 #include "skills.h"
 #include "house.h"
 #include "constants.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "screen.h"
 #include "fightsystem/pk.h"
 #include "fightsystem/mobact.hpp"
@@ -1294,16 +1294,16 @@ int find_door(CHAR_DATA* ch, const char *type, char *dir,  DOOR_SCMD scmd) {
 					//Дверь не имеет особых алиасов, аргумент соответствует двери
 					found = true;
 			}
-			// дверь найдена проверяем ейный статус. 
-			// скипуем попытку закрыть закрытую и открыть открытую. 
+			// дверь найдена проверяем ейный статус.
+			// скипуем попытку закрыть закрытую и открыть открытую.
 			// остальные статусы двери автоматом не проверяются.
 			if (found) {
-				if ((scmd == SCMD_OPEN && DOOR_IS_OPEN(ch, nullptr, door)) || 
+				if ((scmd == SCMD_OPEN && DOOR_IS_OPEN(ch, nullptr, door)) ||
 					(scmd == SCMD_CLOSE && DOOR_IS_CLOSED(ch, nullptr, door) ))
 					continue;
-				else 
+				else
 					return door;
-			}	
+			}
 		}
 		return (FD_DOORNAME_WRONG); //НЕПРАВИЛЬНО НАЗВАЛИ ДВЕРЬ БЕЗ УКАЗАНИЯ НАПРАВЛЕНИЯ
 	}
@@ -1411,8 +1411,8 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, DOOR_SCMD scmd)
 	if (!obj && ((other_room = EXIT(ch, door)->to_room()) != NOWHERE)) {
 		back = world[other_room]->dir_option[rev_dir[door]];
 		if (back) {
-			if ((back->to_room() != ch->in_room) 
-				|| ((EXITDATA(ch->in_room, door)->exit_info 
+			if ((back->to_room() != ch->in_room)
+				|| ((EXITDATA(ch->in_room, door)->exit_info
 					^ EXITDATA(other_room, rev_dir[door])->exit_info)
 					& (EX_ISDOOR | EX_CLOSED | EX_LOCKED))) {
 				back.reset();
@@ -1471,13 +1471,13 @@ void do_doorcmd(CHAR_DATA * ch, OBJ_DATA * obj, int door, DOOR_SCMD scmd)
 		if (back)
 			LOCK_DOOR(other_room, obj, rev_dir[door]);
 		if (!deaf)
-			send_to_char("*Щелк*\r\n", ch);	
+			send_to_char("*Щелк*\r\n", ch);
 		if (obj)
 		{
 			for (unsigned long i = 0; i < cases.size(); i++)
 			{
 				if (GET_OBJ_VNUM(obj) == cases[i].vnum)
-				{	
+				{
 					if (!deaf)
 						send_to_char("&GГде-то далеко наверху раздалась звонкая музыка.&n\r\n", ch);
 					// chance = cases[i].chance;

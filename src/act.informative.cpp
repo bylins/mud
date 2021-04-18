@@ -29,7 +29,7 @@
 #include "screen.h"
 #include "constants.h"
 #include "fightsystem/pk.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "mail.h"
 #include "parcel.hpp"
 #include "features.hpp"

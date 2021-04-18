@@ -14,7 +14,7 @@
 #include "db.h"
 #include "room.hpp"
 #include "spells.h"
-#include "dg_scripts.h"
+#include "dg_script/dg_scripts.h"
 #include "corpse.hpp"
 #include "house.h"
 #include "pk.h"
@@ -838,9 +838,9 @@ int get_extend_exp(int exp, CHAR_DATA * ch, CHAR_DATA * victim)
 	// если моб убивается первый раз, то повышаем экспу в несколько раз
 	// стимулируем изучение новых зон!
 	ch->send_to_TC(false, true, false,
-			"&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n", 
-			mob_proto[victim->get_rnum()].mob_specials.MaxFactor, 
-			exp, 
+			"&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
+			mob_proto[victim->get_rnum()].mob_specials.MaxFactor,
+			exp,
 			ch->mobmax_get(GET_MOB_VNUM(victim)));
 // все равно таблица корявая, учитываются только уникальные мобы и глючит
 /*
@@ -1211,7 +1211,7 @@ void alterate_object(OBJ_DATA * obj, int dam, int chance)
 		{
 			if (obj->get_worn_by())
 			{
-				snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U, не выдержав повреждений.", 
+				snprintf(buf, MAX_STRING_LENGTH, "$o%s рассыпал$U, не выдержав повреждений.",
 						char_get_custom_label(obj, obj->get_worn_by()).c_str());
 				act(buf, FALSE, obj->get_worn_by(), obj, 0, TO_CHAR);
 			}
