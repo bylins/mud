@@ -1337,7 +1337,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	sprinttype(GET_OBJ_TYPE(obj), item_types, buf1);
 	GET_OBJ_EXTRA(obj).sprintbits(extra_bits, buf2, ",",4);
 
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH, 
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -1369,7 +1369,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 
 	sprintbit(GET_OBJ_WEAR(obj), wear_bits, buf1);
 	obj->get_no_flags().sprintbits(no_bits, buf2, ",");
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH, 
 		"%sC%s) Одевается  : %s%s\r\n"
 		"%sD%s) Неудобен    : %s%s\r\n", grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	send_to_char(buf, d->character.get());
@@ -1377,7 +1377,7 @@ void oedit_disp_menu(DESCRIPTOR_DATA * d)
 	obj->get_anti_flags().sprintbits(anti_bits, buf1, ",",4);
 	obj->get_affect_flags().sprintbits(weapon_affects, buf2, ",",4);
 	const size_t gender = static_cast<size_t>(to_underlying(GET_OBJ_SEX(obj)));
-	sprintf(buf,
+	snprintf(buf, MAX_STRING_LENGTH, 
 		"%sE%s) Запрещен    : %s%s\r\n"
 		"%sF%s) Вес         : %s%8d   %sG%s) Цена        : %s%d\r\n"
 		"%sH%s) Рента(снято): %s%8d   %sI%s) Рента(одето): %s%d\r\n"
