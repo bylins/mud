@@ -3475,9 +3475,9 @@ void do_create(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 	else
 	{
 		if (subcmd == SCMD_RECIPE)
-			sprintf(buf, "Состав '%s' уже давно утерян.\r\n", arg);
+			snprintf(buf, MAX_INPUT_LENGTH, "Состав '%s' уже давно утерян.\r\n", arg);
 		else
-			sprintf(buf, "Создание '%s' доступно только Великим Богам.\r\n", arg);
+			snprintf(buf, MAX_INPUT_LENGTH, "Создание '%s' доступно только Великим Богам.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}

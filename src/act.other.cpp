@@ -1866,7 +1866,7 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 		case SCMD_QUAFF:
 			if (!(mag_item = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf2, "Окститесь, нет у вас %s.\r\n", arg);
+				snprintf(buf2, MAX_STRING_LENGTH, "Окститесь, нет у вас %s.\r\n", arg);
 				send_to_char(buf2, ch);
 				return;
 			}
@@ -1876,7 +1876,7 @@ void do_use(CHAR_DATA *ch, char *argument, int cmd, int subcmd)
 			if (!mag_item
 				|| GET_OBJ_TYPE(mag_item) != OBJ_DATA::ITEM_ENCHANT)
 			{
-				sprintf(buf2, "Возьмите в руку '%s' перед применением!\r\n", arg);
+				snprintf(buf2, MAX_STRING_LENGTH, "Возьмите в руку '%s' перед применением!\r\n", arg);
 				send_to_char(buf2, ch);
 				return;
 			}

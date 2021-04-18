@@ -58,7 +58,7 @@ void act(const char *str, int hide_invisible, CHAR_DATA * ch, const OBJ_DATA* ob
 
 inline void act(const char *str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj, const void *vict_obj, int type) {
 	act(str, hide_invisible, ch, obj, vict_obj, type, "");
-
+}
 inline void act(const std::stringstream& str, int hide_invisible, CHAR_DATA* ch, const OBJ_DATA* obj, const void *vict_obj, int type) {
 	act(str.str().c_str(), hide_invisible, ch, obj, vict_obj, type);
 }

@@ -1393,7 +1393,7 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int /*subcmd*/)
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 		{
-			sprintf(buf, "У вас нет ничего похожего на %s.\r\n", arg);
+			snprintf(buf, MAX_INPUT_LENGTH, "У вас нет ничего похожего на %s.\r\n", arg);
 			send_to_char(buf, ch);
 		}
 		else
@@ -1432,7 +1432,7 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int /*subcmd*/)
 			}
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg);
+				snprintf(buf, MAX_INPUT_LENGTH, "У вас нет ничего похожего на '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			while (obj)
@@ -1446,7 +1446,7 @@ void do_drop(CHAR_DATA *ch, char* argument, int/* cmd*/, int /*subcmd*/)
 		{
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У вас нет '%s'.\r\n", arg);
+				snprintf(buf, MAX_INPUT_LENGTH, "У вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			else
@@ -1608,7 +1608,7 @@ void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		}
 		else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 		{
-			sprintf(buf, "У вас нет '%s'.\r\n", arg);
+			snprintf(buf, MAX_INPUT_LENGTH, "У вас нет '%s'.\r\n", arg);
 			send_to_char(buf, ch);
 		}
 		else
@@ -1631,7 +1631,7 @@ void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		{
 			if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 			{
-				sprintf(buf, "У вас нет '%s'.\r\n", arg);
+				snprintf(buf, MAX_INPUT_LENGTH, "У вас нет '%s'.\r\n", arg);
 				send_to_char(buf, ch);
 			}
 			else
@@ -1647,7 +1647,7 @@ void do_give(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			if (!ch->carrying)
 				send_to_char("У вас ведь ничего нет.\r\n", ch);
 			else
-			{
+			{ 
 				bool has_items = false;
 				for (obj = ch->carrying; obj; obj = next_obj)
 				{
@@ -1715,7 +1715,7 @@ void do_fry(CHAR_DATA *ch, char *argument, int/* cmd*/, int /*subcmd*/)
 	}
 	if (!(meet = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У вас нет '%s'.\r\n", arg);
+		snprintf(buf, MAX_STRING_LENGTH, "У вас нет '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -1792,7 +1792,7 @@ void do_eat(CHAR_DATA *ch, char *argument, int/* cmd*/, int subcmd)
 
 	if (!(food = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У вас нет '%s'.\r\n", arg);
+		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -2347,7 +2347,7 @@ void do_wield(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		send_to_char("Вооружиться чем?\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "Вы не видите ничего похожего на \'%s\'.\r\n", arg);
+		snprintf(buf,  MAX_INPUT_LENGTH,"Вы не видите ничего похожего на \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 	}
 	else
@@ -2448,7 +2448,7 @@ void do_grab(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		send_to_char("Вы заорали : 'Держи его!!! Хватай его!!!'\r\n", ch);
 	else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg);
+		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет ничего похожего на '%s'.\r\n", arg);
 		send_to_char(buf, ch);
 	}
 	else
@@ -2598,7 +2598,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			if (!found)
 			{
-				sprintf(buf, "Вы не используете ни одного '%s'.\r\n", arg);
+				snprintf(buf, MAX_STRING_LENGTH, "Вы не используете ни одного '%s'.\r\n", arg);
 				send_to_char(buf, ch);
                                 return;
 			}
@@ -2629,7 +2629,7 @@ void do_remove(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			}
 			else
 			{
-				sprintf(buf, "Вы не используете '%s'.\r\n", arg);
+				snprintf(buf, MAX_INPUT_LENGTH, "Вы не используете '%s'.\r\n", arg);
 				send_to_char(buf, ch);
                                 return;
 			}
@@ -2668,7 +2668,7 @@ void do_upgrade(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У вас нет \'%s\'.\r\n", arg);
+		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
@@ -2820,7 +2820,7 @@ void do_armored(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У вас нет \'%s\'.\r\n", arg);
+		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	}
@@ -3441,7 +3441,7 @@ void do_repair(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)))
 	{
-		sprintf(buf, "У вас нет \'%s\'.\r\n", arg);
+		snprintf(buf, MAX_INPUT_LENGTH, "У вас нет \'%s\'.\r\n", arg);
 		send_to_char(buf, ch);
 		return;
 	};
@@ -3609,7 +3609,7 @@ void do_makefood(CHAR_DATA *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		obj = get_obj_in_list_vis(ch, arg, world[ch->in_room]->contents);
 		if (!obj)
 		{
-			sprintf(buf, "Вы не видите здесь '%s'.\r\n", arg);
+			snprintf(buf, MAX_INPUT_LENGTH, "Вы не видите здесь '%s'.\r\n", arg);
 			send_to_char(buf, ch);
 			return;
 		}
